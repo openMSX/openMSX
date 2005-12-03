@@ -89,18 +89,16 @@ public:
 	 * This read a byte from the given IO-port
 	 * @see MSXDevice::readIO()
 	 */
-	inline byte readIO(word prt, const EmuTime& time) {
-		byte port = (byte)prt;
-		return IO_In[port]->readIO(prt, time);
+	inline byte readIO(word port, const EmuTime& time) {
+		return IO_In[port & 0xFF]->readIO(port, time);
 	}
 
 	/**
 	 * This writes a byte to the given IO-port
 	 * @see MSXDevice::writeIO()
 	 */
-	inline void writeIO(word prt, byte value, const EmuTime& time) {
-		byte port = (byte)prt;
-		IO_Out[port]->writeIO(prt, value, time);
+	inline void writeIO(word port, byte value, const EmuTime& time) {
+		IO_Out[port & 0xFF]->writeIO(port, value, time);
 	}
 
 	/**

@@ -56,26 +56,25 @@ MSXMotherBoard::~MSXMotherBoard()
 {
 	powerSetting.detach(*this);
 
-	// Destroy emulated MSX machine.
-	int oldcnt, newcnt;
-	newcnt=0;
-	for (oldcnt = availableDevices.size() ; oldcnt > 0 ; oldcnt=newcnt) {
-		newcnt=0;
+	// delete all MSXDevices
+	bool cont = true;
+	while (!availableDevices.empty() && cont) {
+		cont = false;
+		bool progress = false;
 		for (Devices::iterator it = availableDevices.begin();
-				 it != availableDevices.end(); ++it) {
-			if (it->n > 0) 
-				++newcnt;
-			else {
+		     it != availableDevices.end(); ++it) {
+			if (it->n > 0) {
+				cont = true;
+			} else {
 				if (it->p) {
 					delete it->p;
-					it->p=NULL;
+					it->p = NULL;
+					progress = true;
 				}
 			}
 		}
-		if (newcnt == oldcnt)
-			break;
+		assert(progress);
 	}
-	assert(newcnt==0);
 	availableDevices.clear();
 }
 
@@ -495,10 +494,10 @@ string MSXMotherBoard::ResetCmd::help(const vector<string>& /*tokens*/) const
 	return "Resets the MSX.\n";
 }
 
-MSXDevice * MSXMotherBoard::lockDevice(const string & name)
+MSXDevice* MSXMotherBoard::lockDevice(const string& name)
 {
 	for (Devices::iterator it = availableDevices.begin();
-			 it != availableDevices.end(); ++it) {
+	     it != availableDevices.end(); ++it) {
 		if (it->p->getName() == name) {
 			++(it->n);
 			return it->p;
@@ -507,15 +506,16 @@ MSXDevice * MSXMotherBoard::lockDevice(const string & name)
 	return NULL;
 }
 
-void MSXMotherBoard::releaseDevice(const MSXDevice * dev)
+void MSXMotherBoard::releaseDevice(const MSXDevice* dev)
 {
 	for (Devices::iterator it = availableDevices.begin();
-			 it != availableDevices.end(); ++it) {
+	     it != availableDevices.end(); ++it) {
 		if (it->p == dev) {
 			--(it->n);
-			break;
+			return;
 		}
 	}
+	assert(false);
 }
 
 } // namespace openmsx

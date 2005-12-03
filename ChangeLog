@@ -1,5 +1,10 @@
 $Id$
 
+2005-12-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Small ADVRAM changes:
+	   - read device ID ("VDP") from config file
+	   - bring coding style in line with the rest of the openmsx code
+
 2005-12-03  Arnold Metselaar  <arnold@metse284.speed.planet.nl>
 	* MSXDevice(readIO, peekIO, writeIO): change type of port address 
 	  to word

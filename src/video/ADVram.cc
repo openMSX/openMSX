@@ -1,81 +1,85 @@
-// $id:$
-#include "MSXDevice.hh"
+// $Id$
+
 #include "ADVram.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 #include "MSXMotherBoard.hh"
-
-#include "openmsx.hh"
+#include "XMLElement.hh"
+#include "MSXException.hh"
+#include <algorithm>
 
 namespace openmsx {
-class EmuTime;
 
 ADVram::ADVram(MSXMotherBoard& motherBoard, const XMLElement& config,
-							 const EmuTime& time)
-	: MSXDevice(motherBoard, config, time), 
-		thevdp(0),
-		thevram(0),
-		base_addr(0),
-		planar(false)
-{}
+               const EmuTime& time)
+	: MSXDevice(motherBoard, config, time)
+	, vdp(NULL)
+	, vram(NULL)
+	, baseAddr(0)
+	, planar(false)
+{
+	reset(time);
+}
 
 ADVram::~ADVram()
 {
-	if (thevdp) {
-		getMotherBoard().releaseDevice(thevdp);
-		thevdp=0;
+	if (vdp) {
+		getMotherBoard().releaseDevice(vdp);
 	}
 }
 
 void ADVram::powerUp(const EmuTime& time)
 {
-	if (&time);
-	if (! thevdp) {
-		/* TODO: get the id for the vdp from the config-file
-			 XMLElement::Children vdpConfig;
-			 config.getChildren("vdp", vdpConfig);
-		*/
-		std::string vdpid="VDP";
-		MSXDevice *d=getMotherBoard().lockDevice(vdpid);
-		thevdp=dynamic_cast<VDP *>(d);
+	if (!vdp) {
+		std::string vdpId = deviceConfig.getChildData("vdp");
+		vdp = dynamic_cast<VDP*>(getMotherBoard().lockDevice(vdpId));
+		if (!vdp) {
+			throw FatalError("No device with name \"" + vdpId +
+			                 "\" found (or not a VDP device).");
+		}
+		vram = &vdp->getVRAM();
+		mask = std::min(vram->getSize(), 128u * 1024) - 1;
 	}
-	thevram=&(thevdp->getVRAM());
-	mask=thevram->getSize();
-	if (mask==192*1024)
-		mask=128*1024;
-	--mask;
+	reset(time);
 }
 
-byte ADVram::readIO(word port, const EmuTime& /*time*/ )
+void ADVram::reset(const EmuTime& /*time*/)
+{
+	// TODO figure out exactly what happens during reset
+	baseAddr = 0;
+	planar = false;
+}
+
+byte ADVram::readIO(word port, const EmuTime& /*time*/)
 {
 	// ADVram only gets 'read's from 0x9A
-	planar=((port&0x100) != 0);
+	planar = ((port & 0x100) != 0);
 	return 0xFF;
 }
 
-void ADVram::writeIO(word /*port*/ , byte value, const EmuTime& /*time*/ )
+void ADVram::writeIO(word /*port*/, byte value, const EmuTime& /*time*/)
 {
 	// set mapper register 
-  base_addr=(value&0x07)<<14;
+	baseAddr = (value & 0x07) << 14;
+}
+
+unsigned ADVram::calcAddress(word address) const
+{
+	unsigned addr = (address & 0x3FFF) | baseAddr;
+	if (planar) {
+		addr = ((addr & 1) << 16) | (addr >> 1);
+	}
+	return addr & mask;
 }
 
 byte ADVram::readMem(word address, const EmuTime& time)
 {
-  int addr = (address & 0x3FFF) | base_addr;
-  if (planar)
-		addr = ((addr&1)<<16) + (addr>>1);
-  
-	return thevram->cpuRead(addr&mask, time);
+	return vram->cpuRead(calcAddress(address), time);
 }
 
 void ADVram::writeMem(word address, byte value, const EmuTime& time)
 {
-  int addr = (address & 0x3FFF) | base_addr;
-  if (planar)
-		addr = ((addr&1)<<16) + (addr>>1);
-  
-	thevram->cpuWrite(addr&mask, value, time);
+	vram->cpuWrite(calcAddress(address), value, time);
 }
 
-
-}
+} // namespace openmsx

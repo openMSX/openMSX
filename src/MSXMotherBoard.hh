@@ -112,16 +112,18 @@ public:
 	FilePool& getFilePool();
 
 	/** Finds an MSXDevice and increments the reference counter for it.
-	 * releaseDevice must be called when the device will no longer be
-	 * used by the caller.  
-	 * @Param name The name of the device as returned by getName() 
-	 * @Return A pointer to the device or NULL if the device could not be found.
-	 */
-	MSXDevice * lockDevice(const std::string & name);
-  /** Decrement the reference counter for a device.
-	 * @Param dev A pointer previously returned by lockDevice()
-	 */
-	void releaseDevice(const MSXDevice *dev);
+	  * releaseDevice must be called when the device will no longer be
+	  * used by the caller.  
+	  * @Param name The name of the device as returned by getName() 
+	  * @Return A pointer to the device or NULL if the device could not
+	  *         be found.
+	  */
+	MSXDevice* lockDevice(const std::string& name);
+
+	/** Decrement the reference counter for a device.
+	  * @Param dev A pointer previously returned by lockDevice()
+	  */
+	void releaseDevice(const MSXDevice* dev);
 
 private:
 	// Observer<Setting>
@@ -135,13 +137,11 @@ private:
 
 	void createDevices(const XMLElement& elem);
 
-	class XDevice {
-	public:
-		explicit XDevice(MSXDevice *_p): p(_p), n(0) {} 
-		MSXDevice *p;
-		int n;
-	} ;
-
+	struct XDevice {
+		explicit XDevice(MSXDevice* _p): p(_p), n(0) {} 
+		MSXDevice* p;
+		unsigned n;
+	};
 	typedef std::vector<XDevice> Devices;
 	Devices availableDevices;
 
