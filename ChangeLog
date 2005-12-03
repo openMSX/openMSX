@@ -1,5 +1,12 @@
 $Id$
 
+2005-12-03  Arnold Metselaar  <arnold@metse284.speed.planet.nl>
+	* MSXDevice(readIO, peekIO, writeIO): change type of port address 
+	  to word
+	* MSXMotherBoard: add methods lockDevice and releaseDevice to allow 
+	  interdepencency of devices
+	* ADVram: new extension
+
 2005-12-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Handle scaleBlank() via Scaler::scaleImage():
 	   - allows to fix the "[1057836] Infinite plasma logo" bug
