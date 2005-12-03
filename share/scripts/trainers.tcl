@@ -13,8 +13,8 @@
 # although the definition of cheating is mostly negative 
 # this time i turned it into something fun.
 #
-# openmsx is made to work together with ips patches. albert has some ips
-# patches ready at http://ips.msx.nu/ for even more chatting ;)
+# openmsx is made to work together with ips patches. Albert has some ips
+# patches ready at http://ips.tni.nl/ for even more chatting ;)
 #
 # please cheat responsible!
 
