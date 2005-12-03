@@ -7,6 +7,7 @@
 #include "Command.hh"
 #include <memory>
 #include <vector>
+#include <string>
 
 namespace openmsx {
 
@@ -40,6 +41,7 @@ class FilePool;
 class BooleanSetting;
 class EmuTime;
 class Setting;
+
 
 class MSXMotherBoard : private Observer<Setting>
 {
@@ -109,6 +111,18 @@ public:
 	FileManipulator& getFileManipulator();
 	FilePool& getFilePool();
 
+	/** Finds an MSXDevice and increments the reference counter for it.
+	 * releaseDevice must be called when the device will no longer be
+	 * used by the caller.  
+	 * @Param name The name of the device as returned by getName() 
+	 * @Return A pointer to the device or NULL if the device could not be found.
+	 */
+	MSXDevice * lockDevice(const std::string & name);
+  /** Decrement the reference counter for a device.
+	 * @Param dev A pointer previously returned by lockDevice()
+	 */
+	void releaseDevice(const MSXDevice *dev);
+
 private:
 	// Observer<Setting>
 	virtual void update(const Setting& setting);
@@ -121,7 +135,14 @@ private:
 
 	void createDevices(const XMLElement& elem);
 
-	typedef std::vector<MSXDevice*> Devices;
+	class XDevice {
+	public:
+		explicit XDevice(MSXDevice *_p): p(_p), n(0) {} 
+		MSXDevice *p;
+		int n;
+	} ;
+
+	typedef std::vector<XDevice> Devices;
 	Devices availableDevices;
 
 	bool powered;

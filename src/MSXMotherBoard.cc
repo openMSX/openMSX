@@ -57,10 +57,25 @@ MSXMotherBoard::~MSXMotherBoard()
 	powerSetting.detach(*this);
 
 	// Destroy emulated MSX machine.
-	for (Devices::iterator it = availableDevices.begin();
-	     it != availableDevices.end(); ++it) {
-		delete *it;
+	int oldcnt, newcnt;
+	newcnt=0;
+	for (oldcnt = availableDevices.size() ; oldcnt > 0 ; oldcnt=newcnt) {
+		newcnt=0;
+		for (Devices::iterator it = availableDevices.begin();
+				 it != availableDevices.end(); ++it) {
+			if (it->n > 0) 
+				++newcnt;
+			else {
+				if (it->p) {
+					delete it->p;
+					it->p=NULL;
+				}
+			}
+		}
+		if (newcnt == oldcnt)
+			break;
 	}
+	assert(newcnt==0);
 	availableDevices.clear();
 }
 
@@ -352,7 +367,7 @@ void MSXMotherBoard::unpause()
 
 void MSXMotherBoard::addDevice(std::auto_ptr<MSXDevice> device)
 {
-	availableDevices.push_back(device.release());
+	availableDevices.push_back(XDevice(device.release()));
 }
 
 void MSXMotherBoard::scheduleReset()
@@ -366,7 +381,7 @@ void MSXMotherBoard::doReset(const EmuTime& time)
 	getCPUInterface().reset();
 	for (Devices::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
-		(*it)->reset(time);
+		(*it).p->reset(time);
 	}
 	getCPU().doReset(time);
 }
@@ -389,7 +404,7 @@ void MSXMotherBoard::powerUp()
 	getCPUInterface().reset();
 	for (Devices::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
-		(*it)->powerUp(time);
+		(*it).p->powerUp(time);
 	}
 	getCPU().doReset(time);
 	getMixer().unmute();
@@ -418,7 +433,7 @@ void MSXMotherBoard::doPowerDown(const EmuTime& time)
 
 	for (Devices::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
-		(*it)->powerDown(time);
+		(*it).p->powerDown(time);
 	}
 }
 
@@ -478,6 +493,29 @@ string MSXMotherBoard::ResetCmd::execute(const vector<string>& /*tokens*/)
 string MSXMotherBoard::ResetCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "Resets the MSX.\n";
+}
+
+MSXDevice * MSXMotherBoard::lockDevice(const string & name)
+{
+	for (Devices::iterator it = availableDevices.begin();
+			 it != availableDevices.end(); ++it) {
+		if (it->p->getName() == name) {
+			++(it->n);
+			return it->p;
+		}
+	}
+	return NULL;
+}
+
+void MSXMotherBoard::releaseDevice(const MSXDevice * dev)
+{
+	for (Devices::iterator it = availableDevices.begin();
+			 it != availableDevices.end(); ++it) {
+		if (it->p == dev) {
+			--(it->n);
+			break;
+		}
+	}
 }
 
 } // namespace openmsx
