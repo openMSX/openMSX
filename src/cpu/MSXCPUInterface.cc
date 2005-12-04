@@ -647,7 +647,9 @@ TurborCPUInterface::~TurborCPUInterface()
 
 void TurborCPUInterface::register_IO_In(byte port, MSXDevice* device)
 {
-	if ((0x98 <= port) && (port <= 0x9B)) {
+	// IN A,(0x9A) affects advram, not the VDP
+	// TODO: find out whether IN A,(0x9A) is delayed in a turboR
+	if ((0x98 <= port) && (port <= 0x99)) {
 		device = getDelayDevice(*device);
 	}
 	MSXCPUInterface::register_IO_In(port, device);
@@ -655,7 +657,7 @@ void TurborCPUInterface::register_IO_In(byte port, MSXDevice* device)
 
 void TurborCPUInterface::unregister_IO_In(byte port, MSXDevice* device)
 {
-	if ((0x98 <= port) && (port <= 0x9B)) {
+	if ((0x98 <= port) && (port <= 0x99)) {
 		device = getDelayDevice(*device);
 	}
 	MSXCPUInterface::unregister_IO_In(port, device);

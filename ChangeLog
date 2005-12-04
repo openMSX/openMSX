@@ -1,5 +1,8 @@
 $Id$
 
+2005-12-04  Arnold Metselaar  <arnold@metse284.speed.planet.nl>
+	* fix assert when using advram on turboR
+
 2005-12-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Small ADVRAM changes:
 	   - read device ID ("VDP") from config file
