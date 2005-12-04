@@ -3,8 +3,10 @@
 #include "VDPIODelay.hh"
 #include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
+#include "DummyDevice.hh"
 #include "FileContext.hh"
 #include "XMLElement.hh"
+#include <cassert>
 
 namespace openmsx {
 
@@ -21,34 +23,49 @@ const XMLElement& getConfig()
 	return deviceElem;
 }
 
-VDPIODelay::VDPIODelay(MSXMotherBoard& motherboard, MSXDevice& device_,
-                       const EmuTime& time)
+VDPIODelay::VDPIODelay(MSXMotherBoard& motherboard, const EmuTime& time)
 	: MSXDevice(motherboard, getConfig(), time)
 	, cpu(motherBoard.getCPU())
-	, device(device_)
 {
+	for (int port = 0x098; port <= 0x9B; ++port) {
+		getInDevicePtr (port) = &motherBoard.getDummyDevice();
+		getOutDevicePtr(port) = &motherBoard.getDummyDevice();
+	}
+}
+
+const MSXDevice& VDPIODelay::getInDevice(byte port) const
+{
+	assert((0x98 <= port) && (port <= 0x9B));
+	return *inDevices[port - 0x98];
+}
+
+MSXDevice*& VDPIODelay::getInDevicePtr(byte port)
+{
+	assert((0x98 <= port) && (port <= 0x9B));
+	return inDevices[port - 0x98];
+}
+
+MSXDevice*& VDPIODelay::getOutDevicePtr(byte port)
+{
+	assert((0x98 <= port) && (port <= 0x9B));
+	return outDevices[port - 0x98];
 }
 
 byte VDPIODelay::readIO(word port, const EmuTime& time)
 {
 	delay(time);
-	return device.readIO(port, lastTime.getTime());
+	return getInDevicePtr(port)->readIO(port, lastTime.getTime());
 }
 
 byte VDPIODelay::peekIO(word port, const EmuTime& time) const
 {
-	return device.peekIO(port, time);
+	return getInDevice(port).peekIO(port, time);
 }
 
 void VDPIODelay::writeIO(word port, byte value, const EmuTime& time)
 {
 	delay(time);
-	device.writeIO(port, value, lastTime.getTime());
-}
-
-const MSXDevice& VDPIODelay::getDevice() const
-{
-	return device;
+	getOutDevicePtr(port)->writeIO(port, value, lastTime.getTime());
 }
 
 void VDPIODelay::delay(const EmuTime& time)

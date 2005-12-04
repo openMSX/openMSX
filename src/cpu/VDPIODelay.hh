@@ -13,20 +13,22 @@ class MSXCPU;
 class VDPIODelay : public MSXDevice
 {
 public:
-	VDPIODelay(MSXMotherBoard& motherboard, MSXDevice& device,
-	           const EmuTime& time);
+	VDPIODelay(MSXMotherBoard& motherboard, const EmuTime& time);
 
 	virtual byte readIO(word port, const EmuTime& time);
 	virtual byte peekIO(word port, const EmuTime& time) const;
 	virtual void writeIO(word port, byte value, const EmuTime& time);
 
-	const MSXDevice& getDevice() const;
+	const MSXDevice& getInDevice(byte port) const;
+	MSXDevice*& getInDevicePtr (byte port);
+	MSXDevice*& getOutDevicePtr(byte port);
 
 private:
 	void delay(const EmuTime& time);
 
 	MSXCPU& cpu;
-	MSXDevice& device;
+	MSXDevice* inDevices[4];
+	MSXDevice* outDevices[4];
 	/** Remembers the time at which last VDP I/O action took place. */
 	Clock<7159090> lastTime;
 };

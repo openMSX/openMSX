@@ -107,11 +107,14 @@ void MSXCPUInterface::register_IO_In(byte port, MSXDevice* device)
 {
 	PRT_DEBUG(device->getName() << " registers In-port " <<
 	          std::hex << (int)port << std::dec);
-	if (IO_In[port] == &dummyDevice) {
+	MSXDevice*& devicePtr = (IO_In[port] == delayDevice.get())
+	                      ? delayDevice->getInDevicePtr(port)
+	                      : IO_In[port];
+	if (devicePtr == &dummyDevice) {
 		// first
-		IO_In[port] = device;
+		devicePtr = device;
 	} else {
-		MSXDevice* dev2 = IO_In[port];
+		MSXDevice* dev2 = devicePtr;
 		if (multiIn.find(port) == multiIn.end()) {
 			// second
 			MSXMultiIODevice* multi =
@@ -119,7 +122,7 @@ void MSXCPUInterface::register_IO_In(byte port, MSXDevice* device)
 			multiIn.insert(port);
 			multi->addDevice(dev2);
 			multi->addDevice(device);
-			IO_In[port] = multi;
+			devicePtr = multi;
 			dev2 = multi;
 		} else {
 			// third or more
@@ -134,17 +137,20 @@ void MSXCPUInterface::register_IO_In(byte port, MSXDevice* device)
 
 void MSXCPUInterface::unregister_IO_In(byte port, MSXDevice* device)
 {
+	MSXDevice*& devicePtr = (IO_In[port] == delayDevice.get())
+	                      ? delayDevice->getInDevicePtr(port)
+	                      : IO_In[port];
 	if (multiIn.find(port) == multiIn.end()) {
-		assert(IO_In[port] == device);
-		IO_In[port] = &dummyDevice;
+		assert(devicePtr == device);
+		devicePtr = &dummyDevice;
 	} else {
-		assert(dynamic_cast<MSXMultiIODevice*>(IO_In[port]));
+		assert(dynamic_cast<MSXMultiIODevice*>(devicePtr));
 		MSXMultiIODevice* multi =
-			static_cast<MSXMultiIODevice*>(IO_In[port]);
+			static_cast<MSXMultiIODevice*>(devicePtr);
 		multi->removeDevice(device);
 		MSXMultiIODevice::Devices& devices = multi->getDevices();
 		if (devices.size() == 1) {
-			IO_In[port] = devices.front();
+			devicePtr = devices.front();
 			devices.pop_back();
 			delete multi;
 			multiIn.erase(port);
@@ -156,11 +162,14 @@ void MSXCPUInterface::register_IO_Out(byte port, MSXDevice* device)
 {
 	PRT_DEBUG(device->getName() << " registers Out-port " <<
 	          std::hex << (int)port << std::dec);
-	if (IO_Out[port] == &dummyDevice) {
+	MSXDevice*& devicePtr = (IO_Out[port] == delayDevice.get())
+	                      ? delayDevice->getOutDevicePtr(port)
+	                      : IO_Out[port];
+	if (devicePtr == &dummyDevice) {
 		// first
-		IO_Out[port] = device;
+		devicePtr = device;
 	} else {
-		MSXDevice* dev2 = IO_Out[port];
+		MSXDevice* dev2 = devicePtr;
 		if (multiOut.find(port) == multiOut.end()) {
 			// second
 			MSXMultiIODevice* multi =
@@ -168,7 +177,7 @@ void MSXCPUInterface::register_IO_Out(byte port, MSXDevice* device)
 			multiOut.insert(port);
 			multi->addDevice(dev2);
 			multi->addDevice(device);
-			IO_Out[port] = multi;
+			devicePtr = multi;
 		} else {
 			// third or more
 			static_cast<MSXMultiIODevice*>(dev2)->addDevice(device);
@@ -178,17 +187,20 @@ void MSXCPUInterface::register_IO_Out(byte port, MSXDevice* device)
 
 void MSXCPUInterface::unregister_IO_Out(byte port, MSXDevice* device)
 {
+	MSXDevice*& devicePtr = (IO_Out[port] == delayDevice.get())
+	                      ? delayDevice->getOutDevicePtr(port)
+	                      : IO_Out[port];
 	if (multiOut.find(port) == multiOut.end()) {
-		assert(IO_Out[port] == device);
-		IO_Out[port] = &dummyDevice;
+		assert(devicePtr == device);
+		devicePtr = &dummyDevice;
 	} else {
-		assert(dynamic_cast<MSXMultiIODevice*>(IO_Out[port]));
+		assert(dynamic_cast<MSXMultiIODevice*>(devicePtr));
 		MSXMultiIODevice* multi =
-			static_cast<MSXMultiIODevice*>(IO_Out[port]);
+			static_cast<MSXMultiIODevice*>(devicePtr);
 		multi->removeDevice(device);
 		MSXMultiIODevice::Devices& devices = multi->getDevices();
 		if (devices.size() == 1) {
-			IO_Out[port] = devices.front();
+			devicePtr = devices.front();
 			devices.pop_back();
 			delete multi;
 			multiOut.erase(port);
@@ -639,54 +651,24 @@ string MSXCPUInterface::IOMapCmd::help(const vector<string>& /*tokens*/) const
 TurborCPUInterface::TurborCPUInterface(MSXMotherBoard& motherBoard)
 	: MSXCPUInterface(motherBoard)
 {
+	delayDevice.reset(new VDPIODelay(motherBoard, EmuTime::zero));
+
+	for (int port = 0x98; port <= 0x9B; ++port) {
+		assert(IO_In [port] == &dummyDevice);
+		assert(IO_Out[port] == &dummyDevice);
+		IO_In [port] = delayDevice.get();
+		IO_Out[port] = delayDevice.get();
+	}
 }
 
 TurborCPUInterface::~TurborCPUInterface()
 {
-}
-
-void TurborCPUInterface::register_IO_In(byte port, MSXDevice* device)
-{
-	// IN A,(0x9A) affects advram, not the VDP
-	// TODO: find out whether IN A,(0x9A) is delayed in a turboR
-	if ((0x98 <= port) && (port <= 0x99)) {
-		device = getDelayDevice(*device);
+	for (int port = 0x98; port <= 0x9B; ++port) {
+		assert(IO_In [port] == delayDevice.get());
+		assert(IO_Out[port] == delayDevice.get());
+		IO_In [port] = &dummyDevice;
+		IO_Out[port] = &dummyDevice;
 	}
-	MSXCPUInterface::register_IO_In(port, device);
-}
-
-void TurborCPUInterface::unregister_IO_In(byte port, MSXDevice* device)
-{
-	if ((0x98 <= port) && (port <= 0x99)) {
-		device = getDelayDevice(*device);
-	}
-	MSXCPUInterface::unregister_IO_In(port, device);
-}
-
-void TurborCPUInterface::register_IO_Out(byte port, MSXDevice* device)
-{
-	if ((0x98 <= port) && (port <= 0x9B)) {
-		device = getDelayDevice(*device);
-	}
-	MSXCPUInterface::register_IO_Out(port, device);
-}
-
-void TurborCPUInterface::unregister_IO_Out(byte port, MSXDevice* device)
-{
-	if ((0x98 <= port) && (port <= 0x9B)) {
-		device = getDelayDevice(*device);
-	}
-	MSXCPUInterface::unregister_IO_Out(port, device);
-}
-
-MSXDevice* TurborCPUInterface::getDelayDevice(MSXDevice& device)
-{
-	if (!delayDevice.get()) {
-		delayDevice.reset(new VDPIODelay(device.getMotherBoard(),
-		                                 device, EmuTime::zero));
-	}
-	assert(&delayDevice->getDevice() == &device);
-	return delayDevice.get();
 }
 
 } // namespace openmsx

@@ -279,24 +279,17 @@ private:
 	DummyDevice& dummyDevice;
 	MSXCPU& msxcpu;
 	CliComm& cliCommOutput;
+
+	std::auto_ptr<VDPIODelay> delayDevice;
+	friend class TurborCPUInterface;
 };
 
 class TurborCPUInterface : public MSXCPUInterface
 {
-public:
-	virtual void register_IO_In(byte port, MSXDevice* device);
-	virtual void unregister_IO_In(byte port, MSXDevice* device);
-	virtual void register_IO_Out(byte port, MSXDevice* device);
-	virtual void unregister_IO_Out(byte port, MSXDevice* device);
-
 private:
 	explicit TurborCPUInterface(MSXMotherBoard& motherBoard);
 	virtual ~TurborCPUInterface();
 	friend class MSXCPUInterface;
-
-	MSXDevice* getDelayDevice(MSXDevice& device);
-
-	std::auto_ptr<VDPIODelay> delayDevice;
 };
 
 } // namespace openmsx

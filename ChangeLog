@@ -1,5 +1,10 @@
 $Id$
 
+2005-12-04 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Readd delay on turboR on ports 0x9A and 0x9B:
+	   - fixes previous fix for assert on turbor with advram
+	   - also prepared code to later add delays on other ports
+
 2005-12-04  Arnold Metselaar  <arnold@metse284.speed.planet.nl>
 	* change advram to emulate a newer version that can be switched 
 	  on and off by software
