@@ -11,7 +11,7 @@ class EmuTime;
 class VDP;
 class VDPVRAM;
 
-/** Implemntation of direct cpu access to VRAM.  ADVram (Accesso
+/** Implementation of direct cpu access to VRAM.  ADVram (Accesso
   * Direito \`a Vram is a rare hardware modification that allows the
   * CPU to access the video ram in the same way as ordinary ram. 
   */
@@ -35,7 +35,7 @@ private:
 	VDPVRAM* vram;
 	unsigned mask;
 	unsigned baseAddr;
-	bool planar;
+	bool enabled, planar;
 };
 
 } // namespace openmsx

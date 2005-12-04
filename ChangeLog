@@ -1,6 +1,8 @@
 $Id$
 
 2005-12-04  Arnold Metselaar  <arnold@metse284.speed.planet.nl>
+	* change advram to emulate a newer version that can be switched 
+	  on and off by software
 	* fix assert when using advram on turboR
 
 2005-12-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
