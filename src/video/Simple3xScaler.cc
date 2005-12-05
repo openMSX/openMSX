@@ -51,16 +51,13 @@ void Simple3xScaler<Pixel>::doScale1(FrameSource& src,
 
 		prevDstLine0 = dstLine0;
 	}
-	// When interlace is enabled, the bottom line can fall off the screen.
-	if ((y + 2) < dstEndY) {
-		const Pixel* srcLine = src.getLinePtr(srcStartY, srcWidth, dummy);
-		Pixel buf[960];
-		scale(srcLine, buf, 960);
+	srcLine = src.getLinePtr(srcStartY, srcWidth, dummy);
+	Pixel buf[960];
+	scale(srcLine, buf, 960);
 
-		Pixel* dstLine2 = dst.getLinePtr(y + 2, dummy);
-		scanline.draw(prevDstLine0, buf, dstLine2,
-		              scanlineFactor, 960);
-	}
+	Pixel* dstLine2 = dst.getLinePtr(y + 2, dummy);
+	scanline.draw(prevDstLine0, buf, dstLine2,
+		      scanlineFactor, 960);
 }
 
 

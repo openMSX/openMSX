@@ -288,9 +288,8 @@ void SaI2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	const Pixel* srcLine2 = src.getLinePtr(srcY + 1, srcWidth, dummy);
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
 		const Pixel* srcLine3 = src.getLinePtr(srcY + 2, srcWidth, dummy);
-		Pixel* dstUpper = dst.getLinePtr(dstY, dummy);
-		Pixel* dstLower = dst.getLinePtr(
-			std::min(dstY + 1, dstEndY - 1), dummy);
+		Pixel* dstUpper = dst.getLinePtr(dstY + 0, dummy);
+		Pixel* dstLower = dst.getLinePtr(dstY + 1, dummy);
 		scaleLine256(srcLine0, srcLine1, srcLine2, srcLine3,
 		             dstUpper, dstLower);
 		srcLine0 = srcLine1;
@@ -313,9 +312,8 @@ void SaI2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	const Pixel* srcLine2 = src.getLinePtr(srcY + 1, srcWidth, dummy);
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
 		const Pixel* srcLine3 = src.getLinePtr(srcY + 2, srcWidth, dummy);
-		Pixel* dstUpper = dst.getLinePtr(dstY, dummy);
-		Pixel* dstLower = dst.getLinePtr(
-			std::min(dstY + 1, dstEndY - 1), dummy);
+		Pixel* dstUpper = dst.getLinePtr(dstY + 0, dummy);
+		Pixel* dstLower = dst.getLinePtr(dstY + 1, dummy);
 		scaleLine512(srcLine0, srcLine1, srcLine2, srcLine3,
 		             dstUpper, dstLower);
 		srcLine0 = srcLine1;

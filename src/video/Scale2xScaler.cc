@@ -17,9 +17,6 @@ Visit the Scale2x site for info:
 #include "OutputSurface.hh"
 #include "HostCPU.hh"
 #include "openmsx.hh"
-#include <algorithm>
-
-using std::min;
 
 namespace openmsx {
 
@@ -1099,7 +1096,6 @@ void Scale2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 		const Pixel* srcNext = src.getLinePtr(srcY + 1, srcWidth, dummy);
 		Pixel* dstUpper = dst.getLinePtr(dstY + 0, dummy);
 		scaleLine256Half(dstUpper, srcPrev, srcCurr, srcNext);
-		if ((dstY + 1) == dstEndY) break;
 		Pixel* dstLower = dst.getLinePtr(dstY + 1, dummy);
 		scaleLine256Half(dstLower, srcNext, srcCurr, srcPrev);
 		srcPrev = srcCurr;
@@ -1120,7 +1116,6 @@ void Scale2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 		const Pixel* srcNext = src.getLinePtr(srcY + 1, srcWidth, dummy);
 		Pixel* dstUpper = dst.getLinePtr(dstY + 0, dummy);
 		scaleLine512Half(dstUpper, srcPrev, srcCurr, srcNext);
-		if ((dstY + 1) == dstEndY) break;
 		Pixel* dstLower = dst.getLinePtr(dstY + 1, dummy);
 		scaleLine512Half(dstLower, srcNext, srcCurr, srcPrev);
 		srcPrev = srcCurr;

@@ -61,7 +61,6 @@ static void doScale1(FrameSource& src,
 		const Pixel* srcLine = src.getLinePtr(srcStartY, srcWidth, dummy);
 		Pixel* dstLine1 = dst.getLinePtr(y + 0, dummy);
 		scale(srcLine, dstLine1, 640);
-		if ((y + 1) == dstEndY) break;
 		Pixel* dstLine2 = dst.getLinePtr(y + 1, dummy);
 		if (IsTagged<ScaleOp, Streaming>::result) {
 			scale(srcLine, dstLine2, 640);

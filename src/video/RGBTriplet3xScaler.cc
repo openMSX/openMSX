@@ -93,9 +93,8 @@ void RGBTriplet3xScaler<Pixel>::doScale1(FrameSource& src,
 		rgbify(tmp, prevDstLine0, 320);
 	}
 
-
 	Scale_1on1<Pixel> copy;
-	Pixel* dstLine1     = dst.getLinePtr(y + 1, dummy);
+	Pixel* dstLine1 = dst.getLinePtr(y + 1, dummy);
 	copy(prevDstLine0, dstLine1, 960);
 
 	for (/* */; (y + 4) < dstEndY; y += 3, srcStartY += 1) {
@@ -118,21 +117,17 @@ void RGBTriplet3xScaler<Pixel>::doScale1(FrameSource& src,
 		prevDstLine0 = dstLine0;
 	}
 
-	// When interlace is enabled, the bottom line can fall off the screen.
-	if ((y + 2) < dstEndY) {
-		const Pixel* srcLine = src.getLinePtr(srcStartY, srcWidth, dummy);
-		Pixel buf[960];
-		if (IsTagged<ScaleOp, Copy>::result) {
-			rgbify(srcLine, buf, 320);
-		} else {
-			scale(srcLine, tmp, 320);
-			rgbify(tmp, buf, 320);
-		}
-
-		Pixel* dstLine2 = dst.getLinePtr(y + 2, dummy);
-		scanline.draw(prevDstLine0, buf, dstLine2,
-		              scanlineFactor, 960);
+	srcLine = src.getLinePtr(srcStartY, srcWidth, dummy);
+	Pixel buf[960];
+	if (IsTagged<ScaleOp, Copy>::result) {
+		rgbify(srcLine, buf, 320);
+	} else {
+		scale(srcLine, tmp, 320);
+		rgbify(tmp, buf, 320);
 	}
+	Pixel* dstLine2 = dst.getLinePtr(y + 2, dummy);
+	scanline.draw(prevDstLine0, buf, dstLine2,
+		      scanlineFactor, 960);
 }
 
 template <class Pixel>

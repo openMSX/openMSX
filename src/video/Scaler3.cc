@@ -72,7 +72,6 @@ static void doScale1(FrameSource& src,
 		Pixel* dstLine0 = dst.getLinePtr(dstY + 0, dummy);
 		scale(srcLine, dstLine0, 960);
 
-		if ((dstY + 1) == dstEndY) break;
 		Pixel* dstLine1 = dst.getLinePtr(dstY + 1, dummy);
 		if (IsTagged<ScaleOp, Streaming>::result) {
 			scale(srcLine, dstLine1, 960);
@@ -80,7 +79,6 @@ static void doScale1(FrameSource& src,
 			copy(dstLine0, dstLine1, 960);
 		}
 
-		if ((dstY + 2) == dstEndY) break;
 		Pixel* dstLine2 = dst.getLinePtr(dstY + 2, dummy);
 		if (IsTagged<ScaleOp, Streaming>::result) {
 			scale(srcLine, dstLine2, 960);
@@ -104,12 +102,10 @@ static void doScaleDV(FrameSource& src,
 		Pixel* dstLine0 = dst.getLinePtr(dstY + 0, dummy);
 		scale(srcLine0, dstLine0, 960);
 
-		// TODO if ((dstY + 2) == endDstY) { .. }
 		const Pixel* srcLine1 = src.getLinePtr(srcY + 1, srcWidth, dummy);
 		Pixel* dstLine2 = dst.getLinePtr(dstY + 2, dummy);
 		scale(srcLine1, dstLine2, 960);
 
-		// TODO if ((dstY + 1) == endDstY) { .. }
 		Pixel* dstLine1 = dst.getLinePtr(dstY + 1, dummy);
 		blend(dstLine0, dstLine2, dstLine1, 960);
 	}

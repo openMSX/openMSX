@@ -17,9 +17,6 @@
 #include "FrameSource.hh"
 #include "OutputSurface.hh"
 #include "openmsx.hh"
-#include <algorithm>
-
-using std::min;
 
 namespace openmsx {
 
@@ -597,9 +594,8 @@ void HQ2xLiteScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	const Pixel* srcCurr = src.getLinePtr(srcY + 0, srcWidth, dummy);
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
 		const Pixel* srcNext = src.getLinePtr(srcY + 1, srcWidth, dummy);
-		Pixel* dstUpper = dst.getLinePtr(dstY, dummy);
-		Pixel* dstLower = dst.getLinePtr(
-			min(dstY + 1, dstEndY - 1), dummy);
+		Pixel* dstUpper = dst.getLinePtr(dstY + 0, dummy);
+		Pixel* dstLower = dst.getLinePtr(dstY + 1, dummy);
 		scaleLine256(srcPrev, srcCurr, srcNext, dstUpper, dstLower);
 		srcPrev = srcCurr;
 		srcCurr = srcNext;
@@ -617,9 +613,8 @@ void HQ2xLiteScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	const Pixel* srcCurr = src.getLinePtr(srcY + 0, srcWidth, dummy);
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
 		const Pixel* srcNext = src.getLinePtr(srcY + 1, srcWidth, dummy);
-		Pixel* dstUpper = dst.getLinePtr(dstY, dummy);
-		Pixel* dstLower = dst.getLinePtr(
-			min(dstY + 1, dstEndY - 1), dummy);
+		Pixel* dstUpper = dst.getLinePtr(dstY + 0, dummy);
+		Pixel* dstLower = dst.getLinePtr(dstY + 1, dummy);
 		scaleLine512(srcPrev, srcCurr, srcNext, dstUpper, dstLower);
 		srcPrev = srcCurr;
 		srcCurr = srcNext;

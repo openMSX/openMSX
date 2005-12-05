@@ -521,15 +521,12 @@ void SimpleScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 		dstY += 2;
 	}
 
-	// When interlace is enabled, the bottom line can fall off the screen.
-	if (dstY < dstEndY) {
-		srcLine = src.getLinePtr(srcStartY++, srcWidth, dummy);
-		Pixel buf[640];
-		blur256(srcLine, buf, blur);
+	srcLine = src.getLinePtr(srcStartY++, srcWidth, dummy);
+	Pixel buf[640];
+	blur256(srcLine, buf, blur);
 
-		Pixel* dstLine1 = dst.getLinePtr(dstY, dummy);
-		drawScanline(prevDstLine0, buf, dstLine1, scanlineFactor);
-	}
+	Pixel* dstLine1 = dst.getLinePtr(dstY, dummy);
+	drawScanline(prevDstLine0, buf, dstLine1, scanlineFactor);
 }
 
 template <class Pixel>
@@ -558,15 +555,12 @@ void SimpleScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 		dstY += 2;
 	}
 
-	// When interlace is enabled, bottom line can fall off the screen.
-	if (dstY < dstEndY) {
-		srcLine = src.getLinePtr(srcStartY++, srcWidth, dummy);
-		Pixel buf[640];
-		blur512(srcLine, buf, blur);
-		
-		Pixel* dstLine1 = dst.getLinePtr(dstY, dummy);
-		drawScanline(prevDstLine0, buf, dstLine1, scanlineFactor);
-	}
+	srcLine = src.getLinePtr(srcStartY++, srcWidth, dummy);
+	Pixel buf[640];
+	blur512(srcLine, buf, blur);
+	
+	Pixel* dstLine1 = dst.getLinePtr(dstY, dummy);
+	drawScanline(prevDstLine0, buf, dstLine1, scanlineFactor);
 }
 
 

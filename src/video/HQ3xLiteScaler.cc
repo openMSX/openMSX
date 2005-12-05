@@ -15,7 +15,6 @@ Visit the HiEnd3D site for info:
 #include "FrameSource.hh"
 #include "OutputSurface.hh"
 #include "openmsx.hh"
-#include <algorithm>
 
 namespace openmsx {
 
@@ -607,10 +606,8 @@ void HQ3xLiteScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 3) {
 		const Pixel* srcNext = src.getLinePtr(srcY + 1, srcWidth, dummy);
 		Pixel* dst0 = dst.getLinePtr(dstY + 0, dummy);
-		Pixel* dst1 = dst.getLinePtr(
-			std::min(dstY + 1, dstEndY - 1), dummy);
-		Pixel* dst2 = dst.getLinePtr(
-			std::min(dstY + 2, dstEndY - 1), dummy);
+		Pixel* dst1 = dst.getLinePtr(dstY + 1, dummy);
+		Pixel* dst2 = dst.getLinePtr(dstY + 2, dummy);
 		scaleLine256(srcPrev, srcCurr, srcNext, dst0, dst1, dst2);
 		srcPrev = srcCurr;
 		srcCurr = srcNext;
