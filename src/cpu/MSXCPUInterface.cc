@@ -82,8 +82,6 @@ MSXCPUInterface::~MSXCPUInterface()
 {
 	msxcpu.setInterface(NULL);
 
-	assert(multiIn.empty());
-	assert(multiOut.empty());
 	for (int port = 0; port < 256; ++port) {
 		assert(IO_In [port] == &dummyDevice);
 		assert(IO_Out[port] == &dummyDevice);
@@ -105,34 +103,10 @@ void MSXCPUInterface::setExpanded(int ps, bool expanded)
 
 void MSXCPUInterface::register_IO_In(byte port, MSXDevice* device)
 {
-	PRT_DEBUG(device->getName() << " registers In-port " <<
-	          std::hex << (int)port << std::dec);
 	MSXDevice*& devicePtr = (IO_In[port] == delayDevice.get())
 	                      ? delayDevice->getInDevicePtr(port)
 	                      : IO_In[port];
-	if (devicePtr == &dummyDevice) {
-		// first
-		devicePtr = device;
-	} else {
-		MSXDevice* dev2 = devicePtr;
-		if (multiIn.find(port) == multiIn.end()) {
-			// second
-			MSXMultiIODevice* multi =
-				new MSXMultiIODevice(device->getMotherBoard());
-			multiIn.insert(port);
-			multi->addDevice(dev2);
-			multi->addDevice(device);
-			devicePtr = multi;
-			dev2 = multi;
-		} else {
-			// third or more
-			static_cast<MSXMultiIODevice*>(dev2)->addDevice(device);
-		}
-		ostringstream os;
-		os << "Conflicting input port 0x" << std::hex << (int)port
-		   << " for devices " << dev2->getName();
-		cliCommOutput.printWarning(os.str());
-	}
+	register_IO(port, true, devicePtr, device); // in
 }
 
 void MSXCPUInterface::unregister_IO_In(byte port, MSXDevice* device)
@@ -140,49 +114,15 @@ void MSXCPUInterface::unregister_IO_In(byte port, MSXDevice* device)
 	MSXDevice*& devicePtr = (IO_In[port] == delayDevice.get())
 	                      ? delayDevice->getInDevicePtr(port)
 	                      : IO_In[port];
-	if (multiIn.find(port) == multiIn.end()) {
-		assert(devicePtr == device);
-		devicePtr = &dummyDevice;
-	} else {
-		assert(dynamic_cast<MSXMultiIODevice*>(devicePtr));
-		MSXMultiIODevice* multi =
-			static_cast<MSXMultiIODevice*>(devicePtr);
-		multi->removeDevice(device);
-		MSXMultiIODevice::Devices& devices = multi->getDevices();
-		if (devices.size() == 1) {
-			devicePtr = devices.front();
-			devices.pop_back();
-			delete multi;
-			multiIn.erase(port);
-		}
-	}
+	unregister_IO(devicePtr, device);
 }
 
 void MSXCPUInterface::register_IO_Out(byte port, MSXDevice* device)
 {
-	PRT_DEBUG(device->getName() << " registers Out-port " <<
-	          std::hex << (int)port << std::dec);
 	MSXDevice*& devicePtr = (IO_Out[port] == delayDevice.get())
 	                      ? delayDevice->getOutDevicePtr(port)
 	                      : IO_Out[port];
-	if (devicePtr == &dummyDevice) {
-		// first
-		devicePtr = device;
-	} else {
-		MSXDevice* dev2 = devicePtr;
-		if (multiOut.find(port) == multiOut.end()) {
-			// second
-			MSXMultiIODevice* multi =
-				new MSXMultiIODevice(device->getMotherBoard());
-			multiOut.insert(port);
-			multi->addDevice(dev2);
-			multi->addDevice(device);
-			devicePtr = multi;
-		} else {
-			// third or more
-			static_cast<MSXMultiIODevice*>(dev2)->addDevice(device);
-		}
-	}
+	register_IO(port, false, devicePtr, device); // out
 }
 
 void MSXCPUInterface::unregister_IO_Out(byte port, MSXDevice* device)
@@ -190,21 +130,56 @@ void MSXCPUInterface::unregister_IO_Out(byte port, MSXDevice* device)
 	MSXDevice*& devicePtr = (IO_Out[port] == delayDevice.get())
 	                      ? delayDevice->getOutDevicePtr(port)
 	                      : IO_Out[port];
-	if (multiOut.find(port) == multiOut.end()) {
-		assert(devicePtr == device);
-		devicePtr = &dummyDevice;
+	unregister_IO(devicePtr, device);
+}
+
+void MSXCPUInterface::register_IO(int port, bool isIn,
+                                  MSXDevice*& devicePtr, MSXDevice* device)
+{
+	PRT_DEBUG(device->getName() << " registers " << (isIn ? "In" : "Out") <<
+	          "-port " << std::hex << port << std::dec);
+
+	if (devicePtr == &dummyDevice) {
+		// first, replace DummyDevice
+		devicePtr = device;
 	} else {
-		assert(dynamic_cast<MSXMultiIODevice*>(devicePtr));
-		MSXMultiIODevice* multi =
-			static_cast<MSXMultiIODevice*>(devicePtr);
+		if (MSXMultiIODevice* multi = dynamic_cast<MSXMultiIODevice*>(
+		                                                   devicePtr)) {
+			// third or more, add to existing MultiIO device
+			multi->addDevice(device);
+		} else {
+			// second, create a MultiIO device
+			multi = new MSXMultiIODevice(device->getMotherBoard());
+			multi->addDevice(devicePtr);
+			multi->addDevice(device);
+			devicePtr = multi;
+		}
+		if (isIn) {
+			cliCommOutput.printWarning(
+				"Conflicting input port 0x" +
+				StringOp::toHexString(port, 2) +
+				" for devices " + devicePtr->getName());
+		}
+	}
+}
+
+void MSXCPUInterface::unregister_IO(MSXDevice*& devicePtr, MSXDevice* device)
+{
+	if (MSXMultiIODevice* multi = dynamic_cast<MSXMultiIODevice*>(
+	                                                          devicePtr)) {
+		// remove from MultiIO device
 		multi->removeDevice(device);
 		MSXMultiIODevice::Devices& devices = multi->getDevices();
 		if (devices.size() == 1) {
+			// only one remaining, remove MultiIO device
 			devicePtr = devices.front();
 			devices.pop_back();
 			delete multi;
-			multiOut.erase(port);
 		}
+	} else {
+		// remove last, put back DummyDevice
+		assert(devicePtr == device);
+		devicePtr = &dummyDevice;
 	}
 }
 

@@ -10,7 +10,6 @@
 #include "MSXDevice.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
-#include <set>
 #include <memory>
 
 namespace openmsx {
@@ -173,6 +172,10 @@ protected:
 	virtual ~MSXCPUInterface();
 	friend class std::auto_ptr<MSXCPUInterface>;
 
+	void register_IO  (int port, bool isIn,
+	                   MSXDevice*& devicePtr, MSXDevice* device);
+	void unregister_IO(MSXDevice*& devicePtr, MSXDevice* device);
+
 private:
 	void registerSlot(MSXDevice& device,
 	                  int ps, int ss, int base, int size);
@@ -266,8 +269,6 @@ private:
 
 	MSXDevice* IO_In [256];
 	MSXDevice* IO_Out[256];
-	std::set<byte> multiIn;
-	std::set<byte> multiOut;
 
 	MSXDevice* slotLayout[4][4][4];
 	byte subSlotRegister[4];
