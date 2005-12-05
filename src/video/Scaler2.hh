@@ -10,7 +10,7 @@ namespace openmsx {
 
 /** Base class for 2x scalers.
   */
-template <class Pixel> class Scaler2 : public Scaler<Pixel>
+template <class Pixel> class Scaler2 : public Scaler
 {
 public:
 	virtual void scaleBlank1to2(

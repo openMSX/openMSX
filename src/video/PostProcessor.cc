@@ -2,7 +2,10 @@
 
 #include "PostProcessor.hh"
 #include "RenderSettings.hh"
+#include "Scaler.hh"
+#include "ScalerFactory.hh"
 #include "BooleanSetting.hh"
+#include "IntegerSetting.hh"
 #include "OutputSurface.hh"
 #include "DeinterlacedFrame.hh"
 #include "DoubledFrame.hh"
@@ -20,7 +23,8 @@ PostProcessor<Pixel>::PostProcessor(CommandController& commandController,
 	, renderSettings(renderSettings_)
 	, screen(screen_)
 {
-	currScalerID = (ScalerID)-1; // not a valid scaler
+	scaleAlgorithm = (RenderSettings::ScaleAlgorithm)-1; // not a valid scaler
+	scaleFactor = (unsigned)-1;
 
 	currFrame = new RawFrame(screen.getFormat(), sizeof(Pixel),
 	                         maxWidth, height);
@@ -112,11 +116,14 @@ void PostProcessor<Pixel>::paint()
 	}
 
 	// New scaler algorithm selected?
-	ScalerID scalerID = renderSettings.getScaler().getValue();
-	if (currScalerID != scalerID) {
-		currScaler = Scaler<Pixel>::createScaler(
-			scalerID, screen.getFormat(), renderSettings);
-		currScalerID = scalerID;
+	RenderSettings::ScaleAlgorithm algo =
+		renderSettings.getScaleAlgorithm().getValue();
+	unsigned factor = renderSettings.getScaleFactor().getValue();
+	if ((scaleAlgorithm != algo) || (scaleFactor != factor)) {
+		scaleAlgorithm = algo;
+		scaleFactor = factor;
+		currScaler = ScalerFactory<Pixel>::createScaler(
+			screen.getFormat(), renderSettings);
 	}
 
 	// Scale image.

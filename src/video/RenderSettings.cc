@@ -46,21 +46,19 @@ RenderSettings::RenderSettings(CommandController& commandController)
 	// Get user-preferred renderer from config.
 	renderer = RendererFactory::createRendererSetting(commandController);
 
-	EnumSetting<ScalerID>::Map scalerMap;
+	EnumSetting<ScaleAlgorithm>::Map scalerMap;
 	scalerMap["simple"] = SCALER_SIMPLE;
-	scalerMap["2xSaI"] = SCALER_SAI2X;
-	scalerMap["3xSaI"] = SCALER_SAI3X;
-	scalerMap["Scale2x"] = SCALER_SCALE2X;
-	scalerMap["Scale3x"] = SCALER_SCALE3X;
-	scalerMap["hq2x"] = SCALER_HQ2X;
-	scalerMap["hq3x"] = SCALER_HQ3X;
-	scalerMap["hq2xlite"] = SCALER_HQ2XLITE;
-	scalerMap["hq3xlite"] = SCALER_HQ3XLITE;
-	scalerMap["RGBtriplet3x"] = SCALER_RGBTRIPLET3X;
-	scalerMap["simple3x"] = SCALER_SIMPLE3X;
-	scalerMap["low"] = SCALER_LOW;
-	scaler.reset(new EnumSetting<ScalerID>(commandController,
-		"scaler", "scaler algorithm", SCALER_SIMPLE, scalerMap));
+	scalerMap["SaI"] = SCALER_SAI;
+	scalerMap["ScaleNx"] = SCALER_SCALE;
+	scalerMap["hq"] = SCALER_HQ;
+	scalerMap["hqlite"] = SCALER_HQLITE;
+	scalerMap["RGBtriplet"] = SCALER_RGBTRIPLET;
+	scaleAlgorithm.reset(new EnumSetting<ScaleAlgorithm>(commandController,
+		"scale_algorithm", "scale algorithm",
+		SCALER_SIMPLE, scalerMap));
+
+	scaleFactor.reset(new IntegerSetting(commandController,
+		"scale_factor", "scale factor", 2, 1, 3));
 
 	scanlineAlpha.reset(new IntegerSetting(commandController,
 		"scanline", "amount of scanline effect: 0 = none, 100 = full",

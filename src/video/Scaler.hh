@@ -3,62 +3,18 @@
 #ifndef SCALER_HH
 #define SCALER_HH
 
-#include <memory>
-
-class SDL_PixelFormat;
-
 namespace openmsx {
 
-class RenderSettings;
 class FrameSource;
 class OutputSurface;
-
-/** Enumeration of Scalers known to openMSX.
-  */
-enum ScalerID {
-	/** SimpleScaler. */
-	SCALER_SIMPLE,
-	/** SaI2xScaler. */
-	SCALER_SAI2X,
-	/** SaI3xScaler. */
-	SCALER_SAI3X,
-	/** Scale2xScaler. */
-	SCALER_SCALE2X,
-	/** Scale3xScaler. */
-	SCALER_SCALE3X,
-	/** HQ2xScaler. */
-	SCALER_HQ2X,
-	/** HQ3xScaler. */
-	SCALER_HQ3X,
-	/** HQ2xLiteScaler. */
-	SCALER_HQ2XLITE,
-	/** HQ3xLiteScaler. */
-	SCALER_HQ3XLITE,
-	/** RGBTriplet3xScaler. */
-	SCALER_RGBTRIPLET3X,
-	/** SimpleScaler3x. */
-	SCALER_SIMPLE3X,
-	/** Low resolution (320x240) scaler */
-	SCALER_LOW
-};
 
 /** Abstract base class for scalers.
   * A scaler is an algorithm that converts low-res graphics to hi-res graphics.
   */
-template <class Pixel>
 class Scaler
 {
 public:
 	virtual ~Scaler() {}
-
-	/** Instantiates a Scaler.
-	  * @param id Identifies the scaler algorithm.
-	  * @param format Pixel format of the surfaces the scaler will be used on.
-	  * @return A Scaler object, owned by the caller.
-	  */
-	static std::auto_ptr<Scaler> createScaler(
-		ScalerID id, SDL_PixelFormat* format,
-		RenderSettings& renderSettings);
 
 	/** Scales the image in the given area, which must consist of lines which
 	  * are all equally wide.

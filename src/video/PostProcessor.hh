@@ -3,14 +3,14 @@
 #ifndef POSTPROCESSOR_HH
 #define POSTPROCESSOR_HH
 
+#include "RenderSettings.hh"
 #include "FrameSource.hh"
-#include "Scaler.hh"
 #include "VideoLayer.hh"
 
 namespace openmsx {
 
+class Scaler;
 class CommandController;
-class RenderSettings;
 class Display;
 class OutputSurface;
 class RawFrame;
@@ -57,12 +57,15 @@ private:
 
 	/** The currently active scaler.
 	  */
-	std::auto_ptr<Scaler<Pixel> > currScaler;
+	std::auto_ptr<Scaler> currScaler;
 
-	/** ID of the currently active scaler.
-	  * Used to detect scaler changes.
+	/** Currently active scale algorithm, used to detect scaler changes.
 	  */
-	ScalerID currScalerID;
+	RenderSettings::ScaleAlgorithm scaleAlgorithm;
+
+	/** Currently active scale factor, used to detect scaler changes.
+	  */
+	unsigned scaleFactor;
 
 	/** The surface which is visible to the user.
 	  */

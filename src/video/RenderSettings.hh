@@ -4,7 +4,6 @@
 #define RENDERSETTINGS_HH
 
 #include "RendererFactory.hh"
-#include "Scaler.hh"
 #include <memory>
 
 namespace openmsx {
@@ -26,6 +25,13 @@ public:
 	  */
 	enum Accuracy { ACC_SCREEN, ACC_LINE, ACC_PIXEL };
 
+	/** Scaler algorithm
+	  */
+	enum ScaleAlgorithm {
+		SCALER_SIMPLE, SCALER_SAI, SCALER_SCALE,
+		SCALER_HQ, SCALER_HQLITE, SCALER_RGBTRIPLET
+	};
+	
 	explicit RenderSettings(CommandController& commandController);
 	~RenderSettings();
 
@@ -60,7 +66,12 @@ public:
 	RendererFactory::RendererSetting& getRenderer() const { return *renderer; }
 
 	/** The current scaling algorithm. */
-	EnumSetting<ScalerID>& getScaler() const { return *scaler; }
+	EnumSetting<ScaleAlgorithm>& getScaleAlgorithm() const {
+		return *scaleAlgorithm;
+	}
+
+	/** The current scaling factor. */
+	IntegerSetting& getScaleFactor() const { return *scaleFactor; }
 
 	/** The video source to display on the screen. */
 	VideoSourceSetting& getVideoSource() const { return *videoSource; }
@@ -90,7 +101,8 @@ private:
 	std::auto_ptr<IntegerSetting> maxFrameSkip;
 	std::auto_ptr<IntegerSetting> minFrameSkip;
 	std::auto_ptr<RendererFactory::RendererSetting> renderer;
-	std::auto_ptr<EnumSetting<ScalerID> > scaler;
+	std::auto_ptr<EnumSetting<ScaleAlgorithm> > scaleAlgorithm;
+	std::auto_ptr<IntegerSetting> scaleFactor;
 	std::auto_ptr<IntegerSetting> scanlineAlpha;
 	std::auto_ptr<VideoSourceSetting> videoSource;
 };

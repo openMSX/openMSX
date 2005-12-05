@@ -12,6 +12,7 @@
 #include "Timer.hh"
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
+#include "IntegerSetting.hh"
 #include "VideoSourceSetting.hh"
 #include "MSXMotherBoard.hh"
 #include "HardwareConfig.hh"
@@ -59,7 +60,7 @@ Display::Display(MSXMotherBoard& motherboard_)
 
 	renderSettings.getRenderer().attach(*this);
 	renderSettings.getFullScreen().attach(*this);
-	renderSettings.getScaler().attach(*this);
+	renderSettings.getScaleFactor().attach(*this);
 	renderSettings.getVideoSource().attach(*this);
 }
 
@@ -67,7 +68,7 @@ Display::~Display()
 {
 	renderSettings.getRenderer().detach(*this);
 	renderSettings.getFullScreen().detach(*this);
-	renderSettings.getScaler().detach(*this);
+	renderSettings.getScaleFactor().detach(*this);
 	renderSettings.getVideoSource().detach(*this);
 
 	EventDistributor& eventDistributor = motherboard.getEventDistributor();
@@ -174,7 +175,7 @@ void Display::update(const Setting& setting)
 		checkRendererSwitch();
 	} else if (&setting == &renderSettings.getFullScreen()) {
 		checkRendererSwitch();
-	} else if (&setting == &renderSettings.getScaler()) {
+	} else if (&setting == &renderSettings.getScaleFactor()) {
 		checkRendererSwitch();
 	} else if (&setting == &renderSettings.getVideoSource()) {
 		checkRendererSwitch();

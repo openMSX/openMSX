@@ -1,5 +1,8 @@
 $Id$
 
+2005-12-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Split scaler setting into scale_factor and scale_algorithm
+
 2005-12-04 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Readd delay on turboR on ports 0x9A and 0x9B:
 	   - fixes previous fix for assert on turbor with advram

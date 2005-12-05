@@ -7,6 +7,7 @@
 #include "SDLOutputSurface.hh"
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
+#include "IntegerSetting.hh"
 #include "InputEventGenerator.hh"
 #include "MSXMotherBoard.hh"
 #include <cassert>
@@ -91,22 +92,9 @@ V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990& vdp)
 
 void SDLVideoSystem::getWindowSize(unsigned& width, unsigned& height)
 {
-	// TODO refactor
-	if (renderSettings.getScaler().getValue() == SCALER_LOW) {
-		width = 320;
-		height = 240;
-	} else if ((renderSettings.getScaler().getValue() == SCALER_HQ3X) ||
-	           (renderSettings.getScaler().getValue() == SCALER_HQ3XLITE) ||
-	           (renderSettings.getScaler().getValue() == SCALER_SAI3X) ||
-	           (renderSettings.getScaler().getValue() == SCALER_SCALE3X) ||
-	           (renderSettings.getScaler().getValue() == SCALER_SIMPLE3X) ||
-	           (renderSettings.getScaler().getValue() == SCALER_RGBTRIPLET3X )) {
-		width = 960;
-		height = 720;
-	} else {
-		width = 640;
-		height = 480;
-	}
+	unsigned factor = renderSettings.getScaleFactor().getValue();
+	width  = 320 * factor;
+	height = 240 * factor;
 }
 
 // TODO: If we can switch video system at any time (not just frame end),

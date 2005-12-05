@@ -9,7 +9,7 @@
 namespace openmsx {
 
 template <typename Pixel>
-class LowScaler : public Scaler<Pixel>
+class LowScaler : public Scaler
 {
 public:
 	explicit LowScaler(SDL_PixelFormat* format);

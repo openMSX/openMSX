@@ -14,7 +14,8 @@ SRC_HDR:= \
 	XRenderer \
 	BitmapConverter CharacterConverter \
 	Scanline \
-	Scaler LowScaler Scaler2 Scaler3 \
+	ScalerFactory \
+	LowScaler Scaler2 Scaler3 \
 	SimpleScaler SaI2xScaler SaI3xScaler Scale2xScaler Scale3xScaler \
 	HQ2xScaler HQ2xLiteScaler \
 	HQ3xScaler HQ3xLiteScaler \
@@ -38,6 +39,7 @@ HDR_ONLY:= \
 	SpriteConverter \
 	PixelOperations \
 	LineScalers \
+	Scaler \
 	Rasterizer \
 	HQCommon \
 	VideoSystemChangeListener.hh
