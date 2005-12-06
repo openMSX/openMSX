@@ -4652,6 +4652,12 @@ proc trainer_saimazoom {} {
 	after time 1 trainer_saimazoom
 }
 
+proc trainer_cheatingwives {} {
+	poke 0xc032 99 
+    after time 60 trainer_cheatingwives
+}
+
+
 proc poke {addr val} {
 	debug write memory $addr $val
 }
