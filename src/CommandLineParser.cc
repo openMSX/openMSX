@@ -388,7 +388,7 @@ bool CommandLineParser::ScriptOption::parseOption(const string& option,
 
 const string& CommandLineParser::ScriptOption::optionHelp() const
 {
-	static const string text("Run extra startup script.");
+	static const string text("Run extra startup script");
 	return text;
 }
 

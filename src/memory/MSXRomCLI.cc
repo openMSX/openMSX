@@ -140,7 +140,7 @@ bool MSXRomCLI::IpsOption::parseOption(const string& /*option*/,
 const string& MSXRomCLI::IpsOption::optionHelp() const
 {
 	static const string text(
-		"Apply the given IPS patch to the ROM or disk iamge in front.");
+		"Apply the given IPS patch to the ROM or disk image in front");
 	return text;
 }
 
@@ -152,7 +152,7 @@ bool MSXRomCLI::RomTypeOption::parseOption(const string& /*option*/,
 
 const string& MSXRomCLI::RomTypeOption::optionHelp() const
 {
-	static const string text("Specify the rom type for the ROM in front.");
+	static const string text("Specify the rom type for the ROM in front");
 	return text;
 }
 
