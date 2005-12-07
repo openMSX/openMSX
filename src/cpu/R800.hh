@@ -47,6 +47,7 @@ protected:
 	inline void PUSH_DELAY()     { clock += 1; }
 	inline void INC_DELAY()      { clock += 1; }
 	inline void SMALL_DELAY()    { }
+	inline void SET_IM_DELAY()   { clock += 1; }
 	inline void DI_DELAY()       { clock += 1; }
 	inline void RETN_DELAY()     { clock += 1; }
 	inline int haltStates() { return 1; }	// HALT + M1 // TODO check this

@@ -1,6 +1,10 @@
 $Id$
 
 2005-12-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed timing if 'IM n' instruction on R800:
+	   should take 3 cycles iso 2
+
+2005-12-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Split scaler setting into scale_factor and scale_algorithm
 
 2005-12-04 Wouter Vermaelen <wouter.vermaelen@scarlet.be>

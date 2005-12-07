@@ -2696,9 +2696,9 @@ template <class T> void CPUCore<T>::halt()
 {
 	R.HALT = true; slowInstructions = 2;
 }
-template <class T> void CPUCore<T>::im_0() { R.IM = 0; }
-template <class T> void CPUCore<T>::im_1() { R.IM = 1; }
-template <class T> void CPUCore<T>::im_2() { R.IM = 2; }
+template <class T> void CPUCore<T>::im_0() { T::SET_IM_DELAY(); R.IM = 0; }
+template <class T> void CPUCore<T>::im_1() { T::SET_IM_DELAY(); R.IM = 1; }
+template <class T> void CPUCore<T>::im_2() { T::SET_IM_DELAY(); R.IM = 2; }
 
 // LD A,I/R
 template <class T> void CPUCore<T>::ld_a_i()
