@@ -13,6 +13,7 @@ class CliComm;
 class BooleanSetting;
 class MSXMotherBoard;
 class Setting;
+class CommandLineParser;
 
 /**
  * Contains the main loop of openMSX.
@@ -32,7 +33,7 @@ public:
 	 * Main loop.
 	 * @param autoRun Iff true, start emulation immediately.
 	 */
-	void run(bool autoRun);
+	void run(CommandLineParser& parser);
 
 private:
 	// Observer<Setting>

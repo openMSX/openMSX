@@ -61,7 +61,7 @@ public:
 	/**
 	 * Executes all defined auto commands
 	 */
-	void autoCommands();
+	void source(const std::string& script);
 
 	/**
 	 * Returns true iff the command is complete

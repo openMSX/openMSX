@@ -4,6 +4,7 @@
 #define COMMANDLINEPARSER_HH
 
 #include <string>
+#include <vector>
 #include <list>
 #include <map>
 #include <memory>
@@ -67,6 +68,9 @@ public:
 	                       CLIFileType* cliFileType);
 	void parse(int argc, char** argv);
 	ParseStatus getParseStatus() const;
+	
+	typedef std::vector<std::string> Scripts;
+	const Scripts& getStartupScripts() const;
 
 	MSXMotherBoard& getMotherBoard() const;
 	HardwareConfig& getHardwareConfig() const;
@@ -132,6 +136,16 @@ private:
 		CommandLineParser& parser;
 	} controlOption;
 
+	class ScriptOption : public CLIOption {
+	public:
+		const Scripts& getScripts() const;
+		virtual bool parseOption(const std::string& option,
+			std::list<std::string>& cmdLine);
+		virtual const std::string& optionHelp() const;
+	private:
+		Scripts scripts;
+	} scriptOption;
+
 	class MachineOption : public CLIOption {
 	public:
 		MachineOption(CommandLineParser& parser);
@@ -175,7 +189,7 @@ private:
 	private:
 		CommandLineParser& parser;
 	} testConfigOption;
-	
+
 	const std::auto_ptr<MSXRomCLI> msxRomCLI;
 	const std::auto_ptr<CliExtension> cliExtension;
 	const std::auto_ptr<MSXCassettePlayerCLI> cassettePlayerCLI;

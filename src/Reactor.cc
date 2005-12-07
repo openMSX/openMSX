@@ -2,6 +2,7 @@
 
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
+#include "CommandLineParser.hh"
 #include "CommandController.hh"
 #include "Scheduler.hh"
 #include "MSXCPU.hh"
@@ -11,6 +12,8 @@
 #include "Timer.hh"
 #include "GlobalSettings.hh"
 #include "BooleanSetting.hh"
+#include "FileContext.hh"
+#include "FileException.hh"
 #include <cassert>
 
 using std::string;
@@ -42,17 +45,35 @@ Reactor::~Reactor()
 	pauseSetting.detach(*this);
 }
 
-void Reactor::run(bool autoRun)
+void Reactor::run(CommandLineParser& parser)
 {
 	CommandController& commandController(motherBoard.getCommandController());
 	Display& display(motherBoard.getDisplay());
 	Scheduler& scheduler(motherBoard.getScheduler());
 
-	// First execute auto commands.
-	commandController.autoCommands();
+	// execute init.tcl
+	try {
+		SystemFileContext context(true); // only in system dir
+		commandController.source(context.resolve("init.tcl"));
+	} catch (FileException& e) {
+		// no init.tcl, ignore
+	}
 
-	// Run.
-	if (autoRun) {
+	// execute startup scripts
+	const CommandLineParser::Scripts& scripts = parser.getStartupScripts();
+	for (CommandLineParser::Scripts::const_iterator it = scripts.begin();
+	     it != scripts.end(); ++it) {
+		try {
+			UserFileContext context(commandController);
+			commandController.source(context.resolve(*it));
+		} catch (FileException& e) {
+			throw FatalError("Couldn't execute script: " +
+			                 e.getMessage());
+		}
+	}
+
+	// Run
+	if (parser.getParseStatus() == CommandLineParser::RUN) {
 		commandController.executeCommand("set power on");
 	}
 	while (running) {

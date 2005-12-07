@@ -11,7 +11,6 @@
 #include "InfoCommand.hh"
 #include "ReadDir.hh"
 #include "CommandException.hh"
-#include "FileException.hh"
 #include "SettingsConfig.hh"
 #include "GlobalSettings.hh"
 #include "RomInfoTopic.hh"
@@ -290,14 +289,11 @@ string CommandController::executeCommand(
 	return getInterpreter().execute(cmd);
 }
 
-void CommandController::autoCommands()
+void CommandController::source(const std::string& script)
 {
 	try {
-		SystemFileContext context(true); // only in system dir
-		File file(context.resolve("init.tcl"));
+		File file(script);
 		getInterpreter().executeFile(file.getLocalName());
-	} catch (FileException& e) {
-		// no init.tcl
 	} catch (CommandException& e) {
 		getCliComm().printWarning(
 			 "While executing init.tcl: " + e.getMessage());

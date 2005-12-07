@@ -81,7 +81,7 @@ static int main(int argc, char **argv)
 			Reactor reactor(motherBoard);
 			CliServer cliServer(motherBoard.getScheduler(),
 			                    motherBoard.getCommandController());
-			reactor.run(parseStatus == CommandLineParser::RUN);
+			reactor.run(parser);
 		}
 	} catch (FatalError& e) {
 		cerr << "Fatal error: " << e.getMessage() << endl;

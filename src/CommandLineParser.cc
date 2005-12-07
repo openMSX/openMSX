@@ -84,6 +84,7 @@ CommandLineParser::CommandLineParser(MSXMotherBoard& motherBoard_)
 	registerOption("-v",          &versionOption, 1, 1);
 	registerOption("--version",   &versionOption, 1, 1);
 	registerOption("-control",    &controlOption, 1, 1);
+	registerOption("-script",     &scriptOption, 1, 1);
 	#ifdef ASM_X86
 	registerOption("-nommx",      &noMMXOption, 1, 1);
 	registerOption("-nommxext",   &noMMXEXTOption, 1, 1);
@@ -267,6 +268,11 @@ CommandLineParser::ParseStatus CommandLineParser::getParseStatus() const
 	return parseStatus;
 }
 
+const CommandLineParser::Scripts& CommandLineParser::getStartupScripts() const
+{
+	return scriptOption.getScripts();
+}
+
 MSXMotherBoard& CommandLineParser::getMotherBoard() const
 {
 	return motherBoard;
@@ -361,6 +367,28 @@ bool CommandLineParser::ControlOption::parseOption(const string& option,
 const string& CommandLineParser::ControlOption::optionHelp() const
 {
 	static const string text("Enable external control of openMSX process");
+	return text;
+}
+
+
+// Script option
+
+const CommandLineParser::Scripts&
+CommandLineParser::ScriptOption::getScripts() const
+{
+	return scripts;
+}
+
+bool CommandLineParser::ScriptOption::parseOption(const string& option,
+		list<string>& cmdLine)
+{
+	scripts.push_back(getArgument(option, cmdLine));
+	return true;
+}
+
+const string& CommandLineParser::ScriptOption::optionHelp() const
+{
+	static const string text("Run extra startup script.");
 	return text;
 }
 
@@ -508,8 +536,8 @@ CommandLineParser::MachineOption::MachineOption(CommandLineParser& parser_)
 {
 }
 
-bool CommandLineParser::MachineOption::parseOption(const string &option,
-		list<string> &cmdLine)
+bool CommandLineParser::MachineOption::parseOption(const string& option,
+		list<string>& cmdLine)
 {
 	if (parser.haveConfig) {
 		throw FatalError("Only one machine option allowed");
