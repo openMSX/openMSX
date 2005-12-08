@@ -3,6 +3,7 @@
 #include "Setting.hh"
 #include "Observer.hh"
 #include "CommandController.hh"
+#include "TclObject.hh"
 #include "CliComm.hh"
 #include "XMLElement.hh"
 #include <algorithm>
@@ -49,6 +50,13 @@ void Setting::sync(XMLElement& config) const
 				"setting", "id", getName());
 		elem.setData(getValueString());
 	}
+}
+
+void Setting::info(TclObject& result) const
+{
+	result.addListElement(getTypeString());
+	result.addListElement(getDefaultValueString());
+	additionalInfo(result);
 }
 
 CommandController& Setting::getCommandController() const

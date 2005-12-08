@@ -15,6 +15,7 @@ protected:
 	explicit KeyCodeSettingPolicy(CommandController& commandController);
 	std::string toString(Keys::KeyCode key) const;
 	Keys::KeyCode fromString(const std::string& str) const;
+	std::string getTypeString() const;
 };
 
 class KeyCodeSetting : public SettingImpl<KeyCodeSettingPolicy>

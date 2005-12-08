@@ -17,14 +17,14 @@ IntegerSettingPolicy::IntegerSettingPolicy(CommandController& commandController,
 {
 }
 
-std::string IntegerSettingPolicy::toString(int value) const
+string IntegerSettingPolicy::toString(int value) const
 {
 	std::ostringstream out;
 	out << value;
 	return out.str();
 }
 
-int IntegerSettingPolicy::fromString(const std::string& str) const
+int IntegerSettingPolicy::fromString(const string& str) const
 {
 	char* endPtr;
 	int result = strtol(str.c_str(), &endPtr, 0);
@@ -32,6 +32,11 @@ int IntegerSettingPolicy::fromString(const std::string& str) const
 		throw CommandException("not a valid integer: " + str);
 	}
 	return result;
+}
+
+string IntegerSettingPolicy::getTypeString() const
+{
+	return "integer";
 }
 
 

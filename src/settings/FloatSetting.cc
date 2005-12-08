@@ -35,6 +35,11 @@ double FloatSettingPolicy::fromString(const string& str) const
 	return result;
 }
 
+string FloatSettingPolicy::getTypeString() const
+{
+	return "float";
+}
+
 
 //class FloatSetting
 

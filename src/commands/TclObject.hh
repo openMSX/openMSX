@@ -29,6 +29,8 @@ public:
 	void setDouble(double value);
 	void setBinary(byte* buf, unsigned length);
 	void addListElement(const std::string& element);
+	void addListElement(int value);
+	void addListElement(double value);
 	void addListElement(TclObject& element);
 
 	// value getters

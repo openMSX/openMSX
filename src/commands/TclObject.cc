@@ -93,6 +93,16 @@ void TclObject::addListElement(const string& element)
 	addListElement(Tcl_NewStringObj(element.data(), element.size()));
 }
 
+void TclObject::addListElement(int value)
+{
+	addListElement(Tcl_NewIntObj(value));
+}
+
+void TclObject::addListElement(double value)
+{
+	addListElement(Tcl_NewDoubleObj(value));
+}
+
 void TclObject::addListElement(TclObject& element)
 {
 	addListElement(element.obj);

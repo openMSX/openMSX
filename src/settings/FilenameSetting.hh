@@ -14,6 +14,7 @@ class FilenameSettingPolicy : public StringSettingPolicy
 protected:
 	explicit FilenameSettingPolicy(CommandController& commandController);
 	void tabCompletion(std::vector<std::string>& tokens) const;
+	std::string getTypeString() const;
 };
 
 class FilenameSetting : public SettingImpl<FilenameSettingPolicy>

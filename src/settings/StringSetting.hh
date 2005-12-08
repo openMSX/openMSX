@@ -14,6 +14,7 @@ protected:
 	explicit StringSettingPolicy(CommandController& commandController);
 	const std::string& toString(const std::string& value) const;
 	const std::string& fromString(const std::string& str) const;
+	std::string getTypeString() const;
 };
 
 class StringSetting : public SettingImpl<StringSettingPolicy>

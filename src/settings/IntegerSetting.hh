@@ -15,6 +15,7 @@ protected:
 	                     int minValue, int maxValue);
 	std::string toString(int value) const;
 	int fromString(const std::string& str) const;
+	std::string getTypeString() const;
 };
 
 /** A Setting with an integer value.

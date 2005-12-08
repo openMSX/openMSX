@@ -3,6 +3,7 @@
 #include "SettingsManager.hh"
 #include "CommandController.hh"
 #include "Interpreter.hh"
+#include "TclObject.hh"
 #include "Setting.hh"
 #include "CommandException.hh"
 #include "XMLElement.hh"
@@ -17,7 +18,8 @@ namespace openmsx {
 // SettingsManager implementation:
 
 SettingsManager::SettingsManager(CommandController& commandController_)
-	: setCompleter(commandController_, *this)
+	: settingInfo(commandController_, *this)
+	, setCompleter(commandController_, *this)
 	, incrCompleter(commandController_, *this, "incr")
 	, unsetCompleter(commandController_, *this, "unset")
 	, commandController(commandController_)
@@ -131,6 +133,61 @@ void SettingsManager::saveSettings(XMLElement& config) const
 	for (SettingsMap::const_iterator it = settingsMap.begin();
 	     it != settingsMap.end(); ++it) {
 		it->second->sync(config);
+	}
+}
+
+// SettingInfo implementation
+
+SettingsManager::SettingInfo::SettingInfo(CommandController& commandController,
+                                          SettingsManager& manager_)
+	: InfoTopic(commandController, "setting")
+	, manager(manager_)
+{
+}
+
+void SettingsManager::SettingInfo::execute(
+	const std::vector<TclObject*>& tokens, TclObject& result) const
+{
+	const SettingsMap& settingsMap = manager.settingsMap;
+	switch (tokens.size()) {
+	case 2:
+		for (SettingsMap::const_iterator it = settingsMap.begin();
+		     it != settingsMap.end(); ++it) {
+			result.addListElement(it->first);
+		}
+		break;
+	case 3: {
+		string name = tokens[2]->getString();
+		SettingsMap::const_iterator it = settingsMap.find(name);
+		if (it == settingsMap.end()) {
+			throw CommandException("No such setting: " + name);
+		}
+		it->second->info(result);
+		break;
+	}
+	default:
+		throw CommandException("Too many parameters.");
+	}
+}
+
+string SettingsManager::SettingInfo::help(const vector<string>& /*tokens*/) const
+{
+	return "openmsx_info setting        : "
+	             "returns list of all settings\n"
+	       "openmsx_info setting <name> : "
+	             "returns info on a specific setting\n";
+}
+
+void SettingsManager::SettingInfo::tabCompletion(
+		std::vector<std::string>& tokens) const
+{
+	switch (tokens.size()) {
+		case 3: { // complete setting name
+			set<string> settings;
+			manager.getSettingNames<Setting>(settings);
+			completeString(tokens, settings);
+			break;
+		}
 	}
 }
 

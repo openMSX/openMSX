@@ -35,6 +35,8 @@ protected:
 	T fromString(const std::string& str) const;
 	virtual void checkSetValue(T& value) const;
 	void tabCompletion(std::vector<std::string>& tokens) const;
+	std::string getTypeString() const;
+	void additionalInfo(TclObject& result) const;
 
 private:
 	std::string name;
@@ -129,6 +131,26 @@ void EnumSettingPolicy<T>::tabCompletion(std::vector<std::string>& tokens) const
 	getPossibleValues(stringSet);
 	this->getCommandController().completeString(tokens, stringSet, false); // case insensitive
 }
+
+template<typename T>
+std::string EnumSettingPolicy<T>::getTypeString() const
+{
+	return "enumeration";
+}
+
+template <typename T>
+void EnumSettingPolicy<T>::additionalInfo(TclObject& result) const
+{
+	TclObject valueList(result.getInterpreter());
+	std::set<std::string> values;
+	this->getPossibleValues(values);
+	for (std::set<std::string>::const_iterator it = values.begin();
+	     it != values.end(); ++it) {
+		valueList.addListElement(*it);
+	}
+	result.addListElement(valueList);
+}
+
 
 template<typename T>
 EnumSettingPolicy<T>::EnumInfo::EnumInfo(CommandController& commandController,

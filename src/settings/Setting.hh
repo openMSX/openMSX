@@ -11,6 +11,7 @@ namespace openmsx {
 
 class CommandController;
 class XMLElement;
+class TclObject;
 
 class Setting : public Subject<Setting>
 {
@@ -19,6 +20,10 @@ public:
 		SAVE,
 		DONT_SAVE
 	};
+
+	/** Returns a string describing the setting type (integer, string, ..)
+	  */
+	virtual std::string getTypeString() const = 0;
 
 	/** Get the name of this setting.
 	  */
@@ -32,6 +37,10 @@ public:
 	  * presented to the user.
 	  */
 	virtual std::string getValueString() const = 0;
+
+	/** Get the default value of this setting.
+	  */
+	virtual std::string getDefaultValueString() const = 0;
 
 	/** Change the value of this setting by parsing the given string.
 	  * @param valueString The new value for this setting, in string format.
@@ -64,6 +73,10 @@ public:
 	  */
 	void sync(XMLElement& config) const;
 
+	/** For SettingInfo
+	  */
+	void info(TclObject& result) const;
+	
 	CommandController& getCommandController() const;
 
 protected:
@@ -77,6 +90,9 @@ protected:
 	  * the Subject class.
 	  */
 	void notify() const;
+
+	// helper method for info()
+	virtual void additionalInfo(TclObject& result) const = 0;
 
 private:
 	CommandController& commandController;

@@ -58,11 +58,14 @@ public:
 	void setChecker(SettingChecker<POLICY>* checker);
 
 	// virtual methods from Setting class
+	virtual std::string getTypeString() const;
 	virtual std::string getValueString() const;
+	virtual std::string getDefaultValueString() const;
 	virtual void setValueString(const std::string& valueString);
 	virtual void restoreDefault();
 	virtual bool hasDefaultValue() const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+	virtual void additionalInfo(TclObject& result) const;
 
 private:
 	void init();
@@ -190,9 +193,21 @@ void SettingImpl<POLICY>::setChecker(SettingChecker<POLICY>* checker_)
 }
 
 template<typename POLICY>
+std::string SettingImpl<POLICY>::getTypeString() const
+{
+	return POLICY::getTypeString();
+}
+
+template<typename POLICY>
 std::string SettingImpl<POLICY>::getValueString() const
 {
 	return POLICY::toString(getValue());
+}
+
+template<typename POLICY>
+std::string SettingImpl<POLICY>::getDefaultValueString() const
+{
+	return POLICY::toString(getDefaultValue());
 }
 
 template<typename POLICY>
@@ -223,6 +238,12 @@ template<typename POLICY>
 void SettingImpl<POLICY>::tabCompletion(std::vector<std::string>& tokens) const
 {
 	POLICY::tabCompletion(tokens);
+}
+
+template<typename POLICY>
+void SettingImpl<POLICY>::additionalInfo(TclObject& result) const
+{
+	POLICY::additionalInfo(result);
 }
 
 } // namespace openmsx

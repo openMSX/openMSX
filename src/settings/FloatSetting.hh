@@ -15,6 +15,7 @@ protected:
 	                   double minValue, double maxValue);
 	std::string toString(double value) const;
 	double fromString(const std::string& str) const;
+	std::string getTypeString() const;
 };
 
 /** A Setting with a floating point value.

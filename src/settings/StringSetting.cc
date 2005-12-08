@@ -23,6 +23,11 @@ const string& StringSettingPolicy::fromString(const string& str) const
 	return str;
 }
 
+string StringSettingPolicy::getTypeString() const
+{
+	return "string";
+}
+
 // class StringSetting
 
 StringSetting::StringSetting(CommandController& commandController,

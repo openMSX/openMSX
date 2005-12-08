@@ -4,6 +4,7 @@
 #define SETTINGSMANAGER_HH
 
 #include "Command.hh"
+#include "InfoTopic.hh"
 #include "noncopyable.hh"
 #include <map>
 #include <set>
@@ -49,6 +50,19 @@ private:
 	template <typename T>
 	T& getByName(const std::string& cmd, const std::string& name) const;
 
+	class SettingInfo : public InfoTopic {
+	public:
+		SettingInfo(CommandController& commandController,
+		            SettingsManager& manager);
+		virtual void execute(const std::vector<TclObject*>& tokens,
+		                     TclObject& result) const;
+		virtual std::string help(
+			const std::vector<std::string>& tokens) const;
+		virtual void tabCompletion(std::vector<std::string>& tokens) const;
+	private:
+		SettingsManager& manager;
+	} settingInfo;
+	
 	class SetCompleter : public CommandCompleter {
 	public:
 		SetCompleter(CommandController& commandController,

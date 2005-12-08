@@ -28,6 +28,11 @@ Keys::KeyCode KeyCodeSettingPolicy::fromString(const string& str) const
 	return code;
 }
 
+std::string KeyCodeSettingPolicy::getTypeString() const
+{
+	return "key";
+}
+
 // class KeyCodeSetting
 
 KeyCodeSetting::KeyCodeSetting(CommandController& commandController,

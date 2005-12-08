@@ -3,6 +3,7 @@
 #ifndef SETTINGPOLICY_HH
 #define SETTINGPOLICY_HH
 
+#include "TclObject.hh"
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -23,6 +24,7 @@ protected:
 	// std::string toString(T value) const;
 	// T fromString(const std::string& str) const;
 	void tabCompletion(std::vector<std::string>& tokens) const;
+	void additionalInfo(TclObject& result) const;
 	
 	CommandController& getCommandController() const { return commandController; }
 
@@ -46,6 +48,11 @@ void SettingPolicy<T>::tabCompletion(std::vector<std::string>& /*tokens*/) const
 {
 }
 
+template <typename T>
+void SettingPolicy<T>::additionalInfo(TclObject& /*result*/) const
+{
+}
+
 template <typename T> class SettingRangePolicy : public SettingPolicy<T>
 {
 protected:
@@ -59,6 +66,17 @@ protected:
 	void checkSetValue(T& value)
 	{
 		value = std::min(std::max(value, minValue), maxValue);
+	}
+
+	T getMinValue() const { return minValue; }
+	T getMaxValue() const { return maxValue; }
+
+	void additionalInfo(TclObject& result) const
+	{
+		TclObject range(result.getInterpreter());
+		range.addListElement(getMinValue());
+		range.addListElement(getMaxValue());
+		result.addListElement(range);
 	}
 
 private:

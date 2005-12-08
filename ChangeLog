@@ -1,6 +1,16 @@
 $Id$
 
-2005-12-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2005-12-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented 'openmsx_info setting':
+	   It returns a TCL list with:
+	    - first element is the type of the setting
+	        string, integer, float, enumeration, filename or key
+	    - second element is the default value of the setting
+	    - third element is optional, for integer and float settings
+	      it is a list with the minimum and maximum allowed value. For
+	      enum settings it is a list with all possible values.
+
+2005-12-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed timing if 'IM n' instruction on R800:
 	   should take 3 cycles iso 2
 	* Added '-script' command line option:

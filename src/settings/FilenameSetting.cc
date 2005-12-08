@@ -17,6 +17,11 @@ void FilenameSettingPolicy::tabCompletion(std::vector<std::string>& tokens) cons
 	getCommandController().completeFileName(tokens, context);
 }
 
+std::string FilenameSettingPolicy::getTypeString() const
+{
+	return "filename";
+}
+
 
 FilenameSetting::FilenameSetting(
 		CommandController& commandController,
