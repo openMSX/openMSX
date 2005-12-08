@@ -397,7 +397,7 @@ void CassettePlayer::execute(const std::vector<TclObject*>& tokens,
 		tmpresult += "Created new cassette image "
 			"file: " + filename + ", inserted it and set recording mode.";
 		playerElem->setData(filename);
-		cliComm.update(CliComm::MEDIA, "cassetteplayer", "");
+		cliComm.update(CliComm::MEDIA, "cassetteplayer", filename);
 	} else if (tokens[1]->getString() == "insert" && tokens.size() == 3) {
 		try {
 			tmpresult += "Changing tape";
