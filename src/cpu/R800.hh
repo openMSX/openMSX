@@ -117,7 +117,11 @@ protected:
 	}
 
 	inline void PRE_IO (word /*port*/) { }
-	inline void POST_IO(word /*port*/) { clock += 3; }
+	inline void POST_IO(word /*port*/) {
+		// TODO is this correct or does it just take 4 clock cycles
+		lastPage = -1;
+		clock += 3;
+	}
 
 	inline void R800Refresh()
 	{

@@ -1,6 +1,6 @@
 $Id$
 
-2005-12-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2005-12-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented 'openmsx_info setting':
 	   It returns a TCL list with:
 	    - first element is the type of the setting
@@ -9,6 +9,7 @@ $Id$
 	    - third element is optional, for integer and float settings
 	      it is a list with the minimum and maximum allowed value. For
 	      enum settings it is a list with all possible values.
+	* Fixed timing of slowest (no extra wait states) R800 IO instructions
 
 2005-12-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed timing if 'IM n' instruction on R800:
