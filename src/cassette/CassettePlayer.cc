@@ -398,6 +398,7 @@ void CassettePlayer::execute(const std::vector<TclObject*>& tokens,
 			"file: " + filename + ", inserted it and set recording mode.";
 		playerElem->setData(filename);
 		cliComm.update(CliComm::MEDIA, "cassetteplayer", filename);
+		cliComm.update(CliComm::STATUS, "cassetteplayer", "record");
 	} else if (tokens[1]->getString() == "insert" && tokens.size() == 3) {
 		try {
 			tmpresult += "Changing tape";
@@ -405,6 +406,7 @@ void CassettePlayer::execute(const std::vector<TclObject*>& tokens,
 			insertTape(context.resolve(tokens[2]->getString()), now);
 			cliComm.update(CliComm::MEDIA,
 			               "cassetteplayer", tokens[1]->getString());
+			cliComm.update(CliComm::STATUS, "cassetteplayer", "play");
 		} catch (MSXException &e) {
 			throw CommandException(e.getMessage());
 		}
@@ -442,9 +444,7 @@ void CassettePlayer::execute(const std::vector<TclObject*>& tokens,
 			try {
 				tmpresult += "Play mode set, rewinding tape.";
 				insertTape(playerElem->getData(), now);
-				// TODO: use a new class of events for cassetteplayer? We're abusing
-				// the MEDIA event here to indicate a change of mode.
-				cliComm.update(CliComm::MEDIA, "cassetteplayer", playerElem->getData());
+				cliComm.update(CliComm::STATUS, "cassetteplayer", "play");
 			} catch (MSXException &e) {
 				throw CommandException(e.getMessage());
 			}
@@ -455,12 +455,14 @@ void CassettePlayer::execute(const std::vector<TclObject*>& tokens,
 		tmpresult += "Tape ejected";
 		removeTape(now);
 		cliComm.update(CliComm::MEDIA, "cassetteplayer", "");
+		cliComm.update(CliComm::STATUS, "cassetteplayer", "play");
 
 	} else if (tokens[1]->getString() == "rewind") {
 		if (wavWriter.get()) {
 			try {
 				tmpresult += "First stopping recording... ";
 				insertTape(playerElem->getData(), now);
+				cliComm.update(CliComm::STATUS, "cassetteplayer", "play");
 				// this also did the rewinding
 			} catch (MSXException &e) {
 				throw CommandException(e.getMessage());
@@ -477,6 +479,7 @@ void CassettePlayer::execute(const std::vector<TclObject*>& tokens,
 			insertTape(context.resolve(tokens[1]->getString()), now);
 			cliComm.update(CliComm::MEDIA,
 			               "cassetteplayer", tokens[1]->getString());
+			cliComm.update(CliComm::STATUS, "cassetteplayer", "play");
 		} catch (MSXException &e) {
 			throw CommandException(e.getMessage());
 		}

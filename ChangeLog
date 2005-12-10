@@ -1,5 +1,8 @@
 $Id$
 
+2005-12-10 Manuel Bilderbeek <manuel@msxnet.org>
+	* Pass cassetteplayer status to CliComm
+
 2005-12-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented 'openmsx_info setting':
 	   It returns a TCL list with:
