@@ -675,7 +675,7 @@ icon.<name>.non-active.fade-duration
   non-active version have the same position. The value is in pixels and (0,0)
   corresponds to the top-left of the screen.
   Note: In the future this will most likely change so that it is resolution
-        independent (low scaler)
+        independent (scale_factor setting)
 
   The image for the LED can be specified with the '(non-)active.image' setting.
   This can be an image of any size and the image can have an alpha
@@ -903,6 +903,30 @@ save_settings_on_exit
     set save_settings_on_exit true   Enable auto save
     set save_settings_on_exit false  Disable auto save
     
+
+scale_algorithm
+---------------
+  
+  Select the algorithm used to transform MSX pixels to host pixels.
+  
+  usage:
+    set scale_algorithm         Show current setting
+    set scale_algorithm simple  Select the default scale algorithm
+    set scale_algorithm hq      Select the hq scale algorithm
+
+
+scale_factor
+------------
+
+  Select the scale factor. Scale factor 'n' means the typical MSX pixel
+  (MSX resolution 256x212) is mapped on 'n' host pixels. For the moment
+  the possible values are 1, 2 or 3. In the future we may support a wider
+  range or even non integer values.
+
+  usage:
+    set scale_factor       Show current setting
+    set scale_factor <n>   Set a new scale factor
+
 
 scanline
 --------
