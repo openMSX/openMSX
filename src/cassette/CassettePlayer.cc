@@ -442,12 +442,12 @@ void CassettePlayer::execute(const std::vector<TclObject*>& tokens,
 			try {
 				tmpresult += "Play mode set, rewinding tape.";
 				insertTape(playerElem->getData(), now);
+				// TODO: use a new class of events for cassetteplayer? We're abusing
+				// the MEDIA event here to indicate a change of mode.
+				cliComm.update(CliComm::MEDIA, "cassetteplayer", playerElem->getData());
 			} catch (MSXException &e) {
 				throw CommandException(e.getMessage());
 			}
-			// TODO: use a new class of events for cassetteplayer? We're abusing
-			// the MEDIA event here to indicate a change of mode.
-			cliComm.update(CliComm::MEDIA, "cassetteplayer", playerElem->getData());
 		} else {
 			tmpresult += "Already in play mode.";
 		}
