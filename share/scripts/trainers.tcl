@@ -13,8 +13,8 @@
 # although the definition of cheating is mostly negative 
 # this time i turned it into something fun.
 #
-# openmsx is made to work together with ips patches. Albert has some ips
-# patches ready at http://ips.tni.nl/ for even more chatting ;)
+# openmsx is made to work together with ips patches. albert has some ips
+# patches ready at http://ips.msx.nu/ for even more chatting ;)
 #
 # please cheat responsible!
 
@@ -245,8 +245,9 @@ proc trainer_twinbee {} {
 proc trainer_yiearkungfu1 {} { 
 	#powerbar
 	poke 0xe116 32
-	poke 0xe130 32
-	after time 2 trainer_yiearkungfu1 
+	#kill enemy with one hit
+	poke 0xe117 0
+	after time 5 trainer_yiearkungfu1 
 }
 
 proc trainer_dota {} { 
@@ -2830,15 +2831,16 @@ proc trainer_illusioncity {} {
 	after time 60 trainer_illusioncity 
 } 
 
-proc trainer_yiearkungfu2 {} { 
-	#invincible by main enemy
+proc trainer_yiearkungfu2 {} {
+	#power player 1
+	poke 0xe100 32
+	#invincible for enemy (bosses only)
 	poke 0xe29e 255
 	#lives
 	poke 0xe055 0x99
-	#instant death for player 2 main enemy
-	poke 0xe102 0 
-	
-	after time 2 trainer_yiearkungfu2 
+	#kill enemy with one hit
+	poke 0xe102 1 
+	after time 5 trainer_yiearkungfu2 
 }
 
 proc trainer_ashiguine1 {} {
@@ -4648,13 +4650,24 @@ proc trainer_saimazoom {} {
 	if {[peek 0xd9e8] > 106} {
 	    poke 0xd9e8 100
     }
-    
 	after time 1 trainer_saimazoom
 }
 
-proc trainer_cheatingwives {} {
-	poke 0xc032 99 
-    after time 60 trainer_cheatingwives
+#bleuMSX team do not release these cheats before x-mas!! Keep them in CVS!
+proc trainer_thecure {} {
+	#power 
+	poke 0xdae6 64
+	#invincible
+	poke 0xdadf 4
+	#get yellow key
+	poke 0xdae0 1
+	#get white key
+	poke 0xdae1 1
+	#kill enemy with one hit
+	poke 0xdb8d 1
+	#hearts
+	poke 0xdd44 0x99
+	after time 1 trainer_thecure	
 }
 
 
