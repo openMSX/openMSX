@@ -5,7 +5,7 @@ following features:
 - two external slots, slot B is a sub slot (2-1)
 - 2048kB memory mapper (in slot 3-2)
 - 2 disk drives
-- V9958 VDP
+- V9958 VDP with 192kB VRAM
 - SCC+ in slot 2-0
 - FMPAC (slot 3-1)
 - MSX Audio
