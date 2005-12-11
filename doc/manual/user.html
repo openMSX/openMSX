@@ -832,7 +832,7 @@ Most MSX screen modes are only 256&times;212 pixels big. This is quite small for
 <p>Use <code>scale_factor</code> 1 only if you have a slow computer to run openMSX on, because it is very limited in possibilities and in the case of MSX screen modes with more pixels than 256&times;212, you even lose pixels! In that case, the pixels are interpolated. However, when using it full screen, the low resolution is not a problem, especially because most MSX software uses a 256&times;212 mode.
 </p>
 
-<p>There is also a number of scaling algorithms (setting <code>scale_algorithm</code>) that can be set. The scaling algorithm determines how exactly the mapping is done between the MSX input screen and the PC output screen. Especially for scaling factors bigger than 1, this allows for extra possiblities in the algorithms, like deinterlacing and adding scanlines, blur, anti-aliasing (rounding of blocky patters like stair cases) or even a Trinitron-like TV effect. When the factor is set to 1, you always get the <code>simple</code> algorithm, see below.
+<p>There is also a number of scaling algorithms (setting <code>scale_algorithm</code>) that can be set. The scaling algorithm determines how exactly the mapping is done between the MSX input screen and the PC output screen. Especially for scaling factors bigger than 1, this allows for extra possibilities in the algorithms, like deinterlacing and adding scanlines, blur, anti-aliasing (rounding of blocky patters like stair cases) or even a Trinitron-like TV effect. When the factor is set to 1, you always get the <code>simple</code> algorithm, see below.
 </p>
 
 <p>
@@ -927,7 +927,7 @@ This feature works in the <code>SDL</code> and <code>SDLGL</code> renderers. Not
 
 <dt><code>scanlines</code></dt>
 <dd>
-On TVs and MSX monitors, you can see a small black space in between the display lines, especially when using NTSC.
+On TV's and MSX monitors, you can see a small black space in between the display lines, especially when using NTSC.
 The scanlines feature simulates this by drawing some lines a bit darker.
 This feature works in the <code>SDL</code> and <code>SDLGL</code> renderers,
 but is disabled when a scaling algorithm other than <code>simple</code> or <code>RGBTriplet</code> is used and needs a scaling factor of at least 2.
@@ -935,7 +935,7 @@ but is disabled when a scaling algorithm other than <code>simple</code> or <code
 
 <dt><code>blur</code></dt>
 <dd>
-TVs and MSX monitors are less sharp than PC monitors:
+TV's and MSX monitors are less sharp than PC monitors:
 neighbouring pixels tend to blur into each other.
 The blur feature simulates this by interpolating neighbouring pixels.
 The <code>blur</code> settings control this:
