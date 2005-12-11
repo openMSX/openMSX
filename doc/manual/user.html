@@ -765,7 +765,7 @@ A renderer is a part of the emulator that generates the graphical part of the em
 
 <dt>SDL</dt>
 <dd>
-This is the default renderer. This renderer is not using any hardware acceleration and has a steady CPU time consumption. The CPU load can be quite high though. It is about 50% on Manuel's Athlon XP 1600+, when emulating a 3.5MHz MSX. The CPU load is smaller if you use a 16 bit per pixel video mode or when you have a CPU with MMX and/or MMXext extensions.
+This is the default renderer. This renderer is not using any hardware acceleration and has a steady CPU time consumption. The CPU load can be quite high though. It is about 50% on Manuel's Athlon XP 1600+, when emulating a 3.5MHz MSX and using no special graphical effects (see below). The CPU load is smaller if you use a 16 bit per pixel video mode or when you have a CPU with MMX and/or MMXext extensions.
 </dd>
 
 <dt>SDLGL</dt>
@@ -825,62 +825,64 @@ just like they occur on a real MSX.
 
 <h3><a id="scalers">6.3 Scalers</a></h3>
 
-<p class="todo">TODO: update this for the new 3x scalers and the new zoom/scale-method settings</p>
+<p>
+Most MSX screen modes are only 256&times;212 pixels big. This is quite small for PC screen resolutions of today. That's why you have the possibility to scale up the image. As of openMSX 0.6.0, there are three possible scaling factors: 1, 2 and 3. If you select 1, all MSX pixels are mapped to a 320&times;240 pixels PC window, for 2 to a 640&times;480 pixels window and for 3 to a (surprise!) 960&times;720 window. The setting which determines this is called <code>scale_factor</code>. In general, the higher the factor, the better the output image is; the downside: it takes a lot more CPU processing power.
+</p>
+
+<p>Use <code>scale_factor</code> 1 only if you have a slow computer to run openMSX on, because it is very limited in possibilities and in the case of MSX screen modes with more pixels than 256&times;212, you even lose pixels! In that case, the pixels are interpolated. However, when using it full screen, the low resolution is not a problem, especially because most MSX software uses a 256&times;212 mode.
+</p>
+
+<p>There is also a number of scaling algorithms (setting <code>scale_algorithm</code>) that can be set. The scaling algorithm determines how exactly the mapping is done between the MSX input screen and the PC output screen. Especially for scaling factors bigger than 1, this allows for extra possiblities in the algorithms, like deinterlacing and adding scanlines, blur, anti-aliasing (rounding of blocky patters like stair cases) or even a Trinitron-like TV effect. When the factor is set to 1, you always get the <code>simple</code> algorithm, see below.
+</p>
 
 <p>
-Most MSX screen modes are only 256&times;212 pixels big. However, the SDL renderer uses a 640&times;480 screen mode to display the MSX screen. The conversion from the low resolution MSX image to the high resolution PC image is done by a <em>scaler</em>. After openMSX 0.5.2, there is also a way to force scaling to a 320&times;240 screen mode. openMSX contains several scalers:
+openMSX contains the following scaling algorithms:
 </p>
 
 <dl>
 
 <dt>simple</dt>
 <dd>
-This scaler simply expands each MSX pixels to a square of 2&times;2 PC pixels.
+This algorithm simply expands each MSX pixel to a square of (scale_factor)&times;(scale_factor) PC pixels.
 This is the default scaler and it is fast.
-The image looks blocky, especially diagonal edges.
+The image looks blocky, especially diagonal edges, but it does support scanlines and blur for scale factors of 2 and higher. In combination with a scale factor of 1, you get what was
+previously the SDLLo renderer, which is the fastest scaling method available. Note that when there is an interlaced screen to be shown, openMSX will always use this scaling algorithm.
 </dd>
 
-<dt>low</dt>
+<dt><a class="external" href="http://scale2x.sourceforge.net/">ScaleNx</a></dt>
 <dd>
-Normally, the SDL renderer uses a window of 640&times;480 pixels. If you want to use a lower resolution, you can use this scaler, which scales the MSX pixels back to a 320&times;240 window. This is what was
-previously the SDLLo renderer.  For 256&times;212 MSX modes, this is a good
-fit.
-For 512&times;212 MSX modes, two pixels will be interpolated to produce
-a single output pixel.
-This scaler is mainly useful if you have a slow computer;
-when using it full screen the low resolution is not a problem, especially
-because most MSX software uses a 256&times;212 mode. Because of the size and the fact that no extra effects (like scanlines) are possible, it's the fastest scaler available.
-</dd>
-
-<dt><a class="external" href="http://scale2x.sourceforge.net/">Scale2x</a></dt>
-<dd>
-This scaler smoothes edges by using only original colours, so it will not give any blur. It is fast and its image is less blocky than that of the simple scaler. However, all corners are rounded, which does not look good on all graphics.
+This scaler algorithm smoothes edges by using only original colours, so it will not give any blur. It is fast and its image is less blocky than that of the simple scaler. However, all corners are rounded, which does not look good on all graphics. The original algorithm only supports a scaling factor of 2, but for openMSX we extended it to work with a factor of 3 as well.
 </dd>
 
 
-<dt><a class="external" href="http://elektron.its.tudelft.nl/~dalikifa/">2xSaI</a></dt>
+<dt><a class="external" href="http://elektron.its.tudelft.nl/~dalikifa/">SaI</a></dt>
 <dd>
-This scaler smoothes edges by interpolating neighbouring pixels.
-It is heaver on the CPU than the simple and Scale2x scalers.
+This scaler algorithm smoothes edges by interpolating neighbouring pixels.
+It is heaver on the CPU than the simple and ScaleNx algorithms.
 It does a good job on most graphics, except for high-contrast edges;
 for example white fonts on a black background get some nasty gray lines around them.
-Also corners are rounded, similar to Scale2x.
+Also corners are rounded, similar to ScaleNx. The original algorithm only supports a scaling factor of 2, but for openMSX we extended it to work with a factor of 3 as well.
 </dd>
 
-<dt><a class="external" href="http://www.hiend3d.com/hq2x.html">hq2x</a></dt>
+<dt><a class="external" href="http://www.hiend3d.com/">hq</a></dt>
 <dd>
-This scaler looks somewhat similar to 2xSaI, but its output is sharper.
-Its complex algorithm is very heavy on the CPU; use this scaler only on fast PCs.
+This scaler algorithm looks somewhat similar to SaI, but its output is sharper.
+This complex algorithm is very heavy on the CPU; use this algorithm only on fast PCs.
 It does a good job on most graphics; it avoids excessive blurring and it keeps corners sharp.
 On some graphics, it does not identify edges correctly, making those edges blocky instead of smooth.
+Especially with a scaling factor of 3, it can give a very smooth looking image.
 </dd>
 
-<dt>hq2xlite</dt>
+<dt>hqlite</dt>
 <dd>
-This is a variant of hq2x: the resulting image is close to hq2x, but it is
+This is a variant of hq: the resulting image is close to hq, but it is
 calculated a lot faster. It has probably the best quality per CPU usage ratio.
 </dd>
 
+<dt>RGBTriplet</dt>
+<dd>
+This algorithm only works when a scaling factor of 3 is used. Also, it only works well for MSX screen modes of 256&times;212, which includes most games. The idea of the algorithm is that each input pixel is mapped on a triplet of pixels which represent the R(ed), G(reen) and B(lue) components of the input pixel. This arrangement of RGB components is also used in the <a class="external" href="http://en.wikipedia.org/wiki/Aperture_grille">Aperture Grille</a> CRT's, also known as Trinitron and the modern TFT screens. You can control the effect with the <code>blur</code> setting. This algorithm also includes scan lines.
+</dd>
 
 </dl>
 
@@ -907,33 +909,31 @@ However, 0.8 is not the value I'm actually using: I prefer a brighter image than
 
 <h3><a id="videoeffects">6.5 Special Effects</a></h3>
 
-<p class="todo">TODO: update this for the new 3x scalers and the new zoom/scale-method settings</p>
-
 <p>
-openMSX contains a couple of special effects that can be applied to the video output:
+openMSX contains a couple of special effects settings that can be applied to the video output:
 </p>
 
 <dl>
 
-<dt>deinterlace</dt>
+<dt><code>deinterlace</code></dt>
 <dd>
 Interlacing is a technique to double the vertical resolution by splitting the image into two frames: the first frame the even lines are displayed, the second frame the odd lines are displayed.
 The after glow on a TV and some processes in the human brain combine both frames into a single image. However, this process is not perfect and you can notice flickering, especially on horizontal lines.
 The deinterlace feature combines the even and the odd frames into a single output frame, thus eliminating the flicker.
 The <code>deinterlace</code> setting controls this feature:
 it can be on (enabled) or off (disabled); it is enabled by default.
-This feature works in the <code>SDL</code> and <code>SDLGL</code> renderers, but is disabled when a scaler other than <code>simple</code> is used.
+This feature works in the <code>SDL</code> and <code>SDLGL</code> renderers. Note that when an interlaced screen is shown, openMSX will always use the <code>simple</code> scaling algorithm.
 </dd>
 
-<dt>scanlines</dt>
+<dt><code>scanlines</code></dt>
 <dd>
 On TVs and MSX monitors, you can see a small black space in between the display lines, especially when using NTSC.
-The scanlines feature simulates this by drawing every other line a bit darker.
+The scanlines feature simulates this by drawing some lines a bit darker.
 This feature works in the <code>SDL</code> and <code>SDLGL</code> renderers,
-but is disabled when a scaler other than <code>simple</code> is used.
+but is disabled when a scaling algorithm other than <code>simple</code> or <code>RGBTriplet</code> is used and needs a scaling factor of at least 2.
 </dd>
 
-<dt>blur</dt>
+<dt><code>blur</code></dt>
 <dd>
 TVs and MSX monitors are less sharp than PC monitors:
 neighbouring pixels tend to blur into each other.
@@ -943,10 +943,10 @@ The <code>blur</code> settings control this:
 100 means maximum blur (like a TV).
 All other values between 0 and 100 are also possible of course.
 This feature works in the <code>SDL</code> and <code>SDLGL</code> renderers,
-but is disabled when a scaler other than <code>simple</code> is used.
+but is disabled when a scaling algorithm other than <code>simple</code> or <code>RGBTriplet</code> is used and needs a scaling factor of at least 2.
 </dd>
 
-<dt>after glow</dt>
+<dt>after glow (<code>glow</code>)</dt>
 <dd>
 The after glow feature blends each frame with the frame before it.
 This results in moving objects leaving a trail (motion blur).

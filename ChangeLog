@@ -1,5 +1,8 @@
 $Id$
 
+2005-12-11 Manuel Bilderbeek <manuel@msxnet.org>
+	* Updated the manuals for the new scaler settings. Please review!
+
 2005-12-10 Manuel Bilderbeek <manuel@msxnet.org>
 	* Pass cassetteplayer status to CliComm
 

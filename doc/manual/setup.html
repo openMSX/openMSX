@@ -594,14 +594,14 @@ Even if they only do so only once in a while, it may be enough to cause
 emulation to stutter. 
 </li>
 <li>
-Use 16-bit colour mode instead of 32-bit.
+Use 16-bit colour mode ("High Colours", "65536 colours") instead of 32-bit ("True Colours", "millions of colours").
 openMSX uses your platform's default setting.
 </li>
 <li>
 Increase the number of frames that may be skipped (<code>set maxframeskip 10</code>, for example).
 </li>
 <li>
-Use the "low" scaler with the SDL renderer (75% less pixels to fill). For most
+Use a <code>scale_factor</code> of 1 with the SDL renderer (75% less pixels to fill). For most
 games (and any MSX1 software) it works perfectly, especially when using full screen. The drawback: no special effects at all, not even scanlines.
 </li>
 <li>
