@@ -67,6 +67,19 @@ void RGBTriplet3xScaler<Pixel>::rgbify(
 	out[3 * i + 2] = pixelOps.combine256(0 , gs, b );
 }
 
+template <typename Pixel>
+template <typename ScaleOp>
+void RGBTriplet3xScaler<Pixel>::scaleLine(
+		const Pixel* srcLine, Pixel* dstLine, ScaleOp scale)
+{
+	if (IsTagged<ScaleOp, Copy>::result) {
+		rgbify(srcLine, dstLine, 320);
+	} else {
+		Pixel tmp[320];
+		scale(srcLine, tmp, 320);
+		rgbify(tmp, dstLine, 320);
+	}
+}
 
 // Note: the idea is that this method RGBifies a line that is first scaled
 // to 256 (320) width. So, when calling this, keep this in mind and pass a
@@ -85,13 +98,7 @@ void RGBTriplet3xScaler<Pixel>::doScale1(FrameSource& src,
 	Pixel* dummy = 0;
 	const Pixel* srcLine = src.getLinePtr(srcStartY++, srcWidth, dummy);
 	Pixel* prevDstLine0 = dst.getLinePtr(y + 0, dummy);
-	Pixel tmp[320];
-	if (IsTagged<ScaleOp, Copy>::result) {
-		rgbify(srcLine, prevDstLine0, 320);
-	} else {
-		scale(srcLine, tmp, 320);
-		rgbify(tmp, prevDstLine0, 320);
-	}
+	scaleLine(srcLine, prevDstLine0, scale);
 
 	Scale_1on1<Pixel> copy;
 	Pixel* dstLine1 = dst.getLinePtr(y + 1, dummy);
@@ -100,12 +107,7 @@ void RGBTriplet3xScaler<Pixel>::doScale1(FrameSource& src,
 	for (/* */; (y + 4) < dstEndY; y += 3, srcStartY += 1) {
 		const Pixel* srcLine = src.getLinePtr(srcStartY, srcWidth, dummy);
 		Pixel* dstLine0 = dst.getLinePtr(y + 3, dummy);
-		if (IsTagged<ScaleOp, Copy>::result) {
-			rgbify(srcLine, dstLine0, 320);
-		} else {
-			scale(srcLine, tmp, 320);
-			rgbify(tmp, dstLine0, 320);
-		}
+		scaleLine(srcLine, dstLine0, scale);
 
 		Pixel* dstLine1 = dst.getLinePtr(y + 4, dummy);
 		copy(dstLine0, dstLine1, 960);
@@ -119,15 +121,37 @@ void RGBTriplet3xScaler<Pixel>::doScale1(FrameSource& src,
 
 	srcLine = src.getLinePtr(srcStartY, srcWidth, dummy);
 	Pixel buf[960];
-	if (IsTagged<ScaleOp, Copy>::result) {
-		rgbify(srcLine, buf, 320);
-	} else {
-		scale(srcLine, tmp, 320);
-		rgbify(tmp, buf, 320);
-	}
+	scaleLine(srcLine, buf, scale);
 	Pixel* dstLine2 = dst.getLinePtr(y + 2, dummy);
 	scanline.draw(prevDstLine0, buf, dstLine2,
-		      scanlineFactor, 960);
+	              scanlineFactor, 960);
+}
+
+template <typename Pixel>
+template <typename ScaleOp>
+void RGBTriplet3xScaler<Pixel>::doScale2(FrameSource& src,
+	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
+	ScaleOp scale)
+{
+	recalcBlur();
+
+	Pixel* dummy = 0;
+	int scanlineFactor = settings.getScanlineFactor();
+	for (unsigned srcY = srcStartY, dstY = dstStartY; dstY < dstEndY;
+	     srcY += 2, dstY += 3) {
+		const Pixel* srcLine0 = src.getLinePtr(srcY + 0, srcWidth, dummy);
+		Pixel* dstLine0 = dst.getLinePtr(dstY + 0, dummy);
+		scaleLine(srcLine0, dstLine0, scale);
+
+		const Pixel* srcLine1 = src.getLinePtr(srcY + 1, srcWidth, dummy);
+		Pixel* dstLine2 = dst.getLinePtr(dstY + 2, dummy);
+		scaleLine(srcLine1, dstLine2, scale);
+
+		Pixel* dstLine1 = dst.getLinePtr(dstY + 1, dummy);
+		scanline.draw(dstLine0, dstLine2, dstLine1,
+		              scanlineFactor, 960);
+	}
 }
 
 template <class Pixel>
@@ -136,6 +160,15 @@ void RGBTriplet3xScaler<Pixel>::scale2x1to9x3(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	doScale1(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
+	         Scale_2on3<Pixel>(pixelOps));
+}
+
+template <class Pixel>
+void RGBTriplet3xScaler<Pixel>::scale2x2to9x3(FrameSource& src,
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	doScale2(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
 	         Scale_2on3<Pixel>(pixelOps));
 }
 
@@ -149,11 +182,29 @@ void RGBTriplet3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 }
 
 template <class Pixel>
+void RGBTriplet3xScaler<Pixel>::scale1x2to3x3(FrameSource& src,
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	doScale2(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
+	         Scale_1on1<Pixel>());
+}
+
+template <class Pixel>
 void RGBTriplet3xScaler<Pixel>::scale4x1to9x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	doScale1(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
+	         Scale_4on3<Pixel>(pixelOps));
+}
+
+template <class Pixel>
+void RGBTriplet3xScaler<Pixel>::scale4x2to9x3(FrameSource& src,
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	doScale2(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
 	         Scale_4on3<Pixel>(pixelOps));
 }
 
@@ -167,6 +218,15 @@ void RGBTriplet3xScaler<Pixel>::scale2x1to3x3(FrameSource& src,
 }
 
 template <class Pixel>
+void RGBTriplet3xScaler<Pixel>::scale2x2to3x3(FrameSource& src,
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	doScale2(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
+	         Scale_2on1<Pixel>(pixelOps));
+}
+
+template <class Pixel>
 void RGBTriplet3xScaler<Pixel>::scale8x1to9x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
@@ -176,11 +236,29 @@ void RGBTriplet3xScaler<Pixel>::scale8x1to9x3(FrameSource& src,
 }
 
 template <class Pixel>
+void RGBTriplet3xScaler<Pixel>::scale8x2to9x3(FrameSource& src,
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	doScale2(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
+	         Scale_8on3<Pixel>(pixelOps));
+}
+
+template <class Pixel>
 void RGBTriplet3xScaler<Pixel>::scale4x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	doScale1(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
+	         Scale_4on1<Pixel>(pixelOps));
+}
+
+template <class Pixel>
+void RGBTriplet3xScaler<Pixel>::scale4x2to3x3(FrameSource& src,
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	doScale2(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
 	         Scale_4on1<Pixel>(pixelOps));
 }
 
@@ -232,6 +310,52 @@ void RGBTriplet3xScaler<Pixel>::scaleBlank1to3(
 	if (dstY != dst.getHeight()) {
 		unsigned nextLineWidth = src.getLineWidth(srcY + 1);
 		assert(src.getLineWidth(srcY) == 1);
+		assert(nextLineWidth != 1);
+		this->scaleImage(src, srcY, srcEndY, nextLineWidth,
+		                 dst, dstY, dstEndY);
+	}
+}
+
+template <class Pixel>
+void RGBTriplet3xScaler<Pixel>::scaleBlank2to3(
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	recalcBlur();
+	int scanlineFactor = settings.getScanlineFactor();
+
+	unsigned stopDstY = (dstEndY == dst.getHeight())
+	                  ? dstEndY : dstEndY - 3;
+	unsigned srcY = srcStartY, dstY = dstStartY;
+	for (/* */; dstY < stopDstY; srcY += 2, dstY += 3) {
+		Pixel* dummy = 0;
+		Pixel color0 = src.getLinePtr(srcY + 0, dummy)[0];
+		Pixel color1 = src.getLinePtr(srcY + 1, dummy)[0];
+
+		Pixel inNormal [3];
+		Pixel out0Normal[3 * 3];
+		Pixel out1Normal[3 * 3];
+		Pixel outScanline[3 * 3];
+
+		inNormal[0] = inNormal[1] = inNormal[2] = color0;
+		rgbify(inNormal, out0Normal, 3);
+		inNormal[0] = inNormal[1] = inNormal[2] = color1;
+		rgbify(inNormal, out1Normal, 3);
+
+		for (int i = 0; i < (3 * 3); ++i) {
+			outScanline[i] = scanline.darken(
+				out0Normal[i], out1Normal[i],
+				scanlineFactor);
+		}
+
+		fillLoop(out0Normal,  dst.getLinePtr(dstY + 0, dummy));
+		fillLoop(outScanline, dst.getLinePtr(dstY + 1, dummy));
+		fillLoop(out1Normal,  dst.getLinePtr(dstY + 2, dummy));
+	}
+	if (dstY != dst.getHeight()) {
+		unsigned nextLineWidth = std::max(
+			src.getLineWidth(srcY + 2),
+			src.getLineWidth(srcY + 3));
 		assert(nextLineWidth != 1);
 		this->scaleImage(src, srcY, srcEndY, nextLineWidth,
 		                 dst, dstY, dstEndY);

@@ -1,5 +1,8 @@
 $Id$
 
+2005-12-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented deinterlace mode support in RGBTriplet scaler
+
 2005-12-11 Manuel Bilderbeek <manuel@msxnet.org>
 	* Updated the manuals for the new scaler settings. Please review!
 

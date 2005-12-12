@@ -311,6 +311,12 @@ Pixel Scanline<Pixel>::darken(Pixel p, unsigned factor)
 	return darkener.multiply(p, factor);
 }
 
+template <class Pixel>
+Pixel Scanline<Pixel>::darken(Pixel p1, Pixel p2, unsigned factor)
+{
+	return darkener.multiply(pixelOps.template blend<1, 1>(p1, p2), factor);
+}
+
 // Force template instantiation.
 template class Scanline<word>;
 template class Scanline<unsigned>;
