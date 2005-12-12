@@ -96,7 +96,7 @@ void DebugDevice::outputSingleByte(byte value, const EmuTime& time)
 		(*outputstrm) << "' ";
 	}
 	Clock<3579545> zero;
-	(*outputstrm) << "emutime: " << zero.getTicksTill(time);
+	(*outputstrm) << "emutime: " << std::dec << zero.getTicksTill(time);
 	if ((modeParameter & 0x08) && ((value < ' ') || (value == 127))) {
 		displayByte(value, ASC); // do special effects
 	}
