@@ -15,4 +15,5 @@ VERSION_EXEC:=false
 # Create a symbolic link to the installed binary?
 # This link is placed in a location that is typically in a user's path:
 # /usr/local/bin for system-wide installs and ~/bin for personal installs.
+# This setting is only relevant on systems that support symbolic links.
 SYMLINK_FOR_BINARY:=true
