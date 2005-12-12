@@ -89,6 +89,7 @@ LINK_FLAGS:=
 include $(MAKE_PATH)/custom.mk
 $(call DEFCHECK,INSTALL_BASE)
 $(call BOOLCHECK,VERSION_EXEC)
+$(call BOOLCHECK,SYMLINK_FOR_BINARY)
 
 
 # Version
@@ -350,7 +351,7 @@ endif
 INCLUDE_INTERNAL:=$(filter-out %/CVS,$(shell find $(SOURCES_PATH) -type d))
 INCLUDE_INTERNAL+=$(CONFIG_PATH)
 INCLUDE_EXTERNAL:= # TODO: Define these here or platform-*.mk?
-INCLUDE_EXTERNAL+=/usr/X11R6/include 
+INCLUDE_EXTERNAL+=/usr/X11R6/include
 COMPILE_FLAGS:=$(addprefix -I,$(INCLUDE_INTERNAL) $(INCLUDE_EXTERNAL))
 
 # Determine common link flags.
@@ -517,7 +518,7 @@ ifeq ($(USE_SYMLINK),true)
 	@ln -nsf Philips_NMS_8250 $(INSTALL_SHARE_DIR)/machines/msx2
 	@ln -nsf Panasonic_FS-A1FX $(INSTALL_SHARE_DIR)/machines/msx2plus
 	@ln -nsf Panasonic_FS-A1GT $(INSTALL_SHARE_DIR)/machines/turbor
-  ifeq ($(SOFTLINK_FOR_BINARY),true)
+  ifeq ($(SYMLINK_FOR_BINARY),true)
 	@if [ -d /usr/local/bin -a -w /usr/local/bin ]; \
 	then ln -sf $(INSTALL_BINARY_DIR)/$(BINARY_FILE) /usr/local/bin/openmsx; \
 	else if [ -d ~/bin ]; \
