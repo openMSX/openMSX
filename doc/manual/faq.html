@@ -21,11 +21,10 @@
 	<li><a class="internal" href="#roms">3. Why doesn't openMSX come with system ROMs?</a> </li>
 	<li><a class="internal" href="#whereroms">4. Where do I install the ROMs?</a> </li>
 	<li><a class="internal" href="#c-bios">5. All I get is "Cartridge not found." or something similar. What's wrong?</a></li>
-	<li><a class="internal" href="#samples040">6. The sound quality is quite bad in the 0.4.0 release, is that normal?</a></li>
-	<li><a class="internal" href="#harddisk">7. What is the openMSX harddisk support? </a></li>
-	<li><a class="internal" href="#ziporexe">8. Should I download the ZIP or the EXE for Windows? </a></li>
-	<li><a class="internal" href="#videosource">9. It seems the MSX hangs when running GFX9000 software; what's wrong? </a></li>
-	<li><a class="internal" href="#leds">10. Great, those new OSD LEDs! How do I get rid of them? </a></li>
+	<li><a class="internal" href="#harddisk">6. What is the openMSX harddisk support? </a></li>
+	<li><a class="internal" href="#ziporexe">7. Should I download the ZIP or the EXE for Windows? </a></li>
+	<li><a class="internal" href="#videosource">8. It seems the MSX hangs when running GFX9000 software; what's wrong? </a></li>
+	<li><a class="internal" href="#leds">9. Great, those new OSD LEDs! How do I get rid of them? </a></li>
 </ol>
 
 <h2><a id="difficultinstall">1. Why is openMSX so difficult to install?</a></h2>
@@ -71,27 +70,21 @@ The MSX system ROMs are copyrighted. In other words: it's illegal to include the
 
 <h2><a id="whereroms">4. Where do I install the ROMs?</a> </h2>
 
-<p>For version 0.5.0: you can put all the ROMs in a ROM pool, which is a central ROM directory. The default location is <code>share/systemroms</code>.
+<p>Since version 0.5.0: you can put all the ROMs in a ROM pool, which is a central ROM directory. The default location is <code>share/systemroms</code>.
 </p>
 <p>You can also do it in the way of the older versions: put the ROMs for the machine called WHATEVER in <code>share/machines/WHATEVER/roms</code> and for the extension called WHATEVER in <code>share/extensions/WHATEVER/roms</code>.
 See also the <a class="external" href="setup.html#romlocation">Setup Guide</a>.
 </p>
 
-<h2><a id="c-bios">5. All I get is "Cartridge not found." or something similar. What's wrong?</a></h2>
+<h2><a id="c-bios">5. All I get is "No cartridge found." or something similar. What's wrong?</a></h2>
 
-<p>You are probably talking about this (older C-BIOS):</p>
-
-<p class="image">
-<img src="cartnotfound.png" width="320" height="240" alt="Cartridge not found."></img>
-</p>
-
-<p>or something like this (newer C-BIOS):</p>
+<p>You are probably talking about this:</p>
 
 <p class="image">
-<img src="nocartfound.png" width="320" height="240" alt="No cartridge found."></img>
+<img src="nocartfound021.png" width="320" height="240" alt="No cartridge found."></img>
 </p>
 
-<p>openMSX doesn't come with any system ROMs, see <a class="internal" href="#roms">3. Why doesn't openMSX come with system ROMs?</a>. To have something to be able to run some software, openMSX comes with a free replacement of an MSX BIOS ROM called <a class="external" href="http://cbios.sourceforge.net/">C-BIOS</a>, written by BouKiChi, Reikan and nowadays the C-BIOS Association. This is also what you can see in the screen: C-BIOS 0.20 (or 0.17 if you use an older version). 
+<p>openMSX doesn't come with any system ROMs, see <a class="internal" href="#roms">3. Why doesn't openMSX come with system ROMs?</a>. To have something to be able to run some software, openMSX comes with a free replacement of an MSX BIOS ROM called <a class="external" href="http://cbios.sourceforge.net/">C-BIOS</a>, written by BouKiChi, Reikan and nowadays the C-BIOS Association. This is also what you can see in the screen: C-BIOS 0.21. 
 </p>
 
 <p>
@@ -101,24 +94,13 @@ So, the message is not from openMSX, but from C-BIOS, which tries to start a car
 <p>Note that the current version of C-BIOS can only run cartridges and does not support disk or tape usage. More information can be found in the <a class="external" href="setup.html#cbios">Setup Guide</a>.
 </p>
 
-<h2><a id="samples040">6. The sound quality is quite bad in the 0.4.0 release, is that normal?</a></h2>
-
-<p>Unfortunately, we made a small mistake in the Windows release of 0.4.0. However, the problem can be easily fixed by editing the file <code>share\settings.xml</code> with Notepad or some similar text editor. Look for the section marked "Audio mixer settings" and change the 'samples' setting from 512 to 1024 or 2048. You can play around with the setting: just save the file and restart openMSX to test it. Note that later versions should have this fixed.
-</p>
-<p>
-The effect of a wrong setting is that if it is too high, you will get an irregular tempo of the music (high latencies) and if it's too low, the music will sound choppy.
-</p>
-
-<p>At the moment, it is not clear what the default value of this setting should be. It seems that the perfect combination of samples and frequency depends on the system. So, feel free to experiment with them.
-</p>
-
-<h2><a id="harddisk">7. What is the openMSX harddisk support?</a></h2>
+<h2><a id="harddisk">6. What is the openMSX harddisk support?</a></h2>
 
 <p>
 This is explained in the <a class="external" href="user.html#harddisks">User's Manual</a>.
 </p>
 
-<h2><a id="ziporexe">8. Should I download the ZIP or the EXE for Windows?</a></h2>
+<h2><a id="ziporexe">7. Should I download the ZIP or the EXE for Windows?</a></h2>
 
 <p>
 You probably noticed that the ZIP file is a little bit bigger than the EXE. The reason for this is that the EXE file has better compression! The actual contents is exactly the same.
@@ -131,7 +113,7 @@ We strongly recommend to use the EXE. It contains a very comfortable installer (
 With the EXE, your openMSX experience is only about 3 clicks away. The ZIP file is meant for experienced users mostly.
 </p>
 
-<h2><a id="videosource">9. It seems the MSX hangs when running GFX9000 software; what's wrong?</a></h2>
+<h2><a id="videosource">8. It seems the MSX hangs when running GFX9000 software; what's wrong?</a></h2>
 
 <p>
 The real GFX9000 has an external video connector to which you can connect a second monitor. Because of limits of the SDL library we used to create openMSX, we cannot have more than one window for openMSX, so we cannot emulate a second monitor. To see the GFX9000 in action, you need to switch the videosource setting, which equals to a so-called SCART-switch in the real world: <code>set videosource GFX9000</code>. If you started openMSX without GFX9000 extension, this videosource is not available. To get your normal MSX screen back, you should type <code>set videosource MSX</code>. If you want to toggle with a hot key between them, it might be useful to bind a key for it. E.g.: <code>bind F6 cycle videosource</code>. <code>cycle</code> is a TCL command that cycles through the options of the setting in the parameter. 
@@ -139,14 +121,14 @@ The real GFX9000 has an external video connector to which you can connect a seco
 
 <p>Note that GFX9000 emulation does not work with the SDLGL renderer yet and that it's incomplete, slow and buggy anyways...</p>
 
-<h2><a id="leds">10. Great, those new OSD LEDs! How do I get rid of them?</a></h2>
+<h2><a id="leds">9. Great, those new OSD LEDs! How do I get rid of them?</a></h2>
 
 <p>
 Open the console with F10 and type:
 </p>
 <div class="commandline">load_icons none</div>
 
-<p>If you have <code>autosave_at_exit</code> set to <code>on</code>, this change will be permanent, until you load another icon set. This gives you the default for openMSX 0.5.1:</p>
+<p>If you have <code>autosave_at_exit</code> set to <code>on</code>, this change will be permanent, until you load another icon set. This gives you the default:</p>
 
 <div class="commandline">load_icons set1 bottom</div>
 

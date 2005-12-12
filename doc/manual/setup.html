@@ -332,10 +332,9 @@ Look in the file hardwareconfig.xml for the file names openMSX expects
 the ROM images to have.
 </p>
 
-<p>Alternatively, since openMSX 0.5.0 there is an easier way. These
-versions support ROM pools: special directories where openMSX will look
+<p>There is also an easier way. The so-called ROM pools: special directories where openMSX will look
 for ROM files. The default ROM pool is the <code>share/systemroms</code>
-directory. So, if you're using 0.5.0 or higher, you can just as well
+directory. So, you can just as well
 put all your system ROMs in that directory.
 </p>
 
@@ -376,7 +375,7 @@ which contains different system ROMs.
 </p>
 
 <p>
-In openMSX versions from 0.5.0 the sha1sums are also included in the
+The sha1sums are also included in the
 machine configuration files. This enables openMSX to find the right ROM
 file from one of the ROM pools. If the ROM is explicitly specified in
 the configuration file and the sha1sum doesn't match a warning will be
@@ -387,7 +386,7 @@ printed.
 <h2><a id="settings">4. User Preferences</a></h2>
 
 <p>
-Since openMSX 0.5.0, almost all user preferences can be done via the console, at openMSX run time. See also <a class="external" href="user.html#controlling">the User's Manual</a>. You can save your settings with the <code>save_settings</code> command, which will save the settings in <code>~/.openMSX/share/settings.xml</code> (UNIX) or <code>My Documents\openMSX\share\settings.xml</code> (Windows), your personal settings file. The settings file will be loaded every time openMSX starts. You can still manually edit this file, but it is not really necessary anymore: just edit the settings from the console. Note that openMSX doesn't ship a <code>settings.xml</code> file anymore. If you save your settings for the first time, it is generated from the current settings, which may be the built in defaults.
+Almost all user preferences can be done via the openMSX console, at openMSX run time. This is more thoroughly explained in <a class="external" href="user.html#controlling">the User's Manual</a>. In short: you can save your settings with the <code>save_settings</code> command, which will save the settings in <code>~/.openMSX/share/settings.xml</code> (UNIX) or <code>My Documents\openMSX\share\settings.xml</code> (Windows), your personal settings file. The settings file will be loaded every time openMSX starts. You can still manually edit this file, but it is not really necessary anymore: just edit the settings from the console. Note that openMSX doesn't ship a <code>settings.xml</code> file anymore. If you save your settings for the first time, it is generated from the current settings, which may be the built in defaults.
 </p>
 
 <p>
@@ -420,7 +419,7 @@ The other settings are discussed in <a class="external" href="user.html#controll
 
 <p>
 Previous versions of openMSX also had a possibility to specify <code>AutoCommands</code>. If you still want to let openMSX execute commands at start up, add those commands to the <code>init.tcl</code> file. This file can be placed in
-exactly the same directories as the <code>settings.xml</code> file. Note that you can put any Tcl command there, so you can also use it to specify aliases, for example.
+exactly the same directories as the <code>settings.xml</code> file. Note that you can put any Tcl command there, so you can also use it to specify aliases, for example. If you do not want to mess with the standard <code>init.tcl</code>, you can also specify another Tcl file to be loaded and executed on the openMSX commandline. For this, use the <code>-script</code> command line option, which has the filename of the Tcl script as argument.
 </p>
 
 <h2><a id="hardwareedit">5. Writing Hardware Descriptions</a></h2>

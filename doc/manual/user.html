@@ -275,7 +275,7 @@ This will give you a command line in the openMSX window.
 </p>
 
 <p>
-Typing <code>help</code> gives a list of commands.
+Typing <code>help</code> gives a list of commands. Using PageUp you can see all of them.
 If you type <code>help [command]</code> you will get help
 for the specified command.
 This manual describes a few important commands;
@@ -297,7 +297,7 @@ Add the complete list of commands from commands.txt somewhere.
 <h3><a id="importantconsole">3.2 Some Simple Console Commands</a></h3>
 
 <p>
-You can reset your MSX with the Console command <code>reset</code> and quit openMSX with the command <code>quit</code>. Other commands will be discussed later on in this manual.
+You can reset your MSX with the Console command <code>reset</code> and exit openMSX with the command <code>exit</code>. Other commands will be discussed later on in this manual.
 </p>
 
 <h3><a id="settings">3.3 Settings</a></h3>
@@ -410,7 +410,7 @@ To run a disk image, you can type:
 </p>
 <div class="commandline">openmsx relax.dsk</div>
 <p>
-for example. Or, if you use a disk image with an extension that is not registered as such:
+for example. Or, if you use a disk image with an extension that is unknown to openMSX:
 </p>
 <div class="commandline">openmsx -diska relax.di</div>
 
@@ -426,6 +426,9 @@ in the console to put the specified disk image in drive A. To eject the disk fro
 <div class="commandline">
     diska -eject
 </div>
+<p>
+Note that inserting another disk image automatically ejects the previous one.
+</p>
 
 <p>
 Disk images in XSA format are also supported, use them as regular disk images, but do note that they are read only. The same counts for (g)zipped disk images. Note that in zipped disk images the first file that is packed into the zip file will be used as disk image.
@@ -542,13 +545,12 @@ Center forum that may give you valuable hints.
 </p>
 
 <p>
-For clarity: because the emulation is done on a big disk image, you need free
-disk space for this image, which can be quite big (default 100MB). Also, you
+For clarity: because the emulation is done on a big disk image, there can be no data corruption of your PC's harddisk. This does mean that you need free
+disk space for this image, which can be quite big (default 100MB). So, in other words,  you
 can't really use your normal PC harddisk as an MSX harddisk for this extension.
 (Maybe on UNIX systems it works if you choose a device like
 <code>/dev/hdb</code> as harddisk image file, but we have not tested it and do
-note that it can cause loss of data of that partition or disk!!) This means
-that there can be no data corruption of your PC's harddisk.
+note that it can cause loss of data of that partition or disk!) 
 </p>
 
 <p>
@@ -561,20 +563,11 @@ href="#dirasdisk">DirAsDsk section</a> for more details.
 <h4><a id="tapewav">4.3.1 Using WAV files</a></h4>
 
 <p>
-openMSX supports WAV files for tape emulation! Just configure your MSX with a
-cassette port (or use a premade MSX that already has it):
+openMSX supports WAV files for tape emulation! Just use an MSX with a
+cassette port (at least any MSX1 or MSX2 machine will do) and it should be available.
 </p>
-<div class="commandline">
-     &lt;CassettePort/&gt;
-</div>
 <p>
 Then type in the console:
-</p>
-<div class="commandline">
-     plug cassetteport cassetteplayer
-</div>
-<p>
-(if still necessary, nowadays we autoplug it)
 </p>
 <div class="commandline">
      cassetteplayer insert &lt;file&gt;.wav
@@ -611,7 +604,7 @@ You can also use the so-called CAS files. Use them exactly as you would use WAV 
 </p>
 
 <p>
-We don't support using CAS files anymore by patching a BIOS, because it is not really something you want.
+We don't support using CAS files anymore by patching a BIOS, because it is not really something we want: we prefer a more authentic emulation without hacks like this.
 So, nowadays, the CAS files are automatically
 converted to WAV files, internally. Note that the loading time is drastically
 longer this way (but: doing a <code>set fullspeedwhenloading on</code> will help a lot). On the other hand, you will be able to hear the cassette
@@ -658,14 +651,6 @@ connections. e.g.
 <div class="commandline">
     qjackctl
 </div>
-
-<p>
-Be aware that the Jack-pluggable does not filter out the DC-component
-of the cassette signal; if you direct the cassette-out signal to real
-equipment without a DC filter you may damage some hardware even when
-you don't hear any sound! OpenMSX developers will not accept any
-responsibility for damage caused by the usage of openMSX.
-</p>
 
 <p>
 The Jack-pluggable has been successfully tested with
@@ -750,7 +735,7 @@ will connect a mouse to joystick port A. If you want the joystick emulation feat
 </p>
 
 <p>
-If you are using openMSX in windowed mode, it might be tricky to use the mouse. For that you may want to use the following setting: <code>set grabinput on</code>. This makes sure all input goes to openMSX. Your cursor cannot leave the openMSX window with this setting. Just turn it back to off, if you want to disable this again. If you only want to escape the window briefly, use this command: <code>escape_grab</code>. It permits you to leave the window, but the next time you enter it, the cursor is grabbed again.
+If you are using openMSX in windowed mode, it might be tricky to use the mouse. For that you may want to use the following setting: <code>set grabinput on</code>. This makes sure all input goes to openMSX. Your cursor cannot leave the openMSX window with this setting. Just turn it back to off, if you want to disable this again. If you only want to escape the window briefly, use this command: <code>escape_grab</code>. It permits you to leave the window, but the next time you enter it, the cursor is grabbed again. It might be a good idea to bind this command to a key, using the <code>bind</code> command, which is mentioned above.
 </p>
 
 <h2><a id="video">6. Video</a></h2>
@@ -758,7 +743,7 @@ If you are using openMSX in windowed mode, it might be tricky to use the mouse. 
 <h3><a id="renderers">6.1 Renderers</a></h3>
 
 <p>
-A renderer is a part of the emulator that generates the graphical part of the emulation: the MSX 'screen'. At the moment, there are two working renderers (this has been changed after openMSX 0.5.2!):
+A renderer is a part of the emulator that generates the graphical part of the emulation: the MSX 'screen'. At the moment, there are two working renderers (this has been changed since openMSX 0.6.0!):
 </p>
 
 <dl>
@@ -846,7 +831,7 @@ openMSX contains the following scaling algorithms:
 This algorithm simply expands each MSX pixel to a square of (scale_factor)&times;(scale_factor) PC pixels.
 This is the default scaler and it is fast.
 The image looks blocky, especially diagonal edges, but it does support scanlines and blur for scale factors of 2 and higher. In combination with a scale factor of 1, you get what was
-previously the SDLLo renderer, which is the fastest scaling method available. Note that when there is an interlaced screen to be shown, openMSX will always use this scaling algorithm.
+previously the SDLLo renderer, which is the fastest scaling method available.
 </dd>
 
 <dt><a class="external" href="http://scale2x.sourceforge.net/">ScaleNx</a></dt>
@@ -876,7 +861,7 @@ Especially with a scaling factor of 3, it can give a very smooth looking image.
 <dt>hqlite</dt>
 <dd>
 This is a variant of hq: the resulting image is close to hq, but it is
-calculated a lot faster. It has probably the best quality per CPU usage ratio.
+calculated a lot faster. It has a good quality per CPU usage ratio.
 </dd>
 
 <dt>RGBTriplet</dt>
@@ -922,7 +907,7 @@ The after glow on a TV and some processes in the human brain combine both frames
 The deinterlace feature combines the even and the odd frames into a single output frame, thus eliminating the flicker.
 The <code>deinterlace</code> setting controls this feature:
 it can be on (enabled) or off (disabled); it is enabled by default.
-This feature works in the <code>SDL</code> and <code>SDLGL</code> renderers. Note that when an interlaced screen is shown, openMSX will always use the <code>simple</code> scaling algorithm.
+This feature works in the <code>SDL</code> and <code>SDLGL</code> renderers.
 </dd>
 
 <dt><code>scanlines</code></dt>
@@ -960,7 +945,7 @@ This feature works only in the <code>SDLGL</code> renderer.
 <h3><a id="gfx9000">6.6 GFX9000/Video source</a></h3>
 
 <p>
-Since openMSX 0.5.1, experimental GFX9000 emulation is available. Note that it
+openMSX has experimental GFX9000 emulation. Note that it
 is indeed experimental; it is also incomplete, unoptimised and contains loads of
 bugs. One of these things is the fact that it does not work with the SDLGL
 renderer yet. Despite of all this, we thought you might wanted to play around
@@ -1188,7 +1173,7 @@ and so on.
 <p>
 The EmuTime part is a special number that keeps track of the openMSX emulation.
 The larger this number is, the later the event took place. This is a great way
-to find out in what order things are called.
+to get an idea of the timing of things.
 </p>
 <p>
 If the character to print is a special character, like carriage return,
