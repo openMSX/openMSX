@@ -13,7 +13,6 @@ INSTALL_DOCS:= \
 	using-diskmanipulator.txt
 
 DIST:=$(INSTALL_DOCS) \
-	debugdevice.txt \
 	developersFAQ.txt testcases.txt \
 	vram-addressing.txt \
 	openmsx.tex MSX-cassette.dia \
