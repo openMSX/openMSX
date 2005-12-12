@@ -14,8 +14,6 @@ INSTALL_DOCS:= \
 
 DIST:=$(INSTALL_DOCS) \
 	developersFAQ.txt testcases.txt \
-	vram-addressing.txt \
-	openmsx.tex MSX-cassette.dia \
 	msxinfo-article.html schema1.png schema2.png screenshot.png
 
 include build/node-end.mk
