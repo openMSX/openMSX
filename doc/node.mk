@@ -13,7 +13,6 @@ INSTALL_DOCS:= \
 	using-diskmanipulator.txt
 
 DIST:=$(INSTALL_DOCS) \
-	developersFAQ.txt testcases.txt \
 	msxinfo-article.html schema1.png schema2.png screenshot.png
 
 include build/node-end.mk
