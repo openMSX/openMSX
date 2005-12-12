@@ -8,8 +8,8 @@ controlled from another process. The control protocol XML-based.
 In openmsx-control.cc you'll find an example client application which
 communicates with openMSX using the control protocol.
 
-Note: The control protocol is experimental and will change incompatibly
-      in the next release.
+Note: We try to keep the control protocol stable, but there is no hard
+      guarantee it won't change in the next release.
 
 author:   Wouter Vermaelen
 
