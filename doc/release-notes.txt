@@ -1,67 +1,64 @@
-Release Notes for openMSX 0.5.2 (2005-06-09)
+Release Notes for openMSX 0.6.0 (2005-31-??)
 ============================================
 
-This release is mainly a bug fix release with only a few new features, but a lot
-of quality improvements, mainly related to audio. We reworked the YM2413 engine
-by Okazaki, bringing the openMSX fork up to date with the latest release of
-MSXplug. We also fixed an bug in the SCC emulation, which screwed up some sound
-effects. Other fixes include MSX-AUDIO sample RAM access and the timer accuracy
-of OPL4 and MSX-AUDIO. Finally, we also added a DirectSound driver for Windows.
+After a long time, a fresh release which brings a lot of internal improvements
+and some long standing new features as well.
 
-A new sound related feature is the sound logger. It writes the sound played by
-openMSX to an uncompressed WAV file. The current version logs exactly what is
-sent to the sound driver, including any inaccuracies caused by realtime
-synchronization. We are planning a logger that is not timing sensitive to
-appear in a future openMSX release. For usage instructions, see section 7.3 of
-the openMSX User's Manual.
+The biggest change for the user is the fact that we removed the SDLLo renderer
+and that we split the scalers into a separate scale_factor and scale_algorithm
+setting. A factor of 1 replaces the SDLLo render and as a bonus we also added a
+factor of 3! The latter makes also more exotic scalers possible, like the new
+RGBTriplet one, which tries to emulate a (low res) Trinitron (Aperture Grille)
+monitor. But, definitely try out the scalers you already know in combination
+with a scale_factor of 3 as well.
 
-A last new (but still a bit experimental) feature is the disk manipulator. This
-is a new built in toolkit to transfer files from the host OS to the MSX disks
-(disk images and hard disk images with partitions are all supported) and vice
-versa. You can also use it to create new (hard) disk images and format them. A
-complete description is in doc/using-diskmanipulator.txt.
+Mac OS X Tiger users (and others with recent compilers) will be happy to find
+out that this release will just compile cleanly on their systems. No need to get
+CVS snapshots anymore! Also some problems specific for big endian CPU's (like
+the Power PC in Macs) were fixed.
+
+In the sound department we made yet another big quality improvement, this time
+for DAC devices, like the turboR PCM and the Konami DAC which can be found in
+the Hai no Majutsushi and Synthesizer products.
+
+Note that in this release several incompatible changes to openMSX commands were
+made. First of all, the cassetteplayer subcommands have changed, because we
+added the possibility to save to cassette now as well. Also the keyjoystick
+settings are incompatibly changed, which means your old bindings will be lost.
+Finally the already mentioned renderer and scaler settings have changed
+incompatibly. Please keep this in mind when upgrading!
 
 New or improved emulator features:
-- New scaler: HQ2xLite. This is a scaler that is almost as good as HQ2x, but
-  uses a lot less CPU.
-- Added DirectSound driver for Windows, which solves the problems some people
-  had with SDL on Windows. It also runs at a lower latency than the SDL driver.
-  Many thanks to Daniel Vik for helping with DirectSound. To switch between the
-  DirectSound and SDL sound drivers, use the new "sound_driver" setting.
-- Improved debugger, with some new (TCL based) commands like disasm, step_in,
-  step_over and run_to.
-- Extended IPS patch support, it should now support all IPS files.
-- Updated ROM database.
-- Added trainers.tcl: hundreds of game trainers. Use trainer_[TAB] in the
-  console to switch on the trainer for the game you want.
-- Added a cheat finder script: create your own game trainers. For an
-  explanation how to use it, see this openMSX forum post:
-    http://forum.openmsx.org/viewtopic.php?t=34
-- Use revamped console background and font as default. If you're upgrading from
-  an older openMSX version and want to use this new background and font, you
-  can either remove your settings.xml file or type the following lines in the
-  openMSX console:
-    set consolebackground skins/ConsoleBackgroundGrey.png
-    set consolefont skins/ConsoleFontRaveLShaded.png
-- New icon, made by Eric Boon.
+- Printer logger and SRAM are flushed at regular intervals now.
+- Settings that have their default value are not saved anymore, which makes
+  upgrading easier.
+- There is now support for a second keyjoystick.
+- More extensive debugging, including conditional break points.
+- Apart from communication via stdio, communication via sockets is now enabled.
+  This means you can connect to openMSX at run time! This will be used by a
+  debugger that is in development.
+- Reorganisation of renderers and scalers (including new ones), see above.
+- Screenshot command has a -prefix option, useful in combination with the new
+  "guess_title" script: give meaningful names to your screenshot.
+- New "fullspeedwhenloading" setting. Makes sure openMSX runs at maximum speed
+  when the MSX is loading from disk or tape.
+- V9990: speed improvements, enabled scalers, scanline and blur for V9990
+  display
 
 MSX device support:
-- Updated Okazaki YM2413 core (now the default).
-- Added pixel accurate rendering to V9990 emulation. Note that the timing may
-  still be quite incorrect.
-- Improved timing on turbo R machines. For example, speed difference between
-  R800-ROM and R800-DRAM mode is now emulated.
-- Various IDE fixes from Adriano Camargo Rodrigues da Cunha.
+- Internal CAS to WAV conversion produces now 5520 baud WAVs, for faster
+  loading.
+- Implementation of screen 6 border and background stripes.
+- Implemented TurboR hardware pause and hardware PCM mute.
+- Sound quality improvement of DAC devices (see above).
+- Implemented saving to cassette (see above).
+- Finally implemented a work around for the CAPS LOCK problem.
+- Implemented support for 192kB VRAM (now default in the Boosted_MSX2_EN
+  machine).
+- Implemented support for ADVRAM (in two flavours??)
 
 Build system, packaging, documentation:
-- Compile fixes for GCC 4.x.
-- Added experimental build support for Sparc, DEC Alpha, ARM, HP PA-RISC, IA-64,
-  Motorola 680x0, MIPS and IBM S/390. Except for Sparc these are all untested.
-- openMSX is now relocatable on Mac OS X, which means you can move the
-  installation directory around.
-- Our Debian packages are now uploaded to the Debian archive, soon after
-  release.
-- Updated C-BIOS to 0.21.
+- More compile fixes for GCC 4.x.
 
 And of course the usual various bug fixes.
 
@@ -77,8 +74,8 @@ Known issues / caveats:
   example. Keep this in mind if you create machine descriptions, ROM database
   entries etc.
 - openMSX is confirmed to run on the following operating systems: Linux, Win32,
-  Mac OS X, FreeBSD, OpenBSD and NetBSD; on x86, x86-64, Sparc and PPC CPUs.
-  Running on other operating systems (wherever SDL runs) or CPUs should be
+  Mac OS X, FreeBSD, OpenBSD and NetBSD; on x86, x86-64, Sparc and PPC CPU's.
+  Running on other operating systems (wherever SDL runs) or CPU's should be
   possible, but may require some modifications to the build system. If you are
   compiling on a new platform, please share your experiences (see below for
   contact info), so we can make openMSX more portable.
