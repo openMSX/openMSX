@@ -60,6 +60,31 @@ void Simple3xScaler<Pixel>::doScale1(FrameSource& src,
 		      scanlineFactor, 960);
 }
 
+template <typename Pixel>
+template <typename ScaleOp>
+void Simple3xScaler<Pixel>::doScale2(FrameSource& src,
+	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
+	ScaleOp scale)
+{
+	Pixel* dummy = 0;
+	int scanlineFactor = settings.getScanlineFactor();
+	for (unsigned srcY = srcStartY, dstY = dstStartY; dstY < dstEndY;
+	     srcY += 2, dstY += 3) {
+		const Pixel* srcLine0 = src.getLinePtr(srcY + 0, srcWidth, dummy);
+		Pixel* dstLine0 = dst.getLinePtr(dstY + 0, dummy);
+		scale(srcLine0, dstLine0, 960);
+
+		const Pixel* srcLine1 = src.getLinePtr(srcY + 1, srcWidth, dummy);
+		Pixel* dstLine2 = dst.getLinePtr(dstY + 2, dummy);
+		scale(srcLine1, dstLine2, 960);
+
+		Pixel* dstLine1 = dst.getLinePtr(dstY + 1, dummy);
+		scanline.draw(dstLine0, dstLine2, dstLine1,
+		              scanlineFactor, 960);
+	}
+}
+
 
 template <class Pixel>
 void Simple3xScaler<Pixel>::scale2x1to9x3(FrameSource& src,
@@ -67,6 +92,15 @@ void Simple3xScaler<Pixel>::scale2x1to9x3(FrameSource& src,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	doScale1(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
+	         Scale_2on9<Pixel>(pixelOps));
+}
+
+template <class Pixel>
+void Simple3xScaler<Pixel>::scale2x2to9x3(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	doScale2(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
 	         Scale_2on9<Pixel>(pixelOps));
 }
 
@@ -80,11 +114,29 @@ void Simple3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 }
 
 template <class Pixel>
+void Simple3xScaler<Pixel>::scale1x2to3x3(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	doScale2(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
+	         Scale_1on3<Pixel>());
+}
+
+template <class Pixel>
 void Simple3xScaler<Pixel>::scale4x1to9x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	doScale1(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
+	         Scale_4on9<Pixel>(pixelOps));
+}
+
+template <class Pixel>
+void Simple3xScaler<Pixel>::scale4x2to9x3(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	doScale2(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
 	         Scale_4on9<Pixel>(pixelOps));
 }
 
@@ -98,6 +150,15 @@ void Simple3xScaler<Pixel>::scale2x1to3x3(FrameSource& src,
 }
 
 template <class Pixel>
+void Simple3xScaler<Pixel>::scale2x2to3x3(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	doScale2(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
+	         Scale_2on3<Pixel>(pixelOps));
+}
+
+template <class Pixel>
 void Simple3xScaler<Pixel>::scale8x1to9x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
@@ -107,11 +168,29 @@ void Simple3xScaler<Pixel>::scale8x1to9x3(FrameSource& src,
 }
 
 template <class Pixel>
+void Simple3xScaler<Pixel>::scale8x2to9x3(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	doScale2(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
+	         Scale_8on9<Pixel>(pixelOps));
+}
+
+template <class Pixel>
 void Simple3xScaler<Pixel>::scale4x1to3x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	doScale1(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
+	         Scale_4on3<Pixel>(pixelOps));
+}
+
+template <class Pixel>
+void Simple3xScaler<Pixel>::scale4x2to3x3(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	doScale2(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
 	         Scale_4on3<Pixel>(pixelOps));
 }
 
@@ -145,6 +224,30 @@ void Simple3xScaler<Pixel>::scaleBlank1to3(
 		assert(nextLineWidth != 1);
 		this->scaleImage(src, srcY, srcEndY, nextLineWidth,
 		                 dst, dstY, dstEndY);
+	}
+}
+
+template <class Pixel>
+void Simple3xScaler<Pixel>::scaleBlank2to3(
+		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	int scanlineFactor = settings.getScanlineFactor();
+	for (unsigned srcY = srcStartY, dstY = dstStartY;
+	     dstY < dstEndY; srcY += 2, dstY += 3) {
+		Pixel* dummy = 0;
+		Pixel color0 = src.getLinePtr(srcY + 0, dummy)[0];
+		Pixel color1 = src.getLinePtr(srcY + 1, dummy)[0];
+		Pixel color01 = scanline.darken(color0, color1, scanlineFactor);
+		Pixel* dstLine0 = dst.getLinePtr(dstY + 0, dummy);
+		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
+			dstLine0, 960, color0);
+		Pixel* dstLine1 = dst.getLinePtr(dstY + 1, dummy);
+		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
+			dstLine1, 960, color01);
+		Pixel* dstLine2 = dst.getLinePtr(dstY + 2, dummy);
+		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
+			dstLine2, 960, color1);
 	}
 }
 

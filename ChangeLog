@@ -1,6 +1,9 @@
 $Id$
 
 2005-12-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Draw scanline in 3x simple scaler deinterlace mode
+
+2005-12-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented deinterlace mode support in RGBTriplet scaler
 
 2005-12-11 Manuel Bilderbeek <manuel@msxnet.org>

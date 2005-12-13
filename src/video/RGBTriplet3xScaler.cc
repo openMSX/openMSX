@@ -318,16 +318,13 @@ void RGBTriplet3xScaler<Pixel>::scaleBlank1to3(
 
 template <class Pixel>
 void RGBTriplet3xScaler<Pixel>::scaleBlank2to3(
-		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
+		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	recalcBlur();
 	int scanlineFactor = settings.getScanlineFactor();
-
-	unsigned stopDstY = (dstEndY == dst.getHeight())
-	                  ? dstEndY : dstEndY - 3;
-	unsigned srcY = srcStartY, dstY = dstStartY;
-	for (/* */; dstY < stopDstY; srcY += 2, dstY += 3) {
+	for (unsigned srcY = srcStartY, dstY = dstStartY;
+	     dstY < dstEndY; srcY += 2, dstY += 3) {
 		Pixel* dummy = 0;
 		Pixel color0 = src.getLinePtr(srcY + 0, dummy)[0];
 		Pixel color1 = src.getLinePtr(srcY + 1, dummy)[0];
@@ -351,14 +348,6 @@ void RGBTriplet3xScaler<Pixel>::scaleBlank2to3(
 		fillLoop(out0Normal,  dst.getLinePtr(dstY + 0, dummy));
 		fillLoop(outScanline, dst.getLinePtr(dstY + 1, dummy));
 		fillLoop(out1Normal,  dst.getLinePtr(dstY + 2, dummy));
-	}
-	if (dstY != dst.getHeight()) {
-		unsigned nextLineWidth = std::max(
-			src.getLineWidth(srcY + 2),
-			src.getLineWidth(srcY + 3));
-		assert(nextLineWidth != 1);
-		this->scaleImage(src, srcY, srcEndY, nextLineWidth,
-		                 dst, dstY, dstEndY);
 	}
 }
 
