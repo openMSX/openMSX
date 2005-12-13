@@ -1,4 +1,4 @@
-Release Notes for openMSX 0.6.0 (2005-31-??)
+Release Notes for openMSX 0.6.0 (2005-12-??)
 ============================================
 
 After a long time, a fresh release which brings a lot of internal improvements
@@ -56,6 +56,7 @@ MSX device support:
 - Implemented support for 192kB VRAM (now default in the Boosted_MSX2_EN
   machine).
 - Implemented support for ADVRAM (in two flavours??)
+- Implemented "magic key" joystickport dongle.
 
 Build system, packaging, documentation:
 - More compile fixes for GCC 4.x.
