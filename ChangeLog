@@ -1,5 +1,8 @@
 $Id$
 
+2005-12-14  Arnold Metselaar  <arnold.metselaar@planet.nl>
+	* Use another bit for planar mode when ADVRAM has no 'enable' function
+
 2005-12-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Made 'enable' function in ADVRAM configurable
 

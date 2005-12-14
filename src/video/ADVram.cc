@@ -53,8 +53,12 @@ void ADVram::reset(const EmuTime& /*time*/)
 byte ADVram::readIO(word port, const EmuTime& /*time*/)
 {
 	// ADVram only gets 'read's from 0x9A
-	enabled = ((port & 0x8000) != 0) || !hasEnable;
-	planar  = ((port & 0x4000) != 0);
+	if (hasEnable) {
+		enabled = ((port & 0x8000) != 0);
+		planar  = ((port & 0x4000) != 0);
+	}
+	else
+		planar  = ((port & 0x0100) != 0);
 	return 0xFF;
 }
 
