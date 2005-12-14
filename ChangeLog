@@ -1,6 +1,9 @@
 $Id$
 
-2005-12-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2005-12-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Made 'enable' function in ADVRAM configurable
+
+2005-12-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Draw scanline in 3x simple scaler deinterlace mode
 
 2005-12-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
@@ -38,7 +41,7 @@ $Id$
 	   - fixes previous fix for assert on turbor with advram
 	   - also prepared code to later add delays on other ports
 
-2005-12-04  Arnold Metselaar  <arnold@metse284.speed.planet.nl>
+2005-12-04  Arnold Metselaar  <arnold.metselaar@planet.nl>
 	* change advram to emulate a newer version that can be switched 
 	  on and off by software
 	* fix assert when using advram on turboR
@@ -48,7 +51,7 @@ $Id$
 	   - read device ID ("VDP") from config file
 	   - bring coding style in line with the rest of the openmsx code
 
-2005-12-03  Arnold Metselaar  <arnold@metse284.speed.planet.nl>
+2005-12-03  Arnold Metselaar  <arnold.metselaar@planet.nl>
 	* MSXDevice(readIO, peekIO, writeIO): change type of port address 
 	  to word
 	* MSXMotherBoard: add methods lockDevice and releaseDevice to allow 

@@ -15,9 +15,8 @@ ADVram::ADVram(MSXMotherBoard& motherBoard, const XMLElement& config,
 	: MSXDevice(motherBoard, config, time)
 	, vdp(NULL)
 	, vram(NULL)
-	, baseAddr(0)
-	, planar(false)
 {
+	hasEnable = config.getChildDataAsBool("hasEnable", true);
 	reset(time);
 }
 
@@ -47,13 +46,14 @@ void ADVram::reset(const EmuTime& /*time*/)
 {
 	// TODO figure out exactly what happens during reset
 	baseAddr = 0;
-	enabled = planar = false;
+	planar = false;
+	enabled = !hasEnable;
 }
 
 byte ADVram::readIO(word port, const EmuTime& /*time*/)
 {
 	// ADVram only gets 'read's from 0x9A
-	enabled = ((port & 0x8000) != 0);
+	enabled = ((port & 0x8000) != 0) || !hasEnable;
 	planar  = ((port & 0x4000) != 0);
 	return 0xFF;
 }
@@ -80,8 +80,9 @@ byte ADVram::readMem(word address, const EmuTime& time)
 
 void ADVram::writeMem(word address, byte value, const EmuTime& time)
 {
-	if (enabled) 
+	if (enabled) {
 		vram->cpuWrite(calcAddress(address), value, time);
+	}
 }
 
 } // namespace openmsx

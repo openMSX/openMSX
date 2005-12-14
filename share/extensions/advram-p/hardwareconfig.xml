@@ -8,6 +8,7 @@
       <io base="0xfe" num="1" type="O"/>
       <mem base="0x8000" size="0x4000"/>
       <vdp>VDP</vdp>
+      <hasEnable>true</hasEnable>
     </ADVram>
   </primary>
 </msxconfig>

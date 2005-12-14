@@ -35,7 +35,9 @@ private:
 	VDPVRAM* vram;
 	unsigned mask;
 	unsigned baseAddr;
-	bool enabled, planar;
+	bool enabled;
+	bool hasEnable;
+	bool planar;
 };
 
 } // namespace openmsx
