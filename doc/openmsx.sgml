@@ -1,0 +1,229 @@
+<!doctype refentry PUBLIC "-//OASIS//DTD DocBook V4.1//EN" [
+
+<!-- Process this file with docbook-to-man to generate an nroff manual
+     page: `docbook-to-man manpage.sgml > manpage.1'.  You may view
+     the manual page with: `docbook-to-man manpage.sgml | nroff -man |
+     less'.  A typical entry in a Makefile or Makefile.am is:
+
+manpage.1: manpage.sgml
+	docbook-to-man $< > $@
+
+    
+	The docbook-to-man binary is found in the docbook-to-man package.
+	Please remember that if you create the nroff version in one of the
+	debian/rules file targets (such as build), you will need to include
+	docbook-to-man in your Build-Depends control field.
+
+  -->
+
+  <!-- Fill in your name for FIRSTNAME and SURNAME. -->
+  <!ENTITY dhfirstname "<firstname>Joost</firstname>">
+  <!ENTITY dhsurname   "<surname>Damad</surname>">
+  <!-- Please adjust the date whenever revising the manpage. -->
+  <!ENTITY dhdate      "<date>October 10, 2004</date>">
+  <!-- SECTION should be 1-8, maybe w/ subsection other parameters are
+       allowed: see man(7), man(1). -->
+  <!ENTITY dhsection   "<manvolnum>1</manvolnum>">
+  <!ENTITY dhemail     "<email>joost@lumatec.be</email>">
+  <!ENTITY dhusername  "Joost Yervante Damad">
+  <!ENTITY dhucpackage "<refentrytitle>OPENMSX</refentrytitle>">
+  <!ENTITY dhpackage   "openmsx">
+
+  <!ENTITY debian      "<productname>Debian</productname>">
+  <!ENTITY gnu         "<acronym>GNU</acronym>">
+  <!ENTITY gpl         "&gnu; <acronym>GPL</acronym>">
+]>
+
+<refentry>
+  <refentryinfo>
+    <address>
+      &dhemail;
+    </address>
+    <author>
+      &dhfirstname;
+      &dhsurname;
+    </author>
+    <copyright>
+      <year>2003</year>
+      <holder>&dhusername;</holder>
+    </copyright>
+    &dhdate;
+  </refentryinfo>
+  <refmeta>
+    &dhucpackage;
+
+    &dhsection;
+  </refmeta>
+  <refnamediv>
+    <refname>&dhpackage;</refname>
+
+    <refpurpose>perfectly emulate the MSX standard and more</refpurpose>
+  </refnamediv>
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command>&dhpackage;</command>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+  <refsect1>
+    <title>DESCRIPTION</title>
+
+    <para>This manual page documents briefly the
+      <command>&dhpackage;</command> command.</para>
+
+    <para>This manual page is mainly meant to point to
+      the available documentation in the 
+      <application>HTML</application> format; see below.</para>
+
+    <para><command>&dhpackage;</command> is the MSX emulator that aims for perfection.</para>
+
+	<para>Supported file types of MSX media:
+	<itemizedlist mark='opencircle'>
+		<listitem>
+        	<para>cas: tape image in fMSX CAS format</para>
+		</listitem>
+		<listitem>
+        	<para>di1, di2, dsk, xsa: disk image</para>
+		</listitem>
+		<listitem>
+        	<para>rom: ROM image of a cartridge</para>
+		</listitem>
+		<listitem>
+        	<para>wav: Raw tape image, as recorded from real tape</para>
+		</listitem>
+	</itemizedlist>
+	  </para>
+	  <para>
+	  Zlib compressed files can also be used.
+	</para>
+
+  </refsect1>
+  <refsect1>
+    <title>OPTIONS</title>
+
+    <para>The program follows the usual a command line syntax,
+      with long options starting with two dashes (`-'). Some commands also
+	  start with one dash.
+	  A short summary of options is included below. </para>
+    <variablelist>
+      <varlistentry>
+        <term>
+          <option>-h</option>
+          <option>--help</option>
+        </term>
+        <listitem>
+          <para>Show summary of options; at least a completer summary than this one.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+		<option>-v</option>
+        	<option>--version</option>
+        </term>
+        <listitem>
+          <para>Show version of program.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+		<option>-cart</option>
+        	<option>-carta</option>
+        	<option>-cartb</option>
+        </term>
+        <listitem>
+          <para>Insert the ROM file (cartridge) specified in argument</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+		<option>-cassetteplayer</option>
+        </term>
+        <listitem>
+          <para>Put WAV or CAS tape image specified in in argument in virtual cassette player</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+			<option>-control</option>
+        </term>
+        <listitem>
+          <para>Enable external control of openMSX process</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+			<option>-diska</option>
+			<option>-diskb</option>
+        </term>
+        <listitem>
+          <para>Insert the disk image specified in argument</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+			<option>-ext</option>
+        </term>
+        <listitem>
+          <para>Insert the extension specified in argument</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+			<option>-machine</option>
+        </term>
+        <listitem>
+          <para>Use machine specified in argument</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+			<option>-setting</option>
+        </term>
+        <listitem>
+          <para>Load an alternative settings file</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+  <refsect1>
+    <title>SEE ALSO</title>
+
+    <para>openmsx-catapult (1).</para>
+
+    <para>The program is documented fully by <citetitle>openMSX User's Manual</citetitle> and the <citetitle>openMSX Setup Guide</citetitle>, available in HTML at the location
+      <application>/usr/share/doc/openmsx/manual</application> on most systems.</para>
+  </refsect1>
+  <refsect1>
+    <title>AUTHOR</title>
+
+    <para>This manual page was originally written by &dhusername; &dhemail; for
+      the &debian; system, but is now maintained by the openMSX team.  Permission is
+      granted to copy, distribute and/or modify this document under
+      the terms of the &gnu; General Public License, Version 2 any 
+	  later version published by the Free Software Foundation.
+    </para>
+	<para>
+	  On Debian systems, the complete text of the GNU General Public
+	  License can be found in /usr/share/common-licenses/GPL.
+	</para>
+
+  </refsect1>
+</refentry>
+
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: sgml
+sgml-omittag:t
+sgml-shorttag:t
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:2
+sgml-indent-data:t
+sgml-parent-document:nil
+sgml-default-dtd-file:nil
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+-->
+
+
