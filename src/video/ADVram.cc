@@ -56,9 +56,9 @@ byte ADVram::readIO(word port, const EmuTime& /*time*/)
 	if (hasEnable) {
 		enabled = ((port & 0x8000) != 0);
 		planar  = ((port & 0x4000) != 0);
-	}
-	else
+	} else {
 		planar  = ((port & 0x0100) != 0);
+	}
 	return 0xFF;
 }
 
