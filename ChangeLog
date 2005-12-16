@@ -1,5 +1,9 @@
 $Id$
 
+2005-12-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Properly fix fnano2 bug
+	* Implemented horizontal scrolling in character modes
+
 2005-12-14  Arnold Metselaar  <arnold.metselaar@planet.nl>
 	* Use another bit for planar mode when ADVRAM has no 'enable' function
 

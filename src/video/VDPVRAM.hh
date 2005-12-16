@@ -128,7 +128,7 @@ can decide for itself how many bytes to read.
 class VRAMWindow : private noncopyable
 {
 private:
-	inline bool isEnabled() {
+	inline bool isEnabled() const {
 		return baseAddr != -1;
 	}
 public:
@@ -137,7 +137,7 @@ public:
 	  * TODO: Only used by dirty checking. Maybe a new dirty checking
 	  *       approach can obsolete this method?
 	  */
-	inline int getMask() {
+	inline int getMask() const {
 		assert(isEnabled());
 		return baseMask;
 	}
@@ -154,16 +154,18 @@ public:
 	  *       display mode anyway.
 	  */
 	inline void setMask(int baseMask, int indexMask, const EmuTime& time) {
-		int newBaseAddr = baseMask & indexMask;
-		int newCombiMask = ~baseMask | indexMask;
-		if (baseAddr == newBaseAddr && combiMask == newCombiMask
-		&& this->baseMask == baseMask) return;
+		if (isEnabled() &&
+		    (baseMask  == this->baseMask) &&
+		    (indexMask == this->indexMask)) {
+			return;
+		}
 		if (observer) {
 			observer->updateWindow(true, time);
 		}
-		this->baseMask = baseMask;
-		baseAddr = newBaseAddr;
-		combiMask = newCombiMask;
+		this->baseMask  = baseMask;
+		this->indexMask = indexMask;
+		baseAddr  =  baseMask & indexMask;
+		combiMask = ~baseMask | indexMask;
 	}
 
 	/** Disable this window: no address will be considered inside.
@@ -191,18 +193,31 @@ public:
 	  * Because the method is inlined, an optimising compiler can
 	  * probably avoid performance loss on constant expressions.
 	  */
-	inline const byte* readArea(unsigned index) {
+	inline const byte* readArea(unsigned index) const {
 		// Reads are only allowed if window is enabled.
 		assert(isEnabled());
 		unsigned addr = baseMask & index;
 		return &data[addr];
 	}
 
+	/** Gets a pointer to part of the VRAM in its current state.
+	  * See also readArea().
+	  * @param index Index in table.
+	  * TODO convert all users of readArea to readAreaIndex,
+	  *      also see TODO in readArea()
+	  */
+	inline const byte* readAreaIndex(unsigned index) const {
+		// index should fit inside indexMask, but we allow conflict
+		// for multi-page scroll bit
+		assert(!(index & indexMask & ~0x8000));
+		return readArea(index | indexMask);
+	}
+	
 	/** Reads a byte from VRAM in its current state.
 	  * @param index Index in table, with unused bits set to 1.
 	  * TODO: Rename to "read", since all access is nonplanar (NP) now.
 	  */
-	inline byte readNP(unsigned index) {
+	inline byte readNP(unsigned index) const {
 		return *readArea(index);
 	}
 
@@ -228,7 +243,7 @@ public:
 	  * @param address The address to test.
 	  * @return true iff the address is inside this window.
 	  */
-	inline bool isInside(unsigned address) {
+	inline bool isInside(unsigned address) const {
 		return (address & combiMask) == (unsigned)baseAddr;
 	}
 
@@ -266,6 +281,10 @@ private:
 	/** Mask of this window.
 	  */
 	int baseMask;
+
+	/** Index mask of this window.
+	  */
+	int indexMask;
 
 	/** Lowest address in this window.
 	  */

@@ -152,6 +152,8 @@ private:
 	void renderMultiHelper(Pixel* pixelPtr, int line,
 	                       int mask, int patternQuarter);
 
+	const byte* getNamePtr(int line, int scroll);
+
 	/** Rendering method for the current display mode.
 	  */
 	RenderMethod renderMethod;

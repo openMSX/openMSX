@@ -575,6 +575,11 @@ private:
 	  */
 	void syncAtNextLine(SyncType type, const EmuTime& time);
 
+	/** Name base mask has changed.
+	  * Inform the renderer and the VRAM.
+	  */
+	void updateNameBase(const EmuTime& time);
+
 	/** Colour base mask has changed.
 	  * Inform the renderer and the VRAM.
 	  */

@@ -202,19 +202,25 @@ void CharacterConverter<Pixel>::renderText2(
 }
 
 template <class Pixel>
+const byte* CharacterConverter<Pixel>::getNamePtr(int line, int scroll)
+{
+	// no need to test whether multi-page scrolling is enabled,
+	// indexMask in the nameTable already takes care of it
+	return vram.nameTable.readAreaIndex(
+		((line / 8) * 32) | ((scroll & 0x20) ? 0x8000 : 0));
+}
+template <class Pixel>
 void CharacterConverter<Pixel>::renderGraphic1(
 	Pixel* pixelPtr, int line)
 {
 	if (!(anyDirtyName || anyDirtyPattern || anyDirtyColour)) return;
 
-	int name = (line / 8) * 32;
-
-	const byte* namePtr = vram.nameTable.readArea(name | (-1 << 10));
 	int patternBaseLine = (-1 << 11) | (line & 7);
-
-	for (int n = 32; n--; name++) {
-		int charcode = *namePtr++;
-		if (dirtyName[name] || dirtyPattern[charcode]
+	int scroll = vdp.getHorizontalScrollHigh();
+	const byte* namePtr = getNamePtr(line, scroll);
+	for (int n = 0; n < 32; ++n) {
+		int charcode = namePtr[scroll & 0x1F];
+		if (/*dirtyName[name] ||*/ dirtyPattern[charcode]
 		|| dirtyColour[charcode / 64]) {
 			int colour = vram.colourTable.readNP((charcode / 8) | (-1 << 6));
 			Pixel fg = palFg[colour >> 4];
@@ -232,6 +238,7 @@ void CharacterConverter<Pixel>::renderGraphic1(
 			pixelPtr[7] = (pattern & 0x01) ? fg : bg;
 		}
 		pixelPtr += 8;
+		if (!(++scroll & 0x1F)) namePtr = getNamePtr(line, scroll);
 	}
 }
 
@@ -241,15 +248,13 @@ void CharacterConverter<Pixel>::renderGraphic2(
 {
 	if (!(anyDirtyName || anyDirtyPattern || anyDirtyColour)) return;
 
-	int name = (line / 8) * 32;
-	const byte* namePtr = vram.nameTable.readArea(name | (-1 << 10));
-
-	int quarter = name & ~0xFF;
+	int quarter = ((line / 8) * 32) & ~0xFF;
 	int baseLine = (-1 << 13) | (quarter << 3) | (line & 7);
-
-	for (int n = 32; n--; name++) {
-		int charCode = *namePtr++;
-		if (dirtyName[name] || dirtyPattern[quarter | charCode]
+	int scroll = vdp.getHorizontalScrollHigh();
+	const byte* namePtr = getNamePtr(line, scroll);
+	for (int n = 0; n < 32; ++n) {
+		int charCode = namePtr[scroll & 0x1F];
+		if (/*dirtyName[name] ||*/ dirtyPattern[quarter | charCode]
 		|| dirtyColour[quarter | charCode]) {
 			int index = (charCode * 8) | baseLine;
 			int pattern = vram.patternTable.readNP(index);
@@ -266,6 +271,7 @@ void CharacterConverter<Pixel>::renderGraphic2(
 			pixelPtr[7] = (pattern & 0x01) ? fg : bg;
 		}
 		pixelPtr += 8;
+		if (!(++scroll & 0x1F)) namePtr = getNamePtr(line, scroll);
 	}
 }
 
@@ -276,12 +282,11 @@ void CharacterConverter<Pixel>::renderMultiHelper(
 	if (!(anyDirtyName || anyDirtyPattern)) return;
 
 	int baseLine = mask | ((line / 4) & 7);
-	int nameStart = (line / 8) * 32;
-	int nameEnd = nameStart + 32;
-	const byte* namePtr = vram.nameTable.readArea(nameStart | (-1 << 10));
-	for (int name = nameStart; name < nameEnd; name++) {
-		int patternNr = patternQuarter | *namePtr++;
-		if (dirtyName[name] || dirtyPattern[patternNr]) {
+	int scroll = vdp.getHorizontalScrollHigh();
+	const byte* namePtr = getNamePtr(line, scroll);
+	for (int n = 0; n < 32; ++n) {
+		int patternNr = patternQuarter | namePtr[scroll & 0x1F];
+		if (/*dirtyName[name] ||*/ dirtyPattern[patternNr]) {
 			int colour = vram.patternTable.readNP((patternNr * 8) | baseLine);
 			Pixel cl = palFg[colour >> 4];
 			Pixel cr = palFg[colour & 0x0F];
@@ -291,6 +296,7 @@ void CharacterConverter<Pixel>::renderMultiHelper(
 			pixelPtr[6] = cr; pixelPtr[7] = cr;
 		}
 		pixelPtr += 8;
+		if (!(++scroll & 0x1F)) namePtr = getNamePtr(line, scroll);
 	}
 }
 template <class Pixel>

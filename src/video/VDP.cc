@@ -784,11 +784,6 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime& time)
 		}
 		*/
 		renderer->updateNameBase(base, time);
-		int indexMask =
-			  displayMode.isBitmapMode()
-			? -1 << 17 // TODO: Calculate actual value; how to handle planar?
-			: -1 << (displayMode.isTextMode() ? 12 : 10);
-		vram->nameTable.setMask(base, indexMask, time);
 		break;
 	}
 	case 7:
@@ -876,6 +871,9 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime& time)
 			if (!(val & 0x20)) irqVertical.reset();
 		}
 		break;
+	case 2:
+		updateNameBase(time);
+		break;
 	case 3:
 	case 10:
 		updateColourBase(time);
@@ -914,6 +912,11 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime& time)
 	case 23:
 		scheduleHScan(time);
 		break;
+	case 25:
+		if (change & 0x01) {
+			updateNameBase(time);
+		}
+		break;
 	}
 }
 
@@ -923,6 +926,34 @@ void VDP::syncAtNextLine(SyncType type, const EmuTime& time)
 	int ticks = (line + 1) * TICKS_PER_LINE;
 	EmuTime nextTime = frameStartTime + ticks;
 	setSyncPoint(nextTime, type);
+}
+
+void VDP::updateNameBase(const EmuTime& time)
+{
+	int base = ((controlRegs[2] << 10) | ~(-1 << 10)) & vramMask;
+	// TODO:
+	// I reverted this fix.
+	// Although the code is correct, there is also a counterpart in the
+	// renderer that must be updated. I'm too tired now to find it.
+	// Since name table checking is currently disabled anyway, keeping the
+	// old code does not hurt.
+	// Eventually this line should be re-enabled.
+	/*
+	if (displayMode.isPlanar()) {
+		base = ((base << 16) | (base >> 1)) & 0x1FFFF;
+	}
+	*/
+	int indexMask =
+		  displayMode.isBitmapMode()
+		? -1 << 17 // TODO: Calculate actual value; how to handle planar?
+		: -1 << (displayMode.isTextMode() ? 12 : 10);
+	if (controlRegs[25] & 0x01) {
+		// Multi page scrolling. The same bit is used in character and
+		// (non)planar-bitmap modes.
+		// TODO test text modes
+		indexMask &= ~0x8000;
+	}
+	vram->nameTable.setMask(base, indexMask, time);
 }
 
 void VDP::updateColourBase(const EmuTime& time)
@@ -1034,6 +1065,7 @@ void VDP::updateDisplayMode(DisplayMode newMode, const EmuTime& time)
 		updateSpritePatternBase(time);
 		updateSpriteAttributeBase(time);
 	}
+	updateNameBase(time);
 
 	// To be extremely accurate, reschedule hscan when changing
 	// from/to text mode. Text mode has different border width,
