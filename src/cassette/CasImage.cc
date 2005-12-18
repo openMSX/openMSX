@@ -1,8 +1,10 @@
 // $Id$
 
-#include "MSXException.hh"
 #include "CasImage.hh"
+#include "File.hh"
+#include "CliComm.hh"
 #include "Clock.hh"
+#include "MSXException.hh"
 #include <string.h> // for memcmp
 
 using std::string;
@@ -31,13 +33,14 @@ const byte BASIC_HEADER[10] = { 0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD
 
 
 CasImage::CasImage(const string& fileName, CliComm& cliComm_) 
-	: file(fileName)
-	, cliComm(cliComm_)
+	: cliComm(cliComm_)
 {
+	File file(fileName);
+	size = file.getSize();
 	buf = file.mmap();
 	pos = 0;
 	setFirstFileType(CassetteImage::UNKNOWN);
-	convert();
+	convert(fileName);
 }
 
 CasImage::~CasImage()
@@ -102,7 +105,7 @@ void CasImage::writeByte(byte b)
 bool CasImage::writeData()
 {
 	bool eof = false;
-	while ((pos + 8) <= file.getSize()) {
+	while ((pos + 8) <= size) {
 		if (!memcmp(&buf[pos], CAS_HEADER, 8)) {
 			return eof;
 		}
@@ -112,19 +115,19 @@ bool CasImage::writeData()
 		}
 		pos++;
 	}
-	while (pos < file.getSize()) {
+	while (pos < size) {
 		writeByte(buf[pos++]);
 	}
 	return false;
 }
 
-void CasImage::convert()
+void CasImage::convert(const std::string& fileName)
 {
 	// search for a header in the .cas file
 	bool issueWarning = false;
 	bool headerFound = false;
 	bool firstFile = true;
-	while ((pos + 8) <= file.getSize()) {
+	while ((pos + 8) <= size) {
 		if (!memcmp(&buf[pos], CAS_HEADER, 8)) {
 			// it probably works fine if a long header is used for every
 			// header but since the msx bios makes a distinction between
@@ -133,7 +136,7 @@ void CasImage::convert()
 			pos += 8;
 			writeSilence(LONG_SILENCE);
 			writeHeader(LONG_HEADER);
-			if ((pos + 10) <= file.getSize()) {
+			if ((pos + 10) <= size) {
 				// determine file type
 				FileType type = CassetteImage::UNKNOWN;
 				if (!memcmp(&buf[pos], ASCII_HEADER, 10)) {
@@ -153,7 +156,7 @@ void CasImage::convert()
 							writeSilence(SHORT_SILENCE);
 							writeHeader(SHORT_HEADER);
 							eof = writeData();
-						} while (!eof && ((pos + 8) <= file.getSize()));
+						} while (!eof && ((pos + 8) <= size));
 						break;
 					case CassetteImage::BINARY:
 					case CassetteImage::BASIC:
@@ -181,13 +184,12 @@ void CasImage::convert()
 		}
 	}
 	if (!headerFound) {
-		string msg = file.getLocalName() + string(": not a valid CAS image");
+		string msg = fileName + ": not a valid CAS image";
 		throw MSXException(msg);
 	}
 	if (issueWarning) {
-		 cliComm.printWarning("Skipped unhandled data in " + file.getLocalName());
+		 cliComm.printWarning("Skipped unhandled data in " + fileName);
 	}
-		
 }
 
 } // namespace openmsx

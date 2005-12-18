@@ -5,12 +5,12 @@
 
 #include "CassetteImage.hh"
 #include "openmsx.hh"
-#include "File.hh"
-#include "CliComm.hh"
 #include <string>
 #include <vector>
 
 namespace openmsx {
+
+class CliComm;
 
 /**
  * Code based on "cas2wav" tool by Vincent van Dam
@@ -18,7 +18,7 @@ namespace openmsx {
 class CasImage : public CassetteImage
 {
 public:
-	explicit CasImage(const std::string& fileName, CliComm& cliComm_);
+	CasImage(const std::string& fileName, CliComm& cliComm_);
 	virtual ~CasImage();
 
 	virtual short getSampleAt(const EmuTime& time);
@@ -30,13 +30,13 @@ private:
 	void writeSilence(int s);
 	void writeByte(byte b);
 	bool writeData();
-	void convert();
+	void convert(const std::string& fileName);
 
+	unsigned size;
 	unsigned pos;
 	byte* buf;
 	std::vector<char> output;
 
-	File file;
 	CliComm& cliComm;
 };
 

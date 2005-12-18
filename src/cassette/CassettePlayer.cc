@@ -162,25 +162,24 @@ void CassettePlayer::insertTape(const string& filename, const EmuTime& time)
 	rewind(time);
 	// try to automatically run the tape, if that's set
 	CassetteImage::FileType type = cassette->getFirstFileType();
-	if (autoRunSetting->getValue() && type != CassetteImage::UNKNOWN)
-	{
+	if (autoRunSetting->getValue() && type != CassetteImage::UNKNOWN) {
 		string loadingInstruction;	
 		switch (type) {
 			case CassetteImage::ASCII:
-				loadingInstruction =  "RUN\"CAS:\"";
+				loadingInstruction = "RUN\"CAS:\"";
 				break;
 			case CassetteImage::BINARY:
-				loadingInstruction =  "BLOAD\"CAS:\",R";
+				loadingInstruction = "BLOAD\"CAS:\",R";
 				break;
 			case CassetteImage::BASIC:
-				loadingInstruction =  "CLOAD";
+				loadingInstruction = "CLOAD";
 				break;
 			default:
 				assert(false); // Shouldn't be possible
 		}
 		try {
 			getCommandController().executeCommand("after time 2 { type " + loadingInstruction + "\\r }");
-		} catch (CommandException &e) {
+		} catch (CommandException& e) {
 			cliComm.printWarning("Error executing loading instruction for auto-load: " + e.getMessage() + " Please report a bug.");
 		}
 	}
