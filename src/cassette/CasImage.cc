@@ -1,8 +1,7 @@
 // $Id$
 
-
+#include "MSXException.hh"
 #include "CasImage.hh"
-#include "File.hh"
 #include "Clock.hh"
 #include <string.h> // for memcmp
 
@@ -25,18 +24,19 @@ const int LONG_HEADER  = 16000 / 2;
 const int SHORT_HEADER =  4000 / 2;
 
 // headers definitions
-const byte HEADER[8] = { 0x1F,0xA6,0xDE,0xBA,0xCC,0x13,0x7D,0x74 };
-const byte ASCII[10] = { 0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA };
-const byte BIN[10]   = { 0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0 };
-const byte BASIC[10] = { 0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3 };
+const byte CAS_HEADER[8] = { 0x1F,0xA6,0xDE,0xBA,0xCC,0x13,0x7D,0x74 };
+const byte ASCII_HEADER[10] = { 0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA,0xEA };
+const byte BINARY_HEADER[10]   = { 0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0 };
+const byte BASIC_HEADER[10] = { 0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3 };
 
 
-CasImage::CasImage(const string& fileName)
+CasImage::CasImage(const string& fileName, CliComm& cliComm_) 
+	: file(fileName)
+	, cliComm(cliComm_)
 {
-	File file(fileName);
-	size = file.getSize();
 	buf = file.mmap();
 	pos = 0;
+	setFirstFileType(CassetteImage::UNKNOWN);
 	convert();
 }
 
@@ -102,8 +102,8 @@ void CasImage::writeByte(byte b)
 bool CasImage::writeData()
 {
 	bool eof = false;
-	while ((pos + 8) <= size) {
-		if (!memcmp(&buf[pos], HEADER, 8)) {
+	while ((pos + 8) <= file.getSize()) {
+		if (!memcmp(&buf[pos], CAS_HEADER, 8)) {
 			return eof;
 		}
 		writeByte(buf[pos]);
@@ -112,7 +112,7 @@ bool CasImage::writeData()
 		}
 		pos++;
 	}
-	while (pos < size) {
+	while (pos < file.getSize()) {
 		writeByte(buf[pos++]);
 	}
 	return false;
@@ -121,45 +121,73 @@ bool CasImage::writeData()
 void CasImage::convert()
 {
 	// search for a header in the .cas file
-	while ((pos + 8) <= size) {
-		if (!memcmp(&buf[pos], HEADER, 8)) {
+	bool issueWarning = false;
+	bool headerFound = false;
+	bool firstFile = true;
+	while ((pos + 8) <= file.getSize()) {
+		if (!memcmp(&buf[pos], CAS_HEADER, 8)) {
 			// it probably works fine if a long header is used for every
 			// header but since the msx bios makes a distinction between
 			// them, we do also (hence a lot of code).
+			headerFound = true;
 			pos += 8;
 			writeSilence(LONG_SILENCE);
 			writeHeader(LONG_HEADER);
-			if ((pos + 10) <= size) {
-				if (!memcmp(&buf[pos], ASCII, 10)) {
-					writeData();
-					bool eof;
-					do {
-						pos += 8;
+			if ((pos + 10) <= file.getSize()) {
+				// determine file type
+				FileType type = CassetteImage::UNKNOWN;
+				if (!memcmp(&buf[pos], ASCII_HEADER, 10)) {
+					type = CassetteImage::ASCII;
+				} else if (!memcmp(&buf[pos], BINARY_HEADER, 10)) {
+					type = CassetteImage::BINARY;
+				} else if (!memcmp(&buf[pos], BASIC_HEADER, 10)) {
+					type = CassetteImage::BASIC;
+				}
+				if (firstFile) setFirstFileType(type);
+				switch (type) {
+					case CassetteImage::ASCII:
+						writeData();
+						bool eof;
+						do {
+							pos += 8;
+							writeSilence(SHORT_SILENCE);
+							writeHeader(SHORT_HEADER);
+							eof = writeData();
+						} while (!eof && ((pos + 8) <= file.getSize()));
+						break;
+					case CassetteImage::BINARY:
+					case CassetteImage::BASIC:
+						writeData();
 						writeSilence(SHORT_SILENCE);
 						writeHeader(SHORT_HEADER);
-						eof = writeData();
-					} while (!eof && ((pos + 8) <= size));
-				} else if (!memcmp(&buf[pos], BIN, 10) ||
-					   !memcmp(&buf[pos], BASIC, 10)) {
-					writeData();
-					writeSilence(SHORT_SILENCE);
-					writeHeader(SHORT_HEADER);
-					pos += 8;
-					writeData();
-				} else {
-					// unknown file type: using long header
-					writeData();
+						pos += 8;
+						writeData();
+						break;
+					default:
+						// unknown file type: using long header
+						writeData();
+						break;
 				}
 			} else {
 				// unknown file type: using long header
 				writeData();
 			}
+			firstFile = false;
 		} else {
 			// should not occur
 			PRT_DEBUG("CAS2WAV: skipping unhandled data");
 			pos++;
+			issueWarning = true;
 		}
 	}
+	if (!headerFound) {
+		string msg = file.getLocalName() + string(": not a valid CAS image");
+		throw MSXException(msg);
+	}
+	if (issueWarning) {
+		 cliComm.printWarning("Skipped unhandled data in " + file.getLocalName());
+	}
+		
 }
 
 } // namespace openmsx

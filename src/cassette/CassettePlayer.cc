@@ -21,7 +21,7 @@
 //   first simply check on the length of the file and fall back to SHA1 if that
 //   results in multiple matches.
 
-
+#include "BooleanSetting.hh"
 #include "CassettePlayer.hh"
 #include "Connector.hh"
 #include "CassettePort.hh"
@@ -104,6 +104,7 @@ CassettePlayer::CassettePlayer(
 	, cliComm(commandController.getCliComm())
 	, throttleManager(commandController.getGlobalSettings().getThrottleManager())
 {
+	autoRunSetting.reset(new BooleanSetting(commandController, "autoruncassettes", "automatically try to run cassettes", false));
 	XMLElement& config = commandController.getGlobalSettings().getMediaConfig();
 	playerElem = &config.getCreateChild("cassetteplayer");
 	const string filename = playerElem->getData();
@@ -112,7 +113,7 @@ CassettePlayer::CassettePlayer(
 			insertTape(playerElem->getFileContext().resolve(filename),
 			           EmuTime::zero);
 		} catch (MSXException& e) {
-			throw FatalError("Couldn't load tape image: " + filename);
+			throw FatalError("Couldn't load tape image: " + e.getMessage());
 		}
 	} else {
 		removeTape(EmuTime::zero);
@@ -156,9 +157,33 @@ void CassettePlayer::insertTape(const string& filename, const EmuTime& time)
 		cassette.reset(new WavImage(filename));
 	} catch (MSXException &e) {
 		// if that fails use CAS
-		cassette.reset(new CasImage(filename));
+		cassette.reset(new CasImage(filename, cliComm));
 	}
 	rewind(time);
+	// try to automatically run the tape, if that's set
+	CassetteImage::FileType type = cassette->getFirstFileType();
+	if (autoRunSetting->getValue() && type != CassetteImage::UNKNOWN)
+	{
+		string loadingInstruction;	
+		switch (type) {
+			case CassetteImage::ASCII:
+				loadingInstruction =  "RUN\"CAS:\"";
+				break;
+			case CassetteImage::BINARY:
+				loadingInstruction =  "BLOAD\"CAS:\",R";
+				break;
+			case CassetteImage::BASIC:
+				loadingInstruction =  "CLOAD";
+				break;
+			default:
+				assert(false); // Shouldn't be possible
+		}
+		try {
+			getCommandController().executeCommand("after time 2 { type " + loadingInstruction + "\\r }");
+		} catch (CommandException &e) {
+			cliComm.printWarning("Error executing loading instruction for auto-load: " + e.getMessage() + " Please report a bug.");
+		}
+	}
 	setMute(!isPlaying());
 	playerElem->setData(filename);
 	updateLoadingState();
@@ -380,6 +405,7 @@ void CassettePlayer::execute(const std::vector<TclObject*>& tokens,
 		TclObject options(result.getInterpreter());
 		options.addListElement(wavWriter.get() ? "record" : "play");
 		result.addListElement(options);
+		result.addListElement(cassette->getFirstFileTypeAsString());
 	} else if (tokens[1]->getString() == "new") {
 		if (wavWriter.get()) {
 			stopRecording(now);

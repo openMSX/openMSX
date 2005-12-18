@@ -14,6 +14,7 @@ WavImage::WavImage(const string& fileName)
 {
 	File file(fileName);
 	const char* name = file.getLocalName().c_str();
+	setFirstFileType(CassetteImage::UNKNOWN); // Note: type detection not implemented yet for WAV images
 
 	SDL_AudioSpec wavSpec;
 	Uint8* wavBuf;

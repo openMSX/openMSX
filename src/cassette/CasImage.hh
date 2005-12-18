@@ -5,6 +5,8 @@
 
 #include "CassetteImage.hh"
 #include "openmsx.hh"
+#include "File.hh"
+#include "CliComm.hh"
 #include <string>
 #include <vector>
 
@@ -16,7 +18,7 @@ namespace openmsx {
 class CasImage : public CassetteImage
 {
 public:
-	explicit CasImage(const std::string& fileName);
+	explicit CasImage(const std::string& fileName, CliComm& cliComm_);
 	virtual ~CasImage();
 
 	virtual short getSampleAt(const EmuTime& time);
@@ -30,9 +32,12 @@ private:
 	bool writeData();
 	void convert();
 
-	unsigned pos, size;
+	unsigned pos;
 	byte* buf;
 	std::vector<char> output;
+
+	File file;
+	CliComm& cliComm;
 };
 
 } // namespace openmsx

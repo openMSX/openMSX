@@ -1,5 +1,14 @@
 $Id$
 
+2005-12-18 Manuel Bilderbeek <manuel@msxnet.org>
+	* Implemented AutoRun feature for cassette software
+	  - only works for CAS images, WAV is TODO (more difficult)
+	  - experimental; default setting of "autoruncassettes" is off
+	  - also tries to autorun if you insert at run time
+	  - doesn't work properly on machines with non-international keyboard
+	    layout, because the 'type' command doesn't work properly then
+	  - please review and feel free to improve it! :P
+
 2005-12-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Properly fix fnano2 bug
 	* Implemented horizontal scrolling in character modes

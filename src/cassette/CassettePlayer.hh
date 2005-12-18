@@ -18,6 +18,7 @@ class Mixer;
 class CliComm;
 class WavWriter;
 class ThrottleManager;
+class BooleanSetting;
 
 class MSXCassettePlayerCLI : public CLIOption, public CLIFileType
 {
@@ -109,6 +110,8 @@ private:
 
 	CliComm& cliComm;
 	ThrottleManager& throttleManager;
+
+	std::auto_ptr<BooleanSetting> autoRunSetting;
 };
 
 } // namespace openmsx
