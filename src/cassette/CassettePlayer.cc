@@ -180,7 +180,7 @@ void CassettePlayer::insertTape(const string& filename, const EmuTime& time)
 		try {
 			getCommandController().executeCommand("after time 2 { type " + loadingInstruction + "\\r }");
 		} catch (CommandException& e) {
-			cliComm.printWarning("Error executing loading instruction for auto-load: " + e.getMessage() + " Please report a bug.");
+			cliComm.printWarning("Error executing loading instruction for AutoRun: " + e.getMessage() + " Please report a bug.");
 		}
 	}
 	setMute(!isPlaying());
