@@ -392,7 +392,9 @@ void MSXMotherBoard::powerUp()
 	powered = true;
 	// TODO: If our "powered" field is always equal to the power setting,
 	//       there is not really a point in keeping it.
-	assert(powerSetting.getValue() == powered);
+	// TODO: assert disabled see note in Reactor::run() where this method
+	//       is called
+	//assert(powerSetting.getValue() == powered);
 	powerSetting.setValue(true);
 	// TODO: We could make the power LED a device, so we don't have to handle
 	//       it separately here.

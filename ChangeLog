@@ -4,6 +4,8 @@ $Id$
 	* Assert on exceptions that pass through the TCL interpreter:
 	   a config error in the ADVRAM extension asserts now (instead of
 	   calling terminate()), we're still investigating how to fix it
+	* Worked around error from above, clean solution needs dependencies
+	  between devices
 
 2005-12-18 Manuel Bilderbeek <manuel@msxnet.org>
 	* Implemented AutoRun feature for cassette software
