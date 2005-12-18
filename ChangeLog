@@ -1,5 +1,10 @@
 $Id$
 
+2005-12-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Assert on exceptions that pass through the TCL interpreter:
+	   a config error in the ADVRAM extension asserts now (instead of
+	   calling terminate()), we're still investigating how to fix it
+
 2005-12-18 Manuel Bilderbeek <manuel@msxnet.org>
 	* Implemented AutoRun feature for cassette software
 	  - only works for CAS images, WAV is TODO (more difficult)

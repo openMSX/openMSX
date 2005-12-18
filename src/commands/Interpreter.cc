@@ -105,13 +105,17 @@ void Interpreter::setOutput(InterpreterOutput* output_)
 int Interpreter::outputProc(ClientData clientData, const char* buf,
                  int toWrite, int* /*errorCodePtr*/)
 {
-	InterpreterOutput* output = ((Interpreter*)clientData)->output;
+	try {
+		InterpreterOutput* output = ((Interpreter*)clientData)->output;
 
-	string text(buf, toWrite);
-	if (!text.empty() && output) {
-		output->output(text);
+		string text(buf, toWrite);
+		if (!text.empty() && output) {
+			output->output(text);
+		}
+		return toWrite;
+	} catch (...) {
+		assert(false); // we cannot let exceptions pass through TCL
 	}
-	return toWrite;
 }
 
 void Interpreter::registerCommand(const string& name, Command& command)
@@ -131,25 +135,29 @@ void Interpreter::unregisterCommand(const string& name, Command& /*command*/)
 int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
                            int objc, Tcl_Obj* const objv[])
 {
-	Command& command = *static_cast<Command*>(clientData);
-	vector<TclObject*> tokens;
-	tokens.reserve(objc);
-	for (int i = 0; i < objc; ++i) {
-		tokens.push_back(new TclObject(interp, objv[i]));
-	}
-	TclObject result(interp, Tcl_GetObjResult(interp));
-	int res = TCL_OK;
 	try {
-		command.execute(tokens, result);
-	} catch (MSXException& e) {
-		result.setString(e.getMessage());
-		res = TCL_ERROR;
+		Command& command = *static_cast<Command*>(clientData);
+		vector<TclObject*> tokens;
+		tokens.reserve(objc);
+		for (int i = 0; i < objc; ++i) {
+			tokens.push_back(new TclObject(interp, objv[i]));
+		}
+		TclObject result(interp, Tcl_GetObjResult(interp));
+		int res = TCL_OK;
+		try {
+			command.execute(tokens, result);
+		} catch (MSXException& e) {
+			result.setString(e.getMessage());
+			res = TCL_ERROR;
+		}
+		for (vector<TclObject*>::const_iterator it = tokens.begin();
+		     it != tokens.end(); ++it) {
+			delete *it;
+		}
+		return res;
+	} catch (...) {
+		assert(false); // we cannot let exceptions pass through TCL
 	}
-	for (vector<TclObject*>::const_iterator it = tokens.begin();
-	     it != tokens.end(); ++it) {
-		delete *it;
-	}
-	return res;
 }
 
 // Returns
@@ -237,35 +245,44 @@ void Interpreter::unregisterSetting(Setting& variable)
 char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
                            const char* part1, const char* /*part2*/, int flags)
 {
-	static string static_string;
+	try {
+		static string static_string;
 
-	Setting* variable = static_cast<Setting*>(clientData);
+		Setting* variable = static_cast<Setting*>(clientData);
 
-	if (flags & TCL_TRACE_READS) {
-		Tcl_SetVar(interp, part1, variable->getValueString().c_str(), 0);
-	}
-	if (flags & TCL_TRACE_WRITES) {
-		try {
-			string newValue = Tcl_GetVar(interp, part1, 0);
-			variable->setValueString(newValue);
-			string newValue2 = variable->getValueString();
-			if (newValue != newValue2) {
-				Tcl_SetVar(interp, part1, newValue2.c_str(), 0);
-			}
-		} catch (MSXException& e) {
-			Tcl_SetVar(interp, part1, variable->getValueString().c_str(), 0);
-			static_string = e.getMessage();
-			return const_cast<char*>(static_string.c_str());
+		if (flags & TCL_TRACE_READS) {
+			Tcl_SetVar(interp, part1,
+			           variable->getValueString().c_str(), 0);
 		}
+		if (flags & TCL_TRACE_WRITES) {
+			try {
+				string newValue = Tcl_GetVar(interp, part1, 0);
+				variable->setValueString(newValue);
+				string newValue2 = variable->getValueString();
+				if (newValue != newValue2) {
+					Tcl_SetVar(interp, part1,
+					           newValue2.c_str(), 0);
+				}
+			} catch (MSXException& e) {
+				Tcl_SetVar(interp, part1,
+				           variable->getValueString().c_str(), 0);
+				static_string = e.getMessage();
+				return const_cast<char*>(static_string.c_str());
+			}
+		}
+		if (flags & TCL_TRACE_UNSETS) {
+			variable->restoreDefault();
+			Tcl_SetVar(interp, part1,
+			           variable->getValueString().c_str(), 0);
+			Tcl_TraceVar(interp, part1, TCL_TRACE_READS |
+			                TCL_TRACE_WRITES | TCL_TRACE_UNSETS,
+			             traceProc,
+			             static_cast<ClientData>(variable));
+		}
+		return NULL;
+	} catch (...) {
+		assert(false); // we cannot let exceptions pass through TCL
 	}
-	if (flags & TCL_TRACE_UNSETS) {
-		variable->restoreDefault();
-		Tcl_SetVar(interp, part1, variable->getValueString().c_str(), 0);
-		Tcl_TraceVar(interp, part1,
-		             TCL_TRACE_READS | TCL_TRACE_WRITES | TCL_TRACE_UNSETS,
-		             traceProc, static_cast<ClientData>(variable));
-	}
-	return NULL;
 }
 
 void Interpreter::splitList(const string& list, vector<string>& result)
