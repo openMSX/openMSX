@@ -220,7 +220,7 @@ void CharacterConverter<Pixel>::renderGraphic1(
 	const byte* namePtr = getNamePtr(line, scroll);
 	for (int n = 0; n < 32; ++n) {
 		int charcode = namePtr[scroll & 0x1F];
-		if (/*dirtyName[name] ||*/ dirtyPattern[charcode]
+		if (true /*dirtyName[name]*/ || dirtyPattern[charcode]
 		|| dirtyColour[charcode / 64]) {
 			int colour = vram.colourTable.readNP((charcode / 8) | (-1 << 6));
 			Pixel fg = palFg[colour >> 4];
@@ -254,7 +254,7 @@ void CharacterConverter<Pixel>::renderGraphic2(
 	const byte* namePtr = getNamePtr(line, scroll);
 	for (int n = 0; n < 32; ++n) {
 		int charCode = namePtr[scroll & 0x1F];
-		if (/*dirtyName[name] ||*/ dirtyPattern[quarter | charCode]
+		if (true /*dirtyName[name]*/ || dirtyPattern[quarter | charCode]
 		|| dirtyColour[quarter | charCode]) {
 			int index = (charCode * 8) | baseLine;
 			int pattern = vram.patternTable.readNP(index);
@@ -286,7 +286,7 @@ void CharacterConverter<Pixel>::renderMultiHelper(
 	const byte* namePtr = getNamePtr(line, scroll);
 	for (int n = 0; n < 32; ++n) {
 		int patternNr = patternQuarter | namePtr[scroll & 0x1F];
-		if (/*dirtyName[name] ||*/ dirtyPattern[patternNr]) {
+		if (true /*dirtyName[name]*/ || dirtyPattern[patternNr]) {
 			int colour = vram.patternTable.readNP((patternNr * 8) | baseLine);
 			Pixel cl = palFg[colour >> 4];
 			Pixel cr = palFg[colour & 0x0F];

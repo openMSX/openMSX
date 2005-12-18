@@ -129,7 +129,7 @@ class VRAMWindow : private noncopyable
 {
 private:
 	inline bool isEnabled() const {
-		return baseAddr != -1;
+		return baseMask != -1;
 	}
 public:
 	/** Gets the mask for this window.
@@ -154,8 +154,7 @@ public:
 	  *       display mode anyway.
 	  */
 	inline void setMask(int baseMask, int indexMask, const EmuTime& time) {
-		if (isEnabled() &&
-		    (baseMask  == this->baseMask) &&
+		if ((baseMask  == this->baseMask) &&
 		    (indexMask == this->indexMask)) {
 			return;
 		}
@@ -175,7 +174,7 @@ public:
 		if (observer) {
 			observer->updateWindow(false, time);
 		}
-		baseAddr = -1;
+		baseMask = -1;
 	}
 
 	/** Gets a pointer to part of the VRAM in its current state.
