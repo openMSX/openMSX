@@ -13,23 +13,16 @@ class CassetteImage
 {
 public:
 	enum FileType { ASCII, BINARY, BASIC, UNKNOWN };
-	virtual ~CassetteImage() {}
+
+	virtual ~CassetteImage();
 	virtual short getSampleAt(const EmuTime& time) = 0;
-	FileType getFirstFileType() const { return firstFileType; }
-	std::string getFirstFileTypeAsString() const {
-		if (firstFileType == ASCII) {
-			return "ASCII";
-		} else if (firstFileType == BINARY) {
-			return "binary";
-		} else if (firstFileType == BASIC) {
-			return "BASIC";
-		} else {
-			return "unknown";
-		}
-	}
+
+	FileType getFirstFileType() const;
+	std::string getFirstFileTypeAsString() const;
 
 protected:
-	void setFirstFileType(FileType type) { firstFileType = type; }
+	CassetteImage();
+	void setFirstFileType(FileType type);
 
 private:
 	FileType firstFileType;

@@ -8,11 +8,9 @@ SRC_HDR:= \
 	CassettePort \
 	DummyCassetteDevice \
 	DummyCassetteImage \
+	CassetteImage \
 	CasImage \
 	WavImage
-
-HDR_ONLY:= \
-	CassetteImage
 
 SRC_HDR_$(COMPONENT_JACK)+= \
 	CassetteJack 

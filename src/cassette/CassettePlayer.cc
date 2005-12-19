@@ -163,7 +163,7 @@ void CassettePlayer::insertTape(const string& filename, const EmuTime& time)
 	// try to automatically run the tape, if that's set
 	CassetteImage::FileType type = cassette->getFirstFileType();
 	if (autoRunSetting->getValue() && type != CassetteImage::UNKNOWN) {
-		string loadingInstruction;	
+		string loadingInstruction;
 		switch (type) {
 			case CassetteImage::ASCII:
 				loadingInstruction = "RUN\"CAS:\"";

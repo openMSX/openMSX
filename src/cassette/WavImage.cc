@@ -9,12 +9,12 @@ using std::string;
 
 namespace openmsx {
 
+// Note: type detection not implemented yet for WAV images
 WavImage::WavImage(const string& fileName)
 	: length(0), buffer(0)
 {
 	File file(fileName);
 	const char* name = file.getLocalName().c_str();
-	setFirstFileType(CassetteImage::UNKNOWN); // Note: type detection not implemented yet for WAV images
 
 	SDL_AudioSpec wavSpec;
 	Uint8* wavBuf;
