@@ -112,10 +112,10 @@ int Interpreter::outputProc(ClientData clientData, const char* buf,
 		if (!text.empty() && output) {
 			output->output(text);
 		}
-		return toWrite;
 	} catch (...) {
 		assert(false); // we cannot let exceptions pass through TCL
 	}
+	return toWrite;
 }
 
 void Interpreter::registerCommand(const string& name, Command& command)
@@ -157,6 +157,7 @@ int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
 		return res;
 	} catch (...) {
 		assert(false); // we cannot let exceptions pass through TCL
+		return TCL_ERROR;
 	}
 }
 
@@ -279,10 +280,10 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 			             traceProc,
 			             static_cast<ClientData>(variable));
 		}
-		return NULL;
 	} catch (...) {
 		assert(false); // we cannot let exceptions pass through TCL
 	}
+	return NULL;
 }
 
 void Interpreter::splitList(const string& list, vector<string>& result)
