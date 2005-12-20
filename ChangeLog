@@ -1,5 +1,10 @@
 $Id$
 
+2005-12-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Synchronize CPU and scheduler irregardless of how CPU loop was exited
+	  (normally or via breakpoint):
+	   - fixes assert when MSX is reset while CPU is breaked
+
 2005-12-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Assert on exceptions that pass through the TCL interpreter:
 	   a config error in the ADVRAM extension asserts now (instead of

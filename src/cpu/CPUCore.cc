@@ -500,6 +500,14 @@ template <class T> void CPUCore<T>::executeSlow()
 
 template <class T> void CPUCore<T>::execute()
 {
+	executeInternal();
+
+	// synchronize scheduler with cpu
+	scheduler.schedule(T::clock.getTime());
+}
+
+template <class T> void CPUCore<T>::executeInternal()
+{
 	assert(!breaked);
 
 	exitLoop = false;
@@ -551,7 +559,6 @@ template <class T> void CPUCore<T>::execute()
 			}
 		}
 	}
-	scheduler.schedule(T::clock.getTime());
 }
 
 

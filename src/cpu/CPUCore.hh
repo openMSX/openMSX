@@ -150,6 +150,7 @@ private:
 	inline void WRMEM(word address, byte value);
 
 	inline void M1Cycle();
+	inline void executeInternal();
 	inline void executeInstruction();
 	inline void executeInstruction1(byte opcode);
 	inline void nmi();
