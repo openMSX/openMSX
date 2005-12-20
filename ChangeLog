@@ -4,6 +4,7 @@ $Id$
 	* Synchronize CPU and scheduler irregardless of how CPU loop was exited
 	  (normally or via breakpoint):
 	   - fixes assert when MSX is reset while CPU is breaked
+	* Prepare openmsx-0.6.0-rc1
 
 2005-12-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Assert on exceptions that pass through the TCL interpreter:
