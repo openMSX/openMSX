@@ -41,9 +41,8 @@ UserInputEventDistributor::~UserInputEventDistributor()
 void UserInputEventDistributor::registerEventListener(
 	UserInputEventListener& listener)
 {
-	Listeners::iterator it =
-		std::find(listeners.begin(), listeners.end(), &listener);
-	assert(it == listeners.end());
+	assert(std::find(listeners.begin(), listeners.end(), &listener) ==
+	       listeners.end());
 	listeners.push_back(&listener);
 }
 
