@@ -95,6 +95,8 @@ Interpreter::~Interpreter()
 		Tcl_DeleteInterp(interp);
 	}
 	Tcl_Release(interp);
+
+	Tcl_Finalize();
 }
 
 void Interpreter::setOutput(InterpreterOutput* output_)
