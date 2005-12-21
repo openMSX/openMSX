@@ -46,6 +46,7 @@ auto_ptr<XMLElement> XMLLoader::loadXML(const string& filename,
 	auto_ptr<XMLElement> result(new XMLElement(""));
 	init(*result, xmlDocGetRootElement(doc), idMap);
 	xmlFreeDoc(doc);
+	xmlCleanupParser();
 	return result;
 }
 
@@ -95,6 +96,5 @@ string XMLLoader::makeUnique(const string& str, IdMap& idMap)
 		return str + " (" + StringOp::toString(num) + ')';
 	}
 }
-
 
 } // namespace openmsx
