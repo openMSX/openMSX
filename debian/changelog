@@ -3,6 +3,13 @@ openmsx (0.5.2.1-0) unstable; urgency=low
 
  -- Joost Yervante Damad <joost@lumatec.be>  Wed, 16 Nov 2005 20:41:04 +0100
 
+openmsx (0.5.2-5) unstable; urgency=low
+  * disable verbose probe (won't work on system without /dev/stdout,
+    which seems to be most recent systems) (Closes: #329055)
+  * temporarely use -O1 for m68k to fix ICE (Closes: #337128)
+
+ -- Joost Yervante Damad <joost@lumatec.be>  Sun, 20 Nov 2005 18:35:07 +0100
+
 openmsx (0.5.2-4) unstable; urgency=low
   * compat level 4
   * gcc4 compatible (Closes: #323118)

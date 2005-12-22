@@ -60,6 +60,7 @@ install: build
 		INSTALL_SHARE_DIR=$(CURDIR)/debian/openmsx/usr/share/openmsx \
 		INSTALL_DOC_DIR=$(CURDIR)/debian/openmsx/usr/share/doc/openmsx \
 		SYMLINK_FOR_BINARY=false \
+		INSTALL_CONTRIB=false \
 		OPENMSX_INSTALL=$(CURDIR)/debian/openmsx/usr
 	@cp -f $(CURDIR)/debian/binary.lintian-overrides $(CURDIR)/debian/openmsx/usr/share/lintian/overrides/openmsx
 	@echo "  Cleaning up the installed package..."
