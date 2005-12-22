@@ -31,7 +31,7 @@ build-stamp: patch config.status
 	# Add here commands to compile the package.
 	$(MAKE) \
 		INSTALL_SHARE_DIR=/usr/share/openmsx
-	docbook-to-man debian/openmsx.sgml > openmsx.1
+	docbook-to-man doc/openmsx.sgml > openmsx.1
 
 	touch build-stamp
 
