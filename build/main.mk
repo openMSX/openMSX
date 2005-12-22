@@ -509,9 +509,11 @@ install: all
 	@mkdir -p $(INSTALL_DOC_DIR)/manual
 	@cp -f $(addprefix doc/manual/,*.html *.css *.png) \
 		$(INSTALL_DOC_DIR)/manual
+ifeq ($(INSTALL_CONTRIB),true)
 	@echo "  C-BIOS..."
 	@cp -f Contrib/README.cbios $(INSTALL_DOC_DIR)/cbios.txt
 	@cp -rf Contrib/cbios/C-BIOS_* $(INSTALL_SHARE_DIR)/machines/
+endif
 ifeq ($(USE_SYMLINK),true)
 	@echo "  Creating symlinks..."
 	@ln -nsf National_CF-1200 $(INSTALL_SHARE_DIR)/machines/msx1
