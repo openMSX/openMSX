@@ -1,5 +1,11 @@
 $Id$
 
+2005-12-23 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Reverted bug in earlier 'cleanup' in VDPVRAM:
+	   - we must use baseAddr to encode 'window is enabled' info because
+	     the implementation of isInside depends on it
+	   - fixes crash of KV2 MSX1 on turboR
+
 2005-12-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Synchronize CPU and scheduler irregardless of how CPU loop was exited
 	  (normally or via breakpoint):

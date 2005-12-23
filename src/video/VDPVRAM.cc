@@ -11,9 +11,9 @@ namespace openmsx {
 VRAMWindow::VRAMWindow()
 {
 	observer = NULL;
-	baseMask = -1; // disabled
+	baseAddr  = -1; // disable window
+	baseMask = 0; 
 	indexMask = 0; // these 3 don't matter but it makes valgrind happy
-	baseAddr  = 0;
 	combiMask = 0;
 }
 

@@ -129,7 +129,7 @@ class VRAMWindow : private noncopyable
 {
 private:
 	inline bool isEnabled() const {
-		return baseMask != -1;
+		return baseAddr != -1;
 	}
 public:
 	/** Gets the mask for this window.
@@ -153,17 +153,19 @@ public:
 	  *       For many tables the number of index bits depends on the
 	  *       display mode anyway.
 	  */
-	inline void setMask(int baseMask, int indexMask, const EmuTime& time) {
-		if ((baseMask  == this->baseMask) &&
-		    (indexMask == this->indexMask)) {
+	inline void setMask(int newBaseMask, int newIndexMask,
+	                    const EmuTime& time) {
+		if (isEnabled() &&
+		    (newBaseMask  == baseMask) &&
+		    (newIndexMask == indexMask)) {
 			return;
 		}
 		if (observer) {
 			observer->updateWindow(true, time);
 		}
-		this->baseMask  = baseMask;
-		this->indexMask = indexMask;
-		baseAddr  =  baseMask & indexMask;
+		baseMask  = newBaseMask;
+		indexMask = newIndexMask;
+		baseAddr  =  baseMask & indexMask; // this enables window
 		combiMask = ~baseMask | indexMask;
 	}
 
@@ -174,7 +176,7 @@ public:
 		if (observer) {
 			observer->updateWindow(false, time);
 		}
-		baseMask = -1;
+		baseAddr = -1;
 	}
 
 	/** Gets a pointer to part of the VRAM in its current state.
