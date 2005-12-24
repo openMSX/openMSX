@@ -11,6 +11,8 @@ namespace openmsx {
 MSXS1990::MSXS1990(MSXMotherBoard& motherBoard, const XMLElement& config,
                    const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
+	, SimpleDebuggable(motherBoard, getName() + " regs",
+	                   "S19990 registers", 16)
 	, firmwareSwitch(new FirmwareSwitch(motherBoard.getCommandController()))
 {
 	reset(time);
@@ -37,21 +39,7 @@ byte MSXS1990::peekIO(word port, const EmuTime& /*time*/) const
 	case 0:
 		return registerSelect;
 	case 1:
-		PRT_DEBUG("S1990: read reg "<<(int)registerSelect);
-		switch (registerSelect) {
-		case 5:
-			return firmwareSwitch->getStatus() ? 0x40 : 0x00;
-		case 6:
-			return cpuStatus;
-		case 13:
-			return 0x03;	//TODO
-		case 14:
-			return 0x2F;	//TODO
-		case 15:
-			return 0x8B;	//TODO
-		default:
-			return 0xFF;
-		}
+		return readRegister(registerSelect);
 	default: // unreachable, avoid warning
 		assert(false);
 		return 0;
@@ -65,14 +53,38 @@ void MSXS1990::writeIO(word port, byte value, const EmuTime& /*time*/)
 		registerSelect = value;
 		break;
 	case 1:
-		switch (registerSelect) {
-		case 6:
-			setCPUStatus(value);
-			break;
-		}
+		writeRegister(registerSelect, value);
 		break;
 	default:
 		assert(false);
+	}
+}
+
+byte MSXS1990::readRegister(byte reg) const
+{
+	PRT_DEBUG("S1990: read reg " << (int)reg);
+	switch (reg) {
+		case 5:
+			return firmwareSwitch->getStatus() ? 0x40 : 0x00;
+		case 6:
+			return cpuStatus;
+		case 13:
+			return 0x03;	//TODO
+		case 14:
+			return 0x2F;	//TODO
+		case 15:
+			return 0x8B;	//TODO
+		default:
+			return 0xFF;
+	}
+}
+
+void MSXS1990::writeRegister(byte reg, byte value)
+{
+	switch (reg) {
+		case 6:
+			setCPUStatus(value);
+			break;
 	}
 }
 
@@ -86,6 +98,17 @@ void MSXS1990::setCPUStatus(byte value)
 	cpu.setDRAMmode(dram);
 	getMotherBoard().getPanasonicMemory().setDRAM(dram);
 	// TODO bit 7 -> reset MSX ?????
+}
+
+
+byte MSXS1990::read(unsigned address)
+{
+	return readRegister(address);
+}
+
+void MSXS1990::write(unsigned address, byte value)
+{
+	writeRegister(address, value);
 }
 
 } // namespace openmsx
