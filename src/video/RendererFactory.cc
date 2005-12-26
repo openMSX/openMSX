@@ -116,8 +116,11 @@ auto_ptr<RendererFactory::RendererSetting> RendererFactory::createRendererSettin
 	rendererMap["SDL"] = SDL;
 #ifdef COMPONENT_GL
 	rendererMap["SDLGL"] = SDLGL;
-	rendererMap["SDLGL-FB16"] = SDLGL_FB16;
-	rendererMap["SDLGL-FB32"] = SDLGL_FB32;
+	// disabled for the release:
+	//  these 2 renderers don't offer anything more than the existing
+	//  renderers and sdlgl-fb32 still has endian problems on PPC
+	//rendererMap["SDLGL-FB16"] = SDLGL_FB16;
+	//rendererMap["SDLGL-FB32"] = SDLGL_FB32;
 #endif
 #ifdef HAVE_X11
 	// XRenderer is not ready for users.

@@ -3,6 +3,9 @@ $Id$
 2005-12-26 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Revert cleanup in XMLLoader.cc, it breaks making a connection
 	  from openmsx-debugger to openmsx in windows
+	* Disabled sdlgl-fb16 and sdlgl-fb32 renderers:
+	   they don't offer anything over the existing renderers and
+	   sdlgl-fb32 still has endian problems on PPC
 
 2005-12-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Made S1990 registers debuggable
