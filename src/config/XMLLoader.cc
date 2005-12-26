@@ -46,7 +46,8 @@ auto_ptr<XMLElement> XMLLoader::loadXML(const string& filename,
 	auto_ptr<XMLElement> result(new XMLElement(""));
 	init(*result, xmlDocGetRootElement(doc), idMap);
 	xmlFreeDoc(doc);
-	xmlCleanupParser();
+	//xmlCleanupParser(); // connecting from openmsx-debugger breaks in
+	                      //  windows when this is enabled
 	return result;
 }
 

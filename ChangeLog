@@ -1,5 +1,9 @@
 $Id$
 
+2005-12-26 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Revert cleanup in XMLLoader.cc, it breaks making a connection
+	  from openmsx-debugger to openmsx in windows
+
 2005-12-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Made S1990 registers debuggable
 
