@@ -1,11 +1,17 @@
 $Id$
 
+2005-12-27 Maarten ter Huurne <maarten@treewalker.org>
+	* Added support for FreeBSD 6 by making FreeBSD 4 an exception (it has
+	  GCC 2.9x as default compiler) and using the same platform Makefile
+	  for all other FreeBSD versions.
+	* Added support for CPU reported as "amd64" (mapped to "x86_64").
+
 2005-12-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Force PSG portB direction to output:
 	   - we already forced portA to input
 	   - some msx machines have fixed port directions others not,
 	     we should make this configurable per machine in the future
-	   - for more details see   [ 1390211 ] joystick problems 
+	   - for more details see   [ 1390211 ] joystick problems
 
 2005-12-26 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Revert cleanup in XMLLoader.cc, it breaks making a connection
@@ -49,7 +55,7 @@ $Id$
 	* Properly fix fnano2 bug
 	* Implemented horizontal scrolling in character modes
 
-2005-12-14  Arnold Metselaar  <arnold.metselaar@planet.nl>
+2005-12-14 Arnold Metselaar <arnold.metselaar@planet.nl>
 	* Use another bit for planar mode when ADVRAM has no 'enable' function
 
 2005-12-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
@@ -93,8 +99,8 @@ $Id$
 	   - fixes previous fix for assert on turbor with advram
 	   - also prepared code to later add delays on other ports
 
-2005-12-04  Arnold Metselaar  <arnold.metselaar@planet.nl>
-	* change advram to emulate a newer version that can be switched 
+2005-12-04 Arnold Metselaar <arnold.metselaar@planet.nl>
+	* change advram to emulate a newer version that can be switched
 	  on and off by software
 	* fix assert when using advram on turboR
 
@@ -103,10 +109,10 @@ $Id$
 	   - read device ID ("VDP") from config file
 	   - bring coding style in line with the rest of the openmsx code
 
-2005-12-03  Arnold Metselaar  <arnold.metselaar@planet.nl>
-	* MSXDevice(readIO, peekIO, writeIO): change type of port address 
+2005-12-03 Arnold Metselaar <arnold.metselaar@planet.nl>
+	* MSXDevice(readIO, peekIO, writeIO): change type of port address
 	  to word
-	* MSXMotherBoard: add methods lockDevice and releaseDevice to allow 
+	* MSXMotherBoard: add methods lockDevice and releaseDevice to allow
 	  interdepencency of devices
 	* ADVram: new extension
 
@@ -501,7 +507,7 @@ $Id$
 	   - TODO better names for these settings?
 	   - TODO documentation
 
-2005-09-05  Arnold Metselaar  <arnold.metselaar@planet.nl>
+2005-09-05 Arnold Metselaar <arnold.metselaar@planet.nl>
 	* Added support for interaction between cassette port and jack
 	  audio connection kit
 	   - added CassetteJack
@@ -2474,7 +2480,7 @@ $Id$
 	  MSXDevice:
 	   - virtual inheritance can be removed because of this
 
-2004-07-18  Arnold Metselaar  <arnold_m@operamail.com>
+2004-07-18 Arnold Metselaar <arnold_m@operamail.com>
 	* added Unicode.{cc,hh} with minimalistic conversion of UTF-8
 	  to 8-bit Ascii
 	* Keyboard.cc: Fixes to make the type command work properly
