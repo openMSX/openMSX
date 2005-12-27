@@ -33,6 +33,8 @@ case "$GUESSED_CPU" in
 		OPENMSX_TARGET_CPU=x86;;
 	x86_64)
 		OPENMSX_TARGET_CPU=x86_64;;
+	amd64)
+		OPENMSX_TARGET_CPU=x86_64;;
 	powerpc)
 		OPENMSX_TARGET_CPU=ppc;;
 	sparc*)
@@ -67,8 +69,8 @@ case "$GUESSED_OS" in
 		OPENMSX_TARGET_OS=darwin;;
 	*freebsd4*)
 		OPENMSX_TARGET_OS=freebsd4;;
-	*freebsd5*)
-		OPENMSX_TARGET_OS=freebsd5;;
+	*freebsd*)
+		OPENMSX_TARGET_OS=freebsd;;
 	*netbsd*)
 		OPENMSX_TARGET_OS=netbsd;;
 	*openbsd*)
