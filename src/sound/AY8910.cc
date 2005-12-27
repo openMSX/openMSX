@@ -20,8 +20,6 @@ using std::string;
 
 namespace openmsx {
 
-static const bool FORCE_PORTA_INPUT = true;
-
 // Fixed point representation of 1.
 static const int FP_UNIT = 0x8000;
 
@@ -377,8 +375,7 @@ byte AY8910::readRegister(byte reg, const EmuTime& time)
 	assert(reg <= 15);
 	switch (reg) {
 	case AY_PORTA:
-		if (FORCE_PORTA_INPUT ||
-		    !(regs[AY_ENABLE] & PORT_A_DIRECTION)) { //input
+		if (!(regs[AY_ENABLE] & PORT_A_DIRECTION)) { //input
 			regs[reg] = periphery.readA(time);
 		}
 		break;
@@ -396,8 +393,7 @@ byte AY8910::peekRegister(byte reg, const EmuTime& time) const
 	assert(reg <= 15);
 	switch (reg) {
 	case AY_PORTA:
-		if (FORCE_PORTA_INPUT ||
-		    !(regs[AY_ENABLE] & PORT_A_DIRECTION)) { //input
+		if (!(regs[AY_ENABLE] & PORT_A_DIRECTION)) { //input
 			return periphery.readA(time);
 		}
 		break;
@@ -424,6 +420,13 @@ void AY8910::writeRegister(byte reg, byte value, const EmuTime& time)
 }
 void AY8910::wrtReg(byte reg, byte value, const EmuTime& time)
 {
+	// Force port directions
+	if (reg == AY_ENABLE) {
+		// portA -> input
+		// portB -> output
+		value = (value & ~PORT_A_DIRECTION) | PORT_B_DIRECTION;
+	}
+
 	// Note: unused bits are stored as well; they can be read back.
 	regs[reg] = value;
 
@@ -455,8 +458,7 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime& time)
 		envelope.setShape(value);
 		break;
 	case AY_ENABLE:
-		if (!FORCE_PORTA_INPUT &&
-		    (value      & PORT_A_DIRECTION) &&
+		if ((value      & PORT_A_DIRECTION) &&
 		    !(oldEnable & PORT_A_DIRECTION)) {
 			// Changed from input to output.
 			periphery.writeA(regs[AY_PORTA], time);
@@ -470,8 +472,7 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime& time)
 		checkMute();
 		break;
 	case AY_PORTA:
-		if (!FORCE_PORTA_INPUT &&
-		    regs[AY_ENABLE] & PORT_A_DIRECTION) { // output
+		if (regs[AY_ENABLE] & PORT_A_DIRECTION) { // output
 			periphery.writeA(value, time);
 		}
 		break;

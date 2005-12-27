@@ -1,5 +1,12 @@
 $Id$
 
+2005-12-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Force PSG portB direction to output:
+	   - we already forced portA to input
+	   - some msx machines have fixed port directions others not,
+	     we should make this configurable per machine in the future
+	   - for more details see   [ 1390211 ] joystick problems 
+
 2005-12-26 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Revert cleanup in XMLLoader.cc, it breaks making a connection
 	  from openmsx-debugger to openmsx in windows

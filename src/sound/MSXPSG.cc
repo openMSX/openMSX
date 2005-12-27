@@ -21,13 +21,12 @@ MSXPSG::MSXPSG(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, prev(255)
 {
 	keyLayoutBit = deviceConfig.getChildData("keyboardlayout", "") == "JIS";
-	ay8910.reset(new AY8910(motherBoard, *this, config, time));
-
 	selectedPort = 0;
 	PluggingController& controller = motherBoard.getPluggingController();
 	ports[0].reset(new JoystickPort(controller, "joyporta"));
 	ports[1].reset(new JoystickPort(controller, "joyportb"));
 
+	ay8910.reset(new AY8910(motherBoard, *this, config, time));
 	reset(time);
 }
 
