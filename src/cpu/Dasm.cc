@@ -115,7 +115,7 @@ int dasm(const MSXCPUInterface& interf, word pc, byte buf[4], std::string& dest,
 			break;
 		}
 	}
-	dest.resize(18, ' ');
+	dest.resize(19, ' ');
 	return i;
 }
 
