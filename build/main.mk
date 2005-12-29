@@ -498,22 +498,21 @@ INSTALL_DOC_DIR?=$(OPENMSX_INSTALL)/doc
 install: all
 	@echo "Installing to $(OPENMSX_INSTALL):"
 	@echo "  Executable..."
-	@mkdir -p  $(INSTALL_BINARY_DIR)
-	@cp -f $(BINARY_FULL) $(INSTALL_BINARY_DIR)/$(BINARY_FILE)
+	@install -d $(INSTALL_BINARY_DIR)
+	@install $(BINARY_FULL) $(INSTALL_BINARY_DIR)/$(BINARY_FILE)
 	@echo "  Data files..."
-	@mkdir -p $(INSTALL_SHARE_DIR)
-	@cp -rf share/* $(INSTALL_SHARE_DIR)/
+	@sh build/install-recursive.sh share $(INSTALL_SHARE_DIR)
 	@echo "  Documentation..."
-	@mkdir -p $(INSTALL_DOC_DIR)
-	@cp -f README GPL AUTHORS $(INSTALL_DOC_DIR)
-	@cp -f $(addprefix doc/,$(INSTALL_DOCS)) $(INSTALL_DOC_DIR)
-	@mkdir -p $(INSTALL_DOC_DIR)/manual
-	@cp -f $(addprefix doc/manual/,*.html *.css *.png) \
+	@install -d  $(INSTALL_DOC_DIR)
+	@install -m 0644 README GPL AUTHORS $(INSTALL_DOC_DIR)
+	@install -m 0644 $(addprefix doc/,$(INSTALL_DOCS)) $(INSTALL_DOC_DIR)
+	@install -d $(INSTALL_DOC_DIR)/manual
+	@install -m 0644 $(addprefix doc/manual/,*.html *.css *.png) \
 		$(INSTALL_DOC_DIR)/manual
 ifeq ($(INSTALL_CONTRIB),true)
 	@echo "  C-BIOS..."
-	@cp -f Contrib/README.cbios $(INSTALL_DOC_DIR)/cbios.txt
-	@cp -rf Contrib/cbios/C-BIOS_* $(INSTALL_SHARE_DIR)/machines/
+	@install -m 0644 Contrib/README.cbios $(INSTALL_DOC_DIR)/cbios.txt
+	@sh build/install-recursive.sh Contrib/cbios $(INSTALL_SHARE_DIR)/machines
 endif
 ifeq ($(USE_SYMLINK),true)
 	@echo "  Creating symlinks..."
@@ -530,8 +529,6 @@ ifeq ($(USE_SYMLINK),true)
 	fi
   endif
 endif
-	@echo "  Setting permissions..."
-	@chmod -R a+rX $(OPENMSX_INSTALL)
 	@echo "Installation complete... have fun!"
 	@echo "Notice: if you want to emulate real MSX systems and not only the free C-BIOS machines, put the system ROMs in one of the following directories: $(INSTALL_SHARE_DIR)/systemroms or ~/.openMSX/share/systemroms"
 

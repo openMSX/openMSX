@@ -1,5 +1,11 @@
 $Id$
 
+2005-12-28 Maarten ter Huurne <maarten@treewalker.org>
+	* Rewrote "make install" to use the "install" utility instead of "cp"
+	  combined with "chmod". The problem was that the "chmod" step did not
+	  work on systems where the installed files are spread over multiple
+	  directories, such as FreeBSD.
+
 2005-12-27 Maarten ter Huurne <maarten@treewalker.org>
 	* Added support for FreeBSD 6 by making FreeBSD 4 an exception (it has
 	  GCC 2.9x as default compiler) and using the same platform Makefile
