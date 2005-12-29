@@ -1,5 +1,9 @@
 $Id$
 
+2005-12-29 Maarten ter Huurne <maarten@treewalker.org>
+	* Allow installation of binary to /usr/local/bin without overwriting
+	  binary with a symlink.
+
 2005-12-28 Maarten ter Huurne <maarten@treewalker.org>
 	* Rewrote "make install" to use the "install" utility instead of "cp"
 	  combined with "chmod". The problem was that the "chmod" step did not

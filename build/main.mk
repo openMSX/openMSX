@@ -521,16 +521,18 @@ ifeq ($(USE_SYMLINK),true)
 	@ln -nsf Panasonic_FS-A1FX $(INSTALL_SHARE_DIR)/machines/msx2plus
 	@ln -nsf Panasonic_FS-A1GT $(INSTALL_SHARE_DIR)/machines/turbor
   ifeq ($(SYMLINK_FOR_BINARY),true)
-	@if [ -d /usr/local/bin -a -w /usr/local/bin ]; \
-	then ln -sf $(INSTALL_BINARY_DIR)/$(BINARY_FILE) /usr/local/bin/openmsx; \
-	else if [ -d ~/bin ]; \
-		then ln -sf $(INSTALL_BINARY_DIR)/$(BINARY_FILE) ~/bin/openmsx; \
+	@if [ $(INSTALL_BINARY_DIR) != /usr/local/bin ]; then \
+		if [ -d /usr/local/bin -a -w /usr/local/bin ]; then \
+			ln -sf $(INSTALL_BINARY_DIR)/$(BINARY_FILE) /usr/local/bin/openmsx; \
+		elif [ $(INSTALL_BINARY_DIR) != ~/bin -a -d ~/bin ]; then \
+			ln -sf $(INSTALL_BINARY_DIR)/$(BINARY_FILE) ~/bin/openmsx; \
 		fi; \
 	fi
   endif
 endif
 	@echo "Installation complete... have fun!"
 	@echo "Notice: if you want to emulate real MSX systems and not only the free C-BIOS machines, put the system ROMs in one of the following directories: $(INSTALL_SHARE_DIR)/systemroms or ~/.openMSX/share/systemroms"
+
 
 # Source Packaging
 # ================
@@ -547,7 +549,8 @@ dist: $(DETECTSYS_SCRIPT)
 	@cp -p --parents $(HEADERS_FULL) $(DIST_PATH)
 	@cp -p --parents $(SOURCES_FULL) $(DIST_PATH)
 	@echo "Creating tarball..."
-	@cd $(DIST_BASE) ; GZIP=--best tar zcf $(PACKAGE_FULL).tar.gz $(PACKAGE_FULL)
+	@cd $(DIST_BASE) && \
+		GZIP=--best tar zcf $(PACKAGE_FULL).tar.gz $(PACKAGE_FULL)
 
 
 # Precompiled Headers
