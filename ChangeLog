@@ -3,6 +3,11 @@ $Id$
 2005-12-29 Maarten ter Huurne <maarten@treewalker.org>
 	* Allow installation of binary to /usr/local/bin without overwriting
 	  binary with a symlink.
+	* Check whether the C++ compiler is working.
+	  It checks only if the compiler can compile "Hello World!", so it is
+	  not guaranteed the compiler supports all C++ features needed to
+	  compile openMSX. But the complete absence of a compiler is correctly
+	  identified now, instead of reporting that all libraries are missing.
 
 2005-12-28 Maarten ter Huurne <maarten@treewalker.org>
 	* Rewrote "make install" to use the "install" utility instead of "cp"

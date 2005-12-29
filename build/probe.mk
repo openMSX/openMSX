@@ -135,7 +135,7 @@ include build/platform-$(OPENMSX_TARGET_OS).mk
 # Implementation
 # ==============
 
-CHECK_TARGETS:=$(CHECK_FUNCS) $(CHECK_HEADERS) $(CHECK_LIBS)
+CHECK_TARGETS:=hello $(CHECK_FUNCS) $(CHECK_HEADERS) $(CHECK_LIBS)
 PRINT_LIBS:=$(addsuffix -print,$(CHECK_LIBS))
 
 .PHONY: all init check-targets print-libs $(CHECK_TARGETS) $(PRINT_LIBS)
@@ -155,6 +155,20 @@ init:
 	@echo "# Non-empty value means found, empty means not found." >> $(OUTMAKE)
 	@echo "PROBE_MAKE_INCLUDED:=true" >> $(OUTMAKE)
 	@echo "HAVE_X11:=" >> $(OUTMAKE)
+
+# Check compiler with the most famous program.
+hello: init
+	@echo "#include <iostream>" > $(OUTDIR)/$@.cc
+	@echo "int main(char** argv, int argc) {" >> $(OUTDIR)/$@.cc
+	@echo "  std::cout << \"Hello World!\" << std::endl;" >> $(OUTDIR)/$@.cc
+	@echo "}" >> $(OUTDIR)/$@.cc
+	@if $(COMPILE) $(CXXFLAGS) -c $(OUTDIR)/$@.cc -o $(OUTDIR)/$@.o 2>> $(LOG); \
+	then echo "Compiler works: $(COMPILE) $(CXXFLAGS)" >> $(LOG); \
+	     echo "COMPILER:=true" >> $(OUTMAKE); \
+	else echo "Compiler broken: $(COMPILE) $(CXXFLAGS)" >> $(LOG); \
+	     echo "COMPILER:=false" >> $(OUTMAKE); \
+	fi
+	@rm -f $(OUTDIR)/$@.cc $(OUTDIR)/$@.o
 
 # Probe for function:
 # Try to include the necessary header and get the function address.
