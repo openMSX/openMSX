@@ -7,31 +7,29 @@ then
 	exit 1
 fi
 
-src=$1
-dst=$2
+src="$1"
+dst="$2"
 
-if [ ! -d $src ]
+if [ ! -d "$src" ]
 then
 	echo "Source argument is not a directory: $src" >&2
 	exit 1
 fi
 
-install -d $dst
-files=
-for path in $src/*
+install -d "$dst"
+for path in "$src"/*
 do
-	name=$(basename $path)
-	if [ -d $src/$name ]
+	name=$(basename "$path")
+	if [ -L "$src/$name" ]
 	then
-		if [ $name != CVS ]
+		echo "skipping symbolic link: $src/$name"
+	elif [ -d "$src/$name" ]
+	then
+		if [ "$name" != CVS ]
 		then
-			$0 $src/$name $dst/$name
+			$0 "$src/$name" "$dst/$name"
 		fi
 	else
-		files="$files $src/$name"
+		install -m 0644 "$src/$name" "$dst"
 	fi
 done
-if [ -n "$files" ]
-then
-	install -m 0644 $files $dst
-fi
