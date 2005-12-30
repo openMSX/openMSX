@@ -5,6 +5,7 @@
 #include "GLSnow.hh"
 #include "GLConsole.hh"
 #include "IconLayer.hh"
+#include "build-info.hh"
 #include <cstdlib>
 
 namespace openmsx {
@@ -62,14 +63,25 @@ SDLGLOutputSurface::SDLGLOutputSurface(
 			format.Gloss = 0;
 			format.Bloss = 0;
 			format.Aloss = 0;
-			format.Rshift = 0;
-			format.Gshift = 8;
-			format.Bshift = 16;
-			format.Ashift = 24;
-			format.Rmask = 0x000000FF;
-			format.Gmask = 0x0000FF00;
-			format.Bmask = 0x00FF0000;
-			format.Amask = 0xFF000000;
+			if (OPENMSX_BIGENDIAN) {
+				format.Rshift = 24;
+				format.Gshift = 16;
+				format.Bshift = 8;
+				format.Ashift = 0;
+				format.Rmask = 0xFF000000;
+				format.Gmask = 0x00FF0000;
+				format.Bmask = 0x0000FF00;
+				format.Amask = 0x000000FF;
+			} else {
+				format.Rshift = 0;
+				format.Gshift = 8;
+				format.Bshift = 16;
+				format.Ashift = 24;
+				format.Rmask = 0x000000FF;
+				format.Gmask = 0x0000FF00;
+				format.Bmask = 0x00FF0000;
+				format.Amask = 0xFF000000;
+			}
 		}
 
 		// TODO 64 byte aligned (see RawFrame)
@@ -110,7 +122,7 @@ void SDLGLOutputSurface::drawFrameBuffer()
 {
 	unsigned width  = getWidth();
 	unsigned height = getHeight();
-	
+
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, textureId);
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
@@ -121,7 +133,7 @@ void SDLGLOutputSurface::drawFrameBuffer()
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height,
 		                GL_RGBA, GL_UNSIGNED_BYTE, data);
 	}
-	
+
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.0,       texCoordY); glVertex2i(0,     height);
 	glTexCoord2f(texCoordX, texCoordY); glVertex2i(width, height);
