@@ -14,7 +14,7 @@
 # this time i turned it into something fun.
 #
 # openmsx is made to work together with ips patches. albert has some ips
-# patches ready at http://ips.msx.nu/ for even more chatting ;)
+# patches ready at http://ips.tni.nl/ for even more chatting ;)
 #
 # please cheat responsible!
 
@@ -4663,11 +4663,30 @@ proc trainer_thecure {} {
 	poke 0xdae0 1
 	#get white key
 	poke 0xdae1 1
-	#kill enemy with one hit
-	poke 0xdb8d 1
+	#kill enemy with one hit (end boss 3 caution!)
+	#poke 0xdb8d 1
 	#hearts
 	poke 0xdd44 0x99
+	#next stage (-1)
+	#poke 0xdd46 1
 	after time 1 trainer_thecure	
+}
+
+proc trainer_universe_unknown {} {
+	#power
+	poke 0xee55 128
+	poke 0xee54 255
+	#lives (ascii code)
+	poke 0xf2c4 233
+	after frame trainer_universe_unknown
+}
+
+proc trainer_caverns_of_titan {} {
+	#oxygen
+	poke 0xd4e4 255
+	#walking speed
+	poke 0xd6dc 1
+	after frame trainer_caverns_of_titan
 }
 
 
