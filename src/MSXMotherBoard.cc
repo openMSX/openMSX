@@ -5,9 +5,9 @@
 #include "Scheduler.hh"
 #include "HardwareConfig.hh"
 #include "CartridgeSlotManager.hh"
-#include "PluggingController.hh"
 #include "Debugger.hh"
 #include "Mixer.hh"
+#include "PluggingController.hh"
 #include "DummyDevice.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXCPU.hh"
@@ -163,14 +163,6 @@ RealTime& MSXMotherBoard::getRealTime()
 	return *realTime;
 }
 
-PluggingController& MSXMotherBoard::getPluggingController()
-{
-	if (!pluggingController.get()) {
-		pluggingController.reset(new PluggingController(*this));
-	}
-	return *pluggingController;
-}
-
 Debugger& MSXMotherBoard::getDebugger()
 {
 	if (!debugger.get()) {
@@ -185,6 +177,14 @@ Mixer& MSXMotherBoard::getMixer()
 		mixer.reset(new Mixer(getScheduler(), getCommandController()));
 	}
 	return *mixer;
+}
+
+PluggingController& MSXMotherBoard::getPluggingController()
+{
+	if (!pluggingController.get()) {
+		pluggingController.reset(new PluggingController(*this));
+	}
+	return *pluggingController;
 }
 
 DummyDevice& MSXMotherBoard::getDummyDevice()
