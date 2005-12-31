@@ -1,5 +1,12 @@
 $Id$
 
+2005-12-31 Manuel Bilderbeek <manuel@msxnet.org>
+	* Temporarily disabled reporting of filetype of first file on
+	  cassette, because this breaks Catapult, and Herman is not there to fix
+	  it... This way we can release. TODO re-enable after release and fix
+	  Catapult or finally start on the Qt version of Catapult!
+	  At this time, I'm talking about line 407 of CassettePlayer.cc.
+
 2005-12-29 Maarten ter Huurne <maarten@treewalker.org>
 	* Allow installation of binary to /usr/local/bin without overwriting
 	  binary with a symlink.

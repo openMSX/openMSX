@@ -404,7 +404,7 @@ void CassettePlayer::execute(const std::vector<TclObject*>& tokens,
 		TclObject options(result.getInterpreter());
 		options.addListElement(wavWriter.get() ? "record" : "play");
 		result.addListElement(options);
-		result.addListElement(cassette->getFirstFileTypeAsString());
+		// result.addListElement(cassette->getFirstFileTypeAsString()); <-- temporarily disabled, so that we can release openMSX 0.6.0 and Catapult 0.6.0-R1 without having to fix Catapult which breaks because of this
 	} else if (tokens[1]->getString() == "new") {
 		if (wavWriter.get()) {
 			stopRecording(now);
