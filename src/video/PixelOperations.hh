@@ -9,7 +9,7 @@ namespace openmsx {
 
 // TODO optimizations for Pixel=unsigned
 
-template <typename Pixel> 
+template <typename Pixel>
 class PixelOperations
 {
 public:
@@ -31,8 +31,8 @@ public:
 	  */
 	inline Pixel combine(unsigned r, unsigned g, unsigned b) const;
 	inline Pixel combine256(unsigned r, unsigned g, unsigned b) const;
-	
-	/** Blend the given colors into a single color. 
+
+	/** Blend the given colors into a single color.
 	  * The special case for blending between two colors with
 	  * an equal blend weight has an optimized implementation.
 	  */
@@ -49,7 +49,7 @@ public:
 	inline Pixel blend3(const Pixel* p) const;
 	template <unsigned w1, unsigned w2, unsigned w3, unsigned w4>
 	inline Pixel blend4(const Pixel* p) const;
-	
+
 	inline Pixel getBlendMask() const;
 
 private:

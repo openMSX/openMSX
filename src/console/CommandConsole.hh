@@ -40,7 +40,7 @@ public:
 private:
 	// InterpreterOutput
 	virtual void output(const std::string& text);
-	
+
 	static const int LINESHISTORY = 1000;
 
 	virtual void signalEvent(const Event& event);

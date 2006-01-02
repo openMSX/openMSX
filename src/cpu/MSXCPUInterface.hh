@@ -201,7 +201,7 @@ private:
 	private:
 		MSXCPUInterface& interface;
 	} slottedMemoryDebug;
-	
+
 	class IODebug : public SimpleDebuggable {
 	public:
 		IODebug(MSXCPUInterface& interface,

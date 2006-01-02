@@ -36,7 +36,7 @@ public:
 
 	void loadSettings(const XMLElement& config);
 	void saveSettings(XMLElement& config) const;
-	
+
 	void registerSetting(Setting& setting);
 	void unregisterSetting(Setting& setting);
 
@@ -62,7 +62,7 @@ private:
 	private:
 		SettingsManager& manager;
 	} settingInfo;
-	
+
 	class SetCompleter : public CommandCompleter {
 	public:
 		SetCompleter(CommandController& commandController,

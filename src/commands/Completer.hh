@@ -36,7 +36,7 @@ public:
 
 	CommandController& getCommandController() const;
 	const std::string& getName() const;
-	
+
 protected:
 	Completer(CommandController& commandController,
 	          const std::string& name);

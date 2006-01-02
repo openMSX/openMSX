@@ -20,7 +20,7 @@ public:
 	~SettingsConfig();
 
 	void setHotKey(HotKey* hotKey); // TODO cleanup
-	
+
 	void loadSetting(FileContext& context, const std::string& filename);
 	void saveSetting(const std::string& filename = "");
 	void setSaveSettings(bool save);
@@ -29,7 +29,7 @@ public:
 
 private:
 	CommandController& commandController;
-	
+
 	// SaveSettings command
 	class SaveSettingsCommand : public SimpleCommand {
 	public:
@@ -53,7 +53,7 @@ private:
 	private:
 		SettingsConfig& settingsConfig;
 	} loadSettingsCommand;
-	
+
 	std::auto_ptr<SettingsManager> settingsManager;
 	HotKey* hotKey;
 	std::string saveName;

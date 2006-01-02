@@ -184,7 +184,7 @@ void TclObject::parse(const char* str, int len, bool expression) const
 		Tcl_Parse* p;
 	} cleanup = { &info };
 	if (&cleanup); // avoid warning
-	
+
 	if (!expression && (info.tokenPtr[0].type == TCL_TOKEN_SIMPLE_WORD)) {
 		// simple command name
 		Tcl_CmdInfo cmdinfo;

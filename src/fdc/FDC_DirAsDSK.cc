@@ -140,7 +140,7 @@ string FDC_DirAsDSK::makeSimpleMSXFileName(const string& fullfilename)
 {
 	string dir, fullfile;
 	StringOp::splitOnLast(fullfilename, "/", dir, fullfile);
-	
+
 	transform(fullfile.begin(), fullfile.end(), fullfile.begin(), toMSXChr);
 
 	string file, ext;

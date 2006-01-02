@@ -68,7 +68,7 @@ public:
 	                       CLIFileType* cliFileType);
 	void parse(int argc, char** argv);
 	ParseStatus getParseStatus() const;
-	
+
 	typedef std::vector<std::string> Scripts;
 	const Scripts& getStartupScripts() const;
 

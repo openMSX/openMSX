@@ -173,7 +173,7 @@ void MSXtar::parseBootSector(const byte* buf)
 void MSXtar::parseBootSectorFAT(const byte* buf)
 {
 	parseBootSector(buf);
-	
+
 	// cache complete FAT
 	assert(fatBuffer.empty()); // can only cache once
 	fatBuffer.resize(SECTOR_SIZE * sectorsPerFat);
@@ -450,7 +450,7 @@ MSXtar::DirEntry MSXtar::addEntryToDir(int sector)
 			}
 		}
 		throw MSXException("Root directory full.");
-	
+
 	} else {
 		// add to a subdir
 		while (true) {
@@ -766,7 +766,7 @@ string MSXtar::recurseDirFill(const string& dirName, int sector)
 			byte buf[SECTOR_SIZE];
 			DirEntry direntry = findEntryInDir(msxFileName, sector, buf);
 			if (direntry.sector != 0) {
-				// entry already exists .. 
+				// entry already exists ..
 				MSXDirEntry* direntries = (MSXDirEntry*)buf;
 				MSXDirEntry& msxdirentry = direntries[direntry.index];
 				if (msxdirentry.attrib & T_MSX_DIR) {
@@ -943,7 +943,7 @@ void MSXtar::recurseDirExtract(const string& dirName, int sector)
 				if (!dirName.empty()) {
 					fullname = dirName + '/' + filename;
 				}
-				if (direntry[i].attrib != T_MSX_DIR) { // TODO 
+				if (direntry[i].attrib != T_MSX_DIR) { // TODO
 					fileExtract(fullname, direntry[i]);
 				}
 				if (direntry[i].attrib == T_MSX_DIR) {

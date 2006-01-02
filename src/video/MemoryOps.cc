@@ -260,7 +260,7 @@ template<bool STREAMING> static inline void memset_2_helper(
 		out[0] = val1;
 		++out; --num;
 	}
-	
+
 	unsigned val = OPENMSX_BIGENDIAN
 	             ? (val0 << 16) | val1
 	             : val0 | (val1 << 16);
@@ -320,7 +320,7 @@ public:
 		allocMap.erase(it);
 		return unaligned;
 	}
-	
+
 private:
 	AllocMap() {}
 	~AllocMap() {

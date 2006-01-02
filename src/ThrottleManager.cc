@@ -43,7 +43,7 @@ void ThrottleManager::indicateLoadingState(bool state)
 {
 	if (state) {
 		++loading;
-	} else { 
+	} else {
 		--loading;
 	}
 	assert (loading >= 0);

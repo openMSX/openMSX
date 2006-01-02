@@ -25,7 +25,7 @@ using std::auto_ptr;
 
 namespace openmsx {
 
-Rom::Rom(MSXMotherBoard& motherBoard_, const string& name_, 
+Rom::Rom(MSXMotherBoard& motherBoard_, const string& name_,
          const string& description_, const XMLElement& config)
 	: motherBoard(motherBoard_), name(name_), description(description_)
 {

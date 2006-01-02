@@ -31,7 +31,7 @@ public:
 	  */
 	void wait();
 	void notify();
-	
+
 	// PollInterface
 	virtual void poll();
 

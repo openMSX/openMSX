@@ -104,7 +104,7 @@ bool OutputSurface::setFullScreen(bool wantedState)
 	// We now always create a new screen to make the code on both OSes
 	// more similar (we had a windows-only bug because of this difference)
 	return false;
-	
+
 	/*
 	// try to toggle full screen
 	SDL_WM_ToggleFullScreen(surface);

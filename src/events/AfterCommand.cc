@@ -53,7 +53,7 @@ AfterCommand::~AfterCommand()
 	while (!afterCmds.empty()) {
 		delete afterCmds.begin()->second; // removes itself from map
 	}
-	
+
 	eventDistributor.unregisterEventListener(
 		OPENMSX_BREAK_EVENT, *this, EventDistributor::DETACHED);
 	eventDistributor.unregisterEventListener(
@@ -337,7 +337,7 @@ const string& AfterCommand::AfterTimeCmd::getType() const
 
 AfterCommand::AfterIdleCmd::AfterIdleCmd(
 		Scheduler& scheduler,
-		AfterCommand& afterCommand, 
+		AfterCommand& afterCommand,
 		const string& command, double time)
 	: AfterTimedCmd(scheduler, afterCommand, command, time)
 {

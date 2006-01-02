@@ -22,7 +22,7 @@ public:
 
 	// get associated interpreter
 	Tcl_Interp* getInterpreter() const;
-	
+
 	// value setters
 	void setString(const std::string& value);
 	void setInt(int value);
@@ -54,7 +54,7 @@ public:
 
 private:
 	TclObject& operator==(const TclObject&);
-	
+
 	void init(Tcl_Obj* obj_);
 	void unshare();
 	void addListElement(Tcl_Obj* element);

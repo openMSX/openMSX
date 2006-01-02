@@ -225,7 +225,7 @@ void RealDrive::setMotor(bool status, const EmuTime& time)
 			new LedEvent(LedEvent::FDD, motorStatus));
 		updateLoadingState();
 	}
-	
+
 }
 
 bool RealDrive::indexPulse(const EmuTime& time)

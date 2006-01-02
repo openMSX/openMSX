@@ -215,7 +215,7 @@ MSXCPUInterface& MSXMotherBoard::getCPUInterface()
 		msxCpuInterface = MSXCPUInterface::create(
 			*this, getHardwareConfig());
 	}
-	return *msxCpuInterface; 
+	return *msxCpuInterface;
 }
 
 PanasonicMemory& MSXMotherBoard::getPanasonicMemory()

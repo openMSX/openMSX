@@ -18,7 +18,7 @@ class Setting;
 class ThrottleManager;
 
 class SDLSoundDriver : public SoundDriver, private Schedulable,
-                       private Observer<Setting>, 
+                       private Observer<Setting>,
                        private Observer<ThrottleManager>
 {
 public:

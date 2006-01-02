@@ -13,7 +13,7 @@ class VDPVRAM;
 
 /** Implementation of direct cpu access to VRAM.  ADVram (Accesso
   * Direito \`a Vram is a rare hardware modification that allows the
-  * CPU to access the video ram in the same way as ordinary ram. 
+  * CPU to access the video ram in the same way as ordinary ram.
   */
 class ADVram : public MSXDevice
 {

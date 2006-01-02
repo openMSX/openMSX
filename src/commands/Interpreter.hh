@@ -24,7 +24,7 @@ public:
 	~Interpreter();
 
 	void setOutput(InterpreterOutput* output);
-	
+
 	void init(const char* programName);
 	void registerCommand(const std::string& name, Command& command);
 	void unregisterCommand(const std::string& name, Command& command);

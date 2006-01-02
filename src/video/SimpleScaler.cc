@@ -550,7 +550,7 @@ void SimpleScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 
 		Pixel* dstLine1 = dst.getLinePtr(dstY + 0, dummy);
 		drawScanline(prevDstLine0, dstLine0, dstLine1, scanlineFactor);
-		
+
 		prevDstLine0 = dstLine0;
 		dstY += 2;
 	}
@@ -558,7 +558,7 @@ void SimpleScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	srcLine = src.getLinePtr(srcStartY++, srcWidth, dummy);
 	Pixel buf[640];
 	blur512(srcLine, buf, blur);
-	
+
 	Pixel* dstLine1 = dst.getLinePtr(dstY, dummy);
 	drawScanline(prevDstLine0, buf, dstLine1, scanlineFactor);
 }

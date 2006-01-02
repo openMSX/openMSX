@@ -690,7 +690,7 @@ void VDPCmdEngine::PointCmd<Mode>::start(const EmuTime& time)
 	vram.cmdWriteWindow.disable(clock.getTime());
 	bool srcExt  = engine.ARG & MXS;
 	bool doPoint = !srcExt || engine.hasExtendedVRAM;
-	
+
 	engine.COL = likely(doPoint)
 	           ? Mode::point(vram, engine.SX, engine.SY, srcExt)
 	           : 0xFF;
@@ -965,7 +965,7 @@ void VDPCmdEngine::LmmmCmd<Mode>::execute(const EmuTime& time)
 	bool dstExt  = engine.ARG & MXD;
 	bool doPoint = !srcExt || engine.hasExtendedVRAM;
 	bool doPset  = !dstExt || engine.hasExtendedVRAM;
-	
+
 	while (clock.before(time)) {
 		if (likely(doPset)) {
 			byte p = likely(doPoint)

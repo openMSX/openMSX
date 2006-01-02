@@ -261,7 +261,7 @@ void Y8950Adpcm::writeData(byte data)
 			// set EOS bit in status register
 			y8950.setStatus(Y8950::STATUS_EOS);
 		}
-		
+
 	} else if ((reg7 & 0xE0) == 0x80) {
 		// ADPCM synthesis from CPU
 

@@ -50,8 +50,8 @@ void Scaler2<Pixel>::scaleBlank1to1(
 }
 
 template <typename Pixel, typename ScaleOp>
-static void doScale1(FrameSource& src, 
-	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth, 
+static void doScale1(FrameSource& src,
+	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
 	ScaleOp scale)
 {
@@ -71,8 +71,8 @@ static void doScale1(FrameSource& src,
 }
 
 template <typename Pixel, typename ScaleOp>
-static void doScale2(FrameSource& src, 
-	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth, 
+static void doScale2(FrameSource& src,
+	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
 	ScaleOp scale)
 {
@@ -87,7 +87,7 @@ static void doScale2(FrameSource& src,
 
 
 template <class Pixel>
-void Scaler2<Pixel>::scale1x1to3x2(FrameSource& src, 
+void Scaler2<Pixel>::scale1x1to3x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -96,7 +96,7 @@ void Scaler2<Pixel>::scale1x1to3x2(FrameSource& src,
 }
 
 template <class Pixel>
-void Scaler2<Pixel>::scale1x1to3x1(FrameSource& src, 
+void Scaler2<Pixel>::scale1x1to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -111,7 +111,7 @@ void Scaler2<Pixel>::scale1x1to3x1(FrameSource& src,
 //       See also Scaler3::scale256.
 // TODO: Why won't it compile anymore without this method enabled?
 template <class Pixel>
-void Scaler2<Pixel>::scale1x1to2x2(FrameSource& src, 
+void Scaler2<Pixel>::scale1x1to2x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -120,7 +120,7 @@ void Scaler2<Pixel>::scale1x1to2x2(FrameSource& src,
 }
 
 template <class Pixel>
-void Scaler2<Pixel>::scale1x1to2x1(FrameSource& src, 
+void Scaler2<Pixel>::scale1x1to2x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -129,7 +129,7 @@ void Scaler2<Pixel>::scale1x1to2x1(FrameSource& src,
 }
 
 template <class Pixel>
-void Scaler2<Pixel>::scale2x1to3x2(FrameSource& src, 
+void Scaler2<Pixel>::scale2x1to3x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -138,7 +138,7 @@ void Scaler2<Pixel>::scale2x1to3x2(FrameSource& src,
 }
 
 template <class Pixel>
-void Scaler2<Pixel>::scale2x1to3x1(FrameSource& src, 
+void Scaler2<Pixel>::scale2x1to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -147,7 +147,7 @@ void Scaler2<Pixel>::scale2x1to3x1(FrameSource& src,
 }
 
 template <class Pixel>
-void Scaler2<Pixel>::scale1x1to1x2(FrameSource& src, 
+void Scaler2<Pixel>::scale1x1to1x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -156,7 +156,7 @@ void Scaler2<Pixel>::scale1x1to1x2(FrameSource& src,
 }
 
 template <class Pixel>
-void Scaler2<Pixel>::scale1x1to1x1(FrameSource& src, 
+void Scaler2<Pixel>::scale1x1to1x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -165,7 +165,7 @@ void Scaler2<Pixel>::scale1x1to1x1(FrameSource& src,
 }
 
 template <class Pixel>
-void Scaler2<Pixel>::scale4x1to3x2(FrameSource& src, 
+void Scaler2<Pixel>::scale4x1to3x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -174,7 +174,7 @@ void Scaler2<Pixel>::scale4x1to3x2(FrameSource& src,
 }
 
 template <class Pixel>
-void Scaler2<Pixel>::scale4x1to3x1(FrameSource& src, 
+void Scaler2<Pixel>::scale4x1to3x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -183,7 +183,7 @@ void Scaler2<Pixel>::scale4x1to3x1(FrameSource& src,
 }
 
 template <class Pixel>
-void Scaler2<Pixel>::scale2x1to1x2(FrameSource& src, 
+void Scaler2<Pixel>::scale2x1to1x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
@@ -192,7 +192,7 @@ void Scaler2<Pixel>::scale2x1to1x2(FrameSource& src,
 }
 
 template <class Pixel>
-void Scaler2<Pixel>::scale2x1to1x1(FrameSource& src, 
+void Scaler2<Pixel>::scale2x1to1x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {

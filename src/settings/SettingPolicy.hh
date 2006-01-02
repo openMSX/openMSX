@@ -25,7 +25,7 @@ protected:
 	// T fromString(const std::string& str) const;
 	void tabCompletion(std::vector<std::string>& tokens) const;
 	void additionalInfo(TclObject& result) const;
-	
+
 	CommandController& getCommandController() const { return commandController; }
 
 private:

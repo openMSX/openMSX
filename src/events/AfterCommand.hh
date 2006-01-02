@@ -29,7 +29,7 @@ public:
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
 private:
-	
+
 	std::string afterTime(const std::vector<std::string>& tokens);
 	std::string afterIdle(const std::vector<std::string>& tokens);
 	std::string afterInfo(const std::vector<std::string>& tokens);

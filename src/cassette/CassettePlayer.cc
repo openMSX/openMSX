@@ -3,12 +3,12 @@
 //TODO:
 // - specify prefix for auto file name generation when recording (setting?)
 // - append to existing wav files when recording (record command), but this is
-//   basically a special case (pointer at the end) of: 
+//   basically a special case (pointer at the end) of:
 // - (partly) overwrite an existing wav file from any given time index
 // - seek in cassette images for the next and previous file (using empty space?)
 // - (partly) overwrite existing wav files with new tape data (not very hi prio)
 // - handle read-only cassette images (e.g.: CAS images or WAV files with a RO
-//   flag): refuse to go to record mode when those are selected 
+//   flag): refuse to go to record mode when those are selected
 // - CLEAN UP! It's a bit messy now.
 // - smartly auto-set the position of tapes: if you insert an existing WAV
 //   file, it will have the position at the start, assuming PLAY mode by
@@ -439,7 +439,7 @@ void CassettePlayer::execute(const std::vector<TclObject*>& tokens,
 		if (tokens[2]->getString() == "on") {
 			if (!motorControl) {
 				setMotorControl(true, now);
-				tmpresult += "Motor control enabled."; 
+				tmpresult += "Motor control enabled.";
 			} else {
 				tmpresult += "Already enabled...";
 			}
@@ -448,12 +448,12 @@ void CassettePlayer::execute(const std::vector<TclObject*>& tokens,
 				setMotorControl(false, now);
 				tmpresult += "Motor control disabled.";
 				if (playerElem->getData().size() > 0) {
-					tmpresult += " Tape will run now!"; 
+					tmpresult += " Tape will run now!";
 				}
 			} else {
 				tmpresult += "Already disabled...";
 				if (playerElem->getData().size() > 0) {
-					tmpresult += " (tape is running!)"; 
+					tmpresult += " (tape is running!)";
 				}
 			}
 		} else throw SyntaxError();

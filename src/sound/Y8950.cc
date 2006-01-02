@@ -1131,7 +1131,7 @@ byte Y8950::peekReg(byte rg, const EmuTime &time) const
 {
 	switch (rg) {
 		case 0x05: // (KEYBOARD IN)
-			return connector->read(time); // TODO peek iso read 
+			return connector->read(time); // TODO peek iso read
 
 		case 0x0F: // ADPCM-DATA
 		case 0x13: //  ???

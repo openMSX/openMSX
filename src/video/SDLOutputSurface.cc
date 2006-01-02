@@ -16,7 +16,7 @@ SDLOutputSurface::SDLOutputSurface(
 	int flags = SDL_SWSURFACE | (fullscreen ? SDL_FULLSCREEN : 0);
 	createSurface(width, height, flags);
 	memcpy(&format, surface->format, sizeof(SDL_PixelFormat));
-	
+
 	data = (char*)surface->pixels;
 	pitch = surface->pitch;
 }

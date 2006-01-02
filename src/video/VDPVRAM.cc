@@ -12,7 +12,7 @@ VRAMWindow::VRAMWindow()
 {
 	observer = NULL;
 	baseAddr  = -1; // disable window
-	baseMask = 0; 
+	baseMask = 0;
 	indexMask = 0; // these 3 don't matter but it makes valgrind happy
 	combiMask = 0;
 }

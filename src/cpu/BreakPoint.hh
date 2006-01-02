@@ -26,7 +26,7 @@ public:
 	word getAddress() const;
 	std::string getCondition() const;
 	unsigned getId() const;
-	
+
 	bool isTrue() const;
 
 private:

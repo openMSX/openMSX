@@ -348,7 +348,7 @@ bool CommandLineParser::ControlOption::parseOption(const string& option,
 	string type_name, arguments;
 	StringOp::splitOnFirst(getArgument(option, cmdLine),
 	                       ":", type_name, arguments);
-	
+
 	map<string, CommandLineParser::ControlType> controlTypeMap;
 	controlTypeMap["stdio"] = IO_STD;
 #ifdef _WIN32

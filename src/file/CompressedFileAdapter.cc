@@ -88,7 +88,7 @@ void CompressedFileAdapter::truncate(unsigned /*size*/)
 
 void CompressedFileAdapter::flush()
 {
-	// nothing because writing is not supported 
+	// nothing because writing is not supported
 }
 
 const string CompressedFileAdapter::getURL() const

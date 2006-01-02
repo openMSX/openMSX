@@ -13,7 +13,7 @@ public:
 	DummyDevice(MSXMotherBoard& motherBoard, const XMLElement& config,
 	            const EmuTime& time);
 	virtual ~DummyDevice();
-	
+
 	virtual void reset(const EmuTime& time);
 };
 

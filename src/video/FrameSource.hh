@@ -52,7 +52,7 @@ public:
 	  * maximum width) of this frame.
 	  */
 	virtual unsigned getLineBufferSize() const = 0;
-	
+
 	/** Gets the number of display pixels on the given line.
 	  * @return line width, or 0 for a border line.
 	  */
@@ -84,7 +84,7 @@ protected:
 	FrameSource(const SDL_PixelFormat* format);
 
 	void setHeight(unsigned height);
-	
+
 	/** Actual implementation of getLinePtr(unsigned, Pixel) but without
 	  * a typed return value.
 	  */
@@ -104,7 +104,7 @@ private:
 	/** Pixel format. Needed for getLinePtr scaling
 	  */
 	const SDL_PixelFormat* pixelFormat;
-	
+
 	/** Number of lines in this frame.
 	  */
 	unsigned height;

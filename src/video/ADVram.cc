@@ -64,7 +64,7 @@ byte ADVram::readIO(word port, const EmuTime& /*time*/)
 
 void ADVram::writeIO(word /*port*/, byte value, const EmuTime& /*time*/)
 {
-	// set mapper register 
+	// set mapper register
 	baseAddr = (value & 0x07) << 14;
 }
 

@@ -31,7 +31,7 @@ public:
 		SCALER_SIMPLE, SCALER_SAI, SCALER_SCALE,
 		SCALER_HQ, SCALER_HQLITE, SCALER_RGBTRIPLET
 	};
-	
+
 	explicit RenderSettings(CommandController& commandController);
 	~RenderSettings();
 

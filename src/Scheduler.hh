@@ -45,7 +45,7 @@ private:
 			return sp.getTime() < time;
 		}
 	};
-	
+
 	struct FindSchedulable {
 		explicit FindSchedulable(Schedulable& schedulable_)
 			: schedulable(schedulable_) {}

@@ -217,7 +217,7 @@ void Scanline<Pixel>::draw(const Pixel* src1, const Pixel* src2,
 		darkener.setFactor(factor);
 		const Pixel* table = darkener.getTable();
 		Pixel mask = ~pixelOps.getBlendMask();
-		
+
 		unsigned width2 = width * 2;
 		asm (
 			"movd	%5, %%mm7;"

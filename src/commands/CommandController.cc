@@ -283,7 +283,7 @@ string CommandController::executeCommand(
 		~Restore() { c = NULL; }
 		CliConnection*& c;
 	} restore(connection);
-	
+
 	assert(connection == NULL);
 	connection = connection_;
 	return getInterpreter().execute(cmd);

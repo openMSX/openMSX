@@ -76,7 +76,7 @@ public:
 	/** For SettingInfo
 	  */
 	void info(TclObject& result) const;
-	
+
 	CommandController& getCommandController() const;
 
 protected:
@@ -96,7 +96,7 @@ protected:
 
 private:
 	CommandController& commandController;
-	
+
 	/** The name of this setting.
 	  */
 	std::string name;

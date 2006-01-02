@@ -213,7 +213,7 @@ public:
 		assert(!(index & indexMask & ~0x8000));
 		return readArea(index | indexMask);
 	}
-	
+
 	/** Reads a byte from VRAM in its current state.
 	  * @param index Index in table, with unused bits set to 1.
 	  * TODO: Rename to "read", since all access is nonplanar (NP) now.

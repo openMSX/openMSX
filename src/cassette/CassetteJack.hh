@@ -20,7 +20,7 @@ namespace openmsx {
 	@li it needs to throw away data in the input buffer even if the
         data has not been read
 	@li it needs to know the emuTime to get more data from the
-        Cassette port to maintain to avoid buffer underruns 
+        Cassette port to maintain to avoid buffer underruns
     */
 
 class CassetteJack : public CassetteDevice, public Schedulable
@@ -28,12 +28,12 @@ class CassetteJack : public CassetteDevice, public Schedulable
 public:
     CassetteJack(Scheduler&);
     ~CassetteJack();
-    
+
     //for Cassette Device
     virtual void setMotor(bool status, const EmuTime &time);
     virtual short readSample(const EmuTime &time);
     virtual void setSignal(bool output, const EmuTime &time);
-    
+
     // Pluggable
     virtual const std::string& getName() const;
     virtual const std::string& getDescription() const;
@@ -46,10 +46,10 @@ public:
     int bufsizeCallBack(jack_nframes_t);
     void shutdownCallBack();
 protected:
-    // pluggable 
+    // pluggable
     virtual void plugHelper(Connector& connector, const EmuTime& time);
     virtual void unplugHelper(const EmuTime& time);
-    
+
 private:
     jack_client_t * self;
     jack_port_t * cmtout;
@@ -66,7 +66,7 @@ private:
     uint32 samplerate;
     bool running, _output, zombie;
 } ;
-    
+
 } // namespace openmsx
 #endif
 

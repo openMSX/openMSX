@@ -118,7 +118,7 @@ private:
 	// SimpleDebuggable
 	virtual byte read(unsigned address);
 	virtual void write(unsigned address, byte value, const EmuTime& time);
-	
+
 	int maxVolume;
 
 	Channel channels[9];	// OPLL chips have 9 channels

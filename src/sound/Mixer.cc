@@ -156,7 +156,7 @@ void Mixer::registerSound(SoundDevice& device, short volume, ChannelMode mode)
 {
 	const string& name = device.getName();
 	SoundDeviceInfo info;
-	info.volumeSetting = new IntegerSetting(commandController, 
+	info.volumeSetting = new IntegerSetting(commandController,
 		name + "_volume", "the volume of this sound chip", 75, 0, 100);
 
 	// once we're stereo, stay stereo. Once mono, stay mono.

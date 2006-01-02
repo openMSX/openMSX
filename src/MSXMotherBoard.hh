@@ -68,7 +68,7 @@ public:
 	 */
 	void pause();
 	void unpause();
-	
+
 	void powerUp();
 	void schedulePowerDown();
 	void doPowerDown(const EmuTime& time);
@@ -113,8 +113,8 @@ public:
 
 	/** Finds an MSXDevice and increments the reference counter for it.
 	  * releaseDevice must be called when the device will no longer be
-	  * used by the caller.  
-	  * @Param name The name of the device as returned by getName() 
+	  * used by the caller.
+	  * @Param name The name of the device as returned by getName()
 	  * @Return A pointer to the device or NULL if the device could not
 	  *         be found.
 	  */
@@ -138,7 +138,7 @@ private:
 	void createDevices(const XMLElement& elem);
 
 	struct XDevice {
-		explicit XDevice(MSXDevice* _p): p(_p), n(0) {} 
+		explicit XDevice(MSXDevice* _p): p(_p), n(0) {}
 		MSXDevice* p;
 		unsigned n;
 	};

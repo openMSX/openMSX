@@ -49,7 +49,7 @@ PostProcessor<Pixel>::~PostProcessor()
   *    return a;
   * The following implementation avoids the costly modulo operation. It
   * is about 40% faster on my machine.
-  * 
+  *
   * require: a != 0  &&  b != 0
   */
 static inline unsigned gcd(unsigned a, unsigned b)

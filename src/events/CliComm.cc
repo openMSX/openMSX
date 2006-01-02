@@ -32,7 +32,7 @@ CliComm::CliComm(Scheduler& scheduler_, CommandController& commandController_,
 	, xmlOutput(false)
 {
 	commandController.setCliComm(this);
-	
+
 	eventDistributor.registerEventListener(
 		OPENMSX_LED_EVENT, *this, EventDistributor::DETACHED);
 }
@@ -46,7 +46,7 @@ CliComm::~CliComm()
 
 	eventDistributor.unregisterEventListener(
 		OPENMSX_LED_EVENT, *this, EventDistributor::DETACHED);
-	
+
 	commandController.setCliComm(0);
 }
 

@@ -150,7 +150,7 @@ private:
 	EmuTime loadTime;
 	/** Time until which the YMF278 is busy. */
 	EmuTime busyTime;
-	
+
 	class DebugRegisters : public SimpleDebuggable {
 	public:
 		DebugRegisters(YMF278& ymf278, MSXMotherBoard& motherBoard);

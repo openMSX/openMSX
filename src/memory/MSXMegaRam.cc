@@ -53,7 +53,7 @@ MSXMegaRam::MSXMegaRam(MSXMotherBoard& motherBoard, const XMLElement& config,
 	ram.reset(new Ram(motherBoard, getName() + " RAM", "Mega-RAM",
 	                  numBlocks * 0x2000));
 	if (config.findChild("rom")) {
-		rom.reset(new Rom(motherBoard, 
+		rom.reset(new Rom(motherBoard,
 		                  getName() + " ROM", "Mega-RAM DiskROM",
 		                  config));
 	}

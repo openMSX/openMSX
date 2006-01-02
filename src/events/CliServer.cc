@@ -61,7 +61,7 @@ static bool checkSocketDir(const string& dir)
 #endif
 	return true;
 }
-  
+
 static bool checkSocket(const string& socket)
 {
 	string dir  = socket.substr(0, socket.find_last_of('/'));
@@ -91,7 +91,7 @@ static bool checkSocket(const string& socket)
 #ifndef _WIN32
 	// only do permission and owner checks on *nix
 	if ((st.st_mode & 0777) != 0600) {
-		// check will be different on win32 (!= 777) thus actually useless 
+		// check will be different on win32 (!= 777) thus actually useless
 		// wrong permissions
 		return false;
 	}
@@ -136,7 +136,7 @@ void CliServer::createSocket()
 	if (!checkSocketDir(dir)) {
 		throw MSXException("Couldn't create socket directory.");
 	}
-	socketName = dir + "/socket." + StringOp::toString(getpid());  
+	socketName = dir + "/socket." + StringOp::toString(getpid());
 
 #ifdef _WIN32
 	listenSock = socket(AF_INET, SOCK_STREAM, 0);
@@ -161,9 +161,9 @@ void CliServer::createSocket()
 
 	unlink(socketName.c_str()); // ignore error
 
-	sockaddr_un addr; 
-	strcpy(addr.sun_path, socketName.c_str()); 
-	addr.sun_family = AF_UNIX; 
+	sockaddr_un addr;
+	strcpy(addr.sun_path, socketName.c_str());
+	addr.sun_family = AF_UNIX;
 	if (bind(listenSock, (sockaddr*)&addr, sizeof(sockaddr_un)) == -1) {
 		throw MSXException("Couldn't open socket.");
 	}

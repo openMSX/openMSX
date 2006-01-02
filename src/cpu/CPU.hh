@@ -130,7 +130,7 @@ public:
 
 	/**
 	 */
-	bool isBreaked() const; 
+	bool isBreaked() const;
 
 	/**
 	 */
@@ -149,7 +149,7 @@ public:
 	 * continuously (just like during HALT). Used by turbor hw pause.
 	 */
 	void setPaused(bool paused);
-	
+
 protected:
 	CPU();
 	virtual ~CPU();
@@ -172,7 +172,7 @@ protected:
 		}
 		return false;
 	}
-	
+
 	// flag-register tables, initialized at run-time
 	static byte ZSTable[256];
 	static byte ZSXYTable[256];
@@ -191,7 +191,7 @@ protected:
 
 	// CPU is paused, used for turbor hw pause
 	static bool paused;
-	
+
 private:
 	static BreakPoints breakPoints;
 };

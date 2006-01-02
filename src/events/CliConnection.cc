@@ -37,7 +37,7 @@ CliConnection::CliConnection(Scheduler& scheduler,
 	sax_handler.characters   = (charactersSAXFunc)  cb_text;
 
 	parser_context = xmlCreatePushParserCtxt(&sax_handler, &user_data, 0, 0, 0);
-	
+
 	for (int i = 0; i < CliComm::NUM_UPDATES; ++i) {
 		updateEnabled[i] = false;
 	}

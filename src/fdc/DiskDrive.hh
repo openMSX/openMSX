@@ -213,7 +213,7 @@ protected:
 
 	EventDistributor& eventDistributor;
 	ThrottleManager& throttleManager;
-private: 
+private:
 	// This is all for the ThrottleManager
 	void resetTimeOut(const EmuTime& time);
 	void updateLoadingState();

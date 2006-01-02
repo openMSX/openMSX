@@ -270,7 +270,7 @@ void Debugger::DebugCmd::removeBreakPoint(const std::vector<TclObject*>& tokens,
 		throw SyntaxError();
 	}
 	const CPU::BreakPoints& breakPoints = debugger.cpu->getBreakPoints();
-	
+
 	string tmp = tokens[2]->getString();
 	if (StringOp::startsWith(tmp, "bp#")) {
 		// remove by id

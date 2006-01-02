@@ -38,7 +38,7 @@ public:
 	InfoCommand& getInfoCommand();
 	SettingsConfig& getSettingsConfig();
 	GlobalSettings& getGlobalSettings();
-	
+
 	CliConnection* getConnection() const;
 
 	/**

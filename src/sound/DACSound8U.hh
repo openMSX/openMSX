@@ -13,7 +13,7 @@ class DACSound8U : public DACSound16S
 {
 public:
 	DACSound8U(Mixer& mixer, const std::string &name,
-	           const std::string& desc, const XMLElement& config, 
+	           const std::string& desc, const XMLElement& config,
 	           const EmuTime& time);
 
 	void writeDAC(byte value, const EmuTime& time);

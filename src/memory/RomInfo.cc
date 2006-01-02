@@ -191,7 +191,7 @@ static void addEntry(CliComm& cliComm, RomInfo* romInfo,
 	}
 }
 
-static void parseEntry(CliComm& cliComm, 
+static void parseEntry(CliComm& cliComm,
 	const XMLElement& rom, DBMap& result,
 	const string& title,   const string& year,
 	const string& company, const string& country,

@@ -38,7 +38,7 @@ private:
 		unsigned size;
 		MSXDevice* device;
 	};
-	
+
 	void preCalcName();
 	MSXDevice* searchDevice(unsigned address);
 	const MSXDevice* searchDevice(unsigned address) const;

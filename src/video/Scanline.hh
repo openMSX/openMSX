@@ -62,7 +62,7 @@ public:
 	/** Darken one pixel. Typically used to implement drawBlank().
 	 */
 	Pixel darken(Pixel p, unsigned factor);
-	
+
 	/** Darken and blend two pixels.
 	 */
 	Pixel darken(Pixel p1, Pixel p2, unsigned factor);
