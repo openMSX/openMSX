@@ -488,14 +488,11 @@ void SDLRasterizer<Pixel>::drawDisplay(
 		}
 
 		// Which bits in the name mask determine the page?
-		int pageMaskEven, pageMaskOdd;
-		if (vdp.isMultiPageScrolling()) {
-			pageMaskEven = mode.isPlanar() ? 0x000 : 0x200;
-			pageMaskOdd  = pageMaskEven | 0x100;
-		} else {
-			pageMaskEven = pageMaskOdd =
-				(mode.isPlanar() ? 0x000 : 0x200) | vdp.getEvenOddMask();
-		}
+		int pageMaskOdd = (mode.isPlanar() ? 0x000 : 0x200) |
+		                  vdp.getEvenOddMask();
+		int pageMaskEven = vdp.isMultiPageScrolling()
+		                 ? (pageMaskOdd & ~0x100)
+		                 : pageMaskOdd;
 
 		// Copy from cache to screen.
 		for (int y = screenY; y < screenLimitY; y++) {

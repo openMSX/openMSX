@@ -977,6 +977,9 @@ void GLRasterizer::drawDisplay(
 	}
 
 	// TODO: Complete separation of character and bitmap modes.
+	// TODO: deinterlaced mode should use data from current and previous
+	//       frame. atm it uses only the current frame (see SDL renderer)
+	// TODO: fix combination interlace / multipage scroll (see SDL renderer)
 	glEnable(GL_TEXTURE_2D);
 	if (mode.isBitmapMode()) {
 		// Bring bitmap cache up to date.

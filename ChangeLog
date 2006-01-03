@@ -1,5 +1,10 @@
 $Id$
 
+2006-01-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed combination of interlace and multi-page horizontal scrolling:
+	   only for SDL renderer yet. Deinterlacing first needs to be fixed
+	   in GL renderer (also use data from previous frame)
+
 2005-12-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed assert when openmsx was quit with simple pluggable still
 	  plugged in the printerport.
