@@ -38,8 +38,8 @@ private:
 	/** Video source that displays on this layer. */
 	VideoSource videoSource;
 	/** Settings shared between all renderers. */
-	RenderSettings& renderSettings;
 	Display& display;
+	RenderSettings& renderSettings;
 	/** Reference to "videosource" setting. */
 	VideoSourceSetting& videoSourceSetting;
 	/** Activate the videosource */

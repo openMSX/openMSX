@@ -14,8 +14,8 @@ VideoLayer::VideoLayer(VideoSource videoSource_,
                        CommandController& commandController,
                        Display& display_)
 	: videoSource(videoSource_)
-	, renderSettings(display.getRenderSettings())
 	, display(display_)
+	, renderSettings(display.getRenderSettings())
 	, videoSourceSetting(renderSettings.getVideoSource())
 	, videoSourceActivator(videoSourceSetting, videoSource)
 	, powerSetting(commandController.getGlobalSettings().getPowerSetting())
