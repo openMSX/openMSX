@@ -21,7 +21,13 @@ Keys::KeyCode Keys::getCode(const string& name)
 			    : name.substr(lastPos);
 		KeyMap::const_iterator it = keymap.find(part);
 		if (it != keymap.end()) {
-			result = static_cast<KeyCode>(result | (*it).second);
+			KeyCode partCode = it->second;
+			if ((partCode & K_MASK) && (result & K_MASK)) {
+				// more than one non-modifier component
+				// is not allowed
+				return K_NONE;
+			}
+			result = static_cast<KeyCode>(result | partCode);
 		} else {
 			return K_NONE;
 		}

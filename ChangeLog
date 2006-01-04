@@ -1,5 +1,9 @@
 $Id$
 
+2006-01-04 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Report error for key names with multiple non-modifier parts
+	   (e.g.   ENTER,A   or  PRINT,UP)
+
 2006-01-04 Maarten ter Huurne <maarten@treewalker.org>
 	* Moved ownership of RenderSettings from MSXMotherBoard to Display.
 
