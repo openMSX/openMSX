@@ -24,7 +24,6 @@ public:
 protected:
 	VideoLayer(VideoSource videoSource,
 	           CommandController& commandController,
-	           RenderSettings& renderSettings,
 	           Display& display);
 
 	// Observer<Setting> interface:

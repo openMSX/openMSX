@@ -37,7 +37,7 @@ Display::Display(MSXMotherBoard& motherboard_)
 	, screenShotCmd(motherboard_.getCommandController(), *this)
 	, fpsInfo(motherboard_.getCommandController(), *this)
 	, motherboard(motherboard_)
-	, renderSettings(motherboard.getRenderSettings())
+	, renderSettings(new RenderSettings(motherboard.getCommandController()))
 	, switchInProgress(0)
 {
 	// TODO clean up
@@ -58,18 +58,18 @@ Display::Display(MSXMotherBoard& motherboard_)
 	eventDistributor.registerEventListener(OPENMSX_SWITCH_RENDERER_EVENT,
 			*this, EventDistributor::DETACHED);
 
-	renderSettings.getRenderer().attach(*this);
-	renderSettings.getFullScreen().attach(*this);
-	renderSettings.getScaleFactor().attach(*this);
-	renderSettings.getVideoSource().attach(*this);
+	renderSettings->getRenderer().attach(*this);
+	renderSettings->getFullScreen().attach(*this);
+	renderSettings->getScaleFactor().attach(*this);
+	renderSettings->getVideoSource().attach(*this);
 }
 
 Display::~Display()
 {
-	renderSettings.getRenderer().detach(*this);
-	renderSettings.getFullScreen().detach(*this);
-	renderSettings.getScaleFactor().detach(*this);
-	renderSettings.getVideoSource().detach(*this);
+	renderSettings->getRenderer().detach(*this);
+	renderSettings->getFullScreen().detach(*this);
+	renderSettings->getScaleFactor().detach(*this);
+	renderSettings->getVideoSource().detach(*this);
 
 	EventDistributor& eventDistributor = motherboard.getEventDistributor();
 	eventDistributor.unregisterEventListener(OPENMSX_SWITCH_RENDERER_EVENT,
@@ -90,7 +90,7 @@ void Display::createVideoSystem()
 {
 	assert(!videoSystem.get());
 	assert(currentRenderer == RendererFactory::UNINITIALIZED);
-	currentRenderer = renderSettings.getRenderer().getValue();
+	currentRenderer = renderSettings->getRenderer().getValue();
 	assert(!switchInProgress);
 	++switchInProgress;
 	doRendererSwitch();
@@ -110,6 +110,11 @@ void Display::resetVideoSystem()
 		std::cerr << (*it)->getName() << std::endl;
 	}
 	assert(layers.empty());
+}
+
+RenderSettings& Display::getRenderSettings()
+{
+	return *renderSettings;
 }
 
 void Display::attach(VideoSystemChangeListener& listener)
@@ -151,7 +156,7 @@ void Display::signalEvent(const Event& event)
 		const FinishFrameEvent& ffe = static_cast<const FinishFrameEvent&>(event);
 		VideoSource eventSource = ffe.getSource();
 		VideoSource visibleSource =
-			renderSettings.getVideoSource().getValue();
+			renderSettings->getVideoSource().getValue();
 
 		bool draw = visibleSource == eventSource;
 		if (draw) {
@@ -171,13 +176,13 @@ void Display::signalEvent(const Event& event)
 
 void Display::update(const Setting& setting)
 {
-	if (&setting == &renderSettings.getRenderer()) {
+	if (&setting == &renderSettings->getRenderer()) {
 		checkRendererSwitch();
-	} else if (&setting == &renderSettings.getFullScreen()) {
+	} else if (&setting == &renderSettings->getFullScreen()) {
 		checkRendererSwitch();
-	} else if (&setting == &renderSettings.getScaleFactor()) {
+	} else if (&setting == &renderSettings->getScaleFactor()) {
 		checkRendererSwitch();
-	} else if (&setting == &renderSettings.getVideoSource()) {
+	} else if (&setting == &renderSettings->getVideoSource()) {
 		checkRendererSwitch();
 	} else {
 		assert(false);
@@ -188,7 +193,7 @@ void Display::checkRendererSwitch()
 {
 	// Tell renderer to sync with render settings.
 	RendererFactory::RendererID newRenderer =
-		renderSettings.getRenderer().getValue();
+		renderSettings->getRenderer().getValue();
 	if ((newRenderer != currentRenderer) ||
 	    !getVideoSystem().checkSettings()) {
 		currentRenderer = newRenderer;

@@ -6,6 +6,7 @@
 #include "OutputSurface.hh"
 #include "PostProcessor.hh"
 #include "BooleanSetting.hh"
+#include "Display.hh"
 #include "RenderSettings.hh"
 #include "MemoryOps.hh"
 #include "MSXMotherBoard.hh"
@@ -18,18 +19,17 @@ using std::max;
 namespace openmsx {
 
 template <class Pixel>
-V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(V9990& vdp_, OutputSurface& screen_)
+V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(
+		V9990& vdp_, Display& display, OutputSurface& screen_)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, screen(screen_)
 	, postProcessor(new PostProcessor<Pixel>(
 		vdp.getMotherBoard().getCommandController(),
-		vdp.getMotherBoard().getRenderSettings(),
-		vdp.getMotherBoard().getDisplay(),
-		screen, VIDEO_GFX9000, 1280, 240))
+		display, screen, VIDEO_GFX9000, 1280, 240))
 	, bitmapConverter(vdp, palette64, palette256, palette32768)
 	, p1Converter(vdp, palette64)
 	, p2Converter(vdp, palette64)
-	, deinterlaceSetting(vdp.getMotherBoard().getRenderSettings().getDeinterlace())
+	, deinterlaceSetting(display.getRenderSettings().getDeinterlace())
 {
 	workFrame = new RawFrame(screen.getFormat(), sizeof(Pixel), 1280, 240);
 

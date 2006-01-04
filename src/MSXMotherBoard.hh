@@ -33,7 +33,6 @@ class MSXDeviceSwitch;
 class CassettePortInterface;
 class RenShaTurbo;
 class CommandConsole;
-class RenderSettings;
 class Display;
 class IconStatus;
 class FileManipulator;
@@ -105,7 +104,6 @@ public:
 	CassettePortInterface& getCassettePort();
 	RenShaTurbo& getRenShaTurbo();
 	CommandConsole& getCommandConsole();
-	RenderSettings& getRenderSettings();
 	Display& getDisplay();
 	IconStatus& getIconStatus();
 	FileManipulator& getFileManipulator();
@@ -173,7 +171,6 @@ private:
 	std::auto_ptr<CassettePortInterface> cassettePort;
 	std::auto_ptr<RenShaTurbo> renShaTurbo;
 	std::auto_ptr<CommandConsole> commandConsole;
-	std::auto_ptr<RenderSettings> renderSettings;
 	std::auto_ptr<Display> display;
 	std::auto_ptr<IconStatus> iconStatus;
 	std::auto_ptr<FileManipulator> fileManipulator;

@@ -20,7 +20,7 @@ namespace openmsx {
 
 V9990PixelRenderer::V9990PixelRenderer(V9990& vdp_)
 	: vdp(vdp_)
-	, renderSettings(vdp.getMotherBoard().getRenderSettings())
+	, renderSettings(vdp.getMotherBoard().getDisplay().getRenderSettings())
 	, rasterizer(vdp.getMotherBoard().getDisplay().getVideoSystem().
 	                createV9990Rasterizer(vdp))
 {

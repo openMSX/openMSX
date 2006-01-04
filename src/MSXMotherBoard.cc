@@ -16,7 +16,6 @@
 #include "CassettePort.hh"
 #include "RenShaTurbo.hh"
 #include "CommandConsole.hh"
-#include "RenderSettings.hh"
 #include "Display.hh"
 #include "IconStatus.hh"
 #include "FileManipulator.hh"
@@ -268,14 +267,6 @@ CommandConsole& MSXMotherBoard::getCommandConsole()
 			getEventDistributor()));
 	}
 	return *commandConsole;
-}
-
-RenderSettings& MSXMotherBoard::getRenderSettings()
-{
-	if (!renderSettings.get()) {
-		renderSettings.reset(new RenderSettings(getCommandController()));
-	}
-	return *renderSettings;
 }
 
 Display& MSXMotherBoard::getDisplay()

@@ -13,6 +13,8 @@
 namespace openmsx {
 
 class VDPVRAM;
+class CommandController;
+class RenderSettings;
 class BooleanSetting;
 
 /** VDP command engine by Alex Wulms.
@@ -21,7 +23,8 @@ class BooleanSetting;
 class VDPCmdEngine : private Observer<Setting>, private noncopyable
 {
 public:
-	explicit VDPCmdEngine(VDP& vdp);
+	explicit VDPCmdEngine(VDP& vdp, RenderSettings& renderSettings_,
+		CommandController& commandController);
 	virtual ~VDPCmdEngine();
 
 	/** Reinitialise Renderer state.
@@ -398,6 +401,8 @@ private:
 	  */
 	VDP& vdp;
 	VDPVRAM& vram;
+
+	RenderSettings& renderSettings;
 
 	/** Current screen mode.
 	  * 0 -> SCREEN5, 1 -> SCREEN6, 2 -> SCREEN7, 3 -> SCREEN8,

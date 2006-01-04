@@ -17,6 +17,7 @@ TODO:
 #include "GLRasterizer.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
+#include "Display.hh"
 #include "Renderer.hh"
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
@@ -242,10 +243,9 @@ inline void GLRasterizer::renderPlanarBitmapLines(byte line, int count)
 }
 
 GLRasterizer::GLRasterizer(CommandController& commandController,
-                           RenderSettings& renderSettings_, Display& display,
-                           VDP& vdp_)
-	: VideoLayer(VIDEO_MSX, commandController, renderSettings_, display)
-	, renderSettings(renderSettings_)
+                           Display& display, VDP& vdp_)
+	: VideoLayer(VIDEO_MSX, commandController, display)
+	, renderSettings(display.getRenderSettings())
 	, vdp(vdp_), vram(vdp.getVRAM())
 	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS)

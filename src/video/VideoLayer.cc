@@ -12,10 +12,9 @@ namespace openmsx {
 
 VideoLayer::VideoLayer(VideoSource videoSource_,
                        CommandController& commandController,
-                       RenderSettings& renderSettings_,
                        Display& display_)
 	: videoSource(videoSource_)
-	, renderSettings(renderSettings_)
+	, renderSettings(display.getRenderSettings())
 	, display(display_)
 	, videoSourceSetting(renderSettings.getVideoSource())
 	, videoSourceActivator(videoSourceSetting, videoSource)

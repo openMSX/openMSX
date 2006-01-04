@@ -13,10 +13,12 @@
 
 namespace openmsx {
 
+class Display;
 class VDP;
 class VDPVRAM;
 class OutputSurface;
 class RawFrame;
+class FloatSetting;
 template <class Pixel> class PostProcessor;
 
 /** Rasterizer using SDL.
@@ -25,7 +27,7 @@ template <class Pixel>
 class SDLRasterizer : public Rasterizer, private noncopyable
 {
 public:
-	SDLRasterizer(VDP& vdp, OutputSurface& screen);
+	SDLRasterizer(VDP& vdp, Display& display, OutputSurface& screen);
 	virtual ~SDLRasterizer();
 
 	// Rasterizer interface:
@@ -153,7 +155,11 @@ private:
 	  */
 	RawFrame* bitmapDisplayCache;
 
-	/** Previous value of gamma setting.
+	/** Gamma correction setting.
+	  */
+	FloatSetting& gammaSetting;
+
+	/** Previous value of gammaSetting.
 	  */
 	double prevGamma;
 

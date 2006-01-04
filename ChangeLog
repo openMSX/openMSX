@@ -1,11 +1,17 @@
 $Id$
 
+2006-01-04 Maarten ter Huurne <maarten@treewalker.org>
+	* Moved ownership of RenderSettings from MSXMotherBoard to Display.
+
 2006-01-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed combination of interlace and multi-page horizontal scrolling:
 	   only for SDL renderer yet. Deinterlacing first needs to be fixed
 	   in GL renderer (also use data from previous frame)
 
-2005-12-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2006-01-02 Maarten ter Huurne <maarten@treewalker.org>
+	* Created release branch for openMSX 0.6.0.
+
+2005-12-31 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed assert when openmsx was quit with simple pluggable still
 	  plugged in the printerport.
 

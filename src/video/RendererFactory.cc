@@ -7,6 +7,7 @@
 #include "EnumSetting.hh"
 #include "VDP.hh"
 #include "V9990.hh"
+#include "Display.hh"
 
 // Video systems:
 #include "components.hh"
@@ -31,7 +32,8 @@ namespace openmsx {
 VideoSystem* RendererFactory::createVideoSystem(MSXMotherBoard& motherboard)
 {
 	VideoSystem* result;
-	switch (motherboard.getRenderSettings().getRenderer().getValue()) {
+	Display& display = motherboard.getDisplay();
+	switch (display.getRenderSettings().getRenderer().getValue()) {
 		case DUMMY:
 			result = new DummyVideoSystem();
 			break;
@@ -56,10 +58,10 @@ VideoSystem* RendererFactory::createVideoSystem(MSXMotherBoard& motherboard)
 	return result;
 }
 
-Renderer* RendererFactory::createRenderer(VDP& vdp)
+Renderer* RendererFactory::createRenderer(VDP& vdp, Display& display)
 {
 	Renderer* result;
-	switch (vdp.getMotherBoard().getRenderSettings().getRenderer().getValue()) {
+	switch (display.getRenderSettings().getRenderer().getValue()) {
 		case DUMMY:
 			result = new DummyRenderer();
 			break;
@@ -67,7 +69,7 @@ Renderer* RendererFactory::createRenderer(VDP& vdp)
 		case SDLGL:
 		case SDLGL_FB16:
 		case SDLGL_FB32:
-			result = new PixelRenderer(vdp);
+			result = new PixelRenderer(vdp, display);
 			break;
 #ifdef HAVE_X11
 		case XLIB:
@@ -81,10 +83,11 @@ Renderer* RendererFactory::createRenderer(VDP& vdp)
 	return result;
 }
 
-V9990Renderer* RendererFactory::createV9990Renderer(V9990& vdp)
+V9990Renderer* RendererFactory::createV9990Renderer(
+	V9990& vdp, Display& display)
 {
 	V9990Renderer* result;
-	switch (vdp.getMotherBoard().getRenderSettings().getRenderer().getValue()) {
+	switch (display.getRenderSettings().getRenderer().getValue()) {
 		case DUMMY:
 			result = new V9990DummyRenderer();
 			break;
@@ -107,7 +110,8 @@ V9990Renderer* RendererFactory::createV9990Renderer(V9990& vdp)
 	return result;
 }
 
-auto_ptr<RendererFactory::RendererSetting> RendererFactory::createRendererSetting(
+auto_ptr<RendererFactory::RendererSetting>
+	RendererFactory::createRendererSetting(
 		CommandController& commandController)
 {
 	typedef EnumSetting<RendererID>::Map RendererMap;

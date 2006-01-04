@@ -54,7 +54,6 @@ SDLGLVideoSystem::~SDLGLVideoSystem()
 Rasterizer* SDLGLVideoSystem::createRasterizer(VDP& vdp)
 {
 	return new GLRasterizer(motherboard.getCommandController(),
-	                        motherboard.getRenderSettings(),
 	                        motherboard.getDisplay(), vdp);
 }
 
@@ -67,7 +66,7 @@ V9990Rasterizer* SDLGLVideoSystem::createV9990Rasterizer(V9990& vdp)
 //       is this polling approach necessary at all?
 bool SDLGLVideoSystem::checkSettings()
 {
-	bool fullScreenTarget = motherboard.getRenderSettings().
+	bool fullScreenTarget = motherboard.getDisplay().getRenderSettings().
 		getFullScreen().getValue();
 	return screen->setFullScreen(fullScreenTarget);
 }
@@ -89,8 +88,8 @@ void SDLGLVideoSystem::setWindowTitle(const std::string& title)
 
 void SDLGLVideoSystem::resize(unsigned x, unsigned y)
 {
-	bool fullscreen = motherboard.getRenderSettings().
-		                      getFullScreen().getValue();
+	bool fullscreen = motherboard.getDisplay().getRenderSettings().
+		getFullScreen().getValue();
 	screen.reset(new SDLGLOutputSurface(x, y, fullscreen));
 	motherboard.getInputEventGenerator().reinit();
 }

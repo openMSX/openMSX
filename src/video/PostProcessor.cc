@@ -1,6 +1,7 @@
 // $Id$
 
 #include "PostProcessor.hh"
+#include "Display.hh"
 #include "RenderSettings.hh"
 #include "Scaler.hh"
 #include "ScalerFactory.hh"
@@ -16,11 +17,10 @@ namespace openmsx {
 
 template <class Pixel>
 PostProcessor<Pixel>::PostProcessor(CommandController& commandController,
-	RenderSettings& renderSettings_, Display& display,
-	OutputSurface& screen_, VideoSource videoSource,
+	Display& display, OutputSurface& screen_, VideoSource videoSource,
 	unsigned maxWidth, unsigned height)
-	: VideoLayer(videoSource, commandController, renderSettings_, display)
-	, renderSettings(renderSettings_)
+	: VideoLayer(videoSource, commandController, display)
+	, renderSettings(display.getRenderSettings())
 	, screen(screen_)
 {
 	scaleAlgorithm = (RenderSettings::ScaleAlgorithm)-1; // not a valid scaler

@@ -109,14 +109,13 @@ void PixelRenderer::subdivide(
 	if (drawLast) draw(clipL, endY, endX, endY + 1, drawType, false);
 }
 
-PixelRenderer::PixelRenderer(VDP& vdp_)
+PixelRenderer::PixelRenderer(VDP& vdp_, Display& display)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, eventDistributor(vdp.getMotherBoard().getEventDistributor())
 	, realTime(vdp.getMotherBoard().getRealTime())
-	, renderSettings(vdp.getMotherBoard().getRenderSettings())
+	, renderSettings(display.getRenderSettings())
 	, spriteChecker(vdp.getSpriteChecker())
-	, rasterizer(vdp.getMotherBoard().getDisplay().getVideoSystem().
-	             createRasterizer(vdp))
+	, rasterizer(display.getVideoSystem().createRasterizer(vdp))
 {
 	finishFrameDuration = 0;
 	frameSkipCounter = 999; // force drawing of frame

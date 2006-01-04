@@ -29,8 +29,7 @@ public:
 	// are using this type.
 	typedef GLuint Pixel;
 
-	GLRasterizer(CommandController& commandController,
-	             RenderSettings& renderSettings, Display& display,
+	GLRasterizer(CommandController& commandController, Display& display,
 	             VDP& vdp);
 	virtual ~GLRasterizer();
 

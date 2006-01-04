@@ -39,7 +39,7 @@ TODO:
 #include "EmuTime.hh"
 #include "VDPVRAM.hh"
 #include "BooleanSetting.hh"
-#include "MSXMotherBoard.hh"
+#include "CommandController.hh"
 #include "RenderSettings.hh"
 #include "likely.hh"
 #include <iostream>
@@ -342,12 +342,14 @@ void VDPCmdEngine::createEngines(int cmd) {
 	commands[cmd][3] = new Command<Graphic7Mode>(*this, vram);
 }
 
-VDPCmdEngine::VDPCmdEngine(VDP& vdp_)
+VDPCmdEngine::VDPCmdEngine(VDP& vdp_, RenderSettings& renderSettings_,
+	CommandController& commandController)
 	: vdp(vdp_), vram(vdp.getVRAM())
+	, renderSettings(renderSettings_)
 	, hasExtendedVRAM(vram.getSize() == (192 * 1024))
 	, cmdTraceSetting(new BooleanSetting(
-		vdp.getMotherBoard().getCommandController(),
-		"vdpcmdtrace", "VDP command tracing on/off", false))
+		commandController, "vdpcmdtrace", "VDP command tracing on/off", false
+		))
 {
 	status = 0;
 	transfer = false;
@@ -379,12 +381,12 @@ VDPCmdEngine::VDPCmdEngine(VDP& vdp_)
 	brokenTiming = false;
 	statusChangeTime = EmuTime::infinity;
 
-	vdp.getMotherBoard().getRenderSettings().getCmdTiming().attach(*this);
+	renderSettings.getCmdTiming().attach(*this);
 }
 
 VDPCmdEngine::~VDPCmdEngine()
 {
-	vdp.getMotherBoard().getRenderSettings().getCmdTiming().detach(*this);
+	renderSettings.getCmdTiming().detach(*this);
 
 	// Abort command:
 	delete commands[0][0];

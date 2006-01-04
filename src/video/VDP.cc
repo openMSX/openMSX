@@ -85,12 +85,16 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
 	vramMask = (vramSize != 192) ? ((vramSize * 1024) - 1) : 0x1FFFF;
 	vram.reset(new VDPVRAM(*this, vramSize * 1024, time));
 
+	Display& display = getMotherBoard().getDisplay();
+	RenderSettings& renderSettings = display.getRenderSettings();
+
 	// Create sprite checker.
-	spriteChecker.reset(new SpriteChecker(*this));
+	spriteChecker.reset(new SpriteChecker(*this, renderSettings));
 	vram->setSpriteChecker(spriteChecker.get());
 
 	// Create command engine.
-	cmdEngine.reset(new VDPCmdEngine(*this));
+	cmdEngine.reset(new VDPCmdEngine(*this, renderSettings,
+		getMotherBoard().getCommandController() ));
 	vram->setCmdEngine(cmdEngine.get());
 
 	resetInit(time); // must be done early to avoid UMRs
@@ -110,7 +114,7 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
 	// Reset state.
 	reset(time);
 
-	getMotherBoard().getDisplay().attach(*this);
+	display.attach(*this);
 }
 
 VDP::~VDP()
@@ -130,7 +134,8 @@ void VDP::postVideoSystemChange()
 
 void VDP::createRenderer()
 {
-	renderer.reset(RendererFactory::createRenderer(*this));
+	Display& display = getMotherBoard().getDisplay();
+	renderer.reset(RendererFactory::createRenderer(*this, display));
 	// TODO: Is it safe to use frameStartTime,
 	//       which is most likely in the past?
 	//renderer->reset(frameStartTime.getTime());

@@ -14,10 +14,11 @@ namespace openmsx {
 
 class EventDistributor;
 class RealTime;
+class Display;
 class Rasterizer;
 class VDP;
-class SpriteChecker;
 class VDPVRAM;
+class SpriteChecker;
 class Setting;
 
 /** Generic implementation of a pixel-based Renderer.
@@ -26,7 +27,7 @@ class Setting;
 class PixelRenderer : public Renderer, private Observer<Setting>
 {
 public:
-	explicit PixelRenderer(VDP& vdp);
+	explicit PixelRenderer(VDP& vdp, Display& display);
 	virtual ~PixelRenderer();
 
 	// Renderer interface:

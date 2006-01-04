@@ -9,6 +9,7 @@ namespace openmsx {
 
 class MSXMotherBoard;
 class CommandController;
+class Display;
 class VideoSystem;
 class Renderer;
 class VDP;
@@ -41,12 +42,12 @@ public:
 	/** Create the Renderer selected by the current renderer setting.
 	  * @param vdp The VDP whose display will be rendered.
 	  */
-	static Renderer* createRenderer(VDP& vdp);
+	static Renderer* createRenderer(VDP& vdp, Display& display);
 
 	/** Create the V9990 Renderer selected by the current renderer setting.
 	  * @param vdp The V9990 VDP whose display will be rendered.
 	  */
-	static V9990Renderer* createV9990Renderer(V9990& vdp);
+	static V9990Renderer* createV9990Renderer(V9990& vdp, Display& display);
 
 	/** Create the renderer setting.
 	  * The map of this setting contains only the available renderers.

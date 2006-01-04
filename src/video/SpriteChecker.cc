@@ -12,16 +12,15 @@ TODO:
 */
 
 #include "SpriteChecker.hh"
-#include "MSXMotherBoard.hh"
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
 #include <cassert>
 
 namespace openmsx {
 
-SpriteChecker::SpriteChecker(VDP& vdp_)
+SpriteChecker::SpriteChecker(VDP& vdp_, RenderSettings& renderSettings)
 	: vdp(vdp_), vram(vdp.getVRAM())
-	, limitSpritesSetting(vdp.getMotherBoard().getRenderSettings().getLimitSprites())
+	, limitSpritesSetting(renderSettings.getLimitSprites())
 {
 	vram.spriteAttribTable.setObserver(this);
 	vram.spritePatternTable.setObserver(this);

@@ -10,6 +10,7 @@
 
 namespace openmsx {
 
+class RenderSettings;
 class BooleanSetting;
 
 class SpriteChecker: public VRAMObserver
@@ -63,7 +64,7 @@ public:
 	/** Create a sprite checker.
 	  * @param vdp The VDP this sprite checker is part of.
 	  */
-	explicit SpriteChecker(VDP& vdp);
+	explicit SpriteChecker(VDP& vdp, RenderSettings& renderSettings);
 
 	/** Puts the sprite checker in its initial state.
 	  * @param time The moment in time this reset occurs.

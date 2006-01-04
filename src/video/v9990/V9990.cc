@@ -544,7 +544,8 @@ void V9990::getPalette(int index, byte& r, byte& g, byte& b)
 void V9990::createRenderer(const EmuTime& time)
 {
 	assert(!renderer.get());
-	renderer.reset(RendererFactory::createV9990Renderer(*this));
+	Display& display = getMotherBoard().getDisplay();
+	renderer.reset(RendererFactory::createV9990Renderer(*this, display));
 	renderer->reset(time);
 }
 

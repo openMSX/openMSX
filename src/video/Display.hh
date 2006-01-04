@@ -38,6 +38,8 @@ public:
 	void createVideoSystem();
 	VideoSystem& getVideoSystem();
 
+	RenderSettings& getRenderSettings();
+
 	/** Redraw the display.
 	  */
 	void repaint();
@@ -116,7 +118,7 @@ private:
 	} fpsInfo;
 
 	MSXMotherBoard& motherboard;
-	RenderSettings& renderSettings;
+	std::auto_ptr<RenderSettings> renderSettings;
 	unsigned switchInProgress;
 };
 

@@ -21,13 +21,12 @@ namespace openmsx {
 
 SDLVideoSystem::SDLVideoSystem(MSXMotherBoard& motherboard,
                                RendererFactory::RendererID rendererID)
-	: renderSettings(motherboard.getRenderSettings())
+	: renderSettings(motherboard.getDisplay().getRenderSettings())
 	, display(motherboard.getDisplay())
 {
 	unsigned width, height;
 	getWindowSize(width, height);
-	bool fullscreen = motherboard.getRenderSettings().
-		                      getFullScreen().getValue();
+	bool fullscreen = renderSettings.getFullScreen().getValue();
 	switch (rendererID) {
 	case RendererFactory::SDL:
 		screen.reset(new SDLOutputSurface(width, height, fullscreen));
@@ -68,9 +67,9 @@ Rasterizer* SDLVideoSystem::createRasterizer(VDP& vdp)
 {
 	switch (screen->getFormat()->BytesPerPixel) {
 	case 2:
-		return new SDLRasterizer<Uint16>(vdp, *screen);
+		return new SDLRasterizer<Uint16>(vdp, display, *screen);
 	case 4:
-		return new SDLRasterizer<Uint32>(vdp, *screen);
+		return new SDLRasterizer<Uint32>(vdp, display, *screen);
 	default:
 		assert(false);
 		return 0;
@@ -81,9 +80,9 @@ V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990& vdp)
 {
 	switch (screen->getFormat()->BytesPerPixel) {
 	case 2:
-		return new V9990SDLRasterizer<Uint16>(vdp, *screen);
+		return new V9990SDLRasterizer<Uint16>(vdp, display, *screen);
 	case 4:
-		return new V9990SDLRasterizer<Uint32>(vdp, *screen);
+		return new V9990SDLRasterizer<Uint32>(vdp, display, *screen);
 	default:
 		assert(false);
 		return 0;

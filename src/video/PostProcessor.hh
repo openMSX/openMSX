@@ -23,8 +23,7 @@ template <class Pixel>
 class PostProcessor : public VideoLayer
 {
 public:
-	PostProcessor(CommandController& commandController,
-	              RenderSettings& renderSettings, Display& display,
+	PostProcessor(CommandController& commandController, Display& display,
 	              OutputSurface& screen, VideoSource videoSource,
 	              unsigned maxWidth, unsigned height);
 	virtual ~PostProcessor();
