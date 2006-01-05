@@ -1,5 +1,8 @@
 $Id$
 
+2006-01-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added support for SDL 'world_<n>' and 'undo' keys.
+
 2006-01-04 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Report error for key names with multiple non-modifier parts
 	   (e.g.   ENTER,A   or  PRINT,UP)
