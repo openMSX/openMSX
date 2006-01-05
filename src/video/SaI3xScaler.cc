@@ -16,9 +16,9 @@
 namespace openmsx {
 
 template <typename Pixel>
-SaI3xScaler<Pixel>::SaI3xScaler(SDL_PixelFormat* format)
-	: Scaler3<Pixel>(format)
-	, pixelOps(format)
+SaI3xScaler<Pixel>::SaI3xScaler(const PixelOperations<Pixel>& pixelOps_)
+	: Scaler3<Pixel>(pixelOps_)
+	, pixelOps(pixelOps_)
 {
 }
 

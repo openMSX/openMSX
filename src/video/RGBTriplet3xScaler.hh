@@ -17,7 +17,7 @@ template <class Pixel>
 class RGBTriplet3xScaler : public Scaler3<Pixel>
 {
 public:
-	RGBTriplet3xScaler(SDL_PixelFormat* format,
+	RGBTriplet3xScaler(const PixelOperations<Pixel>& pixelOps,
 	                   const RenderSettings& renderSettings);
 
 	virtual void scaleBlank1to3(

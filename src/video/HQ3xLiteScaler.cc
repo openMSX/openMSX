@@ -19,8 +19,8 @@ Visit the HiEnd3D site for info:
 namespace openmsx {
 
 template <class Pixel>
-HQ3xLiteScaler<Pixel>::HQ3xLiteScaler(SDL_PixelFormat* format)
-	: Scaler3<Pixel>(format)
+HQ3xLiteScaler<Pixel>::HQ3xLiteScaler(const PixelOperations<Pixel>& pixelOps)
+	: Scaler3<Pixel>(pixelOps)
 {
 }
 

@@ -61,7 +61,7 @@ public:
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 
 protected:
-	Scaler2(SDL_PixelFormat* format);
+	Scaler2(const PixelOperations<Pixel>& pixelOps);
 
 private:
 	PixelOperations<Pixel> pixelOps;

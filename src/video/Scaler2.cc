@@ -11,8 +11,8 @@
 namespace openmsx {
 
 template <class Pixel>
-Scaler2<Pixel>::Scaler2(SDL_PixelFormat* format)
-	: pixelOps(format)
+Scaler2<Pixel>::Scaler2(const PixelOperations<Pixel>& pixelOps_)
+	: pixelOps(pixelOps_)
 {
 }
 

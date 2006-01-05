@@ -11,6 +11,7 @@
 #include "DeinterlacedFrame.hh"
 #include "DoubledFrame.hh"
 #include "RawFrame.hh"
+#include "PixelOperations.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -121,7 +122,7 @@ void PostProcessor<Pixel>::paint()
 		scaleAlgorithm = algo;
 		scaleFactor = factor;
 		currScaler = ScalerFactory<Pixel>::createScaler(
-			screen.getFormat(), renderSettings);
+			PixelOperations<Pixel>(screen.getFormat()), renderSettings);
 	}
 
 	// Scale image.

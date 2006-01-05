@@ -15,7 +15,7 @@ template <typename Pixel>
 class SaI3xScaler: public Scaler3<Pixel>
 {
 public:
-	SaI3xScaler(SDL_PixelFormat* format);
+	SaI3xScaler(const PixelOperations<Pixel>& pixelOps);
 	virtual void scaleBlank1to3(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);

@@ -21,8 +21,8 @@ Visit the Scale2x site for info:
 namespace openmsx {
 
 template <class Pixel>
-Scale2xScaler<Pixel>::Scale2xScaler(SDL_PixelFormat* format)
-	: Scaler2<Pixel>(format)
+Scale2xScaler<Pixel>::Scale2xScaler(const PixelOperations<Pixel>& pixelOps)
+	: Scaler2<Pixel>(pixelOps)
 {
 }
 

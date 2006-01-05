@@ -13,7 +13,7 @@ template <class Pixel>
 class HQ3xScaler: public Scaler3<Pixel>
 {
 public:
-	HQ3xScaler(SDL_PixelFormat* format);
+	HQ3xScaler(const PixelOperations<Pixel>& pixelOps);
 
 	virtual void scale1x1to3x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,

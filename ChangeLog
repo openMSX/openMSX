@@ -2,6 +2,7 @@ $Id$
 
 2006-01-05 Maarten ter Huurne <maarten@treewalker.org>
 	* Split OutputSurface into smaller OutputSurface and VisibleSurface.
+	* Use PixelOperations instead of SDL_PixelFormat where possible.
 
 2006-01-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added support for SDL 'world_<n>' and 'undo' keys.

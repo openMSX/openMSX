@@ -8,7 +8,7 @@ namespace openmsx {
 
 // class Multiply<word>
 
-Multiply<word>::Multiply(SDL_PixelFormat* format_)
+Multiply<word>::Multiply(const SDL_PixelFormat* format_)
 	: format(format_)
 {
 	factor = 0;
@@ -50,7 +50,7 @@ inline const word* Multiply<word>::getTable() const
 
 // class Multiply<unsigned>
 
-Multiply<unsigned>::Multiply(SDL_PixelFormat* /*format*/)
+Multiply<unsigned>::Multiply(const SDL_PixelFormat* /*format*/)
 {
 }
 
@@ -79,9 +79,10 @@ const unsigned* Multiply<unsigned>::getTable() const
 
 // class Scanline
 
-template <class Pixel> Scanline<Pixel>::Scanline(SDL_PixelFormat* format)
-	: darkener(format)
-	, pixelOps(format)
+template <class Pixel>
+Scanline<Pixel>::Scanline(const PixelOperations<Pixel>& pixelOps)
+	: darkener(pixelOps.format)
+	, pixelOps(pixelOps.format)
 {
 }
 

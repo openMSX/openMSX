@@ -24,46 +24,50 @@ namespace openmsx {
 
 template <class Pixel>
 auto_ptr<Scaler> ScalerFactory<Pixel>::createScaler(
-	SDL_PixelFormat* format, RenderSettings& renderSettings)
+	const PixelOperations<Pixel>& pixelOps, RenderSettings& renderSettings)
 {
 	switch (renderSettings.getScaleFactor().getValue()) {
 	case 1:
-		return auto_ptr<Scaler>(new LowScaler<Pixel>(format));
+		return auto_ptr<Scaler>(new LowScaler<Pixel>(pixelOps));
 	case 2:
 		switch (renderSettings.getScaleAlgorithm().getValue()) {
 		case RenderSettings::SCALER_SIMPLE:
-			return auto_ptr<Scaler>(new SimpleScaler<Pixel>(
-		                                     format, renderSettings));
+			return auto_ptr<Scaler>(
+				new SimpleScaler<Pixel>(pixelOps, renderSettings)
+				);
 		case RenderSettings::SCALER_SAI:
-			return auto_ptr<Scaler>(new SaI2xScaler<Pixel>(format));
+			return auto_ptr<Scaler>(new SaI2xScaler<Pixel>(pixelOps));
 		case RenderSettings::SCALER_SCALE:
-			return auto_ptr<Scaler>(new Scale2xScaler<Pixel>(format));
+			return auto_ptr<Scaler>(new Scale2xScaler<Pixel>(pixelOps));
 		case RenderSettings::SCALER_HQ:
-			return auto_ptr<Scaler>(new HQ2xScaler<Pixel>(format));
+			return auto_ptr<Scaler>(new HQ2xScaler<Pixel>(pixelOps));
 		case RenderSettings::SCALER_HQLITE:
-			return auto_ptr<Scaler>(new HQ2xLiteScaler<Pixel>(format));
+			return auto_ptr<Scaler>(new HQ2xLiteScaler<Pixel>(pixelOps));
 		case RenderSettings::SCALER_RGBTRIPLET:
-			return auto_ptr<Scaler>(new SimpleScaler<Pixel>(
-		                                     format, renderSettings));
+			return auto_ptr<Scaler>(
+				new SimpleScaler<Pixel>(pixelOps, renderSettings)
+				);
 		default:
 			assert(false);
 		}
 	case 3:
 		switch (renderSettings.getScaleAlgorithm().getValue()) {
 		case RenderSettings::SCALER_SIMPLE:
-			return auto_ptr<Scaler>(new Simple3xScaler<Pixel>(
-		                                       format, renderSettings));
+			return auto_ptr<Scaler>(
+				new Simple3xScaler<Pixel>(pixelOps, renderSettings)
+				);
 		case RenderSettings::SCALER_SAI:
-			return auto_ptr<Scaler>(new SaI3xScaler<Pixel>(format));
+			return auto_ptr<Scaler>(new SaI3xScaler<Pixel>(pixelOps));
 		case RenderSettings::SCALER_SCALE:
-			return auto_ptr<Scaler>(new Scale3xScaler<Pixel>(format));
+			return auto_ptr<Scaler>(new Scale3xScaler<Pixel>(pixelOps));
 		case RenderSettings::SCALER_HQ:
-			return auto_ptr<Scaler>(new HQ3xScaler<Pixel>(format));
+			return auto_ptr<Scaler>(new HQ3xScaler<Pixel>(pixelOps));
 		case RenderSettings::SCALER_HQLITE:
-			return auto_ptr<Scaler>(new HQ3xLiteScaler<Pixel>(format));
+			return auto_ptr<Scaler>(new HQ3xLiteScaler<Pixel>(pixelOps));
 		case RenderSettings::SCALER_RGBTRIPLET:
-			return auto_ptr<Scaler>(new RGBTriplet3xScaler<Pixel>(
-			                               format, renderSettings));
+			return auto_ptr<Scaler>(
+				new RGBTriplet3xScaler<Pixel>(pixelOps, renderSettings)
+				);
 		default:
 			assert(false);
 		}

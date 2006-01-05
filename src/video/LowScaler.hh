@@ -12,7 +12,7 @@ template <typename Pixel>
 class LowScaler : public Scaler
 {
 public:
-	explicit LowScaler(SDL_PixelFormat* format);
+	explicit LowScaler(const PixelOperations<Pixel>& pixelOps);
 
 	void scaleBlank1to1(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,

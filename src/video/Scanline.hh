@@ -16,7 +16,7 @@ template<typename Pixel> class Multiply;
 template<> class Multiply<word>
 {
 public:
-	explicit Multiply(SDL_PixelFormat* format);
+	explicit Multiply(const SDL_PixelFormat* format);
 	void setFactor(unsigned f);
 	inline word multiply(word p, unsigned factor) const;
 	inline word multiply(word p) const;
@@ -24,13 +24,13 @@ public:
 private:
 	word tab[0x10000];
 	unsigned factor;
-	SDL_PixelFormat* format;
+	const SDL_PixelFormat* format;
 };
 
 template<> class Multiply<unsigned>
 {
 public:
-	explicit Multiply(SDL_PixelFormat* format);
+	explicit Multiply(const SDL_PixelFormat* format);
 	void setFactor(unsigned f);
 	inline unsigned multiply(unsigned p, unsigned factor) const;
 	inline unsigned multiply(unsigned p) const;
@@ -45,7 +45,7 @@ private:
 template <class Pixel> class Scanline
 {
 public:
-	explicit Scanline(SDL_PixelFormat* format);
+	explicit Scanline(const PixelOperations<Pixel>& pixelOps);
 
 	/** Draws a scanline. The scanline will be the average of the two
 	  * input lines and darkened by a certain factor.

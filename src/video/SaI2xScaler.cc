@@ -18,9 +18,9 @@ namespace openmsx {
 const unsigned WIDTH256 = 320; // TODO: Specify this in a clean way.
 
 template <class Pixel>
-SaI2xScaler<Pixel>::SaI2xScaler(SDL_PixelFormat* format)
-	: Scaler2<Pixel>(format)
-	, pixelOps(format)
+SaI2xScaler<Pixel>::SaI2xScaler(const PixelOperations<Pixel>& pixelOps_)
+	: Scaler2<Pixel>(pixelOps_)
+	, pixelOps(pixelOps_)
 {
 }
 

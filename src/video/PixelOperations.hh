@@ -7,7 +7,9 @@
 
 namespace openmsx {
 
-// TODO optimizations for Pixel=unsigned
+// TODO: Needed for the "friend" declarations later.
+template <typename Pixel> class Scanline;
+template <typename Pixel> class SimpleScaler;
 
 template <typename Pixel>
 class PixelOperations
@@ -61,6 +63,11 @@ private:
 	  */
 	const SDL_PixelFormat* format;
 	Pixel blendMask;
+
+	// TODO: These are workarounds for utility classes that should be
+	//       centralized somehow.
+	friend class Scanline<Pixel>;
+	friend class SimpleScaler<Pixel>;
 };
 
 

@@ -10,10 +10,11 @@ namespace openmsx {
 
 template <class Pixel>
 RGBTriplet3xScaler<Pixel>::RGBTriplet3xScaler(
-		SDL_PixelFormat* format, const RenderSettings& renderSettings)
-	: Scaler3<Pixel>(format)
-	, pixelOps(format)
-	, scanline(format)
+		const PixelOperations<Pixel>& pixelOps_,
+		const RenderSettings& renderSettings)
+	: Scaler3<Pixel>(pixelOps_)
+	, pixelOps(pixelOps_)
+	, scanline(pixelOps_)
 	, settings(renderSettings)
 {
 }

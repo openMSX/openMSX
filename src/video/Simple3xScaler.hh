@@ -15,7 +15,7 @@ template <class Pixel>
 class Simple3xScaler : public Scaler3<Pixel>
 {
 public:
-	Simple3xScaler(SDL_PixelFormat* format,
+	Simple3xScaler(const PixelOperations<Pixel>& pixelOps,
 	               const RenderSettings& renderSettings);
 
 	virtual void scaleBlank1to3(

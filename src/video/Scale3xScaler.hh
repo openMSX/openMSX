@@ -13,7 +13,7 @@ template <class Pixel>
 class Scale3xScaler: public Scaler3<Pixel>
 {
 public:
-	Scale3xScaler(SDL_PixelFormat* format);
+	Scale3xScaler(const PixelOperations<Pixel>& pixelOps);
 
 	virtual void scale1x1to3x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,

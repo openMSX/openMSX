@@ -16,7 +16,7 @@ namespace openmsx {
 
 // class Multiply32<unsigned>
 
-Multiply32<unsigned>::Multiply32(SDL_PixelFormat* /*format*/)
+Multiply32<unsigned>::Multiply32(const SDL_PixelFormat* /*format*/)
 {
 }
 
@@ -51,7 +51,7 @@ static inline unsigned rotRight(unsigned a, unsigned n)
 	return (a >> n) | (a << (32 - n));
 }
 
-Multiply32<word>::Multiply32(SDL_PixelFormat* format)
+Multiply32<word>::Multiply32(const SDL_PixelFormat* format)
 {
 	Rmask1 = format->Rmask;;
 	Gmask1 = format->Gmask;
@@ -116,14 +116,15 @@ inline word Multiply32<word>::conv32(unsigned p) const
 // class SimpleScaler
 
 template <class Pixel>
-SimpleScaler<Pixel>::SimpleScaler(SDL_PixelFormat* format,
-                                  RenderSettings& renderSettings)
-	: Scaler2<Pixel>(format)
+SimpleScaler<Pixel>::SimpleScaler(
+		const PixelOperations<Pixel>& pixelOps,
+		RenderSettings& renderSettings)
+	: Scaler2<Pixel>(pixelOps)
 	, settings(renderSettings)
-	, mult1(format)
-	, mult2(format)
-	, mult3(format)
-	, scanline(format)
+	, mult1(pixelOps.format)
+	, mult2(pixelOps.format)
+	, mult3(pixelOps.format)
+	, scanline(pixelOps)
 {
 }
 

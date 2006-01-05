@@ -5,12 +5,11 @@
 
 #include <memory>
 
-class SDL_PixelFormat;
-
 namespace openmsx {
 
 class Scaler;
 class RenderSettings;
+template <typename Pixel> class PixelOperations;
 
 /** Abstract base class for scalers.
   * A scaler is an algorithm that converts low-res graphics to hi-res graphics.
@@ -24,7 +23,8 @@ public:
 	  * @return A Scaler object, owned by the caller.
 	  */
 	static std::auto_ptr<Scaler> createScaler(
-		SDL_PixelFormat* format, RenderSettings& renderSettings);
+		const PixelOperations<Pixel>& pixelOps, RenderSettings& renderSettings
+		);
 };
 
 } // namespace openmsx

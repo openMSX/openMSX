@@ -18,7 +18,7 @@ template<typename Pixel> class Multiply32;
 
 template<> class Multiply32<word> {
 public:
-	Multiply32(SDL_PixelFormat* format);
+	Multiply32(const SDL_PixelFormat* format);
 	void setFactor32(unsigned factor);
 	inline unsigned mul32(word p) const;
 	inline word conv32(unsigned p) const;
@@ -34,7 +34,7 @@ private:
 
 template<> class Multiply32<unsigned> {
 public:
-	Multiply32(SDL_PixelFormat* format);
+	Multiply32(const SDL_PixelFormat* format);
 	inline void setFactor32(unsigned factor);
 	inline unsigned mul32(unsigned p) const;
 	inline unsigned conv32(unsigned p) const;
@@ -52,7 +52,10 @@ template <class Pixel>
 class SimpleScaler: public Scaler2<Pixel>
 {
 public:
-	SimpleScaler(SDL_PixelFormat* format, RenderSettings& renderSettings);
+	SimpleScaler(
+		const PixelOperations<Pixel>& pixelOps,
+		RenderSettings& renderSettings
+		);
 
 	virtual void scaleBlank1to2(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
