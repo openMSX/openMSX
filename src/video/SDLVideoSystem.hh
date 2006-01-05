@@ -13,7 +13,7 @@ namespace openmsx {
 class MSXMotherBoard;
 class RenderSettings;
 class Display;
-class OutputSurface;
+class VisibleSurface;
 class VDP;
 class Rasterizer;
 class V9990;
@@ -41,7 +41,7 @@ private:
 
 	RenderSettings& renderSettings;
 	Display& display;
-	std::auto_ptr<OutputSurface> screen;
+	std::auto_ptr<VisibleSurface> screen;
 	std::auto_ptr<Layer> snowLayer;
 	std::auto_ptr<Layer> console;
 	std::auto_ptr<Layer> iconLayer;

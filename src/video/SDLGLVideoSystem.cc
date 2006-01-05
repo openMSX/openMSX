@@ -7,7 +7,7 @@
 #include "Display.hh"
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
-#include "SDLGLOutputSurface.hh"
+#include "SDLGLVisibleSurface.hh"
 #include "EventDistributor.hh"
 #include "InputEventGenerator.hh"
 #include "InputEvents.hh"
@@ -90,7 +90,7 @@ void SDLGLVideoSystem::resize(unsigned x, unsigned y)
 {
 	bool fullscreen = motherboard.getDisplay().getRenderSettings().
 		getFullScreen().getValue();
-	screen.reset(new SDLGLOutputSurface(x, y, fullscreen));
+	screen.reset(new SDLGLVisibleSurface(x, y, fullscreen));
 	motherboard.getInputEventGenerator().reinit();
 }
 

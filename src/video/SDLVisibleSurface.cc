@@ -1,6 +1,6 @@
 // $Id$
 
-#include "SDLOutputSurface.hh"
+#include "SDLVisibleSurface.hh"
 #include "ScreenShotSaver.hh"
 #include "CommandException.hh"
 #include "SDLSnow.hh"
@@ -10,7 +10,7 @@
 
 namespace openmsx {
 
-SDLOutputSurface::SDLOutputSurface(
+SDLVisibleSurface::SDLVisibleSurface(
 		unsigned width, unsigned height, bool fullscreen)
 {
 	int flags = SDL_SWSURFACE | (fullscreen ? SDL_FULLSCREEN : 0);
@@ -21,7 +21,7 @@ SDLOutputSurface::SDLOutputSurface(
 	pitch = surface->pitch;
 }
 
-bool SDLOutputSurface::init()
+bool SDLVisibleSurface::init()
 {
 	if (SDL_MUSTLOCK(surface) && SDL_LockSurface(surface) < 0) {
 		return false;
@@ -29,18 +29,18 @@ bool SDLOutputSurface::init()
 	return true;
 }
 
-void SDLOutputSurface::drawFrameBuffer()
+void SDLVisibleSurface::drawFrameBuffer()
 {
 	// nothing
 }
 
-void SDLOutputSurface::finish()
+void SDLVisibleSurface::finish()
 {
 	if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
 	SDL_Flip(surface);
 }
 
-void SDLOutputSurface::takeScreenShot(const std::string& filename)
+void SDLVisibleSurface::takeScreenShot(const std::string& filename)
 {
 	if (SDL_MUSTLOCK(surface) && SDL_LockSurface(surface) < 0) {
 		throw CommandException("Failed to lock surface.");
@@ -54,7 +54,7 @@ void SDLOutputSurface::takeScreenShot(const std::string& filename)
 	}
 }
 
-std::auto_ptr<Layer> SDLOutputSurface::createSnowLayer()
+std::auto_ptr<Layer> SDLVisibleSurface::createSnowLayer()
 {
 	switch (getFormat()->BytesPerPixel) {
 	case 2:
@@ -67,13 +67,13 @@ std::auto_ptr<Layer> SDLOutputSurface::createSnowLayer()
 	}
 }
 
-std::auto_ptr<Layer> SDLOutputSurface::createConsoleLayer(
+std::auto_ptr<Layer> SDLVisibleSurface::createConsoleLayer(
 		MSXMotherBoard& motherboard)
 {
 	return std::auto_ptr<Layer>(new SDLConsole(motherboard, surface));
 }
 
-std::auto_ptr<Layer> SDLOutputSurface::createIconLayer(
+std::auto_ptr<Layer> SDLVisibleSurface::createIconLayer(
 		CommandController& commandController,
 		Display& display, IconStatus& iconStatus)
 {

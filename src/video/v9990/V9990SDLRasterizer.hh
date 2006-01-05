@@ -17,6 +17,7 @@ class V9990;
 class V9990VRAM;
 class RawFrame;
 class OutputSurface;
+class VisibleSurface;
 class BooleanSetting;
 template <class Pixel> class PostProcessor;
 
@@ -26,7 +27,7 @@ template <class Pixel>
 class V9990SDLRasterizer : public V9990Rasterizer, private noncopyable
 {
 public:
-	V9990SDLRasterizer(V9990& vdp, Display& display, OutputSurface& screen);
+	V9990SDLRasterizer(V9990& vdp, Display& display, VisibleSurface& screen);
 	virtual ~V9990SDLRasterizer();
 
 	// Rasterizer interface:

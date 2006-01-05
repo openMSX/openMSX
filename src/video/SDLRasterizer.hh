@@ -17,6 +17,7 @@ class Display;
 class VDP;
 class VDPVRAM;
 class OutputSurface;
+class VisibleSurface;
 class RawFrame;
 class FloatSetting;
 template <class Pixel> class PostProcessor;
@@ -27,7 +28,7 @@ template <class Pixel>
 class SDLRasterizer : public Rasterizer, private noncopyable
 {
 public:
-	SDLRasterizer(VDP& vdp, Display& display, OutputSurface& screen);
+	SDLRasterizer(VDP& vdp, Display& display, VisibleSurface& screen);
 	virtual ~SDLRasterizer();
 
 	// Rasterizer interface:

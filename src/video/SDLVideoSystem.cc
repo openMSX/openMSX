@@ -4,7 +4,7 @@
 #include "SDLRasterizer.hh"
 #include "V9990SDLRasterizer.hh"
 #include "Display.hh"
-#include "SDLOutputSurface.hh"
+#include "SDLVisibleSurface.hh"
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
 #include "IntegerSetting.hh"
@@ -14,7 +14,7 @@
 
 #include "components.hh"
 #ifdef COMPONENT_GL
-#include "SDLGLOutputSurface.hh"
+#include "SDLGLVisibleSurface.hh"
 #endif
 
 namespace openmsx {
@@ -29,16 +29,16 @@ SDLVideoSystem::SDLVideoSystem(MSXMotherBoard& motherboard,
 	bool fullscreen = renderSettings.getFullScreen().getValue();
 	switch (rendererID) {
 	case RendererFactory::SDL:
-		screen.reset(new SDLOutputSurface(width, height, fullscreen));
+		screen.reset(new SDLVisibleSurface(width, height, fullscreen));
 		break;
 #ifdef COMPONENT_GL
 	case RendererFactory::SDLGL_FB16:
-		screen.reset(new SDLGLOutputSurface(width, height, fullscreen,
-		             SDLGLOutputSurface::FB_16BPP));
+		screen.reset(new SDLGLVisibleSurface(width, height, fullscreen,
+		             SDLGLVisibleSurface::FB_16BPP));
 		break;
 	case RendererFactory::SDLGL_FB32:
-		screen.reset(new SDLGLOutputSurface(width, height, fullscreen,
-		             SDLGLOutputSurface::FB_32BPP));
+		screen.reset(new SDLGLVisibleSurface(width, height, fullscreen,
+		             SDLGLVisibleSurface::FB_32BPP));
 		break;
 #endif
 	default:

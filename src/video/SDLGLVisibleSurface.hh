@@ -1,16 +1,21 @@
 // $Id$
 
-#ifndef SDLOUTPUTSURFACE_HH
-#define SDLOUTPUTSURFACE_HH
+#ifndef SDLGLVISIBLESURFACE_HH
+#define SDLGLVISIBLESURFACE_HH
 
-#include "OutputSurface.hh"
+#include "VisibleSurface.hh"
+#include "GLUtil.hh"
 
 namespace openmsx {
 
-class SDLOutputSurface : public OutputSurface
+class SDLGLVisibleSurface : public VisibleSurface
 {
 public:
-	SDLOutputSurface(unsigned width, unsigned height, bool fullscreen);
+	enum FrameBuffer { FB_NONE, FB_16BPP, FB_32BPP };
+
+	SDLGLVisibleSurface(unsigned width, unsigned height, bool fullscreen,
+	                   FrameBuffer frameBuffer = FB_NONE);
+	virtual ~SDLGLVisibleSurface();
 
 	virtual bool init();
 	virtual void drawFrameBuffer();
@@ -24,6 +29,11 @@ public:
 	virtual std::auto_ptr<Layer> createIconLayer(
 		CommandController& commandController,
 		Display& display, IconStatus& iconStatus);
+
+private:
+	FrameBuffer frameBuffer;
+	GLuint textureId;
+	double texCoordX, texCoordY;
 };
 
 } // namespace openmsx

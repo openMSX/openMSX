@@ -1,6 +1,6 @@
 // $Id$
 
-#include "SDLGLOutputSurface.hh"
+#include "SDLGLVisibleSurface.hh"
 #include "ScreenShotSaver.hh"
 #include "GLSnow.hh"
 #include "GLConsole.hh"
@@ -17,7 +17,7 @@ static unsigned roundUpPow2(unsigned x)
 	return result;
 }
 
-SDLGLOutputSurface::SDLGLOutputSurface(
+SDLGLVisibleSurface::SDLGLVisibleSurface(
 		unsigned width, unsigned height, bool fullscreen,
 		FrameBuffer frameBuffer_)
 	: frameBuffer(frameBuffer_)
@@ -107,18 +107,18 @@ SDLGLOutputSurface::SDLGLOutputSurface(
 	}
 }
 
-SDLGLOutputSurface::~SDLGLOutputSurface()
+SDLGLVisibleSurface::~SDLGLVisibleSurface()
 {
 	glDeleteTextures(1, &textureId);
 	free(data);
 }
 
-bool SDLGLOutputSurface::init()
+bool SDLGLVisibleSurface::init()
 {
 	return true;
 }
 
-void SDLGLOutputSurface::drawFrameBuffer()
+void SDLGLVisibleSurface::drawFrameBuffer()
 {
 	unsigned width  = getWidth();
 	unsigned height = getHeight();
@@ -143,12 +143,12 @@ void SDLGLOutputSurface::drawFrameBuffer()
 	glDisable(GL_TEXTURE_2D);
 }
 
-void SDLGLOutputSurface::finish()
+void SDLGLVisibleSurface::finish()
 {
 	SDL_GL_SwapBuffers();
 }
 
-void SDLGLOutputSurface::takeScreenShot(const std::string& filename)
+void SDLGLVisibleSurface::takeScreenShot(const std::string& filename)
 {
 	unsigned width  = getWidth();
 	unsigned height = getHeight();
@@ -163,6 +163,7 @@ void SDLGLOutputSurface::takeScreenShot(const std::string& filename)
 	try {
 		ScreenShotSaver::save(width, height, row_pointers, filename);
 	} catch(...) {
+		// TODO: Use "finally" instead?
 		free(row_pointers);
 		free(buffer);
 		throw;
@@ -171,18 +172,18 @@ void SDLGLOutputSurface::takeScreenShot(const std::string& filename)
 	free(buffer);
 }
 
-std::auto_ptr<Layer> SDLGLOutputSurface::createSnowLayer()
+std::auto_ptr<Layer> SDLGLVisibleSurface::createSnowLayer()
 {
 	return std::auto_ptr<Layer>(new GLSnow());
 }
 
-std::auto_ptr<Layer> SDLGLOutputSurface::createConsoleLayer(
+std::auto_ptr<Layer> SDLGLVisibleSurface::createConsoleLayer(
 		MSXMotherBoard& motherboard)
 {
 	return std::auto_ptr<Layer>(new GLConsole(motherboard));
 }
 
-std::auto_ptr<Layer> SDLGLOutputSurface::createIconLayer(
+std::auto_ptr<Layer> SDLGLVisibleSurface::createIconLayer(
 		CommandController& commandController,
 		Display& display, IconStatus& iconStatus)
 {

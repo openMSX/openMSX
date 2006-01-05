@@ -7,7 +7,7 @@
 #include "ScalerFactory.hh"
 #include "BooleanSetting.hh"
 #include "IntegerSetting.hh"
-#include "OutputSurface.hh"
+#include "VisibleSurface.hh"
 #include "DeinterlacedFrame.hh"
 #include "DoubledFrame.hh"
 #include "RawFrame.hh"
@@ -17,7 +17,7 @@ namespace openmsx {
 
 template <class Pixel>
 PostProcessor<Pixel>::PostProcessor(CommandController& commandController,
-	Display& display, OutputSurface& screen_, VideoSource videoSource,
+	Display& display, VisibleSurface& screen_, VideoSource videoSource,
 	unsigned maxWidth, unsigned height)
 	: VideoLayer(videoSource, commandController, display)
 	, renderSettings(display.getRenderSettings())
@@ -164,6 +164,8 @@ void PostProcessor<Pixel>::paint()
 		srcStartY = srcEndY;
 		dstStartY = dstEndY;
 	}
+	// TODO: This statement is the only reason PostProcessor uses "screen"
+	//       as a VisibleSurface instead of as an OutputSurface.
 	screen.drawFrameBuffer();
 }
 

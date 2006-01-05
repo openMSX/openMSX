@@ -4,8 +4,6 @@
 #define OUTPUTSURFACE_HH
 
 #include "noncopyable.hh"
-#include <string>
-#include <memory>
 #include <SDL.h>
 
 namespace openmsx {
@@ -17,6 +15,10 @@ class EventDistributor;
 class Display;
 class IconStatus;
 
+/** A frame buffer where pixels can be written to.
+  * It could be an in-memory buffer or a video buffer visible to the user
+  * (see VisibleSurface subclass).
+  */
 class OutputSurface : private noncopyable
 {
 public:
@@ -31,23 +33,8 @@ public:
 		return (Pixel*)(data + y * pitch);
 	}
 
-	void setWindowTitle(const std::string& title);
-	bool setFullScreen(bool fullscreen);
-	virtual bool init() = 0;
-	virtual void drawFrameBuffer() = 0;
-	virtual void finish() = 0;
-	virtual void takeScreenShot(const std::string& filename) = 0;
-
-	virtual std::auto_ptr<Layer> createSnowLayer() = 0;
-	virtual std::auto_ptr<Layer> createConsoleLayer(
-		MSXMotherBoard& motherboard) = 0;
-	virtual std::auto_ptr<Layer> createIconLayer(
-		CommandController& commandController,
-		Display& display, IconStatus& iconStatus) = 0;
-
 protected:
 	OutputSurface();
-	void createSurface(unsigned width, unsigned height, int flags);
 
 	SDL_Surface* surface;
 	SDL_PixelFormat format;

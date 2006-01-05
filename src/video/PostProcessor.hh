@@ -12,7 +12,7 @@ namespace openmsx {
 class Scaler;
 class CommandController;
 class Display;
-class OutputSurface;
+class VisibleSurface;
 class RawFrame;
 class DeinterlacedFrame;
 class DoubledFrame;
@@ -24,7 +24,7 @@ class PostProcessor : public VideoLayer
 {
 public:
 	PostProcessor(CommandController& commandController, Display& display,
-	              OutputSurface& screen, VideoSource videoSource,
+	              VisibleSurface& screen, VideoSource videoSource,
 	              unsigned maxWidth, unsigned height);
 	virtual ~PostProcessor();
 
@@ -68,7 +68,7 @@ private:
 
 	/** The surface which is visible to the user.
 	  */
-	OutputSurface& screen;
+	VisibleSurface& screen;
 
 	/** The last finished frame, ready to be displayed.
 	  */

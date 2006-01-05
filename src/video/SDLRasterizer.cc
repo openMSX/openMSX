@@ -11,7 +11,7 @@
 #include "FloatSetting.hh"
 #include "MemoryOps.hh"
 #include "MSXMotherBoard.hh"
-#include "OutputSurface.hh"
+#include "VisibleSurface.hh"
 #include <SDL.h>
 #include <algorithm>
 #include <cassert>
@@ -137,12 +137,12 @@ inline void SDLRasterizer<Pixel>::renderCharacterLines(
 
 template <class Pixel>
 SDLRasterizer<Pixel>::SDLRasterizer(
-		VDP& vdp_, Display& display, OutputSurface& screen_)
+		VDP& vdp_, Display& display, VisibleSurface& screen_)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, screen(screen_)
 	, postProcessor(new PostProcessor<Pixel>(
 		vdp.getMotherBoard().getCommandController(),
-		display, screen, VIDEO_MSX, 640, 240
+		display, screen_, VIDEO_MSX, 640, 240
 		))
 	, gammaSetting(display.getRenderSettings().getGamma())
 	, characterConverter(vdp, palFg, palBg)

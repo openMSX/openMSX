@@ -12,7 +12,7 @@
 namespace openmsx {
 
 class MSXMotherBoard;
-class OutputSurface;
+class VisibleSurface;
 class Layer;
 
 class SDLGLVideoSystem : public VideoSystem, private EventListener,
@@ -43,7 +43,7 @@ private:
 	void resize(unsigned x, unsigned y);
 
 	MSXMotherBoard& motherboard;
-	std::auto_ptr<OutputSurface> screen;
+	std::auto_ptr<VisibleSurface> screen;
 	std::auto_ptr<Layer> console;
 	std::auto_ptr<Layer> snowLayer;
 	std::auto_ptr<Layer> iconLayer;
