@@ -54,8 +54,9 @@ void OutputSurface::createSurface(unsigned width, unsigned height, int flags)
 	if (!surface) surface = SDL_SetVideoMode(width, height, 32, flags);
 
 	if (!surface) {
+		std::string err = SDL_GetError();
 		SDL_QuitSubSystem(SDL_INIT_VIDEO);
-		throw InitException("Could not open any screen");
+		throw InitException("Could not open any screen: " + err);
 	}
 
 #ifdef _WIN32
