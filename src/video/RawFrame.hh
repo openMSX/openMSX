@@ -14,8 +14,7 @@ namespace openmsx {
 class RawFrame : public FrameSource
 {
 public:
-	RawFrame(const SDL_PixelFormat* format, unsigned bytesPerPixel,
-	         unsigned maxWidth, unsigned height);
+	RawFrame(const SDL_PixelFormat* format, unsigned maxWidth, unsigned height);
 	~RawFrame();
 
 	virtual unsigned getLineBufferSize() const;

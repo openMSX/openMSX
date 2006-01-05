@@ -26,10 +26,8 @@ PostProcessor<Pixel>::PostProcessor(CommandController& commandController,
 	scaleAlgorithm = (RenderSettings::ScaleAlgorithm)-1; // not a valid scaler
 	scaleFactor = (unsigned)-1;
 
-	currFrame = new RawFrame(screen.getFormat(), sizeof(Pixel),
-	                         maxWidth, height);
-	prevFrame = new RawFrame(screen.getFormat(), sizeof(Pixel),
-	                         maxWidth, height);
+	currFrame = new RawFrame(screen.getFormat(), maxWidth, height);
+	prevFrame = new RawFrame(screen.getFormat(), maxWidth, height);
 	deinterlacedFrame = new DeinterlacedFrame(screen.getFormat());
 	interlacedFrame   = new DoubledFrame     (screen.getFormat());
 }

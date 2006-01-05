@@ -32,7 +32,7 @@ V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(
 	, p2Converter(vdp, palette64)
 	, deinterlaceSetting(display.getRenderSettings().getDeinterlace())
 {
-	workFrame = new RawFrame(screen.getFormat(), sizeof(Pixel), 1280, 240);
+	workFrame = new RawFrame(screen.getFormat(), 1280, 240);
 
 	// Fill palettes
 	precalcPalettes();

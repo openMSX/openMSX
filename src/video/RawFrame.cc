@@ -3,16 +3,18 @@
 #include "RawFrame.hh"
 #include "MemoryOps.hh"
 #include "openmsx.hh"
+#include <SDL.h>
 
 namespace openmsx {
 
-RawFrame::RawFrame(const SDL_PixelFormat* format, unsigned bytesPerPixel,
-                   unsigned maxWidth_, unsigned height)
+RawFrame::RawFrame(
+		const SDL_PixelFormat* format, unsigned maxWidth_, unsigned height)
 	: FrameSource(format)
 	, maxWidth(maxWidth_)
 {
 	setHeight(height);
 	lineWidth = new unsigned[height];
+	unsigned bytesPerPixel = format->BytesPerPixel;
 
 	// Allocate memory, make sure each line begins at a 64 byte boundary
 	//  SSE instruction need 16 byte aligned data

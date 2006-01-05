@@ -149,14 +149,15 @@ SDLRasterizer<Pixel>::SDLRasterizer(
 	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS)
 	, spriteConverter(vdp.getSpriteChecker())
 {
-	workFrame = new RawFrame(screen.getFormat(), sizeof(Pixel), 640, 240);
+	workFrame = new RawFrame(screen.getFormat(), 640, 240);
 
 	// Create display caches.
-	charDisplayCache = new RawFrame(screen.getFormat(),
-		sizeof(Pixel), 512, vdp.isMSX1VDP() ? 192 : 256);
+	charDisplayCache = new RawFrame(
+		screen.getFormat(), 512, vdp.isMSX1VDP() ? 192 : 256
+		);
 	bitmapDisplayCache = vdp.isMSX1VDP()
 		? NULL
-		: new RawFrame(screen.getFormat(), sizeof(Pixel), 512, 256 * 4);
+		: new RawFrame(screen.getFormat(), 512, 256 * 4);
 
 	// Init the palette.
 	precalcPalette(display.getRenderSettings().getGamma().getValue());
