@@ -27,14 +27,14 @@ public:
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 
 private:
-	void scaleLine256(
+	void scaleLine1on2(
 		const Pixel* srcLine0, const Pixel* srcLine1,
 		const Pixel* srcLine2, const Pixel* srcLine3,
-		Pixel* dstUpper, Pixel* dstLower);
-	void scaleLine512(
+		Pixel* dstUpper, Pixel* dstLower, unsigned srcWidth);
+	void scaleLine1on1(
 		const Pixel* srcLine0, const Pixel* srcLine1,
 		const Pixel* srcLine2, const Pixel* srcLine3,
-		Pixel* dstUpper, Pixel* dstLower);
+		Pixel* dstUpper, Pixel* dstLower, unsigned srcWidth);
 
 	inline Pixel blend(Pixel p1, Pixel p2);
 

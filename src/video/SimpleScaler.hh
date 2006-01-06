@@ -69,9 +69,11 @@ public:
 
 private:
 	void drawScanline(const Pixel* in1, const Pixel* in2, Pixel* out,
-	                  int factor);
-	void blur256(const Pixel* pIn, Pixel* pOut, unsigned alpha);
-	void blur512(const Pixel* pIn, Pixel* pOut, unsigned alpha);
+	                  int factor, unsigned dstWidth);
+	void blur1on2(const Pixel* pIn, Pixel* pOut, unsigned alpha,
+	              unsigned srcWidth);
+	void blur1on1(const Pixel* pIn, Pixel* pOut, unsigned alpha,
+	              unsigned srcWidth);
 
 	RenderSettings& settings;
 

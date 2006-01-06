@@ -26,21 +26,20 @@ HQ2xScaler<Pixel>::HQ2xScaler(const PixelOperations<Pixel>& pixelOps)
 }
 
 template <class Pixel>
-static void scaleLine256(const Pixel* in0, const Pixel* in1, const Pixel* in2,
-                         Pixel* out0, Pixel* out1)
+static void scale1on2(const Pixel* in0, const Pixel* in1, const Pixel* in2,
+                      Pixel* out0, Pixel* out1, unsigned srcWidth)
 {
-	const unsigned WIDTH = 320;
 	unsigned c1, c2, c3, c4, c5, c6, c7, c8, c9;
 	c2 = c3 = readPixel(in0);
 	c5 = c6 = readPixel(in1);
 	c8 = c9 = readPixel(in2);
 
-	for (unsigned x = 0; x < WIDTH; ++x) {
+	for (unsigned x = 0; x < srcWidth; ++x) {
 		c1 = c2; c4 = c5; c7 = c8;
 		c2 = c3; c5 = c6; c8 = c9;
 		++in0; ++in1; ++in2;
 
-		if (x != WIDTH - 1) {
+		if (x != srcWidth - 1) {
 			c3 = readPixel(in0);
 			c6 = readPixel(in1);
 			c9 = readPixel(in2);
@@ -1504,11 +1503,9 @@ static void scaleLine256(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 
 
 template <class Pixel>
-static void scaleLine512(const Pixel* in0, const Pixel* in1, const Pixel* in2,
-                         Pixel* out0, Pixel* out1)
+static void scale1on1(const Pixel* in0, const Pixel* in1, const Pixel* in2,
+                      Pixel* out0, Pixel* out1, unsigned srcWidth)
 {
-	const unsigned WIDTH = 640; // TODO: Specify this in a clean way.
-
 	//   +----+----+----+
 	//   |    |    |    |
 	//   | c1 | c2 | c3 |
@@ -1524,12 +1521,12 @@ static void scaleLine512(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 	c5 = c6 = readPixel(in1);
 	c8 = c9 = readPixel(in2);
 
-	for (unsigned i = 0; i < WIDTH; i++) {
+	for (unsigned i = 0; i < srcWidth; i++) {
 		c1 = c2; c4 = c5; c7 = c8;
 		c2 = c3; c5 = c6; c8 = c9;
 		++in0; ++in1; ++in2;
 
-		if (i < WIDTH - 1) {
+		if (i < srcWidth - 1) {
 			c3 = readPixel(in0);
 			c6 = readPixel(in1);
 			c9 = readPixel(in2);
@@ -2576,7 +2573,8 @@ void HQ2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 		const Pixel* srcNext = src.getLinePtr(srcY + 1, srcWidth, dummy);
 		Pixel* dstUpper = dst.getLinePtr(dstY + 0, dummy);
 		Pixel* dstLower = dst.getLinePtr(dstY + 1, dummy);
-		scaleLine256(srcPrev, srcCurr, srcNext, dstUpper, dstLower);
+		scale1on2(srcPrev, srcCurr, srcNext, dstUpper, dstLower,
+		          srcWidth);
 		srcPrev = srcCurr;
 		srcCurr = srcNext;
 	}
@@ -2595,7 +2593,8 @@ void HQ2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 		const Pixel* srcNext = src.getLinePtr(srcY + 1, srcWidth, dummy);
 		Pixel* dstUpper = dst.getLinePtr(dstY + 0, dummy);
 		Pixel* dstLower = dst.getLinePtr(dstY + 1, dummy);
-		scaleLine512(srcPrev, srcCurr, srcNext, dstUpper, dstLower);
+		scale1on1(srcPrev, srcCurr, srcNext, dstUpper, dstLower,
+		          srcWidth);
 		srcPrev = srcCurr;
 		srcCurr = srcNext;
 	}

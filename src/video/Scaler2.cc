@@ -27,10 +27,10 @@ void Scaler2<Pixel>::scaleBlank1to2(
 		Pixel color = src.getLinePtr(srcY, dummy)[0];
 		Pixel* dstLine0 = dst.getLinePtr(dstY + 0, dummy);
 		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
-			dstLine0, 640, color);
+			dstLine0, dst.getWidth(), color);
 		Pixel* dstLine1 = dst.getLinePtr(dstY + 1, dummy);
 		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
-			dstLine1, 640, color);
+			dstLine1, dst.getWidth(), color);
 	}
 }
 
@@ -45,7 +45,7 @@ void Scaler2<Pixel>::scaleBlank1to1(
 		Pixel color = src.getLinePtr(srcY, dummy)[0];
 		Pixel* dstLine = dst.getLinePtr(dstY, dummy);
 		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
-			dstLine, 640, color);
+			dstLine, dst.getWidth(), color);
 	}
 }
 
@@ -60,12 +60,12 @@ static void doScale1(FrameSource& src,
 		Pixel* dummy = 0;
 		const Pixel* srcLine = src.getLinePtr(srcStartY, srcWidth, dummy);
 		Pixel* dstLine1 = dst.getLinePtr(y + 0, dummy);
-		scale(srcLine, dstLine1, 640);
+		scale(srcLine, dstLine1, dst.getWidth());
 		Pixel* dstLine2 = dst.getLinePtr(y + 1, dummy);
 		if (IsTagged<ScaleOp, Streaming>::result) {
-			scale(srcLine, dstLine2, 640);
+			scale(srcLine, dstLine2, dst.getWidth());
 		} else {
-			copy(dstLine1, dstLine2, 640);
+			copy(dstLine1, dstLine2, dst.getWidth());
 		}
 	}
 }
@@ -81,7 +81,7 @@ static void doScale2(FrameSource& src,
 		Pixel* dummy = 0;
 		const Pixel* srcLine = src.getLinePtr(srcY, srcWidth, dummy);
 		Pixel*       dstLine = dst.getLinePtr(dstY, dummy);
-		scale(srcLine, dstLine, 640);
+		scale(srcLine, dstLine, dst.getWidth());
 	}
 }
 
