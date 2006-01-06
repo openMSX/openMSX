@@ -8,6 +8,7 @@
 #include "VDP.hh"
 #include "V9990.hh"
 #include "Display.hh"
+#include "Version.hh"
 
 // Video systems:
 #include "components.hh"
@@ -120,11 +121,13 @@ auto_ptr<RendererFactory::RendererSetting>
 	rendererMap["SDL"] = SDL;
 #ifdef COMPONENT_GL
 	rendererMap["SDLGL"] = SDLGL;
-	// disabled for the release:
-	//  these 2 renderers don't offer anything more than the existing
-	//  renderers and sdlgl-fb32 still has endian problems on PPC
-	//rendererMap["SDLGL-FB16"] = SDLGL_FB16;
-	//rendererMap["SDLGL-FB32"] = SDLGL_FB32;
+	if (!Version::RELEASE) {
+		// disabled for the release:
+		//  these 2 renderers don't offer anything more than the existing
+		//  renderers and sdlgl-fb32 still has endian problems on PPC
+		rendererMap["SDLGL-FB16"] = SDLGL_FB16;
+		rendererMap["SDLGL-FB32"] = SDLGL_FB32;
+	}
 #endif
 #ifdef HAVE_X11
 	// XRenderer is not ready for users.
