@@ -3,7 +3,6 @@
 #include "V9990SDLRasterizer.hh"
 #include "V9990.hh"
 #include "RawFrame.hh"
-#include "OutputSurface.hh"
 #include "PostProcessor.hh"
 #include "BooleanSetting.hh"
 #include "Display.hh"
