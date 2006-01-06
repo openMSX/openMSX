@@ -26,21 +26,20 @@ HQ3xScaler<Pixel>::HQ3xScaler(const PixelOperations<Pixel>& pixelOps)
 }
 
 template <class Pixel>
-static void scaleLine256(const Pixel* in0, const Pixel* in1, const Pixel* in2,
-                         Pixel* out0, Pixel* out1, Pixel*out2)
+static void scaleLine1on3(const Pixel* in0, const Pixel* in1, const Pixel* in2,
+                          Pixel* out0, Pixel* out1, Pixel*out2, unsigned srcWidth)
 {
-	const unsigned WIDTH = 320;
 	unsigned c1, c2, c3, c4, c5, c6, c7, c8, c9;
 	c2 = c3 = readPixel(in0);
 	c5 = c6 = readPixel(in1);
 	c8 = c9 = readPixel(in2);
 
-	for (unsigned x = 0; x < WIDTH; ++x) {
+	for (unsigned x = 0; x < srcWidth; ++x) {
 		c1 = c2; c4 = c5; c7 = c8;
 		c2 = c3; c5 = c6; c8 = c9;
 		++in0; ++in1; ++in2;
 
-		if (x != WIDTH - 1) {
+		if (x != srcWidth - 1) {
 			c3 = readPixel(in0);
 			c6 = readPixel(in1);
 			c9 = readPixel(in2);
@@ -2858,7 +2857,8 @@ void HQ3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 		Pixel* dst0 = dst.getLinePtr(dstY + 0, dummy);
 		Pixel* dst1 = dst.getLinePtr(dstY + 1, dummy);
 		Pixel* dst2 = dst.getLinePtr(dstY + 2, dummy);
-		scaleLine256(srcPrev, srcCurr, srcNext, dst0, dst1, dst2);
+		scaleLine1on3(srcPrev, srcCurr, srcNext, dst0, dst1, dst2,
+		              srcWidth);
 		srcPrev = srcCurr;
 		srcCurr = srcNext;
 	}

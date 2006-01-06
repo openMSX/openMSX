@@ -26,13 +26,13 @@ void Scaler3<Pixel>::scaleBlank1to3(
 		Pixel color = src.getLinePtr(srcY, dummy)[0];
 		Pixel* dstLine0 = dst.getLinePtr(dstY + 0, dummy);
 		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
-			dstLine0, 960, color);
+			dstLine0, dst.getWidth(), color);
 		Pixel* dstLine1 = dst.getLinePtr(dstY + 1, dummy);
 		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
-			dstLine1, 960, color);
+			dstLine1, dst.getWidth(), color);
 		Pixel* dstLine2 = dst.getLinePtr(dstY + 2, dummy);
 		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
-			dstLine2, 960, color);
+			dstLine2, dst.getWidth(), color);
 	}
 }
 
@@ -49,13 +49,13 @@ void Scaler3<Pixel>::scaleBlank2to3(
 		Pixel color01 = pixelOps.template blend<1, 1>(color0, color1);
 		Pixel* dstLine0 = dst.getLinePtr(dstY + 0, dummy);
 		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
-			dstLine0, 960, color0);
+			dstLine0, dst.getWidth(), color0);
 		Pixel* dstLine1 = dst.getLinePtr(dstY + 1, dummy);
 		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
-			dstLine1, 960, color01);
+			dstLine1, dst.getWidth(), color01);
 		Pixel* dstLine2 = dst.getLinePtr(dstY + 2, dummy);
 		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
-			dstLine2, 960, color1);
+			dstLine2, dst.getWidth(), color1);
 	}
 }
 
@@ -70,20 +70,20 @@ static void doScale1(FrameSource& src,
 		Pixel* dummy = 0;
 		const Pixel* srcLine = src.getLinePtr(srcStartY, srcWidth, dummy);
 		Pixel* dstLine0 = dst.getLinePtr(dstY + 0, dummy);
-		scale(srcLine, dstLine0, 960);
+		scale(srcLine, dstLine0, dst.getWidth());
 
 		Pixel* dstLine1 = dst.getLinePtr(dstY + 1, dummy);
 		if (IsTagged<ScaleOp, Streaming>::result) {
-			scale(srcLine, dstLine1, 960);
+			scale(srcLine, dstLine1, dst.getWidth());
 		} else {
-			copy(dstLine0, dstLine1, 960);
+			copy(dstLine0, dstLine1, dst.getWidth());
 		}
 
 		Pixel* dstLine2 = dst.getLinePtr(dstY + 2, dummy);
 		if (IsTagged<ScaleOp, Streaming>::result) {
-			scale(srcLine, dstLine2, 960);
+			scale(srcLine, dstLine2, dst.getWidth());
 		} else {
-			copy(dstLine0, dstLine2, 960);
+			copy(dstLine0, dstLine2, dst.getWidth());
 		}
 	}
 }
@@ -100,14 +100,14 @@ static void doScaleDV(FrameSource& src,
 		Pixel* dummy = 0;
 		const Pixel* srcLine0 = src.getLinePtr(srcY + 0, srcWidth, dummy);
 		Pixel* dstLine0 = dst.getLinePtr(dstY + 0, dummy);
-		scale(srcLine0, dstLine0, 960);
+		scale(srcLine0, dstLine0, dst.getWidth());
 
 		const Pixel* srcLine1 = src.getLinePtr(srcY + 1, srcWidth, dummy);
 		Pixel* dstLine2 = dst.getLinePtr(dstY + 2, dummy);
-		scale(srcLine1, dstLine2, 960);
+		scale(srcLine1, dstLine2, dst.getWidth());
 
 		Pixel* dstLine1 = dst.getLinePtr(dstY + 1, dummy);
-		blend(dstLine0, dstLine2, dstLine1, 960);
+		blend(dstLine0, dstLine2, dstLine1, dst.getWidth());
 	}
 }
 

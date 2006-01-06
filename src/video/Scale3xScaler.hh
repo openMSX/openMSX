@@ -20,12 +20,12 @@ public:
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 
 private:
-	void scaleLine256Half(Pixel* dst,
-		const Pixel* src0, const Pixel* src1, const Pixel* src2);
-	void scaleLine256Mid(Pixel* dst,
-		const Pixel* src0, const Pixel* src1, const Pixel* src2);
-	void scaleLine512Half(Pixel* dst,
-		const Pixel* src0, const Pixel* src1, const Pixel* src2);
+	void scaleLine1on3Half(Pixel* dst,
+		const Pixel* src0, const Pixel* src1, const Pixel* src2,
+		unsigned srcWidth);
+	void scaleLine1on3Mid (Pixel* dst,
+		const Pixel* src0, const Pixel* src1, const Pixel* src2,
+		unsigned srcWidth);
 };
 
 } // namespace openmsx

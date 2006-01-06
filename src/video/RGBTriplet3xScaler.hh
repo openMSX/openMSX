@@ -76,7 +76,8 @@ private:
 	void rgbify(const Pixel* in, Pixel* out, unsigned inwidth);
 
 	template <typename ScaleOp> void scaleLine(
-		const Pixel* srcLine, Pixel* dstLine, ScaleOp scale);
+		const Pixel* srcLine, Pixel* dstLine, ScaleOp scale,
+		unsigned tmpWidth);
 	template <typename ScaleOp> void doScale1(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,

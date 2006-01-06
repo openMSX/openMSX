@@ -35,13 +35,13 @@ void SaI3xScaler<Pixel>::scaleBlank1to3(
 		Pixel color = src.getLinePtr(srcY, dummy)[0];
 		Pixel* dstLine0 = dst.getLinePtr(dstY + 0, dummy);
 		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
-			dstLine0, 960, color);
+			dstLine0, dst.getWidth(), color);
 		Pixel* dstLine1 = dst.getLinePtr(dstY + 1, dummy);
 		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
-			dstLine1, 960, color);
+			dstLine1, dst.getWidth(), color);
 		Pixel* dstLine2 = dst.getLinePtr(dstY + 2, dummy);
 		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
-			dstLine2, 960, color);
+			dstLine2, dst.getWidth(), color);
 	}
 	if (dstY != dst.getHeight()) {
 		unsigned nextLineWidth = src.getLineWidth(srcY + 1);

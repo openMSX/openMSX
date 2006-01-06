@@ -27,8 +27,9 @@ Scale3xScaler<Pixel>::Scale3xScaler(const PixelOperations<Pixel>& pixelOps)
 }
 
 template <class Pixel>
-void Scale3xScaler<Pixel>::scaleLine256Half(Pixel* dst,
-	const Pixel* src0, const Pixel* src1, const Pixel* src2)
+void Scale3xScaler<Pixel>::scaleLine1on3Half(Pixel* dst,
+	const Pixel* src0, const Pixel* src1, const Pixel* src2,
+	unsigned srcWidth)
 {
 	/* A B C
 	 * D E F
@@ -55,7 +56,7 @@ void Scale3xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 	       ? top : mid;
 
 	// Central pixels.
-	for (unsigned x = 1; x < 319; ++x) {
+	for (unsigned x = 1; x < srcWidth - 1; ++x) {
 		Pixel left = mid;
 		mid   = right;
 		right = src1[x + 1];
@@ -76,20 +77,21 @@ void Scale3xScaler<Pixel>::scaleLine256Half(Pixel* dst,
 	// Last pixel.
 	Pixel left = mid;
 	mid = right;
-	top = src0[319];
-	bot = src2[319];
-	dst[957] = (left != mid) && (top != bot) && (top ==left)
+	top = src0[srcWidth - 1];
+	bot = src2[srcWidth - 1];
+	dst[3 * srcWidth - 3] = (left != mid) && (top != bot) && (top ==left)
 	         ? top : mid;
-	dst[958] = (left != mid) && (top != bot) &&
+	dst[3 * srcWidth - 2] = (left != mid) && (top != bot) &&
 	           (((top == left) && (mid != top)) ||
-	            ((top == mid ) && (mid != src0[318])))
+	            ((top == mid ) && (mid != src0[srcWidth - 2])))
 	         ? top : mid;
-	dst[959] = mid;
+	dst[3 * srcWidth - 1] = mid;
 }
 
 template <class Pixel>
-void Scale3xScaler<Pixel>::scaleLine256Mid(Pixel* dst,
-	const Pixel* src0, const Pixel* src1, const Pixel* src2)
+void Scale3xScaler<Pixel>::scaleLine1on3Mid(Pixel* dst,
+	const Pixel* src0, const Pixel* src1, const Pixel* src2,
+	unsigned srcWidth)
 {
 	/*
 	 * A B C
@@ -116,7 +118,7 @@ void Scale3xScaler<Pixel>::scaleLine256Mid(Pixel* dst,
 	       ? right : mid;
 
 	// Central pixels.
-	for (unsigned x = 1; x < 319; ++x) {
+	for (unsigned x = 1; x < srcWidth - 1; ++x) {
 		Pixel left = mid;
 		mid   = right;
 		right = src1[x + 1];
@@ -136,23 +138,16 @@ void Scale3xScaler<Pixel>::scaleLine256Mid(Pixel* dst,
 	// Last pixel.
 	Pixel left = mid;
 	mid   = right;
-	top = src0[319];
-	bot = src2[319];
-	dst[957] = (left != mid) && (top != bot) &&
-	           (((left == top) && (mid != src2[318])) ||
-	            ((left == bot) && (mid != src0[318])))
+	top = src0[srcWidth - 1];
+	bot = src2[srcWidth - 1];
+	dst[3 * srcWidth - 3] = (left != mid) && (top != bot) &&
+	           (((left == top) && (mid != src2[srcWidth - 2])) ||
+	            ((left == bot) && (mid != src0[srcWidth - 2])))
 	         ? left : mid;
-	dst[958] = mid;
-	dst[959] = mid;
+	dst[3 * srcWidth - 2] = mid;
+	dst[3 * srcWidth - 1] = mid;
 }
 
-/*
-template <class Pixel>
-void Scale3xScaler<Pixel>::scaleLine512Half(Pixel* dst,
-	const Pixel* src0, const Pixel* src1, const Pixel* src2)
-{
-}
-*/
 template <class Pixel>
 void Scale3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
@@ -165,11 +160,11 @@ void Scale3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 3) {
 		const Pixel* srcNext = src.getLinePtr(srcY + 1, srcWidth, dummy);
 		Pixel* dstUpper = dst.getLinePtr(dstY + 0, dummy);
-		scaleLine256Half(dstUpper, srcPrev, srcCurr, srcNext);
+		scaleLine1on3Half(dstUpper, srcPrev, srcCurr, srcNext, srcWidth);
 		Pixel* dstMiddle = dst.getLinePtr(dstY + 1, dummy);
-		scaleLine256Mid(dstMiddle, srcPrev, srcCurr, srcNext);
+		scaleLine1on3Mid(dstMiddle, srcPrev, srcCurr, srcNext, srcWidth);
 		Pixel* dstLower = dst.getLinePtr(dstY + 2, dummy);
-		scaleLine256Half(dstLower, srcNext, srcCurr, srcPrev);
+		scaleLine1on3Half(dstLower, srcNext, srcCurr, srcPrev, srcWidth);
 		srcPrev = srcCurr;
 		srcCurr = srcNext;
 	}
