@@ -94,15 +94,15 @@ void Scanline<Pixel>::draw(const Pixel* src1, const Pixel* src2,
 	const HostCPU& cpu = HostCPU::getInstance();
 	if ((sizeof(Pixel) == 4) && cpu.hasMMXEXT()) {
 		// extended-MMX routine, 32bpp
+		assert(((4 * width) % 32) == 0);
 		asm (
 			"movd	%3, %%mm6;"
 			"pxor	%%mm7, %%mm7;"
-			"xorl	%%eax, %%eax;"
 			"pshufw $0, %%mm6, %%mm6;"
 			".p2align 4,,15;"
 		"1:"
-			"movq	(%0,%%eax), %%mm0;"
-			"pavgb	(%1,%%eax), %%mm0;"
+			"movq	(%0,%4), %%mm0;"
+			"pavgb	(%1,%4), %%mm0;"
 			"movq	%%mm0, %%mm4;"
 			"punpcklbw %%mm7, %%mm0;"
 			"punpckhbw %%mm7, %%mm4;"
@@ -110,8 +110,8 @@ void Scanline<Pixel>::draw(const Pixel* src1, const Pixel* src2,
 			"pmulhuw %%mm6, %%mm4;"
 			"packuswb %%mm4, %%mm0;"
 
-			"movq	8(%0,%%eax), %%mm1;"
-			"pavgb	8(%1,%%eax), %%mm1;"
+			"movq	8(%0,%4), %%mm1;"
+			"pavgb	8(%1,%4), %%mm1;"
 			"movq	%%mm1, %%mm5;"
 			"punpcklbw %%mm7, %%mm1;"
 			"punpckhbw %%mm7, %%mm5;"
@@ -119,8 +119,8 @@ void Scanline<Pixel>::draw(const Pixel* src1, const Pixel* src2,
 			"pmulhuw %%mm6, %%mm5;"
 			"packuswb %%mm5, %%mm1;"
 
-			"movq	16(%0,%%eax), %%mm2;"
-			"pavgb	16(%1,%%eax), %%mm2;"
+			"movq	16(%0,%4), %%mm2;"
+			"pavgb	16(%1,%4), %%mm2;"
 			"movq	%%mm2, %%mm4;"
 			"punpcklbw %%mm7, %%mm2;"
 			"punpckhbw %%mm7, %%mm4;"
@@ -128,8 +128,8 @@ void Scanline<Pixel>::draw(const Pixel* src1, const Pixel* src2,
 			"pmulhuw %%mm6, %%mm4;"
 			"packuswb %%mm4, %%mm2;"
 
-			"movq	24(%0,%%eax), %%mm3;"
-			"pavgb	24(%1,%%eax), %%mm3;"
+			"movq	24(%0,%4), %%mm3;"
+			"pavgb	24(%1,%4), %%mm3;"
 			"movq	%%mm3, %%mm5;"
 			"punpcklbw %%mm7, %%mm3;"
 			"punpckhbw %%mm7, %%mm5;"
@@ -137,44 +137,42 @@ void Scanline<Pixel>::draw(const Pixel* src1, const Pixel* src2,
 			"pmulhuw %%mm6, %%mm5;"
 			"packuswb %%mm5, %%mm3;"
 
-			"movntq %%mm0,   (%2,%%eax);"
-			"movntq %%mm1,  8(%2,%%eax);"
-			"movntq %%mm2, 16(%2,%%eax);"
-			"movntq %%mm3, 24(%2,%%eax);"
+			"movntq %%mm0,   (%2,%4);"
+			"movntq %%mm1,  8(%2,%4);"
+			"movntq %%mm2, 16(%2,%4);"
+			"movntq %%mm3, 24(%2,%4);"
 
-			"addl	$32, %%eax;"
-			"cmpl	%4, %%eax;"
-			"jl	1b;"
+			"addl	$32, %4;"
+			"jnz	1b;"
 
 			"emms;"
 
 			: // no output
-			: "r" (src1)  // 0
-			, "r" (src2)  // 1
-			, "r" (dst)   // 2
-			, "r" (factor << 8) // 3
-			, "r" (width * 4) // 4
-			: "eax"
+			: "r" (src1 + width) // 0
+			, "r" (src2 + width) // 1
+			, "r" (dst  + width) // 2
+			, "r" (factor << 8)  // 3
+			, "r" (-4 * width)   // 4
 			#ifdef __MMX__
-			, "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
+			: "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
 			#endif
 		);
 		return;
 
 	} else if ((sizeof(Pixel) == 4) && cpu.hasMMX()) {
 		// MMX routine, 32bpp
+		assert(((4 * width) % 8) == 0);
 		asm (
 			"movd	%3, %%mm6;"
 			"pxor	%%mm7, %%mm7;"
 			"punpcklwd %%mm6, %%mm6;"
-			"xorl	%%eax, %%eax;"
 			"punpckldq %%mm6, %%mm6;"
 			".p2align 4,,15;"
 		"1:"
 			// load
-			"movq	(%0,%%eax), %%mm0;"
+			"movq	(%0,%4), %%mm0;"
 			"movq	%%mm0, %%mm1;"
-			"movq	(%1,%%eax), %%mm2;"
+			"movq	(%1,%4), %%mm2;"
 			"movq	%%mm2, %%mm3;"
 			// unpack
 			"punpcklbw %%mm7, %%mm0;"
@@ -190,23 +188,21 @@ void Scanline<Pixel>::draw(const Pixel* src1, const Pixel* src2,
 			// pack
 			"packuswb %%mm1, %%mm0;"
 			// store
-			"movq %%mm0, (%2,%%eax);"
+			"movq %%mm0, (%2,%4);"
 
-			"addl	$8, %%eax;"
-			"cmpl	%4, %%eax;"
-			"jl	1b;"
+			"addl	$8, %4;"
+			"jnz	1b;"
 
 			"emms;"
 
 			: // no output
-			: "r" (src1)  // 0
-			, "r" (src2)  // 1
-			, "r" (dst)   // 2
-			, "r" (factor << 7) // 3
-			, "r" (width * 4) // 4
-			: "eax"
+			: "r" (src1 + width) // 0
+			, "r" (src2 + width) // 1
+			, "r" (dst + width)  // 2
+			, "r" (factor << 7)  // 3
+			, "r" (-4 * width)   // 4
 			#ifdef __MMX__
-			, "mm0", "mm1", "mm2", "mm3", "mm6", "mm7"
+			: "mm0", "mm1", "mm2", "mm3", "mm6", "mm7"
 			#endif
 		);
 		return;
@@ -214,22 +210,21 @@ void Scanline<Pixel>::draw(const Pixel* src1, const Pixel* src2,
 
 	if ((sizeof(Pixel) == 2) && cpu.hasMMXEXT()) {
 		// extended-MMX routine, 16bpp
+		assert(((2 * width) % 16) == 0);
 
 		darkener.setFactor(factor);
 		const Pixel* table = darkener.getTable();
 		Pixel mask = ~pixelOps.getBlendMask();
 
-		unsigned width2 = width * 2;
 		asm (
 			"movd	%5, %%mm7;"
-			"xorl	%%ecx, %%ecx;"
 			"pshufw	$0, %%mm7, %%mm7;"
 
 			".p2align 4,,15;"
-		"1:"	"movq	 (%0,%%ecx), %%mm0;"
-			"movq	8(%0,%%ecx), %%mm1;"
-			"movq	 (%1,%%ecx), %%mm2;"
-			"movq	8(%1,%%ecx), %%mm3;"
+		"1:"	"movq	 (%0,%4), %%mm0;"
+			"movq	8(%0,%4), %%mm1;"
+			"movq	 (%1,%4), %%mm2;"
+			"movq	8(%1,%4), %%mm3;"
 
 			"movq	%%mm7, %%mm4;"
 			"movq	%%mm7, %%mm5;"
@@ -272,21 +267,20 @@ void Scanline<Pixel>::draw(const Pixel* src1, const Pixel* src2,
 			"movw	(%2,%%eax,2), %%ax;"
 			"pinsrw	$3, %%eax, %%mm1;"
 
-			"movntq	%%mm0,   (%3,%%ecx);"
-			"movntq	%%mm1,  8(%3,%%ecx);"
+			"movntq	%%mm0,   (%3,%4);"
+			"movntq	%%mm1,  8(%3,%4);"
 
-			"addl	$16, %%ecx;"
-			"cmpl	%4, %%ecx;"
-			"jl	1b;"
+			"addl	$16, %4;"
+			"jnz	1b;"
 			"emms;"
 			: // no output
-			: "r" (src1)  // 0
-			, "r" (src2)  // 1
-			, "r" (table) // 2
-			, "r" (dst)   // 3
-			, "m" (width2) // 4
-			, "m" (mask)   // 5
-			: "eax", "ecx"
+			: "r" (src1 + width) // 0
+			, "r" (src2 + width) // 1
+			, "r" (table)        // 2
+			, "r" (dst + width)  // 3
+			, "r" (-2 * width)   // 4
+			, "m" (mask)         // 5
+			: "eax"
 			#ifdef __MMX__
 			, "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm7"
 			#endif
