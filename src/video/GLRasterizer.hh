@@ -18,6 +18,7 @@ namespace openmsx {
 class CommandController;
 class RenderSettings;
 class Display;
+class OutputSurface;
 
 /** Hi-res (640x480) rasterizer using OpenGL.
   */
@@ -29,8 +30,10 @@ public:
 	// are using this type.
 	typedef GLuint Pixel;
 
-	GLRasterizer(CommandController& commandController, Display& display,
-	             VDP& vdp);
+	GLRasterizer(
+		CommandController& commandController,
+		VDP& vdp, Display& display, OutputSurface& screen
+		);
 	virtual ~GLRasterizer();
 
 	// Layer interface:
@@ -150,9 +153,13 @@ private:
 	  */
 	Pixel PALETTE256[256];
 
-	/** SDL colours corresponding to each possible V9958 colour.
+	/** RGB colours corresponding to each possible V9958 colour.
 	  */
 	Pixel V9958_COLOURS[32768];
+
+	/** The surface which is visible to the user.
+	  */
+	OutputSurface& screen;
 
 	/** Work area for redefining textures.
 	  */

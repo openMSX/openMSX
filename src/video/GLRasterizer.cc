@@ -18,6 +18,7 @@ TODO:
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 #include "Display.hh"
+#include "OutputSurface.hh"
 #include "Renderer.hh"
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
@@ -25,7 +26,6 @@ TODO:
 #include "IntegerSetting.hh"
 #include "build-info.hh"
 #include <cmath>
-#include <SDL.h>
 
 using std::string;
 
@@ -242,11 +242,14 @@ inline void GLRasterizer::renderPlanarBitmapLines(byte line, int count)
 	}
 }
 
-GLRasterizer::GLRasterizer(CommandController& commandController,
-                           Display& display, VDP& vdp_)
+GLRasterizer::GLRasterizer(
+		CommandController& commandController,
+		VDP& vdp_, Display& display, OutputSurface& screen_
+		)
 	: VideoLayer(VIDEO_MSX, commandController, display)
 	, renderSettings(display.getRenderSettings())
 	, vdp(vdp_), vram(vdp.getVRAM())
+	, screen(screen_)
 	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS)
 	, spriteConverter(vdp.getSpriteChecker())
@@ -336,8 +339,7 @@ GLRasterizer::GLRasterizer(CommandController& commandController,
 	precalcPalette(renderSettings.getGamma().getValue());
 
 	// Store current (black) frame as a texture.
-	SDL_Surface* surface = SDL_GetVideoSurface();
-	storedFrame.store(surface->w, surface->h);
+	storedFrame.store(screen.getWidth(), screen.getHeight());
 
 	// Register caches with VDPVRAM.
 	vram.patternTable.setObserver(&dirtyPattern);
@@ -413,8 +415,7 @@ void GLRasterizer::frameEnd()
 	}
 
 	// Store current frame as a texture.
-	SDL_Surface* surface = SDL_GetVideoSurface();
-	storedFrame.store(surface->w, surface->h);
+	storedFrame.store(screen.getWidth(), screen.getHeight());
 
 	// Avoid repainting the buffer by paint().
 	frameDirty = false;
@@ -615,7 +616,7 @@ void GLRasterizer::paint()
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		}
 		glColor4ub(0, 0, 0, 255 - scanlineAlpha);
-		glLineWidth(static_cast<float>(SDL_GetVideoSurface()->h) / HEIGHT);
+		glLineWidth(static_cast<float>(screen.getHeight()) / HEIGHT);
 		glBegin(GL_LINES);
 		for (float y = 0; y < HEIGHT; y += 2.0f) {
 			glVertex2f(0.0f, y + 1.5f); glVertex2f(WIDTH, y + 1.5f);

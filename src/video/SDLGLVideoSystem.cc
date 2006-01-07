@@ -53,8 +53,10 @@ SDLGLVideoSystem::~SDLGLVideoSystem()
 
 Rasterizer* SDLGLVideoSystem::createRasterizer(VDP& vdp)
 {
-	return new GLRasterizer(motherboard.getCommandController(),
-	                        motherboard.getDisplay(), vdp);
+	return new GLRasterizer(
+		motherboard.getCommandController(),
+		vdp, motherboard.getDisplay(), *screen
+		);
 }
 
 V9990Rasterizer* SDLGLVideoSystem::createV9990Rasterizer(V9990& vdp)
