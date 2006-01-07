@@ -31,11 +31,6 @@ using std::string;
 
 namespace openmsx {
 
-/** Dimensions of screen.
-  */
-static const int WIDTH = 640;
-static const int HEIGHT = 480;
-
 /** VDP ticks between start of line and start of left border.
   */
 static const int TICKS_LEFT_BORDER = 100 + 102;
@@ -166,12 +161,15 @@ inline static void drawStripes(
 	glDisable(GL_TEXTURE_2D);
 }
 
-/** Translate from absolute VDP coordinates to screen coordinates:
+/** Translate from absolute VDP coordinates to output coordinates.
+  * TODO: Use fixed width 640 (artificial coordinate system) or use screen
+  *       coordinates (which depend on scale_factor)?
   * Note: In reality, there are only 569.5 visible pixels on a line.
   *       Because it looks better, the borders are extended to 640.
   */
 inline static int translateX(int absoluteX)
 {
+	static const int WIDTH = 640;
 	if (absoluteX == VDP::TICKS_PER_LINE) return WIDTH;
 	// Note: The "& ~1" forces the ticks to a pixel (2-tick) boundary.
 	//       If this is not done, rounding errors will occur.
@@ -411,7 +409,10 @@ void GLRasterizer::frameEnd()
 		// Values near 100% may have the same effect due to rounding.
 		// This formula makes sure that on 15bpp R/G/B value 0 can still pull
 		// down R/G/B value 31 of the previous frame.
-		storedFrame.drawBlend(0, 0, glowSetting * 31 / 3200.0);
+		storedFrame.drawBlend(
+			0, 0, screen.getWidth(), screen.getHeight(),
+			glowSetting * 31 / 3200.0
+			);
 	}
 
 	// Store current frame as a texture.
@@ -576,7 +577,9 @@ void GLRasterizer::updateVRAMCache(int address)
 
 void GLRasterizer::paint()
 {
-	if (frameDirty) storedFrame.draw(0, 0);
+	if (frameDirty) {
+		storedFrame.draw(0, 0, screen.getWidth(), screen.getHeight());
+	}
 
 	// Determine which effects to apply.
 	int blurSetting = renderSettings.getBlurFactor();
@@ -594,13 +597,21 @@ void GLRasterizer::paint()
 		if (horizontalBlur) {
 			// Draw stored frame with 1-pixel offsets to create a
 			// horizontal blur.
-			storedFrame.drawBlend(-1,  0, blurFactor / (1.0 - blurFactor));
-			storedFrame.drawBlend( 1,  0, blurFactor);
+			storedFrame.drawBlend(
+				-1,  0, screen.getWidth(), screen.getHeight(),
+				blurFactor / (1.0 - blurFactor)
+				);
+			storedFrame.drawBlend(
+				1,  0, screen.getWidth(), screen.getHeight(),
+				blurFactor
+				);
 		}
 		if (scanlines) {
 			// Make the dark line contain the average of the visible lines
 			// above and below it.
-			storedFrame.drawBlend( 0, -1, 0.5);
+			storedFrame.drawBlend(
+				0, -1, screen.getWidth(), screen.getHeight(), 0.5
+				);
 		}
 	}
 
@@ -616,10 +627,14 @@ void GLRasterizer::paint()
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		}
 		glColor4ub(0, 0, 0, 255 - scanlineAlpha);
-		glLineWidth(static_cast<float>(screen.getHeight()) / HEIGHT);
+		const float width = screen.getWidth();
+		const float height = screen.getHeight();
+		const float deltaY = height / 240.0f;
+		const float offsetY = deltaY - 0.5f;
+		//glLineWidth(height / 480.0f);
 		glBegin(GL_LINES);
-		for (float y = 0; y < HEIGHT; y += 2.0f) {
-			glVertex2f(0.0f, y + 1.5f); glVertex2f(WIDTH, y + 1.5f);
+		for (float y = offsetY; y < height; y += deltaY) {
+			glVertex2f(0.0f, y); glVertex2f(width, y);
 		}
 		glEnd();
 		glDisable(GL_BLEND);
@@ -668,6 +683,7 @@ void GLRasterizer::renderText1(
 
 	// Render complete characters and cut off the invisible part.
 	int screenHeight = 2 * count;
+	static const int HEIGHT = 480;
 	glScissor(leftBackground + minX, HEIGHT - screenLine - screenHeight,
 	          maxX - minX, screenHeight);
 	glEnable(GL_SCISSOR_TEST);
@@ -712,6 +728,7 @@ void GLRasterizer::renderText2(
 
 	// Render complete characters and cut off the invisible part.
 	int screenHeight = 2 * count;
+	static const int HEIGHT = 480;
 	glScissor(leftBackground + minX, HEIGHT - screenLine - screenHeight,
 	          maxX - minX, screenHeight);
 	glEnable(GL_SCISSOR_TEST);
@@ -776,6 +793,7 @@ void GLRasterizer::renderGraphic1(
 
 	// Render complete characters and cut off the invisible part.
 	int screenHeight = 2 * count;
+	static const int HEIGHT = 480;
 	glScissor(translateX(vdp.getLeftBackground()) + minX, // x
 	          HEIGHT - screenLine - screenHeight,          // y
 	          maxX - minX,   // w
@@ -827,6 +845,7 @@ void GLRasterizer::renderGraphic2(
 
 	// Render complete characters and cut off the invisible part.
 	int screenHeight = 2 * count;
+	static const int HEIGHT = 480;
 	glScissor(translateX(vdp.getLeftBackground()) + minX, // x
 	          HEIGHT - screenLine - screenHeight,          // y
 	          maxX - minX,   // w
@@ -907,6 +926,7 @@ void GLRasterizer::renderMultiColour(
 
 	// Render complete characters and cut off the invisible part.
 	int screenHeight = 2 * count;
+	static const int HEIGHT = 480;
 	glScissor(leftBackground + minX,              // x
 	          HEIGHT - screenLine - screenHeight, // y
 	          maxX - minX,   // w

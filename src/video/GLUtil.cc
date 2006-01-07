@@ -117,7 +117,7 @@ void StoredFrame::store(unsigned x, unsigned y)
 	stored = true;
 }
 
-void StoredFrame::draw(int offsetX, int offsetY)
+void StoredFrame::draw(int offsetX, int offsetY, int width, int height)
 {
 	assert(stored);
 	glEnable(GL_TEXTURE_2D);
@@ -127,21 +127,23 @@ void StoredFrame::draw(int offsetX, int offsetY)
 	float x = static_cast<float>(width)  / powerOfTwo(width);
 	float y = static_cast<float>(height) / powerOfTwo(height);
 	glBegin(GL_QUADS);
-	glTexCoord2f(0.0f,    y); glVertex2i(offsetX,       offsetY      );
-	glTexCoord2f(   x,    y); glVertex2i(offsetX + 640, offsetY      );
-	glTexCoord2f(   x, 0.0f); glVertex2i(offsetX + 640, offsetY + 480);
-	glTexCoord2f(0.0f, 0.0f); glVertex2i(offsetX,       offsetY + 480);
+	glTexCoord2f(0.0f,    y); glVertex2i(offsetX,         offsetY         );
+	glTexCoord2f(   x,    y); glVertex2i(offsetX + width, offsetY         );
+	glTexCoord2f(   x, 0.0f); glVertex2i(offsetX + width, offsetY + height);
+	glTexCoord2f(0.0f, 0.0f); glVertex2i(offsetX,         offsetY + height);
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
 }
 
-void StoredFrame::drawBlend(int offsetX, int offsetY, double alpha)
+void StoredFrame::drawBlend(
+	int offsetX, int offsetY, int width, int height, double alpha
+	)
 {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	// RGB come from texture, alpha comes from fragment colour.
 	glColor4f(1.0, 0.0, 0.0, alpha);
-	draw(offsetX, offsetY);
+	draw(offsetX, offsetY, width, height);
 	glDisable(GL_BLEND);
 }
 

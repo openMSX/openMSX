@@ -49,8 +49,10 @@ public:
 	StoredFrame();
 	bool isStored() { return stored; }
 	void store(unsigned x, unsigned y);
-	void draw(int offsetX, int offsetY);
-	void drawBlend(int offsetX, int offsetY, double alpha);
+	void draw(int offsetX, int offsetY, int width, int height);
+	void drawBlend(
+		int offsetX, int offsetY, int width, int height, double alpha
+		);
 
 private:
 	/** Texture reserved for storing frame image data.
