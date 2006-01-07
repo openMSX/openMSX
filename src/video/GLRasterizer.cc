@@ -966,11 +966,6 @@ void GLRasterizer::drawDisplay(
 {
 	int screenX = translateX(fromX);
 	int screenY = (fromY - lineRenderTop) * 2;
-	if (!(renderSettings.getDeinterlace().getValue()) &&
-	    vdp.isInterlaced() && vdp.getEvenOdd()) {
-		// Display odd field half a line lower.
-		screenY++;
-	}
 	int screenLimitY = screenY + displayHeight * 2;
 
 	DisplayMode mode = vdp.getDisplayMode();
@@ -998,9 +993,6 @@ void GLRasterizer::drawDisplay(
 	}
 
 	// TODO: Complete separation of character and bitmap modes.
-	// TODO: deinterlaced mode should use data from current and previous
-	//       frame. atm it uses only the current frame (see SDL renderer)
-	// TODO: fix combination interlace / multipage scroll (see SDL renderer)
 	glEnable(GL_TEXTURE_2D);
 	if (mode.isBitmapMode()) {
 		// Bring bitmap cache up to date.
@@ -1011,11 +1003,8 @@ void GLRasterizer::drawDisplay(
 		}
 
 		// Which bits in the name mask determine the page?
-		bool deinterlaced =
-			renderSettings.getDeinterlace().getValue() &&
-			vdp.isInterlaced() && vdp.isEvenOddEnabled();
 		int pageMaskEven, pageMaskOdd;
-		if (deinterlaced || vdp.isMultiPageScrolling()) {
+		if (vdp.isMultiPageScrolling()) {
 			pageMaskEven = mode.isPlanar() ? 0x000 : 0x200;
 			pageMaskOdd  = pageMaskEven | 0x100;
 		} else {
@@ -1031,27 +1020,20 @@ void GLRasterizer::drawDisplay(
 				& (pageMaskEven | displayY);
 			vramLine[1] = (vram.nameTable.getMask() >> 7)
 				& (pageMaskOdd  | displayY);
-			if (deinterlaced) {
-				bitmapTextures[vramLine[0]].draw(
-					displayX + hScroll, screenX, y + 0, displayWidth, 1);
-				bitmapTextures[vramLine[1]].draw(
-					displayX + hScroll, screenX, y + 1, displayWidth, 1);
+			int firstPageWidth = pageBorder - displayX;
+			if (firstPageWidth > 0) {
+				bitmapTextures[vramLine[scrollPage1]].draw(
+					displayX + hScroll,
+					screenX, y,
+					firstPageWidth, 2);
 			} else {
-				int firstPageWidth = pageBorder - displayX;
-				if (firstPageWidth > 0) {
-					bitmapTextures[vramLine[scrollPage1]].draw(
-						displayX + hScroll,
-						screenX, y,
-						firstPageWidth, 2);
-				} else {
-					firstPageWidth = 0;
-				}
-				if (firstPageWidth < displayWidth) {
-					bitmapTextures[vramLine[scrollPage2]].draw(
-						displayX + firstPageWidth + hScroll,
-						screenX + firstPageWidth, y,
-						displayWidth - firstPageWidth, 2);
-				}
+				firstPageWidth = 0;
+			}
+			if (firstPageWidth < displayWidth) {
+				bitmapTextures[vramLine[scrollPage2]].draw(
+					displayX + firstPageWidth + hScroll,
+					screenX + firstPageWidth, y,
+					displayWidth - firstPageWidth, 2);
 			}
 			displayY = (displayY + 1) & 255;
 		}
@@ -1109,13 +1091,8 @@ void GLRasterizer::drawSprites(
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	int screenX = translateX(vdp.getLeftSprites()) + displayX * 2;
-	// TODO: Code duplicated from drawDisplay.
+	// TODO: Code duplicated from drawDisplay (introduce translateY?).
 	int screenY = (fromY - lineRenderTop) * 2;
-	if (!(renderSettings.getDeinterlace().getValue()) &&
-	    vdp.isInterlaced() && vdp.getEvenOdd()) {
-		// Display odd field half a line lower.
-		screenY++;
-	}
 
 	int spriteMode = vdp.getDisplayMode().getSpriteMode();
 	int displayLimitX = displayX + displayWidth;
