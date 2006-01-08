@@ -25,6 +25,7 @@ TODO:
 #include "FloatSetting.hh"
 #include "IntegerSetting.hh"
 #include "build-info.hh"
+#include <algorithm>
 #include <cmath>
 
 using std::string;
@@ -186,7 +187,7 @@ inline void GLRasterizer::renderBitmapLine(byte mode, int vramLine)
 		const byte *vramPtr =
 			vram.bitmapCacheWindow.readArea(vramLine << 7);
 		bitmapConverter.convertLine(lineBuffer, vramPtr);
-		bitmapTextures[vramLine].update(lineBuffer, lineWidth);
+		bitmapTexture->update(vramLine, lineBuffer, lineWidth);
 		lineValidInMode[vramLine] = mode;
 	}
 }
@@ -217,7 +218,7 @@ inline void GLRasterizer::renderPlanarBitmapLine(byte mode, int vramLine)
 		const byte* vramPtr0 = vram.bitmapCacheWindow.readArea(addr0);
 		const byte* vramPtr1 = vram.bitmapCacheWindow.readArea(addr1);
 		bitmapConverter.convertLinePlanar(lineBuffer, vramPtr0, vramPtr1);
-		bitmapTextures[vramLine].update(lineBuffer, lineWidth);
+		bitmapTexture->update(vramLine, lineBuffer, lineWidth);
 		lineValidInMode[vramLine] =
 			lineValidInMode[vramLine | 512] = mode;
 	}
@@ -331,7 +332,7 @@ GLRasterizer::GLRasterizer(
 	             pattern);
 
 	// Create bitmap display cache.
-	bitmapTextures = vdp.isMSX1VDP() ? NULL : new LineTexture[4 * 256];
+	bitmapTexture = vdp.isMSX1VDP() ? NULL : new BitmapTexture();
 
 	// Init the palette.
 	precalcPalette(renderSettings.getGamma().getValue());
@@ -351,7 +352,7 @@ GLRasterizer::~GLRasterizer()
 	vram.colourTable.resetObserver();
 
 	// TODO: Free all textures.
-	delete[] bitmapTextures;
+	delete bitmapTexture;
 }
 
 bool GLRasterizer::isActive()
@@ -964,29 +965,48 @@ void GLRasterizer::drawDisplay(
 	int displayX, int displayY,
 	int displayWidth, int displayHeight)
 {
-	int screenX = translateX(fromX);
-	int screenY = (fromY - lineRenderTop) * 2;
-	int screenLimitY = screenY + displayHeight * 2;
+	// Determine display mode dependent info.
+	const DisplayMode mode = vdp.getDisplayMode();
+	const unsigned lineWidth = mode.getLineWidth();
+	assert(lineWidth == 256 || lineWidth == 512);
+	const unsigned zoom = 512 / lineWidth;
 
-	DisplayMode mode = vdp.getDisplayMode();
-	int hScroll = mode.isTextMode()
-	            ? 0
-	            : 16 * (vdp.getHorizontalScrollHigh() & 0x1F);
+	// Round rectangle to whole source pixels.
+	// TODO: It is unlikely the real VDP could apply changes mid-pixel,
+	//       so probably this check should be done upstream.
+	if (lineWidth == 256 && (displayX & 1) != 0) {
+		displayX--;
+		displayWidth++;
+		fromX -= 2;
+	}
+	if (lineWidth == 256 && (displayWidth & 1) != 0) {
+		displayWidth--;
+	}
+	assert(zoom == 1 || (displayX & 1) == 0);
+	assert(zoom == 1 || (displayWidth & 1) == 0);
+
+	const int screenX = translateX(fromX);
+	int screenY = (fromY - lineRenderTop) * 2;
+	const int screenLimitY = screenY + displayHeight * 2;
+
+	// TODO: It is possible to apply horizontal scroll in PixelRenderer.
+	//       Would that be an improvement? At least it would share the code
+	//       between SDL and GL renderers.
+	const int hScroll =
+		  mode.isTextMode()
+		? 0
+		: 16 * (vdp.getHorizontalScrollHigh() & 0x1F);
 
 	// Page border is display X coordinate where to stop drawing current page.
 	// This is either the multi page split point, or the right edge of the
 	// rectangle to draw, whichever comes first.
 	// Note that it is possible for pageBorder to be to the left of displayX,
 	// in that case only the second page should be drawn.
-	int pageBorder = displayX + displayWidth;
+	const int pageBorder = std::min(512 - hScroll, displayX + displayWidth);
 	int scrollPage1, scrollPage2;
 	if (vdp.isMultiPageScrolling()) {
 		scrollPage1 = vdp.getHorizontalScrollHigh() >> 5;
 		scrollPage2 = scrollPage1 ^ 1;
-		int pageSplit = 512 - hScroll;
-		if (pageSplit < pageBorder) {
-			pageBorder = pageSplit;
-		}
 	} else {
 		scrollPage1 = 0;
 		scrollPage2 = 0;
@@ -1014,28 +1034,58 @@ void GLRasterizer::drawDisplay(
 
 		// Copy from cache to screen.
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-		for (int y = screenY; y < screenLimitY; y += 2) {
-			int vramLine[2];
-			vramLine[0] = (vram.nameTable.getMask() >> 7)
-				& (pageMaskEven | displayY);
-			vramLine[1] = (vram.nameTable.getMask() >> 7)
-				& (pageMaskOdd  | displayY);
+		while (displayHeight != 0) {
+			const int nameMask = vram.nameTable.getMask() >> 7;
+			// Determine the line at which the display will wrap.
+			// This could be end of page, or earlier, depending on the name
+			// table mask.
+			// TODO: There is probably a quicker way to do this, but I'll
+			//       leave that for a rainy afternoon.
+			const int wrapMask = ~(nameMask & 0xFF);
+			int displayEndY = displayY;
+			do {
+				displayEndY++;
+				displayHeight--;
+			} while (displayHeight != 0
+				&& (wrapMask & displayEndY) == (wrapMask & displayY)
+				);
+
+			const int screenEndY = screenY + 2 * (displayEndY - displayY);
+
+			// TODO: scrollPage + pageMask + vramLine is one more level of
+			//       indirection than we actually need.
+			int vramLine[] = {
+				nameMask & (pageMaskEven | displayY),
+				nameMask & (pageMaskOdd  | displayY)
+				};
 			int firstPageWidth = pageBorder - displayX;
 			if (firstPageWidth > 0) {
-				bitmapTextures[vramLine[scrollPage1]].draw(
-					displayX + hScroll,
-					screenX, y,
-					firstPageWidth, 2);
+				const int srcL = (displayX + hScroll) / zoom;
+				const int srcT = vramLine[scrollPage1];
+				const int srcR = (pageBorder + hScroll) / zoom;
+				const int srcB = srcT + displayEndY - displayY;
+				bitmapTexture->draw(
+					srcL, srcT, srcR, srcB,
+					screenX, screenY,
+					screenX + firstPageWidth, screenEndY
+					);
 			} else {
 				firstPageWidth = 0;
 			}
 			if (firstPageWidth < displayWidth) {
-				bitmapTextures[vramLine[scrollPage2]].draw(
-					displayX + firstPageWidth + hScroll,
-					screenX + firstPageWidth, y,
-					displayWidth - firstPageWidth, 2);
+				const int srcL =
+					(displayX + firstPageWidth + hScroll - 512) / zoom;
+				const int srcT = vramLine[scrollPage2];
+				const int srcR = srcL + (displayWidth - firstPageWidth) / zoom;
+				const int srcB = srcT + displayEndY - displayY;
+				bitmapTexture->draw(
+					srcL, srcT, srcR, srcB,
+					screenX + firstPageWidth, screenY,
+					screenX + displayWidth, screenEndY
+					);
 			}
-			displayY = (displayY + 1) & 255;
+			screenY = screenEndY;
+			displayY = displayEndY & 255;
 		}
 	} else {
 		switch (mode.getByte()) {

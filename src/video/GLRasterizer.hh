@@ -170,7 +170,7 @@ private:
 	  * It holds up to 4 pages of 256 lines each.
 	  * In Graphics6/7 the lower two pages are used.
 	  */
-	LineTexture* bitmapTextures;
+	BitmapTexture* bitmapTexture;
 
 	/** One texture per absolute display line to draw sprite plane in.
 	  * This is not an efficient way to draw sprites, but it was easy

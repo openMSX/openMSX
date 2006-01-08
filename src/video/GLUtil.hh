@@ -19,6 +19,8 @@
 
 namespace openmsx {
 
+/** Most basic/generic texture: only contains a texture ID.
+  */
 class Texture
 {
 public:
@@ -31,6 +33,22 @@ public:
 	}
 protected:
 	GLuint textureId;
+};
+
+/** Texture used for storing bitmap data from MSX VRAM.
+  */
+class BitmapTexture: public Texture
+{
+public:
+	BitmapTexture();
+	void update(int y, const GLuint* data, int lineWidth);
+	void draw(
+		int srcL, int srcT, int srcR, int srcB,
+		int dstL, int dstT, int dstR, int dstB
+		);
+private:
+	static const int WIDTH = 512;
+	static const int HEIGHT = 1024;
 };
 
 class LineTexture: public Texture

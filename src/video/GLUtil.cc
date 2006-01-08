@@ -2,6 +2,8 @@
 
 #include "GLUtil.hh"
 #include <cassert>
+#include <cstdlib>
+#include <cstring>
 
 
 namespace openmsx {
@@ -23,6 +25,69 @@ Texture::~Texture()
 }
 
 
+// class BitmapTexture
+
+BitmapTexture::BitmapTexture()
+	: Texture()
+{
+	static const unsigned SIZE = WIDTH * HEIGHT * 4;
+	void* blackness = malloc(SIZE);
+	memset(blackness, 0, SIZE);
+	bind();
+	glTexImage2D(
+		GL_TEXTURE_2D,    // target
+		0,                // level
+		GL_RGBA,          // internal format
+		512,              // width
+		1024,             // height
+		0,                // border
+		GL_RGBA,          // format
+		GL_UNSIGNED_BYTE, // type
+		blackness         // data
+		);
+	free(blackness);
+}
+
+void BitmapTexture::update(int y, const GLuint* data, int lineWidth)
+{
+	assert(0 <= y && y < HEIGHT);
+	assert(lineWidth <= WIDTH);
+	bind();
+	// Replace line in existing texture.
+	glTexSubImage2D(
+		GL_TEXTURE_2D,    // target
+		0,                // level
+		0,                // x-offset
+		y,                // y-offset
+		lineWidth,        // width
+		1,                // height
+		GL_RGBA,          // format
+		GL_UNSIGNED_BYTE, // type
+		data              // data
+		);
+}
+
+void BitmapTexture::draw(
+	int srcL, int srcT, int srcR, int srcB,
+	int dstL, int dstT, int dstR, int dstB
+	)
+{
+	static const GLfloat fx = 1.0f / static_cast<GLfloat>(WIDTH);
+	static const GLfloat fy = 1.0f / static_cast<GLfloat>(HEIGHT);
+	const GLfloat srcLF = srcL * fx;
+	const GLfloat srcRF = srcR * fx;
+	const GLfloat srcTF = srcT * fy;
+	const GLfloat srcBF = srcB * fy;
+	bind();
+	glBegin(GL_QUADS);
+	glTexCoord2f(srcLF, srcTF); glVertex2i(dstL, dstT);
+	glTexCoord2f(srcRF, srcTF); glVertex2i(dstR, dstT);
+	glTexCoord2f(srcRF, srcBF); glVertex2i(dstR, dstB);
+	glTexCoord2f(srcLF, srcBF); glVertex2i(dstL, dstB);
+	glEnd();
+}
+
+
 // class LineTexture
 
 LineTexture::LineTexture()
@@ -35,27 +100,31 @@ void LineTexture::update(const GLuint* data, int lineWidth)
 	bind();
 	if (prevLineWidth == lineWidth) {
 		// reuse existing texture
-		glTexSubImage2D(GL_TEXTURE_2D,    // target
-		                0,                // level
-		                0,                // x-offset
-		                0,                // y-offset
-		                lineWidth,        // width
-		                1,                // height
-		                GL_RGBA,          // format
-		                GL_UNSIGNED_BYTE, // type
-		                data);            // data
+		glTexSubImage2D(
+			GL_TEXTURE_2D,    // target
+			0,                // level
+			0,                // x-offset
+			0,                // y-offset
+			lineWidth,        // width
+			1,                // height
+			GL_RGBA,          // format
+			GL_UNSIGNED_BYTE, // type
+			data              // data
+			);
 	} else {
 		// create new texture
 		prevLineWidth = lineWidth;
-		glTexImage2D(GL_TEXTURE_2D,    // target
-		             0,                // level
-		             GL_RGBA,          // internal format
-		             lineWidth,        // width
-		             1,                // height
-		             0,                // border
-		             GL_RGBA,          // format
-		             GL_UNSIGNED_BYTE, // type
-		             data);            // data
+		glTexImage2D(
+			GL_TEXTURE_2D,    // target
+			0,                // level
+			GL_RGBA,          // internal format
+			lineWidth,        // width
+			1,                // height
+			0,                // border
+			GL_RGBA,          // format
+			GL_UNSIGNED_BYTE, // type
+			data              // data
+			);
 	}
 }
 
@@ -93,26 +162,30 @@ StoredFrame::StoredFrame()
 void StoredFrame::store(unsigned x, unsigned y)
 {
 	texture.bind();
-	if ((width == x) && (height == y)) {
-		glCopyTexSubImage2D(GL_TEXTURE_2D, // target
-		                    0,             // level
-		                    0,             // x-offset
-		                    0,             // y-offset
-		                    0,             // x
-		                    0,             // y
-		                    width,         // width
-		                    height);       // height
+	if (width == x && height == y) {
+		glCopyTexSubImage2D(
+			GL_TEXTURE_2D, // target
+			0,             // level
+			0,             // x-offset
+			0,             // y-offset
+			0,             // x
+			0,             // y
+			width,         // width
+			height         // height
+			);
 	} else {
 		width = x;
 		height = y;
-		glCopyTexImage2D(GL_TEXTURE_2D,      // target
-		                 0,                  // level
-		                 GL_RGB,             // internal format
-		                 0,                  // x
-		                 0,                  // y
-		                 powerOfTwo(width),  // width
-		                 powerOfTwo(height), // height
-		                 0);                 // border
+		glCopyTexImage2D(
+			GL_TEXTURE_2D,      // target
+			0,                  // level
+			GL_RGB,             // internal format
+			0,                  // x
+			0,                  // y
+			powerOfTwo(width),  // width
+			powerOfTwo(height), // height
+			0                   // border
+			);
 	}
 	stored = true;
 }
