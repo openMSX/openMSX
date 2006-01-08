@@ -2,13 +2,13 @@
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
 <!--
  The romdb.xml file contains information about rom mapper types
-																			 	
-	© 2004-2005 Benoit Delvaux	(Filling the database / testing games)			
-	© 2003 Nicolas Beyaert		(Initial database)								
-	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
-  A special thanks to both the blueMSX and openMSX team for their support		
+
+	© 2004-2005 Benoit Delvaux	(Filling the database / testing games)
+	© 2003 Nicolas Beyaert		(Initial database)
+	© 2005 Patrick van Arkel	(Webscripting and adding values)
+  A special thanks to both the blueMSX and openMSX team for their support
 -->
-<softwaredb xml:lang="en" timestamp="1132023838">
+<softwaredb xml:lang="en" timestamp="1136747542">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -1461,6 +1461,23 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Blusy Shop</title>
+		<system>MSX</system>
+		<company>MSxNAKE</company>
+		<year>2005</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Normal</type>
+				<hash algo="sha1">3e44a4e5608e01793877e62f82c12c2b82908461</hash>
+				<remark>
+					<text>MSXDev05</text>
+				</remark>
+			</megarom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Boggy&#39;84</title>
 		<system>MSX</system>
 		<company>Colpax</company>
@@ -1527,6 +1544,22 @@
 			<rom>
 				<hash algo="crc32">099E3663</hash>
 			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Bomb Man</title>
+		<system>MSX</system>
+		<company>AG Software</company>
+		<year>2005</year>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Normal</type>
+				<hash algo="sha1">46ecaf85f1ff1b4821670bf44ff1249fe1b13a35	</hash>
+				<remark>
+					<text>MSXDev05</text>
+				</remark>
+			</megarom>
 		</dump>
 	</software>
 	<software>
@@ -2387,6 +2420,35 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Caverns of Titan</title>
+		<system>MSX</system>
+		<company>JLTURSAN</company>
+		<year>2005</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">a5802d5fe8bcda79354519d7e7a7b710bb6f9db8</hash>
+				<remark>
+					<text>MSXDev05</text>
+				</remark>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">983f97a0d8aedad52f5a2ade5fed6f2812218b2e</hash>
+				<remark>
+					<text>MSXDev05</text>
+				</remark>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Chack&#39;n Pop</title>
 		<system>MSX</system>
 		<company>Taito</company>
@@ -2543,6 +2605,22 @@
 			<rom>
 				<hash algo="crc32">B06B6343</hash>
 			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Cheating Wifes</title>
+		<system>MSX</system>
+		<company>Crappy Soft</company>
+		<year>2005</year>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Normal</type>
+				<hash algo="sha1">ca770384382bd487dd7330552403f85d7edbb8ce</hash>
+				<remark>
+					<text>MSXDev05</text>
+				</remark>
+			</megarom>
 		</dump>
 	</software>
 	<software>
@@ -3126,6 +3204,24 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">9865f0bc4d54137809f0d8b48d5461ddf0c5bf4c</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Cosmic Battle</title>
+		<system>MSX</system>
+		<company>Vendetta</company>
+		<year>2005</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">30fa1447f8ef8e8ff9653dce6d7d672104f6e6ab</hash>
+				<remark>
+					<text>MSXdev05</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -6104,6 +6200,46 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Griel\&#39;s Quest for the Sangraal</title>
+		<system>MSX</system>
+		<company>Karoshi Corporation</company>
+		<year>2005</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">989d9ba7c0f29694fa3b737d09cf102606b2fd5b</hash>
+				<remark>
+					<text>MSXDev05</text>
+				</remark>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">acb6e93227bc89da119443e03890b58a1befc0b0</hash>
+				<remark>
+					<text>MSXDev05</text>
+				</remark>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">4dd2ec21474720eb56f012bb761117b4d507f331</hash>
+				<remark>
+					<text>MSXDev05</text>
+				</remark>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Grog&#39;s Revenge</title>
 		<system>MSX</system>
 		<company>Comptiq</company>
@@ -9053,6 +9189,23 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Lode Run</title>
+		<system>MSX</system>
+		<company>AG Software</company>
+		<year>2005</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Normal</type>
+				<hash algo="sha1">ea774f43f9c02064fcc07d5131691f5bd4e9c4f5</hash>
+				<remark>
+					<text>MSXDev05</text>
+				</remark>
+			</megarom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Lode Runner</title>
 		<system>MSX</system>
 		<company>Sony</company>
@@ -9215,6 +9368,43 @@
 					<text>Ulver crack</text>
 				</remark>
 			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Magical Stones</title>
+		<system>MSX</system>
+		<company>Dioniso</company>
+		<year>2005</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Normal</type>
+				<hash algo="sha1">38a3c6659080b38d9a2655e869e9fc0ce3e26c5e	</hash>
+				<remark>
+					<text>MSXDev05</text>
+				</remark>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Normal</type>
+				<hash algo="sha1">cb0d355627b8c036931a67666e425d8f9225a180</hash>
+				<remark>
+					<text>MSXDev05</text>
+				</remark>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Normal</type>
+				<hash algo="sha1">38a3c6659080b38d9a2655e869e9fc0ce3e26c5e</hash>
+				<remark>
+					<text>MSXDev05</text>
+				</remark>
+			</megarom>
 		</dump>
 	</software>
 	<software>
@@ -10584,6 +10774,35 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Namake\&#39;s Bridgedrome</title>
+		<system>MSX</system>
+		<company>Buresto Faiya</company>
+		<year>2005</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">a39568be17b6ee5d10a61d82d8480cc859be778a</hash>
+				<remark>
+					<text>MSXDev05</text>
+				</remark>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">05b8109f4f0a4d9c1bcb837982abb573236be936</hash>
+				<remark>
+					<text>MSXDev05</text>
+				</remark>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Nausicaa</title>
 		<system>MSX</system>
 		<company>Tecnopolis Soft</company>
@@ -11136,6 +11355,23 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Pair Logic</title>
+		<system>MSX</system>
+		<company>AG Software</company>
+		<year>2005</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Normal</type>
+				<hash algo="sha1">9ab584be0a054e76d345ca937917f1ea195f7967</hash>
+				<remark>
+					<text>MSXDev05</text>
+				</remark>
+			</megarom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Pairs</title>
 		<system>MSX</system>
 		<company>Ascii</company>
@@ -11167,6 +11403,35 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Palette Editor 1.2</title>
+		<system>MSX</system>
+		<company>BiFi Productions</company>
+		<year>2005</year>
+		<country>NL</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">58747cf76b7c2785dd70409be5d912eafa328616</hash>
+				<remark>
+					<text>http://bifi.msxnet.org/paledit/</text>
+				</remark>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">98df3e94d3bbef5d18095b62e65274ebfa8d527c</hash>
+				<remark>
+					<text>http://bifi.msxnet.org/paledit/</text>
+				</remark>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Panther</title>
 		<system>MSX</system>
 		<company>Irem</company>
@@ -11176,6 +11441,35 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">479608b5a86d7c77bd6c4dd00605b8efb2e5b43e</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Parachuteless Joe</title>
+		<system>MSX</system>
+		<company>Paxanga</company>
+		<year>2005</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">cda2df54006d98890feb1aac1dd955d0458132a4</hash>
+				<remark>
+					<text>MSXDev05</text>
+				</remark>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">f0b65b71c505c68019e2285d3b8afcf068a74b9f</hash>
+				<remark>
+					<text>MSXDev05</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -12558,6 +12852,35 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Saimazoom</title>
+		<system>MSX</system>
+		<company>Karoshi Corporation</company>
+		<year>2005</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">f448289db0d5c8fe6c4b3ca863af73db3c4a5e45</hash>
+				<remark>
+					<text>MSXDev05</text>
+				</remark>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">fa29ca4486a089e32790a69a9598b051d6b7dac4</hash>
+				<remark>
+					<text>MSXDev05</text>
+				</remark>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Salamander - Operation X</title>
 		<system>MSX</system>
 		<company>Konami</company>
@@ -13326,6 +13649,23 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Snoopy Town</title>
+		<system>MSX</system>
+		<company>AG Software</company>
+		<year>2005</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Normal</type>
+				<hash algo="sha1">e168d460c2acc0f25523e2b99861d187d1aaac00	</hash>
+				<remark>
+					<text>MSXDev05</text>
+				</remark>
+			</megarom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Sofia</title>
 		<system>MSX</system>
 		<company>Dempa</company>
@@ -13433,6 +13773,35 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">d1ad3beb29aecaa7c3bc1fd8a4be3b10d38cc47a</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Space Crussader</title>
+		<system>MSX</system>
+		<company>Germ&#225;n G&#243;mez Herrera</company>
+		<year>2005</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">a21d354ddda95975d737746d27fd59cb908ddf0a</hash>
+				<remark>
+					<text>MSXDev05</text>
+				</remark>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">0856cba14ff2396ea257ff927da0767ae74084c5</hash>
+				<remark>
+					<text>MSXDev05</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -14802,6 +15171,60 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">The Cure</title>
+		<system>MSX</system>
+		<company>XL2S Entertainment</company>
+		<year>2005</year>
+		<country>NL</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Normal</type>
+				<hash algo="sha1">882a63a9655e53fddb1cd48761a1a09b28f7e5a3</hash>
+				<remark>
+					<text>Winner MSXDev2005</text>
+				</remark>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Normal</type>
+				<hash algo="sha1">e82bbd2d9dbbb30a2b4a259954c5484fa236733a</hash>
+				<remark>
+					<text>MSXDev05</text>
+				</remark>
+			</megarom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">The Mansion</title>
+		<system>MSX</system>
+		<company>Germ&#225;n G&#243;mez Herrera</company>
+		<year>2005</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Normal</type>
+				<hash algo="sha1">b433357683fb1154d75c677ba01893665880f483</hash>
+				<remark>
+					<text>MSXDev05</text>
+				</remark>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Normal</type>
+				<hash algo="sha1">6600fab90ca395517d0845f8f380b0e67541b392</hash>
+				<remark>
+					<text>MSXDev05</text>
+				</remark>
+			</megarom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Thexder</title>
 		<system>MSX</system>
 		<company>Game Arts</company>
@@ -15028,6 +15451,23 @@
 			<rom>
 				<hash algo="sha1">7dbeaf25e3a1a66f9c6b331332dc36e73b511d4a</hash>
 			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Tragaperras</title>
+		<system>MSX</system>
+		<company>MSxNAKE</company>
+		<year>2005</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Normal</type>
+				<hash algo="sha1">1074acd37ee42661d86b75a8491365ed8ceaa6e0</hash>
+				<remark>
+					<text>MSXDev05</text>
+				</remark>
+			</megarom>
 		</dump>
 	</software>
 	<software>
@@ -15265,6 +15705,20 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Universe Unknown</title>
+		<system>MSX</system>
+		<company>Infinite</company>
+		<year>2005</year>
+		<country>NL</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Normal</type>
+				<hash algo="sha1">8ab1b72ce852a778a645f566a70fa18ee32fd021</hash>
+			</megarom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Vaxol - Heavy Armed Storm Vehicle</title>
 		<system>MSX</system>
 		<company>Heart Soft</company>
@@ -15398,6 +15852,23 @@
 			<rom>
 				<hash algo="crc32">2619F221</hash>
 			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Viking</title>
+		<system>MSX</system>
+		<company>JLTURSAN</company>
+		<year>2005</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Normal</type>
+				<hash algo="sha1">91186f361c8323605c79dc4551a768a4b9c5a320</hash>
+				<remark>
+					<text>MSXDev05</text>
+				</remark>
+			</megarom>
 		</dump>
 	</software>
 	<software>
@@ -18850,7 +19321,7 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Pallete editor v1.0</title>
+		<title xml:lang="en">Pallete Editor 1.0</title>
 		<system>MSX</system>
 		<company>BiFi Productions</company>
 		<year>2005</year>
@@ -18868,7 +19339,7 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Pallete editor v1.1</title>
+		<title xml:lang="en">Pallete Editor 1.1</title>
 		<system>MSX</system>
 		<company>BiFi Productions</company>
 		<year>2005</year>
@@ -24808,9 +25279,10 @@
 	</software>
 </softwaredb>
 <!--
-Roms in this database : 2350
+Roms in this database : 2382
 Good MSX entries 		: 755
-SHA1 values 			: 1771
+SHA1 values 			: 1803
 CRC32 values 			: 579
-Parse time 7.030 seconds on Tue Nov 15 4:04:05 CET 2005
+Parse time 7.632 seconds on Sun Jan 8 20:12:30 CET 2006
  -->
+
