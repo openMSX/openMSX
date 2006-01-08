@@ -68,7 +68,7 @@ public:
 	void drawMode1(int absLine, int minX, int maxX, Pixel* pixelPtr)
 	{
 		// Determine sprites visible on this line.
-		SpriteChecker::SpriteInfo* visibleSprites;
+		const SpriteChecker::SpriteInfo* visibleSprites;
 		int visibleIndex =
 			spriteChecker.getSprites(absLine, visibleSprites);
 		// Optimisation: return at once if no sprites on this line.
@@ -78,7 +78,8 @@ public:
 		// Render using overdraw.
 		while (visibleIndex--) {
 			// Get sprite info.
-			SpriteChecker::SpriteInfo* sip = &visibleSprites[visibleIndex];
+			const SpriteChecker::SpriteInfo* sip =
+				&visibleSprites[visibleIndex];
 			Pixel colIndex = sip->colourAttrib & 0x0F;
 			// Don't draw transparent sprites in sprite mode 1.
 			// TODO: Verify on real V9938 that sprite mode 1 indeed
@@ -123,7 +124,7 @@ public:
 	void drawMode2( int absLine, int minX, int maxX, Pixel* pixelPtr)
 	{
 		// Determine sprites visible on this line.
-		SpriteChecker::SpriteInfo* visibleSprites;
+		const SpriteChecker::SpriteInfo* visibleSprites;
 		int visibleIndex =
 			spriteChecker.getSprites(absLine, visibleSprites);
 		// Optimisation: return at once if no sprites on this line.
@@ -152,7 +153,7 @@ public:
 			// Calculate colour of pixel to be plotted.
 			byte colour = 0xFF;
 			for (int i = 0; i < visibleIndex; i++) {
-				SpriteChecker::SpriteInfo& info = visibleSprites[i];
+				const SpriteChecker::SpriteInfo& info = visibleSprites[i];
 				int shift = pixelDone - info.x;
 				if ((0 <= shift && shift < maxSize)
 				&& ((info.pattern << shift) & 0x80000000)) {
@@ -161,7 +162,8 @@ public:
 					colour = c;
 					// Merge in any following CC=1 sprites.
 					for (int j = i + 1; j < visibleIndex; j++) {
-						SpriteChecker::SpriteInfo& info2 = visibleSprites[j];
+						const SpriteChecker::SpriteInfo& info2 =
+							visibleSprites[j];
 						if (!(info2.colourAttrib & 0x40)) break;
 						int shift2 = pixelDone - info2.x;
 						if ((0 <= shift2 && shift2 < maxSize)
