@@ -1,5 +1,10 @@
 $Id$
 
+2006-01-08 Maarten ter Huurne <maarten@treewalker.org>
+	* Refactoring of GLRasterizer:
+	  - only rasterize sprites if the line actually contains sprites;
+	    this can make quite an impact on performance
+
 2006-01-07 Maarten ter Huurne <maarten@treewalker.org>
 	* Refactoring of GLRasterizer:
 	  - partial preparation for output windows other than 640x480

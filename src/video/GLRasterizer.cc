@@ -1151,7 +1151,12 @@ void GLRasterizer::drawSprites(
 	int pixelZoom =
 		(mode == DisplayMode::GRAPHIC5 || mode == DisplayMode::GRAPHIC6)
 		? 2 : 1;
-	for (int y = fromY; y < limitY; y++) {
+	const SpriteChecker& spriteChecker = vdp.getSpriteChecker();
+	for (int y = fromY; y < limitY; y++, screenY += 2) {
+		// Optimisation: only draw sprites if there are actually sprites on
+		// this line.
+		if (!spriteChecker.hasSprites(y)) continue;
+
 		// Buffer to render sprite pixels to; start with all transparent.
 		memset(lineBuffer, 0, pixelZoom * 256 * sizeof(Pixel));
 
@@ -1170,8 +1175,6 @@ void GLRasterizer::drawSprites(
 		LineTexture &texture = spriteTextures[y];
 		texture.update(lineBuffer, pixelZoom * 256);
 		texture.draw(displayX * 2, screenX, screenY, displayWidth * 2, 2);
-
-		screenY += 2;
 	}
 
 	glDisable(GL_BLEND);
