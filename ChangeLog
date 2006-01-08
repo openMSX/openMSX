@@ -1,6 +1,15 @@
 $Id$
 
-2006-01-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2006-01-07 Maarten ter Huurne <maarten@treewalker.org>
+	* Refactoring of GLRasterizer:
+	  - partial preparation for output windows other than 640x480
+	  - removed deinterlace code, because the idea was broken;
+	    later deinterlace will have to be re-added in a better way
+	    (like the SDL renderer has)
+	  - store bitmap data in a single large texture rather than one
+	    texture per line; this is better for performance
+
+2006-01-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Reenabled 'sdlgl-fb<x>' renderers in non-release versions
 	* Made 2x scalers work with non 640 wide output surfaces:
 	   preparation to enable 4x scalers later
