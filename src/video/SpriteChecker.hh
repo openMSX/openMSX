@@ -238,7 +238,7 @@ public:
 	  *   is scheduled.
 	  * @return The number of sprites stored in the visibleSprites array.
 	  */
-	inline int getSprites(int line, SpriteInfo *&visibleSprites) {
+	inline int getSprites(int line, const SpriteInfo *&visibleSprites) const {
 		// Compensate for the fact sprites are checked one line earlier
 		// than they are displayed.
 		line--;
@@ -250,6 +250,26 @@ public:
 		visibleSprites = spriteBuffer[line];
 		assert(spriteCount[line] != -1);
 		return spriteCount[line];
+	}
+
+	/** Are there any sprites on the given display line?
+	  * This method works similarly to getSprites, but returning only
+	  * information about sprite presence instead of the actual sprites.
+	  * @param line The absolute line number for which sprites should
+	  *   be returned. Range is [0..313) for PAL and [0..262) for NTSC.
+	  * @return true iff one or more sprites exist on the given line.
+	  */
+	inline int hasSprites(int line) const {
+		// Compensate for the fact sprites are checked one line earlier
+		// than they are displayed.
+		line--;
+
+		// TODO: Is there ever a sprite on absolute line 0?
+		//       Maybe there is, but it is never displayed.
+		if (line < 0) return 0;
+
+		assert(spriteCount[line] != -1);
+		return spriteCount[line] != 0;
 	}
 
 	/** Calculate the position of the rightmost 1-bit in a SpritePattern,
