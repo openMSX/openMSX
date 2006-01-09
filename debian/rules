@@ -54,6 +54,7 @@ install: build
 	dh_testroot
 	dh_clean -k
 	dh_installdirs
+	cp -f $(CURDIR)/debian/binary.lintian-overrides $(CURDIR)/debian/openmsx/usr/share/lintian/overrides/openmsx
 
 	$(MAKE) install \
 		INSTALL_BINARY_DIR=$(CURDIR)/debian/openmsx/usr/bin \
@@ -62,7 +63,6 @@ install: build
 		SYMLINK_FOR_BINARY=false \
 		INSTALL_CONTRIB=false \
 		OPENMSX_INSTALL=$(CURDIR)/debian/openmsx/usr
-	@cp -f $(CURDIR)/debian/binary.lintian-overrides $(CURDIR)/debian/openmsx/usr/share/lintian/overrides/openmsx
 	@echo "  Cleaning up the installed package..."
 	@rm $(CURDIR)/debian/openmsx/usr/share/doc/openmsx/GPL
 	@find $(CURDIR)/debian/openmsx/usr/share -name CVS | xargs rm -rf

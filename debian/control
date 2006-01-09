@@ -2,7 +2,7 @@ Source: openmsx
 Section: otherosfs
 Priority: optional
 Maintainer: Joost Yervante Damad <joost@lumatec.be>
-Build-Depends: debhelper (>= 4.0.0), docbook-to-man, autotools-dev, libsdl1.2-dev, libsdl-image1.2-dev, libpng12-dev, tcl8.4-dev, xlibmesa-gl-dev | libgl-dev, libxml2-dev, dpatch
+Build-Depends: debhelper (>= 5.0.0), docbook-to-man, autotools-dev, libsdl1.2-dev, libsdl-image1.2-dev, libpng12-dev, tcl8.4-dev, xlibmesa-gl-dev | libgl-dev, libxml2-dev, dpatch
 Standards-Version: 3.6.2
 
 Package: openmsx

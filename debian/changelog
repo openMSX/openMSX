@@ -1,8 +1,10 @@
 openmsx (0.5.2.1-0) unstable; urgency=low
   * experimental pre-packages
   * manpage source is now in openmsx CVS, however I still build it
+  * debhelper compat level 5
+  * use branch_0_6_0
 
- -- Joost Yervante Damad <joost@lumatec.be>  Thu, 22 Dec 2005 09:12:29 +0100
+ -- Joost Yervante Damad <joost@lumatec.be>  Mon,  9 Jan 2006 20:55:36 +0100
 
 openmsx (0.5.2-5) unstable; urgency=low
   * disable verbose probe (won't work on system without /dev/stdout,
