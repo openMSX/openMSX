@@ -2,6 +2,8 @@
 
 #include "PreCacheFile.hh"
 #include <cstdio>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 namespace openmsx {
 
@@ -13,6 +15,13 @@ PreCacheFile::PreCacheFile(const std::string& name_)
 
 void PreCacheFile::run()
 {
+	struct stat st;
+	if (stat(name.c_str(), &st)) return;
+	if (!S_ISREG(st.st_mode)) {
+		// don't pre-cache non regular files (e.g. /dev/fd0)
+		return;
+	}
+	
 	FILE* file = fopen(name.c_str(), "rb");
 	if (!file) return;
 
@@ -21,10 +30,7 @@ void PreCacheFile::run()
 	if (size < 1024 * 1024) {
 		// only pre-cache small files
 		
-		// block size not too big so that for precaching a floppy,
-		// the disk head doesn't need to move back and foreward
 		const unsigned BLOCK_SIZE = 4096;
-		
 		unsigned block = 0;
 		unsigned repeat = 0;
 		while (true) {
