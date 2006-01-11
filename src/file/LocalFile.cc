@@ -10,6 +10,7 @@
 #include "LocalFile.hh"
 #include "FileOperations.hh"
 #include "FileException.hh"
+#include "PreCacheFile.hh"
 
 using std::string;
 
@@ -50,6 +51,10 @@ LocalFile::LocalFile(const string& filename_, File::OpenMode mode)
 	}
 	if (!file) {
 		throw FileException("Error opening file " + filename);
+	}
+
+	if (mode == File::PRE_CACHE) {
+		cache.reset(new PreCacheFile(name));
 	}
 }
 

@@ -3,12 +3,15 @@
 #ifndef LOCALFILE_HH
 #define LOCALFILE_HH
 
-#include <cstdio>
 #include "File.hh"
 #include "FileBase.hh"
 #include "probed_defs.hh"
+#include <cstdio>
+#include <memory>
 
 namespace openmsx {
+
+class PreCacheFile;
 
 class LocalFile : public FileBase
 {
@@ -37,6 +40,7 @@ private:
 	std::string filename;
 	FILE* file;
 	bool readOnly;
+	std::auto_ptr<PreCacheFile> cache;
 };
 
 } // namespace openmsx
