@@ -6,7 +6,7 @@
 # Optimisation flags.
 CXXFLAGS+= \
 	-Os -mpreferred-stack-boundary=4 \
-	-mcpu=pentium3 -march=pentium-mmx -mmmx \
+	-mtune=pentium3 -march=pentium-mmx -mmmx \
 	-fno-force-mem -fno-force-addr \
 	-fstrength-reduce -fexpensive-optimizations -fschedule-insns2 \
 	-fomit-frame-pointer -fno-default-inline 
