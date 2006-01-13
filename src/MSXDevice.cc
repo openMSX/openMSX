@@ -197,7 +197,7 @@ void MSXDevice::powerUp(const EmuTime& time)
 	reset(time);
 }
 
-const string& MSXDevice::getName() const
+string MSXDevice::getName() const
 {
 	return deviceConfig.getId();
 }

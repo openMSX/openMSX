@@ -7,7 +7,7 @@ SRC_HDR:= \
 	Z80 R800 \
 	BreakPoint \
 	MSXCPUInterface MSXCPU \
-	MSXMultiIODevice MSXMultiMemDevice \
+	MSXMultiDevice MSXMultiIODevice MSXMultiMemDevice \
 	VDPIODelay
 
 HDR_ONLY:= \

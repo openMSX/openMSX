@@ -1,28 +1,13 @@
 // $Id$
 
 #include "MSXMultiIODevice.hh"
-#include "EmuTime.hh"
-#include "FileContext.hh"
-#include "XMLElement.hh"
 #include <algorithm>
 #include <cassert>
 
 namespace openmsx {
 
-const XMLElement& getMultiConfig()
-{
-	static XMLElement deviceElem("MultiIO");
-	static bool init = false;
-	if (!init) {
-		init = true;
-		deviceElem.setFileContext(std::auto_ptr<FileContext>(
-		                                 new SystemFileContext()));
-	}
-	return deviceElem;
-}
-
 MSXMultiIODevice::MSXMultiIODevice(MSXMotherBoard& motherboard)
-	: MSXDevice(motherboard, getMultiConfig(), EmuTime::zero)
+	: MSXMultiDevice(motherboard)
 {
 }
 
@@ -31,19 +16,16 @@ MSXMultiIODevice::~MSXMultiIODevice()
 	assert(devices.empty());
 }
 
-
 void MSXMultiIODevice::addDevice(MSXDevice* device)
 {
 	assert(std::count(devices.begin(), devices.end(), device) == 0);
 	devices.push_back(device);
-	preCalcName();
 }
 
 void MSXMultiIODevice::removeDevice(MSXDevice* device)
 {
 	assert(std::count(devices.begin(), devices.end(), device) == 1);
 	devices.erase(std::find(devices.begin(), devices.end(), device));
-	preCalcName();
 }
 
 MSXMultiIODevice::Devices& MSXMultiIODevice::getDevices()
@@ -51,51 +33,13 @@ MSXMultiIODevice::Devices& MSXMultiIODevice::getDevices()
 	return devices;
 }
 
-void MSXMultiIODevice::preCalcName()
+std::string MSXMultiIODevice::getName() const
 {
-	// getName() is not timing critical, but it must return a reference,
-	// so we do need to store the name. So we can as well precalculate it
-	name.clear();
-	bool first = true;
-	for (Devices::const_iterator it = devices.begin();
-	     it != devices.end(); ++it) {
-		if (!first) {
-			name += "  ";
-		}
-		first = false;
-		name += (*it)->getName();
+	assert(!devices.empty());
+	std::string name = devices[0]->getName();
+	for (unsigned i = 1; i < devices.size(); ++i) {
+		name += "  " + devices[i]->getName();
 	}
-}
-
-
-// MSXDevice
-
-void MSXMultiIODevice::reset(const EmuTime& time)
-{
-	for (Devices::iterator it = devices.begin();
-	     it != devices.end(); ++it) {
-		(*it)->reset(time);
-	}
-}
-
-void MSXMultiIODevice::powerDown(const EmuTime& time)
-{
-	for (Devices::iterator it = devices.begin();
-	     it != devices.end(); ++it) {
-		(*it)->powerDown(time);
-	}
-}
-
-void MSXMultiIODevice::powerUp(const EmuTime& time)
-{
-	for (Devices::iterator it = devices.begin();
-	     it != devices.end(); ++it) {
-		(*it)->powerUp(time);
-	}
-}
-
-const std::string& MSXMultiIODevice::getName() const
-{
 	return name;
 }
 

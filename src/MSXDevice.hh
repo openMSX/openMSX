@@ -46,12 +46,10 @@ public:
 	virtual void powerUp(const EmuTime& time);
 
 	/**
-	 * Returns a human-readable name for this device. The name is set
-	 * in the setConfigDevice() method. This method is mostly used to
-	 * print debug info.
+	 * Returns a human-readable name for this device.
 	 * Default implementation is normally ok.
 	 */
-	virtual const std::string& getName() const;
+	virtual std::string getName() const;
 
 
 	// IO

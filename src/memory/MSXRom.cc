@@ -27,7 +27,7 @@ byte* MSXRom::getWriteCacheLine(word /*address*/) const
 	return unmappedWrite;
 }
 
-const std::string& MSXRom::getName() const
+std::string MSXRom::getName() const
 {
 	return rom->getName();
 }

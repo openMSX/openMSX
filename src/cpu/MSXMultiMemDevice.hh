@@ -3,12 +3,12 @@
 #ifndef MSXMULTIMEMDEVICE_HH
 #define MSXMULTIMEMDEVICE_HH
 
-#include "MSXDevice.hh"
+#include "MSXMultiDevice.hh"
 #include <vector>
 
 namespace openmsx {
 
-class MSXMultiMemDevice : public MSXDevice
+class MSXMultiMemDevice : public MSXMultiDevice
 {
 public:
 	explicit MSXMultiMemDevice(MSXMotherBoard& motherboard);
@@ -19,10 +19,7 @@ public:
 	bool empty() const;
 
 	// MSXDevice
-	virtual void reset(const EmuTime& time);
-	virtual void powerDown(const EmuTime& time);
-	virtual void powerUp(const EmuTime& time);
-	virtual const std::string& getName() const;
+	virtual std::string getName() const;
 	virtual byte readMem(word address, const EmuTime& time);
 	virtual void writeMem(word address, byte value, const EmuTime& time);
 	virtual const byte* getReadCacheLine(word start) const;
@@ -39,13 +36,11 @@ private:
 		MSXDevice* device;
 	};
 
-	void preCalcName();
 	MSXDevice* searchDevice(unsigned address);
 	const MSXDevice* searchDevice(unsigned address) const;
 
 	typedef std::vector<Range> Ranges;
 	Ranges ranges;
-	std::string name;
 };
 
 } // namespace openmsx

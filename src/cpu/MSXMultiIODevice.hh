@@ -3,12 +3,12 @@
 #ifndef MSXMULTIIODEVICE_HH
 #define MSXMULTIIODEVICE_HH
 
-#include "MSXDevice.hh"
+#include "MSXMultiDevice.hh"
 #include <vector>
 
 namespace openmsx {
 
-class MSXMultiIODevice : public MSXDevice
+class MSXMultiIODevice : public MSXMultiDevice
 {
 public:
 	typedef std::vector<MSXDevice*> Devices;
@@ -21,19 +21,13 @@ public:
 	Devices& getDevices();
 
 	// MSXDevice
-	virtual void reset(const EmuTime& time);
-	virtual void powerDown(const EmuTime& time);
-	virtual void powerUp(const EmuTime& time);
-	virtual const std::string& getName() const;
+	virtual std::string getName() const;
 	virtual byte readIO(word port, const EmuTime& time);
 	virtual byte peekIO(word port, const EmuTime& time) const;
 	virtual void writeIO(word port, byte value, const EmuTime& time);
 
 private:
-	void preCalcName();
-
 	Devices devices;
-	std::string name;
 };
 
 } // namespace openmsx

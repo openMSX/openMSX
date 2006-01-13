@@ -18,7 +18,7 @@ public:
 
 	virtual void writeMem(word address, byte value, const EmuTime& time);
 	virtual byte* getWriteCacheLine(word address) const;
-	virtual const std::string& getName() const;
+	virtual std::string getName() const;
 
 protected:
 	MSXRom(MSXMotherBoard& motherBoard, const XMLElement& config,

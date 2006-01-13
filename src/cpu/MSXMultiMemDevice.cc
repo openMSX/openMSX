@@ -3,9 +3,6 @@
 #include "MSXMultiMemDevice.hh"
 #include "DummyDevice.hh"
 #include "MSXMotherBoard.hh"
-#include "EmuTime.hh"
-#include "FileContext.hh"
-#include "XMLElement.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -25,20 +22,8 @@ bool MSXMultiMemDevice::Range::operator==(const Range& other) const
 }
 
 
-static const XMLElement& getMultiConfig()
-{
-	static XMLElement deviceElem("MultiMem");
-	static bool init = false;
-	if (!init) {
-		init = true;
-		deviceElem.setFileContext(std::auto_ptr<FileContext>(
-		                                 new SystemFileContext()));
-	}
-	return deviceElem;
-}
-
 MSXMultiMemDevice::MSXMultiMemDevice(MSXMotherBoard& motherboard)
-	: MSXDevice(motherboard, getMultiConfig(), EmuTime::zero)
+	: MSXMultiDevice(motherboard)
 {
 	// add sentinel at the end
 	ranges.push_back(Range(0x0000, 0x10000, motherboard.getDummyDevice()));
@@ -69,7 +54,6 @@ bool MSXMultiMemDevice::add(MSXDevice& device, int base, int size)
 		}
 	}
 	ranges.insert(ranges.begin(), Range(base, size, device));
-	preCalcName();
 	return true;
 }
 
@@ -79,7 +63,6 @@ void MSXMultiMemDevice::remove(MSXDevice& device, int base, int size)
 	                           Range(base, size, device));
 	assert(it != ranges.end());
 	ranges.erase(it);
-	preCalcName();
 }
 
 bool MSXMultiMemDevice::empty() const
@@ -87,45 +70,13 @@ bool MSXMultiMemDevice::empty() const
 	return ranges.size() == 1;
 }
 
-void MSXMultiMemDevice::preCalcName()
+std::string MSXMultiMemDevice::getName() const
 {
-	// getName() is not timing critical, but it must return a reference,
-	// so we do need to store the name. So we can as well precalculate it
-	name.clear();
-	bool first = true;
-	for (unsigned i = 0; i < (ranges.size() -1); ++i) {
-		if (!first) name += "  ";
-		first = false;
-		name += ranges[i].device->getName();
+	assert(!empty());
+	std::string name = ranges[0].device->getName();
+	for (unsigned i = 1; i < (ranges.size() - 1); ++i) {
+		name += "  " + ranges[i].device->getName();
 	}
-}
-
-
-// MSXDevice
-
-void MSXMultiMemDevice::reset(const EmuTime& time)
-{
-	for (unsigned i = 0; i < (ranges.size() -1); ++i) {
-		ranges[i].device->reset(time);
-	}
-}
-
-void MSXMultiMemDevice::powerDown(const EmuTime& time)
-{
-	for (unsigned i = 0; i < (ranges.size() -1); ++i) {
-		ranges[i].device->powerDown(time);
-	}
-}
-
-void MSXMultiMemDevice::powerUp(const EmuTime& time)
-{
-	for (unsigned i = 0; i < (ranges.size() -1); ++i) {
-		ranges[i].device->powerUp(time);
-	}
-}
-
-const std::string& MSXMultiMemDevice::getName() const
-{
 	return name;
 }
 

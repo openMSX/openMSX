@@ -1,6 +1,14 @@
 $Id$
 
 2006-01-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Made MSXDevice::getName() return a string by value:
+	   is not performance critical and simplifies code in MSXMultiDevice
+	* Moved common code of MSXMultiIODevice and MSXMultiMemDevice to
+	  new MSXMultiDevice class
+	* No need to implement reset(), powerUp(), powerDown() methods in
+	  MSXMultiDevice. It's even wrong if they ever get called.
+
+2006-01-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented [ 1320568 ] Preload entire diskimage/ROM:
 	   We don't actually keep the image in memory, just read it and
 	   discard the result. However the image will stick in the OS
