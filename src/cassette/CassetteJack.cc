@@ -255,7 +255,9 @@ CassetteJack::plugHelper(Connector& connector, const EmuTime& time)
 	char name[sizeof "omsx-12345."];
 	snprintf(name, sizeof(name), "omsx-%hu", (unsigned short) getpid());
 	self=jack_client_new (name);
-	assert(self);
+	if (!self) {
+		throw PlugException("Unable to initialize Jack client.");
+	}
 	samplerate=jack_get_sample_rate(self);
 	cmtout=jack_port_register (self,"casout",JACK_DEFAULT_AUDIO_TYPE,
 							   JackPortIsOutput|JackPortIsTerminal, 0);
