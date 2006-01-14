@@ -43,7 +43,7 @@ public:
 	bool hasWrBlock() const;
 	sample_t * getWrBlock();
 	void advanceWr();
-private:   
+private:
 	size_t numBlocks, blockSize;
 	size_t readIndex, writeIndex;
 	Semaphore readSem, writeSem;
@@ -81,14 +81,14 @@ BlockFifo::getRdBlock()
 	}
 	return readP;
 }
-void 
+void
 BlockFifo::advanceRd()
 {
 	assert(valid[readIndex]);
 	valid[readIndex++]=0;
 	readP=0;
 	writeSem.up();
-	if (readIndex==numBlocks) 
+	if (readIndex==numBlocks)
 		readIndex=0;
 }
 bool
@@ -105,26 +105,26 @@ BlockFifo::getWrBlock()
 	}
 	return writeP;
 }
-void 
+void
 BlockFifo::advanceWr()
 {
 	assert(!valid[writeIndex]);
 	valid[writeIndex++]=1;
 	writeP=0;
 	readSem.up();
-	if (writeIndex==numBlocks) 
+	if (writeIndex==numBlocks)
 		writeIndex=0;
 }
 
 
-static void 
+static void
 fill_buf(BlockFifo * bf, size_t &sampcnt, size_t bufsize,
-		 size_t length, sample_t x, bool * zombie, 
+		 size_t length, sample_t x, bool * zombie,
 		 sample_t & last_out, sample_t & last_sig)
 {
 	static const sample_t R=1008.0/1024.0;
-	int len,j; 
-	size_t i; 
+	int len,j;
+	size_t i;
 	sample_t *p,y;
 
 	i=0;
@@ -146,7 +146,7 @@ fill_buf(BlockFifo * bf, size_t &sampcnt, size_t bufsize,
 	last_sig=x;
 }
 
-static void 
+static void
 fill_buf(BlockFifo * bf, size_t &sampcnt, size_t bufsize,
 		 size_t length, sample_t x, bool * zombie)
 {
@@ -190,7 +190,7 @@ void CassetteJack::setMotor(bool /*status*/, const EmuTime& /*time*/)
 
 short CassetteJack::readSample(const EmuTime& time)
 {
-	if (!running || 0==jack_port_connected(cmtin)) 
+	if (!running || 0==jack_port_connected(cmtin))
 		return 0;
 	sample_t *p=bf_in->getRdBlock();
 	double res;
@@ -205,11 +205,11 @@ short CassetteJack::readSample(const EmuTime& time)
 		res=labda*(*p)+(1.0-labda)*last_in;
 	else
 		res=labda*p[index_i]+(1.0-labda)*p[index_i-1];
-	
+
 	return short(res*32767);
 }
 
-void 
+void
 CassetteJack::setSignal(bool output, const EmuTime &time)
 {
 	double samples=(time-basetime).toDouble()*samplerate;
@@ -220,7 +220,7 @@ CassetteJack::setSignal(bool output, const EmuTime &time)
 	assert(len<=bufsize);
 	if (len) {
 		double edge = partialOut + (1.0-partialInterval) * out;
-		fill_buf(bf_out, sampcnt, bufsize, 1, edge, 
+		fill_buf(bf_out, sampcnt, bufsize, 1, edge,
 				 &zombie, last_out, last_sig);
 		if (--len)
 			fill_buf(bf_out, sampcnt, bufsize,
@@ -255,7 +255,9 @@ CassetteJack::plugHelper(Connector& connector, const EmuTime& time)
 	char name[sizeof "omsx-12345."];
 	snprintf(name, sizeof(name), "omsx-%hu", (unsigned short) getpid());
 	self=jack_client_new (name);
-	assert(self); 
+	if (!self) {
+		throw PlugException("Unable to initialize Jack client.");
+	}
 	samplerate=jack_get_sample_rate(self);
 	cmtout=jack_port_register (self,"casout",JACK_DEFAULT_AUDIO_TYPE,
 							   JackPortIsOutput|JackPortIsTerminal, 0);
@@ -311,7 +313,7 @@ CassetteJack::unplugHelper(const EmuTime& time)
 	delete bf_out;
 	delete bf_in;
 }
-void 
+void
 CassetteJack::executeUntil(const EmuTime& time, int /*userData*/)
 {
 	if (!running)
@@ -328,10 +330,10 @@ CassetteJack::executeUntil(const EmuTime& time, int /*userData*/)
 	assert((time-basetime).toDouble()*samplerate < bufsize+1);
 	size_t len = bufsize-sampcnt;
 	if (len) { // likely
-		if (len==bufsize && 0.0==partialInterval 
+		if (len==bufsize && 0.0==partialInterval
 			&& fabs(last_out)<0.0001) { // cut-off
 			last_out=0.0;
-			fill_buf(bf_out, sampcnt, bufsize, 
+			fill_buf(bf_out, sampcnt, bufsize,
 					 len, 0.0, &zombie);
 		}
 		else {
