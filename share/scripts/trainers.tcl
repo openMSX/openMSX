@@ -4689,6 +4689,17 @@ proc trainer_caverns_of_titan {} {
 	after frame trainer_caverns_of_titan
 }
 
+proc trainer_seikema2special {} {
+	#life
+	poke 0xe060 255
+	poke 0xe061 255
+	#money
+	poke 0xe062 255
+	#weapon (try 0-5)
+	poke 0xe048 5
+after time 10 trainer_seikema2special
+}
+
 
 proc poke {addr val} {
 	debug write memory $addr $val
