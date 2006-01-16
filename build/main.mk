@@ -20,7 +20,7 @@
 # ===============
 
 # Logical targets which require dependency files.
-DEPEND_TARGETS:=all default install run
+DEPEND_TARGETS:=all default install run app
 # Logical targets which do not require dependency files.
 NODEPEND_TARGETS:=clean config probe
 # Mark all logical targets as such.
@@ -211,6 +211,7 @@ PROBE_MAKE:=$(CONFIG_PATH)/probed_defs.mk
 VERSION_HEADER:=$(CONFIG_PATH)/Version.ii
 COMPONENTS_MAKE:=$(MAKE_PATH)/components.mk
 COMPONENTS_HEADER:=$(CONFIG_PATH)/components.hh
+APP_MAKE:=$(MAKE_PATH)/package-darwin/app.mk
 
 
 # Configuration
@@ -436,6 +437,13 @@ $(SUB_MAKEFILES):
 	@echo "	@\$$(MAKE) -C $(RELPATH) -f build/main.mk" >> $@
 # Force re-creation every time this target is run.
 .PHONY: $(SUB_MAKEFILES)
+endif
+
+# Build application directory for Darwin.
+ifeq ($(OPENMSX_TARGET_OS),darwin)
+app: $(BINARY_FULL)
+	@echo "Packaging application:"
+	@OUTDIR=$(BUILD_PATH) BINARY=$< $(MAKE) --no-print-directory -f $(APP_MAKE)
 endif
 
 # Compile and generate dependency files in one go.

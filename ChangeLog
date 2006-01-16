@@ -1,6 +1,11 @@
 $Id$
 
-2006-01-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2006-01-15 Maarten ter Huurne <maarten@treewalker.org>
+	* Added "make app" for Mac OS X.
+	  It is not yet fully functional, but most is there already.
+	  Thanks to BouKiCHi for helping.
+
+2006-01-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Made MSXDevice::getName() return a string by value:
 	   is not performance critical and simplifies code in MSXMultiDevice
 	* Moved common code of MSXMultiIODevice and MSXMultiMemDevice to
