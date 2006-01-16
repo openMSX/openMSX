@@ -69,7 +69,7 @@ inline SpriteChecker::SpritePattern SpriteChecker::calculatePatternNP(
 	int patternNr, int y)
 {
 	// Note: For sprite pattern, mask and index never overlap.
-	const byte *patternPtr = vram.spritePatternTable.readArea((-1 << 11) | 0);
+	const byte *patternPtr = vram.spritePatternTable.readArea((-1u << 11) | 0);
 	int index = patternNr * 8 + y;
 	SpritePattern pattern = patternPtr[index] << 24;
 	if (vdp.getSpriteSize() == 16) {
@@ -95,7 +95,7 @@ inline int SpriteChecker::checkSprites1(
 	int sprite, visibleIndex = 0;
 	int size = vdp.getSpriteSize();
 	int mag = vdp.getSpriteMag();
-	const byte *attributePtr = vram.spriteAttribTable.readArea((-1 << 7) | 0);
+	const byte *attributePtr = vram.spriteAttribTable.readArea((-1u << 7) | 0);
 	byte patternIndexMask = size == 16 ? 0xFC : 0xFF;
 	for (sprite = 0; sprite < 32; sprite++, attributePtr += 4) {
 		int y = *attributePtr;
