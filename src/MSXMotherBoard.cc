@@ -467,6 +467,42 @@ void MSXMotherBoard::update(const Setting& setting)
 	}
 }
 
+MSXDevice* MSXMotherBoard::findDevice(const string& name)
+{
+	for (Devices::iterator it = availableDevices.begin();
+	     it != availableDevices.end(); ++it) {
+		if (it->p->getName() == name) {
+			return it->p;
+		}
+	}
+	return NULL;
+}
+
+MSXMotherBoard::XDevice* MSXMotherBoard::findXDevice(const MSXDevice* device)
+{
+	for (Devices::iterator it = availableDevices.begin();
+	     it != availableDevices.end(); ++it) {
+		if (it->p == device) {
+			return &(*it);
+		}
+	}
+	assert(false);
+}
+
+void MSXMotherBoard::lockDevice(const MSXDevice* device)
+{
+	XDevice* xdev = findXDevice(device);
+	++xdev->n;
+}
+
+void MSXMotherBoard::releaseDevice(const MSXDevice* device)
+{
+	XDevice* xdev = findXDevice(device);
+	assert(xdev->n);
+	--xdev->n;
+}
+
+
 // inner class ResetCmd:
 
 MSXMotherBoard::ResetCmd::ResetCmd(CommandController& commandController,
@@ -485,30 +521,6 @@ string MSXMotherBoard::ResetCmd::execute(const vector<string>& /*tokens*/)
 string MSXMotherBoard::ResetCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "Resets the MSX.\n";
-}
-
-MSXDevice* MSXMotherBoard::lockDevice(const string& name)
-{
-	for (Devices::iterator it = availableDevices.begin();
-	     it != availableDevices.end(); ++it) {
-		if (it->p->getName() == name) {
-			++(it->n);
-			return it->p;
-		}
-	}
-	return NULL;
-}
-
-void MSXMotherBoard::releaseDevice(const MSXDevice* dev)
-{
-	for (Devices::iterator it = availableDevices.begin();
-	     it != availableDevices.end(); ++it) {
-		if (it->p == dev) {
-			--(it->n);
-			return;
-		}
-	}
-	assert(false);
 }
 
 } // namespace openmsx

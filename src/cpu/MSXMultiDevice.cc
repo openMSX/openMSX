@@ -21,7 +21,7 @@ static const XMLElement& getMultiConfig()
 }
 
 MSXMultiDevice::MSXMultiDevice(MSXMotherBoard& motherboard)
-	: MSXDevice(motherboard, getMultiConfig(), EmuTime::zero)
+	: MSXDevice(motherboard, getMultiConfig(), EmuTime::zero, "Multi")
 {
 }
 

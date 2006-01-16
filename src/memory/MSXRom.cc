@@ -8,7 +8,7 @@ namespace openmsx {
 
 MSXRom::MSXRom(MSXMotherBoard& motherBoard, const XMLElement& config,
                const EmuTime& time, std::auto_ptr<Rom> rom_)
-	: MSXDevice(motherBoard, config, time), rom(rom_)
+	: MSXDevice(motherBoard, config, time, rom_->getName()), rom(rom_)
 	, cpu(motherBoard.getCPU())
 {
 }
@@ -25,11 +25,6 @@ void MSXRom::writeMem(word /*address*/, byte /*value*/, const EmuTime& /*time*/)
 byte* MSXRom::getWriteCacheLine(word /*address*/) const
 {
 	return unmappedWrite;
-}
-
-std::string MSXRom::getName() const
-{
-	return rom->getName();
 }
 
 } // namespace openmsx

@@ -53,13 +53,19 @@ void Debugger::unregisterDebuggable(const string& name, Debuggable& debuggable)
 	debuggables.erase(it);
 }
 
-Debuggable* Debugger::getDebuggable(const string& name)
+Debuggable* Debugger::findDebuggable(const string& name)
 {
 	map<string, Debuggable*>::iterator it = debuggables.find(name);
-	if (it == debuggables.end()) {
+	return (it != debuggables.end()) ? it->second : NULL;
+}
+
+Debuggable* Debugger::getDebuggable(const string& name)
+{
+	Debuggable* result = findDebuggable(name);
+	if (!result) {
 		throw CommandException("No such debuggable.");
 	}
-	return it->second;
+	return result;
 }
 
 void Debugger::getDebuggables(set<string>& result) const

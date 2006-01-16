@@ -19,8 +19,7 @@ XMLException::XMLException(const string& msg)
 // class XMLLoader
 
 auto_ptr<XMLElement> XMLLoader::loadXML(const string& filename,
-                                        const string& systemID,
-                                        IdMap* idMap)
+                                        const string& systemID)
 {
 	xmlDocPtr doc = xmlParseFile(filename.c_str());
 	if (!doc) {
@@ -44,14 +43,14 @@ auto_ptr<XMLElement> XMLLoader::loadXML(const string& filename,
 	}
 
 	auto_ptr<XMLElement> result(new XMLElement(""));
-	init(*result, xmlDocGetRootElement(doc), idMap);
+	init(*result, xmlDocGetRootElement(doc));
 	xmlFreeDoc(doc);
 	//xmlCleanupParser(); // connecting from openmsx-debugger breaks in
 	                      //  windows when this is enabled
 	return result;
 }
 
-void XMLLoader::init(XMLElement& elem, xmlNodePtr node, IdMap* idMap)
+void XMLLoader::init(XMLElement& elem, xmlNodePtr node)
 {
 	elem.setName((const char*)node->name);
 	for (xmlNodePtr x = node->children; x != NULL ; x = x->next) {
@@ -61,7 +60,7 @@ void XMLLoader::init(XMLElement& elem, xmlNodePtr node, IdMap* idMap)
 			break;
 		case XML_ELEMENT_NODE: {
 			std::auto_ptr<XMLElement> child(new XMLElement(""));
-			init(*child, x, idMap);
+			init(*child, x);
 			elem.addChild(child);
 			break;
 		}
@@ -75,9 +74,6 @@ void XMLLoader::init(XMLElement& elem, xmlNodePtr node, IdMap* idMap)
 		case XML_ATTRIBUTE_NODE: {
 			string name  = (const char*)x->name;
 			string value = (const char*)x->children->content;
-			if (idMap && name == "id") {
-				value = makeUnique(value, *idMap);
-			}
 			elem.addAttribute(name, value);
 			break;
 		}
@@ -85,16 +81,6 @@ void XMLLoader::init(XMLElement& elem, xmlNodePtr node, IdMap* idMap)
 			// ignore
 			break;
 		}
-	}
-}
-
-string XMLLoader::makeUnique(const string& str, IdMap& idMap)
-{
-	unsigned num = ++idMap[str];
-	if (num == 1) {
-		return str;
-	} else {
-		return str + " (" + StringOp::toString(num) + ')';
 	}
 }
 

@@ -146,7 +146,10 @@ protected:
 	  * @param config config entry for this device.
 	  * @param time the moment in emulated time this MSXDevice is
 	  *   created (typically at time zero: power-up).
+	  * @param name The name for the MSXDevice (will be made unique)
 	  */
+	MSXDevice(MSXMotherBoard& motherBoard, const XMLElement& config,
+	          const EmuTime& time, const std::string& name);
 	MSXDevice(MSXMotherBoard& motherBoard, const XMLElement& config,
 	          const EmuTime& time);
 
@@ -157,9 +160,10 @@ protected:
 	static byte unmappedWrite[0x10000];	// Write only
 
 private:
+	void staticInit();
+	void init(const std::string& name);
 	typedef std::vector<std::pair<unsigned, unsigned> > MemRegions;
 	void getMemRegions(const XMLElement& config, MemRegions& result);
-	void initMem();
 	void registerSlots(const XMLElement& config);
 	void unregisterSlots(const XMLElement& config);
 
@@ -170,6 +174,7 @@ private:
 	int ss;
 
 	MSXMotherBoard& motherBoard;
+	std::string deviceName;
 };
 
 } // namespace openmsx

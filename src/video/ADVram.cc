@@ -31,11 +31,12 @@ void ADVram::powerUp(const EmuTime& time)
 {
 	if (!vdp) {
 		std::string vdpId = deviceConfig.getChildData("vdp");
-		vdp = dynamic_cast<VDP*>(getMotherBoard().lockDevice(vdpId));
+		vdp = dynamic_cast<VDP*>(getMotherBoard().findDevice(vdpId));
 		if (!vdp) {
 			throw FatalError("No device with name \"" + vdpId +
 			                 "\" found (or not a VDP device).");
 		}
+		getMotherBoard().lockDevice(vdp);
 		vram = &vdp->getVRAM();
 		mask = std::min(vram->getSize(), 128u * 1024) - 1;
 	}

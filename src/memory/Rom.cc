@@ -16,7 +16,6 @@
 #include "CliComm.hh"
 #include "FilePool.hh"
 #include "ConfigException.hh"
-#include "HardwareConfig.hh"
 #include "EmptyPatch.hh"
 #include "IPSPatch.hh"
 
@@ -119,14 +118,21 @@ void Rom::init(CliComm& cliComm, const XMLElement& config)
 	info = RomInfo::fetchRomInfo(cliComm, *this);
 
 	// TODO fix this, this is a hack that depends heavily on MSXRomCLI.cc
-	if (!info->getTitle().empty() &&
-	    ((name.size() >= 6) && (name.substr(0, 6) == "MSXRom"))) {
-		name = motherBoard.getHardwareConfig().makeUnique(
-		                                         info->getTitle());
+	if (!info->getTitle().empty() && StringOp::startsWith(name, "MSXRom")) {
+		name = info->getTitle();
 	}
 
 	if (size) {
-		motherBoard.getDebugger().registerDebuggable(name, *this);
+		Debugger& debugger = motherBoard.getDebugger();
+		if (debugger.findDebuggable(name)) {
+			unsigned n = 0;
+			string tmp;
+			do {
+				tmp = name + " (" + StringOp::toString(++n) + ")";
+			} while (debugger.findDebuggable(tmp));
+			name = tmp;
+		}
+		debugger.registerDebuggable(name, *this);
 	}
 }
 

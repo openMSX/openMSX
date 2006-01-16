@@ -5,7 +5,6 @@
 
 #include "MSXException.hh"
 #include <libxml/parser.h>
-#include <map>
 #include <memory>
 
 namespace openmsx {
@@ -21,14 +20,10 @@ public:
 class XMLLoader
 {
 public:
-	typedef std::map<std::string, unsigned> IdMap;
-	static std::string makeUnique(const std::string& str, IdMap& map);
-
 	static std::auto_ptr<XMLElement> loadXML(const std::string& filename,
-	                                         const std::string& systemID,
-	                                         IdMap* idMap = NULL);
+	                                         const std::string& systemID);
 private:
-	static void init(XMLElement& elem, xmlNodePtr node, IdMap* idMap);
+	static void init(XMLElement& elem, xmlNodePtr node);
 };
 
 } // namespace openmsx

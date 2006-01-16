@@ -22,6 +22,7 @@ public:
 
 	void registerDebuggable  (const std::string& name, Debuggable& interface);
 	void unregisterDebuggable(const std::string& name, Debuggable& interface);
+	Debuggable* findDebuggable(const std::string& name);
 
 	void setCPU(MSXCPU* cpu);
 

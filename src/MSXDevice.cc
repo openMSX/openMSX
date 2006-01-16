@@ -19,12 +19,33 @@ byte MSXDevice::unmappedWrite[0x10000];
 
 
 MSXDevice::MSXDevice(MSXMotherBoard& motherBoard_, const XMLElement& config,
+                     const EmuTime& /*time*/, const string& name)
+	: deviceConfig(config), motherBoard(motherBoard_)
+{
+	init(name);
+}
+
+MSXDevice::MSXDevice(MSXMotherBoard& motherBoard_, const XMLElement& config,
                      const EmuTime& /*time*/)
 	: deviceConfig(config), motherBoard(motherBoard_)
 {
-	initMem();
-	registerSlots(config);
-	registerPorts(config);
+	init(deviceConfig.getId());
+}
+
+void MSXDevice::init(const string& name)
+{
+	if (!motherBoard.findDevice(name)) {
+		deviceName = name;
+	} else {
+		unsigned n = 0;
+		do {
+			deviceName = name + " (" + StringOp::toString(++n) + ")";
+		} while (motherBoard.findDevice(deviceName));
+	}
+	
+	staticInit();
+	registerSlots(deviceConfig);
+	registerPorts(deviceConfig);
 }
 
 MSXDevice::~MSXDevice()
@@ -33,7 +54,7 @@ MSXDevice::~MSXDevice()
 	unregisterSlots(deviceConfig);
 }
 
-void MSXDevice::initMem()
+void MSXDevice::staticInit()
 {
 	static bool alreadyInit = false;
 	if (alreadyInit) {
@@ -199,7 +220,7 @@ void MSXDevice::powerUp(const EmuTime& time)
 
 string MSXDevice::getName() const
 {
-	return deviceConfig.getId();
+	return deviceName;
 }
 
 

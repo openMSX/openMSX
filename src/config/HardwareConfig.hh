@@ -14,10 +14,6 @@ public:
 
 	void loadHardware(XMLElement& root, const std::string& path,
 	                  const std::string& hwName);
-	std::string makeUnique(const std::string& str);
-
-private:
-	std::map<std::string, unsigned> idMap;
 };
 
 } // namespace openmsx

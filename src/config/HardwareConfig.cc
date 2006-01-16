@@ -33,7 +33,7 @@ void HardwareConfig::loadHardware(XMLElement& root, const string& path,
 	try {
 		File file(filename);
 		auto_ptr<XMLElement> doc(XMLLoader::loadXML(
-			file.getLocalName(), "msxconfig2.dtd", &idMap));
+			file.getLocalName(), "msxconfig2.dtd"));
 
 		// get url
 		string url(file.getURL());
@@ -58,11 +58,6 @@ void HardwareConfig::loadHardware(XMLElement& root, const string& path,
 			"Loading of hardware configuration failed: " +
 			e.getMessage());
 	}
-}
-
-string HardwareConfig::makeUnique(const string& str)
-{
-	return XMLLoader::makeUnique(str, idMap);
 }
 
 } // namespace openmsx
