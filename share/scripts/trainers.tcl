@@ -336,7 +336,7 @@ proc trainer_golvellius1 {} {
 	poke 0xe051 255
 	#do not get paralized when hit by an enemy (should be done every frame)
 	poke 0xd01a 0
-	#get all christals (bitmask) (NEW)
+	#get all christals (bitmask) (new)
 	poke 0xe05f 255 
 	after time 1 trainer_golvellius1 
 } 
@@ -1586,7 +1586,7 @@ proc trainer_vampirekiller {} {
 	poke 0xe600 255
 	#main enemy dies after 1 hit
 	poke 0xc418 0
-	#Silver cross is always active (no irregular enemies)
+	#silver cross is always active (no irregular enemies)
 	poke 0xc440 255
 	after time 2 trainer_vampirekiller
 }
@@ -4502,11 +4502,11 @@ after time 1 trainer_bosconian
 proc trainer_pegasus  {} {
 	#damage bar
 	poke 0xe1dc 0
-	#psyco-G1 ammo
+	#psyco-g1 ammo
 	poke 0xe09b 255
-	#psyco-G2 ammo
+	#psyco-g2 ammo
 	poke 0xe09c 255	
-	#psyco-G3 ammo
+	#psyco-g3 ammo
 	poke 0xe09d 255	
 	#zaider damage
 	poke 0xe0b5 0
@@ -4653,7 +4653,7 @@ proc trainer_saimazoom {} {
 	after time 1 trainer_saimazoom
 }
 
-#bleuMSX team do not release these cheats before x-mas!! Keep them in CVS!
+#bleumsx team do not release these cheats before x-mas!! keep them in cvs!
 proc trainer_thecure {} {
 	#power 
 	poke 0xdae6 64
@@ -4699,6 +4699,44 @@ proc trainer_seikema2special {} {
 	poke 0xe048 5
 after time 10 trainer_seikema2special
 }
+
+proc trainer_moai_no_hibou {} {
+	#pillars
+	poke 0xe30e 255
+	#life
+	poke 0xe00b 10
+after time 1 trainer_moai_no_hibou
+}
+
+proc trainer_kinnikuman {} {
+	#life player 1
+	poke 0xf002 255
+after time 1 trainer_kinnikuman
+}
+
+proc trainer_poppaq_the_fish {} {
+	#life player 1
+	poke 0xe122 0
+after time 1 trainer_poppaq_the_fish
+}
+
+proc trainer_spaceinvader {} {
+	#lives (for the space invader (1984) (taito) version
+	poke 0xe046 4
+after time 1 trainer_spaceinvader
+}
+
+proc trainer_megamitensho {} {
+	#power bar
+	poke 0xd271 255
+	#other bar
+	poke 0xd272 255
+	#disks
+	poke 0xd6bb 99
+after time 1 trainer_megamitensho
+}
+
+
 
 
 proc poke {addr val} {
