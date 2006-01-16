@@ -11,6 +11,8 @@
 typedef jack_default_audio_sample_t sample_t;
 static const int BUF_FAC = 4;
 
+static std::string lastError;
+
 namespace openmsx {
 
 class BlockFifo
@@ -156,11 +158,15 @@ static void fill_buf(BlockFifo* bf, size_t& sampcnt, size_t bufsize,
 
 
 CassetteJack::CassetteJack(Scheduler& scheduler)
-	: Schedulable(scheduler), bf_in(0), bf_out(0)
+	: Schedulable(scheduler), self(0)
+	, cmtin(0), cmtout(0), bf_in(0), bf_out(0)
+
 {
 	running = false;
 	zombie = false;
 	partialInterval = partialOut = 0.0;
+
+	jack_set_error_function(error_callback);
 }
 
 CassetteJack::~CassetteJack()
@@ -177,20 +183,20 @@ void CassetteJack::setMotor(bool /*status*/, const EmuTime& /*time*/)
 
 short CassetteJack::readSample(const EmuTime& time)
 {
-	if (!running || jack_port_connected(cmtin) == 0) {
+	if (!running || !jack_port_connected(cmtin)) {
 		return 0;
 	}
-	sample_t* p = bf_in->getRdBlock();
 
-	/* ASSUMPTION: openmsx is blocked here we need not worry about the
-	   readpointer being advanced during this function */
+	// ASSUMPTION: openmsx is blocked here we need not worry about the
+	// readpointer being advanced during this function
 	double index_d = (time - basetime).toDouble() * samplerate;
 	size_t index_i = (size_t)floor(index_d);
 	double lambda = index_d - floor(index_d);
 	
 	// piecewise linear interpolation
-	double res = lambda * p[index_i] +
-	      (1.0 - lambda) * ((index_i == 0) ? last_in : p[index_i - 1]);
+	sample_t* p = bf_in->getRdBlock();
+	double res =        lambda  *            p[index_i]                +
+	             (1.0 - lambda) * (index_i ? p[index_i - 1] : last_in);
 	return short(res * 32767);
 }
 
@@ -235,33 +241,30 @@ const std::string& CassetteJack::getDescription() const
 
 void CassetteJack::plugHelper(Connector& connector, const EmuTime& time)
 {
-	// TODO: handle errors gracefully
 	std::string name = "omsx-" + StringOp::toString(getpid());
 	self = jack_client_new(name.c_str());
-	if (!self) {
-		throw PlugException("Unable to initialize Jack client.");
-	}
-
-	samplerate = jack_get_sample_rate(self);
+	if (!self) initError("Unable to initialize jack client");
 
 	cmtout = jack_port_register(self, "casout", JACK_DEFAULT_AUDIO_TYPE,
 	                            JackPortIsOutput | JackPortIsTerminal, 0);
+	if (!cmtout) initError("Unable to register jack casout port");
+	
 	cmtin = jack_port_register(self, "casin", JACK_DEFAULT_AUDIO_TYPE,
 	                           JackPortIsInput, 0);
-	assert(cmtin && cmtout);
+	if (!cmtout) initError("Unable to register jack casin port");
 
 	bufsize = jack_get_buffer_size(self);
-
 	jack_set_buffer_size_callback(self, bufsize_callback, this);
 	bf_in  = new BlockFifo(BUF_FAC, bufsize);
 	bf_out = new BlockFifo(BUF_FAC, bufsize);
 
+	jack_set_sample_rate_callback(self, srate_callback, this);
+	srateCallBack(jack_get_sample_rate(self));
+
 	output = static_cast<CassettePortInterface&>(connector).lastOut();
 	basetime = prevtime = time;
 	sampcnt = 0;
-	timestep = EmuDuration((double)bufsize / samplerate);
 	setSyncPoint(time + timestep);
-	jack_set_sample_rate_callback(self, srate_callback, this);
 	jack_set_process_callback(self, process_callback, this);
 
 	jack_on_shutdown(self, shutdown_callback, this);
@@ -279,30 +282,51 @@ void CassetteJack::plugHelper(Connector& connector, const EmuTime& time)
 	}
 }
 
+void CassetteJack::initError(std::string message)
+{
+	deinit();
+	if (!lastError.empty()) {
+		message += ": " + lastError;
+		lastError.clear();
+	}
+	throw PlugException(message);
+}
+
 void CassetteJack::unplugHelper(const EmuTime& time)
 {
-	// TODO give the other jack-end the chance to finish reading what has
-	// been written
-	running = false;
-	if (false) { // should we do this ?
+	// TODO Should we do this?
+	// give the other jack-end the chance to finish reading 
+	// what has been written
+	if (false) {
 		executeUntil(time, 0);
-		running = false;
 		while (bf_out->hasRdBlock()) {
 			// wait
 		}
 	}
-	jack_deactivate(self);
-	// TODO? postpone until destructor
-	//    if (old_rb_out)
-	//      jack_ringbuffer_free(old_rb_out);
-	//    if (old_rb_in)
-	//      jack_ringbuffer_free(old_rb_in);
-	jack_port_unregister(self, cmtin);
-	jack_port_unregister(self, cmtout);
-	jack_client_close(self);
+
+	deinit();
+}
+
+void CassetteJack::deinit()
+{
+	running = false;
+	if (self) {
+		jack_deactivate(self);
+		if (cmtin) {
+			jack_port_unregister(self, cmtin);
+			cmtin = 0;
+		}
+		if (cmtout) {
+			jack_port_unregister(self, cmtout);
+			cmtout = 0;
+		}
+		jack_client_close(self);
+		self = 0;
+	}
 	delete bf_out;
 	delete bf_in;
 }
+
 
 void CassetteJack::executeUntil(const EmuTime& time, int /*userData*/)
 {
@@ -324,8 +348,7 @@ void CassetteJack::executeUntil(const EmuTime& time, int /*userData*/)
 		if ((len == bufsize) && (partialInterval == 0.0) &&
 		    (fabs(last_out) < 0.0001)) { // cut-off
 			last_out = 0.0;
-			fill_buf(bf_out, sampcnt, bufsize,
-			         len, 0.0, &zombie);
+			fill_buf(bf_out, sampcnt, bufsize, len, 0.0, &zombie);
 		} else {
 			setSignal(output, time);
 		}
@@ -410,6 +433,12 @@ void CassetteJack::shutdown_callback(void* arg)
 void CassetteJack::shutdownCallBack()
 {
 	zombie = true;
+}
+
+void CassetteJack::error_callback(const char* message)
+{
+	lastError = message;
+	PRT_DEBUG("Jack error: " + lastError);
 }
 
 } // namespace openmsx

@@ -47,6 +47,7 @@ private:
 	static int srate_callback(jack_nframes_t nframes, void* arg);
 	static int bufsize_callback(jack_nframes_t nframes, void* arg);
 	static void shutdown_callback(void* arg);
+	static void error_callback(const char* message);
 	int jackCallBack(jack_nframes_t);
 	int srateCallBack(jack_nframes_t);
 	int bufsizeCallBack(jack_nframes_t);
@@ -56,9 +57,12 @@ private:
 	virtual void plugHelper(Connector& connector, const EmuTime& time);
 	virtual void unplugHelper(const EmuTime& time);
 
+	void initError(std::string message);
+	void deinit();
+
 	jack_client_t* self;
-	jack_port_t* cmtout;
 	jack_port_t* cmtin;
+	jack_port_t* cmtout;
 	BlockFifo* bf_in;
 	BlockFifo* bf_out;
 	jack_default_audio_sample_t last_sig, last_out;

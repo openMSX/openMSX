@@ -4,6 +4,7 @@ $Id$
 	* CassetteJack cleanup:
 	   - changed code style to match rest of openMSX sources
 	   - fixed small bug: new[] needs delete[] (iso delete)
+	   - more robust error handling
 
 2006-01-15 Maarten ter Huurne <maarten@treewalker.org>
 	* Added "make app" for Mac OS X.
