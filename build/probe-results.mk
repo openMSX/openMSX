@@ -18,13 +18,13 @@ include $(MAKE_PATH)/components.mk
 include $(MAKE_PATH)/custom.mk
 
 # Usage: $(call FOUND,LIB_NAME)
-FOUND=$(if $(HAVE_$(1)_LIB),$(HAVE_$(1)_LIB),no)
+FOUND=$(if $(HAVE_$(1)_LIB),$(HAVE_$(1)_LIB),$(if $(filter $(1),$(DISABLED_LIBS)),disabled,no))
 
 # Usage: $(call YESNO,true|false)
 YESNO=$(subst true,yes,$(subst false,no,$(1)))
 
 # Usage: $(call HEADER,LIB1 LIB2 ...)
-HEADER=$(if $(strip $(foreach LIB,$(1),$(HAVE_$(LIB)_H))),yes,no)
+HEADER=$(if $(strip $(foreach LIB,$(1),$(HAVE_$(LIB)_H))),yes,$(if $(filter $(1)_H,$(DISABLED_HEADERS)),disabled,no))
 
 .PHONY: all no-compiler components components-print \
 	found-all found-enough found-insufficient
