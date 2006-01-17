@@ -1,6 +1,12 @@
 $Id$
 
 2006-01-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Refactored CartridgeSlotManager:
+	   - allocated external slots are freed again when the MSXDevice
+	     using it is destroyed
+	   - preparations for removable devices at run-time
+
+2006-01-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* CassetteJack cleanup:
 	   - changed code style to match rest of openMSX sources
 	   - fixed small bug: new[] needs delete[] (iso delete)

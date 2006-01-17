@@ -3,10 +3,12 @@
 #ifndef CARTRIDGESLOTMANAGER_HH
 #define CARTRIDGESLOTMANAGER_HH
 
+#include <string>
+
 namespace openmsx {
 
 class MSXMotherBoard;
-class Setting;
+class XMLElement;
 
 class CartridgeSlotManager
 {
@@ -14,23 +16,33 @@ public:
 	explicit CartridgeSlotManager(MSXMotherBoard& motherBoard);
 	~CartridgeSlotManager();
 
-	void readConfig();
+	void readConfig(const XMLElement& config);
 
 	void reserveSlot(int slot);
-	void getSlot(int slot, int& ps, int& ss);
-	void getSlot(int& ps, int& ss);
-	void getSlot(int& ps);
+	void unreserveSlot(int slot);
 
-	static int getSlotNum(const std::string& slot);
+	int getReservedSlot(int slot, int& ps, int& ss);
+	int getAnyFreeSlot(int& ps, int& ss);
+	void freeSlot(int slot);
 
 	bool isExternalSlot(int ps, int ss) const;
 
-private:
-	void createExternal(unsigned ps);
-	void createExternal(unsigned ps, unsigned ss);
+	static int getSlotNum(const std::string& slot);
 
-	int slots[16];
-	int slotCounter;
+private:
+	int getFreePrimarySlot();
+	void createExternal(int ps, int ss);
+
+	struct Slot {
+		Slot() : ps(0), ss(0)
+		       , reserved(false), exists(false), used(false) {}
+		int ps;
+		int ss;
+		bool reserved;
+		bool exists;
+		bool used;
+	};
+	Slot slots[16];
 	MSXMotherBoard& motherBoard;
 };
 

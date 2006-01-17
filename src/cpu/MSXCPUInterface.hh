@@ -166,6 +166,7 @@ public:
 	                     const EmuTime& time);
 
 	void setExpanded(int ps, bool expanded);
+	bool isExpanded(int ps) const;
 
 protected:
 	explicit MSXCPUInterface(MSXMotherBoard& motherBoard);

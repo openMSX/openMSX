@@ -34,6 +34,7 @@ MSXDevice::MSXDevice(MSXMotherBoard& motherBoard_, const XMLElement& config,
 
 void MSXDevice::init(const string& name)
 {
+	externalSlotID = -1;
 	if (!motherBoard.findDevice(name)) {
 		deviceName = name;
 	} else {
@@ -118,11 +119,10 @@ void MSXDevice::registerSlots(const XMLElement& config)
 	}
 
 	if (ps == -256) {
-		// any slot
-		slotManager.getSlot(ps, ss);
+		externalSlotID = slotManager.getAnyFreeSlot(ps, ss);
 	} else if (ps < 0) {
 		// specified slot by name (carta, cartb, ...)
-		slotManager.getSlot(-ps - 1, ps, ss);
+		externalSlotID = slotManager.getReservedSlot(-ps - 1, ps, ss);
 	} else {
 		// numerical specified slot (0, 1, 2, 3)
 	}
@@ -142,6 +142,10 @@ void MSXDevice::unregisterSlots(const XMLElement& config)
 	     it != memRegions.end(); ++it) {
 		getMotherBoard().getCPUInterface().unregisterMemDevice(
 			*this, ps, ss, it->first, it->second);
+	}
+
+	if (externalSlotID != -1) {
+		getMotherBoard().getSlotManager().freeSlot(externalSlotID);
 	}
 }
 

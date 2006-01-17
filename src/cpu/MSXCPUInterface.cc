@@ -87,7 +87,7 @@ MSXCPUInterface::~MSXCPUInterface()
 		assert(IO_Out[port] == &dummyDevice);
 	}
 	for (int primSlot = 0; primSlot < 4; ++primSlot) {
-		// TODO assert(!isSubSlotted[primSlot]);
+		// TODO assert(!isExpanded(primSlot));
 		for (int secSlot = 0; secSlot < 4; ++secSlot) {
 			for (int page = 0; page < 4; ++page) {
 				assert(slotLayout[primSlot][secSlot][page] == &dummyDevice);
@@ -98,7 +98,33 @@ MSXCPUInterface::~MSXCPUInterface()
 
 void MSXCPUInterface::setExpanded(int ps, bool expanded)
 {
+	if (isExpanded(ps) == expanded) return;
+
+	if (expanded) {
+		for (int page = 0; page < 4; ++page) {
+			if (slotLayout[ps][0][page] != &dummyDevice) {
+				throw MSXException("Can't expand slot because "
+				                   "it's already in use.");
+			}
+		}
+	} else {
+		for (int ss = 0; ss < 4; ++ss) {
+			for (int page = 0; page < 4; ++page) {
+				if (slotLayout[ps][ss][page] != &dummyDevice) {
+					throw MSXException(
+						"Can't remove slotexpander "
+						"because slot is still in use.");
+				}
+			}
+		}
+	}
+
 	isSubSlotted[ps] = expanded;
+}
+
+bool MSXCPUInterface::isExpanded(int ps) const
+{
+	return isSubSlotted[ps];
 }
 
 void MSXCPUInterface::register_IO_In(byte port, MSXDevice* device)
@@ -198,7 +224,7 @@ void MSXCPUInterface::registerSlot(
 	PRT_DEBUG(device.getName() << " registers at " <<
 	          std::dec << ps << " " << ss << " 0x" <<
 	          std::hex << base << "-0x" << (base + size - 1));
-	if (!isSubSlotted[ps] && (ss != 0)) {
+	if (!isExpanded(ps) && (ss != 0)) {
 		throw MSXException(
 			"Slot " + StringOp::toString(ps) +
 			"."     + StringOp::toString(ss) +
@@ -327,7 +353,7 @@ void MSXCPUInterface::setSubSlot(byte primSlot, byte value)
 
 byte MSXCPUInterface::peekMem(word address, const EmuTime& time) const
 {
-	if ((address == 0xFFFF) && isSubSlotted[primarySlotState[3]]) {
+	if ((address == 0xFFFF) && isExpanded(primarySlotState[3])) {
 		return 0xFF ^ subSlotRegister[primarySlotState[3]];
 	} else {
 		return visibleDevices[address >> 14]->peekMem(address, time);
@@ -340,11 +366,11 @@ byte MSXCPUInterface::peekSlottedMem(unsigned address, const EmuTime& time) cons
 	byte subSlot = (address & 0x30000) >> 16;
 	byte page = (address & 0x0C000) >> 14;
 	word offset = (address & 0xFFFF); // includes page
-	if (!isSubSlotted[primSlot]) {
+	if (!isExpanded(primSlot)) {
 		subSlot = 0;
 	}
 
-	if ((offset == 0xFFFF) && isSubSlotted[primSlot]) {
+	if ((offset == 0xFFFF) && isExpanded(primSlot)) {
 		return 0xFF ^ subSlotRegister[primSlot];
 	} else {
 		return slotLayout[primSlot][subSlot][page]->peekMem(offset, time);
@@ -358,11 +384,11 @@ void MSXCPUInterface::writeSlottedMem(unsigned address, byte value,
 	byte subSlot = (address & 0x30000) >> 16;
 	byte page = (address & 0x0C000) >> 14;
 	word offset = (address & 0xFFFF); // includes page
-	if (!isSubSlotted[primSlot]) {
+	if (!isExpanded(primSlot)) {
 		subSlot = 0;
 	}
 
-	if ((offset == 0xFFFF) && isSubSlotted[primSlot]) {
+	if ((offset == 0xFFFF) && isExpanded(primSlot)) {
 		setSubSlot(primSlot, value);
 	} else {
 		slotLayout[primSlot][subSlot][page]->writeMem(offset, value, time);
@@ -373,7 +399,7 @@ string MSXCPUInterface::getSlotMap() const
 {
 	ostringstream out;
 	for (int prim = 0; prim < 4; ++prim) {
-		if (isSubSlotted[prim]) {
+		if (isExpanded(prim)) {
 			for (int sec = 0; sec < 4; ++sec) {
 				out << "slot " << prim << "." << sec << ":\n";
 				printSlotMapPages(out, slotLayout[prim][sec]);
@@ -514,7 +540,7 @@ void MSXCPUInterface::SubSlottedInfo::execute(
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	result.setInt(interface.isSubSlotted[getSlot(tokens[2])]);
+	result.setInt(interface.isExpanded(getSlot(tokens[2])));
 }
 
 std::string MSXCPUInterface::SubSlottedInfo::help(

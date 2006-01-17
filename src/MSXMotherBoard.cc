@@ -306,7 +306,7 @@ FilePool& MSXMotherBoard::getFilePool()
 
 void MSXMotherBoard::readConfig()
 {
-	getSlotManager().readConfig();
+	getSlotManager().readConfig(getHardwareConfig());
 	createDevices(getHardwareConfig().getChild("devices"));
 }
 

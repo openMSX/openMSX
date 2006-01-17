@@ -170,6 +170,7 @@ private:
 	void registerPorts(const XMLElement& config);
 	void unregisterPorts(const XMLElement& config);
 
+	int externalSlotID;
 	int ps;
 	int ss;
 
