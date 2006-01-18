@@ -4,7 +4,8 @@ include build/node-start.mk
 
 SRC_HDR:= \
 	XMLLoader XMLElement \
-	HardwareConfig SettingsConfig
+	HardwareConfig MachineConfig ExtensionConfig \
+	SettingsConfig
 
 HDR_ONLY:= \
 	ConfigException

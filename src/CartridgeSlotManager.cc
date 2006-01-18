@@ -2,8 +2,6 @@
 
 #include "CartridgeSlotManager.hh"
 #include "MSXMotherBoard.hh"
-#include "XMLElement.hh"
-#include "MSXCPUInterface.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
 #include "openmsx.hh"
@@ -20,21 +18,11 @@ CartridgeSlotManager::CartridgeSlotManager(MSXMotherBoard& motherBoard_)
 
 CartridgeSlotManager::~CartridgeSlotManager()
 {
-	for (int slot = 0; slot < 16; ++slot) {
-		assert(slots[slot].used == false);
+	for (int slot = 0; slot < MAX_SLOTS; ++slot) {
+		assert(!slots[slot].exists);
+		assert(!slots[slot].used);
+		assert(!slots[slot].reserved);
 	}
-}
-
-void CartridgeSlotManager::reserveSlot(int slot)
-{
-	assert((0 <= slot) && (slot < 16));
-	slots[slot].reserved = true;
-}
-
-void CartridgeSlotManager::unreserveSlot(int slot)
-{
-	assert((0 <= slot) && (slot < 16));
-	slots[slot].reserved = false;
 }
 
 int CartridgeSlotManager::getSlotNum(const string& slot)
@@ -52,48 +40,30 @@ int CartridgeSlotManager::getSlotNum(const string& slot)
 	}
 }
 
-void CartridgeSlotManager::readConfig(const XMLElement& config)
+void CartridgeSlotManager::reserveSlot(int slot)
 {
-	// TODO this code does parsing for both 'expanded' and 'external' slots
-	//      once machine and extensions are parsed separately move parsing
-	//      of 'expanded' to MSXCPUInterface
-	XMLElement::Children primarySlots;
-	config.getChild("devices").getChildren("primary", primarySlots);
-	for (XMLElement::Children::const_iterator it = primarySlots.begin();
-	     it != primarySlots.end(); ++it) {
-		const string& primSlot = (*it)->getAttribute("slot");
-		int ps = getSlotNum(primSlot);
-		if ((*it)->getAttributeAsBool("external", false)) {
-			if (ps < 0) {
-				throw FatalError("Cannot mark unspecified primary slot '" +
-					primSlot + "' as external");
-			}
-			createExternal(ps, 0);
-			continue;
-		}
-		XMLElement::Children secondarySlots;
-		(*it)->getChildren("secondary", secondarySlots);
-		for (XMLElement::Children::const_iterator it2 = secondarySlots.begin();
-		     it2 != secondarySlots.end(); ++it2) {
-			const string& secSlot = (*it2)->getAttribute("slot");
-			int ss = getSlotNum(secSlot);
-			if (ss < 0) {
-				continue;
-			}
-			if (ps < 0) {
-				ps = getFreePrimarySlot();
-			}
-			motherBoard.getCPUInterface().setExpanded(ps, true);
-			if ((*it2)->getAttributeAsBool("external", false)) {
-				createExternal(ps, ss);
-			}
-		}
-	}
+	assert((0 <= slot) && (slot < MAX_SLOTS));
+	slots[slot].reserved++;
 }
 
-void CartridgeSlotManager::createExternal(int ps, int ss)
+void CartridgeSlotManager::unreserveSlot(int slot)
 {
-	for (int slot = 0; slot < 16; ++slot) {
+	assert((0 <= slot) && (slot < MAX_SLOTS));
+	assert(slots[slot].reserved != 0);
+	slots[slot].reserved--;
+}
+
+void CartridgeSlotManager::createExternalSlot(int ps)
+{
+	createExternalSlot(ps, -1);
+}
+
+void CartridgeSlotManager::createExternalSlot(int ps, int ss)
+{
+	if (isExternalSlot(ps, ss, false)) {
+		throw FatalError("Slot is already an external slot.");
+	}
+	for (int slot = 0; slot < MAX_SLOTS; ++slot) {
 		if (!slots[slot].exists) {
 			slots[slot].ps = ps;
 			slots[slot].ss = ss;
@@ -104,32 +74,69 @@ void CartridgeSlotManager::createExternal(int ps, int ss)
 	assert(false);
 }
 
+void CartridgeSlotManager::removeExternalSlot(int ps)
+{
+	for (int slot = 0; slot < MAX_SLOTS; ++slot) {
+		if (slots[slot].exists &&
+		    (slots[slot].ps == ps) && (slots[slot].ss == -1)) {
+			slots[slot].exists = false;
+			return;
+		}
+	}
+	assert(false); // was not an external slot
+}
+
+void CartridgeSlotManager::removeExternalSlot(int ps, int ss)
+{
+	for (int slot = 0; slot < MAX_SLOTS; ++slot) {
+		if (slots[slot].exists &&
+		    (slots[slot].ps == ps) && (slots[slot].ss == ss)) {
+			slots[slot].exists = false;
+			return;
+		}
+	}
+	assert(false); // was not an external slot
+}
+
 int CartridgeSlotManager::getReservedSlot(int slot, int& ps, int& ss)
 {
-	assert((0 <= slot) && (slot < 16));
+	assert((0 <= slot) && (slot < MAX_SLOTS));
 	assert(slots[slot].reserved);
 
 	if (!slots[slot].exists) {
 		throw FatalError(string("Slot") + (char)('a' + slot) + " not defined");
 	}
 	ps = slots[slot].ps;
-	ss = slots[slot].ss;
+	ss = (slots[slot].ss != -1) ? slots[slot].ss : 0;
 	slots[slot].used = true;
 	return slot;
 }
 
 int CartridgeSlotManager::getAnyFreeSlot(int& ps, int& ss)
 {
-	for (int slot = 0; slot < 16; slot++) {
+	for (int slot = 0; slot < MAX_SLOTS; slot++) {
 		if (slots[slot].exists &&
 		    !slots[slot].reserved && !slots[slot].used) {
 			slots[slot].used = true;
 			ps = slots[slot].ps;
-			ss = slots[slot].ss;
+			ss = (slots[slot].ss != -1) ? slots[slot].ss : 0;
 			return slot;
 		}
 	}
 	throw FatalError("Not enough free cartridge slots");
+}
+
+int CartridgeSlotManager::getFreePrimarySlot(int &ps)
+{
+	for (int slot = 0; slot < MAX_SLOTS; ++slot) {
+		ps = slots[slot].ps;
+		if (slots[slot].exists && (slots[slot].ss == -1) &&
+		    !slots[slot].reserved && !slots[slot].used) {
+			slots[slot].used = true;
+			return slot;
+		}
+	}
+	throw FatalError("No free primary slot");
 }
 
 void CartridgeSlotManager::freeSlot(int slot)
@@ -138,26 +145,12 @@ void CartridgeSlotManager::freeSlot(int slot)
 	slots[slot].used = false;
 }
 
-int CartridgeSlotManager::getFreePrimarySlot()
+bool CartridgeSlotManager::isExternalSlot(int ps, int ss, bool convert) const
 {
-	for (int slot = 0; slot < 16; ++slot) {
-		int ps = slots[slot].ps;
+	for (int slot = 0; slot < MAX_SLOTS; ++slot) {
+		int tmp = (convert && (slots[slot].ss == -1)) ? 0 : slots[slot].ss;
 		if (slots[slot].exists &&
-		    !slots[slot].reserved && !slots[slot].used &&
-		    !motherBoard.getCPUInterface().isExpanded(ps)) {
-			assert(slots[slot].ss == 0);
-			slots[slot].reserved = true;
-			return ps;
-		}
-	}
-	throw FatalError("No free primary slot");
-}
-
-bool CartridgeSlotManager::isExternalSlot(int ps, int ss) const
-{
-	for (int slot = 0; slot < 16; ++slot) {
-		if (slots[slot].exists &&
-		    (slots[slot].ps == ps) && (slots[slot].ss == ss)) {
+		    (slots[slot].ps == ps) && (tmp == ss)) {
 			return true;
 		}
 	}

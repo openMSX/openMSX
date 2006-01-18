@@ -1,15 +1,15 @@
 // $Id$
 
 #include "RenShaTurbo.hh"
-#include "HardwareConfig.hh"
+#include "XMLElement.hh"
 #include "Autofire.hh"
 
 namespace openmsx {
 
 RenShaTurbo::RenShaTurbo(CommandController& commandController,
-                         HardwareConfig& hardwareConfig)
+                         const XMLElement& machineConfig)
 {
-	const XMLElement* config = hardwareConfig.findChild("RenShaTurbo");
+	const XMLElement* config = machineConfig.findChild("RenShaTurbo");
 	if (config) {
 		int min_ints = config->getChildDataAsInt("min_ints", 47);
 		int max_ints = config->getChildDataAsInt("max_ints", 221);

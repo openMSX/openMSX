@@ -5,7 +5,7 @@
 #include "MSXMapperIOPhilips.hh"
 #include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
-#include "HardwareConfig.hh"
+#include "MachineConfig.hh"
 #include "MSXException.hh"
 
 using std::string;
@@ -18,7 +18,7 @@ MSXMapperIO::MSXMapperIO(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, SimpleDebuggable(motherBoard, getName(),
 	                   "Memory mapper registers", 4)
 {
-	string type = motherBoard.getHardwareConfig().getChildData(
+	string type = motherBoard.getMachineConfig().getConfig().getChildData(
 	                               "MapperReadBackBits", "largest");
 	if (type == "5") {
 		mapperMask.reset(new MSXMapperIOTurboR());

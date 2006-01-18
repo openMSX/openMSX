@@ -15,7 +15,7 @@
 #include "IntegerSetting.hh"
 #include "VideoSourceSetting.hh"
 #include "MSXMotherBoard.hh"
-#include "HardwareConfig.hh"
+#include "MachineConfig.hh"
 #include "VideoSystemChangeListener.hh"
 #include "Version.hh"
 #include <algorithm>
@@ -217,10 +217,10 @@ void Display::doRendererSwitch()
 
 	resetVideoSystem();
 	videoSystem.reset(RendererFactory::createVideoSystem(motherboard));
-	HardwareConfig& hwConfig = motherboard.getHardwareConfig();
+	const XMLElement& config = motherboard.getMachineConfig().getConfig();
 	std::string title = Version::FULL_VERSION + " - " +
-		hwConfig.getChild("info").getChildData("manufacturer") + " " +
-		hwConfig.getChild("info").getChildData("code");
+		config.getChild("info").getChildData("manufacturer") + " " +
+		config.getChild("info").getChildData("code");
 	videoSystem->setWindowTitle(title);
 
 	for (Listeners::const_iterator it = listeners.begin();

@@ -7,7 +7,7 @@
 #include <cstdio>
 #include "ReadDir.hh"
 #include "CommandLineParser.hh"
-#include "HardwareConfig.hh"
+#include "MachineConfig.hh"
 #include "CommandController.hh"
 #include "SettingsConfig.hh"
 #include "File.hh"
@@ -278,16 +278,10 @@ MSXMotherBoard& CommandLineParser::getMotherBoard() const
 	return motherBoard;
 }
 
-HardwareConfig& CommandLineParser::getHardwareConfig() const
-{
-	return getMotherBoard().getHardwareConfig();
-}
-
 void CommandLineParser::loadMachine(const string& machine)
 {
 	try {
-		HardwareConfig& hwConfig = getHardwareConfig();
-		hwConfig.loadHardware(hwConfig, "machines", machine);
+		getMotherBoard().getMachineConfig().load("machines", machine);
 	} catch (FileException& e) {
 		throw FatalError("Machine \"" + machine + "\" not found (" +
 		                 e.getMessage() + ").");

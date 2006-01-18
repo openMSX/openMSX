@@ -2,8 +2,9 @@
 
 #include "MSXMotherBoard.hh"
 #include "MSXDevice.hh"
+#include "MachineConfig.hh"
+#include "ExtensionConfig.hh"
 #include "Scheduler.hh"
-#include "HardwareConfig.hh"
 #include "CartridgeSlotManager.hh"
 #include "Debugger.hh"
 #include "Mixer.hh"
@@ -54,7 +55,11 @@ MSXMotherBoard::MSXMotherBoard()
 MSXMotherBoard::~MSXMotherBoard()
 {
 	powerSetting.detach(*this);
+	deleteMachine();
+}
 
+void MSXMotherBoard::deleteMachine()
+{
 	// delete all MSXDevices
 	bool cont = true;
 	while (!availableDevices.empty() && cont) {
@@ -75,7 +80,29 @@ MSXMotherBoard::~MSXMotherBoard()
 		assert(progress);
 	}
 	availableDevices.clear();
+
+	for (Extensions::reverse_iterator it = extensions.rbegin();
+	     it != extensions.rend(); ++it) {
+		delete *it;
+	}
+	extensions.clear();
+
+	machineConfig.reset();
 }
+
+MachineConfig& MSXMotherBoard::getMachineConfig()
+{
+	if (!machineConfig.get()) {
+		machineConfig.reset(new MachineConfig(*this));
+	}
+	return *machineConfig;
+}
+
+void MSXMotherBoard::addExtension(std::auto_ptr<ExtensionConfig>& extension)
+{
+	extensions.push_back(extension.release());
+}
+
 
 Scheduler& MSXMotherBoard::getScheduler()
 {
@@ -83,14 +110,6 @@ Scheduler& MSXMotherBoard::getScheduler()
 		scheduler.reset(new Scheduler());
 	}
 	return *scheduler;
-}
-
-HardwareConfig& MSXMotherBoard::getHardwareConfig()
-{
-	if (!hardwareConfig.get()) {
-		hardwareConfig.reset(new HardwareConfig());
-	}
-	return *hardwareConfig;
 }
 
 CartridgeSlotManager& MSXMotherBoard::getSlotManager()
@@ -212,7 +231,7 @@ MSXCPUInterface& MSXMotherBoard::getCPUInterface()
 	if (!msxCpuInterface.get()) {
 		// TODO assert hw config already loaded
 		msxCpuInterface = MSXCPUInterface::create(
-			*this, getHardwareConfig());
+			*this, getMachineConfig().getConfig());
 	}
 	return *msxCpuInterface;
 }
@@ -241,7 +260,7 @@ MSXDeviceSwitch& MSXMotherBoard::getDeviceSwitch()
 CassettePortInterface& MSXMotherBoard::getCassettePort()
 {
 	if (!cassettePort.get()) {
-		if (getHardwareConfig().findChild("CassettePort")) {
+		if (getMachineConfig().getConfig().findChild("CassettePort")) {
 			cassettePort.reset(new CassettePort(*this));
 		} else {
 			cassettePort.reset(new DummyCassettePort());
@@ -253,8 +272,8 @@ CassettePortInterface& MSXMotherBoard::getCassettePort()
 RenShaTurbo& MSXMotherBoard::getRenShaTurbo()
 {
 	if (!renShaTurbo.get()) {
-		renShaTurbo.reset(new RenShaTurbo(getCommandController(),
-		                                  getHardwareConfig()));
+		renShaTurbo.reset(new RenShaTurbo(
+			getCommandController(), getMachineConfig().getConfig()));
 	}
 	return *renShaTurbo;
 }
@@ -306,8 +325,17 @@ FilePool& MSXMotherBoard::getFilePool()
 
 void MSXMotherBoard::readConfig()
 {
-	getSlotManager().readConfig(getHardwareConfig());
-	createDevices(getHardwareConfig().getChild("devices"));
+	getMachineConfig().parseSlots();
+	for (Extensions::const_iterator it = extensions.begin();
+	     it != extensions.end(); ++it) {
+		(*it)->parseSlots();
+	}
+
+	createDevices(getMachineConfig().getDevices());
+	for (Extensions::const_iterator it = extensions.begin();
+	     it != extensions.end(); ++it) {
+		createDevices((*it)->getDevices());
+	}
 }
 
 bool MSXMotherBoard::execute()

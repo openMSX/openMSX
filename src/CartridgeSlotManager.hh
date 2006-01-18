@@ -16,33 +16,36 @@ public:
 	explicit CartridgeSlotManager(MSXMotherBoard& motherBoard);
 	~CartridgeSlotManager();
 
-	void readConfig(const XMLElement& config);
+	static int getSlotNum(const std::string& slot);
 
 	void reserveSlot(int slot);
 	void unreserveSlot(int slot);
 
+	void createExternalSlot(int ps);
+	void createExternalSlot(int ps, int ss);
+	void removeExternalSlot(int ps);
+	void removeExternalSlot(int ps, int ss);
+
 	int getReservedSlot(int slot, int& ps, int& ss);
 	int getAnyFreeSlot(int& ps, int& ss);
+	int getFreePrimarySlot(int& ps);
 	void freeSlot(int slot);
 
-	bool isExternalSlot(int ps, int ss) const;
-
-	static int getSlotNum(const std::string& slot);
+	bool isExternalSlot(int ps, int ss, bool convert = false) const;
 
 private:
-	int getFreePrimarySlot();
-	void createExternal(int ps, int ss);
 
 	struct Slot {
-		Slot() : ps(0), ss(0)
-		       , reserved(false), exists(false), used(false) {}
+		Slot() : ps(0), ss(0), reserved(0)
+		       , exists(false), used(false) {}
 		int ps;
 		int ss;
-		bool reserved;
+		int reserved;
 		bool exists;
 		bool used;
 	};
-	Slot slots[16];
+	static const int MAX_SLOTS = 16 + 4;
+	Slot slots[MAX_SLOTS];
 	MSXMotherBoard& motherBoard;
 };
 

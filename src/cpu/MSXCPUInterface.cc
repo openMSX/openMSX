@@ -6,7 +6,7 @@
 #include "TclObject.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"
-#include "HardwareConfig.hh"
+#include "XMLElement.hh"
 #include "VDPIODelay.hh"
 #include "CliComm.hh"
 #include "MSXMultiIODevice.hh"
@@ -30,10 +30,10 @@ using std::min;
 
 namespace openmsx {
 
-auto_ptr<MSXCPUInterface> MSXCPUInterface::create(MSXMotherBoard& motherBoard,
-                                                  HardwareConfig& config)
+auto_ptr<MSXCPUInterface> MSXCPUInterface::create(
+		MSXMotherBoard& motherBoard, const XMLElement& machineConfig)
 {
-	if (config.getChild("devices").findChild("S1990")) {
+	if (machineConfig.getChild("devices").findChild("S1990")) {
 		return auto_ptr<MSXCPUInterface>(
 			new TurborCPUInterface(motherBoard));
 	} else {
@@ -61,7 +61,7 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard)
 	}
 	for (int primSlot = 0; primSlot < 4; ++primSlot) {
 		primarySlotState[primSlot] = 0;
-		isSubSlotted[primSlot] = false;
+		expanded[primSlot] = 0;
 		subSlotRegister[primSlot] = 0;
 		for (int secSlot = 0; secSlot < 4; ++secSlot) {
 			for (int page = 0; page < 4; ++page) {
@@ -87,7 +87,7 @@ MSXCPUInterface::~MSXCPUInterface()
 		assert(IO_Out[port] == &dummyDevice);
 	}
 	for (int primSlot = 0; primSlot < 4; ++primSlot) {
-		// TODO assert(!isExpanded(primSlot));
+		assert(!isExpanded(primSlot));
 		for (int secSlot = 0; secSlot < 4; ++secSlot) {
 			for (int page = 0; page < 4; ++page) {
 				assert(slotLayout[primSlot][secSlot][page] == &dummyDevice);
@@ -96,18 +96,23 @@ MSXCPUInterface::~MSXCPUInterface()
 	}
 }
 
-void MSXCPUInterface::setExpanded(int ps, bool expanded)
+void MSXCPUInterface::setExpanded(int ps)
 {
-	if (isExpanded(ps) == expanded) return;
-
-	if (expanded) {
+	if (expanded[ps] == 0) {
 		for (int page = 0; page < 4; ++page) {
 			if (slotLayout[ps][0][page] != &dummyDevice) {
 				throw MSXException("Can't expand slot because "
 				                   "it's already in use.");
 			}
 		}
-	} else {
+	}
+	expanded[ps]++;
+}
+
+void MSXCPUInterface::unsetExpanded(int ps)
+{
+	assert(isExpanded(ps));
+	if (expanded[ps] == 1) {
 		for (int ss = 0; ss < 4; ++ss) {
 			for (int page = 0; page < 4; ++page) {
 				if (slotLayout[ps][ss][page] != &dummyDevice) {
@@ -118,13 +123,7 @@ void MSXCPUInterface::setExpanded(int ps, bool expanded)
 			}
 		}
 	}
-
-	isSubSlotted[ps] = expanded;
-}
-
-bool MSXCPUInterface::isExpanded(int ps) const
-{
-	return isSubSlotted[ps];
+	expanded[ps]--;
 }
 
 void MSXCPUInterface::register_IO_In(byte port, MSXDevice* device)

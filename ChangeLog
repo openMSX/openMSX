@@ -1,6 +1,12 @@
 $Id$
 
-2006-01-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2006-01-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Preparations for run-time removable extensions/machines:
+	   - keep mamchines and extensions as seperate entities in memory
+	   - unregister 'expanded' and 'exernal' slots when the extension
+	     or machine is deleted
+
+2006-01-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Refactored CartridgeSlotManager:
 	   - allocated external slots are freed again when the MSXDevice
 	     using it is destroyed

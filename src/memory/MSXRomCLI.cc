@@ -4,8 +4,7 @@
 #include "StringOp.hh"
 #include "XMLElement.hh"
 #include "MSXMotherBoard.hh"
-#include "CartridgeSlotManager.hh"
-#include "HardwareConfig.hh"
+#include "ExtensionConfig.hh"
 #include "FileOperations.hh"
 #include "FileContext.hh"
 #include "MSXException.hh"
@@ -36,8 +35,6 @@ bool MSXRomCLI::parseOption(const string& option, list<string>& cmdLine)
 	string arg = getArgument(option, cmdLine);
 	string slotname;
 	if (option.length() == 6) {
-		int slot = option[5] - 'a';
-		cmdLineParser.getMotherBoard().getSlotManager().reserveSlot(slot);
 		slotname = option[5];
 	} else {
 		slotname = "any";
@@ -87,6 +84,7 @@ void MSXRomCLI::parse(const string& arg, const string& slotname,
 
 	string sramfile = FileOperations::getFilename(romfile);
 
+	auto_ptr<XMLElement> extension(new XMLElement("extension"));
 	auto_ptr<XMLElement> primary(new XMLElement("primary"));
 	primary->addAttribute("slot", slotname);
 	auto_ptr<XMLElement> secondary(new XMLElement("secondary"));
@@ -126,7 +124,16 @@ void MSXRomCLI::parse(const string& arg, const string& slotname,
 
 	secondary->addChild(device);
 	primary->addChild(secondary);
-	cmdLineParser.getHardwareConfig().getChild("devices").addChild(primary);
+	extension->addChild(primary);
+
+	MSXMotherBoard& motherBoard = cmdLineParser.getMotherBoard();
+	auto_ptr<ExtensionConfig> extConfig(new ExtensionConfig(motherBoard));
+	extConfig->setConfig(extension);
+	if (slotname != "any") {
+		extConfig->reserveSlot(slotname[0] - 'a');
+	}
+
+	motherBoard.addExtension(extConfig);
 }
 
 
@@ -145,7 +152,7 @@ const string& MSXRomCLI::IpsOption::optionHelp() const
 }
 
 bool MSXRomCLI::RomTypeOption::parseOption(const string& /*option*/,
-                                       list<string>& /*cmdLine*/)
+                                           list<string>& /*cmdLine*/)
 {
 	throw FatalError("-romtype options should immediately follow a ROM.");
 }

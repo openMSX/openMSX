@@ -9,7 +9,7 @@
 namespace openmsx {
 
 class CommandController;
-class HardwareConfig;
+class XMLElement;
 class EmuTime;
 class Autofire;
 
@@ -24,7 +24,7 @@ class RenShaTurbo
 {
 public:
 	RenShaTurbo(CommandController& commandController,
-	            HardwareConfig& hardwareConfig);
+	            const XMLElement& machineConfig);
 	~RenShaTurbo();
 
 	/**

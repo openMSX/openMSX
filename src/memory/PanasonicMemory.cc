@@ -5,14 +5,14 @@
 #include "MSXCPU.hh"
 #include "Ram.hh"
 #include "Rom.hh"
-#include "HardwareConfig.hh"
+#include "MachineConfig.hh"
 #include "MSXException.hh"
 
 namespace openmsx {
 
-static XMLElement& getRomConfig(MSXMotherBoard& motherBoard)
+static const XMLElement& getRomConfig(MSXMotherBoard& motherBoard)
 {
-	return motherBoard.getHardwareConfig().getChild("PanasonicRom");
+	return motherBoard.getMachineConfig().getConfig().getChild("PanasonicRom");
 }
 
 PanasonicMemory::PanasonicMemory(MSXMotherBoard& motherBoard)

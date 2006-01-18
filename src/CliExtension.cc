@@ -1,7 +1,8 @@
 // $Id$
 
 #include "CliExtension.hh"
-#include "HardwareConfig.hh"
+#include "ExtensionConfig.hh"
+#include "MSXMotherBoard.hh"
 #include "FileException.hh"
 #include "ConfigException.hh"
 
@@ -15,19 +16,15 @@ CliExtension::CliExtension(CommandLineParser& cmdLineParser_)
 	cmdLineParser.registerOption("-ext", this);
 }
 
-bool CliExtension::parseOption(const string& option,
-                               std::list<string>& cmdLine)
+bool CliExtension::parseOption(const string& option, std::list<string>& cmdLine)
 {
 	string extension = getArgument(option, cmdLine);
-	HardwareConfig& hardwareConfig = cmdLineParser.getHardwareConfig();
-	XMLElement* devices = hardwareConfig.findChild("devices");
-	if (!devices) {
-		// TODO refactor command line parser
-		//  this happens when -h or -v was given (no machine loaded)
-		return true;
-	}
 	try {
-		hardwareConfig.loadHardware(*devices, "extensions", extension);
+		MSXMotherBoard& motherBoard = cmdLineParser.getMotherBoard();
+		std::auto_ptr<ExtensionConfig> extConfig(
+			new ExtensionConfig(motherBoard));
+		extConfig->load("extensions", extension);
+		motherBoard.addExtension(extConfig);
 	} catch (FileException& e) {
 		throw FatalError("Extension \"" + extension + "\" not found (" +
 		                 e.getMessage() + ").");

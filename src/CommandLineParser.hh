@@ -73,7 +73,6 @@ public:
 	const Scripts& getStartupScripts() const;
 
 	MSXMotherBoard& getMotherBoard() const;
-	HardwareConfig& getHardwareConfig() const;
 
 private:
 	struct OptionData

@@ -16,7 +16,7 @@ namespace openmsx {
 
 class VDPIODelay;
 class DummyDevice;
-class HardwareConfig;
+class XMLElement;
 class CommandController;
 class MSXMotherBoard;
 class CartridgeSlotManager;
@@ -29,8 +29,8 @@ public:
 	/** Factory method for MSXCPUInterface. Depending om the machine
 	  * this method returns a MSXCPUInterface or a TurborCPUInterface
 	  */
-	static std::auto_ptr<MSXCPUInterface> create(MSXMotherBoard& motherBoard,
-	                                             HardwareConfig& config);
+	static std::auto_ptr<MSXCPUInterface> create(
+		MSXMotherBoard& motherBoard, const XMLElement& machineConfig);
 
 	/**
 	 * Devices can register their In ports. This is normally done
@@ -68,7 +68,7 @@ public:
 	 * This reads a byte from the currently selected device
 	 */
 	inline byte readMem(word address, const EmuTime& time) {
-		return ((address != 0xFFFF) || !isSubSlotted[primarySlotState[3]])
+		return ((address != 0xFFFF) || !isExpanded(primarySlotState[3]))
 			? visibleDevices[address >> 14]->readMem(address, time)
 			: 0xFF ^ subSlotRegister[primarySlotState[3]];
 	}
@@ -77,7 +77,7 @@ public:
 	 * This writes a byte to the currently selected device
 	 */
 	inline void writeMem(word address, byte value, const EmuTime& time) {
-		if ((address != 0xFFFF) || !isSubSlotted[primarySlotState[3]]) {
+		if ((address != 0xFFFF) || !isExpanded(primarySlotState[3])) {
 			visibleDevices[address>>14]->writeMem(address, value, time);
 		} else {
 			setSubSlot(primarySlotState[3], value);
@@ -114,7 +114,7 @@ public:
 	 */
 	inline const byte* getReadCacheLine(word start) const {
 		if ((start == 0x10000 - CPU::CACHE_LINE_SIZE) && // contains 0xffff
-		    (isSubSlotted[primarySlotState[3]])) {
+		    (isExpanded(primarySlotState[3]))) {
 			return NULL;
 		} else {
 			return visibleDevices[start >> 14]->getReadCacheLine(start);
@@ -135,7 +135,7 @@ public:
 	 */
 	inline byte* getWriteCacheLine(word start) const {
 		if ((start == 0x10000 - CPU::CACHE_LINE_SIZE) && // contains 0xffff
-		    (isSubSlotted[primarySlotState[3]])) {
+		    (isExpanded(primarySlotState[3]))) {
 			return NULL;
 		} else {
 			return visibleDevices[start >> 14]->getWriteCacheLine(start);
@@ -165,8 +165,9 @@ public:
 	void writeSlottedMem(unsigned address, byte value,
 	                     const EmuTime& time);
 
-	void setExpanded(int ps, bool expanded);
-	bool isExpanded(int ps) const;
+	void setExpanded(int ps);
+	void unsetExpanded(int ps);
+	inline bool isExpanded(int ps) const { return expanded[ps]; }
 
 protected:
 	explicit MSXCPUInterface(MSXMotherBoard& motherBoard);
@@ -275,7 +276,7 @@ private:
 	byte subSlotRegister[4];
 	byte primarySlotState[4];
 	byte secondarySlotState[4];
-	bool isSubSlotted[4];
+	unsigned expanded[4];
 	MSXDevice* visibleDevices[4];
 
 	DummyDevice& dummyDevice;
