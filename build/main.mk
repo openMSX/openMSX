@@ -147,6 +147,11 @@ endif
 # Note that the include above will force a reload of the Makefile.
 ifneq ($(PLATFORM),)
 
+# Variants in the code: desired behaviour depends on platform or flavour.
+# Defaults are set here, the included Makefiles can override if needed.
+# - should openMSX set a window icon?
+SET_WINDOW_ICON:=true
+
 # Load CPU specific settings.
 $(call DEFCHECK,OPENMSX_TARGET_CPU)
 include $(MAKE_PATH)/cpu-$(OPENMSX_TARGET_CPU).mk

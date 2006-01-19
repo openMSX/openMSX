@@ -5,6 +5,12 @@
 # - file dates used for dependency checks (as opposed to "-D" compile flag)
 # - inactive code is still checked by compiler (as opposed to "#if")
 
+# Sanity checks on required Make variables.
+$(call DEFCHECK,OPENMSX_TARGET_CPU)
+$(call BOOLCHECK,BIG_ENDIAN)
+$(call BOOLCHECK,SET_WINDOW_ICON)
+#$(call DEFCHECK,INSTALL_SHARE_DIR)
+
 $(CONFIG_HEADER): $(MAKE_PATH)/info2code.mk $(MAKE_PATH)/custom.mk
 	@echo "Creating $@..."
 	@mkdir -p $(@D)
@@ -23,6 +29,7 @@ $(CONFIG_HEADER): $(MAKE_PATH)/info2code.mk $(MAKE_PATH)/custom.mk
 	fi
 # Don't call it "BIG_ENDIAN", because some system header may #define that.
 	@echo "static const bool OPENMSX_BIGENDIAN = $(BIG_ENDIAN);" >> $@
+	@echo "static const bool OPENMSX_SET_WINDOW_ICON = $(SET_WINDOW_ICON);" >> $@
 	@echo "static const std::string DATADIR = \"$(INSTALL_SHARE_DIR)\";" >> $@
 	@echo "" >> $@
 	@echo "} // namespace openmsx" >> $@

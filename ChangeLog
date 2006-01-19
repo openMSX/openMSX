@@ -1,5 +1,10 @@
 $Id$
 
+2006-01-19 Maarten ter Huurne <maarten@treewalker.org>
+	* Added the option not set the window icon from the openMSX process.
+	  This is useful for running from an OS X app folder, since the app
+	  folder sets a hi-res icon.
+
 2006-01-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Preparations for run-time removable extensions/machines:
 	   - keep mamchines and extensions as seperate entities in memory
