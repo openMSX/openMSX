@@ -22,7 +22,6 @@
 #include "FileManipulator.hh"
 #include "FilePool.hh"
 #include "EmuTime.hh"
-#include "DeviceFactory.hh"
 #include "LedEvent.hh"
 #include "EventDistributor.hh"
 #include "UserInputEventDistributor.hh"
@@ -56,31 +55,14 @@ MSXMotherBoard::~MSXMotherBoard()
 {
 	powerSetting.detach(*this);
 	deleteMachine();
+
+	assert(availableDevices.empty());
+	assert(extensions.empty());
+	assert(!machineConfig.get());
 }
 
 void MSXMotherBoard::deleteMachine()
 {
-	// delete all MSXDevices
-	bool cont = true;
-	while (!availableDevices.empty() && cont) {
-		cont = false;
-		bool progress = false;
-		for (Devices::iterator it = availableDevices.begin();
-		     it != availableDevices.end(); ++it) {
-			if (it->n > 0) {
-				cont = true;
-			} else {
-				if (it->p) {
-					delete it->p;
-					it->p = NULL;
-					progress = true;
-				}
-			}
-		}
-		assert(progress);
-	}
-	availableDevices.clear();
-
 	for (Extensions::reverse_iterator it = extensions.rbegin();
 	     it != extensions.rend(); ++it) {
 		delete *it;
@@ -331,10 +313,10 @@ void MSXMotherBoard::readConfig()
 		(*it)->parseSlots();
 	}
 
-	createDevices(getMachineConfig().getDevices());
+	getMachineConfig().createDevices();
 	for (Extensions::const_iterator it = extensions.begin();
 	     it != extensions.end(); ++it) {
-		createDevices((*it)->getDevices());
+		(*it)->createDevices();
 	}
 }
 
@@ -383,9 +365,17 @@ void MSXMotherBoard::unpause()
 	getMixer().unmute();
 }
 
-void MSXMotherBoard::addDevice(std::auto_ptr<MSXDevice> device)
+void MSXMotherBoard::addDevice(MSXDevice& device)
 {
-	availableDevices.push_back(XDevice(device.release()));
+	availableDevices.push_back(&device);
+}
+
+void MSXMotherBoard::removeDevice(MSXDevice& device)
+{
+	Devices::iterator it = find(availableDevices.begin(),
+	                            availableDevices.end(), &device);
+	assert(it != availableDevices.end());
+	availableDevices.erase(it);
 }
 
 void MSXMotherBoard::scheduleReset()
@@ -399,7 +389,7 @@ void MSXMotherBoard::doReset(const EmuTime& time)
 	getCPUInterface().reset();
 	for (Devices::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
-		(*it).p->reset(time);
+		(*it)->reset(time);
 	}
 	getCPU().doReset(time);
 }
@@ -424,7 +414,7 @@ void MSXMotherBoard::powerUp()
 	getCPUInterface().reset();
 	for (Devices::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
-		(*it).p->powerUp(time);
+		(*it)->powerUp(time);
 	}
 	getCPU().doReset(time);
 	getMixer().unmute();
@@ -453,31 +443,7 @@ void MSXMotherBoard::doPowerDown(const EmuTime& time)
 
 	for (Devices::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
-		(*it).p->powerDown(time);
-	}
-}
-
-void MSXMotherBoard::createDevices(const XMLElement& elem)
-{
-	const XMLElement::Children& children = elem.getChildren();
-	for (XMLElement::Children::const_iterator it = children.begin();
-	     it != children.end(); ++it) {
-		const XMLElement& sub = **it;
-		const string& name = sub.getName();
-		if ((name == "primary") || (name == "secondary")) {
-			createDevices(sub);
-		} else {
-			PRT_DEBUG("Instantiating: " << name);
-			std::auto_ptr<MSXDevice> device(
-				DeviceFactory::create(*this, sub, EmuTime::zero));
-			if (device.get()) {
-				addDevice(device);
-			} else {
-				getCliComm().printWarning("Deprecated device: \"" +
-					name + "\", please upgrade your "
-					"machine descriptions.");
-			}
-		}
+		(*it)->powerDown(time);
 	}
 }
 
@@ -499,35 +465,11 @@ MSXDevice* MSXMotherBoard::findDevice(const string& name)
 {
 	for (Devices::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
-		if (it->p->getName() == name) {
-			return it->p;
+		if ((*it)->getName() == name) {
+			return *it;
 		}
 	}
 	return NULL;
-}
-
-MSXMotherBoard::XDevice* MSXMotherBoard::findXDevice(const MSXDevice* device)
-{
-	for (Devices::iterator it = availableDevices.begin();
-	     it != availableDevices.end(); ++it) {
-		if (it->p == device) {
-			return &(*it);
-		}
-	}
-	assert(false);
-}
-
-void MSXMotherBoard::lockDevice(const MSXDevice* device)
-{
-	XDevice* xdev = findXDevice(device);
-	++xdev->n;
-}
-
-void MSXMotherBoard::releaseDevice(const MSXDevice* device)
-{
-	XDevice* xdev = findXDevice(device);
-	assert(xdev->n);
-	--xdev->n;
 }
 
 

@@ -45,6 +45,7 @@ void MSXDevice::init(const string& name)
 	}
 	
 	staticInit();
+	lockDevices();
 	registerSlots(deviceConfig);
 	registerPorts(deviceConfig);
 }
@@ -53,6 +54,9 @@ MSXDevice::~MSXDevice()
 {
 	unregisterPorts(deviceConfig);
 	unregisterSlots(deviceConfig);
+	unlockDevices();
+
+	assert(referencedBy.empty());
 }
 
 void MSXDevice::staticInit()
@@ -63,6 +67,48 @@ void MSXDevice::staticInit()
 	}
 	alreadyInit = true;
 	memset(unmappedRead, 0xFF, 0x10000);
+}
+
+void MSXDevice::lockDevices()
+{
+	// This code can only handle backward references: the thing that is
+	// referenced must already be instantiated, we don't try to change the
+	// instantiation order. For the moment this is good enough (only ADVRAM
+	// (an extension) uses it to refer to the VDP (inside a machine)). If
+	// needed we can implement something more sophisticated later without
+	// changing the format of the config files.
+	XMLElement::Children refConfigs;
+	deviceConfig.getChildren("device", refConfigs);
+	for (XMLElement::Children::const_iterator it = refConfigs.begin();
+	     it != refConfigs.end(); ++it) {
+		string name = (*it)->getAttribute("idref");
+		MSXDevice* dev = motherBoard.findDevice(name);
+		if (!dev) {
+			throw FatalError(
+				"Unsatisfied dependency: '" + getName() +
+				"' depends on unavailable device '" +
+				name + "'.");
+		}
+		references.push_back(dev);
+		dev->referencedBy.push_back(this);
+	}
+}
+
+void MSXDevice::unlockDevices()
+{
+	for (Devices::const_iterator it = references.begin();
+	     it != references.end(); ++it) {
+		Devices::iterator it2 = find((*it)->referencedBy.begin(),
+		                             (*it)->referencedBy.end(),
+		                             this);
+		assert(it2 != (*it)->referencedBy.end());
+		(*it)->referencedBy.erase(it2);
+	}
+}
+
+const MSXDevice::Devices& MSXDevice::getReferences() const
+{
+	return references;
 }
 
 void MSXDevice::getMemRegions(const XMLElement& config, MemRegions& result)

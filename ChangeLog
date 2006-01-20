@@ -1,5 +1,13 @@
 $Id$
 
+2006-01-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Changed 'locking' of devices (eg. ADVRAM depends on VDP):
+	   - it's now specified with <device idref=".."/> tag(s)
+	   - can now be handled by generic code
+	* Moved ownership of MSXDevices from MSXMotherBoard to HardwareConfig
+	  (MSXMotherBoard owns (possibly several) HardwareConfigs):
+	   - another preparation for run-time switchable extensions/machines
+
 2006-01-19 Maarten ter Huurne <maarten@treewalker.org>
 	* Added the option not set the window icon from the openMSX process.
 	  This is useful for running from an OS X app folder, since the app

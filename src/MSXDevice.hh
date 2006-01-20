@@ -138,6 +138,11 @@ public:
 	  */
 	MSXMotherBoard& getMotherBoard() const { return motherBoard; }
 
+	typedef std::vector<MSXDevice*> Devices;
+	/** Get the device references that are specified for this device
+	 */
+	const Devices& getReferences() const;
+
 protected:
 	/** Every MSXDevice has a config entry; this constructor gets
 	  * some device properties from that config entry.
@@ -162,6 +167,10 @@ protected:
 private:
 	void staticInit();
 	void init(const std::string& name);
+
+	void lockDevices();
+	void unlockDevices();
+
 	typedef std::vector<std::pair<unsigned, unsigned> > MemRegions;
 	void getMemRegions(const XMLElement& config, MemRegions& result);
 	void registerSlots(const XMLElement& config);
@@ -176,6 +185,9 @@ private:
 
 	MSXMotherBoard& motherBoard;
 	std::string deviceName;
+
+	Devices references;
+	Devices referencedBy;
 };
 
 } // namespace openmsx

@@ -8,7 +8,7 @@
         <io base="0x9a" num="1" type="I"/>
         <io base="0xfe" num="1" type="O"/>
         <mem base="0x8000" size="0x4000"/>
-        <vdp>VDP</vdp>
+        <device idref="VDP"/>
         <hasEnable>true</hasEnable>
       </ADVram>
     </secondary>

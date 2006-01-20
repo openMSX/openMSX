@@ -17,29 +17,20 @@ ADVram::ADVram(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, vram(NULL)
 {
 	hasEnable = config.getChildDataAsBool("hasEnable", true);
-	reset(time);
-}
 
-ADVram::~ADVram()
-{
-	if (vdp) {
-		getMotherBoard().releaseDevice(vdp);
+	const MSXDevice::Devices& references = getReferences();
+	if (references.size() != 1) {
+		throw FatalError("Invalid ADVRAM configuration: "
+		                 "need reference to VDP device.");
 	}
-}
-
-void ADVram::powerUp(const EmuTime& time)
-{
+	vdp = dynamic_cast<VDP*>(references[0]);
 	if (!vdp) {
-		std::string vdpId = deviceConfig.getChildData("vdp");
-		vdp = dynamic_cast<VDP*>(getMotherBoard().findDevice(vdpId));
-		if (!vdp) {
-			throw FatalError("No device with name \"" + vdpId +
-			                 "\" found (or not a VDP device).");
-		}
-		getMotherBoard().lockDevice(vdp);
-		vram = &vdp->getVRAM();
-		mask = std::min(vram->getSize(), 128u * 1024) - 1;
+		throw FatalError("Invalid ADVRAM configuration: device '" +
+			references[0]->getName() + "' is not a VDP device.");
 	}
+	vram = &vdp->getVRAM();
+	mask = std::min(vram->getSize(), 128u * 1024) - 1;
+	
 	reset(time);
 }
 

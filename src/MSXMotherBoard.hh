@@ -113,6 +113,12 @@ public:
 	FileManipulator& getFileManipulator();
 	FilePool& getFilePool();
 
+	/**
+	 * All MSXDevices should be registered by the MotherBoard.
+	 */
+	void addDevice(MSXDevice& device);
+	void removeDevice(MSXDevice& device);
+
 	/** Find a MSXDevice by name
 	  * @Param name The name of the device as returned by
 	  *             MSXDevice::getName()
@@ -121,36 +127,11 @@ public:
 	  */
 	MSXDevice* findDevice(const std::string& name);
 	
-	/** Increment the reference counter for a device.
-	  * @Param dev A pointer to the MSXDevice
-	  */
-	void lockDevice(const MSXDevice* device);
-
-	/** Decrement the reference counter for a device.
-	  * @Param dev A pointer to the MSXDevice
-	  */
-	void releaseDevice(const MSXDevice* device);
-
 private:
-	struct XDevice {
-		explicit XDevice(MSXDevice* _p): p(_p), n(0) {}
-		MSXDevice* p;
-		unsigned n;
-	};
-
 	// Observer<Setting>
 	virtual void update(const Setting& setting);
 
-	/**
-	 * All MSXDevices should be registered by the MotherBoard.
-	 * This method should only be called at start-up
-	 */
-	void addDevice(std::auto_ptr<MSXDevice> device);
-
-	void createDevices(const XMLElement& elem);
-	XDevice* findXDevice(const MSXDevice* device);
-
-	typedef std::vector<XDevice> Devices;
+	typedef std::vector<MSXDevice*> Devices;
 	Devices availableDevices;
 
 	bool powered;

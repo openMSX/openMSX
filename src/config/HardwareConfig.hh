@@ -5,11 +5,13 @@
 
 #include "XMLElement.hh"
 #include <string>
+#include <vector>
 #include <memory>
 
 namespace openmsx {
 
 class MSXMotherBoard;
+class MSXDevice;
 
 class HardwareConfig
 {
@@ -22,15 +24,19 @@ public:
 	void load(const std::string& path, const std::string& hwName);
 	
 	void reserveSlot(int slot);
-	void parseSlots();
 
-	virtual const XMLElement& getDevices() const = 0;
+	void parseSlots();
+	void createDevices();
 
 private:
+	virtual const XMLElement& getDevices() const = 0;
+
+	void createDevices(const XMLElement& elem);
 	void createExternalSlot(int ps);
 	void createExternalSlot(int ps, int ss);
 	void createExpandedSlot(int ps);
 	int getFreePrimarySlot();
+	void addDevice(MSXDevice* device);
 
 	MSXMotherBoard& motherBoard;
 	std::auto_ptr<XMLElement> config;
@@ -40,6 +46,9 @@ private:
 	bool externalPrimSlots[4];
 	bool expandedSlots[4];
 	int allocatedPrimarySlots[4];
+
+	typedef std::vector<MSXDevice*> Devices;
+	Devices devices;
 };
 
 } // namespace openmsx

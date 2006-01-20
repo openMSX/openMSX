@@ -20,8 +20,6 @@ class ADVram : public MSXDevice
 public:
 	ADVram(MSXMotherBoard& motherBoard, const XMLElement& config,
 	       const EmuTime& time);
-	virtual ~ADVram();
-	virtual void powerUp(const EmuTime& time);
 	virtual void reset(const EmuTime& time);
 	virtual byte readIO(word port, const EmuTime& time);
 	virtual void writeIO(word port, byte value, const EmuTime& time);

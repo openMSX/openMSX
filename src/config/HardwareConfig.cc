@@ -9,6 +9,9 @@
 #include "MSXMotherBoard.hh"
 #include "CartridgeSlotManager.hh"
 #include "MSXCPUInterface.hh"
+#include "DeviceFactory.hh"
+#include "Scheduler.hh"
+#include "CliComm.hh"
 #include <cassert>
 
 using std::string;
@@ -31,6 +34,11 @@ HardwareConfig::HardwareConfig(MSXMotherBoard& motherBoard_)
 
 HardwareConfig::~HardwareConfig()
 {
+	for (Devices::reverse_iterator it = devices.rbegin();
+	     it != devices.rend(); ++it) {
+		motherBoard.removeDevice(**it);
+		delete *it;
+	}
 	CartridgeSlotManager& slotManager = motherBoard.getSlotManager();
 	if (reservedSlot != -1) {
 		slotManager.unreserveSlot(reservedSlot);
@@ -136,6 +144,36 @@ void HardwareConfig::parseSlots()
 	}
 }
 
+void HardwareConfig::createDevices()
+{
+	createDevices(getDevices());
+}
+
+void HardwareConfig::createDevices(const XMLElement& elem)
+{
+	const XMLElement::Children& children = elem.getChildren();
+	for (XMLElement::Children::const_iterator it = children.begin();
+	     it != children.end(); ++it) {
+		const XMLElement& sub = **it;
+		const string& name = sub.getName();
+		if ((name == "primary") || (name == "secondary")) {
+			createDevices(sub);
+		} else {
+			std::auto_ptr<MSXDevice> device(DeviceFactory::create(
+				motherBoard, sub,
+				motherBoard.getScheduler().getCurrentTime()));
+			if (device.get()) {
+				addDevice(device.release());
+			} else {
+				motherBoard.getCliComm().printWarning(
+					"Deprecated device: \"" +
+					name + "\", please upgrade your "
+					"hardware descriptions.");
+			}
+		}
+	}
+}
+
 void HardwareConfig::reserveSlot(int slot)
 {
 	assert(reservedSlot == -1);
@@ -173,6 +211,12 @@ int HardwareConfig::getFreePrimarySlot()
 	assert(allocatedPrimarySlots[ps] == -1);
 	allocatedPrimarySlots[ps] = slot;
 	return ps;
+}
+
+void HardwareConfig::addDevice(MSXDevice* device)
+{
+	motherBoard.addDevice(*device);
+	devices.push_back(device);
 }
 
 } // namespace openmsx
