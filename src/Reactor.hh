@@ -3,9 +3,9 @@
 #ifndef REACTOR_HH
 #define REACTOR_HH
 
-#include "Command.hh"
 #include "Observer.hh"
 #include "EventListener.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -14,6 +14,7 @@ class BooleanSetting;
 class MSXMotherBoard;
 class Setting;
 class CommandLineParser;
+class QuitCommand;
 
 /**
  * Contains the main loop of openMSX.
@@ -62,15 +63,8 @@ private:
 	MSXMotherBoard& motherBoard;
 	BooleanSetting& pauseSetting;
 	CliComm& cliComm;
-
-	class QuitCommand : public SimpleCommand {
-	public:
-		QuitCommand(CommandController& commandController, Reactor& reactor);
-		virtual std::string execute(const std::vector<std::string>& tokens);
-		virtual std::string help(const std::vector<std::string>& tokens) const;
-	private:
-		Reactor& reactor;
-	} quitCommand;
+	const std::auto_ptr<QuitCommand> quitCommand;
+	friend class QuitCommand;
 };
 
 } // namespace openmsx

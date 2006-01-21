@@ -2,10 +2,32 @@
 
 #include "YMF278.hh"
 #include "Rom.hh"
+#include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
 #include <cmath>
 
 namespace openmsx {
+
+class DebugRegisters : public SimpleDebuggable
+{
+public:
+	DebugRegisters(YMF278& ymf278, MSXMotherBoard& motherBoard);
+	virtual byte read(unsigned address);
+	virtual void write(unsigned address, byte value, const EmuTime& time);
+private:
+	YMF278& ymf278;
+};
+
+class DebugMemory : public SimpleDebuggable
+{
+public:
+	DebugMemory(YMF278& ymf278, MSXMotherBoard& motherBoard);
+	virtual byte read(unsigned address);
+	virtual void write(unsigned address, byte value);
+private:
+	YMF278& ymf278;
+};
+
 
 const EmuDuration YMF278::REG_SELECT_DELAY = MasterClock::duration(88);
 const EmuDuration YMF278::REG_WRITE_DELAY = MasterClock::duration(88);
@@ -754,8 +776,8 @@ YMF278::YMF278(MSXMotherBoard& motherBoard, const std::string& name, int ramSize
                const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMixer(), name, "MoonSound wave-part")
 	, rom(new Rom(motherBoard, name + " ROM", "rom", config))
-	, debugRegisters(*this, motherBoard)
-	, debugMemory   (*this, motherBoard)
+	, debugRegisters(new DebugRegisters(*this, motherBoard))
+	, debugMemory   (new DebugMemory   (*this, motherBoard))
 {
 	memadr = 0;	// avoid UMR
 	setSampleRate(44100);	// make valgrind happy
@@ -836,7 +858,7 @@ void YMF278::writeMem(unsigned address, byte value)
 
 // class DebugRegisters
 
-YMF278::DebugRegisters::DebugRegisters(YMF278& ymf278_,
+DebugRegisters::DebugRegisters(YMF278& ymf278_,
                                        MSXMotherBoard& motherBoard)
 	: SimpleDebuggable(motherBoard, ymf278_.getName() + " regs",
 	                   "OPL4 registers", 0x100)
@@ -844,12 +866,12 @@ YMF278::DebugRegisters::DebugRegisters(YMF278& ymf278_,
 {
 }
 
-byte YMF278::DebugRegisters::read(unsigned address)
+byte DebugRegisters::read(unsigned address)
 {
 	return ymf278.peekReg(address);
 }
 
-void YMF278::DebugRegisters::write(unsigned address, byte value, const EmuTime& time)
+void DebugRegisters::write(unsigned address, byte value, const EmuTime& time)
 {
 	ymf278.writeReg(address, value, time);
 }
@@ -857,19 +879,19 @@ void YMF278::DebugRegisters::write(unsigned address, byte value, const EmuTime& 
 
 // class DebugMemory
 
-YMF278::DebugMemory::DebugMemory(YMF278& ymf278_, MSXMotherBoard& motherBoard)
+DebugMemory::DebugMemory(YMF278& ymf278_, MSXMotherBoard& motherBoard)
 	: SimpleDebuggable(motherBoard, ymf278_.getName() + " mem",
 	                   "OPL4 memory (includes both ROM and RAM)", 0x400000) // 4MB
 	, ymf278(ymf278_)
 {
 }
 
-byte YMF278::DebugMemory::read(unsigned address)
+byte DebugMemory::read(unsigned address)
 {
 	return ymf278.readMem(address);
 }
 
-void YMF278::DebugMemory::write(unsigned address, byte value)
+void DebugMemory::write(unsigned address, byte value)
 {
 	ymf278.writeMem(address, value);
 }

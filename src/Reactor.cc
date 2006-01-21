@@ -4,6 +4,7 @@
 #include "MSXMotherBoard.hh"
 #include "CommandLineParser.hh"
 #include "CommandController.hh"
+#include "Command.hh"
 #include "Scheduler.hh"
 #include "MSXCPU.hh"
 #include "CliComm.hh"
@@ -21,6 +22,17 @@ using std::vector;
 
 namespace openmsx {
 
+class QuitCommand : public SimpleCommand
+{
+public:
+	QuitCommand(CommandController& commandController, Reactor& reactor);
+	virtual std::string execute(const std::vector<std::string>& tokens);
+	virtual std::string help(const std::vector<std::string>& tokens) const;
+private:
+	Reactor& reactor;
+};
+
+
 Reactor::Reactor(MSXMotherBoard& motherBoard_)
 	: paused(false)
 	, blockedCounter(0)
@@ -29,7 +41,7 @@ Reactor::Reactor(MSXMotherBoard& motherBoard_)
 	, pauseSetting(motherBoard.getCommandController().getGlobalSettings().
 	                   getPauseSetting())
 	, cliComm(motherBoard.getCliComm())
-	, quitCommand(motherBoard.getCommandController(), *this)
+	, quitCommand(new QuitCommand(motherBoard.getCommandController(), *this))
 {
 	pauseSetting.attach(*this);
 
@@ -157,21 +169,21 @@ void Reactor::signalEvent(const Event& event)
 // class QuitCommand
 // TODO: Unify QuitCommand and OPENMSX_QUIT_EVENT.
 
-Reactor::QuitCommand::QuitCommand(CommandController& commandController,
-                                  Reactor& reactor_)
+QuitCommand::QuitCommand(CommandController& commandController,
+                         Reactor& reactor_)
 	: SimpleCommand(commandController, "exit")
 	, reactor(reactor_)
 {
 }
 
-string Reactor::QuitCommand::execute(const vector<string>& /*tokens*/)
+string QuitCommand::execute(const vector<string>& /*tokens*/)
 {
 	reactor.running = false;
 	reactor.motherBoard.getCPU().exitCPULoop();
 	return "";
 }
 
-string Reactor::QuitCommand::help(const vector<string>& /*tokens*/) const
+string QuitCommand::help(const vector<string>& /*tokens*/) const
 {
 	return "Use this command to stop the emulator\n";
 }

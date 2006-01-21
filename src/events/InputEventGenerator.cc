@@ -1,5 +1,6 @@
 // $Id$
 
+#include "Command.hh"
 #include "InputEventGenerator.hh"
 #include "EventDistributor.hh"
 #include "InputEvents.hh"
@@ -12,6 +13,18 @@ using std::vector;
 
 namespace openmsx {
 
+class EscapeGrabCmd : public SimpleCommand
+{
+public:
+	EscapeGrabCmd(CommandController& commandController,
+		      InputEventGenerator& inputEventGenerator);
+	virtual std::string execute(const std::vector<std::string>& tokens);
+	virtual std::string help(const std::vector<std::string>& tokens) const;
+private:
+	InputEventGenerator& inputEventGenerator;
+};
+
+
 InputEventGenerator::InputEventGenerator(Scheduler& scheduler,
                                          CommandController& commandController,
                                          EventDistributor& eventDistributor_)
@@ -20,7 +33,7 @@ InputEventGenerator::InputEventGenerator(Scheduler& scheduler,
 		"This setting controls if openmsx takes over mouse and keyboard input",
 		false))
 	, escapeGrabState(ESCAPE_GRAB_WAIT_CMD)
-	, escapeGrabCmd(commandController, *this)
+	, escapeGrabCmd(new EscapeGrabCmd(commandController, *this))
 	, keyRepeat(false)
 	, eventDistributor(eventDistributor_)
 {
@@ -231,25 +244,26 @@ void InputEventGenerator::setGrabInput(bool grab)
 	SDL_WM_GrabInput(grab ? SDL_GRAB_ON : SDL_GRAB_OFF);
 }
 
+
 // class EscapeGrabCmd
-InputEventGenerator::EscapeGrabCmd::EscapeGrabCmd(
-		CommandController& commandController,
-		InputEventGenerator& inputEventGenerator_)
+EscapeGrabCmd::EscapeGrabCmd(CommandController& commandController,
+                             InputEventGenerator& inputEventGenerator_)
 	: SimpleCommand(commandController, "escape_grab")
 	, inputEventGenerator(inputEventGenerator_)
 {
 }
 
-string InputEventGenerator::EscapeGrabCmd::execute(const vector<string>& /*tokens*/)
+string EscapeGrabCmd::execute(const vector<string>& /*tokens*/)
 {
 	if (inputEventGenerator.grabInput->getValue()) {
-		inputEventGenerator.escapeGrabState = ESCAPE_GRAB_WAIT_LOST;
+		inputEventGenerator.escapeGrabState =
+			InputEventGenerator::ESCAPE_GRAB_WAIT_LOST;
 		inputEventGenerator.setGrabInput(false);
 	}
 	return "";
 }
 
-string InputEventGenerator::EscapeGrabCmd::help(const vector<string>& /*tokens*/) const
+string EscapeGrabCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "Temporarily release input grab.";
 }

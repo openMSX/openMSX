@@ -6,7 +6,6 @@
 #include "CommandLineParser.hh"
 #include "CassetteDevice.hh"
 #include "SoundDevice.hh"
-#include "Command.hh"
 #include "EmuTime.hh"
 #include <memory>
 
@@ -19,6 +18,7 @@ class CliComm;
 class WavWriter;
 class ThrottleManager;
 class BooleanSetting;
+class TapeCommand;
 
 class MSXCassettePlayerCLI : public CLIOption, public CLIFileType
 {
@@ -36,8 +36,7 @@ private:
 };
 
 
-class CassettePlayer : public CassetteDevice, public SoundDevice,
-                       private Command
+class CassettePlayer : public CassetteDevice, public SoundDevice
 {
 public:
 	CassettePlayer(CommandController& commandController, Mixer& mixer);
@@ -96,11 +95,8 @@ private:
 
 	std::auto_ptr<WavWriter> wavWriter;
 
-	// Tape Command
-	virtual void execute(const std::vector<TclObject*>& tokens,
-				TclObject& result);
-	virtual std::string help(const std::vector<std::string>& tokens) const;
-	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+	CommandController& commandController;
+	const std::auto_ptr<TapeCommand> tapeCommand;
 
 	// SoundDevice
 	int volume;
@@ -112,6 +108,8 @@ private:
 	ThrottleManager& throttleManager;
 
 	std::auto_ptr<BooleanSetting> autoRunSetting;
+
+	friend class TapeCommand;
 };
 
 } // namespace openmsx

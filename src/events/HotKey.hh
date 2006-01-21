@@ -5,16 +5,20 @@
 
 #include "EventListener.hh"
 #include "Keys.hh"
-#include "Command.hh"
 #include <map>
 #include <set>
 #include <string>
+#include <memory>
 
 namespace openmsx {
 
 class CommandController;
 class EventDistributor;
 class XMLElement;
+class BindCmd;
+class UnbindCmd;
+class BindDefaultCmd;
+class UnbindDefaultCmd;
 
 class HotKey : private EventListener
 {
@@ -36,41 +40,14 @@ private:
 	// EventListener
 	virtual void signalEvent(const Event& event);
 
-	class BindCmd : public SimpleCommand {
-	public:
-		BindCmd(CommandController& commandController, HotKey& hotKey);
-		virtual std::string execute(const std::vector<std::string>& tokens);
-		virtual std::string help(const std::vector<std::string>& tokens) const;
-	private:
-		HotKey& hotKey;
-	} bindCmd;
-
-	class UnbindCmd : public SimpleCommand {
-	public:
-		UnbindCmd(CommandController& commandController, HotKey& hotKey);
-		virtual std::string execute(const std::vector<std::string>& tokens);
-		virtual std::string help(const std::vector<std::string>& tokens) const;
-	private:
-		HotKey& hotKey;
-	} unbindCmd;
-
-	class BindDefaultCmd : public SimpleCommand {
-	public:
-		BindDefaultCmd(CommandController& commandController, HotKey& hotKey);
-		virtual std::string execute(const std::vector<std::string>& tokens);
-		virtual std::string help(const std::vector<std::string>& tokens) const;
-	private:
-		HotKey& hotKey;
-	} bindDefaultCmd;
-
-	class UnbindDefaultCmd : public SimpleCommand {
-	public:
-		UnbindDefaultCmd(CommandController& commandController, HotKey& hotKey);
-		virtual std::string execute(const std::vector<std::string>& tokens);
-		virtual std::string help(const std::vector<std::string>& tokens) const;
-	private:
-		HotKey& hotKey;
-	} unbindDefaultCmd;
+	friend class BindCmd;
+	friend class UnbindCmd;
+	friend class BindDefaultCmd;
+	friend class UnbindDefaultCmd;
+	const std::auto_ptr<BindCmd>          bindCmd;
+	const std::auto_ptr<UnbindCmd>        unbindCmd;
+	const std::auto_ptr<BindDefaultCmd>   bindDefaultCmd;
+	const std::auto_ptr<UnbindDefaultCmd> unbindDefaultCmd;
 
 	typedef std::map<Keys::KeyCode, std::string> BindMap;
 	typedef std::set<Keys::KeyCode> KeySet;

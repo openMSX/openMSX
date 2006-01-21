@@ -4,8 +4,6 @@
 #define MIXER_HH
 
 #include "Observer.hh"
-#include "InfoTopic.hh"
-#include "Command.hh"
 #include "noncopyable.hh"
 #include <vector>
 #include <map>
@@ -19,12 +17,13 @@ class SoundDevice;
 class SoundDriver;
 class Scheduler;
 class CommandController;
-class VolumeSetting;
 class IntegerSetting;
 class BooleanSetting;
 template <typename T> class EnumSetting;
 class WavWriter;
 class Setting;
+class SoundlogCommand;
+class SoundDeviceInfoTopic;
 
 class Mixer : private Observer<Setting>, private noncopyable
 {
@@ -100,7 +99,8 @@ private:
 		IntegerSetting* volumeSetting;
 		EnumSetting<ChannelMode>* modeSetting;
 	};
-	std::map<SoundDevice*, SoundDeviceInfo> infos;
+	typedef std::map<SoundDevice*, SoundDeviceInfo> Infos;
+	Infos infos;
 
 	std::vector<SoundDevice*> devices[NB_MODES];
 	std::vector<int*> buffers;
@@ -122,31 +122,10 @@ private:
 	int prevLeft, outLeft;
 	int prevRight, outRight;
 
-	// Commands
-	class SoundlogCommand : public SimpleCommand {
-	public:
-		SoundlogCommand(CommandController& commandController, Mixer& outer);
-		virtual std::string execute(const std::vector<std::string>& tokens);
-		virtual std::string help(const std::vector<std::string>& tokens) const;
-		virtual void tabCompletion(std::vector<std::string>& tokens) const;
-	private:
-		std::string stopSoundLogging(const std::vector<std::string>& tokens);
-		std::string startSoundLogging(const std::vector<std::string>& tokens);
-		std::string toggleSoundLogging(const std::vector<std::string>& tokens);
-		Mixer& outer;
-	} soundlogCommand;
-
-	// Info
-	class SoundDeviceInfoTopic : public InfoTopic {
-	public:
-		SoundDeviceInfoTopic(CommandController& commandController, Mixer& outer);
-		virtual void execute(const std::vector<TclObject*>& tokens,
-		                     TclObject& result) const;
-		virtual std::string help(const std::vector<std::string>& tokens) const;
-		virtual void tabCompletion(std::vector<std::string>& tokens) const;
-	private:
-		Mixer& outer;
-	} soundDeviceInfo;
+	friend class SoundlogCommand;
+	friend class SoundDeviceInfoTopic;
+	const std::auto_ptr<SoundlogCommand> soundlogCommand;
+	const std::auto_ptr<SoundDeviceInfoTopic> soundDeviceInfo;
 };
 
 } // namespace openmsx

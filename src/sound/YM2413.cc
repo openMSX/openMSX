@@ -7,13 +7,25 @@
  */
 
 #include "YM2413.hh"
-#include "MSXMotherBoard.hh"
 #include "Mixer.hh"
+#include "SimpleDebuggable.hh"
+#include "MSXMotherBoard.hh"
 #include <cmath>
 #include <cassert>
 #include <algorithm>
 
 namespace openmsx {
+
+class YM2413Debuggable : public SimpleDebuggable
+{
+public:
+	YM2413Debuggable(MSXMotherBoard& motherBoard, YM2413& ym2413);
+	virtual byte read(unsigned address);
+	virtual void write(unsigned address, byte value, const EmuTime& time);
+private:
+	YM2413& ym2413;
+};
+
 
 static const int CLOCK_FREQ = 3579545;
 static const double PI = 3.14159265358979323846;
@@ -582,7 +594,7 @@ static byte inst_data[16 + 3][8] = {
 YM2413::YM2413(MSXMotherBoard& motherBoard, const std::string& name,
                const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMixer(), name, "MSX-MUSIC")
-	, SimpleDebuggable(motherBoard, name + " regs", "MSX-MUSIC", 0x40)
+	, debuggable(new YM2413Debuggable(motherBoard, *this))
 {
 	for (int i = 0; i < 16 + 3; ++i) {
 		patches[2 * i + 0] = Patch(0, inst_data[i]);
@@ -1213,14 +1225,21 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 
 // SimpleDebuggable
 
-byte YM2413::read(unsigned address)
+YM2413Debuggable::YM2413Debuggable(MSXMotherBoard& motherBoard, YM2413& ym2413_)
+	: SimpleDebuggable(motherBoard, ym2413_.getName() + " regs",
+	                   "MSX-MUSIC", 0x40)
+	, ym2413(ym2413_)
 {
-	return reg[address];
 }
 
-void YM2413::write(unsigned address, byte value, const EmuTime& time)
+byte YM2413Debuggable::read(unsigned address)
 {
-	writeReg(address, value, time);
+	return ym2413.reg[address];
+}
+
+void YM2413Debuggable::write(unsigned address, byte value, const EmuTime& time)
+{
+	ym2413.writeReg(address, value, time);
 }
 
 } // namespace openmsx

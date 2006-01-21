@@ -5,6 +5,7 @@
 #include "MSXMapperIOPhilips.hh"
 #include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
+#include "SimpleDebuggable.hh"
 #include "MachineConfig.hh"
 #include "MSXException.hh"
 
@@ -12,11 +13,21 @@ using std::string;
 
 namespace openmsx {
 
+class MapperIODebuggable : public SimpleDebuggable
+{
+public:
+	MapperIODebuggable(MSXMotherBoard& motherBoard, MSXMapperIO& mapperIO);
+	virtual byte read(unsigned address);
+	virtual void write(unsigned address, byte value);
+private:
+	MSXMapperIO& mapperIO;
+};
+
+
 MSXMapperIO::MSXMapperIO(MSXMotherBoard& motherBoard, const XMLElement& config,
                          const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
-	, SimpleDebuggable(motherBoard, getName(),
-	                   "Memory mapper registers", 4)
+	, debuggable(new MapperIODebuggable(motherBoard, *this))
 {
 	string type = motherBoard.getMachineConfig().getConfig().getChildData(
 	                               "MapperReadBackBits", "largest");
@@ -79,18 +90,31 @@ byte MSXMapperIO::getSelectedPage(byte bank) const
 	return registers[bank];
 }
 
-
-// SimpleDebuggable
-
-byte MSXMapperIO::read(unsigned address)
-{
-	return getSelectedPage(address);
-}
-
 void MSXMapperIO::write(unsigned address, byte value)
 {
 	registers[address] = value;
 	getMotherBoard().getCPU().invalidateMemCache(0x4000 * address, 0x4000);
+}
+
+
+// SimpleDebuggable
+
+MapperIODebuggable::MapperIODebuggable(MSXMotherBoard& motherBoard,
+                                       MSXMapperIO& mapperIO_)
+	: SimpleDebuggable(motherBoard, mapperIO_.getName(),
+	                   "Memory mapper registers", 4)
+	, mapperIO(mapperIO_)
+{
+}
+
+byte MapperIODebuggable::read(unsigned address)
+{
+	return mapperIO.getSelectedPage(address);
+}
+
+void MapperIODebuggable::write(unsigned address, byte value)
+{
+	mapperIO.write(address, value);
 }
 
 } // namespace openmsx

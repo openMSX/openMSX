@@ -5,13 +5,13 @@
 
 #include "YM2413Core.hh"
 #include "SoundDevice.hh"
-#include "SimpleDebuggable.hh"
 #include "openmsx.hh"
 
 namespace openmsx {
 
 class EmuTime;
 class MSXMotherBoard;
+class YM2413_2Debuggable;
 
 class Slot
 {
@@ -80,7 +80,7 @@ public:
 	byte sus;	// sus on/off (release speed in percussive mode)
 };
 
-class YM2413_2 : public YM2413Core, private SoundDevice, private SimpleDebuggable
+class YM2413_2 : public YM2413Core, public SoundDevice
 {
 public:
 	YM2413_2(MSXMotherBoard& motherBoard, const std::string& name,
@@ -114,10 +114,6 @@ private:
 	virtual void setSampleRate(int sampleRate);
 	virtual void updateBuffer(unsigned length, int* buffer,
 		const EmuTime& time, const EmuDuration& sampDur);
-
-	// SimpleDebuggable
-	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value, const EmuTime& time);
 
 	int maxVolume;
 
@@ -153,6 +149,9 @@ private:
 	byte LFO_PM;
 
 	byte reg[0x40];
+
+	friend class YM2413_2Debuggable;
+	const std::auto_ptr<YM2413_2Debuggable> debuggable;
 };
 
 } // namespace openmsx

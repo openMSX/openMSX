@@ -8,6 +8,8 @@
 #include "WavWriter.hh"
 #include "CliComm.hh"
 #include "CommandController.hh"
+#include "Command.hh"
+#include "InfoTopic.hh"
 #include "InfoCommand.hh"
 #include "GlobalSettings.hh"
 #include "TclObject.hh"
@@ -18,7 +20,6 @@
 #include <algorithm>
 #include <cassert>
 
-using std::map;
 using std::remove;
 using std::set;
 using std::string;
@@ -26,13 +27,40 @@ using std::vector;
 
 namespace openmsx {
 
+class SoundlogCommand : public SimpleCommand
+{
+public:
+	SoundlogCommand(CommandController& commandController, Mixer& mixer);
+	virtual std::string execute(const std::vector<std::string>& tokens);
+	virtual std::string help(const std::vector<std::string>& tokens) const;
+	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+private:
+	std::string stopSoundLogging(const std::vector<std::string>& tokens);
+	std::string startSoundLogging(const std::vector<std::string>& tokens);
+	std::string toggleSoundLogging(const std::vector<std::string>& tokens);
+	Mixer& mixer;
+};
+
+class SoundDeviceInfoTopic : public InfoTopic
+{
+public:
+	SoundDeviceInfoTopic(CommandController& commandController, Mixer& mixer);
+	virtual void execute(const vector<TclObject*>& tokens,
+	                     TclObject& result) const;
+	virtual string help(const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
+private:
+	Mixer& mixer;
+};
+
+
 Mixer::Mixer(Scheduler& scheduler_, CommandController& commandController_)
 	: muteCount(0)
 	, scheduler(scheduler_)
 	, commandController(commandController_)
 	, pauseSetting(commandController.getGlobalSettings().getPauseSetting())
-	, soundlogCommand(commandController, *this)
-	, soundDeviceInfo(commandController, *this)
+	, soundlogCommand(new SoundlogCommand(commandController, *this))
+	, soundDeviceInfo(new SoundDeviceInfoTopic(commandController, *this))
 {
 	driver.reset(new NullSoundDriver());
 	handlingUpdate = false;
@@ -197,8 +225,7 @@ void Mixer::registerSound(SoundDevice& device, short volume, ChannelMode mode)
 
 void Mixer::unregisterSound(SoundDevice& device)
 {
-	map<SoundDevice*, SoundDeviceInfo>::iterator it=
-		infos.find(&device);
+	Infos::iterator it = infos.find(&device);
 	if (it == infos.end()) {
 		return;
 	}
@@ -317,14 +344,14 @@ void Mixer::muteHelper()
 
 // stuff for soundlogging
 
-Mixer::SoundlogCommand::SoundlogCommand(
-		CommandController& commandController, Mixer& outer_)
+SoundlogCommand::SoundlogCommand(
+		CommandController& commandController, Mixer& mixer_)
 	: SimpleCommand(commandController, "soundlog")
-	, outer(outer_)
+	, mixer(mixer_)
 {
 }
 
-string Mixer::SoundlogCommand::execute(const vector<string>& tokens)
+string SoundlogCommand::execute(const vector<string>& tokens)
 {
 	if (tokens.size() < 2) {
 		throw CommandException("Missing argument");
@@ -339,7 +366,7 @@ string Mixer::SoundlogCommand::execute(const vector<string>& tokens)
 	throw SyntaxError();
 }
 
-string Mixer::SoundlogCommand::startSoundLogging(const vector<string>& tokens)
+string SoundlogCommand::startSoundLogging(const vector<string>& tokens)
 {
 	string filename;
 	switch (tokens.size()) {
@@ -364,11 +391,11 @@ string Mixer::SoundlogCommand::startSoundLogging(const vector<string>& tokens)
 		throw SyntaxError();
 	}
 
-	if (!outer.wavWriter.get()) {
+	if (!mixer.wavWriter.get()) {
 		try {
-			outer.wavWriter.reset(new WavWriter(filename,
-				2, 16, outer.frequencySetting->getValue()));
-			outer.commandController.getCliComm().printInfo(
+			mixer.wavWriter.reset(new WavWriter(filename,
+				2, 16, mixer.frequencySetting->getValue()));
+			mixer.commandController.getCliComm().printInfo(
 				"Started logging sound to " + filename);
 			return filename;
 		} catch (MSXException& e) {
@@ -379,28 +406,28 @@ string Mixer::SoundlogCommand::startSoundLogging(const vector<string>& tokens)
 	}
 }
 
-string Mixer::SoundlogCommand::stopSoundLogging(const vector<string>& tokens)
+string SoundlogCommand::stopSoundLogging(const vector<string>& tokens)
 {
 	if (tokens.size() != 2) throw SyntaxError();
-	if (outer.wavWriter.get()) {
-		outer.wavWriter.reset();
+	if (mixer.wavWriter.get()) {
+		mixer.wavWriter.reset();
 		return "SoundLogging stopped.";
 	} else {
 		return "Sound logging was not enabled, are you trying to fool me?";
 	}
 }
 
-string Mixer::SoundlogCommand::toggleSoundLogging(const vector<string>& tokens)
+string SoundlogCommand::toggleSoundLogging(const vector<string>& tokens)
 {
 	if (tokens.size() != 2) throw SyntaxError();
-	if (!outer.wavWriter.get()) {
+	if (!mixer.wavWriter.get()) {
 		return startSoundLogging(tokens);
 	} else {
 		return stopSoundLogging(tokens);
 	}
 }
 
-string Mixer::SoundlogCommand::help(const vector<string>& /*tokens*/) const
+string SoundlogCommand::help(const vector<string>& /*tokens*/) const
 {
 	return "Controls sound logging: writing the openMSX sound to a wav file.\n"
 	       "soundlog start              Log sound to file \"openmsxNNNN.wav\"\n"
@@ -410,7 +437,7 @@ string Mixer::SoundlogCommand::help(const vector<string>& /*tokens*/) const
 	       "soundlog toggle             Toggle sound logging state\n";
 }
 
-void Mixer::SoundlogCommand::tabCompletion(vector<string>& tokens) const
+void SoundlogCommand::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		set<string> cmds;
@@ -469,7 +496,7 @@ void Mixer::update(const Setting& setting)
 	} else if (&setting == masterVolume.get()) {
 		updateMasterVolume(masterVolume->getValue());
 	} else if (dynamic_cast<const EnumSetting<ChannelMode>* >(&setting)) {
-		map<SoundDevice*, SoundDeviceInfo>::iterator it = infos.begin();
+		Infos::iterator it = infos.begin();
 		while (it != infos.end() && it->second.modeSetting != &setting) {
 			++it;
 		}
@@ -483,7 +510,7 @@ void Mixer::update(const Setting& setting)
 		devices[info.mode].push_back(it->first);
 		unlock();
 	} else if (dynamic_cast<const IntegerSetting*>(&setting)) {
-		map<SoundDevice*, SoundDeviceInfo>::iterator it = infos.begin();
+		Infos::iterator it = infos.begin();
 		while (it != infos.end() && it->second.volumeSetting != &setting) {
 			++it;
 		}
@@ -500,7 +527,7 @@ void Mixer::update(const Setting& setting)
 // 0 <= mastervolume <= 100
 void Mixer::updateMasterVolume(int masterVolume)
 {
-	for (map<SoundDevice*, SoundDeviceInfo>::const_iterator it = infos.begin();
+	for (Infos::const_iterator it = infos.begin();
 	     it != infos.end(); ++it) {
 		const SoundDeviceInfo& info = it->second;
 		it->first->setVolume(
@@ -514,8 +541,8 @@ void Mixer::updateMasterVolume(int masterVolume)
 
 SoundDevice* Mixer::getSoundDevice(const string& name)
 {
-	for (map<SoundDevice*, SoundDeviceInfo>::const_iterator it =
-	       infos.begin(); it != infos.end(); ++it) {
+	for (Infos::const_iterator it = infos.begin();
+	     it != infos.end(); ++it) {
 		if (it->first->getName() == name) {
 			return it->first;
 		}
@@ -523,25 +550,25 @@ SoundDevice* Mixer::getSoundDevice(const string& name)
 	return NULL;
 }
 
-Mixer::SoundDeviceInfoTopic::SoundDeviceInfoTopic(
-		CommandController& commandController, Mixer& outer_)
+SoundDeviceInfoTopic::SoundDeviceInfoTopic(
+		CommandController& commandController, Mixer& mixer_)
 	: InfoTopic(commandController, "sounddevice")
-	, outer(outer_)
+	, mixer(mixer_)
 {
 }
 
-void Mixer::SoundDeviceInfoTopic::execute(const vector<TclObject*>& tokens,
+void SoundDeviceInfoTopic::execute(const vector<TclObject*>& tokens,
 	TclObject& result) const
 {
 	switch (tokens.size()) {
 	case 2:
-		for (map<SoundDevice*, SoundDeviceInfo>::const_iterator it =
-		       outer.infos.begin(); it != outer.infos.end(); ++it) {
+		for (Mixer::Infos::const_iterator it = mixer.infos.begin();
+		     it != mixer.infos.end(); ++it) {
 			result.addListElement(it->first->getName());
 		}
 		break;
 	case 3: {
-		SoundDevice* device = outer.getSoundDevice(tokens[2]->getString());
+		SoundDevice* device = mixer.getSoundDevice(tokens[2]->getString());
 		if (!device) {
 			throw CommandException("Unknown sound device");
 		}
@@ -553,17 +580,17 @@ void Mixer::SoundDeviceInfoTopic::execute(const vector<TclObject*>& tokens,
 	}
 }
 
-string Mixer::SoundDeviceInfoTopic::help(const vector<string>& /*tokens*/) const
+string SoundDeviceInfoTopic::help(const vector<string>& /*tokens*/) const
 {
 	return "Shows a list of available sound devices.\n";
 }
 
-void Mixer::SoundDeviceInfoTopic::tabCompletion(vector<string>& tokens) const
+void SoundDeviceInfoTopic::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		set<string> devices;
-		for (map<SoundDevice*, SoundDeviceInfo>::const_iterator it =
-		       outer.infos.begin(); it != outer.infos.end(); ++it) {
+		for (Mixer::Infos::const_iterator it =
+		       mixer.infos.begin(); it != mixer.infos.end(); ++it) {
 			devices.insert(it->first->getName());
 		}
 		completeString(tokens, devices);

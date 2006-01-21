@@ -7,10 +7,32 @@
 #include "V9990VRAM.hh"
 #include "V9990CmdEngine.hh"
 #include "V9990Renderer.hh"
+#include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
 #include <cassert>
 
 namespace openmsx {
+
+class V9990RegDebug : public SimpleDebuggable
+{
+public:
+	V9990RegDebug(V9990& v9990);
+	virtual byte read(unsigned address);
+	virtual void write(unsigned address, byte value, const EmuTime& time);
+private:
+	V9990& v9990;
+};
+
+class V9990PalDebug : public SimpleDebuggable
+{
+public:
+	V9990PalDebug(V9990& v9990);
+	virtual byte read(unsigned address);
+	virtual void write(unsigned address, byte value, const EmuTime& time);
+private:
+	V9990& v9990;
+};
+
 
 enum RegisterAccess { NO_ACCESS, RD_ONLY, WR_ONLY, RD_WR };
 static const RegisterAccess regAccess[64] = {
@@ -49,11 +71,11 @@ V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config,
              const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
 	, Schedulable(motherBoard.getScheduler())
-	, v9990RegDebug(*this)
-	, v9990PalDebug(*this)
 	, irq(motherBoard.getCPU())
 	, pendingIRQs(0)
 	, hScanSyncTime(time)
+	, v9990RegDebug(new V9990RegDebug(*this))
+	, v9990PalDebug(new V9990PalDebug(*this))
 {
         // clear regs TODO find realistic init values
         memset(regs, 0, sizeof(regs));
@@ -357,19 +379,19 @@ void V9990::postVideoSystemChange()
 // V9990RegDebug
 // -------------------------------------------------------------------------
 
-V9990::V9990RegDebug::V9990RegDebug(V9990& v9990_)
+V9990RegDebug::V9990RegDebug(V9990& v9990_)
 	: SimpleDebuggable(v9990_.getMotherBoard(),
 	                   v9990_.getName() + " regs", "V9990 registers", 0x40)
 	, v9990(v9990_)
 {
 }
 
-byte V9990::V9990RegDebug::read(unsigned address)
+byte V9990RegDebug::read(unsigned address)
 {
 	return v9990.regs[address];
 }
 
-void V9990::V9990RegDebug::write(unsigned address, byte value, const EmuTime& time)
+void V9990RegDebug::write(unsigned address, byte value, const EmuTime& time)
 {
 	v9990.writeRegister(address, value, time);
 }
@@ -378,7 +400,7 @@ void V9990::V9990RegDebug::write(unsigned address, byte value, const EmuTime& ti
 // V9990PalDebug
 // -------------------------------------------------------------------------
 
-V9990::V9990PalDebug::V9990PalDebug(V9990& v9990_)
+V9990PalDebug::V9990PalDebug(V9990& v9990_)
 	: SimpleDebuggable(v9990_.getMotherBoard(),
 	                   v9990_.getName() + " palette",
 	                   "V9990 palette (format is R, G, B, 0).", 0x100)
@@ -386,12 +408,12 @@ V9990::V9990PalDebug::V9990PalDebug(V9990& v9990_)
 {
 }
 
-byte V9990::V9990PalDebug::read(unsigned address)
+byte V9990PalDebug::read(unsigned address)
 {
 	return v9990.palette[address];
 }
 
-void V9990::V9990PalDebug::write(unsigned address, byte value, const EmuTime& time)
+void V9990PalDebug::write(unsigned address, byte value, const EmuTime& time)
 {
 	v9990.writePaletteRegister(address, value, time);
 }

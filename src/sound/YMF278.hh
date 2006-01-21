@@ -6,7 +6,6 @@
 #define YMF278_HH
 
 #include "SoundDevice.hh"
-#include "SimpleDebuggable.hh"
 #include "Clock.hh"
 #include "openmsx.hh"
 #include <memory>
@@ -15,6 +14,8 @@ namespace openmsx {
 
 class Rom;
 class MSXMotherBoard;
+class DebugRegisters;
+class DebugMemory;
 
 class YMF278Slot
 {
@@ -68,7 +69,7 @@ public:
 	int lfo_max;
 };
 
-class YMF278 : private SoundDevice
+class YMF278 : public SoundDevice
 {
 public:
 	YMF278(MSXMotherBoard& motherBoard, const std::string& name,
@@ -151,23 +152,10 @@ private:
 	/** Time until which the YMF278 is busy. */
 	EmuTime busyTime;
 
-	class DebugRegisters : public SimpleDebuggable {
-	public:
-		DebugRegisters(YMF278& ymf278, MSXMotherBoard& motherBoard);
-		virtual byte read(unsigned address);
-		virtual void write(unsigned address, byte value, const EmuTime& time);
-	private:
-		YMF278& ymf278;
-	} debugRegisters;
-
-	class DebugMemory : public SimpleDebuggable {
-	public:
-		DebugMemory(YMF278& ymf278, MSXMotherBoard& motherBoard);
-		virtual byte read(unsigned address);
-		virtual void write(unsigned address, byte value);
-	private:
-		YMF278& ymf278;
-	} debugMemory;
+	friend class DebugRegisters;
+	friend class DebugMemory;
+	const std::auto_ptr<DebugRegisters> debugRegisters;
+	const std::auto_ptr<DebugMemory>    debugMemory;
 };
 
 } // namespace openmsx

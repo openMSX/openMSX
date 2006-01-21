@@ -10,6 +10,7 @@
 #include "HotKey.hh"
 #include "CommandException.hh"
 #include "CommandController.hh"
+#include "Command.hh"
 #include <memory>
 #include <cassert>
 
@@ -19,11 +20,36 @@ using std::vector;
 
 namespace openmsx {
 
+class SaveSettingsCommand : public SimpleCommand
+{
+public:
+	SaveSettingsCommand(CommandController& commandController,
+			    SettingsConfig& settingsConfig);
+	virtual std::string execute(const std::vector<std::string>& tokens);
+	virtual std::string help   (const std::vector<std::string>& tokens) const;
+	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+private:
+	SettingsConfig& settingsConfig;
+};
+
+class LoadSettingsCommand : public SimpleCommand
+{
+public:
+	LoadSettingsCommand(CommandController& commandController,
+			    SettingsConfig& settingsConfig);
+	virtual std::string execute(const std::vector<std::string>& tokens);
+	virtual std::string help   (const std::vector<std::string>& tokens) const;
+	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+private:
+	SettingsConfig& settingsConfig;
+};
+
+
 SettingsConfig::SettingsConfig(CommandController& commandController_)
 	: XMLElement("settings")
 	, commandController(commandController_)
-	, saveSettingsCommand(commandController, *this)
-	, loadSettingsCommand(commandController, *this)
+	, saveSettingsCommand(new SaveSettingsCommand(commandController, *this))
+	, loadSettingsCommand(new LoadSettingsCommand(commandController, *this))
 	, hotKey(0)
 	, mustSaveSettings(false)
 {
@@ -95,7 +121,7 @@ SettingsManager& SettingsConfig::getSettingsManager()
 
 // class SaveSettingsCommand
 
-SettingsConfig::SaveSettingsCommand::SaveSettingsCommand(
+SaveSettingsCommand::SaveSettingsCommand(
 		CommandController& commandController,
 		SettingsConfig& settingsConfig_)
 	: SimpleCommand(commandController, "save_settings")
@@ -103,8 +129,7 @@ SettingsConfig::SaveSettingsCommand::SaveSettingsCommand(
 {
 }
 
-string SettingsConfig::SaveSettingsCommand::execute(
-	const vector<string>& tokens)
+string SaveSettingsCommand::execute(const vector<string>& tokens)
 {
 	try {
 		switch (tokens.size()) {
@@ -123,14 +148,12 @@ string SettingsConfig::SaveSettingsCommand::execute(
 	return "";
 }
 
-string SettingsConfig::SaveSettingsCommand::help(
-	const vector<string>& /*tokens*/) const
+string SaveSettingsCommand::help(const vector<string>& /*tokens*/) const
 {
 	return "Save the current settings.";
 }
 
-void SettingsConfig::SaveSettingsCommand::tabCompletion(
-	vector<string>& tokens) const
+void SaveSettingsCommand::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		completeFileName(tokens);
@@ -140,7 +163,7 @@ void SettingsConfig::SaveSettingsCommand::tabCompletion(
 
 // class LoadSettingsCommand
 
-SettingsConfig::LoadSettingsCommand::LoadSettingsCommand(
+LoadSettingsCommand::LoadSettingsCommand(
 		CommandController& commandController,
 		SettingsConfig& settingsConfig_)
 	: SimpleCommand(commandController, "load_settings")
@@ -148,8 +171,7 @@ SettingsConfig::LoadSettingsCommand::LoadSettingsCommand(
 {
 }
 
-string SettingsConfig::LoadSettingsCommand::execute(
-	const vector<string>& tokens)
+string LoadSettingsCommand::execute(const vector<string>& tokens)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();
@@ -159,14 +181,12 @@ string SettingsConfig::LoadSettingsCommand::execute(
 	return "";
 }
 
-string SettingsConfig::LoadSettingsCommand::help(
-	const vector<string>& /*tokens*/) const
+string LoadSettingsCommand::help(const vector<string>& /*tokens*/) const
 {
 	return "Load settings from given file.";
 }
 
-void SettingsConfig::LoadSettingsCommand::tabCompletion(
-	vector<string>& tokens) const
+void LoadSettingsCommand::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		completeFileName(tokens);

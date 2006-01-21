@@ -5,15 +5,15 @@
 
 #include "YM2413Core.hh"
 #include "SoundDevice.hh"
-#include "SimpleDebuggable.hh"
 #include "openmsx.hh"
 
 namespace openmsx {
 
 class EmuTime;
 class MSXMotherBoard;
+class YM2413Debuggable;
 
-class YM2413 : public YM2413Core, private SoundDevice, private SimpleDebuggable
+class YM2413 : public YM2413Core, public SoundDevice
 {
 	struct Patch {
 		Patch();
@@ -120,10 +120,6 @@ private:
 	virtual void setSampleRate(int sampleRate);
 	virtual void updateBuffer(unsigned length, int* buffer,
 		const EmuTime& time, const EmuDuration& sampDur);
-
-	// SimpleDebuggable
-	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value, const EmuTime& time);
 
 	inline int calcSample();
 
@@ -272,6 +268,9 @@ private:
 
 	// Phase incr table for PG
 	static unsigned int dphaseTable[512][8][16];
+
+	friend class YM2413Debuggable;
+	const std::auto_ptr<YM2413Debuggable> debuggable;
 };
 
 } // namespace openmsx

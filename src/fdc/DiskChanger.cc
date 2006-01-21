@@ -9,6 +9,7 @@
 #include "GlobalSettings.hh"
 #include "XMLElement.hh"
 #include "CommandController.hh"
+#include "Command.hh"
 #include "FileManipulator.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
@@ -22,11 +23,25 @@ using std::vector;
 
 namespace openmsx {
 
+class DiskCommand : public Command
+{
+public:
+	DiskCommand(CommandController& commandController,
+	            DiskChanger& diskChanger);
+	virtual void execute(const std::vector<TclObject*>& tokens,
+	                     TclObject& result);
+	virtual std::string help(const std::vector<std::string>& tokens) const;
+	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+private:
+	DiskChanger& diskChanger;
+};
+
 DiskChanger::DiskChanger(const string& driveName_,
                          CommandController& commandController,
                          FileManipulator& manipulator_)
-	: Command(commandController, driveName_)
-	, driveName(driveName_), manipulator(manipulator_)
+	: driveName(driveName_), manipulator(manipulator_)
+	, diskCommand(new DiskCommand(commandController, *this))
+	, cliComm(commandController.getCliComm())
 {
 	XMLElement& config = commandController.getGlobalSettings().getMediaConfig();
 	XMLElement& diskConfig = config.getCreateChild(driveName);
@@ -113,8 +128,7 @@ void DiskChanger::insertDisk(const string& diskImage,
 				//can be resolved and will be accepted as dsk name
 				// try to create fake DSK from a dir on host OS
 				disk.reset(new FDC_DirAsDSK(
-					getCommandController().getCliComm(),
-					diskImage));
+					cliComm, diskImage));
 			} catch (MSXException& e) {
 				// then try normal DSK
 				disk.reset(new DSKDiskImage(diskImage));
@@ -127,8 +141,7 @@ void DiskChanger::insertDisk(const string& diskImage,
 	}
 	diskElem->setData(diskImage);
 	diskChangedFlag = true;
-	getCommandController().getCliComm().update(
-		CliComm::MEDIA, getDriveName(), getDiskName());
+	cliComm.update(CliComm::MEDIA, getDriveName(), getDiskName());
 }
 
 void DiskChanger::ejectDisk()
@@ -137,27 +150,35 @@ void DiskChanger::ejectDisk()
 
 	diskElem->setData("");
 	diskChangedFlag = true;
-	getCommandController().getCliComm().update(
-		CliComm::MEDIA, getDriveName(), getDiskName());
+	cliComm.update(CliComm::MEDIA, getDriveName(), getDiskName());
 }
 
 
-void DiskChanger::execute(const vector<TclObject*>& tokens, TclObject& result)
+// class DiskCommand
+
+DiskCommand::DiskCommand(CommandController& commandController,
+                         DiskChanger& diskChanger_)
+	: Command(commandController, diskChanger_.driveName)
+	, diskChanger(diskChanger_)
+{
+}
+
+void DiskCommand::execute(const vector<TclObject*>& tokens, TclObject& result)
 {
 	if (tokens.size() == 1) {
-		const string& diskName = getDiskName();
-		result.addListElement(getDriveName() + ':');
+		const string& diskName = diskChanger.getDiskName();
+		result.addListElement(diskChanger.getDriveName() + ':');
 		result.addListElement(diskName);
 
 		TclObject options(result.getInterpreter());
-		if (dynamic_cast<DummyDisk*>(disk.get())) {
+		if (dynamic_cast<DummyDisk*>(diskChanger.disk.get())) {
 			options.addListElement("empty");
-		} else if (dynamic_cast<FDC_DirAsDSK*>(disk.get())) {
+		} else if (dynamic_cast<FDC_DirAsDSK*>(diskChanger.disk.get())) {
 			options.addListElement("dirasdisk");
-		} else if (dynamic_cast<RamDSKDiskImage*>(disk.get())) {
+		} else if (dynamic_cast<RamDSKDiskImage*>(diskChanger.disk.get())) {
 			options.addListElement("ramdsk");
 		}
-		if (disk->writeProtected()) {
+		if (diskChanger.disk->writeProtected()) {
 			options.addListElement("readonly");
 		}
 		if (options.getListLength() != 0) {
@@ -166,11 +187,11 @@ void DiskChanger::execute(const vector<TclObject*>& tokens, TclObject& result)
 
 	} else if (tokens[1]->getString() == "-ramdsk") {
 		vector<string> nopatchfiles;
-		insertDisk(tokens[1]->getString(), nopatchfiles);
+		diskChanger.insertDisk(tokens[1]->getString(), nopatchfiles);
 	} else if (tokens[1]->getString() == "-eject") {
-		ejectDisk();
+		diskChanger.ejectDisk();
 	} else if (tokens[1]->getString() == "eject") {
-		ejectDisk();
+		diskChanger.ejectDisk();
 		result.setString(
 			"Warning: use of 'eject' is deprecated, instead use '-eject'");
 	} else {
@@ -181,22 +202,23 @@ void DiskChanger::execute(const vector<TclObject*>& tokens, TclObject& result)
 				patches.push_back(context.resolve(
 					tokens[i]->getString()));
 			}
-			insertDisk(context.resolve(tokens[1]->getString()), patches);
+			diskChanger.insertDisk(
+				context.resolve(tokens[1]->getString()), patches);
 		} catch (FileException &e) {
 			throw CommandException(e.getMessage());
 		}
 	}
 }
 
-string DiskChanger::help(const vector<string>& /*tokens*/) const
+string DiskCommand::help(const vector<string>& /*tokens*/) const
 {
-	const string& name = getDriveName();
+	const string& name = diskChanger.getDriveName();
 	return name + " -eject      : remove disk from virtual drive\n" +
 	       name + " -ramdsk     : create a virtual disk in RAM\n" +
 	       name + " <filename> : change the disk file\n";
 }
 
-void DiskChanger::tabCompletion(vector<string>& tokens) const
+void DiskCommand::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() >= 2) {
 		set<string> extra;

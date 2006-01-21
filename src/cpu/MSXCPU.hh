@@ -4,8 +4,6 @@
 #define MSXCPU_HH
 
 #include "CPU.hh"
-#include "SimpleDebuggable.hh"
-#include "InfoTopic.hh"
 #include "Observer.hh"
 #include "EmuTime.hh"
 #include "noncopyable.hh"
@@ -21,9 +19,10 @@ class Z80TYPE;
 class R800TYPE;
 template <typename T> class CPUCore;
 class Setting;
+class TimeInfoTopic;
+class MSXCPUDebuggable;
 
-class MSXCPU : private SimpleDebuggable, private Observer<Setting>,
-               private noncopyable
+class MSXCPU : private Observer<Setting>, private noncopyable
 {
 public:
 	enum CPUType { CPU_Z80, CPU_R800 };
@@ -111,10 +110,6 @@ public:
 
 	void setInterface(MSXCPUInterface* interf);
 
-	// SimpleDebuggable
-	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value);
-
 	void disasmCommand(const std::vector<TclObject*>& tokens,
                            TclObject& result) const;
 
@@ -156,18 +151,12 @@ private:
 	const std::auto_ptr<CPUCore<R800TYPE> > r800;
 
 	CPU* activeCPU;
-
-	class TimeInfoTopic : public InfoTopic {
-	public:
-		TimeInfoTopic(CommandController& commandController,
-		              MSXCPU& msxcpu);
-		virtual void execute(const std::vector<TclObject*>& tokens,
-		                     TclObject& result) const;
-		virtual std::string help (const std::vector<std::string>& tokens) const;
-	private:
-		MSXCPU& msxcpu;
-	} timeInfo;
 	EmuTime reference;
+
+	friend class TimeInfoTopic;
+	friend class MSXCPUDebuggable;
+	const std::auto_ptr<TimeInfoTopic> timeInfo;
+	const std::auto_ptr<MSXCPUDebuggable> debuggable;
 };
 
 } // namespace openmsx

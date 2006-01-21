@@ -4,7 +4,6 @@
 #define SETTINGSCONFIG_HH
 
 #include "XMLElement.hh"
-#include "Command.hh"
 #include "noncopyable.hh"
 #include <memory>
 
@@ -12,6 +11,9 @@ namespace openmsx {
 
 class SettingsManager;
 class HotKey;
+class CommandController;
+class SaveSettingsCommand;
+class LoadSettingsCommand;
 
 class SettingsConfig : public XMLElement, private noncopyable
 {
@@ -30,29 +32,8 @@ public:
 private:
 	CommandController& commandController;
 
-	// SaveSettings command
-	class SaveSettingsCommand : public SimpleCommand {
-	public:
-		SaveSettingsCommand(CommandController& commandController,
-		                    SettingsConfig& settingsConfig);
-		virtual std::string execute(const std::vector<std::string>& tokens);
-		virtual std::string help   (const std::vector<std::string>& tokens) const;
-		virtual void tabCompletion(std::vector<std::string>& tokens) const;
-	private:
-		SettingsConfig& settingsConfig;
-	} saveSettingsCommand;
-
-	// LoadSettings command
-	class LoadSettingsCommand : public SimpleCommand {
-	public:
-		LoadSettingsCommand(CommandController& commandController,
-		                    SettingsConfig& settingsConfig);
-		virtual std::string execute(const std::vector<std::string>& tokens);
-		virtual std::string help   (const std::vector<std::string>& tokens) const;
-		virtual void tabCompletion(std::vector<std::string>& tokens) const;
-	private:
-		SettingsConfig& settingsConfig;
-	} loadSettingsCommand;
+	const std::auto_ptr<SaveSettingsCommand> saveSettingsCommand;
+	const std::auto_ptr<LoadSettingsCommand> loadSettingsCommand;
 
 	std::auto_ptr<SettingsManager> settingsManager;
 	HotKey* hotKey;

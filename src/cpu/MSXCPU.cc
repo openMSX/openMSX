@@ -3,11 +3,13 @@
 #include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
 #include "Debugger.hh"
+#include "SimpleDebuggable.hh"
 #include "BooleanSetting.hh"
 #include "CPUCore.hh"
 #include "Z80.hh"
 #include "R800.hh"
 #include "BreakPoint.hh"
+#include "InfoTopic.hh"
 #include <cassert>
 
 using std::string;
@@ -15,17 +17,39 @@ using std::vector;
 
 namespace openmsx {
 
+class TimeInfoTopic : public InfoTopic
+{
+public:
+	TimeInfoTopic(CommandController& commandController,
+	              MSXCPU& msxcpu);
+	virtual void execute(const vector<TclObject*>& tokens,
+	                     TclObject& result) const;
+	virtual std::string help (const vector<string>& tokens) const;
+private:
+	MSXCPU& msxcpu;
+};
+
+class MSXCPUDebuggable : public SimpleDebuggable
+{
+public:
+	MSXCPUDebuggable(MSXMotherBoard& motherboard, MSXCPU& cpu);
+	virtual byte read(unsigned address);
+	virtual void write(unsigned address, byte value);
+private:
+	MSXCPU& cpu;
+};
+
+
 MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
-	: SimpleDebuggable(motherboard_, "CPU regs",
-	                   "Registers of the active CPU (Z80 or R800)", 28)
-	, motherboard(motherboard_)
+	: motherboard(motherboard_)
 	, traceSetting(new BooleanSetting(motherboard.getCommandController(),
 	                              "cputrace", "CPU tracing on/off", false))
 	, z80 (new CPUCore<Z80TYPE> (motherboard, "z80",  *traceSetting,
 	                             EmuTime::zero))
 	, r800(new CPUCore<R800TYPE>(motherboard, "r800", *traceSetting,
 	                             EmuTime::zero))
-	, timeInfo(motherboard.getCommandController(), *this)
+	, timeInfo(new TimeInfoTopic(motherboard.getCommandController(), *this))
+	, debuggable(new MSXCPUDebuggable(motherboard_, *this))
 {
 	activeCPU = z80.get();	// setActiveCPU(CPU_Z80);
 
@@ -153,82 +177,6 @@ void MSXCPU::update(const Setting& setting)
 	exitCPULoop();
 }
 
-// DebugInterface
-
-//  0 ->  A      1 ->  F      2 -> B       3 -> C
-//  4 ->  D      5 ->  E      6 -> H       7 -> L
-//  8 ->  A'     9 ->  F'    10 -> B'     11 -> C'
-// 12 ->  D'    13 ->  E'    14 -> H'     15 -> L'
-// 16 -> IXH    17 -> IXL    18 -> IYH    19 -> IYL
-// 20 -> PCH    21 -> PCL    22 -> SPH    23 -> SPL
-// 24 ->  I     25 ->  R     26 -> IM     27 -> IFF1/2
-
-byte MSXCPU::read(unsigned address)
-{
-	const CPU::CPURegs& regs = activeCPU->getRegisters();
-	const word* registers[] = {
-		&regs.AF,  &regs.BC,  &regs.DE,  &regs.HL,
-		&regs.AF2, &regs.BC2, &regs.DE2, &regs.HL2,
-		&regs.IX,  &regs.IY,  &regs.PC,  &regs.SP
-	};
-
-	assert(address < getSize());
-	switch (address) {
-	case 24:
-		return regs.I;
-	case 25:
-		return regs.R;
-	case 26:
-		return regs.IM;
-	case 27:
-		return regs.IFF1 + 2 * regs.IFF2;
-	default:
-		if (address & 1) {
-			return *registers[address / 2] & 255;
-		} else {
-			return *registers[address / 2] >> 8;
-		}
-	}
-}
-
-void MSXCPU::write(unsigned address, byte value)
-{
-	CPU::CPURegs& regs = activeCPU->getRegisters();
-	word* registers[] = {
-		&regs.AF,  &regs.BC,  &regs.DE,  &regs.HL,
-		&regs.AF2, &regs.BC2, &regs.DE2, &regs.HL2,
-		&regs.IX,  &regs.IY,  &regs.PC,  &regs.SP
-	};
-
-	assert(address < getSize());
-	switch (address) {
-	case 24:
-		regs.I = value;
-		break;
-	case 25:
-		regs.R = value;
-		break;
-	case 26:
-		if (value < 3) {
-			regs.IM = value;
-		}
-		break;
-	case 27:
-		regs.IFF1 = value & 0x01;
-		regs.IFF2 = value & 0x02;
-		break;
-	default:
-		word& w = *registers[address / 2];
-		if (address & 1) {
-			w = (w & 0xFF00) | value;
-		} else {
-			w = (w & 0x00FF) | (value << 8);
-		}
-		break;
-	}
-}
-
-
 // Command
 
 void MSXCPU::doStep()
@@ -281,23 +229,106 @@ void MSXCPU::setPaused(bool paused)
 
 // class TimeInfoTopic
 
-MSXCPU::TimeInfoTopic::TimeInfoTopic(CommandController& commandController,
-                                     MSXCPU& msxcpu_)
+TimeInfoTopic::TimeInfoTopic(CommandController& commandController,
+                             MSXCPU& msxcpu_)
 	: InfoTopic(commandController, "time")
 	, msxcpu(msxcpu_)
 {
 }
 
-void MSXCPU::TimeInfoTopic::execute(const vector<TclObject*>& /*tokens*/,
-                                    TclObject& result) const
+void TimeInfoTopic::execute(const vector<TclObject*>& /*tokens*/,
+                            TclObject& result) const
 {
 	EmuDuration dur = msxcpu.getCurrentTime() - msxcpu.reference;
 	result.setDouble(dur.toDouble());
 }
 
-string MSXCPU::TimeInfoTopic::help(const vector<string>& /*tokens*/) const
+string TimeInfoTopic::help(const vector<string>& /*tokens*/) const
 {
 	return "Prints the time in seconds that the MSX is powered on\n";
+}
+
+
+// class MSXCPUDebuggable
+
+//  0 ->  A      1 ->  F      2 -> B       3 -> C
+//  4 ->  D      5 ->  E      6 -> H       7 -> L
+//  8 ->  A'     9 ->  F'    10 -> B'     11 -> C'
+// 12 ->  D'    13 ->  E'    14 -> H'     15 -> L'
+// 16 -> IXH    17 -> IXL    18 -> IYH    19 -> IYL
+// 20 -> PCH    21 -> PCL    22 -> SPH    23 -> SPL
+// 24 ->  I     25 ->  R     26 -> IM     27 -> IFF1/2
+
+MSXCPUDebuggable::MSXCPUDebuggable(MSXMotherBoard& motherboard, MSXCPU& cpu_)
+	: SimpleDebuggable(motherboard, "CPU regs",
+	                   "Registers of the active CPU (Z80 or R800)", 28)
+	, cpu(cpu_)
+{
+}
+
+byte MSXCPUDebuggable::read(unsigned address)
+{
+	const CPU::CPURegs& regs = cpu.activeCPU->getRegisters();
+	const word* registers[] = {
+		&regs.AF,  &regs.BC,  &regs.DE,  &regs.HL,
+		&regs.AF2, &regs.BC2, &regs.DE2, &regs.HL2,
+		&regs.IX,  &regs.IY,  &regs.PC,  &regs.SP
+	};
+
+	assert(address < getSize());
+	switch (address) {
+	case 24:
+		return regs.I;
+	case 25:
+		return regs.R;
+	case 26:
+		return regs.IM;
+	case 27:
+		return regs.IFF1 + 2 * regs.IFF2;
+	default:
+		if (address & 1) {
+			return *registers[address / 2] & 255;
+		} else {
+			return *registers[address / 2] >> 8;
+		}
+	}
+}
+
+void MSXCPUDebuggable::write(unsigned address, byte value)
+{
+	CPU::CPURegs& regs = cpu.activeCPU->getRegisters();
+	word* registers[] = {
+		&regs.AF,  &regs.BC,  &regs.DE,  &regs.HL,
+		&regs.AF2, &regs.BC2, &regs.DE2, &regs.HL2,
+		&regs.IX,  &regs.IY,  &regs.PC,  &regs.SP
+	};
+
+	assert(address < getSize());
+	switch (address) {
+	case 24:
+		regs.I = value;
+		break;
+	case 25:
+		regs.R = value;
+		break;
+	case 26:
+		if (value < 3) {
+			regs.IM = value;
+		}
+		break;
+	case 27:
+		regs.IFF1 = value & 0x01;
+		regs.IFF2 = value & 0x02;
+		break;
+	default:
+		word& w = *registers[address / 2];
+		if (address & 1) {
+			w = (w & 0xFF00) | value;
+		} else {
+			w = (w & 0x00FF) | (value << 8);
+		}
+		break;
+	}
 }
 
 } // namespace openmsx

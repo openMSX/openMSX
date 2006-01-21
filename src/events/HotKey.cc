@@ -2,6 +2,7 @@
 
 #include "HotKey.hh"
 #include "CommandController.hh"
+#include "Command.hh"
 #include "CommandException.hh"
 #include "EventDistributor.hh"
 #include "CliComm.hh"
@@ -24,12 +25,53 @@ const bool META_HOT_KEYS =
 	false;
 #endif
 
+class BindCmd : public SimpleCommand
+{
+public:
+	BindCmd(CommandController& commandController, HotKey& hotKey);
+	virtual std::string execute(const std::vector<std::string>& tokens);
+	virtual std::string help(const std::vector<std::string>& tokens) const;
+private:
+	HotKey& hotKey;
+};
+
+class UnbindCmd : public SimpleCommand
+{
+public:
+	UnbindCmd(CommandController& commandController, HotKey& hotKey);
+	virtual std::string execute(const std::vector<std::string>& tokens);
+	virtual std::string help(const std::vector<std::string>& tokens) const;
+private:
+	HotKey& hotKey;
+};
+
+class BindDefaultCmd : public SimpleCommand
+{
+public:
+	BindDefaultCmd(CommandController& commandController, HotKey& hotKey);
+	virtual std::string execute(const std::vector<std::string>& tokens);
+	virtual std::string help(const std::vector<std::string>& tokens) const;
+private:
+	HotKey& hotKey;
+};
+
+class UnbindDefaultCmd : public SimpleCommand
+{
+public:
+	UnbindDefaultCmd(CommandController& commandController, HotKey& hotKey);
+	virtual std::string execute(const std::vector<std::string>& tokens);
+	virtual std::string help(const std::vector<std::string>& tokens) const;
+private:
+	HotKey& hotKey;
+};
+
+
 HotKey::HotKey(CommandController& commandController_,
                EventDistributor& eventDistributor_)
-	: bindCmd         (commandController_, *this)
-	, unbindCmd       (commandController_, *this)
-	, bindDefaultCmd  (commandController_, *this)
-	, unbindDefaultCmd(commandController_, *this)
+	: bindCmd         (new BindCmd         (commandController_, *this))
+	, unbindCmd       (new UnbindCmd       (commandController_, *this))
+	, bindDefaultCmd  (new BindDefaultCmd  (commandController_, *this))
+	, unbindDefaultCmd(new UnbindDefaultCmd(commandController_, *this))
 	, commandController(commandController_)
 	, eventDistributor(eventDistributor_)
 	, loading(false)
@@ -209,13 +251,13 @@ void HotKey::signalEvent(const Event& event)
 
 // class BindCmd
 
-HotKey::BindCmd::BindCmd(CommandController& commandController, HotKey& hotKey_)
+BindCmd::BindCmd(CommandController& commandController, HotKey& hotKey_)
 	: SimpleCommand(commandController, "bind")
 	, hotKey(hotKey_)
 {
 }
 
-string HotKey::BindCmd::execute(const vector<string>& tokens)
+string BindCmd::execute(const vector<string>& tokens)
 {
 	string result;
 	switch (tokens.size()) {
@@ -223,7 +265,7 @@ string HotKey::BindCmd::execute(const vector<string>& tokens)
 		assert(false);
 	case 1:
 		// show all bounded keys
-		for (BindMap::iterator it = hotKey.cmdMap.begin();
+		for (HotKey::BindMap::iterator it = hotKey.cmdMap.begin();
 		     it != hotKey.cmdMap.end(); it++) {
 			result += Keys::getName(it->first) + ":  " +
 			          it->second + '\n';
@@ -231,7 +273,7 @@ string HotKey::BindCmd::execute(const vector<string>& tokens)
 		break;
 	case 2: {
 		// show bindings for this key
-		BindMap::const_iterator it =
+		HotKey::BindMap::const_iterator it =
 			hotKey.cmdMap.find(getCode(tokens[1]));
 		if (it == hotKey.cmdMap.end()) {
 			throw CommandException("Key not bound");
@@ -252,7 +294,7 @@ string HotKey::BindCmd::execute(const vector<string>& tokens)
 	}
 	return result;
 }
-string HotKey::BindCmd::help(const vector<string>& /*tokens*/) const
+string BindCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "bind             : show all bounded keys\n"
 	       "bind <key>       : show binding for this key\n"
@@ -262,14 +304,14 @@ string HotKey::BindCmd::help(const vector<string>& /*tokens*/) const
 
 // class UnbindCmd
 
-HotKey::UnbindCmd::UnbindCmd(CommandController& commandController,
+UnbindCmd::UnbindCmd(CommandController& commandController,
                              HotKey& hotKey_)
 	: SimpleCommand(commandController, "unbind")
 	, hotKey(hotKey_)
 {
 }
 
-string HotKey::UnbindCmd::execute(const vector<string>& tokens)
+string UnbindCmd::execute(const vector<string>& tokens)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();
@@ -277,21 +319,21 @@ string HotKey::UnbindCmd::execute(const vector<string>& tokens)
 	hotKey.unbind(getCode(tokens[1]));
 	return "";
 }
-string HotKey::UnbindCmd::help(const vector<string>& /*tokens*/) const
+string UnbindCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "unbind <key> : unbind this key\n";
 }
 
 // class BindDefaultCmd
 
-HotKey::BindDefaultCmd::BindDefaultCmd(CommandController& commandController,
+BindDefaultCmd::BindDefaultCmd(CommandController& commandController,
                                        HotKey& hotKey_)
 	: SimpleCommand(commandController, "bind_default")
 	, hotKey(hotKey_)
 {
 }
 
-string HotKey::BindDefaultCmd::execute(const vector<string>& tokens)
+string BindDefaultCmd::execute(const vector<string>& tokens)
 {
 	string result;
 	switch (tokens.size()) {
@@ -299,7 +341,7 @@ string HotKey::BindDefaultCmd::execute(const vector<string>& tokens)
 		assert(false);
 	case 1:
 		// show all bounded keys
-		for (BindMap::iterator it = hotKey.defaultMap.begin();
+		for (HotKey::BindMap::iterator it = hotKey.defaultMap.begin();
 		     it != hotKey.defaultMap.end(); it++) {
 			result += Keys::getName(it->first) + ":  " +
 			          it->second + '\n';
@@ -307,7 +349,7 @@ string HotKey::BindDefaultCmd::execute(const vector<string>& tokens)
 		break;
 	case 2: {
 		// show bindings for this key
-		BindMap::const_iterator it =
+		HotKey::BindMap::const_iterator it =
 			hotKey.defaultMap.find(getCode(tokens[1]));
 		if (it == hotKey.defaultMap.end()) {
 			throw CommandException("Key not bound");
@@ -328,7 +370,7 @@ string HotKey::BindDefaultCmd::execute(const vector<string>& tokens)
 	}
 	return result;
 }
-string HotKey::BindDefaultCmd::help(const vector<string>& /*tokens*/) const
+string BindDefaultCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "bind_default             : show all bounded default keys\n"
 	       "bind_default <key>       : show binding for this default key\n"
@@ -338,14 +380,14 @@ string HotKey::BindDefaultCmd::help(const vector<string>& /*tokens*/) const
 
 // class UnbindDefaultCmd
 
-HotKey::UnbindDefaultCmd::UnbindDefaultCmd(CommandController& commandController,
+UnbindDefaultCmd::UnbindDefaultCmd(CommandController& commandController,
                                            HotKey& hotKey_)
 	: SimpleCommand(commandController, "unbind_default")
 	, hotKey(hotKey_)
 {
 }
 
-string HotKey::UnbindDefaultCmd::execute(const vector<string>& tokens)
+string UnbindDefaultCmd::execute(const vector<string>& tokens)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();
@@ -353,7 +395,7 @@ string HotKey::UnbindDefaultCmd::execute(const vector<string>& tokens)
 	hotKey.unbindDefault(getCode(tokens[1]));
 	return "";
 }
-string HotKey::UnbindDefaultCmd::help(const vector<string>& /*tokens*/) const
+string UnbindDefaultCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "unbind_default <key> : unbind this default key\n";
 }

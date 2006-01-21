@@ -41,10 +41,22 @@
 
 #include "YMF262.hh"
 #include "Mixer.hh"
+#include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
 #include <cmath>
 
 namespace openmsx {
+
+class YMF262Debuggable : public SimpleDebuggable
+{
+public:
+	YMF262Debuggable(MSXMotherBoard& motherBoard, YMF262& ymf262);
+	virtual byte read(unsigned address);
+	virtual void write(unsigned address, byte value, const EmuTime& time);
+private:
+	YMF262& ymf262;
+};
+
 
 const double PI = 3.14159265358979323846;
 
@@ -1808,11 +1820,10 @@ void YMF262::reset(const EmuTime& time)
 YMF262::YMF262(MSXMotherBoard& motherBoard, const std::string& name,
                const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMixer(), name, "MoonSound FM-part")
-	, SimpleDebuggable(motherBoard, name + " regs",
-	                   "MoonSound FM-part registers", 0x200)
 	, irq(motherBoard.getCPU())
 	, timer1(motherBoard.getScheduler(), *this)
 	, timer2(motherBoard.getScheduler(), *this)
+	, debuggable(new YMF262Debuggable(motherBoard, *this))
 {
 	LFO_AM = LFO_PM = 0;
 	lfo_am_depth = lfo_pm_depth_range = lfo_am_cnt = lfo_pm_cnt = 0;
@@ -1972,15 +1983,22 @@ void YMF262::setVolume(int newVolume)
 
 // SimpleDebuggable
 
-byte YMF262::read(unsigned address)
+YMF262Debuggable::YMF262Debuggable(MSXMotherBoard& motherBoard, YMF262& ymf262_)
+	: SimpleDebuggable(motherBoard, ymf262_.getName() + " regs",
+	                   "MoonSound FM-part registers", 0x200)
+	, ymf262(ymf262_)
 {
-	return peekReg(address);
 }
 
-void YMF262::write(unsigned address, byte value, const EmuTime& time)
+byte YMF262Debuggable::read(unsigned address)
 {
-	writeRegForce(address, value, time);
-	checkMute();
+	return ymf262.peekReg(address);
+}
+
+void YMF262Debuggable::write(unsigned address, byte value, const EmuTime& time)
+{
+	ymf262.writeRegForce(address, value, time);
+	ymf262.checkMute();
 }
 
 } // namespace openmsx

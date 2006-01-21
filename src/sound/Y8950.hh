@@ -5,7 +5,6 @@
 
 #include "SoundDevice.hh"
 #include "EmuTimer.hh"
-#include "SimpleDebuggable.hh"
 #include "IRQHelper.hh"
 #include "openmsx.hh"
 #include <memory>
@@ -16,9 +15,9 @@ class Y8950Adpcm;
 class Y8950KeyboardConnector;
 class DACSound16S;
 class MSXMotherBoard;
+class Y8950Debuggable;
 
-class Y8950 : private SoundDevice, private EmuTimerCallback,
-              private SimpleDebuggable
+class Y8950 : public SoundDevice, private EmuTimerCallback
 {
 	class Patch {
 	public:
@@ -184,10 +183,6 @@ private:
 	virtual void updateBuffer(unsigned length, int* buffer,
 		const EmuTime& start, const EmuDuration& sampDur);
 
-	// SimpleDebuggable
-	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value, const EmuTime& time);
-
 	// Definition of envelope mode
 	enum { ATTACK,DECAY,SUSHOLD,SUSTINE,RELEASE,FINISH };
 	// Dynamic range
@@ -331,6 +326,9 @@ private:
 
 	/** 13-bit (exponential) DAC. */
 	const std::auto_ptr<DACSound16S> dac13;
+
+	friend class Y8950Debuggable;
+	const std::auto_ptr<Y8950Debuggable> debuggable;
 };
 
 } // namespace openmsx

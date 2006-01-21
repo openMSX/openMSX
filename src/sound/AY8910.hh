@@ -3,9 +3,9 @@
 #ifndef AY8910_HH
 #define AY8910_HH
 
-#include "openmsx.hh"
 #include "SoundDevice.hh"
-#include "SimpleDebuggable.hh"
+#include "openmsx.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -13,12 +13,13 @@ class MSXMotherBoard;
 class AY8910Periphery;
 class XMLElement;
 class EmuTime;
+class AY8910Debuggable;
 
 /** This class implements the AY-3-8910 sound chip.
   * Only the AY-3-8910 is emulated, no surrounding hardware,
   * use the class AY8910Periphery to connect peripherals.
   */
-class AY8910 : private SoundDevice, private SimpleDebuggable
+class AY8910 : public SoundDevice
 {
 public:
 	AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
@@ -131,10 +132,6 @@ private:
 	virtual void updateBuffer(unsigned length, int* buffer,
 		const EmuTime& time, const EmuDuration& sampDur);
 
-	// SimpleDebuggable
-	virtual byte read(unsigned address, const EmuTime& time);
-	virtual void write(unsigned address, byte value, const EmuTime& time);
-
 	void wrtReg(byte reg, byte value, const EmuTime& time);
 	void checkMute();
 
@@ -146,6 +143,8 @@ private:
 	NoiseGenerator noise;
 	Envelope envelope;
 	Amplitude amplitude;
+
+	const std::auto_ptr<AY8910Debuggable> debuggable;
 };
 
 } // namespace openmsx

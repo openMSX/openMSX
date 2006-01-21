@@ -12,6 +12,7 @@
 #include "MSXMotherBoard.hh"
 #include "StringOp.hh"
 #include "Debugger.hh"
+#include "Debuggable.hh"
 #include "sha1.hh"
 #include "CliComm.hh"
 #include "FilePool.hh"
@@ -23,6 +24,21 @@ using std::string;
 using std::auto_ptr;
 
 namespace openmsx {
+
+class RomDebuggable : public Debuggable
+{
+public:
+	RomDebuggable(Debugger& debugger, Rom& rom);
+	~RomDebuggable();
+	virtual unsigned getSize() const;
+	virtual const std::string& getDescription() const;
+	virtual byte read(unsigned address);
+	virtual void write(unsigned address, byte value);
+private:
+	Debugger& debugger;
+	Rom& rom;
+};
+
 
 Rom::Rom(MSXMotherBoard& motherBoard_, const string& name_,
          const string& description_, const XMLElement& config)
@@ -132,7 +148,7 @@ void Rom::init(CliComm& cliComm, const XMLElement& config)
 			} while (debugger.findDebuggable(tmp));
 			name = tmp;
 		}
-		debugger.registerDebuggable(name, *this);
+		romDebuggable.reset(new RomDebuggable(debugger, *this));
 	}
 }
 
@@ -199,37 +215,22 @@ bool Rom::checkSHA1(const XMLElement& config)
 
 Rom::~Rom()
 {
-	if (size) {
-		motherBoard.getDebugger().unregisterDebuggable(name, *this);
-	}
 	delete[] extendedRom;
 }
 
-
-unsigned Rom::getSize() const
+const RomInfo& Rom::getInfo() const
 {
-	return size;
-}
-
-const string& Rom::getDescription() const
-{
-	return description;
-}
-
-byte Rom::read(unsigned address)
-{
-	assert(address < size);
-	return rom[address];
-}
-
-void Rom::write(unsigned /*address*/, byte /*value*/)
-{
-	// ignore
+	return *info;
 }
 
 const string& Rom::getName() const
 {
 	return name;
+}
+
+const string& Rom::getDescription() const
+{
+	return description;
 }
 
 const string& Rom::getSHA1Sum() const
@@ -240,6 +241,39 @@ const string& Rom::getSHA1Sum() const
 		sha1sum = sha1.hex_digest();
 	}
 	return sha1sum;
+}
+
+
+RomDebuggable::RomDebuggable(Debugger& debugger_, Rom& rom_)
+	: debugger(debugger_), rom(rom_)
+{
+	debugger.registerDebuggable(rom.getName(), *this);
+}
+
+RomDebuggable::~RomDebuggable()
+{
+	debugger.unregisterDebuggable(rom.getName(), *this);
+}
+
+unsigned RomDebuggable::getSize() const
+{
+	return rom.getSize();
+}
+
+const string& RomDebuggable::getDescription() const
+{
+	return rom.getDescription();
+}
+
+byte RomDebuggable::read(unsigned address)
+{
+	assert(address < getSize());
+	return rom[address];
+}
+
+void RomDebuggable::write(unsigned /*address*/, byte /*value*/)
+{
+	// ignore
 }
 
 } // namespace openmsx

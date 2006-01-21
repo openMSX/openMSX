@@ -1,6 +1,10 @@
 $Id$
 
 2006-01-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Reduced build-dependencies between source files:
+	   - moved most inner classes from hh to cc file
+
+2006-01-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Changed 'locking' of devices (eg. ADVRAM depends on VDP):
 	   - it's now specified with <device idref=".."/> tag(s)
 	   - can now be handled by generic code

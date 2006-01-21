@@ -6,7 +6,6 @@
 #include "MSXDevice.hh"
 #include "Schedulable.hh"
 #include "VideoSystemChangeListener.hh"
-#include "SimpleDebuggable.hh"
 #include "IRQHelper.hh"
 #include "V9990DisplayTiming.hh"
 #include "V9990ModeEnum.hh"
@@ -19,6 +18,8 @@ namespace openmsx {
 class V9990VRAM;
 class V9990CmdEngine;
 class V9990Renderer;
+class V9990RegDebug;
+class V9990PalDebug;
 
 /** Implementation of the Yamaha V9990 VDP as used in the GFX9000
   * cartridge by Sunrise.
@@ -280,26 +281,6 @@ private:
 	virtual void preVideoSystemChange();
 	virtual void postVideoSystemChange();
 
-	// Debuggable: registers
-	class V9990RegDebug : public SimpleDebuggable {
-	public:
-		V9990RegDebug(V9990& v9990);
-		virtual byte read(unsigned address);
-		virtual void write(unsigned address, byte value, const EmuTime& time);
-	private:
-		V9990& v9990;
-	} v9990RegDebug;
-
-	// Debuggable: palette
-	class V9990PalDebug : public SimpleDebuggable {
-	public:
-		V9990PalDebug(V9990& v9990);
-		virtual byte read(unsigned address);
-		virtual void write(unsigned address, byte value, const EmuTime& time);
-	private:
-		V9990& v9990;
-	} v9990PalDebug;
-
 	// --- types ------------------------------------------------------
 
 	/** Types of V9990 Sync points that can be scheduled
@@ -529,6 +510,11 @@ private:
 	  * @result Timestamp for next hor irq
 	  */
 	void scheduleHscan(const EmuTime& time);
+
+	friend class V9990RegDebug;
+	friend class V9990PalDebug;
+	const std::auto_ptr<V9990RegDebug> v9990RegDebug;
+	const std::auto_ptr<V9990PalDebug> v9990PalDebug;
 };
 
 } // namespace openmsx

@@ -1,6 +1,8 @@
 // $Id$
 
 #include "CommandController.hh"
+#include "Command.hh"
+#include "InfoTopic.hh"
 #include "CommandConsole.hh"
 #include "FileOperations.hh"
 #include "FileContext.hh"
@@ -25,14 +27,35 @@ using std::vector;
 
 namespace openmsx {
 
+class HelpCmd : public SimpleCommand
+{
+public:
+	HelpCmd(CommandController& parent);
+	virtual std::string execute(const std::vector<std::string>& tokens);
+	virtual std::string help(const std::vector<std::string>& tokens) const;
+	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+private:
+	CommandController& parent;
+};
+
+class VersionInfo : public InfoTopic
+{
+public:
+	VersionInfo(CommandController& commandController);
+	virtual void execute(const std::vector<TclObject*>& tokens,
+	                     TclObject& result) const;
+	virtual std::string help(const std::vector<std::string>& tokens) const;
+};
+
+
 CommandController::CommandController(Scheduler& scheduler_)
 	: scheduler(scheduler_)
 	, cmdConsole(NULL)
 	, cliComm(NULL)
 	, connection(NULL)
 	, infoCommand(new InfoCommand(*this))
-	, helpCmd(*this)
-	, versionInfo(*this)
+	, helpCmd(new HelpCmd(*this))
+	, versionInfo(new VersionInfo(*this))
 	, romInfoTopic(new RomInfoTopic(*this))
 {
 }
@@ -490,20 +513,20 @@ void CommandController::completeFileName(vector<string>& tokens,
 
 // Help Command
 
-CommandController::HelpCmd::HelpCmd(CommandController& commandController)
+HelpCmd::HelpCmd(CommandController& commandController)
 	: SimpleCommand(commandController, "help")
 	, parent(commandController)
 {
 }
 
-string CommandController::HelpCmd::execute(const vector<string>& tokens)
+string HelpCmd::execute(const vector<string>& tokens)
 {
 	string result;
 	switch (tokens.size()) {
 	case 1:
 		result += "Use 'help [command]' to get help for a specific command\n";
 		result += "The following commands exist:\n";
-		for (CompleterMap::const_iterator it =
+		for (CommandController::CompleterMap::const_iterator it =
 		         parent.commandCompleters.begin();
 		     it != parent.commandCompleters.end(); ++it) {
 			result += it->first;
@@ -511,7 +534,7 @@ string CommandController::HelpCmd::execute(const vector<string>& tokens)
 		}
 		break;
 	default: {
-		CompleterMap::const_iterator it =
+		 CommandController::CompleterMap::const_iterator it =
 			parent.commandCompleters.find(tokens[1]);
 		if (it == parent.commandCompleters.end()) {
 			throw CommandException(tokens[1] + ": unknown command");
@@ -524,11 +547,13 @@ string CommandController::HelpCmd::execute(const vector<string>& tokens)
 	}
 	return result;
 }
-string CommandController::HelpCmd::help(const vector<string>& /*tokens*/) const
+
+string HelpCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "prints help information for commands\n";
 }
-void CommandController::HelpCmd::tabCompletion(vector<string>& tokens) const
+
+void HelpCmd::tabCompletion(vector<string>& tokens) const
 {
 	string front = tokens.front();
 	tokens.erase(tokens.begin());
@@ -539,18 +564,18 @@ void CommandController::HelpCmd::tabCompletion(vector<string>& tokens) const
 
 // Version info
 
-CommandController::VersionInfo::VersionInfo(CommandController& commandController)
+VersionInfo::VersionInfo(CommandController& commandController)
 	: InfoTopic(commandController, "version")
 {
 }
 
-void CommandController::VersionInfo::execute(const vector<TclObject*>& /*tokens*/,
-                                       TclObject& result) const
+void VersionInfo::execute(const vector<TclObject*>& /*tokens*/,
+                          TclObject& result) const
 {
 	result.setString(Version::FULL_VERSION);
 }
 
-string CommandController::VersionInfo::help(const vector<string>& /*tokens*/) const
+string VersionInfo::help(const vector<string>& /*tokens*/) const
 {
 	return "Prints openMSX version.";
 }

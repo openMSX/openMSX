@@ -3,8 +3,6 @@
 #ifndef COMMANDCONTROLLER_HH
 #define COMMANDCONTROLLER_HH
 
-#include "Command.hh"
-#include "InfoTopic.hh"
 #include <string>
 #include <map>
 #include <set>
@@ -17,11 +15,15 @@ class Scheduler;
 class CliComm;
 class CliConnection;
 class CommandConsole;
+class Command;
+class CommandCompleter;
 class InfoCommand;
 class Interpreter;
 class FileContext;
 class SettingsConfig;
 class GlobalSettings;
+class HelpCmd;
+class VersionInfo;
 class RomInfoTopic;
 
 class CommandController
@@ -124,24 +126,9 @@ private:
 	std::auto_ptr<SettingsConfig> settingsConfig;
 	std::auto_ptr<GlobalSettings> globalSettings;
 
-	// Commands
-	class HelpCmd : public SimpleCommand {
-	public:
-		HelpCmd(CommandController& parent);
-		virtual std::string execute(const std::vector<std::string>& tokens);
-		virtual std::string help(const std::vector<std::string>& tokens) const;
-		virtual void tabCompletion(std::vector<std::string>& tokens) const;
-	private:
-		CommandController& parent;
-	} helpCmd;
-
-	class VersionInfo : public InfoTopic {
-	public:
-		VersionInfo(CommandController& commandController);
-		virtual void execute(const std::vector<TclObject*>& tokens,
-		                     TclObject& result) const;
-		virtual std::string help(const std::vector<std::string>& tokens) const;
-	} versionInfo;
+	friend class HelpCmd;
+	const std::auto_ptr<HelpCmd> helpCmd;
+	const std::auto_ptr<VersionInfo> versionInfo;
 	const std::auto_ptr<RomInfoTopic> romInfoTopic;
 };
 

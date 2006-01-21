@@ -27,6 +27,7 @@ TODO:
 #include "XMLElement.hh"
 #include "RendererFactory.hh"
 #include "Renderer.hh"
+#include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
 #include <sstream>
@@ -34,15 +35,45 @@ TODO:
 
 namespace openmsx {
 
+class VDPRegDebug : public SimpleDebuggable
+{
+public:
+	VDPRegDebug(VDP& vdp);
+	virtual byte read(unsigned address);
+	virtual void write(unsigned address, byte value, const EmuTime& time);
+private:
+	VDP& vdp;
+};
+
+class VDPStatusRegDebug : public SimpleDebuggable
+{
+public:
+	VDPStatusRegDebug(VDP& vdp);
+	virtual byte read(unsigned address, const EmuTime& time);
+private:
+	VDP& vdp;
+};
+
+class VDPPaletteDebug : public SimpleDebuggable
+{
+public:
+	VDPPaletteDebug(VDP& vdp);
+	virtual byte read(unsigned address);
+	virtual void write(unsigned address, byte value, const EmuTime& time);
+private:
+	VDP& vdp;
+};
+
+
 VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
          const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
 	, Schedulable(motherBoard.getScheduler())
-	, vdpRegDebug(*this)
-	, vdpStatusRegDebug(*this)
-	, vdpPaletteDebug(*this)
 	, irqVertical(motherBoard.getCPU())
 	, irqHorizontal(motherBoard.getCPU())
+	, vdpRegDebug      (new VDPRegDebug      (*this))
+	, vdpStatusRegDebug(new VDPStatusRegDebug(*this))
+	, vdpPaletteDebug  (new VDPPaletteDebug  (*this))
 {
 	interlaced = false;
 
@@ -1081,14 +1112,14 @@ void VDP::updateDisplayMode(DisplayMode newMode, const EmuTime& time)
 
 // VDPRegDebug
 
-VDP::VDPRegDebug::VDPRegDebug(VDP& vdp_)
+VDPRegDebug::VDPRegDebug(VDP& vdp_)
 	: SimpleDebuggable(vdp_.getMotherBoard(),
 	                   "VDP regs", "VDP registers.", 0x40)
 	, vdp(vdp_)
 {
 }
 
-byte VDP::VDPRegDebug::read(unsigned address)
+byte VDPRegDebug::read(unsigned address)
 {
 	if (address < 0x20) {
 		return vdp.controlRegs[address];
@@ -1099,7 +1130,7 @@ byte VDP::VDPRegDebug::read(unsigned address)
 	}
 }
 
-void VDP::VDPRegDebug::write(unsigned address, byte value, const EmuTime& time)
+void VDPRegDebug::write(unsigned address, byte value, const EmuTime& time)
 {
 	vdp.changeRegister(address, value, time);
 }
@@ -1107,34 +1138,34 @@ void VDP::VDPRegDebug::write(unsigned address, byte value, const EmuTime& time)
 
 // VDPStatusRegDebug
 
-VDP::VDPStatusRegDebug::VDPStatusRegDebug(VDP& vdp_)
+VDPStatusRegDebug::VDPStatusRegDebug(VDP& vdp_)
 	: SimpleDebuggable(vdp_.getMotherBoard(),
 	                   "VDP status regs", "VDP status registers.", 0x10)
 	, vdp(vdp_)
 {
 }
 
-byte VDP::VDPStatusRegDebug::read(unsigned address, const EmuTime& time)
+byte VDPStatusRegDebug::read(unsigned address, const EmuTime& time)
 {
 	return vdp.peekStatusReg(address, time);
 }
 
 // VDPPaletteDebug
 
-VDP::VDPPaletteDebug::VDPPaletteDebug(VDP& vdp_)
+VDPPaletteDebug::VDPPaletteDebug(VDP& vdp_)
 	: SimpleDebuggable(vdp_.getMotherBoard(),
 	                   "VDP palette", "V99x8 palette (RBG format)", 0x20)
 	, vdp(vdp_)
 {
 }
 
-byte VDP::VDPPaletteDebug::read(unsigned address)
+byte VDPPaletteDebug::read(unsigned address)
 {
 	word grb = vdp.getPalette(address / 2);
 	return (address & 1) ? (grb >> 8) : (grb & 0xff);
 }
 
-void VDP::VDPPaletteDebug::write(unsigned address, byte value, const EmuTime& time)
+void VDPPaletteDebug::write(unsigned address, byte value, const EmuTime& time)
 {
 	int index = address / 2;
 	word grb = vdp.getPalette(index);

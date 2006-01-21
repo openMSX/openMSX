@@ -4,9 +4,6 @@
 #define MSXCPUINTERFACE_HH
 
 #include "CPU.hh"
-#include "Command.hh"
-#include "SimpleDebuggable.hh"
-#include "InfoTopic.hh"
 #include "MSXDevice.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
@@ -22,6 +19,13 @@ class MSXMotherBoard;
 class CartridgeSlotManager;
 class MSXCPU;
 class CliComm;
+class MemoryDebug;
+class SlottedMemoryDebug;
+class IODebug;
+class SubSlottedInfo;
+class ExternalSlotInfo;
+class SlotMapCmd;
+class IOMapCmd;
 
 class MSXCPUInterface : private noncopyable
 {
@@ -184,77 +188,16 @@ private:
 	void unregisterSlot(MSXDevice& device,
 	                    int ps, int ss, int base, int size);
 
-	class MemoryDebug : public SimpleDebuggable {
-	public:
-		MemoryDebug(MSXCPUInterface& interface,
-		            MSXMotherBoard& motherBoard);
-		virtual byte read(unsigned address, const EmuTime& time);
-		virtual void write(unsigned address, byte value, const EmuTime& time);
-	private:
-		MSXCPUInterface& interface;
-	} memoryDebug;
-
-	class SlottedMemoryDebug : public SimpleDebuggable {
-	public:
-		SlottedMemoryDebug(MSXCPUInterface& interface,
-		                   MSXMotherBoard& motherBoard);
-		virtual byte read(unsigned address, const EmuTime& time);
-		virtual void write(unsigned address, byte value, const EmuTime& time);
-	private:
-		MSXCPUInterface& interface;
-	} slottedMemoryDebug;
-
-	class IODebug : public SimpleDebuggable {
-	public:
-		IODebug(MSXCPUInterface& interface,
-		        MSXMotherBoard& motherBoard);
-		virtual byte read(unsigned address, const EmuTime& time);
-		virtual void write(unsigned address, byte value, const EmuTime& time);
-	private:
-		MSXCPUInterface& interface;
-	} ioDebug;
-
-	class SubSlottedInfo : public InfoTopic {
-	public:
-		SubSlottedInfo(CommandController& commandController,
-		               MSXCPUInterface& interface);
-		virtual void execute(const std::vector<TclObject*>& tokens,
-		                     TclObject& result) const;
-		virtual std::string help(const std::vector<std::string>& tokens) const;
-	private:
-		MSXCPUInterface& interface;
-	} subSlottedInfo;
-
-	class ExternalSlotInfo : public InfoTopic {
-	public:
-		ExternalSlotInfo(CommandController& commandController,
-		                 CartridgeSlotManager& manager);
-		virtual void execute(const std::vector<TclObject*>& tokens,
-		                     TclObject& result) const;
-		virtual std::string help(const std::vector<std::string>& tokens) const;
-	private:
-		CartridgeSlotManager& manager;
-	} externalSlotInfo;
-
-	class SlotMapCmd : public SimpleCommand {
-	public:
-		SlotMapCmd(CommandController& commandController,
-		           MSXCPUInterface& interface);
-		virtual std::string execute(const std::vector<std::string>& tokens);
-		virtual std::string help(const std::vector<std::string>& tokens) const;
-	private:
-		MSXCPUInterface& interface;
-	} slotMapCmd;
-
-	class IOMapCmd : public SimpleCommand {
-	public:
-		IOMapCmd(CommandController& commandController,
-		         MSXCPUInterface& interface);
-		virtual std::string execute(const std::vector<std::string>& tokens);
-		virtual std::string help(const std::vector<std::string>& tokens) const;
-	private:
-		MSXCPUInterface& interface;
-	} ioMapCmd;
+	friend class IODebug;
+	friend class SlotMapCmd;
+	friend class IOMapCmd;
+	const std::auto_ptr<MemoryDebug> memoryDebug;
+	const std::auto_ptr<SlottedMemoryDebug> slottedMemoryDebug;
+	const std::auto_ptr<IODebug> ioDebug;
+	const std::auto_ptr<SubSlottedInfo> subSlottedInfo;
+	const std::auto_ptr<ExternalSlotInfo> externalSlotInfo;
+	const std::auto_ptr<SlotMapCmd> slotMapCmd;
+	const std::auto_ptr<IOMapCmd> ioMapCmd;
 
 	/** Updated visibleDevices for a given page and clears the cache
 	  * on changes.

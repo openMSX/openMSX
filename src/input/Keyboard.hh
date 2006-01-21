@@ -3,11 +3,12 @@
 #ifndef KEYBOARD_HH
 #define KEYBOARD_HH
 
-#include <string>
-#include "openmsx.hh"
 #include "UserInputEventListener.hh"
-#include "Command.hh"
 #include "Schedulable.hh"
+#include "openmsx.hh"
+#include <string>
+#include <vector>
+#include <memory>
 
 namespace openmsx {
 
@@ -15,6 +16,9 @@ class Scheduler;
 class CommandController;
 class UserInputEventDistributor;
 class EmuTime;
+class KeyMatrixUpCmd;
+class KeyMatrixDownCmd;
+class KeyInserter;
 
 class Keyboard : private UserInputEventListener, private Schedulable
 {
@@ -51,51 +55,13 @@ private:
 	void pressAscii(char asciiCode, bool down);
 	bool commonKeys(char asciiCode1, char asciiCode2);
 
-	class KeyMatrixUpCmd : public SimpleCommand {
-	public:
-		KeyMatrixUpCmd(CommandController& commandController,
-		               Keyboard& keyboard);
-		virtual std::string execute(const std::vector<std::string>& tokens);
-		virtual std::string help(const std::vector<std::string>& tokens) const;
-	private:
-		Keyboard& keyboard;
-	} keyMatrixUpCmd;
-
-	class KeyMatrixDownCmd : public SimpleCommand {
-	public:
-		KeyMatrixDownCmd(CommandController& commandController,
-		                 Keyboard& keyboard);
-		virtual std::string execute(const std::vector<std::string>& tokens);
-		virtual std::string help(const std::vector<std::string>& tokens) const;
-	private:
-		Keyboard& keyboard;
-	} keyMatrixDownCmd;
-
-	class KeyInserter : public SimpleCommand, private Schedulable
-	{
-	public:
-		KeyInserter(Scheduler& scheduler,
-		            CommandController& commandController,
-		            Keyboard& keyboard);
-		virtual ~KeyInserter();
-
-	private:
-		void type(const std::string& str);
-		void reschedule(const EmuTime& time);
-
-		// Command
-		virtual std::string execute(const std::vector<std::string>& tokens);
-		virtual std::string help(const std::vector<std::string>& tokens) const;
-
-		// Schedulable
-		virtual void executeUntil(const EmuTime& time, int userData);
-		virtual const std::string& schedName() const;
-
-		Keyboard& keyboard;
-		char last;
-		std::string text;
-	} keyTypeCmd;
-
+	friend class KeyMatrixUpCmd;
+	friend class KeyMatrixDownCmd;
+	friend class KeyInserter;
+	const std::auto_ptr<KeyMatrixUpCmd>   keyMatrixUpCmd;
+	const std::auto_ptr<KeyMatrixDownCmd> keyMatrixDownCmd;
+	const std::auto_ptr<KeyInserter>      keyTypeCmd;
+	
 	UserInputEventDistributor& eventDistributor;
 	byte cmdKeyMatrix[NR_KEYROWS];
 	byte userKeyMatrix[NR_KEYROWS];

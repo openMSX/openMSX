@@ -12,6 +12,7 @@
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "CommandController.hh"
+#include "Command.hh"
 #include "CommandException.hh"
 #include "InputEvents.hh"
 #include "Scheduler.hh"
@@ -21,6 +22,54 @@ using std::string;
 using std::vector;
 
 namespace openmsx {
+
+class KeyMatrixUpCmd : public SimpleCommand
+{
+public:
+	KeyMatrixUpCmd(CommandController& commandController,
+		       Keyboard& keyboard);
+	virtual std::string execute(const std::vector<std::string>& tokens);
+	virtual std::string help(const std::vector<std::string>& tokens) const;
+private:
+	Keyboard& keyboard;
+};
+
+class KeyMatrixDownCmd : public SimpleCommand
+{
+public:
+	KeyMatrixDownCmd(CommandController& commandController,
+			 Keyboard& keyboard);
+	virtual std::string execute(const std::vector<std::string>& tokens);
+	virtual std::string help(const std::vector<std::string>& tokens) const;
+private:
+	Keyboard& keyboard;
+};
+
+class KeyInserter : public SimpleCommand, private Schedulable
+{
+public:
+	KeyInserter(Scheduler& scheduler,
+		    CommandController& commandController,
+		    Keyboard& keyboard);
+	virtual ~KeyInserter();
+
+private:
+	void type(const std::string& str);
+	void reschedule(const EmuTime& time);
+
+	// Command
+	virtual std::string execute(const std::vector<std::string>& tokens);
+	virtual std::string help(const std::vector<std::string>& tokens) const;
+
+	// Schedulable
+	virtual void executeUntil(const EmuTime& time, int userData);
+	virtual const std::string& schedName() const;
+
+	Keyboard& keyboard;
+	char last;
+	std::string text;
+};
+
 
 void Keyboard::parseKeymapfile(const byte* buf, unsigned size)
 {
@@ -77,9 +126,9 @@ void Keyboard::loadKeymapfile(const string& filename)
 Keyboard::Keyboard(Scheduler& scheduler, CommandController& commandController,
                    UserInputEventDistributor& eventDistributor_, bool keyG)
 	: Schedulable(scheduler)
-	, keyMatrixUpCmd(commandController, *this)
-	, keyMatrixDownCmd(commandController, *this)
-	, keyTypeCmd(scheduler, commandController, *this)
+	, keyMatrixUpCmd  (new KeyMatrixUpCmd  (commandController, *this))
+	, keyMatrixDownCmd(new KeyMatrixDownCmd(commandController, *this))
+	, keyTypeCmd(new KeyInserter(scheduler, commandController, *this))
 	, eventDistributor(eventDistributor_)
 {
 	keyGhosting = keyG;
@@ -271,19 +320,19 @@ bool Keyboard::commonKeys(char asciiCode1, char asciiCode2)
 
 // class KeyMatrixUpCmd
 
-Keyboard::KeyMatrixUpCmd::KeyMatrixUpCmd(CommandController& commandController,
+KeyMatrixUpCmd::KeyMatrixUpCmd(CommandController& commandController,
                                          Keyboard& keyboard_)
 	: SimpleCommand(commandController, "keymatrixup")
 	, keyboard(keyboard_)
 {
 }
 
-string Keyboard::KeyMatrixUpCmd::execute(const vector<string>& tokens)
+string KeyMatrixUpCmd::execute(const vector<string>& tokens)
 {
 	return keyboard.processCmd(tokens, true);
 }
 
-string Keyboard::KeyMatrixUpCmd::help(const vector<string>& /*tokens*/) const
+string KeyMatrixUpCmd::help(const vector<string>& /*tokens*/) const
 {
 	static const string helpText =
 		"keymatrixup <row> <bitmask>  release a key in the keyboardmatrix\n";
@@ -293,19 +342,19 @@ string Keyboard::KeyMatrixUpCmd::help(const vector<string>& /*tokens*/) const
 
 // class KeyMatrixDownCmd
 
-Keyboard::KeyMatrixDownCmd::KeyMatrixDownCmd(CommandController& commandController,
+KeyMatrixDownCmd::KeyMatrixDownCmd(CommandController& commandController,
                                              Keyboard& keyboard_)
 	: SimpleCommand(commandController, "keymatrixdown")
 	, keyboard(keyboard_)
 {
 }
 
-string Keyboard::KeyMatrixDownCmd::execute(const vector<string>& tokens)
+string KeyMatrixDownCmd::execute(const vector<string>& tokens)
 {
 	return keyboard.processCmd(tokens, false);
 }
 
-string Keyboard::KeyMatrixDownCmd::help(const vector<string>& /*tokens*/) const
+string KeyMatrixDownCmd::help(const vector<string>& /*tokens*/) const
 {
 	static const string helpText=
 		"keymatrixdown <row> <bitmask>  press a key in the keyboardmatrix\n";
@@ -315,7 +364,7 @@ string Keyboard::KeyMatrixDownCmd::help(const vector<string>& /*tokens*/) const
 
 // class KeyInserter
 
-Keyboard::KeyInserter::KeyInserter(Scheduler& scheduler,
+KeyInserter::KeyInserter(Scheduler& scheduler,
 		CommandController& commandController, Keyboard& keyboard_)
 	: SimpleCommand(commandController, "type")
 	, Schedulable(scheduler)
@@ -323,11 +372,11 @@ Keyboard::KeyInserter::KeyInserter(Scheduler& scheduler,
 {
 }
 
-Keyboard::KeyInserter::~KeyInserter()
+KeyInserter::~KeyInserter()
 {
 }
 
-string Keyboard::KeyInserter::execute(const vector<string>& tokens)
+string KeyInserter::execute(const vector<string>& tokens)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();
@@ -336,13 +385,13 @@ string Keyboard::KeyInserter::execute(const vector<string>& tokens)
 	return "";
 }
 
-string Keyboard::KeyInserter::help(const vector<string>& /*tokens*/) const
+string KeyInserter::help(const vector<string>& /*tokens*/) const
 {
 	static const string helpText = "Type a string in the emulated MSX.";
 	return helpText;
 }
 
-void Keyboard::KeyInserter::type(const string& str)
+void KeyInserter::type(const string& str)
 {
 	if (str.empty()) {
 		return;
@@ -353,7 +402,7 @@ void Keyboard::KeyInserter::type(const string& str)
 	text += Unicode::utf8ToAscii(str);
 }
 
-void Keyboard::KeyInserter::executeUntil(const EmuTime& time, int /*userData*/)
+void KeyInserter::executeUntil(const EmuTime& time, int /*userData*/)
 {
 	keyboard.pressAscii(last, false);
 	if (text.empty()) {
@@ -370,13 +419,13 @@ void Keyboard::KeyInserter::executeUntil(const EmuTime& time, int /*userData*/)
 	reschedule(time);
 }
 
-void Keyboard::KeyInserter::reschedule(const EmuTime& time)
+void KeyInserter::reschedule(const EmuTime& time)
 {
 	Clock<15> nextTime(time);
 	setSyncPoint(nextTime + 1);
 }
 
-const string& Keyboard::KeyInserter::schedName() const
+const string& KeyInserter::schedName() const
 {
 	static const string schedName = "KeyInserter";
 	return schedName;

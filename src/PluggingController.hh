@@ -3,9 +3,8 @@
 #ifndef PLUGGINGCONTROLLER_HH
 #define PLUGGINGCONTROLLER_HH
 
-#include "Command.hh"
-#include "InfoTopic.hh"
 #include <vector>
+#include <memory>
 
 namespace openmsx {
 
@@ -15,6 +14,11 @@ class Pluggable;
 class CliComm;
 class Scheduler;
 class CommandController;
+class PlugCmd;
+class UnplugCmd;
+class PluggableInfo;
+class ConnectorInfo;
+class ConnectionClassInfo;
 
 /**
  * Central administration of Connectors and Pluggables.
@@ -52,64 +56,16 @@ private:
 	typedef std::vector<Pluggable*> Pluggables;
 	Pluggables pluggables;
 
-	// Commands
-	class PlugCmd : public SimpleCommand {
-	public:
-		PlugCmd(CommandController& commandController,
-		        PluggingController& pluggingController);
-		virtual std::string execute(const std::vector<std::string>& tokens);
-		virtual std::string help   (const std::vector<std::string>& tokens) const;
-		virtual void tabCompletion(std::vector<std::string>& tokens) const;
-	private:
-		PluggingController& pluggingController;
-	} plugCmd;
-
-	class UnplugCmd : public SimpleCommand {
-	public:
-		UnplugCmd(CommandController& commandController,
-		          PluggingController& pluggingController);
-		virtual std::string execute(const std::vector<std::string>& tokens);
-		virtual std::string help   (const std::vector<std::string>& tokens) const;
-		virtual void tabCompletion(std::vector<std::string>& tokens) const;
-	private:
-		PluggingController& pluggingController;
-	} unplugCmd;
-
-	class PluggableInfo : public InfoTopic {
-	public:
-		PluggableInfo(CommandController& commandController,
-		              PluggingController& pluggingController);
-		virtual void execute(const std::vector<TclObject*>& tokens,
-		                     TclObject& result) const;
-		virtual std::string help   (const std::vector<std::string>& tokens) const;
-		virtual void tabCompletion(std::vector<std::string>& tokens) const;
-	private:
-		PluggingController& pluggingController;
-	} pluggableInfo;
-
-	class ConnectorInfo : public InfoTopic {
-	public:
-		ConnectorInfo(CommandController& commandController,
-		              PluggingController& pluggingController);
-		virtual void execute(const std::vector<TclObject*>& tokens,
-		                     TclObject& result) const;
-		virtual std::string help   (const std::vector<std::string>& tokens) const;
-		virtual void tabCompletion(std::vector<std::string>& tokens) const;
-	private:
-		PluggingController& pluggingController;
-	} connectorInfo;
-
-	class ConnectionClassInfo : public InfoTopic {
-	public:
-		ConnectionClassInfo(CommandController& commandController,
-		                    PluggingController& pluggingController);
-		virtual void execute(const std::vector<TclObject*>& tokens,
-		                     TclObject& result) const;
-		virtual std::string help   (const std::vector<std::string>& tokens) const;
-		virtual void tabCompletion(std::vector<std::string>& tokens) const;
-	private:
-		PluggingController& pluggingController;
-	} connectionClassInfo;
+	friend class PlugCmd;
+	friend class UnplugCmd;
+	friend class PluggableInfo;
+	friend class ConnectorInfo;
+	friend class ConnectionClassInfo;
+	const std::auto_ptr<PlugCmd> plugCmd;
+	const std::auto_ptr<UnplugCmd> unplugCmd;
+	const std::auto_ptr<PluggableInfo> pluggableInfo;
+	const std::auto_ptr<ConnectorInfo> connectorInfo;
+	const std::auto_ptr<ConnectionClassInfo> connectionClassInfo;
 
 	CliComm& cliComm;
 	Scheduler& scheduler;

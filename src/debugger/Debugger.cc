@@ -6,6 +6,7 @@
 #include "BreakPoint.hh"
 #include "TclObject.hh"
 #include "CommandController.hh"
+#include "Command.hh"
 #include "CommandException.hh"
 #include "StringOp.hh"
 #include <cassert>
@@ -22,8 +23,43 @@ using std::auto_ptr;
 
 namespace openmsx {
 
+class DebugCmd : public Command
+{
+public:
+	DebugCmd(CommandController& commandController,
+		 Debugger& debugger);
+	virtual void execute(const std::vector<TclObject*>& tokens,
+			     TclObject& result);
+	virtual std::string help(const std::vector<std::string>& tokens) const;
+	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+
+private:
+	void list(TclObject& result);
+	void desc(const std::vector<TclObject*>& tokens,
+	          TclObject& result);
+	void size(const std::vector<TclObject*>& tokens,
+	          TclObject& result);
+	void read(const std::vector<TclObject*>& tokens,
+	          TclObject& result);
+	void readBlock(const std::vector<TclObject*>& tokens,
+	               TclObject& result);
+	void write(const std::vector<TclObject*>& tokens,
+	           TclObject& result);
+	void writeBlock(const std::vector<TclObject*>& tokens,
+	                TclObject& result);
+	void setBreakPoint(const std::vector<TclObject*>& tokens,
+	                   TclObject& result);
+	void removeBreakPoint(const std::vector<TclObject*>& tokens,
+	                      TclObject& result);
+	void listBreakPoints(const std::vector<TclObject*>& tokens,
+	                     TclObject& result);
+
+	Debugger& debugger;
+};
+
+
 Debugger::Debugger(CommandController& commandController)
-	: debugCmd(commandController, *this)
+	: debugCmd(new DebugCmd(commandController, *this))
 	, cpu(0)
 {
 }
@@ -91,15 +127,14 @@ static word getAddress(const vector<TclObject*>& tokens)
 	return addr;
 }
 
-Debugger::DebugCmd::DebugCmd(CommandController& commandController_,
+DebugCmd::DebugCmd(CommandController& commandController_,
                              Debugger& debugger_)
 	: Command(commandController_, "debug")
 	, debugger(debugger_)
-	, commandController(commandController_)
 {
 }
 
-void Debugger::DebugCmd::execute(const vector<TclObject*>& tokens,
+void DebugCmd::execute(const vector<TclObject*>& tokens,
                                  TclObject& result)
 {
 	if (tokens.size() < 2) {
@@ -141,7 +176,7 @@ void Debugger::DebugCmd::execute(const vector<TclObject*>& tokens,
 	}
 }
 
-void Debugger::DebugCmd::list(TclObject& result)
+void DebugCmd::list(TclObject& result)
 {
 	for (map<string, Debuggable*>::const_iterator it =
 	       debugger.debuggables.begin();
@@ -150,7 +185,7 @@ void Debugger::DebugCmd::list(TclObject& result)
 	}
 }
 
-void Debugger::DebugCmd::desc(const vector<TclObject*>& tokens, TclObject& result)
+void DebugCmd::desc(const vector<TclObject*>& tokens, TclObject& result)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
@@ -159,7 +194,7 @@ void Debugger::DebugCmd::desc(const vector<TclObject*>& tokens, TclObject& resul
 	result.setString(device->getDescription());
 }
 
-void Debugger::DebugCmd::size(const vector<TclObject*>& tokens, TclObject& result)
+void DebugCmd::size(const vector<TclObject*>& tokens, TclObject& result)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
@@ -168,7 +203,7 @@ void Debugger::DebugCmd::size(const vector<TclObject*>& tokens, TclObject& resul
 	result.setInt(device->getSize());
 }
 
-void Debugger::DebugCmd::read(const vector<TclObject*>& tokens, TclObject& result)
+void DebugCmd::read(const vector<TclObject*>& tokens, TclObject& result)
 {
 	if (tokens.size() != 4) {
 		throw SyntaxError();
@@ -181,7 +216,7 @@ void Debugger::DebugCmd::read(const vector<TclObject*>& tokens, TclObject& resul
 	result.setInt(device->read(addr));
 }
 
-void Debugger::DebugCmd::readBlock(const vector<TclObject*>& tokens, TclObject& result)
+void DebugCmd::readBlock(const vector<TclObject*>& tokens, TclObject& result)
 {
 	if (tokens.size() != 5) {
 		throw SyntaxError();
@@ -205,7 +240,7 @@ void Debugger::DebugCmd::readBlock(const vector<TclObject*>& tokens, TclObject& 
 	delete[] buf;
 }
 
-void Debugger::DebugCmd::write(const vector<TclObject*>& tokens,
+void DebugCmd::write(const vector<TclObject*>& tokens,
                                TclObject& /*result*/)
 {
 	if (tokens.size() != 5) {
@@ -224,7 +259,7 @@ void Debugger::DebugCmd::write(const vector<TclObject*>& tokens,
 	device->write(addr, value);
 }
 
-void Debugger::DebugCmd::writeBlock(const vector<TclObject*>& tokens,
+void DebugCmd::writeBlock(const vector<TclObject*>& tokens,
                                     TclObject& /*result*/)
 {
 	if (tokens.size() != 5) {
@@ -247,19 +282,21 @@ void Debugger::DebugCmd::writeBlock(const vector<TclObject*>& tokens,
 	}
 }
 
-void Debugger::DebugCmd::setBreakPoint(const vector<TclObject*>& tokens,
+void DebugCmd::setBreakPoint(const vector<TclObject*>& tokens,
                                        TclObject& result)
 {
 	word addr = getAddress(tokens);
 	auto_ptr<BreakPoint> bp;
 	switch (tokens.size()) {
 	case 3: // no condition
-		bp.reset(new BreakPoint(commandController.getCliComm(), addr));
+		bp.reset(new BreakPoint(getCommandController().getCliComm(),
+		                        addr));
 		break;
 	case 4: { // contional bp
 		auto_ptr<TclObject> cond(new TclObject(*tokens[3]));
 		cond->checkExpression();
-		bp.reset(new BreakPoint(commandController.getCliComm(), addr, cond));
+		bp.reset(new BreakPoint(getCommandController().getCliComm(),
+		                        addr, cond));
 		break;
 	}
 	default:
@@ -269,7 +306,7 @@ void Debugger::DebugCmd::setBreakPoint(const vector<TclObject*>& tokens,
 	debugger.cpu->insertBreakPoint(bp);
 }
 
-void Debugger::DebugCmd::removeBreakPoint(const std::vector<TclObject*>& tokens,
+void DebugCmd::removeBreakPoint(const std::vector<TclObject*>& tokens,
                                           TclObject& /*result*/)
 {
 	if (tokens.size() != 3) {
@@ -309,7 +346,7 @@ void Debugger::DebugCmd::removeBreakPoint(const std::vector<TclObject*>& tokens,
 	}
 }
 
-void Debugger::DebugCmd::listBreakPoints(const std::vector<TclObject*>& /*tokens*/,
+void DebugCmd::listBreakPoints(const std::vector<TclObject*>& /*tokens*/,
                                          TclObject& result)
 {
 	const CPU::BreakPoints& breakPoints = debugger.cpu->getBreakPoints();
@@ -325,7 +362,7 @@ void Debugger::DebugCmd::listBreakPoints(const std::vector<TclObject*>& /*tokens
 	result.setString(os.str());
 }
 
-string Debugger::DebugCmd::help(const vector<string>& /*tokens*/) const
+string DebugCmd::help(const vector<string>& /*tokens*/) const
 {
 	static const string helpText =
 		"debug list                                returns a list of all debuggables\n"
@@ -346,7 +383,7 @@ string Debugger::DebugCmd::help(const vector<string>& /*tokens*/) const
 	return helpText;
 }
 
-void Debugger::DebugCmd::tabCompletion(vector<string>& tokens) const
+void DebugCmd::tabCompletion(vector<string>& tokens) const
 {
 	switch (tokens.size()) {
 		case 2: {

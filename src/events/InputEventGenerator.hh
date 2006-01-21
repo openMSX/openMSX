@@ -6,7 +6,6 @@
 #include "Observer.hh"
 #include "EventListener.hh"
 #include "PollInterface.hh"
-#include "Command.hh"
 #include <SDL.h>
 #include <memory>
 
@@ -16,6 +15,7 @@ class CommandController;
 class BooleanSetting;
 class EventDistributor;
 class Setting;
+class EscapeGrabCmd;
 
 class InputEventGenerator : private Observer<Setting>, private EventListener,
                             private PollInterface
@@ -64,15 +64,8 @@ private:
 		ESCAPE_GRAB_WAIT_GAIN
 	} escapeGrabState;
 
-	class EscapeGrabCmd : public SimpleCommand {
-	public:
-		EscapeGrabCmd(CommandController& commandController,
-		              InputEventGenerator& inputEventGenerator);
-		virtual std::string execute(const std::vector<std::string>& tokens);
-		virtual std::string help(const std::vector<std::string>& tokens) const;
-	private:
-		InputEventGenerator& inputEventGenerator;
-	} escapeGrabCmd;
+	friend class EscapeGrabCmd;
+	const std::auto_ptr<EscapeGrabCmd> escapeGrabCmd;
 
 	bool keyRepeat;
 	EventDistributor& eventDistributor;

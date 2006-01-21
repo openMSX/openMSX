@@ -4,10 +4,10 @@
 #define CLICOMM_HH
 
 #include "CommandLineParser.hh"
-#include "Command.hh"
 #include "EventListener.hh"
 #include <map>
 #include <string>
+#include <memory>
 
 namespace openmsx {
 
@@ -15,6 +15,7 @@ class Scheduler;
 class EventDistributor;
 class CommandController;
 class CliConnection;
+class UpdateCmd;
 
 class CliComm : private EventListener
 {
@@ -61,17 +62,7 @@ private:
 	// EventListener
 	virtual void signalEvent(const Event& event);
 
-	class UpdateCmd : public SimpleCommand {
-	public:
-		UpdateCmd(CommandController& commandController,
-		          CliComm& cliComm);
-		virtual std::string execute(const std::vector<std::string>& tokens);
-		virtual std::string help(const std::vector<std::string>& tokens) const;
-		virtual void tabCompletion(std::vector<std::string>& tokens) const;
-	private:
-		CliConnection& getConnection();
-		CliComm& cliComm;
-	} updateCmd;
+	const std::auto_ptr<UpdateCmd> updateCmd;
 
 	std::map<std::string, std::string> prevValues[NUM_UPDATES];
 

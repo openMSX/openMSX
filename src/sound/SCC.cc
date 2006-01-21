@@ -96,12 +96,24 @@
 //-----------------------------------------------------------------------------
 
 #include "SCC.hh"
-#include "MSXMotherBoard.hh"
 #include "Mixer.hh"
+#include "SimpleDebuggable.hh"
+#include "MSXMotherBoard.hh"
 
 using std::string;
 
 namespace openmsx {
+
+class SCCDebuggable : public SimpleDebuggable
+{
+public:
+	SCCDebuggable(MSXMotherBoard& motherBoard, SCC& scc);
+	virtual byte read(unsigned address, const EmuTime& time);
+	virtual void write(unsigned address, byte value, const EmuTime& time);
+private:
+	SCC& scc;
+};
+
 
 static string calcDescription(SCC::ChipMode mode)
 {
@@ -111,9 +123,8 @@ static string calcDescription(SCC::ChipMode mode)
 SCC::SCC(MSXMotherBoard& motherBoard, const string& name,
          const XMLElement& config, const EmuTime& time, ChipMode mode)
 	: SoundDevice(motherBoard.getMixer(), name, calcDescription(mode))
-	, SimpleDebuggable(motherBoard, name + " SCC",
-	                   "SCC registers in SCC+ format", 0x100)
 	, currentChipMode(mode)
+	, debuggable(new SCCDebuggable(motherBoard, *this))
 {
 	// Clear wave forms.
 	for (unsigned i = 0; i < 5; ++i) {
@@ -540,33 +551,40 @@ void SCC::checkMute()
 
 // SimpleDebuggable
 
-byte SCC::read(unsigned address, const EmuTime& time)
+SCCDebuggable::SCCDebuggable(MSXMotherBoard& motherBoard, SCC& scc_)
+	: SimpleDebuggable(motherBoard, scc_.getName() + " SCC",
+	                   "SCC registers in SCC+ format", 0x100)
+	, scc(scc_)
+{
+}
+
+byte SCCDebuggable::read(unsigned address, const EmuTime& time)
 {
 	if (address < 0xA0) {
 		// read wave form 1..5
-		return readWave(address >> 5, address, time);
+		return scc.readWave(address >> 5, address, time);
 	} else if (address < 0xC0) {
 		// freq volume block
-		return getFreqVol(address);
+		return scc.getFreqVol(address);
 	} else if (address < 0xE0) {
 		// peek deformation register
-		return deformValue;
+		return scc.deformValue;
 	} else {
 		return 0xFF;
 	}
 }
 
-void SCC::write(unsigned address, byte value, const EmuTime& time)
+void SCCDebuggable::write(unsigned address, byte value, const EmuTime& time)
 {
 	if (address < 0xA0) {
 		// read wave form 1..5
-		writeWave(address >> 5, address, value);
+		scc.writeWave(address >> 5, address, value);
 	} else if (address < 0xC0) {
 		// freq volume block
-		 setFreqVol(address, value);
+		 scc.setFreqVol(address, value);
 	} else if (address < 0xE0) {
 		// deformation register
-		setDeformReg(value, time);
+		scc.setDeformReg(value, time);
 	} else {
 		// ignore
 	}

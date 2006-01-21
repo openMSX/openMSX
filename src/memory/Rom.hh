@@ -4,7 +4,6 @@
 #define ROM_HH
 
 #include "openmsx.hh"
-#include "Debuggable.hh"
 #include <memory>
 #include <cassert>
 
@@ -16,8 +15,9 @@ class XMLElement;
 class File;
 class RomInfo;
 class CliComm;
+class RomDebuggable;
 
-class Rom : public Debuggable
+class Rom
 {
 public:
 	Rom(MSXMotherBoard& motherBoard, const std::string& name,
@@ -31,19 +31,12 @@ public:
 		assert(address < size);
 		return rom[address];
 	}
+	unsigned getSize() const { return size; }
 
-	const RomInfo& getInfo() const {
-		return *info;
-	}
-
+	const RomInfo& getInfo() const;
 	const std::string& getName() const;
+	const std::string& getDescription() const;
 	const std::string& getSHA1Sum() const;
-
-	// Debuggable
-	virtual unsigned getSize() const;
-	virtual const std::string& getDescription() const;
-	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value);
 
 private:
 	void init(CliComm& cliComm, const XMLElement& config);
@@ -59,6 +52,7 @@ private:
 
 	std::auto_ptr<File> file;
 	std::auto_ptr<RomInfo> info;
+	std::auto_ptr<RomDebuggable> romDebuggable;
 
 	mutable std::string sha1sum;
 };

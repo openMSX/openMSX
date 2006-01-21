@@ -32,6 +32,7 @@
 #include "BooleanSetting.hh"
 #include "FileContext.hh"
 #include "GlobalSettings.hh"
+#include "Command.hh"
 #include <cassert>
 
 using std::string;
@@ -39,12 +40,24 @@ using std::vector;
 
 namespace openmsx {
 
+class ResetCmd : public SimpleCommand
+{
+public:
+	ResetCmd(CommandController& commandController,
+	         MSXMotherBoard& motherBoard);
+	virtual std::string execute(const std::vector<std::string>& tokens);
+	virtual std::string help(const std::vector<std::string>& tokens) const;
+private:
+	MSXMotherBoard& motherBoard;
+};
+
+
 MSXMotherBoard::MSXMotherBoard()
 	: powered(false)
 	, needReset(false)
 	, needPowerDown(false)
 	, blockedCounter(0)
-	, resetCommand(getCommandController(), *this)
+	, resetCommand(new ResetCmd(getCommandController(), *this))
 	, powerSetting(getCommandController().getGlobalSettings().getPowerSetting())
 {
 	getMixer().mute(); // powered down
@@ -473,22 +486,21 @@ MSXDevice* MSXMotherBoard::findDevice(const string& name)
 }
 
 
-// inner class ResetCmd:
 
-MSXMotherBoard::ResetCmd::ResetCmd(CommandController& commandController,
+ResetCmd::ResetCmd(CommandController& commandController,
                                    MSXMotherBoard& motherBoard_)
 	: SimpleCommand(commandController, "reset")
 	, motherBoard(motherBoard_)
 {
 }
 
-string MSXMotherBoard::ResetCmd::execute(const vector<string>& /*tokens*/)
+string ResetCmd::execute(const vector<string>& /*tokens*/)
 {
 	motherBoard.scheduleReset();
 	return "";
 }
 
-string MSXMotherBoard::ResetCmd::help(const vector<string>& /*tokens*/) const
+string ResetCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "Resets the MSX.\n";
 }

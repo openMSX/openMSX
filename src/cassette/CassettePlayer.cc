@@ -26,6 +26,7 @@
 #include "Connector.hh"
 #include "CassettePort.hh"
 #include "CommandController.hh"
+#include "Command.hh"
 #include "GlobalSettings.hh"
 #include "XMLElement.hh"
 #include "FileContext.hh"
@@ -53,6 +54,19 @@ namespace openmsx {
 
 static const unsigned RECORD_FREQ = 44100;
 static const double OUTPUT_AMP = 60.0;
+
+class TapeCommand : public Command
+{
+public:
+	TapeCommand(CommandController& commandController,
+	            CassettePlayer& cassettePlayer);
+	virtual void execute(const std::vector<TclObject*>& tokens,
+	                     TclObject& result);
+	virtual std::string help(const std::vector<std::string>& tokens) const;
+	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+private:
+	CassettePlayer& cassettePlayer;
+};
 
 
 MSXCassettePlayerCLI::MSXCassettePlayerCLI(CommandLineParser& commandLineParser_)
@@ -95,12 +109,13 @@ const string& MSXCassettePlayerCLI::fileTypeHelp() const
 
 
 CassettePlayer::CassettePlayer(
-		CommandController& commandController, Mixer& mixer)
+		CommandController& commandController_, Mixer& mixer)
 	: SoundDevice(mixer, getName(), getDescription())
-	, Command(commandController, "cassetteplayer")
 	, motor(false), motorControl(true), isLoading(false)
 	, lastOutput(false)
 	, sampcnt(0)
+	, commandController(commandController_)
+	, tapeCommand(new TapeCommand(commandController, *this))
 	, cliComm(commandController.getCliComm())
 	, throttleManager(commandController.getGlobalSettings().getThrottleManager())
 {
@@ -135,7 +150,7 @@ CassettePlayer::~CassettePlayer()
 	unregisterSound();
 	if (Connector* connector = getConnector()) {
 		connector->unplug(
-			getCommandController().getScheduler().getCurrentTime());
+			commandController.getScheduler().getCurrentTime());
 	}
 }
 
@@ -151,7 +166,7 @@ void CassettePlayer::updateLoadingState()
 
 void CassettePlayer::insertTape(const string& filename, const EmuTime& time)
 {
-	stopRecording(getCommandController().getScheduler().getCurrentTime());
+	stopRecording(commandController.getScheduler().getCurrentTime());
 	try {
 		// first try WAV
 		cassette.reset(new WavImage(filename));
@@ -178,7 +193,7 @@ void CassettePlayer::insertTape(const string& filename, const EmuTime& time)
 				assert(false); // Shouldn't be possible
 		}
 		try {
-			getCommandController().executeCommand("after time 2 { type " + loadingInstruction + "\\r }");
+			commandController.executeCommand("after time 2 { type " + loadingInstruction + "\\r }");
 		} catch (CommandException& e) {
 			cliComm.printWarning("Error executing loading instruction for AutoRun: " + e.getMessage() + " Please report a bug.");
 		}
@@ -389,26 +404,62 @@ void CassettePlayer::unplugHelper(const EmuTime& time)
 }
 
 
-void CassettePlayer::execute(const std::vector<TclObject*>& tokens,
-                             TclObject& result)
+void CassettePlayer::setVolume(int newVolume)
+{
+	volume = newVolume;
+}
+
+void CassettePlayer::setSampleRate(int sampleRate)
+{
+	delta = EmuDuration(1.0 / sampleRate);
+}
+
+void CassettePlayer::updateBuffer(unsigned length, int* buffer,
+     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
+{
+	if (!wavWriter.get()) {
+		while (length--) {
+			*(buffer++) = (((int)getSample(playTapeTime)) * volume) >> 15;
+			playTapeTime += delta;
+		}
+	} else { // not reachable, mute is set
+		assert(false);
+		//while (length--) {
+		//	*(buffer++) = 0; // TODO
+		//playTapeTime += delta;
+	}
+}
+
+
+TapeCommand::TapeCommand(CommandController& commandController,
+                         CassettePlayer& cassettePlayer_)
+	: Command(commandController, "cassetteplayer")
+	, cassettePlayer(cassettePlayer_)
+{
+}
+
+void TapeCommand::execute(const std::vector<TclObject*>& tokens,
+                          TclObject& result)
 {
 	string tmpresult;
 	EmuTime now = getCommandController().getScheduler().getCurrentTime();
 	if (tokens.size() == 1) {
 		// Returning TCL lists here, similar to the disk commands in
 		// DiskChanger
-		const string filename = playerElem->getData();
+		const string filename = cassettePlayer.playerElem->getData();
 		result.addListElement(getName() + ':');
 		result.addListElement(filename);
 
 		TclObject options(result.getInterpreter());
-		options.addListElement(wavWriter.get() ? "record" : "play");
+		options.addListElement(cassettePlayer.wavWriter.get() ?
+		                       "record" : "play");
 		result.addListElement(options);
 		// result.addListElement(cassette->getFirstFileTypeAsString()); <-- temporarily disabled, so that we can release openMSX 0.6.0 and Catapult 0.6.0-R1 without having to fix Catapult which breaks because of this
 	} else if (tokens[1]->getString() == "new") {
-		if (wavWriter.get()) {
-			stopRecording(now);
-			tmpresult += "Stopping recording to " + playerElem->getData();
+		if (cassettePlayer.wavWriter.get()) {
+			cassettePlayer.stopRecording(now);
+			tmpresult += "Stopping recording to " +
+			             cassettePlayer.playerElem->getData();
 		}
 		string filename;
 		if (tokens.size() == 3) {
@@ -418,41 +469,45 @@ void CassettePlayer::execute(const std::vector<TclObject*>& tokens,
 			getNextNumberedFileName(
 					"taperecordings", "openmsx", ".wav");
 		}
-		startRecording(filename, now);
-		tmpresult += "Created new cassette image "
-			"file: " + filename + ", inserted it and set recording mode.";
-		playerElem->setData(filename);
-		cliComm.update(CliComm::MEDIA, "cassetteplayer", filename);
-		cliComm.update(CliComm::STATUS, "cassetteplayer", "record");
+		cassettePlayer.startRecording(filename, now);
+		tmpresult += "Created new cassette image file: " +
+		          filename + ", inserted it and set recording mode.";
+		cassettePlayer.playerElem->setData(filename);
+		cassettePlayer.cliComm.update(
+			CliComm::MEDIA, "cassetteplayer", filename);
+		cassettePlayer.cliComm.update(
+			CliComm::STATUS, "cassetteplayer", "record");
 	} else if (tokens[1]->getString() == "insert" && tokens.size() == 3) {
 		try {
 			tmpresult += "Changing tape";
 			UserFileContext context(getCommandController());
-			insertTape(context.resolve(tokens[2]->getString()), now);
-			cliComm.update(CliComm::MEDIA,
-			               "cassetteplayer", tokens[1]->getString());
-			cliComm.update(CliComm::STATUS, "cassetteplayer", "play");
+			cassettePlayer.insertTape(
+				context.resolve(tokens[2]->getString()), now);
+			cassettePlayer.cliComm.update(CliComm::MEDIA,
+			        "cassetteplayer", tokens[1]->getString());
+			cassettePlayer.cliComm.update(CliComm::STATUS,
+			        "cassetteplayer", "play");
 		} catch (MSXException &e) {
 			throw CommandException(e.getMessage());
 		}
 	} else if (tokens[1]->getString() == "motorcontrol" && tokens.size() == 3) {
 		if (tokens[2]->getString() == "on") {
-			if (!motorControl) {
-				setMotorControl(true, now);
+			if (!cassettePlayer.motorControl) {
+				cassettePlayer.setMotorControl(true, now);
 				tmpresult += "Motor control enabled.";
 			} else {
 				tmpresult += "Already enabled...";
 			}
 		} else if (tokens[2]->getString() == "off") {
-			if (motorControl) {
-				setMotorControl(false, now);
+			if (cassettePlayer.motorControl) {
+				cassettePlayer.setMotorControl(false, now);
 				tmpresult += "Motor control disabled.";
-				if (playerElem->getData().size() > 0) {
+				if (!cassettePlayer.playerElem->getData().empty()) {
 					tmpresult += " Tape will run now!";
 				}
 			} else {
 				tmpresult += "Already disabled...";
-				if (playerElem->getData().size() > 0) {
+				if (!cassettePlayer.playerElem->getData().empty()) {
 					tmpresult += " (tape is running!)";
 				}
 			}
@@ -461,15 +516,17 @@ void CassettePlayer::execute(const std::vector<TclObject*>& tokens,
 		throw SyntaxError();
 	} else if (tokens[1]->getString() == "motorcontrol") {
 			tmpresult += "Motor control is ";
-			tmpresult += motorControl ? "on" : "off";
+			tmpresult += cassettePlayer.motorControl ? "on" : "off";
 	} else if (tokens[1]->getString() == "record") {
 			tmpresult += "TODO: implement this... (sorry)";
 	} else if (tokens[1]->getString() == "play") {
-		if (wavWriter.get()) {
+		if (cassettePlayer.wavWriter.get()) {
 			try {
 				tmpresult += "Play mode set, rewinding tape.";
-				insertTape(playerElem->getData(), now);
-				cliComm.update(CliComm::STATUS, "cassetteplayer", "play");
+				cassettePlayer.insertTape(
+					cassettePlayer.playerElem->getData(), now);
+				cassettePlayer.cliComm.update(
+					CliComm::STATUS, "cassetteplayer", "play");
 			} catch (MSXException &e) {
 				throw CommandException(e.getMessage());
 			}
@@ -478,22 +535,26 @@ void CassettePlayer::execute(const std::vector<TclObject*>& tokens,
 		}
 	} else if (tokens[1]->getString() == "eject") {
 		tmpresult += "Tape ejected";
-		removeTape(now);
-		cliComm.update(CliComm::MEDIA, "cassetteplayer", "");
-		cliComm.update(CliComm::STATUS, "cassetteplayer", "play");
+		cassettePlayer.removeTape(now);
+		cassettePlayer.cliComm.update(
+			CliComm::MEDIA, "cassetteplayer", "");
+		cassettePlayer.cliComm.update(
+			CliComm::STATUS, "cassetteplayer", "play");
 
 	} else if (tokens[1]->getString() == "rewind") {
-		if (wavWriter.get()) {
+		if (cassettePlayer.wavWriter.get()) {
 			try {
 				tmpresult += "First stopping recording... ";
-				insertTape(playerElem->getData(), now);
-				cliComm.update(CliComm::STATUS, "cassetteplayer", "play");
+				cassettePlayer.insertTape(
+					cassettePlayer.playerElem->getData(), now);
+				cassettePlayer.cliComm.update(
+					CliComm::STATUS, "cassetteplayer", "play");
 				// this also did the rewinding
 			} catch (MSXException &e) {
 				throw CommandException(e.getMessage());
 			}
 		} else {
-			rewind(now);
+			cassettePlayer.rewind(now);
 		}
 		tmpresult += "Tape rewound";
 	} else {
@@ -501,24 +562,29 @@ void CassettePlayer::execute(const std::vector<TclObject*>& tokens,
 		try {
 			tmpresult += "Changing tape";
 			UserFileContext context(getCommandController());
-			insertTape(context.resolve(tokens[1]->getString()), now);
-			cliComm.update(CliComm::MEDIA,
-			               "cassetteplayer", tokens[1]->getString());
-			cliComm.update(CliComm::STATUS, "cassetteplayer", "play");
+			cassettePlayer.insertTape(
+				context.resolve(tokens[1]->getString()), now);
+			cassettePlayer.cliComm.update(
+				CliComm::MEDIA, "cassetteplayer",
+				tokens[1]->getString());
+			cassettePlayer.cliComm.update(
+				CliComm::STATUS, "cassetteplayer", "play");
 		} catch (MSXException &e) {
 			throw CommandException(e.getMessage());
 		}
 	}
-	if (!getConnector()) {
+	if (!cassettePlayer.getConnector()) {
 		if (!tmpresult.empty() && tmpresult[tmpresult.size() - 1] != '\n') {
 			tmpresult += '\n';
 		}
 		tmpresult += "Warning: cassetteplayer not plugged in.";
 	}
-	if (tmpresult.size() > 0) result.setString(tmpresult);
+	if (!tmpresult.empty()) {
+		result.setString(tmpresult);
+	}
 }
 
-string CassettePlayer::help(const vector<string>& tokens) const
+string TapeCommand::help(const vector<string>& tokens) const
 {
 	string helptext;
 	if (tokens.size() >= 2) {
@@ -558,7 +624,7 @@ string CassettePlayer::help(const vector<string>& tokens) const
 	return helptext;
 }
 
-void CassettePlayer::tabCompletion(vector<string>& tokens) const
+void TapeCommand::tabCompletion(vector<string>& tokens) const
 {
 	set<string> extra;
 	if (tokens.size() == 2) {
@@ -577,32 +643,6 @@ void CassettePlayer::tabCompletion(vector<string>& tokens) const
 		extra.insert("on");
 		extra.insert("off");
 		completeString(tokens, extra);
-	}
-}
-
-void CassettePlayer::setVolume(int newVolume)
-{
-	volume = newVolume;
-}
-
-void CassettePlayer::setSampleRate(int sampleRate)
-{
-	delta = EmuDuration(1.0 / sampleRate);
-}
-
-void CassettePlayer::updateBuffer(unsigned length, int* buffer,
-     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
-{
-	if (!wavWriter.get()) {
-		while (length--) {
-			*(buffer++) = (((int)getSample(playTapeTime)) * volume) >> 15;
-			playTapeTime += delta;
-		}
-	} else { // not reachable, mute is set
-		assert(false);
-		//while (length--) {
-		//	*(buffer++) = 0; // TODO
-		//playTapeTime += delta;
 	}
 }
 

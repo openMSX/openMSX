@@ -4,7 +4,6 @@
 #define MSXMOTHERBOARD_HH
 
 #include "Observer.hh"
-#include "Command.hh"
 #include <memory>
 #include <vector>
 #include <string>
@@ -41,6 +40,7 @@ class FilePool;
 class BooleanSetting;
 class EmuTime;
 class Setting;
+class ResetCmd;
 
 
 class MSXMotherBoard : private Observer<Setting>
@@ -170,16 +170,7 @@ private:
 	std::auto_ptr<FileManipulator> fileManipulator;
 	std::auto_ptr<FilePool> filePool;
 
-	class ResetCmd : public SimpleCommand {
-	public:
-		ResetCmd(CommandController& commandController,
-		         MSXMotherBoard& motherBoard);
-		virtual std::string execute(const std::vector<std::string>& tokens);
-		virtual std::string help(const std::vector<std::string>& tokens) const;
-	private:
-		MSXMotherBoard& motherBoard;
-	} resetCommand;
-
+	const std::auto_ptr<ResetCmd> resetCommand;
 	BooleanSetting& powerSetting;
 };
 

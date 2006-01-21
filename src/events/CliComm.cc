@@ -8,6 +8,7 @@
 #include "CliConnection.hh"
 #include "Socket.hh"
 #include "CommandController.hh"
+#include "Command.hh"
 #include "StringOp.hh"
 #include <map>
 #include <iostream>
@@ -23,9 +24,23 @@ using std::vector;
 
 namespace openmsx {
 
+class UpdateCmd : public SimpleCommand
+{
+public:
+	UpdateCmd(CommandController& commandController,
+	          CliComm& cliComm);
+	virtual std::string execute(const std::vector<std::string>& tokens);
+	virtual std::string help(const std::vector<std::string>& tokens) const;
+	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+private:
+	CliConnection& getConnection();
+	CliComm& cliComm;
+};
+
+
 CliComm::CliComm(Scheduler& scheduler_, CommandController& commandController_,
                  EventDistributor& eventDistributor_)
-	: updateCmd(commandController_, *this)
+	: updateCmd(new UpdateCmd(commandController_, *this))
 	, scheduler(scheduler_)
 	, commandController(commandController_)
 	, eventDistributor(eventDistributor_)
@@ -158,8 +173,8 @@ void CliComm::signalEvent(const Event& event)
 
 // class UpdateCmd
 
-CliComm::UpdateCmd::UpdateCmd(CommandController& commandController,
-                              CliComm& cliComm_)
+UpdateCmd::UpdateCmd(CommandController& commandController,
+                     CliComm& cliComm_)
 	: SimpleCommand(commandController, "update")
 	, cliComm(cliComm_)
 {
@@ -175,7 +190,7 @@ static CliComm::UpdateType getType(const string& name)
 	throw CommandException("No such update type: " + name);
 }
 
-CliConnection& CliComm::UpdateCmd::getConnection()
+CliConnection& UpdateCmd::getConnection()
 {
 	CliConnection* connection = getCommandController().getConnection();
 	if (!connection) {
@@ -185,7 +200,7 @@ CliConnection& CliComm::UpdateCmd::getConnection()
 	return *connection;
 }
 
-string CliComm::UpdateCmd::execute(const vector<string>& tokens)
+string UpdateCmd::execute(const vector<string>& tokens)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
@@ -200,13 +215,13 @@ string CliComm::UpdateCmd::execute(const vector<string>& tokens)
 	return "";
 }
 
-string CliComm::UpdateCmd::help(const vector<string>& /*tokens*/) const
+string UpdateCmd::help(const vector<string>& /*tokens*/) const
 {
 	static const string helpText = "TODO";
 	return helpText;
 }
 
-void CliComm::UpdateCmd::tabCompletion(vector<string>& tokens) const
+void UpdateCmd::tabCompletion(vector<string>& tokens) const
 {
 	switch (tokens.size()) {
 		case 2: {
@@ -216,7 +231,8 @@ void CliComm::UpdateCmd::tabCompletion(vector<string>& tokens) const
 			completeString(tokens, ops);
 		}
 		case 3: {
-			set<string> types(updateStr, updateStr + NUM_UPDATES);
+			set<string> types(updateStr,
+			                  updateStr + CliComm::NUM_UPDATES);
 			completeString(tokens, types);
 		}
 	}

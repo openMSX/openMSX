@@ -1,8 +1,8 @@
 // $Id$
 
-#include <cassert>
-#include <cstdio>
 #include "CommandController.hh"
+#include "Command.hh"
+#include "InfoTopic.hh"
 #include "Scheduler.hh"
 #include "PluggingController.hh"
 #include "Connector.hh"
@@ -14,6 +14,8 @@
 #include "CommandException.hh"
 #include "MSXMotherBoard.hh"
 #include "CliComm.hh"
+#include <cassert>
+#include <cstdio>
 
 using std::set;
 using std::string;
@@ -21,12 +23,79 @@ using std::vector;
 
 namespace openmsx {
 
+class PlugCmd : public SimpleCommand
+{
+public:
+	PlugCmd(CommandController& commandController,
+		PluggingController& pluggingController);
+	virtual std::string execute(const std::vector<std::string>& tokens);
+	virtual std::string help   (const std::vector<std::string>& tokens) const;
+	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+private:
+	PluggingController& pluggingController;
+};
+
+class UnplugCmd : public SimpleCommand
+{
+public:
+	UnplugCmd(CommandController& commandController,
+		  PluggingController& pluggingController);
+	virtual std::string execute(const std::vector<std::string>& tokens);
+	virtual std::string help   (const std::vector<std::string>& tokens) const;
+	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+private:
+	PluggingController& pluggingController;
+};
+
+class PluggableInfo : public InfoTopic
+{
+public:
+	PluggableInfo(CommandController& commandController,
+		      PluggingController& pluggingController);
+	virtual void execute(const std::vector<TclObject*>& tokens,
+			     TclObject& result) const;
+	virtual std::string help   (const std::vector<std::string>& tokens) const;
+	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+private:
+	PluggingController& pluggingController;
+};
+
+class ConnectorInfo : public InfoTopic
+{
+public:
+	ConnectorInfo(CommandController& commandController,
+		      PluggingController& pluggingController);
+	virtual void execute(const std::vector<TclObject*>& tokens,
+			     TclObject& result) const;
+	virtual std::string help   (const std::vector<std::string>& tokens) const;
+	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+private:
+	PluggingController& pluggingController;
+};
+
+class ConnectionClassInfo : public InfoTopic
+{
+public:
+	ConnectionClassInfo(CommandController& commandController,
+			    PluggingController& pluggingController);
+	virtual void execute(const std::vector<TclObject*>& tokens,
+			     TclObject& result) const;
+	virtual std::string help   (const std::vector<std::string>& tokens) const;
+	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+private:
+	PluggingController& pluggingController;
+};
+
+
 PluggingController::PluggingController(MSXMotherBoard& motherBoard)
-	: plugCmd            (motherBoard.getCommandController(), *this)
-	, unplugCmd          (motherBoard.getCommandController(), *this)
-	, pluggableInfo      (motherBoard.getCommandController(), *this)
-	, connectorInfo      (motherBoard.getCommandController(), *this)
-	, connectionClassInfo(motherBoard.getCommandController(), *this)
+	: plugCmd  (new PlugCmd  (motherBoard.getCommandController(), *this))
+	, unplugCmd(new UnplugCmd(motherBoard.getCommandController(), *this))
+	, pluggableInfo(new PluggableInfo(
+		motherBoard.getCommandController(), *this))
+	, connectorInfo(new ConnectorInfo(
+		motherBoard.getCommandController(), *this))
+	, connectionClassInfo(new ConnectionClassInfo(
+		motherBoard.getCommandController(), *this))
 	, cliComm(motherBoard.getCliComm())
 	, scheduler(motherBoard.getScheduler())
 {
@@ -86,21 +155,21 @@ void PluggingController::unregisterPluggable(Pluggable* pluggable)
 // === Commands ===
 //  plug command
 
-PluggingController::PlugCmd::PlugCmd(CommandController& commandController,
+PlugCmd::PlugCmd(CommandController& commandController,
                                      PluggingController& pluggingController_)
 	: SimpleCommand(commandController, "plug")
 	, pluggingController(pluggingController_)
 {
 }
 
-string PluggingController::PlugCmd::execute(const vector<string>& tokens)
+string PlugCmd::execute(const vector<string>& tokens)
 {
 	string result;
 	const EmuTime& time = pluggingController.scheduler.getCurrentTime();
 	switch (tokens.size()) {
 	case 1: {
-		for (Connectors::const_iterator it =
-				       pluggingController.connectors.begin();
+		for (PluggingController::Connectors::const_iterator it =
+		                       pluggingController.connectors.begin();
 		     it != pluggingController.connectors.end();
 		     ++it) {
 			result += ((*it)->getName() + ": " +
@@ -146,19 +215,19 @@ string PluggingController::PlugCmd::execute(const vector<string>& tokens)
 	return result;
 }
 
-string PluggingController::PlugCmd::help(const vector<string>& /*tokens*/) const
+string PlugCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "Plugs a plug into a connector\n"
 	       " plug [connector] [plug]\n";
 }
 
-void PluggingController::PlugCmd::tabCompletion(vector<string>& tokens) const
+void PlugCmd::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		// complete connector
 		set<string> connectors;
-		for (Connectors::const_iterator it =
-			               pluggingController.connectors.begin();
+		for (PluggingController::Connectors::const_iterator it =
+		                       pluggingController.connectors.begin();
 		     it != pluggingController.connectors.end(); ++it) {
 			connectors.insert((*it)->getName());
 		}
@@ -168,8 +237,8 @@ void PluggingController::PlugCmd::tabCompletion(vector<string>& tokens) const
 		set<string> pluggables;
 		Connector* connector = pluggingController.getConnector(tokens[1]);
 		string className = connector ? connector->getClass() : "";
-		for (Pluggables::const_iterator it =
-			 pluggingController.pluggables.begin();
+		for (PluggingController::Pluggables::const_iterator it =
+		                        pluggingController.pluggables.begin();
 		     it != pluggingController.pluggables.end(); ++it) {
 			Pluggable* pluggable = *it;
 			if (pluggable->getClass() == className) {
@@ -183,14 +252,14 @@ void PluggingController::PlugCmd::tabCompletion(vector<string>& tokens) const
 
 //  unplug command
 
-PluggingController::UnplugCmd::UnplugCmd(CommandController& commandController,
+UnplugCmd::UnplugCmd(CommandController& commandController,
                                          PluggingController& pluggingController_)
 	: SimpleCommand(commandController, "unplug")
 	, pluggingController(pluggingController_)
 {
 }
 
-string PluggingController::UnplugCmd::execute(const vector<string>& tokens)
+string UnplugCmd::execute(const vector<string>& tokens)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();
@@ -205,18 +274,18 @@ string PluggingController::UnplugCmd::execute(const vector<string>& tokens)
 	return "";
 }
 
-string PluggingController::UnplugCmd::help(const vector<string>& /*tokens*/) const
+string UnplugCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "Unplugs a plug from a connector\n"
 	       " unplug [connector]\n";
 }
 
-void PluggingController::UnplugCmd::tabCompletion(vector<string>& tokens) const
+void UnplugCmd::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		// complete connector
 		set<string> connectors;
-		for (Connectors::const_iterator it =
+		for (PluggingController::Connectors::const_iterator it =
 		                       pluggingController.connectors.begin();
 		     it != pluggingController.connectors.end();
 		     ++it) {
@@ -226,7 +295,7 @@ void PluggingController::UnplugCmd::tabCompletion(vector<string>& tokens) const
 	}
 }
 
-Connector *PluggingController::getConnector(const string& name)
+Connector* PluggingController::getConnector(const string& name)
 {
 	for (Connectors::const_iterator it = connectors.begin();
 	     it != connectors.end();
@@ -238,7 +307,7 @@ Connector *PluggingController::getConnector(const string& name)
 	return NULL;
 }
 
-Pluggable *PluggingController::getPluggable(const string& name)
+Pluggable* PluggingController::getPluggable(const string& name)
 {
 	for (Pluggables::const_iterator it = pluggables.begin();
 	     it != pluggables.end();
@@ -253,20 +322,19 @@ Pluggable *PluggingController::getPluggable(const string& name)
 
 // Pluggable info
 
-PluggingController::PluggableInfo::PluggableInfo(
-		CommandController& commandController,
-		PluggingController& pluggingController_)
+PluggableInfo::PluggableInfo(CommandController& commandController,
+                             PluggingController& pluggingController_)
 	: InfoTopic(commandController, "pluggable")
 	, pluggingController(pluggingController_)
 {
 }
 
-void PluggingController::PluggableInfo::execute(const vector<TclObject*>& tokens,
+void PluggableInfo::execute(const vector<TclObject*>& tokens,
 	TclObject& result) const
 {
 	switch (tokens.size()) {
 	case 2:
-		for (Pluggables::const_iterator it =
+		for (PluggingController::Pluggables::const_iterator it =
 			 pluggingController.pluggables.begin();
 		     it != pluggingController.pluggables.end(); ++it) {
 			result.addListElement((*it)->getName());
@@ -286,17 +354,17 @@ void PluggingController::PluggableInfo::execute(const vector<TclObject*>& tokens
 	}
 }
 
-string PluggingController::PluggableInfo::help(const vector<string>& /*tokens*/) const
+string PluggableInfo::help(const vector<string>& /*tokens*/) const
 {
 	return "Shows a list of available pluggables. "
 	       "Or show info on a specific pluggable.\n";
 }
 
-void PluggingController::PluggableInfo::tabCompletion(vector<string>& tokens) const
+void PluggableInfo::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		set<string> pluggables;
-		for (Pluggables::const_iterator it =
+		for (PluggingController::Pluggables::const_iterator it =
 			 pluggingController.pluggables.begin();
 		     it != pluggingController.pluggables.end(); ++it) {
 			pluggables.insert((*it)->getName());
@@ -307,20 +375,19 @@ void PluggingController::PluggableInfo::tabCompletion(vector<string>& tokens) co
 
 // Connector info
 
-PluggingController::ConnectorInfo::ConnectorInfo(
-		CommandController& commandController,
-		PluggingController& pluggingController_)
+ConnectorInfo::ConnectorInfo(CommandController& commandController,
+                             PluggingController& pluggingController_)
 	: InfoTopic(commandController, "connector")
 	, pluggingController(pluggingController_)
 {
 }
 
-void PluggingController::ConnectorInfo::execute(const vector<TclObject*>& tokens,
+void ConnectorInfo::execute(const vector<TclObject*>& tokens,
 	TclObject& result) const
 {
 	switch (tokens.size()) {
 	case 2:
-		for (Connectors::const_iterator it =
+		for (PluggingController::Connectors::const_iterator it =
 			 pluggingController.connectors.begin();
 		     it != pluggingController.connectors.end(); ++it) {
 			result.addListElement((*it)->getName());
@@ -339,17 +406,17 @@ void PluggingController::ConnectorInfo::execute(const vector<TclObject*>& tokens
 	}
 }
 
-string PluggingController::ConnectorInfo::help(const vector<string>& /*tokens*/) const
+string ConnectorInfo::help(const vector<string>& /*tokens*/) const
 {
 	return "Shows a list of available connectors.\n";
 }
 
-void PluggingController::ConnectorInfo::tabCompletion(vector<string>& tokens) const
+void ConnectorInfo::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		set<string> connectors;
-		for (Connectors::const_iterator it =
-			               pluggingController.connectors.begin();
+		for (PluggingController::Connectors::const_iterator it =
+		                      pluggingController.connectors.begin();
 		     it != pluggingController.connectors.end(); ++it) {
 			connectors.insert((*it)->getName());
 		}
@@ -359,7 +426,7 @@ void PluggingController::ConnectorInfo::tabCompletion(vector<string>& tokens) co
 
 // Connection Class info
 
-PluggingController::ConnectionClassInfo::ConnectionClassInfo(
+ConnectionClassInfo::ConnectionClassInfo(
 		CommandController& commandController,
 		PluggingController& pluggingController_)
 	: InfoTopic(commandController, "connectionclass")
@@ -367,18 +434,18 @@ PluggingController::ConnectionClassInfo::ConnectionClassInfo(
 {
 }
 
-void PluggingController::ConnectionClassInfo::execute(const vector<TclObject*>& tokens,
+void ConnectionClassInfo::execute(const vector<TclObject*>& tokens,
 	TclObject& result) const
 {
 	switch (tokens.size()) {
 	case 2: {
 		set<string> classes;
-		for (Connectors::const_iterator it =
+		for (PluggingController::Connectors::const_iterator it =
 			 pluggingController.connectors.begin();
 		     it != pluggingController.connectors.end(); ++it) {
 			classes.insert((*it)->getClass());
 		}
-		for (Pluggables::const_iterator it =
+		for (PluggingController::Pluggables::const_iterator it =
 			 pluggingController.pluggables.begin();
 		     it != pluggingController.pluggables.end(); ++it) {
 			classes.insert((*it)->getClass());
@@ -409,21 +476,21 @@ void PluggingController::ConnectionClassInfo::execute(const vector<TclObject*>& 
 	}
 }
 
-string PluggingController::ConnectionClassInfo::help(const vector<string>& /*tokens*/) const
+string ConnectionClassInfo::help(const vector<string>& /*tokens*/) const
 {
 	return "Shows the class a connector or pluggable belongs to.";
 }
 
-void PluggingController::ConnectionClassInfo::tabCompletion(vector<string>& tokens) const
+void ConnectionClassInfo::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 3) {
 		set<string> names;
-		for (Connectors::const_iterator it =
+		for (PluggingController::Connectors::const_iterator it =
 			               pluggingController.connectors.begin();
 		     it != pluggingController.connectors.end(); ++it) {
 			names.insert((*it)->getName());
 		}
-		for (Pluggables::const_iterator it =
+		for (PluggingController::Pluggables::const_iterator it =
 			               pluggingController.pluggables.begin();
 		     it != pluggingController.pluggables.end(); ++it) {
 			names.insert((*it)->getName());

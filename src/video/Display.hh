@@ -7,10 +7,7 @@
 #include "RendererFactory.hh"
 #include "EventListener.hh"
 #include "Observer.hh"
-#include "Command.hh"
-#include "InfoTopic.hh"
 #include "CircularBuffer.hh"
-#include "Alarm.hh"
 #include "openmsx.hh"
 #include <memory>
 #include <string>
@@ -24,6 +21,9 @@ class EventDistributor;
 class RenderSettings;
 class VideoSystemChangeListener;
 class Setting;
+class RepaintAlarm;
+class ScreenShotCmd;
+class FpsInfoTopic;
 
 /** Represents the output window/screen of openMSX.
   * A display contains several layers.
@@ -87,35 +87,10 @@ private:
 	unsigned long long frameDurationSum;
 	unsigned long long prevTimeStamp;
 
-	// Delayed repaint stuff
-	class RepaintAlarm : public Alarm {
-	public:
-		RepaintAlarm(EventDistributor& eventDistributor);
-		virtual void alarm();
-	private:
-		EventDistributor& eventDistributor;
-	} alarm;
-
-	// Commands
-	class ScreenShotCmd : public SimpleCommand {
-	public:
-		ScreenShotCmd(CommandController& commandController, Display& display);
-		virtual std::string execute(const std::vector<std::string>& tokens);
-		virtual std::string help(const std::vector<std::string>& tokens) const;
-	private:
-		Display& display;
-	} screenShotCmd;
-
-	// Info
-	class FpsInfoTopic : public InfoTopic {
-	public:
-		FpsInfoTopic(CommandController& commandController, Display& display);
-		virtual void execute(const std::vector<TclObject*>& tokens,
-		                     TclObject& result) const;
-		virtual std::string help(const std::vector<std::string>& tokens) const;
-	private:
-		Display& display;
-	} fpsInfo;
+	friend class FpsInfoTopic;
+	const std::auto_ptr<RepaintAlarm> alarm; // delayed repaint
+	const std::auto_ptr<ScreenShotCmd> screenShotCmd;
+	const std::auto_ptr<FpsInfoTopic> fpsInfo;
 
 	MSXMotherBoard& motherboard;
 	std::auto_ptr<RenderSettings> renderSettings;

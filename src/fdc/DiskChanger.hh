@@ -3,8 +3,9 @@
 #ifndef DISKCHANGER_HH
 #define DISKCHANGER_HH
 
-#include "Command.hh"
 #include "DiskContainer.hh"
+#include <vector>
+#include <string>
 #include <memory>
 
 namespace openmsx {
@@ -13,8 +14,10 @@ class XMLElement;
 class CommandController;
 class FileManipulator;
 class Disk;
+class DiskCommand;
+class CliComm;
 
-class DiskChanger : private Command, public DiskContainer
+class DiskChanger : public DiskContainer
 {
 public:
 	DiskChanger(const std::string& driveName,
@@ -36,17 +39,15 @@ private:
 	                const std::vector<std::string>& patches);
 	void ejectDisk();
 
-	// Command interface
-	virtual void execute(const std::vector<TclObject*>& tokens,
-	                     TclObject& result);
-	virtual std::string help(const std::vector<std::string>& tokens) const;
-	virtual void tabCompletion(std::vector<std::string>& tokens) const;
-
 	std::string driveName;
 	FileManipulator& manipulator;
 	std::auto_ptr<Disk> disk;
 	XMLElement* diskElem;
 	bool diskChangedFlag;
+
+	friend class DiskCommand;
+	const std::auto_ptr<DiskCommand> diskCommand;
+	CliComm& cliComm;
 };
 
 } // namespace openmsx

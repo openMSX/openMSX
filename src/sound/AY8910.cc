@@ -11,14 +11,26 @@
  */
 
 #include "AY8910.hh"
-#include "MSXMotherBoard.hh"
-#include "Mixer.hh"
 #include "AY8910Periphery.hh"
+#include "Mixer.hh"
+#include "MSXMotherBoard.hh"
+#include "SimpleDebuggable.hh"
 #include <cassert>
 
 using std::string;
 
 namespace openmsx {
+
+class AY8910Debuggable : public SimpleDebuggable
+{
+public:
+	AY8910Debuggable(MSXMotherBoard& motherBoard, AY8910& ay8910);
+	virtual byte read(unsigned address, const EmuTime& time);
+	virtual void write(unsigned address, byte value, const EmuTime& time);
+private:
+	AY8910& ay8910;
+};
+
 
 // Fixed point representation of 1.
 static const int FP_UNIT = 0x8000;
@@ -337,9 +349,9 @@ inline void AY8910::Envelope::advance(int duration)
 AY8910::AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
                const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMixer(), "PSG", "PSG")
-	, SimpleDebuggable(motherBoard, getName() + " regs", "PSG", 0x10)
 	, periphery(periphery_)
 	, envelope(amplitude)
+	, debuggable(new AY8910Debuggable(motherBoard, *this))
 {
 	// make valgrind happy
 	memset(regs, 0, sizeof(regs));
@@ -640,14 +652,21 @@ void AY8910::updateBuffer(unsigned length, int* buffer,
 
 // SimpleDebuggable
 
-byte AY8910::read(unsigned address, const EmuTime& time)
+AY8910Debuggable::AY8910Debuggable(MSXMotherBoard& motherBoard, AY8910& ay8910_)
+	: SimpleDebuggable(motherBoard, ay8910_.getName() + " regs",
+	                   "PSG", 0x10)
+	, ay8910(ay8910_)
 {
-	return readRegister(address, time);
 }
 
-void AY8910::write(unsigned address, byte value, const EmuTime& time)
+byte AY8910Debuggable::read(unsigned address, const EmuTime& time)
 {
-	return writeRegister(address, value, time);
+	return ay8910.readRegister(address, time);
+}
+
+void AY8910Debuggable::write(unsigned address, byte value, const EmuTime& time)
+{
+	return ay8910.writeRegister(address, value, time);
 }
 
 } // namespace openmsx

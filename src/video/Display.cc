@@ -5,7 +5,10 @@
 #include "EventDistributor.hh"
 #include "FinishFrameEvent.hh"
 #include "FileOperations.hh"
+#include "Alarm.hh"
 #include "CommandConsole.hh"
+#include "Command.hh"
+#include "InfoTopic.hh"
 #include "CliComm.hh"
 #include "Scheduler.hh"
 #include "RealTime.hh"
@@ -31,11 +34,43 @@ using std::vector;
 
 namespace openmsx {
 
+class RepaintAlarm : public Alarm
+{
+public:
+	RepaintAlarm(EventDistributor& eventDistributor);
+	virtual void alarm();
+private:
+	EventDistributor& eventDistributor;
+};
+
+class ScreenShotCmd : public SimpleCommand
+{
+public:
+	ScreenShotCmd(CommandController& commandController, Display& display);
+	virtual std::string execute(const std::vector<std::string>& tokens);
+	virtual std::string help(const std::vector<std::string>& tokens) const;
+private:
+	Display& display;
+};
+
+class FpsInfoTopic : public InfoTopic
+{
+public:
+	FpsInfoTopic(CommandController& commandController, Display& display);
+	virtual void execute(const std::vector<TclObject*>& tokens,
+			     TclObject& result) const;
+	virtual std::string help(const std::vector<std::string>& tokens) const;
+private:
+	Display& display;
+};
+
+
 Display::Display(MSXMotherBoard& motherboard_)
 	: currentRenderer(RendererFactory::UNINITIALIZED)
-	, alarm(motherboard_.getEventDistributor())
-	, screenShotCmd(motherboard_.getCommandController(), *this)
-	, fpsInfo(motherboard_.getCommandController(), *this)
+	, alarm(new RepaintAlarm(motherboard_.getEventDistributor()))
+	, screenShotCmd(new ScreenShotCmd(
+		motherboard_.getCommandController(), *this))
+	, fpsInfo(new FpsInfoTopic(motherboard_.getCommandController(), *this))
 	, motherboard(motherboard_)
 	, renderSettings(new RenderSettings(motherboard.getCommandController()))
 	, switchInProgress(0)
@@ -81,7 +116,7 @@ Display::~Display()
 
 	resetVideoSystem();
 
-	alarm.cancel();
+	alarm->cancel();
 	motherboard.getCommandConsole().setDisplay(0);
 	assert(listeners.empty());
 }
@@ -232,7 +267,7 @@ void Display::doRendererSwitch()
 
 void Display::repaint()
 {
-	alarm.cancel(); // cancel delayed repaint
+	alarm->cancel(); // cancel delayed repaint
 
 	assert(videoSystem.get());
 	// TODO: Is this the proper way to react?
@@ -260,7 +295,7 @@ void Display::repaint()
 
 void Display::repaintDelayed(unsigned long long delta)
 {
-	if (alarm.pending()) {
+	if (alarm->pending()) {
 		// already a pending repaint
 		return;
 	}
@@ -278,7 +313,7 @@ void Display::repaintDelayed(unsigned long long delta)
 	}
 #endif
 
-	alarm.schedule(delta);
+	alarm->schedule(delta);
 }
 
 void Display::addLayer(Layer& layer)
@@ -310,14 +345,14 @@ void Display::updateZ(Layer& layer, Layer::ZIndex /*z*/)
 }
 
 
-// RepaintAlarm inner class
+// RepaintAlarm
 
-Display::RepaintAlarm::RepaintAlarm(EventDistributor& eventDistributor_)
+RepaintAlarm::RepaintAlarm(EventDistributor& eventDistributor_)
 	: eventDistributor(eventDistributor_)
 {
 }
 
-void Display::RepaintAlarm::alarm()
+void RepaintAlarm::alarm()
 {
 	// Note: runs is seperate thread, use event mechanism to repaint
 	//       in main thread
@@ -326,16 +361,16 @@ void Display::RepaintAlarm::alarm()
 }
 
 
-// ScreenShotCmd inner class:
+// ScreenShotCmd
 
-Display::ScreenShotCmd::ScreenShotCmd(CommandController& commandController,
+ScreenShotCmd::ScreenShotCmd(CommandController& commandController,
                                       Display& display_)
 	: SimpleCommand(commandController, "screenshot")
 	, display(display_)
 {
 }
 
-string Display::ScreenShotCmd::execute(const vector<string>& tokens)
+string ScreenShotCmd::execute(const vector<string>& tokens)
 {
 	string filename;
 	switch (tokens.size()) {
@@ -365,7 +400,7 @@ string Display::ScreenShotCmd::execute(const vector<string>& tokens)
 	return filename;
 }
 
-string Display::ScreenShotCmd::help(const vector<string>& /*tokens*/) const
+string ScreenShotCmd::help(const vector<string>& /*tokens*/) const
 {
 	return
 		"screenshot              Write screenshot to file \"openmsxNNNN.png\"\n"
@@ -373,23 +408,23 @@ string Display::ScreenShotCmd::help(const vector<string>& /*tokens*/) const
 		"screenshot -prefix foo  Write screenshot to file \"fooNNNN.png\"\n";
 }
 
-// FpsInfoTopic inner class:
+// FpsInfoTopic
 
-Display::FpsInfoTopic::FpsInfoTopic(CommandController& commandController,
-                                    Display& display_)
+FpsInfoTopic::FpsInfoTopic(CommandController& commandController,
+                           Display& display_)
 	: InfoTopic(commandController, "fps")
 	, display(display_)
 {
 }
 
-void Display::FpsInfoTopic::execute(const vector<TclObject*>& /*tokens*/,
-                                    TclObject& result) const
+void FpsInfoTopic::execute(const vector<TclObject*>& /*tokens*/,
+                           TclObject& result) const
 {
-	double fps = 1000000.0 * NUM_FRAME_DURATIONS / display.frameDurationSum;
+	double fps = 1000000.0 * Display::NUM_FRAME_DURATIONS / display.frameDurationSum;
 	result.setDouble(fps);
 }
 
-string Display::FpsInfoTopic::help (const vector<string>& /*tokens*/) const
+string FpsInfoTopic::help(const vector<string>& /*tokens*/) const
 {
 	return "Returns the current rendering speed in frames per second.";
 }

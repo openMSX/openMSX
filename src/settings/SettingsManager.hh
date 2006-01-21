@@ -3,18 +3,20 @@
 #ifndef SETTINGSMANAGER_HH
 #define SETTINGSMANAGER_HH
 
-#include "Command.hh"
-#include "InfoTopic.hh"
 #include "noncopyable.hh"
 #include <map>
 #include <set>
 #include <string>
+#include <memory>
 
 namespace openmsx {
 
 class Setting;
 class CommandController;
 class XMLElement;
+class SettingInfo;
+class SetCompleter;
+class SettingCompleter;
 
 /** Manages all settings.
   */
@@ -50,41 +52,13 @@ private:
 	template <typename T>
 	T& getByName(const std::string& cmd, const std::string& name) const;
 
-	class SettingInfo : public InfoTopic {
-	public:
-		SettingInfo(CommandController& commandController,
-		            SettingsManager& manager);
-		virtual void execute(const std::vector<TclObject*>& tokens,
-		                     TclObject& result) const;
-		virtual std::string help(
-			const std::vector<std::string>& tokens) const;
-		virtual void tabCompletion(std::vector<std::string>& tokens) const;
-	private:
-		SettingsManager& manager;
-	} settingInfo;
-
-	class SetCompleter : public CommandCompleter {
-	public:
-		SetCompleter(CommandController& commandController,
-		             SettingsManager& manager);
-		virtual std::string help(const std::vector<std::string>& tokens) const;
-		virtual void tabCompletion(std::vector<std::string>& tokens) const;
-	private:
-		SettingsManager& manager;
-	} setCompleter;
-
-	class SettingCompleter : public CommandCompleter {
-	public:
-		SettingCompleter(CommandController& commandController,
-		                 SettingsManager& manager,
-		                 const std::string& name);
-		virtual std::string help(const std::vector<std::string>& tokens) const;
-		virtual void tabCompletion(std::vector<std::string>& tokens) const;
-	private:
-		SettingsManager& manager;
-	};
-	SettingCompleter incrCompleter;
-	SettingCompleter unsetCompleter;
+	friend class SettingInfo;
+	friend class SetCompleter;
+	friend class SettingCompleter;
+	const std::auto_ptr<SettingInfo>      settingInfo;
+	const std::auto_ptr<SetCompleter>     setCompleter;
+	const std::auto_ptr<SettingCompleter> incrCompleter;
+	const std::auto_ptr<SettingCompleter> unsetCompleter;
 
 	CommandController& commandController;
 };

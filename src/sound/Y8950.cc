@@ -9,11 +9,23 @@
 #include "Y8950.hh"
 #include "Y8950Adpcm.hh"
 #include "Y8950KeyboardConnector.hh"
+#include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
 #include "DACSound16S.hh"
 #include <cmath>
 
 namespace openmsx {
+
+class Y8950Debuggable : public SimpleDebuggable
+{
+public:
+	Y8950Debuggable(MSXMotherBoard& motherBoard, Y8950& y8950);
+	virtual byte read(unsigned address);
+	virtual void write(unsigned address, byte value, const EmuTime& time);
+private:
+	Y8950& y8950;
+};
+
 
 static const double PI = 3.14159265358979;
 
@@ -438,7 +450,6 @@ void Y8950::Channel::keyOff()
 Y8950::Y8950(MSXMotherBoard& motherBoard, const std::string& name,
              const XMLElement& config, unsigned sampleRam, const EmuTime& time)
 	: SoundDevice(motherBoard.getMixer(), name, "MSX-AUDIO")
-	, SimpleDebuggable(motherBoard, name + " regs", "MSX-AUDIO", 0x100)
 	, irq(motherBoard.getCPU())
 	, timer1(motherBoard.getScheduler(), *this)
 	, timer2(motherBoard.getScheduler(), *this)
@@ -446,6 +457,7 @@ Y8950::Y8950(MSXMotherBoard& motherBoard, const std::string& name,
 	, connector(new Y8950KeyboardConnector(motherBoard.getPluggingController()))
 	, dac13(new DACSound16S(motherBoard.getMixer(), name + " DAC",
 	                        "MSX-AUDIO 13-bit DAC", config, time))
+	, debuggable(new Y8950Debuggable(motherBoard, *this))
 {
 	makePmTable();
 	makeAmTable();
@@ -1193,16 +1205,23 @@ void Y8950::changeStatusMask(byte newMask)
 }
 
 
-// Debuggable
+// SimpleDebuggable
 
-byte Y8950::read(unsigned address)
+Y8950Debuggable::Y8950Debuggable(MSXMotherBoard& motherBoard, Y8950& y8950_)
+	: SimpleDebuggable(motherBoard, y8950_.getName() + " regs",
+	                   "MSX-AUDIO", 0x100)
+	, y8950(y8950_)
 {
-	return reg[address];
 }
 
-void Y8950::write(unsigned address, byte value, const EmuTime& time)
+byte Y8950Debuggable::read(unsigned address)
 {
-	writeReg(address, value, time);
+	return y8950.reg[address];
+}
+
+void Y8950Debuggable::write(unsigned address, byte value, const EmuTime& time)
+{
+	y8950.writeReg(address, value, time);
 }
 
 } // namespace openmsx

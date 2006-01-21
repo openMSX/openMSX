@@ -9,7 +9,6 @@
 #include "IRQHelper.hh"
 #include "Clock.hh"
 #include "DisplayMode.hh"
-#include "SimpleDebuggable.hh"
 #include "openmsx.hh"
 #include <memory>
 
@@ -19,6 +18,9 @@ class Renderer;
 class VDPCmdEngine;
 class VDPVRAM;
 class SpriteChecker;
+class VDPRegDebug;
+class VDPStatusRegDebug;
+class VDPPaletteDebug;
 
 /** Unified implementation of MSX Video Display Processors (VDPs).
   * MSX1 VDP is Texas Instruments TMS9918A or TMS9928A.
@@ -427,32 +429,6 @@ public:
 	}
 
 private:
-	class VDPRegDebug : public SimpleDebuggable {
-	public:
-		VDPRegDebug(VDP& vdp);
-		virtual byte read(unsigned address);
-		virtual void write(unsigned address, byte value, const EmuTime& time);
-	private:
-		VDP& vdp;
-	} vdpRegDebug;
-
-	class VDPStatusRegDebug : public SimpleDebuggable {
-	public:
-		VDPStatusRegDebug(VDP& vdp);
-		virtual byte read(unsigned address, const EmuTime& time);
-	private:
-		VDP& vdp;
-	} vdpStatusRegDebug;
-
-	class VDPPaletteDebug : public SimpleDebuggable {
-	public:
-		VDPPaletteDebug(VDP& vdp);
-		virtual byte read(unsigned address);
-		virtual void write(unsigned address, byte value, const EmuTime& time);
-	private:
-		VDP& vdp;
-	} vdpPaletteDebug;
-
 	/** Time at which the internal VDP display line counter is reset,
 	  * expressed in ticks after vsync.
 	  * I would expect the counter to reset at line 16, but measurements
@@ -797,6 +773,13 @@ private:
 	  * Contains the lower 14 bits of the current VRAM access address.
 	  */
 	int vramPointer;
+
+	friend class VDPRegDebug;
+	friend class VDPStatusRegDebug;
+	friend class VDPPaletteDebug;
+	const std::auto_ptr<VDPRegDebug>        vdpRegDebug;
+	const std::auto_ptr<VDPStatusRegDebug> vdpStatusRegDebug;
+	const std::auto_ptr<VDPPaletteDebug>   vdpPaletteDebug;
 };
 
 } // namespace openmsx
