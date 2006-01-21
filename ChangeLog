@@ -1,5 +1,8 @@
 $Id$
 
+2006-01-21 Maarten ter Huurne <maarten@treewalker.org>
+	* Released openMSX 0.6.0.
+
 2005-12-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed assert when openmsx was quit with simple pluggable still
 	  plugged in the printerport.
