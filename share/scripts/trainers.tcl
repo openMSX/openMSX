@@ -4736,6 +4736,12 @@ proc trainer_megamitensho {} {
 after time 1 trainer_megamitensho
 }
 
+proc trainer_ink {} {
+	#lives (more than 6 lives will mess up the gfx, so stay at 5 to be safe)
+	poke 0x700c 5
+after time 1 trainer_ink
+}
+
 
 
 
