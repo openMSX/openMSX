@@ -3,6 +3,78 @@ Release History
 
 This is an overview of the changes that were incorporated into past releases.
 
+openMSX 0.6.0 (2006-01-21)
+--------------------------
+
+After a long time, a fresh release which brings a lot of internal improvements
+and some long standing new features as well.
+
+The biggest change for the user is the fact that we removed the SDLLo renderer
+and that we split the scalers into a separate "scale_factor" (controls the
+zoom) and "scale_algorithm" (controls the look) setting. A factor of 1 replaces
+the SDLLo render and as a bonus we also added a factor of 3! The latter also
+makes more exotic scalers possible, like the new RGBTriplet one, which tries to
+emulate a low res Trinitron (Aperture Grille) monitor. Also, the existing
+scaler algorithms have been implemented for scale_factor 3. Note that currently
+the GL renderer only supports scale_factor 2; if you want the new scale
+factors, use the SDL renderer.
+
+Mac OS X Tiger users will be happy to know that this release will compile
+cleanly on their systems, because openMSX can be compiled with GCC 4.x now.
+Also some problems specific to big endian CPU's (like the Power PC in most
+Macs) were fixed.
+
+In the sound department we made big quality improvement for DAC devices, like
+the turboR PCM and the Konami DAC which can be found in the Hai no Majutsushi
+and Synthesizer products.
+
+Note that in this release several incompatible changes to openMSX commands were
+made. First of all, the cassetteplayer subcommands have changed, because we
+added the possibility to save to cassette now as well. To learn the new
+subcommands, use "help cassetteplayer". Also the keyjoystick settings are
+incompatibly changed, which means your old bindings will be lost. Finally the
+already mentioned renderer and scaler settings have changed, so you will have
+to re-select your favourite scaler.
+
+New or improved emulator features:
+- Printer logger and SRAM are flushed at regular intervals now, so if openMSX
+  or your PC crashes, it is less likely you will lose data.
+- Settings that have their default value are not saved anymore, which will make
+  future upgrades easier (new defaults are automatically picked up).
+- Added support for a second keyjoystick.
+- More extensive debugging, including conditional break points.
+- Apart from communication via stdio, communication via sockets is now enabled.
+  This means you can connect to openMSX at run time! This will be used by a
+  debugger that is in development.
+- V9990: speed improvements, enabled scalers, scanline and blur.
+- Reorganisation of renderers and scalers (including new ones), see above.
+- Screenshot command has a -prefix option, useful in combination with the new
+  "guess_title" script: give meaningful names to your screenshot.
+- New "fullspeedwhenloading" setting. When enabled, openMSX automatically
+  switches to maximum speed when the MSX is loading from disk or tape.
+- New "autoruncassettes" setting. When enabled and you specify a CAS image on
+  the command line or in Catapult, openMSX will automatically type the required
+  loading instruction in MSX-BASIC.
+- Finally implemented a work around for the CAPS LOCK problem.
+
+MSX device support:
+- Internal CAS to WAV conversion produces now 5520 baud WAVs, for faster
+  loading.
+- Implemented saving to cassette (see above).
+- Implementation of SCREEN6 border and background stripes.
+- Implemented support for 192kB VRAM (now default in the Boosted_MSX2_EN
+  machine).
+- Implemented support for ADVRAM: use extension "advram-p" for machines in which
+  slot 0 is not expanded (most MSXes) and use extension "advram-s" for machines
+  in which slot 0 is expanded (such as turbo Rs).
+- Sound quality improvement of DAC devices (see above).
+- Implemented TurboR hardware pause and hardware PCM mute.
+- Implemented "magic key" joystickport dongle.
+
+Build system, packaging, documentation:
+- Compile fixes for GCC 4.x.
+- Support for FreeBSD 6.
+
 openMSX 0.5.2 (2005-06-09)
 --------------------------
 
