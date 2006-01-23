@@ -1,11 +1,17 @@
 $Id$
 
+2006-01-23 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Enabled run-time insertion of rom cartridges and extensions:
+	   - new commands:
+	      ext [extension]
+	      cart, cart<x> [romfile] 
+
 2006-01-22 Maarten ter Huurne <maarten@treewalker.org>
 	* Added new platform "darwin-app", which can be used to produce a
 	  redistributable binary for Mac OS X.
 	  Thanks to BouKiCHi for getting static linking to work.
 
-2006-01-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2006-01-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Reduced build-dependencies between source files:
 	   - moved most inner classes from hh to cc file
 

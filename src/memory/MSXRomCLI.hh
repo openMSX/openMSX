@@ -25,7 +25,6 @@ private:
 	           std::list<std::string>& cmdLine);
 
 	CommandLineParser& cmdLineParser;
-	int cartridgeNr;
 
 	class IpsOption : public CLIOption {
 		virtual bool parseOption(const std::string& option,

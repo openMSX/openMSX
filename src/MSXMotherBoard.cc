@@ -33,6 +33,8 @@
 #include "FileContext.hh"
 #include "GlobalSettings.hh"
 #include "Command.hh"
+#include "FileException.hh"
+#include "ConfigException.hh"
 #include <cassert>
 
 using std::string;
@@ -45,8 +47,32 @@ class ResetCmd : public SimpleCommand
 public:
 	ResetCmd(CommandController& commandController,
 	         MSXMotherBoard& motherBoard);
-	virtual std::string execute(const std::vector<std::string>& tokens);
-	virtual std::string help(const std::vector<std::string>& tokens) const;
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
+private:
+	MSXMotherBoard& motherBoard;
+};
+
+class ExtCmd : public SimpleCommand
+{
+public:
+	ExtCmd(CommandController& commandController,
+	       MSXMotherBoard& motherBoard);
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
+private:
+	MSXMotherBoard& motherBoard;
+};
+
+class CartCmd : public SimpleCommand
+{
+public:
+	CartCmd(CommandController& commandController,
+	        MSXMotherBoard& motherBoard, const std::string& commandName);
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
 private:
 	MSXMotherBoard& motherBoard;
 };
@@ -58,6 +84,12 @@ MSXMotherBoard::MSXMotherBoard()
 	, needPowerDown(false)
 	, blockedCounter(0)
 	, resetCommand(new ResetCmd(getCommandController(), *this))
+	, extCommand  (new ExtCmd  (getCommandController(), *this))
+	, cartCommand (new CartCmd (getCommandController(), *this, "cart"))
+	, cartaCommand(new CartCmd (getCommandController(), *this, "carta"))
+	, cartbCommand(new CartCmd (getCommandController(), *this, "cartb"))
+	, cartcCommand(new CartCmd (getCommandController(), *this, "cartc"))
+	, cartdCommand(new CartCmd (getCommandController(), *this, "cartd"))
 	, powerSetting(getCommandController().getGlobalSettings().getPowerSetting())
 {
 	getMixer().mute(); // powered down
@@ -85,19 +117,51 @@ void MSXMotherBoard::deleteMachine()
 	machineConfig.reset();
 }
 
-MachineConfig& MSXMotherBoard::getMachineConfig()
+const MachineConfig& MSXMotherBoard::getMachineConfig() const
 {
-	if (!machineConfig.get()) {
-		machineConfig.reset(new MachineConfig(*this));
-	}
+	assert(machineConfig.get());
 	return *machineConfig;
 }
 
-void MSXMotherBoard::addExtension(std::auto_ptr<ExtensionConfig>& extension)
+void MSXMotherBoard::loadMachine(const std::string& machine)
 {
-	extensions.push_back(extension.release());
+	try {
+		MachineConfig* newMachine = new MachineConfig(*this, machine);
+		deleteMachine();
+		machineConfig.reset(newMachine);
+	} catch (FileException& e) {
+		throw MSXException("Machine \"" + machine + "\" not found: " +
+		                   e.getMessage());
+	} catch (ConfigException& e) {
+		throw MSXException("Error in \"" + machine + "\" machine: " +
+		                   e.getMessage());
+	}
 }
 
+ExtensionConfig& MSXMotherBoard::loadExtension(const string& name)
+{
+	try {
+		ExtensionConfig* result = new ExtensionConfig(*this, name);
+		extensions.push_back(result);
+		return *result;
+	} catch (FileException& e) {
+		throw MSXException("Extension \"" + name + "\" not found: " +
+		                   e.getMessage());
+	} catch (ConfigException& e) {
+		throw MSXException("Error in \"" + name + "\" extension: " +
+		                   e.getMessage());
+	}
+}
+
+ExtensionConfig& MSXMotherBoard::loadRom(
+		const string& romname, const string& slotname,
+		const vector<string>& options)
+{
+	ExtensionConfig* result = new ExtensionConfig(
+		*this, romname, slotname, options);
+	extensions.push_back(result);
+	return *result;
+}
 
 Scheduler& MSXMotherBoard::getScheduler()
 {
@@ -320,13 +384,13 @@ FilePool& MSXMotherBoard::getFilePool()
 
 void MSXMotherBoard::readConfig()
 {
-	getMachineConfig().parseSlots();
+	machineConfig->parseSlots();
 	for (Extensions::const_iterator it = extensions.begin();
 	     it != extensions.end(); ++it) {
 		(*it)->parseSlots();
 	}
 
-	getMachineConfig().createDevices();
+	machineConfig->createDevices();
 	for (Extensions::const_iterator it = extensions.begin();
 	     it != extensions.end(); ++it) {
 		(*it)->createDevices();
@@ -486,9 +550,9 @@ MSXDevice* MSXMotherBoard::findDevice(const string& name)
 }
 
 
-
+// ResetCmd
 ResetCmd::ResetCmd(CommandController& commandController,
-                                   MSXMotherBoard& motherBoard_)
+                   MSXMotherBoard& motherBoard_)
 	: SimpleCommand(commandController, "reset")
 	, motherBoard(motherBoard_)
 {
@@ -503,6 +567,84 @@ string ResetCmd::execute(const vector<string>& /*tokens*/)
 string ResetCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "Resets the MSX.\n";
+}
+
+
+// ExtCmd
+ExtCmd::ExtCmd(CommandController& commandController,
+               MSXMotherBoard& motherBoard_)
+	: SimpleCommand(commandController, "ext")
+	, motherBoard(motherBoard_)
+{
+}
+
+string ExtCmd::execute(const vector<string>& tokens)
+{
+	if (tokens.size() != 2) {
+		throw SyntaxError();
+	}
+	try {
+		ExtensionConfig& extension =
+			motherBoard.loadExtension(tokens[1]);
+		extension.parseSlots();
+		extension.createDevices();
+	} catch (MSXException& e) {
+		throw CommandException(e.getMessage());
+	}
+	return "";
+}
+
+string ExtCmd::help(const vector<string>& /*tokens*/) const
+{
+	return "Insert a hardware extension.";
+}
+
+void ExtCmd::tabCompletion(vector<string>& /*tokens*/) const
+{
+	// TODO
+}
+
+
+// CartCmd
+CartCmd::CartCmd(CommandController& commandController,
+                 MSXMotherBoard& motherBoard_, const std::string& commandName)
+	: SimpleCommand(commandController, commandName)
+	, motherBoard(motherBoard_)
+{
+}
+
+string CartCmd::execute(const vector<string>& tokens)
+{
+	if (tokens.size() < 2) {
+		throw SyntaxError();
+	}
+	try {
+		string slotname;
+		if (tokens[0].size() == 5) {
+			slotname = tokens[0][4];
+		} else {
+			slotname = "any";
+		}
+		vector<string> options(tokens.begin() + 2, tokens.end());
+
+		ExtensionConfig& extension =
+			motherBoard.loadRom(tokens[1], slotname, options);
+		extension.parseSlots();
+		extension.createDevices();
+	} catch (MSXException& e) {
+		throw CommandException(e.getMessage());
+	}
+	return "";
+}
+
+string CartCmd::help(const vector<string>& /*tokens*/) const
+{
+	return "Insert a ROM cartridge.";
+}
+
+void CartCmd::tabCompletion(vector<string>& tokens) const
+{
+	completeFileName(tokens);
 }
 
 } // namespace openmsx

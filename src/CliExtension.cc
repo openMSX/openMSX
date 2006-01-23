@@ -1,10 +1,8 @@
 // $Id$
 
 #include "CliExtension.hh"
-#include "ExtensionConfig.hh"
 #include "MSXMotherBoard.hh"
-#include "FileException.hh"
-#include "ConfigException.hh"
+#include "MSXException.hh"
 
 using std::string;
 
@@ -18,19 +16,11 @@ CliExtension::CliExtension(CommandLineParser& cmdLineParser_)
 
 bool CliExtension::parseOption(const string& option, std::list<string>& cmdLine)
 {
-	string extension = getArgument(option, cmdLine);
 	try {
-		MSXMotherBoard& motherBoard = cmdLineParser.getMotherBoard();
-		std::auto_ptr<ExtensionConfig> extConfig(
-			new ExtensionConfig(motherBoard));
-		extConfig->load("extensions", extension);
-		motherBoard.addExtension(extConfig);
-	} catch (FileException& e) {
-		throw FatalError("Extension \"" + extension + "\" not found (" +
-		                 e.getMessage() + ").");
-	} catch (ConfigException& e) {
-		throw FatalError("Error in \"" + extension + "\" extension (" +
-		                 e.getMessage());
+		string extensionName = getArgument(option, cmdLine);
+		cmdLineParser.getMotherBoard().loadExtension(extensionName);
+	} catch (MSXException& e) {
+		throw FatalError(e.getMessage());
 	}
 	return true;
 }

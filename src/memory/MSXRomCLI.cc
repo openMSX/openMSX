@@ -1,24 +1,16 @@
 // $Id$
 
 #include "MSXRomCLI.hh"
-#include "StringOp.hh"
-#include "XMLElement.hh"
 #include "MSXMotherBoard.hh"
-#include "ExtensionConfig.hh"
-#include "FileOperations.hh"
-#include "FileContext.hh"
 #include "MSXException.hh"
 
-using std::auto_ptr;
 using std::list;
 using std::string;
-using std::vector;
 
 namespace openmsx {
 
 MSXRomCLI::MSXRomCLI(CommandLineParser& cmdLineParser_)
 	: cmdLineParser(cmdLineParser_)
-	, cartridgeNr(0)
 {
 	cmdLineParser.registerOption("-ips", &ipsOption);
 	cmdLineParser.registerOption("-romtype", &romTypeOption);
@@ -60,82 +52,23 @@ const string& MSXRomCLI::fileTypeHelp() const
 	return text;
 }
 
-
 void MSXRomCLI::parse(const string& arg, const string& slotname,
                       list<string>& cmdLine)
 {
-	vector<string> ipsfiles;
-	string mapper;
-	string romfile = arg;
-
 	// parse extra options  -ips  and  -romtype
+	std::vector<string> options;
 	while (true) {
-		string extra = peekArgument(cmdLine);
-		if (extra == "-ips") {
+		string option = peekArgument(cmdLine);
+		if ((option == "-ips") || (option == "-romtype")) {
+			options.push_back(option);
 			cmdLine.pop_front();
-			ipsfiles.push_back(getArgument("-ips", cmdLine));
-		} else if (extra == "-romtype") {
-			cmdLine.pop_front();
-			mapper = getArgument("-romtype", cmdLine);
+			options.push_back(getArgument(option, cmdLine));
 		} else {
 			break;
 		}
 	}
-
-	string sramfile = FileOperations::getFilename(romfile);
-
-	auto_ptr<XMLElement> extension(new XMLElement("extension"));
-	auto_ptr<XMLElement> primary(new XMLElement("primary"));
-	primary->addAttribute("slot", slotname);
-	auto_ptr<XMLElement> secondary(new XMLElement("secondary"));
-	secondary->addAttribute("slot", slotname);
-	auto_ptr<XMLElement> device(new XMLElement("ROM"));
-	device->addAttribute("id", "MSXRom" + StringOp::toString(++cartridgeNr));
-	auto_ptr<XMLElement> mem(new XMLElement("mem"));
-	mem->addAttribute("base", "0x0000");
-	mem->addAttribute("size", "0x10000");
-	device->addChild(mem);
-	auto_ptr<XMLElement> rom(new XMLElement("rom"));
-	rom->addChild(auto_ptr<XMLElement>(
-		new XMLElement("filename", romfile)));
-	if (!ipsfiles.empty()) {
-		auto_ptr<XMLElement> patches(new XMLElement("patches"));
-		for (vector<string>::const_iterator it = ipsfiles.begin();
-		     it != ipsfiles.end(); ++it) {
-			patches->addChild(auto_ptr<XMLElement>(
-				new XMLElement("ips", *it)));
-		}
-		rom->addChild(patches);
-	}
-	device->addChild(rom);
-	auto_ptr<XMLElement> sound(new XMLElement("sound"));
-	sound->addChild(auto_ptr<XMLElement>(
-		new XMLElement("volume", "9000")));
-	device->addChild(sound);
-	device->addChild(auto_ptr<XMLElement>(
-		new XMLElement("mappertype",
-		               mapper.empty() ? "auto" : mapper)));
-	device->addChild(auto_ptr<XMLElement>(
-		new XMLElement("sramname", sramfile + ".SRAM")));
-	device->setFileContext(auto_ptr<FileContext>(
-		new UserFileContext(
-			cmdLineParser.getMotherBoard().getCommandController(),
-			"roms/" + sramfile)));
-
-	secondary->addChild(device);
-	primary->addChild(secondary);
-	extension->addChild(primary);
-
-	MSXMotherBoard& motherBoard = cmdLineParser.getMotherBoard();
-	auto_ptr<ExtensionConfig> extConfig(new ExtensionConfig(motherBoard));
-	extConfig->setConfig(extension);
-	if (slotname != "any") {
-		extConfig->reserveSlot(slotname[0] - 'a');
-	}
-
-	motherBoard.addExtension(extConfig);
+	cmdLineParser.getMotherBoard().loadRom(arg, slotname, options);
 }
-
 
 bool MSXRomCLI::IpsOption::parseOption(const string& /*option*/,
                                        list<string>& /*cmdLine*/)

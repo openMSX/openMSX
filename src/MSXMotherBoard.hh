@@ -41,7 +41,8 @@ class BooleanSetting;
 class EmuTime;
 class Setting;
 class ResetCmd;
-
+class ExtCmd;
+class CartCmd;
 
 class MSXMotherBoard : private Observer<Setting>
 {
@@ -84,9 +85,12 @@ public:
 	  */
 	void readConfig();
 
-	void deleteMachine();
-	MachineConfig& getMachineConfig();
-	void addExtension(std::auto_ptr<ExtensionConfig>& extension);
+	const MachineConfig& getMachineConfig() const;
+	void loadMachine(const std::string& machine);
+	ExtensionConfig& loadExtension(const std::string& extensionName);
+	ExtensionConfig& loadRom(
+		const std::string& romname, const std::string& slotname,
+		const std::vector<std::string>& options);
 
 	// The following classes are unique per MSX machine
 	Scheduler& getScheduler();
@@ -128,6 +132,8 @@ public:
 	MSXDevice* findDevice(const std::string& name);
 	
 private:
+	void deleteMachine();
+
 	// Observer<Setting>
 	virtual void update(const Setting& setting);
 
@@ -171,6 +177,12 @@ private:
 	std::auto_ptr<FilePool> filePool;
 
 	const std::auto_ptr<ResetCmd> resetCommand;
+	const std::auto_ptr<ExtCmd>   extCommand;
+	const std::auto_ptr<CartCmd>  cartCommand;
+	const std::auto_ptr<CartCmd>  cartaCommand;
+	const std::auto_ptr<CartCmd>  cartbCommand;
+	const std::auto_ptr<CartCmd>  cartcCommand;
+	const std::auto_ptr<CartCmd>  cartdCommand;
 	BooleanSetting& powerSetting;
 };
 

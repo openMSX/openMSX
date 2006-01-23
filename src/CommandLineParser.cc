@@ -281,13 +281,9 @@ MSXMotherBoard& CommandLineParser::getMotherBoard() const
 void CommandLineParser::loadMachine(const string& machine)
 {
 	try {
-		getMotherBoard().getMachineConfig().load("machines", machine);
-	} catch (FileException& e) {
-		throw FatalError("Machine \"" + machine + "\" not found (" +
-		                 e.getMessage() + ").");
-	} catch (ConfigException& e) {
-		throw FatalError("Error in \"" + machine + "\" machine (" +
-		                 e.getMessage() + ").");
+		getMotherBoard().loadMachine(machine);
+	} catch (MSXException& e) {
+		throw FatalError(e.getMessage());
 	}
 }
 

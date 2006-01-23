@@ -20,13 +20,14 @@ public:
 	virtual ~HardwareConfig();
 
 	const XMLElement& getConfig() const;
-	void setConfig(std::auto_ptr<XMLElement> config);
-	void load(const std::string& path, const std::string& hwName);
-	
-	void reserveSlot(int slot);
 
 	void parseSlots();
 	void createDevices();
+
+protected:
+	void setConfig(std::auto_ptr<XMLElement> config);
+	void load(const std::string& path, const std::string& hwName);
+	void reserveSlot(int slot);
 
 private:
 	virtual const XMLElement& getDevices() const = 0;
