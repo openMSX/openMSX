@@ -43,6 +43,7 @@ DirectXSoundDriver::DirectXSoundDriver(Scheduler& scheduler,
 		unsigned sampleRate, unsigned samples)
 	: Schedulable(scheduler)
 	, mixer(mixer_)
+	, prevTime(EmuTime::zero)
 	, speedSetting(globalSettings.getSpeedSetting())
 	, throttleManager(globalSettings.getThrottleManager())
 {
