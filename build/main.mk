@@ -445,7 +445,7 @@ $(SUB_MAKEFILES):
 endif
 
 # Build application directory for Darwin.
-ifeq ($(OPENMSX_TARGET_OS),darwin)
+ifeq ($(OPENMSX_TARGET_OS),darwin-app)
 app: $(BINARY_FULL)
 	@echo "Packaging application:"
 	@OUTDIR=$(BUILD_PATH) BINARY=$< $(MAKE) --no-print-directory -f $(APP_MAKE)
