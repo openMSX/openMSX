@@ -48,6 +48,7 @@ MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 	                             EmuTime::zero))
 	, r800(new CPUCore<R800TYPE>(motherboard, "r800", *traceSetting,
 	                             EmuTime::zero))
+	, reference(EmuTime::zero)
 	, timeInfo(new TimeInfoTopic(motherboard.getCommandController(), *this))
 	, debuggable(new MSXCPUDebuggable(motherboard_, *this))
 {

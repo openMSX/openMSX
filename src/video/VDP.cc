@@ -69,8 +69,12 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
          const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
 	, Schedulable(motherBoard.getScheduler())
+	, frameStartTime(time)
 	, irqVertical(motherBoard.getCPU())
 	, irqHorizontal(motherBoard.getCPU())
+	, displayStartSyncTime(time)
+	, vScanSyncTime(time)
+	, hScanSyncTime(time)
 	, vdpRegDebug      (new VDPRegDebug      (*this))
 	, vdpStatusRegDebug(new VDPStatusRegDebug(*this))
 	, vdpPaletteDebug  (new VDPPaletteDebug  (*this))
@@ -120,7 +124,7 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
 	RenderSettings& renderSettings = display.getRenderSettings();
 
 	// Create sprite checker.
-	spriteChecker.reset(new SpriteChecker(*this, renderSettings));
+	spriteChecker.reset(new SpriteChecker(*this, renderSettings, time));
 	vram->setSpriteChecker(spriteChecker.get());
 
 	// Create command engine.
@@ -129,15 +133,6 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
 	vram->setCmdEngine(cmdEngine.get());
 
 	resetInit(time); // must be done early to avoid UMRs
-
-	// Initialise time stamps.
-	// This will be done again by frameStart, but these have to be
-	// initialised before createRenderer() and reset() are called.
-	// TODO: Can this be simplified with a different design?
-	frameStartTime.advance(time);
-	displayStartSyncTime = time;
-	vScanSyncTime = time;
-	hScanSyncTime = time;
 
 	// Initialise renderer.
 	createRenderer();

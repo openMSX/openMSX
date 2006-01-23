@@ -18,9 +18,7 @@ public:
 	friend class DynamicClock;
 
 	// constructors
-	EmuTime()                  : time(0) {}
-	explicit EmuTime(uint64 n) : time(n) {}
-	EmuTime(const EmuTime& e)  : time(e.time) {}
+	EmuTime(const EmuTime& e) : time(e.time) {}
 
 	// destructor
 	virtual ~EmuTime() {}
@@ -62,6 +60,8 @@ public:
 	static const EmuTime infinity;
 
 private:
+	explicit EmuTime(uint64 n) : time(n) {}
+
 	uint64 time;
 };
 

@@ -77,6 +77,7 @@ CassettePort::CassettePort(MSXMotherBoard& motherBoard)
 	: CassettePortInterface()
 	, pluggingController(motherBoard.getPluggingController())
         , nextSample(0)
+	, prevTime(EmuTime::zero)
 {
 	cassettePlayer.reset(new CassettePlayer(
 		motherBoard.getCommandController(),
@@ -105,7 +106,7 @@ void CassettePort::setMotor(bool status, const EmuTime& time)
 	//TODO make 'click' sound
 	//PRT_DEBUG("CassettePort: motor " << status);
 	getPlugged().setMotor(status, time);
-	prevTime=time;
+	prevTime = time;
 }
 
 void CassettePort::cassetteOut(bool output, const EmuTime& time)
@@ -113,7 +114,7 @@ void CassettePort::cassetteOut(bool output, const EmuTime& time)
 	lastOutput = output;
 	// leave everything to the pluggable
 	getPlugged().setSignal(output, time);
-	prevTime=time;
+	prevTime = time;
 }
 
 bool CassettePort::lastOut() const

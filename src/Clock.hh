@@ -38,10 +38,6 @@ public:
 		return EmuDuration(ticks * MASTER_TICKS);
 	}
 
-	/** Create a new clock, which starts ticking at time zero.
-	  */
-	Clock() : lastTick() { }
-
 	/** Create a new clock, which starts ticking at the given time.
 	  */
 	explicit Clock(const EmuTime& e)

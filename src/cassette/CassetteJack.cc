@@ -160,6 +160,7 @@ static void fill_buf(BlockFifo* bf, size_t& sampcnt, size_t bufsize,
 CassetteJack::CassetteJack(Scheduler& scheduler)
 	: Schedulable(scheduler), self(0)
 	, cmtin(0), cmtout(0), bf_in(0), bf_out(0)
+	, basetime(EmuTime::zero), prevtime(EmuTime::zero)
 
 {
 	running = false;

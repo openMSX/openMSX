@@ -19,6 +19,7 @@ const int STROBE = 0x04;
 
 Mouse::Mouse(EventDistributor& eventDistributor_)
 	: eventDistributor(eventDistributor_)
+	, lastTime(EmuTime::zero)
 {
 	status = JOY_BUTTONA | JOY_BUTTONB;
 	faze = FAZE_YLOW;

@@ -38,6 +38,8 @@ enum SyncPointType { SCHED_FSM, SCHED_IDX_IRQ };
 WD2793::WD2793(Scheduler& scheduler, DiskDrive& drive_, const EmuTime& time)
 	: Schedulable(scheduler)
 	, drive(drive_)
+	, commandStart(time)
+	, DRQTimer(time)
 {
 	reset(time);
 }

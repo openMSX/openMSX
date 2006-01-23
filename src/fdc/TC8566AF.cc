@@ -35,6 +35,7 @@ const byte CMD_SENSE_DEVICE_STATUS    = 15;
 
 
 TC8566AF::TC8566AF(DiskDrive* drv[4], const EmuTime& time)
+	: delayTime(EmuTime::zero)
 {
 	drive[0] = drv[0];
 	drive[1] = drv[1];

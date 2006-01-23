@@ -73,6 +73,7 @@ V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, Schedulable(motherBoard.getScheduler())
 	, irq(motherBoard.getCPU())
 	, pendingIRQs(0)
+	, frameStartTime(time)
 	, hScanSyncTime(time)
 	, v9990RegDebug(new V9990RegDebug(*this))
 	, v9990PalDebug(new V9990PalDebug(*this))

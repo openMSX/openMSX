@@ -124,6 +124,7 @@ SCC::SCC(MSXMotherBoard& motherBoard, const string& name,
          const XMLElement& config, const EmuTime& time, ChipMode mode)
 	: SoundDevice(motherBoard.getMixer(), name, calcDescription(mode))
 	, currentChipMode(mode)
+	, deformTimer(time)
 	, debuggable(new SCCDebuggable(motherBoard, *this))
 {
 	// Clear wave forms.

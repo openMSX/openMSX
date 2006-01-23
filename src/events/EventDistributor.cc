@@ -18,6 +18,7 @@ EventDistributor::EventDistributor(Scheduler& scheduler,
                                    CommandController& commandController)
 	: Schedulable(scheduler)
 	, sem(1)
+	, prevEmu(EmuTime::zero)
 	, delaySetting(new FloatSetting(commandController, "inputdelay",
 	               "EXPERIMENTAL: delay input to avoid keyskips",
 	               0.03, 0.0, 10.0))

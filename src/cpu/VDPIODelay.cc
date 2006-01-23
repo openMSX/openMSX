@@ -26,6 +26,7 @@ const XMLElement& getConfig()
 VDPIODelay::VDPIODelay(MSXMotherBoard& motherboard, const EmuTime& time)
 	: MSXDevice(motherboard, getConfig(), time)
 	, cpu(motherBoard.getCPU())
+	, lastTime(time)
 {
 	for (int port = 0x098; port <= 0x9B; ++port) {
 		getInDevicePtr (port) = &motherBoard.getDummyDevice();

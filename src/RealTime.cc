@@ -24,6 +24,7 @@ RealTime::RealTime(Scheduler& scheduler, EventDistributor& eventDistributor_,
 	, speedSetting   (globalSettings.getSpeedSetting())
 	, pauseSetting   (globalSettings.getPauseSetting())
 	, powerSetting   (globalSettings.getPowerSetting())
+	, emuTime(EmuTime::zero)
 {
 	speedSetting.attach(*this);
 	throttleManager.attach(*this);

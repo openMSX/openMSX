@@ -18,9 +18,11 @@ TODO:
 
 namespace openmsx {
 
-SpriteChecker::SpriteChecker(VDP& vdp_, RenderSettings& renderSettings)
+SpriteChecker::SpriteChecker(VDP& vdp_, RenderSettings& renderSettings,
+                             const EmuTime& time)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, limitSpritesSetting(renderSettings.getLimitSprites())
+	, frameStartTime(time)
 {
 	vram.spriteAttribTable.setObserver(this);
 	vram.spritePatternTable.setObserver(this);

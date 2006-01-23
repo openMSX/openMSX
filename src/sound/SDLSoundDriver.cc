@@ -26,6 +26,7 @@ SDLSoundDriver::SDLSoundDriver(
 	: Schedulable(scheduler)
 	, mixer(mixer_)
 	, muted(true)
+	, prevTime(scheduler.getCurrentTime())
 	, speedSetting(globalSettings.getSpeedSetting())
 	, throttleManager(globalSettings.getThrottleManager())
 {
@@ -52,7 +53,6 @@ SDLSoundDriver::SDLSoundDriver(
 	memset(mixBuffer, 0, bufferSize * 2 * sizeof(short));
 	readPtr = writePtr = 0;
 	reInit();
-	prevTime = scheduler.getCurrentTime();
 	EmuDuration interval2 = interval1 * audioSpec.samples;
 	setSyncPoint(prevTime + interval2);
 

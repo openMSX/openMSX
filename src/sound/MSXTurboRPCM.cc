@@ -11,10 +11,10 @@ MSXTurboRPCM::MSXTurboRPCM(MSXMotherBoard& motherBoard,
 	: MSXDevice(motherBoard, config, time)
 	, AudioInputConnector(motherBoard.getPluggingController(), "pcminput")
 	, mixer(motherBoard.getMixer())
+	, dac(new DACSound8U(mixer, "PCM", "Turbo-R PCM", config, time))
+	, reference(time)
 	, hwMute(false)
 {
-	dac.reset(new DACSound8U(mixer, "PCM", "Turbo-R PCM", config, time));
-
 	reset(time);
 }
 

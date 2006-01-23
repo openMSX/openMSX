@@ -12,6 +12,7 @@ namespace openmsx {
 
 WavAudioInput::WavAudioInput(CommandController& commandController)
 	: length(0), buffer(0), freq(44100)
+	, reference(EmuTime::zero)
 	, plugged(false)
 	, audioInputFilenameSetting(new FilenameSetting(
 		commandController, "audio-inputfilename",

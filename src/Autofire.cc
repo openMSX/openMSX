@@ -13,6 +13,7 @@ Autofire::Autofire(CommandController& commandController,
 	, max_ints(newMaxInts)
 	, speedSetting(new IntegerSetting(commandController, name,
 	               "controls the speed of this autofire circuit", 0, 0, 100))
+	, clock(EmuTime::zero)
 {
 	if (min_ints < 1) {
 		min_ints = 1;

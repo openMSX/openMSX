@@ -5,6 +5,10 @@ $Id$
 	   - new commands:
 	      ext [extension]
 	      cart, cart<x> [romfile] 
+	* Removed EmuTime (and related) constructors that initialize time at 0:
+	   - makes initialization time explicit in the code
+	   - fixed some (all?) wrongly initialized timestamps
+	     e.g. the new "ext gfx9000" command caused an assert
 
 2006-01-22 Maarten ter Huurne <maarten@treewalker.org>
 	* Added new platform "darwin-app", which can be used to produce a

@@ -8,10 +8,10 @@
 
 namespace openmsx {
 
-const EmuTime Scheduler::ASAP;
+const EmuTime Scheduler::ASAP(EmuTime::zero);
 
 Scheduler::Scheduler()
-	: sem(1)
+	: sem(1), scheduleTime(EmuTime::zero)
 {
 }
 

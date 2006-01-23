@@ -347,9 +347,10 @@ VDPCmdEngine::VDPCmdEngine(VDP& vdp_, RenderSettings& renderSettings_,
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, renderSettings(renderSettings_)
 	, hasExtendedVRAM(vram.getSize() == (192 * 1024))
+	, statusChangeTime(EmuTime::infinity)
 	, cmdTraceSetting(new BooleanSetting(
-		commandController, "vdpcmdtrace", "VDP command tracing on/off", false
-		))
+		commandController, "vdpcmdtrace",
+		"VDP command tracing on/off", false))
 {
 	status = 0;
 	transfer = false;
@@ -379,7 +380,6 @@ VDPCmdEngine::VDPCmdEngine(VDP& vdp_, RenderSettings& renderSettings_,
 	currentOperation = operations[LOG].get();
 
 	brokenTiming = false;
-	statusChangeTime = EmuTime::infinity;
 
 	renderSettings.getCmdTiming().attach(*this);
 }
@@ -610,7 +610,7 @@ void VDPCmdEngine::commandDone(const EmuTime& time)
 // VDPCmd:
 
 VDPCmdEngine::VDPCmd::VDPCmd(VDPCmdEngine& engine_, VDPVRAM& vram_)
-	: engine(engine_), vram(vram_)
+	: engine(engine_), vram(vram_), clock(EmuTime::zero)
 {
 }
 

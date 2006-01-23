@@ -140,6 +140,7 @@ I8254::Counter& I8254::getCounter(byte cntr)
 I8254::Counter::Counter(Scheduler& scheduler, ClockPinListener* listener,
                         const EmuTime& time)
 	: clock(scheduler), output(scheduler, listener)
+	, currentTime(time)
 {
 	gate = true;
 	counter = 0;

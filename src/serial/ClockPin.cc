@@ -8,8 +8,9 @@ using std::string;
 namespace openmsx {
 
 ClockPin::ClockPin(Scheduler& scheduler, ClockPinListener* listener_)
-	: Schedulable(scheduler), listener(listener_), periodic(false)
-	, status(false), signalEdge(false)
+	: Schedulable(scheduler), listener(listener_)
+	, referenceTime(EmuTime::zero)
+	, periodic(false) , status(false), signalEdge(false)
 {
 }
 
