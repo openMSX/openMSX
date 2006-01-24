@@ -19,7 +19,7 @@ SectorBasedDisk::~SectorBasedDisk()
 void SectorBasedDisk::read(byte track, byte sector, byte side,
                            unsigned size, byte* buf)
 {
-	if (size); // avoid warning
+	(void)size;
 	assert(size == SECTOR_SIZE);
 	unsigned logicalSector = physToLog(track, side, sector);
 	if (logicalSector >= nbSectors) {
@@ -35,7 +35,7 @@ void SectorBasedDisk::read(byte track, byte sector, byte side,
 void SectorBasedDisk::write(byte track, byte sector, byte side,
                             unsigned size, const byte* buf)
 {
-	if (size); // avoid warning
+	(void)size;
 	assert(size == SECTOR_SIZE);
 	if (writeProtected()) {
 		throw WriteProtectedException("");

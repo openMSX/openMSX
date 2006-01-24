@@ -13,7 +13,7 @@ EmptyDiskPatch::EmptyDiskPatch(SectorBasedDisk& disk_)
 
 void EmptyDiskPatch::copyBlock(unsigned src, byte* dst, unsigned num) const
 {
-	if (num); // avoid warning
+	(void)num;
 	assert(num == SectorBasedDisk::SECTOR_SIZE);
 	disk.readLogicalSector(src / SectorBasedDisk::SECTOR_SIZE, dst);
 }

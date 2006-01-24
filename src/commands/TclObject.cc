@@ -183,7 +183,7 @@ void TclObject::parse(const char* str, int len, bool expression) const
 		~Cleanup() { Tcl_FreeParse(p); }
 		Tcl_Parse* p;
 	} cleanup = { &info };
-	if (&cleanup); // avoid warning
+	(void)cleanup;
 
 	if (!expression && (info.tokenPtr[0].type == TCL_TOKEN_SIMPLE_WORD)) {
 		// simple command name

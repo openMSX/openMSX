@@ -40,7 +40,7 @@ void Autofire::setClock()
 
 void Autofire::update(const Setting& setting)
 {
-	if (&setting); // avoid warning
+	(void)setting;
 	assert(&setting == speedSetting.get());
 	setClock();
 }

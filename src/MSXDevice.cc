@@ -277,7 +277,7 @@ string MSXDevice::getName() const
 
 byte MSXDevice::readIO(word port, const EmuTime& /*time*/)
 {
-	if (port); // avoid warning
+	(void)port;
 	PRT_DEBUG("MSXDevice::readIO (0x" << std::hex << (int)(port & 0xFF)
 	          << std::dec << ") : No device implementation.");
 	return 0xFF;
@@ -285,8 +285,8 @@ byte MSXDevice::readIO(word port, const EmuTime& /*time*/)
 
 void MSXDevice::writeIO(word port, byte value, const EmuTime& /*time*/)
 {
-	if (port); // avoid warning
-	if (value); // avoid warning
+	(void)port;
+	(void)value;
 	PRT_DEBUG("MSXDevice::writeIO(port 0x" << std::hex << (int)(port & 0xFF)
 	          << std::dec << ",value " << (int)value
 	          << ") : No device implementation.");
@@ -301,7 +301,7 @@ byte MSXDevice::peekIO(word /*port*/, const EmuTime& /*time*/) const
 
 byte MSXDevice::readMem(word address, const EmuTime& /*time*/)
 {
-	if (address); // avoid warning
+	(void)address;
 	PRT_DEBUG("MSXDevice: read from unmapped memory " << std::hex <<
 	          (int)address << std::dec);
 	return 0xFF;
@@ -315,7 +315,7 @@ const byte* MSXDevice::getReadCacheLine(word /*start*/) const
 void MSXDevice::writeMem(word address, byte /*value*/,
                             const EmuTime& /*time*/)
 {
-	if (address); // avoid warning
+	(void)address;
 	PRT_DEBUG("MSXDevice: write to unmapped memory " << std::hex <<
 	          (int)address << std::dec);
 	// do nothing

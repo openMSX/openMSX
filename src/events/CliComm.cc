@@ -84,7 +84,7 @@ void CliComm::startInput(CommandLineParser::ControlType type, const string& argu
 		}
 #else
 		assert(false);
-		if (&arguments); // avoid warning
+		(void)arguments;
 #endif
 		break;
 	}

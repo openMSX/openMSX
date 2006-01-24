@@ -208,7 +208,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 
 void InputEventGenerator::update(const Setting& setting)
 {
-	if (&setting); // avoid warning
+	(void)setting;
 	assert(&setting == grabInput.get());
 	escapeGrabState = ESCAPE_GRAB_WAIT_CMD;
 	setGrabInput(grabInput->getValue());

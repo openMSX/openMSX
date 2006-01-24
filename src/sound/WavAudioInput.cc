@@ -109,7 +109,7 @@ void WavAudioInput::unplugHelper(const EmuTime& /*time*/)
 
 void WavAudioInput::update(const Setting& setting)
 {
-	if (&setting); // avoid warning
+	(void)setting;
 	assert(&setting == audioInputFilenameSetting.get());
 	if (plugged) {
 		try {

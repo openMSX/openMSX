@@ -29,8 +29,7 @@ public:
 	/** Update VRAM state to specified moment in time.
 	  * @param time Moment in emulated time to synchronise VRAM to
 	  */
-	inline void sync(const EmuTime& time) {
-		if (&time); // avoid warning
+	inline void sync(const EmuTime& /*time*/) {
 		// not much to do, yet
 	}
 
