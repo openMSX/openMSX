@@ -8,6 +8,7 @@
 #include "CPU.hh"
 #include "StringOp.hh"
 #include "MSXException.hh"
+#include <cassert>
 
 using std::string;
 using std::vector;
