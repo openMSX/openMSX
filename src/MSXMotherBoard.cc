@@ -437,16 +437,20 @@ FilePool& MSXMotherBoard::getFilePool()
 
 void MSXMotherBoard::readConfig()
 {
-	machineConfig->parseSlots();
-	for (Extensions::const_iterator it = extensions.begin();
-	     it != extensions.end(); ++it) {
-		(*it)->parseSlots();
-	}
+	try {
+		machineConfig->parseSlots();
+		for (Extensions::const_iterator it = extensions.begin();
+		     it != extensions.end(); ++it) {
+			(*it)->parseSlots();
+		}
 
-	machineConfig->createDevices();
-	for (Extensions::const_iterator it = extensions.begin();
-	     it != extensions.end(); ++it) {
-		(*it)->createDevices();
+		machineConfig->createDevices();
+		for (Extensions::const_iterator it = extensions.begin();
+		     it != extensions.end(); ++it) {
+			(*it)->createDevices();
+		}
+	} catch (MSXException& e) {
+		throw FatalError(e.getMessage());
 	}
 }
 
