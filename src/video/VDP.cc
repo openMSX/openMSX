@@ -86,7 +86,7 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
 	else if (versionString == "TMS9929A") version = TMS9929A;
 	else if (versionString == "V9938") version = V9938;
 	else if (versionString == "V9958") version = V9958;
-	else throw FatalError("Unknown VDP version \"" + versionString + "\"");
+	else throw MSXException("Unknown VDP version \"" + versionString + "\"");
 
 	// Set up control register availability.
 	static const byte VALUE_MASKS_MSX1[32] = {
@@ -115,7 +115,7 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
 	    (vramSize != 128) && (vramSize != 192)) {
 		std::ostringstream out;
 		out << "VRAM size of " << vramSize << "kB is not supported!";
-		throw FatalError(out.str());
+		throw MSXException(out.str());
 	}
 	vramMask = (vramSize != 192) ? ((vramSize * 1024) - 1) : 0x1FFFF;
 	vram.reset(new VDPVRAM(*this, vramSize * 1024, time));

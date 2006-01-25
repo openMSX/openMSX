@@ -132,7 +132,8 @@ CassettePlayer::CassettePlayer(
 			insertTape(playerElem->getFileContext().resolve(filename),
 			           EmuTime::zero);
 		} catch (MSXException& e) {
-			throw FatalError("Couldn't load tape image: " + e.getMessage());
+			throw MSXException("Couldn't load tape image: " + 
+			                   e.getMessage());
 		}
 	} else {
 		removeTape(EmuTime::zero);

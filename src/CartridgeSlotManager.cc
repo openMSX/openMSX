@@ -34,7 +34,8 @@ int CartridgeSlotManager::getSlotNum(const string& slot)
 	} else {
 		int result = StringOp::stringToInt(slot);
 		if ((result < 0) || (4 <= result)) {
-			throw FatalError("Invalid slot specification: " + slot);
+			throw MSXException(
+				"Invalid slot specification: " + slot);
 		}
 		return result;
 	}
@@ -61,7 +62,7 @@ void CartridgeSlotManager::createExternalSlot(int ps)
 void CartridgeSlotManager::createExternalSlot(int ps, int ss)
 {
 	if (isExternalSlot(ps, ss, false)) {
-		throw FatalError("Slot is already an external slot.");
+		throw MSXException("Slot is already an external slot.");
 	}
 	for (int slot = 0; slot < MAX_SLOTS; ++slot) {
 		if (!slots[slot].exists) {
@@ -104,7 +105,8 @@ int CartridgeSlotManager::getReservedSlot(int slot, int& ps, int& ss)
 	assert(slots[slot].reserved);
 
 	if (!slots[slot].exists) {
-		throw FatalError(string("Slot") + (char)('a' + slot) + " not defined");
+		throw MSXException(string("Slot") + (char)('a' + slot) +
+		                   " not defined");
 	}
 	ps = slots[slot].ps;
 	ss = (slots[slot].ss != -1) ? slots[slot].ss : 0;
@@ -123,7 +125,7 @@ int CartridgeSlotManager::getAnyFreeSlot(int& ps, int& ss)
 			return slot;
 		}
 	}
-	throw FatalError("Not enough free cartridge slots");
+	throw MSXException("Not enough free cartridge slots");
 }
 
 int CartridgeSlotManager::getFreePrimarySlot(int &ps)
@@ -136,7 +138,7 @@ int CartridgeSlotManager::getFreePrimarySlot(int &ps)
 			return slot;
 		}
 	}
-	throw FatalError("No free primary slot");
+	throw MSXException("No free primary slot");
 }
 
 void CartridgeSlotManager::freeSlot(int slot)

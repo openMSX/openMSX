@@ -79,8 +79,8 @@ void CliComm::startInput(CommandLineParser::ControlType type, const string& argu
 			connection = new PipeConnection(
 				scheduler, commandController, arguments);
 		} else {
-			throw FatalError(
-				"Pipes are not supported on this version of Windows");
+			throw FatalError("Pipes are not supported on this "
+			                 "version of Windows");
 		}
 #else
 		assert(false);

@@ -98,7 +98,7 @@ void HardwareConfig::load(const string& path, const string& hwName)
 		config->setFileContext(std::auto_ptr<FileContext>(
 			new ConfigFileContext(url + '/', hwName, userName)));
 	} catch (XMLException& e) {
-		throw FatalError(
+		throw MSXException(
 			"Loading of hardware configuration failed: " +
 			e.getMessage());
 	}
@@ -118,8 +118,9 @@ void HardwareConfig::parseSlots()
 		int ps = CartridgeSlotManager::getSlotNum(primSlot);
 		if ((*it)->getAttributeAsBool("external", false)) {
 			if (ps < 0) {
-				throw FatalError("Cannot mark unspecified primary slot '" +
-					primSlot + "' as external");
+				throw MSXException(
+				    "Cannot mark unspecified primary slot '" +
+				    primSlot + "' as external");
 			}
 			createExternalSlot(ps);
 			continue;

@@ -16,7 +16,7 @@ MSXKanji12::MSXKanji12(MSXMotherBoard& motherBoard, const XMLElement& config,
 {
 	unsigned size = rom->getSize();
 	if ((size != 0x20000) && (size != 0x40000)) {
-		throw FatalError("MSXKanji12: wrong kanji rom");
+		throw MSXException("MSXKanji12: wrong kanji rom");
 	}
 
 	reset(time);

@@ -17,7 +17,7 @@ IDEDevice* IDEDeviceFactory::create(EventDistributor& eventDistributor,
 		return new IDEHD(eventDistributor, config, time);
 	}
 
-	throw FatalError("Unknown IDE device: " + type);
+	throw MSXException("Unknown IDE device: " + type);
 }
 
 } // namespace openmsx

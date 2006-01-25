@@ -157,14 +157,14 @@ RealDrive::RealDrive(CommandController& commandController,
 	int i = 0;
 	while (drivesInUse[i]) {
 		if (++i == MAX_DRIVES) {
-			throw FatalError("Too many disk drives.");
+			throw MSXException("Too many disk drives.");
 		}
 	}
 	drivesInUse[i] = true;
 	string driveName = string("disk") + static_cast<char>('a' + i);
 
 	if (commandController.hasCommand(driveName)) {
-		throw FatalError("Duplicated drive name: " + driveName);
+		throw MSXException("Duplicated drive name: " + driveName);
 	}
 	changer.reset(new DiskChanger(driveName, commandController,
 		                      fileManipulator));

@@ -15,12 +15,12 @@ MSXRam::MSXRam(MSXMotherBoard& motherBoard, const XMLElement& config,
 	base = config.getChildDataAsInt("base", 0);
 	size = config.getChildDataAsInt("size", 0x10000);
 	if ((size > 0x10000) || (base >= 0x10000)) {
-		throw FatalError("Invalid base/size for " + getName() +
-		                 ", must be in range [0x0000,0x10000).");
+		throw MSXException("Invalid base/size for " + getName() +
+		                   ", must be in range [0x0000,0x10000).");
 	}
 	if ((base & CPU::CACHE_LINE_LOW) || (size & CPU::CACHE_LINE_LOW)) {
-		throw FatalError("Invalid base/size alignment for " +
-		                 getName());
+		throw MSXException("Invalid base/size alignment for " +
+		                   getName());
 	}
 
 	ram.reset(new Ram(motherBoard, getName(), "ram", size));

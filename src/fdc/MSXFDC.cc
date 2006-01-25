@@ -17,8 +17,8 @@ MSXFDC::MSXFDC(MSXMotherBoard& motherBoard, const XMLElement& config,
 {
 	int numDrives = config.getChildDataAsInt("drives", 1);
 	if ((0 >= numDrives) || (numDrives >= 4)) {
-		throw FatalError("Invalid number of drives: " +
-		                 StringOp::toString(numDrives));
+		throw MSXException("Invalid number of drives: " +
+		                   StringOp::toString(numDrives));
 	}
 	int i = 0;
 	for ( ; i < numDrives; ++i) {

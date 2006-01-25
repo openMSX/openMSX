@@ -33,7 +33,7 @@ SunriseIDE::SunriseIDE(MSXMotherBoard& motherBoard, const XMLElement& config,
 		}
 	}
 	if (i == MAX_INTERFACES) {
-		throw FatalError("Too many IDE interfaces.");
+		throw MSXException("Too many IDE interfaces.");
 	}
 
 	const XMLElement* masterElem = config.findChild("master");

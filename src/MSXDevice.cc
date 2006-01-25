@@ -85,7 +85,7 @@ void MSXDevice::lockDevices()
 		string name = (*it)->getAttribute("idref");
 		MSXDevice* dev = motherBoard.findDevice(name);
 		if (!dev) {
-			throw FatalError(
+			throw MSXException(
 				"Unsatisfied dependency: '" + getName() +
 				"' depends on unavailable device '" +
 				name + "'.");
@@ -121,14 +121,14 @@ void MSXDevice::getMemRegions(const XMLElement& config, MemRegions& result)
 		unsigned base = (*it)->getAttributeAsInt("base");
 		unsigned size = (*it)->getAttributeAsInt("size");
 		if ((base >= 0x10000) || (size > 0x10000)) {
-			throw FatalError(
+			throw MSXException(
 				"Invalid memory specification for device " +
 				getName() + " should be in range "
 				"[0x0000,0x10000).");
 		}
 		if ((base & CPU::CACHE_LINE_LOW) || (size & CPU::CACHE_LINE_LOW)) {
 			int tmp = CPU::CACHE_LINE_SIZE; // solves link error
-			throw FatalError(
+			throw MSXException(
 				"Invalid memory specification for device " +
 				getName() + " should be aligned at " +
 				StringOp::toHexString(tmp, 4) + ".");
@@ -161,7 +161,7 @@ void MSXDevice::registerSlots(const XMLElement& config)
 		}
 		parent = parent->getParent();
 		if (!parent) {
-			throw FatalError("Invalid memory specification");
+			throw MSXException("Invalid memory specification");
 		}
 	}
 
@@ -208,7 +208,7 @@ static void getPorts(const XMLElement& config,
 		string type = (*it)->getAttribute("type", "IO");
 		if (((base + num) > 256) || (num == 0) ||
 		    ((type != "I") && (type != "O") && (type != "IO"))) {
-			throw FatalError("Invalid IO port specification");
+			throw MSXException("Invalid IO port specification");
 		}
 		for (unsigned i = 0; i < num; ++i) {
 			if ((type == "I") || (type == "IO")) {

@@ -35,7 +35,7 @@ RomPlain::RomPlain(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 	unsigned romSize = rom->getSize();
 	if ((romSize > 0x10000) || (romSize & 0x1FFF)) {
-		throw FatalError(rom->getName() +
+		throw MSXException(rom->getName() +
 		    ": invalid rom size: must be smaller than or equal to 64kB "
 		    "and must be a multiple of 8kB.");
 	}
@@ -45,13 +45,13 @@ RomPlain::RomPlain(MSXMotherBoard& motherBoard, const XMLElement& config,
 	                 : start;
 	if (!isInside(romBase,               windowBase, windowSize) ||
 	    !isInside(romBase + romSize - 1, windowBase, windowSize)) {
-		throw FatalError(rom->getName() +
+		throw MSXException(rom->getName() +
 		    ": invalid rom position: interval " +
 		    toString(romBase, romSize) + " must fit in " +
 		    toString(windowBase, windowSize) + '.');
 	}
 	if ((romBase & 0x1FFF)) {
-		throw FatalError(rom->getName() +
+		throw MSXException(rom->getName() +
 		    ": invalid rom position: must start at a 8kB boundary.");
 	}
 

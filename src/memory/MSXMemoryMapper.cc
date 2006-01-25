@@ -31,8 +31,8 @@ MSXMemoryMapper::MSXMemoryMapper(MSXMotherBoard& motherBoard,
 {
 	int kSize = deviceConfig.getChildDataAsInt("size");
 	if ((kSize % 16) != 0) {
-		throw FatalError("Mapper size is not a multiple of 16K: " +
-		                 StringOp::toString(kSize));
+		throw MSXException("Mapper size is not a multiple of 16K: " +
+		                   StringOp::toString(kSize));
 	}
 	nbBlocks = kSize / 16;
 	ram.reset(new Ram(motherBoard, getName(), "memory mapper",

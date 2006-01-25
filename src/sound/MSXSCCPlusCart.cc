@@ -30,7 +30,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(MSXMotherBoard& motherBoard,
 			int romSize = file.getSize();
 			file.read(&(*ram)[0], romSize);
 		} catch (FileException& e) {
-			throw FatalError("Error reading file: " + filename);
+			throw MSXException("Error reading file: " + filename);
 		}
 	}
 	const std::string subtype = config.getChildData("subtype", "expanded");

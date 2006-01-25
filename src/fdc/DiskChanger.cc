@@ -53,8 +53,8 @@ DiskChanger::DiskChanger(const string& driveName_,
 			vector<string> patchFiles;
 			XMLElement::Children children;
 			diskConfig.getChildren("ips", children);
-			for (XMLElement::Children::const_iterator it = children.begin();
-			     it != children.end(); ++it) {
+			for (XMLElement::Children::const_iterator it =
+			        children.begin(); it != children.end(); ++it) {
 				string patch = context.resolve((*it)->getData());
 				patchFiles.push_back(patch);
 			}
@@ -62,7 +62,8 @@ DiskChanger::DiskChanger(const string& driveName_,
 			insertDisk(context.resolve(filename), patchFiles);
 		} catch (FileException& e) {
 			// file not found
-			throw FatalError("Couldn't load diskimage: " + filename);
+			throw MSXException("Couldn't load diskimage: " + 
+			                   filename);
 		}
 	} else {
 		// nothing specified

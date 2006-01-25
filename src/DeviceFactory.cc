@@ -1,7 +1,7 @@
 // $Id$
 
-#include "XMLElement.hh"
 #include "DeviceFactory.hh"
+#include "XMLElement.hh"
 #include "MSXRam.hh"
 #include "MSXPPI.hh"
 #include "VDP.hh"
@@ -170,7 +170,8 @@ auto_ptr<MSXDevice> DeviceFactory::create(
 		return auto_ptr<MSXDevice>(new ADVram(motherBoard, conf, time));
 	}
 
-	throw FatalError("Unknown device \"" + type + "\" specified in configuration");
+	throw MSXException("Unknown device \"" + type +
+	                   "\" specified in configuration");
 }
 
 } // namespace openmsx

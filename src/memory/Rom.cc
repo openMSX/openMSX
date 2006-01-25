@@ -87,8 +87,8 @@ void Rom::init(CliComm& cliComm, const XMLElement& config)
 			}
 		}
 		if (filename.empty()) {
-			throw FatalError("Couldn't find ROM file for \"" +
-			                 config.getId() + "\".");
+			throw MSXException("Couldn't find ROM file for \"" +
+			                   config.getId() + "\".");
 		}
 		read(config, filename);
 
@@ -160,7 +160,7 @@ void Rom::read(const XMLElement& config, const string& filename)
 	try {
 		file.reset(new File(config.getFileContext().resolve(filename)));
 	} catch (FileException& e) {
-		throw FatalError("Error reading ROM: " + filename);
+		throw MSXException("Error reading ROM: " + filename);
 	}
 
 	// get filesize
@@ -175,7 +175,7 @@ void Rom::read(const XMLElement& config, const string& filename)
 	// get offset
 	int offset = config.getChildDataAsInt("skip_headerbytes", 0);
 	if (fileSize <= offset) {
-		throw FatalError("Offset greater than filesize");
+		throw MSXException("Offset greater than filesize");
 	}
 	size = fileSize - offset;
 
@@ -185,7 +185,7 @@ void Rom::read(const XMLElement& config, const string& filename)
 		tmp = file->mmap() + offset;
 		rom = tmp;
 	} catch (FileException &e) {
-		throw FatalError("Error reading ROM image: " + filename);
+		throw MSXException("Error reading ROM image: " + filename);
 	}
 
 	// verify SHA1

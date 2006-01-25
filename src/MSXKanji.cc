@@ -13,7 +13,7 @@ MSXKanji::MSXKanji(MSXMotherBoard& motherBoard, const XMLElement& config,
 {
 	int size = rom->getSize();
 	if ((size != 0x20000) && (size != 0x40000)) {
-		throw FatalError("MSXKanji: wrong kanji rom");
+		throw MSXException("MSXKanji: wrong kanji rom");
 	}
 
 	reset(time);

@@ -2,6 +2,8 @@ $Id$
 
 2006-01-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented 'list_extensions' and 'remove_extension' commands
+	* Converted some fatal errors to normal errors, they can now also
+	  get triggered by run-time insertion of extensions
 
 2006-01-23 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Enabled run-time insertion of rom cartridges and extensions:

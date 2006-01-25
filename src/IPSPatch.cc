@@ -24,7 +24,7 @@ IPSPatch::IPSPatch(const std::string& filename,
 	byte buf[5];
 	ipsFile.read(buf, 5);
 	if (memcmp(buf, "PATCH", 5) != 0) {
-		throw FatalError("Invalid IPS file: " + filename);
+		throw MSXException("Invalid IPS file: " + filename);
 	}
 	ipsFile.read(buf, 3);
 	while (memcmp(buf, "EOF", 3) != 0) {

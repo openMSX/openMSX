@@ -20,12 +20,12 @@ ADVram::ADVram(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 	const MSXDevice::Devices& references = getReferences();
 	if (references.size() != 1) {
-		throw FatalError("Invalid ADVRAM configuration: "
-		                 "need reference to VDP device.");
+		throw MSXException("Invalid ADVRAM configuration: "
+		                   "need reference to VDP device.");
 	}
 	vdp = dynamic_cast<VDP*>(references[0]);
 	if (!vdp) {
-		throw FatalError("Invalid ADVRAM configuration: device '" +
+		throw MSXException("Invalid ADVRAM configuration: device '" +
 			references[0]->getName() + "' is not a VDP device.");
 	}
 	vram = &vdp->getVRAM();

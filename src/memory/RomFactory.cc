@@ -288,7 +288,7 @@ auto_ptr<MSXDevice> RomFactory::create(
 		return auto_ptr<MSXDevice>(
 			new RomFSA1FM2(motherBoard, config, time, rom));
 	default:
-		throw FatalError("Unknown ROM type");
+		throw MSXException("Unknown ROM type");
 	}
 }
 
