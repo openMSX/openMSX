@@ -4,6 +4,8 @@ $Id$
 	* Implemented 'list_extensions' and 'remove_extension' commands
 	* Converted some fatal errors to normal errors, they can now also
 	  get triggered by run-time insertion of extensions
+	* Recalculate visible pages when a memory device is added/removed:
+	   fixes assert while removing a running game cartridge
 
 2006-01-23 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Enabled run-time insertion of rom cartridges and extensions:

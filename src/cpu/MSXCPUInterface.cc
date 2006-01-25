@@ -314,7 +314,8 @@ void MSXCPUInterface::registerSlot(
 			"."     + StringOp::toString(ss) +
 			" does not exist because slot is not expanded.");
 	}
-	MSXDevice*& slot = slotLayout[ps][ss][base >> 14];
+	int page = base >> 14;
+	MSXDevice*& slot = slotLayout[ps][ss][page];
 	if (size == 0x4000) {
 		// full 16kb, directly register device (no multiplexer)
 		if (slot != &dummyDevice) {
@@ -340,12 +341,14 @@ void MSXCPUInterface::registerSlot(
 			reportMemOverlap(ps, ss, *slot, device);
 		}
 	}
+	updateVisible(page);
 }
 
 void MSXCPUInterface::unregisterSlot(
 	MSXDevice& device, int ps, int ss, int base, int size)
 {
-	MSXDevice*& slot = slotLayout[ps][ss][base >> 14];
+	int page = base >> 14;
+	MSXDevice*& slot = slotLayout[ps][ss][page];
 	if (MSXMultiMemDevice* multi = dynamic_cast<MSXMultiMemDevice*>(slot)) {
 		// partial range
 		multi->remove(device, base, size);
@@ -358,6 +361,7 @@ void MSXCPUInterface::unregisterSlot(
 		assert(slot == &device);
 		slot = &dummyDevice;
 	}
+	updateVisible(page);
 }
 
 void MSXCPUInterface::registerMemDevice(
@@ -383,7 +387,6 @@ void MSXCPUInterface::unregisterMemDevice(
 		size -= partialSize;
 	}
 }
-
 
 void MSXCPUInterface::updateVisible(int page)
 {
