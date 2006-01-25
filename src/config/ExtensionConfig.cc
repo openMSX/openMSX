@@ -5,6 +5,7 @@
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "MSXException.hh"
+#include "StringOp.hh"
 
 using std::string;
 using std::vector;
@@ -13,10 +14,11 @@ using std::auto_ptr;
 namespace openmsx {
 
 ExtensionConfig::ExtensionConfig(MSXMotherBoard& motherBoard,
-                                 const string& name)
+                                 const string& extensionName)
 	: HardwareConfig(motherBoard)
 {
-	load("extensions", name);
+	load("extensions", extensionName);
+	setName(extensionName);
 }
 
 ExtensionConfig::ExtensionConfig(
@@ -92,11 +94,29 @@ ExtensionConfig::ExtensionConfig(
 	if (slotname != "any") {
 		reserveSlot(slotname[0] - 'a');
 	}
+	setName(romfile);
 }
 
 const XMLElement& ExtensionConfig::getDevices() const
 {
 	return getConfig();
+}
+
+const string& ExtensionConfig::getName() const
+{
+	return name;
+}
+
+void ExtensionConfig::setName(const std::string& proposedName)
+{
+	if (!getMotherBoard().findExtension(proposedName)) {
+		name = proposedName;
+	} else {
+		unsigned n = 0;
+		do {
+			name = proposedName + " (" + StringOp::toString(++n) + ")";
+		} while (getMotherBoard().findExtension(name));
+	}
 }
 
 } // namespace openmsx

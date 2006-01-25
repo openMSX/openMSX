@@ -35,6 +35,8 @@
 #include "Command.hh"
 #include "FileException.hh"
 #include "ConfigException.hh"
+#include "ReadDir.hh"
+#include "FileOperations.hh"
 #include <cassert>
 
 using std::string;
@@ -48,6 +50,18 @@ public:
 	ResetCmd(CommandController& commandController,
 	         MSXMotherBoard& motherBoard);
 	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
+private:
+	MSXMotherBoard& motherBoard;
+};
+
+class ListExtCmd : public Command
+{
+public:
+	ListExtCmd(CommandController& commandController,
+	       MSXMotherBoard& motherBoard);
+	virtual void execute(const std::vector<TclObject*>& tokens,
+	                     TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 private:
 	MSXMotherBoard& motherBoard;
@@ -77,19 +91,33 @@ private:
 	MSXMotherBoard& motherBoard;
 };
 
+class RemoveExtCmd : public SimpleCommand
+{
+public:
+	RemoveExtCmd(CommandController& commandController,
+	             MSXMotherBoard& motherBoard);
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
+private:
+	MSXMotherBoard& motherBoard;
+};
+
 
 MSXMotherBoard::MSXMotherBoard()
 	: powered(false)
 	, needReset(false)
 	, needPowerDown(false)
 	, blockedCounter(0)
-	, resetCommand(new ResetCmd(getCommandController(), *this))
-	, extCommand  (new ExtCmd  (getCommandController(), *this))
-	, cartCommand (new CartCmd (getCommandController(), *this, "cart"))
-	, cartaCommand(new CartCmd (getCommandController(), *this, "carta"))
-	, cartbCommand(new CartCmd (getCommandController(), *this, "cartb"))
-	, cartcCommand(new CartCmd (getCommandController(), *this, "cartc"))
-	, cartdCommand(new CartCmd (getCommandController(), *this, "cartd"))
+	, resetCommand    (new ResetCmd    (getCommandController(), *this))
+	, listExtCommand  (new ListExtCmd  (getCommandController(), *this))
+	, extCommand      (new ExtCmd      (getCommandController(), *this))
+	, cartCommand     (new CartCmd     (getCommandController(), *this, "cart" ))
+	, cartaCommand    (new CartCmd     (getCommandController(), *this, "carta"))
+	, cartbCommand    (new CartCmd     (getCommandController(), *this, "cartb"))
+	, cartcCommand    (new CartCmd     (getCommandController(), *this, "cartc"))
+	, cartdCommand    (new CartCmd     (getCommandController(), *this, "cartd"))
+	, removeExtCommand(new RemoveExtCmd(getCommandController(), *this))
 	, powerSetting(getCommandController().getGlobalSettings().getPowerSetting())
 {
 	getMixer().mute(); // powered down
@@ -161,6 +189,31 @@ ExtensionConfig& MSXMotherBoard::loadRom(
 		*this, romname, slotname, options);
 	extensions.push_back(result);
 	return *result;
+}
+
+ExtensionConfig* MSXMotherBoard::findExtension(const std::string& extensionName)
+{
+	for (Extensions::const_iterator it = extensions.begin();
+	     it != extensions.end(); ++it) {
+		if ((*it)->getName() == extensionName) {
+			return *it;
+		}
+	}
+	return NULL;
+}
+
+const MSXMotherBoard::Extensions& MSXMotherBoard::getExtensions() const
+{
+	return extensions;
+}
+
+void MSXMotherBoard::removeExtension(ExtensionConfig& extension)
+{
+	Extensions::iterator it =
+		find(extensions.begin(), extensions.end(), &extension);
+	assert(it != extensions.end());
+	delete &extension;
+	extensions.erase(it);
 }
 
 Scheduler& MSXMotherBoard::getScheduler()
@@ -550,6 +603,27 @@ MSXDevice* MSXMotherBoard::findDevice(const string& name)
 }
 
 
+// TODO move machineSetting to here and reuse this routine
+static void getHwConfigs(const string& type, std::set<string>& result)
+{
+	SystemFileContext context;
+	const vector<string>& paths = context.getPaths();
+	for (vector<string>::const_iterator it = paths.begin();
+	     it != paths.end(); ++it) {
+		string path = *it + type;
+		ReadDir dir(path);
+		while (dirent* d = dir.getEntry()) {
+			string name = d->d_name;
+			string dir = path + '/' + name;
+			string config = dir + "/hardwareconfig.xml";
+			if (FileOperations::isDirectory(dir) &&
+			    FileOperations::isRegularFile(config)) {
+				result.insert(name);
+			}
+		}
+	}
+}
+
 // ResetCmd
 ResetCmd::ResetCmd(CommandController& commandController,
                    MSXMotherBoard& motherBoard_)
@@ -567,6 +641,30 @@ string ResetCmd::execute(const vector<string>& /*tokens*/)
 string ResetCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "Resets the MSX.\n";
+}
+
+
+// ListExtCmd
+ListExtCmd::ListExtCmd(CommandController& commandController,
+                       MSXMotherBoard& motherBoard_)
+	: Command(commandController, "list_extensions")
+	, motherBoard(motherBoard_)
+{
+}
+
+void ListExtCmd::execute(const std::vector<TclObject*>& /*tokens*/,
+                         TclObject& result)
+{
+	const MSXMotherBoard::Extensions& extensions = motherBoard.getExtensions();
+	for (MSXMotherBoard::Extensions::const_iterator it = extensions.begin();
+	     it != extensions.end(); ++it) {
+		result.addListElement((*it)->getName());
+	}
+}
+
+string ListExtCmd::help(const vector<string>& /*tokens*/) const
+{
+	return "Return a list of all inserted extensions.";
 }
 
 
@@ -588,10 +686,10 @@ string ExtCmd::execute(const vector<string>& tokens)
 			motherBoard.loadExtension(tokens[1]);
 		extension.parseSlots();
 		extension.createDevices();
+		return extension.getName();
 	} catch (MSXException& e) {
 		throw CommandException(e.getMessage());
 	}
-	return "";
 }
 
 string ExtCmd::help(const vector<string>& /*tokens*/) const
@@ -599,9 +697,11 @@ string ExtCmd::help(const vector<string>& /*tokens*/) const
 	return "Insert a hardware extension.";
 }
 
-void ExtCmd::tabCompletion(vector<string>& /*tokens*/) const
+void ExtCmd::tabCompletion(vector<string>& tokens) const
 {
-	// TODO
+	std::set<string> extensions;
+	getHwConfigs("extensions", extensions);
+	completeString(tokens, extensions);
 }
 
 
@@ -631,10 +731,10 @@ string CartCmd::execute(const vector<string>& tokens)
 			motherBoard.loadRom(tokens[1], slotname, options);
 		extension.parseSlots();
 		extension.createDevices();
+		return extension.getName();
 	} catch (MSXException& e) {
 		throw CommandException(e.getMessage());
 	}
-	return "";
 }
 
 string CartCmd::help(const vector<string>& /*tokens*/) const
@@ -645,6 +745,46 @@ string CartCmd::help(const vector<string>& /*tokens*/) const
 void CartCmd::tabCompletion(vector<string>& tokens) const
 {
 	completeFileName(tokens);
+}
+
+
+// RemoveExtCmd
+RemoveExtCmd::RemoveExtCmd(CommandController& commandController,
+                           MSXMotherBoard& motherBoard_)
+	: SimpleCommand(commandController, "remove_extension")
+	, motherBoard(motherBoard_)
+{
+}
+
+string RemoveExtCmd::execute(const vector<string>& tokens)
+{
+	if (tokens.size() != 2) {
+		throw SyntaxError();
+	}
+	ExtensionConfig* extension = motherBoard.findExtension(tokens[1]);
+	if (!extension) {
+		throw CommandException("No such extension: " + tokens[1]);
+	}
+	motherBoard.removeExtension(*extension);
+	return "";
+}
+
+string RemoveExtCmd::help(const vector<string>& /*tokens*/) const
+{
+	return "Remove an extension from the MSX machine.";
+}
+
+void RemoveExtCmd::tabCompletion(vector<string>& tokens) const
+{
+	if (tokens.size() == 2) {
+		std::set<string> names;
+		for (MSXMotherBoard::Extensions::const_iterator it =
+		         motherBoard.getExtensions().begin();
+		     it != motherBoard.getExtensions().end(); ++it) {
+			names.insert((*it)->getName());
+		}
+		completeString(tokens, names);
+	}
 }
 
 } // namespace openmsx

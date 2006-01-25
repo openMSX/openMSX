@@ -219,4 +219,9 @@ void HardwareConfig::addDevice(MSXDevice* device)
 	devices.push_back(device);
 }
 
+MSXMotherBoard& HardwareConfig::getMotherBoard()
+{
+	return motherBoard;
+}
+
 } // namespace openmsx

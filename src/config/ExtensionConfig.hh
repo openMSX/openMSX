@@ -16,7 +16,14 @@ public:
 	                const std::string& romfile, const std::string& slotname,
 	                const std::vector<std::string>& options);
 
+	const std::string& getName() const;
+
 	virtual const XMLElement& getDevices() const;
+
+private:
+	void setName(const std::string& proposedName);
+
+	std::string name;
 };
 
 } // namespace openmsx

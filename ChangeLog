@@ -1,5 +1,8 @@
 $Id$
 
+2006-01-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented 'list_extensions' and 'remove_extension' commands
+
 2006-01-23 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Enabled run-time insertion of rom cartridges and extensions:
 	   - new commands:

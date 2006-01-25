@@ -28,6 +28,7 @@ protected:
 	void setConfig(std::auto_ptr<XMLElement> config);
 	void load(const std::string& path, const std::string& hwName);
 	void reserveSlot(int slot);
+	MSXMotherBoard& getMotherBoard();
 
 private:
 	virtual const XMLElement& getDevices() const = 0;

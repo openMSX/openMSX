@@ -41,8 +41,10 @@ class BooleanSetting;
 class EmuTime;
 class Setting;
 class ResetCmd;
+class ListExtCmd;
 class ExtCmd;
 class CartCmd;
+class RemoveExtCmd;
 
 class MSXMotherBoard : private Observer<Setting>
 {
@@ -87,10 +89,15 @@ public:
 
 	const MachineConfig& getMachineConfig() const;
 	void loadMachine(const std::string& machine);
+
+	typedef std::vector<ExtensionConfig*> Extensions;
+	const Extensions& getExtensions() const;
+	ExtensionConfig* findExtension(const std::string& extensionName);
 	ExtensionConfig& loadExtension(const std::string& extensionName);
 	ExtensionConfig& loadRom(
 		const std::string& romname, const std::string& slotname,
 		const std::vector<std::string>& options);
+	void removeExtension(ExtensionConfig& extension);
 
 	// The following classes are unique per MSX machine
 	Scheduler& getScheduler();
@@ -146,7 +153,6 @@ private:
 	int blockedCounter;
 
 	std::auto_ptr<MachineConfig> machineConfig;
-	typedef std::vector<ExtensionConfig*> Extensions;
 	Extensions extensions;
 
 	// order of auto_ptr's is important!
@@ -176,13 +182,15 @@ private:
 	std::auto_ptr<FileManipulator> fileManipulator;
 	std::auto_ptr<FilePool> filePool;
 
-	const std::auto_ptr<ResetCmd> resetCommand;
-	const std::auto_ptr<ExtCmd>   extCommand;
-	const std::auto_ptr<CartCmd>  cartCommand;
-	const std::auto_ptr<CartCmd>  cartaCommand;
-	const std::auto_ptr<CartCmd>  cartbCommand;
-	const std::auto_ptr<CartCmd>  cartcCommand;
-	const std::auto_ptr<CartCmd>  cartdCommand;
+	const std::auto_ptr<ResetCmd>     resetCommand;
+	const std::auto_ptr<ListExtCmd>   listExtCommand;
+	const std::auto_ptr<ExtCmd>       extCommand;
+	const std::auto_ptr<CartCmd>      cartCommand;
+	const std::auto_ptr<CartCmd>      cartaCommand;
+	const std::auto_ptr<CartCmd>      cartbCommand;
+	const std::auto_ptr<CartCmd>      cartcCommand;
+	const std::auto_ptr<CartCmd>      cartdCommand;
+	const std::auto_ptr<RemoveExtCmd> removeExtCommand;
 	BooleanSetting& powerSetting;
 };
 
