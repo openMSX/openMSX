@@ -35,7 +35,7 @@ DISABLED_LIBS+=JACK
 
 # Assume all static libraries come from the same distribution (such as Fink or
 # DarwinPorts); use SDL's config script to find the rest.
-STATIC_LIBS_DIR:=`sdl-config --static-libs | sed -e \"s%^\(.* \)*\(/.*\)/libSDL\.a.*$$%\2%\" 2>> /dev/null`
+STATIC_LIBS_DIR:=$(shell sdl-config --static-libs | sed -e "s%^\(.* \)*\(/.*\)/libSDL\.a.*$$%\2%" 2>> /dev/null)
 
 PNG_LDFLAGS:=$(STATIC_LIBS_DIR)/libpng.a
 # TODO: In theory this should return the flags for static linking,
@@ -44,5 +44,8 @@ PNG_LDFLAGS:=$(STATIC_LIBS_DIR)/libpng.a
 
 SDL_LDFLAGS:=`sdl-config --static-libs | sed -e \"s/-L[^ ]*//g\" 2>> $(LOG)`
 
-SDL_IMAGE_LDFLAGS:=$(SDL_LDFLAGS) $(STATIC_LIBS_DIR)/libjpeg.a $(PNG_LDFLAGS) \
-	$(STATIC_LIBS_DIR)/libSDL_image.a
+# Note: Depending on how SDL_image is compiled, it may or may not need libjpeg.
+SDL_IMAGE_LDFLAGS:=$(SDL_LDFLAGS) $(PNG_LDFLAGS) \
+	$(STATIC_LIBS_DIR)/libSDL_image.a \
+	$(shell grep -q "\-ljpeg" $(STATIC_LIBS_DIR)/libSDL_image.la 2>> /dev/null \
+		&& echo "$(STATIC_LIBS_DIR)/libjpeg.a")
