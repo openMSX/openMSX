@@ -26,9 +26,8 @@ APPPLIST:=$(APPDIR)/Contents/Info.plist
 APPRES:=$(APPDIR)/Contents/Resources
 APPICON:=$(APPRES)/openmsx-logo.icns
 APPSHARE:=$(APPDIR)/share
-FRAMEDIR:=$(APPDIR)/Contents/Frameworks
 
-app: $(APPEXE) $(APPPLIST) $(APPICON) $(APPSHARE) $(FRAMEDIR)
+app: $(APPEXE) $(APPPLIST) $(APPICON) $(APPSHARE)
 
 $(APPEXE): $(BINARY)
 	@echo "  Copying executable..."
@@ -50,8 +49,3 @@ $(APPSHARE): share
 	@echo "  Copying openMSX data files..."
 	@mkdir -p $@
 	@sh build/install-recursive.sh share $@
-
-$(FRAMEDIR): $(SUPPORTDIR)/fw
-	@echo "  Copying frameworks..."
-	@mkdir -p $@
-	@cp -rf $</* $@
