@@ -405,15 +405,19 @@ $(PROBE_MAKE): $(PROBE_SCRIPT) $(MAKE_PATH)/tcl-search.sh
 	@PROBE_MAKE=$(PROBE_MAKE) MAKE_PATH=$(MAKE_PATH) \
 		$(MAKE) --no-print-directory -f $(MAKE_PATH)/probe-results.mk
 
-all: config $(GENERATED_HEADERS) $(BINARY_FULL)
-# TODO: Having GENERATED_HEADERS in this list makes sure the headers are created
-#       before compilation starts. This is a hack; what we should do instead is
-#       put an order-only dependency on the object files. However, some systems
-#       (such as Mac OS X 10.3) still ship with GNU Make 3.79, while order-only
-#       dependencies were introduced in GNU Make 3.80.
-#       Actually, there is no guarantee the headers will be created first, it's
-#       just highly likely, even in a parallel build, since creating them is
-#       very fast compared to compilation and most sources do not need them.
+# Default target.
+all: $(BINARY_FULL)
+
+# This is a workaround for the lack of order-only dependencies in GNU Make
+# versions before than 3.80 (for example Mac OS X 10.3 still ships with 3.79).
+# It creates a dummy file, which is never modified after its initial creation.
+# If a rule that produces a file does not modify that file, Make considers the
+# target to be up-to-date. That way, the targets "init-dummy-file" depends on
+# will always be checked before compilation, but they will not cause all object
+# files to be considered outdated.
+INIT_DUMMY_FILE:=$(CONFIG_PATH)/init-dummy-file
+$(INIT_DUMMY_FILE): config $(GENERATED_HEADERS)
+	@test -e $@ || touch $@
 
 # Print configuration.
 config:
@@ -454,13 +458,14 @@ endif
 
 # Build application directory for Darwin.
 ifeq ($(OPENMSX_TARGET_OS),darwin-app)
-app: all
+app: $(BINARY_FULL)
 	@echo "Packaging application:"
 	@OUTDIR=$(BUILD_PATH) BINARY=$< $(MAKE) --no-print-directory -f $(APP_MAKE)
 endif
 
 # Compile and generate dependency files in one go.
 DEPEND_SUBST=$(patsubst $(SOURCES_PATH)/%.cc,$(DEPEND_PATH)/%.d,$<)
+$(OBJECTS_FULL): $(INIT_DUMMY_FILE)
 $(OBJECTS_FULL): $(OBJECTS_PATH)/%.o: $(SOURCES_PATH)/%.cc $(DEPEND_PATH)/%.d
 	@echo "Compiling $(patsubst $(SOURCES_PATH)/%,%,$<)..."
 	@mkdir -p $(@D)
