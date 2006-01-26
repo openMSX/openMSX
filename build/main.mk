@@ -216,6 +216,7 @@ PROBE_MAKE:=$(CONFIG_PATH)/probed_defs.mk
 VERSION_HEADER:=$(CONFIG_PATH)/Version.ii
 COMPONENTS_MAKE:=$(MAKE_PATH)/components.mk
 COMPONENTS_HEADER:=$(CONFIG_PATH)/components.hh
+GENERATED_HEADERS:=$(VERSION_HEADER) $(CONFIG_HEADER) $(COMPONENTS_HEADER)
 APP_MAKE:=$(MAKE_PATH)/package-darwin/app.mk
 
 
@@ -404,8 +405,15 @@ $(PROBE_MAKE): $(PROBE_SCRIPT) $(MAKE_PATH)/tcl-search.sh
 	@PROBE_MAKE=$(PROBE_MAKE) MAKE_PATH=$(MAKE_PATH) \
 		$(MAKE) --no-print-directory -f $(MAKE_PATH)/probe-results.mk
 
-all: $(VERSION_HEADER) $(CONFIG_HEADER) $(COMPONENTS_HEADER) \
-	config $(BINARY_FULL)
+all: config $(GENERATED_HEADERS) $(BINARY_FULL)
+# TODO: Having GENERATED_HEADERS in this list makes sure the headers are created
+#       before compilation starts. This is a hack; what we should do instead is
+#       put an order-only dependency on the object files. However, some systems
+#       (such as Mac OS X 10.3) still ship with GNU Make 3.79, while order-only
+#       dependencies were introduced in GNU Make 3.80.
+#       Actually, there is no guarantee the headers will be created first, it's
+#       just highly likely, even in a parallel build, since creating them is
+#       very fast compared to compilation and most sources do not need them.
 
 # Print configuration.
 config:
@@ -446,7 +454,7 @@ endif
 
 # Build application directory for Darwin.
 ifeq ($(OPENMSX_TARGET_OS),darwin-app)
-app: $(BINARY_FULL)
+app: all
 	@echo "Packaging application:"
 	@OUTDIR=$(BUILD_PATH) BINARY=$< $(MAKE) --no-print-directory -f $(APP_MAKE)
 endif
