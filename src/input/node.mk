@@ -13,6 +13,9 @@ SRC_HDR:= \
 	MagicKey \
 	Mouse \
 	JoyNet \
+	JoyTap \
+	JoyTapPort \
+	NinjaTap \
 	UserInputEventDistributor
 
 HDR_ONLY:= \

@@ -8,6 +8,8 @@
 
 #include "JoyNet.hh"
 #include "Joystick.hh"
+#include "JoyTap.hh"
+#include "NinjaTap.hh"
 #include "SETetrisDongle.hh"
 #include "MagicKey.hh"
 #include "KeyJoystick.hh"
@@ -42,6 +44,8 @@ void PluggableFactory::createAll(PluggingController& controller,
 #ifdef	HAVE_SYS_SOCKET_H
 	controller.registerPluggable(new JoyNet(commandController));
 #endif
+	controller.registerPluggable(new JoyTap(commandController,controller,"joytap"));
+	controller.registerPluggable(new NinjaTap(commandController,controller,"ninjatap"));
 	controller.registerPluggable(new KeyJoystick(
 		commandController, userInputEventDistributor, "keyjoystick1"));
 	controller.registerPluggable(new KeyJoystick(
