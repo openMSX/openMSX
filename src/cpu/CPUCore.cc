@@ -179,10 +179,20 @@ template <class T> void CPUCore<T>::doBreak2()
 
 	motherboard.block();
 
+	// TODO break update is deprecated
 	motherboard.getCliComm().update(CliComm::BREAK, "pc",
 	                           "0x" + StringOp::toHexString(R.PC, 4));
+	motherboard.getCliComm().update(CliComm::STATUS, "cpu", "suspended");
 	Event* breakEvent = new SimpleEvent<OPENMSX_BREAK_EVENT>();
 	motherboard.getEventDistributor().distributeEvent(breakEvent);
+}
+
+template <class T> void CPUCore<T>::doBreak()
+{
+	if (!breaked) {
+		step = true;
+		exitCPULoop();
+	}
 }
 
 template <class T> void CPUCore<T>::doStep()
@@ -190,9 +200,28 @@ template <class T> void CPUCore<T>::doStep()
 	if (breaked) {
 		breaked = false;
 		step = true;
-		motherboard.unblock();
+		doContinue2();
 	}
 }
+
+template <class T> void CPUCore<T>::doContinue()
+{
+	if (breaked) {
+		breaked = false;
+		continued = true;
+		// TODO resume update is deprecated
+		motherboard.getCliComm().update(CliComm::RESUME, "pc",
+	                                   "0x" + StringOp::toHexString(R.PC, 4));
+		doContinue2();
+	}
+}
+
+template <class T> void CPUCore<T>::doContinue2()
+{
+	motherboard.getCliComm().update(CliComm::STATUS, "cpu", "running");
+	motherboard.unblock();
+}
+
 
 static inline char toHex(byte x)
 {
@@ -218,25 +247,6 @@ template <class T> void CPUCore<T>::disasmCommand(
 	for (int i = 0; i < len; ++i) {
 		toHex(outBuf[i], tmp);
 		result.addListElement(tmp);
-	}
-}
-
-template <class T> void CPUCore<T>::doContinue()
-{
-	if (breaked) {
-		breaked = false;
-		continued = true;
-		motherboard.getCliComm().update(CliComm::RESUME, "pc",
-	                                   "0x" + StringOp::toHexString(R.PC, 4));
-		motherboard.unblock();
-	}
-}
-
-template <class T> void CPUCore<T>::doBreak()
-{
-	if (!breaked) {
-		step = true;
-		exitCPULoop();
 	}
 }
 

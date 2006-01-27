@@ -212,6 +212,10 @@ string UpdateCmd::execute(const vector<string>& tokens)
 	} else {
 		throw SyntaxError();
 	}
+	// TODO deprecated
+	if ((tokens[2] == "break") || (tokens[2] == "resume")) {
+		return "Update event '" + tokens[2] + "' is deprecated.";
+	}
 	return "";
 }
 

@@ -6,6 +6,12 @@ $Id$
 	  that sit inbetween the MSX joystick ports and the actual
 	  joysticks.
 
+2006-01-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added new cpu-status update event:
+	    <update type="status" name="cpu">running</update>
+	    <update type="status" name="cpu">suspended</update>
+	  The old 'break' and 'resume' update events are deprecated  
+
 2006-01-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented 'list_extensions' and 'remove_extension' commands
 	* Converted some fatal errors to normal errors, they can now also

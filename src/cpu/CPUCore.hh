@@ -95,6 +95,7 @@ public:
 
 private:
 	void doBreak2();
+	void doContinue2();
 
 	// Observer<Setting>
 	virtual void update(const Setting& setting);
