@@ -44,8 +44,8 @@ void PluggableFactory::createAll(PluggingController& controller,
 #ifdef	HAVE_SYS_SOCKET_H
 	controller.registerPluggable(new JoyNet(commandController));
 #endif
-	controller.registerPluggable(new JoyTap(commandController,controller,"joytap"));
-	controller.registerPluggable(new NinjaTap(commandController,controller,"ninjatap"));
+	controller.registerPluggable(new JoyTap(controller, "joytap"));
+	controller.registerPluggable(new NinjaTap(controller, "ninjatap"));
 	controller.registerPluggable(new KeyJoystick(
 		commandController, userInputEventDistributor, "keyjoystick1"));
 	controller.registerPluggable(new KeyJoystick(

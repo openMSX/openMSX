@@ -15,7 +15,7 @@
 #include "MSXMotherBoard.hh"
 #include "CliComm.hh"
 #include <cassert>
-#include <cstdio>
+#include <iostream>
 
 using std::set;
 using std::string;
@@ -104,22 +104,19 @@ PluggingController::PluggingController(MSXMotherBoard& motherBoard)
 
 PluggingController::~PluggingController()
 {
-#ifndef NDEBUG
-	// This is similar to an assert: it should never print anything,
-	// but if it does, it helps to catch an error.
-	for (Connectors::const_iterator it = connectors.begin();
-		it != connectors.end(); ++it
-	) {
-		fprintf(stderr,
-			"ERROR: Connector still plugged at shutdown: %s\n",
-			(*it)->getName().c_str()
-			);
-	}
-#endif
 	for (Pluggables::iterator it = pluggables.begin();
 	     it != pluggables.end(); ++it) {
 		delete *it;
 	}
+#ifndef NDEBUG
+	// This is similar to an assert: it should never print anything,
+	// but if it does, it helps to catch an error.
+	for (Connectors::const_iterator it = connectors.begin();
+	     it != connectors.end(); ++it) {
+		std::cerr << "ERROR: Connector still registered at shutdown: "
+		          << (*it)->getName() << std::endl;
+	}
+#endif
 }
 
 void PluggingController::registerConnector(Connector& connector)

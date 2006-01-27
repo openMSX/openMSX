@@ -14,7 +14,6 @@ SRC_HDR:= \
 	Mouse \
 	JoyNet \
 	JoyTap \
-	JoyTapPort \
 	NinjaTap \
 	UserInputEventDistributor
 

@@ -4,13 +4,12 @@
 #define JOYTAP_HH
 
 #include "JoystickDevice.hh"
-#include "openmsx.hh"
+#include <memory>
 
 namespace openmsx {
 
 class PluggingController;
-class CommandController;
-class JoyTapPort;
+class JoystickPort;
 
 /** This device is pluged in into the joyports and consolidates several other
  * joysticks plugged into it. This jotap simply ANDs all the joystick
@@ -22,9 +21,8 @@ class JoyTapPort;
 class JoyTap : public JoystickDevice
 {
 public:
-	JoyTap(CommandController& commandController,
-		     PluggingController& pluggingController_,
-	             const std::string& name_);
+	JoyTap(PluggingController& pluggingController,
+	       const std::string& name);
 	virtual ~JoyTap();
 
 	//Pluggable
@@ -38,9 +36,9 @@ public:
 	void write(byte value, const EmuTime& time);
 
 protected:
-	JoyTapPort* slaves[4];
+	std::auto_ptr<JoystickPort> slaves[4];
+
 private:
-	byte lastValue;
 	std::string name;
 };
 

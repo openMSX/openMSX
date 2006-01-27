@@ -1,16 +1,21 @@
 $Id$
 
-2006-01-27 David Heremans <david.heremans@gnu-linux.net>
-	* Added JoyTap and (incomplete) NinjaTap devices
-	  The JoyTap is a base class for collector/combinator devices
-	  that sit inbetween the MSX joystick ports and the actual
-	  joysticks.
-
 2006-01-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added new cpu-status update event:
 	    <update type="status" name="cpu">running</update>
 	    <update type="status" name="cpu">suspended</update>
 	  The old 'break' and 'resume' update events are deprecated  
+	* Small cleanups/fixes in JoyTap stuff:
+	   - got rid of the "ERROR: Connector still plugged .." messages
+	   - removed JoyTapPort class, it was exactly the same as JoystickPort
+	   - (minor) removed (lastValue == value) check (no need to do the
+	     same optimization twice)
+
+2006-01-27 David Heremans <david.heremans@gnu-linux.net>
+	* Added JoyTap and (incomplete) NinjaTap devices
+	  The JoyTap is a base class for collector/combinator devices
+	  that sit inbetween the MSX joystick ports and the actual
+	  joysticks.
 
 2006-01-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented 'list_extensions' and 'remove_extension' commands
