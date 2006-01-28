@@ -2,6 +2,9 @@ $Id$
 
 2006-01-28 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Made MSXSwitchedDevice more robust when inserted/removed dynamically
+	* Handle errors in MSXDevice configs better:
+	   make sure device is not left partly registered (memory or IO)
+	   when there is an error in the device config
 
 2006-01-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added new cpu-status update event:

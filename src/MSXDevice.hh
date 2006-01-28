@@ -14,6 +14,7 @@ namespace openmsx {
 class XMLElement;
 class EmuTime;
 class MSXMotherBoard;
+class MSXDeviceCleanup;
 
 /** An MSXDevice is an emulated hardware component connected to the bus
   * of the emulated MSX. There is no communication among devices, only
@@ -167,6 +168,7 @@ protected:
 private:
 	void staticInit();
 	void init(const std::string& name);
+	void deinit();
 
 	void lockDevices();
 	void unlockDevices();
@@ -188,6 +190,9 @@ private:
 
 	Devices references;
 	Devices referencedBy;
+
+	friend class MSXDeviceCleanup;
+	std::auto_ptr<MSXDeviceCleanup> cleanup; // must be last
 };
 
 } // namespace openmsx

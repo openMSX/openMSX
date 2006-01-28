@@ -15,6 +15,19 @@ using std::vector;
 
 namespace openmsx {
 
+/** Helper class that makes sure the MSXDevice::deinit() code is called
+  * even when the MSXDevice constructor throws an exception.
+  */
+class MSXDeviceCleanup
+{
+public:
+	MSXDeviceCleanup(MSXDevice& device);
+	~MSXDeviceCleanup();
+private:
+	MSXDevice& device;
+};
+
+
 byte MSXDevice::unmappedRead[0x10000];
 byte MSXDevice::unmappedWrite[0x10000];
 
@@ -46,6 +59,8 @@ void MSXDevice::init(const string& name)
 	}
 	
 	staticInit();
+
+	cleanup.reset(new MSXDeviceCleanup(*this));
 	lockDevices();
 	registerSlots(deviceConfig);
 	registerPorts(deviceConfig);
@@ -53,10 +68,13 @@ void MSXDevice::init(const string& name)
 
 MSXDevice::~MSXDevice()
 {
+}
+
+void MSXDevice::deinit()
+{
 	unregisterPorts(deviceConfig);
 	unregisterSlots(deviceConfig);
 	unlockDevices();
-
 	assert(referencedBy.empty());
 }
 
@@ -337,6 +355,18 @@ byte MSXDevice::peekMem(word address, const EmuTime& /*time*/) const
 byte* MSXDevice::getWriteCacheLine(word /*start*/) const
 {
 	return NULL;	// uncacheable
+}
+
+
+// class MSXDeviceCleanup
+MSXDeviceCleanup::MSXDeviceCleanup(MSXDevice& device_)
+	: device(device_)
+{
+}
+
+MSXDeviceCleanup::~MSXDeviceCleanup()
+{
+	device.deinit();
 }
 
 } // namespace openmsx

@@ -686,6 +686,7 @@ string ExtCmd::execute(const vector<string>& tokens)
 		throw SyntaxError();
 	}
 	try {
+		// TODO not exception safe
 		ExtensionConfig& extension =
 			motherBoard.loadExtension(tokens[1]);
 		extension.parseSlots();
@@ -731,6 +732,7 @@ string CartCmd::execute(const vector<string>& tokens)
 		}
 		vector<string> options(tokens.begin() + 2, tokens.end());
 
+		// TODO not exception safe
 		ExtensionConfig& extension =
 			motherBoard.loadRom(tokens[1], slotname, options);
 		extension.parseSlots();
