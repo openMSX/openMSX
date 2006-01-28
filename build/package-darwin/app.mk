@@ -39,6 +39,7 @@ $(APPPLIST): $(APPDIR)/Contents/%: $(SUPPORTDIR)/%
 	@mkdir -p $(@D)
 	@sed -e 's/%ICON%/$(notdir $(APPICON))/' \
 		-e 's/%VERSION%/$(PACKAGE_VERSION)/' < $< > $@
+	@echo "APPLoMSX" > $(@D)/PkgInfo
 
 $(APPICON): $(APPRES)/%: $(SUPPORTDIR)/%
 	@echo "  Copying resources..."
