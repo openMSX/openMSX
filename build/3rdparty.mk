@@ -8,6 +8,7 @@
 
 SOURCES_DIR:=3rdparty
 STATIC_DIR:=derived/3rdparty
+SUPPORTDIR:=build/package-darwin
 
 # These were the most recent versions at the moment of writing this Makefile.
 # You can use other versions if you like; adjust the names accordingly.
@@ -81,4 +82,5 @@ $(foreach PACKAGE,$(PACKAGES),$(STATIC_DIR)/$(PACKAGE_$(PACKAGE))): \
   $(STATIC_DIR)/%: $(SOURCES_DIR)/%.tar.gz
 	mkdir -p $(STATIC_DIR)
 	tar -zxf $< -C $(STATIC_DIR)
+	test ! -e $(SUPPORTDIR)/$(<F:%.tar.gz=%.diff) || patch -p1 -N -u -d $@ < $(SUPPORTDIR)/$(<F:%.tar.gz=%.diff)
 	touch $@
