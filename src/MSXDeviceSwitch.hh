@@ -87,8 +87,9 @@ public:
 	virtual void writeIO(word port, byte value, const EmuTime& time);
 
 private:
-	byte selected;
 	MSXSwitchedDevice* devices[256];
+	unsigned count;
+	byte selected;
 };
 
 } // namespace openmsx

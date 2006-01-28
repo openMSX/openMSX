@@ -3,6 +3,8 @@
 #include "MSXDeviceSwitch.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXMotherBoard.hh"
+#include "MSXException.hh"
+#include "StringOp.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -34,39 +36,49 @@ MSXDeviceSwitch::MSXDeviceSwitch(MSXMotherBoard& motherBoard,
 	for (int i = 0; i < 256; ++i) {
 		devices[i] = NULL;
 	}
+	count = 0;
 	selected = 0;
-
-	// TODO register/unregister dynamically
-	MSXCPUInterface& interface = getMotherBoard().getCPUInterface();
-	for (byte port = 0x40; port < 0x50; ++port) {
-		interface.register_IO_In (port, this);
-		interface.register_IO_Out(port, this);
-	}
 }
 
 MSXDeviceSwitch::~MSXDeviceSwitch()
 {
-	MSXCPUInterface& interface = getMotherBoard().getCPUInterface();
-	for (byte port = 0x40; port < 0x50; ++port) {
-		interface.unregister_IO_Out(port, this);
-		interface.unregister_IO_In (port, this);
-	}
 	for (int i = 0; i < 256; i++) {
 		// all devices must be unregistered
 		assert(devices[i] == NULL);
 	}
+	assert(count == 0);
 }
 
 
 void MSXDeviceSwitch::registerDevice(byte id, MSXSwitchedDevice* device)
 {
 	//PRT_DEBUG("Switch: register device with id " << (int)id);
-	assert(devices[id] == NULL);
+	if (devices[id]) {
+		// TODO implement multiplexing
+		throw MSXException("Already have a switched device with id " +
+		                   StringOp::toString((int)id));
+	}
 	devices[id] = device;
+	if (count == 0) {
+		MSXCPUInterface& interface = getMotherBoard().getCPUInterface();
+		for (byte port = 0x40; port < 0x50; ++port) {
+			interface.register_IO_In (port, this);
+			interface.register_IO_Out(port, this);
+		}
+	}
+	++count;
 }
 
 void MSXDeviceSwitch::unregisterDevice(byte id)
 {
+	--count;
+	if (count == 0) {
+		MSXCPUInterface& interface = getMotherBoard().getCPUInterface();
+		for (byte port = 0x40; port < 0x50; ++port) {
+			interface.unregister_IO_Out(port, this);
+			interface.unregister_IO_In (port, this);
+		}
+	}
 	assert(devices[id] != NULL);
 	devices[id] = NULL;
 }

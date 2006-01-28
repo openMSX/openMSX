@@ -1,5 +1,8 @@
 $Id$
 
+2006-01-28 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Made MSXSwitchedDevice more robust when inserted/removed dynamically
+
 2006-01-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added new cpu-status update event:
 	    <update type="status" name="cpu">running</update>
