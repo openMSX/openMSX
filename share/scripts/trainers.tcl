@@ -1,4 +1,6 @@
-# game trainers version 1.5
+# game trainers version 1.6
+#
+# Please join us looking for cheats and submit them to the www.openmsx.org forum
 #
 # credits:
 #   copyright 2005 albert beevendorp all rights reserved
@@ -4742,6 +4744,21 @@ proc trainer_ink {} {
 after time 1 trainer_ink
 }
 
+proc trainer_penguin_kun_wars1 {} {
+	#enemy stuck in one position
+	#!poke 0xd020 15
+	#enemy K.O
+	poke 0xd026 255
+after time 1 trainer_penguin_kun_wars1
+}
+
+proc trainer_penguin_kun_wars2 {} {
+	#enemy K.O after beign hit
+	poke 0xb126 255
+	poke 0xb146 255
+	poke 0xb166 255
+after time 1 trainer_penguin_kun_wars2
+}
 
 proc poke {addr val} {
 	debug write memory $addr $val
