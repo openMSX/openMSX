@@ -217,7 +217,6 @@ VERSION_HEADER:=$(CONFIG_PATH)/Version.ii
 COMPONENTS_MAKE:=$(MAKE_PATH)/components.mk
 COMPONENTS_HEADER:=$(CONFIG_PATH)/components.hh
 GENERATED_HEADERS:=$(VERSION_HEADER) $(CONFIG_HEADER) $(COMPONENTS_HEADER)
-APP_MAKE:=$(MAKE_PATH)/package-darwin/app.mk
 
 
 # Configuration
@@ -456,13 +455,6 @@ $(SUB_MAKEFILES):
 .PHONY: $(SUB_MAKEFILES)
 endif
 
-# Build application directory for Darwin.
-ifeq ($(OPENMSX_TARGET_OS),darwin-app)
-app: $(BINARY_FULL)
-	@echo "Packaging application:"
-	@OUTDIR=$(BUILD_PATH) BINARY=$< $(MAKE) --no-print-directory -f $(APP_MAKE)
-endif
-
 # Compile and generate dependency files in one go.
 DEPEND_SUBST=$(patsubst $(SOURCES_PATH)/%.cc,$(DEPEND_PATH)/%.d,$<)
 $(OBJECTS_FULL): $(INIT_DUMMY_FILE)
@@ -513,6 +505,14 @@ endif
 # Installation and Binary Packaging
 # =================================
 
+# First include the binary packaging Makefile, since it can redefine the
+# INSTALL_*_DIR variables.
+
+# Application directory for Darwin.
+ifeq ($(OPENMSX_TARGET_OS),darwin-app)
+include $(MAKE_PATH)/package-darwin/app.mk
+endif
+
 # Note: Use OPENMSX_INSTALL only to create binary packages.
 #       To change installation dir for actual installations, edit "custom.mk".
 OPENMSX_INSTALL?=$(INSTALL_BASE)
@@ -520,9 +520,12 @@ OPENMSX_INSTALL?=$(INSTALL_BASE)
 INSTALL_BINARY_DIR?=$(OPENMSX_INSTALL)/bin
 INSTALL_SHARE_DIR?=$(OPENMSX_INSTALL)/share
 INSTALL_DOC_DIR?=$(OPENMSX_INSTALL)/doc
+INSTALL_VERBOSE?=true
 
 install: all
-	@echo "Installing to $(OPENMSX_INSTALL):"
+ifeq ($(INSTALL_VERBOSE),true)
+	@echo "Installing openMSX:"
+endif
 	@echo "  Executable..."
 	@install -d $(INSTALL_BINARY_DIR)
 	@install $(BINARY_FULL) $(INSTALL_BINARY_DIR)/$(BINARY_FILE)
@@ -556,8 +559,10 @@ ifeq ($(USE_SYMLINK),true)
 	fi
   endif
 endif
+ifeq ($(INSTALL_VERBOSE),true)
 	@echo "Installation complete... have fun!"
 	@echo "Notice: if you want to emulate real MSX systems and not only the free C-BIOS machines, put the system ROMs in one of the following directories: $(INSTALL_SHARE_DIR)/systemroms or ~/.openMSX/share/systemroms"
+endif
 
 
 # Source Packaging

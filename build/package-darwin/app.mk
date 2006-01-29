@@ -2,51 +2,44 @@
 #
 # Create an application directory for Darwin.
 
-# This Makefile needs parameters to operate; check that they were specified:
-# - output directory
-ifeq ($(OUTDIR),)
-$(error Missing parameter: OUTDIR)
-endif
-# - executable binary
-ifeq ($(BINARY),)
-$(error Missing parameter: BINARY)
-endif
+BINDIST_DIR:=$(BUILD_PATH)/bindist
 
-include build/version.mk
+APP_SUPPORT_DIR:=build/package-darwin
+APP_DIR:=$(BINDIST_DIR)/openMSX.app
+APP_EXE_DIR:=$(APP_DIR)/Contents/MacOS
+APP_PLIST:=$(APP_DIR)/Contents/Info.plist
+APP_RES:=$(APP_DIR)/Contents/Resources
+APP_ICON:=$(APP_RES)/openmsx-logo.icns
 
-.PHONY: all app
+# Override install locations.
+INSTALL_BINARY_DIR:=$(APP_EXE_DIR)
+INSTALL_SHARE_DIR:=$(APP_DIR)/share
+INSTALL_DOC_DIR:=$(BINDIST_DIR)/doc
+# C-BIOS should be included.
+INSTALL_CONTRIB:=true
+# Do not display header and post-install instructions.
+INSTALL_VERBOSE:=false
 
-all: app
+.PHONY: app appinit
 
-APPDIR:=$(OUTDIR)/openMSX.app
-SUPPORTDIR:=build/package-darwin
+app: install $(APP_PLIST) $(APP_ICON)
 
-APPEXE:=$(APPDIR)/Contents/MacOS/openmsx
-APPPLIST:=$(APPDIR)/Contents/Info.plist
-APPRES:=$(APPDIR)/Contents/Resources
-APPICON:=$(APPRES)/openmsx-logo.icns
-APPSHARE:=$(APPDIR)/share
+# Force removal of old app before installing to new app.
+install: appinit
 
-app: $(APPEXE) $(APPPLIST) $(APPICON) $(APPSHARE)
+appinit: $(BINARY_FULL)
+	@echo "Removing any old application..."
+	@rm -rf $(APP_DIR)
+	@echo "Packaging application:"
 
-$(APPEXE): $(BINARY)
-	@echo "  Copying executable..."
-	@mkdir -p $(@D)
-	@cp $< $@
-
-$(APPPLIST): $(APPDIR)/Contents/%: $(SUPPORTDIR)/%
+$(APP_PLIST): $(APP_DIR)/Contents/%: $(APP_SUPPORT_DIR)/% appinit
 	@echo "  Writing meta-info..."
 	@mkdir -p $(@D)
-	@sed -e 's/%ICON%/$(notdir $(APPICON))/' \
+	@sed -e 's/%ICON%/$(notdir $(APP_ICON))/' \
 		-e 's/%VERSION%/$(PACKAGE_VERSION)/' < $< > $@
 	@echo "APPLoMSX" > $(@D)/PkgInfo
 
-$(APPICON): $(APPRES)/%: $(SUPPORTDIR)/%
+$(APP_ICON): $(APP_RES)/%: $(APP_SUPPORT_DIR)/% appinit
 	@echo "  Copying resources..."
 	@mkdir -p $(@D)
 	@cp $< $@
-
-$(APPSHARE): share
-	@echo "  Copying openMSX data files..."
-	@mkdir -p $@
-	@sh build/install-recursive.sh share $@
