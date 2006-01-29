@@ -1,6 +1,4 @@
-# game trainers version 1.6
-#
-# Please join us looking for cheats and submit them to the www.openmsx.org forum
+# game trainers version 1.5
 #
 # credits:
 #   copyright 2005 albert beevendorp all rights reserved
@@ -4753,12 +4751,59 @@ after time 1 trainer_penguin_kun_wars1
 }
 
 proc trainer_penguin_kun_wars2 {} {
-	#enemy K.O after beign hit
+	#enemy K.O after being hit
 	poke 0xb126 255
 	poke 0xb146 255
 	poke 0xb166 255
 after time 1 trainer_penguin_kun_wars2
 }
+
+proc trainer_seiken_acho {} {
+	#power
+	poke 0xecad 255
+	#time
+	poke 0xecc6 0x2
+after time 1 trainer_seiken_acho
+}
+
+proc trainer_dorodon {} {
+	#kill all enemies
+	poke 0xc9fb 1
+	poke 0xc9fc 255
+	#lives
+	poke 0xc6f3 5
+after time 1 trainer_dorodon
+}
+
+proc trainer_mrchin {} {
+	#lives
+	poke 0xe101 8
+	after time 1 trainer_mrchin
+}
+
+proc trainer_laptick2 {} {
+	#lives
+	poke 0xe018 10
+	#always have an exit
+	poke 0xe020 7
+	after time 1 trainer_laptick2
+}
+
+proc trainer_kingsballoon {} {
+	#lives
+	poke 0xe490 255
+	after time 60 trainer_kingsballoon
+}
+
+proc trainer_grogsrevenge {} {
+	#stones collected
+	poke 0xe089 255
+	poke 0xe08a 255
+	#tires left
+	poke 0xe08b 5
+	after time 30 trainer_grogsrevenge
+}
+
 
 proc poke {addr val} {
 	debug write memory $addr $val
