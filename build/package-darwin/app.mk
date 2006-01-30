@@ -3,7 +3,7 @@
 # Create an application directory for Darwin.
 
 BINDIST_DIR:=$(BUILD_PATH)/bindist
-BINDIST_IMAGE:=$(BUILD_PATH)/$(PACKAGE_FULL).dmg
+BINDIST_IMAGE:=$(BUILD_PATH)/$(PACKAGE_FULL)-$(OPENMSX_TARGET_CPU)-bin.dmg
 
 APP_SUPPORT_DIR:=build/package-darwin
 APP_DIR:=$(BINDIST_DIR)/openMSX.app
