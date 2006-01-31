@@ -4,6 +4,7 @@
 
 BINDIST_DIR:=$(BUILD_PATH)/bindist
 BINDIST_IMAGE:=$(BUILD_PATH)/$(PACKAGE_FULL)-$(OPENMSX_TARGET_CPU)-bin.dmg
+BINDIST_README:=$(BINDIST_DIR)/README.html
 
 APP_SUPPORT_DIR:=build/package-darwin
 APP_DIR:=$(BINDIST_DIR)/openMSX.app
@@ -23,7 +24,7 @@ INSTALL_VERBOSE:=false
 
 .PHONY: bindist bindistclean
 
-bindist: install $(APP_PLIST) $(APP_ICON)
+bindist: install $(APP_PLIST) $(APP_ICON) $(BINDIST_README)
 	@echo "Creating disk image:"
 	@hdiutil create -srcfolder $(BINDIST_DIR) \
 		-volname openMSX \
@@ -48,5 +49,10 @@ $(APP_PLIST): $(APP_DIR)/Contents/%: $(APP_SUPPORT_DIR)/% bindistclean
 
 $(APP_ICON): $(APP_RES)/%: $(APP_SUPPORT_DIR)/% bindistclean
 	@echo "  Copying resources..."
+	@mkdir -p $(@D)
+	@cp $< $@
+
+$(BINDIST_README): $(APP_SUPPORT_DIR)/README.html
+	@echo "  Copying README..."
 	@mkdir -p $(@D)
 	@cp $< $@
