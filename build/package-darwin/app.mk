@@ -44,7 +44,7 @@ $(APP_PLIST): $(APP_DIR)/Contents/%: $(APP_SUPPORT_DIR)/% bindistclean
 	@echo "  Writing meta-info..."
 	@mkdir -p $(@D)
 	@sed -e 's/%ICON%/$(notdir $(APP_ICON))/' \
-		-e 's/%VERSION%/$(PACKAGE_VERSION)/' < $< > $@
+		-e 's/%VERSION%/$(PACKAGE_DETAILED_VERSION)/' < $< > $@
 	@echo "APPLoMSX" > $(@D)/PkgInfo
 
 $(APP_ICON): $(APP_RES)/%: $(APP_SUPPORT_DIR)/% bindistclean
