@@ -56,3 +56,5 @@ $(BINDIST_README): $(APP_SUPPORT_DIR)/README.html
 	@echo "  Copying README..."
 	@mkdir -p $(@D)
 	@cp $< $@
+# Remove form feeds from the GPL document, so Safari will treat it as text.
+	@awk '!/\f/ ; /\f/ { print "" }' GPL > $(INSTALL_DOC_DIR)/GPL
