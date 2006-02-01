@@ -1,0 +1,61 @@
+<html>
+<head>
+<title>openMSX README</title>
+<style>
+h1 {
+	border-bottom: 2px groove #8070C0;
+}
+code {
+	background: #E8E8E8;
+}
+a {
+	color: #000080;
+}
+</style>
+</head>
+<body>
+<h1>openMSX README</h1>
+
+<h2>Documentation</h2>
+<p>
+In the <code>Documentation</code> directory you can find the documentation for openMSX. Some sections you might want to read first:
+</p>
+<dl>
+<dt><a href="Documentation/manual/user.html#keymappingmac">Key Mapping</a></dt>
+<dd>Lists which keys you need to press for special MSX key and for emulator functions.</dd>
+<dt><a href="Documentation/manual/setup.html#systemroms">System ROMs</a></dt>
+<dd>Describes how openMSX deals with system ROMs. This binary distribution has C-BIOS inside of it. Should you decide to install additional system ROMs, I suggest you put them in <code>~/.openMSX/share/systemroms</code>. That way, if you upgrade openMSX later, they will automatically be found by the new version.</dd>
+<dt><a href="Documentation/release-history.txt">Release History</a></dt>
+<dd>Lists the changes made in each release of openMSX. Read this to learn about new features or changed behaviour.</dd>
+<dt><a href="Documentation/AUTHORS" type="text/plain">Authors</a> and <a href="Documentation/GPL" type="text/plain">License</a></dt>
+<dd>Tells you about the people who made openMSX and the conditions for using and distributing it.</dd>
+</dl>
+
+<h2>Running MSX Software</h2>
+<dl>
+<dt>ROM files (ROM images)</dt>
+<dd>You can run a ROM file by double clicking it in the Finder.</dd>
+<dt>DSK files (disk images)</dt>
+<dd>You can also run a DSK file by double clicking it in the Finder. Make sure you set the default machine to one that supports disks; C-BIOS does not yet have disk support. You can change the default machine by entering the console (Cmd+L) and executing for example <code>set machine Philips_NMS_8250</code>. The next time you start openMSX, the new default machine will be used. If you want to change disks without leaving openMSX, enter the console and type <code>diska path/to/other.dsk</code>.</dd>
+<dt>CAS files (cassette images)</dt>
+<dd>Also CAS files can be run by double clicking them in the Finder. As for disks, you will need a default machine that supports cassettes; C-BIOS does not yet support cassettes. If you want openMSX to guess the loading instructions to start the program on the cassette automatically, type <code>set autoruncassettes on</code> in the console.
+</dl>
+<p>
+Double clicking a file in the Finder to run it in openMSX will only work if openMSX is not already running, so make sure you close it first.
+</p>
+<p>
+To shorten the loading times of disks and cassettes, you can type <code>set fullspeedwhenloading on</code> on the console.
+</p>
+
+<h2>openMSX on the Web</h2>
+<dl>
+<dt><a href="http://openmsx.sourceforge.net/">Home Page</a></dt>
+<dd>Contains everything about openMSX.</dd>
+<dt><a href="http://sourceforge.net/projects/openmsx/">Project Page on SourceForge</a></dt>
+<dd>You can download new versions here, or report bugs.</dd>
+<dt><a href="http://forum.openmsx.org/">Forum</a></dt>
+<dd>Discuss openMSX with other users.</dd>
+</dl>
+
+</body>
+</html>

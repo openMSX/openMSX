@@ -20,7 +20,7 @@
 # ===============
 
 # Logical targets which require dependency files.
-DEPEND_TARGETS:=all default install run
+DEPEND_TARGETS:=all default install run bindist
 # Logical targets which do not require dependency files.
 NODEPEND_TARGETS:=clean config probe
 # Mark all logical targets as such.
@@ -97,9 +97,14 @@ $(call BOOLCHECK,INSTALL_CONTRIB)
 # =======
 
 include $(MAKE_PATH)/version.mk
-PACKAGE_FULL:=$(PACKAGE_NAME)-$(PACKAGE_VERSION)
 CHANGELOG_REVISION:=\
 	$(shell sed -ne "s/\$$Id: ChangeLog,v \([^ ]*\).*/\1/p" ChangeLog)
+ifeq ($(RELEASE_FLAG),true)
+PACKAGE_DETAILED_VERSION:=$(PACKAGE_VERSION)
+else
+PACKAGE_DETAILED_VERSION:=$(PACKAGE_VERSION)-$(CHANGELOG_REVISION)
+endif
+PACKAGE_FULL:=$(PACKAGE_NAME)-$(PACKAGE_DETAILED_VERSION)
 
 
 # Platforms
@@ -146,6 +151,11 @@ endif
 # Ignore rest of Makefile if autodetection was not performed yet.
 # Note that the include above will force a reload of the Makefile.
 ifneq ($(PLATFORM),)
+
+# Variants in the code: desired behaviour depends on platform or flavour.
+# Defaults are set here, the included Makefiles can override if needed.
+# - should openMSX set a window icon?
+SET_WINDOW_ICON:=true
 
 # Load CPU specific settings.
 $(call DEFCHECK,OPENMSX_TARGET_CPU)
@@ -211,6 +221,7 @@ PROBE_MAKE:=$(CONFIG_PATH)/probed_defs.mk
 VERSION_HEADER:=$(CONFIG_PATH)/Version.ii
 COMPONENTS_MAKE:=$(MAKE_PATH)/components.mk
 COMPONENTS_HEADER:=$(CONFIG_PATH)/components.hh
+GENERATED_HEADERS:=$(VERSION_HEADER) $(CONFIG_HEADER) $(COMPONENTS_HEADER)
 
 
 # Configuration
@@ -398,8 +409,19 @@ $(PROBE_MAKE): $(PROBE_SCRIPT) $(MAKE_PATH)/tcl-search.sh
 	@PROBE_MAKE=$(PROBE_MAKE) MAKE_PATH=$(MAKE_PATH) \
 		$(MAKE) --no-print-directory -f $(MAKE_PATH)/probe-results.mk
 
-all: $(VERSION_HEADER) $(CONFIG_HEADER) $(COMPONENTS_HEADER) \
-	config $(BINARY_FULL)
+# Default target.
+all: $(BINARY_FULL)
+
+# This is a workaround for the lack of order-only dependencies in GNU Make
+# versions before than 3.80 (for example Mac OS X 10.3 still ships with 3.79).
+# It creates a dummy file, which is never modified after its initial creation.
+# If a rule that produces a file does not modify that file, Make considers the
+# target to be up-to-date. That way, the targets "init-dummy-file" depends on
+# will always be checked before compilation, but they will not cause all object
+# files to be considered outdated.
+INIT_DUMMY_FILE:=$(CONFIG_PATH)/init-dummy-file
+$(INIT_DUMMY_FILE): config $(GENERATED_HEADERS)
+	@test -e $@ || touch $@
 
 # Print configuration.
 config:
@@ -440,6 +462,7 @@ endif
 
 # Compile and generate dependency files in one go.
 DEPEND_SUBST=$(patsubst $(SOURCES_PATH)/%.cc,$(DEPEND_PATH)/%.d,$<)
+$(OBJECTS_FULL): $(INIT_DUMMY_FILE)
 $(OBJECTS_FULL): $(OBJECTS_PATH)/%.o: $(SOURCES_PATH)/%.cc $(DEPEND_PATH)/%.d
 	@echo "Compiling $(patsubst $(SOURCES_PATH)/%,%,$<)..."
 	@mkdir -p $(@D)
@@ -487,6 +510,14 @@ endif
 # Installation and Binary Packaging
 # =================================
 
+# First include the binary packaging Makefile, since it can redefine the
+# INSTALL_*_DIR variables.
+
+# Application directory for Darwin.
+ifeq ($(OPENMSX_TARGET_OS),darwin-app)
+include $(MAKE_PATH)/package-darwin/app.mk
+endif
+
 # Note: Use OPENMSX_INSTALL only to create binary packages.
 #       To change installation dir for actual installations, edit "custom.mk".
 OPENMSX_INSTALL?=$(INSTALL_BASE)
@@ -494,9 +525,12 @@ OPENMSX_INSTALL?=$(INSTALL_BASE)
 INSTALL_BINARY_DIR?=$(OPENMSX_INSTALL)/bin
 INSTALL_SHARE_DIR?=$(OPENMSX_INSTALL)/share
 INSTALL_DOC_DIR?=$(OPENMSX_INSTALL)/doc
+INSTALL_VERBOSE?=true
 
 install: all
-	@echo "Installing to $(OPENMSX_INSTALL):"
+ifeq ($(INSTALL_VERBOSE),true)
+	@echo "Installing openMSX:"
+endif
 	@echo "  Executable..."
 	@install -d $(INSTALL_BINARY_DIR)
 	@install $(BINARY_FULL) $(INSTALL_BINARY_DIR)/$(BINARY_FILE)
@@ -530,8 +564,10 @@ ifeq ($(USE_SYMLINK),true)
 	fi
   endif
 endif
+ifeq ($(INSTALL_VERBOSE),true)
 	@echo "Installation complete... have fun!"
 	@echo "Notice: if you want to emulate real MSX systems and not only the free C-BIOS machines, put the system ROMs in one of the following directories: $(INSTALL_SHARE_DIR)/systemroms or ~/.openMSX/share/systemroms"
+endif
 
 
 # Source Packaging
