@@ -64,6 +64,10 @@
 	<li><a class="internal" href="#input">5. Input Devices</a>
 		<ol class="toc">
 			<li><a class="internal" href="#keymapping">5.1 Key Mapping</a></li>
+				<ol class="toc">
+					<li><a class="internal" href="#keymappingpc">5.1.1 Key Mapping on PC</a></li>
+					<li><a class="internal" href="#keymappingmac">5.1.2 Key Mapping on Mac OS X</a></li>
+				</ol>
 			<li><a class="internal" href="#joystick">5.2 Joystick</a></li>
 			<li><a class="internal" href="#mouse">5.3 Mouse</a></li>
 		</ol>
@@ -550,7 +554,7 @@ disk space for this image, which can be quite big (default 100MB). So, in other 
 can't really use your normal PC harddisk as an MSX harddisk for this extension.
 (Maybe on UNIX systems it works if you choose a device like
 <code>/dev/hdb</code> as harddisk image file, but we have not tested it and do
-note that it can cause loss of data of that partition or disk!) 
+note that it can cause loss of data of that partition or disk!)
 </p>
 
 <p>
@@ -667,14 +671,19 @@ Note that openMSX can be compiled without Jack-support, use the normal cassettep
 <h3><a id="keymapping">5.1 Key Mapping</a></h3>
 
 <p>
-The special MSX keys are mapped as follows:
+The next subsections list the default key mapping of openMSX. The mapping of the special MSX keys is hardcoded, but the mapping of the keys for emulator functions is fully customizable using the <code>bind</code> command in the console. Your customized key bindings are saved together with the settings.
+</p>
+
+<h4><a id="keymappingpc">5.1.1 Key Mapping on PC</a></h4>
+<p>
+On PCs (running Windows, Linux or BSD), the special MSX keys are mapped as follows:
 </p>
 
 <table>
   <tr> <td>L-CTRL</td> <td>MSX CTRL key</td> </tr>
   <tr> <td>R-CTRL</td> <td>MSX dead (accents) key</td> </tr>
   <tr> <td>L-ALT</td> <td>MSX GRAPH key</td> </tr>
-  <tr> <td>R-ALT</td> <td>MSX CODE key</td> </tr>
+  <tr> <td>R-ALT</td> <td>MSX CODE/KANA key</td> </tr>
   <tr> <td>L-Windows</td> <td>MSX iee ('no') key</td> </tr>
   <tr> <td>R-Windows</td> <td>MSX hai ('yes') key</td> </tr>
   <tr> <td>F7</td> <td>MSX SELECT key</td> </tr>
@@ -699,9 +708,37 @@ Several emulator functions are available under keys as well:
 <p class="todo">
 Make the table look better by using cellpadding stuff in the css.
 </p>-->
+
+<h4><a id="keymappingmac">5.1.2 Key Mapping on Mac OS X</a></h4>
 <p>
-The table above lists the default key mapping.
-It can be changed using the <code>bind</code> command in the console. This setting can be saved along with the other settings, using the <code>save_settings</code> command.
+On Apple Macintosh computers, the special MSX keys are mapped as follows:
+</p>
+
+<table>
+  <tr> <td>L-CTRL</td> <td>MSX CTRL key</td> </tr>
+  <tr> <td>R-CTRL</td> <td>MSX dead (accents) key</td> </tr>
+  <tr> <td>L-ALT</td> <td>MSX GRAPH key</td> </tr>
+  <tr> <td>R-ALT</td> <td>MSX CODE/KANA key</td> </tr>
+  <tr> <td>F7</td> <td>MSX SELECT key</td> </tr>
+  <tr> <td>F8</td> <td>MSX STOP key</td> </tr>
+</table>
+
+<p>
+Several emulator functions are available under keys as well:
+</p>
+
+<table>
+  <tr> <td>Cmd+P</td> <td>Pause emulation</td> </tr>
+  <tr> <td>Cmd+Q</td> <td>Quit openMSX</td> </tr>
+  <tr> <td>Cmd+D</td> <td>Save current screen to a file (screen shot)</td> </tr>
+  <tr> <td>Cmd+T</td> <td>Toggle full throttle (maximum speed)</td> </tr>
+  <tr> <td>Cmd+L</td> <td>Toggle console display</td> </tr>
+  <tr> <td>Cmd+U</td> <td>Toggle audio mute</td> </tr>
+  <tr> <td>Cmd+F</td> <td>Toggle full screen mode</td> </tr>
+</table>
+
+<p>
+Note: if you want to bind your custom keys on the console, use <code>META</code> as a modifier for the Command (Apple logo) key.
 </p>
 
 <h3><a id="joystick">5.2 Joystick</a></h3>
