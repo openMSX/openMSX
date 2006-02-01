@@ -23,18 +23,20 @@ OutputSurface::OutputSurface()
 	}
 
 	// set icon
-	SDL_Surface* iconSurf = SDL_CreateRGBSurfaceFrom(
-		const_cast<char*>(openMSX_icon.pixel_data),
-		openMSX_icon.width, openMSX_icon.height,
-		openMSX_icon.bytes_per_pixel * 8,
-		openMSX_icon.bytes_per_pixel * openMSX_icon.width,
-		OPENMSX_BIGENDIAN ? 0xFF000000 : 0x000000FF,
-		OPENMSX_BIGENDIAN ? 0x00FF0000 : 0x0000FF00,
-		OPENMSX_BIGENDIAN ? 0x0000FF00 : 0x00FF0000,
-		OPENMSX_BIGENDIAN ? 0x000000FF : 0xFF000000);
-	SDL_SetColorKey(iconSurf, SDL_SRCCOLORKEY, 0);
-	SDL_WM_SetIcon(iconSurf, NULL);
-	SDL_FreeSurface(iconSurf);
+	if (OPENMSX_SET_WINDOW_ICON) {
+		SDL_Surface* iconSurf = SDL_CreateRGBSurfaceFrom(
+			const_cast<char*>(openMSX_icon.pixel_data),
+			openMSX_icon.width, openMSX_icon.height,
+			openMSX_icon.bytes_per_pixel * 8,
+			openMSX_icon.bytes_per_pixel * openMSX_icon.width,
+			OPENMSX_BIGENDIAN ? 0xFF000000 : 0x000000FF,
+			OPENMSX_BIGENDIAN ? 0x00FF0000 : 0x0000FF00,
+			OPENMSX_BIGENDIAN ? 0x0000FF00 : 0x00FF0000,
+			OPENMSX_BIGENDIAN ? 0x000000FF : 0xFF000000);
+		SDL_SetColorKey(iconSurf, SDL_SRCCOLORKEY, 0);
+		SDL_WM_SetIcon(iconSurf, NULL);
+		SDL_FreeSurface(iconSurf);
+	}
 
 	// hide mouse cursor
 	SDL_ShowCursor(SDL_DISABLE);
@@ -105,7 +107,7 @@ bool OutputSurface::setFullScreen(bool wantedState)
 	// We now always create a new screen to make the code on both OSes
 	// more similar (we had a windows-only bug because of this difference)
 	return false;
-	
+
 	/*
 	// try to toggle full screen
 	SDL_WM_ToggleFullScreen(surface);
