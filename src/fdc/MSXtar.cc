@@ -322,6 +322,14 @@ void MSXtar::format(unsigned partitionsectorsize)
 	sectorbuf[0] = descriptor;
 	sectorbuf[1] = 0xFF;
 	sectorbuf[2] = 0xFF;
+
+	//fatBuffer is initialized by the  usePartion call, but will be
+	//written when this MSXtar object is destroyed so we better update this
+	//cache or we will lose the media descriptor!
+	fatBuffer[0] = descriptor;
+	fatBuffer[1] =  0xFF;
+	fatBuffer[2] =  0xFF;
+
 	disk.writeLogicalSector(partitionOffset + 1, sectorbuf);
 
 	memset(sectorbuf, 0xE5, SECTOR_SIZE);

@@ -1,5 +1,10 @@
 $Id$
 
+2006-02-01 David Heremans <david.heremans@gnu-linux.net>
+	* Fixed a small problem with the media descriptor during the format of
+	  a new dsk file. But at first glance the entire FAT buffering need to
+	  go, since it might conflict with different sized partitions on a HD
+
 2006-01-28 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Made MSXSwitchedDevice more robust when inserted/removed dynamically
 	* Handle errors in MSXDevice configs better:
