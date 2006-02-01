@@ -20,7 +20,7 @@
 # ===============
 
 # Logical targets which require dependency files.
-DEPEND_TARGETS:=all default install run app
+DEPEND_TARGETS:=all default install run bindist
 # Logical targets which do not require dependency files.
 NODEPEND_TARGETS:=clean config probe
 # Mark all logical targets as such.
