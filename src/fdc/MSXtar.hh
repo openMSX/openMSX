@@ -103,7 +103,11 @@ private:
 	int partitionOffset;
 	const byte* defaultBootBlock;
 	SectorAccessibleDisk& disk;
+
 	std::vector<byte> fatBuffer;
+	int fatOffset;
+	void writeCachedFAT();
+	void writeLogicalSector(unsigned sector, const byte* buf);
 
 	int clusterToSector(int cluster);
 	void setBootSector(byte* buf, unsigned nbsectors);

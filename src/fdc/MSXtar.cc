@@ -172,15 +172,36 @@ void MSXtar::parseBootSector(const byte* buf)
 
 void MSXtar::parseBootSectorFAT(const byte* buf)
 {
+	// if we were still holding a fatBuffer for an other
+	// partition we first flush it.
+	// TODO: this seems to conflict with Wouters assert about
+	// cache-only-once, so investigation is needed
+	if ( fatOffset ) writeCachedFAT();
+	
 	parseBootSector(buf);
 
 	// cache complete FAT
 	assert(fatBuffer.empty()); // can only cache once
 	fatBuffer.resize(SECTOR_SIZE * sectorsPerFat);
+	fatOffset=partitionOffset + 1;
 	for (int i = 0; i < sectorsPerFat; ++i) {
-		disk.readLogicalSector(partitionOffset + 1 + i,
+		disk.readLogicalSector(fatOffset + i,
 		                       &fatBuffer[SECTOR_SIZE * i]);
 	}
+}
+
+void MSXtar::writeLogicalSector(unsigned sector, const byte* buf)
+{
+		disk.writeLogicalSector(sector,buf);
+		if (fatOffset == 0) return; // no fatBuffer in use
+		sector-=partitionOffset;
+		if ( ( sector  > unsigned(0) ) && (  sector < unsigned(1+sectorsPerFat*nbFats) )
+	 	   ){
+			//this is a FAT sector so we cache it
+			--sector;
+			while (sector >=unsigned(sectorsPerFat)) sector-=sectorsPerFat;
+			memcpy(&fatBuffer[SECTOR_SIZE * sector], buf , SECTOR_SIZE);
+		}
 }
 
 MSXtar::MSXtar(SectorAccessibleDisk& sectordisk)
@@ -189,12 +210,18 @@ MSXtar::MSXtar(SectorAccessibleDisk& sectordisk)
 	nbSectorsPerCluster = 2;
 	partitionNbSectors = 0;
 	partitionOffset = 0;
+	fatOffset = 0;
 	defaultBootBlock = dos2BootBlock;
 }
 
 MSXtar::~MSXtar()
 {
-	// write cached FAT back to disk image
+	writeCachedFAT();
+}
+
+// write cached FAT back to disk image
+void MSXtar::writeCachedFAT()
+{
 	for (unsigned i = 0; i < fatBuffer.size() / SECTOR_SIZE; ++i) {
 		disk.writeLogicalSector(partitionOffset + 1 + i,
 		                        &fatBuffer[SECTOR_SIZE * i]);
@@ -303,7 +330,7 @@ void MSXtar::format(unsigned partitionsectorsize)
 	memcpy(sectorbuf, defaultBootBlock, SECTOR_SIZE);
 	setBootSector(sectorbuf, partitionsectorsize);
 	parseBootSector(sectorbuf); //set object variables to correct values
-	disk.writeLogicalSector(partitionOffset + 0, sectorbuf);
+	writeLogicalSector(partitionOffset + 0, sectorbuf);
 
 	MSXBootSector* boot = (MSXBootSector*)sectorbuf;
 	byte descriptor = boot->descriptor[0];
@@ -311,7 +338,7 @@ void MSXtar::format(unsigned partitionsectorsize)
 	// Assign default empty values to disk
 	memset(sectorbuf, 0x00, SECTOR_SIZE);
 	for (int i = 2; i <= rootDirEnd; ++i) {
-		disk.writeLogicalSector(partitionOffset + i, sectorbuf);
+		writeLogicalSector(partitionOffset + i, sectorbuf);
 	}
 	// for some reason the first 3 bytes are used to indicate the end of a
 	// cluster, making the first available cluster nr 2 some sources say
@@ -323,18 +350,11 @@ void MSXtar::format(unsigned partitionsectorsize)
 	sectorbuf[1] = 0xFF;
 	sectorbuf[2] = 0xFF;
 
-	//fatBuffer is initialized by the  usePartion call, but will be
-	//written when this MSXtar object is destroyed so we better update this
-	//cache or we will lose the media descriptor!
-	fatBuffer[0] = descriptor;
-	fatBuffer[1] =  0xFF;
-	fatBuffer[2] =  0xFF;
-
-	disk.writeLogicalSector(partitionOffset + 1, sectorbuf);
+	writeLogicalSector(partitionOffset + 1, sectorbuf);
 
 	memset(sectorbuf, 0xE5, SECTOR_SIZE);
 	for (unsigned i = 1 + rootDirEnd; i < partitionsectorsize ; ++i) {
-		disk.writeLogicalSector(partitionOffset + i, sectorbuf);
+		writeLogicalSector(partitionOffset + i, sectorbuf);
 	}
 }
 
@@ -408,7 +428,7 @@ int MSXtar::appendClusterToSubdir(int sector)
 	byte buf[SECTOR_SIZE];
 	memset(buf, 0, SECTOR_SIZE);
 	for (int i = 0; i < sectorsPerCluster; ++i) {
-		disk.writeLogicalSector(partitionOffset + i + logicalSector, buf);
+		writeLogicalSector(partitionOffset + i + logicalSector, buf);
 	}
 
 	word curcl = sectorToCluster(sector);
@@ -542,13 +562,13 @@ int MSXtar::addMSXSubdir(const string& msxName, int t, int d, int sector)
 	writeFAT(curcl, EOF_FAT);
 
 	//save the sector again
-	disk.writeLogicalSector(partitionOffset + result.sector, buf);
+	writeLogicalSector(partitionOffset + result.sector, buf);
 
 	//clear this cluster
 	int logicalSector = clusterToSector(curcl);
 	memset(buf, 0, SECTOR_SIZE);
 	for (int i = 0; i < sectorsPerCluster; ++i) {
-		disk.writeLogicalSector(partitionOffset + i + logicalSector, buf);
+		writeLogicalSector(partitionOffset + i + logicalSector, buf);
 	}
 
 	// now add the '.' and '..' entries!!
@@ -569,7 +589,7 @@ int MSXtar::addMSXSubdir(const string& msxName, int t, int d, int sector)
 	setsh(direntries[1].startcluster, sectorToCluster(sector));
 
 	//and save this in the first sector of the new subdir
-	disk.writeLogicalSector(partitionOffset + logicalSector, buf);
+	writeLogicalSector(partitionOffset + logicalSector, buf);
 
 	return logicalSector;
 }
@@ -660,7 +680,7 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxdirentry, const string& hostName)
 		for (int j = 0; (j < sectorsPerCluster) && remaining; ++j) {
 			int chunkSize = std::min(SECTOR_SIZE, remaining);
 			fread(buf, 1, chunkSize, file);
-			disk.writeLogicalSector(
+			writeLogicalSector(
 				partitionOffset + logicalSector + j, buf);
 			remaining -= chunkSize;
 		}
@@ -749,7 +769,7 @@ string MSXtar::addFiletoDSK(const string& hostName, const string& msxName,
 	setsh(direntry.date, date);
 
 	alterFileInDSK(direntry, hostName);
-	disk.writeLogicalSector(partitionOffset + result.sector, buf);
+	writeLogicalSector(partitionOffset + result.sector, buf);
 
 	return "";
 }
@@ -1023,6 +1043,7 @@ bool MSXtar::usePartition(int partition)
 void MSXtar::createDiskFile(std::vector<unsigned> sizes)
 {
 	byte buf[SECTOR_SIZE];
+	assert(fatOffset==0); //when creating disks we shouldn't have any fatBuffer
 
 	// create the partition table if needed
 	if (sizes.size() > 1) {
@@ -1030,6 +1051,7 @@ void MSXtar::createDiskFile(std::vector<unsigned> sizes)
 		strncpy((char*)buf, PARTAB_HEADER, 11);
 
 		unsigned startPartition = 1;
+		
 		for (unsigned i = 0; (i < sizes.size()) && (i < 30); ++i) {
 			Partition* p = (Partition*)(buf + (14 + (30 - i) * 16));
 			setlg(p->start4, startPartition);
@@ -1038,10 +1060,10 @@ void MSXtar::createDiskFile(std::vector<unsigned> sizes)
 			format(sizes[i]);
 			startPartition += sizes[i];
 		}
-		disk.writeLogicalSector(0, buf);
+		writeLogicalSector(0, buf);
 	} else {
 		setBootSector(buf, sizes[0]);
-		disk.writeLogicalSector(0, buf); //allow usePartition to read the bootsector!
+		writeLogicalSector(0, buf); //allow usePartition to read the bootsector!
 		usePartition(0);
 		format(sizes[0]);
 	}

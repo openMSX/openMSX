@@ -1,5 +1,10 @@
 $Id$
 
+2006-02-02 David Heremans <david.heremans@gnu-linux.net>
+	* Decided to keep the FAT buffering and adjust the writeLogical
+	  sectors for it to get correct working again. This also repairs
+	  formats of existing dsks/partitions etc.
+
 2006-02-01 David Heremans <david.heremans@gnu-linux.net>
 	* Fixed a small problem with the media descriptor during the format of
 	  a new dsk file. But at first glance the entire FAT buffering need to
