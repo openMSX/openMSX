@@ -43,6 +43,9 @@ namespace FileOperations {
 #ifdef __APPLE__
 
 std::string findShareDir() {
+	// Find bundle location:
+	// for an app folder, this is the outer directory,
+	// for an unbundled executable, it is the executable itself.
 	ProcessSerialNumber psn;
 	if (GetCurrentProcess(&psn) != noErr) {
 		throw FatalError("Failed to get process serial number");
@@ -51,40 +54,43 @@ std::string findShareDir() {
 	if (GetProcessBundleLocation(&psn, &location) != noErr) {
 		throw FatalError("Failed to get process bundle location");
 	}
+	// Get info about the location.
+	FSCatalogInfo catalogInfo;
+	FSRef parentRef;
+	if (FSGetCatalogInfo(
+		&location, kFSCatInfoVolume | kFSCatInfoNodeFlags,
+		&catalogInfo, NULL, NULL, &parentRef
+		) != noErr) {
+		throw FatalError("Failed to get info about bundle path");
+	}
+	// Get reference to root directory of the volume we are searching.
+	// We will need this later to know when to give up.
 	FSRef root;
-	if (FSPathMakeRef(reinterpret_cast<const UInt8*>("/"), &root, NULL) != noErr) {
+	if (FSGetVolumeInfo(
+		catalogInfo.volume, 0, NULL, kFSVolInfoNone, NULL, NULL, &root
+		) != noErr) {
 		throw FatalError("Failed to get reference to root directory");
 	}
+	// Make sure we are looking at a directory.
+	if (~catalogInfo.nodeFlags & kFSNodeIsDirectoryMask) {
+		// Location is not a directory, so it is the path to the executable.
+		location = parentRef;
+	}
 	while (true) {
-		OSErr err;
-		// Are we in the root yet?
-		err = FSCompareFSRefs(&location, &root);
-		if (err == noErr) {
-			throw FatalError("Could not find \"share\" directory anywhere");
-		}
-		// Go up one level.
-		// Initial location is the executable file itself, so the first level up
-		// will take us to the directory containing the executable.
-		if (FSGetCatalogInfo(
-			&location, kFSCatInfoNone, NULL, NULL, NULL, &location
-			) != noErr
-		) {
-			throw FatalError("Failed to get parent directory");
-		}
-
+		// Iterate through the files in the directory.
 		FSIterator iterator;
 		if (FSOpenIterator(&location, kFSIterateFlat, &iterator) != noErr) {
 			throw FatalError("Failed to open iterator");
 		}
 		bool filesLeft = true; // iterator has files left for next call
 		while (filesLeft) {
-			// Get several files at a time, to reduce the number of system calls.
+			// Get info about several files at a time.
 			const int MAX_SCANNED_FILES = 100;
 			ItemCount actualObjects;
 			FSRef refs[MAX_SCANNED_FILES];
 			FSCatalogInfo catalogInfos[MAX_SCANNED_FILES];
 			HFSUniStr255 names[MAX_SCANNED_FILES];
-			err = FSGetCatalogInfoBulk(
+			OSErr err = FSGetCatalogInfoBulk(
 				iterator,
 				MAX_SCANNED_FILES,
 				&actualObjects,
@@ -98,10 +104,10 @@ std::string findShareDir() {
 			if (err == errFSNoMoreItems) {
 				filesLeft = false;
 			} else if (err != noErr) {
-				throw FatalError("Catalog search failed");
+				throw FatalError("Catalog get failed");
 			}
 			for (ItemCount i = 0; i < actualObjects; i++) {
-				// We're only interested in directories.
+				// We're only interested in subdirectories.
 				if (catalogInfos[i].nodeFlags & kFSNodeIsDirectoryMask) {
 					// Convert the name to a CFString.
 					CFStringRef name = CFStringCreateWithCharactersNoCopy(
@@ -116,11 +122,14 @@ std::string findShareDir() {
 					CFRelease(name);
 					if (cmp == kCFCompareEqualTo) {
 						// Clean up.
-						err = FSCloseIterator(iterator);
-						assert(err == noErr);
+						if (FSCloseIterator(iterator) != noErr) {
+							assert(false);
+						}
 						// Get full path of directory.
 						UInt8 path[256];
-						if (FSRefMakePath(&refs[i], path, sizeof(path)) != noErr) {
+						if (FSRefMakePath(
+							&refs[i], path, sizeof(path)) != noErr
+							) {
 							throw FatalError("Path too long");
 						}
 						return std::string(reinterpret_cast<char*>(path));
@@ -128,8 +137,21 @@ std::string findShareDir() {
 				}
 			}
 		}
-		err = FSCloseIterator(iterator);
-		assert(err == noErr);
+		if (FSCloseIterator(iterator) != noErr) {
+			assert(false);
+		}
+		// Are we in the root yet?
+		if (FSCompareFSRefs(&location, &root) == noErr) {
+			throw FatalError("Could not find \"share\" directory anywhere");
+		}
+		// Go up one level.
+		if (FSGetCatalogInfo(
+			&location, kFSCatInfoNone, NULL, NULL, NULL, &parentRef
+			) != noErr
+		) {
+			throw FatalError("Failed to get parent directory");
+		}
+		location = parentRef;
 	}
 }
 
@@ -312,11 +334,7 @@ string getUserDataDir()
 {
 	const char* const NAME = "OPENMSX_USER_DATA";
 	char* value = getenv(NAME);
-	if (value) {
-		return value;
-	}
-
-	return getUserOpenMSXDir() + "/share";
+	return value ? value : getUserOpenMSXDir() + "/share";
 }
 
 string getSystemDataDir()
@@ -348,7 +366,7 @@ string getSystemDataDir()
 	return newValue;
 }
 
-string expandCurrentDirFromDrive (const string& path)
+string expandCurrentDirFromDrive(const string& path)
 {
 	string result = path;
 #ifdef _WIN32
