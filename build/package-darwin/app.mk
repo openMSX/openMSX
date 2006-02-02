@@ -3,7 +3,7 @@
 # Create an application directory for Darwin.
 
 BINDIST_DIR:=$(BUILD_PATH)/bindist
-BINDIST_IMAGE:=$(BUILD_PATH)/$(PACKAGE_FULL)-$(OPENMSX_TARGET_CPU)-bin.dmg
+BINDIST_IMAGE:=$(BUILD_PATH)/$(PACKAGE_FULL)-mac-$(OPENMSX_TARGET_CPU)-bin.dmg
 BINDIST_README:=$(BINDIST_DIR)/README.html
 
 APP_SUPPORT_DIR:=build/package-darwin
