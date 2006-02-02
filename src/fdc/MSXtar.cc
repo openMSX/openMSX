@@ -172,36 +172,42 @@ void MSXtar::parseBootSector(const byte* buf)
 
 void MSXtar::parseBootSectorFAT(const byte* buf)
 {
-	// if we were still holding a fatBuffer for an other
-	// partition we first flush it.
-	// TODO: this seems to conflict with Wouters assert about
-	// cache-only-once, so investigation is needed
-	if ( fatOffset ) writeCachedFAT();
+	// empty FAT buffer before filling it again (or for the first time)
+	writeCachedFAT();
 	
 	parseBootSector(buf);
 
 	// cache complete FAT
-	assert(fatBuffer.empty()); // can only cache once
+	assert(fatBuffer.empty()); // cache must be empty at this point
 	fatBuffer.resize(SECTOR_SIZE * sectorsPerFat);
-	fatOffset=partitionOffset + 1;
 	for (int i = 0; i < sectorsPerFat; ++i) {
-		disk.readLogicalSector(fatOffset + i,
+		disk.readLogicalSector(partitionOffset + 1 + i,
 		                       &fatBuffer[SECTOR_SIZE * i]);
 	}
 }
 
 void MSXtar::writeLogicalSector(unsigned sector, const byte* buf)
 {
-		disk.writeLogicalSector(sector,buf);
-		if (fatOffset == 0) return; // no fatBuffer in use
-		sector-=partitionOffset;
-		if ( ( sector  > unsigned(0) ) && (  sector < unsigned(1+sectorsPerFat*nbFats) )
-	 	   ){
-			//this is a FAT sector so we cache it
-			--sector;
-			while (sector >=unsigned(sectorsPerFat)) sector-=sectorsPerFat;
-			memcpy(&fatBuffer[SECTOR_SIZE * sector], buf , SECTOR_SIZE);
-		}
+	unsigned fatSector = sector - (partitionOffset + 1);
+	if ((fatSector < (unsigned)sectorsPerFat) && !fatBuffer.empty()) {
+		// we have a cache and this is a sector of the 1st FAT
+		//   --> update cache
+		memcpy(&fatBuffer[SECTOR_SIZE * fatSector], buf, SECTOR_SIZE);
+	} else {
+		disk.writeLogicalSector(sector, buf);
+	}
+}
+
+void MSXtar::readLogicalSector(unsigned sector, byte* buf)
+{
+	unsigned fatSector = sector - (partitionOffset + 1);
+	if ((fatSector < (unsigned)sectorsPerFat) && !fatBuffer.empty()) {
+		// we have a cache and this is a sector of the 1st FAT
+		//   --> read from cache
+		memcpy(buf, &fatBuffer[SECTOR_SIZE * fatSector], SECTOR_SIZE);
+	} else {
+		disk.readLogicalSector(sector, buf);
+	}
 }
 
 MSXtar::MSXtar(SectorAccessibleDisk& sectordisk)
@@ -210,7 +216,6 @@ MSXtar::MSXtar(SectorAccessibleDisk& sectordisk)
 	nbSectorsPerCluster = 2;
 	partitionNbSectors = 0;
 	partitionOffset = 0;
-	fatOffset = 0;
 	defaultBootBlock = dos2BootBlock;
 }
 
@@ -226,6 +231,7 @@ void MSXtar::writeCachedFAT()
 		disk.writeLogicalSector(partitionOffset + 1 + i,
 		                        &fatBuffer[SECTOR_SIZE * i]);
 	}
+	fatBuffer.clear();
 }
 
 // Create a correct bootsector depending on the required size of the filesystem
@@ -445,7 +451,7 @@ int MSXtar::appendClusterToSubdir(int sector)
 int MSXtar::findUsableIndexInSector(int sector)
 {
 	byte buf[SECTOR_SIZE];
-	disk.readLogicalSector(partitionOffset + sector, buf);
+	readLogicalSector(partitionOffset + sector, buf);
 	MSXDirEntry* direntry = (MSXDirEntry*)buf;
 
 	// find a not used (0x00) or delete entry (0xE5)
@@ -547,7 +553,7 @@ int MSXtar::addMSXSubdir(const string& msxName, int t, int d, int sector)
 
 	// load the sector
 	byte buf[SECTOR_SIZE];
-	disk.readLogicalSector(partitionOffset + result.sector, buf);
+	readLogicalSector(partitionOffset + result.sector, buf);
 	MSXDirEntry* direntries = (MSXDirEntry*)buf;
 
 	MSXDirEntry& direntry = direntries[result.index];
@@ -676,7 +682,7 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxdirentry, const string& hostName)
 		// fill cluster
 		byte buf[SECTOR_SIZE];
 		int logicalSector = clusterToSector(curcl);
-		disk.readLogicalSector(partitionOffset + logicalSector, buf);
+		readLogicalSector(partitionOffset + logicalSector, buf);
 		for (int j = 0; (j < sectorsPerCluster) && remaining; ++j) {
 			int chunkSize = std::min(SECTOR_SIZE, remaining);
 			fread(buf, 1, chunkSize, file);
@@ -724,7 +730,7 @@ MSXtar::DirEntry MSXtar::findEntryInDir(const string& name, int sector, byte* bu
 
 	while (true) {
 		// read sector and scan 16 entries
-		disk.readLogicalSector(partitionOffset + result.sector, buf);
+		readLogicalSector(partitionOffset + result.sector, buf);
 		MSXDirEntry* direntries = (MSXDirEntry*)buf;
 		for (result.index = 0; result.index < 16; ++result.index) {
 			if (string((char*)direntries[result.index].filename, 11)
@@ -755,7 +761,7 @@ string MSXtar::addFiletoDSK(const string& hostName, const string& msxName,
 	}
 
 	DirEntry result = addEntryToDir(sector);
-	disk.readLogicalSector(partitionOffset + result.sector, buf);
+	readLogicalSector(partitionOffset + result.sector, buf);
 	MSXDirEntry* direntries = (MSXDirEntry*)buf;
 	MSXDirEntry& direntry = direntries[result.index];
 	memset(&direntry, 0, sizeof(MSXDirEntry));
@@ -857,7 +863,7 @@ string MSXtar::dir()
 	string result;
 	for (int sector = MSXchrootSector; sector != 0; sector = getNextSector(sector)) {
 		byte buf[SECTOR_SIZE];
-		disk.readLogicalSector(partitionOffset + sector, buf);
+		readLogicalSector(partitionOffset + sector, buf);
 		MSXDirEntry* direntry = (MSXDirEntry*)buf;
 		for (int i = 0; i < 16; ++i) {
 			if ((direntry[i].filename[0] != 0xe5) &&
@@ -945,7 +951,7 @@ void MSXtar::fileExtract(string resultFile, MSXDirEntry& direntry)
 	}
 	while (size && sector) {
 		byte buf[SECTOR_SIZE];
-		disk.readLogicalSector(partitionOffset + sector, buf);
+		readLogicalSector(partitionOffset + sector, buf);
 		int savesize = std::min(size, SECTOR_SIZE);
 		fwrite(buf, 1, savesize, file);
 		size -= savesize;
@@ -960,7 +966,7 @@ void MSXtar::recurseDirExtract(const string& dirName, int sector)
 {
 	for (/* */ ; sector != 0; sector = getNextSector(sector)) {
 		byte buf[SECTOR_SIZE];
-		disk.readLogicalSector(partitionOffset + sector, buf);
+		readLogicalSector(partitionOffset + sector, buf);
 		MSXDirEntry* direntry = (MSXDirEntry*)buf;
 		for (int i = 0; i < 16; ++i) {
 			if ((direntry[i].filename[0] != 0xe5) &&
@@ -999,14 +1005,14 @@ bool MSXtar::isPartitionTableSector(byte* buf)
 bool MSXtar::hasPartitionTable()
 {
 	byte buf[SECTOR_SIZE];
-	disk.readLogicalSector(0, buf);
+	readLogicalSector(0, buf);
 	return isPartitionTableSector(buf);
 }
 
 bool MSXtar::hasPartition(int partition)
 {
 	byte buf[SECTOR_SIZE];
-	disk.readLogicalSector(0, buf);
+	readLogicalSector(0, buf);
 	if (!isPartitionTableSector(buf)) {
 		return false;
 	}
@@ -1020,11 +1026,11 @@ bool MSXtar::hasPartition(int partition)
 bool MSXtar::usePartition(int partition)
 {
 	byte buf[SECTOR_SIZE];
-	disk.readLogicalSector(0, buf);
+	readLogicalSector(0, buf);
 	if (!isPartitionTableSector(buf)) {
 		partitionOffset = 0;
 		partitionNbSectors = disk.getNbSectors();
-		disk.readLogicalSector(partitionOffset, buf);
+		readLogicalSector(partitionOffset, buf);
 		parseBootSectorFAT(buf);
 		return false;
 	}
@@ -1035,7 +1041,7 @@ bool MSXtar::usePartition(int partition)
 	}
 	partitionOffset = rdlg(p->start4);
 	partitionNbSectors = rdlg(p->size4);
-	disk.readLogicalSector(partitionOffset, buf);
+	readLogicalSector(partitionOffset, buf);
 	parseBootSectorFAT(buf);
 	return true;
 }
@@ -1043,7 +1049,7 @@ bool MSXtar::usePartition(int partition)
 void MSXtar::createDiskFile(std::vector<unsigned> sizes)
 {
 	byte buf[SECTOR_SIZE];
-	assert(fatOffset==0); //when creating disks we shouldn't have any fatBuffer
+	assert(fatBuffer.empty()); //when creating disks we shouldn't have any fatBuffer
 
 	// create the partition table if needed
 	if (sizes.size() > 1) {

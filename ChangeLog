@@ -1,5 +1,12 @@
 $Id$
 
+2006-02-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Made FAT buffering more symmetrical:
+	   - if FAT sector writes are stored in cache, then FAT sector
+	     reads must also come from cache
+	   - I don't know this caused problems in the current code, but
+	     now it's certainly more robust against future changes
+
 2006-02-02 David Heremans <david.heremans@gnu-linux.net>
 	* Decided to keep the FAT buffering and adjust the writeLogical
 	  sectors for it to get correct working again. This also repairs
