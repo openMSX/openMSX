@@ -22,6 +22,8 @@ public:
 	void createExternalSlot(int ps, int ss);
 	void removeExternalSlot(int ps);
 	void removeExternalSlot(int ps, int ss);
+	void testRemoveExternalSlot(int ps) const;
+	void testRemoveExternalSlot(int ps, int ss) const;
 
 	int getSpecificSlot(int slot, int& ps, int& ss);
 	int getAnyFreeSlot(int& ps, int& ss);
@@ -31,6 +33,7 @@ public:
 	bool isExternalSlot(int ps, int ss, bool convert = false) const;
 
 private:
+	int getSlot(int ps, int ss) const;
 
 	struct Slot {
 		Slot() : ps(0), ss(0), exists(false), used(false) {}

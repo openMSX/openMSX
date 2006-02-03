@@ -18,6 +18,7 @@
 #include "CartridgeSlotManager.hh"
 #include <cstdio>
 #include <memory> // for auto_ptr
+#include <set>
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
@@ -194,13 +195,18 @@ void MSXCPUInterface::setExpanded(int ps)
 	expanded[ps]++;
 }
 
-void MSXCPUInterface::unsetExpanded(int ps)
+void MSXCPUInterface::testUnsetExpanded(
+		int ps, std::vector<MSXDevice*>& alreadyRemoved) const
 {
+	// TODO handle multi-devices
+	std::set<MSXDevice*> allowed(alreadyRemoved.begin(), alreadyRemoved.end());
+	allowed.insert(&dummyDevice);
 	assert(isExpanded(ps));
 	if (expanded[ps] == 1) {
 		for (int ss = 0; ss < 4; ++ss) {
 			for (int page = 0; page < 4; ++page) {
-				if (slotLayout[ps][ss][page] != &dummyDevice) {
+				if (allowed.find(slotLayout[ps][ss][page]) ==
+				    allowed.end()) {
 					throw MSXException(
 						"Can't remove slotexpander "
 						"because slot is still in use.");
@@ -208,6 +214,18 @@ void MSXCPUInterface::unsetExpanded(int ps)
 			}
 		}
 	}
+}
+
+void MSXCPUInterface::unsetExpanded(int ps)
+{
+#ifndef NDEBUG
+	try {
+		vector<MSXDevice*> dummy;
+		testUnsetExpanded(ps, dummy);
+	} catch (...) {
+		assert(false);
+	}
+#endif
 	expanded[ps]--;
 }
 

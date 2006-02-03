@@ -14,6 +14,8 @@
 #include "CliComm.hh"
 #include <cassert>
 
+#include <iostream>
+
 using std::string;
 
 namespace openmsx {
@@ -33,6 +35,14 @@ HardwareConfig::HardwareConfig(MSXMotherBoard& motherBoard_)
 
 HardwareConfig::~HardwareConfig()
 {
+#ifndef NDEBUG
+	try {
+		testRemove();
+	} catch (MSXException& e) {
+		std::cerr << e.getMessage() << std::endl;
+		assert(false);
+	}
+#endif
 	for (Devices::reverse_iterator it = devices.rbegin();
 	     it != devices.rend(); ++it) {
 		motherBoard.removeDevice(**it);
@@ -53,6 +63,31 @@ HardwareConfig::~HardwareConfig()
 		}
 		if (allocatedPrimarySlots[ps] != -1) {
 			slotManager.freeSlot(allocatedPrimarySlots[ps]);
+		}
+	}
+}
+
+void HardwareConfig::testRemove() const
+{
+	Devices alreadyRemoved;
+	for (Devices::const_reverse_iterator it = devices.rbegin();
+	     it != devices.rend(); ++it) {
+		(*it)->testRemove(alreadyRemoved);
+		alreadyRemoved.push_back(*it);
+	}
+	CartridgeSlotManager& slotManager = motherBoard.getSlotManager();
+	for (int ps = 0; ps < 4; ++ps) {
+		for (int ss = 0; ss < 4; ++ss) {
+			if (externalSlots[ps][ss]) {
+				slotManager.testRemoveExternalSlot(ps, ss);
+			}
+		}
+		if (externalPrimSlots[ps]) {
+			slotManager.testRemoveExternalSlot(ps);
+		}
+		if (expandedSlots[ps]) {
+			motherBoard.getCPUInterface().testUnsetExpanded(
+				ps, alreadyRemoved);
 		}
 	}
 }

@@ -8,7 +8,7 @@ $Id$
 	     rom cartridges) can fail now.
 	* Better error handling (in particular cleanup after error) when
 	  something goes wrong during run-time insertion of extension:
-	   - TODO error handling when removing extensions (e.g. trying to
+	* Better error handling when removing extensions (e.g. trying to
 	     remove a slotexpander that is still in use)
 
 2006-02-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>

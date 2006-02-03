@@ -61,28 +61,46 @@ void CartridgeSlotManager::createExternalSlot(int ps, int ss)
 	assert(false);
 }
 
-void CartridgeSlotManager::removeExternalSlot(int ps)
+
+int CartridgeSlotManager::getSlot(int ps, int ss) const
 {
 	for (int slot = 0; slot < MAX_SLOTS; ++slot) {
 		if (slots[slot].exists &&
-		    (slots[slot].ps == ps) && (slots[slot].ss == -1)) {
-			slots[slot].exists = false;
-			return;
+		    (slots[slot].ps == ps) && (slots[slot].ss == ss)) {
+			return slot;
 		}
 	}
 	assert(false); // was not an external slot
 }
 
+void CartridgeSlotManager::testRemoveExternalSlot(int ps) const
+{
+	int slot = getSlot(ps, -1);
+	if (slots[slot].used) {
+		throw MSXException("Slot still in use.");
+	}
+}
+
+void CartridgeSlotManager::removeExternalSlot(int ps)
+{
+	int slot = getSlot(ps, -1);
+	assert(!slots[slot].used);
+	slots[slot].exists = false;
+}
+
+void CartridgeSlotManager::testRemoveExternalSlot(int ps, int ss) const
+{
+	int slot = getSlot(ps, ss);
+	if (slots[slot].used) {
+		throw MSXException("Slot still in use.");
+	}
+}
+
 void CartridgeSlotManager::removeExternalSlot(int ps, int ss)
 {
-	for (int slot = 0; slot < MAX_SLOTS; ++slot) {
-		if (slots[slot].exists &&
-		    (slots[slot].ps == ps) && (slots[slot].ss == ss)) {
-			slots[slot].exists = false;
-			return;
-		}
-	}
-	assert(false); // was not an external slot
+	int slot = getSlot(ps, ss);
+	assert(!slots[slot].used);
+	slots[slot].exists = false;
 }
 
 int CartridgeSlotManager::getSpecificSlot(int slot, int& ps, int& ss)

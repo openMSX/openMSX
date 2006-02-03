@@ -8,6 +8,8 @@
 #include "CPU.hh"
 #include "StringOp.hh"
 #include "MSXException.hh"
+#include <set>
+#include <algorithm>
 #include <cassert>
 
 using std::string;
@@ -86,6 +88,23 @@ void MSXDevice::staticInit()
 	}
 	alreadyInit = true;
 	memset(unmappedRead, 0xFF, 0x10000);
+}
+
+void MSXDevice::testRemove(const Devices& alreadyRemoved) const
+{
+	std::set<MSXDevice*> all    (referencedBy  .begin(), referencedBy  .end());
+	std::set<MSXDevice*> removed(alreadyRemoved.begin(), alreadyRemoved.end());
+	Devices rest;
+	set_difference(all.begin(), all.end(), removed.begin(), removed.end(),
+	               back_inserter(rest));
+	if (!rest.empty()) {
+		string names;
+		for (Devices::const_iterator it = rest.begin();
+		     it != rest.end(); ++it) {
+			names += (*it)->getName() + ' ';
+		}
+		throw MSXException("Still in use by " + names);
+	}
 }
 
 void MSXDevice::lockDevices()

@@ -171,6 +171,7 @@ public:
 
 	void setExpanded(int ps);
 	void unsetExpanded(int ps);
+	void testUnsetExpanded(int ps, std::vector<MSXDevice*>& alreadyRemoved) const;
 	inline bool isExpanded(int ps) const { return expanded[ps]; }
 
 protected:

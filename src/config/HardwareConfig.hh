@@ -23,6 +23,11 @@ public:
 
 	void parseSlots();
 	void createDevices();
+	
+	/** Checks whether this HardwareConfig can be deleted. 
+	  * Throws an exception if not.
+	  */
+	void testRemove() const;
 
 protected:
 	void setConfig(std::auto_ptr<XMLElement> config);

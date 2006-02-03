@@ -23,7 +23,14 @@ class MSXDeviceCleanup;
 class MSXDevice : private noncopyable
 {
 public:
+	typedef std::vector<MSXDevice*> Devices;
+
 	virtual ~MSXDevice() = 0;
+
+	/** Checks whether this device can be removed (no other device has a
+	  * reference to it). Throws an exception if it can't be removed.
+	  */
+	void testRemove(const Devices& alreadyRemoved) const;
 
 	/**
 	 * This method is called on reset.
@@ -139,7 +146,6 @@ public:
 	  */
 	MSXMotherBoard& getMotherBoard() const { return motherBoard; }
 
-	typedef std::vector<MSXDevice*> Devices;
 	/** Get the device references that are specified for this device
 	 */
 	const Devices& getReferences() const;

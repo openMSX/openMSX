@@ -756,6 +756,12 @@ string RemoveExtCmd::execute(const vector<string>& tokens)
 	if (!extension) {
 		throw CommandException("No such extension: " + tokens[1]);
 	}
+	try {
+		extension->testRemove();
+	} catch (MSXException& e) {
+		throw CommandException("Can't remove extension '" + tokens[1] +
+		                       "': " + e.getMessage());
+	}
 	motherBoard.removeExtension(*extension);
 	return "";
 }
