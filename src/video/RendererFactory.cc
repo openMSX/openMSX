@@ -3,7 +3,6 @@
 #include "RendererFactory.hh"
 #include "RenderSettings.hh"
 #include "MSXMotherBoard.hh"
-#include "CommandLineParser.hh"
 #include "EnumSetting.hh"
 #include "VDP.hh"
 #include "V9990.hh"
@@ -136,14 +135,16 @@ auto_ptr<RendererFactory::RendererSetting>
 	auto_ptr<RendererSetting> setting(new RendererSetting(commandController,
 		"renderer", "rendering back-end used to display the MSX screen",
 		SDL, rendererMap));
+	
+	// a saved value 'none' can be very confusing, if so restore to 'SDL'
 	if (setting->getValue() == DUMMY) {
-		// workaround: sometimes the saved value becomes "none"
 		setting->setValue(SDL);
 	}
+	// set saved value as default
 	setting->setDefaultValue(setting->getValue());
-	if (CommandLineParser::hiddenStartup) {
-		setting->setValue(DUMMY);
-	}
+
+	setting->setValue(DUMMY); // always start hidden
+
 	return setting;
 }
 

@@ -53,13 +53,6 @@ public:
 	enum ParseStatus { UNPARSED, RUN, CONTROL, TEST, EXIT };
 	enum ControlType { IO_STD, IO_PIPE };
 
-	/**
-	 * Suppress renderer window on startup.
-	 * TODO: Find a better place for this; now it has to be public because
-	 *       it's used in static RendererFactory::createRendererSetting.
-	 */
-	static bool hiddenStartup;
-
 	explicit CommandLineParser(MSXMotherBoard& motherBoard);
 	~CommandLineParser();
 	void registerOption(const std::string& str, CLIOption* cliOption,
@@ -73,6 +66,10 @@ public:
 	const Scripts& getStartupScripts() const;
 
 	MSXMotherBoard& getMotherBoard() const;
+
+	/** Need to suppress renderer window on startup?
+	  */
+	bool isHiddenStartup() const;
 
 private:
 	struct OptionData
@@ -194,6 +191,8 @@ private:
 	const std::auto_ptr<MSXCassettePlayerCLI> cassettePlayerCLI;
 	const std::auto_ptr<DiskImageCLI> diskImageCLI;
 	std::auto_ptr<EnumSetting<int> > machineSetting;
+	
+	bool hiddenStartup;
 };
 
 } // namespace openmsx

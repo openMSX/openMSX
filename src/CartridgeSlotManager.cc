@@ -21,7 +21,6 @@ CartridgeSlotManager::~CartridgeSlotManager()
 	for (int slot = 0; slot < MAX_SLOTS; ++slot) {
 		assert(!slots[slot].exists);
 		assert(!slots[slot].used);
-		assert(!slots[slot].reserved);
 	}
 }
 
@@ -39,19 +38,6 @@ int CartridgeSlotManager::getSlotNum(const string& slot)
 		}
 		return result;
 	}
-}
-
-void CartridgeSlotManager::reserveSlot(int slot)
-{
-	assert((0 <= slot) && (slot < MAX_SLOTS));
-	slots[slot].reserved++;
-}
-
-void CartridgeSlotManager::unreserveSlot(int slot)
-{
-	assert((0 <= slot) && (slot < MAX_SLOTS));
-	assert(slots[slot].reserved != 0);
-	slots[slot].reserved--;
 }
 
 void CartridgeSlotManager::createExternalSlot(int ps)
@@ -99,14 +85,17 @@ void CartridgeSlotManager::removeExternalSlot(int ps, int ss)
 	assert(false); // was not an external slot
 }
 
-int CartridgeSlotManager::getReservedSlot(int slot, int& ps, int& ss)
+int CartridgeSlotManager::getSpecificSlot(int slot, int& ps, int& ss)
 {
 	assert((0 <= slot) && (slot < MAX_SLOTS));
-	assert(slots[slot].reserved);
 
 	if (!slots[slot].exists) {
-		throw MSXException(string("Slot") + (char)('a' + slot) +
-		                   " not defined");
+		throw MSXException(string("slot-") + (char)('a' + slot) +
+		                   " not defined.");
+	}
+	if (slots[slot].used) {
+		throw MSXException(string("slot-") + (char)('a' + slot) +
+		                   " already in use.");
 	}
 	ps = slots[slot].ps;
 	ss = (slots[slot].ss != -1) ? slots[slot].ss : 0;
@@ -117,8 +106,7 @@ int CartridgeSlotManager::getReservedSlot(int slot, int& ps, int& ss)
 int CartridgeSlotManager::getAnyFreeSlot(int& ps, int& ss)
 {
 	for (int slot = 0; slot < MAX_SLOTS; slot++) {
-		if (slots[slot].exists &&
-		    !slots[slot].reserved && !slots[slot].used) {
+		if (slots[slot].exists && !slots[slot].used) {
 			slots[slot].used = true;
 			ps = slots[slot].ps;
 			ss = (slots[slot].ss != -1) ? slots[slot].ss : 0;
@@ -133,7 +121,7 @@ int CartridgeSlotManager::getFreePrimarySlot(int &ps)
 	for (int slot = 0; slot < MAX_SLOTS; ++slot) {
 		ps = slots[slot].ps;
 		if (slots[slot].exists && (slots[slot].ss == -1) &&
-		    !slots[slot].reserved && !slots[slot].used) {
+		    !slots[slot].used) {
 			slots[slot].used = true;
 			return slot;
 		}

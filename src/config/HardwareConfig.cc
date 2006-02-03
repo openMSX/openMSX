@@ -20,7 +20,6 @@ namespace openmsx {
 
 HardwareConfig::HardwareConfig(MSXMotherBoard& motherBoard_)
 	: motherBoard(motherBoard_)
-	, reservedSlot(-1)
 {
 	for (int ps = 0; ps < 4; ++ps) {
 		for (int ss = 0; ss < 4; ++ss) {
@@ -40,9 +39,6 @@ HardwareConfig::~HardwareConfig()
 		delete *it;
 	}
 	CartridgeSlotManager& slotManager = motherBoard.getSlotManager();
-	if (reservedSlot != -1) {
-		slotManager.unreserveSlot(reservedSlot);
-	}
 	for (int ps = 0; ps < 4; ++ps) {
 		for (int ss = 0; ss < 4; ++ss) {
 			if (externalSlots[ps][ss]) {
@@ -173,13 +169,6 @@ void HardwareConfig::createDevices(const XMLElement& elem)
 			}
 		}
 	}
-}
-
-void HardwareConfig::reserveSlot(int slot)
-{
-	assert(reservedSlot == -1);
-	motherBoard.getSlotManager().reserveSlot(slot);
-	reservedSlot = slot;
 }
 
 void HardwareConfig::createExternalSlot(int ps)

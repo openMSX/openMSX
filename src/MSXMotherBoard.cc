@@ -157,6 +157,8 @@ void MSXMotherBoard::loadMachine(const std::string& machine)
 		MachineConfig* newMachine = new MachineConfig(*this, machine);
 		deleteMachine();
 		machineConfig.reset(newMachine);
+		machineConfig->parseSlots();
+		machineConfig->createDevices();
 	} catch (FileException& e) {
 		throw MSXException("Machine \"" + machine + "\" not found: " +
 		                   e.getMessage());
@@ -169,9 +171,13 @@ void MSXMotherBoard::loadMachine(const std::string& machine)
 ExtensionConfig& MSXMotherBoard::loadExtension(const string& name)
 {
 	try {
-		ExtensionConfig* result = new ExtensionConfig(*this, name);
-		extensions.push_back(result);
-		return *result;
+		std::auto_ptr<ExtensionConfig> extension(
+			new ExtensionConfig(*this, name));
+		extension->parseSlots();
+		extension->createDevices();
+		ExtensionConfig& result = *extension;
+		extensions.push_back(extension.release());
+		return result;
 	} catch (FileException& e) {
 		throw MSXException("Extension \"" + name + "\" not found: " +
 		                   e.getMessage());
@@ -185,10 +191,13 @@ ExtensionConfig& MSXMotherBoard::loadRom(
 		const string& romname, const string& slotname,
 		const vector<string>& options)
 {
-	ExtensionConfig* result = new ExtensionConfig(
-		*this, romname, slotname, options);
-	extensions.push_back(result);
-	return *result;
+	std::auto_ptr<ExtensionConfig> extension(
+		new ExtensionConfig(*this, romname, slotname, options));
+	extension->parseSlots();
+	extension->createDevices();
+	ExtensionConfig& result = *extension;
+	extensions.push_back(extension.release());
+	return result;
 }
 
 ExtensionConfig* MSXMotherBoard::findExtension(const std::string& extensionName)
@@ -404,6 +413,7 @@ Display& MSXMotherBoard::getDisplay()
 {
 	if (!display.get()) {
 		display.reset(new Display(*this));
+		display->createVideoSystem();
 	}
 	return *display;
 }
@@ -433,25 +443,6 @@ FilePool& MSXMotherBoard::getFilePool()
 			getCommandController().getSettingsConfig()));
 	}
 	return *filePool;
-}
-
-void MSXMotherBoard::readConfig()
-{
-	try {
-		machineConfig->parseSlots();
-		for (Extensions::const_iterator it = extensions.begin();
-		     it != extensions.end(); ++it) {
-			(*it)->parseSlots();
-		}
-
-		machineConfig->createDevices();
-		for (Extensions::const_iterator it = extensions.begin();
-		     it != extensions.end(); ++it) {
-			(*it)->createDevices();
-		}
-	} catch (MSXException& e) {
-		throw FatalError(e.getMessage());
-	}
 }
 
 bool MSXMotherBoard::execute()
@@ -686,11 +677,8 @@ string ExtCmd::execute(const vector<string>& tokens)
 		throw SyntaxError();
 	}
 	try {
-		// TODO not exception safe
 		ExtensionConfig& extension =
 			motherBoard.loadExtension(tokens[1]);
-		extension.parseSlots();
-		extension.createDevices();
 		return extension.getName();
 	} catch (MSXException& e) {
 		throw CommandException(e.getMessage());
@@ -732,11 +720,8 @@ string CartCmd::execute(const vector<string>& tokens)
 		}
 		vector<string> options(tokens.begin() + 2, tokens.end());
 
-		// TODO not exception safe
 		ExtensionConfig& extension =
 			motherBoard.loadRom(tokens[1], slotname, options);
-		extension.parseSlots();
-		extension.createDevices();
 		return extension.getName();
 	} catch (MSXException& e) {
 		throw CommandException(e.getMessage());

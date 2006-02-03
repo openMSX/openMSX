@@ -83,10 +83,6 @@ public:
 	void scheduleReset();
 	void doReset(const EmuTime& time);
 
-	/** Parse machine config file and instantiate MSX machine
-	  */
-	void readConfig();
-
 	const MachineConfig& getMachineConfig() const;
 	void loadMachine(const std::string& machine);
 

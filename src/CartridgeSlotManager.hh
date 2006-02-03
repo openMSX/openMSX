@@ -18,15 +18,12 @@ public:
 
 	static int getSlotNum(const std::string& slot);
 
-	void reserveSlot(int slot);
-	void unreserveSlot(int slot);
-
 	void createExternalSlot(int ps);
 	void createExternalSlot(int ps, int ss);
 	void removeExternalSlot(int ps);
 	void removeExternalSlot(int ps, int ss);
 
-	int getReservedSlot(int slot, int& ps, int& ss);
+	int getSpecificSlot(int slot, int& ps, int& ss);
 	int getAnyFreeSlot(int& ps, int& ss);
 	int getFreePrimarySlot(int& ps);
 	void freeSlot(int slot);
@@ -36,11 +33,9 @@ public:
 private:
 
 	struct Slot {
-		Slot() : ps(0), ss(0), reserved(0)
-		       , exists(false), used(false) {}
+		Slot() : ps(0), ss(0), exists(false), used(false) {}
 		int ps;
 		int ss;
-		int reserved;
 		bool exists;
 		bool used;
 	};

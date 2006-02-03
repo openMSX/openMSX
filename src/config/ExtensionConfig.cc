@@ -91,9 +91,6 @@ ExtensionConfig::ExtensionConfig(
 
 	setConfig(extension);
 
-	if (slotname != "any") {
-		reserveSlot(slotname[0] - 'a');
-	}
 	setName(romfile);
 }
 

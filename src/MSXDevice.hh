@@ -173,17 +173,19 @@ private:
 	void lockDevices();
 	void unlockDevices();
 
-	typedef std::vector<std::pair<unsigned, unsigned> > MemRegions;
-	void getMemRegions(const XMLElement& config, MemRegions& result);
 	void registerSlots(const XMLElement& config);
-	void unregisterSlots(const XMLElement& config);
+	void unregisterSlots();
 
 	void registerPorts(const XMLElement& config);
-	void unregisterPorts(const XMLElement& config);
+	void unregisterPorts();
 
-	int externalSlotID;
+	typedef std::vector<std::pair<unsigned, unsigned> > MemRegions;
+	MemRegions memRegions;
 	int ps;
 	int ss;
+	int externalSlotID;
+	std::vector<byte> inPorts;
+	std::vector<byte> outPorts;
 
 	MSXMotherBoard& motherBoard;
 	std::string deviceName;

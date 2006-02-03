@@ -72,8 +72,8 @@ MSXDevice::~MSXDevice()
 
 void MSXDevice::deinit()
 {
-	unregisterPorts(deviceConfig);
-	unregisterSlots(deviceConfig);
+	unregisterPorts();
+	unregisterSlots();
 	unlockDevices();
 	assert(referencedBy.empty());
 }
@@ -130,8 +130,9 @@ const MSXDevice::Devices& MSXDevice::getReferences() const
 	return references;
 }
 
-void MSXDevice::getMemRegions(const XMLElement& config, MemRegions& result)
+void MSXDevice::registerSlots(const XMLElement& config)
 {
+	MemRegions tmpMemRegions;
 	XMLElement::Children memConfigs;
 	config.getChildren("mem", memConfigs);
 	for (XMLElement::Children::const_iterator it = memConfigs.begin();
@@ -151,15 +152,9 @@ void MSXDevice::getMemRegions(const XMLElement& config, MemRegions& result)
 				getName() + " should be aligned at " +
 				StringOp::toHexString(tmp, 4) + ".");
 		}
-		result.push_back(std::make_pair(base, size));
+		tmpMemRegions.push_back(std::make_pair(base, size));
 	}
-}
-
-void MSXDevice::registerSlots(const XMLElement& config)
-{
-	MemRegions memRegions;
-	getMemRegions(config, memRegions);
-	if (memRegions.empty()) {
+	if (tmpMemRegions.empty()) {
 		return;
 	}
 
@@ -187,22 +182,21 @@ void MSXDevice::registerSlots(const XMLElement& config)
 		externalSlotID = slotManager.getAnyFreeSlot(ps, ss);
 	} else if (ps < 0) {
 		// specified slot by name (carta, cartb, ...)
-		externalSlotID = slotManager.getReservedSlot(-ps - 1, ps, ss);
+		externalSlotID = slotManager.getSpecificSlot(-ps - 1, ps, ss);
 	} else {
 		// numerical specified slot (0, 1, 2, 3)
 	}
 
-	for (MemRegions::const_iterator it = memRegions.begin();
-	     it != memRegions.end(); ++it) {
+	for (MemRegions::const_iterator it = tmpMemRegions.begin();
+	     it != tmpMemRegions.end(); ++it) {
 		getMotherBoard().getCPUInterface().registerMemDevice(
 			*this, ps, ss, it->first, it->second);
+		memRegions.push_back(*it);
 	}
 }
 
-void MSXDevice::unregisterSlots(const XMLElement& config)
+void MSXDevice::unregisterSlots()
 {
-	MemRegions memRegions;
-	getMemRegions(config, memRegions);
 	for (MemRegions::const_iterator it = memRegions.begin();
 	     it != memRegions.end(); ++it) {
 		getMotherBoard().getCPUInterface().unregisterMemDevice(
@@ -214,8 +208,7 @@ void MSXDevice::unregisterSlots(const XMLElement& config)
 	}
 }
 
-static void getPorts(const XMLElement& config,
-                     vector<byte>& inPorts, vector<byte>& outPorts)
+void MSXDevice::registerPorts(const XMLElement& config)
 {
 	XMLElement::Children ios;
 	config.getChildren("io", ios);
@@ -228,39 +221,22 @@ static void getPorts(const XMLElement& config,
 		    ((type != "I") && (type != "O") && (type != "IO"))) {
 			throw MSXException("Invalid IO port specification");
 		}
-		for (unsigned i = 0; i < num; ++i) {
+		MSXCPUInterface& cpuInterface = getMotherBoard().getCPUInterface();
+		for (unsigned port = base; port < base + num; ++port) {
 			if ((type == "I") || (type == "IO")) {
-				inPorts.push_back(base + i);
+				cpuInterface.register_IO_In(port, this);
+				inPorts.push_back(port);
 			}
 			if ((type == "O") || (type == "IO")) {
-				outPorts.push_back(base + i);
+				cpuInterface.register_IO_Out(port, this);
+				outPorts.push_back(port);
 			}
 		}
 	}
 }
 
-void MSXDevice::registerPorts(const XMLElement& config)
+void MSXDevice::unregisterPorts()
 {
-	vector<byte> inPorts;
-	vector<byte> outPorts;
-	getPorts(config, inPorts, outPorts);
-
-	for (vector<byte>::iterator it = inPorts.begin();
-	     it != inPorts.end(); ++it) {
-		getMotherBoard().getCPUInterface().register_IO_In(*it, this);
-	}
-	for (vector<byte>::iterator it = outPorts.begin();
-	     it != outPorts.end(); ++it) {
-		getMotherBoard().getCPUInterface().register_IO_Out(*it, this);
-	}
-}
-
-void MSXDevice::unregisterPorts(const XMLElement& config)
-{
-	vector<byte> inPorts;
-	vector<byte> outPorts;
-	getPorts(config, inPorts, outPorts);
-
 	for (vector<byte>::iterator it = inPorts.begin();
 	     it != inPorts.end(); ++it) {
 		getMotherBoard().getCPUInterface().unregister_IO_In(*it, this);

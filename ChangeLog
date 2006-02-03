@@ -1,5 +1,16 @@
 $Id$
 
+2006-02-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Removed 'slot reservation' mechanism in command line parser:
+	   - The order of -cart and -ext command line options is now important
+	   - This may break catapult in some cases. Combination of
+	     slotexpander extensions and other memory mapped extensions (or
+	     rom cartridges) can fail now.
+	* Better error handling (in particular cleanup after error) when
+	  something goes wrong during run-time insertion of extension:
+	   - TODO error handling when removing extensions (e.g. trying to
+	     remove a slotexpander that is still in use)
+
 2006-02-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Made FAT buffering more symmetrical:
 	   - if FAT sector writes are stored in cache, then FAT sector

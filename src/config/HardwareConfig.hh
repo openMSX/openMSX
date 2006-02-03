@@ -27,7 +27,6 @@ public:
 protected:
 	void setConfig(std::auto_ptr<XMLElement> config);
 	void load(const std::string& path, const std::string& hwName);
-	void reserveSlot(int slot);
 	MSXMotherBoard& getMotherBoard();
 
 private:
@@ -43,7 +42,6 @@ private:
 	MSXMotherBoard& motherBoard;
 	std::auto_ptr<XMLElement> config;
 
-	int reservedSlot;
 	bool externalSlots[4][4];
 	bool externalPrimSlots[4];
 	bool expandedSlots[4];

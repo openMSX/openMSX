@@ -15,6 +15,8 @@
 #include "CommandController.hh"
 #include "Interpreter.hh"
 #include "Display.hh"
+#include "RenderSettings.hh"
+#include "EnumSetting.hh"
 #include "MSXException.hh"
 #include "HotKey.hh"
 #include "SettingsConfig.hh"
@@ -74,8 +76,10 @@ static int main(int argc, char **argv)
 				motherBoard.getCommandController());
 			motherBoard.getRealTime();
 			motherBoard.getIconStatus();
-			motherBoard.getDisplay().createVideoSystem();
-			motherBoard.readConfig();
+			if (!parser.isHiddenStartup()) {
+				motherBoard.getDisplay().getRenderSettings().
+					getRenderer().restoreDefault();
+			}
 			Reactor reactor(motherBoard);
 			CliServer cliServer(motherBoard.getScheduler(),
 			                    motherBoard.getCommandController());

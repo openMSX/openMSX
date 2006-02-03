@@ -55,8 +55,6 @@ string CLIOption::peekArgument(const list<string>& cmdLine) const
 
 // class CommandLineParser
 
-bool CommandLineParser::hiddenStartup = true;
-
 CommandLineParser::CommandLineParser(MSXMotherBoard& motherBoard_)
 	: parseStatus(UNPARSED)
 	, motherBoard(motherBoard_)
@@ -77,7 +75,7 @@ CommandLineParser::CommandLineParser(MSXMotherBoard& motherBoard_)
 	haveSettings = false;
 	issuedHelp = false;
 
-	registerOption("-machine",    &machineOption, 3);
+	registerOption("-machine",    &machineOption, 4);
 	registerOption("-setting",    &settingOption, 2);
 	registerOption("-h",          &helpOption, 1, 1);
 	registerOption("--help",      &helpOption, 1, 1);
@@ -151,7 +149,12 @@ bool CommandLineParser::parseOption(
 	if (it1 != optionMap.end()) {
 		// parse option
 		if (it1->second.prio <= priority) {
-			return it1->second.option->parseOption(arg, cmdLine);
+			try {
+				return it1->second.option->parseOption(
+					arg, cmdLine);
+			} catch (MSXException& e) {
+				throw FatalError(e.getMessage());
+			}
 		}
 	}
 	return false; // unknown
@@ -194,7 +197,7 @@ void CommandLineParser::parse(int argc, char** argv)
 
 	for (int priority = 1; priority <= 7; priority++) {
 		switch (priority) {
-		case 4:
+		case 3:
 			if (!haveSettings) {
 				// Load default settings file in case the user didn't specify
 				// one.
@@ -260,6 +263,11 @@ void CommandLineParser::parse(int argc, char** argv)
 	}
 
 	hiddenStartup = (parseStatus == CONTROL || parseStatus == TEST );
+}
+
+bool CommandLineParser::isHiddenStartup() const
+{
+	return hiddenStartup;
 }
 
 CommandLineParser::ParseStatus CommandLineParser::getParseStatus() const
