@@ -1,5 +1,11 @@
 $Id$
 
+2006-02-04 Maarten ter Huurne <maarten@treewalker.org>
+	* Made Konami mapper more accurate, using info from:
+	    http://bifi.msxnet.org/msxnet/tech/megaroms.html
+	* Made Majutsushi mapper inherit from Konami mapper, since it bascially
+	  is a Konami mapper with a DAC added to it.
+
 2006-02-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Removed 'slot reservation' mechanism in command line parser:
 	   - The order of -cart and -ext command line options is now important
@@ -38,7 +44,7 @@ $Id$
 	* Added new cpu-status update event:
 	    <update type="status" name="cpu">running</update>
 	    <update type="status" name="cpu">suspended</update>
-	  The old 'break' and 'resume' update events are deprecated  
+	  The old 'break' and 'resume' update events are deprecated
 	* Small cleanups/fixes in JoyTap stuff:
 	   - got rid of the "ERROR: Connector still plugged .." messages
 	   - removed JoyTapPort class, it was exactly the same as JoystickPort
@@ -62,7 +68,7 @@ $Id$
 	* Enabled run-time insertion of rom cartridges and extensions:
 	   - new commands:
 	      ext [extension]
-	      cart, cart<x> [romfile] 
+	      cart, cart<x> [romfile]
 	* Removed EmuTime (and related) constructors that initialize time at 0:
 	   - makes initialization time explicit in the code
 	   - fixed some (all?) wrongly initialized timestamps
