@@ -213,7 +213,6 @@ void CommandLineParser::parse(int argc, char** argv)
 				// Consider an attempt to load the settings good enough.
 				haveSettings = true;
 			}
-			postRegisterFileTypes();
 			break;
 		case 5: {
 			createMachineSetting();
@@ -225,6 +224,7 @@ void CommandLineParser::parse(int argc, char** argv)
 				loadMachine(machine);
 				haveConfig = true;
 			}
+			postRegisterFileTypes();
 			break;
 		}
 		default:
