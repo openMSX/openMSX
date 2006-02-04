@@ -3168,6 +3168,26 @@ proc trainer_arkanoid1 {} {
 	after time 1 trainer_arkanoid1
 }
 
+
+proc trainer_arkanoid1 {} {
+	#always fire
+	poke 0xe551 2
+	#99 lives
+	poke 0xe01d 99
+	
+	#(thanks mars2000you for rest of the cheats)
+	#normal ball speed
+	poke 0xe255 12
+	#glueball
+	poke 0xe324 1
+	#open door to next round
+	#poke 0xe326 1
+	#round (0-32)
+	#poke 0xe01b 0
+after time 1 trainer_arkanoid1
+}
+
+
 proc trainer_arkanoid2 {} {
 	#always fire
 	poke 0xc789 3
@@ -4163,6 +4183,8 @@ proc trainer_chiller {} {
 proc trainer_crusader {} {
 	#power
 	poke 0xe491 255
+	#get sword
+	poke 0xe471 1
 	after time 1 trainer_crusader
 }
 
@@ -4890,4 +4912,16 @@ proc trainer_warpwarp {} {
 	after time 1 trainer_warpwarp	
 }
 
+proc trainer_iga_ninpouten1 {} {
+	#lives
+	poke 0xe00b 99
+	#time
+	poke  0xe080 9
+	after time 1 trainer_iga_ninpouten1	
+}
 
+proc trainer_iga_ninpouten2 {} {
+	#lives
+	poke 0xe00b 0x99
+	after time 1 trainer_iga_ninpouten2	
+}
