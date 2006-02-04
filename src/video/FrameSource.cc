@@ -5,6 +5,7 @@
 #include "MemoryOps.hh"
 #include "LineScalers.hh"
 #include "openmsx.hh"
+#include <iostream>
 
 namespace openmsx {
 
@@ -25,7 +26,6 @@ FrameSource::~FrameSource()
 void FrameSource::init(FieldType fieldType_)
 {
 	fieldType = fieldType_;
-	tempCounter = 0; // reuse tempBuffers
 }
 
 void FrameSource::setHeight(unsigned height_)
@@ -40,6 +40,11 @@ void* FrameSource::getTempBuffer()
 		tempBuffers.push_back(buf);
 	}
 	return tempBuffers[tempCounter++];
+}
+
+void FrameSource::freeLineBuffers()
+{
+	tempCounter = 0; // reuse tempBuffers
 }
 
 template <typename Pixel>

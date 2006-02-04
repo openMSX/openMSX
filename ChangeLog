@@ -5,6 +5,7 @@ $Id$
 	    http://bifi.msxnet.org/msxnet/tech/megaroms.html
 	* Made Majutsushi mapper inherit from Konami mapper, since it bascially
 	  is a Konami mapper with a DAC added to it.
+	* Recycle line buffers used for scaling when openMSX is paused.
 
 2006-02-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Removed 'slot reservation' mechanism in command line parser:

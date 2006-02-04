@@ -67,6 +67,14 @@ public:
 		return reinterpret_cast<Pixel*>(getLinePtrImpl(line));
 	}
 
+	/** Gets a pointer to the pixels of the given line number.
+	  * The line returned is guaranteed to have the given width; if the
+	  * original line had a different width it will be scaled in a temporary
+	  * buffer. You should call freeLineBuffers regularly so the allocated
+	  * buffers can be recycled.
+	  * The dummy parameter is a workaround for bug in GCC versions
+	  * prior to 3.4, see http://gcc.gnu.org/bugzilla/show_bug.cgi?id=795
+	  */
 	template <typename Pixel>
 	inline const Pixel* getLinePtr(int line, unsigned width, Pixel* dummy) {
 		line = std::min<unsigned>(std::max(0, line), getHeight() - 1);
@@ -79,6 +87,10 @@ public:
 			return scaleLine(internalData, internalWidth, width);
 		}
 	}
+
+	/** Recycles the buffers allocated for scaling lines, see getLinePtr.
+	  */
+	void freeLineBuffers();
 
 protected:
 	FrameSource(const SDL_PixelFormat* format);
