@@ -1,4 +1,6 @@
-# game trainers version 1.5
+# game trainers version 1.6
+#
+# please join us looking for cheats and submit them to the www.openmsx.org forum
 #
 # credits:
 #   copyright 2005 albert beevendorp all rights reserved
@@ -17,6 +19,12 @@
 # patches ready at http://ips.tni.nl/ for even more cheatting ;)
 #
 # please cheat responsible!
+
+#helper functions
+proc poke {addr val} {debug write memory $addr $val}
+proc peek {addr}	 {return [debug read memory $addr]}
+
+#trainers
 
 proc trainer_f1spirit {} { 
 	#player 1 always first place
@@ -3687,6 +3695,8 @@ proc trainer_monstersfair {} {
 	poke 0xd7e2 50
 	#give motha some balls
 	poke 0xd7cb 99
+	#mothas
+	poke 0xd81c 9
 	after time 1 trainer_monstersfair
 }
 
@@ -4499,7 +4509,7 @@ proc trainer_bosconian  {} {
 after time 1 trainer_bosconian 
 }
 
-proc trainer_pegasus  {} {
+proc trainer_zaider  {} {
 	#damage bar
 	poke 0xe1dc 0
 	#psyco-g1 ammo
@@ -4510,7 +4520,7 @@ proc trainer_pegasus  {} {
 	poke 0xe09d 255	
 	#zaider damage
 	poke 0xe0b5 0
-after time 1 trainer_pegasus 
+after time 1 trainer_zaider 
 }
 
 proc trainer_fray  {} {
@@ -4745,13 +4755,13 @@ after time 1 trainer_ink
 proc trainer_penguin_kun_wars1 {} {
 	#enemy stuck in one position
 	#!poke 0xd020 15
-	#enemy K.O
+	#enemy k.o
 	poke 0xd026 255
 after time 1 trainer_penguin_kun_wars1
 }
 
 proc trainer_penguin_kun_wars2 {} {
-	#enemy K.O after being hit
+	#enemy k.o after being hit
 	poke 0xb126 255
 	poke 0xb146 255
 	poke 0xb166 255
@@ -4804,11 +4814,80 @@ proc trainer_grogsrevenge {} {
 	after time 30 trainer_grogsrevenge
 }
 
-
-proc poke {addr val} {
-	debug write memory $addr $val
+proc trainer_actman {} {
+	#made by benoit of bluemsx
+	#lives player 1
+	poke 0xe2a7 6
+	#lives player 2
+	poke 0xe2a8 6
+	#viewing mode
+	#poke 0xe2a9 8
+	#weapon 1=sword 2=axe
+	poke 0xe1b4 1
+	#only one bear
+	poke 0xe247 1
+	#only one bird
+	poke 0xe248 1
+	#only one fish
+	poke 0xe249 1
+	#only one red monster
+	poke 0xe24a 1
+	#only one snake
+	poke 0xe24b 1
+	#only one blue monster
+	poke 0xe24c 1
+	#bonus infinite time
+	poke 0xe1e9 20
+	after time 1 trainer_actman
 }
 
-proc peek {addr} {
-	return [debug read memory $addr]
+proc trainer_shoutmatch {} {
+	#power
+	poke 0xc001 128
+	after time 1 trainer_shoutmatch
 }
+
+proc trainer_cosmoexplorer {} {
+	#fuel
+	poke 0xdaa9 255
+	#power
+	poke 0xdac1 0
+	#photon torpedos
+	poke 0xdaa7 99
+	after time 1 trainer_cosmoexplorer
+}
+
+proc trainer_funkymouse {} {
+	#lives
+	poke 0xe211 1
+	after time 1 trainer_funkymouse	
+}
+
+proc trainer_knitherspecial  {} {
+	#life meter
+	poke 0xf060 9
+	poke 0xf061 9
+	poke 0xf062 9
+	poke 0xf063 9
+	#small keys
+	poke 0xf056 9
+	#fireballs (bombs)
+	poke 0xf050 9
+	#thundersword
+	poke 0xf051 9
+	#firewave
+	poke 0xf053 9
+	#big key (makes the game boring)
+	#!poke 0xf057 9
+	#cracker
+	poke 0xf052 99
+	after time 1 trainer_knitherspecial	
+}
+
+proc trainer_warpwarp {} {
+	#lives
+	poke 0xe089 99
+	after time 1 trainer_warpwarp	
+}
+
+
