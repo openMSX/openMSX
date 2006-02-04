@@ -3,13 +3,13 @@
 #ifndef ROMMAJUTSUSHI_HH
 #define ROMMAJUTSUSHI_HH
 
-#include "Rom8kBBlocks.hh"
+#include "RomKonami4.hh"
 
 namespace openmsx {
 
 class DACSound8U;
 
-class RomMajutsushi : public Rom8kBBlocks
+class RomMajutsushi : public RomKonami4
 {
 public:
 	RomMajutsushi(MSXMotherBoard& motherBoard, const XMLElement& config,
