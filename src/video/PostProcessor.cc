@@ -158,14 +158,12 @@ void PostProcessor<Pixel>::paint()
 		currScaler->scaleImage(
 			*frame, srcStartY, srcEndY, lineWidth, // source
 			screen, dstStartY, dstEndY); // dest
+		frame->freeLineBuffers();
 
 		// next region
 		srcStartY = srcEndY;
 		dstStartY = dstEndY;
 	}
-	// TODO: Actually, this could be done at the end of scaleImage, but it
-	//       would require changing many scalers.
-	frame->freeLineBuffers();
 
 	// TODO: This statement is the only reason PostProcessor uses "screen"
 	//       as a VisibleSurface instead of as an OutputSurface.
