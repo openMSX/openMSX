@@ -20,7 +20,11 @@ RomKonami4::RomKonami4(MSXMotherBoard& motherBoard, const XMLElement& config,
                        const EmuTime& time, std::auto_ptr<Rom> rom)
 	: Rom8kBBlocks(motherBoard, config, time, rom)
 {
-	reset(time);
+	// Konami4 mapper is 256kB in size, even if ROM is smaller.
+	setBlockMask(31);
+	// Do not call reset() here, since it can be overridden and the subclass
+	// constructor has not been run yet. And there will be a reset() at power
+	// up anyway.
 }
 
 void RomKonami4::reset(const EmuTime& /*time*/)
