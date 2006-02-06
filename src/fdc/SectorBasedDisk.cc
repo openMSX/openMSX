@@ -7,8 +7,9 @@
 
 namespace openmsx {
 
-SectorBasedDisk::SectorBasedDisk()
-	: patch(new EmptyDiskPatch(*this))
+SectorBasedDisk::SectorBasedDisk(const std::string& name)
+	: Disk(name)
+	, patch(new EmptyDiskPatch(*this))
 {
 }
 

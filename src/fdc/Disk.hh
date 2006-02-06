@@ -34,6 +34,9 @@ class Disk
 {
 public:
 	virtual ~Disk();
+
+	const std::string& getName() const;
+
 	virtual void read (byte track, byte sector,
 	                   byte side, unsigned size, byte* buf) = 0;
 	virtual void write(byte track, byte sector,
@@ -56,7 +59,7 @@ public:
 protected:
 	static const int RAWTRACK_SIZE = 6850;
 
-	Disk();
+	Disk(const std::string& name);
 	int physToLog(byte track, byte side, byte sector);
 	void logToPhys(int log, byte& track, byte& side, byte& sector);
 
@@ -68,6 +71,8 @@ protected:
 
 private:
 	void detectGeometryFallback();
+
+	const std::string name;
 };
 
 } // namespace openmsx

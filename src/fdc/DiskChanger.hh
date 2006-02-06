@@ -37,9 +37,9 @@ private:
 	void insertDisk(const std::string& disk,
 	                const std::vector<std::string>& patches);
 	void ejectDisk();
+	void changeDisk(std::auto_ptr<Disk> newDisk);
 
 	std::string driveName;
-	std::string diskName;
 	FileManipulator& manipulator;
 	std::auto_ptr<Disk> disk;
 	bool diskChangedFlag;

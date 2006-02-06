@@ -154,7 +154,8 @@ string FDC_DirAsDSK::makeSimpleMSXFileName(const string& fullfilename)
 }
 
 FDC_DirAsDSK::FDC_DirAsDSK(CliComm& cliComm_, const string& fileName)
-	: cliComm(cliComm_)
+	: SectorBasedDisk(fileName)
+	, cliComm(cliComm_)
 {
 	// Here we create the fake diskimages based upon the files that can be
 	// found in the 'fileName' directory

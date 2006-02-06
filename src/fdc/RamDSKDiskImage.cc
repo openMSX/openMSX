@@ -7,6 +7,7 @@
 namespace openmsx {
 
 RamDSKDiskImage::RamDSKDiskImage(unsigned size)
+	: SectorBasedDisk("-ramdsk")
 {
 	nbSectors = size / SECTOR_SIZE;
 	diskdata = new byte[size];

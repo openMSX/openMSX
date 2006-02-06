@@ -9,7 +9,8 @@ using std::string;
 namespace openmsx {
 
 DSKDiskImage::DSKDiskImage(const string& fileName)
-	: file(new File(fileName, File::PRE_CACHE))
+	: SectorBasedDisk(fileName)
+	, file(new File(fileName, File::PRE_CACHE))
 {
 	nbSectors = file->getSize() / SECTOR_SIZE;
 }

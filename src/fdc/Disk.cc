@@ -4,13 +4,18 @@
 
 namespace openmsx {
 
-Disk::Disk()
-	: nbSides(0)
+Disk::Disk(const std::string& name_)
+	: nbSides(0), name(name_)
 {
 }
 
 Disk::~Disk()
 {
+}
+
+const std::string& Disk::getName() const
+{
+	return name;
 }
 
 void Disk::getTrackHeader(byte /*track*/, byte /*side*/, byte* /*buf*/)

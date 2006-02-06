@@ -57,7 +57,7 @@ const string& DiskChanger::getDriveName() const
 
 const string& DiskChanger::getDiskName() const
 {
-	return diskName;
+	return disk->getName();
 }
 
 bool DiskChanger::diskChanged()
@@ -85,13 +85,13 @@ SectorAccessibleDisk* DiskChanger::getSectorAccessibleDisk()
 void DiskChanger::insertDisk(const string& diskImage,
                              const vector<string>& patches)
 {
-	ejectDisk();
+	std::auto_ptr<Disk> newDisk;
 	if (diskImage == "-ramdsk") {
-		disk.reset(new RamDSKDiskImage());
+		newDisk.reset(new RamDSKDiskImage());
 	} else {
 		try {
 			// first try XSA
-			disk.reset(new XSADiskImage(diskImage));
+			newDisk.reset(new XSADiskImage(diskImage));
 		} catch (MSXException& e) {
 			try {
 				//First try the fake disk, because a DSK will always
@@ -99,11 +99,11 @@ void DiskChanger::insertDisk(const string& diskImage,
 				//It is simply stat'ed, so even a directory name
 				//can be resolved and will be accepted as dsk name
 				// try to create fake DSK from a dir on host OS
-				disk.reset(new FDC_DirAsDSK(
+				newDisk.reset(new FDC_DirAsDSK(
 					cliComm, diskImage));
 			} catch (MSXException& e) {
 				// then try normal DSK
-				disk.reset(new DSKDiskImage(diskImage));
+				newDisk.reset(new DSKDiskImage(diskImage));
 			}
 		}
 	}
@@ -111,16 +111,19 @@ void DiskChanger::insertDisk(const string& diskImage,
 	     it != patches.end(); ++it) {
 		disk->applyPatch(*it);
 	}
-	diskName = diskImage;
-	diskChangedFlag = true;
-	cliComm.update(CliComm::MEDIA, getDriveName(), getDiskName());
+
+	// no errors, only now replace original disk
+	changeDisk(newDisk);
 }
 
 void DiskChanger::ejectDisk()
 {
-	disk.reset(new DummyDisk());
+	changeDisk(std::auto_ptr<Disk>(new DummyDisk()));
+}
 
-	diskName.clear();
+void DiskChanger::changeDisk(std::auto_ptr<Disk> newDisk)
+{
+	disk = newDisk;
 	diskChangedFlag = true;
 	cliComm.update(CliComm::MEDIA, getDriveName(), getDiskName());
 }

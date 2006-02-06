@@ -13,6 +13,7 @@ const int XSADiskImage::cpdext[TBLSIZE] = {
 };
 
 XSADiskImage::XSADiskImage(const string& fileName)
+	: SectorBasedDisk(fileName)
 {
 	File file(fileName);
 	if (!isXSAImage(file)) {
