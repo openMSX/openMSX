@@ -6,6 +6,7 @@
 #include "GlobalSettings.hh"
 #include "XMLElement.hh"
 #include "FileContext.hh"
+#include "MSXException.hh"
 
 using std::list;
 using std::string;
@@ -23,10 +24,10 @@ DiskImageCLI::DiskImageCLI(CommandLineParser& commandLineParser)
 }
 
 bool DiskImageCLI::parseOption(const string& option,
-                         list<string>& cmdLine)
+                               list<string>& cmdLine)
 {
-	driveLetter = option[5];	// -disk_
-	parseFileType(getArgument(option, cmdLine), cmdLine);
+	string filename = getArgument(option, cmdLine);
+	parse(option.substr(1), filename, cmdLine);
 	return true;
 }
 const string& DiskImageCLI::optionHelp() const
@@ -38,16 +39,7 @@ const string& DiskImageCLI::optionHelp() const
 void DiskImageCLI::parseFileType(const string& filename,
                                  list<string>& cmdLine)
 {
-	XMLElement& config = commandController.getGlobalSettings().getMediaConfig();
-	XMLElement& diskElem = config.getCreateChild(string("disk") + driveLetter);
-	diskElem.getCreateChild("filename", filename);
-	diskElem.setFileContext(std::auto_ptr<FileContext>(new UserFileContext(
-	                                                commandController)));
-	while (peekArgument(cmdLine) == "-ips") {
-		cmdLine.pop_front();
-		string ipsFile = getArgument("-ips", cmdLine);
-		diskElem.getCreateChild("ips", ipsFile);
-	}
+	parse(string("disk") + driveLetter, filename, cmdLine);
 	++driveLetter;
 }
 
@@ -55,6 +47,20 @@ const string& DiskImageCLI::fileTypeHelp() const
 {
 	static const string text("Disk image");
 	return text;
+}
+
+void DiskImageCLI::parse(const string& drive, const string& image,
+                         list<string>& cmdLine)
+{
+	if (!commandController.hasCommand(drive)) {
+		throw MSXException("No drive named '" + drive + "'.");
+	}
+	string command = drive + ' ' + image;
+	while (peekArgument(cmdLine) == "-ips") {
+		cmdLine.pop_front();
+		command += ' ' + getArgument("-ips", cmdLine);
+	}
+	commandController.executeCommand(command);
 }
 
 } // namespace openmsx

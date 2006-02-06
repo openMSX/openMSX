@@ -83,7 +83,7 @@ private:
 	                   std::list<std::string>& cmdLine);
 	bool parseOption(const std::string& arg,
 	                 std::list<std::string>& cmdLine, byte prio);
-	void postRegisterFileTypes();
+	void registerFileTypes();
 	void loadMachine(const std::string& machine);
 	void createMachineSetting();
 

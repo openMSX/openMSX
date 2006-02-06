@@ -1,5 +1,10 @@
 $Id$
 
+2006-02-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed setting initial diskimage via the commandline:
+	   - as a bonus -disk<x> now also gives an error on msx machines with
+	     no (or too few) drives
+
 2006-02-04 Maarten ter Huurne <maarten@treewalker.org>
 	* Made Konami mapper more accurate, using info from:
 	    http://bifi.msxnet.org/msxnet/tech/megaroms.html

@@ -10,7 +10,6 @@
 
 namespace openmsx {
 
-class XMLElement;
 class CommandController;
 class FileManipulator;
 class Disk;
@@ -40,9 +39,9 @@ private:
 	void ejectDisk();
 
 	std::string driveName;
+	std::string diskName;
 	FileManipulator& manipulator;
 	std::auto_ptr<Disk> disk;
-	XMLElement* diskElem;
 	bool diskChangedFlag;
 
 	friend class DiskCommand;

@@ -88,6 +88,8 @@ CommandLineParser::CommandLineParser(MSXMotherBoard& motherBoard_)
 	registerOption("-nommxext",   &noMMXEXTOption, 1, 1);
 	#endif
 	registerOption("-testconfig", &testConfigOption, 1, 1);
+	
+	registerFileTypes();
 }
 
 CommandLineParser::~CommandLineParser()
@@ -110,7 +112,7 @@ void CommandLineParser::registerFileClass(
 	fileClassMap[str] = cliFileType;
 }
 
-void CommandLineParser::postRegisterFileTypes()
+void CommandLineParser::registerFileTypes()
 {
 	const XMLElement* config = settingsConfig.findChild("FileTypes");
 	if (config) {
@@ -176,9 +178,13 @@ bool CommandLineParser::parseFileName(const string& arg, list<string>& cmdLine)
 		string extension = originalName.substr(begin + 1);
 		FileTypeMap::const_iterator it2 = fileTypeMap.find(extension);
 		if (it2 != fileTypeMap.end()) {
-			// parse filetype
-			it2->second->parseFileType(arg, cmdLine);
-			return true; // file processed
+			try {
+				// parse filetype
+				it2->second->parseFileType(arg, cmdLine);
+				return true; // file processed
+			} catch (MSXException& e) {
+				throw FatalError(e.getMessage());
+			}
 		}
 	}
 	return false; // unknown
@@ -224,7 +230,6 @@ void CommandLineParser::parse(int argc, char** argv)
 				loadMachine(machine);
 				haveConfig = true;
 			}
-			postRegisterFileTypes();
 			break;
 		}
 		default:
@@ -235,7 +240,8 @@ void CommandLineParser::parse(int argc, char** argv)
 				// first try options
 				if (!parseOption(arg, cmdLine, priority)) {
 					// next try the registered filetypes (xml)
-					if (!parseFileName(arg, cmdLine)) {
+					if ((priority < 6) ||
+					    !parseFileName(arg, cmdLine)) {
 						// no option or known file
 						backupCmdLine.push_back(arg);
 						map<string, OptionData>::const_iterator it1 =

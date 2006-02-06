@@ -6,8 +6,6 @@
 #include "XSADiskImage.hh"
 #include "FDC_DirAsDSK.hh"
 #include "DSKDiskImage.hh"
-#include "GlobalSettings.hh"
-#include "XMLElement.hh"
 #include "CommandController.hh"
 #include "Command.hh"
 #include "FileManipulator.hh"
@@ -43,34 +41,7 @@ DiskChanger::DiskChanger(const string& driveName_,
 	, diskCommand(new DiskCommand(commandController, *this))
 	, cliComm(commandController.getCliComm())
 {
-	XMLElement& config = commandController.getGlobalSettings().getMediaConfig();
-	XMLElement& diskConfig = config.getCreateChild(driveName);
-	diskElem = &diskConfig.getCreateChild("filename");
-	string filename = diskElem->getData();
-	if (!filename.empty()) {
-		try {
-			FileContext& context = diskConfig.getFileContext();
-			vector<string> patchFiles;
-			XMLElement::Children children;
-			diskConfig.getChildren("ips", children);
-			for (XMLElement::Children::const_iterator it =
-			        children.begin(); it != children.end(); ++it) {
-				string patch = context.resolve((*it)->getData());
-				patchFiles.push_back(patch);
-			}
-
-			insertDisk(context.resolve(filename), patchFiles);
-		} catch (FileException& e) {
-			// file not found
-			throw MSXException("Couldn't load diskimage: " + 
-			                   filename);
-		}
-	} else {
-		// nothing specified
-		ejectDisk();
-	}
-
-	// only register when everything went ok (no exceptions)
+	ejectDisk();
 	manipulator.registerDrive(*this, driveName);
 }
 
@@ -86,7 +57,7 @@ const string& DiskChanger::getDriveName() const
 
 const string& DiskChanger::getDiskName() const
 {
-	return diskElem->getData();
+	return diskName;
 }
 
 bool DiskChanger::diskChanged()
@@ -140,7 +111,7 @@ void DiskChanger::insertDisk(const string& diskImage,
 	     it != patches.end(); ++it) {
 		disk->applyPatch(*it);
 	}
-	diskElem->setData(diskImage);
+	diskName = diskImage;
 	diskChangedFlag = true;
 	cliComm.update(CliComm::MEDIA, getDriveName(), getDiskName());
 }
@@ -149,7 +120,7 @@ void DiskChanger::ejectDisk()
 {
 	disk.reset(new DummyDisk());
 
-	diskElem->setData("");
+	diskName.clear();
 	diskChangedFlag = true;
 	cliComm.update(CliComm::MEDIA, getDriveName(), getDiskName());
 }
@@ -205,7 +176,7 @@ void DiskCommand::execute(const vector<TclObject*>& tokens, TclObject& result)
 			}
 			diskChanger.insertDisk(
 				context.resolve(tokens[1]->getString()), patches);
-		} catch (FileException &e) {
+		} catch (FileException& e) {
 			throw CommandException(e.getMessage());
 		}
 	}
