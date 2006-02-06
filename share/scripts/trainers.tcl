@@ -3165,6 +3165,22 @@ proc trainer_arkanoid1 {} {
 	poke 0xe551 1
 	#99 lives
 	poke 0xe01d 99
+	#Thanks for these cheats mars2000you
+	#normal ball speed
+	poke 0xe255 12
+	#magnetic ball
+	poke 0xe324 1
+	#long bat
+	#poke 0xe0d7 4
+	#poke 0xe0d8 14
+	#poke 0xe0db 12
+	#poke 0xe0dc 8
+	#poke 0x321 2
+	#poke 0x550 2
+	#open door to next round
+	#poke 0xe326 1
+	#round (0-32)
+	#poke 0xe01b 0
 	after time 1 trainer_arkanoid1
 }
 
@@ -4924,4 +4940,31 @@ proc trainer_iga_ninpouten2 {} {
 	#lives
 	poke 0xe00b 0x99
 	after time 1 trainer_iga_ninpouten2	
+}
+
+proc trainer_sinbad {} {
+	#power
+	poke 0xead7 14
+	#lives
+	poke 0xeae3 6
+	after time 1 trainer_sinbad	
+}
+
+proc trainer_starblazer {} {
+	#bombs
+	poke 0xe415 99
+	#lives
+	poke 0xe409 99
+	after time 1 trainer_starblazer	
+}
+
+proc trainer_traillazer {} {
+	#jumps left in arcade mode
+	poke 0x8721 9
+	#time on cb:a9 (leave this value alone, it checks for cheats)
+	poke 0x866c 4
+	poke 0x866b 4
+	#poke 0x866a 9
+	#poke 0x8669 9
+	after time 1 trainer_traillazer	
 }
