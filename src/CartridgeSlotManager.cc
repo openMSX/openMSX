@@ -71,6 +71,7 @@ int CartridgeSlotManager::getSlot(int ps, int ss) const
 		}
 	}
 	assert(false); // was not an external slot
+	return 0; // avoid warning
 }
 
 void CartridgeSlotManager::testRemoveExternalSlot(int ps) const
