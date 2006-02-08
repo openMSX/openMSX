@@ -3165,7 +3165,7 @@ proc trainer_arkanoid1 {} {
 	poke 0xe551 1
 	#99 lives
 	poke 0xe01d 99
-	#Thanks for these cheats mars2000you
+	#thanks for these cheats mars2000you
 	#normal ball speed
 	poke 0xe255 12
 	#magnetic ball
@@ -4976,4 +4976,13 @@ proc trainer_vampire {} {
 	#lives
 	poke 0x9493 8
 	after time 1 trainer_vampire	
+}
+
+proc trainer_pachipro_densetsu {}{
+	#money
+	poke 0xe230 0x99
+	poke 0xe22f 0x99
+	poke 0xe22e 0x99
+	poke 0xe22d 0x99
+	after time 1 trainer_pachipro_densetsu	
 }
