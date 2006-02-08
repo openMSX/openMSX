@@ -955,7 +955,7 @@ proc trainer_galaga {} {
  
 proc trainer_girlyblock {} {
 	#trainer
-	poke 57392 255
+	poke 0xe030 255
 	poke 0xe032 255
 	poke 0xe031 255
 	poke 0xe4a6 255
@@ -1395,7 +1395,7 @@ proc trainer_ashiguine2 {} {
 
 proc trainer_fparodic1 {} {
 	#lives
-	poke 57347 99
+	poke 0xe003 99
 	#eggs
 	poke 0xe025 255
 	#invincible
@@ -1416,9 +1416,9 @@ proc trainer_fparodic1 {} {
 
 proc trainer_monmonmonster {} {
 	#rocks
-	poke 57400 99
+	poke 0xe038  99
 	#lives
-	poke 57388 10
+	poke 0xe02c 10
 	#invincible
 	poke 0xe31e 255
 	#white power bolt shot
@@ -3171,14 +3171,14 @@ proc trainer_arkanoid1 {} {
 	#magnetic ball
 	poke 0xe324 1
 	#long bat
-	#poke 0xe0d7 4
-	#poke 0xe0d8 14
-	#poke 0xe0db 12
-	#poke 0xe0dc 8
-	#poke 0x321 2
-	#poke 0x550 2
+	poke 0xe0d7 4
+	poke 0xe0d8 14
+	poke 0xe0db 12
+	poke 0xe0dc 8
+	poke 0xe321 2
+	poke 0xe550 2
 	#open door to next round
-	#poke 0xe326 1
+	poke 0xe326 1
 	#round (0-32)
 	#poke 0xe01b 0
 	after time 1 trainer_arkanoid1
@@ -4609,6 +4609,7 @@ proc trainer_robocop {} {
 }
 
 proc trainer_fparodic2 {} {
+	#lives
 	poke 0xc008 9
 after time 1 trainer_fparodic2	
 }
@@ -4958,7 +4959,7 @@ proc trainer_starblazer {} {
 	after time 1 trainer_starblazer	
 }
 
-proc trainer_traillazer {} {
+proc trainer_trailblazer {} {
 	#jumps left in arcade mode
 	poke 0x8721 9
 	#time on cb:a9 (leave this value alone, it checks for cheats)
@@ -4966,5 +4967,13 @@ proc trainer_traillazer {} {
 	poke 0x866b 4
 	#poke 0x866a 9
 	#poke 0x8669 9
-	after time 1 trainer_traillazer	
+	after time 1 trainer_trailblazer	
+}
+
+proc trainer_vampire {} {
+	#power
+	poke 0x9491 99
+	#lives
+	poke 0x9493 8
+	after time 1 trainer_vampire	
 }
