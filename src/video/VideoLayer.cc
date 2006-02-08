@@ -47,8 +47,6 @@ void VideoLayer::update(const Setting& setting)
 		setZ(calcZ());
 	} else if (&setting == &powerSetting) {
 		setCoverage(getCoverage());
-	} else {
-		assert(false);
 	}
 }
 

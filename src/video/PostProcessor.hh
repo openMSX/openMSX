@@ -6,6 +6,7 @@
 #include "RenderSettings.hh"
 #include "FrameSource.hh"
 #include "VideoLayer.hh"
+#include <vector>
 
 namespace openmsx {
 
@@ -50,6 +51,11 @@ private:
 	  */
 	void initFrames(bool first = false);
 
+	void drawNoise();
+
+	// Observer<Setting>
+	virtual void update(const Setting& setting);
+
 	/** Render settings
 	  */
 	RenderSettings& renderSettings;
@@ -82,6 +88,10 @@ private:
 	  */
 	DeinterlacedFrame* deinterlacedFrame;
 	DoubledFrame* interlacedFrame;
+
+	/** Remember the noise values to get a stable image when paused.
+	 */
+	std::vector<unsigned> noiseShift;
 };
 
 } // namespace openmsx

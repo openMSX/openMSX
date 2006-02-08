@@ -7,6 +7,7 @@
 #include "ScalerFactory.hh"
 #include "BooleanSetting.hh"
 #include "IntegerSetting.hh"
+#include "FloatSetting.hh"
 #include "VisibleSurface.hh"
 #include "DeinterlacedFrame.hh"
 #include "DoubledFrame.hh"
@@ -14,7 +15,142 @@
 #include "PixelOperations.hh"
 #include <cassert>
 
+#include "HostCPU.hh"
+#include <cstdlib>
+#include <cmath>
+
 namespace openmsx {
+
+typedef unsigned char uint8;
+typedef signed   char sint8;
+
+static const unsigned NOISE_SHIFT = 8192;
+static const unsigned NOISE_BUF_SIZE = 2 * NOISE_SHIFT;
+static sint8 noiseBuf[NOISE_BUF_SIZE];
+
+static void gaussian2(double& r1, double& r2)
+{
+	static const double S = 2.0 / RAND_MAX;
+	double x1, x2, w;
+	do {
+		x1 = S * rand() - 1.0;
+		x2 = S * rand() - 1.0;
+		w = x1 * x1 + x2 * x2;
+	} while (w >= 1.0);
+	w = sqrt((-2.0 * log(w)) / w);
+	r1 = x1 * w;
+	r2 = x2 * w;
+}
+static sint8 clip(double r, double factor)
+{
+	int a = (int)round(r * factor);
+	if (a < -128) a = -128;
+	else if (a > 127) a = 127;
+	return a;
+}
+static void preCalcNoise(double factor)
+{
+	for (unsigned i = 0; i < NOISE_BUF_SIZE; i += 8) {
+		double r1, r2;
+		gaussian2(r1, r2);
+		sint8 n1 = clip(r1, factor);
+		noiseBuf[i + 0] = n1;
+		noiseBuf[i + 1] = n1;
+		noiseBuf[i + 2] = n1;
+		noiseBuf[i + 3] = n1;
+		sint8 n2 = clip(r1, factor);
+		noiseBuf[i + 4] = n2;
+		noiseBuf[i + 5] = n2;
+		noiseBuf[i + 6] = n2;
+		noiseBuf[i + 7] = n2;
+	}
+}
+
+static void drawNoiseLine(uint8* in, uint8* out, sint8* noise, unsigned width)
+{
+	#ifdef ASM_X86
+	const HostCPU& cpu = HostCPU::getInstance();
+	if (cpu.hasMMX()) {
+		// 32bpp
+		assert((width % 32) == 0);
+		asm (
+			"pcmpeqb  %%mm7, %%mm7;"
+			"psllw    $15, %%mm7;"
+			"packsswb %%mm7, %%mm7;"
+			".p2align 4,,15;"
+		"0:"
+			"movq       (%0, %3), %%mm0;"
+			"movq      8(%0, %3), %%mm1;"
+			"movq     16(%0, %3), %%mm2;"
+			"movq     24(%0, %3), %%mm3;"
+			"pxor     %%mm7, %%mm0;"
+			"pxor     %%mm7, %%mm1;"
+			"pxor     %%mm7, %%mm2;"
+			"pxor     %%mm7, %%mm3;"
+			"paddsb     (%2, %3), %%mm0;"
+			"paddsb    8(%2, %3), %%mm1;"
+			"paddsb   16(%2, %3), %%mm2;"
+			"paddsb   24(%2, %3), %%mm3;"
+			"pxor     %%mm7, %%mm0;"
+			"pxor     %%mm7, %%mm1;"
+			"pxor     %%mm7, %%mm2;"
+			"pxor     %%mm7, %%mm3;"
+			"movq     %%mm0,   (%1, %3);"
+			"movq     %%mm1,  8(%1, %3);"
+			"movq     %%mm2, 16(%1, %3);"
+			"movq     %%mm3, 24(%1, %3);"
+			"addl     $32, %3;"
+			"jnz      0b;"
+			"emms;"
+
+			: // no output
+			: "r" (in    + width) // 0
+			, "r" (out   + width) // 1
+			, "r" (noise + width) // 2
+			, "r" (-width)        // 3
+			#ifdef __MMX__
+			: "mm0", "mm1", "mm2", "mm3", "mm7"
+			#endif
+		);
+		return;
+	}
+	#endif
+
+	// c++ version
+	for (unsigned i = 0; i < width; ++i) {
+		int t = in[i] + noise[i];
+		if (t > 255) t = 255;
+		else if (t < 0) t = 0;
+		out[i] = t;
+	}
+}
+
+template <class Pixel>
+void PostProcessor<Pixel>::drawNoise()
+{
+	if (sizeof(Pixel) != 4) return; // TODO only 32bpp atm
+
+	if (renderSettings.getNoise().getValue() == 0) return;
+
+	unsigned height = screen.getHeight();
+	unsigned width = screen.getWidth() * sizeof(Pixel);
+	for (unsigned y = 0; y < height; ++y) {
+		uint8* dummy = 0;
+		uint8* buf = screen.getLinePtr(y, dummy);
+		drawNoiseLine(buf, buf, &noiseBuf[noiseShift[y]], width);
+	}
+}
+
+template <class Pixel>
+void PostProcessor<Pixel>::update(const Setting& setting)
+{
+	VideoLayer::update(setting);
+	FloatSetting& noiseSetting = renderSettings.getNoise();
+	if (&setting == &noiseSetting) {
+		preCalcNoise(noiseSetting.getValue());
+	}
+}
+
 
 template <class Pixel>
 PostProcessor<Pixel>::PostProcessor(CommandController& commandController,
@@ -23,6 +159,7 @@ PostProcessor<Pixel>::PostProcessor(CommandController& commandController,
 	: VideoLayer(videoSource, commandController, display)
 	, renderSettings(display.getRenderSettings())
 	, screen(screen_)
+	, noiseShift(screen.getHeight())
 {
 	scaleAlgorithm = (RenderSettings::ScaleAlgorithm)-1; // not a valid scaler
 	scaleFactor = (unsigned)-1;
@@ -31,11 +168,19 @@ PostProcessor<Pixel>::PostProcessor(CommandController& commandController,
 	prevFrame = new RawFrame(screen.getFormat(), maxWidth, height);
 	deinterlacedFrame = new DeinterlacedFrame(screen.getFormat());
 	interlacedFrame   = new DoubledFrame     (screen.getFormat());
+
+	FloatSetting& noiseSetting = renderSettings.getNoise();
+	noiseSetting.attach(*this);
+	preCalcNoise(noiseSetting.getValue());
+	assert((screen.getWidth() * sizeof(Pixel)) < NOISE_SHIFT);
 }
 
 template <class Pixel>
 PostProcessor<Pixel>::~PostProcessor()
 {
+	FloatSetting& noiseSetting = renderSettings.getNoise();
+	noiseSetting.detach(*this);
+
 	delete currFrame;
 	delete prevFrame;
 	delete deinterlacedFrame;
@@ -165,6 +310,8 @@ void PostProcessor<Pixel>::paint()
 		dstStartY = dstEndY;
 	}
 
+	drawNoise();
+
 	// TODO: This statement is the only reason PostProcessor uses "screen"
 	//       as a VisibleSurface instead of as an OutputSurface.
 	screen.drawFrameBuffer();
@@ -182,6 +329,10 @@ template <class Pixel>
 RawFrame* PostProcessor<Pixel>::rotateFrames(
 	RawFrame* finishedFrame, FrameSource::FieldType field)
 {
+	for (unsigned y = 0; y < screen.getHeight(); ++y) {
+		noiseShift[y] = rand() & (NOISE_SHIFT - 1) & ~7;
+	}
+	
 	RawFrame* reuseFrame = prevFrame;
 	prevFrame = currFrame;
 	currFrame = finishedFrame;

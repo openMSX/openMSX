@@ -56,6 +56,9 @@ public:
 	/** The amount of glow [0..100]. */
 	IntegerSetting& getGlow() const { return *glow; }
 
+	/** The amount of noise to add to the frame. */
+	FloatSetting& getNoise() const { return *noise; }
+
 	/** The amount of horizontal blur [0..256]. */
 	int getBlurFactor() const;
 
@@ -96,6 +99,7 @@ private:
 	std::auto_ptr<BooleanSetting> fullScreen;
 	std::auto_ptr<FloatSetting> gamma;
 	std::auto_ptr<IntegerSetting> glow;
+	std::auto_ptr<FloatSetting> noise;
 	std::auto_ptr<IntegerSetting> horizontalBlur;
 	std::auto_ptr<BooleanSetting> limitSprites;
 	std::auto_ptr<IntegerSetting> maxFrameSkip;

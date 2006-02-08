@@ -1,5 +1,9 @@
 $Id$
 
+2006-02-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* New video effect: noise (experimental)
+	   - try "set noise <x>"
+
 2006-02-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed setting initial diskimage via the commandline:
 	   - as a bonus -disk<x> now also gives an error on msx machines with

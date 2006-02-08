@@ -37,6 +37,10 @@ RenderSettings::RenderSettings(CommandController& commandController)
 		"glow", "amount of afterglow effect: 0 = none, 100 = lots",
 		0, 0, 100));
 
+	noise.reset(new FloatSetting(commandController,
+		"noise", "amount of noise to add to the frame",
+		0.0, 0.0, 100.0));
+
 	horizontalBlur.reset(new IntegerSetting(commandController,
 		"blur", "amount of horizontal blur effect: 0 = none, 100 = full",
 		50, 0, 100));
