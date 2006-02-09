@@ -9,6 +9,7 @@ $Id$
 	     avoiding the 'assembling tokens to string' and 'parsing string
 	     to tokens' steps.
 	* Handle errors in the startup TCL scripts better
+	* Speedup noise effect a bit (~10%) by using prefetch instructions
 
 2006-02-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* New video effect: noise (experimental)

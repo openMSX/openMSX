@@ -70,8 +70,53 @@ static void drawNoiseLine(uint8* in, uint8* out, sint8* noise, unsigned width)
 {
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
+	if (cpu.hasMMXEXT()) {
+		// extended-MMX 32bpp
+		assert((width % 32) == 0);
+		asm (
+			"pcmpeqb  %%mm7, %%mm7;"
+			"psllw    $15, %%mm7;"
+			"packsswb %%mm7, %%mm7;"
+			".p2align 4,,15;"
+		"0:"
+			"prefetchnta 320(%0, %3);"
+			"movq       (%0, %3), %%mm0;"
+			"movq      8(%0, %3), %%mm1;"
+			"movq     16(%0, %3), %%mm2;"
+			"movq     24(%0, %3), %%mm3;"
+			"pxor     %%mm7, %%mm0;"
+			"pxor     %%mm7, %%mm1;"
+			"pxor     %%mm7, %%mm2;"
+			"pxor     %%mm7, %%mm3;"
+			"paddsb     (%2, %3), %%mm0;"
+			"paddsb    8(%2, %3), %%mm1;"
+			"paddsb   16(%2, %3), %%mm2;"
+			"paddsb   24(%2, %3), %%mm3;"
+			"pxor     %%mm7, %%mm0;"
+			"pxor     %%mm7, %%mm1;"
+			"pxor     %%mm7, %%mm2;"
+			"pxor     %%mm7, %%mm3;"
+			"movq     %%mm0,   (%1, %3);"
+			"movq     %%mm1,  8(%1, %3);"
+			"movq     %%mm2, 16(%1, %3);"
+			"movq     %%mm3, 24(%1, %3);"
+			"addl     $32, %3;"
+			"jnz      0b;"
+			"emms;"
+
+			: // no output
+			: "r" (in    + width) // 0
+			, "r" (out   + width) // 1
+			, "r" (noise + width) // 2
+			, "r" (-width)        // 3
+			#ifdef __MMX__
+			: "mm0", "mm1", "mm2", "mm3", "mm7"
+			#endif
+		);
+		return;
+	}
 	if (cpu.hasMMX()) {
-		// 32bpp
+		// MMX 32bpp
 		assert((width % 32) == 0);
 		asm (
 			"pcmpeqb  %%mm7, %%mm7;"
