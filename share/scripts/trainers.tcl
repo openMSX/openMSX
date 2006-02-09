@@ -4978,7 +4978,7 @@ proc trainer_vampire {} {
 	after time 1 trainer_vampire	
 }
 
-proc trainer_pachipro_densetsu {}{
+proc trainer_pachipro_densetsu {} {
 	#money
 	poke 0xe230 0x99
 	poke 0xe22f 0x99
