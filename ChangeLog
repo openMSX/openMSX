@@ -8,6 +8,7 @@ $Id$
 	     wrong when there were spaces in the filename. I fixed this by
 	     avoiding the 'assembling tokens to string' and 'parsing string
 	     to tokens' steps.
+	* Handle errors in the startup TCL scripts better
 
 2006-02-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* New video effect: noise (experimental)

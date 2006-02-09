@@ -25,7 +25,10 @@ proc data_file { file } {
 set user_scripts [glob -dir $env(OPENMSX_USER_DATA)/scripts -tails -nocomplain *.tcl]
 set system_scripts [glob -dir $env(OPENMSX_SYSTEM_DATA)/scripts -tails -nocomplain *.tcl]
 foreach script [lsort -unique [concat $user_scripts $system_scripts]] {
-	source [data_file scripts/$script]
+	set script [data_file scripts/$script]
+	if {[catch {source $script}]} {
+		puts stderr "Error while executing $script\n$errorInfo"
+	}
 }
 
 # Execute the init.tcl file in the user's directory (if it exists)
