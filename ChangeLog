@@ -1,5 +1,14 @@
 $Id$
 
+2006-02-09 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed bug, diskimages with spaces in the filename:
+	   - since a few days the disk images passed via the commandline
+	     execute a TCL command to insert the disk instead of calling a
+	     c++ routine (to avoid code duplication). However this went
+	     wrong when there were spaces in the filename. I fixed this by
+	     avoiding the 'assembling tokens to string' and 'parsing string
+	     to tokens' steps.
+
 2006-02-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* New video effect: noise (experimental)
 	   - try "set noise <x>"

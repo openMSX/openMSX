@@ -16,6 +16,7 @@ class Scheduler;
 class Command;
 class Setting;
 class InterpreterOutput;
+class TclObject;
 
 class Interpreter : public PollInterface
 {
@@ -57,6 +58,8 @@ private:
 	Tcl_Interp* interp;
 	std::map<std::string, Tcl_Command> commandTokenMap;
 	InterpreterOutput* output;
+
+	friend class TclObject;
 };
 
 } // namespace openmsx

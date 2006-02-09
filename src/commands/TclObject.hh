@@ -11,12 +11,15 @@ class Tcl_Obj;
 
 namespace openmsx {
 
+class Interpreter;
+
 class TclObject
 {
 public:
 	TclObject(Tcl_Interp* interp, Tcl_Obj* object);
 	TclObject(Tcl_Interp* interp, const std::string& value);
 	explicit TclObject(Tcl_Interp* interp);
+	explicit TclObject(Interpreter& interp);
 	explicit TclObject(const TclObject& object);
 	~TclObject();
 
@@ -51,6 +54,15 @@ public:
 	  * quick check for typos.
 	  */
 	void checkExpression() const;
+
+	/** Interpret this TclObject as a command and execute it.
+	  * @param compile Should the command be compiled to bytecode? The
+	  *           bytecode is stored inside the TclObject can speed up
+	  *           future invocations of the same command. Only set this
+	  *           flag when the command will be executed more than once.
+	  * TODO return TclObject instead of string?
+	  */
+	std::string executeCommand(bool compile = false);
 
 private:
 	TclObject& operator==(const TclObject&);

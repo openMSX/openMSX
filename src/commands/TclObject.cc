@@ -1,6 +1,7 @@
 // $Id$
 
 #include "TclObject.hh"
+#include "Interpreter.hh"
 #include "CommandException.hh"
 #include <cassert>
 #include <tcl.h>
@@ -24,6 +25,12 @@ TclObject::TclObject(Tcl_Interp* interp_, const string& value)
 
 TclObject::TclObject(Tcl_Interp* interp_)
 	: interp(interp_)
+{
+	init(Tcl_NewObj());
+}
+
+TclObject::TclObject(Interpreter& interp_)
+	: interp(interp_.interp)
 {
 	init(Tcl_NewObj());
 }
@@ -211,6 +218,18 @@ void TclObject::parse(const char* str, int len, bool expression) const
 		}
 	}
 }
+
+string TclObject::executeCommand(bool compile)
+{
+	int flags = compile ? 0 : TCL_EVAL_DIRECT;
+	int success = Tcl_EvalObjEx(interp, obj, flags);
+	string result =  Tcl_GetStringResult(interp);
+	if (success != TCL_OK) {
+		throw CommandException(result);
+	}
+	return result;
+}
+
 
 } // namespace openmsx
 

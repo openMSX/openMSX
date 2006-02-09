@@ -3,6 +3,7 @@
 #include "DiskImageCLI.hh"
 #include "MSXMotherBoard.hh"
 #include "CommandController.hh"
+#include "TclObject.hh"
 #include "GlobalSettings.hh"
 #include "XMLElement.hh"
 #include "FileContext.hh"
@@ -55,12 +56,14 @@ void DiskImageCLI::parse(const string& drive, const string& image,
 	if (!commandController.hasCommand(drive)) {
 		throw MSXException("No drive named '" + drive + "'.");
 	}
-	string command = drive + ' ' + image;
+	TclObject command(commandController.getInterpreter());
+	command.addListElement(drive);
+	command.addListElement(image);
 	while (peekArgument(cmdLine) == "-ips") {
 		cmdLine.pop_front();
-		command += ' ' + getArgument("-ips", cmdLine);
+		command.addListElement(getArgument("-ips", cmdLine));
 	}
-	commandController.executeCommand(command);
+	command.executeCommand();
 }
 
 } // namespace openmsx
