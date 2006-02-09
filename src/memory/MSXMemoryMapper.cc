@@ -6,7 +6,7 @@
 #include "MSXCPUInterface.hh"
 #include "MSXMotherBoard.hh"
 #include "FileContext.hh"
-#include "Ram.hh"
+#include "CheckedRam.hh"
 #include "StringOp.hh"
 #include "MSXException.hh"
 #include <cassert>
@@ -35,7 +35,7 @@ MSXMemoryMapper::MSXMemoryMapper(MSXMotherBoard& motherBoard,
 		                   StringOp::toString(kSize));
 	}
 	nbBlocks = kSize / 16;
-	ram.reset(new Ram(motherBoard, getName(), "memory mapper",
+	checkedRam.reset(new CheckedRam(motherBoard, getName(), "memory mapper",
 	                  nbBlocks * 0x4000));
 
 	createMapperIO(motherBoard, time);
@@ -50,7 +50,7 @@ MSXMemoryMapper::~MSXMemoryMapper()
 
 void MSXMemoryMapper::powerUp(const EmuTime& /*time*/)
 {
-	ram->clear();
+	checkedRam->clear();
 }
 
 void MSXMemoryMapper::createMapperIO(MSXMotherBoard& motherBoard,
@@ -103,24 +103,29 @@ void MSXMemoryMapper::reset(const EmuTime& time)
 	mapperIO->reset(time);
 }
 
+byte MSXMemoryMapper::peekMem(word address, const EmuTime& time) const
+{
+	return checkedRam->peek(address);
+}
+
 byte MSXMemoryMapper::readMem(word address, const EmuTime& /*time*/)
 {
-	return (*ram)[calcAddress(address)];
+	return checkedRam->read(calcAddress(address));
 }
 
 void MSXMemoryMapper::writeMem(word address, byte value, const EmuTime& /*time*/)
 {
-	(*ram)[calcAddress(address)] = value;
+	checkedRam->write(calcAddress(address), value);
 }
 
 const byte* MSXMemoryMapper::getReadCacheLine(word start) const
 {
-	return &(*ram)[calcAddress(start)];
+	return checkedRam->getReadCacheLine(calcAddress(start));
 }
 
 byte* MSXMemoryMapper::getWriteCacheLine(word start) const
 {
-	return &(*ram)[calcAddress(start)];
+	return checkedRam->getWriteCacheLine(calcAddress(start));
 }
 
 } // namespace openmsx

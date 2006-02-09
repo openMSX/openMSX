@@ -8,7 +8,7 @@
 
 namespace openmsx {
 
-class Ram;
+class CheckedRam;
 
 class MSXRam : public MSXDevice
 {
@@ -22,11 +22,13 @@ public:
 	virtual const byte* getReadCacheLine(word start) const;
 	virtual byte* getWriteCacheLine(word start) const;
 
+	virtual byte peekMem(word address, const EmuTime& time) const;	
+
 private:
 	inline word translate(word address) const;
 	unsigned base;
 	unsigned size;
-	std::auto_ptr<Ram> ram;
+	std::auto_ptr<CheckedRam> checkedRam;
 };
 
 } // namespace openmsx

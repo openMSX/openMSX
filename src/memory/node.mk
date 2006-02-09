@@ -7,7 +7,7 @@ SRC_HDR:= \
 	MSXMemoryMapper \
 	MSXRam \
 	MSXRomCLI \
-	Ram SRAM \
+	Ram SRAM CheckedRam \
 	Rom \
 	RomInfo RomFactory \
 	RomInfoTopic \

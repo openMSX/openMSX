@@ -1,5 +1,10 @@
 $Id$
 
+2006-02-09 Manuel Bilderbeek <manuel@msxnet.org>
+	* Introduced CheckedRam class. See the class documentation for
+	  details.
+	  TODO: make it useful by adding a usable UMR detector.
+
 2006-02-09 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed bug, diskimages with spaces in the filename:
 	   - since a few days the disk images passed via the commandline

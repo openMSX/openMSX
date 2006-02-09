@@ -2,7 +2,7 @@
 
 #include "MSXRam.hh"
 #include "CPU.hh"
-#include "Ram.hh"
+#include "CheckedRam.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
 
@@ -23,12 +23,12 @@ MSXRam::MSXRam(MSXMotherBoard& motherBoard, const XMLElement& config,
 		                   getName());
 	}
 
-	ram.reset(new Ram(motherBoard, getName(), "ram", size));
+	checkedRam.reset(new CheckedRam(motherBoard, getName(), "ram", size));
 }
 
 void MSXRam::powerUp(const EmuTime& /*time*/)
 {
-	ram->clear();
+	checkedRam->clear();
 }
 
 word MSXRam::translate(word address) const
@@ -37,24 +37,29 @@ word MSXRam::translate(word address) const
 	return (tmp < size) ? tmp : tmp & (size - 1);
 }
 
+byte MSXRam::peekMem(word address, const EmuTime& time) const
+{
+	return checkedRam->peek(address);
+}
+
 byte MSXRam::readMem(word address, const EmuTime& /*time*/)
 {
-	return (*ram)[translate(address)];
+	return checkedRam->read(translate(address));
 }
 
 void MSXRam::writeMem(word address, byte value, const EmuTime& /*time*/)
 {
-	(*ram)[translate(address)] = value;
+	checkedRam->write(translate(address), value);
 }
 
 const byte* MSXRam::getReadCacheLine(word start) const
 {
-	return &(*ram)[translate(start)];
+	return checkedRam->getReadCacheLine(translate(start));
 }
 
 byte* MSXRam::getWriteCacheLine(word start) const
 {
-	return &(*ram)[translate(start)];
+	return checkedRam->getWriteCacheLine(translate(start));
 }
 
 } // namespace openmsx

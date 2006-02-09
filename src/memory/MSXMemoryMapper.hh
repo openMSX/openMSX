@@ -10,7 +10,7 @@ namespace openmsx {
 
 class XMLElement;
 class MSXMapperIO;
-class Ram;
+class CheckedRam;
 
 class MSXMemoryMapper : public MSXDevice
 {
@@ -27,8 +27,10 @@ public:
 
 	virtual void reset(const EmuTime& time);
 
+	virtual byte peekMem(word address, const EmuTime& time) const;
+
 protected:
-	std::auto_ptr<Ram> ram;
+	std::auto_ptr<CheckedRam> checkedRam;
 
 private:
 	void createMapperIO(MSXMotherBoard& motherBoard, const EmuTime& time);
