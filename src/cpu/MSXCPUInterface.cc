@@ -147,6 +147,7 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard)
 	}
 	for (int primSlot = 0; primSlot < 4; ++primSlot) {
 		primarySlotState[primSlot] = 0;
+		secondarySlotState[primSlot] = 0;
 		expanded[primSlot] = 0;
 		subSlotRegister[primSlot] = 0;
 		for (int secSlot = 0; secSlot < 4; ++secSlot) {
