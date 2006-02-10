@@ -3,10 +3,11 @@
 #ifndef CHECKEDRAM_HH
 #define CHECKEDRAM_HH
 
-#include "openmsx.hh"
 #include "CPU.hh"
+#include "openmsx.hh"
 #include <vector>
 #include <bitset>
+#include <memory>
 
 namespace openmsx {
 
@@ -21,23 +22,23 @@ class MSXCPU;
  * (MSXRam) and all normal memory mappers (MSXMemoryMappers) use CheckedRam. On
  * the turboR, only the normal memory mapper runs via CheckedRam. The RAM
  * accessed in DRAM mode or via the ROM mapper are unchecked! Note that there
- * is basically no overhead for this CheckedRam, thanks to Wouter.
+ * is basically no overhead for using CheckedRam over Ram, thanks to Wouter.
  */
 class CheckedRam
 {
 public:
 	CheckedRam(MSXMotherBoard& motherBoard, const std::string& name,
-	    const std::string& description, unsigned size);
+	           const std::string& description, unsigned size);
 	virtual ~CheckedRam();
 
-	const byte read(unsigned addr);
-	const byte peek(unsigned addr) const;
+	byte read(unsigned addr);
+	byte peek(unsigned addr) const;
 	void write(unsigned addr, const byte value);
 	
-	const byte* getReadCacheLine(unsigned addr);
-	byte* getWriteCacheLine(unsigned addr);
+	const byte* getReadCacheLine(unsigned addr) const;
+	byte* getWriteCacheLine(unsigned addr) const;
 
-	unsigned getSize();
+	unsigned getSize() const;
 	void clear();
 
 	/**
@@ -46,13 +47,12 @@ public:
 	 * consistently, so that the initialized-administration will be always
 	 * up to date!
 	 */
-	Ram* getUncheckedRam();
+	Ram& getUncheckedRam() const;
 
 private:
-	unsigned size;
 	std::vector<bool> completely_initialized_cacheline;
 	std::vector<std::bitset<CPU::CACHE_LINE_SIZE> > uninitialized;
-	Ram* ram;
+	const std::auto_ptr<Ram> ram;
 	MSXCPU& msxcpu;
 
 	unsigned umrcount;

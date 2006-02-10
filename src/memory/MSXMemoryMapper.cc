@@ -36,7 +36,7 @@ MSXMemoryMapper::MSXMemoryMapper(MSXMotherBoard& motherBoard,
 	}
 	nbBlocks = kSize / 16;
 	checkedRam.reset(new CheckedRam(motherBoard, getName(), "memory mapper",
-	                  nbBlocks * 0x4000));
+	                                nbBlocks * 0x4000));
 
 	createMapperIO(motherBoard, time);
 	mapperIO->registerMapper(nbBlocks);
@@ -103,7 +103,7 @@ void MSXMemoryMapper::reset(const EmuTime& time)
 	mapperIO->reset(time);
 }
 
-byte MSXMemoryMapper::peekMem(word address, const EmuTime& time) const
+byte MSXMemoryMapper::peekMem(word address, const EmuTime& /*time*/) const
 {
 	return checkedRam->peek(address);
 }

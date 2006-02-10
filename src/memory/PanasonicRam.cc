@@ -11,7 +11,7 @@ PanasonicRam::PanasonicRam(MSXMotherBoard& motherBoard,
                            const XMLElement& config, const EmuTime& time)
 	: MSXMemoryMapper(motherBoard, config, time)
 {
-	motherBoard.getPanasonicMemory().registerRam(*(checkedRam->getUncheckedRam()));
+	motherBoard.getPanasonicMemory().registerRam(checkedRam->getUncheckedRam());
 }
 
 } // namespace openmsx
