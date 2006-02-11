@@ -339,6 +339,11 @@ GLRasterizer::GLRasterizer(
 	// Init the palette.
 	precalcPalette();
 
+	// Initialize palette (avoid UMR)
+	for (int i = 0; i < 16; ++i) {
+		palFg[i] = palFg[i + 16] = palBg[i] = V9938_COLOURS[0][0][0];
+	}
+
 	// Store current (black) frame as a texture.
 	storedFrame.store(screen.getWidth(), screen.getHeight());
 
@@ -377,6 +382,7 @@ void GLRasterizer::reset()
 	spriteConverter.setTransparency(vdp.getTransparency());
 
 	// Invalidate bitmap cache.
+	dirtyColour.flush();
 	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 
 	resetPalette();
@@ -533,10 +539,6 @@ void GLRasterizer::precalcPalette()
 			word grb = Renderer::GRAPHIC7_SPRITE_PALETTE[i];
 			palGraphic7Sprites[i] =
 				V9938_COLOURS[(grb >> 4) & 7][grb >> 8][grb & 7];
-		}
-		// Initialize palette (avoid UMR)
-		for (int i = 0; i < 16; ++i) {
-			palFg[i] = palFg[i + 16] = palBg[i] = V9938_COLOURS[0][0][0];
 		}
 	}
 }
@@ -1190,6 +1192,10 @@ void GLRasterizer::update(const Setting& setting)
 	    (&setting == &renderSettings.getContrast())) {
 		precalcPalette();
 		resetPalette();
+	
+		// Invalidate bitmap cache (still needed for non-palette modes)
+		dirtyColour.flush();
+		memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 	}
 }
 
