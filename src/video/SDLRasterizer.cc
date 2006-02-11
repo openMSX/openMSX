@@ -12,10 +12,8 @@
 #include "MemoryOps.hh"
 #include "MSXMotherBoard.hh"
 #include "VisibleSurface.hh"
-#include <SDL.h>
 #include <algorithm>
 #include <cassert>
-#include <cmath>
 
 namespace openmsx {
 
@@ -144,7 +142,7 @@ SDLRasterizer<Pixel>::SDLRasterizer(
 		vdp.getMotherBoard().getCommandController(),
 		display, screen_, VIDEO_MSX, 640, 240
 		))
-	, gammaSetting(display.getRenderSettings().getGamma())
+	, renderSettings(display.getRenderSettings())
 	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS)
 	, spriteConverter(vdp.getSpriteChecker())
@@ -160,12 +158,20 @@ SDLRasterizer<Pixel>::SDLRasterizer(
 		: new RawFrame(screen.getFormat(), 512, 256 * 4);
 
 	// Init the palette.
-	precalcPalette(display.getRenderSettings().getGamma().getValue());
+	precalcPalette();
+
+	renderSettings.getGamma()     .attach(*this);
+	renderSettings.getBrightness().attach(*this);
+	renderSettings.getContrast()  .attach(*this);
 }
 
 template <class Pixel>
 SDLRasterizer<Pixel>::~SDLRasterizer()
 {
+	renderSettings.getGamma()     .detach(*this);
+	renderSettings.getBrightness().detach(*this);
+	renderSettings.getContrast()  .detach(*this);
+
 	delete bitmapDisplayCache;
 	delete charDisplayCache;
 	delete workFrame;
@@ -215,13 +221,6 @@ void SDLRasterizer<Pixel>::frameStart()
 	// NTSC: display at [32..244),
 	// PAL:  display at [59..271).
 	lineRenderTop = vdp.isPalTiming() ? 59 - 14 : 32 - 14;
-
-	double gamma = gammaSetting.getValue();
-	// (gamma != prevGamma) gives compiler warnings
-	if ((gamma > prevGamma) || (gamma < prevGamma)) {
-		precalcPalette(gamma);
-		resetPalette();
-	}
 }
 
 template <class Pixel>
@@ -284,33 +283,30 @@ void SDLRasterizer<Pixel>::setTransparency(bool enabled)
 }
 
 template <class Pixel>
-void SDLRasterizer<Pixel>::precalcPalette(double gamma)
+void SDLRasterizer<Pixel>::precalcPalette()
 {
-	prevGamma = gamma;
-
-	// It's gamma correction, so apply in reverse.
-	gamma = 1.0 / gamma;
-
 	if (vdp.isMSX1VDP()) {
 		// Fixed palette.
 		for (int i = 0; i < 16; i++) {
 			const byte* rgb = Renderer::TMS99X8A_PALETTE[i];
-			palFg[i] = palFg[i + 16] = palBg[i] = SDL_MapRGB(
-				screen.getFormat(),
-				(int)(::pow((double)rgb[0] / 255.0, gamma) * 255),
-				(int)(::pow((double)rgb[1] / 255.0, gamma) * 255),
-				(int)(::pow((double)rgb[2] / 255.0, gamma) * 255));
+			double dr = rgb[0] / 255.0;
+			double dg = rgb[1] / 255.0;
+			double db = rgb[2] / 255.0;
+			renderSettings.transformRGB(dr, dg, db);
+			palFg[i] = palFg[i + 16] = palBg[i] =
+				screen.mapRGB(dr, dg, db);
 		}
 	} else {
 		// Precalculate palette for V9938 colours.
 		for (int r = 0; r < 8; r++) {
 			for (int g = 0; g < 8; g++) {
 				for (int b = 0; b < 8; b++) {
-					V9938_COLOURS[r][g][b] = SDL_MapRGB(
-						screen.getFormat(),
-						(int)(::pow((double)r / 7.0, gamma) * 255),
-						(int)(::pow((double)g / 7.0, gamma) * 255),
-						(int)(::pow((double)b / 7.0, gamma) * 255));
+					double dr = r / 7.0;
+					double dg = g / 7.0;
+					double db = b / 7.0;
+					renderSettings.transformRGB(dr, dg, db);
+					V9938_COLOURS[r][g][b] =
+						screen.mapRGB(dr, dg, db);
 				}
 			}
 		}
@@ -318,12 +314,12 @@ void SDLRasterizer<Pixel>::precalcPalette(double gamma)
 		for (int r = 0; r < 32; r++) {
 			for (int g = 0; g < 32; g++) {
 				for (int b = 0; b < 32; b++) {
-					V9958_COLOURS[(r<<10) + (g<<5) + b] = SDL_MapRGB(
-						screen.getFormat(),
-						(int)(::pow((double)r / 31.0, gamma) * 255),
-						(int)(::pow((double)g / 31.0, gamma) * 255),
-						(int)(::pow((double)b / 31.0, gamma) * 255)
-						);
+					double dr = r / 31.0;
+					double dg = g / 31.0;
+					double db = b / 31.0;
+					renderSettings.transformRGB(dr, dg, db);
+					V9958_COLOURS[(r<<10) + (g<<5) + b] =
+						screen.mapRGB(dr, dg, db);
 				}
 			}
 		}
@@ -588,6 +584,17 @@ void SDLRasterizer<Pixel>::drawSprites(
 		} else {
 			spriteConverter.drawMode2(y, displayX, displayLimitX, pixelPtr);
 		}
+	}
+}
+
+template <class Pixel>
+void SDLRasterizer<Pixel>::update(const Setting& setting)
+{
+	if ((&setting == &renderSettings.getGamma()) ||
+	    (&setting == &renderSettings.getBrightness()) ||
+	    (&setting == &renderSettings.getContrast())) {
+		precalcPalette();
+		resetPalette();
 	}
 }
 

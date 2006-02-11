@@ -11,7 +11,6 @@
 #include "MemoryOps.hh"
 #include "MSXMotherBoard.hh"
 #include <algorithm>
-#include <SDL.h>
 
 using std::min;
 using std::max;
@@ -23,13 +22,13 @@ V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(
 		V9990& vdp_, Display& display, VisibleSurface& screen_)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, screen(screen_)
+	, renderSettings(display.getRenderSettings())
 	, postProcessor(new PostProcessor<Pixel>(
 		vdp.getMotherBoard().getCommandController(),
 		display, screen_, VIDEO_GFX9000, 1280, 240))
 	, bitmapConverter(vdp, palette64, palette256, palette32768)
 	, p1Converter(vdp, palette64)
 	, p2Converter(vdp, palette64)
-	, deinterlaceSetting(display.getRenderSettings().getDeinterlace())
 {
 	workFrame = new RawFrame(screen.getFormat(), 1280, 240);
 
@@ -261,11 +260,12 @@ void V9990SDLRasterizer<Pixel>::precalcPalettes()
 	for (int g = 0; g < 32; ++g) {
 		for (int r = 0; r < 32; ++r) {
 			for (int b = 0; b < 32; ++b) {
+				double dr = r / 31.0;
+				double dg = g / 31.0;
+				double db = b / 31.0;
+				renderSettings.transformRGB(dr, dg, db);
 				palette32768[(g << 10) + (r << 5) + b] =
-					SDL_MapRGB(screen.getFormat(),
-					           (int)(r * (255.0 / 31.0)),
-					           (int)(g * (255.0 / 31.0)),
-					           (int)(b * (255.0 / 31.0)));
+					screen.mapRGB(dr, dg, db);
 			}
 		}
 	}

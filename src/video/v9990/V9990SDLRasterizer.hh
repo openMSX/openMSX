@@ -18,7 +18,7 @@ class V9990VRAM;
 class RawFrame;
 class OutputSurface;
 class VisibleSurface;
-class BooleanSetting;
+class RenderSettings;
 template <class Pixel> class PostProcessor;
 
 /** Rasterizer using SDL.
@@ -68,6 +68,10 @@ private:
 	  */
 	RawFrame* workFrame;
 
+	/** The current renderer settings (gamma, brightness, contrast)
+	  */
+	RenderSettings& renderSettings;
+	
 	/** Line to render at top of display.
 	  * After all, our screen is 240 lines while display is 262 or 313.
 	  */
@@ -113,10 +117,6 @@ private:
 	/** P2 Converter
 	  */
 	V9990P2Converter<Pixel> p2Converter;
-
-	/** Deinterlace setting
-	  */
-	BooleanSetting& deinterlaceSetting;
 
 	/** Fill the palettes.
 	  */

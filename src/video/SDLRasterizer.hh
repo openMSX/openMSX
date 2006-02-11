@@ -7,6 +7,7 @@
 #include "CharacterConverter.hh"
 #include "BitmapConverter.hh"
 #include "SpriteConverter.hh"
+#include "Observer.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include <memory>
@@ -19,13 +20,15 @@ class VDPVRAM;
 class OutputSurface;
 class VisibleSurface;
 class RawFrame;
-class FloatSetting;
+class RenderSettings;
+class Setting;
 template <class Pixel> class PostProcessor;
 
 /** Rasterizer using SDL.
   */
 template <class Pixel>
-class SDLRasterizer : public Rasterizer, private noncopyable
+class SDLRasterizer : public Rasterizer, private noncopyable,
+                      private Observer<Setting>
 {
 public:
 	SDLRasterizer(VDP& vdp, Display& display, VisibleSurface& screen);
@@ -77,9 +80,8 @@ private:
 	/** Precalc palette values.
 	  * For MSX1 VDPs, results go directly into palFg/palBg.
 	  * For higher VDPs, results go into V9938_COLOURS and V9958_COLOURS.
-	  * @param gamma Gamma correction factor.
 	  */
-	void precalcPalette(double gamma);
+	void precalcPalette();
 
 	/** Precalc foreground colour index 0 (palFg[0]).
 	  * @param mode Current display mode.
@@ -88,6 +90,9 @@ private:
 	void precalcColourIndex0(DisplayMode mode, bool transparency,
 	                         byte bgcolorIndex);
 
+	// Observer<Setting>
+	virtual void update(const Setting& setting);
+	
 	/** The VDP of which the video output is being rendered.
 	  */
 	VDP& vdp;
@@ -156,13 +161,9 @@ private:
 	  */
 	RawFrame* bitmapDisplayCache;
 
-	/** Gamma correction setting.
+	/** The current renderer settings (gamma, brightness, contrast)
 	  */
-	FloatSetting& gammaSetting;
-
-	/** Previous value of gammaSetting.
-	  */
-	double prevGamma;
+	RenderSettings& renderSettings;
 
 	/** Display mode the line is valid in.
 	  * 0xFF means invalid in every mode.

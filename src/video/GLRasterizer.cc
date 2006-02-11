@@ -26,7 +26,6 @@ TODO:
 #include "IntegerSetting.hh"
 #include "build-info.hh"
 #include <algorithm>
-#include <cmath>
 
 using std::string;
 
@@ -43,8 +42,11 @@ static const int TICKS_LEFT_BORDER = 100 + 102;
 static const int TICKS_VISIBLE_MIDDLE =
 	TICKS_LEFT_BORDER + (VDP::TICKS_PER_LINE - TICKS_LEFT_BORDER - 27) / 2;
 
-inline static GLRasterizer::Pixel GLMapRGB(int r, int g, int b)
+inline static GLRasterizer::Pixel GLMapRGB(double dr, double dg, double db)
 {
+	int r = static_cast<int>(dr * 255.0);
+	int g = static_cast<int>(dg * 255.0);
+	int b = static_cast<int>(db * 255.0);
 	if (OPENMSX_BIGENDIAN) {
 		return (r << 24) | (g << 16) | (b <<  8) | 0x000000FF;
 	} else {
@@ -335,7 +337,7 @@ GLRasterizer::GLRasterizer(
 	bitmapTexture = vdp.isMSX1VDP() ? NULL : new BitmapTexture();
 
 	// Init the palette.
-	precalcPalette(renderSettings.getGamma().getValue());
+	precalcPalette();
 
 	// Store current (black) frame as a texture.
 	storedFrame.store(screen.getWidth(), screen.getHeight());
@@ -343,10 +345,18 @@ GLRasterizer::GLRasterizer(
 	// Register caches with VDPVRAM.
 	vram.patternTable.setObserver(&dirtyPattern);
 	vram.colourTable.setObserver(&dirtyColour);
+
+	renderSettings.getGamma()     .attach(*this);
+	renderSettings.getBrightness().attach(*this);
+	renderSettings.getContrast()  .attach(*this);
 }
 
 GLRasterizer::~GLRasterizer()
 {
+	renderSettings.getGamma()     .detach(*this);
+	renderSettings.getBrightness().detach(*this);
+	renderSettings.getContrast()  .detach(*this);
+
 	// Unregister caches with VDPVRAM.
 	vram.patternTable.resetObserver();
 	vram.colourTable.resetObserver();
@@ -390,13 +400,6 @@ void GLRasterizer::frameStart()
 	// NTSC: display at [32..244),
 	// PAL:  display at [59..271).
 	lineRenderTop = vdp.isPalTiming() ? 59 - 14 : 32 - 14;
-
-	double gamma = renderSettings.getGamma().getValue();
-	// (gamma != prevGamma) gives compiler warnings
-	if ((gamma > prevGamma) || (gamma < prevGamma)) {
-		precalcPalette(gamma);
-		resetPalette();
-	}
 }
 
 void GLRasterizer::frameEnd()
@@ -478,31 +481,30 @@ void GLRasterizer::setTransparency(bool enabled)
 		vdp.getDisplayMode(), enabled, vdp.getBackgroundColour());
 }
 
-void GLRasterizer::precalcPalette(double gamma)
+void GLRasterizer::precalcPalette()
 {
-	prevGamma = gamma;
-
-	// It's gamma correction, so apply in reverse.
-	gamma = 1.0 / gamma;
-
 	if (vdp.isMSX1VDP()) {
 		// Fixed palette.
 		for (int i = 0; i < 16; i++) {
 			const byte *rgb = Renderer::TMS99X8A_PALETTE[i];
-			palFg[i] = palFg[i + 16] = palBg[i] = GLMapRGB(
-				(int)(::pow((double)rgb[0] / 255.0, gamma) * 255),
-				(int)(::pow((double)rgb[1] / 255.0, gamma) * 255),
-				(int)(::pow((double)rgb[2] / 255.0, gamma) * 255));
+			double dr = rgb[0] / 255.0;
+			double dg = rgb[1] / 255.0;
+			double db = rgb[2] / 255.0;
+			renderSettings.transformRGB(dr, dg, db);
+			palFg[i] = palFg[i + 16] = palBg[i] =
+				GLMapRGB(dr, dg, db);
 		}
 	} else {
 		// Precalculate palette for V9938 colours.
 		for (int r = 0; r < 8; r++) {
 			for (int g = 0; g < 8; g++) {
 				for (int b = 0; b < 8; b++) {
-					V9938_COLOURS[r][g][b] = GLMapRGB(
-						(int)(::pow((double)r / 7.0, gamma) * 255),
-						(int)(::pow((double)g / 7.0, gamma) * 255),
-						(int)(::pow((double)b / 7.0, gamma) * 255));
+					double dr = r / 7.0;
+					double dg = g / 7.0;
+					double db = b / 7.0;
+					renderSettings.transformRGB(dr, dg, db);
+					V9938_COLOURS[r][g][b] =
+						GLMapRGB(dr, dg, db);
 				}
 			}
 		}
@@ -510,10 +512,12 @@ void GLRasterizer::precalcPalette(double gamma)
 		for (int r = 0; r < 32; r++) {
 			for (int g = 0; g < 32; g++) {
 				for (int b = 0; b < 32; b++) {
-					V9958_COLOURS[(r<<10) + (g<<5) + b] = GLMapRGB(
-						(int)(::pow((double)r / 31.0, gamma) * 255),
-						(int)(::pow((double)g / 31.0, gamma) * 255),
-						(int)(::pow((double)b / 31.0, gamma) * 255));
+					double dr = r / 31.0;
+					double dg = g / 31.0;
+					double db = b / 31.0;
+					renderSettings.transformRGB(dr, dg, db);
+					V9958_COLOURS[(r<<10) + (g<<5) + b] =
+						GLMapRGB(dr, dg, db);
 				}
 			}
 		}
@@ -1176,6 +1180,17 @@ void GLRasterizer::drawSprites(
 
 	glDisable(GL_BLEND);
 	glDisable(GL_TEXTURE_2D);
+}
+
+void GLRasterizer::update(const Setting& setting)
+{
+	VideoLayer::update(setting);
+	if ((&setting == &renderSettings.getGamma()) ||
+	    (&setting == &renderSettings.getBrightness()) ||
+	    (&setting == &renderSettings.getContrast())) {
+		precalcPalette();
+		resetPalette();
+	}
 }
 
 } // namespace openmsx

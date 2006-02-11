@@ -53,6 +53,12 @@ public:
 	/** The amount of gamma correction. */
 	FloatSetting& getGamma() const { return *gamma; }
 
+	/** Brightness video setting. */
+	FloatSetting& getBrightness() const { return *brightness; }
+
+	/** Contrast video setting. */
+	FloatSetting& getContrast() const { return *contrast; }
+
 	/** The amount of glow [0..100]. */
 	IntegerSetting& getGlow() const { return *glow; }
 
@@ -91,6 +97,14 @@ public:
 	  * This setting is intended for debugging only, not for users. */
 	EnumSetting<bool>& getCmdTiming() { return *cmdTiming; }
 
+	/** Apply brightness, contrast and gamma transformation on the input
+	  * color. The R, G and B component are expected to be in the range
+	  * [0.0  1.0] but it's not an error if a component lays outside of
+	  * this range. After transformation it's guaranteed all components
+	  * lay inside this range.
+	  */
+	void transformRGB(double& r, double& g, double& b);
+
 private:
 	// Please keep the settings ordered alphabetically.
 	std::auto_ptr<EnumSetting<Accuracy> > accuracy;
@@ -98,6 +112,8 @@ private:
 	std::auto_ptr<BooleanSetting> deinterlace;
 	std::auto_ptr<BooleanSetting> fullScreen;
 	std::auto_ptr<FloatSetting> gamma;
+	std::auto_ptr<FloatSetting> brightness;
+	std::auto_ptr<FloatSetting> contrast;
 	std::auto_ptr<IntegerSetting> glow;
 	std::auto_ptr<FloatSetting> noise;
 	std::auto_ptr<IntegerSetting> horizontalBlur;

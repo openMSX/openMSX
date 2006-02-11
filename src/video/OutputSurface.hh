@@ -8,13 +8,6 @@
 
 namespace openmsx {
 
-class Layer;
-class MSXMotherBoard;
-class CommandController;
-class EventDistributor;
-class Display;
-class IconStatus;
-
 /** A frame buffer where pixels can be written to.
   * It could be an in-memory buffer or a video buffer visible to the user
   * (see VisibleSurface subclass).
@@ -32,6 +25,8 @@ public:
 	Pixel* getLinePtr(unsigned y, Pixel* /*dummy*/) {
 		return (Pixel*)(data + y * pitch);
 	}
+
+	unsigned mapRGB(double r, double g, double b);
 
 protected:
 	OutputSurface();

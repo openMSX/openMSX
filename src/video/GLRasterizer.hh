@@ -92,9 +92,8 @@ private:
 	/** Precalc palette values.
 	  * For MSX1 VDPs, results go directly into palFg/palBg.
 	  * For higher VDPs, results go into V9938_COLOURS and V9958_COLOURS.
-	  * @param gamma Gamma correction factor.
 	  */
-	void precalcPalette(double gamma);
+	void precalcPalette();
 
 	/** Precalc foreground colour index 0 (palFg[0]).
 	  * @param mode Current display mode.
@@ -103,6 +102,9 @@ private:
 	void precalcColourIndex0(DisplayMode mode, bool transparency,
 	                         byte bgcolorIndex);
 
+	// Observer<Setting>
+	void GLRasterizer::update(const Setting& setting);
+	
 	/** Settings shared between all renderers
 	 */
 	RenderSettings& renderSettings;
@@ -186,10 +188,6 @@ private:
 	/** Is the frame buffer dirty?
 	  */
 	bool frameDirty;
-
-	/** Previous value of gamma setting.
-	  */
-	double prevGamma;
 
 	/** Display mode the line is valid in.
 	  * 0xFF means invalid in every mode.
