@@ -30,6 +30,11 @@ unsigned SimpleDebuggable::getSize() const
 	return size;
 }
 
+const std::string& SimpleDebuggable::getName() const
+{
+	return name;
+}
+
 const std::string& SimpleDebuggable::getDescription() const
 {
 	return description;

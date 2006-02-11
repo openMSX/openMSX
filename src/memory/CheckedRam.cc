@@ -4,10 +4,13 @@
 #include "Ram.hh"
 #include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
-#include "StringOp.hh"
+#include "CommandController.hh"
+#include "CommandException.hh"
+#include "CliComm.hh"
+#include "GlobalSettings.hh"
+#include "StringSetting.hh"
 #include "likely.hh"
 #include <algorithm>
-#include <iostream>
 
 namespace openmsx {
 
@@ -24,22 +27,19 @@ CheckedRam::CheckedRam(MSXMotherBoard& motherBoard, const std::string& name,
 	, uninitialized(size / CPU::CACHE_LINE_SIZE, getBitSetAllTrue())
 	, ram(new Ram(motherBoard, name, description, size))
 	, msxcpu(motherBoard.getCPU())
+	, commandController(motherBoard.getCommandController())
 {
-	umrcount = 0;
 }
 
 CheckedRam::~CheckedRam()
 {
-//	std::cout << "(Destructor) UMRs detected: " << umrcount << std::endl;
 }
 
 byte CheckedRam::read(unsigned addr)
 {
 	if (unlikely(uninitialized[addr >> CPU::CACHE_LINE_BITS]
 	                          [addr &  CPU::CACHE_LINE_LOW])) {
-//		std::cout << "UMR detected, reading from address 0x"
-//		          << StringOp::toHexString(addr, 4) << std::endl;
-		++umrcount;
+		callUMRCallBack(addr);
 	}
 	return (*ram)[addr];
 }
@@ -75,8 +75,6 @@ void CheckedRam::write(unsigned addr, const byte value)
 
 void CheckedRam::clear()
 {
-//	std::cout << "UMRs detected: " << umrcount << std::endl;
-	umrcount = 0;
 	ram->clear();
 	fill(uninitialized.begin(), uninitialized.end(), getBitSetAllTrue());
 	fill(completely_initialized_cacheline.begin(),
@@ -91,6 +89,24 @@ unsigned CheckedRam::getSize() const
 Ram& CheckedRam::getUncheckedRam() const
 {
 	return *ram;
+}
+
+void CheckedRam::callUMRCallBack(unsigned addr)
+{
+	const std::string callback = commandController.getGlobalSettings().getUMRCallBackSetting().getValue();
+	if (callback.size() > 0)
+	{
+		TclObject command(commandController.getInterpreter());
+		command.addListElement(callback);
+		command.addListElement(static_cast<int>(addr));
+		command.addListElement(ram.get()->getName());
+		try {
+			command.executeCommand();
+		} catch (CommandException& e) {
+                        commandController.getCliComm().printWarning("Error executing UMR callback function \"" + callback + "\": " + e.getMessage() + "\nPlease fix your script or set a proper callback function in the umr_callback setting.");
+                }
+
+	}
 }
 
 } // namespace openmsx

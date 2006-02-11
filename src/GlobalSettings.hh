@@ -31,6 +31,7 @@ public:
 	BooleanSetting& getAutoSaveSetting();
 	BooleanSetting& getConsoleSetting();
 	StringSetting&  getUserDirSetting();
+	StringSetting&  getUMRCallBackSetting();
 	ThrottleManager& getThrottleManager();
 	XMLElement& getMediaConfig();
 
@@ -43,6 +44,7 @@ private:
 	std::auto_ptr<BooleanSetting> autoSaveSetting;
 	std::auto_ptr<BooleanSetting> consoleSetting;
 	std::auto_ptr<StringSetting>  userDirSetting;
+	std::auto_ptr<StringSetting>  umrCallBackSetting;
 	std::auto_ptr<ThrottleManager> throttleManager;
 	std::auto_ptr<XMLElement> mediaConfig;
 };

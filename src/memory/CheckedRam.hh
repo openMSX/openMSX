@@ -14,6 +14,7 @@ namespace openmsx {
 class MSXMotherBoard;
 class Ram;
 class MSXCPU;
+class CommandController;
 
 /**
  * This class keeps track of which bytes in the Ram have been written to. It
@@ -49,13 +50,15 @@ public:
 	 */
 	Ram& getUncheckedRam() const;
 
+
 private:
+	void callUMRCallBack(unsigned addr);
+	
 	std::vector<bool> completely_initialized_cacheline;
 	std::vector<std::bitset<CPU::CACHE_LINE_SIZE> > uninitialized;
 	const std::auto_ptr<Ram> ram;
 	MSXCPU& msxcpu;
-
-	unsigned umrcount;
+	CommandController& commandController;
 };
 
 } // namespace openmsx

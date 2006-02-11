@@ -28,6 +28,8 @@ GlobalSettings::GlobalSettings(CommandController& commandController_)
 	        "turns console display on/off", false, Setting::DONT_SAVE));
 	userDirSetting.reset(new StringSetting(commandController,
 	        "user_directories", "list of user directories", ""));
+	umrCallBackSetting.reset(new StringSetting(commandController,
+	        "umr_callback", "TCL proc to call when an UMR is detected", ""));
 	throttleManager.reset(new ThrottleManager(commandController));
 }
 
@@ -67,6 +69,10 @@ ThrottleManager& GlobalSettings::getThrottleManager()
 	return *throttleManager.get();
 }
 
+StringSetting& GlobalSettings::getUMRCallBackSetting()
+{
+	return *umrCallBackSetting.get();
+}
 StringSetting& GlobalSettings::getUserDirSetting()
 {
 	return *userDirSetting.get();

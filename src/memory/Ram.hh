@@ -28,6 +28,7 @@ public:
 		return ram[addr];
 	}
 	unsigned getSize() const { return size; }
+	const std::string& getName() const;
 	void clear();
 
 private:

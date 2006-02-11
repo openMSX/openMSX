@@ -18,6 +18,7 @@ public:
 	virtual ~SimpleDebuggable();
 
 	virtual unsigned getSize() const;
+	virtual const std::string& getName() const;
 	virtual const std::string& getDescription() const;
 
 	virtual byte read(unsigned address);

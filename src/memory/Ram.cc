@@ -36,6 +36,10 @@ void Ram::clear()
 	memset(ram, 0xFF, size);
 }
 
+const std::string& Ram::getName() const
+{
+	return debuggable.get()->getName();
+}
 
 RamDebuggable::RamDebuggable(MSXMotherBoard& motherBoard,
                              const std::string& name,
