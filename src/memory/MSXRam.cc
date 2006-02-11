@@ -39,7 +39,7 @@ word MSXRam::translate(word address) const
 
 byte MSXRam::peekMem(word address, const EmuTime& /*time*/) const
 {
-	return checkedRam->peek(address);
+	return checkedRam->peek(translate(address));
 }
 
 byte MSXRam::readMem(word address, const EmuTime& /*time*/)

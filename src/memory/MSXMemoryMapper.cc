@@ -105,7 +105,7 @@ void MSXMemoryMapper::reset(const EmuTime& time)
 
 byte MSXMemoryMapper::peekMem(word address, const EmuTime& /*time*/) const
 {
-	return checkedRam->peek(address);
+	return checkedRam->peek(calcAddress(address));
 }
 
 byte MSXMemoryMapper::readMem(word address, const EmuTime& /*time*/)
