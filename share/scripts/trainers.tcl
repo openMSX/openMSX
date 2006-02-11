@@ -2613,7 +2613,14 @@ proc trainer_higemaru {} {
 	poke 0xe516 0x99
 	#enemies to kill before entering the gate to a boss
 	poke 0xe539 0
-after time 2 trainer_higemaru
+	#get all keys
+	poke 0xe517 255
+	#get all items
+	poke 0xe519 255
+	poke 0xe51a 255
+	#untouchable
+	poke 0xe026 255
+after time 1 trainer_higemaru
 }
 
 proc trainer_bombaman {} {
@@ -3530,7 +3537,13 @@ proc trainer_deepforest {} {
 	poke 0xeb1a 255
  	#money
     poke 0xeb1b 99 	
-    poke 0xeb1c 99 
+    poke 0xeb1c 99
+    #untouchable
+    #poke 0xea0e 255
+    #jump higher
+    poke 0xea0d 255
+    poke 0xea0f 255
+    poke 0xea08 255
  	after time 2 trainer_deepforest 	
 }
 
