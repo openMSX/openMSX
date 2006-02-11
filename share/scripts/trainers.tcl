@@ -4986,3 +4986,18 @@ proc trainer_pachipro_densetsu {} {
 	poke 0xe22d 0x99
 	after time 1 trainer_pachipro_densetsu	
 }
+
+proc trainer_indian_no_bouken {} {
+	#lives
+	poke 0xe60e 255
+	#boomerang
+	poke 0xe610 99
+	after time 1 trainer_indian_no_bouken	
+}
+
+proc trainer_shalom {} {
+	#power 
+	poke 0xe3f6 255
+	after time 1 trainer_shalom	
+}
+
