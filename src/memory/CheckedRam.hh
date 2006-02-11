@@ -50,7 +50,6 @@ public:
 	 */
 	Ram& getUncheckedRam() const;
 
-
 private:
 	void callUMRCallBack(unsigned addr);
 	

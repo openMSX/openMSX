@@ -93,9 +93,9 @@ Ram& CheckedRam::getUncheckedRam() const
 
 void CheckedRam::callUMRCallBack(unsigned addr)
 {
-	const std::string callback = commandController.getGlobalSettings().getUMRCallBackSetting().getValue();
-	if (callback.size() > 0)
-	{
+	const std::string callback = commandController.getGlobalSettings().
+	                                     getUMRCallBackSetting().getValue();
+	if (!callback.empty()) {
 		TclObject command(commandController.getInterpreter());
 		command.addListElement(callback);
 		command.addListElement(static_cast<int>(addr));
@@ -103,9 +103,12 @@ void CheckedRam::callUMRCallBack(unsigned addr)
 		try {
 			command.executeCommand();
 		} catch (CommandException& e) {
-                        commandController.getCliComm().printWarning("Error executing UMR callback function \"" + callback + "\": " + e.getMessage() + "\nPlease fix your script or set a proper callback function in the umr_callback setting.");
-                }
-
+			commandController.getCliComm().printWarning(
+				"Error executing UMR callback function \"" +
+				callback + "\": " + e.getMessage() + "\n"
+				"Please fix your script or set a proper "
+				"callback function in the umr_callback setting.");
+		}
 	}
 }
 
