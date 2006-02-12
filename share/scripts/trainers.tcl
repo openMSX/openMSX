@@ -928,7 +928,7 @@ proc trainer_andorogynus  {} {
 	#! 2 = bigger shots
 	#! 3 = pod with up/down shot
 	#! 4 = laser
-	#! 5 = big bouncing balls (sounds like southpark)
+	#! 5 = big bouncing balls
 	poke 0xec3a 5
 	#backpack
 	poke 0xec2c 2
@@ -954,12 +954,18 @@ proc trainer_galaga {} {
 }
  
 proc trainer_girlyblock {} {
-	#trainer
+	#player 1 life
 	poke 0xe030 255
-	poke 0xe032 255
+	#player 1 fuel
 	poke 0xe031 255
-	poke 0xe4a6 255
-	poke 0xe4a3 255	
+	#player 1 level
+	poke 0xe032 255
+	#player 2 life
+	poke 0xe0f0 0
+	#player 2 fuel
+	poke 0xe0f1 0
+	#player 2 level
+	poke 0xe0f2 0
 	after time 2 trainer_girlyblock
 }
 
@@ -4542,7 +4548,14 @@ proc trainer_finalfantasy {} {
 	#gold
 	poke 0xc255 255
 	poke 0xc256 255
-	
+	#life player 1
+	poke 0xc00a 99
+	#life player 2
+	poke 0xc04a 99
+	#life player 3
+	poke 0xc08a 99
+	#life player 4
+	poke 0xc0ca 99
 	after time 1 trainer_finalfantasy	
 } 
 
@@ -5014,3 +5027,28 @@ proc trainer_shalom {} {
 	after time 1 trainer_shalom	
 }
 
+proc trainer_dragonquest2 {} {
+	#HP 
+	poke 0xe63b 255
+	poke 0xe63c 255
+	#magic
+	poke 0xe63d 255
+	#gold
+	poke 0xe624 255
+	poke 0xe625 255
+	#max exp
+	poke 0xe633 255
+	poke 0xe634 255
+	poke 0xe635 255
+	#max hp
+	poke 0xe630 255
+	poke 0xe631 255
+	#max stats
+	poke 0xe636 255
+	poke 0xe637 255
+	poke 0xe638 255
+	poke 0xe639 255
+	#level
+	#poke 0xe63e 22
+	after time 1 trainer_dragonquest2	
+}
