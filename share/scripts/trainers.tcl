@@ -115,16 +115,22 @@ proc trainer_thecastle {} {
 	after time 1 trainer_thecastle 
 }
 
-proc trainer_antarticland {} { 
+proc trainer_antartic_adventure {} { 
 	#time
 	poke 0xe0e3 0x11
 	poke 0xe0e4 0x1
-	after time 60 trainer_antarticland 
+	#short runs
+	poke 0xe0e6 1
+	#difficulty level
+	#poke 0xe0e0 1
+	after time 60 trainer_antartic_adventure 
 } 
 
 proc trainer_athleticland {} { 
 	#lives
 	poke 0xe050 99
+	#time
+	poke 0xe055 55
 	after time 2 trainer_athleticland 
 } 
 
@@ -238,7 +244,6 @@ proc trainer_timepilot {} {
 	after time 2 trainer_timepilot 
 }
 
-
 proc trainer_twinbee {} { 
 	#2 options
 	poke 0xe083 3
@@ -274,7 +279,6 @@ proc trainer_dota {} {
 	poke 0xe470 9
 	after time 2 trainer_dota 
 } 
-
 
 proc trainer_gradius1 {} { 
 	#always hyper
@@ -355,8 +359,8 @@ proc trainer_goonies {} {
 	poke 0xe064 80
 	#always have key
 	poke 0xe121 1
-	#be radio active
-	poke 0xe11f 255
+	#show hiden item (only helmet for now)
+	poke 0xe168 1
 	after time 1 trainer_goonies 
 } 
 
@@ -364,7 +368,7 @@ proc trainer_thexder1 {} {
 	#energy
 	poke 0xf2d4 255
 	poke 0xf2d6 255
-    #killer missles 255 = none / 0 = 0
+    #disable killer missles 255 = true / 0 = false
     poke 0xf2ec 255
 	after time 2 trainer_thexder1 
 } 
@@ -480,7 +484,6 @@ proc trainer_salamander {} {
 	poke 0xe202 0 
 	#all special weapons player 1
 	poke 0xe310 7
-
 	after time 5 trainer_salamander 
 }
 
@@ -600,7 +603,7 @@ proc trainer_xak1 {} {
 	#super latok mode
 	poke 0x1fd4 1
 	poke 0x2473 0x44
-	
+
 	#enchanted sword 1
 	poke 0x1c13 99	
 	#enchanted sword 2
@@ -713,7 +716,7 @@ proc trainer_xak1 {} {
 }
 
 proc trainer_sdsnatcher {} {
-#max out all stats
+	#max out all stats
 	poke 0xce82 255
 	poke 0xce83 255
 
@@ -999,7 +1002,6 @@ proc trainer_superpierot {} {
 	poke 0xe046 255
 	after time 1 trainer_superpierot
 }
-
 
 proc trainer_magicalwizzkid {} {
 	#lives
@@ -1665,7 +1667,6 @@ proc trainer_spacemanbow {} {
 	after time 2 trainer_spacemanbow
 }
 
-
 proc trainer_fantasmsoldier1 {} {
 	#life
 	poke 0xf064 255
@@ -1897,8 +1898,7 @@ proc trainer_ys1  {} {
 	#all special items
 	poke 0xcfe4 255
 	poke 0xcfe5 255	
-
-after time 2 trainer_ys1 
+	after time 2 trainer_ys1 
 }
 
 proc trainer_ys2 {} {
@@ -1912,9 +1912,7 @@ proc trainer_ys2 {} {
 	poke 0x018c 255
 	#magic meter
 	poke 0x0104 255
-	
-	
-after time 2 trainer_ys2
+	after time 2 trainer_ys2
 }
 
 proc trainer_penguinadventure  {} {
@@ -1989,7 +1987,7 @@ proc trainer_penguinadventure  {} {
 	#get 8 dancing penguins
 	poke 0xe0dd 8
 
-after time 15 trainer_penguinadventure 
+	after time 15 trainer_penguinadventure 
 } 
 
 proc trainer_stonedofwisdom {} {
@@ -1999,12 +1997,12 @@ proc trainer_stonedofwisdom {} {
 	poke 0xe042 55
 	#intel
 	poke 0xe040 55
-after time 2 trainer_stonedofwisdom
+	after time 2 trainer_stonedofwisdom
 }
 proc trainer_blowup {} {
 	#'cosmic' cheat active f1 to place bombs f5 to blow yourself up
 	poke 0x403b 1
-after time 2 trainer_blowup
+	after time 2 trainer_blowup
 }
 
 proc trainer_arsenelupin3 {} {
@@ -2017,8 +2015,7 @@ proc trainer_arsenelupin3 {} {
 	#poke 0xe1ca 1 missle has to turn to 0 use other cheat
 	poke 0xe1cd 3
 	poke 0xe269 14	
-	
-after time 2 trainer_arsenelupin3
+	after time 2 trainer_arsenelupin3
 }
 
 proc trainer_arsenelupin3_missle {} {
@@ -3078,7 +3075,6 @@ proc trainer_ys3 {} {
 	poke 0x7f9f 255
 	#life
 	poke 0x7f97 255
-
 	after time 10 trainer_ys3
 }
 
@@ -3088,7 +3084,6 @@ proc trainer_catboy {} {
 	#lives
 	poke 0xe00b 0x99
 	after time 1 trainer_catboy
-	
 }
 
 proc trainer_bastard {} {
@@ -3097,7 +3092,6 @@ proc trainer_bastard {} {
 	#life
 	poke 0xb608 255
 	after time 1 trainer_bastard
-	
 }
 
 proc trainer_alestegaiden {} {
@@ -3138,7 +3132,7 @@ proc trainer_pacmania {} {
 	poke 0xcdd8 255
 	#blue ghost 8
 	poke 0xcdec 255
-after time 5 trainer_pacmania
+	after time 5 trainer_pacmania
 }
 
 proc trainer_pacman {} {
@@ -3150,7 +3144,7 @@ proc trainer_pacman {} {
 	poke 0xe270 1
 	#ghost 4	
 	poke 0xe290 1
-after time 1 trainer_pacman
+	after time 1 trainer_pacman
 }
 
 proc trainer_r-type {} {	
@@ -3198,7 +3192,6 @@ proc trainer_arkanoid1 {} {
 	after time 1 trainer_arkanoid1
 }
 
-
 proc trainer_arkanoid1 {} {
 	#always fire
 	poke 0xe551 2
@@ -3214,9 +3207,8 @@ proc trainer_arkanoid1 {} {
 	#poke 0xe326 1
 	#round (0-32)
 	#poke 0xe01b 0
-after time 1 trainer_arkanoid1
+	after time 1 trainer_arkanoid1
 }
-
 
 proc trainer_arkanoid2 {} {
 	#always fire
@@ -3267,7 +3259,6 @@ proc trainer_boulderdash1 {} {
     poke 0xd83c 0
 	after frame trainer_boulderdash1
 }
-
 
 proc trainer_kikikaikai {} {
 	#max shot
@@ -5112,6 +5103,45 @@ proc trainer_hyperolympics2 {} {
 	poke 0xe0a5 0
 	poke 0xe0a9 0
 	after time 1 trainer_hyperolympics1	
+}
+
+proc trainer_gpworld {} {
+	# time
+	poke 0xe1cb 0
+	after time 1 trainer_gpworld	
+}
+
+proc trainer_deepdungeon1 {} {
+	# life
+	poke 0xc157 255
+	poke 0xc158 255
+	#max gold
+	poke 0xc160 255
+	poke 0xc161 255
+	#max exp
+	poke 0xc159 255
+	poke 0xc15a 255
+	after time 1 trainer_deepdungeon1	
+}
+
+proc trainer_deepdungeon2 {} {
+	# life
+	poke 0xc17e 255
+	poke 0xc17f 255
+	#max gold
+	poke 0xc18a 255
+	poke 0xc18b 255
+	#max level
+	poke 0xc17d 99
+	#max ap
+	poke 0xc185 255
+	#max ac 
+	poke 0xc182 255
+	#max ag 
+	poke 0xc184 255
+	#max luck 
+	poke 0xc189 255
+	after time 1 trainer_deepdungeon2	
 }
 
 ### EOF ###
