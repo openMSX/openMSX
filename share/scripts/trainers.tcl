@@ -3,8 +3,9 @@
 # please join us looking for cheats and submit them to the www.openmsx.org forum
 #
 # credits:
-#   copyright 2005 albert beevendorp all rights reserved
-#   copyright 2005 patrick van arkel all rights reserved
+#   copyright 2005-2006 Albert Beevendorp all rights reserved
+#   copyright 2005-2006 Patrick van Arkel all rights reserved
+#   copyright 	   2006 Benoît Delvaux all rights reserved 
 #
 # the definition of cheating according to google:
 #
@@ -15,7 +16,7 @@
 # although the definition of cheating is mostly negative 
 # this time i turned it into something fun.
 #
-# openmsx is made to work together with ips patches. albert has some ips
+# openmsx is made to work together with ips patches. Albert has some ips
 # patches ready at http://ips.tni.nl/ for even more cheatting ;)
 #
 # please cheat responsible!
@@ -3447,16 +3448,6 @@ proc trainer_aramo {} {
 	after time 5 trainer_aramo
 }
 
-proc trainer_hypersports3 {} {
-	#freeze time
-	poke 0xe0d0 0
-	#top speed cycling
-	poke 0xe0ad 255
-	#top speed long jump
-	poke 0xe121 255
-	after frame trainer_hypersports3
-}
-
 proc trainer_hydlide1 {} {
 	#level up after killing one enemy
 	poke 0xe004 100
@@ -5028,7 +5019,7 @@ proc trainer_shalom {} {
 }
 
 proc trainer_dragonquest2 {} {
-	#HP 
+	#hp 
 	poke 0xe63b 255
 	poke 0xe63c 255
 	#magic
@@ -5082,3 +5073,45 @@ proc trainer_break_in {} {
 	#poke 0x8a83 0
 	after time 1 trainer_break_in
 }
+
+proc trainer_hypersports1 {} {
+	#always qualify
+	poke 0xe05a 9
+	poke 0xe059 0x99
+	after time 1 trainer_hypersports1	
+}
+
+proc trainer_hypersports2 {} {
+	#always qualify
+	poke 0xe088 0x99
+	poke 0xe089 0x99
+	#always full power
+	poke 0xe101 255
+	after time 1 trainer_hypersports2	
+}
+
+proc trainer_hypersports3 {} {
+	#freeze time
+	poke 0xe0d0 0
+	#top speed cycling
+	poke 0xe0ad 255
+	#top speed long jump
+	poke 0xe121 255
+	after frame trainer_hypersports3
+}
+
+proc trainer_hyperolympics1 {} {
+	#sprint time
+	poke 0xe0a5 0
+	poke 0xe0a9 0
+	after time 1 trainer_hyperolympics1	
+}
+
+proc trainer_hyperolympics2 {} {
+	#sprint time
+	poke 0xe0a5 0
+	poke 0xe0a9 0
+	after time 1 trainer_hyperolympics1	
+}
+
+### EOF ###
