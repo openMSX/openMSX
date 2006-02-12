@@ -5144,4 +5144,43 @@ proc trainer_deepdungeon2 {} {
 	after time 1 trainer_deepdungeon2	
 }
 
+proc trainer_nsub {} {
+	#lives
+	poke 0xc13b 3
+	after time 1 trainer_nsub
+}
+
+proc trainer_kobashi {} {
+	#infinite power player 1
+	poke 0xd448 50
+	#infinite power player 2 or computer 1
+	#poke 0xd454 50
+	#infinite power computer 2
+	#poke 0xd460 50
+	after time 1 trainer_kobashi
+}
+
+proc trainer_gurulogicmsx1 {} {
+	#infinite time
+	poke 0xc1e2 0
+	#level (0-17)
+	#poke 0xc1f2 0
+	after time 1 trainer_gurulogicmsx1
+}
+
+proc trainer_gurulogicmsx2 {} {
+	#infinite time
+	poke 0xa68c 17
+	#level (0-4)
+	#poke 0x9bc5 0
+	#poke 0xcc00 0
+	after frame trainer_gurulogicmsx2
+}
+
+proc trainer_themunsters {} {
+	#power
+	poke 0xaa7a 255
+	after time 1 trainer_themunsters
+}
+
 ### EOF ###
