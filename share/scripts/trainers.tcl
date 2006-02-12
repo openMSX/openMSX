@@ -5052,3 +5052,33 @@ proc trainer_dragonquest2 {} {
 	#poke 0xe63e 22
 	after time 1 trainer_dragonquest2	
 }
+
+proc trainer_break_in {} {
+	#thanks mars2000you
+	#infinite lives
+	poke 0x7d9e 5
+	#always fire
+	poke 0x85d5 90
+	#long bat
+	poke 0x85d6 16
+	#open room 2
+	poke 0x85ff 28
+	poke 0x8600 28
+	poke 0x8601 28
+	poke 0x8602 28
+	#open room 3
+	poke 0x871f 28
+	poke 0x8720 28
+	poke 0x8721 28
+	poke 0x8722 28
+	#open room 4
+	poke 0x883f 28
+	poke 0x8840 28
+	poke 0x8841 28
+	poke 0x8842 28
+	#frozen guardian
+	poke 0x8a7b 0
+	#invisible guardian (hard game !)
+	#poke 0x8a83 0
+	after time 1 trainer_break_in
+}
