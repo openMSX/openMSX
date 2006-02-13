@@ -1,5 +1,14 @@
 $Id$
 
+2006-02-10 Manuel Bilderbeek <manuel@msxnet.org>
+	* CheckedRam now calls a TCL proc that is defined in the new
+	  umr_callback setting if an UMR occurs. E.g. try 
+	  set umr_callback umrcallback
+	  umrcallback is an example implementation of such a TCL proc; edit it
+	  to your liking.
+	  TODO: find a way to automatically skip the UMR's from the boot
+	  sequence. (Although the feature is already very usable!)
+
 2006-02-09 Manuel Bilderbeek <manuel@msxnet.org>
 	* Introduced CheckedRam class. See the class documentation for
 	  details.
