@@ -1,5 +1,8 @@
 $Id$
 
+2006-02-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added 'brightness' and 'contrast' settings
+
 2006-02-10 Manuel Bilderbeek <manuel@msxnet.org>
 	* CheckedRam now calls a TCL proc that is defined in the new
 	  umr_callback setting if an UMR occurs. E.g. try 
