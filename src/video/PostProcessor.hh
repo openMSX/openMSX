@@ -6,6 +6,7 @@
 #include "RenderSettings.hh"
 #include "FrameSource.hh"
 #include "VideoLayer.hh"
+#include "PixelOperations.hh"
 #include <vector>
 
 namespace openmsx {
@@ -51,7 +52,10 @@ private:
 	  */
 	void initFrames(bool first = false);
 
+	void preCalcNoise(double factor);
 	void drawNoise();
+	void drawNoiseLine(Pixel* in, Pixel* out, signed char* noise,
+	                   unsigned width);
 
 	// Observer<Setting>
 	virtual void update(const Setting& setting);
@@ -92,6 +96,8 @@ private:
 	/** Remember the noise values to get a stable image when paused.
 	 */
 	std::vector<unsigned> noiseShift;
+
+	PixelOperations<Pixel> pixelOps;
 };
 
 } // namespace openmsx

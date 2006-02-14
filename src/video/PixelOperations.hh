@@ -34,6 +34,12 @@ public:
 	inline Pixel combine(unsigned r, unsigned g, unsigned b) const;
 	inline Pixel combine256(unsigned r, unsigned g, unsigned b) const;
 
+	/** Get maximum component value
+	  */
+	inline unsigned getMaxRed() const;
+	inline unsigned getMaxGreen() const;
+	inline unsigned getMaxBlue() const;
+	
 	/** Blend the given colors into a single color.
 	  * The special case for blending between two colors with
 	  * an equal blend weight has an optimized implementation.
@@ -160,6 +166,34 @@ inline Pixel PixelOperations<Pixel>::combine256(
 		return (Pixel)(((r >> format->Rloss) << format->Rshift) |
 		               ((g >> format->Gloss) << format->Gshift) |
 		               ((b >> format->Bloss) << format->Bshift));
+	}
+}
+
+template <typename Pixel>
+inline unsigned PixelOperations<Pixel>::getMaxRed() const
+{
+	if (sizeof(Pixel) == 4) {
+		return 255;
+	} else {
+		return 255 >> format->Rloss;
+	}
+}
+template <typename Pixel>
+inline unsigned PixelOperations<Pixel>::getMaxGreen() const
+{
+	if (sizeof(Pixel) == 4) {
+		return 255;
+	} else {
+		return 255 >> format->Gloss;
+	}
+}
+template <typename Pixel>
+inline unsigned PixelOperations<Pixel>::getMaxBlue() const
+{
+	if (sizeof(Pixel) == 4) {
+		return 255;
+	} else {
+		return 255 >> format->Bloss;
 	}
 }
 

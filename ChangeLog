@@ -1,5 +1,9 @@
 $Id$
 
+2006-02-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented noise for 16bpp modes
+	* Optimized non-MMX noise a bit
+
 2006-02-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added 'brightness' and 'contrast' settings
 

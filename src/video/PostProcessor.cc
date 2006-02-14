@@ -13,20 +13,18 @@
 #include "DoubledFrame.hh"
 #include "RawFrame.hh"
 #include "PixelOperations.hh"
-#include <cassert>
-
 #include "HostCPU.hh"
+#include "build-info.hh"
+#include <algorithm>
+#include <cassert>
 #include <cstdlib>
 #include <cmath>
 
 namespace openmsx {
 
-typedef unsigned char uint8;
-typedef signed   char sint8;
-
 static const unsigned NOISE_SHIFT = 8192;
 static const unsigned NOISE_BUF_SIZE = 2 * NOISE_SHIFT;
-static sint8 noiseBuf[NOISE_BUF_SIZE];
+static signed char noiseBuf[NOISE_BUF_SIZE];
 
 static void gaussian2(double& r1, double& r2)
 {
@@ -41,38 +39,44 @@ static void gaussian2(double& r1, double& r2)
 	r1 = x1 * w;
 	r2 = x2 * w;
 }
-static sint8 clip(double r, double factor)
+static signed char clip(double r, double factor)
 {
 	int a = (int)round(r * factor);
-	if (a < -128) a = -128;
-	else if (a > 127) a = 127;
-	return a;
+	return std::min(std::max(a, -128), 127);
 }
-static void preCalcNoise(double factor)
+
+template <class Pixel>
+void PostProcessor<Pixel>::preCalcNoise(double factor)
 {
+	// for 32bpp groups of 4 consecutive noiseBuf elements (starting at
+	// 4 element boundaries) must have the same value. Later optimizations
+	// depend on it.
+	double scaleR = pixelOps.getMaxRed() / 255.0;
+	double scaleG = pixelOps.getMaxGreen() / 255.0;
+	double scaleB = pixelOps.getMaxBlue() / 255.0;
 	for (unsigned i = 0; i < NOISE_BUF_SIZE; i += 8) {
 		double r1, r2;
 		gaussian2(r1, r2);
-		sint8 n1 = clip(r1, factor);
-		noiseBuf[i + 0] = n1;
-		noiseBuf[i + 1] = n1;
-		noiseBuf[i + 2] = n1;
-		noiseBuf[i + 3] = n1;
-		sint8 n2 = clip(r1, factor);
-		noiseBuf[i + 4] = n2;
-		noiseBuf[i + 5] = n2;
-		noiseBuf[i + 6] = n2;
-		noiseBuf[i + 7] = n2;
+		noiseBuf[i + 0] = clip(r1, factor * scaleR);
+		noiseBuf[i + 1] = clip(r1, factor * scaleG);
+		noiseBuf[i + 2] = clip(r1, factor * scaleB);
+		noiseBuf[i + 3] = clip(r1, factor);
+		noiseBuf[i + 4] = clip(r2, factor * scaleR);
+		noiseBuf[i + 5] = clip(r2, factor * scaleG);
+		noiseBuf[i + 6] = clip(r2, factor * scaleB);
+		noiseBuf[i + 7] = clip(r2, factor);
 	}
 }
 
-static void drawNoiseLine(uint8* in, uint8* out, sint8* noise, unsigned width)
+template <class Pixel>
+void PostProcessor<Pixel>::drawNoiseLine(
+		Pixel* in, Pixel* out, signed char* noise, unsigned width)
 {
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
-	if (cpu.hasMMXEXT()) {
+	if ((sizeof(Pixel) == 4) && cpu.hasMMXEXT()) {
 		// extended-MMX 32bpp
-		assert((width % 32) == 0);
+		assert(((4 * width) % 32) == 0);
 		asm (
 			"pcmpeqb  %%mm7, %%mm7;"
 			"psllw    $15, %%mm7;"
@@ -105,19 +109,19 @@ static void drawNoiseLine(uint8* in, uint8* out, sint8* noise, unsigned width)
 			"emms;"
 
 			: // no output
-			: "r" (in    + width) // 0
-			, "r" (out   + width) // 1
-			, "r" (noise + width) // 2
-			, "r" (-width)        // 3
+			: "r" (in    + width)     // 0
+			, "r" (out   + width)     // 1
+			, "r" (noise + 4 * width) // 2
+			, "r" (-4 * width)        // 3
 			#ifdef __MMX__
 			: "mm0", "mm1", "mm2", "mm3", "mm7"
 			#endif
 		);
 		return;
 	}
-	if (cpu.hasMMX()) {
+	if ((sizeof(Pixel) == 4) && cpu.hasMMX()) {
 		// MMX 32bpp
-		assert((width % 32) == 0);
+		assert((4 * width % 32) == 0);
 		asm (
 			"pcmpeqb  %%mm7, %%mm7;"
 			"psllw    $15, %%mm7;"
@@ -149,10 +153,10 @@ static void drawNoiseLine(uint8* in, uint8* out, sint8* noise, unsigned width)
 			"emms;"
 
 			: // no output
-			: "r" (in    + width) // 0
-			, "r" (out   + width) // 1
-			, "r" (noise + width) // 2
-			, "r" (-width)        // 3
+			: "r" (in    + width)     // 0
+			, "r" (out   + width)     // 1
+			, "r" (noise + 4 * width) // 2
+			, "r" (-4 * width)        // 3
 			#ifdef __MMX__
 			: "mm0", "mm1", "mm2", "mm3", "mm7"
 			#endif
@@ -162,26 +166,69 @@ static void drawNoiseLine(uint8* in, uint8* out, sint8* noise, unsigned width)
 	#endif
 
 	// c++ version
-	for (unsigned i = 0; i < width; ++i) {
-		int t = in[i] + noise[i];
-		if (t > 255) t = 255;
-		else if (t < 0) t = 0;
-		out[i] = t;
+	if (sizeof(Pixel) == 4) {
+		// optimized version for 32bpp
+		for (unsigned i = 0; i < width; ++i) {
+			Pixel p = in[i];
+			int n = noise[4 * i]; // same for all components
+			// always calculating 4 components is more portable, but
+			// doing only 3 is significantly faster (~20%)
+			unsigned r, g, b;
+			if (OPENMSX_BIGENDIAN) {
+				b = p & 0x0000FF00;
+				g = p & 0x00FF0000;
+				r = p & 0xFF000000;
+				b = std::min<unsigned>(std::max<int>(
+					b + (n <<  8), 0), 0x0000FF00);
+				g = std::min<unsigned>(std::max<int>(
+					g + (n << 16), 0), 0x00FF0000);
+				r = std::min<unsigned>(std::max<int>(
+					r + (n << 24), 0), 0xFF000000);
+			} else {
+				r = p & 0x000000FF;
+				g = p & 0x0000FF00;
+				b = p & 0x00FF0000;
+				r = std::min<unsigned>(std::max<int>(
+					r + (n <<  0), 0), 0x000000FF);
+				g = std::min<unsigned>(std::max<int>(
+					g + (n <<  8), 0), 0x0000FF00);
+				b = std::min<unsigned>(std::max<int>(
+					b + (n << 16), 0), 0x00FF0000);
+			}
+			out[i] = r | g | b;
+		}
+	} else {
+		int mr = pixelOps.getMaxRed();
+		int mg = pixelOps.getMaxGreen();
+		int mb = pixelOps.getMaxBlue();
+		for (unsigned i = 0; i < width; ++i) {
+			Pixel p = in[i];
+			int r = pixelOps.red(p);
+			int g = pixelOps.green(p);
+			int b = pixelOps.blue(p);
+
+			r += noise[4 * i + 0];
+			g += noise[4 * i + 1];
+			b += noise[4 * i + 2];
+
+			r = std::min(std::max(r, 0), mr);
+			g = std::min(std::max(g, 0), mg);
+			b = std::min(std::max(b, 0), mb);
+
+			out[i] = pixelOps.combine(r, g, b);
+		}
 	}
 }
 
 template <class Pixel>
 void PostProcessor<Pixel>::drawNoise()
 {
-	if (sizeof(Pixel) != 4) return; // TODO only 32bpp atm
-
 	if (renderSettings.getNoise().getValue() == 0) return;
 
 	unsigned height = screen.getHeight();
-	unsigned width = screen.getWidth() * sizeof(Pixel);
+	unsigned width = screen.getWidth();
 	for (unsigned y = 0; y < height; ++y) {
-		uint8* dummy = 0;
-		uint8* buf = screen.getLinePtr(y, dummy);
+		Pixel* buf = screen.getLinePtr(y, (Pixel*)0);
 		drawNoiseLine(buf, buf, &noiseBuf[noiseShift[y]], width);
 	}
 }
@@ -205,6 +252,7 @@ PostProcessor<Pixel>::PostProcessor(CommandController& commandController,
 	, renderSettings(display.getRenderSettings())
 	, screen(screen_)
 	, noiseShift(screen.getHeight())
+	, pixelOps(screen.getFormat())
 {
 	scaleAlgorithm = (RenderSettings::ScaleAlgorithm)-1; // not a valid scaler
 	scaleFactor = (unsigned)-1;
