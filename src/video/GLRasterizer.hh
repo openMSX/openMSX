@@ -103,7 +103,7 @@ private:
 	                         byte bgcolorIndex);
 
 	// Observer<Setting>
-	void GLRasterizer::update(const Setting& setting);
+	void update(const Setting& setting);
 	
 	/** Settings shared between all renderers
 	 */
