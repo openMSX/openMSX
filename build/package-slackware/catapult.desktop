@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=openMSX Catapult
+GenericName=MSX Emulator
+Comment=The MSX emulator that aims for perfection
+Comment[it]=L'emulatore MSX che mira alla perfezione
+Exec=catapult
+Terminal=false
+Type=Application
+Icon=/usr/share/pixmaps/catapult.xpm
+Categories=Emulator;GTK;Game;
+Encoding=UTF-8

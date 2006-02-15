@@ -1,0 +1,286 @@
+!/bin/sh
+#
+# SlackBuild for openMSX
+# http://openmsx.sourceforge.net
+# By SukkoPera <enjoy.the.silence@iol.it>
+# 27/10/2005
+#
+# Thanks a lot to CAT for his Slackware package cration
+# guide (http://www.slacky.it/misto/tutorial/spunleashed.txt)
+#
+# Check out
+# - http://www.sukkopera.tk
+# - http://www.slacky.it
+#
+# Notes:
+# - This script will make a package including both openMSX and Catapult.
+#   Please edit it to suit your needs.
+# - You'll need catapult.desktop, slack-desc and the openMSX and Catapult
+#   sources, of course.
+
+
+# Get the current and temporary directories
+CWD=`pwd`
+if [ "$TMP" = "" ]; then
+ TMP=/tmp/pkg
+fi
+
+# Set up working directories
+if [ ! -d $TMP ]
+then
+	mkdir -p $TMP 
+fi
+
+# Some useful variables about the package
+NAME=`basename $0 .SlackBuild`
+PKG=$TMP/package-$NAME
+VERSION=0.6.0
+#VERSION=`date +%Y%m%d`
+ARCH=i686	# Autodetection makes this pkg i686
+BUILD=2suk
+SOURCEARCH=$NAME-$VERSION
+
+# Set compilation flags according to the architecture
+#case $ARCH in
+#        "i686")
+#                SLCKFLAGS="-O2 -march=i686"
+#                ;;
+#        "celeron")
+#                SLCKFLAGS="-Os -march=pentium3"
+#                ;;
+#        "pentium3")
+#                SLCKFLAGS="-O2 -march=pentium3"
+#                ;;
+#        "pentium4")
+#                SLCKFLAGS="-O2 -march=pentium4"
+#                ;;
+#        "duron"|"sempron")
+#                SLCKFLAGS="-Os -march=athlon-xp -m3dnow"
+#                ;;
+#        "athlonxp")
+#                SLCKFLAGS="-O2 -march=athlon-xp -m3dnow"
+#                ;;
+#        "x86_64")
+#                SLCKFLAGS="-O2 -march=athlon64"
+#                ;;
+#        "sparc")
+#                SLCKFLAGS="-O2"
+#                ;;
+#        "supersparc")
+#                SLCKFLAGS="-O2 -mcpu=supersparc"
+#                ;;
+#        *|"i486")
+#                SLCKFLAGS="-O2 -march=i486 -mcpu=i686"
+#                ;;
+#esac
+
+# Add flags common to all architectures
+#SLCKFLAGS="-pipe -fomit-frame-pointer $SLCKFLAGS"
+
+
+# Print a welcome screen
+echo "+-----------------------------------------------------------------------"
+echo "| $NAME-$VERSION"
+echo "+-----------------------------------------------------------------------"
+
+
+if [ -d $PKG ]
+then
+	if [ "$1" == "--clean" ]
+	then
+		# Clean up a previous build and go on
+		rm -rf $PKG $TMP/$NAME-$VERSION
+	else
+		# Warn the user and stop
+		echo "Previous package build directory found, please remove it and"
+        	echo "restart the SlackBuild script: $PKG"
+		exit 1
+	fi
+fi
+
+mkdir -p $PKG
+
+for i in usr/share/applications usr/share/pixmaps
+do
+	echo "--- Creating directory $PKG/$i"
+	mkdir -p $PKG/$i
+done
+
+# Decompress
+echo "------------------------- Uncompressing source -------------------------"
+cd $TMP
+tar zxvf $CWD/$SOURCEARCH.tar.gz
+#mv $SOURCEARCH $NAME-$VERSION
+cd $NAME-$VERSION
+
+# Build
+#echo "------------------------------ Configuring -----------------------------"
+#	./configure --prefix=/usr \
+#	--sysconfdir=/etc \
+#	--localstatedir=/var
+
+echo "------------------------------- Patching -------------------------------"
+# Set installation directory to what we want
+SUBDEST=/usr/share/openmsx
+sed -i "s:\(INSTALL_BASE\:=\).*:\1$SUBDEST:" build/custom.mk
+sed -i "s:\(SYMLINK_FOR_BINARY\:=\).*:\1false:" build/custom.mk
+
+echo "------------------------------ Compiling -------------------------------"
+#CFLAGS=$SLCKFLAGS \
+#CXXFLAGS=$SLCKFLAGS \
+make INSTALL_SHARE_DIR=$SUBDEST
+res=$?
+if [ $res -ne 0 ]
+then
+	# make failed, we cannot continue
+	exit $res
+fi
+
+echo "------------------------------ Installing ------------------------------"
+DOCSDIR=$PKG/usr/doc/$NAME-$VERSION
+make install OPENMSX_INSTALL=$PKG/$SUBDEST \
+	INSTALL_SHARE_DIR=$PKG/$SUBDEST \
+	INSTALL_BINARY_DIR=$PKG/usr/bin \
+	INSTALL_DOC_DIR=$DOCSDIR
+
+res=$?
+if [ $res -ne 0 ]
+then
+	# make install failed, we cannot continue
+	exit 1
+fi
+
+# Doc
+echo "----------------- Copying documentation and other files ----------------"
+mkdir -p $DOCSDIR
+for i in AUTHORS ChangeLog GPL README TODO
+do
+#        cat $i | gzip > $DOCSDIR/$i.gz
+        cp -a $i $DOCSDIR
+done
+
+
+# GUI
+echo "--- Compiling Catapult"
+GUINAME=catapult
+GUIVERSION=0.6.0_R2
+GUITNAME=openmsx-catapult
+GUITVERSION=0.6.0-R2
+GUISOURCEARCH=$GUITNAME-$GUITVERSION
+
+# Decompress
+echo "------------------------- Uncompressing source -------------------------"
+cd $TMP
+tar zxvf $CWD/$GUISOURCEARCH.tar.gz
+mv $GUISOURCEARCH $GUINAME-$GUIVERSION
+cd $GUINAME-$GUIVERSION
+
+# Build
+#echo "------------------------------ Configuring -----------------------------"
+#	./configure --prefix=/usr \
+#	--sysconfdir=/etc \
+#	--localstatedir=/var
+
+echo "------------------------------- Patching -------------------------------"
+# Set installation directory to what we want
+GUISUBDEST=/usr/share/openmsx/catapult
+sed -i "s:\(INSTALL_BASE\:=\).*:\1$GUISUBDEST:" build/custom.mk
+sed -i "s:\(SYMLINK_FOR_BINARY\:=\).*:\1false:" build/custom.mk
+sed -i "s:\(CATAPULT_OPENMSX_BINARY\:=\).*:\1/usr/bin/openmsx:" build/custom.mk
+sed -i "s:\(CATAPULT_OPENMSX_SHARE\:=\).*:\1/usr/share/openmsx:" build/custom.mk
+
+echo "------------------------------ Compiling -------------------------------"
+#CFLAGS=$SLCKFLAGS \
+#CXXFLAGS=$SLCKFLAGS \
+make clean
+make
+res=$?
+if [ $res -ne 0 ]
+then
+	# make failed, we cannot continue
+	exit $res
+fi
+
+echo "------------------------------ Installing ------------------------------"
+DOCSDIR=$PKG/usr/doc/$NAME-$VERSION/$GUINAME-$GUIVERSION
+mkdir -p $DOCSDIR
+make install CATAPULT_INSTALL=$PKG/$GUISUBDEST \
+	INSTALL_BINARY_DIR=$PKG/usr/bin \
+	INSTALL_DOC_DIR=$DOCSDIR
+
+res=$?
+if [ $res -ne 0 ]
+then
+	# make install failed, we cannot continue
+	exit 1
+fi
+
+# Doc
+echo "----------------- Copying documentation and other files ----------------"
+for i in AUTHORS ChangeLog GPL README
+do
+#        cat $i | gzip > $DOCSDIR/$i.gz
+        cp -a $i $DOCSDIR
+done
+
+
+
+# Clean a little
+find $PKG -name .cvsignore -exec rm -f {} \;
+
+# Gzip man pages
+#find $PKG/usr/man -name "*.[123456789]" -exec gzip -9 {} \;
+
+# SlackBuild stuff
+mkdir -p $PKG/usr/doc/$NAME-$VERSION/slackbuild
+cp $CWD/{$0,slack-desc} $PKG/usr/doc/$NAME-$VERSION/slackbuild
+
+# Icon and desktop entry (We're using a custom one because the included one is broken)
+cp $PKG/usr/share/openmsx/catapult/resources/icons/catapult.xpm $PKG/usr/share/pixmaps
+cp $CWD/catapult.desktop $PKG/usr/share/applications
+
+# Remove broken desktop file (not in $PKG!)
+rm /usr/share/applications/openMSX-Catapult.desktop
+
+# Strip binaries
+echo "--------------------------- Stripping binaries -------------------------"
+find $PKG -type f | xargs file | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded
+
+# Set permissions
+echo "--------------------------- Setting permissions ------------------------"
+chown -R root.bin $PKG/usr/bin $PKG/usr/sbin
+
+chown -R root.root $PKG/usr/doc
+chmod -R 755 $PKG/usr/doc/*
+find $PKG/usr/doc -type f -exec chmod 644 {} \;
+
+if [ -d $PKG/usr/share ]
+then
+	chown -R root.root $PKG/usr/share
+	chmod -R 755 $PKG/usr/share/*
+	find $PKG/usr/share -type f -exec chmod 644 {} \;
+fi
+
+# Copy Slackware package files
+echo "--------------------- Copying Slackware package files ------------------"
+mkdir -p $PKG/install
+cat $CWD/slack-desc > $PKG/install/slack-desc
+#cp $CWD/doinst.sh $PKG/install
+#chmod 755 $PKG/install/doinst.sh
+#cat $CWD/slack-required > $PKG/install/slack-required
+
+# Create package
+echo "---------------------------- Creating package --------------------------"
+echo "Creating package"
+cd $PKG
+makepkg -l y -c n $CWD/$NAME-$VERSION-$ARCH-$BUILD.tgz
+
+# Clean up
+if [ "$1" = "--cleanup" ]; then
+	echo "---------------------- Cleaning up working directory -------------------"
+	rm -rf $TMP/$NAME-$VERSION
+	rm -rf $PKG
+fi
+
+# Package created
+echo "Package creation finished!"

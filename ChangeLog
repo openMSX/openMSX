@@ -1,5 +1,8 @@
 $Id$
 
+2006-02-02 David Heremans <david.heremans@gnu-linux.net>
+	* Added SukkoPera's Slackbuild scripts
+
 2006-02-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented noise for 16bpp modes
 	* Optimized non-MMX noise a bit
@@ -1096,6 +1099,12 @@ $Id$
 	* Fixed background in screen6:
 	   only use lower two bits for background color
 	   TODO use stripes
+
+2005-05-28 David Heremans <david.heremans@gnu-linux.net>
+	* introduced a quick-fix:
+	   The minial bootsector in MSXtar is, at the moment,
+	   created for a 360KB disk. For now the minimal
+	   partition size is forced to this size as well.
 
 2005-05-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Removed 'useFile' sub command from 'diskmanipulator':

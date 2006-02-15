@@ -1,0 +1,20 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+       |-----handy-ruler------------------------------------------------------|
+openmsx: openMSX - The MSX emulator that aims for perfection
+openmsx:
+openmsx: openMSX is an open source MSX emulator that tries to achieve
+openmsx: near-perfect emulation by using a novel emulation model.
+openmsx:
+openmsx: openMSX is in alpha state, which means that some things work but not
+openmsx: all features are implemented yet. Many emulation features are
+openmsx: implemented, but in terms of user interface it is rather bare bones,
+openmsx: unless you use the optional Graphical User Interface dubbed openMSX
+openmsx: Catapult.
+openmsx:
+
