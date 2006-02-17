@@ -201,7 +201,7 @@ void CommandLineParser::parse(int argc, char** argv)
 		cmdLine.push_back(FileOperations::getConventionalPath(argv[i]));
 	}
 
-	for (int priority = 1; priority <= 7; priority++) {
+	for (int priority = 1; priority <= 8; priority++) {
 		switch (priority) {
 		case 3:
 			if (!haveSettings) {
@@ -240,7 +240,7 @@ void CommandLineParser::parse(int argc, char** argv)
 				// first try options
 				if (!parseOption(arg, cmdLine, priority)) {
 					// next try the registered filetypes (xml)
-					if ((priority < 6) ||
+					if ((priority < 7) ||
 					    !parseFileName(arg, cmdLine)) {
 						// no option or known file
 						backupCmdLine.push_back(arg);

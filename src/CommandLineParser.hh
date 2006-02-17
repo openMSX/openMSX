@@ -56,7 +56,7 @@ public:
 	explicit CommandLineParser(MSXMotherBoard& motherBoard);
 	~CommandLineParser();
 	void registerOption(const std::string& str, CLIOption* cliOption,
-		byte prio = 7, byte length = 2);
+		byte prio = 8, byte length = 2);
 	void registerFileClass(const std::string& str,
 	                       CLIFileType* cliFileType);
 	void parse(int argc, char** argv);

@@ -2,6 +2,9 @@ $Id$
 
 2006-02-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented noise for GL renderer
+	* Tweaked order of command line parsing:
+	   extensions should come before filename parsing to handle stuff like
+	     openmsx -machine msx1 -ext fdd mydisk.dsk
 
 2006-02-02 David Heremans <david.heremans@gnu-linux.net>
 	* Added SukkoPera's Slackbuild scripts
