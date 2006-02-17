@@ -26,6 +26,7 @@ TODO:
 #include "IntegerSetting.hh"
 #include "build-info.hh"
 #include <algorithm>
+#include <cmath>
 
 using std::string;
 
@@ -354,10 +355,29 @@ GLRasterizer::GLRasterizer(
 	renderSettings.getGamma()     .attach(*this);
 	renderSettings.getBrightness().attach(*this);
 	renderSettings.getContrast()  .attach(*this);
+	renderSettings.getNoise()     .attach(*this);
+
+	glGenTextures(2, noiseTextures);
+	glBindTexture(GL_TEXTURE_2D, noiseTextures[0]);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE8, 256, 256, 0,
+	             GL_LUMINANCE, GL_UNSIGNED_BYTE, NULL);
+	glBindTexture(GL_TEXTURE_2D, noiseTextures[1]);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE8, 256, 256, 0,
+	             GL_LUMINANCE, GL_UNSIGNED_BYTE, NULL);
+
+	noiseSeq = 0;
+	preCalcNoise(renderSettings.getNoise().getValue());
 }
 
 GLRasterizer::~GLRasterizer()
 {
+	glDeleteTextures(2, noiseTextures);
+
+	renderSettings.getNoise()     .detach(*this);
 	renderSettings.getGamma()     .detach(*this);
 	renderSettings.getBrightness().detach(*this);
 	renderSettings.getContrast()  .detach(*this);
@@ -368,6 +388,47 @@ GLRasterizer::~GLRasterizer()
 
 	// TODO: Free all textures.
 	delete bitmapTexture;
+}
+
+static void gaussian2(double& r1, double& r2)
+{
+	static const double S = 2.0 / RAND_MAX;
+	double x1, x2, w;
+	do {
+		x1 = S * rand() - 1.0;
+		x2 = S * rand() - 1.0;
+		w = x1 * x1 + x2 * x2;
+	} while (w >= 1.0);
+	w = sqrt((-2.0 * log(w)) / w);
+	r1 = x1 * w;
+	r2 = x2 * w;
+}
+static int clip(double r, double factor)
+{
+	int a = (int)round(r * factor);
+	return std::min(std::max(a, -255), 255);
+}
+
+void GLRasterizer::preCalcNoise(double factor)
+{
+	byte buf1[256 * 256];
+	byte buf2[256 * 256];
+	for (int i = 0; i < 256 * 256; i += 2) {
+		double r1, r2;
+		gaussian2(r1, r2);
+		int s1 = clip(r1, factor);
+		buf1[i + 0] = (s1 > 0) ?  s1 : 0;
+		buf2[i + 0] = (s1 < 0) ? -s1 : 0;
+		int s2 = clip(r2, factor);
+		buf1[i + 1] = (s2 > 0) ?  s2 : 0;
+		buf2[i + 1] = (s2 < 0) ? -s2 : 0;
+	}
+	glBindTexture(GL_TEXTURE_2D, noiseTextures[0]);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 256, 
+	             GL_LUMINANCE, GL_UNSIGNED_BYTE, buf1);
+	glBindTexture(GL_TEXTURE_2D, noiseTextures[1]);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 256, 
+	             GL_LUMINANCE, GL_UNSIGNED_BYTE, buf2);
 }
 
 bool GLRasterizer::isActive()
@@ -410,6 +471,8 @@ void GLRasterizer::frameStart()
 
 void GLRasterizer::frameEnd()
 {
+	drawNoise();
+
 	// Glow effect.
 	// Must be applied before storedImage is updated.
 	int glowSetting = renderSettings.getGlow().getValue();
@@ -430,6 +493,58 @@ void GLRasterizer::frameEnd()
 
 	// Avoid repainting the buffer by paint().
 	frameDirty = false;
+}
+
+void GLRasterizer::drawNoise()
+{
+	if (renderSettings.getNoise().getValue() == 0) return;
+
+	// rotate and mirror noise texture in consecutive frames to avoid
+	// seeing 'patterns' in the noise
+	static const int coord[8][4][2] = {
+		{ {   0,   0 }, { 640,   0 }, { 640, 480 }, {   0, 480 } },
+		{ {   0, 480 }, { 640, 480 }, { 640,   0 }, {   0,   0 } },
+		{ {   0, 480 }, {   0,   0 }, { 640,   0 }, { 640, 480 } },
+		{ { 640, 480 }, { 640,   0 }, {   0,   0 }, {   0, 480 } },
+		{ { 640, 480 }, {   0, 480 }, {   0,   0 }, { 640,   0 } },
+		{ { 640,   0 }, {   0,   0 }, {   0, 480 }, { 640, 480 } },
+		{ { 640,   0 }, { 640, 480 }, {   0, 480 }, {   0,   0 } },
+		{ {   0,   0 }, {   0, 480 }, { 640, 480 }, { 640,   0 } }
+	};
+	
+	double x = (double)rand() / RAND_MAX;
+	double y = (double)rand() / RAND_MAX;
+	glPushAttrib(GL_ALL_ATTRIB_BITS);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE);
+	glEnable(GL_TEXTURE_2D);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	glBlendEquation(GL_FUNC_ADD);
+	glBindTexture(GL_TEXTURE_2D, noiseTextures[0]);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f + x, 1.875f + y);
+	glVertex2i(coord[noiseSeq][0][0], coord[noiseSeq][0][1]);
+	glTexCoord2f(2.5f + x, 1.875f + y);
+	glVertex2i(coord[noiseSeq][1][0], coord[noiseSeq][1][1]);
+	glTexCoord2f(2.5f + x, 0.000f + y);
+	glVertex2i(coord[noiseSeq][2][0], coord[noiseSeq][2][1]);
+	glTexCoord2f(0.0f + x, 0.000f + y);
+	glVertex2i(coord[noiseSeq][3][0], coord[noiseSeq][3][1]);
+	glEnd();
+	glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
+	glBindTexture(GL_TEXTURE_2D, noiseTextures[1]);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f + x, 1.875f + y);
+	glVertex2i(coord[noiseSeq][0][0], coord[noiseSeq][0][1]);
+	glTexCoord2f(2.5f + x, 1.875f + y);
+	glVertex2i(coord[noiseSeq][1][0], coord[noiseSeq][1][1]);
+	glTexCoord2f(2.5f + x, 0.000f + y);
+	glVertex2i(coord[noiseSeq][2][0], coord[noiseSeq][2][1]);
+	glTexCoord2f(0.0f + x, 0.000f + y);
+	glVertex2i(coord[noiseSeq][3][0], coord[noiseSeq][3][1]);
+	glEnd();
+	noiseSeq = (noiseSeq + 1) & 7;
+	glPopAttrib();
 }
 
 void GLRasterizer::setDisplayMode(DisplayMode mode)
@@ -1196,6 +1311,10 @@ void GLRasterizer::update(const Setting& setting)
 		// Invalidate bitmap cache (still needed for non-palette modes)
 		dirtyColour.flush();
 		memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
+	}
+	FloatSetting& noiseSetting = renderSettings.getNoise();
+	if (&setting == &noiseSetting) {
+		preCalcNoise(noiseSetting.getValue());
 	}
 }
 

@@ -104,7 +104,10 @@ private:
 
 	// Observer<Setting>
 	void update(const Setting& setting);
-	
+
+	void preCalcNoise(double factor);
+	void drawNoise();
+
 	/** Settings shared between all renderers
 	 */
 	RenderSettings& renderSettings;
@@ -219,6 +222,10 @@ private:
 	/** VRAM to pixels converter for sprites.
 	  */
 	SpriteConverter<Pixel> spriteConverter;
+
+	// noise effect
+	GLuint noiseTextures[2];
+	unsigned noiseSeq;
 };
 
 } // namespace openmsx
