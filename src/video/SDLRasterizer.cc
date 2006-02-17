@@ -161,8 +161,11 @@ SDLRasterizer<Pixel>::SDLRasterizer(
 	precalcPalette();
 		
 	// Initialize palette (avoid UMR)
-	for (int i = 0; i < 16; ++i) {
-		palFg[i] = palFg[i + 16] = palBg[i] = V9938_COLOURS[0][0][0];
+	if (!vdp.isMSX1VDP()) {
+		for (int i = 0; i < 16; ++i) {
+			palFg[i] = palFg[i + 16] = palBg[i] =
+				V9938_COLOURS[0][0][0];
+		}
 	}
 
 	renderSettings.getGamma()     .attach(*this);
