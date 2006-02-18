@@ -1,5 +1,8 @@
 $Id$
 
+2006-02-18 Manuel Bilderbeek <manuel@msxnet.org>
+	* Log warnings to stderr, in stead of stdout
+
 2006-02-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented noise for GL renderer
 	* Tweaked order of command line parsing:

@@ -13,9 +13,9 @@
 #include <map>
 #include <iostream>
 #include <cassert>
-#include <iostream>
 
 using std::cout;
+using std::cerr;
 using std::endl;
 using std::map;
 using std::set;
@@ -116,7 +116,11 @@ void CliComm::log(LogLevel level, const string& message)
 		}
 	}
 	if (!xmlOutput) {
-		cout << levelStr[level] << ": " << message << endl;
+		// TODO: this minor code duplication can probably be eliminated
+		if (level==1)
+			cout << levelStr[level] << ": " << message << endl;
+		else
+			cerr << levelStr[level] << ": " << message << endl;
 	}
 }
 
