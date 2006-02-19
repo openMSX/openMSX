@@ -7,14 +7,18 @@
 #include "components.hh"
 #ifdef COMPONENT_GL
 
-// Include OpenGL headers.
 #include "probed_defs.hh"
+// Include GLEW headers.
+#ifdef HAVE_GL_GLEW_H
+#include <GL/glew.h>
+#else // HAVE_GLEW_H
+#include <glew.h>
+#endif
+// Include OpenGL headers.
 #ifdef HAVE_GL_GL_H
 #include <GL/gl.h>
-#include <GL/glext.h>
 #else // HAVE_GL_H
 #include <gl.h>
-#include <glext.h>
 #endif
 
 namespace openmsx {

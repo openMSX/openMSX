@@ -424,10 +424,10 @@ void GLRasterizer::preCalcNoise(double factor)
 		buf2[i + 1] = (s2 < 0) ? -s2 : 0;
 	}
 	glBindTexture(GL_TEXTURE_2D, noiseTextures[0]);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 256, 
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 256,
 	             GL_LUMINANCE, GL_UNSIGNED_BYTE, buf1);
 	glBindTexture(GL_TEXTURE_2D, noiseTextures[1]);
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 256, 
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 256,
 	             GL_LUMINANCE, GL_UNSIGNED_BYTE, buf2);
 }
 
@@ -511,7 +511,7 @@ void GLRasterizer::drawNoise()
 		{ { 640,   0 }, { 640, 480 }, {   0, 480 }, {   0,   0 } },
 		{ {   0,   0 }, {   0, 480 }, { 640, 480 }, { 640,   0 } }
 	};
-	
+
 	double x = (double)rand() / RAND_MAX;
 	double y = (double)rand() / RAND_MAX;
 	glPushAttrib(GL_ALL_ATTRIB_BITS);
@@ -519,7 +519,7 @@ void GLRasterizer::drawNoise()
 	glBlendFunc(GL_ONE, GL_ONE);
 	glEnable(GL_TEXTURE_2D);
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-	glBlendEquation(GL_FUNC_ADD);
+	if (glBlendEquation) glBlendEquation(GL_FUNC_ADD);
 	glBindTexture(GL_TEXTURE_2D, noiseTextures[0]);
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.0f + x, 1.875f + y);
@@ -531,7 +531,10 @@ void GLRasterizer::drawNoise()
 	glTexCoord2f(0.0f + x, 0.000f + y);
 	glVertex2i(coord[noiseSeq][3][0], coord[noiseSeq][3][1]);
 	glEnd();
-	glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
+	// Note: If glBlendEquation is not present, the second noise texture will
+	//       be added instead of subtracted, which means there will be no noise
+	//       on white pixels. A pity, but it's better than no noise at all.
+	if (glBlendEquation) glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
 	glBindTexture(GL_TEXTURE_2D, noiseTextures[1]);
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.0f + x, 1.875f + y);
@@ -1307,7 +1310,7 @@ void GLRasterizer::update(const Setting& setting)
 	    (&setting == &renderSettings.getContrast())) {
 		precalcPalette();
 		resetPalette();
-	
+
 		// Invalidate bitmap cache (still needed for non-palette modes)
 		dirtyColour.flush();
 		memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));

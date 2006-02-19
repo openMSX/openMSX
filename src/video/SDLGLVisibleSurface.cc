@@ -4,6 +4,7 @@
 #include "ScreenShotSaver.hh"
 #include "GLSnow.hh"
 #include "GLConsole.hh"
+#include "InitException.hh"
 #include "IconLayer.hh"
 #include "build-info.hh"
 #include <cstdlib>
@@ -27,6 +28,14 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	            (fullscreen ? SDL_FULLSCREEN : 0);
 	//flags |= SDL_RESIZABLE;
 	createSurface(width, height, flags);
+
+	// Initialise GLEW library.
+	// This must happen after GL itself is initialised, which is done by
+	// the SDL_SetVideoMode() call in createSurface().
+	GLenum glew_error = glewInit();
+	if (glew_error != GLEW_OK) {
+		throw InitException(std::string("Failed to init GLEW"));
+	}
 
 	glViewport(0, 0, width, height);
 	glMatrixMode(GL_PROJECTION);
