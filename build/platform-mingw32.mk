@@ -35,3 +35,4 @@ PNG_RESULT:=yes
 
 GL_LDFLAGS:=-lopengl32
 
+GLEW_LDFLAGS:=-lglew32
