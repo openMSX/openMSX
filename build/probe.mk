@@ -54,11 +54,17 @@ POSIX_MEMALIGN_HEADER:=<stdlib.h>
 # =======
 
 ALL_HEADERS:=$(addsuffix _H, \
-	GL GL_GL JACK PNG SDL SDL_IMAGE SYS_MMAN SYS_SOCKET TCL XML ZLIB )
+	GL GL_GL GLEW GL_GLEW JACK PNG SDL SDL_IMAGE SYS_MMAN SYS_SOCKET TCL XML \
+	ZLIB )
 
+# Location of GL headers is not standardised; if one of these matches,
+# we consider the GL headers found.
 GL_HEADER:=<gl.h>
-
 GL_GL_HEADER:=<GL/gl.h>
+
+# The comment for the GL headers applies to GLEW as well.
+GLEW_HEADER:=<glew.h>
+GL_GLEW_HEADER:=<GL/glew.h>
 
 JACK_HEADER:=<jack/jack.h>
 
@@ -88,11 +94,14 @@ ZLIB_HEADER:=<zlib.h>
 # Libraries
 # =========
 
-ALL_LIBS:=GL JACK PNG SDL SDL_IMAGE TCL XML ZLIB
+ALL_LIBS:=GL GLEW JACK PNG SDL SDL_IMAGE TCL XML ZLIB
 ALL_LIBS+=ABC XYZ
 
 GL_LDFLAGS:=-lGL
 GL_RESULT:=yes
+
+GLEW_LDFLAGS:=-lGLEW
+GLEW_RESULT:=yes
 
 JACK_LDFLAGS:=-ljack
 JACK_RESULT:=yes

@@ -22,6 +22,14 @@ ifeq ($(HAVE_GL_GL_H),)
 COMPONENT_GL:=false
 endif
 endif
+ifeq ($(HAVE_GLEW_LIB),)
+COMPONENT_GL:=false
+endif
+ifeq ($(HAVE_GLEW_H),)
+ifeq ($(HAVE_GL_GLEW_H),)
+COMPONENT_GL:=false
+endif
+endif
 COMPONENT_GL?=true
 
 ifeq ($(HAVE_JACK_LIB),)
