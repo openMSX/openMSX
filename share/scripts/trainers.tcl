@@ -5,7 +5,7 @@
 # credits:
 #   copyright 2005-2006 Albert Beevendorp all rights reserved
 #   copyright 2005-2006 Patrick van Arkel all rights reserved
-#   copyright 	   2006 Benoît Delvaux all rights reserved 
+#   copyright 	   2006 Benot Delvaux all rights reserved 
 #
 # the definition of cheating according to google:
 #
@@ -736,6 +736,10 @@ proc trainer_sdsnatcher {} {
 	poke 0xce8d 255 
 	poke 0xce8e 255
 	
+	#All locations accessible
+	poke 0xcdc0 255
+	poke 0xcdc1 1
+
 	#junkers
 	poke 0xc451 99
         
@@ -1325,6 +1329,10 @@ proc trainer_usas {} {
 	
 	#temple enemy dies after 1 hit
 	poke 0xc412 1
+
+	#Wit can jump more than twice
+	poke 0xc248 0
+	poke 0xc265 0
 	after time 1 trainer_usas
 }
 
@@ -2016,6 +2024,14 @@ proc trainer_arsenelupin3 {} {
 	poke 0xe1cd 3
 	poke 0xe269 14	
 	after time 2 trainer_arsenelupin3
+}
+
+proc trainer_arsenelupin2 {} {
+	#power
+	poke 0xc07f 200
+	#invincible (makes game unplayable)
+	#poke 0xc09b 255
+after time 1 trainer_arsenelupin2
 }
 
 proc trainer_arsenelupin3_missle {} {
@@ -5181,6 +5197,60 @@ proc trainer_themunsters {} {
 	#power
 	poke 0xaa7a 255
 	after time 1 trainer_themunsters
+}
+
+proc trainer_ballout {} {
+	#time
+	poke 0xaa40 99
+	after time 60 trainer_ballout
+}
+
+proc trainer_ballout2 {} {
+	#time
+	poke 0x9aa6 99
+	after time 60 trainer_ballout2
+}
+
+proc trainer_ballout_special {} {
+	#time
+	poke 0x9560 99
+	after time 60 trainer_ballout_special
+}
+
+proc trainer_bankbuster {} {
+	#lives
+	poke 0x63fd 99
+	after time 1 trainer_bankbuster
+}
+
+proc trainer_barunba {} {
+	#power
+	poke 0x6989 5
+	after time 1 trainer_barunba
+}
+
+proc trainer_exterlien {} {
+	#power
+	poke 0x9e2d 0x0f
+	poke 0x9e2e 0x27
+	#exp
+	poke 0x9e33 0xff
+	poke 0x9e34 0xff
+	after time 1 trainer_exterlien
+}
+
+proc trainer_chopper2 {} {
+	#damage
+	poke 0x6a9e 0
+	poke 0x6aa2 0
+	#heat seeking missle
+	poke 0x6397 9
+	#tracking missle
+	poke 0x6398 9
+	#machine gun
+	poke 0x6399 232
+	poke 0x639a 3
+	after time 1 trainer_chopper2
 }
 
 ### EOF ###
