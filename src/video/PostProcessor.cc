@@ -14,7 +14,6 @@
 #include "RawFrame.hh"
 #include "PixelOperations.hh"
 #include "HostCPU.hh"
-#include "build-info.hh"
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
@@ -171,31 +170,17 @@ void PostProcessor<Pixel>::drawNoiseLine(
 		for (unsigned i = 0; i < width; ++i) {
 			Pixel p = in[i];
 			int n = noise[4 * i]; // same for all components
-			// always calculating 4 components is more portable, but
-			// doing only 3 is significantly faster (~20%)
-			unsigned r, g, b;
-			if (OPENMSX_BIGENDIAN) {
-				b = p & 0x0000FF00;
-				g = p & 0x00FF0000;
-				r = p & 0xFF000000;
-				b = std::min<unsigned>(std::max<int>(
-					b + (n <<  8), 0), 0x0000FF00);
-				g = std::min<unsigned>(std::max<int>(
-					g + (n << 16), 0), 0x00FF0000);
-				r = std::min<unsigned>(std::max<int>(
-					r + (n << 24), 0), 0xFF000000);
-			} else {
-				r = p & 0x000000FF;
-				g = p & 0x0000FF00;
-				b = p & 0x00FF0000;
-				r = std::min<unsigned>(std::max<int>(
-					r + (n <<  0), 0), 0x000000FF);
-				g = std::min<unsigned>(std::max<int>(
-					g + (n <<  8), 0), 0x0000FF00);
-				b = std::min<unsigned>(std::max<int>(
-					b + (n << 16), 0), 0x00FF0000);
-			}
-			out[i] = r | g | b;
+			// Always calculating 4 components is more portable, but doing
+			// only 3 is significantly faster (~20%).
+			// Typical pixel layout for little endian is ABGR and for big
+			// endian is ARGB, so we can use the same computation.
+			unsigned c1 = std::min<unsigned>(std::max<int>(
+				(p & 0x000000FF) + (n <<  0), 0), 0x000000FF);
+			unsigned c2 = std::min<unsigned>(std::max<int>(
+				(p & 0x0000FF00) + (n <<  8), 0), 0x0000FF00);
+			unsigned c3 = std::min<unsigned>(std::max<int>(
+				(p & 0x00FF0000) + (n << 16), 0), 0x00FF0000);
+			out[i] = c1 | c2 | c3;
 		}
 	} else {
 		int mr = pixelOps.getMaxRed();
@@ -425,7 +410,7 @@ RawFrame* PostProcessor<Pixel>::rotateFrames(
 	for (unsigned y = 0; y < screen.getHeight(); ++y) {
 		noiseShift[y] = rand() & (NOISE_SHIFT - 1) & ~7;
 	}
-	
+
 	RawFrame* reuseFrame = prevFrame;
 	prevFrame = currFrame;
 	currFrame = finishedFrame;
