@@ -11,7 +11,6 @@
 
 namespace openmsx {
 
-class Scheduler;
 class CliComm;
 class CliConnection;
 class CommandConsole;
@@ -29,12 +28,11 @@ class RomInfoTopic;
 class CommandController
 {
 public:
-	explicit CommandController(Scheduler& scheduler);
+	CommandController();
 	~CommandController();
 
 	void setCliComm(CliComm* cliComm);
 
-	Scheduler& getScheduler();
 	CliComm& getCliComm();
 	Interpreter& getInterpreter();
 	InfoCommand& getInfoCommand();
@@ -116,7 +114,6 @@ private:
 	CommandMap commands;
 	CompleterMap commandCompleters;
 
-	Scheduler& scheduler;
 	CommandConsole* cmdConsole;
 	CliComm* cliComm;
 	CliConnection* connection;

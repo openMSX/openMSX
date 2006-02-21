@@ -104,8 +104,9 @@ private:
 };
 
 
-MSXMotherBoard::MSXMotherBoard()
-	: powered(false)
+MSXMotherBoard::MSXMotherBoard(Reactor& reactor_)
+	: reactor(reactor_)
+	, powered(false)
 	, needReset(false)
 	, needPowerDown(false)
 	, blockedCounter(0)
@@ -244,7 +245,7 @@ CartridgeSlotManager& MSXMotherBoard::getSlotManager()
 CommandController& MSXMotherBoard::getCommandController()
 {
 	if (!commandController.get()) {
-		commandController.reset(new CommandController(getScheduler()));
+		commandController.reset(new CommandController());
 
 		// TODO remove this hack
 		//   needed to properly initialize circular dependency between
@@ -258,8 +259,7 @@ CommandController& MSXMotherBoard::getCommandController()
 EventDistributor& MSXMotherBoard::getEventDistributor()
 {
 	if (!eventDistributor.get()) {
-		eventDistributor.reset(new EventDistributor(
-			getScheduler(), getCommandController()));
+		eventDistributor.reset(new EventDistributor(getScheduler()));
 	}
 	return *eventDistributor;
 }
@@ -268,7 +268,9 @@ UserInputEventDistributor& MSXMotherBoard::getUserInputEventDistributor()
 {
 	if (!userInputEventDistributor.get()) {
 		userInputEventDistributor.reset(
-			new UserInputEventDistributor(getEventDistributor()));
+			new UserInputEventDistributor(
+				getScheduler(), getCommandController(),
+				getEventDistributor()));
 	}
 	return *userInputEventDistributor;
 }
@@ -296,7 +298,7 @@ RealTime& MSXMotherBoard::getRealTime()
 {
 	if (!realTime.get()) {
 		realTime.reset(new RealTime(
-			getScheduler(), getEventDistributor(),
+			getScheduler(), getUserInputEventDistributor(),
 			getCommandController().getGlobalSettings()));
 	}
 	return *realTime;

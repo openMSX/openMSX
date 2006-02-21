@@ -5,7 +5,6 @@
 #include "TclObject.hh"
 #include "CommandException.hh"
 #include "Setting.hh"
-#include "Scheduler.hh"
 #include "InterpreterOutput.hh"
 #include "openmsx.hh"
 #include "FileOperations.hh"
@@ -57,8 +56,8 @@ void Interpreter::init(const char* programName)
 	Tcl_FindExecutable(programName);
 }
 
-Interpreter::Interpreter(Scheduler& scheduler)
-	: PollInterface(scheduler)
+Interpreter::Interpreter()
+	//: PollInterface(scheduler)
 {
 	interp = Tcl_CreateInterp();
 	Tcl_Preserve(interp);
@@ -299,11 +298,12 @@ void Interpreter::splitList(const string& list, vector<string>& result)
 	Tcl_Free((char*)argv);
 }
 
-
+/*
 void Interpreter::poll()
 {
 	//Tcl_ServiceAll();
 	Tcl_DoOneEvent(TCL_DONT_WAIT);
 }
+*/
 
 } // namespace openmsx

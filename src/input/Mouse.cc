@@ -1,7 +1,7 @@
 // $Id$
 
 #include "Mouse.hh"
-#include "EventDistributor.hh"
+#include "UserInputEventDistributor.hh"
 #include "InputEvents.hh"
 
 using std::string;
@@ -17,7 +17,7 @@ const int FAZE_YLOW  = 3;
 const int STROBE = 0x04;
 
 
-Mouse::Mouse(EventDistributor& eventDistributor_)
+Mouse::Mouse(UserInputEventDistributor& eventDistributor_)
 	: eventDistributor(eventDistributor_)
 	, lastTime(EmuTime::zero)
 {
@@ -25,23 +25,12 @@ Mouse::Mouse(EventDistributor& eventDistributor_)
 	faze = FAZE_YLOW;
 	xrel = yrel = curxrel = curyrel = 0;
 	mouseMode = true;
-
-	eventDistributor.registerEventListener(
-		OPENMSX_MOUSE_MOTION_EVENT,      *this);
-	eventDistributor.registerEventListener(
-		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this);
-	eventDistributor.registerEventListener(
-		OPENMSX_MOUSE_BUTTON_UP_EVENT,   *this);
+	eventDistributor.registerEventListener(*this);
 }
 
 Mouse::~Mouse()
 {
-	eventDistributor.unregisterEventListener(
-		OPENMSX_MOUSE_MOTION_EVENT,      *this);
-	eventDistributor.unregisterEventListener(
-		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this);
-	eventDistributor.unregisterEventListener(
-		OPENMSX_MOUSE_BUTTON_UP_EVENT,   *this);
+	eventDistributor.unregisterEventListener(*this);
 }
 
 
@@ -235,7 +224,8 @@ void Mouse::signalEvent(const Event& event)
 		break;
 	}
 	default:
-		assert(false);
+		// ignore
+		break;
 	}
 }
 

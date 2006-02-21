@@ -14,6 +14,7 @@ namespace openmsx {
 class CassetteImage;
 class XMLElement;
 class Mixer;
+class Scheduler;
 class CliComm;
 class WavWriter;
 class ThrottleManager;
@@ -39,7 +40,8 @@ private:
 class CassettePlayer : public CassetteDevice, public SoundDevice
 {
 public:
-	CassettePlayer(CommandController& commandController, Mixer& mixer);
+	CassettePlayer(CommandController& commandController, Mixer& mixer,
+	               Scheduler& Scheduler);
 	virtual ~CassettePlayer();
 
 	void insertTape(const std::string& filename, const EmuTime& time);
@@ -96,6 +98,7 @@ private:
 	std::auto_ptr<WavWriter> wavWriter;
 
 	CommandController& commandController;
+	Scheduler& scheduler;
 	const std::auto_ptr<TapeCommand> tapeCommand;
 
 	// SoundDevice

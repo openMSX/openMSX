@@ -4,23 +4,23 @@
 #define JOYSTICK_HH
 
 #include "JoystickDevice.hh"
-#include "EventListener.hh"
+#include "UserInputEventListener.hh"
 #include <SDL.h> // TODO move this
 
 namespace openmsx {
 
-class EventDistributor;
+class UserInputEventDistributor;
 class PluggingController;
 
 /** Uses an SDL joystick to emulate an MSX joystick.
   */
-class Joystick : public JoystickDevice, private EventListener
+class Joystick : public JoystickDevice, private UserInputEventListener
 {
 public:
 	/** Register all available SDL joysticks.
 	  * @param controller Register here.
 	  */
-	static void registerAll(EventDistributor& eventDistributor,
+	static void registerAll(UserInputEventDistributor& eventDistributor,
 	                        PluggingController& controller);
 
 	//Pluggable
@@ -33,16 +33,16 @@ public:
 	virtual byte read(const EmuTime& time);
 	virtual void write(byte value, const EmuTime& time);
 
-	//EventListener
+	//UserInputEventListener
 	virtual void signalEvent(const Event& event);
 
 private:
-	Joystick(EventDistributor& eventDistributor, unsigned joyNum);
+	Joystick(UserInputEventDistributor& eventDistributor, unsigned joyNum);
 	virtual ~Joystick();
 
 	static const int THRESHOLD = 32768/10;
 
-	EventDistributor& eventDistributor;
+	UserInputEventDistributor& eventDistributor;
 
 	std::string name;
 	std::string desc;

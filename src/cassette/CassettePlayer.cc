@@ -109,7 +109,8 @@ const string& MSXCassettePlayerCLI::fileTypeHelp() const
 
 
 CassettePlayer::CassettePlayer(
-		CommandController& commandController_, Mixer& mixer)
+		CommandController& commandController_, Mixer& mixer,
+		Scheduler& scheduler_)
 	: SoundDevice(mixer, getName(), getDescription())
 	, motor(false), motorControl(true), isLoading(false)
 	, tapeTime(EmuTime::zero)
@@ -118,6 +119,7 @@ CassettePlayer::CassettePlayer(
 	, lastOutput(false)
 	, sampcnt(0)
 	, commandController(commandController_)
+	, scheduler(scheduler_)
 	, tapeCommand(new TapeCommand(commandController, *this))
 	, playTapeTime(EmuTime::zero)
 	, cliComm(commandController.getCliComm())
@@ -154,8 +156,7 @@ CassettePlayer::~CassettePlayer()
 {
 	unregisterSound();
 	if (Connector* connector = getConnector()) {
-		connector->unplug(
-			commandController.getScheduler().getCurrentTime());
+		connector->unplug(scheduler.getCurrentTime());
 	}
 }
 
@@ -171,7 +172,7 @@ void CassettePlayer::updateLoadingState()
 
 void CassettePlayer::insertTape(const string& filename, const EmuTime& time)
 {
-	stopRecording(commandController.getScheduler().getCurrentTime());
+	stopRecording(scheduler.getCurrentTime());
 	try {
 		// first try WAV
 		cassette.reset(new WavImage(filename));
@@ -447,7 +448,7 @@ void TapeCommand::execute(const std::vector<TclObject*>& tokens,
                           TclObject& result)
 {
 	string tmpresult;
-	EmuTime now = getCommandController().getScheduler().getCurrentTime();
+	EmuTime now = cassettePlayer.scheduler.getCurrentTime();
 	if (tokens.size() == 1) {
 		// Returning TCL lists here, similar to the disk commands in
 		// DiskChanger

@@ -172,21 +172,21 @@ const byte* Keyboard::getKeys()
 	return keyMatrix;
 }
 
-void Keyboard::signalEvent(const UserInputEvent& event)
+void Keyboard::signalEvent(const Event& event)
 {
 	EventType type = event.getType();
-	if ((type == OPENMSX_EMU_KEY_DOWN_EVENT) ||
-	    (type == OPENMSX_EMU_KEY_UP_EVENT)) {
+	if ((type == OPENMSX_KEY_DOWN_EVENT) ||
+	    (type == OPENMSX_KEY_UP_EVENT)) {
 		// Ignore possible console on/off events:
 		// we do not rescan the keyboard since this may lead to
 		// an unwanted pressing of <return> in MSX after typing
 		// "set console off" in the console.
-		assert(dynamic_cast<const EmuKeyEvent*>(&event));
+		assert(dynamic_cast<const KeyEvent*>(&event));
 		Keys::KeyCode key = (Keys::KeyCode)
-			((int)((EmuKeyEvent&)event).getKeyCode() &
+			((int)((KeyEvent&)event).getKeyCode() &
 			 (int)Keys::K_MASK);
 		if (key != Keys::K_CAPSLOCK) {
-			processKey(type == OPENMSX_EMU_KEY_DOWN_EVENT, key);
+			processKey(type == OPENMSX_KEY_DOWN_EVENT, key);
 		} else {
 			// This is a workaround for a SDL 'feature' (it's
 			// actually a documented bug in SDL). In a future

@@ -1,5 +1,12 @@
 $Id$
 
+2006-02-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Preparations for run-time switchable machine:
+	   - made seperate EventDistributors for 'DETACHED' and 'EMU'
+	     listeners.
+	   - Reactor now owns MSXMotherboard
+	* Fixed HotKey for key release bindings 
+
 2006-02-18 Maarten ter Huurne <maarten@treewalker.org>
 	* Use GLEW to handle OpenGL extensions.
 	    http://glew.sourceforge.net/

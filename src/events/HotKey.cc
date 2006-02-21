@@ -78,14 +78,14 @@ HotKey::HotKey(CommandController& commandController_,
 {
 	initDefaultBindings();
 
-	eventDistributor.registerEventListener(
-		OPENMSX_HOST_KEY_DOWN_EVENT, *this, EventDistributor::DETACHED);
+	eventDistributor.registerEventListener(OPENMSX_KEY_DOWN_EVENT, *this);
+	eventDistributor.registerEventListener(OPENMSX_KEY_UP_EVENT, *this);
 }
 
 HotKey::~HotKey()
 {
-	eventDistributor.unregisterEventListener(
-		OPENMSX_HOST_KEY_DOWN_EVENT, *this, EventDistributor::DETACHED);
+	eventDistributor.unregisterEventListener(OPENMSX_KEY_UP_EVENT, *this);
+	eventDistributor.unregisterEventListener(OPENMSX_KEY_DOWN_EVENT, *this);
 }
 
 void HotKey::initDefaultBindings()
@@ -233,8 +233,8 @@ void HotKey::signalEvent(const Event& event)
 {
 	// In the future we might support joystick buttons as hot keys as well.
 
-	assert(dynamic_cast<const HostKeyEvent*>(&event));
-	Keys::KeyCode key = static_cast<const HostKeyEvent&>(event).getKeyCode();
+	assert(dynamic_cast<const KeyEvent*>(&event));
+	Keys::KeyCode key = static_cast<const KeyEvent&>(event).getKeyCode();
 	BindMap::iterator it = cmdMap.find(key);
 	if (it != cmdMap.end()) {
 		try {

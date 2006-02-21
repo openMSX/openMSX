@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class UserInputEvent;
+class Event;
 
 class UserInputEventListener
 {
@@ -15,7 +15,7 @@ public:
 	/**
 	 * This method gets called when an event you are subscribed to occurs.
 	 */
-	virtual void signalEvent(const UserInputEvent& event) = 0;
+	virtual void signalEvent(const Event& event) = 0;
 
 protected:
 	UserInputEventListener() {}

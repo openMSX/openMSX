@@ -145,8 +145,9 @@ static std::bitset<RealDrive::MAX_DRIVES> drivesInUse;
 
 RealDrive::RealDrive(CommandController& commandController,
                      EventDistributor& eventDistributor_,
+                     Scheduler& scheduler,
                      FileManipulator& fileManipulator, const EmuTime& time)
-	: Schedulable(commandController.getScheduler())
+	: Schedulable(scheduler)
 	, headPos(0), motorStatus(false), motorTimer(time)
 	, headLoadStatus(false), headLoadTimer(time)
 	, eventDistributor(eventDistributor_)
@@ -347,9 +348,11 @@ void RealDrive::resetTimeOut(const EmuTime& time)
 SingleSidedDrive::SingleSidedDrive(
 		CommandController& commandController,
 		EventDistributor& eventDistributor,
+		Scheduler& scheduler,
 		FileManipulator& fileManipulator,
 		const EmuTime& time)
-	: RealDrive(commandController, eventDistributor, fileManipulator, time)
+	: RealDrive(commandController, eventDistributor, scheduler,
+	            fileManipulator, time)
 {
 }
 
@@ -411,9 +414,11 @@ void SingleSidedDrive::writeTrackData(byte data)
 DoubleSidedDrive::DoubleSidedDrive(
 		CommandController& commandController,
 		EventDistributor& eventDistributor,
+		Scheduler& scheduler,
 		FileManipulator& fileManipulator,
 		const EmuTime& time)
-	: RealDrive(commandController, eventDistributor, fileManipulator, time)
+	: RealDrive(commandController, eventDistributor, scheduler,
+	            fileManipulator, time)
 {
 	side = 0;
 }

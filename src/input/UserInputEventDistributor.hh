@@ -4,12 +4,19 @@
 #define USERINPUTEVENTDISTRIBUTOR_HH
 
 #include "EventListener.hh"
+#include "Schedulable.hh"
+#include "EmuTime.hh"
 #include <vector>
+#include <deque>
+#include <memory>
 
 namespace openmsx {
 
 class UserInputEventListener;
+class Scheduler;
+class CommandController;
 class EventDistributor;
+class FloatSetting;
 
 /**
  * Layered user input event distribution system: high priority listeners
@@ -25,10 +32,12 @@ class EventDistributor;
  *       while Console does.
  * TODO: Actually, why does Console withhold keyup from the MSX?
  */
-class UserInputEventDistributor : private EventListener
+class UserInputEventDistributor : private EventListener, private Schedulable
 {
 public:
-	explicit UserInputEventDistributor(EventDistributor& eventDistributor);
+	UserInputEventDistributor(Scheduler& scheduler,
+	                          CommandController& commandController,
+	                          EventDistributor& eventDistributor);
 	virtual ~UserInputEventDistributor();
 
 	/**
@@ -43,13 +52,36 @@ public:
 	 */
 	void unregisterEventListener(UserInputEventListener& listener);
 
+	void sync(const EmuTime& time);
+
 private:
+	void queueEvent(Event* event);
+
 	// EventListener
 	virtual void signalEvent(const Event& event);
+
+	// Schedulable
+	virtual void executeUntil(const EmuTime& time, int userData);
+	virtual const std::string& schedName() const;
 
 	typedef std::vector<UserInputEventListener*> Listeners;
 	Listeners listeners;
 	EventDistributor& eventDistributor;
+
+	bool console;
+
+	struct EventTime {
+		EventTime(Event* event_, unsigned long long time_)
+			: event(event_), time(time_) {}
+		Event* event;
+		unsigned long long time;
+	};
+	std::vector<EventTime> toBeScheduledEvents;
+	std::deque<Event*> scheduledEvents;
+
+	EmuTime prevEmu;
+	unsigned long long prevReal;
+	std::auto_ptr<FloatSetting> delaySetting;
 };
 
 } // namespace openmsx

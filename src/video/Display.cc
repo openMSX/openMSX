@@ -87,11 +87,11 @@ Display::Display(MSXMotherBoard& motherboard_)
 
 	EventDistributor& eventDistributor = motherboard.getEventDistributor();
 	eventDistributor.registerEventListener(OPENMSX_FINISH_FRAME_EVENT,
-			*this, EventDistributor::DETACHED);
+			*this);
 	eventDistributor.registerEventListener(OPENMSX_DELAYED_REPAINT_EVENT,
-			*this, EventDistributor::DETACHED);
+			*this);
 	eventDistributor.registerEventListener(OPENMSX_SWITCH_RENDERER_EVENT,
-			*this, EventDistributor::DETACHED);
+			*this);
 
 	renderSettings->getRenderer().attach(*this);
 	renderSettings->getFullScreen().attach(*this);
@@ -108,11 +108,11 @@ Display::~Display()
 
 	EventDistributor& eventDistributor = motherboard.getEventDistributor();
 	eventDistributor.unregisterEventListener(OPENMSX_SWITCH_RENDERER_EVENT,
-			*this, EventDistributor::DETACHED);
+			*this);
 	eventDistributor.unregisterEventListener(OPENMSX_DELAYED_REPAINT_EVENT,
-			*this, EventDistributor::DETACHED);
+			*this);
 	eventDistributor.unregisterEventListener(OPENMSX_FINISH_FRAME_EVENT,
-			*this, EventDistributor::DETACHED);
+			*this);
 
 	resetVideoSystem();
 

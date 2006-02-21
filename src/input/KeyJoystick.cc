@@ -83,18 +83,18 @@ void KeyJoystick::write(byte /*value*/, const EmuTime& /*time*/)
 
 
 // EventListener
-void KeyJoystick::signalEvent(const UserInputEvent& event)
+void KeyJoystick::signalEvent(const Event& event)
 {
 	switch (event.getType()) {
 	case OPENMSX_CONSOLE_ON_EVENT:
 		allUp();
 		break;
-	case OPENMSX_EMU_KEY_DOWN_EVENT:
-	case OPENMSX_EMU_KEY_UP_EVENT: {
-		assert(dynamic_cast<const EmuKeyEvent*>(&event));
+	case OPENMSX_KEY_DOWN_EVENT:
+	case OPENMSX_KEY_UP_EVENT: {
+		assert(dynamic_cast<const KeyEvent*>(&event));
 		Keys::KeyCode key = (Keys::KeyCode)(
-			(int)((EmuKeyEvent&)event).getKeyCode() & (int)Keys::K_MASK);
-		if (event.getType() == OPENMSX_EMU_KEY_DOWN_EVENT) {
+			(int)((KeyEvent&)event).getKeyCode() & (int)Keys::K_MASK);
+		if (event.getType() == OPENMSX_KEY_DOWN_EVENT) {
 			if      (key == up->getValue())    status &= ~JOY_UP;
 			else if (key == down->getValue())  status &= ~JOY_DOWN;
 			else if (key == left->getValue())  status &= ~JOY_LEFT;

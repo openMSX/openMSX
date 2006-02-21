@@ -15,7 +15,7 @@ namespace openmsx {
 
 class CommandController;
 class EventDistributor;
-class HostKeyEvent;
+class KeyEvent;
 class BooleanSetting;
 class Display;
 
@@ -44,7 +44,7 @@ private:
 	static const int LINESHISTORY = 1000;
 
 	virtual void signalEvent(const Event& event);
-	void handleEvent(const HostKeyEvent& keyEvent);
+	void handleEvent(const KeyEvent& keyEvent);
 	void tabCompletion();
 	void commandExecute();
 	void scroll(int delta);

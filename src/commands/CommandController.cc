@@ -48,9 +48,8 @@ public:
 };
 
 
-CommandController::CommandController(Scheduler& scheduler_)
-	: scheduler(scheduler_)
-	, cmdConsole(NULL)
+CommandController::CommandController()
+	: cmdConsole(NULL)
 	, cliComm(NULL)
 	, connection(NULL)
 	, infoCommand(new InfoCommand(*this))
@@ -65,11 +64,6 @@ CommandController::~CommandController()
 	//assert(commands.empty());            // TODO
 	//assert(commandCompleters.empty());   // TODO
 	assert(!cmdConsole);
-}
-
-Scheduler& CommandController::getScheduler()
-{
-	return scheduler;
 }
 
 void CommandController::setCliComm(CliComm* cliComm_)
@@ -91,7 +85,7 @@ CliConnection* CommandController::getConnection() const
 Interpreter& CommandController::getInterpreter()
 {
 	if (!interpreter.get()) {
-		interpreter.reset(new Interpreter(scheduler));
+		interpreter.reset(new Interpreter());
 	}
 	return *interpreter;
 }

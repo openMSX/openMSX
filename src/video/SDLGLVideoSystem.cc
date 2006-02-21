@@ -37,13 +37,13 @@ SDLGLVideoSystem::SDLGLVideoSystem(MSXMotherBoard& motherboard_)
 	display.addLayer(*iconLayer);
 
 	motherboard.getEventDistributor().registerEventListener(
-		OPENMSX_RESIZE_EVENT, *this, EventDistributor::DETACHED);
+		OPENMSX_RESIZE_EVENT, *this);
 }
 
 SDLGLVideoSystem::~SDLGLVideoSystem()
 {
 	motherboard.getEventDistributor().unregisterEventListener(
-		OPENMSX_RESIZE_EVENT, *this, EventDistributor::DETACHED);
+		OPENMSX_RESIZE_EVENT, *this);
 
 	Display& display = motherboard.getDisplay();
 	display.removeLayer(*iconLayer);

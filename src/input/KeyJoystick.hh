@@ -33,7 +33,7 @@ public:
 
 private:
 	// UserInputEventListener
-	virtual void signalEvent(const UserInputEvent& event);
+	virtual void signalEvent(const Event& event);
 
 	void allUp();
 

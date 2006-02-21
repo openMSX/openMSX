@@ -18,14 +18,12 @@ IconStatus::IconStatus(EventDistributor& eventDistributor_,
 		iconTime[i] = now;
 	}
 
-	eventDistributor.registerEventListener(
-		OPENMSX_LED_EVENT, *this, EventDistributor::DETACHED);
+	eventDistributor.registerEventListener(OPENMSX_LED_EVENT, *this);
 }
 
 IconStatus::~IconStatus()
 {
-	eventDistributor.unregisterEventListener(
-		OPENMSX_LED_EVENT, *this, EventDistributor::DETACHED);
+	eventDistributor.unregisterEventListener(OPENMSX_LED_EVENT, *this);
 }
 
 bool IconStatus::getStatus(int icon) const

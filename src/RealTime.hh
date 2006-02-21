@@ -10,7 +10,7 @@
 namespace openmsx {
 
 class Scheduler;
-class EventDistributor;
+class UserInputEventDistributor;
 class GlobalSettings;
 class IntegerSetting;
 class BooleanSetting;
@@ -21,7 +21,7 @@ class RealTime : private Schedulable,
                  private Observer<Setting>, private Observer<ThrottleManager>
 {
 public:
-	RealTime(Scheduler& scheduler, EventDistributor& eventDistributor,
+	RealTime(Scheduler& scheduler, UserInputEventDistributor& eventDistributor,
 	         GlobalSettings& globalSettings);
 	~RealTime();
 
@@ -60,7 +60,7 @@ private:
 	void internalSync(const EmuTime& time, bool allowSleep);
 	void resync();
 
-	EventDistributor& eventDistributor;
+	UserInputEventDistributor& eventDistributor;
 	ThrottleManager& throttleManager;
 	IntegerSetting& speedSetting;
 	BooleanSetting& pauseSetting;

@@ -56,18 +56,14 @@ CommandConsole::CommandConsole(
 	commandController.setCommandConsole(this);
 
 	commandController.getInterpreter().setOutput(this);
-	eventDistributor.registerEventListener(
-		OPENMSX_HOST_KEY_UP_EVENT,   *this, EventDistributor::DETACHED);
-	eventDistributor.registerEventListener(
-		OPENMSX_HOST_KEY_DOWN_EVENT, *this, EventDistributor::DETACHED);
+	eventDistributor.registerEventListener(OPENMSX_KEY_UP_EVENT,   *this);
+	eventDistributor.registerEventListener(OPENMSX_KEY_DOWN_EVENT, *this);
 }
 
 CommandConsole::~CommandConsole()
 {
-	eventDistributor.unregisterEventListener(
-		OPENMSX_HOST_KEY_UP_EVENT,   *this, EventDistributor::DETACHED);
-	eventDistributor.unregisterEventListener(
-		OPENMSX_HOST_KEY_DOWN_EVENT, *this, EventDistributor::DETACHED);
+	eventDistributor.unregisterEventListener(OPENMSX_KEY_UP_EVENT,   *this);
+	eventDistributor.unregisterEventListener(OPENMSX_KEY_DOWN_EVENT, *this);
 	commandController.getInterpreter().setOutput(NULL);
 	commandController.setCommandConsole(NULL);
 	saveHistory();
@@ -147,32 +143,17 @@ string CommandConsole::getLine(unsigned line) const
 
 void CommandConsole::signalEvent(const Event& event)
 {
-	// Note: we let OPENMSX_KEY_UP events pass to MSX-Keyboard
-	// to prevent 'hanging' keys when entering the console
-
-	assert(dynamic_cast<const HostKeyEvent*>(&event));
-	const HostKeyEvent& keyEvent = static_cast<const HostKeyEvent&>(event);
-	if ((event.getType() == OPENMSX_HOST_KEY_DOWN_EVENT) &&
+	assert(dynamic_cast<const KeyEvent*>(&event));
+	const KeyEvent& keyEvent = static_cast<const KeyEvent&>(event);
+	if ((event.getType() == OPENMSX_KEY_DOWN_EVENT) &&
 	    consoleSetting.getValue()) {
 		handleEvent(keyEvent);
 		assert(display);
 		display->repaintDelayed(40000); // 25fps
-	} else {
-		// TODO this code does not belong here
-		// translate to emu key event
-		if (event.getType() == OPENMSX_HOST_KEY_DOWN_EVENT) {
-			eventDistributor.distributeEvent(
-				new EmuKeyDownEvent(keyEvent.getKeyCode(),
-				                    keyEvent.getUnicode()));
-		} else {
-			eventDistributor.distributeEvent(
-				new EmuKeyUpEvent(keyEvent.getKeyCode(),
-				                  keyEvent.getUnicode()));
-		}
 	}
 }
 
-void CommandConsole::handleEvent(const HostKeyEvent& keyEvent)
+void CommandConsole::handleEvent(const KeyEvent& keyEvent)
 {
 	Keys::KeyCode keyCode = keyEvent.getKeyCode();
 	switch (keyCode) {

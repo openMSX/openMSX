@@ -39,16 +39,14 @@ InputEventGenerator::InputEventGenerator(Scheduler& scheduler,
 {
 	setGrabInput(grabInput->getValue());
 	grabInput->attach(*this);
-	eventDistributor.registerEventListener(OPENMSX_FOCUS_EVENT, *this,
-	                                  EventDistributor::DETACHED);
+	eventDistributor.registerEventListener(OPENMSX_FOCUS_EVENT, *this);
 
 	reinit();
 }
 
 InputEventGenerator::~InputEventGenerator()
 {
-	eventDistributor.unregisterEventListener(OPENMSX_FOCUS_EVENT, *this,
-	                                  EventDistributor::DETACHED);
+	eventDistributor.unregisterEventListener(OPENMSX_FOCUS_EVENT, *this);
 	grabInput->detach(*this);
 }
 
@@ -127,7 +125,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 {
 	switch (evt.type) {
 	case SDL_KEYUP: {
-		Event* event = new HostKeyUpEvent(
+		Event* event = new KeyUpEvent(
 		        Keys::getCode(evt.key.keysym.sym,
 		                      evt.key.keysym.mod,
 		                      true),
@@ -136,7 +134,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		break;
 	}
 	case SDL_KEYDOWN: {
-		Event* event = new HostKeyDownEvent(
+		Event* event = new KeyDownEvent(
 		        Keys::getCode(evt.key.keysym.sym,
 		                      evt.key.keysym.mod,
 		                      false),

@@ -4,7 +4,7 @@
 #include "RealTime.hh"
 #include "Scheduler.hh"
 #include "Timer.hh"
-#include "EventDistributor.hh"
+#include "UserInputEventDistributor.hh"
 #include "GlobalSettings.hh"
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
@@ -16,7 +16,7 @@ const double             SYNC_INTERVAL = 0.08;  // s
 const long long          MAX_LAG       = 200000; // us
 const unsigned long long ALLOWED_LAG   =  20000; // us
 
-RealTime::RealTime(Scheduler& scheduler, EventDistributor& eventDistributor_,
+RealTime::RealTime(Scheduler& scheduler, UserInputEventDistributor& eventDistributor_,
                    GlobalSettings& globalSettings)
 	: Schedulable(scheduler)
 	, eventDistributor(eventDistributor_)

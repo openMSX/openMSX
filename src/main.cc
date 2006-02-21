@@ -56,7 +56,8 @@ static int main(int argc, char **argv)
 
 	int err = 0;
 	try {
-		MSXMotherBoard motherBoard;
+		Reactor reactor;
+		MSXMotherBoard& motherBoard = reactor.getMotherBoard();
 		motherBoard.getCommandController().getInterpreter().init(argv[0]);
 
 		// TODO cleanup once singleton mess is cleaned up
@@ -80,7 +81,6 @@ static int main(int argc, char **argv)
 				motherBoard.getDisplay().getRenderSettings().
 					getRenderer().restoreDefault();
 			}
-			Reactor reactor(motherBoard);
 			CliServer cliServer(motherBoard.getScheduler(),
 			                    motherBoard.getCommandController());
 			if (parseStatus != CommandLineParser::TEST) {

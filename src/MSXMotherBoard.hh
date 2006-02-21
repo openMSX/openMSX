@@ -10,6 +10,7 @@
 
 namespace openmsx {
 
+class Reactor;
 class MSXDevice;
 class XMLElement;
 class MachineConfig;
@@ -49,7 +50,7 @@ class RemoveExtCmd;
 class MSXMotherBoard : private Observer<Setting>
 {
 public:
-	MSXMotherBoard();
+	MSXMotherBoard(Reactor& reactor);
 	virtual ~MSXMotherBoard();
 
 	/**
@@ -140,6 +141,8 @@ private:
 	// Observer<Setting>
 	virtual void update(const Setting& setting);
 
+	Reactor& reactor;
+	
 	typedef std::vector<MSXDevice*> Devices;
 	Devices availableDevices;
 

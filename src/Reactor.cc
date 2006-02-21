@@ -33,35 +33,41 @@ private:
 };
 
 
-Reactor::Reactor(MSXMotherBoard& motherBoard_)
+Reactor::Reactor()
 	: paused(false)
 	, blockedCounter(0)
 	, running(true)
-	, motherBoard(motherBoard_)
-	, pauseSetting(motherBoard.getCommandController().getGlobalSettings().
+	, pauseSetting(getMotherBoard().getCommandController().getGlobalSettings().
 	                   getPauseSetting())
-	, cliComm(motherBoard.getCliComm())
-	, quitCommand(new QuitCommand(motherBoard.getCommandController(), *this))
+	, cliComm(getMotherBoard().getCliComm())
+	, quitCommand(new QuitCommand(getMotherBoard().getCommandController(), *this))
 {
 	pauseSetting.attach(*this);
 
-	motherBoard.getEventDistributor().registerEventListener(
-		OPENMSX_QUIT_EVENT, *this, EventDistributor::DETACHED);
+	getMotherBoard().getEventDistributor().registerEventListener(
+		OPENMSX_QUIT_EVENT, *this);
 }
 
 Reactor::~Reactor()
 {
-	motherBoard.getEventDistributor().unregisterEventListener(
-		OPENMSX_QUIT_EVENT, *this, EventDistributor::DETACHED);
+	getMotherBoard().getEventDistributor().unregisterEventListener(
+		OPENMSX_QUIT_EVENT, *this);
 
 	pauseSetting.detach(*this);
 }
 
+MSXMotherBoard& Reactor::getMotherBoard()
+{
+	if (!motherBoard.get()) {
+		motherBoard.reset(new MSXMotherBoard(*this));
+	}
+	return *motherBoard;
+}
+
 void Reactor::run(CommandLineParser& parser)
 {
-	CommandController& commandController(motherBoard.getCommandController());
-	Display& display(motherBoard.getDisplay());
-	Scheduler& scheduler(motherBoard.getScheduler());
+	CommandController& commandController(getMotherBoard().getCommandController());
+	Display& display(getMotherBoard().getDisplay());
 
 	// execute init.tcl
 	try {
@@ -92,21 +98,23 @@ void Reactor::run(CommandLineParser& parser)
 		// between devices so ADVRAM can check the error condition
 		// in its constructor
 		//commandController.executeCommand("set power on");
-		motherBoard.powerUp();
+		getMotherBoard().powerUp();
 	}
+	
+	Scheduler& scheduler(getMotherBoard().getScheduler());
 	while (running) {
 		bool blocked = blockedCounter > 0;
-		if (!blocked) blocked = !motherBoard.execute();
+		if (!blocked) blocked = !getMotherBoard().execute();
 		if (blocked) {
 			display.repaint();
 			Timer::sleep(100 * 1000);
-			motherBoard.getScheduler().doPoll();
+			scheduler.doPoll();
 			// TODO: Make Scheduler only responsible for events inside the MSX.
 			//       All other events should be handled by the Reactor.
 			scheduler.schedule(scheduler.getCurrentTime());
 		}
 	}
-	motherBoard.doPowerDown(scheduler.getCurrentTime());
+	getMotherBoard().doPowerDown(scheduler.getCurrentTime());
 }
 
 void Reactor::unpause()
@@ -130,7 +138,7 @@ void Reactor::pause()
 void Reactor::block()
 {
 	++blockedCounter;
-	motherBoard.getCPU().exitCPULoop();
+	getMotherBoard().getCPU().exitCPULoop();
 }
 
 void Reactor::unblock()
@@ -159,7 +167,7 @@ void Reactor::signalEvent(const Event& event)
 {
 	if (event.getType() == OPENMSX_QUIT_EVENT) {
 		running = false;
-		motherBoard.getCPU().exitCPULoop();
+		getMotherBoard().getCPU().exitCPULoop();
 	} else {
 		assert(false);
 	}
@@ -179,7 +187,7 @@ QuitCommand::QuitCommand(CommandController& commandController,
 string QuitCommand::execute(const vector<string>& /*tokens*/)
 {
 	reactor.running = false;
-	reactor.motherBoard.getCPU().exitCPULoop();
+	reactor.getMotherBoard().getCPU().exitCPULoop();
 	return "";
 }
 

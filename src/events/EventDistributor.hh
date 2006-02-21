@@ -4,41 +4,21 @@
 #define EVENTDISTRIBUTOR_HH
 
 #include "Event.hh"
-#include "EmuTime.hh"
 #include "Schedulable.hh"
 #include "Semaphore.hh"
 #include <map>
-#include <vector>
 #include <deque>
-#include <memory>
 
 namespace openmsx {
 
-class CommandController;
 class EventListener;
-class FloatSetting;
+class EmuTime;
 
 class EventDistributor : private Schedulable
 {
 public:
-	EventDistributor(Scheduler& scheduler,
-	                 CommandController& commandController);
+	explicit EventDistributor(Scheduler& scheduler);
 	virtual ~EventDistributor();
-
-	/** Ways in which an event can be delivered to a listener.
-	  */
-	enum ListenerType {
-		/** Deliver the event immediately, in a separate thread.
-		  * A bit of overhead, but safe.
-		  */
-		DETACHED,
-
-		/** Deliver the event at the EmuTime equivalent of the current real
-		  * time, in a separate thread.
-		  * Typically used by MSX input devices.
-		  */
-		EMU
-	};
 
 	/**
 	 * Registers a given object to receive certain events.
@@ -46,19 +26,16 @@ public:
 	 * @param listener Listener that will be notified when an event arrives.
 	 * @param listenerType The way this event should be delivered.
 	 */
-	void registerEventListener(EventType type, EventListener& listener,
-	                           ListenerType listenerType = EMU);
+	void registerEventListener(EventType type, EventListener& listener);
 	/**
 	 * Unregisters a previously registered event listener.
 	 * @param type The type of the events the listener should no longer receive.
 	 * @param listener Listener to unregister.
 	 * @param listenerType Delivery method the listener was registered with.
 	 */
-	void unregisterEventListener(EventType type, EventListener& listener,
-	                             ListenerType listenerType = EMU);
+	void unregisterEventListener(EventType type, EventListener& listener);
 
 	void distributeEvent(Event* event);
-	void sync(const EmuTime& emuTime);
 
 private:
 	// Schedulable
@@ -67,24 +44,10 @@ private:
 
 	typedef std::multimap<EventType, EventListener*> ListenerMap;
 	ListenerMap detachedListeners;
-	ListenerMap emuListeners;
-	ListenerMap& getListeners(ListenerType listenerType);
 
-	struct EventTime {
-		EventTime(Event* event_, unsigned long long time_)
-			: event(event_), time(time_) {}
-		Event* event;
-		unsigned long long time;
-	};
-	std::vector<EventTime> toBeScheduledEvents;
 	typedef std::deque<Event*> EventQueue;
 	EventQueue scheduledEvents;
-	EventQueue scheduledEventsEmu;
 	Semaphore sem;
-
-	EmuTime prevEmu;
-	unsigned long long prevReal;
-	std::auto_ptr<FloatSetting> delaySetting;
 };
 
 } // namespace openmsx

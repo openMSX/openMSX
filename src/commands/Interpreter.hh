@@ -3,7 +3,7 @@
 #ifndef INTERPRETER_HH
 #define INTERPRETER_HH
 
-#include "PollInterface.hh"
+//#include "PollInterface.hh"
 #include <map>
 #include <set>
 #include <string>
@@ -12,16 +12,15 @@
 
 namespace openmsx {
 
-class Scheduler;
 class Command;
 class Setting;
 class InterpreterOutput;
 class TclObject;
 
-class Interpreter : public PollInterface
+class Interpreter //: public PollInterface
 {
 public:
-	explicit Interpreter(Scheduler& scheduler);
+	Interpreter();
 	~Interpreter();
 
 	void setOutput(InterpreterOutput* output);
@@ -44,7 +43,10 @@ public:
 	               std::vector<std::string>& result);
 
 	// PollInterface
-	virtual void poll();
+	//  TODO temp disabled till Scheduler/Reactor stuff is cleaned up
+	//  stuff like HTTP server in openmsx is broken now (AFAIK nothing
+	//  directly related to emulation is broken)
+	// virtual void poll();
 
 private:
 	static int outputProc(ClientData clientData, const char* buf,

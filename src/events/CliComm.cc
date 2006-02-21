@@ -48,8 +48,7 @@ CliComm::CliComm(Scheduler& scheduler_, CommandController& commandController_,
 {
 	commandController.setCliComm(this);
 
-	eventDistributor.registerEventListener(
-		OPENMSX_LED_EVENT, *this, EventDistributor::DETACHED);
+	eventDistributor.registerEventListener(OPENMSX_LED_EVENT, *this);
 }
 
 CliComm::~CliComm()
@@ -59,8 +58,7 @@ CliComm::~CliComm()
 		delete *it;
 	}
 
-	eventDistributor.unregisterEventListener(
-		OPENMSX_LED_EVENT, *this, EventDistributor::DETACHED);
+	eventDistributor.unregisterEventListener(OPENMSX_LED_EVENT, *this);
 
 	commandController.setCliComm(0);
 }

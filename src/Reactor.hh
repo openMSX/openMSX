@@ -27,7 +27,7 @@ class QuitCommand;
 class Reactor : private Observer<Setting>, private EventListener
 {
 public:
-	explicit Reactor(MSXMotherBoard& motherBoard);
+	Reactor();
 	~Reactor();
 
 	/**
@@ -35,6 +35,8 @@ public:
 	 * @param autoRun Iff true, start emulation immediately.
 	 */
 	void run(CommandLineParser& parser);
+
+	MSXMotherBoard& getMotherBoard();
 
 private:
 	// Observer<Setting>
@@ -60,7 +62,7 @@ private:
 	 */
 	bool running;
 
-	MSXMotherBoard& motherBoard;
+	std::auto_ptr<MSXMotherBoard> motherBoard;
 	BooleanSetting& pauseSetting;
 	CliComm& cliComm;
 	const std::auto_ptr<QuitCommand> quitCommand;

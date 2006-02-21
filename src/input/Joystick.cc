@@ -2,7 +2,7 @@
 
 #include "Joystick.hh"
 #include "PluggingController.hh"
-#include "EventDistributor.hh"
+#include "UserInputEventDistributor.hh"
 #include "InputEvents.hh"
 #include <cassert>
 
@@ -10,7 +10,7 @@ using std::string;
 
 namespace openmsx {
 
-void Joystick::registerAll(EventDistributor& eventDistributor,
+void Joystick::registerAll(UserInputEventDistributor& eventDistributor,
                            PluggingController& controller)
 {
 	if (!SDL_WasInit(SDL_INIT_JOYSTICK)) {
@@ -24,7 +24,7 @@ void Joystick::registerAll(EventDistributor& eventDistributor,
 	}
 }
 
-Joystick::Joystick(EventDistributor& eventDistributor_, unsigned joyNum_)
+Joystick::Joystick(UserInputEventDistributor& eventDistributor_, unsigned joyNum_)
 	: eventDistributor(eventDistributor_)
 	, joyNum(joyNum_)
 {
@@ -57,12 +57,7 @@ void Joystick::plugHelper(Connector& /*connector*/, const EmuTime& /*time*/)
 		throw PlugException("Failed to open joystick device");
 	}
 
-	eventDistributor.registerEventListener(
-		OPENMSX_JOY_AXIS_MOTION_EVENT, *this);
-	eventDistributor.registerEventListener(
-		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this);
-	eventDistributor.registerEventListener(
-		OPENMSX_JOY_BUTTON_UP_EVENT,   *this);
+	eventDistributor.registerEventListener(*this);
 
 	status = JOY_UP | JOY_DOWN | JOY_LEFT | JOY_RIGHT |
 	         JOY_BUTTONA | JOY_BUTTONB;
@@ -70,13 +65,7 @@ void Joystick::plugHelper(Connector& /*connector*/, const EmuTime& /*time*/)
 
 void Joystick::unplugHelper(const EmuTime& /*time*/)
 {
-	eventDistributor.unregisterEventListener(
-		OPENMSX_JOY_AXIS_MOTION_EVENT, *this);
-	eventDistributor.unregisterEventListener(
-		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this);
-	eventDistributor.unregisterEventListener(
-		OPENMSX_JOY_BUTTON_UP_EVENT,   *this);
-
+	eventDistributor.unregisterEventListener(*this);
 	SDL_JoystickClose(joystick);
 }
 
@@ -95,11 +84,14 @@ void Joystick::write(byte /*value*/, const EmuTime& /*time*/)
 //EventListener
 void Joystick::signalEvent(const Event& event)
 {
-	assert(dynamic_cast<const JoystickEvent*>(&event));
-	const JoystickEvent& joyEvent = static_cast<const JoystickEvent&>(event);
+	const JoystickEvent* joyEvent = dynamic_cast<const JoystickEvent*>(&event);
+	if (!joyEvent) {
+		return;
+	}
+
 	// TODO: It would be more efficient to make a dispatcher instead of
 	//       sending the event to all joysticks.
-	if (joyEvent.getJoystick() != joyNum) {
+	if (joyEvent->getJoystick() != joyNum) {
 		return;
 	}
 

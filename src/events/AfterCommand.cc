@@ -27,25 +27,25 @@ AfterCommand::AfterCommand(Scheduler& scheduler_,
 	// TODO DETACHED <-> EMU types should be cleaned up
 	//      (moved to event iso listener?)
 	eventDistributor.registerEventListener(
-		OPENMSX_HOST_KEY_UP_EVENT, *this, EventDistributor::DETACHED);
+		OPENMSX_KEY_UP_EVENT, *this);
 	eventDistributor.registerEventListener(
-		OPENMSX_HOST_KEY_DOWN_EVENT, *this, EventDistributor::DETACHED);
+		OPENMSX_KEY_DOWN_EVENT, *this);
 	eventDistributor.registerEventListener(
-		OPENMSX_MOUSE_MOTION_EVENT, *this, EventDistributor::EMU);
+		OPENMSX_MOUSE_MOTION_EVENT, *this);
 	eventDistributor.registerEventListener(
-		OPENMSX_MOUSE_BUTTON_UP_EVENT, *this, EventDistributor::EMU);
+		OPENMSX_MOUSE_BUTTON_UP_EVENT, *this);
 	eventDistributor.registerEventListener(
-		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this, EventDistributor::EMU);
+		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this);
 	eventDistributor.registerEventListener(
-		OPENMSX_JOY_AXIS_MOTION_EVENT, *this, EventDistributor::EMU);
+		OPENMSX_JOY_AXIS_MOTION_EVENT, *this);
 	eventDistributor.registerEventListener(
-		OPENMSX_JOY_BUTTON_UP_EVENT, *this, EventDistributor::EMU);
+		OPENMSX_JOY_BUTTON_UP_EVENT, *this);
 	eventDistributor.registerEventListener(
-		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this, EventDistributor::EMU);
+		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this);
 	eventDistributor.registerEventListener(
-		OPENMSX_FINISH_FRAME_EVENT, *this, EventDistributor::DETACHED);
+		OPENMSX_FINISH_FRAME_EVENT, *this);
 	eventDistributor.registerEventListener(
-		OPENMSX_BREAK_EVENT, *this, EventDistributor::DETACHED);
+		OPENMSX_BREAK_EVENT, *this);
 }
 
 AfterCommand::~AfterCommand()
@@ -55,25 +55,25 @@ AfterCommand::~AfterCommand()
 	}
 
 	eventDistributor.unregisterEventListener(
-		OPENMSX_BREAK_EVENT, *this, EventDistributor::DETACHED);
+		OPENMSX_BREAK_EVENT, *this);
 	eventDistributor.unregisterEventListener(
-		OPENMSX_FINISH_FRAME_EVENT, *this, EventDistributor::DETACHED);
+		OPENMSX_FINISH_FRAME_EVENT, *this);
 	eventDistributor.unregisterEventListener(
-		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this, EventDistributor::EMU);
+		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this);
 	eventDistributor.unregisterEventListener(
-		OPENMSX_JOY_BUTTON_UP_EVENT, *this, EventDistributor::EMU);
+		OPENMSX_JOY_BUTTON_UP_EVENT, *this);
 	eventDistributor.unregisterEventListener(
-		OPENMSX_JOY_AXIS_MOTION_EVENT, *this, EventDistributor::EMU);
+		OPENMSX_JOY_AXIS_MOTION_EVENT, *this);
 	eventDistributor.unregisterEventListener(
-		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this, EventDistributor::EMU);
+		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this);
 	eventDistributor.unregisterEventListener(
-		OPENMSX_MOUSE_BUTTON_UP_EVENT, *this, EventDistributor::EMU);
+		OPENMSX_MOUSE_BUTTON_UP_EVENT, *this);
 	eventDistributor.unregisterEventListener(
-		OPENMSX_MOUSE_MOTION_EVENT, *this, EventDistributor::EMU);
+		OPENMSX_MOUSE_MOTION_EVENT, *this);
 	eventDistributor.unregisterEventListener(
-		OPENMSX_HOST_KEY_DOWN_EVENT, *this, EventDistributor::DETACHED);
+		OPENMSX_KEY_DOWN_EVENT, *this);
 	eventDistributor.unregisterEventListener(
-		OPENMSX_HOST_KEY_UP_EVENT, *this, EventDistributor::DETACHED);
+		OPENMSX_KEY_UP_EVENT, *this);
 }
 
 CommandController& AfterCommand::getCommandController() const
