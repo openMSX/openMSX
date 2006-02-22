@@ -1,5 +1,9 @@
 $Id$
 
+2006-02-22 Maarten ter Huurne <maarten@treewalker.org>
+	* Fixed GLSetTexEnvCol on big endian machines.
+	  This bug was visible in the border of SCREEN6.
+
 2006-02-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Preparations for run-time switchable machine:
 	   - made seperate EventDistributors for 'DETACHED' and 'EMU'

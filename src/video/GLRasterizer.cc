@@ -70,12 +70,17 @@ inline static void GLSetColour(GLRasterizer::Pixel colour)
 
 inline static void GLSetTexEnvCol(GLRasterizer::Pixel colour)
 {
-	GLfloat colourVec[4] = {
-		(colour & 0xFF) / 255.0f,
-		((colour >> 8) & 0xFF) / 255.0f,
-		((colour >> 16) & 0xFF) / 255.0f,
-		1.0f
-	};
+	int r, g, b;
+	if (OPENMSX_BIGENDIAN) {
+		r = (colour >> 24) & 0xFF;
+		g = (colour >> 16) & 0xFF;
+		b = (colour >>  8) & 0xFF;
+	} else {
+		r = (colour >>  0) & 0xFF;
+		g = (colour >>  8) & 0xFF;
+		b = (colour >> 16) & 0xFF;
+	}
+	GLfloat colourVec[4] = { r / 255.0f, g / 255.0f, b / 255.0f, 1.0f };
 	glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colourVec);
 }
 
