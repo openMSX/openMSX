@@ -259,7 +259,7 @@ CommandController& MSXMotherBoard::getCommandController()
 EventDistributor& MSXMotherBoard::getEventDistributor()
 {
 	if (!eventDistributor.get()) {
-		eventDistributor.reset(new EventDistributor(getScheduler()));
+		eventDistributor.reset(new EventDistributor(reactor));
 	}
 	return *eventDistributor;
 }

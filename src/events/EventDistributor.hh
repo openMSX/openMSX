@@ -4,20 +4,20 @@
 #define EVENTDISTRIBUTOR_HH
 
 #include "Event.hh"
-#include "Schedulable.hh"
 #include "Semaphore.hh"
 #include <map>
-#include <deque>
+#include <vector>
 
 namespace openmsx {
 
+class Reactor;
 class EventListener;
 class EmuTime;
 
-class EventDistributor : private Schedulable
+class EventDistributor
 {
 public:
-	explicit EventDistributor(Scheduler& scheduler);
+	explicit EventDistributor(Reactor& reactor);
 	virtual ~EventDistributor();
 
 	/**
@@ -36,16 +36,14 @@ public:
 	void unregisterEventListener(EventType type, EventListener& listener);
 
 	void distributeEvent(Event* event);
+	void deliverEvents();
 
 private:
-	// Schedulable
-	virtual void executeUntil(const EmuTime& time, int userData);
-	virtual const std::string& schedName() const;
+	Reactor& reactor;
 
 	typedef std::multimap<EventType, EventListener*> ListenerMap;
 	ListenerMap detachedListeners;
-
-	typedef std::deque<Event*> EventQueue;
+	typedef std::vector<Event*> EventQueue;
 	EventQueue scheduledEvents;
 	Semaphore sem;
 };

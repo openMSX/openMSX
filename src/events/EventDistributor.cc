@@ -2,7 +2,7 @@
 
 #include "EventDistributor.hh"
 #include "EventListener.hh"
-#include "Scheduler.hh"
+#include "Reactor.hh"
 #include "openmsx.hh"
 #include <cassert>
 
@@ -11,8 +11,8 @@ using std::string;
 
 namespace openmsx {
 
-EventDistributor::EventDistributor(Scheduler& scheduler)
-	: Schedulable(scheduler)
+EventDistributor::EventDistributor(Reactor& reactor_)
+	: reactor(reactor_)
 	, sem(1)
 {
 }
@@ -21,7 +21,7 @@ EventDistributor::~EventDistributor()
 {
 	ScopedLock lock(sem);
 
-	for (std::deque<Event*>::iterator it = scheduledEvents.begin();
+	for (EventQueue::iterator it = scheduledEvents.begin();
 	     it != scheduledEvents.end(); ++it) {
 		delete *it;
 	}
@@ -69,30 +69,30 @@ void EventDistributor::distributeEvent(Event* event)
 		detachedListeners.equal_range(event->getType());
 	if (bounds2.first != bounds2.second) {
 		scheduledEvents.push_back(event);
-		setSyncPoint(Scheduler::ASAP);
+		reactor.enterMainLoop();
 	}
 }
 
-void EventDistributor::executeUntil(const EmuTime& /*time*/, int /*userData*/)
+void EventDistributor::deliverEvents()
 {
-	ScopedLock lock(sem);
-	Event* event = scheduledEvents.front();
-	scheduledEvents.pop_front();
-	pair<ListenerMap::iterator, ListenerMap::iterator> bounds =
-		detachedListeners.equal_range(event->getType());
-	for (ListenerMap::iterator it = bounds.first;
-	     it != bounds.second; ++it) {
-		sem.up();
-		it->second->signalEvent(*event);
-		sem.down();
+	sem.down();
+	EventQueue copy;
+	swap(copy, scheduledEvents);
+	sem.up();
+	
+	for (EventQueue::const_iterator it = copy.begin();
+	     it != copy.end(); ++it) {
+		Event* event = *it;
+		pair<ListenerMap::iterator, ListenerMap::iterator> bounds =
+			detachedListeners.equal_range(event->getType());
+		for (ListenerMap::iterator it = bounds.first;
+		     it != bounds.second; ++it) {
+			sem.up();
+			it->second->signalEvent(*event);
+			sem.down();
+		}
+		delete event;
 	}
-	delete event;
-}
-
-const string& EventDistributor::schedName() const
-{
-	static const string name = "EventDistributor";
-	return name;
 }
 
 } // namespace openmsx

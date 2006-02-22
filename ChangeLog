@@ -1,5 +1,10 @@
 $Id$
 
+2006-02-22 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* EventDistributor no longer needs Scheduler, instead it cooperates
+	  with Reactor to deliver events:
+	    TODO turn (some of the) ASAP schedule points into events
+
 2006-02-22 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed GLSetTexEnvCol on big endian machines.
 	  This bug was visible in the border of SCREEN6.

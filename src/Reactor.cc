@@ -6,6 +6,7 @@
 #include "CommandController.hh"
 #include "Command.hh"
 #include "Scheduler.hh"
+#include "Schedulable.hh"
 #include "MSXCPU.hh"
 #include "CliComm.hh"
 #include "EventDistributor.hh"
@@ -30,6 +31,17 @@ public:
 	virtual std::string help(const std::vector<std::string>& tokens) const;
 private:
 	Reactor& reactor;
+};
+
+class ExitCPULoopSchedulable : public Schedulable
+{
+public:
+	ExitCPULoopSchedulable(MSXMotherBoard& motherboard);
+	void schedule();
+private:
+	virtual void executeUntil(const EmuTime& time, int userData);
+	virtual const std::string& schedName() const;
+	MSXMotherBoard& motherBoard;
 };
 
 
@@ -103,18 +115,37 @@ void Reactor::run(CommandLineParser& parser)
 	
 	Scheduler& scheduler(getMotherBoard().getScheduler());
 	while (running) {
+		getMotherBoard().getEventDistributor().deliverEvents();
 		bool blocked = blockedCounter > 0;
 		if (!blocked) blocked = !getMotherBoard().execute();
 		if (blocked) {
 			display.repaint();
 			Timer::sleep(100 * 1000);
-			scheduler.doPoll();
+			scheduler.doPoll(); // TODO remove in future
 			// TODO: Make Scheduler only responsible for events inside the MSX.
 			//       All other events should be handled by the Reactor.
 			scheduler.schedule(scheduler.getCurrentTime());
 		}
 	}
 	getMotherBoard().doPowerDown(scheduler.getCurrentTime());
+
+	// TODO clean this up, see comment in enterMainLoop
+	schedulable.reset(); 
+}
+
+void Reactor::enterMainLoop()
+{
+	// this method can get called from different threads, so use Scheduler
+	// to call MSXCPU::exitCPULoop()
+	
+	// TODO check for running can be removed if we cleanly destroy motherBoard
+	//      before exiting
+	if (motherBoard.get() && running) {
+		if (!schedulable.get()) {
+			schedulable.reset(new ExitCPULoopSchedulable(*motherBoard));
+		}
+		schedulable->schedule();
+	}
 }
 
 void Reactor::unpause()
@@ -138,7 +169,7 @@ void Reactor::pause()
 void Reactor::block()
 {
 	++blockedCounter;
-	getMotherBoard().getCPU().exitCPULoop();
+	enterMainLoop();
 }
 
 void Reactor::unblock()
@@ -166,8 +197,8 @@ void Reactor::update(const Setting& setting)
 void Reactor::signalEvent(const Event& event)
 {
 	if (event.getType() == OPENMSX_QUIT_EVENT) {
+		enterMainLoop();
 		running = false;
-		getMotherBoard().getCPU().exitCPULoop();
 	} else {
 		assert(false);
 	}
@@ -186,14 +217,39 @@ QuitCommand::QuitCommand(CommandController& commandController,
 
 string QuitCommand::execute(const vector<string>& /*tokens*/)
 {
+	reactor.enterMainLoop();
 	reactor.running = false;
-	reactor.getMotherBoard().getCPU().exitCPULoop();
 	return "";
 }
 
 string QuitCommand::help(const vector<string>& /*tokens*/) const
 {
 	return "Use this command to stop the emulator\n";
+}
+
+
+// class ExitCPULoopSchedulable
+
+ExitCPULoopSchedulable::ExitCPULoopSchedulable(MSXMotherBoard& motherBoard_)
+	: Schedulable(motherBoard_.getScheduler())
+	, motherBoard(motherBoard_)
+{
+}
+
+void ExitCPULoopSchedulable::schedule()
+{
+	setSyncPoint(Scheduler::ASAP);
+}
+
+void ExitCPULoopSchedulable::executeUntil(const EmuTime& /*time*/, int /*userData*/)
+{
+	motherBoard.getCPU().exitCPULoop();
+}
+
+const std::string& ExitCPULoopSchedulable::schedName() const
+{
+	static const std::string name = "ExitCPULoopSchedulable";
+	return name;
 }
 
 } // namespace openmsx

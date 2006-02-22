@@ -15,6 +15,7 @@ class MSXMotherBoard;
 class Setting;
 class CommandLineParser;
 class QuitCommand;
+class ExitCPULoopSchedulable;
 
 /**
  * Contains the main loop of openMSX.
@@ -35,6 +36,8 @@ public:
 	 * @param autoRun Iff true, start emulation immediately.
 	 */
 	void run(CommandLineParser& parser);
+
+	void enterMainLoop();
 
 	MSXMotherBoard& getMotherBoard();
 
@@ -67,6 +70,8 @@ private:
 	CliComm& cliComm;
 	const std::auto_ptr<QuitCommand> quitCommand;
 	friend class QuitCommand;
+
+	std::auto_ptr<ExitCPULoopSchedulable> schedulable;
 };
 
 } // namespace openmsx
