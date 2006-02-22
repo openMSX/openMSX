@@ -4,6 +4,9 @@ $Id$
 	* EventDistributor no longer needs Scheduler, instead it cooperates
 	  with Reactor to deliver events:
 	    TODO turn (some of the) ASAP schedule points into events
+	* Moved CommandController, EventDistributor, CommandConsole,
+	  FileManipulator and FilePool from MSXMotherboard to Reactor:
+	    more classes need to be moved but these were easy
 
 2006-02-22 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed GLSetTexEnvCol on big endian machines.

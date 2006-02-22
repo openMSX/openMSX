@@ -1,11 +1,13 @@
 // $Id$
 
 #include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "MSXDevice.hh"
 #include "MachineConfig.hh"
 #include "ExtensionConfig.hh"
 #include "Scheduler.hh"
 #include "CartridgeSlotManager.hh"
+#include "EventDistributor.hh"
 #include "Debugger.hh"
 #include "Mixer.hh"
 #include "PluggingController.hh"
@@ -16,18 +18,13 @@
 #include "MSXDeviceSwitch.hh"
 #include "CassettePort.hh"
 #include "RenShaTurbo.hh"
-#include "CommandConsole.hh"
 #include "Display.hh"
 #include "IconStatus.hh"
-#include "FileManipulator.hh"
-#include "FilePool.hh"
 #include "EmuTime.hh"
 #include "LedEvent.hh"
-#include "EventDistributor.hh"
 #include "UserInputEventDistributor.hh"
 #include "InputEventGenerator.hh"
 #include "CliComm.hh"
-#include "CommandController.hh"
 #include "RealTime.hh"
 #include "BooleanSetting.hh"
 #include "FileContext.hh"
@@ -244,24 +241,12 @@ CartridgeSlotManager& MSXMotherBoard::getSlotManager()
 
 CommandController& MSXMotherBoard::getCommandController()
 {
-	if (!commandController.get()) {
-		commandController.reset(new CommandController());
-
-		// TODO remove this hack
-		//   needed to properly initialize circular dependency between
-		//   CommandController and CliComm
-		cliComm.reset(new CliComm(getScheduler(),
-			*commandController, getEventDistributor()));
-	}
-	return *commandController;
+	return reactor.getCommandController();
 }
 
 EventDistributor& MSXMotherBoard::getEventDistributor()
 {
-	if (!eventDistributor.get()) {
-		eventDistributor.reset(new EventDistributor(reactor));
-	}
-	return *eventDistributor;
+	return reactor.getEventDistributor();
 }
 
 UserInputEventDistributor& MSXMotherBoard::getUserInputEventDistributor()
@@ -403,12 +388,7 @@ RenShaTurbo& MSXMotherBoard::getRenShaTurbo()
 
 CommandConsole& MSXMotherBoard::getCommandConsole()
 {
-	if (!commandConsole.get()) {
-		commandConsole.reset(new CommandConsole(
-			getCommandController(),
-			getEventDistributor()));
-	}
-	return *commandConsole;
+	return reactor.getCommandConsole();
 }
 
 Display& MSXMotherBoard::getDisplay()
@@ -431,20 +411,12 @@ IconStatus& MSXMotherBoard::getIconStatus()
 
 FileManipulator& MSXMotherBoard::getFileManipulator()
 {
-	if (!fileManipulator.get()) {
-		fileManipulator.reset(new FileManipulator(
-			getCommandController()));
-	}
-	return *fileManipulator;
+	return reactor.getFileManipulator();
 }
 
 FilePool& MSXMotherBoard::getFilePool()
 {
-	if (!filePool.get()) {
-		filePool.reset(new FilePool(
-			getCommandController().getSettingsConfig()));
-	}
-	return *filePool;
+	return reactor.getFilePool();
 }
 
 bool MSXMotherBoard::execute()

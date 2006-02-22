@@ -157,8 +157,6 @@ private:
 	// order of auto_ptr's is important!
 	std::auto_ptr<Scheduler> scheduler;
 	std::auto_ptr<CartridgeSlotManager> slotManager;
-	std::auto_ptr<CommandController> commandController;
-	std::auto_ptr<EventDistributor> eventDistributor;
 	std::auto_ptr<UserInputEventDistributor> userInputEventDistributor;
 	std::auto_ptr<InputEventGenerator> inputEventGenerator;
 	std::auto_ptr<CliComm> cliComm;
@@ -175,11 +173,8 @@ private:
 	std::auto_ptr<MSXDeviceSwitch> deviceSwitch;
 	std::auto_ptr<CassettePortInterface> cassettePort;
 	std::auto_ptr<RenShaTurbo> renShaTurbo;
-	std::auto_ptr<CommandConsole> commandConsole;
 	std::auto_ptr<Display> display;
 	std::auto_ptr<IconStatus> iconStatus;
-	std::auto_ptr<FileManipulator> fileManipulator;
-	std::auto_ptr<FilePool> filePool;
 
 	const std::auto_ptr<ResetCmd>     resetCommand;
 	const std::auto_ptr<ListExtCmd>   listExtCommand;

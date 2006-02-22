@@ -1,15 +1,18 @@
 // $Id$
 
 #include "Reactor.hh"
-#include "MSXMotherBoard.hh"
 #include "CommandLineParser.hh"
 #include "CommandController.hh"
+#include "EventDistributor.hh"
+#include "CommandConsole.hh"
+#include "FileManipulator.hh"
+#include "FilePool.hh"
+#include "MSXMotherBoard.hh"
 #include "Command.hh"
 #include "Scheduler.hh"
 #include "Schedulable.hh"
 #include "MSXCPU.hh"
 #include "CliComm.hh"
-#include "EventDistributor.hh"
 #include "Display.hh"
 #include "Timer.hh"
 #include "GlobalSettings.hh"
@@ -49,23 +52,67 @@ Reactor::Reactor()
 	: paused(false)
 	, blockedCounter(0)
 	, running(true)
-	, pauseSetting(getMotherBoard().getCommandController().getGlobalSettings().
+	, pauseSetting(getCommandController().getGlobalSettings().
 	                   getPauseSetting())
 	, cliComm(getMotherBoard().getCliComm())
-	, quitCommand(new QuitCommand(getMotherBoard().getCommandController(), *this))
+	, quitCommand(new QuitCommand(getCommandController(), *this))
 {
 	pauseSetting.attach(*this);
 
-	getMotherBoard().getEventDistributor().registerEventListener(
+	getEventDistributor().registerEventListener(
 		OPENMSX_QUIT_EVENT, *this);
 }
 
 Reactor::~Reactor()
 {
-	getMotherBoard().getEventDistributor().unregisterEventListener(
+	getEventDistributor().unregisterEventListener(
 		OPENMSX_QUIT_EVENT, *this);
 
 	pauseSetting.detach(*this);
+}
+
+CommandController& Reactor::getCommandController()
+{
+	if (!commandController.get()) {
+		commandController.reset(new CommandController());
+	}
+	return *commandController;
+}
+
+EventDistributor& Reactor::getEventDistributor()
+{
+	if (!eventDistributor.get()) {
+		eventDistributor.reset(new EventDistributor(*this));
+	}
+	return *eventDistributor;
+}
+
+CommandConsole& Reactor::getCommandConsole()
+{
+	if (!commandConsole.get()) {
+		commandConsole.reset(new CommandConsole(
+			getCommandController(),
+			getEventDistributor()));
+	}
+	return *commandConsole;
+}
+
+FileManipulator& Reactor::getFileManipulator()
+{
+	if (!fileManipulator.get()) {
+		fileManipulator.reset(new FileManipulator(
+			getCommandController()));
+	}
+	return *fileManipulator;
+}
+
+FilePool& Reactor::getFilePool()
+{
+	if (!filePool.get()) {
+		filePool.reset(new FilePool(
+			getCommandController().getSettingsConfig()));
+	}
+	return *filePool;
 }
 
 MSXMotherBoard& Reactor::getMotherBoard()
@@ -78,13 +125,12 @@ MSXMotherBoard& Reactor::getMotherBoard()
 
 void Reactor::run(CommandLineParser& parser)
 {
-	CommandController& commandController(getMotherBoard().getCommandController());
 	Display& display(getMotherBoard().getDisplay());
 
 	// execute init.tcl
 	try {
 		SystemFileContext context(true); // only in system dir
-		commandController.source(context.resolve("init.tcl"));
+		getCommandController().source(context.resolve("init.tcl"));
 	} catch (FileException& e) {
 		// no init.tcl, ignore
 	}
@@ -94,8 +140,8 @@ void Reactor::run(CommandLineParser& parser)
 	for (CommandLineParser::Scripts::const_iterator it = scripts.begin();
 	     it != scripts.end(); ++it) {
 		try {
-			UserFileContext context(commandController);
-			commandController.source(context.resolve(*it));
+			UserFileContext context(getCommandController());
+			getCommandController().source(context.resolve(*it));
 		} catch (FileException& e) {
 			throw FatalError("Couldn't execute script: " +
 			                 e.getMessage());
@@ -109,13 +155,13 @@ void Reactor::run(CommandLineParser& parser)
 		// powerUp() method. Solution is to implement dependencies
 		// between devices so ADVRAM can check the error condition
 		// in its constructor
-		//commandController.executeCommand("set power on");
+		//getCommandController().executeCommand("set power on");
 		getMotherBoard().powerUp();
 	}
 	
 	Scheduler& scheduler(getMotherBoard().getScheduler());
 	while (running) {
-		getMotherBoard().getEventDistributor().deliverEvents();
+		getEventDistributor().deliverEvents();
 		bool blocked = blockedCounter > 0;
 		if (!blocked) blocked = !getMotherBoard().execute();
 		if (blocked) {
