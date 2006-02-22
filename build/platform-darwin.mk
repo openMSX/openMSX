@@ -18,6 +18,16 @@ LINK_FLAGS+=-bind_at_load
 # Probe Overrides
 # ===============
 
+DIR_IF_EXISTS=$(shell test -d $(1) && echo $(1))
+
+# DarwinPorts library and header paths.
+DARWINPORTS_CFLAGS:=$(addprefix -I,$(call DIR_IF_EXISTS,/opt/local/include))
+DARWINPORTS_LDFLAGS:=$(addprefix -L,$(call DIR_IF_EXISTS,/opt/local/lib))
+
+# Fink library and header paths.
+FINK_CFLAGS:=$(addprefix -I,$(call DIR_IF_EXISTS,/sw/include))
+FINK_LDFLAGS:=$(addprefix -L,$(call DIR_IF_EXISTS,/sw/lib))
+
 MMAP_PREHEADER:=<sys/types.h>
 SYS_MMAN_PREHEADER:=<sys/types.h>
 SYS_SOCKET_PREHEADER:=<sys/types.h>
@@ -27,3 +37,7 @@ SYS_SOCKET_PREHEADER:=<sys/types.h>
 GL_CFLAGS:=-I/System/Library/Frameworks/OpenGL.framework/Headers
 GL_LDFLAGS:=-framework OpenGL -lGL \
 	-L/System/Library/Frameworks/OpenGL.framework/Libraries
+
+GLEW_CFLAGS+=$(DARWINPORTS_CFLAGS) $(FINK_CFLAGS)
+GL_GLEW_CFLAGS+=$(DARWINPORTS_CFLAGS) $(FINK_CFLAGS)
+GLEW_LDFLAGS+=$(DARWINPORTS_LDFLAGS) $(FINK_LDFLAGS)
