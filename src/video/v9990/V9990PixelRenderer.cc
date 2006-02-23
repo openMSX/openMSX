@@ -81,21 +81,20 @@ void V9990PixelRenderer::frameStart(const EmuTime& time)
 
 void V9990PixelRenderer::frameEnd(const EmuTime& time)
 {
-	if (!drawFrame) return;
+	if (drawFrame) {
+		// Render last changes in this frame before starting a new frame
+		sync(time, true);
 
-	// Render last changes in this frame before starting a new frame
-	sync(time, true);
-
-	unsigned long long time1 = Timer::getTime();
-	rasterizer->frameEnd();
-	unsigned long long time2 = Timer::getTime();
-	unsigned long long current = time2 - time1;
-	const double ALPHA = 0.2;
-	finishFrameDuration = finishFrameDuration * (1 - ALPHA) +
-	                      current * ALPHA;
-
-	FinishFrameEvent* f = new FinishFrameEvent(VIDEO_GFX9000);
-	vdp.getMotherBoard().getEventDistributor().distributeEvent(f);
+		unsigned long long time1 = Timer::getTime();
+		rasterizer->frameEnd();
+		unsigned long long time2 = Timer::getTime();
+		unsigned long long current = time2 - time1;
+		const double ALPHA = 0.2;
+		finishFrameDuration = finishFrameDuration * (1 - ALPHA) +
+		                      current * ALPHA;
+	}
+	vdp.getMotherBoard().getEventDistributor().distributeEvent(
+		new FinishFrameEvent(VIDEO_GFX9000, !drawFrame));
 }
 
 void V9990PixelRenderer::sync(const EmuTime& time, bool force)

@@ -189,17 +189,12 @@ void Display::signalEvent(const Event& event)
 {
 	if (event.getType() == OPENMSX_FINISH_FRAME_EVENT) {
 		const FinishFrameEvent& ffe = static_cast<const FinishFrameEvent&>(event);
-		VideoSource eventSource = ffe.getSource();
-		VideoSource visibleSource =
-			renderSettings->getVideoSource().getValue();
-
-		bool draw = visibleSource == eventSource;
-		if (draw) {
+		if (!ffe.isSkipped() &&
+		    (renderSettings->getVideoSource().getValue() == ffe.getSource())) {
 			repaint();
+			motherboard.getEventDistributor().distributeEvent(
+				new SimpleEvent<OPENMSX_FRAME_DRAWN_EVENT>());
 		}
-
-		motherboard.getRealTime().sync(
-			motherboard.getScheduler().getCurrentTime(), draw);
 	} else if (event.getType() == OPENMSX_DELAYED_REPAINT_EVENT) {
 		repaint();
 	} else if (event.getType() == OPENMSX_SWITCH_RENDERER_EVENT) {

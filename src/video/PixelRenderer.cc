@@ -192,6 +192,7 @@ void PixelRenderer::frameStart(const EmuTime& time)
 
 void PixelRenderer::frameEnd(const EmuTime& time)
 {
+	bool skipEvent = !renderFrame;
 	if (renderFrame) {
 		// Render changes from this last frame.
 		sync(time, true);
@@ -210,11 +211,11 @@ void PixelRenderer::frameEnd(const EmuTime& time)
 		    !prevRenderFrame) {
 			// dont send event in deinterlace mode when
 			// previous frame was not rendered
-		} else {
-			FinishFrameEvent* f = new FinishFrameEvent(VIDEO_MSX);
-			eventDistributor.distributeEvent(f);
+			skipEvent = true;
 		}
 	}
+	eventDistributor.distributeEvent(
+		new FinishFrameEvent(VIDEO_MSX, skipEvent));
 }
 
 void PixelRenderer::updateHorizontalScrollLow(

@@ -278,7 +278,8 @@ RealTime& MSXMotherBoard::getRealTime()
 {
 	if (!realTime.get()) {
 		realTime.reset(new RealTime(
-			getScheduler(), getUserInputEventDistributor(),
+			getScheduler(), getEventDistributor(),
+			getUserInputEventDistributor(),
 			getCommandController().getGlobalSettings()));
 	}
 	return *realTime;

@@ -1,14 +1,17 @@
 // $Id$
 
-#include <cassert>
 #include "RealTime.hh"
 #include "Scheduler.hh"
 #include "Timer.hh"
+#include "EventDistributor.hh"
 #include "UserInputEventDistributor.hh"
+#include "Event.hh"
+#include "FinishFrameEvent.hh"
 #include "GlobalSettings.hh"
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
 #include "ThrottleManager.hh"
+#include <cassert>
 
 namespace openmsx {
 
@@ -16,10 +19,13 @@ const double             SYNC_INTERVAL = 0.08;  // s
 const long long          MAX_LAG       = 200000; // us
 const unsigned long long ALLOWED_LAG   =  20000; // us
 
-RealTime::RealTime(Scheduler& scheduler, UserInputEventDistributor& eventDistributor_,
+RealTime::RealTime(Scheduler& scheduler,
+                   EventDistributor& eventDistributor_,
+                   UserInputEventDistributor& userInputEventDistributor_,
                    GlobalSettings& globalSettings)
 	: Schedulable(scheduler)
 	, eventDistributor(eventDistributor_)
+	, userInputEventDistributor(userInputEventDistributor_)
 	, throttleManager(globalSettings.getThrottleManager())
 	, speedSetting   (globalSettings.getSpeedSetting())
 	, pauseSetting   (globalSettings.getPauseSetting())
@@ -34,10 +40,16 @@ RealTime::RealTime(Scheduler& scheduler, UserInputEventDistributor& eventDistrib
 	setSyncPoint(Scheduler::ASAP);
 
 	resync();
+
+	eventDistributor.registerEventListener(OPENMSX_FINISH_FRAME_EVENT, *this);
+	eventDistributor.registerEventListener(OPENMSX_FRAME_DRAWN_EVENT,  *this);
 }
 
 RealTime::~RealTime()
 {
+	eventDistributor.unregisterEventListener(OPENMSX_FRAME_DRAWN_EVENT,  *this);
+	eventDistributor.unregisterEventListener(OPENMSX_FINISH_FRAME_EVENT, *this);
+	
 	powerSetting.detach(*this);
 	pauseSetting.detach(*this);
 	throttleManager.detach(*this);
@@ -103,7 +115,7 @@ void RealTime::internalSync(const EmuTime& time, bool allowSleep)
 		}
 	}
 	if (allowSleep) {
-		eventDistributor.sync(time);
+		userInputEventDistributor.sync(time);
 	}
 
 	emuTime = time;
@@ -119,6 +131,20 @@ const std::string& RealTime::schedName() const
 {
 	static const std::string name("RealTime");
 	return name;
+}
+
+void RealTime::signalEvent(const Event& event)
+{
+	if (event.getType() == OPENMSX_FINISH_FRAME_EVENT) {
+		const FinishFrameEvent& ffe = static_cast<const FinishFrameEvent&>(event);
+		if (ffe.isSkipped()) {
+			// sync but don't sleep
+			sync(getScheduler().getCurrentTime(), false);
+		}
+	} else if (event.getType() == OPENMSX_FRAME_DRAWN_EVENT) {
+		// sync and possibly sleep
+		sync(getScheduler().getCurrentTime(), true);
+	}
 }
 
 void RealTime::update(const Setting& /*setting*/)

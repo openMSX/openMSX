@@ -18,7 +18,16 @@ enum EventType
 	OPENMSX_FOCUS_EVENT,
 	OPENMSX_RESIZE_EVENT,
 	OPENMSX_QUIT_EVENT,
+
+	/** Sent when VDP (V99x8 or V9990) reaches the end of a frame */
 	OPENMSX_FINISH_FRAME_EVENT,
+
+	/** Sent when a OPENMSX_FINISH_FRAME_EVENT caused a redraw of the screen.
+	  * So in other words send when a OPENMSX_FINISH_FRAME_EVENT event was send
+	  * and the frame was not skipped and the event came from the active video
+	  * source. */
+	OPENMSX_FRAME_DRAWN_EVENT,
+
 	OPENMSX_LED_EVENT,
 	OPENMSX_BREAK_EVENT,
 	OPENMSX_SWITCH_RENDERER_EVENT,

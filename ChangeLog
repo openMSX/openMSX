@@ -3,6 +3,8 @@ $Id$
 2006-02-23 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* CliComm now uses events instead of Scheduler
 	* Moved CliComm from MSXMotherboard to Reactor
+	* Decoupled Display and RealTime classes:
+	   - instead Display now send events, RealTime listens to those events
 
 2006-02-22 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* EventDistributor no longer needs Scheduler, instead it cooperates
