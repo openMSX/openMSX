@@ -24,7 +24,6 @@
 #include "LedEvent.hh"
 #include "UserInputEventDistributor.hh"
 #include "InputEventGenerator.hh"
-#include "CliComm.hh"
 #include "RealTime.hh"
 #include "BooleanSetting.hh"
 #include "FileContext.hh"
@@ -272,11 +271,7 @@ InputEventGenerator& MSXMotherBoard::getInputEventGenerator()
 
 CliComm& MSXMotherBoard::getCliComm()
 {
-	if (!cliComm.get()) {
-		cliComm.reset(new CliComm(getCommandController(),
-		                          getEventDistributor()));
-	}
-	return *cliComm;
+	return reactor.getCliComm();
 }
 
 RealTime& MSXMotherBoard::getRealTime()

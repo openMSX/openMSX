@@ -54,7 +54,6 @@ Reactor::Reactor()
 	, running(true)
 	, pauseSetting(getCommandController().getGlobalSettings().
 	                   getPauseSetting())
-	, cliComm(getMotherBoard().getCliComm())
 	, quitCommand(new QuitCommand(getCommandController(), *this))
 {
 	pauseSetting.attach(*this);
@@ -85,6 +84,15 @@ EventDistributor& Reactor::getEventDistributor()
 		eventDistributor.reset(new EventDistributor(*this));
 	}
 	return *eventDistributor;
+}
+
+CliComm& Reactor::getCliComm()
+{
+	if (!cliComm.get()) {
+		cliComm.reset(new CliComm(getCommandController(),
+		                          getEventDistributor()));
+	}
+	return *cliComm;
 }
 
 CommandConsole& Reactor::getCommandConsole()
@@ -198,7 +206,7 @@ void Reactor::unpause()
 {
 	if (paused) {
 		paused = false;
-		cliComm.update(CliComm::STATUS, "paused", "false");
+		getCliComm().update(CliComm::STATUS, "paused", "false");
 		unblock();
 	}
 }
@@ -207,7 +215,7 @@ void Reactor::pause()
 {
 	if (!paused) {
 		paused = true;
-		cliComm.update(CliComm::STATUS, "paused", "true");
+		getCliComm().update(CliComm::STATUS, "paused", "true");
 		block();
 	}
 }

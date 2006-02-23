@@ -159,7 +159,6 @@ private:
 	std::auto_ptr<CartridgeSlotManager> slotManager;
 	std::auto_ptr<UserInputEventDistributor> userInputEventDistributor;
 	std::auto_ptr<InputEventGenerator> inputEventGenerator;
-	std::auto_ptr<CliComm> cliComm;
 	std::auto_ptr<RealTime> realTime;
 	std::auto_ptr<Debugger> debugger;
 	std::auto_ptr<Mixer> mixer;

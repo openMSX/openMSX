@@ -11,10 +11,10 @@ namespace openmsx {
 
 class CommandController;
 class EventDistributor;
+class CliComm;
 class CommandConsole;
 class FileManipulator;
 class FilePool;
-class CliComm;
 class BooleanSetting;
 class MSXMotherBoard;
 class Setting;
@@ -46,6 +46,7 @@ public:
 
 	CommandController& getCommandController();
 	EventDistributor& getEventDistributor();
+	CliComm& getCliComm();
 	CommandConsole& getCommandConsole();
 	FileManipulator& getFileManipulator();
 	FilePool& getFilePool();
@@ -78,13 +79,13 @@ private:
 	// note: order of auto_ptr's is important
 	std::auto_ptr<CommandController> commandController;
 	std::auto_ptr<EventDistributor> eventDistributor;
+	std::auto_ptr<CliComm> cliComm;
 	std::auto_ptr<CommandConsole> commandConsole;
 	std::auto_ptr<FileManipulator> fileManipulator;
 	std::auto_ptr<FilePool> filePool;
 	std::auto_ptr<MSXMotherBoard> motherBoard;
 
 	BooleanSetting& pauseSetting;
-	CliComm& cliComm;
 	const std::auto_ptr<QuitCommand> quitCommand;
 	friend class QuitCommand;
 
