@@ -4,20 +4,18 @@
 #define CLICONNECTION_HH
 
 #include "Thread.hh"
-#include "Schedulable.hh"
-#include "Semaphore.hh"
+#include "EventListener.hh"
 #include "Socket.hh"
 #include "CliComm.hh"
 #include <libxml/parser.h>
-#include <deque>
 #include <string>
 
 namespace openmsx {
 
-class Scheduler;
 class CommandController;
+class EventDistributor;
 
-class CliConnection : private Schedulable, protected Runnable
+class CliConnection : private EventListener, protected Runnable
 {
 public:
 	virtual ~CliConnection();
@@ -28,8 +26,8 @@ public:
 	bool getUpdateEnable(CliComm::UpdateType type) const;
 
 protected:
-	CliConnection(Scheduler& scheduler,
-	              CommandController& commandController);
+	CliConnection(CommandController& commandController,
+	              EventDistributor& eventDistributor);
 
 	/** Starts this connection by writing the opening tag
 	  * and starting the listener thread.
@@ -51,8 +49,9 @@ protected:
 
 private:
 	void execute(const std::string& command);
-	virtual void executeUntil(const EmuTime& time, int userData);
-	virtual const std::string& schedName() const;
+
+	// EventListener
+	virtual void signalEvent(const Event& event);
 
 	enum State {
 		START, TAG_OPENMSX, TAG_COMMAND, END
@@ -71,19 +70,18 @@ private:
 
 	xmlSAXHandler sax_handler;
 	ParseState user_data;
-	Semaphore lock;
-	std::deque<std::string> cmds;
 
 	bool updateEnabled[CliComm::NUM_UPDATES];
 
 	CommandController& commandController;
+	EventDistributor& eventDistributor;
 };
 
 class StdioConnection : public CliConnection
 {
 public:
-	StdioConnection(Scheduler& scheduler,
-	                CommandController& commandController);
+	StdioConnection(CommandController& commandController,
+	                EventDistributor& eventDistributor);
 	virtual ~StdioConnection();
 
 	virtual void output(const std::string& message);
@@ -99,8 +97,8 @@ private:
 class PipeConnection : public CliConnection
 {
 public:
-	PipeConnection(Scheduler& scheduler,
-	               CommandController& commandController,
+	PipeConnection(CommandController& commandController,
+	               EventDistributor& eventDistributor,
 	               const std::string& name);
 	virtual ~PipeConnection();
 
@@ -117,8 +115,8 @@ private:
 class SocketConnection : public CliConnection
 {
 public:
-	SocketConnection(Scheduler& scheduler,
-	                 CommandController& commandController,
+	SocketConnection(CommandController& commandController,
+	                 EventDistributor& eventDistributor,
 	                 SOCKET sd);
 	virtual ~SocketConnection();
 

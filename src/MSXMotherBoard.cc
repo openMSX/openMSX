@@ -273,8 +273,8 @@ InputEventGenerator& MSXMotherBoard::getInputEventGenerator()
 CliComm& MSXMotherBoard::getCliComm()
 {
 	if (!cliComm.get()) {
-		cliComm.reset(new CliComm(getScheduler(),
-			getCommandController(), getEventDistributor()));
+		cliComm.reset(new CliComm(getCommandController(),
+		                          getEventDistributor()));
 	}
 	return *cliComm;
 }

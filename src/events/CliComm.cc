@@ -38,10 +38,9 @@ private:
 };
 
 
-CliComm::CliComm(Scheduler& scheduler_, CommandController& commandController_,
+CliComm::CliComm(CommandController& commandController_,
                  EventDistributor& eventDistributor_)
 	: updateCmd(new UpdateCmd(commandController_, *this))
-	, scheduler(scheduler_)
 	, commandController(commandController_)
 	, eventDistributor(eventDistributor_)
 	, xmlOutput(false)
@@ -75,7 +74,7 @@ void CliComm::startInput(CommandLineParser::ControlType type, const string& argu
 		GetVersionExA(&info);
 		if (info.dwPlatformId == VER_PLATFORM_WIN32_NT) {
 			connection = new PipeConnection(
-				scheduler, commandController, arguments);
+				commandController, eventDistributor, arguments);
 		} else {
 			throw FatalError("Pipes are not supported on this "
 			                 "version of Windows");
@@ -87,7 +86,8 @@ void CliComm::startInput(CommandLineParser::ControlType type, const string& argu
 		break;
 	}
 	case CommandLineParser::IO_STD:
-		connection = new StdioConnection(scheduler, commandController);
+		connection = new StdioConnection(
+			commandController, eventDistributor);
 		break;
 	default:
 		assert(false);

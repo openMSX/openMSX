@@ -58,12 +58,12 @@ static int main(int argc, char **argv)
 	try {
 		Reactor reactor;
 		MSXMotherBoard& motherBoard = reactor.getMotherBoard();
-		motherBoard.getCommandController().getInterpreter().init(argv[0]);
+		reactor.getCommandController().getInterpreter().init(argv[0]);
 
 		// TODO cleanup once singleton mess is cleaned up
-		HotKey hotKey(motherBoard.getCommandController(),
-		              motherBoard.getEventDistributor());
-		motherBoard.getCommandController().getSettingsConfig().setHotKey(&hotKey);
+		HotKey hotKey(reactor.getCommandController(),
+		              reactor.getEventDistributor());
+		reactor.getCommandController().getSettingsConfig().setHotKey(&hotKey);
 
 		CommandLineParser parser(motherBoard);
 		parser.parse(argc, argv);
@@ -73,16 +73,16 @@ static int main(int argc, char **argv)
 			initializeSDL();
 			AfterCommand afterCommand(
 				motherBoard.getScheduler(),
-				motherBoard.getEventDistributor(),
-				motherBoard.getCommandController());
+				reactor.getEventDistributor(),
+				reactor.getCommandController());
 			motherBoard.getRealTime();
 			motherBoard.getIconStatus();
 			if (!parser.isHiddenStartup()) {
 				motherBoard.getDisplay().getRenderSettings().
 					getRenderer().restoreDefault();
 			}
-			CliServer cliServer(motherBoard.getScheduler(),
-			                    motherBoard.getCommandController());
+			CliServer cliServer(reactor.getCommandController(),
+			                    reactor.getEventDistributor());
 			if (parseStatus != CommandLineParser::TEST) {
 				reactor.run(parser);
 			}

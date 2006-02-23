@@ -8,9 +8,10 @@
 // - Unsubscribe at CliComm after stream is closed.
 
 #include "CliConnection.hh"
+#include "EventDistributor.hh"
+#include "Event.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
-#include "Scheduler.hh"
 #include "XMLElement.hh"
 #include <cstdio>
 #include <iostream>
@@ -20,13 +21,32 @@ using std::string;
 
 namespace openmsx {
 
+// class CliCommandEvent
+
+class CliCommandEvent : public Event
+{
+public:
+	CliCommandEvent(const string& command_)
+		: Event(OPENMSX_CLICOMMAND_EVENT)
+		, command(command_)
+	{
+	}
+	const string& getCommand() const
+	{
+		return command;
+	}
+private:
+	const string command;
+};
+
+
 // class CliConnection
 
-CliConnection::CliConnection(Scheduler& scheduler,
-                             CommandController& commandController_)
-	: Schedulable(scheduler)
-	, thread(this), lock(1)
+CliConnection::CliConnection(CommandController& commandController_,
+                             EventDistributor& eventDistributor_)
+	: thread(this)
 	, commandController(commandController_)
+	, eventDistributor(eventDistributor_)
 {
 	user_data.state = START;
 	user_data.unknownLevel = 0;
@@ -41,10 +61,13 @@ CliConnection::CliConnection(Scheduler& scheduler,
 	for (int i = 0; i < CliComm::NUM_UPDATES; ++i) {
 		updateEnabled[i] = false;
 	}
+
+	eventDistributor.registerEventListener(OPENMSX_CLICOMMAND_EVENT, *this);
 }
 
 CliConnection::~CliConnection()
 {
+	eventDistributor.unregisterEventListener(OPENMSX_CLICOMMAND_EVENT, *this);
 	xmlFreeParserCtxt(parser_context);
 }
 
@@ -72,9 +95,7 @@ void CliConnection::end()
 
 void CliConnection::execute(const string& command)
 {
-	ScopedLock l(lock);
-	cmds.push_back(command);
-	setSyncPoint(Scheduler::ASAP);
+	eventDistributor.distributeEvent(new CliCommandEvent(command));
 }
 
 static string reply(const string& message, bool status)
@@ -83,26 +104,19 @@ static string reply(const string& message, bool status)
 	       XMLElement::XMLEscape(message) + "</reply>\n";
 }
 
-void CliConnection::executeUntil(const EmuTime& /*time*/, int /*userData*/)
+void CliConnection::signalEvent(const Event& event)
 {
-	ScopedLock l(lock);
-	while (!cmds.empty()) {
-		try {
-			string result = commandController.executeCommand(
-				cmds.front(), this);
-			output(reply(result, true));
-		} catch (CommandException& e) {
-			string result = e.getMessage() + '\n';
-			output(reply(result, false));
-		}
-		cmds.pop_front();
+	assert(dynamic_cast<const CliCommandEvent*>(&event));
+	const CliCommandEvent& commandEvent =
+		static_cast<const CliCommandEvent&>(event);
+	try {
+		string result = commandController.executeCommand(
+			commandEvent.getCommand(), this);
+		output(reply(result, true));
+	} catch (CommandException& e) {
+		string result = e.getMessage() + '\n';
+		output(reply(result, false));
 	}
-}
-
-const string& CliConnection::schedName() const
-{
-	static const string NAME("CliConnection");
-	return NAME;
 }
 
 void CliConnection::cb_start_element(ParseState* user_data,
@@ -165,9 +179,9 @@ void CliConnection::cb_text(ParseState* user_data, const xmlChar* chars, int len
 // class StdioConnection
 
 static const int BUF_SIZE = 4096;
-StdioConnection::StdioConnection(Scheduler& scheduler,
-                                 CommandController& commandController)
-	: CliConnection(scheduler, commandController)
+StdioConnection::StdioConnection(CommandController& commandController,
+                                 EventDistributor& eventDistributor)
+	: CliConnection(commandController, eventDistributor)
 	, ok(true)
 {
 	start();
@@ -209,10 +223,10 @@ void StdioConnection::close()
 #ifdef _WIN32
 // class PipeConnection
 
-PipeConnection::PipeConnection(Scheduler& scheduler,
-                               CommandController& commandController,
+PipeConnection::PipeConnection(CommandController& commandController,
+                               EventDistributor& eventDistributor,
                                const string& name)
-	: CliConnection(scheduler, commandController)
+	: CliConnection(commandController, eventDistributor)
 {
 	string pipeName = "\\\\.\\pipe\\" + name;
 	pipeHandle = CreateFileA(pipeName.c_str(), GENERIC_READ, 0, NULL,
@@ -266,10 +280,10 @@ void PipeConnection::close()
 
 // class SocketConnection
 
-SocketConnection::SocketConnection(Scheduler& scheduler,
-                                   CommandController& commandController,
+SocketConnection::SocketConnection(CommandController& commandController,
+                                   EventDistributor& eventDistributor,
                                    SOCKET sd_)
-	: CliConnection(scheduler, commandController)
+	: CliConnection(commandController, eventDistributor)
 	, sd(sd_)
 {
 	start();

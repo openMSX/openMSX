@@ -28,7 +28,10 @@ enum EventType
 	OPENMSX_CONSOLE_OFF_EVENT,
 
 	/** Delayed repaint */
-	OPENMSX_DELAYED_REPAINT_EVENT
+	OPENMSX_DELAYED_REPAINT_EVENT,
+	
+	/** Command received on CliComm connection */
+	OPENMSX_CLICOMMAND_EVENT,
 };
 
 class Event

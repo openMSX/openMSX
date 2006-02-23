@@ -11,7 +11,6 @@
 
 namespace openmsx {
 
-class Scheduler;
 class EventDistributor;
 class CommandController;
 class CliConnection;
@@ -40,7 +39,7 @@ public:
 		NUM_UPDATES // must be last
 	};
 
-	CliComm(Scheduler& scheduler, CommandController& commandController,
+	CliComm(CommandController& commandController,
 	        EventDistributor& eventDistributor);
 	virtual ~CliComm();
 
@@ -66,7 +65,6 @@ private:
 
 	std::map<std::string, std::string> prevValues[NUM_UPDATES];
 
-	Scheduler& scheduler;
 	CommandController& commandController;
 	EventDistributor& eventDistributor;
 

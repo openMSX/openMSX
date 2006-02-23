@@ -9,14 +9,15 @@
 
 namespace openmsx {
 
-class Scheduler;
 class CommandController;
+class EventDistributor;
 class CliComm;
 
 class CliServer : private Runnable
 {
 public:
-	CliServer(Scheduler& scheduler, CommandController& commandController);
+	CliServer(CommandController& commandController,
+	          EventDistributor& eventDistributor);
 	~CliServer();
 
 private:
@@ -29,8 +30,8 @@ private:
 	std::string socketName;
 	SOCKET listenSock;
 
-	Scheduler& scheduler;
 	CommandController& commandController;
+	EventDistributor& eventDistributor;
 	CliComm& cliComm;
 };
 

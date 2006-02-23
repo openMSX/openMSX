@@ -186,12 +186,12 @@ static void deleteSocket(const string& socket)
 }
 
 
-CliServer::CliServer(Scheduler& scheduler_,
-                     CommandController& commandController_)
+CliServer::CliServer(CommandController& commandController_,
+                     EventDistributor& eventDistributor_)
 	: thread(this)
 	, listenSock(INVALID_SOCKET)
-	, scheduler(scheduler_)
 	, commandController(commandController_)
+	, eventDistributor(eventDistributor_)
 	, cliComm(commandController.getCliComm())
 {
 	sock_startup();
@@ -230,7 +230,7 @@ void CliServer::mainLoop()
 			return;
 		}
 		cliComm.connections.push_back(new SocketConnection(
-				scheduler, commandController, sd));
+				commandController, eventDistributor, sd));
 	}
 }
 
