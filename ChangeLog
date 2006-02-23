@@ -12,6 +12,8 @@ $Id$
 	* Fixed GLSetTexEnvCol on big endian machines.
 	  This bug was visible in the border of SCREEN6.
 	* Look for GLEW in DarwinPorts or Fink dirs.
+	* Fixed bug with palette initialisation in SDLGL renderer.
+	  This bug was visible as a black screen when using an MSX1 VDP.
 
 2006-02-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Preparations for run-time switchable machine:

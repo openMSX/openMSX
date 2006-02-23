@@ -342,13 +342,13 @@ GLRasterizer::GLRasterizer(
 	// Create bitmap display cache.
 	bitmapTexture = vdp.isMSX1VDP() ? NULL : new BitmapTexture();
 
+	// Initialize palette (avoid UMR).
+	for (int i = 0; i < 16; ++i) {
+		palFg[i] = palFg[i + 16] = palBg[i] = 0;
+	}
+
 	// Init the palette.
 	precalcPalette();
-
-	// Initialize palette (avoid UMR)
-	for (int i = 0; i < 16; ++i) {
-		palFg[i] = palFg[i + 16] = palBg[i] = V9938_COLOURS[0][0][0];
-	}
 
 	// Store current (black) frame as a texture.
 	storedFrame.store(screen.getWidth(), screen.getHeight());
@@ -575,8 +575,7 @@ void GLRasterizer::setDisplayMode(DisplayMode mode)
 	                           palGraphic7Sprites : palBg);
 }
 
-void GLRasterizer::setPalette(
-	int index, int grb)
+void GLRasterizer::setPalette(int index, int grb)
 {
 	// Update GL colour in palette.
 	Pixel newColor = V9938_COLOURS[(grb >> 4) & 7][grb >> 8][grb & 7];
