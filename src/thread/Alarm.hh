@@ -20,7 +20,10 @@ protected:
 	virtual ~Alarm();
 
 private:
-	virtual void alarm() = 0;
+	/** Callback function
+	  * @result true iff alarm should be periodic
+	  */
+	virtual bool alarm() = 0;
 
 	void do_cancel();
 	static unsigned helper(unsigned interval, void* param);

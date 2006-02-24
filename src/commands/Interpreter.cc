@@ -1,6 +1,7 @@
 // $Id$
 
 #include "Interpreter.hh"
+#include "EventDistributor.hh"
 #include "Command.hh"
 #include "TclObject.hh"
 #include "CommandException.hh"
@@ -56,8 +57,8 @@ void Interpreter::init(const char* programName)
 	Tcl_FindExecutable(programName);
 }
 
-Interpreter::Interpreter()
-	//: PollInterface(scheduler)
+Interpreter::Interpreter(EventDistributor& eventDistributor_)
+	: eventDistributor(eventDistributor_)
 {
 	interp = Tcl_CreateInterp();
 	Tcl_Preserve(interp);
@@ -86,10 +87,15 @@ Interpreter::Interpreter()
 
 	setVariable("env(OPENMSX_USER_DATA)", FileOperations::getUserDataDir());
 	setVariable("env(OPENMSX_SYSTEM_DATA)", FileOperations::getSystemDataDir());
+
+	eventDistributor.registerEventListener(OPENMSX_POLL_EVENT, *this);
+
 }
 
 Interpreter::~Interpreter()
 {
+	eventDistributor.unregisterEventListener(OPENMSX_POLL_EVENT, *this);
+
 	if (!Tcl_InterpDeleted(interp)) {
 		Tcl_DeleteInterp(interp);
 	}
@@ -298,12 +304,17 @@ void Interpreter::splitList(const string& list, vector<string>& result)
 	Tcl_Free((char*)argv);
 }
 
-/*
+void Interpreter::signalEvent(const Event& event)
+{
+	(void)event;
+	assert(event.getType() == OPENMSX_POLL_EVENT);
+	poll();
+}
+
 void Interpreter::poll()
 {
 	//Tcl_ServiceAll();
 	Tcl_DoOneEvent(TCL_DONT_WAIT);
 }
-*/
 
 } // namespace openmsx

@@ -40,7 +40,7 @@ public:
 private:
 	void load();
 	void save();
-	virtual void alarm();
+	virtual bool alarm();
 
 	Ram ram;
 	const XMLElement& config;

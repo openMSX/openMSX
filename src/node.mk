@@ -42,7 +42,6 @@ SRC_HDR:= \
 	EmptyPatch IPSPatch \
 	Version \
 	HostCPU \
-	PollInterface \
 
 SRC_ONLY:= \
 	main

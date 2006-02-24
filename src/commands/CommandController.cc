@@ -48,10 +48,11 @@ public:
 };
 
 
-CommandController::CommandController()
+CommandController::CommandController(EventDistributor& eventDistributor_)
 	: cmdConsole(NULL)
 	, cliComm(NULL)
 	, connection(NULL)
+	, eventDistributor(eventDistributor_)
 	, infoCommand(new InfoCommand(*this))
 	, helpCmd(new HelpCmd(*this))
 	, versionInfo(new VersionInfo(*this))
@@ -85,7 +86,7 @@ CliConnection* CommandController::getConnection() const
 Interpreter& CommandController::getInterpreter()
 {
 	if (!interpreter.get()) {
-		interpreter.reset(new Interpreter());
+		interpreter.reset(new Interpreter(eventDistributor));
 	}
 	return *interpreter;
 }

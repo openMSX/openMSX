@@ -11,6 +11,7 @@
 
 namespace openmsx {
 
+class EventDistributor;
 class CliComm;
 class CliConnection;
 class CommandConsole;
@@ -28,7 +29,7 @@ class RomInfoTopic;
 class CommandController
 {
 public:
-	CommandController();
+	explicit CommandController(EventDistributor& eventDistributor);
 	~CommandController();
 
 	void setCliComm(CliComm* cliComm);
@@ -117,6 +118,8 @@ private:
 	CommandConsole* cmdConsole;
 	CliComm* cliComm;
 	CliConnection* connection;
+
+	EventDistributor& eventDistributor;
 
 	std::auto_ptr<Interpreter> interpreter;
 	std::auto_ptr<InfoCommand> infoCommand;

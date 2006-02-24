@@ -14,6 +14,7 @@
 #include "CommandException.hh"
 #include "XMLElement.hh"
 #include <cstdio>
+#include <cassert>
 #include <iostream>
 #include <unistd.h>
 

@@ -62,7 +62,7 @@ bool Alarm::pending() const
 	return id;
 }
 
-unsigned Alarm::helper(unsigned /*interval*/, void* param)
+unsigned Alarm::helper(unsigned interval, void* param)
 {
 	// At this position there is a race condition:
 	//   if the timer thread is suspended before the lock is taken and
@@ -74,10 +74,13 @@ unsigned Alarm::helper(unsigned /*interval*/, void* param)
 	Alarm* alarm = static_cast<Alarm*>(param);
 	ScopedLock lock(alarm->sem);
 	if (alarm->id) {
-		alarm->alarm();
+		if (alarm->alarm()) {
+			// reschedule alarm
+			return interval;
+		}
 		alarm->id = 0;
 	}
-	return 0;
+	return 0; // cancel timer
 }
 
 } // namespace openmsx

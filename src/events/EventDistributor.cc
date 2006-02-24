@@ -55,14 +55,11 @@ void EventDistributor::distributeEvent(Event* event)
 
 	assert(event);
 
-	// Deliver event to DETACHED listeners.
 	// TODO: Implement a real solution against modifying data structure while
 	//       iterating through it.
 	//       For example, assign NULL first and then iterate again after
 	//       delivering events to remove the NULL values.
 	// TODO: Is there an easier way to search a map?
-	// TODO: Is it guaranteed that the Nth entry in scheduledEvents always
-	//       corresponds to the Nth call to executeUntil?
 	// TODO: Is it useful to test for 0 listeners or should we just always
 	//       queue the event?
 	pair<ListenerMap::iterator, ListenerMap::iterator> bounds2 =

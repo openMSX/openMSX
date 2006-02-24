@@ -23,7 +23,6 @@
 #include "EmuTime.hh"
 #include "LedEvent.hh"
 #include "UserInputEventDistributor.hh"
-#include "InputEventGenerator.hh"
 #include "RealTime.hh"
 #include "BooleanSetting.hh"
 #include "FileContext.hh"
@@ -261,12 +260,7 @@ UserInputEventDistributor& MSXMotherBoard::getUserInputEventDistributor()
 
 InputEventGenerator& MSXMotherBoard::getInputEventGenerator()
 {
-	if (!inputEventGenerator.get()) {
-		inputEventGenerator.reset(new InputEventGenerator(
-			getScheduler(), getCommandController(),
-			getEventDistributor()));
-	}
-	return *inputEventGenerator;
+	return reactor.getInputEventGenerator();
 }
 
 CliComm& MSXMotherBoard::getCliComm()

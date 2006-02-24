@@ -25,11 +25,9 @@ private:
 };
 
 
-InputEventGenerator::InputEventGenerator(Scheduler& scheduler,
-                                         CommandController& commandController,
+InputEventGenerator::InputEventGenerator(CommandController& commandController,
                                          EventDistributor& eventDistributor_)
-	: PollInterface(scheduler)
-	, grabInput(new BooleanSetting(commandController, "grabinput",
+	: grabInput(new BooleanSetting(commandController, "grabinput",
 		"This setting controls if openmsx takes over mouse and keyboard input",
 		false))
 	, escapeGrabState(ESCAPE_GRAB_WAIT_CMD)
@@ -40,12 +38,14 @@ InputEventGenerator::InputEventGenerator(Scheduler& scheduler,
 	setGrabInput(grabInput->getValue());
 	grabInput->attach(*this);
 	eventDistributor.registerEventListener(OPENMSX_FOCUS_EVENT, *this);
+	eventDistributor.registerEventListener(OPENMSX_POLL_EVENT,  *this);
 
 	reinit();
 }
 
 InputEventGenerator::~InputEventGenerator()
 {
+	eventDistributor.unregisterEventListener(OPENMSX_POLL_EVENT,  *this);
 	eventDistributor.unregisterEventListener(OPENMSX_FOCUS_EVENT, *this);
 	grabInput->detach(*this);
 }
@@ -214,26 +214,28 @@ void InputEventGenerator::update(const Setting& setting)
 
 void InputEventGenerator::signalEvent(const Event& event)
 {
-	assert(event.getType() == OPENMSX_FOCUS_EVENT);
-
-	const FocusEvent& focusEvent = static_cast<const FocusEvent&>(event);
-	switch (escapeGrabState) {
-		case ESCAPE_GRAB_WAIT_CMD:
-			// nothing
-			break;
-		case ESCAPE_GRAB_WAIT_LOST:
-			if (focusEvent.getGain() == false) {
-				escapeGrabState = ESCAPE_GRAB_WAIT_GAIN;
-			}
-			break;
-		case ESCAPE_GRAB_WAIT_GAIN:
-			if (focusEvent.getGain() == true) {
-				escapeGrabState = ESCAPE_GRAB_WAIT_CMD;
-			}
-			setGrabInput(true);
-			break;
-		default:
-			assert(false);
+	if (event.getType() == OPENMSX_FOCUS_EVENT) {
+		const FocusEvent& focusEvent = static_cast<const FocusEvent&>(event);
+		switch (escapeGrabState) {
+			case ESCAPE_GRAB_WAIT_CMD:
+				// nothing
+				break;
+			case ESCAPE_GRAB_WAIT_LOST:
+				if (focusEvent.getGain() == false) {
+					escapeGrabState = ESCAPE_GRAB_WAIT_GAIN;
+				}
+				break;
+			case ESCAPE_GRAB_WAIT_GAIN:
+				if (focusEvent.getGain() == true) {
+					escapeGrabState = ESCAPE_GRAB_WAIT_CMD;
+				}
+				setGrabInput(true);
+				break;
+			default:
+				assert(false);
+		}
+	} else if (event.getType() == OPENMSX_POLL_EVENT) {
+		poll();
 	}
 }
 

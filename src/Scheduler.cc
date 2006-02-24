@@ -2,7 +2,6 @@
 
 #include "Scheduler.hh"
 #include "Schedulable.hh"
-#include "PollInterface.hh"
 #include <cassert>
 #include <algorithm>
 
@@ -76,8 +75,6 @@ const EmuTime& Scheduler::getCurrentTime() const
 
 void Scheduler::scheduleHelper(const EmuTime& limit)
 {
-	doPoll(); // TODO
-
 	while (true) {
 		// Get next sync point.
 		sem.down();
@@ -104,28 +101,6 @@ void Scheduler::scheduleHelper(const EmuTime& limit)
 		//PRT_DEBUG ("Sched: Scheduling " << device->schedName()
 		//		<< " " << userData << " till " << time);
 		device->executeUntil(time, userData);
-	}
-}
-
-void Scheduler::registerPoll(PollInterface& poll)
-{
-	assert(std::find(pollInterfaces.begin(), pollInterfaces.end(), &poll) ==
-	       pollInterfaces.end());
-	pollInterfaces.push_back(&poll);
-}
-
-void Scheduler::unregisterPoll(PollInterface& poll)
-{
-	assert(std::find(pollInterfaces.begin(), pollInterfaces.end(), &poll) !=
-	       pollInterfaces.end());
-	pollInterfaces.erase(std::find(pollInterfaces.begin(), pollInterfaces.end(), &poll));
-}
-
-void Scheduler::doPoll()
-{
-	for (PollInterfaces::const_iterator it = pollInterfaces.begin();
-	     it != pollInterfaces.end(); ++it) {
-		(*it)->poll();
 	}
 }
 

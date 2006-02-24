@@ -38,7 +38,7 @@ class RepaintAlarm : public Alarm
 {
 public:
 	RepaintAlarm(EventDistributor& eventDistributor);
-	virtual void alarm();
+	virtual bool alarm();
 private:
 	EventDistributor& eventDistributor;
 };
@@ -347,12 +347,13 @@ RepaintAlarm::RepaintAlarm(EventDistributor& eventDistributor_)
 {
 }
 
-void RepaintAlarm::alarm()
+bool RepaintAlarm::alarm()
 {
 	// Note: runs is seperate thread, use event mechanism to repaint
 	//       in main thread
 	eventDistributor.distributeEvent(
 		new SimpleEvent<OPENMSX_DELAYED_REPAINT_EVENT>());
+	return false; // don't reschedule
 }
 
 

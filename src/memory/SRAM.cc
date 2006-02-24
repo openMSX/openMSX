@@ -84,9 +84,10 @@ void SRAM::save()
 	}
 }
 
-void SRAM::alarm()
+bool SRAM::alarm()
 {
 	save();
+	return false; // don't reschedule
 }
 
 } // namespace openmsx

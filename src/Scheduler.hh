@@ -12,8 +12,6 @@
 
 namespace openmsx {
 
-class PollInterface;
-
 class Scheduler : private noncopyable
 {
 private:
@@ -87,11 +85,6 @@ public:
 		scheduleTime = limit;
 	}
 
-	// TODO move to reactor?
-	void   registerPoll(PollInterface& poll);
-	void unregisterPoll(PollInterface& poll);
-	void doPoll();
-
 	static const EmuTime ASAP;
 
 private: // -> intended for Schedulable
@@ -148,9 +141,6 @@ private:
 	Semaphore sem;	// protects syncPoints
 
 	EmuTime scheduleTime;
-
-	typedef std::vector<PollInterface*> PollInterfaces;
-	PollInterfaces pollInterfaces;
 };
 
 } // namespace openmsx

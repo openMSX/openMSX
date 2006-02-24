@@ -9,10 +9,11 @@
 
 namespace openmsx {
 
-class CommandController;
 class EventDistributor;
+class CommandController;
 class CliComm;
 class CommandConsole;
+class InputEventGenerator;
 class FileManipulator;
 class FilePool;
 class BooleanSetting;
@@ -44,10 +45,11 @@ public:
 
 	void enterMainLoop();
 
-	CommandController& getCommandController();
 	EventDistributor& getEventDistributor();
+	CommandController& getCommandController();
 	CliComm& getCliComm();
 	CommandConsole& getCommandConsole();
+	InputEventGenerator& getInputEventGenerator();
 	FileManipulator& getFileManipulator();
 	FilePool& getFilePool();
 	MSXMotherBoard& getMotherBoard();
@@ -77,10 +79,11 @@ private:
 	bool running;
 
 	// note: order of auto_ptr's is important
-	std::auto_ptr<CommandController> commandController;
 	std::auto_ptr<EventDistributor> eventDistributor;
+	std::auto_ptr<CommandController> commandController;
 	std::auto_ptr<CliComm> cliComm;
 	std::auto_ptr<CommandConsole> commandConsole;
+	std::auto_ptr<InputEventGenerator> inputEventGenerator;
 	std::auto_ptr<FileManipulator> fileManipulator;
 	std::auto_ptr<FilePool> filePool;
 	std::auto_ptr<MSXMotherBoard> motherBoard;

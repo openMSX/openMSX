@@ -5,7 +5,6 @@
 
 #include "Observer.hh"
 #include "EventListener.hh"
-#include "PollInterface.hh"
 #include <SDL.h>
 #include <memory>
 
@@ -17,12 +16,10 @@ class EventDistributor;
 class Setting;
 class EscapeGrabCmd;
 
-class InputEventGenerator : private Observer<Setting>, private EventListener,
-                            private PollInterface
+class InputEventGenerator : private Observer<Setting>, private EventListener
 {
 public:
-	InputEventGenerator(Scheduler& scheduler,
-	                    CommandController& commandController,
+	InputEventGenerator(CommandController& commandController,
 	                    EventDistributor& eventDistributor);
 	virtual ~InputEventGenerator();
 
@@ -31,9 +28,7 @@ public:
 	  */
 	void wait();
 	void notify();
-
-	// PollInterface
-	virtual void poll();
+	void poll();
 
 	/**
 	 * Enable or disable keyboard event repeats

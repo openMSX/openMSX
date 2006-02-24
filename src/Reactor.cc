@@ -2,9 +2,10 @@
 
 #include "Reactor.hh"
 #include "CommandLineParser.hh"
-#include "CommandController.hh"
 #include "EventDistributor.hh"
+#include "CommandController.hh"
 #include "CommandConsole.hh"
+#include "InputEventGenerator.hh"
 #include "FileManipulator.hh"
 #include "FilePool.hh"
 #include "MSXMotherBoard.hh"
@@ -15,6 +16,7 @@
 #include "CliComm.hh"
 #include "Display.hh"
 #include "Timer.hh"
+#include "Alarm.hh"
 #include "GlobalSettings.hh"
 #include "BooleanSetting.hh"
 #include "FileContext.hh"
@@ -47,6 +49,16 @@ private:
 	MSXMotherBoard& motherBoard;
 };
 
+class PollEventGenerator : private Alarm
+{
+public:
+	PollEventGenerator(EventDistributor& eventDistributor);
+	~PollEventGenerator();
+private:
+	virtual bool alarm();
+	EventDistributor& eventDistributor;
+};
+
 
 Reactor::Reactor()
 	: paused(false)
@@ -70,20 +82,20 @@ Reactor::~Reactor()
 	pauseSetting.detach(*this);
 }
 
-CommandController& Reactor::getCommandController()
-{
-	if (!commandController.get()) {
-		commandController.reset(new CommandController());
-	}
-	return *commandController;
-}
-
 EventDistributor& Reactor::getEventDistributor()
 {
 	if (!eventDistributor.get()) {
 		eventDistributor.reset(new EventDistributor(*this));
 	}
 	return *eventDistributor;
+}
+
+CommandController& Reactor::getCommandController()
+{
+	if (!commandController.get()) {
+		commandController.reset(new CommandController(getEventDistributor()));
+	}
+	return *commandController;
 }
 
 CliComm& Reactor::getCliComm()
@@ -99,10 +111,18 @@ CommandConsole& Reactor::getCommandConsole()
 {
 	if (!commandConsole.get()) {
 		commandConsole.reset(new CommandConsole(
-			getCommandController(),
-			getEventDistributor()));
+			getCommandController(), getEventDistributor()));
 	}
 	return *commandConsole;
+}
+
+InputEventGenerator& Reactor::getInputEventGenerator()
+{
+	if (!inputEventGenerator.get()) {
+		inputEventGenerator.reset(new InputEventGenerator(
+			getCommandController(), getEventDistributor()));
+	}
+	return *inputEventGenerator;
 }
 
 FileManipulator& Reactor::getFileManipulator()
@@ -167,6 +187,7 @@ void Reactor::run(CommandLineParser& parser)
 		getMotherBoard().powerUp();
 	}
 	
+	PollEventGenerator pollEventGenerator(getEventDistributor());
 	Scheduler& scheduler(getMotherBoard().getScheduler());
 	while (running) {
 		getEventDistributor().deliverEvents();
@@ -175,7 +196,6 @@ void Reactor::run(CommandLineParser& parser)
 		if (blocked) {
 			display.repaint();
 			Timer::sleep(100 * 1000);
-			scheduler.doPoll(); // TODO remove in future
 			// TODO: Make Scheduler only responsible for events inside the MSX.
 			//       All other events should be handled by the Reactor.
 			scheduler.schedule(scheduler.getCurrentTime());
@@ -304,6 +324,27 @@ const std::string& ExitCPULoopSchedulable::schedName() const
 {
 	static const std::string name = "ExitCPULoopSchedulable";
 	return name;
+}
+
+
+// class PollEventGenerator
+
+
+PollEventGenerator::PollEventGenerator(EventDistributor& eventDistributor_)
+	: eventDistributor(eventDistributor_)
+{
+	schedule(20 * 1000); // 50 times per second
+}
+
+PollEventGenerator::~PollEventGenerator()
+{
+	cancel();
+}
+
+bool PollEventGenerator::alarm()
+{
+	eventDistributor.distributeEvent(new SimpleEvent<OPENMSX_POLL_EVENT>());
+	return true; // reschedule
 }
 
 } // namespace openmsx
