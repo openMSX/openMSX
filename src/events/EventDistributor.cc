@@ -72,10 +72,9 @@ void EventDistributor::distributeEvent(Event* event)
 
 void EventDistributor::deliverEvents()
 {
-	sem.down();
+	ScopedLock lock(sem);
 	EventQueue copy;
 	swap(copy, scheduledEvents);
-	sem.up();
 	
 	for (EventQueue::const_iterator it = copy.begin();
 	     it != copy.end(); ++it) {
