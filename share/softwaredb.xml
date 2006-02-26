@@ -8,7 +8,7 @@
 	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
-<softwaredb xml:lang="en" timestamp="1136747542">
+<softwaredb xml:lang="en" timestamp="1140997940">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -174,7 +174,7 @@
 			<original value="false"/>
 			<megarom>
 				<type>ASCII8</type>
-				<hash algo="crc32">F19847BE</hash>
+				<hash algo="sha1">d76c7a5c2d28684f0d67114cc7b9707b296e68a2</hash>
 			</megarom>
 		</dump>
 	</software>
@@ -359,7 +359,7 @@
 			<original value="false"/>
 			<megarom>
 				<type>ASCII16</type>
-				<hash algo="crc32">22522037</hash>
+				<hash algo="sha1">1e7ac21796642c3ccb66b0ef0f00ba4752428aca</hash>
 				<remark>
 					<text>Ulver crack</text>
 				</remark>
@@ -800,7 +800,7 @@
 			<original value="false"/>
 			<megarom>
 				<type>ASCII16</type>
-				<hash algo="crc32">60F99D30</hash>
+				<hash algo="sha1">72815a7213f899a454bcf76733834ba499d35cd8</hash>
 			</megarom>
 		</dump>
 	</software>
@@ -1148,7 +1148,7 @@
 			<original value="false"/>
 			<megarom>
 				<type>ASCII8</type>
-				<hash algo="crc32">CC6D4D69</hash>
+				<hash algo="sha1">3739d841abfef971db76ba10915b19b9df833476</hash>
 			</megarom>
 		</dump>
 	</software>
@@ -2312,7 +2312,7 @@
 			<original value="false"/>
 			<megarom>
 				<type>ASCII8</type>
-				<hash algo="crc32">DEEA2D8D</hash>
+				<hash algo="sha1">e32d7334ace26a570a08fe7c01ad01a2c08b1991</hash>
 			</megarom>
 		</dump>
 	</software>
@@ -3043,7 +3043,7 @@
 			<original value="false"/>
 			<megarom>
 				<type>ASCII8</type>
-				<hash algo="crc32">FB4564A7</hash>
+				<hash algo="sha1">10907d8e9845d8f9d8b5283affd7bb824963194f</hash>
 			</megarom>
 		</dump>
 	</software>
@@ -4025,7 +4025,7 @@
 			<original value="false"/>
 			<megarom>
 				<type>ASCII8SRAM8</type>
-				<hash algo="crc32">41C6C087</hash>
+				<hash algo="sha1">88cd90595fbb7dbabd73ac9c0985c0a013992dc6</hash>
 			</megarom>
 		</dump>
 		<dump>
@@ -4172,7 +4172,7 @@
 			<original value="false"/>
 			<megarom>
 				<type>ASCII16</type>
-				<hash algo="crc32">4D310554</hash>
+				<hash algo="sha1">2799d221d5486d48226bbbd3941207e1fc7c985e</hash>
 			</megarom>
 		</dump>
 	</software>
@@ -4566,7 +4566,7 @@
 			<original value="false"/>
 			<megarom>
 				<type>ASCII8</type>
-				<hash algo="crc32">A5AA5BB2</hash>
+				<hash algo="sha1">3880b064dcb851ca221ff67e435137a7cf1141f8</hash>
 				<remark>
 					<text>Needs SCC in slot 2</text>
 				</remark>
@@ -4604,7 +4604,7 @@
 			<original value="false"/>
 			<megarom>
 				<type>KonamiSCC</type>
-				<hash algo="crc32">3DC124CB</hash>
+				<hash algo="sha1">f0be97ceca47b65b46c9518e6157b295f8c99c38</hash>
 				<remark>
 					<text>Ulver crack</text>
 				</remark>
@@ -4712,7 +4712,7 @@
 			<original value="false"/>
 			<megarom>
 				<type>Konami</type>
-				<hash algo="crc32">4B9E7FC3</hash>
+				<hash algo="sha1">21380bee0748625e9951a7a924016cc6cec46fb8</hash>
 			</megarom>
 		</dump>
 	</software>
@@ -4781,7 +4781,7 @@
 			<original value="false"/>
 			<megarom>
 				<type>ASCII8</type>
-				<hash algo="crc32">18AC9900</hash>
+				<hash algo="sha1">6868e7050d989d1ecbd13393ed360addefa4bcd3</hash>
 				<remark>
 					<text>Ulver crack</text>
 				</remark>
@@ -20730,7 +20730,7 @@
 			<original value="false"/>
 			<megarom>
 				<type>ASCII8</type>
-				<hash algo="crc32">F5427547</hash>
+				<hash algo="sha1">f9e8cc6e47d5632e3b28500197f8e9187295c52b</hash>
 			</megarom>
 		</dump>
 	</software>
@@ -25281,7 +25281,7 @@
 <!--
 Roms in this database : 2382
 Good MSX entries 		: 755
-SHA1 values 			: 1803
-CRC32 values 			: 579
-Parse time 7.632 seconds on Sun Jan 8 20:12:30 CET 2006
+SHA1 values 			: 1816
+CRC32 values 			: 566
+Parse time 9.482 seconds on Mon Feb 27 0:52:30 CET 2006
  -->
