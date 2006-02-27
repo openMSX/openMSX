@@ -15,7 +15,7 @@
 #include "DummyFont.hh"
 #include "FileContext.hh"
 #include "CliComm.hh"
-#include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include <algorithm>
 
 using std::string;
@@ -24,10 +24,10 @@ namespace openmsx {
 
 // class OSDConsoleRenderer
 
-OSDConsoleRenderer::OSDConsoleRenderer(MSXMotherBoard& motherBoard_)
+OSDConsoleRenderer::OSDConsoleRenderer(Reactor& reactor_)
 	: Layer(COVER_NONE, Z_CONSOLE)
-	, motherBoard(motherBoard_)
-	, consoleSetting(motherBoard.getCommandController().getGlobalSettings().
+	, reactor(reactor_)
+	, consoleSetting(reactor.getCommandController().getGlobalSettings().
 	                    getConsoleSetting())
 {
 	destX = destY = destW = destH = 0; // avoid UMR
@@ -51,7 +51,7 @@ OSDConsoleRenderer::~OSDConsoleRenderer()
 
 void OSDConsoleRenderer::initConsole()
 {
-	CommandController& commandController = motherBoard.getCommandController();
+	CommandController& commandController = reactor.getCommandController();
 	// font
 	fontSetting.reset(new FilenameSetting(commandController,
 		"consolefont", "console font file",
@@ -98,7 +98,7 @@ void OSDConsoleRenderer::initConsole()
 	try {
 		backgroundSetting->setChecker(this);
 	} catch (MSXException& e) {
-		motherBoard.getCliComm().printWarning(e.getMessage());
+		reactor.getCliComm().printWarning(e.getMessage());
 	}
 }
 
@@ -130,12 +130,12 @@ void OSDConsoleRenderer::setActive(bool active_)
 
 	time = Timer::getTime();
 
-	motherBoard.getInputEventGenerator().setKeyRepeat(active);
+	reactor.getInputEventGenerator().setKeyRepeat(active);
 	if (active) {
-		motherBoard.getEventDistributor().distributeEvent(
+		reactor.getEventDistributor().distributeEvent(
 			new ConsoleEvent(OPENMSX_CONSOLE_ON_EVENT));
 	} else {
-		motherBoard.getEventDistributor().distributeEvent(
+		reactor.getEventDistributor().distributeEvent(
 			new ConsoleEvent(OPENMSX_CONSOLE_OFF_EVENT));
 	}
 }
@@ -234,12 +234,12 @@ void OSDConsoleRenderer::check(SettingImpl<FilenameSetting::Policy>& setting,
 
 Display& OSDConsoleRenderer::getDisplay() const
 {
-	return motherBoard.getDisplay();
+	return reactor.getDisplay();
 }
 
 Console& OSDConsoleRenderer::getConsole() const
 {
-	return motherBoard.getCommandConsole();
+	return reactor.getCommandConsole();
 }
 
 } // namespace openmsx

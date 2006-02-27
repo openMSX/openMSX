@@ -25,7 +25,7 @@ public:
 
 	virtual std::auto_ptr<Layer> createSnowLayer();
 	virtual std::auto_ptr<Layer> createConsoleLayer(
-		MSXMotherBoard& motherboard);
+		Reactor& reactor);
 	virtual std::auto_ptr<Layer> createIconLayer(
 		CommandController& commandController,
 		Display& display, IconStatus& iconStatus);

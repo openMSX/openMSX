@@ -18,8 +18,6 @@
 #include "MSXDeviceSwitch.hh"
 #include "CassettePort.hh"
 #include "RenShaTurbo.hh"
-#include "Display.hh"
-#include "IconStatus.hh"
 #include "EmuTime.hh"
 #include "LedEvent.hh"
 #include "UserInputEventDistributor.hh"
@@ -383,19 +381,12 @@ CommandConsole& MSXMotherBoard::getCommandConsole()
 
 Display& MSXMotherBoard::getDisplay()
 {
-	if (!display.get()) {
-		display.reset(new Display(*this));
-		display->createVideoSystem();
-	}
-	return *display;
+	return reactor.getDisplay();
 }
 
 IconStatus& MSXMotherBoard::getIconStatus()
 {
-	if (!iconStatus.get()) {
-		iconStatus.reset(new IconStatus(getEventDistributor()));
-	}
-	return *iconStatus;
+	return reactor.getIconStatus();
 }
 
 FileManipulator& MSXMotherBoard::getFileManipulator()

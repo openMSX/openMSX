@@ -17,6 +17,7 @@
 #include "BooleanSetting.hh"
 #include "IntegerSetting.hh"
 #include "VideoSourceSetting.hh"
+#include "Reactor.hh"
 #include "MSXMotherBoard.hh"
 #include "MachineConfig.hh"
 #include "VideoSystemChangeListener.hh"
@@ -65,18 +66,18 @@ private:
 };
 
 
-Display::Display(MSXMotherBoard& motherboard_)
+Display::Display(Reactor& reactor_)
 	: currentRenderer(RendererFactory::UNINITIALIZED)
-	, alarm(new RepaintAlarm(motherboard_.getEventDistributor()))
+	, alarm(new RepaintAlarm(reactor_.getEventDistributor()))
 	, screenShotCmd(new ScreenShotCmd(
-		motherboard_.getCommandController(), *this))
-	, fpsInfo(new FpsInfoTopic(motherboard_.getCommandController(), *this))
-	, motherboard(motherboard_)
-	, renderSettings(new RenderSettings(motherboard.getCommandController()))
+		reactor_.getCommandController(), *this))
+	, fpsInfo(new FpsInfoTopic(reactor_.getCommandController(), *this))
+	, reactor(reactor_)
+	, renderSettings(new RenderSettings(reactor.getCommandController()))
 	, switchInProgress(0)
 {
 	// TODO clean up
-	motherboard.getCommandConsole().setDisplay(this);
+	reactor.getCommandConsole().setDisplay(this);
 
 	frameDurationSum = 0;
 	for (unsigned i = 0; i < NUM_FRAME_DURATIONS; ++i) {
@@ -85,7 +86,7 @@ Display::Display(MSXMotherBoard& motherboard_)
 	}
 	prevTimeStamp = Timer::getTime();
 
-	EventDistributor& eventDistributor = motherboard.getEventDistributor();
+	EventDistributor& eventDistributor = reactor.getEventDistributor();
 	eventDistributor.registerEventListener(OPENMSX_FINISH_FRAME_EVENT,
 			*this);
 	eventDistributor.registerEventListener(OPENMSX_DELAYED_REPAINT_EVENT,
@@ -106,7 +107,7 @@ Display::~Display()
 	renderSettings->getScaleFactor().detach(*this);
 	renderSettings->getVideoSource().detach(*this);
 
-	EventDistributor& eventDistributor = motherboard.getEventDistributor();
+	EventDistributor& eventDistributor = reactor.getEventDistributor();
 	eventDistributor.unregisterEventListener(OPENMSX_SWITCH_RENDERER_EVENT,
 			*this);
 	eventDistributor.unregisterEventListener(OPENMSX_DELAYED_REPAINT_EVENT,
@@ -117,7 +118,7 @@ Display::~Display()
 	resetVideoSystem();
 
 	alarm->cancel();
-	motherboard.getCommandConsole().setDisplay(0);
+	reactor.getCommandConsole().setDisplay(0);
 	assert(listeners.empty());
 }
 
@@ -192,7 +193,7 @@ void Display::signalEvent(const Event& event)
 		if (!ffe.isSkipped() &&
 		    (renderSettings->getVideoSource().getValue() == ffe.getSource())) {
 			repaint();
-			motherboard.getEventDistributor().distributeEvent(
+			reactor.getEventDistributor().distributeEvent(
 				new SimpleEvent<OPENMSX_FRAME_DRAWN_EVENT>());
 		}
 	} else if (event.getType() == OPENMSX_DELAYED_REPAINT_EVENT) {
@@ -232,7 +233,7 @@ void Display::checkRendererSwitch()
 		// causes problems???
 		if (switchInProgress) return;
 		++switchInProgress;
-		motherboard.getEventDistributor().distributeEvent(
+		reactor.getEventDistributor().distributeEvent(
 		      new SimpleEvent<OPENMSX_SWITCH_RENDERER_EVENT>());
 	}
 }
@@ -246,8 +247,10 @@ void Display::doRendererSwitch()
 	}
 
 	resetVideoSystem();
-	videoSystem.reset(RendererFactory::createVideoSystem(motherboard));
-	const XMLElement& config = motherboard.getMachineConfig().getConfig();
+	videoSystem.reset(RendererFactory::createVideoSystem(reactor));
+
+	// TODO move seting of window title to a 'machine changed' event handler
+	const XMLElement& config = reactor.getMotherBoard().getMachineConfig().getConfig();
 	std::string title = Version::FULL_VERSION + " - " +
 		config.getChild("info").getChildData("manufacturer") + " " +
 		config.getChild("info").getChildData("code");

@@ -9,7 +9,7 @@
 #include "BooleanSetting.hh"
 #include "IntegerSetting.hh"
 #include "InputEventGenerator.hh"
-#include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include <cassert>
 
 #include "components.hh"
@@ -19,10 +19,10 @@
 
 namespace openmsx {
 
-SDLVideoSystem::SDLVideoSystem(MSXMotherBoard& motherboard,
+SDLVideoSystem::SDLVideoSystem(Reactor& reactor,
                                RendererFactory::RendererID rendererID)
-	: renderSettings(motherboard.getDisplay().getRenderSettings())
-	, display(motherboard.getDisplay())
+	: renderSettings(reactor.getDisplay().getRenderSettings())
+	, display(reactor.getDisplay())
 {
 	unsigned width, height;
 	getWindowSize(width, height);
@@ -44,13 +44,13 @@ SDLVideoSystem::SDLVideoSystem(MSXMotherBoard& motherboard,
 	default:
 		assert(false);
 	}
-	motherboard.getInputEventGenerator().reinit();
+	reactor.getInputEventGenerator().reinit();
 
 	snowLayer = screen->createSnowLayer();
-	console = screen->createConsoleLayer(motherboard);
-	iconLayer = screen->createIconLayer(motherboard.getCommandController(),
+	console = screen->createConsoleLayer(reactor);
+	iconLayer = screen->createIconLayer(reactor.getCommandController(),
 	                                    display,
-	                                    motherboard.getIconStatus());
+	                                    reactor.getIconStatus());
 	display.addLayer(*snowLayer);
 	display.addLayer(*console);
 	display.addLayer(*iconLayer);

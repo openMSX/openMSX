@@ -68,9 +68,9 @@ std::auto_ptr<Layer> SDLVisibleSurface::createSnowLayer()
 }
 
 std::auto_ptr<Layer> SDLVisibleSurface::createConsoleLayer(
-		MSXMotherBoard& motherboard)
+		Reactor& reactor)
 {
-	return std::auto_ptr<Layer>(new SDLConsole(motherboard, surface));
+	return std::auto_ptr<Layer>(new SDLConsole(reactor, surface));
 }
 
 std::auto_ptr<Layer> SDLVisibleSurface::createIconLayer(

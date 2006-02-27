@@ -15,6 +15,7 @@
 #include "MSXCPU.hh"
 #include "CliComm.hh"
 #include "Display.hh"
+#include "IconStatus.hh"
 #include "Timer.hh"
 #include "Alarm.hh"
 #include "GlobalSettings.hh"
@@ -107,6 +108,15 @@ CliComm& Reactor::getCliComm()
 	return *cliComm;
 }
 
+InputEventGenerator& Reactor::getInputEventGenerator()
+{
+	if (!inputEventGenerator.get()) {
+		inputEventGenerator.reset(new InputEventGenerator(
+			getCommandController(), getEventDistributor()));
+	}
+	return *inputEventGenerator;
+}
+
 CommandConsole& Reactor::getCommandConsole()
 {
 	if (!commandConsole.get()) {
@@ -116,13 +126,21 @@ CommandConsole& Reactor::getCommandConsole()
 	return *commandConsole;
 }
 
-InputEventGenerator& Reactor::getInputEventGenerator()
+Display& Reactor::getDisplay()
 {
-	if (!inputEventGenerator.get()) {
-		inputEventGenerator.reset(new InputEventGenerator(
-			getCommandController(), getEventDistributor()));
+	if (!display.get()) {
+		display.reset(new Display(*this));
+		display->createVideoSystem();
 	}
-	return *inputEventGenerator;
+	return *display;
+}
+
+IconStatus& Reactor::getIconStatus()
+{
+	if (!iconStatus.get()) {
+		iconStatus.reset(new IconStatus(getEventDistributor()));
+	}
+	return *iconStatus;
 }
 
 FileManipulator& Reactor::getFileManipulator()
@@ -153,7 +171,7 @@ MSXMotherBoard& Reactor::getMotherBoard()
 
 void Reactor::run(CommandLineParser& parser)
 {
-	Display& display(getMotherBoard().getDisplay());
+	Display& display = getDisplay();
 
 	// execute init.tcl
 	try {

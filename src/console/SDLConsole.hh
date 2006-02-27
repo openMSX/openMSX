@@ -16,7 +16,7 @@ class SDLImage;
 class SDLConsole : public OSDConsoleRenderer, private noncopyable
 {
 public:
-	SDLConsole(MSXMotherBoard& motherBoard, SDL_Surface* screen);
+	SDLConsole(Reactor& reactor, SDL_Surface* screen);
 
 	virtual void loadFont(const std::string& filename);
 	virtual void loadBackground(const std::string& filename);

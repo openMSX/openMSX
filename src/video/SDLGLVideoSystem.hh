@@ -11,7 +11,7 @@
 
 namespace openmsx {
 
-class MSXMotherBoard;
+class Reactor;
 class VisibleSurface;
 class Layer;
 
@@ -22,7 +22,7 @@ public:
 	/** Activates this video system.
 	  * @throw InitException If initialisation fails.
 	  */
-	explicit SDLGLVideoSystem(MSXMotherBoard& motherboard);
+	explicit SDLGLVideoSystem(Reactor& reactor);
 
 	/** Deactivates this video system.
 	  */
@@ -42,7 +42,7 @@ public:
 private:
 	void resize(unsigned x, unsigned y);
 
-	MSXMotherBoard& motherboard;
+	Reactor& reactor;
 	std::auto_ptr<VisibleSurface> screen;
 	std::auto_ptr<Layer> console;
 	std::auto_ptr<Layer> snowLayer;

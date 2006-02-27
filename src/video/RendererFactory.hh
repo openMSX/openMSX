@@ -7,7 +7,7 @@
 
 namespace openmsx {
 
-class MSXMotherBoard;
+class Reactor;
 class CommandController;
 class Display;
 class VideoSystem;
@@ -37,7 +37,7 @@ public:
 
 	/** Create the video system required by the current renderer setting.
 	  */
-	static VideoSystem* createVideoSystem(MSXMotherBoard& motherboard);
+	static VideoSystem* createVideoSystem(Reactor& reactor);
 
 	/** Create the Renderer selected by the current renderer setting.
 	  * @param vdp The VDP whose display will be rendered.

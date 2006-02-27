@@ -12,7 +12,7 @@
 
 namespace openmsx {
 
-class MSXMotherBoard;
+class Reactor;
 class IntegerSetting;
 class Font;
 class BooleanSetting;
@@ -34,7 +34,7 @@ public:
 	Console& getConsole() const;
 
 protected:
-	explicit OSDConsoleRenderer(MSXMotherBoard& motherBoard);
+	explicit OSDConsoleRenderer(Reactor& reactor);
 	void initConsole();
 	bool updateConsoleRect();
 	byte getVisibility() const;
@@ -79,7 +79,7 @@ private:
 
 	bool active;
 	unsigned long long time;
-	MSXMotherBoard& motherBoard;
+	Reactor& reactor;
 	BooleanSetting& consoleSetting;
 };
 

@@ -10,7 +10,7 @@
 
 namespace openmsx {
 
-class MSXMotherBoard;
+class Reactor;
 class RenderSettings;
 class Display;
 class VisibleSurface;
@@ -23,7 +23,7 @@ class Layer;
 class SDLVideoSystem : public VideoSystem, private noncopyable
 {
 public:
-	SDLVideoSystem(MSXMotherBoard& motherboard,
+	SDLVideoSystem(Reactor& reactor,
 	               RendererFactory::RendererID rendererID);
 	virtual ~SDLVideoSystem();
 

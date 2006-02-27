@@ -11,7 +11,7 @@
 namespace openmsx {
 
 class Layer;
-class MSXMotherBoard;
+class Reactor;
 class CommandController;
 class EventDistributor;
 class Display;
@@ -36,7 +36,7 @@ public:
 
 	virtual std::auto_ptr<Layer> createSnowLayer() = 0;
 	virtual std::auto_ptr<Layer> createConsoleLayer(
-		MSXMotherBoard& motherboard) = 0;
+		Reactor& reactor) = 0;
 	virtual std::auto_ptr<Layer> createIconLayer(
 		CommandController& commandController,
 		Display& display, IconStatus& iconStatus) = 0;

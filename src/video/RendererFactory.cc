@@ -2,7 +2,7 @@
 
 #include "RendererFactory.hh"
 #include "RenderSettings.hh"
-#include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "EnumSetting.hh"
 #include "VDP.hh"
 #include "V9990.hh"
@@ -29,26 +29,26 @@ using std::auto_ptr;
 
 namespace openmsx {
 
-VideoSystem* RendererFactory::createVideoSystem(MSXMotherBoard& motherboard)
+VideoSystem* RendererFactory::createVideoSystem(Reactor& reactor)
 {
 	VideoSystem* result;
-	Display& display = motherboard.getDisplay();
+	Display& display = reactor.getDisplay();
 	switch (display.getRenderSettings().getRenderer().getValue()) {
 		case DUMMY:
 			result = new DummyVideoSystem();
 			break;
 		case SDL:
-			result = new SDLVideoSystem(motherboard, SDL);
+			result = new SDLVideoSystem(reactor, SDL);
 			break;
 #ifdef COMPONENT_GL
 		case SDLGL:
-			result = new SDLGLVideoSystem(motherboard);
+			result = new SDLGLVideoSystem(reactor);
 			break;
 		case SDLGL_FB16:
-			result = new SDLVideoSystem(motherboard, SDLGL_FB16);
+			result = new SDLVideoSystem(reactor, SDLGL_FB16);
 			break;
 		case SDLGL_FB32:
-			result = new SDLVideoSystem(motherboard, SDLGL_FB32);
+			result = new SDLVideoSystem(reactor, SDLGL_FB32);
 			break;
 #endif
 		default:

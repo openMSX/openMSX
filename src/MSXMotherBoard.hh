@@ -171,8 +171,6 @@ private:
 	std::auto_ptr<MSXDeviceSwitch> deviceSwitch;
 	std::auto_ptr<CassettePortInterface> cassettePort;
 	std::auto_ptr<RenShaTurbo> renShaTurbo;
-	std::auto_ptr<Display> display;
-	std::auto_ptr<IconStatus> iconStatus;
 
 	const std::auto_ptr<ResetCmd>     resetCommand;
 	const std::auto_ptr<ListExtCmd>   listExtCommand;

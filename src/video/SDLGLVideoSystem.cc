@@ -3,7 +3,7 @@
 #include "SDLGLVideoSystem.hh"
 #include "GLRasterizer.hh"
 #include "V9990GLRasterizer.hh"
-#include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "Display.hh"
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
@@ -16,36 +16,36 @@ using std::string;
 
 namespace openmsx {
 
-SDLGLVideoSystem::SDLGLVideoSystem(MSXMotherBoard& motherboard_)
-	: motherboard(motherboard_)
+SDLGLVideoSystem::SDLGLVideoSystem(Reactor& reactor_)
+	: reactor(reactor_)
 {
 	// Destruct old layers, so resources are freed before new allocations
 	// are done.
 	// TODO: This has to be done before every video system (re)init,
 	//       so move it to a central location.
-	Display& display = motherboard.getDisplay();
+	Display& display = reactor.getDisplay();
 
 	resize(640, 480);
 
-	console   = screen->createConsoleLayer(motherboard);
+	console   = screen->createConsoleLayer(reactor);
 	snowLayer = screen->createSnowLayer();
-	iconLayer = screen->createIconLayer(motherboard.getCommandController(),
+	iconLayer = screen->createIconLayer(reactor.getCommandController(),
 	                                    display,
-	                                    motherboard.getIconStatus());
+	                                    reactor.getIconStatus());
 	display.addLayer(*console);
 	display.addLayer(*snowLayer);
 	display.addLayer(*iconLayer);
 
-	motherboard.getEventDistributor().registerEventListener(
+	reactor.getEventDistributor().registerEventListener(
 		OPENMSX_RESIZE_EVENT, *this);
 }
 
 SDLGLVideoSystem::~SDLGLVideoSystem()
 {
-	motherboard.getEventDistributor().unregisterEventListener(
+	reactor.getEventDistributor().unregisterEventListener(
 		OPENMSX_RESIZE_EVENT, *this);
 
-	Display& display = motherboard.getDisplay();
+	Display& display = reactor.getDisplay();
 	display.removeLayer(*iconLayer);
 	display.removeLayer(*snowLayer);
 	display.removeLayer(*console);
@@ -53,10 +53,8 @@ SDLGLVideoSystem::~SDLGLVideoSystem()
 
 Rasterizer* SDLGLVideoSystem::createRasterizer(VDP& vdp)
 {
-	return new GLRasterizer(
-		motherboard.getCommandController(),
-		vdp, motherboard.getDisplay(), *screen
-		);
+	return new GLRasterizer(reactor.getCommandController(),
+	                        vdp, reactor.getDisplay(), *screen);
 }
 
 V9990Rasterizer* SDLGLVideoSystem::createV9990Rasterizer(V9990& vdp)
@@ -68,7 +66,7 @@ V9990Rasterizer* SDLGLVideoSystem::createV9990Rasterizer(V9990& vdp)
 //       is this polling approach necessary at all?
 bool SDLGLVideoSystem::checkSettings()
 {
-	bool fullScreenTarget = motherboard.getDisplay().getRenderSettings().
+	bool fullScreenTarget = reactor.getDisplay().getRenderSettings().
 		getFullScreen().getValue();
 	return screen->setFullScreen(fullScreenTarget);
 }
@@ -90,10 +88,10 @@ void SDLGLVideoSystem::setWindowTitle(const std::string& title)
 
 void SDLGLVideoSystem::resize(unsigned x, unsigned y)
 {
-	bool fullscreen = motherboard.getDisplay().getRenderSettings().
+	bool fullscreen = reactor.getDisplay().getRenderSettings().
 		getFullScreen().getValue();
 	screen.reset(new SDLGLVisibleSurface(x, y, fullscreen));
-	motherboard.getInputEventGenerator().reinit();
+	reactor.getInputEventGenerator().reinit();
 }
 
 void SDLGLVideoSystem::signalEvent(const Event& event)

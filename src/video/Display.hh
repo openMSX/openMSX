@@ -15,8 +15,8 @@
 
 namespace openmsx {
 
+class Reactor;
 class VideoSystem;
-class MSXMotherBoard;
 class EventDistributor;
 class RenderSettings;
 class VideoSystemChangeListener;
@@ -32,7 +32,7 @@ class Display : private EventListener, private Observer<Setting>,
                 private LayerListener
 {
 public:
-	explicit Display(MSXMotherBoard& motherboard);
+	explicit Display(Reactor& reactor);
 	virtual ~Display();
 
 	void createVideoSystem();
@@ -92,7 +92,7 @@ private:
 	const std::auto_ptr<ScreenShotCmd> screenShotCmd;
 	const std::auto_ptr<FpsInfoTopic> fpsInfo;
 
-	MSXMotherBoard& motherboard;
+	Reactor& reactor;
 	std::auto_ptr<RenderSettings> renderSettings;
 	unsigned switchInProgress;
 };

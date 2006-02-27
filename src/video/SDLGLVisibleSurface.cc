@@ -187,9 +187,9 @@ std::auto_ptr<Layer> SDLGLVisibleSurface::createSnowLayer()
 }
 
 std::auto_ptr<Layer> SDLGLVisibleSurface::createConsoleLayer(
-		MSXMotherBoard& motherboard)
+		Reactor& reactor)
 {
-	return std::auto_ptr<Layer>(new GLConsole(motherboard));
+	return std::auto_ptr<Layer>(new GLConsole(reactor));
 }
 
 std::auto_ptr<Layer> SDLGLVisibleSurface::createIconLayer(

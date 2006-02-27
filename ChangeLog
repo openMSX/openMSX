@@ -2,6 +2,7 @@ $Id$
 
 2006-02-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* IconStatus doesn't need Display
+	* Moved IconStatus and Display from MSXMotherboard to Reactor
 
 2006-02-26 Patrick van Arkel (vampiermsx@gmail.com)
 	* Removed CRC32 values from the rom database 

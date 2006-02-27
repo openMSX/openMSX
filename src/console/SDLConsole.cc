@@ -9,7 +9,6 @@
 #include "SDLConsole.hh"
 #include "SDLImage.hh"
 #include "SDLFont.hh"
-#include "MSXMotherBoard.hh"
 #include "Console.hh"
 #include "File.hh"
 #include "Timer.hh"
@@ -20,8 +19,8 @@ using std::string;
 
 namespace openmsx {
 
-SDLConsole::SDLConsole(MSXMotherBoard& motherBoard, SDL_Surface* screen)
-	: OSDConsoleRenderer(motherBoard)
+SDLConsole::SDLConsole(Reactor& reactor, SDL_Surface* screen)
+	: OSDConsoleRenderer(reactor)
 	, outputScreen(screen)
 {
 	initConsole();

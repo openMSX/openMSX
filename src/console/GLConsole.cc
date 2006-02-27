@@ -4,7 +4,6 @@
 #include "GLFont.hh"
 #include "GLImage.hh"
 #include "Console.hh"
-#include "MSXMotherBoard.hh"
 #include "Timer.hh"
 #include <cassert>
 #include <SDL.h>
@@ -13,8 +12,8 @@ using std::string;
 
 namespace openmsx {
 
-GLConsole::GLConsole(MSXMotherBoard& motherBoard)
-	: OSDConsoleRenderer(motherBoard)
+GLConsole::GLConsole(Reactor& reactor)
+	: OSDConsoleRenderer(reactor)
 	, backgroundTexture(0)
 {
 	initConsole();
