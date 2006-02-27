@@ -5,7 +5,7 @@
 # credits:
 #   copyright 2005-2006 Albert Beevendorp all rights reserved
 #   copyright 2005-2006 Patrick van Arkel all rights reserved
-#   copyright 	   2006 Benot Delvaux all rights reserved 
+#   copyright 	   2006 Benoît Delvaux all rights reserved 
 #
 # the definition of cheating according to google:
 #
@@ -4154,10 +4154,15 @@ proc trainer_battlechopper {} {
 }
 
 proc trainer_tnt {} {
-	#lives 
-	poke 0x7074 100
+	#lives (bootleg version)
+	#poke 0x7074 100
+	#ammo (bootleg version)
+	#poke 0x4894 255
+	
+	#lives
+	poke 0x320e 255
 	#ammo
-	poke 0x4894 255
+	poke 0x489d 255
 	after time 1 trainer_tnt
 }
 
