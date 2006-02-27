@@ -393,8 +393,7 @@ Display& MSXMotherBoard::getDisplay()
 IconStatus& MSXMotherBoard::getIconStatus()
 {
 	if (!iconStatus.get()) {
-		iconStatus.reset(new IconStatus(
-			getEventDistributor(), getDisplay()));
+		iconStatus.reset(new IconStatus(getEventDistributor()));
 	}
 	return *iconStatus;
 }

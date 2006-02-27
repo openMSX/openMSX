@@ -1,5 +1,8 @@
 $Id$
 
+2006-02-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* IconStatus doesn't need Display
+
 2006-02-26 Patrick van Arkel (vampiermsx@gmail.com)
 	* Removed CRC32 values from the rom database 
 	  and added a few more sha1 values

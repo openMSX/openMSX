@@ -10,12 +10,11 @@
 namespace openmsx {
 
 class EventDistributor;
-class Display;
 
 class IconStatus : private EventListener, private noncopyable
 {
 public:
-	IconStatus(EventDistributor& eventDistributor, Display& display);
+	IconStatus(EventDistributor& eventDistributor);
 	~IconStatus();
 
 	bool getStatus(int icon) const;
@@ -26,7 +25,6 @@ private:
 	virtual void signalEvent(const Event& event);
 
 	EventDistributor& eventDistributor;
-	Display& display;
 	bool iconStatus[LedEvent::NUM_LEDS];
 	unsigned long long iconTime[LedEvent::NUM_LEDS];
 };
