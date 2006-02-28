@@ -2,12 +2,13 @@
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
 <!--
  The romdb.xml file contains information about rom mapper types
-																			 	
-	© 2004-2005 Benoit Delvaux	(Filling the database / testing games)			
-	© 2003 Nicolas Beyaert		(Initial database)								
-	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
-  A special thanks to both the blueMSX and openMSX team for their support		
--->
+ 																		 	
+	copyright 2004-2005 Benoit Delvaux	(Filling the database / testing games)
+	copyright 2003 Nicolas Beyaert		(Initial database)
+	copyright 2005 Patrick van Arkel	(Webscripting and adding values)
+
+  A special thanks to both the blueMSX and openMSX team for their support
+  -->
 <softwaredb xml:lang="en" timestamp="1141087726">
 <!-- MSX1 roms -->
 	<software>
