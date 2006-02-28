@@ -76,7 +76,7 @@ static int main(int argc, char **argv)
 				reactor.getEventDistributor(),
 				reactor.getCommandController());
 			motherBoard.getRealTime();
-			motherBoard.getIconStatus();
+			reactor.getIconStatus();
 			if (!parser.isHiddenStartup()) {
 				motherBoard.getDisplay().getRenderSettings().
 					getRenderer().restoreDefault();

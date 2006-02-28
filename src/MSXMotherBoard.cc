@@ -256,11 +256,6 @@ UserInputEventDistributor& MSXMotherBoard::getUserInputEventDistributor()
 	return *userInputEventDistributor;
 }
 
-InputEventGenerator& MSXMotherBoard::getInputEventGenerator()
-{
-	return reactor.getInputEventGenerator();
-}
-
 CliComm& MSXMotherBoard::getCliComm()
 {
 	return reactor.getCliComm();
@@ -374,19 +369,9 @@ RenShaTurbo& MSXMotherBoard::getRenShaTurbo()
 	return *renShaTurbo;
 }
 
-CommandConsole& MSXMotherBoard::getCommandConsole()
-{
-	return reactor.getCommandConsole();
-}
-
 Display& MSXMotherBoard::getDisplay()
 {
 	return reactor.getDisplay();
-}
-
-IconStatus& MSXMotherBoard::getIconStatus()
-{
-	return reactor.getIconStatus();
 }
 
 FileManipulator& MSXMotherBoard::getFileManipulator()

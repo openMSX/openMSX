@@ -20,7 +20,6 @@ class CartridgeSlotManager;
 class CommandController;
 class EventDistributor;
 class UserInputEventDistributor;
-class InputEventGenerator;
 class CliComm;
 class RealTime;
 class Debugger;
@@ -33,9 +32,7 @@ class PanasonicMemory;
 class MSXDeviceSwitch;
 class CassettePortInterface;
 class RenShaTurbo;
-class CommandConsole;
 class Display;
-class IconStatus;
 class FileManipulator;
 class FilePool;
 class BooleanSetting;
@@ -102,7 +99,6 @@ public:
 	CommandController& getCommandController();
 	EventDistributor& getEventDistributor();
 	UserInputEventDistributor& getUserInputEventDistributor();
-	InputEventGenerator& getInputEventGenerator();
 	CliComm& getCliComm();
 	RealTime& getRealTime();
 	Debugger& getDebugger();
@@ -115,9 +111,7 @@ public:
 	MSXDeviceSwitch& getDeviceSwitch();
 	CassettePortInterface& getCassettePort();
 	RenShaTurbo& getRenShaTurbo();
-	CommandConsole& getCommandConsole();
 	Display& getDisplay();
-	IconStatus& getIconStatus();
 	FileManipulator& getFileManipulator();
 	FilePool& getFilePool();
 
