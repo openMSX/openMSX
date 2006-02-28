@@ -1,15 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
 <!--
  The romdb.xml file contains information about rom mapper types
- 																		 	
-	copyright 2004-2005 Benoit Delvaux	(Filling the database / testing games)
-	copyright 2003 Nicolas Beyaert		(Initial database)
-	copyright 2005 Patrick van Arkel	(Webscripting and adding values)
-
-  A special thanks to both the blueMSX and openMSX team for their support
-  -->
-<softwaredb xml:lang="en" timestamp="1141087726">
+																			 	
+	© 2004-2005 Benoit Delvaux	(Filling the database / testing games)			
+	© 2003 Nicolas Beyaert		(Initial database)								
+	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
+  A special thanks to both the blueMSX and openMSX team for their support		
+-->
+<softwaredb xml:lang="en" timestamp="1141099209">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -1990,6 +1989,12 @@
 				<hash algo="sha1">cd69ce70747bc0deebba9fd307a07f5dfb926cc3</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">22183520d99924a4185c5572a3cf948f4f0f04b5</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Cabbage Patch Kids</title>
@@ -2314,6 +2319,15 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">b5b24db1a01ba6778b6768df15efb097fad5856f</hash>
+				<remark>
+					<text>cheat version</text>
+				</remark>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">7f5a95689b81da98387d812e0f6280466f51b832</hash>
 				<remark>
 					<text>cheat version</text>
 				</remark>
@@ -5210,6 +5224,16 @@
 				</remark>
 			</megarom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII16</type>
+				<hash algo="sha1">2117a3375684fa3c5bedebced4d7c1019a1ccdca</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
+			</megarom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Gambler Jikichushinpa</title>
@@ -5816,6 +5840,16 @@
 			<original value="false"/>
 			<megarom>
 				<type>KonamiSCC</type>
+				<hash algo="sha1">fd7b23a4f1c2058b966b5ddd52cf7ae44a0eebb0</hash>
+				<remark>
+					<text>tr Pg</text>
+				</remark>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>KonamiSCC</type>
 				<hash algo="sha1">c66483cd0d83292e4f2b54a3e89bd96b8bf9abb2</hash>
 				<remark>
 					<text>Penguin cheat version</text>
@@ -6060,6 +6094,15 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">50f61894c2f519fa369d7b925de7d52b708dde29</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">11306e4184da793050ca6c0f59ad3b2b9f084ef6</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -6843,6 +6886,12 @@
 		<dump>
 			<original value="false"/>
 			<rom>
+				<hash algo="sha1">2033ea831fd887c82fd8f8a1c9491f7a5dbe0175</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
 				<hash algo="sha1">d1a7cbaff354b59003f0e297723b912cb6ad0b36</hash>
 			</rom>
 		</dump>
@@ -7059,6 +7108,15 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">3bb48bedf53a781f0470e0bb5ad2e7bba785310e</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">1f8b9ac28dbadaf5316770cd6a421c998e33a8cb</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -7464,6 +7522,12 @@
 				<hash algo="sha1">4a92ec1be15c45ee98c08ac96191a369d562181b</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">a54c4244526051d887f9d74a767c254c08d47ad4</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Jyan Friend</title>
@@ -7798,6 +7862,15 @@
 				<hash algo="sha1">de4e210e6f757efc45e66be66b14cd6ec21b2ba7</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">0f74234adda250d72d4147872cb421a3b6f26efa</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">King&#39;s Valley 2 - MSX1 Version</title>
@@ -7973,6 +8046,15 @@
 				<hash algo="sha1">076f4b6d3f6d825b8b8d3fb2bc87213421a42210</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">6895a062e10b790e19a55952e634662f3135fa55</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Konami Game Collection - Volume #1</title>
@@ -8087,6 +8169,15 @@
 		<dump>
 			<original value="false"/>
 			<rom>
+				<hash algo="sha1">20efab45afd6be509ab4f8a012e67b094c196c73</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
 				<hash algo="sha1">aa95e2c196a59b67bede35366275a48557b1ae06</hash>
 				<remark>
 					<text>Ulver crack</text>
@@ -8168,6 +8259,13 @@
 				<remark>
 					<text>MSX1 Mode</text>
 				</remark>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>GameMaster2</type>
+				<hash algo="sha1">0099492bd11dfa3ddf87af3aeb4c92b29f78bd82</hash>
 			</megarom>
 		</dump>
 	</software>
@@ -8512,6 +8610,12 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">2dd728d7de1f83c1b60cdf480f1fc6b497bd3cd9</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">8d5fe498a25420de9f428265ebbb1fc2a6c0f2ca</hash>
 			</rom>
 		</dump>
 	</software>
@@ -9142,6 +9246,12 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">5628514e2488ccb15ae464e7f210dcabbb782b91</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">778472f9113eb6a80144cc717151eb48474b9d34</hash>
 			</rom>
 		</dump>
 	</software>
@@ -10110,6 +10220,12 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">9e1633ec4492a01ad654d0a08651daa5ababd940</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">be42c55ffebc1aea524475128cb687e2afe8e2e4</hash>
 			</rom>
 		</dump>
 	</software>
@@ -11286,6 +11402,12 @@
 				<hash algo="sha1">ae8c7355c829248305384243f78a870453367e77</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">02943609157b14cb036c13388093af7de0033b48</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Pitfall!</title>
@@ -11660,6 +11782,12 @@
 				<hash algo="sha1">d5674f0217031d4bfab9c53393c18036a9707b72</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">6f1774195b8db0ba34af5e16ef94700d1714e011</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Queen&#39;s Golf</title>
@@ -11936,6 +12064,15 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">da55d2b5de5d6b04a55d901911c9fa7776fd0159</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">a1d4461adf060d685c4a7e4201a38b5e24a03dee</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -13521,6 +13658,13 @@
 				<hash algo="sha1">a3e8e076b9c8d4060082233a2f16184cf4911a85</hash>
 			</megarom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Konami</type>
+				<hash algo="sha1">dacc9ed6a80fb15c3e82c4081c07211e033ba820</hash>
+			</megarom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Super Boy I</title>
@@ -13532,6 +13676,12 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">d86b5f30154b472d6f61a3784303d5ac328f4435</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">8b65d999ba187c98ba97a038ea46655fd9d62deb</hash>
 			</rom>
 		</dump>
 	</software>
@@ -13699,6 +13849,12 @@
 				<hash algo="sha1">34716d19c216436edb8d68c69f5b779a70250168</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">056801516eb672b4e06de5ece88121734bdd4385</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Super Golf</title>
@@ -13738,6 +13894,16 @@
 			<megarom>
 				<type>GenericKonami</type>
 				<hash algo="sha1">81b85b1152a59bb10d0e0118f80f0a4ed363c785</hash>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>GenericKonami</type>
+				<hash algo="sha1">cf6fe49b28fcf81511f39fdf68f37af82bd724c0</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
 			</megarom>
 		</dump>
 	</software>
@@ -14420,6 +14586,15 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">a2109da08b1921c4b3b47c6847598d424581b508</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">7428159df6bf4ecc84a3ed9fb302b2da059475d7</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -15355,6 +15530,15 @@
 				</remark>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">372cdeff033701c86d3e01efe73c172af7492dd1</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Young Sherlock - The Legacy Of Doyle</title>
@@ -15858,6 +16042,16 @@
 				<hash algo="sha1">875a262be44a27a8357f170080fb8466c9599b62</hash>
 			</megarom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII16</type>
+				<hash algo="sha1">a8186cd3ef78662c87665df52026ecbae4866bfd</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
+			</megarom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Arctic</title>
@@ -16049,6 +16243,16 @@
 				<hash algo="sha1">8a65786d9c6b2fe7c1643c27316d6cbb35fbfd24</hash>
 			</megarom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>GenericKonami</type>
+				<hash algo="sha1">e58c1dd46067e2abaaf3ee6a70a7e5541a32017e</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
+			</megarom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Ashguine 3</title>
@@ -16075,6 +16279,16 @@
 			<megarom>
 				<type>GenericKonami</type>
 				<hash algo="sha1">32210a9cbbb51e30ff59ed44bf32e628fdf6c42c</hash>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>GenericKonami</type>
+				<hash algo="sha1">2e388978f765bc5fe1fa9a42e1f059de5053721d</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
 			</megarom>
 		</dump>
 	</software>
@@ -16577,6 +16791,16 @@
 				<hash algo="sha1">18eada2178fc1a89895087aa513305d1ba73c926</hash>
 			</megarom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Konami</type>
+				<hash algo="sha1">b45172e4628f68c32cd13c73cf17c4dd1bed1bb2</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
+			</megarom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Family Billiards</title>
@@ -16753,6 +16977,16 @@
 			<megarom>
 				<type>Konami</type>
 				<hash algo="sha1">fd71df03b0e9f3caf701ecfc6d5232060cab3b13</hash>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Konami</type>
+				<hash algo="sha1">273a3dab994b5b9c975fd12711dd19e0c6367caa</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
 			</megarom>
 		</dump>
 		<dump>
@@ -17130,6 +17364,16 @@
 			<original value="false"/>
 			<megarom>
 				<type>Konami</type>
+				<hash algo="sha1">45760316a4ebc74ddd55ee163c5aeaaafe965d2c</hash>
+				<remark>
+					<text>Vampier cheat</text>
+				</remark>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Konami</type>
 				<hash algo="sha1">7e5024e6e6aecd05ec6c885786a4aac287ed110b</hash>
 				<remark>
 					<text>Ulver crack</text>
@@ -17384,6 +17628,16 @@
 			<megarom>
 				<type>GenericKonami</type>
 				<hash algo="sha1">6d3008b97b48d99522e45056f52ed944e3d8e208</hash>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>GenericKonami</type>
+				<hash algo="sha1">11f1b9fda9a44f59a6de479aebc18fbc6347f5a7</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
 			</megarom>
 		</dump>
 	</software>
@@ -23191,9 +23445,9 @@
 	</software>
 </softwaredb>
 <!--
-Roms in this database : 2163
+Roms in this database : 2194
 Good MSX entries 		: 755
-SHA1 values 			: 2163
+SHA1 values 			: 2194
 CRC32 values 			: 0
-Parse time 5.508 seconds on Tue Feb 28 1:48:57 CET 2006
+Parse time 8.567 seconds on Tue Feb 28 5:00:17 CET 2006
  -->
