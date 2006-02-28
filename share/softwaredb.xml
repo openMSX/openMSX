@@ -1,14 +1,14 @@
-ï»¿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
 <!--
  The romdb.xml file contains information about rom mapper types
 																			 	
-	Â© 2004-2005 Benoit Delvaux	(Filling the database / testing games)			
-	Â© 2003 Nicolas Beyaert		(Initial database)								
-	Â© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
+	© 2004-2005 Benoit Delvaux	(Filling the database / testing games)			
+	© 2003 Nicolas Beyaert		(Initial database)								
+	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
-<softwaredb xml:lang="en" timestamp="1141000181">
+<softwaredb xml:lang="en" timestamp="1141087726">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -143,6 +143,12 @@
 				<hash algo="sha1">6b8a684ddbadd798a8e599449b823bceca9cdb58</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">e14970387aa8927256397cd35fd8c356a0502143</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">A1 Spirit - The Way To Formula 1</title>
@@ -188,6 +194,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">cb48969f27eaebf24c61f651399ec2433d85bcbc</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">2707dcf377066b3c1755c56cc4c2f953d82f6524</hash>
 			</rom>
 		</dump>
 	</software>
@@ -253,6 +265,12 @@
 				<hash algo="sha1">807676038cbba043b8099eba9c5840a4811a7e59</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">83ed71c0e245a35cc4c4f622a6c88c026140748f</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Alibaba And 40 Thieves</title>
@@ -276,6 +294,12 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">41b3b1830084ef00b61339c46c96bd0ef62cd6d3</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">f19712f0da98b5423ebec3150f5741dfa25acf85</hash>
 			</rom>
 		</dump>
 		<dump>
@@ -362,6 +386,12 @@
 		<year>1986</year>
 		<country>JP</country>
 		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">f294becf726a704ced1d7214f1c2b1edc77b6bf0</hash>
+			</rom>
+		</dump>
+		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">97e7d0ee40c7d6ce1a8edf7b06e5014e6745cfda</hash>
@@ -380,6 +410,19 @@
 				<remark>
 					<text>cheat version</text>
 				</remark>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Alpine Ski</title>
+		<system>MSX</system>
+		<company>Methodic Solutions</company>
+		<year>1987</year>
+		<country>NL</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">6e15b3d92191bf2c5ff07435c9849e31dad3ed1e</hash>
 			</rom>
 		</dump>
 	</software>
@@ -436,6 +479,15 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">27c40ec7013c1ad1f9a7e1ac1e0c8be99f1e703f</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">876c09450bc2b36a873e1733cfa31c6b9d080ba5</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -648,6 +700,45 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">ASM Cocar</title>
+		<system>MSX</system>
+		<company>MSX Informatica</company>
+		<year>1987</year>
+		<country>BR</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">194ff03c3063a852c831b034fe215208802b64cf</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">ASMSX Demo 1 - Fixed Point Arithmetic</title>
+		<system>MSX</system>
+		<company>Karoshi Corp.</company>
+		<year>2004</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">66acd2f8ef08dd4cb0dc7ef5176650fbf5828acf</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">ASMSX Demo 2 - TV</title>
+		<system>MSX</system>
+		<company>Karoshi Corp.</company>
+		<year>2004</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">87eb1620474039740bfe0e7e3bea09085d85f247</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Astro Marine Corps</title>
 		<system>MSX</system>
 		<company>Dinamic</company>
@@ -680,6 +771,12 @@
 		<company>Konami</company>
 		<year>1984</year>
 		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">c0476fab5ca3c69b381bb8c43efea1277d7a1b43</hash>
+			</rom>
+		</dump>
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
@@ -722,6 +819,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">c5f1897c416f62cd58cd6257282e3428155cd698</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">c6c64d803d65ce439d00034a86a570f8c77d18d5</hash>
 			</rom>
 		</dump>
 	</software>
@@ -775,6 +878,17 @@
 				<hash algo="sha1">1a6a751334c663fbfdf93f617a7d779f76f488ce</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">a7cf4cbe12c8956c0a51a5c2336fe70aee7f4a65</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Backgammon</title>
@@ -798,6 +912,19 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">2b8878609bcc0d1555ae250d621ba6e9df4afc52</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Baduk</title>
+		<system>MSX</system>
+		<company>-</company>
+		<year>19xx</year>
+		<country>KR</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">8301e32565cc81023c71da10f2f3e2f8befb7e3f</hash>
 			</rom>
 		</dump>
 	</software>
@@ -829,6 +956,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">6d73ee99ac367a2558fd9366af75ad39ed0d4e69</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">4e78689addca0c49befaeec29d096e331d4600b2</hash>
 			</rom>
 		</dump>
 		<dump>
@@ -873,6 +1006,41 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">5ed42deb02556f93024b7911b4ac17c6469a8340</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">ccf79dc89000d2c2ed45112a76a7cfce86fb1aff</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Bank Street Writer</title>
+		<system>MSX</system>
+		<company>Toshiba</company>
+		<year>1983</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">223661138586a1b024d6dba5e5fa67d6b7685884</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Barn Stormer</title>
+		<system>MSX</system>
+		<company>Electric Software</company>
+		<year>1986</year>
+		<country>GB</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">84c5cce8e8e74ab51c3c043075165679270bc5e7</hash>
 			</rom>
 		</dump>
 	</software>
@@ -988,6 +1156,12 @@
 		<dump>
 			<original value="false"/>
 			<rom>
+				<hash algo="sha1">532037fd92f7f1d34a47767416ce5c979a0694ad</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
 				<hash algo="sha1">0f214ea9e8d673ee0c66cb6615032e57920d588b</hash>
 			</rom>
 		</dump>
@@ -1021,6 +1195,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">1231984ae24bf35f9f38596b864420d8ccd3f30b</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">6da1c6693b67b0415be6de178bc5d319c0bef59d</hash>
 			</rom>
 		</dump>
 	</software>
@@ -1121,6 +1301,12 @@
 		<dump>
 			<original value="false"/>
 			<rom>
+				<hash algo="sha1">49f0e168020fddd254843c95b5e6bcf65bdc84ac</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
 				<hash algo="sha1">008e9b1447b7f321aa1f1b4ddf8e0ac0fd62c771</hash>
 			</rom>
 		</dump>
@@ -1180,6 +1366,21 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Block Tower</title>
+		<system>MSX</system>
+		<company>MSX-FAN</company>
+		<year>1992</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">d2ce76cddb6cc12dc68e9683b072fb57947ec172</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Blockade Runner</title>
 		<system>MSX</system>
 		<company>Toshiba Emi</company>
@@ -1233,6 +1434,12 @@
 				<hash algo="sha1">5c96169207e197237aa728d8ce4e24c0635d5904</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">b52b68e6aaa3be876b3349a32b388853ea32fbcc</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Boing Boing</title>
@@ -1263,6 +1470,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">e5171c368883de03fc8d75e61bf23d954ec1bba4</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">d83bb9d7f71de899a726af1180e2e766d39fe5a2</hash>
 			</rom>
 		</dump>
 	</software>
@@ -1311,6 +1524,12 @@
 		<dump>
 			<original value="false"/>
 			<rom>
+				<hash algo="sha1">8bcefc250be1c3a677de78e6af4d01d32fe4e5b8</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
 				<hash algo="sha1">6714e939f0592d3a97f995bfc6d7047242ebd123</hash>
 			</rom>
 		</dump>
@@ -1349,6 +1568,22 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">e700493e1c4c14f711e9c1c262fe3e8d76931ca3</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Bomber Man Special - Deluxe Edition</title>
+		<system>MSX</system>
+		<company>1986-2004</company>
+		<year>19xx</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">abe625e853cde9908a302f63da407d3e67c6e59e</hash>
+				<remark>
+					<text>Hudson - EVA</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -1504,6 +1739,25 @@
 				<hash algo="sha1">9b3be70492994320e185aae302cdb3841d7f518a</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">6097fb7194b64148287e654870c98eb0e2b33850</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Boulder Dash 2</title>
+		<system>MSX</system>
+		<company>Orpheus</company>
+		<year>1987</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">d28201ca9b7d062d37c62bc4d6212f2a0d3e1cb4</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Bouncing Block</title>
@@ -1587,6 +1841,21 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Bridge</title>
+		<system>MSX</system>
+		<company>MSX-FAN</company>
+		<year>1991</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">0d9a37ff931e5db2cdee2e0f312fd4bbef5cfd29</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Brother Adventure</title>
 		<system>MSX</system>
 		<company>Zemina</company>
@@ -1596,6 +1865,15 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">c64f2fad6417c64595bc204d843527e17a58776f</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">00a8aac8535a3387ae9bed5d8f4e2a21183666e0</hash>
+				<remark>
+					<text>h Stefano Motta</text>
+				</remark>
 			</rom>
 		</dump>
 		<dump>
@@ -1674,6 +1952,12 @@
 				<hash algo="sha1">b755d7db109cd0a9392accd1c83e6d995a8a04d6</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">7d53991b3d63ab97e2788769f1078eb557973500</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">C-So!</title>
@@ -1699,6 +1983,12 @@
 				<hash algo="sha1">b9ac3ac15b49eaabcb640cc6b48f4706e0f18246</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">cd69ce70747bc0deebba9fd307a07f5dfb926cc3</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Cabbage Patch Kids</title>
@@ -1710,6 +2000,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">c06de0eda82e1daa3ea3cbc5eba5d884fd0ce8e8</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">7b6e64511a55eed58ba04f34cf2547f7df631c33</hash>
 			</rom>
 		</dump>
 		<dump>
@@ -1762,6 +2058,12 @@
 				<hash algo="sha1">b36c925005f1e530cab2b5f6e2a5ddfd182c0140</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">aeca6948208b14d112b4733adedea02656b706a0</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Cannon Fighter</title>
@@ -1773,6 +2075,19 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">31d80470c8d23ec8b14256aa32f3d54dbc532d76</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Cannon Turbo</title>
+		<system>MSX</system>
+		<company>Takeru</company>
+		<year>1987</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">e997d8f02e413d2df5aed2bf7e79986c4c851d34</hash>
 			</rom>
 		</dump>
 	</software>
@@ -1805,6 +2120,12 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">bb7468dd32a160851b39121d24713b0b4e065c19</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">b272f73fe2cb27de212d6753af0e09812a707f0e</hash>
 			</rom>
 		</dump>
 	</software>
@@ -1861,6 +2182,12 @@
 		<dump>
 			<original value="false"/>
 			<rom>
+				<hash algo="sha1">4fd41171b6b43d51678590a59f004b0b9121751e</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
 				<hash algo="sha1">ab7354c9ced9782d572c4dd69249b76a1244e5ce</hash>
 			</rom>
 		</dump>
@@ -1875,6 +2202,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">5b17cb69697cf55dff1f0b8777e19d5abc1771fc</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">d4480639d6468e1919c43f4cd0a08e9ac60073dc</hash>
 			</rom>
 		</dump>
 	</software>
@@ -1948,6 +2281,15 @@
 				<hash algo="sha1">811dca8fc14a2b00f503fbef74fdeae4f2873d4c</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">42af8975ebad6fb3ed5c00c11a236fc49c184875</hash>
+				<remark>
+					<text>cheat version</text>
+				</remark>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Castle, The</title>
@@ -1965,6 +2307,15 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">615c08820b926e28b143cd7812852e011d3eeffb</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">b5b24db1a01ba6778b6768df15efb097fad5856f</hash>
+				<remark>
+					<text>cheat version</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -2007,6 +2358,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">0b9a870d1e6cc712a3efce2349fb1c1cf6902d22</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">de3035a159dbd910d4f390cc814e9e99fba94ee0</hash>
 			</rom>
 		</dump>
 		<dump>
@@ -2134,6 +2491,19 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">b5afee9c379017354fbefce797701efeeb30caea</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Cheat Master</title>
+		<system>MSX</system>
+		<company>MSX Engine</company>
+		<year>19xx</year>
+		<country>NL</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">80ada0241ded833e249c498d01b0bb54179e6643</hash>
 			</rom>
 		</dump>
 	</software>
@@ -2277,6 +2647,19 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Chuckie Egg</title>
+		<system>MSX</system>
+		<company>A&#38;F Software</company>
+		<year>1984</year>
+		<country>GB</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">53ed25cf66a6ed4b432fa7e4f10a6730ce6923be</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Chugaku Hisshu Eibunpo 1</title>
 		<system>MSX</system>
 		<company>Stratford CCC</company>
@@ -2301,6 +2684,12 @@
 				<hash algo="sha1">ae6d0efd55def94274f4cec459df8927d132675a</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">83dc4599fb6706059424695c58e7dd7b3041a846</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">City Connection</title>
@@ -2317,7 +2706,52 @@
 		<dump>
 			<original value="false"/>
 			<rom>
+				<hash algo="sha1">488a9aaed538c2a24088cbd6815d47414cff999f</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
 				<hash algo="sha1">07af8b1ec0786c44778f68ef3bb0b3d4793f42e3</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Classic Minesweeper</title>
+		<system>MSX</system>
+		<company>Karoshi Corp.</company>
+		<year>2004</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">d632a1f06a8018422fc9bc83ab26c501d34d447d</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Classic Pong 1st Version</title>
+		<system>MSX</system>
+		<company>Karoshi Corp.</company>
+		<year>2004</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">92727e6ecc52dfeca071673f0d58e964746899d2</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Classic Pong 2nd Version</title>
+		<system>MSX</system>
+		<company>Karoshi Corp.</company>
+		<year>2004</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">59a124ed38869892496fc12f14af404a422e162a</hash>
 			</rom>
 		</dump>
 	</software>
@@ -2415,6 +2849,12 @@
 				<hash algo="sha1">1cf39e12313ff3064353c136262f176a56ab20a6</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">f3434cae8631f2f9068b3624bfd1ed8ba4292370</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Comecocos</title>
@@ -2466,6 +2906,15 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">8cf06f93d4e8bcf7be04ae8532f72e6eec8ba2f1</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">553ed3a8577f25b6ee884ba78fba5454dd5cac36</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
 			</rom>
 		</dump>
 		<dump>
@@ -2539,6 +2988,15 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">2c0c71c549738d668518db317dd70aecefd4aa72</hash>
+				<remark>
+					<text>B.U.G. Sapporo - Sony</text>
+				</remark>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">c83ee585a2b5643fefa61d77cd4455d6aad7cb52</hash>
 				<remark>
 					<text>B.U.G. Sapporo - Sony</text>
 				</remark>
@@ -2793,6 +3251,12 @@
 			</rom>
 		</dump>
 		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">2f4fa99f80313358e43084490ec44f673268bc52</hash>
+			</rom>
+		</dump>
+		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">bbe8df034869a06cb263255ac04374de469c00ba</hash>
@@ -2851,6 +3315,19 @@
 				<type>Normal</type>
 				<start>0x4000</start>
 				<hash algo="sha1">c6f090882886dcf783e5b65bff75c5e034fbb2eb</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Custar</title>
+		<system>MSX</system>
+		<company>Hal</company>
+		<year>1984</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">f864f825b2270c3b98b3c04671a3ac5f2d95affa</hash>
 			</rom>
 		</dump>
 	</software>
@@ -2939,6 +3416,19 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Damspel</title>
+		<system>MSX</system>
+		<company>GP Versluis</company>
+		<year>19xx</year>
+		<country>NL</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">8c5cf2df5f0b9df67239161aa843d9804af46f0e</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Danger X4</title>
 		<system>MSX</system>
 		<company>Ascii</company>
@@ -2979,6 +3469,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">4b19979e01bab2289abb6034cb3c2d02c2e890d1</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">c5cd97eebe8ac90e57197f0df847f24e14779e2f</hash>
 			</rom>
 		</dump>
 		<dump>
@@ -3177,6 +3673,12 @@
 				<hash algo="sha1">8f27317f5eaa3ec7d5b63184808a6202cf036c0f</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">9a743e997179bafc51f04d422f0bf1e8b22fb1d5</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Donkey Kong</title>
@@ -3190,6 +3692,19 @@
 				<type>GenericKonami</type>
 				<hash algo="sha1">86fdfe9e26d6e77f41cbcb47e10e2f32e5518549</hash>
 			</megarom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Donpan</title>
+		<system>MSX</system>
+		<company>Colpax</company>
+		<year>1983</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">291108a63e8aaaf06997bee7e988f89b0a7bb187</hash>
+			</rom>
 		</dump>
 	</software>
 	<software>
@@ -3213,6 +3728,12 @@
 		<dump>
 			<original value="false"/>
 			<rom>
+				<hash algo="sha1">8bb260181c404222e67f37ce84a252c5777472bc</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
 				<hash algo="sha1">83fce8c3e4843c4b1782b9ef83413c98f081d12e</hash>
 			</rom>
 		</dump>
@@ -3227,6 +3748,19 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">19c610339c0480c3d2d0d1c21e3ccbf2179bb191</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Double Dragon</title>
+		<system>MSX</system>
+		<company>Zemina</company>
+		<year>1989</year>
+		<country>KR</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">6724b2abce8145609333c8b2964de0f1a90d9cd5</hash>
 			</rom>
 		</dump>
 	</software>
@@ -3259,6 +3793,12 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">533dc6d28ca60c090740879dcb3cfa386544ee45</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">0a04143b9357c6f2f0dc177c2acc5b27562e2a76</hash>
 			</rom>
 		</dump>
 	</software>
@@ -3575,6 +4115,21 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Eat Blue! 2004 2nd version</title>
+		<system>MSX</system>
+		<company>Paxanga Soft</company>
+		<year>2004</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x8000</start>
+				<hash algo="sha1">373319d9dbadc959dd953894be16663788918655</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Eddy 2</title>
 		<system>MSX</system>
 		<company>Hal</company>
@@ -3622,6 +4177,15 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">6cbddd118afe63e79cb8a40f8aa879df1c7590e1</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">e9ca3d6a21092ec8d6933279dc6c96f3927f3b15</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
 			</rom>
 		</dump>
 		<dump>
@@ -3677,6 +4241,14 @@
 				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">ded8d969542b7be02524037fa244e6648c3f4e03</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x8000</start>
+				<hash algo="sha1">a059f6fb5ffd3762010b9743518833499fe2205f</hash>
 			</rom>
 		</dump>
 	</software>
@@ -3793,6 +4365,19 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Extra</title>
+		<system>MSX</system>
+		<company>Colpax</company>
+		<year>19xx</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">4ab3c16e32a3a0f4373e24cd47cd2805013f2f65</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">F1 Spirit - The Way To Formula 1</title>
 		<system>MSX</system>
 		<company>Konami</company>
@@ -3859,6 +4444,12 @@
 				<hash algo="sha1">5c7a13b64b48065231f05c35b4c8b209534f3a8b</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">b11b93add30086ce00d2126252893700ca6fd82b</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Fa Tetris</title>
@@ -3902,6 +4493,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">edd61208e11149e226cd2eddf5c9eca8ee1ba33e</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">442047058fe0f290f8022ac88d18e5407ea6068c</hash>
 			</rom>
 		</dump>
 	</software>
@@ -4057,6 +4654,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">9bca89c71c033bb9a85ee30cf75960ec839c0462</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">068e5cd232a794f7e203e5316a3ad2bcc7f3c939</hash>
 			</rom>
 		</dump>
 		<dump>
@@ -4292,6 +4895,12 @@
 				<hash algo="sha1">49bfa9871bb0ad3b47a7c63b14a10e0e8ae48a52</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">097cae3bf23e1f387b2c9708fbfc324ddd88837c</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">FM Music Composer</title>
@@ -4388,6 +4997,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">a194b845857c8b33ef4fd5e53d7f38150b4fa4cf</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">c84487e485b8739ec75e09a031f84260fb0e319c</hash>
 			</rom>
 		</dump>
 		<dump>
@@ -4505,6 +5120,15 @@
 			</rom>
 		</dump>
 		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">817019ca70a0f72d294eaa87ed3cb194b99ceb58</hash>
+				<remark>
+					<text>a</text>
+				</remark>
+			</rom>
+		</dump>
+		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">2a34f0221193712c43f336f08d2a6e58a1a8974a</hash>
@@ -4573,6 +5197,16 @@
 			<megarom>
 				<type>ASCII16</type>
 				<hash algo="sha1">abe52920e895c148851649ecb9c029fdc41a275f</hash>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII16</type>
+				<hash algo="sha1">c3c67787e2a69e2fdc739d8d1542726ec4ee7c47</hash>
+				<remark>
+					<text>cheat version</text>
+				</remark>
 			</megarom>
 		</dump>
 	</software>
@@ -4729,6 +5363,12 @@
 		<year>1984</year>
 		<country>JP</country>
 		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">ea62733ce2a8cd17ff6652251d6879c13fe6377a</hash>
+			</rom>
+		</dump>
+		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">ba30ad98a8488bec6d0c661f7b859beb2fe219d1</hash>
@@ -4786,6 +5426,16 @@
 		<company>Konami</company>
 		<year>1988</year>
 		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">f416b424fb913ca067fe75279c924a20fac5c6a1</hash>
+				<remark>
+					<text>Needs SCC in slot 2</text>
+				</remark>
+			</megarom>
+		</dump>
 		<dump>
 			<original value="true">GoodMSX</original>
 			<megarom>
@@ -4924,6 +5574,16 @@
 		<dump>
 			<original value="false"/>
 			<megarom>
+				<type>ASCII16</type>
+				<hash algo="sha1">d2ccc4a8de5da21745209d0731671e8f3cbea515</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
 				<type>Konami</type>
 				<hash algo="sha1">91505fccdcc43230550d101967010bed27f9b573</hash>
 			</megarom>
@@ -4987,6 +5647,12 @@
 		<dump>
 			<original value="false"/>
 			<rom>
+				<hash algo="sha1">4624af3dea3996f70d860dfdbd1a8844b8cf43ec</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
 				<hash algo="sha1">3ceb18ccdd8153aa260f287f5de4460601040ab6</hash>
 				<remark>
 					<text>Ulver crack</text>
@@ -5004,6 +5670,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">2dacf7a08857cbdc706d24b4a46665113d16ff99</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">fa7178686ddf5dd2898c9453d8bb2c0b83984c73</hash>
 			</rom>
 		</dump>
 		<dump>
@@ -5047,6 +5719,12 @@
 				<hash algo="sha1">eadf124b91b996b890b1ae84b75b21ee6568d1f3</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">dc49e2ac9985a417078412cc09fe7270033ffb17</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Gradius - Nemesis</title>
@@ -5054,6 +5732,13 @@
 		<company>Konami</company>
 		<year>1986</year>
 		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">50efb7040339632cf8bddbc1d3eaae1fb2e2188f</hash>
+			</megarom>
+		</dump>
 		<dump>
 			<original value="true">GoodMSX</original>
 			<megarom>
@@ -5102,6 +5787,16 @@
 		<company>Konami</company>
 		<year>1987</year>
 		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">2ae97f3c8152f56695c3d3a2dedaa781bf0a15f1</hash>
+				<remark>
+					<text>Needs SCC in slot 2</text>
+				</remark>
+			</megarom>
+		</dump>
 		<dump>
 			<original value="true">GoodMSX</original>
 			<megarom>
@@ -5173,6 +5868,19 @@
 				<type>KonamiSCC</type>
 				<hash algo="sha1">6844758ff5c2c410115d4d7cf12498c42e931732</hash>
 			</megarom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Graphics Editor</title>
+		<system>MSX</system>
+		<company>Electric Software</company>
+		<year>1985</year>
+		<country>GB</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">711e03c6620ba574f98f8954f1750cdcafd60d14</hash>
+			</rom>
 		</dump>
 	</software>
 	<software>
@@ -5278,6 +5986,12 @@
 				<hash algo="sha1">cf4c1a4df0a55c4a0cf33436e649f32e5857b5cc</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">ea151b443c27b77ac43fdae99db3adb0abf43fbb</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Grog&#39;s Revenge - Ruote E Cavernicoli</title>
@@ -5338,6 +6052,12 @@
 		<dump>
 			<original value="false"/>
 			<rom>
+				<hash algo="sha1">0b474ac53701ff0d53d30e0990faa76fcca90f39</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
 				<hash algo="sha1">50f61894c2f519fa369d7b925de7d52b708dde29</hash>
 			</rom>
 		</dump>
@@ -5377,6 +6097,45 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">f2ec3714138175212b6b6e28b5da4361cc4b5471</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Guru Logic 1st version</title>
+		<system>MSX</system>
+		<company>Karoshi Corp.</company>
+		<year>2003</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">be6087399419e2539751faf3aa079c45fcd590c7</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Guru Logic 2nd version</title>
+		<system>MSX</system>
+		<company>Karoshi Corp.</company>
+		<year>2003</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">a355e49523edce5f15ebf92b8320ffa6523c1382</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Gyro Adventure</title>
+		<system>MSX</system>
+		<company>Colpax</company>
+		<year>1984</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">dd92634209338632401e2b6f118cbaaa5f8add86</hash>
 			</rom>
 		</dump>
 	</software>
@@ -5446,6 +6205,32 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Hal Gamecase</title>
+		<system>MSX</system>
+		<company>JAM</company>
+		<year>2002</year>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">10758fb5d42b97a05b537db9b009bd644c153c93</hash>
+			</megarom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Hal Music</title>
+		<system>MSX</system>
+		<company>Hal</company>
+		<year>19xx</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">984966dc32808afad67c846024aa2889df20d6e2</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Hanafuda Koi Koi - Gostop Godori</title>
 		<system>MSX</system>
 		<company>Ramsoft</company>
@@ -5461,6 +6246,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">301ef3c728041eb1dfd89227a901c32eb000d348</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">9b2df344baa306589af86bddf2ce373b6c66e60e</hash>
 			</rom>
 		</dump>
 	</software>
@@ -5527,6 +6318,12 @@
 				<hash algo="sha1">8f35c41a5235dec22c3b99cd6dd63cfda0a7a821</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">978aa035cc57a6b63d8bbcafcb310ebb2436dd87</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Hayabusa - Moonsweeper</title>
@@ -5540,6 +6337,26 @@
 				<hash algo="sha1">f93e23d958d2075bf476cb05a3c4f48d0c41aabb</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">0d7370794507150d78825e5bc20553bea034c309</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Head Over Heels</title>
+		<system>MSX</system>
+		<company>Ocean</company>
+		<year>1987</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII16</type>
+				<hash algo="sha1">26a7b0118d158e9bd3ea947fbe68f57b54e0b847</hash>
+			</megarom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Heavy Boxing</title>
@@ -5551,6 +6368,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">69bc7cb436ea2ea3a6b49c3b050bae24271a2f9c</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">3b697fd0424848e23d9d21ef97d47d2716bb08f6</hash>
 			</rom>
 		</dump>
 		<dump>
@@ -5570,6 +6393,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">20191b437958e990d14660f476c340e140236c70</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">70eaf556b2f9f077895d2b72ebe880e2f9213b81</hash>
 			</rom>
 		</dump>
 	</software>
@@ -5623,6 +6452,41 @@
 				<hash algo="sha1">3c2295fb9fc9f1b6a607a74f4538e24d170522e5</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">eade20a0145afd47ec3551825e9994fa29e17e22</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Hit-Bit Demo</title>
+		<system>MSX</system>
+		<company>Sony</company>
+		<year>1984</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">fc2a86cd2c24e2acce77a6d3e491821a03dccdfa</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Hit-Bit Personal Databank</title>
+		<system>MSX</system>
+		<company>Sony</company>
+		<year>1984</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">4b0c1dedc44cd1813b274162093f713e895973c1</hash>
+				<remark>
+					<text>hacked</text>
+				</remark>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Hitsuji Yai - Preety Sheep</title>
@@ -5662,6 +6526,12 @@
 			</rom>
 		</dump>
 		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">030b6ea534f2285b57b8740c0dcb4c8bf92ed7c7</hash>
+			</rom>
+		</dump>
+		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">4f73d4b731b8309145b2a9bf9c37620e4f4a391c</hash>
@@ -5680,6 +6550,12 @@
 		<company>Hal</company>
 		<year>1985</year>
 		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">8d3f5cb0d2d23b4a3079f4f139e72173aee18105</hash>
+			</rom>
+		</dump>
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
@@ -5732,6 +6608,58 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Hot-Assembler</title>
+		<system>MSX</system>
+		<company>Epcom</company>
+		<year>1985</year>
+		<country>BR</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">7f189caa1f0c30760707e05c13bc50c3fb3ac441</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Hot-Logo</title>
+		<system>MSX</system>
+		<company>Epcom</company>
+		<year>1986</year>
+		<country>BR</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">abb5cd4c8bdde234cadb0e10b794be3249dc51a5</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Hot-Plan</title>
+		<system>MSX</system>
+		<company>Epcom</company>
+		<year>1986</year>
+		<country>BR</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">ac1096e7b725830e61213b2b26310ff322df2946</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Hunch Back</title>
+		<system>MSX</system>
+		<company>Ocean</company>
+		<year>1984</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">e6ba49603707c929291c39fbdf866474bf096316</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Hurry Fox MSX Special</title>
 		<system>MSX</system>
 		<company>Micro Cabin</company>
@@ -5775,6 +6703,19 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">e06ed9b0b3e1fbb9f27be65c37b4d9b548889b4f</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Hustler</title>
+		<system>MSX</system>
+		<company>Bubble Bus</company>
+		<year>1984</year>
+		<country>GB</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">9ae54a8a5badd3edbcb6b693df1821d15efbd9c9</hash>
 			</rom>
 		</dump>
 	</software>
@@ -5838,7 +6779,15 @@
 		<system>MSX</system>
 		<company>Methodic Solutions</company>
 		<year>1987</year>
-		<country>GB</country>
+		<country>NL</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">6ad2f111227d6d4659f0089b9397896d16f867a0</hash>
+			</rom>
+		</dump>
 		<dump>
 			<original value="false"/>
 			<rom>
@@ -5882,6 +6831,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">7dfe091e02f6c1b21bd65e44eb5052d564d0ef92</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">708eef06a0b5aca90dda120877b1cc3a5172a642</hash>
 			</rom>
 		</dump>
 		<dump>
@@ -5944,6 +6899,12 @@
 				<hash algo="sha1">9cab6a793e39076e3f598aa54bffd5585ddc7e3e</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">4f6c94cee6550b1619813eaacd88af02ebde51dc</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Hyper Sports 2</title>
@@ -5957,6 +6918,12 @@
 				<hash algo="sha1">9002aa0b2d49a9fc323180487ff591781867a99c</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">1c6b2b81552590e82d3205afbde93653fa449429</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Hyper Sports 3</title>
@@ -5964,6 +6931,12 @@
 		<company>Konami</company>
 		<year>1985</year>
 		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">1e429b73af3d9e9ae0718d88405a7b7edd0a24f2</hash>
+			</rom>
+		</dump>
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
@@ -6031,6 +7004,32 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Ideabase</title>
+		<system>MSX</system>
+		<company>Idealogic</company>
+		<year>1986</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">a649e98ede62e7cae982779d60674eea9eb7180e</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Ideatext</title>
+		<system>MSX</system>
+		<company>Idealogic</company>
+		<year>1986</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">dc39adf9f825e2f55fa7e6c1bb69483cbbec2695</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Iga Ninpouten 1</title>
 		<system>MSX</system>
 		<company>Casio</company>
@@ -6055,6 +7054,12 @@
 				<hash algo="sha1">f52113b45062adc75cf7a0ed0538b3a07696cc24</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">3bb48bedf53a781f0470e0bb5ad2e7bba785310e</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Illigks Episode 1 - Theseus</title>
@@ -6071,6 +7076,12 @@
 		<dump>
 			<original value="false"/>
 			<rom>
+				<hash algo="sha1">17e39a9a38c70608984b4d14f4948f35d131c816</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
 				<hash algo="sha1">7d1c7b99c73ff9d89cced66f50ee2f8c83809881</hash>
 			</rom>
 		</dump>
@@ -6078,6 +7089,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">8aa6d0aadf00de9112696da5b7dc6e3b62f2d9be</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">f9201b7b99a6cb4d8c847e30dc2617d4243be8e7</hash>
 			</rom>
 		</dump>
 	</software>
@@ -6149,6 +7166,15 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">617933101a195d1f52aba6444930cfe453e6e50a</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">1dd7fe1d71354a8b2c2df315ac442b9ce3583b3c</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -6237,6 +7263,19 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Jet Bomber</title>
+		<system>MSX</system>
+		<company>Aackosoft</company>
+		<year>1985</year>
+		<country>NL</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">53c6655b0ea7c07101018879f3bf60de071c247b</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Jet Set Willy</title>
 		<system>MSX</system>
 		<company>Hudson</company>
@@ -6252,6 +7291,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">45b5b0e9dd8d11d034e09803f92ec9720cda1e3c</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">1b4f56a1d6d17324e4145fb77f3291a1a4e6f42d</hash>
 			</rom>
 		</dump>
 	</software>
@@ -6306,6 +7351,12 @@
 				<hash algo="sha1">39ef139d8d66fb18b04dff8b9a5386011f497479</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">633700d11fc36ccdab118dafd4f7e71e3eca2f46</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Jump Coaster</title>
@@ -6329,6 +7380,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">a53d1ea775a6c90a84f1f36349540b16cf8307e4</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">60a938d41398970a99a14c847521fca36d588009</hash>
 			</rom>
 		</dump>
 	</software>
@@ -6386,6 +7443,12 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">4ad170c5dfadc6a811cd5b8dc4c99be656ceff56</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">6ebe5e2ed0fd84091ef1a32e44c1353f049ac085</hash>
 			</rom>
 		</dump>
 		<dump>
@@ -6467,6 +7530,12 @@
 				<hash algo="sha1">ffc8c57b26f2f495bd77efac5b815efe9c25336c</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">76a67138d445557e0c079424acdff3c60423d8ec</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Kakikukekon</title>
@@ -6509,6 +7578,19 @@
 				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">223337db25c942ece732214aba5dd624b574e9c4</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Karoshi Game Collection</title>
+		<system>MSX</system>
+		<company>Karoshi Corp.</company>
+		<year>2004</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">5c61a12d490d5e1d97da5e74ac40311e9725ca20</hash>
 			</rom>
 		</dump>
 	</software>
@@ -6709,6 +7791,12 @@
 				<hash algo="sha1">07448ffb20f260df159a19df2cae1ee5545a0aef</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">de4e210e6f757efc45e66be66b14cd6ec21b2ba7</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">King&#39;s Valley 2 - MSX1 Version</title>
@@ -6740,6 +7828,18 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">bf7e27b3456f1a96d94a8dbf06688c8f833bd818</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">9da5878205d58fbcc641c5f10da1aa2dc450ec97</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">7f16f43b2197f9bcc65c564c1485034797abacb6</hash>
 			</rom>
 		</dump>
 	</software>
@@ -6833,6 +7933,21 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Knuckle Joe</title>
+		<system>MSX</system>
+		<company>Prosoft</company>
+		<year>1989</year>
+		<country>KR</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">6147f63a319b44b60259b35a75b1c083280b92ea</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Kobashi</title>
 		<system>MSX</system>
 		<company>Desire In Envy</company>
@@ -6843,6 +7958,61 @@
 			<rom>
 				<hash algo="sha1">e0854e9322c113ecbccf61f9de1c0a59bda03d23</hash>
 			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Koedoli</title>
+		<system>MSX</system>
+		<company>Mickey Soft</company>
+		<year>1988</year>
+		<country>KR</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">076f4b6d3f6d825b8b8d3fb2bc87213421a42210</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Konami Game Collection - Volume #1</title>
+		<system>MSX</system>
+		<company>Konami</company>
+		<year>1988</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>KonamiSCC</type>
+				<hash algo="sha1">728340e95ad58ab989a59f61317a45ab1f6b0bdc</hash>
+			</megarom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Konami Game Collection - Volume #2</title>
+		<system>MSX</system>
+		<company>Konami</company>
+		<year>1988</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>GenericKonami</type>
+				<hash algo="sha1">ee533b8e4bdd6cdf2c273f7c80753cf8db60f545</hash>
+			</megarom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Konami Game Collection - Volume #4</title>
+		<system>MSX</system>
+		<company>Konami</company>
+		<year>1988</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>KonamiSCC</type>
+				<hash algo="sha1">f2eef7402d2e6e7f7c15a1f3d8bd251603eabf12</hash>
+			</megarom>
 		</dump>
 	</software>
 	<software>
@@ -6873,6 +8043,12 @@
 		<dump>
 			<original value="false"/>
 			<rom>
+				<hash algo="sha1">fe31a9a3dab733f3d0edb24fea3cff93dc9df6ae</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
 				<hash algo="sha1">f9c85b434839f844072dc73abc8d16c930013f3f</hash>
 			</rom>
 		</dump>
@@ -6887,6 +8063,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">7adb6812f3702b93aa2b2a872722bbd40915670d</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">e3ac6a3ab223f5440bca5ea696e99669dd1f626d</hash>
 			</rom>
 		</dump>
 		<dump>
@@ -6961,8 +8143,15 @@
 		<title xml:lang="en">Konami&#39;s Game Master 2</title>
 		<system>MSX</system>
 		<company>Konami</company>
-		<year>1988</year>
+		<year>1987</year>
 		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8SRAM8</type>
+				<hash algo="sha1">f02281aa13cb34d2f10add301529b95adff7f768</hash>
+			</megarom>
+		</dump>
 		<dump>
 			<original value="false"/>
 			<megarom>
@@ -7032,6 +8221,12 @@
 			</rom>
 		</dump>
 		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">ebf474cf35a56e03771d0b17548b59feb2df0656</hash>
+			</rom>
+		</dump>
+		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">bcf72a4673c7982361db4efaf8ebc776b6539938</hash>
@@ -7041,6 +8236,12 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">5c7971aa8688ffc429a3e315dd3d45c38f72ddeb</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">d9634296511c599852aff0c6b9993509bcbc3bef</hash>
 			</rom>
 		</dump>
 	</software>
@@ -7054,6 +8255,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">f415e4096ff3f6a9f17bfbf02f146e44f0d5fb66</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">c23c342ff5274356a2d17d18272253d14fd8ffdf</hash>
 			</rom>
 		</dump>
 	</software>
@@ -7138,6 +8345,27 @@
 				<hash algo="sha1">2feff37d593683ce1c7dfac33ed3207895e01a03</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Synthesizer</type>
+				<hash algo="sha1">6a7faa122454ba34cbdb9f1a75a111a1a4763a56</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Konami&#39;s Synthesizer Sample Version</title>
+		<system>MSX</system>
+		<company>Konami</company>
+		<year>1986</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Synthesizer</type>
+				<hash algo="sha1">f25c416869372ac07abefad131fc732dfbe33a45</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Konami&#39;s Tennis</title>
@@ -7149,6 +8377,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">5f6972e9e374753faf092409f1ee10bba5231b66</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">27dc3ae8a5d6bef8532c9c210a44bbcbaad436d5</hash>
 			</rom>
 		</dump>
 		<dump>
@@ -7180,6 +8414,15 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">0039cff292fe740d8c87cc2131a473cbb4f8c4f4</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">000fbc401c7558d9c54a401c7875daa72ab76920</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -7224,6 +8467,12 @@
 		<dump>
 			<original value="false"/>
 			<rom>
+				<hash algo="sha1">1ff13030d171fb5f653664e5d11d0777884b2463</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
 				<hash algo="sha1">602c4d0d12fd59725c0c4e40f51d6bdeb679ea36</hash>
 			</rom>
 		</dump>
@@ -7256,6 +8505,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">e817ab7b50674c414b1c1b72530024eb03396a41</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">2dd728d7de1f83c1b60cdf480f1fc6b497bd3cd9</hash>
 			</rom>
 		</dump>
 	</software>
@@ -7542,6 +8797,15 @@
 				<hash algo="sha1">087afebb16bfd96f465fb0d004326d55452bdd81</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">71765b3095f4b9f2f04e553402e7406191506a8b</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Magical Stones</title>
@@ -7590,6 +8854,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">b82dc590aadc930b43db303bb3e3458e7695e3b5</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">f4b58fecbcbc8cd307c34806ecece2a204c26c65</hash>
 			</rom>
 		</dump>
 		<dump>
@@ -7810,6 +9080,19 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Maxixdados</title>
+		<system>MSX</system>
+		<company>Cibertron</company>
+		<year>19xx</year>
+		<country>BR</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">4c7dd4423ef40d5b929b360260fc86750abbe159</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Mayhem</title>
 		<system>MSX</system>
 		<company>Mr. Micro</company>
@@ -7832,6 +9115,45 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">fbbd9a77004f9bdbcfc292f85c32106faa18cfa6</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Maziacs</title>
+		<system>MSX</system>
+		<company>DK Tronics</company>
+		<year>1985</year>
+		<country>GB</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">7f26383fc61af7beb0176a64eb936bccee0d7a3b</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Mega Assembler 1.0</title>
+		<system>MSX</system>
+		<company>Cibertron</company>
+		<year>1987</year>
+		<country>BR</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">5628514e2488ccb15ae464e7f210dcabbb782b91</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Mega Assembler 1.1</title>
+		<system>MSX</system>
+		<company>Orion</company>
+		<year>1989</year>
+		<country>BR</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">ab29429f7d2df7ce4bab46d1d0f2b782df7f908e</hash>
 			</rom>
 		</dump>
 	</software>
@@ -8174,6 +9496,12 @@
 			</rom>
 		</dump>
 		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">3d840685daac4960ce3a6d0850a49044bf44c607</hash>
+			</rom>
+		</dump>
+		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">e61f407e51ea4411145e236272842bdb3e0743e6</hash>
@@ -8202,6 +9530,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">b6d39bbaedb89f8c908cc2f44a0ab17e4b80ca4f</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">1f7b822b47430a3d817a21af2ab95c3414b328a6</hash>
 			</rom>
 		</dump>
 	</software>
@@ -8258,6 +9592,12 @@
 			</rom>
 		</dump>
 		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">9255b2ac6d03fddf3df8880ec247dd3446e3209f</hash>
+			</rom>
+		</dump>
+		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">4a185a3db81c2ce20d176d13fa5f619c6b7a170c</hash>
@@ -8309,6 +9649,19 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Movit 2</title>
+		<system>MSX</system>
+		<company>EK</company>
+		<year>1985</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">7b6029bfd7cb4b9d4c5ec5b9b3e3c93d00558b5e</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Mr. Chef And The Sausages</title>
 		<system>MSX</system>
 		<company>Paxanga Soft</company>
@@ -8338,6 +9691,12 @@
 		<dump>
 			<original value="false"/>
 			<rom>
+				<hash algo="sha1">bd8227af9833b7c02fa8ecff6416b7cb9e3e1de4</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
 				<hash algo="sha1">15ba1ffa2f55730592258c9ff4b2d6f91c9ed0ba</hash>
 			</rom>
 		</dump>
@@ -8358,6 +9717,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">01544042b810c0b401fce5d180adb6fea9b5ed20</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">4cd78e26776b955eb27ac819c7eaf1f2645810ca</hash>
 			</rom>
 		</dump>
 		<dump>
@@ -8525,6 +9890,12 @@
 				<hash algo="sha1">35abd4a14033710730da72edf278aad42d641621</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">3d107526c16ebbd43bb0e9e5be030531d5466ab0</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">MSX Shogi Game</title>
@@ -8555,6 +9926,19 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">c76ca96ed23621a6267d9906cc4a1ee428677f98</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">MSX Swimming Game</title>
+		<system>MSX</system>
+		<company>-</company>
+		<year>19xx</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">a3a502afd3e65b1605260b3739b196f6fd0931e2</hash>
 			</rom>
 		</dump>
 	</software>
@@ -8690,11 +10074,58 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">MT-Debug</title>
+		<system>MSX</system>
+		<company>Micro Technology</company>
+		<year>1985</year>
+		<country>NL</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">5dacde48fed402b1ce9d0a41b2c126417bf5436b</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">MT-Display</title>
+		<system>MSX</system>
+		<company>Micro Technology</company>
+		<year>19xx</year>
+		<country>NL</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">32c06b6247a40863458481df60a8111551dbaefb</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Multitext</title>
+		<system>MSX</system>
+		<company>Victor Soft</company>
+		<year>19xx</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">9e1633ec4492a01ad654d0a08651daa5ababd940</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Music Editor</title>
 		<system>MSX</system>
 		<company>Hal</company>
 		<year>1984</year>
 		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x8000</start>
+				<hash algo="sha1">9f6103568e4c11224932a223bfc86fa0c3eef021</hash>
+			</rom>
+		</dump>
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
@@ -8803,6 +10234,25 @@
 				<hash algo="sha1">b7fd07b7825c6beeb19b1f38631d2869f60939fb</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">f8c6974260b4da94345295eee27d97a389abfe96</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Nestor Cartridge</title>
+		<system>MSX</system>
+		<company>N&#233;stor Soriano</company>
+		<year>19xx</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">f6314590061a6b44c5ed24f60ded13d8f2f7d95b</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">New Bubble Bobble</title>
@@ -8810,6 +10260,12 @@
 		<company>Zemina</company>
 		<year>1988</year>
 		<country>KR</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">223c1f5d38b54d4d5a58988223bb95df1998a620</hash>
+			</rom>
+		</dump>
 		<dump>
 			<original value="false"/>
 			<rom>
@@ -8868,6 +10324,12 @@
 				<hash algo="sha1">5dd2ac08fd05a1e091c7c6ecb6c10b49992bdd46</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">5b20c3e0b9f1f29149039d5246be881a6b0dfdb1</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Night Shade</title>
@@ -8911,6 +10373,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">ae52922a197a2f47c7fc4adf9dbfde13c136ed14</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">b7e279cd68faa5aee4434480feebdf189fb54e73</hash>
 			</rom>
 		</dump>
 	</software>
@@ -8989,6 +10457,15 @@
 				<hash algo="sha1">62bfff23e2beae00db14b6c3e933043218b33ded</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">152e4edc0cadeab783f4724c6539875d9c6ca018</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Ninjya Kage</title>
@@ -9000,6 +10477,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">0125bce373c95ee78df074d19ad032158edc74a2</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">0ebd63dd4405bc141ba3d17010d6d928979f19d5</hash>
 			</rom>
 		</dump>
 		<dump>
@@ -9033,6 +10516,19 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">be7cfd5ca5d78b99c05dbda1e26f4afbddb50c48</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Nuts And Milk</title>
+		<system>MSX</system>
+		<company>Hudson</company>
+		<year>1983</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">aab3416aa54fa9b49e98c8286ba6a8f5093545d9</hash>
 			</rom>
 		</dump>
 	</software>
@@ -9078,6 +10574,19 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">5dcecc7c790e398a1c652db568c1e66c6f25e5e4</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Odyssey-K</title>
+		<system>MSX</system>
+		<company>Kamiya Studio</company>
+		<year>19xx</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">23b9dfdd7789fcca1fd2d395ee9e377807b76c9a</hash>
 			</rom>
 		</dump>
 	</software>
@@ -9141,6 +10650,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">41ba54c945104915ccc8d465930445c905d839e4</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">3f4dd4b459f12306fe36864344af0b35f8c5d3b4</hash>
 			</rom>
 		</dump>
 	</software>
@@ -9435,6 +10950,12 @@
 				<hash algo="sha1">5f965bbba026134818759d25119d4114599132a8</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">536e6ca8baaa19250b1272a70b68dd11ffc97047</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Peetan</title>
@@ -9469,6 +10990,19 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Penguin Race</title>
+		<system>MSX</system>
+		<company>Dioniso</company>
+		<year>2003</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">a2d2e98f68042b32f3225b58c9989529d5efacdc</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Penguin-Kun Wars 1</title>
 		<system>MSX</system>
 		<company>Ascii</company>
@@ -9496,6 +11030,15 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">6c0d3a55f9e8e9c274413d06f4729bc517f77ff5</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">086915645d703f20274aac7307f61f73cc56545c</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -9528,6 +11071,19 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">336a7c451a03c9a55726d171603b54628ad832c8</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Picture Puzzle 1st version</title>
+		<system>MSX</system>
+		<company>Karoshi Corp.</company>
+		<year>2004</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">9c9da64f7b0ad20b0d699bbb254ae20666867176</hash>
 			</rom>
 		</dump>
 	</software>
@@ -9587,6 +11143,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">878554d3b579e72b2d3c22e6330208ee0d1ee8a6</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">c69c5b26eb3fb5e103a887c96e702ea4acafb75a</hash>
 			</rom>
 		</dump>
 	</software>
@@ -9675,6 +11237,12 @@
 		<dump>
 			<original value="false"/>
 			<rom>
+				<hash algo="sha1">b1e6299c4711d2f571b72f11d3b1aeb23eb99b64</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
 				<hash algo="sha1">416d97741622ff3ffab2da5021a3bde3bbc07061</hash>
 			</rom>
 		</dump>
@@ -9703,6 +11271,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">78079266711e60420480e4d95a39f0d7d974ad32</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">f9a8731b7b978b6eb5310aa9bf644fae5a9015b3</hash>
 			</rom>
 		</dump>
 		<dump>
@@ -9831,6 +11405,19 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Presto</title>
+		<system>MSX</system>
+		<company>Aackosoft</company>
+		<year>1986</year>
+		<country>NL</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">e9c35caa8544f81d927cb610e850085e5d81ceca</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Price Of Magik, The</title>
 		<system>MSX</system>
 		<company>Level 9 Computing</company>
@@ -9901,6 +11488,67 @@
 				<hash algo="sha1">fc4c05ca47c94df877bed2e02307bd6307f738a6</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">c2a1ea76f3e3517f9952e495395b8fcc820c7420</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">PSG Sampler 1st version</title>
+		<system>MSX</system>
+		<company>Karoshi Corp.</company>
+		<year>2004</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">9c26a5a89f543050db2d614f8405c659f5baae08</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">PSG Sampler 2nd version</title>
+		<system>MSX</system>
+		<company>Karoshi Corp.</company>
+		<year>2004</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">c80228bd14f149dbccf57bf9c00f34a4df953d85</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">PSG Sampler 3rd version</title>
+		<system>MSX</system>
+		<company>2005</company>
+		<year>19xx</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">f6eb344408fbf69332fdf865a8c213455f0a024c</hash>
+				<remark>
+					<text>Karoshi Corp.</text>
+				</remark>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">PSG Sound Test</title>
+		<system>MSX</system>
+		<company>Manuel Pazos</company>
+		<year>2004</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">f36af9ea08780ebfb194337ccc869aebab65ac66</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Psychedelia</title>
@@ -9939,6 +11587,19 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">dcfd673926a1c10cf4bada731d072d3f6ce29c44</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Puznic</title>
+		<system>MSX</system>
+		<company>Zemina</company>
+		<year>1990</year>
+		<country>KR</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">3b9df9bf57ac9d8f155c623c8ed6057a79491738</hash>
 			</rom>
 		</dump>
 	</software>
@@ -9992,6 +11653,12 @@
 				<hash algo="sha1">531a7f736d86095d791d6d0f267be66eef07949c</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">d5674f0217031d4bfab9c53393c18036a9707b72</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Queen&#39;s Golf</title>
@@ -10032,6 +11699,13 @@
 				<remark>
 					<text>MSX1 Mode</text>
 				</remark>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>R-Type</type>
+				<hash algo="sha1">9b6cb224f2a7a4af69221f1280d3344a5c88450e</hash>
 			</megarom>
 		</dump>
 	</software>
@@ -10132,6 +11806,38 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Rambo Plus - 1st version</title>
+		<system>MSX</system>
+		<company>Pack In Video</company>
+		<year>1985</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">1efcf9e9a8ea38bad319a70a5f7319e2589d4a8b</hash>
+				<remark>
+					<text>h RicBit</text>
+				</remark>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Rambo Plus - 2nd version</title>
+		<system>MSX</system>
+		<company>Pack In Video</company>
+		<year>1985</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">1a90b7c7f24bb7fa93c84bde2d1b655e30c4a7cb</hash>
+				<remark>
+					<text>h RicBit</text>
+				</remark>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Real Tennis</title>
 		<system>MSX</system>
 		<company>Takara</company>
@@ -10141,6 +11847,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">54a49a3c8b42b8b246e62ed45346cf52836ddcac</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">c964e2a3b63e1261c1daec4b4d8bb8e74018e0be</hash>
 			</rom>
 		</dump>
 	</software>
@@ -10213,6 +11925,15 @@
 		<dump>
 			<original value="false"/>
 			<rom>
+				<hash algo="sha1">3242e7b1320aa1c69c58faded826ab0fae5ad970</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
 				<hash algo="sha1">da55d2b5de5d6b04a55d901911c9fa7776fd0159</hash>
 			</rom>
 		</dump>
@@ -10227,6 +11948,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">a1e14912d45944b9a6baef1d4d3a04c1ae8df923</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">6d3d2cad90f3e0389b11780e1b43a728216d3c7b</hash>
 			</rom>
 		</dump>
 		<dump>
@@ -10391,6 +12118,19 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">RSC Ensemblador</title>
+		<system>MSX</system>
+		<company>Manhattan Transfer</company>
+		<year>19xx</year>
+		<country>BR</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">993ba63b06e855ba7294bea25b4250bf2a63fab5</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Saimazoom</title>
 		<system>MSX</system>
 		<company>Karoshi Corporation</company>
@@ -10549,6 +12289,12 @@
 		<dump>
 			<original value="false"/>
 			<rom>
+				<hash algo="sha1">73f2ddb61f15fcbd143e20e3520df8d73e98dedb</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
 				<hash algo="sha1">1709541ac30634323392e5098d47d1f644dbfc09</hash>
 			</rom>
 		</dump>
@@ -10578,6 +12324,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">09fbbd923e0deb82f5e20fa8ce2d842adbf4a646</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">ca0f156e66016c72681754d7d9a6da5685e48247</hash>
 			</rom>
 		</dump>
 	</software>
@@ -10622,6 +12374,19 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Screen Copy</title>
+		<system>MSX</system>
+		<company>Epson</company>
+		<year>1985</year>
+		<country>BR</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">033f5c35c5ddce6cef8b53faac2edd85047e5805</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Sea Hunter</title>
 		<system>MSX</system>
 		<company>DynaData</company>
@@ -10644,6 +12409,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">530ecff542a537c320b17bd5d64c86d5d65619f3</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">da95bcd1f0c28683cfb4a7a2c10599261dca3622</hash>
 			</rom>
 		</dump>
 		<dump>
@@ -10791,6 +12562,12 @@
 				<hash algo="sha1">d844c4c5ae9c7ac671c4be71ac1190a1e5db4d36</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">2a9430fc0ca601cca12f860cecf9fee32e2a9ff4</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Simple ASM 1.0</title>
@@ -10802,6 +12579,15 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">4937a8e35072012a980f85ecfc60604d9d900244</hash>
+				<remark>
+					<text>Tip : CALL START or CALL EDT</text>
+				</remark>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">938602b65bb04b941d67c453a948e1f18bbbf5ac</hash>
 				<remark>
 					<text>Tip : CALL START or CALL EDT</text>
 				</remark>
@@ -10973,6 +12759,12 @@
 		<dump>
 			<original value="false"/>
 			<rom>
+				<hash algo="sha1">e8959529a71ce9d580766dd2074b2c17cde34c2d</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
 				<hash algo="sha1">5398bfcc6bf60d393755a0edc15f3b9c14180b47</hash>
 			</rom>
 		</dump>
@@ -11009,6 +12801,32 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">e8dd2edf5b0db48eee729988731d11b167fe1dd3</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Snail Maze Beta 1 Version</title>
+		<system>MSX</system>
+		<company>Karoshi Corp.</company>
+		<year>2004</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">d81a4fee5bff14eda613fb72bc78429874bbb18f</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Snail Maze Beta 2 Version</title>
+		<system>MSX</system>
+		<company>Karoshi Corp.</company>
+		<year>2004</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">cf93e1f790c4bdf50b41ec0537dfb97ed0d11b21</hash>
 			</rom>
 		</dump>
 	</software>
@@ -11074,6 +12892,19 @@
 				<type>ASCII8</type>
 				<hash algo="sha1">3caeec19423a960d98e4719b301a3d276339e5ae</hash>
 			</megarom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Sony Test Cartridge</title>
+		<system>MSX</system>
+		<company>Sony</company>
+		<year>19xx</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">dee167d86c9d9d435b1410804055b561ffa2c6e3</hash>
+			</rom>
 		</dump>
 	</software>
 	<software>
@@ -11282,6 +13113,12 @@
 				<hash algo="sha1">b9c98b80216983f97e28293b576ca9be3602c1a1</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">5cc22b5cea25b1b00f6e32bcb58fbd49e7aeb641</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Spelunker</title>
@@ -11416,6 +13253,15 @@
 		<dump>
 			<original value="false"/>
 			<rom>
+				<hash algo="sha1">15193ca779ed9daf6950da70c155d7ca94767383</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
 				<hash algo="sha1">5fe86465119343804a722ce4768eb33de806a39f</hash>
 			</rom>
 		</dump>
@@ -11498,6 +13344,12 @@
 		<dump>
 			<original value="false"/>
 			<rom>
+				<hash algo="sha1">480d85e5325c8902966fdf226868eafc62de4663</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
 				<hash algo="sha1">2ebd7b784094097d9f0fbebe4e69be8ba9a08a5c</hash>
 			</rom>
 		</dump>
@@ -11527,6 +13379,12 @@
 				<hash algo="sha1">3950f22265139a84cf57f3c0936e7927173f3d7a</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">214cedb8f4689da150878ca6f4fcac31359c9766</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Strange Loop</title>
@@ -11538,6 +13396,19 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">3063bc3ac5af6d990d8d002acbc9c3a18bab71f6</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Stratos 1st version</title>
+		<system>MSX</system>
+		<company>CEZ Games Studio</company>
+		<year>2004</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">9613d00d89ce90334d9776db32b984ceeefdeeff</hash>
 			</rom>
 		</dump>
 	</software>
@@ -11568,6 +13439,23 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Street Master</title>
+		<system>MSX</system>
+		<company>1991-1992</company>
+		<year>19xx</year>
+		<country>KR</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">65da0e5c5de057a1ed836ec19b1f07e10f4b738f</hash>
+				<remark>
+					<text>Zemina</text>
+				</remark>
+			</megarom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Suparobo</title>
 		<system>MSX</system>
 		<company>Ascii</company>
@@ -11577,6 +13465,22 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">ccf6e244d27ec61195280d0915a3b43d291e3fad</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Super ASM</title>
+		<system>MSX</system>
+		<company>unkown</company>
+		<year>19xx</year>
+		<country>BR</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">89e71e7446589f4fa320f94b771cc1a0756ce196</hash>
+				<remark>
+					<text>Jos&#233; &#39;Alvaro Toledo Jr.</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -11594,6 +13498,41 @@
 				<hash algo="sha1">05d7016f39e94bf9fc33d0e8482ff3038d6e01bd</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x8000</start>
+				<hash algo="sha1">75794b50c0ea8ca33d6ffa8ec3b68eb21c35d0d2</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Super Bio Man 4 / Super Bros.World 1</title>
+		<system>MSX</system>
+		<company>Clover</company>
+		<year>19xx</year>
+		<country>KR</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Konami</type>
+				<hash algo="sha1">a3e8e076b9c8d4060082233a2f16184cf4911a85</hash>
+			</megarom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Super Boy I</title>
+		<system>MSX</system>
+		<company>Zemina</company>
+		<year>1989</year>
+		<country>KR</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">d86b5f30154b472d6f61a3784303d5ac328f4435</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Super Boy II</title>
@@ -11605,6 +13544,12 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">cd466c04209a8815a95d3723653e263a868de9e0</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">85153a8f25882cadde8295d040ddb7586c93cefe</hash>
 			</rom>
 		</dump>
 	</software>
@@ -11631,6 +13576,13 @@
 				</remark>
 			</megarom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Konami</type>
+				<hash algo="sha1">5d65a308bb9ec8c4b4ce334b18d699b1f53227ef</hash>
+			</megarom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Super Bubble Bobble</title>
@@ -11655,6 +13607,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">a84608f1c2fe1aea1a8a586f2e335cb64bb951fc</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">9fce4dde148a4a2e9cbb7731baf099d1d16e7c96</hash>
 			</rom>
 		</dump>
 		<dump>
@@ -11734,6 +13692,12 @@
 				<hash algo="sha1">82c68a93d01f103af4fe9f9205184ffd1a36a90f</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">34716d19c216436edb8d68c69f5b779a70250168</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Super Golf</title>
@@ -11766,6 +13730,13 @@
 			<megarom>
 				<type>Konami</type>
 				<hash algo="sha1">244399d67d7851f3daa9bb87a14f5b8ef6d8c160</hash>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>GenericKonami</type>
+				<hash algo="sha1">81b85b1152a59bb10d0e0118f80f0a4ed363c785</hash>
 			</megarom>
 		</dump>
 	</software>
@@ -11908,6 +13879,12 @@
 				<hash algo="sha1">4a1282901221207da79432fb0bcb4f1e722c8278</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">58fc860eb4e5c33b22d29a4a39650aea0f327b1e</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Super Tripper</title>
@@ -12002,6 +13979,19 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">T-Virus:Brain Dead! 1st version</title>
+		<system>MSX</system>
+		<company>Dioniso</company>
+		<year>2004</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">b98242b08c8779d86b516cca6d5d6e35ec3600e0</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">T-Virus:Brain Dead! 2nd version</title>
 		<system>MSX</system>
 		<company>Dioniso</company>
@@ -12032,6 +14022,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">d74c381ea17acb94527ef3abaa280793a824d322</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">2c86e339bb486a84baffee81e9eac06244363779</hash>
 			</rom>
 		</dump>
 		<dump>
@@ -12105,6 +14101,19 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Tape Gamecase</title>
+		<system>MSX</system>
+		<company>JAM</company>
+		<year>2002</year>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">a8ac24a702d2c850c7a15b5196893817b0c93123</hash>
+			</megarom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Tatica</title>
 		<system>MSX</system>
 		<company>Mass Tael</company>
@@ -12114,6 +14123,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">7fef9411858b1ff3ff019646e9e7aa0c61c7e87d</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">175488d7ef82b5ee94eebce3b96ef67530f7bad9</hash>
 			</rom>
 		</dump>
 	</software>
@@ -12173,6 +14188,19 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Teki Paki</title>
+		<system>MSX</system>
+		<company>WYZ</company>
+		<year>2003</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">f373723b18cb7534ba1e8de61d484800478ee604</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Telebunnie</title>
 		<system>MSX</system>
 		<company>Ascii</company>
@@ -12188,6 +14216,19 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">4e17efbe87adc232c055d0dc26eb4476c661aafe</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Teletron MSX</title>
+		<system>MSX</system>
+		<company>Roelof Horst</company>
+		<year>1986</year>
+		<country>NL</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">b3b319311243e20a25712fbe861f4e6ea7f36915</hash>
 			</rom>
 		</dump>
 	</software>
@@ -12268,6 +14309,12 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">e9398aceb9f8a648e4bcebe02e5d7b14a3744c7d</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">90df63292fc2f210b88cc8ec284391423d21c917</hash>
 			</rom>
 		</dump>
 	</software>
@@ -12420,6 +14467,19 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Ti Ti Pang Pang</title>
+		<system>MSX</system>
+		<company>Zemmix</company>
+		<year>1989</year>
+		<country>KR</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">00ffd7adfc0a7a342912344ad64902e226b3ad41</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Time Pilot</title>
 		<system>MSX</system>
 		<company>Konami</company>
@@ -12475,6 +14535,21 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">ea8d86ac74dcdca1c72daae517722431767c5ad2</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Toque !</title>
+		<system>MSX</system>
+		<company>Gradiente</company>
+		<year>19xx</year>
+		<country>BR</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x8000</start>
+				<hash algo="sha1">b1a154ed8f52c2a74457e1c03c99608181dfb8ee</hash>
 			</rom>
 		</dump>
 	</software>
@@ -12632,6 +14707,19 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Turbo 5000</title>
+		<system>MSX</system>
+		<company>Robtek</company>
+		<year>1987</year>
+		<country>NL</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">e16ad038563724ffbba980a296ef624c0826bbb3</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Turboat</title>
 		<system>MSX</system>
 		<company>Mass Tael</company>
@@ -12641,6 +14729,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">08be92145a99dd6e0539ff79dca62b2f4cc59b0b</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">8309d3241e03b4a83b3d9fe54224178ea4e60e31</hash>
 			</rom>
 		</dump>
 	</software>
@@ -12725,6 +14819,21 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">U-Do</title>
+		<system>MSX</system>
+		<company>MSX-FAN</company>
+		<year>1990</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">fa5badc3d9486d9789b05b909125bf74059d26e5</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Ultraman</title>
 		<system>MSX</system>
 		<company>unkown</company>
@@ -12778,6 +14887,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">df797593395346e94aa1cf13a9524e30d631888d</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">889954ae4772156aeb22fea0bdf8c9cf01bec51d</hash>
 			</rom>
 		</dump>
 	</software>
@@ -12837,6 +14952,45 @@
 				<boot>scc+</boot>
 				<hash algo="sha1">22e095eefb53adf47648520f117afd8bfafa63d0</hash>
 			</sccpluscart>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Videotexto</title>
+		<system>MSX</system>
+		<company>Gradiente</company>
+		<year>19xx</year>
+		<country>BR</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">e7af21424b22233188335fa82e212438054ae377</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Videotexto + Cirand&#227;o - Sharp HB3000</title>
+		<system>MSX</system>
+		<company>Epcom</company>
+		<year>1986</year>
+		<country>BR</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">fa6a5fdacf29ef40519f69b8704dbbfb250789e7</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Vigilante</title>
+		<system>MSX</system>
+		<company>-</company>
+		<year>19xx</year>
+		<country>BR</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">eafd8cf86facdeb038e87900de4f1233dd69347c</hash>
+			</rom>
 		</dump>
 	</software>
 	<software>
@@ -13012,6 +15166,12 @@
 				<hash algo="sha1">15cc2f7412373253e908689a778738d52656ad74</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">505542691f3d40cacf7779e4224771728c426059</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Yabyum</title>
@@ -13049,6 +15209,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">939ed6053363112c34766335b93d0ddf25059468</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">e62f5f668ea615b6ec24ab5a593aad5b3bf61558</hash>
 			</rom>
 		</dump>
 	</software>
@@ -13179,6 +15345,15 @@
 				<hash algo="sha1">7c87b7ded0c7813217e5b305036e57849d0b93e9</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">cec8ffb88b3c047f5dbd95d3ed1cd9660803fa7b</hash>
+				<remark>
+					<text>cheat version</text>
+				</remark>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Young Sherlock - The Legacy Of Doyle</title>
@@ -13200,6 +15375,13 @@
 				<hash algo="sha1">b6a5552effcee708b665fa74e5ce7b0fa2541c03</hash>
 			</megarom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Konami</type>
+				<hash algo="sha1">d7e85888117188a6d6f7914e9649fc4821c594a2</hash>
+			</megarom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Yumetairiku Adventure - Penguin Adventure</title>
@@ -13212,6 +15394,13 @@
 			<megarom>
 				<type>Konami</type>
 				<hash algo="sha1">d53e0c8bcd98820afe820f756af35cc97911bfe4</hash>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Konami</type>
+				<hash algo="sha1">fa6c059e14092d023b1f9f2df28e482f966287db</hash>
 			</megarom>
 		</dump>
 		<dump>
@@ -13262,6 +15451,12 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">f784350af0c5c7407d83da2bb499c59a08496aac</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">645ec2f28f08b3ca20f0dfe65fc7ca993da6bfbb</hash>
 			</rom>
 		</dump>
 		<dump>
@@ -13431,6 +15626,13 @@
 			<megarom>
 				<type>ASCII8</type>
 				<hash algo="sha1">c9135b1e451193bd4c06d8143eaca934cc89fe05</hash>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">d9826cb2044ed0224124f2f31d0bdc1fb840d81c</hash>
 			</megarom>
 		</dump>
 		<dump>
@@ -13638,6 +15840,13 @@
 			<original value="false"/>
 			<megarom>
 				<type>ASCII16</type>
+				<hash algo="sha1">1064aa5c8a884dddc0a27147ca70881e04988725</hash>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII16</type>
 				<hash algo="sha1">ae3c3c2c022f566d2e790aba193470d5826f36cf</hash>
 			</megarom>
 		</dump>
@@ -13728,6 +15937,13 @@
 				<hash algo="sha1">1aee947b1ad6d478c0def550868a3851c2910809</hash>
 			</megarom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>GenericKonami</type>
+				<hash algo="sha1">a3fbf7c2392c1f97d3a0946a5d1654bf4f7d9b0a</hash>
+			</megarom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Arsene Lupin 3rd - Cariostoro no Siro</title>
@@ -13747,6 +15963,16 @@
 			<megarom>
 				<type>ASCII8</type>
 				<hash algo="sha1">ae8172bcf76adfa3d401467cbc89cbec2db86ee2</hash>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">5d82713f36e9395092f16663084fbc85f05c664a</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
 			</megarom>
 		</dump>
 	</software>
@@ -13784,6 +16010,16 @@
 				<hash algo="sha1">a8eeac428a5992a2390b1827db1358f4c733e200</hash>
 			</megarom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>GenericKonami</type>
+				<hash algo="sha1">bd1435a19ba895149fa5b88425316171d165c323</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
+			</megarom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Ashguine 2</title>
@@ -13803,6 +16039,13 @@
 			<megarom>
 				<type>GenericKonami</type>
 				<hash algo="sha1">4edb5ed12c1b9bc7efa571ca67ffc732f53d3a4a</hash>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>GenericKonami</type>
+				<hash algo="sha1">8a65786d9c6b2fe7c1643c27316d6cbb35fbfd24</hash>
 			</megarom>
 		</dump>
 	</software>
@@ -13826,6 +16069,13 @@
 				<hash algo="sha1">BF96A360083C5C26430940546827E91A69ADE63E</hash>
 			</megarom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>GenericKonami</type>
+				<hash algo="sha1">32210a9cbbb51e30ff59ed44bf32e628fdf6c42c</hash>
+			</megarom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Blade Lords</title>
@@ -13833,6 +16083,13 @@
 		<company>Parallax</company>
 		<year>1994</year>
 		<country>NL</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">022a53d79bb72c736a5fdad6d82434a98f33e6e7</hash>
+			</megarom>
+		</dump>
 		<dump>
 			<original value="false"/>
 			<megarom>
@@ -13872,6 +16129,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">930b4896c1590ebbb74d330447ec36e3feb5cab6</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">96897697AFE3A6354F2753F22A8B15D6D977B064</hash>
 			</rom>
 		</dump>
 	</software>
@@ -14011,6 +16274,16 @@
 			<megarom>
 				<type>ASCII8</type>
 				<hash algo="sha1">35c02d8d590d92053f083b0c0c897277a5375af6</hash>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">772ad4eabbf0941a9b4655f5615f2a5cf22246b1</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
 			</megarom>
 		</dump>
 	</software>
@@ -14296,6 +16569,13 @@
 				<hash algo="sha1">f04f5c6936301eed31a79c23571f8fc497864dbb</hash>
 			</megarom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Konami</type>
+				<hash algo="sha1">18eada2178fc1a89895087aa513305d1ba73c926</hash>
+			</megarom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Family Billiards</title>
@@ -14308,6 +16588,13 @@
 			<megarom>
 				<type>ASCII8</type>
 				<hash algo="sha1">924fcf87b3747dae06e621975903ee73c42016f2</hash>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">6d72a04ef018fa1fa3708c8b5ed3333b2c5e8ead</hash>
 			</megarom>
 		</dump>
 		<dump>
@@ -14336,6 +16623,13 @@
 			<megarom>
 				<type>Konami</type>
 				<hash algo="sha1">66620207ca6c21bcbae8f868bb55532e72e521a6</hash>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>GenericKonami</type>
+				<hash algo="sha1">31dbd1c08659c649c49da8d2e6b80328cb6b59e8</hash>
 			</megarom>
 		</dump>
 	</software>
@@ -14371,6 +16665,16 @@
 			<megarom>
 				<type>ASCII16</type>
 				<hash algo="sha1">1f39c472f1e02511fa7eaaf8ed9fcce4d45861b9</hash>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII16</type>
+				<hash algo="sha1">df10b3c8470acebbc445f7c24a50b4f24db0187d</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
 			</megarom>
 		</dump>
 	</software>
@@ -14437,6 +16741,13 @@
 		<year>1987</year>
 		<country>JP</country>
 		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">55bad6c00e6a676efc7ff349fa1b5422d624f5ef</hash>
+			</megarom>
+		</dump>
+		<dump>
 			<original value="true">GoodMSX</original>
 			<megarom>
 				<type>Konami</type>
@@ -14474,6 +16785,13 @@
 				<hash algo="sha1">f4da2be2ee712ba2e7cccf56fcd15483fe0023ed</hash>
 			</megarom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Konami</type>
+				<hash algo="sha1">4b872dac11a720e2b9e86f22df1e2214c1059281</hash>
+			</megarom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Garyuuou - Dragon King</title>
@@ -14502,6 +16820,16 @@
 		<company>Konami</company>
 		<year>1988</year>
 		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">4690b2f6ce28e55d56ab185c573fc27a9b414468</hash>
+				<remark>
+					<text>Needs SCC in slot 2</text>
+				</remark>
+			</megarom>
+		</dump>
 		<dump>
 			<original value="true">GoodMSX</original>
 			<megarom>
@@ -14763,6 +17091,13 @@
 		<year>1987</year>
 		<country>JP</country>
 		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">fed52c0455ce1e7cef80cd144c3d0ef3636134e5</hash>
+			</megarom>
+		</dump>
+		<dump>
 			<original value="true">GoodMSX</original>
 			<megarom>
 				<type>Konami</type>
@@ -14821,6 +17156,30 @@
 				<hash algo="sha1">facb967717c21fed9b375481908aa337b3361c45</hash>
 			</megarom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII16</type>
+				<hash algo="sha1">14537ad9a551245261776bf9b64068fe4921ad47</hash>
+			</megarom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Holy Quran</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1987</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>HolyQuran</type>
+				<hash algo="sha1">0dbc7defd96b71c1fe2d63cbc725f5e58aea2db0</hash>
+				<remark>
+					<text>Only for MSX2 Arabic</text>
+				</remark>
+			</megarom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Hydlide 3 - The Space Memories - MSX2 Version</title>
@@ -14875,6 +17234,13 @@
 			<megarom>
 				<type>ASCII16</type>
 				<hash algo="sha1">e065238580b9e118b6c9e789d797cdd99e0a1c69</hash>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII16</type>
+				<hash algo="sha1">25b80aa670e7fdc84b51628b6dbe930eb234beb7</hash>
 			</megarom>
 		</dump>
 		<dump>
@@ -14999,6 +17365,16 @@
 			<original value="false"/>
 			<megarom>
 				<type>ASCII8</type>
+				<hash algo="sha1">dcc1ecdd0e3a2a33b994e472ea367a1637cc3799</hash>
+				<remark>
+					<text>cheat version</text>
+				</remark>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
 				<hash algo="sha1">38a103e540eb5fbe2627fab2991bda08092635e0</hash>
 			</megarom>
 		</dump>
@@ -15086,6 +17462,16 @@
 		<year>1988</year>
 		<country>JP</country>
 		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">f25628e474035e6bf0440b274c5df04f94c49fb8</hash>
+				<remark>
+					<text>Needs SCC in slot 2</text>
+				</remark>
+			</megarom>
+		</dump>
+		<dump>
 			<original value="true">GoodMSX</original>
 			<megarom>
 				<type>KonamiSCC</type>
@@ -15114,6 +17500,20 @@
 			<megarom>
 				<type>ASCII8SRAM8</type>
 				<hash algo="sha1">2e2543ac99193f76b4f35463142294c016f0cf3d</hash>
+			</megarom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Konami Game Collection Special</title>
+		<system>MSX</system>
+		<company>Konami</company>
+		<year>1989</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>KonamiSCC</type>
+				<hash algo="sha1">f90064fe4ffed170f9e9c79196aa0b17e0bbd86b</hash>
 			</megarom>
 		</dump>
 	</software>
@@ -15184,6 +17584,20 @@
 			<megarom>
 				<type>Konami</type>
 				<hash algo="sha1">13c59dd8f7320856b15c834038af3c846db33e4e</hash>
+			</megarom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Livingstone Supongo 2</title>
+		<system>MSX</system>
+		<company>Opera</company>
+		<year>1989</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII16</type>
+				<hash algo="sha1">db1513dff6dd456fc973286816129ace81bcdfdd</hash>
 			</megarom>
 		</dump>
 	</software>
@@ -15654,6 +18068,13 @@
 		<year>1988</year>
 		<country>JP</country>
 		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII16</type>
+				<hash algo="sha1">4607ed284bd4602affa00600c749ce43b2b89b6d</hash>
+			</megarom>
+		</dump>
+		<dump>
 			<original value="true">GoodMSX</original>
 			<megarom>
 				<type>ASCII16</type>
@@ -15764,6 +18185,16 @@
 		<dump>
 			<original value="false"/>
 			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">07c4c39c6e6c03241d2353300f630b367322e78a</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
 				<type>Konami</type>
 				<hash algo="sha1">91afe2ee3a5b8e80d67f6c7a30bafbc2d63b2421</hash>
 			</megarom>
@@ -15775,6 +18206,16 @@
 		<company>Konami</company>
 		<year>1990</year>
 		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">29a42c2b679bac55a0318ce8c97708e402e2779b</hash>
+				<remark>
+					<text>Needs SCC in slot 2</text>
+				</remark>
+			</megarom>
+		</dump>
 		<dump>
 			<original value="true">GoodMSX</original>
 			<megarom>
@@ -15837,6 +18278,16 @@
 		<dump>
 			<original value="false"/>
 			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">c08a3c1478e51db62624814acbf36c198d6561e6</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
 				<type>GenericKonami</type>
 				<hash algo="sha1">b81dd702afaaa5946e4ec065042c891ad2f76c2b</hash>
 			</megarom>
@@ -15883,6 +18334,13 @@
 				<hash algo="sha1">afb693fd0a138cfc59a2bf81eabd7ca2abd4e162</hash>
 			</megarom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">81bbbd4ea86350ebba03e8d8cb29f050a3d93a83</hash>
+			</megarom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Return of Ishtar, The</title>
@@ -15917,6 +18375,22 @@
 				<type>Konami</type>
 				<hash algo="sha1">a80b5426fd0f4ab19eba1c06620f5efb8fbade3a</hash>
 			</megarom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Revenge Of The Boing Ball</title>
+		<system>MSX</system>
+		<company>R.Bittencourt</company>
+		<year>2004</year>
+		<country>BR</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">0f1c600fc3c3f7ef390214ee8028ce118d2cf5b8</hash>
+				<remark>
+					<text>only for Turbo-R</text>
+				</remark>
+			</rom>
 		</dump>
 	</software>
 	<software>
@@ -16065,6 +18539,16 @@
 				<hash algo="sha1">3f9d72bdafecfa640639cf66721e7380e41c6e6d</hash>
 			</megarom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Konami</type>
+				<hash algo="sha1">c5b4cd4b49144e8f77455e9ff9077ff840ab278c</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
+			</megarom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Seikima 2 Special</title>
@@ -16091,6 +18575,16 @@
 			<megarom>
 				<type>GenericKonami</type>
 				<hash algo="sha1">a5f3ada0610ad32f59d2f114167612d4f62bec4e</hash>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>GenericKonami</type>
+				<hash algo="sha1">d076d7185078b8adddbacfee7e46c61e3e02fe7e</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
 			</megarom>
 		</dump>
 	</software>
@@ -16149,6 +18643,13 @@
 				<hash algo="sha1">d452a79b25f18e6a6eadc5c592d5101f115ef0f0</hash>
 			</megarom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>GenericKonami</type>
+				<hash algo="sha1">ebed19269b7625c93eccefc2bd758555e2027431</hash>
+			</megarom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Space Manbow</title>
@@ -16156,6 +18657,16 @@
 		<company>Konami</company>
 		<year>1989</year>
 		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">e388e8d8546e329d2c58269d4fa026624a640f1b</hash>
+				<remark>
+					<text>Needs SCC in slot 2</text>
+				</remark>
+			</megarom>
+		</dump>
 		<dump>
 			<original value="true">GoodMSX</original>
 			<megarom>
@@ -16377,6 +18888,16 @@
 			<megarom>
 				<type>Konami</type>
 				<hash algo="sha1">db22cd03db61a495d55c460cfaa266271c8a5926</hash>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Konami</type>
+				<hash algo="sha1">17dcbe8e9ab792483a542b0230897baf0240dcc9</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
 			</megarom>
 		</dump>
 	</software>
@@ -16613,6 +19134,16 @@
 				<hash algo="sha1">f84d7fc089b31440cac1f4fbee3d45b2f6c90e37</hash>
 			</megarom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII16</type>
+				<hash algo="sha1">28b54294007ec345aef7322a2fcaa18d3363a73e</hash>
+				<remark>
+					<text>Ulver crack</text>
+				</remark>
+			</megarom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Yaksa</title>
@@ -16667,6 +19198,13 @@
 			<megarom>
 				<type>ASCII16</type>
 				<hash algo="sha1">23e702084e3031158a50a0560746767bbc1b7bee</hash>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII16</type>
+				<hash algo="sha1">289ac36381905685dda39946127ab2af3317a010</hash>
 			</megarom>
 		</dump>
 		<dump>
@@ -16738,6 +19276,58 @@
 	</software>
 <!-- Arabic MSX roms -->
 	<software>
+		<title xml:lang="en">1 2 3</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1986</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">150b249b6402ed89ed03cc7125f9472c931dcb2a</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">A B C</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1987</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">5bd09e5a9669c58365c87f32a0e9a8e59680d5c9</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Add and Subtract</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1986</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">8f5e7717a506e3314d48ae9ff5e6c6c8a3df72eb</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Alef Ba Ta</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1986</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">148c9a4f316ff73c4e802baadc34bf852492821d</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Alibaba</title>
 		<system>MSX</system>
 		<company>al Alamiah</company>
@@ -16748,6 +19338,872 @@
 			<megarom>
 				<type>ASCII8</type>
 				<hash algo="sha1">f9e8cc6e47d5632e3b28500197f8e9187295c52b</hash>
+			</megarom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Amazing Kid</title>
+		<system>MSX</system>
+		<company>Husnisoft</company>
+		<year>1990</year>
+		<country>GB</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">55cc50740d68d2558351cd8d125821dd1be70a1c</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Arab History</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1985</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">3ce544aaefdb8a916a1639afea774eb75ec4702f</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Arab World</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1985</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">6b4b099fa7a87c5059ebb40da3089d0d61967644</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Around the Clock</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1986</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">fd9eef4ea54e31e9ffb121c079e4b76c990d755c</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Boullata</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1984</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">254208d7ea2f7cc1035cfe7685238ac3ad17e438</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Discover the Computer</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1986</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">39a40c1265cc663eef0d21dea01a9bf52c8c140e</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Double Face</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1985</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">ac2475e955e98c5d5816ec60118b424b46c30670</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Double Face 2 - v1.7</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1987</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">08cb8d0a42e1c2a0961aff3ab70262525964b434</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Double Face 2 - v1.8</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1987</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">3627431db990b6913606328ae2fb3340452b2797</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Double Jaw</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1985</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">7b89c2d62c3106a87c3375bbc0284d2b5a364cc9</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Electromatic</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1985</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">94584ca2e89ab0b249cd52f3a356176a03f9e35f</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Energy</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1986</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">ad2e1e957ee469d51faa07a99a20dbf00003dacf</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Equations</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1985</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">f2ac1ce7584297bb646caec3fe4f0384ed5b072f</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Express</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1985</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">a5dc0aa283072f772ee4b9eb93b0966500dd306b</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Faces</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1987</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">a420f8d7d3631b1c795d182162221b21aaf48f1b</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Fractions 1</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1986</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">e930f53bf480aba5d50d97ee7c60aad96c000d33</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Fractions 2</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1987</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">bb3df0a7656249e486accc60f583d3dd41db590b</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Head &#38; Tail</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1986</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">f4d4d132866707e7f8a97408b093acabb67ef5aa</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Ibn Malik</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1985</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">2d174a58c81eda0490e4606afa167bbe4082d845</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Ibn Sina 1</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1985</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">f332df804849c7a12f50dbbdbbb37949716b3671</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Ibn Sina 2</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1985</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">630db2516b6f6da16882f507e74fb35455552ea4</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Information Race</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1990</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">217b21d10d80fe2d5d04636ee8c2f97f6edfe34a</hash>
+			</megarom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Kufi</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1984</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">7a0ddc5f086a6bc7e8e7f7b1840988623a2cc1b5</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Landmarks</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1990</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">0a7bed652592ed6325acd037f1f5bbbd1d31b239</hash>
+			</megarom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Learn Sakhr Basic</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1986</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">bf3d9433bf32d3af7a7adc0ba77b9690ac754daa</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Let&#39;s Count 1</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1989</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">08eb5001bd95ffb7232cdbdffbec7634eb110ad8</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Let&#39;s Count 3</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1990</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">73938f51fcb26349aa17e1ae1f1bd43b20ef227b</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Magic Touch</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1985</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">b9d5ec448d5de19c62dc09ffe3b257e0cef610d2</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Magic Tune</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1985</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">44ece0064495f7c90344e42fc14e29341d4e08bb</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Magic Writer</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1985</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">48518d95d06a7761c4afe5235ef995bdc53c1952</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Magnetics</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1986</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">4998d34b559f4a531843cebd2302212658d953f7</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Memory</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1984</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">6523381fa5012b45a69af0e351f239c97afd4be7</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Multiply and Divide</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1986</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">20effe093026e9209bd3327114e9ad51676cf807</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">My Small Dictionary</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1989</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">acc93f818a9f2925bfcc61df7d9fe2e0cbc0a9ae</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">My Watch</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1987</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">d9195b9a24f6e7c5b99eca046908915bfe369d46</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Number and Target</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1986</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">ce493944b6b57ffa56e7eb09df76e73b65dcb800</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Optics</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1985</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">3c9301eea142857ee5e9e04d0caebbc5a4245715</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Our Arab World</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1987</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">6918679b2be2d014b60b4025a3877dee9ad5f407</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Periodic Table</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1985</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">7033c47a3b20fd04054ef37d209e1545ac053865</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Pictures and Words</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1990</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">5b25d93259a358f2064adc44f6382c91c9394861</hash>
+			</megarom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Pillars of Islam</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1986</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">4a28e8bc5ff7b57c63ce810972c3ffc2683ee3d4</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Poetry</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1989</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">b20e02cbffef692c7aee6281eb36729ee1e928ef</hash>
+			</megarom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Projectiles</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1985</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">17bbed846045f3325b1d34c686d35889f9efe157</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Proverbs</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1986</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">b186d547c0b79612bffb63dd49c3230f156c2bbe</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Puzzle</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1987</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">0dfe92b48e99bed4cd879e4026d036f94c826ce8</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Rainbow Stories</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1986</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">108abde71e59839fb4d1e59c3a0cb2366220030c</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Sakhr Dictionary</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1987</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">64c49fdabbdd5e13c4310b03a183ea1a018154a4</hash>
+			</megarom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Sakhr Logo</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1987</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">f2b5b9029575b85f0730914a44e57f94c9313df5</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Sea Horse</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1984</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">1b5b269bc0c905aff94ebea598a936e34a74fb07</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Sebaweh 1</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1985</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">d0cd48404eec5975d0f284c46b3cd710236b87a5</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Sebaweh 2</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1985</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">bbabc8ce1e39d4405dee587737e4dea24477c24d</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Secret Word</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1985</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">fdc3cc10b4821ea5169c817fcbd6e99fac464feb</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Sets</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1985</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">98f3eec607cae92e01c1310f25d980f2859b88cd</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Shater Hassan</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1987</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">a4d4a6fc06739c543ff0767a1006ae2860d9b635</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Space Arithmetic</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1985</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">a25f9b813c4488c73c5f54055748b4dbb057c2e9</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Test your Intelligence</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1985</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">2f1aacc5d18973e59f9eafa20d7ffddca34d0ef9</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Test your Intelligence 2</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1986</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">c3680636efd8d2f3a7c1c6774dd36399c754b71d</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Test your Knowledge</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1985</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">33352b5e33057bebe0c9b989afe90f178aba7243</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Test your Knowledge 2</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1986</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">82bf80166e77f99a6f1e091f97f8ab167373dc60</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Test your Knowledge 3</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1988</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">16f06109c57de5a39fbe150de9c25754483ee9fb</hash>
+			</megarom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Trip to Mecca</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1985</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">09d2563fd5d9df095aa48be5ead7771c23c50ad2</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Who?</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1987</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">b815cb222a6314c1adad0945af7be759a14c200a</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Window on the World</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1985</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">e7324782c7bec087105312275043984907cbfe1f</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Young Artist</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1988</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">e19cfcbe92ec3682bee869dfad5f6b4058b1f2ce</hash>
+			</megarom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Young Researcher</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1989</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">e4f7a94d0cb43f56f73d54c22364e91434363945</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Zoo</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1989</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">ad3d8fc2201a245e352875918e421b42764e4148</hash>
 			</megarom>
 		</dump>
 	</software>
@@ -19734,9 +23190,9 @@
 	</software>
 </softwaredb>
 <!--
-Roms in this database : 1816
+Roms in this database : 2163
 Good MSX entries 		: 755
-SHA1 values 			: 1816
+SHA1 values 			: 2163
 CRC32 values 			: 0
-Parse time 6.654 seconds on Mon Feb 27 1:29:47 CET 2006
+Parse time 5.508 seconds on Tue Feb 28 1:48:57 CET 2006
  -->
