@@ -29,7 +29,9 @@ byte MicrosolFDC::readIO(word port, const EmuTime& time)
 		value = controller->getDataReg(time);
 		break;
 	case 4:
-		value = driveD4;
+		value = 0x7F;
+		if (controller->getIRQ(time))  value |=  0x80;
+		if (controller->getDTRQ(time)) value &= ~0x40;
 		break;
 	default:
 		value = 255;
@@ -57,7 +59,9 @@ byte MicrosolFDC::peekIO(word port, const EmuTime& time) const
 		value = controller->peekDataReg(time);
 		break;
 	case 4:
-		value = driveD4;
+		value = 0x7F;
+		if (controller->peekIRQ(time))  value |=  0x80;
+		if (controller->peekDTRQ(time)) value &= ~0x40;
 		break;
 	default:
 		value = 255;
@@ -99,7 +103,6 @@ void MicrosolFDC::writeIO(word port, byte value, const EmuTime& time)
 		// in things such as "replace disk 1 when the led turns off"
 		// we need to connect this to the OSD later on.
 
-		driveD4 = value;
 		// Set correct drive
 		DriveMultiplexer::DriveNum drive;
 		switch (value & 0x0F) {
