@@ -45,6 +45,9 @@ enum EventType
 	/** This event is periodically send (50 times per second atm).
 	  * Used to implement polling (e.g SDL input events). */
 	OPENMSX_POLL_EVENT,
+
+	/** Send when a (new) machine configuration is loaded */
+	OPENMSX_MACHINE_LOADED_EVENT,
 };
 
 class Event

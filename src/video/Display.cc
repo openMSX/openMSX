@@ -10,8 +10,6 @@
 #include "Command.hh"
 #include "InfoTopic.hh"
 #include "CliComm.hh"
-#include "Scheduler.hh"
-#include "RealTime.hh"
 #include "Timer.hh"
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
@@ -93,6 +91,8 @@ Display::Display(Reactor& reactor_)
 			*this);
 	eventDistributor.registerEventListener(OPENMSX_SWITCH_RENDERER_EVENT,
 			*this);
+	eventDistributor.registerEventListener(OPENMSX_MACHINE_LOADED_EVENT,
+			*this);
 
 	renderSettings->getRenderer().attach(*this);
 	renderSettings->getFullScreen().attach(*this);
@@ -108,6 +108,8 @@ Display::~Display()
 	renderSettings->getVideoSource().detach(*this);
 
 	EventDistributor& eventDistributor = reactor.getEventDistributor();
+	eventDistributor.unregisterEventListener(OPENMSX_MACHINE_LOADED_EVENT,
+			*this);
 	eventDistributor.unregisterEventListener(OPENMSX_SWITCH_RENDERER_EVENT,
 			*this);
 	eventDistributor.unregisterEventListener(OPENMSX_DELAYED_REPAINT_EVENT,
@@ -200,9 +202,20 @@ void Display::signalEvent(const Event& event)
 		repaint();
 	} else if (event.getType() == OPENMSX_SWITCH_RENDERER_EVENT) {
 		doRendererSwitch();
-	} else {
-		assert(false);
+	} else if (event.getType() == OPENMSX_MACHINE_LOADED_EVENT) {
+		setWindowTitle();
 	}
+}
+
+void Display::setWindowTitle()
+{
+	// TODO in the future there may not always be a MSXMotherBoard
+	MSXMotherBoard& motherboard = reactor.getMotherBoard();
+	const XMLElement& config = motherboard.getMachineConfig().getConfig();
+	string title = Version::FULL_VERSION + " - " +
+		config.getChild("info").getChildData("manufacturer") + " " +
+		config.getChild("info").getChildData("code");
+	videoSystem->setWindowTitle(title);
 }
 
 void Display::update(const Setting& setting)
@@ -248,13 +261,7 @@ void Display::doRendererSwitch()
 
 	resetVideoSystem();
 	videoSystem.reset(RendererFactory::createVideoSystem(reactor));
-
-	// TODO move seting of window title to a 'machine changed' event handler
-	const XMLElement& config = reactor.getMotherBoard().getMachineConfig().getConfig();
-	std::string title = Version::FULL_VERSION + " - " +
-		config.getChild("info").getChildData("manufacturer") + " " +
-		config.getChild("info").getChildData("code");
-	videoSystem->setWindowTitle(title);
+	setWindowTitle();
 
 	for (Listeners::const_iterator it = listeners.begin();
 	     it != listeners.end(); ++it) {

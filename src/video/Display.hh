@@ -8,16 +8,13 @@
 #include "EventListener.hh"
 #include "Observer.hh"
 #include "CircularBuffer.hh"
-#include "openmsx.hh"
 #include <memory>
-#include <string>
 #include <vector>
 
 namespace openmsx {
 
 class Reactor;
 class VideoSystem;
-class EventDistributor;
 class RenderSettings;
 class VideoSystemChangeListener;
 class Setting;
@@ -53,6 +50,7 @@ public:
 
 private:
 	void resetVideoSystem();
+	void setWindowTitle();
 
 	// EventListener interface
 	virtual void signalEvent(const Event& event);

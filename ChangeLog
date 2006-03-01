@@ -1,5 +1,10 @@
 $Id$
 
+2006-03-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Preparartion for run-time switchable machines:
+	   - send event when a MSX machine is loaded and change titlebar
+	     when that event is received
+
 2006-02-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed MicrosolFDC to also support DDX_3.0
 	* Added DDX_3.0 extension:

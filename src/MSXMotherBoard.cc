@@ -153,6 +153,8 @@ void MSXMotherBoard::loadMachine(const std::string& machine)
 		machineConfig.reset(newMachine);
 		machineConfig->parseSlots();
 		machineConfig->createDevices();
+		getEventDistributor().distributeEvent(
+			new SimpleEvent<OPENMSX_MACHINE_LOADED_EVENT>());
 	} catch (FileException& e) {
 		throw MSXException("Machine \"" + machine + "\" not found: " +
 		                   e.getMessage());
