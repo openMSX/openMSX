@@ -4,6 +4,8 @@ $Id$
 	* Preparartion for run-time switchable machines:
 	   - send event when a MSX machine is loaded and change titlebar
 	     when that event is received
+	* Implemented blur for 3x simple scaler (WIP):
+	   - only 256 wide modes yet
 
 2006-02-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed MicrosolFDC to also support DDX_3.0

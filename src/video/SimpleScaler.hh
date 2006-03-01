@@ -5,43 +5,11 @@
 
 #include "Scaler2.hh"
 #include "Scanline.hh"
+#include "Multiply32.hh"
 
 namespace openmsx {
 
 class RenderSettings;
-
-/**
- * Helper class to perform 'pixel x scalar' calculations.
- * Also converts the result to 32bpp.
- */
-template<typename Pixel> class Multiply32;
-
-template<> class Multiply32<word> {
-public:
-	Multiply32(const SDL_PixelFormat* format);
-	void setFactor32(unsigned factor);
-	inline unsigned mul32(word p) const;
-	inline word conv32(unsigned p) const;
-private:
-	unsigned tab[0x10000];
-	unsigned factor;
-	unsigned Rshift1, Gshift1, Bshift1;
-	unsigned Rshift2, Gshift2, Bshift2;
-	unsigned Rshift3, Gshift3, Bshift3;
-	word     Rmask1,  Gmask1,  Bmask1;
-	word     Rmask2,  Gmask2,  Bmask2;
-};
-
-template<> class Multiply32<unsigned> {
-public:
-	Multiply32(const SDL_PixelFormat* format);
-	inline void setFactor32(unsigned factor);
-	inline unsigned mul32(unsigned p) const;
-	inline unsigned conv32(unsigned p) const;
-private:
-	unsigned factor;
-};
-
 
 /** Scaler which assigns the color of the original pixel to all pixels in
   * the 2x2 square. Optionally it can draw darkended scanlines (scanline has
