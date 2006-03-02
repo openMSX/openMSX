@@ -67,6 +67,18 @@ private:
 	MSXCPUInterface& interface;
 };
 
+class SlotInfo : public InfoTopic
+{
+public:
+	SlotInfo(CommandController& commandController,
+	         MSXCPUInterface& interface);
+	virtual void execute(const std::vector<TclObject*>& tokens,
+	                     TclObject& result) const;
+	virtual std::string help(const std::vector<std::string>& tokens) const;
+private:
+	MSXCPUInterface& interface;
+};
+
 class SubSlottedInfo : public InfoTopic
 {
 public:
@@ -89,17 +101,6 @@ public:
 	virtual std::string help(const std::vector<std::string>& tokens) const;
 private:
 	CartridgeSlotManager& manager;
-};
-
-class SlotMapCmd : public SimpleCommand
-{
-public:
-	SlotMapCmd(CommandController& commandController,
-		   MSXCPUInterface& interface);
-	virtual std::string execute(const std::vector<std::string>& tokens);
-	virtual std::string help(const std::vector<std::string>& tokens) const;
-private:
-	MSXCPUInterface& interface;
 };
 
 class IOMapCmd : public SimpleCommand
@@ -130,12 +131,13 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard)
 	: memoryDebug       (new MemoryDebug       (*this, motherBoard))
 	, slottedMemoryDebug(new SlottedMemoryDebug(*this, motherBoard))
 	, ioDebug           (new IODebug           (*this, motherBoard))
+	, slotInfo        (new SlotInfo(
+		motherBoard.getCommandController(), *this))
 	, subSlottedInfo  (new SubSlottedInfo(
 		motherBoard.getCommandController(), *this))
 	, externalSlotInfo(new ExternalSlotInfo(
 		motherBoard.getCommandController(),
 		motherBoard.getSlotManager()))
-	, slotMapCmd(new SlotMapCmd(motherBoard.getCommandController(), *this))
 	, ioMapCmd  (new IOMapCmd  (motherBoard.getCommandController(), *this))
 	, dummyDevice(motherBoard.getDummyDevice())
 	, msxcpu(motherBoard.getCPU())
@@ -501,23 +503,6 @@ void MSXCPUInterface::writeSlottedMem(unsigned address, byte value,
 	}
 }
 
-string MSXCPUInterface::getSlotMap() const
-{
-	ostringstream out;
-	for (int prim = 0; prim < 4; ++prim) {
-		if (isExpanded(prim)) {
-			for (int sec = 0; sec < 4; ++sec) {
-				out << "slot " << prim << "." << sec << ":\n";
-				printSlotMapPages(out, slotLayout[prim][sec]);
-			}
-		} else {
-			out << "slot " << prim << ":\n";
-			printSlotMapPages(out, slotLayout[prim][0]);
-		}
-	}
-	return out.str();
-}
-
 static void ioMapHelper(ostringstream& out,
                         const string& type, int begin, int end,
                         const MSXDevice* device)
@@ -563,16 +548,6 @@ string MSXCPUInterface::getIOMap() const
 		port = endPort;
 	}
 	return result.str();
-}
-
-void MSXCPUInterface::printSlotMapPages(std::ostream &out,
-	const MSXDevice* const* devices) const
-{
-	for (int page = 0; page < 4; ++page) {
-		char hexStr[5];
-		snprintf(hexStr, sizeof(hexStr), "%04X", page * 0x4000);
-		out << hexStr << ": " << devices[page]->getName() << "\n";
-	}
 }
 
 
@@ -622,14 +597,45 @@ void SlottedMemoryDebug::write(unsigned address, byte value,
 
 // class SubSlottedInfo
 
-static unsigned getSlot(TclObject* token)
+static unsigned getSlot(TclObject* token, const string& itemName)
 {
 	unsigned slot = token->getInt();
 	if (slot >= 4) {
-		throw CommandException("Slot must be in range 0..3");
+		throw CommandException(itemName + " must be in range 0..3");
 	}
 	return slot;
 }
+
+SlotInfo::SlotInfo(CommandController& commandController,
+                   MSXCPUInterface& interface_)
+	: InfoTopic(commandController, "slot")
+	, interface(interface_)
+{
+}
+
+void SlotInfo::execute(const std::vector<TclObject*>& tokens,
+                       TclObject& result) const
+{
+	if (tokens.size() != 5) {
+		throw SyntaxError();
+	}
+	unsigned ps   = getSlot(tokens[2], "Primary slot");
+	unsigned ss   = getSlot(tokens[3], "Secondary slot");
+	unsigned page = getSlot(tokens[4], "Page");
+	if (!interface.isExpanded(ps)) {
+		ss = 0;
+	}
+	result.setString(interface.slotLayout[ps][ss][page]->getName());
+}
+
+std::string SlotInfo::help(const std::vector<std::string>& /*tokens*/) const
+{
+	return "Retrieve name of the device inserted in given "
+	       "primary slot / secondary slot / page.";
+}
+
+
+// class SubSlottedInfo
 
 SubSlottedInfo::SubSlottedInfo(CommandController& commandController,
                                MSXCPUInterface& interface_)
@@ -644,7 +650,7 @@ void SubSlottedInfo::execute(const std::vector<TclObject*>& tokens,
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	result.setInt(interface.isExpanded(getSlot(tokens[2])));
+	result.setInt(interface.isExpanded(getSlot(tokens[2], "Slot")));
 }
 
 std::string SubSlottedInfo::help(
@@ -670,10 +676,10 @@ void ExternalSlotInfo::execute(const std::vector<TclObject*>& tokens,
 	int ss = 0;
 	switch (tokens.size()) {
 	case 4:
-		ss = getSlot(tokens[3]);
+		ss = getSlot(tokens[3], "Secondary slot");
 		// Fall-through
 	case 3:
-		ps = getSlot(tokens[2]);
+		ps = getSlot(tokens[2], "Primary slot");
 		break;
 	default:
 		throw SyntaxError();
@@ -705,26 +711,6 @@ byte IODebug::read(unsigned address, const EmuTime& time)
 void IODebug::write(unsigned address, byte value, const EmuTime& time)
 {
 	interface.writeIO((word)address, value, time);
-}
-
-
-// class SlotMapCmd
-
-SlotMapCmd::SlotMapCmd(CommandController& commandController,
-                       MSXCPUInterface& interface_)
-	: SimpleCommand(commandController, "slotmap")
-	, interface(interface_)
-{
-}
-
-string SlotMapCmd::execute(const vector<string>& /*tokens*/)
-{
-	return interface.getSlotMap();
-}
-
-string SlotMapCmd::help(const vector<string>& /*tokens*/) const
-{
-	return "Prints which slots contain which devices.\n";
 }
 
 

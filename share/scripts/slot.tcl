@@ -73,3 +73,31 @@ proc pc_in_slot { ps {ss "X"} {mapper "X"} } {
 	set pc_mapper [debug read "MapperIO" $page]
 	return [expr $mapper == ($pc_mapper & ($mapper_size - 1))]
 }
+
+#
+# Gives an overview of the devices in the different slots
+# (replaces the old build-in slotmap command)
+#
+proc slotmap-helper { ps ss } {
+	set result ""
+	for { set page 0 } { $page < 4 } { incr page } {
+		set name [openmsx_info slot $ps $ss $page]
+		append result [format "%04X: %s\n" [expr $page * 0x4000] $name]
+	}
+	return $result
+}
+proc slotmap { } {
+	set result ""
+	for { set ps 0 } { $ps < 4 } { incr ps } {
+		if [openmsx_info issubslotted $ps] {
+			for { set ss 0 } { $ss < 4 } { incr ss } {
+				append result "slot $ps.$ss:\n"
+				append result [slotmap-helper $ps $ss]
+			}
+		} else {
+			append result "slot $ps:\n"
+			append result [slotmap-helper $ps 0]
+		}
+	}
+	return $result
+}

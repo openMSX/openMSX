@@ -22,9 +22,9 @@ class CliComm;
 class MemoryDebug;
 class SlottedMemoryDebug;
 class IODebug;
+class SlotInfo;
 class SubSlottedInfo;
 class ExternalSlotInfo;
-class SlotMapCmd;
 class IOMapCmd;
 
 class MSXCPUInterface : private noncopyable
@@ -190,14 +190,13 @@ private:
 	                    int ps, int ss, int base, int size);
 
 	friend class IODebug;
-	friend class SlotMapCmd;
 	friend class IOMapCmd;
 	const std::auto_ptr<MemoryDebug> memoryDebug;
 	const std::auto_ptr<SlottedMemoryDebug> slottedMemoryDebug;
 	const std::auto_ptr<IODebug> ioDebug;
+	const std::auto_ptr<SlotInfo> slotInfo;
 	const std::auto_ptr<SubSlottedInfo> subSlottedInfo;
 	const std::auto_ptr<ExternalSlotInfo> externalSlotInfo;
-	const std::auto_ptr<SlotMapCmd> slotMapCmd;
 	const std::auto_ptr<IOMapCmd> ioMapCmd;
 
 	/** Updated visibleDevices for a given page and clears the cache
@@ -209,8 +208,6 @@ private:
 	void updateVisible(int page);
 	void setSubSlot(byte primSlot, byte value);
 
-	void printSlotMapPages(std::ostream&, const MSXDevice* const*) const;
-	std::string getSlotMap() const;
 	std::string getIOMap() const;
 
 	MSXDevice* IO_In [256];
@@ -229,6 +226,7 @@ private:
 
 	std::auto_ptr<VDPIODelay> delayDevice;
 	friend class TurborCPUInterface;
+	friend class SlotInfo;
 };
 
 class TurborCPUInterface : public MSXCPUInterface
