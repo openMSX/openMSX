@@ -10,14 +10,30 @@
 
 namespace openmsx {
 
+template <class Pixel> class Blur_1on3
+{
+public:
+	Blur_1on3(const PixelOperations<Pixel>& pixelOps,
+	          const RenderSettings& settings);
+	void operator()(const Pixel* in, Pixel* out, unsigned dstWidth);
+private:
+	Multiply32<Pixel> mult0;
+	Multiply32<Pixel> mult1;
+	Multiply32<Pixel> mult2;
+	Multiply32<Pixel> mult3;
+	const RenderSettings& settings;
+};
+
+
 template <class Pixel>
 Simple3xScaler<Pixel>::Simple3xScaler(
 		const PixelOperations<Pixel>& pixelOps_,
-		const RenderSettings& renderSettings)
+		const RenderSettings& settings_)
 	: Scaler3<Pixel>(pixelOps_)
 	, pixelOps(pixelOps_)
 	, scanline(pixelOps_)
-	, settings(renderSettings)
+	, blur_1on3(new Blur_1on3<Pixel>(pixelOps_, settings_))
+	, settings(settings_)
 {
 }
 
@@ -87,97 +103,6 @@ void Simple3xScaler<Pixel>::doScale2(FrameSource& src,
 	}
 }
 
-template <class Pixel> struct Blur_1on3
-{
-	// TODO don't recreate mult objects 
-	Blur_1on3(const PixelOperations<Pixel>& pixelOps, unsigned alpha_) 
-		: alpha(alpha_)
-		, mult0(pixelOps.format)
-		, mult1(pixelOps.format)
-		, mult2(pixelOps.format)
-		, mult3(pixelOps.format)
-	{
-	}
-	/*void operator()(const Pixel* in, Pixel* out, unsigned dstWidth)
-	{
-		unsigned c0 = alpha * alpha / 256;
-		unsigned c1 = c0 + alpha;
-		unsigned c2 = 256 - c1;
-		unsigned c3 = 256 - 2 * c0;
-
-		Pixel prev, curr, next;
-		prev = curr = next = in[0];
-
-		unsigned srcWidth = dstWidth / 3;
-		for (unsigned x = 0; x < srcWidth; ++x) {
-			if (x != (srcWidth - 1)) next = in[x + 1];
-			out[3 * x + 0] = mul(c1, prev) + mul(c2, curr);
-			out[3 * x + 1] = mul(c0, prev) + mul(c3, curr) + mul(c0, next);
-			out[3 * x + 2] =                 mul(c2, curr) + mul(c1, next);
-			prev = curr;
-			curr = next;
-		}
-	}*/
-	void operator()(const Pixel* in, Pixel* out, unsigned dstWidth)
-	{
-		unsigned c0 = alpha / 2;
-		unsigned c1 = alpha + c0;
-		unsigned c2 = 256 - c1;
-		unsigned c3 = 256 - 2 * c0;
-		mult0.setFactor32(c0);
-		mult1.setFactor32(c1);
-		mult2.setFactor32(c2);
-		mult3.setFactor32(c3);
-
-		Pixel p0 = in[0];
-		Pixel p1;
-		unsigned f0 = mult0.mul32(p0);
-		unsigned f1 = mult1.mul32(p0);
-		unsigned g0 = f0;
-		unsigned g1 = f1;
-
-		unsigned x;
-		unsigned srcWidth = dstWidth / 3;
-		for (x = 0; x < (srcWidth - 2); x += 2) {
-			unsigned g2 = mult2.mul32(p0);
-			out[3 * x + 0] = mult0.conv32(g2 + f1);
-			p1 = in[x + 1];
-			unsigned t0 = mult0.mul32(p1);
-			out[3 * x + 1] = mult0.conv32(f0 + mult3.mul32(p0) + t0);
-			f0 = t0;
-			f1 = mult1.mul32(p1);
-			out[3 * x + 2] = mult0.conv32(g2 + f1);
-
-			unsigned f2 = mult2.mul32(p1);
-			out[3 * x + 3] = mult0.conv32(f2 + g1);
-			p0 = in[x + 2];
-			unsigned t1 = mult0.mul32(p0);
-			out[3 * x + 4] = mult0.conv32(g0 + mult3.mul32(p1) + t1);
-			g0 = t1;
-			g1 = mult1.mul32(p0);
-			out[3 * x + 5] = mult0.conv32(g1 + f2);
-		}
-		unsigned g2 = mult2.mul32(p0);
-		out[3 * x + 0] = mult0.conv32(g2 + f1);
-		p1 = in[x + 1];
-		unsigned t0 = mult0.mul32(p1);
-		out[3 * x + 1] = mult0.conv32(f0 + mult3.mul32(p0) + t0);
-		f0 = t0;
-		f1 = mult1.mul32(p1);
-		out[3 * x + 2] = mult0.conv32(g2 + f1);
-
-		unsigned f2 = mult2.mul32(p1);
-		out[3 * x + 3] = mult0.conv32(f2 + g1);
-		out[3 * x + 4] = mult0.conv32(g0 + mult3.mul32(p1) + f0);
-		out[3 * x + 5] = p1;
-	}
-	unsigned alpha;
-	Multiply32<Pixel> mult0;
-	Multiply32<Pixel> mult1;
-	Multiply32<Pixel> mult2;
-	Multiply32<Pixel> mult3;
-};
-
 template <class Pixel>
 void Simple3xScaler<Pixel>::scale2x1to9x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
@@ -201,10 +126,9 @@ void Simple3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	unsigned alpha = settings.getBlurFactor() / 3;
-	if (alpha != 0) {
+	if (settings.getBlurFactor()) {
 		doScale1(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
-			 Blur_1on3<Pixel>(pixelOps, alpha));
+			 *blur_1on3);
 	} else {
 		doScale1(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
 			 Scale_1on3<Pixel>());
@@ -347,6 +271,96 @@ void Simple3xScaler<Pixel>::scaleBlank2to3(
 		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
 			dstLine2, dst.getWidth(), color1);
 	}
+}
+
+
+// class Blur_1on3
+
+template <class Pixel>
+Blur_1on3<Pixel>::Blur_1on3(const PixelOperations<Pixel>& pixelOps,
+                            const RenderSettings& settings_) 
+	: mult0(pixelOps.format)
+	, mult1(pixelOps.format)
+	, mult2(pixelOps.format)
+	, mult3(pixelOps.format)
+	, settings(settings_)
+{
+}
+
+template <class Pixel>
+void Blur_1on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned dstWidth)
+{
+	/* The following code is equivalent to this loop. It is 2x unrolled
+	 * and common subexpressions have been eliminated. The last iteration
+	 * is also moved outside the for loop.
+	 * 
+	 *  unsigned c0 = alpha / 2;
+	 *  unsigned c1 = c0 + alpha;
+	 *  unsigned c2 = 256 - c1;
+	 *  unsigned c3 = 256 - 2 * c0;
+	 *  Pixel prev, curr, next;
+	 *  prev = curr = next = in[0];
+	 *  unsigned srcWidth = dstWidth / 3;
+	 *  for (unsigned x = 0; x < srcWidth; ++x) {
+	 *      if (x != (srcWidth - 1)) next = in[x + 1];
+	 *      out[3 * x + 0] = mul(c1, prev) + mul(c2, curr);
+	 *      out[3 * x + 1] = mul(c0, prev) + mul(c3, curr) + mul(c0, next);
+	 *      out[3 * x + 2] =                 mul(c2, curr) + mul(c1, next);
+	 *      prev = curr;
+	 *      curr = next;
+	 *  }
+	 */
+	unsigned alpha = settings.getBlurFactor() / 3;
+	unsigned c0 = alpha / 2;
+	unsigned c1 = alpha + c0;
+	unsigned c2 = 256 - c1;
+	unsigned c3 = 256 - 2 * c0;
+	mult0.setFactor32(c0);
+	mult1.setFactor32(c1);
+	mult2.setFactor32(c2);
+	mult3.setFactor32(c3);
+
+	Pixel p0 = in[0];
+	Pixel p1;
+	unsigned f0 = mult0.mul32(p0);
+	unsigned f1 = mult1.mul32(p0);
+	unsigned g0 = f0;
+	unsigned g1 = f1;
+
+	unsigned x;
+	unsigned srcWidth = dstWidth / 3;
+	for (x = 0; x < (srcWidth - 2); x += 2) {
+		unsigned g2 = mult2.mul32(p0);
+		out[3 * x + 0] = mult0.conv32(g2 + f1);
+		p1 = in[x + 1];
+		unsigned t0 = mult0.mul32(p1);
+		out[3 * x + 1] = mult0.conv32(f0 + mult3.mul32(p0) + t0);
+		f0 = t0;
+		f1 = mult1.mul32(p1);
+		out[3 * x + 2] = mult0.conv32(g2 + f1);
+
+		unsigned f2 = mult2.mul32(p1);
+		out[3 * x + 3] = mult0.conv32(f2 + g1);
+		p0 = in[x + 2];
+		unsigned t1 = mult0.mul32(p0);
+		out[3 * x + 4] = mult0.conv32(g0 + mult3.mul32(p1) + t1);
+		g0 = t1;
+		g1 = mult1.mul32(p0);
+		out[3 * x + 5] = mult0.conv32(g1 + f2);
+	}
+	unsigned g2 = mult2.mul32(p0);
+	out[3 * x + 0] = mult0.conv32(g2 + f1);
+	p1 = in[x + 1];
+	unsigned t0 = mult0.mul32(p1);
+	out[3 * x + 1] = mult0.conv32(f0 + mult3.mul32(p0) + t0);
+	f0 = t0;
+	f1 = mult1.mul32(p1);
+	out[3 * x + 2] = mult0.conv32(g2 + f1);
+
+	unsigned f2 = mult2.mul32(p1);
+	out[3 * x + 3] = mult0.conv32(f2 + g1);
+	out[3 * x + 4] = mult0.conv32(g0 + mult3.mul32(p1) + f0);
+	out[3 * x + 5] = p1;
 }
 
 // Force template instantiation.

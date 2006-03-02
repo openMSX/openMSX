@@ -6,10 +6,12 @@
 #include "Scaler3.hh"
 #include "PixelOperations.hh"
 #include "Scanline.hh"
+#include <memory>
 
 namespace openmsx {
 
 class RenderSettings;
+template <class Pixel> class Blur_1on3;
 
 template <class Pixel>
 class Simple3xScaler : public Scaler3<Pixel>
@@ -70,8 +72,13 @@ private:
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
 		ScaleOp scale);
+
 	PixelOperations<Pixel> pixelOps;
 	Scanline<Pixel> scanline;
+
+	// in 16bpp calculation of LUTs can be expensive, so keep as member
+	std::auto_ptr<Blur_1on3<Pixel> > blur_1on3;
+
 	const RenderSettings& settings;
 };
 
