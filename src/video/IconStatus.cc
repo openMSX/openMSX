@@ -3,6 +3,7 @@
 #include "IconStatus.hh"
 #include "EventDistributor.hh"
 #include "Timer.hh"
+#include <cassert>
 
 namespace openmsx {
 
