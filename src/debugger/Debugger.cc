@@ -53,6 +53,7 @@ private:
 	                      TclObject& result);
 	void listBreakPoints(const std::vector<TclObject*>& tokens,
 	                     TclObject& result);
+	std::set<std::string> getBreakPointIdsAsStringSet() const;	
 
 	Debugger& debugger;
 };
@@ -383,34 +384,64 @@ string DebugCmd::help(const vector<string>& /*tokens*/) const
 	return helpText;
 }
 
+set<string> DebugCmd::getBreakPointIdsAsStringSet() const
+{
+	const CPU::BreakPoints& breakPoints = debugger.cpu->getBreakPoints();
+	set<string> bpids;
+	for (CPU::BreakPoints::const_iterator it = breakPoints.begin();
+	     it != breakPoints.end(); ++it) {
+		bpids.insert("bp#" + StringOp::toString((*it->second).getId()));
+	}
+	return bpids;
+}
+
 void DebugCmd::tabCompletion(vector<string>& tokens) const
 {
+	set<string> singleArgCmds;
+	singleArgCmds.insert("list");
+	singleArgCmds.insert("step");
+	singleArgCmds.insert("cont");
+	singleArgCmds.insert("break");
+	singleArgCmds.insert("breaked");
+	singleArgCmds.insert("list_bp");
+	set<string> debuggableArgCmds;
+	debuggableArgCmds.insert("desc");
+	debuggableArgCmds.insert("size");
+	debuggableArgCmds.insert("read");
+	debuggableArgCmds.insert("read_block");
+	debuggableArgCmds.insert("write");
+	debuggableArgCmds.insert("write_block");
+	set<string> otherCmds;
+	otherCmds.insert("disasm");
+	otherCmds.insert("set_bp");
+	otherCmds.insert("remove_bp");
 	switch (tokens.size()) {
 		case 2: {
 			set<string> cmds;
-			cmds.insert("list");
-			cmds.insert("desc");
-			cmds.insert("size");
-			cmds.insert("read");
-			cmds.insert("read_block");
-			cmds.insert("write");
-			cmds.insert("write_block");
-			cmds.insert("step");
-			cmds.insert("cont");
-			cmds.insert("disasm");
-			cmds.insert("break");
-			cmds.insert("breaked");
-			cmds.insert("set_bp");
-			cmds.insert("remove_bp");
-			cmds.insert("list_bp");
+			cmds.insert(singleArgCmds.begin(), singleArgCmds.end());
+			cmds.insert(debuggableArgCmds.begin(), debuggableArgCmds.end());
+			cmds.insert(otherCmds.begin(), otherCmds.end());
 			completeString(tokens, cmds);
 			break;
 		}
 		case 3: {
-			set<string> debuggables;
-			debugger.getDebuggables(debuggables);
-			completeString(tokens, debuggables);
+			if (singleArgCmds.find(tokens[1]) == 
+					singleArgCmds.end()) { 
+				// this command takes (an) argument(s)
+				if (debuggableArgCmds.find(tokens[1]) != 
+					debuggableArgCmds.end()) { 
+					// it takes a debuggable here
+					set<string> debuggables;
+					debugger.getDebuggables(debuggables);
+					completeString(tokens, debuggables);
+				} else if (tokens[1] == "remove_bp") {
+						// this one takes a bp id
+						set<string> bpids = getBreakPointIdsAsStringSet();
+						completeString(tokens, bpids);
+					}
+			}
 			break;
+		// other stuff doesn't really make sense to complete
 		}
 	}
 }

@@ -1,5 +1,8 @@
 $Id$
 
+2006-03-03 Manuel Bilderbeek <manuel@msxnet.org>
+	* Implemented better completion for debug command
+
 2006-03-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added "openmsx_info slot" info topic
 	* Implemented "slotmap" command as a TCL proc
