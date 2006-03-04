@@ -25,7 +25,7 @@ class IODebug;
 class SlotInfo;
 class SubSlottedInfo;
 class ExternalSlotInfo;
-class IOMapCmd;
+class IOInfo;
 
 class MSXCPUInterface : private noncopyable
 {
@@ -189,15 +189,17 @@ private:
 	void unregisterSlot(MSXDevice& device,
 	                    int ps, int ss, int base, int size);
 
+	friend class SlotInfo;
 	friend class IODebug;
-	friend class IOMapCmd;
+	friend class IOInfo;
 	const std::auto_ptr<MemoryDebug> memoryDebug;
 	const std::auto_ptr<SlottedMemoryDebug> slottedMemoryDebug;
 	const std::auto_ptr<IODebug> ioDebug;
 	const std::auto_ptr<SlotInfo> slotInfo;
 	const std::auto_ptr<SubSlottedInfo> subSlottedInfo;
 	const std::auto_ptr<ExternalSlotInfo> externalSlotInfo;
-	const std::auto_ptr<IOMapCmd> ioMapCmd;
+	const std::auto_ptr<IOInfo> inputPortInfo;
+	const std::auto_ptr<IOInfo> outputPortInfo;
 
 	/** Updated visibleDevices for a given page and clears the cache
 	  * on changes.
@@ -207,8 +209,6 @@ private:
 	  */
 	void updateVisible(int page);
 	void setSubSlot(byte primSlot, byte value);
-
-	std::string getIOMap() const;
 
 	MSXDevice* IO_In [256];
 	MSXDevice* IO_Out[256];
@@ -226,7 +226,6 @@ private:
 
 	std::auto_ptr<VDPIODelay> delayDevice;
 	friend class TurborCPUInterface;
-	friend class SlotInfo;
 };
 
 class TurborCPUInterface : public MSXCPUInterface

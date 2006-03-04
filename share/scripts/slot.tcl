@@ -101,3 +101,40 @@ proc slotmap { } {
 	}
 	return $result
 }
+
+#
+# Gives an overview of the devices connected to the different IO ports
+# (replaces the odl build-in iomap command)
+#
+proc iomap-helper { prefix begin end name } {
+	if [string equal $name "empty"] return ""
+	set result [format "port %02X" $begin]
+	if {$begin == ($end - 1)} {
+		append result ":   "
+	} else {
+		append result [format "-%02X:" [expr $end - 1]]
+	}
+	append result " $prefix $name\n"
+}
+proc iomap {} {
+	set result ""
+	set port 0
+	while {$port < 256} {
+		set in  [openmsx_info input_port  $port]
+		set out [openmsx_info output_port $port]
+		set end [ expr $port + 1]
+		while { ($end < 256) &&
+		        [string equal $in  [openmsx_info input_port  $end]] &&
+		        [string equal $out [openmsx_info output_port $end]] } {
+			incr end
+		}
+		if [string equal $in $out] {
+			append result [iomap-helper "I/O" $port $end $in ]
+		} else {
+			append result [iomap-helper "I  " $port $end $in ]
+			append result [iomap-helper "  O" $port $end $out]
+		}
+		set port $end
+	}
+	return $result
+}

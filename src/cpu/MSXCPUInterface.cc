@@ -103,15 +103,17 @@ private:
 	CartridgeSlotManager& manager;
 };
 
-class IOMapCmd : public SimpleCommand
+class IOInfo : public InfoTopic
 {
 public:
-	IOMapCmd(CommandController& commandController,
-		 MSXCPUInterface& interface);
-	virtual std::string execute(const std::vector<std::string>& tokens);
+	IOInfo(CommandController& commandController,
+	       MSXCPUInterface& interface, bool input);
+	virtual void execute(const std::vector<TclObject*>& tokens,
+	                     TclObject& result) const;
 	virtual std::string help(const std::vector<std::string>& tokens) const;
 private:
 	MSXCPUInterface& interface;
+	bool input;
 };
 
 
@@ -138,7 +140,8 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard)
 	, externalSlotInfo(new ExternalSlotInfo(
 		motherBoard.getCommandController(),
 		motherBoard.getSlotManager()))
-	, ioMapCmd  (new IOMapCmd  (motherBoard.getCommandController(), *this))
+	, inputPortInfo (new IOInfo(motherBoard.getCommandController(), *this, true))
+	, outputPortInfo(new IOInfo(motherBoard.getCommandController(), *this, false))
 	, dummyDevice(motherBoard.getDummyDevice())
 	, msxcpu(motherBoard.getCPU())
 	, cliCommOutput(motherBoard.getCliComm())
@@ -503,53 +506,6 @@ void MSXCPUInterface::writeSlottedMem(unsigned address, byte value,
 	}
 }
 
-static void ioMapHelper(ostringstream& out,
-                        const string& type, int begin, int end,
-                        const MSXDevice* device)
-{
-	out << "port " << std::hex << std::setw(2) << std::setfill('0')
-	    << std::uppercase << begin;
-	if (begin == end - 1) {
-		out << ":    ";
-	} else {
-		out << "-" << setw(2) << setfill('0') << uppercase << end - 1 << ": ";
-	}
-	out << type << " " << device->getName() << std::endl;
-}
-
-string MSXCPUInterface::getIOMap() const
-{
-	ostringstream result;
-	int port = 0;
-	while (port < 256) {
-		const MSXDevice* deviceIn  = IO_In [port];
-		const MSXDevice* deviceOut = IO_Out[port];
-
-		// Scan over equal region.
-		int endPort = port + 1; // exclusive
-		while (endPort < 256
-		    && IO_In [endPort] == deviceIn
-		    && IO_Out[endPort] == deviceOut) ++endPort;
-
-		// Print device(s), except empty regions.
-		if (deviceIn == deviceOut) {
-			if (deviceIn != &dummyDevice) {
-				ioMapHelper(result, "I/O", port, endPort, deviceIn);
-			}
-		} else {
-			if (deviceIn != &dummyDevice) {
-				ioMapHelper(result, "I  ", port, endPort, deviceIn);
-			}
-			if (deviceOut != &dummyDevice) {
-				ioMapHelper(result, "  O", port, endPort, deviceOut);
-			}
-		}
-
-		port = endPort;
-	}
-	return result.str();
-}
-
 
 // class MemoryDebug
 
@@ -714,24 +670,34 @@ void IODebug::write(unsigned address, byte value, const EmuTime& time)
 }
 
 
-// class IOMapCmd
+// class IOInfo
 
-IOMapCmd::IOMapCmd(CommandController& commandController,
-                   MSXCPUInterface& interface_)
-	: SimpleCommand(commandController, "iomap")
-	, interface(interface_)
+IOInfo::IOInfo(CommandController& commandController,
+               MSXCPUInterface& interface_, bool input_)
+	: InfoTopic(commandController, input_ ? "input_port" : "output_port")
+	, interface(interface_), input(input_)
 {
 }
 
-string IOMapCmd::execute(const vector<string>& /*tokens*/)
+void IOInfo::execute(const vector<TclObject*>& tokens,
+                     TclObject& result) const
 {
-	return interface.getIOMap();
+	if (tokens.size() != 3) {
+		throw SyntaxError();
+	}
+	unsigned port = tokens[2]->getInt();
+	if (port >= 256) {
+		throw CommandException("Port must be in range 0..255");
+	}
+	MSXDevice** devices = input ? interface.IO_In : interface.IO_Out;
+	result.setString(devices[port]->getName());
 }
 
-string IOMapCmd::help(const vector<string>& /*tokens*/) const
+string IOInfo::help(const vector<string>& /*tokens*/) const
 {
-	return "Prints which I/O ports are connected to which devices.\n";
+	return "Return the name of the device connected to the given IO port.";
 }
+
 
 // class TurborCPUInterface
 
