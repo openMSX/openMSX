@@ -360,7 +360,7 @@ void Blur_1on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned dstWidth
 		"0:"
 			// Note:  no streaming stores
 			"prefetchnta 192( %[IN]);"         //
-			"prefetchw   320(%[OUT],%[Y]);"    //
+			"prefetcht0  320(%[OUT],%[Y]);"    //
 			"movq      %%mm5, %%mm1;"          // in[x + 1]
 			"movq      %%mm0, %%mm7;"          // p0
 			"punpckhbw   (%[CONST]), %%mm1;"   // p1 = unpack(in[x + 1])
