@@ -7,6 +7,7 @@
 #include "RenderSettings.hh"
 #include "MemoryOps.hh"
 #include "Multiply32.hh"
+#include "HostCPU.hh"
 
 namespace openmsx {
 
@@ -310,7 +311,137 @@ void Blur_1on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned dstWidth
 	 *      curr = next;
 	 *  }
 	 */
+	
 	unsigned alpha = settings.getBlurFactor() / 3;
+	#ifdef ASM_X86
+	const HostCPU& cpu = HostCPU::getInstance();
+	if ((sizeof(Pixel) == 4) && cpu.hasMMXEXT()) {
+		// MMX-EXT routine, 32bpp
+		alpha *= 256;
+		unsigned t0, t1, t2, t3;
+		struct {
+			unsigned long long zero;
+			unsigned long long c0;
+			unsigned long long c1;
+			unsigned long long c2;
+			unsigned long long c3;
+			unsigned c0_;
+			unsigned c1_;
+			unsigned c2_;
+			unsigned c3_;
+		} c;
+		c.c0_ = alpha / 2;
+		c.c1_ = alpha + c.c0_;
+		c.c2_ = 0x1000 - c.c1_;
+		c.c3_ = 0x1000 - 2 * c.c0_;
+
+		asm volatile (
+			"pxor      %%mm0, %%mm0;"
+			"pshufw    $0,40(%[CONST]),%%mm1;"
+			"pshufw    $0,44(%[CONST]),%%mm2;"
+			"pshufw    $0,48(%[CONST]),%%mm3;"
+			"pshufw    $0,52(%[CONST]),%%mm4;"
+			"movq      %%mm0,   (%[CONST]);"   // zero    store constants
+			"movq      %%mm1,  8(%[CONST]);"   // c0
+			"movq      %%mm2, 16(%[CONST]);"   // c1
+			"movq      %%mm3, 24(%[CONST]);"   // c2
+			"movq      %%mm4, 32(%[CONST]);"   // c3
+
+			"movq      (%[IN]), %%mm0;"        // in[0] | in[1]
+			"movq      %%mm0, %%mm5;"          // in[0] | in[1]
+			"punpcklbw (%[CONST]), %%mm0;"     // p0 = unpack(in[0])
+			"movq      %%mm0, %%mm2;"          // p0
+			"pmulhuw    8(%[CONST]), %%mm2;"   // f0 = c0 * p0
+			"movq      %%mm0, %%mm3;"          // p0
+			"pmulhuw   16(%[CONST]), %%mm3;"   // f1 = c1 * p0
+			"movq      %%mm2, %%mm4;"          // g0 = f0;
+			"movq      %%mm3, %%mm6;"          // g1 = f1;
+
+		"0:"
+			// Note:  no streaming stores
+			"prefetchnta 192( %[IN]);"         //
+			"prefetchw   320(%[OUT],%[Y]);"    //
+			"movq      %%mm5, %%mm1;"          // in[x + 1]
+			"movq      %%mm0, %%mm7;"          // p0
+			"punpckhbw   (%[CONST]), %%mm1;"   // p1 = unpack(in[x + 1])
+			"pmulhuw   32(%[CONST]), %%mm7;"   // s0 = c3 * p0
+			"paddw     %%mm2, %%mm7;"          // s0 + f0
+			"movq      %%mm1, %%mm2;"          // p1
+			"pmulhuw   24(%[CONST]), %%mm0;"   // g2 = c2 * p0
+			"pmulhuw    8(%[CONST]), %%mm2;"   // t0 = c0 * p1 (= f0)
+			"movq      8(%[IN]), %%mm5;"       // in[x + 2] | in[x + 3]
+			"paddw     %%mm0, %%mm3;"          // a0 = g2 + f1
+			"paddw     %%mm2, %%mm7;"          // a1 = t0 + s0 + f0
+			"packuswb  %%mm7, %%mm3;"          // a0 | a1
+			"movq      %%mm3, (%[OUT],%[Y]);"  // out[y + 0] = ...
+			"movq      %%mm1, %%mm3;"          // p1
+			"movq      %%mm1, %%mm7;"          // p1
+			"pmulhuw   16(%[CONST]), %%mm3;"   // f1 = c1 * p1
+			"pmulhuw   24(%[CONST]), %%mm7;"   // f2 = c2 * p1
+			"paddw     %%mm3, %%mm0;"          // a2 = g2 + f1
+			"paddw     %%mm7, %%mm6;"          // b0 = f2 + g1
+			"packuswb  %%mm6, %%mm0;"          // a2 | b0
+			"movq      %%mm0, 8(%[OUT],%[Y]);" // out[y + 2] = ...
+			"movq      %%mm5, %%mm0;"          // in[x + 2]
+			"pmulhuw   32(%[CONST]), %%mm1;"   // s1 = c3 * p1
+			"punpcklbw   (%[CONST]), %%mm0;"   // p0 = unpack(in[x + 2])
+			"paddw     %%mm4, %%mm1;"          // s1 + g0
+			"movq      %%mm0, %%mm6;"          // p0
+			"movq      %%mm0, %%mm4;"          // p0
+			"pmulhuw   16(%[CONST]), %%mm6;"   // g1 = c1 * p0
+			"pmulhuw    8(%[CONST]), %%mm4;"   // t1 = c0 * p0 (= g0)
+			"paddw     %%mm6, %%mm7;"          // b2 = g1 + f2
+			"paddw     %%mm4, %%mm1;"          // b1 = t1 + s1 + g0
+			"packuswb  %%mm7, %%mm1;"          // b1 | b2
+			"addl      $8, %[IN];"             // x += 2
+			"movq      %%mm1, 16(%[OUT],%[Y]);"// out[y + 4] = 
+			"addl      $24, %[Y];"             // y += 6
+			"jnz       0b;"                    //
+			
+			"movq      %%mm5, %%mm1;"          // in[x + 1]
+			"movq      %%mm0, %%mm7;"          // p0
+			"punpckhbw   (%[CONST]), %%mm1;"   // p1 = unpack(in[x + 1])
+			"pmulhuw   32(%[CONST]), %%mm7;"   // s0 = c3 * p0
+			"paddw     %%mm2, %%mm7;"          // s0 + f0
+			"movq      %%mm1, %%mm2;"          // p1
+			"pmulhuw   24(%[CONST]), %%mm0;"   // g2 = c2 * p0
+			"pmulhuw    8(%[CONST]), %%mm2;"   // t0 = c0 * p1 (= f0)
+			"paddw     %%mm0, %%mm3;"          // a0 = g2 + f1
+			"paddw     %%mm2, %%mm7;"          // a1 = t0 + s0 + f0
+			"packuswb  %%mm7, %%mm3;"          // a0 | a1
+			"movq      %%mm3, (%[OUT]);"       // out[y + 0] = ...
+			"movq      %%mm1, %%mm3;"          // p1
+			"movq      %%mm1, %%mm7;"          // p1
+			"pmulhuw   16(%[CONST]), %%mm3;"   // f1 = c1 * p1
+			"pmulhuw   24(%[CONST]), %%mm7;"   // f2 = c2 * p1
+			"paddw     %%mm3, %%mm0;"          // a2 = g2 + f1
+			"paddw     %%mm7, %%mm6;"          // b0 = f2 + g1
+			"packuswb  %%mm6, %%mm0;"          // a2 | b0
+			"movq      %%mm0, 8(%[OUT]);"      // out[y + 2] = ...
+			"movq      %%mm1, %%mm7;"          // p1
+			"pmulhuw   32(%[CONST]), %%mm1;"   // s1 = c3 * p1
+			"paddw     %%mm4, %%mm1;"          // s1 + g0
+			"paddw     %%mm2, %%mm1;"          // b1 = t1 + s1 + g0
+			"packuswb  %%mm7, %%mm1;"          // b1 | b2
+			"movq      %%mm1, 16(%[OUT]);"     // out[y + 4] = 
+
+			"emms;"
+
+			: "=&r" (t0), "=&r" (t1), "=&r" (t2), "=&r" (t3)
+			: [IN]    "0" (in)
+			, [OUT]   "1" (out + (dstWidth - 6))
+			, [Y]     "2" (-4 * (dstWidth - 6))
+			, [CONST] "3" (&c)
+			: "memory"
+			#ifdef __MMX__
+			, "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
+			#endif
+		);
+		return;
+	}
+	#endif
+
+	// non-MMX routine, both 16bpp and 32bpp
 	unsigned c0 = alpha / 2;
 	unsigned c1 = alpha + c0;
 	unsigned c2 = 256 - c1;

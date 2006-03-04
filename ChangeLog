@@ -1,5 +1,9 @@
 $Id$
 
+2006-03-04 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added blur_1on3 MMX implementation:
+	   total emulation speed with simple 3x scaler is about 10% faster
+
 2006-03-03 Manuel Bilderbeek <manuel@msxnet.org>
 	* Implemented better completion for debug command
 
