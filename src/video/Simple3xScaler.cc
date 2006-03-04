@@ -332,8 +332,8 @@ void Blur_1on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned dstWidth
 		} c;
 		c.c0_ = alpha / 2;
 		c.c1_ = alpha + c.c0_;
-		c.c2_ = 0x1000 - c.c1_;
-		c.c3_ = 0x1000 - 2 * c.c0_;
+		c.c2_ = 0x10000 - c.c1_;
+		c.c3_ = 0x10000 - 2 * c.c0_;
 
 		asm volatile (
 			"pxor      %%mm0, %%mm0;"
