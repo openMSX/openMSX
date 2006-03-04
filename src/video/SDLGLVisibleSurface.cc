@@ -34,7 +34,7 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	// the SDL_SetVideoMode() call in createSurface().
 	GLenum glew_error = glewInit();
 	if (glew_error != GLEW_OK) {
-		throw InitException(std::string("Failed to init GLEW"));
+		throw InitException("Failed to init GLEW: " + std::string(reinterpret_cast<const char*>(glewGetErrorString(glew_error))));
 	}
 
 	glViewport(0, 0, width, height);
