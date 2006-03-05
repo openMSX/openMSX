@@ -5,7 +5,7 @@
 # credits:
 #   copyright 2005-2006 Albert Beevendorp all rights reserved
 #   copyright 2005-2006 Patrick van Arkel all rights reserved
-#   copyright 	   2006 Benoît Delvaux all rights reserved 
+#   copyright 	   2006 Benoit Delvaux all rights reserved 
 #
 # the definition of cheating according to google:
 #
@@ -3463,6 +3463,18 @@ proc trainer_hydlide1 {} {
 	after time 1 trainer_hydlide1
 }
 
+proc trainer_hydlide2 {} {
+	#start points
+	poke 0xf10b 0x99
+	#life max
+	poke 0xe01d 0x99
+	#strength max
+	poke 0xe022 0x99
+	#magic max
+	poke 0xe025 0x99
+	after time 1 trainer_hydlide2
+}
+
 proc trainer_decathlon {} {
 	#top speed
 	poke 0xe190 255
@@ -4292,10 +4304,11 @@ proc trainer_leatherskirts  {} {
 }
 
 proc trainer_blackcyclon  {} {
+	#lives
+	poke 0xd15a 8
 	#power
-	poke 0x76f0 30
-	poke 0xd1e3 30
-	after time 1 trainer_blackcyclon 
+	poke 0xd13e 255
+	after frame trainer_blackcyclon 
 }
 
 proc trainer_casanova {} {
@@ -5256,6 +5269,20 @@ proc trainer_chopper2 {} {
 	poke 0x6399 232
 	poke 0x639a 3
 	after time 1 trainer_chopper2
+}
+
+proc trainer_itaexpress {} {
+	#lives
+	poke 0xe308 3
+	after time 1 trainer_itaexpress
+}
+
+proc trainer_sammyudensetsu {} {
+	#lives
+	poke 0xe016 9
+	#power
+	poke 0xe024 5
+	after time 15 trainer_sammyudensetsu
 }
 
 ### EOF ###
