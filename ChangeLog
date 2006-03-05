@@ -1,5 +1,8 @@
 $Id$
 
+2006-03-05 Maarten ter Huurne <maarten@treewalker.org>
+	* Added utility classes for dealing with GLSL shaders.
+
 2006-03-04 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added blur_1on3 MMX implementation:
 	   total emulation speed with simple 3x scaler is about 10% faster
@@ -14,7 +17,7 @@ $Id$
 	* Implemented "slotmap" command as a TCL proc
 
 2006-03-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
-	* Preparartion for run-time switchable machines:
+	* Preparation for run-time switchable machines:
 	   - send event when a MSX machine is loaded and change titlebar
 	     when that event is received
 	* Implemented blur for 3x simple scaler (WIP):
@@ -30,7 +33,7 @@ $Id$
 	* Moved IconStatus and Display from MSXMotherboard to Reactor
 
 2006-02-26 Patrick van Arkel (vampiermsx@gmail.com)
-	* Removed CRC32 values from the rom database 
+	* Removed CRC32 values from the rom database
 	  and added a few more sha1 values
 
 2006-02-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>

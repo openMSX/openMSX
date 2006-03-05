@@ -21,6 +21,8 @@
 #include <gl.h>
 #endif
 
+#include <string>
+
 namespace openmsx {
 
 /** Most basic/generic texture: only contains a texture ID.
@@ -92,6 +94,65 @@ private:
 	/** Was the previous frame image stored?
 	  */
 	bool stored;
+};
+
+/** Wrapper around an OpenGL fragment shader:
+  * a program executed on the GPU that computes the colours of pixels.
+  */
+class FragmentShader
+{
+public:
+	FragmentShader(const std::string& filename);
+	~FragmentShader();
+
+	/** Returns true iff this shader is loaded and compiled without errors.
+	  */
+	bool isOK() const;
+
+private:
+	friend class ShaderProgram;
+
+	GLuint handle;
+};
+
+/** Wrapper around an OpenGL program:
+  * a collection of vertex and fragment shaders.
+  */
+class ShaderProgram
+{
+public:
+	ShaderProgram();
+	~ShaderProgram();
+
+	/** Returns true iff this program was linked without errors.
+	  * Note that this will certainly return false until link() is called.
+	  */
+	bool isOK() const;
+
+	/** Adds a given shader to this program.
+	  */
+	void attach(const FragmentShader& shader);
+
+	/** Link all attached shaders together into one program.
+	  * This should be done before activating the program.
+	  */
+	void link();
+
+	/** Gets a reference to a uniform variable declared in the shader source.
+	  */
+	GLint getUniformLocation(const char* name) const;
+
+	/** Make this program the active shader program.
+	  * This requires that the program is already linked.
+	  */
+	void activate() const;
+
+	/** Deactivate all shader programs.
+	  */
+	void deactivate() const;
+
+private:
+	GLuint handle;
 };
 
 } // namespace openmsx

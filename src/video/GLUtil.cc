@@ -1,6 +1,11 @@
 // $Id$
 
 #include "GLUtil.hh"
+#include "File.hh"
+#include "FileContext.hh"
+#include "FileException.hh"
+#include <iostream>
+#include <memory>
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
@@ -218,6 +223,164 @@ void StoredFrame::drawBlend(
 	glColor4f(1.0, 0.0, 0.0, alpha);
 	draw(offsetX, offsetY, width, height);
 	glDisable(GL_BLEND);
+}
+
+
+// class FragmentShader
+
+static std::string readTextFile(const std::string& filename)
+{
+	SystemFileContext context;
+	File file(context.resolve(filename));
+	return std::string(reinterpret_cast<char*>(file.mmap()), file.getSize());
+}
+
+FragmentShader::FragmentShader(const std::string& filename)
+{
+	// Allocate shader handle.
+	handle = glCreateShader(GL_FRAGMENT_SHADER);
+	if (handle == 0) {
+		std::cerr << "Failed to allocate shader" << std::endl;
+		return;
+	}
+
+	// Load shader source.
+	std::string source;
+	try {
+		source = readTextFile("shaders/" + filename);
+	} catch (FileException& e) {
+		std::cerr << "Cannot find shader: " << e.getMessage() << std::endl;
+		handle = 0;
+		return;
+	}
+	const char* sourcePtr = source.c_str();
+	glShaderSource(handle, 1, &sourcePtr, NULL);
+
+	// Compile shader and print any errors and warnings.
+	glCompileShader(handle);
+	const bool ok = isOK();
+	GLint infoLogLength = 0;
+	glGetShaderiv(handle, GL_INFO_LOG_LENGTH, &infoLogLength);
+	// note: the null terminator is included, so empty string has length 1
+	if (!ok || infoLogLength > 1) {
+		GLchar infoLog[infoLogLength];
+		glGetShaderInfoLog(handle, infoLogLength, NULL, infoLog);
+		fprintf(
+			stderr, "%s(s) compiling shader \"%s\":\n%s",
+			ok ? "Warning" : "Error", filename.c_str(),
+			infoLogLength > 1 ? infoLog : "(no details available)\n"
+			);
+	}
+}
+
+FragmentShader::~FragmentShader()
+{
+	glDeleteShader(handle);
+}
+
+bool FragmentShader::isOK() const
+{
+	if (handle == 0) {
+		return false;
+	}
+	GLint compileStatus = GL_FALSE;
+	glGetShaderiv(handle, GL_COMPILE_STATUS, &compileStatus);
+	return compileStatus == GL_TRUE;
+}
+
+
+// class ShaderProgram
+
+ShaderProgram::ShaderProgram()
+{
+	// Allocate program handle.
+	handle = glCreateProgram();
+	if (handle == 0) {
+		std::cerr << "Failed to allocate program" << std::endl;
+		return;
+	}
+}
+
+ShaderProgram::~ShaderProgram()
+{
+	glDeleteProgram(handle);
+}
+
+bool ShaderProgram::isOK() const
+{
+	if (handle == 0) {
+		return false;
+	}
+	GLint linkStatus = GL_FALSE;
+	glGetProgramiv(handle, GL_LINK_STATUS, &linkStatus);
+	return linkStatus == GL_TRUE;
+}
+
+void ShaderProgram::attach(const FragmentShader& shader)
+{
+	// Sanity check on this program.
+	if (handle == 0) {
+		return;
+	}
+	// Sanity check on the shader.
+	if (!shader.isOK()) {
+		return;
+	}
+	// Attach it.
+	glAttachShader(handle, shader.handle);
+}
+
+void ShaderProgram::link()
+{
+	// Sanity check on this program.
+	if (handle == 0) {
+		return;
+	}
+	// Link the program and print any errors and warnings.
+	glLinkProgram(handle);
+	const bool ok = isOK();
+	GLint infoLogLength = 0;
+	glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &infoLogLength);
+	// note: the null terminator is included, so empty string has length 1
+	if (!ok || infoLogLength > 1) {
+		GLchar infoLog[infoLogLength];
+		glGetProgramInfoLog(handle, infoLogLength, NULL, infoLog);
+		fprintf(
+			stderr, "%s(s) linking shader program:\n%s",
+			ok ? "Warning" : "Error",
+			infoLogLength > 1 ? infoLog : "(no details available)\n"
+			);
+	}
+}
+
+GLint ShaderProgram::getUniformLocation(const char* name) const
+{
+	// Sanity check on this program.
+	if (!isOK()) {
+		return -1;
+	}
+	// Get location and verify returned value.
+	GLint location = glGetUniformLocation(handle, name);
+	if (location == -1) {
+		fprintf(
+			stderr, "%s: \"%s\"\n",
+			  strncmp(name, "gl_", 3) == 0
+			? "Accessing built-in shader variables is not possible"
+			: "Could not find shader variable",
+			name
+			);
+	}
+	return location;
+}
+
+void ShaderProgram::activate() const
+{
+	glUseProgram(handle);
+}
+
+void ShaderProgram::deactivate() const
+{
+	glUseProgram(0);
 }
 
 } // namespace openmsx
