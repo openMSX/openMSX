@@ -122,13 +122,13 @@ byte* MSXMegaRam::getWriteCacheLine(word address) const
 
 byte MSXMegaRam::readIO(word port, const EmuTime& /*time*/)
 {
-	switch (port&0xFF) {
-		case 0x8E:
+	switch (port & 1) {
+		case 0:
 			// enable writing
 			writeMode = true;
 			romMode = false;
 			break;
-		case 0x8F:
+		case 1:
 			if (rom.get()) romMode = true;
 			break;
 	}
@@ -143,13 +143,13 @@ byte MSXMegaRam::peekIO(word /*port*/, const EmuTime& /*time*/) const
 
 void MSXMegaRam::writeIO(word port, byte /*value*/, const EmuTime& /*time*/)
 {
-	switch (port&0xFF) {
-		case 0x8E:
+	switch (port & 1) {
+		case 0:
 			// enable switching
 			writeMode = false;
 			romMode = false;
 			break;
-		case 0x8F:
+		case 1:
 			if (rom.get()) romMode = true;
 			break;
 	}
