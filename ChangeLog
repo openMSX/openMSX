@@ -3,6 +3,9 @@ $Id$
 2006-03-05 Maarten ter Huurne <maarten@treewalker.org>
 	* Added utility classes for dealing with GLSL shaders.
 	* Fixed UMR in StoredFrame.
+	* Fixed MegaRAM mapper so it can handle 2048K (256 pages) as well.
+	  Thanks to Gustavo Seidler for spotting this bug and to Adriano
+	  Camargo Rodrigues da Cunha for finding the cause.
 
 2006-03-04 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added blur_1on3 MMX implementation:

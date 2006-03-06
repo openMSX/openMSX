@@ -34,7 +34,7 @@ private:
 
 	std::auto_ptr<Ram> ram;
 	std::auto_ptr<Rom> rom;
-	byte numBlocks;
+	unsigned numBlocks;
 	byte maskBlocks;
 	byte bank[4];
 	bool writeMode;
