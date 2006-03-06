@@ -2,6 +2,7 @@ $Id$
 
 2006-03-05 Maarten ter Huurne <maarten@treewalker.org>
 	* Added utility classes for dealing with GLSL shaders.
+	* Fixed UMR in StoredFrame.
 
 2006-03-04 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added blur_1on3 MMX implementation:

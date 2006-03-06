@@ -164,10 +164,10 @@ StoredFrame::StoredFrame()
 {
 }
 
-void StoredFrame::store(unsigned x, unsigned y)
+void StoredFrame::store(unsigned width, unsigned height)
 {
 	texture.bind();
-	if (width == x && height == y) {
+	if (stored && this->width == width && this->height == height) {
 		glCopyTexSubImage2D(
 			GL_TEXTURE_2D, // target
 			0,             // level
@@ -179,16 +179,24 @@ void StoredFrame::store(unsigned x, unsigned y)
 			height         // height
 			);
 	} else {
-		width = x;
-		height = y;
+		this->width = width;
+		this->height = height;
+		textureWidth =
+			/* nice idea, but horribly slow on my GF5200
+			GLEW_VERSION_2_0 || GLEW_ARB_texture_non_power_of_two
+			? width :*/ powerOfTwo(width);
+		textureHeight =
+			/* nice idea, but horribly slow on my GF5200
+			GLEW_VERSION_2_0 || GLEW_ARB_texture_non_power_of_two
+			? height :*/ powerOfTwo(height);
 		glCopyTexImage2D(
 			GL_TEXTURE_2D,      // target
 			0,                  // level
 			GL_RGB,             // internal format
 			0,                  // x
 			0,                  // y
-			powerOfTwo(width),  // width
-			powerOfTwo(height), // height
+			textureWidth,       // width
+			textureHeight,      // height
 			0                   // border
 			);
 	}
@@ -202,8 +210,8 @@ void StoredFrame::draw(int offsetX, int offsetY, int width, int height)
 	texture.bind();
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	// TODO: Create display list(s)?
-	float x = static_cast<float>(width)  / powerOfTwo(width);
-	float y = static_cast<float>(height) / powerOfTwo(height);
+	float x = static_cast<float>(width)  / textureWidth;
+	float y = static_cast<float>(height) / textureHeight;
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.0f,    y); glVertex2i(offsetX,         offsetY         );
 	glTexCoord2f(   x,    y); glVertex2i(offsetX + width, offsetY         );
@@ -237,6 +245,7 @@ static std::string readTextFile(const std::string& filename)
 
 FragmentShader::FragmentShader(const std::string& filename)
 {
+#ifdef GL_VERSION_2_0
 	// Allocate shader handle.
 	handle = glCreateShader(GL_FRAGMENT_SHADER);
 	if (handle == 0) {
@@ -271,21 +280,30 @@ FragmentShader::FragmentShader(const std::string& filename)
 			infoLogLength > 1 ? infoLog : "(no details available)\n"
 			);
 	}
+#else
+	handle = 0;
+#endif
 }
 
 FragmentShader::~FragmentShader()
 {
+#ifdef GL_VERSION_2_0
 	glDeleteShader(handle);
+#endif
 }
 
 bool FragmentShader::isOK() const
 {
+#ifdef GL_VERSION_2_0
 	if (handle == 0) {
 		return false;
 	}
 	GLint compileStatus = GL_FALSE;
 	glGetShaderiv(handle, GL_COMPILE_STATUS, &compileStatus);
 	return compileStatus == GL_TRUE;
+#else
+	return false;
+#endif
 }
 
 
@@ -293,31 +311,42 @@ bool FragmentShader::isOK() const
 
 ShaderProgram::ShaderProgram()
 {
+#ifdef GL_VERSION_2_0
 	// Allocate program handle.
 	handle = glCreateProgram();
 	if (handle == 0) {
 		std::cerr << "Failed to allocate program" << std::endl;
 		return;
 	}
+#else
+	handle = 0;
+#endif
 }
 
 ShaderProgram::~ShaderProgram()
 {
+#ifdef GL_VERSION_2_0
 	glDeleteProgram(handle);
+#endif
 }
 
 bool ShaderProgram::isOK() const
 {
+#ifdef GL_VERSION_2_0
 	if (handle == 0) {
 		return false;
 	}
 	GLint linkStatus = GL_FALSE;
 	glGetProgramiv(handle, GL_LINK_STATUS, &linkStatus);
 	return linkStatus == GL_TRUE;
+#else
+	return false;
+#endif
 }
 
 void ShaderProgram::attach(const FragmentShader& shader)
 {
+#ifdef GL_VERSION_2_0
 	// Sanity check on this program.
 	if (handle == 0) {
 		return;
@@ -328,10 +357,12 @@ void ShaderProgram::attach(const FragmentShader& shader)
 	}
 	// Attach it.
 	glAttachShader(handle, shader.handle);
+#endif
 }
 
 void ShaderProgram::link()
 {
+#ifdef GL_VERSION_2_0
 	// Sanity check on this program.
 	if (handle == 0) {
 		return;
@@ -351,10 +382,12 @@ void ShaderProgram::link()
 			infoLogLength > 1 ? infoLog : "(no details available)\n"
 			);
 	}
+#endif
 }
 
 GLint ShaderProgram::getUniformLocation(const char* name) const
 {
+#ifdef GL_VERSION_2_0
 	// Sanity check on this program.
 	if (!isOK()) {
 		return -1;
@@ -371,16 +404,23 @@ GLint ShaderProgram::getUniformLocation(const char* name) const
 			);
 	}
 	return location;
+#else
+	return -1;
+#endif
 }
 
 void ShaderProgram::activate() const
 {
+#ifdef GL_VERSION_2_0
 	glUseProgram(handle);
+#endif
 }
 
 void ShaderProgram::deactivate() const
 {
+#ifdef GL_VERSION_2_0
 	glUseProgram(0);
+#endif
 }
 
 } // namespace openmsx

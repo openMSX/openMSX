@@ -84,12 +84,20 @@ private:
 	Texture texture;
 
 	/** Width of the stored image.
-	 */
+	  */
 	unsigned width;
 
 	/** Height of the stored image.
-	 */
+	  */
 	unsigned height;
+
+	/** Width of the texture.
+	  */
+	unsigned textureWidth;
+
+	/** Height of the texture.
+	  */
+	unsigned textureHeight;
 
 	/** Was the previous frame image stored?
 	  */
