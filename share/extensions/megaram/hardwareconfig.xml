@@ -5,7 +5,7 @@
   <primary slot="any">
     <secondary slot="any">
       <MegaRam id="MegaRam">
-        <io base="0x8e" num="2"/>
+        <io base="0x8e" num="1"/>
         <mem base="0x0000" size="0x10000"/>
         <size>512</size>
       </MegaRam>
