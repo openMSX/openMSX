@@ -10,6 +10,15 @@
 #include <cstdlib>
 #include <cstring>
 
+#ifdef GL_VERSION_2_0
+#ifndef glGetShaderiv
+#warning The version of GLEW you have installed is missing \
+	some OpenGL 2.0 entry points.
+#warning Please upgrade to GLEW 1.3.2 or higher.
+#warning Until then, shaders are disabled.
+#undef GL_VERSION_2_0
+#endif
+#endif
 
 namespace openmsx {
 
@@ -236,16 +245,18 @@ void StoredFrame::drawBlend(
 
 // class FragmentShader
 
+#ifdef GL_VERSION_2_0
 static std::string readTextFile(const std::string& filename)
 {
 	SystemFileContext context;
 	File file(context.resolve(filename));
 	return std::string(reinterpret_cast<char*>(file.mmap()), file.getSize());
 }
+#endif
 
+#ifdef GL_VERSION_2_0
 FragmentShader::FragmentShader(const std::string& filename)
 {
-#ifdef GL_VERSION_2_0
 	// Allocate shader handle.
 	handle = glCreateShader(GL_FRAGMENT_SHADER);
 	if (handle == 0) {
@@ -280,10 +291,13 @@ FragmentShader::FragmentShader(const std::string& filename)
 			infoLogLength > 1 ? infoLog : "(no details available)\n"
 			);
 	}
-#else
-	handle = 0;
-#endif
 }
+#else
+FragmentShader::FragmentShader(const std::string& /*filename*/)
+{
+	handle = 0;
+}
+#endif
 
 FragmentShader::~FragmentShader()
 {
@@ -344,9 +358,9 @@ bool ShaderProgram::isOK() const
 #endif
 }
 
+#ifdef GL_VERSION_2_0
 void ShaderProgram::attach(const FragmentShader& shader)
 {
-#ifdef GL_VERSION_2_0
 	// Sanity check on this program.
 	if (handle == 0) {
 		return;
@@ -357,8 +371,12 @@ void ShaderProgram::attach(const FragmentShader& shader)
 	}
 	// Attach it.
 	glAttachShader(handle, shader.handle);
-#endif
 }
+#else
+void ShaderProgram::attach(const FragmentShader& /*shader*/)
+{
+}
+#endif
 
 void ShaderProgram::link()
 {
@@ -385,9 +403,9 @@ void ShaderProgram::link()
 #endif
 }
 
+#ifdef GL_VERSION_2_0
 GLint ShaderProgram::getUniformLocation(const char* name) const
 {
-#ifdef GL_VERSION_2_0
 	// Sanity check on this program.
 	if (!isOK()) {
 		return -1;
@@ -404,10 +422,13 @@ GLint ShaderProgram::getUniformLocation(const char* name) const
 			);
 	}
 	return location;
-#else
-	return -1;
-#endif
 }
+#else
+GLint ShaderProgram::getUniformLocation(const char* /*name*/) const
+{
+	return -1;
+}
+#endif
 
 void ShaderProgram::activate() const
 {
