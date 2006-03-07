@@ -262,13 +262,6 @@ static std::string readTextFile(const std::string& filename)
 #ifdef GL_VERSION_2_0
 Shader::Shader(GLenum type, const std::string& filename)
 {
-	// Allocate shader handle.
-	handle = glCreateShader(type);
-	if (handle == 0) {
-		std::cerr << "Failed to allocate shader" << std::endl;
-		return;
-	}
-
 	// Load shader source.
 	std::string source;
 	try {
@@ -278,6 +271,15 @@ Shader::Shader(GLenum type, const std::string& filename)
 		handle = 0;
 		return;
 	}
+
+	// Allocate shader handle.
+	handle = glCreateShader(type);
+	if (handle == 0) {
+		std::cerr << "Failed to allocate shader" << std::endl;
+		return;
+	}
+
+	// Set shader source.
 	const char* sourcePtr = source.c_str();
 	glShaderSource(handle, 1, &sourcePtr, NULL);
 
