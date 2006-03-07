@@ -243,7 +243,9 @@ void StoredFrame::drawBlend(
 }
 
 
-// class FragmentShader
+// Utility function used by Shader.
+// Although this is not GL 2.0 dependent in itself, it is only used by GL 2.0
+// specific routines.
 
 #ifdef GL_VERSION_2_0
 static std::string readTextFile(const std::string& filename)
@@ -254,11 +256,14 @@ static std::string readTextFile(const std::string& filename)
 }
 #endif
 
+
+// class Shader
+
 #ifdef GL_VERSION_2_0
-FragmentShader::FragmentShader(const std::string& filename)
+Shader::Shader(GLenum type, const std::string& filename)
 {
 	// Allocate shader handle.
-	handle = glCreateShader(GL_FRAGMENT_SHADER);
+	handle = glCreateShader(type);
 	if (handle == 0) {
 		std::cerr << "Failed to allocate shader" << std::endl;
 		return;
@@ -293,20 +298,20 @@ FragmentShader::FragmentShader(const std::string& filename)
 	}
 }
 #else
-FragmentShader::FragmentShader(const std::string& /*filename*/)
+Shader::Shader(GLenum /*type*/, const std::string& /*filename*/)
 {
 	handle = 0;
 }
 #endif
 
-FragmentShader::~FragmentShader()
+Shader::~Shader()
 {
 #ifdef GL_VERSION_2_0
 	glDeleteShader(handle);
 #endif
 }
 
-bool FragmentShader::isOK() const
+bool Shader::isOK() const
 {
 #ifdef GL_VERSION_2_0
 	if (handle == 0) {
@@ -318,6 +323,32 @@ bool FragmentShader::isOK() const
 #else
 	return false;
 #endif
+}
+
+
+// class VertexShader
+
+#ifndef GL_VERSION_2_0
+#ifndef GL_VERTEX_SHADER
+#define GL_VERTEX_SHADER 0
+#endif
+#endif
+VertexShader::VertexShader(const std::string& filename)
+	: Shader(GL_VERTEX_SHADER, filename)
+{
+}
+
+
+// class FragmentShader
+
+#ifndef GL_VERSION_2_0
+#ifndef GL_FRAGMENT_SHADER
+#define GL_FRAGMENT_SHADER 0
+#endif
+#endif
+FragmentShader::FragmentShader(const std::string& filename)
+	: Shader(GL_FRAGMENT_SHADER, filename)
+{
 }
 
 
@@ -359,7 +390,7 @@ bool ShaderProgram::isOK() const
 }
 
 #ifdef GL_VERSION_2_0
-void ShaderProgram::attach(const FragmentShader& shader)
+void ShaderProgram::attach(const Shader& shader)
 {
 	// Sanity check on this program.
 	if (handle == 0) {
@@ -373,7 +404,7 @@ void ShaderProgram::attach(const FragmentShader& shader)
 	glAttachShader(handle, shader.handle);
 }
 #else
-void ShaderProgram::attach(const FragmentShader& /*shader*/)
+void ShaderProgram::attach(const Shader& /*shader*/)
 {
 }
 #endif

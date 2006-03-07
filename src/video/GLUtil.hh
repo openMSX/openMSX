@@ -104,23 +104,53 @@ private:
 	bool stored;
 };
 
-/** Wrapper around an OpenGL fragment shader:
-  * a program executed on the GPU that computes the colours of pixels.
+/** Wrapper around an OpenGL shader: a program executed on the GPU.
+  * This class is a base class for vertex and fragment shaders.
   */
-class FragmentShader
+class Shader
 {
 public:
-	FragmentShader(const std::string& filename);
-	~FragmentShader();
+	~Shader();
 
 	/** Returns true iff this shader is loaded and compiled without errors.
 	  */
 	bool isOK() const;
 
+protected:
+	/** Instantiates a shader.
+	  * @param type The shader type: GL_VERTEX_SHADER or GL_FRAGMENT_SHADER.
+	  * @param filename The GLSL source code for the shader.
+	  */
+	Shader(GLenum type, const std::string& filename);
+
 private:
 	friend class ShaderProgram;
 
 	GLuint handle;
+};
+
+/** Wrapper around an OpenGL vertex shader:
+  * a program executed on the GPU that computes per-vertex stuff.
+  */
+class VertexShader: public Shader
+{
+public:
+	/** Instantiates a vertex shader.
+	  * @param filename The GLSL source code for the shader.
+	  */
+	VertexShader(const std::string& filename);
+};
+
+/** Wrapper around an OpenGL fragment shader:
+  * a program executed on the GPU that computes the colours of pixels.
+  */
+class FragmentShader: public Shader
+{
+public:
+	/** Instantiates a fragment shader.
+	  * @param filename The GLSL source code for the shader.
+	  */
+	FragmentShader(const std::string& filename);
 };
 
 /** Wrapper around an OpenGL program:
@@ -139,7 +169,7 @@ public:
 
 	/** Adds a given shader to this program.
 	  */
-	void attach(const FragmentShader& shader);
+	void attach(const Shader& shader);
 
 	/** Link all attached shaders together into one program.
 	  * This should be done before activating the program.
