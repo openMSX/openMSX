@@ -89,4 +89,9 @@ void PanasonicMemory::setDRAM(bool dram_)
 	}
 }
 
+bool PanasonicMemory::isWritable(unsigned address) const
+{
+	return !dram || (address < (ramSize - 0x10000));
+}
+
 } // namespace openmsx

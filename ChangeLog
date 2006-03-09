@@ -1,5 +1,9 @@
 $Id$
 
+2006-03-04 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Upper 4 RAM blocks on turbor may not be writable in dram mode (not
+	  yet tested)
+
 2006-03-05 Maarten ter Huurne <maarten@treewalker.org>
 	* Added utility classes for dealing with GLSL shaders.
 	* Fixed UMR in StoredFrame.

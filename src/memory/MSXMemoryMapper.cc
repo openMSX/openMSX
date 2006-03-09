@@ -17,8 +17,7 @@ unsigned MSXMemoryMapper::counter = 0;
 XMLElement* MSXMemoryMapper::config = NULL;
 MSXMapperIO* MSXMemoryMapper::mapperIO = NULL;
 
-// Inlined methods first, to make sure they are actually inlined
-inline unsigned MSXMemoryMapper::calcAddress(word address) const
+unsigned MSXMemoryMapper::calcAddress(word address) const
 {
 	unsigned page = mapperIO->getSelectedPage(address >> 14);
 	page = (page < nbBlocks) ? page : page & (nbBlocks - 1);

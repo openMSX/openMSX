@@ -32,6 +32,7 @@ public:
 	 */
 	byte* getRamBlock(unsigned block);
 	void setDRAM(bool dram);
+	bool isWritable(unsigned address) const;
 
 private:
 	const std::auto_ptr<Rom> rom;

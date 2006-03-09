@@ -29,17 +29,17 @@ public:
 	virtual void reset(const EmuTime& time);
 
 protected:
+	/** Converts a Z80 address to a RAM address.
+	  * @param address Index in Z80 address space.
+	  * @return Index in RAM address space.
+	  */
+	unsigned calcAddress(word address) const;
+
 	std::auto_ptr<CheckedRam> checkedRam;
 
 private:
 	void createMapperIO(MSXMotherBoard& motherBoard, const EmuTime& time);
 	void destroyMapperIO();
-
-	/** Converts a Z80 address to a RAM address.
-	  * @param address Index in Z80 address space.
-	  * @return Index in RAM address space.
-	  */
-	inline unsigned calcAddress(word address) const;
 
 	unsigned nbBlocks;
 
