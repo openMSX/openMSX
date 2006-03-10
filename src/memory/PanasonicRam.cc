@@ -29,7 +29,7 @@ byte* PanasonicRam::getWriteCacheLine(word start) const
 	if (panasonicMemory.isWritable(addr)) {
 		return checkedRam->getWriteCacheLine(addr);
 	} else {
-		return NULL;
+		return unmappedWrite;
 	}
 }
 
