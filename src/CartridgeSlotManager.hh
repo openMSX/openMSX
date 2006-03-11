@@ -4,11 +4,13 @@
 #define CARTRIDGESLOTMANAGER_HH
 
 #include <string>
+#include <memory>
 
 namespace openmsx {
 
 class MSXMotherBoard;
 class XMLElement;
+class CartCmd;
 
 class CartridgeSlotManager
 {
@@ -36,15 +38,18 @@ private:
 	int getSlot(int ps, int ss) const;
 
 	struct Slot {
-		Slot() : ps(0), ss(0), exists(false), used(false) {}
+		Slot() : ps(0), ss(0), used(false), command(NULL) {}
+		bool exists() const { return command; }
+
 		int ps;
 		int ss;
-		bool exists;
 		bool used;
+		CartCmd* command;
 	};
 	static const int MAX_SLOTS = 16 + 4;
 	Slot slots[MAX_SLOTS];
 	MSXMotherBoard& motherBoard;
+	std::auto_ptr<CartCmd> cartCmd;
 };
 
 } // namespace openmsx

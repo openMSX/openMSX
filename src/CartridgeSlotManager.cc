@@ -2,24 +2,41 @@
 
 #include "CartridgeSlotManager.hh"
 #include "MSXMotherBoard.hh"
+#include "ExtensionConfig.hh"
+#include "Command.hh"
+#include "CommandException.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
 #include "openmsx.hh"
 #include <cassert>
 
 using std::string;
+using std::vector;
 
 namespace openmsx {
 
+class CartCmd : public SimpleCommand
+{
+public:
+	CartCmd(MSXMotherBoard& motherBoard, const std::string& commandName);
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
+private:
+	MSXMotherBoard& motherBoard;
+};
+
+
 CartridgeSlotManager::CartridgeSlotManager(MSXMotherBoard& motherBoard_)
 	: motherBoard(motherBoard_)
+	, cartCmd(new CartCmd(motherBoard, "cart"))
 {
 }
 
 CartridgeSlotManager::~CartridgeSlotManager()
 {
 	for (int slot = 0; slot < MAX_SLOTS; ++slot) {
-		assert(!slots[slot].exists);
+		assert(!slots[slot].exists());
 		assert(!slots[slot].used);
 	}
 }
@@ -51,10 +68,12 @@ void CartridgeSlotManager::createExternalSlot(int ps, int ss)
 		throw MSXException("Slot is already an external slot.");
 	}
 	for (int slot = 0; slot < MAX_SLOTS; ++slot) {
-		if (!slots[slot].exists) {
+		if (!slots[slot].exists()) {
 			slots[slot].ps = ps;
 			slots[slot].ss = ss;
-			slots[slot].exists = true;
+			string slotname = "carta";
+			slotname[4] += slot;
+			slots[slot].command = new CartCmd(motherBoard, slotname);
 			return;
 		}
 	}
@@ -65,7 +84,7 @@ void CartridgeSlotManager::createExternalSlot(int ps, int ss)
 int CartridgeSlotManager::getSlot(int ps, int ss) const
 {
 	for (int slot = 0; slot < MAX_SLOTS; ++slot) {
-		if (slots[slot].exists &&
+		if (slots[slot].exists() &&
 		    (slots[slot].ps == ps) && (slots[slot].ss == ss)) {
 			return slot;
 		}
@@ -76,17 +95,7 @@ int CartridgeSlotManager::getSlot(int ps, int ss) const
 
 void CartridgeSlotManager::testRemoveExternalSlot(int ps) const
 {
-	int slot = getSlot(ps, -1);
-	if (slots[slot].used) {
-		throw MSXException("Slot still in use.");
-	}
-}
-
-void CartridgeSlotManager::removeExternalSlot(int ps)
-{
-	int slot = getSlot(ps, -1);
-	assert(!slots[slot].used);
-	slots[slot].exists = false;
+	testRemoveExternalSlot(ps, -1);
 }
 
 void CartridgeSlotManager::testRemoveExternalSlot(int ps, int ss) const
@@ -97,18 +106,24 @@ void CartridgeSlotManager::testRemoveExternalSlot(int ps, int ss) const
 	}
 }
 
+void CartridgeSlotManager::removeExternalSlot(int ps)
+{
+	removeExternalSlot(ps, -1);
+}
+
 void CartridgeSlotManager::removeExternalSlot(int ps, int ss)
 {
 	int slot = getSlot(ps, ss);
 	assert(!slots[slot].used);
-	slots[slot].exists = false;
+	delete slots[slot].command;
+	slots[slot].command = NULL;
 }
 
 int CartridgeSlotManager::getSpecificSlot(int slot, int& ps, int& ss)
 {
 	assert((0 <= slot) && (slot < MAX_SLOTS));
 
-	if (!slots[slot].exists) {
+	if (!slots[slot].exists()) {
 		throw MSXException(string("slot-") + (char)('a' + slot) +
 		                   " not defined.");
 	}
@@ -125,7 +140,7 @@ int CartridgeSlotManager::getSpecificSlot(int slot, int& ps, int& ss)
 int CartridgeSlotManager::getAnyFreeSlot(int& ps, int& ss)
 {
 	for (int slot = 0; slot < MAX_SLOTS; slot++) {
-		if (slots[slot].exists && !slots[slot].used) {
+		if (slots[slot].exists() && !slots[slot].used) {
 			slots[slot].used = true;
 			ps = slots[slot].ps;
 			ss = (slots[slot].ss != -1) ? slots[slot].ss : 0;
@@ -139,7 +154,7 @@ int CartridgeSlotManager::getFreePrimarySlot(int &ps)
 {
 	for (int slot = 0; slot < MAX_SLOTS; ++slot) {
 		ps = slots[slot].ps;
-		if (slots[slot].exists && (slots[slot].ss == -1) &&
+		if (slots[slot].exists() && (slots[slot].ss == -1) &&
 		    !slots[slot].used) {
 			slots[slot].used = true;
 			return slot;
@@ -158,12 +173,52 @@ bool CartridgeSlotManager::isExternalSlot(int ps, int ss, bool convert) const
 {
 	for (int slot = 0; slot < MAX_SLOTS; ++slot) {
 		int tmp = (convert && (slots[slot].ss == -1)) ? 0 : slots[slot].ss;
-		if (slots[slot].exists &&
+		if (slots[slot].exists() &&
 		    (slots[slot].ps == ps) && (tmp == ss)) {
 			return true;
 		}
 	}
 	return false;
+}
+
+
+// CartCmd
+CartCmd::CartCmd(MSXMotherBoard& motherBoard_, const string& commandName)
+	: SimpleCommand(motherBoard_.getCommandController(), commandName)
+	, motherBoard(motherBoard_)
+{
+}
+
+string CartCmd::execute(const vector<string>& tokens)
+{
+	if (tokens.size() < 2) {
+		throw SyntaxError();
+	}
+	try {
+		string slotname;
+		if (tokens[0].size() == 5) {
+			slotname = tokens[0][4];
+		} else {
+			slotname = "any";
+		}
+		vector<string> options(tokens.begin() + 2, tokens.end());
+
+		ExtensionConfig& extension =
+			motherBoard.loadRom(tokens[1], slotname, options);
+		return extension.getName();
+	} catch (MSXException& e) {
+		throw CommandException(e.getMessage());
+	}
+}
+
+string CartCmd::help(const vector<string>& /*tokens*/) const
+{
+	return "Insert a ROM cartridge.";
+}
+
+void CartCmd::tabCompletion(vector<string>& tokens) const
+{
+	completeFileName(tokens);
 }
 
 } // namespace openmsx

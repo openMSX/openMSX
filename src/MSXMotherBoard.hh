@@ -41,7 +41,6 @@ class Setting;
 class ResetCmd;
 class ListExtCmd;
 class ExtCmd;
-class CartCmd;
 class RemoveExtCmd;
 
 class MSXMotherBoard : private Observer<Setting>
@@ -169,11 +168,6 @@ private:
 	const std::auto_ptr<ResetCmd>     resetCommand;
 	const std::auto_ptr<ListExtCmd>   listExtCommand;
 	const std::auto_ptr<ExtCmd>       extCommand;
-	const std::auto_ptr<CartCmd>      cartCommand;
-	const std::auto_ptr<CartCmd>      cartaCommand;
-	const std::auto_ptr<CartCmd>      cartbCommand;
-	const std::auto_ptr<CartCmd>      cartcCommand;
-	const std::auto_ptr<CartCmd>      cartdCommand;
 	const std::auto_ptr<RemoveExtCmd> removeExtCommand;
 	BooleanSetting& powerSetting;
 };

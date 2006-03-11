@@ -1,5 +1,8 @@
 $Id$
 
+2006-03-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Dynamically register cart<x> commands
+
 2006-03-11 Manuel Bilderbeek <manuel@msxnet.org>
 	* Fixed Gradiente machines. Cartridge slot B is in slot 3 and not 2 on
 	  Expert 1.0 and 1.1 and the ROM size was wrong for the DDPlus. Thanks

@@ -72,18 +72,6 @@ private:
 	MSXMotherBoard& motherBoard;
 };
 
-class CartCmd : public SimpleCommand
-{
-public:
-	CartCmd(CommandController& commandController,
-	        MSXMotherBoard& motherBoard, const std::string& commandName);
-	virtual string execute(const vector<string>& tokens);
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
-private:
-	MSXMotherBoard& motherBoard;
-};
-
 class RemoveExtCmd : public SimpleCommand
 {
 public:
@@ -106,11 +94,6 @@ MSXMotherBoard::MSXMotherBoard(Reactor& reactor_)
 	, resetCommand    (new ResetCmd    (getCommandController(), *this))
 	, listExtCommand  (new ListExtCmd  (getCommandController(), *this))
 	, extCommand      (new ExtCmd      (getCommandController(), *this))
-	, cartCommand     (new CartCmd     (getCommandController(), *this, "cart" ))
-	, cartaCommand    (new CartCmd     (getCommandController(), *this, "carta"))
-	, cartbCommand    (new CartCmd     (getCommandController(), *this, "cartb"))
-	, cartcCommand    (new CartCmd     (getCommandController(), *this, "cartc"))
-	, cartdCommand    (new CartCmd     (getCommandController(), *this, "cartd"))
 	, removeExtCommand(new RemoveExtCmd(getCommandController(), *this))
 	, powerSetting(getCommandController().getGlobalSettings().getPowerSetting())
 {
@@ -636,47 +619,6 @@ void ExtCmd::tabCompletion(vector<string>& tokens) const
 	std::set<string> extensions;
 	getHwConfigs("extensions", extensions);
 	completeString(tokens, extensions);
-}
-
-
-// CartCmd
-CartCmd::CartCmd(CommandController& commandController,
-                 MSXMotherBoard& motherBoard_, const std::string& commandName)
-	: SimpleCommand(commandController, commandName)
-	, motherBoard(motherBoard_)
-{
-}
-
-string CartCmd::execute(const vector<string>& tokens)
-{
-	if (tokens.size() < 2) {
-		throw SyntaxError();
-	}
-	try {
-		string slotname;
-		if (tokens[0].size() == 5) {
-			slotname = tokens[0][4];
-		} else {
-			slotname = "any";
-		}
-		vector<string> options(tokens.begin() + 2, tokens.end());
-
-		ExtensionConfig& extension =
-			motherBoard.loadRom(tokens[1], slotname, options);
-		return extension.getName();
-	} catch (MSXException& e) {
-		throw CommandException(e.getMessage());
-	}
-}
-
-string CartCmd::help(const vector<string>& /*tokens*/) const
-{
-	return "Insert a ROM cartridge.";
-}
-
-void CartCmd::tabCompletion(vector<string>& tokens) const
-{
-	completeFileName(tokens);
 }
 
 
