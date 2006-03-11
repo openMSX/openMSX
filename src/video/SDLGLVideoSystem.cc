@@ -2,6 +2,7 @@
 
 #include "SDLGLVideoSystem.hh"
 #include "GLRasterizer.hh"
+#include "GL2Rasterizer.hh"
 #include "V9990GLRasterizer.hh"
 #include "Reactor.hh"
 #include "Display.hh"
@@ -18,13 +19,12 @@ namespace openmsx {
 
 SDLGLVideoSystem::SDLGLVideoSystem(Reactor& reactor_)
 	: reactor(reactor_)
+	, display(reactor.getDisplay())
 {
 	// Destruct old layers, so resources are freed before new allocations
 	// are done.
 	// TODO: This has to be done before every video system (re)init,
 	//       so move it to a central location.
-	Display& display = reactor.getDisplay();
-
 	resize(640, 480);
 
 	console   = screen->createConsoleLayer(reactor);
@@ -45,7 +45,6 @@ SDLGLVideoSystem::~SDLGLVideoSystem()
 	reactor.getEventDistributor().unregisterEventListener(
 		OPENMSX_RESIZE_EVENT, *this);
 
-	Display& display = reactor.getDisplay();
 	display.removeLayer(*iconLayer);
 	display.removeLayer(*snowLayer);
 	display.removeLayer(*console);
@@ -53,8 +52,19 @@ SDLGLVideoSystem::~SDLGLVideoSystem()
 
 Rasterizer* SDLGLVideoSystem::createRasterizer(VDP& vdp)
 {
-	return new GLRasterizer(reactor.getCommandController(),
-	                        vdp, reactor.getDisplay(), *screen);
+	switch (display.getRenderSettings().getRenderer().getValue()) {
+	case RendererFactory::SDLGL:
+		return new GLRasterizer(
+			reactor.getCommandController(), vdp, display, *screen
+			);
+	case RendererFactory::SDLGL2:
+		return new GL2Rasterizer(
+			reactor.getCommandController(), vdp, display, *screen
+			);
+	default:
+		assert(false);
+		return NULL;
+	}
 }
 
 V9990Rasterizer* SDLGLVideoSystem::createV9990Rasterizer(V9990& vdp)

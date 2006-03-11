@@ -4,6 +4,7 @@
 #define SDLGLVIDEOSYSTEM_HH
 
 #include "VideoSystem.hh"
+#include "RendererFactory.hh"
 #include "EventListener.hh"
 #include "noncopyable.hh"
 #include <string>
@@ -43,6 +44,7 @@ private:
 	void resize(unsigned x, unsigned y);
 
 	Reactor& reactor;
+	Display& display;
 	std::auto_ptr<VisibleSurface> screen;
 	std::auto_ptr<Layer> console;
 	std::auto_ptr<Layer> snowLayer;

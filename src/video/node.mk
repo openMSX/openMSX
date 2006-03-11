@@ -46,7 +46,7 @@ HDR_ONLY:= \
 	VideoSystemChangeListener
 
 SRC_HDR_$(COMPONENT_GL)+= \
-	SDLGLVideoSystem GLRasterizer GLSnow GLUtil GLImage \
+	SDLGLVideoSystem GLRasterizer GL2Rasterizer GLSnow GLUtil GLImage \
 	SDLGLVisibleSurface
 
 include build/node-end.mk

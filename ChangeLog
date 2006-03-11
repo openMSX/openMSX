@@ -1,5 +1,12 @@
 $Id$
 
+2006-03-11 Maarten ter Huurne <maarten@treewalker.org>
+	* Added support for pixel buffers to GLUtil.
+	* Added utility functions to GLUtil.
+	* Introduced new experimental renderer "SDLGL2".
+	  It uses OpenGL 2.0 features, including fragment (pixel) shaders.
+	  Currently, it only renders SCREEN5/8 without blanking/borders.
+
 2006-03-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Dynamically register cart<x> commands
 

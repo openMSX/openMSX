@@ -32,23 +32,21 @@ namespace openmsx {
 VideoSystem* RendererFactory::createVideoSystem(Reactor& reactor)
 {
 	VideoSystem* result;
-	Display& display = reactor.getDisplay();
-	switch (display.getRenderSettings().getRenderer().getValue()) {
+	RendererFactory::RendererID rendererID =
+		reactor.getDisplay().getRenderSettings().getRenderer().getValue();
+	switch (rendererID) {
 		case DUMMY:
 			result = new DummyVideoSystem();
 			break;
 		case SDL:
-			result = new SDLVideoSystem(reactor, SDL);
+		case SDLGL_FB16:
+		case SDLGL_FB32:
+			result = new SDLVideoSystem(reactor, rendererID);
 			break;
 #ifdef COMPONENT_GL
 		case SDLGL:
+		case SDLGL2:
 			result = new SDLGLVideoSystem(reactor);
-			break;
-		case SDLGL_FB16:
-			result = new SDLVideoSystem(reactor, SDLGL_FB16);
-			break;
-		case SDLGL_FB32:
-			result = new SDLVideoSystem(reactor, SDLGL_FB32);
 			break;
 #endif
 		default:
@@ -67,6 +65,7 @@ Renderer* RendererFactory::createRenderer(VDP& vdp, Display& display)
 			break;
 		case SDL:
 		case SDLGL:
+		case SDLGL2:
 		case SDLGL_FB16:
 		case SDLGL_FB32:
 			result = new PixelRenderer(vdp, display);
@@ -93,6 +92,7 @@ V9990Renderer* RendererFactory::createV9990Renderer(
 			break;
 		case SDL:
 		case SDLGL:
+		case SDLGL2:
 		case SDLGL_FB16:
 		case SDLGL_FB32:
 			result = new V9990PixelRenderer(vdp);
@@ -120,6 +120,7 @@ auto_ptr<RendererFactory::RendererSetting>
 	rendererMap["SDL"] = SDL;
 #ifdef COMPONENT_GL
 	rendererMap["SDLGL"] = SDLGL;
+	rendererMap["SDLGL2"] = SDLGL2;
 	if (!Version::RELEASE) {
 		// disabled for the release:
 		//  these 2 renderers don't offer anything more than the existing
@@ -135,7 +136,7 @@ auto_ptr<RendererFactory::RendererSetting>
 	auto_ptr<RendererSetting> setting(new RendererSetting(commandController,
 		"renderer", "rendering back-end used to display the MSX screen",
 		SDL, rendererMap));
-	
+
 	// a saved value 'none' can be very confusing, if so restore to 'SDL'
 	if (setting->getValue() == DUMMY) {
 		setting->setValue(SDL);
