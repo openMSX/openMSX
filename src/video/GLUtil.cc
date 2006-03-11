@@ -38,6 +38,147 @@ Texture::~Texture()
 	glDeleteTextures(1, &textureId);
 }
 
+void Texture::drawRect(
+	GLfloat tx, GLfloat ty, GLfloat twidth, GLfloat theight,
+	GLint x, GLint y, GLint width, GLint height
+	)
+{
+	const GLint x2 = x + width;
+	const GLint y2 = y + height;
+	const GLfloat tx2 = tx + twidth;
+	const GLfloat ty2 = ty + theight;
+	bind();
+	glEnable(GL_TEXTURE_2D);
+	glBegin(GL_QUADS);
+	glTexCoord2f(tx,  ty ); glVertex2i(x , y );
+	glTexCoord2f(tx2, ty ); glVertex2i(x2, y );
+	glTexCoord2f(tx2, ty2); glVertex2i(x2, y2);
+	glTexCoord2f(tx,  ty2); glVertex2i(x,  y2);
+	glEnd();
+	glDisable(GL_TEXTURE_2D);
+}
+
+
+// class ColourTexture
+
+void ColourTexture::setImage(GLsizei width, GLsizei height, GLuint* data)
+{
+	bind();
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexImage2D(
+		GL_TEXTURE_2D,    // target
+		0,                // level
+		GL_RGBA8,         // internal format
+		width,            // width
+		height,           // height
+		0,                // border
+		GL_RGBA,          // format
+		GL_UNSIGNED_BYTE, // type
+		data              // data
+		);
+}
+
+void ColourTexture::updateImage(
+	GLint x, GLint y, GLsizei width, GLsizei height, GLuint* data
+	)
+{
+	bind();
+	glTexSubImage2D(
+		GL_TEXTURE_2D,    // target
+		0,                // level
+		x,                // offset x
+		y,                // offset y
+		width,            // width
+		height,           // height
+		GL_RGBA,          // format
+		GL_UNSIGNED_BYTE, // type
+		data              // data
+		);
+}
+
+void ColourTexture::updateImage(
+	GLint x, GLint y, GLsizei width, GLsizei height,
+	const PixelBuffer& buffer, GLuint bx, GLuint by
+	)
+{
+	assert(0 <= static_cast<GLint>(bx) + width < buffer.width);
+	assert(0 <= static_cast<GLint>(by) + height < buffer.height);
+	bind();
+	buffer.bindSrc();
+	GLuint* data = buffer.getOffset(bx, by);
+	if (bx == 0 && width == static_cast<GLsizei>(buffer.width)) {
+		// Full-width copy.
+		glTexSubImage2D(
+			GL_TEXTURE_2D,    // target
+			0,                // level
+			x,                // offset x
+			y,                // offset y
+			width,            // width
+			height,           // height
+			GL_RGBA,          // format
+			GL_UNSIGNED_BYTE, // type
+			data              // data
+			);
+	} else {
+		// Partial line copy.
+		for (GLint endy = y + height; y < endy; y++) {
+			glTexSubImage2D(
+				GL_TEXTURE_2D,    // target
+				0,                // level
+				x,                // offset x
+				y,                // offset y
+				width,            // width
+				1,                // height
+				GL_RGBA,          // format
+				GL_UNSIGNED_BYTE, // type
+				data              // data
+				);
+			data += buffer.width;
+		}
+	}
+	buffer.unbindSrc();
+}
+
+
+// class LuminanceTexture
+
+void LuminanceTexture::setImage(GLsizei width, GLsizei height, GLbyte* data)
+{
+	bind();
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexImage2D(
+		GL_TEXTURE_2D,    // target
+		0,                // level
+		GL_LUMINANCE8,    // internal format
+		width,            // width
+		height,           // height
+		0,                // border
+		GL_LUMINANCE,     // format
+		GL_UNSIGNED_BYTE, // type
+		data              // data
+		);
+}
+
+void LuminanceTexture::updateImage(
+	GLint x, GLint y, GLsizei width, GLsizei height, GLbyte* data
+	)
+{
+	bind();
+	glTexSubImage2D(
+		GL_TEXTURE_2D,    // target
+		0,                // level
+		x,                // offset x
+		y,                // offset y
+		width,            // width
+		height,           // height
+		GL_LUMINANCE,     // format
+		GL_UNSIGNED_BYTE, // type
+		data              // data
+		);
+}
+
 
 // class BitmapTexture
 
@@ -240,6 +381,102 @@ void StoredFrame::drawBlend(
 	glColor4f(1.0, 0.0, 0.0, alpha);
 	draw(offsetX, offsetY, width, height);
 	glDisable(GL_BLEND);
+}
+
+
+// class PixelBuffer
+
+PixelBuffer::PixelBuffer()
+{
+	allocated = NULL;
+#ifdef GL_VERSION_1_5
+	if (GLEW_ARB_pixel_buffer_object) {
+		glGenBuffers(1, &bufferId);
+	} else
+#endif
+	{
+		//std::cerr << "OpenGL pixel buffers are not available" << std::endl;
+		bufferId = 0;
+	}
+}
+
+PixelBuffer::~PixelBuffer()
+{
+	free(allocated);
+#ifdef GL_VERSION_1_5
+	glDeleteBuffers(1, &bufferId);
+#endif
+}
+
+void PixelBuffer::setImage(GLuint width, GLuint height)
+{
+	this->width = width;
+	this->height = height;
+#ifdef GL_VERSION_1_5
+	if (bufferId != 0) {
+		bindSrc();
+		glBufferData(
+			GL_PIXEL_UNPACK_BUFFER_ARB,
+			width * height * 4,
+			NULL, // leave data undefined
+			// TODO: Check this is a good performance hint.
+			GL_DYNAMIC_DRAW // performance hint
+			);
+		unbindSrc();
+	} else
+#endif
+	{
+		allocated = reinterpret_cast<GLuint*>(malloc(width * height * 4));
+	}
+}
+
+GLuint* PixelBuffer::getOffset(GLuint x, GLuint y) const
+{
+	assert(x < width);
+	assert(y < height);
+#ifdef GL_VERSION_1_5
+	if (bufferId != 0) {
+		return (GLuint*)NULL + x + width * y;
+	}
+#endif
+	return allocated + x + width * y;
+}
+
+void PixelBuffer::bindSrc() const
+{
+#ifdef GL_VERSION_1_5
+	glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, bufferId);
+#endif
+}
+
+void PixelBuffer::unbindSrc() const
+{
+#ifdef GL_VERSION_1_5
+	glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
+#endif
+}
+
+GLuint* PixelBuffer::mapWrite() const
+{
+	bindSrc();
+#ifdef GL_VERSION_1_5
+	if (bufferId != 0) {
+		return reinterpret_cast<GLuint*>(glMapBuffer(
+			GL_PIXEL_UNPACK_BUFFER_ARB, GL_WRITE_ONLY
+			));
+	}
+#endif
+	return allocated;
+}
+
+void PixelBuffer::unmap() const
+{
+#ifdef GL_VERSION_1_5
+	if (bufferId != 0) {
+		glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER_ARB);
+	}
+#endif
+	unbindSrc();
 }
 
 

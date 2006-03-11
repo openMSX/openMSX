@@ -21,9 +21,57 @@
 #include <gl.h>
 #endif
 
+#include "build-info.hh"
 #include <string>
 
 namespace openmsx {
+
+namespace GLUtil {
+
+/** Set primary drawing colour.
+  */
+inline void setPriColour(GLuint colour)
+{
+	if (OPENMSX_BIGENDIAN) {
+		glColor3ub((colour >> 24) & 0xFF,
+		           (colour >> 16) & 0xFF,
+		           (colour >>  8) & 0xFF);
+	} else {
+		glColor3ub((colour >>  0) & 0xFF,
+		           (colour >>  8) & 0xFF,
+		           (colour >> 16) & 0xFF);
+	}
+}
+
+/** Set texture drawing colour.
+  */
+inline void setTexColour(GLuint colour)
+{
+	GLuint r, g, b;
+	if (OPENMSX_BIGENDIAN) {
+		r = (colour >> 24) & 0xFF;
+		g = (colour >> 16) & 0xFF;
+		b = (colour >>  8) & 0xFF;
+	} else {
+		r = (colour >>  0) & 0xFF;
+		g = (colour >>  8) & 0xFF;
+		b = (colour >> 16) & 0xFF;
+	}
+	GLfloat colourVec[4] = { r / 255.0f, g / 255.0f, b / 255.0f, 1.0f };
+	glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colourVec);
+}
+
+/** Draw a filled rectangle.
+  */
+inline void drawRect(GLint x, GLint y, GLint width, GLint height, GLuint colour)
+{
+	setPriColour(colour);
+	glRecti(x, y, x + width, y + height);
+}
+
+} // namespace GLUtil
+
+class PixelBuffer;
 
 /** Most basic/generic texture: only contains a texture ID.
   */
@@ -33,12 +81,65 @@ public:
 	Texture();
 	virtual ~Texture();
 
-	// TODO: I'd prefer to make this protected / friend.
+	/** Makes this texture the active GL texture.
+	  * The other methods of this class and its subclasses will implicitly
+	  * bind the texture, so you only need this method to explicitly bind
+	  * this texture for use in GL function calls outside of this class.
+	  */
 	void bind() {
 		glBindTexture(GL_TEXTURE_2D, textureId);
 	}
+
+	/** Draws this texture as a rectangle on the frame buffer.
+	  */
+	void drawRect(
+		GLfloat tx, GLfloat ty, GLfloat twidth, GLfloat theight,
+		GLint x, GLint y, GLint width, GLint height
+		);
+
 protected:
 	GLuint textureId;
+};
+
+class ColourTexture: public Texture
+{
+public:
+	/** Sets the image for this texture.
+	  */
+	void setImage(GLsizei width, GLsizei height, GLuint* data = NULL);
+
+	/** Redefines (part of) the image for this texture.
+	  */
+	void updateImage(
+		GLint x, GLint y,
+		GLsizei width, GLsizei height,
+		GLuint* data
+		);
+
+	/** Redefines (part of) the image for this texture.
+	  */
+	void updateImage(
+		GLint x, GLint y,
+		GLsizei width, GLsizei height,
+		const PixelBuffer& buffer,
+		GLuint bx, GLuint by
+		);
+};
+
+class LuminanceTexture: public Texture
+{
+public:
+	/** Sets the image for this texture.
+	  */
+	void setImage(GLsizei width, GLsizei height, GLbyte* data = NULL);
+
+	/** Redefines (part of) the image for this texture.
+	  */
+	void updateImage(
+		GLint x, GLint y,
+		GLsizei width, GLsizei height,
+		GLbyte* data
+		);
 };
 
 /** Texture used for storing bitmap data from MSX VRAM.
@@ -102,6 +203,69 @@ private:
 	/** Was the previous frame image stored?
 	  */
 	bool stored;
+};
+
+/** Wrapper around a pixel buffer.
+  * The pixel buffer will be allocated in VRAM if possible, in main RAM
+  * otherwise.
+  * The pixel type is GLuint, so each entry in the buffer is 32 bits wide.
+  */
+class PixelBuffer
+{
+public:
+	PixelBuffer();
+	~PixelBuffer();
+
+	/** Sets the image for this buffer.
+	  * TODO: Actually, only image size for now;
+	  *       later, if we need it, image data too.
+	  */
+	void setImage(GLuint width, GLuint height);
+
+	/** Gets a pointer relative to the start of this buffer.
+	  * You must not dereference this pointer, but you can pass it to
+	  * glTexImage etc when this buffer is bound as the source.
+	  */
+	GLuint* getOffset(GLuint x, GLuint y) const;
+
+	/** Bind this buffer as the source for pixel transfer operations such as
+	  * glTexImage.
+	  */
+	void bindSrc() const;
+
+	/** Unbind this buffer as the source for pixel transfer operations.
+	  */
+	void unbindSrc() const;
+
+	/** Maps the contents of this buffer into memory for writing.
+	  * @return Pointer through which you can write pixels to this buffer.
+	  */
+	GLuint* mapWrite() const;
+
+	/** Unmaps the contents of this buffer.
+	  * After this call, you must no longer use the pointer returned by
+	  * mapWrite.
+	  */
+	void unmap() const;
+private:
+	friend class ColourTexture;
+
+	/** Handle of the GL buffer, or 0 if no GL buffer is available.
+	  */
+	GLuint bufferId;
+
+	/** Pointer to main RAM fallback, or 0 if no main RAM buffer was
+	  * allocated.
+	  */
+	GLuint* allocated;
+
+	/** Number of pixels per line.
+	  */
+	GLuint width;
+
+	/** Number of lines.
+	  */
+	GLuint height;
 };
 
 /** Wrapper around an OpenGL shader: a program executed on the GPU.
