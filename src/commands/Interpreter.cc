@@ -135,8 +135,10 @@ void Interpreter::registerCommand(const string& name, Command& command)
 
 void Interpreter::unregisterCommand(const string& name, Command& /*command*/)
 {
-	assert(commandTokenMap.find(name) != commandTokenMap.end());
-	Tcl_DeleteCommandFromToken(interp, commandTokenMap[name]);
+	CommandTokenMap::iterator it = commandTokenMap.find(name);
+	assert(it != commandTokenMap.end());
+	Tcl_DeleteCommandFromToken(interp, it->second);
+	commandTokenMap.erase(it);
 }
 
 int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,

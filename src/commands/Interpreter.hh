@@ -61,7 +61,8 @@ private:
 
 	static Tcl_ChannelType channelType;
 	Tcl_Interp* interp;
-	std::map<std::string, Tcl_Command> commandTokenMap;
+	typedef std::map<std::string, Tcl_Command> CommandTokenMap;
+	CommandTokenMap commandTokenMap;
 	InterpreterOutput* output;
 
 	friend class TclObject;
