@@ -74,7 +74,7 @@
             <filename>roms/expert_ddplus_disk.rom</filename>
             <sha1>f1525de4e0b60a6687156c2a96f8a8b2044b6c56</sha1>
           </rom>
-          <mem base="0x4000" size="0x8000"/>
+          <mem base="0x4000" size="0x4000"/>
         </MB8877A>
       </secondary>
 

@@ -1,6 +1,11 @@
 $Id$
 
-2006-03-04 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2006-03-11 Manuel Bilderbeek <manuel@msxnet.org>
+	* Fixed Gradiente machines. Cartridge slot B is in slot 3 and not 2 on
+	  Expert 1.0 and 1.1 and the ROM size was wrong for the DDPlus. Thanks
+	  to Gustavo Seidler for pointing this out.
+
+2006-03-09 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Upper 4 RAM blocks on turbor may not be writable in dram mode (not
 	  yet tested)
 
