@@ -499,6 +499,12 @@ static std::string readTextFile(const std::string& filename)
 #ifdef GL_VERSION_2_0
 Shader::Shader(GLenum type, const std::string& filename)
 {
+	// Check if GL 2.0 is present on this machine.
+	if (!GLEW_VERSION_2_0) {
+		handle = 0;
+		return;
+	}
+
 	// Load shader source.
 	std::string source;
 	try {
@@ -596,6 +602,13 @@ FragmentShader::FragmentShader(const std::string& filename)
 ShaderProgram::ShaderProgram()
 {
 #ifdef GL_VERSION_2_0
+	// Check if GL 2.0 is present on this machine.
+	if (!GLEW_VERSION_2_0) {
+		//std::cerr << "Shaders not supported by installed OpenGL" << std::endl;
+		handle = 0;
+		return;
+	}
+
 	// Allocate program handle.
 	handle = glCreateProgram();
 	if (handle == 0) {
