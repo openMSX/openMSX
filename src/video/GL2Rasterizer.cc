@@ -642,8 +642,12 @@ void GL2Rasterizer::updateVRAMCache(int address)
 
 void GL2Rasterizer::paint()
 {
-	GLint texLoc = scalerProgram->getUniformLocation("tex");
-	glUniform1i(texLoc, 0);
+#ifdef GL_VERSION_2_0
+	if (GLEW_VERSION_2_0) {
+		GLint texLoc = scalerProgram->getUniformLocation("tex");
+		glUniform1i(texLoc, 0);
+	}
+#endif
 	scalerProgram->activate();
 	float x = static_cast<float>(320) / 1024;
 	float y = static_cast<float>(240) / 512;
