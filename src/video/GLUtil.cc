@@ -558,7 +558,9 @@ Shader::Shader(GLenum /*type*/, const std::string& /*filename*/)
 Shader::~Shader()
 {
 #ifdef GL_VERSION_2_0
-	glDeleteShader(handle);
+	if (handle != 0) {
+		glDeleteShader(handle);
+	}
 #endif
 }
 
@@ -629,7 +631,9 @@ ShaderProgram::ShaderProgram()
 ShaderProgram::~ShaderProgram()
 {
 #ifdef GL_VERSION_2_0
-	glDeleteProgram(handle);
+	if (handle != 0) {
+		glDeleteProgram(handle);
+	}
 #endif
 }
 
