@@ -335,21 +335,23 @@ public:
 	  */
 	void attach(const Shader& shader);
 
-	/** Link all attached shaders together into one program.
+	/** Links all attached shaders together into one program.
 	  * This should be done before activating the program.
 	  */
 	void link();
 
 	/** Gets a reference to a uniform variable declared in the shader source.
+	  * Note that you have to activate this program before you can change
+	  * the uniform variable's value.
 	  */
 	GLint getUniformLocation(const char* name) const;
 
-	/** Make this program the active shader program.
+	/** Makes this program the active shader program.
 	  * This requires that the program is already linked.
 	  */
 	void activate() const;
 
-	/** Deactivate all shader programs.
+	/** Deactivates all shader programs.
 	  */
 	void deactivate() const;
 
