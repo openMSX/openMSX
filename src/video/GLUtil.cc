@@ -428,7 +428,9 @@ void PixelBuffer::setImage(GLuint width, GLuint height)
 	} else
 #endif
 	{
-		allocated = reinterpret_cast<GLuint*>(malloc(width * height * 4));
+		allocated = reinterpret_cast<GLuint*>(
+			realloc(allocated, width * height * 4)
+			);
 	}
 }
 
