@@ -716,14 +716,18 @@ GLint ShaderProgram::getUniformLocation(const char* /*name*/) const
 void ShaderProgram::activate() const
 {
 #ifdef GL_VERSION_2_0
-	glUseProgram(handle);
+	if (GLEW_VERSION_2_0) {
+		glUseProgram(handle);
+	}
 #endif
 }
 
 void ShaderProgram::deactivate() const
 {
 #ifdef GL_VERSION_2_0
-	glUseProgram(0);
+	if (GLEW_VERSION_2_0) {
+		glUseProgram(0);
+	}
 #endif
 }
 
