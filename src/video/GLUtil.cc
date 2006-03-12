@@ -404,7 +404,9 @@ PixelBuffer::~PixelBuffer()
 {
 	free(allocated);
 #ifdef GL_VERSION_1_5
-	glDeleteBuffers(1, &bufferId);
+	if (bufferId != 0) {
+		glDeleteBuffers(1, &bufferId);
+	}
 #endif
 }
 
@@ -445,14 +447,18 @@ GLuint* PixelBuffer::getOffset(GLuint x, GLuint y) const
 void PixelBuffer::bindSrc() const
 {
 #ifdef GL_VERSION_1_5
-	glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, bufferId);
+	if (bufferId != 0) {
+		glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, bufferId);
+	}
 #endif
 }
 
 void PixelBuffer::unbindSrc() const
 {
 #ifdef GL_VERSION_1_5
-	glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
+	if (bufferId != 0) {
+		glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
+	}
 #endif
 }
 
