@@ -22,7 +22,7 @@ class VisibleSurface;
 class RawFrame;
 class RenderSettings;
 class Setting;
-template <class Pixel> class PostProcessor;
+class PostProcessor;
 
 /** Rasterizer using a frame buffer approach: it writes pixels to a single
   * rectangular pixel buffer.
@@ -32,7 +32,10 @@ class SDLRasterizer : public Rasterizer, private noncopyable,
                       private Observer<Setting>
 {
 public:
-	SDLRasterizer(VDP& vdp, Display& display, VisibleSurface& screen);
+	SDLRasterizer(
+		VDP& vdp, Display& display, VisibleSurface& screen,
+		std::auto_ptr<PostProcessor> postProcessor_
+		);
 	virtual ~SDLRasterizer();
 
 	// Rasterizer interface:
@@ -141,7 +144,7 @@ private:
 	/** The video post processor which displays the frames produced by this
 	  *  rasterizer.
 	  */
-	std::auto_ptr<PostProcessor<Pixel> > postProcessor;
+	std::auto_ptr<PostProcessor> postProcessor;
 
 	/** The next frame as it is delivered by the VDP, work in progress.
 	  */

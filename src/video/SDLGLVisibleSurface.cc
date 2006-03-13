@@ -43,56 +43,56 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	glOrtho(0, width, height, 0, -1, 1);
 	glMatrixMode(GL_MODELVIEW);
 
+	format.palette = 0;
+	format.colorkey = 0;
+	format.alpha = 0;
+	if (frameBuffer == FB_16BPP) {
+		format.BitsPerPixel = 16;
+		format.BytesPerPixel = 2;
+		format.Rloss = 3;
+		format.Gloss = 2;
+		format.Bloss = 3;
+		format.Aloss = 8;
+		format.Rshift = 11;
+		format.Gshift = 5;
+		format.Bshift = 0;
+		format.Ashift = 0;
+		format.Rmask = 0xF800;
+		format.Gmask = 0x07E0;
+		format.Bmask = 0x001F;
+		format.Amask = 0x0000;
+	} else {
+		format.BitsPerPixel = 32;
+		format.BytesPerPixel = 4;
+		format.Rloss = 0;
+		format.Gloss = 0;
+		format.Bloss = 0;
+		format.Aloss = 0;
+		if (OPENMSX_BIGENDIAN) {
+			format.Rshift = 24;
+			format.Gshift = 16;
+			format.Bshift = 8;
+			format.Ashift = 0;
+			format.Rmask = 0xFF000000;
+			format.Gmask = 0x00FF0000;
+			format.Bmask = 0x0000FF00;
+			format.Amask = 0x000000FF;
+		} else {
+			format.Rshift = 0;
+			format.Gshift = 8;
+			format.Bshift = 16;
+			format.Ashift = 24;
+			format.Rmask = 0x000000FF;
+			format.Gmask = 0x0000FF00;
+			format.Bmask = 0x00FF0000;
+			format.Amask = 0xFF000000;
+		}
+	}
+
 	if (frameBuffer == FB_NONE) {
 		pitch = 0;
 		data = 0;
 	} else {
-		format.palette = 0;
-		format.colorkey = 0;
-		format.alpha = 0;
-		if (frameBuffer == FB_16BPP) {
-			format.BitsPerPixel = 16;
-			format.BytesPerPixel = 2;
-			format.Rloss = 3;
-			format.Gloss = 2;
-			format.Bloss = 3;
-			format.Aloss = 8;
-			format.Rshift = 11;
-			format.Gshift = 5;
-			format.Bshift = 0;
-			format.Ashift = 0;
-			format.Rmask = 0xF800;
-			format.Gmask = 0x07E0;
-			format.Bmask = 0x001F;
-			format.Amask = 0x0000;
-		} else {
-			format.BitsPerPixel = 32;
-			format.BytesPerPixel = 4;
-			format.Rloss = 0;
-			format.Gloss = 0;
-			format.Bloss = 0;
-			format.Aloss = 0;
-			if (OPENMSX_BIGENDIAN) {
-				format.Rshift = 24;
-				format.Gshift = 16;
-				format.Bshift = 8;
-				format.Ashift = 0;
-				format.Rmask = 0xFF000000;
-				format.Gmask = 0x00FF0000;
-				format.Bmask = 0x0000FF00;
-				format.Amask = 0x000000FF;
-			} else {
-				format.Rshift = 0;
-				format.Gshift = 8;
-				format.Bshift = 16;
-				format.Ashift = 24;
-				format.Rmask = 0x000000FF;
-				format.Gmask = 0x0000FF00;
-				format.Bmask = 0x00FF0000;
-				format.Amask = 0xFF000000;
-			}
-		}
-
 		// TODO 64 byte aligned (see RawFrame)
 		unsigned texW = roundUpPow2(width);
 		unsigned texH = roundUpPow2(height);
@@ -125,6 +125,22 @@ SDLGLVisibleSurface::~SDLGLVisibleSurface()
 bool SDLGLVisibleSurface::init()
 {
 	return true;
+}
+
+unsigned SDLGLVisibleSurface::mapRGB(double dr, double dg, double db)
+{
+	if (frameBuffer == FB_NONE) {
+		int r = static_cast<int>(dr * 255.0);
+		int g = static_cast<int>(dg * 255.0);
+		int b = static_cast<int>(db * 255.0);
+		if (OPENMSX_BIGENDIAN) {
+			return (r << 24) | (g << 16) | (b <<  8) | 0x000000FF;
+		} else {
+			return (r <<  0) | (g <<  8) | (b << 16) | 0xFF000000;
+		}
+	} else {
+		return OutputSurface::mapRGB(dr, dg, db);
+	}
 }
 
 void SDLGLVisibleSurface::drawFrameBuffer()

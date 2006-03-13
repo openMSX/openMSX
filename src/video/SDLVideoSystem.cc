@@ -2,6 +2,7 @@
 
 #include "SDLVideoSystem.hh"
 #include "SDLRasterizer.hh"
+#include "V9990.hh"
 #include "V9990SDLRasterizer.hh"
 #include "Display.hh"
 #include "SDLVisibleSurface.hh"
@@ -10,6 +11,9 @@
 #include "IntegerSetting.hh"
 #include "InputEventGenerator.hh"
 #include "Reactor.hh"
+#include "FBPostProcessor.hh"
+#include "VideoSourceSetting.hh"
+#include "MSXMotherBoard.hh"
 #include <cassert>
 
 #include "components.hh"
@@ -67,9 +71,21 @@ Rasterizer* SDLVideoSystem::createRasterizer(VDP& vdp)
 {
 	switch (screen->getFormat()->BytesPerPixel) {
 	case 2:
-		return new SDLRasterizer<Uint16>(vdp, display, *screen);
+		return new SDLRasterizer<Uint16>(
+			vdp, display, *screen,
+			std::auto_ptr<PostProcessor>(new FBPostProcessor<Uint16>(
+				vdp.getMotherBoard().getCommandController(),
+				display, *screen, VIDEO_MSX, 640, 240
+				))
+			);
 	case 4:
-		return new SDLRasterizer<Uint32>(vdp, display, *screen);
+		return new SDLRasterizer<Uint32>(
+			vdp, display, *screen,
+			std::auto_ptr<PostProcessor>(new FBPostProcessor<Uint32>(
+				vdp.getMotherBoard().getCommandController(),
+				display, *screen, VIDEO_MSX, 640, 240
+				))
+			);
 	default:
 		assert(false);
 		return 0;
@@ -80,9 +96,21 @@ V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990& vdp)
 {
 	switch (screen->getFormat()->BytesPerPixel) {
 	case 2:
-		return new V9990SDLRasterizer<Uint16>(vdp, display, *screen);
+		return new V9990SDLRasterizer<Uint16>(
+			vdp, display, *screen,
+			std::auto_ptr<PostProcessor>(new FBPostProcessor<Uint32>(
+				vdp.getMotherBoard().getCommandController(),
+				display, *screen, VIDEO_GFX9000, 1280, 240
+				))
+			);
 	case 4:
-		return new V9990SDLRasterizer<Uint32>(vdp, display, *screen);
+		return new V9990SDLRasterizer<Uint32>(
+			vdp, display, *screen,
+			std::auto_ptr<PostProcessor>(new FBPostProcessor<Uint32>(
+				vdp.getMotherBoard().getCommandController(),
+				display, *screen, VIDEO_GFX9000, 1280, 240
+				))
+			);
 	default:
 		assert(false);
 		return 0;

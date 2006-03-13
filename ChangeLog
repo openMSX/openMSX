@@ -1,5 +1,11 @@
 $Id$
 
+2006-03-13 Maarten ter Huurne <maarten@treewalker.org>
+	* Introduced new renderer "SDLGL-PP".
+	  This uses SDLRasterizer and does post processing in OpenGL.
+	  Since it uses SDLRasterizer, it is more mature already than SDLGL2,
+	  which uses its own GL2Rasterizer.
+
 2006-03-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Turned MSXDevice creation in a 2-step process:
 	     First construct object, then call the init() method. This

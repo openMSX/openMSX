@@ -3,35 +3,32 @@
 #ifndef POSTPROCESSOR_HH
 #define POSTPROCESSOR_HH
 
-#include "RenderSettings.hh"
 #include "FrameSource.hh"
 #include "VideoLayer.hh"
-#include "PixelOperations.hh"
-#include <vector>
 
 namespace openmsx {
 
-class Scaler;
 class CommandController;
 class Display;
+class RenderSettings;
 class VisibleSurface;
 class RawFrame;
 class DeinterlacedFrame;
 class DoubledFrame;
 
-/** Rasterizer using SDL.
+/** Abstract base class for post processors.
+  * A post processor builds the frame that is displayed from the MSX frame,
+  * while applying effects such as scalers, noise etc.
+  * TODO: With some refactoring, it would be possible to move much or even all
+  *       of the post processing code here instead of in the subclasses.
   */
-template <class Pixel>
 class PostProcessor : public VideoLayer
 {
 public:
-	PostProcessor(CommandController& commandController, Display& display,
-	              VisibleSurface& screen, VideoSource videoSource,
-	              unsigned maxWidth, unsigned height);
 	virtual ~PostProcessor();
 
 	// Layer interface:
-	virtual void paint();
+	virtual void paint() = 0;
 	virtual const std::string& getName();
 
 	/** Sets up the "abcdFrame" variables for a new frame.
@@ -43,38 +40,24 @@ public:
 	  *   interlacing.
 	  * @return RawFrame object that can be used for building the next frame.
 	  */
-	RawFrame* rotateFrames(RawFrame* finishedFrame, FrameSource::FieldType field);
+	virtual RawFrame* rotateFrames(
+		RawFrame* finishedFrame, FrameSource::FieldType field
+		);
 
-private:
-	/** (Re)initialize the "abcdFrame" variables.
-	  * @param first True iff this is the first call.
-	  *   The first call should be done by the constructor.
+protected:
+	/** Returns the maximum width for lines [y..y+step).
 	  */
-	void initFrames(bool first = false);
+	static unsigned getLineWidth(FrameSource* frame, unsigned y, unsigned step);
 
-	void preCalcNoise(double factor);
-	void drawNoise();
-	void drawNoiseLine(Pixel* in, Pixel* out, signed char* noise,
-	                   unsigned width);
-
-	// Observer<Setting>
-	virtual void update(const Setting& setting);
+	PostProcessor(
+		CommandController& commandController, Display& display,
+		VisibleSurface& screen, VideoSource videoSource,
+		unsigned maxWidth, unsigned height
+		);
 
 	/** Render settings
 	  */
 	RenderSettings& renderSettings;
-
-	/** The currently active scaler.
-	  */
-	std::auto_ptr<Scaler> currScaler;
-
-	/** Currently active scale algorithm, used to detect scaler changes.
-	  */
-	RenderSettings::ScaleAlgorithm scaleAlgorithm;
-
-	/** Currently active scale factor, used to detect scaler changes.
-	  */
-	unsigned scaleFactor;
 
 	/** The surface which is visible to the user.
 	  */
@@ -88,16 +71,13 @@ private:
 	  */
 	RawFrame* prevFrame;
 
-	/** Combined currFrame and prevFrame
+	/** Combined currFrame and prevFrame.
 	  */
 	DeinterlacedFrame* deinterlacedFrame;
+
+	/** Each line of currFrame twice, to get double vertical resolution.
+	  */
 	DoubledFrame* interlacedFrame;
-
-	/** Remember the noise values to get a stable image when paused.
-	 */
-	std::vector<unsigned> noiseShift;
-
-	PixelOperations<Pixel> pixelOps;
 };
 
 } // namespace openmsx

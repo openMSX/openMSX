@@ -19,7 +19,7 @@ class RawFrame;
 class OutputSurface;
 class VisibleSurface;
 class RenderSettings;
-template <class Pixel> class PostProcessor;
+class PostProcessor;
 
 /** Rasterizer using SDL.
   */
@@ -27,7 +27,10 @@ template <class Pixel>
 class V9990SDLRasterizer : public V9990Rasterizer, private noncopyable
 {
 public:
-	V9990SDLRasterizer(V9990& vdp, Display& display, VisibleSurface& screen);
+	V9990SDLRasterizer(
+		V9990& vdp, Display& display, VisibleSurface& screen,
+		std::auto_ptr<PostProcessor> postProcessor_
+		);
 	virtual ~V9990SDLRasterizer();
 
 	// Rasterizer interface:
@@ -71,7 +74,7 @@ private:
 	/** The current renderer settings (gamma, brightness, contrast)
 	  */
 	RenderSettings& renderSettings;
-	
+
 	/** Line to render at top of display.
 	  * After all, our screen is 240 lines while display is 262 or 313.
 	  */
@@ -104,7 +107,7 @@ private:
 	/** The video post processor which displays the frames produced by this
 	  *  rasterizer.
 	  */
-	std::auto_ptr<PostProcessor<Pixel> > postProcessor;
+	std::auto_ptr<PostProcessor> postProcessor;
 
 	/** Bitmap converter. Converts VRAM into pixels
 	  */

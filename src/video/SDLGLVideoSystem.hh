@@ -6,6 +6,7 @@
 #include "VideoSystem.hh"
 #include "RendererFactory.hh"
 #include "EventListener.hh"
+#include "Observer.hh"
 #include "noncopyable.hh"
 #include <string>
 #include <memory>
@@ -15,9 +16,11 @@ namespace openmsx {
 class Reactor;
 class VisibleSurface;
 class Layer;
+class RenderSettings;
+class Setting;
 
 class SDLGLVideoSystem : public VideoSystem, private EventListener,
-                         private noncopyable
+                         private Observer<Setting>, private noncopyable
 {
 public:
 	/** Activates this video system.
@@ -37,14 +40,18 @@ public:
 	virtual void takeScreenShot(const std::string& filename);
 	virtual void setWindowTitle(const std::string& title);
 
+private:
 	// EventListener
 	void signalEvent(const Event& event);
+	// Observer
+	void update(const Setting& subject);
 
-private:
-	void resize(unsigned x, unsigned y);
+	void getWindowSize(unsigned& width, unsigned& height);
+	void resize();
 
 	Reactor& reactor;
 	Display& display;
+	RenderSettings& renderSettings;
 	std::auto_ptr<VisibleSurface> screen;
 	std::auto_ptr<Layer> console;
 	std::auto_ptr<Layer> snowLayer;

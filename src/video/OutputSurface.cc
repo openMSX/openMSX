@@ -13,9 +13,12 @@ OutputSurface::~OutputSurface()
 {
 }
 
-unsigned OutputSurface::mapRGB(double r, double g, double b)
+unsigned OutputSurface::mapRGB(double dr, double dg, double db)
 {
-	return SDL_MapRGB(&format, int(r * 255), int(g * 255), int(b * 255));
+	int r = static_cast<int>(dr * 255.0);
+	int g = static_cast<int>(dg * 255.0);
+	int b = static_cast<int>(db * 255.0);
+	return SDL_MapRGB(&format, r, g, b);
 }
 
 } // namespace openmsx

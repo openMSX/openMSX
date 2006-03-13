@@ -19,13 +19,13 @@ namespace openmsx {
 
 template <class Pixel>
 V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(
-		V9990& vdp_, Display& display, VisibleSurface& screen_)
+		V9990& vdp_, Display& display, VisibleSurface& screen_,
+		std::auto_ptr<PostProcessor> postProcessor_
+		)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, screen(screen_)
 	, renderSettings(display.getRenderSettings())
-	, postProcessor(new PostProcessor<Pixel>(
-		vdp.getMotherBoard().getCommandController(),
-		display, screen_, VIDEO_GFX9000, 1280, 240))
+	, postProcessor(postProcessor_)
 	, bitmapConverter(vdp, palette64, palette256, palette32768)
 	, p1Converter(vdp, palette64)
 	, p2Converter(vdp, palette64)

@@ -9,7 +9,7 @@ SRC_HDR:= \
 	VDP VDPCmdEngine VDPVRAM SpriteChecker ADVram \
 	VideoSourceSetting \
 	Renderer RendererFactory RenderSettings PixelRenderer \
-	SDLVideoSystem SDLRasterizer SDLSnow \
+	SDLVideoSystem SDLRasterizer FBPostProcessor SDLSnow \
 	DummyRenderer \
 	XRenderer \
 	BitmapConverter CharacterConverter \
@@ -46,8 +46,8 @@ HDR_ONLY:= \
 	VideoSystemChangeListener
 
 SRC_HDR_$(COMPONENT_GL)+= \
-	SDLGLVideoSystem GLRasterizer GL2Rasterizer GLSnow GLUtil GLImage \
-	SDLGLVisibleSurface
+	SDLGLVideoSystem SDLGLVisibleSurface GLSnow GLUtil GLImage \
+	GLRasterizer GL2Rasterizer GLPostProcessor
 
 include build/node-end.mk
 

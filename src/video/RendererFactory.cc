@@ -46,6 +46,7 @@ VideoSystem* RendererFactory::createVideoSystem(Reactor& reactor)
 #ifdef COMPONENT_GL
 		case SDLGL:
 		case SDLGL2:
+		case SDLGL_PP:
 			result = new SDLGLVideoSystem(reactor);
 			break;
 #endif
@@ -66,6 +67,7 @@ Renderer* RendererFactory::createRenderer(VDP& vdp, Display& display)
 		case SDL:
 		case SDLGL:
 		case SDLGL2:
+		case SDLGL_PP:
 		case SDLGL_FB16:
 		case SDLGL_FB32:
 			result = new PixelRenderer(vdp, display);
@@ -93,6 +95,7 @@ V9990Renderer* RendererFactory::createV9990Renderer(
 		case SDL:
 		case SDLGL:
 		case SDLGL2:
+		case SDLGL_PP:
 		case SDLGL_FB16:
 		case SDLGL_FB32:
 			result = new V9990PixelRenderer(vdp);
@@ -121,6 +124,7 @@ auto_ptr<RendererFactory::RendererSetting>
 #ifdef COMPONENT_GL
 	rendererMap["SDLGL"] = SDLGL;
 	rendererMap["SDLGL2"] = SDLGL2;
+	rendererMap["SDLGL-PP"] = SDLGL_PP;
 	if (!Version::RELEASE) {
 		// disabled for the release:
 		//  these 2 renderers don't offer anything more than the existing

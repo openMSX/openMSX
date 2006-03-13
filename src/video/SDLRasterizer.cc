@@ -10,7 +10,6 @@
 #include "PostProcessor.hh"
 #include "FloatSetting.hh"
 #include "MemoryOps.hh"
-#include "MSXMotherBoard.hh"
 #include "VisibleSurface.hh"
 #include <algorithm>
 #include <cassert>
@@ -135,13 +134,12 @@ inline void SDLRasterizer<Pixel>::renderCharacterLines(
 
 template <class Pixel>
 SDLRasterizer<Pixel>::SDLRasterizer(
-		VDP& vdp_, Display& display, VisibleSurface& screen_)
+		VDP& vdp_, Display& display, VisibleSurface& screen_,
+		std::auto_ptr<PostProcessor> postProcessor_
+		)
 	: vdp(vdp_), vram(vdp.getVRAM())
 	, screen(screen_)
-	, postProcessor(new PostProcessor<Pixel>(
-		vdp.getMotherBoard().getCommandController(),
-		display, screen_, VIDEO_MSX, 640, 240
-		))
+	, postProcessor(postProcessor_)
 	, renderSettings(display.getRenderSettings())
 	, characterConverter(vdp, palFg, palBg)
 	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS)

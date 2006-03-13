@@ -29,7 +29,7 @@ public:
 	  * This is the full list, the list of available renderers may be smaller.
 	  */
 	enum RendererID { UNINITIALIZED, DUMMY, SDL,
-	                  SDLGL, SDLGL2, SDLGL_FB16, SDLGL_FB32 };
+	                  SDLGL, SDLGL2, SDLGL_PP, SDLGL_FB16, SDLGL_FB32 };
 
 	virtual ~RendererFactory() {}
 

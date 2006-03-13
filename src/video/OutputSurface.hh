@@ -26,7 +26,7 @@ public:
 		return (Pixel*)(data + y * pitch);
 	}
 
-	unsigned mapRGB(double r, double g, double b);
+	virtual unsigned mapRGB(double dr, double dg, double db);
 
 protected:
 	OutputSurface();
