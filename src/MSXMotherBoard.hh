@@ -12,7 +12,6 @@ namespace openmsx {
 
 class Reactor;
 class MSXDevice;
-class XMLElement;
 class MachineConfig;
 class ExtensionConfig;
 class Scheduler;
@@ -90,7 +89,7 @@ public:
 	ExtensionConfig& loadRom(
 		const std::string& romname, const std::string& slotname,
 		const std::vector<std::string>& options);
-	void removeExtension(ExtensionConfig& extension);
+	void removeExtension(const ExtensionConfig& extension);
 
 	// The following classes are unique per MSX machine
 	Scheduler& getScheduler();
@@ -155,12 +154,10 @@ private:
 	std::auto_ptr<Debugger> debugger;
 	std::auto_ptr<Mixer> mixer;
 	std::auto_ptr<PluggingController> pluggingController;
-	std::auto_ptr<XMLElement> dummyDeviceConfig;
 	std::auto_ptr<DummyDevice> dummyDevice;
 	std::auto_ptr<MSXCPU> msxCpu;
 	std::auto_ptr<MSXCPUInterface> msxCpuInterface;
 	std::auto_ptr<PanasonicMemory> panasonicMemory;
-	std::auto_ptr<XMLElement> devSwitchConfig;
 	std::auto_ptr<MSXDeviceSwitch> deviceSwitch;
 	std::auto_ptr<CassettePortInterface> cassettePort;
 	std::auto_ptr<RenShaTurbo> renShaTurbo;

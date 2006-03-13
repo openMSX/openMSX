@@ -38,7 +38,7 @@ protected:
 	std::auto_ptr<CheckedRam> checkedRam;
 
 private:
-	void createMapperIO(MSXMotherBoard& motherBoard, const EmuTime& time);
+	void createMapperIO(MSXMotherBoard& motherBoard);
 	void destroyMapperIO();
 
 	unsigned nbBlocks;

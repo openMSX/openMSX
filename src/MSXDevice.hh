@@ -14,7 +14,7 @@ namespace openmsx {
 class XMLElement;
 class EmuTime;
 class MSXMotherBoard;
-class MSXDeviceCleanup;
+class HardwareConfig;
 
 /** An MSXDevice is an emulated hardware component connected to the bus
   * of the emulated MSX. There is no communication among devices, only
@@ -26,6 +26,10 @@ public:
 	typedef std::vector<MSXDevice*> Devices;
 
 	virtual ~MSXDevice() = 0;
+
+	/** Returns the hardwareconfig this device belongs to.
+	  */
+	const HardwareConfig& getHardwareConfig() const;
 
 	/** Checks whether this device can be removed (no other device has a
 	  * reference to it). Throws an exception if it can't be removed.
@@ -172,9 +176,20 @@ protected:
 	static byte unmappedWrite[0x10000];	// Write only
 
 private:
+	/** Constructing a MSXDevice is a 2-step process, after the constructor
+	  * is called this init() method must be called. The reason is exception
+	  * safety (init() might throw and we use the destructor to clean up
+	  * some stuff, this is more difficult when everything is done in the
+	  * constrcutor). Another reason is too avoid having to add the
+	  * HardwareConfig parameter to the constructor of every subclass of
+	  * MSXDevice.
+	  * This is also a private method. This means you can only construct
+	  * MSXDevices via DeviceFactory.
+	  */
+	friend class DeviceFactory;
+	void init(const HardwareConfig& hwConf);
+
 	void staticInit();
-	void init(const std::string& name);
-	void deinit();
 
 	void lockDevices();
 	void unlockDevices();
@@ -194,13 +209,11 @@ private:
 	std::vector<byte> outPorts;
 
 	MSXMotherBoard& motherBoard;
+	const HardwareConfig* hardwareConfig;
 	std::string deviceName;
 
 	Devices references;
 	Devices referencedBy;
-
-	friend class MSXDeviceCleanup;
-	std::auto_ptr<MSXDeviceCleanup> cleanup; // must be last
 };
 
 } // namespace openmsx

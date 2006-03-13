@@ -18,10 +18,10 @@
 #include "MSXDeviceSwitch.hh"
 #include "CassettePort.hh"
 #include "RenShaTurbo.hh"
-#include "EmuTime.hh"
 #include "LedEvent.hh"
 #include "UserInputEventDistributor.hh"
 #include "RealTime.hh"
+#include "DeviceFactory.hh"
 #include "BooleanSetting.hh"
 #include "FileContext.hh"
 #include "GlobalSettings.hh"
@@ -195,8 +195,9 @@ const MSXMotherBoard::Extensions& MSXMotherBoard::getExtensions() const
 	return extensions;
 }
 
-void MSXMotherBoard::removeExtension(ExtensionConfig& extension)
+void MSXMotherBoard::removeExtension(const ExtensionConfig& extension)
 {
+	extension.testRemove();
 	Extensions::iterator it =
 		find(extensions.begin(), extensions.end(), &extension);
 	assert(it != extensions.end());
@@ -284,12 +285,7 @@ PluggingController& MSXMotherBoard::getPluggingController()
 DummyDevice& MSXMotherBoard::getDummyDevice()
 {
 	if (!dummyDevice.get()) {
-		dummyDeviceConfig.reset(new XMLElement("Dummy"));
-		dummyDeviceConfig->addAttribute("id", "empty");
-		dummyDeviceConfig->setFileContext(std::auto_ptr<FileContext>(
-			new SystemFileContext()));
-		dummyDevice.reset(
-			new DummyDevice(*this, *dummyDeviceConfig, EmuTime::zero));
+		dummyDevice = DeviceFactory::createDummyDevice(*this);
 	}
 	return *dummyDevice;
 }
@@ -323,12 +319,7 @@ PanasonicMemory& MSXMotherBoard::getPanasonicMemory()
 MSXDeviceSwitch& MSXMotherBoard::getDeviceSwitch()
 {
 	if (!deviceSwitch.get()) {
-		devSwitchConfig.reset(new XMLElement("DeviceSwitch"));
-		devSwitchConfig->addAttribute("id", "DeviceSwitch");
-		devSwitchConfig->setFileContext(std::auto_ptr<FileContext>(
-			new SystemFileContext()));
-		deviceSwitch.reset(
-			new MSXDeviceSwitch(*this, *devSwitchConfig, EmuTime::zero));
+		deviceSwitch = DeviceFactory::createDeviceSwitch(*this);
 	}
 	return *deviceSwitch;
 }
@@ -640,12 +631,11 @@ string RemoveExtCmd::execute(const vector<string>& tokens)
 		throw CommandException("No such extension: " + tokens[1]);
 	}
 	try {
-		extension->testRemove();
+		motherBoard.removeExtension(*extension);
 	} catch (MSXException& e) {
 		throw CommandException("Can't remove extension '" + tokens[1] +
 		                       "': " + e.getMessage());
 	}
-	motherBoard.removeExtension(*extension);
 	return "";
 }
 

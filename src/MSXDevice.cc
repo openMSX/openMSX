@@ -17,43 +17,33 @@ using std::vector;
 
 namespace openmsx {
 
-/** Helper class that makes sure the MSXDevice::deinit() code is called
-  * even when the MSXDevice constructor throws an exception.
-  */
-class MSXDeviceCleanup
-{
-public:
-	MSXDeviceCleanup(MSXDevice& device);
-	~MSXDeviceCleanup();
-private:
-	MSXDevice& device;
-};
-
-
 byte MSXDevice::unmappedRead[0x10000];
 byte MSXDevice::unmappedWrite[0x10000];
 
 
 MSXDevice::MSXDevice(MSXMotherBoard& motherBoard_, const XMLElement& config,
                      const EmuTime& /*time*/, const string& name)
-	: deviceConfig(config), motherBoard(motherBoard_)
+	: deviceConfig(config), motherBoard(motherBoard_), hardwareConfig(NULL)
 {
-	init(name);
+	deviceName = name;
 }
 
 MSXDevice::MSXDevice(MSXMotherBoard& motherBoard_, const XMLElement& config,
                      const EmuTime& /*time*/)
-	: deviceConfig(config), motherBoard(motherBoard_)
+	: deviceConfig(config), motherBoard(motherBoard_), hardwareConfig(NULL)
 {
-	init(deviceConfig.getId());
+	deviceName = deviceConfig.getId();
 }
 
-void MSXDevice::init(const string& name)
+void MSXDevice::init(const HardwareConfig& hwConf)
 {
+	assert(!hardwareConfig);
+	hardwareConfig = &hwConf;
+
 	externalSlotID = -1;
-	if (!motherBoard.findDevice(name)) {
-		deviceName = name;
-	} else {
+
+	string name = deviceName;
+	if (motherBoard.findDevice(name)) {
 		unsigned n = 0;
 		do {
 			deviceName = name + " (" + StringOp::toString(++n) + ")";
@@ -62,7 +52,6 @@ void MSXDevice::init(const string& name)
 	
 	staticInit();
 
-	cleanup.reset(new MSXDeviceCleanup(*this));
 	lockDevices();
 	registerSlots(deviceConfig);
 	registerPorts(deviceConfig);
@@ -70,10 +59,7 @@ void MSXDevice::init(const string& name)
 
 MSXDevice::~MSXDevice()
 {
-}
-
-void MSXDevice::deinit()
-{
+	assert(hardwareConfig); // init() was not called
 	unregisterPorts();
 	unregisterSlots();
 	unlockDevices();
@@ -88,6 +74,12 @@ void MSXDevice::staticInit()
 	}
 	alreadyInit = true;
 	memset(unmappedRead, 0xFF, 0x10000);
+}
+
+const HardwareConfig& MSXDevice::getHardwareConfig() const
+{
+	assert(hardwareConfig);
+	return *hardwareConfig;
 }
 
 void MSXDevice::testRemove(const Devices& alreadyRemoved) const
@@ -198,10 +190,12 @@ void MSXDevice::registerSlots(const XMLElement& config)
 	}
 
 	if (ps == -256) {
-		externalSlotID = slotManager.getAnyFreeSlot(ps, ss);
+		externalSlotID = slotManager.getAnyFreeSlot(
+		                     ps, ss, getHardwareConfig());
 	} else if (ps < 0) {
 		// specified slot by name (carta, cartb, ...)
-		externalSlotID = slotManager.getSpecificSlot(-ps - 1, ps, ss);
+		externalSlotID = slotManager.getSpecificSlot(
+		                     -ps - 1, ps, ss, getHardwareConfig());
 	} else {
 		// numerical specified slot (0, 1, 2, 3)
 	}
@@ -350,18 +344,6 @@ byte MSXDevice::peekMem(word address, const EmuTime& /*time*/) const
 byte* MSXDevice::getWriteCacheLine(word /*start*/) const
 {
 	return NULL;	// uncacheable
-}
-
-
-// class MSXDeviceCleanup
-MSXDeviceCleanup::MSXDeviceCleanup(MSXDevice& device_)
-	: device(device_)
-{
-}
-
-MSXDeviceCleanup::~MSXDeviceCleanup()
-{
-	device.deinit();
 }
 
 } // namespace openmsx

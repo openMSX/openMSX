@@ -3,9 +3,9 @@
 #include "MSXMemoryMapper.hh"
 #include "MSXMapperIO.hh"
 #include "XMLElement.hh"
+#include "DeviceFactory.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXMotherBoard.hh"
-#include "FileContext.hh"
 #include "CheckedRam.hh"
 #include "StringOp.hh"
 #include "MSXException.hh"
@@ -14,7 +14,6 @@
 namespace openmsx {
 
 unsigned MSXMemoryMapper::counter = 0;
-XMLElement* MSXMemoryMapper::config = NULL;
 MSXMapperIO* MSXMemoryMapper::mapperIO = NULL;
 
 unsigned MSXMemoryMapper::calcAddress(word address) const
@@ -37,7 +36,7 @@ MSXMemoryMapper::MSXMemoryMapper(MSXMotherBoard& motherBoard,
 	checkedRam.reset(new CheckedRam(motherBoard, getName(), "memory mapper",
 	                                nbBlocks * 0x4000));
 
-	createMapperIO(motherBoard, time);
+	createMapperIO(motherBoard);
 	mapperIO->registerMapper(nbBlocks);
 }
 
@@ -52,17 +51,11 @@ void MSXMemoryMapper::powerUp(const EmuTime& /*time*/)
 	checkedRam->clear();
 }
 
-void MSXMemoryMapper::createMapperIO(MSXMotherBoard& motherBoard,
-                                     const EmuTime& time)
+void MSXMemoryMapper::createMapperIO(MSXMotherBoard& motherBoard)
 {
 	if (!counter) {
-		assert(!mapperIO && !config);
-
-		config = new XMLElement("MapperIO");
-		config->addAttribute("id", "MapperIO");
-		config->setFileContext(std::auto_ptr<FileContext>(
-			new SystemFileContext()));
-		mapperIO = new MSXMapperIO(motherBoard, *config, time);
+		assert(!mapperIO);
+		mapperIO = DeviceFactory::createMapperIO(motherBoard).release();
 
 		MSXCPUInterface& cpuInterface = getMotherBoard().getCPUInterface();
 		cpuInterface.register_IO_Out(0xFC, mapperIO);
@@ -91,9 +84,8 @@ void MSXMemoryMapper::destroyMapperIO()
 		cpuInterface.unregister_IO_In(0xFE, mapperIO);
 		cpuInterface.unregister_IO_In(0xFF, mapperIO);
 
-		assert(mapperIO && config);
+		assert(mapperIO);
 		delete mapperIO;
-		delete config;
 	}
 }
 

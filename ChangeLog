@@ -1,5 +1,19 @@
 $Id$
 
+2006-03-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Turned MSXDevice creation in a 2-step process:
+	     First construct object, then call the init() method. This
+	     simplifies error handling (exceptions thrown from form
+	     constructor, see comments in code for more details) and it
+	     more easily allows passing extra parameters to device
+	     construction.
+	* A MSXDevice now knows to which HardwareConfig it belongs (machine or
+	  extension)
+	* Extended cart<x> commands (is now similar to disk<x> command):
+	   - cart<x> (without parameters) now returns the name of the inserted
+	     cartridge (or possible an extension)
+	   - cart<x> -eject  removes the inserted cartridge (or extension)
+
 2006-03-11 Maarten ter Huurne <maarten@treewalker.org>
 	* Added support for pixel buffers to GLUtil.
 	* Added utility functions to GLUtil.

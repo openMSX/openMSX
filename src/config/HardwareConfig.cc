@@ -192,7 +192,7 @@ void HardwareConfig::createDevices(const XMLElement& elem)
 			createDevices(sub);
 		} else {
 			std::auto_ptr<MSXDevice> device(DeviceFactory::create(
-				motherBoard, sub,
+				motherBoard, *this, sub,
 				motherBoard.getScheduler().getCurrentTime()));
 			if (device.get()) {
 				addDevice(device.release());
@@ -232,7 +232,7 @@ void HardwareConfig::createExpandedSlot(int ps)
 int HardwareConfig::getFreePrimarySlot()
 {
 	int ps;
-	int slot = motherBoard.getSlotManager().getFreePrimarySlot(ps);
+	int slot = motherBoard.getSlotManager().getFreePrimarySlot(ps, *this);
 	assert(allocatedPrimarySlots[ps] == -1);
 	allocatedPrimarySlots[ps] = slot;
 	return ps;

@@ -5,6 +5,7 @@
 #include "ExtensionConfig.hh"
 #include "Command.hh"
 #include "CommandException.hh"
+#include "TclObject.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
 #include "openmsx.hh"
@@ -15,21 +16,22 @@ using std::vector;
 
 namespace openmsx {
 
-class CartCmd : public SimpleCommand
+class CartCmd : public Command
 {
 public:
-	CartCmd(MSXMotherBoard& motherBoard, const std::string& commandName);
-	virtual string execute(const vector<string>& tokens);
+	CartCmd(CartridgeSlotManager& manager, const std::string& commandName);
+	virtual void execute(const vector<TclObject*>& tokens, TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
-	MSXMotherBoard& motherBoard;
+	const ExtensionConfig* getExtensionConfig(const string& cartname);
+	CartridgeSlotManager& manager;
 };
 
 
 CartridgeSlotManager::CartridgeSlotManager(MSXMotherBoard& motherBoard_)
 	: motherBoard(motherBoard_)
-	, cartCmd(new CartCmd(motherBoard, "cart"))
+	, cartCmd(new CartCmd(*this, "cart"))
 {
 }
 
@@ -37,7 +39,7 @@ CartridgeSlotManager::~CartridgeSlotManager()
 {
 	for (int slot = 0; slot < MAX_SLOTS; ++slot) {
 		assert(!slots[slot].exists());
-		assert(!slots[slot].used);
+		assert(!slots[slot].used());
 	}
 }
 
@@ -73,7 +75,7 @@ void CartridgeSlotManager::createExternalSlot(int ps, int ss)
 			slots[slot].ss = ss;
 			string slotname = "carta";
 			slotname[4] += slot;
-			slots[slot].command = new CartCmd(motherBoard, slotname);
+			slots[slot].command = new CartCmd(*this, slotname);
 			return;
 		}
 	}
@@ -101,7 +103,7 @@ void CartridgeSlotManager::testRemoveExternalSlot(int ps) const
 void CartridgeSlotManager::testRemoveExternalSlot(int ps, int ss) const
 {
 	int slot = getSlot(ps, ss);
-	if (slots[slot].used) {
+	if (slots[slot].used()) {
 		throw MSXException("Slot still in use.");
 	}
 }
@@ -114,12 +116,13 @@ void CartridgeSlotManager::removeExternalSlot(int ps)
 void CartridgeSlotManager::removeExternalSlot(int ps, int ss)
 {
 	int slot = getSlot(ps, ss);
-	assert(!slots[slot].used);
+	assert(!slots[slot].used());
 	delete slots[slot].command;
 	slots[slot].command = NULL;
 }
 
-int CartridgeSlotManager::getSpecificSlot(int slot, int& ps, int& ss)
+int CartridgeSlotManager::getSpecificSlot(int slot, int& ps, int& ss,
+                                          const HardwareConfig& hwConfig)
 {
 	assert((0 <= slot) && (slot < MAX_SLOTS));
 
@@ -127,21 +130,22 @@ int CartridgeSlotManager::getSpecificSlot(int slot, int& ps, int& ss)
 		throw MSXException(string("slot-") + (char)('a' + slot) +
 		                   " not defined.");
 	}
-	if (slots[slot].used) {
+	if (slots[slot].used()) {
 		throw MSXException(string("slot-") + (char)('a' + slot) +
 		                   " already in use.");
 	}
 	ps = slots[slot].ps;
 	ss = (slots[slot].ss != -1) ? slots[slot].ss : 0;
-	slots[slot].used = true;
+	slots[slot].config = &hwConfig;
 	return slot;
 }
 
-int CartridgeSlotManager::getAnyFreeSlot(int& ps, int& ss)
+int CartridgeSlotManager::getAnyFreeSlot(int& ps, int& ss,
+                                         const HardwareConfig& hwConfig)
 {
 	for (int slot = 0; slot < MAX_SLOTS; slot++) {
-		if (slots[slot].exists() && !slots[slot].used) {
-			slots[slot].used = true;
+		if (slots[slot].exists() && !slots[slot].used()) {
+			slots[slot].config = &hwConfig;
 			ps = slots[slot].ps;
 			ss = (slots[slot].ss != -1) ? slots[slot].ss : 0;
 			return slot;
@@ -150,13 +154,14 @@ int CartridgeSlotManager::getAnyFreeSlot(int& ps, int& ss)
 	throw MSXException("Not enough free cartridge slots");
 }
 
-int CartridgeSlotManager::getFreePrimarySlot(int &ps)
+int CartridgeSlotManager::getFreePrimarySlot(
+		int &ps, const HardwareConfig& hwConfig)
 {
 	for (int slot = 0; slot < MAX_SLOTS; ++slot) {
 		ps = slots[slot].ps;
 		if (slots[slot].exists() && (slots[slot].ss == -1) &&
-		    !slots[slot].used) {
-			slots[slot].used = true;
+		    !slots[slot].used()) {
+			slots[slot].config = &hwConfig;
 			return slot;
 		}
 	}
@@ -165,8 +170,8 @@ int CartridgeSlotManager::getFreePrimarySlot(int &ps)
 
 void CartridgeSlotManager::freeSlot(int slot)
 {
-	assert(slots[slot].used);
-	slots[slot].used = false;
+	assert(slots[slot].used());
+	slots[slot].config = NULL;
 }
 
 bool CartridgeSlotManager::isExternalSlot(int ps, int ss, bool convert) const
@@ -183,31 +188,68 @@ bool CartridgeSlotManager::isExternalSlot(int ps, int ss, bool convert) const
 
 
 // CartCmd
-CartCmd::CartCmd(MSXMotherBoard& motherBoard_, const string& commandName)
-	: SimpleCommand(motherBoard_.getCommandController(), commandName)
-	, motherBoard(motherBoard_)
+CartCmd::CartCmd(CartridgeSlotManager& manager_, const string& commandName)
+	: Command(manager_.motherBoard.getCommandController(), commandName)
+	, manager(manager_)
 {
 }
 
-string CartCmd::execute(const vector<string>& tokens)
+const ExtensionConfig* CartCmd::getExtensionConfig(const string& cartname)
 {
-	if (tokens.size() < 2) {
+	if (cartname.size() != 5) {
 		throw SyntaxError();
 	}
-	try {
-		string slotname;
-		if (tokens[0].size() == 5) {
-			slotname = tokens[0][4];
-		} else {
-			slotname = "any";
-		}
-		vector<string> options(tokens.begin() + 2, tokens.end());
+	int slot = cartname[4] - 'a';
+	const HardwareConfig* conf = manager.slots[slot].config;
+	assert(!conf || dynamic_cast<const ExtensionConfig*>(conf));
+	return static_cast<const ExtensionConfig*>(conf);
+}
 
-		ExtensionConfig& extension =
-			motherBoard.loadRom(tokens[1], slotname, options);
-		return extension.getName();
-	} catch (MSXException& e) {
-		throw CommandException(e.getMessage());
+void CartCmd::execute(const vector<TclObject*>& tokens, TclObject& result)
+{
+	string cartname = tokens[0]->getString();
+	if (tokens.size() == 1) {
+		// query name of cartridge
+		const ExtensionConfig* extConf = getExtensionConfig(cartname);
+		result.addListElement(cartname + ':');
+		result.addListElement(extConf ? extConf->getName() : "");
+		TclObject options(result.getInterpreter());
+		if (!extConf) {
+			options.addListElement("empty");
+		}
+		if (options.getListLength() != 0) {
+			result.addListElement(options);
+		}
+		
+	} else if (tokens[1]->getString() == "-eject") {
+		// remove cartridge (or extension)
+		const ExtensionConfig* extConf = getExtensionConfig(cartname);
+		if (extConf) {
+			try {
+				manager.motherBoard.removeExtension(*extConf);
+			} catch (MSXException& e) {
+				throw CommandException("Can't remove cartridge: " +
+				                       e.getMessage());
+			}
+		}
+
+	} else {
+		// insert cartridge
+		try {
+			string slotname = (cartname.size() == 5)
+			                ? string(1, cartname[4])
+			                : "any";
+			vector<string> options;
+			for (unsigned i = 2; i < tokens.size(); ++i) {
+				options.push_back(tokens[i]->getString());
+			}
+			ExtensionConfig& extension =
+				manager.motherBoard.loadRom(
+					tokens[1]->getString(), slotname, options);
+			result.setString(extension.getName());
+		} catch (MSXException& e) {
+			throw CommandException(e.getMessage());
+		}
 	}
 }
 
