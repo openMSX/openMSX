@@ -1,14 +1,19 @@
+// $Id$
+// Scal2x scaler.
+
 uniform sampler2D tex;
 
 const float pi = 4.0 * atan(1.0);
 
-const vec2 texStepH = vec2(1.0 / 1024.0, 0.0);
-const vec2 texStepV = vec2(0.0, 1.0 / 512.0);
-const vec4 texStep = vec4(texStepH, -texStepV);
+const vec2 texSize = vec2(1024.0, -512.0);
+
+const vec2 texStepH = vec2(1.0 / texSize.x, 0.0);
+const vec2 texStepV = vec2(0.0, 1.0 / texSize.y);
+const vec4 texStep = vec4(texStepH, texStepV);
 
 void main()
 {
-	const vec2 dir = sin(gl_FragCoord.xy * pi);
+	const vec2 dir = sin(gl_TexCoord[0].st * texSize * 2.0 * pi);
 	const vec4 delta = dir.xyxy * texStep;
 
 	const vec4 posLeftTop  = gl_TexCoord[0].stst - delta;
