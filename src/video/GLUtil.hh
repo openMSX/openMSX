@@ -278,7 +278,7 @@ private:
 class Shader
 {
 public:
-	~Shader();
+	virtual ~Shader();
 
 	/** Returns true iff this shader is loaded and compiled without errors.
 	  */
