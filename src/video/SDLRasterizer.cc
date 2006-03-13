@@ -159,7 +159,7 @@ SDLRasterizer<Pixel>::SDLRasterizer(
 
 	// Init the palette.
 	precalcPalette();
-		
+
 	// Initialize palette (avoid UMR)
 	if (!vdp.isMSX1VDP()) {
 		for (int i = 0; i < 16; ++i) {
@@ -504,7 +504,6 @@ void SDLRasterizer<Pixel>::drawDisplay(
 				(vram.nameTable.getMask() >> 7) & (pageMaskOdd  | displayY)
 				};
 
-			// TODO: Can we safely use SDL_LowerBlit?
 			int firstPageWidth = pageBorder - displayX;
 			if (firstPageWidth > 0) {
 				const Pixel* src = bitmapDisplayCache->getLinePtr(
