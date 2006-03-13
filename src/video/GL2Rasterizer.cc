@@ -642,13 +642,14 @@ void GL2Rasterizer::updateVRAMCache(int address)
 
 void GL2Rasterizer::paint()
 {
+	scalerProgram->activate();
 #ifdef GL_VERSION_2_0
 	if (GLEW_VERSION_2_0) {
+		// TODO: This can be initialized when loading the program.
 		GLint texLoc = scalerProgram->getUniformLocation("tex");
 		glUniform1i(texLoc, 0);
 	}
 #endif
-	scalerProgram->activate();
 	float x = static_cast<float>(320) / 1024;
 	float y = static_cast<float>(240) / 512;
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
@@ -715,6 +716,13 @@ void GL2Rasterizer::paint()
 		glEnd();
 		glDisable(GL_BLEND);
 	}
+
+#ifndef NDEBUG
+	GLenum error = glGetError();
+	if (error != GL_NO_ERROR) {
+		fprintf(stderr, "GL error %04x\n", error);
+	}
+#endif
 }
 
 const string& GL2Rasterizer::getName()
