@@ -24,7 +24,8 @@ class RenderSettings;
 class Setting;
 template <class Pixel> class PostProcessor;
 
-/** Rasterizer using SDL.
+/** Rasterizer using a frame buffer approach: it writes pixels to a single
+  * rectangular pixel buffer.
   */
 template <class Pixel>
 class SDLRasterizer : public Rasterizer, private noncopyable,
@@ -92,7 +93,7 @@ private:
 
 	// Observer<Setting>
 	virtual void update(const Setting& setting);
-	
+
 	/** The VDP of which the video output is being rendered.
 	  */
 	VDP& vdp;
@@ -106,7 +107,7 @@ private:
 	  */
 	int lineRenderTop;
 
-	/** SDL colours corresponding to each VDP palette entry.
+	/** Host colours corresponding to each VDP palette entry.
 	  * palFg has entry 0 set to the current background colour.
 	  *       The 16 first entries are for even pixels, the next 16 are for
 	  *       odd pixels. Second part is only needed (and guaranteed to be
@@ -115,23 +116,21 @@ private:
 	  */
 	Pixel palFg[16 * 2], palBg[16];
 
-	/** SDL colours corresponding to each Graphic 7 sprite colour.
+	/** Host colours corresponding to each Graphic 7 sprite colour.
 	  */
 	Pixel palGraphic7Sprites[16];
 
-	/** SDL colours corresponding to each possible V9938 colour.
+	/** Precalculated host colours corresponding to each possible V9938 colour.
 	  * Used by updatePalette to adjust palFg and palBg.
-	  * Since SDL_MapRGB may be slow, this array stores precalculated
-	  * SDL colours for all possible RGB values.
 	  */
 	Pixel V9938_COLOURS[8][8][8];
 
-	/** SDL colours corresponding to the 256 colour palette of Graphic7.
+	/** Host colours corresponding to the 256 colour palette of Graphic7.
 	  * Used by BitmapConverter.
 	  */
 	Pixel PALETTE256[256];
 
-	/** SDL colours corresponding to each possible V9958 colour.
+	/** Host colours corresponding to each possible V9958 colour.
 	  */
 	Pixel V9958_COLOURS[32768];
 
