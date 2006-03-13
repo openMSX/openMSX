@@ -22,6 +22,19 @@
 
 namespace openmsx {
 
+namespace GLUtil {
+
+unsigned powerOfTwo(unsigned a)
+{
+	unsigned res = 1;
+	while (a > res) res <<= 1;
+	return res;
+}
+
+} // namespace GLUtil
+
+using namespace GLUtil;
+
 
 // class Texture
 
@@ -301,13 +314,6 @@ void LineTexture::draw(
 
 
 // class StoredFrame
-
-static unsigned powerOfTwo(unsigned a)
-{
-	unsigned res = 1;
-	while (a > res) res <<= 1;
-	return res;
-}
 
 StoredFrame::StoredFrame()
 	: stored(false)

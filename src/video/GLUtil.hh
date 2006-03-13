@@ -28,6 +28,10 @@ namespace openmsx {
 
 namespace GLUtil {
 
+/** Returns the smallest number that is both >=a and a power of two.
+  */
+unsigned powerOfTwo(unsigned a);
+
 /** Set primary drawing colour.
   */
 inline void setPriColour(GLuint colour)
