@@ -16,6 +16,7 @@
 #include "MSXMultiMemDevice.hh"
 #include "MSXException.hh"
 #include "CartridgeSlotManager.hh"
+#include "DeviceFactory.hh"
 #include <cstdio>
 #include <memory> // for auto_ptr
 #include <set>
@@ -704,7 +705,7 @@ string IOInfo::help(const vector<string>& /*tokens*/) const
 TurborCPUInterface::TurborCPUInterface(MSXMotherBoard& motherBoard)
 	: MSXCPUInterface(motherBoard)
 {
-	delayDevice.reset(new VDPIODelay(motherBoard, EmuTime::zero));
+	delayDevice = DeviceFactory::createVDPIODelay(motherBoard);
 
 	for (int port = 0x98; port <= 0x9B; ++port) {
 		assert(IO_In [port] == &dummyDevice);

@@ -13,7 +13,8 @@ class MSXCPU;
 class VDPIODelay : public MSXDevice
 {
 public:
-	VDPIODelay(MSXMotherBoard& motherboard, const EmuTime& time);
+	VDPIODelay(MSXMotherBoard& motherboard, const XMLElement& config,
+	           const EmuTime& time);
 
 	virtual byte readIO(word port, const EmuTime& time);
 	virtual byte peekIO(word port, const EmuTime& time) const;

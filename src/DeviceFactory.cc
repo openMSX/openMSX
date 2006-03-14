@@ -44,6 +44,7 @@
 #include "DummyDevice.hh"
 #include "MSXDeviceSwitch.hh"
 #include "MSXMapperIO.hh"
+#include "VDPIODelay.hh"
 #include "MSXMotherBoard.hh"
 #include "MachineConfig.hh"
 #include "EmuTime.hh"
@@ -180,6 +181,16 @@ std::auto_ptr<MSXMapperIO> DeviceFactory::createMapperIO(
 	static XMLElement config(createConfig("MapperIO", "MapperIO"));
 	std::auto_ptr<MSXMapperIO> result(
 		new MSXMapperIO(motherBoard, config, EmuTime::zero));
+	result->init(motherBoard.getMachineConfig());
+	return result;
+}
+
+std::auto_ptr<VDPIODelay> DeviceFactory::createVDPIODelay(
+		MSXMotherBoard& motherBoard)
+{
+	static XMLElement config(createConfig("VDPIODelay", "VDPIODelay"));
+	std::auto_ptr<VDPIODelay> result(
+		new VDPIODelay(motherBoard, config, EmuTime::zero));
 	result->init(motherBoard.getMachineConfig());
 	return result;
 }

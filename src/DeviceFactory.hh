@@ -15,6 +15,7 @@ class EmuTime;
 class DummyDevice;
 class MSXDeviceSwitch;
 class MSXMapperIO;
+class VDPIODelay;
 
 class DeviceFactory
 {
@@ -27,6 +28,8 @@ public:
 	static std::auto_ptr<MSXDeviceSwitch> createDeviceSwitch(
 		MSXMotherBoard& motherBoard);
 	static std::auto_ptr<MSXMapperIO> createMapperIO(
+		MSXMotherBoard& motherBoard);
+	static std::auto_ptr<VDPIODelay> createVDPIODelay(
 		MSXMotherBoard& motherBoard);
 };
 

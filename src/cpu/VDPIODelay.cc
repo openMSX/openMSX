@@ -4,27 +4,13 @@
 #include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
 #include "DummyDevice.hh"
-#include "FileContext.hh"
-#include "XMLElement.hh"
 #include <cassert>
 
 namespace openmsx {
 
-const XMLElement& getConfig()
-{
-	static XMLElement deviceElem("VDPIODelay");
-	static bool init = false;
-	if (!init) {
-		init = true;
-		deviceElem.addAttribute("id", "VDPIODelay");
-		deviceElem.setFileContext(std::auto_ptr<FileContext>(
-		                                new SystemFileContext()));
-	}
-	return deviceElem;
-}
-
-VDPIODelay::VDPIODelay(MSXMotherBoard& motherboard, const EmuTime& time)
-	: MSXDevice(motherboard, getConfig(), time)
+VDPIODelay::VDPIODelay(MSXMotherBoard& motherboard, const XMLElement& config,
+                       const EmuTime& time)
+	: MSXDevice(motherboard, config, time)
 	, cpu(motherBoard.getCPU())
 	, lastTime(time)
 {
