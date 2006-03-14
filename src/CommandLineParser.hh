@@ -20,6 +20,7 @@ class MSXRomCLI;
 class CliExtension;
 class MSXCassettePlayerCLI;
 class DiskImageCLI;
+class Reactor;
 class MSXMotherBoard;
 template <typename T> class EnumSetting;
 class Setting;
@@ -53,7 +54,7 @@ public:
 	enum ParseStatus { UNPARSED, RUN, CONTROL, TEST, EXIT };
 	enum ControlType { IO_STD, IO_PIPE };
 
-	explicit CommandLineParser(MSXMotherBoard& motherBoard);
+	explicit CommandLineParser(Reactor& reactor);
 	~CommandLineParser();
 	void registerOption(const std::string& str, CLIOption* cliOption,
 		byte prio = 8, byte length = 2);
@@ -65,6 +66,7 @@ public:
 	typedef std::vector<std::string> Scripts;
 	const Scripts& getStartupScripts() const;
 
+	Reactor& getReactor() const;
 	MSXMotherBoard& getMotherBoard() const;
 
 	/** Need to suppress renderer window on startup?
@@ -98,7 +100,7 @@ private:
 	bool issuedHelp;
 	ParseStatus parseStatus;
 
-	MSXMotherBoard& motherBoard;
+	Reactor& reactor;
 	SettingsConfig& settingsConfig;
 	CliComm& output;
 

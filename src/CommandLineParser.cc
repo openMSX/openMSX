@@ -23,6 +23,7 @@
 #include "FileException.hh"
 #include "EnumSetting.hh"
 #include "HostCPU.hh"
+#include "Reactor.hh"
 #include "MSXMotherBoard.hh"
 
 using std::cout;
@@ -55,11 +56,11 @@ string CLIOption::peekArgument(const list<string>& cmdLine) const
 
 // class CommandLineParser
 
-CommandLineParser::CommandLineParser(MSXMotherBoard& motherBoard_)
+CommandLineParser::CommandLineParser(Reactor& reactor_)
 	: parseStatus(UNPARSED)
-	, motherBoard(motherBoard_)
-	, settingsConfig(motherBoard.getCommandController().getSettingsConfig())
-	, output(motherBoard.getCliComm())
+	, reactor(reactor_)
+	, settingsConfig(reactor.getCommandController().getSettingsConfig())
+	, output(reactor.getCliComm())
 	, helpOption(*this)
 	, versionOption(*this)
 	, controlOption(*this)
@@ -166,7 +167,7 @@ bool CommandLineParser::parseFileName(const string& arg, list<string>& cmdLine)
 {
 	string originalName(arg);
 	try {
-		UserFileContext context(getMotherBoard().getCommandController());
+		UserFileContext context(getReactor().getCommandController());
 		File file(context.resolve(arg));
 		originalName = file.getOriginalName();
 	} catch (FileException& e) {
@@ -287,15 +288,20 @@ const CommandLineParser::Scripts& CommandLineParser::getStartupScripts() const
 	return scriptOption.getScripts();
 }
 
+Reactor& CommandLineParser::getReactor() const
+{
+	return reactor;
+}
+
 MSXMotherBoard& CommandLineParser::getMotherBoard() const
 {
-	return motherBoard;
+	return getReactor().getMotherBoard();
 }
 
 void CommandLineParser::loadMachine(const string& machine)
 {
 	try {
-		getMotherBoard().loadMachine(machine);
+		getReactor().getMotherBoard().loadMachine(machine);
 	} catch (MSXException& e) {
 		throw FatalError(e.getMessage());
 	}
@@ -334,7 +340,7 @@ void CommandLineParser::createMachineSetting()
 	machines["C-BIOS_MSX2+"] = 0; // default machine
 
 	machineSetting.reset(new EnumSetting<int>(
-		getMotherBoard().getCommandController(), "machine",
+		getReactor().getCommandController(), "machine",
 		"default machine (takes effect next time openMSX is started)",
 		0, machines));
 }
@@ -363,7 +369,7 @@ bool CommandLineParser::ControlOption::parseOption(const string& option,
 	}
 	CommandLineParser::ControlType type = controlTypeMap[type_name];
 
-	parser.getMotherBoard().getCliComm().startInput(type, arguments);
+	parser.getReactor().getCliComm().startInput(type, arguments);
 	parser.parseStatus = CONTROL;
 	return true;
 }
@@ -577,7 +583,7 @@ bool CommandLineParser::SettingOption::parseOption(const string &option,
 	}
 	try {
 		UserFileContext context(
-			parser.getMotherBoard().getCommandController(),
+		        parser.getReactor().getCommandController(),
 		        "", true); // skip user directories
 		parser.settingsConfig.loadSetting(
 			context, getArgument(option, cmdLine));

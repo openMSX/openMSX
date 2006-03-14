@@ -6,21 +6,14 @@
  */
 
 #include "Reactor.hh"
-#include "MSXMotherBoard.hh"
 #include "CommandLineParser.hh"
-#include "CartridgeSlotManager.hh"
-#include "CliComm.hh"
 #include "CliServer.hh"
-#include "AfterCommand.hh"
-#include "CommandController.hh"
 #include "Interpreter.hh"
 #include "Display.hh"
 #include "RenderSettings.hh"
 #include "EnumSetting.hh"
 #include "MSXException.hh"
 #include "HotKey.hh"
-#include "SettingsConfig.hh"
-#include "CommandConsole.hh"
 #include <memory>
 #include <iostream>
 #include <exception>
@@ -57,7 +50,6 @@ static int main(int argc, char **argv)
 	int err = 0;
 	try {
 		Reactor reactor;
-		MSXMotherBoard& motherBoard = reactor.getMotherBoard();
 		reactor.getCommandController().getInterpreter().init(argv[0]);
 
 		// TODO cleanup once singleton mess is cleaned up
@@ -65,20 +57,15 @@ static int main(int argc, char **argv)
 		              reactor.getEventDistributor());
 		reactor.getCommandController().getSettingsConfig().setHotKey(&hotKey);
 
-		CommandLineParser parser(motherBoard);
+		CommandLineParser parser(reactor);
 		parser.parse(argc, argv);
 		CommandLineParser::ParseStatus parseStatus = parser.getParseStatus();
 
 		if (parseStatus != CommandLineParser::EXIT) {
 			initializeSDL();
-			AfterCommand afterCommand(
-				motherBoard.getScheduler(),
-				reactor.getEventDistributor(),
-				reactor.getCommandController());
-			motherBoard.getRealTime();
 			reactor.getIconStatus();
 			if (!parser.isHiddenStartup()) {
-				motherBoard.getDisplay().getRenderSettings().
+				reactor.getDisplay().getRenderSettings().
 					getRenderer().restoreDefault();
 			}
 			CliServer cliServer(reactor.getCommandController(),

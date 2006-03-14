@@ -26,6 +26,7 @@
 #include "FileContext.hh"
 #include "GlobalSettings.hh"
 #include "Command.hh"
+#include "AfterCommand.hh"
 #include "FileException.hh"
 #include "ConfigException.hh"
 #include "ReadDir.hh"
@@ -99,6 +100,11 @@ MSXMotherBoard::MSXMotherBoard(Reactor& reactor_)
 {
 	getMixer().mute(); // powered down
 	powerSetting.attach(*this);
+
+	// TODO find a better place for this stuff
+	AfterCommand afterCommand(getScheduler(), getEventDistributor(),
+	                          getCommandController());
+	getRealTime();
 }
 
 MSXMotherBoard::~MSXMotherBoard()
