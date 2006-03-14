@@ -59,7 +59,6 @@ void MSXDevice::init(const HardwareConfig& hwConf)
 
 MSXDevice::~MSXDevice()
 {
-	assert(hardwareConfig); // init() was not called
 	unregisterPorts();
 	unregisterSlots();
 	unlockDevices();
