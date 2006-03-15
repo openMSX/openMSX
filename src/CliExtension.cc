@@ -3,6 +3,7 @@
 #include "CliExtension.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
+#include <cassert>
 
 using std::string;
 
@@ -18,7 +19,9 @@ bool CliExtension::parseOption(const string& option, std::list<string>& cmdLine)
 {
 	try {
 		string extensionName = getArgument(option, cmdLine);
-		cmdLineParser.getMotherBoard().loadExtension(extensionName);
+		MSXMotherBoard* motherboard = cmdLineParser.getMotherBoard();
+		assert(motherboard);
+		motherboard->loadExtension(extensionName);
 	} catch (MSXException& e) {
 		throw FatalError(e.getMessage());
 	}

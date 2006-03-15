@@ -3,6 +3,7 @@
 #include "MSXRomCLI.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
+#include <cassert>
 
 using std::list;
 using std::string;
@@ -67,7 +68,9 @@ void MSXRomCLI::parse(const string& arg, const string& slotname,
 			break;
 		}
 	}
-	cmdLineParser.getMotherBoard().loadRom(arg, slotname, options);
+	MSXMotherBoard* motherboard = cmdLineParser.getMotherBoard();
+	assert(motherboard);
+	motherboard->loadRom(arg, slotname, options);
 }
 
 bool MSXRomCLI::IpsOption::parseOption(const string& /*option*/,

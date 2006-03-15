@@ -24,7 +24,6 @@
 #include "EnumSetting.hh"
 #include "HostCPU.hh"
 #include "Reactor.hh"
-#include "MSXMotherBoard.hh"
 
 using std::cout;
 using std::endl;
@@ -293,7 +292,7 @@ Reactor& CommandLineParser::getReactor() const
 	return reactor;
 }
 
-MSXMotherBoard& CommandLineParser::getMotherBoard() const
+MSXMotherBoard* CommandLineParser::getMotherBoard() const
 {
 	return getReactor().getMotherBoard();
 }
@@ -301,7 +300,7 @@ MSXMotherBoard& CommandLineParser::getMotherBoard() const
 void CommandLineParser::loadMachine(const string& machine)
 {
 	try {
-		getReactor().getMotherBoard().loadMachine(machine);
+		getReactor().createMotherBoard(machine);
 	} catch (MSXException& e) {
 		throw FatalError(e.getMessage());
 	}

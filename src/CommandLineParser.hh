@@ -67,7 +67,7 @@ public:
 	const Scripts& getStartupScripts() const;
 
 	Reactor& getReactor() const;
-	MSXMotherBoard& getMotherBoard() const;
+	MSXMotherBoard* getMotherBoard() const;
 
 	/** Need to suppress renderer window on startup?
 	  */

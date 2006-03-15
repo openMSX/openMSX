@@ -41,6 +41,7 @@ class ResetCmd;
 class ListExtCmd;
 class ExtCmd;
 class RemoveExtCmd;
+class ExitCPULoopSchedulable;
 
 class MSXMotherBoard : private Observer<Setting>
 {
@@ -54,6 +55,7 @@ public:
 	 *   false if emulation is suspended.
 	 */
 	bool execute();
+	void exitCPULoop();
 
 	/**
 	 * Block the complete MSX (CPU and devices), used by breakpoints
@@ -166,6 +168,7 @@ private:
 	const std::auto_ptr<ListExtCmd>   listExtCommand;
 	const std::auto_ptr<ExtCmd>       extCommand;
 	const std::auto_ptr<RemoveExtCmd> removeExtCommand;
+	std::auto_ptr<ExitCPULoopSchedulable> schedulable;
 	BooleanSetting& powerSetting;
 };
 

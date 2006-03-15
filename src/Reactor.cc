@@ -10,9 +10,6 @@
 #include "FilePool.hh"
 #include "MSXMotherBoard.hh"
 #include "Command.hh"
-#include "Scheduler.hh"
-#include "Schedulable.hh"
-#include "MSXCPU.hh"
 #include "CliComm.hh"
 #include "Display.hh"
 #include "IconStatus.hh"
@@ -39,17 +36,6 @@ private:
 	Reactor& reactor;
 };
 
-class ExitCPULoopSchedulable : public Schedulable
-{
-public:
-	ExitCPULoopSchedulable(MSXMotherBoard& motherboard);
-	void schedule();
-private:
-	virtual void executeUntil(const EmuTime& time, int userData);
-	virtual const std::string& schedName() const;
-	MSXMotherBoard& motherBoard;
-};
-
 class PollEventGenerator : private Alarm
 {
 public:
@@ -65,6 +51,7 @@ Reactor::Reactor()
 	: paused(false)
 	, blockedCounter(0)
 	, running(true)
+	, motherBoard(NULL)
 	, pauseSetting(getCommandController().getGlobalSettings().
 	                   getPauseSetting())
 	, quitCommand(new QuitCommand(getCommandController(), *this))
@@ -77,6 +64,8 @@ Reactor::Reactor()
 
 Reactor::~Reactor()
 {
+	deleteMotherBoard();
+
 	getEventDistributor().unregisterEventListener(
 		OPENMSX_QUIT_EVENT, *this);
 
@@ -161,12 +150,25 @@ FilePool& Reactor::getFilePool()
 	return *filePool;
 }
 
-MSXMotherBoard& Reactor::getMotherBoard()
+MSXMotherBoard& Reactor::createMotherBoard(const std::string& machine)
 {
-	if (!motherBoard.get()) {
-		motherBoard.reset(new MSXMotherBoard(*this));
-	}
+	assert(!motherBoard);
+	motherBoard = new MSXMotherBoard(*this);
+	motherBoard->loadMachine(machine);
 	return *motherBoard;
+}
+
+MSXMotherBoard* Reactor::getMotherBoard() const
+{
+	return motherBoard;
+}
+
+void Reactor::deleteMotherBoard()
+{
+	// TODO properly fix this
+	MSXMotherBoard* tmp = motherBoard; // reduce chance of race conditions
+	motherBoard = NULL;
+	delete tmp;
 }
 
 void Reactor::run(CommandLineParser& parser)
@@ -202,41 +204,35 @@ void Reactor::run(CommandLineParser& parser)
 		// between devices so ADVRAM can check the error condition
 		// in its constructor
 		//getCommandController().executeCommand("set power on");
-		getMotherBoard().powerUp();
+		MSXMotherBoard* motherboard = getMotherBoard();
+		if (motherboard) {
+			motherboard->powerUp();
+		}
 	}
 	
 	PollEventGenerator pollEventGenerator(getEventDistributor());
-	Scheduler& scheduler(getMotherBoard().getScheduler());
 	while (running) {
 		getEventDistributor().deliverEvents();
-		bool blocked = blockedCounter > 0;
-		if (!blocked) blocked = !getMotherBoard().execute();
+		MSXMotherBoard* motherboard = getMotherBoard();
+		bool blocked = (blockedCounter > 0) || !motherboard;
+		if (!blocked) blocked = !motherboard->execute();
 		if (blocked) {
 			display.repaint();
 			Timer::sleep(100 * 1000);
-			// TODO: Make Scheduler only responsible for events inside the MSX.
-			//       All other events should be handled by the Reactor.
-			scheduler.schedule(scheduler.getCurrentTime());
 		}
 	}
-	getMotherBoard().doPowerDown(scheduler.getCurrentTime());
-
-	// TODO clean this up, see comment in enterMainLoop
-	schedulable.reset(); 
 }
 
 void Reactor::enterMainLoop()
 {
-	// this method can get called from different threads, so use Scheduler
-	// to call MSXCPU::exitCPULoop()
-	
-	// TODO check for running can be removed if we cleanly destroy motherBoard
-	//      before exiting
-	if (motherBoard.get() && running) {
-		if (!schedulable.get()) {
-			schedulable.reset(new ExitCPULoopSchedulable(*motherBoard));
-		}
-		schedulable->schedule();
+	// Note: this method can get called from different threads
+	//  TODO investigate why test on 'running' is needed
+	//   there seem to be some race condition between when main thread is
+	//   deleting MSXMotherBoard while another threat still calls this
+	//   method.
+	MSXMotherBoard* motherboard = getMotherBoard();
+	if (motherboard && running) {
+		motherBoard->exitCPULoop();
 	}
 }
 
@@ -317,31 +313,6 @@ string QuitCommand::execute(const vector<string>& /*tokens*/)
 string QuitCommand::help(const vector<string>& /*tokens*/) const
 {
 	return "Use this command to stop the emulator\n";
-}
-
-
-// class ExitCPULoopSchedulable
-
-ExitCPULoopSchedulable::ExitCPULoopSchedulable(MSXMotherBoard& motherBoard_)
-	: Schedulable(motherBoard_.getScheduler())
-	, motherBoard(motherBoard_)
-{
-}
-
-void ExitCPULoopSchedulable::schedule()
-{
-	setSyncPoint(Scheduler::ASAP);
-}
-
-void ExitCPULoopSchedulable::executeUntil(const EmuTime& /*time*/, int /*userData*/)
-{
-	motherBoard.getCPU().exitCPULoop();
-}
-
-const std::string& ExitCPULoopSchedulable::schedName() const
-{
-	static const std::string name = "ExitCPULoopSchedulable";
-	return name;
 }
 
 

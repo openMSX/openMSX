@@ -35,7 +35,7 @@
 #include "DummyCassetteImage.hh"
 #include "CliComm.hh"
 #include "CommandException.hh"
-#include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 #include "Scheduler.hh"
 #include "FileOperations.hh"
 #include "WavWriter.hh"
@@ -43,6 +43,7 @@
 #include "TclObject.hh"
 #include <algorithm>
 #include <cstdlib>
+#include <cassert>
 
 using std::auto_ptr;
 using std::list;
@@ -92,13 +93,13 @@ const string& MSXCassettePlayerCLI::optionHelp() const
 void MSXCassettePlayerCLI::parseFileType(const string& filename,
                                          list<string>& /*cmdLine*/)
 {
-	XMLElement& config = commandLineParser.getMotherBoard().
-	            getCommandController().getGlobalSettings().getMediaConfig();
+	Reactor& reactor = commandLineParser.getReactor();
+	XMLElement& config = reactor.getCommandController().
+		getGlobalSettings().getMediaConfig();
 	XMLElement& playerElem = config.getCreateChild("cassetteplayer");
 	playerElem.setData(filename);
 	playerElem.setFileContext(auto_ptr<FileContext>(
-		new UserFileContext(commandLineParser.getMotherBoard().
-		                                     getCommandController())));
+		new UserFileContext(reactor.getCommandController())));
 }
 const string& MSXCassettePlayerCLI::fileTypeHelp() const
 {

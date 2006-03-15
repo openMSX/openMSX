@@ -1,5 +1,8 @@
 $Id$
 
+2006-03-15 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* More preparations for run-time switchable machines
+
 2006-03-13 Maarten ter Huurne <maarten@treewalker.org>
 	* Introduced new renderer "SDLGL-PP".
 	  This uses SDLRasterizer and does post processing in OpenGL.

@@ -5,6 +5,7 @@
 
 #include "Observer.hh"
 #include "EventListener.hh"
+#include <string>
 #include <memory>
 
 namespace openmsx {
@@ -23,7 +24,6 @@ class MSXMotherBoard;
 class Setting;
 class CommandLineParser;
 class QuitCommand;
-class ExitCPULoopSchedulable;
 
 /**
  * Contains the main loop of openMSX.
@@ -56,7 +56,10 @@ public:
 	IconStatus& getIconStatus();
 	FileManipulator& getFileManipulator();
 	FilePool& getFilePool();
-	MSXMotherBoard& getMotherBoard();
+
+	MSXMotherBoard& createMotherBoard(const std::string& machine);
+	MSXMotherBoard* getMotherBoard() const;
+	void deleteMotherBoard();
 
 private:
 	// Observer<Setting>
@@ -72,7 +75,6 @@ private:
 	void pause();
 
 	bool paused;
-
 	int blockedCounter;
 
 	/**
@@ -92,13 +94,11 @@ private:
 	std::auto_ptr<IconStatus> iconStatus;
 	std::auto_ptr<FileManipulator> fileManipulator;
 	std::auto_ptr<FilePool> filePool;
-	std::auto_ptr<MSXMotherBoard> motherBoard;
+	MSXMotherBoard* motherBoard;
 
 	BooleanSetting& pauseSetting;
 	const std::auto_ptr<QuitCommand> quitCommand;
 	friend class QuitCommand;
-
-	std::auto_ptr<ExitCPULoopSchedulable> schedulable;
 };
 
 } // namespace openmsx

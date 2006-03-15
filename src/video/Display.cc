@@ -209,12 +209,13 @@ void Display::signalEvent(const Event& event)
 
 void Display::setWindowTitle()
 {
-	// TODO in the future there may not always be a MSXMotherBoard
-	MSXMotherBoard& motherboard = reactor.getMotherBoard();
-	const XMLElement& config = motherboard.getMachineConfig().getConfig();
-	string title = Version::FULL_VERSION + " - " +
-		config.getChild("info").getChildData("manufacturer") + " " +
-		config.getChild("info").getChildData("code");
+	string title = Version::FULL_VERSION;
+	if (MSXMotherBoard* motherboard = reactor.getMotherBoard()) {
+		const XMLElement& config = motherboard->getMachineConfig().getConfig();
+		title += " - " +
+		    config.getChild("info").getChildData("manufacturer") + " " +
+		    config.getChild("info").getChildData("code");
+	}
 	videoSystem->setWindowTitle(title);
 }
 
