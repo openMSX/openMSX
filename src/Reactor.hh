@@ -24,6 +24,7 @@ class MSXMotherBoard;
 class Setting;
 class CommandLineParser;
 class QuitCommand;
+template <typename T> class EnumSetting;
 
 /**
  * Contains the main loop of openMSX.
@@ -56,12 +57,16 @@ public:
 	IconStatus& getIconStatus();
 	FileManipulator& getFileManipulator();
 	FilePool& getFilePool();
+	EnumSetting<int>& getMachineSetting();
 
 	MSXMotherBoard& createMotherBoard(const std::string& machine);
 	MSXMotherBoard* getMotherBoard() const;
 	void deleteMotherBoard();
 
 private:
+	void createMachineSetting();
+	void doSwitchMachine();
+
 	// Observer<Setting>
 	virtual void update(const Setting& setting);
 
@@ -83,6 +88,7 @@ private:
 	 * finishing the pending request(s).
 	 */
 	bool running;
+	bool switchMachineFlag;
 
 	// note: order of auto_ptr's is important
 	std::auto_ptr<EventDistributor> eventDistributor;
@@ -97,6 +103,8 @@ private:
 	MSXMotherBoard* motherBoard;
 
 	BooleanSetting& pauseSetting;
+	std::auto_ptr<EnumSetting<int> > machineSetting;
+
 	const std::auto_ptr<QuitCommand> quitCommand;
 	friend class QuitCommand;
 };

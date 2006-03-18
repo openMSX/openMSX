@@ -3,17 +3,16 @@
 #ifndef COMMANDLINEPARSER_HH
 #define COMMANDLINEPARSER_HH
 
+#include "StringOp.hh"
+#include "openmsx.hh"
 #include <string>
 #include <vector>
 #include <list>
 #include <map>
 #include <memory>
-#include "openmsx.hh"
-#include "StringOp.hh"
 
 namespace openmsx {
 
-class HardwareConfig;
 class SettingsConfig;
 class CliComm;
 class MSXRomCLI;
@@ -22,8 +21,6 @@ class MSXCassettePlayerCLI;
 class DiskImageCLI;
 class Reactor;
 class MSXMotherBoard;
-template <typename T> class EnumSetting;
-class Setting;
 
 class CLIOption
 {
@@ -192,7 +189,6 @@ private:
 	const std::auto_ptr<CliExtension> cliExtension;
 	const std::auto_ptr<MSXCassettePlayerCLI> cassettePlayerCLI;
 	const std::auto_ptr<DiskImageCLI> diskImageCLI;
-	std::auto_ptr<EnumSetting<int> > machineSetting;
 	
 	bool hiddenStartup;
 };

@@ -110,12 +110,13 @@ MSXMotherBoard::MSXMotherBoard(Reactor& reactor_)
 	, powerSetting(getCommandController().getGlobalSettings().getPowerSetting())
 {
 	getMixer().mute(); // powered down
-	powerSetting.attach(*this);
 
 	// TODO find a better place for this stuff
 	AfterCommand afterCommand(getScheduler(), getEventDistributor(),
 	                          getCommandController());
 	getRealTime();
+
+	powerSetting.attach(*this);
 }
 
 MSXMotherBoard::~MSXMotherBoard()
@@ -155,6 +156,9 @@ void MSXMotherBoard::loadMachine(const std::string& machine)
 		machineConfig->createDevices();
 		getEventDistributor().distributeEvent(
 			new SimpleEvent<OPENMSX_MACHINE_LOADED_EVENT>());
+		if (powerSetting.getValue()) {
+			powerUp();
+		}
 	} catch (FileException& e) {
 		throw MSXException("Machine \"" + machine + "\" not found: " +
 		                   e.getMessage());

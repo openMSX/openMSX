@@ -86,6 +86,7 @@ void MSXMemoryMapper::destroyMapperIO()
 
 		assert(mapperIO);
 		delete mapperIO;
+		mapperIO = NULL;
 	}
 }
 

@@ -1,5 +1,11 @@
 $Id$
 
+2006-03-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented run-time switchable machines:
+	   - use   set machine <machine-name>
+	   - there are still some rough edges and I also still expect some
+	     bugs. So please test.
+
 2006-03-15 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* More preparations for run-time switchable machines
 

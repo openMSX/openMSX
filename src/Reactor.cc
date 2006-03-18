@@ -19,6 +19,8 @@
 #include "BooleanSetting.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
+#include "FileOperations.hh"
+#include "ReadDir.hh"
 #include <cassert>
 
 using std::string;
@@ -50,13 +52,15 @@ private:
 Reactor::Reactor()
 	: paused(false)
 	, blockedCounter(0)
-	, running(true)
 	, motherBoard(NULL)
 	, pauseSetting(getCommandController().getGlobalSettings().
 	                   getPauseSetting())
 	, quitCommand(new QuitCommand(getCommandController(), *this))
 {
+	createMachineSetting();
+
 	pauseSetting.attach(*this);
+	getMachineSetting().attach(*this);
 
 	getEventDistributor().registerEventListener(
 		OPENMSX_QUIT_EVENT, *this);
@@ -69,6 +73,7 @@ Reactor::~Reactor()
 	getEventDistributor().unregisterEventListener(
 		OPENMSX_QUIT_EVENT, *this);
 
+	getMachineSetting().detach(*this);
 	pauseSetting.detach(*this);
 }
 
@@ -150,6 +155,49 @@ FilePool& Reactor::getFilePool()
 	return *filePool;
 }
 
+EnumSetting<int>& Reactor::getMachineSetting()
+{
+	return *machineSetting;
+}
+
+static int select(const string& basepath, const struct dirent* d)
+{
+	// entry must be a directory and must contain the file "hardwareconfig.xml"
+	string name = basepath + '/' + d->d_name;
+	return FileOperations::isDirectory(name) &&
+	       FileOperations::isRegularFile(name + "/hardwareconfig.xml");
+}
+
+static void searchMachines(const string& basepath, EnumSetting<int>::Map& machines)
+{
+	static int unique = 1;
+	ReadDir dir(basepath);
+	while (dirent* d = dir.getEntry()) {
+		if (select(basepath, d)) {
+			machines[d->d_name] = unique++; // dummy value
+		}
+	}
+}
+
+void Reactor::createMachineSetting()
+{
+	EnumSetting<int>::Map machines;
+
+	SystemFileContext context;
+	const vector<string>& paths = context.getPaths();
+	for (vector<string>::const_iterator it = paths.begin();
+	     it != paths.end(); ++it) {
+		searchMachines(*it + "machines", machines);
+	}
+
+	machines["C-BIOS_MSX2+"] = 0; // default machine
+
+	machineSetting.reset(new EnumSetting<int>(
+		getCommandController(), "machine",
+		"default machine (takes effect next time openMSX is started)",
+		0, machines));
+}
+
 MSXMotherBoard& Reactor::createMotherBoard(const std::string& machine)
 {
 	assert(!motherBoard);
@@ -169,6 +217,16 @@ void Reactor::deleteMotherBoard()
 	MSXMotherBoard* tmp = motherBoard; // reduce chance of race conditions
 	motherBoard = NULL;
 	delete tmp;
+}
+
+void Reactor::doSwitchMachine()
+{
+	deleteMotherBoard();
+	try {
+		createMotherBoard(getMachineSetting().getValueString());
+	} catch (MSXException& e) {
+		// TODO
+	}
 }
 
 void Reactor::run(CommandLineParser& parser)
@@ -209,8 +267,11 @@ void Reactor::run(CommandLineParser& parser)
 			motherboard->powerUp();
 		}
 	}
-	
+
 	PollEventGenerator pollEventGenerator(getEventDistributor());
+
+	running = true;
+	switchMachineFlag = false;
 	while (running) {
 		getEventDistributor().deliverEvents();
 		MSXMotherBoard* motherboard = getMotherBoard();
@@ -219,6 +280,10 @@ void Reactor::run(CommandLineParser& parser)
 		if (blocked) {
 			display.repaint();
 			Timer::sleep(100 * 1000);
+		}
+		if (switchMachineFlag) {
+			switchMachineFlag = false;
+			doSwitchMachine();
 		}
 	}
 }
@@ -276,8 +341,9 @@ void Reactor::update(const Setting& setting)
 		} else {
 			unpause();
 		}
-	} else {
-		assert(false);
+	} else if (&setting == machineSetting.get()) {
+		switchMachineFlag = true;
+		enterMainLoop();
 	}
 }
 
