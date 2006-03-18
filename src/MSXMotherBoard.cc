@@ -107,15 +107,12 @@ MSXMotherBoard::MSXMotherBoard(Reactor& reactor_)
 	, listExtCommand  (new ListExtCmd  (getCommandController(), *this))
 	, extCommand      (new ExtCmd      (getCommandController(), *this))
 	, removeExtCommand(new RemoveExtCmd(getCommandController(), *this))
+	, afterCommand(new AfterCommand(getScheduler(), getEventDistributor(),
+	                                getCommandController()))
 	, powerSetting(getCommandController().getGlobalSettings().getPowerSetting())
 {
 	getMixer().mute(); // powered down
-
-	// TODO find a better place for this stuff
-	AfterCommand afterCommand(getScheduler(), getEventDistributor(),
-	                          getCommandController());
-	getRealTime();
-
+	getRealTime(); // make sure it's instantiated
 	powerSetting.attach(*this);
 }
 

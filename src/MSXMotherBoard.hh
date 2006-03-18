@@ -41,6 +41,7 @@ class ResetCmd;
 class ListExtCmd;
 class ExtCmd;
 class RemoveExtCmd;
+class AfterCommand;
 class ExitCPULoopSchedulable;
 
 class MSXMotherBoard : private Observer<Setting>
@@ -168,6 +169,7 @@ private:
 	const std::auto_ptr<ListExtCmd>   listExtCommand;
 	const std::auto_ptr<ExtCmd>       extCommand;
 	const std::auto_ptr<RemoveExtCmd> removeExtCommand;
+	const std::auto_ptr<AfterCommand> afterCommand;
 	std::auto_ptr<ExitCPULoopSchedulable> schedulable;
 	BooleanSetting& powerSetting;
 };
