@@ -23,14 +23,16 @@ byte MSXDevice::unmappedWrite[0x10000];
 
 MSXDevice::MSXDevice(MSXMotherBoard& motherBoard_, const XMLElement& config,
                      const EmuTime& /*time*/, const string& name)
-	: deviceConfig(config), motherBoard(motherBoard_), hardwareConfig(NULL)
+	: deviceConfig(config), externalSlotID(-1), motherBoard(motherBoard_)
+	, hardwareConfig(NULL)
 {
 	deviceName = name;
 }
 
 MSXDevice::MSXDevice(MSXMotherBoard& motherBoard_, const XMLElement& config,
                      const EmuTime& /*time*/)
-	: deviceConfig(config), motherBoard(motherBoard_), hardwareConfig(NULL)
+	: deviceConfig(config), externalSlotID(-1), motherBoard(motherBoard_)
+	, hardwareConfig(NULL)
 {
 	deviceName = deviceConfig.getId();
 }
@@ -39,8 +41,6 @@ void MSXDevice::init(const HardwareConfig& hwConf)
 {
 	assert(!hardwareConfig);
 	hardwareConfig = &hwConf;
-
-	externalSlotID = -1;
 
 	string name = deviceName;
 	if (motherBoard.findDevice(name)) {

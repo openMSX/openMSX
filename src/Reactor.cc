@@ -52,6 +52,7 @@ private:
 Reactor::Reactor()
 	: paused(false)
 	, blockedCounter(0)
+	, running(true)
 	, motherBoard(NULL)
 	, pauseSetting(getCommandController().getGlobalSettings().
 	                   getPauseSetting())
@@ -270,7 +271,6 @@ void Reactor::run(CommandLineParser& parser)
 
 	PollEventGenerator pollEventGenerator(getEventDistributor());
 
-	running = true;
 	switchMachineFlag = false;
 	while (running) {
 		getEventDistributor().deliverEvents();
