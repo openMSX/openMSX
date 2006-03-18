@@ -4,7 +4,10 @@
 #include "UserInputEventListener.hh"
 #include "InputEvents.hh"
 #include "EventDistributor.hh"
+#include "CommandController.hh"
+#include "GlobalSettings.hh"
 #include "FloatSetting.hh"
+#include "BooleanSetting.hh"
 #include "Timer.hh"
 #include <algorithm>
 #include <cassert>
@@ -18,18 +21,13 @@ UserInputEventDistributor::UserInputEventDistributor(
 		EventDistributor& eventDistributor_)
 	: Schedulable(scheduler)
 	, eventDistributor(eventDistributor_)
-	, console(false)
 	, prevEmu(EmuTime::zero)
 	, prevReal(Timer::getTime())
 	, delaySetting(new FloatSetting(commandController, "inputdelay",
 	               "EXPERIMENTAL: delay input to avoid keyskips",
 	               0.03, 0.0, 10.0))
+	, consoleSetting(commandController.getGlobalSettings().getConsoleSetting())
 {
-	eventDistributor.registerEventListener(
-		OPENMSX_CONSOLE_ON_EVENT,  *this);
-	eventDistributor.registerEventListener(
-		OPENMSX_CONSOLE_OFF_EVENT, *this);
-
 	eventDistributor.registerEventListener(
 		OPENMSX_KEY_DOWN_EVENT, *this);
 	eventDistributor.registerEventListener(
@@ -52,11 +50,6 @@ UserInputEventDistributor::UserInputEventDistributor(
 
 UserInputEventDistributor::~UserInputEventDistributor()
 {
-	eventDistributor.unregisterEventListener(
-		OPENMSX_CONSOLE_ON_EVENT,  *this);
-	eventDistributor.unregisterEventListener(
-		OPENMSX_CONSOLE_OFF_EVENT, *this);
-
 	eventDistributor.unregisterEventListener(
 		OPENMSX_KEY_DOWN_EVENT, *this);
 	eventDistributor.unregisterEventListener(
@@ -102,11 +95,7 @@ void UserInputEventDistributor::unregisterEventListener(
 void UserInputEventDistributor::signalEvent(const Event& event)
 {
 	EventType type = event.getType();
-	if (type == OPENMSX_CONSOLE_ON_EVENT) {
-		console = true;
-	} else if (type == OPENMSX_CONSOLE_OFF_EVENT) {
-		console = false;
-	} else if ((type == OPENMSX_KEY_DOWN_EVENT) && !console) {
+	if ((type == OPENMSX_KEY_DOWN_EVENT) && !consoleSetting.getValue()) {
 		const KeyEvent& keyEvent = static_cast<const KeyEvent&>(event);
 		queueEvent(new KeyDownEvent(
 			keyEvent.getKeyCode(), keyEvent.getUnicode()));
