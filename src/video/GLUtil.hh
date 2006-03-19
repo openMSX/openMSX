@@ -400,7 +400,7 @@ public:
 
 	/** Deactivates all shader programs.
 	  */
-	void deactivate() const;
+	static void deactivate();
 
 private:
 	GLuint handle;

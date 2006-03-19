@@ -794,7 +794,7 @@ void ShaderProgram::activate() const
 #endif
 }
 
-void ShaderProgram::deactivate() const
+void ShaderProgram::deactivate()
 {
 #ifdef GL_VERSION_2_0
 	if (GLEW_VERSION_2_0) {
