@@ -1,5 +1,9 @@
 $Id$
 
+2006-03-19 Maarten ter Huurne <maarten@treewalker.org>
+	* Made scalers switchable in SDLGL-PP renderer.
+	  Only "simple" and "ScaleNx" are currently implemented.
+
 2006-03-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented run-time switchable machines:
 	   - use   set machine <machine-name>

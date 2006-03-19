@@ -1,8 +1,8 @@
 // $Id$
 
 #include "GLPostProcessor.hh"
-#include "RenderSettings.hh"
-#include "GLScaleNxScaler.hh"
+#include "GLScaler.hh"
+#include "GLScalerFactory.hh"
 #include "BooleanSetting.hh"
 #include "VisibleSurface.hh"
 #include "DeinterlacedFrame.hh"
@@ -24,7 +24,7 @@ GLPostProcessor::GLPostProcessor(
 	paintFrame = NULL;
 	paintTexture.setImage(maxWidth, height * 2);
 
-	currScaler.reset(new GLScaleNxScaler());
+	scaleAlgorithm = (RenderSettings::ScaleAlgorithm)-1; // not a valid scaler
 }
 
 GLPostProcessor::~GLPostProcessor()
@@ -70,6 +70,15 @@ void GLPostProcessor::paint()
 		// TODO: Paint blackness.
 		return;
 	}
+
+	// New scaler algorithm selected?
+	RenderSettings::ScaleAlgorithm algo =
+		renderSettings.getScaleAlgorithm().getValue();
+	if (scaleAlgorithm != algo) {
+		scaleAlgorithm = algo;
+		currScaler = GLScalerFactory::createScaler(renderSettings);
+	}
+
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
 	// Scale image.

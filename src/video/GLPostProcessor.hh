@@ -4,6 +4,7 @@
 #define GLPOSTPROCESSOR_HH
 
 #include "PostProcessor.hh"
+#include "RenderSettings.hh"
 #include "GLUtil.hh"
 #include <memory>
 
@@ -43,6 +44,10 @@ private:
 	/** The currently active scaler.
 	  */
 	std::auto_ptr<GLScaler> currScaler;
+
+	/** Currently active scale algorithm, used to detect scaler changes.
+	  */
+	RenderSettings::ScaleAlgorithm scaleAlgorithm;
 
 	PartialColourTexture paintTexture;
 	FrameSource* paintFrame;
