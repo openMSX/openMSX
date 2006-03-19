@@ -47,7 +47,11 @@ HDR_ONLY:= \
 
 SRC_HDR_$(COMPONENT_GL)+= \
 	SDLGLVideoSystem SDLGLVisibleSurface GLSnow GLUtil GLImage \
-	GLRasterizer GL2Rasterizer GLPostProcessor
+	GLRasterizer GL2Rasterizer GLPostProcessor \
+	GLScaleNxScaler
+
+HDR_ONLY_$(COMPONENT_GL)+= \
+	GLScaler
 
 include build/node-end.mk
 

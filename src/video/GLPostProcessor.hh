@@ -9,7 +9,7 @@
 
 namespace openmsx {
 
-class Scaler;
+class GLScaler;
 class CommandController;
 class Display;
 class VisibleSurface;
@@ -40,12 +40,12 @@ private:
 		unsigned dstStartY, unsigned dstEndY // dest
 		);
 
+	/** The currently active scaler.
+	  */
+	std::auto_ptr<GLScaler> currScaler;
+
 	PartialColourTexture paintTexture;
 	FrameSource* paintFrame;
-
-	std::auto_ptr<ShaderProgram> scalerProgram;
-	std::auto_ptr<VertexShader> scalerVertexShader;
-	std::auto_ptr<FragmentShader> scalerFragmentShader;
 };
 
 } // namespace openmsx

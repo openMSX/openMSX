@@ -2,10 +2,8 @@
 
 #include "GLPostProcessor.hh"
 #include "RenderSettings.hh"
-//#include "Scaler.hh"
+#include "GLScaleNxScaler.hh"
 #include "BooleanSetting.hh"
-//#include "IntegerSetting.hh"
-//#include "FloatSetting.hh"
 #include "VisibleSurface.hh"
 #include "DeinterlacedFrame.hh"
 #include "DoubledFrame.hh"
@@ -26,21 +24,7 @@ GLPostProcessor::GLPostProcessor(
 	paintFrame = NULL;
 	paintTexture.setImage(maxWidth, height * 2);
 
-	scalerProgram.reset(new ShaderProgram());
-	//scalerVertexShader.reset(new VertexShader("scaler.vert"));
-	//scalerProgram->attach(*scalerVertexShader);
-	scalerFragmentShader.reset(new FragmentShader("scaler.frag"));
-	scalerProgram->attach(*scalerFragmentShader);
-	scalerProgram->link();
-#ifdef GL_VERSION_2_0
-	if (GLEW_VERSION_2_0) {
-		scalerProgram->activate();
-		GLint texLoc = scalerProgram->getUniformLocation("tex");
-		glUniform1i(texLoc, 0);
-	}
-#endif
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	currScaler.reset(new GLScaleNxScaler());
 }
 
 GLPostProcessor::~GLPostProcessor()
@@ -118,9 +102,10 @@ void GLPostProcessor::paint()
 		// fill region
 		//fprintf(stderr, "post processing lines %d-%d: %d\n",
 		//	srcStartY, srcEndY, lineWidth );
-		paintLines(
+		currScaler->scaleImage(
+			paintTexture,
 			srcStartY, srcEndY, lineWidth, // source
-			dstStartY, dstEndY // dest
+			dstStartY, dstEndY, screen.getWidth() // dest
 			);
 
 		// next region
@@ -128,24 +113,7 @@ void GLPostProcessor::paint()
 		dstStartY = dstEndY;
 	}
 
-	scalerProgram->deactivate();
-}
-
-void GLPostProcessor::paintLines(
-	unsigned srcStartY, unsigned srcEndY, unsigned lineWidth, // source
-	unsigned dstStartY, unsigned dstEndY // dest
-	)
-{
-	if (lineWidth == 320) {
-		scalerProgram->activate();
-	} else {
-		scalerProgram->deactivate();
-	}
-
-	paintTexture.drawRect(
-		0, srcStartY, lineWidth, srcEndY - srcStartY,
-		0, dstStartY, screen.getWidth(), dstEndY - dstStartY
-		);
+	ShaderProgram::deactivate();
 }
 
 RawFrame* GLPostProcessor::rotateFrames(
