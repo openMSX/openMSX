@@ -41,14 +41,26 @@ using namespace GLUtil;
 Texture::Texture()
 {
 	glGenTextures(1, &textureId);
-	glBindTexture(GL_TEXTURE_2D, textureId);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	disableInterpolation();
 }
 
 Texture::~Texture()
 {
 	glDeleteTextures(1, &textureId);
+}
+
+void Texture::enableInterpolation()
+{
+	bind();
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+}
+
+void Texture::disableInterpolation()
+{
+	bind();
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 }
 
 void Texture::drawRect(
@@ -151,6 +163,48 @@ void ColourTexture::updateImage(
 		}
 	}
 	buffer.unbindSrc();
+}
+
+
+// class PartialColourTexture
+
+void PartialColourTexture::setImage(
+	GLsizei width, GLsizei height, GLuint* data
+	)
+{
+	textureWidth = GLUtil::powerOfTwo(width);
+	textureHeight = GLUtil::powerOfTwo(height);
+	ColourTexture::setImage(textureWidth, textureHeight, NULL);
+	if (data) {
+		ColourTexture::updateImage(0, 0, width, height, data);
+	}
+}
+
+void PartialColourTexture::updateImage(
+	GLint x, GLint y, GLsizei width, GLsizei height, GLuint* data
+	)
+{
+	ColourTexture::updateImage(x, y, width, height, data);
+}
+
+void PartialColourTexture::updateImage(
+	GLint x, GLint y, GLsizei width, GLsizei height,
+	const PixelBuffer& buffer, GLuint bx, GLuint by
+	)
+{
+	ColourTexture::updateImage(x, y, width, height, buffer, bx, by);
+}
+
+void PartialColourTexture::drawRect(
+	GLint sx, GLint sy, GLint swidth, GLint sheight,
+	GLint dx, GLint dy, GLint dwidth, GLint dheight
+	)
+{
+	float tx = static_cast<float>(sx) / textureWidth;
+	float ty = static_cast<float>(sy) / textureHeight;
+	float twidth = static_cast<float>(swidth) / textureWidth;
+	float theight = static_cast<float>(sheight) / textureHeight;
+	ColourTexture::drawRect(tx, ty, twidth, theight, dx, dy, dwidth, dheight);
 }
 
 

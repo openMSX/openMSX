@@ -94,6 +94,15 @@ public:
 		glBindTexture(GL_TEXTURE_2D, textureId);
 	}
 
+	/** Enables bilinear interpolation for this texture.
+	  */
+	void enableInterpolation();
+
+	/** Disables bilinear interpolation for this texture and uses nearest
+	  * neighbour instead.
+	  */
+	void disableInterpolation();
+
 	/** Draws this texture as a rectangle on the frame buffer.
 	  */
 	void drawRect(
@@ -128,6 +137,40 @@ public:
 		const PixelBuffer& buffer,
 		GLuint bx, GLuint by
 		);
+};
+
+/** Texture containing RGBA pixels of which only part of the area is used.
+  * Internally, a power-of-two texture is used, because that performs better
+  * in practice than either GL 2.0 / ARB_texture_non_power_of_two textures or
+  * ARB_texture_rectangle textures.
+  * TODO: Is there an advantage to inheriting from ColourTexture publicly?
+  *       It would require making a lot of methods virtual.
+  */
+class PartialColourTexture: protected ColourTexture
+{
+public:
+	void bind() {
+		ColourTexture::bind();
+	}
+	void setImage(GLsizei width, GLsizei height, GLuint* data = NULL);
+	void updateImage(
+		GLint x, GLint y,
+		GLsizei width, GLsizei height,
+		GLuint* data
+		);
+	void updateImage(
+		GLint x, GLint y,
+		GLsizei width, GLsizei height,
+		const PixelBuffer& buffer,
+		GLuint bx, GLuint by
+		);
+	void drawRect(
+		GLint sx, GLint sy, GLint swidth, GLint sheight,
+		GLint dx, GLint dy, GLint dwidth, GLint dheight
+		);
+private:
+	GLsizei textureWidth;
+	GLsizei textureHeight;
 };
 
 class LuminanceTexture: public Texture

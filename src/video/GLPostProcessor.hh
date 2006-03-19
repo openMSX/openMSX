@@ -40,9 +40,7 @@ private:
 		unsigned dstStartY, unsigned dstEndY // dest
 		);
 
-	ColourTexture paintTexture;
-	unsigned paintTextureWidth;
-	unsigned paintTextureHeight;
+	PartialColourTexture paintTexture;
 	FrameSource* paintFrame;
 
 	std::auto_ptr<ShaderProgram> scalerProgram;

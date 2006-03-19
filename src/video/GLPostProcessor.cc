@@ -24,15 +24,7 @@ GLPostProcessor::GLPostProcessor(
 		)
 {
 	paintFrame = NULL;
-	// TODO: Make a special Texture subclass for this?
-	// TODO: In the case of GFX9000 these can be quite large,
-	//       so should we use the rectangular texture extension instead?
-	paintTextureWidth = GLUtil::powerOfTwo(maxWidth);
-	paintTextureHeight = GLUtil::powerOfTwo(height * 2);
-	paintTexture.setImage(paintTextureWidth, paintTextureHeight);
-	fprintf(stderr, "GLPostProcessor using texture of %dx%d\n",
-		paintTextureWidth, paintTextureHeight
-		);
+	paintTexture.setImage(maxWidth, height * 2);
 
 	scalerProgram.reset(new ShaderProgram());
 	//scalerVertexShader.reset(new VertexShader("scaler.vert"));
@@ -150,15 +142,8 @@ void GLPostProcessor::paintLines(
 		scalerProgram->deactivate();
 	}
 
-	const float tx = 0.0f;
-	const float ty =
-		static_cast<float>(srcStartY) / paintTextureHeight;
-	const float twidth =
-		static_cast<float>(lineWidth) / paintTextureWidth;
-	const float theight =
-		static_cast<float>(srcEndY - srcStartY) / paintTextureHeight;
 	paintTexture.drawRect(
-		tx, ty, twidth, theight,
+		0, srcStartY, lineWidth, srcEndY - srcStartY,
 		0, dstStartY, screen.getWidth(), dstEndY - dstStartY
 		);
 }
@@ -203,6 +188,7 @@ void GLPostProcessor::uploadFrame()
 	paintTexture.bind();
 	for (unsigned y = 0; y < srcHeight; y++) {
 		// Upload line to texture.
+		// TODO: Is not having to rebind the same texture worth the effort?
 		unsigned lineWidth = paintFrame->getLineWidth(y);
 		glTexSubImage2D(
 			GL_TEXTURE_2D,    // target
