@@ -4,6 +4,7 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
+#include "Math.hh"
 #include <iostream>
 #include <memory>
 #include <cassert>
@@ -21,34 +22,6 @@
 #endif
 
 namespace openmsx {
-
-namespace GLUtil {
-
-unsigned powerOfTwo(unsigned a)
-{
-	unsigned res = 1;
-	while (a > res) res <<= 1;
-	return res;
-}
-
-void gaussian2(double& r1, double& r2)
-{
-	static const double S = 2.0 / RAND_MAX;
-	double x1, x2, w;
-	do {
-		x1 = S * rand() - 1.0;
-		x2 = S * rand() - 1.0;
-		w = x1 * x1 + x2 * x2;
-	} while (w >= 1.0);
-	w = sqrt((-2.0 * log(w)) / w);
-	r1 = x1 * w;
-	r2 = x2 * w;
-}
-
-} // namespace GLUtil
-
-using namespace GLUtil;
-
 
 // class Texture
 
@@ -186,8 +159,8 @@ void PartialColourTexture::setImage(
 	GLsizei width, GLsizei height, GLuint* data
 	)
 {
-	textureWidth = GLUtil::powerOfTwo(width);
-	textureHeight = GLUtil::powerOfTwo(height);
+	textureWidth = Math::powerOfTwo(width);
+	textureHeight = Math::powerOfTwo(height);
 	ColourTexture::setImage(textureWidth, textureHeight, NULL);
 	if (data) {
 		ColourTexture::updateImage(0, 0, width, height, data);
@@ -408,11 +381,11 @@ void StoredFrame::store(unsigned width, unsigned height)
 		textureWidth =
 			/* nice idea, but horribly slow on my GF5200
 			GLEW_VERSION_2_0 || GLEW_ARB_texture_non_power_of_two
-			? width :*/ powerOfTwo(width);
+			? width :*/ Math::powerOfTwo(width);
 		textureHeight =
 			/* nice idea, but horribly slow on my GF5200
 			GLEW_VERSION_2_0 || GLEW_ARB_texture_non_power_of_two
-			? height :*/ powerOfTwo(height);
+			? height :*/ Math::powerOfTwo(height);
 		glCopyTexImage2D(
 			GL_TEXTURE_2D,      // target
 			0,                  // level

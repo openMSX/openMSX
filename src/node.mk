@@ -32,7 +32,7 @@ SRC_HDR:= \
 	FirmwareSwitch \
 	CommandLineParser \
 	CliExtension \
-	sha1 \
+	Math sha1 \
 	CircularBuffer \
 	PluggingController Connector Pluggable PluggableFactory \
 	DebugDevice \
@@ -41,7 +41,7 @@ SRC_HDR:= \
 	Unicode \
 	EmptyPatch IPSPatch \
 	Version \
-	HostCPU \
+	HostCPU
 
 SRC_ONLY:= \
 	main
@@ -53,7 +53,7 @@ HDR_ONLY:= \
 	Clock DynamicClock \
 	MSXException InitException \
 	PatchInterface \
-	Observer \
+	Observer
 
 DIST:= \
 	Doxyfile

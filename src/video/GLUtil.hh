@@ -22,25 +22,11 @@
 #endif
 
 #include "build-info.hh"
-#include <algorithm>
-#include <cmath>
 #include <string>
 
 namespace openmsx {
 
 namespace GLUtil {
-
-/** Returns the smallest number that is both >=a and a power of two.
-  */
-unsigned powerOfTwo(unsigned a);
-
-void gaussian2(double& r1, double& r2);
-
-inline int clip(double r, double factor)
-{
-	int a = (int)round(r * factor);
-	return std::min(std::max(a, -255), 255);
-}
 
 /** Set primary drawing colour.
   */

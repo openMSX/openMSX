@@ -2,6 +2,7 @@
 
 #include "GLImage.hh"
 #include "MSXException.hh"
+#include "Math.hh"
 #include "SDLImage.hh"
 #include <SDL_image.h>
 #include <SDL.h>
@@ -47,16 +48,6 @@ void GLImage::draw(unsigned x, unsigned y, unsigned char alpha)
 	glPopAttrib();
 }
 
-
-static int powerOfTwo(int a)
-{
-	int res = 1;
-	while (a > res) {
-		res <<= 1;
-	}
-	return res;
-}
-
 GLuint GLImage::loadTexture(const string& filename,
 	unsigned& width, unsigned& height, GLfloat* texCoord)
 {
@@ -67,8 +58,8 @@ GLuint GLImage::loadTexture(const string& filename,
 
 	width  = image1->w;
 	height = image1->h;
-	int w2 = powerOfTwo(width);
-	int h2 = powerOfTwo(height);
+	int w2 = Math::powerOfTwo(width);
+	int h2 = Math::powerOfTwo(height);
 	texCoord[0] = 0.0f;			// Min X
 	texCoord[1] = 0.0f;			// Min Y
 	texCoord[2] = (GLfloat)width  / w2;	// Max X

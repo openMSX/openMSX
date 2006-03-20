@@ -10,6 +10,7 @@
 #include "DeinterlacedFrame.hh"
 #include "DoubledFrame.hh"
 #include "RawFrame.hh"
+#include "Math.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -213,11 +214,11 @@ void GLPostProcessor::preCalcNoise(double factor)
 	GLbyte buf2[256 * 256];
 	for (int i = 0; i < 256 * 256; i += 2) {
 		double r1, r2;
-		GLUtil::gaussian2(r1, r2);
-		int s1 = GLUtil::clip(r1, factor);
+		Math::gaussian2(r1, r2);
+		int s1 = Math::clip<-255, 255>(r1, factor);
 		buf1[i + 0] = (s1 > 0) ?  s1 : 0;
 		buf2[i + 0] = (s1 < 0) ? -s1 : 0;
-		int s2 = GLUtil::clip(r2, factor);
+		int s2 = Math::clip<-255, 255>(r2, factor);
 		buf1[i + 1] = (s2 > 0) ?  s2 : 0;
 		buf2[i + 1] = (s2 < 0) ? -s2 : 0;
 	}

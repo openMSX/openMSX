@@ -14,6 +14,7 @@
 #include "RawFrame.hh"
 #include "PixelOperations.hh"
 #include "HostCPU.hh"
+#include "Math.hh"
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
@@ -24,25 +25,6 @@ namespace openmsx {
 static const unsigned NOISE_SHIFT = 8192;
 static const unsigned NOISE_BUF_SIZE = 2 * NOISE_SHIFT;
 static signed char noiseBuf[NOISE_BUF_SIZE];
-
-static void gaussian2(double& r1, double& r2)
-{
-	static const double S = 2.0 / RAND_MAX;
-	double x1, x2, w;
-	do {
-		x1 = S * rand() - 1.0;
-		x2 = S * rand() - 1.0;
-		w = x1 * x1 + x2 * x2;
-	} while (w >= 1.0);
-	w = sqrt((-2.0 * log(w)) / w);
-	r1 = x1 * w;
-	r2 = x2 * w;
-}
-static signed char clip(double r, double factor)
-{
-	int a = (int)round(r * factor);
-	return std::min(std::max(a, -128), 127);
-}
 
 template <class Pixel>
 void FBPostProcessor<Pixel>::preCalcNoise(double factor)
@@ -55,15 +37,15 @@ void FBPostProcessor<Pixel>::preCalcNoise(double factor)
 	double scaleB = pixelOps.getMaxBlue() / 255.0;
 	for (unsigned i = 0; i < NOISE_BUF_SIZE; i += 8) {
 		double r1, r2;
-		gaussian2(r1, r2);
-		noiseBuf[i + 0] = clip(r1, factor * scaleR);
-		noiseBuf[i + 1] = clip(r1, factor * scaleG);
-		noiseBuf[i + 2] = clip(r1, factor * scaleB);
-		noiseBuf[i + 3] = clip(r1, factor);
-		noiseBuf[i + 4] = clip(r2, factor * scaleR);
-		noiseBuf[i + 5] = clip(r2, factor * scaleG);
-		noiseBuf[i + 6] = clip(r2, factor * scaleB);
-		noiseBuf[i + 7] = clip(r2, factor);
+		Math::gaussian2(r1, r2);
+		noiseBuf[i + 0] = Math::clip<-128, 127>(r1, factor * scaleR);
+		noiseBuf[i + 1] = Math::clip<-128, 127>(r1, factor * scaleG);
+		noiseBuf[i + 2] = Math::clip<-128, 127>(r1, factor * scaleB);
+		noiseBuf[i + 3] = Math::clip<-128, 127>(r1, factor);
+		noiseBuf[i + 4] = Math::clip<-128, 127>(r2, factor * scaleR);
+		noiseBuf[i + 5] = Math::clip<-128, 127>(r2, factor * scaleG);
+		noiseBuf[i + 6] = Math::clip<-128, 127>(r2, factor * scaleB);
+		noiseBuf[i + 7] = Math::clip<-128, 127>(r2, factor);
 	}
 }
 
