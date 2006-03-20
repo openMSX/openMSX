@@ -34,12 +34,15 @@ public:
 		RawFrame* finishedFrame, FrameSource::FieldType field
 		);
 
+protected:
+	// Observer<Setting> interface:
+	virtual void update(const Setting& setting);
+
 private:
 	void uploadFrame();
-	void paintLines(
-		unsigned srcStartY, unsigned srcEndY, unsigned lineWidth, // source
-		unsigned dstStartY, unsigned dstEndY // dest
-		);
+
+	void preCalcNoise(double factor);
+	void drawNoise();
 
 	/** The currently active scaler.
 	  */
@@ -51,6 +54,13 @@ private:
 
 	PartialColourTexture paintTexture;
 	FrameSource* paintFrame;
+
+	// Noise effect:
+	LuminanceTexture noiseTextureA;
+	LuminanceTexture noiseTextureB;
+	unsigned noiseSeq;
+	double noiseX;
+	double noiseY;
 };
 
 } // namespace openmsx

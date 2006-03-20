@@ -4,6 +4,8 @@
 #include "GLScaler.hh"
 #include "GLScalerFactory.hh"
 #include "BooleanSetting.hh"
+#include "IntegerSetting.hh"
+#include "FloatSetting.hh"
 #include "VisibleSurface.hh"
 #include "DeinterlacedFrame.hh"
 #include "DoubledFrame.hh"
@@ -25,10 +27,20 @@ GLPostProcessor::GLPostProcessor(
 	paintTexture.setImage(maxWidth, height * 2);
 
 	scaleAlgorithm = (RenderSettings::ScaleAlgorithm)-1; // not a valid scaler
+
+	noiseTextureA.setImage(256, 256);
+	noiseTextureB.setImage(256, 256);
+	noiseSeq = 0;
+	noiseX = 0.0;
+	noiseY = 0.0;
+	preCalcNoise(renderSettings.getNoise().getValue());
+
+	renderSettings.getNoise().attach(*this);
 }
 
 GLPostProcessor::~GLPostProcessor()
 {
+	renderSettings.getNoise().detach(*this);
 }
 
 /** Calculate greatest common divider of two strictly positive integers.
@@ -123,6 +135,8 @@ void GLPostProcessor::paint()
 	}
 
 	ShaderProgram::deactivate();
+
+	drawNoise();
 }
 
 RawFrame* GLPostProcessor::rotateFrames(
@@ -130,7 +144,19 @@ RawFrame* GLPostProcessor::rotateFrames(
 {
 	RawFrame* reuseFrame = PostProcessor::rotateFrames(finishedFrame, field);
 	uploadFrame();
+	noiseSeq = (noiseSeq + 1) & 7;
+	noiseX = (double)rand() / RAND_MAX;
+	noiseY = (double)rand() / RAND_MAX;
 	return reuseFrame;
+}
+
+void GLPostProcessor::update(const Setting& setting)
+{
+	VideoLayer::update(setting);
+	FloatSetting& noiseSetting = renderSettings.getNoise();
+	if (&setting == &noiseSetting) {
+		preCalcNoise(noiseSetting.getValue());
+	}
 }
 
 void GLPostProcessor::uploadFrame()
@@ -179,6 +205,77 @@ void GLPostProcessor::uploadFrame()
 			paintFrame->getLinePtr(y, (unsigned*)0) // data
 			);
 	}
+}
+
+void GLPostProcessor::preCalcNoise(double factor)
+{
+	GLbyte buf1[256 * 256];
+	GLbyte buf2[256 * 256];
+	for (int i = 0; i < 256 * 256; i += 2) {
+		double r1, r2;
+		GLUtil::gaussian2(r1, r2);
+		int s1 = GLUtil::clip(r1, factor);
+		buf1[i + 0] = (s1 > 0) ?  s1 : 0;
+		buf2[i + 0] = (s1 < 0) ? -s1 : 0;
+		int s2 = GLUtil::clip(r2, factor);
+		buf1[i + 1] = (s2 > 0) ?  s2 : 0;
+		buf2[i + 1] = (s2 < 0) ? -s2 : 0;
+	}
+	noiseTextureA.updateImage(0, 0, 256, 256, buf1);
+	noiseTextureB.updateImage(0, 0, 256, 256, buf2);
+}
+
+void GLPostProcessor::drawNoise()
+{
+	if (renderSettings.getNoise().getValue() == 0) return;
+
+	// Rotate and mirror noise texture in consecutive frames to avoid
+	// seeing 'patterns' in the noise.
+	static const int coord[8][4][2] = {
+		{ {   0,   0 }, { 320,   0 }, { 320, 240 }, {   0, 240 } },
+		{ {   0, 240 }, { 320, 240 }, { 320,   0 }, {   0,   0 } },
+		{ {   0, 240 }, {   0,   0 }, { 320,   0 }, { 320, 240 } },
+		{ { 320, 240 }, { 320,   0 }, {   0,   0 }, {   0, 240 } },
+		{ { 320, 240 }, {   0, 240 }, {   0,   0 }, { 320,   0 } },
+		{ { 320,   0 }, {   0,   0 }, {   0, 240 }, { 320, 240 } },
+		{ { 320,   0 }, { 320, 240 }, {   0, 240 }, {   0,   0 } },
+		{ {   0,   0 }, {   0, 240 }, { 320, 240 }, { 320,   0 } }
+	};
+	int zoom = renderSettings.getScaleFactor().getValue();
+
+	glPushAttrib(GL_ALL_ATTRIB_BITS);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE);
+	glEnable(GL_TEXTURE_2D);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	noiseTextureA.bind();
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f + noiseX, 1.875f + noiseY);
+	glVertex2i(coord[noiseSeq][0][0] * zoom, coord[noiseSeq][0][1] * zoom);
+	glTexCoord2f(2.5f + noiseX, 1.875f + noiseY);
+	glVertex2i(coord[noiseSeq][1][0] * zoom, coord[noiseSeq][1][1] * zoom);
+	glTexCoord2f(2.5f + noiseX, 0.000f + noiseY);
+	glVertex2i(coord[noiseSeq][2][0] * zoom, coord[noiseSeq][2][1] * zoom);
+	glTexCoord2f(0.0f + noiseX, 0.000f + noiseY);
+	glVertex2i(coord[noiseSeq][3][0] * zoom, coord[noiseSeq][3][1] * zoom);
+	glEnd();
+	// Note: If glBlendEquation is not present, the second noise texture will
+	//       be added instead of subtracted, which means there will be no noise
+	//       on white pixels. A pity, but it's better than no noise at all.
+	if (glBlendEquation) glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
+	noiseTextureB.bind();
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f + noiseX, 1.875f + noiseY);
+	glVertex2i(coord[noiseSeq][0][0] * zoom, coord[noiseSeq][0][1] * zoom);
+	glTexCoord2f(2.5f + noiseX, 1.875f + noiseY);
+	glVertex2i(coord[noiseSeq][1][0] * zoom, coord[noiseSeq][1][1] * zoom);
+	glTexCoord2f(2.5f + noiseX, 0.000f + noiseY);
+	glVertex2i(coord[noiseSeq][2][0] * zoom, coord[noiseSeq][2][1] * zoom);
+	glTexCoord2f(0.0f + noiseX, 0.000f + noiseY);
+	glVertex2i(coord[noiseSeq][3][0] * zoom, coord[noiseSeq][3][1] * zoom);
+	glEnd();
+	glPopAttrib();
+	if (glBlendEquation) glBlendEquation(GL_FUNC_ADD);
 }
 
 } // namespace openmsx
