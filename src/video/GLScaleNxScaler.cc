@@ -7,9 +7,9 @@ namespace openmsx {
 
 GLScaleNxScaler::GLScaleNxScaler()
 {
+	FragmentShader scalerFragmentShader("scale2x.frag");
 	scalerProgram.reset(new ShaderProgram());
-	scalerFragmentShader.reset(new FragmentShader("scale2x.frag"));
-	scalerProgram->attach(*scalerFragmentShader);
+	scalerProgram->attach(scalerFragmentShader);
 	scalerProgram->link();
 #ifdef GL_VERSION_2_0
 	if (GLEW_VERSION_2_0) {

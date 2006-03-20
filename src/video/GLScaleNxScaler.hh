@@ -9,7 +9,6 @@
 namespace openmsx {
 
 class ShaderProgram;
-class FragmentShader;
 
 class GLScaleNxScaler: public GLScaler
 {
@@ -24,7 +23,6 @@ public:
 
 private:
 	std::auto_ptr<ShaderProgram> scalerProgram;
-	std::auto_ptr<FragmentShader> scalerFragmentShader;
 };
 
 } // namespace openmsx
