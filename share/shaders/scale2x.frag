@@ -24,7 +24,7 @@ void main()
 	const vec3 right = texture2D(tex, posRightBot.xy).rgb;
 	const vec3 bot   = texture2D(tex, posRightBot.zw).rgb;
 
-	if (left == right || top == bot || left != top) {
+	if (dot(left - right, top - bot) == 0.0 || left != top) {
 		gl_FragColor = texture2D(tex, gl_TexCoord[0].st);
 	} else {
 		gl_FragColor = vec4(top, 1.0);
