@@ -11,7 +11,7 @@ SRC_HDR:= \
 	VDPIODelay
 
 HDR_ONLY:= \
-	IRQHelper
+	IRQHelper CPUClock
 
 include build/node-end.mk
 

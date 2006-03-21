@@ -3,13 +3,13 @@
 #ifndef R800_HH
 #define R800_HH
 
+#include "CPUClock.hh"
 #include "Clock.hh"
-#include "DynamicClock.hh"
 #include "likely.hh"
 
 namespace openmsx {
 
-class R800TYPE
+class R800TYPE : public CPUClock
 {
 public:
 	void updateVisiblePage(byte page, byte primarySlot, byte secondarySlot)
@@ -31,11 +31,11 @@ protected:
 	static const int CLOCK_FREQ = 7159090;
 
 	inline void M1_DELAY()       { }
-	inline void ADD_16_8_DELAY() { clock += 1; }
+	inline void ADD_16_8_DELAY() { add(1); }
 	inline void OP_16_16_DELAY() { }
 	inline void INC_16_DELAY()   { }
-	inline void BLOCK_DELAY()    { clock += 1; }
-	inline void RLD_DELAY()      { clock += 1; }
+	inline void BLOCK_DELAY()    { add(1); }
+	inline void RLD_DELAY()      { add(1); }
 	inline void EX_SP_HL_DELAY() { }
 	inline void LDI_DELAY()      { }
 	inline void DD_CB_DELAY()    { }
@@ -43,17 +43,19 @@ protected:
 	inline void NMI_DELAY()      { } // TODO check this
 	inline void IM0_DELAY()      { } // TODO check this
 	inline void IM1_DELAY()      { } // TODO check this
-	inline void IM2_DELAY()      { clock += 3; } // TODO check this
-	inline void PUSH_DELAY()     { clock += 1; }
-	inline void INC_DELAY()      { clock += 1; }
+	inline void IM2_DELAY()      { add(3); } // TODO check this
+	inline void PUSH_DELAY()     { add(1); }
+	inline void INC_DELAY()      { add(1); }
 	inline void SMALL_DELAY()    { }
-	inline void SET_IM_DELAY()   { clock += 1; }
-	inline void DI_DELAY()       { clock += 1; }
-	inline void RETN_DELAY()     { clock += 1; }
-	inline int haltStates() { return 1; }	// HALT + M1 // TODO check this
+	inline void SET_IM_DELAY()   { add(1); }
+	inline void DI_DELAY()       { add(1); }
+	inline void RETN_DELAY()     { add(1); }
+	inline void MULUB_DELAY()    { add(12); }
+	inline void MULUW_DELAY()    { add(34); }
+	inline unsigned haltStates() { return 1; } // HALT + M1 // TODO check this
 
 	R800TYPE(const EmuTime& time)
-		: clock(time)
+		: CPUClock(time)
 		, lastRefreshTime(time)
 		, lastPage(-1)
 	{
@@ -87,11 +89,11 @@ protected:
 			int newPage = address >> 8;
 			if (unlikely(newPage != lastPage)) {
 				lastPage = newPage;
-				clock += 1;
+				add(1);
 			}
 		} else {
 			lastPage = -1;
-			clock += 1;
+			add(1);
 		}
 	}
 	inline void PRE_RDMEM(word address)
@@ -100,28 +102,28 @@ protected:
 			int newPage = (address >> 8) + 256;
 			if (unlikely(newPage != lastPage)) {
 				lastPage = newPage;
-				clock += 1;
+				add(1);
 			}
 		} else {
 			lastPage = -1;
-			clock += 1;
+			add(1);
 		}
 	}
 	inline void PRE_WRMEM(word /*address*/)
 	{
 		lastPage = -1;
-		clock += 1;
+		add(1);
 	}
 	inline void POST_MEM(word address)
 	{
-		clock += memoryDelay[address >> 14] + OFFSET;
+		add(memoryDelay[address >> 14] + OFFSET);
 	}
 
 	inline void PRE_IO (word /*port*/) { }
 	inline void POST_IO(word /*port*/) {
 		// TODO is this correct or does it just take 4 clock cycles
 		lastPage = -1;
-		clock += 3;
+		add(3);
 	}
 
 	inline void R800Refresh()
@@ -129,13 +131,12 @@ protected:
 		// documentation says refresh every 222 clocks
 		//  duration:  256/1024KB  13.5 clocks
 		//             512KB       21.5 clocks
-		if (unlikely(lastRefreshTime.getTicksTill(clock.getTime()) >= 222)) {
-			lastRefreshTime.advance(clock.getTime());
-			clock += 22;
+		const EmuTime& time = getTime();
+		if (unlikely(lastRefreshTime.getTicksTill(time) >= 222)) {
+			lastRefreshTime.advance(time);
+			add(22);
 		}
 	}
-
-	DynamicClock clock;
 
 private:
 	Clock<CLOCK_FREQ> lastRefreshTime;

@@ -1,5 +1,12 @@
 $Id$
 
+2006-03-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Optimized clock in CPU code:
+	   - do part of the time bookkeeping with 32-bit additions (iso 64-bit)
+	   - gives between 1% and 2% speedup in typical PC usecase (scale_factor
+	      = 2, no frameskip)
+	   - gives around 10% speedup with scale_factor = 1 and frameskip 5
+
 2006-03-19 Maarten ter Huurne <maarten@treewalker.org>
 	* Made scalers switchable in SDLGL-PP renderer.
 	  Only "simple" and "ScaleNx" are currently implemented.

@@ -45,10 +45,10 @@ template <class T> CPUCore<T>::CPUCore(
 {
 	if (freqLocked->getValue()) {
 		// locked
-		T::clock.setFreq(T::CLOCK_FREQ);
+		T::setFreq(T::CLOCK_FREQ);
 	} else {
 		// unlocked
-		T::clock.setFreq(freqValue->getValue());
+		T::setFreq(freqValue->getValue());
 	}
 
 	freqLocked->attach(*this);
@@ -69,13 +69,13 @@ template <class T> void CPUCore<T>::setInterface(MSXCPUInterface* interf)
 
 template <class T> void CPUCore<T>::warp(const EmuTime& time)
 {
-	assert(T::clock.getTime() < time);
-	T::clock.reset(time);
+	assert(T::getTime() < time);
+	T::setTime(time);
 }
 
 template <class T> const EmuTime& CPUCore<T>::getCurrentTime() const
 {
-	return T::clock.getTime();
+	return T::getTime();
 }
 
 template <class T> void CPUCore<T>::invalidateMemCache(word start, unsigned size)
@@ -121,8 +121,8 @@ template <class T> void CPUCore<T>::doReset(const EmuTime& time)
 	memptr = 0xFFFF;
 	invalidateMemCache(0x0000, 0x10000);
 
-	assert(T::clock.getTime() <= time);
-	T::clock.reset(time);
+	assert(T::getTime() <= time);
+	T::setTime(time);
 
 	assert(NMIStatus == 0); // other devices must reset their NMI source
 	assert(IRQStatus == 0); // other devices must reset their IRQ source
@@ -169,7 +169,7 @@ template <class T> void CPUCore<T>::wait(const EmuTime& time)
 {
 	assert(time >= getCurrentTime());
 	scheduler.schedule(time);
-	T::clock.advance(time);
+	T::advanceTime(time);
 }
 
 template <class T> void CPUCore<T>::doBreak2()
@@ -241,7 +241,7 @@ template <class T> void CPUCore<T>::disasmCommand(
 	byte outBuf[4];
 	std::string dasmOutput;
 	int len = dasm(*interface, address, outBuf, dasmOutput,
-	               T::clock.getTime());
+	               T::getTime());
 	result.addListElement(dasmOutput);
 	char tmp[3]; tmp[2] = 0;
 	for (int i = 0; i < len; ++i) {
@@ -255,14 +255,14 @@ template <class T> void CPUCore<T>::update(const Setting& setting)
 	if (&setting == freqLocked.get()) {
 		if (freqLocked->getValue()) {
 			// locked
-			T::clock.setFreq(freq);
+			T::setFreq(freq);
 		} else {
 			// unlocked
-			T::clock.setFreq(freqValue->getValue());
+			T::setFreq(freqValue->getValue());
 		}
 	} else if (&setting == freqValue.get()) {
 		if (!freqLocked->getValue()) {
-			T::clock.setFreq(freqValue->getValue());
+			T::setFreq(freqValue->getValue());
 		}
 	} else {
 		assert(false);
@@ -274,7 +274,7 @@ template <class T> void CPUCore<T>::setFreq(unsigned freq_)
 	freq = freq_;
 	if (freqLocked->getValue()) {
 		// locked
-		T::clock.setFreq(freq);
+		T::setFreq(freq);
 	}
 }
 
@@ -283,8 +283,8 @@ template <class T> inline byte CPUCore<T>::READ_PORT(word port)
 {
 	memptr = port + 1;
 	T::PRE_IO(port);
-	scheduler.schedule(T::clock.getTime());
-	byte result = interface->readIO(port, T::clock.getTime());
+	scheduler.schedule(T::getTime());
+	byte result = interface->readIO(port, T::getTime());
 	T::POST_IO(port);
 	return result;
 }
@@ -293,8 +293,8 @@ template <class T> inline void CPUCore<T>::WRITE_PORT(word port, byte value)
 {
 	memptr = port + 1;
 	T::PRE_IO(port);
-	scheduler.schedule(T::clock.getTime());
-	interface->writeIO(port, value, T::clock.getTime());
+	scheduler.schedule(T::getTime());
+	interface->writeIO(port, value, T::getTime());
 	T::POST_IO(port);
 }
 
@@ -324,8 +324,8 @@ template <class T> byte CPUCore<T>::RDMEMslow(word address)
 		}
 	}
 	// uncacheable
-	scheduler.schedule(T::clock.getTime());
-	byte result = interface->readMem(address, T::clock.getTime());
+	scheduler.schedule(T::getTime());
+	byte result = interface->readMem(address, T::getTime());
 	T::POST_MEM(address);
 	return result;
 }
@@ -358,8 +358,8 @@ template <class T> void CPUCore<T>::WRMEMslow(word address, byte value)
 		}
 	}
 	// uncacheable
-	scheduler.schedule(T::clock.getTime());
-	interface->writeMem(address, value, T::clock.getTime());
+	scheduler.schedule(T::getTime());
+	interface->writeMem(address, value, T::getTime());
 	T::POST_MEM(address);
 }
 
@@ -388,7 +388,7 @@ template <class T> inline void CPUCore<T>::WRMEM(word address, byte value)
 	WRMEM_common(address, value);
 }
 
-template <class T> inline void CPUCore<T>::M1Cycle() { R.R++; T::M1_DELAY(); }
+template <class T> inline void CPUCore<T>::M1Cycle() { T::M1_DELAY(); ++R.R; }
 
 // NMI interrupt
 template <class T> inline void CPUCore<T>::nmi()
@@ -397,8 +397,8 @@ template <class T> inline void CPUCore<T>::nmi()
 	R.HALT = false;
 	R.IFF1 = R.nextIFF1 = false;
 	R.PC = 0x0066;
-	M1Cycle();
 	T::NMI_DELAY();
+	M1Cycle();
 }
 
 // IM0 interrupt
@@ -430,8 +430,8 @@ template <class T> inline void CPUCore<T>::irq2()
 	word x = interface->dataBus() | (R.I << 8);
 	R.PC  = RDMEM(x + 0);
 	R.PC += RDMEM(x + 1) << 8;
-	M1Cycle();
 	T::IM2_DELAY();
+	M1Cycle();
 }
 
 template <class T> inline void CPUCore<T>::executeInstruction1(byte opcode)
@@ -455,7 +455,7 @@ template <class T> inline void CPUCore<T>::cpuTracePost()
 	if (traceSetting.getValue()) {
 		byte opbuf[4];
 		string dasmOutput;
-		dasm(*interface, start_pc, opbuf, dasmOutput, T::clock.getTime());
+		dasm(*interface, start_pc, opbuf, dasmOutput, T::getTime());
 		std::cout << std::setfill('0') << std::hex << std::setw(4) << start_pc
 		     << " : " << dasmOutput
 		     << " AF=" << std::setw(4) << R.AF
@@ -494,11 +494,7 @@ template <class T> void CPUCore<T>::executeSlow()
 		}
 	} else if (unlikely(R.HALT || paused)) {
 		// in halt mode
-		uint64 ticks = T::clock.getTicksTillUp(scheduler.getNext());
-		int hltStates = T::haltStates();
-		int halts = (ticks + hltStates - 1) / hltStates;	// rounded up
-		R.R += halts;
-		T::clock += halts * hltStates;
+		R.R += T::advanceHalt(T::haltStates(), scheduler.getNext());
 		slowInstructions = 2;
 	} else {
 		R.IFF1 = R.nextIFF1;
@@ -513,7 +509,7 @@ template <class T> void CPUCore<T>::execute()
 	executeInternal();
 
 	// synchronize scheduler with cpu
-	scheduler.schedule(T::clock.getTime());
+	scheduler.schedule(T::getTime());
 }
 
 template <class T> void CPUCore<T>::executeInternal()
@@ -526,7 +522,7 @@ template <class T> void CPUCore<T>::executeInternal()
 	if (continued || step) {
 		// at least one instruction
 		continued = false;
-		scheduler.schedule(T::clock.getTime());
+		scheduler.schedule(T::getTime());
 		executeSlow();
 		--slowInstructions;
 		if (step) {
@@ -541,11 +537,11 @@ template <class T> void CPUCore<T>::executeInternal()
 		while (!exitLoop) {
 			if (slowInstructions) {
 				slowInstructions--;
-				scheduler.schedule(T::clock.getTime());
+				scheduler.schedule(T::getTime());
 				executeSlow();
 			} else {
 				while (!slowInstructions) {
-					scheduler.schedule(T::clock.getTime());
+					scheduler.schedule(T::getTime());
 					executeFast();
 				}
 			}
@@ -557,13 +553,13 @@ template <class T> void CPUCore<T>::executeInternal()
 				return;
 			} else {
 				if (slowInstructions == 0) {
-					scheduler.schedule(T::clock.getTime());
+					scheduler.schedule(T::getTime());
 					cpuTracePre();
 					executeFast();
 					cpuTracePost();
 				} else {
 					slowInstructions--;
-					scheduler.schedule(T::clock.getTime());
+					scheduler.schedule(T::getTime());
 					executeSlow();
 				}
 			}
@@ -2751,7 +2747,7 @@ template <class T> void CPUCore<T>::ld_r_a()
 template <class T> inline void CPUCore<T>::MULUB(byte reg)
 {
 	// TODO check flags
-	T::clock += 12;
+	T::MULUB_DELAY();
 	R.HL = (word)R.getA() * reg;
 	R.setF((R.getF() & (N_FLAG | H_FLAG)) |
 	       (R.HL ? 0 : Z_FLAG) |
@@ -2770,7 +2766,7 @@ template <class T> void CPUCore<T>::mulub_a_l()   { } // TODO
 template <class T> inline void CPUCore<T>::MULUW(word reg)
 {
 	// TODO check flags
-	T::clock += 34;
+	T::MULUW_DELAY();
 	unsigned long res = (unsigned long)R.HL * reg;
 	R.DE = res >> 16;
 	R.HL = res & 0xffff;
