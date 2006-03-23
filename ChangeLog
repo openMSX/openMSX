@@ -1,6 +1,11 @@
 $Id$
 
 2006-03-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* SDLRasterizer optimization:
+	   - replaced memcpy() with new stream_memcpy() function
+	   - about 3% faster here (simple scaler 2x)
+
+2006-03-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimized clock in CPU code:
 	   - do part of the time bookkeeping with 32-bit additions (iso 64-bit)
 	   - gives between 1% and 2% speedup in typical PC usecase (scale_factor

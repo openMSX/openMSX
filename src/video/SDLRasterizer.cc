@@ -509,7 +509,7 @@ void SDLRasterizer<Pixel>::drawDisplay(
 						displayX + hScroll;
 				Pixel* dst = workFrame->getLinePtr(y, (Pixel*)0)
 				           + leftBackground + displayX;
-				memcpy(dst, src, firstPageWidth * sizeof(Pixel));
+				MemoryOps::stream_memcpy(dst, src, firstPageWidth);
 			} else {
 				firstPageWidth = 0;
 			}
@@ -522,7 +522,7 @@ void SDLRasterizer<Pixel>::drawDisplay(
 				Pixel* dst = workFrame->getLinePtr(y, (Pixel*)0)
 				           + leftBackground + displayX
 					   + firstPageWidth;
-				memcpy(dst, src, num * sizeof(Pixel));
+				MemoryOps::stream_memcpy(dst, src, num);
 			}
 			workFrame->setLineWidth(y, (lineWidth == 512) ? 640 : 320);
 
@@ -539,7 +539,7 @@ void SDLRasterizer<Pixel>::drawDisplay(
 				displayY, (Pixel*)0) + displayX;
 			Pixel* dst = workFrame->getLinePtr(y, (Pixel*)0)
 			           + leftBackground + displayX;
-			memcpy(dst, src, displayWidth * sizeof(Pixel));
+			MemoryOps::stream_memcpy(dst, src, displayWidth);
 
 			workFrame->setLineWidth(y, (lineWidth == 512) ? 640 : 320);
 			displayY = (displayY + 1) & 255;

@@ -296,6 +296,140 @@ template void memset  <word    , false>(word*    , unsigned, word    );
 
 
 
+void stream_memcpy(unsigned* dst, const unsigned* src, unsigned num)
+{
+	#ifdef ASM_X86
+	const HostCPU& cpu = HostCPU::getInstance();
+	if (cpu.hasMMXEXT()) {
+		assert(((long)src & 3) == 0); // must be word aligned
+		assert(((long)dst & 3) == 0);
+		// align on 8-byte boundary
+		if (unlikely((long)dst & 4)) {
+			*dst++ = *src++;
+			--num;
+		}
+		// copy chunks of 64 bytes
+		unsigned n2 = num & ~15;
+		if (likely(n2)) {
+			src += n2;
+			dst += n2;
+			asm volatile (
+				".p2align 4,,15;"
+			"0:"
+				"prefetchnta 320(%0,%2);"
+				"movq    (%0,%2), %%mm0;"
+				"movq   8(%0,%2), %%mm1;"
+				"movq  16(%0,%2), %%mm2;"
+				"movq  24(%0,%2), %%mm3;"
+				"movq  32(%0,%2), %%mm4;"
+				"movq  40(%0,%2), %%mm5;"
+				"movq  48(%0,%2), %%mm6;"
+				"movq  56(%0,%2), %%mm7;"
+				"movntq  %%mm0,   (%1,%2);"
+				"movntq  %%mm1,  8(%1,%2);"
+				"movntq  %%mm2, 16(%1,%2);"
+				"movntq  %%mm3, 24(%1,%2);"
+				"movntq  %%mm4, 32(%1,%2);"
+				"movntq  %%mm5, 40(%1,%2);"
+				"movntq  %%mm6, 48(%1,%2);"
+				"movntq  %%mm7, 56(%1,%2);"
+				"addl  $64, %2;"
+				"jnz   0b;"
+				: // no output
+				: "r" (src)
+				, "r" (dst)
+				, "r" (-4 * n2)
+				#ifdef __MMX__
+				: "mm0", "mm1", "mm2", "mm3"
+				, "mm4", "mm5", "mm6", "mm7"
+				#endif
+			);
+			num &= 15;
+		}
+		if (unlikely(num & 8)) {
+			asm volatile (
+				"movq    (%0), %%mm0;"
+				"movq   8(%0), %%mm1;"
+				"movq  16(%0), %%mm2;"
+				"movq  24(%0), %%mm3;"
+				"movntq  %%mm0,   (%1);"
+				"movntq  %%mm1,  8(%1);"
+				"movntq  %%mm2, 16(%1);"
+				"movntq  %%mm3, 24(%1);"
+				: // no output
+				: "r" (src)
+				, "r" (dst)
+				#ifdef __MMX__
+				: "mm0", "mm1", "mm2", "mm3"
+				#endif
+			);
+			src += 8;
+			dst += 8;
+		}
+		if (unlikely(num & 4)) {
+			asm volatile (
+				"movq    (%0), %%mm0;"
+				"movq   8(%0), %%mm1;"
+				"movntq  %%mm0,   (%1);"
+				"movntq  %%mm1,  8(%1);"
+				: // no output
+				: "r" (src)
+				, "r" (dst)
+				#ifdef __MMX__
+				: "mm0", "mm1"
+				#endif
+			);
+			src += 4;
+			dst += 4;
+		}
+		if (unlikely(num & 2)) {
+			asm volatile (
+				"movq    (%0), %%mm0;"
+				"movntq  %%mm0,   (%1);"
+				: // no output
+				: "r" (src)
+				, "r" (dst)
+				#ifdef __MMX__
+				: "mm0"
+				#endif
+			);
+			src += 2;
+			dst += 2;
+		}
+		if (unlikely(num & 1)) {
+			*dst = *src;
+		}
+		asm volatile ( "emms" );
+		return;
+	}
+	#endif
+	memcpy(dst, src, num * sizeof(unsigned));
+}
+
+void stream_memcpy(word* dst, const word* src, unsigned num)
+{
+	#ifdef ASM_X86
+	const HostCPU& cpu = HostCPU::getInstance();
+	if (cpu.hasMMXEXT()) {
+		// align on 4-byte boundary
+		if (unlikely((long)dst & 2)) {
+			*dst++ = *src++;
+			--num;
+		}
+		const unsigned* src2 = reinterpret_cast<const unsigned*>(src);
+		unsigned*       dst2 = reinterpret_cast<unsigned*>      (dst);
+		stream_memcpy(dst2, src2, num / 2);
+		if (unlikely(num & 1)) {
+			dst[num - 1] = src[num - 1];
+		}
+		return;
+	}
+	#endif
+	memcpy(dst, src, num * sizeof(word));
+}
+
+
+
 /** Aligned memory (de)allocation
  */
 
