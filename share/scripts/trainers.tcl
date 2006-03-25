@@ -1,25 +1,25 @@
 # game trainers version 1.6
 #
-# please join us looking for s and submit them to the www.openmsx.org forum
+# please join us looking for cheats and submit them to the www.openmsx.org forum
 #
 # credits:
 #   copyright 2005-2006 Albert Beevendorp all rights reserved
 #   copyright 2005-2006 Patrick van Arkel all rights reserved
 #   copyright 	   2006 Benoit Delvaux all rights reserved 
 #
-# the definition of ing according to google:
+# the definition of cheating according to google:
 #
 # - defeat someone in an expectation through trickery or deceit 
 # - deceiver: someone who leads you to believe something that is not true  
 # - a deception for profit to yourself 
 #
-# although the definition of ing is mostly negative 
+# although the definition of cheating is mostly negative 
 # this time i turned it into something fun.
 #
 # openmsx is made to work together with ips patches. Albert has some ips
-# patches ready at http://ips.tni.nl/ for even more ting ;)
+# patches ready at http://ips.tni.nl/ for even more cheating ;)
 #
-# please  responsible!
+# please cheat responsible!
 
 #helper functions
 proc poke {addr val} {debug write memory $addr $val}
@@ -1468,7 +1468,7 @@ proc trainer_maze_of_galious {} {
 	poke 0xe055 1
 	#bible (ctrl) uses left 
 	poke 0xe531 255
-	#zeus 
+	#zeus cheat
 	poke 0xe027 1
 	# active weapon (0 = nothing, 1 t/m 6 = arrow, cer.arrow, fire, rolling fire, mine, magnifying glass)
 	#poke 0xe510 1
@@ -1486,7 +1486,7 @@ proc trainer_maze_of_galious {} {
 	poke 0xe074 255
 	#magnifying glass
 	poke 0xe075 1
-	#zeus  (bifi)
+	#zeus  cheat(bifi)
 	poke 0xe027 1
 	#necklace
 	poke 0xe07c 1
@@ -1972,7 +1972,7 @@ proc trainer_penguinadventure  {} {
 	poke 0xe08c 0x3
 	#pause counter (good ending i have been told)
 	poke 0xe0de 1
-	#noriko  (thanks bifi)
+	#noriko cheat(thanks bifi)
 	poke 0xf0f7 254
 	#!slot machine
 	#! 0= cherry
@@ -2010,7 +2010,7 @@ proc trainer_stonedofwisdom {} {
 	after time 2 trainer_stonedofwisdom
 }
 proc trainer_blowup {} {
-	#'cosmic'  active f1 to place bombs f5 to blow yourself up
+	#'cosmic' cheat active f1 to place bombs f5 to blow yourself up
 	poke 0x403b 1
 	after time 2 trainer_blowup
 }
@@ -2022,7 +2022,7 @@ proc trainer_arsenelupin3 {} {
 	# bullet
 	poke 0xe16f 0x99
 	# missle and rings
-	#poke 0xe1ca 1 missle has to turn to 0 use other 
+	#poke 0xe1ca 1 missle has to turn to 0 use other cheat
 	poke 0xe1cd 3
 	poke 0xe269 14	
 	after time 2 trainer_arsenelupin3
@@ -2328,7 +2328,7 @@ proc trainer_nyancleracing {} {
 }
 
 proc trainer_kingsvalley2 {} {
-	#festival 
+	#festival cheat
 	poke 0xe255 1
 	#try again  (thanks bifi)
 	poke 0xe217 1
@@ -2408,7 +2408,7 @@ proc trainer_chukataisen {} {
 }
 
 proc trainer_goemon {} {
-	#this  works for both players
+	#this cheat works for both players
 	#lives
 	poke 0xc260 0x99
 	#power
@@ -3191,7 +3191,7 @@ proc trainer_arkanoid1 {} {
 	poke 0xe551 1
 	#99 lives
 	poke 0xe01d 99
-	#thanks for these s mars2000you
+	#thanks for these cheats mars2000you
 	#normal ball speed
 	poke 0xe255 12
 	#magnetic ball
@@ -3216,7 +3216,7 @@ proc trainer_arkanoid1 {} {
 	#99 lives
 	poke 0xe01d 99
 	
-	#(thanks mars2000you for rest of the s)
+	#(thanks mars2000you for rest of the cheats)
 	#normal ball speed
 	poke 0xe255 12
 	#glueball
@@ -3670,7 +3670,7 @@ proc trainer_desolator {} {
 }
 
 proc trainer_guttblaster {} { 
-	#cosmic 
+	#cosmic cheat
 	poke 0x4038 1
 	#2 way shot (to change choose value 0-3)
 	poke 0x6a96 3
@@ -4734,7 +4734,6 @@ proc trainer_saimazoom {} {
 	after time 1 trainer_saimazoom
 }
 
-#bleumsx team do not release these s before x-mas!! keep them in cvs!
 proc trainer_thecure {} {
 	#power 
 	poke 0xdae6 64
