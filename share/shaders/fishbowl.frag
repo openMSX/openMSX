@@ -7,7 +7,7 @@ uniform sampler2D tex;
 const vec2 texSize = vec2(1024.0, 512.0);
 const vec2 displaySize = vec2(320.0, 240.0);
 const vec2 texOffset = 0.5 * displaySize / texSize;
-const float pi = 4.0 * atan(1.0);
+float pi = 4.0 * atan(1.0);
 
 // Customize the effect here:
 const float warp = 0.4; // low is square, high is warped
