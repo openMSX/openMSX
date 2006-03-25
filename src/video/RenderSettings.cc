@@ -73,7 +73,7 @@ RenderSettings::RenderSettings(CommandController& commandController)
 		SCALER_SIMPLE, scalerMap));
 
 	scaleFactor.reset(new IntegerSetting(commandController,
-		"scale_factor", "scale factor", 2, 1, 3));
+		"scale_factor", "scale factor", 2, 1, 4));
 
 	scanlineAlpha.reset(new IntegerSetting(commandController,
 		"scanline", "amount of scanline effect: 0 = none, 100 = full",

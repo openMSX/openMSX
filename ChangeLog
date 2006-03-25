@@ -1,5 +1,10 @@
 $Id$
 
+2006-03-24 Maarten ter Huurne <maarten@treewalker.org>
+	* Set maximum of scale_factor to 4.
+	  Only the SDLGL-PP renderer can actually reach 4x, the other renderers
+	  will fall back to their maximum zoom (2x or 3x).
+
 2006-03-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* SDLRasterizer optimization:
 	   - replaced memcpy() with new stream_memcpy() function

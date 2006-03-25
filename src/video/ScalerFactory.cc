@@ -51,6 +51,7 @@ auto_ptr<Scaler> ScalerFactory<Pixel>::createScaler(
 			assert(false);
 		}
 	case 3:
+	case 4: // fallback
 		switch (renderSettings.getScaleAlgorithm().getValue()) {
 		case RenderSettings::SCALER_SIMPLE:
 			return auto_ptr<Scaler>(

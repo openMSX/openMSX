@@ -120,6 +120,7 @@ V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990& vdp)
 void SDLVideoSystem::getWindowSize(unsigned& width, unsigned& height)
 {
 	unsigned factor = renderSettings.getScaleFactor().getValue();
+	if (factor > 3) factor = 3; // fallback
 	width  = 320 * factor;
 	height = 240 * factor;
 }
