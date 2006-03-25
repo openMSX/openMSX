@@ -301,6 +301,7 @@ void stream_memcpy(unsigned* dst, const unsigned* src, unsigned num)
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
 	if (cpu.hasMMXEXT()) {
+		if (!num) return;
 		assert(((long)src & 3) == 0); // must be word aligned
 		assert(((long)dst & 3) == 0);
 		// align on 8-byte boundary
@@ -411,6 +412,7 @@ void stream_memcpy(word* dst, const word* src, unsigned num)
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
 	if (cpu.hasMMXEXT()) {
+		if (!num) return;
 		// align on 4-byte boundary
 		if (unlikely((long)dst & 2)) {
 			*dst++ = *src++;
