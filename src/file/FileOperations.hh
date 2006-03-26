@@ -82,7 +82,7 @@ namespace FileOperations {
 
 	/**
 	 * Get user's home directory.
-	 * @param The name of the user
+	 * @param username The name of the user
 	 * @result Home directory of the user or empty string in case of error
 	 * UNI*Y: get from env var "HOME" or from /etc/passwd
 	 *        empty string means current user
