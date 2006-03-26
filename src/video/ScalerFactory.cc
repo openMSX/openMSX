@@ -44,6 +44,7 @@ auto_ptr<Scaler> ScalerFactory<Pixel>::createScaler(
 		case RenderSettings::SCALER_HQLITE:
 			return auto_ptr<Scaler>(new HQ2xLiteScaler<Pixel>(pixelOps));
 		case RenderSettings::SCALER_RGBTRIPLET:
+		case RenderSettings::SCALER_TV: // fallback
 			return auto_ptr<Scaler>(
 				new SimpleScaler<Pixel>(pixelOps, renderSettings)
 				);
@@ -66,6 +67,7 @@ auto_ptr<Scaler> ScalerFactory<Pixel>::createScaler(
 		case RenderSettings::SCALER_HQLITE:
 			return auto_ptr<Scaler>(new HQ3xLiteScaler<Pixel>(pixelOps));
 		case RenderSettings::SCALER_RGBTRIPLET:
+		case RenderSettings::SCALER_TV: // fallback
 			return auto_ptr<Scaler>(
 				new RGBTriplet3xScaler<Pixel>(pixelOps, renderSettings)
 				);

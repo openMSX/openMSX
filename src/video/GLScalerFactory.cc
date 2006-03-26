@@ -3,6 +3,7 @@
 #include "GLScalerFactory.hh"
 #include "GLSimpleScaler.hh"
 #include "GLScaleNxScaler.hh"
+#include "GLTVScaler.hh"
 #include "RenderSettings.hh"
 #include "EnumSetting.hh"
 #include <cassert>
@@ -27,6 +28,8 @@ auto_ptr<GLScaler> GLScalerFactory::createScaler(
 			);
 	case RenderSettings::SCALER_SCALE:
 		return auto_ptr<GLScaler>(new GLScaleNxScaler());
+	case RenderSettings::SCALER_TV:
+		return auto_ptr<GLScaler>(new GLTVScaler());
 	default:
 		assert(false);
 	}

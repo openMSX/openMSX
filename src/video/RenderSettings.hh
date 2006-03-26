@@ -29,7 +29,7 @@ public:
 	  */
 	enum ScaleAlgorithm {
 		SCALER_SIMPLE, SCALER_SAI, SCALER_SCALE,
-		SCALER_HQ, SCALER_HQLITE, SCALER_RGBTRIPLET
+		SCALER_HQ, SCALER_HQLITE, SCALER_RGBTRIPLET, SCALER_TV
 	};
 
 	explicit RenderSettings(CommandController& commandController);
