@@ -1,5 +1,11 @@
 $Id$
 
+2006-03-26 Maarten ter Huurne <maarten@treewalker.org>
+	* Fixed two compile errors on Intel Macs. At least one remains though.
+
+2006-03-25 Maarten ter Huurne <maarten@treewalker.org>
+	* Added new scaler "TV".
+
 2006-03-24 Maarten ter Huurne <maarten@treewalker.org>
 	* Set maximum of scale_factor to 4.
 	  Only the SDLGL-PP renderer can actually reach 4x, the other renderers

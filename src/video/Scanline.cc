@@ -208,6 +208,10 @@ void Scanline<Pixel>::draw(const Pixel* src1, const Pixel* src2,
 		return;
 	}
 
+	#ifndef __APPLE__
+	// On Mac OS X, we are one register short, because EBX is not available.
+	// We disable this piece of assembly and fall back to the C++ code.
+	// It's unlikely modern Macs will be running in 16bpp anyway.
 	if ((sizeof(Pixel) == 2) && cpu.hasMMXEXT()) {
 		// extended-MMX routine, 16bpp
 		assert(((2 * width) % 16) == 0);
@@ -287,6 +291,7 @@ void Scanline<Pixel>::draw(const Pixel* src1, const Pixel* src2,
 		);
 		return;
 	}
+	#endif // !__APPLE__
 	// MMX routine 16bpp is missing, but it's difficult to write because
 	// of the missing "pextrw" and "pinsrw" instructions
 
