@@ -3,9 +3,9 @@
 # Configuration for "i686" flavour:
 # Optimised for Pentium 2 and higher.
 
-# Optimisation flags.
-CXXFLAGS+=-O3 -DNDEBUG \
-	-march=i686 -ffast-math -funroll-loops
+# Start with generic optimisation flags.
+include build/flavour-opt.mk
 
-# Strip executable?
-OPENMSX_STRIP:=true
+# Add x86 specific flags.
+CXXFLAGS+=-march=i686
+$(warning flags=$(CXXFLAGS))
