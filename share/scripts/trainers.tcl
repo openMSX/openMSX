@@ -2426,7 +2426,7 @@ proc trainer_goemon {} {
 	poke 0xc276 5
 	#have umbrella
 	poke 0xc275 5
-	#have 'body shampoo'
+	#have 'shower gel' (?)
 	poke 0xc274 5	
 	#have tent
 	poke 0xc273 5	
@@ -2446,7 +2446,13 @@ proc trainer_goemon {} {
 proc trainer_garryuuo {} {
 	#invincible
 	poke 0xe0b7 255
-	after time 2 trainer_garryuuo
+	#extra invincible
+	poke 0xe06d 8
+	#easy bosses (kill after one hit)
+	poke 0xe1f1 1
+	#freeze enemies
+	poke 0xe06b 8
+	after time 4 trainer_garryuuo
 }
 
 proc trainer_familyboxing {} {
@@ -2823,7 +2829,7 @@ proc trainer_superrambospecial {} {
 proc trainer_supertriton {} { 
 	#exp
 	poke 0xd023 255
-    #life
+    	#life
 	poke 0xd024 255
 	#red life
 	poke 0xd025 255
@@ -2833,7 +2839,7 @@ proc trainer_supertriton {} {
 proc trainer_triton {} { 
 	#exp
 	poke 0xe43b 100
-    #life
+    	#life
 	poke 0xe439 99
 	#magic balls
 	poke 0xe43c 99
@@ -2843,7 +2849,7 @@ proc trainer_triton {} {
 proc trainer_afterburner {} { 
 	#missles
 	poke 0x5e23 255
-    #lives
+    	#lives
 	poke 0x5e4e 100
 	after time 10 trainer_afterburner 
 } 
@@ -2948,7 +2954,6 @@ proc trainer_bomberking {} {
 	poke 0xc0c4 1
 	poke 0xc56b 1
 	poke 0xc571 1
-
 	after time 10 trainer_bomberking 
 }
 
@@ -4436,6 +4441,8 @@ proc trainer_tensairabbiandaifunsen {} {
 proc trainer_madrider {} {
 	#timer
 	poke 0xc510 59
+	#full speed
+	#!poke 0xc577 255
 	after time 1 trainer_madrider
 }
 
@@ -4525,6 +4532,7 @@ proc trainer_iceworld {} {
 	poke 0xe00b 5 
 	after time 10 trainer_iceworld 
 }
+
 
 proc trainer_manes {} { 
 	#lives
@@ -5322,6 +5330,32 @@ proc trainer_hydlide2 {} {
 	#magic max
 	poke 0xe025 0x99
 	after time 1 trainer_hydlide2
+}
+
+proc trainer_zukkoke_yajikita_onmitsudoutyuu {} {
+	
+	#life
+	poke 0xe060 0x99
+	#something
+	poke 0xe061 0x99
+	#something else
+	poke 0xe062 0x99
+	#something 
+	poke 0xe063 0x99
+	poke 0xe065 0x99
+	#something
+	poke 0xe064 0x9
+
+	#item 1-8
+	poke 0xe066 0x9
+	poke 0xe067 0x9
+	poke 0xe068 0x9
+	poke 0xe069 0x9
+	poke 0xe06a 0x9
+	poke 0xe06b 0x9
+	poke 0xe06c 0x9
+	poke 0xe06d 0x9
+after time 1 trainer_zukkoke_yajikita_onmitsudoutyuu
 }
 
 ### EOF ###
