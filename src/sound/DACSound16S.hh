@@ -26,7 +26,7 @@ public:
 	virtual void setVolume(int newVolume);
 	virtual void setSampleRate(int sampleRate);
 	virtual void updateBuffer(unsigned length, int* buffer,
-	        const EmuTime& time, const EmuDuration& sampDur);
+	        const EmuTime& start, const EmuDuration& sampDur);
 
 private:
 	struct Sample {

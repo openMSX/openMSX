@@ -42,7 +42,6 @@ public:
 
 	/**
 	 * Main loop.
-	 * @param autoRun Iff true, start emulation immediately.
 	 */
 	void run(CommandLineParser& parser);
 

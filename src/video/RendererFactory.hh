@@ -41,11 +41,13 @@ public:
 
 	/** Create the Renderer selected by the current renderer setting.
 	  * @param vdp The VDP whose display will be rendered.
+	  * @param display TODO
 	  */
 	static Renderer* createRenderer(VDP& vdp, Display& display);
 
 	/** Create the V9990 Renderer selected by the current renderer setting.
 	  * @param vdp The V9990 VDP whose display will be rendered.
+	  * @param display TODO
 	  */
 	static V9990Renderer* createV9990Renderer(V9990& vdp, Display& display);
 

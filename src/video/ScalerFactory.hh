@@ -19,7 +19,6 @@ class ScalerFactory
 {
 public:
 	/** Instantiates a Scaler.
-	  * @param format Pixel format of the surfaces the scaler will be used on.
 	  * @return A Scaler object, owned by the caller.
 	  */
 	static std::auto_ptr<Scaler> createScaler(

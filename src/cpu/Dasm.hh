@@ -17,6 +17,7 @@ namespace openmsx {
   * @param buf The bytes that form this opcode (max 4). The buffer is only
   *            filled with the min required bytes (see return value)
   * @param dest String representation of the disassembled opcode
+  * @param time TODO
   * @return Length of the disassembled opcode in bytes
   */
 int dasm(const MSXCPUInterface& interf, word pc, byte buf[4], std::string& dest,

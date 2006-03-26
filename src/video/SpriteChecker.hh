@@ -63,6 +63,8 @@ public:
 
 	/** Create a sprite checker.
 	  * @param vdp The VDP this sprite checker is part of.
+	  * @param renderSettings TODO
+	  * @param time TODO
 	  */
 	explicit SpriteChecker(VDP& vdp, RenderSettings& renderSettings,
 	                       const EmuTime& time);

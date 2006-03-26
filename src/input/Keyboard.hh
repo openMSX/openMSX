@@ -25,6 +25,9 @@ class Keyboard : private UserInputEventListener, private Schedulable
 public:
 	/**
 	 * Constructs a new Keyboard object.
+	 * @param scheduler ref to the scheduler
+	 * @param commandController ref to the command controller
+	 * @param eventDistributor ref to the user input event distributor
 	 * @param keyGhosting turn keyGhosting on/off
 	 */
 	Keyboard(Scheduler& scheduler, CommandController& commandController,

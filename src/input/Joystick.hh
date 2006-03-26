@@ -18,6 +18,7 @@ class Joystick : public JoystickDevice, private UserInputEventListener
 {
 public:
 	/** Register all available SDL joysticks.
+	  * @param eventDistributor ref to the eventDistributor.
 	  * @param controller Register here.
 	  */
 	static void registerAll(UserInputEventDistributor& eventDistributor,

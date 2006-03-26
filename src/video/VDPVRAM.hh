@@ -143,13 +143,14 @@ public:
 	}
 
 	/** Sets the mask and enables this window.
-	  * @param baseMask The table base register,
+	  * @param newBaseMask The table base register,
 	  * 	with the unused bits all ones.
-	  * @param indexMask The table index mask,
+	  * @param newIndexMask The table index mask,
 	  * 	with the unused bits all ones.
 	  * @param time The moment in emulated time this change occurs.
 	  * TODO: In planar mode, the index bits are rotated one to the right.
-	  *       Solution: have the caller pass index mask instead of #bits.
+	  *       Solution: have the caller pass index mask instead of the 
+	  *       number of bits.
 	  *       For many tables the number of index bits depends on the
 	  *       display mode anyway.
 	  */

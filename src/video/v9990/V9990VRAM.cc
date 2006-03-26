@@ -1,10 +1,5 @@
 // $Id$
 
-/** V9990 VRAM
-  *
-  * Video RAM for the V9990
-  */
-
 #include "V9990.hh"
 #include "V9990VRAM.hh"
 
