@@ -8,4 +8,3 @@ include build/flavour-opt.mk
 
 # Add x86 specific flags.
 CXXFLAGS+=-march=i686
-$(warning flags=$(CXXFLAGS))
