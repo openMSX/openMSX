@@ -4,8 +4,6 @@
 #include "RenderSettings.hh"
 #include "Reactor.hh"
 #include "EnumSetting.hh"
-#include "VDP.hh"
-#include "V9990.hh"
 #include "Display.hh"
 #include "Version.hh"
 
