@@ -8,15 +8,15 @@
 #include "EventListener.hh"
 #include "Observer.hh"
 #include "noncopyable.hh"
-#include <string>
 #include <memory>
 
 namespace openmsx {
 
 class Reactor;
+class Display;
+class RenderSettings;
 class VisibleSurface;
 class Layer;
-class RenderSettings;
 class Setting;
 
 class SDLGLVideoSystem : public VideoSystem, private EventListener,

@@ -11,13 +11,9 @@
 namespace openmsx {
 
 class Reactor;
-class RenderSettings;
 class Display;
+class RenderSettings;
 class VisibleSurface;
-class VDP;
-class Rasterizer;
-class V9990;
-class V9990Rasterizer;
 class Layer;
 
 class SDLVideoSystem : public VideoSystem, private noncopyable
@@ -39,6 +35,7 @@ public:
 private:
 	void getWindowSize(unsigned& width, unsigned& height);
 
+	Reactor& reactor;
 	Display& display;
 	RenderSettings& renderSettings;
 	std::auto_ptr<VisibleSurface> screen;
