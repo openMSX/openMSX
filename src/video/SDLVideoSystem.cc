@@ -2,7 +2,6 @@
 
 #include "SDLVideoSystem.hh"
 #include "SDLRasterizer.hh"
-#include "V9990.hh"
 #include "V9990SDLRasterizer.hh"
 #include "Display.hh"
 #include "SDLVisibleSurface.hh"
@@ -13,7 +12,6 @@
 #include "Reactor.hh"
 #include "FBPostProcessor.hh"
 #include "VideoSourceSetting.hh"
-#include "MSXMotherBoard.hh"
 #include <cassert>
 
 #include "components.hh"
@@ -25,7 +23,8 @@ namespace openmsx {
 
 SDLVideoSystem::SDLVideoSystem(Reactor& reactor,
                                RendererFactory::RendererID rendererID)
-	: display(reactor.getDisplay())
+	: reactor(reactor)
+	, display(reactor.getDisplay())
 	, renderSettings(reactor.getDisplay().getRenderSettings())
 {
 	unsigned width, height;
@@ -74,7 +73,7 @@ Rasterizer* SDLVideoSystem::createRasterizer(VDP& vdp)
 		return new SDLRasterizer<Uint16>(
 			vdp, display, *screen,
 			std::auto_ptr<PostProcessor>(new FBPostProcessor<Uint16>(
-				vdp.getMotherBoard().getCommandController(),
+				reactor.getCommandController(),
 				display, *screen, VIDEO_MSX, 640, 240
 				))
 			);
@@ -82,7 +81,7 @@ Rasterizer* SDLVideoSystem::createRasterizer(VDP& vdp)
 		return new SDLRasterizer<Uint32>(
 			vdp, display, *screen,
 			std::auto_ptr<PostProcessor>(new FBPostProcessor<Uint32>(
-				vdp.getMotherBoard().getCommandController(),
+				reactor.getCommandController(),
 				display, *screen, VIDEO_MSX, 640, 240
 				))
 			);
@@ -99,7 +98,7 @@ V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990& vdp)
 		return new V9990SDLRasterizer<Uint16>(
 			vdp, display, *screen,
 			std::auto_ptr<PostProcessor>(new FBPostProcessor<Uint32>(
-				vdp.getMotherBoard().getCommandController(),
+				reactor.getCommandController(),
 				display, *screen, VIDEO_GFX9000, 1280, 240
 				))
 			);
@@ -107,7 +106,7 @@ V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990& vdp)
 		return new V9990SDLRasterizer<Uint32>(
 			vdp, display, *screen,
 			std::auto_ptr<PostProcessor>(new FBPostProcessor<Uint32>(
-				vdp.getMotherBoard().getCommandController(),
+				reactor.getCommandController(),
 				display, *screen, VIDEO_GFX9000, 1280, 240
 				))
 			);

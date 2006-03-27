@@ -18,7 +18,6 @@
 #include "InputEvents.hh"
 #include "GLPostProcessor.hh"
 #include "VideoSourceSetting.hh"
-#include "MSXMotherBoard.hh"
 
 using std::string;
 
@@ -77,7 +76,7 @@ Rasterizer* SDLGLVideoSystem::createRasterizer(VDP& vdp)
 		return new SDLRasterizer<unsigned>(
 			vdp, display, *screen,
 			std::auto_ptr<PostProcessor>(new GLPostProcessor(
-				vdp.getMotherBoard().getCommandController(),
+				reactor.getCommandController(),
 				display, *screen, VIDEO_MSX, 640, 240
 				))
 			);
@@ -97,7 +96,7 @@ V9990Rasterizer* SDLGLVideoSystem::createV9990Rasterizer(V9990& vdp)
 		return new V9990SDLRasterizer<unsigned>(
 			vdp, display, *screen,
 			std::auto_ptr<PostProcessor>(new GLPostProcessor(
-				vdp.getMotherBoard().getCommandController(),
+				reactor.getCommandController(),
 				display, *screen, VIDEO_GFX9000, 1280, 240
 				))
 			);
