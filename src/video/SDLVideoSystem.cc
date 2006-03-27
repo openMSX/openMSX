@@ -25,8 +25,8 @@ namespace openmsx {
 
 SDLVideoSystem::SDLVideoSystem(Reactor& reactor,
                                RendererFactory::RendererID rendererID)
-	: renderSettings(reactor.getDisplay().getRenderSettings())
-	, display(reactor.getDisplay())
+	: display(reactor.getDisplay())
+	, renderSettings(reactor.getDisplay().getRenderSettings())
 {
 	unsigned width, height;
 	getWindowSize(width, height);

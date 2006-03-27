@@ -39,11 +39,11 @@ public:
 private:
 	void getWindowSize(unsigned& width, unsigned& height);
 
-	RenderSettings& renderSettings;
 	Display& display;
+	RenderSettings& renderSettings;
 	std::auto_ptr<VisibleSurface> screen;
-	std::auto_ptr<Layer> snowLayer;
 	std::auto_ptr<Layer> console;
+	std::auto_ptr<Layer> snowLayer;
 	std::auto_ptr<Layer> iconLayer;
 };
 
