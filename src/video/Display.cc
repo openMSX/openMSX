@@ -24,10 +24,6 @@
 #include <cassert>
 #include <iostream>
 
-// Needed for workaround for "black flashes" problem in SDLGL renderer:
-#include "SDLGLVideoSystem.hh"
-#include "components.hh"
-
 using std::string;
 using std::vector;
 
@@ -305,20 +301,6 @@ void Display::repaintDelayed(unsigned long long delta)
 		// already a pending repaint
 		return;
 	}
-
-#ifdef COMPONENT_GL
-	if (dynamic_cast<SDLGLVideoSystem*>(videoSystem.get())) {
-		// Ugly workaround: on GL limit the frame rate of the delayed
-		// repaints. Because of a limitation in the SDL GL environment
-		// we cannot render to texture (or aux buffer) and indirectly
-		// this causes black flashes when a delayed repaint comes at
-		// the wrong moment.
-		// By limiting the frame rate we hope the delayed repaint only
-		// get triggered during pause, where it's ok (is it?)
-		if (delta < 200000) delta = 200000; // at most 8fps
-	}
-#endif
-
 	alarm->schedule(delta);
 }
 

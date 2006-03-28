@@ -1,5 +1,10 @@
 $Id$
 
+2006-03-27 Maarten ter Huurne <maarten@treewalker.org>
+	* Merged SDLGLVideoSystem into SDLVideoSystem.
+	  The actual differences exist in the VisibleSurface subclasses;
+	  these classes only function as factories.
+
 2006-03-26 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed two compile errors on Intel Macs. At least one remains though.
 

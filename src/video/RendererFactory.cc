@@ -11,15 +11,11 @@
 #include "components.hh"
 #include "DummyVideoSystem.hh"
 #include "SDLVideoSystem.hh"
-#ifdef COMPONENT_GL
-#include "SDLGLVideoSystem.hh"
-#endif
-#include "XRenderer.hh"
 
 // Renderers:
 #include "DummyRenderer.hh"
 #include "PixelRenderer.hh"
-
+#include "XRenderer.hh"
 #include "V9990DummyRenderer.hh"
 #include "V9990PixelRenderer.hh"
 
@@ -29,86 +25,66 @@ namespace openmsx {
 
 VideoSystem* RendererFactory::createVideoSystem(Reactor& reactor)
 {
-	VideoSystem* result;
-	RendererFactory::RendererID rendererID =
-		reactor.getDisplay().getRenderSettings().getRenderer().getValue();
-	switch (rendererID) {
+	switch (reactor.getDisplay().getRenderSettings().getRenderer().getValue()) {
 		case DUMMY:
-			result = new DummyVideoSystem();
-			break;
+			return new DummyVideoSystem();
 		case SDL:
-		case SDLGL_FB16:
-		case SDLGL_FB32:
-			result = new SDLVideoSystem(reactor, rendererID);
-			break;
-#ifdef COMPONENT_GL
 		case SDLGL:
 		case SDLGL2:
 		case SDLGL_PP:
-			result = new SDLGLVideoSystem(reactor);
-			break;
-#endif
+		case SDLGL_FB16:
+		case SDLGL_FB32:
+			return new SDLVideoSystem(reactor);
 		default:
-			result = 0;
+			assert(false);
+			return 0;
 	}
-	assert(result);
-	return result;
 }
 
 Renderer* RendererFactory::createRenderer(VDP& vdp, Display& display)
 {
-	Renderer* result;
 	switch (display.getRenderSettings().getRenderer().getValue()) {
 		case DUMMY:
-			result = new DummyRenderer();
-			break;
+			return new DummyRenderer();
 		case SDL:
 		case SDLGL:
 		case SDLGL2:
 		case SDLGL_PP:
 		case SDLGL_FB16:
 		case SDLGL_FB32:
-			result = new PixelRenderer(vdp, display);
-			break;
+			return new PixelRenderer(vdp, display);
 #ifdef HAVE_X11
 		case XLIB:
-			result = new XRenderer(XLIB, vdp);
-			break;
+			return new XRenderer(XLIB, vdp);
 #endif
 		default:
-			result = 0;
+			assert(false);
+			return 0;
 	}
-	assert(result);
-	return result;
 }
 
 V9990Renderer* RendererFactory::createV9990Renderer(
 	V9990& vdp, Display& display)
 {
-	V9990Renderer* result;
 	switch (display.getRenderSettings().getRenderer().getValue()) {
 		case DUMMY:
-			result = new V9990DummyRenderer();
-			break;
+			return new V9990DummyRenderer();
 		case SDL:
 		case SDLGL:
 		case SDLGL2:
 		case SDLGL_PP:
 		case SDLGL_FB16:
 		case SDLGL_FB32:
-			result = new V9990PixelRenderer(vdp);
-			break;
+			return new V9990PixelRenderer(vdp);
 #ifdef HAVE_X11
 		case XLIB:
-			result = new V9990DummyRenderer();
-			//result = new V9990XRenderer(XLIB, vdp);
-			break;
+			//return new V9990XRenderer(XLIB, vdp);
+			return new V9990DummyRenderer();
 #endif
 		default:
-			result = 0;
+			assert(false);
+			return 0;
 	}
-	assert(result);
-	return result;
 }
 
 auto_ptr<RendererFactory::RendererSetting>

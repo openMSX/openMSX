@@ -46,7 +46,7 @@ HDR_ONLY:= \
 	VideoSystemChangeListener
 
 SRC_HDR_$(COMPONENT_GL)+= \
-	SDLGLVideoSystem SDLGLVisibleSurface GLSnow GLUtil GLImage \
+	SDLGLVisibleSurface GLSnow GLUtil GLImage \
 	GLRasterizer GL2Rasterizer GLPostProcessor GLScalerFactory \
 	GLSimpleScaler GLScaleNxScaler GLTVScaler
 

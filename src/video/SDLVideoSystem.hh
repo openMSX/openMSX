@@ -5,6 +5,8 @@
 
 #include "VideoSystem.hh"
 #include "RendererFactory.hh"
+#include "EventListener.hh"
+#include "Observer.hh"
 #include "noncopyable.hh"
 #include <memory>
 
@@ -15,12 +17,19 @@ class Display;
 class RenderSettings;
 class VisibleSurface;
 class Layer;
+class Setting;
 
-class SDLVideoSystem : public VideoSystem, private noncopyable
+class SDLVideoSystem : public VideoSystem, private EventListener,
+                       private Observer<Setting>, private noncopyable
 {
 public:
-	SDLVideoSystem(Reactor& reactor,
-	               RendererFactory::RendererID rendererID);
+	/** Activates this video system.
+	  * @throw InitException If initialisation fails.
+	  */
+	explicit SDLVideoSystem(Reactor& reactor);
+
+	/** Deactivates this video system.
+	  */
 	virtual ~SDLVideoSystem();
 
 	// VideoSystem interface:
@@ -33,7 +42,13 @@ public:
 	virtual void setWindowTitle(const std::string& title);
 
 private:
+	// EventListener
+	void signalEvent(const Event& event);
+	// Observer
+	void update(const Setting& subject);
+
 	void getWindowSize(unsigned& width, unsigned& height);
+	void resize();
 
 	Reactor& reactor;
 	Display& display;
