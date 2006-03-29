@@ -1,5 +1,14 @@
 $Id$
 
+2006-03-29 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Made it possible for TCL script to provide a help text, see
+	  share/scripts for examples.
+	   Note: the system init.tcl was updated, you probably need to replace
+	         the installed version
+	* Added new 'about' TCL script. It searches for commands (built-in or
+	  TCL scripts) that seem to be about the given keyword. Useful if you
+	  forgot the exact name of a command.
+
 2006-03-27 Maarten ter Huurne <maarten@treewalker.org>
 	* Merged SDLGLVideoSystem into SDLVideoSystem.
 	  The actual differences exist in the VisibleSurface subclasses;

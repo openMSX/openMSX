@@ -1,18 +1,25 @@
 # $Id$
 
-# Backwards compatibility commands
-proc decr { var { num 1 } } {
-	uplevel incr $var [expr -$num]
+# internal proc to make help function available to TCL procs
+proc __help { args } {
+	set command [lindex $args 0]
+	if [info exists ::__help_proc($command)] {
+		return [$::__help_proc($command) $args]
+	} elseif [info exists ::__help_text($command)] {
+		return $::__help_text($command)
+	} elseif {[info commands $command] ne ""} {
+		error "No help for command: $command"
+	} else {
+		error "Unknown command: $command"
+	}
 }
-proc restoredefault { var } {
-	uplevel unset $var
-}
-proc alias { cmd body } {
-	proc $cmd {} $body
+proc set_help_text { command help } {
+	set ::__help_text($command) $help
 }
 
-# Resolve data files. First try user directory, if the file doesn't exist
-# there try the system direcectory
+set_help_text data_file \
+"Resolve data file. First try user directory, if the file doesn't exist
+there try the system directory."
 proc data_file { file } {
 	global env
 	set user_file $env(OPENMSX_USER_DATA)/$file

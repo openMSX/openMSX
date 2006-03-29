@@ -33,6 +33,7 @@ proc __format_table { entries columns frmt sep func } {
 	}
 }
 
+set_help_text vdpregs "Gives an overview of the V99x8 registers."
 proc vdpreg { reg } {
 	debug read "VDP regs" $reg
 }
@@ -40,6 +41,7 @@ proc vdpregs { } {
 	__format_table 32 4 "%2d : 0x%02x" "   " vdpreg
 }
 
+set_help_text v9990regs "Gives an overview of the V9990 registers."
 proc v9990reg { reg } {
 	debug read "Sunrise GFX9000 regs" $reg
 }
@@ -47,6 +49,7 @@ proc v9990regs { } {
 	__format_table 55 5 "%2d : 0x%02x" "   " v9990reg
 }
 
+set_help_text palette "Gives an overview of the V99x8 palette registers."
 proc palette { } {
 	__format_table 16 4 "%x:%s" "  " getcolor
 }

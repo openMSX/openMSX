@@ -4,3 +4,13 @@
 proc quit { } {
 	exit
 }
+
+proc decr { var { num 1 } } {
+	uplevel incr $var [expr -$num]
+}
+proc restoredefault { var } {
+	uplevel unset $var
+}
+proc alias { cmd body } {
+	proc $cmd {} $body
+}

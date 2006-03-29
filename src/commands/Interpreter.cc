@@ -151,14 +151,15 @@ int Interpreter::commandProc(ClientData clientData, Tcl_Interp* interp,
 		for (int i = 0; i < objc; ++i) {
 			tokens.push_back(new TclObject(interp, objv[i]));
 		}
-		TclObject result(interp, Tcl_GetObjResult(interp));
 		int res = TCL_OK;
+		TclObject result(interp);
 		try {
 			command.execute(tokens, result);
 		} catch (MSXException& e) {
 			result.setString(e.getMessage());
 			res = TCL_ERROR;
 		}
+		Tcl_SetObjResult(interp, result.getTclObject());
 		for (vector<TclObject*>::const_iterator it = tokens.begin();
 		     it != tokens.end(); ++it) {
 			delete *it;

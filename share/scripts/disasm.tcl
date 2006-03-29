@@ -9,13 +9,16 @@ proc getSP {} {
 }
 
 #
-# Disassemble z80 instructions
+# disasm
 #
-# Usage:
-#   disasm                Disassemble 8 instr starting at the currect PC
-#   disasm <addr>         Disassemble 8 instr starting at address <adr>
-#   disasm <addr> <num>   Disassemble <num> instr starting at address <addr>
-#
+set_help_text disasm \
+{Disassemble z80 instructions
+
+Usage:
+  disasm                Disassemble 8 instr starting at the currect PC
+  disasm <addr>         Disassemble 8 instr starting at address <adr>
+  disasm <addr> <num>   Disassemble <num> instr starting at address <addr>
+}
 proc disasm {{address -1} {num 8}} {
 	if {$address == -1} { set address [getPC] }
 	for {set i 0} {$i < $num} {incr i} {
@@ -28,9 +31,11 @@ proc disasm {{address -1} {num 8}} {
 
 
 #
-# Run to the specified address, if a breakpoint is reached earlier we stop
-# at that breakpoint.
+# run_to
 #
+set_help_text run_to \
+{Run to the specified address, if a breakpoint is reached earlier we stop
+at that breakpoint.}
 proc run_to {address} {
 #	after break "debug remove_bp $address"
 	set bp [ debug set_bp $address ]
@@ -40,8 +45,10 @@ proc run_to {address} {
 
 
 #
-# Step in
+# step_in
 #
+set_help_text step_in \
+{Step in. Execute the next instruction, also go into subroutines.}
 proc step_in {} {
 	debug step
 }
@@ -51,10 +58,13 @@ proc step_in {} {
 
 
 #
-# Step over. Execute the next instruction but don't step into subroutines.
-# Only 'call' or 'rst' instructions are stepped over. 'push xx / jp nn' sequences
-# can in theory also be use as calls but these are not skipped by this command.
+# step_over
 #
+set_help_text step_over \
+{Step over. Execute the next instruction but don't step into subroutines.
+Only 'call' or 'rst' instructions are stepped over. Note: 'push xx / jp nn'
+sequences can in theory also be used as calls but these are not skipped
+by this command.}
 proc step_over {} {
 	set address [getPC]
 	set l [debug disasm $address]

@@ -1,13 +1,16 @@
 #
-# Returns the selected slot for the given memory page.
-# This proc is typically used as a helper for a larger proc.
-# 
-#  @param page The memory page (0-3)
-#  @result Returns a TCL list with two elements.
-#          First element is the primary slot (0-3).
-#          Second element is the secondary slot (0-3) or 'X'
-#          in case this slot was not expanded
+# get_selected_slot
 #
+set_help_text get_selected_slot \
+{Returns the selected slot for the given memory page.
+This proc is typically used as a helper for a larger proc.
+ 
+ @param page The memory page (0-3)
+ @result Returns a TCL list with two elements.
+         First element is the primary slot (0-3).
+         Second element is the secondary slot (0-3) or 'X'
+         in case this slot was not expanded
+}
 proc get_selected_slot { page } {
 	set ps_reg [debug read "ioports" 0xA8]
 	set ps [expr ($ps_reg >> (2 * $page)) & 0x03]
@@ -21,8 +24,10 @@ proc get_selected_slot { page } {
 }
 
 #
-# Returns a nicely formatted overview of the selected slots
+# slotselect
 #
+set_help_text slotselect \
+{Returns a nicely formatted overview of the selected slots.}
 proc slotselect { } {
 	set result ""
 	for { set page 0 } { $page < 4 } { incr page } {
@@ -37,9 +42,11 @@ proc slotselect { } {
 }
 
 #
-# Returns the size of the memory mapper in a given slot.
-# Result is 0 when there is no memory mapper in the slot.
+# get_mapper_size
 #
+set_help_text get_mapper_size \
+{Returns the size of the memory mapper in a given slot.
+Result is 0 when there is no memory mapper in the slot.}
 proc get_mapper_size { ps ss } {
 	set result 0
 	catch {
@@ -56,9 +63,11 @@ proc get_mapper_size { ps ss } {
 }
 
 #
-# Test whether the CPU's program counter is inside a certain slot.
-# Typically used to set breakpoints in specific slots.
+# pc_in_slot
 #
+set_help_text pc_in_slot \
+{Test whether the CPU's program counter is inside a certain slot.
+Typically used to set breakpoints in specific slots.}
 proc pc_in_slot { ps {ss "X"} {mapper "X"} } {
 	set d "CPU regs"
 	set pc [expr [debug read $d 20] * 256 + [debug read $d 21]]
@@ -75,9 +84,10 @@ proc pc_in_slot { ps {ss "X"} {mapper "X"} } {
 }
 
 #
-# Gives an overview of the devices in the different slots
-# (replaces the old build-in slotmap command)
+# slotmap
 #
+set_help_text slotmap \
+{Gives an overview of the devices in the different slots.}
 proc slotmap-helper { ps ss } {
 	set result ""
 	for { set page 0 } { $page < 4 } { incr page } {
@@ -103,9 +113,10 @@ proc slotmap { } {
 }
 
 #
-# Gives an overview of the devices connected to the different IO ports
-# (replaces the odl build-in iomap command)
+# iomap
 #
+set_help_text iomap \
+{Gives an overview of the devices connected to the different IO ports.}
 proc iomap-helper { prefix begin end name } {
 	if [string equal $name "empty"] return ""
 	set result [format "port %02X" $begin]

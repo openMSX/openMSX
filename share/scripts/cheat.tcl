@@ -1,28 +1,32 @@
 package provide cheatdfinder 0.5
-# Cheat finder version 0.5
-#
-# Welcome to the openMSX findcheater. Please visit
-# http://forum.openmsx.org/viewtopic.php?t=32 For a quick tutorial
-#
-# Credits:
-#   Copyright 2005 Wouter Vermaelen all rights reserved
-#   Copyright 2005 Patrick van Arkel all rights reserved
-#
-# Usage:
-#   findcheat [-start] [-max n] [expression]
-#      -start	  :  restart search, discard previously found addresses
-#      -max n     :  show max n results
-#      expression :  TODO
-#
-# Examples:
-#   findcheat 42                 search for specific value
-#   findcheat bigger             search for values that have become bigger
-#   findcheat new == (2 * old)   search for values that have doubled
-#   findcheat new == (old - 1)   search for values that have decreased by 1
-#   findcheat                    repeat the previous found addresses
-#   findcheat -start new < 10    restart and search for values less then 10
-#   findcheat -max 40 smaller    search for smaller values, show max 40 results
-#
+
+set_help_text findcheat \
+{Cheat finder version 0.5
+
+Welcome to the openMSX findcheater. Please visit
+  http://forum.openmsx.org/viewtopic.php?t=32
+for a quick tutorial
+
+Credits:
+  Copyright 2005 Wouter Vermaelen all rights reserved
+  Copyright 2005 Patrick van Arkel all rights reserved
+
+Usage:
+  findcheat [-start] [-max n] [expression]
+     -start     :  restart search, discard previously found addresses
+     -max n     :  show max n results
+     expression :  TODO
+
+Examples:
+  findcheat 42                 search for specific value
+  findcheat bigger             search for values that have become bigger
+  findcheat new == (2 * old)   search for values that have doubled
+  findcheat new == (old - 1)   search for values that have decreased by 1
+  findcheat                    repeat the previous found addresses
+  findcheat -start new < 10    restart and search for values less then 10
+  findcheat -max 40 smaller    search for smaller values, show max 40 results
+}
+  
 
 #set maximum to display cheats
 set findcheat_max  15
@@ -132,3 +136,4 @@ proc findcheat { args } {
     return "$num results found -> Maximum result to display set to $findcheat_max "
   }
 }
+

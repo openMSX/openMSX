@@ -60,6 +60,11 @@ Tcl_Interp* TclObject::getInterpreter() const
 	return interp;
 }
 
+Tcl_Obj* TclObject::getTclObject()
+{
+	return obj;
+}
+
 void TclObject::unshare()
 {
 	if (Tcl_IsShared(obj)) {

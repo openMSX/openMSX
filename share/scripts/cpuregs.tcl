@@ -1,24 +1,26 @@
-# Convenience procs to read or write Z80 registers.
-# Usage is similar to the builtin TCL proc 'set'
-#
-#  usage:
-#    reg <reg>            read from a Z80 register
-#    reg <reg> <value>    write to a Z80 register
-#    
-#      <reg> must be one of
-#         A   F   B   C   D   E   H   L
-#         A2  F2  B2  C2  D2  E3  H2  L2
-#         IXl IXh IYl IYh PCh PCl SPh SPl
-#         I   R   IM  IFF
-#         AF  BC  DE  HL
-#         AF2 BC2 DE2 HL2
-#         IX  IY  PC  SP
-#
-#  examples:
-#    reg E           read register E
-#    reg HL          read register HL
-#    reg C 7         write 7 to register C
-#    reg AF 0x1234   write 0x12 to register A and 0x34 to F
+set_help_text reg \
+{Convenience procs to read or write Z80 registers.
+Usage is similar to the builtin TCL proc 'set'
+
+ usage:
+   reg <reg>            read from a Z80 register
+   reg <reg> <value>    write to a Z80 register
+   
+     <reg> must be one of
+        A   F   B   C   D   E   H   L
+        A2  F2  B2  C2  D2  E3  H2  L2
+        IXl IXh IYl IYh PCh PCl SPh SPl
+        I   R   IM  IFF
+        AF  BC  DE  HL
+        AF2 BC2 DE2 HL2
+        IX  IY  PC  SP
+
+ examples:
+   reg E           read register E
+   reg HL          read register HL
+   reg C 7         write 7 to register C
+   reg AF 0x1234   write 0x12 to register A and 0x34 to F
+}
 
 set __regB(A)    0 ; set __regB(F)    1 ; set __regB(B)    2 ; set __regB(C)    3
 set __regB(D)    4 ; set __regB(E)    5 ; set __regB(H)    6 ; set __regB(L)    7
@@ -59,6 +61,7 @@ proc reg { name { val "" } } {
 	}
 }
 
+set_help_text cpuregs "Gives an overview of all Z80 registers."
 proc __cw { reg } { format "%04X" [reg $reg] }
 proc __cb { reg } { format "%02X" [reg $reg] }
 proc cpuregs {} {

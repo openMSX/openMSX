@@ -1,11 +1,12 @@
-# Load a different icon set (OSD LEDs)
-#  usage:  load_icons <name> <position>
-#           <name> is the name of a directory (share/skins/<name>) that
-#           contains the led images
-#           <position> can be one of the following 'bottom','top',
-#           'left' or 'right'. Default is 'top'
-#  example: load_icons set1 bottom
-
+set_help_text load_icons \
+{Load a different icon set (OSD LEDs)
+ usage:  load_icons <name> <position>
+          <name> is the name of a directory (share/skins/<name>) that
+          contains the led images
+          <position> can be one of the following 'bottom','top',
+          'left' or 'right'. Default is 'top'
+ example: load_icons set1 bottom
+}
 proc load_icons { set_name { set_position top } } {
 	global renderer
 

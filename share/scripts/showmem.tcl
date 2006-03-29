@@ -1,9 +1,12 @@
 #
-# print memory nicely formatted
+# show_mem
 #
-# Usage:
-#    showmem <address> [<linecount>]
-#
+set_help_text showmem \
+{Print memory content nicely formatted
+
+Usage:
+   showmem <address> [<linecount>]
+}
 
 proc showmem_line { address } {
 	set data ""

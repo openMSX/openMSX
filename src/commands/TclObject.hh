@@ -25,6 +25,8 @@ public:
 
 	// get associated interpreter
 	Tcl_Interp* getInterpreter() const;
+	// get underlying Tcl_Obj
+	Tcl_Obj* getTclObject();
 
 	// value setters
 	void setString(const std::string& value);

@@ -27,11 +27,11 @@ using std::vector;
 
 namespace openmsx {
 
-class HelpCmd : public SimpleCommand
+class HelpCmd : public Command
 {
 public:
 	HelpCmd(CommandController& parent);
-	virtual std::string execute(const std::vector<std::string>& tokens);
+	virtual void execute(const vector<TclObject*>& tokens, TclObject& result);
 	virtual std::string help(const std::vector<std::string>& tokens) const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 private:
@@ -509,38 +509,49 @@ void CommandController::completeFileName(vector<string>& tokens,
 // Help Command
 
 HelpCmd::HelpCmd(CommandController& commandController)
-	: SimpleCommand(commandController, "help")
+	: Command(commandController, "help")
 	, parent(commandController)
 {
 }
 
-string HelpCmd::execute(const vector<string>& tokens)
+void HelpCmd::execute(const vector<TclObject*>& tokens, TclObject& result)
 {
-	string result;
 	switch (tokens.size()) {
-	case 1:
-		result += "Use 'help [command]' to get help for a specific command\n";
-		result += "The following commands exist:\n";
+	case 1: {
+		string text =
+			"Use 'help [command]' to get help for a specific command\n"
+			"The following commands exist:\n";
 		for (CommandController::CompleterMap::const_iterator it =
 		         parent.commandCompleters.begin();
 		     it != parent.commandCompleters.end(); ++it) {
-			result += it->first;
-			result += '\n';
+			text += it->first;
+			text += '\n';
 		}
+		result.setString(text);
 		break;
+	}
 	default: {
 		 CommandController::CompleterMap::const_iterator it =
-			parent.commandCompleters.find(tokens[1]);
-		if (it == parent.commandCompleters.end()) {
-			throw CommandException(tokens[1] + ": unknown command");
+			parent.commandCompleters.find(tokens[1]->getString());
+		if (it != parent.commandCompleters.end()) {
+			vector<string> tokens2;
+			vector<TclObject*>::const_iterator it2 = tokens.begin();
+			for (++it2; it2 != tokens.end(); ++it2) {
+				tokens2.push_back((*it2)->getString());
+			}
+			result.setString(it->second->help(tokens2));
+		} else {
+			TclObject command(result.getInterpreter());
+			command.addListElement("__help");
+			vector<TclObject*>::const_iterator it2 = tokens.begin();
+			for (++it2; it2 != tokens.end(); ++it2) {
+				command.addListElement(**it2);
+			}
+			result.setString(command.executeCommand());
 		}
-		vector<string>::const_iterator remainder = tokens.begin();
-		vector<string> tokens2(++remainder, tokens.end());
-		result += it->second->help(tokens2);
 		break;
 	}
 	}
-	return result;
 }
 
 string HelpCmd::help(const vector<string>& /*tokens*/) const

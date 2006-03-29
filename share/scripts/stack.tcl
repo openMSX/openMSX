@@ -1,8 +1,9 @@
-# dump <count> number of entries of the stack at SP
-#
-# Usage:
-#    stack [<count>]
-#
+set_help_text stack \
+{Show the <count> top most entries on the CPU stack
+
+Usage:
+   stack [<count>]
+}
 proc stack { { depth 8 } } {
 	set stackpointer [expr [debug read "CPU regs" 22] * 256 + [debug read "CPU regs" 23]]
 	for {set i 0} {$i < $depth} {incr i} {

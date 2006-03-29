@@ -1,8 +1,10 @@
-# Take multiple screenshots
-#
-# Usage:
-#  multi_screenshot <num> [<base>]
-#
+set_help_text multi_screenshot \
+{Take multiple screenshots
+
+Usage:
+ multi_screenshot <num> [<base>]
+}
+
 proc multi_screenshot {num {base ""} } {
 	multi_screenshot_helper 1 $num $base
 	return ""
