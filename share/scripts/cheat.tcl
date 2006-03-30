@@ -1,4 +1,4 @@
-package provide cheatdfinder 0.5
+package provide cheatfinder 0.5
 
 set_help_text findcheat \
 {Cheat finder version 0.5
