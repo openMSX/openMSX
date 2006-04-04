@@ -20,6 +20,8 @@ namespace openmsx {
 
 V9990PixelRenderer::V9990PixelRenderer(V9990& vdp_)
 	: vdp(vdp_)
+	, eventDistributor(vdp.getMotherBoard().getEventDistributor())
+	, realTime(vdp.getMotherBoard().getRealTime())
 	, renderSettings(vdp.getMotherBoard().getDisplay().getRenderSettings())
 	, rasterizer(vdp.getMotherBoard().getDisplay().getVideoSystem().
 	                createV9990Rasterizer(vdp))
@@ -62,8 +64,7 @@ void V9990PixelRenderer::frameStart(const EmuTime& time)
 		drawFrame = true;
 	} else {
 		++frameSkipCounter;
-		drawFrame = vdp.getMotherBoard().getRealTime().timeLeft(
-			(unsigned)finishFrameDuration, time);
+		drawFrame = realTime.timeLeft((unsigned)finishFrameDuration, time);
 		if (drawFrame) {
 			frameSkipCounter = 0;
 		}
@@ -93,8 +94,9 @@ void V9990PixelRenderer::frameEnd(const EmuTime& time)
 		finishFrameDuration = finishFrameDuration * (1 - ALPHA) +
 		                      current * ALPHA;
 	}
-	vdp.getMotherBoard().getEventDistributor().distributeEvent(
-		new FinishFrameEvent(VIDEO_GFX9000, !drawFrame));
+	eventDistributor.distributeEvent(
+		new FinishFrameEvent(VIDEO_GFX9000, !drawFrame)
+		);
 }
 
 void V9990PixelRenderer::sync(const EmuTime& time, bool force)

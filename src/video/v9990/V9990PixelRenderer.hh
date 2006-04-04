@@ -15,6 +15,8 @@ namespace openmsx {
 class V9990;
 class V9990Rasterizer;
 class Setting;
+class EventDistributor;
+class RealTime;
 
 /** Generic pixel based renderer for the V9990.
   * Uses a rasterizer to plot actual pixels for a specific video system
@@ -56,6 +58,9 @@ private:
 	/** The V9990 VDP
 	  */
 	V9990& vdp;
+
+	EventDistributor& eventDistributor;
+	RealTime& realTime;
 
 	/** Settings shared between all renderers
 	  */
