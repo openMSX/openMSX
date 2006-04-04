@@ -102,11 +102,10 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 		texCoordX = (double)width  / texW;
 		texCoordY = (double)height / texH;
 
-		glGenTextures(1, &textureId);
-		glBindTexture(GL_TEXTURE_2D, textureId);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		texture.reset(new ColourTexture());
+		texture->bind();
 		if (frameBuffer == FB_16BPP) {
+			// TODO: Why use RGB texture instead of RGBA?
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texW, texH, 0,
 			             GL_RGB, GL_UNSIGNED_SHORT_5_6_5, data);
 		} else {
@@ -118,7 +117,6 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 
 SDLGLVisibleSurface::~SDLGLVisibleSurface()
 {
-	glDeleteTextures(1, &textureId);
 	free(data);
 }
 
@@ -148,9 +146,7 @@ void SDLGLVisibleSurface::drawFrameBuffer()
 	unsigned width  = getWidth();
 	unsigned height = getHeight();
 
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, textureId);
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+	texture->bind();
 	if (frameBuffer == FB_16BPP) {
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height,
 		                GL_RGB, GL_UNSIGNED_SHORT_5_6_5, data);
@@ -159,6 +155,8 @@ void SDLGLVisibleSurface::drawFrameBuffer()
 		                GL_RGBA, GL_UNSIGNED_BYTE, data);
 	}
 
+	glEnable(GL_TEXTURE_2D);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.0,       texCoordY); glVertex2i(0,     height);
 	glTexCoord2f(texCoordX, texCoordY); glVertex2i(width, height);

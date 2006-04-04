@@ -5,6 +5,7 @@
 
 #include "VisibleSurface.hh"
 #include "GLUtil.hh"
+#include <memory>
 
 namespace openmsx {
 
@@ -33,7 +34,9 @@ public:
 
 private:
 	FrameBuffer frameBuffer;
-	GLuint textureId;
+	// Note: This must be a pointer because the texture should not be allocated
+	//       before the createSurface call.
+	std::auto_ptr<ColourTexture> texture;
 	double texCoordX, texCoordY;
 };
 
