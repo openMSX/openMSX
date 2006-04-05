@@ -10,14 +10,17 @@ set_help_text load_icons \
 
 set_tabcompletion_proc load_icons tab_load_icons
 proc tab_load_icons { args } {
-	set r1 [glob -nocomplain -tails -type d -directory $::env(OPENMSX_USER_DATA)/skins *]
-	set r2 [glob -nocomplain -tails -type d -directory $::env(OPENMSX_SYSTEM_DATA)/skins *]
-	join [list $r1 $r2]
+	set num [llength $args]
+	if {$num == 2} {
+		set r1 [glob -nocomplain -tails -type d -directory $::env(OPENMSX_USER_DATA)/skins *]
+		set r2 [glob -nocomplain -tails -type d -directory $::env(OPENMSX_SYSTEM_DATA)/skins *]
+		join [list $r1 $r2]
+	} elseif {$num == 3} {
+		list "top" "bottom" "left" "right"
+	}
 }
 
 proc load_icons { set_name { set_position top } } {
-	global renderer
-
 	# Check skin directory
 	set directory [data_file "skins/$set_name"]
 	if { ![file exists $directory] } {
@@ -42,35 +45,14 @@ proc load_icons { set_name { set_position top } } {
 		source $script
 	}
 
-	# and since SDLLo has almost no screen estate we deliberately
-	# ingnore the spacing settings for this renderer
-	if { "SDLLo" == $renderer } {
-		set xspacing $xwidth
-		set yspacing $yheight
-	}
-
 	# change according to <position> parameter
 	if { $set_position == "left" } {
 		set horizontal 0
-	}
-
-	if { $set_position == "right" } {
+	} elseif { $set_position == "right" } {
 		set horizontal 0
-		if { "SDLLo" == $renderer } {
-			set xbase [ expr 320 - $xwidth ]
-		} else {
-			set xbase [ expr 640 - $xwidth ]
-		}
-	}
-
-	if { $set_position == "bottom" } {
-		if { "SDLLo" == $renderer } {
-			set power off
-			set ybase [ expr 240 - $yheight ]
-		} else {
-			set ybase [ expr 480 - $yheight ]
-			reset
-		}
+	        set xbase [ expr 640 - $xwidth]
+	} elseif { $set_position == "bottom" } {
+	        set ybase [ expr 480 - $yheight ]
 	}
 
 	# Default fade parameters
