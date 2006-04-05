@@ -13,7 +13,6 @@
 #include "VideoSourceSetting.hh"
 #include "EventDistributor.hh"
 #include "InputEventGenerator.hh"
-#include "InputEvents.hh"
 #include <cassert>
 
 #include "components.hh"

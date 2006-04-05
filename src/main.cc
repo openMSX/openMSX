@@ -6,7 +6,9 @@
  */
 
 #include "Reactor.hh"
+#include "CommandController.hh"
 #include "CommandLineParser.hh"
+#include "SettingsConfig.hh"
 #include "CliServer.hh"
 #include "Interpreter.hh"
 #include "Display.hh"

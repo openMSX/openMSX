@@ -3,7 +3,7 @@
 #ifndef INTEGERSETTING_HH
 #define INTEGERSETTING_HH
 
-#include "SettingPolicy.hh"
+#include "SettingRangePolicy.hh"
 #include "SettingImpl.hh"
 
 namespace openmsx {

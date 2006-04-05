@@ -3,7 +3,7 @@
 #ifndef FLOATSETTING_HH
 #define FLOATSETTING_HH
 
-#include "SettingPolicy.hh"
+#include "SettingRangePolicy.hh"
 #include "SettingImpl.hh"
 
 namespace openmsx {

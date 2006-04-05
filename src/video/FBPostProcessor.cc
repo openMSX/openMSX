@@ -1,7 +1,6 @@
 // $Id$
 
 #include "FBPostProcessor.hh"
-#include "Display.hh"
 #include "RenderSettings.hh"
 #include "Scaler.hh"
 #include "ScalerFactory.hh"
@@ -12,13 +11,10 @@
 #include "DeinterlacedFrame.hh"
 #include "DoubledFrame.hh"
 #include "RawFrame.hh"
-#include "PixelOperations.hh"
 #include "HostCPU.hh"
 #include "Math.hh"
 #include <algorithm>
 #include <cassert>
-#include <cstdlib>
-#include <cmath>
 
 namespace openmsx {
 

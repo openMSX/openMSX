@@ -4,8 +4,8 @@
 #define MULTIPLY32_HH
 
 #include "openmsx.hh"
-#include <cstring>
-#include <SDL.h> // TODO
+
+struct SDL_PixelFormat;
 
 namespace openmsx {
 

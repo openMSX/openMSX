@@ -4,7 +4,6 @@
 #define SDLVIDEOSYSTEM_HH
 
 #include "VideoSystem.hh"
-#include "RendererFactory.hh"
 #include "EventListener.hh"
 #include "Observer.hh"
 #include "noncopyable.hh"

@@ -4,7 +4,6 @@
 #define GLTVSCALER_HH
 
 #include "GLScaler.hh"
-#include "GLUtil.hh"
 #include <memory>
 
 namespace openmsx {

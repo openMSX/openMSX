@@ -17,6 +17,9 @@ TODO:
 #include "GLRasterizer.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
+#include "CharacterConverter.hh"
+#include "BitmapConverter.hh"
+#include "SpriteConverter.hh"
 #include "Display.hh"
 #include "OutputSurface.hh"
 #include "Renderer.hh"
@@ -24,9 +27,9 @@ TODO:
 #include "BooleanSetting.hh"
 #include "FloatSetting.hh"
 #include "IntegerSetting.hh"
+#include "Math.hh"
 #include "build-info.hh"
 #include <algorithm>
-#include <cmath>
 
 using std::string;
 
@@ -194,7 +197,7 @@ inline void GLRasterizer::renderBitmapLine(byte mode, int vramLine)
 	if (lineValidInMode[vramLine] != mode) {
 		const byte *vramPtr =
 			vram.bitmapCacheWindow.readArea(vramLine << 7);
-		bitmapConverter.convertLine(lineBuffer, vramPtr);
+		bitmapConverter->convertLine(lineBuffer, vramPtr);
 		bitmapTexture->update(vramLine, lineBuffer, lineWidth);
 		lineValidInMode[vramLine] = mode;
 	}
@@ -225,7 +228,7 @@ inline void GLRasterizer::renderPlanarBitmapLine(byte mode, int vramLine)
 		int addr1 = addr0 | 0x10000;
 		const byte* vramPtr0 = vram.bitmapCacheWindow.readArea(addr0);
 		const byte* vramPtr1 = vram.bitmapCacheWindow.readArea(addr1);
-		bitmapConverter.convertLinePlanar(lineBuffer, vramPtr0, vramPtr1);
+		bitmapConverter->convertLinePlanar(lineBuffer, vramPtr0, vramPtr1);
 		bitmapTexture->update(vramLine, lineBuffer, lineWidth);
 		lineValidInMode[vramLine] =
 			lineValidInMode[vramLine | 512] = mode;
@@ -257,9 +260,10 @@ GLRasterizer::GLRasterizer(
 	, renderSettings(display.getRenderSettings())
 	, vdp(vdp_), vram(vdp.getVRAM())
 	, screen(screen_)
-	, characterConverter(vdp, palFg, palBg)
-	, bitmapConverter(palFg, PALETTE256, V9958_COLOURS)
-	, spriteConverter(vdp.getSpriteChecker())
+	, characterConverter(new CharacterConverter<Pixel>(vdp, palFg, palBg))
+	, bitmapConverter(new BitmapConverter<Pixel>(
+	                                    palFg, PALETTE256, V9958_COLOURS))
+	, spriteConverter(new SpriteConverter<Pixel>(vdp.getSpriteChecker()))
 {
 	GLint size;
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &size);
@@ -395,36 +399,17 @@ GLRasterizer::~GLRasterizer()
 	delete bitmapTexture;
 }
 
-static void gaussian2(double& r1, double& r2)
-{
-	static const double S = 2.0 / RAND_MAX;
-	double x1, x2, w;
-	do {
-		x1 = S * rand() - 1.0;
-		x2 = S * rand() - 1.0;
-		w = x1 * x1 + x2 * x2;
-	} while (w >= 1.0);
-	w = sqrt((-2.0 * log(w)) / w);
-	r1 = x1 * w;
-	r2 = x2 * w;
-}
-static int clip(double r, double factor)
-{
-	int a = (int)round(r * factor);
-	return std::min(std::max(a, -255), 255);
-}
-
 void GLRasterizer::preCalcNoise(double factor)
 {
 	byte buf1[256 * 256];
 	byte buf2[256 * 256];
 	for (int i = 0; i < 256 * 256; i += 2) {
 		double r1, r2;
-		gaussian2(r1, r2);
-		int s1 = clip(r1, factor);
+		Math::gaussian2(r1, r2);
+		int s1 = Math::clip<-255, 255>(r1, factor);
 		buf1[i + 0] = (s1 > 0) ?  s1 : 0;
 		buf2[i + 0] = (s1 < 0) ? -s1 : 0;
-		int s2 = clip(r2, factor);
+		int s2 = Math::clip<-255, 255>(r2, factor);
 		buf1[i + 1] = (s2 > 0) ?  s2 : 0;
 		buf2[i + 1] = (s2 < 0) ? -s2 : 0;
 	}
@@ -445,7 +430,7 @@ void GLRasterizer::reset()
 {
 	// Init renderer state.
 	setDisplayMode(vdp.getDisplayMode());
-	spriteConverter.setTransparency(vdp.getTransparency());
+	spriteConverter->setTransparency(vdp.getTransparency());
 
 	// Invalidate bitmap cache.
 	dirtyColour.flush();
@@ -558,9 +543,9 @@ void GLRasterizer::drawNoise()
 void GLRasterizer::setDisplayMode(DisplayMode mode)
 {
 	if (mode.isBitmapMode()) {
-		bitmapConverter.setDisplayMode(mode);
+		bitmapConverter->setDisplayMode(mode);
 	} else {
-		characterConverter.setDisplayMode(mode);
+		characterConverter->setDisplayMode(mode);
 		if (characterCacheMode != mode) {
 			characterCacheMode = mode;
 			dirtyPattern.flush();
@@ -570,8 +555,8 @@ void GLRasterizer::setDisplayMode(DisplayMode mode)
 	lineWidth = mode.getLineWidth();
 	precalcColourIndex0(mode, vdp.getTransparency(),
 	                    vdp.getBackgroundColour());
-	spriteConverter.setDisplayMode(mode);
-	spriteConverter.setPalette(mode.getByte() == DisplayMode::GRAPHIC7 ?
+	spriteConverter->setDisplayMode(mode);
+	spriteConverter->setPalette(mode.getByte() == DisplayMode::GRAPHIC7 ?
 	                           palGraphic7Sprites : palBg);
 }
 
@@ -604,7 +589,7 @@ void GLRasterizer::setBackgroundColour(int index)
 
 void GLRasterizer::setTransparency(bool enabled)
 {
-	spriteConverter.setTransparency(enabled);
+	spriteConverter->setTransparency(enabled);
 	precalcColourIndex0(
 		vdp.getDisplayMode(), enabled, vdp.getBackgroundColour());
 }
@@ -832,7 +817,7 @@ void GLRasterizer::renderText1(
 			if (!dirtyPattern.validate(charcode)) {
 				// Update cache for current character.
 				byte charPixels[8 * 8];
-				characterConverter.convertMonoBlock(
+				characterConverter->convertMonoBlock(
 					charPixels,
 					vram.patternTable.readArea((-1 << 11) | (charcode * 8))
 					);
@@ -891,7 +876,7 @@ void GLRasterizer::renderText2(
 			if (!dirtyPattern.validate(charcode)) {
 				// Update cache for current character.
 				byte charPixels[8 * 8];
-				characterConverter.convertMonoBlock(
+				characterConverter->convertMonoBlock(
 					charPixels,
 					vram.patternTable.readArea((-1 << 11) | (charcode * 8)));
 				GLBindMonoBlock(textureId, charPixels);
@@ -953,7 +938,7 @@ void GLRasterizer::renderGraphic1Row(
 		bool valid = dirtyPattern.validate(charNr);
 		if (!valid) {
 			byte charPixels[8 * 8];
-			characterConverter.convertMonoBlock(
+			characterConverter->convertMonoBlock(
 				charPixels,
 				vram.patternTable.readArea((-1 << 11) | (charNr * 8)));
 			GLBindMonoBlock(textureId, charPixels);
@@ -1037,7 +1022,7 @@ void GLRasterizer::renderGraphic2Row(
 		if (!valid) {
 			Pixel charPixels[8 * 8];
 			int index = (-1 << 13) | (charNr * 8);
-			characterConverter.convertColourBlock(
+			characterConverter->convertColourBlock(
 				charPixels,
 				vram.patternTable.readArea(index),
 				vram.colourTable.readArea(index));
@@ -1243,7 +1228,7 @@ void GLRasterizer::drawDisplay(
 			LineTexture charTexture;
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 			for (int y = screenY; y < screenLimitY; y += 2) {
-				characterConverter.convertLine(lineBuffer, displayY);
+				characterConverter->convertLine(lineBuffer, displayY);
 				charTexture.update(lineBuffer, lineWidth);
 				charTexture.draw(displayX + hScroll, screenX,
 				                 y, displayWidth, 2);
@@ -1289,9 +1274,9 @@ void GLRasterizer::drawSprites(
 		// - for mode 1: create a texture in 1bpp, or in luminance
 		// - use VRAM to render sprite blocks instead of lines
 		if (spriteMode == 1) {
-			spriteConverter.drawMode1(y, displayX, displayLimitX, lineBuffer);
+			spriteConverter->drawMode1(y, displayX, displayLimitX, lineBuffer);
 		} else {
-			spriteConverter.drawMode2(y, displayX, displayLimitX, lineBuffer);
+			spriteConverter->drawMode2(y, displayX, displayLimitX, lineBuffer);
 		}
 
 		// Make line buffer into a texture and draw it.

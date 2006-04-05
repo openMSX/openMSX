@@ -1,6 +1,8 @@
 // $Id$
 
 #include "Multiply32.hh"
+#include <cstring>
+#include <SDL.h> // TODO
 
 namespace openmsx {
 

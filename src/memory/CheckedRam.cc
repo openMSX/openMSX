@@ -9,6 +9,7 @@
 #include "CliComm.hh"
 #include "GlobalSettings.hh"
 #include "StringSetting.hh"
+#include "TclObject.hh"
 #include "likely.hh"
 #include <algorithm>
 

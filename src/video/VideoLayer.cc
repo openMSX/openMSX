@@ -6,6 +6,7 @@
 #include "CommandController.hh"
 #include "GlobalSettings.hh"
 #include "BooleanSetting.hh"
+#include "VideoSourceSetting.hh"
 #include <cassert>
 
 namespace openmsx {

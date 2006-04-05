@@ -4,6 +4,9 @@
 #include "V9990.hh"
 #include "RawFrame.hh"
 #include "PostProcessor.hh"
+#include "V9990BitmapConverter.hh"
+#include "V9990P1Converter.hh"
+#include "V9990P2Converter.hh"
 #include "BooleanSetting.hh"
 #include "Display.hh"
 #include "VisibleSurface.hh"
@@ -26,9 +29,10 @@ V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(
 	, screen(screen_)
 	, renderSettings(display.getRenderSettings())
 	, postProcessor(postProcessor_)
-	, bitmapConverter(vdp, palette64, palette256, palette32768)
-	, p1Converter(vdp, palette64)
-	, p2Converter(vdp, palette64)
+	, bitmapConverter(new V9990BitmapConverter<Pixel>(
+	                           vdp, palette64, palette256, palette32768))
+	, p1Converter(new V9990P1Converter<Pixel>(vdp, palette64))
+	, p2Converter(new V9990P2Converter<Pixel>(vdp, palette64))
 {
 	workFrame = new RawFrame(screen.getFormat(), 1280, 240);
 
@@ -95,7 +99,7 @@ template <class Pixel>
 void V9990SDLRasterizer<Pixel>::setColorMode(V9990ColorMode mode)
 {
 	colorMode = mode;
-	bitmapConverter.setColorMode(mode);
+	bitmapConverter->setColorMode(mode);
 }
 
 template <class Pixel>
@@ -191,8 +195,8 @@ void V9990SDLRasterizer<Pixel>::drawP1Mode(
 {
 	while (displayHeight--) {
 		Pixel* pixelPtr = workFrame->getLinePtr(fromY, (Pixel*)0) + fromX;
-		p1Converter.convertLine(pixelPtr, displayX, displayWidth,
-		                        displayY);
+		p1Converter->convertLine(pixelPtr, displayX, displayWidth,
+		                         displayY);
 		workFrame->setLineWidth(fromY, 320);
 		++fromY;
 		++displayY;
@@ -206,8 +210,8 @@ void V9990SDLRasterizer<Pixel>::drawP2Mode(
 {
 	while (displayHeight--) {
 		Pixel* pixelPtr = workFrame->getLinePtr(fromY, (Pixel*)0) + fromX;
-		p2Converter.convertLine(pixelPtr, displayX, displayWidth,
-		                        displayY);
+		p2Converter->convertLine(pixelPtr, displayX, displayWidth,
+		                         displayY);
 		workFrame->setLineWidth(fromY, 640);
 		++fromY;
 		++displayY;
@@ -244,8 +248,8 @@ void V9990SDLRasterizer<Pixel>::drawBxMode(
 		unsigned y = scrollYBase + (displayY + scrollY) & rollMask;
 		unsigned address = vdp.XYtoVRAM(&x, y, colorMode);
 		Pixel* pixelPtr = workFrame->getLinePtr(fromY, (Pixel*)0) + fromX;
-		bitmapConverter.convertLine(pixelPtr, address, displayWidth,
-		                            displayY);
+		bitmapConverter->convertLine(pixelPtr, address, displayWidth,
+		                             displayY);
 		workFrame->setLineWidth(fromY, vdp.getLineWidth());
 		++fromY;
 		displayY += lineStep;

@@ -3,7 +3,6 @@
 #ifndef V9990CMDENGINE_HH
 #define V9990CMDENGINE_HH
 
-#include "V9990ModeEnum.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 

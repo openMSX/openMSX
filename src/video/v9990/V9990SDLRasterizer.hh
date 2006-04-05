@@ -4,9 +4,6 @@
 #define V9990SDLRASTERIZER_HH
 
 #include "V9990Rasterizer.hh"
-#include "V9990BitmapConverter.hh"
-#include "V9990P1Converter.hh"
-#include "V9990P2Converter.hh"
 #include "noncopyable.hh"
 #include <memory>
 
@@ -20,6 +17,9 @@ class OutputSurface;
 class VisibleSurface;
 class RenderSettings;
 class PostProcessor;
+template <class Pixel> class V9990BitmapConverter;
+template <class Pixel> class V9990P1Converter;
+template <class Pixel> class V9990P2Converter;
 
 /** Rasterizer using SDL.
   */
@@ -111,15 +111,15 @@ private:
 
 	/** Bitmap converter. Converts VRAM into pixels
 	  */
-	V9990BitmapConverter<Pixel> bitmapConverter;
+	std::auto_ptr<V9990BitmapConverter<Pixel> > bitmapConverter;
 
 	/** P1 Converter
 	  */
-	V9990P1Converter<Pixel> p1Converter;
+	std::auto_ptr<V9990P1Converter<Pixel> > p1Converter;
 
 	/** P2 Converter
 	  */
-	V9990P2Converter<Pixel> p2Converter;
+	std::auto_ptr<V9990P2Converter<Pixel> > p2Converter;
 
 	/** Fill the palettes.
 	  */

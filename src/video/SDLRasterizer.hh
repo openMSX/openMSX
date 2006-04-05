@@ -4,9 +4,6 @@
 #define SDLRASTERIZER_HH
 
 #include "Rasterizer.hh"
-#include "CharacterConverter.hh"
-#include "BitmapConverter.hh"
-#include "SpriteConverter.hh"
 #include "Observer.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
@@ -23,6 +20,9 @@ class RawFrame;
 class RenderSettings;
 class Setting;
 class PostProcessor;
+template <class Pixel> class CharacterConverter;
+template <class Pixel> class BitmapConverter;
+template <class Pixel> class SpriteConverter;
 
 /** Rasterizer using a frame buffer approach: it writes pixels to a single
   * rectangular pixel buffer.
@@ -174,15 +174,15 @@ private:
 
 	/** VRAM to pixels converter for character display modes.
 	  */
-	CharacterConverter<Pixel> characterConverter;
+	std::auto_ptr<CharacterConverter<Pixel> > characterConverter;
 
 	/** VRAM to pixels converter for bitmap display modes.
 	  */
-	BitmapConverter<Pixel> bitmapConverter;
+	std::auto_ptr<BitmapConverter<Pixel> > bitmapConverter;
 
 	/** VRAM to pixels converter for sprites.
 	  */
-	SpriteConverter<Pixel> spriteConverter;
+	std::auto_ptr<SpriteConverter<Pixel> > spriteConverter;
 };
 
 } // namespace openmsx
