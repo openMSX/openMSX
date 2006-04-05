@@ -7,6 +7,14 @@ set_help_text load_icons \
           'left' or 'right'. Default is 'top'
  example: load_icons set1 bottom
 }
+
+set_tabcompletion_proc load_icons tab_load_icons
+proc tab_load_icons { args } {
+	set r1 [glob -nocomplain -tails -type d -directory $::env(OPENMSX_USER_DATA)/skins *]
+	set r2 [glob -nocomplain -tails -type d -directory $::env(OPENMSX_SYSTEM_DATA)/skins *]
+	join [list $r1 $r2]
+}
+
 proc load_icons { set_name { set_position top } } {
 	global renderer
 

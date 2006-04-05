@@ -1,6 +1,5 @@
 // $Id$
 
-#include "CommandController.hh"
 #include "Command.hh"
 #include "InfoTopic.hh"
 #include "Scheduler.hh"
@@ -9,7 +8,6 @@
 #include "Pluggable.hh"
 #include "PluggableFactory.hh"
 #include "openmsx.hh"
-#include "InfoCommand.hh"
 #include "TclObject.hh"
 #include "CommandException.hh"
 #include "MSXMotherBoard.hh"

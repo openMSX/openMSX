@@ -29,6 +29,15 @@ proc load_debuggable {debuggable filename} {
 	debug write_block $debuggable 0 $data
 }
 
+set_tabcompletion_proc save_debuggable tab_loadsave_debuggable
+set_tabcompletion_proc load_debuggable tab_loadsave_debuggable
+proc tab_loadsave_debuggable { args } {
+	if {[llength $args] == 2} {
+		return [debug list]
+	}
+}
+
+
 # TODO remove these two procs?
 #  They were ment as a very quick-and-dirty savestate mechanism, but it
 #  doesn't work (e.g. because of subslot register)

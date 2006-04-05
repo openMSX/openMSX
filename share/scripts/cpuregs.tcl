@@ -34,7 +34,15 @@ set __regW(AF)   0 ; set __regW(BC)   2 ; set __regW(DE)   4 ; set __regW(HL)   
 set __regW(AF2)  8 ; set __regW(BC2) 10 ; set __regW(DE2) 12 ; set __regW(HL2) 14
 set __regW(IX)  16 ; set __regW(IY)  18 ; set __regW(PC)  20 ; set __regW(SP)  22
 
+set_tabcompletion_proc reg tab_reg
+proc tab_reg { args } {
+	set r1 [array names ::__regB]
+	set r2 [array names ::__regW]
+	join [list $r1 $r2]
+}
+
 proc reg { name { val "" } } {
+	set name [string toupper $name]
 	if [info exists ::__regB($name)] {
 		set i $::__regB($name)
 		set single 1

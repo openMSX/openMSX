@@ -7,6 +7,11 @@ $Id$
 	   - hold BitmapConvertor CharacterConverter SpriteConverter by
 	     pointer iso by value, performance difference is not measurable
 	* Use functions of Math.hh in GL(2)Rasterizer
+	* Made it possible for TCL scripts to implement tab completion,
+	  see share/scripts for examples:
+	   you again need to update the installed init.tcl file
+	* Implemented experimental 'tabcompletion' command:
+	   only ment to be used by external programs 
 
 2006-03-29 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Made it possible for TCL script to provide a help text, see

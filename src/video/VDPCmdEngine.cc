@@ -39,7 +39,6 @@ TODO:
 #include "EmuTime.hh"
 #include "VDPVRAM.hh"
 #include "BooleanSetting.hh"
-#include "CommandController.hh"
 #include "RenderSettings.hh"
 #include "likely.hh"
 #include <iostream>

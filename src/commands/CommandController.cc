@@ -38,6 +38,16 @@ private:
 	CommandController& parent;
 };
 
+class TabCompletionCmd : public Command
+{
+public:
+	TabCompletionCmd(CommandController& parent);
+	virtual void execute(const vector<TclObject*>& tokens, TclObject& result);
+	virtual std::string help(const std::vector<std::string>& tokens) const;
+private:
+	CommandController& parent;
+};
+
 class VersionInfo : public InfoTopic
 {
 public:
@@ -55,6 +65,7 @@ CommandController::CommandController(EventDistributor& eventDistributor_)
 	, eventDistributor(eventDistributor_)
 	, infoCommand(new InfoCommand(*this))
 	, helpCmd(new HelpCmd(*this))
+	, tabCompletionCmd(new TabCompletionCmd(*this))
 	, versionInfo(new VersionInfo(*this))
 	, romInfoTopic(new RomInfoTopic(*this))
 {
@@ -323,7 +334,7 @@ void CommandController::setCommandConsole(CommandConsole* console)
 	cmdConsole = console;
 }
 
-void CommandController::tabCompletion(string &command)
+void CommandController::tabCompletion(string& command)
 {
 	// split in sub commands
 	vector<string> subcmds;
@@ -365,7 +376,7 @@ void CommandController::tabCompletion(string &command)
 	command = join(subcmds, ';');
 }
 
-void CommandController::tabCompletion(vector<string> &tokens)
+void CommandController::tabCompletion(vector<string>& tokens)
 {
 	if (tokens.empty()) {
 		// nothing typed yet
@@ -380,6 +391,24 @@ void CommandController::tabCompletion(vector<string> &tokens)
 		CompleterMap::const_iterator it = commandCompleters.find(tokens.front());
 		if (it != commandCompleters.end()) {
 			it->second->tabCompletion(tokens);
+		} else {
+			TclObject command(getInterpreter());
+			command.addListElement("__tabcompletion");
+			for (vector<string>::const_iterator it2 = tokens.begin();
+			     it2 != tokens.end(); ++it2) {
+				command.addListElement(*it2);
+			}
+			try {
+				string result = command.executeCommand();
+				vector<string> split;
+				getInterpreter().splitList(result, split);
+				set<string> completions(split.begin(), split.end());
+				completeString(tokens, completions);
+			} catch (CommandException& e) {
+				cliComm->printWarning(
+					"Error while executing tab-completion "
+					"proc: " + e.getMessage());
+			}
 		}
 	}
 }
@@ -565,6 +594,38 @@ void HelpCmd::tabCompletion(vector<string>& tokens) const
 	tokens.erase(tokens.begin());
 	parent.tabCompletion(tokens);
 	tokens.insert(tokens.begin(), front);
+}
+
+
+// TabCompletionCmd Command
+
+TabCompletionCmd::TabCompletionCmd(CommandController& commandController)
+	: Command(commandController, "tabcompletion")
+	, parent(commandController)
+{
+}
+
+void TabCompletionCmd::execute(const vector<TclObject*>& tokens, TclObject& result)
+{
+	switch (tokens.size()) {
+	case 2: {
+		// TODO this prints list of possible completions in the console
+		string command = tokens[1]->getString();
+		parent.tabCompletion(command);
+		result.setString(command);
+		break;
+	}
+	default:
+		throw SyntaxError();
+	}
+}
+
+string TabCompletionCmd::help(const vector<string>& /*tokens*/) const
+{
+	return "!!! This command will change in the future !!!\n"
+	       "Tries to completes the given argument as if it were typed in "
+	       "the console. This command is only useful to provide "
+	       "tabcompletion to external console interfaces.";
 }
 
 

@@ -4,7 +4,7 @@
 proc __help { args } {
 	set command [lindex $args 0]
 	if [info exists ::__help_proc($command)] {
-		return [$::__help_proc($command) $args]
+		return [eval $::__help_proc($command) $args]
 	} elseif [info exists ::__help_text($command)] {
 		return $::__help_text($command)
 	} elseif {[info commands $command] ne ""} {
@@ -15,6 +15,18 @@ proc __help { args } {
 }
 proc set_help_text { command help } {
 	set ::__help_text($command) $help
+}
+
+# internal proc to make tabcompletion available to TCL procs
+proc __tabcompletion { args } {
+	set command [lindex $args 0]
+	if [info exists ::__tabcompletion_proc($command)] {
+		return [eval $::__tabcompletion_proc($command) $args]
+	}
+	return ""
+}
+proc set_tabcompletion_proc { command proc } {
+	set ::__tabcompletion_proc($command) $proc
 }
 
 set_help_text data_file \

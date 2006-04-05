@@ -23,6 +23,7 @@ class FileContext;
 class SettingsConfig;
 class GlobalSettings;
 class HelpCmd;
+class TabCompletionCmd;
 class VersionInfo;
 class RomInfoTopic;
 
@@ -128,6 +129,7 @@ private:
 
 	friend class HelpCmd;
 	const std::auto_ptr<HelpCmd> helpCmd;
+	const std::auto_ptr<TabCompletionCmd> tabCompletionCmd;
 	const std::auto_ptr<VersionInfo> versionInfo;
 	const std::auto_ptr<RomInfoTopic> romInfoTopic;
 };
