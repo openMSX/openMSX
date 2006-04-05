@@ -168,6 +168,16 @@ unsigned TclObject::getListLength() const
 	return result;
 }
 
+TclObject TclObject::getListIndex(unsigned index)
+{
+	Tcl_Obj* element;
+	if (Tcl_ListObjIndex(interp, obj, index, &element) != TCL_OK) {
+		throw CommandException(Tcl_GetStringResult(interp));
+	}
+	return element ? TclObject(interp, element)
+	               : TclObject(interp);
+}
+
 bool TclObject::evalBool() const
 {
 	int result;

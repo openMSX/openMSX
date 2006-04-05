@@ -4,12 +4,25 @@
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
 #include "BooleanSetting.hh"
+#include "StringSetting.hh"
 #include "VideoSourceSetting.hh"
 #include <cmath>
 
 namespace openmsx {
 
-RenderSettings::RenderSettings(CommandController& commandController)
+class ColorMatrixChecker : public SettingChecker<StringSettingPolicy>
+{
+public:
+	ColorMatrixChecker(RenderSettings& renderSettings);
+	virtual void check(SettingImpl<StringSettingPolicy>& setting,
+	                   std::string& newValue);
+private:
+	RenderSettings& renderSettings;
+};
+
+
+RenderSettings::RenderSettings(CommandController& commandController_)
+	: commandController(commandController_)
 {
 	EnumSetting<Accuracy>::Map accMap;
 	accMap["screen"] = ACC_SCREEN;
@@ -43,6 +56,12 @@ RenderSettings::RenderSettings(CommandController& commandController)
 		"contrast video setting: "
 		"0 is normal, lower is less contrast, higher is more contrast",
 		0.0, -100.0, 100.0));
+
+	colorMatrix.reset(new StringSetting(commandController, "color_matrix",
+		"3x3 matrix to transform MSX RGB to host RGB, see manual for details",
+		"{ 1 0 0 } { 0 1 0 } { 0 0 1 }"));
+	colorMatrixChecker.reset(new ColorMatrixChecker(*this));
+	colorMatrix->setChecker(colorMatrixChecker.get());
 
 	glow.reset(new IntegerSetting(commandController,
 		"glow", "amount of afterglow effect: 0 = none, 100 = lots",
@@ -106,12 +125,31 @@ int RenderSettings::getScanlineFactor() const
 	return 255 - ((scanlineAlpha->getValue() * 255) / 100);
 }
 
-static double conv(double x, double brightness, double contrast, double gamma)
+static double conv1(double x, double brightness, double contrast)
 {
-	double y = (x + brightness - 0.5) * contrast + 0.5;
-	if (y <= 0.0) return 0.0;
-	if (y >= 1.0) return 1.0;
-	return ::pow(y, gamma);
+	return (x + brightness - 0.5) * contrast + 0.5;
+}
+
+bool RenderSettings::getColorMatrix(const std::string& value,
+                                    double (&result)[3][3])
+{
+	TclObject matrix(commandController.getInterpreter());
+	matrix.setString(value);
+	if (matrix.getListLength() != 3) return false;
+	for (int i = 0; i < 3; ++i) {
+		TclObject row = matrix.getListIndex(i);
+		if (row.getListLength() != 3) return false;
+		for (int j = 0; j < 3; ++j) {
+			TclObject element = row.getListIndex(j);
+			result[i][j] = element.getDouble();
+		}
+	}
+	return true;
+}
+
+static double conv2(double x, double gamma)
+{
+	return ::pow(std::min(std::max(0.0, x), 1.0), gamma);
 }
 
 void RenderSettings::transformRGB(double& r, double& g, double& b)
@@ -120,10 +158,40 @@ void RenderSettings::transformRGB(double& r, double& g, double& b)
 	double contrast = getContrast().getValue();
 	contrast = (contrast >= 0.0) ? (1 + contrast / 25.0)
 	                             : (1 + contrast / 125.0);
+	r = conv1(r, brightness, contrast);
+	g = conv1(g, brightness, contrast);
+	b = conv1(b, brightness, contrast);
+
+	double cm[3][3];
+	double r2, g2, b2;
+	if (getColorMatrix(colorMatrix->getValue(), cm)) {
+		r2 = cm[0][0] * r + cm[0][1] * g + cm[0][2] * b;
+		g2 = cm[1][0] * r + cm[1][1] * g + cm[1][2] * b;
+		b2 = cm[2][0] * r + cm[2][1] * g + cm[2][2] * b;
+	} else {
+		r2 = r; g2 = g; b2 = b;
+	}
+	
 	double gamma = 1.0 / getGamma().getValue();
-	r = conv(r, brightness, contrast, gamma);
-	g = conv(g, brightness, contrast, gamma);
-	b = conv(b, brightness, contrast, gamma);
+	r = conv2(r2, gamma);
+	g = conv2(g2, gamma);
+	b = conv2(b2, gamma);
+}
+
+
+ColorMatrixChecker::ColorMatrixChecker(RenderSettings& renderSettings_)
+	: renderSettings(renderSettings_)
+{
+}
+
+void ColorMatrixChecker::check(SettingImpl<StringSettingPolicy>& /*setting*/,
+                               std::string& newValue)
+{
+	double dummy[3][3];
+	if (!renderSettings.getColorMatrix(newValue, dummy)) {
+		throw CommandException("Invalid color matrix (must be a 3x3 "
+		                       "matrix with floating point values)");
+	}
 }
 
 } // namespace openmsx

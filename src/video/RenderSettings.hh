@@ -4,6 +4,7 @@
 #define RENDERSETTINGS_HH
 
 #include "RendererFactory.hh"
+#include <string>
 #include <memory>
 
 namespace openmsx {
@@ -12,7 +13,9 @@ class CommandController;
 class IntegerSetting;
 class FloatSetting;
 class BooleanSetting;
+class StringSetting;
 class VideoSourceSetting;
+class ColorMatrixChecker;
 
 /** Class containing all settings for renderers.
   * Keeping the settings here makes sure they are preserved when the user
@@ -58,6 +61,9 @@ public:
 
 	/** Contrast video setting. */
 	FloatSetting& getContrast() const { return *contrast; }
+
+	/** Contrast video setting. */
+	StringSetting& getColorMatrix() const { return *colorMatrix; }
 
 	/** The amount of glow [0..100]. */
 	IntegerSetting& getGlow() const { return *glow; }
@@ -106,6 +112,8 @@ public:
 	void transformRGB(double& r, double& g, double& b);
 
 private:
+	bool getColorMatrix(const std::string& value, double (&result)[3][3]);
+
 	// Please keep the settings ordered alphabetically.
 	std::auto_ptr<EnumSetting<Accuracy> > accuracy;
 	std::auto_ptr<EnumSetting<bool> > cmdTiming;
@@ -114,6 +122,8 @@ private:
 	std::auto_ptr<FloatSetting> gamma;
 	std::auto_ptr<FloatSetting> brightness;
 	std::auto_ptr<FloatSetting> contrast;
+	std::auto_ptr<ColorMatrixChecker> colorMatrixChecker;
+	std::auto_ptr<StringSetting> colorMatrix;
 	std::auto_ptr<IntegerSetting> glow;
 	std::auto_ptr<FloatSetting> noise;
 	std::auto_ptr<IntegerSetting> horizontalBlur;
@@ -125,6 +135,10 @@ private:
 	std::auto_ptr<IntegerSetting> scaleFactor;
 	std::auto_ptr<IntegerSetting> scanlineAlpha;
 	std::auto_ptr<VideoSourceSetting> videoSource;
+
+	CommandController& commandController;
+
+	friend class ColorMatrixChecker;
 };
 
 } // namespace openmsx

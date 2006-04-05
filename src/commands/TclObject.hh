@@ -20,7 +20,7 @@ public:
 	TclObject(Tcl_Interp* interp, const std::string& value);
 	explicit TclObject(Tcl_Interp* interp);
 	explicit TclObject(Interpreter& interp);
-	explicit TclObject(const TclObject& object);
+	TclObject(const TclObject& object);
 	~TclObject();
 
 	// get associated interpreter
@@ -44,6 +44,7 @@ public:
 	double getDouble() const;
 	const byte* getBinary(unsigned& length) const;
 	unsigned getListLength() const;
+	TclObject getListIndex(unsigned index);
 
 	// expressions
 	bool evalBool() const;

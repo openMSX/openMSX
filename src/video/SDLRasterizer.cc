@@ -12,6 +12,7 @@
 #include "RenderSettings.hh"
 #include "PostProcessor.hh"
 #include "FloatSetting.hh"
+#include "StringSetting.hh"
 #include "MemoryOps.hh"
 #include "VisibleSurface.hh"
 #include <algorithm>
@@ -170,17 +171,19 @@ SDLRasterizer<Pixel>::SDLRasterizer(
 		}
 	}
 
-	renderSettings.getGamma()     .attach(*this);
-	renderSettings.getBrightness().attach(*this);
-	renderSettings.getContrast()  .attach(*this);
+	renderSettings.getGamma()      .attach(*this);
+	renderSettings.getBrightness() .attach(*this);
+	renderSettings.getContrast()   .attach(*this);
+	renderSettings.getColorMatrix().attach(*this);
 }
 
 template <class Pixel>
 SDLRasterizer<Pixel>::~SDLRasterizer()
 {
-	renderSettings.getGamma()     .detach(*this);
-	renderSettings.getBrightness().detach(*this);
-	renderSettings.getContrast()  .detach(*this);
+	renderSettings.getColorMatrix().detach(*this);
+	renderSettings.getGamma()      .detach(*this);
+	renderSettings.getBrightness() .detach(*this);
+	renderSettings.getContrast()   .detach(*this);
 
 	delete bitmapDisplayCache;
 	delete charDisplayCache;
@@ -596,7 +599,8 @@ void SDLRasterizer<Pixel>::update(const Setting& setting)
 {
 	if ((&setting == &renderSettings.getGamma()) ||
 	    (&setting == &renderSettings.getBrightness()) ||
-	    (&setting == &renderSettings.getContrast())) {
+	    (&setting == &renderSettings.getContrast()) ||
+	    (&setting == &renderSettings.getColorMatrix())) {
 		precalcPalette();
 		resetPalette();
 

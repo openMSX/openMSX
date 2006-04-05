@@ -12,6 +12,9 @@ $Id$
 	   you again need to update the installed init.tcl file
 	* Implemented experimental 'tabcompletion' command:
 	   only ment to be used by external programs 
+	* Implemented color_matrix setting:
+	   This color matrix can do any linear transformation from MSX RGB to
+	   host RGB. See share/scripts/monitor.tcl for examples.
 
 2006-03-29 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Made it possible for TCL script to provide a help text, see

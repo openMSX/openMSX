@@ -48,6 +48,7 @@ TODO: Faster texture upload: make sure host and VRAM pixel formats match:
 #include "BooleanSetting.hh"
 #include "FloatSetting.hh"
 #include "IntegerSetting.hh"
+#include "StringSetting.hh"
 #include "Math.hh"
 #include "build-info.hh"
 #include <algorithm>
@@ -308,10 +309,11 @@ GL2Rasterizer::GL2Rasterizer(
 	vram.patternTable.setObserver(&dirtyPattern);
 	vram.colourTable.setObserver(&dirtyColour);
 
-	renderSettings.getGamma()     .attach(*this);
-	renderSettings.getBrightness().attach(*this);
-	renderSettings.getContrast()  .attach(*this);
-	renderSettings.getNoise()     .attach(*this);
+	renderSettings.getGamma()      .attach(*this);
+	renderSettings.getBrightness() .attach(*this);
+	renderSettings.getContrast()   .attach(*this);
+	renderSettings.getColorMatrix().attach(*this);
+	renderSettings.getNoise()      .attach(*this);
 
 	noiseTextureA.setImage(256, 256);
 	noiseTextureB.setImage(256, 256);
@@ -329,10 +331,11 @@ GL2Rasterizer::GL2Rasterizer(
 
 GL2Rasterizer::~GL2Rasterizer()
 {
-	renderSettings.getNoise()     .detach(*this);
-	renderSettings.getGamma()     .detach(*this);
-	renderSettings.getBrightness().detach(*this);
-	renderSettings.getContrast()  .detach(*this);
+	renderSettings.getNoise()      .detach(*this);
+	renderSettings.getColorMatrix().detach(*this);
+	renderSettings.getGamma()      .detach(*this);
+	renderSettings.getBrightness() .detach(*this);
+	renderSettings.getContrast()   .detach(*this);
 
 	// Unregister caches with VDPVRAM.
 	vram.patternTable.resetObserver();
@@ -1258,7 +1261,8 @@ void GL2Rasterizer::update(const Setting& setting)
 	VideoLayer::update(setting);
 	if ((&setting == &renderSettings.getGamma()) ||
 	    (&setting == &renderSettings.getBrightness()) ||
-	    (&setting == &renderSettings.getContrast())) {
+	    (&setting == &renderSettings.getContrast()) ||
+	    (&setting == &renderSettings.getColorMatrix())) {
 		precalcPalette();
 		resetPalette();
 
