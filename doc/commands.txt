@@ -490,7 +490,7 @@ color_matrix
     set color_matrix
       --> shows the current value
     set color_matrix { { 1 0 0 } { 0 1 0 } { 0 0 1 } }
-      --> this is the deafult (no color transformation)
+      --> this is the default (no color transformation)
     set color_matrix { { .33 .33 .33 } { .33 .33 .33 } { .33 .33 .33 } }
       --> transform to greyscale
 
