@@ -130,23 +130,6 @@ static double conv1(double x, double brightness, double contrast)
 	return (x + brightness - 0.5) * contrast + 0.5;
 }
 
-bool RenderSettings::getColorMatrix(const std::string& value,
-                                    double (&result)[3][3])
-{
-	TclObject matrix(commandController.getInterpreter());
-	matrix.setString(value);
-	if (matrix.getListLength() != 3) return false;
-	for (int i = 0; i < 3; ++i) {
-		TclObject row = matrix.getListIndex(i);
-		if (row.getListLength() != 3) return false;
-		for (int j = 0; j < 3; ++j) {
-			TclObject element = row.getListIndex(j);
-			result[i][j] = element.getDouble();
-		}
-	}
-	return true;
-}
-
 static double conv2(double x, double gamma)
 {
 	return ::pow(std::min(std::max(0.0, x), 1.0), gamma);
@@ -162,20 +145,33 @@ void RenderSettings::transformRGB(double& r, double& g, double& b)
 	g = conv1(g, brightness, contrast);
 	b = conv1(b, brightness, contrast);
 
-	double cm[3][3];
-	double r2, g2, b2;
-	if (getColorMatrix(colorMatrix->getValue(), cm)) {
-		r2 = cm[0][0] * r + cm[0][1] * g + cm[0][2] * b;
-		g2 = cm[1][0] * r + cm[1][1] * g + cm[1][2] * b;
-		b2 = cm[2][0] * r + cm[2][1] * g + cm[2][2] * b;
-	} else {
-		r2 = r; g2 = g; b2 = b;
-	}
+	double r2 = cm[0][0] * r + cm[0][1] * g + cm[0][2] * b;
+	double g2 = cm[1][0] * r + cm[1][1] * g + cm[1][2] * b;
+	double b2 = cm[2][0] * r + cm[2][1] * g + cm[2][2] * b;
 	
 	double gamma = 1.0 / getGamma().getValue();
 	r = conv2(r2, gamma);
 	g = conv2(g2, gamma);
 	b = conv2(b2, gamma);
+}
+
+void RenderSettings::parseColorMatrix(const std::string& value)
+{
+	TclObject matrix(commandController.getInterpreter());
+	matrix.setString(value);
+	if (matrix.getListLength() != 3) {
+		throw CommandException("must have 3 rows");
+	}
+	for (int i = 0; i < 3; ++i) {
+		TclObject row = matrix.getListIndex(i);
+		if (row.getListLength() != 3) {
+			throw CommandException("each row must have 3 elements");
+		}
+		for (int j = 0; j < 3; ++j) {
+			TclObject element = row.getListIndex(j);
+			cm[i][j] = element.getDouble();
+		}
+	}
 }
 
 
@@ -187,10 +183,10 @@ ColorMatrixChecker::ColorMatrixChecker(RenderSettings& renderSettings_)
 void ColorMatrixChecker::check(SettingImpl<StringSettingPolicy>& /*setting*/,
                                std::string& newValue)
 {
-	double dummy[3][3];
-	if (!renderSettings.getColorMatrix(newValue, dummy)) {
-		throw CommandException("Invalid color matrix (must be a 3x3 "
-		                       "matrix with floating point values)");
+	try {
+		renderSettings.parseColorMatrix(newValue);
+	} catch (CommandException& e) {
+		throw CommandException("Invalid color matrix: " + e.getMessage());
 	}
 }
 

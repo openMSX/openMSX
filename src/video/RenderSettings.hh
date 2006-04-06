@@ -112,7 +112,7 @@ public:
 	void transformRGB(double& r, double& g, double& b);
 
 private:
-	bool getColorMatrix(const std::string& value, double (&result)[3][3]);
+	void parseColorMatrix(const std::string& value);
 
 	// Please keep the settings ordered alphabetically.
 	std::auto_ptr<EnumSetting<Accuracy> > accuracy;
@@ -137,6 +137,8 @@ private:
 	std::auto_ptr<VideoSourceSetting> videoSource;
 
 	CommandController& commandController;
+	double cm[3][3]; // parsed color matrix, should always be in sync with
+	                 // colorMatrix setting
 
 	friend class ColorMatrixChecker;
 };
