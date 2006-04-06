@@ -421,6 +421,8 @@ restoredefault
   examples:
     restoredefault PSG_volume
 
+
+
 SETTINGS
 ========
 
@@ -472,6 +474,26 @@ cmdtiming
   Controls VDP command execution timing.
   [ mainly useful for debugging purposes ]
   
+
+color_matrix
+------------
+
+  This setting represents a 3x3 matrix that is used to transform MSX RGB colors
+  to host RGB colors. This setting can be used to generate all kind of color
+  schemes, see scripts/monitor.tcl for examples.
+
+        | . . . |   | Rm |   | Rh |
+        | . . . | x | Gm | = | Gh |
+        | . . . |   | Bm |   | Bh |
+
+  usage:
+    set color_matrix
+      --> shows the current value
+    set color_matrix { { 1 0 0 } { 0 1 0 } { 0 0 1 } }
+      --> this is the deafult (no color transformation)
+    set color_matrix { { .33 .33 .33 } { .33 .33 .33 } { .33 .33 .33 } }
+      --> transform to greyscale
+
 
 console
 -------
