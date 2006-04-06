@@ -1,5 +1,9 @@
 $Id$
 
+2006-04-06 Maarten ter Huurne <maarten@treewalker.org>
+	* Speedup (approximately 5%) of hq2x by re-using edge flags that were
+	  computed for the left neighbour pixel.
+
 2006-04-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Speedup switching to different color_matrix
 	* Fixed assert when using the same extension multiple times
@@ -16,7 +20,7 @@ $Id$
 	  see share/scripts for examples:
 	   you again need to update the installed init.tcl file
 	* Implemented experimental 'tabcompletion' command:
-	   only ment to be used by external programs 
+	   only ment to be used by external programs
 	* Implemented color_matrix setting:
 	   This color matrix can do any linear transformation from MSX RGB to
 	   host RGB. See share/scripts/monitor.tcl for examples.
