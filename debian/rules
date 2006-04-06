@@ -31,8 +31,7 @@ build-stamp: patch config.status
 	# Add here commands to compile the package.
 	$(MAKE) \
 		INSTALL_SHARE_DIR=/usr/share/openmsx
-	docbook-to-man doc/openmsx.sgml > openmsx.1
-
+	docbook-to-man debian/openmsx.sgml > debian/openmsx.1
 	touch build-stamp
 
 clean: clean-patched unpatch
@@ -44,54 +43,75 @@ clean-patched:
 	-$(MAKE) clean
 	- rm -rf derived/
 	- rm -rf debian/openmsx
-	- rm -f openmsx.1
+	- rm -rf debian/tmp
+	- rm -rf debian/openmsx-data
+	- rm -f debian/openmsx.1
 
 
 	dh_clean 
 
-install: build
+install: install-arch install-indep
+
+install-arch: build
 	dh_testdir
 	dh_testroot
 	dh_clean -k
 	dh_installdirs
+	cp -f $(CURDIR)/debian/binary.lintian-overrides $(CURDIR)/debian/openmsx/usr/share/lintian/overrides/openmsx
 
 	$(MAKE) install \
-		INSTALL_BINARY_DIR=$(CURDIR)/debian/openmsx/usr/bin \
-		INSTALL_SHARE_DIR=$(CURDIR)/debian/openmsx/usr/share/openmsx \
-		INSTALL_DOC_DIR=$(CURDIR)/debian/openmsx/usr/share/doc/openmsx \
+		INSTALL_BINARY_DIR=$(CURDIR)/debian/tmp/usr/bin \
+		INSTALL_SHARE_DIR=$(CURDIR)/debian/tmp/usr/share/openmsx \
+		INSTALL_DOC_DIR=$(CURDIR)/debian/tmp/usr/share/doc/openmsx-data \
 		SYMLINK_FOR_BINARY=false \
 		INSTALL_CONTRIB=false \
-		OPENMSX_INSTALL=$(CURDIR)/debian/openmsx/usr
-	@cp -f $(CURDIR)/debian/binary.lintian-overrides $(CURDIR)/debian/openmsx/usr/share/lintian/overrides/openmsx
+		OPENMSX_INSTALL=$(CURDIR)/debian/tmp/usr
 	@echo "  Cleaning up the installed package..."
-	@rm $(CURDIR)/debian/openmsx/usr/share/doc/openmsx/GPL
-	@find $(CURDIR)/debian/openmsx/usr/share -name CVS | xargs rm -rf
-	@find $(CURDIR)/debian/openmsx/usr/share/openmsx/extensions/ -name hardwareconfig.xml -exec chmod a-x {} \;
-	@find $(CURDIR)/debian/openmsx -name .cvsignore |xargs rm -f
+	@rm $(CURDIR)/debian/tmp/usr/share/doc/openmsx-data/GPL
+	@find $(CURDIR)/debian/tmp/usr/share -name CVS | xargs rm -rf
+	@find $(CURDIR)/debian/tmp/usr/share/openmsx/extensions/ -name hardwareconfig.xml -exec chmod a-x {} \;
+	@find $(CURDIR)/debian/tmp -name .cvsignore |xargs rm -f
+	@chmod a+x $(CURDIR)/debian/tmp/usr/share/openmsx/scripts/convert_hardwareconfig.py
+	@chmod a+x $(CURDIR)/debian/tmp/usr/share/openmsx/scripts/convert_hardwareconfig2.py
+	dh_install -a --sourcedir=debian/tmp
 
-
-
+install-indep: install-arch
+	dh_testdir
+	dh_testroot
+	dh_install -i --sourcedir=debian/tmp
 
 # Build architecture-independent files here.
 binary-indep: build install
+	dh_testdir -i
+	dh_testroot -i
+	dh_installman -i debian/openmsx.1
+	dh_installdocs -i
+	dh_installchangelogs -i ChangeLog
+	dh_installexamples -i
+	dh_installmenu -i
+	dh_link -i
+	dh_strip -i
+	dh_compress -i
+	dh_fixperms -i
+	dh_installdeb -i
+	dh_gencontrol -i
+	dh_md5sums -i
+	dh_builddeb -i
 
 # Build architecture-dependent files here.
 binary-arch: build install
-	dh_testdir
-	dh_testroot
-	dh_installchangelogs ChangeLog
-	dh_installdocs
-	dh_installmenu
-	dh_installman openmsx.1
-	dh_link
-	dh_strip
-	dh_compress
-	dh_fixperms
-	dh_installdeb
-	dh_shlibdeps
-	dh_gencontrol
-	dh_md5sums
-	dh_builddeb
+	dh_testdir -a
+	dh_testroot -a
+	dh_link -a usr/share/doc/openmsx-data usr/share/doc/openmsx
+	dh_link -a
+	dh_strip -a
+	dh_compress -a
+	dh_fixperms -a
+	dh_installdeb -a
+	dh_shlibdeps -a
+	dh_gencontrol -a
+	dh_md5sums -a
+	dh_builddeb -a
 
 binary: binary-indep binary-arch
 .PHONY: build clean binary-indep binary-arch binary install 

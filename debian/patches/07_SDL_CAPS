@@ -1,0 +1,44 @@
+#!/bin/sh -e
+##  by Joost Yervante Damad <joost@lumatec.be>
+##
+
+if [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch}"
+
+case "$1" in
+       -patch) patch $patch_opts -p1 < $0;;
+       -unpatch) patch $patch_opts -p1 -R < $0;;
+        *)
+                echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+                exit 1;;
+esac
+
+exit 0
+
+@DPATCH@
+--- openmsx-0.6.0.orig/src/input/Keyboard.cc       2006-04-04 20:15:39.000000000 +0200
++++ openmsx-0.6.0/src/input/Keyboard.cc    2006-04-04 20:19:51.000000000 +0200
+@@ -136,17 +136,7 @@
+ 		Keys::KeyCode key = (Keys::KeyCode)
+ 			((int)((EmuKeyEvent&)event).getKeyCode() &
+ 			 (int)Keys::K_MASK);
+-		if (key != Keys::K_CAPSLOCK) {
+-			processKey(type == OPENMSX_EMU_KEY_DOWN_EVENT, key);
+-		} else {
+-			// This is a workaround for a SDL 'feature' (it's
+-			// actually a documented bug in SDL). In a future
+-			// refactoring this workaround should be moved to a
+-			// higher level.
+-			processKey(true, Keys::K_CAPSLOCK);
+-			Clock<1000> now(getScheduler().getCurrentTime());
+-			setSyncPoint(now + 100);
+-		}
++		processKey(type == OPENMSX_EMU_KEY_DOWN_EVENT, key);
+ 	}
+ }
+ 

@@ -1,8 +1,24 @@
-openmsx (0.5.2.1-0) unstable; urgency=low
-  * experimental pre-packages
-  * manpage source is now in openmsx CVS, however I still build it
+openmsx (0.6.0-3) unstable; urgency=low
 
- -- Joost Yervante Damad <joost@lumatec.be>  Thu, 22 Dec 2005 09:12:29 +0100
+  * debian SDL has patch for CAPSLOCK bug, soo disable workaround for it
+    (Closes: #360870)
+  * separate datafiles in openmsx-data, it is already nearly 3M in size
+ 
+ -- Joost Yervante Damad <joost@lumatec.be>  Sat,  1 Apr 2006 20:32:06 +0200
+
+openmsx (0.6.0-2) unstable; urgency=low
+  * back to -O1 for m68k because of ICE in gcc
+
+ -- Joost Yervante Damad <joost@lumatec.be>  Sat,  4 Feb 2006 15:11:41 +0100
+
+openmsx (0.6.0-1) unstable; urgency=low
+  * upstream release 0.6.0
+  * manpage source is now in openmsx CVS, however I still build it
+  * debhelper compat level 5
+  * use branch_0_6_0
+  * enable jack support
+
+ -- Joost Yervante Damad <joost@lumatec.be>  Sun, 22 Jan 2006 09:32:02 +0100
 
 openmsx (0.5.2-5) unstable; urgency=low
   * disable verbose probe (won't work on system without /dev/stdout,
