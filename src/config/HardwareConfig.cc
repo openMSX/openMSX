@@ -223,9 +223,8 @@ void HardwareConfig::createExternalSlot(int ps, int ss)
 void HardwareConfig::createExpandedSlot(int ps)
 {
 	if (!expandedSlots[ps]) {
-		expandedSlots[ps] = true;
 		motherBoard.getCPUInterface().setExpanded(ps);
-		
+		expandedSlots[ps] = true;
 	}
 }
 
