@@ -71,6 +71,7 @@
           <rom>
             <filename>roms/vg8235_msx2sub.rom</filename>
             <sha1>3288894e1be6af705871499b23c85732dbc40993</sha1>
+            <sha1>e7905d16d2ccd57a013c122dc432106cd59ef52c</sha1>
           </rom>
           <mem base="0x0000" size="0x4000"/>
         </ROM>
