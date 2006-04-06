@@ -20,6 +20,6 @@ Package: openmsx-data
 Architecture: all
 Replaces: openmsx (<< 0.6.0-3)
 Depends: cbios, ${shlibs:Depends}
-Description: datafiles for the openMSX, an MSX emulator
+Description: datafiles for openMSX, an MSX emulator
  These datafiles provide descriptions in XML format for various MSX machines
  and extensions.
