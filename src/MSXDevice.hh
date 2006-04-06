@@ -169,13 +169,6 @@ protected:
 	MSXDevice(MSXMotherBoard& motherBoard, const XMLElement& config,
 	          const EmuTime& time);
 
-	const XMLElement& deviceConfig;
-	friend class VDPIODelay;
-
-	static byte unmappedRead[0x10000];	// Read only
-	static byte unmappedWrite[0x10000];	// Write only
-
-private:
 	/** Constructing a MSXDevice is a 2-step process, after the constructor
 	  * is called this init() method must be called. The reason is exception
 	  * safety (init() might throw and we use the destructor to clean up
@@ -183,12 +176,24 @@ private:
 	  * constrcutor). Another reason is too avoid having to add the
 	  * HardwareConfig parameter to the constructor of every subclass of
 	  * MSXDevice.
-	  * This is also a private method. This means you can only construct
+	  * This is also a non-public method. This means you can only construct
 	  * MSXDevices via DeviceFactory.
+	  * In rare cases you need to override this method, for example when you
+	  * need to access the referenced devices already during construction
+	  * of this device (e.g. ADVram)
 	  */
 	friend class DeviceFactory;
-	void init(const HardwareConfig& hwConf);
+	virtual void init(const HardwareConfig& hwConf);
 
+	const XMLElement& deviceConfig;
+	friend class VDPIODelay;
+
+	static byte unmappedRead[0x10000];	// Read only
+	static byte unmappedWrite[0x10000];	// Write only
+
+private:
+
+	void initName(const std::string& name);
 	void staticInit();
 
 	void lockDevices();

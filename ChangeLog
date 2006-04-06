@@ -1,5 +1,10 @@
 $Id$
 
+2006-04-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Speedup switching to different color_matrix
+	* Fixed assert when using the same extension multiple times
+	* Fixed asserts when using advram-p and advram-s extensions
+
 2006-04-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Reduced compile dependencies, should reduce amount of recompilations
 	  needed in the future:

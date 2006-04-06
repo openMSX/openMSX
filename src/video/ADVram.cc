@@ -17,6 +17,12 @@ ADVram::ADVram(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, vram(NULL)
 {
 	hasEnable = config.getChildDataAsBool("hasEnable", true);
+	reset(time);
+}
+
+void ADVram::init(const HardwareConfig& hwConf)
+{
+	MSXDevice::init(hwConf);
 
 	const MSXDevice::Devices& references = getReferences();
 	if (references.size() != 1) {
@@ -30,8 +36,6 @@ ADVram::ADVram(MSXMotherBoard& motherBoard, const XMLElement& config,
 	}
 	vram = &vdp->getVRAM();
 	mask = std::min(vram->getSize(), 128u * 1024) - 1;
-	
-	reset(time);
 }
 
 void ADVram::reset(const EmuTime& /*time*/)

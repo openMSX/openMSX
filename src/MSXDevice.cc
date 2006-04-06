@@ -26,7 +26,7 @@ MSXDevice::MSXDevice(MSXMotherBoard& motherBoard_, const XMLElement& config,
 	: deviceConfig(config), externalSlotID(-1), motherBoard(motherBoard_)
 	, hardwareConfig(NULL)
 {
-	deviceName = name;
+	initName(name);
 }
 
 MSXDevice::MSXDevice(MSXMotherBoard& motherBoard_, const XMLElement& config,
@@ -34,7 +34,18 @@ MSXDevice::MSXDevice(MSXMotherBoard& motherBoard_, const XMLElement& config,
 	: deviceConfig(config), externalSlotID(-1), motherBoard(motherBoard_)
 	, hardwareConfig(NULL)
 {
-	deviceName = deviceConfig.getId();
+	initName(deviceConfig.getId());
+}
+
+void MSXDevice::initName(const string& name)
+{
+	deviceName = name;
+	if (motherBoard.findDevice(deviceName)) {
+		unsigned n = 0;
+		do {
+			deviceName = name + " (" + StringOp::toString(++n) + ")";
+		} while (motherBoard.findDevice(deviceName));
+	}
 }
 
 void MSXDevice::init(const HardwareConfig& hwConf)
@@ -42,14 +53,6 @@ void MSXDevice::init(const HardwareConfig& hwConf)
 	assert(!hardwareConfig);
 	hardwareConfig = &hwConf;
 
-	string name = deviceName;
-	if (motherBoard.findDevice(name)) {
-		unsigned n = 0;
-		do {
-			deviceName = name + " (" + StringOp::toString(++n) + ")";
-		} while (motherBoard.findDevice(deviceName));
-	}
-	
 	staticInit();
 
 	lockDevices();
@@ -137,6 +140,7 @@ void MSXDevice::unlockDevices()
 
 const MSXDevice::Devices& MSXDevice::getReferences() const
 {
+	assert(hardwareConfig); // init() must already be called
 	return references;
 }
 

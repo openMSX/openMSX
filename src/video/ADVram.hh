@@ -27,6 +27,7 @@ public:
 	virtual void writeMem(word address, byte value, const EmuTime& time);
 
 private:
+	virtual void init(const HardwareConfig& hwConf);
 	inline unsigned calcAddress(word address) const;
 
 	VDP* vdp;
