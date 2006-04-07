@@ -2707,7 +2707,12 @@ template <class T> void CPUCore<T>::ei()
 }
 template <class T> void CPUCore<T>::halt()
 {
-	R.HALT = true; slowInstructions = 2;
+	R.HALT = true;
+	slowInstructions = 2;
+
+	if (!(R.IFF1 || R.nextIFF1 || R.IFF2)) { 
+		motherboard.getCliComm().printWarning("DI; HALT detected, which means a hang. You can just as well reset the MSX now...\n"); 
+	}
 }
 template <class T> void CPUCore<T>::im_0() { T::SET_IM_DELAY(); R.IM = 0; }
 template <class T> void CPUCore<T>::im_1() { T::SET_IM_DELAY(); R.IM = 1; }

@@ -1,5 +1,9 @@
 $Id$
 
+2006-04-07 Manuel Bilderbeek <manuel@msxnet.org>
+	* Print a warning when a DI/HALT is detected, which means a hang.
+	  TODO: add warnings for other known hang-situations as well.
+
 2006-04-06 Maarten ter Huurne <maarten@treewalker.org>
 	* Speedup (approximately 5%) of hq2x by re-using edge flags that were
 	  computed for the left neighbour pixel.
