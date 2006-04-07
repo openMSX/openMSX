@@ -1,5 +1,9 @@
 $Id$
 
+2006-04-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Further optimized hq2x: also reuse edge flags from top neighbour
+	   (again about 5% faster)
+
 2006-04-07 Manuel Bilderbeek <manuel@msxnet.org>
 	* Print a warning when a DI/HALT is detected, which means a hang.
 	  TODO: add warnings for other known hang-situations as well.

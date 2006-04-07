@@ -27,7 +27,8 @@ HQ2xScaler<Pixel>::HQ2xScaler(const PixelOperations<Pixel>& pixelOps)
 
 template <class Pixel>
 static void scale1on2(const Pixel* in0, const Pixel* in1, const Pixel* in2,
-                      Pixel* out0, Pixel* out1, unsigned srcWidth)
+                      Pixel* out0, Pixel* out1, unsigned srcWidth,
+                      unsigned* edgeBuf)
 {
 	unsigned c1, c2, c3, c4, c5, c6, c7, c8, c9;
 	c2 = c3 = readPixel(in0);
@@ -62,10 +63,13 @@ static void scale1on2(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 		if (edge(c5, c9)) pattern |= 1 <<  6; // BR
 		if (edge(c6, c8)) pattern |= 1 <<  7; // BR
 		if (edge(c5, c6)) pattern |= 1 <<  8; // R
-		// overlaps with top, not used yet
-		if (edge(c2, c6)) pattern |= 1 <<  9; // R - t: c5-c9 6
-		if (edge(c5, c3)) pattern |= 1 << 10; // R - t: c6-c8 7
-		if (edge(c5, c2)) pattern |= 1 << 11; //     t: c5-c8 5
+		// overlaps with top
+		//if (edge(c2, c6)) pattern |= 1 <<  9; // R - t: c5-c9 6
+		//if (edge(c5, c3)) pattern |= 1 << 10; // R - t: c6-c8 7
+		//if (edge(c5, c2)) pattern |= 1 << 11; //     t: c5-c8 5
+		pattern |= ((edgeBuf[x] &  (1 << 5)            ) << 6) |
+		           ((edgeBuf[x] & ((1 << 6) | (1 << 7))) << 3);
+		edgeBuf[x] = pattern;
 
 		unsigned pixel1, pixel2, pixel3, pixel4;
 
@@ -1147,12 +1151,34 @@ void HQ2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	int srcY = srcStartY;
 	const Pixel* srcPrev = src.getLinePtr(srcY - 1, srcWidth, dummy);
 	const Pixel* srcCurr = src.getLinePtr(srcY + 0, srcWidth, dummy);
+
+	assert(srcWidth <= 1024);
+	unsigned edgeBuf[1024];
+
+	unsigned x = 0;
+	unsigned c1 = readPixel(&srcPrev[x]);
+	unsigned c2 = readPixel(&srcCurr[x]);
+	unsigned pattern = edge(c1, c2) ? ((1 << 6) | (1 << 7)) : 0;
+	for (/* */; x < (srcWidth - 1); ++x) {
+		pattern >>= 6;
+		unsigned n1 = readPixel(&srcPrev[x + 1]);
+		unsigned n2 = readPixel(&srcCurr[x + 1]);
+		if (edge(c1, c2)) pattern |= (1 << 5);
+		if (edge(c1, n2)) pattern |= (1 << 6);
+		if (edge(c2, n1)) pattern |= (1 << 7);
+		edgeBuf[x] = pattern;
+		c1 = n1; c2 = n2;
+	}
+	pattern >>= 6;
+	if (edge(c1, c2)) pattern |= (1 << 5) | (1 << 6) | (1 << 7);
+	edgeBuf[x] = pattern;
+
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
 		const Pixel* srcNext = src.getLinePtr(srcY + 1, srcWidth, dummy);
 		Pixel* dstUpper = dst.getLinePtr(dstY + 0, dummy);
 		Pixel* dstLower = dst.getLinePtr(dstY + 1, dummy);
 		scale1on2(srcPrev, srcCurr, srcNext, dstUpper, dstLower,
-		          srcWidth);
+		          srcWidth, edgeBuf);
 		srcPrev = srcCurr;
 		srcCurr = srcNext;
 	}
