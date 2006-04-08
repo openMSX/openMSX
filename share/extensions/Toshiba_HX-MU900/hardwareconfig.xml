@@ -2,28 +2,26 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
+  <devices>
+    <MSX-AUDIO id="Toshiba HX-MU900 MSX-Audio">
+      <io base="0xC0" num="2"/>
+      <sound>
+        <volume>12000</volume>
+        <mode>mono</mode>
+      </sound>
+      <!-- <sampleram>32</sampleram> -->
+    </MSX-AUDIO>
 
-  <MSX-AUDIO id="Toshiba HX-MU900 MSX-Audio">
-    <io base="0xC0" num="2"/>
-    <sound>
-      <volume>12000</volume>
-      <mode>mono</mode>
-    </sound>
-    <!-- <sampleram>32</sampleram> -->
-  </MSX-AUDIO>
-
-  <primary slot="any">
-
-    <secondary slot="any">
-      <ROM id="Toshiba HX-MU900 firmware">
-        <mem base="0x4000" size="0x8000"/>
-        <rom>
-          <sha1>4dad9de7c28b452351cc12910849b51bd9a37ab3</sha1>
-          <filename>roms/hx-mu900.rom</filename>
-        </rom>
-      </ROM>
-    </secondary>
-
-  </primary>
-
+    <primary slot="any">
+      <secondary slot="any">
+        <ROM id="Toshiba HX-MU900 firmware">
+          <mem base="0x4000" size="0x8000"/>
+          <rom>
+            <sha1>4dad9de7c28b452351cc12910849b51bd9a37ab3</sha1>
+            <filename>roms/hx-mu900.rom</filename>
+          </rom>
+        </ROM>
+      </secondary>
+    </primary>
+  </devices>
 </msxconfig>

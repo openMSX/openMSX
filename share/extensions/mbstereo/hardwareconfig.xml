@@ -2,39 +2,37 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <FMPAC id="PanaSoft SW-M004 FMPAC">
+          <io base="0x7C" num="2" type="O"/>
+          <mem base="0x4000" size="0x4000"/>
+          <sound>
+            <volume>13000</volume>
+            <mode>left</mode>
+          </sound>
+          <rom>
+            <sha1>9d789166e3caf28e4742fe933d962e99618c633d</sha1>
+            <filename>roms/fmpac.rom</filename>
+          </rom>
+          <sramname>fmpac.pac</sramname>
+        </FMPAC>
+      </secondary>
+    </primary>
 
-  <primary slot="any">
+    <MSX-AUDIO id="Generic MSX-Audio">
+      <io base="0xC0" num="2"/>
+      <sound>
+        <volume>12000</volume>
+        <mode>right</mode>
+      </sound>
+      <sampleram>256</sampleram>
+    </MSX-AUDIO>
 
-    <secondary slot="any">
-      <FMPAC id="PanaSoft SW-M004 FMPAC">
-        <io base="0x7C" num="2" type="O"/>
-        <mem base="0x4000" size="0x4000"/>
-        <sound>
-          <volume>13000</volume>
-          <mode>left</mode>
-        </sound>
-        <rom>
-          <sha1>9d789166e3caf28e4742fe933d962e99618c633d</sha1>
-          <filename>roms/fmpac.rom</filename>
-        </rom>
-        <sramname>fmpac.pac</sramname>
-      </FMPAC>
-    </secondary>
-
-  </primary>
-
-  <MSX-AUDIO id="Generic MSX-Audio">
-    <io base="0xC0" num="2"/>
-    <sound>
-      <volume>12000</volume>
-      <mode>right</mode>
-    </sound>
-    <sampleram>256</sampleram>
-  </MSX-AUDIO>
-
-  <MusicModuleMIDI id="Generic MSX-Audio-MIDI">
-    <io base="0x00" num="2" type="O"/>
-    <io base="0x04" num="2" type="I"/>
-  </MusicModuleMIDI>
-
+    <MusicModuleMIDI id="Generic MSX-Audio-MIDI">
+      <io base="0x00" num="2" type="O"/>
+      <io base="0x04" num="2" type="I"/>
+    </MusicModuleMIDI>
+  </devices>
 </msxconfig>

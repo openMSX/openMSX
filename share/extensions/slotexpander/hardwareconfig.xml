@@ -2,17 +2,12 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
-
-  <primary slot="any">
-
-    <secondary external="true" slot="0"/>
-
-    <secondary external="true" slot="1"/>
-
-    <secondary external="true" slot="2"/>
-
-    <secondary external="true" slot="3"/>
-
-  </primary>
-
+  <devices>
+    <primary slot="any">
+      <secondary external="true" slot="0"/>
+      <secondary external="true" slot="1"/>
+      <secondary external="true" slot="2"/>
+      <secondary external="true" slot="3"/>
+    </primary>
+  </devices>
 </msxconfig>

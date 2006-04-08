@@ -96,7 +96,13 @@ ExtensionConfig::ExtensionConfig(
 
 const XMLElement& ExtensionConfig::getDevices() const
 {
-	return getConfig();
+	const XMLElement& config = getConfig();
+	if (const XMLElement* devices = config.findChild("devices")) {
+		return *devices;
+	}
+	// TODO in the future make <devices> tag obligatory
+	//      (as it already is for MachineConfig)
+	return config;
 }
 
 const string& ExtensionConfig::getName() const

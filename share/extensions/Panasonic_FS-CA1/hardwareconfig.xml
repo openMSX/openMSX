@@ -2,30 +2,28 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
+  <devices>
+    <MSX-AUDIO id="Panasonic FS-CA1 MSX-Audio">
+      <io base="0xC0" num="2"/>
+      <sound>
+        <volume>12000</volume>
+        <mode>mono</mode>
+      </sound>
+      <!-- I'm not sure if this device actually has sampleRAM! -->
+      <sampleram>32</sampleram>
+    </MSX-AUDIO>
 
-  <MSX-AUDIO id="Panasonic FS-CA1 MSX-Audio">
-    <io base="0xC0" num="2"/>
-    <sound>
-      <volume>12000</volume>
-      <mode>mono</mode>
-    </sound>
-    <!-- I'm not sure if this device actually has sampleRAM! -->
-    <sampleram>32</sampleram>
-  </MSX-AUDIO>
-
-  <primary slot="any">
-
-    <secondary slot="any">
-      <ROM id="Panasonic FS-CA1 MSX-Audio ROM">
-        <mem base="0x0000" size="0x10000"/>
-        <rom>
-          <sha1>930eae7057af1652abae794072b296a59decd61b</sha1>
-          <filename>roms/fs-ca1.rom</filename>
-        </rom>
-        <mappertype>MSX-AUDIO</mappertype>
-      </ROM>
-    </secondary>
-
-  </primary>
-
+    <primary slot="any">
+      <secondary slot="any">
+        <ROM id="Panasonic FS-CA1 MSX-Audio ROM">
+          <mem base="0x0000" size="0x10000"/>
+          <rom>
+            <sha1>930eae7057af1652abae794072b296a59decd61b</sha1>
+            <filename>roms/fs-ca1.rom</filename>
+          </rom>
+          <mappertype>MSX-AUDIO</mappertype>
+        </ROM>
+      </secondary>
+    </primary>
+  </devices>
 </msxconfig>

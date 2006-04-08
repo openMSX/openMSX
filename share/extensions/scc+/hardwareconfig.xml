@@ -2,19 +2,17 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
-
-  <primary slot="any">
-
-    <secondary slot="any">
-      <SCCplus id="Konami SCC+ Cartridge with expanded RAM">
-        <mem base="0x4000" size="0x8000"/>
-        <subtype>expanded</subtype>
-        <sound>
-          <volume>13000</volume>
-        </sound>
-      </SCCplus>
-    </secondary>
-
-  </primary>
-
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <SCCplus id="Konami SCC+ Cartridge with expanded RAM">
+          <mem base="0x4000" size="0x8000"/>
+          <subtype>expanded</subtype>
+          <sound>
+            <volume>13000</volume>
+          </sound>
+        </SCCplus>
+      </secondary>
+    </primary>
+  </devices>
 </msxconfig>

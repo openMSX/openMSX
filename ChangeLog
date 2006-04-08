@@ -3,6 +3,9 @@ $Id$
 2006-04-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Made command that gets executed when a bp is hit configurable,
 	  default command is 'debug break'
+	* Allow <devices> tag in extension configs (same as machine configs)
+	  old config format is still supported
+	* Updated all extension configs to new format
 
 2006-04-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Further optimized hq2x: also reuse edge flags from top neighbour

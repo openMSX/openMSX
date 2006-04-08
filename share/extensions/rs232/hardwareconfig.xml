@@ -2,20 +2,18 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
-
-  <primary slot="any">
-
-    <secondary slot="any">
-      <MSX-RS232 id="Generic MSX RS-232">
-        <io base="0x80" num="8"/>
-        <mem base="0x4000" size="0x4000"/>
-        <rom>
-          <sha1>92a433e877626461a6481ca75c252e643752f0c4</sha1>
-          <filename>roms/rs232.rom</filename>
-        </rom>
-      </MSX-RS232>
-    </secondary>
-
-  </primary>
-
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <MSX-RS232 id="Generic MSX RS-232">
+          <io base="0x80" num="8"/>
+          <mem base="0x4000" size="0x4000"/>
+          <rom>
+            <sha1>92a433e877626461a6481ca75c252e643752f0c4</sha1>
+            <filename>roms/rs232.rom</filename>
+          </rom>
+        </MSX-RS232>
+      </secondary>
+    </primary>
+  </devices>
 </msxconfig>

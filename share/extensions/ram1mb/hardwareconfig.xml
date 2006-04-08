@@ -2,16 +2,14 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
-
-  <primary slot="any">
-
-    <secondary slot="any">
-      <MemoryMapper id="1MB External RAM">
-        <mem base="0x0000" size="0x10000"/>
-        <size>1024</size>
-      </MemoryMapper>
-    </secondary>
-
-  </primary>
-
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <MemoryMapper id="1MB External RAM">
+          <mem base="0x0000" size="0x10000"/>
+          <size>1024</size>
+        </MemoryMapper>
+      </secondary>
+    </primary>
+  </devices>
 </msxconfig>

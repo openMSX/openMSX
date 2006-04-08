@@ -2,13 +2,15 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
-  <primary slot="any">
-    <secondary slot="any">
-      <MegaRam id="MegaRam">
-        <io base="0x8e" num="1"/>
-        <mem base="0x0000" size="0x10000"/>
-        <size>512</size>
-      </MegaRam>
-    </secondary>
-  </primary>
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <MegaRam id="MegaRam">
+          <io base="0x8e" num="1"/>
+          <mem base="0x0000" size="0x10000"/>
+          <size>512</size>
+        </MegaRam>
+      </secondary>
+    </primary>
+  </devices>
 </msxconfig>
