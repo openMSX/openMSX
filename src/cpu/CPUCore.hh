@@ -94,7 +94,6 @@ public:
 	void setFreq(unsigned freq);
 
 private:
-	void doBreak2();
 	void doContinue2();
 
 	// Observer<Setting>
