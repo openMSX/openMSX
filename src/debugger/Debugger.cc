@@ -284,22 +284,29 @@ void DebugCmd::writeBlock(const vector<TclObject*>& tokens,
 }
 
 void DebugCmd::setBreakPoint(const vector<TclObject*>& tokens,
-                                       TclObject& result)
+                             TclObject& result)
 {
-	word addr = getAddress(tokens);
 	auto_ptr<BreakPoint> bp;
+	word addr;
+	auto_ptr<TclObject> command(
+		new TclObject(result.getInterpreter(), "debug break"));
+	auto_ptr<TclObject> condition;
 	switch (tokens.size()) {
-	case 3: // no condition
+	case 5: // command
+		command->setString(tokens[4]->getString());
+		command->checkCommand();
+		// fall-through
+	case 4: // condition
+		if (!tokens[3]->getString().empty()) {
+			condition.reset(new TclObject(*tokens[3]));
+			condition->checkExpression();
+		}
+		// fall-through
+	case 3: // address
+		addr = getAddress(tokens);
 		bp.reset(new BreakPoint(getCommandController().getCliComm(),
-		                        addr));
+		                        addr, command, condition));
 		break;
-	case 4: { // contional bp
-		auto_ptr<TclObject> cond(new TclObject(*tokens[3]));
-		cond->checkExpression();
-		bp.reset(new BreakPoint(getCommandController().getCliComm(),
-		                        addr, cond));
-		break;
-	}
 	default:
 		throw CommandException("Too many arguments.");
 	}
@@ -351,16 +358,18 @@ void DebugCmd::listBreakPoints(const std::vector<TclObject*>& /*tokens*/,
                                          TclObject& result)
 {
 	const CPU::BreakPoints& breakPoints = debugger.cpu->getBreakPoints();
-	ostringstream os;
-	os.fill('0');
+	string res;
 	for (CPU::BreakPoints::const_iterator it = breakPoints.begin();
 	     it != breakPoints.end(); ++it) {
 		const BreakPoint& bp = *it->second;
-		os << "bp#" << std::dec << bp.getId() << " "
-		      "0x" << std::hex << std::setw(4) << bp.getAddress() <<
-		      ' ' << bp.getCondition() << '\n';
+		TclObject line(result.getInterpreter());
+		line.addListElement("bp#" + StringOp::toString(bp.getId()));
+		line.addListElement("0x" + StringOp::toHexString(bp.getAddress(), 4));
+		line.addListElement(bp.getCondition());
+		line.addListElement(bp.getCommand());
+		res += line.getString() + '\n';
 	}
-	result.setString(os.str());
+	result.setString(res);
 }
 
 string DebugCmd::help(const vector<string>& /*tokens*/) const
@@ -373,7 +382,7 @@ string DebugCmd::help(const vector<string>& /*tokens*/) const
 		"debug write <name> <addr> <val>           write a byte to a debuggable\n"
 		"debug read_block <name> <addr> <size>     read a whole block at once\n"
 		"debug write_block <name> <addr> <values>  write a whole block at once\n"
-		"debug set_bp <addr> [<condition>]         insert a new breakpoint\n"
+		"debug set_bp <addr> [<cond>] [<cmd>]      insert a new breakpoint\n"
 		"debug remove_bp <id>                      remove a certain breapoint\n"
 		"debug list_bp                             list the active breakpoints\n"
 		"debug cont                                continue execution aftre break\n"

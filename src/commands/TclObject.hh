@@ -57,6 +57,7 @@ public:
 	  * quick check for typos.
 	  */
 	void checkExpression() const;
+	void checkCommand() const;
 
 	/** Interpret this TclObject as a command and execute it.
 	  * @param compile Should the command be compiled to bytecode? The

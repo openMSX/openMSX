@@ -193,6 +193,12 @@ void TclObject::checkExpression() const
 	parse(tmp.data(), tmp.size(), true);
 }
 
+void TclObject::checkCommand() const
+{
+	string tmp = getString();
+	parse(tmp.data(), tmp.size(), false);
+}
+
 void TclObject::parse(const char* str, int len, bool expression) const
 {
 	Tcl_Parse info;

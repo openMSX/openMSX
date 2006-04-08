@@ -541,20 +541,16 @@ template <class T> void CPUCore<T>::executeInternal()
 		}
 	} else {
 		while (!exitLoop) {
-			if (unlikely(hitBreakPoint(R))) {
-				doBreak();
-				return;
+			checkBreakPoints(R);
+			if (slowInstructions == 0) {
+				scheduler.schedule(T::getTime());
+				cpuTracePre();
+				executeFast();
+				cpuTracePost();
 			} else {
-				if (slowInstructions == 0) {
-					scheduler.schedule(T::getTime());
-					cpuTracePre();
-					executeFast();
-					cpuTracePost();
-				} else {
-					slowInstructions--;
-					scheduler.schedule(T::getTime());
-					executeSlow();
-				}
+				slowInstructions--;
+				scheduler.schedule(T::getTime());
+				executeSlow();
 			}
 		}
 	}
