@@ -68,7 +68,7 @@ public:
 	std::string executeCommand(bool compile = false);
 
 private:
-	TclObject& operator==(const TclObject&);
+	TclObject& operator=(const TclObject&);
 
 	void init(Tcl_Obj* obj_);
 	void unshare();
