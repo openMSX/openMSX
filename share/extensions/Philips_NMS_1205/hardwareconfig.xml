@@ -2,6 +2,13 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
+  <info>
+    <manufacturer>Philips</manufacturer>
+    <code>NMS-1205</code>
+    <release_year>1986</release_year>
+    <description>Philips' Yamaha AY-8910 MSX-AUDIO cartridge with sound sampler and MIDI.</description>
+    <type>sound expansion</type>
+  </info>
   <devices>
     <MSX-AUDIO id="Philips NMS 1205 Music Module MSX-Audio">
       <io base="0xC0" num="2"/>

@@ -2,6 +2,13 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
+  <info>
+    <manufacturer>Toshiba</manufacturer>
+    <code>HX-MU900</code>
+    <release_year>1986</release_year>
+    <description>Toshiba's Yamaha AY-8910 MSX-AUDIO cartridge.</description>
+    <type>sound expansion</type>
+  </info>
   <devices>
     <MSX-AUDIO id="Toshiba HX-MU900 MSX-Audio">
       <io base="0xC0" num="2"/>

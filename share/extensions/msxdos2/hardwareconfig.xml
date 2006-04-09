@@ -2,6 +2,13 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
+  <info>
+    <manufacturer>ASCII</manufacturer>
+    <code></code>
+    <release_year>1990</release_year>
+    <description>Generic MSX-DOS 2 cartridge, as was spread in Europe.</description>
+    <type>OS ROM</type>
+  </info>
   <devices>
     <primary slot="any">
       <secondary slot="any">

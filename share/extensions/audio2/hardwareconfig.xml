@@ -7,6 +7,13 @@
      used by some software to detect the Music Module. That software is not
      interested in MSX-Audio 2, by the way... -->
 <msxconfig>
+  <info>
+    <manufacturer/>
+    <code/>
+    <release_year>1986</release_year>
+    <description>Generic Yamaha AY-8910 MSX-AUDIO, on alternative I/O ports.</description>
+    <type>sound expansion</type>
+  </info>
   <devices>
     <MSX-AUDIO id="Generic MSX-Audio 2">
       <io base="0xC2" num="2"/>

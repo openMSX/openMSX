@@ -2,6 +2,13 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
+  <info>
+    <manufacturer/>
+    <code/>
+    <release_year/>
+    <description>A hardware modification that makes direct access to VRAM possible. This is the version for primary slots.</description>
+    <type>hardware mod</type>
+  </info>
   <devices>
     <primary slot="0">
       <ADVram id="ADVRAM">

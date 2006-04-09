@@ -1,5 +1,9 @@
 $Id$
 
+2006-04-09 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added <info> tags for extensions as well. Please check; most likely
+	  not all data is correct. But it's useful for GUI's/launchers!
+
 2006-04-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Made command that gets executed when a bp is hit configurable,
 	  default command is 'debug break'

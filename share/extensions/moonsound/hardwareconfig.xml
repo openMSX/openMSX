@@ -2,6 +2,13 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
+  <info>
+    <manufacturer>Sunrise</manufacturer>
+    <code>MoonSound</code>
+    <release_year>1995</release_year>
+    <description>Yamaha OPL4 based sound expansion with wavetable.</description>
+    <type>sound expansion</type>
+  </info>
   <devices>
     <MoonSound id="Sunrise MoonSound">
       <io base="0x7e" num="2"/>

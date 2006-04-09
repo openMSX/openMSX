@@ -2,6 +2,13 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
+  <info>
+    <manufacturer>Digital Design</manufacturer>
+    <code>MegaRAM DISK</code>
+    <release_year></release_year>
+    <description>MegaRAM with built in RAM disk.</description>
+    <type>RAM disk expansion</type>
+  </info>
   <devices>
     <primary slot="any">
       <secondary slot="any">

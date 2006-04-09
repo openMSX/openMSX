@@ -2,10 +2,17 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
+  <info>
+    <manufacturer>Panasoft</manufacturer>
+    <code>SW-M004</code>
+    <release_year>1989</release_year>
+    <description>Yamaha YM-2413 based sound expansion, with SRAM.</description>
+    <type>sound expansion</type>
+  </info>
   <devices>
     <primary slot="any">
       <secondary slot="any">
-        <FMPAC id="PanaSoft SW-M004 FMPAC">
+        <FMPAC id="Panasoft SW-M004 FMPAC">
           <io base="0x7C" num="2" type="O"/>
           <mem base="0x4000" size="0x4000"/>
           <sound>

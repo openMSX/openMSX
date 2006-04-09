@@ -2,6 +2,13 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
+  <info>
+    <manufacturer>Sunrise</manufacturer>
+    <code></code>
+    <release_year>1995</release_year>
+    <description>ATA-IDE interface with hard disk.</description>
+    <type>external hard disk</type>
+  </info>
   <devices>
     <primary slot="any">
       <secondary slot="any">

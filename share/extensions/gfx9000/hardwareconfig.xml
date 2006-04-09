@@ -2,6 +2,13 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
+  <info>
+    <manufacturer>Sunrise</manufacturer>
+    <code>GFX9000</code>
+    <release_year>1994</release_year>
+    <description>Yamaha V9990 based graphics expansion.</description>
+    <type>graphics expansion</type>
+  </info>
   <devices>
     <V9990 id="Sunrise GFX9000">
       <io base="0x60" num="0x10"/>

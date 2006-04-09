@@ -2,6 +2,13 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
+  <info>
+    <manufacturer>Digital Design</manufacturer>
+    <code>DDX 3.0</code>
+    <release_year></release_year>
+    <description>Double Sided Double Density port-based external floppy disk drive.</description>
+    <type>external disk drive</type>
+  </info>
   <devices>
     <primary slot="any">
       <secondary slot="any">

@@ -2,6 +2,13 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
+  <info>
+    <manufacturer>Sony</manufacturer>
+    <code>HBK-30</code>
+    <release_year>1985</release_year>
+    <description>External Double Sided Double Density 3.5" disk drive.</description>
+    <type>external disk drive</type>
+  </info>
   <devices>
     <primary slot="any">
       <secondary slot="any">

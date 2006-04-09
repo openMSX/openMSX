@@ -2,6 +2,13 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
+  <info>
+    <manufacturer>openMSX Team</manufacturer>
+    <code></code>
+    <release_year>2003</release_year>
+    <description>Artificial device to create debug output, see the openMSX manual.</description>
+    <type>debug tool</type>
+  </info>
   <devices>
     <DebugDevice id="Debug Device">
       <io base="0x2E" num="2" type="O"/>
