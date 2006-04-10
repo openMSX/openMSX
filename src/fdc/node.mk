@@ -28,6 +28,7 @@ SRC_HDR:= \
 	DiskContainer \
 	SectorAccessibleDisk \
 	FileManipulator \
+	BootBlocks \
 
 include build/node-end.mk
 
