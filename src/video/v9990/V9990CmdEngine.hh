@@ -347,6 +347,10 @@ private:
 	  */
 	byte bitsLeft;
 
+	/** Partial data for LMMC command
+	  */ 
+	byte partial;
+
 	/** All commands
 	  */
 	V9990Cmd* commands[16][6];

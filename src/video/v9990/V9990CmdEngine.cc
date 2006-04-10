@@ -483,13 +483,15 @@ inline void V9990CmdEngine::V9990Bpp8::psetColor(
 // 16 bpp -------------------------------------------------------------
 inline unsigned V9990CmdEngine::V9990Bpp16::getPitch(unsigned width)
 {
-	return width * 2;
+	//return width * 2;
+	return width;
 }
 
 inline unsigned V9990CmdEngine::V9990Bpp16::addressOf(
 	unsigned x, unsigned y, unsigned pitch)
 {
-	return V9990VRAM::transformBx(((x * 2) & (pitch - 1)) + y * pitch) & 0x7FFFF;
+	//return V9990VRAM::transformBx(((x * 2) & (pitch - 1)) + y * pitch) & 0x7FFFF;
+	return ((x & (pitch - 1)) + y * pitch) & 0x3FFFF;
 }
 
 inline word V9990CmdEngine::V9990Bpp16::point(
@@ -799,9 +801,7 @@ template <class Mode>
 void V9990CmdEngine::CmdLMMC<Mode>::start(const EmuTime& /*time*/)
 {
 	if (Mode::BITS_PER_PIXEL == 16) {
-		engine.dstAddress = Mode::addressOf(
-			engine.DX, engine.DY,
-			Mode::getPitch(engine.vdp.getImageWidth()));
+		engine.bitsLeft = 1;
 	}
 	engine.ANX = engine.NX;
 	engine.ANY = engine.NY;
@@ -814,31 +814,28 @@ void V9990CmdEngine::CmdLMMC<V9990CmdEngine::V9990Bpp16>::execute(
 {
 	if (engine.status & TR) {
 		engine.status &= ~TR;
-		unsigned pitch = V9990Bpp16::getPitch(engine.vdp.getImageWidth());
-		const byte* lut = V9990Bpp16::getLogOpLUT(engine.LOG);
-
-		byte value = vram.readVRAMDirect(engine.dstAddress);
-		//byte mask = (engine.dstAddress & 1) ? engine.WM & 0xFF
-		//                                     : engine.WM >> 8;
-		value = V9990Bpp16::logOp(lut, engine.data, value, engine.LOG);
-		vram.writeVRAMDirect(engine.dstAddress, value); // TODO mask
-		if (engine.dstAddress & 0x40000) {
+		if (engine.bitsLeft) {
+			engine.bitsLeft = 0;
+			engine.partial = engine.data;
+		} else {
+			engine.bitsLeft = 1;
+			word value = (engine.data << 8) | engine.partial;
+			unsigned pitch = V9990Bpp16::getPitch(engine.vdp.getImageWidth());
+			const byte* lut = V9990Bpp16::getLogOpLUT(engine.LOG);
+			V9990Bpp16::pset(vram, engine.DX, engine.DY, pitch,
+			           value, engine.WM, lut, engine.LOG);
 			int dx = (engine.ARG & DIX) ? -1 : 1;
 			engine.DX += dx;
-			if (!(--(engine.ANX))) {
+			if (!--(engine.ANX)) {
 				int dy = (engine.ARG & DIY) ? -1 : 1;
 				engine.DX -= (engine.NX * dx);
 				engine.DY += dy;
-				if(! (--(engine.ANY))) {
+				if (!--(engine.ANY)) {
 					engine.cmdReady();
 				} else {
 					engine.ANX = engine.NX;
 				}
 			}
-			engine.dstAddress = V9990Bpp16::addressOf(
-				engine.DX, engine.DY, pitch);
-		} else {
-			engine.dstAddress += 0x40000;
 		}
 	}
 }
@@ -1155,16 +1152,16 @@ void V9990CmdEngine::CmdBMXL<V9990CmdEngine::V9990Bpp16>::execute(
 	const byte* lut = V9990Bpp16::getLogOpLUT(engine.LOG);
 
 	while (true) {
-		word src  = vram.readVRAMBx(engine.srcAddress + 0) +
-		            vram.readVRAMBx(engine.srcAddress + 1) * 256;
+		word src = vram.readVRAMBx(engine.srcAddress + 0) +
+		           vram.readVRAMBx(engine.srcAddress + 1) * 256;
+		engine.srcAddress += 2;
 		V9990Bpp16::pset(vram, engine.DX, engine.DY, pitch,
 		                 src, engine.WM, lut, engine.LOG);
-		engine.srcAddress += 2;
 		engine.DX += dx;
-		if (!(--(engine.ANX))) {
+		if (!--(engine.ANX)) {
 			engine.DX -= (engine.NX * dx);
 			engine.DY += dy;
-			if(! (--(engine.ANY))) {
+			if (!--(engine.ANY)) {
 				engine.cmdReady();
 				return;
 			} else {
@@ -1187,7 +1184,6 @@ void V9990CmdEngine::CmdBMXL<Mode>::execute(const EmuTime& /*time*/)
 		for (int i = 0; (engine.ANY > 0) && (i < Mode::PIXELS_PER_BYTE); ++i) {
 			Mode::pset(vram, engine.DX, engine.DY, pitch,
 			           data, engine.WM, lut, engine.LOG);
-
 			engine.DX += dx;
 			if (!--(engine.ANX)) {
 				engine.DX -= (engine.NX * dx);
@@ -1237,7 +1233,7 @@ void V9990CmdEngine::CmdBMLX<Mode>::execute(const EmuTime& /*time*/)
 	word tmp = 0;
 	engine.bitsLeft = 16;
 	while (true) {
-		typename Mode::Type src  = Mode::point(vram, engine.SX, engine.SY, pitch);
+		typename Mode::Type src = Mode::point(vram, engine.SX, engine.SY, pitch);
 		src = Mode::shift(src, engine.SX, 0); // TODO optimize
 		tmp <<= Mode::BITS_PER_PIXEL;
 		tmp |= src;
