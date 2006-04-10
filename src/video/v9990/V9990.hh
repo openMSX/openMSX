@@ -256,7 +256,7 @@ public:
 
 	/** return sprite palette offset
 	  */
-	inline byte getSpritePaletteOffset(void) {
+	inline byte getSpritePaletteOffset() {
 		return regs[SPRITE_PALETTE_CONTROL] << 2;
 	}
 

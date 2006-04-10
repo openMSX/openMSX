@@ -4,6 +4,7 @@ $Id$
 	* Fixed bug in V9990 command engine:
 	   LMMC command was wrong in 16bpp mode
 	* Optimized address calculation for 16bpp v9990 commands
+	* Fixed V9990 cursor color
 
 2006-04-09 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added <info> tags for extensions as well. Please check; most likely

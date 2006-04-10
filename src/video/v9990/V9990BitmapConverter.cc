@@ -255,7 +255,7 @@ void V9990BitmapConverter<Pixel>::drawCursor(
 	unsigned x = vram.readVRAMBx(attrAddr + 4) + (attr & 3) * 256;
 
 	// TODO EOR colors
-	Pixel color = palette64[(vdp.getPaletteOffset() << 2) + (attr >> 6)];
+	Pixel color = palette64[(vdp.getSpritePaletteOffset() << 2) + (attr >> 6)];
 	for (int i = 0; i < 32; ++i) {
 		if (pattern & 0x80000000) {
 			buffer[(x + i) & 1023] = color;
