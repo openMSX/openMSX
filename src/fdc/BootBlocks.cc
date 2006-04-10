@@ -1,6 +1,5 @@
 // $Id$
 
-#include "openmsx.hh"
 #include "BootBlocks.hh"
 
 namespace openmsx {

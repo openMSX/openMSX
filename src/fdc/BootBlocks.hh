@@ -3,6 +3,8 @@
 #ifndef BOOTBLOCKS_HH
 #define BOOTBLOCKS_HH
 
+#include "openmsx.hh"
+
 namespace openmsx {
 
 class BootBlocks {
