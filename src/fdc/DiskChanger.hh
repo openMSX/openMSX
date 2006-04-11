@@ -15,6 +15,7 @@ class FileManipulator;
 class Disk;
 class DiskCommand;
 class CliComm;
+class GlobalSettings;
 
 class DiskChanger : public DiskContainer
 {
@@ -47,6 +48,7 @@ private:
 	friend class DiskCommand;
 	const std::auto_ptr<DiskCommand> diskCommand;
 	CliComm& cliComm;
+	GlobalSettings& globalSettings;
 };
 
 } // namespace openmsx

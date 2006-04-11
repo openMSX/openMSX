@@ -1,5 +1,10 @@
 $Id$
 
+2006-04-11 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added new 'bootsector' setting. You can use it to let DirAsDSK use a
+	  DOS2 (default) boot sector or a DOS1 one. Also put the boot sector
+	  data in one single (dummy) class, yesterday.
+
 2006-04-10 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed bug in V9990 command engine:
 	   LMMC command was wrong in 16bpp mode

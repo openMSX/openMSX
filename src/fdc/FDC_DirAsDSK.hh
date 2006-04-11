@@ -9,6 +9,7 @@
 namespace openmsx {
 
 class CliComm;
+class GlobalSettings;
 
 struct MSXDirEntry {
 	byte filename[8];
@@ -35,7 +36,7 @@ struct ReverseSector {
 class FDC_DirAsDSK : public SectorBasedDisk
 {
 public:
-	FDC_DirAsDSK(CliComm& cliComm, const std::string& fileName);
+	FDC_DirAsDSK(CliComm& cliComm, GlobalSettings& globalSettings, const std::string& fileName);
 	virtual ~FDC_DirAsDSK();
 
 	virtual bool writeProtected();

@@ -3,6 +3,8 @@
 #include "FDC_DirAsDSK.hh"
 #include "CliComm.hh"
 #include "BootBlocks.hh"
+#include "GlobalSettings.hh"
+#include "EnumSetting.hh"
 #include <algorithm>
 #include <cassert>
 #include <cstdio>
@@ -118,7 +120,7 @@ string FDC_DirAsDSK::makeSimpleMSXFileName(const string& fullfilename)
 	return file + ext;
 }
 
-FDC_DirAsDSK::FDC_DirAsDSK(CliComm& cliComm_, const string& fileName)
+FDC_DirAsDSK::FDC_DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings, const string& fileName)
 	: SectorBasedDisk(fileName)
 	, cliComm(cliComm_)
 {
@@ -145,7 +147,7 @@ FDC_DirAsDSK::FDC_DirAsDSK(CliComm& cliComm_, const string& fileName)
 	tmpfilename+="/"+BootBlockFileName ;
 
 	// Assign default boot disk to this instance
-	memcpy(BootBlock, BootBlocks::dos1BootBlock, SECTOR_SIZE);
+	memcpy(BootBlock, (static_cast<const EnumSetting<bool>*>(&(globalSettings.getBootSectorSetting()))->getValue()) ? BootBlocks::dos2BootBlock : BootBlocks::dos1BootBlock, SECTOR_SIZE);
 
 	// try to read boot block from file
 	struct stat fst;

@@ -468,6 +468,18 @@ blur
     set blur <value>  change the value
 
 
+bootsector
+----------
+
+  Sets the boot sector type for DirAsDSK. Default: DOS2. Only relevant on
+  turboR, because it boots differently depending on this sector of the disk
+  in drive A.
+
+  usage:
+    set bootsector       shows the current setting
+    set bootsector DOS1  use a DOS1 boot sector
+
+
 cmdtiming
 ---------
 

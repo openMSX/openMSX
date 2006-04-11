@@ -13,6 +13,7 @@ class BooleanSetting;
 class StringSetting;
 class ThrottleManager;
 class XMLElement;
+template <class T> class EnumSetting;
 
 /**
  * This class contains settings that are used by several other class
@@ -32,6 +33,7 @@ public:
 	BooleanSetting& getConsoleSetting();
 	StringSetting&  getUserDirSetting();
 	StringSetting&  getUMRCallBackSetting();
+	EnumSetting<bool>& getBootSectorSetting();
 	ThrottleManager& getThrottleManager();
 	XMLElement& getMediaConfig();
 
@@ -45,6 +47,7 @@ private:
 	std::auto_ptr<BooleanSetting> consoleSetting;
 	std::auto_ptr<StringSetting>  userDirSetting;
 	std::auto_ptr<StringSetting>  umrCallBackSetting;
+	std::auto_ptr<EnumSetting<bool> >  bootSectorSetting;
 	std::auto_ptr<ThrottleManager> throttleManager;
 	std::auto_ptr<XMLElement> mediaConfig;
 };

@@ -13,6 +13,7 @@
 #include "FileException.hh"
 #include "CommandException.hh"
 #include "CliComm.hh"
+#include "GlobalSettings.hh"
 #include "TclObject.hh"
 
 using std::set;
@@ -40,6 +41,7 @@ DiskChanger::DiskChanger(const string& driveName_,
 	: driveName(driveName_), manipulator(manipulator_)
 	, diskCommand(new DiskCommand(commandController, *this))
 	, cliComm(commandController.getCliComm())
+	, globalSettings(commandController.getGlobalSettings())
 {
 	ejectDisk();
 	manipulator.registerDrive(*this, driveName);
@@ -100,7 +102,7 @@ void DiskChanger::insertDisk(const string& diskImage,
 				//can be resolved and will be accepted as dsk name
 				// try to create fake DSK from a dir on host OS
 				newDisk.reset(new FDC_DirAsDSK(
-					cliComm, diskImage));
+					cliComm, globalSettings, diskImage));
 			} catch (MSXException& e) {
 				// then try normal DSK
 				newDisk.reset(new DSKDiskImage(diskImage));

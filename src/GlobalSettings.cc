@@ -8,6 +8,7 @@
 #include "StringSetting.hh"
 #include "SettingsConfig.hh"
 #include "ThrottleManager.hh"
+#include "EnumSetting.hh"
 
 namespace openmsx {
 
@@ -30,6 +31,12 @@ GlobalSettings::GlobalSettings(CommandController& commandController_)
 	        "user_directories", "list of user directories", ""));
 	umrCallBackSetting.reset(new StringSetting(commandController,
 	        "umr_callback", "TCL proc to call when an UMR is detected", ""));
+	EnumSetting<bool>::Map cmdMap;
+	cmdMap["DOS1"] = false;
+	cmdMap["DOS2"] = true;
+	bootSectorSetting.reset(new EnumSetting<bool>(commandController,
+		"bootsector", "boot sector type for dir-as-dsk", true, cmdMap));
+
 	throttleManager.reset(new ThrottleManager(commandController));
 }
 
@@ -76,6 +83,10 @@ StringSetting& GlobalSettings::getUMRCallBackSetting()
 StringSetting& GlobalSettings::getUserDirSetting()
 {
 	return *userDirSetting.get();
+}
+EnumSetting<bool>& GlobalSettings::getBootSectorSetting()
+{
+	return *bootSectorSetting.get();
 }
 
 XMLElement& GlobalSettings::getMediaConfig()
