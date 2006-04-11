@@ -457,6 +457,20 @@ audio-inputfilename
     set audio-inputfilename mysample.wav   read from mysample.wav
 
 
+autoruncassettes
+----------------
+
+  Switches the auto-run cassettes feature on or off. When it's enabled,
+  openMSX will try to type the proper loading instruction when a cassette
+  is inserted. Notes: this only works with CAS images for now and it is
+  still an experimental feature.
+
+  usage:
+    set autoruncassettes      shows the current setting
+    set autoruncassettes on   try to run cassettes automatically
+    set autoruncassettes off  disable the feature
+
+
 blur
 ----
 
@@ -1037,6 +1051,19 @@ throttle
     set throttle on   turn throttle mode on
     set throttle off  turn throttle mode off
     
+
+umr_callback
+------------
+
+  The TCL procedure to be called when an Uninitialized Memory Read has been
+  detected. This is only useful for debugging MSX programs. An example
+  callback is available in scripts/umrcallback.tcl. You can active it
+  with 'set umr_callback umrcallback'. 
+
+  usage:
+    set umr_callback              shows the current UMR callback setting
+    set umr_callback umrcallback  sets callback proc to 'umrcallback'
+
 
 user_directories
 ----------------
