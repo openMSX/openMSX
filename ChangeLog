@@ -1,5 +1,10 @@
 $Id$
 
+2006-04-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Enabled support for single sided disk drives:
+	   TODO update hardwareconfig.xml for machines with single sided
+	        drives
+
 2006-04-11 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added new 'bootsector' setting. You can use it to let DirAsDSK use a
 	  DOS2 (default) boot sector or a DOS1 one. Also put the boot sector

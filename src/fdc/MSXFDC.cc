@@ -15,6 +15,7 @@ MSXFDC::MSXFDC(MSXMotherBoard& motherBoard, const XMLElement& config,
 	: MSXDevice(motherBoard, config, time)
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
 {
+	bool singleSided = config.findChild("singlesided");
 	int numDrives = config.getChildDataAsInt("drives", 1);
 	if ((0 >= numDrives) || (numDrives >= 4)) {
 		throw MSXException("Invalid number of drives: " +
@@ -22,12 +23,21 @@ MSXFDC::MSXFDC(MSXMotherBoard& motherBoard, const XMLElement& config,
 	}
 	int i = 0;
 	for ( ; i < numDrives; ++i) {
-		drives[i].reset(new DoubleSidedDrive(
-			getMotherBoard().getCommandController(),
-			getMotherBoard().getEventDistributor(),
-			getMotherBoard().getScheduler(),
-			getMotherBoard().getFileManipulator(),
-			time));
+		if (singleSided) {
+			drives[i].reset(new SingleSidedDrive(
+				getMotherBoard().getCommandController(),
+				getMotherBoard().getEventDistributor(),
+				getMotherBoard().getScheduler(),
+				getMotherBoard().getFileManipulator(),
+				time));
+		} else {
+			drives[i].reset(new DoubleSidedDrive(
+				getMotherBoard().getCommandController(),
+				getMotherBoard().getEventDistributor(),
+				getMotherBoard().getScheduler(),
+				getMotherBoard().getFileManipulator(),
+				time));
+		}
 	}
 	for ( ; i < 4; ++i) {
 		drives[i].reset(new DummyDrive());
