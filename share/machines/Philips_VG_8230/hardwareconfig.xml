@@ -88,7 +88,7 @@
       <secondary slot="3">
         <WD2793 id="Memory Mapped FDC">
           <broken_fdc_read>false</broken_fdc_read>
-	  <singlesided/>
+          <singlesided/>
           <drives>1</drives>
           <rom>
             <filename>roms/vg8230_disk.rom</filename>
