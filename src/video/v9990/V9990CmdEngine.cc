@@ -1279,29 +1279,59 @@ void V9990CmdEngine::CmdBMLL<Mode>::start(const EmuTime& time)
 	engine.srcAddress = (engine.SX & 0xFF) + ((engine.SY & 0x7FF) << 8);
 	engine.dstAddress = (engine.DX & 0xFF) + ((engine.DY & 0x7FF) << 8);
 	engine.nbBytes    = (engine.NX & 0xFF) + ((engine.NY & 0x7FF) << 8);
+	if (Mode::BITS_PER_PIXEL == 16) {
+		// TODO is this correct???
+		// drop last bit
+		engine.srcAddress >>= 1;
+		engine.dstAddress >>= 1;
+		engine.nbBytes    >>= 1;
+	}
 
 	// TODO should be done by sync
 	execute(time);
+}
+
+template <>
+void V9990CmdEngine::CmdBMLL<V9990CmdEngine::V9990Bpp16>::execute(const EmuTime& /*time*/)
+{
+	// TODO DIX DIY?
+	const byte* lut = V9990Bpp16::getLogOpLUT(engine.LOG);
+	bool transp = engine.LOG & 0x10;
+	do {
+		// VRAM always mapped as in Bx modes
+		word srcColor = vram.readVRAMDirect(engine.srcAddress + 0x00000) +
+		                vram.readVRAMDirect(engine.srcAddress + 0x40000) * 256;
+		word dstColor = vram.readVRAMDirect(engine.dstAddress + 0x00000) +
+		                vram.readVRAMDirect(engine.dstAddress + 0x40000) * 256;
+		word newColor = V9990Bpp16::logOp(lut, srcColor, dstColor, transp);
+		word result = (dstColor & ~engine.WM) | (newColor & engine.WM);
+		vram.writeVRAMDirect(engine.dstAddress + 0x00000, result & 0xFF);
+		vram.writeVRAMDirect(engine.dstAddress + 0x40000, result >> 8);
+		engine.srcAddress = (engine.srcAddress + 1) & 0x3FFFF;
+		engine.dstAddress = (engine.dstAddress + 1) & 0x3FFFF;
+		engine.nbBytes    = (engine.nbBytes    - 1) & 0x3FFFF;
+	} while (engine.nbBytes);
+	engine.cmdReady();
 }
 
 template <class Mode>
 void V9990CmdEngine::CmdBMLL<Mode>::execute(const EmuTime& /*time*/)
 {
 	// TODO DIX DIY?
-	//      Log op?
-	while (engine.nbBytes) {
+	const byte* lut = Mode::getLogOpLUT(engine.LOG);
+	do {
 		// VRAM always mapped as in Bx modes
-		byte src = vram.readVRAMBx(engine.srcAddress);
-		byte dst = vram.readVRAMBx(engine.dstAddress);
-		byte mask = (engine.dstAddress & 1)
-		          ? (engine.WM >> 8) : (engine.WM & 0xFF);
-		mask = 255; // TODO check
-		byte res = (src & mask) | (dst & ~mask);
-		vram.writeVRAMBx(engine.dstAddress, res);
-		++engine.srcAddress;
-		++engine.dstAddress;
-		--engine.nbBytes;
-	}
+		byte srcColor = vram.readVRAMBx(engine.srcAddress);
+		unsigned addr = V9990VRAM::transformBx(engine.dstAddress);
+		byte dstColor = vram.readVRAMDirect(addr);
+		byte newColor = Mode::logOp(lut, srcColor, dstColor);
+		byte mask = (addr & 0x40000) ? (engine.WM >> 8) : (engine.WM & 0xFF);
+		byte result = (dstColor & ~mask) | (newColor & mask);
+		vram.writeVRAMDirect(addr, result);
+		engine.srcAddress = (engine.srcAddress + 1) & 0x7FFFF;
+		engine.dstAddress = (engine.dstAddress + 1) & 0x7FFFF;
+		engine.nbBytes    = (engine.nbBytes    - 1) & 0x7FFFF;
+	} while (engine.nbBytes);
 	engine.cmdReady();
 }
 

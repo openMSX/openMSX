@@ -1,5 +1,9 @@
 $Id$
 
+2006-04-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed(?) V9990 BMLL command, it should do logical operations:
+	   not yet tested
+
 2006-04-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Enabled support for single sided disk drives:
 	   TODO update hardwareconfig.xml for machines with single sided
