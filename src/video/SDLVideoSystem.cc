@@ -265,6 +265,7 @@ void SDLVideoSystem::signalEvent(const Event& event)
 {
 	// TODO: Currently window size depends only on scale factor.
 	//       Maybe in the future it will be handled differently.
+	(void)event;
 	assert(event.getType() == OPENMSX_RESIZE_EVENT);
 	//const ResizeEvent& resizeEvent = static_cast<const ResizeEvent&>(event);
 	//resize(resizeEvent.getX(), resizeEvent.getY());
