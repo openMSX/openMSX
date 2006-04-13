@@ -33,18 +33,30 @@ proc __format_table { entries columns frmt sep func } {
 	}
 }
 
-set_help_text vdpregs "Gives an overview of the V99x8 registers."
-proc vdpreg { reg } {
-	debug read "VDP regs" $reg
+set_help_text vdpreg "Read or write a V99x8 register."
+proc vdpreg {reg {value ""}} {
+	if {$value eq ""} {
+		debug read "VDP regs" $reg
+	} else {
+		debug write "VDP regs" $reg $value
+	}
 }
+
+set_help_text vdpregs "Gives an overview of the V99x8 registers."
 proc vdpregs { } {
 	__format_table 32 4 "%2d : 0x%02x" "   " vdpreg
 }
 
-set_help_text v9990regs "Gives an overview of the V9990 registers."
-proc v9990reg { reg } {
-	debug read "Sunrise GFX9000 regs" $reg
+set_help_text v9990reg "Read or write a V9990 register."
+proc v9990reg {reg {value ""}} {
+	if {$value eq ""} {
+		debug read "Sunrise GFX9000 regs" $reg
+	} else {
+		debug write "Sunrise GFX9000 regs" $reg $value
+	}
 }
+
+set_help_text v9990regs "Gives an overview of the V9990 registers."
 proc v9990regs { } {
 	__format_table 55 5 "%2d : 0x%02x" "   " v9990reg
 }
