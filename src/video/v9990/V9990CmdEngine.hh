@@ -3,6 +3,9 @@
 #ifndef V9990CMDENGINE_HH
 #define V9990CMDENGINE_HH
 
+#include "V9990DisplayTiming.hh"
+#include "Observer.hh"
+#include "Clock.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 
@@ -11,10 +14,12 @@ namespace openmsx {
 class V9990;
 class V9990VRAM;
 class EmuTime;
+class Setting;
+class RenderSettings;
 
 /** Command engine.
   */
-class V9990CmdEngine : private noncopyable
+class V9990CmdEngine : private Observer<Setting>, private noncopyable
 {
 public:
 	// status bits
@@ -22,7 +27,8 @@ public:
 	static const byte BD = 0x10;
 	static const byte CE = 0x01;
 
-	V9990CmdEngine(V9990& vdp, const EmuTime& time);
+	V9990CmdEngine(V9990& vdp, const EmuTime& time,
+	               RenderSettings& settings);
 	~V9990CmdEngine();
 
 	/** Re-initialise the command engine's state
@@ -198,6 +204,7 @@ private:
 	protected:
 		V9990CmdEngine& engine;
 		V9990VRAM&      vram;
+		Clock<V9990DisplayTiming::UC_TICKS_PER_SECOND> clock;
 	};
 
 	class CmdSTOP: public V9990Cmd {
@@ -375,6 +382,12 @@ private:
 	  */
 	word ASX, ADX, ANX, ANY;
 
+	RenderSettings& settings;
+
+	/** Real command timing or instantaneous (broken) timing
+	 */
+	bool brokenTiming;
+	
 	/** Create the engines for a given command.
 	  * For each bitdepth, a separate engine is created.
 	  */
@@ -383,11 +396,16 @@ private:
 
 	/** The running command is complete. Perform neccessary clean-up actions.
 	  */
-	void cmdReady();
+	void cmdReady(const EmuTime& time);
 
 	/** For debugging: Print the info about the current command.
 	  */
 	void reportV9990Command();
+
+	// Observer<Setting>
+	virtual void update(const Setting& setting);
+
+	unsigned getTiming() const;
 };
 
 } // namespace openmsx

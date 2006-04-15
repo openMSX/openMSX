@@ -94,7 +94,8 @@ V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config,
 	vram.reset(new V9990VRAM(*this, time));
 
 	// create Command Engine
-	cmdEngine.reset(new V9990CmdEngine(*this, time));
+	cmdEngine.reset(new V9990CmdEngine(*this, time,
+		getMotherBoard().getDisplay().getRenderSettings()));
 
 	// Start with NTSC timing
 	palTiming = false;

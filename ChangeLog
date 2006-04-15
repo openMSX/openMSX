@@ -1,5 +1,9 @@
 $Id$
 
+2006-04-15 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented infrastructure for V9990 command timing:
+	   data in timing table is still _very_ rough though
+
 2006-04-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed(?) V9990 BMLL command, it should do logical operations:
 	   not yet tested
