@@ -67,7 +67,7 @@ byte V9990P2Converter<Pixel>::getPixel(
 {
 	// TODO optimization: more specific readVRAMP2 methods
 	x &= 1023;
-	y &= 1023;
+	y &= 511;
 	unsigned int address = nameTable + (((y / 8) * 128 + (x / 8)) * 2);
 	unsigned int pattern = (vram.readVRAMP2(address + 0) +
 	                        vram.readVRAMP2(address + 1) * 256) & 0x3FFF;
