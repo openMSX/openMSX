@@ -1470,16 +1470,28 @@ void V9990CmdEngine::CmdSRCH<Mode>::execute(const EmuTime& time)
 	unsigned delta = SRCH_TIMING[engine.getTiming()];
 	unsigned width = engine.vdp.getImageWidth();
 	unsigned pitch = Mode::getPitch(width);
+	typename Mode::Type mask = (1 << Mode::BITS_PER_PIXEL) -1;
 
-	typename Mode::Type CL = engine.fgCol; // TODO
 	int TX = (engine.ARG & DIX) ? -1 : 1;
-	bool AEQ = (engine.ARG & NEQ) != 0; // TODO: Do we look for "==" or "!="?
+	bool AEQ = engine.ARG & NEQ; 
 
 	while (clock.before(time)) {
 		clock += delta;
-		typename Mode::Type value = Mode::point(vram, engine.ASX, engine.SY, pitch);
-		value = Mode::shift(value, engine.SX, 0); // TODO check
-		if ((value == CL) ^ AEQ) {
+		typename Mode::Type value;
+		typename Mode::Type col;
+		typename Mode::Type mask2;
+		if (Mode::BITS_PER_PIXEL == 16) {
+			value = Mode::point(vram, engine.ASX, engine.SY, pitch);
+			col = engine.fgCol;
+			mask2 = (typename Mode::Type)0xFFFF; // cast to avoid warning
+		} else {
+			// TODO check
+			unsigned addr = Mode::addressOf(engine.ASX, engine.SY, pitch);
+			value = vram.readVRAMDirect(addr);
+			col = (addr & 0x40000) ? (engine.fgCol >> 8) : (engine.fgCol & 0xFF);
+			mask2 = Mode::shift(mask, 3, engine.ASX);
+		}
+		if (((value & mask2) == (col & mask2)) ^ AEQ) {
 			engine.status |= BD; // border detected
 			engine.cmdReady(clock.getTime());
 			engine.borderX = engine.ASX;

@@ -1,5 +1,9 @@
 $Id$
 
+2006-04-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* fixed V9990 SRCH command:
+	   at least paint command in power basic seems to work again
+
 2006-04-15 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented infrastructure for V9990 command timing:
 	   data in timing table is still _very_ rough though
