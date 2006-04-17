@@ -1,7 +1,6 @@
 // $Id$
 
 #include "GlobalSettings.hh"
-#include "XMLElement.hh"
 #include "FileContext.hh"
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
@@ -87,17 +86,6 @@ StringSetting& GlobalSettings::getUserDirSetting()
 EnumSetting<bool>& GlobalSettings::getBootSectorSetting()
 {
 	return *bootSectorSetting.get();
-}
-
-XMLElement& GlobalSettings::getMediaConfig()
-{
-	if (!mediaConfig.get()) {
-		mediaConfig.reset(new XMLElement("media"));
-		mediaConfig->setFileContext(
-			std::auto_ptr<FileContext>(
-				new UserFileContext(commandController)));
-	}
-	return *mediaConfig;
 }
 
 } // namespace openmsx
