@@ -20,6 +20,7 @@ class WavWriter;
 class ThrottleManager;
 class BooleanSetting;
 class TapeCommand;
+class CommandController;
 
 class MSXCassettePlayerCLI : public CLIOption, public CLIFileType
 {
@@ -33,7 +34,7 @@ public:
 	virtual const std::string& fileTypeHelp() const;
 
 private:
-	CommandLineParser& commandLineParser;
+	CommandController& commandController;
 };
 
 
@@ -105,7 +106,7 @@ private:
 	int volume;
 	EmuDuration delta;
 	EmuTime playTapeTime;
-	XMLElement* playerElem;
+	std::string casImage;
 
 	CliComm& cliComm;
 	ThrottleManager& throttleManager;
