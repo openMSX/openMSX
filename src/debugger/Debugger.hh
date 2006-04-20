@@ -10,15 +10,15 @@
 
 namespace openmsx {
 
+class MSXMotherBoard;
 class Debuggable;
-class CommandController;
 class MSXCPU;
 class DebugCmd;
 
 class Debugger
 {
 public:
-	explicit Debugger(CommandController& commandController);
+	explicit Debugger(MSXMotherBoard& motherBoard);
 	~Debugger();
 
 	void registerDebuggable  (const std::string& name, Debuggable& interface);
@@ -31,6 +31,7 @@ private:
 	Debuggable* getDebuggable(const std::string& name);
 	void getDebuggables(std::set<std::string>& result) const;
 
+	MSXMotherBoard& motherBoard;
 	friend class DebugCmd;
 	const std::auto_ptr<DebugCmd> debugCmd;
 

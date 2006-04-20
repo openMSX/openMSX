@@ -5,8 +5,11 @@
 
 #include "CPU.hh"
 #include "MSXDevice.hh"
+#include "WatchPoint.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
+#include "likely.hh"
+#include <bitset>
 #include <memory>
 
 namespace openmsx {
@@ -72,19 +75,21 @@ public:
 	 * This reads a byte from the currently selected device
 	 */
 	inline byte readMem(word address, const EmuTime& time) {
-		return ((address != 0xFFFF) || !isExpanded(primarySlotState[3]))
-			? visibleDevices[address >> 14]->readMem(address, time)
-			: 0xFF ^ subSlotRegister[primarySlotState[3]];
+		if (likely(allowReadCache[address >> CPU::CACHE_LINE_BITS])) {
+			return visibleDevices[address >> 14]->readMem(address, time);
+		} else {
+			return readMemSlow(address, time);
+		}
 	}
 
 	/**
 	 * This writes a byte to the currently selected device
 	 */
 	inline void writeMem(word address, byte value, const EmuTime& time) {
-		if ((address != 0xFFFF) || !isExpanded(primarySlotState[3])) {
+		if (likely(allowWriteCache[address >> CPU::CACHE_LINE_BITS])) {
 			visibleDevices[address>>14]->writeMem(address, value, time);
 		} else {
-			setSubSlot(primarySlotState[3], value);
+			writeMemSlow(address, value, time);
 		}
 	}
 
@@ -117,11 +122,10 @@ public:
 	 * An interval will never contain the address 0xffff.
 	 */
 	inline const byte* getReadCacheLine(word start) const {
-		if ((start == 0x10000 - CPU::CACHE_LINE_SIZE) && // contains 0xffff
-		    (isExpanded(primarySlotState[3]))) {
-			return NULL;
-		} else {
+		if (likely(allowReadCache[start >> CPU::CACHE_LINE_BITS])) {
 			return visibleDevices[start >> 14]->getReadCacheLine(start);
+		} else {
+			return NULL;
 		}
 	}
 
@@ -138,11 +142,10 @@ public:
 	 * An interval will never contain the address 0xffff.
 	 */
 	inline byte* getWriteCacheLine(word start) const {
-		if ((start == 0x10000 - CPU::CACHE_LINE_SIZE) && // contains 0xffff
-		    (isExpanded(primarySlotState[3]))) {
-			return NULL;
-		} else {
+		if (likely(allowWriteCache[start >> CPU::CACHE_LINE_BITS])) {
 			return visibleDevices[start >> 14]->getWriteCacheLine(start);
+		} else {
+			return NULL;
 		}
 	}
 
@@ -174,6 +177,11 @@ public:
 	void testUnsetExpanded(int ps, std::vector<MSXDevice*>& alreadyRemoved) const;
 	inline bool isExpanded(int ps) const { return expanded[ps]; }
 
+	void setWatchPoint(std::auto_ptr<WatchPoint> watchPoint);
+	void removeWatchPoint(WatchPoint& watchPoint);
+	typedef std::vector<WatchPoint*> WatchPoints;
+	const WatchPoints& getWatchPoints() const;
+
 protected:
 	explicit MSXCPUInterface(MSXMotherBoard& motherBoard);
 	virtual ~MSXCPUInterface();
@@ -184,10 +192,21 @@ protected:
 	void unregister_IO(MSXDevice*& devicePtr, MSXDevice* device);
 
 private:
+	byte readMemSlow(word address, const EmuTime& time);
+	void writeMemSlow(word address, byte value, const EmuTime& time);
+	void setAllowedCache();
+
+	MSXDevice*& getDevicePtr(byte port, bool isIn);
+
 	void registerSlot(MSXDevice& device,
 	                  int ps, int ss, int base, int size);
 	void unregisterSlot(MSXDevice& device,
 	                    int ps, int ss, int base, int size);
+
+	void registerIOWatch  (WatchPoint& watchPoint, MSXDevice** devices);
+	void unregisterIOWatch(WatchPoint& watchPoint, MSXDevice** devices);
+	void updateMemWatch(WatchPoint::Type type);
+	void executeMemWatch(word address, WatchPoint::Type type);
 
 	friend class SlotInfo;
 	friend class IODebug;
@@ -226,6 +245,12 @@ private:
 
 	std::auto_ptr<VDPIODelay> delayDevice;
 	friend class TurborCPUInterface;
+
+	WatchPoints watchPoints;
+	bool allowReadCache [CPU::CACHE_LINE_NUM];
+	bool allowWriteCache[CPU::CACHE_LINE_NUM];
+	std::bitset<CPU::CACHE_LINE_SIZE> readWatchSet[CPU::CACHE_LINE_NUM];
+	std::bitset<CPU::CACHE_LINE_SIZE> writeWatchSet[CPU::CACHE_LINE_NUM];
 };
 
 class TurborCPUInterface : public MSXCPUInterface

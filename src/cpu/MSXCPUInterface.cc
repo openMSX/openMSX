@@ -14,6 +14,7 @@
 #include "CliComm.hh"
 #include "MSXMultiIODevice.hh"
 #include "MSXMultiMemDevice.hh"
+#include "MSXWatchIODevice.hh"
 #include "MSXException.hh"
 #include "CartridgeSlotManager.hh"
 #include "DeviceFactory.hh"
@@ -165,6 +166,7 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard)
 	for (int page = 0; page < 4; ++page) {
 		visibleDevices[page] = &dummyDevice;
 	}
+	setAllowedCache();
 
 	// Note: SlotState is initialised at reset
 
@@ -173,6 +175,10 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard)
 
 MSXCPUInterface::~MSXCPUInterface()
 {
+	while (!watchPoints.empty()) {
+		removeWatchPoint(*watchPoints.front());
+	}
+	
 	msxcpu.setInterface(NULL);
 
 	for (int port = 0; port < 256; ++port) {
@@ -186,6 +192,48 @@ MSXCPUInterface::~MSXCPUInterface()
 				assert(slotLayout[primSlot][secSlot][page] == &dummyDevice);
 			}
 		}
+	}
+}
+
+byte MSXCPUInterface::readMemSlow(word address, const EmuTime& time)
+{
+	// execute read watches before actual read
+	if (unlikely(readWatchSet[address >> CPU::CACHE_LINE_BITS]
+	                         [address &  CPU::CACHE_LINE_LOW])) {
+		executeMemWatch(address, WatchPoint::READ_MEM);
+	}
+	if (unlikely((address == 0xFFFF) && isExpanded(primarySlotState[3]))) {
+		return 0xFF ^ subSlotRegister[primarySlotState[3]];
+	} else {
+		return visibleDevices[address >> 14]->readMem(address, time);
+	}
+}
+
+void MSXCPUInterface::writeMemSlow(word address, byte value, const EmuTime& time)
+{
+	if (unlikely((address == 0xFFFF) && isExpanded(primarySlotState[3]))) {
+		setSubSlot(primarySlotState[3], value);
+	} else {
+		visibleDevices[address>>14]->writeMem(address, value, time);
+	}
+	// execute write watches after actual write
+	if (unlikely(writeWatchSet[address >> CPU::CACHE_LINE_BITS]
+	                          [address &  CPU::CACHE_LINE_LOW])) {
+		executeMemWatch(address, WatchPoint::WRITE_MEM);
+	}
+}
+
+void MSXCPUInterface::setAllowedCache()
+{
+	memset(allowReadCache,  1, sizeof(allowReadCache));
+	memset(allowWriteCache, 1, sizeof(allowWriteCache));
+	if (isExpanded(primarySlotState[3])) {
+		allowReadCache [255] = false;
+		allowWriteCache[255] = false;
+	}
+	for (int i = 0; i < CPU::CACHE_LINE_NUM; ++i) {
+		if (readWatchSet [i].any()) allowReadCache [i] = false;
+		if (writeWatchSet[i].any()) allowWriteCache[i] = false;
 	}
 }
 
@@ -236,35 +284,40 @@ void MSXCPUInterface::unsetExpanded(int ps)
 	expanded[ps]--;
 }
 
+MSXDevice*& MSXCPUInterface::getDevicePtr(byte port, bool isIn)
+{
+	MSXDevice** devicePtr = isIn ? &IO_In[port] : &IO_Out[port];
+	while (MSXWatchIODevice* watch = dynamic_cast<MSXWatchIODevice*>(*devicePtr)) {
+		devicePtr = &watch->getDevicePtr();
+	}
+	if (*devicePtr == delayDevice.get()) {
+		devicePtr = isIn ? &delayDevice->getInDevicePtr (port)
+		                 : &delayDevice->getOutDevicePtr(port);
+	}
+	return *devicePtr;
+}
+
 void MSXCPUInterface::register_IO_In(byte port, MSXDevice* device)
 {
-	MSXDevice*& devicePtr = (IO_In[port] == delayDevice.get())
-	                      ? delayDevice->getInDevicePtr(port)
-	                      : IO_In[port];
+	MSXDevice*& devicePtr = getDevicePtr(port, true); // in
 	register_IO(port, true, devicePtr, device); // in
 }
 
 void MSXCPUInterface::unregister_IO_In(byte port, MSXDevice* device)
 {
-	MSXDevice*& devicePtr = (IO_In[port] == delayDevice.get())
-	                      ? delayDevice->getInDevicePtr(port)
-	                      : IO_In[port];
+	MSXDevice*& devicePtr = getDevicePtr(port, true); // in
 	unregister_IO(devicePtr, device);
 }
 
 void MSXCPUInterface::register_IO_Out(byte port, MSXDevice* device)
 {
-	MSXDevice*& devicePtr = (IO_Out[port] == delayDevice.get())
-	                      ? delayDevice->getOutDevicePtr(port)
-	                      : IO_Out[port];
+	MSXDevice*& devicePtr = getDevicePtr(port, false); // out
 	register_IO(port, false, devicePtr, device); // out
 }
 
 void MSXCPUInterface::unregister_IO_Out(byte port, MSXDevice* device)
 {
-	MSXDevice*& devicePtr = (IO_Out[port] == delayDevice.get())
-	                      ? delayDevice->getOutDevicePtr(port)
-	                      : IO_Out[port];
+	MSXDevice*& devicePtr = getDevicePtr(port, false); // out
 	unregister_IO(devicePtr, device);
 }
 
@@ -449,6 +502,7 @@ void MSXCPUInterface::setPrimarySlots(byte value)
 		// Change the visible devices
 		updateVisible(page);
 	}
+	setAllowedCache();
 }
 
 void MSXCPUInterface::setSubSlot(byte primSlot, byte value)
@@ -507,6 +561,108 @@ void MSXCPUInterface::writeSlottedMem(unsigned address, byte value,
 	}
 }
 
+
+void MSXCPUInterface::setWatchPoint(std::auto_ptr<WatchPoint> watchPoint_)
+{
+	WatchPoint* watchPoint = watchPoint_.release();
+	watchPoints.push_back(watchPoint);
+	WatchPoint::Type type = watchPoint->getType();
+	switch (type) {
+	case WatchPoint::READ_IO:
+		registerIOWatch(*watchPoint, IO_In);
+		break;
+	case WatchPoint::WRITE_IO:
+		registerIOWatch(*watchPoint, IO_Out);
+		break;
+	case WatchPoint::READ_MEM:
+	case WatchPoint::WRITE_MEM:
+		updateMemWatch(type);
+		break;
+	default:
+		assert(false);
+		break;
+	}
+}
+
+void MSXCPUInterface::removeWatchPoint(WatchPoint& watchPoint)
+{
+	WatchPoints::iterator it = find(watchPoints.begin(), watchPoints.end(),
+	                                &watchPoint);
+	assert(it != watchPoints.end());
+	watchPoints.erase(it);
+
+	WatchPoint::Type type = watchPoint.getType();
+	switch (type) {
+	case WatchPoint::READ_IO:
+		unregisterIOWatch(watchPoint, IO_In);
+		break;
+	case WatchPoint::WRITE_IO:
+		unregisterIOWatch(watchPoint, IO_Out);
+		break;
+	case WatchPoint::READ_MEM:
+	case WatchPoint::WRITE_MEM:
+		updateMemWatch(type);
+		break;
+	default:
+		assert(false);
+		break;
+	}
+	delete &watchPoint;
+}
+
+const MSXCPUInterface::WatchPoints& MSXCPUInterface::getWatchPoints() const
+{
+	return watchPoints;
+}
+
+void MSXCPUInterface::registerIOWatch(WatchPoint& watchPoint, MSXDevice** devices)
+{
+	assert(dynamic_cast<MSXWatchIODevice*>(&watchPoint));
+	MSXWatchIODevice& ioWatch = static_cast<MSXWatchIODevice&>(watchPoint);
+	unsigned port = ioWatch.getAddress();
+	assert(port < 256);
+	ioWatch.getDevicePtr() = devices[port];
+	devices[port] = &ioWatch;
+}
+
+void MSXCPUInterface::unregisterIOWatch(WatchPoint& watchPoint, MSXDevice** devices)
+{
+	assert(dynamic_cast<MSXWatchIODevice*>(&watchPoint));
+	MSXWatchIODevice& ioWatch = static_cast<MSXWatchIODevice&>(watchPoint);
+	unsigned port = ioWatch.getAddress();
+	assert(port < 256);
+	devices[port] = ioWatch.getDevicePtr();
+}
+
+void MSXCPUInterface::updateMemWatch(WatchPoint::Type type)
+{
+	std::bitset<CPU::CACHE_LINE_SIZE>* watchSet =
+		(type == WatchPoint::READ_MEM) ? readWatchSet : writeWatchSet;
+	for (int i = 0; i < CPU::CACHE_LINE_NUM; ++i) {
+		watchSet[i].reset();
+	}
+	for (WatchPoints::const_iterator it = watchPoints.begin();
+	     it != watchPoints.end(); ++it) {
+		if ((*it)->getType() == type) {
+			unsigned addr = (*it)->getAddress();
+			assert(addr < 0x10000);
+			watchSet[addr >> CPU::CACHE_LINE_BITS].set(
+			         addr  & CPU::CACHE_LINE_LOW);
+		}
+	}
+	setAllowedCache();
+	msxcpu.invalidateMemCache(0x0000, 0x10000);
+}
+
+void MSXCPUInterface::executeMemWatch(word address, WatchPoint::Type type)
+{
+	for (WatchPoints::const_iterator it = watchPoints.begin();
+	     it != watchPoints.end(); ++it) {
+		if (((*it)->getAddress() == address) && ((*it)->getType() == type)) {
+			(*it)->checkAndExecute();
+		}
+	}
+}
 
 // class MemoryDebug
 

@@ -279,7 +279,7 @@ RealTime& MSXMotherBoard::getRealTime()
 Debugger& MSXMotherBoard::getDebugger()
 {
 	if (!debugger.get()) {
-		debugger.reset(new Debugger(getCommandController()));
+		debugger.reset(new Debugger(*this));
 	}
 	return *debugger;
 }

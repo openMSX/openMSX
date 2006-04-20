@@ -3,8 +3,8 @@
 #ifndef BREAKPOINT_HH
 #define BREAKPOINT_HH
 
+#include "BreakPointBase.hh"
 #include "openmsx.hh"
-#include <memory>
 
 namespace openmsx {
 
@@ -15,27 +15,17 @@ class TclObject;
  *  For performance reasons every bp is associated with exactly one
  *  (immutable) address.
  */
-class BreakPoint
+class BreakPoint : public BreakPointBase
 {
 public:
 	BreakPoint(CliComm& CliComm, word address,
 	           std::auto_ptr<TclObject> command,
 	           std::auto_ptr<TclObject> condition);
-	~BreakPoint();
 
 	word getAddress() const;
-	std::string getCondition() const;
-	std::string getCommand() const;
 	unsigned getId() const;
 
-	void checkAndExecute();
-
 private:
-	bool isTrue() const;
-
-	CliComm& cliComm;
-	std::auto_ptr<TclObject> command;
-	std::auto_ptr<TclObject> condition;
 	word address;
 	unsigned id;
 

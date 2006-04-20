@@ -1,5 +1,18 @@
 $Id$
 
+2006-04-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented io and memory watchpoints:
+	   - for the moment use like this:
+	        debug set_watchpoint <type> <address> [<condition>] [<command>]
+	        debug remove_watchpoint <id>
+	        debug list_watchpoints 
+	     Where type is one of 'read_io', 'write_io', 'read_mem' or
+	     'write_mem'. Address is in range 0..255 for io ports and 0..65535
+	     for memory. Condition and command are the similar to the set_bp
+	     command.
+	   - I'm not 100% happy with this interface. It may change before the
+	     release.
+
 2006-04-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed V9990 SRCH command:
 	   at least paint command in power basic seems to work again
