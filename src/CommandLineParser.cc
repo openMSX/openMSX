@@ -69,7 +69,6 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 {
 	haveConfig = false;
 	haveSettings = false;
-	issuedHelp = false;
 
 	registerOption("-machine",    &machineOption, 4);
 	registerOption("-setting",    &settingOption, 2);
@@ -197,7 +196,7 @@ void CommandLineParser::parse(int argc, char** argv)
 		cmdLine.push_back(FileOperations::getConventionalPath(argv[i]));
 	}
 
-	for (int priority = 1; priority <= 8; priority++) {
+	for (int priority = 1; (priority <= 8) && (parseStatus != EXIT); ++priority) {
 		switch (priority) {
 		case 3:
 			if (!haveSettings) {
@@ -217,7 +216,7 @@ void CommandLineParser::parse(int argc, char** argv)
 			}
 			break;
 		case 5: {
-			if (!issuedHelp && !haveConfig) {
+			if (!haveConfig) {
 				// load default config file in case the user didn't specify one
 				const string& machine =
 					reactor.getMachineSetting().getValueString();
@@ -257,7 +256,7 @@ void CommandLineParser::parse(int argc, char** argv)
 			break;
 		}
 	}
-	if (!cmdLine.empty()) {
+	if (!cmdLine.empty() && (parseStatus != EXIT)) {
 		throw FatalError(
 			"Error parsing command line: " + cmdLine.front() + "\n" +
 			"Use \"openmsx -h\" to see a list of available options" );
@@ -432,7 +431,6 @@ CommandLineParser::HelpOption::HelpOption(CommandLineParser& parser_)
 bool CommandLineParser::HelpOption::parseOption(const string& /*option*/,
 		list<string>& /*cmdLine*/)
 {
-	parser.issuedHelp = true;
 	if (!parser.haveSettings) {
 		return false; // not parsed yet, load settings first
 	}
@@ -482,7 +480,6 @@ CommandLineParser::VersionOption::VersionOption(CommandLineParser& parser_)
 bool CommandLineParser::VersionOption::parseOption(const string& /*option*/,
 		list<string>& /*cmdLine*/)
 {
-	parser.issuedHelp = true;
 	cout << Version::FULL_VERSION << endl;
 	parser.parseStatus = EXIT;
 	return true;
@@ -509,9 +506,6 @@ bool CommandLineParser::MachineOption::parseOption(const string& option,
 		throw FatalError("Only one machine option allowed");
 	}
 	string machine(getArgument(option, cmdLine));
-	if (parser.issuedHelp) {
-		return true;
-	}
 	parser.output.printInfo("Using specified machine: " + machine);
 	parser.loadMachine(machine);
 	parser.haveConfig = true;

@@ -94,7 +94,6 @@ private:
 
 	bool haveConfig;
 	bool haveSettings;
-	bool issuedHelp;
 	ParseStatus parseStatus;
 
 	Reactor& reactor;
