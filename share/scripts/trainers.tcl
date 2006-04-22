@@ -1,25 +1,27 @@
-# game trainers version 1.6
-#
-# please join us looking for cheats and submit them to the www.openmsx.org forum
-#
-# credits:
-#   copyright 2005-2006 Albert Beevendorp all rights reserved
-#   copyright 2005-2006 Patrick van Arkel all rights reserved
-#   copyright 	   2006 Benoit Delvaux all rights reserved 
-#
-# the definition of cheating according to google:
-#
-# - defeat someone in an expectation through trickery or deceit 
-# - deceiver: someone who leads you to believe something that is not true  
-# - a deception for profit to yourself 
-#
-# although the definition of cheating is mostly negative 
-# this time i turned it into something fun.
-#
-# openmsx is made to work together with ips patches. Albert has some ips
-# patches ready at http://ips.tni.nl/ for even more cheating ;)
-#
-# please cheat responsible!
+set_help_text trainer \
+{game trainers version 1.6
+
+please join us looking for cheats and submit them to the www.openmsx.org forum
+
+credits:
+  copyright 2005-2006 Albert Beevendorp all rights reserved
+  copyright 2005-2006 Patrick van Arkel all rights reserved
+  copyright 	   2006 Benoit Delvaux all rights reserved 
+
+the definition of cheating according to google:
+
+- defeat someone in an expectation through trickery or deceit 
+- deceiver: someone who leads you to believe something that is not true  
+- a deception for profit to yourself 
+
+although the definition of cheating is mostly negative 
+this time i turned it into something fun.
+
+openmsx is made to work together with ips patches. Albert has some ips
+patches ready at http://ips.tni.nl/ for even more cheating ;)
+
+please cheat responsible!
+}
 
 #helper functions
 proc poke {addr val} {debug write memory $addr $val}
@@ -2689,6 +2691,18 @@ proc trainer_psychoworld {} {
 	poke 0xd40d 0
 	#unlimited power ups (use 1 trough 9)
 	poke 0xd401 255
+
+	#get all weapons
+	poke 0xa212 255
+	#normal schot power up
+	poke 0xa213 9
+	#ice shot power up
+	poke 0xa214 5
+	#fire power up
+	poke 0xa215 5
+	#sonic shot power up
+	poke 0xa216 5
+
 	after time 2 trainer_psychoworld
 }
 
@@ -5356,6 +5370,16 @@ proc trainer_zukkoke_yajikita_onmitsudoutyuu {} {
 	poke 0xe06c 0x9
 	poke 0xe06d 0x9
 after time 1 trainer_zukkoke_yajikita_onmitsudoutyuu
+}
+
+proc trainer_namcof1racing {} {
+	#start points
+	poke 0xc701 11
+	#damage
+	poke 0xc828 255
+	#fuel
+	poke 0xc828 255
+	after time 1 trainer_namcof1racing
 }
 
 ### EOF ###
