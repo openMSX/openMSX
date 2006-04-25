@@ -1,5 +1,10 @@
 $Id$
 
+2006-04-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed truncate() function in windows:
+	   - instead of extending the file with zeros at the end, it wrote
+	     those zeros over the beginning of the file. Oops.
+
 2006-04-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented io and memory watchpoints:
 	   - for the moment use like this:

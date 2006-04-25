@@ -41,14 +41,17 @@ void FileBase::munmap()
 	}
 }
 
-void FileBase::truncate(unsigned size)
+void FileBase::truncate(unsigned newSize)
 {
-	int grow = size - getSize();
-	if (grow < 0) {
+	unsigned oldSize = getSize();
+	if (newSize < oldSize) {
 		PRT_DEBUG("Default truncate() can't shrink file!");
 		return;
 	}
-	const int BUF_SIZE = 4096;
+	unsigned grow = newSize - oldSize;
+	seek(oldSize);
+
+	const unsigned BUF_SIZE = 4096;
 	byte buf[BUF_SIZE];
 	memset(buf, 0, BUF_SIZE);
 	while (grow > 0) {
