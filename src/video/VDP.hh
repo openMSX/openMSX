@@ -484,10 +484,20 @@ private:
 	  *   False iff the VDP scanning is in the display range.
 	  */
 	inline bool getHR(int ticksThisFrame) const {
+		// Note: These constants are located inside this function because
+		//       GCC 4.0.x won't link if they are in the class scope.
+		/** Length of horizontal blank (HR=1) in text mode, measured in VDP
+		  * ticks.
+		  */
+		static const int HBLANK_LEN_TXT = 402;
+		/** Length of horizontal blank (HR=1) in graphics mode, measured in VDP
+		  * ticks.
+		  */
+		static const int HBLANK_LEN_GFX = 312;
 		return
 			( ticksThisFrame + TICKS_PER_LINE - getRightBorder()
 				) % TICKS_PER_LINE
-			< TICKS_PER_LINE - (displayMode.isTextMode() ? 960 : 1024);
+			< (displayMode.isTextMode() ? HBLANK_LEN_TXT : HBLANK_LEN_GFX);
 	}
 
 	// VideoSystemChangeListener interface:

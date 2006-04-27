@@ -1,5 +1,13 @@
 $Id$
 
+2006-04-27 Maarten ter Huurne <maarten@treewalker.org>
+	* VDP accuracy fix: corrected length of horizontal blank.
+	  Thanks to Daniel Vik for investigating the Parallax logo code and for
+	  writing measurements programs that helped in determining the correct
+	  horizontal blank length.
+	  Note that the start time of the horizontal blank is not yet fully
+	  correct, but having the right length already fixes some problems.
+
 2006-04-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed assert in MemoryOps: assert was too strict
 
@@ -13,7 +21,7 @@ $Id$
 	   - for the moment use like this:
 	        debug set_watchpoint <type> <address> [<condition>] [<command>]
 	        debug remove_watchpoint <id>
-	        debug list_watchpoints 
+	        debug list_watchpoints
 	     Where type is one of 'read_io', 'write_io', 'read_mem' or
 	     'write_mem'. Address is in range 0..255 for io ports and 0..65535
 	     for memory. Condition and command are the similar to the set_bp
