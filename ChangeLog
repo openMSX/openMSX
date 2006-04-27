@@ -1,6 +1,9 @@
 $Id$
 
 2006-04-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed assert in MemoryOps: assert was too strict
+
+2006-04-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed truncate() function in windows:
 	   - instead of extending the file with zeros at the end, it wrote
 	     those zeros over the beginning of the file. Oops.

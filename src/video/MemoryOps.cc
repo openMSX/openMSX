@@ -298,12 +298,13 @@ template void memset  <word    , false>(word*    , unsigned, word    );
 
 void stream_memcpy(unsigned* dst, const unsigned* src, unsigned num)
 {
+	// 'dst' must be 4-byte aligned. For best performance 'src' should also
+	// be 4-byte aligned, but it's not strictly needed.
+	assert(((long)dst & 3) == 0);
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
 	if (cpu.hasMMXEXT()) {
 		if (!num) return;
-		assert(((long)src & 3) == 0); // must be word aligned
-		assert(((long)dst & 3) == 0);
 		// align on 8-byte boundary
 		if (unlikely((long)dst & 4)) {
 			*dst++ = *src++;
@@ -409,6 +410,9 @@ void stream_memcpy(unsigned* dst, const unsigned* src, unsigned num)
 
 void stream_memcpy(word* dst, const word* src, unsigned num)
 {
+	// 'dst' must be 2-byte aligned. For best performance 'src' should also
+	// be 2-byte aligned, but it's not strictly needed.
+	assert(((long)dst & 1) == 0);
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
 	if (cpu.hasMMXEXT()) {
