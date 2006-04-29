@@ -489,7 +489,7 @@ private:
 		/** Length of horizontal blank (HR=1) in text mode, measured in VDP
 		  * ticks.
 		  */
-		static const int HBLANK_LEN_TXT = 402;
+		static const int HBLANK_LEN_TXT = 404;
 		/** Length of horizontal blank (HR=1) in graphics mode, measured in VDP
 		  * ticks.
 		  */
