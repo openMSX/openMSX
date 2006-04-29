@@ -1,5 +1,9 @@
 $Id$
 
+2006-04-29 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed bug in breakpoints:
+	   when a breakpoint was hit we still executed one instruction
+
 2006-04-27 Maarten ter Huurne <maarten@treewalker.org>
 	* VDP accuracy fix: corrected length of horizontal blank.
 	  Thanks to Daniel Vik for investigating the Parallax logo code and for

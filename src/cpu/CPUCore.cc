@@ -541,7 +541,9 @@ template <class T> void CPUCore<T>::executeInternal()
 		}
 	} else {
 		while (!exitLoop) {
-			checkBreakPoints(R);
+			if (checkBreakPoints(R)) {
+				break;
+			}
 			if (slowInstructions == 0) {
 				scheduler.schedule(T::getTime());
 				cpuTracePre();

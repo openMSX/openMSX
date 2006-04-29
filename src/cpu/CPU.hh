@@ -159,15 +159,19 @@ protected:
 	{
 		return !breakPoints.empty();
 	}
-	void checkBreakPoints(CPURegs& regs) const
+	bool checkBreakPoints(CPURegs& regs) const
 	{
 		std::pair<BreakPoints::const_iterator,
 		          BreakPoints::const_iterator> range =
 		                  breakPoints.equal_range(regs.PC);
+		if (range.first == range.second) {
+			return false;
+		}
 		for (BreakPoints::const_iterator it = range.first;
 		     it != range.second; ++it) {
 			it->second->checkAndExecute();
 		}
+		return true;
 	}
 
 	// flag-register tables, initialized at run-time
