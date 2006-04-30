@@ -5451,12 +5451,6 @@ proc trainer_pumpkinadventure3 {} {
 	poke 0xd48c 1
 	#marble 3
 	poke 0xd48d 1
-	#opal
-	poke 0xd48e 1
-	#opal
-	poke 0xd48e 1
-	#opal
-	poke 0xd48e 1
 	#green opal
 	poke 0xd48e 1
 	#red opal
