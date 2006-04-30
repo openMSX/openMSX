@@ -1,5 +1,9 @@
 $Id$
 
+2006-04-30 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Disabled ninja-tap device because it doesn't work yet:
+	   ATM it acts the same as the 'normal' joytap device
+
 2006-04-29 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed bug in breakpoints:
 	   when a breakpoint was hit we still executed one instruction
