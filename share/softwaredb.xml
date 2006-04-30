@@ -8,7 +8,7 @@
 	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
-<softwaredb xml:lang="en" timestamp="1141099209">
+<softwaredb xml:lang="en" timestamp="1146410423">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -23449,5 +23449,5 @@ Roms in this database : 2194
 Good MSX entries 		: 755
 SHA1 values 			: 2194
 CRC32 values 			: 0
-Parse time 8.567 seconds on Tue Feb 28 5:00:17 CET 2006
+Parse time 10.897 seconds on Sun Apr 30 17:20:34 CEST 2006
  -->
