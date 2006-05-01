@@ -115,7 +115,11 @@ byte MSXPPI::peekA(const EmuTime& /*time*/) const
 {
 	// port A is normally an output on MSX, reading from an output port
 	// is handled internally in the 8255
-	return 255; //TODO check this
+	// TODO check this on a real MSX
+	// TODO returning 0 fixes the 'get_selected_slot' script right after
+	//      reset (when PPI directions are not yet set). For now this
+	//      solution is good enough.
+	return 0;
 }
 void MSXPPI::writeA(byte value, const EmuTime& /*time*/)
 {
