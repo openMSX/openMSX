@@ -542,6 +542,7 @@ template <class T> void CPUCore<T>::executeInternal()
 	} else {
 		while (!exitLoop) {
 			if (checkBreakPoints(R)) {
+				continued = true; // skip bp check on next instr
 				break;
 			}
 			if (slowInstructions == 0) {
