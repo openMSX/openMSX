@@ -1,6 +1,10 @@
 $Id$
 
 2006-04-30 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented ninja-tap:
+	   Thanks to BiFiMSX for disassembling the test program
+
+2006-04-30 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Disabled ninja-tap device because it doesn't work yet:
 	   ATM it acts the same as the 'normal' joytap device
 

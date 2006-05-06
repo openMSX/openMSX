@@ -19,6 +19,11 @@ public:
 	//JoystickDevice
 	byte read(const EmuTime& time);
 	void write(byte value, const EmuTime& time);
+
+private:
+	byte status;
+	byte previous;
+	byte buf[4];
 };
 
 } // namespace openmsx
