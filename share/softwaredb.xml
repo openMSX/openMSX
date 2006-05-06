@@ -8,7 +8,7 @@
 	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
-<softwaredb xml:lang="en" timestamp="1146410423">
+<softwaredb xml:lang="en" timestamp="1146933121">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -15036,6 +15036,19 @@
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">8ab1b72ce852a778a645f566a70fa18ee32fd021</hash>
+				<remark>
+					<text>Competition Version</text>
+				</remark>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Normal</type>
+				<hash algo="sha1">83dee5f1fd4bdad33b095ed15870c52c96becc63</hash>
+				<remark>
+					<text>Final Version</text>
+				</remark>
 			</megarom>
 		</dump>
 	</software>
@@ -23445,9 +23458,9 @@
 	</software>
 </softwaredb>
 <!--
-Roms in this database : 2194
+Roms in this database : 2195
 Good MSX entries 		: 755
-SHA1 values 			: 2194
+SHA1 values 			: 2195
 CRC32 values 			: 0
-Parse time 10.897 seconds on Sun Apr 30 17:20:34 CEST 2006
+Parse time 11.863 seconds on Sat May 6 18:32:13 CEST 2006
  -->
