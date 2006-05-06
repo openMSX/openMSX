@@ -15,19 +15,28 @@
 <h1>openMSX FAQ</h1>
 
 <h2>Contents</h2>
-<ol class="toc">
-	<li><a class="internal" href="#difficultinstall">1. Why is openMSX so difficult to install?</a></li>
-	<li><a class="internal" href="#difficultuse">2. Why is openMSX so difficult to use?</a></li>
-	<li><a class="internal" href="#roms">3. Why doesn't openMSX come with system ROMs?</a></li>
-	<li><a class="internal" href="#whereroms">4. Where do I install the ROMs?</a> </li>
-	<li><a class="internal" href="#c-bios">5. All I get is "Cartridge not found." or something similar. What's wrong?</a></li>
-	<li><a class="internal" href="#harddisk">6. What is the openMSX harddisk support?</a></li>
-	<li><a class="internal" href="#ziporexe">7. Should I download the ZIP or the EXE for Windows?</a></li>
-	<li><a class="internal" href="#videosource">8. It seems the MSX hangs when running GFX9000 software; what's wrong? </a></li>
-	<li><a class="internal" href="#leds">9. Great, those new OSD LEDs! How do I get rid of them? </a></li>
-</ol>
+<ul class="toccat">
+	<li><a class="internal" href="#install">Installing openMSX</a>:
+	<ul class="toc">
+		<li><a class="internal" href="#difficultinstall">Why is openMSX so difficult to install?</a></li>
+		<li><a class="internal" href="#ziporexe">Should I download the ZIP or the EXE for Windows?</a></li>
+		<li><a class="internal" href="#roms">Why doesn't openMSX come with system ROMs?</a></li>
+		<li><a class="internal" href="#whereroms">Where do I install the ROMs?</a> </li>
+	</ul></li>
+	<li><a class="internal" href="#use">Using openMSX</a>:
+	<ul class="toc">
+		<li><a class="internal" href="#difficultuse">Why is openMSX so difficult to use?</a></li>
+		<li><a class="internal" href="#c-bios">All I get is "Cartridge not found." What's wrong?</a></li>
+		<li><a class="internal" href="#harddisk">What is the openMSX harddisk support?</a></li>
+		<li><a class="internal" href="#videosource">It seems the MSX hangs when running GFX9000 software; what's wrong?</a></li>
+		<li><a class="internal" href="#leds">Great, those new OSD LEDs! How do I get rid of them?</a></li>
+	</ul></li>
+	<li><a class="internal" href="#otherquestion">My question is not listed here.</a> </li>
+</ul>
 
-<h2><a id="difficultinstall">1. Why is openMSX so difficult to install?</a></h2>
+<h2><a id="install">Installing openMSX</a></h2>
+
+<h3><a id="difficultinstall">Why is openMSX so difficult to install?</a></h3>
 
 <p>
 openMSX used to be difficult to install, but it isn't difficult at all, nowadays! At least: it shouldn't be.
@@ -70,7 +79,37 @@ Note that in any case, there are no system ROMs installed, so only the C-BIOS ma
 If you still think openMSX is difficult to install, <a class="external" href="compile.html#contact">please tell us why</a>!
 </p>
 
-<h2><a id="difficultuse">2. Why is openMSX so difficult to use?</a></h2>
+<h3><a id="ziporexe">Should I download the ZIP or the EXE for Windows?</a></h3>
+
+<p>
+We strongly recommend to use the EXE. It contains a very comfortable installer and <em>really</em> won't touch your Windows registry if you don't want that! The price you pay if you want the registry unharmed: you can't use the built-in uninstaller...
+</p>
+
+<p>
+With the EXE, your openMSX experience is only about 3 clicks away. The ZIP file is meant for experienced users mostly.
+</p>
+
+<p>
+Maybe you noticed that the ZIP file is a little bit bigger than the EXE. The reason for this is that the EXE file has better compression! The actual contents is exactly the same.
+</p>
+
+<h3><a id="roms">Why doesn't openMSX come with system ROMs?</a></h3>
+
+<p>
+The MSX system ROMs are copyrighted. In other words: it's illegal to include them in our software package without a license. The Setup Guide contains a <a class="external" href="setup.html#systemroms">section about system ROMs</a>.
+</p>
+
+<h3><a id="whereroms">Where do I install the ROMs?</a></h3>
+
+<p>As of version 0.5.0 you can put all the ROMs in a ROM pool, which is a central ROM directory. The default location is <code>share/systemroms</code>.
+</p>
+<p>You can also do it in the way of the older versions: put the ROMs for the machine called WHATEVER in <code>share/machines/WHATEVER/roms</code> and for the extension called WHATEVER in <code>share/extensions/WHATEVER/roms</code>.
+See also the <a class="external" href="setup.html#romlocation">Setup Guide</a>.
+</p>
+
+<h2><a id="use">Using openMSX</a></h2>
+
+<h3><a id="difficultuse">Why is openMSX so difficult to use?</a></h3>
 
 <p>
 Ever since openMSX comes with the optional GUI dubbed "openMSX Catapult", it is not difficult to use either! The Windows installer installs it by default. For other systems, the same counts as for openMSX itself. Check out the <a class="external" href="http://openmsx.sourceforge.net/catapult-manual/">Catapult manual</a> for more information. For basic usage, you just select a machine to run and click on "Start"!
@@ -88,21 +127,7 @@ If you still think openMSX is difficult to use, please tell us why! Contact info
 Oh, you might wonder: why don't you make a normal GUI like other emulators? One in which the emulation is inside the GUI? The reason is that we are currently not able to make that: the wxWidgets toolkit we use does not support it and we want to keep the GUI optional, so we cannot make it part of the main application. This may change in the near future, when we are going to use the Qt toolkit to make the GUI.
 </p>
 
-<h2><a id="roms">3. Why doesn't openMSX come with system ROMs?</a> </h2>
-
-<p>
-The MSX system ROMs are copyrighted. In other words: it's illegal to include them in our software package without a license. See also the <a class="external" href="setup.html#systemroms">Setup Guide</a>.
-</p>
-
-<h2><a id="whereroms">4. Where do I install the ROMs?</a> </h2>
-
-<p>As of version 0.5.0 you can put all the ROMs in a ROM pool, which is a central ROM directory. The default location is <code>share/systemroms</code>.
-</p>
-<p>You can also do it in the way of the older versions: put the ROMs for the machine called WHATEVER in <code>share/machines/WHATEVER/roms</code> and for the extension called WHATEVER in <code>share/extensions/WHATEVER/roms</code>.
-See also the <a class="external" href="setup.html#romlocation">Setup Guide</a>.
-</p>
-
-<h2><a id="c-bios">5. All I get is "No cartridge found." or something similar. What's wrong?</a></h2>
+<h3><a id="c-bios">All I get is "No cartridge found." What's wrong?</a></h3>
 
 <p>You are probably talking about this:</p>
 
@@ -120,26 +145,13 @@ So, the message is not from openMSX, but from C-BIOS, which tries to start a car
 <p>Note that the current version of C-BIOS can only run cartridges and does not support disk or tape usage. More information can be found in the <a class="external" href="setup.html#cbios">Setup Guide</a>.
 </p>
 
-<h2><a id="harddisk">6. What is the openMSX harddisk support?</a></h2>
+<h3><a id="harddisk">What is the openMSX harddisk support?</a></h3>
 
 <p>
 This is explained in the <a class="external" href="user.html#harddisks">User's Manual</a>.
 </p>
 
-<h2><a id="ziporexe">7. Should I download the ZIP or the EXE for Windows?</a></h2>
-
-<p>
-You probably noticed that the ZIP file is a little bit bigger than the EXE. The reason for this is that the EXE file has better compression! The actual contents is exactly the same.
-</p>
-<p>
-We strongly recommend to use the EXE. It contains a very comfortable installer (see also above) and <em>really</em> won't touch your Windows registry if you don't want that! The price you pay if you want the registry unharmed: you can't use the built-in uninstaller...
-</p>
-
-<p>
-With the EXE, your openMSX experience is only about 3 clicks away. The ZIP file is meant for experienced users mostly.
-</p>
-
-<h2><a id="videosource">8. It seems the MSX hangs when running GFX9000 software; what's wrong?</a></h2>
+<h3><a id="videosource">It seems the MSX hangs when running GFX9000 software; what's wrong?</a></h3>
 
 <p>
 The real GFX9000 has an external video connector to which you can connect a second monitor. Because of limits of the SDL library we used to create openMSX, we cannot have more than one window for openMSX, so we cannot emulate a second monitor. To see the GFX9000 in action, you need to switch the videosource setting, which equals to a so-called SCART-switch in the real world: <code>set videosource GFX9000</code>. If you started openMSX without GFX9000 extension, this videosource is not available. To get your normal MSX screen back, you should type <code>set videosource MSX</code>. If you want to toggle with a hot key between them, it might be useful to bind a key for it. E.g.: <code>bind F6 cycle videosource</code>. <code>cycle</code> is a TCL command that cycles through the options of the setting in the parameter.
@@ -147,16 +159,37 @@ The real GFX9000 has an external video connector to which you can connect a seco
 
 <p>Note that GFX9000 emulation does not work with the SDLGL renderer yet and that it's incomplete, slow and buggy anyways...</p>
 
-<h2><a id="leds">9. Great, those new OSD LEDs! How do I get rid of them?</a></h2>
+<h3><a id="leds">Great, those new OSD LEDs! How do I get rid of them?</a></h3>
 
 <p>
-Open the console with F10 and type:
+Open the console with F10 (Cmd+L on Mac) and type:
 </p>
 <div class="commandline">load_icons none</div>
 
 <p>If you have <code>autosave_at_exit</code> set to <code>on</code>, this change will be permanent, until you load another icon set. This gives you the default:</p>
 
 <div class="commandline">load_icons set1 bottom</div>
+
+<h2><a id="otherquestion">My question is not listed here.</a></h2>
+
+<p>
+You can look in the following places for answers:
+</p>
+<dl>
+<dt><a class="external" href="index.html">openMSX manuals</a></dt>
+<dd>We have a nice set of manuals describing most of the functionality in openMSX.
+</dd>
+<dt><a class="external" href="http://openmsx.sourceforge.net/catapult-manual/">Catapult manuals</a></dt>
+<dd>The manuals of Catapult, the graphical interface to openMSX.</dd>
+<dt><a class="external" href="http://faq.msxnet.org/">The Ultimate MSX FAQ</a></dt>
+<dd>Look here if you have a question that is not specific to openMSX, but about the MSX system itself.</dd>
+<dt><a class="external" href="http://forum.openmsx.org/">openMSX Forum</a></dt>
+<dd>You can post your questions here. Registration is required before posting; we took that measure because of spammers abusing our forum.
+</dd>
+<dt><a class="external" href="irc://irc.freenode.net/openmsx">openMSX IRC channel</a></dt>
+<dd>The openMSX developers and testers hang out on this channel (chat room). If the link doesn't work, get an IRC client, go to server <code>irc.freenode.net</code> (freenode network) and join channel <code>#openmsx</code>. It is possible you will not get a reaction immediately, so please ask your question, stay logged in and check from time to time if someone is active.
+</dd>
+</dl>
 
 <p class="version">
 $Id$
