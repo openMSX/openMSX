@@ -27,6 +27,7 @@
 	<ul class="toc">
 		<li><a class="internal" href="#difficultuse">Why is openMSX so difficult to use?</a></li>
 		<li><a class="internal" href="#c-bios">All I get is "Cartridge not found." What's wrong?</a></li>
+		<li><a class="internal" href="#savegame">How do I save my game?</a></li>
 		<li><a class="internal" href="#harddisk">What is the openMSX harddisk support?</a></li>
 		<li><a class="internal" href="#videosource">It seems the MSX hangs when running GFX9000 software; what's wrong?</a></li>
 		<li><a class="internal" href="#leds">Great, those new OSD LEDs! How do I get rid of them?</a></li>
@@ -143,6 +144,41 @@ So, the message is not from openMSX, but from C-BIOS, which tries to start a car
 </p>
 
 <p>Note that the current version of C-BIOS can only run cartridges and does not support disk or tape usage. More information can be found in the <a class="external" href="setup.html#cbios">Setup Guide</a>.
+</p>
+
+<h3><a name="savegame">How do I save my game?</a></h3>
+
+<p>
+You've been playing a game and want to continue another time, so you want to save your progress. openMSX does not support save states yet. Therefore you should save the way you would on a real MSX. How that works, depends on the game:
+</p>
+
+<dl>
+<dt>Game Disk</dt>
+<dd>Some disk-based games save on one of the game disks. Make sure the disk is not write protected; in openMSX this means the disk image must be an ordinary DSK image (not compressed as ZIP or XSA) and not read-only.
+</dd>
+<dt>Separate Disk</dt>
+<dd>Some games save on a separate disk. You can create an empty disk for this purpose by opening the openMSX console with F10 (Cmd+L on Mac) and executing the command "<code>diskmanipulator create filename.dsk 720</code>". Since many games save in fixed sector locations instead of files, it is best to reserve a separate save game disk for each game.
+</dd>
+<dt>PAC SRAM</dt>
+<dd>The PAC and FM-PAC contain a bit of battery-powered memory that can be used for saving games. Make sure you insert the <code>pac</code> or <code>fmpac</code> extension when you start openMSX.
+<br />The SRAM is divided into 8 blocks and different games typically use different blocks. However, there are many games using the SRAM, so it is unavoidable that some games use the same block. If you play more than one game and want to be safe, copy the <code>.pac</code> file from "persistent/fmpac/untitled1" in your openMSX user directory ("<code>My Documents/openMSX</code>" on Windows, "<code>~/.openMSX</code>" on other systems) to a safe location.
+</dd>
+<dt>Game Master 2</dt>
+<dd>The Game Master 2 can be used to save many Konami games. Insert both the game cartridge and the Game Master 2 cartridge.
+</dd>
+<dt>Embedded SRAM</dt>
+<dd>Some cartridges games, for example the strategic games from Koei, have SRAM inside the cartridge. You don't have to do anything special to use this.</dd>
+<dt>Tape</dt>
+<dd>Saving to tape is a bit clumsy, but for some games it's the only way.
+<br />Note that the current version of C-BIOS does not have tape support, so if you want to save to tape, make sure you use a machine based on the original MSX system ROMs.
+</dd>
+<dt>Password</dt>
+<dd>Some games show a password that you can enter to resume the game at the same point. You can write down the password of course, or type it into a text file, but if you're really lazy, just make a screenshot! (press PrtScr)</dd>
+</dl>
+
+<p>
+Many people wonder how to save in Metal Gear, in
+<a href="http://forum.openmsx.org/viewtopic.php?t=98">this forum post</a> Manuel Bilderbeek explains how that is done.
 </p>
 
 <h3><a id="harddisk">What is the openMSX harddisk support?</a></h3>
