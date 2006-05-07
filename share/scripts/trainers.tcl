@@ -154,9 +154,14 @@ proc trainer_comicbakkery {} {
 	#beams
 	poke 0xe120 99
 	#items done
-	poke 0xe060 16	
+	poke 0xe060 16
+	#all machines active
+	poke 0xe057 112
+	#sleepy beavers 
+	poke 0xe111 255
+	poke 0xe113 255
+	poke 0xe115 255
 	after time 2 trainer_comicbakkery 
-} 
 
 proc trainer_frogger {} { 
 	#lives
