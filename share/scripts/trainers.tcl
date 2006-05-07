@@ -3601,6 +3601,8 @@ proc trainer_leonidas {} {
 	poke 0xe33b 60
 	#lives
 	poke 0xe001 0x99
+	#invincible
+	poke 0xe03a 255
 	after time 1 trainer_leonidas 
 } 
 
@@ -4557,6 +4559,8 @@ proc trainer_manes {} {
 proc trainer_issunhoushi_no_donnamondai  {} { 
 	#power
 	poke 0xe1b5 64 
+	#invincible
+	poke 0xe03a 255
 	after frame trainer_issunhoushi_no_donnamondai 
 }
 
