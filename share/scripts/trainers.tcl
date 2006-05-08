@@ -162,6 +162,7 @@ proc trainer_comicbakkery {} {
 	poke 0xe113 255
 	poke 0xe115 255
 	after time 2 trainer_comicbakkery 
+}
 
 proc trainer_frogger {} { 
 	#lives
