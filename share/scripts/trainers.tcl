@@ -5640,4 +5640,13 @@ proc trainer_pumpkinadventure3 {} {
 
 	after time 1 trainer_pumpkinadventure3
 }
+
+proc trainer_bluewarrior {} {
+	#lives
+	poke 0xaacb 8
+	#shot (1=normal, 2=fire, 3=electric)
+	poke 0xaacd 2
+	after time 1 trainer_bluewarrior
+}
+
 ### EOF ###
