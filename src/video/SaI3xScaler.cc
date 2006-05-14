@@ -65,7 +65,7 @@ template <typename Pixel>
 static Pixel bilinear(unsigned a, unsigned b, unsigned x);
 
 template <>
-static word bilinear<word>(unsigned a, unsigned b, unsigned x)
+word bilinear<word>(unsigned a, unsigned b, unsigned x)
 {
 	if (a == b) return a;
 
@@ -79,7 +79,7 @@ static word bilinear<word>(unsigned a, unsigned b, unsigned x)
 }
 
 template <>
-static unsigned bilinear<unsigned>(unsigned a, unsigned b, unsigned x)
+unsigned bilinear<unsigned>(unsigned a, unsigned b, unsigned x)
 {
 	if (a == b) return a;
 
@@ -98,7 +98,7 @@ static Pixel bilinear4(
 	unsigned a, unsigned b, unsigned c, unsigned d, unsigned x, unsigned y );
 
 template <>
-static word bilinear4<word>(
+word bilinear4<word>(
 	unsigned a, unsigned b, unsigned c, unsigned d, unsigned x, unsigned y
 ) {
 	x >>= 11;
@@ -121,7 +121,7 @@ static word bilinear4<word>(
 }
 
 template <>
-static unsigned bilinear4<unsigned>(
+unsigned bilinear4<unsigned>(
 	unsigned a, unsigned b, unsigned c, unsigned d, unsigned x, unsigned y
 ) {
 	x >>= 8;
