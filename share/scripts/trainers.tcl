@@ -2301,7 +2301,8 @@ proc trainer_knightmare {} {
 	poke 0xe60c 2
 	#timer
 	poke 0xe60e 0x99
-	
+	#nuclear arrows ;)
+	#poke 0xe609 13	
 	after time 2 trainer_knightmare
 }
 
@@ -5647,6 +5648,26 @@ proc trainer_bluewarrior {} {
 	#shot (1=normal, 2=fire, 3=electric)
 	poke 0xaacd 2
 	after time 1 trainer_bluewarrior
+}
+
+proc trainer_fairy {} {
+	#lives
+	poke 0xdf04 5
+	after time 5 trainer_fairy
+}
+
+proc trainer_mappy {} {
+	#lives
+	poke 0xe043 11
+	after time 5 trainer_mappy
+}
+
+proc trainer_warroid {} {
+	#power player 1
+	poke 0xc58b 255
+	#power player 2
+	poke 0xc5ab 1
+	after time 10 trainer_warroid
 }
 
 ### EOF ###
