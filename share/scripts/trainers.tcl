@@ -5688,4 +5688,84 @@ proc trainer_warroid {} {
 	after time 10 trainer_warroid
 }
 
+proc trainer_xyzlogic {} {
+	#lives
+	poke 0xe418 100
+	after time 10 trainer_xyzlogic
+}
+
+proc trainer_stepper {} {	
+	#lives
+	poke 0xe901 99
+	#have shot
+	#!poke 0xe904 1
+	after time 5 trainer_stepper
+}
+
+proc trainer_exerion1 {} {	
+	#lives
+	poke 0xe108 5
+	#double shot (charge)
+	poke 0xe120 0x99
+	after time 5 trainer_exerion1
+}
+
+proc trainer_exerion2 {} {	
+	#lives
+	poke 0xe108 5
+	#double shot (charge)
+	poke 0xe120 0x99
+	after time 5 trainer_exerion2
+}
+
+proc trainer_swing {} {	
+	#lives
+	poke 0xe30f 100
+	after time 5 trainer_swing
+}
+
+proc trainer_david2 {} {	
+	#lives
+	poke 0xe194 255
+	after time 5 trainer_david2
+}
+
+proc trainer_telebunnie {} {	
+	#lives
+	poke 0xe064 255
+	after time 5 trainer_telebunnie
+}
+
+proc trainer_telebunnie {} {	
+	#lives
+	poke 0xe064 255
+	after time 5 trainer_telebunnie
+}
+
+proc trainer_sofia {} {	
+	#hearts
+	poke 0xe6eb 64
+	#invincible (except lava)
+	poke 0xe6ed 255
+	after time 5 trainer_sofia
+}
+
+proc trainer_boggy84 {} {	
+	#lives
+	poke 0xe693 4
+	after time 5 trainer_boggy84
+}
+
+proc trainer_riseout {} {	
+	#lives
+	poke 0xec06 255
+	after time 5 trainer_riseout
+}
+
+proc trainer_dangerx4 {} {	
+	#lives
+	poke 0xd018 10
+	after time 5 trainer_dangerx4
+}
+
 ### EOF ###
