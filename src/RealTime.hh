@@ -24,7 +24,7 @@ class RealTime : private Schedulable, private EventListener,
 {
 public:
 	RealTime(Scheduler& scheduler, EventDistributor& eventDistributor,
-	         UserInputEventDistributor& eventDistributor,
+	         UserInputEventDistributor& userInputEventDistributor,
 	         GlobalSettings& globalSettings);
 	~RealTime();
 
