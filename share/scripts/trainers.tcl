@@ -400,9 +400,28 @@ proc trainer_thexder2 {} {
 } 
 
 proc trainer_craze {} { 
-	#life bar
+	#life 
 	poke 0xc054 20
-	poke 0xc059 20
+	#ammo 
+	poke 0xc059 80
+	#something
+	poke 0xc05a 6
+	#max shot
+	poke 0xc064 255
+	#max front shield
+	poke 0xc067 255
+	#max back shield
+	poke 0xc069 255
+	#max back shield
+	poke 0xc069 255
+	#side shield
+	poke 0xc06a 255
+	#spikes
+	poke 0xc06a 255
+	#trusters
+	poke 0xc06c 255
+	#wings
+	poke 0xc06d 255
 	after time 2 trainer_craze 
 }
 
@@ -446,7 +465,6 @@ proc trainer_parodius {} {
 	after time 1 trainer_parodius 
 } 
 
-
 proc trainer_salamander {} { 
  	#lives player 1
 	poke 0xe300 0x99
@@ -458,7 +476,7 @@ proc trainer_salamander {} {
 	poke 0xe410 1
 	#place in postition 2
 	poke 0xe412 2
-    #option 3 active
+    	#option 3 active
 	poke 0xe420 1
 	#place in postition 3
 	poke 0xe422 3
