@@ -523,13 +523,13 @@ string DebugCmd::help(const vector<string>& /*tokens*/) const
 		"debug read_block <name> <addr> <size>     read a whole block at once\n"
 		"debug write_block <name> <addr> <values>  write a whole block at once\n"
 		"debug set_bp <addr> [<cond>] [<cmd>]      insert a new breakpoint\n"
-		"debug remove_bp <id>                      remove a certain breapoint\n"
+		"debug remove_bp <id>                      remove a certain breakpoint\n"
 		"debug list_bp                             list the active breakpoints\n"
 		"debug cont                                continue execution after break\n"
 		"debug step                                execute one instruction\n"
 		"debug break                               break CPU at current position\n"
 		"debug breaked                             query CPU breaked status\n"
-		"debug disasm <addr>                       disassemble instruction\n";
+		"debug disasm <addr>                       disassemble instructions\n";
 	return helpText;
 }
 
