@@ -56,7 +56,7 @@ private:
 	                      TclObject& result);
 	void listBreakPoints(const std::vector<TclObject*>& tokens,
 	                     TclObject& result);
-	std::set<std::string> getBreakPointIdsAsStringSet() const;	
+	std::set<std::string> getBreakPointIdsAsStringSet() const;
 	void setWatchPoint(const std::vector<TclObject*>& tokens,
 	                   TclObject& result);
 	void removeWatchPoint(const std::vector<TclObject*>& tokens,
@@ -525,7 +525,7 @@ string DebugCmd::help(const vector<string>& /*tokens*/) const
 		"debug set_bp <addr> [<cond>] [<cmd>]      insert a new breakpoint\n"
 		"debug remove_bp <id>                      remove a certain breapoint\n"
 		"debug list_bp                             list the active breakpoints\n"
-		"debug cont                                continue execution aftre break\n"
+		"debug cont                                continue execution after break\n"
 		"debug step                                execute one instruction\n"
 		"debug break                               break CPU at current position\n"
 		"debug breaked                             query CPU breaked status\n"
@@ -577,11 +577,11 @@ void DebugCmd::tabCompletion(vector<string>& tokens) const
 			break;
 		}
 		case 3: {
-			if (singleArgCmds.find(tokens[1]) == 
-					singleArgCmds.end()) { 
+			if (singleArgCmds.find(tokens[1]) ==
+					singleArgCmds.end()) {
 				// this command takes (an) argument(s)
-				if (debuggableArgCmds.find(tokens[1]) != 
-					debuggableArgCmds.end()) { 
+				if (debuggableArgCmds.find(tokens[1]) !=
+					debuggableArgCmds.end()) {
 					// it takes a debuggable here
 					set<string> debuggables;
 					debugger.getDebuggables(debuggables);
