@@ -550,7 +550,7 @@ ifeq ($(INSTALL_CONTRIB),true)
 endif
 ifeq ($(USE_SYMLINK),true)
 	@echo "  Creating symlinks..."
-	@ln -nsf National_CF-1200 $(INSTALL_SHARE_DIR)/machines/msx1
+	@ln -nsf Toshiba_HX-10 $(INSTALL_SHARE_DIR)/machines/msx1
 	@ln -nsf Philips_NMS_8250 $(INSTALL_SHARE_DIR)/machines/msx2
 	@ln -nsf Panasonic_FS-A1FX $(INSTALL_SHARE_DIR)/machines/msx2plus
 	@ln -nsf Panasonic_FS-A1GT $(INSTALL_SHARE_DIR)/machines/turbor
