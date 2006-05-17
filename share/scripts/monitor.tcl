@@ -1,30 +1,44 @@
-proc monitor_normal {} {
-	set ::color_matrix { { 1 0 0 } { 0 1 0 } { 0 0 1 } }
+set_help_text monitor_type \
+{Select a monitor color profile.
+
+Usage:
+  monitor_type          Shows the current profile
+  monitor_type -list    Show all possible types
+  monitor_type <type>   Select new type
 }
-proc monitor_red {} {
-	set ::color_matrix { { 1 0 0 } { 0 0 0 } { 0 0 0 } }
+
+set_tabcompletion_proc monitor_type tab_monitor_type
+proc tab_monitor_type { args } {
+	set result [array names ::__monitor]
+	lappend result "-list"
 }
-proc monitor_green {} {
-	set ::color_matrix { { 0 0 0 } { 0 1 0 } { 0 0 0 } }
-}
-proc monitor_blue {} {
-	set ::color_matrix { { 0 0 0 } { 0 0 0 } { 0 0 1 } }
-}
-proc monitor_monochrome_amber {} {
-	set ::color_matrix { { .257 .504 .098 } { .193 .378 .073 } { 0 0 0 } }
-}
-proc monitor_monochrome_amber_bright {} {
-	set ::color_matrix { { .333 .333 .333 } { .249 .249 .249 } { 0 0 0 } }
-}
-proc monitor_monochrome_green {} {
-	set ::color_matrix { { .129 .252 .049 } { .257 .504 .098 } { .129 .252 .049 } }
-}
-proc monitor_monochrome_green_bright {} {
-	set ::color_matrix { { .167 .167 .167 } { .333 .333 .333 } { .167 .167 .167 } }
-}
-proc monitor_monochrome_white {} {
-	set ::color_matrix { { .257 .504 .098 } { .257 .504 .098 } { .257 .504 .098 } }
-}
-proc monitor_monochrome_white_bright {} {
-	set ::color_matrix { { .333 .333 .333 } { .333 .333 .333 } { .333 .333 .333 } }
+
+set __monitor(normal) {{ 1 0 0 } { 0 1 0 } { 0 0 1 }}
+set __monitor(red)    {{ 1 0 0 } { 0 0 0 } { 0 0 0 }}
+set __monitor(green)  {{ 0 0 0 } { 0 1 0 } { 0 0 0 }}
+set __monitor(blue)   {{ 0 0 0 } { 0 0 0 } { 0 0 1 }}
+set __monitor(monochrome_amber) {{ .257 .504 .098 } { .193 .378 .073 } { 0 0 0 }}
+set __monitor(monochrome_amber_bright) {{ .333 .333 .333 } { .249 .249 .249 } { 0 0 0 }}
+set __monitor(monochrome_green) {{ .129 .252 .049 } { .257 .504 .098 } { .129 .252 .049 }}
+set __monitor(monochrome_green_bright) {{ .167 .167 .167 } { .333 .333 .333 } { .167 .167 .167 }}
+set __monitor(monochrome_white) {{ .257 .504 .098 } { .257 .504 .098 } { .257 .504 .098 }}
+set __monitor(monochrome_white_bright) {{ .333 .333 .333 } { .333 .333 .333 } { .333 .333 .333 }}
+
+proc monitor_type { {monitor ""} } {
+	if [string equal $monitor ""] {
+		foreach type [array names ::__monitor] {
+			if [string equal $::__monitor($type) $::color_matrix] {
+				return $type
+			}
+		}
+		return "Custom monitor type: $::color_matrix"
+	} elseif [string equal $monitor "-list"] {
+		return [array names ::__monitor]
+	} else {
+		if [info exists ::__monitor($monitor)] {
+			set ::color_matrix $::__monitor($monitor)
+		} else {
+			error "No such monitor type: $monitor"
+		}
+	}
 }
