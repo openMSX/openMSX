@@ -4450,6 +4450,10 @@ proc trainer_replicart {} {
 proc trainer_dass {} {
 	#special power
 	poke 0xaea1 162
+	#invincible
+	poke 0x9abb 255
+	#lives
+	poke 0xae51 4
 	after time 1 trainer_dass
 }
 
