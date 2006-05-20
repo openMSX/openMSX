@@ -38,6 +38,12 @@ public:
 	SectorAccessibleDisk* getSectorAccessibleDisk();
 
 private:
+	// Bit flags for the status register:
+	const byte DRDY = 0x40;
+	const byte DSC  = 0x10;
+	const byte DRQ  = 0x08;
+	const byte ERR  = 0x01;
+
 	void setError(byte error);
 	unsigned getSectorNumber() const;
 	unsigned getNumSectors() const;
