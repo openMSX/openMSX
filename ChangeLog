@@ -1,5 +1,8 @@
 $Id$
 
+2006-05-20 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added Spectravideo SVI-738 machine
+
 2006-05-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented V99x8 with only 16kb VRAM
 
