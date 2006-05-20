@@ -29,16 +29,19 @@ RS232Tester::~RS232Tester()
 void RS232Tester::plugHelper(Connector& connector_, const EmuTime& /*time*/)
 {
 	// output
-	outFile.open(rs232OutputFilenameSetting->getValue().c_str());
+	std::string outName = rs232OutputFilenameSetting->getValue();
+	outFile.open(outName.c_str());
 	if (outFile.fail()) {
 		outFile.clear();
-		throw PlugException("Error opening output file");
+		throw PlugException("Error opening output file: " + outName);
 	}
 
 	// input
-	inFile = fopen(rs232InputFilenameSetting->getValue().c_str(), "rb");
+	std::string inName = rs232InputFilenameSetting->getValue();
+	inFile = fopen(inName.c_str(), "rb");
 	if (!inFile) {
-		throw PlugException("Error opening input file");
+		outFile.close();
+		throw PlugException("Error opening input file: " + inName);
 	}
 
 	RS232Connector& rs232Connector = static_cast<RS232Connector&>(connector_);
