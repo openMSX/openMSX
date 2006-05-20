@@ -39,10 +39,10 @@ public:
 
 private:
 	// Bit flags for the status register:
-	const byte DRDY = 0x40;
-	const byte DSC  = 0x10;
-	const byte DRQ  = 0x08;
-	const byte ERR  = 0x01;
+	static const byte DRDY = 0x40;
+	static const byte DSC  = 0x10;
+	static const byte DRQ  = 0x08;
+	static const byte ERR  = 0x01;
 
 	void setError(byte error);
 	unsigned getSectorNumber() const;
