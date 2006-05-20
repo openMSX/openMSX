@@ -340,11 +340,11 @@ void XMLElement::merge(const XMLElement& source)
 	for (Children::const_iterator it = sourceChildren.begin();
 	     it != sourceChildren.end(); ++it) {
 		const XMLElement& srcChild = **it;
-		Children::iterator it = std::find_if(srcChildrenCopy.begin(),
+		Children::iterator it2 = std::find_if(srcChildrenCopy.begin(),
 			srcChildrenCopy.end(), ShallowEqualTo(srcChild));
-		if (it != srcChildrenCopy.end()) {
-			(*it)->merge(srcChild);
-			srcChildrenCopy.erase(it); // don't merge to same child twice
+		if (it2 != srcChildrenCopy.end()) {
+			(*it2)->merge(srcChild);
+			srcChildrenCopy.erase(it2); // don't merge to same child twice
 		} else {
 			addChild(auto_ptr<XMLElement>(new XMLElement(srcChild)));
 		}
