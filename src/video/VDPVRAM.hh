@@ -10,6 +10,7 @@
 #include "Ram.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
+#include "likely.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -156,6 +157,7 @@ public:
 	  */
 	inline void setMask(int newBaseMask, int newIndexMask,
 	                    const EmuTime& time) {
+		newBaseMask &= sizeMask;
 		if (isEnabled() &&
 		    (newBaseMask  == baseMask) &&
 		    (newIndexMask == indexMask)) {
@@ -268,13 +270,7 @@ private:
 	/** Create a new window.
 	  * Initially, the window is disabled; use setRange to enable it.
 	  */
-	VRAMWindow();
-
-	/** Used by VDPVRAM to pass a pointer to the VRAM data.
-	  */
-	void setData(byte* data) {
-		this->data = data;
-	}
+	VRAMWindow(Ram& vram);
 
 	/** Pointer to the entire VRAM data.
 	  */
@@ -301,6 +297,12 @@ private:
 	  * If there is no observer, this variable contains NULL.
 	  */
 	VRAMObserver* observer;
+
+	/** Mask to handle vram mirroring 
+	  * Note: this only handles mirroring for power-of-2 sizes
+	  *       mirroring of extended VRAM is handled in a different way
+	  */
+	const int sizeMask;
 };
 
 /** Manages VRAM contents and synchronises the various users of the VRAM.
@@ -310,16 +312,6 @@ private:
 class VDPVRAM : private noncopyable
 {
 public:
-	VRAMWindow cmdReadWindow;
-	VRAMWindow cmdWriteWindow;
-	VRAMWindow nameTable;
-	VRAMWindow colourTable;
-	VRAMWindow patternTable;
-	VRAMWindow bitmapVisibleWindow;
-	VRAMWindow bitmapCacheWindow;
-	VRAMWindow spriteAttribTable;
-	VRAMWindow spritePatternTable;
-
 	VDPVRAM(VDP& vdp, unsigned size, const EmuTime& time);
 
 	/** Update VRAM state to specified moment in time.
@@ -340,8 +332,17 @@ public:
 	inline void cmdWrite(unsigned address, byte value, const EmuTime& time) {
 		// Rewriting history is not allowed.
 		assert(time >= clock.getTime());
-
 		assert(vdp.isInsideFrame(time));
+
+		// handle mirroring and non-present ram chips
+		address &= sizeMask;
+		if (unlikely(address >= actualSize)) {
+			// 192kb vram is mirroring is handled elsewhere
+			assert(address < 0x30000);
+			// only happens in case of 16kb vram while you write
+			// to range [0x4000,0x8000)
+			return;
+		}
 
 		// Check that VRAM will actually be changed.
 		// A lot of costly syncs can be saved if the same value is written.
@@ -349,33 +350,7 @@ public:
 		// even if it is the same as the previous frame.
 		if (data[address] == value) return;
 
-		// Subsystem synchronisation should happen before the commit,
-		// to be able to draw backlog using old state.
-		bitmapVisibleWindow.notify(address, time);
-		spriteAttribTable.notify(address, time);
-		spritePatternTable.notify(address, time);
-
-		data[address] = value;
-		clock.advance(time);
-
-		// Cache dirty marking should happen after the commit,
-		// otherwise the cache could be re-validated based on old state.
-		bitmapCacheWindow.notify(address, time);
-		nameTable.notify(address, time);
-		colourTable.notify(address, time);
-		patternTable.notify(address, time);
-
-		/* TODO:
-		There seems to be a significant difference between subsystem sync
-		and cache admin. One example is the code above, the other is
-		updateWindow, where subsystem sync is interested in windows that
-		were enabled before (new state doesn't matter), while cache admin
-		is interested in windows that become enabled (old state doesn't
-		matter).
-		Does this mean it makes sense to have separate VRAMWindow like
-		classes for each category?
-		Note: In the future, sprites may switch category, or fall in both.
-		*/
+		writeCommon(address, value, time);
 	}
 
 	/** Write a byte to VRAM through the CPU interface.
@@ -384,13 +359,31 @@ public:
 	  * @param time The moment in emulated time this write occurs.
 	  */
 	inline void cpuWrite(unsigned address, byte value, const EmuTime& time) {
+		// Rewriting history is not allowed.
 		assert(time >= clock.getTime());
 		assert(vdp.isInsideFrame(time));
-		if (cmdReadWindow.isInside(address)
-		|| cmdWriteWindow.isInside(address)) {
+		
+		// handle mirroring and non-present ram chips
+		address &= sizeMask;
+		if (unlikely(address >= actualSize)) {
+			// 192kb vram is mirroring is handled elsewhere
+			assert(address < 0x30000);
+			// only happens in case of 16kb vram while you write
+			// to range [0x4000,0x8000)
+			return;
+		}
+
+		// Check that VRAM will actually be changed.
+		// A lot of costly syncs can be saved if the same value is written.
+		// For example Penguin Adventure always uploads the whole frame,
+		// even if it is the same as the previous frame.
+		if (data[address] == value) return;
+
+		if (cmdReadWindow .isInside(address) ||
+		    cmdWriteWindow.isInside(address)) {
 			cmdEngine->sync(time);
 		}
-		cmdWrite(address, value, time);
+		writeCommon(address, value, time);
 	}
 
 	/** Read a byte from VRAM though the CPU interface.
@@ -401,9 +394,9 @@ public:
 	inline byte cpuRead(unsigned address, const EmuTime& time) {
 		// VRAM should never get ahead of CPU.
 		assert(time >= clock.getTime());
-
 		assert(vdp.isInsideFrame(time));
 
+		address &= sizeMask;
 		if (cmdWriteWindow.isInside(address)) {
 			cmdEngine->sync(time);
 		}
@@ -438,7 +431,7 @@ public:
 	/** Returns the size of VRAM in bytes
 	  */
 	unsigned getSize() const {
-		return data.getSize();
+		return actualSize;
 	}
 
 	/** Necessary because of circular dependencies.
@@ -454,6 +447,38 @@ public:
 	}
 
 private:
+	/* Common code of cmdWrite() and cpuWrite()
+	 */
+	inline void writeCommon(unsigned address, byte value, const EmuTime& time) {
+		// Subsystem synchronisation should happen before the commit,
+		// to be able to draw backlog using old state.
+		bitmapVisibleWindow.notify(address, time);
+		spriteAttribTable.notify(address, time);
+		spritePatternTable.notify(address, time);
+
+		data[address] = value;
+		clock.advance(time);
+
+		// Cache dirty marking should happen after the commit,
+		// otherwise the cache could be re-validated based on old state.
+		bitmapCacheWindow.notify(address, time);
+		nameTable.notify(address, time);
+		colourTable.notify(address, time);
+		patternTable.notify(address, time);
+
+		/* TODO:
+		There seems to be a significant difference between subsystem sync
+		and cache admin. One example is the code above, the other is
+		updateWindow, where subsystem sync is interested in windows that
+		were enabled before (new state doesn't matter), while cache admin
+		is interested in windows that become enabled (old state doesn't
+		matter).
+		Does this mean it makes sense to have separate VRAMWindow like
+		classes for each category?
+		Note: In the future, sprites may switch category, or fall in both.
+		*/
+	}
+
 	/** VDP this VRAM belongs to.
 	  */
 	VDP& vdp;
@@ -475,6 +500,28 @@ private:
 	  *       Maybe it should stay in either case, possibly between IFDEFs.
 	  */
 	Clock<VDP::TICKS_PER_SECOND> clock;
+
+	/** Mask to handle vram mirroring 
+	  * Note: this only handles mirroring at power-of-2 sizes
+	  *       mirroring of extended VRAM is handled in a different way
+	  */
+	const unsigned sizeMask;
+
+	/** Actual size of VRAM. Normally this is in sync with sizeMask, but
+	  * for 16kb VRAM sizeMask is 32kb-1 while actualSize is only 16kb.
+	  */
+	const unsigned actualSize;
+
+public:
+	VRAMWindow cmdReadWindow;
+	VRAMWindow cmdWriteWindow;
+	VRAMWindow nameTable;
+	VRAMWindow colourTable;
+	VRAMWindow patternTable;
+	VRAMWindow bitmapVisibleWindow;
+	VRAMWindow bitmapCacheWindow;
+	VRAMWindow spriteAttribTable;
+	VRAMWindow spritePatternTable;
 };
 
 } // namespace openmsx

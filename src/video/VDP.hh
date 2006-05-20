@@ -735,12 +735,6 @@ private:
 	  */
 	std::auto_ptr<VDPVRAM> vram;
 
-	/** VRAM mask: bit mask that indicates which address bits are
-	  * present in the VRAM.
-	  * Equal to VRAM size minus one because VRAM size is a power of two.
-	  */
-	int vramMask;
-
 	/** First byte written through port #99, #9A or #9B.
 	  */
 	byte dataLatch;

@@ -117,7 +117,6 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
 		out << "VRAM size of " << vramSize << "kB is not supported!";
 		throw MSXException(out.str());
 	}
-	vramMask = (vramSize != 192) ? ((vramSize * 1024) - 1) : 0x1FFFF;
 	vram.reset(new VDPVRAM(*this, vramSize * 1024, time));
 
 	Display& display = getMotherBoard().getDisplay();
@@ -525,7 +524,7 @@ void VDP::writeIO(word port, byte value, const EmuTime& time)
 	assert(isInsideFrame(time));
 	switch (port & 0x03) {
 	case 0: { // VRAM data write
-		int addr = ((controlRegs[14] << 14) | vramPointer) & vramMask;
+		int addr = (controlRegs[14] << 14) | vramPointer;
 		//fprintf(stderr, "VRAM[%05X]=%02X\n", addr, value);
 		if (displayMode.isPlanar()) {
 			// note: also extended VRAM is interleaved,
@@ -801,7 +800,7 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime& time)
 		}
 		break;
 	case 2: {
-		int base = ((val << 10) | ~(-1 << 10)) & vramMask;
+		int base = (val << 10) | ~(-1 << 10);
 		// TODO:
 		// I reverted this fix.
 		// Although the code is correct, there is also a counterpart in the
@@ -961,7 +960,7 @@ void VDP::syncAtNextLine(SyncType type, const EmuTime& time)
 
 void VDP::updateNameBase(const EmuTime& time)
 {
-	int base = ((controlRegs[2] << 10) | ~(-1 << 10)) & vramMask;
+	int base = (controlRegs[2] << 10) | ~(-1 << 10);
 	// TODO:
 	// I reverted this fix.
 	// Although the code is correct, there is also a counterpart in the
@@ -989,8 +988,7 @@ void VDP::updateNameBase(const EmuTime& time)
 
 void VDP::updateColourBase(const EmuTime& time)
 {
-	int base = vramMask &
-		((controlRegs[10] << 14) | (controlRegs[3] << 6) | ~(-1 << 6));
+	int base = (controlRegs[10] << 14) | (controlRegs[3] << 6) | ~(-1 << 6);
 	renderer->updateColourBase(base, time);
 	switch (displayMode.getBase()) {
 	case 0x09: // Text 2.
@@ -1012,7 +1010,7 @@ void VDP::updateColourBase(const EmuTime& time)
 
 void VDP::updatePatternBase(const EmuTime& time)
 {
-	int base = vramMask & ((controlRegs[4] << 11) | ~(-1 << 11));
+	int base = (controlRegs[4] << 11) | ~(-1 << 11);
 	renderer->updatePatternBase(base, time);
 	switch (displayMode.getBase()) {
 	case 0x01: // Text 1.
@@ -1040,8 +1038,7 @@ void VDP::updateSpriteAttributeBase(const EmuTime& time)
 		vram->spriteAttribTable.disable(time);
 		return;
 	}
-	int base = vramMask &
-		((controlRegs[11] << 15) | (controlRegs[5] << 7) | ~(-1 << 7));
+	int base = (controlRegs[11] << 15) | (controlRegs[5] << 7) | ~(-1 << 7);
 	if (mode == 1) {
 		vram->spriteAttribTable.setMask(base, -1 << 7, time);
 	} else { // mode == 2
@@ -1060,7 +1057,7 @@ void VDP::updateSpritePatternBase(const EmuTime& time)
 		vram->spritePatternTable.disable(time);
 		return;
 	}
-	int base = ((controlRegs[6] << 11) | ~(-1 << 11)) & vramMask;
+	int base = (controlRegs[6] << 11) | ~(-1 << 11);
 	if (displayMode.isPlanar()) base = ((base << 16) | (base >> 1)) & 0x1FFFF;
 	vram->spritePatternTable.setMask(base, -1 << 11, time);
 }

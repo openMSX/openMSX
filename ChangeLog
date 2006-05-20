@@ -1,6 +1,9 @@
 $Id$
 
-2006-04-30 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2006-05-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented V99x8 with only 16kb VRAM
+
+2006-05-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented ninja-tap:
 	   Thanks to BiFiMSX for disassembling the test program
 

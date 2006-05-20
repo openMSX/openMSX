@@ -8,7 +8,16 @@ namespace openmsx {
 
 // class VRAMWindow:
 
-VRAMWindow::VRAMWindow()
+static unsigned roundUpPow2(unsigned a)
+{
+	unsigned result = 1;
+	while (result < a) result <<= 1;
+	return result;
+}
+
+VRAMWindow::VRAMWindow(Ram& vram)
+	: data(&vram[0])
+	, sizeMask(roundUpPow2(vram.getSize()) - 1)
 {
 	observer = NULL;
 	baseAddr  = -1; // disable window
@@ -20,27 +29,38 @@ VRAMWindow::VRAMWindow()
 
 // class VDPVRAM:
 
+static unsigned bufferSize(unsigned size)
+{
+	// for 16kb vram still allocate a 32kb buffer
+	//  (mirroring happens at 32kb, upper 16kb contains random data)
+	return (size != 0x4000) ? size : 0x8000;
+}
+
 VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, const EmuTime& time)
 	: vdp(vdp_)
-	, data(vdp.getMotherBoard(), "VRAM", "Video RAM.", size)
+	, data(vdp.getMotherBoard(), "VRAM", "Video RAM.", bufferSize(size))
 	, clock(time)
+	, sizeMask(roundUpPow2(data.getSize()) - 1)
+	, actualSize(size)
+	, cmdReadWindow(data)
+	, cmdWriteWindow(data)
+	, nameTable(data)
+	, colourTable(data)
+	, patternTable(data)
+	, bitmapVisibleWindow(data)
+	, bitmapCacheWindow(data)
+	, spriteAttribTable(data)
+	, spritePatternTable(data)
 {
 	// Initialise VRAM data array.
 	// TODO: Fill with checkerboard pattern NMS8250 has.
 	memset(&data[0], 0, data.getSize());
-
-	// Initialise access windows.
-	// TODO: Use vram.read(window, index) instead of vram.window.read(index)?
-	//       The former doesn't need setData.
-	cmdReadWindow.setData(&data[0]);
-	cmdWriteWindow.setData(&data[0]);
-	nameTable.setData(&data[0]);
-	colourTable.setData(&data[0]);
-	patternTable.setData(&data[0]);
-	bitmapVisibleWindow.setData(&data[0]);
-	bitmapCacheWindow.setData(&data[0]);
-	spriteAttribTable.setData(&data[0]);
-	spritePatternTable.setData(&data[0]);
+	if (actualSize == 0x4000) {
+		// [0x4000,0x8000) contains random data
+		// TODO reading same location multiple times does not always
+		// give the same value
+		memset(&data[0x4000], 0xFF, 0x4000);
+	}
 
 	// Whole VRAM is cachable.
 	// Because this window has no observer, any EmuTime can be passed.
