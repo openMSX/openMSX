@@ -240,6 +240,15 @@ unsigned AbstractIDEDevice::getNumSectors() const
 void AbstractIDEDevice::executeCommand(byte cmd)
 {
 	switch (cmd) {
+	case 0x90: // Execute Device Diagnostic
+		// This command is executed by both devices in parallel.
+		// Fortunately, returning 0x01 is valid in all cases:
+		// - for device 0 it means: device 0 passed,
+		//                          device 1 passed or not present
+		// - for device 1 it means: device 1 passed
+		setError(0x01);
+		break;
+
 	case 0x91: // Initialize Device Parameters
 		// ignore command
 		break;
