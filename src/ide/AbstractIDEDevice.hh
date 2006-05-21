@@ -62,12 +62,6 @@ protected:
 	  */
 	virtual void writeBlockComplete(byte* buffer) = 0;
 
-	/** Called when the end of a write transfer is reached.
-	  * This method is called after writeBlockComplete.
-	  * The default implementation does nothing.
-	  */
-	virtual void writeTransferComplete();
-
 	/** Starts execution of an IDE command.
 	  * Override this to implement additional commands and make sure you call
 	  * the superclass implementation for all commands that you don't handle.

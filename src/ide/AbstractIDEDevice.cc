@@ -214,12 +214,7 @@ void AbstractIDEDevice::writeData(word value, const EmuTime& /*time*/)
 		// everything written
 		setTransferWrite(false);
 		statusReg &= ~DRQ;
-		writeTransferComplete();
 	}
-}
-
-void AbstractIDEDevice::writeTransferComplete()
-{
 }
 
 void AbstractIDEDevice::setError(byte error)
