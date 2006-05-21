@@ -15,6 +15,11 @@ IDECDROM::~IDECDROM()
 {
 }
 
+bool IDECDROM::isPacketDevice()
+{
+	return true;
+}
+
 const std::string& IDECDROM::getDeviceName()
 {
 	static const std::string NAME = "OPENMSX CD-ROM";
@@ -23,28 +28,15 @@ const std::string& IDECDROM::getDeviceName()
 
 void IDECDROM::fillIdentifyBlock(byte* buffer)
 {
-	// TODO: According to the spec, packet devices shouldn't even answer to
-	//       IDENTIFY DEVICE.
-
-	// TODO: These values are nonsense.
-	unsigned totalSectors = 0x12345678;
-	word heads = 16;
-	word sectors = 32;
-	word cylinders = totalSectors / (heads * sectors);
-
-	buffer[0x01] = 0x85; // CD-ROM
-
-	buffer[0x02] = cylinders & 0xFF;
-	buffer[0x03] = cylinders / 0x100;
-	buffer[0x06] = heads & 0xFF;
-	buffer[0x07] = heads / 0x100;
-	buffer[0x0C] = sectors & 0xFF;
-	buffer[0x0D] = sectors / 0x100;
-
-	buffer[0x78] = (totalSectors & 0x000000FF) >>  0;
-	buffer[0x79] = (totalSectors & 0x0000FF00) >>  8;
-	buffer[0x7A] = (totalSectors & 0x00FF0000) >> 16;
-	buffer[0x7B] = (totalSectors & 0xFF000000) >> 24;
+	// 1... ....: removable media
+	// .10. ....: fast handling of packet command (immediate, in fact)
+	// .... .1..: incomplete response:
+	//            fields that depend on medium are undefined
+	// .... ..00: support for 12-byte packets
+	buffer[0 * 2 + 0] = 0xC4;
+	// 10.. ....: ATAPI
+	// ...0 0101: CD-ROM device
+	buffer[0 * 2 + 1] = 0x85;
 }
 
 void IDECDROM::readBlockStart(byte* /*buffer*/)

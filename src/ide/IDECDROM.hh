@@ -19,6 +19,7 @@ public:
 
 protected:
 	// AbstractIDEDevice:
+	virtual bool isPacketDevice();
 	virtual const std::string& getDeviceName();
 	virtual void fillIdentifyBlock(byte* buffer);
 	virtual void readBlockStart(byte* buffer);

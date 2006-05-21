@@ -39,6 +39,11 @@ protected:
 		);
 	virtual ~AbstractIDEDevice();
 
+	/** Is this device a packet (ATAPI) device?
+	  * @return True iff this device supports the packet commands.
+	  */
+	virtual bool isPacketDevice() = 0;
+
 	/** Gets the device name to insert as "model number" into the identify
 	  * block.
 	  * @return An ASCII string, up to 40 characters long.
@@ -103,6 +108,29 @@ protected:
 	void abortWriteTransfer(byte error);
 
 private:
+	/** Perform diagnostic and return result.
+	  * Actually, just return success, because we don't emulate faulty hardware.
+	  */
+	byte diagnostic();
+
+	/** Puts special values in the sector address, sector count and device
+	  * registers to identify the type of device.
+	  * @param preserveDevice If true, preserve the value of the DEV bit;
+	  *   if false, set the DEV bit to 0.
+	  */
+	void createSignature(bool preserveDevice = false);
+
+	/** Writes a string to a location in the identify block.
+	  * Helper method for createIdentifyBlock.
+	  * @param p Pointer to write the characters to.
+	  * @param len Number of words to write.
+	  * @param s ASCII string to write.
+	  *   If the string is longer than len*2 characters, it is truncated.
+	  *   If the string is shorter than len*2 characters, it is padded
+	  *   with spaces.
+	  */
+	void writeIdentifyString(byte* p, unsigned len, const std::string& s);
+
 	/** Puts the output for the IDENTIFY DEVICE command in the buffer.
 	  */
 	void createIdentifyBlock();

@@ -34,6 +34,11 @@ IDEHD::~IDEHD()
 {
 }
 
+bool IDEHD::isPacketDevice()
+{
+	return false;
+}
+
 const std::string& IDEHD::getDeviceName()
 {
 	static const std::string NAME = "OPENMSX HARD DISK";
@@ -45,20 +50,24 @@ void IDEHD::fillIdentifyBlock(byte* buffer)
 	word heads = 16;
 	word sectors = 32;
 	word cylinders = totalSectors / (heads * sectors);
+	buffer[1 * 2 + 0] = cylinders & 0xFF;
+	buffer[1 * 2 + 1] = cylinders >> 8;
+	buffer[3 * 2 + 0] = heads & 0xFF;
+	buffer[3 * 2 + 1] = heads >> 8;
+	buffer[6 * 2 + 0] = sectors & 0xFF;
+	buffer[6 * 2 + 1] = sectors >> 8;
 
-	buffer[0x01] = 0x0C; // HD
+	buffer[47 * 2 + 0] = 16; // max sector transfer per interrupt
+	buffer[47 * 2 + 1] = 0x80; // specced value
 
-	buffer[0x02] = cylinders & 0xFF;
-	buffer[0x03] = cylinders / 0x100;
-	buffer[0x06] = heads & 0xFF;
-	buffer[0x07] = heads / 0x100;
-	buffer[0x0C] = sectors & 0xFF;
-	buffer[0x0D] = sectors / 0x100;
+	// .... 1...: IORDY supported (hardware signal used by PIO modes >3)
+	// .... ..1.: LBA supported
+	buffer[49 * 2 + 1] = 0x0A;
 
-	buffer[0x78] = (totalSectors & 0x000000FF) >>  0;
-	buffer[0x79] = (totalSectors & 0x0000FF00) >>  8;
-	buffer[0x7A] = (totalSectors & 0x00FF0000) >> 16;
-	buffer[0x7B] = (totalSectors & 0xFF000000) >> 24;
+	buffer[60 * 2 + 0] = (totalSectors & 0x000000FF) >>  0;
+	buffer[60 * 2 + 1] = (totalSectors & 0x0000FF00) >>  8;
+	buffer[61 * 2 + 0] = (totalSectors & 0x00FF0000) >> 16;
+	buffer[61 * 2 + 1] = (totalSectors & 0xFF000000) >> 24;
 }
 
 void IDEHD::readBlockStart(byte* buffer)
