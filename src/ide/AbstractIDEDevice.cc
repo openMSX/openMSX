@@ -49,8 +49,7 @@ AbstractIDEDevice::AbstractIDEDevice(
 	)
 	: eventDistributor(eventDistributor_)
 {
-	buffer = new byte[512 * 256];
-
+	buffer = new byte[512];
 	transferRead = transferWrite = false;
 }
 
@@ -150,6 +149,7 @@ void AbstractIDEDevice::writeReg(
 		statusReg &= ~(DRQ | ERR);
 		setTransferRead(false);
 		setTransferWrite(false);
+		transferIdentifyBlock = false;
 		executeCommand(value);
 		break;
 
@@ -177,9 +177,18 @@ word AbstractIDEDevice::readData(const EmuTime& /*time*/)
 		// no read in progress
 		return 0x7F7F;
 	}
+	if ((transferCount & 255) == 0) {
+		if (transferIdentifyBlock) {
+			createIdentifyBlock();
+		} else {
+			readBlockStart(buffer);
+		}
+		transferPntr = buffer;
+	}
 	word result = transferPntr[0] + (transferPntr[1] << 8);
 	transferPntr += 2;
-	if (--transferCount == 0) {
+	transferCount--;
+	if (transferCount == 0) {
 		// everything read
 		setTransferRead(false);
 		statusReg &= ~DRQ;
@@ -198,7 +207,7 @@ void AbstractIDEDevice::writeData(word value, const EmuTime& /*time*/)
 	transferPntr += 2;
 	transferCount--;
 	if ((transferCount & 255) == 0) {
-		writeBlockComplete();
+		writeBlockComplete(buffer);
 		transferPntr = buffer;
 	}
 	if (transferCount == 0) {
@@ -240,26 +249,11 @@ void AbstractIDEDevice::executeCommand(byte cmd)
 		// ignore command
 		break;
 
-	case 0xEC: { // ATA Identify Device
-		memcpy(buffer, defaultIdentifyBlock, 512);
-		transferCount = 512 / 2;
-		transferPntr = buffer;
-
-		const std::string& name = getDeviceName();
-		std::string::const_iterator it = name.begin();
-		for (int pos = 0; pos < 20; pos++) {
-			char c1, c2;
-			if (it == name.end()) { c1 = 0x20; } else { c1 = *it++; }
-			if (it == name.end()) { c2 = 0x20; } else { c2 = *it++; }
-			buffer[(27 + pos) * 2 + 0] = c2;
-			buffer[(27 + pos) * 2 + 1] = c1;
-		}
-
-		fillIdentifyBlock();
-		setTransferRead(true);
-		statusReg |= DRQ;
+	case 0xEC: // ATA Identify Device
+		transferIdentifyBlock = true;
+		startReadTransfer(512/2);
 		break;
-	}
+
 	case 0xEF: // Set Features
 		switch (featureReg) {
 		case 0x03: // Set Transfer Mode
@@ -277,7 +271,6 @@ void AbstractIDEDevice::executeCommand(byte cmd)
 
 void AbstractIDEDevice::startReadTransfer(unsigned count)
 {
-	transferPntr = buffer;
 	transferCount = count;
 	statusReg |= DRQ;
 	setTransferRead(true);
@@ -327,6 +320,23 @@ void AbstractIDEDevice::setTransferWrite(bool status)
 				);
 		}
 	}
+}
+
+void AbstractIDEDevice::createIdentifyBlock()
+{
+	memcpy(buffer, defaultIdentifyBlock, 512);
+
+	const std::string& name = getDeviceName();
+	std::string::const_iterator it = name.begin();
+	for (int pos = 0; pos < 20; pos++) {
+		char c1, c2;
+		if (it == name.end()) { c1 = 0x20; } else { c1 = *it++; }
+		if (it == name.end()) { c2 = 0x20; } else { c2 = *it++; }
+		buffer[(27 + pos) * 2 + 0] = c2;
+		buffer[(27 + pos) * 2 + 1] = c1;
+	}
+
+	fillIdentifyBlock(buffer);
 }
 
 } // namespace openmsx

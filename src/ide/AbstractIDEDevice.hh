@@ -46,13 +46,21 @@ protected:
 	/** Tells a subclass to fill the device specific parts of the identify
 	  * block located in the buffer.
 	  * The generic part is already written there.
+	  * @param buffer Array of 512 bytes.
 	  */
-	virtual void fillIdentifyBlock() = 0;
+	virtual void fillIdentifyBlock(byte* buffer) = 0;
 
-	/** Called when a block of written data has been buffered by the controller,
-	  * when the buffer is full or at the end of the transfer.
+	/** Called when a block of read data should be buffered by the controller:
+	  * when the buffer is empty or at the start of the transfer.
+	  * @param buffer Array of 512 bytes.
 	  */
-	virtual void writeBlockComplete() = 0;
+	virtual void readBlockStart(byte* buffer) = 0;
+
+	/** Called when a block of written data has been buffered by the controller:
+	  * when the buffer is full or at the end of the transfer.
+	  * @param buffer Array of 512 bytes.
+	  */
+	virtual void writeBlockComplete(byte* buffer) = 0;
 
 	/** Called when the end of a write transfer is reached.
 	  * This method is called after writeBlockComplete.
@@ -98,22 +106,10 @@ protected:
 	  */
 	void abortWriteTransfer(byte error);
 
-	byte* buffer;
-
 private:
-	byte errorReg;
-	byte sectorCountReg;
-	byte sectorNumReg;
-	byte cylinderLowReg;
-	byte cylinderHighReg;
-	byte devHeadReg;
-	byte statusReg;
-	byte featureReg;
-
-	bool transferRead;
-	bool transferWrite;
-	unsigned transferCount;
-	byte* transferPntr;
+	/** Puts the output for the IDENTIFY DEVICE command in the buffer.
+	  */
+	void createIdentifyBlock();
 
 	/** Indicates that a read transfer starts.
 	  */
@@ -122,6 +118,25 @@ private:
 	/** Indicates that a write transfer starts.
 	  */
 	void setTransferWrite(bool status);
+
+	byte errorReg;
+	byte sectorCountReg;
+	byte sectorNumReg;
+	byte cylinderLowReg;
+	byte cylinderHighReg;
+	byte devHeadReg;
+	byte statusReg;
+	byte featureReg;
+	byte* buffer;
+
+	/** True iff the current transfer is part of an IDENTIFY DEVICE command.
+	  */
+	bool transferIdentifyBlock;
+
+	bool transferRead;
+	bool transferWrite;
+	unsigned transferCount;
+	byte* transferPntr;
 
 	EventDistributor& eventDistributor;
 };

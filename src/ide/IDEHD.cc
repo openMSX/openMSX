@@ -43,7 +43,7 @@ const std::string& IDEHD::getDeviceName()
 	return NAME;
 }
 
-void IDEHD::fillIdentifyBlock()
+void IDEHD::fillIdentifyBlock(byte* buffer)
 {
 	word heads = 16;
 	word sectors = 32;
@@ -64,37 +64,30 @@ void IDEHD::fillIdentifyBlock()
 	buffer[0x7B] = (totalSectors & 0xFF000000) >> 24;
 }
 
-void IDEHD::writeBlockComplete()
+void IDEHD::readBlockStart(byte* buffer)
+{
+	try {
+		readLogicalSector(transferSectorNumber, buffer);
+		transferSectorNumber++;
+	} catch (FileException &e) {
+		abortReadTransfer(0x40);
+	}
+}
+
+void IDEHD::writeBlockComplete(byte* buffer)
 {
 	try {
 		writeLogicalSector(transferSectorNumber, buffer);
+		transferSectorNumber++;
 	} catch (FileException &e) {
 		abortWriteTransfer(0x40);
 	}
-	transferSectorNumber++;
 }
 
 void IDEHD::executeCommand(byte cmd)
 {
 	switch (cmd) {
-	case 0x20: { // Read Sector
-		unsigned sectorNumber = getSectorNumber();
-		unsigned numSectors = getNumSectors();
-		if ((sectorNumber + numSectors) > totalSectors) {
-			setError(0x10 | ABORT);
-			break;
-		}
-		try {
-			for (unsigned i = 0; i < numSectors; ++i) {
-				readLogicalSector(sectorNumber + i, buffer + i * 512);
-			}
-		} catch (FileException &e) {
-			abortReadTransfer(0x40);
-			break;
-		}
-		startReadTransfer(512/2 * numSectors);
-		break;
-	}
+	case 0x20: // Read Sector
 	case 0x30: { // Write Sector
 		unsigned sectorNumber = getSectorNumber();
 		unsigned numSectors = getNumSectors();
@@ -103,7 +96,11 @@ void IDEHD::executeCommand(byte cmd)
 			break;
 		}
 		transferSectorNumber = sectorNumber;
-		startWriteTransfer(512/2 * numSectors);
+		if (cmd == 0x20) {
+			startReadTransfer(512/2 * numSectors);
+		} else {
+			startWriteTransfer(512/2 * numSectors);
+		}
 		break;
 	}
 	default: // all others

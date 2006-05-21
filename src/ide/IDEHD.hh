@@ -33,8 +33,9 @@ public:
 protected:
 	// AbstractIDEDevice:
 	virtual const std::string& getDeviceName();
-	virtual void fillIdentifyBlock();
-	virtual void writeBlockComplete();
+	virtual void fillIdentifyBlock(byte* buffer);
+	virtual void readBlockStart(byte* buffer);
+	virtual void writeBlockComplete(byte* buffer);
 	virtual void executeCommand(byte cmd);
 
 private:
