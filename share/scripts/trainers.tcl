@@ -2026,14 +2026,14 @@ proc trainer_penguinadventure  {} {
 	after time 15 trainer_penguinadventure 
 } 
 
-proc trainer_stonedofwisdom {} {
+proc trainer_stoneofwisdom {} {
 	#life
 	poke 0xe044 55
 	#power
 	poke 0xe042 55
 	#intel
 	poke 0xe040 55
-	after time 2 trainer_stonedofwisdom
+	after time 2 trainer_stoneofwisdom
 }
 proc trainer_blowup {} {
 	#'cosmic' cheat active f1 to place bombs f5 to blow yourself up
@@ -4448,6 +4448,7 @@ proc trainer_replicart {} {
 }
 
 proc trainer_dass {} {
+	#!!!
 	#special power
 	poke 0xaea1 162
 	#invincible
@@ -5770,6 +5771,42 @@ proc trainer_dangerx4 {} {
 	#lives
 	poke 0xd018 10
 	after time 5 trainer_dangerx4
+}
+
+proc trainer_thefairylandstory {} {	
+	#lives
+	poke 0xe1c0 0x99
+	after time 5 trainer_thefairylandstory
+}
+
+proc trainer_psychicsoldier2 {} {	
+	#power
+	poke 0xf07a 255
+	poke 0xf07b 255
+	#fire power
+	poke 0xf07e 255
+	poke 0xf07f 255
+	after time 5 trainer_psychicsoldier2
+}
+
+proc trainer_pipi {} {	
+	#invincible
+	poke 0xd623 1
+	#invincible timer
+	poke 0xd654 255
+	#exit always active
+	poke 0xd710 2
+	#time
+	poke 0xd716 20
+	#lives
+	poke 0xd478 11
+	after time 1 trainer_pipi
+}
+
+proc trainer_zexaslimited {} {	
+	#invincible
+	poke 0xeecf 100
+	after time 60 trainer_zexaslimited
 }
 
 ### EOF ###
