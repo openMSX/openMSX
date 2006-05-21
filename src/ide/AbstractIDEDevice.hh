@@ -29,7 +29,9 @@ protected:
 	static const byte DRQ = 0x08;
 	static const byte ERR = 0x01;
 
-	// Bit flag for the error register:
+	// Bit flags for the error register:
+	static const byte UNC = 0x40;
+	static const byte IDNF = 0x10;
 	static const byte ABORT = 0x04;
 
 	AbstractIDEDevice(
