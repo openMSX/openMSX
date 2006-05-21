@@ -5,10 +5,7 @@
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "XMLElement.hh"
-#include "EventDistributor.hh"
-#include "LedEvent.hh"
 #include <cassert>
-#include <string.h>
 
 using std::string;
 
