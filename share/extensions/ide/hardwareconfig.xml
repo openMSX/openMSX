@@ -24,6 +24,9 @@
             <filename>hd.dsk</filename>
             <size>100</size>
           </master>
+          <slave>
+            <type>IDECDROM</type>
+          </slave>
         </SunriseIDE>
       </secondary>
     </primary>

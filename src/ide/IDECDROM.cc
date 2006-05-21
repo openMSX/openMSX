@@ -1,0 +1,142 @@
+// $Id$
+
+#include "IDECDROM.hh"
+#include <cassert>
+
+namespace openmsx {
+
+IDECDROM::IDECDROM(EventDistributor& eventDistributor_,
+		const XMLElement& /*config*/, const EmuTime& time)
+	: AbstractIDEDevice(eventDistributor_, time)
+{
+}
+
+IDECDROM::~IDECDROM()
+{
+}
+
+const std::string& IDECDROM::getDeviceName()
+{
+	static const std::string NAME = "OPENMSX CD-ROM";
+	return NAME;
+}
+
+void IDECDROM::fillIdentifyBlock(byte* buffer)
+{
+	// TODO: According to the spec, packet devices shouldn't even answer to
+	//       IDENTIFY DEVICE.
+
+	// TODO: These values are nonsense.
+	unsigned totalSectors = 0x12345678;
+	word heads = 16;
+	word sectors = 32;
+	word cylinders = totalSectors / (heads * sectors);
+
+	buffer[0x01] = 0x85; // CD-ROM
+
+	buffer[0x02] = cylinders & 0xFF;
+	buffer[0x03] = cylinders / 0x100;
+	buffer[0x06] = heads & 0xFF;
+	buffer[0x07] = heads / 0x100;
+	buffer[0x0C] = sectors & 0xFF;
+	buffer[0x0D] = sectors / 0x100;
+
+	buffer[0x78] = (totalSectors & 0x000000FF) >>  0;
+	buffer[0x79] = (totalSectors & 0x0000FF00) >>  8;
+	buffer[0x7A] = (totalSectors & 0x00FF0000) >> 16;
+	buffer[0x7B] = (totalSectors & 0xFF000000) >> 24;
+}
+
+void IDECDROM::readBlockStart(byte* /*buffer*/)
+{
+	// No read transfers are supported yet.
+	assert(false);
+}
+
+void IDECDROM::writeBlockComplete(byte* buffer)
+{
+	// Currently, packet writes are the only kind of write transfer.
+	executePacketCommand(buffer);
+}
+
+void IDECDROM::executeCommand(byte cmd)
+{
+	switch (cmd) {
+	case 0xA0: // Packet Command (ATAPI)
+		fprintf(stderr, "ATAPI Command\n");
+		startWriteTransfer(12/2);
+		break;
+
+	case 0xDA: // ATA Get Media Status
+		fprintf(stderr, "ATA Get Media Status\n");
+		setError(ABORT);
+		break;
+
+	default: // all others
+		AbstractIDEDevice::executeCommand(cmd);
+	}
+}
+
+void IDECDROM::executePacketCommand(byte* packet)
+{
+	// It seems that unlike ATA which uses words at the basic data unit,
+	// ATAPI uses bytes.
+	fprintf(stderr, "ATAPI Packet:");
+	for (unsigned i = 0; i < sizeof(packet); i++) {
+		fprintf(stderr, " %02X", packet[i]);
+	}
+	fprintf(stderr, "\n");
+
+	switch (packet[0]) {
+	case 0x03: {
+		int count = packet[4];
+		fprintf(stderr, "  request sense: %d bytes\n", count);
+		setError(ABORT);
+		break;
+	}
+	case 0x43: {
+		bool msf = packet[1] & 2;
+		int format = packet[2] & 0x0F;
+		int trackOrSession = packet[6];
+		int allocLen = (packet[7] << 8) | packet[8];
+		//int control = packet[9];
+		switch (format) {
+		case 0: { // TOC
+			fprintf(stderr, "  read TOC: %s addressing, "
+				"start track %d, allocation length 0x%04X\n",
+				msf ? "MSF" : "logical block",
+				trackOrSession,
+				allocLen
+				);
+			setError(ABORT);
+			break;
+		}
+		case 1: // Session Info
+		case 2: // Full TOC
+		case 3: // PMA
+		case 4: // ATIP
+		default:
+			fprintf(stderr, "  read TOC: format %d not implemented\n", format);
+			setError(ABORT);
+		}
+		break;
+	}
+	case 0xA8: {
+		int sectorNumber = (packet[2] << 24) | (packet[3] << 16)
+		                 | (packet[4] <<  8) |  packet[5];
+		int sectorCount = (packet[6] << 24) | (packet[7] << 16)
+		                | (packet[8] <<  8) |  packet[9];
+		fprintf(stderr,
+			"  read(12): sector %d, count %d\n",
+			sectorNumber, sectorCount
+			);
+		setError(ABORT);
+		break;
+	}
+	default:
+		fprintf(stderr, "  unknown command 0x%02X\n", packet[0]);
+		setError(ABORT);
+	}
+}
+
+} // namespace openmsx

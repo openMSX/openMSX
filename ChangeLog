@@ -3,6 +3,10 @@ $Id$
 2006-05-21 Maarten ter Huurne <maarten@treewalker.org>
 	* Split IDEHD into generic part (new class AbstractIDEDevice) and
 	  HD specific part (class IDEHD).
+	* Initial implementation of CD-ROM emulation.
+	  The only things it can do right now is convince the Sunrise BIOS that
+	  it is a CD-ROM and print some debug info about ATAPI commands.
+	* Included a CD-ROM drive in the "ide" extension.
 
 2006-05-20 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added Spectravideo SVI-738 machine

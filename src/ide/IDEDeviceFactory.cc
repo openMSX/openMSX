@@ -2,6 +2,7 @@
 
 #include "IDEDeviceFactory.hh"
 #include "IDEHD.hh"
+#include "IDECDROM.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
 
@@ -15,6 +16,8 @@ IDEDevice* IDEDeviceFactory::create(EventDistributor& eventDistributor,
 	const string& type = config.getChildData("type");
 	if (type == "IDEHD") {
 		return new IDEHD(eventDistributor, config, time);
+	} else if (type == "IDECDROM") {
+		return new IDECDROM(eventDistributor, config, time);
 	}
 
 	throw MSXException("Unknown IDE device: " + type);
