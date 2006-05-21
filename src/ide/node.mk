@@ -6,7 +6,7 @@ SRC_HDR:= \
 	SunriseIDE \
 	DummyIDEDevice \
 	IDEDeviceFactory \
-	IDEHD
+	AbstractIDEDevice IDEHD
 
 HDR_ONLY:= \
 	IDEDevice

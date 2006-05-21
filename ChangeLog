@@ -1,5 +1,9 @@
 $Id$
 
+2006-05-21 Maarten ter Huurne <maarten@treewalker.org>
+	* Split IDEHD into generic part (new class AbstractIDEDevice) and
+	  HD specific part (class IDEHD).
+
 2006-05-20 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added Spectravideo SVI-738 machine
 	* More robust error handling in rs232-tester
