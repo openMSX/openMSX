@@ -67,7 +67,7 @@ void IDEHD::readBlockStart(byte* buffer)
 		readLogicalSector(transferSectorNumber, buffer);
 		transferSectorNumber++;
 	} catch (FileException &e) {
-		abortReadTransfer(0x40);
+		abortReadTransfer(UNC);
 	}
 }
 
@@ -77,7 +77,7 @@ void IDEHD::writeBlockComplete(byte* buffer)
 		writeLogicalSector(transferSectorNumber, buffer);
 		transferSectorNumber++;
 	} catch (FileException &e) {
-		abortWriteTransfer(0x40);
+		abortWriteTransfer(UNC);
 	}
 }
 
@@ -89,7 +89,9 @@ void IDEHD::executeCommand(byte cmd)
 		unsigned sectorNumber = getSectorNumber();
 		unsigned numSectors = getNumSectors();
 		if ((sectorNumber + numSectors) > totalSectors) {
-			setError(0x10 | ABORT);
+			// Note: The original code set ABORT as well, but that is not
+			//       allowed according to the spec.
+			setError(IDNF);
 			break;
 		}
 		transferSectorNumber = sectorNumber;
