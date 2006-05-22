@@ -1,5 +1,11 @@
 $Id$
 
+2006-05-22 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented differences between AY8910 and YM2149 (two PSG variations):
+	   - add  <type>AY8910</type>  or  <type>YM2149</type>
+	     in the <PSG> tag in hardwareconfig.xml
+	     Default remains AY8910
+
 2006-05-21 Maarten ter Huurne <maarten@treewalker.org>
 	* Split IDEHD into generic part (new class AbstractIDEDevice) and
 	  HD specific part (class IDEHD).
@@ -10,10 +16,10 @@ $Id$
 
 2006-05-20 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added Spectravideo SVI-738 machine
-	* More robust error handling in rs232-tester
 
 2006-05-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented V99x8 with only 16kb VRAM
+	* More robust error handling in rs232-tester
 
 2006-05-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented ninja-tap:

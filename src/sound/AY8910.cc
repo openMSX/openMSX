@@ -15,6 +15,9 @@
 #include "Mixer.hh"
 #include "MSXMotherBoard.hh"
 #include "SimpleDebuggable.hh"
+#include "XMLElement.hh"
+#include "MSXException.hh"
+#include "StringOp.hh"
 #include <cassert>
 
 using std::string;
@@ -200,8 +203,17 @@ inline void AY8910::NoiseGenerator::advance(int duration)
 
 // Amplitude:
 
-AY8910::Amplitude::Amplitude()
+AY8910::Amplitude::Amplitude(const XMLElement& config)
 {
+	string type = StringOp::toLower(config.getChildData("type", "ay8910"));
+	if (type == "ay8910") {
+		ay8910 = true;
+	} else if (type == "ym2149") {
+		ay8910 = false;
+	} else {
+		throw FatalError("Unknown PSG type: " + type);
+	}
+
 	vol[0] = vol[1] = vol[2] = 0;
 	envChan[0] = envChan[1] = envChan[2] = false;
 	envVolume = 0;
@@ -221,7 +233,7 @@ inline void AY8910::Amplitude::setChannelVolume(byte chan, byte value)
 
 inline void AY8910::Amplitude::setEnvelopeVolume(byte volume)
 {
-	envVolume = volTable[volume];
+	envVolume = envVolTable[volume];
 	if (envChan[0]) vol[0] = envVolume;
 	if (envChan[1]) vol[1] = envVolume;
 	if (envChan[2]) vol[2] = envVolume;
@@ -231,12 +243,26 @@ inline void AY8910::Amplitude::setMasterVolume(int volume)
 {
 	// Calculate the volume->voltage conversion table.
 	// The AY-3-8910 has 16 levels, in a logarithmic scale (3dB per step).
+	// YM2149 has 32 levels, the 16 extra levels are only used for envelope
+	// volumes
+
 	double out = volume; // avoid clipping
-	for (int i = 15; i > 0; --i) {
-		volTable[i] = (unsigned)(out + 0.5);	// round to nearest
-		out *= 0.707945784384;			// 1/(10^(3/20)) = 1/(3dB)
+	for (int i = 31; i > 0; --i) {
+		envVolTable[i] = (unsigned)(out + 0.5); // round to nearest;
+		out *= 0.841395141645195;               // 1/(10^(1.5/20)) = 1/(1.5dB)
 	}
+	envVolTable[0] = 0;
 	volTable[0] = 0;
+	for (int i = 1; i < 16; ++i) {
+		volTable[i] = envVolTable[2 * i + 1];
+	}
+	if (ay8910) {
+		// only 16 envelope steps, duplicate every step
+		envVolTable[1] = 0;
+		for (int i = 2; i < 32; i += 2) {
+			envVolTable[i] = envVolTable[i + 1];
+		}
+	}
 }
 
 inline bool AY8910::Amplitude::anyEnvelope()
@@ -246,6 +272,11 @@ inline bool AY8910::Amplitude::anyEnvelope()
 
 
 // Envelope:
+
+// AY8910 and YM2149 behave different here:
+//  YM2149 envelope goes twice as fast and has twice as many levels. Here
+//  we implement the YM2149 behaviour, but to get the AY8910 behaviour we
+//  repeat every level twice in the envVolTable
 
 inline AY8910::Envelope::Envelope(Amplitude& amplitude)
 	: amplitude(amplitude)
@@ -262,11 +293,12 @@ inline void AY8910::Envelope::reset()
 
 inline void AY8910::Envelope::setPeriod(int value, unsigned int updateStep)
 {
+	// twice as fast as AY8910
 	const int old = period;
 	if (value == 0) {
-		period = updateStep;
+		period = updateStep / 2;
 	} else {
-		period = value * 2 * updateStep;
+		period = value * updateStep;
 	}
 	count += period - old;
 	if (count <= 0) count = 1;
@@ -279,6 +311,7 @@ inline byte AY8910::Envelope::getVolume()
 
 inline void AY8910::Envelope::setShape(byte shape)
 {
+	// do 32 steps for both AY8910 and YM2149
 	/*
 	envelope shapes:
 		C AtAlH
@@ -293,7 +326,7 @@ inline void AY8910::Envelope::setShape(byte shape)
 		1 1 1 0  /\/\
 		1 1 1 1  /___
 	*/
-	attack = (shape & 0x04) ? 0x0F : 0x00;
+	attack = (shape & 0x04) ? 0x1F : 0x00;
 	if ((shape & 0x08) == 0) {
 		// If Continue = 0, map the shape to the equivalent one
 		// which has Continue = 1.
@@ -304,7 +337,7 @@ inline void AY8910::Envelope::setShape(byte shape)
 		alternate = shape & 0x02;
 	}
 	count = period;
-	step = 0x0F;
+	step = 0x1F;
 	holding = false;
 	amplitude.setEnvelopeVolume(getVolume());
 }
@@ -326,16 +359,16 @@ inline void AY8910::Envelope::advance(int duration)
 			// Check current envelope position.
 			if (step < 0) {
 				if (hold) {
-					if (alternate) attack ^= 0x0f;
+					if (alternate) attack ^= 0x1F;
 					holding = true;
 					step = 0;
 				} else {
 					// If step has looped an odd number of times
 					// (usually 1), invert the output.
 					if (alternate && (step & 0x10)) {
-						attack ^= 0x0F;
+						attack ^= 0x1F;
 					}
-					step &= 0x0F;
+					step &= 0x1F;
 				}
 			}
 			amplitude.setEnvelopeVolume(getVolume());
@@ -350,6 +383,7 @@ AY8910::AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
                const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMixer(), "PSG", "PSG")
 	, periphery(periphery_)
+	, amplitude(config)
 	, envelope(amplitude)
 	, debuggable(new AY8910Debuggable(motherBoard, *this))
 {

@@ -91,7 +91,7 @@ private:
 
 	class Amplitude {
 	public:
-		Amplitude();
+		Amplitude(const XMLElement& config);
 		inline unsigned int getVolume(byte chan);
 		inline void setChannelVolume(byte chan, byte value);
 		inline void setEnvelopeVolume(byte volume);
@@ -99,9 +99,11 @@ private:
 		inline bool anyEnvelope();
 	private:
 		unsigned int volTable[16];
+		unsigned int envVolTable[32];
 		unsigned int vol[3];
 		bool envChan[3];
 		unsigned int envVolume;
+		bool ay8910;
 	};
 
 	class Envelope {
@@ -141,8 +143,8 @@ private:
 	byte oldEnable;
 	ToneGenerator tone[3];
 	NoiseGenerator noise;
-	Envelope envelope;
 	Amplitude amplitude;
+	Envelope envelope;
 
 	const std::auto_ptr<AY8910Debuggable> debuggable;
 };
