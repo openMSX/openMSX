@@ -120,17 +120,6 @@ private:
 	  */
 	void createSignature(bool preserveDevice = false);
 
-	/** Writes a string to a location in the identify block.
-	  * Helper method for createIdentifyBlock.
-	  * @param p Pointer to write the characters to.
-	  * @param len Number of words to write.
-	  * @param s ASCII string to write.
-	  *   If the string is longer than len*2 characters, it is truncated.
-	  *   If the string is shorter than len*2 characters, it is padded
-	  *   with spaces.
-	  */
-	void writeIdentifyString(byte* p, unsigned len, const std::string& s);
-
 	/** Puts the output for the IDENTIFY DEVICE command in the buffer.
 	  */
 	void createIdentifyBlock();
@@ -151,7 +140,7 @@ private:
 	byte devHeadReg;
 	byte statusReg;
 	byte featureReg;
-	byte* buffer;
+	byte buffer[512];
 
 	/** True iff the current transfer is part of an IDENTIFY DEVICE command.
 	  */

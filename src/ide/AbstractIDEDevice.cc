@@ -5,7 +5,7 @@
 #include "LedEvent.hh"
 #include "Version.hh"
 #include <cassert>
-#include <string.h>
+#include <cstring>
 
 namespace openmsx {
 
@@ -14,13 +14,11 @@ AbstractIDEDevice::AbstractIDEDevice(
 	)
 	: eventDistributor(eventDistributor_)
 {
-	buffer = new byte[512];
 	transferRead = transferWrite = false;
 }
 
 AbstractIDEDevice::~AbstractIDEDevice()
 {
-	delete[] buffer;
 }
 
 byte AbstractIDEDevice::diagnostic()
@@ -340,16 +338,21 @@ void AbstractIDEDevice::setTransferWrite(bool status)
 	}
 }
 
-void AbstractIDEDevice::writeIdentifyString(
-	byte* p, unsigned len, const std::string& s
-) {
-	std::string::const_iterator it = s.begin();
-	for (unsigned count = 0; count < len; count++) {
-		char c1, c2;
-		if (it == s.end()) { c1 = ' '; } else { c1 = *it++; }
-		if (it == s.end()) { c2 = ' '; } else { c2 = *it++; }
-		*p++ = c2;
-		*p++ = c1;
+/** Writes a string to a location in the identify block.
+  * Helper method for createIdentifyBlock.
+  * @param p Pointer to write the characters to.
+  * @param len Number of words to write.
+  * @param s ASCII string to write.
+  *   If the string is longer  than len*2 characters, it is truncated.
+  *   If the string is shorter than len*2 characters, it is padded with spaces.
+  */
+static void writeIdentifyString(byte* p, unsigned len, std::string s)
+{
+	s.resize(2 * len, ' ');
+	for (unsigned i = 0; i < len; ++i) {
+		// copy and swap
+		p[2 * i + 0] = s[2 * i + 1];
+		p[2 * i + 1] = s[2 * i + 0];
 	}
 }
 
