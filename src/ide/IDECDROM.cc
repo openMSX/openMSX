@@ -49,6 +49,11 @@ void IDECDROM::readBlockStart(byte* /*buffer*/)
 	assert(false);
 }
 
+void IDECDROM::readEnd()
+{
+	setInterruptReason(I_O | C_D);
+}
+
 void IDECDROM::writeBlockComplete(byte* buffer)
 {
 	// Currently, packet writes are the only kind of write transfer.
@@ -61,11 +66,12 @@ void IDECDROM::executeCommand(byte cmd)
 	case 0xA0: // Packet Command (ATAPI)
 		fprintf(stderr, "ATAPI Command\n");
 		startWriteTransfer(12/2);
+		setInterruptReason(C_D);
 		break;
 
 	case 0xDA: // ATA Get Media Status
 		fprintf(stderr, "ATA Get Media Status\n");
-		setError(ABORT);
+		setError(0);
 		break;
 
 	default: // all others
