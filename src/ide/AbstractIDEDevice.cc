@@ -65,26 +65,26 @@ void AbstractIDEDevice::reset(const EmuTime& /*time*/)
 byte AbstractIDEDevice::readReg(nibble reg, const EmuTime& /*time*/)
 {
 	switch (reg) {
-	case 1:	// error register
+	case 1: // error register
 		return errorReg;
 
-	case 2:	// sector count register
+	case 2: // sector count register
 		return sectorCountReg;
 
-	case 3:	// sector number register
+	case 3: // sector number register
 		return sectorNumReg;
 
-	case 4:	// cyclinder low register
+	case 4: // cyclinder low register
 		return cylinderLowReg;
 
-	case 5:	// cyclinder high register
+	case 5: // cyclinder high register
 		return cylinderHighReg;
 
-	case 6:	// device/head register
+	case 6: // device/head register
 		// DEV bit is handled by IDE interface
 		return devHeadReg;
 
-	case 7:	// status register
+	case 7: // status register
 		return statusReg;
 
 	case 8:
@@ -182,6 +182,7 @@ word AbstractIDEDevice::readData(const EmuTime& /*time*/)
 		// everything read
 		setTransferRead(false);
 		statusReg &= ~DRQ;
+		readEnd();
 	}
 	return result;
 }
@@ -196,21 +197,27 @@ void AbstractIDEDevice::writeData(word value, const EmuTime& /*time*/)
 	transferPntr[1] = value >> 8;
 	transferPntr += 2;
 	transferCount--;
-	if ((transferCount & 255) == 0) {
-		writeBlockComplete(buffer);
-		transferPntr = buffer;
-	}
 	if (transferCount == 0) {
 		// everything written
 		setTransferWrite(false);
 		statusReg &= ~DRQ;
+	}
+	if ((transferCount & 255) == 0) {
+		transferPntr = buffer;
+		// Packet commands can start a second transfer, so the command
+		// execution must happen after we close this transfer.
+		writeBlockComplete(buffer);
 	}
 }
 
 void AbstractIDEDevice::setError(byte error)
 {
 	errorReg = error;
-	statusReg |= ERR;
+	if (error) {
+		statusReg |= ERR;
+	} else {
+		statusReg &= ~ERR;
+	}
 	statusReg &= ~DRQ;
 	setTransferWrite(false);
 	setTransferRead(false);
@@ -225,6 +232,15 @@ unsigned AbstractIDEDevice::getSectorNumber() const
 unsigned AbstractIDEDevice::getNumSectors() const
 {
 	return (sectorCountReg == 0) ? 256 : sectorCountReg;
+}
+
+void AbstractIDEDevice::setInterruptReason(byte value)
+{
+	sectorCountReg = value;
+}
+
+void AbstractIDEDevice::readEnd()
+{
 }
 
 void AbstractIDEDevice::executeCommand(byte cmd)

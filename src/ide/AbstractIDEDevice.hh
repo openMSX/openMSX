@@ -63,6 +63,11 @@ protected:
 	  */
 	virtual void readBlockStart(byte* buffer) = 0;
 
+	/** Called when a read transfer completes.
+	  * The default implementation does nothing.
+	  */
+	virtual void readEnd();
+
 	/** Called when a block of written data has been buffered by the controller:
 	  * when the buffer is full or at the end of the transfer.
 	  * @param buffer Array of 512 bytes.
@@ -88,6 +93,12 @@ protected:
 	/** Gets the number of sectors indicated by the sector count register.
 	  */
 	unsigned getNumSectors() const;
+
+	/** Writes the interrupt reason register.
+	  * This is the same as register as sector count, but serves a different
+	  * purpose.
+	  */
+	void setInterruptReason(byte value);
 
 	/** Indicates the start of a read data transfer.
 	  * @param count Total number of words to transfer.
