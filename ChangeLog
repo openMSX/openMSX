@@ -1,5 +1,8 @@
 $Id$
 
+2006-05-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented sprites in V9990 P2 mode (can still be optimized)
+
 2006-05-22 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented differences between AY8910 and YM2149 (two PSG variations):
 	   - add  <type>AY8910</type>  or  <type>YM2149</type>

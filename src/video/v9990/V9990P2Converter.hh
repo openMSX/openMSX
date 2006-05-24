@@ -20,16 +20,17 @@ public:
 	                 int displayX, int displayWidth, int displayY);
 
 private:
+	Pixel raster(unsigned xA, unsigned yA,
+	             int* visibleSprites, unsigned x, unsigned y);
+	byte getPixel(unsigned x, unsigned y);
+	void determineVisibleSprites(int* visibleSprites, int displayY);
+	byte getSpritePixel(int* visibleSprites, int x, int y, bool front);
+
 	V9990& vdp;
 	V9990VRAM& vram;
 	Pixel* palette64;
-
-	Pixel raster(int x, int y,
-	             unsigned int nameTable, unsigned int patternTable);
-	byte getPixel(int x, int y,
-	              unsigned int nameTable, unsigned int patternTable);
 };
 
-} // namespace
+} // namespace openmsx
 
 #endif
