@@ -7,14 +7,19 @@
 
 namespace openmsx {
 
+class CommandController;
 class EventDistributor;
 class XMLElement;
 
 class IDECDROM : public AbstractIDEDevice
 {
 public:
-	IDECDROM(EventDistributor& eventDistributor, const XMLElement& config,
-	      const EmuTime& time);
+	IDECDROM(
+		CommandController& commandController,
+		EventDistributor& eventDistributor,
+		const XMLElement& config,
+		const EmuTime& time
+		);
 	virtual ~IDECDROM();
 
 protected:

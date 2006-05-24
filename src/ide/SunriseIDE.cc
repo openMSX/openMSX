@@ -38,13 +38,20 @@ SunriseIDE::SunriseIDE(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 	const XMLElement* masterElem = config.findChild("master");
 	const XMLElement* slaveElem  = config.findChild("slave");
-	EventDistributor& eventDistributor = getMotherBoard().getEventDistributor();
+	CommandController& commandController = motherBoard.getCommandController();
+	EventDistributor& eventDistributor = motherBoard.getEventDistributor();
 	device[0].reset(masterElem
-	          ? IDEDeviceFactory::create(eventDistributor, *masterElem, time)
-	          : new DummyIDEDevice());
+		? IDEDeviceFactory::create(
+			commandController, eventDistributor, *masterElem, time
+			)
+		: new DummyIDEDevice()
+		);
 	device[1].reset(slaveElem
-	          ? IDEDeviceFactory::create(eventDistributor, *slaveElem, time)
-	          : new DummyIDEDevice());
+		? IDEDeviceFactory::create(
+			commandController, eventDistributor, *slaveElem, time
+			)
+		: new DummyIDEDevice()
+		);
 
 	registerDrive(0);
 	registerDrive(1);

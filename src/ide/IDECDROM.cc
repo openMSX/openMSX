@@ -5,8 +5,12 @@
 
 namespace openmsx {
 
-IDECDROM::IDECDROM(EventDistributor& eventDistributor_,
-		const XMLElement& /*config*/, const EmuTime& time)
+IDECDROM::IDECDROM(
+	CommandController& /*commandController*/,
+	EventDistributor& eventDistributor_,
+	const XMLElement& /*config*/,
+	const EmuTime& time
+	)
 	: AbstractIDEDevice(eventDistributor_, time)
 {
 }
