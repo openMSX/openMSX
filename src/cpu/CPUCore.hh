@@ -95,6 +95,7 @@ public:
 
 private:
 	void doContinue2();
+	bool needExitCPULoop();
 
 	// Observer<Setting>
 	virtual void update(const Setting& setting);
@@ -111,7 +112,7 @@ private:
 	int slowInstructions;
 	int NMIStatus;
 	int IRQStatus;
-	bool exitLoop;
+	volatile bool exitLoop;
 
 	word memptr;
 	offset ofst;

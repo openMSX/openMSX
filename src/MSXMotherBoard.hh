@@ -42,7 +42,6 @@ class ListExtCmd;
 class ExtCmd;
 class RemoveExtCmd;
 class AfterCommand;
-class ExitCPULoopSchedulable;
 
 class MSXMotherBoard : private Observer<Setting>
 {
@@ -56,6 +55,10 @@ public:
 	 *   false if emulation is suspended.
 	 */
 	bool execute();
+
+	/** Request to exit the main CPU loop.
+	  * Note: can get called from different threads
+	  */
 	void exitCPULoop();
 
 	/**
@@ -170,7 +173,6 @@ private:
 	const std::auto_ptr<ExtCmd>       extCommand;
 	const std::auto_ptr<RemoveExtCmd> removeExtCommand;
 	const std::auto_ptr<AfterCommand> afterCommand;
-	std::auto_ptr<ExitCPULoopSchedulable> schedulable;
 	BooleanSetting& powerSetting;
 };
 

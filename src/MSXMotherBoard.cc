@@ -38,17 +38,6 @@ using std::vector;
 
 namespace openmsx {
 
-class ExitCPULoopSchedulable : public Schedulable
-{
-public:
-	ExitCPULoopSchedulable(MSXMotherBoard& motherboard);
-	void schedule();
-private:
-	virtual void executeUntil(const EmuTime& time, int userData);
-	virtual const std::string& schedName() const;
-	MSXMotherBoard& motherBoard;
-};
-
 class ResetCmd : public SimpleCommand
 {
 public:
@@ -400,7 +389,7 @@ bool MSXMotherBoard::execute()
 void MSXMotherBoard::block()
 {
 	++blockedCounter;
-	getCPU().exitCPULoop();
+	exitCPULoop();
 	getMixer().mute();
 }
 
@@ -439,7 +428,7 @@ void MSXMotherBoard::removeDevice(MSXDevice& device)
 void MSXMotherBoard::scheduleReset()
 {
 	needReset = true;
-	getCPU().exitCPULoop();
+	exitCPULoop();
 }
 
 void MSXMotherBoard::doReset(const EmuTime& time)
@@ -481,7 +470,7 @@ void MSXMotherBoard::powerUp()
 void MSXMotherBoard::schedulePowerDown()
 {
 	needPowerDown = true;
-	getCPU().exitCPULoop();
+	exitCPULoop();
 }
 
 void MSXMotherBoard::doPowerDown(const EmuTime& time)
@@ -507,13 +496,10 @@ void MSXMotherBoard::doPowerDown(const EmuTime& time)
 
 void MSXMotherBoard::exitCPULoop()
 {
-	// this method can get called from different threads, so use Scheduler
-	// to call MSXCPU::exitCPULoop()
-	if (!schedulable.get()) {
-		schedulable.reset(new ExitCPULoopSchedulable(*this));
-	}
-	schedulable->schedule();
+	// this method can get called from different threads
+	getCPU().exitCPULoop();
 }
+
 // Observer<Setting>
 void MSXMotherBoard::update(const Setting& setting)
 {
@@ -559,31 +545,6 @@ static void getHwConfigs(const string& type, std::set<string>& result)
 			}
 		}
 	}
-}
-
-
-// class ExitCPULoopSchedulable
-
-ExitCPULoopSchedulable::ExitCPULoopSchedulable(MSXMotherBoard& motherBoard_)
-	: Schedulable(motherBoard_.getScheduler())
-	, motherBoard(motherBoard_)
-{
-}
-
-void ExitCPULoopSchedulable::schedule()
-{
-	setSyncPoint(Scheduler::ASAP);
-}
-
-void ExitCPULoopSchedulable::executeUntil(const EmuTime& /*time*/, int /*userData*/)
-{
-	motherBoard.getCPU().exitCPULoop();
-}
-
-const std::string& ExitCPULoopSchedulable::schedName() const
-{
-	static const std::string name = "ExitCPULoopSchedulable";
-	return name;
 }
 
 

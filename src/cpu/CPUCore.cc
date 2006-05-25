@@ -29,6 +29,7 @@ template <class T> CPUCore<T>::CPUCore(
 	, nmiEdge(false)
 	, NMIStatus(0)
 	, IRQStatus(0)
+	, exitLoop(false)
 	, interface(NULL)
 	, motherboard(motherboard_)
 	, scheduler(motherboard.getScheduler())
@@ -128,10 +129,24 @@ template <class T> void CPUCore<T>::doReset(const EmuTime& time)
 	assert(IRQStatus == 0); // other devices must reset their IRQ source
 }
 
+// I believe the following two methods are thread safe even without any
+// locking. The worst that can happen is that we occasionally needlessly
+// exit the CPU loop, but that's harmless
+//  TODO thread issues are always tricky, can someone confirm this really
+//       is thread safe
 template <class T> void CPUCore<T>::exitCPULoop()
 {
+	// can get called from the non-main thread
 	exitLoop = true;
-	++slowInstructions;
+}
+template <class T> bool CPUCore<T>::needExitCPULoop()
+{
+	// always executed in main thread
+	if (exitLoop) {
+		exitLoop = false;
+		return true;
+	}
+	return false;
 }
 
 template <class T> void CPUCore<T>::raiseIRQ()
@@ -509,7 +524,6 @@ template <class T> void CPUCore<T>::executeInternal()
 {
 	assert(!breaked);
 
-	exitLoop = false;
 	slowInstructions = 2;
 
 	if (continued || step) {
@@ -527,20 +541,22 @@ template <class T> void CPUCore<T>::executeInternal()
 
 	if (!anyBreakPoints() && !traceSetting.getValue()) {
 		// fast path, no breakpoints, no tracing
-		while (!exitLoop) {
+		while (true) {
 			if (slowInstructions) {
-				slowInstructions--;
+				--slowInstructions;
+				if (needExitCPULoop()) return;
 				scheduler.schedule(T::getTime());
 				executeSlow();
 			} else {
 				while (!slowInstructions) {
+					if (needExitCPULoop()) return;
 					scheduler.schedule(T::getTime());
 					executeFast();
 				}
 			}
 		}
 	} else {
-		while (!exitLoop) {
+		while (!needExitCPULoop()) {
 			if (checkBreakPoints(R)) {
 				continued = true; // skip bp check on next instr
 				break;
@@ -551,7 +567,7 @@ template <class T> void CPUCore<T>::executeInternal()
 				executeFast();
 				cpuTracePost();
 			} else {
-				slowInstructions--;
+				--slowInstructions;
 				scheduler.schedule(T::getTime());
 				executeSlow();
 			}
@@ -2703,7 +2719,9 @@ template <class T> void CPUCore<T>::halt()
 	slowInstructions = 2;
 
 	if (!(R.IFF1 || R.nextIFF1 || R.IFF2)) { 
-		motherboard.getCliComm().printWarning("DI; HALT detected, which means a hang. You can just as well reset the MSX now...\n"); 
+		motherboard.getCliComm().printWarning(
+			"DI; HALT detected, which means a hang. "
+			"You can just as well reset the MSX now...\n");
 	}
 }
 template <class T> void CPUCore<T>::im_0() { T::SET_IM_DELAY(); R.IM = 0; }
