@@ -1,5 +1,11 @@
 $Id$
 
+2006-05-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Use EventDistributor iso Scheduler for MidiInNative, MidiInReader
+	  and RS232Tester
+	* Don't use Scheduler to exit the CPU loop
+	* Removed ASAP from Scheduler
+
 2006-05-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented sprites in V9990 P2 mode (can still be optimized)
 
