@@ -22,7 +22,7 @@ using std::string;
 
 namespace openmsx {
 
-void MidiInNative::registerAll(EventDistributor& eventDistributor_,
+void MidiInNative::registerAll(EventDistributor& eventDistributor,
                                Scheduler& scheduler,
                                PluggingController& controller)
 {
@@ -35,8 +35,8 @@ void MidiInNative::registerAll(EventDistributor& eventDistributor_,
 }
 
 
-MidiInNative::MidiInNative(EventDistributor& eventDistributor,
-                           Scheduler& scheduler, unsigned num)
+MidiInNative::MidiInNative(EventDistributor& eventDistributor_,
+                           Scheduler& scheduler_, unsigned num)
 	: eventDistributor(eventDistributor_), scheduler(scheduler_)
 	, thread(this), lock(1)
 {
@@ -173,7 +173,7 @@ void MidiInNative::signal(const EmuTime& time)
 }
 
 // EventListener
-void MidiInNative::signalEvent(const Event& /*event*/);
+void MidiInNative::signalEvent(const Event& /*event*/)
 {
 	if (getConnector()) {
 		signal(scheduler.getCurrentTime());
