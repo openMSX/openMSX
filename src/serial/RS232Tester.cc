@@ -2,14 +2,17 @@
 
 #include "RS232Tester.hh"
 #include "RS232Connector.hh"
+#include "EventDistributor.hh"
 #include "Scheduler.hh"
 #include "FilenameSetting.hh"
 
 namespace openmsx {
 
-RS232Tester::RS232Tester(Scheduler& scheduler,
+RS232Tester::RS232Tester(EventDistributor& eventDistributor_,
+                         Scheduler& scheduler_,
                          CommandController& commandController)
-	: Schedulable(scheduler), thread(this), lock(1)
+	: eventDistributor(eventDistributor_), scheduler(scheduler_)
+	, thread(this), lock(1)
 	, rs232InputFilenameSetting(new FilenameSetting(
 	        commandController, "rs232-inputfilename",
 	        "filename of the file where the RS232 input is read from",
@@ -19,10 +22,12 @@ RS232Tester::RS232Tester(Scheduler& scheduler,
 	        "filename of the file where the RS232 output is written to",
 	        "rs232-output"))
 {
+	eventDistributor.registerEventListener(OPENMSX_RS232_TESTER_EVENT, *this);
 }
 
 RS232Tester::~RS232Tester()
 {
+	eventDistributor.unregisterEventListener(OPENMSX_RS232_TESTER_EVENT, *this);
 }
 
 // Pluggable
@@ -93,7 +98,8 @@ void RS232Tester::run()
 		assert(getConnector());
 		ScopedLock l(lock);
 		queue.push_back(buf);
-		setSyncPoint(Scheduler::ASAP);
+		eventDistributor.distributeEvent(
+			new SimpleEvent<OPENMSX_RS232_TESTER_EVENT>());
 	}
 }
 
@@ -114,20 +120,15 @@ void RS232Tester::signal(const EmuTime& time)
 	connector->recvByte(data, time);
 }
 
-// Schedulable
-void RS232Tester::executeUntil(const EmuTime& time, int /*userData*/)
+// EventListener
+void RS232Tester::signalEvent(const Event& /*event*/)
 {
 	if (getConnector()) {
-		signal(time);
+		signal(scheduler.getCurrentTime());
 	} else {
 		ScopedLock l(lock);
 		queue.empty();
 	}
-}
-
-const std::string& RS232Tester::schedName() const
-{
-	return getName();
 }
 
 

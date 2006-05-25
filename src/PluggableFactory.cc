@@ -31,6 +31,7 @@ namespace openmsx {
 void PluggableFactory::createAll(PluggingController& controller,
                                  MSXMotherBoard& motherBoard)
 {
+	EventDistributor& eventDistributor = motherBoard.getEventDistributor();
 	Scheduler& scheduler = motherBoard.getScheduler();
 	CommandController& commandController = motherBoard.getCommandController();
 	UserInputEventDistributor& userInputEventDistributor =
@@ -61,16 +62,18 @@ void PluggableFactory::createAll(PluggingController& controller,
 	controller.registerPluggable(new MidiOutLogger(commandController));
 
 	// Serial communication:
-	controller.registerPluggable(new RS232Tester(scheduler, commandController));
+	controller.registerPluggable(new RS232Tester(
+		eventDistributor, scheduler, commandController));
 
 	// Sampled audio:
 	controller.registerPluggable(new PrinterPortSimpl(motherBoard.getMixer()));
 	controller.registerPluggable(new WavAudioInput(commandController));
 
 	// MIDI:
-	controller.registerPluggable(new MidiInReader(scheduler, commandController));
+	controller.registerPluggable(new MidiInReader(
+		eventDistributor, scheduler, commandController));
 #if defined(_WIN32)
-	MidiInNative::registerAll(scheduler, controller);
+	MidiInNative::registerAll(eventDistributor, scheduler, controller);
 	MidiOutNative::registerAll(controller);
 #endif
 }

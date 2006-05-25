@@ -2,6 +2,7 @@
 
 #include "MidiInReader.hh"
 #include "MidiInConnector.hh"
+#include "EventDistributor.hh"
 #include "Scheduler.hh"
 #include "FilenameSetting.hh"
 #include <cstring>
@@ -11,18 +12,22 @@ using std::string;
 
 namespace openmsx {
 
-MidiInReader::MidiInReader(Scheduler& scheduler,
+MidiInReader::MidiInReader(EventDistributor& eventDistributor_,
+                           Scheduler& scheduler_,
                            CommandController& commandController)
-	: Schedulable(scheduler), thread(this), lock(1)
+	: eventDistributor(eventDistributor_), scheduler(scheduler_)
+	, thread(this), lock(1)
 	, readFilenameSetting(new FilenameSetting(
 		commandController, "midi-in-readfilename",
 		"filename of the file where the MIDI input is read from",
 		"/dev/midi"))
 {
+	eventDistributor.registerEventListener(OPENMSX_MIDI_IN_READER_EVENT, *this);
 }
 
 MidiInReader::~MidiInReader()
 {
+	eventDistributor.unregisterEventListener(OPENMSX_MIDI_IN_READER_EVENT, *this);
 }
 
 // Pluggable
@@ -80,7 +85,8 @@ void MidiInReader::run()
 
 		ScopedLock l(lock);
 		queue.push_back(buf);
-		setSyncPoint(Scheduler::ASAP);
+		eventDistributor.distributeEvent(
+			new SimpleEvent<OPENMSX_MIDI_IN_READER_EVENT>());
 	}
 }
 
@@ -103,20 +109,15 @@ void MidiInReader::signal(const EmuTime& time)
 	connector->recvByte(data, time);
 }
 
-// Schedulable
-void MidiInReader::executeUntil(const EmuTime& time, int /*userData*/)
+// EventListener
+void MidiInReader::signalEvent(const Event& /*event*/)
 {
 	if (getConnector()) {
-		signal(time);
+		signal(scheduler.getCurrentTime());
 	} else {
 		ScopedLock l(lock);
 		queue.empty();
 	}
-}
-
-const string& MidiInReader::schedName() const
-{
-	return getName();
 }
 
 } // namespace openmsx

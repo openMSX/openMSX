@@ -5,7 +5,7 @@
 
 #include "RS232Device.hh"
 #include "Thread.hh"
-#include "Schedulable.hh"
+#include "EventListener.hh"
 #include "Semaphore.hh"
 #include "openmsx.hh"
 #include <fstream>
@@ -15,13 +15,16 @@
 
 namespace openmsx {
 
+class EventDistributor;
+class Scheduler;
 class CommandController;
 class FilenameSetting;
 
-class RS232Tester : public RS232Device, private Runnable, private Schedulable
+class RS232Tester : public RS232Device, private Runnable, private EventListener
 {
 public:
-	RS232Tester(Scheduler& scheduler, CommandController& commandController);
+	RS232Tester(EventDistributor& eventDistributor, Scheduler& scheduler,
+	            CommandController& commandController);
 	virtual ~RS232Tester();
 
 	// Pluggable
@@ -40,10 +43,11 @@ private:
 	// Runnable
 	virtual void run();
 
-	// Schedulable
-	virtual void executeUntil(const EmuTime& time, int userData);
-	virtual const std::string& schedName() const;
+	// EventListener
+	virtual void signalEvent(const Event& event);
 
+	EventDistributor& eventDistributor;
+	Scheduler& scheduler;
 	Thread thread;
 	FILE* inFile;
 	std::deque<byte> queue;

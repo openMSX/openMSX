@@ -4,6 +4,7 @@
 #include "MidiInNative.hh"
 #include "MidiInConnector.hh"
 #include "PluggingController.hh"
+#include "EventDistributor.hh"
 #include "Scheduler.hh"
 #include <cstring>
 #include <cerrno>
@@ -21,26 +22,34 @@ using std::string;
 
 namespace openmsx {
 
-void MidiInNative::registerAll(Scheduler& scheduler,
+void MidiInNative::registerAll(EventDistributor& eventDistributor_,
+                               Scheduler& scheduler,
                                PluggingController& controller)
 {
 	w32_midiInInit();
 	unsigned devnum = w32_midiInGetVFNsNum();
 	for (unsigned i = 0 ; i <devnum; ++i) {
-		controller.registerPluggable(new MidiInNative(scheduler, i));
+		controller.registerPluggable(
+			new MidiInNative(eventDistributor, scheduler, i));
 	}
 }
 
 
-MidiInNative::MidiInNative(Scheduler& scheduler, unsigned num)
-	: Schedulable(scheduler), thread(this), lock(1)
+MidiInNative::MidiInNative(EventDistributor& eventDistributor,
+                           Scheduler& scheduler, unsigned num)
+	: eventDistributor(eventDistributor_), scheduler(scheduler_)
+	, thread(this), lock(1)
 {
 	name = w32_midiInGetVFN(num);
 	desc = w32_midiInGetRDN(num);
+	
+	eventDistributor.registerEventListener(OPENMSX_MIDI_IN_NATIVE_EVENT, *this);
 }
 
 MidiInNative::~MidiInNative()
 {
+	eventDistributor.unregisterEventListener(OPENMSX_MIDI_IN_NATIVE_EVENT, *this);
+
 	//w32_midiInClean(); // TODO
 }
 
@@ -86,7 +95,8 @@ void MidiInNative::procLongMsg(LPMIDIHDR p)
 		for (unsigned i = 0; i < p->dwBytesRecorded; ++i) {
 			queue.push_back(p->lpData[i]);
 		}
-		setSyncPoint(Scheduler::ASAP);
+		eventDistributor.distributeEvent(
+			new SimpleEvent<OPENMSX_MIDI_IN_NATIVE_EVENT>());
 	}
 }
 
@@ -106,7 +116,8 @@ void MidiInNative::procShortMsg(DWORD param)
 		queue.push_back(param & 0xFF);
 		param >>= 8;
 	}
-	setSyncPoint(Scheduler::ASAP);
+	eventDistributor.distributeEvent(
+		new SimpleEvent<OPENMSX_MIDI_IN_NATIVE_EVENT>());
 }
 
 // Runnable
@@ -161,20 +172,15 @@ void MidiInNative::signal(const EmuTime& time)
 	connector->recvByte(data, time);
 }
 
-// Schedulable
-void MidiInNative::executeUntil(const EmuTime& time, int userData)
+// EventListener
+void MidiInNative::signalEvent(const Event& /*event*/);
 {
 	if (getConnector()) {
-		signal(time);
+		signal(scheduler.getCurrentTime());
 	} else {
 		ScopedLock l(lock);
 		queue.empty();
 	}
-}
-
-const string &MidiInNative::schedName() const
-{
-	return getName();
 }
 
 } // namespace openmsx

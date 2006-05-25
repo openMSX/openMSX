@@ -12,7 +12,7 @@
 #include "openmsx.hh"
 #include "MidiInDevice.hh"
 #include "Thread.hh"
-#include "Schedulable.hh"
+#include "EventListener.hh"
 #include "Semaphore.hh"
 #include <SDL_thread.h>
 #include <windows.h>
@@ -21,17 +21,21 @@
 
 namespace openmsx {
 
+class EventDistributor;
+class Scheduler;
 class PluggingController;
 
-class MidiInNative : public MidiInDevice, private Runnable, private Schedulable
+class MidiInNative : public MidiInDevice, private Runnable, private EventListener
 {
 public:
 	/** Register all available native midi in devcies
 	  */
-	static void registerAll(Scheduler& scheduler,
+	static void registerAll(EventDistributor& eventDistributor,
+	                        Scheduler& scheduler,
 	                        PluggingController& controller);
 
-	MidiInNative(Scheduler& scheduler, unsigned num);
+	MidiInNative(EventDistributor& eventDistributor, Scheduler& scheduler,
+	             unsigned num);
 	virtual ~MidiInNative();
 
 	// Pluggable
@@ -47,13 +51,14 @@ private:
 	// Runnable
 	virtual void run();
 
-	// Schedulable
-	virtual void executeUntil(const EmuTime& time, int userData);
-	virtual const std::string& schedName() const;
+	// EventListener
+	virtual void signalEvent(const Event& event);
 
 	void procShortMsg(long unsigned int param);
 	void procLongMsg(LPMIDIHDR p);
 
+	EventDistributor& eventDistributor;
+	Scheduler& scheduler;
 	Thread thread;
 	unsigned int devidx;
 	unsigned int thrdid;

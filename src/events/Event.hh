@@ -48,6 +48,10 @@ enum EventType
 
 	/** Send when a (new) machine configuration is loaded */
 	OPENMSX_MACHINE_LOADED_EVENT,
+
+	OPENMSX_MIDI_IN_READER_EVENT,
+	OPENMSX_MIDI_IN_NATIVE_EVENT,
+	OPENMSX_RS232_TESTER_EVENT,
 };
 
 class Event

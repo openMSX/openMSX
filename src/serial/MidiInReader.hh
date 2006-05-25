@@ -5,7 +5,7 @@
 
 #include "MidiInDevice.hh"
 #include "Thread.hh"
-#include "Schedulable.hh"
+#include "EventListener.hh"
 #include "Semaphore.hh"
 #include "openmsx.hh"
 #include <cstdio>
@@ -14,13 +14,16 @@
 
 namespace openmsx {
 
+class EventDistributor;
+class Scheduler;
 class CommandController;
 class FilenameSetting;
 
-class MidiInReader : public MidiInDevice, private Runnable, private Schedulable
+class MidiInReader : public MidiInDevice, private Runnable, private EventListener
 {
 public:
-	MidiInReader(Scheduler& scheduler, CommandController& commandController);
+	MidiInReader(EventDistributor& eventDistributor, Scheduler& scheduler,
+	             CommandController& commandController);
 	virtual ~MidiInReader();
 
 	// Pluggable
@@ -36,10 +39,11 @@ private:
 	// Runnable
 	virtual void run();
 
-	// Schedulable
-	virtual void executeUntil(const EmuTime& time, int userData);
-	virtual const std::string& schedName() const;
+	// EventListener
+	virtual void signalEvent(const Event& event);
 
+	EventDistributor& eventDistributor;
+	Scheduler& scheduler;
 	Thread thread;
 	FILE* file;
 	std::deque<byte> queue;
