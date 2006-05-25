@@ -175,6 +175,9 @@ void SDLVideoSystem::getWindowSize(unsigned& width, unsigned& height)
 	case RendererFactory::SDLGL_PP:
 		// All scale factors are supported.
 		break;
+	case RendererFactory::DUMMY:
+		factor = 0;
+		break;
 	default:
 		assert(false);
 	}
