@@ -136,13 +136,13 @@ template <class T> void CPUCore<T>::doReset(const EmuTime& time)
 //       is thread safe
 template <class T> void CPUCore<T>::exitCPULoop()
 {
-	// can get called from the non-main thread
+	// can get called from non-main threads
 	exitLoop = true;
 }
-template <class T> bool CPUCore<T>::needExitCPULoop()
+template <class T> inline bool CPUCore<T>::needExitCPULoop()
 {
 	// always executed in main thread
-	if (exitLoop) {
+	if (unlikely(exitLoop)) {
 		exitLoop = false;
 		return true;
 	}
