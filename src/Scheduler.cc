@@ -2,15 +2,14 @@
 
 #include "Scheduler.hh"
 #include "Schedulable.hh"
+#include "Thread.hh"
 #include <cassert>
 #include <algorithm>
 
 namespace openmsx {
 
-const EmuTime Scheduler::ASAP(EmuTime::zero);
-
 Scheduler::Scheduler()
-	: sem(1), scheduleTime(EmuTime::zero)
+	: scheduleTime(EmuTime::zero)
 {
 }
 
@@ -23,9 +22,8 @@ void Scheduler::setSyncPoint(const EmuTime& time, Schedulable& device, int userD
 {
 	//PRT_DEBUG("Sched: registering " << device->schedName() <<
 	//          " " << userData << " for emulation at " << time);
-
-	ScopedLock lock(sem);
-	assert(time == ASAP || time >= scheduleTime);
+	assert(Thread::isMainThread());
+	assert(time >= scheduleTime);
 
 	// Push sync point into queue.
 	SyncPoints::iterator it =
@@ -36,7 +34,7 @@ void Scheduler::setSyncPoint(const EmuTime& time, Schedulable& device, int userD
 
 void Scheduler::removeSyncPoint(Schedulable& device, int userData)
 {
-	ScopedLock lock(sem);
+	assert(Thread::isMainThread());
 	for (SyncPoints::iterator it = syncPoints.begin();
 	     it != syncPoints.end(); ++it) {
 		if (((*it).getDevice() == &device) &&
@@ -49,7 +47,7 @@ void Scheduler::removeSyncPoint(Schedulable& device, int userData)
 
 void Scheduler::removeSyncPoints(Schedulable& device)
 {
-	ScopedLock lock(sem);
+	assert(Thread::isMainThread());
 	syncPoints.erase(remove_if(syncPoints.begin(), syncPoints.end(),
 	                           FindSchedulable(device)),
 	                 syncPoints.end());
@@ -57,7 +55,7 @@ void Scheduler::removeSyncPoints(Schedulable& device)
 
 bool Scheduler::pendingSyncPoint(Schedulable& device, int userData)
 {
-	ScopedLock lock(sem);
+	assert(Thread::isMainThread());
 	for (SyncPoints::iterator it = syncPoints.begin();
 	     it != syncPoints.end(); ++it) {
 		if ((it->getDevice() == &device) &&
@@ -70,6 +68,7 @@ bool Scheduler::pendingSyncPoint(Schedulable& device, int userData)
 
 const EmuTime& Scheduler::getCurrentTime() const
 {
+	assert(Thread::isMainThread());
 	return scheduleTime;
 }
 
@@ -77,23 +76,19 @@ void Scheduler::scheduleHelper(const EmuTime& limit)
 {
 	while (true) {
 		// Get next sync point.
-		sem.down();
 		const SynchronizationPoint sp =
 			  syncPoints.empty()
 			? SynchronizationPoint(EmuTime::infinity, NULL, 0)
 			: syncPoints.front();
-		const EmuTime& sp_time = sp.getTime();
-		if (sp_time > limit) {
-			sem.up();
+		const EmuTime& time = sp.getTime();
+		if (time > limit) {
 			break;
 		}
 
-		EmuTime time((sp_time == ASAP) ? scheduleTime : sp_time);
 		assert(scheduleTime <= time);
 		scheduleTime = time;
 
 		syncPoints.erase(syncPoints.begin());
-		sem.up();
 
 		Schedulable* device = sp.getDevice();
 		assert(device);

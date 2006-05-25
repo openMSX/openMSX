@@ -37,7 +37,7 @@ RealTime::RealTime(Scheduler& scheduler,
 	pauseSetting.attach(*this);
 	powerSetting.attach(*this);
 
-	setSyncPoint(Scheduler::ASAP);
+	setSyncPoint(scheduler.getCurrentTime());
 
 	resync();
 
@@ -162,7 +162,7 @@ void RealTime::resync()
 	idealRealTime = Timer::getTime();
 	sleepAdjust = 0.0;
 	removeSyncPoint();
-	setSyncPoint(Scheduler::ASAP);
+	setSyncPoint(getScheduler().getCurrentTime());
 }
 
 } // namespace openmsx

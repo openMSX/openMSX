@@ -4,7 +4,6 @@
 #define SCHEDULER_HH
 
 #include "EmuTime.hh"
-#include "Semaphore.hh"
 #include "Schedulable.hh"
 #include "likely.hh"
 #include "noncopyable.hh"
@@ -67,8 +66,7 @@ public:
 	 */
 	inline const EmuTime& getNext() const
 	{
-		const EmuTime& time = syncPoints.front().getTime();
-		return time == ASAP ? scheduleTime : time;
+		return syncPoints.front().getTime();
 	}
 
 	/**
@@ -76,16 +74,11 @@ public:
 	 */
 	inline void schedule(const EmuTime& limit)
 	{
-		// TODO: Assumes syncPoints is not empty.
-		//       In practice that's true because VDP end-of-frame sync point
-		//       is always there, but it's ugly to rely on that.
-		if (unlikely(limit >= syncPoints.front().getTime())) {
+		if (unlikely(limit >= getNext())) {
 			scheduleHelper(limit); // slow path not inlined
 		}
 		scheduleTime = limit;
 	}
-
-	static const EmuTime ASAP;
 
 private: // -> intended for Schedulable
 	friend void Schedulable::setSyncPoint(const EmuTime&, int);
@@ -100,8 +93,6 @@ private: // -> intended for Schedulable
 	 * earlier.
 	 * The supplied EmuTime may not be smaller than the current CPU
 	 * time.
-	 * If you want to schedule something as soon as possible, you
-	 * can pass Scheduler::ASAP as time argument.
 	 * A device may register several syncPoints.
 	 * Optionally a "userData" parameter can be passed, this
 	 * parameter is not used by the Scheduler but it is passed to
@@ -138,8 +129,6 @@ private:
 	  */
 	typedef std::vector<SynchronizationPoint> SyncPoints;
 	SyncPoints syncPoints;
-	Semaphore sem;	// protects syncPoints
-
 	EmuTime scheduleTime;
 };
 
