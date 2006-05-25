@@ -46,6 +46,16 @@ public:
 	  */
 	void join();
 
+	// For debugging only
+	/** Store ID of the main thread, should be called exactly once from
+	  * the main thread.
+	  */
+	static void setMainThread();
+
+	/** Returns true when called from the main thread.
+	  */
+	static bool isMainThread();
+
 private:
 	/** Helper function to start a thread (SDL is plain C).
 	  */

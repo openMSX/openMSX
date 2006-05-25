@@ -8,6 +8,21 @@
 
 namespace openmsx {
 
+static unsigned mainThreadId = (unsigned)-1;
+
+void Thread::setMainThread()
+{
+	assert(mainThreadId == (unsigned)-1);
+	mainThreadId = SDL_ThreadID();
+}
+
+bool Thread::isMainThread()
+{
+	assert(mainThreadId != (unsigned)-1);
+	return mainThreadId == SDL_ThreadID();
+}
+
+
 Thread::Thread(Runnable* runnable_)
 	: runnable(runnable_)
 {

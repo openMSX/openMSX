@@ -16,6 +16,7 @@
 #include "EnumSetting.hh"
 #include "MSXException.hh"
 #include "HotKey.hh"
+#include "Thread.hh"
 #include <memory>
 #include <iostream>
 #include <exception>
@@ -51,6 +52,7 @@ static int main(int argc, char **argv)
 
 	int err = 0;
 	try {
+		Thread::setMainThread();
 		Reactor reactor;
 		reactor.getCommandController().getInterpreter().init(argv[0]);
 
