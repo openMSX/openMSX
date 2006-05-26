@@ -1,5 +1,8 @@
 $Id$
 
+2006-05-26 Manuel Bilderbeek <manuel@msxnet.org>
+	* Specify the type of PSG for those machines we know this for sure
+
 2006-05-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Use EventDistributor iso Scheduler for MidiInNative, MidiInReader
 	  and RS232Tester
