@@ -47,13 +47,18 @@ void RomKonami5::reset(const EmuTime& time)
 	scc->reset(time);
 }
 
-byte RomKonami5::readMem(word address, const EmuTime& time)
+byte RomKonami5::peekMem(word address, const EmuTime& time) const
 {
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
 		return scc->readMemInterface(address & 0xFF, time);
 	} else {
-		return Rom8kBBlocks::readMem(address, time);
+		return Rom8kBBlocks::peekMem(address, time);
 	}
+}
+
+byte RomKonami5::readMem(word address, const EmuTime& time)
+{
+	return peekMem(address, time);
 }
 
 const byte* RomKonami5::getReadCacheLine(word address) const

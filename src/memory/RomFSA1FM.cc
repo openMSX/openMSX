@@ -89,7 +89,7 @@ void RomFSA1FM1::reset(const EmuTime& /*time*/)
 	// initial rom bank is undefined
 }
 
-byte RomFSA1FM1::readMem(word address, const EmuTime& /*time*/)
+byte RomFSA1FM1::peekMem(word address, const EmuTime& /*time*/) const
 {
 	if ((0x4000 <= address) && (address < 0x6000)) {
 		// read rom
@@ -111,6 +111,11 @@ byte RomFSA1FM1::readMem(word address, const EmuTime& /*time*/)
 	} else {
 		return 0xFF;
 	}
+}
+
+byte RomFSA1FM1::readMem(word address, const EmuTime& time)
+{
+	return peekMem(address, time);
 }
 
 const byte* RomFSA1FM1::getReadCacheLine(word address) const
@@ -183,7 +188,7 @@ void RomFSA1FM2::reset(const EmuTime& /*time*/)
 	changeBank(7, 0);
 }
 
-byte RomFSA1FM2::readMem(word address, const EmuTime& time)
+byte RomFSA1FM2::peekMem(word address, const EmuTime& time) const
 {
 	byte result;
 	if (0xC000 <= address) {
@@ -196,10 +201,15 @@ byte RomFSA1FM2::readMem(word address, const EmuTime& time)
 	} else if (isEmpty[address >> 13]) {
 		result = 0xFF;
 	} else {
-		result = Rom8kBBlocks::readMem(address, time);
+		result = Rom8kBBlocks::peekMem(address, time);
 	}
 	//PRT_DEBUG("FSA1FM2 read "<<hex<<(int)address<<" "<<(int)result<<dec);
 	return result;
+}
+
+byte RomFSA1FM2::readMem(word address, const EmuTime& time)
+{
+	return peekMem(address, time);
 }
 
 const byte* RomFSA1FM2::getReadCacheLine(word address) const

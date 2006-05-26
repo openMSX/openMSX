@@ -29,7 +29,7 @@ void RomNational::reset(const EmuTime& /*time*/)
 	sramAddr = 0;	// TODO check this
 }
 
-byte RomNational::readMem(word address, const EmuTime& time)
+byte RomNational::peekMem(word address, const EmuTime& time) const
 {
 	if ((control & 0x04) && ((address & 0x7FF9) == 0x7FF0)) {
 		// TODO check mirrored
@@ -39,9 +39,18 @@ byte RomNational::readMem(word address, const EmuTime& time)
 	}
 	if ((control & 0x02) && ((address & 0x3FFF) == 0x3FFD)) {
 		// SRAM read
-		return (*sram)[sramAddr++ & 0x0FFF];
+		return (*sram)[sramAddr & 0x0FFF];
 	}
-	return Rom16kBBlocks::readMem(address, time);
+	return Rom16kBBlocks::peekMem(address, time);
+}
+
+byte RomNational::readMem(word address, const EmuTime& time)
+{
+	byte result = peekMem(address, time);
+	if ((control & 0x02) && ((address & 0x3FFF) == 0x3FFD)) {
+		++sramAddr;
+	}
+	return result;
 }
 
 const byte* RomNational::getReadCacheLine(word address) const

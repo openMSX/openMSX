@@ -19,6 +19,7 @@ public:
 	virtual ~RomFSA1FM1();
 
 	virtual void reset(const EmuTime& time);
+	virtual byte peekMem(word address, const EmuTime& time) const;
 	virtual byte readMem(word address, const EmuTime& time);
 	virtual const byte* getReadCacheLine(word address) const;
 	virtual void writeMem(word address, byte value,
@@ -37,6 +38,7 @@ public:
 	virtual ~RomFSA1FM2();
 
 	virtual void reset(const EmuTime& time);
+	virtual byte peekMem(word address, const EmuTime& time) const;
 	virtual byte readMem(word address, const EmuTime& time);
 	virtual const byte* getReadCacheLine(word address) const;
 	virtual void writeMem(word address, byte value,

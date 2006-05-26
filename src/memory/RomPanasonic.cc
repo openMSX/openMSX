@@ -47,7 +47,7 @@ void RomPanasonic::reset(const EmuTime& /*time*/)
 	}
 }
 
-byte RomPanasonic::readMem(word address, const EmuTime& time)
+byte RomPanasonic::peekMem(word address, const EmuTime& time) const
 {
 	byte result;
 	if ((control & 0x04) && (0x7FF0 <= address) && (address < 0x7FF8)) {
@@ -66,16 +66,20 @@ byte RomPanasonic::readMem(word address, const EmuTime& time)
 		// read control byte
 		result = control;
 	} else {
-		result = Rom8kBBlocks::readMem(address, time);
+		result = Rom8kBBlocks::peekMem(address, time);
 	}
 	//PRT_DEBUG("DEBUG read "<<hex<<(int)address<<" "<<
 	//          (int)result<<dec);
 	return result;
 }
 
+byte RomPanasonic::readMem(word address, const EmuTime& time)
+{
+	return peekMem(address, time);
+}
+
 const byte* RomPanasonic::getReadCacheLine(word address) const
 {
-	//return NULL;
 	if ((0x7FF0 & CPU::CACHE_LINE_HIGH) == address) {
 		// TODO check mirrored
 		return NULL;
