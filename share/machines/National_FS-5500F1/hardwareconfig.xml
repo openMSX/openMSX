@@ -42,6 +42,7 @@
     </VDP>
 
     <PSG id="PSG">
+      <type>YM2149</type> <!-- in S-1985 MSX-ENGINE -->
       <keyboardlayout>50on</keyboardlayout>
       <sound>
         <volume>21000</volume>

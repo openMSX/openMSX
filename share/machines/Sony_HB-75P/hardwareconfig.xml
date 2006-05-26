@@ -29,6 +29,7 @@
     </VDP>
 
     <PSG id="PSG">
+      <type>AY8910</type> <!-- probably there are also series with YM2149 -->
       <sound>
         <volume>21000</volume>
       </sound>

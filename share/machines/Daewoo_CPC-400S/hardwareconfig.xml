@@ -44,6 +44,7 @@
     </VDP>
 
     <PSG id="PSG">
+      <type>YM2149</type> <!-- in S-1985 MSX-ENGINE -->
       <sound>
         <volume>21000</volume>
       </sound>

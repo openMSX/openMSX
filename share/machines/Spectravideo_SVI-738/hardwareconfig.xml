@@ -31,6 +31,7 @@
     </VDP>
 
     <PSG id="PSG">
+     <type>AY8910</type>
       <sound>
         <volume>21000</volume>
       </sound>
