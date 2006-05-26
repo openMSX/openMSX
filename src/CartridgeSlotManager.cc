@@ -143,15 +143,28 @@ int CartridgeSlotManager::getSpecificSlot(int slot, int& ps, int& ss,
 int CartridgeSlotManager::getAnyFreeSlot(int& ps, int& ss,
                                          const HardwareConfig& hwConfig)
 {
-	for (int slot = 0; slot < MAX_SLOTS; slot++) {
+	// search for the lowest free slot
+	int result = -1;
+	unsigned slotNum = (unsigned)-1;
+	for (int slot = 0; slot < MAX_SLOTS; ++slot) {
 		if (slots[slot].exists() && !slots[slot].used()) {
-			slots[slot].config = &hwConfig;
-			ps = slots[slot].ps;
-			ss = (slots[slot].ss != -1) ? slots[slot].ss : 0;
-			return slot;
+			unsigned p = slots[slot].ps;
+			unsigned s = (slots[slot].ss != -1) ? slots[slot].ss : 0;
+			assert((p < 4) && (s < 4));
+			unsigned t = p * 4 + s;
+			if (t < slotNum) {
+				slotNum = t;
+				result = slot;
+			}
 		}
 	}
-	throw MSXException("Not enough free cartridge slots");
+	if (result == -1) {
+		throw MSXException("Not enough free cartridge slots");
+	}
+	slots[result].config = &hwConfig;
+	ps = slotNum / 4;
+	ss = slotNum % 4;
+	return result;
 }
 
 int CartridgeSlotManager::getFreePrimarySlot(
