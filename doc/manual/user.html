@@ -1088,7 +1088,7 @@ recorded, including any stutters that may be in it.
 
 <p>
 This chapter describes how the debug device, built in openMSX, can be used to
-the advantage of an MSX programmer. This device is an artificial MSX device
+the advantage of an MSX programmer. This is an artificial MSX device
 that is connected to an MSX I/O port. It can be used to send debug messages to
 the host operating system.
 </p>
@@ -1190,21 +1190,21 @@ This will give the following output:
 </p>
 
 <pre>41h 01000001b 065 'A' emutime: 36407199578
-(when all bits are on, mode register = 0x1F)
 </pre>
 <p>
+(when all bits are on, mode register = 0x1F)<br/>
 or
 </p>
 <pre>41h 065 'A' emutime: 36407199578
-(when the binary bit is off, mode register = 0x1D)
 </pre>
 <p>
+(when the binary bit is off, mode register = 0x1D)<br/>
 or
 </p>
 <pre>41h emutime: 36407199578
-(when only the hexbit is on, mode register = 0x11)
 </pre>
 <p>
+(when only the hexbit is on, mode register = 0x11)<br/>
 and so on.
 </p>
 
@@ -1216,7 +1216,7 @@ to get an idea of the timing of things.
 <p>
 If the character to print is a special character, like carriage return,
 linefeed, beep or tab, the character between the ' ' will be a dot (.) and the
-normal character is 'displayed' at the very and of the line, so it won't mess up
+normal character is 'displayed' at the very end of the line, so it won't mess up
 the layout of the whole line.
 </p>
 
@@ -1263,8 +1263,7 @@ output, all we need to do is change <code>xx</code> for <code>$23</code>:
 <pre>AAA</pre>
 <p>
 In this special case, the space in between the data is left out. Any special
-character like carriage return, linefeed, beep or tab will be printed as can be
-expected.
+character like carriage return, linefeed, beep or tab will be printed as you would expect.
 </p>
 
 <h3><a id="debugdeviceoutput">8.5 Controlling the Output</a></h3>
