@@ -59,9 +59,14 @@ protected:
 
 	/** Called when a block of read data should be buffered by the controller:
 	  * when the buffer is empty or at the start of the transfer.
-	  * @param buffer Array of 512 bytes.
+	  * @param buffer Pointer to the start of a byte array.
+	  * @param count Number of bytes to be filled by this method.
+	  *   This number will not exceed the array size nor the transfer length.
+	  * @return The number of bytes that was added to the array,
+	  *   or 0 if the transfer was aborted (the implementation of this method
+	  *   must set the relevant error flags as well).
 	  */
-	virtual void readBlockStart(byte* buffer) = 0;
+	virtual unsigned readBlockStart(byte* buffer, unsigned count) = 0;
 
 	/** Called when a read transfer completes.
 	  * The default implementation does nothing.
@@ -70,9 +75,10 @@ protected:
 
 	/** Called when a block of written data has been buffered by the controller:
 	  * when the buffer is full or at the end of the transfer.
-	  * @param buffer Array of 512 bytes.
+	  * @param buffer Pointer to the start of a byte array.
+	  * @param count Number of data bytes in the array.
 	  */
-	virtual void writeBlockComplete(byte* buffer) = 0;
+	virtual void writeBlockComplete(byte* buffer, unsigned count) = 0;
 
 	/** Starts execution of an IDE command.
 	  * Override this to implement additional commands and make sure you call
@@ -100,17 +106,28 @@ protected:
 	  */
 	void setInterruptReason(byte value);
 
-	/** Indicates the start of a read data transfer.
-	  * @param count Total number of words to transfer.
+	/** Indicates the start of a read data transfer which uses blocks.
+	  * The readBlockStart() method is called at the start of each block.
+	  * The first block will be read immediately, so make sure you initialise
+	  * all variables needed by readBlockStart() before calling this method.
+	  * @param count Total number of bytes to transfer.
 	  */
-	void startReadTransfer(unsigned count);
+	void startLongReadTransfer(unsigned count);
+
+	/** Indicates the start of a read data transfer where all data fits
+	  * into the buffer at once.
+	  * @param count Total number of bytes to transfer.
+	  * @return Pointer to the start of the buffer.
+	  *   The caller should write the data there.
+	  */
+	byte* startShortReadTransfer(unsigned count);
 
 	/** Aborts the read transfer in progress.
 	  */
 	void abortReadTransfer(byte error);
 
 	/** Indicates the start of a write data transfer.
-	  * @param count Total number of words to transfer.
+	  * @param count Total number of bytes to transfer.
 	  */
 	void startWriteTransfer(unsigned count);
 
@@ -132,17 +149,34 @@ private:
 	void createSignature(bool preserveDevice = false);
 
 	/** Puts the output for the IDENTIFY DEVICE command in the buffer.
+	  * @param buffer Pointer to the start of the buffer.
+	  *   The buffer must be at least 512 bytes in size.
 	  */
-	void createIdentifyBlock();
+	void createIdentifyBlock(byte* buffer);
+
+	/** Initialises registers for a data transfer.
+	  */
+	void startReadTransfer();
+
+	/** Initialises buffer related variables for the next data block.
+	  * Calls readBlockStart() to deliver the actual data.
+	  */
+	void readNextBlock();
 
 	/** Indicates that a read transfer starts.
 	  */
 	void setTransferRead(bool status);
 
+	/** Initialises buffer related variables for the next data block.
+	  * Make sure transferCount is initialised before calling this method.
+	  */
+	void writeNextBlock();
+
 	/** Indicates that a write transfer starts.
 	  */
 	void setTransferWrite(bool status);
 
+	// ATA registers:
 	byte errorReg;
 	byte sectorCountReg;
 	byte sectorNumReg;
@@ -151,7 +185,26 @@ private:
 	byte devHeadReg;
 	byte statusReg;
 	byte featureReg;
+
+	/** Data buffer shared by all transfers.
+	  * The size must be a multiple of 512.
+	  * Right now I don't see any reason to make it larger than the minimum
+	  * size of 1 * 512.
+	  */
 	byte buffer[512];
+
+	/** Pointer to current read/write position in the buffer.
+	  */
+	byte* transferPntr;
+
+	/** Number of bytes remaining in the buffer.
+	  */
+	unsigned bufferLeft;
+
+	/** Number of bytes remaining in the transfer after this buffer.
+	  * (total bytes remaining == transferCount + bufferLeft)
+	  */
+	unsigned transferCount;
 
 	/** True iff the current transfer is part of an IDENTIFY DEVICE command.
 	  */
@@ -159,8 +212,6 @@ private:
 
 	bool transferRead;
 	bool transferWrite;
-	unsigned transferCount;
-	byte* transferPntr;
 
 	EventDistributor& eventDistributor;
 };

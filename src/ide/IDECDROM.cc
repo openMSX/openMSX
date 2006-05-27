@@ -43,10 +43,11 @@ void IDECDROM::fillIdentifyBlock(byte* buffer)
 	buffer[0 * 2 + 1] = 0x85;
 }
 
-void IDECDROM::readBlockStart(byte* /*buffer*/)
+unsigned IDECDROM::readBlockStart(byte* /*buffer*/, unsigned /*count*/)
 {
 	// No read transfers are supported yet.
 	assert(false);
+	return 0;
 }
 
 void IDECDROM::readEnd()
@@ -54,9 +55,10 @@ void IDECDROM::readEnd()
 	setInterruptReason(I_O | C_D);
 }
 
-void IDECDROM::writeBlockComplete(byte* buffer)
+void IDECDROM::writeBlockComplete(byte* buffer, unsigned count)
 {
 	// Currently, packet writes are the only kind of write transfer.
+	assert(count == 12);
 	executePacketCommand(buffer);
 }
 
@@ -65,7 +67,7 @@ void IDECDROM::executeCommand(byte cmd)
 	switch (cmd) {
 	case 0xA0: // Packet Command (ATAPI)
 		fprintf(stderr, "ATAPI Command\n");
-		startWriteTransfer(12/2);
+		startWriteTransfer(12);
 		setInterruptReason(C_D);
 		break;
 

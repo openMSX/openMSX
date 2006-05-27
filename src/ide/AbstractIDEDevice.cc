@@ -139,7 +139,6 @@ void AbstractIDEDevice::writeReg(
 		statusReg &= ~(DRQ | ERR);
 		setTransferRead(false);
 		setTransferWrite(false);
-		transferIdentifyBlock = false;
 		executeCommand(value);
 		break;
 
@@ -167,24 +166,31 @@ word AbstractIDEDevice::readData(const EmuTime& /*time*/)
 		// no read in progress
 		return 0x7F7F;
 	}
-	if ((transferCount & 255) == 0) {
-		if (transferIdentifyBlock) {
-			createIdentifyBlock();
-		} else {
-			readBlockStart(buffer);
-		}
-		transferPntr = buffer;
-	}
 	word result = transferPntr[0] + (transferPntr[1] << 8);
 	transferPntr += 2;
-	transferCount--;
-	if (transferCount == 0) {
-		// everything read
-		setTransferRead(false);
-		statusReg &= ~DRQ;
-		readEnd();
+	bufferLeft -= 2;
+	if (bufferLeft == 0) {
+		if (transferCount == 0) {
+			// End of transfer.
+			setTransferRead(false);
+			statusReg &= ~DRQ;
+			readEnd();
+		} else {
+			// Buffer empty, but transfer not done yet.
+			readNextBlock();
+		}
 	}
 	return result;
+}
+
+void AbstractIDEDevice::readNextBlock()
+{
+	bufferLeft = readBlockStart(
+		buffer, std::min(sizeof(buffer), transferCount)
+		);
+	assert((bufferLeft & 1) == 0);
+	transferPntr = buffer;
+	transferCount -= bufferLeft;
 }
 
 void AbstractIDEDevice::writeData(word value, const EmuTime& /*time*/)
@@ -196,18 +202,28 @@ void AbstractIDEDevice::writeData(word value, const EmuTime& /*time*/)
 	transferPntr[0] = value & 0xFF;
 	transferPntr[1] = value >> 8;
 	transferPntr += 2;
-	transferCount--;
-	if (transferCount == 0) {
-		// everything written
-		setTransferWrite(false);
-		statusReg &= ~DRQ;
-	}
-	if ((transferCount & 255) == 0) {
-		transferPntr = buffer;
+	bufferLeft -= 2;
+	if (bufferLeft == 0) {
+		unsigned bytesInBuffer = transferPntr - buffer;
+		if (transferCount == 0) {
+			// End of transfer.
+			setTransferWrite(false);
+			statusReg &= ~DRQ;
+		} else {
+			// Buffer full, but transfer not done yet.
+			writeNextBlock();
+		}
 		// Packet commands can start a second transfer, so the command
 		// execution must happen after we close this transfer.
-		writeBlockComplete(buffer);
+		writeBlockComplete(buffer, bytesInBuffer);
 	}
+}
+
+void AbstractIDEDevice::writeNextBlock()
+{
+	transferPntr = buffer;
+	bufferLeft = std::min(sizeof(buffer), transferCount);
+	transferCount -= bufferLeft;
 }
 
 void AbstractIDEDevice::setError(byte error)
@@ -270,8 +286,7 @@ void AbstractIDEDevice::executeCommand(byte cmd)
 
 	case 0xA1: // Identify Packet Device
 		if (isPacketDevice()) {
-			transferIdentifyBlock = true;
-			startReadTransfer(512/2);
+			createIdentifyBlock(startShortReadTransfer(512));
 		} else {
 			setError(ABORT);
 		}
@@ -281,8 +296,7 @@ void AbstractIDEDevice::executeCommand(byte cmd)
 		if (isPacketDevice()) {
 			setError(ABORT);
 		} else {
-			transferIdentifyBlock = true;
-			startReadTransfer(512/2);
+			createIdentifyBlock(startShortReadTransfer(512));
 		}
 		break;
 
@@ -301,9 +315,26 @@ void AbstractIDEDevice::executeCommand(byte cmd)
 	}
 }
 
-void AbstractIDEDevice::startReadTransfer(unsigned count)
+byte* AbstractIDEDevice::startShortReadTransfer(unsigned count)
 {
+	assert((count & 1) == 0);
+	startReadTransfer();
+	transferCount = 0;
+	bufferLeft = count;
+	transferPntr = buffer;
+	return buffer;
+}
+
+void AbstractIDEDevice::startLongReadTransfer(unsigned count)
+{
+	assert((count & 1) == 0);
+	startReadTransfer();
 	transferCount = count;
+	readNextBlock();
+}
+
+void AbstractIDEDevice::startReadTransfer()
+{
 	statusReg |= DRQ;
 	setTransferRead(true);
 }
@@ -316,10 +347,10 @@ void AbstractIDEDevice::abortReadTransfer(byte error)
 
 void AbstractIDEDevice::startWriteTransfer(unsigned count)
 {
-	transferPntr = buffer;
-	transferCount = count;
 	statusReg |= DRQ;
 	setTransferWrite(true);
+	transferCount = count;
+	writeNextBlock();
 }
 
 void AbstractIDEDevice::abortWriteTransfer(byte error)
@@ -372,7 +403,7 @@ static void writeIdentifyString(byte* p, unsigned len, std::string s)
 	}
 }
 
-void AbstractIDEDevice::createIdentifyBlock()
+void AbstractIDEDevice::createIdentifyBlock(byte* buffer)
 {
 	memset(buffer, 0x00, 512);
 

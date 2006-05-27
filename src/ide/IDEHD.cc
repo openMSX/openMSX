@@ -70,21 +70,28 @@ void IDEHD::fillIdentifyBlock(byte* buffer)
 	buffer[61 * 2 + 1] = (totalSectors & 0xFF000000) >> 24;
 }
 
-void IDEHD::readBlockStart(byte* buffer)
+unsigned IDEHD::readBlockStart(byte* buffer, unsigned count)
 {
 	try {
+		assert(count >= 512);
 		readLogicalSector(transferSectorNumber, buffer);
 		transferSectorNumber++;
+		return 512;
 	} catch (FileException &e) {
 		abortReadTransfer(UNC);
+		return 0;
 	}
 }
 
-void IDEHD::writeBlockComplete(byte* buffer)
+void IDEHD::writeBlockComplete(byte* buffer, unsigned count)
 {
 	try {
-		writeLogicalSector(transferSectorNumber, buffer);
-		transferSectorNumber++;
+		while (count != 0) {
+			writeLogicalSector(transferSectorNumber, buffer);
+			transferSectorNumber++;
+			assert(count >= 512);
+			count -= 512;
+		}
 	} catch (FileException &e) {
 		abortWriteTransfer(UNC);
 	}
@@ -105,9 +112,9 @@ void IDEHD::executeCommand(byte cmd)
 		}
 		transferSectorNumber = sectorNumber;
 		if (cmd == 0x20) {
-			startReadTransfer(512/2 * numSectors);
+			startLongReadTransfer(numSectors * 512);
 		} else {
-			startWriteTransfer(512/2 * numSectors);
+			startWriteTransfer(numSectors * 512);
 		}
 		break;
 	}

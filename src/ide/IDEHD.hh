@@ -35,8 +35,8 @@ protected:
 	virtual bool isPacketDevice();
 	virtual const std::string& getDeviceName();
 	virtual void fillIdentifyBlock(byte* buffer);
-	virtual void readBlockStart(byte* buffer);
-	virtual void writeBlockComplete(byte* buffer);
+	virtual unsigned readBlockStart(byte* buffer, unsigned count);
+	virtual void writeBlockComplete(byte* buffer, unsigned count);
 	virtual void executeCommand(byte cmd);
 
 private:
