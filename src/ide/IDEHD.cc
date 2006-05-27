@@ -11,23 +11,20 @@ using std::string;
 
 namespace openmsx {
 
-IDEHD::IDEHD(EventDistributor& eventDistributor_, const XMLElement& config,
+IDEHD::IDEHD(EventDistributor& eventDistributor, const XMLElement& config,
              const EmuTime& time)
-	: AbstractIDEDevice(eventDistributor_, time)
+	: AbstractIDEDevice(eventDistributor, time)
 {
-	const string& filename = config.getChildData("filename");
-	file.reset(new File(config.getFileContext().resolveCreate(filename),
-	                    File::CREATE));
-
-	unsigned wantedSize = config.getChildDataAsInt("size");	// in MB
-	wantedSize *= 1024 * 1024;
-	unsigned fileSize = file->getSize();
-	if (wantedSize > fileSize) {
-		// for safety only enlarge file
-		file->truncate(wantedSize);
+	string filename = config.getFileContext().resolveCreate(
+		config.getChildData("filename"));
+	try {
+		file.reset(new File(filename));
+	} catch (FileException& e) {
+		// image didn't exist yet, create new
+		file.reset(new File(filename, File::CREATE));
+		file->truncate(config.getChildDataAsInt("size") * 1024 * 1024);
 	}
-
-	totalSectors = wantedSize / 512;
+	totalSectors = getNbSectors();
 }
 
 IDEHD::~IDEHD()
@@ -75,9 +72,9 @@ unsigned IDEHD::readBlockStart(byte* buffer, unsigned count)
 	try {
 		assert(count >= 512);
 		readLogicalSector(transferSectorNumber, buffer);
-		transferSectorNumber++;
+		++transferSectorNumber;
 		return 512;
-	} catch (FileException &e) {
+	} catch (FileException& e) {
 		abortReadTransfer(UNC);
 		return 0;
 	}
@@ -88,11 +85,11 @@ void IDEHD::writeBlockComplete(byte* buffer, unsigned count)
 	try {
 		while (count != 0) {
 			writeLogicalSector(transferSectorNumber, buffer);
-			transferSectorNumber++;
+			++transferSectorNumber;
 			assert(count >= 512);
 			count -= 512;
 		}
-	} catch (FileException &e) {
+	} catch (FileException& e) {
 		abortWriteTransfer(UNC);
 	}
 }
