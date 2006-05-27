@@ -106,6 +106,16 @@ protected:
 	  */
 	void setInterruptReason(byte value);
 
+	/** Reads the byte count limit of a packet transfer in the registers.
+	  * The cylinder low/high registers are used for this.
+	  */
+	unsigned getByteCount();
+
+	/** Writes the byte count of a packet transfer in the registers.
+	  * The cylinder low/high registers are used for this.
+	  */
+	void setByteCount(unsigned count);
+
 	/** Indicates the start of a read data transfer which uses blocks.
 	  * The readBlockStart() method is called at the start of each block.
 	  * The first block will be read immediately, so make sure you initialise
@@ -119,6 +129,7 @@ protected:
 	  * @param count Total number of bytes to transfer.
 	  * @return Pointer to the start of the buffer.
 	  *   The caller should write the data there.
+	  *   The relevant part of the buffer contains zeroes.
 	  */
 	byte* startShortReadTransfer(unsigned count);
 

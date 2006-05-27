@@ -255,6 +255,17 @@ void AbstractIDEDevice::setInterruptReason(byte value)
 	sectorCountReg = value;
 }
 
+unsigned AbstractIDEDevice::getByteCount()
+{
+	return cylinderLowReg | (cylinderHighReg << 8);
+}
+
+void AbstractIDEDevice::setByteCount(unsigned count)
+{
+	cylinderLowReg = count & 0xFF;
+	cylinderHighReg = count >> 8;
+}
+
 void AbstractIDEDevice::readEnd()
 {
 }
@@ -317,11 +328,14 @@ void AbstractIDEDevice::executeCommand(byte cmd)
 
 byte* AbstractIDEDevice::startShortReadTransfer(unsigned count)
 {
+	assert(count <= sizeof(buffer));
 	assert((count & 1) == 0);
+
 	startReadTransfer();
 	transferCount = 0;
 	bufferLeft = count;
 	transferPntr = buffer;
+	memset(buffer, 0x00, count);
 	return buffer;
 }
 
@@ -405,8 +419,6 @@ static void writeIdentifyString(byte* p, unsigned len, std::string s)
 
 void AbstractIDEDevice::createIdentifyBlock(byte* buffer)
 {
-	memset(buffer, 0x00, 512);
-
 	// According to the spec, the combination of model and serial should be
 	// unique. But I don't know any MSX software that cares about this.
 	writeIdentifyString(&buffer[10 * 2], 10, "s00000001"); // serial
