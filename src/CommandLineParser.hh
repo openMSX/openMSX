@@ -19,6 +19,7 @@ class MSXRomCLI;
 class CliExtension;
 class MSXCassettePlayerCLI;
 class DiskImageCLI;
+class HDImageCLI;
 class Reactor;
 class MSXMotherBoard;
 
@@ -188,6 +189,7 @@ private:
 	const std::auto_ptr<CliExtension> cliExtension;
 	const std::auto_ptr<MSXCassettePlayerCLI> cassettePlayerCLI;
 	const std::auto_ptr<DiskImageCLI> diskImageCLI;
+	const std::auto_ptr<HDImageCLI> hdImageCLI;
 	
 	bool hiddenStartup;
 };

@@ -11,6 +11,7 @@ $Id$
 	   allows to give more logical names to cdroms (future)
 	* Implemented 'hd<x>' command to change HD images at-run-time
 	   (only works when MSX is powered down)
+	* Added -hda command line option
 
 2006-05-26 Manuel Bilderbeek <manuel@msxnet.org>
 	* Specify the type of PSG for those machines we know this for sure

@@ -12,6 +12,7 @@
 #include "CliExtension.hh"
 #include "CassettePlayer.hh"
 #include "DiskImageCLI.hh"
+#include "HDImageCLI.hh"
 #include "ConfigException.hh"
 #include "FileException.hh"
 #include "EnumSetting.hh"
@@ -66,6 +67,7 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	, cliExtension(new CliExtension(*this))
 	, cassettePlayerCLI(new MSXCassettePlayerCLI(*this))
 	, diskImageCLI(new DiskImageCLI(*this))
+	, hdImageCLI(new HDImageCLI(*this))
 {
 	haveConfig = false;
 	haveSettings = false;
