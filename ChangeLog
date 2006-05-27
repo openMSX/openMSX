@@ -5,6 +5,10 @@ $Id$
 	* IDEHD no longer resizes an existing HD image, the <size> tag is now
 	  only used to create the initial HD image
 	* IDEHD now knows its own name (preparation for dynamic hd image)
+	* Changed naming scheme for HDs:
+	   just give letters in order (not interface master/slave)
+	   this is more similar to how disks are given names and it also
+	   allows to give more logical names to cdroms (future)
 
 2006-05-26 Manuel Bilderbeek <manuel@msxnet.org>
 	* Specify the type of PSG for those machines we know this for sure

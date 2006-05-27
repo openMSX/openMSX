@@ -44,7 +44,6 @@ private:
 	byte writeLatch;
 	byte selectedDevice;
 	std::auto_ptr<IDEDevice> device[2];
-	int interfaceNum;
 };
 
 } // namespace openmsx

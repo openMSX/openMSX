@@ -12,11 +12,11 @@ namespace openmsx {
 
 IDEDevice* IDEDeviceFactory::create(MSXMotherBoard& motherBoard,
                                     const XMLElement& config,
-                                    const EmuTime& time, const string& name)
+                                    const EmuTime& time)
 {
 	const string& type = config.getChildData("type");
 	if (type == "IDEHD") {
-		return new IDEHD(motherBoard, config, time, name);
+		return new IDEHD(motherBoard, config, time);
 	} else if (type == "IDECDROM") {
 		return new IDECDROM(motherBoard, config, time);
 	}

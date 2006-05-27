@@ -7,21 +7,14 @@
 #include "MSXCPU.hh"
 #include "Rom.hh"
 #include "XMLElement.hh"
-#include "MSXException.hh"
-#include <bitset>
-
-using std::string;
 
 namespace openmsx {
 
-static const int MAX_INTERFACES = 26 / 2;
-static std::bitset<MAX_INTERFACES> interfaceInUse;
-
 static IDEDevice* create(const XMLElement* elem, MSXMotherBoard& motherBoard,
-                         const EmuTime& time, const string& name)
+                         const EmuTime& time)
 {
 	return elem
-	     ? IDEDeviceFactory::create(motherBoard, *elem, time, name)
+	     ? IDEDeviceFactory::create(motherBoard, *elem, time)
 	     : new DummyIDEDevice();
 }
 
@@ -30,22 +23,8 @@ SunriseIDE::SunriseIDE(MSXMotherBoard& motherBoard, const XMLElement& config,
 	: MSXDevice(motherBoard, config, time)
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
 {
-	int i = 0;
-	for ( ; i < MAX_INTERFACES; ++i) {
-		if (!interfaceInUse[i]) {
-			interfaceNum = i;
-			interfaceInUse[i] = true;
-			break;
-		}
-	}
-	if (i == MAX_INTERFACES) {
-		throw MSXException("Too many IDE interfaces.");
-	}
-
-	device[0].reset(create(config.findChild("master"), motherBoard, time,
-	                   string("hd") + (char)('a' + 2 * interfaceNum + 0)));
-	device[1].reset(create(config.findChild("slave" ), motherBoard, time,
-	                   string("hd") + (char)('a' + 2 * interfaceNum + 1)));
+	device[0].reset(create(config.findChild("master"), motherBoard, time));
+	device[1].reset(create(config.findChild("slave" ), motherBoard, time));
 
 	// make valgrind happy
 	internalBank = 0;
@@ -57,7 +36,6 @@ SunriseIDE::SunriseIDE(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 SunriseIDE::~SunriseIDE()
 {
-	interfaceInUse[interfaceNum] = false;
 }
 
 void SunriseIDE::reset(const EmuTime& time)

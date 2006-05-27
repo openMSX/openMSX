@@ -8,16 +8,19 @@
 #include "FileManipulator.hh"
 #include "XMLElement.hh"
 #include <cassert>
+#include <bitset>
 
 using std::string;
 
 namespace openmsx {
 
+static const unsigned MAX_HD = 26;
+static std::bitset<MAX_HD> hdInUse;
+
 IDEHD::IDEHD(MSXMotherBoard& motherBoard, const XMLElement& config,
-             const EmuTime& time, const string& name_)
+             const EmuTime& time)
 	: AbstractIDEDevice(motherBoard.getEventDistributor(), time)
 	, fileManipulator(motherBoard.getFileManipulator())
-	, name(name_)
 {
 	string filename = config.getFileContext().resolveCreate(
 		config.getChildData("filename"));
@@ -30,12 +33,22 @@ IDEHD::IDEHD(MSXMotherBoard& motherBoard, const XMLElement& config,
 	}
 	totalSectors = getNbSectors();
 
-	fileManipulator.registerDrive(*this, name);
+	id = 0;
+	while (hdInUse[id]) {
+		++id;
+		if (id == MAX_HD) {
+			throw MSXException("Too many HDs");
+		}
+	}
+	hdInUse[id] = true;
+
+	fileManipulator.registerDrive(*this, string("hd") + char('a' + id));
 }
 
 IDEHD::~IDEHD()
 {
-	fileManipulator.unregisterDrive(*this, name);
+	fileManipulator.unregisterDrive(*this, string("hd") + char('a' + id));
+	hdInUse[id] = false;
 }
 
 bool IDEHD::isPacketDevice()

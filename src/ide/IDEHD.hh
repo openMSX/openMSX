@@ -21,7 +21,7 @@ class IDEHD : public AbstractIDEDevice, public SectorAccessibleDisk,
 {
 public:
 	IDEHD(MSXMotherBoard& motherBoard, const XMLElement& config,
-	      const EmuTime& time, const std::string& name);
+	      const EmuTime& time);
 	virtual ~IDEHD();
 
 	// SectorAccessibleDisk:
@@ -43,7 +43,7 @@ protected:
 
 private:
 	FileManipulator& fileManipulator;
-	const std::string name;
+	unsigned id;
 	std::auto_ptr<File> file;
 	unsigned totalSectors;
 	unsigned transferSectorNumber;
