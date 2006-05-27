@@ -3,10 +3,8 @@
 #include "SunriseIDE.hh"
 #include "DummyIDEDevice.hh"
 #include "IDEDeviceFactory.hh"
-#include "DiskContainer.hh"
-#include "FileManipulator.hh"
-#include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
+#include "MSXCPU.hh"
 #include "Rom.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
@@ -18,6 +16,14 @@ namespace openmsx {
 
 static const int MAX_INTERFACES = 26 / 2;
 static std::bitset<MAX_INTERFACES> interfaceInUse;
+
+static IDEDevice* create(const XMLElement* elem, MSXMotherBoard& motherBoard,
+                         const EmuTime& time, const string& name)
+{
+	return elem
+	     ? IDEDeviceFactory::create(motherBoard, *elem, time, name)
+	     : new DummyIDEDevice();
+}
 
 SunriseIDE::SunriseIDE(MSXMotherBoard& motherBoard, const XMLElement& config,
                        const EmuTime& time)
@@ -36,25 +42,10 @@ SunriseIDE::SunriseIDE(MSXMotherBoard& motherBoard, const XMLElement& config,
 		throw MSXException("Too many IDE interfaces.");
 	}
 
-	const XMLElement* masterElem = config.findChild("master");
-	const XMLElement* slaveElem  = config.findChild("slave");
-	CommandController& commandController = motherBoard.getCommandController();
-	EventDistributor& eventDistributor = motherBoard.getEventDistributor();
-	device[0].reset(masterElem
-		? IDEDeviceFactory::create(
-			commandController, eventDistributor, *masterElem, time
-			)
-		: new DummyIDEDevice()
-		);
-	device[1].reset(slaveElem
-		? IDEDeviceFactory::create(
-			commandController, eventDistributor, *slaveElem, time
-			)
-		: new DummyIDEDevice()
-		);
-
-	registerDrive(0);
-	registerDrive(1);
+	device[0].reset(create(config.findChild("master"), motherBoard, time,
+	                   string("hd") + (char)('a' + 2 * interfaceNum + 0)));
+	device[1].reset(create(config.findChild("slave" ), motherBoard, time,
+	                   string("hd") + (char)('a' + 2 * interfaceNum + 1)));
 
 	// make valgrind happy
 	internalBank = 0;
@@ -66,26 +57,7 @@ SunriseIDE::SunriseIDE(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 SunriseIDE::~SunriseIDE()
 {
-	unregisterDrive(1);
-	unregisterDrive(0);
-
 	interfaceInUse[interfaceNum] = false;
-}
-
-void SunriseIDE::registerDrive(int n)
-{
-	if (DiskContainer* cont = dynamic_cast<DiskContainer*>(device[n].get())) {
-		string name = string("hd") + (char)('a' + 2 * interfaceNum + n);
-		getMotherBoard().getFileManipulator().registerDrive(*cont, name);
-	}
-}
-
-void SunriseIDE::unregisterDrive(int n)
-{
-	if (DiskContainer* cont = dynamic_cast<DiskContainer*>(device[n].get())) {
-		string name = string("hd") + (char)('a' + 2 * interfaceNum + n);
-		getMotherBoard().getFileManipulator().unregisterDrive(*cont, name);
-	}
 }
 
 void SunriseIDE::reset(const EmuTime& time)

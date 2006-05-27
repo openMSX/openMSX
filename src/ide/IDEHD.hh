@@ -6,20 +6,22 @@
 #include "AbstractIDEDevice.hh"
 #include "SectorAccessibleDisk.hh"
 #include "DiskContainer.hh"
+#include <string>
 #include <memory>
 
 namespace openmsx {
 
-class EventDistributor;
+class MSXMotherBoard;
 class XMLElement;
+class FileManipulator;
 class File;
 
 class IDEHD : public AbstractIDEDevice, public SectorAccessibleDisk,
 	public DiskContainer
 {
 public:
-	IDEHD(EventDistributor& eventDistributor, const XMLElement& config,
-	      const EmuTime& time);
+	IDEHD(MSXMotherBoard& motherBoard, const XMLElement& config,
+	      const EmuTime& time, const std::string& name);
 	virtual ~IDEHD();
 
 	// SectorAccessibleDisk:
@@ -40,6 +42,8 @@ protected:
 	virtual void executeCommand(byte cmd);
 
 private:
+	FileManipulator& fileManipulator;
+	const std::string name;
 	std::auto_ptr<File> file;
 	unsigned totalSectors;
 	unsigned transferSectorNumber;

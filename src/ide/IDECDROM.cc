@@ -1,17 +1,14 @@
 // $Id$
 
 #include "IDECDROM.hh"
+#include "MSXMotherBoard.hh"
 #include <cassert>
 
 namespace openmsx {
 
-IDECDROM::IDECDROM(
-	CommandController& /*commandController*/,
-	EventDistributor& eventDistributor_,
-	const XMLElement& /*config*/,
-	const EmuTime& time
-	)
-	: AbstractIDEDevice(eventDistributor_, time)
+IDECDROM::IDECDROM(MSXMotherBoard& motherBoard, const XMLElement& /*config*/,
+                   const EmuTime& time)
+	: AbstractIDEDevice(motherBoard.getEventDistributor(), time)
 {
 }
 

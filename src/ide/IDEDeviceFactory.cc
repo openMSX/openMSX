@@ -10,20 +10,16 @@ using std::string;
 
 namespace openmsx {
 
-IDEDevice* IDEDeviceFactory::create(
-	CommandController& commandController,
-	EventDistributor& eventDistributor,
-	const XMLElement& config,
-	const EmuTime& time
-	)
+IDEDevice* IDEDeviceFactory::create(MSXMotherBoard& motherBoard,
+                                    const XMLElement& config,
+                                    const EmuTime& time, const string& name)
 {
 	const string& type = config.getChildData("type");
 	if (type == "IDEHD") {
-		return new IDEHD(eventDistributor, config, time);
+		return new IDEHD(motherBoard, config, time, name);
 	} else if (type == "IDECDROM") {
-		return new IDECDROM(commandController, eventDistributor, config, time);
+		return new IDECDROM(motherBoard, config, time);
 	}
-
 	throw MSXException("Unknown IDE device: " + type);
 }
 

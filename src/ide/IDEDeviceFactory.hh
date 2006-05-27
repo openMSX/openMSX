@@ -3,23 +3,22 @@
 #ifndef IDEDEVICEFACTORY_HH
 #define IDEDEVICEFACTORY_HH
 
+#include <string>
+
 namespace openmsx {
 
 class IDEDevice;
-class CommandController;
-class EventDistributor;
+class MSXMotherBoard;
 class XMLElement;
 class EmuTime;
 
 class IDEDeviceFactory
 {
 public:
-	static IDEDevice* create(
-		CommandController& commandController,
-		EventDistributor& eventDistributor,
-		const XMLElement& config,
-		const EmuTime& time
-		);
+	static IDEDevice* create(MSXMotherBoard& motherBoard,
+	                         const XMLElement& config,
+	                         const EmuTime& time,
+	                         const std::string& name);
 };
 
 } // namespace openmsx

@@ -4,6 +4,7 @@ $Id$
 	* Fixed sprite disable for V9990 P1 and P2 modes
 	* IDEHD no longer resizes an existing HD image, the <size> tag is now
 	  only used to create the initial HD image
+	* IDEHD now knows its own name (preparation for dynamic hd image)
 
 2006-05-26 Manuel Bilderbeek <manuel@msxnet.org>
 	* Specify the type of PSG for those machines we know this for sure

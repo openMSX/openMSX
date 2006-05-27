@@ -4,6 +4,8 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
+#include "MSXMotherBoard.hh"
+#include "FileManipulator.hh"
 #include "XMLElement.hh"
 #include <cassert>
 
@@ -11,9 +13,11 @@ using std::string;
 
 namespace openmsx {
 
-IDEHD::IDEHD(EventDistributor& eventDistributor, const XMLElement& config,
-             const EmuTime& time)
-	: AbstractIDEDevice(eventDistributor, time)
+IDEHD::IDEHD(MSXMotherBoard& motherBoard, const XMLElement& config,
+             const EmuTime& time, const string& name_)
+	: AbstractIDEDevice(motherBoard.getEventDistributor(), time)
+	, fileManipulator(motherBoard.getFileManipulator())
+	, name(name_)
 {
 	string filename = config.getFileContext().resolveCreate(
 		config.getChildData("filename"));
@@ -25,10 +29,13 @@ IDEHD::IDEHD(EventDistributor& eventDistributor, const XMLElement& config,
 		file->truncate(config.getChildDataAsInt("size") * 1024 * 1024);
 	}
 	totalSectors = getNbSectors();
+
+	fileManipulator.registerDrive(*this, name);
 }
 
 IDEHD::~IDEHD()
 {
+	fileManipulator.unregisterDrive(*this, name);
 }
 
 bool IDEHD::isPacketDevice()
