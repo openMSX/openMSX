@@ -45,7 +45,6 @@ private:
 	FileManipulator& fileManipulator;
 	unsigned id;
 	std::auto_ptr<File> file;
-	unsigned totalSectors;
 	unsigned transferSectorNumber;
 };
 

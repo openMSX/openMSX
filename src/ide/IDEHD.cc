@@ -31,7 +31,6 @@ IDEHD::IDEHD(MSXMotherBoard& motherBoard, const XMLElement& config,
 		file.reset(new File(filename, File::CREATE));
 		file->truncate(config.getChildDataAsInt("size") * 1024 * 1024);
 	}
-	totalSectors = getNbSectors();
 
 	id = 0;
 	while (hdInUse[id]) {
@@ -64,6 +63,7 @@ const std::string& IDEHD::getDeviceName()
 
 void IDEHD::fillIdentifyBlock(byte* buffer)
 {
+	unsigned totalSectors = getNbSectors();
 	word heads = 16;
 	word sectors = 32;
 	word cylinders = totalSectors / (heads * sectors);
@@ -121,7 +121,7 @@ void IDEHD::executeCommand(byte cmd)
 	case 0x30: { // Write Sector
 		unsigned sectorNumber = getSectorNumber();
 		unsigned numSectors = getNumSectors();
-		if ((sectorNumber + numSectors) > totalSectors) {
+		if ((sectorNumber + numSectors) > getNbSectors()) {
 			// Note: The original code set ABORT as well, but that is not
 			//       allowed according to the spec.
 			setError(IDNF);
