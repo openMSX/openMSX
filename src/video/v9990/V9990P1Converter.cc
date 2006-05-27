@@ -86,28 +86,47 @@ Pixel V9990P1Converter<Pixel>::raster(int xA, int yA,
 	int* visibleSprites,
 	unsigned int x, unsigned int y)
 {
-	// Front sprite plane
-	byte p = getSpritePixel(visibleSprites, x, y, true);
+	byte p;
+	if (vdp.spritesEnabled()) {
+		// Front sprite plane
+		p = getSpritePixel(visibleSprites, x, y, true);
 
-	if (!(p & 0x0F)) {
+		if (!(p & 0x0F)) {
+			// Front image plane
+			byte offset = vdp.getPaletteOffset();
+			p = getPixel(xA, yA, nameTableA, patternTableA) +
+			    ((offset & 0x03) << 4);
+
+			if (!(p & 0x0F)) {
+				// Back sprite plane
+				p = getSpritePixel(visibleSprites, x, y, false);
+
+				if (!(p & 0x0F)) {
+					// Back image plane
+					p = getPixel(xB, yB, nameTableB, patternTableB) +
+					    ((offset & 0x0C) << 2);
+
+					if (!(p & 0x0F)) {
+						// Backdrop color
+						p = vdp.getBackDropColor();
+					}
+				}
+			}
+		}
+	} else {
 		// Front image plane
 		byte offset = vdp.getPaletteOffset();
 		p = getPixel(xA, yA, nameTableA, patternTableA) +
 		    ((offset & 0x03) << 4);
 
 		if (!(p & 0x0F)) {
-			// Back sprite plane
-			p = getSpritePixel(visibleSprites, x, y, false);
+			// Back image plane
+			p = getPixel(xB, yB, nameTableB, patternTableB) +
+			    ((offset & 0x0C) << 2);
 
 			if (!(p & 0x0F)) {
-				// Back image plane
-				p = getPixel(xB, yB, nameTableB, patternTableB) +
-				    ((offset & 0x0C) << 2);
-
-				if (!(p & 0x0F)) {
-					// Backdrop color
-					p = vdp.getBackDropColor();
-				}
+				// Backdrop color
+				p = vdp.getBackDropColor();
 			}
 		}
 	}

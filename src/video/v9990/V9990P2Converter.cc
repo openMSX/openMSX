@@ -58,22 +58,34 @@ template <class Pixel>
 Pixel V9990P2Converter<Pixel>::raster(unsigned xA, unsigned yA,
 		int* visibleSprites, unsigned x, unsigned y)
 {
-	// front sprite plane
-	byte p = getSpritePixel(visibleSprites, x, y, true);
+	byte p;
+	if (vdp.spritesEnabled()) {
+		// front sprite plane
+		p = getSpritePixel(visibleSprites, x, y, true);
 
-	if (!(p & 0x0F)) {
+		if (!(p & 0x0F)) {
+			// image plane
+			byte offset = vdp.getPaletteOffset();
+			p = getPixel(xA, yA) + ((offset & 0x03) << 4);
+
+			if (!(p & 0x0F)) {
+				// back sprite plane
+				p = getSpritePixel(visibleSprites, x, y, false);
+
+				if (!(p & 0x0F)) {
+					// backdrop color
+					p = vdp.getBackDropColor();
+				}
+			}
+		}
+	} else {
 		// image plane
 		byte offset = vdp.getPaletteOffset();
 		p = getPixel(xA, yA) + ((offset & 0x03) << 4);
 
 		if (!(p & 0x0F)) {
-			// back sprite plane
-			p = getSpritePixel(visibleSprites, x, y, false);
-
-			if (!(p & 0x0F)) {
-				// backdrop color
-				p = vdp.getBackDropColor();
-			}
+			// backdrop color
+			p = vdp.getBackDropColor();
 		}
 	}
 	return palette64[p];
