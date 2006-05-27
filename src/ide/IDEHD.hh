@@ -15,6 +15,7 @@ class MSXMotherBoard;
 class XMLElement;
 class FileManipulator;
 class File;
+class HDCommand;
 
 class IDEHD : public AbstractIDEDevice, public SectorAccessibleDisk,
 	public DiskContainer
@@ -43,9 +44,12 @@ protected:
 
 private:
 	FileManipulator& fileManipulator;
-	unsigned id;
+	const std::string name;
+	const std::auto_ptr<HDCommand> hdCommand;
 	std::auto_ptr<File> file;
 	unsigned transferSectorNumber;
+
+	friend class HDCommand;
 };
 
 } // namespace openmsx

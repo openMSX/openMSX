@@ -9,6 +9,8 @@ $Id$
 	   just give letters in order (not interface master/slave)
 	   this is more similar to how disks are given names and it also
 	   allows to give more logical names to cdroms (future)
+	* Implemented 'hd<x>' command to change HD images at-run-time
+	   (only works when MSX is powered down)
 
 2006-05-26 Manuel Bilderbeek <manuel@msxnet.org>
 	* Specify the type of PSG for those machines we know this for sure

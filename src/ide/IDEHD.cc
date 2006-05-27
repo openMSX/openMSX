@@ -7,20 +7,53 @@
 #include "MSXMotherBoard.hh"
 #include "FileManipulator.hh"
 #include "XMLElement.hh"
+#include "Command.hh"
+#include "CommandController.hh"
+#include "CommandException.hh"
+#include "GlobalSettings.hh"
+#include "BooleanSetting.hh"
 #include <cassert>
 #include <bitset>
 
 using std::string;
+using std::vector;
 
 namespace openmsx {
 
+class HDCommand : public SimpleCommand
+{
+public:
+	HDCommand(CommandController& commandController, IDEHD& hd);
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
+private:
+	IDEHD& hd;
+};
+
+
 static const unsigned MAX_HD = 26;
 static std::bitset<MAX_HD> hdInUse;
+
+static string calcName()
+{
+	unsigned id = 0;
+	while (hdInUse[id]) {
+		++id;
+		if (id == MAX_HD) {
+			throw MSXException("Too many HDs");
+		}
+	}
+	// for exception safety don't set hdInUse in this routine
+	return string("hd") + char('a' + id);
+}
 
 IDEHD::IDEHD(MSXMotherBoard& motherBoard, const XMLElement& config,
              const EmuTime& time)
 	: AbstractIDEDevice(motherBoard.getEventDistributor(), time)
 	, fileManipulator(motherBoard.getFileManipulator())
+	, name(calcName())
+	, hdCommand(new HDCommand(motherBoard.getCommandController(), *this))
 {
 	string filename = config.getFileContext().resolveCreate(
 		config.getChildData("filename"));
@@ -32,22 +65,14 @@ IDEHD::IDEHD(MSXMotherBoard& motherBoard, const XMLElement& config,
 		file->truncate(config.getChildDataAsInt("size") * 1024 * 1024);
 	}
 
-	id = 0;
-	while (hdInUse[id]) {
-		++id;
-		if (id == MAX_HD) {
-			throw MSXException("Too many HDs");
-		}
-	}
-	hdInUse[id] = true;
-
-	fileManipulator.registerDrive(*this, string("hd") + char('a' + id));
+	fileManipulator.registerDrive(*this, name);
+	hdInUse[name[2] - 'a'] = true;
 }
 
 IDEHD::~IDEHD()
 {
-	fileManipulator.unregisterDrive(*this, string("hd") + char('a' + id));
-	hdInUse[id] = false;
+	hdInUse[name[2] - 'a'] = false;
+	fileManipulator.unregisterDrive(*this, name);
 }
 
 bool IDEHD::isPacketDevice()
@@ -160,6 +185,54 @@ unsigned IDEHD::getNbSectors() const
 SectorAccessibleDisk* IDEHD::getSectorAccessibleDisk()
 {
 	return this;
+}
+
+
+// class HDCommand
+
+HDCommand::HDCommand(CommandController& commandController, IDEHD& hd_)
+	: SimpleCommand(commandController, hd_.name)
+	, hd(hd_)
+{
+}
+
+string HDCommand::execute(const vector<string>& tokens)
+{
+	switch (tokens.size()) {
+	case 1:
+		return hd.file->getOriginalName();
+	case 2: {
+		try {
+			CommandController& controller = getCommandController();
+			if (controller.getGlobalSettings().
+			        getPowerSetting().getValue()) {
+				throw CommandException(
+					"Can only change HD image when MSX "
+					"is powered down.");
+			}
+			UserFileContext context(controller);
+			string filename = context.resolve(tokens[1]);
+			std::auto_ptr<File> newFile(new File(filename));
+			hd.file = newFile;
+			return filename;
+		} catch (FileException& e) {
+			throw CommandException("Can't change HD image: " +
+			                       e.getMessage());
+		}
+	}
+	default:
+		throw CommandException("Too many arguments.");
+	}
+}
+
+string HDCommand::help(const vector<string>& /*tokens*/) const
+{
+	return "TODO";
+}
+
+void HDCommand::tabCompletion(vector<string>& tokens) const
+{
+	completeFileName(tokens);
 }
 
 } // namespace openmsx
