@@ -134,43 +134,61 @@ const MachineConfig& MSXMotherBoard::getMachineConfig() const
 
 void MSXMotherBoard::loadMachine(const std::string& machine)
 {
+	MachineConfig* newMachine;
 	try {
-		MachineConfig* newMachine = new MachineConfig(*this, machine);
-		deleteMachine();
-		machineConfig.reset(newMachine);
+		newMachine = new MachineConfig(*this, machine);
+	} catch (FileException& e) {
+		throw MSXException(
+			"Machine \"" + machine + "\" not found: " + e.getMessage()
+			);
+	} catch (MSXException& e) {
+		throw MSXException(
+			"Error in \"" + machine + "\" machine: " + e.getMessage()
+			);
+	}
+	deleteMachine();
+	machineConfig.reset(newMachine);
+	try {
 		machineConfig->parseSlots();
 		machineConfig->createDevices();
-		getEventDistributor().distributeEvent(
-			new SimpleEvent<OPENMSX_MACHINE_LOADED_EVENT>());
-		if (powerSetting.getValue()) {
-			powerUp();
-		}
-	} catch (FileException& e) {
-		throw MSXException("Machine \"" + machine + "\" not found: " +
-		                   e.getMessage());
-	} catch (ConfigException& e) {
-		throw MSXException("Error in \"" + machine + "\" machine: " +
-		                   e.getMessage());
+	} catch (MSXException& e) {
+		throw MSXException(
+			"Error in \"" + machine + "\" machine: " + e.getMessage()
+			);
+	}
+	getEventDistributor().distributeEvent(
+		new SimpleEvent<OPENMSX_MACHINE_LOADED_EVENT>()
+		);
+	if (powerSetting.getValue()) {
+		powerUp();
 	}
 }
 
 ExtensionConfig& MSXMotherBoard::loadExtension(const string& name)
 {
+	std::auto_ptr<ExtensionConfig> extension;
 	try {
-		std::auto_ptr<ExtensionConfig> extension(
-			new ExtensionConfig(*this, name));
+		extension.reset(new ExtensionConfig(*this, name));
+	} catch (FileException& e) {
+		throw MSXException(
+			"Extension \"" + name + "\" not found: " + e.getMessage()
+			);
+	} catch (MSXException& e) {
+		throw MSXException(
+			"Error in \"" + name + "\" extension: " + e.getMessage()
+			);
+	}
+	try {
 		extension->parseSlots();
 		extension->createDevices();
-		ExtensionConfig& result = *extension;
-		extensions.push_back(extension.release());
-		return result;
-	} catch (FileException& e) {
-		throw MSXException("Extension \"" + name + "\" not found: " +
-		                   e.getMessage());
-	} catch (ConfigException& e) {
-		throw MSXException("Error in \"" + name + "\" extension: " +
-		                   e.getMessage());
+	} catch (MSXException& e) {
+		throw MSXException(
+			"Error in \"" + name + "\" extension: " + e.getMessage()
+			);
 	}
+	ExtensionConfig& result = *extension;
+	extensions.push_back(extension.release());
+	return result;
 }
 
 ExtensionConfig& MSXMotherBoard::loadRom(
