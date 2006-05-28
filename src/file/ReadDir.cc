@@ -6,7 +6,7 @@ namespace openmsx {
 
 ReadDir::ReadDir(const std::string& directory)
 {
-	dir = opendir(directory.c_str());
+	dir = opendir(directory.empty() ? "." : directory.c_str());
 }
 
 ReadDir::~ReadDir()
