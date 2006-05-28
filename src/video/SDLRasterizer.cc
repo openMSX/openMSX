@@ -411,20 +411,23 @@ void SDLRasterizer<Pixel>::drawBorder(
 
 	int startY = std::max(fromY - lineRenderTop, 0);
 	int endY = std::min(limitY - lineRenderTop, 240);
-	if ((fromX == 0) && (limitX == VDP::TICKS_PER_LINE)) {
+	if ((fromX == 0) && (limitX == VDP::TICKS_PER_LINE) &&
+	    (border0 == border1)) {
+		// complete lines, non striped
 		for (int y = startY; y < endY; y++) {
-			workFrame->setBlank(y, border0, border1);
+			workFrame->setBlank(y, border0);
 		}
-		return;
-	}
-
-	unsigned lineWidth = mode.getLineWidth();
-	unsigned x = translateX(fromX, (lineWidth == 512));
-	unsigned num = translateX(limitX, (lineWidth == 512)) - x;
-	for (int y = startY; y < endY; ++y) {
-		MemoryOps::memset_2<Pixel, MemoryOps::NO_STREAMING>(
-			workFrame->getLinePtr(y, (Pixel*)0) + x, num, border0, border1);
-		workFrame->setLineWidth(y, (lineWidth == 512) ? 640 : 320);
+	} else {
+		unsigned lineWidth = mode.getLineWidth();
+		unsigned x = translateX(fromX, (lineWidth == 512));
+		unsigned num = translateX(limitX, (lineWidth == 512)) - x;
+		unsigned width = (lineWidth == 512) ? 640 : 320;
+		for (int y = startY; y < endY; ++y) {
+			MemoryOps::memset_2<Pixel, MemoryOps::NO_STREAMING>(
+				workFrame->getLinePtr(y, (Pixel*)0) + x, num,
+				                      border0, border1);
+			workFrame->setLineWidth(y, width);
+		}
 	}
 }
 
