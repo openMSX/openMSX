@@ -99,9 +99,9 @@ diska / diskb
 -------------
 
   Insert a disk image in a drive. Optionally apply an IPS patch to the disk
-  image.
-  Note: the command-name is the same as the drive-name and the drive-name is
-        configurable
+  image. "diska", "diskb", etc., are assigned to all available "physical" disk
+  drives in the MSX. They will not correspond to drive names as used in
+  MSX-DOS!
 
   usage:
     diska <disk image>        insert disk image in drive "diska"
@@ -138,6 +138,18 @@ diskmanipulator
     diskmanipulator format  <disk name>
 
     diskmanipulator create  <dskfilename> <size/option> <size/option> ...
+
+
+hda / hdb
+---------
+
+  Change the hard disk image. "hda", "hdb", etc., are assigned to all available
+  hard disk drives in the MSX. They will not correspond to drive names as used
+  in MSX-DOS!
+
+  usage:
+    hda <disk image>        use hard disk image for hard disk "hda"
+    hda                     show current hard disk image for hard disk "hda"
 
 
 help

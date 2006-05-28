@@ -15,6 +15,7 @@ HDImageCLI::HDImageCLI(CommandLineParser& commandLineParser)
 	: commandController(commandLineParser.getReactor().getCommandController())
 {
 	commandLineParser.registerOption("-hda", this);
+	// TODO: offer more options in case you want to specify 2 hard disk images?
 }
 
 bool HDImageCLI::parseOption(const string& option, list<string>& cmdLine)
@@ -22,7 +23,7 @@ bool HDImageCLI::parseOption(const string& option, list<string>& cmdLine)
 	string hd = option.substr(1); // hda
 	string filename = getArgument(option, cmdLine);
 	if (!commandController.hasCommand(hd)) {
-		throw MSXException("No HD named '" + hd + "'.");
+		throw MSXException("No hard disk named '" + hd + "'.");
 	}
 	TclObject command(commandController.getInterpreter());
 	command.addListElement(hd);
@@ -32,7 +33,7 @@ bool HDImageCLI::parseOption(const string& option, list<string>& cmdLine)
 }
 const string& HDImageCLI::optionHelp() const
 {
-	static const string text("Use the specified HD image");
+	static const string text("Use hard disk image in argument for the IDE extension");
 	return text;
 }
 

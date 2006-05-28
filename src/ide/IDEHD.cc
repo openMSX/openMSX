@@ -207,7 +207,7 @@ string HDCommand::execute(const vector<string>& tokens)
 			if (controller.getGlobalSettings().
 			        getPowerSetting().getValue()) {
 				throw CommandException(
-					"Can only change HD image when MSX "
+					"Can only change hard disk image when MSX "
 					"is powered down.");
 			}
 			UserFileContext context(controller);
@@ -216,7 +216,7 @@ string HDCommand::execute(const vector<string>& tokens)
 			hd.file = newFile;
 			return filename;
 		} catch (FileException& e) {
-			throw CommandException("Can't change HD image: " +
+			throw CommandException("Can't change hard disk image: " +
 			                       e.getMessage());
 		}
 	}
@@ -227,7 +227,7 @@ string HDCommand::execute(const vector<string>& tokens)
 
 string HDCommand::help(const vector<string>& /*tokens*/) const
 {
-	return "TODO";
+	return hd.name + ": change the hard disk image for this hard disk drive\n";
 }
 
 void HDCommand::tabCompletion(vector<string>& tokens) const
