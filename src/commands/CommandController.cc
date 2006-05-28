@@ -515,7 +515,7 @@ void CommandController::completeFileName(vector<string>& tokens,
 	     it != paths.end();
 	     ++it) {
 		string dirname = *it + basename;
-		ReadDir dir(FileOperations::getNativePath(dirname).c_str());
+		ReadDir dir(FileOperations::getNativePath(dirname));
 		while (dirent* de = dir.getEntry()) {
 			string name = dirname + de->d_name;
 			if (FileOperations::exists(name)) {
