@@ -51,10 +51,17 @@ void V9990P1Converter<Pixel>::convertLine(
 
 	if (displayY > prioY) prioX = 0;
 
-	int displayAX = displayX + vdp.getScrollAX();
-	int displayAY = displayY + vdp.getScrollAY();
-	int displayBX = displayX + vdp.getScrollBX();
-	int displayBY = displayY + vdp.getScrollBY();
+	unsigned displayAX = displayX + vdp.getScrollAX();
+	unsigned displayBX = displayX + vdp.getScrollBX();
+
+	// TODO check roll behaviour
+	unsigned rollMask = vdp.getRollMask(0x1FF);
+	unsigned scrollAY = vdp.getScrollAY();
+	unsigned scrollBY = vdp.getScrollBY();
+	unsigned scrollAYBase = scrollAY & ~rollMask;
+	unsigned scrollBYBase = scrollBY & ~rollMask;
+	unsigned displayAY = scrollAYBase + (displayY + scrollAY) & rollMask;
+	unsigned displayBY = scrollBYBase + (displayY + scrollBY) & rollMask;
 
 	int displayEnd = displayX + displayWidth;
 	int end = std::min(prioX, displayEnd);
@@ -64,8 +71,8 @@ void V9990P1Converter<Pixel>::convertLine(
 		                   visibleSprites, displayX, displayY);
 		*linePtr++ = pix;
 
-		displayAX++;
-		displayBX++;
+		displayAX = (displayAX + 1) & 511;
+		displayBX = (displayBX + 1) & 511;
 	}
 	for (/* */; displayX < displayEnd; ++displayX) {
 		Pixel pix = raster(displayBX, displayBY, 0x7E000, 0x40000, // B
@@ -73,8 +80,8 @@ void V9990P1Converter<Pixel>::convertLine(
 		                   visibleSprites, displayX, displayY);
 		*linePtr++ = pix;
 
-		displayAX++;
-		displayBX++;
+		displayAX = (displayAX + 1) & 511;
+		displayBX = (displayBX + 1) & 511;
 	}
 }
 
@@ -137,8 +144,6 @@ template <class Pixel>
 byte V9990P1Converter<Pixel>::getPixel(
 	int x, int y, unsigned int nameTable, unsigned int patternTable)
 {
-	x &= 511;
-	y &= 511;
 	unsigned int address = nameTable + (((y / 8) * 64 + (x / 8)) * 2);
 	unsigned int pattern = (vram.readVRAMP1(address + 0) +
 	                        vram.readVRAMP1(address + 1) * 256) & 0x1FFF;

@@ -218,13 +218,6 @@ void V9990SDLRasterizer<Pixel>::drawP2Mode(
 	}
 }
 
-static unsigned rollMasks[4] = {
-	0x1FFF, // no rolling
-	0x00FF,
-	0x01FF,
-	0x00FF // TODO check this (undocumented)
-};
-
 template <class Pixel>
 void V9990SDLRasterizer<Pixel>::drawBxMode(
 	int fromX, int fromY, int displayX, int displayY,
@@ -233,7 +226,6 @@ void V9990SDLRasterizer<Pixel>::drawBxMode(
 	unsigned scrollX = vdp.getScrollAX();
 	unsigned x = displayX + scrollX;
 
-	unsigned scrollY = vdp.getScrollAY();
 	int lineStep = 1;
 	if (vdp.isEvenOddEnabled()) {
 		if (vdp.getEvenOdd()) {
@@ -242,7 +234,8 @@ void V9990SDLRasterizer<Pixel>::drawBxMode(
 		lineStep = 2;
 	}
 
-	unsigned rollMask = rollMasks[scrollY >> 14];
+	unsigned scrollY = vdp.getScrollAY();
+	unsigned rollMask = vdp.getRollMask(0x1FFF);
 	unsigned scrollYBase = scrollY & ~rollMask;
 	while (displayHeight--) {
 		unsigned y = scrollYBase + (displayY + scrollY) & rollMask;

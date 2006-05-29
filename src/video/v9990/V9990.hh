@@ -193,6 +193,19 @@ public:
 		return regs[SCROLL_CONTROL_AY0] + 256 * regs[SCROLL_CONTROL_AY1];
 	}
 
+	/** Returns the vertical roll mask
+	  */
+	inline unsigned getRollMask(unsigned maxMask) {
+		static unsigned rollMasks[4] = {
+			0xFFFF, // no rolling (use maxMask)
+			0x00FF,
+			0x01FF,
+			0x00FF // TODO check this (undocumented)
+		};
+		unsigned t = regs[SCROLL_CONTROL_AY1] >> 6;
+		return t ? rollMasks[t] : maxMask;
+	}
+
 	/** Returns the X scroll offset for screen B of P1 and other modes
 	  */
 	inline unsigned getScrollBX() {

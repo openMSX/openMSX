@@ -40,8 +40,12 @@ template <class Pixel>
 void V9990P2Converter<Pixel>::convertLine(
 	Pixel* linePtr, int displayX, int displayWidth, int displayY)
 {
-	int displayAX = displayX + vdp.getScrollAX();
-	int displayAY = displayY + vdp.getScrollAY();
+	unsigned displayAX = displayX + vdp.getScrollAX();
+
+	unsigned scrollY = vdp.getScrollAY();
+	unsigned rollMask = vdp.getRollMask(0x1FF);
+	unsigned scrollYBase = scrollY & ~rollMask;
+	unsigned displayAY = scrollYBase + (displayY + scrollY) & rollMask;
 
 	int visibleSprites[16 + 1];
 	determineVisibleSprites(visibleSprites, displayY);
@@ -50,7 +54,7 @@ void V9990P2Converter<Pixel>::convertLine(
 	for (/* */; displayX < displayEnd; ++displayX) {
 		*linePtr++ = raster(displayAX, displayAY,
 		                    visibleSprites, displayX, displayY);
-		++displayAX;
+		displayAX = (displayAX + 1) & 1023;
 	}
 }
 
@@ -97,9 +101,6 @@ byte V9990P2Converter<Pixel>::getPixel(unsigned x, unsigned y)
 	static const unsigned patternTable = 0x00000;
 	static const unsigned nameTable    = 0x7C000;
 
-	// TODO optimization: more specific readVRAMP2 methods
-	x &= 1023;
-	y &= 511;
 	unsigned chrAddr = nameTable + (((y / 8) * 128 + (x / 8)) * 2);
 	unsigned pattern = (vram.readVRAMDirect(chrAddr + 0) +
 	                    vram.readVRAMDirect(chrAddr + 1) * 256) & 0x3FFF;
