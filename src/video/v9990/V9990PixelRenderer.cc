@@ -74,6 +74,8 @@ void V9990PixelRenderer::frameStart(const EmuTime& time)
 	accuracy = renderSettings.getAccuracy().getValue();
 	lastX = 0;
 	lastY = 0;
+	const V9990DisplayPeriod& verTiming = vdp.getVerticalTiming();
+	verticalOffset = verTiming.blank + verTiming.border1;
 
 	// Make sure that the correct timing is used
 	setDisplayMode(vdp.getDisplayMode(), time);
@@ -201,10 +203,8 @@ void V9990PixelRenderer::draw(int fromX, int fromY, int toX, int toY,
 		assert(type == DRAW_DISPLAY);
 
 		const V9990DisplayPeriod& horTiming = vdp.getHorizontalTiming();
-		const V9990DisplayPeriod& verTiming = vdp.getVerticalTiming();
-
 		int displayX = fromX - horTiming.blank - horTiming.border1;
-		int displayY = fromY - verTiming.blank - verTiming.border1;
+		int displayY = fromY - verticalOffset;
 		int displayWidth = toX - fromX;
 		int displayHeight = toY - fromY;
 
@@ -254,6 +254,7 @@ void V9990PixelRenderer::updateScrollAX(const EmuTime& time)
 void V9990PixelRenderer::updateScrollAY(const EmuTime& time)
 {
 	if (displayEnabled) sync(time);
+	verticalOffset = lastY;
 }
 void V9990PixelRenderer::updateScrollBX(const EmuTime& time)
 {

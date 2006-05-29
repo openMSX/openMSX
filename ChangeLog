@@ -3,6 +3,8 @@ $Id$
 2006-05-29 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed vertical rolling at 256 line (is normmaly 512)
 	  for V9990 P1 and P2 modes
+	* Fixed vertical offset in V9990 when vertical scroll register is
+	  changed on a screensplit
 
 2006-05-28 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed striped screen 6 borders in SDLRasterizer

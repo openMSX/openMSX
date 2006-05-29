@@ -487,8 +487,10 @@ void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
 		return;
 	}
 
-	byte change = regs[reg] ^ val;
-	if (!change) return;
+	// This optimization is not valid for the vertical scroll registers
+	// TODO is this optimization still useful for other registers?
+	//byte change = regs[reg] ^ val;
+	//if (!change) return;
 
 	// Perform additional tasks before new value becomes active
 	switch (reg) {

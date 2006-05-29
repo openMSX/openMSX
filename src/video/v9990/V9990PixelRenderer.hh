@@ -90,6 +90,19 @@ private:
 	  */
 	int lastX;
 
+	/** Apparently V9990 keeps an internal counter that indicates which line
+	  * to display. That counter is initialized at the top of the screen and
+	  * increased after every line. The counter is also reset when the
+	  * vertical scroll register is written to (even when same value is
+	  * written). Note: this is different from V99x8 behaviour!
+	  * TODO we don't actually store the counter but an offset (so that the
+	  *      V99x8 drawing algorithm can still be used. Code might become
+	  *      simpler if we do store the counter.
+	  * TODO this counter is for A plane, probably B plane has a similar
+	  *      counter
+	  */
+	int verticalOffset;
+
 	/** Should current frame be draw or can it be skipped.
 	  */
 	bool drawFrame;
