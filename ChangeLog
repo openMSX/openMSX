@@ -1,5 +1,9 @@
 $Id$
 
+2006-05-30 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed assert when switching scale_factor from 3->2 when openmsx
+	  was paused.
+
 2006-05-29 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed vertical rolling at 256 line (is normmaly 512)
 	  for V9990 P1 and P2 modes

@@ -92,7 +92,7 @@ private:
 
 	Reactor& reactor;
 	std::auto_ptr<RenderSettings> renderSettings;
-	unsigned switchInProgress;
+	bool switchInProgress;
 };
 
 } // namespace openmsx

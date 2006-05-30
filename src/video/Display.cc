@@ -68,7 +68,7 @@ Display::Display(Reactor& reactor_)
 	, fpsInfo(new FpsInfoTopic(reactor_.getCommandController(), *this))
 	, reactor(reactor_)
 	, renderSettings(new RenderSettings(reactor.getCommandController()))
-	, switchInProgress(0)
+	, switchInProgress(false)
 {
 	// TODO clean up
 	reactor.getCommandConsole().setDisplay(this);
@@ -124,9 +124,9 @@ void Display::createVideoSystem()
 {
 	assert(!videoSystem.get());
 	assert(currentRenderer == RendererFactory::UNINITIALIZED);
-	currentRenderer = renderSettings->getRenderer().getValue();
 	assert(!switchInProgress);
-	++switchInProgress;
+	currentRenderer = renderSettings->getRenderer().getValue();
+	switchInProgress = true;
 	doRendererSwitch();
 }
 
@@ -232,7 +232,16 @@ void Display::update(const Setting& setting)
 
 void Display::checkRendererSwitch()
 {
-	// Tell renderer to sync with render settings.
+	if (switchInProgress) {
+		// Part of switching renderer is destroying the current
+		// Renderer. A Renderer inherits (indirectly) from VideoLayer.
+		// A VideoLayer activates a videosource (MSX, GFX9000). When
+		// a videosource is deactiavted we should possibly also switch
+		// renderer (TODO is this still true, maybe for SDLGL it is?)
+		// and thus this method gets called again. To break the cycle
+		// we check for pending switches.
+		return;
+	}
 	RendererFactory::RendererID newRenderer =
 		renderSettings->getRenderer().getValue();
 	if ((newRenderer != currentRenderer) ||
@@ -241,8 +250,7 @@ void Display::checkRendererSwitch()
 		// don't do the actualing swithing in the TCL callback
 		// it seems creating and destroying Settings (= TCL vars)
 		// causes problems???
-		if (switchInProgress) return;
-		++switchInProgress;
+		switchInProgress = true;
 		reactor.getEventDistributor().distributeEvent(
 		      new SimpleEvent<OPENMSX_SWITCH_RENDERER_EVENT>());
 	}
@@ -251,6 +259,7 @@ void Display::checkRendererSwitch()
 void Display::doRendererSwitch()
 {
 	assert(switchInProgress);
+
 	for (Listeners::const_iterator it = listeners.begin();
 	     it != listeners.end(); ++it) {
 		(*it)->preVideoSystemChange();
@@ -264,11 +273,23 @@ void Display::doRendererSwitch()
 	     it != listeners.end(); ++it) {
 		(*it)->postVideoSystemChange();
 	}
-	--switchInProgress;
+
+	switchInProgress = false;
 }
 
 void Display::repaint()
 {
+	if (switchInProgress) {
+		// The checkRendererSwitch() method will queue a
+		// SWITCH_RENDERER_EVENT, but before that event is handled
+		// we shouldn't do any repaints (with inconsistent setting
+		// values and render objects). This can happen when this
+		// method gets called because of a DELAYED_REPAINT_EVENT
+		// (DELAYED_REPAINT_EVENT was already queued before
+		// SWITCH_RENDERER_EVENT is queued).
+		return;
+	}
+
 	alarm->cancel(); // cancel delayed repaint
 
 	assert(videoSystem.get());
