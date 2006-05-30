@@ -51,8 +51,8 @@ void V9990P1Converter<Pixel>::convertLine(
 
 	if (displayY > prioY) prioX = 0;
 
-	unsigned displayAX = displayX + vdp.getScrollAX();
-	unsigned displayBX = displayX + vdp.getScrollBX();
+	unsigned displayAX = (displayX + vdp.getScrollAX()) & 511;
+	unsigned displayBX = (displayX + vdp.getScrollBX()) & 511;
 
 	// TODO check roll behaviour
 	unsigned rollMask = vdp.getRollMask(0x1FF);

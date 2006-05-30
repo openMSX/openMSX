@@ -40,7 +40,7 @@ template <class Pixel>
 void V9990P2Converter<Pixel>::convertLine(
 	Pixel* linePtr, int displayX, int displayWidth, int displayY)
 {
-	unsigned displayAX = displayX + vdp.getScrollAX();
+	unsigned displayAX = (displayX + vdp.getScrollAX()) & 1023;
 
 	unsigned scrollY = vdp.getScrollAY();
 	unsigned rollMask = vdp.getRollMask(0x1FF);
