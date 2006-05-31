@@ -3,6 +3,10 @@ $Id$
 2006-05-31 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented 'cd<x>' command to change ISO image
 	* Implemented -cda command line option
+	* Fixed V9990 commands in P1 mode:
+	   Actually I just tried something and it seems to work very well (it
+	   fixes a lot of stuff). Still need to figure out exactly how the
+	   coordinate system maps the VRAm addresses in P1 mode
 
 2006-05-31 Maarten ter Huurne <maarten@treewalker.org>
 	* Initial support for sector loading from CD-ROM.

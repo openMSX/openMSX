@@ -188,7 +188,10 @@ inline unsigned V9990CmdEngine::V9990P1::getPitch(unsigned width)
 inline unsigned V9990CmdEngine::V9990P1::addressOf(
 	unsigned x, unsigned y, unsigned pitch)
 {
-	return V9990VRAM::transformP1(((x / 2) & (pitch - 1)) + y * pitch) & 0x7FFFF;
+	//return V9990VRAM::transformP1(((x / 2) & (pitch - 1)) + y * pitch) & 0x7FFFF;
+	// TODO figure out exactly how the coordinate system maps to vram in P1
+	unsigned addr = V9990VRAM::transformP1(((x / 2) & (pitch - 1)) + y * pitch);
+	return (addr & 0x3FFFF) | ((x & 0x200) << 9);
 }
 
 inline byte V9990CmdEngine::V9990P1::point(
