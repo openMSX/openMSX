@@ -160,6 +160,13 @@ void IDEHD::executeCommand(byte cmd)
 		}
 		break;
 	}
+
+	case 0xF8: // Read Native Max Address
+		// We don't support the Host Protected Area feature set, but SymbOS
+		// uses only this particular command, so we support just this one.
+		setSectorNumber(getNbSectors());
+		break;
+
 	default: // all others
 		AbstractIDEDevice::executeCommand(cmd);
 	}

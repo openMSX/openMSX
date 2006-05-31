@@ -266,6 +266,14 @@ void AbstractIDEDevice::setByteCount(unsigned count)
 	cylinderHighReg = count >> 8;
 }
 
+void AbstractIDEDevice::setSectorNumber(unsigned lba)
+{
+	sectorNumReg    = (lba & 0x000000FF) >>  0;
+	cylinderLowReg  = (lba & 0x0000FF00) >>  8;
+	cylinderHighReg = (lba & 0x00FF0000) >> 16;
+	devHeadReg      = (lba & 0x0F000000) >> 24; // note: only 4 bits
+}
+
 void AbstractIDEDevice::readEnd()
 {
 }

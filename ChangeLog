@@ -6,7 +6,7 @@ $Id$
 	* Fixed V9990 commands in P1 mode:
 	   Actually I just tried something and it seems to work very well (it
 	   fixes a lot of stuff). Still need to figure out exactly how the
-	   coordinate system maps the VRAm addresses in P1 mode
+	   coordinate system maps the VRAM addresses in P1 mode
 
 2006-05-31 Maarten ter Huurne <maarten@treewalker.org>
 	* Initial support for sector loading from CD-ROM.
@@ -16,6 +16,8 @@ $Id$
 	    not inserted / changed for another CD
 	  - correct calculation of packet size
 	  - audio track support
+	* Implemented Read Native Max Address so SymbOS can access the HD.
+	  Thanks to Daniel Vik for telling us this command was the problem.
 
 2006-05-30 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed assert when switching scale_factor from 3->2 when openmsx

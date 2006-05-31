@@ -116,6 +116,11 @@ protected:
 	  */
 	void setByteCount(unsigned count);
 
+	/** Writes a 28-bit LBA sector number in the registers.
+	  * The cylinder low/high registers are used for this.
+	  */
+	void setSectorNumber(unsigned lba);
+
 	/** Indicates the start of a read data transfer which uses blocks.
 	  * The readBlockStart() method is called at the start of each block.
 	  * The first block will be read immediately, so make sure you initialise
