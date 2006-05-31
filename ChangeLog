@@ -1,5 +1,14 @@
 $Id$
 
+2006-05-31 Maarten ter Huurne <maarten@treewalker.org>
+	* Initial support for sector loading from CD-ROM.
+	  Still missing:
+	  - commands to change the ISO image
+	  - setting the right status flags when a CD is inserted /
+	    not inserted / changed for another CD
+	  - correct calculation of packet size
+	  - audio track support
+
 2006-05-30 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed assert when switching scale_factor from 3->2 when openmsx
 	  was paused.

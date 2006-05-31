@@ -4,11 +4,13 @@
 #define IDECDROM_HH
 
 #include "AbstractIDEDevice.hh"
+#include <memory>
 
 namespace openmsx {
 
 class MSXMotherBoard;
 class XMLElement;
+class File;
 
 class IDECDROM : public AbstractIDEDevice
 {
@@ -36,7 +38,17 @@ private:
 	/** Command/data: 0 = data, 1 = command */
 	static const byte C_D = 0x01;
 
+	/** Indicates the start of a read data transfer performed in packets.
+	  * @param count Total number of bytes to transfer.
+	  */
+	void startPacketReadTransfer(unsigned count);
+
 	void executePacketCommand(byte* packet);
+
+	std::auto_ptr<File> file;
+	unsigned byteCountLimit;
+	bool readSectorData;
+	unsigned transferOffset;
 };
 
 } // namespace openmsx

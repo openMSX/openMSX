@@ -2,6 +2,10 @@
 
 #include "IDECDROM.hh"
 #include "MSXMotherBoard.hh"
+#include "File.hh"
+#include "FileContext.hh"
+#include "FileException.hh"
+#include <algorithm>
 #include <cassert>
 
 namespace openmsx {
@@ -10,6 +14,12 @@ IDECDROM::IDECDROM(MSXMotherBoard& motherBoard, const XMLElement& /*config*/,
                    const EmuTime& time)
 	: AbstractIDEDevice(motherBoard.getEventDistributor(), time)
 {
+	UserFileContext context(motherBoard.getCommandController());
+	try {
+		file.reset(new File(context.resolve("kmg.iso")));
+	} catch (FileException& e) {
+		fprintf(stderr, "Could not open ISO image.\n");
+	}
 }
 
 IDECDROM::~IDECDROM()
@@ -40,11 +50,21 @@ void IDECDROM::fillIdentifyBlock(byte* buffer)
 	buffer[0 * 2 + 1] = 0x85;
 }
 
-unsigned IDECDROM::readBlockStart(byte* /*buffer*/, unsigned /*count*/)
+unsigned IDECDROM::readBlockStart(byte* buffer, unsigned count)
 {
-	// No read transfers are supported yet.
-	assert(false);
-	return 0;
+	assert(readSectorData);
+	if (file.get()) {
+		fprintf(stderr, "read sector data at %08X\n", transferOffset);
+		file->seek(transferOffset);
+		file->read(buffer, count);
+		transferOffset += count;
+		return count;
+	} else {
+		fprintf(stderr, "read sector failed: no medium\n");
+		// TODO: Check whether more error flags should be set.
+		abortReadTransfer(0);
+		return 0;
+	}
 }
 
 void IDECDROM::readEnd()
@@ -63,7 +83,13 @@ void IDECDROM::executeCommand(byte cmd)
 {
 	switch (cmd) {
 	case 0xA0: // Packet Command (ATAPI)
-		fprintf(stderr, "ATAPI Command\n");
+		// Determine packet size for data packets.
+		byteCountLimit = getByteCount();
+		fprintf(stderr, "ATAPI Command, byte count limit %04X\n",
+			byteCountLimit
+			);
+
+		// Prepare to receive the command.
 		startWriteTransfer(12);
 		setInterruptReason(C_D);
 		break;
@@ -78,21 +104,54 @@ void IDECDROM::executeCommand(byte cmd)
 	}
 }
 
+void IDECDROM::startPacketReadTransfer(unsigned count)
+{
+	// TODO: Recompute for each packet.
+	// TODO: Take even/odd stuff into account.
+	// Note: The spec says maximum byte count is 0xFFFE, but I prefer
+	//       powers of two, so I'll use 0x8000 instead (the device is
+	//       free to set limitations of its own).
+	unsigned packetSize = 512; /*std::min(
+		byteCountLimit, // limit from user
+		std::min(sizeof(buffer), 0x8000u) // device and spec limit
+		);*/
+	unsigned size = std::min(packetSize, count);
+	setByteCount(size);
+	setInterruptReason(I_O);
+}
+
 void IDECDROM::executePacketCommand(byte* packet)
 {
 	// It seems that unlike ATA which uses words at the basic data unit,
 	// ATAPI uses bytes.
 	fprintf(stderr, "ATAPI Packet:");
-	for (unsigned i = 0; i < sizeof(packet); i++) {
+	for (unsigned i = 0; i < 12; i++) {
 		fprintf(stderr, " %02X", packet[i]);
 	}
 	fprintf(stderr, "\n");
 
+	readSectorData = false;
+
 	switch (packet[0]) {
 	case 0x03: {
-		int count = packet[4];
-		fprintf(stderr, "  request sense: %d bytes\n", count);
-		setError(ABORT);
+		// TODO: Find out what the purpose of the allocation length is.
+		//       In practice, it seems to be 18, which is the amount we want
+		//       to return, but what if it would be different?
+		int allocationLength = packet[4];
+		fprintf(stderr, "  request sense: %d bytes\n", allocationLength);
+		unsigned keyCodeQualifier = 0x00;
+
+		const int byteCount = 18;
+		startPacketReadTransfer(byteCount);
+		byte* buffer = startShortReadTransfer(byteCount);
+		for (int i = 0; i < byteCount; i++) {
+			buffer[i] = 0x00;
+		}
+		buffer[0] = 0xF0;
+		buffer[2] = keyCodeQualifier >> 16; // sense key
+		buffer[12] = (keyCodeQualifier >> 8) & 0xFF; // ASC
+		buffer[13] = keyCodeQualifier & 0xFF; // ASQ
+		buffer[7] = byteCount - 7;
 		break;
 	}
 	case 0x43: {
@@ -131,7 +190,31 @@ void IDECDROM::executePacketCommand(byte* packet)
 			"  read(12): sector %d, count %d\n",
 			sectorNumber, sectorCount
 			);
-		setError(ABORT);
+		// There are three block sizes:
+		// - byteCountLimit: set by the host
+		//     maximum block size for transfers
+		// - byteCount: determined by the device
+		//     actual block size for transfers
+		// - transferCount wrap: emulation thingy
+		//     transparent to host
+		//fprintf(stderr, "byte count limit: %04X\n", byteCountLimit);
+		//unsigned byteCount = sectorCount * 2048;
+		//unsigned byteCount = sizeof(buffer);
+		//unsigned byteCount = packetSize;
+		/*
+		if (byteCount > byteCountLimit) {
+			byteCount = byteCountLimit;
+		}
+		if (byteCount > 0xFFFE) {
+			byteCount = 0xFFFE;
+		}
+		*/
+		//fprintf(stderr, "byte count: %04X\n", byteCount);
+		readSectorData = true;
+		transferOffset = sectorNumber * 2048;
+		unsigned count = sectorCount * 2048;
+		startPacketReadTransfer(count);
+		startLongReadTransfer(count);
 		break;
 	}
 	default:
