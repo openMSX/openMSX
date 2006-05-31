@@ -5,25 +5,56 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
+#include "Command.hh"
+#include "CommandException.hh"
 #include <algorithm>
+#include <bitset>
 #include <cassert>
 
+using std::string;
+using std::vector;
+
 namespace openmsx {
+
+class CDXCommand : public SimpleCommand
+{
+public:
+	CDXCommand(CommandController& commandController, IDECDROM& cd);
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
+private:
+	IDECDROM& cd;
+};
+
+
+static const unsigned MAX_CD = 26;
+static std::bitset<MAX_CD> cdInUse;
+
+static string calcName()
+{
+	unsigned id = 0;
+	while (cdInUse[id]) {
+		++id;
+		if (id == MAX_CD) {
+			throw MSXException("Too many CDs");
+		}
+	}
+	return string("cd") + char('a' + id);
+}
 
 IDECDROM::IDECDROM(MSXMotherBoard& motherBoard, const XMLElement& /*config*/,
                    const EmuTime& time)
 	: AbstractIDEDevice(motherBoard.getEventDistributor(), time)
+	, name(calcName())
+	, cdxCommand(new CDXCommand(motherBoard.getCommandController(), *this))
 {
-	UserFileContext context(motherBoard.getCommandController());
-	try {
-		file.reset(new File(context.resolve("kmg.iso")));
-	} catch (FileException& e) {
-		fprintf(stderr, "Could not open ISO image.\n");
-	}
+	cdInUse[name[2] - 'a'] = true;
 }
 
 IDECDROM::~IDECDROM()
 {
+	cdInUse[name[2] - 'a'] = false;
 }
 
 bool IDECDROM::isPacketDevice()
@@ -221,6 +252,55 @@ void IDECDROM::executePacketCommand(byte* packet)
 		fprintf(stderr, "  unknown command 0x%02X\n", packet[0]);
 		setError(ABORT);
 	}
+}
+
+
+// class CDXCommand
+
+CDXCommand::CDXCommand(CommandController& commandController, IDECDROM& cd_)
+	: SimpleCommand(commandController, cd_.name)
+	, cd(cd_)
+{
+}
+
+string CDXCommand::execute(const vector<string>& tokens)
+{
+	switch (tokens.size()) {
+	case 1: {
+		File* file = cd.file.get();
+		return file ? file->getOriginalName() : "";
+	}
+	case 2: {
+		// TODO check for locked tray
+		if (tokens[1] == "-eject") {
+			cd.file.reset();
+			return "";
+		} else {
+			try {
+				UserFileContext context(getCommandController());
+				string filename = context.resolve(tokens[1]);
+				std::auto_ptr<File> newFile(new File(filename));
+				cd.file = newFile;
+				return filename;
+			} catch (FileException& e) {
+				throw CommandException("Can't change cd image: " +
+				                       e.getMessage());
+			}
+		}
+	}
+	default:
+		throw CommandException("Too many arguments.");
+	}
+}
+
+string CDXCommand::help(const vector<string>& /*tokens*/) const
+{
+	return cd.name + ": change the cd image for this CDROM";
+}
+
+void CDXCommand::tabCompletion(vector<string>& tokens) const
+{
+	completeFileName(tokens);
 }
 
 } // namespace openmsx

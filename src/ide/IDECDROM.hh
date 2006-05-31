@@ -11,6 +11,7 @@ namespace openmsx {
 class MSXMotherBoard;
 class XMLElement;
 class File;
+class CDXCommand;
 
 class IDECDROM : public AbstractIDEDevice
 {
@@ -45,10 +46,14 @@ private:
 
 	void executePacketCommand(byte* packet);
 
+	const std::string name;
+	const std::auto_ptr<CDXCommand> cdxCommand;
 	std::auto_ptr<File> file;
 	unsigned byteCountLimit;
 	bool readSectorData;
 	unsigned transferOffset;
+
+	friend class CDXCommand;
 };
 
 } // namespace openmsx

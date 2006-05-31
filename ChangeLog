@@ -1,5 +1,8 @@
 $Id$
 
+2006-05-31 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented 'cd<x>' command to change ISO image
+
 2006-05-31 Maarten ter Huurne <maarten@treewalker.org>
 	* Initial support for sector loading from CD-ROM.
 	  Still missing:
