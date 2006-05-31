@@ -2,6 +2,7 @@ $Id$
 
 2006-05-31 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented 'cd<x>' command to change ISO image
+	* Implemented -cda command line option
 
 2006-05-31 Maarten ter Huurne <maarten@treewalker.org>
 	* Initial support for sector loading from CD-ROM.

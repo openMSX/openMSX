@@ -7,7 +7,7 @@ SRC_HDR:= \
 	DummyIDEDevice \
 	IDEDeviceFactory \
 	AbstractIDEDevice IDEHD IDECDROM \
-	HDImageCLI
+	HDImageCLI CDImageCLI
 
 HDR_ONLY:= \
 	IDEDevice
