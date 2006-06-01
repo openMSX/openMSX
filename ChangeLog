@@ -1,5 +1,9 @@
 $Id$
 
+2006-06-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* V9990 P1 mode does not have the strange screenplit
+	  behaviour (see 2006-05-29)
+
 2006-05-31 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented 'cd<x>' command to change ISO image
 	* Implemented -cda command line option
