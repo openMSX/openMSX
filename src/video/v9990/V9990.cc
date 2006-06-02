@@ -124,12 +124,16 @@ void V9990::reset(const EmuTime& time)
 	removeSyncPoint(V9990_VSCAN);
 	removeSyncPoint(V9990_HSCAN);
 	removeSyncPoint(V9990_SET_MODE);
+	removeSyncPoint(V9990_SET_BLANK);
 
 	// Clear registers / ports
 	memset(regs, 0, sizeof(regs));
 	status = 0;
 	regSelect = 0xFF; // TODO check value for power-on and reset
 	calcDisplayMode();
+
+	isDisplayArea = false;
+	displayEnabled = false;
 
 	// Reset IRQs
 	writeIO(INTERRUPT_FLAG, 0xFF, time);
@@ -321,37 +325,47 @@ void V9990::executeUntil(const EmuTime& time, int userData)
 	//PRT_DEBUG("[" << time << "] "
 	//          "V9990::executeUntil - data=0x" << std::hex << userData);
 	switch (userData)  {
-		case V9990_VSYNC:
-			// Transition from one frame to the next
-			renderer->frameEnd(time);
-			frameStart(time);
-			break;
+	case V9990_VSYNC:
+		// Transition from one frame to the next
+		renderer->frameEnd(time);
+		frameStart(time);
+		break;
 
-		case V9990_DISPLAY_START:
-			if (isDisplayEnabled()) {
-				renderer->updateDisplayEnabled(true, time);
-			}
-			break;
+	case V9990_DISPLAY_START:
+		if (displayEnabled) {
+			renderer->updateDisplayEnabled(true, time);
+		}
+		isDisplayArea = true;
+		break;
 
-		case V9990_VSCAN:
-			if (isDisplayEnabled()) {
-				renderer->updateDisplayEnabled(false, time);
-			}
-			raiseIRQ(VER_IRQ);
-			break;
+	case V9990_VSCAN:
+		if (isDisplayEnabled()) {
+			renderer->updateDisplayEnabled(false, time);
+		}
+		isDisplayArea = false;
+		raiseIRQ(VER_IRQ);
+		break;
 
-		case V9990_HSCAN:
-			raiseIRQ(HOR_IRQ);
-			break;
+	case V9990_HSCAN:
+		raiseIRQ(HOR_IRQ);
+		break;
 
-		case V9990_SET_MODE:
-			calcDisplayMode();
-			renderer->setDisplayMode(getDisplayMode(), time);
-			renderer->setColorMode(getColorMode(), time);
-			break;
+	case V9990_SET_MODE:
+		calcDisplayMode();
+		renderer->setDisplayMode(getDisplayMode(), time);
+		renderer->setColorMode(getColorMode(), time);
+		break;
 
-		default:
-			assert(false);
+	case V9990_SET_BLANK: {
+		bool newDisplayEnabled = regs[CONTROL] & 0x80;
+		if (isDisplayArea) {
+			renderer->updateDisplayEnabled(newDisplayEnabled, time);
+		}
+		displayEnabled = newDisplayEnabled;
+		break;
+	}
+	default:
+		assert(false);
 	}
 }
 
@@ -487,9 +501,9 @@ void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
 		return;
 	}
 
+	byte change = regs[reg] ^ val;
 	// This optimization is not valid for the vertical scroll registers
 	// TODO is this optimization still useful for other registers?
-	//byte change = regs[reg] ^ val;
 	//if (!change) return;
 
 	// Perform additional tasks before new value becomes active
@@ -498,6 +512,11 @@ void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
 		case SCREEN_MODE_1:
 			// TODO verify this on real V9990
 			syncAtNextLine(V9990_SET_MODE, time);
+			break;
+		case CONTROL:
+			if (change & 0x80) {
+				syncAtNextLine(V9990_SET_BLANK, time);
+			}
 			break;
 		case PALETTE_CONTROL:
 			renderer->setColorMode(getColorMode(val), time);

@@ -65,7 +65,7 @@ public:
 	  * @return true iff enabled
 	  */
 	inline bool isDisplayEnabled() const {
-		return regs[CONTROL] & 0x80;
+		return isDisplayArea && displayEnabled;
 	}
 
 	/** Are sprites (cursors) enabled?
@@ -312,7 +312,10 @@ private:
 		V9990_HSCAN,
 
 		/** Change screen mode */
-		V9990_SET_MODE
+		V9990_SET_MODE,
+
+		/** Enable/disable screen */
+		V9990_SET_BLANK,
 	};
 
 	/** IRQ types
@@ -451,9 +454,20 @@ private:
 	EmuTime hScanSyncTime;
 
 	/** Display timings
-	 */
+	  */
 	const V9990DisplayPeriod* horTiming;
 	const V9990DisplayPeriod* verTiming;
+
+	/** Is the current scan position inside the display area?
+	  */
+	bool isDisplayArea;
+
+	/** Is display enabled. Note that this is not always the same as bit 7
+	  * of the CONTROL register because the display enable status change
+	  * only takes place at the start of the next line.
+	  * TODO this is how it works on V99x8, I didn't verify it on V9990
+	  */
+	bool displayEnabled;
 
 	// --- methods ----------------------------------------------------
 

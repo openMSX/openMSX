@@ -1,6 +1,9 @@
 $Id$
 
 2006-06-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed bug in V9990 blank screen behaviour
+
+2006-06-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* V9990 P1 mode does not have the strange screenplit
 	  behaviour (see 2006-05-29)
 

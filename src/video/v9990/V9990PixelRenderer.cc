@@ -253,14 +253,9 @@ void V9990PixelRenderer::updateScrollAX(const EmuTime& time)
 }
 void V9990PixelRenderer::updateScrollAY(const EmuTime& time)
 {
-	if (displayEnabled) sync(time);
-	if (vdp.getDisplayMode() != P1) {
-		// not P1 mode ..
-		const V9990DisplayPeriod& verTiming = vdp.getVerticalTiming();
-		unsigned y = lastY - (verTiming.blank + verTiming.border1);
-		if (y < (unsigned)verTiming.display) {
-			// .. and during display area
-			// again begin displaying from line 0
+	if (displayEnabled) {
+		sync(time);
+		if (vdp.getDisplayMode() != P1) {
 			verticalOffset = lastY;
 		}
 	}
