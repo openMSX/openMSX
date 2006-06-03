@@ -21,7 +21,8 @@ public:
 	void updatePalette(int index, byte r, byte g, byte b, const EmuTime& time);
 	void updateBackgroundColor(int index, const EmuTime& time);
 	void updateScrollAX(const EmuTime& time);
-	void updateScrollAY(const EmuTime& time);
+	void updateScrollAYLow(const EmuTime& time);
+	void updateScrollAYHigh(const EmuTime& time);
 	void updateScrollBX(const EmuTime& time);
 	void updateScrollBY(const EmuTime& time);
 };

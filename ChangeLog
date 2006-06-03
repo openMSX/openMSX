@@ -1,6 +1,10 @@
 $Id$
 
-2006-06-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2006-06-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Only lower part of AY scroll register resets scanline position:
+	   fixes GEM08
+
+2006-06-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed bug in V9990 blank screen behaviour
 
 2006-06-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>

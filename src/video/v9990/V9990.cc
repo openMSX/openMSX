@@ -525,8 +525,10 @@ void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
 			renderer->updateBackgroundColor(val & 63, time);
 			break;
 		case SCROLL_CONTROL_AY0:
+			renderer->updateScrollAYLow(time);
+			break;
 		case SCROLL_CONTROL_AY1:
-			renderer->updateScrollAY(time);
+			renderer->updateScrollAYHigh(time);
 			break;
 		case SCROLL_CONTROL_AX0:
 		case SCROLL_CONTROL_AX1:

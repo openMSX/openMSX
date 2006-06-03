@@ -49,7 +49,10 @@ void V9990DummyRenderer::updateBackgroundColor(
 void V9990DummyRenderer::updateScrollAX(const EmuTime& /*time*/)
 {
 }
-void V9990DummyRenderer::updateScrollAY(const EmuTime& /*time*/)
+void V9990DummyRenderer::updateScrollAYLow(const EmuTime& /*time*/)
+{
+}
+void V9990DummyRenderer::updateScrollAYHigh(const EmuTime& /*time*/)
 {
 }
 void V9990DummyRenderer::updateScrollBX(const EmuTime& /*time*/)

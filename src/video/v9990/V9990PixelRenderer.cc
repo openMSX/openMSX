@@ -251,7 +251,11 @@ void V9990PixelRenderer::updateScrollAX(const EmuTime& time)
 {
 	if (displayEnabled) sync(time);
 }
-void V9990PixelRenderer::updateScrollAY(const EmuTime& time)
+void V9990PixelRenderer::updateScrollAYHigh(const EmuTime& time)
+{
+	if (displayEnabled) sync(time);
+}
+void V9990PixelRenderer::updateScrollAYLow(const EmuTime& time)
 {
 	if (displayEnabled) {
 		sync(time);
