@@ -25,7 +25,7 @@ class NoExpansion {};
 template <class Type> class ExpandFilter {
 	typedef Type ExpandType;
 };
-template <> class ExpandFilter<unsigned int> {
+template <> class ExpandFilter<unsigned> {
 	typedef NoExpansion ExpandType;
 };
 template <> class V9990P1Converter<NoExpansion> {};
@@ -40,11 +40,11 @@ V9990P1Converter<Pixel>::V9990P1Converter(V9990& vdp_, Pixel* palette64_)
 }
 
 template <class Pixel>
-void V9990P1Converter<Pixel>::convertLine(
-	Pixel* linePtr, int displayX, int displayWidth, int displayY)
+void V9990P1Converter<Pixel>::convertLine(Pixel* linePtr,
+		unsigned displayX, unsigned displayWidth, unsigned displayY)
 {
-	int prioX = 256; // TODO get prio X & Y from reg #27
-	int prioY = 256;
+	unsigned prioX = vdp.getPriorityControlX();
+	unsigned prioY = vdp.getPriorityControlY();
 
 	int visibleSprites[16 + 1];
 	determineVisibleSprites(visibleSprites, displayY);
@@ -63,11 +63,16 @@ void V9990P1Converter<Pixel>::convertLine(
 	unsigned displayAY = scrollAYBase + (displayY + scrollAY) & rollMask;
 	unsigned displayBY = scrollBYBase + (displayY + scrollBY) & rollMask;
 
-	int displayEnd = displayX + displayWidth;
-	int end = std::min(prioX, displayEnd);
+	unsigned displayEnd = displayX + displayWidth;
+	unsigned end = std::min(prioX, displayEnd);
+
+	byte offset = vdp.getPaletteOffset();
+	byte palA = (offset & 0x03) << 4;
+	byte palB = (offset & 0x0C) << 2;
+
 	for (/* */; displayX < end; ++displayX) {
-		Pixel pix = raster(displayAX, displayAY, 0x7C000, 0x00000, // A
-		                   displayBX, displayBY, 0x7E000, 0x40000, // B
+		Pixel pix = raster(displayAX, displayAY, 0x7C000, 0x00000, palA, // A
+		                   displayBX, displayBY, 0x7E000, 0x40000, palB, // B
 		                   visibleSprites, displayX, displayY);
 		*linePtr++ = pix;
 
@@ -75,8 +80,8 @@ void V9990P1Converter<Pixel>::convertLine(
 		displayBX = (displayBX + 1) & 511;
 	}
 	for (/* */; displayX < displayEnd; ++displayX) {
-		Pixel pix = raster(displayBX, displayBY, 0x7E000, 0x40000, // B
-		                   displayAX, displayAY, 0x7C000, 0x00000, // A
+		Pixel pix = raster(displayBX, displayBY, 0x7E000, 0x40000, palB, // B
+		                   displayAX, displayAY, 0x7C000, 0x00000, palA, // A
 		                   visibleSprites, displayX, displayY);
 		*linePtr++ = pix;
 
@@ -86,12 +91,10 @@ void V9990P1Converter<Pixel>::convertLine(
 }
 
 template <class Pixel>
-Pixel V9990P1Converter<Pixel>::raster(int xA, int yA,
-	unsigned int nameTableA, unsigned int patternTableA,
-	int xB, int yB,
-	unsigned int nameTableB, unsigned int patternTableB,
-	int* visibleSprites,
-	unsigned int x, unsigned int y)
+Pixel V9990P1Converter<Pixel>::raster(
+	unsigned xA, unsigned yA, unsigned nameA, unsigned patternA, byte palA,
+	unsigned xB, unsigned yB, unsigned nameB, unsigned patternB, byte palB,
+	int* visibleSprites, unsigned int x, unsigned int y)
 {
 	byte p;
 	if (vdp.spritesEnabled()) {
@@ -100,9 +103,7 @@ Pixel V9990P1Converter<Pixel>::raster(int xA, int yA,
 
 		if (!(p & 0x0F)) {
 			// Front image plane
-			byte offset = vdp.getPaletteOffset();
-			p = getPixel(xA, yA, nameTableA, patternTableA) +
-			    ((offset & 0x03) << 4);
+			p = getPixel(xA, yA, nameA, patternA) + palA;
 
 			if (!(p & 0x0F)) {
 				// Back sprite plane
@@ -110,8 +111,7 @@ Pixel V9990P1Converter<Pixel>::raster(int xA, int yA,
 
 				if (!(p & 0x0F)) {
 					// Back image plane
-					p = getPixel(xB, yB, nameTableB, patternTableB) +
-					    ((offset & 0x0C) << 2);
+					p = getPixel(xB, yB, nameB, patternB) + palB;
 
 					if (!(p & 0x0F)) {
 						// Backdrop color
@@ -122,14 +122,11 @@ Pixel V9990P1Converter<Pixel>::raster(int xA, int yA,
 		}
 	} else {
 		// Front image plane
-		byte offset = vdp.getPaletteOffset();
-		p = getPixel(xA, yA, nameTableA, patternTableA) +
-		    ((offset & 0x03) << 4);
+		p = getPixel(xA, yA, nameA, patternA) + palA;
 
 		if (!(p & 0x0F)) {
 			// Back image plane
-			p = getPixel(xB, yB, nameTableB, patternTableB) +
-			    ((offset & 0x0C) << 2);
+			p = getPixel(xB, yB, nameB, patternB) + palB;
 
 			if (!(p & 0x0F)) {
 				// Backdrop color
@@ -142,13 +139,13 @@ Pixel V9990P1Converter<Pixel>::raster(int xA, int yA,
 
 template <class Pixel>
 byte V9990P1Converter<Pixel>::getPixel(
-	int x, int y, unsigned int nameTable, unsigned int patternTable)
+	unsigned x, unsigned y, unsigned nameTable, unsigned patternTable)
 {
-	unsigned int address = nameTable + (((y / 8) * 64 + (x / 8)) * 2);
-	unsigned int pattern = (vram.readVRAMP1(address + 0) +
+	unsigned address = nameTable + (((y / 8) * 64 + (x / 8)) * 2);
+	unsigned pattern = (vram.readVRAMP1(address + 0) +
 	                        vram.readVRAMP1(address + 1) * 256) & 0x1FFF;
-	int x2 = (pattern % 32) * 8 + (x % 8);
-	int y2 = (pattern / 32) * 8 + (y % 8);
+	unsigned x2 = (pattern % 32) * 8 + (x % 8);
+	unsigned y2 = (pattern / 32) * 8 + (y % 8);
 	address = patternTable + y2 * 128 + x2 / 2;
 	byte dixel = vram.readVRAMP1(address);
 	if (!(x & 1)) dixel >>= 4;
@@ -157,13 +154,13 @@ byte V9990P1Converter<Pixel>::getPixel(
 
 template <class Pixel>
 void V9990P1Converter<Pixel>::determineVisibleSprites(
-	int* visibleSprites, int displayY)
+	int* visibleSprites, unsigned displayY)
 {
-	static const unsigned int spriteTable = 0x3FE00;
+	static const unsigned spriteTable = 0x3FE00;
 
 	int index = 0;
-	for (int sprite = 0; sprite < 125; ++sprite) {
-		int spriteInfo = spriteTable + 4 * sprite;
+	for (unsigned sprite = 0; sprite < 125; ++sprite) {
+		unsigned spriteInfo = spriteTable + 4 * sprite;
 		byte attr = vram.readVRAMP1(spriteInfo + 3);
 
 		if (!(attr & 0x10)) {
@@ -180,14 +177,14 @@ void V9990P1Converter<Pixel>::determineVisibleSprites(
 
 template <class Pixel>
 byte V9990P1Converter<Pixel>::getSpritePixel(
-	int* visibleSprites, int x, int y, bool front)
+	int* visibleSprites, unsigned x, unsigned y, bool front)
 {
-	static const unsigned int spriteTable = 0x3FE00;
+	static const unsigned spriteTable = 0x3FE00;
 	int spritePatternTable = vdp.getSpritePatternAddress(P1);
 
-	for (int sprite = 0; visibleSprites[sprite] != -1; ++sprite) {
-		int   addr       = spriteTable + 4 * visibleSprites[sprite];
-		int   spriteX    = vram.readVRAMP1(addr + 2);
+	for (unsigned sprite = 0; visibleSprites[sprite] != -1; ++sprite) {
+		unsigned addr     = spriteTable + 4 * visibleSprites[sprite];
+		unsigned spriteX  = vram.readVRAMP1(addr + 2);
 		byte  spriteAttr = vram.readVRAMP1(addr + 3);
 		spriteX += 256 * (spriteAttr & 0x03);
 		if (spriteX > 1008) spriteX -= 1024; // hack X coord into -16..1008

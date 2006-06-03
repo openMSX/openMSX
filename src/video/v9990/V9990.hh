@@ -285,6 +285,15 @@ public:
 		return *verTiming;
 	}
 
+	inline unsigned getPriorityControlX() const {
+		unsigned t = regs[PRIORITY_CONTROL] & 0x03;
+		return (t == 0) ? 256 : t << 6;
+	}
+	inline unsigned getPriorityControlY() const {
+		unsigned t = regs[PRIORITY_CONTROL] & 0x0C;
+		return (t == 0) ? 256 : t << 4;
+	}
+
 private:
 	// Schedulable interface:
 	virtual void executeUntil(const EmuTime& time, int userData);
