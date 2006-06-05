@@ -4,6 +4,7 @@
 #define CLICONNECTION_HH
 
 #include "Thread.hh"
+#include "Semaphore.hh"
 #include "EventListener.hh"
 #include "Socket.hh"
 #include "CliComm.hh"
@@ -127,6 +128,7 @@ private:
 	virtual void run();
 
 	SOCKET sd;
+	Semaphore sem;
 };
 
 } // namespace openmsx

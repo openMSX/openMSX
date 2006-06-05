@@ -5,6 +5,8 @@ $Id$
 	   fixes 'shocky' scroll in some power basic demos
 	* fixed "openmsx_info isexternalslot" command:
 	   guess_title script now works again
+	* Oops! Socket code couldn't handle multiple simultaneous connections
+	  (or two single connections quickly after each other).
 
 2006-06-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Only lower part of AY scroll register resets scanline position:

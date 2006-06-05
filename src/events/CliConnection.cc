@@ -27,17 +27,22 @@ namespace openmsx {
 class CliCommandEvent : public Event
 {
 public:
-	CliCommandEvent(const string& command_)
+	CliCommandEvent(const string& command_, const CliConnection* id_)
 		: Event(OPENMSX_CLICOMMAND_EVENT)
-		, command(command_)
+		, command(command_), id(id_)
 	{
 	}
 	const string& getCommand() const
 	{
 		return command;
 	}
+	const CliConnection* getId() const
+	{
+		return id;
+	}
 private:
 	const string command;
+	const CliConnection* id;
 };
 
 
@@ -96,7 +101,7 @@ void CliConnection::end()
 
 void CliConnection::execute(const string& command)
 {
-	eventDistributor.distributeEvent(new CliCommandEvent(command));
+	eventDistributor.distributeEvent(new CliCommandEvent(command, this));
 }
 
 static string reply(const string& message, bool status)
@@ -110,6 +115,7 @@ void CliConnection::signalEvent(const Event& event)
 	assert(dynamic_cast<const CliCommandEvent*>(&event));
 	const CliCommandEvent& commandEvent =
 		static_cast<const CliCommandEvent&>(event);
+	if (commandEvent.getId() != this) return;
 	try {
 		string result = commandController.executeCommand(
 			commandEvent.getCommand(), this);
@@ -285,7 +291,7 @@ SocketConnection::SocketConnection(CommandController& commandController,
                                    EventDistributor& eventDistributor,
                                    SOCKET sd_)
 	: CliConnection(commandController, eventDistributor)
-	, sd(sd_)
+	, sd(sd_), sem(1)
 {
 	start();
 }
@@ -297,7 +303,11 @@ SocketConnection::~SocketConnection()
 
 void SocketConnection::run()
 {
-	while (sd != INVALID_SOCKET) {
+	// TODO is locking correct?
+	// No need to lock in this thread because we don't write to 'sd'
+	// and 'sd' only gets written to in this thread.
+	while (true) {
+		if (sd == INVALID_SOCKET) return;
 		char buf[BUF_SIZE];
 		int n = sock_recv(sd, buf, BUF_SIZE);
 		if (n > 0) {
@@ -311,13 +321,16 @@ void SocketConnection::run()
 
 void SocketConnection::output(const std::string& message)
 {
-	if (sd == INVALID_SOCKET) return;
-
 	const char* data = message.data();
 	unsigned pos = 0;
 	unsigned bytesLeft = message.size();
 	while (bytesLeft) {
-		int bytesSend = sock_send(sd, &data[pos], bytesLeft);
+		int bytesSend;
+		{
+			ScopedLock lock(sem);
+			if (sd == INVALID_SOCKET) return;
+			bytesSend = sock_send(sd, &data[pos], bytesLeft);
+		}
 		if (bytesSend > 0) {
 			bytesLeft -= bytesSend;
 			pos += bytesSend;
@@ -330,8 +343,8 @@ void SocketConnection::output(const std::string& message)
 
 void SocketConnection::close()
 {
+	ScopedLock lock(sem);
 	if (sd != INVALID_SOCKET) {
-		// TODO: Proper locking
 		SOCKET _sd = sd;
 		sd = INVALID_SOCKET;
 		sock_close(_sd);
