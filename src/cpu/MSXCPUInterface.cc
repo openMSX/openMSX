@@ -797,7 +797,7 @@ void ExternalSlotInfo::execute(const std::vector<TclObject*>& tokens,
 	default:
 		throw SyntaxError();
 	}
-	result.setInt(manager.isExternalSlot(ps, ss));
+	result.setInt(manager.isExternalSlot(ps, ss, true));
 }
 
 std::string ExternalSlotInfo::help(
