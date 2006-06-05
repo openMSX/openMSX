@@ -487,6 +487,15 @@ void V9990::syncAtNextLine(V9990SyncType type, const EmuTime& time)
 
 void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
 {
+	// Found this table by writing 0xFF to a register and reading
+	// back the value (only works for read/write registers)
+	static const byte regWriteMask[32] = {
+		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+		0xFF, 0x87, 0xFF, 0x83, 0x0F, 0xFF, 0xFF, 0xFF,
+		0xFF, 0xFF, 0xDF, 0x07, 0xFF, 0xFF, 0xC1, 0x07,
+		0x3F, 0xCF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+	};
+
 	//PRT_DEBUG("[" << time << "] "
 	//	  "V9990::writeRegister - reg=0x" << std::hex << int(reg) <<
 	//	                        " val=0x" << std::hex << int(val));
@@ -500,6 +509,8 @@ void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
 		cmdEngine->setCmdReg(reg, val, time);
 		return;
 	}
+
+	val &= regWriteMask[reg];
 
 	byte change = regs[reg] ^ val;
 	// This optimization is not valid for the vertical scroll registers

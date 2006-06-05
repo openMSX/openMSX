@@ -1,5 +1,9 @@
 $Id$
 
+2006-06-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Mask unwritable bits in V9990 registers:
+	   fixes 'shocky' scroll in some power basic demos
+
 2006-06-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Only lower part of AY scroll register resets scanline position:
 	   fixes GEM08
