@@ -33,7 +33,7 @@ WavImage::WavImage(const string& fileName)
 		throw MSXException("Couldn't build wav converter");
 	}
 
-	buffer = (Uint8*)malloc(wavLen * audioCVT.len_mult);
+	buffer = static_cast<byte*>(malloc(wavLen * audioCVT.len_mult));
 	audioCVT.buf = buffer;
 	audioCVT.len = wavLen;
 	memcpy(buffer, wavBuf, wavLen);
@@ -43,15 +43,16 @@ WavImage::WavImage(const string& fileName)
 		free(buffer);
 		throw MSXException("Couldn't convert wav");
 	}
-	length = (int)(audioCVT.len * audioCVT.len_ratio) / 2;
+	length = static_cast<int>(audioCVT.len * audioCVT.len_ratio) / 2;
 
 	// calculate the average to subtract it later (simple DC filter)
 	if (length > 0) {
 		long long total = 0;
 		for (int i = 0; i < length; ++i) {
-			total += ((short*)buffer)[i];
+			total += buffer[i * 2] +
+			         (static_cast<signed char>(buffer[i * 2 + 1]) << 8);
 		}
-		average = (short)(total / length);
+		average = static_cast<short>(total / length);
 	} else {
 		average = 0;
 	}
@@ -65,11 +66,12 @@ WavImage::~WavImage()
 short WavImage::getSampleAt(const EmuTime& time)
 {
 	int pos = clock.getTicksTill(time);
-	int tmp = (pos < length) ? (((short*)buffer)[pos]) : 0;
+	int tmp = (pos < length)
+	        ? buffer[pos * 2] +
+	          (static_cast<signed char>(buffer[pos * 2 + 1]) << 8)
+	        : 0;
 	tmp -= average;
-	if (tmp > 32767) tmp = 32767;
-	else if (tmp < -32768) tmp = -32768;
-	return tmp;
+	return tmp > 32767 ? 32767 : (tmp < -32768 ? -32768 : tmp);
 }
 
 } // namespace openmsx
