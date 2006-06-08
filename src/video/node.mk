@@ -46,7 +46,8 @@ HDR_ONLY:= \
 	VideoSystemChangeListener
 
 DIST:= \
-	HQ2xScaler-1x1to2x2.nn
+	HQ2xScaler-1x1to2x2.nn \
+	HQ2xScaler-1x1to1x2.nn
 
 SRC_HDR_$(COMPONENT_GL)+= \
 	SDLGLVisibleSurface GLSnow GLUtil GLImage \
