@@ -17,6 +17,7 @@
 #include "FrameSource.hh"
 #include "OutputSurface.hh"
 #include "openmsx.hh"
+#include <cassert>
 
 namespace openmsx {
 
@@ -28,12 +29,17 @@ HQ2xLiteScaler<Pixel>::HQ2xLiteScaler(const PixelOperations<Pixel>& pixelOps)
 
 template <class Pixel>
 static void scale1on2(const Pixel* in0, const Pixel* in1, const Pixel* in2,
-                      Pixel* out0, Pixel* out1, unsigned srcWidth)
+                      Pixel* out0, Pixel* out1, unsigned srcWidth,
+                      unsigned* edgeBuf)
 {
 	unsigned c1, c2, c3, c4, c5, c6, c7, c8, c9;
 	c2 = c3 = readPixel(in0);
 	c5 = c6 = readPixel(in1);
 	c8 = c9 = readPixel(in2);
+
+	unsigned pattern = 0;
+	if (c5 != c8) pattern |= 3 <<  6;
+	if (c5 != c2) pattern |= 3 <<  9;
 
 	for (unsigned x = 0; x < srcWidth; ++x) {
 		c1 = c2; c4 = c5; c7 = c8;
@@ -46,375 +52,31 @@ static void scale1on2(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 			c9 = readPixel(in2);
 		}
 
-		unsigned pattern = 0;
-		if (c5 != c1) pattern |= 0x01;
-		if (c5 != c2) pattern |= 0x02;
-		if (c5 != c3) pattern |= 0x04;
-		if (c5 != c4) pattern |= 0x08;
-		if (c5 != c6) pattern |= 0x10;
-		if (c5 != c7) pattern |= 0x20;
-		if (c5 != c8) pattern |= 0x40;
-		if (c5 != c9) pattern |= 0x80;
+		pattern = (pattern >> 6) & 0x001F; // left overlap
+		// overlaps with left
+		//if (c8 != c4) pattern |= 1 <<  0; // B - l: c5-c9 6
+		//if (c5 != c7) pattern |= 1 <<  1; // B - l: c6-c8 7
+		//if (c5 != c4) pattern |= 1 <<  2; //     l: c5-c6 8
+		// overlaps with top and left
+		//if (c5 != c1) pattern |= 1 <<  3; //     l: c2-c6 9,  t: c4-c8 0
+		//if (c4 != c2) pattern |= 1 <<  4; //     l: c5-c3 10, t: c5-c7 1
+		// non-overlapping pixels
+		if (c5 != c8) pattern |= 1 <<  5; // B
+		if (c5 != c9) pattern |= 1 <<  6; // BR
+		if (c6 != c8) pattern |= 1 <<  7; // BR
+		if (c5 != c6) pattern |= 1 <<  8; // R
+		// overlaps with top
+		//if (c2 != c6) pattern |= 1 <<  9; // R - t: c5-c9 6
+		//if (c5 != c3) pattern |= 1 << 10; // R - t: c6-c8 7
+		//if (c5 != c2) pattern |= 1 << 11; //     t: c5-c8 5
+		pattern |= ((edgeBuf[x] &  (1 << 5)            ) << 6) |
+		           ((edgeBuf[x] & ((1 << 6) | (1 << 7))) << 3);
+		edgeBuf[x] = pattern;
 
-                unsigned pixel1 = c5;
-		unsigned pixel2 = c5;
-		unsigned pixel3 = c5;
-		unsigned pixel4 = c5;
-		switch (pattern) {
-		case 0x12: case 0x16: case 0x1e: case 0x32:
-                case 0x36: case 0x3e: case 0x56: case 0x76:
-			if (c2 == c6) pixel2 = interpolate<1, 1>(c5, c2);
-			break;
+		unsigned pixel1, pixel2, pixel3, pixel4;
 
-		case 0x50: case 0x51: case 0xd0: case 0xd1:
-		case 0xd2: case 0xd3: case 0xd8: case 0xd9:
-			if (c6 == c8) pixel4 = interpolate<1, 1>(c5, c6);
-			break;
+#include "HQ2xLiteScaler-1x1to2x2.nn"
 
-		case 0x48: case 0x4c: case 0x68: case 0x6a:
-                case 0x6c: case 0x6e: case 0x78: case 0x7c:
-			if (c4 == c8) pixel3 = interpolate<1, 1>(c5, c4);
-			break;
-
-
-		case 0x0a: case 0x0b: case 0x1b: case 0x4b:
-                case 0x8a: case 0x8b: case 0x9b: case 0xcb:
-			if (c2 == c4) pixel1 = interpolate<1, 1>(c5, c2);
-			break;
-
-		case 0x13: case 0x17: case 0x33: case 0x37:
-		case 0x77:
-			if (c2 == c6) {
-				pixel1 = interpolate<5, 2, 1>(c5, c2, c4);
-				pixel2 = interpolate<1, 3>(c5, c2);
-			}
-			break;
-
-		case 0x92: case 0x96: case 0xb2: case 0xb6:
-		case 0xbe:
-			if (c2 == c6) {
-				pixel2 = interpolate<1, 3>(c5, c2);
-				pixel4 = interpolate<5, 2, 1>(c5, c2, c8);
-			}
-			break;
-
-		case 0x54: case 0x55: case 0xd4: case 0xd5:
-		case 0xdd:
-			if (c6 == c8) {
-				pixel2 = interpolate<5, 2, 1>(c5, c6, c2);
-				pixel4 = interpolate<1, 3>(c5, c6);
-			}
-			break;
-
-		case 0x70: case 0x71: case 0xf0: case 0xf1:
-		case 0xf3:
-			if (c6 == c8) {
-				pixel3 = interpolate<5, 2, 1>(c5, c6, c4);
-				pixel4 = interpolate<1, 3>(c5, c6);
-			}
-			break;
-
-		case 0xc8: case 0xcc: case 0xe8: case 0xec:
-		case 0xee:
-			if (c4 == c8) {
-				pixel3 = interpolate<1, 3>(c5, c4);
-				pixel4 = interpolate<5, 2, 1>(c5, c4, c6);
-			}
-			break;
-
-		case 0x49: case 0x4d: case 0x69: case 0x6d:
-		case 0x7d:
-			if (c4 == c8) {
-				pixel1 = interpolate<5, 2, 1>(c5, c4, c2);
-				pixel3 = interpolate<1, 3>(c5, c4);
-			}
-			break;
-
-		case 0x2a: case 0x2b: case 0xaa: case 0xab:
-		case 0xbb:
-			if (c2 == c4) {
-				pixel1 = interpolate<1, 3>(c5, c2);
-				pixel3 = interpolate<5, 2, 1>(c5, c2, c8);
-			}
-			break;
-
-		case 0x0e: case 0x0f: case 0x8e: case 0x8f:
-		case 0xcf:
-			if (c2 == c4) {
-				pixel1 = interpolate<1, 3>(c5, c2);
-				pixel2 = interpolate<5, 2, 1>(c5, c2, c6);
-			}
-			break;
-
-		case 0x1a: case 0x1f: case 0x5f: {
-			unsigned t = interpolate<1, 1>(c5, c2);
-			if (c2 == c4) pixel1 = t;
-			if (c2 == c6) pixel2 = t;
-			break;
-		}
-		case 0x52: case 0xd6: case 0xde: {
-			unsigned t = interpolate<1, 1>(c5, c6);
-			if (c2 == c6) pixel2 = t;
-			if (c6 == c8) pixel4 = t;
-			break;
-		}
-		case 0x58: case 0xf8: case 0xfa: {
-			unsigned t = interpolate<1, 1>(c5, c8);
-			if (c4 == c8) pixel3 = t;
-			if (c6 == c8) pixel4 = t;
-			break;
-		}
-		case 0x4a: case 0x6b: case 0x7b: {
-			unsigned t = interpolate<1, 1>(c5, c4);
-			if (c2 == c4) pixel1 = t;
-			if (c4 == c8) pixel3 = t;
-			break;
-		}
-		case 0x3a: case 0x9a: case 0xba: {
-			unsigned t = interpolate<3, 1>(c5, c2);
-			if (c2 == c4) pixel1 = t;
-			if (c2 == c6) pixel2 = t;
-			break;
-		}
-		case 0x53: case 0x72: case 0x73: {
-			unsigned t = interpolate<3, 1>(c5, c6);
-			if (c2 == c6) pixel2 = t;
-			if (c6 == c8) pixel4 = t;
-			break;
-		}
-		case 0x59: case 0x5c: case 0x5d: {
-			unsigned t = interpolate<3, 1>(c5, c8);
-			if (c4 == c8) pixel3 = t;
-			if (c6 == c8) pixel4 = t;
-			break;
-		}
-		case 0x4e: case 0xca: case 0xce: {
-			unsigned t = interpolate<3, 1>(c5, c4);
-			if (c2 == c4) pixel1 = t;
-			if (c4 == c8) pixel3 = t;
-			break;
-		}
-		case 0x5a: {
-			unsigned t1 = interpolate<3, 1>(c5, c2);
-			if (c2 == c4) pixel1 = t1;
-			if (c2 == c6) pixel2 = t1;
-			unsigned t2 = interpolate<3, 1>(c5, c8);
-			if (c4 == c8) pixel3 = t2;
-			if (c6 == c8) pixel4 = t1;
-			break;
-		}
-		case 0xdc:
-			if (c4 == c8) pixel3 = interpolate<3, 1>(c5, c8);
-			if (c6 == c8) pixel4 = interpolate<1, 1>(c5, c8);
-			break;
-
-		case 0x9e:
-			if (c2 == c4) pixel1 = interpolate<3, 1>(c5, c2);
-			if (c2 == c6) pixel2 = interpolate<1, 1>(c5, c2);
-			break;
-
-		case 0xea:
-			if (c2 == c4) pixel1 = interpolate<3, 1>(c5, c4);
-			if (c4 == c8) pixel3 = interpolate<1, 1>(c5, c4);
-			break;
-
-		case 0xf2:
-			if (c2 == c6) pixel2 = interpolate<3, 1>(c5, c6);
-			if (c6 == c8) pixel4 = interpolate<1, 1>(c5, c6);
-			break;
-
-		case 0x3b:
-			if (c2 == c4) pixel1 = interpolate<1, 1>(c5, c2);
-			if (c2 == c6) pixel2 = interpolate<3, 1>(c5, c2);
-			break;
-
-		case 0x79:
-			if (c4 == c8) pixel3 = interpolate<1, 1>(c5, c8);
-			if (c6 == c8) pixel4 = interpolate<3, 1>(c5, c8);
-			break;
-
-		case 0x57:
-			if (c2 == c6) pixel2 = interpolate<1, 1>(c5, c6);
-			if (c6 == c8) pixel4 = interpolate<3, 1>(c5, c6);
-			break;
-
-		case 0x4f:
-			if (c2 == c4) pixel1 = interpolate<1, 1>(c5, c4);
-			if (c4 == c8) pixel3 = interpolate<3, 1>(c5, c4);
-			break;
-
-		case 0x7a: {
-			unsigned t = interpolate<3, 1>(c5, c2);
-			if (c2 == c4) pixel1 = t;
-			if (c2 == c6) pixel2 = t;
-			if (c4 == c8) pixel3 = interpolate<1, 1>(c5, c8);
-			if (c6 == c8) pixel4 = interpolate<3, 1>(c5, c8);
-			break;
-		}
-		case 0x5e: {
-			if (c2 == c4) pixel1 = interpolate<3, 1>(c5, c2);
-			if (c2 == c6) pixel2 = interpolate<1, 1>(c5, c2);
-			unsigned t = interpolate<3, 1>(c5, c8);
-			if (c4 == c8) pixel3 = t;
-			if (c6 == c8) pixel4 = t;
-			break;
-		}
-		case 0xda: {
-			unsigned t = interpolate<3, 1>(c5, c2);
-			if (c2 == c4) pixel1 = t;
-			if (c2 == c6) pixel2 = t;
-			if (c4 == c8) pixel3 = interpolate<3, 1>(c5, c8);
-			if (c6 == c8) pixel4 = interpolate<1, 1>(c5, c8);
-			break;
-		}
-		case 0x5b: {
-			if (c2 == c4) pixel1 = interpolate<1, 1>(c5, c2);
-			if (c2 == c6) pixel2 = interpolate<3, 1>(c5, c2);
-			unsigned t = interpolate<3, 1>(c5, c8);
-			if (c4 == c8) pixel3 = t;
-			if (c6 == c8) pixel4 = t;
-			break;
-		}
-		case 0xc9: case 0xcd:
-			if (c4 == c8) pixel3 = interpolate<3, 1>(c5, c4);
-			break;
-
-		case 0x2e: case 0xae:
-			if (c2 == c4) pixel1 = interpolate<3, 1>(c5, c2);
-			break;
-
-		case 0x93: case 0xb3:
-			if (c2 == c6) pixel2 = interpolate<3, 1>(c5, c2);
-			break;
-
-		case 0x74: case 0x75:
-			if (c6 == c8) pixel4 = interpolate<3, 1>(c5, c6);
-			break;
-
-		case 0x7e:
-			if (c2 == c6) pixel2 = interpolate<1, 1>(c5, c2);
-			if (c4 == c8) pixel3 = interpolate<1, 1>(c5, c4);
-			break;
-
-		case 0xdb:
-			if (c2 == c4) pixel1 = interpolate<1, 1>(c5, c2);
-			if (c6 == c8) pixel4 = interpolate<1, 1>(c5, c6);
-			break;
-
-		case 0xe9: case 0xed:
-			if (c4 == c8) pixel3 = interpolate<7, 1>(c5, c4);
-			break;
-
-		case 0x2f: case 0xaf:
-			if (c2 == c4) pixel1 = interpolate<7, 1>(c5, c2);
-			break;
-
-		case 0x97: case 0xb7:
-			if (c2 == c6) pixel2 = interpolate<7, 1>(c5, c2);
-			break;
-
-		case 0xf4: case 0xf5:
-			if (c6 == c8) pixel4 = interpolate<7, 1>(c5, c6);
-			break;
-
-		case 0xfc:
-			if (c4 == c8) pixel3 = interpolate<1, 1>(c5, c8);
-			if (c6 == c8) pixel4 = interpolate<7, 1>(c5, c8);
-			break;
-
-		case 0xf9:
-			if (c4 == c8) pixel3 = interpolate<7, 1>(c5, c8);
-			if (c6 == c8) pixel4 = interpolate<1, 1>(c5, c8);
-			break;
-
-		case 0xeb:
-			if (c2 == c4) pixel1 = interpolate<1, 1>(c5, c4);
-			if (c4 == c8) pixel3 = interpolate<7, 1>(c5, c4);
-			break;
-
-		case 0x6f:
-			if (c2 == c4) pixel1 = interpolate<7, 1>(c5, c4);
-			if (c4 == c8) pixel3 = interpolate<1, 1>(c5, c4);
-			break;
-
-		case 0x3f:
-			if (c2 == c4) pixel1 = interpolate<7, 1>(c5, c2);
-			if (c2 == c6) pixel2 = interpolate<1, 1>(c5, c2);
-			break;
-
-		case 0x9f:
-			if (c2 == c4) pixel1 = interpolate<1, 1>(c5, c2);
-			if (c2 == c6) pixel2 = interpolate<7, 1>(c5, c2);
-			break;
-
-		case 0xd7:
-			if (c2 == c6) pixel2 = interpolate<7, 1>(c5, c6);
-			if (c6 == c8) pixel4 = interpolate<1, 1>(c5, c6);
-			break;
-
-		case 0xf6:
-			if (c2 == c6) pixel2 = interpolate<1, 1>(c5, c6);
-			if (c6 == c8) pixel4 = interpolate<7, 1>(c5, c6);
-			break;
-
-		case 0xfe:
-			if (c2 == c6) pixel2 = interpolate<1, 1>(c5, c2);
-			if (c4 == c8) pixel3 = interpolate<1, 1>(c5, c8);
-			if (c6 == c8) pixel4 = interpolate<7, 1>(c5, c8);
-			break;
-
-		case 0xfd: {
-			unsigned t = interpolate<7, 1>(c5, c8);
-			if (c4 == c8) pixel3 = t;
-			if (c6 == c8) pixel4 = t;
-			break;
-		}
-		case 0xfb:
-			if (c2 == c4) pixel1 = interpolate<1, 1>(c5, c2);
-			if (c4 == c8) pixel3 = interpolate<7, 1>(c5, c8);
-			if (c6 == c8) pixel4 = interpolate<1, 1>(c5, c8);
-			break;
-
-		case 0xef: {
-			unsigned t = interpolate<7, 1>(c5, c4);
-			if (c2 == c4) pixel1 = t;
-			if (c4 == c8) pixel3 = t;
-			break;
-		}
-		case 0x7f:
-			if (c2 == c4) pixel1 = interpolate<7, 1>(c5, c2);
-			if (c2 == c6) pixel2 = interpolate<1, 1>(c5, c2);
-			if (c4 == c8) pixel3 = interpolate<1, 1>(c5, c4);
-			break;
-
-		case 0xbf: {
-			unsigned t = interpolate<7, 1>(c5, c2);
-			if (c2 == c4) pixel1 = t;
-			if (c2 == c6) pixel2 = t;
-			break;
-		}
-		case 0xdf:
-			if (c2 == c4) pixel1 = interpolate<1, 1>(c5, c2);
-			if (c2 == c6) pixel2 = interpolate<7, 1>(c5, c2);
-			if (c6 == c8) pixel4 = interpolate<1, 1>(c5, c6);
-			break;
-
-		case 0xf7: {
-			unsigned t = interpolate<7, 1>(c5, c6);
-			if (c2 == c6) pixel2 = t;
-			if (c6 == c8) pixel4 = t;
-			break;
-		}
-		case 0xff: {
-			unsigned t1 = interpolate<7, 1>(c5, c2);
-			if (c2 == c4) pixel1 = t1;
-			if (c2 == c6) pixel2 = t1;
-			unsigned t2 = interpolate<7, 1>(c5, c8);
-			if (c4 == c8) pixel3 = t2;
-			if (c6 == c8) pixel4 = t2;
-			break;
-		}
-		}
 		pset(out1 + 0, pixel3);
 		pset(out1 + 1, pixel4);
 		pset(out0 + 0, pixel1);
@@ -588,12 +250,34 @@ void HQ2xLiteScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	int srcY = srcStartY;
 	const Pixel* srcPrev = src.getLinePtr(srcY - 1, srcWidth, dummy);
 	const Pixel* srcCurr = src.getLinePtr(srcY + 0, srcWidth, dummy);
+
+	assert(srcWidth <= 1024);
+	unsigned edgeBuf[1024];
+
+	unsigned x = 0;
+	unsigned c1 = readPixel(&srcPrev[x]);
+	unsigned c2 = readPixel(&srcCurr[x]);
+	unsigned pattern = (c1 != c2) ? ((1 << 6) | (1 << 7)) : 0;
+	for (/* */; x < (srcWidth - 1); ++x) {
+		pattern >>= 6;
+		unsigned n1 = readPixel(&srcPrev[x + 1]);
+		unsigned n2 = readPixel(&srcCurr[x + 1]);
+		if (c1 != c2) pattern |= (1 << 5);
+		if (c1 != n2) pattern |= (1 << 6);
+		if (c2 != n1) pattern |= (1 << 7);
+		edgeBuf[x] = pattern;
+		c1 = n1; c2 = n2;
+	}
+	pattern >>= 6;
+	if (c1 != c2) pattern |= (1 << 5) | (1 << 6) | (1 << 7);
+	edgeBuf[x] = pattern;
+
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
 		const Pixel* srcNext = src.getLinePtr(srcY + 1, srcWidth, dummy);
 		Pixel* dstUpper = dst.getLinePtr(dstY + 0, dummy);
 		Pixel* dstLower = dst.getLinePtr(dstY + 1, dummy);
 		scale1on2(srcPrev, srcCurr, srcNext, dstUpper, dstLower,
-		          srcWidth);
+		          srcWidth, edgeBuf);
 		srcPrev = srcCurr;
 		srcCurr = srcNext;
 	}
