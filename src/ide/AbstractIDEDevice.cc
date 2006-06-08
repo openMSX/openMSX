@@ -186,7 +186,7 @@ word AbstractIDEDevice::readData(const EmuTime& /*time*/)
 void AbstractIDEDevice::readNextBlock()
 {
 	bufferLeft = readBlockStart(
-		buffer, std::min(sizeof(buffer), transferCount)
+		buffer, std::min(static_cast<unsigned>(sizeof(buffer)), transferCount)
 		);
 	assert((bufferLeft & 1) == 0);
 	transferPntr = buffer;
@@ -222,7 +222,7 @@ void AbstractIDEDevice::writeData(word value, const EmuTime& /*time*/)
 void AbstractIDEDevice::writeNextBlock()
 {
 	transferPntr = buffer;
-	bufferLeft = std::min(sizeof(buffer), transferCount);
+	bufferLeft = std::min(static_cast<unsigned>(sizeof(buffer)), transferCount);
 	transferCount -= bufferLeft;
 }
 
