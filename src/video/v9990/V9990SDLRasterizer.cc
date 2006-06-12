@@ -8,6 +8,8 @@
 #include "V9990P1Converter.hh"
 #include "V9990P2Converter.hh"
 #include "BooleanSetting.hh"
+#include "FloatSetting.hh"
+#include "StringSetting.hh"
 #include "Display.hh"
 #include "VisibleSurface.hh"
 #include "RenderSettings.hh"
@@ -37,12 +39,22 @@ V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(
 	workFrame = new RawFrame(screen.getFormat(), 1280, 240);
 
 	// Fill palettes
-	precalcPalettes();
+	preCalcPalettes();
+
+	renderSettings.getGamma()      .attach(*this);
+	renderSettings.getBrightness() .attach(*this);
+	renderSettings.getContrast()   .attach(*this);
+	renderSettings.getColorMatrix().attach(*this);
 }
 
 template <class Pixel>
 V9990SDLRasterizer<Pixel>::~V9990SDLRasterizer()
 {
+	renderSettings.getColorMatrix().detach(*this);
+	renderSettings.getGamma()      .detach(*this);
+	renderSettings.getBrightness() .detach(*this);
+	renderSettings.getContrast()   .detach(*this);
+
 	delete workFrame;
 }
 
@@ -57,6 +69,7 @@ void V9990SDLRasterizer<Pixel>::reset()
 {
 	setDisplayMode(vdp.getDisplayMode());
 	setColorMode(vdp.getColorMode());
+	resetPalette();
 }
 
 template <class Pixel>
@@ -251,7 +264,7 @@ void V9990SDLRasterizer<Pixel>::drawBxMode(
 
 
 template <class Pixel>
-void V9990SDLRasterizer<Pixel>::precalcPalettes()
+void V9990SDLRasterizer<Pixel>::preCalcPalettes()
 {
 	// the 32768 color palette
 	for (int g = 0; g < 32; ++g) {
@@ -280,13 +293,8 @@ void V9990SDLRasterizer<Pixel>::precalcPalettes()
 			}
 		}
 	}
-
-	// get 64 color palette from VDP
-	for (int i = 0; i < 64; ++i) {
-		byte r, g, b;
-		vdp.getPalette(i, r, g, b);
-		setPalette(i, r, g, b);
-	}
+	
+	resetPalette();
 }
 
 template <class Pixel>
@@ -298,6 +306,27 @@ void V9990SDLRasterizer<Pixel>::setPalette(int index,
 	                                      (b & 31)];
 }
 
+template <class Pixel>
+void V9990SDLRasterizer<Pixel>::resetPalette()
+{
+	// get 64 color palette from VDP
+	for (int i = 0; i < 64; ++i) {
+		byte r, g, b;
+		vdp.getPalette(i, r, g, b);
+		setPalette(i, r, g, b);
+	}
+}
+
+template <class Pixel>
+void V9990SDLRasterizer<Pixel>::update(const Setting& setting)
+{
+	if ((&setting == &renderSettings.getGamma()) ||
+	    (&setting == &renderSettings.getBrightness()) ||
+	    (&setting == &renderSettings.getContrast()) ||
+	    (&setting == &renderSettings.getColorMatrix())) {
+		preCalcPalettes();
+	}
+}
 
 // Force template instantiation.
 template class V9990SDLRasterizer<Uint16>;

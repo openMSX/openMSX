@@ -4,6 +4,7 @@
 #define V9990SDLRASTERIZER_HH
 
 #include "V9990Rasterizer.hh"
+#include "Observer.hh"
 #include "noncopyable.hh"
 #include <memory>
 
@@ -16,6 +17,7 @@ class RawFrame;
 class OutputSurface;
 class VisibleSurface;
 class RenderSettings;
+class Setting;
 class PostProcessor;
 template <class Pixel> class V9990BitmapConverter;
 template <class Pixel> class V9990P1Converter;
@@ -24,7 +26,8 @@ template <class Pixel> class V9990P2Converter;
 /** Rasterizer using SDL.
   */
 template <class Pixel>
-class V9990SDLRasterizer : public V9990Rasterizer, private noncopyable
+class V9990SDLRasterizer : public V9990Rasterizer, private noncopyable,
+                           private Observer<Setting>
 {
 public:
 	V9990SDLRasterizer(
@@ -123,7 +126,8 @@ private:
 
 	/** Fill the palettes.
 	  */
-	void precalcPalettes();
+	void preCalcPalettes();
+	void resetPalette();
 
 	/** Draw P1 mode.
 	  */
@@ -139,6 +143,9 @@ private:
 	  */
 	void drawBxMode(int fromX, int fromY, int displayX, int displayY,
 	                int displayWidth, int displayHeight);
+
+	// Observer<Setting>
+	virtual void update(const Setting& setting);
 };
 
 } // namespace openmsx
