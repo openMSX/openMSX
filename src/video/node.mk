@@ -47,7 +47,10 @@ HDR_ONLY:= \
 
 DIST:= \
 	HQ2xScaler-1x1to2x2.nn \
-	HQ2xScaler-1x1to1x2.nn
+	HQ2xScaler-1x1to1x2.nn \
+	HQ2xLiteScaler-1x1to2x2.nn \
+	HQ2xLiteScaler-1x1to1x2.nn \
+	HQ3xScaler-1x1to3x3.nn
 
 SRC_HDR_$(COMPONENT_GL)+= \
 	SDLGLVisibleSurface GLSnow GLUtil GLImage \

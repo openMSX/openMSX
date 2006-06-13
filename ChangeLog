@@ -1,5 +1,9 @@
 $Id$
 
+2006-06-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Speedup hq3x (same technique as used in hq2x):
+	   between 3% and 5% faster on my machine
+
 2006-06-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed HQ2xScaler-1x1to2x2.nn data (bug in generator script)
 	* Improved quality of hq2x in 512 pixel wide modes (screen 7)
