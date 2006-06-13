@@ -32,8 +32,8 @@ static void scale1on2(const Pixel* in0, const Pixel* in1, const Pixel* in2,
                       Pixel* out0, Pixel* out1, unsigned srcWidth,
                       unsigned* edgeBuf)
 {
-	unsigned c1, c2, c3, c4, c5, c6, c7, c8, c9;
-	c2 = c3 = readPixel(in0);
+	unsigned c2, c4, c5, c6, c8, c9;
+	c2 = readPixel(in0);
 	c5 = c6 = readPixel(in1);
 	c8 = c9 = readPixel(in2);
 
@@ -42,12 +42,10 @@ static void scale1on2(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 	if (c5 != c2) pattern |= 3 <<  9;
 
 	for (unsigned x = 0; x < srcWidth; ++x) {
-		c1 = c2; c4 = c5; c7 = c8;
-		c2 = c3; c5 = c6; c8 = c9;
-		++in0; ++in1; ++in2;
+		c4 = c5; c5 = c6; c8 = c9;
+		++in1; ++in2;
 
 		if (x != srcWidth - 1) {
-			c3 = readPixel(in0);
 			c6 = readPixel(in1);
 			c9 = readPixel(in2);
 		}
@@ -100,8 +98,8 @@ static void scale1on1(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 	//   |    |    |    |
 	//   | c7 | c8 | c9 |
 	//   +----+----+----+
-	unsigned c1, c2, c3, c4, c5, c6, c7, c8, c9;
-	c2 = c3 = readPixel(in0);
+	unsigned c2, c4, c5, c6, c8, c9;
+	c2 = readPixel(in0);
 	c5 = c6 = readPixel(in1);
 	c8 = c9 = readPixel(in2);
 
@@ -110,12 +108,10 @@ static void scale1on1(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 	if (c5 != c2) pattern |= 3 <<  9;
 
 	for (unsigned x = 0; x < srcWidth; ++x) {
-		c1 = c2; c4 = c5; c7 = c8;
-		c2 = c3; c5 = c6; c8 = c9;
-		++in0; ++in1; ++in2;
+		c4 = c5; c5 = c6; c8 = c9;
+		++in1; ++in2;
 
 		if (x != srcWidth - 1) {
-			c3 = readPixel(in0);
 			c6 = readPixel(in1);
 			c9 = readPixel(in2);
 		}
