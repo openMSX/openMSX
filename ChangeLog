@@ -4,6 +4,9 @@ $Id$
 	* Speedup hq3x (same technique as used in hq2x):
 	   between 3% and 5% faster on my machine
 	* Speedup hq3xlite: between 2% and 3% faster
+	* Implemented hq3x and hq3xlite for 512-wide mode:
+	   no special implementation like in the hq2x case, just do
+	   hq3x followed by scale_2on1
 
 2006-06-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed HQ2xScaler-1x1to2x2.nn data (bug in generator script)
