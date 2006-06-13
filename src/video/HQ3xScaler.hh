@@ -4,6 +4,7 @@
 #define HQ3XSCALER_HH
 
 #include "Scaler3.hh"
+#include "PixelOperations.hh"
 
 namespace openmsx {
 
@@ -18,6 +19,12 @@ public:
 	virtual void scale1x1to3x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
+	virtual void scale2x1to3x3(FrameSource& src,
+		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
+
+private:
+	PixelOperations<Pixel> pixelOps;
 };
 
 } // namespace openmsx

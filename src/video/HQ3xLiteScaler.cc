@@ -14,14 +14,16 @@ Visit the HiEnd3D site for info:
 #include "HQCommon.hh"
 #include "FrameSource.hh"
 #include "OutputSurface.hh"
+#include "LineScalers.hh"
 #include "openmsx.hh"
 #include <cassert>
 
 namespace openmsx {
 
 template <class Pixel>
-HQ3xLiteScaler<Pixel>::HQ3xLiteScaler(const PixelOperations<Pixel>& pixelOps)
-	: Scaler3<Pixel>(pixelOps)
+HQ3xLiteScaler<Pixel>::HQ3xLiteScaler(const PixelOperations<Pixel>& pixelOps_)
+	: Scaler3<Pixel>(pixelOps_)
+	, pixelOps(pixelOps_)
 {
 }
 
@@ -125,6 +127,52 @@ void HQ3xLiteScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 		Pixel* dst2 = dst.getLinePtr(dstY + 2, dummy);
 		scale1on3(srcPrev, srcCurr, srcNext, dst0, dst1, dst2,
 		          srcWidth, edgeBuf);
+		srcPrev = srcCurr;
+		srcCurr = srcNext;
+	}
+}
+
+template <class Pixel>
+void HQ3xLiteScaler<Pixel>::scale2x1to3x3(FrameSource& src,
+	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	Pixel* const dummy = 0;
+	int srcY = srcStartY;
+	const Pixel* srcPrev = src.getLinePtr(srcY - 1, srcWidth, dummy);
+	const Pixel* srcCurr = src.getLinePtr(srcY + 0, srcWidth, dummy);
+
+	assert(srcWidth <= 1024);
+	unsigned edgeBuf[1024];
+
+	unsigned x = 0;
+	unsigned c1 = readPixel(&srcPrev[x]);
+	unsigned c2 = readPixel(&srcCurr[x]);
+	unsigned pattern = (c1 != c2) ? ((1 << 6) | (1 << 7)) : 0;
+	for (/* */; x < (srcWidth - 1); ++x) {
+		pattern >>= 6;
+		unsigned n1 = readPixel(&srcPrev[x + 1]);
+		unsigned n2 = readPixel(&srcCurr[x + 1]);
+		if (c1 != c2) pattern |= (1 << 5);
+		if (c1 != n2) pattern |= (1 << 6);
+		if (c2 != n1) pattern |= (1 << 7);
+		edgeBuf[x] = pattern;
+		c1 = n1; c2 = n2;
+	}
+	pattern >>= 6;
+	if (c1 != c2) pattern |= (1 << 5) | (1 << 6) | (1 << 7);
+	edgeBuf[x] = pattern;
+
+	Scale_2on1<Pixel> scale(pixelOps);
+	unsigned dstWidth = (3 * srcWidth) / 2;
+	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 3) {
+		Pixel buf0[3 * 1024], buf1[3 * 1024], buf2[3 * 1024];
+		const Pixel* srcNext = src.getLinePtr(srcY + 1, srcWidth, dummy);
+		scale1on3(srcPrev, srcCurr, srcNext, buf0, buf1, buf2,
+		          srcWidth, edgeBuf);
+		scale(buf0, dst.getLinePtr(dstY + 0, dummy), dstWidth);
+		scale(buf1, dst.getLinePtr(dstY + 1, dummy), dstWidth);
+		scale(buf2, dst.getLinePtr(dstY + 2, dummy), dstWidth);
 		srcPrev = srcCurr;
 		srcCurr = srcNext;
 	}
