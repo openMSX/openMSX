@@ -25,30 +25,35 @@
 #  #FF - single interrupt
 #
 
-set_help_text start_psg_log \
+set_help_text psg_log \
 {TODO
 }
-set_help_text stop_psg_log \
-{TODO
+
+set_tabcompletion_proc psg_log tab_psg_log
+proc tab_psg_log { args } {
+	if {[llength $args] == 2} {
+		return "start stop"
+	}
 }
 
 set __psg_log_file -1
 
-proc start_psg_log { {filename "log.psg"} } {
+proc psg_log { subcommand {filename "log.psg"} } {
 	global __psg_log_file
-	set __psg_log_file [open $filename {WRONLY TRUNC CREAT}]
-	fconfigure $__psg_log_file -translation binary
-	set header "0x50 0x53 0x47 0x1A 0 0 0 0 0 0 0 0 0 0 0 0"
-	puts -nonewline $__psg_log_file [binary format c16 $header]
-	__do_psg_log
-	return ""
-}
-
-proc stop_psg_log {} {
-	global __psg_log_file
-	close $__psg_log_file
-	set __psg_log_file -1
-	return ""
+	if [string equal $subcommand "start"] {
+		set __psg_log_file [open $filename {WRONLY TRUNC CREAT}]
+		fconfigure $__psg_log_file -translation binary
+		set header "0x50 0x53 0x47 0x1A 0 0 0 0 0 0 0 0 0 0 0 0"
+		puts -nonewline $__psg_log_file [binary format c16 $header]
+		__do_psg_log
+		return ""
+	} elseif [string equal $subcommand "stop"] {
+		close $__psg_log_file
+		set __psg_log_file -1
+		return ""
+	} else {
+		error "bad option \"$subcommand\": must be start, stop"
+	}
 }
 
 proc __do_psg_log {} {
