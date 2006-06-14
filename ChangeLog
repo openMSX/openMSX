@@ -1,5 +1,8 @@
 $Id$
 
+2006-06-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Refactored HQ scalers to reduce code duplication
+
 2006-06-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Speedup hq3x (same technique as used in hq2x):
 	   between 3% and 5% faster on my machine

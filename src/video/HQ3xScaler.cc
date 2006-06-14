@@ -12,25 +12,23 @@ Visit the HiEnd3D site for info:
 
 #include "HQ3xScaler.hh"
 #include "HQCommon.hh"
-#include "FrameSource.hh"
-#include "OutputSurface.hh"
 #include "LineScalers.hh"
 #include "openmsx.hh"
-#include <cassert>
 
 namespace openmsx {
 
-template <class Pixel>
-HQ3xScaler<Pixel>::HQ3xScaler(const PixelOperations<Pixel>& pixelOps_)
-	: Scaler3<Pixel>(pixelOps_)
-	, pixelOps(pixelOps_)
+template <typename Pixel> struct HQ_1x1on3x3
 {
-}
+	void operator()(const Pixel* in0, const Pixel* in1, const Pixel* in2,
+	                Pixel* out0, Pixel* out1, Pixel* out2,
+	                unsigned srcWidth, unsigned* edgeBuf);
+};
 
-template <class Pixel>
-static void scale1on3(const Pixel* in0, const Pixel* in1, const Pixel* in2,
-                      Pixel* out0, Pixel* out1, Pixel*out2, unsigned srcWidth,
-                      unsigned* edgeBuf)
+template <typename Pixel>
+void HQ_1x1on3x3<Pixel>::operator()(
+	const Pixel* in0, const Pixel* in1, const Pixel* in2,
+	Pixel* out0, Pixel* out1, Pixel* out2, unsigned srcWidth,
+	unsigned* edgeBuf)
 {
 	unsigned c1, c2, c3, c4, c5, c6, c7, c8, c9;
 	c2 = c3 = readPixel(in0);
@@ -91,93 +89,33 @@ static void scale1on3(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 	}
 }
 
+
+
+template <class Pixel>
+HQ3xScaler<Pixel>::HQ3xScaler(const PixelOperations<Pixel>& pixelOps_)
+	: Scaler3<Pixel>(pixelOps_)
+	, pixelOps(pixelOps_)
+{
+}
+
 template <class Pixel>
 void HQ3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
-	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	Pixel* const dummy = 0;
-	int srcY = srcStartY;
-	const Pixel* srcPrev = src.getLinePtr(srcY - 1, srcWidth, dummy);
-	const Pixel* srcCurr = src.getLinePtr(srcY + 0, srcWidth, dummy);
-
-	assert(srcWidth <= 1024);
-	unsigned edgeBuf[1024];
-
-	unsigned x = 0;
-	unsigned c1 = readPixel(&srcPrev[x]);
-	unsigned c2 = readPixel(&srcCurr[x]);
-	unsigned pattern = edge(c1, c2) ? ((1 << 6) | (1 << 7)) : 0;
-	for (/* */; x < (srcWidth - 1); ++x) {
-		pattern >>= 6;
-		unsigned n1 = readPixel(&srcPrev[x + 1]);
-		unsigned n2 = readPixel(&srcCurr[x + 1]);
-		if (edge(c1, c2)) pattern |= (1 << 5);
-		if (edge(c1, n2)) pattern |= (1 << 6);
-		if (edge(c2, n1)) pattern |= (1 << 7);
-		edgeBuf[x] = pattern;
-		c1 = n1; c2 = n2;
-	}
-	pattern >>= 6;
-	if (edge(c1, c2)) pattern |= (1 << 5) | (1 << 6) | (1 << 7);
-	edgeBuf[x] = pattern;
-
-	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 3) {
-		const Pixel* srcNext = src.getLinePtr(srcY + 1, srcWidth, dummy);
-		Pixel* dst0 = dst.getLinePtr(dstY + 0, dummy);
-		Pixel* dst1 = dst.getLinePtr(dstY + 1, dummy);
-		Pixel* dst2 = dst.getLinePtr(dstY + 2, dummy);
-		scale1on3(srcPrev, srcCurr, srcNext, dst0, dst1, dst2,
-		          srcWidth, edgeBuf);
-		srcPrev = srcCurr;
-		srcCurr = srcNext;
-	}
+	doHQScale3<Pixel>(HQ_1x1on3x3<Pixel>(), Scale_1on1<Pixel>(),
+	                  src, srcStartY, srcEndY, srcWidth,
+	                  dst, dstStartY, dstEndY, srcWidth * 3);
 }
 
 template <class Pixel>
 void HQ3xScaler<Pixel>::scale2x1to3x3(FrameSource& src,
-	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	Pixel* const dummy = 0;
-	int srcY = srcStartY;
-	const Pixel* srcPrev = src.getLinePtr(srcY - 1, srcWidth, dummy);
-	const Pixel* srcCurr = src.getLinePtr(srcY + 0, srcWidth, dummy);
-
-	assert(srcWidth <= 1024);
-	unsigned edgeBuf[1024];
-
-	unsigned x = 0;
-	unsigned c1 = readPixel(&srcPrev[x]);
-	unsigned c2 = readPixel(&srcCurr[x]);
-	unsigned pattern = edge(c1, c2) ? ((1 << 6) | (1 << 7)) : 0;
-	for (/* */; x < (srcWidth - 1); ++x) {
-		pattern >>= 6;
-		unsigned n1 = readPixel(&srcPrev[x + 1]);
-		unsigned n2 = readPixel(&srcCurr[x + 1]);
-		if (edge(c1, c2)) pattern |= (1 << 5);
-		if (edge(c1, n2)) pattern |= (1 << 6);
-		if (edge(c2, n1)) pattern |= (1 << 7);
-		edgeBuf[x] = pattern;
-		c1 = n1; c2 = n2;
-	}
-	pattern >>= 6;
-	if (edge(c1, c2)) pattern |= (1 << 5) | (1 << 6) | (1 << 7);
-	edgeBuf[x] = pattern;
-
-	Scale_2on1<Pixel> scale(pixelOps);
-	unsigned dstWidth = (3 * srcWidth) / 2;
-	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 3) {
-		Pixel buf0[3 * 1024], buf1[3 * 1024], buf2[3 * 1024];
-		const Pixel* srcNext = src.getLinePtr(srcY + 1, srcWidth, dummy);
-		scale1on3(srcPrev, srcCurr, srcNext, buf0, buf1, buf2,
-		          srcWidth, edgeBuf);
-		scale(buf0, dst.getLinePtr(dstY + 0, dummy), dstWidth);
-		scale(buf1, dst.getLinePtr(dstY + 1, dummy), dstWidth);
-		scale(buf2, dst.getLinePtr(dstY + 2, dummy), dstWidth);
-		srcPrev = srcCurr;
-		srcCurr = srcNext;
-	}
+	doHQScale3<Pixel>(HQ_1x1on3x3<Pixel>(), Scale_2on1<Pixel>(pixelOps),
+	                  src, srcStartY, srcEndY, srcWidth,
+	                  dst, dstStartY, dstEndY, (srcWidth * 3) / 2);
 }
 
 // Force template instantiation.

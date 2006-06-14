@@ -14,23 +14,28 @@
 
 #include "HQ2xLiteScaler.hh"
 #include "HQCommon.hh"
-#include "FrameSource.hh"
-#include "OutputSurface.hh"
 #include "openmsx.hh"
-#include <cassert>
 
 namespace openmsx {
 
-template <class Pixel>
-HQ2xLiteScaler<Pixel>::HQ2xLiteScaler(const PixelOperations<Pixel>& pixelOps)
-	: Scaler2<Pixel>(pixelOps)
+template <typename Pixel> struct HQLite_1x1on2x2
 {
-}
+	void operator()(const Pixel* in0, const Pixel* in1, const Pixel* in2,
+	                Pixel* out0, Pixel* out1, unsigned srcWidth,
+	                unsigned* edgeBuf);
+};
 
-template <class Pixel>
-static void scale1on2(const Pixel* in0, const Pixel* in1, const Pixel* in2,
-                      Pixel* out0, Pixel* out1, unsigned srcWidth,
-                      unsigned* edgeBuf)
+template <typename Pixel> struct HQLite_1x1on1x2
+{
+	void operator()(const Pixel* in0, const Pixel* in1, const Pixel* in2,
+	                Pixel* out0, Pixel* out1, unsigned srcWidth,
+	                unsigned* edgeBuf);
+};
+
+template <typename Pixel>
+void HQLite_1x1on2x2<Pixel>::operator()(
+	const Pixel* in0, const Pixel* in1, const Pixel* in2,
+	Pixel* out0, Pixel* out1, unsigned srcWidth, unsigned* edgeBuf)
 {
 	unsigned c2, c4, c5, c6, c8, c9;
 	c2 = readPixel(in0);
@@ -83,10 +88,10 @@ static void scale1on2(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 	}
 }
 
-template <class Pixel>
-static void scale1on1(const Pixel* in0, const Pixel* in1, const Pixel* in2,
-                      Pixel* out0, Pixel* out1, unsigned srcWidth,
-                      unsigned* edgeBuf)
+template <typename Pixel>
+void HQLite_1x1on1x2<Pixel>::operator()(
+	const Pixel* in0, const Pixel* in1, const Pixel* in2,
+	Pixel* out0, Pixel* out1, unsigned srcWidth, unsigned* edgeBuf)
 {
 	//   +----+----+----+
 	//   |    |    |    |
@@ -146,88 +151,30 @@ static void scale1on1(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 	}
 }
 
+
+
+template <class Pixel>
+HQ2xLiteScaler<Pixel>::HQ2xLiteScaler(const PixelOperations<Pixel>& pixelOps)
+	: Scaler2<Pixel>(pixelOps)
+{
+}
+
 template <class Pixel>
 void HQ2xLiteScaler<Pixel>::scale1x1to2x2(FrameSource& src,
-	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	Pixel* const dummy = 0;
-	int srcY = srcStartY;
-	const Pixel* srcPrev = src.getLinePtr(srcY - 1, srcWidth, dummy);
-	const Pixel* srcCurr = src.getLinePtr(srcY + 0, srcWidth, dummy);
-
-	assert(srcWidth <= 1024);
-	unsigned edgeBuf[1024];
-
-	unsigned x = 0;
-	unsigned c1 = readPixel(&srcPrev[x]);
-	unsigned c2 = readPixel(&srcCurr[x]);
-	unsigned pattern = (c1 != c2) ? ((1 << 6) | (1 << 7)) : 0;
-	for (/* */; x < (srcWidth - 1); ++x) {
-		pattern >>= 6;
-		unsigned n1 = readPixel(&srcPrev[x + 1]);
-		unsigned n2 = readPixel(&srcCurr[x + 1]);
-		if (c1 != c2) pattern |= (1 << 5);
-		if (c1 != n2) pattern |= (1 << 6);
-		if (c2 != n1) pattern |= (1 << 7);
-		edgeBuf[x] = pattern;
-		c1 = n1; c2 = n2;
-	}
-	pattern >>= 6;
-	if (c1 != c2) pattern |= (1 << 5) | (1 << 6) | (1 << 7);
-	edgeBuf[x] = pattern;
-
-	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
-		const Pixel* srcNext = src.getLinePtr(srcY + 1, srcWidth, dummy);
-		Pixel* dstUpper = dst.getLinePtr(dstY + 0, dummy);
-		Pixel* dstLower = dst.getLinePtr(dstY + 1, dummy);
-		scale1on2(srcPrev, srcCurr, srcNext, dstUpper, dstLower,
-		          srcWidth, edgeBuf);
-		srcPrev = srcCurr;
-		srcCurr = srcNext;
-	}
+	doHQScale2<Pixel>(HQLite_1x1on2x2<Pixel>(), src, srcStartY, srcEndY, 
+	                  srcWidth, dst, dstStartY, dstEndY);
 }
 
 template <class Pixel>
 void HQ2xLiteScaler<Pixel>::scale1x1to1x2(FrameSource& src,
-	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	Pixel* const dummy = 0;
-	int srcY = srcStartY;
-	const Pixel* srcPrev = src.getLinePtr(srcY - 1, srcWidth, dummy);
-	const Pixel* srcCurr = src.getLinePtr(srcY + 0, srcWidth, dummy);
-
-	assert(srcWidth <= 1024);
-	unsigned edgeBuf[1024];
-
-	unsigned x = 0;
-	unsigned c1 = readPixel(&srcPrev[x]);
-	unsigned c2 = readPixel(&srcCurr[x]);
-	unsigned pattern = (c1 != c2) ? ((1 << 6) | (1 << 7)) : 0;
-	for (/* */; x < (srcWidth - 1); ++x) {
-		pattern >>= 6;
-		unsigned n1 = readPixel(&srcPrev[x + 1]);
-		unsigned n2 = readPixel(&srcCurr[x + 1]);
-		if (c1 != c2) pattern |= (1 << 5);
-		if (c1 != n2) pattern |= (1 << 6);
-		if (c2 != n1) pattern |= (1 << 7);
-		edgeBuf[x] = pattern;
-		c1 = n1; c2 = n2;
-	}
-	pattern >>= 6;
-	if (c1 != c2) pattern |= (1 << 5) | (1 << 6) | (1 << 7);
-	edgeBuf[x] = pattern;
-
-	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
-		const Pixel* srcNext = src.getLinePtr(srcY + 1, srcWidth, dummy);
-		Pixel* dstUpper = dst.getLinePtr(dstY + 0, dummy);
-		Pixel* dstLower = dst.getLinePtr(dstY + 1, dummy);
-		scale1on1(srcPrev, srcCurr, srcNext, dstUpper, dstLower,
-		          srcWidth, edgeBuf);
-		srcPrev = srcCurr;
-		srcCurr = srcNext;
-	}
+	doHQScale2<Pixel>(HQLite_1x1on1x2<Pixel>(), src, srcStartY, srcEndY, 
+	                  srcWidth, dst, dstStartY, dstEndY);
 }
 
 

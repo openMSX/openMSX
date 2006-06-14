@@ -3,9 +3,14 @@
 #ifndef HQCOMMON_HH
 #define HQCOMMON_HH
 
+#include "FrameSource.hh"
+#include "OutputSurface.hh"
+#include "LineScalers.hh"
+#include <cassert>
+
 namespace openmsx {
 
-template <class Pixel>
+template <typename Pixel>
 static inline unsigned readPixel(const Pixel* pIn)
 {
 	// TODO: Use surface info instead.
@@ -19,7 +24,7 @@ static inline unsigned readPixel(const Pixel* pIn)
 	}
 }
 
-template <class Pixel>
+template <typename Pixel>
 static inline void pset(Pixel* pOut, unsigned p)
 {
 	// TODO: Use surface info instead.
@@ -83,6 +88,91 @@ static inline bool edge(unsigned c1, unsigned c2)
 
 	return false;
 }
+
+template <typename Pixel>
+static void calcInitialEdges(const Pixel* srcPrev, const Pixel* srcCurr,
+                             unsigned srcWidth, unsigned* edgeBuf)
+{
+	unsigned x = 0;
+	unsigned c1 = readPixel(&srcPrev[x]);
+	unsigned c2 = readPixel(&srcCurr[x]);
+	unsigned pattern = edge(c1, c2) ? ((1 << 6) | (1 << 7)) : 0;
+	for (/* */; x < (srcWidth - 1); ++x) {
+		pattern >>= 6;
+		unsigned n1 = readPixel(&srcPrev[x + 1]);
+		unsigned n2 = readPixel(&srcCurr[x + 1]);
+		if (edge(c1, c2)) pattern |= (1 << 5);
+		if (edge(c1, n2)) pattern |= (1 << 6);
+		if (edge(c2, n1)) pattern |= (1 << 7);
+		edgeBuf[x] = pattern;
+		c1 = n1; c2 = n2;
+	}
+	pattern >>= 6;
+	if (edge(c1, c2)) pattern |= (1 << 5) | (1 << 6) | (1 << 7);
+	edgeBuf[x] = pattern;
+}
+
+template <typename Pixel, typename HQScale>
+static void doHQScale2(HQScale hqScale, FrameSource& src,
+	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	Pixel* const dummy = 0;
+	int srcY = srcStartY;
+	const Pixel* srcPrev = src.getLinePtr(srcY - 1, srcWidth, dummy);
+	const Pixel* srcCurr = src.getLinePtr(srcY + 0, srcWidth, dummy);
+
+	assert(srcWidth <= 1024);
+	unsigned edgeBuf[1024];
+	calcInitialEdges(srcPrev, srcCurr, srcWidth, edgeBuf);
+
+	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
+		const Pixel* srcNext = src.getLinePtr(srcY + 1, srcWidth, dummy);
+		Pixel* dstUpper = dst.getLinePtr(dstY + 0, dummy);
+		Pixel* dstLower = dst.getLinePtr(dstY + 1, dummy);
+		hqScale(srcPrev, srcCurr, srcNext, dstUpper, dstLower,
+		      srcWidth, edgeBuf);
+		srcPrev = srcCurr;
+		srcCurr = srcNext;
+	}
+}
+
+template <typename Pixel, typename HQScale, typename PostScale>
+static void doHQScale3(HQScale hqScale, PostScale postScale, FrameSource& src,
+	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
+	unsigned dstWidth)
+{
+	Pixel* const dummy = 0;
+	int srcY = srcStartY;
+	const Pixel* srcPrev = src.getLinePtr(srcY - 1, srcWidth, dummy);
+	const Pixel* srcCurr = src.getLinePtr(srcY + 0, srcWidth, dummy);
+
+	assert(srcWidth <= 1024);
+	unsigned edgeBuf[1024];
+	calcInitialEdges(srcPrev, srcCurr, srcWidth, edgeBuf);
+
+	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 3) {
+		Pixel buf0[3 * 1024], buf1[3 * 1024], buf2[3 * 1024];
+		const Pixel* srcNext = src.getLinePtr(srcY + 1, srcWidth, dummy);
+		Pixel* dst0 = dst.getLinePtr(dstY + 0, dummy);
+		Pixel* dst1 = dst.getLinePtr(dstY + 1, dummy);
+		Pixel* dst2 = dst.getLinePtr(dstY + 2, dummy);
+		if (IsTagged<PostScale, Copy>::result) {
+			hqScale(srcPrev, srcCurr, srcNext, dst0, dst1, dst2,
+			        srcWidth, edgeBuf);
+		} else {
+			hqScale(srcPrev, srcCurr, srcNext, buf0, buf1, buf2,
+			        srcWidth, edgeBuf);
+			postScale(buf0, dst0, dstWidth);
+			postScale(buf1, dst1, dstWidth);
+			postScale(buf2, dst2, dstWidth);
+		}
+		srcPrev = srcCurr;
+		srcCurr = srcNext;
+	}
+}
+
 
 } // namespace openmsx
 
