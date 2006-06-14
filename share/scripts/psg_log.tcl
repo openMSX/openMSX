@@ -26,7 +26,15 @@
 #
 
 set_help_text psg_log \
-{TODO
+{This script logs PSG registers 0 through 14 to a file at every frame end.
+The file format is the PSG format used in some emulators. More information
+is here:  http://www.msx.org/forumtopic6258.html (and in the comments of
+this script).
+
+Usage:
+   psg_log start             start logging registers to default file log.psg
+   psg_log start myfile.psg  start logging to file myfile.psg
+   psg_log stop              stop logging PSG registers
 }
 
 set_tabcompletion_proc psg_log tab_psg_log
