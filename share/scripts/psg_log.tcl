@@ -1,0 +1,63 @@
+# 
+# Binary format PSG logger
+#
+# (see http://www.msx.org/forumtopic6258.html for more context)
+#
+# Shiru wrote:
+# 
+#  Is it possible to make output in standart binary *.psg format (used in
+#  emulators like x128, very-very old version of fMSX, Z80Stealth and some other)?
+#
+#  Header:
+#
+#   +0 4 Signature #50 #53 #47 #1A ('PSG' and byte #1A)
+#   +4 1 Version number
+#   +5 1 Interrupts freq. (50/60)
+#   +6 10 Unused
+#
+#  Note: only signature is necessary, many emulators just fill other bytes by zero.
+# 
+#  Data stream:
+# 
+#  #00..#FC - register number, followed by data byte (value for that register)
+#  #FD - EOF (usually not used in real logs, and not all progs can handle it)
+#  #FE - number of interrupts (followed byte with number of interrupts/4, usually not used)
+#  #FF - single interrupt
+#
+
+set_help_text start_psg_log \
+{TODO
+}
+set_help_text stop_psg_log \
+{TODO
+}
+
+set __psg_log_file -1
+
+proc start_psg_log { {filename "log.psg"} } {
+	global __psg_log_file
+	set __psg_log_file [open $filename {WRONLY TRUNC CREAT}]
+	fconfigure $__psg_log_file -translation binary
+	set header "0x50 0x53 0x47 0x1A 0 0 0 0 0 0 0 0 0 0 0 0"
+	puts -nonewline $__psg_log_file [binary format c16 $header]
+	__do_psg_log
+	return ""
+}
+
+proc stop_psg_log {} {
+	global __psg_log_file
+	close $__psg_log_file
+	set __psg_log_file -1
+	return ""
+}
+
+proc __do_psg_log {} {
+	global __psg_log_file
+	if {$__psg_log_file == -1} return
+	for {set i 0} {$i < 14} {incr i} {
+		set value [debug read "PSG regs" $i]
+		puts -nonewline $__psg_log_file [binary format c2 "$i $value"]
+	}
+	puts -nonewline $__psg_log_file [binary format c 0xFF]
+	after frame __do_psg_log
+}
