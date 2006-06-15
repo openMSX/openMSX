@@ -1,5 +1,8 @@
 $Id$
 
+2006-06-15 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented all HQ scalers for the extra gfx9000 resolutions
+
 2006-06-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Refactored HQ scalers to reduce code duplication
 

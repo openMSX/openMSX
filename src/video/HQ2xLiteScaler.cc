@@ -14,6 +14,7 @@
 
 #include "HQ2xLiteScaler.hh"
 #include "HQCommon.hh"
+#include "LineScalers.hh"
 #include "openmsx.hh"
 
 namespace openmsx {
@@ -154,9 +155,20 @@ void HQLite_1x1on1x2<Pixel>::operator()(
 
 
 template <class Pixel>
-HQ2xLiteScaler<Pixel>::HQ2xLiteScaler(const PixelOperations<Pixel>& pixelOps)
-	: Scaler2<Pixel>(pixelOps)
+HQ2xLiteScaler<Pixel>::HQ2xLiteScaler(const PixelOperations<Pixel>& pixelOps_)
+	: Scaler2<Pixel>(pixelOps_)
+	, pixelOps(pixelOps_)
 {
+}
+
+template <class Pixel>
+void HQ2xLiteScaler<Pixel>::scale1x1to3x2(FrameSource& src,
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	doHQScale2<Pixel>(HQLite_1x1on2x2<Pixel>(), Scale_2on3<Pixel>(pixelOps),
+	                  src, srcStartY, srcEndY, srcWidth,
+	                  dst, dstStartY, dstEndY, srcWidth * 3);
 }
 
 template <class Pixel>
@@ -164,8 +176,19 @@ void HQ2xLiteScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doHQScale2<Pixel>(HQLite_1x1on2x2<Pixel>(), src, srcStartY, srcEndY, 
-	                  srcWidth, dst, dstStartY, dstEndY);
+	doHQScale2<Pixel>(HQLite_1x1on2x2<Pixel>(), Scale_1on1<Pixel>(),
+	                  src, srcStartY, srcEndY, srcWidth,
+	                  dst, dstStartY, dstEndY, srcWidth * 2);
+}
+
+template <class Pixel>
+void HQ2xLiteScaler<Pixel>::scale2x1to3x2(FrameSource& src,
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	doHQScale2<Pixel>(HQLite_1x1on2x2<Pixel>(), Scale_4on3<Pixel>(pixelOps),
+	                  src, srcStartY, srcEndY, srcWidth,
+	                  dst, dstStartY, dstEndY, (srcWidth * 3) / 2);
 }
 
 template <class Pixel>
@@ -173,10 +196,30 @@ void HQ2xLiteScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	doHQScale2<Pixel>(HQLite_1x1on1x2<Pixel>(), src, srcStartY, srcEndY, 
-	                  srcWidth, dst, dstStartY, dstEndY);
+	doHQScale2<Pixel>(HQLite_1x1on1x2<Pixel>(), Scale_1on1<Pixel>(),
+	                  src, srcStartY, srcEndY, srcWidth,
+	                  dst, dstStartY, dstEndY, srcWidth);
 }
 
+template <class Pixel>
+void HQ2xLiteScaler<Pixel>::scale4x1to3x2(FrameSource& src,
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	doHQScale2<Pixel>(HQLite_1x1on1x2<Pixel>(), Scale_4on3<Pixel>(pixelOps),
+	                  src, srcStartY, srcEndY, srcWidth,
+	                  dst, dstStartY, dstEndY, (srcWidth * 3) / 4);
+}
+
+template <class Pixel>
+void HQ2xLiteScaler<Pixel>::scale2x1to1x2(FrameSource& src,
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	doHQScale2<Pixel>(HQLite_1x1on1x2<Pixel>(), Scale_2on1<Pixel>(pixelOps),
+	                  src, srcStartY, srcEndY, srcWidth,
+	                  dst, dstStartY, dstEndY, srcWidth / 2);
+}
 
 // Force template instantiation.
 template class HQ2xLiteScaler<word>;

@@ -112,10 +112,11 @@ static void calcInitialEdges(const Pixel* srcPrev, const Pixel* srcCurr,
 	edgeBuf[x] = pattern;
 }
 
-template <typename Pixel, typename HQScale>
-static void doHQScale2(HQScale hqScale, FrameSource& src,
+template <typename Pixel, typename HQScale, typename PostScale>
+static void doHQScale2(HQScale hqScale, PostScale postScale, FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
-	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
+	unsigned dstWidth)
 {
 	Pixel* const dummy = 0;
 	int srcY = srcStartY;
@@ -127,11 +128,19 @@ static void doHQScale2(HQScale hqScale, FrameSource& src,
 	calcInitialEdges(srcPrev, srcCurr, srcWidth, edgeBuf);
 
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
+		Pixel buf0[2 * 1024], buf1[2 * 1024];
 		const Pixel* srcNext = src.getLinePtr(srcY + 1, srcWidth, dummy);
-		Pixel* dstUpper = dst.getLinePtr(dstY + 0, dummy);
-		Pixel* dstLower = dst.getLinePtr(dstY + 1, dummy);
-		hqScale(srcPrev, srcCurr, srcNext, dstUpper, dstLower,
-		      srcWidth, edgeBuf);
+		Pixel* dst0 = dst.getLinePtr(dstY + 0, dummy);
+		Pixel* dst1 = dst.getLinePtr(dstY + 1, dummy);
+		if (IsTagged<PostScale, Copy>::result) {
+			hqScale(srcPrev, srcCurr, srcNext, dst0, dst1,
+			      srcWidth, edgeBuf);
+		} else {
+			hqScale(srcPrev, srcCurr, srcNext, buf0, buf1,
+			        srcWidth, edgeBuf);
+			postScale(buf0, dst0, dstWidth);
+			postScale(buf1, dst1, dstWidth);
+		}
 		srcPrev = srcCurr;
 		srcCurr = srcNext;
 	}

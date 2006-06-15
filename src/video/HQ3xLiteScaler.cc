@@ -96,6 +96,16 @@ HQ3xLiteScaler<Pixel>::HQ3xLiteScaler(const PixelOperations<Pixel>& pixelOps_)
 }
 
 template <class Pixel>
+void HQ3xLiteScaler<Pixel>::scale2x1to9x3(FrameSource& src,
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	doHQScale3<Pixel>(HQLite_1x1on3x3<Pixel>(), Scale_2on3<Pixel>(pixelOps),
+	                  src, srcStartY, srcEndY, srcWidth,
+	                  dst, dstStartY, dstEndY, (srcWidth * 9) / 2);
+}
+
+template <class Pixel>
 void HQ3xLiteScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
@@ -106,6 +116,16 @@ void HQ3xLiteScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 }
 
 template <class Pixel>
+void HQ3xLiteScaler<Pixel>::scale4x1to9x3(FrameSource& src,
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	doHQScale3<Pixel>(HQLite_1x1on3x3<Pixel>(), Scale_4on3<Pixel>(pixelOps),
+	                  src, srcStartY, srcEndY, srcWidth,
+	                  dst, dstStartY, dstEndY, (srcWidth * 9) / 4);
+}
+
+template <class Pixel>
 void HQ3xLiteScaler<Pixel>::scale2x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
@@ -113,6 +133,26 @@ void HQ3xLiteScaler<Pixel>::scale2x1to3x3(FrameSource& src,
 	doHQScale3<Pixel>(HQLite_1x1on3x3<Pixel>(), Scale_2on1<Pixel>(pixelOps),
 	                  src, srcStartY, srcEndY, srcWidth,
 	                  dst, dstStartY, dstEndY, (srcWidth * 3) / 2);
+}
+
+template <class Pixel>
+void HQ3xLiteScaler<Pixel>::scale8x1to9x3(FrameSource& src,
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	doHQScale3<Pixel>(HQLite_1x1on3x3<Pixel>(), Scale_8on3<Pixel>(pixelOps),
+	                  src, srcStartY, srcEndY, srcWidth,
+	                  dst, dstStartY, dstEndY, (srcWidth * 9) / 8);
+}
+
+template <class Pixel>
+void HQ3xLiteScaler<Pixel>::scale4x1to3x3(FrameSource& src,
+	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
+{
+	doHQScale3<Pixel>(HQLite_1x1on3x3<Pixel>(), Scale_4on1<Pixel>(pixelOps),
+	                  src, srcStartY, srcEndY, srcWidth,
+	                  dst, dstStartY, dstEndY, (srcWidth * 3) / 4);
 }
 
 // Force template instantiation.
