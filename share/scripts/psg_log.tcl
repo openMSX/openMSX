@@ -32,6 +32,11 @@ is here:  http://www.msx.org/forumtopic6258.html (and in the comments of
 this script).
 
 Usage:
+   psg_log start <filename>  start logging PSG registers to <filename> 
+                             (default: log.psg)
+   psg_log stop              stop logging PSG registers
+
+Examples:
    psg_log start             start logging registers to default file log.psg
    psg_log start myfile.psg  start logging to file myfile.psg
    psg_log stop              stop logging PSG registers

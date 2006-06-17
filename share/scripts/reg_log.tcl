@@ -1,6 +1,21 @@
 
 set_help_text reg_log \
-{TODO
+{Logs the contents (e.g. registers) of a given debuggable or replays such a log.
+The state of the debuggable is saved to a log file every VDP frame. Note that 
+it does not take into account different VDP interrupt rates.
+
+Usage:
+   reg_log record <debuggable> [<filename>]   record <debuggable> to <filename>
+                                              (default: <debuggable>.log)
+   reg_log stop <debuggable>                  stop recording <debuggable>
+   reg_log play <debuggable> <filename>       replay log in <filename>
+
+Examples:
+   reg_log record "PSG regs"        start logging PSG registers to
+                                    "PSG regs.log"
+   reg_log record memory mem.log    start logging memory to file mem.log
+   reg_log stop "PSG regs"          stop logging "PSG regs"
+   reg_log play "PSG regs" my.log   replay the log of "PSG regs" in my.log
 }
 
 set_tabcompletion_proc reg_log tab_reg_log
