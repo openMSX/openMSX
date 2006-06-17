@@ -1,5 +1,10 @@
 $Id$
 
+2006-06-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added generic register logger (see also psg_log script):
+	   - typical use case will be to log soundchip registers
+	   - can also playback the logged regsiters
+
 2006-06-15 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented all HQ scalers for the extra gfx9000 resolutions
 
