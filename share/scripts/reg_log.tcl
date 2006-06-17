@@ -28,11 +28,10 @@ proc __reg_log_check { debuggable } {
 }
 
 proc __reg_log_record { debuggable filename } {
-	global __reg_log_file __reg_log_count
+	global __reg_log_file
 	__reg_log_check $debuggable
 	__reg_log_stop $debuggable
 	set __reg_log_file($debuggable) [open $filename {WRONLY TRUNC CREAT}]
-	set __reg_log_count($debuggable) 0
 	__do_reg_record $debuggable
 	return ""
 }
@@ -49,11 +48,10 @@ proc __reg_log_play { debuggable filename } {
 }
 
 proc __reg_log_stop { debuggable } {
-	global __reg_log_file __reg_log_count __reg_log_data
+	global __reg_log_file __reg_log_data
 	if [info exists __reg_log_file($debuggable)] {
 		close $__reg_log_file($debuggable)
 		unset __reg_log_file($debuggable)
-		unset __reg_log_count($debuggable)
 	}
 	if [info exists __reg_log_data($debuggable)] {
 		unset __reg_log_data($debuggable)
@@ -62,10 +60,8 @@ proc __reg_log_stop { debuggable } {
 }
 
 proc __do_reg_record { debuggable } {
-	global __reg_log_file __reg_log_count
+	global __reg_log_file
 	if ![info exists __reg_log_file($debuggable)] return
-	puts -nonewline $__reg_log_file($debuggable) "$__reg_log_count($debuggable) : "
-	incr __reg_log_count($debuggable)
 	set size [debug size $debuggable]
 	for {set i 0} {$i < $size} {incr i} {
 		puts -nonewline $__reg_log_file($debuggable) "[debug read $debuggable $i] "
@@ -77,14 +73,11 @@ proc __do_reg_record { debuggable } {
 proc __do_reg_play { debuggable } {
 	global __reg_log_data
 	if ![info exists __reg_log_data($debuggable)] return
-
 	set reg 0
-	set line [lindex $__reg_log_data($debuggable) 0]
-	foreach val [lrange $line 2 end] {
+	foreach val [lindex $__reg_log_data($debuggable) 0] {
 		debug write $debuggable $reg $val
 		incr reg
 	}
-
 	set __reg_log_data($debuggable) [lrange $__reg_log_data($debuggable) 1 end]
 	if {[llength $__reg_log_data($debuggable)] > 0} {
 		after frame [list __do_reg_play $debuggable]
