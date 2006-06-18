@@ -39,7 +39,7 @@ bool Setting::needLoadSave() const
 void Setting::sync(XMLElement& config) const
 {
 	XMLElement& settings = config.getCreateChild("settings");
-	if (hasDefaultValue()) {
+	if (!save || hasDefaultValue()) {
 		// remove setting
 		const XMLElement* elem = settings.findChildWithAttribute(
 				"setting", "id", getName());
