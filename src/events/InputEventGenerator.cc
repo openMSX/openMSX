@@ -29,7 +29,7 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
                                          EventDistributor& eventDistributor_)
 	: grabInput(new BooleanSetting(commandController, "grabinput",
 		"This setting controls if openmsx takes over mouse and keyboard input",
-		false))
+		false, Setting::DONT_SAVE))
 	, escapeGrabState(ESCAPE_GRAB_WAIT_CMD)
 	, escapeGrabCmd(new EscapeGrabCmd(commandController, *this))
 	, keyRepeat(false)
