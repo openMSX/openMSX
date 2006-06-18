@@ -23,37 +23,58 @@
 
 namespace openmsx {
 
-// class Texture
+namespace GLUtil {
 
-Texture::Texture()
+void checkGLError(const std::string& prefix)
+{
+	GLenum error = glGetError();
+	if (error != GL_NO_ERROR) {
+		std::string err = (char*)gluErrorString(error);
+		std::cerr << "GL error: " << prefix << ": " << err << std::endl;
+	}
+}
+
+}
+
+// class BasicTexture
+
+template <GLenum TEXTURE_TYPE>
+BasicTexture<TEXTURE_TYPE>::BasicTexture()
 {
 	glGenTextures(1, &textureId);
 	disableInterpolation();
 }
 
-Texture::~Texture()
+template <GLenum TEXTURE_TYPE>
+BasicTexture<TEXTURE_TYPE>::~BasicTexture()
 {
 	glDeleteTextures(1, &textureId);
 }
 
-void Texture::enableInterpolation()
+template <GLenum TEXTURE_TYPE>
+void BasicTexture<TEXTURE_TYPE>::enableInterpolation()
 {
 	bind();
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(TEXTURE_TYPE, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(TEXTURE_TYPE, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
-void Texture::disableInterpolation()
+template <GLenum TEXTURE_TYPE>
+void BasicTexture<TEXTURE_TYPE>::disableInterpolation()
 {
 	bind();
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(TEXTURE_TYPE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(TEXTURE_TYPE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 }
 
-void Texture::drawRect(
-	GLfloat tx, GLfloat ty, GLfloat twidth, GLfloat theight,
-	GLint x, GLint y, GLint width, GLint height
-	)
+template class BasicTexture<GL_TEXTURE_2D>;
+template class BasicTexture<GL_TEXTURE_RECTANGLE_ARB>;
+
+
+// class Texture
+
+void Texture::drawRect(GLfloat tx, GLfloat ty, GLfloat twidth, GLfloat theight,
+                       GLint   x,  GLint   y,  GLint   width,  GLint   height)
 {
 	const GLint x2 = x + width;
 	const GLint y2 = y + height;
@@ -190,6 +211,42 @@ void PartialColourTexture::drawRect(
 	float twidth = static_cast<float>(swidth) / textureWidth;
 	float theight = static_cast<float>(sheight) / textureHeight;
 	ColourTexture::drawRect(tx, ty, twidth, theight, dx, dy, dwidth, dheight);
+}
+
+
+// class TextureRectangle
+
+void TextureRectangle::setImage(GLsizei width, GLsizei height)
+{
+	bind();
+	glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, // target
+	             0,                        // level
+	             GL_RGBA8,                 // internal format
+	             width,                    // width
+	             height,                   // height
+	             0,                        // border
+	             GL_RGBA,                  // format
+	             GL_UNSIGNED_BYTE,         // type
+	             NULL);                    // data
+}
+
+void TextureRectangle::drawRect(
+	GLint tx, GLint ty, GLint twidth, GLint theight,
+	GLint x,  GLint y,  GLint width,  GLint height)
+{
+	const GLint x2  = x  + width;
+	const GLint y2  = y  + height;
+	const GLint tx2 = tx + twidth;
+	const GLint ty2 = ty + theight;
+	bind();
+	glEnable(GL_TEXTURE_RECTANGLE_ARB);
+	glBegin(GL_QUADS);
+	glTexCoord2i(tx,  ty ); glVertex2i(x , y );
+	glTexCoord2i(tx2, ty ); glVertex2i(x2, y );
+	glTexCoord2i(tx2, ty2); glVertex2i(x2, y2);
+	glTexCoord2i(tx,  ty2); glVertex2i(x,  y2);
+	glEnd();
+	glDisable(GL_TEXTURE_RECTANGLE_ARB);
 }
 
 

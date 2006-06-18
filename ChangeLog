@@ -1,5 +1,10 @@
 $Id$
 
+2006-06-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Use texture_rectangle for SDLGL-PP shader:
+	   - allows to fix the border glitches
+	   - still WIP but horizontal glitches seem to be fixed already
+
 2006-06-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added generic register logger (see also psg_log script):
 	   - typical use case will be to log soundchip registers

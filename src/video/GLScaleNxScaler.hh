@@ -16,10 +16,9 @@ public:
 	GLScaleNxScaler();
 
 	virtual void scaleImage(
-		PartialColourTexture& src,
+		TextureRectangle& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		unsigned dstStartY, unsigned dstEndY, unsigned dstWidth
-		);
+		unsigned dstStartY, unsigned dstEndY, unsigned dstWidth);
 
 private:
 	std::auto_ptr<ShaderProgram> scalerProgram;

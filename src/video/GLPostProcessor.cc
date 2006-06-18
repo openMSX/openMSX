@@ -17,15 +17,13 @@ namespace openmsx {
 
 GLPostProcessor::GLPostProcessor(
 	CommandController& commandController, Display& display,
-	VisibleSurface& screen_, VideoSource videoSource,
-	unsigned maxWidth, unsigned height
-	)
-	: PostProcessor(
-		commandController, display, screen_, videoSource, maxWidth, height
-		)
+	VisibleSurface& screen, VideoSource videoSource,
+	unsigned maxWidth, unsigned height_)
+	: PostProcessor(commandController, display, screen, videoSource,
+	                maxWidth, height_)
+	, height(height_)
 {
 	paintFrame = NULL;
-	paintTexture.setImage(maxWidth, height * 2);
 
 	scaleAlgorithm = (RenderSettings::ScaleAlgorithm)-1; // not a valid scaler
 
@@ -42,6 +40,11 @@ GLPostProcessor::GLPostProcessor(
 GLPostProcessor::~GLPostProcessor()
 {
 	renderSettings.getNoise().detach(*this);
+
+	for (Textures::iterator it = textures.begin();
+	     it != textures.end(); ++it) {
+		delete it->second;
+	}
 }
 
 void GLPostProcessor::paint()
@@ -91,11 +94,12 @@ void GLPostProcessor::paint()
 		// fill region
 		//fprintf(stderr, "post processing lines %d-%d: %d\n",
 		//	srcStartY, srcEndY, lineWidth );
+		assert(textures[lineWidth]);
 		currScaler->scaleImage(
-			paintTexture,
+			*textures[lineWidth],
 			srcStartY, srcEndY, lineWidth, // source
-			dstStartY, dstEndY, screen.getWidth() // dest
-			);
+			dstStartY, dstEndY, screen.getWidth()); // dest
+		//GLUtil::checkGLError("GLPostProcessor::paint");
 
 		// next region
 		srcStartY = srcEndY;
@@ -156,22 +160,32 @@ void GLPostProcessor::uploadFrame()
 	}
 
 	const unsigned srcHeight = paintFrame->getHeight();
-	paintTexture.bind();
 	for (unsigned y = 0; y < srcHeight; y++) {
 		// Upload line to texture.
 		// TODO: Is not having to rebind the same texture worth the effort?
 		unsigned lineWidth = paintFrame->getLineWidth(y);
+		TextureRectangle* tex;
+		Textures::iterator it = textures.find(lineWidth);
+		if (it != textures.end()) {
+			tex = it->second;
+		} else {
+			tex = new TextureRectangle();
+			tex->setImage(lineWidth, height * 2);
+			textures[lineWidth] = tex;
+		}
+		tex->bind();
+
 		glTexSubImage2D(
-			GL_TEXTURE_2D,    // target
-			0,                // level
-			0,                // offset x
-			y,                // offset y
-			lineWidth,        // width
-			1,                // height
-			GL_RGBA,          // format
-			GL_UNSIGNED_BYTE, // type
-			paintFrame->getLinePtr(y, (unsigned*)0) // data
-			);
+			GL_TEXTURE_RECTANGLE_ARB, // target
+			0,                        // level
+			0,                        // offset x
+			y,                        // offset y
+			lineWidth,                // width
+			1,                        // height
+			GL_RGBA,                  // format
+			GL_UNSIGNED_BYTE,         // type
+			paintFrame->getLinePtr(y, (unsigned*)0)); // data
+		//GLUtil::checkGLError("GLPostProcessor::uploadFrame");
 	}
 }
 

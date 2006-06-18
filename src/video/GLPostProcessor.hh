@@ -6,6 +6,7 @@
 #include "PostProcessor.hh"
 #include "RenderSettings.hh"
 #include "GLUtil.hh"
+#include <map>
 #include <memory>
 
 namespace openmsx {
@@ -52,7 +53,10 @@ private:
 	  */
 	RenderSettings::ScaleAlgorithm scaleAlgorithm;
 
-	PartialColourTexture paintTexture;
+	typedef std::map<unsigned, TextureRectangle*> Textures;
+	Textures textures;
+	unsigned height;
+
 	FrameSource* paintFrame;
 
 	// Noise effect:

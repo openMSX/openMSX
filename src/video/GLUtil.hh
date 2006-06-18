@@ -28,6 +28,8 @@ namespace openmsx {
 
 namespace GLUtil {
 
+void checkGLError(const std::string& prefix);
+
 /** Set primary drawing colour.
   */
 inline void setPriColour(GLuint colour)
@@ -73,13 +75,14 @@ inline void drawRect(GLint x, GLint y, GLint width, GLint height, GLuint colour)
 
 class PixelBuffer;
 
+
 /** Most basic/generic texture: only contains a texture ID.
   */
-class Texture
+template <GLenum TEXTURE_TYPE> class BasicTexture
 {
 public:
-	Texture();
-	virtual ~Texture();
+	BasicTexture();
+	virtual ~BasicTexture();
 
 	/** Makes this texture the active GL texture.
 	  * The other methods of this class and its subclasses will implicitly
@@ -87,7 +90,7 @@ public:
 	  * this texture for use in GL function calls outside of this class.
 	  */
 	void bind() {
-		glBindTexture(GL_TEXTURE_2D, textureId);
+		glBindTexture(TEXTURE_TYPE, textureId);
 	}
 
 	/** Enables bilinear interpolation for this texture.
@@ -99,16 +102,22 @@ public:
 	  */
 	void disableInterpolation();
 
-	/** Draws this texture as a rectangle on the frame buffer.
-	  */
-	void drawRect(
-		GLfloat tx, GLfloat ty, GLfloat twidth, GLfloat theight,
-		GLint x, GLint y, GLint width, GLint height
-		);
-
 protected:
 	GLuint textureId;
 };
+
+
+/** A 2D power-of-two texture
+ */ 
+class Texture : public BasicTexture<GL_TEXTURE_2D>
+{
+public:
+	/** Draws this texture as a rectangle on the frame buffer.
+	  */
+	void drawRect(GLfloat tx, GLfloat ty, GLfloat twidth, GLfloat theight,
+	              GLint   x,  GLint   y,  GLint   width,  GLint   height);
+};
+
 
 class ColourTexture: public Texture
 {
@@ -169,6 +178,17 @@ public:
 private:
 	GLsizei textureWidth;
 	GLsizei textureHeight;
+};
+
+class TextureRectangle : public BasicTexture<GL_TEXTURE_RECTANGLE_ARB>
+{
+public:
+	void setImage(GLsizei width, GLsizei height);
+	
+	/** Draws this texture as a rectangle on the frame buffer.
+	  */
+	void drawRect(GLint tx, GLint ty, GLint twidth, GLint theight,
+	              GLint x,  GLint y,  GLint width,  GLint height);
 };
 
 class LuminanceTexture: public Texture

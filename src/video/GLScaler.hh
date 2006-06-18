@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-class PartialColourTexture;
+class TextureRectangle;
 
 /** Abstract base class for OpenGL scalers.
   * A scaler is an algorithm that converts low-res graphics to hi-res graphics.
@@ -27,10 +27,9 @@ public:
 	  * @param dstWidth The number of pixels per line on the output screen.
 	  */
 	virtual void scaleImage(
-		PartialColourTexture& src,
+		TextureRectangle& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-		unsigned dstStartY, unsigned dstEndY, unsigned dstWidth
-		) = 0;
+		unsigned dstStartY, unsigned dstEndY, unsigned dstWidth) = 0;
 };
 
 } // namespace openmsx

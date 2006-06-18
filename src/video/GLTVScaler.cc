@@ -28,16 +28,13 @@ GLTVScaler::~GLTVScaler()
 }
 
 void GLTVScaler::scaleImage(
-	PartialColourTexture& src,
+	TextureRectangle& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
-	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth
-	)
+	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
 {
 	scalerProgram->activate();
-	src.drawRect(
-		0, srcStartY, srcWidth, srcEndY - srcStartY,
-		0, dstStartY, dstWidth, dstEndY - dstStartY
-		);
+	src.drawRect(0, srcStartY, srcWidth, srcEndY - srcStartY,
+	             0, dstStartY, dstWidth, dstEndY - dstStartY);
 }
 
 } // namespace openmsx
