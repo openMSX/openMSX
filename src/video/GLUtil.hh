@@ -28,7 +28,8 @@ namespace openmsx {
 
 namespace GLUtil {
 
-void checkGLError(const std::string& prefix);
+// TODO this needs glu, but atm we don't link against glu (in windows)
+//void checkGLError(const std::string& prefix);
 
 /** Set primary drawing colour.
   */

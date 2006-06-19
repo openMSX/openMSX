@@ -25,14 +25,14 @@ namespace openmsx {
 
 namespace GLUtil {
 
-void checkGLError(const std::string& prefix)
+/*void checkGLError(const std::string& prefix)
 {
 	GLenum error = glGetError();
 	if (error != GL_NO_ERROR) {
 		std::string err = (char*)gluErrorString(error);
 		std::cerr << "GL error: " << prefix << ": " << err << std::endl;
 	}
-}
+}*/
 
 }
 
