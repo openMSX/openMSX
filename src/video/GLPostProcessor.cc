@@ -11,6 +11,7 @@
 #include "DoubledFrame.hh"
 #include "RawFrame.hh"
 #include "Math.hh"
+#include <algorithm>
 #include <cassert>
 
 namespace openmsx {
@@ -47,24 +48,10 @@ GLPostProcessor::~GLPostProcessor()
 	}
 }
 
-void GLPostProcessor::paint()
+void GLPostProcessor::createRegions()
 {
-	if (!paintFrame) {
-		// TODO: Paint blackness.
-		return;
-	}
+	regions.clear();
 
-	// New scaler algorithm selected?
-	RenderSettings::ScaleAlgorithm algo =
-		renderSettings.getScaleAlgorithm().getValue();
-	if (scaleAlgorithm != algo) {
-		scaleAlgorithm = algo;
-		currScaler = GLScalerFactory::createScaler(renderSettings);
-	}
-
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-
-	// Scale image.
 	const unsigned srcHeight = paintFrame->getHeight();
 	const unsigned dstHeight = screen.getHeight();
 
@@ -91,19 +78,44 @@ void GLPostProcessor::paint()
 			dstEndY += dstStep;
 		}
 
-		// fill region
-		//fprintf(stderr, "post processing lines %d-%d: %d\n",
-		//	srcStartY, srcEndY, lineWidth );
-		assert(textures[lineWidth]);
-		currScaler->scaleImage(
-			*textures[lineWidth],
-			srcStartY, srcEndY, lineWidth, // source
-			dstStartY, dstEndY, screen.getWidth()); // dest
-		//GLUtil::checkGLError("GLPostProcessor::paint");
+		regions.push_back(Region(srcStartY, srcEndY,
+		                         dstStartY, dstEndY,
+		                         lineWidth));
 
 		// next region
 		srcStartY = srcEndY;
 		dstStartY = dstEndY;
+	}
+}
+
+
+void GLPostProcessor::paint()
+{
+	if (!paintFrame) {
+		// TODO: Paint blackness.
+		return;
+	}
+
+	// New scaler algorithm selected?
+	RenderSettings::ScaleAlgorithm algo =
+		renderSettings.getScaleAlgorithm().getValue();
+	if (scaleAlgorithm != algo) {
+		scaleAlgorithm = algo;
+		currScaler = GLScalerFactory::createScaler(renderSettings);
+	}
+
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+	for (Regions::const_iterator it = regions.begin();
+	     it != regions.end(); ++it) {
+		//fprintf(stderr, "post processing lines %d-%d: %d\n",
+		//	it->srcStartY, it->srcEndY, it->lineWidth);
+		assert(textures[it->lineWidth]);
+		currScaler->scaleImage(
+			*textures[it->lineWidth],
+			it->srcStartY, it->srcEndY, it->lineWidth,      // src
+			it->dstStartY, it->dstEndY, screen.getWidth()); // dst
+		//GLUtil::checkGLError("GLPostProcessor::paint");
 	}
 
 	ShaderProgram::deactivate();
@@ -158,23 +170,38 @@ void GLPostProcessor::uploadFrame()
 		// non interlaced
 		paintFrame = currFrame;
 	}
+	createRegions();
 
 	const unsigned srcHeight = paintFrame->getHeight();
-	for (unsigned y = 0; y < srcHeight; y++) {
-		// Upload line to texture.
-		// TODO: Is not having to rebind the same texture worth the effort?
-		unsigned lineWidth = paintFrame->getLineWidth(y);
+	for (Regions::const_iterator it = regions.begin();
+	     it != regions.end(); ++it) {
+		// bind texture (create if needed)
 		TextureRectangle* tex;
-		Textures::iterator it = textures.find(lineWidth);
-		if (it != textures.end()) {
-			tex = it->second;
+		Textures::iterator it2 = textures.find(it->lineWidth);
+		if (it2 != textures.end()) {
+			tex = it2->second;
 		} else {
 			tex = new TextureRectangle();
-			tex->setImage(lineWidth, height * 2);
-			textures[lineWidth] = tex;
+			tex->setImage(it->lineWidth, height * 2);
+			textures[it->lineWidth] = tex;
 		}
 		tex->bind();
+		// upload data
+		// TODO get before/after data from scaler
+		unsigned before = 1;
+		unsigned after  = 1;
+		uploadBlock(std::max<int>(0,         it->srcStartY - before),
+		            std::min<int>(srcHeight, it->srcEndY   + after),
+		            it->lineWidth);
+	}
+}
 
+// require: correct texture is already bound
+void GLPostProcessor::uploadBlock(
+	unsigned srcStartY, unsigned srcEndY, unsigned lineWidth)
+{
+	for (unsigned y = srcStartY; y < srcEndY; ++y) {
+		unsigned* dummy = 0;
 		glTexSubImage2D(
 			GL_TEXTURE_RECTANGLE_ARB, // target
 			0,                        // level
@@ -184,8 +211,9 @@ void GLPostProcessor::uploadFrame()
 			1,                        // height
 			GL_RGBA,                  // format
 			GL_UNSIGNED_BYTE,         // type
-			paintFrame->getLinePtr(y, (unsigned*)0)); // data
+			paintFrame->getLinePtr(y, lineWidth, dummy)); // data
 		//GLUtil::checkGLError("GLPostProcessor::uploadFrame");
+		paintFrame->freeLineBuffers(); // ASAP to keep cache warm
 	}
 }
 

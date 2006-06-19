@@ -1,5 +1,11 @@
 $Id$
 
+2006-06-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Made rectangle_textures available on correct resolution on vertical
+	  linewidth borders:
+	   - fixes most SDLGL-PP glitches
+	   - TODO cleanup, make it work on TI cards 
+
 2006-06-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Use texture_rectangle for SDLGL-PP shader:
 	   - allows to fix the border glitches

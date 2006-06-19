@@ -33,7 +33,8 @@ void GLTVScaler::scaleImage(
 	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
 {
 	scalerProgram->activate();
-	src.drawRect(0, srcStartY, srcWidth, srcEndY - srcStartY,
+	unsigned inWidth = (srcWidth != 1) ? srcWidth : 640;
+	src.drawRect(0, srcStartY, inWidth,  srcEndY - srcStartY,
 	             0, dstStartY, dstWidth, dstEndY - dstStartY);
 }
 

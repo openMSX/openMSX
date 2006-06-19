@@ -7,6 +7,7 @@
 #include "RenderSettings.hh"
 #include "GLUtil.hh"
 #include <map>
+#include <vector>
 #include <memory>
 
 namespace openmsx {
@@ -40,7 +41,10 @@ protected:
 	virtual void update(const Setting& setting);
 
 private:
+	void createRegions();
 	void uploadFrame();
+	void uploadBlock(unsigned srcStartY, unsigned srcEndY,
+	                 unsigned lineWidth);
 
 	void preCalcNoise(double factor);
 	void drawNoise();
@@ -65,6 +69,24 @@ private:
 	unsigned noiseSeq;
 	double noiseX;
 	double noiseY;
+
+	struct Region {
+		Region(unsigned srcStartY_, unsigned srcEndY_,
+		       unsigned dstStartY_, unsigned dstEndY_,
+		       unsigned lineWidth_)
+			: srcStartY(srcStartY_)
+			, srcEndY(srcEndY_)
+			, dstStartY(dstStartY_)
+			, dstEndY(dstEndY_)
+			, lineWidth(lineWidth_) {}
+		unsigned srcStartY;
+		unsigned srcEndY;
+		unsigned dstStartY;
+		unsigned dstEndY;
+		unsigned lineWidth;
+	};
+	typedef std::vector<Region> Regions;
+	Regions regions;
 };
 
 } // namespace openmsx
