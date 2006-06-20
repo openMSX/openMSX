@@ -715,7 +715,7 @@ void ShaderProgram::link()
 		GLchar infoLog[infoLogLength];
 		glGetProgramInfoLog(handle, infoLogLength, NULL, infoLog);
 		fprintf(
-			stderr, "%s(s) linking shader program:\n%s",
+			stderr, "%s(s) linking shader program:\n%s\n",
 			ok ? "Warning" : "Error",
 			infoLogLength > 1 ? infoLog : "(no details available)\n"
 			);
