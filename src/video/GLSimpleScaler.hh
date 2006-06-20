@@ -15,7 +15,7 @@ public:
 	GLSimpleScaler(RenderSettings& renderSettings);
 
 	virtual void scaleImage(
-		TextureRectangle& src,
+		ColourTexture& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		unsigned dstStartY, unsigned dstEndY, unsigned dstWidth);
 

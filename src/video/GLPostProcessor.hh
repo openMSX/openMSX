@@ -57,7 +57,7 @@ private:
 	  */
 	RenderSettings::ScaleAlgorithm scaleAlgorithm;
 
-	typedef std::map<unsigned, TextureRectangle*> Textures;
+	typedef std::map<unsigned, ColourTexture*> Textures;
 	Textures textures;
 	unsigned height;
 

@@ -1,14 +1,13 @@
 // $Id$
 
 #include "GLTVScaler.hh"
-#include "GLUtil.hh"
 
 namespace openmsx {
 
 GLTVScaler::GLTVScaler()
 {
 	// Initialise shaders.
-	VertexShader vertexShader("tv.vert");
+	VertexShader   vertexShader  ("tv.vert");
 	FragmentShader fragmentShader("tv.frag");
 	scalerProgram.reset(new ShaderProgram());
 	scalerProgram->attach(vertexShader);
@@ -19,6 +18,7 @@ GLTVScaler::GLTVScaler()
 		scalerProgram->activate();
 		GLint texLoc = scalerProgram->getUniformLocation("tex");
 		glUniform1i(texLoc, 0);
+		texSizeLoc = scalerProgram->getUniformLocation("texSize");
 	}
 #endif
 }
@@ -28,13 +28,19 @@ GLTVScaler::~GLTVScaler()
 }
 
 void GLTVScaler::scaleImage(
-	TextureRectangle& src,
-	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+	ColourTexture& src,
+	unsigned srcStartY, unsigned srcEndY, unsigned /*srcWidth*/,
 	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
 {
+	GLfloat height = src.getHeight();
+	if (GLEW_VERSION_2_0) {
+		// always do as-if there are 640 dots on a line to get the
+		// same dot effect in border, 256 and 512 pixel areas
+		glUniform2f(texSizeLoc, 640.0f, height);
+	}
 	scalerProgram->activate();
-	unsigned inWidth = (srcWidth != 1) ? srcWidth : 640;
-	src.drawRect(0, srcStartY, inWidth,  srcEndY - srcStartY,
+	src.drawRect(0.0f,  srcStartY            / height,
+	             1.0f, (srcEndY - srcStartY) / height,
 	             0, dstStartY, dstWidth, dstEndY - dstStartY);
 }
 

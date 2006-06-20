@@ -176,12 +176,13 @@ void GLPostProcessor::uploadFrame()
 	for (Regions::const_iterator it = regions.begin();
 	     it != regions.end(); ++it) {
 		// bind texture (create if needed)
-		TextureRectangle* tex;
+		ColourTexture* tex;
 		Textures::iterator it2 = textures.find(it->lineWidth);
 		if (it2 != textures.end()) {
 			tex = it2->second;
 		} else {
-			tex = new TextureRectangle();
+			tex = new ColourTexture();
+			tex->setWrapMode(false);
 			tex->setImage(it->lineWidth, height * 2);
 			textures[it->lineWidth] = tex;
 		}
@@ -203,7 +204,7 @@ void GLPostProcessor::uploadBlock(
 	for (unsigned y = srcStartY; y < srcEndY; ++y) {
 		unsigned* dummy = 0;
 		glTexSubImage2D(
-			GL_TEXTURE_RECTANGLE_ARB, // target
+			GL_TEXTURE_2D,            // target
 			0,                        // level
 			0,                        // offset x
 			y,                        // offset y

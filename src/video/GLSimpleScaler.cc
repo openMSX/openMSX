@@ -13,11 +13,13 @@ GLSimpleScaler::GLSimpleScaler(RenderSettings& renderSettings_)
 }
 
 void GLSimpleScaler::scaleImage(
-	TextureRectangle& src,
-	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
+	ColourTexture& src,
+	unsigned srcStartY, unsigned srcEndY, unsigned /*srcWidth*/,
 	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
 {
-	src.drawRect(0, srcStartY, srcWidth, srcEndY - srcStartY,
+	GLfloat height = src.getHeight();
+	src.drawRect(0.0f,  srcStartY            / height,
+	             1.0f, (srcEndY - srcStartY) / height,
 	             0, dstStartY, dstWidth, dstEndY - dstStartY);
 }
 

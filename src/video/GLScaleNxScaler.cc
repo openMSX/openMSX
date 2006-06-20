@@ -1,37 +1,44 @@
 // $Id$
 
 #include "GLScaleNxScaler.hh"
-#include "GLUtil.hh"
 
 namespace openmsx {
 
 GLScaleNxScaler::GLScaleNxScaler()
 {
-	FragmentShader scalerFragmentShader("scale2x.frag");
+	VertexShader   vertexShader  ("scale2x.vert");
+	FragmentShader fragmentShader("scale2x.frag");
 	scalerProgram.reset(new ShaderProgram());
-	scalerProgram->attach(scalerFragmentShader);
+	scalerProgram->attach(vertexShader);
+	scalerProgram->attach(fragmentShader);
 	scalerProgram->link();
 #ifdef GL_VERSION_2_0
 	if (GLEW_VERSION_2_0) {
 		scalerProgram->activate();
 		GLint texLoc = scalerProgram->getUniformLocation("tex");
 		glUniform1i(texLoc, 0);
+		texSizeLoc = scalerProgram->getUniformLocation("texSize");
 	}
 #endif
 }
 
 void GLScaleNxScaler::scaleImage(
-	TextureRectangle& src,
+	ColourTexture& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
 {
+	GLfloat height = src.getHeight();
 	if (srcWidth == 320) {
+		if (GLEW_VERSION_2_0) {
+			glUniform2f(texSizeLoc, 320.0f, height);
+		}
 		scalerProgram->activate();
 	} else {
 		scalerProgram->deactivate();
 	}
 
-	src.drawRect(0, srcStartY, srcWidth, srcEndY - srcStartY,
+	src.drawRect(0.0f,  srcStartY            / height,
+	             1.0f, (srcEndY - srcStartY) / height,
 	             0, dstStartY, dstWidth, dstEndY - dstStartY);
 }
 

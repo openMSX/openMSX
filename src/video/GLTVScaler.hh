@@ -4,6 +4,7 @@
 #define GLTVSCALER_HH
 
 #include "GLScaler.hh"
+#include "GLUtil.hh"
 #include <memory>
 
 namespace openmsx {
@@ -17,12 +18,13 @@ public:
 	~GLTVScaler();
 
 	virtual void scaleImage(
-		TextureRectangle& src,
+		ColourTexture& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		unsigned dstStartY, unsigned dstEndY, unsigned dstWidth);
 
 private:
 	std::auto_ptr<ShaderProgram> scalerProgram;
+	GLint texSizeLoc;
 };
 
 } // namespace openmsx

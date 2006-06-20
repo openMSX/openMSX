@@ -1,5 +1,13 @@
 $Id$
 
+2006-06-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Switched to non_power_of_two textures instead of texture_rectangle
+	  in SDLGL-PP renderer:
+	   - ATI cards don't support text_rect in GLSL, but npot text should
+	     work
+	   - for GeForce5 class HW this change is bad because it has no
+	     hw support for npot textures while it has for text_rect
+
 2006-06-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Made rectangle_textures available on correct resolution on vertical
 	  linewidth borders:

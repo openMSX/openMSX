@@ -79,11 +79,11 @@ class PixelBuffer;
 
 /** Most basic/generic texture: only contains a texture ID.
   */
-template <GLenum TEXTURE_TYPE> class BasicTexture
+class Texture
 {
 public:
-	BasicTexture();
-	virtual ~BasicTexture();
+	Texture();
+	virtual ~Texture();
 
 	/** Makes this texture the active GL texture.
 	  * The other methods of this class and its subclasses will implicitly
@@ -91,7 +91,7 @@ public:
 	  * this texture for use in GL function calls outside of this class.
 	  */
 	void bind() {
-		glBindTexture(TEXTURE_TYPE, textureId);
+		glBindTexture(GL_TEXTURE_2D, textureId);
 	}
 
 	/** Enables bilinear interpolation for this texture.
@@ -103,22 +103,16 @@ public:
 	  */
 	void disableInterpolation();
 
-protected:
-	GLuint textureId;
-};
+	void setWrapMode(bool wrap);
 
-
-/** A 2D power-of-two texture
- */ 
-class Texture : public BasicTexture<GL_TEXTURE_2D>
-{
-public:
 	/** Draws this texture as a rectangle on the frame buffer.
 	  */
 	void drawRect(GLfloat tx, GLfloat ty, GLfloat twidth, GLfloat theight,
 	              GLint   x,  GLint   y,  GLint   width,  GLint   height);
-};
 
+protected:
+	GLuint textureId;
+};
 
 class ColourTexture: public Texture
 {
@@ -129,67 +123,23 @@ public:
 
 	/** Redefines (part of) the image for this texture.
 	  */
-	void updateImage(
-		GLint x, GLint y,
-		GLsizei width, GLsizei height,
-		GLuint* data
-		);
+	void updateImage(GLint x, GLint y,
+	                 GLsizei width, GLsizei height,
+	                 GLuint* data);
 
 	/** Redefines (part of) the image for this texture.
 	  */
-	void updateImage(
-		GLint x, GLint y,
-		GLsizei width, GLsizei height,
-		const PixelBuffer& buffer,
-		GLuint bx, GLuint by
-		);
-};
+	void updateImage(GLint x, GLint y,
+	                 GLsizei width, GLsizei height,
+	                 const PixelBuffer& buffer,
+	                 GLuint bx, GLuint by);
 
-/** Texture containing RGBA pixels of which only part of the area is used.
-  * Internally, a power-of-two texture is used, because that performs better
-  * in practice than either GL 2.0 / ARB_texture_non_power_of_two textures or
-  * ARB_texture_rectangle textures.
-  * TODO: Is there an advantage to inheriting from ColourTexture publicly?
-  *       It would require making a lot of methods virtual.
-  */
-class PartialColourTexture: protected ColourTexture
-{
-public:
-	void bind() {
-		ColourTexture::bind();
-	}
-	void setImage(GLsizei width, GLsizei height, GLuint* data = NULL);
-	void updateImage(
-		GLint x, GLint y,
-		GLsizei width, GLsizei height,
-		GLuint* data
-		);
-	void updateImage(
-		GLint x, GLint y,
-		GLsizei width, GLsizei height,
-		const PixelBuffer& buffer,
-		GLuint bx, GLuint by
-		);
-	void enableInterpolation() { ColourTexture::enableInterpolation(); }
-	void disableInterpolation() { ColourTexture::disableInterpolation(); }
-	void drawRect(
-		GLint sx, GLint sy, GLint swidth, GLint sheight,
-		GLint dx, GLint dy, GLint dwidth, GLint dheight
-		);
+	GLsizei getWidth () const { return width;  }
+	GLsizei getHeight() const { return height; }
+
 private:
-	GLsizei textureWidth;
-	GLsizei textureHeight;
-};
-
-class TextureRectangle : public BasicTexture<GL_TEXTURE_RECTANGLE_ARB>
-{
-public:
-	void setImage(GLsizei width, GLsizei height);
-	
-	/** Draws this texture as a rectangle on the frame buffer.
-	  */
-	void drawRect(GLint tx, GLint ty, GLint twidth, GLint theight,
-	              GLint x,  GLint y,  GLint width,  GLint height);
+	GLsizei width;
+	GLsizei height;
 };
 
 class LuminanceTexture: public Texture
@@ -201,11 +151,9 @@ public:
 
 	/** Redefines (part of) the image for this texture.
 	  */
-	void updateImage(
-		GLint x, GLint y,
-		GLsizei width, GLsizei height,
-		GLbyte* data
-		);
+	void updateImage(GLint x, GLint y,
+	                 GLsizei width, GLsizei height,
+	                 GLbyte* data);
 };
 
 /** Texture used for storing bitmap data from MSX VRAM.
@@ -215,15 +163,14 @@ class BitmapTexture: public Texture
 public:
 	BitmapTexture();
 	void update(int y, const GLuint* data, int lineWidth);
-	void draw(
-		int srcL, int srcT, int srcR, int srcB,
-		int dstL, int dstT, int dstR, int dstB
-		);
+	void draw( int srcL, int srcT, int srcR, int srcB,
+	           int dstL, int dstT, int dstR, int dstB);
 private:
 	static const int WIDTH = 512;
 	static const int HEIGHT = 1024;
 };
 
+// TODO use GL_TEXTURE_1D for this?
 class LineTexture: public Texture
 {
 public:
@@ -241,9 +188,8 @@ public:
 	bool isStored() { return stored; }
 	void store(unsigned x, unsigned y);
 	void draw(int offsetX, int offsetY, int width, int height);
-	void drawBlend(
-		int offsetX, int offsetY, int width, int height, double alpha
-		);
+	void drawBlend(int offsetX, int offsetY,
+	               int width, int height, double alpha);
 
 private:
 	/** Texture reserved for storing frame image data.
@@ -313,6 +259,7 @@ public:
 	  * mapWrite.
 	  */
 	void unmap() const;
+
 private:
 	friend class ColourTexture;
 

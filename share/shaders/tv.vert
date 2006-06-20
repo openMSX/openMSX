@@ -1,10 +1,15 @@
 // $Id$
 
+uniform vec2 texSize;
+
+varying vec4 intCoord;
 varying vec4 cornerCoord;
 
 void main()
 {
 	gl_Position = ftransform();
-	cornerCoord = vec4(gl_MultiTexCoord0.xy - vec2(0.5, 0.5),
-	                   gl_MultiTexCoord0.xy + vec2(0.5, 0.5));
+	intCoord.xy = gl_MultiTexCoord0.xy * texSize;
+	intCoord.zw = -intCoord.xy;
+	cornerCoord = vec4(gl_MultiTexCoord0.xy,
+	                   gl_MultiTexCoord0.xy + 1.0 / texSize);
 }
