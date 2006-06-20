@@ -29,10 +29,10 @@ void GLScaleNxScaler::scaleImage(
 {
 	GLfloat height = src.getHeight();
 	if (srcWidth == 320) {
+		scalerProgram->activate();
 		if (GLEW_VERSION_2_0) {
 			glUniform2f(texSizeLoc, 320.0f, height);
 		}
-		scalerProgram->activate();
 	} else {
 		scalerProgram->deactivate();
 	}

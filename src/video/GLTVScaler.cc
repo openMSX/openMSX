@@ -33,12 +33,12 @@ void GLTVScaler::scaleImage(
 	unsigned dstStartY, unsigned dstEndY, unsigned dstWidth)
 {
 	GLfloat height = src.getHeight();
+	scalerProgram->activate();
 	if (GLEW_VERSION_2_0) {
 		// always do as-if there are 640 dots on a line to get the
 		// same dot effect in border, 256 and 512 pixel areas
 		glUniform2f(texSizeLoc, 640.0f, height);
 	}
-	scalerProgram->activate();
 	src.drawRect(0.0f,  srcStartY            / height,
 	             1.0f, (srcEndY - srcStartY) / height,
 	             0, dstStartY, dstWidth, dstEndY - dstStartY);
