@@ -69,7 +69,7 @@ void Texture::setWrapMode(bool wrap)
 	bind();
 	int mode = wrap ? GL_REPEAT : GL_CLAMP;
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, mode);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, mode);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, mode);
 }
 
 void Texture::drawRect(GLfloat tx, GLfloat ty, GLfloat twidth, GLfloat theight,
