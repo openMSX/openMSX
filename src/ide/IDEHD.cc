@@ -116,6 +116,7 @@ unsigned IDEHD::readBlockStart(byte* buffer, unsigned count)
 {
 	try {
 		assert(count >= 512);
+		(void)count; // avoid warning
 		readLogicalSector(transferSectorNumber, buffer);
 		++transferSectorNumber;
 		return 512;

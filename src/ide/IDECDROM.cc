@@ -107,6 +107,7 @@ void IDECDROM::writeBlockComplete(byte* buffer, unsigned count)
 {
 	// Currently, packet writes are the only kind of write transfer.
 	assert(count == 12);
+	(void)count; // avoid warning
 	executePacketCommand(buffer);
 }
 
