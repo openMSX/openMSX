@@ -18,21 +18,22 @@ varying vec4 cornerCoord;
 // Pixel separation: lower value means larger pixels.
 const half2 sep = half2(2.3, 5.7);
 
-half4 calcCorner(const vec2 texCoord, const half2 dist2s)
+half4 calcCorner(const vec2 texCoord, const half dist2s)
 {
 	vec4 col = texture2D(tex, texCoord);
 	// TODO: Pixel size could be precomputed in the alpha channel.
 	half size = half(max(max(col.r, col.g), col.b));
-	return exp2(- (dist2s.x + dist2s.y) / size) * half4(col);
+	return exp2(-dist2s / size) * half4(col);
 }
 
 void main()
 {
-	half4 dist = half4(fract(intCoord));
-	half4 dist2s = dist * dist * sep.xyxy;
+	half4 distComp = half4(fract(intCoord));
+	half4 distComp2s = distComp * distComp * sep.xyxy;
+	half4 dist2s = distComp2s.xyzw + distComp2s.yzwx;
 	gl_FragColor = vec4(
-		calcCorner(cornerCoord.xy, dist2s.xy) +
-		calcCorner(cornerCoord.zy, dist2s.zy) +
-		calcCorner(cornerCoord.xw, dist2s.xw) +
-		calcCorner(cornerCoord.zw, dist2s.zw));
+		calcCorner(cornerCoord.xy, dist2s.x) +
+		calcCorner(cornerCoord.zy, dist2s.y) +
+		calcCorner(cornerCoord.xw, dist2s.w) +
+		calcCorner(cornerCoord.zw, dist2s.z));
 }
