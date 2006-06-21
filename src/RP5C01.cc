@@ -24,8 +24,8 @@ const nibble MODE_TIMERENABLE = 0x8;
 
 const nibble TEST_SECONDS = 0x1;
 const nibble TEST_MINUTES = 0x2;
-const nibble TEST_HOURS   = 0x4;
-const nibble TEST_DAYS    = 0x8;
+const nibble TEST_DAYS    = 0x4;
+const nibble TEST_YEARS   = 0x8;
 
 const nibble RESET_ALARM    = 0x1;
 const nibble RESET_FRACTION = 0x2;
@@ -194,13 +194,13 @@ void RP5C01::updateTimeRegs(const EmuTime& time)
 		// in test mode increase sec/min/.. at a rate of 16384Hz
 		uint64 testSeconds = (testReg & TEST_SECONDS) ? elapsed : 0;
 		uint64 testMinutes = (testReg & TEST_MINUTES) ? elapsed : 0;
-		uint64 testHours   = (testReg & TEST_HOURS  ) ? elapsed : 0;
 		uint64 testDays    = (testReg & TEST_DAYS   ) ? elapsed : 0;
+		uint64 testYears   = (testReg & TEST_YEARS  ) ? elapsed : 0;
 
 		fraction += elapsed;
 		seconds  += fraction/FREQ  + testSeconds; fraction %= FREQ;
 		minutes  += seconds / 60   + testMinutes; seconds  %= 60;
-		hours    += minutes / 60   + testHours;   minutes  %= 60;
+		hours    += minutes / 60;                 minutes  %= 60;
 		int carryDays = hours / 24 + testDays;
 		days     += carryDays;      hours   %= 24;
 		dayWeek = (dayWeek + carryDays) % 7;
@@ -209,7 +209,7 @@ void RP5C01::updateTimeRegs(const EmuTime& time)
 			months++;
 		}
 		int carryYears = months / 12;
-		years = (years + carryYears) % 100; months %= 12;
+		years = (years + carryYears + testYears) % 100; months %= 12;
 		leapYear = (leapYear + carryYears) % 4;
 
 		time2Regs();
