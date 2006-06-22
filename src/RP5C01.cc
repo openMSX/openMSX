@@ -178,39 +178,49 @@ static int daysInMonth(int month, int leapYear)
 	};
 
 	month %= 12;
-	return ((month == 1) && (leapYear == 0)) ? 29
-	                                         : daysInMonths[month];
+	return ((month == 1) && (leapYear == 0)) ? 29 : daysInMonths[month];
 }
 
 void RP5C01::updateTimeRegs(const EmuTime& time)
 {
 	if (modeSetting->getValue() == EMUTIME) {
 		// sync with EmuTime, perfect emulation
-		uint64 elapsed = (modeReg & MODE_TIMERENABLE)
-			? reference.getTicksTill(time)
-			: 0;
+		uint64 elapsed = reference.getTicksTill(time);
 		reference.advance(time);
 
 		// in test mode increase sec/min/.. at a rate of 16384Hz
-		uint64 testSeconds = (testReg & TEST_SECONDS) ? elapsed : 0;
-		uint64 testMinutes = (testReg & TEST_MINUTES) ? elapsed : 0;
-		uint64 testDays    = (testReg & TEST_DAYS   ) ? elapsed : 0;
-		uint64 testYears   = (testReg & TEST_YEARS  ) ? elapsed : 0;
-
-		fraction += elapsed;
-		seconds  += fraction/FREQ  + testSeconds; fraction %= FREQ;
-		minutes  += seconds / 60   + testMinutes; seconds  %= 60;
-		hours    += minutes / 60;                 minutes  %= 60;
-		int carryDays = hours / 24 + testDays;
-		days     += carryDays;      hours   %= 24;
-		dayWeek = (dayWeek + carryDays) % 7;
+		fraction += (modeReg & MODE_TIMERENABLE) ? elapsed : 0;
+		int carrySeconds = (testReg & TEST_SECONDS)
+		                 ? elapsed : fraction / FREQ;
+		seconds  += carrySeconds;
+		int carryMinutes = (testReg & TEST_MINUTES)
+		                 ? elapsed : seconds / 60;
+		minutes  += carryMinutes;
+		hours    += minutes / 60;
+		int carryDays = (testReg & TEST_DAYS)
+		              ? elapsed : hours / 24;
+		days     += carryDays;
+		dayWeek  += carryDays;
 		while (days >= daysInMonth(months, leapYear)) {
+			// TODO not correct because leapYear is not updated
+			//      is only triggered when we update several months
+			//      at a time (but might happen in TEST_DAY mode)
 			days -= daysInMonth(months, leapYear);
 			months++;
 		}
-		int carryYears = months / 12;
-		years = (years + carryYears + testYears) % 100; months %= 12;
-		leapYear = (leapYear + carryYears) % 4;
+		int carryYears = (testReg & TEST_YEARS)
+		               ? elapsed : months / 12;
+		years    += carryYears;
+		leapYear += carryYears;
+		
+		fraction %= FREQ;
+		seconds  %= 60;
+		minutes  %= 60;
+		hours    %= 24;
+		dayWeek  %= 7;
+		months   %= 12;
+		years    %= 100;
+		leapYear %= 4;
 
 		time2Regs();
 	} else {

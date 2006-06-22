@@ -1,5 +1,11 @@
 $Id$
 
+2006-06-22 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Various RTC (RP5C01) test mode fixes:
+	   - r#14 bits 0-3 are for seconds, minutes, days, years
+	   - in test mode there is no carry from 'lower order' number
+	   - test mode also works when timer itself is disabled
+
 2006-06-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Switched to non_power_of_two textures instead of texture_rectangle
 	  in SDLGL-PP renderer:
