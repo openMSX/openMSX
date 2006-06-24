@@ -1,5 +1,9 @@
 $Id$
 
+2006-06-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented 3D monitor effect for SDLGL-PP renderer
+	* Enabled glow setting for SDLGL-PP
+
 2006-06-22 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Various RTC (RP5C01) test mode fixes:
 	   - r#14 bits 0-3 are for seconds, minutes, days, years

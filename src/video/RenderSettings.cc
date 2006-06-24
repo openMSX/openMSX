@@ -109,6 +109,10 @@ RenderSettings::RenderSettings(CommandController& commandController_)
 	cmdTiming.reset(new EnumSetting<bool>(commandController,
 		"cmdtiming", "VDP command timing", false, cmdMap,
 		Setting::DONT_SAVE));
+
+	effect3d.reset(new BooleanSetting(commandController, "3D_effect",
+		"3D monitor effect on/off (for the moment this only works "
+		"with the SDLGL-PP renderer", true));
 }
 
 RenderSettings::~RenderSettings()

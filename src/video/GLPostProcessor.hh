@@ -48,6 +48,7 @@ private:
 
 	void preCalcNoise(double factor);
 	void drawNoise();
+	void drawGlow(int glow);
 
 	/** The currently active scaler.
 	  */
@@ -63,10 +64,11 @@ private:
 
 	FrameSource* paintFrame;
 
+	unsigned frameCounter;
+
 	// Noise effect:
 	LuminanceTexture noiseTextureA;
 	LuminanceTexture noiseTextureB;
-	unsigned noiseSeq;
 	double noiseX;
 	double noiseY;
 
@@ -87,6 +89,17 @@ private:
 	};
 	typedef std::vector<Region> Regions;
 	Regions regions;
+
+	GLuint fb[2];
+	GLuint color_tex[2];
+	bool storedFrame;
+
+	static const int GRID_SIZE = 16;
+	struct Point {
+		GLfloat x, y, z;
+		GLfloat tx, ty;
+	};
+	Point points[GRID_SIZE + 1][GRID_SIZE + 1];
 };
 
 } // namespace openmsx

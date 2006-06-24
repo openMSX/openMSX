@@ -103,6 +103,9 @@ public:
 	  * This setting is intended for debugging only, not for users. */
 	EnumSetting<bool>& getCmdTiming() { return *cmdTiming; }
 
+	/**  */
+	BooleanSetting& get3DEffect() const { return *effect3d; }
+
 	/** Apply brightness, contrast and gamma transformation on the input
 	  * color. The R, G and B component are expected to be in the range
 	  * [0.0  1.0] but it's not an error if a component lays outside of
@@ -135,6 +138,7 @@ private:
 	std::auto_ptr<IntegerSetting> scaleFactor;
 	std::auto_ptr<IntegerSetting> scanlineAlpha;
 	std::auto_ptr<VideoSourceSetting> videoSource;
+	std::auto_ptr<BooleanSetting> effect3d;
 
 	CommandController& commandController;
 	double cm[3][3]; // parsed color matrix, should always be in sync with
