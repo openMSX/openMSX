@@ -432,6 +432,7 @@ void TC8566AF::writeDataIdlePhase(byte data, const EmuTime& /*time*/)
 		case CMD_FORMAT:
 			ST0_IC = 0;
 			ST1_ND = 0;
+			ST1_NW = 0;
 			MT  = (data & 0x80) != 0;
 			MFM = (data & 0x40) != 0;
 			SK  = (data & 0x20) != 0;
@@ -663,6 +664,7 @@ void TC8566AF::writeDataTransferPhase(byte data, const EmuTime& /*time*/)
 				PhaseStep = 0;
 				dataInputOutput = 1;
 			} catch (MSXException& e) {
+				ST1_NW = 1;
 			}
 		}
 		break;
@@ -682,6 +684,7 @@ void TC8566AF::writeDataTransferPhase(byte data, const EmuTime& /*time*/)
 				    StartRecord, Sector, dummy,
 				    dummy, dummy, dummy2);
 			} catch (MSXException& e) {
+				ST1_NW = 1;
 			}
 			break;
 		case 2:
