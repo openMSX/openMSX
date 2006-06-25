@@ -1,6 +1,12 @@
 $Id$
 
 2006-06-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Made "monitor_effect" an enum setting (suggestions for a better name
+	  are welcome). Made normal (non-3d) the default. Fixed a bug when
+	  started openmsx is started in normal mode.
+
+
+2006-06-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented 3D monitor effect for SDLGL-PP renderer
 	* Enabled glow setting for SDLGL-PP
 

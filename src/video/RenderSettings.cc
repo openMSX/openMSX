@@ -110,9 +110,12 @@ RenderSettings::RenderSettings(CommandController& commandController_)
 		"cmdtiming", "VDP command timing", false, cmdMap,
 		Setting::DONT_SAVE));
 
-	effect3d.reset(new BooleanSetting(commandController, "3D_effect",
-		"3D monitor effect on/off (for the moment this only works "
-		"with the SDLGL-PP renderer", true));
+	EnumSetting<MonitorEffect>::Map effectMap;
+	effectMap["normal"] = EFFECT_NORMAL;
+	effectMap["3d"] = EFFECT_3D;
+	monitorEffect.reset(new EnumSetting<MonitorEffect>(commandController,
+		"monitor_effect", "monitor effect (for the moment this only "
+		"works with the SDLGL-PP renderer", EFFECT_NORMAL, effectMap));
 }
 
 RenderSettings::~RenderSettings()

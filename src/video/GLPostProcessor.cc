@@ -135,12 +135,15 @@ void GLPostProcessor::paint()
 		currScaler = GLScalerFactory::createScaler(renderSettings);
 	}
 
-	bool effect3d = renderSettings.get3DEffect().getValue();
+	RenderSettings::MonitorEffect effect =
+		renderSettings.getMonitorEffect().getValue();
 	int glow = renderSettings.getGlow().getValue();
 
-	if (effect3d || (glow != 0)) {
+	if ((effect == RenderSettings::EFFECT_3D) || (glow != 0)) {
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb[frameCounter & 1]);
+	} else {
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 	}
 
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
@@ -162,12 +165,12 @@ void GLPostProcessor::paint()
 	drawNoise();
 	drawGlow(glow);
 
-	if (effect3d || (glow != 0)) {
+	if ((effect == RenderSettings::EFFECT_3D) || (glow != 0)) {
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 		glBindTexture(GL_TEXTURE_2D, color_tex[frameCounter & 1]);
 
 		glEnable(GL_TEXTURE_2D);
-		if (effect3d) {
+		if (effect == RenderSettings::EFFECT_3D) {
 			glMatrixMode(GL_PROJECTION);
 			glPushMatrix();
 			glLoadIdentity();

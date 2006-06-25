@@ -35,6 +35,10 @@ public:
 		SCALER_HQ, SCALER_HQLITE, SCALER_RGBTRIPLET, SCALER_TV
 	};
 
+	enum MonitorEffect {
+		EFFECT_NORMAL, EFFECT_3D
+	};
+
 	explicit RenderSettings(CommandController& commandController);
 	~RenderSettings();
 
@@ -104,7 +108,7 @@ public:
 	EnumSetting<bool>& getCmdTiming() { return *cmdTiming; }
 
 	/**  */
-	BooleanSetting& get3DEffect() const { return *effect3d; }
+	EnumSetting<MonitorEffect>& getMonitorEffect() const { return *monitorEffect; }
 
 	/** Apply brightness, contrast and gamma transformation on the input
 	  * color. The R, G and B component are expected to be in the range
@@ -138,7 +142,7 @@ private:
 	std::auto_ptr<IntegerSetting> scaleFactor;
 	std::auto_ptr<IntegerSetting> scanlineAlpha;
 	std::auto_ptr<VideoSourceSetting> videoSource;
-	std::auto_ptr<BooleanSetting> effect3d;
+	std::auto_ptr<EnumSetting<MonitorEffect> > monitorEffect;
 
 	CommandController& commandController;
 	double cm[3][3]; // parsed color matrix, should always be in sync with
