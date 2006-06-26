@@ -43,14 +43,19 @@ GLPostProcessor::GLPostProcessor(
 	for (int i = 0; i < 2; ++i) {
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb[i]);
 		glBindTexture(GL_TEXTURE_2D, color_tex[i]);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8,
-			     screen.getWidth(), screen.getHeight(),
-			     0, GL_RGB, GL_INT, NULL);
+		             screen.getWidth(), screen.getHeight(),
+		             0, GL_RGB, GL_INT, NULL);
 		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
-					  GL_COLOR_ATTACHMENT0_EXT,
-					  GL_TEXTURE_2D, color_tex[i], 0);
+		                          GL_COLOR_ATTACHMENT0_EXT,
+		                          GL_TEXTURE_2D, color_tex[i], 0);
+		assert(glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) ==
+		       GL_FRAMEBUFFER_COMPLETE_EXT);
 	}
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
 	const int GRID_SIZE2 = GRID_SIZE / 2;
 	for (int sx = 0; sx <= GRID_SIZE; ++sx) {
@@ -142,8 +147,6 @@ void GLPostProcessor::paint()
 	if ((effect == RenderSettings::EFFECT_3D) || (glow != 0)) {
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb[frameCounter & 1]);
-	} else {
-		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 	}
 
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
