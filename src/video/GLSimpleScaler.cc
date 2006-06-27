@@ -39,7 +39,7 @@ void GLSimpleScaler::scaleImage(
 	GLfloat blur = renderSettings.getBlurFactor() / 256.0;
 	GLfloat scanline = renderSettings.getScanlineFactor() / 255.0;
 	GLfloat height = src.getHeight();
-	if (blur != 0) {
+	if ((blur != 0) && (srcWidth != 1)) { // srcWidth check: workaround for ATI cards
 		src.enableInterpolation();
 	}
 	scalerProgram->activate();
