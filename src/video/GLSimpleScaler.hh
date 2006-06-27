@@ -4,10 +4,12 @@
 #define GLSIMPLESCALER_HH
 
 #include "GLScaler.hh"
+#include <memory>
 
 namespace openmsx {
 
 class RenderSettings;
+class ShaderProgram;
 
 class GLSimpleScaler: public GLScaler
 {
@@ -21,6 +23,12 @@ public:
 
 private:
 	RenderSettings& renderSettings;
+	std::auto_ptr<ShaderProgram> scalerProgram;
+	int texSizeLoc;
+	int alphaLoc;
+	int scanALoc;
+	int scanBLoc;
+	int scanCLoc;
 };
 
 } // namespace openmsx
