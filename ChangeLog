@@ -2,6 +2,8 @@ $Id$
 
 2006-06-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented blur and scanlines for SDLGL-PP simple scaler
+	* Implemented FMPAC SRAM disable bit (bit4 address 0x7FF6):
+	   Thanks to BiFiMSX for investigating this
 
 2006-06-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Made "monitor_effect" an enum setting (suggestions for a better name

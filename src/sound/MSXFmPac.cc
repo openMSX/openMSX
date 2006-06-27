@@ -86,6 +86,8 @@ const byte* MSXFmPac::getReadCacheLine(word address) const
 
 void MSXFmPac::writeMem(word address, byte value, const EmuTime& time)
 {
+	// 'enable' has no effect for memory mapped access
+	//   (thanks to BiFiMSX for investigating this) 
 	address &= 0x3FFF;
 	switch (address) {
 		case 0x1FFE:
@@ -97,15 +99,14 @@ void MSXFmPac::writeMem(word address, byte value, const EmuTime& time)
 			checkSramEnable();
 			break;
 		case 0x3FF4:
-			// TODO check if "enable" has any effect
 			writeRegisterPort(value, time);
 			break;
 		case 0x3FF5:
-			// TODO check if "enable" has any effect
 			writeDataPort(value, time);
 			break;
 		case 0x3FF6:
 			enable = value & 0x11;
+			checkSramEnable();
 			break;
 		case 0x3FF7: {
 			byte newBank = value & 0x03;
@@ -141,7 +142,8 @@ byte* MSXFmPac::getWriteCacheLine(word address) const
 
 void MSXFmPac::checkSramEnable()
 {
-	bool newEnabled = (r1ffe == 0x4D) && (r1fff == 0x69);
+	bool newEnabled = (r1ffe == 0x4D) && (r1fff == 0x69) &&
+	                  !(enable & 0x10);
 	if (sramEnabled != newEnabled) {
 		sramEnabled = newEnabled;
 		getMotherBoard().getCPU().invalidateMemCache(0x0000, 0x10000);
