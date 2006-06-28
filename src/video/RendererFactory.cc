@@ -97,14 +97,18 @@ auto_ptr<RendererFactory::RendererSetting>
 	rendererMap["SDL"] = SDL;
 #ifdef COMPONENT_GL
 	rendererMap["SDLGL"] = SDLGL;
-	rendererMap["SDLGL2"] = SDLGL2;
-	rendererMap["SDLGL-PP"] = SDLGL_PP;
+	#ifdef GL_VERSION_2_0
+	if (GLEW_VERSION_2_0) {
+		rendererMap["SDLGL-PP"] = SDLGL_PP;
+	}
+	#endif
 	if (!Version::RELEASE) {
 		// disabled for the release:
-		//  these 2 renderers don't offer anything more than the existing
+		//  these renderers don't offer anything more than the existing
 		//  renderers and sdlgl-fb32 still has endian problems on PPC
 		rendererMap["SDLGL-FB16"] = SDLGL_FB16;
 		rendererMap["SDLGL-FB32"] = SDLGL_FB32;
+		rendererMap["SDLGL2"] = SDLGL2;
 	}
 #endif
 #ifdef HAVE_X11

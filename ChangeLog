@@ -4,6 +4,8 @@ $Id$
 	* Implemented 'horizontal stretch' for SDLGL-PP:
 	   - is another enum of the monitor_effect setting (rename this?)
 	   - the 3D monitor effect always has horizontal stretch applied
+	* Only enable SDLGL-PP renderer when OpenGL-2.0 is available
+	* Moved SDLGL2 to 'non-release-only' status (like SDLGL-FB<xx>)
 
 2006-06-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented blur and scanlines for SDLGL-PP simple scaler
