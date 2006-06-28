@@ -6,6 +6,7 @@
 #include "EnumSetting.hh"
 #include "Display.hh"
 #include "Version.hh"
+#include "GLUtil.hh"
 
 // Video systems:
 #include "components.hh"
@@ -98,9 +99,9 @@ auto_ptr<RendererFactory::RendererSetting>
 #ifdef COMPONENT_GL
 	rendererMap["SDLGL"] = SDLGL;
 	#ifdef GL_VERSION_2_0
-	if (GLEW_VERSION_2_0) {
-		rendererMap["SDLGL-PP"] = SDLGL_PP;
-	}
+	// compiled with OpenGL-2.0, still need to test whether
+	// it's available at run time, but cannot be done here
+	rendererMap["SDLGL-PP"] = SDLGL_PP;
 	#endif
 	if (!Version::RELEASE) {
 		// disabled for the release:
