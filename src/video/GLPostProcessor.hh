@@ -92,14 +92,9 @@ private:
 
 	GLuint fb[2];
 	GLuint color_tex[2];
+	GLuint monitor3DList;
 	bool storedFrame;
 
-	static const int GRID_SIZE = 16;
-	struct Point {
-		GLfloat x, y, z;
-		GLfloat tx, ty;
-	};
-	Point points[GRID_SIZE + 1][GRID_SIZE + 1];
 };
 
 } // namespace openmsx

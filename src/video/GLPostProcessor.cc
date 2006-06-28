@@ -57,9 +57,16 @@ GLPostProcessor::GLPostProcessor(
 	}
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
+	// generate display list for 3d effect
+	static const int GRID_SIZE = 16;
+	struct Point {
+		GLfloat x, y, z;
+		GLfloat tx, ty;
+	} points[GRID_SIZE + 1][GRID_SIZE + 1];
 	const int GRID_SIZE2 = GRID_SIZE / 2;
 	GLfloat s = 284.0f / 320.0f;
 	GLfloat b = (320.0f - 284.0f) / (2.0f * 320.0f);
+
 	for (int sx = 0; sx <= GRID_SIZE; ++sx) {
 		for (int sy = 0; sy <= GRID_SIZE; ++sy) {
 			Point& p = points[sx][sy];
@@ -70,10 +77,47 @@ GLPostProcessor::GLPostProcessor(
 			p.ty = GLfloat(sy) / GRID_SIZE;
 		}
 	}
+
+	monitor3DList = glGenLists(1);
+	glNewList(monitor3DList, GL_COMPILE);
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	glFrustum(-1, 1, -1, 1, 1, 10);
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+	glTranslatef(0.0f, 0.4f, -2.0f);
+	glRotatef(-10.0f, 1.0f, 0.0f, 0.0f);
+	glScalef(2.2f, 2.2f, 2.2f);
+	glBegin(GL_QUADS);
+	for (int x = 0; x < GRID_SIZE; ++x) {
+		for (int y = 0; y < GRID_SIZE; ++y) {
+			Point& p1 = points[x + 0][y + 0];
+			Point& p2 = points[x + 0][y + 1];
+			Point& p3 = points[x + 1][y + 1];
+			Point& p4 = points[x + 1][y + 0];
+			glTexCoord2f(p1.tx, p1.ty);
+			glVertex3f(p1.x, p1.y, p1.z);
+			glTexCoord2f(p2.tx, p2.ty);
+			glVertex3f(p2.x, p2.y, p2.z);
+			glTexCoord2f(p3.tx, p3.ty);
+			glVertex3f(p3.x, p3.y, p3.z);
+			glTexCoord2f(p4.tx, p4.ty);
+			glVertex3f(p4.x, p4.y, p4.z);
+		}
+	}
+	glEnd();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+	glEndList();
 }
 
 GLPostProcessor::~GLPostProcessor()
 {
+	glDeleteLists(monitor3DList, 1);
 	glDeleteTextures(2, color_tex);
 	glDeleteFramebuffersEXT(2, fb);
 
@@ -181,39 +225,7 @@ void GLPostProcessor::paint()
 
 		glEnable(GL_TEXTURE_2D);
 		if (effect == RenderSettings::EFFECT_3D) {
-			glMatrixMode(GL_PROJECTION);
-			glPushMatrix();
-			glLoadIdentity();
-			glFrustum(-1, 1, -1, 1, 1, 10);
-			glMatrixMode(GL_MODELVIEW);
-			glPushMatrix();
-			glLoadIdentity();
-			glTranslatef(0.0f, 0.4f, -2.0f);
-			glRotatef(-10.0f, 1.0f, 0.0f, 0.0f);
-			glScalef(2.2f, 2.2f, 2.2f);
-			glBegin(GL_QUADS);
-			// TODO use some faster way to draw this. Display list?
-			for (int x = 0; x < GRID_SIZE; ++x) {
-				for (int y = 0; y < GRID_SIZE; ++y) {
-					Point& p1 = points[x + 0][y + 0];
-					Point& p2 = points[x + 0][y + 1];
-					Point& p3 = points[x + 1][y + 1];
-					Point& p4 = points[x + 1][y + 0];
-					glTexCoord2f(p1.tx, p1.ty);
-					glVertex3f(p1.x, p1.y, p1.z);
-					glTexCoord2f(p2.tx, p2.ty);
-					glVertex3f(p2.x, p2.y, p2.z);
-					glTexCoord2f(p3.tx, p3.ty);
-					glVertex3f(p3.x, p3.y, p3.z);
-					glTexCoord2f(p4.tx, p4.ty);
-					glVertex3f(p4.x, p4.y, p4.z);
-				}
-			}
-			glEnd();
-			glMatrixMode(GL_PROJECTION);
-			glPopMatrix();
-			glMatrixMode(GL_MODELVIEW);
-			glPopMatrix();
+			glCallList(monitor3DList);
 		} else {
 			glBegin(GL_QUADS);
 			int w = screen.getWidth();
