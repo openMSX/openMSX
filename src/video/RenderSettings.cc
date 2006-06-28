@@ -113,6 +113,7 @@ RenderSettings::RenderSettings(CommandController& commandController_)
 	EnumSetting<MonitorEffect>::Map effectMap;
 	effectMap["normal"] = EFFECT_NORMAL;
 	effectMap["3d"] = EFFECT_3D;
+	effectMap["horizontal_stretch"] = EFFECT_HOR_STRETCH;
 	monitorEffect.reset(new EnumSetting<MonitorEffect>(commandController,
 		"monitor_effect", "monitor effect (for the moment this only "
 		"works with the SDLGL-PP renderer", EFFECT_NORMAL, effectMap));

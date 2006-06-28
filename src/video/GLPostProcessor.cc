@@ -58,13 +58,15 @@ GLPostProcessor::GLPostProcessor(
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
 	const int GRID_SIZE2 = GRID_SIZE / 2;
+	GLfloat s = 284.0f / 320.0f;
+	GLfloat b = (320.0f - 284.0f) / (2.0f * 320.0f);
 	for (int sx = 0; sx <= GRID_SIZE; ++sx) {
 		for (int sy = 0; sy <= GRID_SIZE; ++sy) {
 			Point& p = points[sx][sy];
 			p.x = GLfloat(sx - GRID_SIZE2) / GRID_SIZE2;
 			p.y = GLfloat(sy - GRID_SIZE2) / GRID_SIZE2;
 			p.z = -(p.x * p.x + p.y * p.y) / 12;
-			p.tx = GLfloat(sx) / GRID_SIZE;
+			p.tx = (GLfloat(sx) / GRID_SIZE) * s + b;
 			p.ty = GLfloat(sy) / GRID_SIZE;
 		}
 	}
@@ -126,10 +128,18 @@ void GLPostProcessor::createRegions()
 
 void GLPostProcessor::paint()
 {
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-	if (!paintFrame) {
-		return;
+	RenderSettings::MonitorEffect effect =
+		renderSettings.getMonitorEffect().getValue();
+	int glow = renderSettings.getGlow().getValue();
+	bool renderToTexture = (effect != RenderSettings::EFFECT_NORMAL) ||
+	                       (glow != 0);
+
+	if ((effect == RenderSettings::EFFECT_3D) || !paintFrame) {
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+		if (!paintFrame) {
+			return;
+		}
 	}
 
 	// New scaler algorithm selected?
@@ -140,11 +150,8 @@ void GLPostProcessor::paint()
 		currScaler = GLScalerFactory::createScaler(renderSettings);
 	}
 
-	RenderSettings::MonitorEffect effect =
-		renderSettings.getMonitorEffect().getValue();
-	int glow = renderSettings.getGlow().getValue();
 
-	if ((effect == RenderSettings::EFFECT_3D) || (glow != 0)) {
+	if (renderToTexture) {
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb[frameCounter & 1]);
 	}
@@ -168,7 +175,7 @@ void GLPostProcessor::paint()
 	drawNoise();
 	drawGlow(glow);
 
-	if ((effect == RenderSettings::EFFECT_3D) || (glow != 0)) {
+	if (renderToTexture) {
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 		glBindTexture(GL_TEXTURE_2D, color_tex[frameCounter & 1]);
 
@@ -185,7 +192,7 @@ void GLPostProcessor::paint()
 			glRotatef(-10.0f, 1.0f, 0.0f, 0.0f);
 			glScalef(2.2f, 2.2f, 2.2f);
 			glBegin(GL_QUADS);
-			// TODO use some faster way to draw this
+			// TODO use some faster way to draw this. Display list?
 			for (int x = 0; x < GRID_SIZE; ++x) {
 				for (int y = 0; y < GRID_SIZE; ++y) {
 					Point& p1 = points[x + 0][y + 0];
@@ -211,10 +218,14 @@ void GLPostProcessor::paint()
 			glBegin(GL_QUADS);
 			int w = screen.getWidth();
 			int h = screen.getHeight();
-			glTexCoord2i(0, 0); glVertex2i(0, h); 
-			glTexCoord2i(0, 1); glVertex2i(0, 0); 
-			glTexCoord2i(1, 1); glVertex2i(w, 0); 
-			glTexCoord2i(1, 0); glVertex2i(w, h); 
+			GLfloat x1 = (effect == RenderSettings::EFFECT_HOR_STRETCH)
+			           ? (320.0f - 284.0f) / (2.0f * 320.0f)
+				   : 0.0f;
+			GLfloat x2 = 1.0f - x1;
+			glTexCoord2f(x1, 0.0f); glVertex2i(0, h); 
+			glTexCoord2f(x1, 1.0f); glVertex2i(0, 0); 
+			glTexCoord2f(x2, 1.0f); glVertex2i(w, 0); 
+			glTexCoord2f(x2, 0.0f); glVertex2i(w, h); 
 			glEnd();
 		}
 		glDisable(GL_TEXTURE_2D);

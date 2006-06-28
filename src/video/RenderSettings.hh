@@ -36,7 +36,7 @@ public:
 	};
 
 	enum MonitorEffect {
-		EFFECT_NORMAL, EFFECT_3D
+		EFFECT_NORMAL, EFFECT_3D, EFFECT_HOR_STRETCH
 	};
 
 	explicit RenderSettings(CommandController& commandController);
