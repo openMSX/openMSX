@@ -5,6 +5,7 @@
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "Math.hh"
+#include "Version.hh"
 #include <iostream>
 #include <memory>
 #include <cassert>
@@ -565,7 +566,8 @@ Shader::Shader(GLenum type, const std::string& filename)
 	GLint infoLogLength = 0;
 	glGetShaderiv(handle, GL_INFO_LOG_LENGTH, &infoLogLength);
 	// note: the null terminator is included, so empty string has length 1
-	if (!ok || infoLogLength > 1) {
+	if (!Version::RELEASE &&
+	    (!ok || infoLogLength > 1)) {
 		GLchar infoLog[infoLogLength];
 		glGetShaderInfoLog(handle, infoLogLength, NULL, infoLog);
 		fprintf(
@@ -711,7 +713,8 @@ void ShaderProgram::link()
 	GLint infoLogLength = 0;
 	glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &infoLogLength);
 	// note: the null terminator is included, so empty string has length 1
-	if (!ok || infoLogLength > 1) {
+	if (!Version::RELEASE &&
+	    (!ok || infoLogLength > 1)) {
 		GLchar infoLog[infoLogLength];
 		glGetProgramInfoLog(handle, infoLogLength, NULL, infoLog);
 		fprintf(
