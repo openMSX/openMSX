@@ -473,13 +473,21 @@ you can find it on
 <p>
 openMSX can optionally use OpenGL for graphics.
 If you want to use this, make sure you have both the runtime and development
-packages for OpenGL installed.
+packages for OpenGL installed. Since openMSX 0.6.1, we use the GLEW library (version 1.3.2 or later, 1.3.4 recommended) to handle OpenGL extensions:
+</p>
+
+<dl>
+<dt>libglew1 and libglew-dev</dt>
+<dd>The OpenGL Extension Wrangler.</dd>
+</dl>
+
+<p>
 If you have an nVidia card, go to the
 <a class="external" href="http://www.nvidia.com/linux">nVidia web site</a>
-for drivers, which include an OpenGL implementation. ATI users can check out the <a class="external" href="http://www.ati.com/support/faq/linux.html">ATI web site</a> for drivers.
-For other cards, try Mesa, which can be found in packages like
+for drivers, which include an OpenGL implementation. ATI users can check out the <a class="external" href="http://www.ati.com/support/faq/linux.html">ATI web site</a> for drivers. However, nowadays there is a big chance that your system already has hardware accelerated OpenGL supported in the default installation of your Xorg or Windows environment. Just make sure you install the development header files for the OpenGL library if you want to compile openMSX with support for it.
+<!-- For other cards, try Mesa, which can be found in packages like
 <code>xlibmesa-gl</code> and <code>xlibmesa-gl-dev</code> (Debian)
-or <code>XFree86-GLX</code> and <code>XFree86-GLX-devel</code> (SUSE).
+or <code>XFree86-GLX</code> and <code>XFree86-GLX-devel</code> (SUSE). -->
 </p>
 
 <h5>Mac OS X</h5>
@@ -535,7 +543,7 @@ It also reports which components can be built with those libraries.
 If the script reports that it can't build the openMSX core component,
 you should install the missing ones before you can continue.
 Otherwise, you can decide to install the libraries needed for the optional
-components, or to continue without building some components (e.g. the OpenGL renderer).
+components, or to continue without building some components (e.g. the OpenGL based renderers).
 </p>
 
 <p>
@@ -623,14 +631,15 @@ openmsx
 You should get a screen similar to this:
 </p>
 <div class="commandline"><pre>
-C-BIOS 0.20        cbios.sf.net
-
-          [C-BIOS logo]
+C-BIOS 0.21        cbios.sf.net
 
 No cartridge found.
-Please restart your MSX (or emu-
-lator), with a cartridge inser-
-ted.
+
+This version of C-BIOS can
+only start cartrdiges.
+Please restart your MSX
+(emulator) with a cartridge
+inserted.
 </pre></div>
 
 <p>
