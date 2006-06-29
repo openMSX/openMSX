@@ -110,13 +110,13 @@ RenderSettings::RenderSettings(CommandController& commandController_)
 		"cmdtiming", "VDP command timing", false, cmdMap,
 		Setting::DONT_SAVE));
 
-	EnumSetting<MonitorEffect>::Map effectMap;
-	effectMap["normal"] = EFFECT_NORMAL;
-	effectMap["3d"] = EFFECT_3D;
-	effectMap["horizontal_stretch"] = EFFECT_HOR_STRETCH;
-	monitorEffect.reset(new EnumSetting<MonitorEffect>(commandController,
-		"monitor_effect", "monitor effect (for the moment this only "
-		"works with the SDLGL-PP renderer", EFFECT_NORMAL, effectMap));
+	EnumSetting<DisplayDeform>::Map deformMap;
+	deformMap["normal"] = DEFORM_NORMAL;
+	deformMap["3d"] = DEFORM_3D;
+	deformMap["horizontal_stretch"] = DEFORM_HOR_STRETCH;
+	displayDeform.reset(new EnumSetting<DisplayDeform>(commandController,
+		"display_deform", "Display deform (for the moment this only "
+		"works with the SDLGL-PP renderer", DEFORM_NORMAL, deformMap));
 }
 
 RenderSettings::~RenderSettings()

@@ -57,7 +57,7 @@ GLPostProcessor::GLPostProcessor(
 	}
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
-	// generate display list for 3d effect
+	// generate display list for 3d deform
 	static const int GRID_SIZE = 16;
 	struct Point {
 		GLfloat x, y, z;
@@ -172,13 +172,13 @@ void GLPostProcessor::createRegions()
 
 void GLPostProcessor::paint()
 {
-	RenderSettings::MonitorEffect effect =
-		renderSettings.getMonitorEffect().getValue();
+	RenderSettings::DisplayDeform deform =
+		renderSettings.getDisplayDeform().getValue();
 	int glow = renderSettings.getGlow().getValue();
-	bool renderToTexture = (effect != RenderSettings::EFFECT_NORMAL) ||
+	bool renderToTexture = (deform != RenderSettings::DEFORM_NORMAL) ||
 	                       (glow != 0);
 
-	if ((effect == RenderSettings::EFFECT_3D) || !paintFrame) {
+	if ((deform == RenderSettings::DEFORM_3D) || !paintFrame) {
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		if (!paintFrame) {
@@ -224,13 +224,13 @@ void GLPostProcessor::paint()
 		glBindTexture(GL_TEXTURE_2D, color_tex[frameCounter & 1]);
 
 		glEnable(GL_TEXTURE_2D);
-		if (effect == RenderSettings::EFFECT_3D) {
+		if (deform == RenderSettings::DEFORM_3D) {
 			glCallList(monitor3DList);
 		} else {
 			glBegin(GL_QUADS);
 			int w = screen.getWidth();
 			int h = screen.getHeight();
-			GLfloat x1 = (effect == RenderSettings::EFFECT_HOR_STRETCH)
+			GLfloat x1 = (deform == RenderSettings::DEFORM_HOR_STRETCH)
 			           ? (320.0f - 284.0f) / (2.0f * 320.0f)
 				   : 0.0f;
 			GLfloat x2 = 1.0f - x1;

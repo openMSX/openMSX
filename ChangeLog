@@ -1,5 +1,8 @@
 $Id$
 
+2006-06-29 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Renamed 'monitor_effect' setting to 'display_deform'
+
 2006-06-28 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented 'horizontal stretch' for SDLGL-PP:
 	   - is another enum of the monitor_effect setting (rename this?)

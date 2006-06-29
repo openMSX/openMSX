@@ -35,8 +35,8 @@ public:
 		SCALER_HQ, SCALER_HQLITE, SCALER_RGBTRIPLET, SCALER_TV
 	};
 
-	enum MonitorEffect {
-		EFFECT_NORMAL, EFFECT_3D, EFFECT_HOR_STRETCH
+	enum DisplayDeform {
+		DEFORM_NORMAL, DEFORM_3D, DEFORM_HOR_STRETCH
 	};
 
 	explicit RenderSettings(CommandController& commandController);
@@ -108,7 +108,7 @@ public:
 	EnumSetting<bool>& getCmdTiming() { return *cmdTiming; }
 
 	/**  */
-	EnumSetting<MonitorEffect>& getMonitorEffect() const { return *monitorEffect; }
+	EnumSetting<DisplayDeform>& getDisplayDeform() const { return *displayDeform; }
 
 	/** Apply brightness, contrast and gamma transformation on the input
 	  * color. The R, G and B component are expected to be in the range
@@ -142,7 +142,7 @@ private:
 	std::auto_ptr<IntegerSetting> scaleFactor;
 	std::auto_ptr<IntegerSetting> scanlineAlpha;
 	std::auto_ptr<VideoSourceSetting> videoSource;
-	std::auto_ptr<EnumSetting<MonitorEffect> > monitorEffect;
+	std::auto_ptr<EnumSetting<DisplayDeform> > displayDeform;
 
 	CommandController& commandController;
 	double cm[3][3]; // parsed color matrix, should always be in sync with
