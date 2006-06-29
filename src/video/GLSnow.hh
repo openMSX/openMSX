@@ -13,7 +13,7 @@ namespace openmsx {
 class GLSnow: public Layer
 {
 public:
-	GLSnow();
+	GLSnow(unsigned width, unsigned height);
 	virtual ~GLSnow();
 
 	// Layer interface:
@@ -21,6 +21,8 @@ public:
 	virtual const std::string& getName();
 
 private:
+	unsigned width;
+	unsigned height;
 	GLuint noiseTextureId;
 };
 

@@ -202,7 +202,7 @@ void SDLGLVisibleSurface::takeScreenShot(const std::string& filename)
 
 std::auto_ptr<Layer> SDLGLVisibleSurface::createSnowLayer()
 {
-	return std::auto_ptr<Layer>(new GLSnow());
+	return std::auto_ptr<Layer>(new GLSnow(surface->w, surface->h));
 }
 
 std::auto_ptr<Layer> SDLGLVisibleSurface::createConsoleLayer(

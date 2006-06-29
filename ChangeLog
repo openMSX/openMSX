@@ -2,6 +2,7 @@ $Id$
 
 2006-06-29 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Renamed 'monitor_effect' setting to 'display_deform'
+	* Fixed GLSnow effect for non 2x scale factors
 
 2006-06-28 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented 'horizontal stretch' for SDLGL-PP:
