@@ -30,7 +30,8 @@ void MSXFmPac::reset(const EmuTime& time)
 	enable = 0;
 	sramEnabled = false;
 	bank = 0;
-	r1ffe = r1fff = 0xFF;	// TODO check
+	r1ffe = r1fff = 0; // actual value doesn't matter as long
+	                   // as it's not the magic combination
 }
 
 void MSXFmPac::writeIO(word port, byte value, const EmuTime& time)
@@ -53,9 +54,9 @@ byte MSXFmPac::readMem(word address, const EmuTime& /*time*/)
 				if (address < 0x1FFE) {
 					return (*sram)[address];
 				} else if (address == 0x1FFE) {
-					return r1ffe;
+					return r1ffe; // always 0x4D
 				} else if (address == 0x1FFF) {
-					return r1fff;
+					return r1fff; // always 0x69
 				} else {
 					return 0xFF;
 				}
@@ -91,12 +92,16 @@ void MSXFmPac::writeMem(word address, byte value, const EmuTime& time)
 	address &= 0x3FFF;
 	switch (address) {
 		case 0x1FFE:
-			r1ffe = value;
-			checkSramEnable();
+			if (!(enable & 0x10)) {
+				r1ffe = value;
+				checkSramEnable();
+			}
 			break;
 		case 0x1FFF:
-			r1fff = value;
-			checkSramEnable();
+			if (!(enable & 0x10)) {
+				r1fff = value;
+				checkSramEnable();
+			}
 			break;
 		case 0x3FF4:
 			writeRegisterPort(value, time);
@@ -106,7 +111,10 @@ void MSXFmPac::writeMem(word address, byte value, const EmuTime& time)
 			break;
 		case 0x3FF6:
 			enable = value & 0x11;
-			checkSramEnable();
+			if (enable & 0x10) {
+				r1ffe = r1fff = 0; // actual value not important
+				checkSramEnable();
+			}
 			break;
 		case 0x3FF7: {
 			byte newBank = value & 0x03;
@@ -142,8 +150,7 @@ byte* MSXFmPac::getWriteCacheLine(word address) const
 
 void MSXFmPac::checkSramEnable()
 {
-	bool newEnabled = (r1ffe == 0x4D) && (r1fff == 0x69) &&
-	                  !(enable & 0x10);
+	bool newEnabled = (r1ffe == 0x4D) && (r1fff == 0x69);
 	if (sramEnabled != newEnabled) {
 		sramEnabled = newEnabled;
 		getMotherBoard().getCPU().invalidateMemCache(0x0000, 0x10000);
