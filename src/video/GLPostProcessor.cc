@@ -11,6 +11,7 @@
 #include "DoubledFrame.hh"
 #include "RawFrame.hh"
 #include "Math.hh"
+#include "InitException.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -24,6 +25,15 @@ GLPostProcessor::GLPostProcessor(
 	                maxWidth, height_)
 	, height(height_)
 {
+	if (!glewIsSupported("GL_EXT_framebuffer_object")) {
+		throw InitException(
+			"The OpenGL framebuffer object is not supported by "
+			"this glew library. Please upgrade your glew library.\n"
+			"It's also possible (but less likely) your video card "
+			"or video card driver doesn't support framebuffer "
+			"objects.");
+	}
+
 	paintFrame = NULL;
 
 	scaleAlgorithm = (RenderSettings::ScaleAlgorithm)-1; // not a valid scaler
