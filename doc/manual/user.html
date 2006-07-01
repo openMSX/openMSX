@@ -63,11 +63,12 @@
 
 	<li><a class="internal" href="#input">5. Input Devices</a>
 		<ol class="toc">
-			<li><a class="internal" href="#keymapping">5.1 Key Mapping</a></li>
+			<li><a class="internal" href="#keymapping">5.1 Key Mapping</a>
 				<ol class="toc">
 					<li><a class="internal" href="#keymappingpc">5.1.1 Key Mapping on PC</a></li>
 					<li><a class="internal" href="#keymappingmac">5.1.2 Key Mapping on Mac OS X</a></li>
 				</ol>
+			</li>
 			<li><a class="internal" href="#joystick">5.2 Joystick</a></li>
 			<li><a class="internal" href="#mouse">5.3 Mouse</a></li>
 		</ol>
@@ -175,30 +176,34 @@ only the big picture.
 </p>
 
 <dl>
+<dt>2006-07-01: Manuel Bilderbeek</dt>
+<dd>
+Updates for version 0.6.1.
+</dd>
 
 <dt>2005-05-12: Manuel Bilderbeek</dt>
 <dd>
-Updates for release 0.5.2.
+Updates for version 0.5.2.
 </dd>
 
 <dt>2005-01-26: Manuel Bilderbeek</dt>
 <dd>
-Updates for release 0.5.1.
+Updates for version 0.5.1.
 </dd>
 
 <dt>2004-09-28: Manuel Bilderbeek</dt>
 <dd>
-Updates for release 0.5.0, including some more elaborate explanations for several subjects.
+Updates for version 0.5.0, including some more elaborate explanations for several subjects.
 </dd>
 
 <dt>2004-05-20: Maarten ter Huurne</dt>
 <dd>
-Updates for release 0.4.0: restructured chapters and added more info about video settings.
+Updates for version 0.4.0: restructured chapters and added more info about video settings.
 </dd>
 
 <dt>2004-01-16: Manuel Bilderbeek</dt>
 <dd>
-Updates for release 0.3.4: explanation of the scalers was added.
+Updates for version 0.3.4: explanation of the scalers was added.
 </dd>
 
 <dt>2003-09-25: Maarten ter Huurne and Manuel Bilderbeek</dt>
@@ -519,16 +524,25 @@ disk image to use it.
 </p>
 
 
-<h4><a id="harddisks">4.2.4 Emulating MSX Harddisks</a></h4>
+<h4><a id="harddisks">4.2.4 Emulating MSX Harddisks and CD-ROM</a></h4>
 
 <p>
 openMSX only supports the emulation of the Sunrise IDE interface at the moment.
 The extension for this is called 'ide'. The extension has a built in harddisk
-configuration, in the form of a 100MB sized disk image. If you want to change
-this, you'll have to edit the file in
-<code>share/extensions/ide/hardwareconfig.xml</code>. If the harddisk image is
-not present, or too small, the file is created or extended to the proper size. The image will end up in your openMSX user directory<code>/persistent/ide/untitled1/hd.dsk</code>.
+configuration, in the form of a 100MB sized disk image. This is the default size: if the harddisk image is
+not present, the file is created with this size. The image will end up in your openMSX user directory<code>/persistent/ide/untitled1/hd.dsk</code>.
 </p>
+
+<p>
+As of openMSX 0.6.1, you can specify the harddisk image to be used on the command line:
+</p>
+<div class="commandline">openmsx -ext ide -hda myhd.dsk</div>
+<p>
+This means that you're using the ide extension with myhd.dsk as harddisk image. You can also change the harddisk image at run time in the console (only when the MSX is powered off via the <code>power</code> setting). This works the same as the <code>diska</code> command:
+</p>
+<div class="commandline">
+    hda &lt;diskimage&gt;
+</div>
 
 <p>
 The 'ide' extension needs the BIOS that can be flashed into the Sunrise IDE
@@ -562,6 +576,10 @@ note that it can cause loss of data of that partition or disk!)
 If you still want to use files from your real PC harddisk on the emulated MSX,
 you have to use the DirAsDsk feature. See the <a class="internal"
 href="#dirasdisk">DirAsDsk section</a> for more details.
+</p>
+
+<p>
+Last but not least: as of openMSX 0.6.1, there is (limited) support for CD-ROM with the 'ide' extension. The default configuration has a CD-ROM player on the slave port of the IDE interface. You can insert an ISO image in that virtual CD-ROM player with the <code>-cda</code> command line option and change it at run time with the <code>cda</code> console command, all similar to the aforementioned <code>hda</code> and <code>diska</code> commands and options.
 </p>
 
 <h3><a id="tape">4.3 Running Tape Software</a></h3>
@@ -616,6 +634,14 @@ longer this way (but: doing a <code>set fullspeedwhenloading on</code> will help
 sounds now also with the CAS files... What is using cassettes with an MSX
 without those characteristic sounds?
 </p>
+
+<p>
+To make it even more comfortable to run software from CAS images, try the following experimental setting, that will attempt to type the loading instruction for you after the MSX has started up:
+</p>
+<div class="commandline">
+     set autoruncassettes on
+</div>
+
 <p>
 Note that saving to CAS files is not possible; CAS files will be regarded as read-only tapes.
 </p>
@@ -781,7 +807,7 @@ If you are using openMSX in windowed mode, it might be tricky to use the mouse. 
 <h3><a id="renderers">6.1 Renderers</a></h3>
 
 <p>
-A renderer is a part of the emulator that generates the graphical part of the emulation: the MSX 'screen'. At the moment, there are two working renderers (this has been changed as of openMSX 0.6.0!):
+A renderer is a part of the emulator that generates the graphical part of the emulation: the MSX 'screen'. At the moment, there are three working renderers:
 </p>
 
 <dl>
@@ -802,6 +828,18 @@ See the Setup Guide for
 <a class="external" href="setup.html#opengl">OpenGL performance tips</a>.
 </dd>
 
+<dt>SDLGL-PP</dt>
+<dd>
+This renderer (new as of openMSX 0.6.1) uses the OpenGL graphics library for all post processing (hence the PP), which includes scalers and other effects.
+Because part of the rendering is done by the graphics hardware,
+the CPU load can vary a lot.
+As with SDLGL, the SDLGL-PP renderer is only useful if you have a hardware accelerated
+OpenGL library; a software GL implementation will be very slow.
+See the Setup Guide for
+<a class="external" href="setup.html#opengl">OpenGL performance tips</a>.
+</dd>
+
+
 </dl>
 
 <p>
@@ -809,7 +847,7 @@ You can set the renderer with the <code>renderer</code> setting. You can set ful
 </p>
 
 <p>
-Note that openMSX can be compiled without the SDLGL renderer; if that is true for the build you're using, you will not be able to switch to the SDLGL renderer.
+Note that openMSX can be compiled without the SDLGL and SDLGL-PP renderer; if that is true for the build you're using, you will not be able to switch to the SDLGL and SDLGL-PP renderer. In case your graphics card or driver doesn't support OpenGL framebuffer objects (or if you have an outdated GLEW library), switching to SDLGL-PP may abort openMSX.
 </p>
 
 <h3><a id="accuracy">6.2 Accuracy</a></h3>
@@ -849,13 +887,17 @@ just like they occur on a real MSX.
 <h3><a id="scalers">6.3 Scalers</a></h3>
 
 <p>
-Most MSX screen modes are only 256&times;212 pixels big. This is quite small for PC screen resolutions of today. That's why you have the possibility to scale up the image. As of openMSX 0.6.0, there are three possible scaling factors: 1, 2 and 3. If you select 1, all MSX pixels are mapped to a 320&times;240 pixels PC window, for 2 to a 640&times;480 pixels window and for 3 to a (surprise!) 960&times;720 window. The setting which determines this is called <code>scale_factor</code>. In general, the higher the factor, the better the output image is; the downside: it takes a lot more CPU processing power.
+Most MSX screen modes are only 256&times;212 pixels big. This is quite small for PC screen resolutions of today. That's why you have the possibility to scale up the image. Normally, there are three possible scaling factors: 1, 2 and 3. If you select 1, all MSX pixels are mapped to a 320&times;240 pixels PC window, for 2 to a 640&times;480 pixels window and for 3 to a (surprise!) 960&times;720 window. The setting which determines this is called <code>scale_factor</code>. In general, the higher the factor, the better the output image is; the downside: it takes a lot more CPU processing power.
 </p>
 
 <p>Use <code>scale_factor</code> 1 only if you have a slow computer to run openMSX on, because it is very limited in possibilities and in the case of MSX screen modes with more pixels than 256&times;212, you even lose pixels! In that case, the pixels are interpolated. However, when using it full screen, the low resolution is not a problem, especially because most MSX software uses a 256&times;212 mode.
 </p>
 
 <p>There is also a number of scaling algorithms (setting <code>scale_algorithm</code>) that can be set. The scaling algorithm determines how exactly the mapping is done between the MSX input screen and the PC output screen. Especially for scaling factors bigger than 1, this allows for extra possibilities in the algorithms, like deinterlacing and adding scanlines, blur, anti-aliasing (rounding of blocky patters like stair cases) or even a Trinitron-like TV effect. When the factor is set to 1, you always get the <code>simple</code> algorithm, see below.
+</p>
+
+<p>
+An exception to all of this is the SDLGL-PP renderer. With this renderer (when using a suitable video card and driver), scaling is done on the graphics card hardware and will not take extra CPU power. This renderer gives you also the possibility to use a <code>scale_factor</code> of 4. The down side is that not all scalers have been implemented for this renderer. See also below.
 </p>
 
 <p>
@@ -884,7 +926,7 @@ This scaler algorithm smoothes edges by interpolating neighbouring pixels.
 It is heaver on the CPU than the simple and ScaleNx algorithms.
 It does a good job on most graphics, except for high-contrast edges;
 for example white fonts on a black background get some nasty gray lines around them.
-Also corners are rounded, similar to ScaleNx. The original algorithm only supports a scaling factor of 2, but for openMSX we extended it to work with a factor of 3 as well.
+Also corners are rounded, similar to ScaleNx. The original algorithm only supports a scaling factor of 2, but for openMSX we extended it to work with a factor of 3 as well. This scaler is not available in the SDLGL-PP renderer.
 </dd>
 
 <dt><a class="external" href="http://www.hiend3d.com/">hq</a></dt>
@@ -893,18 +935,23 @@ This scaler algorithm looks somewhat similar to SaI, but its output is sharper.
 This complex algorithm is very heavy on the CPU; use this algorithm only on fast PCs.
 It does a good job on most graphics; it avoids excessive blurring and it keeps corners sharp.
 On some graphics, it does not identify edges correctly, making those edges blocky instead of smooth.
-Especially with a scaling factor of 3, it can give a very smooth looking image.
+Especially with a scaling factor of 3, it can give a very smooth looking image. This scaler is not available in the SDLGL-PP renderer.
 </dd>
 
 <dt>hqlite</dt>
 <dd>
 This is a variant of hq: the resulting image is close to hq, but it is
-calculated a lot faster. It has a good quality per CPU usage ratio.
+calculated a lot faster. It has a good quality per CPU usage ratio. This scaler is not available in the SDLGL-PP renderer.
 </dd>
 
 <dt>RGBTriplet</dt>
 <dd>
-This algorithm only works when a scaling factor of 3 is used. Also, it only works well for MSX screen modes of 256&times;212, which includes most games. The idea of the algorithm is that each input pixel is mapped on a triplet of pixels which represent the R(ed), G(reen) and B(lue) components of the input pixel. This arrangement of RGB components is also used in the <a class="external" href="http://en.wikipedia.org/wiki/Aperture_grille">Aperture Grille</a> CRT's, also known as Trinitron and the modern TFT screens. You can control the effect with the <code>blur</code> setting. This algorithm also includes scan lines.
+This algorithm only works when a scaling factor of 3 is used. Also, it only works well for MSX screen modes of 256&times;212, which includes most games. The idea of the algorithm is that each input pixel is mapped on a triplet of pixels which represent the R(ed), G(reen) and B(lue) components of the input pixel. This arrangement of RGB components is also used in the <a class="external" href="http://en.wikipedia.org/wiki/Aperture_grille">Aperture Grille</a> CRT's, also known as Trinitron and the modern TFT screens. You can control the effect with the <code>blur</code> setting. This algorithm also includes scan lines. This scaler is not available in the SDLGL-PP renderer.
+</dd>
+
+<dt>TV</dt>
+<dd>
+This algorithm is trying to emulate the fact that on a CRT brighter pixels look bigger than darker pixels. This scaler is only available in the SDLGL-PP renderer.
 </dd>
 
 </dl>
@@ -944,16 +991,14 @@ Interlacing is a technique to double the vertical resolution by splitting the im
 The after glow on a TV and some processes in the human brain combine both frames into a single image. However, this process is not perfect and you can notice flickering, especially on horizontal lines.
 The deinterlace feature combines the even and the odd frames into a single output frame, thus eliminating the flicker.
 The <code>deinterlace</code> setting controls this feature:
-it can be on (enabled) or off (disabled); it is enabled by default.
-This feature works in the <code>SDL</code> and <code>SDLGL</code> renderers.
+it can be on (enabled) or off (disabled); it is enabled by default. This feature needs a scaling factor of at least 2.
 </dd>
 
 <dt><code>scanlines</code></dt>
 <dd>
 On TV's and MSX monitors, you can see a small black space in between the display lines, especially when using NTSC.
 The scanlines feature simulates this by drawing some lines a bit darker.
-This feature works in the <code>SDL</code> and <code>SDLGL</code> renderers,
-but is disabled when a scaling algorithm other than <code>simple</code> or <code>RGBTriplet</code> is used and needs a scaling factor of at least 2.
+This feature is disabled when a scaling algorithm other than <code>simple</code> or <code>RGBTriplet</code> is used and needs a scaling factor of at least 2.
 </dd>
 
 <dt><code>blur</code></dt>
@@ -965,8 +1010,7 @@ The <code>blur</code> settings control this:
 0 means no blur (completely sharp), 50 means some blur (like a monitor),
 100 means maximum blur (like a TV).
 All other values between 0 and 100 are also possible of course.
-This feature works in the <code>SDL</code> and <code>SDLGL</code> renderers,
-but is disabled when a scaling algorithm other than <code>simple</code> or <code>RGBTriplet</code> is used and needs a scaling factor of at least 2.
+This feature is disabled when a scaling algorithm other than <code>simple</code> or <code>RGBTriplet</code> is used and needs a scaling factor of at least 2.
 </dd>
 
 <dt>after glow (<code>glow</code>)</dt>
@@ -975,17 +1019,35 @@ The after glow feature blends each frame with the frame before it.
 This results in moving objects leaving a trail (motion blur).
 The <code>glow</code> setting controls the amount of after glow:
 0 means no after glow, 100 means maximum after glow.
-This feature works only in the <code>SDLGL</code> renderer.
+This feature works only in the <code>SDLGL</code> and <code>SDLGL-PP</code> renderers.
 </dd>
+
+<dt><code>noise</code></dt>
+<dd>
+This setting (new in openMSX 0.6.1) controls the amount of pixel noise on the screen.
+The <code>noise</code> setting controls the amount:
+0 means no noise, 100 means maximum noise. The value is actually the deviation of the color of the original pixel and non-integer values are also possible.
+</dd>
+
+
+<dt>display deformation (<code>display_deform</code>)</dt>
+<dd>
+This feature (new in openMSX 0.6.1) makes it possible to change the shape of the MSX screen. There are three possibilities:
+ <ul>
+  <li><code>normal</code>: no deformation (default)</li>
+  <li><code>horizontal_stretch</code>: a horizontal stretch to achieve an aspect ratio of the screen that is closer to a real MSX screen</li>
+  <li><code>3d</code>: emulates a 3D view on an arcade cabinet's screen</li>
+ </ul>
+This feature works only in the <code>SDLGL-PP</code> renderer.
+</dd>
+
 
 </dl>
 
 <h3><a id="gfx9000">6.6 GFX9000/Video source</a></h3>
 
 <p>
-openMSX has experimental GFX9000 emulation. Note that it
-is indeed experimental; it is also incomplete, unoptimised and contains loads of
-bugs. One of these things is the fact that it does not work with the SDLGL
+openMSX has GFX9000 emulation. Note that it still a bit experimental: it is not complete and thus may show relatively many glitches. It is also quite slow and it does not work with the SDLGL
 renderer yet. Despite of all this, we thought you might wanted to play around
 with it anyway...
 </p>
