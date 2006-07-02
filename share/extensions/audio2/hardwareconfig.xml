@@ -2,7 +2,7 @@
 <!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 
-<!-- This extension implements the Y8910 chip on the alternative I/O ports -->
+<!-- This extension implements the Y8950 chip on the alternative I/O ports -->
 <!-- Note: it doesn't come with the MIDI part of the Music Module, which is 
      used by some software to detect the Music Module. That software is not
      interested in MSX-Audio 2, by the way... -->
@@ -11,7 +11,7 @@
     <manufacturer/>
     <code/>
     <release_year>1986</release_year>
-    <description>Generic Yamaha AY-8910 MSX-AUDIO, on alternative I/O ports.</description>
+    <description>Generic Yamaha Y8950 MSX-AUDIO, on alternative I/O ports.</description>
     <type>sound expansion</type>
   </info>
   <devices>

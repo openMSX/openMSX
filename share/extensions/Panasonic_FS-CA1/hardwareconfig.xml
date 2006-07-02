@@ -6,7 +6,7 @@
     <manufacturer>Panasonic</manufacturer>
     <code>FS-CA1</code>
     <release_year>1986</release_year>
-    <description>Panasonic's Yamaha AY-8910 MSX-AUDIO cartridge.</description>
+    <description>Panasonic's Yamaha Y8950 MSX-AUDIO cartridge.</description>
     <type>sound expansion</type>
   </info>
   <devices>

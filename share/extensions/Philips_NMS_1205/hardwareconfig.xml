@@ -6,7 +6,7 @@
     <manufacturer>Philips</manufacturer>
     <code>NMS-1205</code>
     <release_year>1986</release_year>
-    <description>Philips' Yamaha AY-8910 MSX-AUDIO cartridge with sound sampler and MIDI.</description>
+    <description>Philips' Yamaha Y8950 MSX-AUDIO cartridge with sound sampler and MIDI.</description>
     <type>sound expansion</type>
   </info>
   <devices>
