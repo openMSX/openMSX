@@ -70,7 +70,8 @@ GLPostProcessor::GLPostProcessor(
 	// generate display list for 3d deform
 	static const int GRID_SIZE = 16;
 	struct Point {
-		GLfloat x, y, z;
+		GLfloat vx, vy, vz;
+		GLfloat nx, ny, nz;
 		GLfloat tx, ty;
 	} points[GRID_SIZE + 1][GRID_SIZE + 1];
 	const int GRID_SIZE2 = GRID_SIZE / 2;
@@ -80,16 +81,30 @@ GLPostProcessor::GLPostProcessor(
 	for (int sx = 0; sx <= GRID_SIZE; ++sx) {
 		for (int sy = 0; sy <= GRID_SIZE; ++sy) {
 			Point& p = points[sx][sy];
-			p.x = GLfloat(sx - GRID_SIZE2) / GRID_SIZE2;
-			p.y = GLfloat(sy - GRID_SIZE2) / GRID_SIZE2;
-			p.z = -(p.x * p.x + p.y * p.y) / 12;
+			GLfloat x = GLfloat(sx - GRID_SIZE2) / GRID_SIZE2;
+			GLfloat y = GLfloat(sy - GRID_SIZE2) / GRID_SIZE2;
+
+			p.vx = x;
+			p.vy = y;
+			p.vz = (x * x + y * y) / -12.0f;
+
+			p.nx = x / 6.0f;
+			p.ny = y / 6.0f;
+			p.nz = 1.0f;      // note: not normalized
+
 			p.tx = (GLfloat(sx) / GRID_SIZE) * s + b;
 			p.ty = GLfloat(sy) / GRID_SIZE;
 		}
 	}
 
+	GLfloat LightDiffuse[]= { 1.2f, 1.2f, 1.2f, 1.2f };
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, LightDiffuse);
+	glEnable(GL_LIGHT0);
+	glEnable(GL_NORMALIZE);
+
 	monitor3DList = glGenLists(1);
 	glNewList(monitor3DList, GL_COMPILE);
+	glEnable(GL_LIGHTING);
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
@@ -100,28 +115,26 @@ GLPostProcessor::GLPostProcessor(
 	glTranslatef(0.0f, 0.4f, -2.0f);
 	glRotatef(-10.0f, 1.0f, 0.0f, 0.0f);
 	glScalef(2.2f, 2.2f, 2.2f);
-	glBegin(GL_QUADS);
-	for (int x = 0; x < GRID_SIZE; ++x) {
-		for (int y = 0; y < GRID_SIZE; ++y) {
-			Point& p1 = points[x + 0][y + 0];
-			Point& p2 = points[x + 0][y + 1];
-			Point& p3 = points[x + 1][y + 1];
-			Point& p4 = points[x + 1][y + 0];
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	for (int y = 0; y < GRID_SIZE; ++y) {
+		glBegin(GL_TRIANGLE_STRIP);
+		for (int x = 0; x < (GRID_SIZE + 1); ++x) {
+			Point& p1 = points[x][y + 0];
+			Point& p2 = points[x][y + 1];
 			glTexCoord2f(p1.tx, p1.ty);
-			glVertex3f(p1.x, p1.y, p1.z);
+			glNormal3f  (p1.nx, p1.ny, p1.nz);
+			glVertex3f  (p1.vx, p1.vy, p1.vz);
 			glTexCoord2f(p2.tx, p2.ty);
-			glVertex3f(p2.x, p2.y, p2.z);
-			glTexCoord2f(p3.tx, p3.ty);
-			glVertex3f(p3.x, p3.y, p3.z);
-			glTexCoord2f(p4.tx, p4.ty);
-			glVertex3f(p4.x, p4.y, p4.z);
+			glNormal3f  (p2.nx, p2.ny, p2.nz);
+			glVertex3f  (p2.vx, p2.vy, p2.vz);
 		}
+		glEnd();
 	}
-	glEnd();
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
+	glDisable(GL_LIGHTING);
 	glEndList();
 }
 

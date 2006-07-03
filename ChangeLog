@@ -1,5 +1,12 @@
 $Id$
 
+2006-07-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added lighting for 3d display deform:
+	   Corners (especially top corners) are now a bit darker then the
+	   middle-lower part. The effect is subtle but it looks more
+	   realistic IMHO. I couldn't measure any speed difference
+	   with or without lighting, so it's enabled by default
+
 2006-06-29 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Renamed 'monitor_effect' setting to 'display_deform'
 	* Fixed GLSnow effect for non 2x scale factors
