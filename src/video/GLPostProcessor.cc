@@ -25,6 +25,13 @@ GLPostProcessor::GLPostProcessor(
 	                maxWidth, height_)
 	, height(height_)
 {
+	// TODO handle these exceptions at some higher level
+	if (!GLEW_VERSION_2_0) {
+		throw InitException(
+			"Your video card (or less likely video card driver) "
+			"doesn't support OpenGL 2.0. It's required for the "
+			"SDLGL-PP renderer.");
+	}
 	if (!glewIsSupported("GL_EXT_framebuffer_object")) {
 		throw InitException(
 			"The OpenGL framebuffer object is not supported by "
