@@ -60,6 +60,7 @@ private:
 
 	void checkRendererSwitch();
 	void doRendererSwitch();
+	void doRendererSwitch2();
 
 	typedef std::vector<Layer*> Layers;
 

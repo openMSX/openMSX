@@ -260,6 +260,22 @@ void Display::doRendererSwitch()
 {
 	assert(switchInProgress);
 
+	try {
+		doRendererSwitch2();
+	} catch (MSXException& e) {
+		reactor.getCliComm().printWarning(
+			"Couldn't activate renderer " +
+			renderSettings->getRenderer().getValueString() +
+			": " + e.getMessage());
+		renderSettings->getRenderer().setValue(RendererFactory::SDL);
+		doRendererSwitch2();
+	}
+
+	switchInProgress = false;
+}
+
+void Display::doRendererSwitch2()
+{
 	for (Listeners::const_iterator it = listeners.begin();
 	     it != listeners.end(); ++it) {
 		(*it)->preVideoSystemChange();
@@ -273,8 +289,6 @@ void Display::doRendererSwitch()
 	     it != listeners.end(); ++it) {
 		(*it)->postVideoSystemChange();
 	}
-
-	switchInProgress = false;
 }
 
 void Display::repaint()

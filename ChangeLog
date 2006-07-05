@@ -1,5 +1,9 @@
 $Id$
 
+2006-07-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fallback to SDL renderer when switching renderer didn't succeed
+	  (e.g. when switching to SDLGL-PP without ogl2 support)
+
 2006-07-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added lighting for 3d display deform:
 	   Corners (especially top corners) are now a bit darker then the
