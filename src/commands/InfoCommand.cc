@@ -4,6 +4,7 @@
 #include "InfoTopic.hh"
 #include "TclObject.hh"
 #include "CommandException.hh"
+#include <iostream>
 #include <cassert>
 
 using std::map;
@@ -25,7 +26,13 @@ InfoCommand::~InfoCommand()
 
 void InfoCommand::registerTopic(InfoTopic& topic, const string& name)
 {
-	assert(infoTopics.find(name) == infoTopics.end());
+#ifndef NDEBUG
+	if (infoTopics.find(name) != infoTopics.end()) {
+		std::cerr << "INTERNAL ERROR: already have a info topic with "
+		             "name " << name << std::endl;
+		assert(false);
+	}
+#endif
 	infoTopics[name] = &topic;
 }
 
