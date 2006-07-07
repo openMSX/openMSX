@@ -448,9 +448,11 @@ void Y8950::Channel::keyOff()
 //**********************************************************//
 
 Y8950::Y8950(MSXMotherBoard& motherBoard, const std::string& name,
-             const XMLElement& config, unsigned sampleRam, const EmuTime& time)
+             const XMLElement& config, unsigned sampleRam, const EmuTime& time,
+             Y8950Periphery& perihery_)
 	: SoundDevice(motherBoard.getMixer(), name, "MSX-AUDIO")
 	, irq(motherBoard.getCPU())
+	, perihery(perihery_)
 	, timer1(motherBoard.getScheduler(), *this)
 	, timer2(motherBoard.getScheduler(), *this)
 	, adpcm(new Y8950Adpcm(*this, motherBoard, name, sampleRam))
@@ -987,15 +989,15 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 			break;
 
 		case 0x18: // I/O-CONTROL (bit3-0)
-			// TODO
 			// 0 -> input
 			// 1 -> output
 			reg[rg] = data;
+			perihery.write(reg[0x18], reg[0x19], time);
 			break;
 
 		case 0x19: // I/O-DATA (bit3-0)
-			// TODO
 			reg[rg] = data;
+			perihery.write(reg[0x18], reg[0x19], time);
 			break;
 		}
 
@@ -1151,9 +1153,12 @@ byte Y8950::peekReg(byte rg, const EmuTime &time) const
 		case 0x1A: // PCM-DATA
 			return adpcm->peekReg(rg);
 
-		case 0x19: // I/O DATA   TODO
-			return 0xfb; // means 'switch OFF' for FS-CA1
-
+		case 0x19: { // I/O DATA
+			byte input = perihery.read(time);
+			byte output = reg[0x19];
+			byte enable = reg[0x18];
+			return (output & enable) | (input & ~enable) | 0xF0;
+		}
 		default:
 			return 255;
 	}

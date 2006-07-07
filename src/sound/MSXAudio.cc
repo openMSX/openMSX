@@ -2,16 +2,69 @@
 
 #include "MSXAudio.hh"
 #include "Y8950.hh"
+#include "Y8950Periphery.hh"
+#include "DACSound8U.hh"
+#include "MSXMotherBoard.hh"
+#include "BooleanSetting.hh"
+#include "StringOp.hh"
 #include "XMLElement.hh"
 
+using std::string;
+
 namespace openmsx {
+
+class MusicModulePeriphery : public Y8950Periphery
+{
+public:
+	MusicModulePeriphery(MSXAudio& audio);
+	virtual void write(nibble outputs, nibble values, const EmuTime& time);
+	virtual nibble read(const EmuTime& time);
+private:
+	MSXAudio& audio;
+};
+
+class PanasonicAudioPeriphery : public Y8950Periphery
+{
+public:
+	PanasonicAudioPeriphery(CommandController& commandController);
+	virtual void write(nibble outputs, nibble values, const EmuTime& time);
+	virtual nibble read(const EmuTime& time);
+private:
+	BooleanSetting swSwitch;
+};
+
+class ToshibaAudioPeriphery : public Y8950Periphery
+{
+public:
+	virtual void write(nibble outputs, nibble values, const EmuTime& time);
+	virtual nibble read(const EmuTime& time);
+};
+
+
+// MSXAudio
 
 MSXAudio::MSXAudio(MSXMotherBoard& motherBoard, const XMLElement& config,
                    const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
+	, dacValue(0x80), dacEnabled(false), y8950Enabled(true)
 {
+	string type = StringOp::toLower(config.getChildData("type", "philips"));
+	if (type == "philips") {
+		periphery.reset(new MusicModulePeriphery(*this));
+		dac.reset(new DACSound8U(motherBoard.getMixer(),
+		               getName() + " 8-bit DAC", "MSX-AUDIO 8-bit DAC",
+		               config, time));
+	} else if (type == "panasonic") {
+		periphery.reset(new PanasonicAudioPeriphery(
+		                         motherBoard.getCommandController()));
+	} else if (type == "toshiba") {
+		periphery.reset(new ToshibaAudioPeriphery());
+	} else {
+		throw MSXException("Unknown MSX-AUDIO type: " + type);
+	}
 	int ramSize = config.getChildDataAsInt("sampleram", 256); // size in kb
-	y8950.reset(new Y8950(motherBoard, getName(), config, ramSize * 1024, time));
+	y8950.reset(new Y8950(motherBoard, getName(), config, ramSize * 1024,
+	                      time, *periphery));
 	reset(time);
 }
 
@@ -27,29 +80,125 @@ void MSXAudio::reset(const EmuTime& time)
 
 byte MSXAudio::readIO(word port, const EmuTime& time)
 {
-	return (port & 1) ? y8950->readReg(registerLatch, time)  // port 1
-	                  : y8950->readStatus();                 // port 0
+	if (port == 0x0A) {
+		// read DAC
+		// TODO is this supported?
+		return 255;
+	} else {
+		return (port & 1) ? y8950->readReg(registerLatch, time)
+		                  : y8950->readStatus();
+	}
 }
 
 byte MSXAudio::peekIO(word port, const EmuTime& time) const
 {
-	return (port & 1) ? y8950->peekReg(registerLatch, time)  // port 1
-	                  : y8950->peekStatus();                 // port 0
+	if (port == 0x0A) {
+		// read DAC
+		// TODO is this supported?
+		return 255;
+	} else {
+		return (port & 1) ? y8950->peekReg(registerLatch, time)
+		                  : y8950->peekStatus();
+	}
 }
 
 void MSXAudio::writeIO(word port, byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("Audio: write "<<hex<<(int)port<<" "<<(int)value<<dec);
-	switch (port & 0x01) {
-	case 0:
+	if (port == 0x0A) {
+		dacValue = value;
+		if (dacEnabled && dac.get()) {
+			dac->writeDAC(dacValue, time);
+		}
+	} else if ((port & 0x01) == 0) {
+		// 0xC0 or 0xC2
 		registerLatch = value;
-		break;
-	case 1:
+	} else {
+		// 0xC1 or 0xC3
 		y8950->writeReg(registerLatch, value, time);
-		break;
-	default:
-		assert(false);
 	}
+}
+
+void MSXAudio::enableY8950(bool enable)
+{
+	if (y8950Enabled != enable) {
+		y8950Enabled = enable;
+		if (y8950Enabled) {
+			y8950->decreaseMuteCount();
+		} else {
+			y8950->increaseMuteCount();
+		}
+	}
+}
+
+void MSXAudio::enableDAC(bool enable, const EmuTime& time)
+{
+	if (dacEnabled != enable) {
+		dacEnabled = enable;
+		if (dac.get()) {
+			byte value = dacEnabled ? dacValue : 0x80;
+			dac->writeDAC(value, time);
+		}
+	}
+}
+
+
+// MusicModulePeriphery
+
+MusicModulePeriphery::MusicModulePeriphery(MSXAudio& audio_)
+	: audio(audio_)
+{
+}
+
+void MusicModulePeriphery::write(nibble outputs, nibble values,
+                                 const EmuTime& time)
+{
+	nibble actual = (outputs & values) | (~outputs & read(time));
+	audio.enableY8950(actual & 8);
+	audio.enableDAC(actual & 1, time);
+}
+
+nibble MusicModulePeriphery::read(const EmuTime& /*time*/)
+{
+	return 8;
+}
+
+
+// PanasonicAudioPeriphery
+
+PanasonicAudioPeriphery::PanasonicAudioPeriphery(
+		CommandController& commandController)
+	: swSwitch(commandController, "PanasonicAudioSwitch", // TODO better name
+	           "This setting controls the switch on the Panasonic "
+	           "MSX-AUDIO module. The switch controls whether the internal "
+	           "software of this module must be started or not.",
+	           false)
+{
+}
+
+void PanasonicAudioPeriphery::write(nibble /*outputs*/, nibble /*values*/,
+                                    const EmuTime& /*time*/)
+{
+	// nothing
+}
+
+nibble PanasonicAudioPeriphery::read(const EmuTime& /*time*/)
+{
+	return swSwitch.getValue() ? 0xF : 0xB;
+}
+
+
+// ToshibaAudioPeriphery
+
+void ToshibaAudioPeriphery::write(nibble /*outputs*/, nibble /*values*/,
+                                    const EmuTime& /*time*/)
+{
+	// nothing
+}
+
+nibble ToshibaAudioPeriphery::read(const EmuTime& /*time*/)
+{
+	return 0xF;
 }
 
 } // namespace openmsx

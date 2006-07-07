@@ -1,5 +1,10 @@
 $Id$
 
+2006-07-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented general purpose IO mechanism for Y8950:
+	   - implemented for Philips Music Module, Panasonic MSX-AUDIO, still
+	     have to investigate Toshiba module
+
 2006-07-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fallback to SDL renderer when switching renderer didn't succeed
 	  (e.g. when switching to SDLGL-PP without ogl2 support)

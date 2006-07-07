@@ -39,6 +39,12 @@ public:
 	 */
 	virtual void setVolume(int newVolume) = 0;
 
+	/** Methods to mute this sound device. These are meant to be used by
+	  * external (not this device) code.
+	  */
+	void increaseMuteCount();
+	void decreaseMuteCount();
+
 protected:
 	/**
 	 * Constructor.
@@ -51,12 +57,13 @@ protected:
 	            const std::string& description);
 	virtual ~SoundDevice();
 
-	/**
-	 * Mute/unmute this sound device.
-	 * This method exists purely for optimizations. If the device doesn't
-	 * produce sound at the moment it can be muted.
-	 * @param muted True iff sound device is silent.
-	 */
+	/** This method is a convience warpper around the increase/
+	  * decreaseMuteCount() methods. It's meant to be used internally
+	  * in the the device code (in the subclasses).
+	  * This method exists purely for optimizations. If the device doesn't
+	  * produce sound at the moment it can be muted.
+	  * @param muted True iff sound device is silent.
+	  */
 	void setMute(bool muted);
 
 	/**
@@ -126,6 +133,7 @@ private:
 	const std::string name;
 	const std::string description;
 
+	unsigned muteCount;
 	bool muted;
 };
 

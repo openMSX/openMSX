@@ -2,6 +2,7 @@
 
 #include "SoundDevice.hh"
 #include "XMLElement.hh"
+#include <cassert>
 
 using std::string;
 
@@ -9,7 +10,8 @@ namespace openmsx {
 
 SoundDevice::SoundDevice(Mixer& mixer_, const string& name_,
                          const string& description_)
-	: mixer(mixer_), name(name_), description(description_), muted(true)
+	: mixer(mixer_), name(name_), description(description_)
+	, muteCount(1), muted(true)
 {
 }
 
@@ -27,14 +29,32 @@ const std::string& SoundDevice::getDescription() const
 	return description;
 }
 
-void SoundDevice::setMute(bool muted)
+void SoundDevice::increaseMuteCount()
 {
-	this->muted = muted;
+	++muteCount;
+}
+
+void SoundDevice::decreaseMuteCount()
+{
+	assert(isMuted());
+	--muteCount;
+}
+
+void SoundDevice::setMute(bool newMuted)
+{
+	if (newMuted != muted) {
+		muted = newMuted;
+		if (muted) {
+			increaseMuteCount();
+		} else {
+			decreaseMuteCount();
+		}
+	}
 }
 
 bool SoundDevice::isMuted() const
 {
-	return muted;
+	return muteCount;
 }
 
 void SoundDevice::registerSound(const XMLElement& config,

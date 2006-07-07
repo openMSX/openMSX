@@ -17,6 +17,7 @@
   <devices>
     <MSX-AUDIO id="Generic MSX-Audio 2">
       <io base="0xC2" num="2"/>
+      <type>Philips</type>
       <sound>
         <volume>12000</volume>
         <mode>mono</mode>

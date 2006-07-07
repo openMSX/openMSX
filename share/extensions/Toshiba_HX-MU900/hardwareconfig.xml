@@ -12,6 +12,7 @@
   <devices>
     <MSX-AUDIO id="Toshiba HX-MU900 MSX-Audio">
       <io base="0xC0" num="2"/>
+      <type>Toshiba</type>
       <sound>
         <volume>12000</volume>
         <mode>mono</mode>

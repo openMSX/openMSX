@@ -3,6 +3,7 @@
 #ifndef Y8950_HH
 #define Y8950_HH
 
+#include "Y8950Periphery.hh"
 #include "SoundDevice.hh"
 #include "EmuTimer.hh"
 #include "IRQHelper.hh"
@@ -166,7 +167,8 @@ class Y8950 : public SoundDevice, private EmuTimerCallback
 
 public:
 	Y8950(MSXMotherBoard& motherBoard, const std::string& name,
-	      const XMLElement& config, unsigned sampleRam, const EmuTime& time);
+	      const XMLElement& config, unsigned sampleRam, const EmuTime& time,
+	      Y8950Periphery& perihery);
 	virtual ~Y8950();
 
 	void reset(const EmuTime &time);
@@ -312,6 +314,8 @@ private:
 	/** bit=0 -> masked. */
 	byte statusMask;
 	IRQHelper irq;
+
+	Y8950Periphery& perihery;
 
 	// Timers
 	EmuTimerOPL3_1 timer1; //  80us timer

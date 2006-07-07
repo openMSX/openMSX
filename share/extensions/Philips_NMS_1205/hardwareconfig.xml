@@ -12,6 +12,8 @@
   <devices>
     <MSX-AUDIO id="Philips NMS 1205 Music Module MSX-Audio">
       <io base="0xC0" num="2"/>
+      <io base="0x0A" num="1" type="O"/>
+      <type>Philips</type>
       <sound>
         <volume>12000</volume>
         <mode>mono</mode>
