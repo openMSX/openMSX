@@ -82,7 +82,6 @@ byte MSXAudio::readIO(word port, const EmuTime& time)
 {
 	if (port == 0x0A) {
 		// read DAC
-		// TODO is this supported?
 		return 255;
 	} else {
 		return (port & 1) ? y8950->readReg(registerLatch, time)
@@ -94,8 +93,7 @@ byte MSXAudio::peekIO(word port, const EmuTime& time) const
 {
 	if (port == 0x0A) {
 		// read DAC
-		// TODO is this supported?
-		return 255;
+		return 255; // read always returns 255
 	} else {
 		return (port & 1) ? y8950->peekReg(registerLatch, time)
 		                  : y8950->peekStatus();
@@ -193,11 +191,12 @@ nibble PanasonicAudioPeriphery::read(const EmuTime& /*time*/)
 void ToshibaAudioPeriphery::write(nibble /*outputs*/, nibble /*values*/,
                                     const EmuTime& /*time*/)
 {
-	// nothing
+	// TODO
 }
 
 nibble ToshibaAudioPeriphery::read(const EmuTime& /*time*/)
 {
+	// TODO
 	return 0xF;
 }
 
