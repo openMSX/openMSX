@@ -122,18 +122,21 @@ void CharacterConverter<Pixel>::renderText1Q(
 	Pixel fg = palFg[vdp.getForegroundColour()];
 	Pixel bg = palBg[vdp.getBackgroundColour()];
 
-	int nameStart = (line / 8) * 32;
-	int nameEnd = nameStart + 32;
-	int patternQuarter = nameStart & ~0xFF;
-	int patternBaseLine = (-1 << 13) | ((line + vdp.getVerticalScroll()) & 7);	// TODO check vertical scroll
-	const byte* namePtr = vram.nameTable.readArea(nameStart | (-1 << 10));
+	int patternBaseLine = (-1 << 13) | ((line + vdp.getVerticalScroll()) & 7);
 
 	// Actual display.
-	for (int name = nameStart; name < nameEnd; name++) {
-		int patternNr = patternQuarter | *namePtr++;
+	// Note: Because line width is not a power of two, reading an entire line
+	//       from a VRAM pointer returned by readArea will not wrap the index
+	//       correctly. Therefore we read one character at a time.
+	int nameStart = (line / 8) * 40;
+	int nameEnd = nameStart + 40;
+	int patternQuarter = (line & 0xC0) << 2;
+	for (int name = nameStart; name < nameEnd; ++name) {
+		int charcode = vram.nameTable.readNP((name + 0xC00) | (-1 << 12));
+		int patternNr = patternQuarter | charcode;
 		if (dirtyColours || dirtyName[name] || dirtyPattern[patternNr]) {
 			int pattern = vram.patternTable.readNP(
-				patternBaseLine | (patternNr * 8) );
+				patternBaseLine | (patternNr * 8));
 			pixelPtr[0] = (pattern & 0x80) ? fg : bg;
 			pixelPtr[1] = (pattern & 0x40) ? fg : bg;
 			pixelPtr[2] = (pattern & 0x20) ? fg : bg;

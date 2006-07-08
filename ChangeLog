@@ -1,6 +1,17 @@
 $Id$
 
 2006-07-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed top-border flicker in cbios/SDLGL:
+	   - CPU loop was exit'ed only one instruction after the exit-loop
+	     request. Normally this doesn't matter (Schedule points are still
+	     executed cycle accurate). But for _very_ long instructions,
+	     like the way we implemented the HALT instruction, and the repaint
+	     event it did matter.
+	* Fixed(?) the undocumented TMS9918 mode1q:
+	   - I didn't test this (i don't have a test prog) but the old
+	     code had obvious bugs, I fixed those
+
+2006-07-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented general purpose IO mechanism for Y8950:
 	   - implemented for Philips Music Module, Panasonic MSX-AUDIO, still
 	     have to investigate Toshiba module
