@@ -544,31 +544,35 @@ template <class T> void CPUCore<T>::executeInternal()
 		while (true) {
 			if (slowInstructions) {
 				--slowInstructions;
-				if (needExitCPULoop()) return;
 				scheduler.schedule(T::getTime());
+				// check exit before executing instruction
+				// (HALT instruction can be very long)
+				if (needExitCPULoop()) return;
 				executeSlow();
 			} else {
 				while (!slowInstructions) {
-					if (needExitCPULoop()) return;
 					scheduler.schedule(T::getTime());
+					if (needExitCPULoop()) return;
 					executeFast();
 				}
 			}
 		}
 	} else {
-		while (!needExitCPULoop()) {
+		while (true) {
 			if (checkBreakPoints(R)) {
 				continued = true; // skip bp check on next instr
 				break;
 			}
 			if (slowInstructions == 0) {
 				scheduler.schedule(T::getTime());
+				if (needExitCPULoop()) return;
 				cpuTracePre();
 				executeFast();
 				cpuTracePost();
 			} else {
 				--slowInstructions;
 				scheduler.schedule(T::getTime());
+				if (needExitCPULoop()) return;
 				executeSlow();
 			}
 		}
