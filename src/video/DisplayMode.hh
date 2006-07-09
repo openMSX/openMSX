@@ -133,8 +133,9 @@ public:
 	  * @return True iff the current mode is a text mode.
 	  */
 	inline bool isTextMode() const {
-		// TODO: Is the display mode check OK? Profile undefined modes.
-		return (mode & 0x17) == 0x01;
+		return (mode == TEXT1) ||
+		       (mode == TEXT2) ||
+		       (mode == TEXT1Q);
 	}
 
 	/** Is the current mode a bitmap mode?
