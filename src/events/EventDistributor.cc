@@ -51,21 +51,24 @@ void EventDistributor::unregisterEventListener(
 
 void EventDistributor::distributeEvent(Event* event)
 {
-	ScopedLock lock(sem);
-
-	assert(event);
-
 	// TODO: Implement a real solution against modifying data structure while
 	//       iterating through it.
 	//       For example, assign NULL first and then iterate again after
 	//       delivering events to remove the NULL values.
-	// TODO: Is there an easier way to search a map?
 	// TODO: Is it useful to test for 0 listeners or should we just always
 	//       queue the event?
+	assert(event);
+	ScopedLock lock(sem);
 	pair<ListenerMap::iterator, ListenerMap::iterator> bounds2 =
 		detachedListeners.equal_range(event->getType());
 	if (bounds2.first != bounds2.second) {
 		scheduledEvents.push_back(event);
+		// must release lock, otherwise there's a deadlock:
+		//   thread 1: Reactor::deleteMotherBoard()
+		//             EventDistributor::unregisterEventListener()
+		//   thread 2: EventDistributor::distributeEvent()
+		//             Reactor::enterMainLoop()
+		lock.release();
 		reactor.enterMainLoop();
 	}
 }

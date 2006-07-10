@@ -5,6 +5,7 @@
 
 #include "Observer.hh"
 #include "EventListener.hh"
+#include "Semaphore.hh"
 #include <string>
 #include <memory>
 
@@ -100,6 +101,7 @@ private:
 	std::auto_ptr<FileManipulator> fileManipulator;
 	std::auto_ptr<FilePool> filePool;
 	MSXMotherBoard* motherBoard;
+	Semaphore mbSem;
 
 	BooleanSetting& pauseSetting;
 	std::auto_ptr<EnumSetting<int> > machineSetting;

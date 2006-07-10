@@ -21,6 +21,7 @@
 #include "FileException.hh"
 #include "FileOperations.hh"
 #include "ReadDir.hh"
+#include "Thread.hh"
 #include <cassert>
 
 using std::string;
@@ -54,6 +55,7 @@ Reactor::Reactor()
 	, blockedCounter(0)
 	, running(true)
 	, motherBoard(NULL)
+	, mbSem(1)
 	, pauseSetting(getCommandController().getGlobalSettings().
 	                   getPauseSetting())
 	, quitCommand(new QuitCommand(getCommandController(), *this))
@@ -201,23 +203,49 @@ void Reactor::createMachineSetting()
 
 MSXMotherBoard& Reactor::createMotherBoard(const std::string& machine)
 {
+	// Locking rules for MSXMotherBoard object access:
+	//  - main thread can always access motherBoard without taking a lock
+	//  - changing motherBoard handle can only be done in the main thread
+	//    and needs to take the mbSem lock
+	//  - non-main thread can only access motherBoard via specific
+	//    member functions (atm only via enterMainLoop()), it needs to take
+	//    the mbSem lock
+
+	assert(Thread::isMainThread());
+	ScopedLock lock(mbSem);
 	assert(!motherBoard);
 	motherBoard = new MSXMotherBoard(*this);
 	motherBoard->loadMachine(machine);
 	return *motherBoard;
 }
 
+void Reactor::deleteMotherBoard()
+{
+	assert(Thread::isMainThread());
+	ScopedLock lock(mbSem);
+	delete motherBoard;
+	motherBoard = NULL;
+}
+
 MSXMotherBoard* Reactor::getMotherBoard() const
 {
+	assert(Thread::isMainThread());
 	return motherBoard;
 }
 
-void Reactor::deleteMotherBoard()
+void Reactor::enterMainLoop()
 {
-	// TODO properly fix this
-	MSXMotherBoard* tmp = motherBoard; // reduce chance of race conditions
-	motherBoard = NULL;
-	delete tmp;
+	// Note: this method can get called from different threads
+	ScopedLock lock;
+	if (!Thread::isMainThread()) {
+		// Don't take lock in main thread to avoid recursive locking.
+		// This method gets called indirectly from within
+		// createMotherBoard().
+		lock.take(mbSem);
+	}
+	if (motherBoard) {
+		motherBoard->exitCPULoop();
+	}
 }
 
 void Reactor::doSwitchMachine()
@@ -285,19 +313,6 @@ void Reactor::run(CommandLineParser& parser)
 			switchMachineFlag = false;
 			doSwitchMachine();
 		}
-	}
-}
-
-void Reactor::enterMainLoop()
-{
-	// Note: this method can get called from different threads
-	//  TODO investigate why test on 'running' is needed
-	//   there seem to be some race condition between when main thread is
-	//   deleting MSXMotherBoard while another threat still calls this
-	//   method.
-	MSXMotherBoard* motherboard = getMotherBoard();
-	if (motherboard && running) {
-		motherBoard->exitCPULoop();
 	}
 }
 

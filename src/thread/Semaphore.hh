@@ -5,6 +5,7 @@
 
 #include "noncopyable.hh"
 #include <SDL.h>
+#include <cassert>
 
 namespace openmsx {
 
@@ -23,19 +24,39 @@ private:
 class ScopedLock : private noncopyable
 {
 public:
-	explicit ScopedLock(Semaphore& lock_)
-		: lock(lock_)
+	ScopedLock()
+		: lock(NULL)
 	{
-		lock.down();
+	}
+
+	explicit ScopedLock(Semaphore& lock_)
+		: lock(NULL)
+	{
+		take(lock_);
 	}
 
 	~ScopedLock()
 	{
-		lock.up();
+		release();
+	}
+
+	void take(Semaphore& lock_)
+	{
+		assert(!lock);
+		lock = &lock_;
+		lock->down();
+	}
+
+	void release()
+	{
+		if (lock) {
+			lock->up();
+			lock = NULL;
+		}
 	}
 
 private:
-	Semaphore& lock;
+	Semaphore* lock;
 };
 
 } // namespace openmsx

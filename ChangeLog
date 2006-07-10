@@ -1,6 +1,9 @@
 $Id$
 
-2006-07-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2006-07-10 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented proper locking for Reactor::motherBoard
+
+2006-07-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed top-border flicker in cbios/SDLGL:
 	   - CPU loop was exit'ed only one instruction after the exit-loop
 	     request. Normally this doesn't matter (Schedule points are still
