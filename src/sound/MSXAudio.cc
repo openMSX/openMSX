@@ -158,6 +158,10 @@ void MusicModulePeriphery::write(nibble outputs, nibble values,
 
 nibble MusicModulePeriphery::read(const EmuTime& /*time*/)
 {
+	// IO2-IO1 are unconnected, reading them initially returns the last
+	// written value, but after some seconds it falls back to '0'
+	// IO3 and IO0 are output pins, but reading them return respectively
+	// '1' and '0'
 	return 8;
 }
 
@@ -191,13 +195,16 @@ nibble PanasonicAudioPeriphery::read(const EmuTime& /*time*/)
 void ToshibaAudioPeriphery::write(nibble /*outputs*/, nibble /*values*/,
                                     const EmuTime& /*time*/)
 {
-	// TODO
+	// TODO IO1-IO0 are programmed as output by HX-MU900 software rom
+	//      and it writes periodically the values 1/1/2/2/0/0 to
+	//      these pins, but I have no idea what function they have
 }
 
 nibble ToshibaAudioPeriphery::read(const EmuTime& /*time*/)
 {
-	// TODO
-	return 0xF;
+	// IO3-IO2 are unconnected (see also comment in MusicModulePeriphery)
+	// IO1-IO0 are output pins, but reading them returns '1'
+	return 0x3;
 }
 
 } // namespace openmsx
