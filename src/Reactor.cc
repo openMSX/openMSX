@@ -254,7 +254,8 @@ void Reactor::doSwitchMachine()
 	try {
 		createMotherBoard(getMachineSetting().getValueString());
 	} catch (MSXException& e) {
-		// TODO
+		// TODO report error back via TCL somehow
+		getCliComm().printWarning(e.getMessage());
 	}
 }
 
