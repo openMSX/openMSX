@@ -72,9 +72,9 @@ static int main(int argc, char **argv)
 				reactor.getDisplay().getRenderSettings().
 					getRenderer().restoreDefault();
 			}
-			CliServer cliServer(reactor.getCommandController(),
-			                    reactor.getEventDistributor());
 			if (parseStatus != CommandLineParser::TEST) {
+				CliServer cliServer(reactor.getCommandController(),
+				                    reactor.getEventDistributor());
 				reactor.run(parser);
 			}
 		}
