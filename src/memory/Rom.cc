@@ -5,6 +5,7 @@
 #include "XMLElement.hh"
 #include "Rom.hh"
 #include "RomInfo.hh"
+#include "RomDatabase.hh"
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
@@ -131,7 +132,7 @@ void Rom::init(CliComm& cliComm, const XMLElement& config)
 			}
 		}
 	}
-	info = RomInfo::fetchRomInfo(cliComm, *this);
+	info = RomDatabase::instance().fetchRomInfo(cliComm, *this);
 
 	// TODO fix this, this is a hack that depends heavily on MSXRomCLI.cc
 	if (!info->getTitle().empty() && StringOp::startsWith(name, "MSXRom")) {

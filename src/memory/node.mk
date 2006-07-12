@@ -9,7 +9,7 @@ SRC_HDR:= \
 	MSXRomCLI \
 	Ram SRAM CheckedRam \
 	Rom \
-	RomInfo RomFactory \
+	RomInfo RomFactory RomDatabase \
 	RomInfoTopic \
 	MSXRom \
 	Rom4kBBlocks Rom8kBBlocks Rom16kBBlocks \

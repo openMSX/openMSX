@@ -5,12 +5,10 @@
 
 #include "RomTypes.hh"
 #include <string>
-#include <memory>
 #include <set>
 
 namespace openmsx {
 
-class Rom;
 class CliComm;
 
 class RomInfo
@@ -28,20 +26,10 @@ public:
 	const RomType& getRomType() const { return romType; }
 	void print(CliComm& cliComm);
 
-	static std::auto_ptr<RomInfo> fetchRomInfo(
-		CliComm& cliComm, const Rom& rom);
 	static RomType nameToRomType(std::string name);
 	static void getAllRomTypes(std::set<std::string>& result);
 
 private:
-	/** Search for a ROM in the ROM database.
-	  * @param rom ROM to look up.
-	  * @return The information found in the database,
-	  * 	or NULL if the given ROM is not in the database.
-	  */
-	static std::auto_ptr<RomInfo> searchRomDB(
-		CliComm& cliComm, const Rom& rom);
-
 	std::string title;
 	std::string year;
 	std::string company;
