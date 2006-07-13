@@ -1,6 +1,9 @@
 $Id$
 
 2006-07-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Exit the CliServer listener thread in a more portable way
+
+2006-07-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Don't listen for incomming connections in -testconfig mode
 	* Split RomInfo in RomInfo and RomDatabase:
 	   - allowed to fix RomInfo memory leaks

@@ -143,12 +143,12 @@ void CliServer::createSocket()
 	if (listenSock == INVALID_SOCKET) {
 		throw MSXException(sock_error());
 	}
-	int port = openPort(listenSock);
+	portNumber = openPort(listenSock);
 
 	// write port number to file
 	unlink(socketName.c_str()); // ignore error
 	std::ofstream out(socketName.c_str());
-	out << port << std::endl;
+	out << portNumber << std::endl;
 	if (!out.good()) {
 		throw MSXException("Couldn't open socket.");
 	}
@@ -178,6 +178,29 @@ void CliServer::createSocket()
 	listen(listenSock, SOMAXCONN);
 }
 
+bool CliServer::exitAcceptLoop()
+{
+#ifdef _WIN32
+	SOCKET sd = socket(AF_INET, SOCK_STREAM, 0);
+	sockaddr_in addr;
+	memset((char*)&addr, 0, sizeof(addr));
+	addr.sin_family = AF_INET;
+	addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+	addr.sin_port = htons(portNumber);
+#else
+	SOCKET sd = socket(AF_UNIX, SOCK_STREAM, 0);
+	sockaddr_un addr; 
+	addr.sun_family = AF_UNIX; 
+	strcpy(addr.sun_path, socketName.c_str());
+#endif
+	if (sd == INVALID_SOCKET) {
+		return false;
+	}
+	int r = connect(sd, (sockaddr*)&addr, sizeof(addr));
+	close(sd);
+	return r != SOCKET_ERROR;
+}
+
 static void deleteSocket(const string& socket)
 {
 	unlink(socket.c_str()); // ignore errors
@@ -194,18 +217,24 @@ CliServer::CliServer(CommandController& commandController_,
 	, eventDistributor(eventDistributor_)
 	, cliComm(commandController.getCliComm())
 {
+	exitLoop = false;
 	sock_startup();
 	thread.start();
 }
 
 CliServer::~CliServer()
 {
+	exitLoop = true;
 	if (listenSock != INVALID_SOCKET) {
-		sock_close(listenSock);
+		if (!exitAcceptLoop()) {
+			// clean exit failed, try emergency exit
+			sock_close(listenSock);
+			thread.stop();
+		}
 	}
-	deleteSocket(socketName);
+	thread.join();
 
-	thread.stop();
+	deleteSocket(socketName);
 	sock_cleanup();
 }
 
@@ -222,7 +251,7 @@ void CliServer::mainLoop()
 {
 	createSocket();
 
-	while (true) {
+	while (!exitLoop) {
 		// wait for incomming connection
 		SOCKET sd = accept(listenSock, NULL, NULL);
 		if (sd == INVALID_SOCKET) {

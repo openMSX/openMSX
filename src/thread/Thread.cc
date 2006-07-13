@@ -54,9 +54,10 @@ void Thread::stop()
 //       within the given timeout.
 void Thread::join()
 {
-	assert(thread);
-	SDL_WaitThread(thread, NULL);
-	thread = NULL;
+	if (thread) {
+		SDL_WaitThread(thread, NULL);
+		thread = NULL;
+	}
 }
 
 int Thread::startThread(void* runnable)

@@ -42,7 +42,6 @@ public:
 	void stop();
 
 	/** Waits for this thread to terminate.
-	  * It is not allowed to call this method on a stopped thread.
 	  */
 	void join();
 
