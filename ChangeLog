@@ -1,6 +1,9 @@
 $Id$
 
-2006-07-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2006-07-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Don't assert when multiple Panasonic MSX-Audio's are inserted
+
+2006-07-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Exit the CliServer listener thread in a more portable way
 
 2006-07-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>

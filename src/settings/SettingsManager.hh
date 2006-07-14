@@ -36,6 +36,8 @@ public:
 	  */
 	Setting* getByName(const std::string& name) const;
 
+	std::string makeUnique(const std::string& name) const;
+
 	void loadSettings(const XMLElement& config);
 	void saveSettings(XMLElement& config) const;
 

@@ -168,9 +168,16 @@ nibble MusicModulePeriphery::read(const EmuTime& /*time*/)
 
 // PanasonicAudioPeriphery
 
+static string generateName(CommandController& controller)
+{
+	// TODO better name?
+	return controller.getSettingsConfig().getSettingsManager().
+	                                 makeUnique("PanasonicAudioSwitch");
+}
+
 PanasonicAudioPeriphery::PanasonicAudioPeriphery(
 		CommandController& commandController)
-	: swSwitch(commandController, "PanasonicAudioSwitch", // TODO better name
+	: swSwitch(commandController, generateName(commandController),
 	           "This setting controls the switch on the Panasonic "
 	           "MSX-AUDIO module. The switch controls whether the internal "
 	           "software of this module must be started or not.",

@@ -9,6 +9,7 @@
 #include "Setting.hh"
 #include "CommandException.hh"
 #include "XMLElement.hh"
+#include "StringOp.hh"
 #include <cassert>
 
 using std::set;
@@ -134,6 +135,16 @@ Setting* SettingsManager::getByName(const std::string& name) const
 	// TODO: The cast is valid because currently all nodes are leaves.
 	//       In the future this will no longer be the case.
 	return it != settingsMap.end() ? it->second : NULL;
+}
+
+string SettingsManager::makeUnique(const std::string& name) const
+{
+	string result = name;
+	unsigned n = 0;
+	while (getByName(result)) {
+		result = name + " (" + StringOp::toString(++n) + ")";
+	}
+	return result;
 }
 
 void SettingsManager::loadSettings(const XMLElement& config)
