@@ -1,5 +1,10 @@
 $Id$
 
+2006-07-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Reenabled saving of keybindings:
+	   on exit when save_settings_on_exit is enabled or when explicity
+	   requested
+
 2006-07-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Don't assert when multiple Panasonic MSX-Audio's are inserted
 

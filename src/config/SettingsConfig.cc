@@ -45,12 +45,13 @@ private:
 };
 
 
-SettingsConfig::SettingsConfig(CommandController& commandController_)
+SettingsConfig::SettingsConfig(CommandController& commandController_,
+                               HotKey& hotKey_)
 	: XMLElement("settings")
 	, commandController(commandController_)
 	, saveSettingsCommand(new SaveSettingsCommand(commandController, *this))
 	, loadSettingsCommand(new LoadSettingsCommand(commandController, *this))
-	, hotKey(0)
+	, hotKey(hotKey_)
 	, mustSaveSettings(false)
 {
 	setFileContext(auto_ptr<FileContext>(new SystemFileContext()));
@@ -69,14 +70,8 @@ SettingsConfig::~SettingsConfig()
 	}
 }
 
-void SettingsConfig::setHotKey(HotKey* hotKey_)
-{
-	hotKey = hotKey_;
-}
-
 void SettingsConfig::loadSetting(FileContext& context, const string& filename)
 {
-	assert(hotKey);
 	try {
 		saveName = context.resolveCreate(filename);
 		File file(context.resolve(filename));
@@ -84,7 +79,7 @@ void SettingsConfig::loadSetting(FileContext& context, const string& filename)
 			file.getLocalName(), "settings.dtd"));
 		XMLElement::operator=(*doc);
 		getSettingsManager().loadSettings(*this);
-		hotKey->loadBindings(*this);
+		hotKey.loadBindings(*this);
 	} catch (XMLException& e) {
 		commandController.getCliComm().printWarning(
 			"Loading of settings failed: " + e.getMessage() + "\n"
@@ -98,10 +93,7 @@ void SettingsConfig::saveSetting(const string& filename)
 	if (name.empty()) return;
 
 	getSettingsManager().saveSettings(*this);
-	/* TODO reenable when singleton web is cleaned up
-	  assert(hotKey);
-	  hotKey->saveBindings(*this);
-	*/
+	hotKey.saveBindings(*this);
 
 	File file(name, File::TRUNCATE);
 	string data = "<!DOCTYPE settings SYSTEM 'settings.dtd'>\n" + dump();

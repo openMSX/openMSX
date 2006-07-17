@@ -15,7 +15,6 @@
 #include "RenderSettings.hh"
 #include "EnumSetting.hh"
 #include "MSXException.hh"
-#include "HotKey.hh"
 #include "Thread.hh"
 #include <memory>
 #include <iostream>
@@ -55,11 +54,6 @@ static int main(int argc, char **argv)
 		Thread::setMainThread();
 		Reactor reactor;
 		reactor.getCommandController().getInterpreter().init(argv[0]);
-
-		// TODO cleanup once singleton mess is cleaned up
-		HotKey hotKey(reactor.getCommandController(),
-		              reactor.getEventDistributor());
-		reactor.getCommandController().getSettingsConfig().setHotKey(&hotKey);
 
 		CommandLineParser parser(reactor);
 		parser.parse(argc, argv);

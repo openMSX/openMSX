@@ -18,10 +18,8 @@ class LoadSettingsCommand;
 class SettingsConfig : public XMLElement, private noncopyable
 {
 public:
-	explicit SettingsConfig(CommandController& commandController);
+	SettingsConfig(CommandController& commandController, HotKey& hotKey);
 	~SettingsConfig();
-
-	void setHotKey(HotKey* hotKey); // TODO cleanup
 
 	void loadSetting(FileContext& context, const std::string& filename);
 	void saveSetting(const std::string& filename = "");
@@ -36,7 +34,7 @@ private:
 	const std::auto_ptr<LoadSettingsCommand> loadSettingsCommand;
 
 	std::auto_ptr<SettingsManager> settingsManager;
-	HotKey* hotKey;
+	HotKey& hotKey;
 	std::string saveName;
 	bool mustSaveSettings;
 };

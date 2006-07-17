@@ -74,7 +74,6 @@ HotKey::HotKey(CommandController& commandController_,
 	, unbindDefaultCmd(new UnbindDefaultCmd(commandController_, *this))
 	, commandController(commandController_)
 	, eventDistributor(eventDistributor_)
-	, loading(false)
 {
 	initDefaultBindings();
 
@@ -135,7 +134,6 @@ void HotKey::loadBindings(const XMLElement& config)
 	// load bindings
 	const XMLElement* bindingsElement = config.findChild("bindings");
 	if (!bindingsElement) return;
-	loading = true;
 	const XMLElement::Children& children = bindingsElement->getChildren();
 	for (XMLElement::Children::const_iterator it = children.begin();
 	     it != children.end(); ++it) {
@@ -152,7 +150,6 @@ void HotKey::loadBindings(const XMLElement& config)
 				"Error while loading key bindings: " + e.getMessage());
 		}
 	}
-	loading = false;
 }
 
 
@@ -187,10 +184,7 @@ void HotKey::bind(Keys::KeyCode key, const string& command)
 	defaultMap.erase(key);
 	cmdMap[key] = command;
 
-	// TODO hack, remove when singleton stuff is cleaned up
-	if (!loading) {
-		saveBindings(commandController.getSettingsConfig());
-	}
+	saveBindings(commandController.getSettingsConfig());
 }
 
 void HotKey::unbind(Keys::KeyCode key)
@@ -203,10 +197,7 @@ void HotKey::unbind(Keys::KeyCode key)
 	defaultMap.erase(key);
 	cmdMap.erase(key);
 
-	// TODO hack, remove when singleton stuff is cleaned up
-	if (!loading) {
-		saveBindings(commandController.getSettingsConfig());
-	}
+	saveBindings(commandController.getSettingsConfig());
 }
 
 void HotKey::bindDefault(Keys::KeyCode key, const std::string& command)

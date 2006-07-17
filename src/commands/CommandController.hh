@@ -17,6 +17,7 @@ class CliConnection;
 class CommandConsole;
 class Command;
 class CommandCompleter;
+class HotKey;
 class InfoCommand;
 class Interpreter;
 class FileContext;
@@ -38,6 +39,7 @@ public:
 	CliComm& getCliComm();
 	Interpreter& getInterpreter();
 	InfoCommand& getInfoCommand();
+	HotKey& getHotKey();
 	SettingsConfig& getSettingsConfig();
 	GlobalSettings& getGlobalSettings();
 
@@ -124,6 +126,7 @@ private:
 
 	std::auto_ptr<Interpreter> interpreter;
 	std::auto_ptr<InfoCommand> infoCommand;
+	std::auto_ptr<HotKey> hotKey;
 	std::auto_ptr<SettingsConfig> settingsConfig;
 	std::auto_ptr<GlobalSettings> globalSettings;
 

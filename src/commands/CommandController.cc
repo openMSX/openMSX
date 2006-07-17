@@ -9,6 +9,7 @@
 #include "File.hh"
 #include "openmsx.hh"
 #include "CliComm.hh"
+#include "HotKey.hh"
 #include "Interpreter.hh"
 #include "InfoCommand.hh"
 #include "ReadDir.hh"
@@ -107,10 +108,18 @@ InfoCommand& CommandController::getInfoCommand()
 	return *infoCommand;
 }
 
+HotKey& CommandController::getHotKey()
+{
+	if (!hotKey.get()) {
+		hotKey.reset(new HotKey(*this, eventDistributor));
+	}
+	return *hotKey;
+}
+
 SettingsConfig& CommandController::getSettingsConfig()
 {
 	if (!settingsConfig.get()) {
-		settingsConfig.reset(new SettingsConfig(*this));
+		settingsConfig.reset(new SettingsConfig(*this, getHotKey()));
 	}
 	return *settingsConfig;
 }

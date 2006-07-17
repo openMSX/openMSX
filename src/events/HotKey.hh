@@ -57,7 +57,6 @@ private:
 	KeySet unboundKeys;
 	CommandController& commandController;
 	EventDistributor& eventDistributor;
-	bool loading; // hack
 };
 
 } // namespace openmsx
