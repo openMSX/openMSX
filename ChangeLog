@@ -4,6 +4,15 @@ $Id$
 	* Reenabled saving of keybindings:
 	   on exit when save_settings_on_exit is enabled or when explicity
 	   requested
+	* Fixed saving of 'renderer' setting:
+	   when save_settings_on_exit was enabled there were two problems:
+	    - after testconfig run, renderer=none was saved in settings.xml.
+	      Fixed by introducing 'unsaveable' values on Setting
+	    - every other run the value would fallback to 'SDL'. For the 
+	      renderer setting we made the default value equal to the
+	      saved value (needed for the 'unset renderer' command executed
+	      by catapult) and settings with default value don't get saved.
+	      Fixed by having a seperate default and restore value.
 
 2006-07-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Don't assert when multiple Panasonic MSX-Audio's are inserted

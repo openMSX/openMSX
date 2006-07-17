@@ -51,7 +51,7 @@ public:
 
 	/** Set a new default value
 	  */
-	void setDefaultValue(const Type& value);
+	void setRestoreValue(const Type& value);
 
 	/**
 	 */
@@ -61,6 +61,7 @@ public:
 	virtual std::string getTypeString() const;
 	virtual std::string getValueString() const;
 	virtual std::string getDefaultValueString() const;
+	virtual std::string getRestoreValueString() const;
 	virtual void setValueString(const std::string& valueString);
 	virtual void restoreDefault();
 	virtual bool hasDefaultValue() const;
@@ -73,7 +74,8 @@ private:
 	void setValueString2(const std::string& valueString, bool check);
 
 	Type value;
-	Type defaultValue;
+	const Type defaultValue;
+	Type restoreValue;
 	SettingChecker<POLICY>* checker;
 };
 
@@ -96,6 +98,7 @@ SettingImpl<POLICY>::SettingImpl(
 	: Setting(commandController, name, description, save)
 	, POLICY(commandController)
 	, value(initialValue), defaultValue(initialValue)
+	, restoreValue(initialValue)
 	, checker(NULL)
 {
 	init();
@@ -110,6 +113,7 @@ SettingImpl<POLICY>::SettingImpl(
 	: Setting(commandController, name, description, save)
 	, POLICY(commandController, extra1, extra2)
 	, value(initialValue), defaultValue(initialValue)
+	, restoreValue(initialValue)
 	, checker(NULL)
 {
 	init();
@@ -178,9 +182,9 @@ const typename SettingImpl<POLICY>::Type& SettingImpl<POLICY>::getDefaultValue()
 }
 
 template<typename POLICY>
-void SettingImpl<POLICY>::setDefaultValue(const Type& value)
+void SettingImpl<POLICY>::setRestoreValue(const Type& value)
 {
-	defaultValue = value;
+	restoreValue = value;
 }
 
 template<typename POLICY>
@@ -211,6 +215,12 @@ std::string SettingImpl<POLICY>::getDefaultValueString() const
 }
 
 template<typename POLICY>
+std::string SettingImpl<POLICY>::getRestoreValueString() const
+{
+	return POLICY::toString(restoreValue);
+}
+
+template<typename POLICY>
 void SettingImpl<POLICY>::setValueString(const std::string& valueString)
 {
 	setValueString2(valueString, true);
@@ -225,7 +235,7 @@ void SettingImpl<POLICY>::setValueString2(const std::string& valueString, bool c
 template<typename POLICY>
 void SettingImpl<POLICY>::restoreDefault()
 {
-	setValue(getDefaultValue());
+	setValue(restoreValue);
 }
 
 template<typename POLICY>

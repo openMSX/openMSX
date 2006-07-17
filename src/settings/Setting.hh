@@ -42,6 +42,10 @@ public:
 	  */
 	virtual std::string getDefaultValueString() const = 0;
 
+	/** Get the value that will be set after a TCL 'unset' command.
+	  */
+	virtual std::string getRestoreValueString() const = 0;
+
 	/** Change the value of this setting by parsing the given string.
 	  * @param valueString The new value for this setting, in string format.
 	  * @throw CommandException If the valueString is invalid.
@@ -66,6 +70,10 @@ public:
 	/** Needs this setting to be loaded or saved
 	  */
 	bool needLoadSave() const;
+
+	/** This value will never end up in the settings.xml file
+	 */
+	void setDontSaveValue(const std::string& dontSave);
 
 	/** Synchronize the setting with the SettingsConfig. Should be called
 	  * just before saving the setting or just before the setting is
@@ -105,6 +113,10 @@ private:
 	  */
 	std::string description;
 
+	/** see setDontSaveValue()
+	 */
+	std::string dontSave;
+	
 	/** need to be saved flag
 	 */
 	bool save;

@@ -120,12 +120,15 @@ auto_ptr<RendererFactory::RendererSetting>
 		"renderer", "rendering back-end used to display the MSX screen",
 		SDL, rendererMap));
 
-	// a saved value 'none' can be very confusing, if so restore to 'SDL'
+	// A saved value 'none' can be very confusing, so don't save it.
+	// If it did get saved for some reason (old openmsx version?)
+	// then change it to 'SDL'
+	setting->setDontSaveValue("none");
 	if (setting->getValue() == DUMMY) {
 		setting->setValue(SDL);
 	}
 	// set saved value as default
-	setting->setDefaultValue(setting->getValue());
+	setting->setRestoreValue(setting->getValue());
 
 	setting->setValue(DUMMY); // always start hidden
 

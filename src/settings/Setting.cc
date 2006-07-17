@@ -36,6 +36,11 @@ bool Setting::needLoadSave() const
 	return save;
 }
 
+void Setting::setDontSaveValue(const std::string& dontSave_)
+{
+	dontSave = dontSave_;
+}
+
 void Setting::sync(XMLElement& config) const
 {
 	XMLElement& settings = config.getCreateChild("settings");
@@ -48,7 +53,11 @@ void Setting::sync(XMLElement& config) const
 		// add (or overwrite) setting
 		XMLElement& elem = settings.getCreateChildWithAttribute(
 				"setting", "id", getName());
-		elem.setData(getValueString());
+		// check for non-saveable value
+		// (mechanism can be generalize later when needed)
+		string tmp = getValueString();
+		if (tmp == dontSave) tmp = getRestoreValueString();
+		elem.setData(tmp);
 	}
 }
 
