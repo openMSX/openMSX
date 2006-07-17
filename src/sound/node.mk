@@ -22,7 +22,8 @@ SRC_HDR:= \
 	WavWriter
 
 HDR_ONLY:= \
-	SoundDriver
+	SoundDriver \
+	Y8950Periphery
 
 include build/node-end.mk
 
