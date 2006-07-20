@@ -151,6 +151,11 @@ protected:
 	  */
 	void abortWriteTransfer(byte error);
 
+	byte getFeatureReg() const { return featureReg; }
+	void setLBALow (byte value) { sectorNumReg    = value; }
+	void setLBAMid (byte value) { cylinderLowReg  = value; }
+	void setLBAHigh(byte value) { cylinderHighReg = value; }
+
 private:
 	/** Perform diagnostic and return result.
 	  * Actually, just return success, because we don't emulate faulty hardware.

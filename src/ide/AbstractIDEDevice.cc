@@ -71,13 +71,13 @@ byte AbstractIDEDevice::readReg(nibble reg, const EmuTime& /*time*/)
 	case 2: // sector count register
 		return sectorCountReg;
 
-	case 3: // sector number register
+	case 3: // sector number register / LBA low
 		return sectorNumReg;
 
-	case 4: // cyclinder low register
+	case 4: // cyclinder low register / LBA mid
 		return cylinderLowReg;
 
-	case 5: // cyclinder high register
+	case 5: // cyclinder high register / LBA high
 		return cylinderHighReg;
 
 	case 6: // device/head register
@@ -118,15 +118,15 @@ void AbstractIDEDevice::writeReg(
 		sectorCountReg = value;
 		break;
 
-	case 3: // sector number register
+	case 3: // sector number register / LBA low
 		sectorNumReg = value;
 		break;
 
-	case 4: // cyclinder low register
+	case 4: // cyclinder low register / LBA mid
 		cylinderLowReg = value;
 		break;
 
-	case 5: // cyclinder high register
+	case 5: // cyclinder high register / LBA high
 		cylinderHighReg = value;
 		break;
 
@@ -320,16 +320,18 @@ void AbstractIDEDevice::executeCommand(byte cmd)
 		break;
 
 	case 0xEF: // Set Features
-		switch (featureReg) {
+		switch (getFeatureReg()) {
 		case 0x03: // Set Transfer Mode
 			break;
 		default:
+			fprintf(stderr, "Unhandled set feature subcommand: %02X\n",
+			        getFeatureReg());
 			setError(ABORT);
 		}
 		break;
 
 	default: // unsupported command
-		//fprintf(stderr, "IDE command %02X\n", cmd);
+		fprintf(stderr, "unsupported IDE command %02X\n", cmd);
 		setError(ABORT);
 	}
 }

@@ -1,5 +1,11 @@
 $Id$
 
+2006-07-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented 'Removable media status notification feature set' for
+	  IDECDROM, slightly improved 'request sense' command:
+	   reading from CDROM (also when switching ISO images) seems to work
+	   now, although there may still be a problem with the volume id
+
 2006-07-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Reenabled saving of keybindings:
 	   on exit when save_settings_on_exit is enabled or when explicity

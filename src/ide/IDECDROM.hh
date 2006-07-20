@@ -20,6 +20,9 @@ public:
 	         const EmuTime& time);
 	virtual ~IDECDROM();
 
+	void eject();
+	void insert(const std::string& filename);
+
 protected:
 	// AbstractIDEDevice:
 	virtual bool isPacketDevice();
@@ -52,6 +55,12 @@ private:
 	unsigned byteCountLimit;
 	bool readSectorData;
 	unsigned transferOffset;
+
+	unsigned senseKey;
+
+	// Removable Media Status Notification Feature Set
+	bool remMedStatNotifEnabled;
+	bool mediaChanged;
 
 	friend class CDXCommand;
 };
