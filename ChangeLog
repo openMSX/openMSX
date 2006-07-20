@@ -5,6 +5,7 @@ $Id$
 	  IDECDROM, slightly improved 'request sense' command:
 	   reading from CDROM (also when switching ISO images) seems to work
 	   now, although there may still be a problem with the volume id
+	* Set version_number=0.6.1, release_tag=true
 
 2006-07-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Reenabled saving of keybindings:
