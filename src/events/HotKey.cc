@@ -134,7 +134,8 @@ void HotKey::loadBindings(const XMLElement& config)
 	// load bindings
 	const XMLElement* bindingsElement = config.findChild("bindings");
 	if (!bindingsElement) return;
-	const XMLElement::Children& children = bindingsElement->getChildren();
+	XMLElement copy(*bindingsElement); // dont iterate over changing container
+	const XMLElement::Children& children = copy.getChildren();
 	for (XMLElement::Children::const_iterator it = children.begin();
 	     it != children.end(); ++it) {
 		XMLElement& elem = **it;

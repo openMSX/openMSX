@@ -1,5 +1,8 @@
 $Id$
 
+2006-07-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed loading of keybindings
+
 2006-07-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented 'Removable media status notification feature set' for
 	  IDECDROM, slightly improved 'request sense' command:
