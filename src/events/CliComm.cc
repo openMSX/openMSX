@@ -21,6 +21,7 @@ using std::map;
 using std::set;
 using std::string;
 using std::vector;
+using std::auto_ptr;
 
 namespace openmsx {
 
@@ -44,6 +45,7 @@ CliComm::CliComm(CommandController& commandController_,
 	, commandController(commandController_)
 	, eventDistributor(eventDistributor_)
 	, xmlOutput(false)
+	, sem(1)
 {
 	commandController.setCliComm(this);
 
@@ -52,6 +54,7 @@ CliComm::CliComm(CommandController& commandController_,
 
 CliComm::~CliComm()
 {
+	ScopedLock lock(sem);
 	for (Connections::const_iterator it = connections.begin();
 	     it != connections.end(); ++it) {
 		delete *it;
@@ -65,7 +68,7 @@ CliComm::~CliComm()
 void CliComm::startInput(CommandLineParser::ControlType type, const string& arguments)
 {
 	xmlOutput = true;
-	CliConnection* connection;
+	auto_ptr<CliConnection> connection;
 	switch (type) {
 	case CommandLineParser::IO_PIPE: {
 #ifdef _WIN32
@@ -73,8 +76,8 @@ void CliComm::startInput(CommandLineParser::ControlType type, const string& argu
 		info.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 		GetVersionExA(&info);
 		if (info.dwPlatformId == VER_PLATFORM_WIN32_NT) {
-			connection = new PipeConnection(
-				commandController, eventDistributor, arguments);
+			connection.reset(new PipeConnection(
+				commandController, eventDistributor, arguments));
 		} else {
 			throw FatalError("Pipes are not supported on this "
 			                 "version of Windows");
@@ -86,13 +89,19 @@ void CliComm::startInput(CommandLineParser::ControlType type, const string& argu
 		break;
 	}
 	case CommandLineParser::IO_STD:
-		connection = new StdioConnection(
-			commandController, eventDistributor);
+		connection.reset(new StdioConnection(
+			commandController, eventDistributor));
 		break;
 	default:
 		assert(false);
 	}
-	connections.push_back(connection);
+	addConnection(connection);
+}
+
+void CliComm::addConnection(auto_ptr<CliConnection> connection)
+{
+	ScopedLock lock(sem);
+	connections.push_back(connection.release());
 }
 
 const char* const updateStr[CliComm::NUM_UPDATES] = {
@@ -104,6 +113,7 @@ void CliComm::log(LogLevel level, const string& message)
 		"info", "warning"
 	};
 
+	ScopedLock lock(sem);
 	if (!connections.empty()) {
 		string str = string("<log level=\"") + levelStr[level] + "\">" +
 		             XMLElement::XMLEscape(message) +
@@ -130,6 +140,7 @@ void CliComm::update(UpdateType type, const string& name, const string& value)
 	} else {
 		prevValues[type][name] = value;
 	}
+	ScopedLock lock(sem);
 	if (!connections.empty()) {
 		string str = string("<update type=\"") + updateStr[type] + '\"';
 		if (!name.empty()) {

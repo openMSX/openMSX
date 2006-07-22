@@ -10,6 +10,7 @@
 #include "FileOperations.hh"
 #include "MSXException.hh"
 #include <string>
+#include <memory>
 #include <cassert>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -258,8 +259,9 @@ void CliServer::mainLoop()
 			// sock_close(listenSock);  // hangs on win32
 			return;
 		}
-		cliComm.connections.push_back(new SocketConnection(
+		std::auto_ptr<CliConnection> connection(new SocketConnection(
 				commandController, eventDistributor, sd));
+		cliComm.addConnection(connection);
 	}
 }
 

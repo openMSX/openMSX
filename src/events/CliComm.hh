@@ -5,6 +5,7 @@
 
 #include "CommandLineParser.hh"
 #include "EventListener.hh"
+#include "Semaphore.hh"
 #include <map>
 #include <string>
 #include <memory>
@@ -43,6 +44,8 @@ public:
 	        EventDistributor& eventDistributor);
 	virtual ~CliComm();
 
+	void addConnection(std::auto_ptr<CliConnection> connection);
+
 	void startInput(CommandLineParser::ControlType type,
 	                const std::string& arguments);
 
@@ -71,8 +74,7 @@ private:
 	bool xmlOutput;
 	typedef std::vector<CliConnection*> Connections;
 	Connections connections;
-	friend class CliServer;
-
+	Semaphore sem; // lock access to connections member
 };
 
 } // namespace openmsx
