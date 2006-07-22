@@ -179,6 +179,11 @@ void CliServer::createSocket()
 	listen(listenSock, SOMAXCONN);
 }
 
+// This is the super-safe way to stop the accept() call; on a sane OS,
+// it's enough to close the socket.
+// Since Windows application-level firewalls pop up a warning about openMSX
+// connecting to itself, I disabled this code.
+#if 0
 bool CliServer::exitAcceptLoop()
 {
 #ifdef _WIN32
@@ -201,6 +206,7 @@ bool CliServer::exitAcceptLoop()
 	close(sd);
 	return r != SOCKET_ERROR;
 }
+#endif
 
 static void deleteSocket(const string& socket)
 {
@@ -227,11 +233,7 @@ CliServer::~CliServer()
 {
 	exitLoop = true;
 	if (listenSock != INVALID_SOCKET) {
-		if (!exitAcceptLoop()) {
-			// clean exit failed, try emergency exit
-			sock_close(listenSock);
-			thread.stop();
-		}
+		sock_close(listenSock);
 	}
 	thread.join();
 
