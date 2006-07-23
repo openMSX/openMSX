@@ -21,7 +21,7 @@ void Layer::setCoverage(Coverage coverage_)
 void Layer::setZ(ZIndex z_)
 {
 	z = z_;
-	if (display) display->updateZ(*this, z);
+	if (display) display->updateZ(*this);
 }
 
 Layer::ZIndex Layer::getZ() const

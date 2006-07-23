@@ -356,7 +356,7 @@ void Display::removeLayer(Layer& layer)
 	layers.erase(it);
 }
 
-void Display::updateZ(Layer& layer, Layer::ZIndex /*z*/)
+void Display::updateZ(Layer& layer)
 {
 	// Remove at old Z-index...
 	removeLayer(layer);

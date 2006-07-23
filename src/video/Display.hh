@@ -69,7 +69,7 @@ private:
 	Layers::iterator baseLayer();
 
 	// LayerListener interface
-	virtual void updateZ(Layer& layer, Layer::ZIndex z);
+	virtual void updateZ(Layer& layer);
 
 	Layers layers;
 	std::auto_ptr<VideoSystem> videoSystem;

@@ -88,7 +88,7 @@ private:
 class LayerListener
 {
 public:
-	virtual void updateZ(Layer& layer, Layer::ZIndex z) = 0;
+	virtual void updateZ(Layer& layer) = 0;
 protected:
 	virtual ~LayerListener() {}
 };
