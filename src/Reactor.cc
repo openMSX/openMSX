@@ -78,6 +78,10 @@ Reactor::~Reactor()
 
 	getMachineSetting().detach(*this);
 	pauseSetting.detach(*this);
+
+	// Display can make calls to Reactor through RepaintAlarm, so we should
+	// explicitly destruct it before the Reactor fields are cleaned up.
+	display.reset();
 }
 
 EventDistributor& Reactor::getEventDistributor()
