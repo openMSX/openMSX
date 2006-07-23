@@ -179,34 +179,37 @@ void CliServer::createSocket()
 	listen(listenSock, SOMAXCONN);
 }
 
-// This is the super-safe way to stop the accept() call; on a sane OS,
-// it's enough to close the socket.
-// Since Windows application-level firewalls pop up a warning about openMSX
-// connecting to itself, I disabled this code.
-#if 0
+// The BSD socket API does not contain a simple way to cancel a call to
+// accept(). As a workaround, we connect to the server socket ourselves.
 bool CliServer::exitAcceptLoop()
 {
 #ifdef _WIN32
+	// Windows application-level firewalls pop up a warning about openMSX
+	// connecting to itself. Since closing the socket is sufficient to make
+	// Windows exit the accept() call, this code is disabled on Windows.
+	return true;
+	/*
 	SOCKET sd = socket(AF_INET, SOCK_STREAM, 0);
 	sockaddr_in addr;
 	memset((char*)&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 	addr.sin_port = htons(portNumber);
+	*/
 #else
 	SOCKET sd = socket(AF_UNIX, SOCK_STREAM, 0);
-	sockaddr_un addr; 
-	addr.sun_family = AF_UNIX; 
+	sockaddr_un addr;
+	addr.sun_family = AF_UNIX;
 	strcpy(addr.sun_path, socketName.c_str());
-#endif
+// Code below is OS-independent, but unreachable on Windows:
 	if (sd == INVALID_SOCKET) {
 		return false;
 	}
 	int r = connect(sd, (sockaddr*)&addr, sizeof(addr));
 	close(sd);
 	return r != SOCKET_ERROR;
-}
 #endif
+}
 
 static void deleteSocket(const string& socket)
 {
@@ -234,6 +237,10 @@ CliServer::~CliServer()
 	exitLoop = true;
 	if (listenSock != INVALID_SOCKET) {
 		sock_close(listenSock);
+		if (!exitAcceptLoop()) {
+			// clean exit failed, try emergency exit
+			thread.stop();
+		}
 	}
 	thread.join();
 

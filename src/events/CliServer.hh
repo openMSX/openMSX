@@ -26,9 +26,7 @@ private:
 
 	void mainLoop();
 	void createSocket();
-#if 0
 	bool exitAcceptLoop();
-#endif
 
 	Thread thread;
 	bool exitLoop;
