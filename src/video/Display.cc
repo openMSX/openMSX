@@ -351,7 +351,7 @@ void Display::addLayer(Layer& layer)
 
 void Display::removeLayer(Layer& layer)
 {
-	Layers::iterator it = find(layers.begin(), layers.end(), &layer);
+	Layers::iterator it = std::find(layers.begin(), layers.end(), &layer);
 	assert(it != layers.end());
 	layers.erase(it);
 }
@@ -359,10 +359,7 @@ void Display::removeLayer(Layer& layer)
 void Display::updateZ(Layer& layer, Layer::ZIndex /*z*/)
 {
 	// Remove at old Z-index...
-	Layers::iterator it = std::find(layers.begin(), layers.end(), &layer);
-	assert(it != layers.end());
-	layers.erase(it);
-
+	removeLayer(layer);
 	// ...and re-insert at new Z-index.
 	addLayer(layer);
 }
