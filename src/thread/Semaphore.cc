@@ -21,7 +21,12 @@ void Semaphore::up()
 
 void Semaphore::down()
 {
-	SDL_SemWait(semaphore);
+	while (SDL_SemWait(semaphore)) {
+		// SDL_SemWait gets interrupted when this thread gets a signal, for
+		// example when another thread exits.
+		// We don't want to leave before we actually acquired the semaphore,
+		// so try again until we have it.
+	}
 }
 
 } // namespace openmsx
