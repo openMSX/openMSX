@@ -90,6 +90,9 @@ private:
 	bool running;
 	bool switchMachineFlag;
 
+	MSXMotherBoard* motherBoard;
+	Semaphore mbSem;
+
 	// note: order of auto_ptr's is important
 	std::auto_ptr<EventDistributor> eventDistributor;
 	std::auto_ptr<CommandController> commandController;
@@ -100,8 +103,6 @@ private:
 	std::auto_ptr<IconStatus> iconStatus;
 	std::auto_ptr<FileManipulator> fileManipulator;
 	std::auto_ptr<FilePool> filePool;
-	MSXMotherBoard* motherBoard;
-	Semaphore mbSem;
 
 	BooleanSetting& pauseSetting;
 	std::auto_ptr<EnumSetting<int> > machineSetting;
