@@ -16,7 +16,10 @@ Semaphore::~Semaphore()
 
 void Semaphore::up()
 {
-	SDL_SemPost(semaphore);
+	while (SDL_SemPost(semaphore)) {
+		// the SDL doc lists no reason why this call could fail,
+		// but just in case we try till it succeeds
+	}
 }
 
 void Semaphore::down()
