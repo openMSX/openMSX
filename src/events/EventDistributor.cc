@@ -76,20 +76,25 @@ void EventDistributor::distributeEvent(Event* event)
 void EventDistributor::deliverEvents()
 {
 	ScopedLock lock(sem);
-	EventQueue copy;
-	swap(copy, scheduledEvents);
+	EventQueue eventsCopy;
+	swap(eventsCopy, scheduledEvents);
 	
-	for (EventQueue::const_iterator it = copy.begin();
-	     it != copy.end(); ++it) {
+	for (EventQueue::const_iterator it = eventsCopy.begin();
+	     it != eventsCopy.end(); ++it) {
 		Event* event = *it;
 		pair<ListenerMap::iterator, ListenerMap::iterator> bounds =
 			detachedListeners.equal_range(event->getType());
+		std::vector<EventListener*> listenersCopy;
 		for (ListenerMap::iterator it = bounds.first;
 		     it != bounds.second; ++it) {
-			sem.up();
-			it->second->signalEvent(*event);
-			sem.down();
+			listenersCopy.push_back(it->second);
 		}
+		sem.up();
+		for (std::vector<EventListener*>::iterator it = listenersCopy.begin();
+		     it != listenersCopy.end(); ++it) {
+			(*it)->signalEvent(*event);
+		}
+		sem.down();
 		delete event;
 	}
 }
