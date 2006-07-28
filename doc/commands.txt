@@ -70,29 +70,88 @@ debug
 -----
 
   This command implements a debugger interface. It's meant to be used by an
-  external debugger.
+  external debugger. The general format of the debug command is
 
-  usage:
-    debug list                                returns a list of all debuggables
-    debug desc <name>                         returns a description of this debuggable
-    debug size <name>                         returns the size of this debuggable
-    debug read <name> <addr>                  read a byte from a debuggable
-    debug write <name> <addr> <val>           write a byte to a debuggable
-    debug set_bp <addr> [<cond>] [<cmd>]      insert a new breakpoint
-    debug remove_bp <id>                      remove a certain breakpoint
-    debug list_bp                             list the active breakpoints
-    debug cont                                continue execution after break
-    debug step                                execute one instruction
-    debug break                               break CPU at current position
-    debug breaked                             query CPU breaked status
-    debug read_block <name> <addr> <size>     read a whole block at once
-    debug write_block <name> <addr> <values>  write a whole block at once 
-    debug disasm [<addr>]                     disassemble instructions at PC or given
-                                              address
+     debug <subcommand> [<extra arguments>]
 
-  Note: in the share/scripts directory you'll find some TCL scripts that
-        offer convenience wrapper around this command. For example:
-           showmem, disasm, cpuregs, save_debuggable
+  where 'extra arguments' are specific for each subcommand. Below is a list
+  of all subcommands:
+
+    debug list
+      Returns a list of all debuggables. A debuggable is (part of) the state
+      of a MSX device that can be accessed via these debug commands. Examples
+      are:
+        - the VDP registers
+        - the currently visible memory for the Z80
+        - the contest of the RAM
+        - ...
+
+    debug desc <name>
+      Returns a description of this debuggable
+
+    debug size <name>
+      Returns the size of this debuggable
+
+    debug read <name> <addr>
+      Read a byte from a debuggable
+
+    debug write <name> <addr> <val>
+      Write a byte to a debuggable
+
+    debug read_block <name> <addr> <size>
+      Read a whole block at once
+
+    debug write_block <name> <addr> <values>
+      Write a whole block at once 
+
+    debug break
+      Break CPU at current position
+
+    debug breaked
+      Query CPU breaked status
+
+    debug cont
+      Continue execution after break
+
+    debug step
+      Execute one instruction
+
+    debug list_bp
+      List the active breakpoints
+
+    debug set_bp <addr> [<cond>] [<cmd>]
+      Insert a new breakpoint at the given address. Optionally you can specify
+      a condition and a command. When the CPU is about to execute the
+      instruction at the given address, the condition will be evaluated, if
+      this evaluates to true then the command is executed.
+      The condition can be any TCL expression and the command canbe any TCL
+      command. The default condition is 'true' and  the default command is
+      "debug break".
+
+    debug remove_bp <id>
+      Remove a certain breakpoint
+
+    debug list_watchpoints
+      List all defined watchpoints
+
+    debug set_watchpoint <type> <addr> [<cond>] [<cmd>]
+      Insert a new watchpoint. When the CPU is about to read or write to/from
+      the specified memory location or IO-port, the condition is evaluated. If
+      the condtion evaluated to true, the command is executed.
+      The condtion and the command are similar to the ones in the 'set_bp'
+      subcommand.
+
+    debug remove_watchpoint <id>
+      Remove a certain watchpoint
+
+    debug disasm [<addr>]
+      disassemble instructions at PC or given address
+
+
+  Note: Some of the commands are pretty low level. In the share/scripts
+        directory you'll find some TCL scripts that offer convenience wrappers
+        around these commands. For example:
+           showmem, disasm, cpuregs, save_debuggable, vdp, ...
     
 
 diska / diskb
@@ -506,6 +565,16 @@ bootsector
     set bootsector DOS1  use a DOS1 boot sector
 
 
+brightness
+----------
+
+  Controls the brightness of the video output. Can be between -100 and 100.
+  Lower values are darker, higher values are brighter. The default is 0.
+
+    set brightness    shows the current setting
+    set brightness 5  make the video output a bit brighter then default
+
+
 cmdtiming
 ---------
 
@@ -531,6 +600,9 @@ color_matrix
       --> this is the default (no color transformation)
     set color_matrix { { .33 .33 .33 } { .33 .33 .33 } { .33 .33 .33 } }
       --> transform to greyscale
+
+  note:
+    It is often more convenient to use the scripts/monitor.tcl script.
 
 
 console
@@ -602,6 +674,17 @@ consolerows
     set consolerows <value>    set the specified width
 
 
+contrast
+--------
+
+  Controls the contrast of the video output. Can be between -100 and 100.
+  Lower values are less contrast, higher values are more contrast. The
+  default is 0.
+
+    set contrast     shows the current setting
+    set contrast -5  reduce the video contrast a bit
+
+
 cputrace
 --------
 
@@ -629,6 +712,18 @@ deinterlace
     set deinterlace      shows the current setting
     set deinterlace on   turns deinterlacing on
     set deinterlace off  turns deinterlacing off
+
+
+display_deform
+--------------
+
+  Select display deformation effect. This only has effect on the SDLGL-PP
+  renderer. Currently supported effects are 'normal', 'horizontal_stretch'
+  and '3d'.
+
+  usage:
+    set display_deform      shows the current setting
+    set display_deform 3d   select the 3d display view
 
 
 frequency
@@ -871,6 +966,17 @@ mute
     set mute      shows the current setting
     set mute on   mute sound
     set mute off  unmute sound
+
+
+noise
+-----
+
+  Controls the amount of gaussian noise that is added to the video output.
+  This can give a more authentic look to the video output. Values can be
+  between 0 and 100, 0 is no noise. 
+    
+    set noise    shows the current setting
+    set noise 7  add a moderate amount of noise
 
 
 pause
