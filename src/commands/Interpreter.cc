@@ -300,8 +300,7 @@ void Interpreter::splitList(const string& list, vector<string>& result)
 {
 	int argc;
 	const char** argv;
-	// Note: we need to use { } to escape any special characters in the strings, like spaces
-	if (Tcl_SplitList(interp, string("{" + list + "}").c_str(), &argc, &argv) == TCL_ERROR) {
+	if (Tcl_SplitList(interp, list.c_str(), &argc, &argv) == TCL_ERROR) {
 		throw CommandException(Tcl_GetStringResult(interp));
 	}
 	result.assign(argv, argv + argc);

@@ -3,6 +3,8 @@ $Id$
 2006-07-28 Manuel Bilderbeek <manuel@msxnet.org>
 	* Escape strings before sending them to TCL's splitList, fixes
 	  diskmanipulator with spaces in file names
+	* And reverted again. This breaks splitting completely. Needs a better
+	  fix, but it's not trivial.
 
 2006-07-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed loading of keybindings
