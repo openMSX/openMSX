@@ -124,7 +124,7 @@ debug
       a condition and a command. When the CPU is about to execute the
       instruction at the given address, the condition will be evaluated, if
       this evaluates to true then the command is executed.
-      The condition can be any TCL expression and the command canbe any TCL
+      The condition can be any TCL expression and the command can be any TCL
       command. The default condition is 'true' and  the default command is
       "debug break".
 
@@ -137,8 +137,8 @@ debug
     debug set_watchpoint <type> <addr> [<cond>] [<cmd>]
       Insert a new watchpoint. When the CPU is about to read or write to/from
       the specified memory location or IO-port, the condition is evaluated. If
-      the condtion evaluated to true, the command is executed.
-      The condtion and the command are similar to the ones in the 'set_bp'
+      the condition evaluated to true, the command is executed.
+      The condition and the command are similar to the ones in the 'set_bp'
       subcommand.
 
     debug remove_watchpoint <id>
@@ -740,7 +740,7 @@ frequency
 firmwareswitch
 --------------
 
-  Some machines (e.g. TurboR) have a switch on the front (or on the back) that
+  Some machines (e.g. turboR) have a switch on the front (or on the back) that
   controls if the machine should boot 'normally' or start the built in
   software, also called firmware. This setting controls the position of that
   switch.
@@ -913,7 +913,7 @@ machine
 master_volume
 -------------
 
-  Controls the overal openMSX volume. The volume of individual soundevice can
+  Controls the overall openMSX volume. The volume of individual sound device can
   be controlled with the [soundchip]_volume settings, see below.
 
   usage:
@@ -981,7 +981,7 @@ mute
 noise
 -----
 
-  Controls the amount of gaussian noise that is added to the video output.
+  Controls the amount of Gaussian noise that is added to the video output.
   This can give a more authentic look to the video output. Values can be
   between 0 and 100, 0 is no noise. 
     
@@ -1043,7 +1043,7 @@ renshaturbo
 -----------
 
   Sets the speed of the built-in auto fire on some Japanese MSX models
-  (including the TurboR machines)
+  (including the turboR machines)
 
   usage:
     set renshaturbo        shows the current renshaturbo value
@@ -1233,12 +1233,12 @@ vdpcmdtrace
 videosource
 -----------
 
-  Switch between 'normal' (V99x8) or 'gfx9000' (V9990) videosource.
+  Switch between 'normal' (V99x8) or 'GFX9000' (V9990) videosource.
 
   usage:
     set videosource          shows the current setting
-    set videosource msx      switch to normal msx screen
-    set videosource gfx9000  switch to gfx9000 screen
+    set videosource MSX      switch to normal MSX screen
+    set videosource GFX9000  switch to GFX9000 screen
 
 
 z80_freq and z80_freq_locked
