@@ -738,7 +738,7 @@ frequency
 
 
 firmwareswitch
------------
+--------------
 
   Some machines (e.g. TurboR) have a switch on the front (or on the back) that
   controls if the machine should boot 'normally' or start the built in
@@ -910,28 +910,16 @@ machine
     set machine Panasonic_FS-A1GT   use this machine next time openMSX is
                                     started
 
-midi-in-readfilename
---------------------
+master_volume
+-------------
 
-  Sets the file(name) from which the MIDI input is read.
-  By default, it is read from /dev/midi when available.
-  
+  Controls the overal openMSX volume. The volume of individual soundevice can
+  be controlled with the [soundchip]_volume settings, see below.
+
   usage:
-    set midi-in-readfilename                shows the current setting
-    set midi-in-readfilename mymidilog.dat  read from mymidilog.dat
-
-
-
-midi-out-logfilename
---------------------
-
-  Sets the file(name) to which the MIDI output is logged.
-  By default, it logs to /dev/midi when available.
+    set master_volume     shows current setting
+    set master_volume 50  set master volume to 50%
   
-  usage:
-    set midi-out-logfilename                shows the current setting
-    set midi-out-logfilename mymidilog.dat  log to mymidilog.dat
-
 
 maxframeskip
 ------------
@@ -943,6 +931,28 @@ maxframeskip
   usage:
     set maxframeskip           shows the current setting
     set maxframeskip <number>  sets the number of frame skips
+
+
+midi-in-readfilename
+--------------------
+
+  Sets the file(name) from which the MIDI input is read.
+  By default, it is read from /dev/midi when available.
+  
+  usage:
+    set midi-in-readfilename                shows the current setting
+    set midi-in-readfilename mymidilog.dat  read from mymidilog.dat
+
+
+midi-out-logfilename
+--------------------
+
+  Sets the file(name) to which the MIDI output is logged.
+  By default, it logs to /dev/midi when available.
+  
+  usage:
+    set midi-out-logfilename                shows the current setting
+    set midi-out-logfilename mymidilog.dat  log to mymidilog.dat
 
 
 minframeskip
@@ -990,6 +1000,17 @@ pause
     set pause off  unpauses emulation
 
 
+power
+-----
+
+  Turn the power of the emulated MSX machine on or off.
+
+  usage:
+    set power      shows the current setting
+    set power on   turn MSX machine on (the default)
+    set power off  turn MSX machine off
+
+
 printerlogfilename
 ------------------
 
@@ -1017,6 +1038,7 @@ renderer
     set renderer SDL    switch to the SDL renderer
     set renderer SDLGL  switch to the SDLGL renderer
 
+
 renshaturbo
 -----------
 
@@ -1026,6 +1048,7 @@ renshaturbo
   usage:
     set renshaturbo        shows the current renshaturbo value
     set renshaturbo <num>  set speed to value <num>, from 0 to 100 (0 means off)
+
 
 rs232-inputfilename
 -------------------
@@ -1113,6 +1136,7 @@ sound_driver
 
   usage:
     set sound_driver sdl
+
 
 speed
 -----
@@ -1204,6 +1228,17 @@ vdpcmdtrace
 
   Enable/disable VDP command tracing.
   [ mainly useful for debugging purposes ]
+
+
+videosource
+-----------
+
+  Switch between 'normal' (V99x8) or 'gfx9000' (V9990) videosource.
+
+  usage:
+    set videosource          shows the current setting
+    set videosource msx      switch to normal msx screen
+    set videosource gfx9000  switch to gfx9000 screen
 
 
 z80_freq and z80_freq_locked
