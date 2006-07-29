@@ -507,6 +507,22 @@ If you are using Fink, you should install the packages
 <code>libpng3</code>, <code>sdl</code> and <code>sdl-image</code>.
 </p>
 
+<h5>Microsoft Windows</h5>
+<p>
+If you want to build SDL yourself, please check out the patch which you can find in the directory <code>doc.dll\libSDL</code>. Apply this patch to the extracted <code>libSDL-1.2.9.zip</code>. Make sure you have the DirectX headers installed, see also <a class="external" href="http://www.libsdl.org/extras/win32/mingw32/README.txt">this README.txt</a>. After that, build it like this: 
+</p>
+
+<div class="commandline">
+./autogen.sh<br/>
+./configure --enable-stdio-redirect=no<br/>
+make<br/>
+make install 
+</div>
+
+<p>
+The other libraries can be downloaded in binary and source form from several places.
+</p>
+
 <h3><a id="compilenow">3.3 Compilation Itself</a></h3>
 
 <p>
