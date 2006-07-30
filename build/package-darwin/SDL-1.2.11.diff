@@ -1,0 +1,11 @@
+--- SDL-1.2.11.org/Makefile.in	Sun Jul 30 23:57:31 2006
++++ SDL-1.2.11/Makefile.in	Sun Jul 30 23:56:01 2006
+@@ -98,7 +98,7 @@
+ 	$(SHELL) $(auxdir)/mkinstalldirs $(datadir)/aclocal
+ 	$(INSTALL) -m 644 $(srcdir)/sdl.m4 $(datadir)/aclocal/sdl.m4
+ 	$(SHELL) $(auxdir)/mkinstalldirs $(libdir)/pkgconfig
+-	$(INSTALL) -m 644 $(srcdir)/sdl.pc $(libdir)/pkgconfig
++	$(INSTALL) -m 644 $(top_builddir)/sdl.pc $(libdir)/pkgconfig
+ install-man:
+ 	$(SHELL) $(auxdir)/mkinstalldirs $(mandir)/man3
+ 	for src in $(srcdir)/docs/man3/*.3; do \
