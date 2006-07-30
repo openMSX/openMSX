@@ -5226,6 +5226,8 @@ proc trainer_deepdungeon2 {} {
 proc trainer_nsub {} {
 	#lives
 	poke 0xc13b 3
+   	#round (0-99) 
+   	#poke 0xc142 1 
 	after time 1 trainer_nsub
 }
 
@@ -5707,20 +5709,28 @@ proc trainer_stepper {} {
 	after time 5 trainer_stepper
 }
 
-proc trainer_exerion1 {} {	
-	#lives
-	poke 0xe108 5
-	#double shot (charge)
-	poke 0xe120 0x99
-	after time 5 trainer_exerion1
+proc trainer_exerion1 {} { 
+   #lives player 1 
+   poke 0xe108 3 
+   #lives player 2 
+   poke 0xe109 3 
+   #always charge player 1 
+   poke 0xe120 153 
+   #always charge player 2 
+   poke 0xe122 153 
+   after time 1 trainer_exerion1 
 }
 
-proc trainer_exerion2 {} {	
-	#lives
-	poke 0xe108 5
-	#double shot (charge)
-	poke 0xe120 0x99
-	after time 5 trainer_exerion2
+proc trainer_exerion2 {} { 
+   #lives player 1 
+   poke 0xe108 3 
+   #lives player 2 
+   poke 0xe109 3 
+   #always charge player 1 
+   poke 0xe120 153 
+   #always charge player 2 
+   poke 0xe122 153 
+   after time 1 trainer_exerion2 
 }
 
 proc trainer_swing {} {	
@@ -5807,6 +5817,97 @@ proc trainer_zexaslimited {} {
 	#invincible
 	poke 0xeecf 100
 	after time 60 trainer_zexaslimited
+}
+
+proc trainer_bankpanic {} { 
+   #lives player 1 
+   poke 0xf587 2 
+   #extra time player 1 
+   poke 0xf5b0 119 
+   #lives player 2 
+   poke 0xf5bf 2 
+   #extra time player 2 
+   poke 0xf5e3 119 
+   #level (1-9;16-24;...) 
+   #poke 0xf586 1 
+   after time 1 trainer_bankpanic 
+} 
+
+proc trainer_bombjackmsx1 {} { 
+   #lives player 1 
+   poke 0xc061 4 
+   #more points player 1 
+   poke 0xc063 4 
+   #lives player 2 
+   poke 0xc084 4 
+   #more points player 2 
+   poke 0xc086 4 
+   #only one frozen enemy 
+   poke 0xc010 55 
+   #round (1-50) 
+   #poke 0xc064 1 
+   after time 1 trainer_bombjackmsx1 
+}
+
+proc trainer_bombjackmsx2 {} { 
+   #lives 
+   poke 0x483a 52 
+   #more points 
+   poke 0x7d2a 3 
+   #invincible 
+   poke 0x7d4a 1 
+   #round (1-80) 
+   #poke 0x7d20 1 
+   after time 1 trainer_bombjackmsx2 
+}
+
+proc trainer_bombjackmsx2promo {} { 
+   #lives 
+   poke 0x46b9 52 
+   #more points 
+   poke 0x6a89 3 
+   #invincible 
+   poke 0x6aa9 1 
+   #round (1-5) 
+   #poke 0x6a7f 1 
+   after time 1 trainer_bombjackmsx2promo 
+}
+
+proc trainer_chacknpop {} { 
+   #lives 
+   poke 0xe06f 3 
+   #no monsters 
+   poke 0xe00d 255 
+   poke 0xe012 255 
+   poke 0xe017 255 
+   poke 0xe01c 255 
+   poke 0xe021 255 
+   poke 0xe026 255 
+   poke 0xe02b 255 
+   poke 0xe030 255 
+   poke 0xe035 255 
+   poke 0xe03a 255 
+   #infinite time 
+   poke 0xe06b 0 
+   #maze (1-8) 
+   #poke 0xe06d 1 
+   after time 1 trainer_chacknpop 
+}
+
+proc trainer_choplifter {} { 
+   #lives 
+   poke 0xe24d 0 
+   #only tanks 
+   poke 0xe27b 0 
+   after time 1 trainer_choplifter 
+}
+
+proc trainer_congobongo {} { 
+   #lives 
+   poke 0xf34b 3 
+   #infinite time (to use when the game begins) 
+   poke 0xf365 0 
+   after frame trainer_congobongo 
 }
 
 ### EOF ###
