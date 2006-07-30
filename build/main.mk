@@ -350,14 +350,22 @@ $(call BOOLCHECK,USE_PRECOMPH)
 # Strip binary?
 OPENMSX_STRIP?=false
 $(call BOOLCHECK,OPENMSX_STRIP)
+STRIP_SEPARATE:=false
 ifeq ($(OPENMSX_PROFILE),true)
   # Profiling does not work with stripped binaries, so override.
   OPENMSX_STRIP:=false
 endif
 ifeq ($(OPENMSX_STRIP),true)
-  LINK_FLAGS+=-s
+  ifeq ($(filter darwin%,$(OPENMSX_TARGET_OS)),)
+    # Tell GCC to produce a stripped binary.
+    LINK_FLAGS+=-s
+  else
+    # Current (mid-2006) GCC 4.x for OS X will strip too many symbols,
+    # resulting in a binary that cannot run.
+    # However, the separate "strip" tool does work correctly.
+    STRIP_SEPARATE:=true
+  endif
 endif
-
 
 # Determine common compile flags.
 INCLUDE_INTERNAL:=$(filter-out %/CVS,$(shell find $(SOURCES_PATH) -type d))
@@ -482,6 +490,10 @@ ifeq ($(OPENMSX_SUBSET),)
 	@echo "Linking $(notdir $@)..."
 	@mkdir -p $(@D)
 	@$(CXX) -o $@ $(CXXFLAGS) $^ $(LINK_FLAGS)
+  ifeq ($(STRIP_SEPARATE),true)
+	@echo "Stripping $(notdir $@)..."
+	@strip $@
+  endif
   ifeq ($(USE_SYMLINK),true)
 	@ln -sf $(@:$(BUILD_BASE)/%=%) $(BUILD_BASE)/$(BINARY_FILE)
   else
