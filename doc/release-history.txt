@@ -3,6 +3,97 @@ Release History
 
 This is an overview of the changes that were incorporated into past releases.
 
+openMSX 0.6.1 (2006-07-30)
+--------------------------
+
+This release includes major internal changes, although many are not visible
+from the outside.
+
+It is now possible to switch from one MSX machine to another while openMSX is
+running. This will reset the MSX of course.
+
+Also, it is possible to insert or remove cartridges (extensions or game ROMs)
+while openMSX is running. This does not reset the MSX, but the MSX system was
+not designed to support insertion or removal of cartridges while the machine is
+on. Although doing so will not damage openMSX (unlike a real MSX), it is
+possible the MSX will hang if hardware is removed that was being used, or that
+newly inserted hardware will not function properly until you reset the MSX.
+
+A new advanced video renderer was added: SDLGL-PP. This renderer requires
+OpenGL 2.0 and uses pixel shaders to postprocess the image. For new video cards,
+this is a very efficient way of scaling the image. For old video cards, please
+stick to the SDL or SDLGL renderer. Not all scalers are implemented yet:
+"simple" and "ScaleNx" work, as well as the new "TV" scaler, which is exclusive
+to SDLGL-PP.
+
+New or improved emulator features:
+- Run-time switching of machines:
+    change:        set machine <machine name>
+    query:         set machine
+- Run-time switching of extensions:
+    insert:        ext <extension name>
+    remove:        remove_extension <extension name>
+    query:         list_extensions
+- Run-time switching of ROMs:
+    insert/change: carta <file name>
+    remove:        carta -eject
+    query:         carta
+- New command "hda" to change the IDE harddisk ("hdb" for second drive etc).
+  This is allowed only when the power is off, for the safety of your data.
+- SDLGL-PP renderer (OpenGL-2.0), with the following exclusive features:
+  * scale factor 4
+  * TV scaler: brighter pixels are drawn bigger
+  * 3D monitor effect: (arcade look)
+    set display_deform 3D
+  * horizontal stretch: (MSX aspect ratio)
+    set display_deform horizontal_stretch
+- Monochrome monitor effect:
+    monitor_type <name>
+- Video noise effect:
+    set noise <amount>
+  Low amounts of noise (for example 2.5) can make the video look better, high
+  amounts are just a gimmick.
+- Brightness and contrast control: "set brightness <amount>" and "set contrast
+  <amount>", where 0 is neutral.
+  A small decrease in contrast will make the noise look better.
+- Preload disk image: avoids repeated spin-ups when loading from PC CD-ROM.
+- TCL procedures can now have a help text and TAB completion.
+  We also added help and completion to the TCL scripts that ship with openMSX.
+- New console command "about" which searches for commands (built-in or TCL
+  scripts) that seem to be about the given keyword. Useful if you forgot the
+  exact name of a command.
+- Watchpoints for I/O port and memory access:
+    debug set_watchpoint <type> <address> [<condition>] [<command>]
+    debug remove_watchpoint <id>
+    debug list_watchpoints
+  Where type is one of "read_io", "write_io", "read_mem" or "write_mem".
+  Address is in range 0..255 for I/O ports and 0..65535 for memory.
+  Condition and command are the similar to the "set_bp" command.
+- Detection of DI/HALT (hanging MSX).
+- Detection of Undefined Memory Reads (UMRs).
+  When memory is read that was never written to, a TCL procedure is called.
+  You can make your own, or use the included procedure named "umrcallback":
+    set umr_callback umrcallback
+  This is "valgrind" for MSX ;)
+
+MSX device support:
+- IDE CD-ROM support: the "ide" extension now contains a CD-ROM drive in
+  addition to a harddisk. You can insert ISO images with the "cda" command,
+  or "cdb" for the second CD-ROM etc. There is no support yet for audio tracks.
+  Note that you have to run IDECDEX in the emulated MSX before you can use
+  CD-ROMs; you can download it from Sunrise (http://www.msx.ch/sunformsx/).
+- Support for V9938 with only 16kB VRAM, as used in the SVI-738.
+- Major V9990 improvements.
+- Minor sound differences between two different PSG types (AY8910 and YM2149).
+- Added Ninja-tap, a joystick port expander.
+- Added DDX-3.0, a port-based external floppy interface.
+- Small bugfixes in various devices: VDP, RTC, FMPAC, MegaRAM, IDE.
+
+Build system, packaging, documentation:
+- OpenGL support now depends on GLEW (http://glew.sourceforge.net/).
+  GLEW is a library which allows us to conveniently use of GL extensions.
+- Build fixes for Intel Macs.
+
 openMSX 0.6.0 (2006-01-21)
 --------------------------
 
