@@ -48,6 +48,21 @@ bind / unbind / bind_default / unbind_default
     bind F9,release "set throttle on"
 
 
+cart / cart<x>
+--------------
+
+  Insert a game rom in a running MSX. The 'cart' command inserts the rom in the
+  first available slot. The 'slota', 'slotb', .. commands insert in the
+  specified slot. The roms can be removed again with the 'remove_extension'
+  command. See also the commands 'ext', 'list_extensions' and
+  'remove_extension'.
+
+  usage:
+    cart KMARE.ROM                Insert rom in first free slot
+    carta USAS.ROM -ips USAS.IPS  Insert rom in specified slot and apply IPS
+                                  patch
+
+
 cassetteplayer
 --------------
 
@@ -169,17 +184,6 @@ diska / diskb
     diska -ramdsk             insert scratch disk in drive "diska"
 
 
-escape_grab
------------
-
-  Only has effect in windowed mode and when the 'grabinput' setting is active.
-  Temporarily release the input grab. When window has lost and regained the
-  focus the grab is again effective.
-
-  usage:
-    escape_grab  temporarily release the input grab
-
-
 diskmanipulator
 ---------------
 
@@ -197,6 +201,28 @@ diskmanipulator
     diskmanipulator format  <disk name>
 
     diskmanipulator create  <dskfilename> <size/option> <size/option> ...
+
+
+escape_grab
+-----------
+
+  Only has effect in windowed mode and when the 'grabinput' setting is active.
+  Temporarily release the input grab. When window has lost and regained the
+  focus the grab is again effective.
+
+  usage:
+    escape_grab  temporarily release the input grab
+
+
+ext
+---
+
+  Insert a MSX extension in a running MSX machine. The extension can be removed
+  again with the 'remove_extension' command. See also the commands 'cart',
+  'list_extensions' and 'remove_extension'.
+
+  usage:
+    ext fmpac  Insert a FM-PAC in a running MSX machine.
 
 
 hda / hdb
@@ -221,6 +247,13 @@ help
     help <command>  shows help info for a specific command
 
 
+iomap
+-----
+
+  Shows what I/O ports are connected to which devices.
+  [ mainly useful for debugging purposes ]
+
+
 keymatrixup / keymatrixdown
 ---------------------------
 
@@ -234,6 +267,17 @@ keymatrixup / keymatrixdown
   examples:
     keymatrixup 6 0x01
     keymatrixdown 6 0x01
+
+
+list_extensions
+---------------
+
+  Returns a list of inserted roms and extension. These can be removed with the
+  'remove_extension' command or additional items can be added with the 'cart'
+  and 'ext' commands.
+
+  usage:
+    list_extensions   lists all currently inserted roms and extension
 
 
 load_settings
@@ -285,10 +329,30 @@ plug / unplug
     unplug joyportb
 
 
+remove_extension
+----------------
+
+  Remove a rom or extension from a running MSX machine. See also the commands
+  'cart', 'ext', 'list_extensions'.
+
+  usage:
+    remove_extension fmpac   removes the fmpac extension from the running msx 
+
+
 reset
 -----
 
   Resets the emulated MSX.
+
+
+save_settings
+-------------
+
+  Write the current openMSX settings to a settings file.
+
+  usage:
+    save_settings             Save settings to the default settings file  
+    save_settings <filename>  Save settings to the given filename
 
 
 screenshot
@@ -346,23 +410,6 @@ soundlog
     soundlog start -prefix foo  Log sound to file "fooNNNN.wav"
     soundlog stop               Stop logging sound
     soundlog toggle             Toggle sound logging state
-
-
-iomap
------
-
-  Shows what I/O ports are connected to which devices.
-  [ mainly useful for debugging purposes ]
-
-
-save_settings
--------------
-
-  Write the current openMSX settings to a settings file.
-
-  usage:
-    save_settings             Save settings to the default settings file  
-    save_settings <filename>  Save settings to the given filename
 
 
 toggle
