@@ -12,14 +12,21 @@ SUPPORTDIR:=build/package-darwin
 
 # These were the most recent versions at the moment of writing this Makefile.
 # You can use other versions if you like; adjust the names accordingly.
-PACKAGE_PNG:=libpng-1.2.8-config
-PACKAGE_SDL:=SDL-1.2.9
-PACKAGE_SDL_IMAGE:=SDL_image-1.2.4
+PACKAGE_PNG:=libpng-1.2.12
+PACKAGE_SDL:=SDL-1.2.11
+PACKAGE_SDL_IMAGE:=SDL_image-1.2.5
+PACKAGE_GLEW:=glew-1.3.4
 
-PACKAGES:=PNG SDL SDL_IMAGE
+# Unfortunately not all packages stick to naming conventions such as putting
+# the sources in a dir that includes the version number.
+PACKAGES_STD:=PNG SDL SDL_IMAGE
+PACKAGES_NONSTD:=GLEW
+PACKAGES:=$(PACKAGES_STD) $(PACKAGES_NONSTD)
 
 BUILD_TARGETS:=$(addprefix build-,$(PACKAGES))
 INSTALL_TARGETS:=$(addprefix install-,$(PACKAGES))
+
+INSTALL_PARAMS_GLEW:=GLEW_DEST=$(PWD)/$(STATIC_DIR)/install
 
 # We want a small distribution set, so optimize for size.
 # We got pretty good results with -Os in benchmarks, so it is not likely to
@@ -32,7 +39,7 @@ all: $(INSTALL_TARGETS)
 
 # Install.
 $(INSTALL_TARGETS): install-%: build-%
-	make -C $(STATIC_DIR)/$< install
+	make -C $(STATIC_DIR)/$< install $(INSTALL_PARAMS_$(subst install-,,$@))
 
 # Build.
 $(BUILD_TARGETS): build-%: $(STATIC_DIR)/build-%/Makefile
@@ -66,9 +73,7 @@ $(STATIC_DIR)/build-SDL_IMAGE/Makefile: \
 		--disable-xcf \
 		--disable-xpm \
 		--prefix=$(PWD)/$(STATIC_DIR)/install \
-		CFLAGS=-I$(PWD)/$(STATIC_DIR)/install/include/libpng
-# Note: libpng-config returns the "include" dir, while SDL_image expects
-#       "include/libpng".
+		CFLAGS=$(shell $(PWD)/$(STATIC_DIR)/install/bin/libpng12-config --cflags)
 
 # Configure libpng.
 $(STATIC_DIR)/build-PNG/Makefile: \
@@ -77,10 +82,24 @@ $(STATIC_DIR)/build-PNG/Makefile: \
 	cd $(@D) && $(PWD)/$</configure \
 		--prefix=$(PWD)/$(STATIC_DIR)/install
 
-# Extract.
-$(foreach PACKAGE,$(PACKAGES),$(STATIC_DIR)/$(PACKAGE_$(PACKAGE))): \
+# Don't configure GLEW.
+# GLEW does not support building outside of the source tree, so just copy
+# everything over (it's a small package).
+$(STATIC_DIR)/build-GLEW/Makefile: \
+  $(STATIC_DIR)/glew
+	cp -r $< $(@D)
+
+# Extract standardized packages.
+$(foreach PACKAGE,$(PACKAGES_STD),$(STATIC_DIR)/$(PACKAGE_$(PACKAGE))): \
   $(STATIC_DIR)/%: $(SOURCES_DIR)/%.tar.gz
 	mkdir -p $(STATIC_DIR)
 	tar -zxf $< -C $(STATIC_DIR)
 	test ! -e $(SUPPORTDIR)/$(<F:%.tar.gz=%.diff) || patch -p1 -N -u -d $@ < $(SUPPORTDIR)/$(<F:%.tar.gz=%.diff)
+	touch $@
+
+# Extract GLEW.
+$(STATIC_DIR)/glew: $(SOURCES_DIR)/$(PACKAGE_GLEW)-src.tgz
+	mkdir -p $(STATIC_DIR)
+	tar -zxf $< -C $(STATIC_DIR)
+	test ! -e $(SUPPORTDIR)/$(<F:%-src.tgz=%.diff) || patch -p1 -N -u -d $@ < $(SUPPORTDIR)/$(<F:%-src.tgz=%.diff)
 	touch $@
