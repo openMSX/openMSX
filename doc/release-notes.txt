@@ -44,7 +44,7 @@ New or improved emulator features:
     set display_deform horizontal_stretch
 - Monochrome monitor effect:
     monitor_type <name>
-- Added noise effect:
+- Video noise effect:
     set noise <amount>
   Low amounts of noise (for example 2.5) can make the video look better, high
   amounts are just a gimmick.
@@ -52,7 +52,7 @@ New or improved emulator features:
   <amount>", where 0 is neutral.
   A small decrease in contrast will make the noise look better.
 - Preload disk image: avoids repeated spin-ups when loading from PC CD-ROM.
-- TCL procedures can now have a help text and tab completion.
+- TCL procedures can now have a help text and TAB completion.
   We also added help and completion to the TCL scripts that ship with openMSX.
 - New console command "about" which searches for commands (built-in or TCL
   scripts) that seem to be about the given keyword. Useful if you forgot the
