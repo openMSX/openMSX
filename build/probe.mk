@@ -61,10 +61,14 @@ ALL_HEADERS:=$(addsuffix _H, \
 # we consider the GL headers found.
 GL_HEADER:=<gl.h>
 GL_GL_HEADER:=<GL/gl.h>
+# Use GL_CFLAGS for GL_GL as well, if someone overrides it.
+# In any case, only GL_CFLAGS will be used by the actual build.
+GL_GL_CFLAGS=$(GL_CFLAGS)
 
 # The comment for the GL headers applies to GLEW as well.
 GLEW_HEADER:=<glew.h>
 GL_GLEW_HEADER:=<GL/glew.h>
+GL_GLEW_CFLAGS=$(GLEW_CFLAGS)
 
 JACK_HEADER:=<jack/jack.h>
 
