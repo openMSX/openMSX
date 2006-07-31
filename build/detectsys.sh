@@ -35,7 +35,7 @@ case "$GUESSED_CPU" in
 		OPENMSX_TARGET_CPU=x86_64;;
 	amd64)
 		OPENMSX_TARGET_CPU=x86_64;;
-	powerpc)
+	powerpc*)
 		OPENMSX_TARGET_CPU=ppc;;
 	sparc*)
 		OPENMSX_TARGET_CPU=sparc;;
