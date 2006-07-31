@@ -13,6 +13,7 @@
 # - libpng
 # - SDL
 # - SDL_image
+# - GLEW
 # - libjpeg (used by SDL_image)
 # No libraries will be included in the app folder.
 # The following libraries will be disabled:
@@ -35,6 +36,11 @@ SET_WINDOW_ICON:=false
 DISABLED_HEADERS+=JACK_H
 DISABLED_LIBS+=JACK
 
+# GLEW header can be <GL/glew.h> or just <glew.h>; the dedicated version we use
+# resides in the "GL" dir, so don't look for the other one, or we might pick
+# up a different version somewhere on the system.
+DISABLED_HEADERS+=GLEW_H
+
 # Probe Overrides
 # ===============
 
@@ -54,3 +60,6 @@ SDL_IMAGE_LDFLAGS:=$(SDL_LDFLAGS) $(PNG_LDFLAGS) \
 	$(STATIC_LIBS_DIR)/libSDL_image.a \
 	$(shell grep -q "\-ljpeg" $(STATIC_LIBS_DIR)/libSDL_image.la 2>> /dev/null \
 		&& echo "$(STATIC_LIBS_DIR)/libjpeg.a")
+
+GLEW_CFLAGS:=-I$(STATIC_LIBS_DIR)/../include
+GLEW_LDFLAGS:=$(STATIC_LIBS_DIR)/libGLEW.a
