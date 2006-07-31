@@ -1,5 +1,9 @@
 $Id$
 
+2006-07-31 Joost Damad <joost@lumatec.be>
+	* add support for powerpc64: ppc64 cpu and flavour
+	* compile with -O1 on m68k by default
+
 2006-07-28 Manuel Bilderbeek <manuel@msxnet.org>
 	* Escape strings before sending them to TCL's splitList, fixes
 	  diskmanipulator with spaces in file names
@@ -967,6 +971,7 @@ $Id$
 	* yeah that was one year ago since I did an openmsx commit :)
 	* use word for casting a pointer to an integral; fixes build on 64bit
 	  systems
+	* test
 
 2005-11-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Remove all pending after commands on exit
