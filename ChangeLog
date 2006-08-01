@@ -4,6 +4,9 @@ $Id$
 	* add support for powerpc64: ppc64 cpu and flavour
 	* compile with -O1 on m68k by default
 
+2006-07-30 Maarten ter Huurne <maarten@treewalker.org>
+	* Released openmsx-0.6.1.
+
 2006-07-28 Manuel Bilderbeek <manuel@msxnet.org>
 	* Escape strings before sending them to TCL's splitList, fixes
 	  diskmanipulator with spaces in file names
@@ -28,7 +31,7 @@ $Id$
 	   when save_settings_on_exit was enabled there were two problems:
 	    - after testconfig run, renderer=none was saved in settings.xml.
 	      Fixed by introducing 'unsaveable' values on Setting
-	    - every other run the value would fallback to 'SDL'. For the 
+	    - every other run the value would fallback to 'SDL'. For the
 	      renderer setting we made the default value equal to the
 	      saved value (needed for the 'unset renderer' command executed
 	      by catapult) and settings with default value don't get saved.
@@ -118,7 +121,7 @@ $Id$
 	* Made rectangle_textures available on correct resolution on vertical
 	  linewidth borders:
 	   - fixes most SDLGL-PP glitches
-	   - TODO cleanup, make it work on ATI cards 
+	   - TODO cleanup, make it work on ATI cards
 
 2006-06-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Use texture_rectangle for SDLGL-PP shader:
