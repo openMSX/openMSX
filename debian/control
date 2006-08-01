@@ -2,12 +2,12 @@ Source: openmsx
 Section: otherosfs
 Priority: optional
 Maintainer: Joost Yervante Damad <joost@lumatec.be>
-Build-Depends: debhelper (>= 5.0.0), docbook-to-man, autotools-dev, libsdl1.2-dev, libsdl-image1.2-dev, libpng12-dev, tcl8.4-dev, xlibmesa-gl-dev | libgl-dev, libxml2-dev, dpatch, libjack-dev
-Standards-Version: 3.6.2
+Build-Depends: debhelper (>= 5.0.0), docbook-to-man, autotools-dev, libsdl1.2-dev, libsdl-image1.2-dev, libpng12-dev, tcl8.4-dev, xlibmesa-gl-dev | libgl-dev, libxml2-dev, dpatch, libjack-dev, libglew-dev (>= 1.3.4)
+Standards-Version: 3.7.2
 
 Package: openmsx
 Architecture: any
-Depends: openmsx-data (= ${Source-Version}), ${shlibs:Depends}
+Depends: openmsx-data (= ${Source-Version}), cbios, ${shlibs:Depends}
 Suggests: openmsx-catapult
 Description: the MSX emulator that aims for perfection
  openMSX is an open source MSX emulator that uses a unique emulation model,
@@ -19,7 +19,6 @@ Description: the MSX emulator that aims for perfection
 Package: openmsx-data
 Architecture: all
 Replaces: openmsx (<< 0.6.0-3)
-Depends: cbios, ${shlibs:Depends}
 Description: datafiles for openMSX, an MSX emulator
  These datafiles provide descriptions in XML format for various MSX machines
  and extensions.

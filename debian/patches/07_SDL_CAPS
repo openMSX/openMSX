@@ -21,14 +21,14 @@ esac
 exit 0
 
 @DPATCH@
---- openmsx-0.6.0.orig/src/input/Keyboard.cc       2006-04-04 20:15:39.000000000 +0200
-+++ openmsx-0.6.0/src/input/Keyboard.cc    2006-04-04 20:19:51.000000000 +0200
-@@ -136,17 +136,7 @@
+--- openmsx-0.6.1.orig/src/input/Keyboard.cc       2006-04-04 20:15:39.000000000 +0200
++++ openmsx-0.6.1/src/input/Keyboard.cc    2006-04-04 20:19:51.000000000 +0200
+@@ -185,17 +185,7 @@
  		Keys::KeyCode key = (Keys::KeyCode)
- 			((int)((EmuKeyEvent&)event).getKeyCode() &
+ 			((int)((KeyEvent&)event).getKeyCode() &
  			 (int)Keys::K_MASK);
 -		if (key != Keys::K_CAPSLOCK) {
--			processKey(type == OPENMSX_EMU_KEY_DOWN_EVENT, key);
+-			processKey(type == OPENMSX_KEY_DOWN_EVENT, key);
 -		} else {
 -			// This is a workaround for a SDL 'feature' (it's
 -			// actually a documented bug in SDL). In a future
@@ -38,7 +38,7 @@ exit 0
 -			Clock<1000> now(getScheduler().getCurrentTime());
 -			setSyncPoint(now + 100);
 -		}
-+		processKey(type == OPENMSX_EMU_KEY_DOWN_EVENT, key);
++		processKey(type == OPENMSX_KEY_DOWN_EVENT, key);
  	}
  }
  

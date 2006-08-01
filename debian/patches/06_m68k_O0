@@ -22,8 +22,8 @@ esac
 exit 0
 
 @DPATCH@
---- openmsx-0.6.0.orig/build/cpu-m68k.mk	2005-06-25 09:41:53.000000000 +0200
-+++ openmsx-0.6.0/build/cpu-m68k.mk	2006-02-04 15:06:39.000000000 +0100
+--- openmsx-0.6.1.orig/build/cpu-m68k.mk	2005-06-25 09:41:53.000000000 +0200
++++ openmsx-0.6.1/build/cpu-m68k.mk	2006-02-04 15:06:39.000000000 +0100
 @@ -8,3 +8,5 @@
  # Default build flavour.
  OPENMSX_FLAVOUR?=opt

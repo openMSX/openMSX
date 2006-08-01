@@ -22,8 +22,15 @@ endif
 config.status: configure
 	dh_testdir
 
+copyfiles:
+	cp -f debian/patches/cpu-ppc64.mk build
+	cp -f debian/patches/flavour-ppc64.mk build
 
-build: build-stamp
+uncopyfiles:
+	-rm -f build/flavour-ppc64.mk
+	-rm -f build/cpu-ppc64.mk
+
+build: copyfiles build-stamp
 
 build-stamp: patch config.status
 	dh_testdir
@@ -31,10 +38,10 @@ build-stamp: patch config.status
 	# Add here commands to compile the package.
 	$(MAKE) \
 		INSTALL_SHARE_DIR=/usr/share/openmsx
-	docbook-to-man debian/openmsx.sgml > debian/openmsx.1
+	docbook-to-man doc/openmsx.sgml > debian/openmsx.1
 	touch build-stamp
 
-clean: clean-patched unpatch
+clean: clean-patched unpatch uncopyfiles
 
 clean-patched:
 	dh_testdir
@@ -57,7 +64,6 @@ install-arch: build
 	dh_testroot
 	dh_clean -k
 	dh_installdirs
-	cp -f $(CURDIR)/debian/binary.lintian-overrides $(CURDIR)/debian/openmsx/usr/share/lintian/overrides/openmsx
 
 	$(MAKE) install \
 		INSTALL_BINARY_DIR=$(CURDIR)/debian/tmp/usr/bin \
@@ -71,8 +77,8 @@ install-arch: build
 	@find $(CURDIR)/debian/tmp/usr/share -name CVS | xargs rm -rf
 	@find $(CURDIR)/debian/tmp/usr/share/openmsx/extensions/ -name hardwareconfig.xml -exec chmod a-x {} \;
 	@find $(CURDIR)/debian/tmp -name .cvsignore |xargs rm -f
-	@chmod a+x $(CURDIR)/debian/tmp/usr/share/openmsx/scripts/convert_hardwareconfig.py
-	@chmod a+x $(CURDIR)/debian/tmp/usr/share/openmsx/scripts/convert_hardwareconfig2.py
+	@rm -f $(CURDIR)/debian/tmp/usr/share/openmsx/scripts/convert_hardwareconfig.py
+	@rm -f $(CURDIR)/debian/tmp/usr/share/openmsx/scripts/convert_hardwareconfig2.py
 	dh_install -a --sourcedir=debian/tmp
 
 install-indep: install-arch
@@ -84,7 +90,6 @@ install-indep: install-arch
 binary-indep: build install
 	dh_testdir -i
 	dh_testroot -i
-	dh_installman -i debian/openmsx.1
 	dh_installdocs -i
 	dh_installchangelogs -i ChangeLog
 	dh_installexamples -i
@@ -102,6 +107,7 @@ binary-indep: build install
 binary-arch: build install
 	dh_testdir -a
 	dh_testroot -a
+	dh_installman -a debian/openmsx.1
 	dh_link -a usr/share/doc/openmsx-data usr/share/doc/openmsx
 	dh_link -a
 	dh_strip -a

@@ -1,7 +1,5 @@
 #!/bin/sh -e
 ##  by Joost Yervante Damad <joost@lumatec.be>
-##
-## DP: fix ppc gcc option
 
 if [ $# -ne 1 ]; then
     echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
@@ -22,18 +20,14 @@ esac
 exit 0
 
 @DPATCH@
-diff -ur openmsx-0.5.2.orig/build/flavour-ppc.mk openmsx-0.5.2/build/flavour-ppc.mk
---- openmsx-0.5.2.orig/build/flavour-ppc.mk  2005-02-25 02:41:27.000000000 +0100
-+++ openmsx-0.5.2/build/flavour-ppc.mk      2005-06-29 18:56:07.000000000 +0200
-@@ -5,8 +5,8 @@
-
- # Optimisation flags.
- CXXFLAGS+=-O3 -DNDEBUG -mpowerpc-gfxopt
--#CXXFLAGS+=-mcpu=750
--CXXFLAGS+=-mcpu=G3
-+CXXFLAGS+=-mcpu=750
-+#CXXFLAGS+=-mcpu=G3
-
- # Strip executable?
- # TODO: Stripping would be good, but linker doesn't understand "--strip-all".
-
+--- openmsx-0.6.1.orig/build/detectsys.sh	2005-12-27 16:44:09.000000000 +0100
++++  openmsx-0.6.1/build/detectsys.sh	2006-07-31 21:49:25.000000000 +0200
+@@ -37,6 +37,8 @@
+ 		OPENMSX_TARGET_CPU=x86_64;;
+ 	powerpc)
+ 		OPENMSX_TARGET_CPU=ppc;;
++	powerpc64)
++		OPENMSX_TARGET_CPU=ppc64;;
+ 	sparc*)
+ 		OPENMSX_TARGET_CPU=sparc;;
+ 	m68k)
