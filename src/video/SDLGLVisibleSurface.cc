@@ -7,6 +7,7 @@
 #include "InitException.hh"
 #include "IconLayer.hh"
 #include "build-info.hh"
+#include <vector>
 #include <cstdlib>
 
 namespace openmsx {
@@ -180,24 +181,13 @@ void SDLGLVisibleSurface::takeScreenShot(const std::string& filename)
 {
 	unsigned width  = getWidth();
 	unsigned height = getHeight();
-	byte** row_pointers = static_cast<byte**>(
-		malloc(height * sizeof(byte*)));
-	byte* buffer = static_cast<byte*>(
-		malloc(width * height * 3 * sizeof(byte)));
+	std::vector<byte*> row_pointers(height);
+	std::vector<byte> buffer(width * height * 3);
 	for (unsigned i = 0; i < height; ++i) {
 		row_pointers[height - 1 - i] = &buffer[width * 3 * i];
 	}
-	glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, buffer);
-	try {
-		ScreenShotSaver::save(width, height, row_pointers, filename);
-	} catch(...) {
-		// TODO: Use "finally" instead?
-		free(row_pointers);
-		free(buffer);
-		throw;
-	}
-	free(row_pointers);
-	free(buffer);
+	glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, &buffer[0]);
+	ScreenShotSaver::save(width, height, &row_pointers[0], filename);
 }
 
 std::auto_ptr<Layer> SDLGLVisibleSurface::createSnowLayer()
