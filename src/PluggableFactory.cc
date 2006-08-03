@@ -18,6 +18,7 @@
 #include "Mouse.hh"
 #include "PrinterPortLogger.hh"
 #include "PrinterPortSimpl.hh"
+#include "Printer.hh"
 #include "RS232Tester.hh"
 #include "WavAudioInput.hh"
 #if	defined(_WIN32)
@@ -76,6 +77,10 @@ void PluggableFactory::createAll(PluggingController& controller,
 	MidiInNative::registerAll(eventDistributor, scheduler, controller);
 	MidiOutNative::registerAll(controller);
 #endif
+
+	// Printers
+	controller.registerPluggable(new ImagePrinterMSX());
+	controller.registerPluggable(new ImagePrinterEpson());
 }
 
 } // namespace openmsx

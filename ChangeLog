@@ -1,5 +1,9 @@
 $Id$
 
+2006-08-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added Dot Matrix Printer Emulation:
+	   code mostly taken from blueMSX
+
 2006-07-31 Joost Damad <joost@lumatec.be>
 	* add support for powerpc64: ppc64 cpu and flavour
 	* compile with -O1 on m68k by default
