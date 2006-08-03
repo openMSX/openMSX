@@ -17,6 +17,8 @@ namespace ScreenShotSaver {
 	void save(SDL_Surface* image, const std::string& filename);
 	void save(unsigned witdh, unsigned height,
 	          byte** row_pointers, const std::string& filename);
+	void saveGrayscale(unsigned witdh, unsigned height,
+	                   byte** row_pointers, const std::string& filename);
 
 } // namespace ScreenShotSaver
 

@@ -16,7 +16,7 @@ namespace openmsx {
 namespace ScreenShotSaver {
 
 static bool IMG_SavePNG_RW(int width, int height, png_bytep* row_pointers,
-                           const std::string& filename)
+                           const std::string& filename, bool color)
 {
 	FILE* fp = fopen(filename.c_str(), "wb");
 	if (!fp) {
@@ -58,8 +58,9 @@ static bool IMG_SavePNG_RW(int width, int height, png_bytep* row_pointers,
 	// because that is by far the easiest thing to do
 
 	png_set_IHDR(png_ptr, info_ptr, width, height, 8,
-	             PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
-	             PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+	             color ? PNG_COLOR_TYPE_RGB : PNG_COLOR_TYPE_GRAY,
+	             PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE,
+	             PNG_FILTER_TYPE_BASE);
 
 	// Write the file header information.  REQUIRED
 	png_write_info(png_ptr, info_ptr);
@@ -114,7 +115,8 @@ void save(SDL_Surface* surface, const std::string& filename)
 		row_pointers[i] = ((byte*)surf24->pixels) + (i * surf24->pitch);
 	}
 
-	bool result = IMG_SavePNG_RW(surface->w, surface->h, row_pointers, filename);
+	bool result = IMG_SavePNG_RW(surface->w, surface->h,
+	                             row_pointers, filename, true);
 
 	free(row_pointers);
 	SDL_FreeSurface(surf24);
@@ -127,7 +129,17 @@ void save(SDL_Surface* surface, const std::string& filename)
 void save(unsigned width, unsigned height,
           byte** row_pointers, const std::string& filename)
 {
-	if (!IMG_SavePNG_RW(width, height, (png_bytep*)row_pointers, filename)) {
+	if (!IMG_SavePNG_RW(width, height, (png_bytep*)row_pointers,
+		            filename, true)) {
+		throw CommandException("Failed to write " + filename);
+	}
+}
+
+void saveGrayscale(unsigned width, unsigned height,
+	           byte** row_pointers, const std::string& filename)
+{
+	if (!IMG_SavePNG_RW(width, height, (png_bytep*)row_pointers,
+		            filename, false)) {
 		throw CommandException("Failed to write " + filename);
 	}
 }
