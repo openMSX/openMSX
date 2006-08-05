@@ -1,6 +1,12 @@
 $Id$
 
-2006-08-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2006-08-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* write printed pages to "dot-matrix" director (like screenshots dir)
+	* made printer image resolution a setting:
+	    between 150dpi and 1200dpi. Default (300dpi) is a compromise
+	    between quality and imagesize/speed
+
+2006-08-04 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added Dot Matrix Printer Emulation:
 	   code mostly taken from blueMSX
 

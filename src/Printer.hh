@@ -19,13 +19,16 @@
 
 namespace openmsx {
 
+class CommandController;
+class CliComm;
+
 class Paper
 {
 public:
 	Paper(unsigned x, unsigned y);
 	~Paper();
 
-	void save(const std::string& filename) const;
+	std::string save() const;
 	void setDotSize(double sizeX, double sizeY);
 	void plot(double x, double y);
 
@@ -94,7 +97,7 @@ public:
 	virtual void forceFormFeed();
 
 protected:
-	ImagePrinter();
+	ImagePrinter(CommandController& commandController);
 	~ImagePrinter();
 
 	void resetEmulatedPrinter();
@@ -179,7 +182,8 @@ protected:
 		double pixelDelta;
 	} fontInfo;
 
-	unsigned printPage;
+private:
+	CliComm& cliComm;
 	std::auto_ptr<Paper> paper;
 };
 
@@ -187,7 +191,7 @@ protected:
 class ImagePrinterMSX : public ImagePrinter
 {
 public:
-	ImagePrinterMSX();
+	ImagePrinterMSX(CommandController& commandController);
 
 	// Pluggable
 	virtual const std::string& getName() const;
@@ -208,7 +212,7 @@ private:
 class ImagePrinterEpson : public ImagePrinter
 {
 public:
-	ImagePrinterEpson();
+	ImagePrinterEpson(CommandController& commandController);
 
 	// Pluggable
 	virtual const std::string& getName() const;

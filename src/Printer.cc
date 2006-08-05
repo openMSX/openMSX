@@ -3,6 +3,10 @@
 #include "Printer.hh"
 #include "ScreenShotSaver.hh"
 #include "StringOp.hh"
+#include "FileOperations.hh"
+#include "FloatSetting.hh"
+#include "CommandController.hh"
+#include "CliComm.hh"
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -85,8 +89,20 @@ void RawPrinter::forceFormFeed()
 
 // class ImagePrinter
 
-ImagePrinter::ImagePrinter()
+static unsigned settingRefCounter = 0;
+static FloatSetting* dpiSetting = NULL;
+
+ImagePrinter::ImagePrinter(CommandController& commandController)
+	: cliComm(commandController.getCliComm())
 {
+	if (settingRefCounter == 0) {
+		dpiSetting = new FloatSetting(
+	        	commandController, "dot-matrix-printer-resolution",
+	        	"resolution of the ouput image of emulated dot matrix printer in DPI",
+	        	300, 150, 1200);
+	}
+	++settingRefCounter;
+
 	letterQuality = false;
 	bold = false;
 	proportional = false;
@@ -115,7 +131,6 @@ ImagePrinter::ImagePrinter()
 	ramLoadEnd = 0;
 	countryCode = CC_USA;
 
-	printPage = 1;
 	printAreaTop = -1.0;
 	printAreaBottom = 0.0;
 }
@@ -123,6 +138,11 @@ ImagePrinter::ImagePrinter()
 ImagePrinter::~ImagePrinter()
 {
 	flushEmulatedPrinter();
+
+	--settingRefCounter;
+	if (settingRefCounter == 0) {
+		delete dpiSetting;
+	}
 }
 
 void ImagePrinter::write(byte data)
@@ -228,17 +248,16 @@ void ImagePrinter::ensurePrintPage()
 	if (!paper.get()) {
 		// A4 paper format (210mm x 297mm) at 300dpi
 		// TODO make this configurable
-		static const unsigned PAPER_SIZE_X = 2480;
-		static const unsigned PAPER_SIZE_Y = 3508;
-		paper.reset(new Paper(PAPER_SIZE_X, PAPER_SIZE_Y));
+		double dpi = dpiSetting->getValue();
+		unsigned paperSizeX = static_cast<unsigned>((210 / 25.4) * dpi);
+		unsigned paperSizeY = static_cast<unsigned>((297 / 25.4) * dpi);
+		paper.reset(new Paper(paperSizeX, paperSizeY));
 
 		unsigned dotsX, dotsY;
 		getNumberOfDots(dotsX, dotsY);
-		pixelSizeX = (double)PAPER_SIZE_X / dotsX;
-		pixelSizeY = (double)PAPER_SIZE_Y / dotsY;
+		pixelSizeX = (double)paperSizeX / dotsX;
+		pixelSizeY = (double)paperSizeY / dotsY;
 		paper->setDotSize(pixelSizeX, pixelSizeY);
-
-		//wsprintf(docName, TEXT("blueMSX (%lu)"), printPage);
 	}
 }
 
@@ -246,10 +265,14 @@ void ImagePrinter::flushEmulatedPrinter()
 {
 	if (paper.get()) {
 		if (printAreaBottom > printAreaTop) {
-			paper->save("page" + StringOp::toString(printPage) + ".png");
+			try {
+				string filename = paper->save();
+				cliComm.printInfo("Printed to " + filename);
+			} catch (MSXException& e) {
+				cliComm.printWarning("Failed to print: " + e.getMessage());
+			}
 			printAreaTop = -1.0;
 			printAreaBottom = 0.0;
-			++printPage;
 		}
 		paper.reset();
 	}
@@ -589,7 +612,8 @@ static const byte MSXFontRaw[256 * 8] = {
 
 static byte MSXFont[256 * 9];
 
-ImagePrinterMSX::ImagePrinterMSX()
+ImagePrinterMSX::ImagePrinterMSX(CommandController& commandController)
+	: ImagePrinter(commandController)
 {
 	graphicsHiLo  = true;
 
@@ -1165,7 +1189,8 @@ static const byte EpsonFontRom[] = {
 	0x8b, 0x1a, 0x24, 0x42, 0x08, 0x92, 0x20, 0x84, 0x48, 0xb0, 0x00, 0x00  // 255
 };
 
-ImagePrinterEpson::ImagePrinterEpson()
+ImagePrinterEpson::ImagePrinterEpson(CommandController& commandController)
+	: ImagePrinter(commandController)
 {
 	graphicsHiLo = false;
 
@@ -1623,13 +1648,16 @@ Paper::~Paper()
 	delete[] buf;
 }
 
-void Paper::save(const string& filename) const
+string Paper::save() const
 {
+	string filename = FileOperations::getNextNumberedFileName(
+		"dot-matrix", "page", ".png");
 	std::vector<byte*> row_pointers(sizeY);
 	for (unsigned y = 0; y < sizeY; ++y) {
 		row_pointers[y] = &buf[sizeX * y];
 	}
 	ScreenShotSaver::saveGrayscale(sizeX, sizeY, &row_pointers[0], filename);
+	return filename;
 }
 
 void Paper::setDotSize(double sizeX, double sizeY)
