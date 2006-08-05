@@ -26,7 +26,7 @@ SDLFont::SDLFont(File* file, SDL_Surface* surface)
 	// load the font bitmap
 	SDL_Surface* image1;
 	if (!(image1 = IMG_Load(file->getLocalName().c_str()))) {
-		throw MSXException("Can't load font");
+		throw MSXException("Can't load font " + (file->getLocalName()));
 	}
 	fontSurface = SDL_DisplayFormatAlpha(image1);
 	SDL_FreeSurface(image1);
@@ -40,7 +40,7 @@ SDLFont::SDLFont(File* file, SDL_Surface* surface)
 		format->Rmask, format->Gmask, format->Bmask, 0);
 	if (!workImage) {
 		SDL_FreeSurface(fontSurface);
-		throw MSXException("Can't load font");
+		throw MSXException("Can't create surface for font " + (file->getLocalName()));
 	}
 }
 
