@@ -97,7 +97,7 @@ ImagePrinter::ImagePrinter(CommandController& commandController)
 {
 	if (settingRefCounter == 0) {
 		dpiSetting = new FloatSetting(
-	        	commandController, "dot-matrix-printer-resolution",
+	        	commandController, "print-resolution",
 	        	"resolution of the ouput image of emulated dot matrix printer in DPI",
 	        	300, 150, 1200);
 	}
@@ -1651,7 +1651,7 @@ Paper::~Paper()
 string Paper::save() const
 {
 	string filename = FileOperations::getNextNumberedFileName(
-		"dot-matrix", "page", ".png");
+		"prints", "page", ".png");
 	std::vector<byte*> row_pointers(sizeY);
 	for (unsigned y = 0; y < sizeY; ++y) {
 		row_pointers[y] = &buf[sizeX * y];
