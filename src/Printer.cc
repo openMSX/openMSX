@@ -205,9 +205,9 @@ void ImagePrinter::plot9Dots(double x, double y, unsigned pattern)
 
 static byte reverse(byte v)
 {
-	v = ((v & 0xF0) >> 4) | ((v & 0x0F) << 4); 
-	v = ((v & 0xCC) >> 2) | ((v & 0x33) << 2); 
-	v = ((v & 0xAA) >> 1) | ((v & 0x55) << 1); 
+	v = ((v & 0xF0) >> 4) | ((v & 0x0F) << 4);
+	v = ((v & 0xCC) >> 2) | ((v & 0x33) << 2);
+	v = ((v & 0xAA) >> 1) | ((v & 0x55) << 1);
 	return v;
 }
 void ImagePrinter::printGraphicByte(byte data)
@@ -295,7 +295,7 @@ void ImagePrinter::printVisibleCharacter(byte data)
 	ensurePrintPage();
 
 	double iYPos = 0;
-	byte* charBitmap = (fontInfo.useRam ? fontInfo.ram : fontInfo.rom) 
+	byte* charBitmap = (fontInfo.useRam ? fontInfo.ram : fontInfo.rom)
 	                 + fontInfo.charWidth * data;
 	byte attribute = charBitmap[0];
 	unsigned start = (attribute >> 4) & 0x07;
@@ -697,7 +697,7 @@ void ImagePrinterMSX::resetSettings()
 unsigned ImagePrinterMSX::calcEscSequenceLength(byte character)
 {
 	switch (character) {
-		case 'A': case 'C':
+		case 'C':
 			return 1;
 		case 'T': case 'Z':
 			return 2;
@@ -729,15 +729,15 @@ void ImagePrinterMSX::processEscSequence()
 {
 	switch (abEscSeq[0]) {
 		case 'N':
-			proportional = false; 
+			proportional = false;
 			fontDensity = 1.0;
 			break;
 		case 'E':
-			proportional = false; 
+			proportional = false;
 			fontDensity = 1.40;
 			break;
 		case 'Q':
-			proportional = false; 
+			proportional = false;
 			fontDensity = 1.72;
 			break;
 		case 'P':
@@ -844,7 +844,7 @@ void ImagePrinterMSX::processEscSequence()
 			sizeRemainingDataBytes = parseNumber(4, 4);
 			break;
 		case 'S': // Print graphics, density depending on font
-			sizeRemainingDataBytes = parseNumber(1, 3);
+			sizeRemainingDataBytes = parseNumber(1, 4);
 			break;
 		case 'X':
 			underline = true;
@@ -1234,7 +1234,7 @@ void ImagePrinterEpson::resetSettings()
 	fontInfo.useRam = false;
 }
 
-unsigned ImagePrinterEpson::calcEscSequenceLength(byte character) 
+unsigned ImagePrinterEpson::calcEscSequenceLength(byte character)
 {
 	switch (character & 127) {
 		case '!': case '-': case '/': case '3': case 'A': case 'J':
@@ -1439,7 +1439,7 @@ void ImagePrinterEpson::processEscSequence()
 			sizeRemainingDataBytes = parseNumber(1, 2);
 			break;
 		case 'M': // Turn Elite mode ON
-			elite = true;        
+			elite = true;
 			fontDensity = 1.20;
 			break;
 		case 'N': // Turn Skip Over Perforation ON
@@ -1609,13 +1609,13 @@ void ImagePrinterEpson::processCharacter(byte data)
 				fontDensity = 1.72;
 			}
 			break;
-		case 17: // Device Control 1: 
+		case 17: // Device Control 1:
 			break;
 		case 18: // Device Control 2: turns compressed mode OFF
 			compressed = false;
 			fontDensity = 1.00;
 			break;
-		case 19: // Device Control 3: 
+		case 19: // Device Control 3:
 			break;
 		case 20: // Device Control 4: Turns expanded mode OFF
 			doubleWidth = false;
