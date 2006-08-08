@@ -20,7 +20,7 @@ Scheduler::~Scheduler()
 
 void Scheduler::setSyncPoint(const EmuTime& time, Schedulable& device, int userData)
 {
-	//PRT_DEBUG("Sched: registering " << device->schedName() <<
+	//PRT_DEBUG("Sched: registering " << device.schedName() <<
 	//          " " << userData << " for emulation at " << time);
 	assert(Thread::isMainThread());
 	assert(time >= scheduleTime);
