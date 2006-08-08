@@ -1,5 +1,11 @@
 $Id$
 
+2006-08-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed indeterministic behaviour in CPU emulation:
+	   CPU could react one instruction too late to an IRQ,
+	   depending on which other sync points there are
+	   (see comments in CPUCore.cc for more details)
+
 2006-08-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* write printed pages to "dot-matrix" director (like screenshots dir)
 	* made printer image resolution a setting:

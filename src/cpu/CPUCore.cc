@@ -515,22 +515,20 @@ template <class T> void CPUCore<T>::executeSlow()
 template <class T> void CPUCore<T>::execute()
 {
 	executeInternal();
-
-	// synchronize scheduler with cpu
-	scheduler.schedule(T::getTime());
 }
 
 template <class T> void CPUCore<T>::executeInternal()
 {
 	assert(!breaked);
 
+	scheduler.schedule(T::getTime());
 	slowInstructions = 2;
 
 	if (continued || step) {
 		// at least one instruction
 		continued = false;
-		scheduler.schedule(T::getTime());
 		executeSlow();
+		scheduler.schedule(T::getTime());
 		--slowInstructions;
 		if (step) {
 			step = false;
@@ -539,41 +537,39 @@ template <class T> void CPUCore<T>::executeInternal()
 		}
 	}
 
+	// Note: we call scheduler _after_ executing the instruction and before
+	// deciding between executeFast() and executeSlow() (because a
+	// SyncPoint could set an IRQ and then we must choose executeSlow())
 	if (!anyBreakPoints() && !traceSetting.getValue()) {
 		// fast path, no breakpoints, no tracing
-		while (true) {
+		while (!needExitCPULoop()) {
 			if (slowInstructions) {
 				--slowInstructions;
-				scheduler.schedule(T::getTime());
-				// check exit before executing instruction
-				// (HALT instruction can be very long)
-				if (needExitCPULoop()) return;
 				executeSlow();
+				scheduler.schedule(T::getTime());
 			} else {
 				while (!slowInstructions) {
+					executeFast();
 					scheduler.schedule(T::getTime());
 					if (needExitCPULoop()) return;
-					executeFast();
 				}
 			}
 		}
 	} else {
-		while (true) {
+		while (!needExitCPULoop()) {
 			if (checkBreakPoints(R)) {
 				continued = true; // skip bp check on next instr
 				break;
 			}
 			if (slowInstructions == 0) {
-				scheduler.schedule(T::getTime());
-				if (needExitCPULoop()) return;
 				cpuTracePre();
 				executeFast();
 				cpuTracePost();
+				scheduler.schedule(T::getTime());
 			} else {
 				--slowInstructions;
-				scheduler.schedule(T::getTime());
-				if (needExitCPULoop()) return;
 				executeSlow();
+				scheduler.schedule(T::getTime());
 			}
 		}
 	}
