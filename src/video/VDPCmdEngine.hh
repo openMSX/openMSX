@@ -71,12 +71,16 @@ public:
 		transfer = true;
 	}
 
-	/** Gets the X coordinate of a border detected by SRCH.
+	/** Gets the X coordinate of a border detected by SRCH (intended behaviour,
+          * as documented in the V9938 technical data book). However, real VDP
+          * simply returns the current value of the ASX 'temporary source X' counter,
+          * regardless of the command that is being executed or was executed most
+          * recently
 	  * @param time The moment in emulated time this get occurs.
 	  */
 	inline int getBorderX(const EmuTime& time) {
 		sync(time);
-		return borderX;
+		return ASX;
 	}
 
 	/** Writes to a command register.
@@ -208,8 +212,6 @@ private:
 		  * cycle.
 		  */
 		Clock<VDP::TICKS_PER_SECOND> clock;
-
-		word ASX, ADX, ANX;
 	};
 
 	template <template <class Mode> class Command>
@@ -377,7 +379,9 @@ private:
 
 	/** VDP command registers.
 	  */
-	word SX, SY, DX, DY, NX, NY;
+	word SX, SY, DX, DY, NX, NY; // registers that can be set by CPU
+	word ASX, ADX, ANX; // Temporary registers used in the VDP commands
+                            // Register ASX can be read (via status register 8/9)
 	byte COL, ARG, CMD, LOG;
 
 	/** The command engine status (part of S#2).
@@ -392,10 +396,6 @@ private:
 	  * next byte.
 	  */
 	bool transfer;
-
-	/** The X coordinate of a border detected by SRCH.
-	  */
-	int borderX;
 
 	/** The VDP this command engine is part of.
 	  */
