@@ -28,6 +28,7 @@ GLHQLiteScaler::GLHQLiteScaler()
 
 	edgeTexture.reset(new Texture());
 	edgeTexture->bind();
+	edgeTexture->setWrapMode(false);
 	glTexImage2D(GL_TEXTURE_2D,    // target
 	             0,                // level
 	             GL_LUMINANCE16,   // internal format
@@ -44,6 +45,7 @@ GLHQLiteScaler::GLHQLiteScaler()
 		int n = i + 2;
 		int n2 = n * n;
 		linearizeTexture[i].reset(new Texture());
+		edgeTexture->setWrapMode(false);
 		linearizeTexture[i]->bind();
 		for (int j = 0; j < n2; ++j) {
 			buf[j] = (int)(((256 * j + 128) / (double)n2) + 0.5);
@@ -59,6 +61,7 @@ GLHQLiteScaler::GLHQLiteScaler()
 			     buf);             // data
 
 		weightTexture[i].reset(new Texture());
+		edgeTexture->setWrapMode(false);
 		weightTexture[i]->bind();
 		glTexImage2D(GL_TEXTURE_2D,    // target
 			     0,                // level
