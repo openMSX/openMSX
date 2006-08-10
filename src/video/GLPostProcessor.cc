@@ -369,6 +369,10 @@ void GLPostProcessor::uploadBlock(
 		//GLUtil::checkGLError("GLPostProcessor::uploadFrame");
 		paintFrame->freeLineBuffers(); // ASAP to keep cache warm
 	}
+
+	if (currScaler.get()) {
+		currScaler->uploadBlock(srcStartY, srcEndY, lineWidth, *paintFrame);
+	}
 }
 
 void GLPostProcessor::drawGlow(int glow)

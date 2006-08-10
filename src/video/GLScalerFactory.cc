@@ -4,6 +4,7 @@
 #include "GLSimpleScaler.hh"
 #include "GLScaleNxScaler.hh"
 #include "GLTVScaler.hh"
+#include "GLHQLiteScaler.hh"
 #include "RenderSettings.hh"
 #include "EnumSetting.hh"
 #include <cassert>
@@ -21,7 +22,6 @@ auto_ptr<GLScaler> GLScalerFactory::createScaler(
 	// TODO: Until we have GL versions of these, map them to "simple".
 	case RenderSettings::SCALER_SAI:
 	case RenderSettings::SCALER_HQ:
-	case RenderSettings::SCALER_HQLITE:
 	case RenderSettings::SCALER_RGBTRIPLET:
 		return auto_ptr<GLScaler>(
 			new GLSimpleScaler(renderSettings)
@@ -30,6 +30,8 @@ auto_ptr<GLScaler> GLScalerFactory::createScaler(
 		return auto_ptr<GLScaler>(new GLScaleNxScaler());
 	case RenderSettings::SCALER_TV:
 		return auto_ptr<GLScaler>(new GLTVScaler());
+	case RenderSettings::SCALER_HQLITE:
+		return auto_ptr<GLScaler>(new GLHQLiteScaler());
 	default:
 		assert(false);
 	}

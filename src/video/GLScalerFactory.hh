@@ -17,8 +17,7 @@ public:
 	  * @return A Scaler object, owned by the caller.
 	  */
 	static std::auto_ptr<GLScaler> createScaler(
-		RenderSettings& renderSettings
-		);
+		RenderSettings& renderSettings);
 };
 
 } // namespace openmsx

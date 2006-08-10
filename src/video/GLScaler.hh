@@ -6,6 +6,7 @@
 namespace openmsx {
 
 class ColourTexture;
+class FrameSource;
 
 /** Abstract base class for OpenGL scalers.
   * A scaler is an algorithm that converts low-res graphics to hi-res graphics.
@@ -30,6 +31,10 @@ public:
 		ColourTexture& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		unsigned dstStartY, unsigned dstEndY, unsigned dstWidth) = 0;
+	
+	virtual void uploadBlock(
+		unsigned /*srcStartY*/, unsigned /*srcEndY*/,
+		unsigned /*lineWidth*/, FrameSource& /*paintFrame*/) {}
 };
 
 } // namespace openmsx
