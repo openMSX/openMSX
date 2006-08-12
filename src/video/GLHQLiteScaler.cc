@@ -11,7 +11,7 @@ namespace openmsx {
 #include "HQ3xLiteWeights.nn"
 #include "HQ4xLiteWeights.nn"
 
-byte* weightData[3] = {
+static byte* weightData[3] = {
 	hq2xLiteWeights,
 	hq3xLiteWeights,
 	hq4xLiteWeights,
@@ -45,7 +45,7 @@ GLHQLiteScaler::GLHQLiteScaler()
 		int n = i + 2;
 		int n2 = n * n;
 		linearizeTexture[i].reset(new Texture());
-		edgeTexture->setWrapMode(false);
+		// we need wrap mode here
 		linearizeTexture[i]->bind();
 		for (int j = 0; j < n2; ++j) {
 			buf[j] = (int)(((256 * j + 128) / (double)n2) + 0.5);
@@ -61,7 +61,7 @@ GLHQLiteScaler::GLHQLiteScaler()
 			     buf);             // data
 
 		weightTexture[i].reset(new Texture());
-		edgeTexture->setWrapMode(false);
+		weightTexture[i]->setWrapMode(false);
 		weightTexture[i]->bind();
 		glTexImage2D(GL_TEXTURE_2D,    // target
 			     0,                // level
