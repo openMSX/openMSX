@@ -1,5 +1,8 @@
 $Id$
 
+2006-08-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented hq as a OpenGL 2.0 shader
+
 2006-08-10 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented hqlite as a OpenGL 2.0 shader:
 	   supports 2x 3x 4x

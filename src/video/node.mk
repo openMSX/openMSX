@@ -52,6 +52,9 @@ DIST:= \
 	HQ2xLiteScaler-1x1to2x2.nn \
 	HQ2xLiteScaler-1x1to1x2.nn \
 	HQ3xLiteScaler-1x1to3x3.nn \
+	HQ2xWeights.nn \
+	HQ3xWeights.nn \
+	HQ4xWeights.nn \
 	HQ2xLiteWeights.nn \
 	HQ3xLiteWeights.nn \
 	HQ4xLiteWeights.nn
@@ -59,7 +62,8 @@ DIST:= \
 SRC_HDR_$(COMPONENT_GL)+= \
 	SDLGLVisibleSurface GLSnow GLUtil GLImage \
 	GLRasterizer GL2Rasterizer GLPostProcessor GLScalerFactory \
-	GLSimpleScaler GLScaleNxScaler GLTVScaler GLHQLiteScaler
+	GLSimpleScaler GLScaleNxScaler GLTVScaler \
+	GLHQScaler GLHQLiteScaler
 
 HDR_ONLY_$(COMPONENT_GL)+= \
 	GLScaler
