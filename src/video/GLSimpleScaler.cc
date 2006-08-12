@@ -42,8 +42,8 @@ void GLSimpleScaler::scaleImage(
 	if ((blur != 0) && (srcWidth != 1)) { // srcWidth check: workaround for ATI cards
 		src.enableInterpolation();
 	}
-	scalerProgram->activate();
-	if (GLEW_VERSION_2_0) {
+	if (GLEW_VERSION_2_0 && ((blur != 0.0) || (scanline != 1.0))) {
+		scalerProgram->activate();
 		unsigned yScale = (dstEndY - dstStartY) / (srcEndY - srcStartY);
 		GLfloat a = (yScale & 1) ? 0.5f : ((yScale + 1) / (2.0f * yScale));
 		glUniform2f(texSizeLoc, srcWidth, height);
