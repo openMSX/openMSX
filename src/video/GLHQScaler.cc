@@ -4,24 +4,14 @@
 #include "GLUtil.hh"
 #include "HQCommon.hh"
 #include "FrameSource.hh"
+#include "FileContext.hh"
+#include "File.hh"
+#include "StringOp.hh"
 #include "openmsx.hh"
 
+using std::string;
+
 namespace openmsx {
-
-#include "HQ2xWeights.nn"
-#include "HQ3xWeights.nn"
-#include "HQ4xWeights.nn"
-
-static byte* offsetData[3] = {
-	hq2xOffsets,
-	hq3xOffsets,
-	hq4xOffsets,
-};
-static byte* weightData[3] = {
-	hq2xWeights,
-	hq3xWeights,
-	hq4xWeights,
-};
 
 GLHQScaler::GLHQScaler()
 {
@@ -45,6 +35,7 @@ GLHQScaler::GLHQScaler()
 	             GL_UNSIGNED_SHORT,// type
 	             NULL);            // data
 
+	SystemFileContext context;
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	byte buf[4 * 4];
 	for (int i = 0; i < 3; ++i) {
@@ -66,31 +57,37 @@ GLHQScaler::GLHQScaler()
 			     GL_UNSIGNED_BYTE, // type
 			     buf);             // data
 
+		string offsetsName = "shaders/HQ" + StringOp::toString(n) +
+		                     "xOffsets.dat";
+		File offsetsFile(context.resolve(offsetsName));
 		offsetTexture[i].reset(new Texture());
 		offsetTexture[i]->setWrapMode(false);
 		offsetTexture[i]->bind();
-		glTexImage2D(GL_TEXTURE_2D,    // target
-			     0,                // level
-			     GL_RGBA8,         // internal format
-			     n2,               // width
-			     4096,             // height
-			     0,                // border
-			     GL_RGBA,          // format
-			     GL_UNSIGNED_BYTE, // type
-			     offsetData[i]);   // data
+		glTexImage2D(GL_TEXTURE_2D,      // target
+			     0,                  // level
+			     GL_RGBA8,           // internal format
+			     n2,                 // width
+			     4096,               // height
+			     0,                  // border
+			     GL_RGBA,            // format
+			     GL_UNSIGNED_BYTE,   // type
+			     offsetsFile.mmap());// data
 
+		string weightsName = "shaders/HQ" + StringOp::toString(n) +
+		                     "xWeights.dat";
+		File weightsFile(context.resolve(weightsName));
 		weightTexture[i].reset(new Texture());
 		weightTexture[i]->setWrapMode(false);
 		weightTexture[i]->bind();
-		glTexImage2D(GL_TEXTURE_2D,    // target
-			     0,                // level
-			     GL_RGB8,          // internal format
-			     n2,               // width
-			     4096,             // height
-			     0,                // border
-			     GL_RGB,           // format
-			     GL_UNSIGNED_BYTE, // type
-			     weightData[i]);   // data
+		glTexImage2D(GL_TEXTURE_2D,      // target
+			     0,                  // level
+			     GL_RGB8,            // internal format
+			     n2,                 // width
+			     4096,               // height
+			     0,                  // border
+			     GL_RGB,             // format
+			     GL_UNSIGNED_BYTE,   // type
+			     weightsFile.mmap());// data
 	}
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4); // restore to default
 

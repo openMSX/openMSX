@@ -3,19 +3,14 @@
 #include "GLHQLiteScaler.hh"
 #include "GLUtil.hh"
 #include "FrameSource.hh"
+#include "FileContext.hh"
+#include "File.hh"
+#include "StringOp.hh"
 #include "openmsx.hh"
 
+using std::string;
+
 namespace openmsx {
-
-#include "HQ2xLiteWeights.nn"
-#include "HQ3xLiteWeights.nn"
-#include "HQ4xLiteWeights.nn"
-
-static byte* weightData[3] = {
-	hq2xLiteWeights,
-	hq3xLiteWeights,
-	hq4xLiteWeights,
-};
 
 GLHQLiteScaler::GLHQLiteScaler()
 {
@@ -39,6 +34,7 @@ GLHQLiteScaler::GLHQLiteScaler()
 	             GL_UNSIGNED_SHORT,// type
 	             NULL);            // data
 
+	SystemFileContext context;
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	byte buf[4 * 4];
 	for (int i = 0; i < 3; ++i) {
@@ -60,18 +56,21 @@ GLHQLiteScaler::GLHQLiteScaler()
 			     GL_UNSIGNED_BYTE, // type
 			     buf);             // data
 
+		string weightsName = "shaders/HQ" + StringOp::toString(n) +
+		                     "xLiteWeights.dat";
+		File weightsFile(context.resolve(weightsName));
 		weightTexture[i].reset(new Texture());
 		weightTexture[i]->setWrapMode(false);
 		weightTexture[i]->bind();
-		glTexImage2D(GL_TEXTURE_2D,    // target
-			     0,                // level
-			     GL_RGB8,          // internal format
-			     n2,               // width
-			     4096,             // height
-			     0,                // border
-			     GL_RGB,           // format
-			     GL_UNSIGNED_BYTE, // type
-			     weightData[i]);   // data
+		glTexImage2D(GL_TEXTURE_2D,      // target
+			     0,                  // level
+			     GL_RGB8,            // internal format
+			     n2,                 // width
+			     4096,               // height
+			     0,                  // border
+			     GL_RGB,             // format
+			     GL_UNSIGNED_BYTE,   // type
+			     weightsFile.mmap());// data
 	}
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4); // restore to default
 

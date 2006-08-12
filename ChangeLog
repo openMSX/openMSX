@@ -2,6 +2,10 @@ $Id$
 
 2006-08-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented hq as a OpenGL 2.0 shader
+	* Use external data files in GLHQScaler and GLHQLiteScaler:
+	   - work around limitation in MSYS assembler(?):
+	        Assembler messages:
+	        Warning: .stabs: description field '11004' too big, try a different debug format
 
 2006-08-10 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented hqlite as a OpenGL 2.0 shader:
