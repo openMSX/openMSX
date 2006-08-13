@@ -6,7 +6,7 @@ please join us looking for cheats and submit them to the www.openmsx.org forum
 credits:
   copyright 2005-2006 Albert Beevendorp all rights reserved
   copyright 2005-2006 Patrick van Arkel all rights reserved
-  copyright 	   2006 Benoit Delvaux all rights reserved 
+  copyright 2006 Benoit Delvaux all rights reserved 
 
 the definition of cheating according to google:
 
@@ -376,8 +376,8 @@ proc trainer_thexder1 {} {
 	#energy
 	poke 0xf2d4 255
 	poke 0xf2d6 255
-    #disable killer missles 255 = true / 0 = false
-    poke 0xf2ec 255
+	 #disable killer missles 255 = true / 0 = false
+	 poke 0xf2ec 255
 	after time 2 trainer_thexder1 
 } 
 
@@ -476,7 +476,7 @@ proc trainer_salamander {} {
 	poke 0xe410 1
 	#place in postition 2
 	poke 0xe412 2
-    	#option 3 active
+	 	#option 3 active
 	poke 0xe420 1
 	#place in postition 3
 	poke 0xe422 3
@@ -768,13 +768,13 @@ proc trainer_sdsnatcher {} {
 
 	#junkers
 	poke 0xc451 99
-        
+		  
 	#newtrits
 	poke 0xc459 99
-        
+		  
 	#newtrits
 	poke 0xc459 99
-       
+		 
 	#jyro
 	poke 0xc461 99
 
@@ -1169,8 +1169,8 @@ proc trainer_metalgear1 {} {
 	
 	#put a nuclear warhead on your remote missles 8)
 	if {[peek 0xc142] == 7} {
-	    poke 0xc142 16
-    }
+		 poke 0xc142 16
+	 }
 	#cart 1
 	#if {[peek 0xc3d2] == 2}  {puts "cart 1"}
 	#if {[peek 0xc3d2] == 66} {puts "cart 1"}
@@ -1189,7 +1189,7 @@ proc trainer_metalgear1 {} {
 	#if {[peek 0xc3d2] == 76} {puts "cart 5"}
 	#if {[peek 0xc3d2] == 70} {puts "cart 5"}
 	#cart 6
-	#if {[peek 0xc3d2] == 7}  {puts "cart 6"}   
+	#if {[peek 0xc3d2] == 7}  {puts "cart 6"}	
 	#if {[peek 0xc3d2] == 47} {puts "cart 6"}
 	#cart 7	
 	#if {[peek 0xc3d2] == 8}  {puts "cart 7"}
@@ -1211,7 +1211,7 @@ proc trainer_metalgear1 {} {
 	#stop destruction timer
 	#!poke 0xc13d 0x99
 	#!poke 0xc13e 0x99
-    
+	 
 	#open all doors
 	for {set i 0xc450} { $i < 0xc4fe } { incr i } {
 		poke $i 0	
@@ -2868,7 +2868,7 @@ proc trainer_superrambospecial {} {
 proc trainer_supertriton {} { 
 	#exp
 	poke 0xd023 255
-    	#life
+	 	#life
 	poke 0xd024 255
 	#red life
 	poke 0xd025 255
@@ -2878,7 +2878,7 @@ proc trainer_supertriton {} {
 proc trainer_triton {} { 
 	#exp
 	poke 0xe43b 100
-    	#life
+	 	#life
 	poke 0xe439 99
 	#magic balls
 	poke 0xe43c 99
@@ -2888,7 +2888,7 @@ proc trainer_triton {} {
 proc trainer_afterburner {} { 
 	#missles
 	poke 0x5e23 255
-    	#lives
+	 	#lives
 	poke 0x5e4e 100
 	after time 10 trainer_afterburner 
 } 
@@ -3315,17 +3315,17 @@ proc trainer_1942 {} {
 proc trainer_boulderdash1 {} {
 	#exit is always open
 	poke 0xd9b0 1
-   #lives
+	#lives
 	poke 0xd98f 255
-   #unvulnerable
-    poke 0xd83c 0
+	#unvulnerable
+	 poke 0xd83c 0
 	after frame trainer_boulderdash1
 }
 
 proc trainer_kikikaikai {} {
 	#max shot
 	poke 0xc070 9
-   #lives
+	#lives
 	poke 0xc025 255
 	after time 2 trainer_kikikaikai
 }
@@ -3586,14 +3586,14 @@ proc trainer_deepforest {} {
 	#power
 	poke 0xeb1a 255
  	#money
-    poke 0xeb1b 99 	
-    poke 0xeb1c 99
-    #untouchable
-    #poke 0xea0e 255
-    #jump higher
-    poke 0xea0d 255
-    poke 0xea0f 255
-    poke 0xea08 255
+	 poke 0xeb1b 99 	
+	 poke 0xeb1c 99
+	 #untouchable
+	 #poke 0xea0e 255
+	 #jump higher
+	 poke 0xea0d 255
+	 poke 0xea0f 255
+	 poke 0xea08 255
  	after time 2 trainer_deepforest 	
 }
 
@@ -3975,9 +3975,9 @@ proc trainer_knightlore {} {
 }
 
 proc trainer_pitfall2 {} {
-    if {[peek 0xe05d] != 9} {
-	    poke 0xe050 0
-    }
+	 if {[peek 0xe05d] != 9} {
+		 poke 0xe050 0
+	 }
 	#power (89abcd)
 	poke 0xe058 9
 	poke 0xe059 9
@@ -4779,14 +4779,14 @@ proc trainer_saimazoom {} {
 	# 106 = gun*
 	# 107 = nothing		
 	if {[peek 0xd9e8] < 100} {
-	    poke 0xd9e8 100
-    }
-    
-    poke  0xd9e8 [expr [peek 0xd9e8]+1]
-    
+		 poke 0xd9e8 100
+	 }
+	 
+	 poke  0xd9e8 [expr [peek 0xd9e8]+1]
+	 
 	if {[peek 0xd9e8] > 106} {
-	    poke 0xd9e8 100
-    }
+		 poke 0xd9e8 100
+	 }
 	after time 1 trainer_saimazoom
 }
 
@@ -5226,8 +5226,8 @@ proc trainer_deepdungeon2 {} {
 proc trainer_nsub {} {
 	#lives
 	poke 0xc13b 3
-   	#round (0-99) 
-   	#poke 0xc142 1 
+		#round (0-99) 
+		#poke 0xc142 1 
 	after time 1 trainer_nsub
 }
 
@@ -5710,27 +5710,27 @@ proc trainer_stepper {} {
 }
 
 proc trainer_exerion1 {} { 
-   #lives player 1 
-   poke 0xe108 3 
-   #lives player 2 
-   poke 0xe109 3 
-   #always charge player 1 
-   poke 0xe120 153 
-   #always charge player 2 
-   poke 0xe122 153 
-   after time 1 trainer_exerion1 
+	#lives player 1 
+	poke 0xe108 3 
+	#lives player 2 
+	poke 0xe109 3 
+	#always charge player 1 
+	poke 0xe120 153 
+	#always charge player 2 
+	poke 0xe122 153 
+	after time 1 trainer_exerion1 
 }
 
 proc trainer_exerion2 {} { 
-   #lives player 1 
-   poke 0xe108 3 
-   #lives player 2 
-   poke 0xe109 3 
-   #always charge player 1 
-   poke 0xe120 153 
-   #always charge player 2 
-   poke 0xe122 153 
-   after time 1 trainer_exerion2 
+	#lives player 1 
+	poke 0xe108 3 
+	#lives player 2 
+	poke 0xe109 3 
+	#always charge player 1 
+	poke 0xe120 153 
+	#always charge player 2 
+	poke 0xe122 153 
+	after time 1 trainer_exerion2 
 }
 
 proc trainer_swing {} {	
@@ -5820,94 +5820,116 @@ proc trainer_zexaslimited {} {
 }
 
 proc trainer_bankpanic {} { 
-   #lives player 1 
-   poke 0xf587 2 
-   #extra time player 1 
-   poke 0xf5b0 119 
-   #lives player 2 
-   poke 0xf5bf 2 
-   #extra time player 2 
-   poke 0xf5e3 119 
-   #level (1-9;16-24;...) 
-   #poke 0xf586 1 
-   after time 1 trainer_bankpanic 
+	#lives player 1 
+	poke 0xf587 2 
+	#extra time player 1 
+	poke 0xf5b0 119 
+	#lives player 2 
+	poke 0xf5bf 2 
+	#extra time player 2 
+	poke 0xf5e3 119 
+	#level (1-9;16-24;...) 
+	#poke 0xf586 1 
+	after time 1 trainer_bankpanic 
 } 
 
 proc trainer_bombjackmsx1 {} { 
-   #lives player 1 
-   poke 0xc061 4 
-   #more points player 1 
-   poke 0xc063 4 
-   #lives player 2 
-   poke 0xc084 4 
-   #more points player 2 
-   poke 0xc086 4 
-   #only one frozen enemy 
-   poke 0xc010 55 
-   #round (1-50) 
-   #poke 0xc064 1 
-   after time 1 trainer_bombjackmsx1 
+	#lives player 1 
+	poke 0xc061 4 
+	#more points player 1 
+	poke 0xc063 4 
+	#lives player 2 
+	poke 0xc084 4 
+	#more points player 2 
+	poke 0xc086 4 
+	#only one frozen enemy 
+	poke 0xc010 55 
+	#round (1-50) 
+	#poke 0xc064 1 
+	after time 1 trainer_bombjackmsx1 
 }
 
 proc trainer_bombjackmsx2 {} { 
-   #lives 
-   poke 0x483a 52 
-   #more points 
-   poke 0x7d2a 3 
-   #invincible 
-   poke 0x7d4a 1 
-   #round (1-80) 
-   #poke 0x7d20 1 
-   after time 1 trainer_bombjackmsx2 
+	#lives 
+	poke 0x483a 52 
+	#more points 
+	poke 0x7d2a 3 
+	#invincible 
+	poke 0x7d4a 1 
+	#round (1-80) 
+	#poke 0x7d20 1 
+	after time 1 trainer_bombjackmsx2 
 }
 
 proc trainer_bombjackmsx2promo {} { 
-   #lives 
-   poke 0x46b9 52 
-   #more points 
-   poke 0x6a89 3 
-   #invincible 
-   poke 0x6aa9 1 
-   #round (1-5) 
-   #poke 0x6a7f 1 
-   after time 1 trainer_bombjackmsx2promo 
+	#lives 
+	poke 0x46b9 52 
+	#more points 
+	poke 0x6a89 3 
+	#invincible 
+	poke 0x6aa9 1 
+	#round (1-5) 
+	#poke 0x6a7f 1 
+	after time 1 trainer_bombjackmsx2promo 
 }
 
 proc trainer_chacknpop {} { 
-   #lives 
-   poke 0xe06f 3 
-   #no monsters 
-   poke 0xe00d 255 
-   poke 0xe012 255 
-   poke 0xe017 255 
-   poke 0xe01c 255 
-   poke 0xe021 255 
-   poke 0xe026 255 
-   poke 0xe02b 255 
-   poke 0xe030 255 
-   poke 0xe035 255 
-   poke 0xe03a 255 
-   #infinite time 
-   poke 0xe06b 0 
-   #maze (1-8) 
-   #poke 0xe06d 1 
-   after time 1 trainer_chacknpop 
+	#lives 
+	poke 0xe06f 3 
+	#no monsters 
+	poke 0xe00d 255 
+	poke 0xe012 255 
+	poke 0xe017 255 
+	poke 0xe01c 255 
+	poke 0xe021 255 
+	poke 0xe026 255 
+	poke 0xe02b 255 
+	poke 0xe030 255 
+	poke 0xe035 255 
+	poke 0xe03a 255 
+	#infinite time 
+	poke 0xe06b 0 
+	#maze (1-8) 
+	#poke 0xe06d 1 
+	after time 1 trainer_chacknpop 
 }
 
 proc trainer_choplifter {} { 
-   #lives 
-   poke 0xe24d 0 
-   #only tanks 
-   poke 0xe27b 0 
-   after time 1 trainer_choplifter 
+	#lives 
+	poke 0xe24d 0 
+	#only tanks 
+	poke 0xe27b 0 
+	after time 1 trainer_choplifter 
 }
 
 proc trainer_congobongo {} { 
-   #lives 
-   poke 0xf34b 3 
-   #infinite time (to use when the game begins) 
-   poke 0xf365 0 
-   after frame trainer_congobongo 
+	#lives 
+	poke 0xf34b 3 
+	#infinite time (to use when the game begins) 
+	poke 0xf365 0 
+	after time 1 trainer_congobongo 
+}
+
+proc trainer_towerofdrauga {} {
+	#lives 
+	poke 0xe9ef 5
+	#always have key
+	poke 0xea0e 1
+	#infinite time
+	poke 0xea05 128
+	#pick axe
+	poke 0xeb64 1
+	poke 0xea0d 250
+	after time 1 trainer_towerofdrauga 
+}
+
+
+proc trainer_rally-x {} {
+	#fuel
+	poke 0xe039 64
+	#lives
+	poke 0xe035 5
+	after time 1 trainer_rally-x
 }
 
 ### EOF ###
