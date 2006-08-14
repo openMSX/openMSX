@@ -13,6 +13,28 @@ using std::string;
 
 namespace openmsx {
 
+// TODO apply this transformation on the data file, or even better
+// generate the data algorithmically (including this transformation)
+static void transform(const byte* in, byte* out, int n, int s)
+{
+	for (int z = 0; z < 4096; ++z) {
+		int z1Offset = s * n * n * z;
+		int z2Offset = s * (n * (z % 32) +
+		                    n * n * 32 * (z / 32));
+		for (int y = 0; y < n; ++y) {
+			int y1Offset = s * n      * y;
+			int y2Offset = s * n * 32 * y;
+			for (int x = 0; x < n; ++x) {
+				int offset1 = z1Offset + y1Offset + s * x;
+				int offset2 = z2Offset + y2Offset + s * x;
+				for (int t = 0; t < s; ++t) {
+					out[offset2 + t] = in[offset1 + t];
+				}
+			}
+		}
+	}
+}
+
 GLHQScaler::GLHQScaler()
 {
 	VertexShader   vertexShader  ("hq.vert");
@@ -37,57 +59,44 @@ GLHQScaler::GLHQScaler()
 
 	SystemFileContext context;
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	byte buf[4 * 4];
+	byte buffer[4 * 4 * 4 * 4096];
 	for (int i = 0; i < 3; ++i) {
 		int n = i + 2;
-		int n2 = n * n;
-		linearizeTexture[i].reset(new Texture());
-		// we need wrap mode here
-		linearizeTexture[i]->bind();
-		for (int j = 0; j < n2; ++j) {
-			buf[j] = (int)(((256 * j + 128) / (double)n2) + 0.5);
-		}
-		glTexImage2D(GL_TEXTURE_2D,    // target
-			     0,                // level
-			     GL_LUMINANCE,     // internal format
-			     n,                // width
-			     n,                // height
-			     0,                // border
-			     GL_LUMINANCE,     // format
-			     GL_UNSIGNED_BYTE, // type
-			     buf);             // data
-
 		string offsetsName = "shaders/HQ" + StringOp::toString(n) +
 		                     "xOffsets.dat";
 		File offsetsFile(context.resolve(offsetsName));
-		offsetTexture[i].reset(new Texture());
+		offsetTexture[i].reset(new Texture(GL_TEXTURE_3D));
 		offsetTexture[i]->setWrapMode(false);
 		offsetTexture[i]->bind();
-		glTexImage2D(GL_TEXTURE_2D,      // target
+		transform(offsetsFile.mmap(), buffer, n, 4);
+		glTexImage3D(GL_TEXTURE_3D,      // target
 			     0,                  // level
 			     GL_RGBA8,           // internal format
-			     n2,                 // width
-			     4096,               // height
+			     n * 32,             // width
+			     n,                  // height
+			     4096 / 32,          // depth
 			     0,                  // border
 			     GL_RGBA,            // format
 			     GL_UNSIGNED_BYTE,   // type
-			     offsetsFile.mmap());// data
+			     buffer);            // data
 
 		string weightsName = "shaders/HQ" + StringOp::toString(n) +
 		                     "xWeights.dat";
 		File weightsFile(context.resolve(weightsName));
-		weightTexture[i].reset(new Texture());
+		weightTexture[i].reset(new Texture(GL_TEXTURE_3D));
 		weightTexture[i]->setWrapMode(false);
 		weightTexture[i]->bind();
-		glTexImage2D(GL_TEXTURE_2D,      // target
+		transform(weightsFile.mmap(), buffer, n, 3);
+		glTexImage3D(GL_TEXTURE_3D,      // target
 			     0,                  // level
 			     GL_RGB8,            // internal format
-			     n2,                 // width
-			     4096,               // height
+			     n * 32,             // width
+			     n,                  // height
+			     4096 / 32,          // depth
 			     0,                  // border
 			     GL_RGB,             // format
 			     GL_UNSIGNED_BYTE,   // type
-			     weightsFile.mmap());// data
+			     buffer);            // data
 	}
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4); // restore to default
 
@@ -96,9 +105,8 @@ GLHQScaler::GLHQScaler()
 		scalerProgram->activate();
 		glUniform1i(scalerProgram->getUniformLocation("colorTex"),  0);
 		glUniform1i(scalerProgram->getUniformLocation("edgeTex"),   1);
-		glUniform1i(scalerProgram->getUniformLocation("linearTex"), 2);
-		glUniform1i(scalerProgram->getUniformLocation("offsetTex"), 3);
-		glUniform1i(scalerProgram->getUniformLocation("weightTex"), 4);
+		glUniform1i(scalerProgram->getUniformLocation("offsetTex"), 2);
+		glUniform1i(scalerProgram->getUniformLocation("weightTex"), 3);
 		glUniform2f(scalerProgram->getUniformLocation("texSize"),
 		            320.0f, 2 * 240.0f);
 	}
@@ -115,12 +123,10 @@ void GLHQScaler::scaleImage(
 
 	if ((srcWidth == 320) && (factorX > 1) && (factorX == factorY)) {
 		assert(src.getHeight() == 2 * 240);
-		glActiveTexture(GL_TEXTURE4);
-		weightTexture[factorX - 2]->bind();
 		glActiveTexture(GL_TEXTURE3);
-		offsetTexture[factorX - 2]->bind();
+		weightTexture[factorX - 2]->bind();
 		glActiveTexture(GL_TEXTURE2);
-		linearizeTexture[factorX - 2]->bind();
+		offsetTexture[factorX - 2]->bind();
 		glActiveTexture(GL_TEXTURE1);
 		edgeTexture->bind();
 		glActiveTexture(GL_TEXTURE0);

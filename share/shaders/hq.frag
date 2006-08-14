@@ -2,9 +2,8 @@
 
 uniform sampler2D edgeTex;
 uniform sampler2D colorTex;
-uniform sampler2D linearTex;
-uniform sampler2D offsetTex;
-uniform sampler2D weightTex;
+uniform sampler3D offsetTex;
+uniform sampler3D weightTex;
 
 varying vec2 mid;
 varying vec2 leftTop;
@@ -14,15 +13,13 @@ varying vec2 texStep2; // could be uniform
 
 void main()
 {
-	float edgeBits = texture2D(edgeTex, edgePos).y;
-
-	// These are actually 2 times a 3D texture lookup, but on my
-	// gfx card (Nvidia Geforce 6200) max texture dimension for 3D
-	// textures is more limited (max 512) then for 2D textures (max
-	// 4096). We need 4096.
-	float linear = texture2D(linearTex, weightPos).x;
-	vec4 offsets = texture2D(offsetTex, vec2(linear, edgeBits));
-	vec3 weights = texture2D(weightTex, vec2(linear, edgeBits)).xyz;
+	float edgeBits = texture2D(edgeTex, edgePos).z;
+	// transform (N x N x 4096) 3D texture coordinates
+	// to (32N x N * 4096/32)
+	float x = fract(weightPos.x) * (1.0/32.0) +
+	          fract(4096.0/32.0 * (edgeBits - 1.0/8192.0));
+	vec4 offsets = texture3D(offsetTex, vec3(x, fract(weightPos.y), edgeBits));
+	vec3 weights = texture3D(weightTex, vec3(x, fract(weightPos.y), edgeBits)).xyz;
 
 	vec4 c5 = texture2D(colorTex, mid);
 	vec4 cx = texture2D(colorTex, leftTop + texStep2 * offsets.xy);
