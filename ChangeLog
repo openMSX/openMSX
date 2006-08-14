@@ -1,5 +1,9 @@
 $Id$
 
+2006-08-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Transform texture coordinates from (N x N x 4096) to 32N x N x 128
+	  because some gfx cards can't handle that big dimensions
+
 2006-08-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented hq as a OpenGL 2.0 shader
 	* Use external data files in GLHQScaler and GLHQLiteScaler:

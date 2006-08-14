@@ -82,7 +82,7 @@ class PixelBuffer;
 class Texture
 {
 public:
-	Texture();
+	Texture(int type = GL_TEXTURE_2D);
 	virtual ~Texture();
 
 	/** Makes this texture the active GL texture.
@@ -91,7 +91,7 @@ public:
 	  * this texture for use in GL function calls outside of this class.
 	  */
 	void bind() {
-		glBindTexture(GL_TEXTURE_2D, textureId);
+		glBindTexture(type, textureId);
 	}
 
 	/** Enables bilinear interpolation for this texture.
@@ -111,12 +111,15 @@ public:
 	              GLint   x,  GLint   y,  GLint   width,  GLint   height);
 
 protected:
+	int type;
 	GLuint textureId;
 };
 
 class ColourTexture: public Texture
 {
 public:
+	ColourTexture();
+
 	/** Sets the image for this texture.
 	  */
 	void setImage(GLsizei width, GLsizei height, GLuint* data = NULL);
@@ -145,6 +148,8 @@ private:
 class LuminanceTexture: public Texture
 {
 public:
+	LuminanceTexture();
+
 	/** Sets the image for this texture.
 	  */
 	void setImage(GLsizei width, GLsizei height, GLbyte* data = NULL);
@@ -367,6 +372,8 @@ public:
 	/** Deactivates all shader programs.
 	  */
 	static void deactivate();
+
+	void validate();
 
 private:
 	GLuint handle;

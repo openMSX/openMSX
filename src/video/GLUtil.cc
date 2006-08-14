@@ -22,15 +22,17 @@
 #endif
 #endif
 
+using std::string;
+
 namespace openmsx {
 
 /*namespace GLUtil {
 
-void checkGLError(const std::string& prefix)
+void checkGLError(const string& prefix)
 {
 	GLenum error = glGetError();
 	if (error != GL_NO_ERROR) {
-		std::string err = (char*)gluErrorString(error);
+		string err = (char*)gluErrorString(error);
 		std::cerr << "GL error: " << prefix << ": " << err << std::endl;
 	}
 }
@@ -40,7 +42,8 @@ void checkGLError(const std::string& prefix)
 
 // class Texture
 
-Texture::Texture()
+Texture::Texture(int type_)
+	: type(type_)
 {
 	glGenTextures(1, &textureId);
 	disableInterpolation();
@@ -54,28 +57,29 @@ Texture::~Texture()
 void Texture::enableInterpolation()
 {
 	bind();
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(type, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(type, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
 void Texture::disableInterpolation()
 {
 	bind();
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(type, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(type, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 }
 
 void Texture::setWrapMode(bool wrap)
 {
 	bind();
 	int mode = wrap ? GL_REPEAT : GL_CLAMP;
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, mode);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, mode);
+	glTexParameteri(type, GL_TEXTURE_WRAP_S, mode);
+	glTexParameteri(type, GL_TEXTURE_WRAP_T, mode);
 }
 
 void Texture::drawRect(GLfloat tx, GLfloat ty, GLfloat twidth, GLfloat theight,
                        GLint   x,  GLint   y,  GLint   width,  GLint   height)
 {
+	assert(type == GL_TEXTURE_2D);
 	const GLint x2 = x + width;
 	const GLint y2 = y + height;
 	const GLfloat tx2 = tx + twidth;
@@ -93,6 +97,11 @@ void Texture::drawRect(GLfloat tx, GLfloat ty, GLfloat twidth, GLfloat theight,
 
 
 // class ColourTexture
+
+ColourTexture::ColourTexture()
+	: Texture(GL_TEXTURE_2D)
+{
+}
 
 void ColourTexture::setImage(GLsizei width_, GLsizei height_, GLuint* data)
 {
@@ -113,8 +122,7 @@ void ColourTexture::setImage(GLsizei width_, GLsizei height_, GLuint* data)
 }
 
 void ColourTexture::updateImage(
-	GLint x, GLint y, GLsizei width, GLsizei height, GLuint* data
-	)
+	GLint x, GLint y, GLsizei width, GLsizei height, GLuint* data)
 {
 	bind();
 	glTexSubImage2D(
@@ -126,14 +134,12 @@ void ColourTexture::updateImage(
 		height,           // height
 		GL_RGBA,          // format
 		GL_UNSIGNED_BYTE, // type
-		data              // data
-		);
+		data);            // data
 }
 
 void ColourTexture::updateImage(
 	GLint x, GLint y, GLsizei width, GLsizei height,
-	const PixelBuffer& buffer, GLuint bx, GLuint by
-	)
+	const PixelBuffer& buffer, GLuint bx, GLuint by)
 {
 	assert(0 <= static_cast<GLint>(bx) + width < buffer.width);
 	assert(0 <= static_cast<GLint>(by) + height < buffer.height);
@@ -151,8 +157,7 @@ void ColourTexture::updateImage(
 			height,           // height
 			GL_RGBA,          // format
 			GL_UNSIGNED_BYTE, // type
-			data              // data
-			);
+			data);            // data
 	} else {
 		// Partial line copy.
 		for (GLint endy = y + height; y < endy; y++) {
@@ -165,8 +170,7 @@ void ColourTexture::updateImage(
 				1,                // height
 				GL_RGBA,          // format
 				GL_UNSIGNED_BYTE, // type
-				data              // data
-				);
+				data);            // data
 			data += buffer.width;
 		}
 	}
@@ -175,6 +179,11 @@ void ColourTexture::updateImage(
 
 
 // class LuminanceTexture
+
+LuminanceTexture::LuminanceTexture()
+	: Texture(GL_TEXTURE_2D)
+{
+}
 
 void LuminanceTexture::setImage(GLsizei width, GLsizei height, GLbyte* data)
 {
@@ -190,13 +199,11 @@ void LuminanceTexture::setImage(GLsizei width, GLsizei height, GLbyte* data)
 		0,                // border
 		GL_LUMINANCE,     // format
 		GL_UNSIGNED_BYTE, // type
-		data              // data
-		);
+		data);            // data
 }
 
 void LuminanceTexture::updateImage(
-	GLint x, GLint y, GLsizei width, GLsizei height, GLbyte* data
-	)
+	GLint x, GLint y, GLsizei width, GLsizei height, GLbyte* data)
 {
 	bind();
 	glTexSubImage2D(
@@ -208,15 +215,14 @@ void LuminanceTexture::updateImage(
 		height,           // height
 		GL_LUMINANCE,     // format
 		GL_UNSIGNED_BYTE, // type
-		data              // data
-		);
+		data);            // data
 }
 
 
 // class BitmapTexture
 
 BitmapTexture::BitmapTexture()
-	: Texture()
+	: Texture(GL_TEXTURE_2D)
 {
 	static const unsigned SIZE = WIDTH * HEIGHT * 4;
 	void* blackness = malloc(SIZE);
@@ -231,8 +237,7 @@ BitmapTexture::BitmapTexture()
 		0,                // border
 		GL_RGBA,          // format
 		GL_UNSIGNED_BYTE, // type
-		blackness         // data
-		);
+		blackness);       // data
 	free(blackness);
 }
 
@@ -251,14 +256,12 @@ void BitmapTexture::update(int y, const GLuint* data, int lineWidth)
 		1,                // height
 		GL_RGBA,          // format
 		GL_UNSIGNED_BYTE, // type
-		data              // data
-		);
+		data);            // data
 }
 
 void BitmapTexture::draw(
 	int srcL, int srcT, int srcR, int srcB,
-	int dstL, int dstT, int dstR, int dstB
-	)
+	int dstL, int dstT, int dstR, int dstB)
 {
 	static const GLfloat fx = 1.0f / static_cast<GLfloat>(WIDTH);
 	static const GLfloat fy = 1.0f / static_cast<GLfloat>(HEIGHT);
@@ -279,7 +282,8 @@ void BitmapTexture::draw(
 // class LineTexture
 
 LineTexture::LineTexture()
-	: Texture(), prevLineWidth(-1)
+	: Texture(GL_TEXTURE_2D) // TODO use 1D texture?
+	, prevLineWidth(-1)
 {
 }
 
@@ -352,8 +356,7 @@ void StoredFrame::store(unsigned width, unsigned height)
 			0,             // x
 			0,             // y
 			width,         // width
-			height         // height
-			);
+			height);       // height
 	} else {
 		this->width = width;
 		this->height = height;
@@ -373,8 +376,7 @@ void StoredFrame::store(unsigned width, unsigned height)
 			0,                  // y
 			textureWidth,       // width
 			textureHeight,      // height
-			0                   // border
-			);
+			0);                 // border
 	}
 	stored = true;
 }
@@ -398,8 +400,7 @@ void StoredFrame::draw(int offsetX, int offsetY, int width, int height)
 }
 
 void StoredFrame::drawBlend(
-	int offsetX, int offsetY, int width, int height, double alpha
-	)
+	int offsetX, int offsetY, int width, int height, double alpha)
 {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -455,8 +456,7 @@ void PixelBuffer::setImage(GLuint width, GLuint height)
 #endif
 	{
 		allocated = reinterpret_cast<GLuint*>(
-			realloc(allocated, width * height * 4)
-			);
+			realloc(allocated, width * height * 4));
 	}
 }
 
@@ -496,8 +496,7 @@ GLuint* PixelBuffer::mapWrite() const
 #ifdef GL_VERSION_1_5
 	if (bufferId != 0) {
 		return reinterpret_cast<GLuint*>(glMapBuffer(
-			GL_PIXEL_UNPACK_BUFFER_ARB, GL_WRITE_ONLY
-			));
+			GL_PIXEL_UNPACK_BUFFER_ARB, GL_WRITE_ONLY));
 	}
 #endif
 	return allocated;
@@ -519,11 +518,11 @@ void PixelBuffer::unmap() const
 // specific routines.
 
 #ifdef GL_VERSION_2_0
-static std::string readTextFile(const std::string& filename)
+static string readTextFile(const string& filename)
 {
 	SystemFileContext context;
 	File file(context.resolve(filename));
-	return std::string(reinterpret_cast<char*>(file.mmap()), file.getSize());
+	return string(reinterpret_cast<char*>(file.mmap()), file.getSize());
 }
 #endif
 
@@ -531,7 +530,7 @@ static std::string readTextFile(const std::string& filename)
 // class Shader
 
 #ifdef GL_VERSION_2_0
-Shader::Shader(GLenum type, const std::string& filename)
+Shader::Shader(GLenum type, const string& filename)
 {
 	// Check if GL 2.0 is present on this machine.
 	if (!GLEW_VERSION_2_0) {
@@ -540,7 +539,7 @@ Shader::Shader(GLenum type, const std::string& filename)
 	}
 
 	// Load shader source.
-	std::string source;
+	string source;
 	try {
 		source = readTextFile("shaders/" + filename);
 	} catch (FileException& e) {
@@ -570,15 +569,13 @@ Shader::Shader(GLenum type, const std::string& filename)
 	    (!ok || infoLogLength > 1)) {
 		GLchar infoLog[infoLogLength];
 		glGetShaderInfoLog(handle, infoLogLength, NULL, infoLog);
-		fprintf(
-			stderr, "%s(s) compiling shader \"%s\":\n%s",
+		fprintf(stderr, "%s(s) compiling shader \"%s\":\n%s",
 			ok ? "Warning" : "Error", filename.c_str(),
-			infoLogLength > 1 ? infoLog : "(no details available)\n"
-			);
+			infoLogLength > 1 ? infoLog : "(no details available)\n");
 	}
 }
 #else
-Shader::Shader(GLenum /*type*/, const std::string& /*filename*/)
+Shader::Shader(GLenum /*type*/, const string& /*filename*/)
 {
 	handle = 0;
 }
@@ -615,7 +612,7 @@ bool Shader::isOK() const
 #define GL_VERTEX_SHADER 0
 #endif
 #endif
-VertexShader::VertexShader(const std::string& filename)
+VertexShader::VertexShader(const string& filename)
 	: Shader(GL_VERTEX_SHADER, filename)
 {
 }
@@ -628,7 +625,7 @@ VertexShader::VertexShader(const std::string& filename)
 #define GL_FRAGMENT_SHADER 0
 #endif
 #endif
-FragmentShader::FragmentShader(const std::string& filename)
+FragmentShader::FragmentShader(const string& filename)
 	: Shader(GL_FRAGMENT_SHADER, filename)
 {
 }
@@ -717,11 +714,9 @@ void ShaderProgram::link()
 	    (!ok || infoLogLength > 1)) {
 		GLchar infoLog[infoLogLength];
 		glGetProgramInfoLog(handle, infoLogLength, NULL, infoLog);
-		fprintf(
-			stderr, "%s(s) linking shader program:\n%s\n",
+		fprintf(stderr, "%s(s) linking shader program:\n%s\n",
 			ok ? "Warning" : "Error",
-			infoLogLength > 1 ? infoLog : "(no details available)\n"
-			);
+			infoLogLength > 1 ? infoLog : "(no details available)\n");
 	}
 #endif
 }
@@ -736,13 +731,11 @@ GLint ShaderProgram::getUniformLocation(const char* name) const
 	// Get location and verify returned value.
 	GLint location = glGetUniformLocation(handle, name);
 	if (location == -1) {
-		fprintf(
-			stderr, "%s: \"%s\"\n",
+		fprintf(stderr, "%s: \"%s\"\n",
 			  strncmp(name, "gl_", 3) == 0
 			? "Accessing built-in shader variables is not possible"
 			: "Could not find shader variable",
-			name
-			);
+			name);
 	}
 	return location;
 }
@@ -769,6 +762,22 @@ void ShaderProgram::deactivate()
 		glUseProgram(0);
 	}
 #endif
+}
+
+// only useful for debugging
+void ShaderProgram::validate()
+{
+	glValidateProgram(handle);
+	GLint validateStatus = GL_FALSE;
+	glGetProgramiv(handle, GL_VALIDATE_STATUS, &validateStatus);
+	GLint infoLogLength = 0;
+	glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &infoLogLength);
+	// note: the null terminator is included, so empty string has length 1
+	GLchar infoLog[infoLogLength];
+	glGetProgramInfoLog(handle, infoLogLength, NULL, infoLog);
+	std::cout << "Validate "
+	          << ((validateStatus == GL_TRUE) ? string("OK") : string("FAIL"))
+	          << ": " << infoLog << std::endl;
 }
 
 } // namespace openmsx

@@ -27,7 +27,6 @@ public:
 private:
 	std::auto_ptr<ShaderProgram> scalerProgram;
 	std::auto_ptr<Texture> edgeTexture;
-	std::auto_ptr<Texture> linearizeTexture[3];
 	std::auto_ptr<Texture> weightTexture[3];
 };
 
