@@ -19,11 +19,11 @@ static void transform(const byte* in, byte* out, int n, int s)
 {
 	for (int z = 0; z < 4096; ++z) {
 		int z1Offset = s * n * n * z;
-		int z2Offset = s * (n * (z % 32) +
-		                    n * n * 32 * (z / 32));
+		int z2Offset = s * (n * (z % 64) +
+		                    n * n * 64 * (z / 64));
 		for (int y = 0; y < n; ++y) {
 			int y1Offset = s * n      * y;
-			int y2Offset = s * n * 32 * y;
+			int y2Offset = s * n * 64 * y;
 			for (int x = 0; x < n; ++x) {
 				int offset1 = z1Offset + y1Offset + s * x;
 				int offset2 = z2Offset + y2Offset + s * x;
@@ -65,16 +65,15 @@ GLHQScaler::GLHQScaler()
 		string offsetsName = "shaders/HQ" + StringOp::toString(n) +
 		                     "xOffsets.dat";
 		File offsetsFile(context.resolve(offsetsName));
-		offsetTexture[i].reset(new Texture(GL_TEXTURE_3D));
+		offsetTexture[i].reset(new Texture());
 		offsetTexture[i]->setWrapMode(false);
 		offsetTexture[i]->bind();
 		transform(offsetsFile.mmap(), buffer, n, 4);
-		glTexImage3D(GL_TEXTURE_3D,      // target
+		glTexImage2D(GL_TEXTURE_2D,      // target
 			     0,                  // level
 			     GL_RGBA8,           // internal format
-			     n * 32,             // width
-			     n,                  // height
-			     4096 / 32,          // depth
+			     n * 64,             // width
+			     n * 64,             // height
 			     0,                  // border
 			     GL_RGBA,            // format
 			     GL_UNSIGNED_BYTE,   // type
@@ -83,16 +82,15 @@ GLHQScaler::GLHQScaler()
 		string weightsName = "shaders/HQ" + StringOp::toString(n) +
 		                     "xWeights.dat";
 		File weightsFile(context.resolve(weightsName));
-		weightTexture[i].reset(new Texture(GL_TEXTURE_3D));
+		weightTexture[i].reset(new Texture());
 		weightTexture[i]->setWrapMode(false);
 		weightTexture[i]->bind();
 		transform(weightsFile.mmap(), buffer, n, 3);
-		glTexImage3D(GL_TEXTURE_3D,      // target
+		glTexImage2D(GL_TEXTURE_2D,      // target
 			     0,                  // level
 			     GL_RGB8,            // internal format
-			     n * 32,             // width
-			     n,                  // height
-			     4096 / 32,          // depth
+			     n * 64,             // width
+			     n * 64,             // height
 			     0,                  // border
 			     GL_RGB,             // format
 			     GL_UNSIGNED_BYTE,   // type

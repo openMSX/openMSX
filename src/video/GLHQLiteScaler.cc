@@ -18,11 +18,11 @@ static void transform(const byte* in, byte* out, int n)
 {
 	for (int z = 0; z < 4096; ++z) {
 		int z1Offset = 3 * n * n * z;
-		int z2Offset = 3 * (n * (z % 32) +
-		                    n * n * 32 * (z / 32));
+		int z2Offset = 3 * (n * (z % 64) +
+		                    n * n * 64 * (z / 64));
 		for (int y = 0; y < n; ++y) {
 			int y1Offset = 3 * n      * y;
-			int y2Offset = 3 * n * 32 * y;
+			int y2Offset = 3 * n * 64 * y;
 			for (int x = 0; x < n; ++x) {
 				int offset1 = z1Offset + y1Offset + 3 * x;
 				int offset2 = z2Offset + y2Offset + 3 * x;
@@ -64,16 +64,15 @@ GLHQLiteScaler::GLHQLiteScaler()
 		string weightsName = "shaders/HQ" + StringOp::toString(n) +
 		                     "xLiteWeights.dat";
 		File weightsFile(context.resolve(weightsName));
-		weightTexture[i].reset(new Texture(GL_TEXTURE_3D));
+		weightTexture[i].reset(new Texture());
 		weightTexture[i]->setWrapMode(false);
 		weightTexture[i]->bind();
 		transform(weightsFile.mmap(), buffer, n);
-		glTexImage3D(GL_TEXTURE_3D,      // target
+		glTexImage2D(GL_TEXTURE_2D,      // target
 			     0,                  // level
 			     GL_RGB8,            // internal format
-			     n * 32,             // width
-			     n,                  // height
-			     4096 / 32,          // depth
+			     n * 64,             // width
+			     n * 64,             // height
 			     0,                  // border
 			     GL_RGB,             // format
 			     GL_UNSIGNED_BYTE,   // type

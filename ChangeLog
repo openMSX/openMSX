@@ -1,5 +1,8 @@
 $Id$
 
+2006-08-15 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Use 2D textures iso 3D to work around bug in ATI drivers
+
 2006-08-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Transform texture coordinates from (N x N x 4096) to 32N x N x 128
 	  because some gfx cards can't handle that big dimensions
