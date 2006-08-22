@@ -32,6 +32,19 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	//flags |= SDL_RESIZABLE;
 	createSurface(width, height, flags);
 
+	// From the glew documentation:
+	//   GLEW obtains information on the supported extensions from the
+	//   graphics driver. Experimental or pre-release drivers, however,
+	//   might not report every available extension through the standard
+	//   mechanism, in which case GLEW will report it unsupported. To
+	//   circumvent this situation, the glewExperimental global switch can
+	//   be turned on by setting it to GL_TRUE before calling glewInit(),
+	//   which ensures that all extensions with valid entry points will be
+	//   exposed.
+	// The 'glewinfo' utility also sets this flag before reporting results,
+	// so I believe it would cause less confusion to do the same here.
+	glewExperimental = GL_TRUE;
+
 	// Initialise GLEW library.
 	// This must happen after GL itself is initialised, which is done by
 	// the SDL_SetVideoMode() call in createSurface().

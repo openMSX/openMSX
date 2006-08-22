@@ -1,5 +1,12 @@
 $Id$
 
+2006-08-22 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Enable detection of more openGL extensions with glew:
+	   - see comments in SDLGLVisibleSurface for details
+	   - might fix the problem PingPong is seeing:
+	       accoring to 'glewinfo' framebuffer_objects are support on his
+	       card, but not so according to openMSX
+
 2006-08-15 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Use 2D textures iso 3D to work around bug in ATI drivers
 
