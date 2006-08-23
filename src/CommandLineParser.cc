@@ -225,7 +225,23 @@ void CommandLineParser::parse(int argc, char** argv)
 				const string& machine =
 					reactor.getMachineSetting().getValueString();
 				output.printInfo("Using default machine: " + machine);
-				loadMachine(machine);
+				try {
+					reactor.createMotherBoard(machine);
+				} catch (MSXException& e) {
+					output.printInfo(
+						"Failed to initialize default machine: " + e.getMessage()
+						);
+					// Default machine is broken; fall back to C-BIOS config.
+					const string& fallbackMachine =
+						reactor.getMachineSetting().getRestoreValueString();
+					output.printInfo("Using fallback machine: " + fallbackMachine);
+					try {
+						reactor.createMotherBoard(fallbackMachine);
+					} catch (MSXException& e2) {
+						// Fallback machine failed as well; we're out of options.
+						throw FatalError(e2.getMessage());
+					}
+				}
 				haveConfig = true;
 			}
 			break;
@@ -293,15 +309,6 @@ Reactor& CommandLineParser::getReactor() const
 MSXMotherBoard* CommandLineParser::getMotherBoard() const
 {
 	return getReactor().getMotherBoard();
-}
-
-void CommandLineParser::loadMachine(const string& machine)
-{
-	try {
-		getReactor().createMotherBoard(machine);
-	} catch (MSXException& e) {
-		throw FatalError(e.getMessage());
-	}
 }
 
 // Control option
@@ -511,7 +518,11 @@ bool CommandLineParser::MachineOption::parseOption(const string& option,
 	}
 	string machine(getArgument(option, cmdLine));
 	parser.output.printInfo("Using specified machine: " + machine);
-	parser.loadMachine(machine);
+	try {
+		parser.getReactor().createMotherBoard(machine);
+	} catch (MSXException& e) {
+		throw FatalError(e.getMessage());
+	}
 	parser.haveConfig = true;
 	return true;
 }

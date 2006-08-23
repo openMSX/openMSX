@@ -1,5 +1,11 @@
 $Id$
 
+2006-08-23 Maarten ter Huurne <maarten@treewalker.org>
+	* If default machine is broken (for example because of missing system
+	  ROMs), fall back to C-BIOS config. This makes sure openMSX will start
+	  up, allowing the user to select a different default machine on the
+	  openMSX console.
+
 2006-08-22 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Enable detection of more openGL extensions with glew:
 	   - see comments in SDLGLVisibleSurface for details
@@ -19,7 +25,8 @@ $Id$
 	* Use external data files in GLHQScaler and GLHQLiteScaler:
 	   - work around limitation in MSYS assembler(?):
 	        Assembler messages:
-	        Warning: .stabs: description field '11004' too big, try a different debug format
+	        Warning: .stabs: description field '11004' too big, try a
+	          different debug format
 
 2006-08-10 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented hqlite as a OpenGL 2.0 shader:

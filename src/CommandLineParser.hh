@@ -85,7 +85,6 @@ private:
 	bool parseOption(const std::string& arg,
 	                 std::list<std::string>& cmdLine, byte prio);
 	void registerFileTypes();
-	void loadMachine(const std::string& machine);
 	void createMachineSetting();
 
 	std::map<std::string, OptionData> optionMap;
