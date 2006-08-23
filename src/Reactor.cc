@@ -23,6 +23,7 @@
 #include "ReadDir.hh"
 #include "Thread.hh"
 #include <cassert>
+#include <memory>
 
 using std::string;
 using std::vector;
@@ -214,8 +215,11 @@ MSXMotherBoard& Reactor::createMotherBoard(const std::string& machine)
 	assert(Thread::isMainThread());
 	ScopedLock lock(mbSem);
 	assert(!motherBoard);
-	motherBoard = new MSXMotherBoard(*this);
-	motherBoard->loadMachine(machine);
+	// Note: loadMachine can throw an exception and in that case the
+	//       motherboard must be considered as not created at all.
+	std::auto_ptr<MSXMotherBoard> newMotherBoard(new MSXMotherBoard(*this));
+	newMotherBoard->loadMachine(machine);
+	motherBoard = newMotherBoard.release();
 	return *motherBoard;
 }
 
