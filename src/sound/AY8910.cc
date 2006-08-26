@@ -538,6 +538,10 @@ void AY8910::checkMute()
 void AY8910::setVolume(int volume)
 {
 	amplitude.setMasterVolume(volume);
+	// recalculate volume for all channels
+	for (int i = 0; i < 3; ++i) {
+		amplitude.setChannelVolume(i, regs[AY_AVOL + i]);
+	}
 }
 
 
