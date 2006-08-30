@@ -244,6 +244,7 @@ void CartCmd::execute(const vector<TclObject*>& tokens, TclObject& result)
 		if (extConf) {
 			try {
 				manager.motherBoard.removeExtension(*extConf);
+				cliComm.update(CliComm::MEDIA, cartname, "");
 			} catch (MSXException& e) {
 				throw CommandException("Can't remove cartridge: " +
 				                       e.getMessage());
