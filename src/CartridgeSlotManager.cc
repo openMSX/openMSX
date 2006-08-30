@@ -5,10 +5,12 @@
 #include "ExtensionConfig.hh"
 #include "Command.hh"
 #include "CommandException.hh"
+#include "CommandController.hh"
 #include "TclObject.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
 #include "openmsx.hh"
+#include "CliComm.hh"
 #include <cassert>
 
 using std::string;
@@ -26,6 +28,7 @@ public:
 private:
 	const ExtensionConfig* getExtensionConfig(const string& cartname);
 	CartridgeSlotManager& manager;
+	CliComm& cliComm;
 };
 
 
@@ -204,6 +207,7 @@ bool CartridgeSlotManager::isExternalSlot(int ps, int ss, bool convert) const
 CartCmd::CartCmd(CartridgeSlotManager& manager_, const string& commandName)
 	: Command(manager_.motherBoard.getCommandController(), commandName)
 	, manager(manager_)
+	, cliComm(manager_.motherBoard.getCommandController().getCliComm())
 {
 }
 
@@ -260,6 +264,7 @@ void CartCmd::execute(const vector<TclObject*>& tokens, TclObject& result)
 				manager.motherBoard.loadRom(
 					tokens[1]->getString(), slotname, options);
 			result.setString(extension.getName());
+			cliComm.update(CliComm::MEDIA, cartname, tokens[1]->getString());
 		} catch (MSXException& e) {
 			throw CommandException(e.getMessage());
 		}

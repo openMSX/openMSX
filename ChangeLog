@@ -1,5 +1,8 @@
 $Id$
 
+2006-08-31 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added MEDIA update event for cart-commands
+
 2006-08-30 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added checked_cast and shared_ptr utility classes
 	* Pass events around by shared_ptr (avoids making a polymorphic copy)
