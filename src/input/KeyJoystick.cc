@@ -4,6 +4,7 @@
 #include "UserInputEventDistributor.hh"
 #include "KeyCodeSetting.hh"
 #include "InputEvents.hh"
+#include "checked_cast.hh"
 #include <cassert>
 
 using std::string;
@@ -83,18 +84,18 @@ void KeyJoystick::write(byte /*value*/, const EmuTime& /*time*/)
 
 
 // EventListener
-void KeyJoystick::signalEvent(const Event& event)
+void KeyJoystick::signalEvent(shared_ptr<const Event> event)
 {
-	switch (event.getType()) {
+	switch (event->getType()) {
 	case OPENMSX_CONSOLE_ON_EVENT:
 		allUp();
 		break;
 	case OPENMSX_KEY_DOWN_EVENT:
 	case OPENMSX_KEY_UP_EVENT: {
-		assert(dynamic_cast<const KeyEvent*>(&event));
+		const KeyEvent& keyEvent = checked_cast<const KeyEvent&>(*event);
 		Keys::KeyCode key = (Keys::KeyCode)(
-			(int)((KeyEvent&)event).getKeyCode() & (int)Keys::K_MASK);
-		if (event.getType() == OPENMSX_KEY_DOWN_EVENT) {
+			(int)keyEvent.getKeyCode() & (int)Keys::K_MASK);
+		if (event->getType() == OPENMSX_KEY_DOWN_EVENT) {
 			if      (key == up->getValue())    status &= ~JOY_UP;
 			else if (key == down->getValue())  status &= ~JOY_DOWN;
 			else if (key == left->getValue())  status &= ~JOY_LEFT;

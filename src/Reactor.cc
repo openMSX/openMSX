@@ -368,9 +368,9 @@ void Reactor::update(const Setting& setting)
 }
 
 // EventListener
-void Reactor::signalEvent(const Event& event)
+void Reactor::signalEvent(shared_ptr<const Event> event)
 {
-	if (event.getType() == OPENMSX_QUIT_EVENT) {
+	if (event->getType() == OPENMSX_QUIT_EVENT) {
 		enterMainLoop();
 		running = false;
 	} else {
@@ -418,7 +418,8 @@ PollEventGenerator::~PollEventGenerator()
 
 bool PollEventGenerator::alarm()
 {
-	eventDistributor.distributeEvent(new SimpleEvent<OPENMSX_POLL_EVENT>());
+	eventDistributor.distributeEvent(EventDistributor::EventPtr(
+		new SimpleEvent<OPENMSX_POLL_EVENT>()));
 	return true; // reschedule
 }
 

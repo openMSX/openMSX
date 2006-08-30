@@ -1,6 +1,7 @@
 // $Id$
 
 #include "HotKey.hh"
+#include "InputEventFactory.hh"
 #include "CommandController.hh"
 #include "Command.hh"
 #include "CommandException.hh"
@@ -10,6 +11,7 @@
 #include "XMLElement.hh"
 #include "SettingsConfig.hh"
 #include "openmsx.hh"
+#include "checked_cast.hh"
 #include <cassert>
 
 using std::string;
@@ -79,10 +81,20 @@ HotKey::HotKey(CommandController& commandController_,
 
 	eventDistributor.registerEventListener(OPENMSX_KEY_DOWN_EVENT, *this);
 	eventDistributor.registerEventListener(OPENMSX_KEY_UP_EVENT, *this);
+	eventDistributor.registerEventListener(OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this);
+	eventDistributor.registerEventListener(OPENMSX_MOUSE_BUTTON_UP_EVENT, *this);
+	eventDistributor.registerEventListener(OPENMSX_JOY_BUTTON_DOWN_EVENT, *this);
+	eventDistributor.registerEventListener(OPENMSX_JOY_BUTTON_UP_EVENT, *this);
+	eventDistributor.registerEventListener(OPENMSX_FOCUS_EVENT, *this);
 }
 
 HotKey::~HotKey()
 {
+	eventDistributor.unregisterEventListener(OPENMSX_FOCUS_EVENT, *this);
+	eventDistributor.unregisterEventListener(OPENMSX_JOY_BUTTON_UP_EVENT, *this);
+	eventDistributor.unregisterEventListener(OPENMSX_JOY_BUTTON_DOWN_EVENT, *this);
+	eventDistributor.unregisterEventListener(OPENMSX_MOUSE_BUTTON_UP_EVENT, *this);
+	eventDistributor.unregisterEventListener(OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_KEY_UP_EVENT, *this);
 	eventDistributor.unregisterEventListener(OPENMSX_KEY_DOWN_EVENT, *this);
 }
@@ -93,34 +105,63 @@ void HotKey::initDefaultBindings()
 
 	if (META_HOT_KEYS) {
 		// Hot key combos using Mac's Command key.
-		bindDefault(Keys::combine(Keys::K_D, Keys::KM_META), "screenshot");
-		bindDefault(Keys::combine(Keys::K_P, Keys::KM_META), "toggle pause");
-		bindDefault(Keys::combine(Keys::K_T, Keys::KM_META), "toggle throttle");
-		bindDefault(Keys::combine(Keys::K_L, Keys::KM_META), "toggle console");
-		bindDefault(Keys::combine(Keys::K_U, Keys::KM_META), "toggle mute");
-		bindDefault(Keys::combine(Keys::K_F, Keys::KM_META), "toggle fullscreen");
-		bindDefault(Keys::combine(Keys::K_Q, Keys::KM_META), "exit");
+		bindDefault(EventPtr(new KeyDownEvent(
+		               Keys::combine(Keys::K_D, Keys::KM_META))),
+		            "screenshot");
+		bindDefault(EventPtr(new KeyDownEvent(
+		               Keys::combine(Keys::K_P, Keys::KM_META))),
+		            "toggle pause");
+		bindDefault(EventPtr(new KeyDownEvent(
+		               Keys::combine(Keys::K_T, Keys::KM_META))),
+		            "toggle throttle");
+		bindDefault(EventPtr(new KeyDownEvent(
+		               Keys::combine(Keys::K_L, Keys::KM_META))),
+		            "toggle console");
+		bindDefault(EventPtr(new KeyDownEvent(
+		               Keys::combine(Keys::K_U, Keys::KM_META))),
+		            "toggle mute");
+		bindDefault(EventPtr(new KeyDownEvent(
+		               Keys::combine(Keys::K_F, Keys::KM_META))),
+		            "toggle fullscreen");
+		bindDefault(EventPtr(new KeyDownEvent(
+		               Keys::combine(Keys::K_Q, Keys::KM_META))),
+		            "exit");
 	} else {
 		// Hot key combos for typical PC keyboards.
-		bindDefault(Keys::K_PRINT, "screenshot");
-		bindDefault(Keys::K_PAUSE, "toggle pause");
-		bindDefault(Keys::K_F9,    "toggle throttle");
-		bindDefault(Keys::K_F10,   "toggle console");
-		bindDefault(Keys::K_F11,   "toggle mute");
-		bindDefault(Keys::K_F12,   "toggle fullscreen");
-		bindDefault(Keys::combine(Keys::K_F4, Keys::KM_ALT),     "exit");
-		bindDefault(Keys::combine(Keys::K_PAUSE, Keys::KM_CTRL), "exit");
-		bindDefault(Keys::combine(Keys::K_RETURN, Keys::KM_ALT), "toggle fullscreen");
+		bindDefault(EventPtr(new KeyDownEvent(Keys::K_PRINT)),
+		            "screenshot");
+		bindDefault(EventPtr(new KeyDownEvent(Keys::K_PAUSE)),
+		            "toggle pause");
+		bindDefault(EventPtr(new KeyDownEvent(Keys::K_F9)),
+		            "toggle throttle");
+		bindDefault(EventPtr(new KeyDownEvent(Keys::K_F10)),
+		            "toggle console");
+		bindDefault(EventPtr(new KeyDownEvent(Keys::K_F11)),
+		            "toggle mute");
+		bindDefault(EventPtr(new KeyDownEvent(Keys::K_F12)),
+		            "toggle fullscreen");
+		bindDefault(EventPtr(new KeyDownEvent(
+		               Keys::combine(Keys::K_F4, Keys::KM_ALT))),
+		            "exit");
+		bindDefault(EventPtr(new KeyDownEvent(
+		               Keys::combine(Keys::K_PAUSE, Keys::KM_CTRL))),
+		            "exit");
+		bindDefault(EventPtr(new KeyDownEvent(
+		               Keys::combine(Keys::K_RETURN, Keys::KM_ALT))),
+		            "toggle fullscreen");
 	}
 }
 
-static Keys::KeyCode getCode(const std::string& str)
+static HotKey::EventPtr createEvent(const std::string& str)
 {
-	Keys::KeyCode key = Keys::getCode(str);
-	if (key == Keys::K_NONE) {
-		throw CommandException("Unknown key");
+	HotKey::EventPtr event = InputEventFactory::createInputEvent(str);
+	if (!dynamic_cast<const KeyEvent*>           (event.get()) &&
+	    !dynamic_cast<const MouseButtonEvent*>   (event.get()) &&
+	    !dynamic_cast<const JoystickButtonEvent*>(event.get()) &&
+	    !dynamic_cast<const FocusEvent*>         (event.get())) {
+		throw CommandException("Unsupported event type");
 	}
-	return key;
+	return event;
 }
 
 void HotKey::loadBindings(const XMLElement& config)
@@ -141,10 +182,10 @@ void HotKey::loadBindings(const XMLElement& config)
 		XMLElement& elem = **it;
 		try {
 			if (elem.getName() == "bind") {
-				bind(getCode(elem.getAttribute("key")),
+				bind(createEvent(elem.getAttribute("key")),
 				     elem.getData());
 			} else if (elem.getName() == "unbind") {
-				unbind(getCode(elem.getAttribute("key")));
+				unbind(createEvent(elem.getAttribute("key")));
 			}
 		} catch (MSXException& e) {
 			commandController.getCliComm().printWarning(
@@ -166,68 +207,64 @@ void HotKey::saveBindings(XMLElement& config) const
 		assert(it2 != cmdMap.end());
 		std::auto_ptr<XMLElement> elem(
 			new XMLElement("bind", it2->second));
-		elem->addAttribute("key", Keys::getName(*it));
+		elem->addAttribute("key", (*it)->toString());
 		bindingsElement.addChild(elem);
 	}
 	// add explicit unbind's
 	for (KeySet::const_iterator it = unboundKeys.begin();
 	     it != unboundKeys.end(); ++it) {
 		std::auto_ptr<XMLElement> elem(new XMLElement("unbind"));
-		elem->addAttribute("key", Keys::getName(*it));
+		elem->addAttribute("key", (*it)->toString());
 		bindingsElement.addChild(elem);
 	}
 }
 
-void HotKey::bind(Keys::KeyCode key, const string& command)
+void HotKey::bind(EventPtr event, const string& command)
 {
-	unboundKeys.erase(key);
-	boundKeys.insert(key);
-	defaultMap.erase(key);
-	cmdMap[key] = command;
+	unboundKeys.erase(event);
+	boundKeys.insert(event);
+	defaultMap.erase(event);
+	cmdMap[event] = command;
 
 	saveBindings(commandController.getSettingsConfig());
 }
 
-void HotKey::unbind(Keys::KeyCode key)
+void HotKey::unbind(EventPtr event)
 {
-	if (boundKeys.find(key) == boundKeys.end()) {
-		// only when not a regular bound key
-		unboundKeys.insert(key);
+	if (boundKeys.find(event) == boundKeys.end()) {
+		// only when not a regular bound event
+		unboundKeys.insert(event);
 	}
-	boundKeys.erase(key);
-	defaultMap.erase(key);
-	cmdMap.erase(key);
+	boundKeys.erase(event);
+	defaultMap.erase(event);
+	cmdMap.erase(event);
 
 	saveBindings(commandController.getSettingsConfig());
 }
 
-void HotKey::bindDefault(Keys::KeyCode key, const std::string& command)
+void HotKey::bindDefault(EventPtr event, const std::string& command)
 {
-	if ((unboundKeys.find(key) == unboundKeys.end()) &&
-	    (boundKeys.find(key)   == boundKeys.end())) {
+	if ((unboundKeys.find(event) == unboundKeys.end()) &&
+	    (boundKeys.find(event)   == boundKeys.end())) {
 		// not explicity bound or unbound
-		cmdMap[key] = command;
+		cmdMap[event] = command;
 	}
-	defaultMap[key] = command;
+	defaultMap[event] = command;
 }
 
-void HotKey::unbindDefault(Keys::KeyCode key)
+void HotKey::unbindDefault(EventPtr event)
 {
-	if ((unboundKeys.find(key) == unboundKeys.end()) &&
-	    (boundKeys.find(key)   == boundKeys.end())) {
+	if ((unboundKeys.find(event) == unboundKeys.end()) &&
+	    (boundKeys.find(event)   == boundKeys.end())) {
 		// not explicity bound or unbound
-		cmdMap.erase(key);
+		cmdMap.erase(event);
 	}
-	defaultMap.erase(key);
+	defaultMap.erase(event);
 }
 
-void HotKey::signalEvent(const Event& event)
+void HotKey::signalEvent(shared_ptr<const Event> event)
 {
-	// In the future we might support joystick buttons as hot keys as well.
-
-	assert(dynamic_cast<const KeyEvent*>(&event));
-	Keys::KeyCode key = static_cast<const KeyEvent&>(event).getKeyCode();
-	BindMap::iterator it = cmdMap.find(key);
+	BindMap::iterator it = cmdMap.find(event);
 	if (it != cmdMap.end()) {
 		try {
 			// ignore return value
@@ -259,18 +296,18 @@ string BindCmd::execute(const vector<string>& tokens)
 		// show all bounded keys
 		for (HotKey::BindMap::iterator it = hotKey.cmdMap.begin();
 		     it != hotKey.cmdMap.end(); it++) {
-			result += Keys::getName(it->first) + ":  " +
+			result += it->first->toString() + ":  " +
 			          it->second + '\n';
 		}
 		break;
 	case 2: {
 		// show bindings for this key
 		HotKey::BindMap::const_iterator it =
-			hotKey.cmdMap.find(getCode(tokens[1]));
+			hotKey.cmdMap.find(createEvent(tokens[1]));
 		if (it == hotKey.cmdMap.end()) {
 			throw CommandException("Key not bound");
 		}
-		result = Keys::getName(it->first) + ":  " + it->second + '\n';
+		result = it->first->toString() + ":  " + it->second + '\n';
 		break;
 	}
 	default: {
@@ -280,7 +317,7 @@ string BindCmd::execute(const vector<string>& tokens)
 			if (i != 2) command += ' ';
 			command += tokens[i];
 		}
-		hotKey.bind(getCode(tokens[1]), command);
+		hotKey.bind(createEvent(tokens[1]), command);
 		break;
 	}
 	}
@@ -308,7 +345,7 @@ string UnbindCmd::execute(const vector<string>& tokens)
 	if (tokens.size() != 2) {
 		throw SyntaxError();
 	}
-	hotKey.unbind(getCode(tokens[1]));
+	hotKey.unbind(createEvent(tokens[1]));
 	return "";
 }
 string UnbindCmd::help(const vector<string>& /*tokens*/) const
@@ -335,18 +372,18 @@ string BindDefaultCmd::execute(const vector<string>& tokens)
 		// show all bounded keys
 		for (HotKey::BindMap::iterator it = hotKey.defaultMap.begin();
 		     it != hotKey.defaultMap.end(); it++) {
-			result += Keys::getName(it->first) + ":  " +
+			result += it->first->toString() + ":  " +
 			          it->second + '\n';
 		}
 		break;
 	case 2: {
 		// show bindings for this key
 		HotKey::BindMap::const_iterator it =
-			hotKey.defaultMap.find(getCode(tokens[1]));
+			hotKey.defaultMap.find(createEvent(tokens[1]));
 		if (it == hotKey.defaultMap.end()) {
 			throw CommandException("Key not bound");
 		}
-		result = Keys::getName(it->first) + ":  " + it->second + '\n';
+		result = it->first->toString() + ":  " + it->second + '\n';
 		break;
 	}
 	default: {
@@ -356,7 +393,7 @@ string BindDefaultCmd::execute(const vector<string>& tokens)
 			if (i != 2) command += ' ';
 			command += tokens[i];
 		}
-		hotKey.bindDefault(getCode(tokens[1]), command);
+		hotKey.bindDefault(createEvent(tokens[1]), command);
 		break;
 	}
 	}
@@ -384,7 +421,7 @@ string UnbindDefaultCmd::execute(const vector<string>& tokens)
 	if (tokens.size() != 2) {
 		throw SyntaxError();
 	}
-	hotKey.unbindDefault(getCode(tokens[1]));
+	hotKey.unbindDefault(createEvent(tokens[1]));
 	return "";
 }
 string UnbindDefaultCmd::help(const vector<string>& /*tokens*/) const

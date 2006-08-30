@@ -20,6 +20,7 @@
 #include "MachineConfig.hh"
 #include "VideoSystemChangeListener.hh"
 #include "Version.hh"
+#include "checked_cast.hh"
 #include <algorithm>
 #include <cassert>
 #include <iostream>
@@ -184,21 +185,23 @@ Display::Layers::iterator Display::baseLayer()
 	}
 }
 
-void Display::signalEvent(const Event& event)
+void Display::signalEvent(shared_ptr<const Event> event)
 {
-	if (event.getType() == OPENMSX_FINISH_FRAME_EVENT) {
-		const FinishFrameEvent& ffe = static_cast<const FinishFrameEvent&>(event);
+	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
+		const FinishFrameEvent& ffe =
+			checked_cast<const FinishFrameEvent&>(*event);
 		if (!ffe.isSkipped() &&
 		    (renderSettings->getVideoSource().getValue() == ffe.getSource())) {
 			repaint();
 			reactor.getEventDistributor().distributeEvent(
-				new SimpleEvent<OPENMSX_FRAME_DRAWN_EVENT>());
+				EventDistributor::EventPtr(
+					new SimpleEvent<OPENMSX_FRAME_DRAWN_EVENT>()));
 		}
-	} else if (event.getType() == OPENMSX_DELAYED_REPAINT_EVENT) {
+	} else if (event->getType() == OPENMSX_DELAYED_REPAINT_EVENT) {
 		repaint();
-	} else if (event.getType() == OPENMSX_SWITCH_RENDERER_EVENT) {
+	} else if (event->getType() == OPENMSX_SWITCH_RENDERER_EVENT) {
 		doRendererSwitch();
-	} else if (event.getType() == OPENMSX_MACHINE_LOADED_EVENT) {
+	} else if (event->getType() == OPENMSX_MACHINE_LOADED_EVENT) {
 		setWindowTitle();
 	}
 }
@@ -252,7 +255,8 @@ void Display::checkRendererSwitch()
 		// causes problems???
 		switchInProgress = true;
 		reactor.getEventDistributor().distributeEvent(
-		      new SimpleEvent<OPENMSX_SWITCH_RENDERER_EVENT>());
+			EventDistributor::EventPtr(
+				new SimpleEvent<OPENMSX_SWITCH_RENDERER_EVENT>()));
 	}
 }
 
@@ -376,8 +380,8 @@ bool RepaintAlarm::alarm()
 {
 	// Note: runs is seperate thread, use event mechanism to repaint
 	//       in main thread
-	eventDistributor.distributeEvent(
-		new SimpleEvent<OPENMSX_DELAYED_REPAINT_EVENT>());
+	eventDistributor.distributeEvent(EventDistributor::EventPtr(
+		new SimpleEvent<OPENMSX_DELAYED_REPAINT_EVENT>()));
 	return false; // don't reschedule
 }
 

@@ -3,6 +3,7 @@
 #include "Mouse.hh"
 #include "UserInputEventDistributor.hh"
 #include "InputEvents.hh"
+#include "checked_cast.hh"
 
 using std::string;
 
@@ -174,15 +175,14 @@ void Mouse::write(byte value, const EmuTime& time)
 
 
 //EventListener
-void Mouse::signalEvent(const Event& event)
+void Mouse::signalEvent(shared_ptr<const Event> event)
 {
-	switch (event.getType()) {
+	switch (event->getType()) {
 	case OPENMSX_MOUSE_MOTION_EVENT: {
-		const MouseMotionEvent* motionEvent =
-			dynamic_cast<const MouseMotionEvent*>(&event);
-		assert(motionEvent);
-		curxrel -= motionEvent->getX();
-		curyrel -= motionEvent->getY();
+		const MouseMotionEvent& motionEvent =
+			checked_cast<const MouseMotionEvent&>(*event);
+		curxrel -= motionEvent.getX();
+		curyrel -= motionEvent.getY();
 		if (curxrel >  127 * SCALE) curxrel =  127 * SCALE;
 		if (curxrel < -128 * SCALE) curxrel = -128 * SCALE;
 		if (curyrel >  127 * SCALE) curyrel =  127 * SCALE;
@@ -190,10 +190,9 @@ void Mouse::signalEvent(const Event& event)
 		break;
 	}
 	case OPENMSX_MOUSE_BUTTON_DOWN_EVENT: {
-		const MouseButtonEvent* buttonEvent =
-			dynamic_cast<const MouseButtonEvent*>(&event);
-		assert(buttonEvent);
-		switch (buttonEvent->getButton()) {
+		const MouseButtonEvent& buttonEvent =
+			checked_cast<const MouseButtonEvent&>(*event);
+		switch (buttonEvent.getButton()) {
 			case MouseButtonEvent::LEFT:
 				status &= ~JOY_BUTTONA;
 				break;
@@ -207,10 +206,9 @@ void Mouse::signalEvent(const Event& event)
 		break;
 	}
 	case OPENMSX_MOUSE_BUTTON_UP_EVENT: {
-		const MouseButtonEvent* buttonEvent =
-			dynamic_cast<const MouseButtonEvent*>(&event);
-		assert(buttonEvent);
-		switch (buttonEvent->getButton()) {
+		const MouseButtonEvent& buttonEvent =
+			checked_cast<const MouseButtonEvent&>(*event);
+		switch (buttonEvent.getButton()) {
 			case MouseButtonEvent::LEFT:
 				status |= JOY_BUTTONA;
 				break;

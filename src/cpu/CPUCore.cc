@@ -199,8 +199,9 @@ template <class T> void CPUCore<T>::doBreak()
 					   "0x" + StringOp::toHexString(R.PC, 4));
 
 		motherboard.getCliComm().update(CliComm::STATUS, "cpu", "suspended");
-		Event* breakEvent = new SimpleEvent<OPENMSX_BREAK_EVENT>();
-		motherboard.getEventDistributor().distributeEvent(breakEvent);
+		motherboard.getEventDistributor().distributeEvent(
+			EventDistributor::EventPtr(
+				new SimpleEvent<OPENMSX_BREAK_EVENT>()));
 	}
 }
 

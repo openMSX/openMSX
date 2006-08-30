@@ -4,7 +4,7 @@
 #define HOTKEY_HH
 
 #include "EventListener.hh"
-#include "Keys.hh"
+#include "shared_ptr.hh"
 #include <map>
 #include <set>
 #include <string>
@@ -19,10 +19,17 @@ class BindCmd;
 class UnbindCmd;
 class BindDefaultCmd;
 class UnbindDefaultCmd;
+class InputEvent;
+
+template<typename T> struct deref_less
+{
+	bool operator()(T t1, T t2) const { return *t1 < *t2; }
+};
 
 class HotKey : private EventListener
 {
 public:
+	typedef shared_ptr<const Event> EventPtr;
 	HotKey(CommandController& commandController,
 	       EventDistributor& eventDistributor);
 	virtual ~HotKey();
@@ -32,13 +39,13 @@ public:
 
 private:
 	void initDefaultBindings();
-	void bind  (Keys::KeyCode key, const std::string& command);
-	void unbind(Keys::KeyCode key);
-	void bindDefault  (Keys::KeyCode key, const std::string& command);
-	void unbindDefault(Keys::KeyCode key);
+	void bind  (EventPtr event, const std::string& command);
+	void unbind(EventPtr event);
+	void bindDefault  (EventPtr event, const std::string& command);
+	void unbindDefault(EventPtr event);
 
 	// EventListener
-	virtual void signalEvent(const Event& event);
+	virtual void signalEvent(EventPtr event);
 
 	friend class BindCmd;
 	friend class UnbindCmd;
@@ -49,8 +56,8 @@ private:
 	const std::auto_ptr<BindDefaultCmd>   bindDefaultCmd;
 	const std::auto_ptr<UnbindDefaultCmd> unbindDefaultCmd;
 
-	typedef std::map<Keys::KeyCode, std::string> BindMap;
-	typedef std::set<Keys::KeyCode> KeySet;
+	typedef std::map<EventPtr, std::string, deref_less<EventPtr> > BindMap;
+	typedef std::set<EventPtr,              deref_less<EventPtr> > KeySet;
 	BindMap cmdMap;
 	BindMap defaultMap;
 	KeySet boundKeys;

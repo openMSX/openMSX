@@ -50,7 +50,7 @@ SRC_ONLY:= \
 HDR_ONLY:= \
 	Subject \
 	openmsx \
-	likely noncopyable \
+	likely noncopyable shared_ptr checked_cast \
 	Clock DynamicClock \
 	MSXException InitException \
 	PatchInterface \

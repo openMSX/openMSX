@@ -15,6 +15,7 @@
 #include "EventDistributor.hh"
 #include "GlobalSettings.hh"
 #include "BooleanSetting.hh"
+#include "checked_cast.hh"
 #include <algorithm>
 #include <fstream>
 #include <cassert>
@@ -141,11 +142,10 @@ string CommandConsole::getLine(unsigned line) const
 	return "";
 }
 
-void CommandConsole::signalEvent(const Event& event)
+void CommandConsole::signalEvent(shared_ptr<const Event> event)
 {
-	assert(dynamic_cast<const KeyEvent*>(&event));
-	const KeyEvent& keyEvent = static_cast<const KeyEvent&>(event);
-	if ((event.getType() == OPENMSX_KEY_DOWN_EVENT) &&
+	const KeyEvent& keyEvent = checked_cast<const KeyEvent&>(*event);
+	if ((event->getType() == OPENMSX_KEY_DOWN_EVENT) &&
 	    consoleSetting.getValue()) {
 		handleEvent(keyEvent);
 		assert(display);

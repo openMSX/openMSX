@@ -4,6 +4,7 @@
 #define STRINGOP_HH
 
 #include <string>
+#include <vector>
 #include <sstream>
 #include <strings.h>
 #include <iomanip>
@@ -42,6 +43,8 @@ namespace StringOp
 	                  std::string& first, std::string& last);
 	void splitOnLast (const std::string& str, const std::string& chars,
 	                  std::string& first, std::string& last);
+	void split(const std::string& str, const std::string& chars,
+	           std::vector<std::string>& result);
 
 	// case insensitive less then operator
 	struct caseless {

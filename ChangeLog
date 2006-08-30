@@ -1,5 +1,18 @@
 $Id$
 
+2006-08-30 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added checked_cast and shared_ptr utility classes
+	* Pass events around by shared_ptr (avoids making a polymorphic copy)
+	* Added Event::toString() to print events and
+	  InputEventFactory::createInputEvent(string) to parse events
+	* Added Event::operator<() (to store events in maps)
+	* Extended HotKey class (name is not 100% accurate anymore) to also
+	  handle joystick/mouse-button and focus events:
+	    examples:   bind focus:0 { set pause on  }
+	                bind focus:1 { set pause off }
+	                bind mouse:button8:down { toggle throttle }
+	                bind mouse:button8:up   { toggle throttle }
+
 2006-08-23 Maarten ter Huurne <maarten@treewalker.org>
 	* If default machine is broken (for example because of missing system
 	  ROMs), fall back to C-BIOS config. This makes sure openMSX will start

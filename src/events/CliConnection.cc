@@ -13,6 +13,7 @@
 #include "CommandController.hh"
 #include "CommandException.hh"
 #include "XMLElement.hh"
+#include "checked_cast.hh"
 #include <cstdio>
 #include <cassert>
 #include <iostream>
@@ -101,7 +102,8 @@ void CliConnection::end()
 
 void CliConnection::execute(const string& command)
 {
-	eventDistributor.distributeEvent(new CliCommandEvent(command, this));
+	eventDistributor.distributeEvent(EventDistributor::EventPtr(
+		new CliCommandEvent(command, this)));
 }
 
 static string reply(const string& message, bool status)
@@ -110,11 +112,10 @@ static string reply(const string& message, bool status)
 	       XMLElement::XMLEscape(message) + "</reply>\n";
 }
 
-void CliConnection::signalEvent(const Event& event)
+void CliConnection::signalEvent(shared_ptr<const Event> event)
 {
-	assert(dynamic_cast<const CliCommandEvent*>(&event));
 	const CliCommandEvent& commandEvent =
-		static_cast<const CliCommandEvent&>(event);
+		checked_cast<const CliCommandEvent&>(*event);
 	if (commandEvent.getId() != this) return;
 	try {
 		string result = commandController.executeCommand(

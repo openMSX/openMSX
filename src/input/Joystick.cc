@@ -4,6 +4,7 @@
 #include "PluggingController.hh"
 #include "UserInputEventDistributor.hh"
 #include "InputEvents.hh"
+#include "checked_cast.hh"
 #include <cassert>
 
 using std::string;
@@ -82,9 +83,10 @@ void Joystick::write(byte /*value*/, const EmuTime& /*time*/)
 }
 
 //EventListener
-void Joystick::signalEvent(const Event& event)
+void Joystick::signalEvent(shared_ptr<const Event> event)
 {
-	const JoystickEvent* joyEvent = dynamic_cast<const JoystickEvent*>(&event);
+	const JoystickEvent* joyEvent =
+		dynamic_cast<const JoystickEvent*>(event.get());
 	if (!joyEvent) {
 		return;
 	}
@@ -95,11 +97,10 @@ void Joystick::signalEvent(const Event& event)
 		return;
 	}
 
-	switch (event.getType()) {
+	switch (event->getType()) {
 	case OPENMSX_JOY_AXIS_MOTION_EVENT: {
-		assert(dynamic_cast<const JoystickAxisMotionEvent*>(&event));
 		const JoystickAxisMotionEvent& motionEvent =
-			static_cast<const JoystickAxisMotionEvent&>(event);
+			checked_cast<const JoystickAxisMotionEvent&>(*event);
 		short value = motionEvent.getValue();
 		switch (motionEvent.getAxis()) {
 		case JoystickAxisMotionEvent::X_AXIS: // Horizontal
@@ -133,9 +134,8 @@ void Joystick::signalEvent(const Event& event)
 		break;
 	}
 	case OPENMSX_JOY_BUTTON_DOWN_EVENT: {
-		assert(dynamic_cast<const JoystickButtonEvent*>(&event));
 		const JoystickButtonEvent& buttonEvent =
-			static_cast<const JoystickButtonEvent&>(event);
+			checked_cast<const JoystickButtonEvent&>(*event);
 		switch (buttonEvent.getButton() % 2) {
 		case 0:
 			status &= ~JOY_BUTTONA;
@@ -150,9 +150,8 @@ void Joystick::signalEvent(const Event& event)
 		break;
 	}
 	case OPENMSX_JOY_BUTTON_UP_EVENT: {
-		assert(dynamic_cast<const JoystickButtonEvent*>(&event));
 		const JoystickButtonEvent& buttonEvent =
-			static_cast<const JoystickButtonEvent&>(event);
+			checked_cast<const JoystickButtonEvent&>(*event);
 		switch (buttonEvent.getButton() % 2) {
 		case 0:
 			status |= JOY_BUTTONA;

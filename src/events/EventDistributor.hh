@@ -5,6 +5,7 @@
 
 #include "Event.hh"
 #include "Semaphore.hh"
+#include "shared_ptr.hh"
 #include <map>
 #include <vector>
 
@@ -17,6 +18,8 @@ class EmuTime;
 class EventDistributor
 {
 public:
+	typedef shared_ptr<const Event> EventPtr;
+
 	explicit EventDistributor(Reactor& reactor);
 	virtual ~EventDistributor();
 
@@ -33,7 +36,7 @@ public:
 	 */
 	void unregisterEventListener(EventType type, EventListener& listener);
 
-	void distributeEvent(Event* event);
+	void distributeEvent(EventPtr event);
 	void deliverEvents();
 
 private:
@@ -41,7 +44,7 @@ private:
 
 	typedef std::multimap<EventType, EventListener*> ListenerMap;
 	ListenerMap detachedListeners;
-	typedef std::vector<Event*> EventQueue;
+	typedef std::vector<EventPtr> EventQueue;
 	EventQueue scheduledEvents;
 	Semaphore sem;
 };

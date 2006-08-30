@@ -28,7 +28,7 @@ public:
 	virtual void write(byte value, const EmuTime& time);
 
 	//UserInputEventListener
-	virtual void signalEvent(const Event& event);
+	virtual void signalEvent(shared_ptr<const Event> event);
 
 private:
 	void emulateJoystick();

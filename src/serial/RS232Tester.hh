@@ -44,7 +44,7 @@ private:
 	virtual void run();
 
 	// EventListener
-	virtual void signalEvent(const Event& event);
+	virtual void signalEvent(shared_ptr<const Event> event);
 
 	EventDistributor& eventDistributor;
 	Scheduler& scheduler;

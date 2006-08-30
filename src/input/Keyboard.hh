@@ -44,7 +44,7 @@ public:
 
 private:
 	// UserInputEventListener
-	virtual void signalEvent(const Event& event);
+	virtual void signalEvent(shared_ptr<const Event> event);
 
 	// Schedulable
 	virtual void executeUntil(const EmuTime& time, int userData);

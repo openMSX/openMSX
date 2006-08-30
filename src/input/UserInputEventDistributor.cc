@@ -9,6 +9,7 @@
 #include "FloatSetting.hh"
 #include "BooleanSetting.hh"
 #include "Timer.hh"
+#include "checked_cast.hh"
 #include <algorithm>
 #include <cassert>
 #include <iostream>
@@ -92,52 +93,17 @@ void UserInputEventDistributor::unregisterEventListener(
 	listeners.erase(it);
 }
 
-void UserInputEventDistributor::signalEvent(const Event& event)
+void UserInputEventDistributor::signalEvent(EventPtr event)
 {
-	EventType type = event.getType();
-	if ((type == OPENMSX_KEY_DOWN_EVENT) && !consoleSetting.getValue()) {
-		const KeyEvent& keyEvent = static_cast<const KeyEvent&>(event);
-		queueEvent(new KeyDownEvent(
-			keyEvent.getKeyCode(), keyEvent.getUnicode()));
-	} else if (type == OPENMSX_KEY_UP_EVENT) {
-		const KeyEvent& keyEvent = static_cast<const KeyEvent&>(event);
-		queueEvent(new KeyUpEvent(
-			keyEvent.getKeyCode(), keyEvent.getUnicode()));
-	} else if (type == OPENMSX_MOUSE_MOTION_EVENT) {
-		const MouseMotionEvent& motionEvent =
-			static_cast<const MouseMotionEvent&>(event);
-		queueEvent(new MouseMotionEvent(
-			motionEvent.getX(), motionEvent.getY()));
-	} else if (type == OPENMSX_MOUSE_BUTTON_DOWN_EVENT) {
-		const MouseButtonEvent& buttonEvent =
-			static_cast<const MouseButtonEvent&>(event);
-		queueEvent(new MouseButtonDownEvent(
-			buttonEvent.getButton()));
-	} else if (type == OPENMSX_MOUSE_BUTTON_UP_EVENT) {
-		const MouseButtonEvent& buttonEvent =
-			static_cast<const MouseButtonEvent&>(event);
-		queueEvent(new MouseButtonUpEvent(
-			buttonEvent.getButton()));
-	} else if (type == OPENMSX_JOY_AXIS_MOTION_EVENT) {
-		const JoystickAxisMotionEvent& motionEvent =
-			static_cast<const JoystickAxisMotionEvent&>(event);
-		queueEvent(new JoystickAxisMotionEvent(
-			motionEvent.getJoystick(), motionEvent.getAxis(),
-			motionEvent.getValue()));
-	} else if (type == OPENMSX_JOY_BUTTON_DOWN_EVENT) {
-		const JoystickButtonEvent& buttonEvent =
-			static_cast<const JoystickButtonEvent&>(event);
-		queueEvent(new JoystickButtonDownEvent(
-			buttonEvent.getJoystick(), buttonEvent.getButton()));
-	} else if (type == OPENMSX_JOY_BUTTON_UP_EVENT) {
-		const JoystickButtonEvent& buttonEvent =
-			static_cast<const JoystickButtonEvent&>(event);
-		queueEvent(new JoystickButtonDownEvent(
-			buttonEvent.getJoystick(), buttonEvent.getButton()));
+	if ((event->getType() ==OPENMSX_KEY_DOWN_EVENT) &&
+	    consoleSetting.getValue()) {
+		// TODO this should be moved to console itself
+		return;
 	}
+	queueEvent(event);
 }
 
-void UserInputEventDistributor::queueEvent(Event* event)
+void UserInputEventDistributor::queueEvent(EventPtr event)
 {
 	toBeScheduledEvents.push_back(EventTime(event, Timer::getTime()));
 }
@@ -175,14 +141,13 @@ void UserInputEventDistributor::sync(const EmuTime& emuTime)
 void UserInputEventDistributor::executeUntil(
 		const EmuTime& /*time*/, int /*userData*/)
 {
-	Event* event = scheduledEvents.front();
+	EventPtr event = scheduledEvents.front();
 	scheduledEvents.pop_front();
 
 	for (Listeners::const_iterator it = listeners.begin();
 	     it != listeners.end(); ++it) {
-		(*it)->signalEvent(*event);
+		(*it)->signalEvent(event);
 	}
-	delete event;
 }
 
 const std::string& UserInputEventDistributor::schedName() const

@@ -53,7 +53,7 @@ private:
 	void setWindowTitle();
 
 	// EventListener interface
-	virtual void signalEvent(const Event& event);
+	virtual void signalEvent(shared_ptr<const Event> event);
 
 	// Observer<Setting> interface
 	virtual void update(const Setting& setting);

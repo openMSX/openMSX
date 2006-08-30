@@ -203,11 +203,11 @@ void AfterCommand::tabCompletion(vector<string>& tokens) const
 }
 
 
-void AfterCommand::signalEvent(const Event& event)
+void AfterCommand::signalEvent(shared_ptr<const Event> event)
 {
-	if (event.getType() == OPENMSX_FINISH_FRAME_EVENT) {
+	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
 		executeEvents<OPENMSX_FINISH_FRAME_EVENT>();
-	} else if (event.getType() == OPENMSX_BREAK_EVENT) {
+	} else if (event->getType() == OPENMSX_BREAK_EVENT) {
 		executeEvents<OPENMSX_BREAK_EVENT>();
 	} else {
 		for (AfterCmdMap::const_iterator it = afterCmds.begin();

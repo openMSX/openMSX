@@ -222,8 +222,8 @@ void RealDrive::setMotor(bool status, const EmuTime& time)
 		/* The following is a hack to emulate the drive LED behaviour.
 		 * This is in real life dependent on the FDC and should be
 		 * investigated in detail to implement it properly... TODO */
-		eventDistributor.distributeEvent(
-			new LedEvent(LedEvent::FDD, motorStatus));
+		eventDistributor.distributeEvent(EventDistributor::EventPtr(
+			new LedEvent(LedEvent::FDD, motorStatus)));
 		updateLoadingState();
 	}
 

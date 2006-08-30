@@ -48,10 +48,12 @@ public:
 	void sync(const EmuTime& time);
 
 private:
-	void queueEvent(Event* event);
+	typedef shared_ptr<const Event> EventPtr;
+
+	void queueEvent(EventPtr event);
 
 	// EventListener
-	virtual void signalEvent(const Event& event);
+	virtual void signalEvent(EventPtr event);
 
 	// Schedulable
 	virtual void executeUntil(const EmuTime& time, int userData);
@@ -62,13 +64,13 @@ private:
 	EventDistributor& eventDistributor;
 
 	struct EventTime {
-		EventTime(Event* event_, unsigned long long time_)
+		EventTime(EventPtr event_, unsigned long long time_)
 			: event(event_), time(time_) {}
-		Event* event;
+		EventPtr event;
 		unsigned long long time;
 	};
 	std::vector<EventTime> toBeScheduledEvents;
-	std::deque<Event*> scheduledEvents;
+	std::deque<EventPtr> scheduledEvents;
 
 	EmuTime prevEmu;
 	unsigned long long prevReal;

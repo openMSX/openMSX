@@ -6,20 +6,33 @@
 #include "openmsx.hh"
 #include "Event.hh"
 #include "Keys.hh"
+#include <string>
 
 namespace openmsx {
 
-class KeyEvent : public Event
+class InputEvent : public Event
 {
 public:
-	Keys::KeyCode getKeyCode() const { return keyCode; }
-	word getUnicode() const { return unicode; }
+	virtual std::string toString() const = 0;
+protected:
+	virtual bool lessImpl(const Event& other) const;
+	virtual bool lessImpl(const InputEvent& other) const = 0;
+	explicit InputEvent(EventType type);
+};
+
+
+class KeyEvent : public InputEvent
+{
+public:
+	Keys::KeyCode getKeyCode() const;
+	word getUnicode() const;
+	virtual std::string toString() const;
 
 protected:
-	KeyEvent(EventType type, Keys::KeyCode keyCode_, word unicode_)
-		: Event(type), keyCode(keyCode_), unicode(unicode_) {}
+	KeyEvent(EventType type, Keys::KeyCode keyCode, word unicode);
 
 private:
+	virtual bool lessImpl(const InputEvent& other) const;
 	Keys::KeyCode keyCode;
 	word unicode;
 };
@@ -27,121 +40,167 @@ private:
 class KeyUpEvent : public KeyEvent
 {
 public:
-	KeyUpEvent(Keys::KeyCode keyCode, word unicode)
-		: KeyEvent(OPENMSX_KEY_UP_EVENT, keyCode, unicode) {}
+	KeyUpEvent(Keys::KeyCode keyCode);
+	KeyUpEvent(Keys::KeyCode keyCode, word unicode);
 };
 
 class KeyDownEvent : public KeyEvent
 {
 public:
-	KeyDownEvent(Keys::KeyCode keyCode, word unicode)
-		: KeyEvent(OPENMSX_KEY_DOWN_EVENT, keyCode, unicode) {}
+	KeyDownEvent(Keys::KeyCode keyCode);
+	KeyDownEvent(Keys::KeyCode keyCode, word unicode);
 };
 
 
-class MouseButtonEvent : public Event
+class MouseButtonEvent : public InputEvent
 {
 public:
-	enum Button {
-		LEFT, RIGHT, MIDDLE, OTHER
-	};
-	Button getButton() const { return button; }
+	static const unsigned LEFT      = 1;
+	static const unsigned MIDDLE    = 2;
+	static const unsigned RIGHT     = 3;
+	static const unsigned WHEELUP   = 4;
+	static const unsigned WHEELDOWN = 5;
+
+	unsigned getButton() const;
 
 protected:
-	MouseButtonEvent(EventType type, Button button_)
-		: Event(type), button(button_) {}
+	MouseButtonEvent(EventType type, unsigned button_);
+	std::string toStringHelper() const;
 
 private:
-	Button button;
+	virtual bool lessImpl(const InputEvent& other) const;
+	unsigned button;
 };
 
 class MouseButtonUpEvent : public MouseButtonEvent
 {
 public:
-	explicit MouseButtonUpEvent(MouseButtonEvent::Button button)
-		: MouseButtonEvent(OPENMSX_MOUSE_BUTTON_UP_EVENT, button) {}
+	explicit MouseButtonUpEvent(unsigned button);
+	virtual std::string toString() const;
 };
 
 class MouseButtonDownEvent : public MouseButtonEvent
 {
 public:
-	explicit MouseButtonDownEvent(MouseButtonEvent::Button button)
-		: MouseButtonEvent(OPENMSX_MOUSE_BUTTON_DOWN_EVENT, button) {}
+	explicit MouseButtonDownEvent(unsigned button);
+	virtual std::string toString() const;
 };
 
-class MouseMotionEvent : public Event
+class MouseMotionEvent : public InputEvent
 {
 public:
-	MouseMotionEvent(int xrel_, int yrel_)
-		: Event(OPENMSX_MOUSE_MOTION_EVENT)
-		, xrel(xrel_), yrel(yrel_) {}
-
-	int getX() const { return xrel; }
-	int getY() const { return yrel; }
+	MouseMotionEvent(int xrel, int yrel);
+	int getX() const;
+	int getY() const;
+	virtual std::string toString() const;
 
 private:
+	virtual bool lessImpl(const InputEvent& other) const;
 	int xrel;
 	int yrel;
 };
 
 
-class JoystickEvent : public Event
+class JoystickEvent : public InputEvent
 {
 public:
-	unsigned getJoystick() const { return joystick; }
+	unsigned getJoystick() const;
 
 protected:
-	JoystickEvent(EventType type, unsigned joystick_)
-		: Event(type), joystick(joystick_) {}
+	JoystickEvent(EventType type, unsigned joystick);
+	std::string toStringHelper() const;
 
 private:
+	virtual bool lessImpl(const InputEvent& other) const;
+	virtual bool lessImpl(const JoystickEvent& other) const = 0;
 	unsigned joystick;
 };
 
 class JoystickButtonEvent : public JoystickEvent
 {
 public:
-	unsigned getButton() const { return button; }
+	unsigned getButton() const;
 
 protected:
-	JoystickButtonEvent(EventType type, unsigned joystick, unsigned button_)
-		: JoystickEvent(type, joystick), button(button_) {}
+	JoystickButtonEvent(EventType type, unsigned joystick, unsigned button);
+	std::string toStringHelper() const;
 
 private:
+	virtual bool lessImpl(const JoystickEvent& other) const;
 	unsigned button;
 };
 
 class JoystickButtonUpEvent : public JoystickButtonEvent
 {
 public:
-	JoystickButtonUpEvent(unsigned joystick, unsigned button)
-		: JoystickButtonEvent(OPENMSX_JOY_BUTTON_UP_EVENT, joystick, button) {}
+	JoystickButtonUpEvent(unsigned joystick, unsigned button);
+	virtual std::string toString() const;
 };
 
 class JoystickButtonDownEvent : public JoystickButtonEvent
 {
 public:
-	JoystickButtonDownEvent(unsigned joystick, unsigned button)
-		: JoystickButtonEvent(OPENMSX_JOY_BUTTON_DOWN_EVENT, joystick, button) {}
+	JoystickButtonDownEvent(unsigned joystick, unsigned button);
+	virtual std::string toString() const;
 };
 
 class JoystickAxisMotionEvent : public JoystickEvent
 {
 public:
-	enum Axis {
-		X_AXIS, Y_AXIS, OTHER
-	};
-	JoystickAxisMotionEvent(unsigned joystick, Axis axis_, short value_)
-		: JoystickEvent(OPENMSX_JOY_AXIS_MOTION_EVENT, joystick),
-		  axis(axis_), value(value_) {}
+	static const unsigned X_AXIS = 0;
+	static const unsigned Y_AXIS = 1;
 
-	Axis getAxis() const { return axis; }
-	short getValue() const { return value; }
+	JoystickAxisMotionEvent(unsigned joystick, unsigned axis, short value);
+	unsigned getAxis() const;
+	short getValue() const;
+	virtual std::string toString() const;
 
 private:
-	Axis axis;
+	virtual bool lessImpl(const JoystickEvent& other) const;
+	unsigned axis;
 	short value;
 };
+
+
+class FocusEvent : public InputEvent
+{
+public:
+	explicit FocusEvent(bool gain);
+
+	bool getGain() const;
+	virtual std::string toString() const;
+
+private:
+	virtual bool lessImpl(const InputEvent& other) const;
+	bool gain;
+};
+
+
+class ResizeEvent : public InputEvent
+{
+public:
+	ResizeEvent(unsigned x, unsigned y);
+
+	unsigned getX() const;
+	unsigned getY() const;
+	virtual std::string toString() const;
+
+private:
+	virtual bool lessImpl(const InputEvent& other) const;
+	unsigned x;
+	unsigned y;
+};
+
+
+class QuitEvent : public InputEvent
+{
+public:
+	QuitEvent();
+	virtual std::string toString() const;
+private:
+	virtual bool lessImpl(const InputEvent& other) const;
+};
+
 
 /**
  * Used for console on/off events.
@@ -154,45 +213,7 @@ private:
 class ConsoleEvent : public Event
 {
 public:
-	explicit ConsoleEvent(EventType type) :
-		Event(type) {}
-};
-
-// Note: The following events are sent by the windowing system, but they
-//       shouldn't be processed by the same listener stack as for example
-//       keyboard events, so we won't let them inherit from UserInputEvent.
-// TODO: Move them to a different file?
-
-class FocusEvent : public Event
-{
-public:
-	explicit FocusEvent(bool gain_)
-		: Event(OPENMSX_FOCUS_EVENT), gain(gain_) {}
-
-	bool getGain() const { return gain; }
-
-private:
-	bool gain;
-};
-
-class ResizeEvent : public Event
-{
-public:
-	ResizeEvent(unsigned x_, unsigned y_)
-		: Event(OPENMSX_RESIZE_EVENT), x(x_), y(y_) {}
-
-	unsigned getX() const { return x; }
-	unsigned getY() const { return y; }
-
-private:
-	unsigned x;
-	unsigned y;
-};
-
-class QuitEvent : public Event
-{
-public:
-	QuitEvent() : Event(OPENMSX_QUIT_EVENT) {}
+	explicit ConsoleEvent(EventType type);
 };
 
 } // namespace openmsx

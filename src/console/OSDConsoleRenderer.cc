@@ -133,10 +133,12 @@ void OSDConsoleRenderer::setActive(bool active_)
 	reactor.getInputEventGenerator().setKeyRepeat(active);
 	if (active) {
 		reactor.getEventDistributor().distributeEvent(
-			new ConsoleEvent(OPENMSX_CONSOLE_ON_EVENT));
+			EventDistributor::EventPtr(
+				new ConsoleEvent(OPENMSX_CONSOLE_ON_EVENT)));
 	} else {
 		reactor.getEventDistributor().distributeEvent(
-			new ConsoleEvent(OPENMSX_CONSOLE_OFF_EVENT));
+			EventDistributor::EventPtr(
+				new ConsoleEvent(OPENMSX_CONSOLE_OFF_EVENT)));
 	}
 }
 

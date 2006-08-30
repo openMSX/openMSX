@@ -8,6 +8,7 @@ using std::advance;
 using std::equal;
 using std::string;
 using std::transform;
+using std::vector;
 
 namespace openmsx {
 
@@ -85,6 +86,18 @@ void splitOnLast(const string& str, const string& chars, string& first, string& 
 	} else {
 		first = str.substr(0, pos);
 		last  = str.substr(pos + 1);
+	}
+}
+
+void split(const string& str, const string& chars, vector<string>& result)
+{
+	// can be implemented more efficiently if needed
+	string tmp = str;
+	while (!tmp.empty()) {
+		string first, last;
+		splitOnFirst(tmp, chars, first, last);
+		result.push_back(first);
+		tmp = last;
 	}
 }
 

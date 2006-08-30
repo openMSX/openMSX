@@ -3,6 +3,7 @@
 #include "IconStatus.hh"
 #include "EventDistributor.hh"
 #include "Timer.hh"
+#include "checked_cast.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -34,10 +35,9 @@ unsigned long long IconStatus::getTime(int icon) const
 	return iconTime[icon];
 }
 
-void IconStatus::signalEvent(const Event& event)
+void IconStatus::signalEvent(shared_ptr<const Event> event)
 {
-	assert(event.getType() == OPENMSX_LED_EVENT);
-	const LedEvent& ledEvent = static_cast<const LedEvent&>(event);
+	const LedEvent& ledEvent = checked_cast<const LedEvent&>(*event);
 	LedEvent::Led led = ledEvent.getLed();
 	bool status = ledEvent.getStatus();
 	if (status != iconStatus[led]) {

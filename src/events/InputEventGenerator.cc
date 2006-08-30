@@ -6,6 +6,7 @@
 #include "InputEvents.hh"
 #include "BooleanSetting.hh"
 #include "openmsx.hh"
+#include "checked_cast.hh"
 #include <cassert>
 
 using std::string;
@@ -95,111 +96,67 @@ void InputEventGenerator::setKeyRepeat(bool enable)
 	}
 }
 
-static MouseButtonEvent::Button convertMouseButton(Uint8 sdlButton)
-{
-	switch (sdlButton) {
-	case SDL_BUTTON_LEFT:
-		return MouseButtonEvent::LEFT;
-	case SDL_BUTTON_RIGHT:
-		return MouseButtonEvent::RIGHT;
-	case SDL_BUTTON_MIDDLE:
-		return MouseButtonEvent::MIDDLE;
-	default:
-		return MouseButtonEvent::OTHER;
-	}
-}
-
-static JoystickAxisMotionEvent::Axis convertJoyAxis(Uint8 sdlAxis)
-{
-	switch (sdlAxis) {
-	case 0:
-		return JoystickAxisMotionEvent::X_AXIS;
-	case 1:
-		return JoystickAxisMotionEvent::Y_AXIS;
-	default:
-		return JoystickAxisMotionEvent::OTHER;
-	}
-}
-
 void InputEventGenerator::handle(const SDL_Event& evt)
 {
+	shared_ptr<const Event> event;
 	switch (evt.type) {
-	case SDL_KEYUP: {
-		Event* event = new KeyUpEvent(
+	case SDL_KEYUP:
+		event.reset(new KeyUpEvent(
 		        Keys::getCode(evt.key.keysym.sym,
 		                      evt.key.keysym.mod,
 		                      true),
-		        evt.key.keysym.unicode);
-		eventDistributor.distributeEvent(event);
+		        evt.key.keysym.unicode));
 		break;
-	}
-	case SDL_KEYDOWN: {
-		Event* event = new KeyDownEvent(
+	case SDL_KEYDOWN:
+		event.reset(new KeyDownEvent(
 		        Keys::getCode(evt.key.keysym.sym,
 		                      evt.key.keysym.mod,
 		                      false),
-		        evt.key.keysym.unicode);
-		eventDistributor.distributeEvent(event);
+		        evt.key.keysym.unicode));
 		break;
-	}
 
-	case SDL_MOUSEBUTTONUP: {
-		Event* event = new MouseButtonUpEvent(
-		                        convertMouseButton(evt.button.button));
-		eventDistributor.distributeEvent(event);
+	case SDL_MOUSEBUTTONUP:
+		event.reset(new MouseButtonUpEvent(evt.button.button));
 		break;
-	}
-	case SDL_MOUSEBUTTONDOWN: {
-		Event* event = new MouseButtonDownEvent(
-		                        convertMouseButton(evt.button.button));
-		eventDistributor.distributeEvent(event);
+	case SDL_MOUSEBUTTONDOWN:
+		event.reset(new MouseButtonDownEvent(evt.button.button));
 		break;
-	}
-	case SDL_MOUSEMOTION: {
-		Event* event = new MouseMotionEvent(evt.motion.xrel,
-		                                    evt.motion.yrel);
-		eventDistributor.distributeEvent(event);
+	case SDL_MOUSEMOTION:
+		event.reset(new MouseMotionEvent(evt.motion.xrel, evt.motion.yrel));
 		break;
-	}
 
-	case SDL_JOYBUTTONUP: {
-		Event* event = new JoystickButtonUpEvent(evt.jbutton.which,
-		                                         evt.jbutton.button);
-		eventDistributor.distributeEvent(event);
+	case SDL_JOYBUTTONUP:
+		event.reset(new JoystickButtonUpEvent(evt.jbutton.which,
+		                                  evt.jbutton.button));
 		break;
-	}
-	case SDL_JOYBUTTONDOWN: {
-		Event* event = new JoystickButtonDownEvent(evt.jbutton.which,
-		                                           evt.jbutton.button);
-		eventDistributor.distributeEvent(event);
+	case SDL_JOYBUTTONDOWN:
+		event.reset(new JoystickButtonDownEvent(evt.jbutton.which,
+		                                    evt.jbutton.button));
 		break;
-	}
-	case SDL_JOYAXISMOTION: {
-		Event* event = new JoystickAxisMotionEvent(evt.jaxis.which,
-		                              convertJoyAxis(evt.jaxis.axis),
-		                              evt.jaxis.value);
-		eventDistributor.distributeEvent(event);
+	case SDL_JOYAXISMOTION:
+		event.reset(new JoystickAxisMotionEvent(evt.jaxis.which,
+		                                    evt.jaxis.axis,
+		                                    evt.jaxis.value));
 		break;
-	}
 
-	case SDL_ACTIVEEVENT: {
-		Event* event = new FocusEvent(evt.active.gain);
-		eventDistributor.distributeEvent(event);
+	case SDL_ACTIVEEVENT:
+		event.reset(new FocusEvent(evt.active.gain));
 		break;
-	}
 
-	case SDL_VIDEORESIZE: {
-		Event* event = new ResizeEvent(evt.resize.w, evt.resize.h);
-		eventDistributor.distributeEvent(event);
+	case SDL_VIDEORESIZE:
+		event.reset(new ResizeEvent(evt.resize.w, evt.resize.h));
 		break;
-	}
 
 	case SDL_QUIT:
-		eventDistributor.distributeEvent(new QuitEvent());
+		event.reset(new QuitEvent());
 		break;
 
 	default:
 		break;
+	}
+
+	if (event.get()) {
+		eventDistributor.distributeEvent(event);
 	}
 }
 
@@ -212,10 +169,10 @@ void InputEventGenerator::update(const Setting& setting)
 	setGrabInput(grabInput->getValue());
 }
 
-void InputEventGenerator::signalEvent(const Event& event)
+void InputEventGenerator::signalEvent(shared_ptr<const Event> event)
 {
-	if (event.getType() == OPENMSX_FOCUS_EVENT) {
-		const FocusEvent& focusEvent = static_cast<const FocusEvent&>(event);
+	if (event->getType() == OPENMSX_FOCUS_EVENT) {
+		const FocusEvent& focusEvent = checked_cast<const FocusEvent&>(*event);
 		switch (escapeGrabState) {
 			case ESCAPE_GRAB_WAIT_CMD:
 				// nothing
@@ -234,7 +191,7 @@ void InputEventGenerator::signalEvent(const Event& event)
 			default:
 				assert(false);
 		}
-	} else if (event.getType() == OPENMSX_POLL_EVENT) {
+	} else if (event->getType() == OPENMSX_POLL_EVENT) {
 		poll();
 	}
 }

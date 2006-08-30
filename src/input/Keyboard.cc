@@ -17,6 +17,7 @@
 #include "InputEvents.hh"
 #include "Scheduler.hh"
 #include "Unicode.hh"
+#include "checked_cast.hh"
 
 using std::string;
 using std::vector;
@@ -172,19 +173,18 @@ const byte* Keyboard::getKeys()
 	return keyMatrix;
 }
 
-void Keyboard::signalEvent(const Event& event)
+void Keyboard::signalEvent(shared_ptr<const Event> event)
 {
-	EventType type = event.getType();
+	EventType type = event->getType();
 	if ((type == OPENMSX_KEY_DOWN_EVENT) ||
 	    (type == OPENMSX_KEY_UP_EVENT)) {
 		// Ignore possible console on/off events:
 		// we do not rescan the keyboard since this may lead to
 		// an unwanted pressing of <return> in MSX after typing
 		// "set console off" in the console.
-		assert(dynamic_cast<const KeyEvent*>(&event));
+		const KeyEvent& keyEvent = checked_cast<const KeyEvent&>(*event);
 		Keys::KeyCode key = (Keys::KeyCode)
-			((int)((KeyEvent&)event).getKeyCode() &
-			 (int)Keys::K_MASK);
+			((int)keyEvent.getKeyCode() & (int)Keys::K_MASK);
 		if (key != Keys::K_CAPSLOCK) {
 			processKey(type == OPENMSX_KEY_DOWN_EVENT, key);
 		} else {

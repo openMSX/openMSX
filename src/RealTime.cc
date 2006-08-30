@@ -11,6 +11,7 @@
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
 #include "ThrottleManager.hh"
+#include "checked_cast.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -133,15 +134,16 @@ const std::string& RealTime::schedName() const
 	return name;
 }
 
-void RealTime::signalEvent(const Event& event)
+void RealTime::signalEvent(shared_ptr<const Event> event)
 {
-	if (event.getType() == OPENMSX_FINISH_FRAME_EVENT) {
-		const FinishFrameEvent& ffe = static_cast<const FinishFrameEvent&>(event);
+	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
+		const FinishFrameEvent& ffe =
+			checked_cast<const FinishFrameEvent&>(*event);
 		if (ffe.isSkipped()) {
 			// sync but don't sleep
 			sync(getScheduler().getCurrentTime(), false);
 		}
-	} else if (event.getType() == OPENMSX_FRAME_DRAWN_EVENT) {
+	} else if (event->getType() == OPENMSX_FRAME_DRAWN_EVENT) {
 		// sync and possibly sleep
 		sync(getScheduler().getCurrentTime(), true);
 	}

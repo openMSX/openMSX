@@ -19,12 +19,6 @@ EventDistributor::EventDistributor(Reactor& reactor_)
 
 EventDistributor::~EventDistributor()
 {
-	ScopedLock lock(sem);
-
-	for (EventQueue::iterator it = scheduledEvents.begin();
-	     it != scheduledEvents.end(); ++it) {
-		delete *it;
-	}
 }
 
 void EventDistributor::registerEventListener(
@@ -49,7 +43,7 @@ void EventDistributor::unregisterEventListener(
 	}
 }
 
-void EventDistributor::distributeEvent(Event* event)
+void EventDistributor::distributeEvent(EventPtr event)
 {
 	// TODO: Implement a real solution against modifying data structure while
 	//       iterating through it.
@@ -57,7 +51,7 @@ void EventDistributor::distributeEvent(Event* event)
 	//       delivering events to remove the NULL values.
 	// TODO: Is it useful to test for 0 listeners or should we just always
 	//       queue the event?
-	assert(event);
+	assert(event.get());
 	ScopedLock lock(sem);
 	pair<ListenerMap::iterator, ListenerMap::iterator> bounds2 =
 		detachedListeners.equal_range(event->getType());
@@ -81,7 +75,7 @@ void EventDistributor::deliverEvents()
 	
 	for (EventQueue::const_iterator it = eventsCopy.begin();
 	     it != eventsCopy.end(); ++it) {
-		Event* event = *it;
+		EventPtr event = *it;
 		pair<ListenerMap::iterator, ListenerMap::iterator> bounds =
 			detachedListeners.equal_range(event->getType());
 		std::vector<EventListener*> listenersCopy;
@@ -92,10 +86,9 @@ void EventDistributor::deliverEvents()
 		sem.up();
 		for (std::vector<EventListener*>::iterator it = listenersCopy.begin();
 		     it != listenersCopy.end(); ++it) {
-			(*it)->signalEvent(*event);
+			(*it)->signalEvent(event);
 		}
 		sem.down();
-		delete event;
 	}
 }
 

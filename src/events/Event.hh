@@ -3,6 +3,8 @@
 #ifndef EVENT_HH
 #define EVENT_HH
 
+#include <string>
+
 namespace openmsx {
 
 enum EventType
@@ -57,13 +59,19 @@ enum EventType
 class Event
 {
 public:
-	EventType getType() const { return type; }
-	virtual ~Event() {}
+	virtual ~Event();
+
+	EventType getType() const;
+	virtual std::string toString() const;
+	bool operator< (const Event& other) const;
+	bool operator==(const Event& other) const;
 
 protected:
-	explicit Event(EventType type_) : type(type_) {}
+	explicit Event(EventType type);
 
 private:
+	virtual bool lessImpl(const Event& other) const;
+
 	EventType type;
 };
 

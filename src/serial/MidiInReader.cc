@@ -85,8 +85,8 @@ void MidiInReader::run()
 
 		ScopedLock l(lock);
 		queue.push_back(buf);
-		eventDistributor.distributeEvent(
-			new SimpleEvent<OPENMSX_MIDI_IN_READER_EVENT>());
+		eventDistributor.distributeEvent(EventDistributor::EventPtr(
+			new SimpleEvent<OPENMSX_MIDI_IN_READER_EVENT>()));
 	}
 }
 
@@ -110,7 +110,7 @@ void MidiInReader::signal(const EmuTime& time)
 }
 
 // EventListener
-void MidiInReader::signalEvent(const Event& /*event*/)
+void MidiInReader::signalEvent(shared_ptr<const Event> /*event*/)
 {
 	if (getConnector()) {
 		signal(scheduler.getCurrentTime());

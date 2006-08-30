@@ -156,9 +156,8 @@ void MSXMotherBoard::loadMachine(const std::string& machine)
 			"Error in \"" + machine + "\" machine: " + e.getMessage()
 			);
 	}
-	getEventDistributor().distributeEvent(
-		new SimpleEvent<OPENMSX_MACHINE_LOADED_EVENT>()
-		);
+	getEventDistributor().distributeEvent(EventDistributor::EventPtr(
+		new SimpleEvent<OPENMSX_MACHINE_LOADED_EVENT>()));
 	if (powerSetting.getValue()) {
 		powerUp();
 	}
@@ -472,8 +471,8 @@ void MSXMotherBoard::powerUp()
 	powerSetting.setValue(true);
 	// TODO: We could make the power LED a device, so we don't have to handle
 	//       it separately here.
-	getEventDistributor().distributeEvent(
-		new LedEvent(LedEvent::POWER, true));
+	getEventDistributor().distributeEvent(EventDistributor::EventPtr(
+		new LedEvent(LedEvent::POWER, true)));
 
 	const EmuTime& time = getScheduler().getCurrentTime();
 	getCPUInterface().reset();
@@ -501,8 +500,8 @@ void MSXMotherBoard::doPowerDown(const EmuTime& time)
 	//       handling all pending commands/events/updates?
 	//assert(powerSetting.getValue() == powered);
 	powerSetting.setValue(false);
-	getEventDistributor().distributeEvent(
-		new LedEvent(LedEvent::POWER, false));
+	getEventDistributor().distributeEvent(EventDistributor::EventPtr(
+		new LedEvent(LedEvent::POWER, false)));
 
 	getMixer().mute();
 

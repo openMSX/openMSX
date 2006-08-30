@@ -43,7 +43,7 @@ private:
 
 	static const int LINESHISTORY = 1000;
 
-	virtual void signalEvent(const Event& event);
+	virtual void signalEvent(shared_ptr<const Event> event);
 	void handleEvent(const KeyEvent& keyEvent);
 	void tabCompletion();
 	void commandExecute();

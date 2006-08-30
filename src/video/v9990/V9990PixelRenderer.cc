@@ -96,9 +96,8 @@ void V9990PixelRenderer::frameEnd(const EmuTime& time)
 		finishFrameDuration = finishFrameDuration * (1 - ALPHA) +
 		                      current * ALPHA;
 	}
-	eventDistributor.distributeEvent(
-		new FinishFrameEvent(VIDEO_GFX9000, !drawFrame)
-		);
+	eventDistributor.distributeEvent(EventDistributor::EventPtr(
+		new FinishFrameEvent(VIDEO_GFX9000, !drawFrame)));
 }
 
 void V9990PixelRenderer::sync(const EmuTime& time, bool force)

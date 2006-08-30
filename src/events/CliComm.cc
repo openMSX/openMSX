@@ -157,7 +157,7 @@ void CliComm::update(UpdateType type, const string& name, const string& value)
 	}
 }
 
-void CliComm::signalEvent(const Event& event)
+void CliComm::signalEvent(shared_ptr<const Event> event)
 {
 	static const string ON = "on";
 	static const string OFF = "off";
@@ -173,8 +173,8 @@ void CliComm::signalEvent(const Event& event)
 		ledName[LedEvent::FDD]   = "FDD";
 	}
 
-	assert(event.getType() == OPENMSX_LED_EVENT);
-	const LedEvent& ledEvent = static_cast<const LedEvent&>(event);
+	assert(event->getType() == OPENMSX_LED_EVENT);
+	const LedEvent& ledEvent = static_cast<const LedEvent&>(*event);
 	update(LED, ledName[ledEvent.getLed()],
 	       ledEvent.getStatus() ? ON : OFF);
 }

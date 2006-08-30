@@ -98,8 +98,8 @@ void RS232Tester::run()
 		assert(getConnector());
 		ScopedLock l(lock);
 		queue.push_back(buf);
-		eventDistributor.distributeEvent(
-			new SimpleEvent<OPENMSX_RS232_TESTER_EVENT>());
+		eventDistributor.distributeEvent(EventDistributor::EventPtr(
+			new SimpleEvent<OPENMSX_RS232_TESTER_EVENT>()));
 	}
 }
 
@@ -121,7 +121,7 @@ void RS232Tester::signal(const EmuTime& time)
 }
 
 // EventListener
-void RS232Tester::signalEvent(const Event& /*event*/)
+void RS232Tester::signalEvent(shared_ptr<const Event> /*event*/)
 {
 	if (getConnector()) {
 		signal(scheduler.getCurrentTime());

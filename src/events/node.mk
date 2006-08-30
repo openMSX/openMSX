@@ -8,12 +8,11 @@ SRC_HDR:= \
 	AfterCommand \
 	Keys \
 	CliComm CliServer CliConnection Socket \
-	InputEventGenerator
+	Event InputEvents \
+	InputEventGenerator InputEventFactory
 
 HDR_ONLY:= \
 	EventListener \
-	Event \
-	InputEvents \
 	LedEvent \
 	FinishFrameEvent
 
