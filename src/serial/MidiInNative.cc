@@ -95,8 +95,8 @@ void MidiInNative::procLongMsg(LPMIDIHDR p)
 		for (unsigned i = 0; i < p->dwBytesRecorded; ++i) {
 			queue.push_back(p->lpData[i]);
 		}
-		eventDistributor.distributeEvent(
-			new SimpleEvent<OPENMSX_MIDI_IN_NATIVE_EVENT>());
+		eventDistributor.distributeEvent(EventDistributor::EventPtr(
+			new SimpleEvent<OPENMSX_MIDI_IN_NATIVE_EVENT>()));
 	}
 }
 
@@ -116,8 +116,8 @@ void MidiInNative::procShortMsg(DWORD param)
 		queue.push_back(param & 0xFF);
 		param >>= 8;
 	}
-	eventDistributor.distributeEvent(
-		new SimpleEvent<OPENMSX_MIDI_IN_NATIVE_EVENT>());
+	eventDistributor.distributeEvent(EventDistributor::EventPtr(
+		new SimpleEvent<OPENMSX_MIDI_IN_NATIVE_EVENT>()));
 }
 
 // Runnable
@@ -173,7 +173,7 @@ void MidiInNative::signal(const EmuTime& time)
 }
 
 // EventListener
-void MidiInNative::signalEvent(const Event& /*event*/)
+void MidiInNative::signalEvent(shared_ptr<const Event> /*event*/)
 {
 	if (getConnector()) {
 		signal(scheduler.getCurrentTime());

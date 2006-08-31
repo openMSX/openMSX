@@ -52,7 +52,7 @@ private:
 	virtual void run();
 
 	// EventListener
-	virtual void signalEvent(const Event& event);
+	virtual void signalEvent(shared_ptr<const Event> event);
 
 	void procShortMsg(long unsigned int param);
 	void procLongMsg(LPMIDIHDR p);
