@@ -1,5 +1,9 @@
 $Id$
 
+2006-08-31 Joost Damad <joost@lumatec.be>
+	* do not do -finline-functions on arm as current gcc generates
+	  faulty code
+
 2006-08-31 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added MEDIA update event for cart-commands
 

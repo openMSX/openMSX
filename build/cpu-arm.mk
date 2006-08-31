@@ -6,5 +6,5 @@
 BIG_ENDIAN:=false
 
 # Default build flavour.
-OPENMSX_FLAVOUR?=opt
+OPENMSX_FLAVOUR?=arm
 
