@@ -1,5 +1,9 @@
 $Id$
 
+2006-09-02 Joost Damad <joost@lumatec.be>
+	* simplify arm CXXFLAGS; fix m68k build; override in cpu-xxx.mk doesn't
+	  work
+
 2006-08-31 Joost Damad <joost@lumatec.be>
 	* do not do -finline-functions on arm as current gcc generates
 	  faulty code
