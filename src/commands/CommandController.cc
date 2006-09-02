@@ -19,6 +19,7 @@
 #include "RomInfoTopic.hh"
 #include "TclObject.hh"
 #include "Version.hh"
+#include "ScopedAssign.hh"
 #include <cassert>
 #include <cstdlib>
 
@@ -316,14 +317,7 @@ bool CommandController::isComplete(const string& command)
 string CommandController::executeCommand(
 	const string& cmd, CliConnection* connection_)
 {
-	struct Restore {
-		Restore(CliConnection*& connection) : c(connection) {}
-		~Restore() { c = NULL; }
-		CliConnection*& c;
-	} restore(connection);
-
-	assert(connection == NULL);
-	connection = connection_;
+	ScopedAssign<CliConnection*> sa(connection, connection_);
 	return getInterpreter().execute(cmd);
 }
 

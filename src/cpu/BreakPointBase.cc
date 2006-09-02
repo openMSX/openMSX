@@ -4,27 +4,9 @@
 #include "TclObject.hh"
 #include "CommandException.hh"
 #include "CliComm.hh"
+#include "ScopedAssign.hh"
 
 namespace openmsx {
-
-template <typename T> class ScopedAssign
-{
-public:
-	ScopedAssign(T& var_, T newValue)
-		: var(var_)
-	{
-		oldValue = var;
-		var = newValue;
-	}
-	~ScopedAssign()
-	{
-		var = oldValue;
-	}
-private:
-	T& var;
-	T oldValue;
-};
-
 
 BreakPointBase::BreakPointBase(CliComm& cliComm_,
                                std::auto_ptr<TclObject> command_,
