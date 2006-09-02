@@ -22,15 +22,7 @@ endif
 config.status: configure
 	dh_testdir
 
-copyfiles:
-	cp -f debian/patches/cpu-ppc64.mk build
-	cp -f debian/patches/flavour-ppc64.mk build
-
-uncopyfiles:
-	-rm -f build/flavour-ppc64.mk
-	-rm -f build/cpu-ppc64.mk
-
-build: copyfiles build-stamp
+build: build-stamp
 
 build-stamp: patch config.status
 	dh_testdir
@@ -41,7 +33,7 @@ build-stamp: patch config.status
 	docbook-to-man doc/openmsx.sgml > debian/openmsx.1
 	touch build-stamp
 
-clean: clean-patched unpatch uncopyfiles
+clean: clean-patched unpatch
 
 clean-patched:
 	dh_testdir

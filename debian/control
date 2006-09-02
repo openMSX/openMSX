@@ -18,7 +18,7 @@ Description: the MSX emulator that aims for perfection
 
 Package: openmsx-data
 Architecture: all
-Replaces: openmsx (<< 0.6.0-3)
 Description: datafiles for openMSX, an MSX emulator
  These datafiles provide descriptions in XML format for various MSX machines
  and extensions.
+

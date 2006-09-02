@@ -1,3 +1,20 @@
+openmsx (0.6.1-3) unstable; urgency=low
+  * backport of upstream fixes for m68k build:
+    don't override in cpu-xxx.mk; use a flavour
+  * backport of upstream fixes for arm build:
+    add -fno-inline-functions (Closes: #385197)
+  * no longer use dpatch for fixes which are already incorporated in upstream
+    CVS
+
+ -- Joost Yervante Damad <joost@lumatec.be>  Sat,  2 Sep 2006 09:01:55 +0200
+
+openmsx (0.6.1-2) unstable; urgency=low
+  * use preinst script to clean up possible old /usr/share/doc/openmsx
+    directory to allow new package to install the /usr/share/doc/openmsx ->
+    /usr/share/doc/openmsx-data symlink
+
+ -- Joost Yervante Damad <joost@lumatec.be>  Mon,  7 Aug 2006 21:49:36 +0200
+
 openmsx (0.6.1-1) unstable; urgency=low
   * don't ship old hardware convert python scripts anymore
   * new upstream release 0.6.1
