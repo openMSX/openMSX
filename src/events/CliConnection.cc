@@ -112,19 +112,21 @@ static string reply(const string& message, bool status)
 	       XMLElement::XMLEscape(message) + "</reply>\n";
 }
 
-void CliConnection::signalEvent(shared_ptr<const Event> event)
+bool CliConnection::signalEvent(shared_ptr<const Event> event)
 {
 	const CliCommandEvent& commandEvent =
 		checked_cast<const CliCommandEvent&>(*event);
-	if (commandEvent.getId() != this) return;
-	try {
-		string result = commandController.executeCommand(
-			commandEvent.getCommand(), this);
-		output(reply(result, true));
-	} catch (CommandException& e) {
-		string result = e.getMessage() + '\n';
-		output(reply(result, false));
+	if (commandEvent.getId() == this) {
+		try {
+			string result = commandController.executeCommand(
+				commandEvent.getCommand(), this);
+			output(reply(result, true));
+		} catch (CommandException& e) {
+			string result = e.getMessage() + '\n';
+			output(reply(result, false));
+		}
 	}
+	return true;
 }
 
 void CliConnection::cb_start_element(ParseState* user_data,

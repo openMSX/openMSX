@@ -52,7 +52,7 @@ private:
 	void execute(const std::string& command);
 
 	// EventListener
-	virtual void signalEvent(shared_ptr<const Event> event);
+	virtual bool signalEvent(shared_ptr<const Event> event);
 
 	enum State {
 		START, TAG_OPENMSX, TAG_COMMAND, END

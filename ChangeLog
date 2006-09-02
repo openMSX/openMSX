@@ -1,5 +1,10 @@
 $Id$
 
+2006-09-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added priorities to event listeners, higher priority listeners can
+	  block events for lower priority listeners:
+	   - fixes the problem that hotkey bindings are still visible in BASIC
+
 2006-09-02 Joost Damad <joost@lumatec.be>
 	* simplify arm CXXFLAGS; fix m68k build; override in cpu-xxx.mk doesn't
 	  work

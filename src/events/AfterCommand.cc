@@ -203,7 +203,7 @@ void AfterCommand::tabCompletion(vector<string>& tokens) const
 }
 
 
-void AfterCommand::signalEvent(shared_ptr<const Event> event)
+bool AfterCommand::signalEvent(shared_ptr<const Event> event)
 {
 	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
 		executeEvents<OPENMSX_FINISH_FRAME_EVENT>();
@@ -217,6 +217,7 @@ void AfterCommand::signalEvent(shared_ptr<const Event> event)
 			}
 		}
 	}
+	return true;
 }
 
 template<EventType T> void AfterCommand::executeEvents()

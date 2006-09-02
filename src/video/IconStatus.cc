@@ -35,7 +35,7 @@ unsigned long long IconStatus::getTime(int icon) const
 	return iconTime[icon];
 }
 
-void IconStatus::signalEvent(shared_ptr<const Event> event)
+bool IconStatus::signalEvent(shared_ptr<const Event> event)
 {
 	const LedEvent& ledEvent = checked_cast<const LedEvent&>(*event);
 	LedEvent::Led led = ledEvent.getLed();
@@ -44,6 +44,7 @@ void IconStatus::signalEvent(shared_ptr<const Event> event)
 		iconStatus[led] = status;
 		iconTime[led] = Timer::getTime();
 	}
+	return true;
 }
 
 } // namespace openmsx

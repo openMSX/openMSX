@@ -42,7 +42,7 @@ public:
 
 private:
 	// EventListener
-	void signalEvent(shared_ptr<const Event> event);
+	bool signalEvent(shared_ptr<const Event> event);
 	// Observer
 	void update(const Setting& subject);
 

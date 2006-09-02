@@ -79,13 +79,20 @@ HotKey::HotKey(CommandController& commandController_,
 {
 	initDefaultBindings();
 
-	eventDistributor.registerEventListener(OPENMSX_KEY_DOWN_EVENT, *this);
-	eventDistributor.registerEventListener(OPENMSX_KEY_UP_EVENT, *this);
-	eventDistributor.registerEventListener(OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this);
-	eventDistributor.registerEventListener(OPENMSX_MOUSE_BUTTON_UP_EVENT, *this);
-	eventDistributor.registerEventListener(OPENMSX_JOY_BUTTON_DOWN_EVENT, *this);
-	eventDistributor.registerEventListener(OPENMSX_JOY_BUTTON_UP_EVENT, *this);
-	eventDistributor.registerEventListener(OPENMSX_FOCUS_EVENT, *this);
+	eventDistributor.registerEventListener(
+		OPENMSX_KEY_DOWN_EVENT, *this, EventDistributor::HOTKEY);
+	eventDistributor.registerEventListener(
+		OPENMSX_KEY_UP_EVENT, *this, EventDistributor::HOTKEY);
+	eventDistributor.registerEventListener(
+		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this, EventDistributor::HOTKEY);
+	eventDistributor.registerEventListener(
+		OPENMSX_MOUSE_BUTTON_UP_EVENT, *this, EventDistributor::HOTKEY);
+	eventDistributor.registerEventListener(
+		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this, EventDistributor::HOTKEY);
+	eventDistributor.registerEventListener(
+		OPENMSX_JOY_BUTTON_UP_EVENT, *this, EventDistributor::HOTKEY);
+	eventDistributor.registerEventListener(
+		OPENMSX_FOCUS_EVENT, *this, EventDistributor::HOTKEY);
 }
 
 HotKey::~HotKey()
@@ -262,19 +269,20 @@ void HotKey::unbindDefault(EventPtr event)
 	defaultMap.erase(event);
 }
 
-void HotKey::signalEvent(shared_ptr<const Event> event)
+bool HotKey::signalEvent(shared_ptr<const Event> event)
 {
 	BindMap::iterator it = cmdMap.find(event);
-	if (it != cmdMap.end()) {
-		try {
-			// ignore return value
-			commandController.executeCommand(it->second);
-		} catch (CommandException& e) {
-			commandController.getCliComm().printWarning(
-				"Error executing hot key command: " + e.getMessage());
-		}
-		// TODO deny event to other key listeners ??
+	if (it == cmdMap.end()) {
+		return true;
 	}
+	try {
+		// ignore return value
+		commandController.executeCommand(it->second);
+	} catch (CommandException& e) {
+		commandController.getCliComm().printWarning(
+			"Error executing hot key command: " + e.getMessage());
+	}
+	return false; // deny event to other listeners
 }
 
 

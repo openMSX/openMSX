@@ -185,7 +185,7 @@ Display::Layers::iterator Display::baseLayer()
 	}
 }
 
-void Display::signalEvent(shared_ptr<const Event> event)
+bool Display::signalEvent(shared_ptr<const Event> event)
 {
 	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
 		const FinishFrameEvent& ffe =
@@ -204,6 +204,7 @@ void Display::signalEvent(shared_ptr<const Event> event)
 	} else if (event->getType() == OPENMSX_MACHINE_LOADED_EVENT) {
 		setWindowTitle();
 	}
+	return true;
 }
 
 void Display::setWindowTitle()

@@ -45,7 +45,7 @@ private:
 	void unbindDefault(EventPtr event);
 
 	// EventListener
-	virtual void signalEvent(EventPtr event);
+	virtual bool signalEvent(EventPtr event);
 
 	friend class BindCmd;
 	friend class UnbindCmd;

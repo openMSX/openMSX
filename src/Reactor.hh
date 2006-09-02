@@ -71,7 +71,7 @@ private:
 	virtual void update(const Setting& setting);
 
 	// EventListener
-	virtual void signalEvent(shared_ptr<const Event> event);
+	virtual bool signalEvent(shared_ptr<const Event> event);
 
 	void block();
 	void unblock();

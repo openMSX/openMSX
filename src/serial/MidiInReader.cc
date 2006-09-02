@@ -110,7 +110,7 @@ void MidiInReader::signal(const EmuTime& time)
 }
 
 // EventListener
-void MidiInReader::signalEvent(shared_ptr<const Event> /*event*/)
+bool MidiInReader::signalEvent(shared_ptr<const Event> /*event*/)
 {
 	if (getConnector()) {
 		signal(scheduler.getCurrentTime());
@@ -118,6 +118,7 @@ void MidiInReader::signalEvent(shared_ptr<const Event> /*event*/)
 		ScopedLock l(lock);
 		queue.empty();
 	}
+	return true;
 }
 
 } // namespace openmsx

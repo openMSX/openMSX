@@ -39,7 +39,7 @@ private:
 	template<EventType T> void executeEvents();
 
 	// EventListener
-	virtual void signalEvent(shared_ptr<const Event> event);
+	virtual bool signalEvent(shared_ptr<const Event> event);
 
 
 	class AfterCmd {

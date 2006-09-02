@@ -169,7 +169,7 @@ void InputEventGenerator::update(const Setting& setting)
 	setGrabInput(grabInput->getValue());
 }
 
-void InputEventGenerator::signalEvent(shared_ptr<const Event> event)
+bool InputEventGenerator::signalEvent(shared_ptr<const Event> event)
 {
 	if (event->getType() == OPENMSX_FOCUS_EVENT) {
 		const FocusEvent& focusEvent = checked_cast<const FocusEvent&>(*event);
@@ -194,6 +194,7 @@ void InputEventGenerator::signalEvent(shared_ptr<const Event> event)
 	} else if (event->getType() == OPENMSX_POLL_EVENT) {
 		poll();
 	}
+	return true;
 }
 
 void InputEventGenerator::setGrabInput(bool grab)

@@ -368,7 +368,7 @@ void Reactor::update(const Setting& setting)
 }
 
 // EventListener
-void Reactor::signalEvent(shared_ptr<const Event> event)
+bool Reactor::signalEvent(shared_ptr<const Event> event)
 {
 	if (event->getType() == OPENMSX_QUIT_EVENT) {
 		enterMainLoop();
@@ -376,6 +376,7 @@ void Reactor::signalEvent(shared_ptr<const Event> event)
 	} else {
 		assert(false);
 	}
+	return true;
 }
 
 

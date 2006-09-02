@@ -307,11 +307,12 @@ void Interpreter::splitList(const string& list, vector<string>& result)
 	Tcl_Free((char*)argv);
 }
 
-void Interpreter::signalEvent(shared_ptr<const Event> event)
+bool Interpreter::signalEvent(shared_ptr<const Event> event)
 {
 	(void)event;
 	assert(event->getType() == OPENMSX_POLL_EVENT);
 	poll();
+	return true;
 }
 
 void Interpreter::poll()

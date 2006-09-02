@@ -57,13 +57,12 @@ CommandConsole::CommandConsole(
 	commandController.setCommandConsole(this);
 
 	commandController.getInterpreter().setOutput(this);
-	eventDistributor.registerEventListener(OPENMSX_KEY_UP_EVENT,   *this);
-	eventDistributor.registerEventListener(OPENMSX_KEY_DOWN_EVENT, *this);
+	eventDistributor.registerEventListener(
+		OPENMSX_KEY_DOWN_EVENT, *this, EventDistributor::CONSOLE);
 }
 
 CommandConsole::~CommandConsole()
 {
-	eventDistributor.unregisterEventListener(OPENMSX_KEY_UP_EVENT,   *this);
 	eventDistributor.unregisterEventListener(OPENMSX_KEY_DOWN_EVENT, *this);
 	commandController.getInterpreter().setOutput(NULL);
 	commandController.setCommandConsole(NULL);
@@ -142,7 +141,7 @@ string CommandConsole::getLine(unsigned line) const
 	return "";
 }
 
-void CommandConsole::signalEvent(shared_ptr<const Event> event)
+bool CommandConsole::signalEvent(shared_ptr<const Event> event)
 {
 	const KeyEvent& keyEvent = checked_cast<const KeyEvent&>(*event);
 	if ((event->getType() == OPENMSX_KEY_DOWN_EVENT) &&
@@ -150,7 +149,9 @@ void CommandConsole::signalEvent(shared_ptr<const Event> event)
 		handleEvent(keyEvent);
 		assert(display);
 		display->repaintDelayed(40000); // 25fps
+		return false; // deny event to other listeners
 	}
+	return true;
 }
 
 void CommandConsole::handleEvent(const KeyEvent& keyEvent)

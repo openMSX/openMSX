@@ -22,7 +22,7 @@ public:
 
 private:
 	// EventListener interface:
-	virtual void signalEvent(shared_ptr<const Event> event);
+	virtual bool signalEvent(shared_ptr<const Event> event);
 
 	EventDistributor& eventDistributor;
 	bool iconStatus[LedEvent::NUM_LEDS];

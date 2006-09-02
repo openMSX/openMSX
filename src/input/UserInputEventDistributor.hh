@@ -17,7 +17,6 @@ class Scheduler;
 class CommandController;
 class EventDistributor;
 class FloatSetting;
-class BooleanSetting;
 
 /**
  * Layered user input event distribution system: high priority listeners
@@ -53,7 +52,7 @@ private:
 	void queueEvent(EventPtr event);
 
 	// EventListener
-	virtual void signalEvent(EventPtr event);
+	virtual bool signalEvent(EventPtr event);
 
 	// Schedulable
 	virtual void executeUntil(const EmuTime& time, int userData);
@@ -75,7 +74,6 @@ private:
 	EmuTime prevEmu;
 	unsigned long long prevReal;
 	std::auto_ptr<FloatSetting> delaySetting;
-	BooleanSetting& consoleSetting;
 };
 
 } // namespace openmsx

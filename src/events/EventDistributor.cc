@@ -22,22 +22,29 @@ EventDistributor::~EventDistributor()
 }
 
 void EventDistributor::registerEventListener(
-		EventType type, EventListener& listener)
+		EventType type, EventListener& listener, Priority priority)
 {
 	ScopedLock lock(sem);
-	detachedListeners.insert(ListenerMap::value_type(type, &listener));
+	PriorityMap& priorityMap = listeners[type];
+	for (PriorityMap::const_iterator it = priorityMap.begin();
+	     it != priorityMap.end(); ++it) {
+		// a listener may only be registered once for each type
+		assert(it->second != &listener);
+	}
+	// named priorities can only have one listener per event
+	assert((priority == OTHER) || (priorityMap.count(priority) == 0));
+	priorityMap.insert(PriorityMap::value_type(priority, &listener));
 }
 
 void EventDistributor::unregisterEventListener(
 		EventType type, EventListener& listener)
 {
 	ScopedLock lock(sem);
-	pair<ListenerMap::iterator, ListenerMap::iterator> bounds =
-		detachedListeners.equal_range(type);
-	for (ListenerMap::iterator it = bounds.first;
-	     it != bounds.second; ++it) {
+	PriorityMap& priorityMap = listeners[type];
+	for (PriorityMap::iterator it = priorityMap.begin();
+	     it != priorityMap.end(); ++it) {
 		if (it->second == &listener) {
-			detachedListeners.erase(it);
+			priorityMap.erase(it);
 			break;
 		}
 	}
@@ -53,9 +60,7 @@ void EventDistributor::distributeEvent(EventPtr event)
 	//       queue the event?
 	assert(event.get());
 	ScopedLock lock(sem);
-	pair<ListenerMap::iterator, ListenerMap::iterator> bounds2 =
-		detachedListeners.equal_range(event->getType());
-	if (bounds2.first != bounds2.second) {
+	if (!listeners[event->getType()].empty()) {
 		scheduledEvents.push_back(event);
 		// must release lock, otherwise there's a deadlock:
 		//   thread 1: Reactor::deleteMotherBoard()
@@ -76,17 +81,16 @@ void EventDistributor::deliverEvents()
 	for (EventQueue::const_iterator it = eventsCopy.begin();
 	     it != eventsCopy.end(); ++it) {
 		EventPtr event = *it;
-		pair<ListenerMap::iterator, ListenerMap::iterator> bounds =
-			detachedListeners.equal_range(event->getType());
-		std::vector<EventListener*> listenersCopy;
-		for (ListenerMap::iterator it = bounds.first;
-		     it != bounds.second; ++it) {
-			listenersCopy.push_back(it->second);
-		}
+		PriorityMap priorityMapCopy = listeners[event->getType()];
 		sem.up();
-		for (std::vector<EventListener*>::iterator it = listenersCopy.begin();
-		     it != listenersCopy.end(); ++it) {
-			(*it)->signalEvent(event);
+		for (PriorityMap::const_iterator it = priorityMapCopy.begin();
+		     it != priorityMapCopy.end(); ++it) {
+			if (!(it->second->signalEvent(event))) {
+				// only named priorities can prohibit events
+				// for lower priorities
+				assert(it->first != OTHER);
+				break;
+			}
 		}
 		sem.down();
 	}

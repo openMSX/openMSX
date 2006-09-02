@@ -16,8 +16,10 @@ public:
 
 	/**
 	 * This method gets called when an event you are subscribed to occurs.
+	 * @result Returning 'false' will deny this event to lower priority
+	 *         listeners
 	 */
-	virtual void signalEvent(shared_ptr<const Event> event) = 0;
+	virtual bool signalEvent(shared_ptr<const Event> event) = 0;
 
 protected:
 	EventListener() {}

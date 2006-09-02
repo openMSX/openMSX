@@ -20,6 +20,16 @@ class EventDistributor
 public:
 	typedef shared_ptr<const Event> EventPtr;
 
+	/** Priorities from high to low, higher priority listeners can block
+	  * events for lower priority listeners.
+	  */
+	enum Priority {
+		OTHER,
+		HOTKEY,
+		CONSOLE,
+		MSX
+	};
+
 	explicit EventDistributor(Reactor& reactor);
 	virtual ~EventDistributor();
 
@@ -28,7 +38,9 @@ public:
 	 * @param type The type of the events you want to receive.
 	 * @param listener Listener that will be notified when an event arrives.
 	 */
-	void registerEventListener(EventType type, EventListener& listener);
+	void registerEventListener(EventType type, EventListener& listener,
+	                           Priority priority = OTHER);
+
 	/**
 	 * Unregisters a previously registered event listener.
 	 * @param type The type of the events the listener should no longer receive.
@@ -42,8 +54,9 @@ public:
 private:
 	Reactor& reactor;
 
-	typedef std::multimap<EventType, EventListener*> ListenerMap;
-	ListenerMap detachedListeners;
+	typedef std::multimap<Priority, EventListener*> PriorityMap;
+	typedef std::map<EventType, PriorityMap> TypeMap;
+	TypeMap listeners;
 	typedef std::vector<EventPtr> EventQueue;
 	EventQueue scheduledEvents;
 	Semaphore sem;

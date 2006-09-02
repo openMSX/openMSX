@@ -62,7 +62,7 @@ public:
 
 private:
 	// EventListener
-	virtual void signalEvent(shared_ptr<const Event> event);
+	virtual bool signalEvent(shared_ptr<const Event> event);
 
 	const std::auto_ptr<UpdateCmd> updateCmd;
 

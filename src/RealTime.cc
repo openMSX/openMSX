@@ -134,7 +134,7 @@ const std::string& RealTime::schedName() const
 	return name;
 }
 
-void RealTime::signalEvent(shared_ptr<const Event> event)
+bool RealTime::signalEvent(shared_ptr<const Event> event)
 {
 	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
 		const FinishFrameEvent& ffe =
@@ -147,6 +147,7 @@ void RealTime::signalEvent(shared_ptr<const Event> event)
 		// sync and possibly sleep
 		sync(getScheduler().getCurrentTime(), true);
 	}
+	return true;
 }
 
 void RealTime::update(const Setting& /*setting*/)

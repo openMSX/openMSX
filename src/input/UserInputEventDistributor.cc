@@ -27,26 +27,25 @@ UserInputEventDistributor::UserInputEventDistributor(
 	, delaySetting(new FloatSetting(commandController, "inputdelay",
 	               "EXPERIMENTAL: delay input to avoid keyskips",
 	               0.03, 0.0, 10.0))
-	, consoleSetting(commandController.getGlobalSettings().getConsoleSetting())
 {
 	eventDistributor.registerEventListener(
-		OPENMSX_KEY_DOWN_EVENT, *this);
+		OPENMSX_KEY_DOWN_EVENT, *this, EventDistributor::MSX);
 	eventDistributor.registerEventListener(
-		OPENMSX_KEY_UP_EVENT,   *this);
+		OPENMSX_KEY_UP_EVENT,   *this, EventDistributor::MSX);
 
 	eventDistributor.registerEventListener(
-		OPENMSX_MOUSE_MOTION_EVENT,      *this);
+		OPENMSX_MOUSE_MOTION_EVENT,      *this, EventDistributor::MSX);
 	eventDistributor.registerEventListener(
-		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this);
+		OPENMSX_MOUSE_BUTTON_DOWN_EVENT, *this, EventDistributor::MSX);
 	eventDistributor.registerEventListener(
-		OPENMSX_MOUSE_BUTTON_UP_EVENT,   *this);
+		OPENMSX_MOUSE_BUTTON_UP_EVENT,   *this, EventDistributor::MSX);
 
 	eventDistributor.registerEventListener(
-		OPENMSX_JOY_AXIS_MOTION_EVENT, *this);
+		OPENMSX_JOY_AXIS_MOTION_EVENT, *this, EventDistributor::MSX);
 	eventDistributor.registerEventListener(
-		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this);
+		OPENMSX_JOY_BUTTON_DOWN_EVENT, *this, EventDistributor::MSX);
 	eventDistributor.registerEventListener(
-		OPENMSX_JOY_BUTTON_UP_EVENT,   *this);
+		OPENMSX_JOY_BUTTON_UP_EVENT,   *this, EventDistributor::MSX);
 }
 
 UserInputEventDistributor::~UserInputEventDistributor()
@@ -93,14 +92,10 @@ void UserInputEventDistributor::unregisterEventListener(
 	listeners.erase(it);
 }
 
-void UserInputEventDistributor::signalEvent(EventPtr event)
+bool UserInputEventDistributor::signalEvent(EventPtr event)
 {
-	if ((event->getType() ==OPENMSX_KEY_DOWN_EVENT) &&
-	    consoleSetting.getValue()) {
-		// TODO this should be moved to console itself
-		return;
-	}
 	queueEvent(event);
+	return true;
 }
 
 void UserInputEventDistributor::queueEvent(EventPtr event)
