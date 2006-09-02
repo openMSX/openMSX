@@ -6,7 +6,5 @@
 BIG_ENDIAN:=true
 
 # Default build flavour.
-OPENMSX_FLAVOUR?=opt
+OPENMSX_FLAVOUR?=m68k
 
-# overrule optimization level for m68k
-CXXFLAGS:=-O1 -DNDEBUG
