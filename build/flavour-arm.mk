@@ -6,7 +6,9 @@
 
 # overrule optimization level for arm
 # with -finline-functions gcc (4.1.2 20060814 (prerelease) (Debian 4.1.1-11)) generates bad code
-CXXFLAGS+=-O2 -funswitch-loops -fgcse-after-reload -ffast-math -funroll-loops -DNDEBUG
+CXXFLAGS+=-O3 -ffast-math -funroll-loops -fno-inline-functions -DNDEBUG
+# == CXXFLAGS+=-O2 -funswitch-loops -fgcse-after-reload -ffast-math -funroll-loops -DNDEBUG
+
 
 # Strip executable?
 OPENMSX_STRIP:=true
