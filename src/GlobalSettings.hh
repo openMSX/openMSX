@@ -3,6 +3,7 @@
 #ifndef GLOBALSETTINGS_HH
 #define GLOBALSETTINGS_HH
 
+#include "Observer.hh"
 #include <memory>
 
 namespace openmsx {
@@ -12,6 +13,7 @@ class IntegerSetting;
 class BooleanSetting;
 class StringSetting;
 class ThrottleManager;
+class Setting;
 template <class T> class EnumSetting;
 
 /**
@@ -19,7 +21,7 @@ template <class T> class EnumSetting;
  * (including some singletons). This class was introduced to solve
  * lifetime management issues.
  */
-class GlobalSettings
+class GlobalSettings : private Observer<Setting>
 {
 public:
 	explicit GlobalSettings(CommandController& commandController);
@@ -36,6 +38,9 @@ public:
 	ThrottleManager& getThrottleManager();
 
 private:
+	// Observer<Setting>
+	virtual void update(const Setting& setting);
+
 	CommandController& commandController;
 
 	std::auto_ptr<IntegerSetting> speedSetting;

@@ -37,10 +37,13 @@ GlobalSettings::GlobalSettings(CommandController& commandController_)
 		"bootsector", "boot sector type for dir-as-dsk", true, cmdMap));
 
 	throttleManager.reset(new ThrottleManager(commandController));
+
+	getPowerSetting().attach(*this);
 }
 
 GlobalSettings::~GlobalSettings()
 {
+	getPowerSetting().detach(*this);
 	commandController.getSettingsConfig().setSaveSettings(
 		autoSaveSetting->getValue());
 }
@@ -79,13 +82,26 @@ StringSetting& GlobalSettings::getUMRCallBackSetting()
 {
 	return *umrCallBackSetting.get();
 }
+
 StringSetting& GlobalSettings::getUserDirSetting()
 {
 	return *userDirSetting.get();
 }
+
 EnumSetting<bool>& GlobalSettings::getBootSectorSetting()
 {
 	return *bootSectorSetting.get();
+}
+
+// Observer<Setting>
+void GlobalSettings::update(const Setting& setting)
+{
+	if (&setting == &getPowerSetting()) { // either on or off
+		// automatically unpause after a power off/on cycle
+		// this solved a bug, but apart from that this behaviour also
+		// makes more sense
+		getPauseSetting().setValue(false);
+	}
 }
 
 } // namespace openmsx
