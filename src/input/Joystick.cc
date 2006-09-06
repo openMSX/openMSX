@@ -83,7 +83,7 @@ void Joystick::write(byte /*value*/, const EmuTime& /*time*/)
 }
 
 //EventListener
-void Joystick::signalEvent(shared_ptr<const Event> event)
+void Joystick::signalEvent(shared_ptr<const Event> event, const EmuTime& /*time*/)
 {
 	const JoystickEvent* joyEvent =
 		dynamic_cast<const JoystickEvent*>(event.get());

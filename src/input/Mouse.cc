@@ -175,7 +175,7 @@ void Mouse::write(byte value, const EmuTime& time)
 
 
 //EventListener
-void Mouse::signalEvent(shared_ptr<const Event> event)
+void Mouse::signalEvent(shared_ptr<const Event> event, const EmuTime& /*time*/)
 {
 	switch (event->getType()) {
 	case OPENMSX_MOUSE_MOTION_EVENT: {

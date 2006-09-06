@@ -8,6 +8,7 @@
 namespace openmsx {
 
 class Event;
+class EmuTime;
 
 class MSXEventListener
 {
@@ -16,7 +17,8 @@ public:
 
 	/** This method gets called when an event you are subscribed to occurs.
 	  */
-	virtual void signalEvent(shared_ptr<const Event> event) = 0;
+	virtual void signalEvent(shared_ptr<const Event> event,
+	                         const EmuTime& time) = 0;
 
 protected:
 	MSXEventListener() {}

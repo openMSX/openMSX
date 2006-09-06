@@ -5,6 +5,8 @@ $Id$
 	   EventTranslator, EventDelay and MSXEventDistributor
 	* Automatically unpause after a power off/on cycle:
 	   solves a bug, but this behaviour also makes more sense
+	* Made MSXEventDistributor EmuTime aware:
+	   needed later for event recording
 
 2006-09-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added priorities to event listeners, higher priority listeners can

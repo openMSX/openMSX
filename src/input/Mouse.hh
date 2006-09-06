@@ -28,7 +28,8 @@ public:
 	virtual void write(byte value, const EmuTime& time);
 
 	//MSXEventListener
-	virtual void signalEvent(shared_ptr<const Event> event);
+	virtual void signalEvent(shared_ptr<const Event> event,
+	                         const EmuTime& time);
 
 private:
 	void emulateJoystick();

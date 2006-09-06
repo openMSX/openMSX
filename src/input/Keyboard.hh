@@ -44,7 +44,8 @@ public:
 
 private:
 	// MSXEventListener
-	virtual void signalEvent(shared_ptr<const Event> event);
+	virtual void signalEvent(shared_ptr<const Event> event,
+	                         const EmuTime& time);
 
 	// Schedulable
 	virtual void executeUntil(const EmuTime& time, int userData);

@@ -63,9 +63,9 @@ void EventDelay::sync(const EmuTime& emuTime)
 	prevEmu = emuTime;
 }
 
-void EventDelay::executeUntil(const EmuTime& /*time*/, int /*userData*/)
+void EventDelay::executeUntil(const EmuTime& time, int /*userData*/)
 {
-	eventDistributor.distributeEvent(scheduledEvents.front());
+	eventDistributor.distributeEvent(scheduledEvents.front(), time);
 	scheduledEvents.pop_front();
 }
 

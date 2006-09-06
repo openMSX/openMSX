@@ -84,7 +84,8 @@ void KeyJoystick::write(byte /*value*/, const EmuTime& /*time*/)
 
 
 // EventListener
-void KeyJoystick::signalEvent(shared_ptr<const Event> event)
+void KeyJoystick::signalEvent(shared_ptr<const Event> event,
+                              const EmuTime& /*time*/)
 {
 	switch (event->getType()) {
 	case OPENMSX_CONSOLE_ON_EVENT:

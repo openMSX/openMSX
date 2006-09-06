@@ -10,6 +10,7 @@ namespace openmsx {
 
 class MSXEventListener;
 class Event;
+class EmuTime;
 
 class MSXEventDistributor
 {
@@ -31,7 +32,7 @@ public:
 	 */
 	void unregisterEventListener(MSXEventListener& listener);
 
-	void distributeEvent(EventPtr event);
+	void distributeEvent(EventPtr event, const EmuTime& time);
 
 private:
 	typedef std::vector<MSXEventListener*> Listeners;

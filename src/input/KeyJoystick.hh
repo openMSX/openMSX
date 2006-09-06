@@ -33,7 +33,8 @@ public:
 
 private:
 	// MSXEventListener
-	virtual void signalEvent(shared_ptr<const Event> event);
+	virtual void signalEvent(shared_ptr<const Event> event,
+	                         const EmuTime& time);
 
 	void allUp();
 

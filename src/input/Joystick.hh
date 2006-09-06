@@ -39,7 +39,8 @@ private:
 	virtual ~Joystick();
 
 	// MSXEventListener
-	virtual void signalEvent(shared_ptr<const Event> event);
+	virtual void signalEvent(shared_ptr<const Event> event,
+	                         const EmuTime& time);
 
 	static const int THRESHOLD = 32768/10;
 

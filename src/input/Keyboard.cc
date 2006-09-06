@@ -173,7 +173,8 @@ const byte* Keyboard::getKeys()
 	return keyMatrix;
 }
 
-void Keyboard::signalEvent(shared_ptr<const Event> event)
+void Keyboard::signalEvent(shared_ptr<const Event> event,
+                           const EmuTime& /*time*/)
 {
 	EventType type = event->getType();
 	if ((type == OPENMSX_KEY_DOWN_EVENT) ||
