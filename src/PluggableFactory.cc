@@ -35,23 +35,23 @@ void PluggableFactory::createAll(PluggingController& controller,
 	EventDistributor& eventDistributor = motherBoard.getEventDistributor();
 	Scheduler& scheduler = motherBoard.getScheduler();
 	CommandController& commandController = motherBoard.getCommandController();
-	UserInputEventDistributor& userInputEventDistributor =
-		motherBoard.getUserInputEventDistributor();
+	MSXEventDistributor& msxEventDistributor =
+		motherBoard.getMSXEventDistributor();
 	// Input devices:
 	// TODO: Support hot-plugging of input devices:
 	// - additional key joysticks can be created by the user
 	// - real joysticks and mice can be hotplugged (USB)
-	controller.registerPluggable(new Mouse(motherBoard.getUserInputEventDistributor()));
+	controller.registerPluggable(new Mouse(motherBoard.getMSXEventDistributor()));
 #ifdef	HAVE_SYS_SOCKET_H
 	controller.registerPluggable(new JoyNet(commandController));
 #endif
 	controller.registerPluggable(new JoyTap(controller, "joytap"));
 	controller.registerPluggable(new NinjaTap(controller, "ninjatap"));
 	controller.registerPluggable(new KeyJoystick(
-		commandController, userInputEventDistributor, "keyjoystick1"));
+		commandController, msxEventDistributor, "keyjoystick1"));
 	controller.registerPluggable(new KeyJoystick(
-		commandController, userInputEventDistributor, "keyjoystick2"));
-	Joystick::registerAll(userInputEventDistributor, controller);
+		commandController, msxEventDistributor, "keyjoystick2"));
+	Joystick::registerAll(msxEventDistributor, controller);
 
 	// Dongles
 	controller.registerPluggable(new SETetrisDongle());

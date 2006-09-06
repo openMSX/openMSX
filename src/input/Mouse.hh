@@ -4,17 +4,17 @@
 #define MOUSE_HH
 
 #include "JoystickDevice.hh"
-#include "UserInputEventListener.hh"
+#include "MSXEventListener.hh"
 #include "Clock.hh"
 
 namespace openmsx {
 
-class UserInputEventDistributor;
+class MSXEventDistributor;
 
-class Mouse : public JoystickDevice, private UserInputEventListener
+class Mouse : public JoystickDevice, private MSXEventListener
 {
 public:
-	explicit Mouse(UserInputEventDistributor& eventDistributor);
+	explicit Mouse(MSXEventDistributor& eventDistributor);
 	virtual ~Mouse();
 
 	//Pluggable
@@ -27,13 +27,13 @@ public:
 	virtual byte read(const EmuTime& time);
 	virtual void write(byte value, const EmuTime& time);
 
-	//UserInputEventListener
+	//MSXEventListener
 	virtual void signalEvent(shared_ptr<const Event> event);
 
 private:
 	void emulateJoystick();
 
-	UserInputEventDistributor& eventDistributor;
+	MSXEventDistributor& eventDistributor;
 	byte status;
 	int faze;
 	int xrel, yrel;

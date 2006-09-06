@@ -2,7 +2,7 @@
 
 #include "Joystick.hh"
 #include "PluggingController.hh"
-#include "UserInputEventDistributor.hh"
+#include "MSXEventDistributor.hh"
 #include "InputEvents.hh"
 #include "checked_cast.hh"
 #include <cassert>
@@ -11,7 +11,7 @@ using std::string;
 
 namespace openmsx {
 
-void Joystick::registerAll(UserInputEventDistributor& eventDistributor,
+void Joystick::registerAll(MSXEventDistributor& eventDistributor,
                            PluggingController& controller)
 {
 	if (!SDL_WasInit(SDL_INIT_JOYSTICK)) {
@@ -25,7 +25,7 @@ void Joystick::registerAll(UserInputEventDistributor& eventDistributor,
 	}
 }
 
-Joystick::Joystick(UserInputEventDistributor& eventDistributor_, unsigned joyNum_)
+Joystick::Joystick(MSXEventDistributor& eventDistributor_, unsigned joyNum_)
 	: eventDistributor(eventDistributor_)
 	, joyNum(joyNum_)
 {

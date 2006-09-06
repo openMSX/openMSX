@@ -1,7 +1,7 @@
 // $Id$
 
 #include "KeyJoystick.hh"
-#include "UserInputEventDistributor.hh"
+#include "MSXEventDistributor.hh"
 #include "KeyCodeSetting.hh"
 #include "InputEvents.hh"
 #include "checked_cast.hh"
@@ -12,7 +12,7 @@ using std::string;
 namespace openmsx {
 
 KeyJoystick::KeyJoystick(CommandController& commandController,
-                         UserInputEventDistributor& eventDistributor_,
+                         MSXEventDistributor& eventDistributor_,
                          const string& name_)
 	: eventDistributor(eventDistributor_)
 	, name(name_)

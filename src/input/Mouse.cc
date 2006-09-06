@@ -1,7 +1,7 @@
 // $Id$
 
 #include "Mouse.hh"
-#include "UserInputEventDistributor.hh"
+#include "MSXEventDistributor.hh"
 #include "InputEvents.hh"
 #include "checked_cast.hh"
 
@@ -18,7 +18,7 @@ const int FAZE_YLOW  = 3;
 const int STROBE = 0x04;
 
 
-Mouse::Mouse(UserInputEventDistributor& eventDistributor_)
+Mouse::Mouse(MSXEventDistributor& eventDistributor_)
 	: eventDistributor(eventDistributor_)
 	, lastTime(EmuTime::zero)
 {

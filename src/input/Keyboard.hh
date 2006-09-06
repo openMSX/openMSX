@@ -3,7 +3,7 @@
 #ifndef KEYBOARD_HH
 #define KEYBOARD_HH
 
-#include "UserInputEventListener.hh"
+#include "MSXEventListener.hh"
 #include "Schedulable.hh"
 #include "openmsx.hh"
 #include <string>
@@ -14,13 +14,13 @@ namespace openmsx {
 
 class Scheduler;
 class CommandController;
-class UserInputEventDistributor;
+class MSXEventDistributor;
 class EmuTime;
 class KeyMatrixUpCmd;
 class KeyMatrixDownCmd;
 class KeyInserter;
 
-class Keyboard : private UserInputEventListener, private Schedulable
+class Keyboard : private MSXEventListener, private Schedulable
 {
 public:
 	/**
@@ -31,7 +31,7 @@ public:
 	 * @param keyGhosting turn keyGhosting on/off
 	 */
 	Keyboard(Scheduler& scheduler, CommandController& commandController,
-	         UserInputEventDistributor& eventDistributor, bool keyGhosting);
+	         MSXEventDistributor& eventDistributor, bool keyGhosting);
 
 	virtual ~Keyboard();
 
@@ -43,7 +43,7 @@ public:
 	static const unsigned NR_KEYROWS = 16;
 
 private:
-	// UserInputEventListener
+	// MSXEventListener
 	virtual void signalEvent(shared_ptr<const Event> event);
 
 	// Schedulable
@@ -65,7 +65,7 @@ private:
 	const std::auto_ptr<KeyMatrixDownCmd> keyMatrixDownCmd;
 	const std::auto_ptr<KeyInserter>      keyTypeCmd;
 	
-	UserInputEventDistributor& eventDistributor;
+	MSXEventDistributor& eventDistributor;
 	byte cmdKeyMatrix[NR_KEYROWS];
 	byte userKeyMatrix[NR_KEYROWS];
 	byte keyMatrix[NR_KEYROWS];

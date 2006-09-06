@@ -18,7 +18,9 @@ class Scheduler;
 class CartridgeSlotManager;
 class CommandController;
 class EventDistributor;
-class UserInputEventDistributor;
+class MSXEventDistributor;
+class EventDelay;
+class EventTranslator;
 class CliComm;
 class RealTime;
 class Debugger;
@@ -102,7 +104,9 @@ public:
 	CartridgeSlotManager& getSlotManager();
 	CommandController& getCommandController();
 	EventDistributor& getEventDistributor();
-	UserInputEventDistributor& getUserInputEventDistributor();
+	MSXEventDistributor& getMSXEventDistributor();
+	EventDelay& getEventDelay();
+	EventTranslator& getEventTranslator();
 	CliComm& getCliComm();
 	RealTime& getRealTime();
 	Debugger& getDebugger();
@@ -155,7 +159,9 @@ private:
 	// order of auto_ptr's is important!
 	std::auto_ptr<Scheduler> scheduler;
 	std::auto_ptr<CartridgeSlotManager> slotManager;
-	std::auto_ptr<UserInputEventDistributor> userInputEventDistributor;
+	std::auto_ptr<MSXEventDistributor> msxEventDistributor;
+	std::auto_ptr<EventDelay> eventDelay;
+	std::auto_ptr<EventTranslator> eventTranslator;
 	std::auto_ptr<RealTime> realTime;
 	std::auto_ptr<Debugger> debugger;
 	std::auto_ptr<Mixer> mixer;

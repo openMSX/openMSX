@@ -4,20 +4,20 @@
 #define KEYJOYSTICK_HH
 
 #include "JoystickDevice.hh"
-#include "UserInputEventListener.hh"
+#include "MSXEventListener.hh"
 #include <memory>
 
 namespace openmsx {
 
 class CommandController;
 class KeyCodeSetting;
-class UserInputEventDistributor;
+class MSXEventDistributor;
 
-class KeyJoystick : public JoystickDevice, private UserInputEventListener
+class KeyJoystick : public JoystickDevice, private MSXEventListener
 {
 public:
 	KeyJoystick(CommandController& commandController,
-	            UserInputEventDistributor& eventDistributor,
+	            MSXEventDistributor& eventDistributor,
 	            const std::string& name);
 	virtual ~KeyJoystick();
 
@@ -32,7 +32,7 @@ public:
 	virtual void write(byte value, const EmuTime& time);
 
 private:
-	// UserInputEventListener
+	// MSXEventListener
 	virtual void signalEvent(shared_ptr<const Event> event);
 
 	void allUp();
@@ -44,7 +44,7 @@ private:
 	std::auto_ptr<KeyCodeSetting> trigA;
 	std::auto_ptr<KeyCodeSetting> trigB;
 
-	UserInputEventDistributor& eventDistributor;
+	MSXEventDistributor& eventDistributor;
 	std::string name;
 	byte status;
 };

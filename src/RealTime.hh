@@ -12,7 +12,7 @@ namespace openmsx {
 
 class Scheduler;
 class EventDistributor;
-class UserInputEventDistributor;
+class EventDelay;
 class GlobalSettings;
 class IntegerSetting;
 class BooleanSetting;
@@ -24,7 +24,7 @@ class RealTime : private Schedulable, private EventListener,
 {
 public:
 	RealTime(Scheduler& scheduler, EventDistributor& eventDistributor,
-	         UserInputEventDistributor& userInputEventDistributor,
+	         EventDelay& eventDelay,
 	         GlobalSettings& globalSettings);
 	~RealTime();
 
@@ -67,7 +67,7 @@ private:
 	void resync();
 
 	EventDistributor& eventDistributor;
-	UserInputEventDistributor& userInputEventDistributor;
+	EventDelay& eventDelay;
 	ThrottleManager& throttleManager;
 	IntegerSetting& speedSetting;
 	BooleanSetting& pauseSetting;

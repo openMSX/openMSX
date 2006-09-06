@@ -1,5 +1,9 @@
 $Id$
 
+2006-09-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Split UserInputEventDistributor in 3:
+	   EventTranslator, EventDelay and MSXEventDistributor
+
 2006-09-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added priorities to event listeners, higher priority listeners can
 	  block events for lower priority listeners:

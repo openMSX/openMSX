@@ -19,7 +19,9 @@
 #include "CassettePort.hh"
 #include "RenShaTurbo.hh"
 #include "LedEvent.hh"
-#include "UserInputEventDistributor.hh"
+#include "MSXEventDistributor.hh"
+#include "EventDelay.hh"
+#include "EventTranslator.hh"
 #include "RealTime.hh"
 #include "DeviceFactory.hh"
 #include "BooleanSetting.hh"
@@ -102,6 +104,7 @@ MSXMotherBoard::MSXMotherBoard(Reactor& reactor_)
 {
 	getMixer().mute(); // powered down
 	getRealTime(); // make sure it's instantiated
+	getEventTranslator();
 	powerSetting.attach(*this);
 }
 
@@ -255,15 +258,31 @@ EventDistributor& MSXMotherBoard::getEventDistributor()
 	return reactor.getEventDistributor();
 }
 
-UserInputEventDistributor& MSXMotherBoard::getUserInputEventDistributor()
+MSXEventDistributor& MSXMotherBoard::getMSXEventDistributor()
 {
-	if (!userInputEventDistributor.get()) {
-		userInputEventDistributor.reset(
-			new UserInputEventDistributor(
-				getScheduler(), getCommandController(),
-				getEventDistributor()));
+	if (!msxEventDistributor.get()) {
+		msxEventDistributor.reset(new MSXEventDistributor());
 	}
-	return *userInputEventDistributor;
+	return *msxEventDistributor;
+}
+
+EventDelay& MSXMotherBoard::getEventDelay()
+{
+	if (!eventDelay.get()) {
+		eventDelay.reset(new EventDelay(
+			getScheduler(), getCommandController(),
+			getMSXEventDistributor()));
+	}
+	return *eventDelay;
+}
+
+EventTranslator& MSXMotherBoard::getEventTranslator()
+{
+	if (!eventTranslator.get()) {
+		eventTranslator.reset(new EventTranslator(
+			getEventDistributor(), getEventDelay()));
+	}
+	return *eventTranslator;
 }
 
 CliComm& MSXMotherBoard::getCliComm()
@@ -276,7 +295,7 @@ RealTime& MSXMotherBoard::getRealTime()
 	if (!realTime.get()) {
 		realTime.reset(new RealTime(
 			getScheduler(), getEventDistributor(),
-			getUserInputEventDistributor(),
+			getEventDelay(),
 			getCommandController().getGlobalSettings()));
 	}
 	return *realTime;

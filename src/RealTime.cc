@@ -4,7 +4,7 @@
 #include "Scheduler.hh"
 #include "Timer.hh"
 #include "EventDistributor.hh"
-#include "UserInputEventDistributor.hh"
+#include "EventDelay.hh"
 #include "Event.hh"
 #include "FinishFrameEvent.hh"
 #include "GlobalSettings.hh"
@@ -22,11 +22,11 @@ const unsigned long long ALLOWED_LAG   =  20000; // us
 
 RealTime::RealTime(Scheduler& scheduler,
                    EventDistributor& eventDistributor_,
-                   UserInputEventDistributor& userInputEventDistributor_,
+                   EventDelay& eventDelay_,
                    GlobalSettings& globalSettings)
 	: Schedulable(scheduler)
 	, eventDistributor(eventDistributor_)
-	, userInputEventDistributor(userInputEventDistributor_)
+	, eventDelay(eventDelay_)
 	, throttleManager(globalSettings.getThrottleManager())
 	, speedSetting   (globalSettings.getSpeedSetting())
 	, pauseSetting   (globalSettings.getPauseSetting())
@@ -116,7 +116,7 @@ void RealTime::internalSync(const EmuTime& time, bool allowSleep)
 		}
 	}
 	if (allowSleep) {
-		userInputEventDistributor.sync(time);
+		eventDelay.sync(time);
 	}
 
 	emuTime = time;

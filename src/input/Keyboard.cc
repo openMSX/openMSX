@@ -6,7 +6,7 @@
 #include <cassert>
 #include "Clock.hh"
 #include "Keyboard.hh"
-#include "UserInputEventDistributor.hh"
+#include "MSXEventDistributor.hh"
 #include "SettingsConfig.hh"
 #include "File.hh"
 #include "FileContext.hh"
@@ -125,7 +125,7 @@ void Keyboard::loadKeymapfile(const string& filename)
 }
 
 Keyboard::Keyboard(Scheduler& scheduler, CommandController& commandController,
-                   UserInputEventDistributor& eventDistributor_, bool keyG)
+                   MSXEventDistributor& eventDistributor_, bool keyG)
 	: Schedulable(scheduler)
 	, keyMatrixUpCmd  (new KeyMatrixUpCmd  (commandController, *this))
 	, keyMatrixDownCmd(new KeyMatrixDownCmd(commandController, *this))

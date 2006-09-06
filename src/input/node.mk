@@ -15,10 +15,12 @@ SRC_HDR:= \
 	JoyNet \
 	JoyTap \
 	NinjaTap \
-	UserInputEventDistributor
+	EventTranslator \
+	EventDelay \
+	MSXEventDistributor
 
 HDR_ONLY:= \
-	UserInputEventListener
+	MSXEventListener
 
 include build/node-end.mk
 
