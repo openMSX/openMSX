@@ -1,6 +1,6 @@
 // $Id$
 
-/** 
+/** \file Printer.hh
  * Dot Matrix Printer Emulation
  *   code mostly copied from blueMSX
  *   but changed to:
