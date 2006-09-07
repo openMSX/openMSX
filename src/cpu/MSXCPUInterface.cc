@@ -18,6 +18,7 @@
 #include "MSXException.hh"
 #include "CartridgeSlotManager.hh"
 #include "DeviceFactory.hh"
+#include "checked_cast.hh"
 #include <cstdio>
 #include <memory> // for auto_ptr
 #include <set>
@@ -175,10 +176,7 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard)
 
 MSXCPUInterface::~MSXCPUInterface()
 {
-	while (!watchPoints.empty()) {
-		removeWatchPoint(*watchPoints.front());
-	}
-	
+	removeAllWatchPoints();
 	msxcpu.setInterface(NULL);
 
 	for (int port = 0; port < 256; ++port) {
@@ -193,6 +191,14 @@ MSXCPUInterface::~MSXCPUInterface()
 			}
 		}
 	}
+}
+
+void MSXCPUInterface::removeAllWatchPoints()
+{
+	while (!watchPoints.empty()) {
+		removeWatchPoint(*watchPoints.back());
+	}
+	
 }
 
 byte MSXCPUInterface::readMemSlow(word address, const EmuTime& time)
@@ -628,10 +634,17 @@ void MSXCPUInterface::registerIOWatch(WatchPoint& watchPoint, MSXDevice** device
 void MSXCPUInterface::unregisterIOWatch(WatchPoint& watchPoint, MSXDevice** devices)
 {
 	assert(dynamic_cast<MSXWatchIODevice*>(&watchPoint));
-	MSXWatchIODevice& ioWatch = static_cast<MSXWatchIODevice&>(watchPoint);
+	MSXWatchIODevice& ioWatch = checked_cast<MSXWatchIODevice&>(watchPoint);
 	unsigned port = ioWatch.getAddress();
 	assert(port < 256);
-	devices[port] = ioWatch.getDevicePtr();
+
+	// find pointer to watchpoint
+	MSXDevice** prev = &devices[port];
+	while (*prev != &ioWatch) {
+		prev = &checked_cast<MSXWatchIODevice*>(*prev)->getDevicePtr();
+	}
+	// remove watchpoint from chain
+	*prev = checked_cast<MSXWatchIODevice*>(*prev)->getDevicePtr();
 }
 
 void MSXCPUInterface::updateMemWatch(WatchPoint::Type type)
@@ -873,6 +886,7 @@ TurborCPUInterface::TurborCPUInterface(MSXMotherBoard& motherBoard)
 
 TurborCPUInterface::~TurborCPUInterface()
 {
+	removeAllWatchPoints();
 	for (int port = 0x98; port <= 0x9B; ++port) {
 		assert(IO_In [port] == delayDevice.get());
 		assert(IO_Out[port] == delayDevice.get());

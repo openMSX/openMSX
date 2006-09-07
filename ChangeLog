@@ -1,5 +1,8 @@
 $Id$
 
+2006-09-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed bug in removing IO watchpoints
+
 2006-09-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Split UserInputEventDistributor in 3:
 	   EventTranslator, EventDelay and MSXEventDistributor

@@ -203,6 +203,7 @@ private:
 	void unregisterSlot(MSXDevice& device,
 	                    int ps, int ss, int base, int size);
 
+	void removeAllWatchPoints();
 	void registerIOWatch  (WatchPoint& watchPoint, MSXDevice** devices);
 	void unregisterIOWatch(WatchPoint& watchPoint, MSXDevice** devices);
 	void updateMemWatch(WatchPoint::Type type);
