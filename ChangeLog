@@ -2,6 +2,7 @@ $Id$
 
 2006-09-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed bug in removing IO watchpoints
+	* Improved help-text / tabcompletion for the debug command
 
 2006-09-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Split UserInputEventDistributor in 3:

@@ -57,6 +57,7 @@ private:
 	void listBreakPoints(const std::vector<TclObject*>& tokens,
 	                     TclObject& result);
 	std::set<std::string> getBreakPointIdsAsStringSet() const;
+	std::set<std::string> getWatchPointIdsAsStringSet() const;
 	void setWatchPoint(const std::vector<TclObject*>& tokens,
 	                   TclObject& result);
 	void removeWatchPoint(const std::vector<TclObject*>& tokens,
@@ -512,25 +513,193 @@ void DebugCmd::listWatchPoints(const std::vector<TclObject*>& /*tokens*/,
 	result.setString(res);
 }
 
-string DebugCmd::help(const vector<string>& /*tokens*/) const
+string DebugCmd::help(const vector<string>& tokens) const
 {
-	static const string helpText =
-		"debug list                                returns a list of all debuggables\n"
-		"debug desc <name>                         returns a description of this debuggable\n"
-		"debug size <name>                         returns the size of this debuggable\n"
-		"debug read <name> <addr>                  read a byte from a debuggable\n"
-		"debug write <name> <addr> <val>           write a byte to a debuggable\n"
-		"debug read_block <name> <addr> <size>     read a whole block at once\n"
-		"debug write_block <name> <addr> <values>  write a whole block at once\n"
-		"debug set_bp <addr> [<cond>] [<cmd>]      insert a new breakpoint\n"
-		"debug remove_bp <id>                      remove a certain breakpoint\n"
-		"debug list_bp                             list the active breakpoints\n"
-		"debug cont                                continue execution after break\n"
-		"debug step                                execute one instruction\n"
-		"debug break                               break CPU at current position\n"
-		"debug breaked                             query CPU breaked status\n"
-		"debug disasm <addr>                       disassemble instructions\n";
-	return helpText;
+	static const string generalHelp =
+		"debug <subcommand> [<arguments>]\n"
+		"  Possible subcommands are:\n"
+		"    list              returns a list of all debuggables\n"
+		"    desc              returns a description of this debuggable\n"
+		"    size              returns the size of this debuggable\n"
+		"    read              read a byte from a debuggable\n"
+		"    write             write a byte to a debuggable\n"
+		"    read_block        read a whole block at once\n"
+		"    write_block       write a whole block at once\n"
+		"    set_bp            insert a new breakpoint\n"
+		"    remove_bp         remove a certain breakpoint\n"
+		"    list_bp           list the active breakpoints\n"
+		"    set_watchpoint    insert a new watchpoint\n"
+		"    remove_watchpoint remove a certain watchpoint\n"
+		"    list_watchpoints  list the active watchpoints\n"
+		"    cont              continue execution after break\n"
+		"    step              execute one instruction\n"
+		"    break             break CPU at current position\n"
+		"    breaked           query CPU breaked status\n"
+		"    disasm            disassemble instructions\n"
+		"  The arguments are specific for each subcommand.\n"
+		"  Type 'help debug <subcommand>' for help about a specific subcommand.\n";
+
+	static const string listHelp =
+		"debug list\n"
+		"  Returns a list with the names of all 'debuggables'.\n"
+		"  These names are used in other debug subcommands.\n";
+	static const string descHelp =
+		"debug desc <name>\n"
+		"  Returns a description for the debuggable with given name.\n";
+	static const string sizeHelp =
+		"debug size <name>\n"
+		"  Returns the size (in bytes) of the debuggable with given name.\n";
+	static const string readHelp =
+		"debug read <name> <addr>\n"
+		"  Read a byte at offset <addr> from the given debuggable.\n"
+		"  The offset must be smaller then the value returned from the "
+		"'size' subcommand\n"
+		"  Note that openMSX comes with a bunch of TCL scripts that make "
+		"some of the debug reads much more convient (e.g. reading from "
+		"Z80 or VDP registers). See the 'commands.txt' document for more "
+		"details about these.\n";
+	static const string writeHelp =
+		"debug write <name> <addr> <val>\n"
+		"  Write a byte to the given debuggable at a certain offset.\n"
+		"  The offset must be smaller then the value returned from the "
+		"'size' subcommand\n";
+	static const string readBlockHelp =
+		"debug read_block <name> <addr> <size>\n"
+		"  Read a whole block at once. This is equivalent with repeated "
+		"invokations of the 'read' subcommand, but using this subcommand "
+		"may be faster. The result is a TCL binary string (see TCL manual).\n"
+		"  The block has a size and an offset in the debuggable. The "
+		"complete block must fit in the debuggable (see the 'size' "
+		"subcommand).\n";
+	static const string writeBlockHelp =
+		"debug write_block <name> <addr> <values>\n"
+		"  Write a whole block at once. This is equivalent with repeated "
+		"invokations of the 'write' subcommand, but using this subcommand "
+		"may be faster. The <values> arugment must be a TCL binary string "
+		"(see TCL manual).\n"
+		"  The block has a size and an offset in the debuggable. The "
+		"complete block must fit in the debuggable (see the 'size' "
+		"subcommand).\n";
+	static const string setBpHelp =
+		"debug set_bp <addr> [<cond>] [<cmd>]\n"
+		"  Insert a new breakpoint at given address. When the CPU is about "
+		"to execute the instruction at this address, execution will be "
+		"breaked. At least this is the default behaviour, see next "
+		"paragraphs.\n"
+		"  Optionally you can specify a condition. When the CPU reaches "
+		"the breakpoint this condition is evaluated, only when the condition "
+		"evaluated to true execution will be breaked.\n"
+		"  A condition must be specified as a TCL expression. For example\n"
+		"     debug set_bp 0xf37d {[reg C] == 0x2F}\n"
+		"  This break on address on address 0xf37d but only when Z80 "
+		"register C has the value 0x2F.\n"
+		"  Also optionally you can specify a command that should be "
+		"executed when the breakpoint is reached (and condition is true). "
+		"By default this command is 'debug break'.\n"
+		"  The result of this command is a breakpoint ID. This ID can "
+		"later be used to remove this breakpoint again.\n";
+	static const string removeBpHelp =
+		"debug remove_bp <id>\n"
+		"  Remove the breakpoint with given ID again. You can use the "
+		"'list_bp' subcommand to see all valid IDs.\n";
+	static const string listBpHelp =
+		"debug list_bp\n"
+		"  Lists all active breakpoints. The result is printed in 4 "
+		"columns. The first column contains the brekpoint ID. The "
+		"second one has the address. The third has the condition "
+		"(default condition is empty). And the last column contains "
+		"the command that will be executed (default is 'debug break').\n";
+	static const string setWatchPointHelp =
+		"debug set_watchpoint <type> <addr> [<cond>] [<cmd>]\n"
+		"  Insert a new watchpoint of given type at the given address, "
+		"there can be an optional condition and alternative command. See "
+		"the 'set_bp' subcommand for details about these last two.\n"
+		"  Type must be one of the following:\n"
+		"    read_io    break when CPU reads from given IO port\n"
+		"    write_io   break when CPU writes to given IO port\n"
+		"    read_mem   break when CPU reads from given memory location\n"
+		"    write_mem  break when CPU writes to given memory location\n"
+		"  Example:\n"
+		"    debug set_watchpoint write_io 0x99 {[reg A] == 0x81}\n";
+	static const string removeWatchPointHelp =
+		"debug remove_watchpoint <id>\n"
+		"  Remove the watchpoint with given ID again. You can use the "
+		"'list_watchpoints' subcommand to see all valid IDs.\n";
+	static const string listWatchPointsHelp =
+		"debug list_watchpoints\n"
+		"  Lists all active breakpoints. The result is similar to the "
+		"'list_bp' subcommand, but there is an extra column (2nd column) "
+		"that contains the type of the watchpoint.\n";
+	static const string contHelp =
+		"debug cont\n"
+		"  Continue execution after CPU was breaked.\n";
+	static const string stepHelp =
+		"debug step\n"
+		"  Execute one instruction. This command is only meaningful in "
+		"break mode.\n";
+	static const string breakHelp =
+		"debug break\n"
+		"  Immediately break CPU execution. When CPU was already breaked "
+		"this command has no effect.\n";
+	static const string breakedHelp =
+		"debug breaked\n"
+		"  Query the CPU breaked status. Returns '1' when CPU was "
+		"breaked, '0' otherwise.\n";
+	static const string disasmHelp =
+		"debug disasm <addr>\n"
+		"  Disassemble the instruction at the given address. The result "
+		"is a TCL list. The first element in the list contains a textual "
+		"representation of the instruction, the next elements contain the "
+		"bytes that make up this instruction (thus the length of the "
+		"resulting list can be used to derive the number of bytes in the "
+		"instruction).\n"
+		"  Note that openMSX comes with a 'disasm' TCL script that is much "
+		"more convient to use then this subcommand.";
+	static const string unknownHelp =
+		"Unknown subcommand, use 'help debug' to see a list of valid "
+		"subcommands.\n";
+
+	if (tokens.size() == 1) {
+		return generalHelp;
+	} else if (tokens[1] == "list") {
+		return listHelp;
+	} else if (tokens[1] == "desc") {
+		return descHelp;
+	} else if (tokens[1] == "size") {
+		return sizeHelp;
+	} else if (tokens[1] == "read") {
+		return readHelp;
+	} else if (tokens[1] == "write") {
+		return writeHelp;
+	} else if (tokens[1] == "read_block") {
+		return readBlockHelp;
+	} else if (tokens[1] == "write_block") {
+		return writeBlockHelp;
+	} else if (tokens[1] == "set_bp") {
+		return setBpHelp;
+	} else if (tokens[1] == "remove_bp") {
+		return removeBpHelp;
+	} else if (tokens[1] == "list_bp") {
+		return listBpHelp;
+	} else if (tokens[1] == "set_watchpoint") {
+		return setWatchPointHelp;
+	} else if (tokens[1] == "remove_watchpoint") {
+		return removeWatchPointHelp;
+	} else if (tokens[1] == "list_watchpoints") {
+		return listWatchPointsHelp;
+	} else if (tokens[1] == "cont") {
+		return contHelp;
+	} else if (tokens[1] == "step") {
+		return stepHelp;
+	} else if (tokens[1] == "break") {
+		return breakHelp;
+	} else if (tokens[1] == "breaked") {
+		return breakedHelp;
+	} else if (tokens[1] == "disasm") {
+		return disasmHelp;
+	} else {
+		return unknownHelp;
+	}
 }
 
 set<string> DebugCmd::getBreakPointIdsAsStringSet() const
@@ -542,6 +711,17 @@ set<string> DebugCmd::getBreakPointIdsAsStringSet() const
 		bpids.insert("bp#" + StringOp::toString((*it->second).getId()));
 	}
 	return bpids;
+}
+set<string> DebugCmd::getWatchPointIdsAsStringSet() const
+{
+	MSXCPUInterface& interface = debugger.motherBoard.getCPUInterface();
+	const MSXCPUInterface::WatchPoints& watchPoints = interface.getWatchPoints();
+	set<string> wpids;
+	for (MSXCPUInterface::WatchPoints::const_iterator it = watchPoints.begin();
+	     it != watchPoints.end(); ++it) {
+		wpids.insert("wp#" + StringOp::toString((*it)->getId()));
+	}
+	return wpids;
 }
 
 void DebugCmd::tabCompletion(vector<string>& tokens) const
@@ -592,9 +772,15 @@ void DebugCmd::tabCompletion(vector<string>& tokens) const
 					completeString(tokens, bpids);
 				} else if (tokens[1] == "remove_watchpoint") {
 					// this one takes a wp id
-					// TODO
-					//set<string> bpids = getBreakPointIdsAsStringSet();
-					//completeString(tokens, bpids);
+					set<string> wpids = getWatchPointIdsAsStringSet();
+					completeString(tokens, wpids);
+				} else if (tokens[1] == "set_watchpoint") {
+					set<string> types;
+					types.insert("write_io");
+					types.insert("write_mem");
+					types.insert("read_io");
+					types.insert("read_mem");
+					completeString(tokens, types);
 				}
 			}
 			break;
