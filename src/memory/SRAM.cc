@@ -7,10 +7,24 @@
 #include "FileException.hh"
 #include "MSXMotherBoard.hh"
 #include "CliComm.hh"
+#include "Alarm.hh"
 
 using std::string;
 
 namespace openmsx {
+
+class SRAMSync : public Alarm
+{
+public:
+	SRAMSync(SRAM& sram);
+	~SRAMSync();
+private:
+	virtual bool alarm();
+	SRAM& sram;
+};
+
+
+// class SRAM
 
 SRAM::SRAM(MSXMotherBoard& motherBoard, const string& name, int size,
            const XMLElement& config_, const char* header_)
@@ -18,6 +32,7 @@ SRAM::SRAM(MSXMotherBoard& motherBoard, const string& name, int size,
 	, config(config_)
 	, header(header_)
 	, cliComm(motherBoard.getCliComm())
+	, sramSync(new SRAMSync(*this))
 {
 	load();
 }
@@ -35,8 +50,16 @@ SRAM::SRAM(MSXMotherBoard& motherBoard, const string& name,
 
 SRAM::~SRAM()
 {
-	cancel(); // cancel pending alarm
 	save();
+}
+
+void SRAM::write(unsigned addr, byte value)
+{
+	if (!sramSync->pending()) {
+		sramSync->schedule(5000000); // sync to disk after 5s
+	}
+	assert(addr < getSize());
+	ram[addr] = value;
 }
 
 void SRAM::load()
@@ -84,9 +107,22 @@ void SRAM::save()
 	}
 }
 
-bool SRAM::alarm()
+
+// class SRAMSync
+
+SRAMSync::SRAMSync(SRAM& sram_)
+	: sram(sram_)
 {
-	save();
+}
+
+SRAMSync::~SRAMSync()
+{
+	cancel(); // cancel pending alarm
+}
+
+bool SRAMSync::alarm()
+{
+	sram.save();
 	return false; // don't reschedule
 }
 

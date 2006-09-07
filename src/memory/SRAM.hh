@@ -3,16 +3,17 @@
 #ifndef SRAM_HH
 #define SRAM_HH
 
-#include "Alarm.hh"
 #include "Ram.hh"
+#include <memory>
 
 namespace openmsx {
 
 class MSXMotherBoard;
 class XMLElement;
 class CliComm;
+class SRAMSync;
 
-class SRAM : private Alarm
+class SRAM
 {
 public:
 	SRAM(MSXMotherBoard& motherBoard, const std::string& name, int size,
@@ -26,13 +27,8 @@ public:
 		assert(addr < getSize());
 		return ram[addr];
 	}
-	void write(unsigned addr, byte value) {
-		if (!pending()) {
-			schedule(5000000); // sync to disk after 5s
-		}
-		assert(addr < getSize());
-		ram[addr] = value;
-	}
+	// write() is non-inline because of the auto-sync to disk feature
+	void write(unsigned addr, byte value);
 	unsigned getSize() const {
 		return ram.getSize();
 	}
@@ -40,12 +36,14 @@ public:
 private:
 	void load();
 	void save();
-	virtual bool alarm();
 
 	Ram ram;
 	const XMLElement& config;
 	const char* header;
 	CliComm& cliComm;
+
+	std::auto_ptr<SRAMSync> sramSync;
+	friend class SRAMSync;
 };
 
 } // namespace openmsx
