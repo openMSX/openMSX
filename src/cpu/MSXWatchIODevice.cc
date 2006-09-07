@@ -5,8 +5,6 @@
 #include "TclObject.hh"
 #include <cassert>
 
-#include <iostream>
-
 namespace openmsx {
 
 MSXWatchIODevice::MSXWatchIODevice(MSXMotherBoard& motherboard,
@@ -43,7 +41,7 @@ byte MSXWatchIODevice::peekIO(word port, const EmuTime& time) const
 byte MSXWatchIODevice::readIO(word port, const EmuTime& time)
 {
 	assert(device);
-	std::cout << "Watch readIO " << port << std::endl;
+	//std::cout << "Watch readIO " << port << std::endl;
 	byte result = device->readIO(port, time);
 	checkAndExecute();
 	return result;
@@ -52,7 +50,7 @@ byte MSXWatchIODevice::readIO(word port, const EmuTime& time)
 void MSXWatchIODevice::writeIO(word port, byte value, const EmuTime& time)
 {
 	assert(device);
-	std::cout << "Watch writeIO " << port << " " << value << std::endl;
+	//std::cout << "Watch writeIO " << port << " " << value << std::endl;
 	device->writeIO(port, value, time);
 	checkAndExecute();
 }
