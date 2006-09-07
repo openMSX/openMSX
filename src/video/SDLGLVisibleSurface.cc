@@ -7,17 +7,11 @@
 #include "InitException.hh"
 #include "IconLayer.hh"
 #include "build-info.hh"
+#include "Math.hh"
 #include <vector>
 #include <cstdlib>
 
 namespace openmsx {
-
-static unsigned roundUpPow2(unsigned x)
-{
-	unsigned result = 1;
-	while (result < x) result <<= 1;
-	return result;
-}
 
 SDLGLVisibleSurface::SDLGLVisibleSurface(
 		unsigned width, unsigned height, bool fullscreen,
@@ -113,8 +107,8 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 		data = 0;
 	} else {
 		// TODO 64 byte aligned (see RawFrame)
-		unsigned texW = roundUpPow2(width);
-		unsigned texH = roundUpPow2(height);
+		unsigned texW = Math::powerOfTwo(width);
+		unsigned texH = Math::powerOfTwo(height);
 		data = (char*)malloc(format.BytesPerPixel * texW * texH);
 		pitch = width * format.BytesPerPixel;
 

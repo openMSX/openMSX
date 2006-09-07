@@ -9,16 +9,10 @@
 #include "ThrottleManager.hh"
 #include "MSXException.hh"
 #include "build-info.hh"
+#include "Math.hh"
 #include <algorithm>
 
 namespace openmsx {
-
-static int roundUpPower2(int a)
-{
-	int res = 1;
-	while (a > res) res <<= 1;
-	return res;
-}
 
 SDLSoundDriver::SDLSoundDriver(
 		Scheduler& scheduler, GlobalSettings& globalSettings,
@@ -32,7 +26,7 @@ SDLSoundDriver::SDLSoundDriver(
 {
 	SDL_AudioSpec desired;
 	desired.freq     = frequency;
-	desired.samples  = roundUpPower2(samples);
+	desired.samples  = Math::powerOfTwo(samples);
 	desired.channels = 2; // stereo
 	desired.format   = OPENMSX_BIGENDIAN ? AUDIO_S16MSB : AUDIO_S16LSB;
 	desired.callback = audioCallbackHelper; // must be a static method

@@ -30,18 +30,10 @@
 #include "MSXMotherBoard.hh"
 #include "Ram.hh"
 #include "Rom.hh"
+#include "Math.hh"
 
 
 namespace openmsx {
-
-static int roundUpPow2(int a)
-{
-	int result = 1;
-	while (a > result) {
-		result <<= 1;
-	}
-	return result;
-}
 
 MSXMegaRam::MSXMegaRam(MSXMotherBoard& motherBoard, const XMLElement& config,
                        const EmuTime& time)
@@ -49,7 +41,7 @@ MSXMegaRam::MSXMegaRam(MSXMotherBoard& motherBoard, const XMLElement& config,
 {
 	int size = config.getChildDataAsInt("size");
 	numBlocks = size / 8;	// 8kb blocks
-	maskBlocks = roundUpPow2(numBlocks) - 1;
+	maskBlocks = Math::powerOfTwo(numBlocks) - 1;
 	ram.reset(new Ram(motherBoard, getName() + " RAM", "Mega-RAM",
 	                  numBlocks * 0x2000));
 	if (config.findChild("rom")) {

@@ -3,21 +3,15 @@
 #include "VDPVRAM.hh"
 #include "SpriteChecker.hh"
 #include "Renderer.hh"
+#include "Math.hh"
 
 namespace openmsx {
 
 // class VRAMWindow:
 
-static unsigned roundUpPow2(unsigned a)
-{
-	unsigned result = 1;
-	while (result < a) result <<= 1;
-	return result;
-}
-
 VRAMWindow::VRAMWindow(Ram& vram)
 	: data(&vram[0])
-	, sizeMask(roundUpPow2(vram.getSize()) - 1)
+	, sizeMask(Math::powerOfTwo(vram.getSize()) - 1)
 {
 	observer = NULL;
 	baseAddr  = -1; // disable window
@@ -40,7 +34,7 @@ VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, const EmuTime& time)
 	: vdp(vdp_)
 	, data(vdp.getMotherBoard(), "VRAM", "Video RAM.", bufferSize(size))
 	, clock(time)
-	, sizeMask(roundUpPow2(data.getSize()) - 1)
+	, sizeMask(Math::powerOfTwo(data.getSize()) - 1)
 	, actualSize(size)
 	, cmdReadWindow(data)
 	, cmdWriteWindow(data)
