@@ -568,7 +568,7 @@ string DebugCmd::help(const vector<string>& tokens) const
 		"  Read a whole block at once. This is equivalent with repeated "
 		"invokations of the 'read' subcommand, but using this subcommand "
 		"may be faster. The result is a TCL binary string (see TCL manual).\n"
-		"  The block has a size and an offset in the debuggable. The "
+		"  The block is specified as size/offset in the debuggable. The "
 		"complete block must fit in the debuggable (see the 'size' "
 		"subcommand).\n";
 	static const string writeBlockHelp =
