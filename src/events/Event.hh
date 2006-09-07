@@ -3,6 +3,7 @@
 #ifndef EVENT_HH
 #define EVENT_HH
 
+#include "noncopyable.hh"
 #include <string>
 
 namespace openmsx {
@@ -56,7 +57,7 @@ enum EventType
 	OPENMSX_RS232_TESTER_EVENT,
 };
 
-class Event
+class Event : private noncopyable
 {
 public:
 	virtual ~Event();

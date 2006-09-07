@@ -3,6 +3,8 @@ $Id$
 2006-09-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed bug in removing IO watchpoints
 	* Improved help-text / tabcompletion for the debug command
+	* Changed checked_cast implementation so that it also works on older
+	  compilers (gcc-3.4 and below)
 
 2006-09-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Split UserInputEventDistributor in 3:

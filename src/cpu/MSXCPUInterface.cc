@@ -633,8 +633,8 @@ void MSXCPUInterface::registerIOWatch(WatchPoint& watchPoint, MSXDevice** device
 
 void MSXCPUInterface::unregisterIOWatch(WatchPoint& watchPoint, MSXDevice** devices)
 {
-	assert(dynamic_cast<MSXWatchIODevice*>(&watchPoint));
-	MSXWatchIODevice& ioWatch = checked_cast<MSXWatchIODevice&>(watchPoint);
+	const MSXWatchIODevice& ioWatch =
+		checked_cast<const MSXWatchIODevice&>(watchPoint);
 	unsigned port = ioWatch.getAddress();
 	assert(port < 256);
 
