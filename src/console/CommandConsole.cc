@@ -34,11 +34,12 @@ const char* const PROMPT2 = "| ";
 
 CommandConsole::CommandConsole(
 		CommandController& commandController_,
-		EventDistributor& eventDistributor_)
+		EventDistributor& eventDistributor_,
+		Display& display_)
 	: commandController(commandController_)
 	, eventDistributor(eventDistributor_)
+	, display(display_)
 	, consoleSetting(commandController.getGlobalSettings().getConsoleSetting())
-	, display(NULL)
 {
 	resetScrollBack();
 	prompt = PROMPT1;
@@ -67,12 +68,6 @@ CommandConsole::~CommandConsole()
 	commandController.getInterpreter().setOutput(NULL);
 	commandController.setCommandConsole(NULL);
 	saveHistory();
-	assert(display == NULL);
-}
-
-void CommandConsole::setDisplay(Display* display_)
-{
-	display = display_;
 }
 
 void CommandConsole::saveHistory()
@@ -147,8 +142,7 @@ bool CommandConsole::signalEvent(shared_ptr<const Event> event)
 	if ((event->getType() == OPENMSX_KEY_DOWN_EVENT) &&
 	    consoleSetting.getValue()) {
 		handleEvent(keyEvent);
-		assert(display);
-		display->repaintDelayed(40000); // 25fps
+		display.repaintDelayed(40000); // 25fps
 		return false; // deny event to other listeners
 	}
 	return true;

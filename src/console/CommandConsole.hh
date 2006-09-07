@@ -24,7 +24,8 @@ class CommandConsole : public Console, private EventListener,
 {
 public:
 	CommandConsole(CommandController& commandController,
-	               EventDistributor& eventDistributor);
+	               EventDistributor& eventDistributor,
+	               Display& display);
 	virtual ~CommandConsole();
 
 	/** Prints a string on the console.
@@ -34,8 +35,6 @@ public:
 	virtual unsigned getScrollBack() const;
 	virtual std::string getLine(unsigned line) const;
 	virtual void getCursorPosition(unsigned& xPosition, unsigned& yPosition) const;
-
-	void setDisplay(Display* display);
 
 private:
 	// InterpreterOutput
@@ -78,8 +77,8 @@ private:
 
 	CommandController& commandController;
 	EventDistributor& eventDistributor;
+	Display& display;
 	BooleanSetting& consoleSetting;
-	Display* display;
 };
 
 } // namespace openmsx

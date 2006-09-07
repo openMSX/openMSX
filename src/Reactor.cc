@@ -115,15 +115,6 @@ InputEventGenerator& Reactor::getInputEventGenerator()
 	return *inputEventGenerator;
 }
 
-CommandConsole& Reactor::getCommandConsole()
-{
-	if (!commandConsole.get()) {
-		commandConsole.reset(new CommandConsole(
-			getCommandController(), getEventDistributor()));
-	}
-	return *commandConsole;
-}
-
 Display& Reactor::getDisplay()
 {
 	if (!display.get()) {
@@ -131,6 +122,16 @@ Display& Reactor::getDisplay()
 		display->createVideoSystem();
 	}
 	return *display;
+}
+
+CommandConsole& Reactor::getCommandConsole()
+{
+	if (!commandConsole.get()) {
+		commandConsole.reset(new CommandConsole(
+			getCommandController(), getEventDistributor(),
+			getDisplay()));
+	}
+	return *commandConsole;
 }
 
 IconStatus& Reactor::getIconStatus()

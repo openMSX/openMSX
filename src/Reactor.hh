@@ -14,8 +14,8 @@ namespace openmsx {
 class EventDistributor;
 class CommandController;
 class CliComm;
-class CommandConsole;
 class Display;
+class CommandConsole;
 class IconStatus;
 class InputEventGenerator;
 class FileManipulator;
@@ -52,8 +52,8 @@ public:
 	CommandController& getCommandController();
 	CliComm& getCliComm();
 	InputEventGenerator& getInputEventGenerator();
-	CommandConsole& getCommandConsole();
 	Display& getDisplay();
+	CommandConsole& getCommandConsole();
 	IconStatus& getIconStatus();
 	FileManipulator& getFileManipulator();
 	FilePool& getFilePool();
@@ -98,8 +98,8 @@ private:
 	std::auto_ptr<CommandController> commandController;
 	std::auto_ptr<CliComm> cliComm;
 	std::auto_ptr<InputEventGenerator> inputEventGenerator;
-	std::auto_ptr<CommandConsole> commandConsole;
 	std::auto_ptr<Display> display;
+	std::auto_ptr<CommandConsole> commandConsole;
 	std::auto_ptr<IconStatus> iconStatus;
 	std::auto_ptr<FileManipulator> fileManipulator;
 	std::auto_ptr<FilePool> filePool;

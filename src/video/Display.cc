@@ -6,7 +6,6 @@
 #include "FinishFrameEvent.hh"
 #include "FileOperations.hh"
 #include "Alarm.hh"
-#include "CommandConsole.hh"
 #include "Command.hh"
 #include "InfoTopic.hh"
 #include "CliComm.hh"
@@ -71,9 +70,6 @@ Display::Display(Reactor& reactor_)
 	, renderSettings(new RenderSettings(reactor.getCommandController()))
 	, switchInProgress(false)
 {
-	// TODO clean up
-	reactor.getCommandConsole().setDisplay(this);
-
 	frameDurationSum = 0;
 	for (unsigned i = 0; i < NUM_FRAME_DURATIONS; ++i) {
 		frameDurations.addFront(20);
@@ -117,7 +113,6 @@ Display::~Display()
 	resetVideoSystem();
 
 	alarm->cancel();
-	reactor.getCommandConsole().setDisplay(0);
 	assert(listeners.empty());
 }
 
