@@ -75,9 +75,9 @@ class SlotInfo : public InfoTopic
 public:
 	SlotInfo(CommandController& commandController,
 	         MSXCPUInterface& interface);
-	virtual void execute(const std::vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject*>& tokens,
 	                     TclObject& result) const;
-	virtual std::string help(const std::vector<std::string>& tokens) const;
+	virtual string help(const vector<string>& tokens) const;
 private:
 	MSXCPUInterface& interface;
 };
@@ -87,9 +87,9 @@ class SubSlottedInfo : public InfoTopic
 public:
 	SubSlottedInfo(CommandController& commandController,
 		       MSXCPUInterface& interface);
-	virtual void execute(const std::vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject*>& tokens,
 			     TclObject& result) const;
-	virtual std::string help(const std::vector<std::string>& tokens) const;
+	virtual string help(const vector<string>& tokens) const;
 private:
 	MSXCPUInterface& interface;
 };
@@ -99,9 +99,9 @@ class ExternalSlotInfo : public InfoTopic
 public:
 	ExternalSlotInfo(CommandController& commandController,
 			 CartridgeSlotManager& manager);
-	virtual void execute(const std::vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject*>& tokens,
 			     TclObject& result) const;
-	virtual std::string help(const std::vector<std::string>& tokens) const;
+	virtual string help(const vector<string>& tokens) const;
 private:
 	CartridgeSlotManager& manager;
 };
@@ -111,9 +111,9 @@ class IOInfo : public InfoTopic
 public:
 	IOInfo(CommandController& commandController,
 	       MSXCPUInterface& interface, bool input);
-	virtual void execute(const std::vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject*>& tokens,
 	                     TclObject& result) const;
-	virtual std::string help(const std::vector<std::string>& tokens) const;
+	virtual string help(const vector<string>& tokens) const;
 private:
 	MSXCPUInterface& interface;
 	bool input;
@@ -257,7 +257,7 @@ void MSXCPUInterface::setExpanded(int ps)
 }
 
 void MSXCPUInterface::testUnsetExpanded(
-		int ps, std::vector<MSXDevice*>& alreadyRemoved) const
+		int ps, vector<MSXDevice*>& alreadyRemoved) const
 {
 	// TODO handle multi-devices
 	std::set<MSXDevice*> allowed(alreadyRemoved.begin(), alreadyRemoved.end());
@@ -568,7 +568,7 @@ void MSXCPUInterface::writeSlottedMem(unsigned address, byte value,
 }
 
 
-void MSXCPUInterface::setWatchPoint(std::auto_ptr<WatchPoint> watchPoint_)
+void MSXCPUInterface::setWatchPoint(auto_ptr<WatchPoint> watchPoint_)
 {
 	WatchPoint* watchPoint = watchPoint_.release();
 	watchPoints.push_back(watchPoint);
@@ -739,7 +739,7 @@ SlotInfo::SlotInfo(CommandController& commandController,
 {
 }
 
-void SlotInfo::execute(const std::vector<TclObject*>& tokens,
+void SlotInfo::execute(const vector<TclObject*>& tokens,
                        TclObject& result) const
 {
 	if (tokens.size() != 5) {
@@ -754,7 +754,7 @@ void SlotInfo::execute(const std::vector<TclObject*>& tokens,
 	result.setString(interface.slotLayout[ps][ss][page]->getName());
 }
 
-std::string SlotInfo::help(const std::vector<std::string>& /*tokens*/) const
+string SlotInfo::help(const vector<string>& /*tokens*/) const
 {
 	return "Retrieve name of the device inserted in given "
 	       "primary slot / secondary slot / page.";
@@ -770,7 +770,7 @@ SubSlottedInfo::SubSlottedInfo(CommandController& commandController,
 {
 }
 
-void SubSlottedInfo::execute(const std::vector<TclObject*>& tokens,
+void SubSlottedInfo::execute(const vector<TclObject*>& tokens,
                              TclObject& result) const
 {
 	if (tokens.size() != 3) {
@@ -779,8 +779,8 @@ void SubSlottedInfo::execute(const std::vector<TclObject*>& tokens,
 	result.setInt(interface.isExpanded(getSlot(tokens[2], "Slot")));
 }
 
-std::string SubSlottedInfo::help(
-	const std::vector<std::string>& /*tokens*/) const
+string SubSlottedInfo::help(
+	const vector<string>& /*tokens*/) const
 {
 	return "Indicates whether a certain primary slot is expanded.";
 }
@@ -795,7 +795,7 @@ ExternalSlotInfo::ExternalSlotInfo(CommandController& commandController,
 {
 }
 
-void ExternalSlotInfo::execute(const std::vector<TclObject*>& tokens,
+void ExternalSlotInfo::execute(const vector<TclObject*>& tokens,
                                TclObject& result) const
 {
 	int ps = 0;
@@ -813,8 +813,8 @@ void ExternalSlotInfo::execute(const std::vector<TclObject*>& tokens,
 	result.setInt(manager.isExternalSlot(ps, ss, true));
 }
 
-std::string ExternalSlotInfo::help(
-	const std::vector<std::string>& /*tokens*/) const
+string ExternalSlotInfo::help(
+	const vector<string>& /*tokens*/) const
 {
 	return "Indicates whether a certain slot is external or internal.";
 }

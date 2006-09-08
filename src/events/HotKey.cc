@@ -31,8 +31,8 @@ class BindCmd : public SimpleCommand
 {
 public:
 	BindCmd(CommandController& commandController, HotKey& hotKey);
-	virtual std::string execute(const std::vector<std::string>& tokens);
-	virtual std::string help(const std::vector<std::string>& tokens) const;
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
 private:
 	HotKey& hotKey;
 };
@@ -41,8 +41,8 @@ class UnbindCmd : public SimpleCommand
 {
 public:
 	UnbindCmd(CommandController& commandController, HotKey& hotKey);
-	virtual std::string execute(const std::vector<std::string>& tokens);
-	virtual std::string help(const std::vector<std::string>& tokens) const;
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
 private:
 	HotKey& hotKey;
 };
@@ -51,8 +51,8 @@ class BindDefaultCmd : public SimpleCommand
 {
 public:
 	BindDefaultCmd(CommandController& commandController, HotKey& hotKey);
-	virtual std::string execute(const std::vector<std::string>& tokens);
-	virtual std::string help(const std::vector<std::string>& tokens) const;
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
 private:
 	HotKey& hotKey;
 };
@@ -61,8 +61,8 @@ class UnbindDefaultCmd : public SimpleCommand
 {
 public:
 	UnbindDefaultCmd(CommandController& commandController, HotKey& hotKey);
-	virtual std::string execute(const std::vector<std::string>& tokens);
-	virtual std::string help(const std::vector<std::string>& tokens) const;
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
 private:
 	HotKey& hotKey;
 };
@@ -159,7 +159,7 @@ void HotKey::initDefaultBindings()
 	}
 }
 
-static HotKey::EventPtr createEvent(const std::string& str)
+static HotKey::EventPtr createEvent(const string& str)
 {
 	HotKey::EventPtr event = InputEventFactory::createInputEvent(str);
 	if (!dynamic_cast<const KeyEvent*>           (event.get()) &&
@@ -249,7 +249,7 @@ void HotKey::unbind(EventPtr event)
 	saveBindings(commandController.getSettingsConfig());
 }
 
-void HotKey::bindDefault(EventPtr event, const std::string& command)
+void HotKey::bindDefault(EventPtr event, const string& command)
 {
 	if ((unboundKeys.find(event) == unboundKeys.end()) &&
 	    (boundKeys.find(event)   == boundKeys.end())) {

@@ -23,6 +23,7 @@ public:
 	  * @param values The actual value that is written, only bits for
 	  *               which the corresponding bit in the 'outputs'
 	  *               parameter is set are meaningful.
+	  * @param time The moment in time the write occurs
 	  */
 	virtual void write(nibble outputs, nibble values, const EmuTime& time) = 0;
 
@@ -30,6 +31,7 @@ public:
 	  * Some of the pins might be programmed as output, but this method
 	  * doesn't care about that, it should return the value of all pins
 	  * as-if they were all programmed as input.
+	  * @param time The moment in time the read occurs
 	  */
 	virtual nibble read(const EmuTime& time) = 0;
 };

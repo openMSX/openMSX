@@ -94,7 +94,7 @@ template <class Pixel>
 Pixel V9990P1Converter<Pixel>::raster(
 	unsigned xA, unsigned yA, unsigned nameA, unsigned patternA, byte palA,
 	unsigned xB, unsigned yB, unsigned nameB, unsigned patternB, byte palB,
-	int* visibleSprites, unsigned int x, unsigned int y)
+	int* visibleSprites, unsigned x, unsigned y)
 {
 	byte p;
 	if (vdp.spritesEnabled()) {

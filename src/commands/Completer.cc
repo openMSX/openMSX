@@ -25,7 +25,7 @@ CommandController& Completer::getCommandController() const
 	return commandController;
 }
 
-const std::string& Completer::getName() const
+const string& Completer::getName() const
 {
 	return name;
 }
@@ -36,7 +36,7 @@ void Completer::completeString(
 	commandController.completeString(tokens, set, caseSensitive);
 }
 
-void Completer::completeFileName(std::vector<std::string>& tokens) const
+void Completer::completeFileName(vector<string>& tokens) const
 {
 	commandController.completeFileName(tokens);
 }

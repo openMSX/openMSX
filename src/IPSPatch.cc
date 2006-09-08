@@ -3,14 +3,14 @@
 #include "IPSPatch.hh"
 #include "File.hh"
 #include "MSXException.hh"
-#include <string.h>
+#include <cstring>
 #include <cassert>
 
 using std::vector;
 
 namespace openmsx {
 
-unsigned IPSPatch::getStop(const IPSPatch::PatchMap::const_iterator& it)
+static unsigned getStop(const IPSPatch::PatchMap::const_iterator& it)
 {
 	return it->first + it->second.size();
 }

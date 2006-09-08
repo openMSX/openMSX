@@ -25,7 +25,7 @@ class SettingInfo : public InfoTopic
 public:
 	SettingInfo(CommandController& commandController,
 	            SettingsManager& manager);
-	virtual void execute(const std::vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject*>& tokens,
 	                     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
@@ -38,8 +38,8 @@ class SetCompleter : public CommandCompleter
 public:
 	SetCompleter(CommandController& commandController,
 	             SettingsManager& manager);
-	virtual std::string help(const std::vector<std::string>& tokens) const;
-	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+	virtual string help(const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
 private:
 	SettingsManager& manager;
 };
@@ -49,9 +49,9 @@ class SettingCompleter : public CommandCompleter
 public:
 	SettingCompleter(CommandController& commandController,
 	                 SettingsManager& manager,
-	                 const std::string& name);
-	virtual std::string help(const std::vector<std::string>& tokens) const;
-	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+	                 const string& name);
+	virtual string help(const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
 private:
 	SettingsManager& manager;
 };
@@ -129,7 +129,7 @@ T& SettingsManager::getByName(const string& cmd, const string& name) const
 	return *typeSetting;
 }
 
-Setting* SettingsManager::getByName(const std::string& name) const
+Setting* SettingsManager::getByName(const string& name) const
 {
 	SettingsMap::const_iterator it = settingsMap.find(name);
 	// TODO: The cast is valid because currently all nodes are leaves.
@@ -137,7 +137,7 @@ Setting* SettingsManager::getByName(const std::string& name) const
 	return it != settingsMap.end() ? it->second : NULL;
 }
 
-string SettingsManager::makeUnique(const std::string& name) const
+string SettingsManager::makeUnique(const string& name) const
 {
 	string result = name;
 	unsigned n = 0;

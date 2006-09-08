@@ -42,8 +42,8 @@ class ScreenShotCmd : public SimpleCommand
 {
 public:
 	ScreenShotCmd(CommandController& commandController, Display& display);
-	virtual std::string execute(const std::vector<std::string>& tokens);
-	virtual std::string help(const std::vector<std::string>& tokens) const;
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
 private:
 	Display& display;
 };
@@ -52,9 +52,9 @@ class FpsInfoTopic : public InfoTopic
 {
 public:
 	FpsInfoTopic(CommandController& commandController, Display& display);
-	virtual void execute(const std::vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject*>& tokens,
 			     TclObject& result) const;
-	virtual std::string help(const std::vector<std::string>& tokens) const;
+	virtual string help(const vector<string>& tokens) const;
 private:
 	Display& display;
 };

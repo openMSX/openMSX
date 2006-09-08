@@ -61,10 +61,10 @@ class TapeCommand : public Command
 public:
 	TapeCommand(CommandController& commandController,
 	            CassettePlayer& cassettePlayer);
-	virtual void execute(const std::vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject*>& tokens,
 	                     TclObject& result);
-	virtual std::string help(const std::vector<std::string>& tokens) const;
-	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+	virtual string help(const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
 private:
 	CassettePlayer& cassettePlayer;
 };
@@ -197,7 +197,7 @@ void CassettePlayer::insertTape(const string& filename, const EmuTime& time)
 	updateLoadingState();
 }
 
-void CassettePlayer::startRecording(const std::string& filename,
+void CassettePlayer::startRecording(const string& filename,
                                     const EmuTime& time)
 {
 	wavWriter.reset(new WavWriter(filename, 1, 8, RECORD_FREQ));
@@ -432,7 +432,7 @@ TapeCommand::TapeCommand(CommandController& commandController,
 {
 }
 
-void TapeCommand::execute(const std::vector<TclObject*>& tokens,
+void TapeCommand::execute(const vector<TclObject*>& tokens,
                           TclObject& result)
 {
 	string tmpresult;

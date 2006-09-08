@@ -34,8 +34,8 @@ class QuitCommand : public SimpleCommand
 {
 public:
 	QuitCommand(CommandController& commandController, Reactor& reactor);
-	virtual std::string execute(const std::vector<std::string>& tokens);
-	virtual std::string help(const std::vector<std::string>& tokens) const;
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
 private:
 	Reactor& reactor;
 };
@@ -203,7 +203,7 @@ void Reactor::createMachineSetting()
 		0, machines));
 }
 
-MSXMotherBoard& Reactor::createMotherBoard(const std::string& machine)
+MSXMotherBoard& Reactor::createMotherBoard(const string& machine)
 {
 	// Locking rules for MSXMotherBoard object access:
 	//  - main thread can always access motherBoard without taking a lock

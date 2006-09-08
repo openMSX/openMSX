@@ -26,9 +26,9 @@ class PlugCmd : public SimpleCommand
 public:
 	PlugCmd(CommandController& commandController,
 		PluggingController& pluggingController);
-	virtual std::string execute(const std::vector<std::string>& tokens);
-	virtual std::string help   (const std::vector<std::string>& tokens) const;
-	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+	virtual string execute(const vector<string>& tokens);
+	virtual string help   (const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
 private:
 	PluggingController& pluggingController;
 };
@@ -38,9 +38,9 @@ class UnplugCmd : public SimpleCommand
 public:
 	UnplugCmd(CommandController& commandController,
 		  PluggingController& pluggingController);
-	virtual std::string execute(const std::vector<std::string>& tokens);
-	virtual std::string help   (const std::vector<std::string>& tokens) const;
-	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+	virtual string execute(const vector<string>& tokens);
+	virtual string help   (const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
 private:
 	PluggingController& pluggingController;
 };
@@ -50,10 +50,10 @@ class PluggableInfo : public InfoTopic
 public:
 	PluggableInfo(CommandController& commandController,
 		      PluggingController& pluggingController);
-	virtual void execute(const std::vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject*>& tokens,
 			     TclObject& result) const;
-	virtual std::string help   (const std::vector<std::string>& tokens) const;
-	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+	virtual string help   (const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
 private:
 	PluggingController& pluggingController;
 };
@@ -63,10 +63,10 @@ class ConnectorInfo : public InfoTopic
 public:
 	ConnectorInfo(CommandController& commandController,
 		      PluggingController& pluggingController);
-	virtual void execute(const std::vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject*>& tokens,
 			     TclObject& result) const;
-	virtual std::string help   (const std::vector<std::string>& tokens) const;
-	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+	virtual string help   (const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
 private:
 	PluggingController& pluggingController;
 };
@@ -76,10 +76,10 @@ class ConnectionClassInfo : public InfoTopic
 public:
 	ConnectionClassInfo(CommandController& commandController,
 			    PluggingController& pluggingController);
-	virtual void execute(const std::vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject*>& tokens,
 			     TclObject& result) const;
-	virtual std::string help   (const std::vector<std::string>& tokens) const;
-	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+	virtual string help   (const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
 private:
 	PluggingController& pluggingController;
 };

@@ -37,6 +37,8 @@ public:
 	 * Registers a given object to receive certain events.
 	 * @param type The type of the events you want to receive.
 	 * @param listener Listener that will be notified when an event arrives.
+	 * @param priority Listeners have a priority, higher priority liseners
+	 *                 can block events for lower priority listeners.
 	 */
 	void registerEventListener(EventType type, EventListener& listener,
 	                           Priority priority = OTHER);

@@ -34,8 +34,8 @@ class HelpCmd : public Command
 public:
 	HelpCmd(CommandController& parent);
 	virtual void execute(const vector<TclObject*>& tokens, TclObject& result);
-	virtual std::string help(const std::vector<std::string>& tokens) const;
-	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+	virtual string help(const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
 private:
 	CommandController& parent;
 };
@@ -45,7 +45,7 @@ class TabCompletionCmd : public Command
 public:
 	TabCompletionCmd(CommandController& parent);
 	virtual void execute(const vector<TclObject*>& tokens, TclObject& result);
-	virtual std::string help(const std::vector<std::string>& tokens) const;
+	virtual string help(const vector<string>& tokens) const;
 private:
 	CommandController& parent;
 };
@@ -54,9 +54,9 @@ class VersionInfo : public InfoTopic
 {
 public:
 	VersionInfo(CommandController& commandController);
-	virtual void execute(const std::vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject*>& tokens,
 	                     TclObject& result) const;
-	virtual std::string help(const std::vector<std::string>& tokens) const;
+	virtual string help(const vector<string>& tokens) const;
 };
 
 
@@ -321,7 +321,7 @@ string CommandController::executeCommand(
 	return getInterpreter().execute(cmd);
 }
 
-void CommandController::source(const std::string& script)
+void CommandController::source(const string& script)
 {
 	try {
 		File file(script);

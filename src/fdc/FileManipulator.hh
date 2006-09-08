@@ -54,7 +54,7 @@ private:
 	void mkdir(DriveSettings& driveData, const std::string& filename);
 	void dir(DriveSettings& driveData, std::string& result);
 	std::string import(DriveSettings& driveData,
-	                   const std::vector<std::string>& filenames);
+	                   const std::vector<std::string>& lists);
 	void exprt(DriveSettings& driveData, const std::string& dirname);
 };
 

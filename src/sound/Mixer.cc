@@ -31,13 +31,13 @@ class SoundlogCommand : public SimpleCommand
 {
 public:
 	SoundlogCommand(CommandController& commandController, Mixer& mixer);
-	virtual std::string execute(const std::vector<std::string>& tokens);
-	virtual std::string help(const std::vector<std::string>& tokens) const;
-	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
 private:
-	std::string stopSoundLogging(const std::vector<std::string>& tokens);
-	std::string startSoundLogging(const std::vector<std::string>& tokens);
-	std::string toggleSoundLogging(const std::vector<std::string>& tokens);
+	string stopSoundLogging(const vector<string>& tokens);
+	string startSoundLogging(const vector<string>& tokens);
+	string toggleSoundLogging(const vector<string>& tokens);
 	Mixer& mixer;
 };
 

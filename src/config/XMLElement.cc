@@ -78,7 +78,7 @@ double XMLElement::getDataAsDouble() const
 	return StringOp::stringToDouble(getData());
 }
 
-void XMLElement::setName(const std::string& name_)
+void XMLElement::setName(const string& name_)
 {
 	name = name_;
 }

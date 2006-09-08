@@ -31,38 +31,38 @@ class DebugCmd : public Command
 public:
 	DebugCmd(CommandController& commandController,
 		 Debugger& debugger);
-	virtual void execute(const std::vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject*>& tokens,
 			     TclObject& result);
-	virtual std::string help(const std::vector<std::string>& tokens) const;
-	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+	virtual string help(const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
 
 private:
 	void list(TclObject& result);
-	void desc(const std::vector<TclObject*>& tokens,
+	void desc(const vector<TclObject*>& tokens,
 	          TclObject& result);
-	void size(const std::vector<TclObject*>& tokens,
+	void size(const vector<TclObject*>& tokens,
 	          TclObject& result);
-	void read(const std::vector<TclObject*>& tokens,
+	void read(const vector<TclObject*>& tokens,
 	          TclObject& result);
-	void readBlock(const std::vector<TclObject*>& tokens,
+	void readBlock(const vector<TclObject*>& tokens,
 	               TclObject& result);
-	void write(const std::vector<TclObject*>& tokens,
+	void write(const vector<TclObject*>& tokens,
 	           TclObject& result);
-	void writeBlock(const std::vector<TclObject*>& tokens,
+	void writeBlock(const vector<TclObject*>& tokens,
 	                TclObject& result);
-	void setBreakPoint(const std::vector<TclObject*>& tokens,
+	void setBreakPoint(const vector<TclObject*>& tokens,
 	                   TclObject& result);
-	void removeBreakPoint(const std::vector<TclObject*>& tokens,
+	void removeBreakPoint(const vector<TclObject*>& tokens,
 	                      TclObject& result);
-	void listBreakPoints(const std::vector<TclObject*>& tokens,
+	void listBreakPoints(const vector<TclObject*>& tokens,
 	                     TclObject& result);
-	std::set<std::string> getBreakPointIdsAsStringSet() const;
-	std::set<std::string> getWatchPointIdsAsStringSet() const;
-	void setWatchPoint(const std::vector<TclObject*>& tokens,
+	set<string> getBreakPointIdsAsStringSet() const;
+	set<string> getWatchPointIdsAsStringSet() const;
+	void setWatchPoint(const vector<TclObject*>& tokens,
 	                   TclObject& result);
-	void removeWatchPoint(const std::vector<TclObject*>& tokens,
+	void removeWatchPoint(const vector<TclObject*>& tokens,
 	                      TclObject& result);
-	void listWatchPoints(const std::vector<TclObject*>& tokens,
+	void listWatchPoints(const vector<TclObject*>& tokens,
 	                     TclObject& result);
 
 	Debugger& debugger;
@@ -335,7 +335,7 @@ void DebugCmd::setBreakPoint(const vector<TclObject*>& tokens,
 	debugger.cpu->insertBreakPoint(bp);
 }
 
-void DebugCmd::removeBreakPoint(const std::vector<TclObject*>& tokens,
+void DebugCmd::removeBreakPoint(const vector<TclObject*>& tokens,
                                           TclObject& /*result*/)
 {
 	if (tokens.size() != 3) {
@@ -375,7 +375,7 @@ void DebugCmd::removeBreakPoint(const std::vector<TclObject*>& tokens,
 	}
 }
 
-void DebugCmd::listBreakPoints(const std::vector<TclObject*>& /*tokens*/,
+void DebugCmd::listBreakPoints(const vector<TclObject*>& /*tokens*/,
                                TclObject& result)
 {
 	const CPU::BreakPoints& breakPoints = debugger.cpu->getBreakPoints();
@@ -393,7 +393,7 @@ void DebugCmd::listBreakPoints(const std::vector<TclObject*>& /*tokens*/,
 	result.setString(res);
 }
 
-void DebugCmd::setWatchPoint(const std::vector<TclObject*>& tokens,
+void DebugCmd::setWatchPoint(const vector<TclObject*>& tokens,
                              TclObject& result)
 {
 	auto_ptr<WatchPoint> wp;
@@ -450,7 +450,7 @@ void DebugCmd::setWatchPoint(const std::vector<TclObject*>& tokens,
 	debugger.motherBoard.getCPUInterface().setWatchPoint(wp);
 }
 
-void DebugCmd::removeWatchPoint(const std::vector<TclObject*>& tokens,
+void DebugCmd::removeWatchPoint(const vector<TclObject*>& tokens,
                                 TclObject& /*result*/)
 {
 	if (tokens.size() != 3) {
@@ -475,7 +475,7 @@ void DebugCmd::removeWatchPoint(const std::vector<TclObject*>& tokens,
 	throw CommandException("No such watchpoint: " + tmp);
 }
 
-void DebugCmd::listWatchPoints(const std::vector<TclObject*>& /*tokens*/,
+void DebugCmd::listWatchPoints(const vector<TclObject*>& /*tokens*/,
                                TclObject& result)
 {
 	MSXCPUInterface& interface = debugger.motherBoard.getCPUInterface();

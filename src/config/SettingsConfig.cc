@@ -25,9 +25,9 @@ class SaveSettingsCommand : public SimpleCommand
 public:
 	SaveSettingsCommand(CommandController& commandController,
 			    SettingsConfig& settingsConfig);
-	virtual std::string execute(const std::vector<std::string>& tokens);
-	virtual std::string help   (const std::vector<std::string>& tokens) const;
-	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+	virtual string execute(const vector<string>& tokens);
+	virtual string help   (const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
 private:
 	SettingsConfig& settingsConfig;
 };
@@ -37,9 +37,9 @@ class LoadSettingsCommand : public SimpleCommand
 public:
 	LoadSettingsCommand(CommandController& commandController,
 			    SettingsConfig& settingsConfig);
-	virtual std::string execute(const std::vector<std::string>& tokens);
-	virtual std::string help   (const std::vector<std::string>& tokens) const;
-	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+	virtual string execute(const vector<string>& tokens);
+	virtual string help   (const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
 private:
 	SettingsConfig& settingsConfig;
 };

@@ -35,6 +35,7 @@
 #include "FileOperations.hh"
 #include <cassert>
 
+using std::set;
 using std::string;
 using std::vector;
 
@@ -56,7 +57,7 @@ class ListExtCmd : public Command
 public:
 	ListExtCmd(CommandController& commandController,
 	       MSXMotherBoard& motherBoard);
-	virtual void execute(const std::vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject*>& tokens,
 	                     TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 private:
@@ -135,7 +136,7 @@ const MachineConfig& MSXMotherBoard::getMachineConfig() const
 	return *machineConfig;
 }
 
-void MSXMotherBoard::loadMachine(const std::string& machine)
+void MSXMotherBoard::loadMachine(const string& machine)
 {
 	MachineConfig* newMachine;
 	try {
@@ -206,7 +207,7 @@ ExtensionConfig& MSXMotherBoard::loadRom(
 	return result;
 }
 
-ExtensionConfig* MSXMotherBoard::findExtension(const std::string& extensionName)
+ExtensionConfig* MSXMotherBoard::findExtension(const string& extensionName)
 {
 	for (Extensions::const_iterator it = extensions.begin();
 	     it != extensions.end(); ++it) {
@@ -563,7 +564,7 @@ MSXDevice* MSXMotherBoard::findDevice(const string& name)
 
 
 // TODO move machineSetting to here and reuse this routine
-static void getHwConfigs(const string& type, std::set<string>& result)
+static void getHwConfigs(const string& type, set<string>& result)
 {
 	SystemFileContext context;
 	const vector<string>& paths = context.getPaths();
@@ -612,7 +613,7 @@ ListExtCmd::ListExtCmd(CommandController& commandController,
 {
 }
 
-void ListExtCmd::execute(const std::vector<TclObject*>& /*tokens*/,
+void ListExtCmd::execute(const vector<TclObject*>& /*tokens*/,
                          TclObject& result)
 {
 	const MSXMotherBoard::Extensions& extensions = motherBoard.getExtensions();
@@ -657,7 +658,7 @@ string ExtCmd::help(const vector<string>& /*tokens*/) const
 
 void ExtCmd::tabCompletion(vector<string>& tokens) const
 {
-	std::set<string> extensions;
+	set<string> extensions;
 	getHwConfigs("extensions", extensions);
 	completeString(tokens, extensions);
 }
@@ -697,7 +698,7 @@ string RemoveExtCmd::help(const vector<string>& /*tokens*/) const
 void RemoveExtCmd::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		std::set<string> names;
+		set<string> names;
 		for (MSXMotherBoard::Extensions::const_iterator it =
 		         motherBoard.getExtensions().begin();
 		     it != motherBoard.getExtensions().end(); ++it) {

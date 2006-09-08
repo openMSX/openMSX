@@ -29,8 +29,8 @@ class KeyMatrixUpCmd : public SimpleCommand
 public:
 	KeyMatrixUpCmd(CommandController& commandController,
 		       Keyboard& keyboard);
-	virtual std::string execute(const std::vector<std::string>& tokens);
-	virtual std::string help(const std::vector<std::string>& tokens) const;
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
 private:
 	Keyboard& keyboard;
 };
@@ -40,8 +40,8 @@ class KeyMatrixDownCmd : public SimpleCommand
 public:
 	KeyMatrixDownCmd(CommandController& commandController,
 			 Keyboard& keyboard);
-	virtual std::string execute(const std::vector<std::string>& tokens);
-	virtual std::string help(const std::vector<std::string>& tokens) const;
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
 private:
 	Keyboard& keyboard;
 };
@@ -55,20 +55,20 @@ public:
 	virtual ~KeyInserter();
 
 private:
-	void type(const std::string& str);
+	void type(const string& str);
 	void reschedule(const EmuTime& time);
 
 	// Command
-	virtual std::string execute(const std::vector<std::string>& tokens);
-	virtual std::string help(const std::vector<std::string>& tokens) const;
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
 
 	// Schedulable
 	virtual void executeUntil(const EmuTime& time, int userData);
-	virtual const std::string& schedName() const;
+	virtual const string& schedName() const;
 
 	Keyboard& keyboard;
 	char last;
-	std::string text;
+	string text;
 };
 
 
@@ -205,7 +205,7 @@ void Keyboard::executeUntil(const EmuTime& /*time*/, int /*userData*/)
 	processKey(false, Keys::K_CAPSLOCK);
 }
 
-const std::string& Keyboard::schedName() const
+const string& Keyboard::schedName() const
 {
 	static const string schedName = "Keyboard";
 	return schedName;

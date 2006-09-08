@@ -19,8 +19,8 @@ class EscapeGrabCmd : public SimpleCommand
 public:
 	EscapeGrabCmd(CommandController& commandController,
 		      InputEventGenerator& inputEventGenerator);
-	virtual std::string execute(const std::vector<std::string>& tokens);
-	virtual std::string help(const std::vector<std::string>& tokens) const;
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
 private:
 	InputEventGenerator& inputEventGenerator;
 };

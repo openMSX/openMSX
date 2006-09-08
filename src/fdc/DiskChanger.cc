@@ -27,10 +27,10 @@ class DiskCommand : public Command
 public:
 	DiskCommand(CommandController& commandController,
 	            DiskChanger& diskChanger);
-	virtual void execute(const std::vector<TclObject*>& tokens,
+	virtual void execute(const vector<TclObject*>& tokens,
 	                     TclObject& result);
-	virtual std::string help(const std::vector<std::string>& tokens) const;
-	virtual void tabCompletion(std::vector<std::string>& tokens) const;
+	virtual string help(const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
 private:
 	DiskChanger& diskChanger;
 };

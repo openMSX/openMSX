@@ -110,7 +110,7 @@ const string& ExtensionConfig::getName() const
 	return name;
 }
 
-void ExtensionConfig::setName(const std::string& proposedName)
+void ExtensionConfig::setName(const string& proposedName)
 {
 	if (!getMotherBoard().findExtension(proposedName)) {
 		name = proposedName;

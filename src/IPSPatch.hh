@@ -14,6 +14,8 @@ namespace openmsx {
 class IPSPatch : public PatchInterface
 {
 public:
+	typedef std::map<unsigned, std::vector<byte> > PatchMap;
+
 	IPSPatch(const std::string& filename,
 	         std::auto_ptr<const PatchInterface> parent);
 
@@ -21,10 +23,6 @@ public:
 	virtual unsigned getSize() const;
 
 private:
-	typedef std::map<unsigned, std::vector<byte> > PatchMap;
-
-	static unsigned getStop(const PatchMap::const_iterator& it);
-
 	const std::auto_ptr<const PatchInterface> parent;
 	PatchMap patchMap;
 	unsigned size;
