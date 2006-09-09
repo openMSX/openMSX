@@ -4,6 +4,7 @@
 #include "CommandLineParser.hh"
 #include "EventDistributor.hh"
 #include "CommandController.hh"
+#include "Interpreter.hh"
 #include "CommandConsole.hh"
 #include "InputEventGenerator.hh"
 #include "FileManipulator.hh"
@@ -372,8 +373,7 @@ void Reactor::update(const Setting& setting)
 bool Reactor::signalEvent(shared_ptr<const Event> event)
 {
 	if (event->getType() == OPENMSX_QUIT_EVENT) {
-		enterMainLoop();
-		running = false;
+		getCommandController().getInterpreter().execute("exit");
 	} else {
 		assert(false);
 	}
