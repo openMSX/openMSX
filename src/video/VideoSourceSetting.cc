@@ -45,7 +45,7 @@ const char* const VIDEOSOURCE = "videosource";
 VideoSourceSetting::VideoSourceSetting(CommandController& commandController)
 	: SettingImpl<VideoSourceSettingPolicy>(commandController,
 		VIDEOSOURCE, "selects the video source to display on the screen",
-		VIDEO_MSX, Setting::SAVE, VIDEOSOURCE, getVideoSourceMap())
+		VIDEO_MSX, Setting::DONT_SAVE, VIDEOSOURCE, getVideoSourceMap())
 {
 }
 
