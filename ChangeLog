@@ -6,6 +6,8 @@ $Id$
 	    as output without specifying a value for that pin. By luck(?) in
 	    that case on a real machine the value is '1' while in openMSX it
 	    was '0' before this fix.
+	* Forgot to sync V9990CmdEngine:
+	   - fixes regression in blox
 
 2006-09-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed bug in removing IO watchpoints

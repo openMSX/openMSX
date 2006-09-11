@@ -96,6 +96,7 @@ V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config,
 	// create Command Engine
 	cmdEngine.reset(new V9990CmdEngine(*this, time,
 		getMotherBoard().getDisplay().getRenderSettings()));
+	vram->setCmdEngine(*cmdEngine);
 
 	// Start with NTSC timing
 	palTiming = false;
@@ -140,6 +141,7 @@ void V9990::reset(const EmuTime& time)
 
 	palTiming = false;
 	// Reset sub-systems
+	cmdEngine->sync(time);
 	renderer->reset(time);
 	cmdEngine->reset(time);
 
@@ -156,7 +158,7 @@ byte V9990::readIO(word port, const EmuTime& time)
 		case VRAM_DATA: {
 			// read from VRAM
 			unsigned addr = getVRAMAddr(VRAM_READ_ADDRESS_0);
-			result = vram->readVRAMSlow(addr);
+			result = vram->readVRAMCPU(addr, time);
 			if (!(regs[VRAM_READ_ADDRESS_2] & 0x80)) {
 				setVRAMAddr(VRAM_READ_ADDRESS_0, addr + 1);
 			}
@@ -247,7 +249,7 @@ void V9990::writeIO(word port, byte val, const EmuTime& time)
 		case VRAM_DATA: {
 			// write VRAM
 			unsigned addr = getVRAMAddr(VRAM_WRITE_ADDRESS_0);
-			vram->writeVRAMSlow(addr, val);
+			vram->writeVRAMCPU(addr, val, time);
 			if (!(regs[VRAM_WRITE_ADDRESS_2] & 0x80)) {
 				setVRAMAddr(VRAM_WRITE_ADDRESS_0, addr + 1);
 			}

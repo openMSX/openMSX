@@ -3,6 +3,7 @@
 #ifndef V9990VRAM_HH
 #define V9990VRAM_HH
 
+#include "V9990CmdEngine.hh"
 #include "Ram.hh"
 #include "openmsx.hh"
 
@@ -29,8 +30,8 @@ public:
 	/** Update VRAM state to specified moment in time.
 	  * @param time Moment in emulated time to synchronise VRAM to
 	  */
-	inline void sync(const EmuTime& /*time*/) {
-		// not much to do, yet
+	inline void sync(const EmuTime& time) {
+		cmdEngine->sync(time);
 	}
 
 	static inline unsigned transformBx(unsigned address) {
@@ -77,8 +78,10 @@ public:
 		data[address] = value;
 	}
 
-	byte readVRAMSlow(unsigned address);
-	void writeVRAMSlow(unsigned address, byte val);
+	byte readVRAMCPU(unsigned address, const EmuTime& time);
+	void writeVRAMCPU(unsigned address, byte val, const EmuTime& time);
+
+	void setCmdEngine(V9990CmdEngine& cmdEngine);
 
 private:
 	unsigned mapAddress(unsigned address);
@@ -86,6 +89,8 @@ private:
 	/** V9990 VDP this VRAM belongs to.
 	  */
 	V9990& vdp;
+
+	V9990CmdEngine* cmdEngine;
 
 	/** Pointer V9990 VRAM data.
 	  */
