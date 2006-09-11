@@ -80,7 +80,7 @@ void MSXAudio::reset(const EmuTime& time)
 
 byte MSXAudio::readIO(word port, const EmuTime& time)
 {
-	if (port == 0x0A) {
+	if ((port & 0xFF) == 0x0A) {
 		// read DAC
 		return 255;
 	} else {
@@ -91,7 +91,7 @@ byte MSXAudio::readIO(word port, const EmuTime& time)
 
 byte MSXAudio::peekIO(word port, const EmuTime& time) const
 {
-	if (port == 0x0A) {
+	if ((port & 0xFF) == 0x0A) {
 		// read DAC
 		return 255; // read always returns 255
 	} else {
@@ -103,7 +103,7 @@ byte MSXAudio::peekIO(word port, const EmuTime& time) const
 void MSXAudio::writeIO(word port, byte value, const EmuTime& time)
 {
 	//PRT_DEBUG("Audio: write "<<hex<<(int)port<<" "<<(int)value<<dec);
-	if (port == 0x0A) {
+	if ((port & 0xFF) == 0x0A) {
 		dacValue = value;
 		if (dacEnabled && dac.get()) {
 			dac->writeDAC(dacValue, time);
