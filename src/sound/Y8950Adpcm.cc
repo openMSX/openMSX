@@ -299,8 +299,13 @@ byte Y8950Adpcm::readData()
 	if ((reg7 & R07_MODE) == R07_MEMORY_DATA) {
 		// external memory read
 		if (readDelay) {
-			// two dummy reads
 			memPntr = startAddr;
+		}
+	}
+	byte result = peekData();
+	if ((reg7 & R07_MODE) == R07_MEMORY_DATA) {
+		if (readDelay) {
+			// two dummy reads
 			--readDelay;
 		} else if (memPntr > stopAddr) {
 			// set EOS bit in status register
@@ -322,7 +327,7 @@ byte Y8950Adpcm::readData()
 			y8950.setStatus(Y8950::STATUS_BUF_RDY);
 		}
 	}
-	return peekData();
+	return result;
 }
 
 byte Y8950Adpcm::peekData() const
