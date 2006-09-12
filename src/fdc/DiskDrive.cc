@@ -169,15 +169,20 @@ RealDrive::RealDrive(CommandController& commandController,
 	if (commandController.hasCommand(driveName)) {
 		throw MSXException("Duplicated drive name: " + driveName);
 	}
-	commandController.getCliComm().update(CliComm::HARDWARE, "add", driveName);
-	changer.reset(new DiskChanger(driveName, commandController,
-		                      fileManipulator));
+	commandController.getCliComm().update(
+		CliComm::HARDWARE, driveName, "add"
+		);
+	changer.reset(new DiskChanger(
+		driveName, commandController, fileManipulator
+		));
 }
 
 RealDrive::~RealDrive()
 {
 	const string& driveName = changer->getDriveName();
-	commandController.getCliComm().update(CliComm::HARDWARE, "remove", driveName);
+	commandController.getCliComm().update(
+		CliComm::HARDWARE, driveName, "remove"
+		);
 	int driveNum = driveName[4] - 'a';
 	drivesInUse[driveNum] = false;
 }
