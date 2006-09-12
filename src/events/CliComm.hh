@@ -33,6 +33,7 @@ public:
 		BREAK,
 		RESUME,
 		SETTING,
+		HARDWARE,
 		PLUG,
 		UNPLUG,
 		MEDIA,

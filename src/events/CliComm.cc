@@ -105,7 +105,8 @@ void CliComm::addConnection(auto_ptr<CliConnection> connection)
 }
 
 const char* const updateStr[CliComm::NUM_UPDATES] = {
-	"led", "break", "resume", "setting", "plug", "unplug", "media", "status"
+	"led", "break", "resume", "setting",
+	"hardware", "plug", "unplug", "media", "status"
 };
 void CliComm::log(LogLevel level, const string& message)
 {

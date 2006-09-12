@@ -1,5 +1,9 @@
 $Id$
 
+2006-09-11 Maarten ter Huurne <maarten@treewalker.org>
+	* Send an event over the control connection when a disk drive is added
+	  or removed. Can be used by Catapult to update the list of drives.
+
 2006-09-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed AUDIO in 'Thunderbirds are Go':
 	  - 'Thunderbirds are Go' sets the Music Module General Purpose pin 3

@@ -6,6 +6,7 @@
 #include "EventDistributor.hh"
 #include "LedEvent.hh"
 #include "CommandController.hh"
+#include "CliComm.hh"
 #include "GlobalSettings.hh"
 #include "ThrottleManager.hh"
 #include <bitset>
@@ -152,6 +153,7 @@ RealDrive::RealDrive(CommandController& commandController,
 	, headLoadStatus(false), headLoadTimer(time)
 	, eventDistributor(eventDistributor_)
 	, throttleManager(commandController.getGlobalSettings().getThrottleManager())
+	, commandController(commandController)
 	, isLoading(false)
 	, timeOut(false)
 {
@@ -167,13 +169,16 @@ RealDrive::RealDrive(CommandController& commandController,
 	if (commandController.hasCommand(driveName)) {
 		throw MSXException("Duplicated drive name: " + driveName);
 	}
+	commandController.getCliComm().update(CliComm::HARDWARE, "add", driveName);
 	changer.reset(new DiskChanger(driveName, commandController,
 		                      fileManipulator));
 }
 
 RealDrive::~RealDrive()
 {
-	int driveNum = changer->getDriveName()[4] - 'a';
+	const string& driveName = changer->getDriveName();
+	commandController.getCliComm().update(CliComm::HARDWARE, "remove", driveName);
+	int driveNum = driveName[4] - 'a';
 	drivesInUse[driveNum] = false;
 }
 

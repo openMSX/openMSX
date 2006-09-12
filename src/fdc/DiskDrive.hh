@@ -219,6 +219,7 @@ private:
 	// This is all for the ThrottleManager
 	void resetTimeOut(const EmuTime& time);
 	void updateLoadingState();
+	CommandController& commandController;
 	bool isLoading, timeOut;
 };
 
