@@ -36,7 +36,6 @@ private:
 	}
 
 public:
-
 	/** Bitmap of length 32 describing a sprite pattern.
 	  * Visible pixels are 1, transparent pixels are 0.
 	  * If the sprite is less than 32 pixels wide,
@@ -326,11 +325,6 @@ private:
 	/** Calculate sprite patterns for sprite mode 2.
 	  */
 	void updateSprites2(int limit);
-
-	/** Doubles a sprite pattern.
-	  * @param pattern The pattern to double.
-	  */
-	inline SpritePattern doublePattern(SpritePattern pattern);
 
 	/** Calculates a sprite pattern.
 	  * @param patternNr Number of the sprite pattern [0..255].
