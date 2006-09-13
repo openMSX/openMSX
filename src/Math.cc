@@ -8,9 +8,20 @@ namespace Math {
 
 unsigned powerOfTwo(unsigned a)
 {
-	unsigned res = 1;
-	while (a > res) res <<= 1;
-	return res;
+	// classical implementation:
+	//   unsigned res = 1;
+	//   while (a > res) res <<= 1;
+	//   return res;
+
+	// optimized version
+	a += (a == 0); // can be removed if argument is never zero
+	--a;
+	a |= a >> 1;
+	a |= a >> 2;
+	a |= a >> 4;
+	a |= a >> 8;
+	a |= a >> 16;
+	return a + 1;
 }
 
 void gaussian2(double& r1, double& r2)
