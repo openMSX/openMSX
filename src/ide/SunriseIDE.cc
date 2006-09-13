@@ -7,6 +7,7 @@
 #include "MSXCPU.hh"
 #include "Rom.hh"
 #include "XMLElement.hh"
+#include "Math.hh"
 
 namespace openmsx {
 
@@ -108,14 +109,6 @@ void SunriseIDE::writeMem(word address, byte value, const EmuTime& time)
 }
 
 
-static byte reverse(byte a)
-{
-	a = ((a & 0xF0) >> 4) | ((a & 0x0F) << 4);
-	a = ((a & 0xCC) >> 2) | ((a & 0x33) << 2);
-	a = ((a & 0xAA) >> 1) | ((a & 0x55) << 1);
-	return a;
-}
-
 void SunriseIDE::writeControl(byte value)
 {
 	MSXCPU& cpu = getMotherBoard().getCPU();
@@ -127,7 +120,7 @@ void SunriseIDE::writeControl(byte value)
 		cpu.invalidateMemCache(0xFC00, 0x0300);
 	}
 
-	byte bank = reverse(value & 0xF8);
+	byte bank = Math::reverseByte(value & 0xF8);
 	if (bank >= (rom->getSize() / 0x4000)) {
 		bank &= ((rom->getSize() / 0x4000) - 1);
 	}

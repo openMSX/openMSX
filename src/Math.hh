@@ -3,6 +3,7 @@
 #ifndef MATH_HH
 #define MATH_HH
 
+#include "openmsx.hh"
 #include <algorithm>
 #include <cmath>
 
@@ -56,6 +57,20 @@ inline unsigned gcd(unsigned a, unsigned b)
 		}
 	}
 	return b << k;
+}
+
+inline byte reverseByte(byte a)
+{
+	// classical implementation (can be extended to 16 and 32 bits)
+	//   a = ((a & 0xF0) >> 4) | ((a & 0x0F) << 4);
+	//   a = ((a & 0xCC) >> 2) | ((a & 0x33) << 2);
+	//   a = ((a & 0xAA) >> 1) | ((a & 0x55) << 1);
+	//   return a;
+	
+	// This only works for 8 bits (on a 32 bit machine) but it's slightly faster
+	// Found trick on this page:
+	//    http://graphics.stanford.edu/~seander/bithacks.html
+	return ((a * 0x0802LU & 0x22110LU) | (a * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16;
 }
 
 } // namespace Math

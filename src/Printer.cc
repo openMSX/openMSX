@@ -7,6 +7,7 @@
 #include "FloatSetting.hh"
 #include "CommandController.hh"
 #include "CliComm.hh"
+#include "Math.hh"
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -203,13 +204,6 @@ void ImagePrinter::plot9Dots(double x, double y, unsigned pattern)
 	}
 }
 
-static byte reverse(byte v)
-{
-	v = ((v & 0xF0) >> 4) | ((v & 0x0F) << 4);
-	v = ((v & 0xCC) >> 2) | ((v & 0x33) << 2);
-	v = ((v & 0xAA) >> 1) | ((v & 0x55) << 1);
-	return v;
-}
 void ImagePrinter::printGraphicByte(byte data)
 {
 	ensurePrintPage();
@@ -218,7 +212,7 @@ void ImagePrinter::printGraphicByte(byte data)
 	double destHeight = pixelSizeY * 9.0;
 
 	// Print Data to high 8 bits
-	unsigned charBits = (graphicsHiLo ? reverse(data) : data) << 1;
+	unsigned charBits = (graphicsHiLo ? Math::reverseByte(data) : data) << 1;
 
 	printAreaTop    = min(printAreaTop, destY);
 	printAreaBottom = max(printAreaBottom, destY + destHeight);
