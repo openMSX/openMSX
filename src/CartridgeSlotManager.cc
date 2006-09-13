@@ -76,9 +76,10 @@ void CartridgeSlotManager::createExternalSlot(int ps, int ss)
 		if (!slots[slot].exists()) {
 			slots[slot].ps = ps;
 			slots[slot].ss = ss;
-			string slotname = "carta";
-			slotname[4] += slot;
-			slots[slot].command = new CartCmd(*this, slotname);
+			string slotName = "carta";
+			slotName[4] += slot;
+			motherBoard.getCliComm().update(CliComm::HARDWARE, slotName, "add");
+			slots[slot].command = new CartCmd(*this, slotName);
 			return;
 		}
 	}
@@ -120,6 +121,8 @@ void CartridgeSlotManager::removeExternalSlot(int ps, int ss)
 {
 	int slot = getSlot(ps, ss);
 	assert(!slots[slot].used());
+	const string& slotName = slots[slot].command->getName();
+	motherBoard.getCliComm().update(CliComm::HARDWARE, slotName, "remove");
 	delete slots[slot].command;
 	slots[slot].command = NULL;
 }
@@ -237,7 +240,7 @@ void CartCmd::execute(const vector<TclObject*>& tokens, TclObject& result)
 		if (options.getListLength() != 0) {
 			result.addListElement(options);
 		}
-		
+
 	} else if (tokens[1]->getString() == "-eject") {
 		// remove cartridge (or extension)
 		const ExtensionConfig* extConf = getExtensionConfig(cartname);
