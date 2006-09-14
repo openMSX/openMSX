@@ -1,5 +1,11 @@
 $Id$
 
+2006-09-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed V9990 cursor Y position in overscan modes:
+	   - in overscan modes the cursor position is still specified with the
+	     same coordinate system as non-overscan modes (while the display
+	     line coord system has shifted up)
+
 2006-09-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed Y8950 sample ram reads:
 	   - first 2 reads from sample RAM return bogus values. This behaviour

@@ -281,7 +281,7 @@ void V9990BitmapConverter<Pixel>::convertLine(
 	assert(nrPixels <= 1024);
 	(this->*rasterMethod)(linePtr, address, nrPixels);
 	if (vdp.spritesEnabled()) {
-		drawCursors(linePtr, displayY);
+		drawCursors(linePtr, displayY - vdp.getCursorYOffset());
 	}
 }
 

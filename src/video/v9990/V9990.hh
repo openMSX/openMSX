@@ -107,8 +107,23 @@ public:
 		return palTiming;
 	}
 
+	/** Returns true iff in overscan mode
+	  */
 	inline bool isOverScan() const {
 		return (mode == B0) || (mode == B2) || (mode == B4);
+	}
+
+	/** In overscan mode the cursor position is still specified with
+	  * 'normal' (non-overscan) y-coordinates. This method returns the
+	  * offset between those two coord-systems.
+	  */
+	inline unsigned getCursorYOffset() const {
+		// TODO vertical set-adjust may or may not influence this,
+		//      need to investigate that.
+		if (!isOverScan()) return 0;
+		return isPalTiming()
+			? V9990DisplayTiming::displayPAL_MCLK .border1
+			: V9990DisplayTiming::displayNTSC_MCLK.border1;
 	}
 
 	/** Convert UC ticks to V9990 pixel position on a line
