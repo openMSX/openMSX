@@ -15,6 +15,7 @@
 #include "MSXMotherBoard.hh"
 #include "RenderSettings.hh"
 #include "IntegerSetting.hh"
+#include "BooleanSetting.hh"
 
 namespace openmsx {
 
@@ -29,6 +30,7 @@ V9990PixelRenderer::V9990PixelRenderer(V9990& vdp_)
 	frameSkipCounter = 999; // force drawing of frame;
 	finishFrameDuration = 0;
 	drawFrame = false; // don't draw before frameStart is called
+	prevDrawFrame = false;
 
 	reset(vdp.getMotherBoard().getScheduler().getCurrentTime());
 
@@ -54,19 +56,31 @@ void V9990PixelRenderer::reset(const EmuTime& time)
 void V9990PixelRenderer::frameStart(const EmuTime& time)
 {
 	if (!rasterizer->isActive()) {
-		frameSkipCounter = 0;
+		frameSkipCounter = 999;
 		drawFrame = false;
-	} else if (frameSkipCounter < renderSettings.getMinFrameSkip().getValue()) {
-		++frameSkipCounter;
-		drawFrame = false;
-	} else if (frameSkipCounter >= renderSettings.getMaxFrameSkip().getValue()) {
-		frameSkipCounter = 0;
-		drawFrame = true;
+		prevDrawFrame = false;
+		return;
+	}
+	prevDrawFrame = drawFrame;
+	if (vdp.isInterlaced() && renderSettings.getDeinterlace().getValue() &&
+	    vdp.getEvenOdd() && vdp.isEvenOddEnabled()) {
+		// deinterlaced odd frame, do same as even frame
 	} else {
-		++frameSkipCounter;
-		drawFrame = realTime.timeLeft((unsigned)finishFrameDuration, time);
-		if (drawFrame) {
+		if (frameSkipCounter <
+		              renderSettings.getMinFrameSkip().getValue()) {
+			++frameSkipCounter;
+			drawFrame = false;
+		} else if (frameSkipCounter >=
+		              renderSettings.getMaxFrameSkip().getValue()) {
 			frameSkipCounter = 0;
+			drawFrame = true;
+		} else {
+			++frameSkipCounter;
+			drawFrame = realTime.timeLeft(
+				(unsigned)finishFrameDuration, time);
+			if (drawFrame) {
+				frameSkipCounter = 0;
+			}
 		}
 	}
 	if (!drawFrame) return;
@@ -84,6 +98,7 @@ void V9990PixelRenderer::frameStart(const EmuTime& time)
 
 void V9990PixelRenderer::frameEnd(const EmuTime& time)
 {
+	bool skipEvent = !drawFrame;
 	if (drawFrame) {
 		// Render last changes in this frame before starting a new frame
 		sync(time, true);
@@ -95,9 +110,18 @@ void V9990PixelRenderer::frameEnd(const EmuTime& time)
 		const double ALPHA = 0.2;
 		finishFrameDuration = finishFrameDuration * (1 - ALPHA) +
 		                      current * ALPHA;
+
+		if (vdp.isInterlaced() && vdp.isEvenOddEnabled() &&
+		    renderSettings.getDeinterlace().getValue() &&
+		    !prevDrawFrame) {
+			// dont send event in deinterlace mode when
+			// previous frame was not rendered
+			skipEvent = true;
+		}
+
 	}
 	eventDistributor.distributeEvent(EventDistributor::EventPtr(
-		new FinishFrameEvent(VIDEO_GFX9000, !drawFrame)));
+		new FinishFrameEvent(VIDEO_GFX9000, skipEvent)));
 }
 
 void V9990PixelRenderer::sync(const EmuTime& time, bool force)

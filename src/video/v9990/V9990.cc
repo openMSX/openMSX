@@ -100,6 +100,7 @@ V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 	// Start with NTSC timing
 	palTiming = false;
+	interlaced = false;
 	setVerticalTiming();
 
 	// Initialise rendering system
@@ -612,7 +613,8 @@ void V9990::createRenderer(const EmuTime& time)
 void V9990::frameStart(const EmuTime& time)
 {
 	// Update setings that are fixed at the start of a frame
-	palTiming = regs[SCREEN_MODE_1] & 0x08;
+	palTiming  = regs[SCREEN_MODE_1] & 0x08;
+	interlaced = regs[SCREEN_MODE_1] & 0x02;
 	setVerticalTiming();
 	status ^= 0x02; // flip EO bit
 

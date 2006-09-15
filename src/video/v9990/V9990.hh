@@ -45,6 +45,13 @@ public:
 		return *vram;
 	}
 
+	/** Get interlace status.
+	  * @return True iff interlace is enabled.
+	  */
+	inline bool isInterlaced() const {
+		return interlaced;
+	}
+ 
 	/** Get even/odd page alternation status.
 	  * @return True iff even/odd page alternation is enabled.
 	  */
@@ -464,6 +471,11 @@ private:
 	/** Is PAL timing active?  False means NTSC timing
 	  */
 	bool palTiming;
+
+	/** Is interlace active?
+	  * @see isInterlaced.
+	  */
+	bool interlaced;
 
 	/** Emulation time when this frame was started (VSYNC)
 	  */

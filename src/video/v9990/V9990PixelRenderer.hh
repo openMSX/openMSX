@@ -107,6 +107,7 @@ private:
 	/** Should current frame be draw or can it be skipped.
 	  */
 	bool drawFrame;
+	bool prevDrawFrame;
 
 	/** Frameskip
 	  */

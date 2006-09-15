@@ -1,6 +1,11 @@
 $Id$
 
 2006-09-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed deinterlace for V9990:
+	   - force two consecutive frames (non-skipped frames) in deinterlace
+	     mode
+
+2006-09-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed V9990 cursor Y position in overscan modes:
 	   - in overscan modes the cursor position is still specified with the
 	     same coordinate system as non-overscan modes (while the display
