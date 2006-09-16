@@ -4,9 +4,7 @@
 #define MSXEVENTREPLAYER_HH
 
 #include "Schedulable.hh"
-#include "EmuTime.hh"
 #include <string>
-#include <iostream>
 #include <fstream>
 
 namespace openmsx {
@@ -17,8 +15,9 @@ class MSXEventReplayer : private Schedulable
 {
 public:
 	MSXEventReplayer(Scheduler& scheduler,
-		MSXEventDistributor& eventDistributor_, 
-		const std::string fileName);
+	                 MSXEventDistributor& eventDistributor_, 
+	                 const std::string& fileName);
+
 private:
 	// Schedulable
         virtual const std::string& schedName() const;
@@ -26,10 +25,9 @@ private:
 
 	void processLogEntry();
 
+	MSXEventDistributor& eventDistributor;
 	std::ifstream logFileStream;
 	std::string eventString;
-
-	MSXEventDistributor& eventDistributor;
 };
 
 } // namespace openmsx
