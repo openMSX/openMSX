@@ -28,6 +28,9 @@ public:
 	  * Throws an exception if not.
 	  */
 	void testRemove() const;
+	
+	static std::auto_ptr<XMLElement> loadConfig(
+		const std::string& path, const std::string& hwName);
 
 protected:
 	void setConfig(std::auto_ptr<XMLElement> config);

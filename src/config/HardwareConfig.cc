@@ -103,7 +103,8 @@ void HardwareConfig::setConfig(std::auto_ptr<XMLElement> newConfig)
 	config = newConfig;
 }
 
-void HardwareConfig::load(const string& path, const string& hwName)
+std::auto_ptr<XMLElement> HardwareConfig::loadConfig(
+		const string& path, const string& hwName)
 {
 	SystemFileContext context;
 	string filename;
@@ -115,8 +116,8 @@ void HardwareConfig::load(const string& path, const string& hwName)
 	}
 	try {
 		File file(filename);
-		config = XMLLoader::loadXML(file.getLocalName(),
-		                            "msxconfig2.dtd");
+		std::auto_ptr<XMLElement> result = XMLLoader::loadXML(
+			file.getLocalName(), "msxconfig2.dtd");
 
 		// get url
 		string url(file.getURL());
@@ -126,13 +127,19 @@ void HardwareConfig::load(const string& path, const string& hwName)
 
 		// TODO get user name
 		string userName;
-		config->setFileContext(std::auto_ptr<FileContext>(
+		result->setFileContext(std::auto_ptr<FileContext>(
 			new ConfigFileContext(url + '/', hwName, userName)));
+		return result;
 	} catch (XMLException& e) {
 		throw MSXException(
 			"Loading of hardware configuration failed: " +
 			e.getMessage());
 	}
+}
+
+void HardwareConfig::load(const string& path, const string& hwName)
+{
+	setConfig(loadConfig(path, hwName));
 }
 
 void HardwareConfig::parseSlots()

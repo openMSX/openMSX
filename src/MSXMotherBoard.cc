@@ -743,6 +743,26 @@ void ConfigInfo::execute(const vector<TclObject*>& tokens,
 		result.addListElements(configs.begin(), configs.end());
 		break;
 	}
+	case 3: {
+		try {
+			std::auto_ptr<XMLElement> config = HardwareConfig::loadConfig(
+				configName, tokens[2]->getString());
+			if (XMLElement* info = config->findChild("info")) {
+				const XMLElement::Children& children =
+					info->getChildren();
+				for (XMLElement::Children::const_iterator it =
+					children.begin();
+				     it != children.end(); ++it) {
+					result.addListElement((*it)->getName());
+					result.addListElement((*it)->getData());
+				}
+			}
+		} catch (MSXException& e) {
+			throw CommandException(
+				"Couldn't get config info: " + e.getMessage());
+		}
+		break;
+	}
 	default:
 		throw CommandException("Too many parameters");
 	}
@@ -750,11 +770,15 @@ void ConfigInfo::execute(const vector<TclObject*>& tokens,
 
 string ConfigInfo::help(const vector<string>& /*tokens*/) const
 {
-	return "Shows a list of available " + configName + ".\n";
+	return "Shows a list of available " + configName + ", "
+	       "or get meta information about the selected item.\n";
 }
 
-void ConfigInfo::tabCompletion(vector<string>& /*tokens*/) const
+void ConfigInfo::tabCompletion(vector<string>& tokens) const
 {
+	set<string> configs;
+	getHwConfigs(configName, configs);
+	completeString(tokens, configs);
 }
 
 } // namespace openmsx
