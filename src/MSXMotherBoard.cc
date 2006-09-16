@@ -28,6 +28,7 @@
 #include "FileContext.hh"
 #include "GlobalSettings.hh"
 #include "Command.hh"
+#include "InfoTopic.hh"
 #include "AfterCommand.hh"
 #include "FileException.hh"
 #include "ConfigException.hh"
@@ -88,6 +89,19 @@ private:
 	MSXMotherBoard& motherBoard;
 };
 
+class ConfigInfo : public InfoTopic
+{
+public:
+	ConfigInfo(CommandController& commandController,
+	           const string& configName);
+	virtual void execute(const vector<TclObject*>& tokens,
+	                     TclObject& result) const;
+	virtual string help   (const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
+private:
+	const string configName;
+};
+
 
 MSXMotherBoard::MSXMotherBoard(Reactor& reactor_)
 	: reactor(reactor_)
@@ -101,6 +115,8 @@ MSXMotherBoard::MSXMotherBoard(Reactor& reactor_)
 	, removeExtCommand(new RemoveExtCmd(getCommandController(), *this))
 	, afterCommand(new AfterCommand(getScheduler(), getEventDistributor(),
 	                                getCommandController()))
+	, extensionInfo(new ConfigInfo(getCommandController(), "extensions"))
+	, machineInfo  (new ConfigInfo(getCommandController(), "machines"))
 	, powerSetting(getCommandController().getGlobalSettings().getPowerSetting())
 {
 	getMixer().mute(); // powered down
@@ -706,6 +722,39 @@ void RemoveExtCmd::tabCompletion(vector<string>& tokens) const
 		}
 		completeString(tokens, names);
 	}
+}
+
+// ConfigInfo
+ConfigInfo::ConfigInfo(CommandController& commandController,
+	               const string& configName_)
+	: InfoTopic(commandController, configName_)
+	, configName(configName_)
+{
+}
+
+void ConfigInfo::execute(const vector<TclObject*>& tokens,
+                         TclObject& result) const
+{
+	// TODO make meta info available through this info topic
+	switch (tokens.size()) {
+	case 2: {
+		set<string> configs;
+		getHwConfigs(configName, configs);
+		result.addListElements(configs.begin(), configs.end());
+		break;
+	}
+	default:
+		throw CommandException("Too many parameters");
+	}
+}
+
+string ConfigInfo::help(const vector<string>& /*tokens*/) const
+{
+	return "Shows a list of available " + configName + ".\n";
+}
+
+void ConfigInfo::tabCompletion(vector<string>& /*tokens*/) const
+{
 }
 
 } // namespace openmsx

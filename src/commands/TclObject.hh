@@ -37,6 +37,7 @@ public:
 	void addListElement(int value);
 	void addListElement(double value);
 	void addListElement(TclObject& element);
+	template <typename ITER> void addListElements(ITER begin, ITER end);
 
 	// value getters
 	std::string getString() const;
@@ -80,6 +81,14 @@ private:
 	Tcl_Obj* obj;
 	bool owned;
 };
+
+template <typename ITER>
+void TclObject::addListElements(ITER begin, ITER end)
+{
+	for (ITER it = begin; it != end; ++it) {
+		addListElement(*it);
+	}
+}
 
 } // namespace openmsx
 

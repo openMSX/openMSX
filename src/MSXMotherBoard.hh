@@ -44,6 +44,7 @@ class ListExtCmd;
 class ExtCmd;
 class RemoveExtCmd;
 class AfterCommand;
+class ConfigInfo;
 
 class MSXMotherBoard : private Observer<Setting>
 {
@@ -179,6 +180,8 @@ private:
 	const std::auto_ptr<ExtCmd>       extCommand;
 	const std::auto_ptr<RemoveExtCmd> removeExtCommand;
 	const std::auto_ptr<AfterCommand> afterCommand;
+	const std::auto_ptr<ConfigInfo>   extensionInfo;
+	const std::auto_ptr<ConfigInfo>   machineInfo;
 	BooleanSetting& powerSetting;
 };
 

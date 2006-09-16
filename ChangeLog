@@ -1,11 +1,14 @@
 $Id$
 
+2006-09-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added 'extensions' and 'machines' info topics
+
 2006-09-16 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added MSXEventRecorder/Replayer:
 	  - you can record and replay with the command line options, which
 	    require a filename argument
 
-2006-09-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2006-09-15 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed deinterlace for V9990:
 	   - force two consecutive frames (non-skipped frames) in deinterlace
 	     mode
