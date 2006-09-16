@@ -23,6 +23,7 @@ class HDImageCLI;
 class CDImageCLI;
 class Reactor;
 class MSXMotherBoard;
+class MSXEventRecorderReplayerCLI;
 
 class CLIOption
 {
@@ -191,6 +192,8 @@ private:
 	const std::auto_ptr<DiskImageCLI> diskImageCLI;
 	const std::auto_ptr<HDImageCLI> hdImageCLI;
 	const std::auto_ptr<CDImageCLI> cdImageCLI;
+	const std::auto_ptr<MSXEventRecorderReplayerCLI> 
+					eventRecorderReplayerCLI;
 	
 	bool hiddenStartup;
 };

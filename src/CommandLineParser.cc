@@ -14,6 +14,7 @@
 #include "DiskImageCLI.hh"
 #include "HDImageCLI.hh"
 #include "CDImageCLI.hh"
+#include "MSXEventRecorderReplayerCLI.hh"
 #include "ConfigException.hh"
 #include "FileException.hh"
 #include "EnumSetting.hh"
@@ -70,6 +71,7 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	, diskImageCLI(new DiskImageCLI(*this))
 	, hdImageCLI(new HDImageCLI(*this))
 	, cdImageCLI(new CDImageCLI(*this))
+	, eventRecorderReplayerCLI(new MSXEventRecorderReplayerCLI(*this))
 {
 	haveConfig = false;
 	haveSettings = false;

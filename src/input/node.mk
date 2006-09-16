@@ -17,7 +17,10 @@ SRC_HDR:= \
 	NinjaTap \
 	EventTranslator \
 	EventDelay \
-	MSXEventDistributor
+	MSXEventDistributor \
+	MSXEventRecorder \
+	MSXEventReplayer \
+	MSXEventRecorderReplayerCLI
 
 HDR_ONLY:= \
 	MSXEventListener

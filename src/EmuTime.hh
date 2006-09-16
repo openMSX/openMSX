@@ -20,6 +20,8 @@ public:
 	// constructors
 	EmuTime(const EmuTime& e) : time(e.time) {}
 
+	static EmuTime makeEmuTime(uint64 u) { return EmuTime(u); }
+
 	// destructor
 	virtual ~EmuTime() {}
 

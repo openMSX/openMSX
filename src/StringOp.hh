@@ -3,6 +3,7 @@
 #ifndef STRINGOP_HH
 #define STRINGOP_HH
 
+#include "openmsx.hh"
 #include <string>
 #include <vector>
 #include <sstream>
@@ -28,6 +29,7 @@ namespace StringOp
 	}
 
 	int stringToInt(const std::string& str);
+	uint64 stringToUint64(const std::string& str);
 	bool stringToBool(const std::string& str);
 	double stringToDouble(const std::string& str);
 
