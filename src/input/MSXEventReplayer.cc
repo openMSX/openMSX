@@ -34,6 +34,7 @@ void MSXEventReplayer::processLogEntry()
 {
 	string temp;
 	getline(logFileStream, temp);
+	StringOp::trimRight(temp, "\r"); // remove DOS eol
 	if (logFileStream.good()) {
 		string emutimeStr;
 		StringOp::splitOnFirst(temp, " ", emutimeStr, eventString);
