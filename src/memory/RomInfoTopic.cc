@@ -82,10 +82,7 @@ void RomInfoTopic::execute(const vector<TclObject*>& tokens,
 	case 2: {
 		set<string> romTypes;
 		RomInfo::getAllRomTypes(romTypes);
-		for (set<string>::const_iterator it = romTypes.begin();
-		     it != romTypes.end(); ++it) {
-			result.addListElement(*it);
-		}
+		result.addListElements(romTypes.begin(), romTypes.end());
 		break;
 	}
 	case 3: {

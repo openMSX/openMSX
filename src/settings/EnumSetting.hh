@@ -144,10 +144,7 @@ void EnumSettingPolicy<T>::additionalInfo(TclObject& result) const
 	TclObject valueList(result.getInterpreter());
 	std::set<std::string> values;
 	this->getPossibleValues(values);
-	for (std::set<std::string>::const_iterator it = values.begin();
-	     it != values.end(); ++it) {
-		valueList.addListElement(*it);
-	}
+	valueList.addListElements(values.begin(), values.end());
 	result.addListElement(valueList);
 }
 
@@ -168,10 +165,7 @@ void EnumSettingPolicy<T>::EnumInfo::execute(
 {
 	std::set<std::string> values;
 	parent.getPossibleValues(values);
-	for (std::set<std::string>::const_iterator it = values.begin();
-	     it != values.end(); ++it) {
-		result.addListElement(*it);
-	}
+	result.addListElements(values.begin(), values.end());
 }
 
 template<typename T>

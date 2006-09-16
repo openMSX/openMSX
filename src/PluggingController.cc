@@ -445,10 +445,7 @@ void ConnectionClassInfo::execute(const vector<TclObject*>& tokens,
 		     it != pluggingController.pluggables.end(); ++it) {
 			classes.insert((*it)->getClass());
 		}
-		for (set<string>::const_iterator it = classes.begin();
-		     it != classes.end(); ++it) {
-			result.addListElement(*it);
-		}
+		result.addListElements(classes.begin(), classes.end());
 		break;
 	}
 	case 3: {

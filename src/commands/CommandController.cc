@@ -397,10 +397,7 @@ void CommandController::tabCompletion(vector<string>& tokens)
 		} else {
 			TclObject command(getInterpreter());
 			command.addListElement("__tabcompletion");
-			for (vector<string>::const_iterator it2 = tokens.begin();
-			     it2 != tokens.end(); ++it2) {
-				command.addListElement(*it2);
-			}
+			command.addListElements(tokens.begin(), tokens.end());
 			try {
 				string result = command.executeCommand();
 				vector<string> split;
