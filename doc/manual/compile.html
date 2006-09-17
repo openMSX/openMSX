@@ -27,8 +27,8 @@
 	<li><a class="internal" href="#getsource">2. Getting the Source Code</a>
 		<ol class="toc">
 			<li><a class="internal" href="#getrelease">2.1 Released Version</a></li>
-			<li><a class="internal" href="#getcvs">2.2 CVS Checkout</a></li>
-			<li><a class="internal" href="#getsnapshot">2.3 CVS Snapshot</a></li>
+			<li><a class="internal" href="#getsvn">2.2 SVN Checkout</a></li>
+			<li><a class="internal" href="#getsnapshot">2.3 SVN Snapshot</a></li>
 		</ol>
 	</li>
 	<li><a class="internal" href="#compile">3. Compilation</a>
@@ -141,8 +141,9 @@ Thanks to all of them!
 
 <p>
 This section gives an overview of the changes that were made to this document.
-It doesn't contain every single modification (use the CVS log for that),
-only the big picture.
+It doesn't contain every single modification (use the <a class="external"
+href="http://svn.sourceforge.net/viewvc/openmsx/openmsx/trunk/doc/manual/compile.html?view=log">SVN log</a>
+for that), only the big picture.
 </p>
 
 <dl>
@@ -194,7 +195,7 @@ Original text written as part of the openMSX HOWTO.
 openMSX is developed using the tools
 <a class="external" href="http://www.sourceforge.net/">SourceForge.net</a>
 freely offers to open source projects.
-The code is stored in CVS, an open source version management system.
+The code is stored in Subversion (SVN), an open source version management system.
 Once in a while an openMSX release is made.
 </p>
 
@@ -213,34 +214,34 @@ the latest features.
 Also there could be bugs that have been fixed since the last release.
 </dd>
 
-<dt><a class="internal" href="#getcvs">CVS Checkout</a></dt>
+<dt><a class="internal" href="#getsvn">SVN Checkout</a></dt>
 <dd>
-Through anonymous CVS you can get the same development version the
-openMSX developers are using, although most of the time it lags at least a few hours behind the current state of affairs.
+Through SVN you can get the same development version the
+openMSX developers are using, but it can possibly lag behind somewhat to the current state of affairs.
 This is the bleeding edge:
 the latest stuff, which may be great or may be horribly broken.
-Usually openMSX CVS compiles and runs fine, but we're only human,
+Usually openMSX SVN compiles and runs fine, but we're only human,
 so once in a while it breaks.
 Also there may be changes that are not documented yet.
 </dd>
 
-<dt><a class="internal" href="#getsnapshot">CVS Snapshot</a></dt>
+<dt><a class="internal" href="#getsnapshot">SVN Snapshot</a></dt>
 <dd>
-A snapshot is created from a recent CVS checkout,
+A snapshot is created from a recent SVN checkout,
 in a <code>tar.gz</code> archive.
-A snapshot is therefore quite similar to a CVS checkout,
-but it doesn't require you to install and use CVS. It may lag a couple of days from the latest CVS sources. Moreover, SF.net staff recently turned off cron jobs, which means the snapshots are now updated on a very irregular basis.
+A snapshot is therefore quite similar to a SVN checkout,
+but it doesn't require you to install and use SVN. It may lag a couple of days from the latest SVN sources. Moreover, SF.net staff recently turned off cron jobs, which means the snapshots are now updated on a very irregular basis.
 </dd>
 
 </dl>
 
 <p>
-Releases are intended for general users, CVS and CVS snapshots are intended for
+Releases are intended for general users, SVN and SVN snapshots are intended for
 (would be) developers, heavy testers and people who want to follow new
 developments closely. It might be a good idea to play with a release first. If
-you like what you see and want to get in deeper, you can switch to CVS later.
-If you update often, it is best to use a CVS checkout rather than
-a CVS snapshot, because with a checkout you can do efficient incremental
+you like what you see and want to get in deeper, you can switch to SVN later.
+If you update often, it is best to use a SVN checkout rather than
+a SVN snapshot, because with a checkout you can do efficient incremental
 updates, saving network bandwidth and compile time.
 </p>
 
@@ -269,99 +270,76 @@ After downloading, type:
 in which <code>VERSION</code> is the openMSX version you downloaded,
 or use the file name you saved the tar.gz file with.
 The directory that is created by uncompressing the <code>tar.gz</code> file
-is called the <em>top of the source tree</em>.
+is called <em>the top of the source tree</em>.
 </p>
 
-<h3><a id="getcvs">2.2 CVS Checkout</a></h3>
+<h3><a id="getsvn">2.2 SVN Checkout</a></h3>
 
 <p>
-Getting a CVS checkout means you use CVS to retrieve the latest version
+Getting a SVN checkout means you use SVN to retrieve the latest version
 of the source code of openMSX.
-This means you will need to install a CVS client.
-This package is usually simply named <code>cvs</code>.
-There are graphical front-ends for CVS,
-but this guide will tell you how to use CVS from the command line.
-More information about CVS can be found on the
-<a class="external" href="http://www.cvshome.org/">CVS Home</a> site.
+This means you will need to install an SVN client.
+This package is usually named <code>subversion</code>.
+There are graphical front-ends for SVN,
+but this guide will tell you how to use SVN from the command line.
+More information about SVN can be found on the <a class="external"
+href="http://svnbook.red-bean.com/en/1.1/">Subversion book</a> site. Windows
+users might want to look at <a class="external"
+href="http://tortoisesvn.tigris.org/">TortoiseSVN</a>.
 </p>
 
 <p>
-With the following line you can login to the openMSX CVS server:
+With the following line you can retrieve the latest sources:
 </p>
 <div class="commandline">
-cvs -d:pserver:anonymous@openmsx.cvs.sourceforge.net:/cvsroot/openmsx login
+svn co https://svn.sourceforge.net/svnroot/openmsx/trunk/openmsx openMSX
 </div>
 <p>
 In this line you specified where you want to retrieve the files from
-(host name of the CVS server),
-as who you want to retrieve the stuff
-(if you're not a developer, <code>anonymous</code> will do),
-and what project you want to retrieve (openmsx in this case).
+(host name of the SVN server),
+what project you want to retrieve (<em>openmsx</em> in this case), which branch you want
+to retrieve (<em>trunk</em> in this case, which is the main development branch), what
+module you want to get (<em>openmsx</em> in this case, which is the module that contains
+the sources of the main openMSX program) and what directory it should be
+checked out to (we chose <em>openMSX</em> in this example).
 </p>
 
 <p>
-You will be prompted for a password.
-The password for user <code>anonymous</code> is empty, so just press enter.
-</p>
-
-<p>
-Example output:
+If you're a developer, it makes sense to add the following option as well:
 </p>
 <div class="commandline">
-jorrith@jardel openmsx $ cvs -d:pserver:anonymous@openmsx.cvs.sourceforge.net:/cvsroot/openmsx login
-</div>
-<div class="commandline">
-Logging in to :pserver:anonymous@openmsx.cvs.sourceforge.net:2401/cvsroot/openmsx
-</div>
-<div class="commandline">
-CVS password:
-</div>
-<div class="commandline">
-jorrith@jardel openmsx $
+--username &lt;name-of-your-sourceforge-account&gt;
 </div>
 
 <p>
-Now you can retrieve the latest sources with the following command:
-</p>
-<div class="commandline">
-cvs -z3 -d:pserver:anonymous@openmsx.cvs.sourceforge.net:/cvsroot/openmsx checkout openMSX
-</div>
-<p>
-This will create a directory called <code>openMSX</code> for you
+The SVN command created a directory called <code>openMSX</code> for you
 in the current directory.
-This directory created by CVS is the called <em>top of the source tree</em>.
-In addition to the openMSX code, you will see CVS administration directories
-which are all called <code>CVS</code>.
-Do not mess with these, otherwise CVS will get confused.
+This directory created by SVN is what we will call in this manual <em>the top of the source tree</em>.
 </p>
 <p>
 If you want to update your source tree later,
 go to the top of the source tree and type:
 </p>
 <div class="commandline">
-cvs update -d
+svn up
 </div>
-<p>
-The <code>-d</code> option tells CVS to check out new directories that were
-created since your last checkout/update.
-</p>
 
-<h3><a id="getsnapshot">2.3 CVS Snapshot</a></h3>
+<h3><a id="getsnapshot">2.3 SVN Snapshot</a></h3>
 
 <p>
 First, download the
 <a class="external"
-href="http://openmsx.sourceforge.net/openMSX-CVS-snapshot.tar.gz"
->most recent CVS snapshot</a>.
+href="http://openmsx.sourceforge.net/temp/openmsx-SVN-snapshot.tar.gz"
+>most recent SVN snapshot</a>.
 </p>
 
 <p>
 After downloading, type:
 </p>
-<div class="commandline">tar xzvf openMSX-CVS-snapshot.tar.gz</div>
+<div class="commandline">tar xzvf openmsx-SVN-snapshot.tar.gz</div>
 <p>
 The directory that is created by uncompressing the <code>tar.gz</code> file
-is called the <em>top of the source tree</em>.
+is called <em>the top of the source tree</em>.
 </p>
 
 <h2><a id="compile">3. Compilation</a></h2>
@@ -400,7 +378,7 @@ Version 3.2 or later is recommended;
 Install the Xcode Tools from Apple, which you can download from the
 <a class="external" href="http://connect.apple.com/">Apple Developer Connection</a>
 (free registration required).
-This package contains up-to-date versions of Make, GCC and CVS. If you are running Mac OS X 10.4 (Tiger), Xcode should be installable from the installation CD.
+This package contains up-to-date versions of Make, GCC and SVN. If you are running Mac OS X 10.4 (Tiger), Xcode should be installable from the installation CD.
 </p>
 
 <h3><a id="libs">3.2 Libraries</a></h3>
