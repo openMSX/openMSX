@@ -123,6 +123,24 @@ static EventPtr parseQuitEvent(
 	return EventPtr(new QuitEvent());
 }
 
+static EventPtr parsePlugEvent(
+		const string& str, const vector<string>& components)
+{
+	if (components.size() != 3) {
+		throw CommandException("Invalid plug event: " + str);
+	}
+	return EventPtr(new PlugEvent(components[1], components[2]));
+}
+
+static EventPtr parseUnplugEvent(
+		const string& str, const vector<string>& components)
+{
+	if (components.size() != 2) {
+		throw CommandException("Invalid unplug event: " + str);
+	}
+	return EventPtr(new UnplugEvent(components[1]));
+}
+
 EventPtr createInputEvent(const string& str)
 {
 	vector<string> components;
@@ -142,6 +160,10 @@ EventPtr createInputEvent(const string& str)
 		return parseResizeEvent(str, components);
 	} else if (components[0] == "quit") {
 		return parseQuitEvent(str, components);
+	} else if (components[0] == "plug") {
+		return parsePlugEvent(str, components);
+	} else if (components[0] == "unplug") {
+		return parseUnplugEvent(str, components);
 	} else {
 		// fall back
 		return parseKeyEvent(components[0]);

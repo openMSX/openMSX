@@ -22,6 +22,11 @@ enum EventType
 	OPENMSX_RESIZE_EVENT,
 	OPENMSX_QUIT_EVENT,
 
+	/** Send by (un)plug command. Is implemented with an event to make
+	  * it recordable. */
+	OPENMSX_PLUG_EVENT,
+	OPENMSX_UNPLUG_EVENT,
+
 	/** Sent when VDP (V99x8 or V9990) reaches the end of a frame */
 	OPENMSX_FINISH_FRAME_EVENT,
 

@@ -1,17 +1,20 @@
 // $Id$
 
+#include "PluggingController.hh"
 #include "Command.hh"
 #include "InfoTopic.hh"
 #include "Scheduler.hh"
-#include "PluggingController.hh"
 #include "Connector.hh"
 #include "Pluggable.hh"
 #include "PluggableFactory.hh"
-#include "openmsx.hh"
+#include "MSXEventDistributor.hh"
+#include "InputEvents.hh"
 #include "TclObject.hh"
 #include "CommandException.hh"
 #include "MSXMotherBoard.hh"
 #include "CliComm.hh"
+#include "openmsx.hh"
+#include "checked_cast.hh"
 #include <cassert>
 #include <iostream>
 
@@ -96,12 +99,15 @@ PluggingController::PluggingController(MSXMotherBoard& motherBoard)
 		motherBoard.getCommandController(), *this))
 	, cliComm(motherBoard.getCliComm())
 	, scheduler(motherBoard.getScheduler())
+	, msxEventDistributor(motherBoard.getMSXEventDistributor())
 {
 	PluggableFactory::createAll(*this, motherBoard);
+	msxEventDistributor.registerEventListener(*this);
 }
 
 PluggingController::~PluggingController()
 {
+	msxEventDistributor.unregisterEventListener(*this);
 	for (Pluggables::iterator it = pluggables.begin();
 	     it != pluggables.end(); ++it) {
 		delete *it;
@@ -147,6 +153,58 @@ void PluggingController::unregisterPluggable(Pluggable* pluggable)
 	}
 }
 
+void PluggingController::signalEvent(
+	shared_ptr<const Event> event, const EmuTime& time)
+{
+	switch (event->getType()) {
+	case OPENMSX_PLUG_EVENT: {
+		const PlugEvent* plugEvent =
+			checked_cast<const PlugEvent*>(event.get());
+		const std::string& connectorName = plugEvent->getConnector();
+		Connector* connector = getConnector(connectorName);
+		if (connector == NULL) {
+			throw CommandException("plug: " + connectorName +
+			                       ": no such connector");
+		}
+		const std::string& pluggableName = plugEvent->getPluggable();
+		Pluggable* pluggable = getPluggable(pluggableName);
+		if (pluggable == NULL) {
+			throw CommandException("plug: " + pluggableName +
+			                       ": no such pluggable");
+		}
+		if (connector->getClass() != pluggable->getClass()) {
+			throw CommandException("plug: " + pluggableName +
+			                   " doesn't fit in " + connectorName);
+		}
+		connector->unplug(time);
+		try {
+			connector->plug(*pluggable, time);
+			cliComm.update(CliComm::PLUG, connectorName, pluggableName);
+		} catch (PlugException& e) {
+			throw CommandException("plug: plug failed: " + e.getMessage());
+		}
+		break;
+	}
+	case OPENMSX_UNPLUG_EVENT: {
+		const PlugEvent* plugEvent =
+			checked_cast<const PlugEvent*>(event.get());
+		const std::string& connectorName = plugEvent->getConnector();
+		Connector* connector = getConnector(connectorName);
+		if (connector == NULL) {
+			throw CommandException("No such connector: " +
+			                       connectorName);
+		}
+		connector->unplug(time);
+		cliComm.update(CliComm::UNPLUG, connectorName, "");
+		break;
+	}
+	default:
+		// nothing
+		break;
+	}
+}
+
+
 // === Commands ===
 //  plug command
 
@@ -160,7 +218,6 @@ PlugCmd::PlugCmd(CommandController& commandController,
 string PlugCmd::execute(const vector<string>& tokens)
 {
 	string result;
-	const EmuTime& time = pluggingController.scheduler.getCurrentTime();
 	switch (tokens.size()) {
 	case 1: {
 		for (PluggingController::Connectors::const_iterator it =
@@ -182,26 +239,11 @@ string PlugCmd::execute(const vector<string>& tokens)
 		break;
 	}
 	case 3: {
-		Connector *connector = pluggingController.getConnector(tokens[1]);
-		if (connector == NULL) {
-			throw CommandException("plug: " + tokens[1] + ": no such connector");
-		}
-		Pluggable *pluggable = pluggingController.getPluggable(tokens[2]);
-		if (pluggable == NULL) {
-			throw CommandException("plug: " + tokens[2] + ": no such pluggable");
-		}
-		if (connector->getClass() != pluggable->getClass()) {
-			throw CommandException("plug: " + tokens[2] +
-			                       " doesn't fit in " + tokens[1]);
-		}
-		connector->unplug(time);
-		try {
-			connector->plug(*pluggable, time);
-			pluggingController.cliComm.update(
-				CliComm::PLUG, tokens[1], tokens[2]);
-		} catch (PlugException &e) {
-			throw CommandException("plug: plug failed: " + e.getMessage());
-		}
+		// note: might throw CommandException
+		pluggingController.msxEventDistributor.distributeEvent(
+			MSXEventDistributor::EventPtr(
+				new PlugEvent(tokens[1], tokens[2])),
+			pluggingController.scheduler.getCurrentTime());
 		break;
 	}
 	default:
@@ -259,13 +301,10 @@ string UnplugCmd::execute(const vector<string>& tokens)
 	if (tokens.size() != 2) {
 		throw SyntaxError();
 	}
-	Connector *connector = pluggingController.getConnector(tokens[1]);
-	if (connector == NULL) {
-		throw CommandException("No such connector");
-	}
-	const EmuTime &time = pluggingController.scheduler.getCurrentTime();
-	connector->unplug(time);
-	pluggingController.cliComm.update(CliComm::UNPLUG, tokens[1], "");
+	// note: might throw CommandException
+	pluggingController.msxEventDistributor.distributeEvent(
+		MSXEventDistributor::EventPtr(new UnplugEvent(tokens[1])),
+		pluggingController.scheduler.getCurrentTime());
 	return "";
 }
 

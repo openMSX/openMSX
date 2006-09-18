@@ -3,6 +3,7 @@
 #ifndef PLUGGINGCONTROLLER_HH
 #define PLUGGINGCONTROLLER_HH
 
+#include "MSXEventListener.hh"
 #include <vector>
 #include <memory>
 
@@ -13,6 +14,7 @@ class Connector;
 class Pluggable;
 class CliComm;
 class Scheduler;
+class MSXEventDistributor;
 class CommandController;
 class PlugCmd;
 class UnplugCmd;
@@ -23,7 +25,7 @@ class ConnectionClassInfo;
 /**
  * Central administration of Connectors and Pluggables.
  */
-class PluggingController
+class PluggingController : private MSXEventListener
 {
 public:
 	explicit PluggingController(MSXMotherBoard& motherBoard);
@@ -51,6 +53,10 @@ private:
 	Connector* getConnector(const std::string& name);
 	Pluggable* getPluggable(const std::string& name);
 
+	// MSXEventListener
+	virtual void signalEvent(shared_ptr<const Event> event,
+	                         const EmuTime& time);
+
 	typedef std::vector<Connector*> Connectors;
 	Connectors connectors;
 	typedef std::vector<Pluggable*> Pluggables;
@@ -69,6 +75,7 @@ private:
 
 	CliComm& cliComm;
 	Scheduler& scheduler;
+	MSXEventDistributor& msxEventDistributor;
 };
 
 } // namespace openmsx

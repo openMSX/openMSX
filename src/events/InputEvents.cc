@@ -357,6 +357,66 @@ bool QuitEvent::lessImpl(const InputEvent& /*other*/) const
 }
 
 
+// class PlugEvent
+
+PlugEvent::PlugEvent(const string& connector_, const string& pluggable_)
+	: InputEvent(OPENMSX_PLUG_EVENT)
+	, connector(connector_)
+	, pluggable(pluggable_)
+{
+}
+
+const std::string& PlugEvent::getConnector() const
+{
+	return connector;
+}
+
+const std::string& PlugEvent::getPluggable() const
+{
+	return pluggable;
+}
+
+std::string PlugEvent::toString() const
+{
+	return "plug:" + getConnector() + ':' + getPluggable();
+}
+
+bool PlugEvent::lessImpl(const InputEvent& other) const
+{
+	const PlugEvent* otherPlugEvent =
+		checked_cast<const PlugEvent*>(&other);
+	return (getConnector() != otherPlugEvent->getConnector())
+	     ? (getConnector() <  otherPlugEvent->getConnector())
+	     : (getPluggable() <  otherPlugEvent->getPluggable());
+}
+
+
+// class PlugEvent
+
+UnplugEvent::UnplugEvent(const string& connector_)
+	: InputEvent(OPENMSX_UNPLUG_EVENT)
+	, connector(connector_)
+{
+}
+
+const std::string& UnplugEvent::getConnector() const
+{
+	return connector;
+}
+
+std::string UnplugEvent::toString() const
+{
+	return "unplug:" + getConnector();
+}
+
+bool UnplugEvent::lessImpl(const InputEvent& other) const
+{
+	const UnplugEvent* otherUnplugEvent =
+		checked_cast<const UnplugEvent*>(&other);
+	return getConnector() < otherUnplugEvent->getConnector();
+}
+
+
 // class ConsoleEvent
 
 ConsoleEvent::ConsoleEvent(EventType type)

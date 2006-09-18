@@ -1,6 +1,10 @@
 $Id$
 
 2006-09-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Use events for (un)plug command:
+	   makes (un)plug recordable
+
+2006-09-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added 'extensions' and 'machines' info topics
 	* Extended these two info topics to also return the meta info when a
 	  specific extension/machine is given as 3th argument

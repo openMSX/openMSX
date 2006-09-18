@@ -65,7 +65,11 @@ void EventDelay::sync(const EmuTime& emuTime)
 
 void EventDelay::executeUntil(const EmuTime& time, int /*userData*/)
 {
-	eventDistributor.distributeEvent(scheduledEvents.front(), time);
+	try {
+		eventDistributor.distributeEvent(scheduledEvents.front(), time);
+	} catch (MSXException& e) {
+		// ignore
+	}
 	scheduledEvents.pop_front();
 }
 

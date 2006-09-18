@@ -52,7 +52,11 @@ void MSXEventReplayer::executeUntil(const EmuTime& time, int /*userData*/)
 	try {
 	        InputEventFactory::EventPtr eventPtr = 
 			InputEventFactory::createInputEvent(eventString);
-		eventDistributor.distributeEvent(eventPtr, time);
+		try {
+			eventDistributor.distributeEvent(eventPtr, time);
+		} catch (MSXException& e) {
+			// ignore
+		}
 	} catch (CommandException& e) {
 		std::cerr << "Ignoring unknown event " << eventString
 		          << ", error was: " << e.getMessage() << std::endl;

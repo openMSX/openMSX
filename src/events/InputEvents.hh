@@ -202,6 +202,32 @@ private:
 };
 
 
+class PlugEvent : public InputEvent
+{
+public:
+	PlugEvent(const std::string& connector, const std::string& pluggable);
+	const std::string& getConnector() const;
+	const std::string& getPluggable() const;
+	virtual std::string toString() const;
+private:
+	virtual bool lessImpl(const InputEvent& other) const;
+	const std::string connector;
+	const std::string pluggable;
+};
+
+
+class UnplugEvent : public InputEvent
+{
+public:
+	UnplugEvent(const std::string& connector);
+	const std::string& getConnector() const;
+	virtual std::string toString() const;
+private:
+	virtual bool lessImpl(const InputEvent& other) const;
+	const std::string connector;
+};
+
+
 /**
  * Used for console on/off events.
  * These events tell a lower layer (the MSX keyboard) that key down/up events
