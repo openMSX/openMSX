@@ -27,6 +27,11 @@ enum EventType
 	OPENMSX_PLUG_EVENT,
 	OPENMSX_UNPLUG_EVENT,
 
+	/** Send by the various media change commands (diska,
+	 *  cassetteplayer, ..). Is Implemented as an event to make it
+	 *  recordable. */
+	OPENMSX_MEDIA_CHANGE_EVENT,
+
 	/** Sent when VDP (V99x8 or V9990) reaches the end of a frame */
 	OPENMSX_FINISH_FRAME_EVENT,
 

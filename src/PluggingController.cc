@@ -186,9 +186,9 @@ void PluggingController::signalEvent(
 		break;
 	}
 	case OPENMSX_UNPLUG_EVENT: {
-		const PlugEvent* plugEvent =
-			checked_cast<const PlugEvent*>(event.get());
-		const std::string& connectorName = plugEvent->getConnector();
+		const UnplugEvent* unplugEvent =
+			checked_cast<const UnplugEvent*>(event.get());
+		const std::string& connectorName = unplugEvent->getConnector();
 		Connector* connector = getConnector(connectorName);
 		if (connector == NULL) {
 			throw CommandException("No such connector: " +

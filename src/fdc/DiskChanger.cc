@@ -8,6 +8,9 @@
 #include "DSKDiskImage.hh"
 #include "CommandController.hh"
 #include "Command.hh"
+#include "MSXEventDistributor.hh"
+#include "InputEvents.hh"
+#include "Scheduler.hh"
 #include "FileManipulator.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
@@ -15,6 +18,8 @@
 #include "CliComm.hh"
 #include "GlobalSettings.hh"
 #include "TclObject.hh"
+#include "EmuTime.hh"
+#include "checked_cast.hh"
 
 using std::set;
 using std::string;
@@ -37,18 +42,29 @@ private:
 
 DiskChanger::DiskChanger(const string& driveName_,
                          CommandController& commandController,
-                         FileManipulator& manipulator_)
-	: driveName(driveName_), manipulator(manipulator_)
+                         FileManipulator& manipulator_,
+                         MSXEventDistributor* msxEventDistributor_,
+                         Scheduler* scheduler_)
+	: driveName(driveName_)
+	, manipulator(manipulator_)
 	, diskCommand(new DiskCommand(commandController, *this))
 	, cliComm(commandController.getCliComm())
 	, globalSettings(commandController.getGlobalSettings())
+	, msxEventDistributor(msxEventDistributor_)
+	, scheduler(scheduler_)
 {
 	ejectDisk();
 	manipulator.registerDrive(*this, driveName);
+	if (msxEventDistributor) {
+		msxEventDistributor->registerEventListener(*this);
+	}
 }
 
 DiskChanger::~DiskChanger()
 {
+	if (msxEventDistributor) {
+		msxEventDistributor->unregisterEventListener(*this);
+	}
 	manipulator.unregisterDrive(*this, driveName);
 }
 
@@ -84,10 +100,46 @@ SectorAccessibleDisk* DiskChanger::getSectorAccessibleDisk()
 	return dynamic_cast<SectorAccessibleDisk*>(disk.get());
 }
 
-void DiskChanger::insertDisk(const string& diskImage,
-                             const vector<string>& patches)
+void DiskChanger::sendChangeDiskEvent(const vector<string>& args)
+{
+	// note: might throw MSXException
+	MSXEventDistributor::EventPtr event(
+		new MediaChangeEvent(getDriveName(), args));
+	if (msxEventDistributor) {
+		msxEventDistributor->distributeEvent(
+			event, scheduler->getCurrentTime());
+	} else {
+		signalEvent(event, EmuTime::zero);
+	}
+}
+
+void DiskChanger::signalEvent(
+	shared_ptr<const Event> event, const EmuTime& /*time*/)
+{
+	switch (event->getType()) {
+	case OPENMSX_MEDIA_CHANGE_EVENT: {
+		const MediaChangeEvent* mediaChangeEvent =
+			checked_cast<const MediaChangeEvent*>(event.get());
+		if (mediaChangeEvent->getMedia() == getDriveName()) {
+			const vector<string>& args = mediaChangeEvent->getArgs();
+			if (args.empty()) {
+				ejectDisk();
+			} else {
+				insertDisk(args);
+			}
+		}
+		break;
+	}
+	default:
+		// nothing
+		break;
+	}
+}
+
+void DiskChanger::insertDisk(const vector<string>& args)
 {
 	std::auto_ptr<Disk> newDisk;
+	const string& diskImage = args[0];
 	if (diskImage == "-ramdsk") {
 		newDisk.reset(new RamDSKDiskImage());
 	} else {
@@ -109,9 +161,8 @@ void DiskChanger::insertDisk(const string& diskImage,
 			}
 		}
 	}
-	for (vector<string>::const_iterator it = patches.begin();
-	     it != patches.end(); ++it) {
-		disk->applyPatch(*it);
+	for (unsigned i = 1; i < args.size(); ++i) {
+		disk->applyPatch(args[i]);
 	}
 
 	// no errors, only now replace original disk
@@ -163,24 +214,26 @@ void DiskCommand::execute(const vector<TclObject*>& tokens, TclObject& result)
 		}
 
 	} else if (tokens[1]->getString() == "-ramdsk") {
-		vector<string> nopatchfiles;
-		diskChanger.insertDisk(tokens[1]->getString(), nopatchfiles);
+		vector<string> args;
+		args.push_back(tokens[1]->getString());
+		diskChanger.sendChangeDiskEvent(args);
 	} else if (tokens[1]->getString() == "-eject") {
-		diskChanger.ejectDisk();
+		vector<string> args;
+		diskChanger.sendChangeDiskEvent(args);
 	} else if (tokens[1]->getString() == "eject") {
-		diskChanger.ejectDisk();
+		vector<string> args;
+		diskChanger.sendChangeDiskEvent(args);
 		result.setString(
 			"Warning: use of 'eject' is deprecated, instead use '-eject'");
 	} else {
 		try {
 			UserFileContext context(getCommandController());
-			vector<string> patches;
-			for (unsigned i = 2; i < tokens.size(); ++i) {
-				patches.push_back(context.resolve(
+			vector<string> args;
+			for (unsigned i = 1; i < tokens.size(); ++i) {
+				args.push_back(context.resolve(
 					tokens[i]->getString()));
 			}
-			diskChanger.insertDisk(
-				context.resolve(tokens[1]->getString()), patches);
+			diskChanger.sendChangeDiskEvent(args);
 		} catch (FileException& e) {
 			throw CommandException(e.getMessage());
 		}

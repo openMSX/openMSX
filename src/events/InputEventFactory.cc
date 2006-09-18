@@ -141,6 +141,16 @@ static EventPtr parseUnplugEvent(
 	return EventPtr(new UnplugEvent(components[1]));
 }
 
+static EventPtr parseMediaEvent(
+		const string& str, const vector<string>& components)
+{
+	if (components.size() < 2) {
+		throw CommandException("Invalid media event: " + str);
+	}
+	vector<string> args(components.begin() + 2, components.end());
+	return EventPtr(new MediaChangeEvent(components[1], args));
+}
+
 EventPtr createInputEvent(const string& str)
 {
 	vector<string> components;
@@ -164,6 +174,8 @@ EventPtr createInputEvent(const string& str)
 		return parsePlugEvent(str, components);
 	} else if (components[0] == "unplug") {
 		return parseUnplugEvent(str, components);
+	} else if (components[0] == "media") {
+		return parseMediaEvent(str, components);
 	} else {
 		// fall back
 		return parseKeyEvent(components[0]);

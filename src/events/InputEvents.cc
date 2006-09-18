@@ -8,6 +8,7 @@
 #include <cassert>
 
 using std::string;
+using std::vector;
 
 namespace openmsx {
 
@@ -391,7 +392,7 @@ bool PlugEvent::lessImpl(const InputEvent& other) const
 }
 
 
-// class PlugEvent
+// class UnplugEvent
 
 UnplugEvent::UnplugEvent(const string& connector_)
 	: InputEvent(OPENMSX_UNPLUG_EVENT)
@@ -414,6 +415,46 @@ bool UnplugEvent::lessImpl(const InputEvent& other) const
 	const UnplugEvent* otherUnplugEvent =
 		checked_cast<const UnplugEvent*>(&other);
 	return getConnector() < otherUnplugEvent->getConnector();
+}
+
+
+// class MediaChangeEvent
+
+MediaChangeEvent::MediaChangeEvent(
+		const string& media_, const vector<string>& args_)
+	: InputEvent(OPENMSX_MEDIA_CHANGE_EVENT)
+	, media(media_), args(args_)
+{
+}
+
+const string& MediaChangeEvent::getMedia() const
+{
+	return media;
+}
+
+const vector<string>& MediaChangeEvent::getArgs() const
+{
+	return args;
+}
+
+string MediaChangeEvent::toString() const
+{
+	// TODO use TCL list format
+	string result = "media:" + getMedia();
+	for (vector<string>::const_iterator it = args.begin();
+	     it != args.end(); ++it) {
+		result += ':' + *it;
+	}
+	return result;
+}
+
+bool MediaChangeEvent::lessImpl(const InputEvent& other) const
+{
+	const MediaChangeEvent* otherMediaChangeEvent =
+		checked_cast<const MediaChangeEvent*>(&other);
+	return (getMedia() != otherMediaChangeEvent->getMedia())
+	     ? (getMedia() <  otherMediaChangeEvent->getMedia())
+	     : (getArgs () <  otherMediaChangeEvent->getArgs ());
 }
 
 

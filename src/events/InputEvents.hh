@@ -7,6 +7,7 @@
 #include "Event.hh"
 #include "Keys.hh"
 #include <string>
+#include <vector>
 
 namespace openmsx {
 
@@ -225,6 +226,21 @@ public:
 private:
 	virtual bool lessImpl(const InputEvent& other) const;
 	const std::string connector;
+};
+
+
+class MediaChangeEvent : public InputEvent
+{
+public:
+	MediaChangeEvent(const std::string& media,
+	                 const std::vector<std::string>& args);
+	const std::string& getMedia() const;
+	const std::vector<std::string>& getArgs() const;
+	virtual std::string toString() const;
+private:
+	virtual bool lessImpl(const InputEvent& other) const;
+	const std::string media;
+	const std::vector<std::string> args;
 };
 
 

@@ -27,6 +27,7 @@ MSXFDC::MSXFDC(MSXMotherBoard& motherBoard, const XMLElement& config,
 			drives[i].reset(new SingleSidedDrive(
 				getMotherBoard().getCommandController(),
 				getMotherBoard().getEventDistributor(),
+				getMotherBoard().getMSXEventDistributor(),
 				getMotherBoard().getScheduler(),
 				getMotherBoard().getFileManipulator(),
 				time));
@@ -34,6 +35,7 @@ MSXFDC::MSXFDC(MSXMotherBoard& motherBoard, const XMLElement& config,
 			drives[i].reset(new DoubleSidedDrive(
 				getMotherBoard().getCommandController(),
 				getMotherBoard().getEventDistributor(),
+				getMotherBoard().getMSXEventDistributor(),
 				getMotherBoard().getScheduler(),
 				getMotherBoard().getFileManipulator(),
 				time));

@@ -12,6 +12,7 @@ namespace openmsx {
 class DiskChanger;
 class CommandController;
 class EventDistributor;
+class MSXEventDistributor;
 class Scheduler;
 class FileManipulator;
 class ThrottleManager;
@@ -174,6 +175,7 @@ public:
 
 	RealDrive(CommandController& commandController,
 	          EventDistributor& eventDistributor,
+	          MSXEventDistributor& msxEventDistributor,
 	          Scheduler& scheduler,
 	          FileManipulator& fileManipulator,
 	          const EmuTime& time);
@@ -232,6 +234,7 @@ class SingleSidedDrive : public RealDrive
 public:
 	SingleSidedDrive(CommandController& commandController,
 	                 EventDistributor& eventDistributor,
+	                 MSXEventDistributor& msxEventDistributor,
 	                 Scheduler& scheduler,
 	                 FileManipulator& fileManipulator,
 	                 const EmuTime& time);
@@ -258,6 +261,7 @@ class DoubleSidedDrive : public RealDrive
 public:
 	DoubleSidedDrive(CommandController& commandController,
 	                 EventDistributor& eventDistributor,
+	                 MSXEventDistributor& msxEventDistributor,
 	                 Scheduler& scheduler,
 	                 FileManipulator& fileManipulator,
 	                 const EmuTime& time);

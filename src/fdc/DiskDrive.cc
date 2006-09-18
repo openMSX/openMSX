@@ -146,6 +146,7 @@ static std::bitset<RealDrive::MAX_DRIVES> drivesInUse;
 
 RealDrive::RealDrive(CommandController& commandController,
                      EventDistributor& eventDistributor_,
+                     MSXEventDistributor& msxEventDistributor,
                      Scheduler& scheduler,
                      FileManipulator& fileManipulator, const EmuTime& time)
 	: Schedulable(scheduler)
@@ -173,8 +174,8 @@ RealDrive::RealDrive(CommandController& commandController,
 		CliComm::HARDWARE, driveName, "add"
 		);
 	changer.reset(new DiskChanger(
-		driveName, commandController, fileManipulator
-		));
+		driveName, commandController, fileManipulator,
+		&msxEventDistributor, &scheduler));
 }
 
 RealDrive::~RealDrive()
@@ -358,11 +359,12 @@ void RealDrive::resetTimeOut(const EmuTime& time)
 SingleSidedDrive::SingleSidedDrive(
 		CommandController& commandController,
 		EventDistributor& eventDistributor,
+		MSXEventDistributor& msxEventDistributor,
 		Scheduler& scheduler,
 		FileManipulator& fileManipulator,
 		const EmuTime& time)
-	: RealDrive(commandController, eventDistributor, scheduler,
-	            fileManipulator, time)
+	: RealDrive(commandController, eventDistributor,
+	            msxEventDistributor, scheduler, fileManipulator, time)
 {
 }
 
@@ -424,11 +426,12 @@ void SingleSidedDrive::writeTrackData(byte data)
 DoubleSidedDrive::DoubleSidedDrive(
 		CommandController& commandController,
 		EventDistributor& eventDistributor,
+		MSXEventDistributor& msxEventDistributor,
 		Scheduler& scheduler,
 		FileManipulator& fileManipulator,
 		const EmuTime& time)
-	: RealDrive(commandController, eventDistributor, scheduler,
-	            fileManipulator, time)
+	: RealDrive(commandController, eventDistributor, msxEventDistributor,
+	            scheduler, fileManipulator, time)
 {
 	side = 0;
 }
