@@ -269,7 +269,7 @@ void HotKey::unbindDefault(EventPtr event)
 	defaultMap.erase(event);
 }
 
-bool HotKey::signalEvent(shared_ptr<const Event> event)
+bool HotKey::signalEvent(EventPtr event)
 {
 	BindMap::iterator it = cmdMap.find(event);
 	if (it == cmdMap.end()) {
