@@ -1,6 +1,10 @@
 $Id$
 
-2006-09-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2006-09-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Refactored (un)plug and media changed events to MSXCommandEvent
+	* Use MSXCommandEvent for cassetteplayer command
+
+2006-09-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Use events for (un)plug command:
 	   makes (un)plug recordable
 	* use events for disk changing:

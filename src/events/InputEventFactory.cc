@@ -123,32 +123,14 @@ static EventPtr parseQuitEvent(
 	return EventPtr(new QuitEvent());
 }
 
-static EventPtr parsePlugEvent(
-		const string& str, const vector<string>& components)
-{
-	if (components.size() != 3) {
-		throw CommandException("Invalid plug event: " + str);
-	}
-	return EventPtr(new PlugEvent(components[1], components[2]));
-}
-
-static EventPtr parseUnplugEvent(
-		const string& str, const vector<string>& components)
-{
-	if (components.size() != 2) {
-		throw CommandException("Invalid unplug event: " + str);
-	}
-	return EventPtr(new UnplugEvent(components[1]));
-}
-
-static EventPtr parseMediaEvent(
+static EventPtr parseCommandEvent(
 		const string& str, const vector<string>& components)
 {
 	if (components.size() < 2) {
-		throw CommandException("Invalid media event: " + str);
+		throw CommandException("Invalid command event: " + str);
 	}
-	vector<string> args(components.begin() + 2, components.end());
-	return EventPtr(new MediaChangeEvent(components[1], args));
+	vector<string> tokens(components.begin() + 1, components.end());
+	return EventPtr(new MSXCommandEvent(tokens));
 }
 
 EventPtr createInputEvent(const string& str)
@@ -170,12 +152,8 @@ EventPtr createInputEvent(const string& str)
 		return parseResizeEvent(str, components);
 	} else if (components[0] == "quit") {
 		return parseQuitEvent(str, components);
-	} else if (components[0] == "plug") {
-		return parsePlugEvent(str, components);
-	} else if (components[0] == "unplug") {
-		return parseUnplugEvent(str, components);
-	} else if (components[0] == "media") {
-		return parseMediaEvent(str, components);
+	} else if (components[0] == "command") {
+		return parseCommandEvent(str, components);
 	} else {
 		// fall back
 		return parseKeyEvent(components[0]);

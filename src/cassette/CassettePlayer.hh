@@ -6,7 +6,10 @@
 #include "CommandLineParser.hh"
 #include "CassetteDevice.hh"
 #include "SoundDevice.hh"
+#include "MSXEventListener.hh"
 #include "EmuTime.hh"
+#include <string>
+#include <vector>
 #include <memory>
 
 namespace openmsx {
@@ -21,6 +24,7 @@ class ThrottleManager;
 class BooleanSetting;
 class TapeCommand;
 class CommandController;
+class MSXEventDistributor;
 
 class MSXCassettePlayerCLI : public CLIOption, public CLIFileType
 {
@@ -38,11 +42,13 @@ private:
 };
 
 
-class CassettePlayer : public CassetteDevice, public SoundDevice
+class CassettePlayer : public CassetteDevice, public SoundDevice,
+                       private MSXEventListener
 {
 public:
-	CassettePlayer(CommandController& commandController, Mixer& mixer,
-	               Scheduler& Scheduler);
+	CassettePlayer(CommandController& commandController,
+	               Mixer& mixer, Scheduler& Scheduler,
+	               MSXEventDistributor& msxEventDistributor);
 	virtual ~CassettePlayer();
 
 	void insertTape(const std::string& filename, const EmuTime& time);
@@ -79,6 +85,11 @@ private:
 	void reinitRecording(const EmuTime& time);
 	void stopRecording(const EmuTime& time);
 	void setMotorControl(bool status, const EmuTime& time);
+	void sendCommandEvent(const std::vector<std::string>& tokens);
+
+	// MSXEventListener
+	virtual void signalEvent(shared_ptr<const Event> event,
+	                         const EmuTime& time);
 
 	std::auto_ptr<CassetteImage> cassette;
 	bool motor, motorControl;
@@ -100,7 +111,10 @@ private:
 
 	CommandController& commandController;
 	Scheduler& scheduler;
+	MSXEventDistributor& msxEventDistributor;
+
 	const std::auto_ptr<TapeCommand> tapeCommand;
+	std::string commandResult;
 
 	// SoundDevice
 	int volume;

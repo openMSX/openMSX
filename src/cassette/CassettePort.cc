@@ -82,7 +82,8 @@ CassettePort::CassettePort(MSXMotherBoard& motherBoard)
 	cassettePlayer.reset(new CassettePlayer(
 		motherBoard.getCommandController(),
 		motherBoard.getMixer(),
-		motherBoard.getScheduler()));
+		motherBoard.getScheduler(),
+		motherBoard.getMSXEventDistributor()));
 	pluggingController.registerConnector(*this);
 	pluggingController.registerPluggable(cassettePlayer.get());
 #ifdef COMPONENT_JACK

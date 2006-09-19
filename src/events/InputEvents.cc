@@ -358,103 +358,35 @@ bool QuitEvent::lessImpl(const InputEvent& /*other*/) const
 }
 
 
-// class PlugEvent
+// class MSXCommandEvent
 
-PlugEvent::PlugEvent(const string& connector_, const string& pluggable_)
-	: InputEvent(OPENMSX_PLUG_EVENT)
-	, connector(connector_)
-	, pluggable(pluggable_)
+MSXCommandEvent::MSXCommandEvent(const vector<string>& tokens_)
+	: InputEvent(OPENMSX_MSX_COMMAND_EVENT)
+	, tokens(tokens_)
 {
 }
 
-const std::string& PlugEvent::getConnector() const
+const vector<string>& MSXCommandEvent::getTokens() const
 {
-	return connector;
+	return tokens;
 }
 
-const std::string& PlugEvent::getPluggable() const
-{
-	return pluggable;
-}
-
-std::string PlugEvent::toString() const
-{
-	return "plug:" + getConnector() + ':' + getPluggable();
-}
-
-bool PlugEvent::lessImpl(const InputEvent& other) const
-{
-	const PlugEvent* otherPlugEvent =
-		checked_cast<const PlugEvent*>(&other);
-	return (getConnector() != otherPlugEvent->getConnector())
-	     ? (getConnector() <  otherPlugEvent->getConnector())
-	     : (getPluggable() <  otherPlugEvent->getPluggable());
-}
-
-
-// class UnplugEvent
-
-UnplugEvent::UnplugEvent(const string& connector_)
-	: InputEvent(OPENMSX_UNPLUG_EVENT)
-	, connector(connector_)
-{
-}
-
-const std::string& UnplugEvent::getConnector() const
-{
-	return connector;
-}
-
-std::string UnplugEvent::toString() const
-{
-	return "unplug:" + getConnector();
-}
-
-bool UnplugEvent::lessImpl(const InputEvent& other) const
-{
-	const UnplugEvent* otherUnplugEvent =
-		checked_cast<const UnplugEvent*>(&other);
-	return getConnector() < otherUnplugEvent->getConnector();
-}
-
-
-// class MediaChangeEvent
-
-MediaChangeEvent::MediaChangeEvent(
-		const string& media_, const vector<string>& args_)
-	: InputEvent(OPENMSX_MEDIA_CHANGE_EVENT)
-	, media(media_), args(args_)
-{
-}
-
-const string& MediaChangeEvent::getMedia() const
-{
-	return media;
-}
-
-const vector<string>& MediaChangeEvent::getArgs() const
-{
-	return args;
-}
-
-string MediaChangeEvent::toString() const
+string MSXCommandEvent::toString() const
 {
 	// TODO use TCL list format
-	string result = "media:" + getMedia();
-	for (vector<string>::const_iterator it = args.begin();
-	     it != args.end(); ++it) {
+	string result = "command:";
+	for (vector<string>::const_iterator it = tokens.begin();
+	     it != tokens.end(); ++it) {
 		result += ':' + *it;
 	}
 	return result;
 }
 
-bool MediaChangeEvent::lessImpl(const InputEvent& other) const
+bool MSXCommandEvent::lessImpl(const InputEvent& other) const
 {
-	const MediaChangeEvent* otherMediaChangeEvent =
-		checked_cast<const MediaChangeEvent*>(&other);
-	return (getMedia() != otherMediaChangeEvent->getMedia())
-	     ? (getMedia() <  otherMediaChangeEvent->getMedia())
-	     : (getArgs () <  otherMediaChangeEvent->getArgs ());
+	const MSXCommandEvent* otherCommandEvent =
+		checked_cast<const MSXCommandEvent*>(&other);
+	return getTokens() < otherCommandEvent->getTokens();
 }
 
 

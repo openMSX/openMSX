@@ -156,51 +156,41 @@ void PluggingController::unregisterPluggable(Pluggable* pluggable)
 void PluggingController::signalEvent(
 	shared_ptr<const Event> event, const EmuTime& time)
 {
-	switch (event->getType()) {
-	case OPENMSX_PLUG_EVENT: {
-		const PlugEvent* plugEvent =
-			checked_cast<const PlugEvent*>(event.get());
-		const std::string& connectorName = plugEvent->getConnector();
-		Connector* connector = getConnector(connectorName);
+	if (event->getType() != OPENMSX_MSX_COMMAND_EVENT) return;
+
+	const MSXCommandEvent* commandEvent =
+		checked_cast<const MSXCommandEvent*>(event.get());
+	const vector<string>& tokens = commandEvent->getTokens();
+	if ((tokens[0] == "plug") && (tokens.size() == 3)) {
+		Connector* connector = getConnector(tokens[1]);
 		if (connector == NULL) {
-			throw CommandException("plug: " + connectorName +
-			                       ": no such connector");
+			throw CommandException("plug: " + tokens[1] +
+					       ": no such connector");
 		}
-		const std::string& pluggableName = plugEvent->getPluggable();
-		Pluggable* pluggable = getPluggable(pluggableName);
+		Pluggable* pluggable = getPluggable(tokens[2]);
 		if (pluggable == NULL) {
-			throw CommandException("plug: " + pluggableName +
-			                       ": no such pluggable");
+			throw CommandException("plug: " + tokens[2] +
+					       ": no such pluggable");
 		}
 		if (connector->getClass() != pluggable->getClass()) {
-			throw CommandException("plug: " + pluggableName +
-			                   " doesn't fit in " + connectorName);
+			throw CommandException("plug: " + tokens[2] +
+					   " doesn't fit in " + tokens[1]);
 		}
 		connector->unplug(time);
 		try {
 			connector->plug(*pluggable, time);
-			cliComm.update(CliComm::PLUG, connectorName, pluggableName);
+			cliComm.update(CliComm::PLUG, tokens[1], tokens[2]);
 		} catch (PlugException& e) {
 			throw CommandException("plug: plug failed: " + e.getMessage());
 		}
-		break;
-	}
-	case OPENMSX_UNPLUG_EVENT: {
-		const UnplugEvent* unplugEvent =
-			checked_cast<const UnplugEvent*>(event.get());
-		const std::string& connectorName = unplugEvent->getConnector();
-		Connector* connector = getConnector(connectorName);
+	} else if ((tokens[0] == "unplug") && (tokens.size() == 2)) {
+		Connector* connector = getConnector(tokens[1]);
 		if (connector == NULL) {
 			throw CommandException("No such connector: " +
-			                       connectorName);
+					       tokens[1]);
 		}
 		connector->unplug(time);
-		cliComm.update(CliComm::UNPLUG, connectorName, "");
-		break;
-	}
-	default:
-		// nothing
-		break;
+		cliComm.update(CliComm::UNPLUG, tokens[1], "");
 	}
 }
 
@@ -242,7 +232,7 @@ string PlugCmd::execute(const vector<string>& tokens)
 		// note: might throw CommandException
 		pluggingController.msxEventDistributor.distributeEvent(
 			MSXEventDistributor::EventPtr(
-				new PlugEvent(tokens[1], tokens[2])),
+				new MSXCommandEvent(tokens)),
 			pluggingController.scheduler.getCurrentTime());
 		break;
 	}
@@ -303,7 +293,7 @@ string UnplugCmd::execute(const vector<string>& tokens)
 	}
 	// note: might throw CommandException
 	pluggingController.msxEventDistributor.distributeEvent(
-		MSXEventDistributor::EventPtr(new UnplugEvent(tokens[1])),
+		MSXEventDistributor::EventPtr(new MSXCommandEvent(tokens)),
 		pluggingController.scheduler.getCurrentTime());
 	return "";
 }

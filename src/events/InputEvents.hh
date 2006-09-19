@@ -203,44 +203,19 @@ private:
 };
 
 
-class PlugEvent : public InputEvent
+/** This class is used to for TCL commands that directly influence the MSX
+  * state (e.g. plug, disk<x>, cassetteplayer, reset). It's passed via an
+  * event because the recording needs to see these.
+  */
+class MSXCommandEvent : public InputEvent
 {
 public:
-	PlugEvent(const std::string& connector, const std::string& pluggable);
-	const std::string& getConnector() const;
-	const std::string& getPluggable() const;
+	MSXCommandEvent(const std::vector<std::string>& tokens);
+	const std::vector<std::string>& getTokens() const;
 	virtual std::string toString() const;
 private:
 	virtual bool lessImpl(const InputEvent& other) const;
-	const std::string connector;
-	const std::string pluggable;
-};
-
-
-class UnplugEvent : public InputEvent
-{
-public:
-	UnplugEvent(const std::string& connector);
-	const std::string& getConnector() const;
-	virtual std::string toString() const;
-private:
-	virtual bool lessImpl(const InputEvent& other) const;
-	const std::string connector;
-};
-
-
-class MediaChangeEvent : public InputEvent
-{
-public:
-	MediaChangeEvent(const std::string& media,
-	                 const std::vector<std::string>& args);
-	const std::string& getMedia() const;
-	const std::vector<std::string>& getArgs() const;
-	virtual std::string toString() const;
-private:
-	virtual bool lessImpl(const InputEvent& other) const;
-	const std::string media;
-	const std::vector<std::string> args;
+	const std::vector<std::string> tokens;
 };
 
 

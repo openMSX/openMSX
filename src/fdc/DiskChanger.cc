@@ -103,8 +103,7 @@ SectorAccessibleDisk* DiskChanger::getSectorAccessibleDisk()
 void DiskChanger::sendChangeDiskEvent(const vector<string>& args)
 {
 	// note: might throw MSXException
-	MSXEventDistributor::EventPtr event(
-		new MediaChangeEvent(getDriveName(), args));
+	MSXEventDistributor::EventPtr event(new MSXCommandEvent(args));
 	if (msxEventDistributor) {
 		msxEventDistributor->distributeEvent(
 			event, scheduler->getCurrentTime());
@@ -116,30 +115,24 @@ void DiskChanger::sendChangeDiskEvent(const vector<string>& args)
 void DiskChanger::signalEvent(
 	shared_ptr<const Event> event, const EmuTime& /*time*/)
 {
-	switch (event->getType()) {
-	case OPENMSX_MEDIA_CHANGE_EVENT: {
-		const MediaChangeEvent* mediaChangeEvent =
-			checked_cast<const MediaChangeEvent*>(event.get());
-		if (mediaChangeEvent->getMedia() == getDriveName()) {
-			const vector<string>& args = mediaChangeEvent->getArgs();
-			if (args.empty()) {
-				ejectDisk();
-			} else {
-				insertDisk(args);
-			}
+	if (event->getType() != OPENMSX_MSX_COMMAND_EVENT) return;
+
+	const MSXCommandEvent* commandEvent =
+		checked_cast<const MSXCommandEvent*>(event.get());
+	const vector<string>& tokens = commandEvent->getTokens();
+	if ((tokens[0] == getDriveName()) && (tokens.size() >= 2)) {
+		if (tokens[1] == "-eject") {
+			ejectDisk();
+		} else {
+			insertDisk(tokens);
 		}
-		break;
-	}
-	default:
-		// nothing
-		break;
 	}
 }
 
 void DiskChanger::insertDisk(const vector<string>& args)
 {
 	std::auto_ptr<Disk> newDisk;
-	const string& diskImage = args[0];
+	const string& diskImage = args[1];
 	if (diskImage == "-ramdsk") {
 		newDisk.reset(new RamDSKDiskImage());
 	} else {
@@ -161,7 +154,7 @@ void DiskChanger::insertDisk(const vector<string>& args)
 			}
 		}
 	}
-	for (unsigned i = 1; i < args.size(); ++i) {
+	for (unsigned i = 2; i < args.size(); ++i) {
 		disk->applyPatch(args[i]);
 	}
 
@@ -194,9 +187,8 @@ DiskCommand::DiskCommand(CommandController& commandController,
 void DiskCommand::execute(const vector<TclObject*>& tokens, TclObject& result)
 {
 	if (tokens.size() == 1) {
-		const string& diskName = diskChanger.getDiskName();
 		result.addListElement(diskChanger.getDriveName() + ':');
-		result.addListElement(diskName);
+		result.addListElement(diskChanger.getDiskName());
 
 		TclObject options(result.getInterpreter());
 		if (dynamic_cast<DummyDisk*>(diskChanger.disk.get())) {
@@ -215,13 +207,18 @@ void DiskCommand::execute(const vector<TclObject*>& tokens, TclObject& result)
 
 	} else if (tokens[1]->getString() == "-ramdsk") {
 		vector<string> args;
+		args.push_back(diskChanger.getDriveName());
 		args.push_back(tokens[1]->getString());
 		diskChanger.sendChangeDiskEvent(args);
 	} else if (tokens[1]->getString() == "-eject") {
 		vector<string> args;
+		args.push_back(diskChanger.getDriveName());
+		args.push_back("-eject");
 		diskChanger.sendChangeDiskEvent(args);
 	} else if (tokens[1]->getString() == "eject") {
 		vector<string> args;
+		args.push_back(diskChanger.getDriveName());
+		args.push_back("-eject");
 		diskChanger.sendChangeDiskEvent(args);
 		result.setString(
 			"Warning: use of 'eject' is deprecated, instead use '-eject'");
@@ -229,6 +226,7 @@ void DiskCommand::execute(const vector<TclObject*>& tokens, TclObject& result)
 		try {
 			UserFileContext context(getCommandController());
 			vector<string> args;
+			args.push_back(diskChanger.getDriveName());
 			for (unsigned i = 1; i < tokens.size(); ++i) {
 				args.push_back(context.resolve(
 					tokens[i]->getString()));
