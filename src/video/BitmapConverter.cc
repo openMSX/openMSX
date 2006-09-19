@@ -75,14 +75,14 @@ void BitmapConverter<Pixel>::renderYJK(
 		p[2] = *vramPtr0++;
 		p[3] = *vramPtr1++;
 
-		char j = (p[2] & 7) + ((p[3] & 3) << 3) - ((p[3] & 4) << 3);
-		char k = (p[0] & 7) + ((p[1] & 3) << 3) - ((p[1] & 4) << 3);
+		int j = (p[2] & 7) + ((p[3] & 3) << 3) - ((p[3] & 4) << 3);
+		int k = (p[0] & 7) + ((p[1] & 3) << 3) - ((p[1] & 4) << 3);
 
 		for (int i = 0; i < 4; i++) {
-			char y = p[i] >> 3;
-			char r = y + j;
-			char g = y + k;
-			char b = (5 * y - 2 * j - k) / 4;
+			int y = p[i] >> 3;
+			int r = y + j;
+			int g = y + k;
+			int b = (5 * y - 2 * j - k) / 4;
 			if (r < 0) r = 0; else if (r > 31) r = 31;
 			if (g < 0) g = 0; else if (g > 31) g = 31;
 			if (b < 0) b = 0; else if (b > 31) b = 31;
@@ -104,8 +104,8 @@ void BitmapConverter<Pixel>::renderYAE(
 		p[2] = *vramPtr0++;
 		p[3] = *vramPtr1++;
 
-		char j = (p[2] & 7) + ((p[3] & 3) << 3) - ((p[3] & 4) << 3);
-		char k = (p[0] & 7) + ((p[1] & 3) << 3) - ((p[1] & 4) << 3);
+		int j = (p[2] & 7) + ((p[3] & 3) << 3) - ((p[3] & 4) << 3);
+		int k = (p[0] & 7) + ((p[1] & 3) << 3) - ((p[1] & 4) << 3);
 
 		for (int i = 0; i < 4; i++) {
 			Pixel pix;
@@ -114,10 +114,10 @@ void BitmapConverter<Pixel>::renderYAE(
 				pix = palette16[p[i] >> 4];
 			} else {
 				// YJK
-				char y = p[i] >> 3;
-				char r = y + j;
-				char g = y + k;
-				char b = (5 * y - 2 * j - k) / 4;
+				int y = p[i] >> 3;
+				int r = y + j;
+				int g = y + k;
+				int b = (5 * y - 2 * j - k) / 4;
 				if (r < 0) r = 0; else if (r > 31) r = 31;
 				if (g < 0) g = 0; else if (g > 31) g = 31;
 				if (b < 0) b = 0; else if (b > 31) b = 31;
