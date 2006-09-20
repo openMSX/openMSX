@@ -102,10 +102,10 @@ public:
 
 	// The following classes are unique per MSX machine
 	Scheduler& getScheduler();
+	MSXEventDistributor& getMSXEventDistributor();
 	CartridgeSlotManager& getSlotManager();
 	CommandController& getCommandController();
 	EventDistributor& getEventDistributor();
-	MSXEventDistributor& getMSXEventDistributor();
 	EventDelay& getEventDelay();
 	EventTranslator& getEventTranslator();
 	CliComm& getCliComm();
@@ -159,8 +159,8 @@ private:
 
 	// order of auto_ptr's is important!
 	std::auto_ptr<Scheduler> scheduler;
-	std::auto_ptr<CartridgeSlotManager> slotManager;
 	std::auto_ptr<MSXEventDistributor> msxEventDistributor;
+	std::auto_ptr<CartridgeSlotManager> slotManager;
 	std::auto_ptr<EventDelay> eventDelay;
 	std::auto_ptr<EventTranslator> eventTranslator;
 	std::auto_ptr<RealTime> realTime;

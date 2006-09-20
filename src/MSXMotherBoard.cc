@@ -28,6 +28,7 @@
 #include "FileContext.hh"
 #include "GlobalSettings.hh"
 #include "Command.hh"
+#include "RecordedCommand.hh"
 #include "InfoTopic.hh"
 #include "AfterCommand.hh"
 #include "FileException.hh"
@@ -42,12 +43,13 @@ using std::vector;
 
 namespace openmsx {
 
-class ResetCmd : public SimpleCommand
+class ResetCmd : public RecordedCommand
 {
 public:
 	ResetCmd(CommandController& commandController,
 	         MSXMotherBoard& motherBoard);
-	virtual string execute(const vector<string>& tokens);
+	virtual string execute(const vector<string>& tokens,
+	                       const EmuTime& time);
 	virtual string help(const vector<string>& tokens) const;
 private:
 	MSXMotherBoard& motherBoard;
@@ -65,24 +67,26 @@ private:
 	MSXMotherBoard& motherBoard;
 };
 
-class ExtCmd : public SimpleCommand
+class ExtCmd : public RecordedCommand
 {
 public:
 	ExtCmd(CommandController& commandController,
 	       MSXMotherBoard& motherBoard);
-	virtual string execute(const vector<string>& tokens);
+	virtual string execute(const vector<string>& tokens,
+	                       const EmuTime& time);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
 	MSXMotherBoard& motherBoard;
 };
 
-class RemoveExtCmd : public SimpleCommand
+class RemoveExtCmd : public RecordedCommand
 {
 public:
 	RemoveExtCmd(CommandController& commandController,
 	             MSXMotherBoard& motherBoard);
-	virtual string execute(const vector<string>& tokens);
+	virtual string execute(const vector<string>& tokens,
+	                       const EmuTime& time);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -257,6 +261,14 @@ Scheduler& MSXMotherBoard::getScheduler()
 	return *scheduler;
 }
 
+MSXEventDistributor& MSXMotherBoard::getMSXEventDistributor()
+{
+	if (!msxEventDistributor.get()) {
+		msxEventDistributor.reset(new MSXEventDistributor());
+	}
+	return *msxEventDistributor;
+}
+
 CartridgeSlotManager& MSXMotherBoard::getSlotManager()
 {
 	if (!slotManager.get()) {
@@ -273,14 +285,6 @@ CommandController& MSXMotherBoard::getCommandController()
 EventDistributor& MSXMotherBoard::getEventDistributor()
 {
 	return reactor.getEventDistributor();
-}
-
-MSXEventDistributor& MSXMotherBoard::getMSXEventDistributor()
-{
-	if (!msxEventDistributor.get()) {
-		msxEventDistributor.reset(new MSXEventDistributor());
-	}
-	return *msxEventDistributor;
 }
 
 EventDelay& MSXMotherBoard::getEventDelay()
@@ -604,12 +608,16 @@ static void getHwConfigs(const string& type, set<string>& result)
 // ResetCmd
 ResetCmd::ResetCmd(CommandController& commandController,
                    MSXMotherBoard& motherBoard_)
-	: SimpleCommand(commandController, "reset")
+	: RecordedCommand(commandController,
+	                  motherBoard_.getMSXEventDistributor(),
+	                  motherBoard_.getScheduler(),
+	                  "reset")
 	, motherBoard(motherBoard_)
 {
 }
 
-string ResetCmd::execute(const vector<string>& /*tokens*/)
+string ResetCmd::execute(const vector<string>& /*tokens*/,
+                         const EmuTime& /*time*/)
 {
 	motherBoard.scheduleReset();
 	return "";
@@ -648,12 +656,15 @@ string ListExtCmd::help(const vector<string>& /*tokens*/) const
 // ExtCmd
 ExtCmd::ExtCmd(CommandController& commandController,
                MSXMotherBoard& motherBoard_)
-	: SimpleCommand(commandController, "ext")
+	: RecordedCommand(commandController,
+	                  motherBoard_.getMSXEventDistributor(),
+	                  motherBoard_.getScheduler(),
+	                  "ext")
 	, motherBoard(motherBoard_)
 {
 }
 
-string ExtCmd::execute(const vector<string>& tokens)
+string ExtCmd::execute(const vector<string>& tokens, const EmuTime& /*time*/)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();
@@ -683,12 +694,15 @@ void ExtCmd::tabCompletion(vector<string>& tokens) const
 // RemoveExtCmd
 RemoveExtCmd::RemoveExtCmd(CommandController& commandController,
                            MSXMotherBoard& motherBoard_)
-	: SimpleCommand(commandController, "remove_extension")
+	: RecordedCommand(commandController,
+	                  motherBoard_.getMSXEventDistributor(),
+	                  motherBoard_.getScheduler(),
+	                  "remove_extension")
 	, motherBoard(motherBoard_)
 {
 }
 
-string RemoveExtCmd::execute(const vector<string>& tokens)
+string RemoveExtCmd::execute(const vector<string>& tokens, const EmuTime& /*time*/)
 {
 	if (tokens.size() != 2) {
 		throw SyntaxError();

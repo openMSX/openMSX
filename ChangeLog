@@ -1,5 +1,12 @@
 $Id$
 
+2006-09-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added RecordedCommand class to make recording certian commands
+	  easier. TODO refactor previous recordable commands to use this
+	  mechanism
+	* made 'reset', 'ext', 'cart', 'cart<x>' and 'remove_extension'
+	  commands recordable.
+
 2006-09-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Refactored (un)plug and media changed events to MSXCommandEvent
 	* Use MSXCommandEvent for cassetteplayer command

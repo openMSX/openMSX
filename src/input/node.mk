@@ -20,7 +20,8 @@ SRC_HDR:= \
 	MSXEventDistributor \
 	MSXEventRecorder \
 	MSXEventReplayer \
-	MSXEventRecorderReplayerCLI
+	MSXEventRecorderReplayerCLI \
+	RecordedCommand
 
 HDR_ONLY:= \
 	MSXEventListener

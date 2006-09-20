@@ -374,7 +374,7 @@ const vector<string>& MSXCommandEvent::getTokens() const
 string MSXCommandEvent::toString() const
 {
 	// TODO use TCL list format
-	string result = "command:";
+	string result = "command";
 	for (vector<string>::const_iterator it = tokens.begin();
 	     it != tokens.end(); ++it) {
 		result += ':' + *it;

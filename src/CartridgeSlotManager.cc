@@ -3,7 +3,7 @@
 #include "CartridgeSlotManager.hh"
 #include "MSXMotherBoard.hh"
 #include "ExtensionConfig.hh"
-#include "Command.hh"
+#include "RecordedCommand.hh"
 #include "CommandException.hh"
 #include "CommandController.hh"
 #include "TclObject.hh"
@@ -18,11 +18,12 @@ using std::vector;
 
 namespace openmsx {
 
-class CartCmd : public Command
+class CartCmd : public RecordedCommand
 {
 public:
-	CartCmd(CartridgeSlotManager& manager, const std::string& commandName);
-	virtual void execute(const vector<TclObject*>& tokens, TclObject& result);
+	CartCmd(CartridgeSlotManager& manager, MSXMotherBoard& motherBoard,
+	        const std::string& commandName);
+	virtual string execute(const vector<string>& tokens, const EmuTime& time);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -34,7 +35,7 @@ private:
 
 CartridgeSlotManager::CartridgeSlotManager(MSXMotherBoard& motherBoard_)
 	: motherBoard(motherBoard_)
-	, cartCmd(new CartCmd(*this, "cart"))
+	, cartCmd(new CartCmd(*this, motherBoard, "cart"))
 {
 }
 
@@ -79,7 +80,7 @@ void CartridgeSlotManager::createExternalSlot(int ps, int ss)
 			string slotName = "carta";
 			slotName[4] += slot;
 			motherBoard.getCliComm().update(CliComm::HARDWARE, slotName, "add");
-			slots[slot].command = new CartCmd(*this, slotName);
+			slots[slot].command = new CartCmd(*this, motherBoard, slotName);
 			return;
 		}
 	}
@@ -207,10 +208,14 @@ bool CartridgeSlotManager::isExternalSlot(int ps, int ss, bool convert) const
 
 
 // CartCmd
-CartCmd::CartCmd(CartridgeSlotManager& manager_, const string& commandName)
-	: Command(manager_.motherBoard.getCommandController(), commandName)
+CartCmd::CartCmd(CartridgeSlotManager& manager_, MSXMotherBoard& motherBoard,
+                 const string& commandName)
+	: RecordedCommand(motherBoard.getCommandController(),
+	                  motherBoard.getMSXEventDistributor(),
+	                  motherBoard.getScheduler(),
+	                  commandName)
 	, manager(manager_)
-	, cliComm(manager_.motherBoard.getCommandController().getCliComm())
+	, cliComm(motherBoard.getCommandController().getCliComm())
 {
 }
 
@@ -225,23 +230,25 @@ const ExtensionConfig* CartCmd::getExtensionConfig(const string& cartname)
 	return static_cast<const ExtensionConfig*>(conf);
 }
 
-void CartCmd::execute(const vector<TclObject*>& tokens, TclObject& result)
+string CartCmd::execute(const vector<string>& tokens, const EmuTime& /*time*/)
 {
-	string cartname = tokens[0]->getString();
+	string result;
+	string cartname = tokens[0];
 	if (tokens.size() == 1) {
 		// query name of cartridge
 		const ExtensionConfig* extConf = getExtensionConfig(cartname);
-		result.addListElement(cartname + ':');
-		result.addListElement(extConf ? extConf->getName() : "");
-		TclObject options(result.getInterpreter());
+		TclObject object(getCommandController().getInterpreter());
+		object.addListElement(cartname + ':');
+		object.addListElement(extConf ? extConf->getName() : "");
+		TclObject options(getCommandController().getInterpreter());
 		if (!extConf) {
 			options.addListElement("empty");
 		}
 		if (options.getListLength() != 0) {
-			result.addListElement(options);
+			object.addListElement(options);
 		}
-
-	} else if (tokens[1]->getString() == "-eject") {
+		result = object.getString();
+	} else if (tokens[1] == "-eject") {
 		// remove cartridge (or extension)
 		const ExtensionConfig* extConf = getExtensionConfig(cartname);
 		if (extConf) {
@@ -262,17 +269,18 @@ void CartCmd::execute(const vector<TclObject*>& tokens, TclObject& result)
 			                : "any";
 			vector<string> options;
 			for (unsigned i = 2; i < tokens.size(); ++i) {
-				options.push_back(tokens[i]->getString());
+				options.push_back(tokens[i]);
 			}
 			ExtensionConfig& extension =
 				manager.motherBoard.loadRom(
-					tokens[1]->getString(), slotname, options);
-			result.setString(extension.getName());
-			cliComm.update(CliComm::MEDIA, cartname, tokens[1]->getString());
+					tokens[1], slotname, options);
+			cliComm.update(CliComm::MEDIA, cartname, tokens[1]);
+			result = extension.getName();
 		} catch (MSXException& e) {
 			throw CommandException(e.getMessage());
 		}
 	}
+	return result;
 }
 
 string CartCmd::help(const vector<string>& /*tokens*/) const
