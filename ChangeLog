@@ -6,6 +6,8 @@ $Id$
 	  mechanism
 	* made 'reset', 'ext', 'cart', 'cart<x>' and 'remove_extension'
 	  commands recordable.
+	* Reimplemented 'plug', 'unplug' and 'cassetteplayer' commands as
+	  RecordedCommand's
 
 2006-09-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Refactored (un)plug and media changed events to MSXCommandEvent

@@ -26,7 +26,7 @@
 #include "Connector.hh"
 #include "CassettePort.hh"
 #include "CommandController.hh"
-#include "Command.hh"
+#include "RecordedCommand.hh"
 #include "GlobalSettings.hh"
 #include "XMLElement.hh"
 #include "FileContext.hh"
@@ -59,12 +59,14 @@ namespace openmsx {
 static const unsigned RECORD_FREQ = 44100;
 static const double OUTPUT_AMP = 60.0;
 
-class TapeCommand : public SimpleCommand
+class TapeCommand : public RecordedCommand
 {
 public:
 	TapeCommand(CommandController& commandController,
+	            MSXEventDistributor& msxEventDistributor,
+	            Scheduler& scheduler,
 	            CassettePlayer& cassettePlayer);
-	virtual string execute(const vector<string>& tokens);
+	virtual string execute(const vector<string>& tokens, const EmuTime& time);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -114,7 +116,7 @@ const string& MSXCassettePlayerCLI::fileTypeHelp() const
 CassettePlayer::CassettePlayer(
 		CommandController& commandController_,
 		Mixer& mixer, Scheduler& scheduler_,
-		MSXEventDistributor& msxEventDistributor_)
+		MSXEventDistributor& msxEventDistributor)
 	: SoundDevice(mixer, getName(), getDescription())
 	, motor(false), motorControl(true), isLoading(false)
 	, tapeTime(EmuTime::zero)
@@ -124,8 +126,8 @@ CassettePlayer::CassettePlayer(
 	, sampcnt(0)
 	, commandController(commandController_)
 	, scheduler(scheduler_)
-	, msxEventDistributor(msxEventDistributor_)
-	, tapeCommand(new TapeCommand(commandController, *this))
+	, tapeCommand(new TapeCommand(commandController, msxEventDistributor,
+	                              scheduler, *this))
 	, playTapeTime(EmuTime::zero)
 	, cliComm(commandController.getCliComm())
 	, throttleManager(commandController.getGlobalSettings().getThrottleManager())
@@ -143,12 +145,10 @@ CassettePlayer::CassettePlayer(
 		cassettePlayerConfig.addChild(sound);
 	}
 	registerSound(cassettePlayerConfig);
-	msxEventDistributor.registerEventListener(*this);
 }
 
 CassettePlayer::~CassettePlayer()
 {
-	msxEventDistributor.unregisterEventListener(*this);
 	unregisterSound();
 	if (Connector* connector = getConnector()) {
 		connector->unplug(scheduler.getCurrentTime());
@@ -437,42 +437,39 @@ void CassettePlayer::updateBuffer(unsigned length, int* buffer,
 	}
 }
 
-void CassettePlayer::sendCommandEvent(const vector<string>& tokens)
+
+// class TapeCommand
+
+TapeCommand::TapeCommand(CommandController& commandController,
+                         MSXEventDistributor& msxEventDistributor,
+                         Scheduler& scheduler,
+                         CassettePlayer& cassettePlayer_)
+	: RecordedCommand(commandController, msxEventDistributor,
+	                  scheduler, "cassetteplayer")
+	, cassettePlayer(cassettePlayer_)
 {
-	// note: might throw CommandException
-	msxEventDistributor.distributeEvent(
-		MSXEventDistributor::EventPtr(new MSXCommandEvent(tokens)),
-		scheduler.getCurrentTime());
 }
 
-void CassettePlayer::signalEvent(
-	shared_ptr<const Event> event, const EmuTime& time)
+string TapeCommand::execute(const vector<string>& tokens, const EmuTime& time)
 {
-	if (event->getType() != OPENMSX_MSX_COMMAND_EVENT) return;
-
-	const MSXCommandEvent* commandEvent =
-		checked_cast<const MSXCommandEvent*>(event.get());
-	const vector<string>& tokens = commandEvent->getTokens();
-	if (tokens[0] != "cassetteplayer") return;
-
-	commandResult.clear();
+	string result;
 	if (tokens.size() == 1) {
 		// Returning TCL lists here, similar to the disk commands in
 		// DiskChanger
-		TclObject tmp(commandController.getInterpreter());
+		TclObject tmp(getCommandController().getInterpreter());
 		tmp.addListElement(getName() + ':');
-		tmp.addListElement(casImage);
+		tmp.addListElement(cassettePlayer.casImage);
 
-		TclObject options(commandController.getInterpreter());
-		options.addListElement(wavWriter.get() ?
+		TclObject options(getCommandController().getInterpreter());
+		options.addListElement(cassettePlayer.wavWriter.get() ?
 		                       "record" : "play");
 		tmp.addListElement(options);
 		// tmp.addListElement(cassette->getFirstFileTypeAsString()); <-- temporarily disabled, so that we can release openMSX 0.6.0 and Catapult 0.6.0-R1 without having to fix Catapult which breaks because of this
-		commandResult += tmp.getString();
+		result += tmp.getString();
 	} else if (tokens[1] == "new") {
-		if (wavWriter.get()) {
-			stopRecording(time);
-			commandResult += "Stopping recording to " + casImage;
+		if (cassettePlayer.wavWriter.get()) {
+			cassettePlayer.stopRecording(time);
+			result += "Stopping recording to " + cassettePlayer.casImage;
 		}
 		string filename;
 		if (tokens.size() == 3) {
@@ -481,112 +478,107 @@ void CassettePlayer::signalEvent(
 			filename = FileOperations::getNextNumberedFileName(
 				"taperecordings", "openmsx", ".wav");
 		}
-		startRecording(filename, time);
-		commandResult += "Created new cassette image file: " + filename
-		               + ", inserted it and set recording mode.";
-		casImage = filename;
-		cliComm.update(CliComm::MEDIA, "cassetteplayer", filename);
-		cliComm.update(CliComm::STATUS, "cassetteplayer", "record");
+		cassettePlayer.startRecording(filename, time);
+		result += "Created new cassette image file: " + filename
+		       + ", inserted it and set recording mode.";
+		cassettePlayer.casImage = filename;
+		cassettePlayer.cliComm.update(
+			CliComm::MEDIA, "cassetteplayer", filename);
+		cassettePlayer.cliComm.update(
+			CliComm::STATUS, "cassetteplayer", "record");
 	} else if (tokens[1] == "insert" && tokens.size() == 3) {
 		try {
-			commandResult += "Changing tape";
-			UserFileContext context(commandController);
-			insertTape(context.resolve(tokens[2]), time);
-			cliComm.update(CliComm::MEDIA,
+			result += "Changing tape";
+			UserFileContext context(getCommandController());
+			cassettePlayer.insertTape(context.resolve(tokens[2]), time);
+			cassettePlayer.cliComm.update(CliComm::MEDIA,
 			        "cassetteplayer", tokens[2]);
-			cliComm.update(CliComm::STATUS, "cassetteplayer", "play");
+			cassettePlayer.cliComm.update(
+				CliComm::STATUS, "cassetteplayer", "play");
 		} catch (MSXException &e) {
 			throw CommandException(e.getMessage());
 		}
 	} else if (tokens[1] == "motorcontrol" && tokens.size() == 3) {
 		if (tokens[2] == "on") {
-			if (!motorControl) {
-				setMotorControl(true, time);
-				commandResult += "Motor control enabled.";
+			if (!cassettePlayer.motorControl) {
+				cassettePlayer.setMotorControl(true, time);
+				result += "Motor control enabled.";
 			} else {
-				commandResult += "Already enabled...";
+				result += "Already enabled...";
 			}
 		} else if (tokens[2] == "off") {
-			if (motorControl) {
-				setMotorControl(false, time);
-				commandResult += "Motor control disabled.";
-				if (!casImage.empty()) {
-					commandResult += " Tape will run now!";
+			if (cassettePlayer.motorControl) {
+				cassettePlayer.setMotorControl(false, time);
+				result += "Motor control disabled.";
+				if (!cassettePlayer.casImage.empty()) {
+					result += " Tape will run now!";
 				}
 			} else {
-				commandResult += "Already disabled...";
-				if (!casImage.empty()) {
-					commandResult += " (tape is running!)";
+				result += "Already disabled...";
+				if (!cassettePlayer.casImage.empty()) {
+					result += " (tape is running!)";
 				}
 			}
 		} else throw SyntaxError();
 	} else if (tokens.size() != 2) {
 		throw SyntaxError();
 	} else if (tokens[1] == "motorcontrol") {
-			commandResult += "Motor control is ";
-			commandResult += motorControl ? "on" : "off";
+			result += "Motor control is ";
+			result += cassettePlayer.motorControl ? "on" : "off";
 	} else if (tokens[1] == "record") {
-			commandResult += "TODO: implement this... (sorry)";
+			result += "TODO: implement this... (sorry)";
 	} else if (tokens[1] == "play") {
-		if (wavWriter.get()) {
+		if (cassettePlayer.wavWriter.get()) {
 			try {
-				commandResult += "Play mode set, rewinding tape.";
-				insertTape(casImage, time);
-				cliComm.update(
+				result += "Play mode set, rewinding tape.";
+				cassettePlayer.insertTape(
+					cassettePlayer.casImage, time);
+				cassettePlayer.cliComm.update(
 					CliComm::STATUS, "cassetteplayer", "play");
 			} catch (MSXException &e) {
 				throw CommandException(e.getMessage());
 			}
 		} else {
-			commandResult += "Already in play mode.";
+			result += "Already in play mode.";
 		}
 	} else if (tokens[1] == "eject") {
-		commandResult += "Tape ejected";
-		removeTape(time);
-		cliComm.update(CliComm::MEDIA, "cassetteplayer", "");
-		cliComm.update(CliComm::STATUS, "cassetteplayer", "play");
+		result += "Tape ejected";
+		cassettePlayer.removeTape(time);
+		cassettePlayer.cliComm.update(
+			CliComm::MEDIA, "cassetteplayer", "");
+		cassettePlayer.cliComm.update(
+			CliComm::STATUS, "cassetteplayer", "play");
 
 	} else if (tokens[1] == "rewind") {
-		if (wavWriter.get()) {
+		if (cassettePlayer.wavWriter.get()) {
 			try {
-				commandResult += "First stopping recording... ";
-				insertTape(casImage, time);
-				cliComm.update(
+				result += "First stopping recording... ";
+				cassettePlayer.insertTape(
+					cassettePlayer.casImage, time);
+				cassettePlayer.cliComm.update(
 					CliComm::STATUS, "cassetteplayer", "play");
 				// this also did the rewinding
 			} catch (MSXException &e) {
 				throw CommandException(e.getMessage());
 			}
 		} else {
-			rewind(time);
+			cassettePlayer.rewind(time);
 		}
-		commandResult += "Tape rewound";
+		result += "Tape rewound";
 	} else {
-		commandResult += "This syntax is deprecated, please use insert!\n";
+		result += "This syntax is deprecated, please use insert!\n";
 		try {
-			commandResult += "Changing tape";
-			UserFileContext context(commandController);
-			insertTape(context.resolve(tokens[1]), time);
-			cliComm.update(CliComm::MEDIA, "cassetteplayer", tokens[1]);
-			cliComm.update(CliComm::STATUS, "cassetteplayer", "play");
+			result += "Changing tape";
+			UserFileContext context(getCommandController());
+			cassettePlayer.insertTape(context.resolve(tokens[1]), time);
+			cassettePlayer.cliComm.update(
+				CliComm::MEDIA, "cassetteplayer", tokens[1]);
+			cassettePlayer.cliComm.update(
+				CliComm::STATUS, "cassetteplayer", "play");
 		} catch (MSXException &e) {
 			throw CommandException(e.getMessage());
 		}
 	}
-}
-
-
-TapeCommand::TapeCommand(CommandController& commandController,
-                         CassettePlayer& cassettePlayer_)
-	: SimpleCommand(commandController, "cassetteplayer")
-	, cassettePlayer(cassettePlayer_)
-{
-}
-
-string TapeCommand::execute(const vector<string>& tokens)
-{
-	cassettePlayer.sendCommandEvent(tokens);
-	string result = cassettePlayer.commandResult;
 	if (!cassettePlayer.getConnector()) {
 		if (!result.empty() && result[result.size() - 1] != '\n') {
 			result += '\n';
