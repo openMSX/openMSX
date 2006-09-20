@@ -493,7 +493,7 @@ void CassettePlayer::signalEvent(
 			UserFileContext context(commandController);
 			insertTape(context.resolve(tokens[2]), time);
 			cliComm.update(CliComm::MEDIA,
-			        "cassetteplayer", tokens[1]);
+			        "cassetteplayer", tokens[2]);
 			cliComm.update(CliComm::STATUS, "cassetteplayer", "play");
 		} catch (MSXException &e) {
 			throw CommandException(e.getMessage());
