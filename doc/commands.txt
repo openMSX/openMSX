@@ -81,6 +81,18 @@ cassetteplayer
     cassetteplayer play                 go to play mode (when in record mode)
                                         and rewind the tape
 
+cda / cdb
+---------
+
+  Change the CDROM image. "cda", "cdb", etc., are assigned to all available
+  CDROM drives in the MSX. They will not correspond to drive names as used
+  in MSX-DOS!
+
+  usage:
+    cda <iso image>         use ISO image for CDROM "cda"
+    cda                     show current ISO image for cdrom "cda"
+
+
 debug
 -----
 
