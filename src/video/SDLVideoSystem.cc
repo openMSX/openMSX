@@ -19,7 +19,6 @@
 #ifdef COMPONENT_GL
 #include "SDLGLVisibleSurface.hh"
 #include "GLRasterizer.hh"
-#include "GL2Rasterizer.hh"
 #include "V9990GLRasterizer.hh"
 #include "GLPostProcessor.hh"
 #endif
@@ -92,10 +91,6 @@ Rasterizer* SDLVideoSystem::createRasterizer(VDP& vdp)
 		return new GLRasterizer(
 			reactor.getCommandController(), vdp, display, *screen
 			);
-	case RendererFactory::SDLGL2:
-		return new GL2Rasterizer(
-			reactor.getCommandController(), vdp, display, *screen
-			);
 	case RendererFactory::SDLGL_PP:
 		return new SDLRasterizer<Uint32>(
 			vdp, display, *screen,
@@ -140,7 +135,6 @@ V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990& vdp)
 		}
 #ifdef COMPONENT_GL
 	case RendererFactory::SDLGL:
-	case RendererFactory::SDLGL2:
 		return new V9990GLRasterizer(vdp);
 	case RendererFactory::SDLGL_PP:
 		return new V9990SDLRasterizer<unsigned>(
@@ -168,7 +162,6 @@ void SDLVideoSystem::getWindowSize(unsigned& width, unsigned& height)
 		if (factor > 3) factor = 3;
 		break;
 	case RendererFactory::SDLGL:
-	case RendererFactory::SDLGL2:
 		// These renderers only support 2x scaling.
 		factor = 2;
 		break;
@@ -234,7 +227,6 @@ void SDLVideoSystem::resize()
 		break;
 #ifdef COMPONENT_GL
 	case RendererFactory::SDLGL:
-	case RendererFactory::SDLGL2:
 	case RendererFactory::SDLGL_PP:
 		screen.reset(new SDLGLVisibleSurface(width, height, fullscreen));
 		break;

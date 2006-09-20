@@ -55,7 +55,7 @@ DIST:= \
 
 SRC_HDR_$(COMPONENT_GL)+= \
 	SDLGLVisibleSurface GLSnow GLUtil GLImage \
-	GLRasterizer GL2Rasterizer GLPostProcessor GLScalerFactory \
+	GLRasterizer GLPostProcessor GLScalerFactory \
 	GLSimpleScaler GLScaleNxScaler GLTVScaler \
 	GLHQScaler GLHQLiteScaler
 

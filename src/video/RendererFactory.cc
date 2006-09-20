@@ -31,7 +31,6 @@ VideoSystem* RendererFactory::createVideoSystem(Reactor& reactor)
 			return new DummyVideoSystem();
 		case SDL:
 		case SDLGL:
-		case SDLGL2:
 		case SDLGL_PP:
 		case SDLGL_FB16:
 		case SDLGL_FB32:
@@ -49,7 +48,6 @@ Renderer* RendererFactory::createRenderer(VDP& vdp, Display& display)
 			return new DummyRenderer();
 		case SDL:
 		case SDLGL:
-		case SDLGL2:
 		case SDLGL_PP:
 		case SDLGL_FB16:
 		case SDLGL_FB32:
@@ -72,7 +70,6 @@ V9990Renderer* RendererFactory::createV9990Renderer(
 			return new V9990DummyRenderer();
 		case SDL:
 		case SDLGL:
-		case SDLGL2:
 		case SDLGL_PP:
 		case SDLGL_FB16:
 		case SDLGL_FB32:
@@ -109,7 +106,6 @@ auto_ptr<RendererFactory::RendererSetting>
 		//  renderers and sdlgl-fb32 still has endian problems on PPC
 		rendererMap["SDLGL-FB16"] = SDLGL_FB16;
 		rendererMap["SDLGL-FB32"] = SDLGL_FB32;
-		rendererMap["SDLGL2"] = SDLGL2;
 	}
 #endif
 #ifdef HAVE_X11
