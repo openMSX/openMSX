@@ -140,8 +140,8 @@ void GLHQScaler::scaleImage(
 }
 
 typedef unsigned Pixel;
-static void calcInitialEdges(const Pixel* srcPrev, const Pixel* srcCurr,
-                             unsigned lineWidth, word* edgeBuf)
+static void calcInitialEdgesGL(const Pixel* srcPrev, const Pixel* srcCurr,
+                               unsigned lineWidth, word* edgeBuf)
 {
 	unsigned x = 0;
 	Pixel c1 = srcPrev[x];
@@ -171,7 +171,7 @@ void GLHQScaler::uploadBlock(
 	Pixel* dummy = 0;
 	const Pixel* curr = paintFrame.getLinePtr(srcStartY - 1, lineWidth, dummy);
 	const Pixel* next = paintFrame.getLinePtr(srcStartY + 0, lineWidth, dummy);
-	calcInitialEdges(curr, next, lineWidth, edgeBuf);
+	calcInitialEdgesGL(curr, next, lineWidth, edgeBuf);
 
 	for (unsigned y = srcStartY; y < srcEndY; ++y) {
 		curr = next;
