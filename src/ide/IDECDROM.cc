@@ -5,7 +5,7 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
-#include "Command.hh"
+#include "RecordedCommand.hh"
 #include "CommandException.hh"
 #include <algorithm>
 #include <bitset>
@@ -16,11 +16,13 @@ using std::vector;
 
 namespace openmsx {
 
-class CDXCommand : public SimpleCommand
+class CDXCommand : public RecordedCommand
 {
 public:
-	CDXCommand(CommandController& commandController, IDECDROM& cd);
-	virtual string execute(const vector<string>& tokens);
+	CDXCommand(CommandController& commandController,
+	           MSXEventDistributor& msxEventDistributor,
+	           Scheduler& scheduler, IDECDROM& cd);
+	virtual string execute(const vector<string>& tokens, const EmuTime& time);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -47,7 +49,9 @@ IDECDROM::IDECDROM(MSXMotherBoard& motherBoard, const XMLElement& /*config*/,
                    const EmuTime& time)
 	: AbstractIDEDevice(motherBoard.getEventDistributor(), time)
 	, name(calcName())
-	, cdxCommand(new CDXCommand(motherBoard.getCommandController(), *this))
+	, cdxCommand(new CDXCommand(motherBoard.getCommandController(),
+	                            motherBoard.getMSXEventDistributor(),
+	                            motherBoard.getScheduler(), *this))
 {
 	cdInUse[name[2] - 'a'] = true;
 
@@ -314,13 +318,16 @@ void IDECDROM::insert(const string& filename)
 
 // class CDXCommand
 
-CDXCommand::CDXCommand(CommandController& commandController, IDECDROM& cd_)
-	: SimpleCommand(commandController, cd_.name)
+CDXCommand::CDXCommand(CommandController& commandController,
+                       MSXEventDistributor& msxEventDistributor,
+                       Scheduler& scheduler, IDECDROM& cd_)
+	: RecordedCommand(commandController, msxEventDistributor,
+	                  scheduler, cd_.name)
 	, cd(cd_)
 {
 }
 
-string CDXCommand::execute(const vector<string>& tokens)
+string CDXCommand::execute(const vector<string>& tokens, const EmuTime& /*time*/)
 {
 	switch (tokens.size()) {
 	case 1: {

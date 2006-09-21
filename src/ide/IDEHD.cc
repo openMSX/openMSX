@@ -7,7 +7,7 @@
 #include "MSXMotherBoard.hh"
 #include "FileManipulator.hh"
 #include "XMLElement.hh"
-#include "Command.hh"
+#include "RecordedCommand.hh"
 #include "CommandController.hh"
 #include "CommandException.hh"
 #include "GlobalSettings.hh"
@@ -20,11 +20,13 @@ using std::vector;
 
 namespace openmsx {
 
-class HDCommand : public SimpleCommand
+class HDCommand : public RecordedCommand
 {
 public:
-	HDCommand(CommandController& commandController, IDEHD& hd);
-	virtual string execute(const vector<string>& tokens);
+	HDCommand(CommandController& commandController,
+	          MSXEventDistributor& msxEventDistributor,
+	          Scheduler& scheduler, IDEHD& hd);
+	virtual string execute(const vector<string>& tokens, const EmuTime& time);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -53,7 +55,9 @@ IDEHD::IDEHD(MSXMotherBoard& motherBoard, const XMLElement& config,
 	: AbstractIDEDevice(motherBoard.getEventDistributor(), time)
 	, fileManipulator(motherBoard.getFileManipulator())
 	, name(calcName())
-	, hdCommand(new HDCommand(motherBoard.getCommandController(), *this))
+	, hdCommand(new HDCommand(motherBoard.getCommandController(),
+	                          motherBoard.getMSXEventDistributor(),
+	                          motherBoard.getScheduler(), *this))
 {
 	string filename = config.getFileContext().resolveCreate(
 		config.getChildData("filename"));
@@ -198,13 +202,16 @@ SectorAccessibleDisk* IDEHD::getSectorAccessibleDisk()
 
 // class HDCommand
 
-HDCommand::HDCommand(CommandController& commandController, IDEHD& hd_)
-	: SimpleCommand(commandController, hd_.name)
+HDCommand::HDCommand(CommandController& commandController,
+                     MSXEventDistributor& msxEventDistributor,
+                     Scheduler& scheduler, IDEHD& hd_)
+	: RecordedCommand(commandController, msxEventDistributor,
+	                  scheduler, hd_.name)
 	, hd(hd_)
 {
 }
 
-string HDCommand::execute(const vector<string>& tokens)
+string HDCommand::execute(const vector<string>& tokens, const EmuTime& /*time*/)
 {
 	switch (tokens.size()) {
 	case 1:
