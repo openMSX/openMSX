@@ -8,6 +8,8 @@
 
 namespace openmsx {
 
+class TclObject;
+
 enum EventType
 {
 	OPENMSX_KEY_UP_EVENT,
@@ -68,7 +70,7 @@ public:
 	virtual ~Event();
 
 	EventType getType() const;
-	virtual std::string toString() const;
+	std::string toString() const;
 	bool operator< (const Event& other) const;
 	bool operator==(const Event& other) const;
 
@@ -76,6 +78,7 @@ protected:
 	explicit Event(EventType type);
 
 private:
+	virtual void toStringImpl(TclObject& result) const;
 	virtual bool lessImpl(const Event& other) const;
 
 	EventType type;

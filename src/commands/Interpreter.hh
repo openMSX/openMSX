@@ -42,7 +42,9 @@ public:
 
 	void splitList(const std::string& list,
 	               std::vector<std::string>& result);
-
+	static void splitList(const std::string& list,
+	                      std::vector<std::string>& result,
+	                      Tcl_Interp* interp);
 
 private:
 	// EventListener

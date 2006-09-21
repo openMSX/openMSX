@@ -296,12 +296,21 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 	return NULL;
 }
 
-void Interpreter::splitList(const string& list, vector<string>& result)
+void Interpreter::splitList(const std::string& list,
+	                    std::vector<std::string>& result)
+{
+	splitList(list, result, interp);
+}
+
+void Interpreter::splitList(const string& list, vector<string>& result,
+                            Tcl_Interp* interp)
 {
 	int argc;
 	const char** argv;
 	if (Tcl_SplitList(interp, list.c_str(), &argc, &argv) == TCL_ERROR) {
-		throw CommandException(Tcl_GetStringResult(interp));
+		string message = interp ? Tcl_GetStringResult(interp)
+		                        : "splitList error";
+		throw CommandException(message);
 	}
 	result.assign(argv, argv + argc);
 	Tcl_Free((char*)argv);

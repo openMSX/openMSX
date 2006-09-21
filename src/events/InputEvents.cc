@@ -2,6 +2,7 @@
 
 #include "InputEvents.hh"
 #include "Keys.hh"
+#include "TclObject.hh"
 #include "StringOp.hh"
 #include "checked_cast.hh"
 #include <string>
@@ -45,9 +46,10 @@ word KeyEvent::getUnicode() const
 	return unicode;
 }
 
-string KeyEvent::toString() const
+void KeyEvent::toStringImpl(TclObject& result) const
 {
-	return "keyb:" + Keys::getName(getKeyCode());
+	result.addListElement("keyb");
+	result.addListElement(Keys::getName(getKeyCode()));
 }
 
 bool KeyEvent::lessImpl(const InputEvent& other) const
@@ -96,9 +98,10 @@ unsigned MouseButtonEvent::getButton() const
 	return button;
 }
 
-string MouseButtonEvent::toStringHelper() const
+void MouseButtonEvent::toStringHelper(TclObject& result) const
 {
-	return "mouse:button" + StringOp::toString(getButton());
+	result.addListElement("mouse");
+	result.addListElement("button" + StringOp::toString(getButton()));
 }
 
 bool MouseButtonEvent::lessImpl(const InputEvent& other) const
@@ -116,9 +119,10 @@ MouseButtonUpEvent::MouseButtonUpEvent(unsigned button)
 {
 }
 
-string MouseButtonUpEvent::toString() const
+void MouseButtonUpEvent::toStringImpl(TclObject& result) const
 {
-	return toStringHelper() + ":up";
+	toStringHelper(result);
+	result.addListElement("up");
 }
 
 
@@ -129,9 +133,10 @@ MouseButtonDownEvent::MouseButtonDownEvent(unsigned button)
 {
 }
 
-string MouseButtonDownEvent::toString() const
+void MouseButtonDownEvent::toStringImpl(TclObject& result) const
 {
-	return toStringHelper() + ":down";
+	toStringHelper(result);
+	result.addListElement("down");
 }
 
 
@@ -152,10 +157,12 @@ int MouseMotionEvent::getY() const
 	return yrel;
 }
 
-string MouseMotionEvent::toString() const
+void MouseMotionEvent::toStringImpl(TclObject& result) const
 {
-	return "mouse:motion:" + StringOp::toString(getX()) +
-	                   ':' + StringOp::toString(getY());
+	result.addListElement("mouse");
+	result.addListElement("motion");
+	result.addListElement(getX());
+	result.addListElement(getY());
 }
 
 bool MouseMotionEvent::lessImpl(const InputEvent& other) const
@@ -180,9 +187,9 @@ unsigned JoystickEvent::getJoystick() const
 	return joystick;
 }
 
-string JoystickEvent::toStringHelper() const
+void JoystickEvent::toStringHelper(TclObject& result) const
 {
-	return "joy" + StringOp::toString(getJoystick());
+	result.addListElement("joy" + StringOp::toString(getJoystick()));
 }
 
 bool JoystickEvent::lessImpl(const InputEvent& other) const
@@ -208,10 +215,10 @@ unsigned JoystickButtonEvent::getButton() const
 	return button;
 }
 
-string JoystickButtonEvent::toStringHelper() const
+void JoystickButtonEvent::toStringHelper(TclObject& result) const
 {
-	return JoystickEvent::toStringHelper() +
-	       ":button" + StringOp::toString(getButton());
+	JoystickEvent::toStringHelper(result);
+	result.addListElement("button" + StringOp::toString(getButton()));
 }
 
 bool JoystickButtonEvent::lessImpl(const JoystickEvent& other) const
@@ -229,9 +236,10 @@ JoystickButtonUpEvent::JoystickButtonUpEvent(unsigned joystick, unsigned button)
 {
 }
 
-string JoystickButtonUpEvent::toString() const
+void JoystickButtonUpEvent::toStringImpl(TclObject& result) const
 {
-	return toStringHelper() + ":up";
+	toStringHelper(result);
+	result.addListElement("up");
 }
 
 
@@ -242,9 +250,10 @@ JoystickButtonDownEvent::JoystickButtonDownEvent(unsigned joystick, unsigned but
 {
 }
 
-string JoystickButtonDownEvent::toString() const
+void JoystickButtonDownEvent::toStringImpl(TclObject& result) const
 {
-	return toStringHelper() + ":down";
+	toStringHelper(result);
+	result.addListElement("down");
 }
 
 
@@ -267,10 +276,11 @@ short JoystickAxisMotionEvent::getValue() const
 	return value;
 }
 
-string JoystickAxisMotionEvent::toString() const
+void JoystickAxisMotionEvent::toStringImpl(TclObject& result) const
 {
-	return toStringHelper() + ":axis" + StringOp::toString(getAxis()) +
-	       ':' + StringOp::toString(getValue());
+	toStringHelper(result);
+	result.addListElement("axis" + StringOp::toString(getAxis()));
+	result.addListElement(getValue());
 }
 
 bool JoystickAxisMotionEvent::lessImpl(const JoystickEvent& other) const
@@ -295,9 +305,10 @@ bool FocusEvent::getGain() const
 	return gain;
 }
 
-string FocusEvent::toString() const
+void FocusEvent::toStringImpl(TclObject& result) const
 {
-	return "focus:" + StringOp::toString(getGain());
+	result.addListElement("focus");
+	result.addListElement(getGain());
 }
 
 bool FocusEvent::lessImpl(const InputEvent& other) const
@@ -325,10 +336,11 @@ unsigned ResizeEvent::getY() const
 	return y;
 }
 
-string ResizeEvent::toString() const
+void ResizeEvent::toStringImpl(TclObject& result) const
 {
-	return "resize:" + StringOp::toString(getX()) +
-	             ':' + StringOp::toString(getY());
+	result.addListElement("resize");
+	result.addListElement(static_cast<int>(getX()));
+	result.addListElement(static_cast<int>(getY()));
 }
 
 bool ResizeEvent::lessImpl(const InputEvent& other) const
@@ -347,9 +359,9 @@ QuitEvent::QuitEvent() : InputEvent(OPENMSX_QUIT_EVENT)
 {
 }
 
-string QuitEvent::toString() const
+void QuitEvent::toStringImpl(TclObject& result) const
 {
-	return "quit";
+	result.addListElement("quit");
 }
 
 bool QuitEvent::lessImpl(const InputEvent& /*other*/) const
@@ -371,15 +383,10 @@ const vector<string>& MSXCommandEvent::getTokens() const
 	return tokens;
 }
 
-string MSXCommandEvent::toString() const
+void MSXCommandEvent::toStringImpl(TclObject& result) const
 {
-	// TODO use TCL list format
-	string result = "command";
-	for (vector<string>::const_iterator it = tokens.begin();
-	     it != tokens.end(); ++it) {
-		result += ':' + *it;
-	}
-	return result;
+	result.addListElement("command");
+	result.addListElements(tokens.begin(), tokens.end());
 }
 
 bool MSXCommandEvent::lessImpl(const InputEvent& other) const

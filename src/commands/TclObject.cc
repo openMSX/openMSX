@@ -41,6 +41,12 @@ TclObject::TclObject(const TclObject& object)
 	init(object.obj);
 }
 
+TclObject::TclObject()
+	: interp(0)
+{
+	init(Tcl_NewObj());
+}
+
 void TclObject::init(Tcl_Obj* obj_)
 {
 	obj = obj_;
@@ -74,6 +80,13 @@ void TclObject::unshare()
 		Tcl_IncrRefCount(obj);
 	}
 	assert(!Tcl_IsShared(obj));
+}
+
+void TclObject::throwException() const
+{
+	string message = interp ? Tcl_GetStringResult(interp)
+	                        : "TclObject error";
+	throw CommandException(message);
 }
 
 void TclObject::setString(const string& value)
@@ -124,7 +137,7 @@ void TclObject::addListElement(Tcl_Obj* element)
 {
 	unshare();
 	if (Tcl_ListObjAppendElement(interp, obj, element) != TCL_OK) {
-		throw CommandException(Tcl_GetStringResult(interp));
+		throwException();
 	}
 }
 
@@ -132,7 +145,7 @@ int TclObject::getInt() const
 {
 	int result;
 	if (Tcl_GetIntFromObj(interp, obj, &result) != TCL_OK) {
-		throw CommandException(Tcl_GetStringResult(interp));
+		throwException();
 	}
 	return result;
 }
@@ -141,7 +154,7 @@ double TclObject::getDouble() const
 {
 	double result;
 	if (Tcl_GetDoubleFromObj(interp, obj, &result) != TCL_OK) {
-		throw CommandException(Tcl_GetStringResult(interp));
+		throwException();
 	}
 	return result;
 }
@@ -163,7 +176,7 @@ unsigned TclObject::getListLength() const
 {
 	int result;
 	if (Tcl_ListObjLength(interp, obj, &result) != TCL_OK) {
-		throw CommandException(Tcl_GetStringResult(interp));
+		throwException();
 	}
 	return result;
 }
@@ -172,7 +185,7 @@ TclObject TclObject::getListIndex(unsigned index)
 {
 	Tcl_Obj* element;
 	if (Tcl_ListObjIndex(interp, obj, index, &element) != TCL_OK) {
-		throw CommandException(Tcl_GetStringResult(interp));
+		throwException();
 	}
 	return element ? TclObject(interp, element)
 	               : TclObject(interp);
@@ -182,7 +195,7 @@ bool TclObject::evalBool() const
 {
 	int result;
 	if (Tcl_ExprBooleanObj(interp, obj, &result) != TCL_OK) {
-		throw CommandException(Tcl_GetStringResult(interp));
+		throwException();
 	}
 	return result;
 }
@@ -201,6 +214,7 @@ void TclObject::checkCommand() const
 
 void TclObject::parse(const char* str, int len, bool expression) const
 {
+	assert(interp);
 	Tcl_Parse info;
 	if (expression ?
 	    Tcl_ParseExpr(interp, str, len, &info) :
@@ -242,6 +256,7 @@ void TclObject::parse(const char* str, int len, bool expression) const
 
 string TclObject::executeCommand(bool compile)
 {
+	assert(interp);
 	int flags = compile ? 0 : TCL_EVAL_DIRECT;
 	int success = Tcl_EvalObjEx(interp, obj, flags);
 	string result =  Tcl_GetStringResult(interp);

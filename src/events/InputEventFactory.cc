@@ -4,6 +4,7 @@
 #include "InputEvents.hh"
 #include "CommandException.hh"
 #include "StringOp.hh"
+#include "Interpreter.hh"
 
 using std::string;
 using std::vector;
@@ -136,7 +137,7 @@ static EventPtr parseCommandEvent(
 EventPtr createInputEvent(const string& str)
 {
 	vector<string> components;
-	StringOp::split(str, ":", components);
+	Interpreter::splitList(str, components, 0);
 	if (components.empty()) {
 		throw CommandException("Invalid event: \"" + str + "\"");
 	}

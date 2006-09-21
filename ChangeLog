@@ -3,6 +3,8 @@ $Id$
 2006-09-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Made 'hda', 'cda', 'type', 'keymatrixup' and 'keymatrixdown'
 	  commands recorded
+	* Changed format of event recorder to also allow ':' characters in
+	  recorded commands
 
 2006-09-20 Manuel Bilderbeek <manuel@msxnet.org>
 	* Removed SDLGL2 (superseded by SDLGL-PP), as requested by Wouter

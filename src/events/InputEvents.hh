@@ -13,8 +13,6 @@ namespace openmsx {
 
 class InputEvent : public Event
 {
-public:
-	virtual std::string toString() const = 0;
 protected:
 	virtual bool lessImpl(const Event& other) const;
 	virtual bool lessImpl(const InputEvent& other) const = 0;
@@ -27,12 +25,12 @@ class KeyEvent : public InputEvent
 public:
 	Keys::KeyCode getKeyCode() const;
 	word getUnicode() const;
-	virtual std::string toString() const;
 
 protected:
 	KeyEvent(EventType type, Keys::KeyCode keyCode, word unicode);
 
 private:
+	virtual void toStringImpl(TclObject& result) const;
 	virtual bool lessImpl(const InputEvent& other) const;
 	Keys::KeyCode keyCode;
 	word unicode;
@@ -66,7 +64,7 @@ public:
 
 protected:
 	MouseButtonEvent(EventType type, unsigned button_);
-	std::string toStringHelper() const;
+	void toStringHelper(TclObject& result) const;
 
 private:
 	virtual bool lessImpl(const InputEvent& other) const;
@@ -77,14 +75,16 @@ class MouseButtonUpEvent : public MouseButtonEvent
 {
 public:
 	explicit MouseButtonUpEvent(unsigned button);
-	virtual std::string toString() const;
+private:
+	virtual void toStringImpl(TclObject& result) const;
 };
 
 class MouseButtonDownEvent : public MouseButtonEvent
 {
 public:
 	explicit MouseButtonDownEvent(unsigned button);
-	virtual std::string toString() const;
+private:
+	virtual void toStringImpl(TclObject& result) const;
 };
 
 class MouseMotionEvent : public InputEvent
@@ -93,9 +93,9 @@ public:
 	MouseMotionEvent(int xrel, int yrel);
 	int getX() const;
 	int getY() const;
-	virtual std::string toString() const;
 
 private:
+	virtual void toStringImpl(TclObject& result) const;
 	virtual bool lessImpl(const InputEvent& other) const;
 	int xrel;
 	int yrel;
@@ -109,7 +109,7 @@ public:
 
 protected:
 	JoystickEvent(EventType type, unsigned joystick);
-	std::string toStringHelper() const;
+	void toStringHelper(TclObject& result) const;
 
 private:
 	virtual bool lessImpl(const InputEvent& other) const;
@@ -124,7 +124,7 @@ public:
 
 protected:
 	JoystickButtonEvent(EventType type, unsigned joystick, unsigned button);
-	std::string toStringHelper() const;
+	void toStringHelper(TclObject& result) const;
 
 private:
 	virtual bool lessImpl(const JoystickEvent& other) const;
@@ -135,14 +135,16 @@ class JoystickButtonUpEvent : public JoystickButtonEvent
 {
 public:
 	JoystickButtonUpEvent(unsigned joystick, unsigned button);
-	virtual std::string toString() const;
+private:
+	virtual void toStringImpl(TclObject& result) const;
 };
 
 class JoystickButtonDownEvent : public JoystickButtonEvent
 {
 public:
 	JoystickButtonDownEvent(unsigned joystick, unsigned button);
-	virtual std::string toString() const;
+private:
+	virtual void toStringImpl(TclObject& result) const;
 };
 
 class JoystickAxisMotionEvent : public JoystickEvent
@@ -154,9 +156,9 @@ public:
 	JoystickAxisMotionEvent(unsigned joystick, unsigned axis, short value);
 	unsigned getAxis() const;
 	short getValue() const;
-	virtual std::string toString() const;
 
 private:
+	virtual void toStringImpl(TclObject& result) const;
 	virtual bool lessImpl(const JoystickEvent& other) const;
 	unsigned axis;
 	short value;
@@ -169,9 +171,9 @@ public:
 	explicit FocusEvent(bool gain);
 
 	bool getGain() const;
-	virtual std::string toString() const;
 
 private:
+	virtual void toStringImpl(TclObject& result) const;
 	virtual bool lessImpl(const InputEvent& other) const;
 	bool gain;
 };
@@ -184,9 +186,9 @@ public:
 
 	unsigned getX() const;
 	unsigned getY() const;
-	virtual std::string toString() const;
 
 private:
+	virtual void toStringImpl(TclObject& result) const;
 	virtual bool lessImpl(const InputEvent& other) const;
 	unsigned x;
 	unsigned y;
@@ -197,8 +199,8 @@ class QuitEvent : public InputEvent
 {
 public:
 	QuitEvent();
-	virtual std::string toString() const;
 private:
+	virtual void toStringImpl(TclObject& result) const;
 	virtual bool lessImpl(const InputEvent& other) const;
 };
 
@@ -212,8 +214,8 @@ class MSXCommandEvent : public InputEvent
 public:
 	MSXCommandEvent(const std::vector<std::string>& tokens);
 	const std::vector<std::string>& getTokens() const;
-	virtual std::string toString() const;
 private:
+	virtual void toStringImpl(TclObject& result) const;
 	virtual bool lessImpl(const InputEvent& other) const;
 	const std::vector<std::string> tokens;
 };

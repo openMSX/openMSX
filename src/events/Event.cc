@@ -1,6 +1,7 @@
 // $Id$
 
 #include "Event.hh"
+#include "TclObject.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -23,7 +24,9 @@ EventType Event::getType() const
 
 std::string Event::toString() const
 {
-	assert(false);
+	TclObject result;
+	toStringImpl(result);
+	return result.getString();
 }
 
 bool Event::operator< (const Event& other) const
@@ -34,6 +37,11 @@ bool Event::operator< (const Event& other) const
 bool Event::operator==(const Event& other) const
 {
 	return !(*this < other) && !(other < *this);
+}
+
+void Event::toStringImpl(TclObject& /*result*/) const
+{
+	assert(false);
 }
 
 bool Event::lessImpl(const Event& /*other*/) const
