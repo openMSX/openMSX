@@ -23,7 +23,8 @@ private:
 MSXS1990::MSXS1990(MSXMotherBoard& motherBoard, const XMLElement& config,
                    const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
-	, firmwareSwitch(new FirmwareSwitch(motherBoard.getCommandController()))
+	, firmwareSwitch(
+	      new FirmwareSwitch(motherBoard.getCommandController(), config) )
 	, debuggable(new S1990Debuggable(motherBoard, *this))
 {
 	reset(time);

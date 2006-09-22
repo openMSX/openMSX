@@ -73,7 +73,8 @@ static void releaseSRAM()
 RomFSA1FM1::RomFSA1FM1(MSXMotherBoard& motherBoard, const XMLElement& config,
                        const EmuTime& time, std::auto_ptr<Rom> rom)
 	: MSXRom(motherBoard, config, time, rom)
-	, firmwareSwitch(new FirmwareSwitch(motherBoard.getCommandController()))
+	, firmwareSwitch(
+	      new FirmwareSwitch(motherBoard.getCommandController(), config) )
 {
 	allocSRAM(motherBoard, config);
 	reset(time);

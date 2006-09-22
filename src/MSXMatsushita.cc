@@ -14,7 +14,8 @@ MSXMatsushita::MSXMatsushita(MSXMotherBoard& motherBoard,
                              const XMLElement& config, const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
 	, MSXSwitchedDevice(motherBoard, ID)
-	, firmwareSwitch(new FirmwareSwitch(motherBoard.getCommandController()))
+	, firmwareSwitch(
+	     new FirmwareSwitch(motherBoard.getCommandController(), config) )
 	, sram(new SRAM(motherBoard, getName() + " SRAM", 0x800, config))
 {
 	// TODO find out what ports 0x41 0x45 0x46 are used for
