@@ -25,7 +25,7 @@ public:
 private:
 	const std::auto_ptr<BooleanSetting> setting;
 	const XMLElement& config;
-        CliComm& cliComm;
+	CliComm& cliComm;
 
 };
 
