@@ -4,7 +4,6 @@
 #define FRONTSWITCH_HH
 
 #include <memory>
-#include <string>
 
 namespace openmsx {
 
@@ -17,7 +16,7 @@ class FirmwareSwitch
 {
 public:
 	FirmwareSwitch(CommandController& commandController, 
-	                                      const XMLElement& config);
+	               const XMLElement& config);
 	~FirmwareSwitch();
 
 	bool getStatus() const;
@@ -26,7 +25,6 @@ private:
 	const std::auto_ptr<BooleanSetting> setting;
 	const XMLElement& config;
 	CliComm& cliComm;
-
 };
 
 } // namespace openmsx
