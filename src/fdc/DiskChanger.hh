@@ -19,6 +19,7 @@ class Disk;
 class DiskCommand;
 class CliComm;
 class GlobalSettings;
+class TclObject;
 
 class DiskChanger : public DiskContainer, private MSXEventListener
 {
@@ -40,7 +41,7 @@ public:
 	virtual SectorAccessibleDisk* getSectorAccessibleDisk();
 
 private:
-	void insertDisk(const std::vector<std::string>& args);
+	void insertDisk(const std::vector<TclObject*>& args);
 	void ejectDisk();
 	void changeDisk(std::auto_ptr<Disk> newDisk);
 	void sendChangeDiskEvent(const std::vector<std::string>& args);

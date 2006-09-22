@@ -1,6 +1,11 @@
 $Id$
 
-2006-09-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2006-09-22 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Made Command's also Recordable (was only SimpleCommand's)
+	* record 'debug write' commands:
+	   - record/replay now also works when trainers are used
+
+2006-09-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Made 'hda', 'cda', 'type', 'keymatrixup' and 'keymatrixdown'
 	  commands recorded
 	* Changed format of event recorder to also allow ':' characters in

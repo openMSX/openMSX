@@ -374,11 +374,32 @@ bool QuitEvent::lessImpl(const InputEvent& /*other*/) const
 
 MSXCommandEvent::MSXCommandEvent(const vector<string>& tokens_)
 	: InputEvent(OPENMSX_MSX_COMMAND_EVENT)
+	, owned(true)
+{
+	for (vector<string>::const_iterator it = tokens_.begin();
+	     it != tokens_.end(); ++it) {
+		tokens.push_back(new TclObject(0, *it));
+	}
+}
+
+MSXCommandEvent::MSXCommandEvent(const vector<TclObject*>& tokens_)
+	: InputEvent(OPENMSX_MSX_COMMAND_EVENT)
 	, tokens(tokens_)
+	, owned(false)
 {
 }
 
-const vector<string>& MSXCommandEvent::getTokens() const
+MSXCommandEvent::~MSXCommandEvent()
+{
+	if (owned) {
+		for (vector<TclObject*>::const_iterator it = tokens.begin();
+		     it != tokens.end(); ++it) {
+			delete *it;
+		}
+	}
+}
+
+const vector<TclObject*>& MSXCommandEvent::getTokens() const
 {
 	return tokens;
 }
@@ -386,7 +407,10 @@ const vector<string>& MSXCommandEvent::getTokens() const
 void MSXCommandEvent::toStringImpl(TclObject& result) const
 {
 	result.addListElement("command");
-	result.addListElements(tokens.begin(), tokens.end());
+	for (vector<TclObject*>::const_iterator it = tokens.begin();
+	     it != tokens.end(); ++it) {
+		result.addListElement(**it);
+	}
 }
 
 bool MSXCommandEvent::lessImpl(const InputEvent& other) const

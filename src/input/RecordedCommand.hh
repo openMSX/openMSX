@@ -16,22 +16,35 @@ class EmuTime;
   * so that they can be recorded by the event recorder. This class helps to
   * implement that.
   */
-class RecordedCommand : public SimpleCommand, private MSXEventListener
+class RecordedCommand : public Command, private MSXEventListener
 {
 public:
-	/** This is like the execute() method of SimpleCommand
-	  * @param tokens The command tokens (see SimpleCommand)
-	  * @param time The current time
-	  * @result Result string of the command
+	/** This is like the execute() method of the Command class, it only
+	  * has an extra time parameter.
+	  * There are two variants of this method.  The one with tclObjects is
+	  * the fastest, the one with strings is often more convenient to use.
+	  * Subclasses must reimplement exactly one of these two.
 	  */
+	virtual void execute(
+		const std::vector<TclObject*>& tokens, TclObject& result,
+		const EmuTime& time);
 	virtual std::string execute(
-		const std::vector<std::string>& tokens, const EmuTime& time) = 0;
+		const std::vector<std::string>& tokens, const EmuTime& time);
 
 	/** It's possible that in some cases the command doesn't need to be
 	  * recorded after all (e.g. a query subcommand). In that case you can
 	  * override this method. Return false iff the command doesn't need
-	  * to be recorded. The default implementation always returns true.
+	  * to be recorded.
+	  * Similar to the execute() method above there are two variants of
+	  * this method. However in this case it's allowed to override none
+	  * or just one of the two variants (but not both).
+	  * The default implementation always returns true (will always
+	  * record). If this default implementation is fine but speed is very
+	  * important (e.g. the debug command) it is still recommenced to
+	  * override the TclObject variant of this method (and just return
+	  * true).
 	  */
+	virtual bool needRecord(const std::vector<TclObject*>& tokens) const;
 	virtual bool needRecord(const std::vector<std::string>& tokens) const;
 
 protected:
@@ -42,8 +55,9 @@ protected:
 	virtual ~RecordedCommand();
 
 private:
-	// SimpleCommand
-	virtual std::string execute(const std::vector<std::string>& tokens);
+	// Command
+	virtual void execute(const std::vector<TclObject*>& tokens,
+	                     TclObject& result);
 
 	// MSXEventListener
 	virtual void signalEvent(shared_ptr<const Event> event,
@@ -51,7 +65,8 @@ private:
 
 	MSXEventDistributor& msxEventDistributor;
 	Scheduler& scheduler;
-	std::string resultString;
+	std::auto_ptr<TclObject> dummyResultObject;
+	TclObject* currentResultObject;
 };
 
 } // namespace openmsx

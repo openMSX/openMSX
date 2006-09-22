@@ -9,7 +9,7 @@
 #include "MSXWatchIODevice.hh"
 #include "TclObject.hh"
 #include "CommandController.hh"
-#include "Command.hh"
+#include "RecordedCommand.hh"
 #include "CommandException.hh"
 #include "StringOp.hh"
 #include <cassert>
@@ -26,13 +26,15 @@ using std::auto_ptr;
 
 namespace openmsx {
 
-class DebugCmd : public Command
+class DebugCmd : public RecordedCommand
 {
 public:
 	DebugCmd(CommandController& commandController,
-		 Debugger& debugger);
+	         MSXEventDistributor& msxEventDistributor,
+	         Scheduler& scheduler, Debugger& debugger);
+	virtual bool needRecord(const vector<TclObject*>& tokens) const;
 	virtual void execute(const vector<TclObject*>& tokens,
-			     TclObject& result);
+	                     TclObject& result, const EmuTime& time);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 
@@ -71,7 +73,9 @@ private:
 
 Debugger::Debugger(MSXMotherBoard& motherBoard_)
 	: motherBoard(motherBoard_)
-	, debugCmd(new DebugCmd(motherBoard.getCommandController(), *this))
+	, debugCmd(new DebugCmd(motherBoard.getCommandController(),
+	                        motherBoard.getMSXEventDistributor(),
+	                        motherBoard.getScheduler(), *this))
 	, cpu(0)
 {
 }
@@ -139,15 +143,24 @@ static word getAddress(const vector<TclObject*>& tokens)
 	return addr;
 }
 
-DebugCmd::DebugCmd(CommandController& commandController_,
-                             Debugger& debugger_)
-	: Command(commandController_, "debug")
+DebugCmd::DebugCmd(CommandController& commandController,
+                   MSXEventDistributor& msxEventDistributor,
+                   Scheduler& scheduler, Debugger& debugger_)
+	: RecordedCommand(commandController, msxEventDistributor,
+	                  scheduler, "debug")
 	, debugger(debugger_)
 {
 }
 
+bool DebugCmd::needRecord(const vector<TclObject*>& tokens) const
+{
+	if (tokens.size() < 2) return false;
+	string subCmd = tokens[1]->getString();
+	return (subCmd == "write") || (subCmd == "write_block");
+}
+
 void DebugCmd::execute(const vector<TclObject*>& tokens,
-                                 TclObject& result)
+                       TclObject& result, const EmuTime& /*time*/)
 {
 	if (tokens.size() < 2) {
 		throw CommandException("Missing argument");

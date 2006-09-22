@@ -213,11 +213,14 @@ class MSXCommandEvent : public InputEvent
 {
 public:
 	MSXCommandEvent(const std::vector<std::string>& tokens);
-	const std::vector<std::string>& getTokens() const;
+	MSXCommandEvent(const std::vector<TclObject*>& tokens);
+	virtual ~MSXCommandEvent();
+	const std::vector<TclObject*>& getTokens() const;
 private:
 	virtual void toStringImpl(TclObject& result) const;
 	virtual bool lessImpl(const InputEvent& other) const;
-	const std::vector<std::string> tokens;
+	std::vector<TclObject*> tokens;
+	bool owned;
 };
 
 

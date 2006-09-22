@@ -119,9 +119,10 @@ void DiskChanger::signalEvent(
 
 	const MSXCommandEvent* commandEvent =
 		checked_cast<const MSXCommandEvent*>(event.get());
-	const vector<string>& tokens = commandEvent->getTokens();
-	if ((tokens[0] == getDriveName()) && (tokens.size() >= 2)) {
-		if (tokens[1] == "-eject") {
+	const vector<TclObject*>& tokens = commandEvent->getTokens();
+	if ((tokens.size() >= 2) &&
+	    (tokens[0]->getString() == getDriveName())) {
+		if (tokens[1]->getString() == "-eject") {
 			ejectDisk();
 		} else {
 			insertDisk(tokens);
@@ -129,10 +130,10 @@ void DiskChanger::signalEvent(
 	}
 }
 
-void DiskChanger::insertDisk(const vector<string>& args)
+void DiskChanger::insertDisk(const vector<TclObject*>& args)
 {
 	std::auto_ptr<Disk> newDisk;
-	const string& diskImage = args[1];
+	const string& diskImage = args[1]->getString();
 	if (diskImage == "-ramdsk") {
 		newDisk.reset(new RamDSKDiskImage());
 	} else {
@@ -155,7 +156,7 @@ void DiskChanger::insertDisk(const vector<string>& args)
 		}
 	}
 	for (unsigned i = 2; i < args.size(); ++i) {
-		disk->applyPatch(args[i]);
+		disk->applyPatch(args[i]->getString());
 	}
 
 	// no errors, only now replace original disk
