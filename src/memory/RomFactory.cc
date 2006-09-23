@@ -22,6 +22,7 @@
 #include "RomNational.hh"
 #include "RomMajutsushi.hh"
 #include "RomSynthesizer.hh"
+#include "RomPlayBall.hh"
 #include "RomGameMaster2.hh"
 #include "RomHalnote.hh"
 #include "RomKorean80in1.hh"
@@ -266,6 +267,9 @@ auto_ptr<MSXDevice> RomFactory::create(
 	case ROM_SYNTHESIZER:
 		return auto_ptr<MSXDevice>(
 			new RomSynthesizer(motherBoard, config, time, rom));
+	case ROM_PLAYBALL:
+		return auto_ptr<MSXDevice>(
+			new RomPlayBall(motherBoard, config, time, rom));
 	case ROM_HALNOTE:
 		return auto_ptr<MSXDevice>(
 			new RomHalnote(motherBoard, config, time, rom));

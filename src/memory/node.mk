@@ -21,14 +21,15 @@ SRC_HDR:= \
 	RomKorean80in1 RomKorean90in1 RomKorean126in1 \
 	RomPanasonic RomNational \
 	RomMSXAudio RomHalnote RomHolyQuran \
-	RomFSA1FM \
+	RomFSA1FM RomPlayBall \
 	PanasonicMemory PanasonicRam \
 	MSXMegaRam \
 	MSXPac \
 	MSXHBI55
 
 HDR_ONLY:= \
-	RomTypes
+	RomTypes \
+	PlayBallSamples
 
 include build/node-end.mk
 

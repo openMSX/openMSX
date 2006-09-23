@@ -74,6 +74,7 @@ enum RomType {
 	ROM_HAS_DAC      = 128,
 	ROM_MAJUTSUSHI   = 128 + 0,
 	ROM_SYNTHESIZER  = 128 + 1,
+	ROM_PLAYBALL     = 128 + 2,
 
 	ROM_UNKNOWN      = 256
 };

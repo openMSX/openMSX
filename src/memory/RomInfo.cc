@@ -46,6 +46,7 @@ static const RomTypeMap& getRomTypeMap()
 		romTypeMap["GameMaster2"] = ROM_GAME_MASTER2;
 		romTypeMap["Majutsushi"]  = ROM_MAJUTSUSHI;
 		romTypeMap["Synthesizer"] = ROM_SYNTHESIZER;
+		romTypeMap["PlayBall"]    = ROM_PLAYBALL;
 		romTypeMap["HolyQuran"]   = ROM_HOLY_QURAN;
 
 		// ROM mapper types used for system ROMs in machines

@@ -73,6 +73,7 @@ RomInfoTopic::RomInfoTopic(CommandController& commandController)
 	// with DAC
 	description[ROM_MAJUTSUSHI] = "Hai no Majutsushi";
 	description[ROM_SYNTHESIZER] = "Konami's Synthesizer";
+	description[ROM_PLAYBALL] = "Sony's PlayBall";
 }
 
 void RomInfoTopic::execute(const vector<TclObject*>& tokens,

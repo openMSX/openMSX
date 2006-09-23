@@ -1,5 +1,8 @@
 $Id$
 
+2006-09-23 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented PlayBall mapper type
+
 2006-09-22 Manuel Bilderbeek <manuel@msxnet.org>
 	* Save firmwareswitch position with persistent data
 

@@ -11459,6 +11459,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
+				<type>PLAYBALL</type>
 				<hash algo="sha1">e6fbfb4b10dc393953211dda4b114080a08302a1</hash>
 			</rom>
 		</dump>

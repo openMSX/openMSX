@@ -19,7 +19,8 @@ SRC_HDR:= \
 	YMF262 YMF278 MSXMoonSound \
 	AudioInputConnector AudioInputDevice \
 	DummyAudioInputDevice WavAudioInput \
-	WavWriter
+	WavWriter \
+	SamplePlayer
 
 HDR_ONLY:= \
 	SoundDriver \
