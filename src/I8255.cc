@@ -1,6 +1,7 @@
 // $Id$
 
 #include "I8255.hh"
+#include <iostream>
 #include <cassert>
 
 namespace openmsx {
@@ -52,10 +53,9 @@ byte I8255::readPortA(const EmuTime& time)
 			//output
 			return latchPortA;		// output is latched
 		}
-	case MODEA_1:		//TODO but not relevant for MSX
+	case MODEA_1: //TODO but not relevant for MSX
 	case MODEA_2: case MODEA_2_:
 	default:
-		assert (false);
 		return 255;	// avoid warning
 	}
 }
@@ -69,7 +69,7 @@ byte I8255::peekPortA(const EmuTime& time) const
 		} else {
 			return latchPortA;		// output is latched
 		}
-	case MODEA_1:		//TODO but not relevant for MSX
+	case MODEA_1: //TODO but not relevant for MSX
 	case MODEA_2: case MODEA_2_:
 	default:
 		return 255;
@@ -87,9 +87,8 @@ byte I8255::readPortB(const EmuTime& time)
 			//output
 			return latchPortB;		// output is latched
 		}
-	case MODEB_1:		// TODO but not relevant for MSX
+	case MODEB_1: // TODO but not relevant for MSX
 	default:
-		assert (false);
 		return 255;	// avoid warning
 	}
 }
@@ -103,9 +102,9 @@ byte I8255::peekPortB(const EmuTime& time) const
 		} else {
 			return latchPortB;		// output is latched
 		}
-	case MODEB_1:		// TODO but not relevant for MSX
+	case MODEB_1: // TODO but not relevant for MSX
 	default:
-		return 255;
+		return 255; 
 	}
 }
 
@@ -116,16 +115,18 @@ byte I8255::readPortC(const EmuTime& time)
 	case MODEA_0:
 		// do nothing
 		break;
-	case MODEA_1:		// TODO but not relevant for MSX
+	case MODEA_1:
 	case MODEA_2: case MODEA_2_:
-		assert (false);
+		// TODO but not relevant for MSX
+		break;
 	}
 	switch (control & MODE_B) {
 	case MODEB_0:
 		// do nothing
 		break;
-	case MODEB_1:		// TODO but not relevant for MSX
-		assert (false);
+	case MODEB_1:
+		// TODO but not relevant for MSX
+		break;
 	}
 	return tmp;
 }
@@ -186,9 +187,10 @@ void I8255::writePortA(byte value, const EmuTime& time)
 	case MODEA_0:
 		// do nothing
 		break;
-	case MODEA_1:		// TODO but not relevant for MSX
+	case MODEA_1:
 	case MODEA_2: case MODEA_2_:
-		assert (false);
+		// TODO but not relevant for MSX
+		break;
 	}
 	outputPortA(value, time);
 }
@@ -199,8 +201,9 @@ void I8255::writePortB(byte value, const EmuTime& time)
 	case MODEB_0:
 		// do nothing
 		break;
-	case MODEB_1:		// TODO but not relevant for MSX
-		assert (false);
+	case MODEB_1:
+		// TODO but not relevant for MSX
+		break;
 	}
 	outputPortB(value, time);
 }
@@ -211,16 +214,18 @@ void I8255::writePortC(byte value, const EmuTime& time)
 	case MODEA_0:
 		// do nothing
 		break;
-	case MODEA_1:		// TODO but not relevant for MSX
+	case MODEA_1:
 	case MODEA_2: case MODEA_2_:
-		assert (false);
+		// TODO but not relevant for MSX
+		break;
 	}
 	switch (control & MODE_B) {
 	case MODEB_0:
 		// do nothing
 		break;
-	case MODEB_1:		// TODO but not relevant for MSX
-		assert (false);
+	case MODEB_1:
+		// TODO but not relevant for MSX
+		break;
 	}
 	outputPortC(value, time);
 }
@@ -258,9 +263,18 @@ void I8255::outputPortC(byte value, const EmuTime& time)
 
 void I8255::writeControlPort(byte value, const EmuTime& time)
 {
+	static bool alreadyWarned = false; // only print warning once
+
 	if (value & SET_MODE) {
 		// set new control mode
 		control = value;
+		if ((control & (MODE_A | MODE_B)) && !alreadyWarned) {
+			alreadyWarned = true;
+			std::cerr << "Warning: Invalid PPI mode selected.\n"
+			          << "This is not yet correctly emulated.\n"
+			          << "On a real MSX this will most likely hang."
+			          << std::endl;
+		}
 		outputPortA(latchPortA, time);
 		outputPortB(latchPortB, time);
 		outputPortC(latchPortC, time);
@@ -281,16 +295,18 @@ void I8255::writeControlPort(byte value, const EmuTime& time)
 		case MODEA_0:
 			// do nothing
 			break;
-		case MODEA_1:		// TODO but not relevant for MSX
+		case MODEA_1:
 		case MODEA_2: case MODEA_2_:
-			assert (false);
+			// TODO but not relevant for MSX
+			break;
 		}
 		switch (control & MODE_B) {
 		case MODEB_0:
 			// do nothing
 			break;
-		case MODEB_1:		// TODO but not relevant for MSX
-			assert (false);
+		case MODEB_1:
+			// TODO but not relevant for MSX
+			break;
 		}
 	}
 }

@@ -6,6 +6,10 @@ $Id$
 	   - fixes a strange error that doing
 	       'diskmanipulator dir diska'
 	     on a read-only disk gives a write(!) error
+	* Detect invalid PPI mode selection and print a warning when an
+	  unimplemted mode is selected:
+	   - those other modes are not that easy to implement and they anyway
+	     will just hang your MSX
 
 2006-09-22 Manuel Bilderbeek <manuel@msxnet.org>
 	* Save firmwareswitch position with persistent data
