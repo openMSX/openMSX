@@ -36,7 +36,7 @@ void RomPlayBall::reset(const EmuTime& /*time*/)
 byte RomPlayBall::peekMem(word address, const EmuTime& time) const
 {
 	if (address == 0xBFFF) {
-		return samplePlayer->isPlaying() ? 1 : 0;
+		return samplePlayer->isPlaying() ? 0xFE : 0xFF;
 	} else {
 		return Rom16kBBlocks::peekMem(address, time);
 	}

@@ -1,5 +1,8 @@
 // $Id: $
 
+// Sample data taken from BlueMSX
+//   http://www.bluemsx.com
+
 #ifndef PLAYBALLSAMPLES_HH
 #define PLAYBALLSAMPLES_HH
 
