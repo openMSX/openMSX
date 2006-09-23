@@ -105,6 +105,7 @@ private:
 	SectorAccessibleDisk& disk;
 
 	std::vector<byte> fatBuffer;
+	bool fatCacheDirty;
 	void writeCachedFAT();
 	void writeLogicalSector(unsigned sector, const byte* buf);
 	void readLogicalSector (unsigned sector,       byte* buf);

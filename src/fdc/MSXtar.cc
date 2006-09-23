@@ -106,6 +106,7 @@ void MSXtar::parseBootSectorFAT(const byte* buf)
 
 	// cache complete FAT
 	assert(fatBuffer.empty()); // cache must be empty at this point
+	fatCacheDirty = false;
 	fatBuffer.resize(SECTOR_SIZE * sectorsPerFat);
 	for (int i = 0; i < sectorsPerFat; ++i) {
 		disk.readLogicalSector(partitionOffset + 1 + i,
@@ -120,6 +121,7 @@ void MSXtar::writeLogicalSector(unsigned sector, const byte* buf)
 		// we have a cache and this is a sector of the 1st FAT
 		//   --> update cache
 		memcpy(&fatBuffer[SECTOR_SIZE * fatSector], buf, SECTOR_SIZE);
+		fatCacheDirty = true;
 	} else {
 		disk.writeLogicalSector(sector, buf);
 	}
@@ -140,6 +142,7 @@ void MSXtar::readLogicalSector(unsigned sector, byte* buf)
 MSXtar::MSXtar(SectorAccessibleDisk& sectordisk)
 	: disk(sectordisk)
 {
+	fatCacheDirty = false;
 	nbSectorsPerCluster = 2;
 	partitionNbSectors = 0;
 	partitionOffset = 0;
@@ -148,15 +151,22 @@ MSXtar::MSXtar(SectorAccessibleDisk& sectordisk)
 
 MSXtar::~MSXtar()
 {
-	writeCachedFAT();
+	try {
+		writeCachedFAT();
+	} catch (MSXException& e) {
+		// nothing
+	}
 }
 
 // write cached FAT back to disk image
 void MSXtar::writeCachedFAT()
 {
-	for (unsigned i = 0; i < fatBuffer.size() / SECTOR_SIZE; ++i) {
-		disk.writeLogicalSector(partitionOffset + 1 + i,
-		                        &fatBuffer[SECTOR_SIZE * i]);
+	if (fatCacheDirty) {
+		for (unsigned i = 0; i < fatBuffer.size() / SECTOR_SIZE; ++i) {
+			disk.writeLogicalSector(partitionOffset + 1 + i,
+						&fatBuffer[SECTOR_SIZE * i]);
+		}
+		fatCacheDirty = false;
 	}
 	fatBuffer.clear();
 }
