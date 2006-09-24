@@ -7,7 +7,7 @@
  *
  * Copyright (C) 2003 Jarek Burczynski
  *
- * Version 0.1
+ * Version 0.2
  *
  *
  * Revision History:
