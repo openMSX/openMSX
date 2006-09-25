@@ -1,5 +1,8 @@
 $Id$
 
+2006-09-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added support for (recursive) subdirectories in RomPool
+
 2006-09-23 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented PlayBall mapper type
 	* Only flush DiskManipulator FAT cache when there were actual writes:

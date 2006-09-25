@@ -30,6 +30,8 @@ private:
 	std::string getFromPool(const std::string& sha1sum);
 	std::string scanDirectory(const std::string& sha1sum,
 	                          const std::string& directory);
+	std::string scanFile(const std::string& sha1sum,
+	                     const std::string& filename);
 	Pool::iterator findInDatabase(const std::string& filename);
 
 	Pool pool;

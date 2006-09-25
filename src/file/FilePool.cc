@@ -1,16 +1,16 @@
 // $Id$
 
-#include <fstream>
-#include <cassert>
-#include "sha1.hh"
-#include "SettingsConfig.hh"
+#include "FilePool.hh"
 #include "File.hh"
 #include "FileException.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
-#include "FilePool.hh"
 #include "ReadDir.hh"
 #include "Date.hh"
+#include "SettingsConfig.hh"
+#include "sha1.hh"
+#include <fstream>
+#include <cassert>
 
 using std::endl;
 using std::ifstream;
@@ -156,51 +156,64 @@ string FilePool::scanDirectory(const string& sha1sum, const string& directory)
 {
 	ReadDir dir(directory);
 	while (dirent* d = dir.getEntry()) {
-		string filename = directory + '/' + d->d_name;
-		if (!FileOperations::isRegularFile(filename)) {
-			continue;
+		string file = d->d_name;
+		string path = directory + '/' + file;
+		string result;
+		if (FileOperations::isRegularFile(path)) {
+			result = scanFile(sha1sum, path);
+		} else if (FileOperations::isDirectory(path)) {
+			if ((file != ".") && (file != "..")) {
+				result = scanDirectory(sha1sum, path);
+			}
 		}
-		Pool::iterator it = findInDatabase(filename);
-		if (it == pool.end()) {
-			// not in pool
-			try {
+		if (!result.empty()) {
+			return result;
+		}
+	}
+	return string();
+}
+
+string FilePool::scanFile(const string& sha1sum, const string& filename)
+{
+	Pool::iterator it = findInDatabase(filename);
+	if (it == pool.end()) {
+		// not in pool
+		try {
+			time_t time;
+			string sum;
+			calcSha1sum(filename, time, sum);
+			pool.insert(make_pair(sum, make_pair(time, filename)));
+			if (sum == sha1sum) {
+				return filename;
+			}
+		} catch (FileException& e) {
+			// ignore
+		}
+	} else {
+		// already in pool
+		assert(filename == it->second.second);
+		try {
+			File file(filename);
+			if (file.getModificationDate() == it->second.first) {
+				// db is still up to date
+				if (it->first == sha1sum) {
+					return filename;
+				}
+			} else {
+				// db outdated
 				time_t time;
 				string sum;
 				calcSha1sum(filename, time, sum);
+				pool.erase(it);
 				pool.insert(make_pair(sum,
-				                 make_pair(time, filename)));
+						 make_pair(time, filename)));
 				if (sum == sha1sum) {
 					return filename;
 				}
-			} catch (FileException& e) {
-				// ignore
 			}
-		} else {
-			// already in pool
-			assert(filename == it->second.second);
-			try {
-				File file(filename);
-				if (file.getModificationDate() == it->second.first) {
-					// db is still up to date
-					if (it->first == sha1sum) {
-						return filename;
-					}
-				} else {
-					// db outdated
-					time_t time;
-					string sum;
-					calcSha1sum(filename, time, sum);
-					pool.erase(it);
-					pool.insert(make_pair(sum,
-					                 make_pair(time, filename)));
-					if (sum == sha1sum) {
-						return filename;
-					}
-				}
-			} catch (FileException& e) {
-				// error reading file, remove from db
-				pool.erase(it);
-			}
+		} catch (FileException& e) {
+			// error reading file, remove from db
+			pool.erase(it);
 		}
 	}
 	return string();
