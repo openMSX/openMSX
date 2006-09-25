@@ -93,6 +93,8 @@ string RecordedCommand::execute(const vector<string>& /*tokens*/,
 	// either this method or the method above should be reimplemented
 	// by the subclasses
 	assert(false);
+	// avoid warning:
+	return string("");
 }
 
 } // namespace openmsx
