@@ -738,6 +738,10 @@ For experienced users: if you get a crash,
 try to provide a <code>gdb</code> backtrace.
 This will only work if you did not strip the openMSX binary
 of its debug symbols.
+
+Another useful thing to do is to install the debug versions of libstdc++ and libc6,
+and then run openmsx with an LD_LIBRARY_PATH=/usr/lib/debug exported in the environment.
+This will give a more detailed stacktrace, especially in optimized code.
 </p>
 
 <p>
