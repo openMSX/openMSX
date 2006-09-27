@@ -15,8 +15,9 @@ protected:
 	{
 	}
 
-// TODO benchmark this on AMD64
-#if 0 
+// benchmarking showed a slowdown of ~3% on AMD64
+// when using the following code:
+#if 0
 	// 64-bit addition is cheap
 	inline void add(unsigned ticks) { clock += ticks; }
 	inline void sync() const { }
