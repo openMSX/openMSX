@@ -32,7 +32,7 @@ template <typename S, typename T> struct IsTagged {
 struct Streaming {};
 struct X86Streaming
 #ifdef ASM_X86
-: Streaming
+: public Streaming
 #endif
 {};
 struct Copy {};
