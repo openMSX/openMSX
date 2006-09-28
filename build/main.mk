@@ -368,7 +368,7 @@ ifeq ($(OPENMSX_STRIP),true)
 endif
 
 # Determine common compile flags.
-INCLUDE_INTERNAL:=$(filter-out %/.svn,$(shell find $(SOURCES_PATH) -type d))
+INCLUDE_INTERNAL:=$(sort $(foreach header,$(HEADERS_FULL),$(dir $(header))))
 INCLUDE_INTERNAL+=$(CONFIG_PATH)
 INCLUDE_EXTERNAL:= # TODO: Define these here or platform-*.mk?
 INCLUDE_EXTERNAL+=/usr/X11R6/include
