@@ -23,6 +23,7 @@ enum EventType
 	OPENMSX_FOCUS_EVENT,
 	OPENMSX_RESIZE_EVENT,
 	OPENMSX_QUIT_EVENT,
+	OPENMSX_BOOT_EVENT, // sent when the MSX resets or power ups
 
 	/** Send by various commands that have a direct influence on the
 	 *  emulated MSX (plug, diska, reset, ...). Is Implemented as an

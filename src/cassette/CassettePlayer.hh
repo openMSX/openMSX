@@ -3,6 +3,7 @@
 #ifndef CASSETTEPLAYER_HH
 #define CASSETTEPLAYER_HH
 
+#include "EventListener.hh"
 #include "CommandLineParser.hh"
 #include "CassetteDevice.hh"
 #include "SoundDevice.hh"
@@ -24,6 +25,7 @@ class BooleanSetting;
 class TapeCommand;
 class CommandController;
 class MSXEventDistributor;
+class EventDistributor;
 
 class MSXCassettePlayerCLI : public CLIOption, public CLIFileType
 {
@@ -41,12 +43,13 @@ private:
 };
 
 
-class CassettePlayer : public CassetteDevice, public SoundDevice
+class CassettePlayer : public CassetteDevice, public SoundDevice, public EventListener
 {
 public:
 	CassettePlayer(CommandController& commandController,
 	               Mixer& mixer, Scheduler& Scheduler,
-	               MSXEventDistributor& msxEventDistributor);
+	               MSXEventDistributor& msxEventDistributor,
+	               EventDistributor& eventDistributor);
 	virtual ~CassettePlayer();
 
 	void insertTape(const std::string& filename, const EmuTime& time);
@@ -83,6 +86,10 @@ private:
 	void reinitRecording(const EmuTime& time);
 	void stopRecording(const EmuTime& time);
 	void setMotorControl(bool status, const EmuTime& time);
+	void autoRun();
+
+        // EventListener
+	virtual bool signalEvent(shared_ptr<const Event> event);
 
 	std::auto_ptr<CassetteImage> cassette;
 	bool motor, motorControl;
@@ -115,6 +122,7 @@ private:
 
 	CliComm& cliComm;
 	ThrottleManager& throttleManager;
+	EventDistributor& eventDistributor;
 
 	std::auto_ptr<BooleanSetting> autoRunSetting;
 

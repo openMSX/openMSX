@@ -38,6 +38,7 @@
 #include "Reactor.hh"
 #include "Scheduler.hh"
 #include "MSXEventDistributor.hh"
+#include "EventDistributor.hh"
 #include "InputEvents.hh"
 #include "FileOperations.hh"
 #include "WavWriter.hh"
@@ -116,7 +117,8 @@ const string& MSXCassettePlayerCLI::fileTypeHelp() const
 CassettePlayer::CassettePlayer(
 		CommandController& commandController_,
 		Mixer& mixer, Scheduler& scheduler_,
-		MSXEventDistributor& msxEventDistributor)
+		MSXEventDistributor& msxEventDistributor,
+		EventDistributor& eventDistributor_)
 	: SoundDevice(mixer, getName(), getDescription())
 	, motor(false), motorControl(true), isLoading(false)
 	, tapeTime(EmuTime::zero)
@@ -131,6 +133,7 @@ CassettePlayer::CassettePlayer(
 	, playTapeTime(EmuTime::zero)
 	, cliComm(commandController.getCliComm())
 	, throttleManager(commandController.getGlobalSettings().getThrottleManager())
+	, eventDistributor(eventDistributor_)
 {
 	autoRunSetting.reset(new BooleanSetting(commandController,
 		"autoruncassettes", "automatically try to run cassettes", false));
@@ -145,6 +148,7 @@ CassettePlayer::CassettePlayer(
 		cassettePlayerConfig.addChild(sound);
 	}
 	registerSound(cassettePlayerConfig);
+	eventDistributor.registerEventListener(OPENMSX_BOOT_EVENT, *this);
 }
 
 CassettePlayer::~CassettePlayer()
@@ -153,6 +157,7 @@ CassettePlayer::~CassettePlayer()
 	if (Connector* connector = getConnector()) {
 		connector->unplug(scheduler.getCurrentTime());
 	}
+	eventDistributor.unregisterEventListener(OPENMSX_BOOT_EVENT, *this);
 }
 
 void CassettePlayer::updateLoadingState()
@@ -166,7 +171,7 @@ void CassettePlayer::updateLoadingState()
 
 void CassettePlayer::insertTape(const string& filename, const EmuTime& time)
 {
-	stopRecording(scheduler.getCurrentTime());
+	stopRecording(time);
 	try {
 		// first try WAV
 		cassette.reset(new WavImage(filename));
@@ -175,6 +180,14 @@ void CassettePlayer::insertTape(const string& filename, const EmuTime& time)
 		cassette.reset(new CasImage(filename, cliComm));
 	}
 	rewind(time);
+	autoRun();
+	setMute(!isPlaying());
+	casImage = filename;
+	updateLoadingState();
+}
+
+void CassettePlayer::autoRun()
+{
 	// try to automatically run the tape, if that's set
 	CassetteImage::FileType type = cassette->getFirstFileType();
 	if (autoRunSetting->getValue() && type != CassetteImage::UNKNOWN) {
@@ -201,9 +214,6 @@ void CassettePlayer::insertTape(const string& filename, const EmuTime& time)
 				e.getMessage() + " Please report a bug.");
 		}
 	}
-	setMute(!isPlaying());
-	casImage = filename;
-	updateLoadingState();
 }
 
 void CassettePlayer::startRecording(const string& filename,
@@ -437,6 +447,13 @@ void CassettePlayer::updateBuffer(unsigned length, int* buffer,
 	}
 }
 
+bool CassettePlayer::signalEvent(shared_ptr<const Event> event)
+{
+	if (event->getType() == OPENMSX_BOOT_EVENT) {
+		insertTape(casImage, scheduler.getCurrentTime()); // reinsert tape to make sure everything is reset
+	}
+        return true;
+}
 
 // class TapeCommand
 

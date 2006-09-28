@@ -496,6 +496,10 @@ void MSXMotherBoard::doReset(const EmuTime& time)
 		(*it)->reset(time);
 	}
 	getCPU().doReset(time);
+	// let everyone know we're booting, note that the fact that this is
+	// done after the reset call to the devices is arbitrary here
+	getEventDistributor().distributeEvent(EventDistributor::EventPtr(
+		new SimpleEvent<OPENMSX_BOOT_EVENT>()));
 }
 
 void MSXMotherBoard::powerUp()
@@ -522,6 +526,10 @@ void MSXMotherBoard::powerUp()
 	}
 	getCPU().doReset(time);
 	getMixer().unmute();
+	// let everyone know we're booting, note that the fact that this is
+	// done after the reset call to the devices is arbitrary here
+	getEventDistributor().distributeEvent(EventDistributor::EventPtr(
+		new SimpleEvent<OPENMSX_BOOT_EVENT>()));
 }
 
 void MSXMotherBoard::schedulePowerDown()

@@ -1,5 +1,9 @@
 $Id$
 
+2006-09-28 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added BOOT event to be able to do autoRun on cassettes at every
+	  boot. Also needed for Catapult (would otherwise only work once).
+
 2006-09-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added support for (recursive) subdirectories in RomPool
 
