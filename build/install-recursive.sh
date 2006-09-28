@@ -25,7 +25,7 @@ do
 		echo "skipping symbolic link: $src/$name"
 	elif [ -d "$src/$name" ]
 	then
-		if [ "$name" != CVS ]
+		if [ "$name" != .svn ]
 		then
 			$0 "$src/$name" "$dst/$name"
 		fi
