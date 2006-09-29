@@ -1541,7 +1541,6 @@ void YMF262::writeRegForce(int r, byte v, const EmuTime& time)
 				ch.kcode |= (ch.block_fnum & 0x200) >> 9;	// notesel == 0
 			}
 			if (OPL3_mode) {
-				int chan_no = (r & 0x0F) + ch_offset;
 				// in OPL3 mode
 				//DO THIS:
 				//if this is 1st channel forming up a 4-op channel
@@ -1550,7 +1549,7 @@ void YMF262::writeRegForce(int r, byte v, const EmuTime& time)
 				//OR THIS:
 				//if this is 2nd channel forming up 4-op channel just do nothing
 				//else normal 2 operator function keyon/off
-				switch(chan_no) {
+				switch (chan_no) {
 				case 0: case 1: case 2:
 				case 9: case 10: case 11:
 					if (ch.extended) {

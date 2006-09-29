@@ -47,6 +47,7 @@ void Event::toStringImpl(TclObject& /*result*/) const
 bool Event::lessImpl(const Event& /*other*/) const
 {
 	assert(false);
+	return false; // avoid warning
 }
 
 } // namespace openmsx

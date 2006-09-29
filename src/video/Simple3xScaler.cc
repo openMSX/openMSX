@@ -57,7 +57,7 @@ void Simple3xScaler<Pixel>::doScale1(FrameSource& src,
 	copy(prevDstLine0, dstLine1, dst.getWidth());
 
 	for (/* */; (y + 4) < dstEndY; y += 3, srcStartY += 1) {
-		const Pixel* srcLine = src.getLinePtr(srcStartY, srcWidth, dummy);
+		srcLine = src.getLinePtr(srcStartY, srcWidth, dummy);
 		Pixel* dstLine0 = dst.getLinePtr(y + 3, dummy);
 		scale(srcLine, dstLine0, dst.getWidth());
 

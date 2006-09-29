@@ -90,7 +90,7 @@ unsigned bilinear<unsigned>(unsigned a, unsigned b, unsigned x)
 		(a & 0x00FF00FF) * areaA + (b & 0x00FF00FF) * areaB;
 	const unsigned result1 =
 		(a & 0x0000FF00) * areaA + (b & 0x0000FF00) * areaB;
-	return ((result0 & (0xFF00FF << 8)) | (result1 & (0x00FF00 << 8))) >> 8;
+	return ((result0 & (0xFF00FFu << 8)) | (result1 & (0x00FF00 << 8))) >> 8;
 }
 
 template <typename Pixel>
@@ -139,7 +139,7 @@ unsigned bilinear4<unsigned>(
 	const unsigned result1 =
 		(a & 0x0000FF00) * areaA + (b & 0x0000FF00) * areaB +
 		(c & 0x0000FF00) * areaC + (d & 0x0000FF00) * areaD;
-	return ((result0 & (0xFF00FF << 8)) | (result1 & (0x00FF00 << 8))) >> 8;
+	return ((result0 & (0xFF00FFu << 8)) | (result1 & (0x00FF00 << 8))) >> 8;
 }
 
 template <typename Pixel>
@@ -180,8 +180,8 @@ inline Pixel Blender<Pixel>::blend(unsigned a, unsigned b)
 			(a & 0x00FF00FF) * areaA + (b & 0x00FF00FF) * areaB;
 		const unsigned result1 =
 			(a & 0x0000FF00) * areaA + (b & 0x0000FF00) * areaB;
-		return ((result0 & (0xFF00FF << bits)) |
-		        (result1 & (0x00FF00 << bits))) >> bits;
+		return ((result0 & (0xFF00FFu << bits)) |
+		        (result1 & (0x00FF00u << bits))) >> bits;
 	}
 }
 
@@ -213,8 +213,8 @@ inline Pixel Blender<Pixel>::blend(
 		const unsigned result1 =
 			(a & 0x0000FF00) * areaA + (b & 0x0000FF00) * areaB +
 			(c & 0x0000FF00) * areaC + (d & 0x0000FF00) * areaD;
-		return ((result0 & (0xFF00FF << bits)) |
-		        (result1 & (0x00FF00 << bits))) >> bits;
+		return ((result0 & (0xFF00FFu << bits)) |
+		        (result1 & (0x00FF00u << bits))) >> bits;
 	}
 }
 
