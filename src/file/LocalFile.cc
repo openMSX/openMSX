@@ -50,7 +50,7 @@ LocalFile::LocalFile(const string& filename_, File::OpenMode mode)
 		}
 	}
 	if (!file) {
-		throw FileException("Error opening file " + filename);
+		throw FileException("Error opening file \"" + filename + "\"");
 	}
 
 	if (mode == File::PRE_CACHE) {
