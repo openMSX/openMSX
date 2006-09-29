@@ -450,9 +450,18 @@ void CassettePlayer::updateBuffer(unsigned length, int* buffer,
 bool CassettePlayer::signalEvent(shared_ptr<const Event> event)
 {
 	if (event->getType() == OPENMSX_BOOT_EVENT) {
-		insertTape(casImage, scheduler.getCurrentTime()); // reinsert tape to make sure everything is reset
+		if (!casImage.empty()) {
+			// Reinsert tape to make sure everything is reset.
+			try {
+				insertTape(casImage, scheduler.getCurrentTime());
+			} catch (MSXException &e) {
+				cliComm.printWarning(
+					"Failed to insert tape: " + e.getMessage()
+					);
+			}
+		}
 	}
-        return true;
+	return true;
 }
 
 // class TapeCommand
