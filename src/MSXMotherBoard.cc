@@ -599,8 +599,8 @@ static void getHwConfigs(const string& type, set<string>& result)
 	for (vector<string>::const_iterator it = paths.begin();
 	     it != paths.end(); ++it) {
 		string path = *it + type;
-		ReadDir dir(path);
-		while (dirent* d = dir.getEntry()) {
+		ReadDir configsDir(path);
+		while (dirent* d = configsDir.getEntry()) {
 			string name = d->d_name;
 			string dir = path + '/' + name;
 			string config = dir + "/hardwareconfig.xml";
