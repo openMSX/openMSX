@@ -8,6 +8,7 @@
 #include "shared_ptr.hh"
 #include <map>
 #include <vector>
+#include <noncopyable.hh>
 
 namespace openmsx {
 
@@ -15,7 +16,7 @@ class Reactor;
 class EventListener;
 class EmuTime;
 
-class EventDistributor
+class EventDistributor : private noncopyable
 {
 public:
 	typedef shared_ptr<const Event> EventPtr;
