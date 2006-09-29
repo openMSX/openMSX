@@ -109,16 +109,16 @@ void FilePool::writeSha1sums()
 
 string FilePool::getFile(const string& sha1sum)
 {
-	string filename = getFromPool(sha1sum);
-	if (!filename.empty()) {
-		return filename;
+	string filename1 = getFromPool(sha1sum);
+	if (!filename1.empty()) {
+		return filename1;
 	}
 
 	for (Directories::const_iterator it = directories.begin();
 	     it != directories.end(); ++it) {
-		string filename = scanDirectory(sha1sum, *it);
-		if (!filename.empty()) {
-			return filename;
+		string filename2 = scanDirectory(sha1sum, *it);
+		if (!filename2.empty()) {
+			return filename2;
 		}
 	}
 
