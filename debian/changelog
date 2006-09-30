@@ -1,6 +1,7 @@
 openmsx (0.6.1-5) UNRELEASED; urgency=medium
 
   * add note to README.Debian pointing to freeware available on the internet
+  * build on arm again with optimizations; fixed in gcc-4.1 4.1.1ds1-15
 
  -- Joost Yervante Damad <joost@lumatec.be>  Wed, 27 Sep 2006 20:38:06 +0200
 

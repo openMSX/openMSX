@@ -1,5 +1,10 @@
 $Id$
 
+2006-09-30 Joost Damad <joost@lumatec.be>
+	* build on arm with optimizations again
+	* add flavour opt-debug, useful when searching bugs that only
+	  occur on optimized binaries
+
 2006-09-30 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimized V9990 P1 mode rendering:
 	   - WIP sprite rendering can still be optimized a lot
