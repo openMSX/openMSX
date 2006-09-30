@@ -24,14 +24,17 @@ private:
 	V9990VRAM& vram;
 	Pixel* palette64;
 
-	Pixel raster(unsigned xA, unsigned yA,
-	             unsigned nameA, unsigned patternA, byte palA,
-	             unsigned xB, unsigned yB,
-	             unsigned nameB, unsigned patternB, byte palB,
-	             int* visibleSprites, unsigned x, unsigned y);
-	byte getPixel(unsigned x, unsigned y,
-	              unsigned nameTable, unsigned patternTable);
+	void renderPattern(Pixel* buffer, unsigned width1, unsigned width2,
+	                   unsigned displayAX, unsigned displayAY,
+	                   unsigned nameA, unsigned patternA, byte palA,
+	                   unsigned displayBX, unsigned displayBY,
+	                   unsigned nameB, unsigned patternB, byte palB);
+	void renderPattern2(Pixel* buffer, unsigned width,
+	                    unsigned AX, unsigned AY, unsigned name,
+	                    unsigned pattern, byte pal);
 	void determineVisibleSprites(int* visibleSprites, unsigned displayY);
+	void renderSprites(Pixel* buffer, unsigned displayX, unsigned displayEnd,
+	                   unsigned displayY, int* visibleSprites, bool front);
 	byte getSpritePixel(int* visibleSprites, unsigned x, unsigned y,
 	                    bool front);
 };
