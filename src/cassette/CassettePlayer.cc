@@ -607,9 +607,6 @@ string TapeCommand::execute(const vector<string>& tokens, const EmuTime& time)
 		}
 	}
 	if (!cassettePlayer.getConnector()) {
-		if (!result.empty() && result[result.size() - 1] != '\n') {
-			result += '\n';
-		}
 		cliComm.printWarning("Cassetteplayer not plugged in.");
 	}
 	return result;
