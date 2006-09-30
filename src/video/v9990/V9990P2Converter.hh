@@ -16,15 +16,15 @@ class V9990P2Converter
 public:
 	V9990P2Converter(V9990& vdp_, Pixel* palette64);
 
-	void convertLine(Pixel* linePtr,
-	                 int displayX, int displayWidth, int displayY);
+	void convertLine(Pixel* linePtr, unsigned displayX,
+	                 unsigned displayWidth, unsigned displayY);
 
 private:
-	Pixel raster(unsigned xA, unsigned yA,
-	             int* visibleSprites, unsigned x, unsigned y);
-	byte getPixel(unsigned x, unsigned y);
+	void renderPattern(Pixel* buffer, unsigned width,
+	                   unsigned x, unsigned y, byte pal);
 	void determineVisibleSprites(int* visibleSprites, int displayY);
-	byte getSpritePixel(int* visibleSprites, int x, int y, bool front);
+	void renderSprites(Pixel* buffer, int displayX, int displayEnd,
+	                   unsigned displayY, int* visibleSprites, bool front);
 
 	V9990& vdp;
 	V9990VRAM& vram;

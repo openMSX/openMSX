@@ -80,7 +80,8 @@ void V9990P1Converter<Pixel>::convertLine(Pixel* linePtr,
 	int visibleSprites[16 + 1];
 	if (vdp.spritesEnabled()) {
 		determineVisibleSprites(visibleSprites, displayY);
-		renderSprites(linePtr, displayX, displayEnd, displayY, visibleSprites, false);
+		renderSprites(linePtr, displayX, displayEnd, displayY,
+		              visibleSprites, false);
 	}
 
 	// foreground
@@ -90,7 +91,8 @@ void V9990P1Converter<Pixel>::convertLine(Pixel* linePtr,
 
 	// front sprite plane
 	if (vdp.spritesEnabled()) {
-		renderSprites(linePtr, displayX, displayEnd, displayY, visibleSprites, true);
+		renderSprites(linePtr, displayX, displayEnd, displayY,
+		              visibleSprites, true);
 	}
 }
 
@@ -121,7 +123,7 @@ void V9990P1Converter<Pixel>::renderPattern2(
 
 	if (x & 7) {
 		unsigned patternNum = (vram.readVRAMP1(nameAddr + 0) +
-				       vram.readVRAMP1(nameAddr + 1) * 256) & 0x1FFF;
+		                       vram.readVRAMP1(nameAddr + 1) * 256) & 0x1FFF;
 		unsigned x2 = (patternNum % 32) * 4 + ((x & 7) / 2);
 		unsigned y2 = (patternNum / 32) * 1024 + y;
 		unsigned address = patternTable + y2 + x2;
