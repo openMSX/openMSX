@@ -2,7 +2,8 @@ $Id$
 
 2006-09-30 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimized V9990 P1 mode rendering:
-	   WIP sprite rendering can still be optimized a lot
+	   - WIP sprite rendering can still be optimized a lot
+	   - also optimized sprite rendering
 
 2006-09-29 Maarten ter Huurne <maarten@treewalker.org>
 	* Reset loading state if a disk drive or cassette player is destructed.

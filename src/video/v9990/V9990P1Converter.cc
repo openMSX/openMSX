@@ -220,54 +220,48 @@ void V9990P1Converter<Pixel>::determineVisibleSprites(
 			}
 		}
 	}
+	// draw sprites in reverse order
+	std::reverse(visibleSprites, visibleSprites + index);
 	visibleSprites[index] = -1;
 }
 
 template <class Pixel>
 void V9990P1Converter<Pixel>::renderSprites(
-	Pixel* buffer, unsigned displayX, unsigned displayEnd, unsigned displayY,
+	Pixel* buffer, int displayX, int displayEnd, unsigned displayY,
 	int* visibleSprites, bool front)
 {
-	if (visibleSprites[0] == -1) return;
-	// TODO this can be optimized
-	for (unsigned x = displayX; x < displayEnd; ++x) {
-		byte p = getSpritePixel(visibleSprites, x, displayY, front);
-		if (p & 0xF) buffer[x - displayX] = palette64[p];
-	}
-}
-
-template <class Pixel>
-byte V9990P1Converter<Pixel>::getSpritePixel(
-	int* visibleSprites, unsigned x, unsigned y, bool front)
-{
 	static const unsigned spriteTable = 0x3FE00;
-	int spritePatternTable = vdp.getSpritePatternAddress(P1);
+	unsigned spritePatternTable = vdp.getSpritePatternAddress(P1);
 
 	for (unsigned sprite = 0; visibleSprites[sprite] != -1; ++sprite) {
-		unsigned addr     = spriteTable + 4 * visibleSprites[sprite];
-		unsigned spriteX  = vram.readVRAMP1(addr + 2);
-		byte  spriteAttr = vram.readVRAMP1(addr + 3);
-		spriteX += 256 * (spriteAttr & 0x03);
-		if (spriteX > 1008) spriteX -= 1024; // hack X coord into -16..1008
-
-		unsigned posX = x - spriteX;
-		if ((posX < 16) && (front ^ !!(spriteAttr & 0x20))) {
+		unsigned addr = spriteTable + 4 * visibleSprites[sprite];
+		byte spriteAttr = vram.readVRAMP1(addr + 3);
+		if (front ^ !!(spriteAttr & 0x20)) {
+			int spriteX = vram.readVRAMP1(addr + 2);
+			spriteX += 256 * (spriteAttr & 0x03);
+			if (spriteX > 1008) spriteX -= 1024; // hack X coord into -16..1008
 			byte spriteY  = vram.readVRAMP1(addr + 0);
 			byte spriteNo = vram.readVRAMP1(addr + 1);
-			spriteY = y - (spriteY + 1);
-			addr = spritePatternTable
+			spriteY = displayY - (spriteY + 1);
+			unsigned patAddr = spritePatternTable
 			     + (128 * ((spriteNo & 0xF0) + spriteY))
-			     + (  8 *  (spriteNo & 0x0F))
-			     + (posX / 2);
-			byte dixel = vram.readVRAMP1(addr);
-			if (!(posX & 1)) dixel >>= 4;
-			dixel &= 0x0F;
-			if (dixel) {
-				return dixel | ((spriteAttr >> 2) & 0x30);
+			     + (  8 *  (spriteNo & 0x0F));
+			Pixel* palette = palette64 + ((spriteAttr >> 2) & 0x30);
+			for (int x = 0; x < 16; x +=2) {
+				byte data = vram.readVRAMP1(patAddr++);
+				int xPos = spriteX + x;
+				if ((displayX <= xPos) && (xPos < displayEnd)) {
+					byte p = data >> 4;
+					if (p) buffer[xPos - displayX] = palette[p];
+				}
+				++xPos;
+				if ((displayX <= xPos) && (xPos < displayEnd)) {
+					byte p = data & 0x0F;
+					if (p) buffer[xPos - displayX] = palette[p];
+				}
 			}
 		}
 	}
-	return 0;
 }
 
 // Force template instantiation

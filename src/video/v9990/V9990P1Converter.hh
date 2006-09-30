@@ -33,10 +33,8 @@ private:
 	                    unsigned AX, unsigned AY, unsigned name,
 	                    unsigned pattern, byte pal);
 	void determineVisibleSprites(int* visibleSprites, unsigned displayY);
-	void renderSprites(Pixel* buffer, unsigned displayX, unsigned displayEnd,
+	void renderSprites(Pixel* buffer, int displayX, int displayEnd,
 	                   unsigned displayY, int* visibleSprites, bool front);
-	byte getSpritePixel(int* visibleSprites, unsigned x, unsigned y,
-	                    bool front);
 };
 
 } // namespace openmsx
