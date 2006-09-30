@@ -180,6 +180,9 @@ RealDrive::RealDrive(CommandController& commandController,
 
 RealDrive::~RealDrive()
 {
+	if (isLoading) {
+		throttleManager.indicateLoadingState(false);
+	}
 	const string& driveName = changer->getDriveName();
 	commandController.getCliComm().update(
 		CliComm::HARDWARE, driveName, "remove"
@@ -332,17 +335,17 @@ void RealDrive::executeUntil(const EmuTime& /*time*/, int /*userData*/)
 void RealDrive::updateLoadingState()
 {
 	bool newState = motorStatus && (!timeOut);
-        if (isLoading != newState) {
-                isLoading = newState;
-                throttleManager.indicateLoadingState(isLoading);
-        }
+	if (isLoading != newState) {
+		isLoading = newState;
+		throttleManager.indicateLoadingState(isLoading);
+	}
 }
 
 
 const std::string& RealDrive::schedName() const
 {
-        static const string schedName = "RealDrive";
-        return schedName;
+	static const string schedName = "RealDrive";
+	return schedName;
 }
 
 void RealDrive::resetTimeOut(const EmuTime& time)

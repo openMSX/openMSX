@@ -153,6 +153,9 @@ CassettePlayer::CassettePlayer(
 
 CassettePlayer::~CassettePlayer()
 {
+	if (isLoading) {
+		throttleManager.indicateLoadingState(false);
+	}
 	unregisterSound();
 	if (Connector* connector = getConnector()) {
 		connector->unplug(scheduler.getCurrentTime());

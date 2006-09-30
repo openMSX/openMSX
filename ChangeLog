@@ -1,5 +1,8 @@
 $Id$
 
+2006-09-29 Maarten ter Huurne <maarten@treewalker.org>
+	* Reset loading state if a disk drive or cassette player is destructed.
+
 2006-09-28 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added BOOT event to be able to do autoRun on cassettes at every
 	  boot. Also needed for Catapult (would otherwise only work once).
