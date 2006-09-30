@@ -1,35 +1,50 @@
 #!/bin/sh
 # $Id$
 
-if [ $# -ne 2 ]
+if [ $# -lt 2 ]
 then
-	echo "Usage: $0 <src-dir> <dst-dir>" >&2
+	echo "Usage: $0 (<src-file>|<src-dir>)+ <dst-dir>" >&2
 	exit 1
 fi
 
-src="$1"
-dst="$2"
-
-if [ ! -d "$src" ]
+if [ $# -eq 2 ]
 then
-	echo "Source argument is not a directory: $src" >&2
-	exit 1
+	src="$1"
+	shift
+	if [ -d "$src" ]
+	then
+		src="$src"/*
+	fi
+else
+	src=""
+	while [ $# -ne 1 ]
+	do
+		src="$src $1"
+		shift
+	done
 fi
+dst="$1"
 
-install -d "$dst"
-for path in "$src"/*
+for path in $src
 do
 	name=$(basename "$path")
-	if [ -L "$src/$name" ]
+	dir=$(dirname "$path")
+	if [ -L "$path" ]
 	then
-		echo "skipping symbolic link: $src/$name"
-	elif [ -d "$src/$name" ]
+		echo "skipping symbolic link: $path"
+	elif [ -d "$path" ]
 	then
 		if [ "$name" != .svn ]
 		then
-			$0 "$src/$name" "$dst/$name"
+			$0 "$path" "$dst"
 		fi
 	else
-		install -m 0644 "$src/$name" "$dst"
+		install -m 0755 -d "$dst/$dir"
+		mode=0644
+		if [ -x "$path" ]
+		then
+			mode=0755
+		fi
+		install -m $mode "$path" "$dst/$dir"
 	fi
 done

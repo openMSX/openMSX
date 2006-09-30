@@ -593,9 +593,9 @@ dist: $(DETECTSYS_SCRIPT)
 	@rm -rf $(DIST_PATH)
 	@echo "Gathering files for distribution..."
 	@mkdir -p $(DIST_PATH)
-	@cp -pr --parents $(DIST_FULL) $(DIST_PATH)
-	@cp -p --parents $(HEADERS_FULL) $(DIST_PATH)
-	@cp -p --parents $(SOURCES_FULL) $(DIST_PATH)
+	@build/install-recursive.sh $(DIST_FULL) $(DIST_PATH)
+	@build/install-recursive.sh $(HEADERS_FULL) $(DIST_PATH)
+	@build/install-recursive.sh $(SOURCES_FULL) $(DIST_PATH)
 	@echo "Creating tarball..."
 	@cd $(DIST_BASE) && \
 		GZIP=--best tar zcf $(PACKAGE_FULL).tar.gz $(PACKAGE_FULL)
