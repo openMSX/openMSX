@@ -2,6 +2,9 @@
 
 include build/node-start.mk
 
+SUBDIRS:= \
+	package-darwin package-slackware
+
 DIST:= \
 	config.guess detectsys.sh tcl-search.sh install-recursive.sh \
 	main.mk node-end.mk node-start.mk \
