@@ -4651,10 +4651,68 @@ after time 1 trainer_zaider
 
 proc trainer_fray  {} {
 	#life bar full
-	poke 0x2010 255
+	poke 0x2010 200
 	#money 65535
 	poke 0x2289 255
-	poke 0x228b 255
+	poke 0x228a 255
+	#auto big shot (hold c to hold)
+	poke 0x2286 49
+	
+	#scepter 1
+	poke 0x2295 1
+	#scepter 2
+	poke 0x2296 1
+	#scepter 3
+	poke 0x2297 1
+	#scepter 4
+	poke 0x2298 1
+	#scepter 5
+	poke 0x2299 1
+	#scepter 6
+	poke 0x229a 1
+	#scepter 7
+	poke 0x229b 1
+	#scepter 8
+	poke 0x229c 1
+
+	#medium shield
+	poke 0x229e 1
+	#iron shield
+	poke 0x229f 1
+	#big iron shield
+	poke 0x22a0 1
+	#gold shield 
+	poke 0x22a1 1
+
+	#slice of bread
+	poke 0x22a2 99
+	#slice of bacon
+	poke 0x22a3 99
+	#bottle 
+	poke 0x22a4 99
+	#scroll 1
+	poke 0x22a5 99
+	#scroll 2
+	poke 0x22a6 99
+	#scroll 3
+	poke 0x22a7 99
+	#scroll 4
+	poke 0x22a8 99
+	#scroll 5
+	poke 0x22a9 99
+	#scroll 6
+	poke 0x22aa 99
+	#scroll 7
+	poke 0x22ab 99
+	#scroll 8
+	poke 0x22ac 99
+	#scroll 9
+	poke 0x22ad 99
+	#scroll 10
+	poke 0x22ae 99
+	#scroll 11
+	poke 0x22af 99
+
 after time 1 trainer_fray 
 }
 
@@ -5923,7 +5981,6 @@ proc trainer_towerofdrauga {} {
 	after time 1 trainer_towerofdrauga 
 }
 
-
 proc trainer_rally-x {} {
 	#fuel
 	poke 0xe039 64
@@ -5932,4 +5989,9 @@ proc trainer_rally-x {} {
 	after time 1 trainer_rally-x
 }
 
+proc trainer_starforce {} {
+	#lives
+	poke 0xe405 100
+	after time 1 trainer_starforce
+}
 ### EOF ###
