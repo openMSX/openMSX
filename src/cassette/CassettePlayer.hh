@@ -8,6 +8,7 @@
 #include "CassetteDevice.hh"
 #include "SoundDevice.hh"
 #include "EmuTime.hh"
+#include "ThrottleManager.hh"
 #include <string>
 #include <vector>
 #include <memory>
@@ -93,7 +94,6 @@ private:
 
 	std::auto_ptr<CassetteImage> cassette;
 	bool motor, motorControl;
-	bool isLoading; // for the ThrottleManager
 	EmuTime tapeTime;
 	EmuTime recTime;
 	EmuTime prevTime;
@@ -121,7 +121,7 @@ private:
 	std::string casImage;
 
 	CliComm& cliComm;
-	ThrottleManager& throttleManager;
+	LoadingIndicator loadingIndicator;
 	EventDistributor& eventDistributor;
 
 	std::auto_ptr<BooleanSetting> autoRunSetting;

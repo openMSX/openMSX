@@ -5,6 +5,7 @@
 
 #include "Clock.hh"
 #include "Schedulable.hh"
+#include "ThrottleManager.hh"
 #include <memory>
 
 namespace openmsx {
@@ -216,13 +217,13 @@ protected:
 	std::auto_ptr<DiskChanger> changer;
 
 	EventDistributor& eventDistributor;
-	ThrottleManager& throttleManager;
 private:
 	// This is all for the ThrottleManager
 	void resetTimeOut(const EmuTime& time);
 	void updateLoadingState();
 	CommandController& commandController;
-	bool isLoading, timeOut;
+	LoadingIndicator loadingIndicator;
+	bool timeOut;
 };
 
 
