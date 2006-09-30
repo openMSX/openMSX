@@ -32,6 +32,9 @@ public:
 	 */
 	bool isThrottled() const;
 
+private:
+	friend class LoadingIndicator;
+
 	/**
 	 * Use to indicate that the MSX is in a loading state, so that full
 	 * speed can be enabled. Note that the caller can only call it once,
@@ -41,7 +44,6 @@ public:
 	 */
 	void indicateLoadingState(bool state);
 
-private:
 	void updateStatus();
 
 	// Observer<Setting>
@@ -51,6 +53,25 @@ private:
 	std::auto_ptr<BooleanSetting> fullSpeedLoadingSetting;
 	int loading;
 	bool throttle;
+};
+
+/**
+ * Used by a device to indicate when it is loading.
+ */
+class LoadingIndicator
+{
+public:
+	LoadingIndicator(ThrottleManager& throttleManager_);
+	~LoadingIndicator();
+
+	/**
+	 * Called by the device to indicate its loading state may have changed.
+	 */
+	void update(bool newState);
+
+private:
+	ThrottleManager& throttleManager;
+	bool isLoading;
 };
 
 }

@@ -5,6 +5,8 @@
 
 namespace openmsx {
 
+// class ThrottleManager:
+
 ThrottleManager::ThrottleManager(CommandController& commandController)
 	: loading(0), throttle(true)
 {
@@ -53,6 +55,28 @@ void ThrottleManager::indicateLoadingState(bool state)
 void ThrottleManager::update(const Setting& /*setting*/)
 {
 	updateStatus();
+}
+
+
+// class LoadingIndicator:
+
+LoadingIndicator::LoadingIndicator(ThrottleManager& throttleManager_)
+	: throttleManager(throttleManager_)
+	, isLoading(false)
+{
+}
+
+LoadingIndicator::~LoadingIndicator()
+{
+	update(false);
+}
+
+void LoadingIndicator::update(bool newState)
+{
+	if (isLoading != newState) {
+		isLoading = newState;
+		throttleManager.indicateLoadingState(isLoading);
+	}
 }
 
 } // namespace openmsx

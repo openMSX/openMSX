@@ -42,7 +42,6 @@
 #include "InputEvents.hh"
 #include "FileOperations.hh"
 #include "WavWriter.hh"
-#include "ThrottleManager.hh"
 #include "TclObject.hh"
 #include "checked_cast.hh"
 #include <algorithm>
@@ -120,7 +119,7 @@ CassettePlayer::CassettePlayer(
 		MSXEventDistributor& msxEventDistributor,
 		EventDistributor& eventDistributor_)
 	: SoundDevice(mixer, getName(), getDescription())
-	, motor(false), motorControl(true), isLoading(false)
+	, motor(false), motorControl(true)
 	, tapeTime(EmuTime::zero)
 	, recTime(EmuTime::zero)
 	, prevTime(EmuTime::zero)
@@ -132,7 +131,9 @@ CassettePlayer::CassettePlayer(
 	                              scheduler, *this))
 	, playTapeTime(EmuTime::zero)
 	, cliComm(commandController.getCliComm())
-	, throttleManager(commandController.getGlobalSettings().getThrottleManager())
+	, loadingIndicator(
+		commandController.getGlobalSettings().getThrottleManager()
+		)
 	, eventDistributor(eventDistributor_)
 {
 	autoRunSetting.reset(new BooleanSetting(commandController,
@@ -153,9 +154,6 @@ CassettePlayer::CassettePlayer(
 
 CassettePlayer::~CassettePlayer()
 {
-	if (isLoading) {
-		throttleManager.indicateLoadingState(false);
-	}
 	unregisterSound();
 	if (Connector* connector = getConnector()) {
 		connector->unplug(scheduler.getCurrentTime());
@@ -165,11 +163,7 @@ CassettePlayer::~CassettePlayer()
 
 void CassettePlayer::updateLoadingState()
 {
-	bool newState = (motor && !casImage.empty());
-	if (isLoading != newState) {
-		isLoading = newState;
-		throttleManager.indicateLoadingState(isLoading);
-	}
+	loadingIndicator.update(motor && !casImage.empty());
 }
 
 void CassettePlayer::insertTape(const string& filename, const EmuTime& time)

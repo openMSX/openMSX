@@ -8,7 +8,6 @@
 #include "CommandController.hh"
 #include "CliComm.hh"
 #include "GlobalSettings.hh"
-#include "ThrottleManager.hh"
 #include <bitset>
 
 using std::string;
@@ -153,9 +152,10 @@ RealDrive::RealDrive(CommandController& commandController,
 	, headPos(0), motorStatus(false), motorTimer(time)
 	, headLoadStatus(false), headLoadTimer(time)
 	, eventDistributor(eventDistributor_)
-	, throttleManager(commandController.getGlobalSettings().getThrottleManager())
 	, commandController(commandController)
-	, isLoading(false)
+	, loadingIndicator(
+		commandController.getGlobalSettings().getThrottleManager()
+		)
 	, timeOut(false)
 {
 	int i = 0;
@@ -180,9 +180,6 @@ RealDrive::RealDrive(CommandController& commandController,
 
 RealDrive::~RealDrive()
 {
-	if (isLoading) {
-		throttleManager.indicateLoadingState(false);
-	}
 	const string& driveName = changer->getDriveName();
 	commandController.getCliComm().update(
 		CliComm::HARDWARE, driveName, "remove"
@@ -334,11 +331,7 @@ void RealDrive::executeUntil(const EmuTime& /*time*/, int /*userData*/)
 
 void RealDrive::updateLoadingState()
 {
-	bool newState = motorStatus && (!timeOut);
-	if (isLoading != newState) {
-		isLoading = newState;
-		throttleManager.indicateLoadingState(isLoading);
-	}
+	loadingIndicator.update(motorStatus && (!timeOut));
 }
 
 
