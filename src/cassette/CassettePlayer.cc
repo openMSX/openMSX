@@ -71,6 +71,7 @@ public:
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
 	CassettePlayer& cassettePlayer;
+	CliComm& cliComm;
 };
 
 
@@ -150,6 +151,7 @@ CassettePlayer::CassettePlayer(
 	}
 	registerSound(cassettePlayerConfig);
 	eventDistributor.registerEventListener(OPENMSX_BOOT_EVENT, *this);
+	cliComm.update(CliComm::HARDWARE, getName(), "add");
 }
 
 CassettePlayer::~CassettePlayer()
@@ -159,6 +161,7 @@ CassettePlayer::~CassettePlayer()
 		connector->unplug(scheduler.getCurrentTime());
 	}
 	eventDistributor.unregisterEventListener(OPENMSX_BOOT_EVENT, *this);
+	cliComm.update(CliComm::HARDWARE, getName(), "remove");
 }
 
 void CassettePlayer::updateLoadingState()
@@ -470,6 +473,7 @@ TapeCommand::TapeCommand(CommandController& commandController,
 	: RecordedCommand(commandController, msxEventDistributor,
 	                  scheduler, "cassetteplayer")
 	, cassettePlayer(cassettePlayer_)
+	, cliComm(commandController.getCliComm())
 {
 }
 
@@ -606,7 +610,7 @@ string TapeCommand::execute(const vector<string>& tokens, const EmuTime& time)
 		if (!result.empty() && result[result.size() - 1] != '\n') {
 			result += '\n';
 		}
-		result += "Warning: cassetteplayer not plugged in.";
+		cliComm.printWarning("Cassetteplayer not plugged in.");
 	}
 	return result;
 }

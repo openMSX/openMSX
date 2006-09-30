@@ -39,7 +39,11 @@ void InfoCommand::registerTopic(InfoTopic& topic, const string& name)
 void InfoCommand::unregisterTopic(InfoTopic& topic, const string& name)
 {
 	(void)topic;
-	assert(infoTopics.find(name) != infoTopics.end());
+	if (infoTopics.find(name) == infoTopics.end()) {
+		std::cerr << "INTERNAL ERROR: can't unregister topic with name "
+			"name " << name << ", not found!" << std::endl;
+		assert(false);
+	}
 	assert(infoTopics[name] == &topic);
 	infoTopics.erase(name);
 }

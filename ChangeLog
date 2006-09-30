@@ -1,5 +1,8 @@
 $Id$
 
+2006-09-30 Manuel Bilderbeek <manuel@msxnet.org>
+	* Send an event when the cassetteplayer is added/removed.
+
 2006-09-30 Joost Damad <joost@lumatec.be>
 	* build on arm with optimizations again
 	* add flavour opt-debug, useful when searching bugs that only
