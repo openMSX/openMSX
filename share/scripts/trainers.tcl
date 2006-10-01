@@ -4659,21 +4659,21 @@ proc trainer_fray  {} {
 	poke 0x2286 49
 	
 	#scepter 1
-	poke 0x2295 1
+	poke 0x2295 2
 	#scepter 2
-	poke 0x2296 1
+	poke 0x2296 2
 	#scepter 3
-	poke 0x2297 1
+	poke 0x2297 2
 	#scepter 4
-	poke 0x2298 1
+	poke 0x2298 2
 	#scepter 5
-	poke 0x2299 1
+	poke 0x2299 2
 	#scepter 6
-	poke 0x229a 1
+	poke 0x229a 2
 	#scepter 7
-	poke 0x229b 1
+	poke 0x229b 2
 	#scepter 8
-	poke 0x229c 1
+	poke 0x229c 2
 
 	#medium shield
 	poke 0x229e 1
