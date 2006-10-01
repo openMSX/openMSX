@@ -98,8 +98,8 @@ void RS232Tester::run()
 		assert(getConnector());
 		ScopedLock l(lock);
 		queue.push_back(buf);
-		eventDistributor.distributeEvent(EventDistributor::EventPtr(
-			new SimpleEvent<OPENMSX_RS232_TESTER_EVENT>()));
+		eventDistributor.distributeEvent(
+			new SimpleEvent<OPENMSX_RS232_TESTER_EVENT>());
 	}
 }
 

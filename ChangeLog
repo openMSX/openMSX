@@ -1,5 +1,11 @@
 $Id$
 
+2006-10-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed race condition:
+	   - was easy to trigger on a dual core CPU
+	   - shared_ptr is not thread safe on it's own, see comments in
+	     EventDistributor
+
 2006-09-30 Manuel Bilderbeek <manuel@msxnet.org>
 	* Send an event when the cassetteplayer is added/removed.
 

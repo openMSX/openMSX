@@ -180,8 +180,8 @@ void MSXMotherBoard::loadMachine(const string& machine)
 			"Error in \"" + machine + "\" machine: " + e.getMessage()
 			);
 	}
-	getEventDistributor().distributeEvent(EventDistributor::EventPtr(
-		new SimpleEvent<OPENMSX_MACHINE_LOADED_EVENT>()));
+	getEventDistributor().distributeEvent(
+		new SimpleEvent<OPENMSX_MACHINE_LOADED_EVENT>());
 	if (powerSetting.getValue()) {
 		powerUp();
 	}
@@ -498,8 +498,8 @@ void MSXMotherBoard::doReset(const EmuTime& time)
 	getCPU().doReset(time);
 	// let everyone know we're booting, note that the fact that this is
 	// done after the reset call to the devices is arbitrary here
-	getEventDistributor().distributeEvent(EventDistributor::EventPtr(
-		new SimpleEvent<OPENMSX_BOOT_EVENT>()));
+	getEventDistributor().distributeEvent(
+		new SimpleEvent<OPENMSX_BOOT_EVENT>());
 }
 
 void MSXMotherBoard::powerUp()
@@ -515,8 +515,8 @@ void MSXMotherBoard::powerUp()
 	powerSetting.setValue(true);
 	// TODO: We could make the power LED a device, so we don't have to handle
 	//       it separately here.
-	getEventDistributor().distributeEvent(EventDistributor::EventPtr(
-		new LedEvent(LedEvent::POWER, true)));
+	getEventDistributor().distributeEvent(
+		new LedEvent(LedEvent::POWER, true));
 
 	const EmuTime& time = getScheduler().getCurrentTime();
 	getCPUInterface().reset();
@@ -528,8 +528,8 @@ void MSXMotherBoard::powerUp()
 	getMixer().unmute();
 	// let everyone know we're booting, note that the fact that this is
 	// done after the reset call to the devices is arbitrary here
-	getEventDistributor().distributeEvent(EventDistributor::EventPtr(
-		new SimpleEvent<OPENMSX_BOOT_EVENT>()));
+	getEventDistributor().distributeEvent(
+		new SimpleEvent<OPENMSX_BOOT_EVENT>());
 }
 
 void MSXMotherBoard::schedulePowerDown()
@@ -548,8 +548,8 @@ void MSXMotherBoard::doPowerDown(const EmuTime& time)
 	//       handling all pending commands/events/updates?
 	//assert(powerSetting.getValue() == powered);
 	powerSetting.setValue(false);
-	getEventDistributor().distributeEvent(EventDistributor::EventPtr(
-		new LedEvent(LedEvent::POWER, false)));
+	getEventDistributor().distributeEvent(
+		new LedEvent(LedEvent::POWER, false));
 
 	getMixer().mute();
 

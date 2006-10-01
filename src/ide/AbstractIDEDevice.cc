@@ -390,8 +390,7 @@ void AbstractIDEDevice::setTransferRead(bool status)
 		if (!transferWrite) {
 			// (this is a bit of a hack!)
 			eventDistributor.distributeEvent(
-				EventDistributor::EventPtr(new LedEvent(
-					LedEvent::FDD, transferRead)));
+				new LedEvent(LedEvent::FDD, transferRead));
 		}
 	}
 }
@@ -403,8 +402,7 @@ void AbstractIDEDevice::setTransferWrite(bool status)
 		if (!transferRead) {
 			// (this is a bit of a hack!)
 			eventDistributor.distributeEvent(
-				EventDistributor::EventPtr(new LedEvent(
-					LedEvent::FDD, transferWrite)));
+				new LedEvent(LedEvent::FDD, transferWrite));
 		}
 	}
 }

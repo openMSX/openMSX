@@ -19,8 +19,6 @@ class EmuTime;
 class EventDistributor : private noncopyable
 {
 public:
-	typedef shared_ptr<const Event> EventPtr;
-
 	/** Priorities from high to low, higher priority listeners can block
 	  * events for lower priority listeners.
 	  */
@@ -51,7 +49,7 @@ public:
 	 */
 	void unregisterEventListener(EventType type, EventListener& listener);
 
-	void distributeEvent(EventPtr event);
+	void distributeEvent(Event* event);
 	void deliverEvents();
 
 private:
@@ -60,6 +58,7 @@ private:
 	typedef std::multimap<Priority, EventListener*> PriorityMap;
 	typedef std::map<EventType, PriorityMap> TypeMap;
 	TypeMap listeners;
+	typedef shared_ptr<const Event> EventPtr;
 	typedef std::vector<EventPtr> EventQueue;
 	EventQueue scheduledEvents;
 	Semaphore sem;

@@ -120,8 +120,8 @@ void V9990PixelRenderer::frameEnd(const EmuTime& time)
 		}
 
 	}
-	eventDistributor.distributeEvent(EventDistributor::EventPtr(
-		new FinishFrameEvent(VIDEO_GFX9000, skipEvent)));
+	eventDistributor.distributeEvent(
+		new FinishFrameEvent(VIDEO_GFX9000, skipEvent));
 }
 
 void V9990PixelRenderer::sync(const EmuTime& time, bool force)

@@ -102,8 +102,7 @@ void CliConnection::end()
 
 void CliConnection::execute(const string& command)
 {
-	eventDistributor.distributeEvent(EventDistributor::EventPtr(
-		new CliCommandEvent(command, this)));
+	eventDistributor.distributeEvent(new CliCommandEvent(command, this));
 }
 
 static string reply(const string& message, bool status)

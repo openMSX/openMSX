@@ -50,7 +50,7 @@ void EventDistributor::unregisterEventListener(
 	}
 }
 
-void EventDistributor::distributeEvent(EventPtr event)
+void EventDistributor::distributeEvent(Event* event)
 {
 	// TODO: Implement a real solution against modifying data structure while
 	//       iterating through it.
@@ -58,10 +58,13 @@ void EventDistributor::distributeEvent(EventPtr event)
 	//       delivering events to remove the NULL values.
 	// TODO: Is it useful to test for 0 listeners or should we just always
 	//       queue the event?
-	assert(event.get());
+	assert(event);
 	ScopedLock lock(sem);
 	if (!listeners[event->getType()].empty()) {
-		scheduledEvents.push_back(event);
+		// shared_ptr is not thread safe of its own, so instead of
+		// passing a shared_ptr as parameter to this method we create
+		// the shared_ptr here while we hold the lock
+		scheduledEvents.push_back(EventPtr(event));
 		// must release lock, otherwise there's a deadlock:
 		//   thread 1: Reactor::deleteMotherBoard()
 		//             EventDistributor::unregisterEventListener()

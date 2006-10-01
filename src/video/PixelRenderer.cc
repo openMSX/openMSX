@@ -214,8 +214,8 @@ void PixelRenderer::frameEnd(const EmuTime& time)
 			skipEvent = true;
 		}
 	}
-	eventDistributor.distributeEvent(EventDistributor::EventPtr(
-		new FinishFrameEvent(VIDEO_MSX, skipEvent)));
+	eventDistributor.distributeEvent(
+		new FinishFrameEvent(VIDEO_MSX, skipEvent));
 }
 
 void PixelRenderer::updateHorizontalScrollLow(

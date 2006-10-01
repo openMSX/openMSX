@@ -200,8 +200,7 @@ template <class T> void CPUCore<T>::doBreak()
 
 		motherboard.getCliComm().update(CliComm::STATUS, "cpu", "suspended");
 		motherboard.getEventDistributor().distributeEvent(
-			EventDistributor::EventPtr(
-				new SimpleEvent<OPENMSX_BREAK_EVENT>()));
+			new SimpleEvent<OPENMSX_BREAK_EVENT>());
 	}
 }
 

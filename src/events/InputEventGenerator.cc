@@ -98,64 +98,65 @@ void InputEventGenerator::setKeyRepeat(bool enable)
 
 void InputEventGenerator::handle(const SDL_Event& evt)
 {
-	shared_ptr<const Event> event;
+	Event* event;
 	switch (evt.type) {
 	case SDL_KEYUP:
-		event.reset(new KeyUpEvent(
+		event = new KeyUpEvent(
 		        Keys::getCode(evt.key.keysym.sym,
 		                      evt.key.keysym.mod,
 		                      true),
-		        evt.key.keysym.unicode));
+		        evt.key.keysym.unicode);
 		break;
 	case SDL_KEYDOWN:
-		event.reset(new KeyDownEvent(
+		event = new KeyDownEvent(
 		        Keys::getCode(evt.key.keysym.sym,
 		                      evt.key.keysym.mod,
 		                      false),
-		        evt.key.keysym.unicode));
+		        evt.key.keysym.unicode);
 		break;
 
 	case SDL_MOUSEBUTTONUP:
-		event.reset(new MouseButtonUpEvent(evt.button.button));
+		event = new MouseButtonUpEvent(evt.button.button);
 		break;
 	case SDL_MOUSEBUTTONDOWN:
-		event.reset(new MouseButtonDownEvent(evt.button.button));
+		event = new MouseButtonDownEvent(evt.button.button);
 		break;
 	case SDL_MOUSEMOTION:
-		event.reset(new MouseMotionEvent(evt.motion.xrel, evt.motion.yrel));
+		event = new MouseMotionEvent(evt.motion.xrel, evt.motion.yrel);
 		break;
 
 	case SDL_JOYBUTTONUP:
-		event.reset(new JoystickButtonUpEvent(evt.jbutton.which,
-		                                  evt.jbutton.button));
+		event = new JoystickButtonUpEvent(evt.jbutton.which,
+		                                  evt.jbutton.button);
 		break;
 	case SDL_JOYBUTTONDOWN:
-		event.reset(new JoystickButtonDownEvent(evt.jbutton.which,
-		                                    evt.jbutton.button));
+		event = new JoystickButtonDownEvent(evt.jbutton.which,
+		                                    evt.jbutton.button);
 		break;
 	case SDL_JOYAXISMOTION:
-		event.reset(new JoystickAxisMotionEvent(evt.jaxis.which,
+		event = new JoystickAxisMotionEvent(evt.jaxis.which,
 		                                    evt.jaxis.axis,
-		                                    evt.jaxis.value));
+		                                    evt.jaxis.value);
 		break;
 
 	case SDL_ACTIVEEVENT:
-		event.reset(new FocusEvent(evt.active.gain));
+		event = new FocusEvent(evt.active.gain);
 		break;
 
 	case SDL_VIDEORESIZE:
-		event.reset(new ResizeEvent(evt.resize.w, evt.resize.h));
+		event = new ResizeEvent(evt.resize.w, evt.resize.h);
 		break;
 
 	case SDL_QUIT:
-		event.reset(new QuitEvent());
+		event = new QuitEvent();
 		break;
 
 	default:
+		event = 0;
 		break;
 	}
 
-	if (event.get()) {
+	if (event) {
 		eventDistributor.distributeEvent(event);
 	}
 }

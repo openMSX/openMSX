@@ -420,8 +420,7 @@ PollEventGenerator::~PollEventGenerator()
 
 bool PollEventGenerator::alarm()
 {
-	eventDistributor.distributeEvent(EventDistributor::EventPtr(
-		new SimpleEvent<OPENMSX_POLL_EVENT>()));
+	eventDistributor.distributeEvent(new SimpleEvent<OPENMSX_POLL_EVENT>());
 	return true; // reschedule
 }
 
