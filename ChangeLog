@@ -1,5 +1,8 @@
 $Id$
 
+2006-10-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Empty the sound buffer in the SDL sound driver after a mute/unmute
+
 2006-10-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed race condition:
 	   - was easy to trigger on a dual core CPU

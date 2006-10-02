@@ -87,8 +87,9 @@ void SDLSoundDriver::unmute()
 {
 	if (muted) {
 		muted = false;
-		SDL_PauseAudio(0);
+		readPtr = writePtr = 0;
 		reInit();
+		SDL_PauseAudio(0);
 	}
 }
 
