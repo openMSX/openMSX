@@ -5,6 +5,7 @@
 
 #include "DiskContainer.hh"
 #include "MSXEventListener.hh"
+#include "noncopyable.hh"
 #include <vector>
 #include <string>
 #include <memory>
@@ -21,7 +22,8 @@ class CliComm;
 class GlobalSettings;
 class TclObject;
 
-class DiskChanger : public DiskContainer, private MSXEventListener
+class DiskChanger : public DiskContainer, private MSXEventListener,
+                    private noncopyable
 {
 public:
 	DiskChanger(const std::string& driveName,

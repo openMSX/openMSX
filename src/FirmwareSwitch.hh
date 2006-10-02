@@ -3,6 +3,7 @@
 #ifndef FRONTSWITCH_HH
 #define FRONTSWITCH_HH
 
+#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -12,7 +13,7 @@ class CommandController;
 class XMLElement;
 class CliComm;
 
-class FirmwareSwitch
+class FirmwareSwitch : private noncopyable
 {
 public:
 	FirmwareSwitch(CommandController& commandController, 

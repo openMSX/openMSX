@@ -3,6 +3,7 @@
 #ifndef PLUGGINGCONTROLLER_HH
 #define PLUGGINGCONTROLLER_HH
 
+#include "noncopyable.hh"
 #include <vector>
 #include <memory>
 
@@ -24,7 +25,7 @@ class ConnectionClassInfo;
 /**
  * Central administration of Connectors and Pluggables.
  */
-class PluggingController
+class PluggingController : private noncopyable
 {
 public:
 	explicit PluggingController(MSXMotherBoard& motherBoard);

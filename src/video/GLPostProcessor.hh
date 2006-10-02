@@ -25,16 +25,14 @@ public:
 	GLPostProcessor(
 		CommandController& commandController, Display& display,
 		VisibleSurface& screen, VideoSource videoSource,
-		unsigned maxWidth, unsigned height
-		);
+		unsigned maxWidth, unsigned height);
 	virtual ~GLPostProcessor();
 
 	// Layer interface:
 	virtual void paint();
 
 	virtual RawFrame* rotateFrames(
-		RawFrame* finishedFrame, FrameSource::FieldType field
-		);
+		RawFrame* finishedFrame, FrameSource::FieldType field);
 
 protected:
 	// Observer<Setting> interface:
@@ -94,7 +92,6 @@ private:
 	GLuint color_tex[2];
 	GLuint monitor3DList;
 	bool storedFrame;
-
 };
 
 } // namespace openmsx

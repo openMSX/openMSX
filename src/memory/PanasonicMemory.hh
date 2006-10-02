@@ -4,6 +4,7 @@
 #define PANASONICMEMORY_HH
 
 #include "openmsx.hh"
+#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -13,7 +14,7 @@ class MSXCPU;
 class Ram;
 class Rom;
 
-class PanasonicMemory
+class PanasonicMemory : private noncopyable
 {
 public:
 	explicit PanasonicMemory(MSXMotherBoard& motherBoard);

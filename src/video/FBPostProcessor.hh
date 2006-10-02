@@ -24,16 +24,14 @@ public:
 	FBPostProcessor(
 		CommandController& commandController, Display& display,
 		VisibleSurface& screen, VideoSource videoSource,
-		unsigned maxWidth, unsigned height
-		);
+		unsigned maxWidth, unsigned height);
 	virtual ~FBPostProcessor();
 
 	// Layer interface:
 	virtual void paint();
 
 	virtual RawFrame* rotateFrames(
-		RawFrame* finishedFrame, FrameSource::FieldType field
-		);
+		RawFrame* finishedFrame, FrameSource::FieldType field);
 
 private:
 	void preCalcNoise(double factor);

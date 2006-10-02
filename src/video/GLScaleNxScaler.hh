@@ -5,13 +5,14 @@
 
 #include "GLScaler.hh"
 #include "GLUtil.hh"
+#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
 
 class ShaderProgram;
 
-class GLScaleNxScaler: public GLScaler
+class GLScaleNxScaler: public GLScaler, private noncopyable
 {
 public:
 	GLScaleNxScaler();

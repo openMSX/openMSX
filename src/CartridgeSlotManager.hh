@@ -3,6 +3,7 @@
 #ifndef CARTRIDGESLOTMANAGER_HH
 #define CARTRIDGESLOTMANAGER_HH
 
+#include "noncopyable.hh"
 #include <string>
 #include <memory>
 
@@ -13,7 +14,7 @@ class XMLElement;
 class CartCmd;
 class HardwareConfig;
 
-class CartridgeSlotManager
+class CartridgeSlotManager : private noncopyable
 {
 public:
 	explicit CartridgeSlotManager(MSXMotherBoard& motherBoard);

@@ -7,6 +7,7 @@
 #include "FilenameSetting.hh"
 #include "Observer.hh"
 #include "openmsx.hh"
+#include "noncopyable.hh"
 #include <memory>
 #include <string>
 
@@ -21,7 +22,8 @@ class Console;
 template <typename T> class EnumSetting;
 
 class OSDConsoleRenderer : public Layer, private Observer<Setting>,
-                           private SettingChecker<FilenameSetting::Policy>
+                           private SettingChecker<FilenameSetting::Policy>,
+                           private noncopyable
 {
 public:
 	virtual ~OSDConsoleRenderer();

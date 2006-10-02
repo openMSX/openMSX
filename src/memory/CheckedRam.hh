@@ -5,6 +5,7 @@
 
 #include "CPU.hh"
 #include "openmsx.hh"
+#include "noncopyable.hh"
 #include <vector>
 #include <bitset>
 #include <memory>
@@ -25,7 +26,7 @@ class CommandController;
  * accessed in DRAM mode or via the ROM mapper are unchecked! Note that there
  * is basically no overhead for using CheckedRam over Ram, thanks to Wouter.
  */
-class CheckedRam
+class CheckedRam : private noncopyable
 {
 public:
 	CheckedRam(MSXMotherBoard& motherBoard, const std::string& name,

@@ -6,6 +6,7 @@
 #include "Observer.hh"
 #include "DynamicClock.hh"
 #include "openmsx.hh"
+#include "noncopyable.hh"
 #include <string>
 #include <memory>
 
@@ -23,7 +24,7 @@ class Setting;
  * There can be multiple autofire circuits. For example, one used
  * by the Ren-Sha Turbo and another one built into a joystick.
  */
-class Autofire : private Observer<Setting>
+class Autofire : private Observer<Setting>, private noncopyable
 {
 public:
 	Autofire(CommandController& commandController,

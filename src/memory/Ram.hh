@@ -4,6 +4,7 @@
 #define RAM_HH
 
 #include "openmsx.hh"
+#include "noncopyable.hh"
 #include <cassert>
 #include <memory>
 
@@ -12,7 +13,7 @@ namespace openmsx {
 class MSXMotherBoard;
 class RamDebuggable;
 
-class Ram
+class Ram : private noncopyable
 {
 public:
 	Ram(MSXMotherBoard& motherBoard, const std::string& name,

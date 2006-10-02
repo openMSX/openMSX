@@ -4,6 +4,7 @@
 #define MSXMOTHERBOARD_HH
 
 #include "Observer.hh"
+#include "noncopyable.hh"
 #include <memory>
 #include <vector>
 #include <string>
@@ -46,7 +47,7 @@ class RemoveExtCmd;
 class AfterCommand;
 class ConfigInfo;
 
-class MSXMotherBoard : private Observer<Setting>
+class MSXMotherBoard : private Observer<Setting>, private noncopyable
 {
 public:
 	MSXMotherBoard(Reactor& reactor);

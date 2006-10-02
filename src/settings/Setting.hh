@@ -4,6 +4,7 @@
 #define SETTINGNODE_HH
 
 #include "Subject.hh"
+#include "noncopyable.hh"
 #include <string>
 #include <vector>
 
@@ -13,7 +14,7 @@ class CommandController;
 class XMLElement;
 class TclObject;
 
-class Setting : public Subject<Setting>
+class Setting : public Subject<Setting>, private noncopyable
 {
 public:
 	enum SaveSetting {

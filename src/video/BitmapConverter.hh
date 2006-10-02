@@ -94,7 +94,6 @@ public:
 	}
 
 private:
-
 	typedef void (BitmapConverter::*RenderMethod)
 		(Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1);
 

@@ -3,6 +3,7 @@
 #ifndef COMMANDCONTROLLER_HH
 #define COMMANDCONTROLLER_HH
 
+#include "noncopyable.hh"
 #include <string>
 #include <map>
 #include <set>
@@ -28,7 +29,7 @@ class TabCompletionCmd;
 class VersionInfo;
 class RomInfoTopic;
 
-class CommandController
+class CommandController : private noncopyable
 {
 public:
 	explicit CommandController(EventDistributor& eventDistributor);

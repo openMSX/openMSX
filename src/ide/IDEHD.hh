@@ -6,6 +6,7 @@
 #include "AbstractIDEDevice.hh"
 #include "SectorAccessibleDisk.hh"
 #include "DiskContainer.hh"
+#include "noncopyable.hh"
 #include <string>
 #include <memory>
 
@@ -18,7 +19,7 @@ class File;
 class HDCommand;
 
 class IDEHD : public AbstractIDEDevice, public SectorAccessibleDisk,
-	public DiskContainer
+              public DiskContainer, private noncopyable
 {
 public:
 	IDEHD(MSXMotherBoard& motherBoard, const XMLElement& config,

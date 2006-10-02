@@ -6,6 +6,7 @@
 #include "CommandLineParser.hh"
 #include "EventListener.hh"
 #include "Semaphore.hh"
+#include "noncopyable.hh"
 #include <map>
 #include <string>
 #include <memory>
@@ -17,7 +18,7 @@ class CommandController;
 class CliConnection;
 class UpdateCmd;
 
-class CliComm : private EventListener
+class CliComm : private EventListener, private noncopyable
 {
 public:
 	enum LogLevel {

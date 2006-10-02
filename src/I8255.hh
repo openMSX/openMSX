@@ -10,6 +10,7 @@
 #define I8255_HH
 
 #include "openmsx.hh"
+#include "noncopyable.hh"
 
 namespace openmsx {
 
@@ -33,7 +34,7 @@ public:
 	virtual void writeC1(nibble value, const EmuTime& time) = 0;
 };
 
-class I8255
+class I8255 : private noncopyable
 {
 public:
 	I8255(I8255Interface& interf, const EmuTime& time);

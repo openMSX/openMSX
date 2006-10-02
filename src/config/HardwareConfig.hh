@@ -4,6 +4,7 @@
 #define HARDWARECONFIG_HH
 
 #include "XMLElement.hh"
+#include "noncopyable.hh"
 #include <string>
 #include <vector>
 #include <memory>
@@ -13,10 +14,10 @@ namespace openmsx {
 class MSXMotherBoard;
 class MSXDevice;
 
-class HardwareConfig
+class HardwareConfig : private noncopyable
 {
 public:
-	HardwareConfig(MSXMotherBoard& motherBoard);
+	explicit HardwareConfig(MSXMotherBoard& motherBoard);
 	virtual ~HardwareConfig();
 
 	const XMLElement& getConfig() const;

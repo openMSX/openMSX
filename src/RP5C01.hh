@@ -9,8 +9,9 @@
 #ifndef RP5C01_HH
 #define RP5C01_HH
 
-#include "openmsx.hh"
 #include "Clock.hh"
+#include "openmsx.hh"
+#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -19,7 +20,7 @@ class CommandController;
 class SRAM;
 template <typename T> class EnumSetting;
 
-class RP5C01
+class RP5C01 : private noncopyable
 {
 public:
 	RP5C01(CommandController& commandController, SRAM& regs,

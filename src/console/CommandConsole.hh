@@ -8,6 +8,7 @@
 #include "InterpreterOutput.hh"
 #include "CircularBuffer.hh"
 #include "openmsx.hh"
+#include "noncopyable.hh"
 #include <list>
 #include <string>
 
@@ -20,7 +21,7 @@ class BooleanSetting;
 class Display;
 
 class CommandConsole : public Console, private EventListener,
-                       private InterpreterOutput
+                       private InterpreterOutput, private noncopyable
 {
 public:
 	CommandConsole(CommandController& commandController,

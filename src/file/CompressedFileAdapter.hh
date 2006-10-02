@@ -3,8 +3,8 @@
 #ifndef COMPRESSEDFILEADAPTER_HH
 #define COMPRESSEDFILEADAPTER_HH
 
-#include <memory>
 #include "FileBase.hh"
+#include <memory>
 
 namespace openmsx {
 

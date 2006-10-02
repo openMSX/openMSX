@@ -4,13 +4,14 @@
 #define EVENTTRANSLATOR_HH
 
 #include "EventListener.hh"
+#include "noncopyable.hh"
 
 namespace openmsx {
 
 class EventDistributor;
 class EventDelay;
 
-class EventTranslator : private EventListener
+class EventTranslator : private EventListener, private noncopyable
 {
 public:
 	EventTranslator(EventDistributor& eventDistributor,

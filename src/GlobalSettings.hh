@@ -4,6 +4,7 @@
 #define GLOBALSETTINGS_HH
 
 #include "Observer.hh"
+#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -21,7 +22,7 @@ template <class T> class EnumSetting;
  * (including some singletons). This class was introduced to solve
  * lifetime management issues.
  */
-class GlobalSettings : private Observer<Setting>
+class GlobalSettings : private Observer<Setting>, private noncopyable
 {
 public:
 	explicit GlobalSettings(CommandController& commandController);

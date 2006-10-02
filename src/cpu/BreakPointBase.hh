@@ -3,6 +3,7 @@
 #ifndef BREAKPOINTBASE_HH
 #define BREAKPOINTBASE_HH
 
+#include "noncopyable.hh"
 #include <string>
 #include <memory>
 
@@ -13,7 +14,7 @@ class TclObject;
 
 /** Base class for CPU break and watch points.
  */
-class BreakPointBase
+class BreakPointBase : private noncopyable
 {
 public:
 	std::string getCondition() const;

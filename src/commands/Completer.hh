@@ -3,6 +3,7 @@
 #ifndef COMPLETER_HH
 #define COMPLETER_HH
 
+#include "noncopyable.hh"
 #include <string>
 #include <vector>
 #include <set>
@@ -12,7 +13,7 @@ namespace openmsx {
 class FileContext;
 class CommandController;
 
-class Completer
+class Completer : private noncopyable
 {
 public:
 	/** Print help for this command.

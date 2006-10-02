@@ -4,6 +4,7 @@
 #define FILE_HH
 
 #include "openmsx.hh"
+#include "noncopyable.hh"
 #include <memory>
 #include <string>
 #include <time.h>
@@ -12,7 +13,7 @@ namespace openmsx {
 
 class FileBase;
 
-class File
+class File : private noncopyable
 {
 public:
 	enum OpenMode {

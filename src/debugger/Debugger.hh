@@ -3,6 +3,7 @@
 #ifndef DEBUGGER_HH
 #define DEBUGGER_HH
 
+#include "noncopyable.hh"
 #include <map>
 #include <set>
 #include <string>
@@ -15,7 +16,7 @@ class Debuggable;
 class MSXCPU;
 class DebugCmd;
 
-class Debugger
+class Debugger : private noncopyable
 {
 public:
 	explicit Debugger(MSXMotherBoard& motherBoard);

@@ -4,6 +4,7 @@
 #define GLSIMPLESCALER_HH
 
 #include "GLScaler.hh"
+#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -11,7 +12,7 @@ namespace openmsx {
 class RenderSettings;
 class ShaderProgram;
 
-class GLSimpleScaler: public GLScaler
+class GLSimpleScaler: public GLScaler, private noncopyable
 {
 public:
 	GLSimpleScaler(RenderSettings& renderSettings);

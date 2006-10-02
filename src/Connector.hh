@@ -3,6 +3,7 @@
 #ifndef CONNECTOR
 #define CONNECTOR
 
+#include "noncopyable.hh"
 #include <string>
 #include <memory>
 
@@ -17,7 +18,7 @@ class Pluggable;
  * When there is not an actual Pluggable plugged in, a dummy Pluggable
  * is used.
  */
-class Connector
+class Connector : private noncopyable
 {
 public:
 	/**

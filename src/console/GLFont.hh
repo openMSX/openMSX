@@ -5,10 +5,11 @@
 
 #include "Font.hh"
 #include "GLUtil.hh"
+#include "noncopyable.hh"
 
 namespace openmsx {
 
-class GLFont : public Font
+class GLFont : public Font, private noncopyable
 {
 public:
 	GLFont(GLuint texture, int width, int height, GLfloat* texCoord);

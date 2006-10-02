@@ -22,8 +22,8 @@ public:
 	  * @return A Scaler object, owned by the caller.
 	  */
 	static std::auto_ptr<Scaler> createScaler(
-		const PixelOperations<Pixel>& pixelOps, RenderSettings& renderSettings
-		);
+		const PixelOperations<Pixel>& pixelOps,
+		RenderSettings& renderSettings);
 };
 
 } // namespace openmsx

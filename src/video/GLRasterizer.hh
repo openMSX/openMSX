@@ -34,8 +34,7 @@ public:
 
 	GLRasterizer(
 		CommandController& commandController,
-		VDP& vdp, Display& display, OutputSurface& screen
-		);
+		VDP& vdp, Display& display, OutputSurface& screen);
 	virtual ~GLRasterizer();
 
 	// Layer interface:

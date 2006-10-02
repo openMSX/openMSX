@@ -3,6 +3,7 @@
 #ifndef MSXEVENTDISTRIBUTOR_HH
 #define MSXEVENTDISTRIBUTOR_HH
 
+#include "noncopyable.hh"
 #include "shared_ptr.hh"
 #include <vector>
 
@@ -12,7 +13,7 @@ class MSXEventListener;
 class Event;
 class EmuTime;
 
-class MSXEventDistributor
+class MSXEventDistributor : private noncopyable
 {
 public:
 	typedef shared_ptr<const Event> EventPtr;

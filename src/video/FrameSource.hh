@@ -3,6 +3,7 @@
 #ifndef FRAMESOURCE_HH
 #define FRAMESOURCE_HH
 
+#include "noncopyable.hh"
 #include <algorithm>
 #include <vector>
 
@@ -12,7 +13,7 @@ namespace openmsx {
 
 /** Interface for getting lines from a video frame.
   */
-class FrameSource
+class FrameSource : private noncopyable
 {
 public:
 	/** What role does this frame play in interlacing?

@@ -3,6 +3,7 @@
 #ifndef ROMDATABASE_HH
 #define ROMDATABASE_HH
 
+#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -11,7 +12,7 @@ class Rom;
 class CliComm;
 class RomInfo;
 
-class RomDatabase
+class RomDatabase : private noncopyable
 {
 public:
 	static RomDatabase& instance();

@@ -3,6 +3,7 @@
 #ifndef FILEPOOL_HH
 #define FILEPOOL_HH
 
+#include "noncopyable.hh"
 #include <string>
 #include <map>
 #include <vector>
@@ -12,7 +13,7 @@ namespace openmsx {
 
 class SettingsConfig;
 
-class FilePool
+class FilePool : private noncopyable
 {
 public:
 	explicit FilePool(SettingsConfig& settingsConfig);

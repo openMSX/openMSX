@@ -32,8 +32,7 @@ class V9990SDLRasterizer : public V9990Rasterizer, private noncopyable,
 public:
 	V9990SDLRasterizer(
 		V9990& vdp, Display& display, VisibleSurface& screen,
-		std::auto_ptr<PostProcessor> postProcessor_
-		);
+		std::auto_ptr<PostProcessor> postProcessor);
 	virtual ~V9990SDLRasterizer();
 
 	// Rasterizer interface:

@@ -6,6 +6,7 @@
 #include "Scaler3.hh"
 #include "PixelOperations.hh"
 #include "Scanline.hh"
+#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -14,7 +15,7 @@ class RenderSettings;
 template <class Pixel> class Blur_1on3;
 
 template <class Pixel>
-class Simple3xScaler : public Scaler3<Pixel>
+class Simple3xScaler : public Scaler3<Pixel>, private noncopyable
 {
 public:
 	Simple3xScaler(const PixelOperations<Pixel>& pixelOps,

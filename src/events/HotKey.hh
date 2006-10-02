@@ -4,6 +4,7 @@
 #define HOTKEY_HH
 
 #include "EventListener.hh"
+#include "noncopyable.hh"
 #include "shared_ptr.hh"
 #include <map>
 #include <set>
@@ -26,7 +27,7 @@ template<typename T> struct deref_less
 	bool operator()(T t1, T t2) const { return *t1 < *t2; }
 };
 
-class HotKey : private EventListener
+class HotKey : private EventListener, private noncopyable
 {
 public:
 	typedef shared_ptr<const Event> EventPtr;

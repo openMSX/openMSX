@@ -8,6 +8,7 @@
 #include "RenderSettings.hh"
 #include "DisplayMode.hh"
 #include "openmsx.hh"
+#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -24,7 +25,8 @@ class Setting;
 /** Generic implementation of a pixel-based Renderer.
   * Uses a Rasterizer to plot actual pixels for a specific video system.
   */
-class PixelRenderer : public Renderer, private Observer<Setting>
+class PixelRenderer : public Renderer, private Observer<Setting>,
+                      private noncopyable 
 {
 public:
 	explicit PixelRenderer(VDP& vdp, Display& display);

@@ -4,6 +4,7 @@
 #define RENDERSETTINGS_HH
 
 #include "RendererFactory.hh"
+#include "noncopyable.hh"
 #include <string>
 #include <memory>
 
@@ -21,7 +22,7 @@ class ColorMatrixChecker;
   * Keeping the settings here makes sure they are preserved when the user
   * switches to another renderer.
   */
-class RenderSettings
+class RenderSettings : private noncopyable
 {
 public:
 	/** Render accuracy: granularity of the rendered area.

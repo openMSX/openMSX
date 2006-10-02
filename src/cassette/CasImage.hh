@@ -34,7 +34,7 @@ private:
 
 	unsigned size;
 	unsigned pos;
-	byte* buf;
+	byte* buf; // TODO only valid in constructor, should not be a member
 	std::vector<char> output;
 
 	CliComm& cliComm;

@@ -9,7 +9,7 @@ struct SDL_Thread;
 
 namespace openmsx {
 
-class Runnable
+class Runnable : private noncopyable
 {
 public:
 	virtual void run() = 0;

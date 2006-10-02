@@ -5,6 +5,7 @@
 
 #include "StringOp.hh"
 #include "openmsx.hh"
+#include "noncopyable.hh"
 #include <string>
 #include <vector>
 #include <list>
@@ -48,7 +49,7 @@ public:
 	virtual const std::string& fileTypeHelp() const = 0;
 };
 
-class CommandLineParser
+class CommandLineParser : private noncopyable
 {
 public:
 	enum ParseStatus { UNPARSED, RUN, CONTROL, TEST, EXIT };

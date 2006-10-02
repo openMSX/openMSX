@@ -3,14 +3,15 @@
 #ifndef KEYS_HH
 #define KEYS_HH
 
+#include "StringOp.hh"
 #include <SDL_keysym.h> // TODO
 #include <map>
 #include <string>
-#include "StringOp.hh"
 
 namespace openmsx {
 
-class Keys {
+class Keys
+{
 public:
 	// There are two special key codes:
 	//  - K_NONE    : returned when we do string -> key code

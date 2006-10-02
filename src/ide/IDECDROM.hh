@@ -4,6 +4,7 @@
 #define IDECDROM_HH
 
 #include "AbstractIDEDevice.hh"
+#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -13,7 +14,7 @@ class XMLElement;
 class File;
 class CDXCommand;
 
-class IDECDROM : public AbstractIDEDevice
+class IDECDROM : public AbstractIDEDevice, private noncopyable
 {
 public:
 	IDECDROM(MSXMotherBoard& motherBoard, const XMLElement& config,

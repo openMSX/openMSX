@@ -4,6 +4,7 @@
 #define IRQHELPER_HH
 
 #include "MSXCPU.hh"
+#include "noncopyable.hh"
 
 namespace openmsx {
 
@@ -53,7 +54,7 @@ private:
 };
 
 // generic implementation
-template <typename SOURCE> class IntHelper : public SOURCE
+template <typename SOURCE> class IntHelper : public SOURCE, private noncopyable
 {
 public:
 	/** Create a new IntHelper.

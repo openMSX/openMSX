@@ -4,6 +4,7 @@
 #define INTERPRETER_HH
 
 #include "EventListener.hh"
+#include "noncopyable.hh"
 #include <map>
 #include <set>
 #include <string>
@@ -18,7 +19,7 @@ class Setting;
 class InterpreterOutput;
 class TclObject;
 
-class Interpreter : private EventListener
+class Interpreter : private EventListener, private noncopyable
 {
 public:
 	explicit Interpreter(EventDistributor& eventDistributor);

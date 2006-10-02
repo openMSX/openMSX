@@ -3,6 +3,7 @@
 #ifndef MSXEVENTRECORDERREPLAYERCLI_HH
 #define MSXEVENTRECORDERREPLAYERCLI_HH
 
+#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -11,7 +12,7 @@ class CommandLineParser;
 class RecordOption;
 class ReplayOption;
 
-class MSXEventRecorderReplayerCLI
+class MSXEventRecorderReplayerCLI : private noncopyable
 {
 public:
 	explicit MSXEventRecorderReplayerCLI(CommandLineParser& cmdLineParser);

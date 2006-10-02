@@ -4,6 +4,7 @@
 #define MSXEVENTRECORDER_HH
 
 #include "MSXEventListener.hh"
+#include "noncopyable.hh"
 #include <fstream>
 #include <string>
 
@@ -11,7 +12,7 @@ namespace openmsx {
 
 class MSXEventDistributor;
 
-class MSXEventRecorder : private MSXEventListener
+class MSXEventRecorder : private MSXEventListener, private noncopyable
 {
 public:
 	MSXEventRecorder(MSXEventDistributor& eventDistributor, 

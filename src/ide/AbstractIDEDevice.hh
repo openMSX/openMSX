@@ -35,8 +35,7 @@ protected:
 	static const byte ABORT = 0x04;
 
 	AbstractIDEDevice(
-		EventDistributor& eventDistributor, const EmuTime& time
-		);
+		EventDistributor& eventDistributor, const EmuTime& time);
 	virtual ~AbstractIDEDevice();
 
 	/** Is this device a packet (ATAPI) device?

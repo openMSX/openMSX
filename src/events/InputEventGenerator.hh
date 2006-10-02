@@ -5,6 +5,7 @@
 
 #include "Observer.hh"
 #include "EventListener.hh"
+#include "noncopyable.hh"
 #include <SDL.h>
 #include <memory>
 
@@ -16,7 +17,8 @@ class EventDistributor;
 class Setting;
 class EscapeGrabCmd;
 
-class InputEventGenerator : private Observer<Setting>, private EventListener
+class InputEventGenerator : private Observer<Setting>, private EventListener,
+                            private noncopyable
 {
 public:
 	InputEventGenerator(CommandController& commandController,

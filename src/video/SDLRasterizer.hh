@@ -34,8 +34,7 @@ class SDLRasterizer : public Rasterizer, private noncopyable,
 public:
 	SDLRasterizer(
 		VDP& vdp, Display& display, VisibleSurface& screen,
-		std::auto_ptr<PostProcessor> postProcessor_
-		);
+		std::auto_ptr<PostProcessor> postProcessor);
 	virtual ~SDLRasterizer();
 
 	// Rasterizer interface:

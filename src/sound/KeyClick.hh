@@ -3,6 +3,7 @@
 #ifndef KEYCLICK_HH
 #define KEYCLICK_HH
 
+#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -12,7 +13,7 @@ class XMLElement;
 class EmuTime;
 class DACSound8U;
 
-class KeyClick
+class KeyClick : private noncopyable
 {
 public:
 	KeyClick(Mixer& mixer, const XMLElement& config, const EmuTime& time);

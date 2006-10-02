@@ -41,8 +41,7 @@ public:
 	  * @return RawFrame object that can be used for building the next frame.
 	  */
 	virtual RawFrame* rotateFrames(
-		RawFrame* finishedFrame, FrameSource::FieldType field
-		);
+		RawFrame* finishedFrame, FrameSource::FieldType field);
 
 protected:
 	/** Returns the maximum width for lines [y..y+step).
@@ -52,8 +51,7 @@ protected:
 	PostProcessor(
 		CommandController& commandController, Display& display,
 		VisibleSurface& screen, VideoSource videoSource,
-		unsigned maxWidth, unsigned height
-		);
+		unsigned maxWidth, unsigned height);
 
 	/** Render settings
 	  */

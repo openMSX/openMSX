@@ -8,6 +8,7 @@
 #include "EventListener.hh"
 #include "Observer.hh"
 #include "CircularBuffer.hh"
+#include "noncopyable.hh"
 #include <memory>
 #include <vector>
 
@@ -26,7 +27,7 @@ class FpsInfoTopic;
   * A display contains several layers.
   */
 class Display : private EventListener, private Observer<Setting>,
-                private LayerListener
+                private LayerListener, private noncopyable
 {
 public:
 	explicit Display(Reactor& reactor);

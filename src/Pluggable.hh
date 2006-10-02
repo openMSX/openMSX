@@ -3,8 +3,9 @@
 #ifndef PLUGGABLE_HH
 #define PLUGGABLE_HH
 
-#include <string>
 #include "MSXException.hh"
+#include "noncopyable.hh"
+#include <string>
 
 namespace openmsx {
 
@@ -20,7 +21,7 @@ public:
 		: MSXException(message) {}
 };
 
-class Pluggable
+class Pluggable : private noncopyable
 {
 public:
 	Pluggable();

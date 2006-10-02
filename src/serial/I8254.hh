@@ -9,6 +9,7 @@
 #define I8254_HH
 
 #include "openmsx.hh"
+#include "noncopyable.hh"
 #include "EmuTime.hh"
 #include "ClockPin.hh"
 
@@ -16,7 +17,7 @@ namespace openmsx {
 
 class Scheduler;
 
-class I8254
+class I8254 : private noncopyable
 {
 	class Counter {
 	public:

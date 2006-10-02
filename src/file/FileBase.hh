@@ -5,10 +5,11 @@
 
 #include <string>
 #include "openmsx.hh"
+#include "noncopyable.hh"
 
 namespace openmsx {
 
-class FileBase
+class FileBase : private noncopyable
 {
 public:
 	FileBase();

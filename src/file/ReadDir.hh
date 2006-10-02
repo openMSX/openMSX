@@ -3,6 +3,7 @@
 #ifndef READDIR_HH
 #define READDIR_HH
 
+#include "noncopyable.hh"
 #include <string>
 #include <sys/types.h>
 #include <dirent.h>
@@ -14,7 +15,7 @@ namespace openmsx {
  * Mainly usefull to automatically call closedir() when object goes out
  * of scope.
  */
-class ReadDir
+class ReadDir : private noncopyable
 {
 public:
 	explicit ReadDir(const std::string& directory);

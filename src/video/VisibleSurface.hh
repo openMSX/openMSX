@@ -22,7 +22,7 @@ class IconStatus;
   * This class provides a frame buffer based renderer a common interface,
   * no matter whether the back-end is plain SDL or SDL+OpenGL.
   */
-class VisibleSurface: public OutputSurface
+class VisibleSurface : public OutputSurface
 {
 public:
 	virtual ~VisibleSurface();

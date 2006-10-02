@@ -5,6 +5,7 @@
 
 #include "BreakPoint.hh"
 #include "openmsx.hh"
+#include "noncopyable.hh"
 #include <vector>
 #include <map>
 #include <memory>
@@ -14,7 +15,7 @@ namespace openmsx {
 class EmuTime;
 class TclObject;
 
-class CPU
+class CPU : private noncopyable
 {
 public:
 	// cache constants

@@ -31,8 +31,6 @@ public:
 	enum RendererID { UNINITIALIZED, DUMMY, SDL,
 	                  SDLGL, SDLGL_PP, SDLGL_FB16, SDLGL_FB32 };
 
-	virtual ~RendererFactory() {}
-
 	typedef EnumSetting<RendererID> RendererSetting;
 
 	/** Create the video system required by the current renderer setting.

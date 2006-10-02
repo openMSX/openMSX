@@ -6,6 +6,7 @@
 #include "Layer.hh"
 #include "LedEvent.hh"
 #include "FilenameSetting.hh"
+#include "noncopyable.hh"
 #include <memory>
 
 class SDL_Surface;
@@ -18,7 +19,8 @@ class IconStatus;
 class IntegerSetting;
 
 template <class IMAGE>
-class IconLayer : public Layer, private SettingChecker<FilenameSetting::Policy>
+class IconLayer : public Layer, private SettingChecker<FilenameSetting::Policy>,
+                  private noncopyable
 {
 public:
 	IconLayer(CommandController& commandController,

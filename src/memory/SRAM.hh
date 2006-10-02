@@ -4,6 +4,7 @@
 #define SRAM_HH
 
 #include "Ram.hh"
+#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -13,7 +14,7 @@ class XMLElement;
 class CliComm;
 class SRAMSync;
 
-class SRAM
+class SRAM : private noncopyable
 {
 public:
 	SRAM(MSXMotherBoard& motherBoard, const std::string& name, int size,

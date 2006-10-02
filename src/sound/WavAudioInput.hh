@@ -6,7 +6,6 @@
 #include "AudioInputDevice.hh"
 #include "Observer.hh"
 #include "EmuTime.hh"
-#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -15,8 +14,7 @@ class CommandController;
 class FilenameSetting;
 class Setting;
 
-class WavAudioInput : public AudioInputDevice, private Observer<Setting>,
-                      private noncopyable
+class WavAudioInput : public AudioInputDevice, private Observer<Setting>
 {
 public:
 	explicit WavAudioInput(CommandController& commandController);

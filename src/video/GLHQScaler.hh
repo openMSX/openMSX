@@ -4,6 +4,7 @@
 #define GLHQSCALER_HH
 
 #include "GLScaler.hh"
+#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -11,7 +12,7 @@ namespace openmsx {
 class ShaderProgram;
 class Texture;
 
-class GLHQScaler : public GLScaler
+class GLHQScaler : public GLScaler, private noncopyable
 {
 public:
 	GLHQScaler();

@@ -11,8 +11,6 @@ namespace openmsx {
 class Rasterizer
 {
 public:
-	/** Destructor.
-	  */
 	virtual ~Rasterizer() {}
 
 	/** Will the output of this Rasterizer be displayed?
@@ -81,8 +79,7 @@ public:
 	virtual void drawDisplay(
 		int fromX, int fromY,
 		int displayX, int displayY,
-		int displayWidth, int displayHeight
-		) = 0;
+		int displayWidth, int displayHeight) = 0;
 
 	/** Render a rectangle of sprite pixels on the host screen.
 	  * Although the parameters are very similar to drawDisplay,
@@ -98,9 +95,7 @@ public:
 	virtual void drawSprites(
 		int fromX, int fromY,
 		int displayX, int displayY,
-		int displayWidth, int displayHeight
-		) = 0;
-
+		int displayWidth, int displayHeight) = 0;
 };
 
 } // namespace openmsx

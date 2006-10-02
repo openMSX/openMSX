@@ -9,12 +9,13 @@
 
 #include "Clock.hh"
 #include "openmsx.hh"
+#include "noncopyable.hh"
 
 namespace openmsx {
 
 class DiskDrive;
 
-class TC8566AF
+class TC8566AF : private noncopyable
 {
 public:
 	TC8566AF(DiskDrive* drive[4], const EmuTime& time);

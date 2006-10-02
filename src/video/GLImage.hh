@@ -3,14 +3,15 @@
 #ifndef GLTEXTURE_HH
 #define GLTEXTURE_HH
 
-#include <string>
 #include "GLUtil.hh"
+#include "noncopyable.hh"
+#include <string>
 
 class SDL_Surface;
 
 namespace openmsx {
 
-class GLImage
+class GLImage : private noncopyable
 {
 public:
 	GLImage(SDL_Surface* output, const std::string& filename);

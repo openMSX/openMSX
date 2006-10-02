@@ -4,6 +4,7 @@
 #define ROM_HH
 
 #include "openmsx.hh"
+#include "noncopyable.hh"
 #include <memory>
 #include <cassert>
 
@@ -17,7 +18,7 @@ class RomInfo;
 class CliComm;
 class RomDebuggable;
 
-class Rom
+class Rom : private noncopyable
 {
 public:
 	Rom(MSXMotherBoard& motherBoard, const std::string& name,

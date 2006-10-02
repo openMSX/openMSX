@@ -4,6 +4,7 @@
 #define THROTTLEMANAGER_HH
 
 #include "Subject.hh"
+#include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
@@ -19,7 +20,8 @@ class Setting;
  * status of openMSX, attach to me! (And not just to throttleSetting!)
  */
 class ThrottleManager : public Subject<ThrottleManager>,
-                        private Observer<Setting>
+                        private Observer<Setting>,
+                        private noncopyable
 {
 public:
 	explicit ThrottleManager(CommandController& commandController);
