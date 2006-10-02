@@ -32,19 +32,10 @@ const byte BINARY_HEADER[10]   = { 0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,0xD0,
 const byte BASIC_HEADER[10] = { 0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3,0xD3 };
 
 
-CasImage::CasImage(const string& fileName, CliComm& cliComm_)
-	: cliComm(cliComm_)
+CasImage::CasImage(const string& fileName, CliComm& cliComm)
 {
-	File file(fileName);
-	size = file.getSize();
-	buf = file.mmap();
-	pos = 0;
 	setFirstFileType(CassetteImage::UNKNOWN);
-	convert(fileName);
-}
-
-CasImage::~CasImage()
-{
+	convert(fileName, cliComm);
 }
 
 short CasImage::getSampleAt(const EmuTime& time)
@@ -102,7 +93,7 @@ void CasImage::writeByte(byte b)
 }
 
 // write data until a header is detected
-bool CasImage::writeData()
+bool CasImage::writeData(const byte* buf, const unsigned size, unsigned& pos)
 {
 	bool eof = false;
 	while ((pos + 8) <= size) {
@@ -121,12 +112,17 @@ bool CasImage::writeData()
 	return false;
 }
 
-void CasImage::convert(const std::string& fileName)
+void CasImage::convert(const std::string& fileName, CliComm& cliComm)
 {
+	File file(fileName);
+	const byte* buf = file.mmap();
+	const unsigned size = file.getSize();
+
 	// search for a header in the .cas file
 	bool issueWarning = false;
 	bool headerFound = false;
 	bool firstFile = true;
+	unsigned pos = 0;
 	while ((pos + 8) <= size) {
 		if (!memcmp(&buf[pos], CAS_HEADER, 8)) {
 			// it probably works fine if a long header is used for every
@@ -149,31 +145,31 @@ void CasImage::convert(const std::string& fileName)
 				if (firstFile) setFirstFileType(type);
 				switch (type) {
 					case CassetteImage::ASCII:
-						writeData();
+						writeData(buf, size, pos);
 						bool eof;
 						do {
 							pos += 8;
 							writeSilence(SHORT_SILENCE);
 							writeHeader(SHORT_HEADER);
-							eof = writeData();
+							eof = writeData(buf, size, pos);
 						} while (!eof && ((pos + 8) <= size));
 						break;
 					case CassetteImage::BINARY:
 					case CassetteImage::BASIC:
-						writeData();
+						writeData(buf, size, pos);
 						writeSilence(SHORT_SILENCE);
 						writeHeader(SHORT_HEADER);
 						pos += 8;
-						writeData();
+						writeData(buf, size, pos);
 						break;
 					default:
 						// unknown file type: using long header
-						writeData();
+						writeData(buf, size, pos);
 						break;
 				}
 			} else {
 				// unknown file type: using long header
-				writeData();
+				writeData(buf, size, pos);
 			}
 			firstFile = false;
 		} else {

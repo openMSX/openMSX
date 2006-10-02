@@ -18,9 +18,9 @@ class CliComm;
 class CasImage : public CassetteImage
 {
 public:
-	CasImage(const std::string& fileName, CliComm& cliComm_);
-	virtual ~CasImage();
+	CasImage(const std::string& fileName, CliComm& cliComm);
 
+	// CassetteImage
 	virtual short getSampleAt(const EmuTime& time);
 
 private:
@@ -29,15 +29,10 @@ private:
 	void writeHeader(int s);
 	void writeSilence(int s);
 	void writeByte(byte b);
-	bool writeData();
-	void convert(const std::string& fileName);
+	bool writeData(const byte* buf, unsigned size, unsigned& pos);
+	void convert(const std::string& fileName, CliComm& cliComm);
 
-	unsigned size;
-	unsigned pos;
-	byte* buf; // TODO only valid in constructor, should not be a member
 	std::vector<char> output;
-
-	CliComm& cliComm;
 };
 
 } // namespace openmsx
