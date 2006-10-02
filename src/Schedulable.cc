@@ -2,6 +2,7 @@
 
 #include "Schedulable.hh"
 #include "Scheduler.hh"
+#include <iostream>
 
 namespace openmsx {
 
@@ -13,6 +14,12 @@ Schedulable::Schedulable(Scheduler& scheduler_)
 Schedulable::~Schedulable()
 {
 	removeSyncPoints();
+}
+
+void Schedulable::schedulerDeleted()
+{
+	std::cerr << "Internal error: Schedulable \"" << schedName()
+	          << "\" failed to unregister." << std::endl;
 }
 
 void Schedulable::setSyncPoint(const EmuTime& timestamp, int userData)

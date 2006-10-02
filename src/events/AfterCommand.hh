@@ -11,13 +11,14 @@
 
 namespace openmsx {
 
+class Reactor;
 class EventDistributor;
 class CommandController;
 
 class AfterCommand : public SimpleCommand, private EventListener
 {
 public:
-	AfterCommand(Scheduler& scheduler,
+	AfterCommand(Reactor& reactor,
 	             EventDistributor& eventDistributor,
 	             CommandController& commandController);
 	virtual ~AfterCommand();
@@ -69,6 +70,7 @@ private:
 		              const std::string& command, double time);
 	private:
 		virtual void executeUntil(const EmuTime& time, int userData);
+		virtual void schedulerDeleted();
 		virtual const std::string& schedName() const;
 
 		double time;
@@ -94,14 +96,17 @@ private:
 	class AfterEventCmd : public AfterCmd {
 	public:
 		AfterEventCmd(AfterCommand& afterCommand,
+		              const std::string& type,
 		              const std::string& command);
 		virtual const std::string& getType() const;
+	private:
+		const std::string type;
 	};
 
 	typedef std::map<std::string, AfterCmd*> AfterCmdMap;
 	AfterCmdMap afterCmds;
 
-	Scheduler& scheduler;
+	Reactor& reactor;
 	EventDistributor& eventDistributor;
 	CommandController& commandController;
 };

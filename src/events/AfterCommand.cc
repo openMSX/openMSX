@@ -5,6 +5,8 @@
 #include "CliComm.hh"
 #include "Scheduler.hh"
 #include "EventDistributor.hh"
+#include "Reactor.hh"
+#include "MSXMotherBoard.hh"
 #include "CommandException.hh"
 #include <cstdlib>
 #include <sstream>
@@ -16,11 +18,11 @@ using std::set;
 
 namespace openmsx {
 
-AfterCommand::AfterCommand(Scheduler& scheduler_,
+AfterCommand::AfterCommand(Reactor& reactor_,
                            EventDistributor& eventDistributor_,
                            CommandController& commandController_)
 	: SimpleCommand(commandController_, "after")
-	, scheduler(scheduler_)
+	, reactor(reactor_)
 	, eventDistributor(eventDistributor_)
 	, commandController(commandController_)
 {
@@ -46,6 +48,10 @@ AfterCommand::AfterCommand(Scheduler& scheduler_,
 		OPENMSX_FINISH_FRAME_EVENT, *this);
 	eventDistributor.registerEventListener(
 		OPENMSX_BREAK_EVENT, *this);
+	eventDistributor.registerEventListener(
+		OPENMSX_BOOT_EVENT, *this);
+	eventDistributor.registerEventListener(
+		OPENMSX_MACHINE_LOADED_EVENT, *this);
 }
 
 AfterCommand::~AfterCommand()
@@ -54,6 +60,10 @@ AfterCommand::~AfterCommand()
 		delete afterCmds.begin()->second; // removes itself from map
 	}
 
+	eventDistributor.unregisterEventListener(
+		OPENMSX_MACHINE_LOADED_EVENT, *this);
+	eventDistributor.unregisterEventListener(
+		OPENMSX_BOOT_EVENT, *this);
 	eventDistributor.unregisterEventListener(
 		OPENMSX_BREAK_EVENT, *this);
 	eventDistributor.unregisterEventListener(
@@ -94,6 +104,10 @@ string AfterCommand::execute(const vector<string>& tokens)
 		return afterEvent<OPENMSX_FINISH_FRAME_EVENT>(tokens);
 	} else if (tokens[1] == "break") {
 		return afterEvent<OPENMSX_BREAK_EVENT>(tokens);
+	} else if (tokens[1] == "boot") {
+		return afterEvent<OPENMSX_BOOT_EVENT>(tokens);
+	} else if (tokens[1] == "machine_switch") {
+		return afterEvent<OPENMSX_MACHINE_LOADED_EVENT>(tokens);
 	} else if (tokens[1] == "info") {
 		return afterInfo(tokens);
 	} else if (tokens[1] == "cancel") {
@@ -119,8 +133,13 @@ string AfterCommand::afterTime(const vector<string>& tokens)
 	if (tokens.size() != 4) {
 		throw SyntaxError();
 	}
+	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
+	if (!motherBoard) {
+		return "";
+	}
 	double time = getTime(tokens[2]);
-	AfterTimeCmd* cmd = new AfterTimeCmd(scheduler, *this, tokens[3], time);
+	AfterTimeCmd* cmd = new AfterTimeCmd(
+		motherBoard->getScheduler(), *this, tokens[3], time);
 	return cmd->getId();
 }
 
@@ -129,8 +148,13 @@ string AfterCommand::afterIdle(const vector<string>& tokens)
 	if (tokens.size() != 4) {
 		throw SyntaxError();
 	}
+	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
+	if (!motherBoard) {
+		return "";
+	}
 	double time = getTime(tokens[2]);
-	AfterIdleCmd* cmd = new AfterIdleCmd(scheduler, *this, tokens[3], time);
+	AfterIdleCmd* cmd = new AfterIdleCmd(
+		motherBoard->getScheduler(), *this, tokens[3], time);
 	return cmd->getId();
 }
 
@@ -140,7 +164,7 @@ string AfterCommand::afterEvent(const vector<string>& tokens)
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	AfterEventCmd<T>* cmd = new AfterEventCmd<T>(*this, tokens[2]);
+	AfterEventCmd<T>* cmd = new AfterEventCmd<T>(*this, tokens[1], tokens[2]);
 	return cmd->getId();
 }
 
@@ -195,6 +219,8 @@ void AfterCommand::tabCompletion(vector<string>& tokens) const
 		cmds.insert("idle");
 		cmds.insert("frame");
 		cmds.insert("break");
+		cmds.insert("boot");
+		cmds.insert("machine_switch");
 		cmds.insert("info");
 		cmds.insert("cancel");
 		completeString(tokens, cmds);
@@ -209,6 +235,10 @@ bool AfterCommand::signalEvent(shared_ptr<const Event> event)
 		executeEvents<OPENMSX_FINISH_FRAME_EVENT>();
 	} else if (event->getType() == OPENMSX_BREAK_EVENT) {
 		executeEvents<OPENMSX_BREAK_EVENT>();
+	} else if (event->getType() == OPENMSX_BOOT_EVENT) {
+		executeEvents<OPENMSX_BOOT_EVENT>();
+	} else if (event->getType() == OPENMSX_MACHINE_LOADED_EVENT) {
+		executeEvents<OPENMSX_MACHINE_LOADED_EVENT>();
 	} else {
 		for (AfterCmdMap::const_iterator it = afterCmds.begin();
 		     it != afterCmds.end(); ++it) {
@@ -310,6 +340,11 @@ void AfterCommand::AfterTimedCmd::executeUntil(const EmuTime& /*time*/,
 	execute();
 }
 
+void AfterCommand::AfterTimedCmd::schedulerDeleted()
+{
+	delete this;
+}
+
 const string& AfterCommand::AfterTimedCmd::schedName() const
 {
 	static const string sched_name("AfterCmd");
@@ -355,24 +390,16 @@ const string& AfterCommand::AfterIdleCmd::getType() const
 
 template<EventType T>
 AfterCommand::AfterEventCmd<T>::AfterEventCmd(
-		AfterCommand& afterCommand, const string& command)
-	: AfterCmd(afterCommand, command)
+		AfterCommand& afterCommand, const string& type_,
+		const string& command)
+	: AfterCmd(afterCommand, command), type(type_)
 {
 }
 
-template<>
-const string& AfterCommand::AfterEventCmd<OPENMSX_FINISH_FRAME_EVENT>::getType() const
+template<EventType T>
+const string& AfterCommand::AfterEventCmd<T>::getType() const
 {
-	static const string type("frame");
 	return type;
 }
-
-template<>
-const string& AfterCommand::AfterEventCmd<OPENMSX_BREAK_EVENT>::getType() const
-{
-	static const string type("break");
-	return type;
-}
-
 
 } // namespace openmsx

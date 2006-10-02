@@ -10,6 +10,7 @@
 #include "FileManipulator.hh"
 #include "FilePool.hh"
 #include "MSXMotherBoard.hh"
+#include "AfterCommand.hh"
 #include "Command.hh"
 #include "CliComm.hh"
 #include "Display.hh"
@@ -222,6 +223,8 @@ MSXMotherBoard& Reactor::createMotherBoard(const string& machine)
 	std::auto_ptr<MSXMotherBoard> newMotherBoard(new MSXMotherBoard(*this));
 	newMotherBoard->loadMachine(machine);
 	motherBoard = newMotherBoard.release();
+	getEventDistributor().distributeEvent(
+		new SimpleEvent<OPENMSX_MACHINE_LOADED_EVENT>());
 	return *motherBoard;
 }
 
@@ -267,6 +270,9 @@ void Reactor::doSwitchMachine()
 
 void Reactor::run(CommandLineParser& parser)
 {
+	AfterCommand afterCommand(*this, getEventDistributor(),
+	                          getCommandController());
+
 	Display& display = getDisplay();
 
 	// execute init.tcl

@@ -15,6 +15,12 @@ Scheduler::Scheduler()
 
 Scheduler::~Scheduler()
 {
+	SyncPoints copy(syncPoints);
+	for (SyncPoints::const_iterator it = copy.begin();
+	     it != copy.end(); ++it) {
+		it->getDevice()->schedulerDeleted();
+	}
+
 	assert(syncPoints.empty());
 }
 

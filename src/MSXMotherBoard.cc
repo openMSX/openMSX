@@ -30,7 +30,6 @@
 #include "Command.hh"
 #include "RecordedCommand.hh"
 #include "InfoTopic.hh"
-#include "AfterCommand.hh"
 #include "FileException.hh"
 #include "ConfigException.hh"
 #include "ReadDir.hh"
@@ -117,8 +116,6 @@ MSXMotherBoard::MSXMotherBoard(Reactor& reactor_)
 	, listExtCommand  (new ListExtCmd  (getCommandController(), *this))
 	, extCommand      (new ExtCmd      (getCommandController(), *this))
 	, removeExtCommand(new RemoveExtCmd(getCommandController(), *this))
-	, afterCommand(new AfterCommand(getScheduler(), getEventDistributor(),
-	                                getCommandController()))
 	, extensionInfo(new ConfigInfo(getCommandController(), "extensions"))
 	, machineInfo  (new ConfigInfo(getCommandController(), "machines"))
 	, powerSetting(getCommandController().getGlobalSettings().getPowerSetting())
@@ -180,8 +177,6 @@ void MSXMotherBoard::loadMachine(const string& machine)
 			"Error in \"" + machine + "\" machine: " + e.getMessage()
 			);
 	}
-	getEventDistributor().distributeEvent(
-		new SimpleEvent<OPENMSX_MACHINE_LOADED_EVENT>());
 	if (powerSetting.getValue()) {
 		powerUp();
 	}
