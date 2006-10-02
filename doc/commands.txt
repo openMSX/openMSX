@@ -15,6 +15,9 @@ after
     after frame <command>           execute a command after a new frame is drawn
     after break <command>           execute a command after a breakpoint is
                                     reached
+    after boot <command>            execute a command after a (re)boot
+    after machine_switch <command>  execute a command after switch to new a
+                                    machine
     after info                      list all postponed commands
     after cancel <id>               cancel the postponed command with given id
 

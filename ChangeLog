@@ -2,6 +2,11 @@ $Id$
 
 2006-10-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Empty the sound buffer in the SDL sound driver after a mute/unmute
+	* Make 'after' command part of Reactor iso MSXMotherboard:
+	   - after events are now kept over a machine switch
+	   - added two new after events: 'boot' and 'machine_switch'
+	* Extended autoplug.tcl:
+	   - also auto plug the cassetteplayer after a machine switch
 
 2006-10-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed race condition:
