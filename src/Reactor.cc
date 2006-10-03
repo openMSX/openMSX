@@ -10,7 +10,6 @@
 #include "FileManipulator.hh"
 #include "FilePool.hh"
 #include "MSXMotherBoard.hh"
-#include "AfterCommand.hh"
 #include "Command.hh"
 #include "CliComm.hh"
 #include "Display.hh"
@@ -45,7 +44,7 @@ private:
 class PollEventGenerator : private Alarm
 {
 public:
-	PollEventGenerator(EventDistributor& eventDistributor);
+	explicit PollEventGenerator(EventDistributor& eventDistributor);
 	~PollEventGenerator();
 private:
 	virtual bool alarm();
@@ -270,9 +269,6 @@ void Reactor::doSwitchMachine()
 
 void Reactor::run(CommandLineParser& parser)
 {
-	AfterCommand afterCommand(*this, getEventDistributor(),
-	                          getCommandController());
-
 	Display& display = getDisplay();
 
 	// execute init.tcl
