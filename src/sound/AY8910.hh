@@ -91,7 +91,7 @@ private:
 
 	class Amplitude {
 	public:
-		Amplitude(const XMLElement& config);
+		explicit Amplitude(const XMLElement& config);
 		inline unsigned int getVolume(byte chan);
 		inline void setChannelVolume(byte chan, byte value);
 		inline void setEnvelopeVolume(byte volume);
@@ -108,7 +108,7 @@ private:
 
 	class Envelope {
 	public:
-		inline Envelope(Amplitude& amplitude);
+		explicit inline Envelope(Amplitude& amplitude);
 		inline void reset();
 		inline void setPeriod(int value, unsigned int updateStep);
 		inline void setShape(byte shape);

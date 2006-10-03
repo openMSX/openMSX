@@ -105,7 +105,7 @@ private:
 
 	class HelpOption : public CLIOption {
 	public:
-		HelpOption(CommandLineParser& parser);
+		explicit HelpOption(CommandLineParser& parser);
 		virtual bool parseOption(const std::string& option,
 			std::list<std::string>& cmdLine);
 		virtual const std::string& optionHelp() const;
@@ -115,7 +115,7 @@ private:
 
 	class VersionOption : public CLIOption {
 	public:
-		VersionOption(CommandLineParser& parser);
+		explicit VersionOption(CommandLineParser& parser);
 		virtual bool parseOption(const std::string& option,
 			std::list<std::string>& cmdLine);
 		virtual const std::string& optionHelp() const;
@@ -125,7 +125,7 @@ private:
 
 	class ControlOption : public CLIOption {
 	public:
-		ControlOption(CommandLineParser& parser);
+		explicit ControlOption(CommandLineParser& parser);
 		virtual bool parseOption(const std::string& option,
 			std::list<std::string>& cmdLine);
 		virtual const std::string& optionHelp() const;
@@ -145,7 +145,7 @@ private:
 
 	class MachineOption : public CLIOption {
 	public:
-		MachineOption(CommandLineParser& parser);
+		explicit MachineOption(CommandLineParser& parser);
 		virtual bool parseOption(const std::string& option,
 			std::list<std::string>& cmdLine);
 		virtual const std::string& optionHelp() const;
@@ -155,7 +155,7 @@ private:
 
 	class SettingOption : public CLIOption {
 	public:
-		SettingOption(CommandLineParser& parser);
+		explicit SettingOption(CommandLineParser& parser);
 		virtual bool parseOption(const std::string& option,
 			std::list<std::string>& cmdLine);
 		virtual const std::string& optionHelp() const;
@@ -179,7 +179,7 @@ private:
 
 	class TestConfigOption : public CLIOption {
 	public:
-		TestConfigOption(CommandLineParser& parser);
+		explicit TestConfigOption(CommandLineParser& parser);
 		virtual bool parseOption(const std::string& option,
 			std::list<std::string>& cmdLine);
 		virtual const std::string& optionHelp() const;

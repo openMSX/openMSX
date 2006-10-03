@@ -14,7 +14,7 @@ class EventDistributor;
 class IconStatus : private EventListener, private noncopyable
 {
 public:
-	IconStatus(EventDistributor& eventDistributor);
+	explicit IconStatus(EventDistributor& eventDistributor);
 	~IconStatus();
 
 	bool getStatus(int icon) const;

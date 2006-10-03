@@ -18,7 +18,7 @@ template<typename Pixel> class Multiply32;
 template<> class Multiply32<unsigned>
 {
 public:
-	Multiply32(const SDL_PixelFormat* format);
+	explicit Multiply32(const SDL_PixelFormat* format);
 
 	inline void setFactor32(unsigned f)
 	{
@@ -48,7 +48,7 @@ template<> class Multiply32<word>
 	}
 
 public:
-	Multiply32(const SDL_PixelFormat* format);
+	explicit Multiply32(const SDL_PixelFormat* format);
 
 	void setFactor32(unsigned factor);
 

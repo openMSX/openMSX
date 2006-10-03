@@ -58,7 +58,7 @@ private:
 	}
 
 public:
-	WorkspaceBlock(const byte buffer[64]);
+	explicit WorkspaceBlock(const byte buffer[64]);
 
 	// SHA-1 rounds
 	void r0(uint32 v, uint32& w, uint32 x, uint32 y, uint32& z, int i)

@@ -14,7 +14,7 @@ namespace openmsx {
 class DoubledFrame : public FrameSource
 {
 public:
-	DoubledFrame(const SDL_PixelFormat* format);
+	explicit DoubledFrame(const SDL_PixelFormat* format);
 
 	void init(FrameSource* field, unsigned skip);
 

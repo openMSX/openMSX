@@ -20,9 +20,6 @@ using std::vector;
 
 namespace openmsx {
 
-class MSXEventDistributor;
-class Scheduler;
-
 class PlugCmd : public RecordedCommand
 {
 public:

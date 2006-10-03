@@ -54,7 +54,7 @@ protected:
 	inline void MULUW_DELAY()    { add(34); }
 	inline unsigned haltStates() { return 1; } // HALT + M1 // TODO check this
 
-	R800TYPE(const EmuTime& time)
+	explicit R800TYPE(const EmuTime& time)
 		: CPUClock(time)
 		, lastRefreshTime(time)
 		, lastPage(-1)

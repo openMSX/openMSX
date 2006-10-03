@@ -14,7 +14,7 @@ template <class Pixel>
 class HQ3xScaler: public Scaler3<Pixel>
 {
 public:
-	HQ3xScaler(const PixelOperations<Pixel>& pixelOps);
+	explicit HQ3xScaler(const PixelOperations<Pixel>& pixelOps);
 
 	virtual void scale2x1to9x3(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,

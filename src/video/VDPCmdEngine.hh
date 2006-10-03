@@ -23,8 +23,8 @@ class BooleanSetting;
 class VDPCmdEngine : private Observer<Setting>, private noncopyable
 {
 public:
-	explicit VDPCmdEngine(VDP& vdp, RenderSettings& renderSettings_,
-		CommandController& commandController);
+	VDPCmdEngine(VDP& vdp, RenderSettings& renderSettings_,
+	             CommandController& commandController);
 	virtual ~VDPCmdEngine();
 
 	/** Reinitialise Renderer state.

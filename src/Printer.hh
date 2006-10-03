@@ -97,7 +97,7 @@ public:
 	virtual void forceFormFeed();
 
 protected:
-	ImagePrinter(CommandController& commandController);
+	explicit ImagePrinter(CommandController& commandController);
 	~ImagePrinter();
 
 	void resetEmulatedPrinter();
@@ -191,7 +191,7 @@ private:
 class ImagePrinterMSX : public ImagePrinter
 {
 public:
-	ImagePrinterMSX(CommandController& commandController);
+	explicit ImagePrinterMSX(CommandController& commandController);
 
 	// Pluggable
 	virtual const std::string& getName() const;
@@ -212,7 +212,7 @@ private:
 class ImagePrinterEpson : public ImagePrinter
 {
 public:
-	ImagePrinterEpson(CommandController& commandController);
+	explicit ImagePrinterEpson(CommandController& commandController);
 
 	// Pluggable
 	virtual const std::string& getName() const;

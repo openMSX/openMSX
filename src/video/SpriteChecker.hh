@@ -65,8 +65,8 @@ public:
 	  * @param renderSettings TODO
 	  * @param time TODO
 	  */
-	explicit SpriteChecker(VDP& vdp, RenderSettings& renderSettings,
-	                       const EmuTime& time);
+	SpriteChecker(VDP& vdp, RenderSettings& renderSettings,
+	              const EmuTime& time);
 
 	/** Puts the sprite checker in its initial state.
 	  * @param time The moment in time this reset occurs.

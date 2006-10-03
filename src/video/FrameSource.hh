@@ -94,7 +94,7 @@ public:
 	void freeLineBuffers();
 
 protected:
-	FrameSource(const SDL_PixelFormat* format);
+	explicit FrameSource(const SDL_PixelFormat* format);
 
 	void setHeight(unsigned height);
 

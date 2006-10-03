@@ -22,8 +22,7 @@ class SimpleScaler: public Scaler2<Pixel>
 public:
 	SimpleScaler(
 		const PixelOperations<Pixel>& pixelOps,
-		RenderSettings& renderSettings
-		);
+		RenderSettings& renderSettings);
 
 	virtual void scaleBlank1to2(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,

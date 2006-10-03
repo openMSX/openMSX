@@ -29,7 +29,7 @@ class PixelRenderer : public Renderer, private Observer<Setting>,
                       private noncopyable 
 {
 public:
-	explicit PixelRenderer(VDP& vdp, Display& display);
+	PixelRenderer(VDP& vdp, Display& display);
 	virtual ~PixelRenderer();
 
 	// Renderer interface:

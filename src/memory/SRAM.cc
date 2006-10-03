@@ -16,7 +16,7 @@ namespace openmsx {
 class SRAMSync : public Alarm
 {
 public:
-	SRAMSync(SRAM& sram);
+	explicit SRAMSync(SRAM& sram);
 	~SRAMSync();
 private:
 	virtual bool alarm();

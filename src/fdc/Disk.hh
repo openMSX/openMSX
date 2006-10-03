@@ -59,7 +59,7 @@ public:
 protected:
 	static const int RAWTRACK_SIZE = 6850;
 
-	Disk(const std::string& name);
+	explicit Disk(const std::string& name);
 	int physToLog(byte track, byte side, byte sector);
 	void logToPhys(int log, byte& track, byte& side, byte& sector);
 

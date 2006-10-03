@@ -32,7 +32,7 @@ namespace openmsx {
 class RepaintAlarm : public Alarm
 {
 public:
-	RepaintAlarm(EventDistributor& eventDistributor);
+	explicit RepaintAlarm(EventDistributor& eventDistributor);
 	virtual bool alarm();
 private:
 	EventDistributor& eventDistributor;

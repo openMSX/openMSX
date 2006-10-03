@@ -16,7 +16,7 @@ class V9990VRAM;
 class V9990GLRasterizer : public V9990Rasterizer
 {
 public:
-	V9990GLRasterizer(V9990& vdp);
+	explicit V9990GLRasterizer(V9990& vdp);
 	virtual ~V9990GLRasterizer();
 
 	// Rasterizer interface:

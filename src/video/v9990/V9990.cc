@@ -16,7 +16,7 @@ namespace openmsx {
 class V9990RegDebug : public SimpleDebuggable
 {
 public:
-	V9990RegDebug(V9990& v9990);
+	explicit V9990RegDebug(V9990& v9990);
 	virtual byte read(unsigned address);
 	virtual void write(unsigned address, byte value, const EmuTime& time);
 private:
@@ -26,7 +26,7 @@ private:
 class V9990PalDebug : public SimpleDebuggable
 {
 public:
-	V9990PalDebug(V9990& v9990);
+	explicit V9990PalDebug(V9990& v9990);
 	virtual byte read(unsigned address);
 	virtual void write(unsigned address, byte value, const EmuTime& time);
 private:

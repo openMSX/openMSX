@@ -32,7 +32,7 @@ public:
 	 * @param mode Mode to open the file in:
 	 * @throws FileException
 	 */
-	File(const std::string& url, OpenMode mode = NORMAL);
+	explicit File(const std::string& url, OpenMode mode = NORMAL);
 
 	/**
 	 * Destroy file object.

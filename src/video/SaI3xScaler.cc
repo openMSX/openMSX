@@ -232,8 +232,8 @@ public:
 	inline static void blendBackslash(
 		Pixel* &dp,
 		unsigned sa, unsigned sb, unsigned sc, unsigned sd,
-		unsigned se, unsigned sg, unsigned sj, unsigned sl
-	) {
+		unsigned se, unsigned sg, unsigned sj, unsigned sl)
+	{
 		// Fractional parts of the fixed point X coordinates.
 		const unsigned x1 = ((NX - i) << 16) / NX;
 		const unsigned y1 = y;
@@ -260,8 +260,8 @@ public:
 	inline static void blendSlash(
 		Pixel* &dp,
 		unsigned sa, unsigned sb, unsigned sc, unsigned sd,
-		unsigned sf, unsigned sh, unsigned si, unsigned sk
-	) {
+		unsigned sf, unsigned sh, unsigned si, unsigned sk)
+	{
 		// Fractional parts of the fixed point X coordinates.
 		const unsigned x1 = ((NX - i) << 16) / NX;
 		const unsigned x2 = 0x10000 - x1;
@@ -288,8 +288,8 @@ public:
 
 	template <unsigned NX, unsigned y, typename Pixel>
 	inline static void blend4(
-		Pixel* &dp, unsigned sa, unsigned sb, unsigned sc, unsigned sd
-	) {
+		Pixel* &dp, unsigned sa, unsigned sb, unsigned sc, unsigned sd)
+	{
 		const unsigned x = ((NX - i) << 16) / NX;
 		*dp++ = Blender<Pixel>::template blend<x, y>(sa, sb, sc, sd);
 		PixelStripRepeater<i - 1>::template blend4<NX, y, Pixel>(dp, sa, sb, sc, sd);

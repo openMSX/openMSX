@@ -15,7 +15,7 @@ class ShaderProgram;
 class GLSimpleScaler: public GLScaler, private noncopyable
 {
 public:
-	GLSimpleScaler(RenderSettings& renderSettings);
+	explicit GLSimpleScaler(RenderSettings& renderSettings);
 
 	virtual void scaleImage(
 		ColourTexture& src,

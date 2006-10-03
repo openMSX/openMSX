@@ -63,7 +63,7 @@ private:
 class LoadingIndicator
 {
 public:
-	LoadingIndicator(ThrottleManager& throttleManager_);
+	explicit LoadingIndicator(ThrottleManager& throttleManager);
 	~LoadingIndicator();
 
 	/**
@@ -76,6 +76,6 @@ private:
 	bool isLoading;
 };
 
-}
+} // namespace openmsx
 
 #endif

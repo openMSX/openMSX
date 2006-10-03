@@ -25,7 +25,7 @@ class BlockFifo;
 class CassetteJack : public CassetteDevice, private Schedulable
 {
 public:
-	CassetteJack(Scheduler&);
+	explicit CassetteJack(Scheduler&);
 	~CassetteJack();
 
 	// CassetteDevice

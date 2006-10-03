@@ -10,7 +10,7 @@ namespace openmsx {
 class CPUClock
 {
 protected:
-	CPUClock(const EmuTime& time)
+	explicit CPUClock(const EmuTime& time)
 		: clock(time), extra(0)
 	{
 	}

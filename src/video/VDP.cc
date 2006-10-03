@@ -38,7 +38,7 @@ namespace openmsx {
 class VDPRegDebug : public SimpleDebuggable
 {
 public:
-	VDPRegDebug(VDP& vdp);
+	explicit VDPRegDebug(VDP& vdp);
 	virtual byte read(unsigned address);
 	virtual void write(unsigned address, byte value, const EmuTime& time);
 private:
@@ -48,7 +48,7 @@ private:
 class VDPStatusRegDebug : public SimpleDebuggable
 {
 public:
-	VDPStatusRegDebug(VDP& vdp);
+	explicit VDPStatusRegDebug(VDP& vdp);
 	virtual byte read(unsigned address, const EmuTime& time);
 private:
 	VDP& vdp;
@@ -57,7 +57,7 @@ private:
 class VDPPaletteDebug : public SimpleDebuggable
 {
 public:
-	VDPPaletteDebug(VDP& vdp);
+	explicit VDPPaletteDebug(VDP& vdp);
 	virtual byte read(unsigned address);
 	virtual void write(unsigned address, byte value, const EmuTime& time);
 private:

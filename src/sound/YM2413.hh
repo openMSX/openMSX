@@ -34,7 +34,7 @@ class YM2413 : public YM2413Core, public SoundDevice
 
 	class Slot {
 	public:
-		Slot(bool type);
+		explicit Slot(bool type);
 		void reset(bool type);
 
 		inline void slotOn();

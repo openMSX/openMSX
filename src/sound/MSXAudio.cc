@@ -16,7 +16,7 @@ namespace openmsx {
 class MusicModulePeriphery : public Y8950Periphery
 {
 public:
-	MusicModulePeriphery(MSXAudio& audio);
+	explicit MusicModulePeriphery(MSXAudio& audio);
 	virtual void write(nibble outputs, nibble values, const EmuTime& time);
 	virtual nibble read(const EmuTime& time);
 private:
@@ -26,7 +26,7 @@ private:
 class PanasonicAudioPeriphery : public Y8950Periphery
 {
 public:
-	PanasonicAudioPeriphery(CommandController& commandController);
+	explicit PanasonicAudioPeriphery(CommandController& commandController);
 	virtual void write(nibble outputs, nibble values, const EmuTime& time);
 	virtual nibble read(const EmuTime& time);
 private:

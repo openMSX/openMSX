@@ -49,7 +49,7 @@ class ConfigInfo;
 class MSXMotherBoard : private Observer<Setting>, private noncopyable
 {
 public:
-	MSXMotherBoard(Reactor& reactor);
+	explicit MSXMotherBoard(Reactor& reactor);
 	virtual ~MSXMotherBoard();
 
 	/**

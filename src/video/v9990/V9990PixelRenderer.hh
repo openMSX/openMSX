@@ -27,7 +27,7 @@ class V9990PixelRenderer : public V9990Renderer, private Observer<Setting>,
                            private noncopyable
 {
 public:
-	V9990PixelRenderer(V9990& vdp);
+	explicit V9990PixelRenderer(V9990& vdp);
 	virtual ~V9990PixelRenderer();
 
 	// V9990Renderer interface:

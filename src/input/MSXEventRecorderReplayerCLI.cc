@@ -14,7 +14,7 @@ namespace openmsx {
 class RecordOption : public CLIOption
 {
 public:
-	RecordOption(CommandLineParser& parser);
+	explicit RecordOption(CommandLineParser& parser);
 	virtual bool parseOption(const string& option,
 	                         list<string>& cmdLine);
 	virtual const string& optionHelp() const;
@@ -27,7 +27,7 @@ private:
 class ReplayOption : public CLIOption
 {
 public:
-	ReplayOption(CommandLineParser& parser);
+	explicit ReplayOption(CommandLineParser& parser);
 	virtual bool parseOption(const string& option,
 	                         list<string>& cmdLine);
 	virtual const string& optionHelp() const;

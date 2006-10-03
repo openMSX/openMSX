@@ -16,7 +16,7 @@ class CRC16
 public:
 	/** Create CRC16 with an optional initial value
 	 */
-	CRC16(word initialCRC = 0xFFFF)
+	explicit CRC16(word initialCRC = 0xFFFF)
 	{
 		crc = initialCRC;
 	}

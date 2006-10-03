@@ -24,7 +24,7 @@ public:
 class Y8950KeyboardConnector : public Connector
 {
 public:
-	Y8950KeyboardConnector(PluggingController& pluggingController);
+	explicit Y8950KeyboardConnector(PluggingController& pluggingController);
 	virtual ~Y8950KeyboardConnector();
 
 	void write(byte data, const EmuTime& time);

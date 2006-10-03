@@ -35,7 +35,7 @@ public:
 	unsigned getNbSectors() const;
 
 protected:
-	SectorBasedDisk(const std::string& name);
+	explicit SectorBasedDisk(const std::string& name);
 	virtual ~SectorBasedDisk();
 	virtual void detectGeometry();
 

@@ -69,7 +69,7 @@ public:
 template <typename Pixel> class Scale_2on1 : public Tag<X86Streaming>
 {
 public:
-	Scale_2on1(PixelOperations<Pixel> pixelOps);
+	explicit Scale_2on1(PixelOperations<Pixel> pixelOps);
 	void operator()(const Pixel* in, Pixel* out, unsigned width);
 private:
 	PixelOperations<Pixel> pixelOps;
@@ -78,7 +78,7 @@ private:
 template <typename Pixel> class Scale_4on1
 {
 public:
-	Scale_4on1(PixelOperations<Pixel> pixelOps);
+	explicit Scale_4on1(PixelOperations<Pixel> pixelOps);
 	void operator()(const Pixel* in, Pixel* out, unsigned width);
 private:
 	PixelOperations<Pixel> pixelOps;
@@ -87,7 +87,7 @@ private:
 template <typename Pixel> class Scale_2on3
 {
 public:
-	Scale_2on3(PixelOperations<Pixel> pixelOps);
+	explicit Scale_2on3(PixelOperations<Pixel> pixelOps);
 	void operator()(const Pixel* in, Pixel* out, unsigned width);
 private:
 	PixelOperations<Pixel> pixelOps;
@@ -96,7 +96,7 @@ private:
 template <typename Pixel> class Scale_4on3
 {
 public:
-	Scale_4on3(PixelOperations<Pixel> pixelOps);
+	explicit Scale_4on3(PixelOperations<Pixel> pixelOps);
 	void operator()(const Pixel* in, Pixel* out, unsigned width);
 private:
 	PixelOperations<Pixel> pixelOps;
@@ -105,7 +105,7 @@ private:
 template <typename Pixel> class Scale_8on3
 {
 public:
-	Scale_8on3(PixelOperations<Pixel> pixelOps);
+	explicit Scale_8on3(PixelOperations<Pixel> pixelOps);
 	void operator()(const Pixel* in, Pixel* out, unsigned width);
 private:
 	PixelOperations<Pixel> pixelOps;
@@ -123,7 +123,7 @@ private:
 template <typename Pixel> class Scale_4on9
 {
 public:
-	Scale_4on9(PixelOperations<Pixel> pixelOps);
+	explicit Scale_4on9(PixelOperations<Pixel> pixelOps);
 	void operator()(const Pixel* in, Pixel* out, unsigned width);
 private:
 	PixelOperations<Pixel> pixelOps;
@@ -132,7 +132,7 @@ private:
 template <typename Pixel> class Scale_8on9
 {
 public:
-	Scale_8on9(PixelOperations<Pixel> pixelOps);
+	explicit Scale_8on9(PixelOperations<Pixel> pixelOps);
 	void operator()(const Pixel* in, Pixel* out, unsigned width);
 private:
 	PixelOperations<Pixel> pixelOps;

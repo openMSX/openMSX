@@ -51,7 +51,7 @@ private:
 	// counter 0 clock pin
 	class Counter0 : public ClockPinListener {
 	public:
-		Counter0(MSXMidi& midi);
+		explicit Counter0(MSXMidi& midi);
 		virtual ~Counter0();
 		virtual void signal(ClockPin& pin,
 					const EmuTime& time);
@@ -64,7 +64,7 @@ private:
 	// counter 2 clock pin
 	class Counter2 : public ClockPinListener {
 	public:
-		Counter2(MSXMidi& midi);
+		explicit Counter2(MSXMidi& midi);
 		virtual ~Counter2();
 		virtual void signal(ClockPin& pin,
 					const EmuTime& time);
@@ -79,7 +79,7 @@ private:
 	// I8251Interface
 	class I8251Interf : public I8251Interface {
 	public:
-		I8251Interf(MSXMidi& midi);
+		explicit I8251Interf(MSXMidi& midi);
 		virtual ~I8251Interf();
 		virtual void setRxRDY(bool status, const EmuTime& time);
 		virtual void setDTR(bool status, const EmuTime& time);

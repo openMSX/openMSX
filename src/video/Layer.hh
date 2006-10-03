@@ -58,7 +58,7 @@ protected:
 	};
 
 	/** Construct a layer. */
-	Layer(Coverage coverage = COVER_NONE, ZIndex z = Z_DUMMY);
+	explicit Layer(Coverage coverage = COVER_NONE, ZIndex z = Z_DUMMY);
 
 	/** Changes the current coverage of this layer.
 	  */

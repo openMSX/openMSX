@@ -61,7 +61,7 @@ public:
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY);
 
 protected:
-	Scaler3(const PixelOperations<Pixel>& pixelOps);
+	explicit Scaler3(const PixelOperations<Pixel>& pixelOps);
 
 private:
 	PixelOperations<Pixel> pixelOps;

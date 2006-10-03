@@ -270,7 +270,7 @@ private:
 	/** Create a new window.
 	  * Initially, the window is disabled; use setRange to enable it.
 	  */
-	VRAMWindow(Ram& vram);
+	explicit VRAMWindow(Ram& vram);
 
 	/** Pointer to the entire VRAM data.
 	  */

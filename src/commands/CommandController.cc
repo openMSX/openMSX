@@ -32,7 +32,7 @@ namespace openmsx {
 class HelpCmd : public Command
 {
 public:
-	HelpCmd(CommandController& parent);
+	explicit HelpCmd(CommandController& parent);
 	virtual void execute(const vector<TclObject*>& tokens, TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
@@ -43,7 +43,7 @@ private:
 class TabCompletionCmd : public Command
 {
 public:
-	TabCompletionCmd(CommandController& parent);
+	explicit TabCompletionCmd(CommandController& parent);
 	virtual void execute(const vector<TclObject*>& tokens, TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 private:
@@ -53,7 +53,7 @@ private:
 class VersionInfo : public InfoTopic
 {
 public:
-	VersionInfo(CommandController& commandController);
+	explicit VersionInfo(CommandController& commandController);
 	virtual void execute(const vector<TclObject*>& tokens,
 	                     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;

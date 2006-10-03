@@ -39,14 +39,14 @@ private:
 class KeyUpEvent : public KeyEvent
 {
 public:
-	KeyUpEvent(Keys::KeyCode keyCode);
+	explicit KeyUpEvent(Keys::KeyCode keyCode);
 	KeyUpEvent(Keys::KeyCode keyCode, word unicode);
 };
 
 class KeyDownEvent : public KeyEvent
 {
 public:
-	KeyDownEvent(Keys::KeyCode keyCode);
+	explicit KeyDownEvent(Keys::KeyCode keyCode);
 	KeyDownEvent(Keys::KeyCode keyCode, word unicode);
 };
 
@@ -212,8 +212,8 @@ private:
 class MSXCommandEvent : public InputEvent
 {
 public:
-	MSXCommandEvent(const std::vector<std::string>& tokens);
-	MSXCommandEvent(const std::vector<TclObject*>& tokens);
+	explicit MSXCommandEvent(const std::vector<std::string>& tokens);
+	explicit MSXCommandEvent(const std::vector<TclObject*>& tokens);
 	virtual ~MSXCommandEvent();
 	const std::vector<TclObject*>& getTokens() const;
 private:

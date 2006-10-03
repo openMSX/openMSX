@@ -13,7 +13,7 @@ namespace openmsx {
 class ColorMatrixChecker : public SettingChecker<StringSettingPolicy>
 {
 public:
-	ColorMatrixChecker(RenderSettings& renderSettings);
+	explicit ColorMatrixChecker(RenderSettings& renderSettings);
 	virtual void check(SettingImpl<StringSettingPolicy>& setting,
 	                   std::string& newValue);
 private:

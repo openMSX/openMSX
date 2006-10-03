@@ -20,7 +20,7 @@ public:
 	  * The initial frequency is infinite;
 	  * in other words, the clock stands still.
 	  */
-	DynamicClock(const EmuTime& time) : lastTick(time), step(0) { }
+	explicit DynamicClock(const EmuTime& time) : lastTick(time), step(0) { }
 
 	/** Gets the time at which the last clock tick occurred.
 	  */

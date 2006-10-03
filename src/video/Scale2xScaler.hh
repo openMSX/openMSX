@@ -13,7 +13,7 @@ template <class Pixel>
 class Scale2xScaler: public Scaler2<Pixel>
 {
 public:
-	Scale2xScaler(const PixelOperations<Pixel>& pixelOps);
+	explicit Scale2xScaler(const PixelOperations<Pixel>& pixelOps);
 
 	virtual void scale1x1to2x2(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,

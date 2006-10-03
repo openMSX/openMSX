@@ -68,7 +68,7 @@ private:
 class UserFileContext : public FileContext
 {
 public:
-	UserFileContext(CommandController& commandController,
+	explicit UserFileContext(CommandController& commandController,
 	          const std::string& savePath = "", bool skipUserDirs = false);
 	virtual UserFileContext* clone() const;
 

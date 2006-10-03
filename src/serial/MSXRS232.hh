@@ -53,7 +53,7 @@ private:
 	// counter 0 rx clock pin
 	class Counter0 : public ClockPinListener {
 	public:
-		Counter0(MSXRS232& rs232);
+		explicit Counter0(MSXRS232& rs232);
 		virtual ~Counter0();
 		virtual void signal(ClockPin& pin,
 					const EmuTime& time);
@@ -66,7 +66,7 @@ private:
 	// counter 1 tx clock pin
 	class Counter1 : public ClockPinListener {
 	public:
-		Counter1(MSXRS232& rs232);
+		explicit Counter1(MSXRS232& rs232);
 		virtual ~Counter1();
 		virtual void signal(ClockPin& pin,
 					const EmuTime& time);
@@ -81,7 +81,7 @@ private:
 	// I8251Interface
 	class I8251Interf : public I8251Interface {
 	public:
-		I8251Interf(MSXRS232& rs232);
+		explicit I8251Interf(MSXRS232& rs232);
 		virtual ~I8251Interf();
 		virtual void setRxRDY(bool status, const EmuTime& time);
 		virtual void setDTR(bool status, const EmuTime& time);

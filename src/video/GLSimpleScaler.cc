@@ -6,8 +6,6 @@
 
 namespace openmsx {
 
-class RenderSettings;
-
 GLSimpleScaler::GLSimpleScaler(RenderSettings& renderSettings_)
 	: renderSettings(renderSettings_)
 {
