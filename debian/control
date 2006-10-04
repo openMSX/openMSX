@@ -8,7 +8,8 @@ Standards-Version: 3.7.2
 Package: openmsx
 Architecture: any
 Depends: openmsx-data (= ${source:Version}), cbios, ${shlibs:Depends}
-Suggests: openmsx-catapult
+Suggests: openmsx-catapult, waves
+Provides: msx-emulator
 Description: the MSX emulator that aims for perfection
  openMSX is an open source MSX emulator that uses a unique emulation model,
  which tries to achieve the highest level of accuracy possible. It allows
