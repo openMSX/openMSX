@@ -3,7 +3,7 @@ openmsx (0.6.1-4+svn5741) UNRELEASED; urgency=low
   * add note to README.Debian pointing to freeware available on the internet
   * build on arm again with optimizations; fixed in gcc-4.1 4.1.1ds1-15
   * Provides: msx-emulator
-  * Suggests: waves (MSX1 mego demo by Daniel Vik)
+  * Suggests: waves (MSX1 mega demo by Daniel Vik)
 
  -- Joost Yervante Damad <joost@lumatec.be>  Wed, 27 Sep 2006 20:38:06 +0200
 

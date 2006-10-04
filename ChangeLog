@@ -1,5 +1,9 @@
 $Id$
 
+2006-10-04 Joost Damad <joost@lumatec.be>
+	* remove bashisms from build/install-recursive.sh
+	* debian/ updates
+
 2006-10-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Empty the sound buffer in the SDL sound driver after a mute/unmute
 	* Make 'after' command part of Reactor iso MSXMotherboard:

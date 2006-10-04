@@ -27,8 +27,8 @@ dst="$1"
 
 for path in $src
 do
-	name=$(basename "$path")
-	dir=$(dirname "$path")
+	name=`basename "$path"`
+	dir=`dirname "$path"`
 	if [ -L "$path" ]
 	then
 		echo "skipping symbolic link: $path"
