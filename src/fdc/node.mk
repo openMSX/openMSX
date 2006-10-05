@@ -13,6 +13,7 @@ SRC_HDR:= \
 	TC8566AF \
 	DiskImageCLI \
 	DiskDrive \
+	RealDrive \
 	DiskChanger \
 	DriveMultiplexer \
 	Disk \

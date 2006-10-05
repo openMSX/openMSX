@@ -2,7 +2,7 @@
 
 #include "MSXFDC.hh"
 #include "Rom.hh"
-#include "DiskDrive.hh"
+#include "RealDrive.hh"
 #include "XMLElement.hh"
 #include "StringOp.hh"
 #include "MSXException.hh"
