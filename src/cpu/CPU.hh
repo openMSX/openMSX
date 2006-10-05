@@ -3,7 +3,6 @@
 #ifndef CPU_HH
 #define CPU_HH
 
-#include "BreakPoint.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include <vector>
@@ -14,6 +13,7 @@ namespace openmsx {
 
 class EmuTime;
 class TclObject;
+class BreakPoint;
 
 class CPU : private noncopyable
 {
@@ -168,10 +168,8 @@ protected:
 		if (range.first == range.second) {
 			return false;
 		}
-		for (BreakPoints::const_iterator it = range.first;
-		     it != range.second; ++it) {
-			it->second->checkAndExecute();
-		}
+		// slow path non-inlined
+		checkBreakPoints(range);
 		return true;
 	}
 
@@ -195,6 +193,9 @@ protected:
 	static bool paused;
 
 private:
+	void checkBreakPoints(std::pair<BreakPoints::const_iterator,
+	                              BreakPoints::const_iterator> range) const;
+
 	static BreakPoints breakPoints;
 };
 

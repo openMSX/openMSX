@@ -1,6 +1,7 @@
 // $Id$
 
 #include "CPU.hh"
+#include "BreakPoint.hh"
 
 namespace openmsx {
 
@@ -120,6 +121,15 @@ void CPU::setPaused(bool paused_)
 {
 	paused = paused_;
 	exitCPULoop();
+}
+
+void CPU::checkBreakPoints(std::pair<BreakPoints::const_iterator,
+                                     BreakPoints::const_iterator> range) const
+{
+	for (BreakPoints::const_iterator it = range.first;
+	     it != range.second; ++it) {
+		it->second->checkAndExecute();
+	}
 }
 
 } // namespace openmsx
