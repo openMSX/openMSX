@@ -1,7 +1,7 @@
 // $Id$
 
 #include "MSXRam.hh"
-#include "CPU.hh"
+#include "CacheLine.hh"
 #include "CheckedRam.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
@@ -18,7 +18,7 @@ MSXRam::MSXRam(MSXMotherBoard& motherBoard, const XMLElement& config,
 		throw MSXException("Invalid base/size for " + getName() +
 		                   ", must be in range [0x0000,0x10000).");
 	}
-	if ((base & CPU::CACHE_LINE_LOW) || (size & CPU::CACHE_LINE_LOW)) {
+	if ((base & CacheLine::LOW) || (size & CacheLine::LOW)) {
 		throw MSXException("Invalid base/size alignment for " +
 		                   getName());
 	}

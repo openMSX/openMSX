@@ -6,6 +6,7 @@
 #include "openmsx.hh"
 #include "Observer.hh"
 #include "CPU.hh"
+#include "CacheLine.hh"
 #include <string>
 #include <memory>
 
@@ -120,10 +121,10 @@ private:
 	MSXCPUInterface* interface;
 
 	// memory cache
-	const byte* readCacheLine[CACHE_LINE_NUM];
-	byte* writeCacheLine[CACHE_LINE_NUM];
-	bool readCacheTried [CACHE_LINE_NUM];
-	bool writeCacheTried[CACHE_LINE_NUM];
+	const byte* readCacheLine[CacheLine::NUM];
+	byte* writeCacheLine[CacheLine::NUM];
+	bool readCacheTried [CacheLine::NUM];
+	bool writeCacheTried[CacheLine::NUM];
 
 	MSXMotherBoard& motherboard;
 	Scheduler& scheduler;

@@ -4,6 +4,7 @@
 #define MSXCPUINTERFACE_HH
 
 #include "CPU.hh"
+#include "CacheLine.hh"
 #include "MSXDevice.hh"
 #include "WatchPoint.hh"
 #include "openmsx.hh"
@@ -75,7 +76,7 @@ public:
 	 * This reads a byte from the currently selected device
 	 */
 	inline byte readMem(word address, const EmuTime& time) {
-		if (likely(allowReadCache[address >> CPU::CACHE_LINE_BITS])) {
+		if (likely(allowReadCache[address >> CacheLine::BITS])) {
 			return visibleDevices[address >> 14]->readMem(address, time);
 		} else {
 			return readMemSlow(address, time);
@@ -86,7 +87,7 @@ public:
 	 * This writes a byte to the currently selected device
 	 */
 	inline void writeMem(word address, byte value, const EmuTime& time) {
-		if (likely(allowWriteCache[address >> CPU::CACHE_LINE_BITS])) {
+		if (likely(allowWriteCache[address >> CacheLine::BITS])) {
 			visibleDevices[address>>14]->writeMem(address, value, time);
 		} else {
 			writeMemSlow(address, value, time);
@@ -110,7 +111,7 @@ public:
 	}
 
 	/**
-	 * Test that the memory in the interval [start, start+CACHE_LINE_SIZE)
+	 * Test that the memory in the interval [start, start+CacheLine::SIZE)
 	 * is cacheable for reading. If it is, a pointer to a buffer
 	 * containing this interval must be returned. If not, a null
 	 * pointer must be returned.
@@ -122,7 +123,7 @@ public:
 	 * An interval will never contain the address 0xffff.
 	 */
 	inline const byte* getReadCacheLine(word start) const {
-		if (likely(allowReadCache[start >> CPU::CACHE_LINE_BITS])) {
+		if (likely(allowReadCache[start >> CacheLine::BITS])) {
 			return visibleDevices[start >> 14]->getReadCacheLine(start);
 		} else {
 			return NULL;
@@ -130,7 +131,7 @@ public:
 	}
 
 	/**
-	 * Test that the memory in the interval [start, start+CACHE_LINE_SIZE)
+	 * Test that the memory in the interval [start, start+CacheLine::SIZE)
 	 * is cacheable for writing. If it is, a pointer to a buffer
 	 * containing this interval must be returned. If not, a null
 	 * pointer must be returned.
@@ -142,7 +143,7 @@ public:
 	 * An interval will never contain the address 0xffff.
 	 */
 	inline byte* getWriteCacheLine(word start) const {
-		if (likely(allowWriteCache[start >> CPU::CACHE_LINE_BITS])) {
+		if (likely(allowWriteCache[start >> CacheLine::BITS])) {
 			return visibleDevices[start >> 14]->getWriteCacheLine(start);
 		} else {
 			return NULL;
@@ -248,10 +249,10 @@ private:
 	friend class TurborCPUInterface;
 
 	WatchPoints watchPoints;
-	bool allowReadCache [CPU::CACHE_LINE_NUM];
-	bool allowWriteCache[CPU::CACHE_LINE_NUM];
-	std::bitset<CPU::CACHE_LINE_SIZE> readWatchSet[CPU::CACHE_LINE_NUM];
-	std::bitset<CPU::CACHE_LINE_SIZE> writeWatchSet[CPU::CACHE_LINE_NUM];
+	bool allowReadCache [CacheLine::NUM];
+	bool allowWriteCache[CacheLine::NUM];
+	std::bitset<CacheLine::SIZE> readWatchSet [CacheLine::NUM];
+	std::bitset<CacheLine::SIZE> writeWatchSet[CacheLine::NUM];
 };
 
 class TurborCPUInterface : public MSXCPUInterface

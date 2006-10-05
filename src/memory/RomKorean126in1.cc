@@ -8,7 +8,7 @@
 
 
 #include "RomKorean126in1.hh"
-#include "CPU.hh"
+#include "CacheLine.hh"
 #include "Rom.hh"
 
 namespace openmsx {
@@ -40,7 +40,7 @@ void RomKorean126in1::writeMem(word address, byte value, const EmuTime& /*time*/
 
 byte* RomKorean126in1::getWriteCacheLine(word address) const
 {
-	if (address == (0x4000 & CPU::CACHE_LINE_HIGH)) {
+	if (address == (0x4000 & CacheLine::HIGH)) {
 		return NULL;
 	} else {
 		return unmappedWrite;

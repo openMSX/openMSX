@@ -11,7 +11,7 @@
 #include "FileException.hh"
 #include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
-#include "CPU.hh"
+#include "CacheLine.hh"
 #include "XMLElement.hh"
 
 namespace openmsx {
@@ -179,7 +179,7 @@ byte* MSXSCCPlusCart::getWriteCacheLine(word start) const
 {
 	//return NULL;
 	if ((0x4000 <= start) && (start < 0xC000)) {
-		if (start == (0xBFFF & CPU::CACHE_LINE_HIGH)) {
+		if (start == (0xBFFF & CacheLine::HIGH)) {
 			return NULL;
 		}
 		int regio = (start >> 13) - 2;

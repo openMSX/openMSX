@@ -3,7 +3,7 @@
 #ifndef CHECKEDRAM_HH
 #define CHECKEDRAM_HH
 
-#include "CPU.hh"
+#include "CacheLine.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include <vector>
@@ -55,7 +55,7 @@ private:
 	void callUMRCallBack(unsigned addr);
 	
 	std::vector<bool> completely_initialized_cacheline;
-	std::vector<std::bitset<CPU::CACHE_LINE_SIZE> > uninitialized;
+	std::vector<std::bitset<CacheLine::SIZE> > uninitialized;
 	const std::auto_ptr<Ram> ram;
 	MSXCPU& msxcpu;
 	CommandController& commandController;

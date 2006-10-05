@@ -18,13 +18,6 @@ class BreakPoint;
 class CPU : private noncopyable
 {
 public:
-	// cache constants
-	static const int CACHE_LINE_BITS = 8;	// 256 bytes
-	static const int CACHE_LINE_SIZE = 1 << CACHE_LINE_BITS;
-	static const int CACHE_LINE_NUM  = 0x10000 / CACHE_LINE_SIZE;
-	static const int CACHE_LINE_LOW  = CACHE_LINE_SIZE - 1;
-	static const int CACHE_LINE_HIGH = 0xFFFF - CACHE_LINE_LOW;
-
 	// flag positions
 	static const byte S_FLAG = 0x80;
 	static const byte Z_FLAG = 0x40;

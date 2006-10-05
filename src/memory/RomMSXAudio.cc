@@ -2,7 +2,7 @@
 
 #include "RomMSXAudio.hh"
 #include "MSXCPU.hh"
-#include "CPU.hh"
+#include "CacheLine.hh"
 #include "Rom.hh"
 #include "Ram.hh"
 
@@ -62,7 +62,7 @@ void RomMSXAudio::writeMem(word address, byte value, const EmuTime& /*time*/)
 byte* RomMSXAudio::getWriteCacheLine(word address) const
 {
 	address &= 0x7FFF;
-	if (address == (0x7FFE & CPU::CACHE_LINE_HIGH)) {
+	if (address == (0x7FFE & CacheLine::HIGH)) {
 		return NULL;
 	}
 	address &= 0x3FFF;

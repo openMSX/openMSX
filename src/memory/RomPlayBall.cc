@@ -4,7 +4,7 @@
 #include "MSXMotherBoard.hh"
 #include "SamplePlayer.hh"
 #include "PlayBallSamples.hh"
-#include "CPU.hh"
+#include "CacheLine.hh"
 #include "Rom.hh"
 
 namespace openmsx {
@@ -49,7 +49,7 @@ byte RomPlayBall::readMem(word address, const EmuTime& time)
 
 const byte* RomPlayBall::getReadCacheLine(word address) const
 {
-	if ((address & CPU::CACHE_LINE_HIGH) == (0xBFFF & CPU::CACHE_LINE_HIGH)) {
+	if ((address & CacheLine::HIGH) == (0xBFFF & CacheLine::HIGH)) {
 		return NULL;
 	} else {
 		return Rom16kBBlocks::getReadCacheLine(address);
@@ -82,7 +82,7 @@ void RomPlayBall::writeMem(word address, byte value, const EmuTime& /*time*/)
 
 byte* RomPlayBall::getWriteCacheLine(word address) const
 {
-	if ((address & CPU::CACHE_LINE_HIGH) == (0xBFFF & CPU::CACHE_LINE_HIGH)) {
+	if ((address & CacheLine::HIGH) == (0xBFFF & CacheLine::HIGH)) {
 		return NULL;
 	} else {
 		return unmappedWrite;

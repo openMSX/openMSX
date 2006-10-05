@@ -21,7 +21,7 @@
 #include "RomSynthesizer.hh"
 #include "MSXMotherBoard.hh"
 #include "DACSound8U.hh"
-#include "CPU.hh"
+#include "CacheLine.hh"
 #include "Rom.hh"
 
 namespace openmsx {
@@ -60,7 +60,7 @@ void RomSynthesizer::writeMem(word address, byte value, const EmuTime& time)
 
 byte* RomSynthesizer::getWriteCacheLine(word address) const
 {
-	if ((address & 0xC010 & CPU::CACHE_LINE_HIGH) == 0x4000) {
+	if ((address & 0xC010 & CacheLine::HIGH) == 0x4000) {
 		return NULL;
 	} else {
 		return unmappedWrite;

@@ -36,7 +36,7 @@
 
 #include "RomFSA1FM.hh"
 #include "MSXCPU.hh"
-#include "CPU.hh"
+#include "CacheLine.hh"
 #include "Rom.hh"
 #include "SRAM.hh"
 #include "MSXMotherBoard.hh"
@@ -121,7 +121,7 @@ byte RomFSA1FM1::readMem(word address, const EmuTime& time)
 
 const byte* RomFSA1FM1::getReadCacheLine(word address) const
 {
-	if (address == (0x7FC0 & CPU::CACHE_LINE_HIGH)) {
+	if (address == (0x7FC0 & CacheLine::HIGH)) {
 		// dont't cache IO area
 		return NULL;
 	} else if ((0x4000 <= address) && (address < 0x6000)) {
@@ -152,7 +152,7 @@ void RomFSA1FM1::writeMem(word address, byte value, const EmuTime& /*time*/)
 
 byte* RomFSA1FM1::getWriteCacheLine(word address) const
 {
-	if (address == (0x7FC0 & CPU::CACHE_LINE_HIGH)) {
+	if (address == (0x7FC0 & CacheLine::HIGH)) {
 		// dont't cache IO area
 		return NULL;
 	} else if ((0x6000 <= address) && (address < 0x8000)) {
@@ -217,7 +217,7 @@ const byte* RomFSA1FM2::getReadCacheLine(word address) const
 {
 	if (0xC000 <= address) {
 		return unmappedRead;
-	} else if ((0x7FF0 & CPU::CACHE_LINE_HIGH) == address) {
+	} else if ((0x7FF0 & CacheLine::HIGH) == address) {
 		return NULL;
 	} else if (isRam[address >> 13]) {
 		return &(*sram)[address & 0x1FFF];

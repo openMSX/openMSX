@@ -15,17 +15,17 @@
 
 namespace openmsx {
 
-static std::bitset<CPU::CACHE_LINE_SIZE> getBitSetAllTrue()
+static std::bitset<CacheLine::SIZE> getBitSetAllTrue()
 {
-	std::bitset<CPU::CACHE_LINE_SIZE> result;
+	std::bitset<CacheLine::SIZE> result;
 	result.set();
 	return result;
 }
 
 CheckedRam::CheckedRam(MSXMotherBoard& motherBoard, const std::string& name,
                        const std::string& description, unsigned size)
-	: completely_initialized_cacheline(size / CPU::CACHE_LINE_SIZE, false)
-	, uninitialized(size / CPU::CACHE_LINE_SIZE, getBitSetAllTrue())
+	: completely_initialized_cacheline(size / CacheLine::SIZE, false)
+	, uninitialized(size / CacheLine::SIZE, getBitSetAllTrue())
 	, ram(new Ram(motherBoard, name, description, size))
 	, msxcpu(motherBoard.getCPU())
 	, commandController(motherBoard.getCommandController())
@@ -38,8 +38,8 @@ CheckedRam::~CheckedRam()
 
 byte CheckedRam::read(unsigned addr)
 {
-	if (unlikely(uninitialized[addr >> CPU::CACHE_LINE_BITS]
-	                          [addr &  CPU::CACHE_LINE_LOW])) {
+	if (unlikely(uninitialized[addr >> CacheLine::BITS]
+	                          [addr &  CacheLine::LOW])) {
 		callUMRCallBack(addr);
 	}
 	return (*ram)[addr];
@@ -47,13 +47,13 @@ byte CheckedRam::read(unsigned addr)
 
 const byte* CheckedRam::getReadCacheLine(unsigned addr) const
 {
-	return (completely_initialized_cacheline[addr >> CPU::CACHE_LINE_BITS])
+	return (completely_initialized_cacheline[addr >> CacheLine::BITS])
 	     ? &(*ram)[addr] : NULL;
 }
 
 byte* CheckedRam::getWriteCacheLine(unsigned addr) const
 {
-	return (completely_initialized_cacheline[addr >> CPU::CACHE_LINE_BITS])
+	return (completely_initialized_cacheline[addr >> CacheLine::BITS])
 	     ? &(*ram)[addr] : NULL;
 }
 
@@ -64,12 +64,12 @@ byte CheckedRam::peek(unsigned addr) const
 
 void CheckedRam::write(unsigned addr, const byte value)
 {
-	unsigned line = addr >> CPU::CACHE_LINE_BITS;
-	uninitialized[line][addr & CPU::CACHE_LINE_LOW] = false;
+	unsigned line = addr >> CacheLine::BITS;
+	uninitialized[line][addr & CacheLine::LOW] = false;
 	if (unlikely(uninitialized[line].none())) {
 		completely_initialized_cacheline[line] = true;
-		msxcpu.invalidateMemCache(addr & CPU::CACHE_LINE_HIGH,
-		                          CPU::CACHE_LINE_SIZE);
+		msxcpu.invalidateMemCache(addr & CacheLine::HIGH,
+		                          CacheLine::SIZE);
 	}
 	(*ram)[addr] = value;
 }

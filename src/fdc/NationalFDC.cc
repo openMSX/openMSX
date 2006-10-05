@@ -1,7 +1,7 @@
 // $Id$
 
 #include "NationalFDC.hh"
-#include "CPU.hh"
+#include "CacheLine.hh"
 #include "DriveMultiplexer.hh"
 #include "WD2793.hh"
 
@@ -90,10 +90,10 @@ byte NationalFDC::peekMem(word address, const EmuTime& time) const
 
 const byte* NationalFDC::getReadCacheLine(word start) const
 {
-	if ((start & 0x3FC0 & CPU::CACHE_LINE_HIGH) == (0x3F80 & CPU::CACHE_LINE_HIGH))
+	if ((start & 0x3FC0 & CacheLine::HIGH) == (0x3F80 & CacheLine::HIGH)) {
 		// FDC at 0x7FB8-0x7FBC (also mirrored)
 		return NULL;
-	if (start < 0x8000) {
+	} else if (start < 0x8000) {
 		// ROM at 0x0000-0x7FFF
 		return MSXFDC::getReadCacheLine(start);
 	} else {
@@ -145,7 +145,7 @@ void NationalFDC::writeMem(word address, byte value, const EmuTime& time)
 
 byte* NationalFDC::getWriteCacheLine(word address) const
 {
-	if ((address & 0x3FC0) == (0x3F80 & CPU::CACHE_LINE_HIGH)) {
+	if ((address & 0x3FC0) == (0x3F80 & CacheLine::HIGH)) {
 		// FDC at 0x7FB8-0x7FBC (also mirrored)
 		return NULL;
 	} else {

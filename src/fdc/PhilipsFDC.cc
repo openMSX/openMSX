@@ -1,7 +1,7 @@
 // $Id$
 
 #include "PhilipsFDC.hh"
-#include "CPU.hh"
+#include "CacheLine.hh"
 #include "DriveMultiplexer.hh"
 #include "WD2793.hh"
 #include "XMLElement.hh"
@@ -116,8 +116,7 @@ const byte* PhilipsFDC::getReadCacheLine(word start) const
 {
 	// if address overlap 0x7ff8-0x7ffb then return NULL,
 	// else normal ROM behaviour
-	if ((start & 0x3FF8 & CPU::CACHE_LINE_HIGH) ==
-	    (0x3FF8 & CPU::CACHE_LINE_HIGH)) {
+	if ((start & 0x3FF8 & CacheLine::HIGH) == (0x3FF8 & CacheLine::HIGH)) {
 		return NULL;
 	} else if (start < 0x8000) {
 		// ROM visible in 0x0000-0x7FFF
@@ -178,7 +177,7 @@ void PhilipsFDC::writeMem(word address, byte value, const EmuTime& time)
 
 byte* PhilipsFDC::getWriteCacheLine(word address) const
 {
-	if ((address & 0x3FF8) == (0x3FF8 & CPU::CACHE_LINE_HIGH)) {
+	if ((address & 0x3FF8) == (0x3FF8 & CacheLine::HIGH)) {
 		return NULL;
 	} else {
 		return unmappedWrite;

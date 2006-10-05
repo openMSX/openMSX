@@ -2,7 +2,7 @@
 
 #include "RomCrossBlaim.hh"
 #include "Rom.hh"
-#include "CPU.hh"
+#include "CacheLine.hh"
 
 namespace openmsx {
 
@@ -31,7 +31,7 @@ void RomCrossBlaim::writeMem(word address, byte value, const EmuTime& /*time*/)
 
 byte* RomCrossBlaim::getWriteCacheLine(word address) const
 {
-	if (address == (0x4045 & CPU::CACHE_LINE_HIGH)) {
+	if (address == (0x4045 & CacheLine::HIGH)) {
 		return NULL;
 	} else {
 		return unmappedWrite;

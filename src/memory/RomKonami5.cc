@@ -16,7 +16,7 @@
 #include "RomKonami5.hh"
 #include "SCC.hh"
 #include "MSXCPU.hh"
-#include "CPU.hh"
+#include "CacheLine.hh"
 #include "Rom.hh"
 
 namespace openmsx {
@@ -99,10 +99,10 @@ byte* RomKonami5::getWriteCacheLine(word address) const
 	} else if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
 		// write to SCC
 		return NULL;
-	} else if ((address & 0xF800) == (0x9000 & CPU::CACHE_LINE_HIGH)) {
+	} else if ((address & 0xF800) == (0x9000 & CacheLine::HIGH)) {
 		// SCC enable/disable
 		return NULL;
-	} else if ((address & 0x1800) == (0x1000 & CPU::CACHE_LINE_HIGH)) {
+	} else if ((address & 0x1800) == (0x1000 & CacheLine::HIGH)) {
 		// page selection
 		return NULL;
 	} else {

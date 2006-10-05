@@ -1,7 +1,7 @@
 // $Id$
 
 #include "RomHarryFox.hh"
-#include "CPU.hh"
+#include "CacheLine.hh"
 #include "Rom.hh"
 
 namespace openmsx {
@@ -33,8 +33,8 @@ void RomHarryFox::writeMem(word address, byte value, const EmuTime& /*time*/)
 
 byte* RomHarryFox::getWriteCacheLine(word address) const
 {
-	if ((address == (0x6000 & CPU::CACHE_LINE_HIGH)) ||
-	    (address == (0x7000 & CPU::CACHE_LINE_HIGH))) {
+	if ((address == (0x6000 & CacheLine::HIGH)) ||
+	    (address == (0x7000 & CacheLine::HIGH))) {
 		return NULL;
 	} else {
 		return unmappedWrite;

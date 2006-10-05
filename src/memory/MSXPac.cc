@@ -4,7 +4,7 @@
 #include "SRAM.hh"
 #include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
-#include "CPU.hh"
+#include "CacheLine.hh"
 
 namespace openmsx {
 
@@ -54,9 +54,9 @@ const byte* MSXPac::getReadCacheLine(word address) const
 {
 	address &= 0x3FFF;
 	if (sramEnabled) {
-		if (address < (0x1FFE & CPU::CACHE_LINE_HIGH)) {
+		if (address < (0x1FFE & CacheLine::HIGH)) {
 			return &(*sram)[address];
-		} else if (address == (0x1FFE & CPU::CACHE_LINE_HIGH)) {
+		} else if (address == (0x1FFE & CacheLine::HIGH)) {
 			return NULL;
 		} else {
 			return unmappedRead;
@@ -89,7 +89,7 @@ void MSXPac::writeMem(word address, byte value, const EmuTime& /*time*/)
 byte* MSXPac::getWriteCacheLine(word address) const
 {
 	address &= 0x3FFF;
-	if (address == (0x1FFE & CPU::CACHE_LINE_HIGH)) {
+	if (address == (0x1FFE & CacheLine::HIGH)) {
 		return NULL;
 	}
 	if (sramEnabled && (address < 0x1FFE)) {

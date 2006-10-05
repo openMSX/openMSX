@@ -5,7 +5,7 @@
 #include "Rom.hh"
 #include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
-#include "CPU.hh"
+#include "CacheLine.hh"
 
 namespace openmsx {
 
@@ -69,13 +69,13 @@ byte MSXFmPac::readMem(word address, const EmuTime& /*time*/)
 const byte* MSXFmPac::getReadCacheLine(word address) const
 {
 	address &= 0x3FFF;
-	if (address == (0x3FF6 & CPU::CACHE_LINE_HIGH)) {
+	if (address == (0x3FF6 & CacheLine::HIGH)) {
 		return NULL;
 	}
 	if (sramEnabled) {
-		if (address < (0x1FFE & CPU::CACHE_LINE_HIGH)) {
+		if (address < (0x1FFE & CacheLine::HIGH)) {
 			return &(*sram)[address];
-		} else if (address == (0x1FFE & CPU::CACHE_LINE_HIGH)) {
+		} else if (address == (0x1FFE & CacheLine::HIGH)) {
 			return NULL;
 		} else {
 			return unmappedRead;
@@ -135,10 +135,10 @@ void MSXFmPac::writeMem(word address, byte value, const EmuTime& time)
 byte* MSXFmPac::getWriteCacheLine(word address) const
 {
 	address &= 0x3FFF;
-	if (address == (0x1FFE & CPU::CACHE_LINE_HIGH)) {
+	if (address == (0x1FFE & CacheLine::HIGH)) {
 		return NULL;
 	}
-	if (address == (0x3FF4 & CPU::CACHE_LINE_HIGH)) {
+	if (address == (0x3FF4 & CacheLine::HIGH)) {
 		return NULL;
 	}
 	if (sramEnabled && (address < 0x1FFE)) {

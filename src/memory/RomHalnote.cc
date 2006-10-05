@@ -1,7 +1,7 @@
 // $Id$
 
 #include "RomHalnote.hh"
-#include "CPU.hh"
+#include "CacheLine.hh"
 #include "Rom.hh"
 
 namespace openmsx {
@@ -36,7 +36,7 @@ void RomHalnote::writeMem(word address, byte value, const EmuTime& /*time*/)
 byte* RomHalnote::getWriteCacheLine(word address) const
 {
 	if ((0x4000 <= address) && (address < 0xC000) &&
-	    ((address & 0x1FFF) == (0x0FFF & CPU::CACHE_LINE_HIGH))) {
+	    ((address & 0x1FFF) == (0x0FFF & CacheLine::HIGH))) {
 		return NULL;
 	} else {
 		return unmappedWrite;

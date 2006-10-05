@@ -9,7 +9,7 @@
 #include "Rom.hh"
 #include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
-#include "CPU.hh"
+#include "CacheLine.hh"
 
 namespace openmsx {
 
@@ -99,7 +99,7 @@ byte TurboRFDC::peekMem(word address, const EmuTime& time) const
 
 const byte* TurboRFDC::getReadCacheLine(word start) const
 {
-	if ((start & 0x3FF0) == (0x3FF0 & CPU::CACHE_LINE_HIGH)) {
+	if ((start & 0x3FF0) == (0x3FF0 & CacheLine::HIGH)) {
 		return NULL;
 	} else if ((0x4000 <= start) && (start < 0x8000)) {
 		return &memory[start & 0x3FFF];
@@ -147,10 +147,10 @@ void TurboRFDC::writeMem(word address, byte value, const EmuTime& time)
 
 byte* TurboRFDC::getWriteCacheLine(word address) const
 {
-	if ((address == (0x6000 & CPU::CACHE_LINE_HIGH)) ||
-	    (address == (0x7FF0 & CPU::CACHE_LINE_HIGH)) ||
-	    (address == (0x7FFE & CPU::CACHE_LINE_HIGH)) ||
-	    ((address & 0x3FF0) == (0x3FF0 & CPU::CACHE_LINE_HIGH))) {
+	if ((address == (0x6000 & CacheLine::HIGH)) ||
+	    (address == (0x7FF0 & CacheLine::HIGH)) ||
+	    (address == (0x7FFE & CacheLine::HIGH)) ||
+	    ((address & 0x3FF0) == (0x3FF0 & CacheLine::HIGH))) {
 		return NULL;
 	} else {
 		return unmappedWrite;

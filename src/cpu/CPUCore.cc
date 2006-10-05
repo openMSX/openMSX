@@ -81,8 +81,8 @@ template <class T> const EmuTime& CPUCore<T>::getCurrentTime() const
 
 template <class T> void CPUCore<T>::invalidateMemCache(word start, unsigned size)
 {
-	unsigned first = start / CACHE_LINE_SIZE;
-	unsigned num = (size + CACHE_LINE_SIZE - 1) / CACHE_LINE_SIZE;
+	unsigned first = start / CacheLine::SIZE;
+	unsigned num = (size + CacheLine::SIZE - 1) / CacheLine::SIZE;
 	memset(&readCacheLine  [first], 0, num * sizeof(byte*)); // NULL
 	memset(&writeCacheLine [first], 0, num * sizeof(byte*)); //
 	memset(&readCacheTried [first], 0, num * sizeof(bool));  // FALSE
@@ -308,11 +308,11 @@ template <class T> inline void CPUCore<T>::WRITE_PORT(word port, byte value)
 
 template <class T> inline byte CPUCore<T>::RDMEM_common(word address)
 {
-	int line = address >> CACHE_LINE_BITS;
+	int line = address >> CacheLine::BITS;
 	if (likely(readCacheLine[line] != NULL)) {
 		// cached, fast path
 		T::POST_MEM(address);
-		return readCacheLine[line][address&CACHE_LINE_LOW];
+		return readCacheLine[line][address & CacheLine::LOW];
 	} else {
 		return RDMEMslow(address);	// not inlined
 	}
@@ -320,15 +320,16 @@ template <class T> inline byte CPUCore<T>::RDMEM_common(word address)
 template <class T> byte CPUCore<T>::RDMEMslow(word address)
 {
 	// not cached
-	int line = address >> CACHE_LINE_BITS;
+	int line = address >> CacheLine::BITS;
 	if (!readCacheTried[line]) {
 		// try to cache now
 		readCacheTried[line] = true;
-		readCacheLine[line] = interface->getReadCacheLine(address&CACHE_LINE_HIGH);
+		readCacheLine[line] =
+			interface->getReadCacheLine(address & CacheLine::HIGH);
 		if (readCacheLine[line] != NULL) {
 			// cached ok
 			T::POST_MEM(address);
-			return readCacheLine[line][address&CACHE_LINE_LOW];
+			return readCacheLine[line][address & CacheLine::LOW];
 		}
 	}
 	// uncacheable
@@ -340,11 +341,11 @@ template <class T> byte CPUCore<T>::RDMEMslow(word address)
 
 template <class T> inline void CPUCore<T>::WRMEM_common(word address, byte value)
 {
-	int line = address >> CACHE_LINE_BITS;
+	int line = address >> CacheLine::BITS;
 	if (likely(writeCacheLine[line] != NULL)) {
 		// cached, fast path
 		T::POST_MEM(address);
-		writeCacheLine[line][address&CACHE_LINE_LOW] = value;
+		writeCacheLine[line][address & CacheLine::LOW] = value;
 	} else {
 		WRMEMslow(address, value);	// not inlined
 	}
@@ -352,16 +353,16 @@ template <class T> inline void CPUCore<T>::WRMEM_common(word address, byte value
 template <class T> void CPUCore<T>::WRMEMslow(word address, byte value)
 {
 	// not cached
-	int line = address >> CACHE_LINE_BITS;
+	int line = address >> CacheLine::BITS;
 	if (!writeCacheTried[line]) {
 		// try to cache now
 		writeCacheTried[line] = true;
 		writeCacheLine[line] =
-			interface->getWriteCacheLine(address&CACHE_LINE_HIGH);
+			interface->getWriteCacheLine(address & CacheLine::HIGH);
 		if (writeCacheLine[line] != NULL) {
 			// cached ok
 			T::POST_MEM(address);
-			writeCacheLine[line][address&CACHE_LINE_LOW] = value;
+			writeCacheLine[line][address & CacheLine::LOW] = value;
 			return;
 		}
 	}

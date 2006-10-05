@@ -5,7 +5,7 @@
 #include "MSXMotherBoard.hh"
 #include "CartridgeSlotManager.hh"
 #include "MSXCPUInterface.hh"
-#include "CPU.hh"
+#include "CacheLine.hh"
 #include "StringOp.hh"
 #include "MSXException.hh"
 #include <set>
@@ -159,8 +159,8 @@ void MSXDevice::registerSlots(const XMLElement& config)
 				getName() + " should be in range "
 				"[0x0000,0x10000).");
 		}
-		if ((base & CPU::CACHE_LINE_LOW) || (size & CPU::CACHE_LINE_LOW)) {
-			int tmp = CPU::CACHE_LINE_SIZE; // solves link error
+		if ((base & CacheLine::LOW) || (size & CacheLine::LOW)) {
+			int tmp = CacheLine::SIZE; // solves link error
 			throw MSXException(
 				"Invalid memory specification for device " +
 				getName() + " should be aligned at " +
@@ -333,10 +333,10 @@ void MSXDevice::writeMem(word address, byte /*value*/,
 
 byte MSXDevice::peekMem(word address, const EmuTime& /*time*/) const
 {
-	word base = address & CPU::CACHE_LINE_HIGH;
+	word base = address & CacheLine::HIGH;
 	const byte* cache = getReadCacheLine(base);
 	if (cache) {
-		word offset = address & CPU::CACHE_LINE_LOW;
+		word offset = address & CacheLine::LOW;
 		return cache[offset];
 	} else {
 		PRT_DEBUG("MSXDevice: peek not supported for this device");

@@ -1,7 +1,7 @@
 // $Id$
 
 #include "RomNational.hh"
-#include "CPU.hh"
+#include "CacheLine.hh"
 #include "Rom.hh"
 #include "SRAM.hh"
 
@@ -55,7 +55,7 @@ byte RomNational::readMem(word address, const EmuTime& time)
 
 const byte* RomNational::getReadCacheLine(word address) const
 {
-	if ((0x3FF0 & CPU::CACHE_LINE_HIGH) == (address & 0x3FFF)) {
+	if ((0x3FF0 & CacheLine::HIGH) == (address & 0x3FFF)) {
 		return NULL;
 	} else {
 		return Rom16kBBlocks::getReadCacheLine(address);
@@ -99,13 +99,13 @@ void RomNational::writeMem(word address, byte value, const EmuTime& /*time*/)
 
 byte* RomNational::getWriteCacheLine(word address) const
 {
-	if ((address == (0x6000 & CPU::CACHE_LINE_HIGH)) ||
-	    (address == (0x6400 & CPU::CACHE_LINE_HIGH)) ||
-	    (address == (0x7000 & CPU::CACHE_LINE_HIGH)) ||
-	    (address == (0x7400 & CPU::CACHE_LINE_HIGH)) ||
-	    (address == (0x7FF9 & CPU::CACHE_LINE_HIGH))) {
+	if ((address == (0x6000 & CacheLine::HIGH)) ||
+	    (address == (0x6400 & CacheLine::HIGH)) ||
+	    (address == (0x7000 & CacheLine::HIGH)) ||
+	    (address == (0x7400 & CacheLine::HIGH)) ||
+	    (address == (0x7FF9 & CacheLine::HIGH))) {
 		return NULL;
-	} else if ((address & 0x3FFF) == (0x3FFA & CPU::CACHE_LINE_HIGH)) {
+	} else if ((address & 0x3FFF) == (0x3FFA & CacheLine::HIGH)) {
 		return NULL;
 	} else {
 		return unmappedWrite;

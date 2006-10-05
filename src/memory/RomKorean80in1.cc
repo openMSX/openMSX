@@ -9,7 +9,7 @@
 //   0x4003 : 0xA000-0xBFFF
 
 #include "RomKorean80in1.hh"
-#include "CPU.hh"
+#include "CacheLine.hh"
 #include "Rom.hh"
 
 namespace openmsx {
@@ -42,7 +42,7 @@ void RomKorean80in1::writeMem(word address, byte value, const EmuTime& /*time*/)
 
 byte* RomKorean80in1::getWriteCacheLine(word address) const
 {
-	if (address == (0x4000 & CPU::CACHE_LINE_HIGH)) {
+	if (address == (0x4000 & CacheLine::HIGH)) {
 		return NULL;
 	} else {
 		return unmappedWrite;

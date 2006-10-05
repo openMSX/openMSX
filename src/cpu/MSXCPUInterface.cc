@@ -205,8 +205,8 @@ void MSXCPUInterface::removeAllWatchPoints()
 byte MSXCPUInterface::readMemSlow(word address, const EmuTime& time)
 {
 	// execute read watches before actual read
-	if (unlikely(readWatchSet[address >> CPU::CACHE_LINE_BITS]
-	                         [address &  CPU::CACHE_LINE_LOW])) {
+	if (unlikely(readWatchSet[address >> CacheLine::BITS]
+	                         [address &  CacheLine::LOW])) {
 		executeMemWatch(address, WatchPoint::READ_MEM);
 	}
 	if (unlikely((address == 0xFFFF) && isExpanded(primarySlotState[3]))) {
@@ -224,8 +224,8 @@ void MSXCPUInterface::writeMemSlow(word address, byte value, const EmuTime& time
 		visibleDevices[address>>14]->writeMem(address, value, time);
 	}
 	// execute write watches after actual write
-	if (unlikely(writeWatchSet[address >> CPU::CACHE_LINE_BITS]
-	                          [address &  CPU::CACHE_LINE_LOW])) {
+	if (unlikely(writeWatchSet[address >> CacheLine::BITS]
+	                          [address &  CacheLine::LOW])) {
 		executeMemWatch(address, WatchPoint::WRITE_MEM);
 	}
 }
@@ -238,7 +238,7 @@ void MSXCPUInterface::setAllowedCache()
 		allowReadCache [255] = false;
 		allowWriteCache[255] = false;
 	}
-	for (int i = 0; i < CPU::CACHE_LINE_NUM; ++i) {
+	for (unsigned i = 0; i < CacheLine::NUM; ++i) {
 		if (readWatchSet [i].any()) allowReadCache [i] = false;
 		if (writeWatchSet[i].any()) allowWriteCache[i] = false;
 	}
@@ -650,9 +650,9 @@ void MSXCPUInterface::unregisterIOWatch(WatchPoint& watchPoint, MSXDevice** devi
 
 void MSXCPUInterface::updateMemWatch(WatchPoint::Type type)
 {
-	std::bitset<CPU::CACHE_LINE_SIZE>* watchSet =
+	std::bitset<CacheLine::SIZE>* watchSet =
 		(type == WatchPoint::READ_MEM) ? readWatchSet : writeWatchSet;
-	for (int i = 0; i < CPU::CACHE_LINE_NUM; ++i) {
+	for (unsigned i = 0; i < CacheLine::NUM; ++i) {
 		watchSet[i].reset();
 	}
 	for (WatchPoints::const_iterator it = watchPoints.begin();
@@ -660,8 +660,8 @@ void MSXCPUInterface::updateMemWatch(WatchPoint::Type type)
 		if ((*it)->getType() == type) {
 			unsigned addr = (*it)->getAddress();
 			assert(addr < 0x10000);
-			watchSet[addr >> CPU::CACHE_LINE_BITS].set(
-			         addr  & CPU::CACHE_LINE_LOW);
+			watchSet[addr >> CacheLine::BITS].set(
+			         addr  & CacheLine::LOW);
 		}
 	}
 	setAllowedCache();

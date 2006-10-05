@@ -5,7 +5,7 @@
 #include "MSXMotherBoard.hh"
 #include "XMLElement.hh"
 #include "SRAM.hh"
-#include "CPU.hh"
+#include "CacheLine.hh"
 #include "Rom.hh"
 
 namespace openmsx {
@@ -80,7 +80,7 @@ byte RomPanasonic::readMem(word address, const EmuTime& time)
 
 const byte* RomPanasonic::getReadCacheLine(word address) const
 {
-	if ((0x7FF0 & CPU::CACHE_LINE_HIGH) == address) {
+	if ((0x7FF0 & CacheLine::HIGH) == address) {
 		// TODO check mirrored
 		return NULL;
 	} else {
@@ -132,7 +132,7 @@ byte* RomPanasonic::getWriteCacheLine(word address) const
 	//return NULL;
 	if ((0x6000 <= address) && (address < 0x7FF0)) {
 		return NULL;
-	} else if (address == (0x7FF8 & CPU::CACHE_LINE_HIGH)) {
+	} else if (address == (0x7FF8 & CacheLine::HIGH)) {
 		return NULL;
 	} else if ((0x8000 <= address) && (address < 0xC000)) {
 		int region = address >> 13;

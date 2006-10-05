@@ -1,7 +1,7 @@
 // $Id$
 
 #include "MSXBunsetsu.hh"
-#include "CPU.hh"
+#include "CacheLine.hh"
 #include "Rom.hh"
 
 namespace openmsx {
@@ -58,8 +58,7 @@ void MSXBunsetsu::writeMem(word address, byte value, const EmuTime& /*time*/)
 
 const byte* MSXBunsetsu::getReadCacheLine(word start) const
 {
-	if ((start & CPU::CACHE_LINE_HIGH) ==
-	    (0xBFFF & CPU::CACHE_LINE_HIGH)) {
+	if ((start & CacheLine::HIGH) == (0xBFFF & CacheLine::HIGH)) {
 		return NULL;
 	} else {
 		return &(*bunsetsuRom)[start - 0x4000];
@@ -68,8 +67,7 @@ const byte* MSXBunsetsu::getReadCacheLine(word start) const
 
 byte* MSXBunsetsu::getWriteCacheLine(word start) const
 {
-	if ((start & CPU::CACHE_LINE_HIGH) ==
-	    (0xBFFF & CPU::CACHE_LINE_HIGH)) {
+	if ((start & CacheLine::HIGH) == (0xBFFF & CacheLine::HIGH)) {
 		return NULL;
 	} else {
 		return unmappedWrite;
