@@ -272,16 +272,6 @@ CartridgeSlotManager& MSXMotherBoard::getSlotManager()
 	return *slotManager;
 }
 
-CommandController& MSXMotherBoard::getCommandController()
-{
-	return reactor.getCommandController();
-}
-
-EventDistributor& MSXMotherBoard::getEventDistributor()
-{
-	return reactor.getEventDistributor();
-}
-
 EventDelay& MSXMotherBoard::getEventDelay()
 {
 	if (!eventDelay.get()) {
@@ -299,11 +289,6 @@ EventTranslator& MSXMotherBoard::getEventTranslator()
 			getEventDistributor(), getEventDelay()));
 	}
 	return *eventTranslator;
-}
-
-CliComm& MSXMotherBoard::getCliComm()
-{
-	return reactor.getCliComm();
 }
 
 RealTime& MSXMotherBoard::getRealTime()
@@ -402,6 +387,21 @@ RenShaTurbo& MSXMotherBoard::getRenShaTurbo()
 			getCommandController(), getMachineConfig().getConfig()));
 	}
 	return *renShaTurbo;
+}
+
+CommandController& MSXMotherBoard::getCommandController()
+{
+	return reactor.getCommandController();
+}
+
+EventDistributor& MSXMotherBoard::getEventDistributor()
+{
+	return reactor.getEventDistributor();
+}
+
+CliComm& MSXMotherBoard::getCliComm()
+{
+	return reactor.getCliComm();
 }
 
 Display& MSXMotherBoard::getDisplay()

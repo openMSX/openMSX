@@ -104,11 +104,8 @@ public:
 	Scheduler& getScheduler();
 	MSXEventDistributor& getMSXEventDistributor();
 	CartridgeSlotManager& getSlotManager();
-	CommandController& getCommandController();
-	EventDistributor& getEventDistributor();
 	EventDelay& getEventDelay();
 	EventTranslator& getEventTranslator();
-	CliComm& getCliComm();
 	RealTime& getRealTime();
 	Debugger& getDebugger();
 	Mixer& getMixer();
@@ -120,6 +117,11 @@ public:
 	MSXDeviceSwitch& getDeviceSwitch();
 	CassettePortInterface& getCassettePort();
 	RenShaTurbo& getRenShaTurbo();
+
+	// These are only convenience methods, Reactor keeps these objects
+	CommandController& getCommandController();
+	EventDistributor& getEventDistributor();
+	CliComm& getCliComm();
 	Display& getDisplay();
 	FileManipulator& getFileManipulator();
 	FilePool& getFilePool();
