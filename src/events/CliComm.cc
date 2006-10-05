@@ -65,13 +65,14 @@ CliComm::~CliComm()
 	commandController.setCliComm(0);
 }
 
-void CliComm::startInput(CommandLineParser::ControlType type, const string& arguments)
+void CliComm::startInput(const string& option)
 {
-	xmlOutput = true;
+	string type_name, arguments;
+	StringOp::splitOnFirst(option, ":", type_name, arguments);
+
 	auto_ptr<CliConnection> connection;
-	switch (type) {
-	case CommandLineParser::IO_PIPE: {
 #ifdef _WIN32
+	if (type_name == "pipe") {
 		OSVERSIONINFO info;
 		info.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 		GetVersionExA(&info);
@@ -82,19 +83,16 @@ void CliComm::startInput(CommandLineParser::ControlType type, const string& argu
 			throw FatalError("Pipes are not supported on this "
 			                 "version of Windows");
 		}
-#else
-		assert(false);
-		(void)arguments;
-#endif
-		break;
 	}
-	case CommandLineParser::IO_STD:
+#endif
+	if (type_name == "stdio") {
 		connection.reset(new StdioConnection(
 			commandController, eventDistributor));
-		break;
-	default:
-		assert(false);
+	} else {
+		throw FatalError("Unknown control type: '"  + type_name + "'");
 	}
+
+	xmlOutput = true;
 	addConnection(connection);
 }
 

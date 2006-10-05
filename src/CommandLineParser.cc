@@ -401,21 +401,8 @@ ControlOption::ControlOption(CommandLineParser& parser_)
 
 bool ControlOption::parseOption(const string& option, list<string>& cmdLine)
 {
-	string type_name, arguments;
-	StringOp::splitOnFirst(getArgument(option, cmdLine),
-	                       ":", type_name, arguments);
-
-	map<string, CommandLineParser::ControlType> controlTypeMap;
-	controlTypeMap["stdio"] = CommandLineParser::IO_STD;
-#ifdef _WIN32
-	controlTypeMap["pipe"] = CommandLineParser::IO_PIPE;
-#endif
-	if (controlTypeMap.find(type_name) == controlTypeMap.end()) {
-		throw FatalError("Unknown control type: '"  + type_name + "'");
-	}
-	CommandLineParser::ControlType type = controlTypeMap[type_name];
-
-	parser.getReactor().getCliComm().startInput(type, arguments);
+	parser.getReactor().getCliComm().startInput(
+		getArgument(option, cmdLine));
 	parser.parseStatus = CommandLineParser::CONTROL;
 	return true;
 }

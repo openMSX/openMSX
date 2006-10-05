@@ -41,7 +41,6 @@ class CommandLineParser : private noncopyable
 {
 public:
 	enum ParseStatus { UNPARSED, RUN, CONTROL, TEST, EXIT };
-	enum ControlType { IO_STD, IO_PIPE };
 
 	explicit CommandLineParser(Reactor& reactor);
 	~CommandLineParser();

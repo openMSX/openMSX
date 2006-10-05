@@ -3,12 +3,12 @@
 #ifndef CLICOMM_HH
 #define CLICOMM_HH
 
-#include "CommandLineParser.hh"
 #include "EventListener.hh"
 #include "Semaphore.hh"
 #include "noncopyable.hh"
 #include <map>
 #include <string>
+#include <vector>
 #include <memory>
 
 namespace openmsx {
@@ -48,8 +48,7 @@ public:
 
 	void addConnection(std::auto_ptr<CliConnection> connection);
 
-	void startInput(CommandLineParser::ControlType type,
-	                const std::string& arguments);
+	void startInput(const std::string& option);
 
 	void log(LogLevel level, const std::string& message);
 	void update(UpdateType type, const std::string& name, const std::string& value);

@@ -18,6 +18,7 @@
 #include "MSXException.hh"
 #include "CartridgeSlotManager.hh"
 #include "DeviceFactory.hh"
+#include "StringOp.hh"
 #include "checked_cast.hh"
 #include <cstdio>
 #include <memory> // for auto_ptr
