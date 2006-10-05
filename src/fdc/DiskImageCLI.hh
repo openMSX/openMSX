@@ -3,10 +3,11 @@
 #ifndef DISKIMAGEMANAGER_HH
 #define DISKIMAGEMANAGER_HH
 
-#include "CommandLineParser.hh"
+#include "CLIOption.hh"
 
 namespace openmsx {
 
+class CommandLineParser;
 class CommandController;
 
 class DiskImageCLI : public CLIOption, public CLIFileType

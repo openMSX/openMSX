@@ -3,9 +3,11 @@
 #ifndef MSXROMCLI_HH
 #define MSXROMCLI_HH
 
-#include "CommandLineParser.hh"
+#include "CLIOption.hh"
 
 namespace openmsx {
+
+class CommandLineParser;
 
 class MSXRomCLI : public CLIOption, public CLIFileType
 {

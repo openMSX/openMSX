@@ -3,9 +3,11 @@
 #ifndef CLIEXTENSION_HH
 #define CLIEXTENSION_HH
 
-#include "CommandLineParser.hh"
+#include "CLIOption.hh"
 
 namespace openmsx {
+
+class CommandLineParser;
 
 class CliExtension : public CLIOption
 {

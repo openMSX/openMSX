@@ -26,6 +26,7 @@
 #include "Connector.hh"
 #include "CassettePort.hh"
 #include "CommandController.hh"
+#include "CommandLineParser.hh"
 #include "RecordedCommand.hh"
 #include "GlobalSettings.hh"
 #include "XMLElement.hh"
@@ -78,8 +79,8 @@ private:
 MSXCassettePlayerCLI::MSXCassettePlayerCLI(CommandLineParser& commandLineParser)
 	: commandController(commandLineParser.getReactor().getCommandController())
 {
-	commandLineParser.registerOption("-cassetteplayer", this);
-	commandLineParser.registerFileClass("cassetteimage", this);
+	commandLineParser.registerOption("-cassetteplayer", *this);
+	commandLineParser.registerFileClass("cassetteimage", *this);
 }
 
 bool MSXCassettePlayerCLI::parseOption(const string& option,

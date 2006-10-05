@@ -2,6 +2,7 @@
 
 #include "MSXEventRecorderReplayerCLI.hh"
 #include "CommandLineParser.hh"
+#include "CLIOption.hh"
 #include "MSXEventRecorder.hh" 
 #include "MSXEventReplayer.hh"
 #include "MSXMotherBoard.hh"
@@ -44,8 +45,8 @@ MSXEventRecorderReplayerCLI::MSXEventRecorderReplayerCLI(
 	: recordOption(new RecordOption(commandLineParser))
 	, replayOption(new ReplayOption(commandLineParser))
 {
-	commandLineParser.registerOption("-record", recordOption.get());
-	commandLineParser.registerOption("-replay", replayOption.get());
+	commandLineParser.registerOption("-record", *recordOption);
+	commandLineParser.registerOption("-replay", *replayOption);
 }
 
 MSXEventRecorderReplayerCLI::~MSXEventRecorderReplayerCLI()

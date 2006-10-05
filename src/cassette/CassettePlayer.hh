@@ -4,7 +4,7 @@
 #define CASSETTEPLAYER_HH
 
 #include "EventListener.hh"
-#include "CommandLineParser.hh"
+#include "CLIOption.hh"
 #include "CassetteDevice.hh"
 #include "SoundDevice.hh"
 #include "EmuTime.hh"
@@ -15,6 +15,7 @@
 
 namespace openmsx {
 
+class CommandLineParser;
 class CassetteImage;
 class XMLElement;
 class Mixer;

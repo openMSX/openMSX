@@ -3,11 +3,12 @@
 #ifndef HDIMAGECLI_HH
 #define HDIMAGECLI_HH
 
-#include "CommandLineParser.hh"
+#include "CLIOption.hh"
 
 namespace openmsx {
 
 class CommandController;
+class CommandLineParser;
 
 class HDImageCLI : public CLIOption
 {

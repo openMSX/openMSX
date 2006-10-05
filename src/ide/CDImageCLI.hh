@@ -3,10 +3,11 @@
 #ifndef CDIMAGECLI_HH
 #define CDIMAGECLI_HH
 
-#include "CommandLineParser.hh"
+#include "CLIOption.hh"
 
 namespace openmsx {
 
+class CommandLineParser;
 class CommandController;
 
 class CDImageCLI : public CLIOption

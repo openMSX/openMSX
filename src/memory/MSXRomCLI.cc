@@ -1,6 +1,7 @@
 // $Id$
 
 #include "MSXRomCLI.hh"
+#include "CommandLineParser.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
 #include <cassert>
@@ -13,14 +14,14 @@ namespace openmsx {
 MSXRomCLI::MSXRomCLI(CommandLineParser& cmdLineParser_)
 	: cmdLineParser(cmdLineParser_)
 {
-	cmdLineParser.registerOption("-ips", &ipsOption);
-	cmdLineParser.registerOption("-romtype", &romTypeOption);
-	cmdLineParser.registerOption("-cart", this);
-	cmdLineParser.registerOption("-carta", this);
-	cmdLineParser.registerOption("-cartb", this);
-	cmdLineParser.registerOption("-cartc", this);
-	cmdLineParser.registerOption("-cartd", this);
-	cmdLineParser.registerFileClass("romimage", this);
+	cmdLineParser.registerOption("-ips", ipsOption);
+	cmdLineParser.registerOption("-romtype", romTypeOption);
+	cmdLineParser.registerOption("-cart", *this);
+	cmdLineParser.registerOption("-carta", *this);
+	cmdLineParser.registerOption("-cartb", *this);
+	cmdLineParser.registerOption("-cartc", *this);
+	cmdLineParser.registerOption("-cartd", *this);
+	cmdLineParser.registerFileClass("romimage", *this);
 }
 
 bool MSXRomCLI::parseOption(const string& option, list<string>& cmdLine)

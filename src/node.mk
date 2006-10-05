@@ -31,7 +31,7 @@ SRC_HDR:= \
 	MSXDeviceSwitch \
 	MSXMatsushita \
 	FirmwareSwitch \
-	CommandLineParser \
+	CommandLineParser CLIOption \
 	CliExtension \
 	Math sha1 \
 	CircularBuffer \

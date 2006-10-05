@@ -3,6 +3,7 @@
 #include "HDImageCLI.hh"
 #include "Reactor.hh"
 #include "CommandController.hh"
+#include "CommandLineParser.hh"
 #include "TclObject.hh"
 #include "MSXException.hh"
 
@@ -14,7 +15,7 @@ namespace openmsx {
 HDImageCLI::HDImageCLI(CommandLineParser& commandLineParser)
 	: commandController(commandLineParser.getReactor().getCommandController())
 {
-	commandLineParser.registerOption("-hda", this);
+	commandLineParser.registerOption("-hda", *this);
 	// TODO: offer more options in case you want to specify 2 hard disk images?
 }
 

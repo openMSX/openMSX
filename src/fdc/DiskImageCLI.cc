@@ -3,6 +3,7 @@
 #include "DiskImageCLI.hh"
 #include "Reactor.hh"
 #include "CommandController.hh"
+#include "CommandLineParser.hh"
 #include "TclObject.hh"
 #include "GlobalSettings.hh"
 #include "XMLElement.hh"
@@ -17,10 +18,10 @@ namespace openmsx {
 DiskImageCLI::DiskImageCLI(CommandLineParser& commandLineParser)
 	: commandController(commandLineParser.getReactor().getCommandController())
 {
-	commandLineParser.registerOption("-diska", this);
-	commandLineParser.registerOption("-diskb", this);
+	commandLineParser.registerOption("-diska", *this);
+	commandLineParser.registerOption("-diskb", *this);
 
-	commandLineParser.registerFileClass("diskimage", this);
+	commandLineParser.registerFileClass("diskimage", *this);
 	driveLetter = 'a';
 }
 

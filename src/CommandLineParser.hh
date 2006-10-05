@@ -14,8 +14,19 @@
 
 namespace openmsx {
 
+class CLIOption;
+class CLIFileType;
 class SettingsConfig;
 class CliComm;
+class HelpOption;
+class VersionOption;
+class ControlOption;
+class ScriptOption;
+class MachineOption;
+class SettingOption;
+class NoMMXOption;
+class NoMMXEXTOption;
+class TestConfigOption;
 class MSXRomCLI;
 class CliExtension;
 class MSXCassettePlayerCLI;
@@ -26,29 +37,6 @@ class Reactor;
 class MSXMotherBoard;
 class MSXEventRecorderReplayerCLI;
 
-class CLIOption
-{
-public:
-	virtual ~CLIOption() {}
-	virtual bool parseOption(const std::string& option,
-	                         std::list<std::string>& cmdLine) = 0;
-	virtual const std::string& optionHelp() const = 0;
-
-protected:
-	std::string getArgument(const std::string& option,
-	                              std::list<std::string>& cmdLine) const;
-	std::string peekArgument(const std::list<std::string>& cmdLine) const;
-};
-
-class CLIFileType
-{
-public:
-	virtual ~CLIFileType() {}
-	virtual void parseFileType(const std::string& filename,
-	                           std::list<std::string>& cmdLine) = 0;
-	virtual const std::string& fileTypeHelp() const = 0;
-};
-
 class CommandLineParser : private noncopyable
 {
 public:
@@ -57,10 +45,10 @@ public:
 
 	explicit CommandLineParser(Reactor& reactor);
 	~CommandLineParser();
-	void registerOption(const std::string& str, CLIOption* cliOption,
+	void registerOption(const std::string& str, CLIOption& cliOption,
 		byte prio = 8, byte length = 2);
 	void registerFileClass(const std::string& str,
-	                       CLIFileType* cliFileType);
+	                       CLIFileType& cliFileType);
 	void parse(int argc, char** argv);
 	ParseStatus getParseStatus() const;
 
@@ -103,89 +91,15 @@ private:
 	SettingsConfig& settingsConfig;
 	CliComm& output;
 
-	class HelpOption : public CLIOption {
-	public:
-		explicit HelpOption(CommandLineParser& parser);
-		virtual bool parseOption(const std::string& option,
-			std::list<std::string>& cmdLine);
-		virtual const std::string& optionHelp() const;
-	private:
-		CommandLineParser& parser;
-	} helpOption;
-
-	class VersionOption : public CLIOption {
-	public:
-		explicit VersionOption(CommandLineParser& parser);
-		virtual bool parseOption(const std::string& option,
-			std::list<std::string>& cmdLine);
-		virtual const std::string& optionHelp() const;
-	private:
-		CommandLineParser& parser;
-	} versionOption;
-
-	class ControlOption : public CLIOption {
-	public:
-		explicit ControlOption(CommandLineParser& parser);
-		virtual bool parseOption(const std::string& option,
-			std::list<std::string>& cmdLine);
-		virtual const std::string& optionHelp() const;
-	private:
-		CommandLineParser& parser;
-	} controlOption;
-
-	class ScriptOption : public CLIOption {
-	public:
-		const Scripts& getScripts() const;
-		virtual bool parseOption(const std::string& option,
-			std::list<std::string>& cmdLine);
-		virtual const std::string& optionHelp() const;
-	private:
-		Scripts scripts;
-	} scriptOption;
-
-	class MachineOption : public CLIOption {
-	public:
-		explicit MachineOption(CommandLineParser& parser);
-		virtual bool parseOption(const std::string& option,
-			std::list<std::string>& cmdLine);
-		virtual const std::string& optionHelp() const;
-	private:
-		CommandLineParser& parser;
-	} machineOption;
-
-	class SettingOption : public CLIOption {
-	public:
-		explicit SettingOption(CommandLineParser& parser);
-		virtual bool parseOption(const std::string& option,
-			std::list<std::string>& cmdLine);
-		virtual const std::string& optionHelp() const;
-	private:
-		CommandLineParser& parser;
-	} settingOption;
-
-	class NoMMXOption : public CLIOption {
-	public:
-		virtual bool parseOption(const std::string& option,
-			std::list<std::string>& cmdLine);
-		virtual const std::string& optionHelp() const;
-	} noMMXOption;
-
-	class NoMMXEXTOption : public CLIOption {
-	public:
-		virtual bool parseOption(const std::string& option,
-			std::list<std::string>& cmdLine);
-		virtual const std::string& optionHelp() const;
-	} noMMXEXTOption;
-
-	class TestConfigOption : public CLIOption {
-	public:
-		explicit TestConfigOption(CommandLineParser& parser);
-		virtual bool parseOption(const std::string& option,
-			std::list<std::string>& cmdLine);
-		virtual const std::string& optionHelp() const;
-	private:
-		CommandLineParser& parser;
-	} testConfigOption;
+	const std::auto_ptr<HelpOption> helpOption;
+	const std::auto_ptr<VersionOption> versionOption;
+	const std::auto_ptr<ControlOption> controlOption;
+	const std::auto_ptr<ScriptOption> scriptOption;
+	const std::auto_ptr<MachineOption> machineOption;
+	const std::auto_ptr<SettingOption> settingOption;
+	const std::auto_ptr<NoMMXOption> noMMXOption;
+	const std::auto_ptr<NoMMXEXTOption> noMMXEXTOption;
+	const std::auto_ptr<TestConfigOption> testConfigOption;
 
 	const std::auto_ptr<MSXRomCLI> msxRomCLI;
 	const std::auto_ptr<CliExtension> cliExtension;
@@ -197,6 +111,13 @@ private:
 					eventRecorderReplayerCLI;
 	
 	bool hiddenStartup;
+
+	friend class ControlOption;
+	friend class HelpOption;
+	friend class VersionOption;
+	friend class MachineOption;
+	friend class SettingOption;
+	friend class TestConfigOption;
 };
 
 } // namespace openmsx

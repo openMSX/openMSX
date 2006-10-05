@@ -1,6 +1,7 @@
 // $Id$
 
 #include "CliExtension.hh"
+#include "CommandLineParser.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
 #include <cassert>
@@ -12,7 +13,7 @@ namespace openmsx {
 CliExtension::CliExtension(CommandLineParser& cmdLineParser_)
 	: cmdLineParser(cmdLineParser_)
 {
-	cmdLineParser.registerOption("-ext", this, 7);
+	cmdLineParser.registerOption("-ext", *this, 7);
 }
 
 bool CliExtension::parseOption(const string& option, std::list<string>& cmdLine)

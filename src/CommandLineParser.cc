@@ -1,6 +1,7 @@
 // $Id$
 
 #include "CommandLineParser.hh"
+#include "CLIOption.hh"
 #include "CommandController.hh"
 #include "SettingsConfig.hh"
 #include "File.hh"
@@ -34,22 +35,97 @@ using std::vector;
 
 namespace openmsx {
 
-// class CLIOption
-
-string CLIOption::getArgument(const string& option, list<string>& cmdLine) const
+class HelpOption : public CLIOption
 {
-	if (cmdLine.empty()) {
-		throw FatalError("Missing argument for option \"" + option + "\"");
-	}
-	string argument = cmdLine.front();
-	cmdLine.pop_front();
-	return argument;
-}
+public:
+	explicit HelpOption(CommandLineParser& parser);
+	virtual bool parseOption(const std::string& option,
+		std::list<std::string>& cmdLine);
+	virtual const std::string& optionHelp() const;
+private:
+	CommandLineParser& parser;
+};
 
-string CLIOption::peekArgument(const list<string>& cmdLine) const
+class VersionOption : public CLIOption
 {
-	return cmdLine.empty() ? "" : cmdLine.front();
-}
+public:
+	explicit VersionOption(CommandLineParser& parser);
+	virtual bool parseOption(const std::string& option,
+		std::list<std::string>& cmdLine);
+	virtual const std::string& optionHelp() const;
+private:
+	CommandLineParser& parser;
+};
+
+class ControlOption : public CLIOption
+{
+public:
+	explicit ControlOption(CommandLineParser& parser);
+	virtual bool parseOption(const std::string& option,
+		std::list<std::string>& cmdLine);
+	virtual const std::string& optionHelp() const;
+private:
+	CommandLineParser& parser;
+};
+
+class ScriptOption : public CLIOption
+{
+public:
+	const CommandLineParser::Scripts& getScripts() const;
+	virtual bool parseOption(const std::string& option,
+		std::list<std::string>& cmdLine);
+	virtual const std::string& optionHelp() const;
+private:
+	CommandLineParser::Scripts scripts;
+};
+
+class MachineOption : public CLIOption
+{
+public:
+	explicit MachineOption(CommandLineParser& parser);
+	virtual bool parseOption(const std::string& option,
+		std::list<std::string>& cmdLine);
+	virtual const std::string& optionHelp() const;
+private:
+	CommandLineParser& parser;
+};
+
+class SettingOption : public CLIOption
+{
+public:
+	explicit SettingOption(CommandLineParser& parser);
+	virtual bool parseOption(const std::string& option,
+		std::list<std::string>& cmdLine);
+	virtual const std::string& optionHelp() const;
+private:
+	CommandLineParser& parser;
+};
+
+class NoMMXOption : public CLIOption
+{
+public:
+	virtual bool parseOption(const std::string& option,
+		std::list<std::string>& cmdLine);
+	virtual const std::string& optionHelp() const;
+};
+
+class NoMMXEXTOption : public CLIOption {
+public:
+	virtual bool parseOption(const std::string& option,
+		std::list<std::string>& cmdLine);
+	virtual const std::string& optionHelp() const;
+};
+
+class TestConfigOption : public CLIOption
+{
+public:
+	explicit TestConfigOption(CommandLineParser& parser);
+	virtual bool parseOption(const std::string& option,
+		std::list<std::string>& cmdLine);
+	virtual const std::string& optionHelp() const;
+private:
+	CommandLineParser& parser;
+};
 
 
 // class CommandLineParser
@@ -59,12 +135,12 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	, reactor(reactor_)
 	, settingsConfig(reactor.getCommandController().getSettingsConfig())
 	, output(reactor.getCliComm())
-	, helpOption(*this)
-	, versionOption(*this)
-	, controlOption(*this)
-	, machineOption(*this)
-	, settingOption(*this)
-	, testConfigOption(*this)
+	, helpOption(new HelpOption(*this))
+	, versionOption(new VersionOption(*this))
+	, controlOption(new ControlOption(*this))
+	, machineOption(new MachineOption(*this))
+	, settingOption(new SettingOption(*this))
+	, testConfigOption(new TestConfigOption(*this))
 	, msxRomCLI(new MSXRomCLI(*this))
 	, cliExtension(new CliExtension(*this))
 	, cassettePlayerCLI(new MSXCassettePlayerCLI(*this))
@@ -76,19 +152,19 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	haveConfig = false;
 	haveSettings = false;
 
-	registerOption("-machine",    &machineOption, 4);
-	registerOption("-setting",    &settingOption, 2);
-	registerOption("-h",          &helpOption, 1, 1);
-	registerOption("--help",      &helpOption, 1, 1);
-	registerOption("-v",          &versionOption, 1, 1);
-	registerOption("--version",   &versionOption, 1, 1);
-	registerOption("-control",    &controlOption, 1, 1);
-	registerOption("-script",     &scriptOption, 1, 1);
+	registerOption("-machine",    *machineOption, 4);
+	registerOption("-setting",    *settingOption, 2);
+	registerOption("-h",          *helpOption, 1, 1);
+	registerOption("--help",      *helpOption, 1, 1);
+	registerOption("-v",          *versionOption, 1, 1);
+	registerOption("--version",   *versionOption, 1, 1);
+	registerOption("-control",    *controlOption, 1, 1);
+	registerOption("-script",     *scriptOption, 1, 1);
 	#ifdef ASM_X86
-	registerOption("-nommx",      &noMMXOption, 1, 1);
-	registerOption("-nommxext",   &noMMXEXTOption, 1, 1);
+	registerOption("-nommx",      *noMMXOption, 1, 1);
+	registerOption("-nommxext",   *noMMXEXTOption, 1, 1);
 	#endif
-	registerOption("-testconfig", &testConfigOption, 1, 1);
+	registerOption("-testconfig", *testConfigOption, 1, 1);
 	
 	registerFileTypes();
 }
@@ -98,19 +174,19 @@ CommandLineParser::~CommandLineParser()
 }
 
 void CommandLineParser::registerOption(
-	const string& str, CLIOption* cliOption, byte prio, byte length)
+	const string& str, CLIOption& cliOption, byte prio, byte length)
 {
 	OptionData temp;
-	temp.option = cliOption;
+	temp.option = &cliOption;
 	temp.prio = prio;
 	temp.length = length;
 	optionMap[str] = temp;
 }
 
 void CommandLineParser::registerFileClass(
-	const string& str, CLIFileType* cliFileType)
+	const string& str, CLIFileType& cliFileType)
 {
-	fileClassMap[str] = cliFileType;
+	fileClassMap[str] = &cliFileType;
 }
 
 void CommandLineParser::registerFileTypes()
@@ -300,7 +376,7 @@ CommandLineParser::ParseStatus CommandLineParser::getParseStatus() const
 
 const CommandLineParser::Scripts& CommandLineParser::getStartupScripts() const
 {
-	return scriptOption.getScripts();
+	return scriptOption->getScripts();
 }
 
 Reactor& CommandLineParser::getReactor() const
@@ -315,22 +391,21 @@ MSXMotherBoard* CommandLineParser::getMotherBoard() const
 
 // Control option
 
-CommandLineParser::ControlOption::ControlOption(CommandLineParser& parser_)
+ControlOption::ControlOption(CommandLineParser& parser_)
 	: parser(parser_)
 {
 }
 
-bool CommandLineParser::ControlOption::parseOption(const string& option,
-		list<string>& cmdLine)
+bool ControlOption::parseOption(const string& option, list<string>& cmdLine)
 {
 	string type_name, arguments;
 	StringOp::splitOnFirst(getArgument(option, cmdLine),
 	                       ":", type_name, arguments);
 
 	map<string, CommandLineParser::ControlType> controlTypeMap;
-	controlTypeMap["stdio"] = IO_STD;
+	controlTypeMap["stdio"] = CommandLineParser::IO_STD;
 #ifdef _WIN32
-	controlTypeMap["pipe"] = IO_PIPE;
+	controlTypeMap["pipe"] = CommandLineParser::IO_PIPE;
 #endif
 	if (controlTypeMap.find(type_name) == controlTypeMap.end()) {
 		throw FatalError("Unknown control type: '"  + type_name + "'");
@@ -338,11 +413,11 @@ bool CommandLineParser::ControlOption::parseOption(const string& option,
 	CommandLineParser::ControlType type = controlTypeMap[type_name];
 
 	parser.getReactor().getCliComm().startInput(type, arguments);
-	parser.parseStatus = CONTROL;
+	parser.parseStatus = CommandLineParser::CONTROL;
 	return true;
 }
 
-const string& CommandLineParser::ControlOption::optionHelp() const
+const string& ControlOption::optionHelp() const
 {
 	static const string text("Enable external control of openMSX process");
 	return text;
@@ -351,20 +426,19 @@ const string& CommandLineParser::ControlOption::optionHelp() const
 
 // Script option
 
-const CommandLineParser::Scripts&
-CommandLineParser::ScriptOption::getScripts() const
+const CommandLineParser::Scripts& ScriptOption::getScripts() const
 {
 	return scripts;
 }
 
-bool CommandLineParser::ScriptOption::parseOption(const string& option,
+bool ScriptOption::parseOption(const string& option,
 		list<string>& cmdLine)
 {
 	scripts.push_back(getArgument(option, cmdLine));
 	return true;
 }
 
-const string& CommandLineParser::ScriptOption::optionHelp() const
+const string& ScriptOption::optionHelp() const
 {
 	static const string text("Run extra startup script");
 	return text;
@@ -436,12 +510,12 @@ static void printItemMap(const map<string, set<string> >& itemMap)
 	}
 }
 
-CommandLineParser::HelpOption::HelpOption(CommandLineParser& parser_)
+HelpOption::HelpOption(CommandLineParser& parser_)
 	: parser(parser_)
 {
 }
 
-bool CommandLineParser::HelpOption::parseOption(const string& /*option*/,
+bool HelpOption::parseOption(const string& /*option*/,
 		list<string>& /*cmdLine*/)
 {
 	if (!parser.haveSettings) {
@@ -456,8 +530,8 @@ bool CommandLineParser::HelpOption::parseOption(const string& /*option*/,
 	cout << "  this is the list of supported options:" << endl;
 
 	map<string, set<string> > optionMap;
-	for (map<string, OptionData>::const_iterator it = parser.optionMap.begin();
-	     it != parser.optionMap.end(); ++it) {
+	for (map<string, CommandLineParser::OptionData>::const_iterator it =
+	        parser.optionMap.begin(); it != parser.optionMap.end(); ++it) {
 		optionMap[it->second.option->optionHelp()].insert(it->first);
 	}
 	printItemMap(optionMap);
@@ -466,17 +540,18 @@ bool CommandLineParser::HelpOption::parseOption(const string& /*option*/,
 	cout << "  this is the list of supported file types:" << endl;
 
 	map<string, set<string> > extMap;
-	for (FileTypeMap::const_iterator it = parser.fileTypeMap.begin();
+	for (CommandLineParser::FileTypeMap::const_iterator it =
+	         parser.fileTypeMap.begin();
 	     it != parser.fileTypeMap.end(); ++it) {
 		extMap[it->second->fileTypeHelp()].insert(it->first);
 	}
 	printItemMap(extMap);
 
-	parser.parseStatus = EXIT;
+	parser.parseStatus = CommandLineParser::EXIT;
 	return true;
 }
 
-const string& CommandLineParser::HelpOption::optionHelp() const
+const string& HelpOption::optionHelp() const
 {
 	static const string text("Shows this text");
 	return text;
@@ -485,20 +560,20 @@ const string& CommandLineParser::HelpOption::optionHelp() const
 
 // class VersionOption
 
-CommandLineParser::VersionOption::VersionOption(CommandLineParser& parser_)
+VersionOption::VersionOption(CommandLineParser& parser_)
 	: parser(parser_)
 {
 }
 
-bool CommandLineParser::VersionOption::parseOption(const string& /*option*/,
+bool VersionOption::parseOption(const string& /*option*/,
 		list<string>& /*cmdLine*/)
 {
 	cout << Version::FULL_VERSION << endl;
-	parser.parseStatus = EXIT;
+	parser.parseStatus = CommandLineParser::EXIT;
 	return true;
 }
 
-const string& CommandLineParser::VersionOption::optionHelp() const
+const string& VersionOption::optionHelp() const
 {
 	static const string text("Prints openMSX version and exits");
 	return text;
@@ -507,13 +582,12 @@ const string& CommandLineParser::VersionOption::optionHelp() const
 
 // Machine option
 
-CommandLineParser::MachineOption::MachineOption(CommandLineParser& parser_)
+MachineOption::MachineOption(CommandLineParser& parser_)
 	: parser(parser_)
 {
 }
 
-bool CommandLineParser::MachineOption::parseOption(const string& option,
-		list<string>& cmdLine)
+bool MachineOption::parseOption(const string& option, list<string>& cmdLine)
 {
 	if (parser.haveConfig) {
 		throw FatalError("Only one machine option allowed");
@@ -528,7 +602,7 @@ bool CommandLineParser::MachineOption::parseOption(const string& option,
 	parser.haveConfig = true;
 	return true;
 }
-const string& CommandLineParser::MachineOption::optionHelp() const
+const string& MachineOption::optionHelp() const
 {
 	static const string text("Use machine specified in argument");
 	return text;
@@ -537,13 +611,12 @@ const string& CommandLineParser::MachineOption::optionHelp() const
 
 // Setting Option
 
-CommandLineParser::SettingOption::SettingOption(CommandLineParser& parser_)
+SettingOption::SettingOption(CommandLineParser& parser_)
 	: parser(parser_)
 {
 }
 
-bool CommandLineParser::SettingOption::parseOption(const string &option,
-		list<string> &cmdLine)
+bool SettingOption::parseOption(const string &option, list<string> &cmdLine)
 {
 	if (parser.haveSettings) {
 		throw FatalError("Only one setting option allowed");
@@ -563,7 +636,7 @@ bool CommandLineParser::SettingOption::parseOption(const string &option,
 	return true;
 }
 
-const string& CommandLineParser::SettingOption::optionHelp() const
+const string& SettingOption::optionHelp() const
 {
 	static const string text("Load an alternative settings file");
 	return text;
@@ -572,7 +645,7 @@ const string& CommandLineParser::SettingOption::optionHelp() const
 
 // class NoMMXOption
 
-bool CommandLineParser::NoMMXOption::parseOption(const string& /*option*/,
+bool NoMMXOption::parseOption(const string& /*option*/,
 		list<string>& /*cmdLine*/)
 {
 	cout << "Disabling MMX " << endl;
@@ -580,7 +653,7 @@ bool CommandLineParser::NoMMXOption::parseOption(const string& /*option*/,
 	return true;
 }
 
-const string& CommandLineParser::NoMMXOption::optionHelp() const
+const string& NoMMXOption::optionHelp() const
 {
 	static const string text(
 		"Disables usage of MMX, including extensions (for debugging)");
@@ -590,7 +663,7 @@ const string& CommandLineParser::NoMMXOption::optionHelp() const
 
 // class NoMMXEXTOption
 
-bool CommandLineParser::NoMMXEXTOption::parseOption(const string& /*option*/,
+bool NoMMXEXTOption::parseOption(const string& /*option*/,
 		list<string>& /*cmdLine*/)
 {
 	cout << "Disabling MMX extensions" << endl;
@@ -598,7 +671,7 @@ bool CommandLineParser::NoMMXEXTOption::parseOption(const string& /*option*/,
 	return true;
 }
 
-const string& CommandLineParser::NoMMXEXTOption::optionHelp() const
+const string& NoMMXEXTOption::optionHelp() const
 {
 	static const string text(
 		"Disables usage of MMX extensions (for debugging)");
@@ -606,21 +679,21 @@ const string& CommandLineParser::NoMMXEXTOption::optionHelp() const
 }
 
 
-// TestConfig option
+// class TestConfigOption
 
-CommandLineParser::TestConfigOption::TestConfigOption(CommandLineParser& parser_)
+TestConfigOption::TestConfigOption(CommandLineParser& parser_)
 	: parser(parser_)
 {
 }
 
-bool CommandLineParser::TestConfigOption::parseOption(const string& /*option*/,
+bool TestConfigOption::parseOption(const string& /*option*/,
 		list<string>& /*cmdLine*/)
 {
-	parser.parseStatus = TEST;
+	parser.parseStatus = CommandLineParser::TEST;
 	return true;
 }
 
-const string& CommandLineParser::TestConfigOption::optionHelp() const
+const string& TestConfigOption::optionHelp() const
 {
 	static const string text("Test if the specified config works and exit");
 	return text;
