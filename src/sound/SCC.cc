@@ -96,7 +96,6 @@
 //-----------------------------------------------------------------------------
 
 #include "SCC.hh"
-#include "Mixer.hh"
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
 
@@ -293,7 +292,7 @@ byte SCC::getFreqVol(byte address)
 
 void SCC::writeMemInterface(byte address, byte value, const EmuTime& time)
 {
-	getMixer().updateStream(time);
+	updateStream(time);
 
 	switch (currentChipMode) {
 	case SCC_Real:

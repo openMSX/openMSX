@@ -40,7 +40,6 @@
  */
 
 #include "YMF262.hh"
-#include "Mixer.hh"
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
 #include <cmath>
@@ -1834,7 +1833,7 @@ YMF262::YMF262(MSXMotherBoard& motherBoard, const std::string& name,
 	init_tables();
 
 	reset(time);
-	registerSound(config, Mixer::STEREO);
+	registerSound(config, ChannelMode::STEREO);
 }
 
 YMF262::~YMF262()

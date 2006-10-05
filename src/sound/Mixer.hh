@@ -3,6 +3,7 @@
 #ifndef MIXER_HH
 #define MIXER_HH
 
+#include "ChannelMode.hh"
 #include "Observer.hh"
 #include "noncopyable.hh"
 #include <vector>
@@ -29,9 +30,6 @@ class Mixer : private Observer<Setting>, private noncopyable
 {
 public:
 	static const int MAX_VOLUME = 32767;
-	enum ChannelMode {
-		MONO, MONO_LEFT, MONO_RIGHT, STEREO, OFF, NB_MODES
-	};
 
 	Mixer(Scheduler& scheduler, CommandController& commandController);
 	virtual ~Mixer();
@@ -44,7 +42,8 @@ public:
 	 * After registration the device its updateBuffer() method is
 	 * 'regularly' called (see SoundDevice for more info).
 	 */
-	void registerSound(SoundDevice& device, short volume, ChannelMode mode);
+	void registerSound(SoundDevice& device, short volume,
+	                   ChannelMode::Mode mode);
 
 	/**
 	 * Every sounddevice must unregister before it is destructed
@@ -94,15 +93,15 @@ private:
 	int muteCount;
 
 	struct SoundDeviceInfo {
-		ChannelMode mode;
+		ChannelMode::Mode mode;
 		int normalVolume;
 		IntegerSetting* volumeSetting;
-		EnumSetting<ChannelMode>* modeSetting;
+		EnumSetting<ChannelMode::Mode>* modeSetting;
 	};
 	typedef std::map<SoundDevice*, SoundDeviceInfo> Infos;
 	Infos infos;
 
-	std::vector<SoundDevice*> devices[NB_MODES];
+	std::vector<SoundDevice*> devices[ChannelMode::NB_MODES];
 	std::vector<int*> buffers;
 
 	Scheduler& scheduler;

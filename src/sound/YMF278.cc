@@ -789,7 +789,7 @@ YMF278::YMF278(MSXMotherBoard& motherBoard, const std::string& name, int ramSize
 	endRam = endRom + ramSize;
 
 	reset(time);
-	registerSound(config, Mixer::STEREO);
+	registerSound(config, ChannelMode::STEREO);
 }
 
 YMF278::~YMF278()

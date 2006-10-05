@@ -3,13 +3,16 @@
 #ifndef SOUNDDEVICE_HH
 #define SOUNDDEVICE_HH
 
-#include "Mixer.hh"
+#include "ChannelMode.hh"
 #include "noncopyable.hh"
 #include <string>
 
 namespace openmsx {
 
+class Mixer;
 class XMLElement;
+class EmuTime;
+class EmuDuration;
 
 class SoundDevice : private noncopyable
 {
@@ -71,10 +74,11 @@ protected:
 	 * Call this method when the sound device is ready to start receiving
 	 * calls to updateBuffer, so after all initialisation is done.
 	 * @param config Configuration data for this sound device.
-	 * @param mode Mixer::MONO for a mono device, Mixer::STEREO for stereo.
+	 * @param mode ChannelMode::MONO for a mono device, ChannelMode::STEREO
+	 *             for stereo.
 	 */
 	void registerSound(const XMLElement& config,
-	                   Mixer::ChannelMode mode = Mixer::MONO);
+	                   ChannelMode::Mode mode = ChannelMode::MONO);
 
 	/**
 	 * Unregisters this sound device with the Mixer.
@@ -82,9 +86,14 @@ protected:
 	 */
 	void unregisterSound();
 
-	/** Returns the Mixer associated with this SoundDevice
-	 */
-	Mixer& getMixer() const { return mixer; }
+	/** @see Mixer::updateStream */
+	void updateStream(const EmuTime& time);
+
+	/** @see Mixer::lock */
+	void lock();
+
+	/** @see Mixer::unlock */
+	void unlock();
 
 public: // Will be called by Mixer:
 	/**

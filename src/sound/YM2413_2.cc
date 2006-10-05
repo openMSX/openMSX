@@ -1187,8 +1187,8 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 	reg[r] = v;
 
 	// update the output buffer before changing the register
-	getMixer().updateStream(time);
-	getMixer().lock();
+	updateStream(time);
+	lock();
 
 	switch (r & 0xF0) {
 	case 0x00: {
@@ -1324,7 +1324,7 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 	default:
 		break;
 	}
-	getMixer().unlock();
+	unlock();
 	checkMute();
 }
 

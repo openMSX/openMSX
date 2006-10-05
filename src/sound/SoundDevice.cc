@@ -1,6 +1,7 @@
 // $Id$
 
 #include "SoundDevice.hh"
+#include "Mixer.hh"
 #include "XMLElement.hh"
 #include <cassert>
 
@@ -58,18 +59,18 @@ bool SoundDevice::isMuted() const
 }
 
 void SoundDevice::registerSound(const XMLElement& config,
-                                Mixer::ChannelMode mode)
+                                ChannelMode::Mode mode)
 {
 	const XMLElement& soundConfig = config.getChild("sound");
 	short volume = soundConfig.getChildDataAsInt("volume");
-	if (mode != Mixer::STEREO) {
+	if (mode != ChannelMode::STEREO) {
 		string modeStr = soundConfig.getChildData("mode", "mono");
 		if (modeStr == "left") {
-			mode = Mixer::MONO_LEFT;
+			mode = ChannelMode::MONO_LEFT;
 		} else if (modeStr == "right") {
-			mode = Mixer::MONO_RIGHT;
+			mode = ChannelMode::MONO_RIGHT;
 		} else {
-			mode = Mixer::MONO;
+			mode = ChannelMode::MONO;
 		}
 	}
 	mixer.registerSound(*this, volume, mode);
@@ -78,6 +79,21 @@ void SoundDevice::registerSound(const XMLElement& config,
 void SoundDevice::unregisterSound()
 {
 	mixer.unregisterSound(*this);
+}
+
+void SoundDevice::updateStream(const EmuTime& time)
+{
+	mixer.updateStream(time);
+}
+
+void SoundDevice::lock()
+{
+	mixer.lock();
+}
+
+void SoundDevice::unlock()
+{
+	mixer.unlock();
 }
 
 } // namespace openmsx

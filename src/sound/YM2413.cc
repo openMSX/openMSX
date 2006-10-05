@@ -7,7 +7,6 @@
  */
 
 #include "YM2413.hh"
-#include "Mixer.hh"
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
 #include <cmath>
@@ -1050,8 +1049,8 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 	//PRT_DEBUG("YM2413: write reg "<<(int)regis<<" "<<(int)data);
 
 	// update the output buffer before changing the register
-	getMixer().updateStream(time);
-	getMixer().lock();
+	updateStream(time);
+	lock();
 
 	assert (regis < 0x40);
 	reg[regis] = data;
@@ -1218,7 +1217,7 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 	default:
 		break;
 	}
-	getMixer().unlock();
+	unlock();
 	checkMute();
 }
 

@@ -521,7 +521,7 @@ void Y8950::reset(const EmuTime &time)
 	noiseB_dphase = 0;
 
 	// update the output buffer before changing the register
-	getMixer().updateStream(time);
+	updateStream(time);
 	for (int i = 0; i < 0x100; ++i)
 		reg[i] = 0x00;
 
@@ -892,9 +892,9 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 	//TODO also ADPCM
 	//if (rg>=0x20) {
 		// update the output buffer before changing the register
-		getMixer().updateStream(time);
+		updateStream(time);
 	//}
-	getMixer().lock();
+	lock();
 
 	switch (rg & 0xe0) {
 	case 0x00: {
@@ -1121,14 +1121,14 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 		reg[rg] = data;
 	}
 	}
-	getMixer().unlock();
+	unlock();
 	//TODO only for registers that influence sound
 	checkMute();
 }
 
 byte Y8950::readReg(byte rg, const EmuTime &time)
 {
-	getMixer().updateStream(time); // TODO only when necessary
+	updateStream(time); // TODO only when necessary
 
 	switch (rg) {
 		case 0x0F: // ADPCM-DATA

@@ -12,7 +12,6 @@
 
 #include "AY8910.hh"
 #include "AY8910Periphery.hh"
-#include "Mixer.hh"
 #include "MSXMotherBoard.hh"
 #include "SimpleDebuggable.hh"
 #include "XMLElement.hh"
@@ -458,11 +457,11 @@ void AY8910::writeRegister(byte reg, byte value, const EmuTime& time)
 	assert(reg <= 15);
 	if ((reg < AY_PORTA) && (reg == AY_ESHAPE || regs[reg] != value)) {
 		// Update the output buffer before changing the register.
-		getMixer().updateStream(time);
+		updateStream(time);
 	}
-	getMixer().lock();
+	lock();
 	wrtReg(reg, value, time);
-	getMixer().unlock();
+	unlock();
 }
 void AY8910::wrtReg(byte reg, byte value, const EmuTime& time)
 {

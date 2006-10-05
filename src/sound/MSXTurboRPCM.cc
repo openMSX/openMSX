@@ -3,6 +3,7 @@
 #include "MSXTurboRPCM.hh"
 #include "MSXMotherBoard.hh"
 #include "DACSound8U.hh"
+#include "Mixer.hh"
 
 namespace openmsx {
 

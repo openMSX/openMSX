@@ -180,7 +180,8 @@ void Mixer::openSound()
 }
 
 
-void Mixer::registerSound(SoundDevice& device, short volume, ChannelMode mode)
+void Mixer::registerSound(SoundDevice& device, short volume,
+                          ChannelMode::Mode mode)
 {
 	const string& name = device.getName();
 	SoundDeviceInfo info;
@@ -191,18 +192,18 @@ void Mixer::registerSound(SoundDevice& device, short volume, ChannelMode mode)
 	// we could also choose not to offer any modeSetting in case we have
 	// a stereo mode initially. You can't query the mode then, though.
 	string defaultMode;
-	EnumSetting<ChannelMode>::Map modeMap;
-	if (mode == STEREO) {
+	EnumSetting<ChannelMode::Mode>::Map modeMap;
+	if (mode == ChannelMode::STEREO) {
 		defaultMode = "stereo";
-		modeMap[defaultMode] = STEREO;
+		modeMap[defaultMode] = ChannelMode::STEREO;
 	} else {
 		defaultMode = "mono";
-		modeMap[defaultMode] = MONO;
-		modeMap["left"] = MONO_LEFT;
-		modeMap["right"] = MONO_RIGHT;
+		modeMap[defaultMode] = ChannelMode::MONO;
+		modeMap["left"] = ChannelMode::MONO_LEFT;
+		modeMap["right"] = ChannelMode::MONO_RIGHT;
 	}
-	modeMap["off"] = OFF;
-	info.modeSetting = new EnumSetting<ChannelMode>(commandController,
+	modeMap["off"] = ChannelMode::OFF;
+	info.modeSetting = new EnumSetting<ChannelMode::Mode>(commandController,
 		name + "_mode", "the channel mode of this sound chip",
 		modeMap[defaultMode], modeMap, Setting::DONT_SAVE);
 	info.modeSetting->setValue(mode);
@@ -232,7 +233,7 @@ void Mixer::unregisterSound(SoundDevice& device)
 	lock();
 	delete[] buffers.back();
 	buffers.pop_back();
-	ChannelMode mode = it->second.mode;
+	ChannelMode::Mode mode = it->second.mode;
 	vector<SoundDevice*> &dev = devices[mode];
 	dev.erase(remove(dev.begin(), dev.end(), &device), dev.end());
 	it->second.volumeSetting->detach(*this);
@@ -254,9 +255,9 @@ void Mixer::updateStream(const EmuTime& time)
 void Mixer::generate(short* buffer, unsigned samples,
 	const EmuTime& start, const EmuDuration& sampDur)
 {
-	int modeOffset[NB_MODES];
+	int modeOffset[ChannelMode::NB_MODES];
 	int unmuted = 0;
-	for (int mode = 0; mode < NB_MODES -1; mode++) { // -1 for OFF mode
+	for (int mode = 0; mode < ChannelMode::NB_MODES -1; mode++) { // -1 for OFF mode
 		modeOffset[mode] = unmuted;
 		for (vector<SoundDevice*>::const_iterator it =
 		           devices[mode].begin();
@@ -271,15 +272,15 @@ void Mixer::generate(short* buffer, unsigned samples,
 	for (unsigned j = 0; j < samples; ++j) {
 		int buf = 0;
 		int both = 0;
-		while (buf < modeOffset[MONO+1]) {
+		while (buf < modeOffset[ChannelMode::MONO+1]) {
 			both  += buffers[buf++][j];
 		}
 		int left = both;
-		while (buf < modeOffset[MONO_LEFT+1]) {
+		while (buf < modeOffset[ChannelMode::MONO_LEFT+1]) {
 			left  += buffers[buf++][j];
 		}
 		int right = both;
-		while (buf < modeOffset[MONO_RIGHT+1]) {
+		while (buf < modeOffset[ChannelMode::MONO_RIGHT+1]) {
 			right += buffers[buf++][j];
 		}
 		while (buf < unmuted) {
@@ -485,7 +486,7 @@ void Mixer::update(const Setting& setting)
 			// the alternative: ignore the change of setting and keep logging sound
 		}
 		reopenSound();
-		for (int mode = 0; mode < NB_MODES; ++mode) {
+		for (int mode = 0; mode < ChannelMode::NB_MODES; ++mode) {
 			for (vector<SoundDevice*>::const_iterator it =
 			             devices[mode].begin();
 			     it != devices[mode].end(); ++it) {
@@ -495,7 +496,7 @@ void Mixer::update(const Setting& setting)
 		handlingUpdate = false;
 	} else if (&setting == masterVolume.get()) {
 		updateMasterVolume(masterVolume->getValue());
-	} else if (dynamic_cast<const EnumSetting<ChannelMode>* >(&setting)) {
+	} else if (dynamic_cast<const EnumSetting<ChannelMode::Mode>* >(&setting)) {
 		Infos::iterator it = infos.begin();
 		while (it != infos.end() && it->second.modeSetting != &setting) {
 			++it;
@@ -503,7 +504,7 @@ void Mixer::update(const Setting& setting)
 		assert(it != infos.end());
 		SoundDeviceInfo &info = it->second;
 		lock();
-		ChannelMode oldmode = info.mode;
+		ChannelMode::Mode oldmode = info.mode;
 		info.mode = info.modeSetting->getValue();
 		vector<SoundDevice*> &dev = devices[oldmode];
 		dev.erase(remove(dev.begin(), dev.end(), it->first), dev.end());
