@@ -71,8 +71,12 @@ void CliComm::startInput(const string& option)
 	StringOp::splitOnFirst(option, ":", type_name, arguments);
 
 	auto_ptr<CliConnection> connection;
+	if (type_name == "stdio") {
+		connection.reset(new StdioConnection(
+			commandController, eventDistributor));
+	}
 #ifdef _WIN32
-	if (type_name == "pipe") {
+	else if (type_name == "pipe") {
 		OSVERSIONINFO info;
 		info.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 		GetVersionExA(&info);
@@ -85,10 +89,7 @@ void CliComm::startInput(const string& option)
 		}
 	}
 #endif
-	if (type_name == "stdio") {
-		connection.reset(new StdioConnection(
-			commandController, eventDistributor));
-	} else {
+	else {
 		throw FatalError("Unknown control type: '"  + type_name + "'");
 	}
 
