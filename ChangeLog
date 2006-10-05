@@ -1,5 +1,8 @@
 $Id$
 
+2006-10-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Various changes to reduce #include dependencies
+
 2006-10-04 Joost Damad <joost@lumatec.be>
 	* remove bashisms from build/install-recursive.sh
 	* debian/ updates
