@@ -6,6 +6,7 @@
 #include "EventDistributor.hh"
 #include "LedEvent.hh"
 #include "CommandController.hh"
+#include "ThrottleManager.hh"
 #include "CliComm.hh"
 #include "GlobalSettings.hh"
 #include <bitset>
@@ -153,9 +154,8 @@ RealDrive::RealDrive(CommandController& commandController,
 	, headLoadStatus(false), headLoadTimer(time)
 	, eventDistributor(eventDistributor_)
 	, commandController(commandController)
-	, loadingIndicator(
-		commandController.getGlobalSettings().getThrottleManager()
-		)
+	, loadingIndicator(new LoadingIndicator(
+	         commandController.getGlobalSettings().getThrottleManager()))
 	, timeOut(false)
 {
 	int i = 0;
@@ -331,7 +331,7 @@ void RealDrive::executeUntil(const EmuTime& /*time*/, int /*userData*/)
 
 void RealDrive::updateLoadingState()
 {
-	loadingIndicator.update(motorStatus && (!timeOut));
+	loadingIndicator->update(motorStatus && (!timeOut));
 }
 
 

@@ -43,6 +43,7 @@
 #include "InputEvents.hh"
 #include "FileOperations.hh"
 #include "WavWriter.hh"
+#include "ThrottleManager.hh"
 #include "TclObject.hh"
 #include "checked_cast.hh"
 #include <algorithm>
@@ -133,10 +134,9 @@ CassettePlayer::CassettePlayer(
 	                              scheduler, *this))
 	, playTapeTime(EmuTime::zero)
 	, cliComm(commandController.getCliComm())
-	, loadingIndicator(
-		commandController.getGlobalSettings().getThrottleManager()
-		)
 	, eventDistributor(eventDistributor_)
+	, loadingIndicator(new LoadingIndicator(
+	       commandController.getGlobalSettings().getThrottleManager()))
 {
 	autoRunSetting.reset(new BooleanSetting(commandController,
 		"autoruncassettes", "automatically try to run cassettes", false));
@@ -167,7 +167,7 @@ CassettePlayer::~CassettePlayer()
 
 void CassettePlayer::updateLoadingState()
 {
-	loadingIndicator.update(motor && !casImage.empty());
+	loadingIndicator->update(motor && !casImage.empty());
 }
 
 void CassettePlayer::insertTape(const string& filename, const EmuTime& time)

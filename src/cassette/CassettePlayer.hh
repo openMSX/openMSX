@@ -8,7 +8,6 @@
 #include "CassetteDevice.hh"
 #include "SoundDevice.hh"
 #include "EmuTime.hh"
-#include "ThrottleManager.hh"
 #include <string>
 #include <vector>
 #include <memory>
@@ -23,6 +22,7 @@ class Scheduler;
 class CliComm;
 class WavWriter;
 class ThrottleManager;
+class LoadingIndicator;
 class BooleanSetting;
 class TapeCommand;
 class CommandController;
@@ -122,9 +122,9 @@ private:
 	std::string casImage;
 
 	CliComm& cliComm;
-	LoadingIndicator loadingIndicator;
 	EventDistributor& eventDistributor;
 
+	std::auto_ptr<LoadingIndicator> loadingIndicator;
 	std::auto_ptr<BooleanSetting> autoRunSetting;
 
 	friend class TapeCommand;

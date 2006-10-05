@@ -5,7 +5,6 @@
 
 #include "Clock.hh"
 #include "Schedulable.hh"
-#include "ThrottleManager.hh"
 #include <memory>
 
 namespace openmsx {
@@ -17,6 +16,7 @@ class MSXEventDistributor;
 class Scheduler;
 class FileManipulator;
 class ThrottleManager;
+class LoadingIndicator;
 class EmuTime;
 
 /**
@@ -222,7 +222,7 @@ private:
 	void resetTimeOut(const EmuTime& time);
 	void updateLoadingState();
 	CommandController& commandController;
-	LoadingIndicator loadingIndicator;
+	std::auto_ptr<LoadingIndicator> loadingIndicator;
 	bool timeOut;
 };
 
