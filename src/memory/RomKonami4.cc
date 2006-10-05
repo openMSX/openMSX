@@ -11,7 +11,6 @@
 // other address in a page switches that page as well)
 
 #include "RomKonami4.hh"
-#include "CPU.hh"
 #include "Rom.hh"
 
 namespace openmsx {
