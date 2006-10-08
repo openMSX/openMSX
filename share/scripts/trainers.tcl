@@ -4863,6 +4863,10 @@ proc trainer_thecure {} {
 	poke 0xdd44 0x99
 	#next stage (-1)
 	#poke 0xdd46 1
+	#optional weapon (1 holy water/2 daggers)
+	poke 0xdae5 2
+	#sand of time
+	poke 0xdae4 1
 	after time 1 trainer_thecure	
 }
 
@@ -5993,5 +5997,43 @@ proc trainer_starforce {} {
 	#lives
 	poke 0xe405 100
 	after time 1 trainer_starforce
+}
+
+proc trainer_futureknight {} {
+	#lives
+	poke 0xb4ce 231
+	#weapon (25-dart/23 beam/24 fireball)
+	poke 0x8075 24
+	after time 1 trainer_futureknight
+}
+
+proc trainer_astroblaster {} {
+	#lives
+	poke 0x0575 3
+	after time 1 trainer_astroblaster
+}
+
+proc trainer_galaxian {} {
+	#lives
+	poke 0xe071 9
+	after time 1 trainer_galaxian
+}
+
+proc trainer_donkeykong {} {
+	#lives
+	poke 0x94ed 9
+	after time 1 trainer_donkeykong
+}
+
+proc trainer_exterminator {} {
+	#lives
+	poke 0x4505 58
+	after time 1 trainer_exterminator
+}
+
+proc trainer_theuntouchables {} {
+	#power
+	poke 0x70de 255
+	after time 1 trainer_theuntouchables
 }
 ### EOF ###
