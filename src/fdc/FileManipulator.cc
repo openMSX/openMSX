@@ -364,7 +364,19 @@ void FileManipulator::create(const vector<string>& tokens)
 void FileManipulator::format(DriveSettings& driveData)
 {
 	MSXtar workhorse(getDisk(driveData));
-	workhorse.usePartition(driveData.partition);
+	try {
+		/*bool partitionExists = */workhorse.usePartition(driveData.partition);
+	} catch (MSXException& e) {
+		// ignore, because only the partition selection part is
+		// interesting for the format command, so ignore other
+		// errors (see MSXtar code)
+	}
+	// TODO: check if the partition actually exists (now: use return value)
+	// doesn't work yet, because we can't discern exception error or return
+	// value error... (exception prevents setting of retval)
+	//if (!partitionExists) {
+	//	throw MSXException("The selected partition " + StringOp::toString(driveData.partition) +  " does not exist, can't format");
+	//}
 	workhorse.format();
 	driveData.workingDir[driveData.partition] = "/";
 }

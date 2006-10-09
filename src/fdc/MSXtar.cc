@@ -74,26 +74,59 @@ word MSXtar::sectorToCluster(int sector)
 void MSXtar::parseBootSector(const byte* buf)
 {
 	MSXBootSector* boot = (MSXBootSector*)buf;
-	nbSectors = rdsh(boot->nrsectors);
-	nbSides = rdsh(boot->nrsides);
-	nbFats = boot->nrfats[0];
-	sectorsPerFat = rdsh(boot->sectorsfat);
-	nbRootDirSectors = rdsh(boot->direntries) / 16;
-	sectorsPerCluster = boot->spcluster[0];
-	rootDirStart = 1 + nbFats * sectorsPerFat;
-	MSXchrootSector = rootDirStart;
-	rootDirEnd = rootDirStart + nbRootDirSectors - 1;
-	maxCluster = sectorToCluster(nbSectors);
 
 	//PRT_DEBUG("Bootsector info");
+
+	nbSectors = rdsh(boot->nrsectors);
 	//PRT_DEBUG("nbSectors         :" << nbSectors);
+	if (nbSectors == 0 ) { // TODO: check limits more accurately
+		throw MSXException("Illegal number of sectors: " +
+			StringOp::toString(nbSectors));
+	}
+
+	nbSides = rdsh(boot->nrsides);
 	//PRT_DEBUG("nbSides           :" << nbSides);
+	if (nbSides == 0 ) { // TODO: check limits more accurately
+		throw MSXException("Illegal number of sides: " +
+			StringOp::toString(nbSides));
+	}
+
+	nbFats = boot->nrfats[0];
 	//PRT_DEBUG("nbFats            :" << nbFats);
+	if (nbFats == 0 ) { // TODO: check limits more accurately
+		throw MSXException("Illegal number of FATs: " +
+			StringOp::toString(nbFats));
+	}
+
+	sectorsPerFat = rdsh(boot->sectorsfat);
 	//PRT_DEBUG("sectorsPerFat     :" << sectorsPerFat);
+	if (nbFats == 0 ) { // TODO: check limits more accurately
+		throw MSXException("Illegal number sectors per FAT: " +
+			StringOp::toString(sectorsPerFat));
+	}
+
+	nbRootDirSectors = rdsh(boot->direntries) / 16;
 	//PRT_DEBUG("nbRootDirSectors  :" << nbRootDirSectors);
+	if (nbRootDirSectors == 0 ) { // TODO: check limits more accurately
+		throw MSXException("Illegal number of root dir sectors: " +
+			StringOp::toString(nbRootDirSectors));
+	}
+
+	sectorsPerCluster = boot->spcluster[0];
 	//PRT_DEBUG("sectorsPerCluster :" << sectorsPerCluster);
+	if (sectorsPerCluster == 0 ) { // TODO: check limits more accurately
+		throw MSXException("Illegal number of sectors per cluster: " +
+			StringOp::toString(sectorsPerCluster));
+	}
+
+	rootDirStart = 1 + nbFats * sectorsPerFat;
 	//PRT_DEBUG("rootDirStart      :" << rootDirStart);
+
+	MSXchrootSector = rootDirStart;
+	rootDirEnd = rootDirStart + nbRootDirSectors - 1;
 	//PRT_DEBUG("rootDirEnd        :" << rootDirEnd);
+
+	maxCluster = sectorToCluster(nbSectors);
 	//PRT_DEBUG("maxCluster        :" << maxCluster);
 }
 
@@ -102,7 +135,11 @@ void MSXtar::parseBootSectorFAT(const byte* buf)
 	// empty FAT buffer before filling it again (or for the first time)
 	writeCachedFAT();
 	
-	parseBootSector(buf);
+	try {
+		parseBootSector(buf);
+	} catch (MSXException& e) {
+		throw MSXException("Bad disk image: " + e.getMessage());
+	}
 
 	// cache complete FAT
 	assert(fatBuffer.empty()); // cache must be empty at this point
@@ -272,7 +309,11 @@ void MSXtar::format(unsigned partitionsectorsize)
 	byte sectorbuf[512];
 	memcpy(sectorbuf, defaultBootBlock, SECTOR_SIZE);
 	setBootSector(sectorbuf, partitionsectorsize);
-	parseBootSector(sectorbuf); //set object variables to correct values
+	try {
+		parseBootSector(sectorbuf); //set object variables to correct values
+	} catch (MSXException& e) {
+		throw MSXException("Internal error, invalid defaultBootBlock: " + e.getMessage());
+	}
 	writeLogicalSector(partitionOffset + 0, sectorbuf);
 
 	MSXBootSector* boot = (MSXBootSector*)sectorbuf;
@@ -962,6 +1003,8 @@ bool MSXtar::hasPartition(int partition)
 
 bool MSXtar::usePartition(int partition)
 {
+	// TODO: separate partition selection from boot sector parsing
+	// (format only needs the former, and the latter can throw exceptions)
 	byte buf[SECTOR_SIZE];
 	readLogicalSector(0, buf);
 	if (!isPartitionTableSector(buf)) {
