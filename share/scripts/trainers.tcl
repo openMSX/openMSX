@@ -6036,4 +6036,12 @@ proc trainer_theuntouchables {} {
 	poke 0x70de 255
 	after time 1 trainer_theuntouchables
 }
+
+proc trainer_barunba {} {
+	#energy
+	poke 0x6989 6
+	#shot (experiment with the value 1-4)
+	poke 0x699a 4
+	after time 1 trainer_barunba
+}
 ### EOF ###
