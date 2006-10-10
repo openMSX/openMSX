@@ -28,7 +28,7 @@ SRC_HDR:= \
 	MSXtar \
 	DiskContainer \
 	SectorAccessibleDisk \
-	FileManipulator \
+	DiskManipulator \
 	BootBlocks \
 
 include build/node-end.mk

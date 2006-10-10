@@ -35,7 +35,7 @@ class MSXDeviceSwitch;
 class CassettePortInterface;
 class RenShaTurbo;
 class Display;
-class FileManipulator;
+class DiskManipulator;
 class FilePool;
 class BooleanSetting;
 class EmuTime;
@@ -123,7 +123,7 @@ public:
 	EventDistributor& getEventDistributor();
 	CliComm& getCliComm();
 	Display& getDisplay();
-	FileManipulator& getFileManipulator();
+	DiskManipulator& getDiskManipulator();
 	FilePool& getFilePool();
 
 	/**

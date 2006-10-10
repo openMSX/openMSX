@@ -1,5 +1,8 @@
 $Id$
 
+2006-10-10 Manuel Bilderbeek <manuel@msxnet.org>
+	* Renamed FileManipulator to DiskManipulator (classes/filenames)
+
 2006-10-09 Manuel Bilderbeek <manuel@msxnet.org>
 	* Fix crash when uninitialized disk image was used.
 	  TODO: check limits more accurately (now only checked for 0)

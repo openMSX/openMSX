@@ -14,7 +14,7 @@ namespace openmsx {
 
 class MSXMotherBoard;
 class XMLElement;
-class FileManipulator;
+class DiskManipulator;
 class File;
 class HDCommand;
 
@@ -44,7 +44,7 @@ protected:
 	virtual void executeCommand(byte cmd);
 
 private:
-	FileManipulator& fileManipulator;
+	DiskManipulator& diskManipulator;
 	const std::string name;
 	const std::auto_ptr<HDCommand> hdCommand;
 	std::auto_ptr<File> file;

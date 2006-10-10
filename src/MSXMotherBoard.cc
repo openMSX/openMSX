@@ -409,9 +409,9 @@ Display& MSXMotherBoard::getDisplay()
 	return reactor.getDisplay();
 }
 
-FileManipulator& MSXMotherBoard::getFileManipulator()
+DiskManipulator& MSXMotherBoard::getDiskManipulator()
 {
-	return reactor.getFileManipulator();
+	return reactor.getDiskManipulator();
 }
 
 FilePool& MSXMotherBoard::getFilePool()

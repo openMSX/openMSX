@@ -24,7 +24,7 @@ RealDrive::RealDrive(CommandController& commandController,
                      EventDistributor& eventDistributor_,
                      MSXEventDistributor& msxEventDistributor,
                      Scheduler& scheduler,
-                     FileManipulator& fileManipulator, const EmuTime& time)
+                     DiskManipulator& diskManipulator, const EmuTime& time)
 	: Schedulable(scheduler)
 	, headPos(0), motorStatus(false), motorTimer(time)
 	, headLoadStatus(false), headLoadTimer(time)
@@ -50,7 +50,7 @@ RealDrive::RealDrive(CommandController& commandController,
 		CliComm::HARDWARE, driveName, "add"
 		);
 	changer.reset(new DiskChanger(
-		driveName, commandController, fileManipulator,
+		driveName, commandController, diskManipulator,
 		&msxEventDistributor, &scheduler));
 }
 
@@ -233,10 +233,10 @@ SingleSidedDrive::SingleSidedDrive(
 		EventDistributor& eventDistributor,
 		MSXEventDistributor& msxEventDistributor,
 		Scheduler& scheduler,
-		FileManipulator& fileManipulator,
+		DiskManipulator& diskManipulator,
 		const EmuTime& time)
 	: RealDrive(commandController, eventDistributor,
-	            msxEventDistributor, scheduler, fileManipulator, time)
+	            msxEventDistributor, scheduler, diskManipulator, time)
 {
 }
 
@@ -300,10 +300,10 @@ DoubleSidedDrive::DoubleSidedDrive(
 		EventDistributor& eventDistributor,
 		MSXEventDistributor& msxEventDistributor,
 		Scheduler& scheduler,
-		FileManipulator& fileManipulator,
+		DiskManipulator& diskManipulator,
 		const EmuTime& time)
 	: RealDrive(commandController, eventDistributor, msxEventDistributor,
-	            scheduler, fileManipulator, time)
+	            scheduler, diskManipulator, time)
 {
 	side = 0;
 }

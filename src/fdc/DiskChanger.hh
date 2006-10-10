@@ -15,7 +15,7 @@ namespace openmsx {
 class CommandController;
 class MSXEventDistributor;
 class Scheduler;
-class FileManipulator;
+class DiskManipulator;
 class Disk;
 class DiskCommand;
 class CliComm;
@@ -28,7 +28,7 @@ class DiskChanger : public DiskContainer, private MSXEventListener,
 public:
 	DiskChanger(const std::string& driveName,
 	            CommandController& commandController,
-	            FileManipulator& manipulator,
+	            DiskManipulator& manipulator,
 	            MSXEventDistributor* msxEventDistributor = NULL,
 	            Scheduler* scheduler = NULL);
 	~DiskChanger();
@@ -53,7 +53,7 @@ private:
 	                         const EmuTime& time);
 
 	std::string driveName;
-	FileManipulator& manipulator;
+	DiskManipulator& manipulator;
 	std::auto_ptr<Disk> disk;
 	bool diskChangedFlag;
 

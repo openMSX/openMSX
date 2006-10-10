@@ -7,7 +7,7 @@
 #include "Interpreter.hh"
 #include "CommandConsole.hh"
 #include "InputEventGenerator.hh"
-#include "FileManipulator.hh"
+#include "DiskManipulator.hh"
 #include "FilePool.hh"
 #include "MSXMotherBoard.hh"
 #include "Command.hh"
@@ -143,13 +143,13 @@ IconStatus& Reactor::getIconStatus()
 	return *iconStatus;
 }
 
-FileManipulator& Reactor::getFileManipulator()
+DiskManipulator& Reactor::getDiskManipulator()
 {
-	if (!fileManipulator.get()) {
-		fileManipulator.reset(new FileManipulator(
+	if (!diskManipulator.get()) {
+		diskManipulator.reset(new DiskManipulator(
 			getCommandController()));
 	}
-	return *fileManipulator;
+	return *diskManipulator;
 }
 
 FilePool& Reactor::getFilePool()

@@ -19,7 +19,7 @@ class Display;
 class CommandConsole;
 class IconStatus;
 class InputEventGenerator;
-class FileManipulator;
+class DiskManipulator;
 class FilePool;
 class BooleanSetting;
 class MSXMotherBoard;
@@ -57,7 +57,7 @@ public:
 	Display& getDisplay();
 	CommandConsole& getCommandConsole();
 	IconStatus& getIconStatus();
-	FileManipulator& getFileManipulator();
+	DiskManipulator& getDiskManipulator();
 	FilePool& getFilePool();
 	EnumSetting<int>& getMachineSetting();
 
@@ -103,7 +103,7 @@ private:
 	std::auto_ptr<Display> display;
 	std::auto_ptr<CommandConsole> commandConsole;
 	std::auto_ptr<IconStatus> iconStatus;
-	std::auto_ptr<FileManipulator> fileManipulator;
+	std::auto_ptr<DiskManipulator> diskManipulator;
 	std::auto_ptr<FilePool> filePool;
 
 	BooleanSetting& pauseSetting;

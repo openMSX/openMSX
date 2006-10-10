@@ -29,7 +29,7 @@ MSXFDC::MSXFDC(MSXMotherBoard& motherBoard, const XMLElement& config,
 				getMotherBoard().getEventDistributor(),
 				getMotherBoard().getMSXEventDistributor(),
 				getMotherBoard().getScheduler(),
-				getMotherBoard().getFileManipulator(),
+				getMotherBoard().getDiskManipulator(),
 				time));
 		} else {
 			drives[i].reset(new DoubleSidedDrive(
@@ -37,7 +37,7 @@ MSXFDC::MSXFDC(MSXMotherBoard& motherBoard, const XMLElement& config,
 				getMotherBoard().getEventDistributor(),
 				getMotherBoard().getMSXEventDistributor(),
 				getMotherBoard().getScheduler(),
-				getMotherBoard().getFileManipulator(),
+				getMotherBoard().getDiskManipulator(),
 				time));
 		}
 	}

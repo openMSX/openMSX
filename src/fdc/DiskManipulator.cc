@@ -1,6 +1,6 @@
 // $Id$
 
-#include "FileManipulator.hh"
+#include "DiskManipulator.hh"
 #include "DiskContainer.hh"
 #include "DiskChanger.hh"
 #include "MSXtar.hh"
@@ -23,21 +23,21 @@ using std::vector;
 
 namespace openmsx {
 
-FileManipulator::FileManipulator(CommandController& commandController)
+DiskManipulator::DiskManipulator(CommandController& commandController)
 	: SimpleCommand(commandController, "diskmanipulator")
 {
 	virtualDrive.reset(new DiskChanger("virtual_drive", commandController,
 	                                   *this));
 }
 
-FileManipulator::~FileManipulator()
+DiskManipulator::~DiskManipulator()
 {
 	virtualDrive.reset();
 
 	assert(diskImages.empty()); // all DiskContainers must be unregistered
 }
 
-void FileManipulator::registerDrive(DiskContainer& drive, const string& imageName)
+void DiskManipulator::registerDrive(DiskContainer& drive, const string& imageName)
 {
 	assert(diskImages.find(imageName) == diskImages.end());
 	diskImages[imageName].drive = &drive;
@@ -47,7 +47,7 @@ void FileManipulator::registerDrive(DiskContainer& drive, const string& imageNam
 	}
 }
 
-void FileManipulator::unregisterDrive(DiskContainer& drive, const string& imageName)
+void DiskManipulator::unregisterDrive(DiskContainer& drive, const string& imageName)
 {
 	(void)drive;
 	assert(diskImages.find(imageName) != diskImages.end());
@@ -56,7 +56,7 @@ void FileManipulator::unregisterDrive(DiskContainer& drive, const string& imageN
 }
 
 
-FileManipulator::DriveSettings& FileManipulator::getDriveSettings(
+DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
 	const string& diskname)
 {
 	// first split of the end numbers if present
@@ -79,7 +79,7 @@ FileManipulator::DriveSettings& FileManipulator::getDriveSettings(
 	return it->second;
 }
 
-SectorAccessibleDisk& FileManipulator::getDisk(const DriveSettings& driveData)
+SectorAccessibleDisk& DiskManipulator::getDisk(const DriveSettings& driveData)
 {
 	SectorAccessibleDisk* disk = driveData.drive->getSectorAccessibleDisk();
 	if (!disk) {
@@ -90,7 +90,7 @@ SectorAccessibleDisk& FileManipulator::getDisk(const DriveSettings& driveData)
 }
 
 
-string FileManipulator::execute(const vector<string>& tokens)
+string DiskManipulator::execute(const vector<string>& tokens)
 {
 	string result;
 	if (tokens.size() == 1) {
@@ -153,7 +153,7 @@ string FileManipulator::execute(const vector<string>& tokens)
 	return result;
 }
 
-string FileManipulator::help(const vector<string>& tokens) const
+string DiskManipulator::help(const vector<string>& tokens) const
 {
 	string helptext;
 	if (tokens.size() >= 2) {
@@ -226,7 +226,7 @@ string FileManipulator::help(const vector<string>& tokens) const
 	return helptext;
 }
 
-void FileManipulator::tabCompletion(vector<string>& tokens) const
+void DiskManipulator::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		set<string> cmds;
@@ -282,7 +282,7 @@ void FileManipulator::tabCompletion(vector<string>& tokens) const
 	}
 }
 
-void FileManipulator::savedsk(const DriveSettings& driveData,
+void DiskManipulator::savedsk(const DriveSettings& driveData,
                               const string& filename)
 {
 	SectorAccessibleDisk& disk = getDisk(driveData);
@@ -295,7 +295,7 @@ void FileManipulator::savedsk(const DriveSettings& driveData,
 	}
 }
 
-void FileManipulator::create(const vector<string>& tokens)
+void DiskManipulator::create(const vector<string>& tokens)
 {
 	vector<unsigned> sizes;
 	unsigned totalSectors = 0;
@@ -361,7 +361,7 @@ void FileManipulator::create(const vector<string>& tokens)
 	workhorse.createDiskFile(sizes);
 }
 
-void FileManipulator::format(DriveSettings& driveData)
+void DiskManipulator::format(DriveSettings& driveData)
 {
 	MSXtar workhorse(getDisk(driveData));
 	try {
@@ -381,7 +381,7 @@ void FileManipulator::format(DriveSettings& driveData)
 	driveData.workingDir[driveData.partition] = "/";
 }
 
-void FileManipulator::restoreCWD(MSXtar& workhorse, DriveSettings& driveData)
+void DiskManipulator::restoreCWD(MSXtar& workhorse, DriveSettings& driveData)
 {
 	if (!workhorse.hasPartitionTable()) {
 		workhorse.usePartition(0); //read the bootsector
@@ -401,14 +401,14 @@ void FileManipulator::restoreCWD(MSXtar& workhorse, DriveSettings& driveData)
 	}
 }
 
-void FileManipulator::dir(DriveSettings& driveData, string& result)
+void DiskManipulator::dir(DriveSettings& driveData, string& result)
 {
 	MSXtar workhorse(getDisk(driveData));
 	restoreCWD(workhorse, driveData);
 	result += workhorse.dir();
 }
 
-void FileManipulator::chdir(DriveSettings& driveData,
+void DiskManipulator::chdir(DriveSettings& driveData,
                             const string& filename, string& result)
 {
 	MSXtar workhorse(getDisk(driveData));
@@ -429,7 +429,7 @@ void FileManipulator::chdir(DriveSettings& driveData,
 	result += "New working directory: " + cwd;
 }
 
-void FileManipulator::mkdir(DriveSettings& driveData, const string& filename)
+void DiskManipulator::mkdir(DriveSettings& driveData, const string& filename)
 {
 	MSXtar workhorse(getDisk(driveData));
 	restoreCWD(workhorse, driveData);
@@ -440,7 +440,7 @@ void FileManipulator::mkdir(DriveSettings& driveData, const string& filename)
 	}
 }
 
-string FileManipulator::import(DriveSettings& driveData,
+string DiskManipulator::import(DriveSettings& driveData,
                              const vector<string>& lists)
 {
 	string messages;
@@ -471,7 +471,7 @@ string FileManipulator::import(DriveSettings& driveData,
 	return messages;
 }
 
-void FileManipulator::exprt(DriveSettings& driveData, const string& dirname)
+void DiskManipulator::exprt(DriveSettings& driveData, const string& dirname)
 {
 	try {
 		MSXtar workhorse(getDisk(driveData));

@@ -5,7 +5,7 @@
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "MSXMotherBoard.hh"
-#include "FileManipulator.hh"
+#include "DiskManipulator.hh"
 #include "XMLElement.hh"
 #include "RecordedCommand.hh"
 #include "CommandController.hh"
@@ -53,7 +53,7 @@ static string calcName()
 IDEHD::IDEHD(MSXMotherBoard& motherBoard, const XMLElement& config,
              const EmuTime& time)
 	: AbstractIDEDevice(motherBoard.getEventDistributor(), time)
-	, fileManipulator(motherBoard.getFileManipulator())
+	, diskManipulator(motherBoard.getDiskManipulator())
 	, name(calcName())
 	, hdCommand(new HDCommand(motherBoard.getCommandController(),
 	                          motherBoard.getMSXEventDistributor(),
@@ -69,14 +69,14 @@ IDEHD::IDEHD(MSXMotherBoard& motherBoard, const XMLElement& config,
 		file->truncate(config.getChildDataAsInt("size") * 1024 * 1024);
 	}
 
-	fileManipulator.registerDrive(*this, name);
+	diskManipulator.registerDrive(*this, name);
 	hdInUse[name[2] - 'a'] = true;
 }
 
 IDEHD::~IDEHD()
 {
 	hdInUse[name[2] - 'a'] = false;
-	fileManipulator.unregisterDrive(*this, name);
+	diskManipulator.unregisterDrive(*this, name);
 }
 
 bool IDEHD::isPacketDevice()

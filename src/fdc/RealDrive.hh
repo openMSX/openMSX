@@ -15,7 +15,7 @@ class CommandController;
 class EventDistributor;
 class MSXEventDistributor;
 class Scheduler;
-class FileManipulator;
+class DiskManipulator;
 class ThrottleManager;
 class LoadingIndicator;
 
@@ -32,7 +32,7 @@ public:
 	          EventDistributor& eventDistributor,
 	          MSXEventDistributor& msxEventDistributor,
 	          Scheduler& scheduler,
-	          FileManipulator& fileManipulator,
+	          DiskManipulator& diskManipulator,
 	          const EmuTime& time);
 	virtual ~RealDrive();
 
@@ -91,7 +91,7 @@ public:
 	                 EventDistributor& eventDistributor,
 	                 MSXEventDistributor& msxEventDistributor,
 	                 Scheduler& scheduler,
-	                 FileManipulator& fileManipulator,
+	                 DiskManipulator& diskManipulator,
 	                 const EmuTime& time);
 	virtual bool doubleSided();
 	virtual void setSide(bool side);
@@ -118,7 +118,7 @@ public:
 	                 EventDistributor& eventDistributor,
 	                 MSXEventDistributor& msxEventDistributor,
 	                 Scheduler& scheduler,
-	                 FileManipulator& fileManipulator,
+	                 DiskManipulator& diskManipulator,
 	                 const EmuTime& time);
 	virtual bool doubleSided();
 	virtual void setSide(bool side);

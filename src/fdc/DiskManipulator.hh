@@ -16,11 +16,11 @@ class DiskChanger;
 class SectorAccessibleDisk;
 class MSXtar;
 
-class FileManipulator : public SimpleCommand
+class DiskManipulator : public SimpleCommand
 {
 public:
-	explicit FileManipulator(CommandController& commandController);
-	~FileManipulator();
+	explicit DiskManipulator(CommandController& commandController);
+	~DiskManipulator();
 
 	void registerDrive(DiskContainer& drive, const std::string& imageName);
 	void unregisterDrive(DiskContainer& drive, const std::string& imageName);

@@ -11,7 +11,7 @@
 #include "MSXEventDistributor.hh"
 #include "InputEvents.hh"
 #include "Scheduler.hh"
-#include "FileManipulator.hh"
+#include "DiskManipulator.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "CommandException.hh"
@@ -42,7 +42,7 @@ private:
 
 DiskChanger::DiskChanger(const string& driveName_,
                          CommandController& commandController,
-                         FileManipulator& manipulator_,
+                         DiskManipulator& manipulator_,
                          MSXEventDistributor* msxEventDistributor_,
                          Scheduler* scheduler_)
 	: driveName(driveName_)
