@@ -3,7 +3,6 @@
 #include "CommandController.hh"
 #include "Command.hh"
 #include "InfoTopic.hh"
-#include "CommandConsole.hh"
 #include "File.hh"
 #include "openmsx.hh"
 #include "CliComm.hh"

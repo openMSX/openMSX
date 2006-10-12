@@ -40,6 +40,7 @@ public:
 private:
 	// InterpreterOutput
 	virtual void output(const std::string& text);
+	virtual unsigned getOutputColumns() const;
 
 	static const int LINESHISTORY = 1000;
 

@@ -5,6 +5,7 @@
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "ReadDir.hh"
+#include <algorithm>
 
 using std::vector;
 using std::string;
@@ -36,6 +37,38 @@ static bool equal(const string& s1, const string& s2, bool caseSensitive)
 	} else {
 		return strcasecmp(s1.c_str(), s2.c_str()) == 0;
 	}
+}
+
+static bool formatHelper(const set<string>& input, unsigned columnLimit,
+                         vector<string>& result)
+{
+	unsigned column = 0;
+	set<string>::const_iterator it = input.begin();
+	do {
+		unsigned maxcolumn = column;
+		for (unsigned i = 0; (i < result.size()) && (it != input.end());
+		     ++i, ++it) {
+			result[i].resize(column, ' ');
+			result[i] += *it;
+			maxcolumn = std::max(maxcolumn, result[i].size());
+			if (maxcolumn > columnLimit) return false;
+		}
+		column = maxcolumn + 2;
+	} while (it != input.end());
+	return true;
+}
+
+static vector<string> format(const set<string>& input, unsigned columnLimit)
+{
+	vector<string> result;
+	for (unsigned lines = 1; lines < input.size(); ++lines) {
+		result.assign(lines, string());
+		if (formatHelper(input, columnLimit, result)) {
+			return result;
+		}
+	}
+	result.assign(input.begin(), input.end());
+	return result;
 }
 
 bool Completer::completeString2(string &str, set<string>& st,
@@ -82,8 +115,9 @@ bool Completer::completeString2(string &str, set<string>& st,
 	out:
 	if (!expanded && output) {
 		// print all possibilities
-		for (it = st.begin(); it != st.end(); ++it) {
-			// TODO print more on one line
+		vector<string> lines = format(st, output->getOutputColumns() - 1);
+		for (vector<string>::const_iterator it = lines.begin();
+		     it != lines.end(); ++it) {
 			output->output(*it);
 		}
 	}

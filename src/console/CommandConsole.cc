@@ -220,6 +220,11 @@ void CommandConsole::output(const std::string& text)
 	print(text);
 }
 
+unsigned CommandConsole::getOutputColumns() const
+{
+	return getColumns();
+}
+
 void CommandConsole::print(string text)
 {
 	if (text.empty() || (text[text.size() - 1] != '\n')) text += '\n';

@@ -12,6 +12,7 @@ class InterpreterOutput
 public:
 	virtual ~InterpreterOutput() {}
 	virtual void output(const std::string& text) = 0;
+	virtual unsigned getOutputColumns() const = 0;
 };
 
 } // namespace openmsx
