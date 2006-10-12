@@ -277,6 +277,14 @@ DEPEND_FULL:=$(addsuffix .d,$(addprefix $(DEPEND_PATH)/,$(SOURCES)))
 OBJECTS_PATH:=$(BUILD_PATH)/obj
 OBJECTS_FULL:=$(addsuffix .o,$(addprefix $(OBJECTS_PATH)/,$(SOURCES)))
 
+ifeq ($(OPENMSX_TARGET_OS),mingw32)
+RESOURCE_SRC:=src/resource/openmsx.rc
+RESOURCE_OBJ:=$(OBJECTS_PATH)/resources.o
+RESOURCE_HEADER:=$(CONFIG_PATH)/resource-info.h
+else
+RESOURCE_OBJ:=
+endif
+
 
 # Compiler and Flags
 # ==================
@@ -484,8 +492,22 @@ $(OBJECTS_FULL): $(OBJECTS_PATH)/%.o: $(SOURCES_PATH)/%.cc $(DEPEND_PATH)/%.d
 # in normal operation this rule is never triggered.
 $(DEPEND_FULL):
 
+# Win32 resources that are added to the executable.
+ifeq ($(OPENMSX_TARGET_OS),mingw32)
+WIN32_FILEVERSION:=$(shell echo $(PACKAGE_VERSION) $(CHANGELOG_REVISION) | sed -ne 's/\([0-9]\)*\.\([0-9]\)*\.\([0-9]\)*[^ ]* \([0-9]*\)/\1, \2, \3, \4/p' -)
+$(RESOURCE_HEADER): $(INIT_DUMMY_FILE) ChangeLog $(MAKE_PATH)/version.mk
+	@echo "Writing resource header..."
+	@mkdir -p $(@D)
+	@echo "#define OPENMSX_VERSION_INT $(WIN32_FILEVERSION)" > $@
+	@echo "#define OPENMSX_VERSION_STR \"$(PACKAGE_VERSION)\0\"" >> $@
+$(RESOURCE_OBJ): $(RESOURCE_SRC) $(RESOURCE_HEADER)
+	@echo "Compiling resources..."
+	@mkdir -p $(@D)
+	@windres $(addprefix --include-dir=,$(^D)) -o $@ -i $<
+endif
+
 # Link executable.
-$(BINARY_FULL): $(OBJECTS_FULL)
+$(BINARY_FULL): $(OBJECTS_FULL) $(RESOURCE_OBJ)
 ifeq ($(OPENMSX_SUBSET),)
 	@echo "Linking $(notdir $@)..."
 	@mkdir -p $(@D)

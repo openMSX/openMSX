@@ -1,5 +1,10 @@
 $Id$
 
+2006-10-12 Maarten ter Huurne <maarten@treewalker.org>
+	* Integrated Windows resource support:
+	  stores icon and version info in the executable
+	  patch was made by Albert and Manuel, based on wx Catapult build
+
 2006-10-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Preparation to separate command registration from CommandController
 	  (is itself a preparation to allow multiple machines in memory):
