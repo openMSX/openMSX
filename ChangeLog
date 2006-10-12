@@ -1,5 +1,10 @@
 $Id$
 
+2006-10-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Preparation to separate command registration from CommandController
+	  (is itself a preparation to allow multiple machines in memory):
+	   - moved tabcompletion code from CommandController to Completer
+
 2006-10-10 Manuel Bilderbeek <manuel@msxnet.org>
 	* Renamed FileManipulator to DiskManipulator (classes/filenames)
 

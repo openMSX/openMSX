@@ -9,6 +9,7 @@
 #include "InfoCommand.hh"
 #include "TclObject.hh"
 #include "CommandException.hh"
+#include "Completer.hh"
 #include "StringOp.hh"
 #include <map>
 #include <set>
@@ -129,7 +130,7 @@ void EnumSettingPolicy<T>::tabCompletion(std::vector<std::string>& tokens) const
 {
 	std::set<std::string> stringSet;
 	getPossibleValues(stringSet);
-	this->getCommandController().completeString(tokens, stringSet, false); // case insensitive
+	Completer::completeString(tokens, stringSet, false); // case insensitive
 }
 
 template<typename T>

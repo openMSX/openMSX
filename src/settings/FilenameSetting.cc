@@ -1,7 +1,7 @@
 // $Id$
 
 #include "FilenameSetting.hh"
-#include "CommandController.hh"
+#include "Completer.hh"
 #include "FileContext.hh"
 
 namespace openmsx {
@@ -14,7 +14,7 @@ FilenameSettingPolicy::FilenameSettingPolicy(CommandController& commandControlle
 void FilenameSettingPolicy::tabCompletion(std::vector<std::string>& tokens) const
 {
 	SystemFileContext context;
-	getCommandController().completeFileName(tokens, context);
+	Completer::completeFileName(tokens, context);
 }
 
 std::string FilenameSettingPolicy::getTypeString() const

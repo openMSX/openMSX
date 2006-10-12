@@ -10,6 +10,7 @@
 namespace openmsx {
 
 class TclObject;
+class CommandController;
 
 class InfoTopic : public Completer
 {
@@ -42,6 +43,9 @@ public:
 protected:
 	InfoTopic(CommandController& commandController, const std::string& name);
 	virtual ~InfoTopic();
+
+private:
+	CommandController& commandController;
 };
 
 } // namespace openmsx

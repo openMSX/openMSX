@@ -8,6 +8,7 @@
 #include "CommandController.hh"
 #include "CommandException.hh"
 #include "File.hh"
+#include "FileContext.hh"
 #include "FileException.hh"
 #include "FileOperations.hh"
 #include "SectorBasedDisk.hh"
@@ -241,7 +242,8 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 		completeString(tokens, cmds);
 
 	} else if ((tokens.size() == 3) && (tokens[1] == "create")) {
-		completeFileName(tokens);
+		UserFileContext context(getCommandController());
+		completeFileName(tokens, context);
 
 	} else if (tokens.size() == 3) {
 		set<string> names;
@@ -271,7 +273,8 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 		if ((tokens[1] == "savedsk") ||
 		    (tokens[1] == "import")  ||
 		    (tokens[1] == "export")) {
-			completeFileName(tokens);
+			UserFileContext context(getCommandController());
+			completeFileName(tokens, context);
 		} else if (tokens[1] == "create") {
 			set<string> cmds;
 			cmds.insert("360");

@@ -363,7 +363,8 @@ string CDXCommand::help(const vector<string>& /*tokens*/) const
 
 void CDXCommand::tabCompletion(vector<string>& tokens) const
 {
-	completeFileName(tokens);
+	UserFileContext context(getCommandController());
+	completeFileName(tokens, context);
 }
 
 } // namespace openmsx

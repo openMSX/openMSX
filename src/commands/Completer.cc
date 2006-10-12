@@ -1,7 +1,10 @@
 // $Id$
 
 #include "Completer.hh"
-#include "CommandController.hh"
+#include "InterpreterOutput.hh"
+#include "FileContext.hh"
+#include "FileOperations.hh"
+#include "ReadDir.hh"
 
 using std::vector;
 using std::string;
@@ -9,10 +12,11 @@ using std::set;
 
 namespace openmsx {
 
-Completer::Completer(CommandController& commandController_,
-                     const string& name_)
-	: commandController(commandController_)
-	, name(name_)
+InterpreterOutput* Completer::output = 0;
+
+
+Completer::Completer(const string& name_)
+	: name(name_)
 {
 }
 
@@ -20,32 +24,128 @@ Completer::~Completer()
 {
 }
 
-CommandController& Completer::getCommandController() const
-{
-	return commandController;
-}
-
 const string& Completer::getName() const
 {
 	return name;
 }
 
-void Completer::completeString(
-	vector<string>& tokens, set<string>& set, bool caseSensitive) const
+static bool equal(const string& s1, const string& s2, bool caseSensitive)
 {
-	commandController.completeString(tokens, set, caseSensitive);
+	if (caseSensitive) {
+		return s1 == s2;
+	} else {
+		return strcasecmp(s1.c_str(), s2.c_str()) == 0;
+	}
 }
 
-void Completer::completeFileName(vector<string>& tokens) const
+bool Completer::completeString2(string &str, set<string>& st,
+                                bool caseSensitive)
 {
-	commandController.completeFileName(tokens);
+	set<string>::iterator it = st.begin();
+	while (it != st.end()) {
+		if (equal(str, (*it).substr(0, str.size()), caseSensitive)) {
+			++it;
+		} else {
+			set<string>::iterator it2 = it;
+			++it;
+			st.erase(it2);
+		}
+	}
+	if (st.empty()) {
+		// no matching commands
+		return false;
+	}
+	if (st.size() == 1) {
+		// only one match
+		str = *(st.begin());
+		return true;
+	}
+	bool expanded = false;
+	while (true) {
+		it = st.begin();
+		if (equal(str, *it, caseSensitive)) {
+			// match is as long as first word
+			goto out;	// TODO rewrite this
+		}
+		// expand with one char and check all strings
+		string string2 = (*it).substr(0, str.size() + 1);
+		for (;  it != st.end(); it++) {
+			if (!equal(string2, (*it).substr(0, string2.size()),
+				   caseSensitive)) {
+				goto out;	// TODO rewrite this
+			}
+		}
+		// no conflict found
+		str = string2;
+		expanded = true;
+	}
+	out:
+	if (!expanded && output) {
+		// print all possibilities
+		for (it = st.begin(); it != st.end(); ++it) {
+			// TODO print more on one line
+			output->output(*it);
+		}
+	}
+	return false;
 }
 
-void Completer::completeFileName(
-	vector<string>& tokens, const FileContext& context,
-	const set<string>& extra) const
+void Completer::completeString(vector<string>& tokens, set<string>& st,
+                               bool caseSensitive)
 {
-	commandController.completeFileName(tokens, context, extra);
+	if (completeString2(tokens.back(), st, caseSensitive)) {
+		tokens.push_back("");
+	}
+}
+
+void Completer::completeFileName(vector<string>& tokens,
+                                 const FileContext& context)
+{
+	set<string> empty;
+	completeFileName(tokens, context, empty);
+}
+
+void Completer::completeFileName(vector<string>& tokens,
+                                 const FileContext& context,
+                                 const set<string>& extra)
+{
+	vector<string> paths(context.getPaths());
+
+	string& filename = tokens[tokens.size() - 1];
+	filename = FileOperations::expandTilde(filename);
+	filename = FileOperations::expandCurrentDirFromDrive(filename);
+	string basename = FileOperations::getBaseName(filename);
+	if (FileOperations::isAbsolutePath(filename)) {
+		paths.push_back("");
+	}
+
+	set<string> filenames(extra);
+	for (vector<string>::const_iterator it = paths.begin();
+	     it != paths.end();
+	     ++it) {
+		string dirname = *it + basename;
+		ReadDir dir(FileOperations::getNativePath(dirname));
+		while (dirent* de = dir.getEntry()) {
+			string name = dirname + de->d_name;
+			if (FileOperations::exists(name)) {
+				string nm = basename + de->d_name;
+				if (FileOperations::isDirectory(name)) {
+					nm += '/';
+				}
+				filenames.insert(FileOperations::getConventionalPath(nm));
+			}
+		}
+	}
+	bool t = completeString2(filename, filenames, true);
+	if (t && !filename.empty() && filename[filename.size() - 1] != '/') {
+		// completed filename, start new token
+		tokens.push_back("");
+	}
+}
+
+void Completer::setOutput(InterpreterOutput* output_)
+{
+	output = output_;
 }
 
 } // namespace openmsx

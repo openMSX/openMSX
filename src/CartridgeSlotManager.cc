@@ -6,6 +6,7 @@
 #include "RecordedCommand.hh"
 #include "CommandException.hh"
 #include "CommandController.hh"
+#include "FileContext.hh"
 #include "TclObject.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
@@ -290,7 +291,8 @@ string CartCmd::help(const vector<string>& /*tokens*/) const
 
 void CartCmd::tabCompletion(vector<string>& tokens) const
 {
-	completeFileName(tokens);
+	UserFileContext context(getCommandController());
+	completeFileName(tokens, context);
 }
 
 } // namespace openmsx

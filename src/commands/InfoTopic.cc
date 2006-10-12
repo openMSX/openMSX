@@ -9,15 +9,16 @@ using std::vector;
 
 namespace openmsx {
 
-InfoTopic::InfoTopic(CommandController& commandController, const string& name)
-	: Completer(commandController, name)
+InfoTopic::InfoTopic(CommandController& commandController_, const string& name)
+	: Completer(name)
+	, commandController(commandController_)
 {
-	getCommandController().getInfoCommand().registerTopic(*this, getName());
+	commandController.getInfoCommand().registerTopic(*this, getName());
 }
 
 InfoTopic::~InfoTopic()
 {
-	getCommandController().getInfoCommand().unregisterTopic(*this, getName());
+	commandController.getInfoCommand().unregisterTopic(*this, getName());
 }
 
 void InfoTopic::tabCompletion(vector<string>& /*tokens*/) const

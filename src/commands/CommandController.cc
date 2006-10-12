@@ -4,17 +4,15 @@
 #include "Command.hh"
 #include "InfoTopic.hh"
 #include "CommandConsole.hh"
-#include "FileOperations.hh"
-#include "FileContext.hh"
 #include "File.hh"
 #include "openmsx.hh"
 #include "CliComm.hh"
 #include "HotKey.hh"
 #include "Interpreter.hh"
 #include "InfoCommand.hh"
-#include "ReadDir.hh"
 #include "CommandException.hh"
 #include "SettingsConfig.hh"
+#include "SettingsManager.hh"
 #include "GlobalSettings.hh"
 #include "RomInfoTopic.hh"
 #include "TclObject.hh"
@@ -61,8 +59,7 @@ public:
 
 
 CommandController::CommandController(EventDistributor& eventDistributor_)
-	: cmdConsole(NULL)
-	, cliComm(NULL)
+	: cliComm(NULL)
 	, connection(NULL)
 	, eventDistributor(eventDistributor_)
 	, infoCommand(new InfoCommand(*this))
@@ -77,7 +74,6 @@ CommandController::~CommandController()
 {
 	//assert(commands.empty());            // TODO
 	//assert(commandCompleters.empty());   // TODO
-	assert(!cmdConsole);
 }
 
 void CommandController::setCliComm(CliComm* cliComm_)
@@ -168,6 +164,20 @@ void CommandController::unregisterCompleter(CommandCompleter& completer,
 	commandCompleters.erase(str);
 }
 
+void CommandController::registerSetting(Setting& setting)
+{
+	getSettingsConfig().getSettingsManager().registerSetting(setting);
+}
+
+void CommandController::unregisterSetting(Setting& setting)
+{
+	getSettingsConfig().getSettingsManager().unregisterSetting(setting);
+}
+
+string CommandController::makeUniqueSettingName(const string& name)
+{
+	return getSettingsConfig().getSettingsManager().makeUnique(name);
+}
 
 bool CommandController::hasCommand(const string& command)
 {
@@ -332,11 +342,6 @@ void CommandController::source(const string& script)
 	}
 }
 
-void CommandController::setCommandConsole(CommandConsole* console)
-{
-	cmdConsole = console;
-}
-
 void CommandController::tabCompletion(string& command)
 {
 	// split in sub commands
@@ -389,7 +394,7 @@ void CommandController::tabCompletion(vector<string>& tokens)
 		// build a list of all command strings
 		set<string> cmds;
 		getInterpreter().getCommandNames(cmds);
-		completeString(tokens, cmds);
+		Completer::completeString(tokens, cmds);
 	} else {
 		CompleterMap::const_iterator it = commandCompleters.find(tokens.front());
 		if (it != commandCompleters.end()) {
@@ -403,134 +408,13 @@ void CommandController::tabCompletion(vector<string>& tokens)
 				vector<string> split;
 				getInterpreter().splitList(result, split);
 				set<string> completions(split.begin(), split.end());
-				completeString(tokens, completions);
+				Completer::completeString(tokens, completions);
 			} catch (CommandException& e) {
 				cliComm->printWarning(
 					"Error while executing tab-completion "
 					"proc: " + e.getMessage());
 			}
 		}
-	}
-}
-
-static bool equal(const string& s1, const string& s2, bool caseSensitive)
-{
-	if (caseSensitive) {
-		return s1 == s2;
-	} else {
-		return strcasecmp(s1.c_str(), s2.c_str()) == 0;
-	}
-}
-
-bool CommandController::completeString2(string &str, set<string>& st,
-                                        bool caseSensitive)
-{
-	assert(cmdConsole);
-	set<string>::iterator it = st.begin();
-	while (it != st.end()) {
-		if (equal(str, (*it).substr(0, str.size()), caseSensitive)) {
-			++it;
-		} else {
-			set<string>::iterator it2 = it;
-			++it;
-			st.erase(it2);
-		}
-	}
-	if (st.empty()) {
-		// no matching commands
-		return false;
-	}
-	if (st.size() == 1) {
-		// only one match
-		str = *(st.begin());
-		return true;
-	}
-	bool expanded = false;
-	while (true) {
-		it = st.begin();
-		if (equal(str, *it, caseSensitive)) {
-			// match is as long as first word
-			goto out;	// TODO rewrite this
-		}
-		// expand with one char and check all strings
-		string string2 = (*it).substr(0, str.size() + 1);
-		for (;  it != st.end(); it++) {
-			if (!equal(string2, (*it).substr(0, string2.size()),
-				   caseSensitive)) {
-				goto out;	// TODO rewrite this
-			}
-		}
-		// no conflict found
-		str = string2;
-		expanded = true;
-	}
-	out:
-	if (!expanded) {
-		// print all possibilities
-		for (it = st.begin(); it != st.end(); ++it) {
-			// TODO print more on one line
-			cmdConsole->print(*it);
-		}
-	}
-	return false;
-}
-void CommandController::completeString(vector<string>& tokens,
-                                       set<string>& st,
-                                       bool caseSensitive)
-{
-	if (completeString2(tokens.back(), st, caseSensitive)) {
-		tokens.push_back("");
-	}
-}
-
-void CommandController::completeFileName(vector<string>& tokens)
-{
-	UserFileContext context(*this);
-	completeFileName(tokens, context);
-}
-
-void CommandController::completeFileName(vector<string>& tokens,
-                                         const FileContext& context)
-{
-	set<string> empty;
-	completeFileName(tokens, context, empty);
-}
-
-void CommandController::completeFileName(vector<string>& tokens,
-                                         const FileContext& context,
-                                         const set<string>& extra)
-{
-	vector<string> paths(context.getPaths());
-
-	string& filename = tokens[tokens.size() - 1];
-	filename = FileOperations::expandTilde(filename);
-	filename = FileOperations::expandCurrentDirFromDrive(filename);
-	string basename = FileOperations::getBaseName(filename);
-	if (FileOperations::isAbsolutePath(filename)) {
-		paths.push_back("");
-	}
-
-	set<string> filenames(extra);
-	for (vector<string>::const_iterator it = paths.begin();
-	     it != paths.end();
-	     ++it) {
-		string dirname = *it + basename;
-		ReadDir dir(FileOperations::getNativePath(dirname));
-		while (dirent* de = dir.getEntry()) {
-			string name = dirname + de->d_name;
-			if (FileOperations::exists(name)) {
-				string nm = basename + de->d_name;
-				if (FileOperations::isDirectory(name)) {
-					nm += '/';
-				}
-				filenames.insert(FileOperations::getConventionalPath(nm));
-			}
-		}
-	}
-	bool t = completeString2(filename, filenames, true);
-	if (t && !filename.empty() && filename[filename.size() - 1] != '/') {
-		// completed filename, start new token
-		tokens.push_back("");
 	}
 }
 

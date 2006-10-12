@@ -3,6 +3,7 @@
 #include "CommandConsole.hh"
 #include "CommandException.hh"
 #include "CommandController.hh"
+#include "Completer.hh"
 #include "Interpreter.hh"
 #include "Keys.hh"
 #include "FileContext.hh"
@@ -55,7 +56,7 @@ CommandConsole::CommandConsole(
 			"removedoubles", removeDoubles);
 	}
 	loadHistory();
-	commandController.setCommandConsole(this);
+	Completer::setOutput(this);
 
 	commandController.getInterpreter().setOutput(this);
 	eventDistributor.registerEventListener(
@@ -66,7 +67,7 @@ CommandConsole::~CommandConsole()
 {
 	eventDistributor.unregisterEventListener(OPENMSX_KEY_DOWN_EVENT, *this);
 	commandController.getInterpreter().setOutput(NULL);
-	commandController.setCommandConsole(NULL);
+	Completer::setOutput(NULL);
 	saveHistory();
 }
 

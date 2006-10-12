@@ -148,7 +148,8 @@ string SaveSettingsCommand::help(const vector<string>& /*tokens*/) const
 void SaveSettingsCommand::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		completeFileName(tokens);
+		SystemFileContext context;
+		completeFileName(tokens, context);
 	}
 }
 
@@ -181,7 +182,8 @@ string LoadSettingsCommand::help(const vector<string>& /*tokens*/) const
 void LoadSettingsCommand::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		completeFileName(tokens);
+		SystemFileContext context;
+		completeFileName(tokens, context);
 	}
 }
 

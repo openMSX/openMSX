@@ -18,6 +18,11 @@ protected:
 	CommandCompleter(CommandController& commandController,
 	                 const std::string& name);
 	virtual ~CommandCompleter();
+
+	CommandController& getCommandController() const;
+
+private:
+	CommandController& commandController;
 };
 
 

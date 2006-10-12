@@ -171,8 +171,7 @@ nibble MusicModulePeriphery::read(const EmuTime& /*time*/)
 static string generateName(CommandController& controller)
 {
 	// TODO better name?
-	return controller.getSettingsConfig().getSettingsManager().
-	                                 makeUnique("PanasonicAudioSwitch");
+	return controller.makeUniqueSettingName("PanasonicAudioSwitch");
 }
 
 PanasonicAudioPeriphery::PanasonicAudioPeriphery(

@@ -13,7 +13,8 @@ SRC_HDR:= \
 	TclObject \
 
 HDR_ONLY:= \
-	InterpreterOutput
+	InterpreterOutput \
+	CommandRegistry
 
 include build/node-end.mk
 

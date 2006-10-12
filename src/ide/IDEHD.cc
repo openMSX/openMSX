@@ -247,7 +247,8 @@ string HDCommand::help(const vector<string>& /*tokens*/) const
 
 void HDCommand::tabCompletion(vector<string>& tokens) const
 {
-	completeFileName(tokens);
+	UserFileContext context(getCommandController());
+	completeFileName(tokens, context);
 }
 
 } // namespace openmsx

@@ -11,9 +11,10 @@ namespace openmsx {
 
 // class CommandCompleter
 
-CommandCompleter::CommandCompleter(CommandController& commandController,
+CommandCompleter::CommandCompleter(CommandController& commandController_,
                                    const string& name)
-	: Completer(commandController, name)
+	: Completer(name)
+	, commandController(commandController_)
 {
 	getCommandController().registerCompleter(*this, getName());
 }
@@ -21,6 +22,11 @@ CommandCompleter::CommandCompleter(CommandController& commandController,
 CommandCompleter::~CommandCompleter()
 {
 	getCommandController().unregisterCompleter(*this, getName());
+}
+
+CommandController& CommandCompleter::getCommandController() const
+{
+	return commandController;
 }
 
 

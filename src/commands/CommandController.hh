@@ -3,10 +3,10 @@
 #ifndef COMMANDCONTROLLER_HH
 #define COMMANDCONTROLLER_HH
 
+#include "CommandRegistry.hh"
 #include "noncopyable.hh"
 #include <string>
 #include <map>
-#include <set>
 #include <vector>
 #include <memory>
 
@@ -15,9 +15,6 @@ namespace openmsx {
 class EventDistributor;
 class CliComm;
 class CliConnection;
-class CommandConsole;
-class Command;
-class CommandCompleter;
 class HotKey;
 class InfoCommand;
 class Interpreter;
@@ -29,7 +26,7 @@ class TabCompletionCmd;
 class VersionInfo;
 class RomInfoTopic;
 
-class CommandController : private noncopyable
+class CommandController : public CommandRegistry, private noncopyable
 {
 public:
 	explicit CommandController(EventDistributor& eventDistributor);
@@ -45,23 +42,6 @@ public:
 	GlobalSettings& getGlobalSettings();
 
 	CliConnection* getConnection() const;
-
-	/**
-	 * (Un)register a command
-	 */
-	void   registerCommand(Command& command, const std::string& str);
-	void unregisterCommand(Command& command, const std::string& str);
-
-	/**
-	 * (Un)register a command completer, used to complete build-in TCL cmds
-	 */
-	void   registerCompleter(CommandCompleter& completer, const std::string& str);
-	void unregisterCompleter(CommandCompleter& completer, const std::string& str);
-
-	/**
-	 * Does a command with this name already exist?
-	 */
-	bool hasCommand(const std::string& command);
 
 	/**
 	 * Executes all defined auto commands
@@ -85,21 +65,19 @@ public:
 	 */
 	void tabCompletion(std::string& command);
 
-	/**
-	 * TODO
-	 */
-	void completeString(std::vector<std::string>& tokens,
-	                    std::set<std::string>& set,
-	                    bool caseSensitive = true);
-	void completeFileName(std::vector<std::string>& tokens);
-	void completeFileName(std::vector<std::string>& tokens,
-	                      const FileContext& context);
-	void completeFileName(std::vector<std::string>& tokens,
-	                      const FileContext& context,
-	                      const std::set<std::string>& extra);
-
-	// should only be called by CommandConsole
-	void setCommandConsole(CommandConsole* console);
+	// CommandRegistry
+	virtual void   registerCompleter(CommandCompleter& completer,
+	                                 const std::string& str);
+	virtual void unregisterCompleter(CommandCompleter& completer,
+	                                 const std::string& str);
+	virtual void   registerCommand(Command& command,
+	                               const std::string& str);
+	virtual void unregisterCommand(Command& command,
+	                               const std::string& str);
+	virtual bool hasCommand(const std::string& command);
+	virtual void registerSetting(Setting& setting);
+	virtual void unregisterSetting(Setting& setting);
+	virtual std::string makeUniqueSettingName(const std::string& name);
 
 private:
 	void split(const std::string& str,
@@ -111,15 +89,12 @@ private:
 	std::string addEscaping(const std::string& str, bool quote, bool finished);
 
 	void tabCompletion(std::vector<std::string>& tokens);
-	bool completeString2(std::string& str, std::set<std::string>& set,
-	                     bool caseSensitive);
 
 	typedef std::map<std::string, Command*> CommandMap;
 	typedef std::map<std::string, CommandCompleter*> CompleterMap;
 	CommandMap commands;
 	CompleterMap commandCompleters;
 
-	CommandConsole* cmdConsole;
 	CliComm* cliComm;
 	CliConnection* connection;
 

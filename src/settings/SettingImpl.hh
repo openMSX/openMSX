@@ -3,7 +3,6 @@
 #ifndef SETTING_HH
 #define SETTING_HH
 
-#include "SettingsManager.hh"
 #include "Setting.hh"
 #include "SettingsConfig.hh"
 #include "MSXException.hh"
@@ -122,7 +121,8 @@ SettingImpl<POLICY>::SettingImpl(
 template<typename POLICY>
 void SettingImpl<POLICY>::init()
 {
-	SettingsConfig& settingsConfig = Setting::getCommandController().getSettingsConfig();
+	CommandController& commandController = Setting::getCommandController();
+	SettingsConfig& settingsConfig = commandController.getSettingsConfig();
 	if (needLoadSave()) {
 		const XMLElement* config = settingsConfig.findChild("settings");
 		if (config) {
@@ -137,15 +137,16 @@ void SettingImpl<POLICY>::init()
 			}
 		}
 	}
-	settingsConfig.getSettingsManager().registerSetting(*this);
+	commandController.registerSetting(*this);
 }
 
 template<typename POLICY>
 SettingImpl<POLICY>::~SettingImpl()
 {
-	SettingsConfig& settingsConfig = Setting::getCommandController().getSettingsConfig();
+	CommandController& commandController = Setting::getCommandController();
+	SettingsConfig& settingsConfig = commandController.getSettingsConfig();
 	sync(settingsConfig);
-	settingsConfig.getSettingsManager().unregisterSetting(*this);
+	commandController.unregisterSetting(*this);
 }
 
 template<typename POLICY>
