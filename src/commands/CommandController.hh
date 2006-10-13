@@ -36,7 +36,8 @@ public:
 
 	CliComm& getCliComm();
 	Interpreter& getInterpreter();
-	InfoCommand& getInfoCommand();
+	InfoCommand& getOpenMSXInfoCommand();
+	InfoCommand& getMachineInfoCommand();
 	HotKey& getHotKey();
 	SettingsConfig& getSettingsConfig();
 	GlobalSettings& getGlobalSettings();
@@ -78,6 +79,7 @@ public:
 	virtual void registerSetting(Setting& setting);
 	virtual void unregisterSetting(Setting& setting);
 	virtual std::string makeUniqueSettingName(const std::string& name);
+	virtual CommandController& getCommandController();
 
 private:
 	void split(const std::string& str,
@@ -101,7 +103,8 @@ private:
 	EventDistributor& eventDistributor;
 
 	std::auto_ptr<Interpreter> interpreter;
-	std::auto_ptr<InfoCommand> infoCommand;
+	std::auto_ptr<InfoCommand> openMSXInfoCommand;
+	std::auto_ptr<InfoCommand> machineInfoCommand;
 	std::auto_ptr<HotKey> hotKey;
 	std::auto_ptr<SettingsConfig> settingsConfig;
 	std::auto_ptr<GlobalSettings> globalSettings;

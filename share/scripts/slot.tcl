@@ -14,7 +14,7 @@ This proc is typically used as a helper for a larger proc.
 proc get_selected_slot { page } {
 	set ps_reg [debug read "ioports" 0xA8]
 	set ps [expr ($ps_reg >> (2 * $page)) & 0x03]
-	if [openmsx_info "issubslotted" $ps] {
+	if [machine_info "issubslotted" $ps] {
 		set ss_reg [debug read "slotted memory" [expr 0x40000 * $ps + 0xFFFF]]
 		set ss [expr (($ss_reg ^ 255) >> (2 * $page)) & 0x03]
 	} else {
@@ -52,7 +52,7 @@ proc get_mapper_size { ps ss } {
 	catch {
 		set slots [split [slotmap] \n]
 		set slot_name "$ps"
-		if [openmsx_info issubslotted $ps] { append slot_name ".$ss" }
+		if [machine_info issubslotted $ps] { append slot_name ".$ss" }
 		set index [lsearch $slots "slot $slot_name:"]
 		set device [lrange [lindex $slots [expr $index + 2]] 1 end]
 		if { [debug desc $device] == "memory mapper" } {
@@ -91,7 +91,7 @@ set_help_text slotmap \
 proc slotmap-helper { ps ss } {
 	set result ""
 	for { set page 0 } { $page < 4 } { incr page } {
-		set name [openmsx_info slot $ps $ss $page]
+		set name [machine_info slot $ps $ss $page]
 		append result [format "%04X: %s\n" [expr $page * 0x4000] $name]
 	}
 	return $result
@@ -99,7 +99,7 @@ proc slotmap-helper { ps ss } {
 proc slotmap { } {
 	set result ""
 	for { set ps 0 } { $ps < 4 } { incr ps } {
-		if [openmsx_info issubslotted $ps] {
+		if [machine_info issubslotted $ps] {
 			for { set ss 0 } { $ss < 4 } { incr ss } {
 				append result "slot $ps.$ss:\n"
 				append result [slotmap-helper $ps $ss]
@@ -131,12 +131,12 @@ proc iomap {} {
 	set result ""
 	set port 0
 	while {$port < 256} {
-		set in  [openmsx_info input_port  $port]
-		set out [openmsx_info output_port $port]
+		set in  [machine_info input_port  $port]
+		set out [machine_info output_port $port]
 		set end [ expr $port + 1]
 		while { ($end < 256) &&
-		        [string equal $in  [openmsx_info input_port  $end]] &&
-		        [string equal $out [openmsx_info output_port $end]] } {
+		        [string equal $in  [machine_info input_port  $end]] &&
+		        [string equal $out [machine_info output_port $end]] } {
 			incr end
 		}
 		if [string equal $in $out] {

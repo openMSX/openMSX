@@ -1,7 +1,7 @@
 // $Id$
 
 #include "Command.hh"
-#include "CommandController.hh"
+#include "CommandRegistry.hh"
 #include "TclObject.hh"
 
 using std::vector;
@@ -11,36 +11,36 @@ namespace openmsx {
 
 // class CommandCompleter
 
-CommandCompleter::CommandCompleter(CommandController& commandController_,
+CommandCompleter::CommandCompleter(CommandRegistry& commandRegistry_,
                                    const string& name)
 	: Completer(name)
-	, commandController(commandController_)
+	, commandRegistry(commandRegistry_)
 {
-	getCommandController().registerCompleter(*this, getName());
+	getCommandRegistry().registerCompleter(*this, getName());
 }
 
 CommandCompleter::~CommandCompleter()
 {
-	getCommandController().unregisterCompleter(*this, getName());
+	getCommandRegistry().unregisterCompleter(*this, getName());
 }
 
-CommandController& CommandCompleter::getCommandController() const
+CommandRegistry& CommandCompleter::getCommandRegistry() const
 {
-	return commandController;
+	return commandRegistry;
 }
 
 
 // class Command
 
-Command::Command(CommandController& commandController, const string& name)
-	: CommandCompleter(commandController, name)
+Command::Command(CommandRegistry& commandRegistry, const string& name)
+	: CommandCompleter(commandRegistry, name)
 {
-	getCommandController().registerCommand(*this, getName());
+	getCommandRegistry().registerCommand(*this, getName());
 }
 
 Command::~Command()
 {
-	getCommandController().unregisterCommand(*this, getName());
+	getCommandRegistry().unregisterCommand(*this, getName());
 }
 
 void Command::tabCompletion(vector<string>& /*tokens*/) const
@@ -48,12 +48,17 @@ void Command::tabCompletion(vector<string>& /*tokens*/) const
 	// do nothing
 }
 
+CommandController& Command::getCommandController() const
+{
+	return getCommandRegistry().getCommandController();
+}
+
 
 // class SimpleCommand
 
-SimpleCommand::SimpleCommand(CommandController& commandController,
+SimpleCommand::SimpleCommand(CommandRegistry& commandRegistry,
                              const string& name)
-	: Command(commandController, name)
+	: Command(commandRegistry, name)
 {
 }
 

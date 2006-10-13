@@ -20,7 +20,7 @@ namespace openmsx {
 class TimeInfoTopic : public InfoTopic
 {
 public:
-	TimeInfoTopic(CommandController& commandController,
+	TimeInfoTopic(InfoCommand& machineInfoCommand,
 	              MSXCPU& msxcpu);
 	virtual void execute(const vector<TclObject*>& tokens,
 	                     TclObject& result) const;
@@ -49,7 +49,8 @@ MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 	, r800(new CPUCore<R800TYPE>(motherboard, "r800", *traceSetting,
 	                             EmuTime::zero))
 	, reference(EmuTime::zero)
-	, timeInfo(new TimeInfoTopic(motherboard.getCommandController(), *this))
+	, timeInfo(new TimeInfoTopic(
+	     motherboard.getCommandController().getMachineInfoCommand(), *this))
 	, debuggable(new MSXCPUDebuggable(motherboard_, *this))
 {
 	activeCPU = z80.get();	// setActiveCPU(CPU_Z80);
@@ -230,9 +231,9 @@ void MSXCPU::setPaused(bool paused)
 
 // class TimeInfoTopic
 
-TimeInfoTopic::TimeInfoTopic(CommandController& commandController,
+TimeInfoTopic::TimeInfoTopic(InfoCommand& machineInfoCommand,
                              MSXCPU& msxcpu_)
-	: InfoTopic(commandController, "time")
+	: InfoTopic(machineInfoCommand, "time")
 	, msxcpu(msxcpu_)
 {
 }

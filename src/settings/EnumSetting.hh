@@ -8,17 +8,16 @@
 #include "InfoTopic.hh"
 #include "InfoCommand.hh"
 #include "TclObject.hh"
+#include "CommandController.hh"
 #include "CommandException.hh"
 #include "Completer.hh"
+#include "CliComm.hh"
 #include "StringOp.hh"
 #include <map>
 #include <set>
 #include <cassert>
 
 namespace openmsx {
-
-class CommandController;
-
 
 template <typename T> class EnumSettingPolicy : public SettingPolicy<T>
 {
@@ -52,6 +51,7 @@ private:
 		virtual std::string help(const std::vector<std::string>& tokens) const;
 	private:
 		EnumSettingPolicy& parent;
+		CommandController& commandController;
 	} enumInfo;
 };
 
@@ -151,11 +151,12 @@ void EnumSettingPolicy<T>::additionalInfo(TclObject& result) const
 
 
 template<typename T>
-EnumSettingPolicy<T>::EnumInfo::EnumInfo(CommandController& commandController,
+EnumSettingPolicy<T>::EnumInfo::EnumInfo(CommandController& commandController_,
                                          EnumSettingPolicy& parent_,
                                          const std::string& name)
-	: InfoTopic(commandController, name)
+	: InfoTopic(commandController_.getOpenMSXInfoCommand(), name)
 	, parent(parent_)
+	, commandController(commandController_)
 {
 }
 
@@ -164,6 +165,9 @@ void EnumSettingPolicy<T>::EnumInfo::execute(
 	const std::vector<TclObject*>& /*tokens*/,
 	TclObject& result) const
 {
+	commandController.getCliComm().printWarning(
+		"'openmsx_info " + getName() + "' is deprecated, "
+		"please use 'openmsx_info setting " + getName() + "'.");
 	std::set<std::string> values;
 	parent.getPossibleValues(values);
 	result.addListElements(values.begin(), values.end());

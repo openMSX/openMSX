@@ -50,7 +50,7 @@ private:
 class VersionInfo : public InfoTopic
 {
 public:
-	explicit VersionInfo(CommandController& commandController);
+	explicit VersionInfo(InfoCommand& openMSXInfoCommand);
 	virtual void execute(const vector<TclObject*>& tokens,
 	                     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;
@@ -61,11 +61,12 @@ CommandController::CommandController(EventDistributor& eventDistributor_)
 	: cliComm(NULL)
 	, connection(NULL)
 	, eventDistributor(eventDistributor_)
-	, infoCommand(new InfoCommand(*this))
+	, openMSXInfoCommand(new InfoCommand(*this, "openmsx_info"))
+	, machineInfoCommand(new InfoCommand(*this, "machine_info"))
 	, helpCmd(new HelpCmd(*this))
 	, tabCompletionCmd(new TabCompletionCmd(*this))
-	, versionInfo(new VersionInfo(*this))
-	, romInfoTopic(new RomInfoTopic(*this))
+	, versionInfo(new VersionInfo(getOpenMSXInfoCommand()))
+	, romInfoTopic(new RomInfoTopic(getOpenMSXInfoCommand()))
 {
 }
 
@@ -99,9 +100,14 @@ Interpreter& CommandController::getInterpreter()
 	return *interpreter;
 }
 
-InfoCommand& CommandController::getInfoCommand()
+InfoCommand& CommandController::getOpenMSXInfoCommand()
 {
-	return *infoCommand;
+	return *openMSXInfoCommand;
+}
+
+InfoCommand& CommandController::getMachineInfoCommand()
+{
+	return *machineInfoCommand;
 }
 
 HotKey& CommandController::getHotKey()
@@ -176,6 +182,11 @@ void CommandController::unregisterSetting(Setting& setting)
 string CommandController::makeUniqueSettingName(const string& name)
 {
 	return getSettingsConfig().getSettingsManager().makeUnique(name);
+}
+
+CommandController& CommandController::getCommandController()
+{
+	return *this;
 }
 
 bool CommandController::hasCommand(const string& command)
@@ -514,8 +525,8 @@ string TabCompletionCmd::help(const vector<string>& /*tokens*/) const
 
 // Version info
 
-VersionInfo::VersionInfo(CommandController& commandController)
-	: InfoTopic(commandController, "version")
+VersionInfo::VersionInfo(InfoCommand& openMSXInfoCommand)
+	: InfoTopic(openMSXInfoCommand, "version")
 {
 }
 

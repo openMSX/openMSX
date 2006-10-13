@@ -23,8 +23,7 @@ namespace openmsx {
 class SettingInfo : public InfoTopic
 {
 public:
-	SettingInfo(CommandController& commandController,
-	            SettingsManager& manager);
+	SettingInfo(InfoCommand& openMSXInfoCommand, SettingsManager& manager);
 	virtual void execute(const vector<TclObject*>& tokens,
 	                     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;
@@ -58,7 +57,8 @@ private:
 
 
 SettingsManager::SettingsManager(CommandController& commandController_)
-	: settingInfo   (new SettingInfo     (commandController_, *this))
+	: settingInfo   (new SettingInfo(
+	                    commandController_.getOpenMSXInfoCommand(), *this))
 	, setCompleter  (new SetCompleter    (commandController_, *this))
 	, incrCompleter (new SettingCompleter(commandController_, *this, "incr"))
 	, unsetCompleter(new SettingCompleter(commandController_, *this, "unset"))
@@ -188,9 +188,9 @@ void SettingsManager::saveSettings(XMLElement& config) const
 
 // SettingInfo implementation
 
-SettingInfo::SettingInfo(CommandController& commandController,
-                                          SettingsManager& manager_)
-	: InfoTopic(commandController, "setting")
+SettingInfo::SettingInfo(InfoCommand& openMSXInfoCommand,
+                         SettingsManager& manager_)
+	: InfoTopic(openMSXInfoCommand, "setting")
 	, manager(manager_)
 {
 }

@@ -10,7 +10,7 @@
 namespace openmsx {
 
 class TclObject;
-class CommandController;
+class InfoCommand;
 
 class InfoTopic : public Completer
 {
@@ -41,11 +41,11 @@ public:
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
 protected:
-	InfoTopic(CommandController& commandController, const std::string& name);
+	InfoTopic(InfoCommand& infoCommand, const std::string& name);
 	virtual ~InfoTopic();
 
 private:
-	CommandController& commandController;
+	InfoCommand& infoCommand;
 };
 
 } // namespace openmsx

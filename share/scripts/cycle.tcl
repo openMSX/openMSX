@@ -22,9 +22,11 @@ proc tab_cycle { args } {
 
 proc cycle { setting { cycle_list {}}} {
         if { [llength $cycle_list] == 0 } {
-	        if [catch { set cycle_list [openmsx_info $setting] } ] {
-		        error "Not an enum setting: $setting"
-	        }
+	        set setting_info [openmsx_info setting $setting]
+		if ![string equal [lindex $setting_info 0] "enumeration"] {
+			error "Not an enumeration setting: $setting"
+		}
+		set cycle_list [lindex $setting_info 2]
         }
 	set cur [lsearch -exact $cycle_list [set ::$setting]]
 	set new [expr ($cur + 1) % [llength $cycle_list]]

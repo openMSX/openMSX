@@ -3,6 +3,8 @@
 #include "InfoCommand.hh"
 #include "InfoTopic.hh"
 #include "TclObject.hh"
+#include "CommandController.hh"
+#include "CliComm.hh"
 #include "CommandException.hh"
 #include <iostream>
 #include <cassert>
@@ -14,8 +16,8 @@ using std::vector;
 
 namespace openmsx {
 
-InfoCommand::InfoCommand(CommandController& commandController)
-	: Command(commandController, "openmsx_info")
+InfoCommand::InfoCommand(CommandRegistry& commandRegistry, const string& name)
+	: Command(commandRegistry, name)
 {
 }
 
@@ -48,6 +50,11 @@ void InfoCommand::unregisterTopic(InfoTopic& topic, const string& name)
 	infoTopics.erase(name);
 }
 
+bool InfoCommand::hasTopic(const std::string& name) const
+{
+	return infoTopics.find(name) != infoTopics.end();
+}
+
 // Command
 
 void InfoCommand::execute(const vector<TclObject*>& tokens,
@@ -68,6 +75,19 @@ void InfoCommand::execute(const vector<TclObject*>& tokens,
 		map<string, const InfoTopic*>::const_iterator it =
 			infoTopics.find(topic);
 		if (it == infoTopics.end()) {
+			// backwards compatibility: also try machine_info
+			if (getName() == "openmsx_info") {
+				InfoCommand& machineInfoCommand =
+					getCommandController().getMachineInfoCommand();
+				if (machineInfoCommand.hasTopic(topic)) {
+					getCommandController().getCliComm().printWarning(
+						"'openmsx_info " + topic +
+						"' is deprecated, please use "
+						"'machine_info " + topic + "'.");
+					machineInfoCommand.execute(tokens, result);
+					return;
+				}
+			}
 			throw CommandException("No info on: " + topic);
 		}
 		it->second->execute(tokens, result);

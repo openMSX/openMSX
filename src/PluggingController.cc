@@ -7,6 +7,7 @@
 #include "Pluggable.hh"
 #include "PluggableFactory.hh"
 #include "TclObject.hh"
+#include "CommandController.hh"
 #include "CommandException.hh"
 #include "MSXMotherBoard.hh"
 #include "CliComm.hh"
@@ -51,7 +52,7 @@ private:
 class PluggableInfo : public InfoTopic
 {
 public:
-	PluggableInfo(CommandController& commandController,
+	PluggableInfo(InfoCommand& machineInfoCommand,
 		      PluggingController& pluggingController);
 	virtual void execute(const vector<TclObject*>& tokens,
 			     TclObject& result) const;
@@ -64,7 +65,7 @@ private:
 class ConnectorInfo : public InfoTopic
 {
 public:
-	ConnectorInfo(CommandController& commandController,
+	ConnectorInfo(InfoCommand& machineInfoCommand,
 		      PluggingController& pluggingController);
 	virtual void execute(const vector<TclObject*>& tokens,
 			     TclObject& result) const;
@@ -77,7 +78,7 @@ private:
 class ConnectionClassInfo : public InfoTopic
 {
 public:
-	ConnectionClassInfo(CommandController& commandController,
+	ConnectionClassInfo(InfoCommand& machineInfoCommand,
 			    PluggingController& pluggingController);
 	virtual void execute(const vector<TclObject*>& tokens,
 			     TclObject& result) const;
@@ -96,11 +97,11 @@ PluggingController::PluggingController(MSXMotherBoard& motherBoard)
 	                          motherBoard.getMSXEventDistributor(),
 	                          motherBoard.getScheduler(), *this))
 	, pluggableInfo(new PluggableInfo(
-		motherBoard.getCommandController(), *this))
+		motherBoard.getCommandController().getMachineInfoCommand(), *this))
 	, connectorInfo(new ConnectorInfo(
-		motherBoard.getCommandController(), *this))
+		motherBoard.getCommandController().getMachineInfoCommand(), *this))
 	, connectionClassInfo(new ConnectionClassInfo(
-		motherBoard.getCommandController(), *this))
+		motherBoard.getCommandController().getMachineInfoCommand(), *this))
 	, cliComm(motherBoard.getCliComm())
 {
 	PluggableFactory::createAll(*this, motherBoard);
@@ -330,9 +331,9 @@ Pluggable* PluggingController::getPluggable(const string& name)
 
 // Pluggable info
 
-PluggableInfo::PluggableInfo(CommandController& commandController,
+PluggableInfo::PluggableInfo(InfoCommand& machineInfoCommand,
                              PluggingController& pluggingController_)
-	: InfoTopic(commandController, "pluggable")
+	: InfoTopic(machineInfoCommand, "pluggable")
 	, pluggingController(pluggingController_)
 {
 }
@@ -383,9 +384,9 @@ void PluggableInfo::tabCompletion(vector<string>& tokens) const
 
 // Connector info
 
-ConnectorInfo::ConnectorInfo(CommandController& commandController,
+ConnectorInfo::ConnectorInfo(InfoCommand& machineInfoCommand,
                              PluggingController& pluggingController_)
-	: InfoTopic(commandController, "connector")
+	: InfoTopic(machineInfoCommand, "connector")
 	, pluggingController(pluggingController_)
 {
 }
@@ -435,9 +436,9 @@ void ConnectorInfo::tabCompletion(vector<string>& tokens) const
 // Connection Class info
 
 ConnectionClassInfo::ConnectionClassInfo(
-		CommandController& commandController,
+		InfoCommand& machineInfoCommand,
 		PluggingController& pluggingController_)
-	: InfoTopic(commandController, "connectionclass")
+	: InfoTopic(machineInfoCommand, "connectionclass")
 	, pluggingController(pluggingController_)
 {
 }

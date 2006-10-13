@@ -16,8 +16,8 @@ namespace openmsx {
 typedef std::map<RomType, string> Description;
 static Description description;
 
-RomInfoTopic::RomInfoTopic(CommandController& commandController)
-	: InfoTopic(commandController, "romtype")
+RomInfoTopic::RomInfoTopic(InfoCommand& openMSXInfoCommand)
+	: InfoTopic(openMSXInfoCommand, "romtype")
 {
 	description[ROM_GENERIC_8KB] = "Generic 8kB";
 	description[ROM_GENERIC_16KB] = "Generic 16kB";

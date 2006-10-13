@@ -95,8 +95,7 @@ private:
 class ConfigInfo : public InfoTopic
 {
 public:
-	ConfigInfo(CommandController& commandController,
-	           const string& configName);
+	ConfigInfo(InfoCommand& openMSXInfoCommand, const string& configName);
 	virtual void execute(const vector<TclObject*>& tokens,
 	                     TclObject& result) const;
 	virtual string help   (const vector<string>& tokens) const;
@@ -116,8 +115,10 @@ MSXMotherBoard::MSXMotherBoard(Reactor& reactor_)
 	, listExtCommand  (new ListExtCmd  (getCommandController(), *this))
 	, extCommand      (new ExtCmd      (getCommandController(), *this))
 	, removeExtCommand(new RemoveExtCmd(getCommandController(), *this))
-	, extensionInfo(new ConfigInfo(getCommandController(), "extensions"))
-	, machineInfo  (new ConfigInfo(getCommandController(), "machines"))
+	, extensionInfo(new ConfigInfo(
+	       getCommandController().getOpenMSXInfoCommand(), "extensions"))
+	, machineInfo  (new ConfigInfo(
+	       getCommandController().getOpenMSXInfoCommand(), "machines"))
 	, powerSetting(getCommandController().getGlobalSettings().getPowerSetting())
 {
 	getMixer().mute(); // powered down
@@ -742,9 +743,9 @@ void RemoveExtCmd::tabCompletion(vector<string>& tokens) const
 }
 
 // ConfigInfo
-ConfigInfo::ConfigInfo(CommandController& commandController,
+ConfigInfo::ConfigInfo(InfoCommand& openMSXInfoCommand,
 	               const string& configName_)
-	: InfoTopic(commandController, configName_)
+	: InfoTopic(openMSXInfoCommand, configName_)
 	, configName(configName_)
 {
 }

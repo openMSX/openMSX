@@ -2,7 +2,7 @@
 # in the cassetteplayer
 
 proc do_autoplug {} {
-	if { [lsearch [openmsx_info connector] "cassetteport"] != -1 } {
+	if { [lsearch [machine_info connector] "cassetteport"] != -1 } {
 		plug cassetteport cassetteplayer
 	}
 	after machine_switch do_autoplug

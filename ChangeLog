@@ -1,5 +1,16 @@
 $Id$
 
+2006-10-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Split openmsx_info topics in two:
+	   - machine specific topics are moved to a new machine_info command
+	   - general topics remain in openmsx_info
+	   - for backwards compatibility the machine specific topics also
+	     remain in openmsx_info for one or two releases, but they generate
+	     a warning
+	   - openmsx_info <setting> is also deprecated, prefer to use
+	     openmsx_info setting <setting> (already existed)
+	   - adjusted Tcl scripts to use the new commands
+
 2006-10-12 Maarten ter Huurne <maarten@treewalker.org>
 	* Integrated Windows resource support:
 	  stores icon and version info in the executable

@@ -2,7 +2,7 @@ proc guess_rom_title { ps ss } {
 	# check device name at address #4000 in given slot
 	set slots [split [slotmap] \n]
 	set slot_name "$ps"
-	if [openmsx_info issubslotted $ps] { append slot_name ".$ss" }
+	if [machine_info issubslotted $ps] { append slot_name ".$ss" }
 	set index [lsearch $slots "slot $slot_name:"]
 	if {$index != -1} { 
 		set rom [lrange [lindex $slots [expr $index + 2]] 1 end]
@@ -24,7 +24,7 @@ proc guess_title { { fallback "" } } {
 	# first try external slots
 	for { set ps 0} { $ps < 4 } { incr ps } {
 		for { set ss 0 } { $ss < 4 } { incr ss } {
-			if [openmsx_info isexternalslot $ps $ss] {
+			if [machine_info isexternalslot $ps $ss] {
 				set title [guess_rom_title $ps $ss]
 				if { $title != "" } { return $title }
 			}

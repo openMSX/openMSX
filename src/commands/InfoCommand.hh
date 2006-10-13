@@ -13,11 +13,13 @@ class InfoTopic;
 class InfoCommand : public Command
 {
 public:
-	explicit InfoCommand(CommandController& commandController);
+	InfoCommand(CommandRegistry& commandRegistry, const std::string& name);
 	virtual ~InfoCommand();
 
 	void   registerTopic(InfoTopic& topic, const std::string& name);
 	void unregisterTopic(InfoTopic& topic, const std::string& name);
+
+	bool hasTopic(const std::string& name) const;
 
 	// Command
 	virtual void execute(const std::vector<TclObject*>& tokens,

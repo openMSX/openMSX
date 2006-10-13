@@ -10,7 +10,7 @@ namespace openmsx {
 class RomInfoTopic : public InfoTopic
 {
 public:
-	explicit RomInfoTopic(CommandController& commandController);
+	explicit RomInfoTopic(InfoCommand& openMSXInfoCommand);
 
 	virtual void execute(const std::vector<TclObject*>& tokens,
 	                     TclObject& result) const;

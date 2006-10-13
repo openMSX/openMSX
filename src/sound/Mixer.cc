@@ -44,7 +44,7 @@ private:
 class SoundDeviceInfoTopic : public InfoTopic
 {
 public:
-	SoundDeviceInfoTopic(CommandController& commandController, Mixer& mixer);
+	SoundDeviceInfoTopic(InfoCommand& machineInfoCommand, Mixer& mixer);
 	virtual void execute(const vector<TclObject*>& tokens,
 	                     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;
@@ -60,7 +60,8 @@ Mixer::Mixer(Scheduler& scheduler_, CommandController& commandController_)
 	, commandController(commandController_)
 	, pauseSetting(commandController.getGlobalSettings().getPauseSetting())
 	, soundlogCommand(new SoundlogCommand(commandController, *this))
-	, soundDeviceInfo(new SoundDeviceInfoTopic(commandController, *this))
+	, soundDeviceInfo(new SoundDeviceInfoTopic(
+	              commandController.getMachineInfoCommand(), *this))
 {
 	driver.reset(new NullSoundDriver());
 	handlingUpdate = false;
@@ -552,8 +553,8 @@ SoundDevice* Mixer::getSoundDevice(const string& name)
 }
 
 SoundDeviceInfoTopic::SoundDeviceInfoTopic(
-		CommandController& commandController, Mixer& mixer_)
-	: InfoTopic(commandController, "sounddevice")
+		InfoCommand& machineInfoCommand, Mixer& mixer_)
+	: InfoTopic(machineInfoCommand, "sounddevice")
 	, mixer(mixer_)
 {
 }

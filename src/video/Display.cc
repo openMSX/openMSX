@@ -51,7 +51,7 @@ private:
 class FpsInfoTopic : public InfoTopic
 {
 public:
-	FpsInfoTopic(CommandController& commandController, Display& display);
+	FpsInfoTopic(InfoCommand& openMSXInfoCommand, Display& display);
 	virtual void execute(const vector<TclObject*>& tokens,
 			     TclObject& result) const;
 	virtual string help(const vector<string>& tokens) const;
@@ -65,7 +65,8 @@ Display::Display(Reactor& reactor_)
 	, alarm(new RepaintAlarm(reactor_.getEventDistributor()))
 	, screenShotCmd(new ScreenShotCmd(
 		reactor_.getCommandController(), *this))
-	, fpsInfo(new FpsInfoTopic(reactor_.getCommandController(), *this))
+	, fpsInfo(new FpsInfoTopic(
+	      reactor_.getCommandController().getOpenMSXInfoCommand(), *this))
 	, reactor(reactor_)
 	, renderSettings(new RenderSettings(reactor.getCommandController()))
 	, switchInProgress(false)
@@ -429,9 +430,9 @@ string ScreenShotCmd::help(const vector<string>& /*tokens*/) const
 
 // FpsInfoTopic
 
-FpsInfoTopic::FpsInfoTopic(CommandController& commandController,
+FpsInfoTopic::FpsInfoTopic(InfoCommand& openMSXInfoCommand,
                            Display& display_)
-	: InfoTopic(commandController, "fps")
+	: InfoTopic(openMSXInfoCommand, "fps")
 	, display(display_)
 {
 }

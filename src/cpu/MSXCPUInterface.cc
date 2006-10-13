@@ -4,6 +4,7 @@
 #include "DummyDevice.hh"
 #include "SimpleDebuggable.hh"
 #include "Command.hh"
+#include "CommandController.hh"
 #include "InfoTopic.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
@@ -74,7 +75,7 @@ private:
 class SlotInfo : public InfoTopic
 {
 public:
-	SlotInfo(CommandController& commandController,
+	SlotInfo(InfoCommand& machineInfoCommand,
 	         MSXCPUInterface& interface);
 	virtual void execute(const vector<TclObject*>& tokens,
 	                     TclObject& result) const;
@@ -86,7 +87,7 @@ private:
 class SubSlottedInfo : public InfoTopic
 {
 public:
-	SubSlottedInfo(CommandController& commandController,
+	SubSlottedInfo(InfoCommand& machineInfoCommand,
 		       MSXCPUInterface& interface);
 	virtual void execute(const vector<TclObject*>& tokens,
 			     TclObject& result) const;
@@ -98,7 +99,7 @@ private:
 class ExternalSlotInfo : public InfoTopic
 {
 public:
-	ExternalSlotInfo(CommandController& commandController,
+	ExternalSlotInfo(InfoCommand& machineInfoCommand,
 			 CartridgeSlotManager& manager);
 	virtual void execute(const vector<TclObject*>& tokens,
 			     TclObject& result) const;
@@ -110,7 +111,7 @@ private:
 class IOInfo : public InfoTopic
 {
 public:
-	IOInfo(CommandController& commandController,
+	IOInfo(InfoCommand& machineInfoCommand,
 	       MSXCPUInterface& interface, bool input);
 	virtual void execute(const vector<TclObject*>& tokens,
 	                     TclObject& result) const;
@@ -138,14 +139,16 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard)
 	, slottedMemoryDebug(new SlottedMemoryDebug(*this, motherBoard))
 	, ioDebug           (new IODebug           (*this, motherBoard))
 	, slotInfo        (new SlotInfo(
-		motherBoard.getCommandController(), *this))
+		motherBoard.getCommandController().getMachineInfoCommand(), *this))
 	, subSlottedInfo  (new SubSlottedInfo(
-		motherBoard.getCommandController(), *this))
+		motherBoard.getCommandController().getMachineInfoCommand(), *this))
 	, externalSlotInfo(new ExternalSlotInfo(
-		motherBoard.getCommandController(),
+		motherBoard.getCommandController().getMachineInfoCommand(),
 		motherBoard.getSlotManager()))
-	, inputPortInfo (new IOInfo(motherBoard.getCommandController(), *this, true))
-	, outputPortInfo(new IOInfo(motherBoard.getCommandController(), *this, false))
+	, inputPortInfo (new IOInfo(
+	        motherBoard.getCommandController().getMachineInfoCommand(), *this, true))
+	, outputPortInfo(new IOInfo(
+	        motherBoard.getCommandController().getMachineInfoCommand(), *this, false))
 	, dummyDevice(motherBoard.getDummyDevice())
 	, msxcpu(motherBoard.getCPU())
 	, cliCommOutput(motherBoard.getCliComm())
@@ -733,9 +736,9 @@ static unsigned getSlot(TclObject* token, const string& itemName)
 	return slot;
 }
 
-SlotInfo::SlotInfo(CommandController& commandController,
+SlotInfo::SlotInfo(InfoCommand& machineInfoCommand,
                    MSXCPUInterface& interface_)
-	: InfoTopic(commandController, "slot")
+	: InfoTopic(machineInfoCommand, "slot")
 	, interface(interface_)
 {
 }
@@ -764,9 +767,9 @@ string SlotInfo::help(const vector<string>& /*tokens*/) const
 
 // class SubSlottedInfo
 
-SubSlottedInfo::SubSlottedInfo(CommandController& commandController,
+SubSlottedInfo::SubSlottedInfo(InfoCommand& machineInfoCommand,
                                MSXCPUInterface& interface_)
-	: InfoTopic(commandController, "issubslotted")
+	: InfoTopic(machineInfoCommand, "issubslotted")
 	, interface(interface_)
 {
 }
@@ -789,9 +792,9 @@ string SubSlottedInfo::help(
 
 // class ExternalSlotInfo
 
-ExternalSlotInfo::ExternalSlotInfo(CommandController& commandController,
+ExternalSlotInfo::ExternalSlotInfo(InfoCommand& machineInfoCommand,
                                    CartridgeSlotManager& manager_)
-	: InfoTopic(commandController, "isexternalslot")
+	: InfoTopic(machineInfoCommand, "isexternalslot")
 	, manager(manager_)
 {
 }
@@ -843,9 +846,9 @@ void IODebug::write(unsigned address, byte value, const EmuTime& time)
 
 // class IOInfo
 
-IOInfo::IOInfo(CommandController& commandController,
+IOInfo::IOInfo(InfoCommand& machineInfoCommand,
                MSXCPUInterface& interface_, bool input_)
-	: InfoTopic(commandController, input_ ? "input_port" : "output_port")
+	: InfoTopic(machineInfoCommand, input_ ? "input_port" : "output_port")
 	, interface(interface_), input(input_)
 {
 }
