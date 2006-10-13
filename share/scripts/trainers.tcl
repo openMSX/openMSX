@@ -5350,12 +5350,6 @@ proc trainer_bankbuster {} {
 	after time 1 trainer_bankbuster
 }
 
-proc trainer_barunba {} {
-	#power
-	poke 0x6989 5
-	after time 1 trainer_barunba
-}
-
 proc trainer_exterlien {} {
 	#power
 	poke 0x9e2d 0x0f
@@ -6044,4 +6038,17 @@ proc trainer_barunba {} {
 	poke 0x699a 4
 	after time 1 trainer_barunba
 }
+
+proc trainer_tertisbps {} {
+	#next block always bar
+	poke 0xd28a 1
+	after time 1 trainer_tertisbps
+}
+
+proc trainer_magnar {} {
+	#live (255 is game over)
+	poke 0xca7f 250
+	after time 1 trainer_magnar
+}
+
 ### EOF ###
