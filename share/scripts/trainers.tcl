@@ -3655,10 +3655,10 @@ proc trainer_ninjakage {} {
 	after time 1 trainer_ninjakage 
 }
 
-proc trainer_fireresque {} { 
+proc trainer_firerescue {} { 
 	#always have water
 	poke 0xe62e 1
-	after time 1 trainer_fireresque 
+	after time 1 trainer_firerescue 
 } 
 
 proc trainer_pooyan {} { 
@@ -6058,5 +6058,22 @@ proc trainer_doubledragon2 {} {
 	poke 0x2918 0x99
 	after time 1 trainer_doubledragon2
 }
+
+proc trainer_cannonball {} {
+	#lives
+	poke 0xe331 9
+	after time 1 trainer_cannonball
+}
+
+proc trainer_zenji {} {
+	#lives
+	poke 0xe1b1 0x99
+	after time 1 trainer_zenji
+}
+
+proc trainer_firehawk {} {trainer_thexder2}
+proc trainer_nemesis1 {} {trainer_gradius1}
+proc trainer_nemesis2 {} {trainer_gradius2}
+proc trainer_nemesis3 {} {trainer_gradius3}
 
 ### EOF ###
