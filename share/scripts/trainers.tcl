@@ -6051,4 +6051,12 @@ proc trainer_magnar {} {
 	after time 1 trainer_magnar
 }
 
+proc trainer_doubledragon2 {} {
+	#power player 1
+	poke 0x4079 15
+	#time
+	poke 0x2918 0x99
+	after time 1 trainer_doubledragon2
+}
+
 ### EOF ###
