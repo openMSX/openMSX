@@ -1,5 +1,5 @@
 set_help_text trainer \
-{game trainers version 1.6
+{game trainers version 1.7
 
 please join us looking for cheats and submit them to the www.openmsx.org forum
 
@@ -2146,11 +2146,11 @@ proc trainer_dragonslayer4_msx2 {} {
 	poke 0xc08e 255
 	
 	#put in slot 1 : pick axe
-	poke 0xc060 2
+	#poke 0xc060 2
 	#put in slot 2 : harpoon
-	poke 0xc061 4
+	#poke 0xc061 4
 	#put in slot 3 : crown
-	poke 0xc062 14
+	#poke 0xc062 14
 	#in game player (try different values)
 	#!poke 0xc050 0
 	
@@ -4610,14 +4610,26 @@ proc trainer_finalfantasy {} {
 	#gold
 	poke 0xc255 255
 	poke 0xc256 255
+
 	#life player 1
 	poke 0xc00a 99
+	poke 0xc008 255
+	poke 0xc009 255
+
 	#life player 2
 	poke 0xc04a 99
+	poke 0xc048 255
+	poke 0xc049 255
+
 	#life player 3
 	poke 0xc08a 99
+	poke 0xc088 255
+	poke 0xc089 255
+
 	#life player 4
 	poke 0xc0ca 99
+	poke 0xc0c8 255
+	poke 0xc0c9 255
 	after time 1 trainer_finalfantasy	
 } 
 
@@ -6069,6 +6081,43 @@ proc trainer_zenji {} {
 	#lives
 	poke 0xe1b1 0x99
 	after time 1 trainer_zenji
+}
+
+proc trainer_legendlyninegems {} {
+	#power
+	poke 0xb39a 0x99
+	poke 0xb399 0x99
+	#gold
+	poke 0xb39b 0x99
+	poke 0xb39c 0x99
+
+	#magic card
+	poke 0xb441 255
+	#book
+	poke 0xb442 255
+	#candle
+	poke 0xb443 225
+	#whool (?)
+	poke 0xb444 225	
+	#drums
+	poke 0xb445 255
+	#shell
+	poke 0xb446 255
+	#blue vase
+	poke 0xb447 255
+	#red vase
+	poke 0xb448 255
+	#hat
+	poke 0xb449 255
+	#red botle
+	poke 0xb44a 255
+	#yellow liquid
+	poke 0xb44b 255
+	#red liquid
+	poke 0xb44c 255
+	#key
+	poke 0xb44d 3
+	after time 1 trainer_legendlyninegems
 }
 
 proc trainer_firehawk {} {trainer_thexder2}
