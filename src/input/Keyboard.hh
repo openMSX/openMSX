@@ -13,7 +13,7 @@
 namespace openmsx {
 
 class Scheduler;
-class CommandController;
+class MSXCommandController;
 class MSXEventDistributor;
 class EmuTime;
 class KeyMatrixUpCmd;
@@ -26,11 +26,11 @@ public:
 	/**
 	 * Constructs a new Keyboard object.
 	 * @param scheduler ref to the scheduler
-	 * @param commandController ref to the command controller
+	 * @param msxCommandController ref to the command controller
 	 * @param eventDistributor ref to the user input event distributor
 	 * @param keyGhosting turn keyGhosting on/off
 	 */
-	Keyboard(Scheduler& scheduler, CommandController& commandController,
+	Keyboard(Scheduler& scheduler, MSXCommandController& msxCommandController,
 	         MSXEventDistributor& eventDistributor, bool keyGhosting);
 
 	virtual ~Keyboard();

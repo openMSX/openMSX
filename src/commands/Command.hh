@@ -10,20 +10,19 @@
 namespace openmsx {
 
 class TclObject;
-class CommandRegistry;
 class CommandController;
 
 class CommandCompleter : public Completer
 {
 protected:
-	CommandCompleter(CommandRegistry& commandRegistry,
+	CommandCompleter(CommandController& commandController,
 	                 const std::string& name);
 	virtual ~CommandCompleter();
 
-	CommandRegistry& getCommandRegistry() const;
+	CommandController& getCommandController() const;
 
 private:
-	CommandRegistry& commandRegistry;
+	CommandController& commandController;
 };
 
 
@@ -49,10 +48,8 @@ public:
 	  */
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
-	CommandController& getCommandController() const;
-
 protected:
-	Command(CommandRegistry& commandRegistry, const std::string& name);
+	Command(CommandController& commandController, const std::string& name);
 	virtual ~Command();
 };
 
@@ -69,7 +66,7 @@ public:
 	                     TclObject& result);
 
 protected:
-	SimpleCommand(CommandRegistry& commandRegistry,
+	SimpleCommand(CommandController& commandController,
 	              const std::string& name);
 	virtual ~SimpleCommand();
 };

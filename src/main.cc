@@ -6,7 +6,7 @@
  */
 
 #include "Reactor.hh"
-#include "CommandController.hh"
+#include "GlobalCommandController.hh"
 #include "CommandLineParser.hh"
 #include "AfterCommand.hh"
 #include "SettingsConfig.hh"
@@ -54,10 +54,10 @@ static int main(int argc, char **argv)
 	try {
 		Thread::setMainThread();
 		Reactor reactor;
-		reactor.getCommandController().getInterpreter().init(argv[0]);
+		reactor.getGlobalCommandController().getInterpreter().init(argv[0]);
 		AfterCommand afterCommand(reactor,
 		                          reactor.getEventDistributor(),
-		                          reactor.getCommandController());
+		                          reactor.getGlobalCommandController());
 
 
 		CommandLineParser parser(reactor);
@@ -72,7 +72,7 @@ static int main(int argc, char **argv)
 					getRenderer().restoreDefault();
 			}
 			if (parseStatus != CommandLineParser::TEST) {
-				CliServer cliServer(reactor.getCommandController(),
+				CliServer cliServer(reactor.getGlobalCommandController(),
 				                    reactor.getEventDistributor());
 				reactor.run(parser);
 			}

@@ -20,11 +20,10 @@ namespace openmsx {
 
 AfterCommand::AfterCommand(Reactor& reactor_,
                            EventDistributor& eventDistributor_,
-                           CommandController& commandController_)
-	: SimpleCommand(commandController_, "after")
+                           CommandController& commandController)
+	: SimpleCommand(commandController, "after")
 	, reactor(reactor_)
 	, eventDistributor(eventDistributor_)
-	, commandController(commandController_)
 {
 	// TODO DETACHED <-> EMU types should be cleaned up
 	//      (moved to event iso listener?)
@@ -84,11 +83,6 @@ AfterCommand::~AfterCommand()
 		OPENMSX_KEY_DOWN_EVENT, *this);
 	eventDistributor.unregisterEventListener(
 		OPENMSX_KEY_UP_EVENT, *this);
-}
-
-CommandController& AfterCommand::getCommandController() const
-{
-	return commandController;
 }
 
 string AfterCommand::execute(const vector<string>& tokens)

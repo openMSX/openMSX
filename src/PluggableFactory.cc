@@ -1,12 +1,8 @@
 // $Id$
 
-#include "probed_defs.hh"
-
 #include "PluggableFactory.hh"
 #include "PluggingController.hh"
 #include "MSXMotherBoard.hh"
-
-#include "JoyNet.hh"
 #include "Joystick.hh"
 #include "JoyTap.hh"
 #include "NinjaTap.hh"
@@ -42,9 +38,6 @@ void PluggableFactory::createAll(PluggingController& controller,
 	// - additional key joysticks can be created by the user
 	// - real joysticks and mice can be hotplugged (USB)
 	controller.registerPluggable(new Mouse(motherBoard.getMSXEventDistributor()));
-#ifdef	HAVE_SYS_SOCKET_H
-	controller.registerPluggable(new JoyNet(commandController));
-#endif
 	controller.registerPluggable(new JoyTap(controller, "joytap"));
 	controller.registerPluggable(new NinjaTap(controller, "ninjatap"));
 	controller.registerPluggable(new KeyJoystick(
@@ -58,8 +51,7 @@ void PluggableFactory::createAll(PluggingController& controller,
 	controller.registerPluggable(new MagicKey());
 
 	// Logging:
-	controller.registerPluggable(new PrinterPortLogger(
-		motherBoard.getCommandController()));
+	controller.registerPluggable(new PrinterPortLogger(commandController));
 	controller.registerPluggable(new MidiOutLogger(commandController));
 
 	// Serial communication:

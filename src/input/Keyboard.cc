@@ -11,7 +11,7 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
-#include "CommandController.hh"
+#include "MSXCommandController.hh"
 #include "RecordedCommand.hh"
 #include "CommandException.hh"
 #include "InputEvents.hh"
@@ -27,7 +27,7 @@ namespace openmsx {
 class KeyMatrixUpCmd : public RecordedCommand
 {
 public:
-	KeyMatrixUpCmd(CommandController& commandController,
+	KeyMatrixUpCmd(MSXCommandController& msxCommandController,
 	               MSXEventDistributor& msxEventDistributor,
 	               Scheduler& scheduler, Keyboard& keyboard);
 	virtual string execute(const vector<string>& tokens, const EmuTime& time);
@@ -39,7 +39,7 @@ private:
 class KeyMatrixDownCmd : public RecordedCommand
 {
 public:
-	KeyMatrixDownCmd(CommandController& commandController,
+	KeyMatrixDownCmd(MSXCommandController& msxCommandController,
 	                 MSXEventDistributor& msxEventDistributor,
 	                 Scheduler& scheduler, Keyboard& keyboard);
 	virtual string execute(const vector<string>& tokens, const EmuTime& time);
@@ -51,7 +51,7 @@ private:
 class KeyInserter : public RecordedCommand, private Schedulable
 {
 public:
-	KeyInserter(CommandController& commandController,
+	KeyInserter(MSXCommandController& msxCommandController,
 	            MSXEventDistributor& msxEventDistributor,
 	            Scheduler& scheduler, Keyboard& keyboard);
 	virtual ~KeyInserter();
@@ -126,16 +126,17 @@ void Keyboard::loadKeymapfile(const string& filename)
 	}
 }
 
-Keyboard::Keyboard(Scheduler& scheduler, CommandController& commandController,
+Keyboard::Keyboard(Scheduler& scheduler,
+                   MSXCommandController& msxCommandController,
                    MSXEventDistributor& eventDistributor_, bool keyG)
 	: Schedulable(scheduler)
 	, eventDistributor(eventDistributor_)
 	, keyMatrixUpCmd  (new KeyMatrixUpCmd  (
-		commandController, eventDistributor, scheduler, *this))
+		msxCommandController, eventDistributor, scheduler, *this))
 	, keyMatrixDownCmd(new KeyMatrixDownCmd(
-		commandController, eventDistributor, scheduler, *this))
+		msxCommandController, eventDistributor, scheduler, *this))
 	, keyTypeCmd(new KeyInserter(
-		commandController, eventDistributor, scheduler, *this))
+		msxCommandController, eventDistributor, scheduler, *this))
 {
 	keyGhosting = keyG;
 	keysChanged = false;
@@ -143,8 +144,8 @@ Keyboard::Keyboard(Scheduler& scheduler, CommandController& commandController,
 	memset(cmdKeyMatrix,  255, sizeof(cmdKeyMatrix));
 	memset(userKeyMatrix, 255, sizeof(userKeyMatrix));
 
-	const XMLElement* config = commandController.getSettingsConfig().
-	                                                 findChild("KeyMap");
+	const XMLElement* config =
+		msxCommandController.getSettingsConfig().findChild("KeyMap");
 	if (config) {
 		string filename = config->getData();
 		loadKeymapfile(config->getFileContext().resolve(filename));
@@ -326,10 +327,10 @@ bool Keyboard::commonKeys(char asciiCode1, char asciiCode2)
 
 // class KeyMatrixUpCmd
 
-KeyMatrixUpCmd::KeyMatrixUpCmd(CommandController& commandController,
+KeyMatrixUpCmd::KeyMatrixUpCmd(MSXCommandController& msxCommandController,
                                MSXEventDistributor& msxEventDistributor,
                                Scheduler& scheduler, Keyboard& keyboard_)
-	: RecordedCommand(commandController, msxEventDistributor,
+	: RecordedCommand(msxCommandController, msxEventDistributor,
 	                  scheduler, "keymatrixup")
 	, keyboard(keyboard_)
 {
@@ -350,10 +351,10 @@ string KeyMatrixUpCmd::help(const vector<string>& /*tokens*/) const
 
 // class KeyMatrixDownCmd
 
-KeyMatrixDownCmd::KeyMatrixDownCmd(CommandController& commandController,
+KeyMatrixDownCmd::KeyMatrixDownCmd(MSXCommandController& msxCommandController,
                                    MSXEventDistributor& msxEventDistributor,
                                    Scheduler& scheduler, Keyboard& keyboard_)
-	: RecordedCommand(commandController, msxEventDistributor,
+	: RecordedCommand(msxCommandController, msxEventDistributor,
 	                  scheduler, "keymatrixdown")
 	, keyboard(keyboard_)
 {
@@ -374,10 +375,10 @@ string KeyMatrixDownCmd::help(const vector<string>& /*tokens*/) const
 
 // class KeyInserter
 
-KeyInserter::KeyInserter(CommandController& commandController,
+KeyInserter::KeyInserter(MSXCommandController& msxCommandController,
                          MSXEventDistributor& msxEventDistributor,
                          Scheduler& scheduler, Keyboard& keyboard_)
-	: RecordedCommand(commandController, msxEventDistributor,
+	: RecordedCommand(msxCommandController, msxEventDistributor,
 	                  scheduler, "type")
 	, Schedulable(scheduler)
 	, keyboard(keyboard_), last(-1)

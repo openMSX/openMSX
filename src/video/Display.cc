@@ -66,7 +66,7 @@ Display::Display(Reactor& reactor_)
 	, screenShotCmd(new ScreenShotCmd(
 		reactor_.getCommandController(), *this))
 	, fpsInfo(new FpsInfoTopic(
-	      reactor_.getCommandController().getOpenMSXInfoCommand(), *this))
+	      reactor_.getGlobalCommandController().getOpenMSXInfoCommand(), *this))
 	, reactor(reactor_)
 	, renderSettings(new RenderSettings(reactor.getCommandController()))
 	, switchInProgress(false)
@@ -384,7 +384,7 @@ bool RepaintAlarm::alarm()
 // ScreenShotCmd
 
 ScreenShotCmd::ScreenShotCmd(CommandController& commandController,
-                                      Display& display_)
+                             Display& display_)
 	: SimpleCommand(commandController, "screenshot")
 	, display(display_)
 {

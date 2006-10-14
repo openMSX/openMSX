@@ -7,7 +7,7 @@
 #include "Pluggable.hh"
 #include "PluggableFactory.hh"
 #include "TclObject.hh"
-#include "CommandController.hh"
+#include "MSXCommandController.hh"
 #include "CommandException.hh"
 #include "MSXMotherBoard.hh"
 #include "CliComm.hh"
@@ -24,7 +24,7 @@ namespace openmsx {
 class PlugCmd : public RecordedCommand
 {
 public:
-	PlugCmd(CommandController& commandController,
+	PlugCmd(MSXCommandController& msxCommandController,
 	        MSXEventDistributor& msxEventDistributor,
 	        Scheduler& scheduler,
 	        PluggingController& pluggingController);
@@ -38,7 +38,7 @@ private:
 class UnplugCmd : public RecordedCommand
 {
 public:
-	UnplugCmd(CommandController& commandController,
+	UnplugCmd(MSXCommandController& msxCommandController,
 	          MSXEventDistributor& msxEventDistributor,
 	          Scheduler& scheduler,
 	          PluggingController& pluggingController);
@@ -90,18 +90,18 @@ private:
 
 
 PluggingController::PluggingController(MSXMotherBoard& motherBoard)
-	: plugCmd  (new PlugCmd  (motherBoard.getCommandController(),
+	: plugCmd  (new PlugCmd  (motherBoard.getMSXCommandController(),
 	                          motherBoard.getMSXEventDistributor(),
 	                          motherBoard.getScheduler(), *this))
-	, unplugCmd(new UnplugCmd(motherBoard.getCommandController(),
+	, unplugCmd(new UnplugCmd(motherBoard.getMSXCommandController(),
 	                          motherBoard.getMSXEventDistributor(),
 	                          motherBoard.getScheduler(), *this))
 	, pluggableInfo(new PluggableInfo(
-		motherBoard.getCommandController().getMachineInfoCommand(), *this))
+		motherBoard.getMSXCommandController().getMachineInfoCommand(), *this))
 	, connectorInfo(new ConnectorInfo(
-		motherBoard.getCommandController().getMachineInfoCommand(), *this))
+		motherBoard.getMSXCommandController().getMachineInfoCommand(), *this))
 	, connectionClassInfo(new ConnectionClassInfo(
-		motherBoard.getCommandController().getMachineInfoCommand(), *this))
+		motherBoard.getMSXCommandController().getMachineInfoCommand(), *this))
 	, cliComm(motherBoard.getCliComm())
 {
 	PluggableFactory::createAll(*this, motherBoard);
@@ -158,11 +158,11 @@ void PluggingController::unregisterPluggable(Pluggable* pluggable)
 // === Commands ===
 //  plug command
 
-PlugCmd::PlugCmd(CommandController& commandController,
+PlugCmd::PlugCmd(MSXCommandController& msxCommandController,
                  MSXEventDistributor& msxEventDistributor,
                  Scheduler& scheduler,
                  PluggingController& pluggingController_)
-	: RecordedCommand(commandController, msxEventDistributor,
+	: RecordedCommand(msxCommandController, msxEventDistributor,
 	                  scheduler, "plug")
 	, pluggingController(pluggingController_)
 {
@@ -259,11 +259,11 @@ void PlugCmd::tabCompletion(vector<string>& tokens) const
 
 //  unplug command
 
-UnplugCmd::UnplugCmd(CommandController& commandController,
+UnplugCmd::UnplugCmd(MSXCommandController& msxCommandController,
                      MSXEventDistributor& msxEventDistributor,
                      Scheduler& scheduler,
                      PluggingController& pluggingController_)
-	: RecordedCommand(commandController, msxEventDistributor,
+	: RecordedCommand(msxCommandController, msxEventDistributor,
 	                  scheduler, "unplug")
 	, pluggingController(pluggingController_)
 {

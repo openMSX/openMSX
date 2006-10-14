@@ -3,7 +3,6 @@
 #ifndef MSXCPUINTERFACE_HH
 #define MSXCPUINTERFACE_HH
 
-#include "CPU.hh"
 #include "CacheLine.hh"
 #include "MSXDevice.hh"
 #include "WatchPoint.hh"
@@ -18,9 +17,7 @@ namespace openmsx {
 class VDPIODelay;
 class DummyDevice;
 class XMLElement;
-class CommandController;
 class MSXMotherBoard;
-class CartridgeSlotManager;
 class MSXCPU;
 class CliComm;
 class MemoryDebug;

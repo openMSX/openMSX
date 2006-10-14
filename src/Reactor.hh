@@ -14,6 +14,7 @@ namespace openmsx {
 
 class EventDistributor;
 class CommandController;
+class GlobalCommandController;
 class CliComm;
 class Display;
 class CommandConsole;
@@ -26,6 +27,7 @@ class MSXMotherBoard;
 class Setting;
 class CommandLineParser;
 class QuitCommand;
+class GlobalSettings;
 template <typename T> class EnumSetting;
 
 /**
@@ -51,7 +53,7 @@ public:
 	void enterMainLoop();
 
 	EventDistributor& getEventDistributor();
-	CommandController& getCommandController();
+	GlobalCommandController& getGlobalCommandController();
 	CliComm& getCliComm();
 	InputEventGenerator& getInputEventGenerator();
 	Display& getDisplay();
@@ -64,6 +66,10 @@ public:
 	MSXMotherBoard& createMotherBoard(const std::string& machine);
 	MSXMotherBoard* getMotherBoard() const;
 	void deleteMotherBoard();
+
+	// convenience methods
+	GlobalSettings& getGlobalSettings();
+	CommandController& getCommandController();
 
 private:
 	void createMachineSetting();
@@ -97,7 +103,7 @@ private:
 
 	// note: order of auto_ptr's is important
 	std::auto_ptr<EventDistributor> eventDistributor;
-	std::auto_ptr<CommandController> commandController;
+	std::auto_ptr<GlobalCommandController> globalCommandController;
 	std::auto_ptr<CliComm> cliComm;
 	std::auto_ptr<InputEventGenerator> inputEventGenerator;
 	std::auto_ptr<Display> display;

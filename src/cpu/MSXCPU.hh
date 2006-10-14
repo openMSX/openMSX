@@ -13,7 +13,6 @@ namespace openmsx {
 
 class MSXMotherBoard;
 class MSXCPUInterface;
-class CommandController;
 class BooleanSetting;
 class Z80TYPE;
 class R800TYPE;

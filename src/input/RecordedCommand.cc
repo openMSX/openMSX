@@ -1,7 +1,7 @@
 // $Id: $
 
 #include "RecordedCommand.hh"
-#include "CommandController.hh"
+#include "MSXCommandController.hh"
 #include "MSXEventDistributor.hh"
 #include "TclObject.hh"
 #include "Scheduler.hh"
@@ -14,14 +14,15 @@ using std::string;
 
 namespace openmsx {
 
-RecordedCommand::RecordedCommand(CommandController& commandController,
+RecordedCommand::RecordedCommand(MSXCommandController& msxCommandController,
                                  MSXEventDistributor& msxEventDistributor_,
                                  Scheduler& scheduler_,
                                  const string& name)
-	: Command(commandController, name)
+	: Command(msxCommandController, name)
 	, msxEventDistributor(msxEventDistributor_)
 	, scheduler(scheduler_)
-	, dummyResultObject(new TclObject(commandController.getInterpreter()))
+	, dummyResultObject(new TclObject(
+		msxCommandController.getInterpreter()))
 	, currentResultObject(dummyResultObject.get())
 {
 	msxEventDistributor.registerEventListener(*this);

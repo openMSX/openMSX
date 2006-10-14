@@ -11,14 +11,14 @@ namespace openmsx {
 
 class SettingsManager;
 class HotKey;
-class CommandController;
+class GlobalCommandController;
 class SaveSettingsCommand;
 class LoadSettingsCommand;
 
 class SettingsConfig : public XMLElement, private noncopyable
 {
 public:
-	SettingsConfig(CommandController& commandController, HotKey& hotKey);
+	SettingsConfig(GlobalCommandController& commandController, HotKey& hotKey);
 	~SettingsConfig();
 
 	void loadSetting(FileContext& context, const std::string& filename);
@@ -28,7 +28,7 @@ public:
 	SettingsManager& getSettingsManager();
 
 private:
-	CommandController& commandController;
+	GlobalCommandController& commandController;
 
 	const std::auto_ptr<SaveSettingsCommand> saveSettingsCommand;
 	const std::auto_ptr<LoadSettingsCommand> loadSettingsCommand;

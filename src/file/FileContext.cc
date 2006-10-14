@@ -5,7 +5,6 @@
 #include "FileException.hh"
 #include "GlobalSettings.hh"
 #include "CommandController.hh"
-#include "Interpreter.hh"
 #include "CliComm.hh"
 #include "CommandException.hh"
 #include "StringSetting.hh"
@@ -190,7 +189,7 @@ UserFileContext::UserFileContext(CommandController& commandController,
 			vector<string> dirs;
 			const string& list = commandController.getGlobalSettings().
 				getUserDirSetting().getValue();
-			commandController.getInterpreter().splitList(list, dirs);
+			commandController.splitList(list, dirs);
 			for (vector<string>::const_iterator it = dirs.begin();
 			     it != dirs.end(); ++it) {
 				string path = *it;

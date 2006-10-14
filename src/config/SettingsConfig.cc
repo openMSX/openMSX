@@ -9,7 +9,7 @@
 #include "CliComm.hh"
 #include "HotKey.hh"
 #include "CommandException.hh"
-#include "CommandController.hh"
+#include "GlobalCommandController.hh"
 #include "Command.hh"
 #include <memory>
 #include <cassert>
@@ -45,7 +45,7 @@ private:
 };
 
 
-SettingsConfig::SettingsConfig(CommandController& commandController_,
+SettingsConfig::SettingsConfig(GlobalCommandController& commandController_,
                                HotKey& hotKey_)
 	: XMLElement("settings")
 	, commandController(commandController_)

@@ -1,119 +1,75 @@
-// $Id$
+// $Id: $
 
 #ifndef COMMANDCONTROLLER_HH
 #define COMMANDCONTROLLER_HH
 
-#include "CommandRegistry.hh"
-#include "noncopyable.hh"
 #include <string>
-#include <map>
 #include <vector>
-#include <memory>
 
 namespace openmsx {
 
-class EventDistributor;
-class CliComm;
+class CommandCompleter;
+class Command;
 class CliConnection;
-class HotKey;
-class InfoCommand;
-class Interpreter;
-class FileContext;
-class SettingsConfig;
+class Setting;
+class CliComm;
 class GlobalSettings;
-class HelpCmd;
-class TabCompletionCmd;
-class VersionInfo;
-class RomInfoTopic;
+class Interpreter;
+class SettingsConfig;
+class GlobalCommandController;
 
-class CommandController : public CommandRegistry, private noncopyable
+class CommandController
 {
 public:
-	explicit CommandController(EventDistributor& eventDistributor);
-	~CommandController();
-
-	void setCliComm(CliComm* cliComm);
-
-	CliComm& getCliComm();
-	Interpreter& getInterpreter();
-	InfoCommand& getOpenMSXInfoCommand();
-	InfoCommand& getMachineInfoCommand();
-	HotKey& getHotKey();
-	SettingsConfig& getSettingsConfig();
-	GlobalSettings& getGlobalSettings();
-
-	CliConnection* getConnection() const;
-
 	/**
-	 * Executes all defined auto commands
+	 * (Un)register a command completer, used to complete build-in TCL cmds
 	 */
-	void source(const std::string& script);
-
-	/**
-	 * Returns true iff the command is complete
-	 * (all braces, quotes, .. are balanced)
-	 */
-	bool isComplete(const std::string& command);
-
-	/**
-	 * Execute a given command
-	 */
-	std::string executeCommand(const std::string& command,
-	                           CliConnection* connection = NULL);
-
-	/**
-	 * Complete a given command
-	 */
-	void tabCompletion(std::string& command);
-
-	// CommandRegistry
 	virtual void   registerCompleter(CommandCompleter& completer,
-	                                 const std::string& str);
+	                                 const std::string& str) = 0;
 	virtual void unregisterCompleter(CommandCompleter& completer,
-	                                 const std::string& str);
+	                                 const std::string& str) = 0;
+
+	/**
+	 * (Un)register a command
+	 */
 	virtual void   registerCommand(Command& command,
-	                               const std::string& str);
+	                               const std::string& str) = 0;
 	virtual void unregisterCommand(Command& command,
-	                               const std::string& str);
-	virtual bool hasCommand(const std::string& command);
-	virtual void registerSetting(Setting& setting);
-	virtual void unregisterSetting(Setting& setting);
-	virtual std::string makeUniqueSettingName(const std::string& name);
-	virtual CommandController& getCommandController();
+	                               const std::string& str) = 0;
 
-private:
-	void split(const std::string& str,
-	           std::vector<std::string>& tokens, char delimiter);
-	std::string join(const std::vector<std::string>& tokens, char delimiter);
-	std::string removeEscaping(const std::string& str);
-	void removeEscaping(const std::vector<std::string>& input,
-	                    std::vector<std::string>& result, bool keepLastIfEmpty);
-	std::string addEscaping(const std::string& str, bool quote, bool finished);
+	/**
+	 * Does a command with this name already exist?
+	 */
+	virtual bool hasCommand(const std::string& command) = 0;
 
-	void tabCompletion(std::vector<std::string>& tokens);
+	/**
+	 * Execute the given command
+	 */
+	virtual std::string executeCommand(const std::string& command,
+	                                   CliConnection* connection = 0) = 0;
 
-	typedef std::map<std::string, Command*> CommandMap;
-	typedef std::map<std::string, CommandCompleter*> CompleterMap;
-	CommandMap commands;
-	CompleterMap commandCompleters;
+	virtual void splitList(const std::string& list,
+	                       std::vector<std::string>& result) = 0;
 
-	CliComm* cliComm;
-	CliConnection* connection;
+	/** TODO
+	 */
+	virtual void   registerSetting(Setting& setting) = 0;
+	virtual void unregisterSetting(Setting& setting) = 0;
+	virtual std::string makeUniqueSettingName(const std::string& name) = 0;
 
-	EventDistributor& eventDistributor;
+	virtual CliComm& getCliComm() = 0;
+	virtual GlobalSettings& getGlobalSettings() = 0;
+	virtual Interpreter& getInterpreter() = 0;
+	virtual SettingsConfig& getSettingsConfig() = 0;
+	virtual CliConnection* getConnection() const = 0;
 
-	std::auto_ptr<Interpreter> interpreter;
-	std::auto_ptr<InfoCommand> openMSXInfoCommand;
-	std::auto_ptr<InfoCommand> machineInfoCommand;
-	std::auto_ptr<HotKey> hotKey;
-	std::auto_ptr<SettingsConfig> settingsConfig;
-	std::auto_ptr<GlobalSettings> globalSettings;
+	// needed to implement backwards compatibility, will be removed later
+	// don't use it in new code
+	virtual GlobalCommandController& getGlobalCommandController() = 0;
 
-	friend class HelpCmd;
-	const std::auto_ptr<HelpCmd> helpCmd;
-	const std::auto_ptr<TabCompletionCmd> tabCompletionCmd;
-	const std::auto_ptr<VersionInfo> versionInfo;
-	const std::auto_ptr<RomInfoTopic> romInfoTopic;
+protected:
+	CommandController() {}
+	virtual ~CommandController() {}
 };
 
 } // namespace openmsx

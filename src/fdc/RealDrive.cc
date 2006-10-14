@@ -20,7 +20,7 @@ namespace openmsx {
 
 static std::bitset<RealDrive::MAX_DRIVES> drivesInUse;
 
-RealDrive::RealDrive(CommandController& commandController,
+RealDrive::RealDrive(CommandController& commandController_,
                      EventDistributor& eventDistributor_,
                      MSXEventDistributor& msxEventDistributor,
                      Scheduler& scheduler,
@@ -29,7 +29,7 @@ RealDrive::RealDrive(CommandController& commandController,
 	, headPos(0), motorStatus(false), motorTimer(time)
 	, headLoadStatus(false), headLoadTimer(time)
 	, eventDistributor(eventDistributor_)
-	, commandController(commandController)
+	, commandController(commandController_)
 	, loadingIndicator(new LoadingIndicator(
 	         commandController.getGlobalSettings().getThrottleManager()))
 	, timeOut(false)

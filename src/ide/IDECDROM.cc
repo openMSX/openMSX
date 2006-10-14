@@ -19,7 +19,7 @@ namespace openmsx {
 class CDXCommand : public RecordedCommand
 {
 public:
-	CDXCommand(CommandController& commandController,
+	CDXCommand(MSXCommandController& msxCommandController,
 	           MSXEventDistributor& msxEventDistributor,
 	           Scheduler& scheduler, IDECDROM& cd);
 	virtual string execute(const vector<string>& tokens, const EmuTime& time);
@@ -49,7 +49,7 @@ IDECDROM::IDECDROM(MSXMotherBoard& motherBoard, const XMLElement& /*config*/,
                    const EmuTime& time)
 	: AbstractIDEDevice(motherBoard.getEventDistributor(), time)
 	, name(calcName())
-	, cdxCommand(new CDXCommand(motherBoard.getCommandController(),
+	, cdxCommand(new CDXCommand(motherBoard.getMSXCommandController(),
 	                            motherBoard.getMSXEventDistributor(),
 	                            motherBoard.getScheduler(), *this))
 {
@@ -318,10 +318,10 @@ void IDECDROM::insert(const string& filename)
 
 // class CDXCommand
 
-CDXCommand::CDXCommand(CommandController& commandController,
+CDXCommand::CDXCommand(MSXCommandController& msxCommandController,
                        MSXEventDistributor& msxEventDistributor,
                        Scheduler& scheduler, IDECDROM& cd_)
-	: RecordedCommand(commandController, msxEventDistributor,
+	: RecordedCommand(msxCommandController, msxEventDistributor,
 	                  scheduler, cd_.name)
 	, cd(cd_)
 {

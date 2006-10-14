@@ -9,11 +9,13 @@
 namespace openmsx {
 
 class InfoTopic;
+class Reactor;
 
 class InfoCommand : public Command
 {
 public:
-	InfoCommand(CommandRegistry& commandRegistry, const std::string& name);
+	InfoCommand(CommandController& commandController, const std::string& name,
+	            Reactor* reactor = NULL);
 	virtual ~InfoCommand();
 
 	void   registerTopic(InfoTopic& topic, const std::string& name);
@@ -28,7 +30,11 @@ public:
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
 private:
+	bool executeBWC(const std::vector<TclObject*>& tokens,
+	                TclObject& result);
+
 	std::map<std::string, const InfoTopic*> infoTopics;
+	Reactor* reactor; // for bwc
 };
 
 } // namespace openmsx

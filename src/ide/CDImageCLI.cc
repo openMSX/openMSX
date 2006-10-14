@@ -23,7 +23,7 @@ bool CDImageCLI::parseOption(const string& option, list<string>& cmdLine)
 {
 	string cd = option.substr(1); // cda
 	string filename = getArgument(option, cmdLine);
-	if (!commandController.hasCommand(cd)) {
+	if (!commandController.hasCommand(cd)) { // TODO WIP
 		throw MSXException("No CDROM named '" + cd + "'.");
 	}
 	TclObject command(commandController.getInterpreter());

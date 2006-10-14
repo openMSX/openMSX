@@ -35,8 +35,7 @@ SDLVideoSystem::SDLVideoSystem(Reactor& reactor)
 	console = screen->createConsoleLayer(reactor);
 	snowLayer = screen->createSnowLayer();
 	iconLayer = screen->createIconLayer(
-		reactor.getCommandController(), display, reactor.getIconStatus()
-		);
+		reactor.getCommandController(), display, reactor.getIconStatus());
 	display.addLayer(*console);
 	display.addLayer(*snowLayer);
 	display.addLayer(*iconLayer);
@@ -71,17 +70,13 @@ Rasterizer* SDLVideoSystem::createRasterizer(VDP& vdp)
 				vdp, display, *screen,
 				std::auto_ptr<PostProcessor>(new FBPostProcessor<Uint16>(
 					reactor.getCommandController(),
-					display, *screen, VIDEO_MSX, 640, 240
-					))
-				);
+					display, *screen, VIDEO_MSX, 640, 240)));
 		case 4:
 			return new SDLRasterizer<Uint32>(
 				vdp, display, *screen,
 				std::auto_ptr<PostProcessor>(new FBPostProcessor<Uint32>(
 					reactor.getCommandController(),
-					display, *screen, VIDEO_MSX, 640, 240
-					))
-				);
+					display, *screen, VIDEO_MSX, 640, 240)));
 		default:
 			assert(false);
 			return NULL;
@@ -89,16 +84,13 @@ Rasterizer* SDLVideoSystem::createRasterizer(VDP& vdp)
 #ifdef COMPONENT_GL
 	case RendererFactory::SDLGL:
 		return new GLRasterizer(
-			reactor.getCommandController(), vdp, display, *screen
-			);
+			reactor.getCommandController(), vdp, display, *screen);
 	case RendererFactory::SDLGL_PP:
 		return new SDLRasterizer<Uint32>(
 			vdp, display, *screen,
 			std::auto_ptr<PostProcessor>(new GLPostProcessor(
 				reactor.getCommandController(),
-				display, *screen, VIDEO_MSX, 640, 240
-				))
-			);
+				display, *screen, VIDEO_MSX, 640, 240)));
 #endif
 	default:
 		assert(false);
@@ -118,17 +110,13 @@ V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990& vdp)
 				vdp, display, *screen,
 				std::auto_ptr<PostProcessor>(new FBPostProcessor<Uint16>(
 					reactor.getCommandController(),
-					display, *screen, VIDEO_GFX9000, 1280, 240
-					))
-				);
+					display, *screen, VIDEO_GFX9000, 1280, 240)));
 		case 4:
 			return new V9990SDLRasterizer<Uint32>(
 				vdp, display, *screen,
 				std::auto_ptr<PostProcessor>(new FBPostProcessor<Uint32>(
 					reactor.getCommandController(),
-					display, *screen, VIDEO_GFX9000, 1280, 240
-					))
-				);
+					display, *screen, VIDEO_GFX9000, 1280, 240)));
 		default:
 			assert(false);
 			return NULL;
@@ -141,9 +129,7 @@ V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990& vdp)
 			vdp, display, *screen,
 			std::auto_ptr<PostProcessor>(new GLPostProcessor(
 				reactor.getCommandController(),
-				display, *screen, VIDEO_GFX9000, 1280, 240
-				))
-			);
+				display, *screen, VIDEO_GFX9000, 1280, 240)));
 #endif
 	default:
 		assert(false);

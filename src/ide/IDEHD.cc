@@ -8,7 +8,6 @@
 #include "DiskManipulator.hh"
 #include "XMLElement.hh"
 #include "RecordedCommand.hh"
-#include "CommandController.hh"
 #include "CommandException.hh"
 #include "GlobalSettings.hh"
 #include "BooleanSetting.hh"
@@ -23,7 +22,7 @@ namespace openmsx {
 class HDCommand : public RecordedCommand
 {
 public:
-	HDCommand(CommandController& commandController,
+	HDCommand(MSXCommandController& msxCommandController,
 	          MSXEventDistributor& msxEventDistributor,
 	          Scheduler& scheduler, IDEHD& hd);
 	virtual string execute(const vector<string>& tokens, const EmuTime& time);
@@ -55,7 +54,7 @@ IDEHD::IDEHD(MSXMotherBoard& motherBoard, const XMLElement& config,
 	: AbstractIDEDevice(motherBoard.getEventDistributor(), time)
 	, diskManipulator(motherBoard.getDiskManipulator())
 	, name(calcName())
-	, hdCommand(new HDCommand(motherBoard.getCommandController(),
+	, hdCommand(new HDCommand(motherBoard.getMSXCommandController(),
 	                          motherBoard.getMSXEventDistributor(),
 	                          motherBoard.getScheduler(), *this))
 {
@@ -202,10 +201,10 @@ SectorAccessibleDisk* IDEHD::getSectorAccessibleDisk()
 
 // class HDCommand
 
-HDCommand::HDCommand(CommandController& commandController,
+HDCommand::HDCommand(MSXCommandController& msxCommandController,
                      MSXEventDistributor& msxEventDistributor,
                      Scheduler& scheduler, IDEHD& hd_)
-	: RecordedCommand(commandController, msxEventDistributor,
+	: RecordedCommand(msxCommandController, msxEventDistributor,
 	                  scheduler, hd_.name)
 	, hd(hd_)
 {

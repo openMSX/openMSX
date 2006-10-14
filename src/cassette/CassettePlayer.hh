@@ -26,9 +26,11 @@ class LoadingIndicator;
 class BooleanSetting;
 class TapeCommand;
 class CommandController;
+class MSXCommandController;
 class MSXEventDistributor;
 class EventDistributor;
 
+// TODO split in two files
 class MSXCassettePlayerCLI : public CLIOption, public CLIFileType
 {
 public:
@@ -48,7 +50,7 @@ private:
 class CassettePlayer : public CassetteDevice, public SoundDevice, public EventListener
 {
 public:
-	CassettePlayer(CommandController& commandController,
+	CassettePlayer(MSXCommandController& msxCommandController,
 	               Mixer& mixer, Scheduler& Scheduler,
 	               MSXEventDistributor& msxEventDistributor,
 	               EventDistributor& eventDistributor);
@@ -110,7 +112,7 @@ private:
 
 	std::auto_ptr<WavWriter> wavWriter;
 
-	CommandController& commandController;
+	MSXCommandController& msxCommandController;
 	Scheduler& scheduler;
 
 	const std::auto_ptr<TapeCommand> tapeCommand;

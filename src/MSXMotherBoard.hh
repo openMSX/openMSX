@@ -15,9 +15,9 @@ class Reactor;
 class MSXDevice;
 class MachineConfig;
 class ExtensionConfig;
+class MSXCommandController;
 class Scheduler;
 class CartridgeSlotManager;
-class CommandController;
 class EventDistributor;
 class MSXEventDistributor;
 class EventDelay;
@@ -37,6 +37,8 @@ class RenShaTurbo;
 class Display;
 class DiskManipulator;
 class FilePool;
+class GlobalSettings;
+class CommandController;
 class BooleanSetting;
 class EmuTime;
 class Setting;
@@ -101,6 +103,7 @@ public:
 	void removeExtension(const ExtensionConfig& extension);
 
 	// The following classes are unique per MSX machine
+	MSXCommandController& getMSXCommandController();
 	Scheduler& getScheduler();
 	MSXEventDistributor& getMSXEventDistributor();
 	CartridgeSlotManager& getSlotManager();
@@ -119,12 +122,15 @@ public:
 	RenShaTurbo& getRenShaTurbo();
 
 	// These are only convenience methods, Reactor keeps these objects
-	CommandController& getCommandController();
 	EventDistributor& getEventDistributor();
 	CliComm& getCliComm();
 	Display& getDisplay();
 	DiskManipulator& getDiskManipulator();
 	FilePool& getFilePool();
+	GlobalSettings& getGlobalSettings();
+
+	// convenience methods
+	CommandController& getCommandController();
 
 	/**
 	 * All MSXDevices should be registered by the MotherBoard.
@@ -160,6 +166,7 @@ private:
 	Extensions extensions;
 
 	// order of auto_ptr's is important!
+	std::auto_ptr<MSXCommandController> msxCommandController;
 	std::auto_ptr<Scheduler> scheduler;
 	std::auto_ptr<MSXEventDistributor> msxEventDistributor;
 	std::auto_ptr<CartridgeSlotManager> slotManager;

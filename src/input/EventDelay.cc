@@ -2,7 +2,6 @@
 
 #include "EventDelay.hh"
 #include "MSXEventDistributor.hh"
-#include "CommandController.hh"
 #include "FloatSetting.hh"
 #include "MSXEventDistributor.hh"
 #include "Timer.hh"

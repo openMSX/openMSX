@@ -8,7 +8,7 @@
 #include "BreakPoint.hh"
 #include "MSXWatchIODevice.hh"
 #include "TclObject.hh"
-#include "CommandController.hh"
+#include "MSXCommandController.hh"
 #include "RecordedCommand.hh"
 #include "CommandException.hh"
 #include "StringOp.hh"
@@ -29,7 +29,7 @@ namespace openmsx {
 class DebugCmd : public RecordedCommand
 {
 public:
-	DebugCmd(CommandController& commandController,
+	DebugCmd(MSXCommandController& msxCommandController,
 	         MSXEventDistributor& msxEventDistributor,
 	         Scheduler& scheduler, Debugger& debugger);
 	virtual bool needRecord(const vector<TclObject*>& tokens) const;
@@ -73,7 +73,7 @@ private:
 
 Debugger::Debugger(MSXMotherBoard& motherBoard_)
 	: motherBoard(motherBoard_)
-	, debugCmd(new DebugCmd(motherBoard.getCommandController(),
+	, debugCmd(new DebugCmd(motherBoard.getMSXCommandController(),
 	                        motherBoard.getMSXEventDistributor(),
 	                        motherBoard.getScheduler(), *this))
 	, cpu(0)
@@ -143,10 +143,10 @@ static word getAddress(const vector<TclObject*>& tokens)
 	return addr;
 }
 
-DebugCmd::DebugCmd(CommandController& commandController,
+DebugCmd::DebugCmd(MSXCommandController& msxCommandController,
                    MSXEventDistributor& msxEventDistributor,
                    Scheduler& scheduler, Debugger& debugger_)
-	: RecordedCommand(commandController, msxEventDistributor,
+	: RecordedCommand(msxCommandController, msxEventDistributor,
 	                  scheduler, "debug")
 	, debugger(debugger_)
 {

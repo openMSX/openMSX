@@ -7,7 +7,7 @@
 #include "LedEvent.hh"
 #include "CliConnection.hh"
 #include "Socket.hh"
-#include "CommandController.hh"
+#include "GlobalCommandController.hh"
 #include "Command.hh"
 #include "StringOp.hh"
 #include <map>
@@ -39,7 +39,7 @@ private:
 };
 
 
-CliComm::CliComm(CommandController& commandController_,
+CliComm::CliComm(GlobalCommandController& commandController_,
                  EventDistributor& eventDistributor_)
 	: updateCmd(new UpdateCmd(commandController_, *this))
 	, commandController(commandController_)

@@ -12,7 +12,6 @@ SRC_HDR:= \
 	SETetrisDongle \
 	MagicKey \
 	Mouse \
-	JoyNet \
 	JoyTap \
 	NinjaTap \
 	EventTranslator \

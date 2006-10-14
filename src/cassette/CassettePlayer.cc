@@ -25,7 +25,7 @@
 #include "CassettePlayer.hh"
 #include "Connector.hh"
 #include "CassettePort.hh"
-#include "CommandController.hh"
+#include "MSXCommandController.hh"
 #include "CommandLineParser.hh"
 #include "RecordedCommand.hh"
 #include "GlobalSettings.hh"
@@ -64,7 +64,7 @@ static const double OUTPUT_AMP = 60.0;
 class TapeCommand : public RecordedCommand
 {
 public:
-	TapeCommand(CommandController& commandController,
+	TapeCommand(MSXCommandController& msxCommandController,
 	            MSXEventDistributor& msxEventDistributor,
 	            Scheduler& scheduler,
 	            CassettePlayer& cassettePlayer);
@@ -100,7 +100,7 @@ const string& MSXCassettePlayerCLI::optionHelp() const
 void MSXCassettePlayerCLI::parseFileType(const string& filename,
                                          list<string>& /*cmdLine*/)
 {
-	if (!commandController.hasCommand("cassetteplayer")) {
+	if (!commandController.hasCommand("cassetteplayer")) { // TODO WIP
 		throw MSXException("No cassetteplayer.");
 	}
 	TclObject command(commandController.getInterpreter());
@@ -117,7 +117,7 @@ const string& MSXCassettePlayerCLI::fileTypeHelp() const
 
 
 CassettePlayer::CassettePlayer(
-		CommandController& commandController_,
+		MSXCommandController& msxCommandController_,
 		Mixer& mixer, Scheduler& scheduler_,
 		MSXEventDistributor& msxEventDistributor,
 		EventDistributor& eventDistributor_)
@@ -128,17 +128,17 @@ CassettePlayer::CassettePlayer(
 	, prevTime(EmuTime::zero)
 	, lastOutput(false)
 	, sampcnt(0)
-	, commandController(commandController_)
+	, msxCommandController(msxCommandController_)
 	, scheduler(scheduler_)
-	, tapeCommand(new TapeCommand(commandController, msxEventDistributor,
+	, tapeCommand(new TapeCommand(msxCommandController, msxEventDistributor,
 	                              scheduler, *this))
 	, playTapeTime(EmuTime::zero)
-	, cliComm(commandController.getCliComm())
+	, cliComm(msxCommandController.getCliComm())
 	, eventDistributor(eventDistributor_)
 	, loadingIndicator(new LoadingIndicator(
-	       commandController.getGlobalSettings().getThrottleManager()))
+	       msxCommandController.getGlobalSettings().getThrottleManager()))
 {
-	autoRunSetting.reset(new BooleanSetting(commandController,
+	autoRunSetting.reset(new BooleanSetting(msxCommandController,
 		"autoruncassettes", "automatically try to run cassettes", false));
 	removeTape(EmuTime::zero);
 
@@ -207,7 +207,7 @@ void CassettePlayer::autoRun()
 				assert(false); // Shouldn't be possible
 		}
 		try {
-			commandController.executeCommand(
+			msxCommandController.executeCommand(
 				"after time 2 { type " + loadingInstruction + "\\r }");
 		} catch (CommandException& e) {
 			cliComm.printWarning(
@@ -467,14 +467,14 @@ bool CassettePlayer::signalEvent(shared_ptr<const Event> event)
 
 // class TapeCommand
 
-TapeCommand::TapeCommand(CommandController& commandController,
+TapeCommand::TapeCommand(MSXCommandController& msxCommandController,
                          MSXEventDistributor& msxEventDistributor,
                          Scheduler& scheduler,
                          CassettePlayer& cassettePlayer_)
-	: RecordedCommand(commandController, msxEventDistributor,
+	: RecordedCommand(msxCommandController, msxEventDistributor,
 	                  scheduler, "cassetteplayer")
 	, cassettePlayer(cassettePlayer_)
-	, cliComm(commandController.getCliComm())
+	, cliComm(msxCommandController.getCliComm())
 {
 }
 

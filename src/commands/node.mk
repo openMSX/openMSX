@@ -4,7 +4,8 @@ include build/node-start.mk
 
 SRC_HDR:= \
 	CommandException \
-	CommandController \
+	GlobalCommandController \
+	MSXCommandController \
 	Completer \
 	Command \
 	InfoCommand \
@@ -14,7 +15,7 @@ SRC_HDR:= \
 
 HDR_ONLY:= \
 	InterpreterOutput \
-	CommandRegistry
+	CommandController
 
 include build/node-end.mk
 

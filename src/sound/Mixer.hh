@@ -17,7 +17,7 @@ class EmuDuration;
 class SoundDevice;
 class SoundDriver;
 class Scheduler;
-class CommandController;
+class MSXCommandController;
 class IntegerSetting;
 class BooleanSetting;
 template <typename T> class EnumSetting;
@@ -31,7 +31,7 @@ class Mixer : private Observer<Setting>, private noncopyable
 public:
 	static const int MAX_VOLUME = 32767;
 
-	Mixer(Scheduler& scheduler, CommandController& commandController);
+	Mixer(Scheduler& scheduler, MSXCommandController& msxCommandController);
 	virtual ~Mixer();
 
 	/**
@@ -105,7 +105,7 @@ private:
 	std::vector<int*> buffers;
 
 	Scheduler& scheduler;
-	CommandController& commandController;
+	MSXCommandController& msxCommandController;
 
 	std::auto_ptr<BooleanSetting> muteSetting;
 	std::auto_ptr<IntegerSetting> masterVolume;

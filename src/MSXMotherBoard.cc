@@ -5,6 +5,7 @@
 #include "MSXDevice.hh"
 #include "MachineConfig.hh"
 #include "ExtensionConfig.hh"
+#include "MSXCommandController.hh"
 #include "Scheduler.hh"
 #include "CartridgeSlotManager.hh"
 #include "EventDistributor.hh"
@@ -45,8 +46,7 @@ namespace openmsx {
 class ResetCmd : public RecordedCommand
 {
 public:
-	ResetCmd(CommandController& commandController,
-	         MSXMotherBoard& motherBoard);
+	ResetCmd(MSXMotherBoard& motherBoard);
 	virtual string execute(const vector<string>& tokens,
 	                       const EmuTime& time);
 	virtual string help(const vector<string>& tokens) const;
@@ -57,8 +57,7 @@ private:
 class ListExtCmd : public Command
 {
 public:
-	ListExtCmd(CommandController& commandController,
-	       MSXMotherBoard& motherBoard);
+	ListExtCmd(MSXMotherBoard& motherBoard);
 	virtual void execute(const vector<TclObject*>& tokens,
 	                     TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
@@ -69,8 +68,7 @@ private:
 class ExtCmd : public RecordedCommand
 {
 public:
-	ExtCmd(CommandController& commandController,
-	       MSXMotherBoard& motherBoard);
+	ExtCmd(MSXMotherBoard& motherBoard);
 	virtual string execute(const vector<string>& tokens,
 	                       const EmuTime& time);
 	virtual string help(const vector<string>& tokens) const;
@@ -82,8 +80,7 @@ private:
 class RemoveExtCmd : public RecordedCommand
 {
 public:
-	RemoveExtCmd(CommandController& commandController,
-	             MSXMotherBoard& motherBoard);
+	RemoveExtCmd(MSXMotherBoard& motherBoard);
 	virtual string execute(const vector<string>& tokens,
 	                       const EmuTime& time);
 	virtual string help(const vector<string>& tokens) const;
@@ -111,15 +108,17 @@ MSXMotherBoard::MSXMotherBoard(Reactor& reactor_)
 	, needReset(false)
 	, needPowerDown(false)
 	, blockedCounter(0)
-	, resetCommand    (new ResetCmd    (getCommandController(), *this))
-	, listExtCommand  (new ListExtCmd  (getCommandController(), *this))
-	, extCommand      (new ExtCmd      (getCommandController(), *this))
-	, removeExtCommand(new RemoveExtCmd(getCommandController(), *this))
-	, extensionInfo(new ConfigInfo(
-	       getCommandController().getOpenMSXInfoCommand(), "extensions"))
-	, machineInfo  (new ConfigInfo(
-	       getCommandController().getOpenMSXInfoCommand(), "machines"))
-	, powerSetting(getCommandController().getGlobalSettings().getPowerSetting())
+	, resetCommand    (new ResetCmd    (*this))
+	, listExtCommand  (new ListExtCmd  (*this))
+	, extCommand      (new ExtCmd      (*this))
+	, removeExtCommand(new RemoveExtCmd(*this))
+	, extensionInfo(new ConfigInfo( // TODO move to reactor
+	       getMSXCommandController().getGlobalCommandController().
+	       getOpenMSXInfoCommand(), "extensions"))
+	, machineInfo  (new ConfigInfo( // TODO move to reactor
+	       getMSXCommandController().getGlobalCommandController().
+	       getOpenMSXInfoCommand(), "machines"))
+	, powerSetting(getGlobalSettings().getPowerSetting())
 {
 	getMixer().mute(); // powered down
 	getRealTime(); // make sure it's instantiated
@@ -249,6 +248,15 @@ void MSXMotherBoard::removeExtension(const ExtensionConfig& extension)
 	extensions.erase(it);
 }
 
+MSXCommandController& MSXMotherBoard::getMSXCommandController()
+{
+	if (!msxCommandController.get()) {
+		msxCommandController.reset(new MSXCommandController(
+			reactor.getGlobalCommandController()));
+	}
+	return *msxCommandController;
+}
+
 Scheduler& MSXMotherBoard::getScheduler()
 {
 	if (!scheduler.get()) {
@@ -297,8 +305,7 @@ RealTime& MSXMotherBoard::getRealTime()
 	if (!realTime.get()) {
 		realTime.reset(new RealTime(
 			getScheduler(), getEventDistributor(),
-			getEventDelay(),
-			getCommandController().getGlobalSettings()));
+			getEventDelay(), getGlobalSettings()));
 	}
 	return *realTime;
 }
@@ -314,7 +321,7 @@ Debugger& MSXMotherBoard::getDebugger()
 Mixer& MSXMotherBoard::getMixer()
 {
 	if (!mixer.get()) {
-		mixer.reset(new Mixer(getScheduler(), getCommandController()));
+		mixer.reset(new Mixer(getScheduler(), getMSXCommandController()));
 	}
 	return *mixer;
 }
@@ -390,11 +397,6 @@ RenShaTurbo& MSXMotherBoard::getRenShaTurbo()
 	return *renShaTurbo;
 }
 
-CommandController& MSXMotherBoard::getCommandController()
-{
-	return reactor.getCommandController();
-}
-
 EventDistributor& MSXMotherBoard::getEventDistributor()
 {
 	return reactor.getEventDistributor();
@@ -415,9 +417,19 @@ DiskManipulator& MSXMotherBoard::getDiskManipulator()
 	return reactor.getDiskManipulator();
 }
 
+GlobalSettings& MSXMotherBoard::getGlobalSettings()
+{
+	return reactor.getGlobalSettings();
+}
+
 FilePool& MSXMotherBoard::getFilePool()
 {
 	return reactor.getFilePool();
+}
+
+CommandController& MSXMotherBoard::getCommandController()
+{
+	return getMSXCommandController();
 }
 
 bool MSXMotherBoard::execute()
@@ -610,9 +622,8 @@ static void getHwConfigs(const string& type, set<string>& result)
 
 
 // ResetCmd
-ResetCmd::ResetCmd(CommandController& commandController,
-                   MSXMotherBoard& motherBoard_)
-	: RecordedCommand(commandController,
+ResetCmd::ResetCmd(MSXMotherBoard& motherBoard_)
+	: RecordedCommand(motherBoard_.getMSXCommandController(),
 	                  motherBoard_.getMSXEventDistributor(),
 	                  motherBoard_.getScheduler(),
 	                  "reset")
@@ -634,9 +645,8 @@ string ResetCmd::help(const vector<string>& /*tokens*/) const
 
 
 // ListExtCmd
-ListExtCmd::ListExtCmd(CommandController& commandController,
-                       MSXMotherBoard& motherBoard_)
-	: Command(commandController, "list_extensions")
+ListExtCmd::ListExtCmd(MSXMotherBoard& motherBoard_)
+	: Command(motherBoard_.getMSXCommandController(), "list_extensions")
 	, motherBoard(motherBoard_)
 {
 }
@@ -658,9 +668,8 @@ string ListExtCmd::help(const vector<string>& /*tokens*/) const
 
 
 // ExtCmd
-ExtCmd::ExtCmd(CommandController& commandController,
-               MSXMotherBoard& motherBoard_)
-	: RecordedCommand(commandController,
+ExtCmd::ExtCmd(MSXMotherBoard& motherBoard_)
+	: RecordedCommand(motherBoard_.getMSXCommandController(),
 	                  motherBoard_.getMSXEventDistributor(),
 	                  motherBoard_.getScheduler(),
 	                  "ext")
@@ -696,9 +705,8 @@ void ExtCmd::tabCompletion(vector<string>& tokens) const
 
 
 // RemoveExtCmd
-RemoveExtCmd::RemoveExtCmd(CommandController& commandController,
-                           MSXMotherBoard& motherBoard_)
-	: RecordedCommand(commandController,
+RemoveExtCmd::RemoveExtCmd(MSXMotherBoard& motherBoard_)
+	: RecordedCommand(motherBoard_.getMSXCommandController(),
 	                  motherBoard_.getMSXEventDistributor(),
 	                  motherBoard_.getScheduler(),
 	                  "remove_extension")

@@ -8,7 +8,7 @@
 #include "InfoTopic.hh"
 #include "InfoCommand.hh"
 #include "TclObject.hh"
-#include "CommandController.hh"
+#include "GlobalCommandController.hh"
 #include "CommandException.hh"
 #include "Completer.hh"
 #include "CliComm.hh"
@@ -44,21 +44,21 @@ private:
 
 	class EnumInfo : public InfoTopic {
 	public:
-		EnumInfo(CommandController& commandController,
+		EnumInfo(GlobalCommandController& commandController,
 		         EnumSettingPolicy& parent, const std::string& name);
 		virtual void execute(const std::vector<TclObject*>& tokens,
 		                     TclObject& result) const;
 		virtual std::string help(const std::vector<std::string>& tokens) const;
 	private:
 		EnumSettingPolicy& parent;
-		CommandController& commandController;
+		GlobalCommandController& commandController;
 	} enumInfo;
 };
 
 template <typename T> class EnumSetting : public SettingImpl<EnumSettingPolicy<T> >
 {
 public:
-	EnumSetting(CommandController& CommandController, const std::string& name,
+	EnumSetting(CommandController& commandController, const std::string& name,
 	            const std::string& description, T initialValue,
 	            const typename EnumSettingPolicy<T>::Map& map_,
 	            Setting::SaveSetting save = Setting::SAVE);
@@ -73,7 +73,7 @@ EnumSettingPolicy<T>::EnumSettingPolicy(
 		const std::string& name_, const Map& map_)
 	: SettingPolicy<T>(commandController)
 	, name(name_), enumMap(map_)
-	, enumInfo(commandController, *this, name)
+	, enumInfo(commandController.getGlobalCommandController(), *this, name)
 {
 }
 
@@ -151,7 +151,7 @@ void EnumSettingPolicy<T>::additionalInfo(TclObject& result) const
 
 
 template<typename T>
-EnumSettingPolicy<T>::EnumInfo::EnumInfo(CommandController& commandController_,
+EnumSettingPolicy<T>::EnumInfo::EnumInfo(GlobalCommandController& commandController_,
                                          EnumSettingPolicy& parent_,
                                          const std::string& name)
 	: InfoTopic(commandController_.getOpenMSXInfoCommand(), name)

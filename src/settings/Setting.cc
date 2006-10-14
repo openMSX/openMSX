@@ -27,8 +27,8 @@ Setting::~Setting()
 void Setting::notify() const
 {
 	Subject<Setting>::notify();
-	commandController.getCliComm().update(CliComm::SETTING, getName(),
-	                           getValueString());
+	commandController.getCliComm().update(
+		CliComm::SETTING, getName(), getValueString());
 }
 
 bool Setting::needLoadSave() const

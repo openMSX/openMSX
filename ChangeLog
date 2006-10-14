@@ -1,6 +1,14 @@
 $Id$
 
 2006-10-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Removed JoyNet:
+	   - it didn't work (on practical speeds) anyway
+	* Split CommandController in MSXCommandController (machine specfic)
+	  and GlobalCommandController (and an abstract base class):
+	   - changed code to use the approriate class, but ATM both still do
+	     exactly the same
+
+2006-10-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Split openmsx_info topics in two:
 	   - machine specific topics are moved to a new machine_info command
 	   - general topics remain in openmsx_info

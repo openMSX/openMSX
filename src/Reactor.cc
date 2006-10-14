@@ -3,8 +3,7 @@
 #include "Reactor.hh"
 #include "CommandLineParser.hh"
 #include "EventDistributor.hh"
-#include "CommandController.hh"
-#include "Interpreter.hh"
+#include "GlobalCommandController.hh"
 #include "CommandConsole.hh"
 #include "InputEventGenerator.hh"
 #include "DiskManipulator.hh"
@@ -58,8 +57,7 @@ Reactor::Reactor()
 	, running(true)
 	, motherBoard(NULL)
 	, mbSem(1)
-	, pauseSetting(getCommandController().getGlobalSettings().
-	                   getPauseSetting())
+	, pauseSetting(getGlobalSettings().getPauseSetting())
 	, quitCommand(new QuitCommand(getCommandController(), *this))
 {
 	createMachineSetting();
@@ -90,18 +88,19 @@ EventDistributor& Reactor::getEventDistributor()
 	return *eventDistributor;
 }
 
-CommandController& Reactor::getCommandController()
+GlobalCommandController& Reactor::getGlobalCommandController()
 {
-	if (!commandController.get()) {
-		commandController.reset(new CommandController(getEventDistributor()));
+	if (!globalCommandController.get()) {
+		globalCommandController.reset(new GlobalCommandController(
+			getEventDistributor(), *this));
 	}
-	return *commandController;
+	return *globalCommandController;
 }
 
 CliComm& Reactor::getCliComm()
 {
 	if (!cliComm.get()) {
-		cliComm.reset(new CliComm(getCommandController(),
+		cliComm.reset(new CliComm(getGlobalCommandController(),
 		                          getEventDistributor()));
 	}
 	return *cliComm;
@@ -129,7 +128,7 @@ CommandConsole& Reactor::getCommandConsole()
 {
 	if (!commandConsole.get()) {
 		commandConsole.reset(new CommandConsole(
-			getCommandController(), getEventDistributor(),
+			getGlobalCommandController(), getEventDistributor(),
 			getDisplay()));
 	}
 	return *commandConsole;
@@ -156,7 +155,7 @@ FilePool& Reactor::getFilePool()
 {
 	if (!filePool.get()) {
 		filePool.reset(new FilePool(
-			getCommandController().getSettingsConfig()));
+			getGlobalCommandController().getSettingsConfig()));
 	}
 	return *filePool;
 }
@@ -164,6 +163,16 @@ FilePool& Reactor::getFilePool()
 EnumSetting<int>& Reactor::getMachineSetting()
 {
 	return *machineSetting;
+}
+
+GlobalSettings& Reactor::getGlobalSettings()
+{
+	return getGlobalCommandController().getGlobalSettings();
+}
+
+CommandController& Reactor::getCommandController()
+{
+	return getGlobalCommandController();
 }
 
 static int select(const string& basepath, const struct dirent* d)
@@ -270,11 +279,12 @@ void Reactor::doSwitchMachine()
 void Reactor::run(CommandLineParser& parser)
 {
 	Display& display = getDisplay();
+	GlobalCommandController& commandController = getGlobalCommandController();
 
 	// execute init.tcl
 	try {
 		SystemFileContext context(true); // only in system dir
-		getCommandController().source(context.resolve("init.tcl"));
+		commandController.source(context.resolve("init.tcl"));
 	} catch (FileException& e) {
 		// no init.tcl, ignore
 	}
@@ -284,8 +294,8 @@ void Reactor::run(CommandLineParser& parser)
 	for (CommandLineParser::Scripts::const_iterator it = scripts.begin();
 	     it != scripts.end(); ++it) {
 		try {
-			UserFileContext context(getCommandController());
-			getCommandController().source(context.resolve(*it));
+			UserFileContext context(commandController);
+			commandController.source(context.resolve(*it));
 		} catch (FileException& e) {
 			throw FatalError("Couldn't execute script: " +
 			                 e.getMessage());
@@ -299,7 +309,7 @@ void Reactor::run(CommandLineParser& parser)
 		// powerUp() method. Solution is to implement dependencies
 		// between devices so ADVRAM can check the error condition
 		// in its constructor
-		//getCommandController().executeCommand("set power on");
+		//getGlobalCommandController().executeCommand("set power on");
 		MSXMotherBoard* motherboard = getMotherBoard();
 		if (motherboard) {
 			motherboard->powerUp();
@@ -375,7 +385,7 @@ void Reactor::update(const Setting& setting)
 bool Reactor::signalEvent(shared_ptr<const Event> event)
 {
 	if (event->getType() == OPENMSX_QUIT_EVENT) {
-		getCommandController().getInterpreter().execute("exit");
+		getGlobalCommandController().executeCommand("exit");
 	} else {
 		assert(false);
 	}

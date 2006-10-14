@@ -1,6 +1,6 @@
 // $Id$
 
-#include "CommandController.hh"
+#include "GlobalCommandController.hh"
 #include "Command.hh"
 #include "InfoTopic.hh"
 #include "File.hh"
@@ -29,22 +29,24 @@ namespace openmsx {
 class HelpCmd : public Command
 {
 public:
-	explicit HelpCmd(CommandController& parent);
-	virtual void execute(const vector<TclObject*>& tokens, TclObject& result);
+	explicit HelpCmd(GlobalCommandController& controller);
+	virtual void execute(const vector<TclObject*>& tokens,
+	                     TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
-	CommandController& parent;
+	GlobalCommandController& controller;
 };
 
 class TabCompletionCmd : public Command
 {
 public:
-	explicit TabCompletionCmd(CommandController& parent);
-	virtual void execute(const vector<TclObject*>& tokens, TclObject& result);
+	explicit TabCompletionCmd(GlobalCommandController& controller);
+	virtual void execute(const vector<TclObject*>& tokens,
+	                     TclObject& result);
 	virtual string help(const vector<string>& tokens) const;
 private:
-	CommandController& parent;
+	GlobalCommandController& controller;
 };
 
 class VersionInfo : public InfoTopic
@@ -57,12 +59,12 @@ public:
 };
 
 
-CommandController::CommandController(EventDistributor& eventDistributor_)
+GlobalCommandController::GlobalCommandController(
+	EventDistributor& eventDistributor_, Reactor& reactor)
 	: cliComm(NULL)
 	, connection(NULL)
 	, eventDistributor(eventDistributor_)
-	, openMSXInfoCommand(new InfoCommand(*this, "openmsx_info"))
-	, machineInfoCommand(new InfoCommand(*this, "machine_info"))
+	, openMSXInfoCommand(new InfoCommand(*this, "openmsx_info", &reactor))
 	, helpCmd(new HelpCmd(*this))
 	, tabCompletionCmd(new TabCompletionCmd(*this))
 	, versionInfo(new VersionInfo(getOpenMSXInfoCommand()))
@@ -70,29 +72,29 @@ CommandController::CommandController(EventDistributor& eventDistributor_)
 {
 }
 
-CommandController::~CommandController()
+GlobalCommandController::~GlobalCommandController()
 {
 	//assert(commands.empty());            // TODO
 	//assert(commandCompleters.empty());   // TODO
 }
 
-void CommandController::setCliComm(CliComm* cliComm_)
+void GlobalCommandController::setCliComm(CliComm* cliComm_)
 {
 	cliComm = cliComm_;
 }
 
-CliComm& CommandController::getCliComm()
+CliComm& GlobalCommandController::getCliComm()
 {
 	assert(cliComm);
 	return *cliComm;
 }
 
-CliConnection* CommandController::getConnection() const
+CliConnection* GlobalCommandController::getConnection() const
 {
 	return connection;
 }
 
-Interpreter& CommandController::getInterpreter()
+Interpreter& GlobalCommandController::getInterpreter()
 {
 	if (!interpreter.get()) {
 		interpreter.reset(new Interpreter(eventDistributor));
@@ -100,17 +102,12 @@ Interpreter& CommandController::getInterpreter()
 	return *interpreter;
 }
 
-InfoCommand& CommandController::getOpenMSXInfoCommand()
+InfoCommand& GlobalCommandController::getOpenMSXInfoCommand()
 {
 	return *openMSXInfoCommand;
 }
 
-InfoCommand& CommandController::getMachineInfoCommand()
-{
-	return *machineInfoCommand;
-}
-
-HotKey& CommandController::getHotKey()
+HotKey& GlobalCommandController::getHotKey()
 {
 	if (!hotKey.get()) {
 		hotKey.reset(new HotKey(*this, eventDistributor));
@@ -118,7 +115,7 @@ HotKey& CommandController::getHotKey()
 	return *hotKey;
 }
 
-SettingsConfig& CommandController::getSettingsConfig()
+SettingsConfig& GlobalCommandController::getSettingsConfig()
 {
 	if (!settingsConfig.get()) {
 		settingsConfig.reset(new SettingsConfig(*this, getHotKey()));
@@ -126,7 +123,7 @@ SettingsConfig& CommandController::getSettingsConfig()
 	return *settingsConfig;
 }
 
-GlobalSettings& CommandController::getGlobalSettings()
+GlobalSettings& GlobalCommandController::getGlobalSettings()
 {
 	if (!globalSettings.get()) {
 		globalSettings.reset(new GlobalSettings(*this));
@@ -134,8 +131,8 @@ GlobalSettings& CommandController::getGlobalSettings()
 	return *globalSettings;
 }
 
-void CommandController::registerCommand(Command& command,
-                                        const string& str)
+void GlobalCommandController::registerCommand(
+	Command& command, const string& str)
 {
 	assert(commands.find(str) == commands.end());
 
@@ -143,8 +140,8 @@ void CommandController::registerCommand(Command& command,
 	getInterpreter().registerCommand(str, command);
 }
 
-void CommandController::unregisterCommand(Command& command,
-                                          const string& str)
+void GlobalCommandController::unregisterCommand(
+	Command& command, const string& str)
 {
 	assert(commands.find(str) != commands.end());
 	assert(commands.find(str)->second == &command);
@@ -153,15 +150,15 @@ void CommandController::unregisterCommand(Command& command,
 	commands.erase(str);
 }
 
-void CommandController::registerCompleter(CommandCompleter& completer,
-                                          const string& str)
+void GlobalCommandController::registerCompleter(
+	CommandCompleter& completer, const string& str)
 {
 	assert(commandCompleters.find(str) == commandCompleters.end());
 	commandCompleters[str] = &completer;
 }
 
-void CommandController::unregisterCompleter(CommandCompleter& completer,
-                                            const string& str)
+void GlobalCommandController::unregisterCompleter(
+	CommandCompleter& completer, const string& str)
 {
 	(void)completer;
 	assert(commandCompleters.find(str) != commandCompleters.end());
@@ -169,33 +166,33 @@ void CommandController::unregisterCompleter(CommandCompleter& completer,
 	commandCompleters.erase(str);
 }
 
-void CommandController::registerSetting(Setting& setting)
+void GlobalCommandController::registerSetting(Setting& setting)
 {
 	getSettingsConfig().getSettingsManager().registerSetting(setting);
 }
 
-void CommandController::unregisterSetting(Setting& setting)
+void GlobalCommandController::unregisterSetting(Setting& setting)
 {
 	getSettingsConfig().getSettingsManager().unregisterSetting(setting);
 }
 
-string CommandController::makeUniqueSettingName(const string& name)
+string GlobalCommandController::makeUniqueSettingName(const string& name)
 {
 	return getSettingsConfig().getSettingsManager().makeUnique(name);
 }
 
-CommandController& CommandController::getCommandController()
+GlobalCommandController& GlobalCommandController::getGlobalCommandController()
 {
 	return *this;
 }
 
-bool CommandController::hasCommand(const string& command)
+bool GlobalCommandController::hasCommand(const string& command)
 {
 	return commands.find(command) != commands.end();
 }
 
-void CommandController::split(const string& str, vector<string>& tokens,
-                              const char delimiter)
+void GlobalCommandController::split(const string& str, vector<string>& tokens,
+                                    const char delimiter)
 {
 	enum ParseState {Alpha, BackSlash, Quote};
 	ParseState state = Alpha;
@@ -233,7 +230,7 @@ void CommandController::split(const string& str, vector<string>& tokens,
 	}
 }
 
-string CommandController::removeEscaping(const string& str)
+string GlobalCommandController::removeEscaping(const string& str)
 {
 	enum ParseState {Alpha, BackSlash, Quote};
 	ParseState state = Alpha;
@@ -267,8 +264,9 @@ string CommandController::removeEscaping(const string& str)
 	return result;
 }
 
-void CommandController::removeEscaping(const vector<string>& input,
-                              vector<string>& result, bool keepLastIfEmpty)
+void GlobalCommandController::removeEscaping(
+	const vector<string>& input, vector<string>& result,
+	bool keepLastIfEmpty)
 {
 	for (vector<string>::const_iterator it = input.begin();
 	     it != input.end();
@@ -296,7 +294,8 @@ static string escapeChars(const string& str, const string& chars)
 	return result;
 }
 
-string CommandController::addEscaping(const string& str, bool quote, bool finished)
+string GlobalCommandController::addEscaping(const string& str, bool quote,
+                                            bool finished)
 {
 	if (str.empty() && finished) {
 		quote = true;
@@ -313,7 +312,8 @@ string CommandController::addEscaping(const string& str, bool quote, bool finish
 	return result;
 }
 
-string CommandController::join(const vector<string>& tokens, char delimiter)
+string GlobalCommandController::join(
+	const vector<string>& tokens, char delimiter)
 {
 	string result;
 	bool first = true;
@@ -329,19 +329,25 @@ string CommandController::join(const vector<string>& tokens, char delimiter)
 	return result;
 }
 
-bool CommandController::isComplete(const string& command)
+bool GlobalCommandController::isComplete(const string& command)
 {
 	return getInterpreter().isComplete(command);
 }
 
-string CommandController::executeCommand(
+string GlobalCommandController::executeCommand(
 	const string& cmd, CliConnection* connection_)
 {
 	ScopedAssign<CliConnection*> sa(connection, connection_);
 	return getInterpreter().execute(cmd);
 }
 
-void CommandController::source(const string& script)
+void GlobalCommandController::splitList(
+	const string& list, vector<string>& result)
+{
+	getInterpreter().splitList(list, result);
+}
+
+void GlobalCommandController::source(const string& script)
 {
 	try {
 		File file(script);
@@ -352,7 +358,7 @@ void CommandController::source(const string& script)
 	}
 }
 
-void CommandController::tabCompletion(string& command)
+void GlobalCommandController::tabCompletion(string& command)
 {
 	// split in sub commands
 	vector<string> subcmds;
@@ -394,7 +400,7 @@ void CommandController::tabCompletion(string& command)
 	command = join(subcmds, ';');
 }
 
-void CommandController::tabCompletion(vector<string>& tokens)
+void GlobalCommandController::tabCompletion(vector<string>& tokens)
 {
 	if (tokens.empty()) {
 		// nothing typed yet
@@ -416,7 +422,7 @@ void CommandController::tabCompletion(vector<string>& tokens)
 			try {
 				string result = command.executeCommand();
 				vector<string> split;
-				getInterpreter().splitList(result, split);
+				splitList(result, split);
 				set<string> completions(split.begin(), split.end());
 				Completer::completeString(tokens, completions);
 			} catch (CommandException& e) {
@@ -431,9 +437,9 @@ void CommandController::tabCompletion(vector<string>& tokens)
 
 // Help Command
 
-HelpCmd::HelpCmd(CommandController& commandController)
-	: Command(commandController, "help")
-	, parent(commandController)
+HelpCmd::HelpCmd(GlobalCommandController& controller_)
+	: Command(controller_, "help")
+	, controller(controller_)
 {
 }
 
@@ -444,9 +450,9 @@ void HelpCmd::execute(const vector<TclObject*>& tokens, TclObject& result)
 		string text =
 			"Use 'help [command]' to get help for a specific command\n"
 			"The following commands exist:\n";
-		for (CommandController::CompleterMap::const_iterator it =
-		         parent.commandCompleters.begin();
-		     it != parent.commandCompleters.end(); ++it) {
+		for (GlobalCommandController::CompleterMap::const_iterator it =
+		         controller.commandCompleters.begin();
+		     it != controller.commandCompleters.end(); ++it) {
 			text += it->first;
 			text += '\n';
 		}
@@ -454,9 +460,9 @@ void HelpCmd::execute(const vector<TclObject*>& tokens, TclObject& result)
 		break;
 	}
 	default: {
-		 CommandController::CompleterMap::const_iterator it =
-			parent.commandCompleters.find(tokens[1]->getString());
-		if (it != parent.commandCompleters.end()) {
+		 GlobalCommandController::CompleterMap::const_iterator it =
+			controller.commandCompleters.find(tokens[1]->getString());
+		if (it != controller.commandCompleters.end()) {
 			vector<string> tokens2;
 			vector<TclObject*>::const_iterator it2 = tokens.begin();
 			for (++it2; it2 != tokens.end(); ++it2) {
@@ -486,16 +492,16 @@ void HelpCmd::tabCompletion(vector<string>& tokens) const
 {
 	string front = tokens.front();
 	tokens.erase(tokens.begin());
-	parent.tabCompletion(tokens);
+	controller.tabCompletion(tokens);
 	tokens.insert(tokens.begin(), front);
 }
 
 
 // TabCompletionCmd Command
 
-TabCompletionCmd::TabCompletionCmd(CommandController& commandController)
-	: Command(commandController, "tabcompletion")
-	, parent(commandController)
+TabCompletionCmd::TabCompletionCmd(GlobalCommandController& controller_)
+	: Command(controller_, "tabcompletion")
+	, controller(controller_)
 {
 }
 
@@ -505,7 +511,7 @@ void TabCompletionCmd::execute(const vector<TclObject*>& tokens, TclObject& resu
 	case 2: {
 		// TODO this prints list of possible completions in the console
 		string command = tokens[1]->getString();
-		parent.tabCompletion(command);
+		controller.tabCompletion(command);
 		result.setString(command);
 		break;
 	}

@@ -3,9 +3,11 @@
 #include "InfoCommand.hh"
 #include "InfoTopic.hh"
 #include "TclObject.hh"
-#include "CommandController.hh"
+#include "MSXCommandController.hh"
 #include "CliComm.hh"
 #include "CommandException.hh"
+#include "Reactor.hh"
+#include "MSXMotherBoard.hh"
 #include <iostream>
 #include <cassert>
 
@@ -16,8 +18,10 @@ using std::vector;
 
 namespace openmsx {
 
-InfoCommand::InfoCommand(CommandRegistry& commandRegistry, const string& name)
-	: Command(commandRegistry, name)
+InfoCommand::InfoCommand(CommandController& commandController, const string& name,
+                         Reactor* reactor_)
+	: Command(commandController, name)
+	, reactor(reactor_)
 {
 }
 
@@ -57,6 +61,25 @@ bool InfoCommand::hasTopic(const std::string& name) const
 
 // Command
 
+bool InfoCommand::executeBWC(const vector<TclObject*>& tokens,
+                             TclObject& result)
+{
+	if (!reactor) return false;
+	MSXMotherBoard* motherBoard = reactor->getMotherBoard();
+	if (!motherBoard) return false;
+	MSXCommandController& msxCommandController =
+		motherBoard->getMSXCommandController();
+	InfoCommand& machineInfoCommand =
+		msxCommandController.getMachineInfoCommand();
+	string topic = tokens[1]->getString();
+	if (!machineInfoCommand.hasTopic(topic)) return false;
+	msxCommandController.getCliComm().printWarning(
+		"'openmsx_info " + topic + "' is deprecated, "
+		"please use 'machine_info " + topic + "'.");
+	machineInfoCommand.execute(tokens, result);
+	return true;
+}
+
 void InfoCommand::execute(const vector<TclObject*>& tokens,
                           TclObject& result)
 {
@@ -76,18 +99,7 @@ void InfoCommand::execute(const vector<TclObject*>& tokens,
 			infoTopics.find(topic);
 		if (it == infoTopics.end()) {
 			// backwards compatibility: also try machine_info
-			if (getName() == "openmsx_info") {
-				InfoCommand& machineInfoCommand =
-					getCommandController().getMachineInfoCommand();
-				if (machineInfoCommand.hasTopic(topic)) {
-					getCommandController().getCliComm().printWarning(
-						"'openmsx_info " + topic +
-						"' is deprecated, please use "
-						"'machine_info " + topic + "'.");
-					machineInfoCommand.execute(tokens, result);
-					return;
-				}
-			}
+			if (executeBWC(tokens, result)) return;
 			throw CommandException("No info on: " + topic);
 		}
 		it->second->execute(tokens, result);

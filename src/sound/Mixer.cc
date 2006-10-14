@@ -7,7 +7,7 @@
 #include "SoundDevice.hh"
 #include "WavWriter.hh"
 #include "CliComm.hh"
-#include "CommandController.hh"
+#include "MSXCommandController.hh"
 #include "Command.hh"
 #include "InfoTopic.hh"
 #include "InfoCommand.hh"
@@ -54,14 +54,14 @@ private:
 };
 
 
-Mixer::Mixer(Scheduler& scheduler_, CommandController& commandController_)
+Mixer::Mixer(Scheduler& scheduler_, MSXCommandController& msxCommandController_)
 	: muteCount(0)
 	, scheduler(scheduler_)
-	, commandController(commandController_)
-	, pauseSetting(commandController.getGlobalSettings().getPauseSetting())
-	, soundlogCommand(new SoundlogCommand(commandController, *this))
+	, msxCommandController(msxCommandController_)
+	, pauseSetting(msxCommandController.getGlobalSettings().getPauseSetting())
+	, soundlogCommand(new SoundlogCommand(msxCommandController, *this))
 	, soundDeviceInfo(new SoundDeviceInfoTopic(
-	              commandController.getMachineInfoCommand(), *this))
+	              msxCommandController.getMachineInfoCommand(), *this))
 {
 	driver.reset(new NullSoundDriver());
 	handlingUpdate = false;
@@ -75,14 +75,14 @@ Mixer::Mixer(Scheduler& scheduler_, CommandController& commandController_)
 	const int defaultsamples = 1024;
 #endif
 
-	muteSetting.reset(new BooleanSetting(commandController,
+	muteSetting.reset(new BooleanSetting(msxCommandController,
 		"mute", "(un)mute the emulation sound", false,
 		Setting::DONT_SAVE));
-	masterVolume.reset(new IntegerSetting(commandController,
+	masterVolume.reset(new IntegerSetting(msxCommandController,
 		"master_volume", "master volume", 75, 0, 100));
-	frequencySetting.reset(new IntegerSetting(commandController,
+	frequencySetting.reset(new IntegerSetting(msxCommandController,
 		"frequency", "mixer frequency", 44100, 11025, 48000));
-	samplesSetting.reset(new IntegerSetting(commandController,
+	samplesSetting.reset(new IntegerSetting(msxCommandController,
 		"samples", "mixer samples", defaultsamples, 64, 8192));
 
 	EnumSetting<SoundDriverType>::Map soundDriverMap;
@@ -96,7 +96,7 @@ Mixer::Mixer(Scheduler& scheduler_, CommandController& commandController_)
 #endif
 
 	soundDriverSetting.reset(new EnumSetting<SoundDriverType>(
-		commandController, "sound_driver",
+		msxCommandController, "sound_driver",
 		"select the sound output driver",
 		defaultSoundDriver, soundDriverMap));
 
@@ -156,14 +156,14 @@ void Mixer::openSound()
 			break;
 		case SND_SDL:
 			driver.reset(new SDLSoundDriver(scheduler,
-				commandController.getGlobalSettings(), *this,
+				msxCommandController.getGlobalSettings(), *this,
 				frequencySetting->getValue(),
 				samplesSetting->getValue()));
 			break;
 #ifdef _WIN32
 		case SND_DIRECTX:
 			driver.reset(new DirectXSoundDriver(scheduler,
-				commandController.getGlobalSettings(), *this,
+				msxCommandController.getGlobalSettings(), *this,
 				frequencySetting->getValue(),
 				samplesSetting->getValue()));
 			break;
@@ -176,7 +176,7 @@ void Mixer::openSound()
 		//samplesSetting->setValue(driver->getSamples());
 		handlingUpdate = false;
 	} catch (MSXException& e) {
-		commandController.getCliComm().printWarning(e.getMessage());
+		msxCommandController.getCliComm().printWarning(e.getMessage());
 	}
 }
 
@@ -186,7 +186,7 @@ void Mixer::registerSound(SoundDevice& device, short volume,
 {
 	const string& name = device.getName();
 	SoundDeviceInfo info;
-	info.volumeSetting = new IntegerSetting(commandController,
+	info.volumeSetting = new IntegerSetting(msxCommandController,
 		name + "_volume", "the volume of this sound chip", 75, 0, 100);
 
 	// once we're stereo, stay stereo. Once mono, stay mono.
@@ -204,7 +204,7 @@ void Mixer::registerSound(SoundDevice& device, short volume,
 		modeMap["right"] = ChannelMode::MONO_RIGHT;
 	}
 	modeMap["off"] = ChannelMode::OFF;
-	info.modeSetting = new EnumSetting<ChannelMode::Mode>(commandController,
+	info.modeSetting = new EnumSetting<ChannelMode::Mode>(msxCommandController,
 		name + "_mode", "the channel mode of this sound chip",
 		modeMap[defaultMode], modeMap, Setting::DONT_SAVE);
 	info.modeSetting->setValue(mode);
@@ -397,7 +397,7 @@ string SoundlogCommand::startSoundLogging(const vector<string>& tokens)
 		try {
 			mixer.wavWriter.reset(new WavWriter(filename,
 				2, 16, mixer.frequencySetting->getValue()));
-			mixer.commandController.getCliComm().printInfo(
+			mixer.msxCommandController.getCliComm().printInfo(
 				"Started logging sound to " + filename);
 			return filename;
 		} catch (MSXException& e) {
@@ -481,7 +481,7 @@ void Mixer::update(const Setting& setting)
 		handlingUpdate = true;
 		if (wavWriter.get()) {
 			wavWriter.reset();
-			commandController.getCliComm().printWarning(
+			msxCommandController.getCliComm().printWarning(
 				"Stopped logging sound, because of change of "
 				"frequency setting");
 			// the alternative: ignore the change of setting and keep logging sound

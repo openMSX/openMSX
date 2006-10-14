@@ -15,7 +15,6 @@ class Pluggable;
 class CliComm;
 class Scheduler;
 class MSXEventDistributor;
-class CommandController;
 class PlugCmd;
 class UnplugCmd;
 class PluggableInfo;

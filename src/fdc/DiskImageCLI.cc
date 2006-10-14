@@ -54,7 +54,7 @@ const string& DiskImageCLI::fileTypeHelp() const
 void DiskImageCLI::parse(const string& drive, const string& image,
                          list<string>& cmdLine)
 {
-	if (!commandController.hasCommand(drive)) {
+	if (!commandController.hasCommand(drive)) { // TODO WIP
 		throw MSXException("No drive named '" + drive + "'.");
 	}
 	TclObject command(commandController.getInterpreter());

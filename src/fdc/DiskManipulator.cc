@@ -14,7 +14,6 @@
 #include "SectorBasedDisk.hh"
 #include "CliComm.hh"
 #include "StringOp.hh"
-#include "Interpreter.hh"
 #include <cassert>
 #include <ctype.h>
 
@@ -453,7 +452,7 @@ string DiskManipulator::import(DriveSettings& driveData,
 	for (vector<string>::const_iterator it = lists.begin();
 	     it != lists.end(); ++it) {
 		vector<string> list;
-		getCommandController().getInterpreter().splitList(*it, list);
+		getCommandController().splitList(*it, list);
 
 		for (vector<string>::const_iterator it = list.begin();
 		     it != list.end(); ++it) {

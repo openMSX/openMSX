@@ -23,8 +23,6 @@ public:
 	             CommandController& commandController);
 	virtual ~AfterCommand();
 
-	CommandController& getCommandController() const;
-
 	virtual std::string execute(const std::vector<std::string>& tokens);
 	virtual std::string help(const std::vector<std::string>& tokens) const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
@@ -108,7 +106,6 @@ private:
 
 	Reactor& reactor;
 	EventDistributor& eventDistributor;
-	CommandController& commandController;
 };
 
 } // namespace openmsx

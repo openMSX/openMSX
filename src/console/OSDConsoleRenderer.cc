@@ -27,8 +27,7 @@ namespace openmsx {
 OSDConsoleRenderer::OSDConsoleRenderer(Reactor& reactor_)
 	: Layer(COVER_NONE, Z_CONSOLE)
 	, reactor(reactor_)
-	, consoleSetting(reactor.getCommandController().getGlobalSettings().
-	                    getConsoleSetting())
+	, consoleSetting(reactor.getGlobalSettings().getConsoleSetting())
 {
 	destX = destY = destW = destH = 0; // avoid UMR
 	font.reset(new DummyFont());

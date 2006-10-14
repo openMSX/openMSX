@@ -8,6 +8,7 @@
 
 namespace openmsx {
 
+class MSXCommandController;
 class MSXEventDistributor;
 class Scheduler;
 class EmuTime;
@@ -48,7 +49,7 @@ public:
 	virtual bool needRecord(const std::vector<std::string>& tokens) const;
 
 protected:
-	RecordedCommand(CommandController& commandController,
+	RecordedCommand(MSXCommandController& msxCommandController,
 	                MSXEventDistributor& msxEventDistributor,
 	                Scheduler& scheduler,
 	                const std::string& name);

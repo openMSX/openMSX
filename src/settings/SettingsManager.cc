@@ -1,7 +1,7 @@
 // $Id$
 
 #include "SettingsManager.hh"
-#include "CommandController.hh"
+#include "GlobalCommandController.hh"
 #include "Command.hh"
 #include "InfoTopic.hh"
 #include "Interpreter.hh"
@@ -56,7 +56,7 @@ private:
 };
 
 
-SettingsManager::SettingsManager(CommandController& commandController_)
+SettingsManager::SettingsManager(GlobalCommandController& commandController_)
 	: settingInfo   (new SettingInfo(
 	                    commandController_.getOpenMSXInfoCommand(), *this))
 	, setCompleter  (new SetCompleter    (commandController_, *this))

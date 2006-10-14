@@ -128,7 +128,7 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 	// Create command engine.
 	cmdEngine.reset(new VDPCmdEngine(*this, renderSettings,
-		getMotherBoard().getCommandController() ));
+		getMotherBoard().getCommandController()));
 	vram->setCmdEngine(cmdEngine.get());
 
 	resetInit(time); // must be done early to avoid UMRs

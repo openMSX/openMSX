@@ -1,7 +1,6 @@
 // $Id$
 
 #include "InfoTopic.hh"
-#include "CommandController.hh"
 #include "InfoCommand.hh"
 
 using std::string;

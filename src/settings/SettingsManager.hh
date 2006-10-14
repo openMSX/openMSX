@@ -12,7 +12,7 @@
 namespace openmsx {
 
 class Setting;
-class CommandController;
+class GlobalCommandController;
 class XMLElement;
 class SettingInfo;
 class SetCompleter;
@@ -27,7 +27,7 @@ private:
 	SettingsMap settingsMap;
 
 public:
-	explicit SettingsManager(CommandController& commandController);
+	explicit SettingsManager(GlobalCommandController& commandController);
 	~SettingsManager();
 
 	/** Get a setting by specifying its name.
@@ -62,7 +62,7 @@ private:
 	const std::auto_ptr<SettingCompleter> incrCompleter;
 	const std::auto_ptr<SettingCompleter> unsetCompleter;
 
-	CommandController& commandController;
+	GlobalCommandController& commandController;
 };
 
 } // namespace openmsx

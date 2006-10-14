@@ -212,8 +212,7 @@ FBPostProcessor<Pixel>::FBPostProcessor(CommandController& commandController,
 	Display& display, VisibleSurface& screen_, VideoSource videoSource,
 	unsigned maxWidth, unsigned height)
 	: PostProcessor(
-		commandController, display, screen_, videoSource, maxWidth, height
-		)
+		commandController, display, screen_, videoSource, maxWidth, height)
 	, noiseShift(screen.getHeight())
 	, pixelOps(screen.getFormat())
 {
