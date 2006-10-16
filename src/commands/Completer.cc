@@ -50,7 +50,7 @@ static bool formatHelper(const set<string>& input, unsigned columnLimit,
 		     ++i, ++it) {
 			result[i].resize(column, ' ');
 			result[i] += *it;
-			maxcolumn = std::max(maxcolumn, static_cast<unsigned>(result[i].size()));
+			maxcolumn = std::max<unsigned>(maxcolumn, result[i].size());
 			if (maxcolumn > columnLimit) return false;
 		}
 		column = maxcolumn + 2;
