@@ -5,7 +5,7 @@ openmsx (0.6.1-4+svn5741) UNRELEASED; urgency=low
   * Provides: msx-emulator
   * Suggests: waves (MSX1 mega demo by Daniel Vik)
 
- -- Joost Yervante Damad <joost@lumatec.be>  Wed, 27 Sep 2006 20:38:06 +0200
+ -- Joost Yervante Damad <andete@debian.org>  Tue, 17 Oct 2006 20:26:42 +0200
 
 openmsx (0.6.1-4) unstable; urgency=medium
 
