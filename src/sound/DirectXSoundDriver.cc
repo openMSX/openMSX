@@ -27,8 +27,7 @@ static HWND getWindowHandle()
 	if (!SDL_GetWMInfo(&info)) {
 		throw MSXException("Couldn't initialize DirectSound driver");
 	}
-	//return info.window;
-	return 0;
+	return info.window;
 }
 
 
