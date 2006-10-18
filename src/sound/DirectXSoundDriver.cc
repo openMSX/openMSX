@@ -161,7 +161,7 @@ unsigned DirectXSoundDriver::getFrequency() const
 
 unsigned DirectXSoundDriver::getSamples() const
 {
-	return bufferSize / BYTES_PER_SAMPLE / CHANNELS;
+	return fragmentSize;
 }
 
 void DirectXSoundDriver::dxClear()
