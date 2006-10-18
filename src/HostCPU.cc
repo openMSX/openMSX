@@ -9,7 +9,7 @@ HostCPU::HostCPU()
 {
 	mmxFlag = false;
 	mmxExtFlag = false;
-	#ifdef ASM_X86
+	#ifdef ASM_X86_32
 		// Note: On Mac OS X, EBX is in use by the OS, so we have to restore it.
 		// Is CPUID instruction supported?
 		unsigned hasCPUID;
@@ -61,6 +61,11 @@ HostCPU::HostCPU()
 				mmxExtFlag = mmxFlag && sseFlag;
 			}
 		}
+	#endif
+	#ifdef ASM_X86_64
+		// X86_64 machines always have mmx and mmxExt
+		mmxFlag = true;
+		mmxExtFlag = true;
 	#endif
 
 	PRT_DEBUG("MMX:              " << mmxFlag);

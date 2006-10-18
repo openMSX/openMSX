@@ -1,5 +1,9 @@
 $Id$
 
+2006-10-18 Joost Yervante Damad <joost@lumatec.be>
+	* fix from BouKiCHi for install-recursive.sh
+	* make MMX and SSE code also work on AMD64
+
 2006-10-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Split Mixer in a global Mixer part and a per machine MSXMixer part:
 	   - when there are (temporarily) multiple machines in memory, each

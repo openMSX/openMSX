@@ -29,7 +29,7 @@ Scale2xScaler<Pixel>::Scale2xScaler(const PixelOperations<Pixel>& pixelOps)
 template <class Pixel>
 void Scale2xScaler<Pixel>::scaleLineHalf_1on2(Pixel* dst,
 	const Pixel* src0, const Pixel* src1, const Pixel* src2,
-	unsigned srcWidth)
+	unsigned long srcWidth)
 {
 	//   n      m is expaned to a b
 	// w m e                    c d
@@ -86,7 +86,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on2(Pixel* dst,
 			"movntq	%%mm5,  (%3,%4,2);"
 			"movntq	%%mm7, 8(%3,%4,2);"
 
-			"addl	$8, %4;"
+			"add	$8, %4;"
 			"jnz	0b;"
 
 			// last pixel
@@ -198,7 +198,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on2(Pixel* dst,
 			"movq	%%mm5,  (%3,%4,2);"
 			"movq	%%mm7, 8(%3,%4,2);"
 
-			"addl	$8, %4;"
+			"add	$8, %4;"
 			"jnz	0b;"
 
 			// last pixel
@@ -316,7 +316,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on2(Pixel* dst,
 			"movq	%%mm1, %%mm0;"
 			"movq	%%mm2, %%mm1;"       // swap mm0,mm1
 
-			"addl	$8, %4;"
+			"add	$8, %4;"
 			"jnz	0b;"
 
 			// last pixel
@@ -474,7 +474,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on2(Pixel* dst,
 			"movq	%%mm1, %%mm0;"
 			"movq	%%mm2, %%mm1;"       // swap mm0,mm1
 
-			"addl	$8, %4;"
+			"add	$8, %4;"
 			"jnz	0b;"
 
 			// last pixel
@@ -610,7 +610,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on2(Pixel* dst,
 template <class Pixel>
 void Scale2xScaler<Pixel>::scaleLineHalf_1on1(Pixel* dst,
 	const Pixel* src0, const Pixel* src1, const Pixel* src2,
-	unsigned srcWidth)
+	unsigned long srcWidth)
 {
 	//    ab ef
 	// x0 12 34 5x
@@ -661,7 +661,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on1(Pixel* dst,
 			"movntq	%%mm6,  (%3,%4);"
 			"movntq	%%mm7, 8(%3,%4);"
 
-			"addl	$16, %4;"
+			"add	$16, %4;"
 			"jnz	0b;"
 
 			"movq	(%1), %%mm4;"        // a b
@@ -762,7 +762,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on1(Pixel* dst,
 			"movq	%%mm6,  (%3,%4);"
 			"movq	%%mm7, 8(%3,%4);"
 
-			"addl	$16, %4;"
+			"add	$16, %4;"
 			"jnz	0b;"
 
 			"movq	(%1), %%mm4;"        // a b
@@ -873,7 +873,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on1(Pixel* dst,
 			"movntq	%%mm6,  (%3,%4);"
 			"movntq	%%mm7, 8(%3,%4);"
 
-			"addl	$16, %4;"
+			"add	$16, %4;"
 			"jnz	0b;"
 
 			"movq	(%1), %%mm4;"        // aceg
@@ -988,7 +988,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on1(Pixel* dst,
 			"movq	%%mm6,  (%3,%4);"
 			"movq	%%mm7, 8(%3,%4);"
 
-			"addl	$16, %4;"
+			"add	$16, %4;"
 			"jnz	0b;"
 
 			"movq	(%1), %%mm4;"        // aceg

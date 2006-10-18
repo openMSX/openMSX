@@ -47,7 +47,7 @@ void FBPostProcessor<Pixel>::preCalcNoise(double factor)
 
 template <class Pixel>
 void FBPostProcessor<Pixel>::drawNoiseLine(
-		Pixel* in, Pixel* out, signed char* noise, unsigned width)
+		Pixel* in, Pixel* out, signed char* noise, unsigned long width)
 {
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
@@ -81,7 +81,7 @@ void FBPostProcessor<Pixel>::drawNoiseLine(
 			"movq     %%mm1,  8(%1, %3);"
 			"movq     %%mm2, 16(%1, %3);"
 			"movq     %%mm3, 24(%1, %3);"
-			"addl     $32, %3;"
+			"add      $32, %3;"
 			"jnz      0b;"
 			"emms;"
 
@@ -125,7 +125,7 @@ void FBPostProcessor<Pixel>::drawNoiseLine(
 			"movq     %%mm1,  8(%1, %3);"
 			"movq     %%mm2, 16(%1, %3);"
 			"movq     %%mm3, 24(%1, %3);"
-			"addl     $32, %3;"
+			"add      $32, %3;"
 			"jnz      0b;"
 			"emms;"
 

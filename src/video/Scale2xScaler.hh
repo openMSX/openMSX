@@ -25,10 +25,10 @@ public:
 private:
 	void scaleLineHalf_1on2(Pixel* dst,
 		const Pixel* src0, const Pixel* src1, const Pixel* src2,
-		unsigned srcWidth);
+		unsigned long srcWidth);
 	void scaleLineHalf_1on1(Pixel* dst,
 		const Pixel* src0, const Pixel* src1, const Pixel* src2,
-		unsigned srcWidth);
+		unsigned long srcWidth);
 };
 
 } // namespace openmsx

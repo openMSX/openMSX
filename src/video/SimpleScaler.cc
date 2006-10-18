@@ -60,7 +60,7 @@ void SimpleScaler<Pixel>::scaleBlank1to2(
 
 template <class Pixel>
 void SimpleScaler<Pixel>::blur1on2(const Pixel* pIn, Pixel* pOut, unsigned alpha,
-                                   unsigned srcWidth)
+                                   unsigned long srcWidth)
 {
 	/* This routine is functionally equivalent to the following:
 	 *
@@ -151,7 +151,7 @@ void SimpleScaler<Pixel>::blur1on2(const Pixel* pIn, Pixel* pOut, unsigned alpha
 			"packuswb %%mm4, %%mm1;"
 			"movq	%%mm1, 8(%1,%4,2);"	// pOut[2*x+2] = ..  pOut[2*x+3] = ..
 
-			"addl	$8, %4;"
+			"add	$8, %4;"
 			"jnz	1b;"
 
 			"pmullw	%%mm6, %%mm0;"
@@ -181,8 +181,8 @@ void SimpleScaler<Pixel>::blur1on2(const Pixel* pIn, Pixel* pOut, unsigned alpha
 			: // no output
 			: "r" (pIn  +     (srcWidth - 2)) // 0
 			, "r" (pOut + 2 * (srcWidth - 2)) // 1
-			, "r" (c1)                        // 2
-			, "r" (c2)                        // 3
+			, "r" (c1)                         // 2
+			, "r" (c2)                         // 3
 			, "r" (-4 * (srcWidth - 2))       // 4
 			#ifdef __MMX__
 			: "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
@@ -234,7 +234,7 @@ void SimpleScaler<Pixel>::blur1on2(const Pixel* pIn, Pixel* pOut, unsigned alpha
 
 template <class Pixel>
 void SimpleScaler<Pixel>::blur1on1(const Pixel* pIn, Pixel* pOut, unsigned alpha,
-                                   unsigned srcWidth)
+                                   unsigned long srcWidth)
 {
 	/* This routine is functionally equivalent to the following:
 	 *
@@ -319,7 +319,7 @@ void SimpleScaler<Pixel>::blur1on1(const Pixel* pIn, Pixel* pOut, unsigned alpha
 			"packuswb %%mm7, %%mm4;"
 			"movq	%%mm4, (%1,%4);"	// pOut[x] = ..  pOut[x+1] = ..
 
-			"addl	$8, %4;"
+			"add	$8, %4;"
 			"jnz	1b;"
 
 			"movd	4(%0), %%mm1;"
@@ -345,9 +345,9 @@ void SimpleScaler<Pixel>::blur1on1(const Pixel* pIn, Pixel* pOut, unsigned alpha
 			: // no output
 			: "r" (pIn  + srcWidth - 2) // 0
 			, "r" (pOut + srcWidth - 2) // 1
-			, "r" (c1)                        // 2
-			, "r" (c2)                        // 3
-			, "r" (-4 * (srcWidth - 2))       // 4
+			, "r" (c1)                   // 2
+			, "r" (c2)                   // 3
+			, "r" (-4 * (srcWidth - 2)) // 4
 			#ifdef __MMX__
 			: "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
 			#endif

@@ -88,7 +88,7 @@ Scanline<Pixel>::Scanline(const PixelOperations<Pixel>& pixelOps)
 
 template <class Pixel>
 void Scanline<Pixel>::draw(const Pixel* src1, const Pixel* src2,
-		           Pixel* dst, unsigned factor, unsigned width)
+		           Pixel* dst, unsigned factor, unsigned long width)
 {
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
@@ -142,7 +142,7 @@ void Scanline<Pixel>::draw(const Pixel* src1, const Pixel* src2,
 			"movntq %%mm2, 16(%2,%4);"
 			"movntq %%mm3, 24(%2,%4);"
 
-			"addl	$32, %4;"
+			"add	$32, %4;"
 			"jnz	1b;"
 
 			"emms;"
@@ -190,7 +190,7 @@ void Scanline<Pixel>::draw(const Pixel* src1, const Pixel* src2,
 			// store
 			"movq %%mm0, (%2,%4);"
 
-			"addl	$8, %4;"
+			"add	$8, %4;"
 			"jnz	1b;"
 
 			"emms;"
@@ -208,7 +208,7 @@ void Scanline<Pixel>::draw(const Pixel* src1, const Pixel* src2,
 		return;
 	}
 
-	#ifndef __APPLE__
+	#if !defined(__APPLE__) && !defined(ASM_X86_64)
 	// On Mac OS X, we are one register short, because EBX is not available.
 	// We disable this piece of assembly and fall back to the C++ code.
 	// It's unlikely modern Macs will be running in 16bpp anyway.
@@ -274,7 +274,7 @@ void Scanline<Pixel>::draw(const Pixel* src1, const Pixel* src2,
 			"movntq	%%mm0,   (%3,%4);"
 			"movntq	%%mm1,  8(%3,%4);"
 
-			"addl	$16, %4;"
+			"add	$16, %4;"
 			"jnz	1b;"
 			"emms;"
 			: // no output

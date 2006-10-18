@@ -311,7 +311,7 @@ void stream_memcpy(unsigned* dst, const unsigned* src, unsigned num)
 			--num;
 		}
 		// copy chunks of 64 bytes
-		unsigned n2 = num & ~15;
+		unsigned long n2 = num & ~15;
 		if (likely(n2)) {
 			src += n2;
 			dst += n2;
@@ -335,7 +335,7 @@ void stream_memcpy(unsigned* dst, const unsigned* src, unsigned num)
 				"movntq  %%mm5, 40(%1,%2);"
 				"movntq  %%mm6, 48(%1,%2);"
 				"movntq  %%mm7, 56(%1,%2);"
-				"addl  $64, %2;"
+				"add  $64, %2;"
 				"jnz   0b;"
 				: // no output
 				: "r" (src)

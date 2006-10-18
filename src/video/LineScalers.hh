@@ -49,28 +49,28 @@ struct Copy {};
 template <typename Pixel> class Scale_1on3
 {
 public:
-	void operator()(const Pixel* in, Pixel* out, unsigned width);
+	void operator()(const Pixel* in, Pixel* out, unsigned long width);
 };
 
 template <typename Pixel, bool streaming = true> class Scale_1on2
 	: public TagIf<streaming, X86Streaming>::type
 {
 public:
-	void operator()(const Pixel* in, Pixel* out, unsigned width);
+	void operator()(const Pixel* in, Pixel* out, unsigned long width);
 };
 
 template <typename Pixel, bool streaming = true> class Scale_1on1
 	: public TagIf<streaming, X86Streaming>::type, public Tag<Copy>
 {
 public:
-	void operator()(const Pixel* in, Pixel* out, unsigned width);
+	void operator()(const Pixel* in, Pixel* out, unsigned long width);
 };
 
 template <typename Pixel> class Scale_2on1 : public Tag<X86Streaming>
 {
 public:
 	explicit Scale_2on1(PixelOperations<Pixel> pixelOps);
-	void operator()(const Pixel* in, Pixel* out, unsigned width);
+	void operator()(const Pixel* in, Pixel* out, unsigned long width);
 private:
 	PixelOperations<Pixel> pixelOps;
 };
@@ -79,7 +79,7 @@ template <typename Pixel> class Scale_4on1
 {
 public:
 	explicit Scale_4on1(PixelOperations<Pixel> pixelOps);
-	void operator()(const Pixel* in, Pixel* out, unsigned width);
+	void operator()(const Pixel* in, Pixel* out, unsigned long width);
 private:
 	PixelOperations<Pixel> pixelOps;
 };
@@ -88,7 +88,7 @@ template <typename Pixel> class Scale_2on3
 {
 public:
 	explicit Scale_2on3(PixelOperations<Pixel> pixelOps);
-	void operator()(const Pixel* in, Pixel* out, unsigned width);
+	void operator()(const Pixel* in, Pixel* out, unsigned long width);
 private:
 	PixelOperations<Pixel> pixelOps;
 };
@@ -97,7 +97,7 @@ template <typename Pixel> class Scale_4on3
 {
 public:
 	explicit Scale_4on3(PixelOperations<Pixel> pixelOps);
-	void operator()(const Pixel* in, Pixel* out, unsigned width);
+	void operator()(const Pixel* in, Pixel* out, unsigned long width);
 private:
 	PixelOperations<Pixel> pixelOps;
 };
@@ -106,7 +106,7 @@ template <typename Pixel> class Scale_8on3
 {
 public:
 	explicit Scale_8on3(PixelOperations<Pixel> pixelOps);
-	void operator()(const Pixel* in, Pixel* out, unsigned width);
+	void operator()(const Pixel* in, Pixel* out, unsigned long width);
 private:
 	PixelOperations<Pixel> pixelOps;
 };
@@ -115,7 +115,7 @@ template <typename Pixel> class Scale_2on9
 {
 public:
 	Scale_2on9(PixelOperations<Pixel> pixelOps);
-	void operator()(const Pixel* in, Pixel* out, unsigned width);
+	void operator()(const Pixel* in, Pixel* out, unsigned long width);
 private:
 	PixelOperations<Pixel> pixelOps;
 };
@@ -124,7 +124,7 @@ template <typename Pixel> class Scale_4on9
 {
 public:
 	explicit Scale_4on9(PixelOperations<Pixel> pixelOps);
-	void operator()(const Pixel* in, Pixel* out, unsigned width);
+	void operator()(const Pixel* in, Pixel* out, unsigned long width);
 private:
 	PixelOperations<Pixel> pixelOps;
 };
@@ -133,7 +133,7 @@ template <typename Pixel> class Scale_8on9
 {
 public:
 	explicit Scale_8on9(PixelOperations<Pixel> pixelOps);
-	void operator()(const Pixel* in, Pixel* out, unsigned width);
+	void operator()(const Pixel* in, Pixel* out, unsigned long width);
 private:
 	PixelOperations<Pixel> pixelOps;
 };
@@ -160,7 +160,7 @@ private:
 // implementation
 
 template <typename Pixel>
-void Scale_1on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned width)
+void Scale_1on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long width)
 {
 	unsigned i = 0, j = 0;
 	for (/* */; i < (width - 2); i += 3, j += 1) {
@@ -176,7 +176,7 @@ void Scale_1on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned width)
 
 template <typename Pixel, bool streaming>
 void Scale_1on2<Pixel, streaming>::operator()(
-		const Pixel* in, Pixel* out, unsigned width)
+		const Pixel* in, Pixel* out, unsigned long width)
 {
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
@@ -214,7 +214,7 @@ void Scale_1on2<Pixel, streaming>::operator()(
 			"movntq	%%mm6, 48(%1,%2,2);"
 			"movntq	%%mm7, 56(%1,%2,2);"
 			// Increment.
-			"addl	$32, %2;"
+			"add	$32, %2;"
 			"jnz	0b;"
 			"emms;"
 
@@ -264,7 +264,7 @@ void Scale_1on2<Pixel, streaming>::operator()(
 			"movq	%%mm6, 48(%1,%2,2);"
 			"movq	%%mm7, 56(%1,%2,2);"
 			// Increment.
-			"addl	$32, %2;"
+			"add	$32, %2;"
 			"jnz	0b;"
 			"emms;"
 
@@ -314,7 +314,7 @@ void Scale_1on2<Pixel, streaming>::operator()(
 			"movntq	%%mm6, 48(%1,%2,2);"
 			"movntq	%%mm7, 56(%1,%2,2);"
 			// Increment.
-			"addl	$32, %2;"
+			"add	$32, %2;"
 			"jnz	0b;"
 			"emms;"
 
@@ -364,7 +364,7 @@ void Scale_1on2<Pixel, streaming>::operator()(
 			"movq	%%mm6, 48(%1,%2,2);"
 			"movq	%%mm7, 56(%1,%2,2);"
 			// Increment.
-			"addl	$32, %2;"
+			"add	$32, %2;"
 			"jnz	0b;"
 			"emms;"
 
@@ -388,11 +388,10 @@ void Scale_1on2<Pixel, streaming>::operator()(
 
 template <typename Pixel, bool streaming>
 void Scale_1on1<Pixel, streaming>::operator()(
-		const Pixel* in, Pixel* out, unsigned width)
+		const Pixel* in, Pixel* out, unsigned long width)
 {
-	unsigned nBytes = width * sizeof(Pixel);
-
 	#ifdef ASM_X86
+	unsigned long nBytes = width * sizeof(Pixel);
 	assert((nBytes % 64) == 0);
 	const HostCPU& cpu = HostCPU::getInstance();
 	if (streaming && cpu.hasMMXEXT()) {
@@ -419,7 +418,7 @@ void Scale_1on1<Pixel, streaming>::operator()(
 			"movntq	%%mm6, 48(%1,%2);"
 			"movntq	%%mm7, 56(%1,%2);"
 			// Increment.
-			"addl	$64, %2;"
+			"add	$64, %2;"
 			"jnz	0b;"
 			"emms;"
 
@@ -459,7 +458,7 @@ void Scale_1on1<Pixel, streaming>::operator()(
 			"movq	%%mm6, 48(%1,%2);"
 			"movq	%%mm7, 56(%1,%2);"
 			// Increment.
-			"addl	$64, %2;"
+			"add	$64, %2;"
 			"jnz	0b;"
 			"emms;"
 
@@ -487,7 +486,7 @@ Scale_2on1<Pixel>::Scale_2on1(PixelOperations<Pixel> pixelOps_)
 }
 
 template <typename Pixel>
-void Scale_2on1<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned width)
+void Scale_2on1<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long width)
 {
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
@@ -511,7 +510,7 @@ void Scale_2on1<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned width)
 			"movntq	%%mm4,  (%1,%2);"
 			"pavgb	%%mm2, %%mm5;"          // 5 = ef gh
 			"movntq	%%mm5, 8(%1,%2);"
-			"addl	$16, %2;"
+			"add	$16, %2;"
 			"jnz	0b;"
 			"emms;"
 
@@ -560,7 +559,7 @@ void Scale_2on1<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned width)
 			"packuswb	%%mm3, %%mm2;"  // 2 = ef gh
 			"movq	%%mm0,  (%1,%2);"
 			"movq	%%mm2, 8(%1,%2);"
-			"addl	$16, %2;"
+			"add	$16, %2;"
 			"jnz	0b;"
 			"emms;"
 
@@ -621,14 +620,14 @@ void Scale_2on1<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned width)
 			"paddw	%%mm5, %%mm6;"          // 6 = ij kl mn op
 			"movntq	%%mm3,  (%1,%3);"
 			"movntq	%%mm6, 8(%1,%3);"
-			"addl	$16, %3;"
+			"add	$16, %3;"
 			"jnz	0b;"
 			"emms;"
 
 			: // no output
 			: "r" (in  + 2 * width) // 0
 			, "r" (out +     width) // 1
-			, "r" (mask)            // 2
+			, "r" (mask)             // 2
 			, "r" (-2 * width)      // 3
 			#ifdef __MMX__
 			: "mm0", "mm1", "mm2", "mm3"
@@ -683,14 +682,14 @@ void Scale_2on1<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned width)
 			"paddw	%%mm5, %%mm6;"          // 6 = ij kl mn op
 			"movq	%%mm3,  (%1,%3);"
 			"movq	%%mm6, 8(%1,%3);"
-			"addl	$16, %3;"
+			"add	$16, %3;"
 			"jnz	0b;"
 			"emms;"
 
 			: // no output
 			: "r" (in  + 2 * width) // 0
 			, "r" (out +     width) // 1
-			, "r" (mask)            // 2
+			, "r" (mask)             // 2
 			, "r" (-2 * width)      // 3
 			#ifdef __MMX__
 			: "mm0", "mm1", "mm2", "mm3"
@@ -716,7 +715,7 @@ Scale_4on1<Pixel>::Scale_4on1(PixelOperations<Pixel> pixelOps_)
 }
 
 template <typename Pixel>
-void Scale_4on1<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned width)
+void Scale_4on1<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long width)
 {
 	for (unsigned i = 0; i < width; ++i) {
 		out[i] = pixelOps.template blend4<1, 1, 1, 1>(&in[4 * i]);
@@ -731,7 +730,7 @@ Scale_2on3<Pixel>::Scale_2on3(PixelOperations<Pixel> pixelOps_)
 }
 
 template <typename Pixel>
-void Scale_2on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned width)
+void Scale_2on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long width)
 {
 	unsigned i = 0, j = 0;
 	for (/* */; i < (width - 2); i += 3, j += 2) {
@@ -751,7 +750,7 @@ Scale_4on3<Pixel>::Scale_4on3(PixelOperations<Pixel> pixelOps_)
 }
 
 template <typename Pixel>
-void Scale_4on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned width)
+void Scale_4on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long width)
 {
 	unsigned i = 0, j = 0;
 	for (/* */; i < (width - 2); i += 3, j += 4) {
@@ -771,7 +770,7 @@ Scale_8on3<Pixel>::Scale_8on3(PixelOperations<Pixel> pixelOps_)
 }
 
 template <typename Pixel>
-void Scale_8on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned width)
+void Scale_8on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long width)
 {
 	unsigned i = 0, j = 0;
 	for (/* */; i < (width - 2); i += 3, j += 8) {
@@ -791,7 +790,7 @@ Scale_2on9<Pixel>::Scale_2on9(PixelOperations<Pixel> pixelOps_)
 }
 
 template <typename Pixel>
-void Scale_2on9<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned width)
+void Scale_2on9<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long width)
 {
 	unsigned i = 0, j = 0;
 	for (/* */; i < (width - 8); i += 9, j += 2) {
@@ -823,7 +822,7 @@ Scale_4on9<Pixel>::Scale_4on9(PixelOperations<Pixel> pixelOps_)
 }
 
 template <typename Pixel>
-void Scale_4on9<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned width)
+void Scale_4on9<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long width)
 {
 	unsigned i = 0, j = 0;
 	for (/* */; i < (width - 8); i += 9, j += 4) {
@@ -855,7 +854,7 @@ Scale_8on9<Pixel>::Scale_8on9(PixelOperations<Pixel> pixelOps_)
 }
 
 template <typename Pixel>
-void Scale_8on9<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned width)
+void Scale_8on9<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long width)
 {
 	unsigned i = 0, j = 0;
 	for (/* */; i < width; i += 9, j += 8) {

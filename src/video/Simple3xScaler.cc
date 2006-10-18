@@ -16,7 +16,7 @@ template <class Pixel> class Blur_1on3
 public:
 	Blur_1on3(const PixelOperations<Pixel>& pixelOps,
 	          const RenderSettings& settings);
-	void operator()(const Pixel* in, Pixel* out, unsigned dstWidth);
+	void operator()(const Pixel* in, Pixel* out, unsigned long dstWidth);
 private:
 	Multiply32<Pixel> mult0;
 	Multiply32<Pixel> mult1;
@@ -289,7 +289,7 @@ Blur_1on3<Pixel>::Blur_1on3(const PixelOperations<Pixel>& pixelOps,
 }
 
 template <class Pixel>
-void Blur_1on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned dstWidth)
+void Blur_1on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long dstWidth)
 {
 	/* The following code is equivalent to this loop. It is 2x unrolled
 	 * and common subexpressions have been eliminated. The last iteration
@@ -311,8 +311,7 @@ void Blur_1on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned dstWidth
 	 *      curr = next;
 	 *  }
 	 */
-	
-	unsigned alpha = settings.getBlurFactor() / 3;
+	unsigned long alpha = settings.getBlurFactor() / 3;
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
 	if ((sizeof(Pixel) == 4) && cpu.hasMMXEXT()) {
@@ -393,9 +392,9 @@ void Blur_1on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned dstWidth
 			"paddw     %%mm6, %%mm7;"          // b2 = g1 + f2
 			"paddw     %%mm4, %%mm1;"          // b1 = t1 + s1 + g0
 			"packuswb  %%mm7, %%mm1;"          // b1 | b2
-			"addl      $8, %[IN];"             // x += 2
+			"add       $8, %[IN];"             // x += 2
 			"movq      %%mm1, 16(%[OUT],%[Y]);"// out[y + 4] = 
-			"addl      $24, %[Y];"             // y += 6
+			"add       $24, %[Y];"             // y += 6
 			"jnz       0b;"                    //
 			
 			"movq      %%mm5, %%mm1;"          // in[x + 1]

@@ -25,6 +25,11 @@ $(CONFIG_HEADER): $(MAKE_PATH)/info2code.mk $(MAKE_PATH)/custom.mk
 	@echo "" >> $@
 # Use a macro iso a boolean to prevent compilation errors on non x86 machines
 	@if [ "$(OPENMSX_TARGET_CPU)" = "x86" ] ; then \
+		echo "#define ASM_X86_32" >> $@ ; \
+		echo "#define ASM_X86" >> $@ ; \
+	fi
+	@if [ "$(OPENMSX_TARGET_CPU)" = "x86_64" ] ; then \
+		echo "#define ASM_X86_64" >> $@ ; \
 		echo "#define ASM_X86" >> $@ ; \
 	fi
 # Don't call it "BIG_ENDIAN", because some system header may #define that.
