@@ -246,7 +246,7 @@ double DirectXSoundDriver::uploadBuffer(short* buffer, unsigned count)
 		state = DX_SOUND_RUNNING;
 	}
 
-	count *= BYTES_PER_SAMPLE;
+	count *= (CHANNELS * BYTES_PER_SAMPLE);
 	if (skipCount > 0) {
 		skipCount -= count;
 		return 1.0;
