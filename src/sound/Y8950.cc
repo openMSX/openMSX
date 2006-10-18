@@ -450,14 +450,14 @@ void Y8950::Channel::keyOff()
 Y8950::Y8950(MSXMotherBoard& motherBoard, const std::string& name,
              const XMLElement& config, unsigned sampleRam, const EmuTime& time,
              Y8950Periphery& perihery_)
-	: SoundDevice(motherBoard.getMixer(), name, "MSX-AUDIO")
+	: SoundDevice(motherBoard.getMSXMixer(), name, "MSX-AUDIO")
 	, irq(motherBoard.getCPU())
 	, perihery(perihery_)
 	, timer1(motherBoard.getScheduler(), *this)
 	, timer2(motherBoard.getScheduler(), *this)
 	, adpcm(new Y8950Adpcm(*this, motherBoard, name, sampleRam))
 	, connector(new Y8950KeyboardConnector(motherBoard.getPluggingController()))
-	, dac13(new DACSound16S(motherBoard.getMixer(), name + " DAC",
+	, dac13(new DACSound16S(motherBoard.getMSXMixer(), name + " DAC",
 	                        "MSX-AUDIO 13-bit DAC", config, time))
 	, debuggable(new Y8950Debuggable(motherBoard, *this))
 {

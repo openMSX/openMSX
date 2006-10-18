@@ -3,19 +3,11 @@
 #ifdef _WIN32
 
 #include "DirectXSoundDriver.hh"
-#include "GlobalSettings.hh"
-#include "IntegerSetting.hh"
-#include "BooleanSetting.hh"
-#include "ThrottleManager.hh"
-#include "Mixer.hh"
-#include "Scheduler.hh"
 #include "MSXException.hh"
+#include "openmsx.hh"
 #include <string.h>
-#include <cassert>
 #include <SDL.h>       //
 #include <SDL_syswm.h> //
-
-using std::string;
 
 namespace openmsx {
 
@@ -35,17 +27,12 @@ static HWND getWindowHandle()
 	if (!SDL_GetWMInfo(&info)) {
 		throw MSXException("Couldn't initialize DirectSound driver");
 	}
-	return info.window;
+	//return info.window;
+	return 0;
 }
 
-DirectXSoundDriver::DirectXSoundDriver(Scheduler& scheduler,
-		GlobalSettings& globalSettings, Mixer& mixer_,
-		unsigned sampleRate, unsigned samples)
-	: Schedulable(scheduler)
-	, mixer(mixer_)
-	, prevTime(EmuTime::zero)
-	, speedSetting(globalSettings.getSpeedSetting())
-	, throttleManager(globalSettings.getThrottleManager())
+
+DirectXSoundDriver::DirectXSoundDriver(unsigned sampleRate, unsigned samples)
 {
 	if (DirectSoundCreate(NULL, &directSound, NULL) != DS_OK) {
 		throw MSXException("Couldn't initialize DirectSound driver");
@@ -106,7 +93,7 @@ DirectXSoundDriver::DirectXSoundDriver(Scheduler& scheduler,
 	desc.dwSize = sizeof(DSBUFFERDESC);
 	desc.dwFlags = DSBCAPS_CTRLPOSITIONNOTIFY | DSBCAPS_GETCURRENTPOSITION2
 	             | DSBCAPS_CTRLFREQUENCY      | DSBCAPS_CTRLPAN
-	             | DSBCAPS_CTRLVOLUME         | DSBCAPS_GLOBALFOCUS ;
+	             | DSBCAPS_CTRLVOLUME         | DSBCAPS_GLOBALFOCUS;
 	desc.dwBufferBytes = bufferSize;
 	desc.lpwfxFormat = (LPWAVEFORMATEX)&pcmwf;
 
@@ -135,21 +122,10 @@ DirectXSoundDriver::DirectXSoundDriver(Scheduler& scheduler,
 
 	frequency = sampleRate;
 	mixBuffer = new short[bufferSize / BYTES_PER_SAMPLE];
-
-	reInit();
-	prevTime = scheduler.getCurrentTime();
-	EmuDuration interval2 = interval1 * fragmentSize;
-	setSyncPoint(prevTime + interval2);
-
-	speedSetting.attach(*this);
-	throttleManager.attach(*this);
 }
 
 DirectXSoundDriver::~DirectXSoundDriver()
 {
-	throttleManager.detach(*this);
-	speedSetting.detach(*this);
-
 	delete[] mixBuffer;
 
 	IDirectSoundBuffer_Stop(primaryBuffer);
@@ -177,7 +153,6 @@ void DirectXSoundDriver::mute()
 void DirectXSoundDriver::unmute()
 {
 	state = DX_SOUND_ENABLED;
-	reInit();
 }
 
 unsigned DirectXSoundDriver::getFrequency() const
@@ -254,9 +229,9 @@ void DirectXSoundDriver::dxWriteOne(short* buffer, unsigned lockSize)
 	bufferOffset %= bufferSize;
 }
 
-void DirectXSoundDriver::dxWrite(short* buffer, unsigned count)
+double DirectXSoundDriver::uploadBuffer(short* buffer, unsigned count)
 {
-	if (state == DX_SOUND_DISABLED) return;
+	if (state == DX_SOUND_DISABLED) return 1.0;
 
 	if (state == DX_SOUND_ENABLED) {
 		DWORD readPos, writePos;
@@ -275,70 +250,13 @@ void DirectXSoundDriver::dxWrite(short* buffer, unsigned count)
 	count *= BYTES_PER_SAMPLE;
 	if (skipCount > 0) {
 		skipCount -= count;
-		return;
+		return 1.0;
 	}
 	skipCount = dxCanWrite(bufferOffset, count);
-	if (skipCount > 0) {
-		return;
+	if (skipCount <= 0) {
+		dxWriteOne(buffer, count);
 	}
-	dxWriteOne(buffer, count);
-}
-
-void DirectXSoundDriver::updateStream(const EmuTime& time)
-{
-	assert(prevTime <= time);
-	EmuDuration duration = time - prevTime;
-	unsigned count = duration / interval1;
-	if (count == 0) {
-		return;
-	}
-
-	count = std::min(count, bufferSize / BYTES_PER_SAMPLE / CHANNELS);
-	mixer.generate(mixBuffer, count, prevTime, interval1);
-	dxWrite(mixBuffer, count * CHANNELS);
-
-	prevTime += interval1 * count;
-}
-
-void DirectXSoundDriver::reInit()
-{
-	double percent = speedSetting.getValue();
-	interval1 = EmuDuration(percent / (frequency * 100));
-	//intervalAverage = interval1;
-}
-
-
-// Schedulable
-
-void DirectXSoundDriver::executeUntil(const EmuTime& time, int /*userData*/)
-{
-	if (state == DX_SOUND_RUNNING) {
-		// TODO not schedule at all if muted
-		updateStream(time);
-	}
-	EmuDuration interval2 = interval1 * fragmentSize;
-	setSyncPoint(time + interval2);
-}
-
-const string& DirectXSoundDriver::schedName() const
-{
-	static const string name = "DirectXSoundDriver";
-	return name;
-}
-
-
-// Observer<Setting>
-
-void DirectXSoundDriver::update(const Setting& /*setting*/)
-{
-	reInit();
-}
-
-// Observer<ThrottleManager>
-
-void DirectXSoundDriver::update(const ThrottleManager& /*throttleManager*/)
-{
-	reInit();
+	return 1.0;
 }
 
 } // namespace openmsx

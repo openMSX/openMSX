@@ -4,26 +4,17 @@
 #define SDLSOUNDDRIVER_HH
 
 #include "SoundDriver.hh"
-#include "Schedulable.hh"
-#include "Observer.hh"
-#include "EmuTime.hh"
-#include <SDL.h>
+#include "openmsx.hh"
+#include "noncopyable.hh"
 
 namespace openmsx {
 
 class Mixer;
-class GlobalSettings;
-class IntegerSetting;
-class Setting;
-class ThrottleManager;
 
-class SDLSoundDriver : public SoundDriver, private Schedulable,
-                       private Observer<Setting>,
-                       private Observer<ThrottleManager>
+class SDLSoundDriver : public SoundDriver, private noncopyable
 {
 public:
-	SDLSoundDriver(Scheduler& scheduler, GlobalSettings& globalSettings,
-	               Mixer& mixer, unsigned frequency, unsigned samples);
+	SDLSoundDriver(Mixer& mixer, unsigned frequency, unsigned samples);
 	virtual ~SDLSoundDriver();
 
 	virtual void lock();
@@ -35,39 +26,20 @@ public:
 	virtual unsigned getFrequency() const;
 	virtual unsigned getSamples() const;
 
-	virtual void updateStream(const EmuTime& time);
+	virtual double uploadBuffer(short* buffer, unsigned len);
 
 private:
-	static void audioCallbackHelper(void* userdata, Uint8* strm, int len);
+	static void audioCallbackHelper(void* userdata, byte* strm, int len);
 	void audioCallback(short* stream, unsigned len);
-	void updtStrm(unsigned samples, const EmuTime& start,
-	              const EmuDuration& sampDur);
-	void updtStrm2(unsigned samples, const EmuTime& start,
-	               const EmuDuration& sampDur);
-	void reInit();
-
-	// Schedulable
-	virtual void executeUntil(const EmuTime& time, int userData);
-	virtual const std::string& schedName() const;
-
-	// Observer<Setting>
-	virtual void update(const Setting& setting);
-	// Observer<ThrottleManager>
-	virtual void update(const ThrottleManager& throttleManager);
 
 	Mixer& mixer;
-	SDL_AudioSpec audioSpec;
-
-	bool muted;
+	unsigned frequency;
 	short* mixBuffer;
 	unsigned bufferSize;
-	unsigned readPtr, writePtr;
-	EmuTime prevTime;
-	EmuDuration interval1;
-	EmuDuration intervalAverage;
-
-	IntegerSetting& speedSetting;
-	ThrottleManager& throttleManager;
+	unsigned bufferMask;
+	unsigned readIdx, writeIdx;
+	int available; // available samples at last callback
+	bool muted;
 };
 
 } // namespace openmsx

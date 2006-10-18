@@ -6,7 +6,7 @@
 
 namespace openmsx {
 
-PrinterPortSimpl::PrinterPortSimpl(Mixer& mixer_)
+PrinterPortSimpl::PrinterPortSimpl(MSXMixer& mixer_)
 	: mixer(mixer_)
 {
 }

@@ -36,7 +36,7 @@ RomSynthesizer::RomSynthesizer(
 	setRom (2, 1);
 	setBank(3, unmappedRead);
 
-	dac.reset(new DACSound8U(motherBoard.getMixer(), getName(),
+	dac.reset(new DACSound8U(motherBoard.getMSXMixer(), getName(),
 	                         "Konami Synthesizer DAC", config, time));
 
 	reset(time);

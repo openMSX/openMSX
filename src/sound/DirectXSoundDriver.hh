@@ -5,30 +5,17 @@
 #ifdef _WIN32
 
 #include "SoundDriver.hh"
-#include "Schedulable.hh"
-#include "Observer.hh"
-#include "EmuTime.hh"
+#include "noncopyable.hh"
 #define DIRECTSOUND_VERSION 0x0500
 #include <windows.h>
 #include <dsound.h>
 
 namespace openmsx {
 
-class Scheduler;
-class GlobalSettings;
-class Mixer;
-class IntegerSetting;
-class BooleanSetting;
-class Setting;
-class ThrottleManager;
-
-class DirectXSoundDriver : public SoundDriver, private Schedulable,
-                           private Observer<Setting>,
-                           private Observer<ThrottleManager>
+class DirectXSoundDriver : public SoundDriver, private noncopyable
 {
 public:
-	DirectXSoundDriver(Scheduler& scheduler, GlobalSettings& globalSettings,
-	                   Mixer& mixer, unsigned sampleRate, unsigned bufferSize);
+	DirectXSoundDriver(unsigned sampleRate, unsigned bufferSize);
 	virtual ~DirectXSoundDriver();
 
 	virtual void lock();
@@ -40,23 +27,12 @@ public:
 	virtual unsigned getFrequency() const;
 	virtual unsigned getSamples() const;
 
-	virtual void updateStream(const EmuTime& time);
+	virtual double uploadBuffer(short* buffer, unsigned len);
 
 private:
 	void dxClear();
 	int dxCanWrite(unsigned start, unsigned size);
 	void dxWriteOne(short* buffer, unsigned lockSize);
-	void dxWrite(short* buffer, unsigned count);
-	void reInit();
-
-	// Schedulable
-	void executeUntil(const EmuTime& time, int userData);
-	const std::string& schedName() const;
-
-	// Observer<Setting>
-	virtual void update(const Setting& setting);
-	// Observer<ThrottleManager>
-	virtual void update(const ThrottleManager& throttleManager);
 
 	enum DxState { DX_SOUND_DISABLED, DX_SOUND_ENABLED, DX_SOUND_RUNNING };
 	DxState state;
@@ -68,16 +44,8 @@ private:
 	LPDIRECTSOUNDBUFFER secondaryBuffer;
 	LPDIRECTSOUND directSound;
 
-	Mixer& mixer;
 	unsigned frequency;
-
 	short* mixBuffer;
-	EmuTime prevTime;
-	EmuDuration interval1;
-	//EmuDuration intervalAverage;
-
-	IntegerSetting& speedSetting;
-	ThrottleManager& throttleManager;
 };
 
 } // namespace openmsx

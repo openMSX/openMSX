@@ -380,7 +380,7 @@ inline void AY8910::Envelope::advance(int duration)
 
 AY8910::AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
                const XMLElement& config, const EmuTime& time)
-	: SoundDevice(motherBoard.getMixer(), "PSG", "PSG")
+	: SoundDevice(motherBoard.getMSXMixer(), "PSG", "PSG")
 	, periphery(periphery_)
 	, amplitude(config)
 	, envelope(amplitude)

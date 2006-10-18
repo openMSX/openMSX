@@ -5,7 +5,7 @@
 #include "YMF278.hh"
 #include "XMLElement.hh"
 #include "MSXMotherBoard.hh"
-#include "Mixer.hh"
+#include "MSXMixer.hh"
 
 namespace openmsx {
 
@@ -36,7 +36,7 @@ void MSXMoonSound::reset(const EmuTime& time)
 
 byte MSXMoonSound::readIO(word port, const EmuTime& time)
 {
-	getMotherBoard().getMixer().updateStream(time); // TODO optimize
+	getMotherBoard().getMSXMixer().updateStream(time); // TODO optimize
 	byte result;
 	if ((port&0xFF) < 0xC0) {
 		// WAVE part  0x7E-0x7F

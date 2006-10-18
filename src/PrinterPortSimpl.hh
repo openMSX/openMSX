@@ -8,13 +8,13 @@
 
 namespace openmsx {
 
-class Mixer;
+class MSXMixer;
 class DACSound8U;
 
 class PrinterPortSimpl : public PrinterPortDevice
 {
 public:
-	explicit PrinterPortSimpl(Mixer& mixer);
+	explicit PrinterPortSimpl(MSXMixer& mixer);
 
 	// PrinterPortDevice
 	virtual bool getStatus(const EmuTime& time);
@@ -28,7 +28,7 @@ public:
 	virtual void unplugHelper(const EmuTime& time);
 
 private:
-	Mixer& mixer;
+	MSXMixer& mixer;
 	std::auto_ptr<DACSound8U> dac;
 };
 

@@ -1,7 +1,7 @@
 // $Id$
 
 #include "SoundDevice.hh"
-#include "Mixer.hh"
+#include "MSXMixer.hh"
 #include "XMLElement.hh"
 #include <cassert>
 
@@ -9,7 +9,7 @@ using std::string;
 
 namespace openmsx {
 
-SoundDevice::SoundDevice(Mixer& mixer_, const string& name_,
+SoundDevice::SoundDevice(MSXMixer& mixer_, const string& name_,
                          const string& description_)
 	: mixer(mixer_), name(name_), description(description_)
 	, muteCount(1), muted(true)

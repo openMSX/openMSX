@@ -10,7 +10,7 @@
 
 namespace openmsx {
 
-class Mixer;
+class MSXMixer;
 class DACSound8U;
 
 class MSXTurboRPCM : public MSXDevice, private AudioInputConnector
@@ -30,7 +30,7 @@ private:
 	bool getComp(const EmuTime& time) const;
 	void hardwareMute(bool mute);
 
-	Mixer& mixer;
+	MSXMixer& mixer;
 	std::auto_ptr<DACSound8U> dac;
 	Clock<15750> reference;
 	byte DValue;

@@ -5,8 +5,6 @@
 
 namespace openmsx {
 
-class EmuTime;
-
 class SoundDriver
 {
 public:
@@ -21,7 +19,7 @@ public:
 	virtual unsigned getFrequency() const = 0;
 	virtual unsigned getSamples() const = 0;
 
-	virtual void updateStream(const EmuTime& time) = 0;
+	virtual double uploadBuffer(short* buffer, unsigned len) = 0;
 
 protected:
 	SoundDriver() {}

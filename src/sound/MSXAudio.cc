@@ -51,7 +51,7 @@ MSXAudio::MSXAudio(MSXMotherBoard& motherBoard, const XMLElement& config,
 	string type = StringOp::toLower(config.getChildData("type", "philips"));
 	if (type == "philips") {
 		periphery.reset(new MusicModulePeriphery(*this));
-		dac.reset(new DACSound8U(motherBoard.getMixer(),
+		dac.reset(new DACSound8U(motherBoard.getMSXMixer(),
 		               getName() + " 8-bit DAC", "MSX-AUDIO 8-bit DAC",
 		               config, time));
 	} else if (type == "panasonic") {

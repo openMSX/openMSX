@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-SamplePlayer::SamplePlayer(Mixer& mixer, const std::string& name,
+SamplePlayer::SamplePlayer(MSXMixer& mixer, const std::string& name,
                            const std::string& desc, const XMLElement& config)
 	: SoundDevice(mixer, name, desc)
 {

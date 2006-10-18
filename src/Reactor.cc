@@ -12,6 +12,7 @@
 #include "Command.hh"
 #include "CliComm.hh"
 #include "Display.hh"
+#include "Mixer.hh"
 #include "IconStatus.hh"
 #include "Timer.hh"
 #include "Alarm.hh"
@@ -122,6 +123,14 @@ Display& Reactor::getDisplay()
 		display->createVideoSystem();
 	}
 	return *display;
+}
+
+Mixer& Reactor::getMixer()
+{
+	if (!mixer.get()) {
+		mixer.reset(new Mixer(getCommandController()));
+	}
+	return *mixer;
 }
 
 CommandConsole& Reactor::getCommandConsole()

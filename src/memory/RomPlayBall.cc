@@ -18,7 +18,7 @@ RomPlayBall::RomPlayBall(MSXMotherBoard& motherBoard, const XMLElement& config,
 	setRom (2, 1);
 	setBank(3, unmappedRead);
 
-	samplePlayer.reset(new SamplePlayer(motherBoard.getMixer(), getName(),
+	samplePlayer.reset(new SamplePlayer(motherBoard.getMSXMixer(), getName(),
 	                         "Sony PlayBall DAC", config));
 
 	reset(time);

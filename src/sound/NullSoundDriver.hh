@@ -19,7 +19,7 @@ public:
 	virtual unsigned getFrequency() const;
 	virtual unsigned getSamples() const;
 
-	virtual void updateStream(const EmuTime& time);
+	virtual double uploadBuffer(short* buffer, unsigned len);
 };
 
 } // namespace openmsx

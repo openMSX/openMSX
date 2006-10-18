@@ -25,7 +25,7 @@ class EventTranslator;
 class CliComm;
 class RealTime;
 class Debugger;
-class Mixer;
+class MSXMixer;
 class PluggingController;
 class DummyDevice;
 class MSXCPU;
@@ -111,7 +111,7 @@ public:
 	EventTranslator& getEventTranslator();
 	RealTime& getRealTime();
 	Debugger& getDebugger();
-	Mixer& getMixer();
+	MSXMixer& getMSXMixer();
 	PluggingController& getPluggingController();
 	DummyDevice& getDummyDevice();
 	MSXCPU& getCPU();
@@ -174,7 +174,7 @@ private:
 	std::auto_ptr<EventTranslator> eventTranslator;
 	std::auto_ptr<RealTime> realTime;
 	std::auto_ptr<Debugger> debugger;
-	std::auto_ptr<Mixer> mixer;
+	std::auto_ptr<MSXMixer> msxMixer;
 	std::auto_ptr<PluggingController> pluggingController;
 	std::auto_ptr<DummyDevice> dummyDevice;
 	std::auto_ptr<MSXCPU> msxCpu;

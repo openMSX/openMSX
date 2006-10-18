@@ -17,7 +17,7 @@ namespace openmsx {
 class CommandLineParser;
 class CassetteImage;
 class XMLElement;
-class Mixer;
+class MSXMixer;
 class Scheduler;
 class CliComm;
 class WavWriter;
@@ -51,7 +51,7 @@ class CassettePlayer : public CassetteDevice, public SoundDevice, public EventLi
 {
 public:
 	CassettePlayer(MSXCommandController& msxCommandController,
-	               Mixer& mixer, Scheduler& Scheduler,
+	               MSXMixer& mixer, Scheduler& Scheduler,
 	               MSXEventDistributor& msxEventDistributor,
 	               EventDistributor& eventDistributor);
 	virtual ~CassettePlayer();

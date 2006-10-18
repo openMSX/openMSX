@@ -27,11 +27,12 @@ unsigned NullSoundDriver::getFrequency() const
 
 unsigned NullSoundDriver::getSamples() const
 {
-	return 512;
+	return 0;
 }
 
-void NullSoundDriver::updateStream(const EmuTime& /*time*/)
+double NullSoundDriver::uploadBuffer(short* /*buffer*/, unsigned /*len*/)
 {
+	return 1.0;
 }
 
 } // namespace openmsx

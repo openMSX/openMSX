@@ -14,7 +14,7 @@ namespace openmsx {
 class DACSound16S : public SoundDevice
 {
 public:
-	DACSound16S(Mixer& mixer, const std::string& name,
+	DACSound16S(MSXMixer& mixer, const std::string& name,
 	            const std::string& desc, const XMLElement& config,
 	            const EmuTime& time);
 	virtual ~DACSound16S();

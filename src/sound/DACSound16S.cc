@@ -4,7 +4,7 @@
 
 namespace openmsx {
 
-DACSound16S::DACSound16S(Mixer& mixer, const std::string& name,
+DACSound16S::DACSound16S(MSXMixer& mixer, const std::string& name,
                          const std::string& desc, const XMLElement& config,
                          const EmuTime& /*time*/)
 	: SoundDevice(mixer, name, desc)

@@ -1363,7 +1363,7 @@ void YM2413_2::reset(const EmuTime &time)
 
 YM2413_2::YM2413_2(MSXMotherBoard& motherBoard, const std::string& name,
                    const XMLElement& config, const EmuTime& time)
-	: SoundDevice(motherBoard.getMixer(), name, "MSX-MUSIC")
+	: SoundDevice(motherBoard.getMSXMixer(), name, "MSX-MUSIC")
 	, debuggable(new YM2413_2Debuggable(motherBoard, *this))
 {
 	eg_cnt = eg_timer = 0;

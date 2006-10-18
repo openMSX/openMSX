@@ -1,5 +1,11 @@
 $Id$
 
+2006-10-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Split Mixer in a global Mixer part and a per machine MSXMixer part:
+	   - when there are (temporarily) multiple machines in memory, each
+	     machine has a MSXMixer while there is still only one Mixer (that
+	     loads the actual sound driver)
+
 2006-10-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Removed JoyNet:
 	   - it didn't work (on practical speeds) anyway

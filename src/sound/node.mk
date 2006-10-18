@@ -3,7 +3,7 @@
 include build/node-start.mk
 
 SRC_HDR:= \
-	Mixer NullSoundDriver \
+	Mixer MSXMixer NullSoundDriver \
 	SDLSoundDriver DirectXSoundDriver \
 	SoundDevice \
 	MSXPSG AY8910 AY8910Periphery \

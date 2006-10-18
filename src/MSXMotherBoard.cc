@@ -10,7 +10,7 @@
 #include "CartridgeSlotManager.hh"
 #include "EventDistributor.hh"
 #include "Debugger.hh"
-#include "Mixer.hh"
+#include "MSXMixer.hh"
 #include "PluggingController.hh"
 #include "DummyDevice.hh"
 #include "MSXCPUInterface.hh"
@@ -120,7 +120,7 @@ MSXMotherBoard::MSXMotherBoard(Reactor& reactor_)
 	       getOpenMSXInfoCommand(), "machines"))
 	, powerSetting(getGlobalSettings().getPowerSetting())
 {
-	getMixer().mute(); // powered down
+	getMSXMixer().mute(); // powered down
 	getRealTime(); // make sure it's instantiated
 	getEventTranslator();
 	powerSetting.attach(*this);
@@ -318,12 +318,13 @@ Debugger& MSXMotherBoard::getDebugger()
 	return *debugger;
 }
 
-Mixer& MSXMotherBoard::getMixer()
+MSXMixer& MSXMotherBoard::getMSXMixer()
 {
-	if (!mixer.get()) {
-		mixer.reset(new Mixer(getScheduler(), getMSXCommandController()));
+	if (!msxMixer.get()) {
+		msxMixer.reset(new MSXMixer(reactor.getMixer(), getScheduler(),
+		                            getMSXCommandController()));
 	}
-	return *mixer;
+	return *msxMixer;
 }
 
 PluggingController& MSXMotherBoard::getPluggingController()
@@ -455,26 +456,26 @@ void MSXMotherBoard::block()
 {
 	++blockedCounter;
 	exitCPULoop();
-	getMixer().mute();
+	getMSXMixer().mute();
 }
 
 void MSXMotherBoard::unblock()
 {
 	--blockedCounter;
 	assert(blockedCounter >= 0);
-	getMixer().unmute();
+	getMSXMixer().unmute();
 }
 
 void MSXMotherBoard::pause()
 {
 	getCPU().setPaused(true);
-	getMixer().mute();
+	getMSXMixer().mute();
 }
 
 void MSXMotherBoard::unpause()
 {
 	getCPU().setPaused(false);
-	getMixer().unmute();
+	getMSXMixer().unmute();
 }
 
 void MSXMotherBoard::addDevice(MSXDevice& device)
@@ -533,7 +534,7 @@ void MSXMotherBoard::powerUp()
 		(*it)->powerUp(time);
 	}
 	getCPU().doReset(time);
-	getMixer().unmute();
+	getMSXMixer().unmute();
 	// let everyone know we're booting, note that the fact that this is
 	// done after the reset call to the devices is arbitrary here
 	getEventDistributor().distributeEvent(
@@ -559,7 +560,7 @@ void MSXMotherBoard::doPowerDown(const EmuTime& time)
 	getEventDistributor().distributeEvent(
 		new LedEvent(LedEvent::POWER, false));
 
-	getMixer().mute();
+	getMSXMixer().mute();
 
 	for (Devices::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {

@@ -9,7 +9,7 @@
 
 namespace openmsx {
 
-class Mixer;
+class MSXMixer;
 class XMLElement;
 class EmuTime;
 class EmuDuration;
@@ -56,7 +56,7 @@ protected:
 	 * @param name Unique name per sound device
 	 * @param description Description for this sound device
 	 */
-	SoundDevice(Mixer& mixer, const std::string& name,
+	SoundDevice(MSXMixer& mixer, const std::string& name,
 	            const std::string& description);
 	virtual ~SoundDevice();
 
@@ -138,7 +138,7 @@ public: // Will be called by Mixer:
 	        const EmuTime& start, const EmuDuration& sampDur) = 0;
 
 private:
-	Mixer& mixer;
+	MSXMixer& mixer;
 	const std::string name;
 	const std::string description;
 

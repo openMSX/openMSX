@@ -774,7 +774,7 @@ byte YMF278::peekStatus(const EmuTime& time) const
 
 YMF278::YMF278(MSXMotherBoard& motherBoard, const std::string& name, int ramSize,
                const XMLElement& config, const EmuTime& time)
-	: SoundDevice(motherBoard.getMixer(), name, "MoonSound wave-part")
+	: SoundDevice(motherBoard.getMSXMixer(), name, "MoonSound wave-part")
 	, rom(new Rom(motherBoard, name + " ROM", "rom", config))
 	, loadTime(time), busyTime(time)
 	, debugRegisters(new DebugRegisters(*this, motherBoard))

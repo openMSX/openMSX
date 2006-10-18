@@ -121,7 +121,7 @@ static string calcDescription(SCC::ChipMode mode)
 
 SCC::SCC(MSXMotherBoard& motherBoard, const string& name,
          const XMLElement& config, const EmuTime& time, ChipMode mode)
-	: SoundDevice(motherBoard.getMixer(), name, calcDescription(mode))
+	: SoundDevice(motherBoard.getMSXMixer(), name, calcDescription(mode))
 	, currentChipMode(mode)
 	, deformTimer(time)
 	, debuggable(new SCCDebuggable(motherBoard, *this))

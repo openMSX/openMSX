@@ -1817,7 +1817,7 @@ void YMF262::reset(const EmuTime& time)
 
 YMF262::YMF262(MSXMotherBoard& motherBoard, const std::string& name,
                const XMLElement& config, const EmuTime& time)
-	: SoundDevice(motherBoard.getMixer(), name, "MoonSound FM-part")
+	: SoundDevice(motherBoard.getMSXMixer(), name, "MoonSound FM-part")
 	, irq(motherBoard.getCPU())
 	, timer1(motherBoard.getScheduler(), *this)
 	, timer2(motherBoard.getScheduler(), *this)

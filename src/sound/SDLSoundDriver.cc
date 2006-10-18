@@ -2,31 +2,23 @@
 
 #include "SDLSoundDriver.hh"
 #include "Mixer.hh"
-#include "Scheduler.hh"
-#include "GlobalSettings.hh"
-#include "IntegerSetting.hh"
-#include "BooleanSetting.hh"
-#include "ThrottleManager.hh"
 #include "MSXException.hh"
-#include "build-info.hh"
 #include "Math.hh"
+#include "build-info.hh"
 #include <algorithm>
+#include <cassert>
+#include <SDL.h>
 
 namespace openmsx {
 
-SDLSoundDriver::SDLSoundDriver(
-		Scheduler& scheduler, GlobalSettings& globalSettings,
-		Mixer& mixer_, unsigned frequency, unsigned samples)
-	: Schedulable(scheduler)
-	, mixer(mixer_)
+SDLSoundDriver::SDLSoundDriver(Mixer& mixer_,
+                               unsigned wantedFreq, unsigned wantedSamples)
+	: mixer(mixer_)
 	, muted(true)
-	, prevTime(scheduler.getCurrentTime())
-	, speedSetting(globalSettings.getSpeedSetting())
-	, throttleManager(globalSettings.getThrottleManager())
 {
 	SDL_AudioSpec desired;
-	desired.freq     = frequency;
-	desired.samples  = Math::powerOfTwo(samples);
+	desired.freq     = wantedFreq;
+	desired.samples  = Math::powerOfTwo(wantedSamples);
 	desired.channels = 2; // stereo
 	desired.format   = OPENMSX_BIGENDIAN ? AUDIO_S16MSB : AUDIO_S16LSB;
 	desired.callback = audioCallbackHelper; // must be a static method
@@ -36,29 +28,24 @@ SDLSoundDriver::SDLSoundDriver(
 		throw MSXException("Unable to initialize SDL audio subsystem: " +
 		                   std::string(SDL_GetError()));
 	}
+	SDL_AudioSpec audioSpec;
 	if (SDL_OpenAudio(&desired, &audioSpec) != 0) {
 		SDL_QuitSubSystem(SDL_INIT_AUDIO);
 		throw MSXException("Unable to open SDL audio: " +
 		                   std::string(SDL_GetError()));
 	}
+	frequency = audioSpec.freq;
+	bufferSize = 4 * (audioSpec.size / sizeof(short));
+	assert(Math::powerOfTwo(bufferSize) == bufferSize);
+	bufferMask = bufferSize - 1;
 
-	bufferSize = 4 * audioSpec.size / (2 * sizeof(short));
-	mixBuffer = new short[2 * bufferSize];
-	memset(mixBuffer, 0, bufferSize * 2 * sizeof(short));
-	readPtr = writePtr = 0;
-	reInit();
-	EmuDuration interval2 = interval1 * audioSpec.samples;
-	setSyncPoint(prevTime + interval2);
-
-	speedSetting.attach(*this);
-	throttleManager.attach(*this);
+	mixBuffer = new short[bufferSize];
+	memset(mixBuffer, 0, bufferSize * sizeof(short));
+	readIdx = writeIdx = 0;
 }
 
 SDLSoundDriver::~SDLSoundDriver()
 {
-	throttleManager.detach(*this);
-	speedSetting.detach(*this);
-
 	delete[] mixBuffer;
 
 	SDL_CloseAudio();
@@ -87,180 +74,70 @@ void SDLSoundDriver::unmute()
 {
 	if (muted) {
 		muted = false;
-		readPtr = writePtr = 0;
-		reInit();
+		readIdx = writeIdx = 0;
 		SDL_PauseAudio(0);
 	}
 }
 
 unsigned SDLSoundDriver::getFrequency() const
 {
-	return audioSpec.freq;
+	return frequency;
 }
 
 unsigned SDLSoundDriver::getSamples() const
 {
-	return audioSpec.samples;
+	return bufferSize / (4 * 2); // 4 * (left + right)
 }
 
-void SDLSoundDriver::audioCallbackHelper(void* userdata, Uint8* strm, int len)
+void SDLSoundDriver::audioCallbackHelper(void* userdata, byte* strm, int len)
 {
+	assert((len & 3) == 0); // stereo, 16-bit
 	((SDLSoundDriver*)userdata)->
-		audioCallback((short*)strm, len / (2 * sizeof(short)));
+		audioCallback((short*)strm, len / sizeof(short));
 }
 
 void SDLSoundDriver::audioCallback(short* stream, unsigned len)
 {
-	unsigned available = (readPtr <= writePtr)
-	                   ? writePtr - readPtr
-	                   : writePtr - readPtr + bufferSize;
-
-	if (available < (3 * bufferSize / 8)) {
-		int missing = len - available;
-		if (missing <= 0) {
-			// 1/4 full, speed up a little
-			if (interval1.length() > 100) { // may not become 0
-				interval1 /= 1.005;
-			}
-			//cout << "Mixer: low      " << available << '/' << len << ' '
-			//     << 1.0 / interval1.toDouble() << endl;
-		} else {
-			// buffer underrun
-			if (interval1.length() > 100) { // may not become 0
-				interval1 /= 1.01;
-			}
-			//cout << "Mixer: underrun " << available << '/' << len << ' '
-			//     << 1.0 / interval1.toDouble() << endl;
-			updtStrm2(missing, prevTime, interval1);
-		}
-		EmuDuration minDuration = (intervalAverage * 255) / 256;
-		if (interval1 < minDuration) {
-			interval1 = minDuration;
-			//cout << "Mixer: clipped  " << available << '/' << len << ' '
-			//     << 1.0 / interval1.toDouble() << endl;
-		}
-	}
-	if ((readPtr + len) < bufferSize) {
-		memcpy(stream, &mixBuffer[2 * readPtr], len * 2 * sizeof(short));
-		readPtr += len;
+	assert((len & 1) == 0);
+	available = (writeIdx - readIdx) & bufferMask;
+	unsigned num = std::min<unsigned>(len, available);
+	if ((readIdx + num) < bufferSize) {
+		memcpy(stream, &mixBuffer[readIdx], num * sizeof(short));
+		readIdx += num;
 	} else {
-		unsigned len1 = bufferSize - readPtr;
-		memcpy(stream, &mixBuffer[2 * readPtr], len1 * 2 * sizeof(short));
-		unsigned len2 = len - len1;
-		memcpy(&stream[2 * len1], mixBuffer, len2 * 2 * sizeof(short));
-		readPtr = len2;
+		unsigned len1 = bufferSize - readIdx;
+		memcpy(stream, &mixBuffer[readIdx], len1 * sizeof(short));
+		unsigned len2 = num - len1;
+		memcpy(&stream[len1], mixBuffer, len2 * sizeof(short));
+		readIdx = len2;
 	}
-	intervalAverage = (intervalAverage * 63 + interval1) / 64;
+	int missing = len - available;
+	if (missing > 0) {
+		// buffer underrun
+		mixer.bufferUnderRun(&stream[available], missing / 2);
+	}
 }
 
-
-void SDLSoundDriver::updateStream(const EmuTime& time)
+double SDLSoundDriver::uploadBuffer(short* buffer, unsigned len)
 {
-	assert(prevTime <= time);
-	lock();
-	EmuDuration duration = time - prevTime;
-	unsigned samples = duration / interval1;
-	if (samples != 0) {
-		EmuTime start = prevTime;
-		prevTime += interval1 * samples;
-		assert(prevTime <= time);
-		updtStrm(samples, start, interval1);
-	}
-	unlock();
-}
-
-void SDLSoundDriver::updtStrm(unsigned samples, const EmuTime& start,
-                              const EmuDuration& sampDur)
-{
-	samples = std::min<unsigned>(samples, audioSpec.samples);
-
-	unsigned available = (readPtr <= writePtr)
-	                   ? writePtr - readPtr
-	                   : writePtr - readPtr + bufferSize;
-	available += samples;
-	if (available > (7 * bufferSize / 8)) {
-		int overflow = available - (bufferSize - 1);
-		if (overflow <= 0) {
-			// 7/8 full slow down a bit
-			interval1 *= 1.005;
-			//cout << "Mixer: high     " << available << '/' << bufferSize << ' '
-			//     << 1.0 / interval1.toDouble() << endl;
-		} else {
-			// buffer overrun
-			interval1 *= 1.01;
-			//cout << "Mixer: overrun  " << available << '/' << bufferSize << ' '
-			//     << 1.0 / interval1.toDouble() << endl;
-			samples -= overflow;
-		}
-		EmuDuration maxDuration = (intervalAverage * 257) / 256;
-		if (interval1 > maxDuration) {
-			interval1 = maxDuration;
-			//cout << "Mixer: clipped  " << available << '/' << bufferSize << ' '
-			//     << 1.0 / interval1.toDouble() << endl;
-		}
-	}
-	updtStrm2(samples, start, sampDur);
-}
-
-void SDLSoundDriver::updtStrm2(unsigned samples, const EmuTime& start,
-                               const EmuDuration& sampDur)
-{
-	unsigned left = bufferSize - writePtr;
-	if (samples < left) {
-		mixer.generate(&mixBuffer[2 * writePtr], samples,
-		               start, sampDur);
-		writePtr += samples;
+	len *= 2; // stereo
+	unsigned free = (readIdx - writeIdx - 2) & bufferMask;
+	unsigned num = std::min(len, free); // ignore overrun (drop samples)
+	if ((writeIdx + num) < bufferSize) {
+		memcpy(&mixBuffer[writeIdx], buffer, num * sizeof(short));
+		writeIdx += num;
 	} else {
-		mixer.generate(&mixBuffer[2 * writePtr], left,
-		               start, sampDur);
-		writePtr = samples - left;
-		if (writePtr > 0) {
-			mixer.generate(mixBuffer, writePtr,
-			               start + sampDur * left, sampDur);
-		}
+		unsigned len1 = bufferSize - writeIdx;
+		memcpy(&mixBuffer[writeIdx], buffer, len1 * sizeof(short));
+		unsigned len2 = num - len1;
+		memcpy(mixBuffer, &buffer[len1], len2 * sizeof(short));
+		writeIdx = len2;
 	}
-}
 
-void SDLSoundDriver::reInit()
-{
-	double percent = speedSetting.getValue();
-	interval1 = EmuDuration(percent / (audioSpec.freq * 100));
-	intervalAverage = interval1;
-}
-
-
-
-// Schedulable
-
-void SDLSoundDriver::executeUntil(const EmuTime& time, int /*userData*/)
-{
-	if (!muted) {
-		// TODO not schedule at all if muted
-		updateStream(time);
-	}
-	EmuDuration interval2 = interval1 * audioSpec.samples;
-	setSyncPoint(time + interval2);
-}
-
-const std::string& SDLSoundDriver::schedName() const
-{
-	static const std::string name = "SDLSoundDriver";
-	return name;
-}
-
-
-// Observer<Setting>
-
-void SDLSoundDriver::update(const Setting& /*setting*/)
-{
-	reInit();
-}
-
-// Observer<ThrottleManager>
-
-void SDLSoundDriver::update(const ThrottleManager& /*throttleManager*/)
-{
-	reInit();
+	int target = bufferSize / 2;
+	double factor = static_cast<double>(available) / target;
+	available = target;
+	return factor;
 }
 
 } // namespace openmsx

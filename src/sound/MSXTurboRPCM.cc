@@ -3,7 +3,7 @@
 #include "MSXTurboRPCM.hh"
 #include "MSXMotherBoard.hh"
 #include "DACSound8U.hh"
-#include "Mixer.hh"
+#include "MSXMixer.hh"
 
 namespace openmsx {
 
@@ -11,7 +11,7 @@ MSXTurboRPCM::MSXTurboRPCM(MSXMotherBoard& motherBoard,
                            const XMLElement& config, const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
 	, AudioInputConnector(motherBoard.getPluggingController(), "pcminput")
-	, mixer(motherBoard.getMixer())
+	, mixer(motherBoard.getMSXMixer())
 	, dac(new DACSound8U(mixer, "PCM", "Turbo-R PCM", config, time))
 	, reference(time)
 	, hwMute(false)

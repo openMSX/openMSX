@@ -17,6 +17,7 @@ class CommandController;
 class GlobalCommandController;
 class CliComm;
 class Display;
+class Mixer;
 class CommandConsole;
 class IconStatus;
 class InputEventGenerator;
@@ -57,6 +58,7 @@ public:
 	CliComm& getCliComm();
 	InputEventGenerator& getInputEventGenerator();
 	Display& getDisplay();
+	Mixer& getMixer();
 	CommandConsole& getCommandConsole();
 	IconStatus& getIconStatus();
 	DiskManipulator& getDiskManipulator();
@@ -107,6 +109,7 @@ private:
 	std::auto_ptr<CliComm> cliComm;
 	std::auto_ptr<InputEventGenerator> inputEventGenerator;
 	std::auto_ptr<Display> display;
+	std::auto_ptr<Mixer> mixer;
 	std::auto_ptr<CommandConsole> commandConsole;
 	std::auto_ptr<IconStatus> iconStatus;
 	std::auto_ptr<DiskManipulator> diskManipulator;

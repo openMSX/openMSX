@@ -29,7 +29,7 @@ MSXPPI::MSXPPI(MSXMotherBoard& motherBoard, const XMLElement& config,
 	                            motherBoard.getMSXEventDistributor(),
 	                            keyGhosting));
 	i8255.reset(new I8255(*this, time));
-	click.reset(new KeyClick(motherBoard.getMixer(), config, time));
+	click.reset(new KeyClick(motherBoard.getMSXMixer(), config, time));
 
 	reset(time);
 }

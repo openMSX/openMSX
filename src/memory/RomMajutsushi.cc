@@ -14,7 +14,7 @@ RomMajutsushi::RomMajutsushi(
 	MSXMotherBoard& motherBoard, const XMLElement& config,
 	const EmuTime& time, std::auto_ptr<Rom> rom)
 	: RomKonami4(motherBoard, config, time, rom)
-	, dac(new DACSound8U(motherBoard.getMixer(), getName(),
+	, dac(new DACSound8U(motherBoard.getMSXMixer(), getName(),
 		"Majutsushi DAC", config, time))
 {
 }

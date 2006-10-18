@@ -59,7 +59,7 @@ void PluggableFactory::createAll(PluggingController& controller,
 		eventDistributor, scheduler, commandController));
 
 	// Sampled audio:
-	controller.registerPluggable(new PrinterPortSimpl(motherBoard.getMixer()));
+	controller.registerPluggable(new PrinterPortSimpl(motherBoard.getMSXMixer()));
 	controller.registerPluggable(new WavAudioInput(commandController));
 
 	// MIDI:

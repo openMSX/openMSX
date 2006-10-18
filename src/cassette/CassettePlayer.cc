@@ -118,7 +118,7 @@ const string& MSXCassettePlayerCLI::fileTypeHelp() const
 
 CassettePlayer::CassettePlayer(
 		MSXCommandController& msxCommandController_,
-		Mixer& mixer, Scheduler& scheduler_,
+		MSXMixer& mixer, Scheduler& scheduler_,
 		MSXEventDistributor& msxEventDistributor,
 		EventDistributor& eventDistributor_)
 	: SoundDevice(mixer, getName(), getDescription())
