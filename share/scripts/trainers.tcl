@@ -1,5 +1,5 @@
 set_help_text trainer \
-{game trainers version 1.7
+{game trainers version 1.6
 
 please join us looking for cheats and submit them to the www.openmsx.org forum
 
@@ -6118,6 +6118,40 @@ proc trainer_legendlyninegems {} {
 	#key
 	poke 0xb44d 3
 	after time 1 trainer_legendlyninegems
+}
+
+proc trainer_breakoutadventure {} {
+	#power
+	poke 0x873e 12
+	#lives
+	poke 0x863d 5
+	after time 1 trainer_breakoutadventure
+}
+
+proc trainer_vaxol {} {
+	#power
+	poke 0xc148 255
+	after time 1 trainer_vaxol
+}
+
+proc trainer_gameover_part1 {} {
+	#lives
+	poke 0xd9bb 11
+	#power
+	poke 0xda1b 255
+	#second shot
+	poke 0xd9bf 100 
+	after time 1 trainer_gameover_part1
+}
+
+proc trainer_gameover_part2 {} {
+	#lives
+	poke 0xd9bf 12
+	#power
+	poke 0xda27 255
+	#second shot
+	poke 0xd9c3 100
+	after time 1 trainer_gameover_part2
 }
 
 proc trainer_firehawk {} {trainer_thexder2}
