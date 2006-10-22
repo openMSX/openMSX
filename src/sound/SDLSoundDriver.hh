@@ -36,7 +36,6 @@ private:
 	unsigned frequency;
 	short* mixBuffer;
 	unsigned bufferSize;
-	unsigned bufferMask;
 	unsigned readIdx, writeIdx;
 	int available; // available samples at last callback
 	bool muted;

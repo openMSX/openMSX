@@ -36,8 +36,6 @@ SDLSoundDriver::SDLSoundDriver(Mixer& mixer_,
 	}
 	frequency = audioSpec.freq;
 	bufferSize = 4 * (audioSpec.size / sizeof(short));
-	assert(Math::powerOfTwo(bufferSize) == bufferSize);
-	bufferMask = bufferSize - 1;
 
 	mixBuffer = new short[bufferSize];
 	memset(mixBuffer, 0, bufferSize * sizeof(short));
@@ -99,7 +97,7 @@ void SDLSoundDriver::audioCallbackHelper(void* userdata, byte* strm, int len)
 void SDLSoundDriver::audioCallback(short* stream, unsigned len)
 {
 	assert((len & 1) == 0);
-	available = (writeIdx - readIdx) & bufferMask;
+	available = (writeIdx - readIdx) % bufferSize;
 	unsigned num = std::min<unsigned>(len, available);
 	if ((readIdx + num) < bufferSize) {
 		memcpy(stream, &mixBuffer[readIdx], num * sizeof(short));
@@ -121,7 +119,7 @@ void SDLSoundDriver::audioCallback(short* stream, unsigned len)
 double SDLSoundDriver::uploadBuffer(short* buffer, unsigned len)
 {
 	len *= 2; // stereo
-	unsigned free = (readIdx - writeIdx - 2) & bufferMask;
+	unsigned free = (readIdx - writeIdx - 2) % bufferSize;
 	unsigned num = std::min(len, free); // ignore overrun (drop samples)
 	if ((writeIdx + num) < bufferSize) {
 		memcpy(&mixBuffer[writeIdx], buffer, num * sizeof(short));
