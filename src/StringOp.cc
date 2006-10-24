@@ -1,4 +1,3 @@
-//p
 //$Id$
 
 #include <cstdlib>
