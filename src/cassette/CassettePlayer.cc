@@ -594,7 +594,6 @@ string TapeCommand::execute(const vector<string>& tokens, const EmuTime& time)
 		}
 		result += "Tape rewound";
 	} else {
-		result += "This syntax is deprecated, please use insert!\n";
 		try {
 			result += "Changing tape";
 			UserFileContext context(getCommandController());
@@ -648,7 +647,8 @@ string TapeCommand::help(const vector<string>& tokens) const
 	       "cassetteplayer play              : change to play mode (default)\n"
 	       "cassetteplayer record            : change to record mode (NOT IMPLEMENTED YET)\n"
 	       "cassetteplayer new [<filename>]  : create and insert new tape image file and\ngo to record mode\n"
-	       "cassetteplayer insert <filename> : insert (a different) tape file\n";
+	       "cassetteplayer insert <filename> : insert (a different) tape file\n"
+	       "cassetteplayer <filename>        : insert (a different) tape file\n";
 	}
 	return helptext;
 }
@@ -664,7 +664,8 @@ void TapeCommand::tabCompletion(vector<string>& tokens) const
 		extra.insert("new");
 		extra.insert("play");
 	//	extra.insert("record");
-		completeString(tokens, extra);
+		UserFileContext context(getCommandController());
+		completeFileName(tokens, context, extra);
 	} else if ((tokens.size() == 3) && (tokens[1] == "insert")) {
 		UserFileContext context(getCommandController());
 		completeFileName(tokens, context, extra);

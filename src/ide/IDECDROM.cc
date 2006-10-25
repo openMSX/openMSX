@@ -13,6 +13,7 @@
 
 using std::string;
 using std::vector;
+using std::set;
 
 namespace openmsx {
 
@@ -329,42 +330,54 @@ CDXCommand::CDXCommand(MSXCommandController& msxCommandController,
 
 string CDXCommand::execute(const vector<string>& tokens, const EmuTime& /*time*/)
 {
-	switch (tokens.size()) {
-	case 1: {
+	if (tokens.size() == 1) {
 		File* file = cd.file.get();
 		return file ? file->getOriginalName() : "";
-	}
-	case 2: {
+	} else if ( (tokens.size() == 2) && tokens[1] == "eject") {
+		cd.eject();
+		return "";
 		// TODO check for locked tray
-		if (tokens[1] == "-eject") {
-			cd.eject();
-			return "";
-		} else {
-			try {
-				UserFileContext context(getCommandController());
-				string filename = context.resolve(tokens[1]);
-				cd.insert(filename);
-				return filename;
-			} catch (FileException& e) {
-				throw CommandException("Can't change cd image: " +
-				                       e.getMessage());
+	} else if ( (tokens.size() == 2) && tokens[1] == "-eject") {
+		cd.eject();
+		return "Warning: use of '-eject' is deprecated, instead use the 'eject' subcommand";
+	} else if ( (tokens.size() == 2) || ( (tokens.size() == 3) && tokens[1] == "insert")) {
+		int fileToken = 1;
+		if (tokens[1] == "insert") {
+			if (tokens.size() > 2) {
+				fileToken = 2;
+			} else {
+				throw CommandException("Missing argument to insert subcommand");
 			}
 		}
-	}
-	default:
-		throw CommandException("Too many arguments.");
+		try {
+			UserFileContext context(getCommandController());
+			string filename = context.resolve(tokens[fileToken]);
+			cd.insert(filename);
+			return filename;
+		} catch (FileException& e) {
+			throw CommandException("Can't change cd image: " +
+					e.getMessage());
+		}
+	} else {
+		throw CommandException("Too many or wrong arguments.");
 	}
 }
 
 string CDXCommand::help(const vector<string>& /*tokens*/) const
 {
-	return cd.name + ": change the cd image for this CDROM";
+	return cd.name + "                   : display the cd image for this CDROM drive\n" +
+	       cd.name + " eject             : eject the cd image from this CDROM drive\n" +
+	       cd.name + " insert <filename> : change the cd image for this CDROM drive\n" +
+	       cd.name + " <filename>        : change the cd image for this CDROM drive\n";
 }
 
 void CDXCommand::tabCompletion(vector<string>& tokens) const
 {
+	set<string> extra;
+	extra.insert("eject");
+	extra.insert("insert");
 	UserFileContext context(getCommandController());
-	completeFileName(tokens, context);
+	completeFileName(tokens, context, extra);
 }
 
 } // namespace openmsx

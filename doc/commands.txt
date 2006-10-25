@@ -55,15 +55,16 @@ cart / cart<x>
 --------------
 
   Insert a game rom in a running MSX. The 'cart' command inserts the rom in the
-  first available slot. The 'slota', 'slotb', .. commands insert in the
-  specified slot. The roms can be removed again with the 'remove_extension'
-  command. See also the commands 'ext', 'list_extensions' and
-  'remove_extension'.
+  first available slot. The 'carta', 'cartb', .. commands insert in the
+  specified slot. The roms can be removed again with the eject subcommand.
+  See also the commands 'ext', 'list_extensions' and 'remove_extension'.
 
   usage:
     cart KMARE.ROM                Insert rom in first free slot
+    cart insert KMARE.ROM         Insert rom in first free slot
     carta USAS.ROM -ips USAS.IPS  Insert rom in specified slot and apply IPS
                                   patch
+    carta eject                   Eject the cartridge from slot a
 
 
 cassetteplayer
@@ -92,8 +93,10 @@ cda / cdb
   in MSX-DOS!
 
   usage:
-    cda <iso image>         use ISO image for CDROM "cda"
-    cda                     show current ISO image for cdrom "cda"
+    cda <iso image>         use ISO image for CDROM drive "cda"
+    cda insert <iso image>  use ISO image for CDROM drive "cda"
+    cda eject               eject CDROM from CDROM drive "cda"
+    cda                     show current ISO image for CDROM drive "cda"
 
 
 debug
@@ -248,8 +251,9 @@ hda / hdb
   in MSX-DOS!
 
   usage:
-    hda <disk image>        use hard disk image for hard disk "hda"
-    hda                     show current hard disk image for hard disk "hda"
+    hda <disk image>         use hard disk image for hard disk "hda"
+    hda insert <disk image>  use hard disk image for hard disk "hda"
+    hda                      show current hard disk image for hard disk "hda"
 
 
 help
@@ -287,7 +291,7 @@ keymatrixup / keymatrixdown
 list_extensions
 ---------------
 
-  Returns a list of inserted roms and extension. These can be removed with the
+  Returns a list of inserted roms and extensions. These can be removed with the
   'remove_extension' command or additional items can be added with the 'cart'
   and 'ext' commands.
 

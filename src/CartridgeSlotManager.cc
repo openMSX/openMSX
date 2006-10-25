@@ -16,6 +16,7 @@
 
 using std::string;
 using std::vector;
+using std::set;
 
 namespace openmsx {
 
@@ -249,8 +250,11 @@ string CartCmd::execute(const vector<string>& tokens, const EmuTime& /*time*/)
 			object.addListElement(options);
 		}
 		result = object.getString();
-	} else if (tokens[1] == "-eject") {
+	} else if ( (tokens[1] == "eject") || (tokens[1] == "-eject") ) {
 		// remove cartridge (or extension)
+		if (tokens[1] == "-eject") {
+			result += "Warning: use of '-eject' is deprecated, instead use the 'eject' subcommand";		
+		}
 		const ExtensionConfig* extConf = getExtensionConfig(cartname);
 		if (extConf) {
 			try {
@@ -264,18 +268,26 @@ string CartCmd::execute(const vector<string>& tokens, const EmuTime& /*time*/)
 
 	} else {
 		// insert cartridge
-		try {
-			string slotname = (cartname.size() == 5)
-			                ? string(1, cartname[4])
-			                : "any";
-			vector<string> options;
-			for (unsigned i = 2; i < tokens.size(); ++i) {
-				options.push_back(tokens[i]);
+		string slotname = (cartname.size() == 5)
+			? string(1, cartname[4])
+			: "any";
+		int extensionNameToken = 1;
+		if (tokens[1] == "insert") {
+			if (tokens.size() > 2) {
+				extensionNameToken = 2;
+			} else {
+				throw CommandException("Missing argument to insert subcommand");
 			}
+		}
+		vector<string> options;
+		for (unsigned i = (extensionNameToken + 1); i < tokens.size(); ++i) {
+			options.push_back(tokens[i]);
+		}
+		try {
 			ExtensionConfig& extension =
 				manager.motherBoard.loadRom(
-					tokens[1], slotname, options);
-			cliComm.update(CliComm::MEDIA, cartname, tokens[1]);
+					tokens[extensionNameToken], slotname, options);
+			cliComm.update(CliComm::MEDIA, cartname, tokens[extensionNameToken]);
 			result = extension.getName();
 		} catch (MSXException& e) {
 			throw CommandException(e.getMessage());
@@ -284,15 +296,23 @@ string CartCmd::execute(const vector<string>& tokens, const EmuTime& /*time*/)
 	return result;
 }
 
-string CartCmd::help(const vector<string>& /*tokens*/) const
+string CartCmd::help(const vector<string>& tokens) const
 {
-	return "Insert a ROM cartridge.";
+	return tokens[0] + " eject              : remove the ROM cartridge from this slot\n" +
+	       tokens[0] + " insert <filename>  : insert ROM cartridge with <filename>\n" +
+	       tokens[0] + " <filename>         : insert ROM cartridge with <filename>\n" +
+	       tokens[0] + "                    : show which ROM cartridge is in this slot";
 }
 
 void CartCmd::tabCompletion(vector<string>& tokens) const
 {
+	set<string> extra;
+	if (tokens.size() < 3) {
+		extra.insert("eject");
+		extra.insert("insert");
+	}
 	UserFileContext context(getCommandController());
-	completeFileName(tokens, context);
+	completeFileName(tokens, context, extra);
 }
 
 } // namespace openmsx

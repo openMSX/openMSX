@@ -1,5 +1,18 @@
 $Id$
 
+2006-10-25 Manuel Bilderbeek <manuel@msxnet.org>
+	* Restructured media-related commands:
+	  - basic idea: all media have the same command structure:
+	    + mediacommand subcommand arguments
+	    + default subcommand is 'insert', which can thus be omitted
+	  - if you want to insert a medium with the name of a subcommand,
+	    just use the insert subcommand first, e.g.:
+	    diska insert insert
+	  - Corrected help and documentation a bit and optimized completion a
+	    bit
+	  - TODO: completion can be made a lot tighter, still
+	  - commands are still (practically) 100% backwards compatible
+
 2006-10-18 Joost Yervante Damad <joost@lumatec.be>
 	* fix from BouKiCHi for install-recursive.sh
 	* make MMX and SSE code also work on AMD64

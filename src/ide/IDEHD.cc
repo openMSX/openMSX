@@ -16,6 +16,7 @@
 
 using std::string;
 using std::vector;
+using std::set;
 
 namespace openmsx {
 
@@ -212,20 +213,27 @@ HDCommand::HDCommand(MSXCommandController& msxCommandController,
 
 string HDCommand::execute(const vector<string>& tokens, const EmuTime& /*time*/)
 {
-	switch (tokens.size()) {
-	case 1:
+	if (tokens.size() == 1) {
 		return hd.file->getOriginalName();
-	case 2: {
-		try {
-			CommandController& controller = getCommandController();
-			if (controller.getGlobalSettings().
-			        getPowerSetting().getValue()) {
-				throw CommandException(
+	} else if ( (tokens.size() == 2) || ( (tokens.size() == 3) && tokens[1] == "insert")) {
+		CommandController& controller = getCommandController();
+		if (controller.getGlobalSettings().
+				getPowerSetting().getValue()) {
+			throw CommandException(
 					"Can only change hard disk image when MSX "
 					"is powered down.");
+		}
+		int fileToken = 1;
+		if (tokens[1] == "insert") {
+			if (tokens.size() > 2) {
+				fileToken = 2;
+			} else {
+				throw CommandException("Missing argument to insert subcommand");
 			}
+		}
+		try {
 			UserFileContext context(controller);
-			string filename = context.resolve(tokens[1]);
+			string filename = context.resolve(tokens[fileToken]);
 			std::auto_ptr<File> newFile(new File(filename));
 			hd.file = newFile;
 			return filename;
@@ -233,9 +241,8 @@ string HDCommand::execute(const vector<string>& tokens, const EmuTime& /*time*/)
 			throw CommandException("Can't change hard disk image: " +
 			                       e.getMessage());
 		}
-	}
-	default:
-		throw CommandException("Too many arguments.");
+	} else {
+		throw CommandException("Too many or wrong arguments.");
 	}
 }
 
@@ -246,8 +253,12 @@ string HDCommand::help(const vector<string>& /*tokens*/) const
 
 void HDCommand::tabCompletion(vector<string>& tokens) const
 {
+	set<string> extra;
+	if (tokens.size() < 3) {
+		extra.insert("insert");	
+	}
 	UserFileContext context(getCommandController());
-	completeFileName(tokens, context);
+	completeFileName(tokens, context, extra);
 }
 
 } // namespace openmsx

@@ -120,9 +120,8 @@ void DiskChanger::signalEvent(
 	const MSXCommandEvent* commandEvent =
 		checked_cast<const MSXCommandEvent*>(event.get());
 	const vector<TclObject*>& tokens = commandEvent->getTokens();
-	if ((tokens.size() >= 2) &&
-	    (tokens[0]->getString() == getDriveName())) {
-		if (tokens[1]->getString() == "-eject") {
+	if (tokens[0]->getString() == getDriveName()) {
+		if (tokens[1]->getString() == "eject") {
 			ejectDisk();
 		} else {
 			insertDisk(tokens);
@@ -133,8 +132,8 @@ void DiskChanger::signalEvent(
 void DiskChanger::insertDisk(const vector<TclObject*>& args)
 {
 	std::auto_ptr<Disk> newDisk;
-	const string& diskImage = args[1]->getString();
-	if (diskImage == "-ramdsk") {
+	string diskImage = args[1]->getString();
+	if (diskImage == "ramdsk") {
 		newDisk.reset(new RamDSKDiskImage());
 	} else {
 		try {
@@ -187,6 +186,7 @@ DiskCommand::DiskCommand(CommandController& commandController,
 
 void DiskCommand::execute(const vector<TclObject*>& tokens, TclObject& result)
 {
+	int firstFileToken = 1;
 	if (tokens.size() == 1) {
 		result.addListElement(diskChanger.getDriveName() + ':');
 		result.addListElement(diskChanger.getDiskName());
@@ -206,29 +206,43 @@ void DiskCommand::execute(const vector<TclObject*>& tokens, TclObject& result)
 			result.addListElement(options);
 		}
 
-	} else if (tokens[1]->getString() == "-ramdsk") {
+	} else if (tokens[1]->getString() == "ramdsk") {
 		vector<string> args;
 		args.push_back(diskChanger.getDriveName());
 		args.push_back(tokens[1]->getString());
 		diskChanger.sendChangeDiskEvent(args);
+	} else if (tokens[1]->getString() == "-ramdsk") {
+		vector<string> args;
+		args.push_back(diskChanger.getDriveName());
+		args.push_back("ramdsk");
+		diskChanger.sendChangeDiskEvent(args);
+		result.setString(
+			"Warning: use of '-ramdsk' is deprecated, instead use the 'ramdsk' subcommand");
 	} else if (tokens[1]->getString() == "-eject") {
 		vector<string> args;
 		args.push_back(diskChanger.getDriveName());
-		args.push_back("-eject");
+		args.push_back("eject");
 		diskChanger.sendChangeDiskEvent(args);
+		result.setString(
+			"Warning: use of '-eject' is deprecated, instead use the 'eject' subcommand");
 	} else if (tokens[1]->getString() == "eject") {
 		vector<string> args;
 		args.push_back(diskChanger.getDriveName());
-		args.push_back("-eject");
+		args.push_back("eject");
 		diskChanger.sendChangeDiskEvent(args);
-		result.setString(
-			"Warning: use of 'eject' is deprecated, instead use '-eject'");
 	} else {
+		if (tokens[1]->getString() == "insert") {
+			if (tokens.size() > 2) {
+				firstFileToken = 2; // skip this subcommand as filearg
+			} else {
+				throw CommandException("Missing argument to insert subcommand");
+			}
+		}
 		try {
 			UserFileContext context(getCommandController());
 			vector<string> args;
 			args.push_back(diskChanger.getDriveName());
-			for (unsigned i = 1; i < tokens.size(); ++i) {
+			for (unsigned i = firstFileToken; i < tokens.size(); ++i) {
 				args.push_back(context.resolve(
 					tokens[i]->getString()));
 			}
@@ -242,17 +256,20 @@ void DiskCommand::execute(const vector<TclObject*>& tokens, TclObject& result)
 string DiskCommand::help(const vector<string>& /*tokens*/) const
 {
 	const string& name = diskChanger.getDriveName();
-	return name + " -eject      : remove disk from virtual drive\n" +
-	       name + " -ramdsk     : create a virtual disk in RAM\n" +
-	       name + " <filename> : change the disk file\n";
+	return name + " eject             : remove disk from virtual drive\n" +
+	       name + " ramdsk            : create a virtual disk in RAM\n" +
+	       name + " insert <filename> : change the disk file\n" +
+	       name + " <filename>        : change the disk file\n" +
+	       name + "                   : show which disk image is in drive";
 }
 
 void DiskCommand::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() >= 2) {
 		set<string> extra;
-		extra.insert("-eject");
-		extra.insert("-ramdsk");
+		extra.insert("eject");
+		extra.insert("ramdsk");
+		extra.insert("insert");
 		UserFileContext context(getCommandController());
 		completeFileName(tokens, context, extra);
 	}
