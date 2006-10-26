@@ -170,7 +170,13 @@ void HardwareConfig::parseSlots()
 			const string& secSlot = (*it2)->getAttribute("slot");
 			int ss = CartridgeSlotManager::getSlotNum(secSlot);
 			if (ss < 0) {
-				continue;
+				if ( (ss >= -128) && (0 <= ps) && (ps<4) 
+					 && motherBoard.getCPUInterface().isExpanded(ps))
+					ss += 128;
+				else {
+					ss = -256;
+					continue;
+				}
 			}
 			if (ps < 0) {
 				ps = getFreePrimarySlot();

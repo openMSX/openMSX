@@ -1,5 +1,13 @@
 $Id$
 
+2006-10-26  Arnold Metselaar  <arnold.metselaar@planet.nl>
+	* Unified advram-p and advram-s to a single advram,
+	 - use "?0" to specify: subslot "0" if expanded,
+	 - src/CartridgeSlotManager.cc: parse "?0",
+	 - src/MSXDevice.cc, src/config/HardwareConfig.cc: 
+	    handle the case of "?0",
+	 - TODO: get rid of the special values for slot numbers.
+
 2006-10-25 Manuel Bilderbeek <manuel@msxnet.org>
 	* Restructured media-related commands:
 	  - basic idea: all media have the same command structure:

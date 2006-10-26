@@ -55,6 +55,13 @@ int CartridgeSlotManager::getSlotNum(const string& slot)
 		return -(1 + slot[0] - 'a');
 	} else if (slot == "any") {
 		return -256;
+	} else if ((slot.size() == 2) && (slot[0] == '?')) {
+		int result = slot[1] - '0';
+		if ((result < 0) || (4 <= result)) {
+			throw MSXException(
+				"Invalid slot specification: " + slot);
+		}
+		return result-128;
 	} else {
 		int result = StringOp::stringToInt(slot);
 		if ((result < 0) || (4 <= result)) {

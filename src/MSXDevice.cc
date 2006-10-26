@@ -191,6 +191,13 @@ void MSXDevice::registerSlots(const XMLElement& config)
 			throw MSXException("Invalid memory specification");
 		}
 	}
+	if ( (0 > ss ) && (ss >= -128) ) {
+		if ( (0 <= ps) && (ps<4) 
+			 && motherBoard.getCPUInterface().isExpanded(ps))
+			ss += 128;
+		else
+			ss = 0;
+	}
 
 	if (ps == -256) {
 		externalSlotID = slotManager.getAnyFreeSlot(
