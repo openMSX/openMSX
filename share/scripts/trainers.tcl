@@ -762,7 +762,7 @@ proc trainer_sdsnatcher {} {
 	poke 0xce8d 255 
 	poke 0xce8e 255
 	
-	#All locations accessible
+	#all locations accessible
 	poke 0xcdc0 255
 	poke 0xcdc1 1
 
@@ -1358,7 +1358,7 @@ proc trainer_usas {} {
 	#2nd block 1st block (big enemy) gone after 1 hit
 	poke 0xc492 1
 	
-	#Wit can jump more than twice
+	#wit can jump more than twice
 	poke 0xc248 0
 	poke 0xc265 0
 	after time 1 trainer_usas
@@ -5614,10 +5614,10 @@ proc trainer_pumpkinadventure3 {} {
 	#jeff max exp
 	poke 0xd5bc 0x99
 	poke 0xd5bd 0x99
-	#jeff MP
+	#jeff mp
 	poke 0xd5be 0x99
 	poke 0xd5bf 0x99
-	#jeff max MP
+	#jeff max mp
 	poke 0xd5c0 0x99
 	poke 0xd5c1 0x99
 	#jeff experience
@@ -5645,10 +5645,10 @@ proc trainer_pumpkinadventure3 {} {
 	#jeff max exp
 	poke 0xd5f5 0x99
 	poke 0xd5f6 0x99
-	#jeff MP
+	#jeff mp
 	poke 0xd5f7 0x99
 	poke 0xd5f8 0x99
-	#jeff max MP
+	#jeff max mp
 	poke 0xd5f9 0x99
 	poke 0xd5fa 0x99
 	#jeff experience
@@ -5676,10 +5676,10 @@ proc trainer_pumpkinadventure3 {} {
 	#jeff max exp
 	poke 0xd62e 0x99
 	poke 0xd62f 0x99
-	#jeff MP
+	#jeff mp
 	poke 0xd630 0x99
 	poke 0xd631 0x99
-	#jeff max MP
+	#jeff max mp
 	poke 0xd632 0x99
 	poke 0xd633 0x99
 	#jeff experience
@@ -5707,10 +5707,10 @@ proc trainer_pumpkinadventure3 {} {
 	#jeff max exp
 	poke 0xd667 0x99
 	poke 0xd668 0x99
-	#jeff MP
+	#jeff mp
 	poke 0xd669 0x99
 	poke 0xd66a 0x99
-	#jeff max MP
+	#jeff max mp
 	poke 0xd66b 0x99
 	poke 0xd66c 0x99
 	#jeff experience
@@ -6152,6 +6152,30 @@ proc trainer_gameover_part2 {} {
 	#second shot
 	poke 0xd9c3 100
 	after time 1 trainer_gameover_part2
+}
+
+proc trainer_flashsplash  {} {
+	#lives -- this trainer might not work 100%
+	poke 0xe000 255
+	#power
+	poke 0xe008 64
+	#invincible
+	poke 0xe001 0
+	poke 0xe009 255
+	after time 1 trainer_flashsplash
+}
+
+proc trainer_riverraid  {} {
+	#fuel
+	poke 0xe178 172
+	#lives
+	poke 0xe135 0x99
+	after time 1 trainer_riverraid
+}
+
+proc trainer_autofire {} {
+	type "                       "
+	after time 1 trainer_autofire
 }
 
 proc trainer_firehawk {} {trainer_thexder2}
