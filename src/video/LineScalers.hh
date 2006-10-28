@@ -390,8 +390,8 @@ template <typename Pixel, bool streaming>
 void Scale_1on1<Pixel, streaming>::operator()(
 		const Pixel* in, Pixel* out, unsigned long width)
 {
-	#ifdef ASM_X86
 	unsigned long nBytes = width * sizeof(Pixel);
+	#ifdef ASM_X86
 	assert((nBytes % 64) == 0);
 	const HostCPU& cpu = HostCPU::getInstance();
 	if (streaming && cpu.hasMMXEXT()) {
