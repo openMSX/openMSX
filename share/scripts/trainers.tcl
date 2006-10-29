@@ -6173,6 +6173,14 @@ proc trainer_riverraid  {} {
 	after time 1 trainer_riverraid
 }
 
+proc trainer_drainer  {} {
+	#lives
+	poke 0xec97 99
+	#discs
+	poke 0xc4c7 3
+	after time 1 trainer_drainer
+}
+
 proc trainer_autofire {} {
 	type "                       "
 	after time 1 trainer_autofire
