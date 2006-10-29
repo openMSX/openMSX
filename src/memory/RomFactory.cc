@@ -13,6 +13,8 @@
 #include "RomAscii8kB.hh"
 #include "RomAscii8_8.hh"
 #include "RomAscii16kB.hh"
+#include "RomPadial8kB.hh"
+#include "RomPadial16kB.hh"
 #include "RomHydlide2.hh"
 #include "RomRType.hh"
 #include "RomCrossBlaim.hh"
@@ -221,6 +223,12 @@ auto_ptr<MSXDevice> RomFactory::create(
 	case ROM_ASCII16:
 		return auto_ptr<MSXDevice>(
 			new RomAscii16kB(motherBoard, config, time, rom));
+	case ROM_PADIAL8:
+		return auto_ptr<MSXDevice>(
+			new RomPadial8kB(motherBoard, config, time, rom));
+	case ROM_PADIAL16:
+		return auto_ptr<MSXDevice>(
+			new RomPadial16kB(motherBoard, config, time, rom));
 	case ROM_R_TYPE:
 		return auto_ptr<MSXDevice>(
 			new RomRType(motherBoard, config, time, rom));

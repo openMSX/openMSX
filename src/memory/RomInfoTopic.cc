@@ -25,6 +25,8 @@ RomInfoTopic::RomInfoTopic(InfoCommand& openMSXInfoCommand)
 	description[ROM_KONAMI] = "Konami MegaROM";
 	description[ROM_ASCII8] = "ASCII 8kB";
 	description[ROM_ASCII16] = "ASCII 16kB";
+	description[ROM_PADIAL8] = "Padial 8kB";
+	description[ROM_PADIAL16] = "Padial 16kB";
 	description[ROM_R_TYPE] = "R-Type";
 	description[ROM_CROSS_BLAIM] = "Cross Blaim";
 	description[ROM_MSX_AUDIO] = "Panasonic MSX-AUDIO";

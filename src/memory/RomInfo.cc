@@ -48,6 +48,8 @@ static const RomTypeMap& getRomTypeMap()
 		romTypeMap["Synthesizer"] = ROM_SYNTHESIZER;
 		romTypeMap["PlayBall"]    = ROM_PLAYBALL;
 		romTypeMap["HolyQuran"]   = ROM_HOLY_QURAN;
+		romTypeMap["Padial8"]     = ROM_PADIAL8;
+		romTypeMap["Padial16"]    = ROM_PADIAL16;
 
 		// ROM mapper types used for system ROMs in machines
 		romTypeMap["Panasonic"]   = ROM_PANASONIC;
