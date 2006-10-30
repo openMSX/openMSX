@@ -71,6 +71,8 @@ case "$GUESSED_OS" in
 		OPENMSX_TARGET_OS=darwin;;
 	*freebsd4*)
 		OPENMSX_TARGET_OS=freebsd4;;
+	*kfreebsd*)
+		OPENMSX_TARGET_OS=kfreebsd;;
 	*freebsd*)
 		OPENMSX_TARGET_OS=freebsd;;
 	*netbsd*)

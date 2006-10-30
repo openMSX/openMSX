@@ -1,5 +1,9 @@
 $Id$
 
+2006-10-30 Joost Yervante Damad <joost@lumatec.be>
+	* fix support for kfreebsd, "kfreebsd" was detected wrongly
+	  as "freebsd" causing build failure
+
 2006-10-26  Arnold Metselaar  <arnold.metselaar@planet.nl>
 	* Unified advram-p and advram-s to a single advram,
 	 - use "?0" to specify: subslot "0" if expanded,
