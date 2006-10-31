@@ -183,7 +183,7 @@ init:
 # Check compiler with the most famous program.
 hello: init
 	@echo "#include <iostream>" > $(OUTDIR)/$@.cc
-	@echo "int main(char** argv, int argc) {" >> $(OUTDIR)/$@.cc
+	@echo "int main(int argc, char** argv) {" >> $(OUTDIR)/$@.cc
 	@echo "  std::cout << \"Hello World!\" << std::endl;" >> $(OUTDIR)/$@.cc
 	@echo "}" >> $(OUTDIR)/$@.cc
 	@if $(COMPILE) $(CXXFLAGS) -c $(OUTDIR)/$@.cc -o $(OUTDIR)/$@.o 2>> $(LOG); \
@@ -245,7 +245,7 @@ $(DISABLED_HEADERS): init
 # Probe for library:
 # Try to link dummy program to the library.
 $(CHECK_LIBS): init
-	@echo "int main(char **argv, int argc) { return 0; }" > $(OUTDIR)/$@.cc
+	@echo "int main(int argc, char **argv) { return 0; }" > $(OUTDIR)/$@.cc
 	@if FLAGS="$($@_LDFLAGS)" && $(COMPILE) $(CXXFLAGS) \
 		$(OUTDIR)/$@.cc -o $(OUTDIR)/$@.exe $(LINK_FLAGS) $$FLAGS 2>> $(LOG); \
 	then echo "Found library: $@" >> $(LOG); \
