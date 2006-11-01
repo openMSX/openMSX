@@ -343,7 +343,7 @@ void CDXCommand::execute(const std::vector<TclObject*>& tokens, TclObject& resul
 	if (tokens.size() == 1) {
 		File* file = cd.file.get();
 		result.addListElement(cd.name + ':');
-		result.addListElement(file ? file->getOriginalName() : "");
+		result.addListElement(file ? file->getLocalName() : "");
 		result.addListElement(file ? "" : "empty");
 	} else if ( (tokens.size() == 2) && ( 
 		tokens[1]->getString() == "eject" || tokens[1]->getString() == "-eject" )) {

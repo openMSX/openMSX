@@ -2,6 +2,7 @@ $Id$
 
 2006-11-01 Manuel Bilderbeek <manuel@msxnet.org>
 	* Send CliComm events for CD and HD changes.
+	* Report full name including path for CD and HD images.
 
 2006-10-30 Joost Yervante Damad <joost@lumatec.be>
 	* fix support for kfreebsd, "kfreebsd" was detected wrongly
