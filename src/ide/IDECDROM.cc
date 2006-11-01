@@ -7,6 +7,8 @@
 #include "FileException.hh"
 #include "RecordedCommand.hh"
 #include "CommandException.hh"
+#include "TclObject.hh"
+#include "CliComm.hh"
 #include <algorithm>
 #include <bitset>
 #include <cassert>
@@ -23,7 +25,8 @@ public:
 	CDXCommand(MSXCommandController& msxCommandController,
 	           MSXEventDistributor& msxEventDistributor,
 	           Scheduler& scheduler, IDECDROM& cd);
-	virtual string execute(const vector<string>& tokens, const EmuTime& time);
+	virtual void execute(const std::vector<TclObject*>& tokens,
+		TclObject& result, const EmuTime& time);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
@@ -53,6 +56,7 @@ IDECDROM::IDECDROM(MSXMotherBoard& motherBoard, const XMLElement& /*config*/,
 	, cdxCommand(new CDXCommand(motherBoard.getMSXCommandController(),
 	                            motherBoard.getMSXEventDistributor(),
 	                            motherBoard.getScheduler(), *this))
+	,  cliComm(motherBoard.getCliComm())
 {
 	cdInUse[name[2] - 'a'] = true;
 
@@ -60,10 +64,13 @@ IDECDROM::IDECDROM(MSXMotherBoard& motherBoard, const XMLElement& /*config*/,
 
 	remMedStatNotifEnabled = false;
 	mediaChanged = false;
+
+	cliComm.update(CliComm::HARDWARE, name, "add");	
 }
 
 IDECDROM::~IDECDROM()
 {
+	cliComm.update(CliComm::HARDWARE, name, "remove");
 	cdInUse[name[2] - 'a'] = false;
 }
 
@@ -306,6 +313,7 @@ void IDECDROM::eject()
 	file.reset();
 	mediaChanged = true;
 	senseKey = 0x06 << 16; // unit attention (medium changed)
+	cliComm.update(CliComm::MEDIA, name, "");
 }
 
 void IDECDROM::insert(const string& filename)
@@ -314,6 +322,7 @@ void IDECDROM::insert(const string& filename)
 	file = newFile;
 	mediaChanged = true;
 	senseKey = 0x06 << 16; // unit attention (medium changed)
+	cliComm.update(CliComm::MEDIA, name, filename);
 }
 
 
@@ -328,21 +337,25 @@ CDXCommand::CDXCommand(MSXCommandController& msxCommandController,
 {
 }
 
-string CDXCommand::execute(const vector<string>& tokens, const EmuTime& /*time*/)
+void CDXCommand::execute(const std::vector<TclObject*>& tokens, TclObject& result, 
+				const EmuTime& /*time*/)
 {
 	if (tokens.size() == 1) {
 		File* file = cd.file.get();
-		return file ? file->getOriginalName() : "";
-	} else if ( (tokens.size() == 2) && tokens[1] == "eject") {
+		result.addListElement(cd.name + ':');
+		result.addListElement(file ? file->getOriginalName() : "");
+		result.addListElement(file ? "" : "empty");
+	} else if ( (tokens.size() == 2) && ( 
+		tokens[1]->getString() == "eject" || tokens[1]->getString() == "-eject" )) {
 		cd.eject();
-		return "";
 		// TODO check for locked tray
-	} else if ( (tokens.size() == 2) && tokens[1] == "-eject") {
-		cd.eject();
-		return "Warning: use of '-eject' is deprecated, instead use the 'eject' subcommand";
-	} else if ( (tokens.size() == 2) || ( (tokens.size() == 3) && tokens[1] == "insert")) {
+		if ( tokens[1]->getString() == "-eject" ) { 
+			result.setString(
+			"Warning: use of '-eject' is deprecated, instead use the 'eject' subcommand");
+		}
+	} else if ( (tokens.size() == 2) || ( (tokens.size() == 3) && tokens[1]->getString() == "insert")) {
 		int fileToken = 1;
-		if (tokens[1] == "insert") {
+		if (tokens[1]->getString() == "insert") {
 			if (tokens.size() > 2) {
 				fileToken = 2;
 			} else {
@@ -351,9 +364,9 @@ string CDXCommand::execute(const vector<string>& tokens, const EmuTime& /*time*/
 		}
 		try {
 			UserFileContext context(getCommandController());
-			string filename = context.resolve(tokens[fileToken]);
+			string filename = context.resolve(tokens[fileToken]->getString());
 			cd.insert(filename);
-			return filename;
+			// return filename; // Note: the diskX command doesn't do this either, so this has not been converted to TclObject style here
 		} catch (FileException& e) {
 			throw CommandException("Can't change cd image: " +
 					e.getMessage());

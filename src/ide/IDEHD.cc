@@ -25,12 +25,14 @@ class HDCommand : public RecordedCommand
 public:
 	HDCommand(MSXCommandController& msxCommandController,
 	          MSXEventDistributor& msxEventDistributor,
-	          Scheduler& scheduler, IDEHD& hd);
-	virtual string execute(const vector<string>& tokens, const EmuTime& time);
+	          Scheduler& scheduler, CliComm& cliComm, IDEHD& hd);
+	virtual void execute(const std::vector<TclObject*>& tokens,
+		TclObject& result, const EmuTime& time);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
 	IDEHD& hd;
+	CliComm& cliComm;
 };
 
 
@@ -57,7 +59,9 @@ IDEHD::IDEHD(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, name(calcName())
 	, hdCommand(new HDCommand(motherBoard.getMSXCommandController(),
 	                          motherBoard.getMSXEventDistributor(),
-	                          motherBoard.getScheduler(), *this))
+	                          motherBoard.getScheduler(),
+				  motherBoard.getCliComm(), *this))
+	, cliComm(motherBoard.getCliComm())
 {
 	string filename = config.getFileContext().resolveCreate(
 		config.getChildData("filename"));
@@ -71,10 +75,13 @@ IDEHD::IDEHD(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 	diskManipulator.registerDrive(*this, name);
 	hdInUse[name[2] - 'a'] = true;
+
+	cliComm.update(CliComm::HARDWARE, name, "add");
 }
 
 IDEHD::~IDEHD()
 {
+	cliComm.update(CliComm::HARDWARE, name, "remove");
 	hdInUse[name[2] - 'a'] = false;
 	diskManipulator.unregisterDrive(*this, name);
 }
@@ -199,23 +206,26 @@ SectorAccessibleDisk* IDEHD::getSectorAccessibleDisk()
 	return this;
 }
 
-
 // class HDCommand
 
 HDCommand::HDCommand(MSXCommandController& msxCommandController,
                      MSXEventDistributor& msxEventDistributor,
-                     Scheduler& scheduler, IDEHD& hd_)
+                     Scheduler& scheduler, CliComm& cliComm_, IDEHD& hd_)
 	: RecordedCommand(msxCommandController, msxEventDistributor,
 	                  scheduler, hd_.name)
 	, hd(hd_)
+	, cliComm(cliComm_)
 {
 }
 
-string HDCommand::execute(const vector<string>& tokens, const EmuTime& /*time*/)
+void HDCommand::execute(const std::vector<TclObject*>& tokens, TclObject& result, 
+				const EmuTime& /*time*/)
 {
 	if (tokens.size() == 1) {
-		return hd.file->getOriginalName();
-	} else if ( (tokens.size() == 2) || ( (tokens.size() == 3) && tokens[1] == "insert")) {
+		result.addListElement(hd.name + ':');
+		result.addListElement(hd.file->getOriginalName());
+		result.addListElement(""); // TODO: add write protected flag when this is implemented
+	} else if ( (tokens.size() == 2) || ( (tokens.size() == 3) && tokens[1]->getString() == "insert")) {
 		CommandController& controller = getCommandController();
 		if (controller.getGlobalSettings().
 				getPowerSetting().getValue()) {
@@ -224,7 +234,7 @@ string HDCommand::execute(const vector<string>& tokens, const EmuTime& /*time*/)
 					"is powered down.");
 		}
 		int fileToken = 1;
-		if (tokens[1] == "insert") {
+		if (tokens[1]->getString() == "insert") {
 			if (tokens.size() > 2) {
 				fileToken = 2;
 			} else {
@@ -233,10 +243,11 @@ string HDCommand::execute(const vector<string>& tokens, const EmuTime& /*time*/)
 		}
 		try {
 			UserFileContext context(controller);
-			string filename = context.resolve(tokens[fileToken]);
+			string filename = context.resolve(tokens[fileToken]->getString());
 			std::auto_ptr<File> newFile(new File(filename));
 			hd.file = newFile;
-			return filename;
+			cliComm.update(CliComm::MEDIA, hd.name, filename);
+			// return filename; // Note: the diskX command doesn't do this either, so this has not been converted to TclObject style here
 		} catch (FileException& e) {
 			throw CommandException("Can't change hard disk image: " +
 			                       e.getMessage());

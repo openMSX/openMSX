@@ -13,6 +13,7 @@ class MSXMotherBoard;
 class XMLElement;
 class File;
 class CDXCommand;
+class CliComm;
 
 class IDECDROM : public AbstractIDEDevice, private noncopyable
 {
@@ -62,6 +63,7 @@ private:
 	// Removable Media Status Notification Feature Set
 	bool remMedStatNotifEnabled;
 	bool mediaChanged;
+	CliComm& cliComm;
 
 	friend class CDXCommand;
 };

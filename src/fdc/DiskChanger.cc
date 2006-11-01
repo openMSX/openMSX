@@ -132,7 +132,7 @@ void DiskChanger::signalEvent(
 void DiskChanger::insertDisk(const vector<TclObject*>& args)
 {
 	std::auto_ptr<Disk> newDisk;
-	string diskImage = args[1]->getString();
+	const string& diskImage = args[1]->getString();
 	if (diskImage == "ramdsk") {
 		newDisk.reset(new RamDSKDiskImage());
 	} else {
