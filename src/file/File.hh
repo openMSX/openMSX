@@ -107,7 +107,8 @@ public:
 	void flush();
 
 	/**
-	 * Returns the URL of this file object.
+	 * Returns the URL of this file object. The protocol is omitted in
+	 * the case of ordinary files (file://)
 	 * @throws FileException
 	 */
 	const std::string getURL() const;

@@ -6,6 +6,7 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
+#include "FileOperations.hh"
 #include "MSXMotherBoard.hh"
 #include "CartridgeSlotManager.hh"
 #include "MSXCPUInterface.hh"
@@ -119,16 +120,12 @@ std::auto_ptr<XMLElement> HardwareConfig::loadConfig(
 		std::auto_ptr<XMLElement> result = XMLLoader::loadXML(
 			file.getLocalName(), "msxconfig2.dtd");
 
-		// get url
-		string url(file.getURL());
-		string::size_type pos = url.find_last_of('/');
-		assert(pos != string::npos);	// protocol must contain a '/'
-		url = url.substr(0, pos);
+		string baseName = FileOperations::getBaseName(file.getURL());
 
 		// TODO get user name
 		string userName;
 		result->setFileContext(std::auto_ptr<FileContext>(
-			new ConfigFileContext(url + '/', hwName, userName)));
+			new ConfigFileContext(baseName, hwName, userName)));
 		return result;
 	} catch (XMLException& e) {
 		throw MSXException(

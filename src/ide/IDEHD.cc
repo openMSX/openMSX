@@ -223,7 +223,7 @@ void HDCommand::execute(const std::vector<TclObject*>& tokens, TclObject& result
 {
 	if (tokens.size() == 1) {
 		result.addListElement(hd.name + ':');
-		result.addListElement(hd.file->getLocalName());
+		result.addListElement(hd.file->getURL());
 		result.addListElement(""); // TODO: add write protected flag when this is implemented
 	} else if ( (tokens.size() == 2) || ( (tokens.size() == 3) && tokens[1]->getString() == "insert")) {
 		CommandController& controller = getCommandController();
