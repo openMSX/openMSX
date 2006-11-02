@@ -21,6 +21,7 @@ class Interpreter;
 class FileContext;
 class HelpCmd;
 class TabCompletionCmd;
+class ProxyCmd;
 class VersionInfo;
 class RomInfoTopic;
 
@@ -35,7 +36,6 @@ public:
 
 	InfoCommand& getOpenMSXInfoCommand();
 	HotKey& getHotKey();
-
 
 	/**
 	 * Executes all defined auto commands
@@ -53,6 +53,12 @@ public:
 	 */
 	void tabCompletion(std::string& command);
 
+	void registerProxyCommand(const std::string& name);
+	void unregisterProxyCommand(const std::string& name);
+
+	void registerProxySetting(Setting& setting);
+	void unregisterProxySetting(Setting& setting);
+
 	// CommandController
 	virtual void   registerCompleter(CommandCompleter& completer,
 	                                 const std::string& str);
@@ -62,7 +68,7 @@ public:
 	                               const std::string& str);
 	virtual void unregisterCommand(Command& command,
 	                               const std::string& str);
-	virtual bool hasCommand(const std::string& command);
+	virtual bool hasCommand(const std::string& command) const;
 	virtual std::string executeCommand(const std::string& command,
 	                                   CliConnection* connection = 0);
 	virtual void splitList(const std::string& list,
@@ -97,6 +103,7 @@ private:
 	CliConnection* connection;
 
 	EventDistributor& eventDistributor;
+	Reactor& reactor;
 
 	std::auto_ptr<Interpreter> interpreter;
 	std::auto_ptr<InfoCommand> openMSXInfoCommand;
@@ -107,8 +114,12 @@ private:
 	friend class HelpCmd;
 	const std::auto_ptr<HelpCmd> helpCmd;
 	const std::auto_ptr<TabCompletionCmd> tabCompletionCmd;
+	const std::auto_ptr<ProxyCmd> proxyCmd;
 	const std::auto_ptr<VersionInfo> versionInfo;
 	const std::auto_ptr<RomInfoTopic> romInfoTopic;
+
+	std::map<std::string, unsigned> proxyCommandMap;
+	std::map<std::string, unsigned> proxySettingMap;
 };
 
 } // namespace openmsx

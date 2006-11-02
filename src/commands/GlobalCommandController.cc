@@ -2,6 +2,8 @@
 
 #include "GlobalCommandController.hh"
 #include "Command.hh"
+#include "Setting.hh"
+#include "ProxyCommand.hh"
 #include "InfoTopic.hh"
 #include "File.hh"
 #include "openmsx.hh"
@@ -60,13 +62,15 @@ public:
 
 
 GlobalCommandController::GlobalCommandController(
-	EventDistributor& eventDistributor_, Reactor& reactor)
+	EventDistributor& eventDistributor_, Reactor& reactor_)
 	: cliComm(NULL)
 	, connection(NULL)
 	, eventDistributor(eventDistributor_)
+	, reactor(reactor_)
 	, openMSXInfoCommand(new InfoCommand(*this, "openmsx_info", &reactor))
 	, helpCmd(new HelpCmd(*this))
 	, tabCompletionCmd(new TabCompletionCmd(*this))
+	, proxyCmd(new ProxyCmd(*this, reactor))
 	, versionInfo(new VersionInfo(getOpenMSXInfoCommand()))
 	, romInfoTopic(new RomInfoTopic(getOpenMSXInfoCommand()))
 {
@@ -76,6 +80,46 @@ GlobalCommandController::~GlobalCommandController()
 {
 	//assert(commands.empty());            // TODO
 	//assert(commandCompleters.empty());   // TODO
+}
+
+void GlobalCommandController::registerProxyCommand(const string& name)
+{
+	if (proxyCommandMap[name] == 0) {
+		registerCommand(*proxyCmd, name);
+		registerCompleter(*proxyCmd, name);
+	}
+	++proxyCommandMap[name];
+}
+
+void GlobalCommandController::unregisterProxyCommand(const string& name)
+{
+	assert(proxyCommandMap[name]);
+	--proxyCommandMap[name];
+	if (proxyCommandMap[name] == 0) {
+		unregisterCompleter(*proxyCmd, name);
+		unregisterCommand(*proxyCmd, name);
+	}
+}
+
+void GlobalCommandController::registerProxySetting(Setting& setting)
+{
+	const string& name = setting.getName();
+	if (proxySettingMap[name] == 0) {
+		getSettingsConfig().getSettingsManager().registerSetting(setting, name);
+		getInterpreter().registerProxySetting(name);
+	}
+	++proxySettingMap[name];
+}
+
+void GlobalCommandController::unregisterProxySetting(Setting& setting)
+{
+	const string& name = setting.getName();
+	assert(proxySettingMap[name]);
+	--proxySettingMap[name];
+	if (proxySettingMap[name] == 0) {
+		getInterpreter().unregisterProxySetting(name);
+		getSettingsConfig().getSettingsManager().unregisterSetting(setting, name);
+	}
 }
 
 void GlobalCommandController::setCliComm(CliComm* cliComm_)
@@ -97,7 +141,7 @@ CliConnection* GlobalCommandController::getConnection() const
 Interpreter& GlobalCommandController::getInterpreter()
 {
 	if (!interpreter.get()) {
-		interpreter.reset(new Interpreter(eventDistributor));
+		interpreter.reset(new Interpreter(eventDistributor, reactor));
 	}
 	return *interpreter;
 }
@@ -168,12 +212,16 @@ void GlobalCommandController::unregisterCompleter(
 
 void GlobalCommandController::registerSetting(Setting& setting)
 {
-	getSettingsConfig().getSettingsManager().registerSetting(setting);
+	const string& name = setting.getName();
+	getSettingsConfig().getSettingsManager().registerSetting(setting, name);
+	getInterpreter().registerSetting(setting, name);
 }
 
 void GlobalCommandController::unregisterSetting(Setting& setting)
 {
-	getSettingsConfig().getSettingsManager().unregisterSetting(setting);
+	const string& name = setting.getName();
+	getInterpreter().unregisterSetting(setting, name);
+	getSettingsConfig().getSettingsManager().unregisterSetting(setting, name);
 }
 
 string GlobalCommandController::makeUniqueSettingName(const string& name)
@@ -186,7 +234,7 @@ GlobalCommandController& GlobalCommandController::getGlobalCommandController()
 	return *this;
 }
 
-bool GlobalCommandController::hasCommand(const string& command)
+bool GlobalCommandController::hasCommand(const string& command) const
 {
 	return commands.find(command) != commands.end();
 }

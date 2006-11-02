@@ -49,7 +49,8 @@ public:
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
 protected:
-	Command(CommandController& commandController, const std::string& name);
+	Command(CommandController& commandController,
+	        const std::string& name = "");
 	virtual ~Command();
 };
 

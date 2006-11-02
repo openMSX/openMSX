@@ -41,18 +41,13 @@ public:
 	void loadSettings(const XMLElement& config);
 	void saveSettings(XMLElement& config) const;
 
-	void registerSetting(Setting& setting);
-	void unregisterSetting(Setting& setting);
+	void registerSetting(Setting& setting, const std::string& name);
+	void unregisterSetting(Setting& setting, const std::string& name);
 
 private:
-	template <typename T>
-	void getSettingNames(std::string& result) const;
-
-	template <typename T>
 	void getSettingNames(std::set<std::string>& result) const;
-
-	template <typename T>
-	T& getByName(const std::string& cmd, const std::string& name) const;
+	Setting& getByName(const std::string& cmd,
+	                   const std::string& name) const;
 
 	friend class SettingInfo;
 	friend class SetCompleter;
@@ -61,8 +56,6 @@ private:
 	const std::auto_ptr<SetCompleter>     setCompleter;
 	const std::auto_ptr<SettingCompleter> incrCompleter;
 	const std::auto_ptr<SettingCompleter> unsetCompleter;
-
-	GlobalCommandController& commandController;
 };
 
 } // namespace openmsx

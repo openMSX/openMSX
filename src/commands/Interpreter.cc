@@ -9,6 +9,9 @@
 #include "InterpreterOutput.hh"
 #include "openmsx.hh"
 #include "FileOperations.hh"
+#include "MSXMotherBoard.hh"
+#include "Reactor.hh"
+#include "MSXCommandController.hh"
 //#include <tk.h>
 
 using std::set;
@@ -57,8 +60,9 @@ void Interpreter::init(const char* programName)
 	Tcl_FindExecutable(programName);
 }
 
-Interpreter::Interpreter(EventDistributor& eventDistributor_)
+Interpreter::Interpreter(EventDistributor& eventDistributor_, Reactor& reactor_)
 	: eventDistributor(eventDistributor_)
+	, reactor(reactor_)
 {
 	interp = Tcl_CreateInterp();
 	Tcl_Preserve(interp);
@@ -228,9 +232,8 @@ const char* Interpreter::getVariable(const string& name) const
 	return Tcl_GetVar(interp, name.c_str(), 0);
 }
 
-void Interpreter::registerSetting(Setting& variable)
+void Interpreter::registerSetting(Setting& variable, const string& name)
 {
-	const string& name = variable.getName();
 	const char* tclVarValue = getVariable(name);
 	if (tclVarValue) {
 		// TCL var already existed, use this value
@@ -244,9 +247,8 @@ void Interpreter::registerSetting(Setting& variable)
 	             traceProc, static_cast<ClientData>(&variable));
 }
 
-void Interpreter::unregisterSetting(Setting& variable)
+void Interpreter::unregisterSetting(Setting& variable, const string& name)
 {
-	const string& name = variable.getName();
 	Tcl_UntraceVar(interp, name.c_str(),
 	               TCL_TRACE_READS | TCL_TRACE_WRITES | TCL_TRACE_UNSETS,
 	               traceProc, static_cast<ClientData>(&variable));
@@ -294,6 +296,87 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 		assert(false); // we cannot let exceptions pass through TCL
 	}
 	return NULL;
+}
+
+void Interpreter::registerProxySetting(const string& name)
+{
+	setVariable(name, "*proxy*");
+	Tcl_TraceVar(interp, name.c_str(),
+	             TCL_TRACE_READS | TCL_TRACE_WRITES | TCL_TRACE_UNSETS,
+	             proxyTraceProc, this);
+}
+
+void Interpreter::unregisterProxySetting(const string& name)
+{
+	Tcl_UntraceVar(interp, name.c_str(),
+	               TCL_TRACE_READS | TCL_TRACE_WRITES | TCL_TRACE_UNSETS,
+	               proxyTraceProc, this);
+	unsetVariable(name);
+}
+
+Setting* Interpreter::getMachineSetting(const string& name)
+{
+	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
+	if (!motherBoard) return NULL;
+	return motherBoard->getMSXCommandController().findSetting(name);
+}
+
+char* Interpreter::proxyTraceProc(ClientData clientData, Tcl_Interp* interp,
+                           const char* part1, const char* /*part2*/, int flags)
+{
+	Interpreter* interpreter = static_cast<Interpreter*>(clientData);
+	try {
+		static string static_string;
+
+		string name = part1;
+		Setting* variable = interpreter->getMachineSetting(name);
+		if (!variable) {
+			static_string = "no such variable: " + name;
+			return const_cast<char*>(static_string.c_str());
+		}
+
+		if (flags & TCL_TRACE_READS) {
+			Tcl_SetVar(interp, part1,
+			           variable->getValueString().c_str(), 0);
+		}
+		if (flags & TCL_TRACE_WRITES) {
+			try {
+				string newValue = Tcl_GetVar(interp, part1, 0);
+				variable->setValueString(newValue);
+				string newValue2 = variable->getValueString();
+				if (newValue != newValue2) {
+					Tcl_SetVar(interp, part1,
+					           newValue2.c_str(), 0);
+				}
+			} catch (MSXException& e) {
+				Tcl_SetVar(interp, part1,
+				           variable->getValueString().c_str(), 0);
+				static_string = e.getMessage();
+				return const_cast<char*>(static_string.c_str());
+			}
+		}
+		if (flags & TCL_TRACE_UNSETS) {
+			variable->restoreDefault();
+			Tcl_SetVar(interp, part1,
+			           variable->getValueString().c_str(), 0);
+			Tcl_TraceVar(interp, part1, TCL_TRACE_READS |
+			                TCL_TRACE_WRITES | TCL_TRACE_UNSETS,
+			             proxyTraceProc, clientData);
+		}
+	} catch (...) {
+		assert(false); // we cannot let exceptions pass through TCL
+	}
+	return NULL;
+}
+
+void Interpreter::createNamespace(const std::string& name)
+{
+	execute("namespace eval " + name + " {}");
+}
+
+void Interpreter::deleteNamespace(const std::string& name)
+{
+	execute("namespace delete " + name);
 }
 
 void Interpreter::splitList(const std::string& list,

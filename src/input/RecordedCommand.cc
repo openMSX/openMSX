@@ -64,6 +64,12 @@ bool RecordedCommand::needRecord(const vector<string>& /*tokens*/) const
 	return true;
 }
 
+static string getBaseName(const std::string& str)
+{
+	string::size_type pos = str.rfind("::");
+	return (pos == string::npos) ? str : str.substr(pos + 2);
+}
+
 void RecordedCommand::signalEvent(
 	shared_ptr<const Event> event, const EmuTime& time)
 {
@@ -71,7 +77,7 @@ void RecordedCommand::signalEvent(
 	const MSXCommandEvent* commandEvent =
 		checked_cast<const MSXCommandEvent*>(event.get());
 	const vector<TclObject*>& tokens = commandEvent->getTokens();
-	if (tokens[0]->getString() != getName()) return;
+	if (getBaseName(tokens[0]->getString()) != getName()) return;
 
 	execute(tokens, *currentResultObject, time);
 }

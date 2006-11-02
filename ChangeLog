@@ -1,5 +1,14 @@
 $Id$
 
+2006-11-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Put machine specific commands and settings in a machine specific
+	  namespace. There is also a corresponding command/setting in the
+	  global namespace that delegates to the current machine:
+	   - preparation for cleaner run-time switchable machine and run-time
+	     machine checker
+	   - setting code should be refactored one day, it's rather
+	     complicated now
+
 2006-11-01 Manuel Bilderbeek <manuel@msxnet.org>
 	* Send CliComm events for CD and HD changes.
 	* Report full name including path for CD and HD images.

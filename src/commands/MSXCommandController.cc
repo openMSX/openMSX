@@ -2,7 +2,12 @@
 
 #include "MSXCommandController.hh"
 #include "GlobalCommandController.hh"
+#include "SettingsConfig.hh"
+#include "SettingsManager.hh"
 #include "InfoCommand.hh"
+#include "Interpreter.hh"
+#include "Setting.hh"
+#include "StringOp.hh"
 
 using std::string;
 using std::vector;
@@ -12,14 +17,29 @@ namespace openmsx {
 MSXCommandController::MSXCommandController(
 	GlobalCommandController& globalCommandController_)
 	: globalCommandController(globalCommandController_)
-	, machineInfoCommand(new InfoCommand(*this, "machine_info"))
 {
+	getInterpreter().createNamespace(getNamespace());
+
+	machineInfoCommand.reset(new InfoCommand(*this, "machine_info"));
 }
 
 MSXCommandController::~MSXCommandController()
 {
-	//assert(commands.empty());            // TODO
-	//assert(commandCompleters.empty());   // TODO
+	machineInfoCommand.reset();
+
+	assert(commandMap.empty());
+	// TODO assert(settingMap.empty());
+
+	getInterpreter().deleteNamespace(getNamespace());
+}
+
+const std::string& MSXCommandController::getNamespace()
+{
+	if (namespace_.empty()) {
+		static unsigned counter = 0;
+		namespace_ = "machine" + StringOp::toString(++counter);
+	}
+	return namespace_;
 }
 
 InfoCommand& MSXCommandController::getMachineInfoCommand()
@@ -34,47 +54,60 @@ GlobalCommandController& MSXCommandController::getGlobalCommandController()
 
 void MSXCommandController::registerCommand(Command& command, const string& str)
 {
-	//assert(commands.find(str) == commands.end());
-	//commands[str] = &command;
-	globalCommandController.registerCommand(command, str);
+	assert(!hasCommand(str));
+	commandMap[str] = &command;
+
+	string fullname = getNamespace() + "::" + str;
+	globalCommandController.registerCommand(command, fullname);
+	globalCommandController.registerProxyCommand(str);
 }
 
 void MSXCommandController::unregisterCommand(Command& command, const string& str)
 {
-	//assert(commands.find(str) != commands.end());
-	//assert(commands.find(str)->second == &command);
-	globalCommandController.unregisterCommand(command, str);
-	//commands.erase(str);
+	assert(hasCommand(str));
+	commandMap.erase(str);
+
+	globalCommandController.unregisterProxyCommand(str);
+	string fullname = getNamespace() + "::" + str;
+	globalCommandController.unregisterCommand(command, fullname);
 }
 
 void MSXCommandController::registerCompleter(CommandCompleter& completer,
                                              const string& str)
 {
-	//assert(commandCompleters.find(str) == commandCompleters.end());
-	//commandCompleters[str] = &completer;
-	globalCommandController.registerCompleter(completer, str);
+	string fullname = getNamespace() + "::" + str;
+	globalCommandController.registerCompleter(completer, fullname);
 }
 
 void MSXCommandController::unregisterCompleter(CommandCompleter& completer,
                                                const string& str)
 {
-	//(void)completer;
-	//assert(commandCompleters.find(str) != commandCompleters.end());
-	//assert(commandCompleters.find(str)->second == &completer);
-	//commandCompleters.erase(str);
-	globalCommandController.unregisterCompleter(completer, str);
+	string fullname = getNamespace() + "::" + str;
+	globalCommandController.unregisterCompleter(completer, fullname);
 }
 
 void MSXCommandController::registerSetting(Setting& setting)
 {
-	//getSettingsConfig().getSettingsManager().registerSetting(setting);
-	globalCommandController.registerSetting(setting);
+	string name = setting.getName();
+	assert(!findSetting(name));
+	settingMap[name] = &setting;
+
+	globalCommandController.registerProxySetting(setting);
+	string fullname = getNamespace() + "::" + name;
+	getSettingsConfig().getSettingsManager().registerSetting(setting, fullname);
+	getInterpreter().registerSetting(setting, fullname);
 }
 
 void MSXCommandController::unregisterSetting(Setting& setting)
 {
-	//getSettingsConfig().getSettingsManager().unregisterSetting(setting);
-	globalCommandController.unregisterSetting(setting);
+	string name = setting.getName();
+	assert(findSetting(name));
+	commandMap.erase(name);
+
+	globalCommandController.unregisterProxySetting(setting);
+	string fullname = getNamespace() + "::" + name;
+	getInterpreter().unregisterSetting(setting, fullname);
+	getSettingsConfig().getSettingsManager().unregisterSetting(setting, fullname);
 }
 
 string MSXCommandController::makeUniqueSettingName(const string& name)
@@ -83,10 +116,21 @@ string MSXCommandController::makeUniqueSettingName(const string& name)
 	return globalCommandController.makeUniqueSettingName(name);
 }
 
-bool MSXCommandController::hasCommand(const string& command)
+Command* MSXCommandController::findCommand(const std::string& name) const
 {
-	//return commands.find(command) != commands.end();
-	return globalCommandController.hasCommand(command);
+	CommandMap::const_iterator it = commandMap.find(name);
+	return (it != commandMap.end()) ? it->second : NULL;
+}
+
+Setting* MSXCommandController::findSetting(const std::string& name) const
+{
+	SettingMap::const_iterator it = settingMap.find(name);
+	return (it != settingMap.end()) ? it->second : NULL;
+}
+
+bool MSXCommandController::hasCommand(const string& command) const
+{
+	return findCommand(command);
 }
 
 string MSXCommandController::executeCommand(const string& command,

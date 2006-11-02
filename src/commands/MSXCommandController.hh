@@ -5,6 +5,7 @@
 
 #include "CommandController.hh"
 #include "noncopyable.hh"
+#include <map>
 #include <memory>
 
 namespace openmsx {
@@ -16,10 +17,13 @@ class MSXCommandController : public CommandController, private noncopyable
 {
 public:
 	explicit MSXCommandController(
-		GlobalCommandController& globalCommandController);
+	                     GlobalCommandController& globalCommandController);
 	~MSXCommandController();
 
 	InfoCommand& getMachineInfoCommand();
+
+	Command* findCommand(const std::string& name) const;
+	Setting* findSetting(const std::string& name) const;
 
 	// CommandController
 	virtual void   registerCompleter(CommandCompleter& completer,
@@ -30,7 +34,7 @@ public:
 	                               const std::string& str);
 	virtual void unregisterCommand(Command& command,
 	                               const std::string& str);
-	virtual bool hasCommand(const std::string& command);
+	virtual bool hasCommand(const std::string& command) const;
 	virtual std::string executeCommand(const std::string& command,
 	                                   CliConnection* connection = 0);
 	virtual void splitList(const std::string& list,
@@ -46,8 +50,17 @@ public:
 	virtual GlobalCommandController& getGlobalCommandController();
 
 private:
+	const std::string& getNamespace();
+
 	GlobalCommandController& globalCommandController;
 	std::auto_ptr<InfoCommand> machineInfoCommand;
+
+	std::string namespace_;
+
+	typedef std::map<std::string, Command*> CommandMap;
+	CommandMap commandMap;
+	typedef std::map<std::string, Setting*> SettingMap;
+	SettingMap settingMap;
 };
 
 } // namespace openmsx

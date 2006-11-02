@@ -6,6 +6,7 @@ SRC_HDR:= \
 	CommandException \
 	GlobalCommandController \
 	MSXCommandController \
+	ProxyCommand \
 	Completer \
 	Command \
 	InfoCommand \

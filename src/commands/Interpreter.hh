@@ -14,6 +14,7 @@
 namespace openmsx {
 
 class EventDistributor;
+class Reactor;
 class Command;
 class Setting;
 class InterpreterOutput;
@@ -22,7 +23,7 @@ class TclObject;
 class Interpreter : private EventListener, private noncopyable
 {
 public:
-	explicit Interpreter(EventDistributor& eventDistributor);
+	Interpreter(EventDistributor& eventDistributor, Reactor& reactor);
 	~Interpreter();
 
 	void setOutput(InterpreterOutput* output);
@@ -38,14 +39,20 @@ public:
 	void setVariable(const std::string& name, const std::string& value);
 	void unsetVariable(const std::string& name);
 	const char* getVariable(const std::string& name) const;
-	void registerSetting(Setting& variable);
-	void unregisterSetting(Setting& variable);
+	void registerSetting(Setting& variable, const std::string& name);
+	void unregisterSetting(Setting& variable, const std::string& name);
+
+	void createNamespace(const std::string& name);
+	void deleteNamespace(const std::string& name);
 
 	void splitList(const std::string& list,
 	               std::vector<std::string>& result);
 	static void splitList(const std::string& list,
 	                      std::vector<std::string>& result,
 	                      Tcl_Interp* interp);
+
+	void registerProxySetting(const std::string& name);
+	void unregisterProxySetting(const std::string& name);
 
 private:
 	// EventListener
@@ -60,7 +67,12 @@ private:
 	static char* traceProc(ClientData clientData, Tcl_Interp* interp,
                 const char* part1, const char* part2, int flags);
 
+	Setting* getMachineSetting(const std::string& name);
+	static char* proxyTraceProc(ClientData clientData, Tcl_Interp* interp,
+                const char* part1, const char* part2, int flags);
+
 	EventDistributor& eventDistributor;
+	Reactor& reactor;
 
 	static Tcl_ChannelType channelType;
 	Tcl_Interp* interp;

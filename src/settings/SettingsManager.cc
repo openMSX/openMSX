@@ -4,7 +4,6 @@
 #include "GlobalCommandController.hh"
 #include "Command.hh"
 #include "InfoTopic.hh"
-#include "Interpreter.hh"
 #include "TclObject.hh"
 #include "Setting.hh"
 #include "CommandException.hh"
@@ -56,13 +55,12 @@ private:
 };
 
 
-SettingsManager::SettingsManager(GlobalCommandController& commandController_)
+SettingsManager::SettingsManager(GlobalCommandController& commandController)
 	: settingInfo   (new SettingInfo(
-	                    commandController_.getOpenMSXInfoCommand(), *this))
-	, setCompleter  (new SetCompleter    (commandController_, *this))
-	, incrCompleter (new SettingCompleter(commandController_, *this, "incr"))
-	, unsetCompleter(new SettingCompleter(commandController_, *this, "unset"))
-	, commandController(commandController_)
+	                    commandController.getOpenMSXInfoCommand(), *this))
+	, setCompleter  (new SetCompleter    (commandController, *this))
+	, incrCompleter (new SettingCompleter(commandController, *this, "incr"))
+	, unsetCompleter(new SettingCompleter(commandController, *this, "unset"))
 {
 }
 
@@ -71,69 +69,41 @@ SettingsManager::~SettingsManager()
 	assert(settingsMap.empty());
 }
 
-void SettingsManager::registerSetting(Setting& setting)
+void SettingsManager::registerSetting(Setting& setting, const string& name)
 {
-	const string& name = setting.getName();
 	assert(settingsMap.find(name) == settingsMap.end());
 	settingsMap[name] = &setting;
-
-	commandController.getInterpreter().registerSetting(setting);
 }
 
-void SettingsManager::unregisterSetting(Setting& setting)
+void SettingsManager::unregisterSetting(Setting& /*setting*/, const string& name)
 {
-	commandController.getInterpreter().unregisterSetting(setting);
-
-	const string& name = setting.getName();
 	assert(settingsMap.find(name) != settingsMap.end());
 	settingsMap.erase(name);
 }
 
 // Helper functions for setting commands
 
-template <typename T>
-void SettingsManager::getSettingNames(string& result) const
-{
-	for (SettingsMap::const_iterator it = settingsMap.begin();
-	     it != settingsMap.end(); ++it) {
-		if (dynamic_cast<T*>(it->second)) {
-			result += it->first + '\n';
-		}
-	}
-}
-
-template <typename T>
 void SettingsManager::getSettingNames(set<string>& result) const
 {
 	for (SettingsMap::const_iterator it = settingsMap.begin();
 	     it != settingsMap.end(); ++it) {
-		if (dynamic_cast<T*>(it->second)) {
-			result.insert(it->first);
-		}
+		result.insert(it->first);
 	}
 }
 
-template <typename T>
-T& SettingsManager::getByName(const string& cmd, const string& name) const
+Setting& SettingsManager::getByName(const string& cmd, const string& name) const
 {
 	Setting* setting = getByName(name);
 	if (!setting) {
 		throw CommandException(cmd + ": " + name +
 		                       ": no such setting");
 	}
-	T* typeSetting = dynamic_cast<T*>(setting);
-	if (!typeSetting) {
-		throw CommandException(cmd + ": " + name +
-		                       ": setting has wrong type");
-	}
-	return *typeSetting;
+	return *setting;
 }
 
 Setting* SettingsManager::getByName(const string& name) const
 {
 	SettingsMap::const_iterator it = settingsMap.find(name);
-	// TODO: The cast is valid because currently all nodes are leaves.
-	//       In the future this will no longer be the case.
 	return it != settingsMap.end() ? it->second : NULL;
 }
 
@@ -234,7 +204,7 @@ void SettingInfo::tabCompletion(vector<string>& tokens) const
 	switch (tokens.size()) {
 		case 3: { // complete setting name
 			set<string> settings;
-			manager.getSettingNames<Setting>(settings);
+			manager.getSettingNames(settings);
 			completeString(tokens, settings);
 			break;
 		}
@@ -253,8 +223,7 @@ SetCompleter::SetCompleter(CommandController& commandController,
 string SetCompleter::help(const vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
-		return manager.getByName<Setting>("set", tokens[1])
-		                                          .getDescription();
+		return manager.getByName("set", tokens[1]).getDescription();
 	}
 	return "Set or query the value of a openMSX setting or TCL variable\n"
 	       "  set <setting>          shows current value\n"
@@ -269,7 +238,7 @@ void SetCompleter::tabCompletion(vector<string>& tokens) const
 		case 2: {
 			// complete setting name
 			set<string> settings;
-			manager.getSettingNames<Setting>(settings);
+			manager.getSettingNames(settings);
 			completeString(tokens, settings);
 			break;
 		}
@@ -307,7 +276,7 @@ void SettingCompleter::tabCompletion(vector<string>& tokens) const
 		case 2: {
 			// complete setting name
 			set<string> settings;
-			manager.getSettingNames<Setting>(settings);
+			manager.getSettingNames(settings);
 			completeString(tokens, settings);
 			break;
 		}

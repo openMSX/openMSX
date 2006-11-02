@@ -40,7 +40,7 @@ public:
 	/**
 	 * Does a command with this name already exist?
 	 */
-	virtual bool hasCommand(const std::string& command) = 0;
+	virtual bool hasCommand(const std::string& command) const = 0;
 
 	/**
 	 * Execute the given command

@@ -16,12 +16,16 @@ CommandCompleter::CommandCompleter(CommandController& commandController_,
 	: Completer(name)
 	, commandController(commandController_)
 {
-	getCommandController().registerCompleter(*this, getName());
+	if (!getName().empty()) {
+		getCommandController().registerCompleter(*this, getName());
+	}
 }
 
 CommandCompleter::~CommandCompleter()
 {
-	getCommandController().unregisterCompleter(*this, getName());
+	if (!getName().empty()) {
+		getCommandController().unregisterCompleter(*this, getName());
+	}
 }
 
 CommandController& CommandCompleter::getCommandController() const
@@ -35,12 +39,16 @@ CommandController& CommandCompleter::getCommandController() const
 Command::Command(CommandController& commandController, const string& name)
 	: CommandCompleter(commandController, name)
 {
-	getCommandController().registerCommand(*this, getName());
+	if (!getName().empty()) {
+		getCommandController().registerCommand(*this, getName());
+	}
 }
 
 Command::~Command()
 {
-	getCommandController().unregisterCommand(*this, getName());
+	if (!getName().empty()) {
+		getCommandController().unregisterCommand(*this, getName());
+	}
 }
 
 void Command::tabCompletion(vector<string>& /*tokens*/) const
