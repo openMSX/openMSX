@@ -78,8 +78,20 @@ GlobalCommandController::GlobalCommandController(
 
 GlobalCommandController::~GlobalCommandController()
 {
-	//assert(commands.empty());            // TODO
-	//assert(commandCompleters.empty());   // TODO
+	// all this reset() stuff is also done automatically by the destructor,
+	// but we need it slightly earlier to test the assertions.
+	// TODO find a cleaner way to do this
+	romInfoTopic.reset();
+	versionInfo.reset();
+	tabCompletionCmd.reset();
+	helpCmd.reset();
+	globalSettings.reset();
+	settingsConfig.reset();
+	hotKey.reset();
+	openMSXInfoCommand.reset();
+
+	assert(commands.empty());
+	assert(commandCompleters.empty());
 }
 
 void GlobalCommandController::registerProxyCommand(const string& name)

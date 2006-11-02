@@ -112,11 +112,11 @@ private:
 	std::auto_ptr<GlobalSettings> globalSettings;
 
 	friend class HelpCmd;
-	const std::auto_ptr<HelpCmd> helpCmd;
-	const std::auto_ptr<TabCompletionCmd> tabCompletionCmd;
-	const std::auto_ptr<ProxyCmd> proxyCmd;
-	const std::auto_ptr<VersionInfo> versionInfo;
-	const std::auto_ptr<RomInfoTopic> romInfoTopic;
+	std::auto_ptr<HelpCmd> helpCmd;
+	std::auto_ptr<TabCompletionCmd> tabCompletionCmd;
+	std::auto_ptr<ProxyCmd> proxyCmd;
+	std::auto_ptr<VersionInfo> versionInfo;
+	std::auto_ptr<RomInfoTopic> romInfoTopic;
 
 	std::map<std::string, unsigned> proxyCommandMap;
 	std::map<std::string, unsigned> proxySettingMap;

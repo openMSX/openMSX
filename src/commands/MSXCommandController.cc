@@ -28,7 +28,7 @@ MSXCommandController::~MSXCommandController()
 	machineInfoCommand.reset();
 
 	assert(commandMap.empty());
-	// TODO assert(settingMap.empty());
+	assert(settingMap.empty());
 
 	getInterpreter().deleteNamespace(getNamespace());
 }
@@ -102,7 +102,7 @@ void MSXCommandController::unregisterSetting(Setting& setting)
 {
 	string name = setting.getName();
 	assert(findSetting(name));
-	commandMap.erase(name);
+	settingMap.erase(name);
 
 	globalCommandController.unregisterProxySetting(setting);
 	string fullname = getNamespace() + "::" + name;
