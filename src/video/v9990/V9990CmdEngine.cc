@@ -20,11 +20,6 @@ const unsigned BMLL_TIMING[2] = { 24, 0 };
 const unsigned LINE_TIMING[2] = { 24, 0 };
 const unsigned SRCH_TIMING[2] = { 24, 0 };
 
-/** Only call reportV9990Command() when this setting is turned on
-  */
-static BooleanSetting* cmdTraceSetting = 0;
-static int settingRefCounter = 0;
-
 static byte bitLUT[8][16][2][2];
 static byte logOpLUT[4][16][0x100][0x100]; // 4MB !!  optimize if needed
 enum { LOG_NO_T, LOG_BPP2, LOG_BPP4, LOG_BPP8 };
@@ -568,12 +563,16 @@ V9990CmdEngine::V9990CmdEngine(V9990& vdp_, const EmuTime& time,
                                RenderSettings& settings_)
 	: vdp(vdp_), settings(settings_)
 {
-	if (settingRefCounter == 0) {
-		cmdTraceSetting = new BooleanSetting(
+	MSXMotherBoard::SharedStuff& info =
+		vdp.getMotherBoard().getSharedStuff("v9990cmdtrace");
+	if (info.counter == 0) {
+		assert(info.stuff == NULL);
+		info.stuff = new BooleanSetting(
 			vdp.getMotherBoard().getCommandController(),
 			"v9990cmdtrace", "V9990 command tracing on/off", false);
 	}
-	++settingRefCounter;
+	++info.counter;
+	cmdTraceSetting = reinterpret_cast<BooleanSetting*>(info.stuff);
 
 	initTabs();
 
@@ -628,9 +627,15 @@ V9990CmdEngine::~V9990CmdEngine()
 		}
 	}
 
-	--settingRefCounter;
-	if (settingRefCounter == 0) {
+	MSXMotherBoard::SharedStuff& info =
+		vdp.getMotherBoard().getSharedStuff("v9990cmdtrace");
+	assert(info.counter);
+	assert(cmdTraceSetting);
+	assert(cmdTraceSetting == info.stuff);
+	--info.counter;
+	if (info.counter == 0) {
 		delete cmdTraceSetting;
+		info.stuff = NULL;
 	}
 }
 

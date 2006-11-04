@@ -16,6 +16,7 @@ class V9990VRAM;
 class EmuTime;
 class Setting;
 class RenderSettings;
+class BooleanSetting;
 
 /** Command engine.
   */
@@ -383,6 +384,10 @@ private:
 	word ASX, ADX, ANX, ANY;
 
 	RenderSettings& settings;
+
+	/** Only call reportV9990Command() when this setting is turned on
+	  */
+	BooleanSetting* cmdTraceSetting;
 
 	/** Real command timing or instantaneous (broken) timing
 	 */
