@@ -30,11 +30,7 @@
 #include "GlobalSettings.hh"
 #include "Command.hh"
 #include "RecordedCommand.hh"
-#include "InfoTopic.hh"
 #include "FileException.hh"
-#include "ConfigException.hh"
-#include "ReadDir.hh"
-#include "FileOperations.hh"
 #include <cassert>
 
 using std::set;
@@ -89,18 +85,6 @@ private:
 	MSXMotherBoard& motherBoard;
 };
 
-class ConfigInfo : public InfoTopic
-{
-public:
-	ConfigInfo(InfoCommand& openMSXInfoCommand, const string& configName);
-	virtual void execute(const vector<TclObject*>& tokens,
-	                     TclObject& result) const;
-	virtual string help   (const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
-private:
-	const string configName;
-};
-
 
 MSXMotherBoard::MSXMotherBoard(Reactor& reactor_)
 	: reactor(reactor_)
@@ -112,12 +96,6 @@ MSXMotherBoard::MSXMotherBoard(Reactor& reactor_)
 	, listExtCommand  (new ListExtCmd  (*this))
 	, extCommand      (new ExtCmd      (*this))
 	, removeExtCommand(new RemoveExtCmd(*this))
-	, extensionInfo(new ConfigInfo( // TODO move to reactor
-	       getMSXCommandController().getGlobalCommandController().
-	       getOpenMSXInfoCommand(), "extensions"))
-	, machineInfo  (new ConfigInfo( // TODO move to reactor
-	       getMSXCommandController().getGlobalCommandController().
-	       getOpenMSXInfoCommand(), "machines"))
 	, powerSetting(getGlobalSettings().getPowerSetting())
 {
 	getMSXMixer().mute(); // powered down
@@ -599,28 +577,11 @@ MSXDevice* MSXMotherBoard::findDevice(const string& name)
 	return NULL;
 }
 
-
-// TODO move machineSetting to here and reuse this routine
-static void getHwConfigs(const string& type, set<string>& result)
+MSXMotherBoard::SharedStuff& MSXMotherBoard::getSharedStuff(
+	const std::string& name)
 {
-	SystemFileContext context;
-	const vector<string>& paths = context.getPaths();
-	for (vector<string>::const_iterator it = paths.begin();
-	     it != paths.end(); ++it) {
-		string path = *it + type;
-		ReadDir configsDir(path);
-		while (dirent* d = configsDir.getEntry()) {
-			string name = d->d_name;
-			string dir = path + '/' + name;
-			string config = dir + "/hardwareconfig.xml";
-			if (FileOperations::isDirectory(dir) &&
-			    FileOperations::isRegularFile(config)) {
-				result.insert(name);
-			}
-		}
-	}
+	return sharedStuffMap[name];
 }
-
 
 // ResetCmd
 ResetCmd::ResetCmd(MSXMotherBoard& motherBoard_)
@@ -700,7 +661,7 @@ string ExtCmd::help(const vector<string>& /*tokens*/) const
 void ExtCmd::tabCompletion(vector<string>& tokens) const
 {
 	set<string> extensions;
-	getHwConfigs("extensions", extensions);
+	Reactor::getHwConfigs("extensions", extensions);
 	completeString(tokens, extensions);
 }
 
@@ -749,63 +710,6 @@ void RemoveExtCmd::tabCompletion(vector<string>& tokens) const
 		}
 		completeString(tokens, names);
 	}
-}
-
-// ConfigInfo
-ConfigInfo::ConfigInfo(InfoCommand& openMSXInfoCommand,
-	               const string& configName_)
-	: InfoTopic(openMSXInfoCommand, configName_)
-	, configName(configName_)
-{
-}
-
-void ConfigInfo::execute(const vector<TclObject*>& tokens,
-                         TclObject& result) const
-{
-	// TODO make meta info available through this info topic
-	switch (tokens.size()) {
-	case 2: {
-		set<string> configs;
-		getHwConfigs(configName, configs);
-		result.addListElements(configs.begin(), configs.end());
-		break;
-	}
-	case 3: {
-		try {
-			std::auto_ptr<XMLElement> config = HardwareConfig::loadConfig(
-				configName, tokens[2]->getString());
-			if (XMLElement* info = config->findChild("info")) {
-				const XMLElement::Children& children =
-					info->getChildren();
-				for (XMLElement::Children::const_iterator it =
-					children.begin();
-				     it != children.end(); ++it) {
-					result.addListElement((*it)->getName());
-					result.addListElement((*it)->getData());
-				}
-			}
-		} catch (MSXException& e) {
-			throw CommandException(
-				"Couldn't get config info: " + e.getMessage());
-		}
-		break;
-	}
-	default:
-		throw CommandException("Too many parameters");
-	}
-}
-
-string ConfigInfo::help(const vector<string>& /*tokens*/) const
-{
-	return "Shows a list of available " + configName + ", "
-	       "or get meta information about the selected item.\n";
-}
-
-void ConfigInfo::tabCompletion(vector<string>& tokens) const
-{
-	set<string> configs;
-	getHwConfigs(configName, configs);
-	completeString(tokens, configs);
 }
 
 } // namespace openmsx

@@ -9,6 +9,7 @@
 #include "noncopyable.hh"
 #include <string>
 #include <memory>
+#include <set>
 
 namespace openmsx {
 
@@ -28,6 +29,8 @@ class MSXMotherBoard;
 class Setting;
 class CommandLineParser;
 class QuitCommand;
+class MachineCommand;
+class ConfigInfo;
 class GlobalSettings;
 template <typename T> class EnumSetting;
 
@@ -65,9 +68,11 @@ public:
 	FilePool& getFilePool();
 	EnumSetting<int>& getMachineSetting();
 
-	MSXMotherBoard& createMotherBoard(const std::string& machine);
+	void createMotherBoard(const std::string& machine);
 	MSXMotherBoard* getMotherBoard() const;
-	void deleteMotherBoard();
+
+	static void getHwConfigs(const std::string& type,
+	                         std::set<std::string>& result);
 
 	// convenience methods
 	GlobalSettings& getGlobalSettings();
@@ -75,7 +80,8 @@ public:
 
 private:
 	void createMachineSetting();
-	void doSwitchMachine();
+	void switchMotherBoard(std::auto_ptr<MSXMotherBoard> mb);
+	void deleteMotherBoard();
 
 	// Observer<Setting>
 	virtual void update(const Setting& setting);
@@ -98,9 +104,7 @@ private:
 	 * finishing the pending request(s).
 	 */
 	bool running;
-	bool switchMachineFlag;
 
-	MSXMotherBoard* motherBoard;
 	Semaphore mbSem;
 
 	// note: order of auto_ptr's is important
@@ -119,7 +123,14 @@ private:
 	std::auto_ptr<EnumSetting<int> > machineSetting;
 
 	const std::auto_ptr<QuitCommand> quitCommand;
+	const std::auto_ptr<MachineCommand> machineCommand;
+	const std::auto_ptr<ConfigInfo> extensionInfo;
+	const std::auto_ptr<ConfigInfo> machineInfo;
+
 	friend class QuitCommand;
+
+	std::auto_ptr<MSXMotherBoard> motherBoard;
+	std::auto_ptr<MSXMotherBoard> newMotherBoard;
 };
 
 } // namespace openmsx

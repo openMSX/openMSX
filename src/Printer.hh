@@ -19,8 +19,8 @@
 
 namespace openmsx {
 
-class CommandController;
-class CliComm;
+class MSXMotherBoard;
+class FloatSetting;
 
 class Paper
 {
@@ -97,7 +97,7 @@ public:
 	virtual void forceFormFeed();
 
 protected:
-	explicit ImagePrinter(CommandController& commandController);
+	explicit ImagePrinter(MSXMotherBoard& motherBoard);
 	~ImagePrinter();
 
 	void resetEmulatedPrinter();
@@ -183,15 +183,17 @@ protected:
 	} fontInfo;
 
 private:
-	CliComm& cliComm;
+	MSXMotherBoard& motherBoard;
 	std::auto_ptr<Paper> paper;
+
+	FloatSetting* dpiSetting;
 };
 
 // emulated MSX printer
 class ImagePrinterMSX : public ImagePrinter
 {
 public:
-	explicit ImagePrinterMSX(CommandController& commandController);
+	explicit ImagePrinterMSX(MSXMotherBoard& motherBoard);
 
 	// Pluggable
 	virtual const std::string& getName() const;
@@ -212,7 +214,7 @@ private:
 class ImagePrinterEpson : public ImagePrinter
 {
 public:
-	explicit ImagePrinterEpson(CommandController& commandController);
+	explicit ImagePrinterEpson(MSXMotherBoard& motherBoard);
 
 	// Pluggable
 	virtual const std::string& getName() const;

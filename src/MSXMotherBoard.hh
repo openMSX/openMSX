@@ -8,6 +8,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <map>
 
 namespace openmsx {
 
@@ -46,7 +47,6 @@ class ResetCmd;
 class ListExtCmd;
 class ExtCmd;
 class RemoveExtCmd;
-class ConfigInfo;
 
 class MSXMotherBoard : private Observer<Setting>, private noncopyable
 {
@@ -145,6 +145,18 @@ public:
 	  *         be found.
 	  */
 	MSXDevice* findDevice(const std::string& name);
+
+	/** Some MSX device parts are shared between several MSX devices
+	  * (e.g. all memory mappers share IO ports 0xFC-0xFF). But this
+	  * sharing is limited to one MSX machine. This method offers the
+	  * storage to implement per-machine reference counted objects.
+	  */
+	struct SharedStuff {
+		SharedStuff() : counter(0), stuff(NULL) {}
+		unsigned counter;
+		void* stuff;
+	};
+	SharedStuff& getSharedStuff(const std::string& name);
 	
 private:
 	void deleteMachine();
@@ -161,6 +173,9 @@ private:
 	bool needReset;
 	bool needPowerDown;
 	int blockedCounter;
+
+	typedef std::map<std::string, SharedStuff> SharedStuffMap;
+	SharedStuffMap sharedStuffMap;
 
 	std::auto_ptr<MachineConfig> machineConfig;
 	Extensions extensions;
@@ -188,8 +203,6 @@ private:
 	const std::auto_ptr<ListExtCmd>   listExtCommand;
 	const std::auto_ptr<ExtCmd>       extCommand;
 	const std::auto_ptr<RemoveExtCmd> removeExtCommand;
-	const std::auto_ptr<ConfigInfo>   extensionInfo;
-	const std::auto_ptr<ConfigInfo>   machineInfo;
 	BooleanSetting& powerSetting;
 };
 

@@ -5,7 +5,7 @@
 #include "StringOp.hh"
 #include "FileOperations.hh"
 #include "FloatSetting.hh"
-#include "CommandController.hh"
+#include "MSXMotherBoard.hh"
 #include "CliComm.hh"
 #include "Math.hh"
 #include <algorithm>
@@ -90,19 +90,20 @@ void RawPrinter::forceFormFeed()
 
 // class ImagePrinter
 
-static unsigned settingRefCounter = 0;
-static FloatSetting* dpiSetting = NULL;
-
-ImagePrinter::ImagePrinter(CommandController& commandController)
-	: cliComm(commandController.getCliComm())
+ImagePrinter::ImagePrinter(MSXMotherBoard& motherBoard_)
+	: motherBoard(motherBoard_)
 {
-	if (settingRefCounter == 0) {
-		dpiSetting = new FloatSetting(
-	        	commandController, "print-resolution",
+	MSXMotherBoard::SharedStuff& info =
+		motherBoard.getSharedStuff("print-resolution");
+	if (info.counter == 0) {
+		assert(info.stuff == NULL);
+		info.stuff = new FloatSetting(
+	        	motherBoard.getCommandController(), "print-resolution",
 	        	"resolution of the ouput image of emulated dot matrix printer in DPI",
 	        	300, 150, 1200);
 	}
-	++settingRefCounter;
+	++info.counter;
+	dpiSetting = reinterpret_cast<FloatSetting*>(info.stuff);
 
 	letterQuality = false;
 	bold = false;
@@ -140,9 +141,15 @@ ImagePrinter::~ImagePrinter()
 {
 	flushEmulatedPrinter();
 
-	--settingRefCounter;
-	if (settingRefCounter == 0) {
+	MSXMotherBoard::SharedStuff& info =
+		motherBoard.getSharedStuff("print-resolution");
+	assert(info.counter);
+	assert(dpiSetting);
+	assert(dpiSetting == info.stuff);
+	--info.counter;
+	if (info.counter == 0) {
 		delete dpiSetting;
+		info.stuff = NULL;
 	}
 }
 
@@ -261,9 +268,11 @@ void ImagePrinter::flushEmulatedPrinter()
 		if (printAreaBottom > printAreaTop) {
 			try {
 				string filename = paper->save();
-				cliComm.printInfo("Printed to " + filename);
+				motherBoard.getCliComm().printInfo(
+					"Printed to " + filename);
 			} catch (MSXException& e) {
-				cliComm.printWarning("Failed to print: " + e.getMessage());
+				motherBoard.getCliComm().printWarning(
+					"Failed to print: " + e.getMessage());
 			}
 			printAreaTop = -1.0;
 			printAreaBottom = 0.0;
@@ -606,8 +615,8 @@ static const byte MSXFontRaw[256 * 8] = {
 
 static byte MSXFont[256 * 9];
 
-ImagePrinterMSX::ImagePrinterMSX(CommandController& commandController)
-	: ImagePrinter(commandController)
+ImagePrinterMSX::ImagePrinterMSX(MSXMotherBoard& motherBoard)
+	: ImagePrinter(motherBoard)
 {
 	graphicsHiLo  = true;
 
@@ -1183,8 +1192,8 @@ static const byte EpsonFontRom[] = {
 	0x8b, 0x1a, 0x24, 0x42, 0x08, 0x92, 0x20, 0x84, 0x48, 0xb0, 0x00, 0x00  // 255
 };
 
-ImagePrinterEpson::ImagePrinterEpson(CommandController& commandController)
-	: ImagePrinter(commandController)
+ImagePrinterEpson::ImagePrinterEpson(MSXMotherBoard& motherBoard)
+	: ImagePrinter(motherBoard)
 {
 	graphicsHiLo = false;
 

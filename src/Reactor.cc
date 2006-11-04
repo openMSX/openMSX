@@ -18,6 +18,7 @@
 #include "Alarm.hh"
 #include "GlobalSettings.hh"
 #include "BooleanSetting.hh"
+#include "HardwareConfig.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "FileOperations.hh"
@@ -28,6 +29,7 @@
 
 using std::string;
 using std::vector;
+using std::set;
 
 namespace openmsx {
 
@@ -37,6 +39,17 @@ public:
 	QuitCommand(CommandController& commandController, Reactor& reactor);
 	virtual string execute(const vector<string>& tokens);
 	virtual string help(const vector<string>& tokens) const;
+private:
+	Reactor& reactor;
+};
+
+class MachineCommand : public SimpleCommand
+{
+public:
+	MachineCommand(CommandController& commandController, Reactor& reactor);
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
 private:
 	Reactor& reactor;
 };
@@ -51,20 +64,37 @@ private:
 	EventDistributor& eventDistributor;
 };
 
+class ConfigInfo : public InfoTopic
+{
+public:
+	ConfigInfo(InfoCommand& openMSXInfoCommand, const string& configName);
+	virtual void execute(const vector<TclObject*>& tokens,
+	                     TclObject& result) const;
+	virtual string help   (const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
+private:
+	const string configName;
+};
+
 
 Reactor::Reactor()
 	: paused(false)
 	, blockedCounter(0)
 	, running(true)
-	, motherBoard(NULL)
 	, mbSem(1)
 	, pauseSetting(getGlobalSettings().getPauseSetting())
 	, quitCommand(new QuitCommand(getCommandController(), *this))
+	, machineCommand(new MachineCommand(getCommandController(), *this))
+	, extensionInfo(new ConfigInfo(
+	       getGlobalCommandController().getOpenMSXInfoCommand(),
+	       "extensions"))
+	, machineInfo(new ConfigInfo(
+	       getGlobalCommandController().getOpenMSXInfoCommand(),
+	       "machines"))
 {
 	createMachineSetting();
 
 	pauseSetting.attach(*this);
-	getMachineSetting().attach(*this);
 
 	getEventDistributor().registerEventListener(
 		OPENMSX_QUIT_EVENT, *this);
@@ -77,7 +107,6 @@ Reactor::~Reactor()
 	getEventDistributor().unregisterEventListener(
 		OPENMSX_QUIT_EVENT, *this);
 
-	getMachineSetting().detach(*this);
 	pauseSetting.detach(*this);
 }
 
@@ -184,45 +213,45 @@ CommandController& Reactor::getCommandController()
 	return getGlobalCommandController();
 }
 
-static int select(const string& basepath, const struct dirent* d)
+void Reactor::getHwConfigs(const string& type, set<string>& result)
 {
-	// entry must be a directory and must contain the file "hardwareconfig.xml"
-	string name = basepath + '/' + d->d_name;
-	return FileOperations::isDirectory(name) &&
-	       FileOperations::isRegularFile(name + "/hardwareconfig.xml");
-}
-
-static void searchMachines(const string& basepath, EnumSetting<int>::Map& machines)
-{
-	static int unique = 1;
-	ReadDir dir(basepath);
-	while (dirent* d = dir.getEntry()) {
-		if (select(basepath, d)) {
-			machines[d->d_name] = unique++; // dummy value
+	SystemFileContext context;
+	const vector<string>& paths = context.getPaths();
+	for (vector<string>::const_iterator it = paths.begin();
+	     it != paths.end(); ++it) {
+		string path = *it + type;
+		ReadDir configsDir(path);
+		while (dirent* d = configsDir.getEntry()) {
+			string name = d->d_name;
+			string dir = path + '/' + name;
+			string config = dir + "/hardwareconfig.xml";
+			if (FileOperations::isDirectory(dir) &&
+			    FileOperations::isRegularFile(config)) {
+				result.insert(name);
+			}
 		}
 	}
 }
 
 void Reactor::createMachineSetting()
 {
-	EnumSetting<int>::Map machines;
-
-	SystemFileContext context;
-	const vector<string>& paths = context.getPaths();
-	for (vector<string>::const_iterator it = paths.begin();
-	     it != paths.end(); ++it) {
-		searchMachines(*it + "machines", machines);
+	EnumSetting<int>::Map machines; // int's are unique dummy values
+	int count = 1;
+	set<string> names;
+	getHwConfigs("machines", names);
+	for (set<string>::const_iterator it = names.begin();
+	     it != names.end(); ++it) {
+		machines[*it] = count++;
 	}
-
 	machines["C-BIOS_MSX2+"] = 0; // default machine
 
 	machineSetting.reset(new EnumSetting<int>(
-		getCommandController(), "machine",
+		getCommandController(), "default_machine",
 		"default machine (takes effect next time openMSX is started)",
 		0, machines));
 }
 
-MSXMotherBoard& Reactor::createMotherBoard(const string& machine)
+void Reactor::createMotherBoard(const string& machine)
 {
 	// Locking rules for MSXMotherBoard object access:
 	//  - main thread can always access motherBoard without taking a lock
@@ -234,29 +263,32 @@ MSXMotherBoard& Reactor::createMotherBoard(const string& machine)
 
 	assert(Thread::isMainThread());
 	ScopedLock lock(mbSem);
-	assert(!motherBoard);
 	// Note: loadMachine can throw an exception and in that case the
 	//       motherboard must be considered as not created at all.
-	std::auto_ptr<MSXMotherBoard> newMotherBoard(new MSXMotherBoard(*this));
-	newMotherBoard->loadMachine(machine);
-	motherBoard = newMotherBoard.release();
+	std::auto_ptr<MSXMotherBoard> tmp(new MSXMotherBoard(*this));
+	tmp->loadMachine(machine);
+	newMotherBoard = tmp;
+	enterMainLoop();
+}
+
+void Reactor::switchMotherBoard(std::auto_ptr<MSXMotherBoard> mb)
+{
+	motherBoard = mb;
 	getEventDistributor().distributeEvent(
 		new SimpleEvent<OPENMSX_MACHINE_LOADED_EVENT>());
-	return *motherBoard;
+}
+
+MSXMotherBoard* Reactor::getMotherBoard() const
+{
+	assert(Thread::isMainThread());
+	return motherBoard.get();
 }
 
 void Reactor::deleteMotherBoard()
 {
 	assert(Thread::isMainThread());
 	ScopedLock lock(mbSem);
-	delete motherBoard;
-	motherBoard = NULL;
-}
-
-MSXMotherBoard* Reactor::getMotherBoard() const
-{
-	assert(Thread::isMainThread());
-	return motherBoard;
+	motherBoard.reset();
 }
 
 void Reactor::enterMainLoop()
@@ -265,23 +297,11 @@ void Reactor::enterMainLoop()
 	ScopedLock lock;
 	if (!Thread::isMainThread()) {
 		// Don't take lock in main thread to avoid recursive locking.
-		// This method gets called indirectly from within
-		// createMotherBoard().
+		// This method gets called from within createMotherBoard().
 		lock.take(mbSem);
 	}
-	if (motherBoard) {
+	if (motherBoard.get()) {
 		motherBoard->exitCPULoop();
-	}
-}
-
-void Reactor::doSwitchMachine()
-{
-	deleteMotherBoard();
-	try {
-		createMotherBoard(getMachineSetting().getValueString());
-	} catch (MSXException& e) {
-		// TODO report error back via TCL somehow
-		getCliComm().printWarning(e.getMessage());
 	}
 }
 
@@ -289,6 +309,11 @@ void Reactor::run(CommandLineParser& parser)
 {
 	Display& display = getDisplay();
 	GlobalCommandController& commandController = getGlobalCommandController();
+
+	// select initial machine before executing scripts
+	if (newMotherBoard.get()) {
+		switchMotherBoard(newMotherBoard);
+	}
 
 	// execute init.tcl
 	try {
@@ -327,8 +352,12 @@ void Reactor::run(CommandLineParser& parser)
 
 	PollEventGenerator pollEventGenerator(getEventDistributor());
 
-	switchMachineFlag = false;
 	while (running) {
+		if (newMotherBoard.get()) {
+			switchMotherBoard(newMotherBoard);
+			assert(motherBoard.get());
+			assert(!newMotherBoard.get());
+		}
 		getEventDistributor().deliverEvents();
 		MSXMotherBoard* motherboard = getMotherBoard();
 		bool blocked = (blockedCounter > 0) || !motherboard;
@@ -336,10 +365,6 @@ void Reactor::run(CommandLineParser& parser)
 		if (blocked) {
 			display.repaint();
 			Timer::sleep(100 * 1000);
-		}
-		if (switchMachineFlag) {
-			switchMachineFlag = false;
-			doSwitchMachine();
 		}
 	}
 }
@@ -384,9 +409,6 @@ void Reactor::update(const Setting& setting)
 		} else {
 			unpause();
 		}
-	} else if (&setting == machineSetting.get()) {
-		switchMachineFlag = true;
-		enterMainLoop();
 	}
 }
 
@@ -425,8 +447,47 @@ string QuitCommand::help(const vector<string>& /*tokens*/) const
 }
 
 
-// class PollEventGenerator
+// class MachineCommand
 
+MachineCommand::MachineCommand(CommandController& commandController,
+                               Reactor& reactor_)
+	: SimpleCommand(commandController, "machine")
+	, reactor(reactor_)
+{
+}
+
+string MachineCommand::execute(const vector<string>& tokens)
+{
+	switch (tokens.size()) {
+	case 1: // get current machine
+		return "TODO";
+	case 2:
+		try {
+			reactor.createMotherBoard(tokens[1]);
+		} catch (MSXException& e) {
+			throw CommandException("Machine switching failed: " +
+			                       e.getMessage());
+		}
+		return "";
+	default:
+		throw SyntaxError();
+	}
+}
+
+string MachineCommand::help(const vector<string>& /*tokens*/) const
+{
+	return "Switch to a different MSX machine.";
+}
+
+void MachineCommand::tabCompletion(vector<string>& tokens) const
+{
+	set<string> machines;
+	Reactor::getHwConfigs("machines", machines);
+	completeString(tokens, machines);
+}
+
+
+// class PollEventGenerator
 
 PollEventGenerator::PollEventGenerator(EventDistributor& eventDistributor_)
 	: eventDistributor(eventDistributor_)
@@ -443,6 +504,65 @@ bool PollEventGenerator::alarm()
 {
 	eventDistributor.distributeEvent(new SimpleEvent<OPENMSX_POLL_EVENT>());
 	return true; // reschedule
+}
+
+
+// class ConfigInfo
+//
+ConfigInfo::ConfigInfo(InfoCommand& openMSXInfoCommand,
+	               const string& configName_)
+	: InfoTopic(openMSXInfoCommand, configName_)
+	, configName(configName_)
+{
+}
+
+void ConfigInfo::execute(const vector<TclObject*>& tokens,
+                         TclObject& result) const
+{
+	// TODO make meta info available through this info topic
+	switch (tokens.size()) {
+	case 2: {
+		set<string> configs;
+		Reactor::getHwConfigs(configName, configs);
+		result.addListElements(configs.begin(), configs.end());
+		break;
+	}
+	case 3: {
+		try {
+			std::auto_ptr<XMLElement> config = HardwareConfig::loadConfig(
+				configName, tokens[2]->getString());
+			if (XMLElement* info = config->findChild("info")) {
+				const XMLElement::Children& children =
+					info->getChildren();
+				for (XMLElement::Children::const_iterator it =
+					children.begin();
+				     it != children.end(); ++it) {
+					result.addListElement((*it)->getName());
+					result.addListElement((*it)->getData());
+				}
+			}
+		} catch (MSXException& e) {
+			throw CommandException(
+				"Couldn't get config info: " + e.getMessage());
+		}
+		break;
+	}
+	default:
+		throw CommandException("Too many parameters");
+	}
+}
+
+string ConfigInfo::help(const vector<string>& /*tokens*/) const
+{
+	return "Shows a list of available " + configName + ", "
+	       "or get meta information about the selected item.\n";
+}
+
+void ConfigInfo::tabCompletion(vector<string>& tokens) const
+{
+	set<string> configs;
+	Reactor::getHwConfigs(configName, configs);
+	completeString(tokens, configs);
 }
 
 } // namespace openmsx

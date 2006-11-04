@@ -38,14 +38,11 @@ protected:
 	std::auto_ptr<CheckedRam> checkedRam;
 
 private:
-	void createMapperIO(MSXMotherBoard& motherBoard);
+	void createMapperIO();
 	void destroyMapperIO();
 
 	unsigned nbBlocks;
-
-	static unsigned counter;
-	static XMLElement* config;
-	static MSXMapperIO* mapperIO;
+	MSXMapperIO* mapperIO;
 };
 
 } // namespace openmsx

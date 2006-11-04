@@ -71,8 +71,8 @@ void PluggableFactory::createAll(PluggingController& controller,
 #endif
 
 	// Printers
-	controller.registerPluggable(new ImagePrinterMSX(commandController));
-	controller.registerPluggable(new ImagePrinterEpson(commandController));
+	controller.registerPluggable(new ImagePrinterMSX(motherBoard));
+	controller.registerPluggable(new ImagePrinterEpson(motherBoard));
 }
 
 } // namespace openmsx

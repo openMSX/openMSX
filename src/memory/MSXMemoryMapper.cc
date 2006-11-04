@@ -13,9 +13,6 @@
 
 namespace openmsx {
 
-unsigned MSXMemoryMapper::counter = 0;
-MSXMapperIO* MSXMemoryMapper::mapperIO = NULL;
-
 unsigned MSXMemoryMapper::calcAddress(word address) const
 {
 	unsigned page = mapperIO->getSelectedPage(address >> 14);
@@ -36,7 +33,7 @@ MSXMemoryMapper::MSXMemoryMapper(MSXMotherBoard& motherBoard,
 	checkedRam.reset(new CheckedRam(motherBoard, getName(), "memory mapper",
 	                                nbBlocks * 0x4000));
 
-	createMapperIO(motherBoard);
+	createMapperIO();
 	mapperIO->registerMapper(nbBlocks);
 }
 
@@ -51,42 +48,51 @@ void MSXMemoryMapper::powerUp(const EmuTime& /*time*/)
 	checkedRam->clear();
 }
 
-void MSXMemoryMapper::createMapperIO(MSXMotherBoard& motherBoard)
+void MSXMemoryMapper::createMapperIO()
 {
-	if (!counter) {
-		assert(!mapperIO);
-		mapperIO = DeviceFactory::createMapperIO(motherBoard).release();
+	MSXMotherBoard::SharedStuff& info =
+		getMotherBoard().getSharedStuff("MSXMapperIO");
+	if (info.counter == 0) {
+		assert(info.stuff == NULL);
+		MSXMapperIO* device = DeviceFactory::createMapperIO(
+		                                 getMotherBoard()).release();
+		info.stuff = device;
 
 		MSXCPUInterface& cpuInterface = getMotherBoard().getCPUInterface();
-		cpuInterface.register_IO_Out(0xFC, mapperIO);
-		cpuInterface.register_IO_Out(0xFD, mapperIO);
-		cpuInterface.register_IO_Out(0xFE, mapperIO);
-		cpuInterface.register_IO_Out(0xFF, mapperIO);
-		cpuInterface.register_IO_In(0xFC, mapperIO);
-		cpuInterface.register_IO_In(0xFD, mapperIO);
-		cpuInterface.register_IO_In(0xFE, mapperIO);
-		cpuInterface.register_IO_In(0xFF, mapperIO);
+		cpuInterface.register_IO_Out(0xFC, device);
+		cpuInterface.register_IO_Out(0xFD, device);
+		cpuInterface.register_IO_Out(0xFE, device);
+		cpuInterface.register_IO_Out(0xFF, device);
+		cpuInterface.register_IO_In (0xFC, device);
+		cpuInterface.register_IO_In (0xFD, device);
+		cpuInterface.register_IO_In (0xFE, device);
+		cpuInterface.register_IO_In (0xFF, device);
 	}
-	++counter;
+	++info.counter;
+	mapperIO = reinterpret_cast<MSXMapperIO*>(info.stuff);
 }
 
 void MSXMemoryMapper::destroyMapperIO()
 {
-	--counter;
-	if (!counter) {
+	MSXMotherBoard::SharedStuff& info =
+		getMotherBoard().getSharedStuff("MSXMapperIO");
+	assert(mapperIO);
+	assert(mapperIO == info.stuff);
+	assert(info.counter);
+	--info.counter;
+	if (info.counter == 0) {
 		MSXCPUInterface& cpuInterface = getMotherBoard().getCPUInterface();
 		cpuInterface.unregister_IO_Out(0xFC, mapperIO);
 		cpuInterface.unregister_IO_Out(0xFD, mapperIO);
 		cpuInterface.unregister_IO_Out(0xFE, mapperIO);
 		cpuInterface.unregister_IO_Out(0xFF, mapperIO);
-		cpuInterface.unregister_IO_In(0xFC, mapperIO);
-		cpuInterface.unregister_IO_In(0xFD, mapperIO);
-		cpuInterface.unregister_IO_In(0xFE, mapperIO);
-		cpuInterface.unregister_IO_In(0xFF, mapperIO);
+		cpuInterface.unregister_IO_In (0xFC, mapperIO);
+		cpuInterface.unregister_IO_In (0xFD, mapperIO);
+		cpuInterface.unregister_IO_In (0xFE, mapperIO);
+		cpuInterface.unregister_IO_In (0xFF, mapperIO);
 
-		assert(mapperIO);
 		delete mapperIO;
-		mapperIO = NULL;
+		info.stuff = NULL;
 	}
 }
 

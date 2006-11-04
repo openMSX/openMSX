@@ -1,6 +1,19 @@
 $Id$
 
 2006-11-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* TODO temporarily disabled enum setting info topics:
+	   see comment in EnumSetting.hh
+	* Moved 'machines' and 'extensions' info topics from MSXMotherboard to
+	  Reactor
+	* Shared MSXDevice state should be shared per MSX machine, not shared
+	  globally:
+	    for the moment only fixed MSXMemoryMapper and Printer
+	* Renamed 'machine' setting to 'default_machine' and create a new
+	  'machine' command to actually switch to a new MSX machine
+	* While switching MSX machine, first create the new machine and only
+	  if that succeeded delete the old machine
+
+2006-11-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Put machine specific commands and settings in a machine specific
 	  namespace. There is also a corresponding command/setting in the
 	  global namespace that delegates to the current machine:
