@@ -31,8 +31,6 @@ void EventDistributor::registerEventListener(
 		// a listener may only be registered once for each type
 		assert(it->second != &listener);
 	}
-	// named priorities can only have one listener per event
-	assert((priority == OTHER) || (priorityMap.count(priority) == 0));
 	priorityMap.insert(PriorityMap::value_type(priority, &listener));
 }
 
@@ -86,13 +84,21 @@ void EventDistributor::deliverEvents()
 		EventPtr event = *it;
 		PriorityMap priorityMapCopy = listeners[event->getType()];
 		sem.up();
+		Priority currentPriority = OTHER;
+		bool stopEventDelivery = false;
 		for (PriorityMap::const_iterator it = priorityMapCopy.begin();
 		     it != priorityMapCopy.end(); ++it) {
+			if (currentPriority != it->first) {
+				currentPriority = it->first;
+				if (stopEventDelivery) {
+					break;
+				}
+			}
 			if (!(it->second->signalEvent(event))) {
 				// only named priorities can prohibit events
 				// for lower priorities
 				assert(it->first != OTHER);
-				break;
+				stopEventDelivery = true;
 			}
 		}
 		sem.down();
