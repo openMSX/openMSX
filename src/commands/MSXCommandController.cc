@@ -8,6 +8,7 @@
 #include "Interpreter.hh"
 #include "Setting.hh"
 #include "StringOp.hh"
+#include <iostream>
 
 using std::string;
 using std::vector;
@@ -27,8 +28,18 @@ MSXCommandController::~MSXCommandController()
 {
 	machineInfoCommand.reset();
 
+	#ifndef NDEBUG
+	for (CommandMap::const_iterator it = commandMap.begin();
+	     it != commandMap.end(); ++it) {
+		std::cout << "Command not unregistered: " << it->first << std::endl;
+	}
+	for (SettingMap::const_iterator it = settingMap.begin();
+	     it != settingMap.end(); ++it) {
+		std::cout << "Setting not unregistered: " << it->first << std::endl;
+	}
 	assert(commandMap.empty());
 	assert(settingMap.empty());
+	#endif
 
 	getInterpreter().deleteNamespace(getNamespace());
 }
