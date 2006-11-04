@@ -52,7 +52,13 @@ private:
 	private:
 		EnumSettingPolicy& parent;
 		GlobalCommandController& commandController;
-	} enumInfo;
+	};
+	// EnumInfo enumInfo;
+	// TODO temporarily disabled enum-setting info topics (is already
+	// deprecated). Either remove it completely before next release
+	// (small(?) backwards compatibility problem) or implement a
+	// (deprecated as well) mechanism to handle this in combination with
+	// machine specific enum settings.
 };
 
 template <typename T> class EnumSetting : public SettingImpl<EnumSettingPolicy<T> >
@@ -73,7 +79,7 @@ EnumSettingPolicy<T>::EnumSettingPolicy(
 		const std::string& name_, const Map& map_)
 	: SettingPolicy<T>(commandController)
 	, name(name_), enumMap(map_)
-	, enumInfo(commandController.getGlobalCommandController(), *this, name)
+	//***, enumInfo(commandController.getGlobalCommandController(), *this, name)
 {
 }
 
