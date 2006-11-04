@@ -27,6 +27,7 @@
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
+#include <iostream>
 
 using std::auto_ptr;
 using std::ostringstream;
@@ -183,9 +184,18 @@ MSXCPUInterface::~MSXCPUInterface()
 	removeAllWatchPoints();
 	msxcpu.setInterface(NULL);
 
+	#ifndef NDEBUG
 	for (int port = 0; port < 256; ++port) {
-		assert(IO_In [port] == &dummyDevice);
-		assert(IO_Out[port] == &dummyDevice);
+		if (IO_In[port] != &dummyDevice) {
+			std::cout << "In-port " << port << " still registered "
+			          << IO_In[port]->getName() << std::endl;
+			assert(false);
+		}
+		if (IO_Out[port] != &dummyDevice) {
+			std::cout << "Out-port " << port << " still registered "
+			          << IO_Out[port]->getName() << std::endl;
+			assert(false);
+		}
 	}
 	for (int primSlot = 0; primSlot < 4; ++primSlot) {
 		assert(!isExpanded(primSlot));
@@ -195,6 +205,7 @@ MSXCPUInterface::~MSXCPUInterface()
 			}
 		}
 	}
+	#endif
 }
 
 void MSXCPUInterface::removeAllWatchPoints()
