@@ -273,6 +273,8 @@ void Reactor::createMotherBoard(const string& machine)
 
 void Reactor::switchMotherBoard(std::auto_ptr<MSXMotherBoard> mb)
 {
+	assert(Thread::isMainThread());
+	ScopedLock lock(mbSem);
 	motherBoard = mb;
 	getEventDistributor().distributeEvent(
 		new SimpleEvent<OPENMSX_MACHINE_LOADED_EVENT>());
