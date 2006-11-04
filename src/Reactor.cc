@@ -253,6 +253,13 @@ void Reactor::createMachineSetting()
 
 void Reactor::createMotherBoard(const string& machine)
 {
+	assert(!motherBoard.get());
+	prepareMotherBoard(machine);
+	switchMotherBoard(newMotherBoard);
+}
+
+void Reactor::prepareMotherBoard(const string& machine)
+{
 	// Locking rules for MSXMotherBoard object access:
 	//  - main thread can always access motherBoard without taking a lock
 	//  - changing motherBoard handle can only be done in the main thread
@@ -465,7 +472,7 @@ string MachineCommand::execute(const vector<string>& tokens)
 		return "TODO";
 	case 2:
 		try {
-			reactor.createMotherBoard(tokens[1]);
+			reactor.prepareMotherBoard(tokens[1]);
 		} catch (MSXException& e) {
 			throw CommandException("Machine switching failed: " +
 			                       e.getMessage());

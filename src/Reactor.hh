@@ -80,6 +80,7 @@ public:
 
 private:
 	void createMachineSetting();
+	void prepareMotherBoard(const std::string& machine);
 	void switchMotherBoard(std::auto_ptr<MSXMotherBoard> mb);
 	void deleteMotherBoard();
 
@@ -127,10 +128,11 @@ private:
 	const std::auto_ptr<ConfigInfo> extensionInfo;
 	const std::auto_ptr<ConfigInfo> machineInfo;
 
-	friend class QuitCommand;
-
 	std::auto_ptr<MSXMotherBoard> motherBoard;
 	std::auto_ptr<MSXMotherBoard> newMotherBoard;
+
+	friend class QuitCommand;
+	friend class MachineCommand;
 };
 
 } // namespace openmsx
