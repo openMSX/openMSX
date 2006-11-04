@@ -309,6 +309,15 @@ load_settings
     load_settings <filename>  Load settings from the given file
 
 
+machine
+-------
+
+  Switch to a new MSX machine.
+
+  usage:
+    machine <machine name>   Switch to the specified machine
+
+
 openmsx_info
 ------------
 
@@ -768,6 +777,18 @@ debugoutput
     set debugoutput <output file>  set the specified output file
 
 
+default_machine
+---------------
+
+  The default machine. OpenMSX uses this machine when it is started without
+  "-machine" option.
+
+  usage:
+    set machine                     shows current setting
+    set machine Panasonic_FS-A1GT   use this machine next time openMSX is
+                                    started
+
+
 deinterlace
 -----------
 
@@ -964,17 +985,6 @@ limitsprites
     set limitsprites on   limit number of sprites per line
     set limitsprites off  no limit on number of sprites per line
 
-
-machine
--------
-
-  The default machine. OpenMSX uses this machine when it is started without
-  "-machine" option.
-
-  usage:
-    set machine                     shows current setting
-    set machine Panasonic_FS-A1GT   use this machine next time openMSX is
-                                    started
 
 master_volume
 -------------
