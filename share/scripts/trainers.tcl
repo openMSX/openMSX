@@ -194,6 +194,8 @@ proc trainer_kingsvalley1 {} {
 proc trainer_konamisboxing {} { 
 	#lives
 	poke 0xe218 0 
+	#enemy live (KO after one hit)
+	poke 0xe21a 9
 	after time 2 trainer_konamisboxing 
 }
 
@@ -614,6 +616,8 @@ proc trainer_herzog {} {
 	poke 0xd040 99
 	#blow up player 2 base
 	#poke 0xd087 255
+	#wait off cheat (ctrl-esc-f5)
+	poke 0xd1b3 255
 	after time 2 trainer_herzog
 }
 
@@ -6179,6 +6183,38 @@ proc trainer_drainer  {} {
 	#discs
 	poke 0xc4c7 3
 	after time 1 trainer_drainer
+}
+
+proc trainer_moonpatrol  {} {
+	#lives
+	poke 0xf920 4
+	after time 1 trainer_moonpatrol
+}
+
+proc trainer_ericandthefloaters  {} {
+	#lives
+	poke 0xe30f 13
+	after time 1 trainer_ericandthefloaters
+}
+
+proc trainer_bokosukawars  {} {
+	#power (only works when selecting the commander on game start)
+	poke 0xd77e 0
+	after time 1 trainer_bokosukawars
+}
+
+proc trainer_hauntedhouse  {} {
+	#lives
+	poke 0x4028 6
+	#always have keys
+	poke 0x747e 2
+	#always have shot (f1) 
+	poke 0x747f 4
+	#time
+	poke 0x402c 0x9
+	poke 0x402d 0x9
+	poke 0x402e 0x9
+	after time 1 trainer_hauntedhouse
 }
 
 proc trainer_autofire {} {
