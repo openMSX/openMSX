@@ -4,7 +4,7 @@
 #define FILEMANIPULATOR_HH
 
 #include "Command.hh"
-#include <map>
+#include <vector>
 #include <memory>
 
 namespace openmsx {
@@ -22,8 +22,8 @@ public:
 	explicit DiskManipulator(CommandController& commandController);
 	~DiskManipulator();
 
-	void registerDrive(DiskContainer& drive, const std::string& imageName);
-	void unregisterDrive(DiskContainer& drive, const std::string& imageName);
+	void registerDrive(DiskContainer& drive);
+	void unregisterDrive(DiskContainer& drive);
 
 private:
 	struct DriveSettings
@@ -32,7 +32,7 @@ private:
 		std::string workingDir[31];
 		DiskContainer* drive;
 	};
-	typedef std::map<const std::string, DriveSettings> DiskImages;
+	typedef std::vector<DriveSettings> DiskImages;
 	DiskImages diskImages;
 	std::auto_ptr<DiskChanger> virtualDrive;
 
@@ -41,6 +41,8 @@ private:
 	virtual std::string help   (const std::vector<std::string>& tokens) const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
+	DiskImages::iterator findDriveSettings(DiskContainer& drive);
+	DiskImages::iterator findDriveSettings(const std::string& name);
 	DriveSettings& getDriveSettings(const std::string& diskname);
 	SectorAccessibleDisk& getDisk(const DriveSettings& driveData);
 	void restoreCWD(MSXtar& workhorse, DriveSettings& driveData);

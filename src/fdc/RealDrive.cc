@@ -19,8 +19,8 @@ namespace openmsx {
 
 /// class RealDrive ///
 
-// TODO not static but per machine
-static std::bitset<RealDrive::MAX_DRIVES> drivesInUse;
+static const unsigned MAX_DRIVES = 26; // a-z
+typedef std::bitset<MAX_DRIVES> DrivesInUse;
 
 RealDrive::RealDrive(MSXMotherBoard& motherBoard_, const EmuTime& time)
 	: Schedulable(motherBoard_.getScheduler())
@@ -31,7 +31,16 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, const EmuTime& time)
 	         motherBoard.getGlobalSettings().getThrottleManager()))
 	, timeOut(false)
 {
-	int i = 0;
+	MSXMotherBoard::SharedStuff& info =
+		motherBoard.getSharedStuff("drivesInUse");
+	if (info.counter == 0) {
+		assert(info.stuff == NULL);
+		info.stuff = new DrivesInUse();
+	}
+	++info.counter;
+	DrivesInUse& drivesInUse = *reinterpret_cast<DrivesInUse*>(info.stuff);
+
+	unsigned i = 0;
 	while (drivesInUse[i]) {
 		if (++i == MAX_DRIVES) {
 			throw MSXException("Too many disk drives.");
@@ -53,10 +62,24 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, const EmuTime& time)
 
 RealDrive::~RealDrive()
 {
+	MSXMotherBoard::SharedStuff& info =
+		motherBoard.getSharedStuff("drivesInUse");
+	assert(info.counter);
+	assert(info.stuff);
+	DrivesInUse& drivesInUse = *reinterpret_cast<DrivesInUse*>(info.stuff);
+	
 	const string& driveName = changer->getDriveName();
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, driveName, "remove");
-	int driveNum = driveName[4] - 'a';
+	unsigned driveNum = driveName[4] - 'a';
+	assert(drivesInUse[driveNum]);
 	drivesInUse[driveNum] = false;
+	
+	--info.counter;
+	if (info.counter == 0) {
+		assert(drivesInUse.none());
+		delete &drivesInUse;
+		info.stuff = NULL;
+	}
 }
 
 bool RealDrive::ready()

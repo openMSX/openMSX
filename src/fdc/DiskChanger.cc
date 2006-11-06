@@ -54,7 +54,7 @@ DiskChanger::DiskChanger(const string& driveName_,
 	, scheduler(scheduler_)
 {
 	ejectDisk();
-	manipulator.registerDrive(*this, driveName);
+	manipulator.registerDrive(*this);
 	if (msxEventDistributor) {
 		msxEventDistributor->registerEventListener(*this);
 	}
@@ -65,7 +65,7 @@ DiskChanger::~DiskChanger()
 	if (msxEventDistributor) {
 		msxEventDistributor->unregisterEventListener(*this);
 	}
-	manipulator.unregisterDrive(*this, driveName);
+	manipulator.unregisterDrive(*this);
 }
 
 const string& DiskChanger::getDriveName() const
@@ -98,6 +98,11 @@ Disk& DiskChanger::getDisk()
 SectorAccessibleDisk* DiskChanger::getSectorAccessibleDisk()
 {
 	return dynamic_cast<SectorAccessibleDisk*>(disk.get());
+}
+
+const std::string& DiskChanger::getContainerName() const
+{
+	return getDriveName();
 }
 
 void DiskChanger::sendChangeDiskEvent(const vector<string>& args)

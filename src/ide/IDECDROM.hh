@@ -13,7 +13,6 @@ class MSXMotherBoard;
 class XMLElement;
 class File;
 class CDXCommand;
-class MSXCliComm;
 
 class IDECDROM : public AbstractIDEDevice, private noncopyable
 {
@@ -51,7 +50,8 @@ private:
 
 	void executePacketCommand(byte* packet);
 
-	const std::string name;
+	std::string name;
+	MSXMotherBoard& motherBoard;
 	const std::auto_ptr<CDXCommand> cdxCommand;
 	std::auto_ptr<File> file;
 	unsigned byteCountLimit;
@@ -63,7 +63,6 @@ private:
 	// Removable Media Status Notification Feature Set
 	bool remMedStatNotifEnabled;
 	bool mediaChanged;
-	MSXCliComm& cliComm;
 
 	friend class CDXCommand;
 };

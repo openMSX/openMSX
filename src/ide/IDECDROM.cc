@@ -35,10 +35,25 @@ private:
 
 
 static const unsigned MAX_CD = 26;
-static std::bitset<MAX_CD> cdInUse;
+typedef std::bitset<MAX_CD> CDInUse;
 
-static string calcName()
+IDECDROM::IDECDROM(MSXMotherBoard& motherBoard_, const XMLElement& /*config*/,
+                   const EmuTime& /*time*/)
+	: AbstractIDEDevice(motherBoard_)
+	, motherBoard(motherBoard_)
+	, cdxCommand(new CDXCommand(motherBoard.getMSXCommandController(),
+	                            motherBoard.getMSXEventDistributor(),
+	                            motherBoard.getScheduler(), *this))
 {
+	MSXMotherBoard::SharedStuff& info =
+		motherBoard.getSharedStuff("cdInUse");
+	if (info.counter == 0) {
+		assert(info.stuff == NULL);
+		info.stuff = new CDInUse();
+	}
+	++info.counter;
+	CDInUse& cdInUse = *reinterpret_cast<CDInUse*>(info.stuff);
+
 	unsigned id = 0;
 	while (cdInUse[id]) {
 		++id;
@@ -46,32 +61,36 @@ static string calcName()
 			throw MSXException("Too many CDs");
 		}
 	}
-	return string("cd") + char('a' + id);
-}
-
-IDECDROM::IDECDROM(MSXMotherBoard& motherBoard, const XMLElement& /*config*/,
-                   const EmuTime& /*time*/)
-	: AbstractIDEDevice(motherBoard)
-	, name(calcName())
-	, cdxCommand(new CDXCommand(motherBoard.getMSXCommandController(),
-	                            motherBoard.getMSXEventDistributor(),
-	                            motherBoard.getScheduler(), *this))
-	, cliComm(motherBoard.getMSXCliComm())
-{
-	cdInUse[name[2] - 'a'] = true;
+	name = string("cd") + char('a' + id);
+	cdInUse[id] = true;
 
 	senseKey = 0;
 
 	remMedStatNotifEnabled = false;
 	mediaChanged = false;
 
-	cliComm.update(CliComm::HARDWARE, name, "add");	
+	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "add");	
 }
 
 IDECDROM::~IDECDROM()
 {
-	cliComm.update(CliComm::HARDWARE, name, "remove");
-	cdInUse[name[2] - 'a'] = false;
+	MSXMotherBoard::SharedStuff& info =
+		motherBoard.getSharedStuff("cdInUse");
+	assert(info.counter);
+	assert(info.stuff);
+	CDInUse& cdInUse = *reinterpret_cast<CDInUse*>(info.stuff);
+
+	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "remove");
+	unsigned id = name[2] - 'a';
+	assert(cdInUse[id]);
+	cdInUse[id] = false;
+
+	--info.counter;
+	if (info.counter == 0) {
+		assert(cdInUse.none());
+		delete &cdInUse;
+		info.stuff = NULL;
+	}
 }
 
 bool IDECDROM::isPacketDevice()
@@ -313,7 +332,7 @@ void IDECDROM::eject()
 	file.reset();
 	mediaChanged = true;
 	senseKey = 0x06 << 16; // unit attention (medium changed)
-	cliComm.update(CliComm::MEDIA, name, "");
+	motherBoard.getMSXCliComm().update(CliComm::MEDIA, name, "");
 }
 
 void IDECDROM::insert(const string& filename)
@@ -322,7 +341,7 @@ void IDECDROM::insert(const string& filename)
 	file = newFile;
 	mediaChanged = true;
 	senseKey = 0x06 << 16; // unit attention (medium changed)
-	cliComm.update(CliComm::MEDIA, name, filename);
+	motherBoard.getMSXCliComm().update(CliComm::MEDIA, name, filename);
 }
 
 

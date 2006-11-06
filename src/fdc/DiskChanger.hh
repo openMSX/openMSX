@@ -41,6 +41,7 @@ public:
 
 	// DiskContainer
 	virtual SectorAccessibleDisk* getSectorAccessibleDisk();
+	virtual const std::string& getContainerName() const;
 
 private:
 	void insertDisk(const std::vector<TclObject*>& args);

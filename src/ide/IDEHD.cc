@@ -38,10 +38,27 @@ private:
 
 
 static const unsigned MAX_HD = 26;
-static std::bitset<MAX_HD> hdInUse;
+typedef std::bitset<MAX_HD> HDInUse;
 
-static string calcName()
+IDEHD::IDEHD(MSXMotherBoard& motherBoard_, const XMLElement& config,
+             const EmuTime& /*time*/)
+	: AbstractIDEDevice(motherBoard_)
+	, motherBoard(motherBoard_)
+	, diskManipulator(motherBoard.getDiskManipulator())
+	, hdCommand(new HDCommand(motherBoard.getMSXCommandController(),
+	                          motherBoard.getMSXEventDistributor(),
+	                          motherBoard.getScheduler(),
+	                          motherBoard.getMSXCliComm(), *this))
 {
+	MSXMotherBoard::SharedStuff& info =
+		motherBoard.getSharedStuff("hdInUse");
+	if (info.counter == 0) {
+		assert(info.stuff == NULL);
+		info.stuff = new HDInUse();
+	}
+	++info.counter;
+	HDInUse& hdInUse = *reinterpret_cast<HDInUse*>(info.stuff);
+
 	unsigned id = 0;
 	while (hdInUse[id]) {
 		++id;
@@ -49,21 +66,9 @@ static string calcName()
 			throw MSXException("Too many HDs");
 		}
 	}
-	// for exception safety don't set hdInUse in this routine
-	return string("hd") + char('a' + id);
-}
+	// for exception safety, set hdInUse only at the end
+	name = string("hd") + char('a' + id);
 
-IDEHD::IDEHD(MSXMotherBoard& motherBoard, const XMLElement& config,
-             const EmuTime& /*time*/)
-	: AbstractIDEDevice(motherBoard)
-	, diskManipulator(motherBoard.getDiskManipulator())
-	, name(calcName())
-	, hdCommand(new HDCommand(motherBoard.getMSXCommandController(),
-	                          motherBoard.getMSXEventDistributor(),
-	                          motherBoard.getScheduler(),
-				  motherBoard.getMSXCliComm(), *this))
-	, cliComm(motherBoard.getMSXCliComm())
-{
 	string filename = config.getFileContext().resolveCreate(
 		config.getChildData("filename"));
 	try {
@@ -74,17 +79,32 @@ IDEHD::IDEHD(MSXMotherBoard& motherBoard, const XMLElement& config,
 		file->truncate(config.getChildDataAsInt("size") * 1024 * 1024);
 	}
 
-	diskManipulator.registerDrive(*this, name);
-	hdInUse[name[2] - 'a'] = true;
+	diskManipulator.registerDrive(*this);
+	hdInUse[id] = true;
 
-	cliComm.update(CliComm::HARDWARE, name, "add");
+	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "add");
 }
 
 IDEHD::~IDEHD()
 {
-	cliComm.update(CliComm::HARDWARE, name, "remove");
-	hdInUse[name[2] - 'a'] = false;
-	diskManipulator.unregisterDrive(*this, name);
+	MSXMotherBoard::SharedStuff& info =
+		motherBoard.getSharedStuff("hdInUse");
+	assert(info.counter);
+	assert(info.stuff);
+	HDInUse& hdInUse = *reinterpret_cast<HDInUse*>(info.stuff);
+
+	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "remove");
+	unsigned id = name[2] - 'a';
+	assert(hdInUse[id]);
+	hdInUse[id] = false;
+	diskManipulator.unregisterDrive(*this);
+
+	--info.counter;
+	if (info.counter == 0) {
+		assert(hdInUse.none());
+		delete &hdInUse;
+		info.stuff = NULL;
+	}
 }
 
 bool IDEHD::isPacketDevice()
@@ -206,6 +226,12 @@ SectorAccessibleDisk* IDEHD::getSectorAccessibleDisk()
 {
 	return this;
 }
+
+const std::string& IDEHD::getContainerName() const
+{
+	return name;
+}
+
 
 // class HDCommand
 

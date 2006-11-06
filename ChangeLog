@@ -4,6 +4,7 @@ $Id$
 	* Split CliComm in machine specific and global part:
 	  - machine specific update events now have an extra 'machine'
 	    attribute (e.g. <update type="hardware" machine="machine3" name="diska">add</update>)
+	* Manage disk/hd/cd names per machine iso globally
 
 2006-11-04 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* TODO temporarily disabled enum setting info topics:

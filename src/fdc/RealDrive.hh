@@ -21,8 +21,6 @@ class LoadingIndicator;
 class RealDrive : public DiskDrive, public Schedulable
 {
 public:
-	static const int MAX_DRIVES = 26;	// a-z
-
 	RealDrive(MSXMotherBoard& motherBoard, const EmuTime& time);
 	virtual ~RealDrive();
 

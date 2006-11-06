@@ -36,24 +36,52 @@ DiskManipulator::~DiskManipulator()
 	assert(diskImages.empty()); // all DiskContainers must be unregistered
 }
 
-void DiskManipulator::registerDrive(DiskContainer& drive, const string& imageName)
+
+
+void DiskManipulator::registerDrive(DiskContainer& drive)
 {
-	assert(diskImages.find(imageName) == diskImages.end());
-	diskImages[imageName].drive = &drive;
-	diskImages[imageName].partition = 0;
+	assert(findDriveSettings(drive) == diskImages.end());
+	DriveSettings driveSettings;
+	driveSettings.drive = &drive;
+	driveSettings.partition = 0;
 	for (int i = 0; i < 31; ++i) {
-		diskImages[imageName].workingDir[i] = "/";
+		driveSettings.workingDir[i] = "/";
 	}
+	diskImages.push_back(driveSettings);
 }
 
-void DiskManipulator::unregisterDrive(DiskContainer& drive, const string& imageName)
+void DiskManipulator::unregisterDrive(DiskContainer& drive)
 {
-	(void)drive;
-	assert(diskImages.find(imageName) != diskImages.end());
-	assert(diskImages[imageName].drive == &drive);
-	diskImages.erase(imageName);
+	DiskImages::iterator it = findDriveSettings(drive);
+	assert(it != diskImages.end());
+	diskImages.erase(it);
 }
 
+DiskManipulator::DiskImages::iterator DiskManipulator::findDriveSettings(
+	DiskContainer& drive)
+{
+	for (DiskImages::iterator it = diskImages.begin();
+	     it != diskImages.end(); ++it) {
+		if (it->drive == &drive) {
+			return it;
+		}
+	}
+	return diskImages.end();
+}
+
+DiskManipulator::DiskImages::iterator DiskManipulator::findDriveSettings(
+	const string& name)
+{
+	// there might be multiple with the same name, pick the first
+	// improve this once we have multiple simultaneous machines
+	for (DiskImages::iterator it = diskImages.begin();
+	     it != diskImages.end(); ++it) {
+		if (it->drive->getContainerName() == name) {
+			return it;
+		}
+	}
+	return diskImages.end();
+}
 
 DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
 	const string& diskname)
@@ -62,20 +90,21 @@ DiskManipulator::DriveSettings& DiskManipulator::getDriveSettings(
 	// these will be used as partition indication
 	string::size_type pos = diskname.find_first_of("0123456789");
 	string tmp = diskname.substr(0, pos);
-	DiskImages::iterator it = diskImages.find(tmp);
+
+	DiskImages::iterator it = findDriveSettings(tmp);
 	if (it == diskImages.end()) {
 		throw CommandException("Unknown drive: "  + tmp);
 	}
 
-	it->second.partition = 0;
+	it->partition = 0;
 	if (pos != string::npos) {
 		int i = strtol(diskname.substr(pos).c_str(), NULL, 10);
 		if (i <= 0 || i > 31) {
 			throw CommandException("Invalid partition specified.");
 		}
-		it->second.partition = i - 1;
+		it->partition = i - 1;
 	}
-	return it->second;
+	return *it;
 }
 
 SectorAccessibleDisk& DiskManipulator::getDisk(const DriveSettings& driveData)
@@ -247,17 +276,18 @@ void DiskManipulator::tabCompletion(vector<string>& tokens) const
 		set<string> names;
 		for (DiskImages::const_iterator it = diskImages.begin();
 		     it != diskImages.end(); ++it) {
-			names.insert(it->first);
+			string name = it->drive->getContainerName();
+			names.insert(name);
 			// if it has partitions then we also add the partition
 			// numbers to the autocompletion
 			SectorAccessibleDisk* sectorDisk =
-				it->second.drive->getSectorAccessibleDisk();
+				it->drive->getSectorAccessibleDisk();
 			if (sectorDisk != NULL) {
 				try {
 					MSXtar workhorse(*sectorDisk);
 					for (int i = 0; i < 31; ++i) {
 						if (workhorse.hasPartition(i)) {
-							names.insert(it->first + StringOp::toString(i + 1));
+							names.insert(name + StringOp::toString(i + 1));
 						}
 					}
 				} catch (MSXException& e) {

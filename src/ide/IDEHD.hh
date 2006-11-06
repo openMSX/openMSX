@@ -17,7 +17,6 @@ class XMLElement;
 class DiskManipulator;
 class File;
 class HDCommand;
-class MSXCliComm; 
 
 class IDEHD : public AbstractIDEDevice, public SectorAccessibleDisk,
               public DiskContainer, private noncopyable
@@ -33,7 +32,8 @@ public:
 	virtual unsigned getNbSectors() const;
 
 	// Diskcontainer:
-	SectorAccessibleDisk* getSectorAccessibleDisk();
+	virtual SectorAccessibleDisk* getSectorAccessibleDisk();
+	virtual const std::string& getContainerName() const;
 
 protected:
 	// AbstractIDEDevice:
@@ -45,12 +45,12 @@ protected:
 	virtual void executeCommand(byte cmd);
 
 private:
+	MSXMotherBoard& motherBoard;
 	DiskManipulator& diskManipulator;
-	const std::string name;
+	std::string name;
 	const std::auto_ptr<HDCommand> hdCommand;
 	std::auto_ptr<File> file;
 	unsigned transferSectorNumber;
-	MSXCliComm& cliComm;
 
 	friend class HDCommand;
 };
