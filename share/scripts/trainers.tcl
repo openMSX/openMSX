@@ -221,11 +221,19 @@ proc trainer_mopiranger {} {
 }
 
 proc trainer_qbert {} { 
-	#99 lives
-	poke 0xe110 0x99
-	#always protected
-	poke 0xe345 255
-	after time 2 trainer_qbert 
+   #level (0-4) 
+   #poke 0xe103 0 
+   #lives 
+   poke 0xe110 0x99 
+   #stage (1-9;16-25;32-41;48-57;64-73;80) 
+   #poke 0xe111 1 
+   #no enemies 
+   poke 0xe321 255 
+   #always protected 
+   poke 0xe345 255 
+   #infinite time 
+   poke 0xec51 0x99 
+   after time 2 trainer_qbert 
 }
 
 proc trainer_roadfighter {} { 
@@ -291,55 +299,140 @@ proc trainer_dota {} {
 } 
 
 proc trainer_gradius1 {} { 
-	#always hyper
-	poke 0xe202 8
-	poke 0xe132 1
-	poke 0xe134 1
-	poke 0xe135 1
-	poke 0xe136 2
-	poke 0xe200 3
-	poke 0xe201 10
-	poke 0xe20b 2
-	poke 0xe20c 0
-	poke 0xe20e 2
-	poke 0xe20f 2
-	poke 0xe220 1
-	poke 0xe240 1
-	after time 2 trainer_gradius1 
+   #lives 
+   poke 0xe060 0x99 
+   #stage (1-8=normal;9-12=bonus) 
+   #poke 0xe061 1 
+   #speed set to 4 
+   poke 0xe10b 4 
+   #missile 
+   poke 0xe132 1 
+   #double 
+   poke 0xe133 1 
+   #laser 
+   poke 0xe134 1 
+   #option 
+   poke 0xe135 1 
+   poke 0xe20b 2 
+   #shield 
+   poke 0xe136 2 
+   poke 0xe201 10 
+   #shield on (1=off) 
+   poke 0xe200 3 
+   #always hyper 
+   poke 0xe202 8 
+   #deactivate normal shot 
+   poke 0xe20c 0 
+   #enable double 
+   poke 0xe20d 2 
+   #enable laser 
+   poke 0xe20e 2 
+   #enable missile 
+   poke 0xe20f 2 
+   #enable option 1 
+   poke 0xe220 1 
+   #enable option 2 
+   poke 0xe240 1 
+   #simulate twinbee in slot 2 
+   #poke 0xf0f4 1 
+   after time 2 trainer_gradius1 
 } 
 
 proc trainer_gradius2 {} { 
-	#lives
-	poke 0xe200 0x99
-	# fake metalion mode
-	poke 0xe446 1
-	#nice colors
-	poke 0xe408 15
-	poke 0xe283 14
-	#shield 2=on 0=off
-	poke 0xe400 2
-	#nemesis 3 style circling options
-	#!poke 0xe439 3
-	#all combi's with konami carts 
-	poke  0xf0f5 255
-	#speed set to 5
-	poke 0xe402 5
-	#napalm missle
-	poke 0xe433 3
-	#deactivate normal shot
-	poke 0xe430 0
-	#get laser
-	poke 0xe432 3
-	#get options
-	poke 0xe40b 2
-	poke 0xe410 1
-	poke 0xe420 1
-	#up laser
-	poke 0xe434 2
-	#down laser
-	poke 0xe435 2
-	after time 2 trainer_gradius2
-}
+   #lives 
+   poke 0xe200 0x99 
+   #stage (1-11;0) 
+   #1-7=normal 8=core 
+   #9-11=bonus 0=final 
+   #poke 0xe201 1 
+   #nice colors 
+   poke 0xe283 14 
+   poke 0xe408 15 
+   #shield 0=off 2=on 
+   poke 0xe400 2 
+   #speed set to 5 
+   poke 0xe402 5 
+   #options 
+   poke 0xe40b 2 
+   poke 0xe410 1 
+   poke 0xe420 1 
+   #deactivate normal shot 
+   poke 0xe430 0 
+   #double 
+   #poke 0xe431 2 
+   #laser (1-3;5-6) 
+   #1=normal 2=double 3=extended 
+   #5=reflex ring 6=fire blaster 
+   poke 0xe432 3 
+   #missile (1-3) 
+   #1=normal 2=double 3=napalm 
+   poke 0xe433 3 
+   #up laser 
+   poke 0xe434 2 
+   #down laser 
+   #poke 0xe435 2 
+   #back beam 
+   #poke 0xe436 2 
+   #special item (3-5;7) 
+   #3 = option ring 
+   #4 = rotary drill 
+   #5 = enemy slow 
+   #7 = vector laser 
+   poke 0xe439 3 
+   #fake metalion mode 
+   #poke 0xe446 1 
+   #simulate cartridge in slot 2 
+   # 1 = Q-Bert 
+   # 4 = Penguin Adventure 
+   # 8 = The Maze Of Galious 
+   # 255 = all the 3 cartridges 
+   #poke 0xf0f5 255 
+   after time 2 trainer_gradius2 
+} 
+
+proc trainer_gradius2beta {} { 
+   #lives 
+   poke 0xe200 0x99 
+   #stage (1-9;0) 
+   #1-8=normal 9=core 
+   #0=final 
+   #poke 0xe201 1 
+   #nice colors 
+   poke 0xe283 14 
+   poke 0xe408 15 
+   #shield 0=off 2=on 
+   poke 0xe400 2 
+   #speed set to 5 
+   poke 0xe402 5 
+   #options 
+   poke 0xe40b 2 
+   poke 0xe410 1 
+   poke 0xe420 1 
+   #deactivate normal shot 
+   poke 0xe430 0 
+   #double 
+   #poke 0xe431 2 
+   #laser (1-3;5-6) 
+   #1=normal 2=double 3=extended 
+   #5=reflex ring 6=fire blaster 
+   poke 0xe432 3 
+   #missile (1-3) 
+   #1=normal 2=double 3=napalm 
+   poke 0xe433 3 
+   #up laser 
+   poke 0xe434 2 
+   #down laser 
+   #poke 0xe435 2 
+   #back beam 
+   #poke 0xe436 2 
+   #special item (3-5;7) 
+   #3 = option ring 
+   #4 = rotary drill 
+   #5 = enemy slow 
+   #7 = vector laser 
+   poke 0xe439 3 
+   after time 2 trainer_gradius2beta 
+}    
 
 proc trainer_golvellius1 {} { 
 	#max health and full bar
@@ -365,13 +458,112 @@ proc trainer_golvellius1 {} {
 } 
 
 proc trainer_goonies {} { 
-	#powerbar
-	poke 0xe064 80
-	#always have key
-	poke 0xe121 1
-	#show hiden item (only helmet for now)
-	poke 0xe168 1
-	after time 1 trainer_goonies 
+   #vitality 
+   poke 0xe064 80 
+   #experience 
+   poke 0xe065 80 
+   #stage (1-5) 
+   #poke 0xe06c 1 
+   #always have key 
+   poke 0xe121 1 
+   #open door to next stage 
+   poke 0xe130 7 
+   #protected from most enemies 
+   poke 0xe176 255 
+   #protected from water, fire, bats and shoots 
+   poke 0xe177 255 
+   #protected from falling stones 
+   poke 0xe178 1 
+   #extra vitality (1=experience) 
+   poke 0xe179 4 
+   #show hidden items 
+   poke 0xe2ed 2 
+   # 
+   #specific displayed items - 3 groups 
+   #for each item : an activation address and a display address 
+   #for 2 or more items in the same group : the value for the activation 
+   #must be the sum of the values required to activate each item - 
+   #you need also to change the value for the display address, 
+   #only the values 1-12 will allow the display at the bottom of the screen 
+   #! 
+   #items - 1st group 
+   #! 
+   #shoes 
+   #poke 0xe176 1 
+   #poke 0xe180 1 
+   #yellow book 
+   #poke 0xe176 2 
+   #poke 0xe181 1 
+   #white book 
+   #poke 0xe176 4 
+   #poke 0xe182 1 
+   #dark blue book 
+   #poke 0xe176 8 
+   #poke 0xe183 1 
+   #purple book 
+   #poke 0xe176 16 
+   #poke 0xe184 1 
+   #green book 
+   #poke 0xe176 32 
+   #poke 0xe185 1 
+   #red book 
+   #poke 0xe176 64 
+   #poke 0xe186 1 
+   #pale blue book 
+   #poke 0xe176 128 
+   #poke 0xe187 1 
+   #! 
+   #items - 2d group 
+   #! 
+   #blue raincoat 
+   #poke 0xe177 1 
+   #poke 0xe188 1 
+   #yellow thermic coat 
+   #poke 0xe177 2 
+   #poke 0xe189 1 
+   #grey raincoat 
+   #poke 0xe177 4 
+   #poke 0xe18a 1 
+   #green thermic coat 
+   #poke 0xe177 8 
+   #poke 0xe18b 1 
+   #yellow shield 
+   #poke 0xe177 16 
+   #poke 0xe18c 1 
+   #purple shield 
+   #poke 0xe177 32 
+   #poke 0xe18d 1 
+   #white shield 
+   #poke 0xe177 64 
+   #poke 0xe18e 1 
+   #blue helmet 
+   #poke 0xe177 128 
+   #poke 0xe18f 1 
+   #! 
+   #items - 3rd group 
+   #! 
+   #yellow helmet 
+   #poke 0xe178 1 
+   #poke 0xe190 1 
+   #hammer 
+   #poke 0xe178 2 
+   #poke 0xe191 1 
+   #lamp 
+   #poke 0xe178 4 
+   #poke 0xe192 1 
+   #false blue book 
+   #poke 0xe178 8 
+   #poke 0xe193 1 
+   #false purple book 
+   #poke 0xe178 16 
+   #poke 0xe194 1 
+   #false red book 
+   #poke 0xe178 32 
+   #poke 0xe195 1 
+   #clock 
+   #poke 0xe178 64 
+   #poke 0xe196 1 
+   after time 1 trainer_goonies 
 } 
 
 proc trainer_thexder1 {} { 
@@ -468,52 +660,83 @@ proc trainer_parodius {} {
 } 
 
 proc trainer_salamander {} { 
- 	#lives player 1
-	poke 0xe300 0x99
-	#option 1 active
-	poke 0xe400 1
-	#place in postition 1
-	poke 0xe402 1
-	#option 2 active
-	poke 0xe410 1
-	#place in postition 2
-	poke 0xe412 2
-	 	#option 3 active
-	poke 0xe420 1
-	#place in postition 3
-	poke 0xe422 3
-	#option 4 active
-	poke 0xe430 1
-	#place in postition 3
-	poke 0xe432 4
-	#get extra level after only one energy pod
-	poke 0xe31b 0x14
-	# laser 0 = no shot
-	#poke 0xe340 0
-	# laser 1 = normal shot
-	#poke 0xe340 1
-	# laser 2 = ripple laster
-	#poke 0xe340 2
-	# laser 3 = laster
-	#poke 0xe340 3
-	# laser 4 = screw laser
-	#poke 0xe340 4
-	# laser 5 = meteor laser
-	#poke 0xe340 5
-	# laser 6	= double laser
-	#poke 0xe340 6
-	# laser 7 = tripple laser (!)
-	poke 0xe340 7
-	#set player 1 ship speed (1-7)
-	#poke 0xe337 5 
-	#missles 0=none 1=normal 2=hawkwind 3=homing
-	poke 0xe341 3
-	#who needs a shield anyway
-	poke 0xe202 0 
-	#all special weapons player 1
-	poke 0xe310 7
-	after time 5 trainer_salamander 
-}
+   #who needs a shield anyway 
+   poke 0xe202 0 
+   #lives player 1 
+   poke 0xe300 0x99 
+   #stage (1-7) 
+   # 1-6 = normal stage 
+   # 7 = special stage (requires Gradius 2 in slot 2)  
+   #poke 0xe301 1 
+   #scroll stop (only for part of stage 1) 
+   #poke 0xe309 1 
+   #all special weapons player 1 
+   poke 0xe310 7 
+   #extra level player 1 after one energy pod 
+   poke 0xe31b 0x14 
+   #option hold player 1 
+   #poke 0xe334 1 
+   #ship speed player 1 (1-7) 
+   poke 0xe337 5 
+   #laser shoot player 1 (1-7) 
+   # 1 = normal shoot 
+   # 2 = ripple laser 
+   # 3 = laser 
+   # 4 = screw laser 
+   # 5 = meteor laser 
+   # 6 = double laser 
+   # 7 = triple laser 
+   poke 0xe340 7 
+   #double way missile player 1 (1-4) 
+   # 1=normal 2=hawkwind 3=homing 4=arming ball 
+   poke 0xe341 3 
+   #trampling missile player 1 
+   #poke 0xe342 1 
+   #lives player 2 
+   poke 0xe380 0x99 
+   #all special weapons player 2 
+   poke 0xe390 7 
+   #extra level player 2 after one energy pod 
+   poke 0xe39b 0x14 
+   #option hold player 2 
+   #poke 0xe3b4 1 
+   #ship speed player 2 (1-7) 
+   poke 0xe3b7 5 
+   #laser shoot player 2 (1-7) 
+   #see explanations player 1 
+   poke 0xe3c0 7 
+   #double way missile player 2 (1-4) 
+   # 1=normal 2=hawkwind 3=homing 4=arming ball 
+   poke 0xe3c1 3 
+   #trampling missile player 2 
+   #poke 0xe3c2 1 
+   #option 1 
+   poke 0xe400 1 
+   #option 1 player 2 (0=player 1) 
+   #poke 0xe401 1 
+   #option 1 in position 1 
+   poke 0xe402 1 
+   #option 2 active 
+   poke 0xe410 1 
+   #option 2 player 2 (0=player 1) 
+   #poke 0xe411 1 
+   #option 2 in position 2 
+   poke 0xe412 2 
+   #option 3 active 
+   poke 0xe420 1 
+   #option 3 player 2 (0=player 1) 
+   #poke 0xe421 1 
+   #option 3 in position 3 
+   poke 0xe422 3 
+   #option 4 active (not in dual mode) 
+   poke 0xe430 1 
+   #option 4 in position 4 
+   poke 0xe432 4 
+   #spark light (only for planet Lavinia) 
+   #poke 0xe630 3 
+   after time 5 trainer_salamander 
+} 
+
 
 proc trainer_jackiechprotector {} {
 	#life bar
@@ -1690,10 +1913,14 @@ proc trainer_guardic {} {
 	after time 60 trainer_guardic
 }
 
-proc trainer_superlaydockmsx2 {} {
-	#power 
-	poke 0xa168 100
-	after time 2 trainer_superlaydockmsx2
+proc trainer_laydock {} {
+	#power player 1
+	poke 0xa168 0x99
+	poke 0xa169 0x99
+	#power player 2
+	poke 0xa179 0x99
+	poke 0xa17a 0x99	
+	after time 2 trainer_laydock
 }
 
 proc trainer_spacemanbow {} {
@@ -5229,13 +5456,17 @@ proc trainer_hypersports1 {} {
 	after time 1 trainer_hypersports1	
 }
 
-proc trainer_hypersports2 {} {
-	#always qualify
-	poke 0xe088 0x99
-	poke 0xe089 0x99
-	#always full power
-	poke 0xe101 255
-	after time 1 trainer_hypersports2	
+proc trainer_hypersports2 {} { 
+   #always qualify 
+   poke 0xe088 0x99 
+   poke 0xe089 0x99 
+   #always full power 
+   poke 0xe101 255 
+   #unlimited arrows 
+   #poke 0x111 8 
+   #freezes time 
+   #poke 0xe1a6 15 
+   after time 1 trainer_hypersports2    
 }
 
 proc trainer_hypersports3 {} {
@@ -5262,10 +5493,14 @@ proc trainer_hyperolympics2 {} {
 	after time 1 trainer_hyperolympics1	
 }
 
-proc trainer_gpworld {} {
-	# time
-	poke 0xe1cb 0
-	after time 1 trainer_gpworld	
+proc trainer_gpworld {} { 
+   # time 
+   poke 0xe1cb 0 
+   # round (1-9) 
+   #poke 0xe005 1 
+   # level (1-3) 
+   #poke 0xe00f 1 
+   after time 1 trainer_gpworld    
 }
 
 proc trainer_deepdungeon1 {} {
@@ -6217,6 +6452,66 @@ proc trainer_hauntedhouse  {} {
 	after time 1 trainer_hauntedhouse
 }
 
+proc trainer_ghostbusters2_phase1  {} {
+	#ammo
+	poke 0x6189 99
+	#rope strength
+	poke 0x6185 0
+	#courage
+	poke 0x6180 0
+	after time 1 trainer_ghostbusters2_phase1
+}
+
+proc trainer_flicky {} { 
+   #lives 
+   poke 0xe0ee 3 
+   #round (1-40) 
+   #poke 0xe0e7 1 
+   #poke 0xe0e8 1 
+   after time 1 trainer_flicky 
+}  
+
+proc trainer_girlsgarden {} { 
+   #honey (water) 
+   poke 0xc00e 5 
+   #love (lives) 
+   poke 0xc00f 3 
+   #flowers (very easy !) 
+   #poke 0xc0be 10 
+   after time 1 trainer_girlsgarden 
+}
+
+proc trainer_gulkave {} { 
+   #energy 
+   poke 0xe2ad 255 
+   #weapon (0-16) 
+   poke 0xe2a7 8 
+   #lives 
+   poke 0xe2c5 6 
+   after time 10 trainer_gulkave 
+}
+
+proc trainer_hangon {} { 
+   # time 
+   poke 0xe04c 100 
+   # course (0-8) 
+   #poke 0xe029 0 
+   # level (0-2) 
+   #poke 0xe00e 0 
+   after time 1 trainer_hangon    
+}
+
+proc trainer_hustlechumy {} { 
+   #lives 
+   poke 0xe153 9 
+   #infinite time 
+   poke 0xe1d7 90 
+   poke 0xe1d9 0 
+   #level (1-99;0) 
+   #poke 0xe106 1 
+   after time 1 trainer_hustlechumy 
+}
+
 proc trainer_autofire {} {
 	type "                       "
 	after time 1 trainer_autofire
@@ -6225,6 +6520,7 @@ proc trainer_autofire {} {
 proc trainer_firehawk {} {trainer_thexder2}
 proc trainer_nemesis1 {} {trainer_gradius1}
 proc trainer_nemesis2 {} {trainer_gradius2}
+proc trainer_nemesis2 {} {trainer_gradius2beta}
 proc trainer_nemesis3 {} {trainer_gradius3}
 
 ### EOF ###
