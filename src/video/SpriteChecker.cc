@@ -111,7 +111,7 @@ inline int SpriteChecker::checkSprites1(
 				// Five sprites on a line.
 				// According to TMS9918.pdf 5th sprite detection is only
 				// active when F flag is zero.
-				if (~status & 0xC0) {
+				if ((status & 0xC0) == 0) {
 					status = (status & 0xE0) | 0x40 | sprite;
 				}
 				if (limitSprites) break;
@@ -216,7 +216,7 @@ inline int SpriteChecker::checkSprites2(
 				// Nine sprites on a line.
 				// According to TMS9918.pdf 5th sprite detection is only
 				// active when F flag is zero. Stuck to this for V9938.
-				if (~status & 0xC0) {
+				if ((status & 0xC0) == 0) {
 					status = (status & 0xE0) | 0x40 | sprite;
 				}
 				if (limitSprites) break;
