@@ -8,7 +8,7 @@
 #include "RecordedCommand.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include <algorithm>
 #include <bitset>
 #include <cassert>
@@ -50,13 +50,13 @@ static string calcName()
 }
 
 IDECDROM::IDECDROM(MSXMotherBoard& motherBoard, const XMLElement& /*config*/,
-                   const EmuTime& time)
-	: AbstractIDEDevice(motherBoard.getEventDistributor(), time)
+                   const EmuTime& /*time*/)
+	: AbstractIDEDevice(motherBoard)
 	, name(calcName())
 	, cdxCommand(new CDXCommand(motherBoard.getMSXCommandController(),
 	                            motherBoard.getMSXEventDistributor(),
 	                            motherBoard.getScheduler(), *this))
-	,  cliComm(motherBoard.getCliComm())
+	, cliComm(motherBoard.getMSXCliComm())
 {
 	cdInUse[name[2] - 'a'] = true;
 

@@ -11,7 +11,7 @@ namespace openmsx {
 
 class MSXMotherBoard;
 class XMLElement;
-class CliComm;
+class MSXCliComm;
 class SRAMSync;
 
 class SRAM : private noncopyable
@@ -41,7 +41,7 @@ private:
 	Ram ram;
 	const XMLElement& config;
 	const char* header;
-	CliComm& cliComm;
+	MSXCliComm& cliComm;
 
 	std::auto_ptr<SRAMSync> sramSync;
 	friend class SRAMSync;

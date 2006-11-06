@@ -12,7 +12,6 @@
 #include "FileException.hh"
 #include "FileOperations.hh"
 #include "SectorBasedDisk.hh"
-#include "CliComm.hh"
 #include "StringOp.hh"
 #include <cassert>
 #include <ctype.h>

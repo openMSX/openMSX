@@ -15,7 +15,7 @@
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "CommandException.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "GlobalSettings.hh"
 #include "TclObject.hh"
 #include "EmuTime.hh"

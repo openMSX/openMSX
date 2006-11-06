@@ -11,7 +11,7 @@
 #include "MSXException.hh"
 #include "StringOp.hh"
 #include "openmsx.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include <cassert>
 
 using std::string;
@@ -31,7 +31,7 @@ public:
 private:
 	const ExtensionConfig* getExtensionConfig(const string& cartname);
 	CartridgeSlotManager& manager;
-	CliComm& cliComm;
+	MSXCliComm& cliComm;
 };
 
 
@@ -88,7 +88,8 @@ void CartridgeSlotManager::createExternalSlot(int ps, int ss)
 			slots[slot].ss = ss;
 			string slotName = "carta";
 			slotName[4] += slot;
-			motherBoard.getCliComm().update(CliComm::HARDWARE, slotName, "add");
+			motherBoard.getMSXCliComm().update(
+				CliComm::HARDWARE, slotName, "add");
 			slots[slot].command = new CartCmd(*this, motherBoard, slotName);
 			return;
 		}
@@ -132,7 +133,8 @@ void CartridgeSlotManager::removeExternalSlot(int ps, int ss)
 	int slot = getSlot(ps, ss);
 	assert(!slots[slot].used());
 	const string& slotName = slots[slot].command->getName();
-	motherBoard.getCliComm().update(CliComm::HARDWARE, slotName, "remove");
+	motherBoard.getMSXCliComm().update(
+		CliComm::HARDWARE, slotName, "remove");
 	delete slots[slot].command;
 	slots[slot].command = NULL;
 }
@@ -224,7 +226,7 @@ CartCmd::CartCmd(CartridgeSlotManager& manager_, MSXMotherBoard& motherBoard,
 	                  motherBoard.getScheduler(),
 	                  commandName)
 	, manager(manager_)
-	, cliComm(motherBoard.getCommandController().getCliComm())
+	, cliComm(motherBoard.getMSXCliComm())
 {
 }
 

@@ -6,7 +6,7 @@
 #include "FileOperations.hh"
 #include "FloatSetting.hh"
 #include "MSXMotherBoard.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "Math.hh"
 #include <algorithm>
 #include <cassert>
@@ -268,10 +268,10 @@ void ImagePrinter::flushEmulatedPrinter()
 		if (printAreaBottom > printAreaTop) {
 			try {
 				string filename = paper->save();
-				motherBoard.getCliComm().printInfo(
+				motherBoard.getMSXCliComm().printInfo(
 					"Printed to " + filename);
 			} catch (MSXException& e) {
-				motherBoard.getCliComm().printWarning(
+				motherBoard.getMSXCliComm().printWarning(
 					"Failed to print: " + e.getMessage());
 			}
 			printAreaTop = -1.0;

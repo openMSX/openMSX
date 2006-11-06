@@ -73,7 +73,8 @@ static int main(int argc, char **argv)
 			}
 			if (parseStatus != CommandLineParser::TEST) {
 				CliServer cliServer(reactor.getGlobalCommandController(),
-				                    reactor.getEventDistributor());
+				                    reactor.getEventDistributor(),
+				                    reactor.getGlobalCliComm());
 				reactor.run(parser);
 			}
 		}

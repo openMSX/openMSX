@@ -36,7 +36,8 @@ struct ReverseSector {
 class FDC_DirAsDSK : public SectorBasedDisk
 {
 public:
-	FDC_DirAsDSK(CliComm& cliComm, GlobalSettings& globalSettings, const std::string& fileName);
+	FDC_DirAsDSK(CliComm& cliComm, GlobalSettings& globalSettings,
+	             const std::string& fileName);
 	virtual ~FDC_DirAsDSK();
 
 	virtual bool writeProtected();

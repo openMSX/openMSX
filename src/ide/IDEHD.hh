@@ -17,7 +17,7 @@ class XMLElement;
 class DiskManipulator;
 class File;
 class HDCommand;
-class CliComm; 
+class MSXCliComm; 
 
 class IDEHD : public AbstractIDEDevice, public SectorAccessibleDisk,
               public DiskContainer, private noncopyable
@@ -50,7 +50,7 @@ private:
 	const std::auto_ptr<HDCommand> hdCommand;
 	std::auto_ptr<File> file;
 	unsigned transferSectorNumber;
-	CliComm& cliComm;
+	MSXCliComm& cliComm;
 
 	friend class HDCommand;
 };

@@ -43,7 +43,7 @@ void MSXPSG::reset(const EmuTime& time)
 void MSXPSG::powerDown(const EmuTime& /*time*/)
 {
 	getMotherBoard().getEventDistributor().distributeEvent(
-		new LedEvent(LedEvent::KANA, false));
+		new LedEvent(LedEvent::KANA, false, getMotherBoard()));
 }
 
 byte MSXPSG::readIO(word /*port*/, const EmuTime& time)
@@ -92,7 +92,8 @@ void MSXPSG::writeB(byte value, const EmuTime& time)
 
 	if ((prev ^ value) & 0x80) {
 		getMotherBoard().getEventDistributor().distributeEvent(
-			new LedEvent(LedEvent::KANA, !(value & 0x80)));
+			new LedEvent(LedEvent::KANA, !(value & 0x80),
+			             getMotherBoard()));
 	}
 	prev = value;
 }

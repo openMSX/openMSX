@@ -9,7 +9,7 @@
 namespace openmsx {
 
 class Rom;
-class CliComm;
+class GlobalCliComm;
 class RomInfo;
 
 class RomDatabase : private noncopyable
@@ -17,7 +17,8 @@ class RomDatabase : private noncopyable
 public:
 	static RomDatabase& instance();
 
-	std::auto_ptr<RomInfo> fetchRomInfo(CliComm& cliComm, const Rom& rom);
+	std::auto_ptr<RomInfo> fetchRomInfo(
+		GlobalCliComm& cliComm, const Rom& rom);
 
 private:
 	RomDatabase();

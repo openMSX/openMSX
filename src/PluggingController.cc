@@ -10,7 +10,7 @@
 #include "MSXCommandController.hh"
 #include "CommandException.hh"
 #include "MSXMotherBoard.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "openmsx.hh"
 #include <cassert>
 #include <iostream>
@@ -102,7 +102,7 @@ PluggingController::PluggingController(MSXMotherBoard& motherBoard)
 		motherBoard.getMSXCommandController().getMachineInfoCommand(), *this))
 	, connectionClassInfo(new ConnectionClassInfo(
 		motherBoard.getMSXCommandController().getMachineInfoCommand(), *this))
-	, cliComm(motherBoard.getCliComm())
+	, cliComm(motherBoard.getMSXCliComm())
 {
 	PluggableFactory::createAll(*this, motherBoard);
 }

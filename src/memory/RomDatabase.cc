@@ -6,7 +6,7 @@
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "File.hh"
-#include "CliComm.hh"
+#include "GlobalCliComm.hh"
 #include "StringOp.hh"
 #include "XMLLoader.hh"
 #include "XMLElement.hh"
@@ -66,7 +66,7 @@ static string parseRemarks(const XMLElement& elem)
 	return result;
 }
 
-static void addEntry(CliComm& cliComm, auto_ptr<RomInfo> romInfo,
+static void addEntry(GlobalCliComm& cliComm, auto_ptr<RomInfo> romInfo,
                      const string& sha1, DBMap& result)
 {
 	assert(romInfo.get());
@@ -78,7 +78,7 @@ static void addEntry(CliComm& cliComm, auto_ptr<RomInfo> romInfo,
 	}
 }
 
-static void parseEntry(CliComm& cliComm,
+static void parseEntry(GlobalCliComm& cliComm,
 	const XMLElement& rom, DBMap& result,
 	const string& title,   const string& year,
 	const string& company, const string& country,
@@ -109,7 +109,7 @@ static string parseStart(const XMLElement& rom)
 	else return "";
 }
 
-static void parseDB(CliComm& cliComm, const XMLElement& doc, DBMap& result)
+static void parseDB(GlobalCliComm& cliComm, const XMLElement& doc, DBMap& result)
 {
 	const XMLElement::Children& children = doc.getChildren();
 	for (XMLElement::Children::const_iterator it1 = children.begin();
@@ -153,7 +153,7 @@ static void parseDB(CliComm& cliComm, const XMLElement& doc, DBMap& result)
 	}
 }
 
-static auto_ptr<XMLElement> openDB(CliComm& cliComm, const string& filename,
+static auto_ptr<XMLElement> openDB(GlobalCliComm& cliComm, const string& filename,
                                    const string& type)
 {
 	auto_ptr<XMLElement> doc;
@@ -170,7 +170,7 @@ static auto_ptr<XMLElement> openDB(CliComm& cliComm, const string& filename,
 	return doc;
 }
 
-static void initDatabase(CliComm& cliComm)
+static void initDatabase(GlobalCliComm& cliComm)
 {
 	static bool init = false;
 	if (init) return;
@@ -205,7 +205,7 @@ static void initDatabase(CliComm& cliComm)
 	}
 }
 
-auto_ptr<RomInfo> RomDatabase::fetchRomInfo(CliComm& cliComm, const Rom& rom)
+auto_ptr<RomInfo> RomDatabase::fetchRomInfo(GlobalCliComm& cliComm, const Rom& rom)
 {
 	// Note: RomInfo is copied only to make ownership managment easier
 

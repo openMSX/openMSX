@@ -7,13 +7,13 @@ SRC_HDR:= \
 	HotKey \
 	AfterCommand \
 	Keys \
-	CliComm CliServer CliConnection Socket \
-	Event InputEvents \
+	CliComm GlobalCliComm MSXCliComm \
+	CliServer CliConnection Socket \
+	Event InputEvents LedEvent \
 	InputEventGenerator InputEventFactory
 
 HDR_ONLY:= \
 	EventListener \
-	LedEvent \
 	FinishFrameEvent
 
 include build/node-end.mk

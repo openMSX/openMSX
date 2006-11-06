@@ -7,7 +7,7 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
-#include "CliComm.hh"
+#include "GlobalCliComm.hh"
 #include "Version.hh"
 #include "MSXRomCLI.hh"
 #include "CliExtension.hh"
@@ -134,7 +134,7 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	: parseStatus(UNPARSED)
 	, reactor(reactor_)
 	, settingsConfig(reactor.getCommandController().getSettingsConfig())
-	, output(reactor.getCliComm())
+	, output(reactor.getGlobalCliComm())
 	, helpOption(new HelpOption(*this))
 	, versionOption(new VersionOption(*this))
 	, controlOption(new ControlOption(*this))
@@ -401,7 +401,7 @@ ControlOption::ControlOption(CommandLineParser& parser_)
 
 bool ControlOption::parseOption(const string& option, list<string>& cmdLine)
 {
-	parser.getReactor().getCliComm().startInput(
+	parser.getReactor().getGlobalCliComm().startInput(
 		getArgument(option, cmdLine));
 	parser.parseStatus = CommandLineParser::CONTROL;
 	return true;

@@ -12,7 +12,7 @@
 #include "MSXCPU.hh"
 #include "XMLElement.hh"
 #include "VDPIODelay.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "MSXMultiIODevice.hh"
 #include "MSXMultiMemDevice.hh"
 #include "MSXWatchIODevice.hh"
@@ -152,7 +152,7 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard)
 	        motherBoard.getMSXCommandController().getMachineInfoCommand(), *this, false))
 	, dummyDevice(motherBoard.getDummyDevice())
 	, msxcpu(motherBoard.getCPU())
-	, cliCommOutput(motherBoard.getCliComm())
+	, cliCommOutput(motherBoard.getMSXCliComm())
 {
 	for (int port = 0; port < 256; ++port) {
 		IO_In [port] = &dummyDevice;

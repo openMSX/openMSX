@@ -4,8 +4,11 @@
 #define LEDEVENT_HH
 
 #include "Event.hh"
+#include <string>
 
 namespace openmsx {
+
+class MSXMotherBoard;
 
 class LedEvent : public Event
 {
@@ -20,17 +23,16 @@ public:
 		NUM_LEDS // must be last
 	};
 
-	LedEvent(Led led_, bool status_)
-		: Event(OPENMSX_LED_EVENT)
-		, led(led_)
-		, status(status_) {}
+	LedEvent(Led led, bool status, MSXMotherBoard& motherBoard);
 
-	Led getLed() const { return led; }
-	bool getStatus() const { return status; }
+	Led getLed() const;
+	bool getStatus() const;
+	const std::string& getMachine() const;
 
 private:
 	Led led;
 	bool status;
+	std::string machine;
 };
 
 } // namespace openmsx

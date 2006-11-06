@@ -10,7 +10,7 @@
 #include "FilePool.hh"
 #include "MSXMotherBoard.hh"
 #include "Command.hh"
-#include "CliComm.hh"
+#include "GlobalCliComm.hh"
 #include "Display.hh"
 #include "Mixer.hh"
 #include "IconStatus.hh"
@@ -127,13 +127,13 @@ GlobalCommandController& Reactor::getGlobalCommandController()
 	return *globalCommandController;
 }
 
-CliComm& Reactor::getCliComm()
+GlobalCliComm& Reactor::getGlobalCliComm()
 {
-	if (!cliComm.get()) {
-		cliComm.reset(new CliComm(getGlobalCommandController(),
-		                          getEventDistributor()));
+	if (!globalCliComm.get()) {
+		globalCliComm.reset(new GlobalCliComm(
+			getGlobalCommandController(), getEventDistributor()));
 	}
-	return *cliComm;
+	return *globalCliComm;
 }
 
 InputEventGenerator& Reactor::getInputEventGenerator()
@@ -382,7 +382,7 @@ void Reactor::unpause()
 {
 	if (paused) {
 		paused = false;
-		getCliComm().update(CliComm::STATUS, "paused", "false");
+		getGlobalCliComm().update(CliComm::STATUS, "paused", "false");
 		unblock();
 	}
 }
@@ -391,7 +391,7 @@ void Reactor::pause()
 {
 	if (!paused) {
 		paused = true;
-		getCliComm().update(CliComm::STATUS, "paused", "true");
+		getGlobalCliComm().update(CliComm::STATUS, "paused", "true");
 		block();
 	}
 }

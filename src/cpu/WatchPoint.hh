@@ -16,7 +16,7 @@ class WatchPoint : public BreakPointBase
 public:
 	enum Type { READ_IO, WRITE_IO, READ_MEM, WRITE_MEM };
 
-	WatchPoint(CliComm& CliComm,
+	WatchPoint(MSXCliComm& CliComm,
 	           std::auto_ptr<TclObject> command,
 	           std::auto_ptr<TclObject> condition,
 	           Type type, unsigned address);

@@ -3,11 +3,12 @@
 #include "RealDrive.hh"
 #include "Disk.hh"
 #include "DiskChanger.hh"
+#include "MSXMotherBoard.hh"
 #include "EventDistributor.hh"
 #include "LedEvent.hh"
 #include "CommandController.hh"
 #include "ThrottleManager.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "GlobalSettings.hh"
 #include <bitset>
 
@@ -18,20 +19,16 @@ namespace openmsx {
 
 /// class RealDrive ///
 
+// TODO not static but per machine
 static std::bitset<RealDrive::MAX_DRIVES> drivesInUse;
 
-RealDrive::RealDrive(CommandController& commandController_,
-                     EventDistributor& eventDistributor_,
-                     MSXEventDistributor& msxEventDistributor,
-                     Scheduler& scheduler,
-                     DiskManipulator& diskManipulator, const EmuTime& time)
-	: Schedulable(scheduler)
+RealDrive::RealDrive(MSXMotherBoard& motherBoard_, const EmuTime& time)
+	: Schedulable(motherBoard_.getScheduler())
 	, headPos(0), motorStatus(false), motorTimer(time)
 	, headLoadStatus(false), headLoadTimer(time)
-	, eventDistributor(eventDistributor_)
-	, commandController(commandController_)
+	, motherBoard(motherBoard_)
 	, loadingIndicator(new LoadingIndicator(
-	         commandController.getGlobalSettings().getThrottleManager()))
+	         motherBoard.getGlobalSettings().getThrottleManager()))
 	, timeOut(false)
 {
 	int i = 0;
@@ -43,23 +40,21 @@ RealDrive::RealDrive(CommandController& commandController_,
 	drivesInUse[i] = true;
 	string driveName = string("disk") + static_cast<char>('a' + i);
 
-	if (commandController.hasCommand(driveName)) {
+	if (motherBoard.getCommandController().hasCommand(driveName)) {
 		throw MSXException("Duplicated drive name: " + driveName);
 	}
-	commandController.getCliComm().update(
-		CliComm::HARDWARE, driveName, "add"
-		);
+	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, driveName, "add");
 	changer.reset(new DiskChanger(
-		driveName, commandController, diskManipulator,
-		&msxEventDistributor, &scheduler));
+		driveName, motherBoard.getCommandController(),
+		motherBoard.getDiskManipulator(),
+		&motherBoard.getMSXEventDistributor(),
+		&motherBoard.getScheduler()));
 }
 
 RealDrive::~RealDrive()
 {
 	const string& driveName = changer->getDriveName();
-	commandController.getCliComm().update(
-		CliComm::HARDWARE, driveName, "remove"
-		);
+	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, driveName, "remove");
 	int driveNum = driveName[4] - 'a';
 	drivesInUse[driveNum] = false;
 }
@@ -109,8 +104,8 @@ void RealDrive::setMotor(bool status, const EmuTime& time)
 		/* The following is a hack to emulate the drive LED behaviour.
 		 * This is in real life dependent on the FDC and should be
 		 * investigated in detail to implement it properly... TODO */
-		eventDistributor.distributeEvent(
-			new LedEvent(LedEvent::FDD, motorStatus));
+		motherBoard.getEventDistributor().distributeEvent(
+			new LedEvent(LedEvent::FDD, motorStatus, motherBoard));
 		updateLoadingState();
 	}
 
@@ -229,14 +224,8 @@ void RealDrive::resetTimeOut(const EmuTime& time)
 /// class SingleSidedDrive ///
 
 SingleSidedDrive::SingleSidedDrive(
-		CommandController& commandController,
-		EventDistributor& eventDistributor,
-		MSXEventDistributor& msxEventDistributor,
-		Scheduler& scheduler,
-		DiskManipulator& diskManipulator,
-		const EmuTime& time)
-	: RealDrive(commandController, eventDistributor,
-	            msxEventDistributor, scheduler, diskManipulator, time)
+		MSXMotherBoard& motherBoard, const EmuTime& time)
+	: RealDrive(motherBoard, time)
 {
 }
 
@@ -296,14 +285,8 @@ void SingleSidedDrive::writeTrackData(byte data)
 /// class DoubleSidedDrive ///
 
 DoubleSidedDrive::DoubleSidedDrive(
-		CommandController& commandController,
-		EventDistributor& eventDistributor,
-		MSXEventDistributor& msxEventDistributor,
-		Scheduler& scheduler,
-		DiskManipulator& diskManipulator,
-		const EmuTime& time)
-	: RealDrive(commandController, eventDistributor, msxEventDistributor,
-	            scheduler, diskManipulator, time)
+		MSXMotherBoard& motherBoard, const EmuTime& time)
+	: RealDrive(motherBoard, time)
 {
 	side = 0;
 }

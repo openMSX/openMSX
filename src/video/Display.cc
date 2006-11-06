@@ -8,7 +8,7 @@
 #include "Alarm.hh"
 #include "Command.hh"
 #include "InfoTopic.hh"
-#include "CliComm.hh"
+#include "GlobalCliComm.hh"
 #include "Timer.hh"
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
@@ -262,7 +262,7 @@ void Display::doRendererSwitch()
 	try {
 		doRendererSwitch2();
 	} catch (MSXException& e) {
-		reactor.getCliComm().printWarning(
+		reactor.getGlobalCliComm().printWarning(
 			"Couldn't activate renderer " +
 			renderSettings->getRenderer().getValueString() +
 			": " + e.getMessage());

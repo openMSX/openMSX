@@ -12,7 +12,7 @@ MSXWatchIODevice::MSXWatchIODevice(MSXMotherBoard& motherboard,
                                    std::auto_ptr<TclObject> command,
                                    std::auto_ptr<TclObject> condition)
 	: MSXMultiDevice(motherboard)
-	, WatchPoint(motherboard.getCliComm(), command, condition, type, address)
+	, WatchPoint(motherboard.getMSXCliComm(), command, condition, type, address)
 	, device(0)
 {
 }

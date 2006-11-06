@@ -19,7 +19,7 @@ class CassetteImage;
 class XMLElement;
 class MSXMixer;
 class Scheduler;
-class CliComm;
+class MSXCliComm;
 class WavWriter;
 class ThrottleManager;
 class LoadingIndicator;
@@ -53,7 +53,8 @@ public:
 	CassettePlayer(MSXCommandController& msxCommandController,
 	               MSXMixer& mixer, Scheduler& Scheduler,
 	               MSXEventDistributor& msxEventDistributor,
-	               EventDistributor& eventDistributor);
+	               EventDistributor& eventDistributor,
+	               MSXCliComm& cliComm);
 	virtual ~CassettePlayer();
 
 	void insertTape(const std::string& filename, const EmuTime& time);
@@ -123,7 +124,7 @@ private:
 	EmuTime playTapeTime;
 	std::string casImage;
 
-	CliComm& cliComm;
+	MSXCliComm& cliComm;
 	EventDistributor& eventDistributor;
 
 	std::auto_ptr<LoadingIndicator> loadingIndicator;

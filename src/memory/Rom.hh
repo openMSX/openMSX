@@ -15,7 +15,7 @@ class EmuTime;
 class XMLElement;
 class File;
 class RomInfo;
-class CliComm;
+class GlobalCliComm;
 class RomDebuggable;
 
 class Rom : private noncopyable
@@ -40,7 +40,7 @@ public:
 	const std::string& getSHA1Sum() const;
 
 private:
-	void init(CliComm& cliComm, const XMLElement& config);
+	void init(GlobalCliComm& cliComm, const XMLElement& config);
 	void read(const XMLElement& config, const std::string& filename);
 	bool checkSHA1(const XMLElement& config);
 

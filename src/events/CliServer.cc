@@ -4,7 +4,7 @@
 #include "CommandController.hh"
 #include "IntegerSetting.hh"
 #include "EnumSetting.hh"
-#include "CliComm.hh"
+#include "GlobalCliComm.hh"
 #include "CliConnection.hh"
 #include "StringOp.hh"
 #include "FileOperations.hh"
@@ -220,12 +220,13 @@ static void deleteSocket(const string& socket)
 
 
 CliServer::CliServer(CommandController& commandController_,
-                     EventDistributor& eventDistributor_)
+                     EventDistributor& eventDistributor_,
+                     GlobalCliComm& cliComm_)
 	: thread(this)
 	, listenSock(INVALID_SOCKET)
 	, commandController(commandController_)
 	, eventDistributor(eventDistributor_)
-	, cliComm(commandController.getCliComm())
+	, cliComm(cliComm_)
 {
 	exitLoop = false;
 	sock_startup();

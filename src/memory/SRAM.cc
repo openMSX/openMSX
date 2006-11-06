@@ -6,7 +6,7 @@
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "MSXMotherBoard.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "Alarm.hh"
 
 using std::string;
@@ -31,7 +31,7 @@ SRAM::SRAM(MSXMotherBoard& motherBoard, const string& name, int size,
 	: ram(motherBoard, name, "sram", size)
 	, config(config_)
 	, header(header_)
-	, cliComm(motherBoard.getCliComm())
+	, cliComm(motherBoard.getMSXCliComm())
 	, sramSync(new SRAMSync(*this))
 {
 	load();
@@ -43,7 +43,7 @@ SRAM::SRAM(MSXMotherBoard& motherBoard, const string& name,
 	: ram(motherBoard, name, description, size)
 	, config(config_)
 	, header(header_)
-	, cliComm(motherBoard.getCliComm())
+	, cliComm(motherBoard.getMSXCliComm())
 {
 	load();
 }

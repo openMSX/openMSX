@@ -11,6 +11,7 @@
 #include "CommandException.hh"
 #include "GlobalSettings.hh"
 #include "BooleanSetting.hh"
+#include "MSXCliComm.hh"
 #include <cassert>
 #include <bitset>
 
@@ -25,14 +26,14 @@ class HDCommand : public RecordedCommand
 public:
 	HDCommand(MSXCommandController& msxCommandController,
 	          MSXEventDistributor& msxEventDistributor,
-	          Scheduler& scheduler, CliComm& cliComm, IDEHD& hd);
+	          Scheduler& scheduler, MSXCliComm& cliComm, IDEHD& hd);
 	virtual void execute(const std::vector<TclObject*>& tokens,
 		TclObject& result, const EmuTime& time);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
 	IDEHD& hd;
-	CliComm& cliComm;
+	MSXCliComm& cliComm;
 };
 
 
@@ -53,15 +54,15 @@ static string calcName()
 }
 
 IDEHD::IDEHD(MSXMotherBoard& motherBoard, const XMLElement& config,
-             const EmuTime& time)
-	: AbstractIDEDevice(motherBoard.getEventDistributor(), time)
+             const EmuTime& /*time*/)
+	: AbstractIDEDevice(motherBoard)
 	, diskManipulator(motherBoard.getDiskManipulator())
 	, name(calcName())
 	, hdCommand(new HDCommand(motherBoard.getMSXCommandController(),
 	                          motherBoard.getMSXEventDistributor(),
 	                          motherBoard.getScheduler(),
-				  motherBoard.getCliComm(), *this))
-	, cliComm(motherBoard.getCliComm())
+				  motherBoard.getMSXCliComm(), *this))
+	, cliComm(motherBoard.getMSXCliComm())
 {
 	string filename = config.getFileContext().resolveCreate(
 		config.getChildData("filename"));
@@ -210,7 +211,7 @@ SectorAccessibleDisk* IDEHD::getSectorAccessibleDisk()
 
 HDCommand::HDCommand(MSXCommandController& msxCommandController,
                      MSXEventDistributor& msxEventDistributor,
-                     Scheduler& scheduler, CliComm& cliComm_, IDEHD& hd_)
+                     Scheduler& scheduler, MSXCliComm& cliComm_, IDEHD& hd_)
 	: RecordedCommand(msxCommandController, msxEventDistributor,
 	                  scheduler, hd_.name)
 	, hd(hd_)

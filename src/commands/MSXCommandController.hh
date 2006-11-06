@@ -20,6 +20,8 @@ public:
 	                     GlobalCommandController& globalCommandController);
 	~MSXCommandController();
 
+	const std::string& getNamespace();
+
 	InfoCommand& getMachineInfoCommand();
 
 	Command* findCommand(const std::string& name) const;
@@ -50,8 +52,6 @@ public:
 	virtual GlobalCommandController& getGlobalCommandController();
 
 private:
-	const std::string& getNamespace();
-
 	GlobalCommandController& globalCommandController;
 	std::auto_ptr<InfoCommand> machineInfoCommand;
 

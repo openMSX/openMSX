@@ -55,7 +55,8 @@ void MSXTurboRPause::writeIO(word /*port*/, byte value, const EmuTime& /*time*/)
 	if (newTurboLed != turboLed) {
 		turboLed = newTurboLed;
 		getMotherBoard().getEventDistributor().distributeEvent(
-			new LedEvent(LedEvent::TURBO, turboLed));
+			new LedEvent(LedEvent::TURBO, turboLed,
+			             getMotherBoard()));
 	}
 	updatePause();
 }
@@ -81,7 +82,8 @@ void MSXTurboRPause::updatePause()
 	if (newPauseLed != pauseLed) {
 		pauseLed = newPauseLed;
 		getMotherBoard().getEventDistributor().distributeEvent(
-			new LedEvent(LedEvent::PAUSE, pauseLed));
+			new LedEvent(LedEvent::PAUSE, pauseLed,
+			             getMotherBoard()));
 	}
 }
 

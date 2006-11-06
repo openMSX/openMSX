@@ -25,20 +25,10 @@ MSXFDC::MSXFDC(MSXMotherBoard& motherBoard, const XMLElement& config,
 	for ( ; i < numDrives; ++i) {
 		if (singleSided) {
 			drives[i].reset(new SingleSidedDrive(
-				getMotherBoard().getCommandController(),
-				getMotherBoard().getEventDistributor(),
-				getMotherBoard().getMSXEventDistributor(),
-				getMotherBoard().getScheduler(),
-				getMotherBoard().getDiskManipulator(),
-				time));
+				getMotherBoard(), time));
 		} else {
 			drives[i].reset(new DoubleSidedDrive(
-				getMotherBoard().getCommandController(),
-				getMotherBoard().getEventDistributor(),
-				getMotherBoard().getMSXEventDistributor(),
-				getMotherBoard().getScheduler(),
-				getMotherBoard().getDiskManipulator(),
-				time));
+				getMotherBoard(), time));
 		}
 	}
 	for ( ; i < 4; ++i) {

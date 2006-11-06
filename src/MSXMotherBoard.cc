@@ -5,6 +5,7 @@
 #include "MSXDevice.hh"
 #include "MachineConfig.hh"
 #include "ExtensionConfig.hh"
+#include "MSXCliComm.hh"
 #include "MSXCommandController.hh"
 #include "Scheduler.hh"
 #include "CartridgeSlotManager.hh"
@@ -226,6 +227,15 @@ void MSXMotherBoard::removeExtension(const ExtensionConfig& extension)
 	extensions.erase(it);
 }
 
+MSXCliComm& MSXMotherBoard::getMSXCliComm()
+{
+	if (!msxCliComm.get()) {
+		msxCliComm.reset(new MSXCliComm(
+			*this, reactor.getGlobalCliComm()));
+	}
+	return *msxCliComm;
+}
+
 MSXCommandController& MSXMotherBoard::getMSXCommandController()
 {
 	if (!msxCommandController.get()) {
@@ -381,11 +391,6 @@ EventDistributor& MSXMotherBoard::getEventDistributor()
 	return reactor.getEventDistributor();
 }
 
-CliComm& MSXMotherBoard::getCliComm()
-{
-	return reactor.getCliComm();
-}
-
 Display& MSXMotherBoard::getDisplay()
 {
 	return reactor.getDisplay();
@@ -399,6 +404,11 @@ DiskManipulator& MSXMotherBoard::getDiskManipulator()
 GlobalSettings& MSXMotherBoard::getGlobalSettings()
 {
 	return reactor.getGlobalSettings();
+}
+
+GlobalCliComm& MSXMotherBoard::getGlobalCliComm()
+{
+	return reactor.getGlobalCliComm();
 }
 
 FilePool& MSXMotherBoard::getFilePool()
@@ -503,7 +513,7 @@ void MSXMotherBoard::powerUp()
 	// TODO: We could make the power LED a device, so we don't have to handle
 	//       it separately here.
 	getEventDistributor().distributeEvent(
-		new LedEvent(LedEvent::POWER, true));
+		new LedEvent(LedEvent::POWER, true, *this));
 
 	const EmuTime& time = getScheduler().getCurrentTime();
 	getCPUInterface().reset();
@@ -536,7 +546,7 @@ void MSXMotherBoard::doPowerDown(const EmuTime& time)
 	//assert(powerSetting.getValue() == powered);
 	powerSetting.setValue(false);
 	getEventDistributor().distributeEvent(
-		new LedEvent(LedEvent::POWER, false));
+		new LedEvent(LedEvent::POWER, false, *this));
 
 	getMSXMixer().mute();
 

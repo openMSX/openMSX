@@ -10,13 +10,8 @@
 
 namespace openmsx {
 
+class MSXMotherBoard;
 class DiskChanger;
-class CommandController;
-class EventDistributor;
-class MSXEventDistributor;
-class Scheduler;
-class DiskManipulator;
-class ThrottleManager;
 class LoadingIndicator;
 
 /**
@@ -28,12 +23,7 @@ class RealDrive : public DiskDrive, public Schedulable
 public:
 	static const int MAX_DRIVES = 26;	// a-z
 
-	RealDrive(CommandController& commandController,
-	          EventDistributor& eventDistributor,
-	          MSXEventDistributor& msxEventDistributor,
-	          Scheduler& scheduler,
-	          DiskManipulator& diskManipulator,
-	          const EmuTime& time);
+	RealDrive(MSXMotherBoard& motherBoard, const EmuTime& time);
 	virtual ~RealDrive();
 
 	// DiskDrive interface
@@ -70,12 +60,12 @@ protected:
 	Clock<1000> headLoadTimer; // ms
 	std::auto_ptr<DiskChanger> changer;
 
-	EventDistributor& eventDistributor;
 private:
 	// This is all for the ThrottleManager
 	void resetTimeOut(const EmuTime& time);
 	void updateLoadingState();
-	CommandController& commandController;
+
+	MSXMotherBoard& motherBoard;
 	std::auto_ptr<LoadingIndicator> loadingIndicator;
 	bool timeOut;
 };
@@ -87,12 +77,7 @@ private:
 class SingleSidedDrive : public RealDrive
 {
 public:
-	SingleSidedDrive(CommandController& commandController,
-	                 EventDistributor& eventDistributor,
-	                 MSXEventDistributor& msxEventDistributor,
-	                 Scheduler& scheduler,
-	                 DiskManipulator& diskManipulator,
-	                 const EmuTime& time);
+	SingleSidedDrive(MSXMotherBoard& motherBoard, const EmuTime& time);
 	virtual bool doubleSided();
 	virtual void setSide(bool side);
 	virtual void read (byte sector, byte* buf,
@@ -114,12 +99,7 @@ public:
 class DoubleSidedDrive : public RealDrive
 {
 public:
-	DoubleSidedDrive(CommandController& commandController,
-	                 EventDistributor& eventDistributor,
-	                 MSXEventDistributor& msxEventDistributor,
-	                 Scheduler& scheduler,
-	                 DiskManipulator& diskManipulator,
-	                 const EmuTime& time);
+	DoubleSidedDrive(MSXMotherBoard& motherBoard, const EmuTime& time);
 	virtual bool doubleSided();
 	virtual void setSide(bool side);
 	virtual void read (byte sector, byte* buf,

@@ -47,7 +47,7 @@ void MSXPPI::reset(const EmuTime& time)
 void MSXPPI::powerDown(const EmuTime& /*time*/)
 {
 	getMotherBoard().getEventDistributor().distributeEvent(
-		new LedEvent(LedEvent::CAPS, false));
+		new LedEvent(LedEvent::CAPS, false, getMotherBoard()));
 }
 
 byte MSXPPI::readIO(word port, const EmuTime& time)
@@ -169,7 +169,8 @@ void MSXPPI::writeC1(nibble value, const EmuTime& time)
 	}
 	if ((prevBits ^ value) & 4) {
 		getMotherBoard().getEventDistributor().distributeEvent(
-			new LedEvent(LedEvent::CAPS, !(value & 4)));
+			new LedEvent(LedEvent::CAPS, !(value & 4),
+			             getMotherBoard()));
 	}
 	if ((prevBits ^ value) & 8) {
 		click->setClick(value & 8, time);

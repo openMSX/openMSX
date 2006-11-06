@@ -1,6 +1,7 @@
 // $Id$
 
 #include "AbstractIDEDevice.hh"
+#include "MSXMotherBoard.hh"
 #include "EventDistributor.hh"
 #include "LedEvent.hh"
 #include "Version.hh"
@@ -9,10 +10,8 @@
 
 namespace openmsx {
 
-AbstractIDEDevice::AbstractIDEDevice(
-	EventDistributor& eventDistributor_, const EmuTime& /*time*/
-	)
-	: eventDistributor(eventDistributor_)
+AbstractIDEDevice::AbstractIDEDevice(MSXMotherBoard& motherBoard_)
+	: motherBoard(motherBoard_)
 {
 	transferRead = transferWrite = false;
 }
@@ -389,8 +388,9 @@ void AbstractIDEDevice::setTransferRead(bool status)
 		transferRead = status;
 		if (!transferWrite) {
 			// (this is a bit of a hack!)
-			eventDistributor.distributeEvent(
-				new LedEvent(LedEvent::FDD, transferRead));
+			motherBoard.getEventDistributor().distributeEvent(
+				new LedEvent(LedEvent::FDD, transferRead,
+				             motherBoard));
 		}
 	}
 }
@@ -401,8 +401,9 @@ void AbstractIDEDevice::setTransferWrite(bool status)
 		transferWrite = status;
 		if (!transferRead) {
 			// (this is a bit of a hack!)
-			eventDistributor.distributeEvent(
-				new LedEvent(LedEvent::FDD, transferWrite));
+			motherBoard.getEventDistributor().distributeEvent(
+				new LedEvent(LedEvent::FDD, transferWrite,
+				             motherBoard));
 		}
 	}
 }

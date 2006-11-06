@@ -8,8 +8,7 @@
 
 namespace openmsx {
 
-class EventDistributor;
-class XMLElement;
+class MSXMotherBoard;
 
 class AbstractIDEDevice : public IDEDevice
 {
@@ -34,8 +33,7 @@ protected:
 	static const byte IDNF = 0x10;
 	static const byte ABORT = 0x04;
 
-	AbstractIDEDevice(
-		EventDistributor& eventDistributor, const EmuTime& time);
+	explicit AbstractIDEDevice(MSXMotherBoard& motherBoard);
 	virtual ~AbstractIDEDevice();
 
 	/** Is this device a packet (ATAPI) device?
@@ -233,7 +231,7 @@ private:
 	bool transferRead;
 	bool transferWrite;
 
-	EventDistributor& eventDistributor;
+	MSXMotherBoard& motherBoard;
 };
 
 } // namespace openmsx

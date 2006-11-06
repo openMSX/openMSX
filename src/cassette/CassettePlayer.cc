@@ -34,7 +34,7 @@
 #include "WavImage.hh"
 #include "CasImage.hh"
 #include "DummyCassetteImage.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "CommandException.hh"
 #include "Reactor.hh"
 #include "Scheduler.hh"
@@ -73,7 +73,6 @@ public:
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
 	CassettePlayer& cassettePlayer;
-	CliComm& cliComm;
 };
 
 
@@ -120,7 +119,8 @@ CassettePlayer::CassettePlayer(
 		MSXCommandController& msxCommandController_,
 		MSXMixer& mixer, Scheduler& scheduler_,
 		MSXEventDistributor& msxEventDistributor,
-		EventDistributor& eventDistributor_)
+		EventDistributor& eventDistributor_,
+		MSXCliComm& cliComm_)
 	: SoundDevice(mixer, getName(), getDescription())
 	, motor(false), motorControl(true)
 	, tapeTime(EmuTime::zero)
@@ -133,7 +133,7 @@ CassettePlayer::CassettePlayer(
 	, tapeCommand(new TapeCommand(msxCommandController, msxEventDistributor,
 	                              scheduler, *this))
 	, playTapeTime(EmuTime::zero)
-	, cliComm(msxCommandController.getCliComm())
+	, cliComm(cliComm_)
 	, eventDistributor(eventDistributor_)
 	, loadingIndicator(new LoadingIndicator(
 	       msxCommandController.getGlobalSettings().getThrottleManager()))
@@ -457,8 +457,7 @@ bool CassettePlayer::signalEvent(shared_ptr<const Event> event)
 				insertTape(casImage, scheduler.getCurrentTime());
 			} catch (MSXException &e) {
 				cliComm.printWarning(
-					"Failed to insert tape: " + e.getMessage()
-					);
+					"Failed to insert tape: " + e.getMessage());
 			}
 		}
 	}
@@ -474,7 +473,6 @@ TapeCommand::TapeCommand(MSXCommandController& msxCommandController,
 	: RecordedCommand(msxCommandController, msxEventDistributor,
 	                  scheduler, "cassetteplayer")
 	, cassettePlayer(cassettePlayer_)
-	, cliComm(msxCommandController.getCliComm())
 {
 }
 
@@ -607,7 +605,7 @@ string TapeCommand::execute(const vector<string>& tokens, const EmuTime& time)
 		}
 	}
 	if (!cassettePlayer.getConnector()) {
-		cliComm.printWarning("Cassetteplayer not plugged in.");
+		cassettePlayer.cliComm.printWarning("Cassetteplayer not plugged in.");
 	}
 	return result;
 }

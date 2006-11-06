@@ -8,7 +8,7 @@
 
 namespace openmsx {
 
-class CliComm;
+class MSXCliComm;
 class TclObject;
 
 /** Base class for CPU breakpoints.
@@ -18,7 +18,7 @@ class TclObject;
 class BreakPoint : public BreakPointBase
 {
 public:
-	BreakPoint(CliComm& CliComm, word address,
+	BreakPoint(MSXCliComm& CliComm, word address,
 	           std::auto_ptr<TclObject> command,
 	           std::auto_ptr<TclObject> condition);
 

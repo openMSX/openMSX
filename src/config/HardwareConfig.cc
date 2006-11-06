@@ -12,7 +12,7 @@
 #include "MSXCPUInterface.hh"
 #include "DeviceFactory.hh"
 #include "Scheduler.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include <cassert>
 
 #include <iostream>
@@ -207,7 +207,7 @@ void HardwareConfig::createDevices(const XMLElement& elem)
 			if (device.get()) {
 				addDevice(device.release());
 			} else {
-				motherBoard.getCliComm().printWarning(
+				motherBoard.getMSXCliComm().printWarning(
 					"Deprecated device: \"" +
 					name + "\", please upgrade your "
 					"hardware descriptions.");

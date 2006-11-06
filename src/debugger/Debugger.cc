@@ -31,7 +31,8 @@ class DebugCmd : public RecordedCommand
 public:
 	DebugCmd(MSXCommandController& msxCommandController,
 	         MSXEventDistributor& msxEventDistributor,
-	         Scheduler& scheduler, Debugger& debugger);
+	         Scheduler& scheduler, MSXCliComm& cliComm,
+	         Debugger& debugger);
 	virtual bool needRecord(const vector<TclObject*>& tokens) const;
 	virtual void execute(const vector<TclObject*>& tokens,
 	                     TclObject& result, const EmuTime& time);
@@ -67,6 +68,7 @@ private:
 	void listWatchPoints(const vector<TclObject*>& tokens,
 	                     TclObject& result);
 
+	MSXCliComm& cliComm;
 	Debugger& debugger;
 };
 
@@ -75,7 +77,8 @@ Debugger::Debugger(MSXMotherBoard& motherBoard_)
 	: motherBoard(motherBoard_)
 	, debugCmd(new DebugCmd(motherBoard.getMSXCommandController(),
 	                        motherBoard.getMSXEventDistributor(),
-	                        motherBoard.getScheduler(), *this))
+	                        motherBoard.getScheduler(),
+	                        motherBoard.getMSXCliComm(), *this))
 	, cpu(0)
 {
 }
@@ -145,9 +148,11 @@ static word getAddress(const vector<TclObject*>& tokens)
 
 DebugCmd::DebugCmd(MSXCommandController& msxCommandController,
                    MSXEventDistributor& msxEventDistributor,
-                   Scheduler& scheduler, Debugger& debugger_)
+                   Scheduler& scheduler, MSXCliComm& cliComm_,
+                   Debugger& debugger_)
 	: RecordedCommand(msxCommandController, msxEventDistributor,
 	                  scheduler, "debug")
+	, cliComm(cliComm_)
 	, debugger(debugger_)
 {
 }
@@ -334,8 +339,7 @@ void DebugCmd::setBreakPoint(const vector<TclObject*>& tokens,
 		// fall-through
 	case 3: // address
 		addr = getAddress(tokens);
-		bp.reset(new BreakPoint(getCommandController().getCliComm(),
-		                        addr, command, condition));
+		bp.reset(new BreakPoint(cliComm, addr, command, condition));
 		break;
 	default:
 		if (tokens.size() < 3) {

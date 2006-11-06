@@ -120,7 +120,8 @@ string FDC_DirAsDSK::makeSimpleMSXFileName(const string& fullfilename)
 	return file + ext;
 }
 
-FDC_DirAsDSK::FDC_DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings, const string& fileName)
+FDC_DirAsDSK::FDC_DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings,
+                           const string& fileName)
 	: SectorBasedDisk(fileName)
 	, cliComm(cliComm_)
 {

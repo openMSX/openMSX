@@ -11,13 +11,14 @@ namespace openmsx {
 
 class CommandController;
 class EventDistributor;
-class CliComm;
+class GlobalCliComm;
 
 class CliServer : private Runnable
 {
 public:
 	CliServer(CommandController& commandController,
-	          EventDistributor& eventDistributor);
+	          EventDistributor& eventDistributor,
+	          GlobalCliComm& cliComm);
 	~CliServer();
 
 private:
@@ -36,7 +37,7 @@ private:
 
 	CommandController& commandController;
 	EventDistributor& eventDistributor;
-	CliComm& cliComm;
+	GlobalCliComm& cliComm;
 };
 
 } // namespace openmsx

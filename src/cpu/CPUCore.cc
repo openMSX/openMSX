@@ -3,7 +3,7 @@
 #include "MSXCPUInterface.hh"
 #include "Scheduler.hh"
 #include "MSXMotherBoard.hh"
-#include "CliComm.hh"
+#include "MSXCliComm.hh"
 #include "Event.hh"
 #include "EventDistributor.hh"
 #include "BooleanSetting.hh"
@@ -195,10 +195,10 @@ template <class T> void CPUCore<T>::doBreak()
 		motherboard.block();
 
 		// TODO break update is deprecated
-		motherboard.getCliComm().update(CliComm::BREAK, "pc",
+		motherboard.getMSXCliComm().update(CliComm::BREAK, "pc",
 					   "0x" + StringOp::toHexString(R.PC, 4));
 
-		motherboard.getCliComm().update(CliComm::STATUS, "cpu", "suspended");
+		motherboard.getMSXCliComm().update(CliComm::STATUS, "cpu", "suspended");
 		motherboard.getEventDistributor().distributeEvent(
 			new SimpleEvent<OPENMSX_BREAK_EVENT>());
 	}
@@ -217,7 +217,7 @@ template <class T> void CPUCore<T>::doContinue()
 	if (breaked) {
 		continued = true;
 		// TODO resume update is deprecated
-		motherboard.getCliComm().update(CliComm::RESUME, "pc",
+		motherboard.getMSXCliComm().update(CliComm::RESUME, "pc",
 	                                   "0x" + StringOp::toHexString(R.PC, 4));
 		doContinue2();
 	}
@@ -226,7 +226,7 @@ template <class T> void CPUCore<T>::doContinue()
 template <class T> void CPUCore<T>::doContinue2()
 {
 	breaked = false;
-	motherboard.getCliComm().update(CliComm::STATUS, "cpu", "running");
+	motherboard.getMSXCliComm().update(CliComm::STATUS, "cpu", "running");
 	motherboard.unblock();
 }
 
@@ -2720,7 +2720,7 @@ template <class T> void CPUCore<T>::halt()
 	slowInstructions = 2;
 
 	if (!(R.IFF1 || R.nextIFF1 || R.IFF2)) { 
-		motherboard.getCliComm().printWarning(
+		motherboard.getMSXCliComm().printWarning(
 			"DI; HALT detected, which means a hang. "
 			"You can just as well reset the MSX now...\n");
 	}

@@ -19,7 +19,7 @@ class DummyDevice;
 class XMLElement;
 class MSXMotherBoard;
 class MSXCPU;
-class CliComm;
+class MSXCliComm;
 class MemoryDebug;
 class SlottedMemoryDebug;
 class IODebug;
@@ -240,7 +240,7 @@ private:
 
 	DummyDevice& dummyDevice;
 	MSXCPU& msxcpu;
-	CliComm& cliCommOutput;
+	MSXCliComm& cliCommOutput;
 
 	std::auto_ptr<VDPIODelay> delayDevice;
 	friend class TurborCPUInterface;
