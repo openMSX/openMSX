@@ -6520,7 +6520,7 @@ proc trainer_autofire {} {
 proc trainer_firehawk {} {trainer_thexder2}
 proc trainer_nemesis1 {} {trainer_gradius1}
 proc trainer_nemesis2 {} {trainer_gradius2}
-proc trainer_nemesis2 {} {trainer_gradius2beta}
+proc trainer_nemesis2beta {} {trainer_gradius2beta}
 proc trainer_nemesis3 {} {trainer_gradius3}
 
 ### EOF ###
