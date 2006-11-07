@@ -47,23 +47,30 @@ namespace openmsx {
 
 // 8kb shared sram //
 
-static SRAM* sram = 0;
-static int sramRefCounter = 0;
-
-static void allocSRAM(MSXMotherBoard& motherBoard, const XMLElement& config)
+static SRAM* allocSRAM(MSXMotherBoard& motherBoard, const XMLElement& config)
 {
-	if (sramRefCounter == 0) {
-		sram = new SRAM(motherBoard, config.getId() + " SRAM", 0x2000,
-		                config);
+	MSXMotherBoard::SharedStuff& info =
+		motherBoard.getSharedStuff("FSA1FM-sram");
+	if (info.counter == 0) {
+		assert(info.stuff == NULL);
+		info.stuff = new SRAM(motherBoard, config.getId() + " SRAM", 
+		                      0x2000, config);
 	}
-	++sramRefCounter;
+	++info.counter;
+	return reinterpret_cast<SRAM*>(info.stuff);
 }
 
-static void releaseSRAM()
+static void releaseSRAM(MSXMotherBoard& motherBoard)
 {
-	-- sramRefCounter;
-	if (sramRefCounter == 0) {
+	MSXMotherBoard::SharedStuff& info =
+		motherBoard.getSharedStuff("FSA1FM-sram");
+	assert(info.counter);
+	SRAM* sram = reinterpret_cast<SRAM*>(info.stuff);
+	assert(sram);
+	--info.counter;
+	if (info.counter == 0) {
 		delete sram;
+		info.stuff = NULL;
 	}
 }
 
@@ -76,13 +83,13 @@ RomFSA1FM1::RomFSA1FM1(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, firmwareSwitch(
 	      new FirmwareSwitch(motherBoard.getCommandController(), config))
 {
-	allocSRAM(motherBoard, config);
+	sram = allocSRAM(motherBoard, config);
 	reset(time);
 }
 
 RomFSA1FM1::~RomFSA1FM1()
 {
-	releaseSRAM();
+	releaseSRAM(getMotherBoard());
 }
 
 void RomFSA1FM1::reset(const EmuTime& /*time*/)
@@ -170,13 +177,13 @@ RomFSA1FM2::RomFSA1FM2(MSXMotherBoard& motherBoard, const XMLElement& config,
                        const EmuTime& time, std::auto_ptr<Rom> rom)
 	: Rom8kBBlocks(motherBoard, config, time, rom)
 {
-	allocSRAM(motherBoard, config);
+	sram = allocSRAM(motherBoard, config);
 	reset(time);
 }
 
 RomFSA1FM2::~RomFSA1FM2()
 {
-	releaseSRAM();
+	releaseSRAM(getMotherBoard());
 }
 
 void RomFSA1FM2::reset(const EmuTime& /*time*/)

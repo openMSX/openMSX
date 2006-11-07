@@ -10,6 +10,7 @@ namespace openmsx {
 
 class MSXMotherBoard;
 class FirmwareSwitch;
+class SRAM;
 
 class RomFSA1FM1 : public MSXRom
 {
@@ -28,6 +29,7 @@ public:
 
 private:
 	const std::auto_ptr<FirmwareSwitch> firmwareSwitch;
+	SRAM* sram;
 };
 
 class RomFSA1FM2 : public Rom8kBBlocks
@@ -48,10 +50,11 @@ public:
 private:
 	void changeBank(byte region, byte bank);
 
-	byte control;
+	SRAM* sram;
 	byte bankSelect[8];
 	bool isRam[8];
 	bool isEmpty[8];
+	byte control;
 };
 
 } // namespace openmsx
