@@ -3,8 +3,8 @@
 #ifndef FDC_DIRASDSK_HH
 #define FDC_DIRASDSK_HH
 
-#include <map>
 #include "SectorBasedDisk.hh"
+#include <map>
 
 namespace openmsx {
 
@@ -24,7 +24,9 @@ struct MSXDirEntry {
 
 struct MappedDirEntry {
 	MSXDirEntry msxinfo;
-	int filesize; // used to dedect changes that need to be updated in the emulated disk, content changes are automatically handled :-)
+	int filesize; // used to dedect changes that need to be updated in the
+	              // emulated disk, content changes are automatically
+	              // handled :-)
 	std::string filename;
 };
 
@@ -40,13 +42,14 @@ public:
 	             const std::string& fileName);
 	virtual ~FDC_DirAsDSK();
 
-	virtual bool writeProtected();
-
 private:
 	static const int MAX_CLUSTER = 720;
 	static const int SECTORS_PER_FAT = 3;
+
+	// SectorBasedDisk
 	virtual void readLogicalSector(unsigned sector, byte* buf);
 	virtual void writeLogicalSector(unsigned sector, const byte* buf);
+	virtual bool writeProtected();
 
 	bool checkFileUsedInDSK(const std::string& fullfilename);
 	bool checkMSXFileExists(const std::string& msxfilename);
@@ -57,16 +60,17 @@ private:
 	void updateFileInDisk(const int dirindex);
 	void updateFileInDSK(const std::string& fullfilename);
 	int findFirstFreeCluster();
-	//int markClusterGetNext();
 	word ReadFAT(word clnr);
 	void WriteFAT(word clnr, word val);
-	MappedDirEntry mapdir[112];	// max nr of entries in root directory: 7 sectors, each 16 entries
+
+	MappedDirEntry mapdir[112]; // max nr of entries in root directory:
+	                            // 7 sectors, each 16 entries
 	ReverseSector sectormap[1440]; // was 1440, quick hack to fix formatting
 	byte FAT[SECTOR_SIZE * SECTORS_PER_FAT];
 
 	static const byte DefaultBootBlock[];
-	static const std::string BootBlockFileName ;
-	static const std::string CachedSectorsFileName ;
+	static const std::string BootBlockFileName;
+	static const std::string CachedSectorsFileName;
 	byte BootBlock[SECTOR_SIZE];
 	std::string MSXrootdir;
 	std::map<const int, byte*> cachedSectors;
