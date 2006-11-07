@@ -263,16 +263,33 @@ proc trainer_timepilot {} {
 }
 
 proc trainer_twinbee {} { 
-	#2 options
-	poke 0xe083 3
-	#lives
-	poke 0xe070 0x99
-	#speed
-	poke 0xe081 3
-	#shield
-	poke 0xe083 5
-	after time 2 trainer_twinbee 
-}
+   #lives player 1 
+   poke 0xe070 0x99 
+   #lives player 2 
+   poke 0xe073 0x99 
+   #speed player 1 
+   poke 0xe081 3 
+   #speed player 2 
+   poke 0xe082 3 
+   #shield and more player 1 (0-15) 
+   # 0 = single shoot 
+   # 1 or 9 = double shoot 
+   # 2 = options + single shoot 
+   # 3 or 11 = options + double shoot 
+   # 4 = shield + single shoot 
+   # 5 or 13 = shield + double shoot 
+   # 6 = options + shield + single shoot 
+   # 7 or 15 = options + shield + double shoot 
+   # 8 = spread shoot 
+   # 10 = options + spread shoot 
+   # 12 = shield + spread shoot 
+   # 14 = options + shield + spread shoot 
+   # some differences in dual mode 
+   poke 0xe083 7 
+   #shield and more player 2 (0-15) 
+   poke 0xe084 7 
+   after time 1 trainer_twinbee 
+} 
 
 proc trainer_yiearkungfu1 {} { 
 	#powerbar
@@ -337,6 +354,46 @@ proc trainer_gradius1 {} {
 	#poke 0xf0f4 1 
 	after time 2 trainer_gradius1 
 } 
+
+proc trainer_gradius1scc {} { 
+   #lives 
+   poke 0xc060 0x99 
+   #stage (1-8=normal;9-12=bonus) 
+   #poke 0xc061 1 
+   #speed set to 4 
+   poke 0xc10b 4 
+   #missile 
+   poke 0xc132 1 
+   #double 
+   poke 0xc133 1 
+   #laser 
+   poke 0xc134 1 
+   #option 
+   poke 0xc135 1 
+   poke 0xc20b 2 
+   #shield 
+   poke 0xc136 2 
+   poke 0xc201 10 
+   #shield on (1=off) 
+   poke 0xc200 3 
+   #always hyper 
+   poke 0xc202 8 
+   #deactivate normal shot 
+   poke 0xc20c 0 
+   #enable double 
+   poke 0xc20d 2 
+   #enable laser 
+   poke 0xc20e 2 
+   #enable missile 
+   poke 0xc20f 2 
+   #enable option 1 
+   poke 0xc220 1 
+   #enable option 2 
+   poke 0xc240 1 
+   after time 2 trainer_gradius1scc 
+} 
+
+
 
 proc trainer_gradius2 {} { 
 	#lives 
@@ -640,23 +697,40 @@ proc trainer_xevious {} {
 }
 
 proc trainer_parodius {} { 
-	#trainer
-	poke 0xe251 255
-	poke 0xe253 255
-	poke 0xe254 255	
-	poke 0xe256 255
-	poke 0xe268 4
-	poke 0xe400 2
-	poke 0xe402 2
-	poke 0xe40b 2	
-	poke 0xe410 1	
-	poke 0xe420 1
-	poke 0xe430 0	
-	poke 0xe432 2	
-	poke 0xe433 2
-	poke 0xe40a 15
-	poke 0xeb07 15
-	after time 1 trainer_parodius 
+   #lives 
+   poke 0xe240 0x99 
+   #stage (1-6=normal;7-9=bonus) 
+   #poke 0xe241 1 
+   #more bells 
+   poke 0xe251 255 
+   poke 0xe253 255 
+   poke 0xe254 255    
+   poke 0xe256 255 
+   #full power 
+   poke 0xe268 4 
+   #speed set to 4 
+   poke 0xe335 4 
+   #shield 0=off 2=on 
+   poke 0xe400 2 
+   #shield 
+   poke 0xe402 2 
+   poke 0xe40a 15 
+   poke 0xeb07 15 
+   #option 
+   poke 0xe40b 2 
+   #enable option 1 
+   poke 0xe410 1 
+   #enable option 2 
+   poke 0xe420 1 
+   #disable normal shoot 
+   poke 0xe430 0 
+   #enable double 
+   #poke 0xe431 2 
+   #enable laser 
+   poke 0xe432 2 
+   #enable missile    
+   poke 0xe433 2 
+   after time 1 trainer_parodius 
 } 
 
 proc trainer_salamander {} { 
@@ -1923,16 +1997,39 @@ proc trainer_laydock {} {
 	after time 2 trainer_laydock
 }
 
-proc trainer_spacemanbow {} {
-	#power bar
-	poke 0xcb08 16
-	#life
-	poke 0xcb0f 0x99
-	#invincible
-	poke 0xca53 03
-	poke 0xca54 03
-	after time 2 trainer_spacemanbow
-}
+proc trainer_spacemanbow {} { 
+   #stage (0-8) 
+   #poke 0xca10 0 
+   #invincible 
+   poke 0xca53 03 
+   poke 0xca54 03 
+   #option 1 
+   poke 0xcac0 2 
+   poke 0xcac1 3 
+   poke 0xcad8 253 
+   #option 2 
+   poke 0xcae0 2 
+   poke 0xcae1 3 
+   poke 0xcaf8 2 
+   #speed (1-4) 
+   poke 0xcb01 2 
+   #power bar 
+   poke 0xcb08 16 
+   #lives 
+   poke 0xcb0f 0x99 
+   #missile 
+   poke 0xcb48 128 
+   poke 0xcb49 3 
+   #way option 1 (6=back 7=up 8=front) 
+   poke 0xcb50 6 
+   #enable option 1 
+   poke 0xcb51 1 
+   #way option 2 (2=front 3=down 4=back) 
+   poke 0xcb58 4 
+   #enable option 2 
+   poke 0xcb59 1 
+   after time 1 trainer_spacemanbow 
+} 
 
 proc trainer_fantasmsoldier1 {} {
 	#life
@@ -4063,45 +4160,72 @@ proc trainer_digitaldevil {} {
 	after time 1 trainer_digitaldevil
 }
 
-proc trainer_gradius3 {} {
-	#get all options
-	poke 0xe608 2
-	poke 0xe610 1
-	poke 0xe620 2
-	#set laser (to screw)
-	poke 0xe630 7
-	#set uplaser
-	poke 0xe631 13
-	#set guided missle
-	poke 0xe632 19
-	#set all weapons and upgrades (find)
-	poke 0xe36f 7
-	#activate find
-	poke 0xe39c 1
-	#activate expand
-	poke 0xe39e 1
-	#activate good
-	poke 0xe39d 2
-	#activate hard
-	poke 0xe39b 0 
-	poke 0xe39d 1
-	#set forcefield
-	poke 0xe600 3
-	#set 3 maps found
-	poke 0xe393 1
-	poke 0xe394 1
-	poke 0xe395 1
-	#spacefighter shield
-	poke 0xe396 1
-	#censor	
-	poke 0xe397 1
-	#choose vixen
-	poke 0xe380 2
-	#choose option 
-	poke 0xe37e 3
-	#choose shield
-	poke 0xe37f 2
-	after time 1 trainer_gradius3
+proc trainer_gradius3 {} { 
+   #lives 
+   poke 0xe360 0x99 
+   #stage (1-11) 
+   #poke 0xe361 1 
+   #only for stage 4 
+   #poke 0xe363 0 
+   #set speed to 4 
+   poke 0xe36d 4 
+   #all weapons and upgrades (find) 
+   poke 0xe36f 7 
+   #choose option (1-3) 
+   poke 0xe37e 3 
+   #choose shield (1-2) 
+   poke 0xe37f 2 
+   #choose vixen (0-3) 
+   poke 0xe380 3 
+   #red map 
+   poke 0xe393 1 
+   #blue map 
+   poke 0xe394 1 
+   #green map 
+   poke 0xe395 1 
+   #spacefighter shield 
+   poke 0xe396 1 
+   #extra sensory device    
+   poke 0xe397 1 
+   #activate hard 
+   #poke 0xe39b 0 
+   #poke 0xe39d 1 
+   #activate find 
+   poke 0xe39c 1 
+   #activate good 
+   poke 0xe39d 2 
+   #activate expand 
+   poke 0xe39e 1 
+   #shield on 1=off 3=on 
+   poke 0xe600 3 
+   #options 
+   poke 0xe608 2 
+   poke 0xe610 1 
+   poke 0xe620 2 
+   #shoot or laser (1-12) 
+   # 1 = normal shoot 2 = back shoot 
+   # 3 = up shoot 4 = down shoot 
+   # 5 = laser 
+   # 6 = meteor laser 
+   # 7 = screw laser 
+   # 8 = extended blaster 
+   # 9 = vector laser 
+   # 10 = ripple laser 
+   # 11 = fire blaster 
+   # 12 = big fire blaster 
+   poke 0xe630 7 
+   #extended shoot or laser (1-4;13-14) 
+   # 1 = normal beam 2 = tail beam 
+   # 3 = up double 4 = down double 
+   # 13 = up laser 14 = down laser 
+   poke 0xe631 13 
+   #missile (16-20) 
+   # 16 = normal 17 = photon 18 = napalm 
+   # 19 = guided 20 = hawkwind 
+   poke 0xe632 19 
+   # double way missile (with vixen=3) 
+   poke 0xe642 16 
+   after time 1 trainer_gradius3 
 }
 
 proc trainer_alien8 {} {
@@ -6517,10 +6641,12 @@ proc trainer_autofire {} {
 	after time 1 trainer_autofire
 }
 
-proc trainer_firehawk {} {trainer_thexder2}
-proc trainer_nemesis1 {} {trainer_gradius1}
-proc trainer_nemesis2 {} {trainer_gradius2}
-proc trainer_nemesis2beta {} {trainer_gradius2beta}
-proc trainer_nemesis3 {} {trainer_gradius3}
+#alternative names
+proc trainer_firehawk {} 	{trainer_thexder2}
+proc trainer_nemesis1 {} 	{trainer_gradius1}
+proc trainer_nemesis1scc {} 	{trainer_gradius1scc}
+proc trainer_nemesis2 {} 	{trainer_gradius2}
+proc trainer_nemesis2beta {} 	{trainer_gradius2beta}
+proc trainer_nemesis3 {} 	{trainer_gradius3}
 
 ### EOF ###
