@@ -2,6 +2,7 @@
 
 #include "WatchPoint.hh"
 #include "TclObject.hh"
+#include <cassert>
 
 namespace openmsx {
 
@@ -10,10 +11,11 @@ unsigned WatchPoint::lastId = 0;
 WatchPoint::WatchPoint(MSXCliComm& cliComm,
                        std::auto_ptr<TclObject> command,
                        std::auto_ptr<TclObject> condition,
-                       Type type_, unsigned address_)
+                       Type type_, unsigned beginAddr_, unsigned endAddr_)
 	: BreakPointBase(cliComm, command, condition)
-	, type(type_), address(address_)
+	, type(type_), beginAddr(beginAddr_), endAddr(endAddr_)
 {
+	assert(beginAddr <= endAddr);
 	id = ++lastId;
 }
 
@@ -31,9 +33,14 @@ WatchPoint::Type WatchPoint::getType() const
 	return type;
 }
 
-unsigned WatchPoint::getAddress() const
+unsigned WatchPoint::getBeginAddress() const
 {
-	return address;
+	return beginAddr;
+}
+
+unsigned WatchPoint::getEndAddress() const
+{
+	return endAddr;
 }
 
 } // namespace openmsx

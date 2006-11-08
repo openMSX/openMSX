@@ -12,7 +12,8 @@ class MSXWatchIODevice : public MSXMultiDevice, public WatchPoint
 {
 public:
 	MSXWatchIODevice(MSXMotherBoard& motherboard,
-	                 WatchPoint::Type type, unsigned address,
+	                 WatchPoint::Type type,
+	                 unsigned beginAddr, unsigned endAddr,
 	                 std::auto_ptr<TclObject> command,
 	                 std::auto_ptr<TclObject> condition);
 	virtual ~MSXWatchIODevice();

@@ -1,5 +1,9 @@
 $Id$
 
+2006-11-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented watchpoint regions:
+	   see doc/commands.txt or 'help debug set_watchpoint'
+
 2006-11-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Split CliComm in machine specific and global part:
 	  - machine specific update events now have an extra 'machine'

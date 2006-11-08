@@ -640,26 +640,34 @@ void MSXCPUInterface::registerIOWatch(WatchPoint& watchPoint, MSXDevice** device
 {
 	assert(dynamic_cast<MSXWatchIODevice*>(&watchPoint));
 	MSXWatchIODevice& ioWatch = static_cast<MSXWatchIODevice&>(watchPoint);
-	unsigned port = ioWatch.getAddress();
-	assert(port < 256);
-	ioWatch.getDevicePtr() = devices[port];
-	devices[port] = &ioWatch;
+	unsigned beginPort = ioWatch.getBeginAddress();
+	unsigned endPort   = ioWatch.getEndAddress();
+	assert(beginPort <= endPort);
+	assert(endPort < 0x100);
+	for (unsigned port = beginPort; port <= endPort; ++port) {
+		ioWatch.getDevicePtr() = devices[port];
+		devices[port] = &ioWatch;
+	}
 }
 
 void MSXCPUInterface::unregisterIOWatch(WatchPoint& watchPoint, MSXDevice** devices)
 {
 	const MSXWatchIODevice& ioWatch =
 		checked_cast<const MSXWatchIODevice&>(watchPoint);
-	unsigned port = ioWatch.getAddress();
-	assert(port < 256);
+	unsigned beginPort = ioWatch.getBeginAddress();
+	unsigned endPort   = ioWatch.getEndAddress();
+	assert(beginPort <= endPort);
+	assert(endPort < 0x100);
 
-	// find pointer to watchpoint
-	MSXDevice** prev = &devices[port];
-	while (*prev != &ioWatch) {
-		prev = &checked_cast<MSXWatchIODevice*>(*prev)->getDevicePtr();
+	for (unsigned port = beginPort; port <= endPort; ++port) {
+		// find pointer to watchpoint
+		MSXDevice** prev = &devices[port];
+		while (*prev != &ioWatch) {
+			prev = &checked_cast<MSXWatchIODevice*>(*prev)->getDevicePtr();
+		}
+		// remove watchpoint from chain
+		*prev = checked_cast<MSXWatchIODevice*>(*prev)->getDevicePtr();
 	}
-	// remove watchpoint from chain
-	*prev = checked_cast<MSXWatchIODevice*>(*prev)->getDevicePtr();
 }
 
 void MSXCPUInterface::updateMemWatch(WatchPoint::Type type)
@@ -672,10 +680,14 @@ void MSXCPUInterface::updateMemWatch(WatchPoint::Type type)
 	for (WatchPoints::const_iterator it = watchPoints.begin();
 	     it != watchPoints.end(); ++it) {
 		if ((*it)->getType() == type) {
-			unsigned addr = (*it)->getAddress();
-			assert(addr < 0x10000);
-			watchSet[addr >> CacheLine::BITS].set(
-			         addr  & CacheLine::LOW);
+			unsigned beginAddr = (*it)->getBeginAddress();
+			unsigned endAddr   = (*it)->getEndAddress();
+			assert(beginAddr <= endAddr);
+			assert(endAddr < 0x10000);
+			for (unsigned addr = beginAddr; addr <= endAddr; ++addr) {
+				watchSet[addr >> CacheLine::BITS].set(
+				         addr  & CacheLine::LOW);
+			}
 		}
 	}
 	setAllowedCache();
@@ -686,7 +698,9 @@ void MSXCPUInterface::executeMemWatch(word address, WatchPoint::Type type)
 {
 	for (WatchPoints::const_iterator it = watchPoints.begin();
 	     it != watchPoints.end(); ++it) {
-		if (((*it)->getAddress() == address) && ((*it)->getType() == type)) {
+		if (((*it)->getBeginAddress() <= address) &&
+		    ((*it)->getEndAddress()   >= address) &&
+		    ((*it)->getType()         == type)) {
 			(*it)->checkAndExecute();
 		}
 	}

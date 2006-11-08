@@ -167,12 +167,16 @@ debug
     debug list_watchpoints
       List all defined watchpoints
 
-    debug set_watchpoint <type> <addr> [<cond>] [<cmd>]
+    debug set_watchpoint <type> <region> [<cond>] [<cmd>]
       Insert a new watchpoint. When the CPU is about to read or write to/from
-      the specified memory location or IO-port, the condition is evaluated. If
+      the specified memory or IO region, the condition is evaluated. If
       the condition evaluated to true, the command is executed.
       The condition and the command are similar to the ones in the 'set_bp'
       subcommand.
+      A watchpoint can either be set on a single memory address or IO port
+      (specify a single value), or on a whole memory or IO port range (specify
+      a begin/end pair). For example:
+        debug set_watchpoint write_mem {0x8000 0x8fff}
 
     debug remove_watchpoint <id>
       Remove a certain watchpoint

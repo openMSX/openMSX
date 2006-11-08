@@ -8,11 +8,13 @@
 namespace openmsx {
 
 MSXWatchIODevice::MSXWatchIODevice(MSXMotherBoard& motherboard,
-                                   WatchPoint::Type type, unsigned address,
+                                   WatchPoint::Type type, 
+                                   unsigned beginAddr, unsigned endAddr,
                                    std::auto_ptr<TclObject> command,
                                    std::auto_ptr<TclObject> condition)
 	: MSXMultiDevice(motherboard)
-	, WatchPoint(motherboard.getMSXCliComm(), command, condition, type, address)
+	, WatchPoint(motherboard.getMSXCliComm(), command, condition, type,
+	             beginAddr, endAddr)
 	, device(0)
 {
 }

@@ -448,11 +448,23 @@ void DebugCmd::setWatchPoint(const vector<TclObject*>& tokens,
 		} else {
 			throw CommandException("Invalid type: " + typeStr);
 		}
-		unsigned addr = tokens[3]->getInt();
-		if (addr >= max) {
-			throw CommandException("Invalid address");
+		unsigned beginAddr, endAddr;
+		if (tokens[3]->getListLength() == 2) {
+			beginAddr = tokens[3]->getListIndex(0).getInt();
+			endAddr   = tokens[3]->getListIndex(1).getInt();
+			if (endAddr < beginAddr) {
+				throw CommandException(
+					"Not a valid range: end address may "
+					"not be smaller than begin address.");
+			}
+		} else {
+			beginAddr = endAddr = tokens[3]->getInt();
 		}
-		wp.reset(new MSXWatchIODevice(debugger.motherBoard, type, addr,
+		if (endAddr >= max) {
+			throw CommandException("Invalid address: out of range");
+		}
+		wp.reset(new MSXWatchIODevice(debugger.motherBoard, type,
+		                              beginAddr, endAddr, 
 		                              command, condition));
 		break;
 	}
@@ -522,7 +534,16 @@ void DebugCmd::listWatchPoints(const vector<TclObject*>& /*tokens*/,
 			break;
 		}
 		line.addListElement(type);
-		line.addListElement("0x" + StringOp::toHexString(wp.getAddress(), 4));
+		unsigned beginAddr = wp.getBeginAddress();
+		unsigned endAddr   = wp.getEndAddress();
+		if (beginAddr == endAddr) {
+			line.addListElement("0x" + StringOp::toHexString(beginAddr, 4));
+		} else {
+			TclObject range(result.getInterpreter());
+			range.addListElement("0x" + StringOp::toHexString(beginAddr, 4));
+			range.addListElement("0x" + StringOp::toHexString(endAddr,   4));
+			line.addListElement(range);
+		}
 		line.addListElement(wp.getCondition());
 		line.addListElement(wp.getCommand());
 		res += line.getString() + '\n';
@@ -627,17 +648,22 @@ string DebugCmd::help(const vector<string>& tokens) const
 		"(default condition is empty). And the last column contains "
 		"the command that will be executed (default is 'debug break').\n";
 	static const string setWatchPointHelp =
-		"debug set_watchpoint <type> <addr> [<cond>] [<cmd>]\n"
-		"  Insert a new watchpoint of given type at the given address, "
+		"debug set_watchpoint <type> <region> [<cond>] [<cmd>]\n"
+		"  Insert a new watchpoint of given type on the given region, "
 		"there can be an optional condition and alternative command. See "
 		"the 'set_bp' subcommand for details about these last two.\n"
 		"  Type must be one of the following:\n"
-		"    read_io    break when CPU reads from given IO port\n"
-		"    write_io   break when CPU writes to given IO port\n"
-		"    read_mem   break when CPU reads from given memory location\n"
-		"    write_mem  break when CPU writes to given memory location\n"
-		"  Example:\n"
-		"    debug set_watchpoint write_io 0x99 {[reg A] == 0x81}\n";
+		"    read_io    break when CPU reads from given IO port(s)\n"
+		"    write_io   break when CPU writes to given IO port(s)\n"
+		"    read_mem   break when CPU reads from given memory location(s)\n"
+		"    write_mem  break when CPU writes to given memory location(s)\n"
+		"  Region is either a single value, this corresponds to a single "
+		"memory location or IO port. Otherwise region must be a list of "
+		"two values (enclosed in braces) that specify a begin and end "
+		"point of a whole memory region or a range of IO ports.\n"
+		"  Examples:\n"
+		"    debug set_watchpoint write_io 0x99 {[reg A] == 0x81}\n"
+		"    debug set_watchpoint read_mem {0xfbe5 0xfbef}\n";
 	static const string removeWatchPointHelp =
 		"debug remove_watchpoint <id>\n"
 		"  Remove the watchpoint with given ID again. You can use the "
