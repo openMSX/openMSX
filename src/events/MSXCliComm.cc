@@ -15,12 +15,12 @@ MSXCliComm::MSXCliComm(MSXMotherBoard& motherBoard_, GlobalCliComm& cliComm_)
 {
 }
 
-void MSXCliComm::log(CliComm::LogLevel level, const string& message)
+void MSXCliComm::log(LogLevel level, const string& message)
 {
 	cliComm.log(level, message);
 }
 
-void MSXCliComm::update(CliComm::UpdateType type, const string& name,
+void MSXCliComm::update(UpdateType type, const string& name,
                         const string& value)
 {
 	cliComm.update(type, motherBoard.getMSXCommandController().getNamespace(),
