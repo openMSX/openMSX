@@ -2,7 +2,6 @@
 
 #include "LedEvent.hh"
 #include "MSXMotherBoard.hh"
-#include "MSXCommandController.hh"
 
 namespace openmsx {
 
@@ -11,7 +10,7 @@ LedEvent::LedEvent(Led led_, bool status_, MSXMotherBoard& motherBoard)
 	, led(led_)
 	, status(status_)
 {
-	machine = motherBoard.getMSXCommandController().getNamespace();
+	machine = motherBoard.getMachineID();
 }
 
 LedEvent::Led LedEvent::getLed() const

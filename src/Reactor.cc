@@ -285,6 +285,8 @@ void Reactor::switchMotherBoard(std::auto_ptr<MSXMotherBoard> mb)
 	motherBoard = mb;
 	getEventDistributor().distributeEvent(
 		new SimpleEvent<OPENMSX_MACHINE_LOADED_EVENT>());
+	getGlobalCliComm().update(
+		CliComm::HARDWARE, motherBoard->getMachineID(), "select");
 }
 
 MSXMotherBoard* Reactor::getMotherBoard() const

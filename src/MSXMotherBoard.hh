@@ -16,6 +16,7 @@ class Reactor;
 class MSXDevice;
 class MachineConfig;
 class ExtensionConfig;
+class AddRemoveUpdate;
 class MSXCliComm;
 class MSXCommandController;
 class Scheduler;
@@ -54,6 +55,8 @@ class MSXMotherBoard : private Observer<Setting>, private noncopyable
 public:
 	explicit MSXMotherBoard(Reactor& reactor);
 	virtual ~MSXMotherBoard();
+
+	const std::string& getMachineID();
 
 	/**
 	 * Run emulation.
@@ -167,7 +170,8 @@ private:
 	virtual void update(const Setting& setting);
 
 	Reactor& reactor;
-	
+	std::string machineID;
+
 	typedef std::vector<MSXDevice*> Devices;
 	Devices availableDevices;
 
@@ -183,6 +187,7 @@ private:
 	Extensions extensions;
 
 	// order of auto_ptr's is important!
+	std::auto_ptr<AddRemoveUpdate> addRemoveUpdate;
 	std::auto_ptr<MSXCliComm> msxCliComm;
 	std::auto_ptr<MSXCommandController> msxCommandController;
 	std::auto_ptr<Scheduler> scheduler;

@@ -1,5 +1,8 @@
 $Id$
 
+2006-11-09 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added machine add/remove/select clicomm update 
+
 2006-11-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented watchpoint regions:
 	   see doc/commands.txt or 'help debug set_watchpoint'

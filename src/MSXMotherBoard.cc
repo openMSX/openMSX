@@ -6,6 +6,7 @@
 #include "MachineConfig.hh"
 #include "ExtensionConfig.hh"
 #include "MSXCliComm.hh"
+#include "GlobalCliComm.hh"
 #include "MSXCommandController.hh"
 #include "Scheduler.hh"
 #include "CartridgeSlotManager.hh"
@@ -39,6 +40,15 @@ using std::string;
 using std::vector;
 
 namespace openmsx {
+
+class AddRemoveUpdate
+{
+public:
+	AddRemoveUpdate(MSXMotherBoard& motherBoard);
+	~AddRemoveUpdate();
+private:
+	MSXMotherBoard& motherBoard;
+};
 
 class ResetCmd : public RecordedCommand
 {
@@ -126,6 +136,15 @@ void MSXMotherBoard::deleteMachine()
 	machineConfig.reset();
 }
 
+const std::string& MSXMotherBoard::getMachineID()
+{
+	if (machineID.empty()) {
+		static unsigned counter = 0;
+		machineID = "machine" + StringOp::toString(++counter);
+	}
+	return machineID;
+}
+
 const MachineConfig& MSXMotherBoard::getMachineConfig() const
 {
 	assert(machineConfig.get());
@@ -134,27 +153,24 @@ const MachineConfig& MSXMotherBoard::getMachineConfig() const
 
 void MSXMotherBoard::loadMachine(const string& machine)
 {
-	MachineConfig* newMachine;
+	assert(extensions.empty());
+	assert(!machineConfig.get());
 	try {
-		newMachine = new MachineConfig(*this, machine);
+		machineConfig.reset(new MachineConfig(*this, machine));
 	} catch (FileException& e) {
-		throw MSXException(
-			"Machine \"" + machine + "\" not found: " + e.getMessage()
-			);
+		throw MSXException("Machine \"" + machine + "\" not found: " +
+		                   e.getMessage());
 	} catch (MSXException& e) {
-		throw MSXException(
-			"Error in \"" + machine + "\" machine: " + e.getMessage()
-			);
+		throw MSXException("Error in \"" + machine + "\" machine: " +
+		                   e.getMessage());
 	}
-	deleteMachine();
-	machineConfig.reset(newMachine);
+	addRemoveUpdate.reset(new AddRemoveUpdate(*this));
 	try {
 		machineConfig->parseSlots();
 		machineConfig->createDevices();
 	} catch (MSXException& e) {
-		throw MSXException(
-			"Error in \"" + machine + "\" machine: " + e.getMessage()
-			);
+		throw MSXException("Error in \"" + machine + "\" machine: " +
+		                   e.getMessage());
 	}
 	if (powerSetting.getValue()) {
 		powerUp();
@@ -240,7 +256,7 @@ MSXCommandController& MSXMotherBoard::getMSXCommandController()
 {
 	if (!msxCommandController.get()) {
 		msxCommandController.reset(new MSXCommandController(
-			reactor.getGlobalCommandController()));
+			reactor.getGlobalCommandController(), *this));
 	}
 	return *msxCommandController;
 }
@@ -592,6 +608,23 @@ MSXMotherBoard::SharedStuff& MSXMotherBoard::getSharedStuff(
 {
 	return sharedStuffMap[name];
 }
+
+
+// AddRemoveUpdate
+
+AddRemoveUpdate::AddRemoveUpdate(MSXMotherBoard& motherBoard_)
+	: motherBoard(motherBoard_)
+{
+	motherBoard.getGlobalCliComm().update(
+		CliComm::HARDWARE, motherBoard.getMachineID(), "add");
+}
+
+AddRemoveUpdate::~AddRemoveUpdate()
+{
+	motherBoard.getGlobalCliComm().update(
+		CliComm::HARDWARE, motherBoard.getMachineID(), "remove");
+}
+
 
 // ResetCmd
 ResetCmd::ResetCmd(MSXMotherBoard& motherBoard_)

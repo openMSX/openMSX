@@ -11,16 +11,15 @@
 namespace openmsx {
 
 class GlobalCommandController;
+class MSXMotherBoard;
 class InfoCommand;
 
 class MSXCommandController : public CommandController, private noncopyable
 {
 public:
-	explicit MSXCommandController(
-	                     GlobalCommandController& globalCommandController);
+	MSXCommandController(GlobalCommandController& globalCommandController,
+	                     MSXMotherBoard& motherboard);
 	~MSXCommandController();
-
-	const std::string& getNamespace();
 
 	InfoCommand& getMachineInfoCommand();
 
@@ -53,9 +52,8 @@ public:
 
 private:
 	GlobalCommandController& globalCommandController;
+	MSXMotherBoard& motherboard;
 	std::auto_ptr<InfoCommand> machineInfoCommand;
-
-	std::string namespace_;
 
 	typedef std::map<std::string, Command*> CommandMap;
 	CommandMap commandMap;
