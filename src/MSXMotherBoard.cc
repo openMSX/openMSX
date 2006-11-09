@@ -32,6 +32,7 @@
 #include "GlobalSettings.hh"
 #include "Command.hh"
 #include "RecordedCommand.hh"
+#include "InfoTopic.hh"
 #include "FileException.hh"
 #include <cassert>
 
@@ -96,6 +97,17 @@ private:
 	MSXMotherBoard& motherBoard;
 };
 
+class MachineNameInfo : public InfoTopic
+{
+public:
+	MachineNameInfo(MSXMotherBoard& motherBoard);
+	virtual void execute(const vector<TclObject*>& tokens,
+	                     TclObject& result) const;
+	virtual string help(const vector<string>& tokens) const;
+private:
+	MSXMotherBoard& motherBoard;
+};
+
 
 MSXMotherBoard::MSXMotherBoard(Reactor& reactor_)
 	: reactor(reactor_)
@@ -107,6 +119,7 @@ MSXMotherBoard::MSXMotherBoard(Reactor& reactor_)
 	, listExtCommand  (new ListExtCmd  (*this))
 	, extCommand      (new ExtCmd      (*this))
 	, removeExtCommand(new RemoveExtCmd(*this))
+	, machineNameInfo (new MachineNameInfo(*this))
 	, powerSetting(getGlobalSettings().getPowerSetting())
 {
 	getMSXMixer().mute(); // powered down
@@ -145,6 +158,11 @@ const std::string& MSXMotherBoard::getMachineID()
 	return machineID;
 }
 
+const std::string& MSXMotherBoard::getMachineName() const
+{
+	return machineName;
+}
+
 const MachineConfig& MSXMotherBoard::getMachineConfig() const
 {
 	assert(machineConfig.get());
@@ -153,8 +171,11 @@ const MachineConfig& MSXMotherBoard::getMachineConfig() const
 
 void MSXMotherBoard::loadMachine(const string& machine)
 {
+	assert(machineName.empty());
 	assert(extensions.empty());
 	assert(!machineConfig.get());
+	machineName = machine;
+
 	try {
 		machineConfig.reset(new MachineConfig(*this, machine));
 	} catch (FileException& e) {
@@ -753,6 +774,27 @@ void RemoveExtCmd::tabCompletion(vector<string>& tokens) const
 		}
 		completeString(tokens, names);
 	}
+}
+
+
+// MachineNameInfo
+
+MachineNameInfo::MachineNameInfo(MSXMotherBoard& motherBoard_)
+	: InfoTopic(motherBoard_.getMSXCommandController().getMachineInfoCommand(),
+	            "config_name")
+	, motherBoard(motherBoard_)
+{
+}
+
+void MachineNameInfo::execute(const vector<TclObject*>& /*tokens*/,
+                              TclObject& result) const
+{
+	result.setString(motherBoard.getMachineName());
+}
+
+string MachineNameInfo::help(const vector<string>& /*tokens*/) const
+{
+	return "Returns the configuration name for this machine.";
 }
 
 } // namespace openmsx

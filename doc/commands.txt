@@ -328,10 +328,22 @@ machine
     openMSX. For interactive use it's not used much.
 
 
+machine_info
+------------
+
+  Shows information about a certain topic. This command is similar to the
+  openmsx_info command. The topics of 'machine_info' are all machine specific,
+  while the topics of 'openmsx_info' are generic.
+
+  usage:
+    machine_info          shows a list of all possible topics
+    machine_info <topic>  shows info on this specific topic
+
+
 openmsx_info
 ------------
 
-  Shows information about a certain topic.
+  Shows information about a certain topic. See also 'machine_info'.
 
   usage:
     openmsx_info          shows a list of all possible topics

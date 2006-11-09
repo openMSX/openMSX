@@ -5,6 +5,10 @@ $Id$
 	* Extended 'machine' command:
 	   - without parameters it returns the handle of the current machine
 	   - on a successful machine switch it also returns the handle
+	* Added 'machine_info config_name':
+	   - returns the configuartion name for the specified machine, the
+	     config name is the name that should be used in the 'machine'
+	     command to switch machine
 
 2006-11-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented watchpoint regions:

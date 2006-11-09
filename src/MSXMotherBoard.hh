@@ -49,6 +49,7 @@ class ResetCmd;
 class ListExtCmd;
 class ExtCmd;
 class RemoveExtCmd;
+class MachineNameInfo;
 
 class MSXMotherBoard : private Observer<Setting>, private noncopyable
 {
@@ -57,6 +58,7 @@ public:
 	virtual ~MSXMotherBoard();
 
 	const std::string& getMachineID();
+	const std::string& getMachineName() const;
 
 	/**
 	 * Run emulation.
@@ -171,6 +173,7 @@ private:
 
 	Reactor& reactor;
 	std::string machineID;
+	std::string machineName;
 
 	typedef std::vector<MSXDevice*> Devices;
 	Devices availableDevices;
@@ -211,6 +214,7 @@ private:
 	const std::auto_ptr<ListExtCmd>   listExtCommand;
 	const std::auto_ptr<ExtCmd>       extCommand;
 	const std::auto_ptr<RemoveExtCmd> removeExtCommand;
+	const std::auto_ptr<MachineNameInfo> machineNameInfo;
 	BooleanSetting& powerSetting;
 };
 
