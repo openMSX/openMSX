@@ -80,7 +80,7 @@ public:
 
 private:
 	void createMachineSetting();
-	void prepareMotherBoard(const std::string& machine);
+	MSXMotherBoard& prepareMotherBoard(const std::string& machine);
 	void switchMotherBoard(std::auto_ptr<MSXMotherBoard> mb);
 	void deleteMotherBoard();
 

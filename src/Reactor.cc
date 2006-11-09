@@ -258,7 +258,7 @@ void Reactor::createMotherBoard(const string& machine)
 	switchMotherBoard(newMotherBoard);
 }
 
-void Reactor::prepareMotherBoard(const string& machine)
+MSXMotherBoard& Reactor::prepareMotherBoard(const string& machine)
 {
 	// Locking rules for MSXMotherBoard object access:
 	//  - main thread can always access motherBoard without taking a lock
@@ -276,6 +276,7 @@ void Reactor::prepareMotherBoard(const string& machine)
 	tmp->loadMachine(machine);
 	newMotherBoard = tmp;
 	enterMainLoop();
+	return *newMotherBoard;
 }
 
 void Reactor::switchMotherBoard(std::auto_ptr<MSXMotherBoard> mb)
@@ -471,15 +472,20 @@ string MachineCommand::execute(const vector<string>& tokens)
 {
 	switch (tokens.size()) {
 	case 1: // get current machine
-		return "TODO";
+		if (MSXMotherBoard* motherBoard = reactor.getMotherBoard()) {
+			return motherBoard->getMachineID();
+		} else {
+			return "";
+		}
 	case 2:
 		try {
-			reactor.prepareMotherBoard(tokens[1]);
+			MSXMotherBoard& motherBoard =
+				reactor.prepareMotherBoard(tokens[1]);
+			return motherBoard.getMachineID();
 		} catch (MSXException& e) {
 			throw CommandException("Machine switching failed: " +
 			                       e.getMessage());
 		}
-		return "";
 	default:
 		throw SyntaxError();
 	}

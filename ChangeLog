@@ -2,6 +2,9 @@ $Id$
 
 2006-11-09 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added machine add/remove/select clicomm update 
+	* Extended 'machine' command:
+	   - without parameters it returns the handle of the current machine
+	   - on a successful machine switch it also returns the handle
 
 2006-11-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented watchpoint regions:

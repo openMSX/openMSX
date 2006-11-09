@@ -319,7 +319,13 @@ machine
   Switch to a new MSX machine.
 
   usage:
-    machine <machine name>   Switch to the specified machine
+    machine                  Returns the handle for the currently active machine
+    machine <machine name>   Switch to the specified machine, also returns the
+                             handle for that machine
+
+  note:
+    The machine handle mostly used for external applications controlling
+    openMSX. For interactive use it's not used much.
 
 
 openmsx_info
