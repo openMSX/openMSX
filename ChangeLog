@@ -1,5 +1,10 @@
 $Id$
 
+2006-11-10 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Applied pimple-idiom to MSXMotherboard:
+	   - will require less recompilations in the future: no longer when
+	     there are changes to private member variables or functions
+
 2006-11-09 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added machine add/remove/select clicomm update 
 	* Extended 'machine' command:

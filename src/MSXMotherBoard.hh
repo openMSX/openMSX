@@ -3,12 +3,10 @@
 #ifndef MSXMOTHERBOARD_HH
 #define MSXMOTHERBOARD_HH
 
-#include "Observer.hh"
 #include "noncopyable.hh"
 #include <memory>
 #include <vector>
 #include <string>
-#include <map>
 
 namespace openmsx {
 
@@ -16,7 +14,6 @@ class Reactor;
 class MSXDevice;
 class MachineConfig;
 class ExtensionConfig;
-class AddRemoveUpdate;
 class MSXCliComm;
 class MSXCommandController;
 class Scheduler;
@@ -42,20 +39,14 @@ class FilePool;
 class GlobalSettings;
 class GlobalCliComm;
 class CommandController;
-class BooleanSetting;
 class EmuTime;
-class Setting;
-class ResetCmd;
-class ListExtCmd;
-class ExtCmd;
-class RemoveExtCmd;
-class MachineNameInfo;
+class MSXMotherBoardImpl;
 
-class MSXMotherBoard : private Observer<Setting>, private noncopyable
+class MSXMotherBoard : private noncopyable
 {
 public:
 	explicit MSXMotherBoard(Reactor& reactor);
-	virtual ~MSXMotherBoard();
+	~MSXMotherBoard();
 
 	const std::string& getMachineID();
 	const std::string& getMachineName() const;
@@ -164,58 +155,10 @@ public:
 		void* stuff;
 	};
 	SharedStuff& getSharedStuff(const std::string& name);
-	
+
 private:
-	void deleteMachine();
-
-	// Observer<Setting>
-	virtual void update(const Setting& setting);
-
-	Reactor& reactor;
-	std::string machineID;
-	std::string machineName;
-
-	typedef std::vector<MSXDevice*> Devices;
-	Devices availableDevices;
-
-	bool powered;
-	bool needReset;
-	bool needPowerDown;
-	int blockedCounter;
-
-	typedef std::map<std::string, SharedStuff> SharedStuffMap;
-	SharedStuffMap sharedStuffMap;
-
-	std::auto_ptr<MachineConfig> machineConfig;
-	Extensions extensions;
-
-	// order of auto_ptr's is important!
-	std::auto_ptr<AddRemoveUpdate> addRemoveUpdate;
-	std::auto_ptr<MSXCliComm> msxCliComm;
-	std::auto_ptr<MSXCommandController> msxCommandController;
-	std::auto_ptr<Scheduler> scheduler;
-	std::auto_ptr<MSXEventDistributor> msxEventDistributor;
-	std::auto_ptr<CartridgeSlotManager> slotManager;
-	std::auto_ptr<EventDelay> eventDelay;
-	std::auto_ptr<EventTranslator> eventTranslator;
-	std::auto_ptr<RealTime> realTime;
-	std::auto_ptr<Debugger> debugger;
-	std::auto_ptr<MSXMixer> msxMixer;
-	std::auto_ptr<PluggingController> pluggingController;
-	std::auto_ptr<DummyDevice> dummyDevice;
-	std::auto_ptr<MSXCPU> msxCpu;
-	std::auto_ptr<MSXCPUInterface> msxCpuInterface;
-	std::auto_ptr<PanasonicMemory> panasonicMemory;
-	std::auto_ptr<MSXDeviceSwitch> deviceSwitch;
-	std::auto_ptr<CassettePortInterface> cassettePort;
-	std::auto_ptr<RenShaTurbo> renShaTurbo;
-
-	const std::auto_ptr<ResetCmd>     resetCommand;
-	const std::auto_ptr<ListExtCmd>   listExtCommand;
-	const std::auto_ptr<ExtCmd>       extCommand;
-	const std::auto_ptr<RemoveExtCmd> removeExtCommand;
-	const std::auto_ptr<MachineNameInfo> machineNameInfo;
-	BooleanSetting& powerSetting;
+	std::auto_ptr<MSXMotherBoardImpl> pimple;
+	friend class MSXMotherBoardImpl;
 };
 
 } // namespace openmsx

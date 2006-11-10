@@ -127,7 +127,7 @@ public:
 private:
 	// only for MSXMotherBoard
 	void execute();
-	friend class MSXMotherBoard;
+	friend class MSXMotherBoardImpl;
 
 	void wait(const EmuTime& time);
 	friend class VDPIODelay;
