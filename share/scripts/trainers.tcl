@@ -6632,8 +6632,46 @@ proc trainer_hustlechumy {} {
 	poke 0xe1d7 90 
 	poke 0xe1d9 0 
 	#level (1-99;0) 
-	#poke 0xe106 1 
+	#poke 0xe106 1 0
 	after time 1 trainer_hustlechumy 
+}
+
+proc trainer_3d_bomberman {} {
+	#lives	
+	poke 0xe80f 3
+	after time 1 trainer_3d_bomberman 
+}
+
+proc trainer_demonchristal {} {
+	#bombs	
+	poke 0xf007 9
+	poke 0xf008 9
+	#lives
+	poke 0xf009 9
+	poke 0xf00a 9
+	#keys
+	poke 0xf005 9
+	poke 0xf006 9
+	#time
+	poke 0xf00b 9
+	poke 0xf00c 9
+	poke 0xf00d 9
+	after time 1 trainer_demonchristal 
+}
+
+proc trainer_negroolipanda {} {
+	#power
+	poke 0xe2ed 99
+	after time 1 trainer_negroolipanda
+}
+
+proc trainer_ninjaprincess {} {
+	#lives
+	poke 0xe047 99
+	#partially invincible
+	poke 0xe200 0
+	poke 0xe343 0
+	after time 1 trainer_ninjaprincess
 }
 
 proc trainer_autofire {} {
