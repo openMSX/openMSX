@@ -62,7 +62,7 @@ static bool IMG_SavePNG_RW(int width, int height, png_bytep* row_pointers,
 	// TODO: add creation time?
 	png_text text[1];
 	text[0].compression = PNG_TEXT_COMPRESSION_NONE;
-	text[0].key = "Software";
+	text[0].key  = const_cast<char*>("Software");
 	text[0].text = const_cast<char*>(Version::FULL_VERSION.c_str());
 	png_set_text(png_ptr, info_ptr, text, 1);
 
