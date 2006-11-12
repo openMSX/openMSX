@@ -1317,6 +1317,8 @@ proc trainer_fantasyzone2 {} {
 	poke 0xe599 0x99
 	poke 0xe59a 0x99
 	poke 0xe59b 0x99
+	#lives
+	poke 0xe5ad 0x99
 	after time 1 trainer_finasyzone2
 }
 
@@ -2050,6 +2052,10 @@ proc trainer_fantasmsoldier2 {} {
 	poke 0xf937 255
 	#invincible
 	poke 0xf976 255
+	#pearls
+	poke 0xf969 99
+	#shot strength
+	poke 0xf977 4
 	after time 2 trainer_fantasmsoldier2
 }
 
@@ -3798,14 +3804,14 @@ proc trainer_gyrodine {} {
 	after time 30 trainer_gyrodine
 }
 
-proc trainer_superboyiii {} {
+proc trainer_superboy3 {} {
 	#grow big
 	poke 0xe190 255
 	#invincible
 	#!poke 0xe177 255
 	#time
 	poke 0xe18c 25
-	after time 1 trainer_superboyiii
+	after time 1 trainer_superboy3
 }
 
 proc trainer_zaxxon {} {
@@ -3817,10 +3823,12 @@ proc trainer_zaxxon {} {
 }
 
 proc trainer_carfighter {} {
-	#lives
+	#fuel
 	poke 0xe080 9
 	poke 0xe081 9
 	poke 0xe082 9
+	#bombs
+	poke 0xe30c 0x99
 	after time 30 trainer_carfighter
 }
 
@@ -3829,18 +3837,98 @@ proc trainer_aramo {} {
 	poke 0xc01c 255
 	#power
 	poke 0xc02b 255
-	#get jump boots and equip
-	#!poke 0xc05b 255
-	#!poke 0xc078 255
-	after time 5 trainer_aramo
+	#knife
+	poke 0xc052 255
+	#axe
+	poke 0xc053 255
+	#sword
+	poke 0xc054 255
+	#shield a
+	poke 0xc055 255
+	#shield b
+	poke 0xc056 255
+	#armor a
+	poke 0xc057 255
+	#armor b
+	poke 0xc058 255
+	#ring
+	poke 0xc059 255
+	#lamp
+	poke 0xc05a 255
+	#jump boots
+	poke 0xc05b 255
+	#trubo belt
+	poke 0xc05c 255
+	#jet boots
+	poke 0xc05d 255
+	#pendant
+	poke 0xc05e 255
+	#bracelet
+	poke 0xc05f 255
+	#blaster
+	poke 0xc060 255
+	#gun
+	poke 0xc061 255
+	#fire gun
+	poke 0xc062 255
+	#key
+	poke 0xc063 255
+	#bottle
+	poke 0xc064 255
+	#potion
+	poke 0xc065 255
+	#medicine
+	poke 0xc066 255
+	after time 1 trainer_aramo
 }
 
-proc trainer_hydlide1 {} {
+proc trainer_hydlide1_msx1 {} {
 	#level up after killing one enemy
 	poke 0xe004 100
 	#power
 	poke 0xe002 100
-	after time 1 trainer_hydlide1
+	after time 1 trainer_hydlide1_msx1
+}
+
+proc trainer_hydlide1_msx2 {} {
+	#level up after killing one enemy
+	poke 0xa7be 100
+	#power
+	poke 0xa7bc 100
+	#stats max
+	poke 0xa7bd 100
+	poke 0xa7bf 9
+	poke 0xa7c3 100
+
+	#sword
+	poke 0xa7ce 255
+	#shield
+	poke 0xa7cf 255
+	#lamp
+	poke 0xa7d0 255	
+	#cross
+	poke 0xa7d1 255
+	#water can
+	poke 0xa7d2 255
+	#tea pot
+	poke 0xa7d3 255
+	#key
+	poke 0xa7d4 255
+	#blue christal
+	poke 0xa7d5 255
+	#pink christal
+	poke 0xa7d6 255
+	#green christal
+	poke 0xa7d7 255
+	
+	#fairy 1
+	poke 0xa7d8 255
+	#fairy 2
+	poke 0xa7d9 255
+	#fairy 3
+	poke 0xa7da 255
+
+	after time 1 trainer_hydlide1_msx2
 }
 
 proc trainer_decathlon {} {
