@@ -30,6 +30,7 @@ class Setting;
 class CommandLineParser;
 class QuitCommand;
 class MachineCommand;
+class TestMachineCommand;
 class ConfigInfo;
 class GlobalSettings;
 template <typename T> class EnumSetting;
@@ -125,6 +126,7 @@ private:
 
 	const std::auto_ptr<QuitCommand> quitCommand;
 	const std::auto_ptr<MachineCommand> machineCommand;
+	const std::auto_ptr<TestMachineCommand> testMachineCommand;
 	const std::auto_ptr<ConfigInfo> extensionInfo;
 	const std::auto_ptr<ConfigInfo> machineInfo;
 

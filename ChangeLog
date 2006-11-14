@@ -12,6 +12,9 @@ $Id$
 	   - TODO: a similar optimization is possible for SDLGL-PP hq and
 	     SDL hq/hqlite. Although there the speed improvent might not be
 	     as big
+	* Added 'test_machine' command (see 'help test_machine'):
+	   - initial version, details on how success/failure is reported
+	     can still change
 
 2006-11-10 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Applied pimple-idiom to MSXMotherboard:

@@ -54,6 +54,17 @@ private:
 	Reactor& reactor;
 };
 
+class TestMachineCommand : public SimpleCommand
+{
+public:
+	TestMachineCommand(CommandController& commandController, Reactor& reactor);
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
+private:
+	Reactor& reactor;
+};
+
 class PollEventGenerator : private Alarm
 {
 public:
@@ -85,6 +96,7 @@ Reactor::Reactor()
 	, pauseSetting(getGlobalSettings().getPauseSetting())
 	, quitCommand(new QuitCommand(getCommandController(), *this))
 	, machineCommand(new MachineCommand(getCommandController(), *this))
+	, testMachineCommand(new TestMachineCommand(getCommandController(), *this))
 	, extensionInfo(new ConfigInfo(
 	       getGlobalCommandController().getOpenMSXInfoCommand(),
 	       "extensions"))
@@ -497,6 +509,44 @@ string MachineCommand::help(const vector<string>& /*tokens*/) const
 }
 
 void MachineCommand::tabCompletion(vector<string>& tokens) const
+{
+	set<string> machines;
+	Reactor::getHwConfigs("machines", machines);
+	completeString(tokens, machines);
+}
+
+
+// class TestMachineCommand
+
+TestMachineCommand::TestMachineCommand(CommandController& commandController,
+                                       Reactor& reactor_)
+	: SimpleCommand(commandController, "test_machine")
+	, reactor(reactor_)
+{
+}
+
+string TestMachineCommand::execute(const vector<string>& tokens)
+{
+	if (tokens.size() != 2) {
+		throw SyntaxError();
+	}
+	try {
+		MSXMotherBoard mb(reactor);
+		mb.loadMachine(tokens[1]);
+		return ""; // success
+	} catch (MSXException& e) {
+		return e.getMessage(); // error
+	}
+}
+
+string TestMachineCommand::help(const vector<string>& /*tokens*/) const
+{
+	return "Test the configuration for the given machine. "
+	       "Returns an error message explaining why the configuration is "
+	       "invalid or an empty string in case of success.";
+}
+
+void TestMachineCommand::tabCompletion(vector<string>& tokens) const
 {
 	set<string> machines;
 	Reactor::getHwConfigs("machines", machines);
