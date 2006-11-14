@@ -1,5 +1,18 @@
 $Id$
 
+2006-11-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Optimized SDLGL-PP hqlite scaler:
+	   - optimized edge-bits calculation:
+	      - change position of the bits so that it's easier (less shifts)
+	        to reuse bits from the left and top neighbour
+	      - calculate two pixels at once using 32-bit (iso 16-bit) bit
+	        manipulations
+	   - I measured 25% speedup on my system (for 2x and 3x because these
+	     are CPU limited, 4x is GPU limited here)
+	   - TODO: a similar optimization is possible for SDLGL-PP hq and
+	     SDL hq/hqlite. Although there the speed improvent might not be
+	     as big
+
 2006-11-10 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Applied pimple-idiom to MSXMotherboard:
 	   - will require less recompilations in the future: no longer when
