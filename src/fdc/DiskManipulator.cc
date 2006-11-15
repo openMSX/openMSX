@@ -454,7 +454,7 @@ void DiskManipulator::chdir(DriveSettings& driveData,
 	if (filename.find_first_of("/") == 0) {
 		cwd = filename;
 	} else {
-		if (cwd[cwd.size() - 1] != '/') cwd += '/';
+		if (*cwd.rbegin() != '/') cwd += '/';
 		cwd += filename;
 	}
 	result += "New working directory: " + cwd;

@@ -175,7 +175,7 @@ string expandTilde(const string& path)
 	if (pos == string::npos) {
 		return result;
 	}
-	if (result[result.size() - 1] != '/') {
+	if (*result.rbegin() != '/') {
 		result += '/';
 	}
 	result += path.substr(pos + 1);
@@ -372,20 +372,20 @@ string expandCurrentDirFromDrive(const string& path)
 {
 	string result = path;
 #ifdef _WIN32
-	if (((path.size() == 2) && (path[1]==':')) ||
-		((path.size() >=3) && (path[1]==':') && (path[2] != '/'))){
+	if (((path.size() == 2) && (path[1] == ':')) ||
+		((path.size() >= 3) && (path[1] == ':') && (path[2] != '/'))) {
 		// get current directory for this drive
 		unsigned char drive = tolower(path[0]);
-		if (('a' <= drive) && (drive <='z')){
-			char buffer [MAX_PATH + 1];
-			if (_getdcwd(drive - 'a' +1, buffer, MAX_PATH) != NULL){
+		if (('a' <= drive) && (drive <= 'z')) {
+			char buffer[MAX_PATH + 1];
+			if (_getdcwd(drive - 'a' + 1, buffer, MAX_PATH) != NULL) {
 				result = buffer;
 				result = getConventionalPath(result);
-				if (result[result.size()-1] != '/'){
-					result.append("/");
+				if (*result.rbegin() != '/') {
+					result += '/';
 				}
-				if (path.size() >2){
-					result.append(path.substr(2));
+				if (path.size() > 2) {
+					result += path.substr(2);
 				}
 			}
 		}

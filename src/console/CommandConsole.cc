@@ -227,7 +227,7 @@ unsigned CommandConsole::getOutputColumns() const
 
 void CommandConsole::print(string text)
 {
-	if (text.empty() || (text[text.size() - 1] != '\n')) text += '\n';
+	if (text.empty() || (*text.rbegin() != '\n')) text += '\n';
 	while (!text.empty()) {
 		string::size_type pos = text.find('\n');
 		newLineConsole(text.substr(0, pos));

@@ -196,7 +196,7 @@ UserFileContext::UserFileContext(CommandController& commandController,
 				if (path.empty()) {
 					continue;
 				}
-				if (path[path.length() - 1] != '/') {
+				if (*path.rbegin() != '/') {
 					path += '/';
 				}
 				path = FileOperations::expandTilde(path);
