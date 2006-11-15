@@ -4,6 +4,9 @@ $Id$
 	* Optimized SDLGL-PP hq scaler:
 	   - used same tricks as the hqlite scaler (see 2006-11-14)
 	   - share more code between SDLGL-PP hq and hqlite scaler
+	* Optimized hq edge calculation:
+	   - applies for both SDL and SDLGL-PP hq scaler
+	   - another 3% speedup for SDLGL-PP hq (only measured this one)
 
 2006-11-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimized SDLGL-PP hqlite scaler:
