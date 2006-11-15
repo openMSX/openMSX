@@ -14,9 +14,10 @@ varying vec2 texStep2; // could be uniform
 void main()
 {
 	float edgeBits = texture2D(edgeTex, edgePos).z;
+	//gl_FragColor = vec4(edgeBits, fract(edgeBits * 16.0), fract(edgeBits * 256.0), 1.0);
 	
 	// transform (N x N x 4096) to (64N x 64N) texture coords
-	float t = 64.0 * edgeBits - 64.0/8192.0;
+	float t = 64.0 * edgeBits;
 	vec2 xy = vec2(fract(t), floor(t)/64.0);
 	xy += fract(weightPos) / 64.0;
 	vec4 offsets = texture2D(offsetTex, xy);

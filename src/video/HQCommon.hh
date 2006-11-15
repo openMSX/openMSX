@@ -6,6 +6,7 @@
 #include "FrameSource.hh"
 #include "OutputSurface.hh"
 #include "LineScalers.hh"
+#include "build-info.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -87,6 +88,110 @@ static inline bool edge(unsigned c1, unsigned c2)
 	if (dv < -0x30 || dv > 0x30) return true;
 
 	return false;
+}
+
+struct EdgeHQ
+{
+	inline bool operator()(unsigned c1, unsigned c2) const
+	{
+		return edge(c1, c2);
+	}
+};
+
+struct EdgeHQLite
+{
+	inline bool operator()(unsigned c1, unsigned c2) const
+	{
+		return c1 != c2;
+	}
+};
+
+template <typename EdgeOp>
+void calcEdgesGL(const unsigned* curr, const unsigned* next,
+                 unsigned* edges2, EdgeOp edgeOp)
+{
+	typedef unsigned Pixel;
+	if (OPENMSX_BIGENDIAN) {
+		unsigned pattern = 0;
+		Pixel c5 = curr[0];
+		Pixel c8 = next[0];
+		if (edgeOp(c5, c8)) pattern |= 0x1400;
+
+		for (unsigned xx = 0; xx < (320 - 2) / 2; ++xx) {
+			pattern = (pattern << (16 + 1)) & 0xA8000000;
+			pattern |= ((edges2[xx] >> 5) & 0x01F001F0);
+
+			if (edgeOp(c5, c8)) pattern |= 0x02000000;
+			Pixel c6 = curr[2 * xx + 1];
+			if (edgeOp(c6, c8)) pattern |= 0x10002000;
+			if (edgeOp(c5, c6)) pattern |= 0x40008000;
+			Pixel c9 = next[2 * xx + 1];
+			if (edgeOp(c5, c9)) pattern |= 0x04000800;
+
+			if (edgeOp(c6, c9)) pattern |= 0x0200;
+			c5 = curr[2 * xx + 2];
+			if (edgeOp(c5, c9)) pattern |= 0x1000;
+			if (edgeOp(c6, c5)) pattern |= 0x4000;
+			c8 = next[2 * xx + 2];
+			if (edgeOp(c6, c8)) pattern |= 0x0400;
+
+			edges2[xx + 320 / 2] = pattern;
+		}
+
+		pattern = (pattern << (16 + 1)) & 0xA8000000;
+		pattern |= ((edges2[159] >> 5) & 0x01F001F0);
+
+		if (edgeOp(c5, c8)) pattern |= 0x02000000;
+		Pixel c6 = curr[319];
+		if (edgeOp(c6, c8)) pattern |= 0x10002000;
+		if (edgeOp(c5, c6)) pattern |= 0x40008000;
+		Pixel c9 = next[319];
+		if (edgeOp(c5, c9)) pattern |= 0x04000800;
+
+		if (edgeOp(c6, c9)) pattern |= 0x1600;
+
+		edges2[159 + 320 / 2] = pattern;
+	} else {
+		unsigned pattern = 0;
+		Pixel c5 = curr[0];
+		Pixel c8 = next[0];
+		if (edgeOp(c5, c8)) pattern |= 0x14000000;
+
+		for (unsigned xx = 0; xx < (320 - 2) / 2; ++xx) {
+			pattern = (pattern >> (16 -1)) & 0xA800;
+			pattern |= ((edges2[xx] >> 5) & 0x01F001F0);
+
+			if (edgeOp(c5, c8)) pattern |= 0x0200;
+			Pixel c6 = curr[2 * xx + 1];
+			if (edgeOp(c6, c8)) pattern |= 0x20001000;
+			if (edgeOp(c5, c6)) pattern |= 0x80004000;
+			Pixel c9 = next[2 * xx + 1];
+			if (edgeOp(c5, c9)) pattern |= 0x08000400;
+
+			if (edgeOp(c6, c9)) pattern |= 0x02000000;
+			c5 = curr[2 * xx + 2];
+			if (edgeOp(c5, c9)) pattern |= 0x10000000;
+			if (edgeOp(c6, c5)) pattern |= 0x40000000;
+			c8 = next[2 * xx + 2];
+			if (edgeOp(c6, c8)) pattern |= 0x04000000;
+
+			edges2[xx + 320 / 2] = pattern;
+		}
+
+		pattern = (pattern >> (16 -1)) & 0xA800;
+		pattern |= ((edges2[159] >> 5) & 0x01F001F0);
+
+		if (edgeOp(c5, c8)) pattern |= 0x0200;
+		Pixel c6 = curr[319];
+		if (edgeOp(c6, c8)) pattern |= 0x20001000;
+		if (edgeOp(c5, c6)) pattern |= 0x80004000;
+		Pixel c9 = next[319];
+		if (edgeOp(c5, c9)) pattern |= 0x08000400;
+
+		if (edgeOp(c6, c9)) pattern |= 0x16000000;
+
+		edges2[159 + 320 / 2] = pattern;
+	}
 }
 
 template <typename Pixel>

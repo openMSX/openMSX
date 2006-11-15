@@ -2,12 +2,13 @@
 
 #include "GLHQLiteScaler.hh"
 #include "GLUtil.hh"
+#include "HQCommon.hh"
 #include "FrameSource.hh"
 #include "FileContext.hh"
 #include "File.hh"
 #include "StringOp.hh"
 #include "openmsx.hh"
-#include "build-info.hh"
+#include <string.h>
 
 using std::string;
 
@@ -120,180 +121,29 @@ void GLHQLiteScaler::scaleImage(
 }
 
 typedef unsigned Pixel;
-static void calcInitialEdgesGL(const Pixel* curr, const Pixel* next,
-                               unsigned* edges2)
-{
-	if (OPENMSX_BIGENDIAN) {
-		Pixel c5 = curr[0];
-		Pixel c8 = next[0];
-		unsigned pattern = 0;
-		if (c5 != c8) pattern |= 0x1400;
-
-		for (unsigned xx = 0; xx < (320 - 2) / 2; ++xx) {
-			pattern = (pattern << (16 + 1)) & 0xA8000000;
-
-			if (c5 != c8) pattern |= 0x02000000;
-			Pixel c6 = curr[2 * xx + 1];
-			if (c6 != c8) pattern |= 0x10002000;
-			Pixel c9 = next[2 * xx + 1];
-			if (c5 != c9) pattern |= 0x04000800;
-
-			if (c6 != c9) pattern |= 0x0200;
-			c5 = curr[2 * xx + 2];
-			if (c5 != c9) pattern |= 0x1000;
-			c8 = next[2 * xx + 2];
-			if (c6 != c8) pattern |= 0x0400;
-
-			edges2[xx + 320 / 2] = pattern;
-		}
-
-		pattern = (pattern << (16 + 1)) & 0xA8000000;
-
-		if (c5 != c8) pattern |= 0x02000000;
-		Pixel c6 = curr[319];
-		if (c6 != c8) pattern |= 0x10002000;
-		Pixel c9 = next[319];
-		if (c5 != c9) pattern |= 0x04000800;
-
-		if (c6 != c9) pattern |= 0x1600;
-
-		edges2[159 + 320 / 2] = pattern;
-	} else {
-		Pixel c5 = curr[0];
-		Pixel c8 = next[0];
-		unsigned pattern = 0;
-		if (c5 != c8) pattern |= 0x14000000;
-
-		for (unsigned xx = 0; xx < (320 - 2) / 2; ++xx) {
-			pattern = (pattern >> (16 - 1)) & 0xA800;
-
-			if (c5 != c8) pattern |= 0x0200;
-			Pixel c6 = curr[2 * xx + 1];
-			if (c6 != c8) pattern |= 0x20001000;
-			Pixel c9 = next[2 * xx + 1];
-			if (c5 != c9) pattern |= 0x08000400;
-
-			if (c6 != c9) pattern |= 0x02000000;
-			c5 = curr[2 * xx + 2];
-			if (c5 != c9) pattern |= 0x10000000;
-			c8 = next[2 * xx + 2];
-			if (c6 != c8) pattern |= 0x04000000;
-
-			edges2[xx + 320 / 2] = pattern;
-		}
-
-		pattern = (pattern >> (16 - 1)) & 0xA800;
-
-		if (c5 != c8) pattern |= 0x0200;
-		Pixel c6 = curr[319];
-		if (c6 != c8) pattern |= 0x20001000;
-		Pixel c9 = next[319];
-		if (c5 != c9) pattern |= 0x08000400;
-
-		if (c6 != c9) pattern |= 0x16000000;
-
-		edges2[159 + 320 / 2] = pattern;
-	}
-}
-
 void GLHQLiteScaler::uploadBlock(
 	unsigned srcStartY, unsigned srcEndY, unsigned lineWidth,
 	FrameSource& paintFrame)
 {
 	if (lineWidth != 320) return;
 
-	unsigned edgeBuf2[(320 / 2) * (240 + 1)];
+	unsigned edgeBuf2[(320 / 2) * (240 + 2)];
+	#ifndef NDEBUG
+	// Avoid UMR. In optimized mode we don't care.
+	memset(edgeBuf2, 0, (320 / 2) * sizeof(unsigned));
+	#endif
+
 	Pixel* dummy = 0;
 	const Pixel* curr = paintFrame.getLinePtr(srcStartY - 1, lineWidth, dummy);
 	const Pixel* next = paintFrame.getLinePtr(srcStartY + 0, lineWidth, dummy);
-	calcInitialEdgesGL(curr, next, edgeBuf2);
+	calcEdgesGL(curr, next, edgeBuf2, EdgeHQLite());
 
 	for (unsigned y = srcStartY; y < srcEndY; ++y) {
 		curr = next;
 		next = paintFrame.getLinePtr(y + 1, lineWidth, dummy);
 
-		unsigned* edges2 = &edgeBuf2[(320 / 2) * (y - srcStartY)];
-		if (OPENMSX_BIGENDIAN) {
-			unsigned pattern = 0;
-			Pixel c5 = curr[0];
-			Pixel c8 = next[0];
-			if (c5 != c8) pattern |= 0x1400;
-
-			for (unsigned xx = 0; xx < (320 - 2) / 2; ++xx) {
-				pattern = (pattern << (16 + 1)) & 0xA8000000;
-				pattern |= ((edges2[xx] >> 5) & 0x01F001F0);
-
-				if (c5 != c8) pattern |= 0x02000000;
-				Pixel c6 = curr[2 * xx + 1];
-				if (c6 != c8) pattern |= 0x10002000;
-				if (c5 != c6) pattern |= 0x40008000;
-				Pixel c9 = next[2 * xx + 1];
-				if (c5 != c9) pattern |= 0x04000800;
-
-				if (c6 != c9) pattern |= 0x0200;
-				c5 = curr[2 * xx + 2];
-				if (c5 != c9) pattern |= 0x1000;
-				if (c6 != c5) pattern |= 0x4000;
-				c8 = next[2 * xx + 2];
-				if (c6 != c8) pattern |= 0x0400;
-
-				edges2[xx + 320 / 2] = pattern;
-			}
-
-			pattern = (pattern << (16 + 1)) & 0xA8000000;
-			pattern |= ((edges2[159] >> 5) & 0x01F001F0);
-
-			if (c5 != c8) pattern |= 0x02000000;
-			Pixel c6 = curr[319];
-			if (c6 != c8) pattern |= 0x10002000;
-			if (c5 != c6) pattern |= 0x40008000;
-			Pixel c9 = next[319];
-			if (c5 != c9) pattern |= 0x04000800;
-
-			if (c6 != c9) pattern |= 0x1600;
-
-			edges2[159 + 320 / 2] = pattern;
-		} else {
-			unsigned pattern = 0;
-			Pixel c5 = curr[0];
-			Pixel c8 = next[0];
-			if (c5 != c8) pattern |= 0x14000000;
-
-			for (unsigned xx = 0; xx < (320 - 2) / 2; ++xx) {
-				pattern = (pattern >> (16 -1)) & 0xA800;
-				pattern |= ((edges2[xx] >> 5) & 0x01F001F0);
-
-				if (c5 != c8) pattern |= 0x0200;
-				Pixel c6 = curr[2 * xx + 1];
-				if (c6 != c8) pattern |= 0x20001000;
-				if (c5 != c6) pattern |= 0x80004000;
-				Pixel c9 = next[2 * xx + 1];
-				if (c5 != c9) pattern |= 0x08000400;
-
-				if (c6 != c9) pattern |= 0x02000000;
-				c5 = curr[2 * xx + 2];
-				if (c5 != c9) pattern |= 0x10000000;
-				if (c6 != c5) pattern |= 0x40000000;
-				c8 = next[2 * xx + 2];
-				if (c6 != c8) pattern |= 0x04000000;
-
-				edges2[xx + 320 / 2] = pattern;
-			}
-
-			pattern = (pattern >> (16 -1)) & 0xA800;
-			pattern |= ((edges2[159] >> 5) & 0x01F001F0);
-
-			if (c5 != c8) pattern |= 0x0200;
-			Pixel c6 = curr[319];
-			if (c6 != c8) pattern |= 0x20001000;
-			if (c5 != c6) pattern |= 0x80004000;
-			Pixel c9 = next[319];
-			if (c5 != c9) pattern |= 0x08000400;
-
-			if (c6 != c9) pattern |= 0x16000000;
-
-			edges2[159 + 320 / 2] = pattern;
-		}
+		unsigned* edges2 = &edgeBuf2[(320 / 2) * (y - srcStartY + 1)];
+		calcEdgesGL(curr, next, edges2, EdgeHQLite());
 	}
 
 	edgeTexture->bind();
@@ -305,7 +155,7 @@ void GLHQLiteScaler::uploadBlock(
 	                srcEndY - srcStartY, // height
 	                GL_LUMINANCE,        // format
 	                GL_UNSIGNED_SHORT,   // type
-	                &edgeBuf2[320 / 2]);  // data
+	                &edgeBuf2[2 * (320 / 2)]); // data
 }
 
 } // namespace openmsx

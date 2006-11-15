@@ -8,6 +8,7 @@
 #include "File.hh"
 #include "StringOp.hh"
 #include "openmsx.hh"
+#include <string.h>
 
 using std::string;
 
@@ -140,69 +141,29 @@ void GLHQScaler::scaleImage(
 }
 
 typedef unsigned Pixel;
-static void calcInitialEdgesGL(const Pixel* srcPrev, const Pixel* srcCurr,
-                               unsigned lineWidth, word* edgeBuf)
-{
-	unsigned x = 0;
-	Pixel c1 = srcPrev[x];
-	Pixel c2 = srcCurr[x];
-	word pattern = edge(c1, c2) ? (3 << (6 + 4)) : 0;
-	for (/* */; x < (lineWidth - 1); ++x) {
-		pattern >>= 6;
-		Pixel n1 = srcPrev[x + 1];
-		Pixel n2 = srcCurr[x + 1];
-		if (edge(c1, c2)) pattern |= (1 << (5 + 4));
-		if (edge(c1, n2)) pattern |= (1 << (6 + 4));
-		if (edge(c2, n1)) pattern |= (1 << (7 + 4));
-		edgeBuf[x] = pattern;
-		c1 = n1; c2 = n2;
-	}
-	pattern >>= 6;
-	if (edge(c1, c2)) pattern |= (7 << (5 + 4));
-	edgeBuf[x] = pattern;
-}
 void GLHQScaler::uploadBlock(
 	unsigned srcStartY, unsigned srcEndY, unsigned lineWidth,
 	FrameSource& paintFrame)
 {
 	if (lineWidth != 320) return;
 
-	word edgeBuf[320 * (240 + 1)];
+	unsigned edgeBuf2[(320 / 2) * (240 + 2)];
+	#ifndef NDEBUG
+	// Avoid UMR. In optimized mode we don't care.
+	memset(edgeBuf2, 0, (320 / 2) * sizeof(unsigned));
+	#endif
+
 	Pixel* dummy = 0;
 	const Pixel* curr = paintFrame.getLinePtr(srcStartY - 1, lineWidth, dummy);
 	const Pixel* next = paintFrame.getLinePtr(srcStartY + 0, lineWidth, dummy);
-	calcInitialEdgesGL(curr, next, lineWidth, edgeBuf);
+	calcEdgesGL(curr, next, edgeBuf2, EdgeHQ());
 
 	for (unsigned y = srcStartY; y < srcEndY; ++y) {
 		curr = next;
 		next = paintFrame.getLinePtr(y + 1, lineWidth, dummy);
 
-		word* edges = &edgeBuf[320 * (y - srcStartY)];
-		unsigned pattern = 0;
-		unsigned c6 = curr[0];
-		unsigned c9 = next[0];
-		if (edge(c6, c9))              pattern |= 3 << (6 + 4);
-		if (edges[0] & (1 << (0 + 4))) pattern |= 3 << (9 + 4);
-		unsigned x = 0;
-		for (/* */; x < (lineWidth - 1); ++x) {
-			unsigned c5 = c6;
-			unsigned c8 = c9;
-			c6 = curr[x + 1];
-			c9 = next[x + 1];
-			pattern = (pattern >> 6) & (0x001F << 4);
-			if (edge(c5, c8)) pattern |= 1 << (5 + 4);
-			if (edge(c5, c9)) pattern |= 1 << (6 + 4);
-			if (edge(c6, c8)) pattern |= 1 << (7 + 4);
-			if (edge(c5, c6)) pattern |= 1 << (8 + 4);
-			pattern |= ((edges[x] & (1 << (5 + 4))) << 6) |
-				   ((edges[x] & (3 << (6 + 4))) << 3);
-			edges[x + 320] = pattern | 8;
-		}
-		pattern = (pattern >> 6) & (0x001F << 4);
-		if (edge(c6, c9)) pattern |= 7 << (5 + 4);
-		pattern |= ((edges[x] & (1 << (5 + 4))) << 6) |
-			   ((edges[x] & (3 << (6 + 4))) << 3);
-		edges[x + 320] = pattern | 8;
+		unsigned* edges2 = &edgeBuf2[(320 / 2) * (y - srcStartY + 1)];
+		calcEdgesGL(curr, next, edges2, EdgeHQ());
 	}
 
 	edgeTexture->bind();
@@ -214,7 +175,7 @@ void GLHQScaler::uploadBlock(
 	                srcEndY - srcStartY, // height
 	                GL_LUMINANCE,        // format
 	                GL_UNSIGNED_SHORT,   // type
-	                &edgeBuf[320]);      // data
+	                &edgeBuf2[2 * (320 / 2)]); // data
 }
 
 } // namespace openmsx

@@ -1,5 +1,10 @@
 $Id$
 
+2006-11-15 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Optimized SDLGL-PP hq scaler:
+	   - used same tricks as the hqlite scaler (see 2006-11-14)
+	   - share more code between SDLGL-PP hq and hqlite scaler
+
 2006-11-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimized SDLGL-PP hqlite scaler:
 	   - optimized edge-bits calculation:
