@@ -19,8 +19,7 @@ void main()
 	vec3 t2 = vec3(t1, y);
 	vec4 col1 = texture2D(tex, t2.xz);
 	vec4 col2 = texture2D(tex, t2.yz);
-	vec4 col = mix(col1, col2, 0.5);
 
 	float scan = scan_c + scan_b * abs(fract(scaled.y) - scan_a);
-	gl_FragColor = col * scan;
+	gl_FragColor = (col1 + col2) * scan;
 }

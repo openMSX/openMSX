@@ -1,5 +1,12 @@
 $Id$
 
+2006-11-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Speedup SDLGL-PP simple scaler:
+	   - taking the average of two pixels and multiplying that with a
+	     constant is the same as summing the two pixels and multiplying by
+	     that contant/2.
+	   - 7% faster here (in 4x)
+
 2006-11-15 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimized SDLGL-PP hq scaler:
 	   - used same tricks as the hqlite scaler (see 2006-11-14)

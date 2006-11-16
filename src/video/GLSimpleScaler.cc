@@ -47,8 +47,8 @@ void GLSimpleScaler::scaleImage(
 		glUniform2f(texSizeLoc, srcWidth, height);
 		glUniform1f(alphaLoc, blur);
 		glUniform1f(scanALoc, a);
-		glUniform1f(scanBLoc, 2.0f * (1.0f - scanline));
-		glUniform1f(scanCLoc, scanline);
+		glUniform1f(scanBLoc, 1.0f - scanline);
+		glUniform1f(scanCLoc, scanline * 0.5f);
 	}
 	src.drawRect(0.0f,  srcStartY            / height,
 	             1.0f, (srcEndY - srcStartY) / height,
