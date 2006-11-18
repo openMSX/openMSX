@@ -19,6 +19,8 @@ namespace openmsx {
 
 template <typename Pixel> struct HQLite_1x1on3x3
 {
+	typedef EdgeHQLite EdgeOp;
+
 	void operator()(const Pixel* in0, const Pixel* in1, const Pixel* in2,
 	                Pixel* out0, Pixel* out1, Pixel* out2,
 	                unsigned srcWidth, unsigned* edgeBuf);
@@ -31,9 +33,9 @@ void HQLite_1x1on3x3<Pixel>::operator()(
 	unsigned* edgeBuf)
 {
 	unsigned c2, c4, c5, c6, c8, c9;
-	c2 = readPixel(in0);
-	c5 = c6 = readPixel(in1);
-	c8 = c9 = readPixel(in2);
+	c2 =      readPixel(in0[0]);
+	c5 = c6 = readPixel(in1[0]);
+	c8 = c9 = readPixel(in2[0]);
 
 	unsigned pattern = 0;
 	if (c5 != c8) pattern |= 3 <<  6;
@@ -41,11 +43,9 @@ void HQLite_1x1on3x3<Pixel>::operator()(
 
 	for (unsigned x = 0; x < srcWidth; ++x) {
 		c4 = c5; c5 = c6; c8 = c9;
-		++in1; ++in2;
-
 		if (x != srcWidth - 1) {
-			c6 = readPixel(in1);
-			c9 = readPixel(in2);
+			c6 = readPixel(in1[x + 1]);
+			c9 = readPixel(in2[x + 1]);
 		}
 
 		pattern = (pattern >> 6) & 0x001F; // left overlap
@@ -74,16 +74,15 @@ void HQLite_1x1on3x3<Pixel>::operator()(
 
 #include "HQ3xLiteScaler-1x1to3x3.nn"
 
-		pset(out2 + 0, pixel7);
-		pset(out2 + 1, pixel8);
-		pset(out2 + 2, pixel9);
-		pset(out1 + 0, pixel4);
-		pset(out1 + 1, c5    );
-		pset(out1 + 2, pixel6);
-		pset(out0 + 0, pixel1);
-		pset(out0 + 1, pixel2);
-		pset(out0 + 2, pixel3);
-		out0 += 3; out1 += 3; out2 += 3;
+		out0[3 * x + 0] = writePixel<Pixel>(pixel1);
+		out0[3 * x + 1] = writePixel<Pixel>(pixel2);
+		out0[3 * x + 2] = writePixel<Pixel>(pixel3);
+		out1[3 * x + 0] = writePixel<Pixel>(pixel4);
+		out1[3 * x + 1] = writePixel<Pixel>(c5);
+		out1[3 * x + 2] = writePixel<Pixel>(pixel6);
+		out2[3 * x + 0] = writePixel<Pixel>(pixel7);
+		out2[3 * x + 1] = writePixel<Pixel>(pixel8);
+		out2[3 * x + 2] = writePixel<Pixel>(pixel9);
 	}
 }
 

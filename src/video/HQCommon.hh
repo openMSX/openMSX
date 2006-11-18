@@ -12,10 +12,9 @@
 namespace openmsx {
 
 template <typename Pixel>
-static inline unsigned readPixel(const Pixel* pIn)
+static inline unsigned readPixel(Pixel p)
 {
 	// TODO: Use surface info instead.
-	Pixel p = *pIn;
 	if (sizeof(Pixel) == 2) {
 		return ((p & 0xF800) << 8) |
 		       ((p & 0x07C0) << 5) | // drop lowest green bit
@@ -26,15 +25,15 @@ static inline unsigned readPixel(const Pixel* pIn)
 }
 
 template <typename Pixel>
-static inline void pset(Pixel* pOut, unsigned p)
+static inline Pixel writePixel(unsigned p)
 {
 	// TODO: Use surface info instead.
 	if (sizeof(Pixel) == 2) {
-		*pOut = ((p & 0xF80000) >> 8) |
-			((p & 0x00FC00) >> 5) |
-			((p & 0x0000F8) >> 3);
+		return ((p & 0xF80000) >> 8) |
+		       ((p & 0x00FC00) >> 5) |
+		       ((p & 0x0000F8) >> 3);
 	} else {
-		*pOut = (p & 0xF8F8F8) | ((p & 0xE0E0E0) >> 5);
+		return (p & 0xF8F8F8) | ((p & 0xE0E0E0) >> 5);
 	}
 }
 
@@ -196,26 +195,27 @@ void calcEdgesGL(const unsigned* curr, const unsigned* next,
 	}
 }
 
-template <typename Pixel>
+template <typename Pixel, typename EdgeOp>
 static void calcInitialEdges(const Pixel* srcPrev, const Pixel* srcCurr,
-                             unsigned srcWidth, unsigned* edgeBuf)
+                             unsigned srcWidth, unsigned* edgeBuf,
+                             EdgeOp edgeOp)
 {
 	unsigned x = 0;
-	unsigned c1 = readPixel(&srcPrev[x]);
-	unsigned c2 = readPixel(&srcCurr[x]);
-	unsigned pattern = edge(c1, c2) ? ((1 << 6) | (1 << 7)) : 0;
+	unsigned c1 = readPixel(srcPrev[x]);
+	unsigned c2 = readPixel(srcCurr[x]);
+	unsigned pattern = edgeOp(c1, c2) ? ((1 << 6) | (1 << 7)) : 0;
 	for (/* */; x < (srcWidth - 1); ++x) {
 		pattern >>= 6;
-		unsigned n1 = readPixel(&srcPrev[x + 1]);
-		unsigned n2 = readPixel(&srcCurr[x + 1]);
-		if (edge(c1, c2)) pattern |= (1 << 5);
-		if (edge(c1, n2)) pattern |= (1 << 6);
-		if (edge(c2, n1)) pattern |= (1 << 7);
+		unsigned n1 = readPixel(srcPrev[x + 1]);
+		unsigned n2 = readPixel(srcCurr[x + 1]);
+		if (edgeOp(c1, c2)) pattern |= (1 << 5);
+		if (edgeOp(c1, n2)) pattern |= (1 << 6);
+		if (edgeOp(c2, n1)) pattern |= (1 << 7);
 		edgeBuf[x] = pattern;
 		c1 = n1; c2 = n2;
 	}
 	pattern >>= 6;
-	if (edge(c1, c2)) pattern |= (1 << 5) | (1 << 6) | (1 << 7);
+	if (edgeOp(c1, c2)) pattern |= (1 << 5) | (1 << 6) | (1 << 7);
 	edgeBuf[x] = pattern;
 }
 
@@ -232,7 +232,8 @@ static void doHQScale2(HQScale hqScale, PostScale postScale, FrameSource& src,
 
 	assert(srcWidth <= 1024);
 	unsigned edgeBuf[1024];
-	calcInitialEdges(srcPrev, srcCurr, srcWidth, edgeBuf);
+	typename HQScale::EdgeOp edgeOp;
+	calcInitialEdges(srcPrev, srcCurr, srcWidth, edgeBuf, edgeOp);
 
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
 		Pixel buf0[2 * 1024], buf1[2 * 1024];
@@ -266,7 +267,8 @@ static void doHQScale3(HQScale hqScale, PostScale postScale, FrameSource& src,
 
 	assert(srcWidth <= 1024);
 	unsigned edgeBuf[1024];
-	calcInitialEdges(srcPrev, srcCurr, srcWidth, edgeBuf);
+	typename HQScale::EdgeOp edgeOp;
+	calcInitialEdges(srcPrev, srcCurr, srcWidth, edgeBuf, edgeOp);
 
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 3) {
 		Pixel buf0[3 * 1024], buf1[3 * 1024], buf2[3 * 1024];
