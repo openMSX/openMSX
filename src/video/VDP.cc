@@ -639,7 +639,8 @@ byte VDP::peekStatusReg(byte reg, const EmuTime& time) const
 {
 	switch (reg) {
 	case 0:
-		return statusReg0 | spriteChecker->readStatus(time);
+		spriteChecker->sync(time);
+		return statusReg0;
 	case 1:
 		if (controlRegs[0] & 0x10) { // line int enabled
 			return statusReg1 | irqHorizontal.getState();

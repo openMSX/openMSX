@@ -428,6 +428,24 @@ public:
 		return getLeftSprites() + getHorizontalScrollLow() * 4;
 	}
 
+	/** Should only be used by SpriteChecker. Returns the current value
+	  * of status register 0 (both the F-flag and the sprite related bits).
+	  */
+	byte getStatusReg0() const { return statusReg0; }
+
+	/** Should only be used by SpriteChecker. Change the sprite related
+	  * bits of status register 0 (leaves the F-flag unchanged).
+	  * Bit 6 (5S) is set when more than 4 (sprite mode 1) or 8 (sprite
+	  *   mode 2) sprites occur on the same line.
+	  * Bit 5 (C) is set when sprites collide.
+	  * Bit 4..0 (5th sprite number) contains the number of the first
+	  *   sprite to exceed the limit per line.
+	  */
+	void setSpriteStatus(byte value)
+	{
+		statusReg0 = (statusReg0 & 0x80) | (value & 0x7F);
+	}
+
 private:
 	/** Time at which the internal VDP display line counter is reset,
 	  * expressed in ticks after vsync.
@@ -700,8 +718,8 @@ private:
 	byte controlValueMasks[32];
 
 	/** Status register 0.
-	  * All bits except bit 7 is always zero,
-	  * their value can be retrieved from the sprite checker.
+	  * Both the F flag (bit 7) and the sprite related bits (bits 6-0)
+	  * are stored here.
 	  */
 	byte statusReg0;
 

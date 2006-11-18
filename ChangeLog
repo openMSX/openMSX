@@ -1,5 +1,17 @@
 $Id$
 
+2006-11-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* fixed [1188517] Dragon Quest II intro logo corrupted:
+	   - We had this comment in our code
+	         According to TMS9918.pdf 5th [or 9th] sprite detection
+	         is only active when F flag is zero.
+	     but there was a bug in the actual implementation.
+	     Dragon Quest 2 needs this.
+	   - Bug was caused by splitting storage of VDP status register 0
+	     over VDP and SpriteChecker class. Now S#0 is stored in VDP and
+	     SpriteChecker uses get/set methods to access the sprite related
+	     bits.
+
 2006-11-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Speedup SDLGL-PP simple scaler:
 	   - taking the average of two pixels and multiplying that with a

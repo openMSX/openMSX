@@ -14,6 +14,7 @@ TODO:
 #include "SpriteChecker.hh"
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
+#include <algorithm>
 #include <cassert>
 
 namespace openmsx {
@@ -30,7 +31,7 @@ SpriteChecker::SpriteChecker(VDP& vdp_, RenderSettings& renderSettings,
 
 void SpriteChecker::reset(const EmuTime& time)
 {
-	status = 0;
+	vdp.setSpriteStatus(0); // TODO 0x00 or 0x1F  (blueMSX has 0x1F)
 	collisionX = 0;
 	collisionY = 0;
 
@@ -111,8 +112,10 @@ inline int SpriteChecker::checkSprites1(
 				// Five sprites on a line.
 				// According to TMS9918.pdf 5th sprite detection is only
 				// active when F flag is zero.
+				byte status = vdp.getStatusReg0();
 				if ((status & 0xC0) == 0) {
-					status = (status & 0xE0) | 0x40 | sprite;
+					vdp.setSpriteStatus(
+					     0x40 | (status & 0x20) | sprite);
 				}
 				if (limitSprites) break;
 			}
@@ -124,9 +127,10 @@ inline int SpriteChecker::checkSprites1(
 			sip->colourAttrib = attributePtr[3];
 		}
 	}
+	byte status = vdp.getStatusReg0();
 	if (~status & 0x40) {
 		// No 5th sprite detected, store number of latest sprite processed.
-		status = (status & 0xE0) | (sprite < 32 ? sprite : 31);
+		vdp.setSpriteStatus((status & 0x60) | (std::min(sprite, 31)));
 	}
 
 	// Optimisation:
@@ -134,7 +138,7 @@ inline int SpriteChecker::checkSprites1(
 	// that state is stable until it is reset by a status reg read,
 	// so no need to execute the checks.
 	// The visibleSprites array is filled now, so we can bail out.
-	if (status & 0x20) return visibleIndex;
+	if (vdp.getStatusReg0() & 0x20) return visibleIndex;
 
 	/*
 	Model for sprite collision: (or "coincidence" in TMS9918 data sheet)
@@ -165,7 +169,7 @@ inline int SpriteChecker::checkSprites1(
 				}
 				if (pattern_i & pattern_j) {
 					// Collision!
-					status |= 0x20;
+					vdp.setSpriteStatus(vdp.getStatusReg0() | 0x20);
 					// TODO: Fill in collision coordinates in S#3..S#6.
 					// ...Unless this feature only works in sprite mode 2.
 					return visibleIndex;
@@ -216,8 +220,11 @@ inline int SpriteChecker::checkSprites2(
 				// Nine sprites on a line.
 				// According to TMS9918.pdf 5th sprite detection is only
 				// active when F flag is zero. Stuck to this for V9938.
+				// Dragon Quest 2 needs this
+				byte status = vdp.getStatusReg0();
 				if ((status & 0xC0) == 0) {
-					status = (status & 0xE0) | 0x40 | sprite;
+					vdp.setSpriteStatus(
+					     0x40 | (status & 0x20) | sprite);
 				}
 				if (limitSprites) break;
 			}
@@ -236,9 +243,10 @@ inline int SpriteChecker::checkSprites2(
 			sip->colourAttrib = colourAttrib;
 		}
 	}
+	byte status = vdp.getStatusReg0();
 	if (~status & 0x40) {
 		// No 9th sprite detected, store number of latest sprite processed.
-		status = (status & 0xE0) | (sprite < 32 ? sprite : 31);
+		vdp.setSpriteStatus((status & 0x60) | (std::min(sprite, 31)));
 	}
 
 	// Optimisation:
@@ -246,7 +254,7 @@ inline int SpriteChecker::checkSprites2(
 	// that state is stable until it is reset by a status reg read,
 	// so no need to execute the checks.
 	// The visibleSprites array is filled now, so we can bail out.
-	if (status & 0x20) return visibleIndex;
+	if (vdp.getStatusReg0() & 0x20) return visibleIndex;
 
 	/*
 	Model for sprite collision: (or "coincidence" in TMS9918 data sheet)
@@ -286,7 +294,7 @@ inline int SpriteChecker::checkSprites2(
 				}
 				if (pattern_i & pattern_j) {
 					// Collision!
-					status |= 0x20;
+					vdp.setSpriteStatus(vdp.getStatusReg0() | 0x20);
 					// TODO: Fill in collision coordinates in S#3..S#6.
 					//       See page 97 for info.
 					// TODO: I guess the VDP checks for collisions while

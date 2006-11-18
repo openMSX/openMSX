@@ -15,26 +15,6 @@ class BooleanSetting;
 
 class SpriteChecker: public VRAMObserver
 {
-private:
-	/** Update sprite checking to specified time.
-	  * This includes a VRAM sync.
-	  * @param time The moment in emulated time to update to.
-	  */
-	inline void sync(const EmuTime& time) {
-		if (mode0) return;
-		// Debug:
-		// This method is not re-entrant, so check explicitly that it is not
-		// re-entered. This can disappear once the VDP-internal scheduling
-		// has become stable.
-		static bool syncInProgress = false;
-		assert(!syncInProgress);
-		syncInProgress += 0; // avoid warning in none assert build (icc)
-		syncInProgress = true;
-		vram.sync(time);
-		checkUntil(time);
-		syncInProgress = false;
-	}
-
 public:
 	/** Bitmap of length 32 describing a sprite pattern.
 	  * Visible pixels are 1, transparent pixels are 0.
@@ -73,23 +53,31 @@ public:
 	  */
 	void reset(const EmuTime& time);
 
-	/** Gets the sprite status (part of S#0).
-	  * Bit 7 (F) is zero; it is not sprite dependant.
-	  * Bit 6 (5S) is set when more than 4 (sprite mode 1) or 8 (sprite
-	  *   mode 2) sprites occur on the same line.
-	  * Bit 5 (C) is set when sprites collide.
-	  * Bit 4..0 (5th sprite number) contains the number of the first
-	  *   sprite to exceed the limit per line.
-	  * Reading the status resets some of the bits.
+	/** Update sprite checking to specified time.
+	  * This includes a VRAM sync.
+	  * @param time The moment in emulated time to update to.
 	  */
-	inline byte readStatus(const EmuTime& time) {
-		sync(time);
-		return status;
+	inline void sync(const EmuTime& time) {
+		if (mode0) return;
+		// Debug:
+		// This method is not re-entrant, so check explicitly that it is not
+		// re-entered. This can disappear once the VDP-internal scheduling
+		// has become stable.
+		static bool syncInProgress = false;
+		assert(!syncInProgress);
+		syncInProgress += 0; // avoid warning in none assert build (icc)
+		syncInProgress = true;
+		vram.sync(time);
+		checkUntil(time);
+		syncInProgress = false;
 	}
+
+	/** Clear status bits triggered by reading of S#0.
+	  */
 	inline void resetStatus() {
 		// TODO: Used to be 0x5F, but that is contradicted by
 		//       TMS9918.pdf. Check on real MSX.
-		status &= 0x1F;
+		vdp.setSpriteStatus(vdp.getStatusReg0() & 0x1F);
 	}
 
 	/** Informs the sprite checker of a VDP display mode change.
@@ -402,10 +390,6 @@ private:
 	/** Sprites are checked up to and excluding this display line.
 	  */
 	int currentLine;
-
-	/** The sprite contribution to VDP status register 0.
-	  */
-	byte status;
 
 	/** X coordinate of sprite collision.
 	  * 9 bits long -> [0..511]?
