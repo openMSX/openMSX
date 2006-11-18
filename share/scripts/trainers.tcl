@@ -6775,25 +6775,51 @@ proc trainer_illusioncity {} {
 	poke 0xc268 255
 	poke 0xc267 255
 
+	#level Tien Ren
+	poke 0xc277 99
+
 	#exp Tien Ren
 	poke 0xc275 255
 	poke 0xc274 255
-	#level Tien Ren
 
-	poke 0xc277 99
-	#life Tien Ren
+	#hp Tien Ren
 	poke 0xc282 231
 	poke 0xc283 3
+
+	#extended offense tien ren
+	poke 0xc288 231
+	poke 0xc289 3
+
+	#extended defense Tien Ren
+	poke 0xc285 231
+	poke 0xc286 3
+
+	#tien extended Ren Agility
+	poke 0xc27b 99
+
+	#level Mei Hong
+	poke 0xc29f 99
 
 	#exp Mei Hong
 	poke 0xc29d 255
 	poke 0xc29c 255
-	#level Mei Hong
-	poke 0xc29f 99
 
-	#life Mei Hong
+	#hp Mei Hong
 	poke 0xf636 231
 	poke 0xf637 3
+
+	#extended offence mei hong
+	poke 0xc2b0 231
+	poke 0xc2b1 3
+
+	#extended defende mei hong
+	poke 0xc2ad 231
+	poke 0xc2ac 3
+
+	#extended agility mei hong
+	poke 0xc2a3 99
+
+
 
 	#exp old man
 	poke 0xc2ed 255
@@ -6805,6 +6831,9 @@ proc trainer_illusioncity {} {
 	#exp Kash
 	poke 0xc33d 255
 	poke 0xc33c 255
+
+	#defense
+	poke 0xc34d 255
 
 	after time 1 trainer_illusioncity 
 } 
@@ -6823,3 +6852,4 @@ proc trainer_nemesis2beta {} 	{trainer_gradius2beta}
 proc trainer_nemesis3 {} 	{trainer_gradius3}
 
 ### EOF ###
+

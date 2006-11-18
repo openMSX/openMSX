@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
 <!--
  The romdb.xml file contains information about rom mapper types
@@ -8,7 +8,7 @@
 	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
-<softwaredb xml:lang="en" timestamp="1159025391">
+<softwaredb xml:lang="en" timestamp="1163885500">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -578,6 +578,12 @@
 		<year>1984</year>
 		<country>JP</country>
 		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">292215c95c82948823eb0fbe1b081f14d6b6290d</hash>
+			</rom>
+		</dump>
+		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">e894a38f3e2ad435cc5d17a66600e6016b5e47fb</hash>
@@ -587,6 +593,12 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">8999a51c94460c8db1ca033b64b568bf919300c2</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">e8af1da8478ebfd796b1f04a2429073259761ebb</hash>
 			</rom>
 		</dump>
 		<dump>
@@ -612,6 +624,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">f236345f43828597739f4a326318b6a3876ff73f</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">4b6147172c12f74fe5b2386e6cc78ea0d763316a</hash>
 			</rom>
 		</dump>
 	</software>
@@ -2017,6 +2035,12 @@
 		<dump>
 			<original value="false"/>
 			<rom>
+				<hash algo="sha1">286094c7127bf98d53d8862427487b49132b16da</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
 				<hash algo="sha1">c6e0b0bc71059583e7e9da22fe13be9e937ad7dc</hash>
 			</rom>
 		</dump>
@@ -2633,6 +2657,12 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">a2a7c93c9c8b55a5cce4c9005f3c194e3b762e9c</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">fe71908e340aa5dd241d56a3e8381263e5eb5aeb</hash>
 			</rom>
 		</dump>
 	</software>
@@ -4183,6 +4213,19 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Ehagahi</title>
+		<system>MSX</system>
+		<company>Hitachi</company>
+		<year>1985</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">f625afc51ac52b27a7345d2cf6ff1b4aa39c8e2b</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Elevator Action</title>
 		<system>MSX</system>
 		<company>Taito</company>
@@ -5018,6 +5061,12 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">c84487e485b8739ec75e09a031f84260fb0e319c</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">0a272147999e5075987e864935c84ab3def2c47d</hash>
 			</rom>
 		</dump>
 		<dump>
@@ -7887,6 +7936,20 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">King&#39;s Valley 2 - The Seal Of El Giza - MSX1 Version (Needs SCC in slot 2</title>
+		<system>MSX</system>
+		<company>Konami</company>
+		<year>1988</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">f3306e6f25d111da21ce66db3404f5f48acb25a1</hash>
+			</megarom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Kinnikuman - Muscle Man</title>
 		<system>MSX</system>
 		<company>Bandai</company>
@@ -7937,6 +8000,13 @@
 		<year>1987</year>
 		<country>JP</country>
 		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">ee60e88ae409ddd93d4259b79586dacb2e5ee372</hash>
+			</megarom>
+		</dump>
+		<dump>
 			<original value="true">GoodMSX</original>
 			<megarom>
 				<type>Konami</type>
@@ -7974,6 +8044,13 @@
 		<company>Konami</company>
 		<year>1987</year>
 		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">240e15fb5d918aa821f226002772dc800d9f20a4</hash>
+			</megarom>
+		</dump>
 		<dump>
 			<original value="true">GoodMSX</original>
 			<megarom>
@@ -10972,6 +11049,16 @@
 		<year>1988</year>
 		<country>JP</country>
 		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">0b02dda5316a318a7f75a811aa54200ddd7abc30</hash>
+				<remark>
+					<text>Needs SCC in slot 2</text>
+				</remark>
+			</megarom>
+		</dump>
+		<dump>
 			<original value="true">GoodMSX</original>
 			<megarom>
 				<type>KonamiSCC</type>
@@ -12304,6 +12391,16 @@
 		<company>Konami</company>
 		<year>1987</year>
 		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">0d76a069726fec7326541f75b809b8b72148ed3a</hash>
+				<remark>
+					<text>Needs SCC in slot 2</text>
+				</remark>
+			</megarom>
+		</dump>
 		<dump>
 			<original value="true">GoodMSX</original>
 			<megarom>
@@ -13770,6 +13867,12 @@
 		<dump>
 			<original value="false"/>
 			<rom>
+				<hash algo="sha1">61383444e658bdcc4df61e1e393b2516bed18106</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
 				<hash algo="sha1">7ad00597ceb5a02379055230d907c4421982329a</hash>
 			</rom>
 		</dump>
@@ -14470,9 +14573,9 @@
 	<software>
 		<title xml:lang="en">Tetris</title>
 		<system>MSX</system>
-		<company>Mirrorsoft</company>
+		<company>Zemina</company>
 		<year>1987</year>
-		<country>JP</country>
+		<country>KR</country>
 		<dump>
 			<original value="false"/>
 			<rom>
@@ -15101,6 +15204,12 @@
 		<dump>
 			<original value="false"/>
 			<rom>
+				<hash algo="sha1">7cd94e0051e1899ae4a5d6ebf3da4c32aa1f6911</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
 				<hash algo="sha1">3b6fd6a78807e700a38f9ecb145ab2847c862f52</hash>
 			</rom>
 		</dump>
@@ -15583,6 +15692,20 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Yume Tairiku Adventure - Penguin Adventure</title>
+		<system>MSX</system>
+		<company>Konami</company>
+		<year>1986</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">fa6c059e14092d023b1f9f2df28e482f966287db</hash>
+			</megarom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Yumetairiku Adventure - Penguin Adventure</title>
 		<system>MSX</system>
 		<company>Konami</company>
@@ -15593,13 +15716,6 @@
 			<megarom>
 				<type>Konami</type>
 				<hash algo="sha1">d53e0c8bcd98820afe820f756af35cc97911bfe4</hash>
-			</megarom>
-		</dump>
-		<dump>
-			<original value="false"/>
-			<megarom>
-				<type>Konami</type>
-				<hash algo="sha1">fa6c059e14092d023b1f9f2df28e482f966287db</hash>
 			</megarom>
 		</dump>
 		<dump>
@@ -15890,6 +16006,13 @@
 		<company>Konami</company>
 		<year>1986</year>
 		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">cb544661b6da6a35c20bfe503974f2b79a3c4550</hash>
+			</megarom>
+		</dump>
 		<dump>
 			<original value="true">GoodMSX</original>
 			<megarom>
@@ -16387,6 +16510,16 @@
 		<company>Konami</company>
 		<year>1989</year>
 		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">1302d258c952e93666ecec12429d6d2c2f841f43</hash>
+				<remark>
+					<text>Needs SCC in slot 2</text>
+				</remark>
+			</megarom>
+		</dump>
 		<dump>
 			<original value="true">GoodMSX</original>
 			<megarom>
@@ -17250,6 +17383,13 @@
 		<year>1989</year>
 		<country>JP</country>
 		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">14403ca71d287084569e6c2f4124d2712c665219</hash>
+			</megarom>
+		</dump>
+		<dump>
 			<original value="true">GoodMSX</original>
 			<megarom>
 				<type>Majutsushi</type>
@@ -17662,6 +17802,20 @@
 		<year>1986</year>
 		<country>JP</country>
 		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">99330820cf8aef8bb34d56a666accb4b1ca90e30</hash>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">ecb538238fc7c5e374d723f4d6120d1b2ef5d80e</hash>
+			</megarom>
+		</dump>
+		<dump>
 			<original value="true">GoodMSX</original>
 			<megarom>
 				<type>Konami</type>
@@ -17961,6 +18115,20 @@
 		<year>1987</year>
 		<country>JP</country>
 		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">845b9263d75d89ef02c23fd05cccc13db5d512ea</hash>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">495eb918ced94ef47885df40ceceef8b56e96691</hash>
+			</megarom>
+		</dump>
+		<dump>
 			<original value="true">GoodMSX</original>
 			<megarom>
 				<type>Konami</type>
@@ -18011,6 +18179,36 @@
 		<company>Konami</company>
 		<year>1990</year>
 		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">356a936987e62967597ec64a0d35a1e8ad1aa20b</hash>
+				<remark>
+					<text>Needs SCC in slot 2</text>
+				</remark>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">4ad4898db3bdcf87b2acd5755e06d45c73d338cd</hash>
+				<remark>
+					<text>Needs SCC in slot 2</text>
+				</remark>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">8262ac069e395ba020025caf0519e8eb5a63a0b8</hash>
+				<remark>
+					<text>Needs SCC in slot 2</text>
+				</remark>
+			</megarom>
+		</dump>
 		<dump>
 			<original value="true">GoodMSX</original>
 			<megarom>
@@ -19038,6 +19236,16 @@
 		<year>1987</year>
 		<country>JP</country>
 		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII16</type>
+				<hash algo="sha1">8666f3109ad01093b0afab11986cfd60ba37d2a0</hash>
+				<remark>
+					<text>cr</text>
+				</remark>
+			</megarom>
+		</dump>
+		<dump>
 			<original value="true">GoodMSX</original>
 			<megarom>
 				<type>SuperLodeRunner</type>
@@ -19239,6 +19447,13 @@
 		<company>Konami</company>
 		<year>1987</year>
 		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">7fe5f17ad7e6b70dd56cad2c8bdc516a86f03207</hash>
+			</megarom>
+		</dump>
 		<dump>
 			<original value="true">GoodMSX</original>
 			<megarom>
@@ -19672,6 +19887,19 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">254208d7ea2f7cc1035cfe7685238ac3ad17e438</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Crossword</title>
+		<system>MSX</system>
+		<company>al Alamiah</company>
+		<year>1985</year>
+		<country>MA</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">7538fe6f0dfbf72ba7a89d349258afdff547b4c1</hash>
 			</rom>
 		</dump>
 	</software>
@@ -20539,6 +20767,34 @@
 			<systemrom>
 				<type>Normal</type>
 				<hash algo="sha1">4f2a7e0172f0214f025f23845f6e053d0ffd28e8</hash>
+			</systemrom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Brazilian MSX2+ Basic + Bios</title>
+		<system>MSX</system>
+		<company>Microsoft</company>
+		<year>1990</year>
+		<country>BR</country>
+		<dump>
+			<original value="false"/>
+			<systemrom>
+				<type>CasPatch</type>
+				<hash algo="sha1">1fc2306911ab6e1ebdf7cb8c3c34a7f116414e88</hash>
+			</systemrom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Brazilian MSX2+ Bios Extension</title>
+		<system>MSX</system>
+		<company>Microsoft</company>
+		<year>1990</year>
+		<country>BR</country>
+		<dump>
+			<original value="false"/>
+			<systemrom>
+				<type>Normal</type>
+				<hash algo="sha1">d5528825c7eea2cfeadd64db1dbdbe1344478fc6</hash>
 			</systemrom>
 		</dump>
 	</software>
@@ -21868,6 +22124,13 @@
 				<hash algo="sha1">141e61cc8e0e51382e508fbd77a34b778a4f8444</hash>
 			</systemrom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<systemrom>
+				<type>TC8566AF</type>
+				<hash algo="sha1">607cfca605eaf82e3efa33459d6583efb7ecc13b</hash>
+			</systemrom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Panasonic FS-A1FM Firmware</title>
@@ -22158,6 +22421,27 @@
 			<systemrom>
 				<type>Kanji</type>
 				<hash algo="sha1">5aff2d9b6efc723bc395b0f96f0adfa83cc54a49</hash>
+			</systemrom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Panasonic FS-A1ST Disk-Basic + MSX-DOS 2.3</title>
+		<system>MSX</system>
+		<company>Ascii</company>
+		<year>1990</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<systemrom>
+				<type>TC8566AF</type>
+				<hash algo="sha1">d38ecfde66880643262c0dd90093f4f9f69e9e1b</hash>
+			</systemrom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<systemrom>
+				<type>TC8566AF</type>
+				<hash algo="sha1">733175d648f84f43224b2012311b23c3d7404d7d</hash>
 			</systemrom>
 		</dump>
 	</software>
@@ -22645,6 +22929,21 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">RS1114 Modem Cartridge</title>
+		<system>MSX</system>
+		<company>-</company>
+		<year>19xx</year>
+		<country>KR</country>
+		<dump>
+			<original value="false"/>
+			<systemrom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">dc50f2c9db233e505b0981c244ff3de553ac9d68</hash>
+			</systemrom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">RS232 Modem Cartridge</title>
 		<system>MSX</system>
 		<company>-</company>
@@ -22814,6 +23113,13 @@
 		<company>Sanyo</company>
 		<year>1988</year>
 		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<systemrom>
+				<type>TC8566AF</type>
+				<hash algo="sha1">95de8809d2758fc0a743390ea5085b602e59e101</hash>
+			</systemrom>
+		</dump>
 		<dump>
 			<original value="false"/>
 			<systemrom>
@@ -23056,6 +23362,20 @@
 			<systemrom>
 				<type>CasPatch</type>
 				<hash algo="sha1">e2fbd56e42da637609d23ae9df9efd1b4241b18a</hash>
+			</systemrom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Sony HB-F1XDJ/XV Kanji Font - JIS 1st and 2nd Class</title>
+		<system>MSX</system>
+		<company>Ascii</company>
+		<year>1989</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<systemrom>
+				<type>Kanji</type>
+				<hash algo="sha1">218d91eb6df2823c924d3774a9f455492a10aecb</hash>
 			</systemrom>
 		</dump>
 	</software>
@@ -23459,9 +23779,9 @@
 	</software>
 </softwaredb>
 <!--
-Roms in this database : 2195
+Roms in this database : 2230
 Good MSX entries 		: 755
-SHA1 values 			: 2195
+SHA1 values 			: 2230
 CRC32 values 			: 0
-Parse time 9.895 seconds on Sat Sep 23 17:30:01 CEST 2006
+Parse time 28.724 seconds on Sat Nov 18 22:32:08 CET 2006
  -->
