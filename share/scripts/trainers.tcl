@@ -3246,12 +3246,6 @@ proc trainer_rambo3 {} {
 	poke 60ee 0
 	after time 2 trainer_rambo3 
 } 
-proc trainer_illusioncity {} { 
-	#money
-	poke 0xc268 255
-	poke 0xc267 255
-	after time 60 trainer_illusioncity 
-} 
 
 proc trainer_yiearkungfu2 {} {
 	#power player 1
@@ -6775,6 +6769,45 @@ proc trainer_hype {} {
 	poke 0xc00a 255
 	after time 1 trainer_hype
 }
+
+proc trainer_illusioncity {} { 
+	#money
+	poke 0xc268 255
+	poke 0xc267 255
+
+	#exp Tien Ren
+	poke 0xc275 255
+	poke 0xc274 255
+	#level Tien Ren
+
+	poke 0xc277 99
+	#life Tien Ren
+	poke 0xc282 231
+	poke 0xc283 3
+
+	#exp Mei Hong
+	poke 0xc29d 255
+	poke 0xc29c 255
+	#level Mei Hong
+	poke 0xc29f 99
+
+	#life Mei Hong
+	poke 0xf636 231
+	poke 0xf637 3
+
+	#exp old man
+	poke 0xc2ed 255
+	poke 0xc2ec 255
+	
+	#level old man
+	poke 0xc2ef 99
+
+	#exp Kash
+	poke 0xc33d 255
+	poke 0xc33c 255
+
+	after time 1 trainer_illusioncity 
+} 
 
 proc trainer_autofire {} {
 	type "							  "
