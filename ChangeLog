@@ -1,5 +1,9 @@
 $Id$
 
+2006-11-19 Manuel Bilderbeek <manuel@msxnet.org>
+	* Print originality status for ROM dumps in the database.
+	  Rationale: see e-mail on openmsx-devel of today.
+
 2006-11-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* fixed [1188517] Dragon Quest II intro logo corrupted:
 	   - We had this comment in our code

@@ -88,11 +88,15 @@ static const RomTypeMap& getRomTypeMap()
 
 RomInfo::RomInfo(const string& ntitle,   const string& nyear,
                  const string& ncompany, const string& ncountry,
+                 bool noriginal,         const string& norigType,
                  const string& nremark,  const RomType& nromType)
 {
 	title = ntitle;
 	year = nyear;
 	company = ncompany;
+	country = ncountry;
+	original = noriginal;
+	origType = norigType;
 	country = ncountry;
 	remark = nremark;
 	romType = nromType;
@@ -164,11 +168,26 @@ void RomInfo::print(CliComm& cliComm)
 	if (company.empty()) {
 		company = "(info not available)";
 	}
+	string status;
+	if (getOriginal()) {
+		// this is an unmodified original dump
+		status = "Unmodified dump (confirmed by " + getOrigType() + ")";
+	} else {
+		// not original or unknown
+		if (getOrigType() == "broken" ) {
+			status = "Bad dump (game is broken)";
+		} else if (getOrigType() == "translated") {
+			status = "Translated from original";
+		} else if (getOrigType() == "working") {
+			status = "Modified but confirmed working";
+		} else status = "Unknown (might be broken!)";
+	}
 	string info = "Found this ROM in the database:\n"
 	              "  Title:    " + getTitle() + "\n"
 	              "  Year:     " + year + "\n"
 	              "  Company:  " + company + "\n"
-	              "  Country:  " + country;
+	              "  Country:  " + country + "\n"
+	              "  Status:   " + status;
 	if (!getRemark().empty()) {
 		info += "\n  Remark:   " + getRemark();
 	}

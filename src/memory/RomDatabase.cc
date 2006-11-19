@@ -82,6 +82,7 @@ static void parseEntry(GlobalCliComm& cliComm,
 	const XMLElement& rom, DBMap& result,
 	const string& title,   const string& year,
 	const string& company, const string& country,
+	bool original,         const string& origType,
 	const string& remark,  const string& type)
 {
 	XMLElement::Children hashTags;
@@ -92,8 +93,8 @@ static void parseEntry(GlobalCliComm& cliComm,
 			continue;
 		}
 		auto_ptr<RomInfo> romInfo(new RomInfo(
-			title, year, company, country, remark,
-			RomInfo::nameToRomType(type)));
+			title, year, company, country, original, origType,
+			remark, RomInfo::nameToRomType(type)));
 		string sha1 = (*it2)->getData();
 		addEntry(cliComm, romInfo, sha1, result);
 	}
@@ -135,9 +136,12 @@ static void parseDB(GlobalCliComm& cliComm, const XMLElement& doc, DBMap& result
 		for (XMLElement::Children::const_iterator it2 = dumps.begin();
 		     it2 != dumps.end(); ++it2) {
 			const XMLElement& dump = **it2;
+			const XMLElement& originalTag = dump.getChild("original");
+			bool original = originalTag.getAttributeAsBool("value");
 			if (const XMLElement* megarom = dump.findChild("megarom")) {
 				parseEntry(cliComm, *megarom, result, title, year,
-				           company, country, remark,
+				           company, country, original,
+						   originalTag.getData(), remark,
 				           megarom->getChildData("type"));
 			} else if (const XMLElement* rom = dump.findChild("rom")) {
 				string type = rom->getChildData("type", "Mirrored");
@@ -147,7 +151,8 @@ static void parseDB(GlobalCliComm& cliComm, const XMLElement& doc, DBMap& result
 					type += parseStart(*rom);
 				}
 				parseEntry(cliComm, *rom, result, title, year,
-				           company, country, remark, type);
+				           company, country, original,
+						   originalTag.getData(), remark, type);
 			}
 		}
 	}
@@ -213,7 +218,8 @@ auto_ptr<RomInfo> RomDatabase::fetchRomInfo(GlobalCliComm& cliComm, const Rom& r
 
 	if (rom.getSize() == 0) {
 		return auto_ptr<RomInfo>(
-			new RomInfo("", "", "", "", "Empty ROM", ROM_UNKNOWN));
+			new RomInfo("", "", "", "", false, "", "Empty ROM",
+				ROM_UNKNOWN));
 	}
 
 	const string& sha1sum = rom.getSHA1Sum();
@@ -224,7 +230,8 @@ auto_ptr<RomInfo> RomDatabase::fetchRomInfo(GlobalCliComm& cliComm, const Rom& r
 	}
 
 	// no match found
-	return auto_ptr<RomInfo>(new RomInfo("", "", "", "", "", ROM_UNKNOWN));
+	return auto_ptr<RomInfo>(new RomInfo("", "", "", "", false, "", "", 
+		ROM_UNKNOWN)); 
 }
 
 } // namespace openmsx
