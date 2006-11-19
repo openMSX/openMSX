@@ -133,15 +133,25 @@ static void parseDB(GlobalCliComm& cliComm, const XMLElement& doc, DBMap& result
 
 		XMLElement::Children dumps;
 		soft.getChildren("dump", dumps);
+		int dumpcounter = 0;
 		for (XMLElement::Children::const_iterator it2 = dumps.begin();
 		     it2 != dumps.end(); ++it2) {
+			dumpcounter++;
 			const XMLElement& dump = **it2;
-			const XMLElement& originalTag = dump.getChild("original");
-			bool original = originalTag.getAttributeAsBool("value");
+			const XMLElement* originalTag = dump.findChild("original");
+			bool original = false;
+			if (originalTag) {
+				original = originalTag->getAttributeAsBool("value");
+			} else {
+				cliComm.printWarning("Missing <original> tag in software"
+					"database for dump " + StringOp::toString(dumpcounter) +
+					" of entry with name \"" + title + "\". "
+					"Please fix your database!");
+			}
 			if (const XMLElement* megarom = dump.findChild("megarom")) {
 				parseEntry(cliComm, *megarom, result, title, year,
 				           company, country, original,
-						   originalTag.getData(), remark,
+						   originalTag ? originalTag->getData() : "", remark,
 				           megarom->getChildData("type"));
 			} else if (const XMLElement* rom = dump.findChild("rom")) {
 				string type = rom->getChildData("type", "Mirrored");
@@ -152,7 +162,8 @@ static void parseDB(GlobalCliComm& cliComm, const XMLElement& doc, DBMap& result
 				}
 				parseEntry(cliComm, *rom, result, title, year,
 				           company, country, original,
-						   originalTag.getData(), remark, type);
+						   originalTag ? originalTag->getData() : "", 
+						   remark, type);
 			}
 		}
 	}
