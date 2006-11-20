@@ -3,6 +3,8 @@ $Id$
 2006-11-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added missing line width conversions in FrameSource:
 	   - fixes crash in Gfx9000 parts of calculus with SDLGL-PP renderer
+	* Use optimized memset function in V99990P{1,2}Convertor:
+	   - only a little faster though
 
 2006-11-19 Manuel Bilderbeek <manuel@msxnet.org>
 	* Print originality status for ROM dumps in the database.

@@ -3,6 +3,7 @@
 #include "V9990P2Converter.hh"
 #include "V9990VRAM.hh"
 #include "V9990.hh"
+#include "MemoryOps.hh"
 #include "GLUtil.hh"
 
 namespace openmsx {
@@ -51,9 +52,8 @@ void V9990P2Converter<Pixel>::convertLine(Pixel* linePtr,
 
 	// backdrop color
 	Pixel bgcol = palette64[vdp.getBackDropColor()];
-	for (unsigned x = 0; x < displayWidth; ++x) {
-		linePtr[x] = bgcol;
-	}
+	MemoryOps::memset<Pixel, MemoryOps::NO_STREAMING>(
+		linePtr, displayWidth, bgcol);
 
 	// back sprite plane
 	int visibleSprites[16 + 1];

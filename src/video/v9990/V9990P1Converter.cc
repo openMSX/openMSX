@@ -3,6 +3,7 @@
 #include "V9990P1Converter.hh"
 #include "V9990.hh"
 #include "V9990VRAM.hh"
+#include "MemoryOps.hh"
 #include "GLUtil.hh"
 #include <cassert>
 #include <algorithm>
@@ -64,9 +65,8 @@ void V9990P1Converter<Pixel>::convertLine(Pixel* linePtr,
 
 	// back drop color
 	Pixel bgcol = palette64[vdp.getBackDropColor()];
-	for (unsigned x = 0; x < displayWidth; ++x) {
-		linePtr[x] = bgcol;
-	}
+	MemoryOps::memset<Pixel, MemoryOps::NO_STREAMING>(
+		linePtr, displayWidth, bgcol);
 
 	// background
 	byte offset = vdp.getPaletteOffset();
