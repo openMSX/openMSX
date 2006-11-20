@@ -52,6 +52,18 @@ public:
 	void operator()(const Pixel* in, Pixel* out, unsigned long width);
 };
 
+template <typename Pixel> class Scale_1on4
+{
+public:
+	void operator()(const Pixel* in, Pixel* out, unsigned long width);
+};
+
+template <typename Pixel> class Scale_1on6
+{
+public:
+	void operator()(const Pixel* in, Pixel* out, unsigned long width);
+};
+
 template <typename Pixel, bool streaming = true> class Scale_1on2
 	: public TagIf<streaming, X86Streaming>::type
 {
@@ -75,10 +87,55 @@ private:
 	PixelOperations<Pixel> pixelOps;
 };
 
+template <typename Pixel> class Scale_6on1
+{
+public:
+	explicit Scale_6on1(PixelOperations<Pixel> pixelOps);
+	void operator()(const Pixel* in, Pixel* out, unsigned long width);
+private:
+	PixelOperations<Pixel> pixelOps;
+};
+
 template <typename Pixel> class Scale_4on1
 {
 public:
 	explicit Scale_4on1(PixelOperations<Pixel> pixelOps);
+	void operator()(const Pixel* in, Pixel* out, unsigned long width);
+private:
+	PixelOperations<Pixel> pixelOps;
+};
+
+template <typename Pixel> class Scale_3on1
+{
+public:
+	explicit Scale_3on1(PixelOperations<Pixel> pixelOps);
+	void operator()(const Pixel* in, Pixel* out, unsigned long width);
+private:
+	PixelOperations<Pixel> pixelOps;
+};
+
+template <typename Pixel> class Scale_3on2
+{
+public:
+	explicit Scale_3on2(PixelOperations<Pixel> pixelOps);
+	void operator()(const Pixel* in, Pixel* out, unsigned long width);
+private:
+	PixelOperations<Pixel> pixelOps;
+};
+
+template <typename Pixel> class Scale_3on4
+{
+public:
+	explicit Scale_3on4(PixelOperations<Pixel> pixelOps);
+	void operator()(const Pixel* in, Pixel* out, unsigned long width);
+private:
+	PixelOperations<Pixel> pixelOps;
+};
+
+template <typename Pixel> class Scale_3on8
+{
+public:
+	explicit Scale_3on8(PixelOperations<Pixel> pixelOps);
 	void operator()(const Pixel* in, Pixel* out, unsigned long width);
 private:
 	PixelOperations<Pixel> pixelOps;
@@ -159,18 +216,37 @@ private:
 
 // implementation
 
+template <typename Pixel, unsigned N>
+static inline void scale_1onN(const Pixel* in, Pixel* out, unsigned long width)
+{
+	unsigned i = 0, j = 0;
+	for (/* */; i < (width - (N - 1)); i += N, j += 1) {
+		Pixel pix = in[j];
+		for (unsigned k = 0; k < N; ++k) {
+			out[i + k] = pix;
+		}
+	}
+	for (unsigned k = 0; k < (N - 1); ++k) {
+		if ((i + k) < width) out[i + k] = 0;
+	}
+}
+
 template <typename Pixel>
 void Scale_1on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long width)
 {
-	unsigned i = 0, j = 0;
-	for (/* */; i < (width - 2); i += 3, j += 1) {
-		Pixel pix = in[j];
-		out[i + 0] = pix;
-		out[i + 1] = pix;
-		out[i + 2] = pix;
-	}
-	if ((i + 0) < width) out[i + 0] = 0;
-	if ((i + 1) < width) out[i + 0] = 0;
+	scale_1onN<Pixel, 3>(in, out, width);
+}
+
+template <typename Pixel>
+void Scale_1on4<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long width)
+{
+	scale_1onN<Pixel, 4>(in, out, width);
+}
+
+template <typename Pixel>
+void Scale_1on6<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long width)
+{
+	scale_1onN<Pixel, 6>(in, out, width);
 }
 
 
@@ -709,6 +785,21 @@ void Scale_2on1<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long wi
 
 
 template <typename Pixel>
+Scale_6on1<Pixel>::Scale_6on1(PixelOperations<Pixel> pixelOps_)
+	: pixelOps(pixelOps_)
+{
+}
+
+template <typename Pixel>
+void Scale_6on1<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long width)
+{
+	for (unsigned i = 0; i < width; ++i) {
+		out[i] = pixelOps.template blend6<1, 1, 1, 1, 1, 1>(&in[6 * i]);
+	}
+}
+
+
+template <typename Pixel>
 Scale_4on1<Pixel>::Scale_4on1(PixelOperations<Pixel> pixelOps_)
 	: pixelOps(pixelOps_)
 {
@@ -719,6 +810,87 @@ void Scale_4on1<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long wi
 {
 	for (unsigned i = 0; i < width; ++i) {
 		out[i] = pixelOps.template blend4<1, 1, 1, 1>(&in[4 * i]);
+	}
+}
+
+
+template <typename Pixel>
+Scale_3on1<Pixel>::Scale_3on1(PixelOperations<Pixel> pixelOps_)
+	: pixelOps(pixelOps_)
+{
+}
+
+template <typename Pixel>
+void Scale_3on1<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long width)
+{
+	for (unsigned i = 0; i < width; ++i) {
+		out[i] = pixelOps.template blend3<1, 1, 1>(&in[3 * i]);
+	}
+}
+
+
+template <typename Pixel>
+Scale_3on2<Pixel>::Scale_3on2(PixelOperations<Pixel> pixelOps_)
+	: pixelOps(pixelOps_)
+{
+}
+
+template <typename Pixel>
+void Scale_3on2<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long width)
+{
+	unsigned i = 0, j = 0;
+	for (/* */; i < (width - 1); i += 2, j += 3) {
+		out[i + 0] = pixelOps.template blend2<2, 1>(&in[j + 0]);
+		out[i + 1] = pixelOps.template blend2<1, 2>(&in[j + 1]);
+	}
+	if (i < width) out[i] = 0;
+}
+
+
+template <typename Pixel>
+Scale_3on4<Pixel>::Scale_3on4(PixelOperations<Pixel> pixelOps_)
+	: pixelOps(pixelOps_)
+{
+}
+
+template <typename Pixel>
+void Scale_3on4<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long width)
+{
+	unsigned i = 0, j = 0;
+	for (/* */; i < (width - 3); i += 4, j += 3) {
+		out[i + 0] =                                 in[j + 0];
+		out[i + 1] = pixelOps.template blend2<1, 2>(&in[j + 0]);
+		out[i + 2] = pixelOps.template blend2<2, 1>(&in[j + 1]);
+		out[i + 3] =                                 in[j + 2];
+	}
+	for (unsigned k = 0; k < (4 - 1); ++k) {
+		if ((i + k) < width) out[i + k] = 0;
+	}
+}
+
+
+template <typename Pixel>
+Scale_3on8<Pixel>::Scale_3on8(PixelOperations<Pixel> pixelOps_)
+	: pixelOps(pixelOps_)
+{
+}
+
+template <typename Pixel>
+void Scale_3on8<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long width)
+{
+	unsigned i = 0, j = 0;
+	for (/* */; i < (width - 7); i += 8, j += 3) {
+		out[i + 0] =                                 in[j + 0];
+		out[i + 1] =                                 in[j + 0];
+		out[i + 2] = pixelOps.template blend2<2, 1>(&in[j + 0]);
+		out[i + 3] =                                 in[j + 1];
+		out[i + 4] =                                 in[j + 1];
+		out[i + 5] = pixelOps.template blend2<1, 2>(&in[j + 1]);
+		out[i + 6] =                                 in[j + 2];
+		out[i + 7] =                                 in[j + 2];
+	}
+	for (unsigned k = 0; k < (8 - 1); ++k) {
+		if ((i + k) < width) out[i + k] = 0;
 	}
 }
 

@@ -65,13 +65,25 @@ const Pixel* FrameSource::scaleLine(
 		case 1:
 			out[0] = in[0];
 			break;
+		case 213:
+			assert(false);
 		case 320: {
 			Scale_2on3<Pixel> scale(pixelOps);
 			scale(in, out, outWidth);
 			break;
 		}
+		case 426: {
+			Scale_1on2<Pixel, false> scale; // no streaming
+			scale(in, out, outWidth);
+			break;
+		}
 		case 640: {
 			Scale_1on3<Pixel> scale;
+			scale(in, out, outWidth);
+			break;
+		}
+		case 853: {
+			Scale_1on4<Pixel> scale;
 			scale(in, out, outWidth);
 			break;
 		}
@@ -80,8 +92,13 @@ const Pixel* FrameSource::scaleLine(
 			scale(in, out, outWidth);
 			break;
 		}
+		case 1280: {
+			Scale_1on6<Pixel> scale;
+			scale(in, out, outWidth);
+			break;
+		}
 		default:
-			  assert(false);
+			assert(false);
 		}
 		break;
 	case 320:
@@ -89,10 +106,25 @@ const Pixel* FrameSource::scaleLine(
 		case 1:
 			out[0] = in[0];
 			break;
+		case 213: {
+			Scale_3on2<Pixel> scale(pixelOps);
+			scale(in, out, outWidth);
+			break;
+		}
 		case 320:
 			assert(false);
+		case 426: {
+			Scale_3on4<Pixel> scale(pixelOps);
+			scale(in, out, outWidth);
+			break;
+		}
 		case 640: {
 			Scale_1on2<Pixel, false> scale; // no streaming
+			scale(in, out, outWidth);
+			break;
+		}
+		case 853: {
+			Scale_3on8<Pixel> scale(pixelOps);
 			scale(in, out, outWidth);
 			break;
 		}
@@ -101,8 +133,13 @@ const Pixel* FrameSource::scaleLine(
 			scale(in, out, outWidth);
 			break;
 		}
+		case 1280: {
+			Scale_1on4<Pixel> scale;
+			scale(in, out, outWidth);
+			break;
+		}
 		default:
-			  assert(false);
+			assert(false);
 		}
 		break;
 	case 426:
@@ -110,13 +147,25 @@ const Pixel* FrameSource::scaleLine(
 		case 1:
 			out[0] = in[0];
 			break;
+		case 213: {
+			Scale_2on1<Pixel> scale(pixelOps);
+			scale(in, out, outWidth);
+			break;
+		}
 		case 320: {
 			Scale_4on3<Pixel> scale(pixelOps);
 			scale(in, out, outWidth);
 			break;
 		}
+		case 426:
+			assert(false);
 		case 640: {
 			Scale_2on3<Pixel> scale(pixelOps);
+			scale(in, out, outWidth);
+			break;
+		}
+		case 853: {
+			Scale_1on2<Pixel, false> scale; // no streaming
 			scale(in, out, outWidth);
 			break;
 		}
@@ -125,8 +174,13 @@ const Pixel* FrameSource::scaleLine(
 			scale(in, out, outWidth);
 			break;
 		}
+		case 1280: {
+			Scale_1on3<Pixel> scale;
+			scale(in, out, outWidth);
+			break;
+		}
 		default:
-			  assert(false);
+			assert(false);
 		}
 		break;
 	case 640:
@@ -134,20 +188,40 @@ const Pixel* FrameSource::scaleLine(
 		case 1:
 			out[0] = in[0];
 			break;
+		case 213: {
+			Scale_3on1<Pixel> scale(pixelOps);
+			scale(in, out, outWidth);
+			break;
+		}
 		case 320: {
 			Scale_2on1<Pixel> scale(pixelOps);
 			scale(in, out, outWidth);
 			break;
 		}
+		case 426: {
+			Scale_3on2<Pixel> scale(pixelOps);
+			scale(in, out, outWidth);
+			break;
+		}
 		case 640:
 			assert(false);
+		case 853: {
+			Scale_3on4<Pixel> scale(pixelOps);
+			scale(in, out, outWidth);
+			break;
+		}
 		case 960: {
 			Scale_2on3<Pixel> scale(pixelOps);
 			scale(in, out, outWidth);
 			break;
 		}
+		case 1280: {
+			Scale_1on2<Pixel, false> scale; // no streaming
+			scale(in, out, outWidth);
+			break;
+		}
 		default:
-			  assert(false);
+			assert(false);
 		}
 		break;
 	case 853:
@@ -155,8 +229,18 @@ const Pixel* FrameSource::scaleLine(
 		case 1:
 			out[0] = in[0];
 			break;
+		case 213: {
+			Scale_4on1<Pixel> scale(pixelOps);
+			scale(in, out, outWidth);
+			break;
+		}
 		case 320: {
 			Scale_8on3<Pixel> scale(pixelOps);
+			scale(in, out, outWidth);
+			break;
+		}
+		case 426: {
+			Scale_2on1<Pixel> scale(pixelOps);
 			scale(in, out, outWidth);
 			break;
 		}
@@ -165,13 +249,20 @@ const Pixel* FrameSource::scaleLine(
 			scale(in, out, outWidth);
 			break;
 		}
+		case 853:
+			assert(false);
 		case 960: {
 			Scale_8on9<Pixel> scale(pixelOps);
 			scale(in, out, outWidth);
 			break;
 		}
+		case 1280: {
+			Scale_2on3<Pixel> scale(pixelOps);
+			scale(in, out, outWidth);
+			break;
+		}
 		default:
-			  assert(false);
+			assert(false);
 		}
 		break;
 	case 1280:
@@ -179,8 +270,18 @@ const Pixel* FrameSource::scaleLine(
 		case 1:
 			out[0] = in[0];
 			break;
+		case 213: {
+			Scale_6on1<Pixel> scale(pixelOps);
+			scale(in, out, outWidth);
+			break;
+		}
 		case 320: {
 			Scale_4on1<Pixel> scale(pixelOps);
+			scale(in, out, outWidth);
+			break;
+		}
+		case 426: {
+			Scale_3on1<Pixel> scale(pixelOps);
 			scale(in, out, outWidth);
 			break;
 		}
@@ -189,13 +290,20 @@ const Pixel* FrameSource::scaleLine(
 			scale(in, out, outWidth);
 			break;
 		}
+		case 853: {
+			Scale_3on2<Pixel> scale(pixelOps);
+			scale(in, out, outWidth);
+			break;
+		}
 		case 960: {
 			Scale_4on3<Pixel> scale(pixelOps);
 			scale(in, out, outWidth);
 			break;
 		}
+		case 1280:
+			assert(false);
 		default:
-			  assert(false);
+			assert(false);
 		}
 		break;
 	default:

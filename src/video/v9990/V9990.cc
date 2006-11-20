@@ -298,6 +298,8 @@ void V9990::writeIO(word port, byte val, const EmuTime& time)
 			break;
 
 		case SYSTEM_CONTROL:
+			// TODO investigate: does switching overscan mode
+			//      happen at next line or next frame
 			status = (status & 0xFB) | ((val & 1) << 2);
 			syncAtNextLine(V9990_SET_MODE, time);
 		break;

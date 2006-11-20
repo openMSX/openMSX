@@ -51,6 +51,10 @@ public:
 	inline Pixel blend(Pixel p1, Pixel p2, Pixel p3) const;
 	template <unsigned w1, unsigned w2, unsigned w3, unsigned w4>
 	inline Pixel blend(Pixel p1, Pixel p2, Pixel p3, Pixel p4) const;
+	template <unsigned w1, unsigned w2, unsigned w3,
+	          unsigned w4, unsigned w5, unsigned w6>
+	inline Pixel blend(Pixel p1, Pixel p2, Pixel p3,
+	                   Pixel p4, Pixel p5, Pixel p6) const;
 
 	template <unsigned w1, unsigned w2>
 	inline Pixel blend2(const Pixel* p) const;
@@ -58,6 +62,9 @@ public:
 	inline Pixel blend3(const Pixel* p) const;
 	template <unsigned w1, unsigned w2, unsigned w3, unsigned w4>
 	inline Pixel blend4(const Pixel* p) const;
+	template <unsigned w1, unsigned w2, unsigned w3,
+	          unsigned w4, unsigned w5, unsigned w6>
+	inline Pixel blend6(const Pixel* p) const;
 
 	inline Pixel getBlendMask() const;
 
@@ -284,6 +291,42 @@ inline Pixel PixelOperations<Pixel>::blend(
 	}
 }
 
+template <typename Pixel>
+template <unsigned w1, unsigned w2, unsigned w3,
+          unsigned w4, unsigned w5, unsigned w6>
+inline Pixel PixelOperations<Pixel>::blend(
+	Pixel p1, Pixel p2, Pixel p3, Pixel p4, Pixel p5, Pixel p6) const
+{
+	static const unsigned total = w1 + w2 + w3 + w4 + w5 + w6;
+	if ((sizeof(Pixel) == 4) && IsPow2<total>::result) {
+		unsigned l2 = IsPow2<total>::log2;
+		unsigned rb = ((p1 & 0xFF00FF) * w1 +
+		               (p2 & 0xFF00FF) * w2 +
+		               (p3 & 0xFF00FF) * w3 +
+		               (p4 & 0xFF00FF) * w4 +
+		               (p5 & 0xFF00FF) * w5 +
+		               (p6 & 0xFF00FF) * w6) & (0xFF00FF << l2);
+		unsigned g  = ((p1 & 0x00FF00) * w1 +
+		               (p2 & 0x00FF00) * w2 +
+		               (p3 & 0x00FF00) * w3 +
+		               (p4 & 0x00FF00) * w4 +
+		               (p5 & 0x00FF00) * w5 +
+		               (p6 & 0x00FF00) * w6) & (0x00FF00 << l2);
+		return (rb | g) >> l2;
+	} else {
+		unsigned r = (red  (p1) * w1 + red  (p2) * w2 +
+		              red  (p3) * w3 + red  (p4) * w4 +
+		              red  (p5) * w5 + red  (p6) * w6) / total;
+		unsigned g = (green(p1) * w1 + green(p2) * w2 +
+		              green(p3) * w3 + green(p4) * w4 +
+		              green(p5) * w5 + green(p6) * w6) / total;
+		unsigned b = (blue (p1) * w1 + blue (p2) * w2 +
+		              blue (p3) * w3 + blue (p4) * w4 +
+		              blue (p5) * w5 + blue (p6) * w6) / total;
+		return combine(r, g, b);
+	}
+}
+
 
 template <typename Pixel>
 template <unsigned w1, unsigned w2>
@@ -304,6 +347,14 @@ template <unsigned w1, unsigned w2, unsigned w3, unsigned w4>
 inline Pixel PixelOperations<Pixel>::blend4(const Pixel* p) const
 {
 	return blend<w1, w2, w3, w4>(p[0], p[1], p[2], p[3]);
+}
+
+template <typename Pixel>
+template <unsigned w1, unsigned w2, unsigned w3,
+          unsigned w4, unsigned w5, unsigned w6>
+inline Pixel PixelOperations<Pixel>::blend6(const Pixel* p) const
+{
+	return blend<w1, w2, w3, w4, w5, w6>(p[0], p[1], p[2], p[3], p[4], p[5]);
 }
 
 
