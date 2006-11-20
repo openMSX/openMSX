@@ -90,16 +90,15 @@ RomInfo::RomInfo(const string& ntitle,   const string& nyear,
                  const string& ncompany, const string& ncountry,
                  bool noriginal,         const string& norigType,
                  const string& nremark,  const RomType& nromType)
+	: title(ntitle)
+	, year(nyear)
+	, company(ncompany)
+	, country(ncountry)
+	, original(noriginal)
+	, origType(norigType)
+	, remark(nremark)
+	, romType(nromType)
 {
-	title = ntitle;
-	year = nyear;
-	company = ncompany;
-	country = ncountry;
-	original = noriginal;
-	origType = norigType;
-	country = ncountry;
-	remark = nremark;
-	romType = nromType;
 }
 
 RomType RomInfo::nameToRomType(string name)
@@ -158,7 +157,7 @@ void RomInfo::getAllRomTypes(set<string>& result)
 	}
 }
 
-void RomInfo::print(CliComm& cliComm)
+void RomInfo::print(CliComm& cliComm) const
 {
 	string year(getYear());
 	if (year.empty()) {
@@ -180,7 +179,9 @@ void RomInfo::print(CliComm& cliComm)
 			status = "Translated from original";
 		} else if (getOrigType() == "working") {
 			status = "Modified but confirmed working";
-		} else status = "Unknown (might be broken!)";
+		} else {
+			status = "Unknown (might be broken!)";
+		}
 	}
 	string info = "Found this ROM in the database:\n"
 	              "  Title:    " + getTitle() + "\n"

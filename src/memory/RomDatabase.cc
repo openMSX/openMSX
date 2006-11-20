@@ -140,8 +140,10 @@ static void parseDB(GlobalCliComm& cliComm, const XMLElement& doc, DBMap& result
 			const XMLElement& dump = **it2;
 			const XMLElement* originalTag = dump.findChild("original");
 			bool original = false;
+			string origType;
 			if (originalTag) {
 				original = originalTag->getAttributeAsBool("value");
+				origType = originalTag->getData();
 			} else {
 				cliComm.printWarning("Missing <original> tag in software"
 					"database for dump " + StringOp::toString(dumpcounter) +
@@ -150,9 +152,8 @@ static void parseDB(GlobalCliComm& cliComm, const XMLElement& doc, DBMap& result
 			}
 			if (const XMLElement* megarom = dump.findChild("megarom")) {
 				parseEntry(cliComm, *megarom, result, title, year,
-				           company, country, original,
-						   originalTag ? originalTag->getData() : "", remark,
-				           megarom->getChildData("type"));
+				           company, country, original, origType,
+				           remark, megarom->getChildData("type"));
 			} else if (const XMLElement* rom = dump.findChild("rom")) {
 				string type = rom->getChildData("type", "Mirrored");
 				if (type == "Normal") {
@@ -161,9 +162,8 @@ static void parseDB(GlobalCliComm& cliComm, const XMLElement& doc, DBMap& result
 					type += parseStart(*rom);
 				}
 				parseEntry(cliComm, *rom, result, title, year,
-				           company, country, original,
-						   originalTag ? originalTag->getData() : "", 
-						   remark, type);
+				           company, country, original, origType,
+				           remark, type);
 			}
 		}
 	}
@@ -230,7 +230,7 @@ auto_ptr<RomInfo> RomDatabase::fetchRomInfo(GlobalCliComm& cliComm, const Rom& r
 	if (rom.getSize() == 0) {
 		return auto_ptr<RomInfo>(
 			new RomInfo("", "", "", "", false, "", "Empty ROM",
-				ROM_UNKNOWN));
+			            ROM_UNKNOWN));
 	}
 
 	const string& sha1sum = rom.getSHA1Sum();
@@ -242,7 +242,7 @@ auto_ptr<RomInfo> RomDatabase::fetchRomInfo(GlobalCliComm& cliComm, const Rom& r
 
 	// no match found
 	return auto_ptr<RomInfo>(new RomInfo("", "", "", "", false, "", "", 
-		ROM_UNKNOWN)); 
+	                                     ROM_UNKNOWN)); 
 }
 
 } // namespace openmsx
