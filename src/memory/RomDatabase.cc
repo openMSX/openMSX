@@ -110,18 +110,41 @@ static string parseStart(const XMLElement& rom)
 	else return "";
 }
 
-static void parseDB(GlobalCliComm& cliComm, const XMLElement& doc, DBMap& result)
+static void parseDump(GlobalCliComm& cliComm,
+	const XMLElement& dump, DBMap& result,
+	const string& title,   const string& year,
+	const string& company, const string& country,
+	const string& remark)
 {
-	const XMLElement::Children& children = doc.getChildren();
-	for (XMLElement::Children::const_iterator it1 = children.begin();
-	     it1 != children.end(); ++it1) {
-		// Parse all <software> tags
-		const XMLElement& soft = **it1;
+	// TODO make <original> tag not required?
+	const XMLElement& originalTag = dump.getChild("original");
+	bool original = originalTag.getAttributeAsBool("value");
+	string origType = originalTag.getData();
 
+	if (const XMLElement* megarom = dump.findChild("megarom")) {
+		parseEntry(cliComm, *megarom, result, title, year,
+			   company, country, original, origType,
+			   remark, megarom->getChildData("type"));
+	} else if (const XMLElement* rom = dump.findChild("rom")) {
+		string type = rom->getChildData("type", "Mirrored");
+		if (type == "Normal") {
+			type += parseStart(*rom);
+		} else if (type == "Mirrored") {
+			type += parseStart(*rom);
+		}
+		parseEntry(cliComm, *rom, result, title, year, company,
+		           country, original, origType, remark, type);
+	}
+}
+
+static void parseSoftware(GlobalCliComm& cliComm, const string& filename,
+                          const XMLElement& soft, DBMap& result)
+{
+	try {
 		const XMLElement* system = soft.findChild("system");
 		if (system && (system->getData() != "MSX")) {
 			// skip non-MSX entries
-			continue;
+			return;
 		}
 
 		// TODO there can be multiple title tags
@@ -133,39 +156,26 @@ static void parseDB(GlobalCliComm& cliComm, const XMLElement& doc, DBMap& result
 
 		XMLElement::Children dumps;
 		soft.getChildren("dump", dumps);
-		int dumpcounter = 0;
-		for (XMLElement::Children::const_iterator it2 = dumps.begin();
-		     it2 != dumps.end(); ++it2) {
-			dumpcounter++;
-			const XMLElement& dump = **it2;
-			const XMLElement* originalTag = dump.findChild("original");
-			bool original = false;
-			string origType;
-			if (originalTag) {
-				original = originalTag->getAttributeAsBool("value");
-				origType = originalTag->getData();
-			} else {
-				cliComm.printWarning("Missing <original> tag in software"
-					"database for dump " + StringOp::toString(dumpcounter) +
-					" of entry with name \"" + title + "\". "
-					"Please fix your database!");
-			}
-			if (const XMLElement* megarom = dump.findChild("megarom")) {
-				parseEntry(cliComm, *megarom, result, title, year,
-				           company, country, original, origType,
-				           remark, megarom->getChildData("type"));
-			} else if (const XMLElement* rom = dump.findChild("rom")) {
-				string type = rom->getChildData("type", "Mirrored");
-				if (type == "Normal") {
-					type += parseStart(*rom);
-				} else if (type == "Mirrored") {
-					type += parseStart(*rom);
-				}
-				parseEntry(cliComm, *rom, result, title, year,
-				           company, country, original, origType,
-				           remark, type);
-			}
+		for (XMLElement::Children::const_iterator it = dumps.begin();
+		     it != dumps.end(); ++it) {
+			parseDump(cliComm, **it, result, title, year,
+			          company, country, remark);
 		}
+	} catch (MSXException& e) {
+		string title = soft.getChildData("title", "<missing-title>");
+		cliComm.printWarning("Wrong entry with title '" + title +
+		                     "' in " + filename + ": " + e.getMessage());
+	}
+}
+
+static void parseDB(GlobalCliComm& cliComm, const string& filename,
+                    const XMLElement& doc, DBMap& result)
+{
+	const XMLElement::Children& children = doc.getChildren();
+	for (XMLElement::Children::const_iterator it = children.begin();
+	     it != children.end(); ++it) {
+		// Parse all <software> tags
+		parseSoftware(cliComm, filename, **it, result);
 	}
 }
 
@@ -196,12 +206,12 @@ static void initDatabase(GlobalCliComm& cliComm)
 	const vector<string>& paths = context.getPaths();
 	for (vector<string>::const_iterator it = paths.begin();
 	     it != paths.end(); ++it) {
+		string filename = *it + "softwaredb.xml";
 		auto_ptr<XMLElement> doc(
-			openDB(cliComm, *it + "softwaredb.xml",
-			       "softwaredb1.dtd"));
+			openDB(cliComm, filename, "softwaredb1.dtd"));
 		if (doc.get()) {
 			DBMap tmp;
-			parseDB(cliComm, *doc, tmp);
+			parseDB(cliComm, filename, *doc, tmp);
 			for (DBMap::const_iterator it = tmp.begin();
 			     it != tmp.end(); ++it) {
 				if (romDBSHA1.find(it->first) == romDBSHA1.end()) {
