@@ -1,5 +1,14 @@
 $Id$
 
+2006-11-22 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Another SDLGL-PP hqlite optimization, openGL shader part this time:
+	   - Before this change we sampled the color texture three times (to
+	     get texels C4, C5 and C6) and blended these these three colors
+	     each with a certain weight. The weight for the outer two pixels
+	     is never non-zero for both at the same time. So we can as well
+	     sample the color texture only once and make use of the HW texture
+	     color interpolation.
+
 2006-11-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added missing line width conversions in FrameSource:
 	   - fixes crash in Gfx9000 parts of calculus with SDLGL-PP renderer

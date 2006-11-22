@@ -19,18 +19,17 @@ namespace openmsx {
 static void transform(const byte* in, byte* out, int n)
 {
 	for (int z = 0; z < 4096; ++z) {
-		int z1Offset = 3 * n * n * z;
-		int z2Offset = 3 * (n * (z % 64) +
+		int z1Offset = 2 * n * n * z;
+		int z2Offset = 2 * (n * (z % 64) +
 		                    n * n * 64 * (z / 64));
 		for (int y = 0; y < n; ++y) {
-			int y1Offset = 3 * n      * y;
-			int y2Offset = 3 * n * 64 * y;
+			int y1Offset = 2 * n      * y;
+			int y2Offset = 2 * n * 64 * y;
 			for (int x = 0; x < n; ++x) {
-				int offset1 = z1Offset + y1Offset + 3 * x;
-				int offset2 = z2Offset + y2Offset + 3 * x;
+				int offset1 = z1Offset + y1Offset + 2 * x;
+				int offset2 = z2Offset + y2Offset + 2 * x;
 				out[offset2 + 0] = in[offset1 + 0];
 				out[offset2 + 1] = in[offset1 + 1];
-				out[offset2 + 2] = in[offset1 + 2];
 			}
 		}
 	}
@@ -60,23 +59,23 @@ GLHQLiteScaler::GLHQLiteScaler()
 
 	SystemFileContext context;
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	byte buffer[3 * 4 * 4 * 4096];
+	byte buffer[2 * 4 * 4 * 4096];
 	for (int i = 0; i < 3; ++i) {
 		int n = i + 2;
-		string weightsName = "shaders/HQ" + StringOp::toString(n) +
-		                     "xLiteWeights.dat";
-		File weightsFile(context.resolve(weightsName));
-		weightTexture[i].reset(new Texture());
-		weightTexture[i]->setWrapMode(false);
-		weightTexture[i]->bind();
-		transform(weightsFile.mmap(), buffer, n);
+		string offsetName = "shaders/HQ" + StringOp::toString(n) +
+		                     "xLiteOffset.dat";
+		File offsetFile(context.resolve(offsetName));
+		offsetTexture[i].reset(new Texture());
+		offsetTexture[i]->setWrapMode(false);
+		offsetTexture[i]->bind();
+		transform(offsetFile.mmap(), buffer, n);
 		glTexImage2D(GL_TEXTURE_2D,      // target
 			     0,                  // level
-			     GL_RGB8,            // internal format
+			     GL_LUMINANCE8_ALPHA8, // internal format
 			     n * 64,             // width
 			     n * 64,             // height
 			     0,                  // border
-			     GL_RGB,             // format
+			     GL_LUMINANCE_ALPHA, // format
 			     GL_UNSIGNED_BYTE,   // type
 			     buffer);            // data
 	}
@@ -87,7 +86,7 @@ GLHQLiteScaler::GLHQLiteScaler()
 		scalerProgram->activate();
 		glUniform1i(scalerProgram->getUniformLocation("colorTex"),  0);
 		glUniform1i(scalerProgram->getUniformLocation("edgeTex"),   1);
-		glUniform1i(scalerProgram->getUniformLocation("weightTex"), 2);
+		glUniform1i(scalerProgram->getUniformLocation("offsetTex"), 2);
 		glUniform2f(scalerProgram->getUniformLocation("texSize"),
 		            320.0f, 240.0f);
 	}
@@ -103,8 +102,9 @@ void GLHQLiteScaler::scaleImage(
 	unsigned factorY = (dstEndY - dstStartY) / (srcEndY - srcStartY);
 
 	if ((srcWidth == 320) && (factorX > 1) && (factorX == factorY)) {
+		src.enableInterpolation();
 		glActiveTexture(GL_TEXTURE2);
-		weightTexture[factorX - 2]->bind();
+		offsetTexture[factorX - 2]->bind();
 		glActiveTexture(GL_TEXTURE1);
 		edgeTexture->bind();
 		glActiveTexture(GL_TEXTURE0);
@@ -118,6 +118,7 @@ void GLHQLiteScaler::scaleImage(
 	src.drawRect(0.0f,  srcStartY            / height,
 	             1.0f, (srcEndY - srcStartY) / height,
 	             0, dstStartY, dstWidth, dstEndY - dstStartY);
+	src.disableInterpolation();
 }
 
 typedef unsigned Pixel;

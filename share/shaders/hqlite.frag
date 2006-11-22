@@ -2,13 +2,11 @@
 
 uniform sampler2D edgeTex;
 uniform sampler2D colorTex;
-uniform sampler2D weightTex;
+uniform sampler2D offsetTex;
 
-varying vec2 left;
-varying vec2 mid;
-varying vec2 right;
+varying vec2 leftTop;
 varying vec2 edgePos;
-varying vec2 weightPos;
+varying vec4 misc;
 
 void main()
 {
@@ -18,13 +16,11 @@ void main()
 	// transform (N x N x 4096) to (64N x 64N) texture coords
 	float t = 64.0 * edgeBits;
 	vec2 xy = vec2(fract(t), floor(t)/64.0);
-	xy += fract(weightPos) / 64.0;
-	vec3 weights = texture2D(weightTex, xy).xyz;
-	//gl_FragColor = vec4(weights, 1.0);
+	vec2 subPixelPos = misc.xy;
+	xy += fract(subPixelPos) / 64.0;
+	vec2 offset = texture2D(offsetTex, xy).xw;
 
-	vec4 c4 = texture2D(colorTex, left );
-	vec4 c5 = texture2D(colorTex, mid  );
-	vec4 c6 = texture2D(colorTex, right);
-
-	gl_FragColor = c4 * weights.x + c5 * weights.y + c6 * weights.z;
+	// fract not really needed, but it eliminates one MOV instruction
+	vec2 texStep2 = fract(misc.zw);
+	gl_FragColor = texture2D(colorTex, leftTop + offset * texStep2);
 }
