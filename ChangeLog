@@ -1,5 +1,8 @@
 $Id$
 
+2006-11-22 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added Philips NMS 801 "MSX Compatible". Thanks to the blueMSX team.
+
 2006-11-22 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Another SDLGL-PP hqlite optimization, openGL shader part this time:
 	   - Before this change we sampled the color texture three times (to
