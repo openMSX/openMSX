@@ -1244,8 +1244,14 @@ proc trainer_sd-snatcher_walk_trough_walls {} {
 
 
 proc trainer_undeadline {} {
-	#life
+	#lives
+	poke 0xd2a9 2
+	#power
 	poke 0xd2a8 255 
+	#invincible to monsters
+	poke 0xd2b7 255
+	#weapons (0 knife/1 axe/2 fire/3 ice/4 tripple-knife/5 boomerang/6 vortex)
+	poke 0xd2ab 6
 	after time 2 trainer_undeadline
 }
 
@@ -6818,8 +6824,6 @@ proc trainer_illusioncity {} {
 
 	#extended agility mei hong
 	poke 0xc2a3 99
-
-
 
 	#exp old man
 	poke 0xc2ed 255
