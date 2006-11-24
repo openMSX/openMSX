@@ -6842,6 +6842,25 @@ proc trainer_illusioncity {} {
 	after time 1 trainer_illusioncity 
 } 
 
+proc trainer_stratos {} {
+	#exit always open
+	poke 0xe042 0
+	#time
+	poke 0xe052 99
+	#bombs
+	poke 0xe053 99
+	#hearts
+	poke 0xe054 99
+	after time 3 trainer_stratos
+}
+
+proc trainer_tvirus {} {
+	#power
+	poke 0xc044 255
+	after time 1 trainer_tvirus
+}
+
+
 proc trainer_autofire {} {
 	type "							  "
 	after time 1 trainer_autofire
