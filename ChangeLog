@@ -1,5 +1,12 @@
 $Id$
 
+2006-11-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* SDLGL-PP renderer speedup:
+	   - Upload textures in BGRA format (was RGBA). See this paper:
+	       http://download.nvidia.com/developer/Papers/2005/Fast_Texture_Transfers/Fast_Texture_Transfers.pdf
+	     On nvidia cards this is faster, most likely on ATI cards as well
+	   - I measured between 3% and 5% speedup (total simulation time)
+
 2006-11-22 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added Philips NMS 801 "MSX Compatible". Thanks to the blueMSX team.
 

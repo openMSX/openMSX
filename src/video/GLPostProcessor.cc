@@ -363,7 +363,7 @@ void GLPostProcessor::uploadBlock(
 			y,                        // offset y
 			lineWidth,                // width
 			1,                        // height
-			GL_RGBA,                  // format
+			GL_BGRA,                  // format
 			GL_UNSIGNED_BYTE,         // type
 			paintFrame->getLinePtr(y, lineWidth, dummy)); // data
 		//GLUtil::checkGLError("GLPostProcessor::uploadFrame");

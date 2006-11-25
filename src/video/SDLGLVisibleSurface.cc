@@ -144,10 +144,11 @@ unsigned SDLGLVisibleSurface::mapRGB(double dr, double dg, double db)
 		int r = static_cast<int>(dr * 255.0);
 		int g = static_cast<int>(dg * 255.0);
 		int b = static_cast<int>(db * 255.0);
+		// convert to BGRA (is faster then RGBA for texture upload)
 		if (OPENMSX_BIGENDIAN) {
-			return (r << 24) | (g << 16) | (b <<  8) | 0x000000FF;
+			return (b << 24) | (g << 16) | (r <<  8) | 0x000000FF;
 		} else {
-			return (r <<  0) | (g <<  8) | (b << 16) | 0xFF000000;
+			return (b <<  0) | (g <<  8) | (r << 16) | 0xFF000000;
 		}
 	} else {
 		return OutputSurface::mapRGB(dr, dg, db);
