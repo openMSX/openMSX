@@ -160,7 +160,7 @@ void DiskChanger::insertDisk(const vector<TclObject*>& args)
 		}
 	}
 	for (unsigned i = 2; i < args.size(); ++i) {
-		disk->applyPatch(args[i]->getString());
+		newDisk->applyPatch(args[i]->getString());
 	}
 
 	// no errors, only now replace original disk
