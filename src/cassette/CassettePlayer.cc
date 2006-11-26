@@ -201,7 +201,7 @@ void CassettePlayer::autoRun()
 				loadingInstruction = "BLOAD\"CAS:\",R";
 				break;
 			case CassetteImage::BASIC:
-				loadingInstruction = "CLOAD";
+				loadingInstruction = "CLOAD\\rRUN";
 				break;
 			default:
 				assert(false); // Shouldn't be possible
