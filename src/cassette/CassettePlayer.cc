@@ -191,29 +191,35 @@ void CassettePlayer::autoRun()
 {
 	// try to automatically run the tape, if that's set
 	CassetteImage::FileType type = cassette->getFirstFileType();
-	if (autoRunSetting->getValue() && type != CassetteImage::UNKNOWN) {
-		string loadingInstruction;
-		switch (type) {
-			case CassetteImage::ASCII:
-				loadingInstruction = "RUN\"CAS:\"";
-				break;
-			case CassetteImage::BINARY:
-				loadingInstruction = "BLOAD\"CAS:\",R";
-				break;
-			case CassetteImage::BASIC:
-				loadingInstruction = "CLOAD\\rRUN";
-				break;
-			default:
-				assert(false); // Shouldn't be possible
-		}
-		try {
-			msxCommandController.executeCommand(
-				"after time 2 { type " + loadingInstruction + "\\r }");
-		} catch (CommandException& e) {
-			cliComm.printWarning(
-				"Error executing loading instruction for AutoRun: " +
-				e.getMessage() + " Please report a bug.");
-		}
+	if (!autoRunSetting->getValue() || type == CassetteImage::UNKNOWN) {
+		return;
+	}
+	string loadingInstruction;
+	switch (type) {
+		case CassetteImage::ASCII:
+			loadingInstruction = "RUN\\\"CAS:\\\"";
+			break;
+		case CassetteImage::BINARY:
+			loadingInstruction = "BLOAD\\\"CAS:\\\",R";
+			break;
+		case CassetteImage::BASIC:
+			loadingInstruction = "CLOAD\\\\rRUN";
+			break;
+		default:
+			assert(false); // Shouldn't be possible
+	}
+	string var = "::auto_run_cas_counter";
+	string command =
+		"if ![info exists " + var + "] { set " + var + " 0 }\n"
+		"incr " + var + "\n"
+		"after time 2 \"if $" + var + "==\\$" + var + " { "
+		"type " + loadingInstruction + "\\\\r }\"";
+	try {
+		msxCommandController.executeCommand(command);
+	} catch (CommandException& e) {
+		cliComm.printWarning(
+			"Error executing loading instruction for AutoRun: " +
+			e.getMessage() + "\n Please report a bug.");
 	}
 }
 
