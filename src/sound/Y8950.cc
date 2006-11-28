@@ -896,6 +896,7 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 	//}
 	lock();
 
+	//std::cout << "write: " << (int)rg << " " << (int)data << std::endl;
 	switch (rg & 0xe0) {
 	case 0x00: {
 		switch (rg) {
@@ -1130,16 +1131,19 @@ byte Y8950::readReg(byte rg, const EmuTime &time)
 {
 	updateStream(time); // TODO only when necessary
 
+	byte result;
 	switch (rg) {
 		case 0x0F: // ADPCM-DATA
 		case 0x13: //  ???
 		case 0x14: //  ???
 		case 0x1A: // PCM-DATA
-			return adpcm->readReg(rg);
+			result = adpcm->readReg(rg);
 
 		default:
-			return peekReg(rg, time);
+			result = peekReg(rg, time);
 	}
+	//std::cout << "read: " << (int)rg << " " << (int)result << std::endl;
+	return result;
 }
 
 byte Y8950::peekReg(byte rg, const EmuTime &time) const
@@ -1168,7 +1172,9 @@ byte Y8950::peekReg(byte rg, const EmuTime &time) const
 byte Y8950::readStatus()
 {
 	setStatus(STATUS_BUF_RDY);	// temp hack
-	return peekStatus();
+	byte result = peekStatus();
+	//std::cout << "status: " << (int)result << std::endl;
+	return result;
 }
 
 byte Y8950::peekStatus() const
