@@ -11,7 +11,7 @@
 #include "Version.hh"
 #include "MSXRomCLI.hh"
 #include "CliExtension.hh"
-#include "CassettePlayer.hh"
+#include "CassettePlayerCLI.hh"
 #include "DiskImageCLI.hh"
 #include "HDImageCLI.hh"
 #include "CDImageCLI.hh"
@@ -146,7 +146,7 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	, testConfigOption(new TestConfigOption(*this))
 	, msxRomCLI(new MSXRomCLI(*this))
 	, cliExtension(new CliExtension(*this))
-	, cassettePlayerCLI(new MSXCassettePlayerCLI(*this))
+	, cassettePlayerCLI(new CassettePlayerCLI(*this))
 	, diskImageCLI(new DiskImageCLI(*this))
 	, hdImageCLI(new HDImageCLI(*this))
 	, cdImageCLI(new CDImageCLI(*this))

@@ -1,5 +1,8 @@
 $Id$
 
+2006-11-28 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Split Cassetteplayer in Cassetteplayer and CassetteplayerCLI
+
 2006-11-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed auto-run-cas-file:
 	   - type command got executed twice when a cas file was inserted via

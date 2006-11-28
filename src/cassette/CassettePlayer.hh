@@ -4,48 +4,25 @@
 #define CASSETTEPLAYER_HH
 
 #include "EventListener.hh"
-#include "CLIOption.hh"
 #include "CassetteDevice.hh"
 #include "SoundDevice.hh"
 #include "EmuTime.hh"
 #include <string>
-#include <vector>
 #include <memory>
 
 namespace openmsx {
 
-class CommandLineParser;
 class CassetteImage;
-class XMLElement;
 class MSXMixer;
 class Scheduler;
 class MSXCliComm;
 class WavWriter;
-class ThrottleManager;
 class LoadingIndicator;
 class BooleanSetting;
 class TapeCommand;
-class CommandController;
 class MSXCommandController;
 class MSXEventDistributor;
 class EventDistributor;
-
-// TODO split in two files
-class MSXCassettePlayerCLI : public CLIOption, public CLIFileType
-{
-public:
-	explicit MSXCassettePlayerCLI(CommandLineParser& commandLineParser);
-	virtual bool parseOption(const std::string& option,
-	                         std::list<std::string>& cmdLine);
-	virtual const std::string& optionHelp() const;
-	virtual void parseFileType(const std::string& filename,
-	                           std::list<std::string>& cmdLine);
-	virtual const std::string& fileTypeHelp() const;
-
-private:
-	CommandController& commandController;
-};
-
 
 class CassettePlayer : public CassetteDevice, public SoundDevice, public EventListener
 {

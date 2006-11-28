@@ -21,12 +21,11 @@
 //   first simply check on the length of the file and fall back to SHA1 if that
 //   results in multiple matches.
 
-#include "BooleanSetting.hh"
 #include "CassettePlayer.hh"
+#include "BooleanSetting.hh"
 #include "Connector.hh"
 #include "CassettePort.hh"
 #include "MSXCommandController.hh"
-#include "CommandLineParser.hh"
 #include "RecordedCommand.hh"
 #include "GlobalSettings.hh"
 #include "XMLElement.hh"
@@ -36,22 +35,17 @@
 #include "DummyCassetteImage.hh"
 #include "MSXCliComm.hh"
 #include "CommandException.hh"
-#include "Reactor.hh"
 #include "Scheduler.hh"
 #include "MSXEventDistributor.hh"
 #include "EventDistributor.hh"
-#include "InputEvents.hh"
 #include "FileOperations.hh"
 #include "WavWriter.hh"
 #include "ThrottleManager.hh"
 #include "TclObject.hh"
-#include "checked_cast.hh"
 #include <algorithm>
-#include <cstdlib>
 #include <cassert>
 
 using std::auto_ptr;
-using std::list;
 using std::string;
 using std::vector;
 using std::set;
@@ -74,45 +68,6 @@ public:
 private:
 	CassettePlayer& cassettePlayer;
 };
-
-
-MSXCassettePlayerCLI::MSXCassettePlayerCLI(CommandLineParser& commandLineParser)
-	: commandController(commandLineParser.getReactor().getCommandController())
-{
-	commandLineParser.registerOption("-cassetteplayer", *this);
-	commandLineParser.registerFileClass("cassetteimage", *this);
-}
-
-bool MSXCassettePlayerCLI::parseOption(const string& option,
-                                       list<string>& cmdLine)
-{
-	parseFileType(getArgument(option, cmdLine), cmdLine);
-	return true;
-}
-const string& MSXCassettePlayerCLI::optionHelp() const
-{
-	static const string text(
-	  "Put cassette image specified in argument in virtual cassetteplayer");
-	return text;
-}
-
-void MSXCassettePlayerCLI::parseFileType(const string& filename,
-                                         list<string>& /*cmdLine*/)
-{
-	if (!commandController.hasCommand("cassetteplayer")) { // TODO WIP
-		throw MSXException("No cassetteplayer.");
-	}
-	TclObject command(commandController.getInterpreter());
-	command.addListElement("cassetteplayer");
-	command.addListElement(filename);
-	command.executeCommand();
-}
-const string& MSXCassettePlayerCLI::fileTypeHelp() const
-{
-	static const string text(
-		"Cassette image, raw recording or fMSX CAS image");
-	return text;
-}
 
 
 CassettePlayer::CassettePlayer(
