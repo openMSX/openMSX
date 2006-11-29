@@ -143,10 +143,10 @@ void V9990SDLRasterizer<Pixel>::drawBorder(
 	if (startX >= endX) return;
 
 	unsigned lineWidth = vdp.getLineWidth();
+	MemoryOps::MemSet<Pixel, MemoryOps::NO_STREAMING> memset;
 	for (int y = startY; y < endY; ++y) {
-		MemoryOps::memset<Pixel, MemoryOps::NO_STREAMING>(
-			workFrame->getLinePtr(y, (Pixel*)0) + startX,
-			endX - startX, bgColor);
+		memset(workFrame->getLinePtr(y, (Pixel*)0) + startX,
+		       endX - startX, bgColor);
 		workFrame->setLineWidth(y, lineWidth);
 	}
 }

@@ -227,19 +227,17 @@ void Simple3xScaler<Pixel>::scaleBlank1to3(
 	unsigned stopDstY = (dstEndY == dst.getHeight())
 	                  ? dstEndY : dstEndY - 3;
 	unsigned srcY = srcStartY, dstY = dstStartY;
+	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
 	for (/* */; dstY < stopDstY; srcY += 1, dstY += 3) {
 		Pixel* dummy = 0;
 		Pixel color0 = src.getLinePtr(srcY, dummy)[0];
 		Pixel* dstLine0 = dst.getLinePtr(dstY + 0, dummy);
-		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
-			dstLine0, dst.getWidth(), color0);
+		memset(dstLine0, dst.getWidth(), color0);
 		Pixel* dstLine1 = dst.getLinePtr(dstY + 1, dummy);
-		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
-			dstLine1, dst.getWidth(), color0);
+		memset(dstLine1, dst.getWidth(), color0);
 		Pixel color1 = scanline.darken(color0, scanlineFactor);
 		Pixel* dstLine2 = dst.getLinePtr(dstY + 2, dummy);
-		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
-			dstLine2, dst.getWidth(), color1);
+		memset(dstLine2, dst.getWidth(), color1);
 	}
 	if (dstY != dst.getHeight()) {
 		unsigned nextLineWidth = src.getLineWidth(srcY + 1);
@@ -256,6 +254,7 @@ void Simple3xScaler<Pixel>::scaleBlank2to3(
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
 	int scanlineFactor = settings.getScanlineFactor();
+	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 2, dstY += 3) {
 		Pixel* dummy = 0;
@@ -263,14 +262,11 @@ void Simple3xScaler<Pixel>::scaleBlank2to3(
 		Pixel color1 = src.getLinePtr(srcY + 1, dummy)[0];
 		Pixel color01 = scanline.darken(color0, color1, scanlineFactor);
 		Pixel* dstLine0 = dst.getLinePtr(dstY + 0, dummy);
-		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
-			dstLine0, dst.getWidth(), color0);
+		memset(dstLine0, dst.getWidth(), color0);
 		Pixel* dstLine1 = dst.getLinePtr(dstY + 1, dummy);
-		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
-			dstLine1, dst.getWidth(), color01);
+		memset(dstLine1, dst.getWidth(), color01);
 		Pixel* dstLine2 = dst.getLinePtr(dstY + 2, dummy);
-		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
-			dstLine2, dst.getWidth(), color1);
+		memset(dstLine2, dst.getWidth(), color1);
 	}
 }
 

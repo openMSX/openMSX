@@ -265,17 +265,16 @@ template<bool STREAMING> static inline void memset_2_helper(
 	unsigned val = OPENMSX_BIGENDIAN
 	             ? (val0 << 16) | val1
 	             : val0 | (val1 << 16);
-	memset_2<unsigned, STREAMING>((unsigned*)out, num / 2, val, val);
+	memset_2_helper<STREAMING>((unsigned*)out, num / 2, val, val);
 	if (num & 1) {
 		out[num - 1] = val0;
 	}
 }
 
 template <typename Pixel, bool STREAMING>
-void memset_2(Pixel* out, unsigned num, Pixel val0, Pixel val1)
+void MemSet2<Pixel, STREAMING>::operator()(
+	Pixel* out, unsigned num, Pixel val0, Pixel val1) const
 {
-	// partial specialization of function templates is not allowed,
-	// so instead use function overloading
 	if (sizeof(Pixel) == 2) {
 		memset_2_helper<STREAMING>(
 			reinterpret_cast<word*>(out), num, val0, val1
@@ -288,27 +287,33 @@ void memset_2(Pixel* out, unsigned num, Pixel val0, Pixel val1)
 		assert(false);
 	}
 }
+
 template <typename Pixel, bool STREAMING>
-void memset(Pixel* out, unsigned num, Pixel val)
+void MemSet<Pixel, STREAMING>::operator()(
+	Pixel* out, unsigned num, Pixel val) const
 {
-	memset_2<Pixel, STREAMING>(out, num, val, val);
+	MemSet2<Pixel, STREAMING> memset2;
+	memset2(out, num, val, val);
 }
 
-
 // Force template instantiation
-template void memset_2<unsigned,  true>(unsigned*, unsigned, unsigned, unsigned);
-template void memset_2<unsigned, false>(unsigned*, unsigned, unsigned, unsigned);
-template void memset_2<word    ,  true>(word*    , unsigned, word    , word    );
-template void memset_2<word    , false>(word*    , unsigned, word    , word    );
-template void memset  <unsigned,  true>(unsigned*, unsigned, unsigned);
-template void memset  <unsigned, false>(unsigned*, unsigned, unsigned);
-template void memset  <word    ,  true>(word*    , unsigned, word    );
-template void memset  <word    , false>(word*    , unsigned, word    );
+template class MemSet <word,     true >;
+template class MemSet <word,     false>;
+template class MemSet <unsigned, true >;
+template class MemSet <unsigned, false>;
+template class MemSet2<word,     true >;
+template class MemSet2<word,     false>;
+template class MemSet2<unsigned, true >;
+template class MemSet2<unsigned, false>;
 #ifdef COMPONENT_GL
-template void memset_2<GLuint  ,  true>(GLuint*  , unsigned, GLuint  , GLuint  );
-template void memset_2<GLuint  , false>(GLuint*  , unsigned, GLuint  , GLuint  );
-template void memset  <GLuint  ,  true>(GLuint*  , unsigned, GLuint  );
-template void memset  <GLuint  , false>(GLuint*  , unsigned, GLuint  );
+template<> class MemSet <GLUtil::NoExpansion, true > {};
+template<> class MemSet <GLUtil::NoExpansion, false> {};
+template<> class MemSet2<GLUtil::NoExpansion, true > {};
+template<> class MemSet2<GLUtil::NoExpansion, false> {};
+template class MemSet <GLUtil::ExpandGL, true >;
+template class MemSet <GLUtil::ExpandGL, false>;
+template class MemSet2<GLUtil::ExpandGL, true >;
+template class MemSet2<GLUtil::ExpandGL, false>;
 #endif // COMPONENT_GL
 
 

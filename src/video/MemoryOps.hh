@@ -12,10 +12,13 @@ namespace MemoryOps {
 	static const bool NO_STREAMING = false;
 	static const bool STREAMING    = true;
 
-	template <typename Pixel, bool STREAMING> void memset(
-		Pixel* out, unsigned num, Pixel val);
-	template <typename Pixel, bool STREAMING> void memset_2(
-		Pixel* out, unsigned num, Pixel val0, Pixel val1);
+	template <typename Pixel, bool STREAMING> struct MemSet {
+		void operator()(Pixel* out, unsigned num, Pixel val) const;
+	};
+	template <typename Pixel, bool STREAMING> struct MemSet2 {
+		void operator()(Pixel* out, unsigned num,
+		                Pixel val0, Pixel val1) const;
+	};
 
 	/** Perform memcpy with streaming stores.
 	  * @param dst Destination address, must be aligned on unsigned/word

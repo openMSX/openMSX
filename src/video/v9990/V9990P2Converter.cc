@@ -29,8 +29,8 @@ void V9990P2Converter<Pixel>::convertLine(Pixel* linePtr,
 
 	// backdrop color
 	Pixel bgcol = palette64[vdp.getBackDropColor()];
-	MemoryOps::memset<Pixel, MemoryOps::NO_STREAMING>(
-		linePtr, displayWidth, bgcol);
+	MemoryOps::MemSet<Pixel, MemoryOps::NO_STREAMING> memset;
+	memset(linePtr, displayWidth, bgcol);
 
 	// back sprite plane
 	int visibleSprites[16 + 1];

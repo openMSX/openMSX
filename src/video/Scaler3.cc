@@ -20,19 +20,17 @@ void Scaler3<Pixel>::scaleBlank1to3(
 		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
+	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 1, dstY += 3) {
 		Pixel* dummy = 0;
 		Pixel color = src.getLinePtr(srcY, dummy)[0];
 		Pixel* dstLine0 = dst.getLinePtr(dstY + 0, dummy);
-		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
-			dstLine0, dst.getWidth(), color);
+		memset(dstLine0, dst.getWidth(), color);
 		Pixel* dstLine1 = dst.getLinePtr(dstY + 1, dummy);
-		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
-			dstLine1, dst.getWidth(), color);
+		memset(dstLine1, dst.getWidth(), color);
 		Pixel* dstLine2 = dst.getLinePtr(dstY + 2, dummy);
-		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
-			dstLine2, dst.getWidth(), color);
+		memset(dstLine2, dst.getWidth(), color);
 	}
 }
 
@@ -41,6 +39,7 @@ void Scaler3<Pixel>::scaleBlank2to3(
 		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
+	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 2, dstY += 3) {
 		Pixel* dummy = 0;
@@ -48,14 +47,11 @@ void Scaler3<Pixel>::scaleBlank2to3(
 		Pixel color1 = src.getLinePtr(srcY + 1, dummy)[0];
 		Pixel color01 = pixelOps.template blend<1, 1>(color0, color1);
 		Pixel* dstLine0 = dst.getLinePtr(dstY + 0, dummy);
-		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
-			dstLine0, dst.getWidth(), color0);
+		memset(dstLine0, dst.getWidth(), color0);
 		Pixel* dstLine1 = dst.getLinePtr(dstY + 1, dummy);
-		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
-			dstLine1, dst.getWidth(), color01);
+		memset(dstLine1, dst.getWidth(), color01);
 		Pixel* dstLine2 = dst.getLinePtr(dstY + 2, dummy);
-		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
-			dstLine2, dst.getWidth(), color1);
+		memset(dstLine2, dst.getWidth(), color1);
 	}
 }
 

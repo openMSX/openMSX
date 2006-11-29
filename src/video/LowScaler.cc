@@ -33,13 +33,13 @@ void LowScaler<Pixel>::scaleBlank1to1(
 		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
+	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 1, dstY += 1) {
 		Pixel* dummy = 0;
 		Pixel color = src.getLinePtr(srcY, dummy)[0];
 		Pixel* dstLine = dst.getLinePtr(dstY, dummy);
-		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
-			dstLine, dst.getWidth(), color);
+		memset(dstLine, dst.getWidth(), color);
 	}
 }
 
@@ -48,6 +48,7 @@ void LowScaler<Pixel>::scaleBlank2to1(
 		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
+	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 2, dstY += 1) {
 		Pixel* dummy = 0;
@@ -55,8 +56,7 @@ void LowScaler<Pixel>::scaleBlank2to1(
 		Pixel color1 = src.getLinePtr(srcY + 1, dummy)[0];
 		Pixel color01 = pixelOps.template blend<1, 1>(color0, color1);
 		Pixel* dstLine = dst.getLinePtr(dstY, dummy);
-		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
-			dstLine, dst.getWidth(), color01);
+		memset(dstLine, dst.getWidth(), color01);
 	}
 }
 

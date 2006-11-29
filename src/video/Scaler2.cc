@@ -21,16 +21,15 @@ void Scaler2<Pixel>::scaleBlank1to2(
 		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
+	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 1, dstY += 2) {
 		Pixel* dummy = 0;
 		Pixel color = src.getLinePtr(srcY, dummy)[0];
 		Pixel* dstLine0 = dst.getLinePtr(dstY + 0, dummy);
-		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
-			dstLine0, dst.getWidth(), color);
+		memset(dstLine0, dst.getWidth(), color);
 		Pixel* dstLine1 = dst.getLinePtr(dstY + 1, dummy);
-		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
-			dstLine1, dst.getWidth(), color);
+		memset(dstLine1, dst.getWidth(), color);
 	}
 }
 
@@ -39,13 +38,13 @@ void Scaler2<Pixel>::scaleBlank1to1(
 		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
+	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 1, dstY += 1) {
 		Pixel* dummy = 0;
 		Pixel color = src.getLinePtr(srcY, dummy)[0];
 		Pixel* dstLine = dst.getLinePtr(dstY, dummy);
-		MemoryOps::memset<Pixel, MemoryOps::STREAMING>(
-			dstLine, dst.getWidth(), color);
+		memset(dstLine, dst.getWidth(), color);
 	}
 }
 

@@ -1,5 +1,11 @@
 $Id$
 
+2006-11-29 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Changed memset and memset2 from functions into functors:
+	   - Compilation was broken recently on system were GLuint !=
+	     unsigned. To fix this we need template specialization. But
+	     templatized functions cannot be specialized.
+
 2006-11-28 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Split Cassetteplayer in Cassetteplayer and CassetteplayerCLI
 
