@@ -137,27 +137,12 @@ void BitmapConverter<Pixel>::renderBogus(
 	for (int n = 256; n--; ) *pixelPtr++ = colour;
 }
 
-
 // Force template instantiation.
 template class BitmapConverter<word>;
 template class BitmapConverter<unsigned>;
-
 #ifdef COMPONENT_GL
-// The type "GLuint" can be either be equivalent to "word", "unsigned" or still
-// some completely other type. In the later case we need to expand the
-// BitmapConverter<GLuint> template, in the two former cases it is an error to
-// expand it again (it is already instantiated above).
-// The following piece of template metaprogramming takes care of this.
-
-class NoExpansion {};
-// ExpandFilter<T>::type = (T == word || T == unsigned) ? NoExpansion : T
-template<class T> class ExpandFilter  { typedef T           type; };
-template<> class ExpandFilter<word>     { typedef NoExpansion type; };
-template<> class ExpandFilter<unsigned> { typedef NoExpansion type; };
-
-template<> class BitmapConverter<NoExpansion> {};
-template class BitmapConverter<ExpandFilter<GLuint>::type>;
-
+template<> class BitmapConverter<GLUtil::NoExpansion> {};
+template class BitmapConverter<GLUtil::ExpandGL>;
 #endif // COMPONENT_GL
 
 } // namespace openmsx

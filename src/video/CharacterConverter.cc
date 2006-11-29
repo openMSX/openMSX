@@ -335,27 +335,12 @@ void CharacterConverter<Pixel>::renderBogus(
 	for (int n = 8; n--; ) *pixelPtr++ = bg;
 }
 
-
 // Force template instantiation.
 template class CharacterConverter<word>;
 template class CharacterConverter<unsigned>;
-
 #ifdef COMPONENT_GL
-// The type "GLuint" can be either be equivalent to "word", "unsigned" or still
-// some completely other type. In the later case we need to expand the
-// CharacterConverter<GLuint> template, in the two former cases it is an error
-// to expand it again (it is already instantiated above).
-// The following piece of template metaprogramming takes care of this.
-
-class NoExpansion {};
-// ExpandFilter<T>::type = (T == unsigned || T == word) ? NoExpansion : T
-template<class T> class ExpandFilter  { typedef T           type; };
-template<> class ExpandFilter<word>     { typedef NoExpansion type; };
-template<> class ExpandFilter<unsigned> { typedef NoExpansion type; };
-
-template<> class CharacterConverter<NoExpansion> {};
-template class CharacterConverter<ExpandFilter<GLuint>::type>;
-
+template<> class CharacterConverter<GLUtil::NoExpansion> {};
+template class CharacterConverter<GLUtil::ExpandGL>;
 #endif // COMPONENT_GL
 
 } // namespace openmsx

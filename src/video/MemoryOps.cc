@@ -6,6 +6,7 @@
 #include "openmsx.hh"
 #include "build-info.hh"
 #include "probed_defs.hh"
+#include "GLUtil.hh"
 #include <map>
 #include <cassert>
 #include <cstdlib>
@@ -275,7 +276,17 @@ void memset_2(Pixel* out, unsigned num, Pixel val0, Pixel val1)
 {
 	// partial specialization of function templates is not allowed,
 	// so instead use function overloading
-	memset_2_helper<STREAMING>(out, num, val0, val1);
+	if (sizeof(Pixel) == 2) {
+		memset_2_helper<STREAMING>(
+			reinterpret_cast<word*>(out), num, val0, val1
+			);
+	} else if (sizeof(Pixel) == 4) {
+		memset_2_helper<STREAMING>(
+			reinterpret_cast<unsigned*>(out), num, val0, val1
+			);
+	} else {
+		assert(false);
+	}
 }
 template <typename Pixel, bool STREAMING>
 void memset(Pixel* out, unsigned num, Pixel val)
@@ -287,12 +298,18 @@ void memset(Pixel* out, unsigned num, Pixel val)
 // Force template instantiation
 template void memset_2<unsigned,  true>(unsigned*, unsigned, unsigned, unsigned);
 template void memset_2<unsigned, false>(unsigned*, unsigned, unsigned, unsigned);
-template void memset_2<word    ,  true>(word*,     unsigned, word    , word    );
+template void memset_2<word    ,  true>(word*    , unsigned, word    , word    );
 template void memset_2<word    , false>(word*    , unsigned, word    , word    );
 template void memset  <unsigned,  true>(unsigned*, unsigned, unsigned);
 template void memset  <unsigned, false>(unsigned*, unsigned, unsigned);
-template void memset  <word    ,  true>(word*,     unsigned, word    );
+template void memset  <word    ,  true>(word*    , unsigned, word    );
 template void memset  <word    , false>(word*    , unsigned, word    );
+#ifdef COMPONENT_GL
+template void memset_2<GLuint  ,  true>(GLuint*  , unsigned, GLuint  , GLuint  );
+template void memset_2<GLuint  , false>(GLuint*  , unsigned, GLuint  , GLuint  );
+template void memset  <GLuint  ,  true>(GLuint*  , unsigned, GLuint  );
+template void memset  <GLuint  , false>(GLuint*  , unsigned, GLuint  );
+#endif // COMPONENT_GL
 
 
 

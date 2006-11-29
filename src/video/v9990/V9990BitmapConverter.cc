@@ -12,30 +12,6 @@ using std::max;
 
 namespace openmsx {
 
-#ifdef COMPONENT_GL
-// On some systems, "GLuint" is not equivalent to "unsigned int",
-// so BitmapConverter must be instantiated separately for those systems.
-// But on systems where it is equivalent, it's an error to expand
-// the same template twice.
-// The following piece of template metaprogramming expands
-// V9990BitmapConverter<GLuint, Renderer::ZOOM_REAL> to an empty class if
-// "GLuint" is equivalent to "unsigned int"; otherwise it is expanded to
-// the actual V9990BitmapConverter implementation.
-//
-// See BitmapConverter.cc
-class NoExpansion {};
-// ExpandFilter::ExpandType = (Type == unsigned int ? NoExpansion : Type)
-template <class Type> class ExpandFilter {
-	typedef Type ExpandType;
-};
-template <> class ExpandFilter<unsigned int> {
-	typedef NoExpansion ExpandType;
-};
-template <> class V9990BitmapConverter<NoExpansion> {};
-template class V9990BitmapConverter<ExpandFilter<GLuint>::ExpandType>;
-#endif // COMPONENT_GL
-
-
 template <class Pixel>
 V9990BitmapConverter<Pixel>::V9990BitmapConverter(
 	V9990& vdp_, Pixel* palette64_, Pixel* palette256_, Pixel* palette32768_)
@@ -285,10 +261,13 @@ void V9990BitmapConverter<Pixel>::convertLine(
 	}
 }
 
-
 // Force template instantiation
 template class V9990BitmapConverter<word>;
 template class V9990BitmapConverter<unsigned>;
+#ifdef COMPONENT_GL
+template <> class V9990BitmapConverter<GLUtil::NoExpansion> {};
+template class V9990BitmapConverter<GLUtil::ExpandGL>;
+#endif // COMPONENT_GL
 
 } // namespace openmsx
 
