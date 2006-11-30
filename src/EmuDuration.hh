@@ -26,7 +26,6 @@ public:
 	// conversions
 	double toDouble() const { return (double)time / MAIN_FREQ; }
 	uint64 length() const { return time; }
-	unsigned frequency() const { return MAIN_FREQ / time; }
 
 	// assignment operator
 	EmuDuration& operator=(const EmuDuration& d)
