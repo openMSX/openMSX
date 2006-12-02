@@ -140,6 +140,9 @@ void CassettePlayer::insertTape(const string& filename, const EmuTime& time)
 	setMute(!isPlaying());
 	casImage = filename;
 	updateLoadingState();
+
+	cliComm.update(CliComm::MEDIA, "cassetteplayer", filename);
+	cliComm.update(CliComm::STATUS, "cassetteplayer", "play");
 }
 
 void CassettePlayer::autoRun()
@@ -181,8 +184,12 @@ void CassettePlayer::autoRun()
 void CassettePlayer::startRecording(const string& filename,
                                     const EmuTime& time)
 {
+	stopRecording(time);
 	wavWriter.reset(new WavWriter(filename, 1, 8, RECORD_FREQ));
 	reinitRecording(time);
+	casImage = filename;
+	cliComm.update(CliComm::MEDIA, "cassetteplayer", filename);
+	cliComm.update(CliComm::STATUS, "cassetteplayer", "record");
 }
 
 void CassettePlayer::reinitRecording(const EmuTime& time)
@@ -213,6 +220,8 @@ void CassettePlayer::removeTape(const EmuTime& time)
 	cassette.reset(new DummyCassetteImage());
 	casImage.clear();
 	updateLoadingState();
+	cliComm.update(CliComm::MEDIA, "cassetteplayer", "");
+	cliComm.update(CliComm::STATUS, "cassetteplayer", "play");
 }
 
 void CassettePlayer::rewind(const EmuTime& time)
@@ -290,8 +299,7 @@ void CassettePlayer::updateAll(const EmuTime& time)
 
 void CassettePlayer::setMotor(bool status, const EmuTime& time)
 {
-	if (status!=motor)
-	{
+	if (status != motor) {
 		updateAll(time);
 		motor = status;
 		setMute(wavWriter.get() || !isPlaying());
@@ -301,9 +309,11 @@ void CassettePlayer::setMotor(bool status, const EmuTime& time)
 
 void CassettePlayer::setMotorControl(bool status, const EmuTime& time)
 {
-	updateAll(time);
-	motorControl = status;
-	setMute(wavWriter.get() || !isPlaying());
+	if (status != motorControl) {
+		updateAll(time);
+		motorControl = status;
+		setMute(wavWriter.get() || !isPlaying());
+	}
 }
 
 short CassettePlayer::getSample(const EmuTime& time)
@@ -416,7 +426,7 @@ bool CassettePlayer::signalEvent(shared_ptr<const Event> event)
 			// Reinsert tape to make sure everything is reset.
 			try {
 				insertTape(casImage, scheduler.getCurrentTime());
-			} catch (MSXException &e) {
+			} catch (MSXException& e) {
 				cliComm.printWarning(
 					"Failed to insert tape: " + e.getMessage());
 			}
@@ -424,6 +434,7 @@ bool CassettePlayer::signalEvent(shared_ptr<const Event> event)
 	}
 	return true;
 }
+
 
 // class TapeCommand
 
@@ -453,38 +464,28 @@ string TapeCommand::execute(const vector<string>& tokens, const EmuTime& time)
 		tmp.addListElement(options);
 		// tmp.addListElement(cassette->getFirstFileTypeAsString()); <-- temporarily disabled, so that we can release openMSX 0.6.0 and Catapult 0.6.0-R1 without having to fix Catapult which breaks because of this
 		result += tmp.getString();
+
 	} else if (tokens[1] == "new") {
 		if (cassettePlayer.wavWriter.get()) {
-			cassettePlayer.stopRecording(time);
 			result += "Stopping recording to " + cassettePlayer.casImage;
 		}
-		string filename;
-		if (tokens.size() == 3) {
-			filename = tokens[2];
-		} else {
-			filename = FileOperations::getNextNumberedFileName(
-				"taperecordings", "openmsx", ".wav");
-		}
+		string filename = (tokens.size() == 3)
+		                ? tokens[2]
+		                : FileOperations::getNextNumberedFileName(
+		                         "taperecordings", "openmsx", ".wav");
 		cassettePlayer.startRecording(filename, time);
 		result += "Created new cassette image file: " + filename
 		       + ", inserted it and set recording mode.";
-		cassettePlayer.casImage = filename;
-		cassettePlayer.cliComm.update(
-			CliComm::MEDIA, "cassetteplayer", filename);
-		cassettePlayer.cliComm.update(
-			CliComm::STATUS, "cassetteplayer", "record");
+
 	} else if (tokens[1] == "insert" && tokens.size() == 3) {
 		try {
 			result += "Changing tape";
 			UserFileContext context(getCommandController());
 			cassettePlayer.insertTape(context.resolve(tokens[2]), time);
-			cassettePlayer.cliComm.update(CliComm::MEDIA,
-			        "cassetteplayer", tokens[2]);
-			cassettePlayer.cliComm.update(
-				CliComm::STATUS, "cassetteplayer", "play");
 		} catch (MSXException &e) {
 			throw CommandException(e.getMessage());
 		}
+
 	} else if (tokens[1] == "motorcontrol" && tokens.size() == 3) {
 		if (tokens[2] == "on") {
 			if (!cassettePlayer.motorControl) {
@@ -506,35 +507,36 @@ string TapeCommand::execute(const vector<string>& tokens, const EmuTime& time)
 					result += " (tape is running!)";
 				}
 			}
-		} else throw SyntaxError();
+		} else {
+			throw SyntaxError();
+		}
+
 	} else if (tokens.size() != 2) {
 		throw SyntaxError();
+
 	} else if (tokens[1] == "motorcontrol") {
 			result += "Motor control is ";
 			result += cassettePlayer.motorControl ? "on" : "off";
+
 	} else if (tokens[1] == "record") {
 			result += "TODO: implement this... (sorry)";
+
 	} else if (tokens[1] == "play") {
 		if (cassettePlayer.wavWriter.get()) {
 			try {
 				result += "Play mode set, rewinding tape.";
 				cassettePlayer.insertTape(
 					cassettePlayer.casImage, time);
-				cassettePlayer.cliComm.update(
-					CliComm::STATUS, "cassetteplayer", "play");
 			} catch (MSXException &e) {
 				throw CommandException(e.getMessage());
 			}
 		} else {
 			result += "Already in play mode.";
 		}
+
 	} else if (tokens[1] == "eject") {
 		result += "Tape ejected";
 		cassettePlayer.removeTape(time);
-		cassettePlayer.cliComm.update(
-			CliComm::MEDIA, "cassetteplayer", "");
-		cassettePlayer.cliComm.update(
-			CliComm::STATUS, "cassetteplayer", "play");
 
 	} else if (tokens[1] == "rewind") {
 		if (cassettePlayer.wavWriter.get()) {
@@ -542,8 +544,6 @@ string TapeCommand::execute(const vector<string>& tokens, const EmuTime& time)
 				result += "First stopping recording... ";
 				cassettePlayer.insertTape(
 					cassettePlayer.casImage, time);
-				cassettePlayer.cliComm.update(
-					CliComm::STATUS, "cassetteplayer", "play");
 				// this also did the rewinding
 			} catch (MSXException &e) {
 				throw CommandException(e.getMessage());
@@ -552,16 +552,13 @@ string TapeCommand::execute(const vector<string>& tokens, const EmuTime& time)
 			cassettePlayer.rewind(time);
 		}
 		result += "Tape rewound";
+
 	} else {
 		try {
 			result += "Changing tape";
 			UserFileContext context(getCommandController());
 			cassettePlayer.insertTape(context.resolve(tokens[1]), time);
-			cassettePlayer.cliComm.update(
-				CliComm::MEDIA, "cassetteplayer", tokens[1]);
-			cassettePlayer.cliComm.update(
-				CliComm::STATUS, "cassetteplayer", "play");
-		} catch (MSXException &e) {
+		} catch (MSXException& e) {
 			throw CommandException(e.getMessage());
 		}
 	}
@@ -576,46 +573,72 @@ string TapeCommand::help(const vector<string>& tokens) const
 	string helptext;
 	if (tokens.size() >= 2) {
 		if (tokens[1] == "eject") {
-			helptext = "Well, just eject the cassette from the cassette player/recorder!";
+			helptext =
+			    "Well, just eject the cassette from the cassette "
+			    "player/recorder!";
 		} else if (tokens[1] == "rewind") {
-			helptext = "Indeed, rewind the tape that is currently in the cassette player/recorder...";
+			helptext =
+			    "Indeed, rewind the tape that is currently in the "
+			    "cassette player/recorder...";
 		} else if (tokens[1] == "motorcontrol") {
-			helptext = "Setting this to 'off' is equivalent to disconnecting the black remote plug from\n"
-				"the cassette player: it makes the cassette player run (if in play mode); the\n"
-				"motor signal from the MSX will be ignored. Normally this is set to 'on': the\n"
-				"cassetteplayer obeys the motor control signal from the MSX.";
+			helptext =
+			    "Setting this to 'off' is equivalent to "
+			    "disconnecting the black remote plug from the "
+			    "cassette player: it makes the cassette player "
+			    "run (if in play mode); the motor signal from the "
+			    "MSX will be ignored. Normally this is set to "
+			    "'on': the cassetteplayer obeys the motor control "
+			    "signal from the MSX.";
 		} else if (tokens[1] == "play") {
-			helptext = "Go to play mode. Only useful if you were in record mode (which is currently\n"
-				"the only other mode available).";
+			helptext =
+			    "Go to play mode. Only useful if you were in "
+			    "record mode (which is currently the only other "
+			    "mode available).";
 		} else if (tokens[1] == "new") {
-			helptext = "Create a new cassette image. If the file name is omitted, one will be\n"
-				"generated in the default directory for tape recordings. Implies going to\n"
-				"record mode (why else do you want a new cassette image?).";
+			helptext =
+			    "Create a new cassette image. If the file name is "
+			    "omitted, one will be generated in the default "
+			    "directory for tape recordings. Implies going to "
+			    "record mode (why else do you want a new cassette "
+			    "image?).";
 		} else if (tokens[1] == "insert") {
-			helptext = "Inserts the specified cassette image into the cassette player, rewinds it and\n"
-				"switches to play mode.";
+			helptext =
+			    "Inserts the specified cassette image into the "
+			    "cassette player, rewinds it and switches to play "
+			    "mode.";
 		} else if (tokens[1] == "record") {
-			helptext = "Go to record mode. NOT IMPLEMENTED YET. Will be used to be able to resume\n"
-				"recording to an existing cassette image, previously inserted with the insert\n"
-				"command.";
+			helptext =
+			    "Go to record mode. NOT IMPLEMENTED YET. Will be "
+			    "used to be able to resume recording to an "
+			    "existing cassette image, previously inserted with "
+			    "the insert command.";
 		}
 	} else {
-		helptext = "cassetteplayer eject             : remove tape from virtual player\n"
-	       "cassetteplayer rewind            : rewind tape in virtual player\n"
-	       "cassetteplayer motorcontrol      : enables or disables motor control (remote)\n"
-	       "cassetteplayer play              : change to play mode (default)\n"
-	       "cassetteplayer record            : change to record mode (NOT IMPLEMENTED YET)\n"
-	       "cassetteplayer new [<filename>]  : create and insert new tape image file and\ngo to record mode\n"
-	       "cassetteplayer insert <filename> : insert (a different) tape file\n"
-	       "cassetteplayer <filename>        : insert (a different) tape file\n";
+		helptext =
+		    "cassetteplayer eject             "
+		    ": remove tape from virtual player\n"
+		    "cassetteplayer rewind            "
+		    ": rewind tape in virtual player\n"
+		    "cassetteplayer motorcontrol      "
+		    ": enables or disables motor control (remote)\n"
+		    "cassetteplayer play              "
+		    ": change to play mode (default)\n"
+		    "cassetteplayer record            "
+		    ": change to record mode (NOT IMPLEMENTED YET)\n"
+		    "cassetteplayer new [<filename>]  "
+		    ": create and insert new tape image file and go to record mode\n"
+		    "cassetteplayer insert <filename> "
+		    ": insert (a different) tape file\n"
+		    "cassetteplayer <filename>        "
+		    ": insert (a different) tape file\n";
 	}
 	return helptext;
 }
 
 void TapeCommand::tabCompletion(vector<string>& tokens) const
 {
-	set<string> extra;
 	if (tokens.size() == 2) {
+		set<string> extra;
 		extra.insert("eject");
 		extra.insert("rewind");
 		extra.insert("motorcontrol");
@@ -627,8 +650,9 @@ void TapeCommand::tabCompletion(vector<string>& tokens) const
 		completeFileName(tokens, context, extra);
 	} else if ((tokens.size() == 3) && (tokens[1] == "insert")) {
 		UserFileContext context(getCommandController());
-		completeFileName(tokens, context, extra);
+		completeFileName(tokens, context);
 	} else if ((tokens.size() == 3) && (tokens[1] == "motorcontrol")) {
+		set<string> extra;
 		extra.insert("on");
 		extra.insert("off");
 		completeString(tokens, extra);
