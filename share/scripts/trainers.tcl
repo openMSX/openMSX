@@ -257,7 +257,8 @@ proc trainer_roadfighter {} {
 	poke 0xe0ed 0
 	#y-position car 2
 	poke 0xe0fb 191
-	poke 0xe0fd 0
+	#x-position car 2
+	poke 0xe0fd 255
 	after time 1 trainer_roadfighter
 }
 
@@ -6909,6 +6910,14 @@ proc trainer_konamisgolf {} {
 	#shots
 	poke 0xe106 1
 	after time 1 trainer_konamisgolf
+}
+
+proc trainer_blagger {} {
+	#lives
+	poke 0x9233 0x99
+	#air
+	poke 0x9a85 255
+	after time 1 trainer_blagger
 }
 
 proc trainer_autofire {} {
