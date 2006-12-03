@@ -6860,6 +6860,37 @@ proc trainer_tvirus {} {
 	after time 1 trainer_tvirus
 }
 
+proc trainer_sasa {} {
+	#shots
+	poke 0xe07f 255
+	#power
+	poke 0xe06f 255
+	#lives
+	poke 0xe005 5
+	after time 1 trainer_sasa
+}
+
+proc trainer_moonsweeper {} {
+	#lives
+	poke 0xe136 255
+	#invincible
+	poke 0xe170 255
+	after time 1 trainer_moonsweeper
+}
+
+proc trainer_konamissoccer {} {
+	#score team 1
+	poke 0xe0f5 0x99
+	#score team 2
+	poke 0xe0f6 0
+	after time 1 trainer_konamissoccer
+}
+
+proc trainer_konamisgolf {} {
+	#shots
+	poke 0xe106 1
+	after time 1 trainer_konamisgolf
+}
 
 proc trainer_autofire {} {
 	type "							  "
