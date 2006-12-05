@@ -257,8 +257,7 @@ proc trainer_roadfighter {} {
 	poke 0xe0ed 0
 	#y-position car 2
 	poke 0xe0fb 191
-	#x-position car 2
-	poke 0xe0fd 255
+	poke 0xe0fd 0
 	after time 1 trainer_roadfighter
 }
 
@@ -412,8 +411,6 @@ proc trainer_gradius1scc {} {
 	poke 0xc240 1
 	after time 2 trainer_gradius1scc
 }
-
-
 
 proc trainer_gradius2 {} {
 	#lives
@@ -830,8 +827,6 @@ proc trainer_salamander {} {
 	#poke 0xe630 3
 	after time 5 trainer_salamander
 }
-
-
 proc trainer_jackiechprotector {} {
 	#life bar
 	poke 0xe024 5
@@ -1261,8 +1256,6 @@ proc trainer_sd-snatcher_walk_trough_walls {} {
 	poke 0x92b6 0xc9
 	after time 1 trainer_sd-snatcher_walk_trough_walls
 }
-
-
 proc trainer_undeadline {} {
 	#lives
 	poke 0xd2a9 2
@@ -1540,6 +1533,18 @@ proc trainer_metalgear1 {} {
 	#stop destruction timer
 	#!poke 0xc13d 0x99
 	#!poke 0xc13e 0x99
+
+	#enemy 1 gone
+	#poke 0xd005 0
+
+	#enemy 2 gone
+	#poke 0xd085 0
+
+	#enemy 3 gone
+	#poke 0xd105 0
+
+	#enemy 4 gone
+	#poke 0xd185 0
 	
 	#open all doors
 	for {set i 0xc450} { $i < 0xc4fe } { incr i } {
@@ -1549,7 +1554,7 @@ proc trainer_metalgear1 {} {
 	for {set i 0xc490} { $i < 0xc4a9 } { incr i } {
 		poke $i 0
 	}
-	after time 2 trainer_metalgear1
+	after time 1 trainer_metalgear1
 }
 
 proc trainer_metalgear2 {} {
@@ -1690,6 +1695,7 @@ proc trainer_usas {} {
 	#wit can jump more than twice
 	poke 0xc248 0
 	poke 0xc265 0
+
 	after time 1 trainer_usas
 }
 
@@ -1992,8 +1998,6 @@ proc trainer_superlaydock_mission_striker {} {
 	#!poke 0xe37c 200
 	after time 2 trainer_superlaydock_mission_striker
 }
-
-
 proc trainer_superlaydock2  {} {
 	#power
 	poke 0x6817 255
@@ -2431,8 +2435,6 @@ after time 1 trainer_arsenelupin2
 proc trainer_arsenelupin3_missle {} {
 	poke 0xe1ca 1
 }
-
-
 proc trainer_superrunner {} {
 	#invincible
 	poke 0xccce 1
@@ -2733,8 +2735,6 @@ proc trainer_kingsvalley2 {} {
 	poke 0xe240 0x99
 	after time 2 trainer_kingsvalley2
 }
-
-
 proc trainer_malayanohibou {} {
 	#life
 	poke 0xccd3 15
@@ -3305,8 +3305,6 @@ proc trainer_pineaplin {} {
 
 	after time 2 trainer_pineaplin
 }
-
-
 proc trainer_godzilla {} {
 	#lives
 	poke 0xe30f 101
@@ -3343,8 +3341,6 @@ proc trainer_bombermanspecial {} {
 	poke 0xd01b 255
 	after time 10 trainer_bombermanspecial
 }
-
-
 proc trainer_bomberking {} {
 	#energy
 	poke 0xc5c1 236
@@ -3757,8 +3753,6 @@ proc trainer_jackthenippercoconut {} {
 	poke 0x8826 0
 	after time 1 trainer_jackthenippercoconut
 }
-
-
 proc trainer_jackthenipper {} {
 	#power bar
 	poke 0x2c56 0
@@ -3796,8 +3790,6 @@ proc trainer_dynamitedan {} {
 	poke 0x01f2 9
 	after time 5 trainer_dynamitedan
 }
-
-
 proc trainer_raidonbungelingbay {} {
 	#energy
 	poke 0xe0f5 0
@@ -4853,8 +4845,6 @@ proc trainer_jaws {} {
 	poke 0x8078 0x99
 	after time 1 trainer_jaws
 }
-
-
 proc trainer_joeblade {} {
 	#max hits
 	poke 0x8d97 128
@@ -5047,8 +5037,6 @@ proc trainer_iceworld {} {
 	poke 0xe00b 5
 	after time 10 trainer_iceworld
 }
-
-
 proc trainer_manes {} {
 	#lives
 	poke 0xdb93 5
@@ -5282,7 +5270,9 @@ proc trainer_borfesu {} {
 	poke 0xe046 255
 	#containers
 	poke 0xe01a 250
-	after time 1 trainer_borfesu
+	#invincible
+	poke 0xe37d 201
+	after time 0.25 trainer_borfesu
 }
 
 proc trainer_alcazar {} {
@@ -6293,19 +6283,15 @@ proc trainer_david2 {} {
 proc trainer_telebunnie {} {
 	#lives
 	poke 0xe064 255
-	after time 5 trainer_telebunnie
-}
-
-proc trainer_telebunnie {} {
-	#lives
-	poke 0xe064 255
-	after time 5 trainer_telebunnie
+	#snake y-position
+	poke 0xe018 0
+	after time 1 trainer_telebunnie
 }
 
 proc trainer_sofia {} {
 	#hearts
-	poke 0xe6eb 64
-	#invincible (except lava)
+	poke 0xe6eb 5
+	#invincible (except lava and water)
 	poke 0xe6ed 255
 	after time 5 trainer_sofia
 }
@@ -6319,13 +6305,19 @@ proc trainer_boggy84 {} {
 proc trainer_riseout {} {
 	#lives
 	poke 0xec06 255
+	#Red man x-postition
+	poke 0xed11 255
+	#Red man y-postition
+	poke 0xed12 191
 	after time 5 trainer_riseout
 }
 
 proc trainer_dangerx4 {} {
 	#lives
 	poke 0xd018 10
-	after time 5 trainer_dangerx4
+	#mice left 
+	poke 0xd026 1
+	after time 1 trainer_dangerx4
 }
 
 proc trainer_thefairylandstory {} {
@@ -6920,6 +6912,72 @@ proc trainer_blagger {} {
 	after time 1 trainer_blagger
 }
 
+proc trainer_chuckieegg {} {
+	#lives
+	poke 0xb21d 5
+	after time 1 trainer_chuckieegg
+}
+
+proc trainer_addicataball {} {
+	#lives
+	poke 0x0616 10
+	#ammo
+	poke 0x0619 64
+	#fuel
+	poke 0x0617 64
+	#shooting ability
+	poke 0x061a 2
+	poke 0x061e 1
+	#flying ability
+	poke 0x618 3
+	poke 0x61b 2
+	#floor
+	poke 0x0aeb 8
+	poke 0x0aec 8
+	poke 0x0aed 8
+	poke 0x0aee 8
+	poke 0x0aef 8
+	poke 0x0af0 8
+	poke 0x0af1 8
+	poke 0x0af2 8
+	poke 0x0af3 8
+	poke 0x0af4 8
+	poke 0x0af5 8
+	poke 0x0af6 8
+	poke 0x0af7 8
+	poke 0x0af8 8
+	after time 1 trainer_addicataball
+}
+
+proc trainer_dogfighter {} {
+	#fuel
+	poke 0xe33e 255
+	poke 0xe33f 255
+	#shot
+	poke 0xe340 255
+	#lives
+	poke 0xe304 4
+	after time 1 trainer_dogfighter
+}
+
+proc trainer_hunchback {} {
+	#lives
+	poke 0x9114 6
+	#y-pos ball 1 
+	poke 0x9c72 100
+	#y-pos ball 2
+	poke 0x9c76 100
+	#y-pos wall crawler
+	poke 0x9c92 120
+	#guardian 1
+	poke 0x90ba 10
+	#guardian 2
+	poke 0x90be 10
+	#guardian 3
+	poke 0x90c2 10
+	after time 1 trainer_hunchback
+}
+
 proc trainer_autofire {} {
 	type "							  "
 	after time 1 trainer_autofire
@@ -6934,4 +6992,3 @@ proc trainer_nemesis2beta {} 	{trainer_gradius2beta}
 proc trainer_nemesis3 {} 	{trainer_gradius3}
 
 ### EOF ###
-
