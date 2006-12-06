@@ -27,8 +27,6 @@ private:
 };
 
 
-static const double PI = 3.14159265358979;
-
 static const double EG_STEP = 0.1875;
 static const double SL_STEP = 3.0;
 static const double TL_STEP = 0.75;
@@ -142,7 +140,7 @@ int Y8950::Slot::lin2db(double d)
 void Y8950::Slot::makeSinTable()
 {
 	for (int i=0; i < PG_WIDTH/4; i++)
-		sintable[i] = lin2db(sin(2.0*PI*i/PG_WIDTH));
+		sintable[i] = lin2db(sin(2.0*M_PI*i/PG_WIDTH));
 	for (int i=0; i < PG_WIDTH/4; i++)
 		sintable[PG_WIDTH/2 - 1 - i] = sintable[i];
 	for (int i=0; i < PG_WIDTH/2; i++)
@@ -160,18 +158,18 @@ void Y8950::makeDphaseNoiseTable(int sampleRate)
 void Y8950::makePmTable()
 {
 	for (int i=0; i<PM_PG_WIDTH; i++)
-		pmtable[0][i] = (int)((double)PM_AMP * pow(2,(double)PM_DEPTH*sin(2.0*PI*i/PM_PG_WIDTH)/1200));
+		pmtable[0][i] = (int)((double)PM_AMP * pow(2,(double)PM_DEPTH*sin(2.0*M_PI*i/PM_PG_WIDTH)/1200));
 	for (int i=0; i < PM_PG_WIDTH; i++)
-		pmtable[1][i] = (int)((double)PM_AMP * pow(2,(double)PM_DEPTH2*sin(2.0*PI*i/PM_PG_WIDTH)/1200));
+		pmtable[1][i] = (int)((double)PM_AMP * pow(2,(double)PM_DEPTH2*sin(2.0*M_PI*i/PM_PG_WIDTH)/1200));
 }
 
 // Table for Amp Modulator
 void Y8950::makeAmTable()
 {
 	for (int i=0; i<AM_PG_WIDTH; i++)
-		amtable[0][i] = (int)((double)AM_DEPTH/2/DB_STEP * (1.0 + sin(2.0*PI*i/PM_PG_WIDTH)));
+		amtable[0][i] = (int)((double)AM_DEPTH/2/DB_STEP * (1.0 + sin(2.0*M_PI*i/PM_PG_WIDTH)));
 	for (int i=0; i<AM_PG_WIDTH; i++)
-		amtable[1][i] = (int)((double)AM_DEPTH2/2/DB_STEP * (1.0 + sin(2.0*PI*i/PM_PG_WIDTH)));
+		amtable[1][i] = (int)((double)AM_DEPTH2/2/DB_STEP * (1.0 + sin(2.0*M_PI*i/PM_PG_WIDTH)));
 }
 
 // Phase increment counter table

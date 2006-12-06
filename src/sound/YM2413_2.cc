@@ -39,8 +39,6 @@ private:
 };
 
 
-const double PI = 3.14159265358979323846;
-
 const int FREQ_SH = 16;	// 16.16 fixed point (frequency calculations)
 const int EG_SH   = 16;	// 16.16 fixed point (EG timing)
 const int LFO_SH  = 24;	//  8.24 fixed point (LFO calculations)
@@ -867,7 +865,7 @@ void YM2413_2::init_tables()
 
 	for (int i = 0; i < SIN_LEN; i++) {
 		// non-standard sinus
-		double m = sin(((i * 2) + 1) * PI / SIN_LEN); // checked against the real chip
+		double m = sin(((i * 2) + 1) * M_PI / SIN_LEN); // checked against the real chip
 
 		// we never reach zero here due to ((i*2)+1)
 		double o = (m > 0.0) ?

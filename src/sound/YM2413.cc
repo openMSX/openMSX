@@ -27,7 +27,6 @@ private:
 
 
 static const int CLOCK_FREQ = 3579545;
-static const double PI = 3.14159265358979323846;
 
 static const double DB_STEP = 48.0 / (1 << 8); //   48 / (1 << DB_BITS)
 static const double EG_STEP = 0.375;
@@ -153,7 +152,7 @@ int YM2413::lin2db(double d)
 void YM2413::makeSinTable()
 {
 	for (int i = 0; i < PG_WIDTH / 4; ++i)
-		fullsintable[i] = lin2db(sin(2.0 * PI * i / PG_WIDTH));
+		fullsintable[i] = lin2db(sin(2.0 * M_PI * i / PG_WIDTH));
 	for (int i = 0; i < PG_WIDTH / 4; ++i)
 		fullsintable[PG_WIDTH / 2 - 1 - i] = fullsintable[i];
 	for (int i = 0; i < PG_WIDTH / 2; ++i)
@@ -167,12 +166,12 @@ void YM2413::makeSinTable()
 
 static inline double saw(double phase)
 {
-  if (phase <= (PI / 2)) {
-    return phase * 2 / PI;
-  } else if (phase <= (PI * 3 / 2)) {
-    return 2.0 - (phase * 2 / PI);
+  if (phase <= (M_PI / 2)) {
+    return phase * 2 / M_PI;
+  } else if (phase <= (M_PI * 3 / 2)) {
+    return 2.0 - (phase * 2 / M_PI);
   } else {
-    return -4.0 + phase * 2 / PI;
+    return -4.0 + phase * 2 / M_PI;
   }
 }
 
@@ -182,7 +181,7 @@ void YM2413::makePmTable()
 	for (int i = 0; i < PM_PG_WIDTH; ++i) {
 		 pmtable[i] = (int)((double)PM_AMP *
 		     pow(2, (double)PM_DEPTH *
-		            saw(2.0 * PI * i / PM_PG_WIDTH) / 1200));
+		            saw(2.0 * M_PI * i / PM_PG_WIDTH) / 1200));
 	}
 }
 
@@ -191,7 +190,7 @@ void YM2413::makeAmTable()
 {
 	for (int i = 0; i < AM_PG_WIDTH; ++i) {
 		amtable[i] = (int)((double)AM_DEPTH / 2 / DB_STEP *
-		                   (1.0 + saw(2.0 * PI * i / PM_PG_WIDTH)));
+		                   (1.0 + saw(2.0 * M_PI * i / PM_PG_WIDTH)));
 	}
 }
 
