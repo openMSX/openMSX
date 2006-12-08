@@ -258,7 +258,7 @@ proc trainer_roadfighter {} {
 	#y-position car 2
 	poke 0xe0fb 191
 	poke 0xe0fd 0
-	after time 1 trainer_roadfighter
+	after time 0.25 trainer_roadfighter
 }
 
 proc trainer_skyjaguar {} {
@@ -1982,6 +1982,10 @@ proc trainer_vampirekiller {} {
 	poke 0xc418 0
 	#silver cross is always active (no irregular enemies)
 	poke 0xc440 255
+	#x-pos enemy 1
+	#poke 0xc805 128
+	#x-pos enemy 2
+	#poke 0xc885 128
 	after time 2 trainer_vampirekiller
 }
 
@@ -2092,7 +2096,6 @@ proc trainer_fantasmsoldier2 {} {
 proc trainer_dirdeaf {} {
 	#life
 	poke 0xb9ca 64
-
 	#weapon 2
 	poke 0xb8b0 1
 	#weapon 3
@@ -2251,7 +2254,7 @@ proc trainer_gryzor {} {
 	#poke 0xe032 7
 	#underground stages get easier
 	poke 0xe50b 200
-	#end bosses and underground stages het easier
+	#end bosses and underground stages get easier
 	poke 0xe50b 200
 	poke 0xe51b 200
 	poke 0xe52b 200
@@ -3244,7 +3247,7 @@ proc trainer_supertriton {} {
 proc trainer_triton {} {
 	#exp
 	poke 0xe43b 100
-	 	#life
+	 #life
 	poke 0xe439 99
 	#magic balls
 	poke 0xe43c 99
@@ -3254,7 +3257,7 @@ proc trainer_triton {} {
 proc trainer_afterburner {} {
 	#missles
 	poke 0x5e23 255
-	 	#lives
+	 #lives
 	poke 0x5e4e 100
 	after time 10 trainer_afterburner
 }
@@ -3305,6 +3308,7 @@ proc trainer_pineaplin {} {
 
 	after time 2 trainer_pineaplin
 }
+
 proc trainer_godzilla {} {
 	#lives
 	poke 0xe30f 101
@@ -3610,24 +3614,6 @@ proc trainer_arkanoid1 {} {
 	after time 1 trainer_arkanoid1
 }
 
-proc trainer_arkanoid1 {} {
-	#always fire
-	poke 0xe551 2
-	#99 lives
-	poke 0xe01d 99
-
-	#(thanks mars2000you for rest of the cheats)
-	#normal ball speed
-	poke 0xe255 12
-	#glueball
-	poke 0xe324 1
-	#open door to next round
-	#poke 0xe326 1
-	#round (0-32)
-	#poke 0xe01b 0
-	after time 1 trainer_arkanoid1
-}
-
 proc trainer_arkanoid2 {} {
 	#always fire
 	poke 0xc789 3
@@ -3754,7 +3740,7 @@ proc trainer_jackthenippercoconut {} {
 	after time 1 trainer_jackthenippercoconut
 }
 proc trainer_jackthenipper {} {
-	#power bar
+	#powerbar
 	poke 0x2c56 0
 	after time 1 trainer_jackthenipper
 }
@@ -6975,7 +6961,11 @@ proc trainer_hunchback {} {
 	poke 0x90be 10
 	#guardian 3
 	poke 0x90c2 10
-	after time 1 trainer_hunchback
+	#arrow 1
+	poke 0x9c6a 100
+	#arrow 2
+	poke 0x9c6e 100
+	after time 0.5 trainer_hunchback
 }
 
 proc trainer_autofire {} {
