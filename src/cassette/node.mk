@@ -8,7 +8,6 @@ SRC_HDR:= \
 	CassettePlayerCLI \
 	CassettePort \
 	DummyCassetteDevice \
-	DummyCassetteImage \
 	CassetteImage \
 	CasImage \
 	WavImage

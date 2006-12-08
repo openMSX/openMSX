@@ -24,7 +24,7 @@ class MSXCommandController;
 class MSXEventDistributor;
 class EventDistributor;
 
-class CassettePlayer : public CassetteDevice, public SoundDevice, public EventListener
+class CassettePlayer : public CassetteDevice, public SoundDevice, private EventListener
 {
 public:
 	CassettePlayer(MSXCommandController& msxCommandController,
@@ -33,9 +33,6 @@ public:
 	               EventDistributor& eventDistributor,
 	               MSXCliComm& cliComm);
 	virtual ~CassettePlayer();
-
-	void insertTape(const std::string& filename, const EmuTime& time);
-	void removeTape(const EmuTime& time);
 
 	// CassetteDevice
 	virtual void setMotor(bool status, const EmuTime& time);
@@ -56,24 +53,33 @@ public:
 		const EmuDuration& sampDur);
 
 private:
-	bool isPlaying() const;
+	enum State { PLAY, RECORD, STOP };
+	State getState() const;
+	void setState(State newState, const EmuTime& time);
+	static std::string getStateString(State state);
+	void setImageName(const std::string& newImage);
+	const std::string& getImageName() const;
+	void checkInvariants() const;
+
+	void playTape(const std::string& filename, const EmuTime& time);
+	void removeTape(const EmuTime& time);
+	void recordTape(const std::string& filename, const EmuTime& time);
+	void rewind(const EmuTime& time);
+	void setMotorControl(bool status, const EmuTime& time);
+	bool isRolling() const;
 	void updateLoadingState();
 	void updateAll(const EmuTime& time);
-	void rewind(const EmuTime& time);
-	void updatePosition(const EmuTime& time);
+	void updatePlayPosition(const EmuTime& time);
 	short getSample(const EmuTime& time);
 	void fillBuf(size_t length, double x);
 	void flushOutput();
-	void startRecording(const std::string& filename, const EmuTime& time);
-	void reinitRecording(const EmuTime& time);
-	void stopRecording(const EmuTime& time);
-	void setMotorControl(bool status, const EmuTime& time);
 	void autoRun();
 
         // EventListener
 	virtual bool signalEvent(shared_ptr<const Event> event);
 
-	std::auto_ptr<CassetteImage> cassette;
+	State state;
+	std::auto_ptr<CassetteImage> playImage;
 	bool motor, motorControl;
 	EmuTime tapeTime;
 	EmuTime recTime;
@@ -88,7 +94,7 @@ private:
 	static const size_t BUF_SIZE = 1024;
 	unsigned char buf[BUF_SIZE];
 
-	std::auto_ptr<WavWriter> wavWriter;
+	std::auto_ptr<WavWriter> recordImage;
 
 	MSXCommandController& msxCommandController;
 	Scheduler& scheduler;
