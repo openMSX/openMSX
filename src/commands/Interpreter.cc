@@ -12,6 +12,7 @@
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "MSXCommandController.hh"
+#include "StringOp.hh"
 //#include <tk.h>
 
 using std::set;
@@ -329,6 +330,9 @@ char* Interpreter::proxyTraceProc(ClientData clientData, Tcl_Interp* interp,
 		static string static_string;
 
 		string name = part1;
+		if (StringOp::startsWith(name, "::")) {
+			name = name.substr(2);
+		}
 		Setting* variable = interpreter->getMachineSetting(name);
 		if (!variable) {
 			static_string = "no such variable: " + name;

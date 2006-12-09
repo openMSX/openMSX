@@ -1,5 +1,11 @@
 $Id$
 
+2006-12-09 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed explicit (global) namespace qualification on proxy settings:
+	   - proxy setting here means a machine specific setting that's
+	     for convenience mirrored in the global namespace
+	   - the toggle/cycle commands triggered this problem
+
 2006-11-29 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Changed memset and memset2 from functions into functors:
 	   - Compilation was broken recently on system were GLuint !=
