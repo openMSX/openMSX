@@ -24,8 +24,8 @@ please cheat responsible!
 }
 
 #helper functions
-proc poke {addr val} {debug write memory $addr $val}
-proc peek {addr}	 {return [debug read memory $addr]}
+proc poke {addr val} 	{debug write memory $addr $val}
+proc peek {addr}	{return [debug read memory $addr]}
 
 #trainers
 
@@ -371,7 +371,30 @@ proc trainer_gradius1 {} {
 	poke 0xe240 1
 	#simulate twinbee in slot 2
 	#poke 0xf0f4 1
-	after time 2 trainer_gradius1
+	#x-pos enemy
+	#poke 0xe306 0
+	#x-pos enemy
+	#poke 0xe326 0
+	#x-pos enemy
+	#poke 0xe346 0
+	#x-pos enemy
+	#poke 0xe366 0
+	#x-pos enemy
+	#poke 0xe386 0
+	#x-pos enemy
+	#poke 0xe3a6 0
+	#x-pos enemy
+	#poke 0xe3c6 0
+	#x-pos enemy
+	#poke 0xe3e6 0
+	#x-pos enemy
+	#poke 0xe406 0
+	#x-pos enemy
+	#poke 0xe426 0
+	#x-pos enemy
+	#poke 0xe446 0
+
+	after time 0.5 trainer_gradius1
 }
 
 proc trainer_gradius1scc {} {
@@ -461,7 +484,23 @@ proc trainer_gradius2 {} {
 	# 8 = The Maze Of Galious
 	# 255 = all the 3 cartridges
 	#poke 0xf0f5 255
-	after time 2 trainer_gradius2
+	#xpos enemy
+	#poke 0xe606 0
+	#xpos enemy
+	#poke 0xe646 0
+	#xpos enemy
+	3poke 0xe686 0
+	#xpos enemy
+	#poke 0xe6c6 0
+	#xpos enemy
+	#poke 0xe706 0
+	#xpos enemy
+	#poke 0xe746 0
+	#xpos enemy
+	#poke 0xe786 0
+	#xpos enemy
+	#poke 0xe7c6 0	
+	after time 0.5 trainer_gradius2
 }
 
 proc trainer_gradius2beta {} {
@@ -2692,7 +2731,19 @@ proc trainer_knightmare {} {
 	poke 0xe60e 0x99
 	#nuclear arrows ;)
 	#poke 0xe609 13
-	after time 2 trainer_knightmare
+	#enemy 1 y-pos
+	poke 0xe103 210
+	#enemy 2 y-pos
+	poke 0xe113 210
+	#enemy 3 y-pos
+	poke 0xe123 210
+	#enemy 4 y-pos
+	poke 0xe143 210
+	#enemy 5 y-pos
+	poke 0xe163 210
+	#end boss dies easily
+	poke 0xe034 0
+	after time 0.25 trainer_knightmare
 }
 
 proc trainer_quinpl {} {
@@ -4317,7 +4368,24 @@ proc trainer_gradius3 {} {
 	poke 0xe632 19
 	# double way missile (with vixen=3)
 	poke 0xe642 16
-	after time 1 trainer_gradius3
+	#x-pos enemy
+	#poke 0xe806 0
+	#x-pos enemy
+	#poke 0xe846 0
+	#x-pos enemy
+	#poke 0xe886 0
+	#x-pos enemy
+	#poke 0xe8c6 0
+	#x-pos enemy
+	#poke 0xe906 0
+	#x-pos enemy
+	#poke 0xe946 0
+	#x-pos enemy
+	#poke 0xe986 0
+	#x-pos enemy
+	#poke 0xe9c6 0
+
+	after time 0.5 trainer_gradius3
 }
 
 proc trainer_alien8 {} {
@@ -4869,7 +4937,11 @@ proc trainer_ghostbusters {} {
 	poke 0xf13a 255
 	#fast time
 	poke 0xefe9 0x99
-	after time 1 trainer_ghostbusters
+	#ghost x-position
+	poke 0xf0ed 128
+	#ghost y-position
+	poke 0xf0ee 160
+	after time 0.10 trainer_ghostbusters
 }
 
 proc trainer_replicart {} {
@@ -6966,6 +7038,18 @@ proc trainer_hunchback {} {
 	#arrow 2
 	poke 0x9c6e 100
 	after time 0.5 trainer_hunchback
+}
+
+proc trainer_anaza {} {
+	#power
+	poke 0xc016 16
+	#speed
+	poke 0xc03d 4
+	#fire supershot
+	poke 0xc03b 6
+	#monolis
+	poke 0xc020 8
+	after time 1 trainer_anaza
 }
 
 proc trainer_autofire {} {
