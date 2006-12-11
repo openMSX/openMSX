@@ -12,22 +12,9 @@ namespace openmsx {
 class EmuTime
 {
 public:
-	// friends
-	friend std::ostream& operator<<(std::ostream& os, const EmuTime& time);
-	template<unsigned, unsigned> friend class Clock;
-	friend class DynamicClock;
-
-	// constructors
-	EmuTime(const EmuTime& e) : time(e.time) {}
+	// Note: default copy constructor and assigment operator are ok.
 
 	static EmuTime makeEmuTime(uint64 u) { return EmuTime(u); }
-
-	// destructor
-	virtual ~EmuTime() {}
-
-	// assignment operator
-	EmuTime& operator=(const EmuTime& e)
-		{ time = e.time; return *this; }
 
 	// comparison operators
 	bool operator==(const EmuTime& e) const
@@ -65,6 +52,11 @@ private:
 	explicit EmuTime(uint64 n) : time(n) {}
 
 	uint64 time;
+
+	// friends
+	friend std::ostream& operator<<(std::ostream& os, const EmuTime& time);
+	template<unsigned, unsigned> friend class Clock;
+	friend class DynamicClock;
 };
 
 std::ostream& operator <<(std::ostream& os, const EmuTime& e);
