@@ -24,6 +24,16 @@ Setting::~Setting()
 {
 }
 
+const string& Setting::getName() const
+{
+	return name;
+}
+
+string Setting::getDescription() const
+{
+	return description;
+}
+
 void Setting::notify() const
 {
 	Subject<Setting>::notify();
@@ -36,9 +46,9 @@ bool Setting::needLoadSave() const
 	return save;
 }
 
-void Setting::setDontSaveValue(const std::string& dontSave_)
+void Setting::setDontSaveValue(const std::string& dontSaveValue_)
 {
-	dontSave = dontSave_;
+	dontSaveValue = dontSaveValue_;
 }
 
 void Setting::sync(XMLElement& config) const
@@ -56,7 +66,7 @@ void Setting::sync(XMLElement& config) const
 		// check for non-saveable value
 		// (mechanism can be generalize later when needed)
 		string tmp = getValueString();
-		if (tmp == dontSave) tmp = getRestoreValueString();
+		if (tmp == dontSaveValue) tmp = getRestoreValueString();
 		elem.setData(tmp);
 	}
 }

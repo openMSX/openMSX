@@ -51,9 +51,6 @@ public:
 	                      std::vector<std::string>& result,
 	                      Tcl_Interp* interp);
 
-	void registerProxySetting(const std::string& name);
-	void unregisterProxySetting(const std::string& name);
-
 private:
 	// EventListener
 	virtual bool signalEvent(shared_ptr<const Event> event);
@@ -65,10 +62,6 @@ private:
 	static int commandProc(ClientData clientData, Tcl_Interp* interp,
                                int objc, Tcl_Obj* const objv[]);
 	static char* traceProc(ClientData clientData, Tcl_Interp* interp,
-                const char* part1, const char* part2, int flags);
-
-	Setting* getMachineSetting(const std::string& name);
-	static char* proxyTraceProc(ClientData clientData, Tcl_Interp* interp,
                 const char* part1, const char* part2, int flags);
 
 	EventDistributor& eventDistributor;

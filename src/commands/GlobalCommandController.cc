@@ -4,6 +4,7 @@
 #include "Command.hh"
 #include "Setting.hh"
 #include "ProxyCommand.hh"
+#include "ProxySetting.hh"
 #include "InfoTopic.hh"
 #include "File.hh"
 #include "openmsx.hh"
@@ -113,24 +114,47 @@ void GlobalCommandController::unregisterProxyCommand(const string& name)
 	}
 }
 
+GlobalCommandController::ProxySettings::iterator
+GlobalCommandController::findProxySetting(const std::string& name)
+{
+	for (ProxySettings::iterator it = proxySettings.begin();
+	     it != proxySettings.end(); ++it) {
+		if (it->first->getName() == name) {
+			return it;
+		}
+	}
+	return proxySettings.end();
+}
+
 void GlobalCommandController::registerProxySetting(Setting& setting)
 {
 	const string& name = setting.getName();
-	if (proxySettingMap[name] == 0) {
-		getSettingsConfig().getSettingsManager().registerSetting(setting, name);
-		getInterpreter().registerProxySetting(name);
+	ProxySettings::iterator it = findProxySetting(name);
+	if (it == proxySettings.end()) {
+		// first occurrence
+		ProxySetting* proxy = new ProxySetting(*this, name);
+		proxySettings.push_back(std::make_pair(proxy, 1));
+		getSettingsConfig().getSettingsManager().registerSetting(*proxy, name);
+		getInterpreter().registerSetting(*proxy, name);
+	} else {
+		// was already registered
+		++(it->second);
 	}
-	++proxySettingMap[name];
 }
 
 void GlobalCommandController::unregisterProxySetting(Setting& setting)
 {
 	const string& name = setting.getName();
-	assert(proxySettingMap[name]);
-	--proxySettingMap[name];
-	if (proxySettingMap[name] == 0) {
-		getInterpreter().unregisterProxySetting(name);
-		getSettingsConfig().getSettingsManager().unregisterSetting(setting, name);
+	ProxySettings::iterator it = findProxySetting(name);
+	assert(it != proxySettings.end());
+	assert(it->second);
+	--(it->second);
+	if (it->second == 0) {
+		ProxySetting* proxy = it->first;
+		getInterpreter().unregisterSetting(*proxy, name);
+		getSettingsConfig().getSettingsManager().unregisterSetting(*proxy, name);
+		proxySettings.erase(it);
+		delete proxy;
 	}
 }
 
@@ -156,6 +180,11 @@ Interpreter& GlobalCommandController::getInterpreter()
 		interpreter.reset(new Interpreter(eventDistributor, reactor));
 	}
 	return *interpreter;
+}
+
+Reactor& GlobalCommandController::getReactor()
+{
+	return reactor;
 }
 
 InfoCommand& GlobalCommandController::getOpenMSXInfoCommand()

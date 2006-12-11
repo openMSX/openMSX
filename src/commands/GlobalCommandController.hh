@@ -24,6 +24,7 @@ class TabCompletionCmd;
 class ProxyCmd;
 class VersionInfo;
 class RomInfoTopic;
+class ProxySetting;
 
 class GlobalCommandController : public CommandController, private noncopyable
 {
@@ -34,6 +35,7 @@ public:
 
 	void setCliComm(CliComm* cliComm);
 
+	Reactor& getReactor();
 	InfoCommand& getOpenMSXInfoCommand();
 	HotKey& getHotKey();
 
@@ -94,6 +96,9 @@ private:
 
 	void tabCompletion(std::vector<std::string>& tokens);
 
+	typedef std::vector<std::pair<ProxySetting*, unsigned> > ProxySettings;
+	ProxySettings::iterator findProxySetting(const std::string& name);
+
 	typedef std::map<std::string, Command*> CommandMap;
 	typedef std::map<std::string, CommandCompleter*> CompleterMap;
 	CommandMap commands;
@@ -119,7 +124,7 @@ private:
 	std::auto_ptr<RomInfoTopic> romInfoTopic;
 
 	std::map<std::string, unsigned> proxyCommandMap;
-	std::map<std::string, unsigned> proxySettingMap;
+	ProxySettings proxySettings;
 };
 
 } // namespace openmsx

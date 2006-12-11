@@ -5,6 +5,7 @@ include build/node-start.mk
 SRC_HDR:= \
 	SettingsManager \
 	Setting \
+	ProxySetting \
 	IntegerSetting \
 	FloatSetting \
 	StringSetting \

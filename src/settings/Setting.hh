@@ -28,11 +28,11 @@ public:
 
 	/** Get the name of this setting.
 	  */
-	const std::string& getName() const { return name; }
+	const std::string& getName() const;
 
 	/** Get a description of this setting that can be presented to the user.
 	  */
-	const std::string& getDescription() const { return description; }
+	virtual std::string getDescription() const;
 
 	/** Get the current value of this setting in a string format that can be
 	  * presented to the user.
@@ -70,11 +70,11 @@ public:
 
 	/** Needs this setting to be loaded or saved
 	  */
-	bool needLoadSave() const;
+	virtual bool needLoadSave() const;
 
 	/** This value will never end up in the settings.xml file
 	 */
-	void setDontSaveValue(const std::string& dontSave);
+	virtual void setDontSaveValue(const std::string& dontSaveValue);
 
 	/** Synchronize the setting with the SettingsConfig. Should be called
 	  * just before saving the setting or just before the setting is
@@ -88,6 +88,9 @@ public:
 
 	CommandController& getCommandController() const;
 
+	// helper method for info()
+	virtual void additionalInfo(TclObject& result) const = 0;
+
 protected:
 	Setting(CommandController& commandController, const std::string& name,
 	        const std::string& description, SaveSetting save);
@@ -99,9 +102,6 @@ protected:
 	  * the Subject class.
 	  */
 	void notify() const;
-
-	// helper method for info()
-	virtual void additionalInfo(TclObject& result) const = 0;
 
 private:
 	CommandController& commandController;
@@ -116,7 +116,7 @@ private:
 
 	/** see setDontSaveValue()
 	 */
-	std::string dontSave;
+	std::string dontSaveValue;
 	
 	/** need to be saved flag
 	 */
