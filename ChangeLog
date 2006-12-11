@@ -1,5 +1,9 @@
 $Id$
 
+2006-12-11  Arnold Metselaar  <arnold.metselaar@planet.nl>	
+	* src/sound/SDLSoundDriver.cc: ensure the left argument to % is
+	  positive, fixes distorted sound and floating point exceptions.
+
 2006-12-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implmented end-of-tape detection:
 	   - was implemented by Manuel, I only fixed a remaining bug
