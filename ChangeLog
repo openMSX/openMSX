@@ -1,5 +1,14 @@
 $Id$
 
+2006-12-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implmented end-of-tape detection:
+	   - was implemented by Manuel, I only fixed a remaining bug
+	   - when end of tape is reached, the CassettePlayer goes to STOP
+	     state
+	   - main motivation for this feature is to avaod staying in 'full
+	     throttle' mode after loading (in cases were the cassette motor is
+	     not automatically stopped)
+
 2006-12-09 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed explicit (global) namespace qualification on proxy settings:
 	   - proxy setting here means a machine specific setting that's

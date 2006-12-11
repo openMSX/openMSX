@@ -45,6 +45,13 @@ short CasImage::getSampleAt(const EmuTime& time)
 	return pos < output.size() ? output[pos] * 256 : 0;
 }
 
+EmuTime CasImage::getEndTime() const
+{
+	Clock<OUTPUT_FREQUENCY> clk(EmuTime::zero);
+	clk += output.size();
+	return clk.getTime();
+}
+
 void CasImage::write0()
 {
 	output.push_back( 127);

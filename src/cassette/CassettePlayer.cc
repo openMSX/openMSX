@@ -71,11 +71,12 @@ private:
 
 CassettePlayer::CassettePlayer(
 		MSXCommandController& msxCommandController_,
-		MSXMixer& mixer, Scheduler& scheduler_,
+		MSXMixer& mixer, Scheduler& scheduler,
 		MSXEventDistributor& msxEventDistributor,
 		EventDistributor& eventDistributor_,
 		MSXCliComm& cliComm_)
 	: SoundDevice(mixer, getName(), getDescription())
+	, Schedulable(scheduler)
 	, state(STOP)
 	, motor(false), motorControl(true)
 	, tapeTime(EmuTime::zero)
@@ -84,7 +85,6 @@ CassettePlayer::CassettePlayer(
 	, lastOutput(false)
 	, sampcnt(0)
 	, msxCommandController(msxCommandController_)
-	, scheduler(scheduler_)
 	, tapeCommand(new TapeCommand(msxCommandController, msxEventDistributor,
 	                              scheduler, *this))
 	, playTapeTime(EmuTime::zero)
@@ -114,7 +114,7 @@ CassettePlayer::~CassettePlayer()
 {
 	unregisterSound();
 	if (Connector* connector = getConnector()) {
-		connector->unplug(scheduler.getCurrentTime());
+		connector->unplug(getScheduler().getCurrentTime());
 	}
 	eventDistributor.unregisterEventListener(OPENMSX_BOOT_EVENT, *this);
 	cliComm.update(CliComm::HARDWARE, getName(), "remove");
@@ -231,20 +231,27 @@ void CassettePlayer::setState(State newState, const EmuTime& time)
 		partialInterval = 0.0;
 		lastX = lastOutput ? OUTPUT_AMP : -OUTPUT_AMP;
 		lastY = 0.0;
+	} else if (newState == PLAY) {
+		prevTime = time;
 	}
 	cliComm.update(CliComm::STATUS, "cassetteplayer",
 	               getStateString(newState));
 
-	updateLoadingState();
+	updateLoadingState(time); // sets SP for tape-end detection
 
 	checkInvariants();
 }
 
-void CassettePlayer::updateLoadingState()
+void CassettePlayer::updateLoadingState(const EmuTime& time)
 {
 	// TODO also set loadingIndicator for RECORD?
 	// note: we don't use isRolling()
 	loadingIndicator->update(motor && (getState() == PLAY)); 
+
+	removeSyncPoint();
+	if ((motor || !motorControl) && (getState() == PLAY)) {
+		setSyncPoint(time + (playImage->getEndTime() - tapeTime));
+	}
 
 	setMute((getState() != PLAY) || !isRolling());
 }
@@ -302,7 +309,7 @@ void CassettePlayer::setMotor(bool status, const EmuTime& time)
 	if (status != motor) {
 		updateAll(time);
 		motor = status;
-		updateLoadingState();
+		updateLoadingState(time);
 	}
 }
 
@@ -311,7 +318,7 @@ void CassettePlayer::setMotorControl(bool status, const EmuTime& time)
 	if (status != motorControl) {
 		updateAll(time);
 		motorControl = status;
-		updateLoadingState();
+		updateLoadingState(time);
 	}
 }
 
@@ -482,7 +489,8 @@ bool CassettePlayer::signalEvent(shared_ptr<const Event> event)
 		if (!getImageName().empty()) {
 			// Reinsert tape to make sure everything is reset.
 			try {
-				playTape(getImageName(), scheduler.getCurrentTime());
+				playTape(getImageName(),
+				         getScheduler().getCurrentTime());
 			} catch (MSXException& e) {
 				cliComm.printWarning(
 					"Failed to insert tape: " + e.getMessage());
@@ -490,6 +498,18 @@ bool CassettePlayer::signalEvent(shared_ptr<const Event> event)
 		}
 	}
 	return true;
+}
+
+const std::string& CassettePlayer::schedName() const
+{
+	static const string schedName = "CassettePlayer";
+	return schedName;
+}
+ 
+void CassettePlayer::executeUntil(const EmuTime& time, int /*userData*/)
+{
+	// tape ended
+	setState(STOP, time);
 }
 
 
@@ -600,9 +620,9 @@ string TapeCommand::execute(const vector<string>& tokens, const EmuTime& time)
 			throw CommandException(e.getMessage());
 		}
 	}
-	if (!cassettePlayer.getConnector()) {
-		cassettePlayer.cliComm.printWarning("Cassetteplayer not plugged in.");
-	}
+	//if (!cassettePlayer.getConnector()) {
+	//	cassettePlayer.cliComm.printWarning("Cassetteplayer not plugged in.");
+	//}
 	return result;
 }
 

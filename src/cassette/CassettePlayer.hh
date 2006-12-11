@@ -6,6 +6,7 @@
 #include "EventListener.hh"
 #include "CassetteDevice.hh"
 #include "SoundDevice.hh"
+#include "Schedulable.hh"
 #include "EmuTime.hh"
 #include <string>
 #include <memory>
@@ -24,7 +25,8 @@ class MSXCommandController;
 class MSXEventDistributor;
 class EventDistributor;
 
-class CassettePlayer : public CassetteDevice, public SoundDevice, private EventListener
+class CassettePlayer : public CassetteDevice, public SoundDevice,
+                       private EventListener, private Schedulable
 {
 public:
 	CassettePlayer(MSXCommandController& msxCommandController,
@@ -61,16 +63,49 @@ private:
 	const std::string& getImageName() const;
 	void checkInvariants() const;
 
+	/** Insert a tape for use in PLAY mode.
+	 */
 	void playTape(const std::string& filename, const EmuTime& time);
+
+	/** Removes tape (possibly stops recording). And go to STOP mode.
+	 */
 	void removeTape(const EmuTime& time);
+
+	/** Goes to RECORD mode using the given filename as a new tape
+	  * image. Finishes any old recording session.
+	  */
 	void recordTape(const std::string& filename, const EmuTime& time);
+
+	/** Rewinds the tape. Also sets PLAY mode, because you can't record
+	  * over an existing tape. (And it won't be useful to implement that
+	  * anyway.)
+	  */
 	void rewind(const EmuTime& time);
+
+	/** Enable or disable motor control.
+	 */
 	void setMotorControl(bool status, const EmuTime& time);
+
+	/** True when the tape is rolling: not in STOP mode, AND [ motorcontrol
+	  * is disabled OR motor is on ].
+	  */
 	bool isRolling() const;
-	void updateLoadingState();
+
+	/** If motor, motorControl or state is changed, this method should
+	  * be called to update the end-of-tape syncpoint and the loading
+	  * indicator.
+	  */
+	void updateLoadingState(const EmuTime& time);
+
 	void updateAll(const EmuTime& time);
+
 	void updatePlayPosition(const EmuTime& time);
+
+	/** Returns a random access sample from the inserted tape image,
+	  * indexed by tape time.
+	  */
 	short getSample(const EmuTime& time);
+
 	void fillBuf(size_t length, double x);
 	void flushOutput();
 	void autoRun();
@@ -78,11 +113,20 @@ private:
         // EventListener
 	virtual bool signalEvent(shared_ptr<const Event> event);
 
+	// Schedulable
+	virtual void executeUntil(const EmuTime& time, int userData);
+	virtual const std::string& schedName() const;
+
 	State state;
 	std::auto_ptr<CassetteImage> playImage;
 	bool motor, motorControl;
+
+	/** The time in the world of the tape. Zero at the start of the tape. */
 	EmuTime tapeTime;
+
 	EmuTime recTime;
+
+	/** Last time that tape time was synced with machine time. */
 	EmuTime prevTime;
 
 	double lastX; // last unfiltered output
@@ -97,7 +141,6 @@ private:
 	std::auto_ptr<WavWriter> recordImage;
 
 	MSXCommandController& msxCommandController;
-	Scheduler& scheduler;
 
 	const std::auto_ptr<TapeCommand> tapeCommand;
 

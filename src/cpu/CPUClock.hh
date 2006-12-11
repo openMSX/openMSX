@@ -25,7 +25,7 @@ protected:
 	// 64-bit addition is expensive
 	// (if executed several million times per second)
 	inline void add(unsigned ticks) { extra += ticks; }
-	inline void sync() const { clock += extra; extra = 0; }
+	inline void sync() const { clock.fastAdd(extra); extra = 0; }
 #endif
 
 	const EmuTime& getTime() const { sync(); return clock.getTime(); }

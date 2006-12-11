@@ -11,7 +11,7 @@ namespace openmsx {
 
 // Note: type detection not implemented yet for WAV images
 WavImage::WavImage(const string& fileName)
-	: length(0), buffer(0), clock(EmuTime::zero)
+	: nbSamples(0), buffer(0), clock(EmuTime::zero)
 {
 	File file(fileName);
 	const char* name = file.getLocalName().c_str();
@@ -43,16 +43,16 @@ WavImage::WavImage(const string& fileName)
 		free(buffer);
 		throw MSXException("Couldn't convert wav");
 	}
-	length = static_cast<int>(audioCVT.len * audioCVT.len_ratio) / 2;
+	nbSamples = static_cast<unsigned>(audioCVT.len * audioCVT.len_ratio) / 2;
 
 	// calculate the average to subtract it later (simple DC filter)
-	if (length > 0) {
+	if (nbSamples > 0) {
 		long long total = 0;
-		for (int i = 0; i < length; ++i) {
+		for (unsigned i = 0; i < nbSamples; ++i) {
 			total += buffer[i * 2] +
 			         (static_cast<signed char>(buffer[i * 2 + 1]) << 8);
 		}
-		average = static_cast<short>(total / length);
+		average = static_cast<short>(total / nbSamples);
 	} else {
 		average = 0;
 	}
@@ -65,13 +65,20 @@ WavImage::~WavImage()
 
 short WavImage::getSampleAt(const EmuTime& time)
 {
-	int pos = clock.getTicksTill(time);
-	int tmp = (pos < length)
+	unsigned pos = clock.getTicksTill(time);
+	int tmp = (pos < nbSamples)
 	        ? buffer[pos * 2] +
 	          (static_cast<signed char>(buffer[pos * 2 + 1]) << 8)
 	        : 0;
 	tmp -= average;
 	return tmp > 32767 ? 32767 : (tmp < -32768 ? -32768 : tmp);
+}
+
+EmuTime WavImage::getEndTime() const
+{
+	DynamicClock clk(clock);
+	clk += nbSamples;
+	return clk.getTime();
 }
 
 } // namespace openmsx

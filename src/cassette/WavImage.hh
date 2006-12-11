@@ -17,9 +17,10 @@ public:
 	virtual ~WavImage();
 
 	virtual short getSampleAt(const EmuTime& time);
+	virtual EmuTime getEndTime() const;
 
 private:
-	int length;
+	unsigned nbSamples;
 	byte* buffer;
 	DynamicClock clock;
 	short average;

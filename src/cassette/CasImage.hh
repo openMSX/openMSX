@@ -22,6 +22,7 @@ public:
 
 	// CassetteImage
 	virtual short getSampleAt(const EmuTime& time);
+	virtual EmuTime getEndTime() const;
 
 private:
 	void write0();

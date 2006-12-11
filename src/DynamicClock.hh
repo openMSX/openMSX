@@ -16,6 +16,8 @@ namespace openmsx {
 class DynamicClock
 {
 public:
+	// Note: default copy constructor and assigment operator are ok.
+
 	/** Create a new clock, which starts ticking at time zero.
 	  * The initial frequency is infinite;
 	  * in other words, the clock stands still.
@@ -62,6 +64,14 @@ public:
 		step = MAIN_FREQ / freq;
 	}
 
+	/** Returns the frequency (in Hz) at which this clock ticks.
+	  * @see setFreq()
+	  */
+	unsigned getFreq() const {
+		assert(step);
+		return MAIN_FREQ / step;
+	}
+
 	/** Reset the clock to start ticking at the given time.
 	  */
 	void reset(const EmuTime& e) {
@@ -79,7 +89,17 @@ public:
 
 	/** Advance this clock by the given number of ticks.
 	  */
-	void operator+=(unsigned n) {
+	void operator+=(uint64 n) {
+		lastTick.time += n * step;
+	}
+
+	/** Advance this clock by the given number of ticks.
+	  * This method is similar to operator+=, but it's optimized for
+	  * speed. OTOH the amount of ticks should not be too large,
+	  * otherwise an overflow occurs. Use add() when the duration
+	  * of the ticks approaches 1 second.
+	  */
+	void fastAdd(unsigned n) {
 		#ifdef DEBUG
 		// we don't even want this overhead in development versions
 		assert(((uint64)n * step) < (1ull << 32));
