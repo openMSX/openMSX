@@ -471,7 +471,7 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime& time)
 		if ((value & PORT_A_DIRECTION) && !warningPrinted) {
 			warningPrinted = true;
 			cliComm.printWarning(
-				"The ruuning MSX software has set unsafe PSG "
+				"The running MSX software has set unsafe PSG "
 				"port directions (port A is set as output). "
 				"This is not allowed by the MSX standard. "
 				"Some MSX models (mostly MSX1) can get damaged "
