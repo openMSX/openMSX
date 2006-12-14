@@ -10,6 +10,7 @@
 namespace openmsx {
 
 class MSXMotherBoard;
+class MSXCliComm;
 class AY8910Periphery;
 class XMLElement;
 class EmuTime;
@@ -137,6 +138,7 @@ private:
 	void wrtReg(byte reg, byte value, const EmuTime& time);
 	void checkMute();
 
+	MSXCliComm& cliComm;
 	AY8910Periphery& periphery;
 	unsigned int updateStep;
 	byte regs[16];
@@ -145,8 +147,8 @@ private:
 	NoiseGenerator noise;
 	Amplitude amplitude;
 	Envelope envelope;
-
 	const std::auto_ptr<AY8910Debuggable> debuggable;
+	bool warningPrinted;
 };
 
 } // namespace openmsx

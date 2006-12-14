@@ -13,6 +13,7 @@
 #include "AY8910.hh"
 #include "AY8910Periphery.hh"
 #include "MSXMotherBoard.hh"
+#include "MSXCliComm.hh"
 #include "SimpleDebuggable.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
@@ -381,10 +382,12 @@ inline void AY8910::Envelope::advance(int duration)
 AY8910::AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
                const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMSXMixer(), "PSG", "PSG")
+	, cliComm(motherBoard.getMSXCliComm())
 	, periphery(periphery_)
 	, amplitude(config)
 	, envelope(amplitude)
 	, debuggable(new AY8910Debuggable(motherBoard, *this))
+	, warningPrinted(false)
 {
 	// make valgrind happy
 	memset(regs, 0, sizeof(regs));
@@ -463,8 +466,17 @@ void AY8910::writeRegister(byte reg, byte value, const EmuTime& time)
 }
 void AY8910::wrtReg(byte reg, byte value, const EmuTime& time)
 {
-	// Force port directions
+	// Warn/force port directions
 	if (reg == AY_ENABLE) {
+		if ((value & PORT_A_DIRECTION) && !warningPrinted) {
+			warningPrinted = true;
+			cliComm.printWarning(
+				"The ruuning MSX software has set unsafe PSG "
+				"port directions (port A is set as output). "
+				"This is not allowed by the MSX standard. "
+				"Some MSX models (mostly MSX1) can get damaged "
+				"by this.");
+		}
 		// portA -> input
 		// portB -> output
 		value = (value & ~PORT_A_DIRECTION) | PORT_B_DIRECTION;
