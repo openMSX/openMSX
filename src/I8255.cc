@@ -1,8 +1,7 @@
 // $Id$
 
 #include "I8255.hh"
-#include <iostream>
-#include <cassert>
+#include "MSXCliComm.hh"
 
 namespace openmsx {
 
@@ -23,8 +22,10 @@ const int BIT_NR       = 0x0E;
 const int SET_RESET    = 0x01;
 
 
-I8255::I8255(I8255Interface& interf, const EmuTime& time)
+I8255::I8255(I8255Interface& interf, const EmuTime& time, 
+		MSXCliComm& cliComm_)
 	: interface(interf)
+	, cliComm(cliComm_)
 {
 	reset(time);
 }
@@ -270,10 +271,9 @@ void I8255::writeControlPort(byte value, const EmuTime& time)
 		control = value;
 		if ((control & (MODE_A | MODE_B)) && !alreadyWarned) {
 			alreadyWarned = true;
-			std::cerr << "Warning: Invalid PPI mode selected.\n"
-			          << "This is not yet correctly emulated.\n"
-			          << "On a real MSX this will most likely hang."
-			          << std::endl;
+			cliComm.printWarning("Invalid PPI mode selected. "
+			"This is not yet correctly emulated. "
+			"On a real MSX this will most likely hang.");
 		}
 		outputPortA(latchPortA, time);
 		outputPortB(latchPortB, time);

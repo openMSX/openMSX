@@ -34,6 +34,7 @@
 
 #include "MSXHBI55.hh"
 #include "SRAM.hh"
+#include "MSXMotherBoard.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -43,7 +44,7 @@ namespace openmsx {
 MSXHBI55::MSXHBI55(MSXMotherBoard& motherBoard, const XMLElement& config,
                    const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
-	, i8255(new I8255(*this, time))
+	, i8255(new I8255(*this, time, motherBoard.getMSXCliComm()))
 	, sram(new SRAM(motherBoard, getName() + " SRAM", 0x1000, config))
 {
 
