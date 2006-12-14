@@ -1,5 +1,19 @@
 $Id$
 
+2006-12-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Refactored sound code:
+	   _ Should only affect SDL sound driver
+	   - Never generate samples from the audio thread:
+	     In case of buffer-underrun we used to still generate the missing
+	     samples from the audio thread. This helped sound quality a
+	     little bit when CPU usage is very irregular. Unfortunately
+	     this also introduces a lot of threading problems (race
+	     conditions). So removed this completely, it also simplifies the
+	     code quite a bit.
+	   - Fixed a potential out-of-boundary buffer access.
+	   - Fixed bug in sound-genration-timing to real-time tuning algorithm.
+	     On some systems this caused a floating point exception.
+
 2006-12-11  Arnold Metselaar  <arnold.metselaar@planet.nl>	
 	* src/sound/SDLSoundDriver.cc: ensure the left argument to % is
 	  positive, fixes distorted sound and floating point exceptions.

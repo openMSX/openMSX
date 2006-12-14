@@ -44,30 +44,11 @@ public:
 
 	// Called by MSXMixer
 
-	/**
-	 * This methods (un)locks the audio thread.
-	 * You can use this method to delay the call to the SoundDevices
-	 * updateBuffer() method. For example, this is usefull if
-	 * you are updating a lot of registers and you don't want the
-	 * half updated set being used to produce sound
-	 */
-	void lock();
-	void unlock();
-
 	/** Upload new sample data
 	 */
 	double uploadBuffer(MSXMixer& msxMixer, short* buffer, unsigned len);
 
 	IntegerSetting& getMasterVolume() const;
-
-	// Called by (some) SoundDrivers
-	
-	/** Emergency callback: generate extra samples.
-	 * This is called when a bufferrun is about to occur. Only the
-	 * SDLSoundDriver uses this method ATM.
-	 * Note: this method runs in the audio thread (for SDLSoundDriver)
-	 */
-	void bufferUnderRun(short* buffer, unsigned samples);
 
 private:
 	void reloadDriver();

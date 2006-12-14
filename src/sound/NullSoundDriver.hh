@@ -10,9 +10,6 @@ namespace openmsx {
 class NullSoundDriver : public SoundDriver
 {
 public:
-	virtual void lock();
-	virtual void unlock();
-
 	virtual void mute();
 	virtual void unmute();
 

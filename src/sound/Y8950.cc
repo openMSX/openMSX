@@ -892,7 +892,6 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 		// update the output buffer before changing the register
 		updateStream(time);
 	//}
-	lock();
 
 	//std::cout << "write: " << (int)rg << " " << (int)data << std::endl;
 	switch (rg & 0xe0) {
@@ -1120,7 +1119,6 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 		reg[rg] = data;
 	}
 	}
-	unlock();
 	//TODO only for registers that influence sound
 	checkMute();
 }

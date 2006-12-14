@@ -459,9 +459,7 @@ void AY8910::writeRegister(byte reg, byte value, const EmuTime& time)
 		// Update the output buffer before changing the register.
 		updateStream(time);
 	}
-	lock();
 	wrtReg(reg, value, time);
-	unlock();
 }
 void AY8910::wrtReg(byte reg, byte value, const EmuTime& time)
 {

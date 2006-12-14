@@ -1049,7 +1049,6 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 
 	// update the output buffer before changing the register
 	updateStream(time);
-	lock();
 
 	assert (regis < 0x40);
 	reg[regis] = data;
@@ -1216,7 +1215,6 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 	default:
 		break;
 	}
-	unlock();
 	checkMute();
 }
 

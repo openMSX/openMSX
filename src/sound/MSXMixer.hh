@@ -54,16 +54,6 @@ public:
 	 */
 	void updateStream(const EmuTime& time);
 
-	/**
-	 * This methods (un)locks the audio thread.
-	 * You can use this method to delay the call to the SoundDevices
-	 * updateBuffer() method. For example, this is usefull if
-	 * you are updating a lot of registers and you don't want the
-	 * half updated set being used to produce sound
-	 */
-	void lock();
-	void unlock();
-
 	/** TODO
 	 * This methods (un)mute the sound.
 	 * These methods may be called multiple times, as long as
@@ -74,17 +64,11 @@ public:
 
 	// Called by Mixer or SoundDriver
 	
-	/** Set new buffer size and sample frequency.
-	 * A buffer size of zero means the Mixer is muted.
+	/** Set new fragment size and sample frequency.
+	 * A fragment size of zero means the Mixer is muted.
 	 */
-	void setMixerParams(unsigned bufferSize, unsigned sampleRate);
+	void setMixerParams(unsigned fragmentSize, unsigned sampleRate);
 	
-	/** Emergency callback: generate extra samples.
-	 * See Mixer::bufferUnderRun()
-	 * Note: this method runs in the audio thread (for SDLSoundDriver)
-	 */
-	void bufferUnderRun(short* buffer, unsigned samples);
-
 private:
 	void updateMasterVolume(int masterVolume);
 	SoundDevice* getSoundDevice(const std::string& name);
@@ -103,7 +87,7 @@ private:
 	virtual void update(const ThrottleManager& throttleManager);
 
 	unsigned sampleRate;
-	unsigned bufferSize;
+	unsigned fragmentSize;
 
 	struct SoundDeviceInfo {
 		ChannelMode::Mode mode;
@@ -115,7 +99,7 @@ private:
 	Infos infos;
 
 	std::vector<SoundDevice*> devices[ChannelMode::NB_MODES];
-	std::vector<int*> buffers;
+	std::vector<int> mixBuffer;
 
 	Mixer& mixer;
 	MSXCommandController& msxCommandController;
@@ -129,8 +113,9 @@ private:
 	int outLeft, outRight;
 
 	EmuTime prevTime;
-	EmuDuration interval1;
-	EmuDuration intervalAverage;
+	EmuDuration interval1; ///<  (Estimated) duration for one sample
+	EmuDuration interval1min;
+	EmuDuration interval1max;
 
 	friend class SoundDeviceInfoTopic;
 	const std::auto_ptr<SoundDeviceInfoTopic> soundDeviceInfo;

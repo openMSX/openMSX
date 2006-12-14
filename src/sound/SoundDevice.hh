@@ -89,12 +89,6 @@ protected:
 	/** @see Mixer::updateStream */
 	void updateStream(const EmuTime& time);
 
-	/** @see Mixer::lock */
-	void lock();
-
-	/** @see Mixer::unlock */
-	void unlock();
-
 public: // Will be called by Mixer:
 	/**
 	 * When a SoundDevice registers itself with the Mixer, the Mixer sets

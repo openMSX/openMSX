@@ -1186,7 +1186,6 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 
 	// update the output buffer before changing the register
 	updateStream(time);
-	lock();
 
 	switch (r & 0xF0) {
 	case 0x00: {
@@ -1322,7 +1321,6 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 	default:
 		break;
 	}
-	unlock();
 	checkMute();
 }
 

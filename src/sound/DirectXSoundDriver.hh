@@ -18,9 +18,6 @@ public:
 	DirectXSoundDriver(unsigned sampleRate, unsigned bufferSize);
 	virtual ~DirectXSoundDriver();
 
-	virtual void lock();
-	virtual void unlock();
-
 	virtual void mute();
 	virtual void unmute();
 

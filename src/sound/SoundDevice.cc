@@ -86,14 +86,4 @@ void SoundDevice::updateStream(const EmuTime& time)
 	mixer.updateStream(time);
 }
 
-void SoundDevice::lock()
-{
-	mixer.lock();
-}
-
-void SoundDevice::unlock()
-{
-	mixer.unlock();
-}
-
 } // namespace openmsx

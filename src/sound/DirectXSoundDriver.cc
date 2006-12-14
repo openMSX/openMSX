@@ -132,16 +132,6 @@ DirectXSoundDriver::~DirectXSoundDriver()
 	IDirectSound_Release(directSound);
 }
 
-void DirectXSoundDriver::lock()
-{
-	// nothing
-}
-
-void DirectXSoundDriver::unlock()
-{
-	// nothing
-}
-
 void DirectXSoundDriver::mute()
 {
 	dxClear();

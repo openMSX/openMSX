@@ -135,34 +135,20 @@ void Mixer::reloadDriver()
 
 void Mixer::registerMixer(MSXMixer& mixer)
 {
-	lock();
 	assert(count(msxMixers.begin(), msxMixers.end(), &mixer) == 0);
 	msxMixers.push_back(&mixer);
-	unlock();
 
 	muteHelper();
 }
 
 void Mixer::unregisterMixer(MSXMixer& mixer)
 {
-	lock();
 	assert(count(msxMixers.begin(), msxMixers.end(), &mixer) == 1);
 	msxMixers.erase(find(msxMixers.begin(), msxMixers.end(), &mixer));
-	unlock();
 
 	muteHelper();
 }
 
-
-void Mixer::lock()
-{
-	driver->lock();
-}
-
-void Mixer::unlock()
-{
-	driver->unlock();
-}
 
 void Mixer::mute()
 {
@@ -181,7 +167,6 @@ void Mixer::unmute()
 
 void Mixer::muteHelper()
 {
-	lock();
 	bool mute = muteCount || msxMixers.empty();
 	bool msxMute = mute;
 	for (MSXMixers::iterator it = msxMixers.begin();
@@ -191,7 +176,6 @@ void Mixer::muteHelper()
 		(*it)->setMixerParams(samples, frequency);
 		msxMute = true; // mute all but the first MSXMixer
 	}
-	unlock();
 	
 	if (mute) {
 		driver->mute();
@@ -216,19 +200,6 @@ double Mixer::uploadBuffer(MSXMixer& msxMixer, short* buffer, unsigned len)
 		writeWaveData(buffer, len);
 	}
 	return driver->uploadBuffer(buffer, len);
-}
-
-void Mixer::bufferUnderRun(short* buffer, unsigned samples)
-{
-	// note: runs in audio thread
-	if (!msxMixers.empty()) {
-		msxMixers.front()->bufferUnderRun(buffer, samples);
-	} else {
-		memset(buffer, 0, samples * 2 * sizeof(short));
-	}
-	if (wavWriter.get()) {
-		writeWaveData(buffer, samples);
-	}
 }
 
 void Mixer::writeWaveData(short* buffer, unsigned samples)

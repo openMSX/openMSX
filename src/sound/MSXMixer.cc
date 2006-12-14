@@ -49,7 +49,7 @@ MSXMixer::MSXMixer(Mixer& mixer_, Scheduler& scheduler,
 	              msxCommandController.getMachineInfoCommand(), *this))
 {
 	sampleRate = 0;
-	bufferSize = 0;
+	fragmentSize = 0;
 
 	muteCount = 1;
 	unmute(); // calls Mixer::registerMixer()
@@ -63,7 +63,7 @@ MSXMixer::MSXMixer(Mixer& mixer_, Scheduler& scheduler,
 
 MSXMixer::~MSXMixer()
 {
-	assert(buffers.empty());
+	assert(infos.empty());
 
 	throttleManager.detach(*this);
 	speedSetting.detach(*this);
@@ -106,26 +106,23 @@ void MSXMixer::registerSound(SoundDevice& device, short volume,
 	info.volumeSetting->attach(*this);
 	infos[&device] = info;
 
-	lock();
 	devices[mode].push_back(&device);
 	device.setSampleRate(sampleRate);
 	device.setVolume((info.normalVolume * info.volumeSetting->getValue() *
 	                   masterVolume.getValue()) / (100 * 100));
-	buffers.push_back(bufferSize ? new int[2 * bufferSize] : NULL); // left + right
-	unlock();
+
+	unsigned required = infos.size() * 8192 * 2;
+	if (mixBuffer.size() < required) {
+		mixBuffer.resize(required);
+	}
 }
 
 void MSXMixer::unregisterSound(SoundDevice& device)
 {
+	// note: no need to shrink mixBuffer
+
 	Infos::iterator it = infos.find(&device);
-	if (it == infos.end()) {
-		return;
-	}
-
-	lock();
-
-	delete[] buffers.back();
-	buffers.pop_back();
+	assert(it != infos.end());
 
 	ChannelMode::Mode mode = it->second.mode;
 	vector<SoundDevice*> &dev = devices[mode];
@@ -135,13 +132,11 @@ void MSXMixer::unregisterSound(SoundDevice& device)
 	it->second.modeSetting->detach(*this);
 	delete it->second.modeSetting;
 	infos.erase(it);
-
-	unlock();
 }
 
 void MSXMixer::updateStream(const EmuTime& time)
 {
-	if (!muteCount && bufferSize) {
+	if (!muteCount && fragmentSize) {
 		updateStream2(time);
 	}
 }
@@ -155,71 +150,66 @@ void MSXMixer::updateStream2(const EmuTime& time)
 
 	short mixBuffer[8192 * 2];
 	count = std::min(8192u, count);
-	lock();
 	generate(mixBuffer, count, prevTime, interval1);
 	double factor = mixer.uploadBuffer(*this, mixBuffer, count);
-	unlock();
 	prevTime += interval1 * count;
 
-	factor = (factor + 31.0) / 32.0; // don't adjust too quickly
+	factor = (factor + 15.0) / 16.0; // don't adjust too quickly
 	interval1 *= factor;
-	EmuDuration minDuration = (intervalAverage * 255) / 256;
-	EmuDuration maxDuration = (intervalAverage * 257) / 256;
-	if (interval1 < minDuration) {
-		interval1 = minDuration;
-	} else if (interval1 > maxDuration) {
-		interval1 = maxDuration;
-	}
-	intervalAverage = (intervalAverage * 63 + interval1) / 64;
+	interval1 = std::min(interval1, interval1max);
+	interval1 = std::max(interval1, interval1min);
+	//std::cerr << "DEBUG interval1: " << interval1.toDouble() << std::endl;
 }
 
-void MSXMixer::bufferUnderRun(short* buffer, unsigned samples)
-{
-	// Note: runs in audio thread
-	if (!muteCount && bufferSize) {
-		generate(buffer, samples, prevTime, interval1);
-	} else {
-		// muted
-		memset(buffer, 0, samples * 2 * sizeof(short));
-	}
-}
-
-void MSXMixer::generate(short* buffer, unsigned samples,
+void MSXMixer::generate(short* output, unsigned samples,
 	const EmuTime& start, const EmuDuration& sampDur)
 {
-	assert(!muteCount && bufferSize);
+	assert(!muteCount && fragmentSize);
+	assert(samples <= 8192);
 
 	int modeOffset[ChannelMode::NB_MODES];
 	int unmuted = 0;
+	int* buffer = &mixBuffer[0];
 	for (int mode = 0; mode < ChannelMode::NB_MODES -1; mode++) { // -1 for OFF mode
 		modeOffset[mode] = unmuted;
 		for (vector<SoundDevice*>::const_iterator it =
 		           devices[mode].begin();
 		     it != devices[mode].end(); ++it) {
 			if (!(*it)->isMuted()) {
-				(*it)->updateBuffer(samples, buffers[unmuted++],
+				(*it)->updateBuffer(samples, buffer,
 				                    start, sampDur);
+				++unmuted;
+				buffer += 8192 * 2;
 			}
 		}
 	}
 
 	for (unsigned j = 0; j < samples; ++j) {
+		buffer = &mixBuffer[0];
 		int buf = 0;
 		int both = 0;
-		while (buf < modeOffset[ChannelMode::MONO+1]) {
-			both  += buffers[buf++][j];
+		while (buf < modeOffset[ChannelMode::MONO + 1]) {
+			both  += buffer[j];
+			buffer += 8192 * 2;
+			++buf;
 		}
 		int left = both;
-		while (buf < modeOffset[ChannelMode::MONO_LEFT+1]) {
-			left  += buffers[buf++][j];
+		while (buf < modeOffset[ChannelMode::MONO_LEFT + 1]) {
+			left  += buffer[j];
+			buffer += 8192 * 2;
+			++buf;
 		}
 		int right = both;
-		while (buf < modeOffset[ChannelMode::MONO_RIGHT+1]) {
-			right += buffers[buf++][j];
+		while (buf < modeOffset[ChannelMode::MONO_RIGHT + 1]) {
+			right += buffer[j];
+			buffer += 8192 * 2;
+			++buf;
 		}
 		while (buf < unmuted) {
-			left  += buffers[buf]  [2*j+0];
-			right += buffers[buf++][2*j+1];
+			left  += buffer[2 + j + 0];
+			right += buffer[2 + j + 1];
+			buffer += 8192 * 2;
+			++buf;
 		}
 
 		// DC removal filter
@@ -239,19 +229,9 @@ void MSXMixer::generate(short* buffer, unsigned samples,
 		if      (outRight > 32767)  outRight =  32767;
 		else if (outRight < -32768) outRight = -32768;
 
-		buffer[2 * j + 0] = static_cast<short>(outLeft);
-		buffer[2 * j + 1] = static_cast<short>(outRight);
+		output[2 * j + 0] = static_cast<short>(outLeft);
+		output[2 * j + 1] = static_cast<short>(outRight);
 	}
-}
-
-void MSXMixer::lock()
-{
-	mixer.lock();
-}
-
-void MSXMixer::unlock()
-{
-	mixer.unlock();
 }
 
 void MSXMixer::mute()
@@ -278,17 +258,18 @@ void MSXMixer::reInit()
 {
 	double percent = speedSetting.getValue();
 	interval1 = EmuDuration(percent / (sampleRate * 100));
-	intervalAverage = interval1;
+	interval1max = interval1 * 4;
+	interval1min = interval1 / 4;
 
 	removeSyncPoints();
-	if (bufferSize || !muteCount) {
+	if (fragmentSize || !muteCount) {
 		prevTime = getScheduler().getCurrentTime();
-		EmuDuration interval2 = interval1 * bufferSize;
+		EmuDuration interval2 = interval1 * fragmentSize;
 		setSyncPoint(prevTime + interval2);
 	}
 }
 
-void MSXMixer::setMixerParams(unsigned newBufferSize, unsigned newSampleRate)
+void MSXMixer::setMixerParams(unsigned newFragmentSize, unsigned newSampleRate)
 {
 	bool needReInit = false;
 
@@ -304,15 +285,9 @@ void MSXMixer::setMixerParams(unsigned newBufferSize, unsigned newSampleRate)
 		}
 	}
 
-	if (bufferSize != newBufferSize) {
-		bufferSize = newBufferSize;
+	if (fragmentSize != newFragmentSize) {
+		fragmentSize = newFragmentSize;
 		needReInit = true;
-		int numBuffers = buffers.size();
-		for (int i = 0; i < numBuffers; ++i) {
-			delete[] buffers[i];
-			buffers[i] = bufferSize ? new int[2 * bufferSize] // left + right
-			                        : NULL;
-		}               
 	}
 
 	if (needReInit) reInit();
@@ -331,13 +306,11 @@ void MSXMixer::update(const Setting& setting)
 		}
 		assert(it != infos.end());
 		SoundDeviceInfo &info = it->second;
-		lock();
 		ChannelMode::Mode oldmode = info.mode;
 		info.mode = info.modeSetting->getValue();
 		vector<SoundDevice*> &dev = devices[oldmode];
 		dev.erase(remove(dev.begin(), dev.end(), it->first), dev.end());
 		devices[info.mode].push_back(it->first);
-		unlock();
 	} else if (dynamic_cast<const IntegerSetting*>(&setting)) {
 		Infos::iterator it = infos.begin();
 		while (it != infos.end() && it->second.volumeSetting != &setting) {
@@ -372,9 +345,9 @@ void MSXMixer::updateMasterVolume(int masterVolume)
 
 void MSXMixer::executeUntil(const EmuTime& time, int /*userData*/)
 {
-	if (!muteCount && bufferSize) {
+	if (!muteCount && fragmentSize) {
 		updateStream2(time);
-		EmuDuration interval2 = interval1 * bufferSize;
+		EmuDuration interval2 = interval1 * fragmentSize;
 		setSyncPoint(time + interval2);
 	}
 }
