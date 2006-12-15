@@ -73,6 +73,16 @@ inline byte reverseByte(byte a)
 	return ((a * 0x0802LU & 0x22110LU) | (a * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16;
 }
 
+inline unsigned floodRight(unsigned x)
+{
+	x |= x >> 1;
+	x |= x >> 2;
+	x |= x >> 4;
+	x |= x >> 8;
+	x |= x >> 16;
+	return x;
+}
+
 } // namespace Math
 
 } // namespace openmsx

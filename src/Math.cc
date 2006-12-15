@@ -15,13 +15,7 @@ unsigned powerOfTwo(unsigned a)
 
 	// optimized version
 	a += (a == 0); // can be removed if argument is never zero
-	--a;
-	a |= a >> 1;
-	a |= a >> 2;
-	a |= a >> 4;
-	a |= a >> 8;
-	a |= a >> 16;
-	return a + 1;
+	return floodRight(a - 1) + 1;
 }
 
 void gaussian2(double& r1, double& r2)
