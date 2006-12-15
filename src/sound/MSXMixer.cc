@@ -206,8 +206,8 @@ void MSXMixer::generate(short* output, unsigned samples,
 			++buf;
 		}
 		while (buf < unmuted) {
-			left  += buffer[2 + j + 0];
-			right += buffer[2 + j + 1];
+			left  += buffer[2 * j + 0];
+			right += buffer[2 * j + 1];
 			buffer += 8192 * 2;
 			++buf;
 		}
