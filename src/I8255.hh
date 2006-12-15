@@ -73,6 +73,8 @@ private:
 	I8255Interface& interface;
 
 	MSXCliComm& cliComm;
+
+	bool warningPrinted;
 };
 
 } // namespace openmsx

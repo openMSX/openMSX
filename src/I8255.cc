@@ -26,6 +26,7 @@ I8255::I8255(I8255Interface& interf, const EmuTime& time,
 		MSXCliComm& cliComm_)
 	: interface(interf)
 	, cliComm(cliComm_)
+	, warningPrinted(false)
 {
 	reset(time);
 }
@@ -264,13 +265,11 @@ void I8255::outputPortC(byte value, const EmuTime& time)
 
 void I8255::writeControlPort(byte value, const EmuTime& time)
 {
-	static bool alreadyWarned = false; // only print warning once
-
 	if (value & SET_MODE) {
 		// set new control mode
 		control = value;
-		if ((control & (MODE_A | MODE_B)) && !alreadyWarned) {
-			alreadyWarned = true;
+		if ((control & (MODE_A | MODE_B)) && !warningPrinted) {
+			warningPrinted = true;
 			cliComm.printWarning("Invalid PPI mode selected. "
 			"This is not yet correctly emulated. "
 			"On a real MSX this will most likely hang.");
