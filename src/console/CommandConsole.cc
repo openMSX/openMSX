@@ -16,6 +16,7 @@
 #include "EventDistributor.hh"
 #include "GlobalSettings.hh"
 #include "BooleanSetting.hh"
+#include "Version.hh"
 #include "checked_cast.hh"
 #include <algorithm>
 #include <fstream>
@@ -57,6 +58,17 @@ CommandConsole::CommandConsole(
 	}
 	loadHistory();
 	Completer::setOutput(this);
+
+	print(Version::FULL_VERSION);
+	print(string(Version::FULL_VERSION.size(), '-'));
+	print("\n"
+	      "General information about openMSX is available at "
+	      "http://openmsx.sourceforge.net.\n"
+	      "\n"
+	      "Type 'help' to see a list of available commands "
+	      "(use <PgUp>/<PgDn> to scroll).\n"
+	      "Or read the commands.txt file that is shipped with openMSX.\n"
+	      "\n");
 
 	commandController.getInterpreter().setOutput(this);
 	eventDistributor.registerEventListener(

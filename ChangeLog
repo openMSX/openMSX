@@ -4,6 +4,7 @@ $Id$
 	* Fixed VDP bug introduced at 2006-11-18, s#0 was completely cleared
 	  upon read, only bit 7 must be cleared:
 	   - fixes VDP detection in sudoku.rom
+	* Added intro text in openMSX console
 
 2006-12-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Refactored sound code:
