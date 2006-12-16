@@ -57,18 +57,18 @@ void CharacterConverter<Pixel>::renderText1(
 	Pixel fg = palFg[vdp.getForegroundColour()];
 	Pixel bg = palBg[vdp.getBackgroundColour()];
 
-	int patternBaseLine = (-1 << 11) | ((line + vdp.getVerticalScroll()) & 7);
+	// 8 * 256 is small enough to always be contiguous
+	const byte* patternArea = vram.patternTable.getReadArea(0, 256 * 8);
+	patternArea += (line + vdp.getVerticalScroll()) & 7;
 
-	// Actual display.
 	// Note: Because line width is not a power of two, reading an entire line
 	//       from a VRAM pointer returned by readArea will not wrap the index
 	//       correctly. Therefore we read one character at a time.
-	int nameStart = (line / 8) * 40;
-	int nameEnd = nameStart + 40;
-	for (int name = nameStart; name < nameEnd; name++) {
-		int charcode = vram.nameTable.readNP((name + 0xC00) | (-1 << 12));
-		int pattern = vram.patternTable.readNP(
-			patternBaseLine | (charcode * 8));
+	unsigned nameStart = (line / 8) * 40;
+	unsigned nameEnd = nameStart + 40;
+	for (unsigned name = nameStart; name < nameEnd; ++name) {
+		unsigned charcode = vram.nameTable.readNP((name + 0xC00) | (-1 << 12));
+		unsigned pattern = patternArea[charcode * 8];
 		pixelPtr[0] = (pattern & 0x80) ? fg : bg;
 		pixelPtr[1] = (pattern & 0x40) ? fg : bg;
 		pixelPtr[2] = (pattern & 0x20) ? fg : bg;
@@ -86,19 +86,18 @@ void CharacterConverter<Pixel>::renderText1Q(
 	Pixel fg = palFg[vdp.getForegroundColour()];
 	Pixel bg = palBg[vdp.getBackgroundColour()];
 
-	int patternBaseLine = (-1 << 13) | ((line + vdp.getVerticalScroll()) & 7);
+	unsigned patternBaseLine = (-1 << 13) | ((line + vdp.getVerticalScroll()) & 7);
 
-	// Actual display.
 	// Note: Because line width is not a power of two, reading an entire line
 	//       from a VRAM pointer returned by readArea will not wrap the index
 	//       correctly. Therefore we read one character at a time.
-	int nameStart = (line / 8) * 40;
-	int nameEnd = nameStart + 40;
-	int patternQuarter = (line & 0xC0) << 2;
-	for (int name = nameStart; name < nameEnd; ++name) {
-		int charcode = vram.nameTable.readNP((name + 0xC00) | (-1 << 12));
-		int patternNr = patternQuarter | charcode;
-		int pattern = vram.patternTable.readNP(
+	unsigned nameStart = (line / 8) * 40;
+	unsigned nameEnd = nameStart + 40;
+	unsigned patternQuarter = (line & 0xC0) << 2;
+	for (unsigned name = nameStart; name < nameEnd; ++name) {
+		unsigned charcode = vram.nameTable.readNP((name + 0xC00) | (-1 << 12));
+		unsigned patternNr = patternQuarter | charcode;
+		unsigned pattern = vram.patternTable.readNP(
 			patternBaseLine | (patternNr * 8));
 		pixelPtr[0] = (pattern & 0x80) ? fg : bg;
 		pixelPtr[1] = (pattern & 0x40) ? fg : bg;
@@ -126,31 +125,25 @@ void CharacterConverter<Pixel>::renderText2(
 		blinkBg = plainBg;
 	}
 
-	int patternBaseLine = (-1 << 11) | ((line + vdp.getVerticalScroll()) & 7);
+	// 8 * 256 is small enough to always be contiguous
+	const byte* patternArea = vram.patternTable.getReadArea(0, 256 * 8);
+	patternArea += (line + vdp.getVerticalScroll()) & 7;
 
-	// Actual display.
-	// TODO: Implement blinking.
-	int nameStart = (line / 8) * 80;
-	int nameEnd = nameStart + 80;
-	int colourPattern = 0; // avoid warning
-	for (int name = nameStart; name < nameEnd; name++) {
+	unsigned nameStart = (line / 8) * 80;
+	unsigned nameEnd = nameStart + 80;
+	unsigned colourPattern = 0; // avoid warning
+	for (unsigned name = nameStart; name < nameEnd; ++name) {
 		// Colour table contains one bit per character.
 		if ((name & 7) == 0) {
+			// can be optimized by unrolling 8 times, worth it?
 			colourPattern = vram.colourTable.readNP((name >> 3) | (-1 << 9));
 		} else {
 			colourPattern <<= 1;
 		}
-		int charcode = vram.nameTable.readNP(name | (-1 << 12));
-		Pixel fg, bg;
-		if (colourPattern & 0x80) {
-			fg = blinkFg;
-			bg = blinkBg;
-		} else {
-			fg = plainFg;
-			bg = plainBg;
-		}
-		int pattern = vram.patternTable.readNP(
-			patternBaseLine | (charcode * 8) );
+		unsigned charcode = vram.nameTable.readNP(name | (-1 << 12));
+		Pixel fg = (colourPattern & 0x80) ? blinkFg : plainFg;
+		Pixel bg = (colourPattern & 0x80) ? blinkBg : plainBg;
+		unsigned pattern = patternArea[charcode * 8];
 		pixelPtr[0] = (pattern & 0x80) ? fg : bg;
 		pixelPtr[1] = (pattern & 0x40) ? fg : bg;
 		pixelPtr[2] = (pattern & 0x20) ? fg : bg;
@@ -173,17 +166,19 @@ template <class Pixel>
 void CharacterConverter<Pixel>::renderGraphic1(
 	Pixel* pixelPtr, int line)
 {
-	int patternBaseLine = (-1 << 11) | (line & 7);
+	const byte* patternArea = vram.patternTable.getReadArea(0, 256 * 8);
+	patternArea += line & 7;
+	const byte* colorArea = vram.colourTable.getReadArea(0, 256 / 8);
+
 	int scroll = vdp.getHorizontalScrollHigh();
 	const byte* namePtr = getNamePtr(line, scroll);
-	for (int n = 0; n < 32; ++n) {
-		int charcode = namePtr[scroll & 0x1F];
-		int colour = vram.colourTable.readNP((charcode / 8) | (-1 << 6));
-		Pixel fg = palFg[colour >> 4];
-		Pixel bg = palFg[colour & 0x0F];
+	for (unsigned n = 0; n < 32; ++n) {
+		unsigned charcode = namePtr[scroll & 0x1F];
+		unsigned color = colorArea[charcode / 8];
+		Pixel fg = palFg[color >> 4];
+		Pixel bg = palFg[color & 0x0F];
 
-		int pattern = vram.patternTable.readNP(
-			patternBaseLine | (charcode * 8));
+		unsigned pattern = patternArea[charcode * 8];
 		pixelPtr[0] = (pattern & 0x80) ? fg : bg;
 		pixelPtr[1] = (pattern & 0x40) ? fg : bg;
 		pixelPtr[2] = (pattern & 0x20) ? fg : bg;
@@ -202,16 +197,22 @@ void CharacterConverter<Pixel>::renderGraphic2(
 	Pixel* pixelPtr, int line)
 {
 	int quarter = ((line / 8) * 32) & ~0xFF;
-	int baseLine = (-1 << 13) | (quarter << 3) | (line & 7);
+	int baseLine = (-1 << 13) | (quarter * 8) | (line & 7);
+
+	// pattern area is contiguous, color area not
+	const byte* patternArea = vram.patternTable.getReadArea(quarter * 8, 8 * 256);
+	patternArea += line & 7;
+
 	int scroll = vdp.getHorizontalScrollHigh();
 	const byte* namePtr = getNamePtr(line, scroll);
-	for (int n = 0; n < 32; ++n) {
-		int charCode = namePtr[scroll & 0x1F];
-		int index = (charCode * 8) | baseLine;
-		int pattern = vram.patternTable.readNP(index);
-		int colour = vram.colourTable.readNP(index);
-		Pixel fg = palFg[colour >> 4];
-		Pixel bg = palFg[colour & 0x0F];
+
+	for (unsigned n = 0; n < 32; ++n) {
+		unsigned charCode8 = namePtr[scroll & 0x1F] * 8;
+		unsigned pattern = patternArea[charCode8];
+		unsigned index = charCode8 | baseLine;
+		unsigned color = vram.colourTable.readNP(index);
+		Pixel fg = palFg[color >> 4];
+		Pixel bg = palFg[color & 0x0F];
 		pixelPtr[0] = (pattern & 0x80) ? fg : bg;
 		pixelPtr[1] = (pattern & 0x40) ? fg : bg;
 		pixelPtr[2] = (pattern & 0x20) ? fg : bg;
@@ -229,14 +230,14 @@ template <class Pixel>
 void CharacterConverter<Pixel>::renderMultiHelper(
 	Pixel* pixelPtr, int line, int mask, int patternQuarter)
 {
-	int baseLine = mask | ((line / 4) & 7);
-	int scroll = vdp.getHorizontalScrollHigh();
+	unsigned baseLine = mask | ((line / 4) & 7);
+	unsigned scroll = vdp.getHorizontalScrollHigh();
 	const byte* namePtr = getNamePtr(line, scroll);
-	for (int n = 0; n < 32; ++n) {
-		int patternNr = patternQuarter | namePtr[scroll & 0x1F];
-		int colour = vram.patternTable.readNP((patternNr * 8) | baseLine);
-		Pixel cl = palFg[colour >> 4];
-		Pixel cr = palFg[colour & 0x0F];
+	for (unsigned n = 0; n < 32; ++n) {
+		unsigned patternNr = patternQuarter | namePtr[scroll & 0x1F];
+		unsigned color = vram.patternTable.readNP((patternNr * 8) | baseLine);
+		Pixel cl = palFg[color >> 4];
+		Pixel cr = palFg[color & 0x0F];
 		pixelPtr[0] = cl; pixelPtr[1] = cl;
 		pixelPtr[2] = cl; pixelPtr[3] = cl;
 		pixelPtr[4] = cr; pixelPtr[5] = cr;

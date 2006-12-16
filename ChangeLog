@@ -6,6 +6,8 @@ $Id$
 	   - fixes VDP detection in sudoku.rom
 	* Added intro text in openMSX console
 	* Removed dirty checks from CharacterConverter
+	* Added VDPVRAM::getReadArea() and use it to optimize
+	  CharacterConverter
 
 2006-12-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Refactored sound code:

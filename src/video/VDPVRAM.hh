@@ -8,6 +8,7 @@
 #include "VDPCmdEngine.hh"
 #include "DisplayMode.hh"
 #include "Ram.hh"
+#include "Math.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include "likely.hh"
@@ -196,6 +197,7 @@ public:
 	  * it is really a pitfall.
 	  * Because the method is inlined, an optimising compiler can
 	  * probably avoid performance loss on constant expressions.
+	  * @deprecated Prefer to use getReadArea instead
 	  */
 	inline const byte* readArea(unsigned index) const {
 		// Reads are only allowed if window is enabled.
@@ -207,14 +209,29 @@ public:
 	/** Gets a pointer to part of the VRAM in its current state.
 	  * See also readArea().
 	  * @param index Index in table.
-	  * TODO convert all users of readArea to readAreaIndex,
-	  *      also see TODO in readArea()
+	  * @deprecated Prefer to use getReadArea instead
 	  */
 	inline const byte* readAreaIndex(unsigned index) const {
 		// index should fit inside indexMask, but we allow conflict
 		// for multi-page scroll bit
 		assert(!(index & indexMask & ~0x8000));
 		return readArea(index | indexMask);
+	}
+
+	/** Gets a pointer to a contiguous part of the VRAM. The region is 
+	  * [index, index + size) inside the current window.
+	  * @param index Index in table
+	  * @param size Size of the block. This is only used to assert that
+	  *             requested block is not too large.
+	  */
+	inline const byte* getReadArea(unsigned index, unsigned size) const {
+		unsigned endIndex = index + size - 1;
+		unsigned areaBits = Math::floodRight(index ^ endIndex);
+		(void)areaBits;
+		assert((areaBits & baseMask) == areaBits);
+		assert((areaBits & ~indexMask) == areaBits);
+		assert(isEnabled());
+		return &data[baseMask & (indexMask | index)];
 	}
 
 	/** Reads a byte from VRAM in its current state.
