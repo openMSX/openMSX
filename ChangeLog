@@ -1,5 +1,10 @@
 $Id$
 
+2006-12-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed VDP bug introduced at 2006-11-18, s#0 was completely cleared
+	  upon read, only bit 7 must be cleared:
+	   - fixes VDP detection in sudoku.rom
+
 2006-12-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Refactored sound code:
 	   _ Should only affect SDL sound driver

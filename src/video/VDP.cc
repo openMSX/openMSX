@@ -694,7 +694,7 @@ byte VDP::readStatusReg(byte reg, const EmuTime& time)
 	switch (reg) {
 	case 0:
 		spriteChecker->resetStatus();
-		statusReg0 = 0;
+		statusReg0 &= ~0x80;
 		irqVertical.reset();
 		break;
 	case 1:
