@@ -63,7 +63,7 @@ CommandConsole::CommandConsole(
 	print(string(Version::FULL_VERSION.size(), '-'));
 	print("\n"
 	      "General information about openMSX is available at "
-	      "http://openmsx.sourceforge.net.\n"
+	      "http://www.openmsx.org.\n"
 	      "\n"
 	      "Type 'help' to see a list of available commands "
 	      "(use <PgUp>/<PgDn> to scroll).\n"
