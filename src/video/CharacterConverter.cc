@@ -129,28 +129,95 @@ void CharacterConverter<Pixel>::renderText2(
 	const byte* patternArea = vram.patternTable.getReadArea(0, 256 * 8);
 	patternArea += (line + vdp.getVerticalScroll()) & 7;
 
-	unsigned nameStart = (line / 8) * 80;
-	unsigned nameEnd = nameStart + 80;
-	unsigned colourPattern = 0; // avoid warning
-	for (unsigned name = nameStart; name < nameEnd; ++name) {
-		// Colour table contains one bit per character.
-		if ((name & 7) == 0) {
-			// can be optimized by unrolling 8 times, worth it?
-			colourPattern = vram.colourTable.readNP((name >> 3) | (-1 << 9));
-		} else {
-			colourPattern <<= 1;
-		}
-		unsigned charcode = vram.nameTable.readNP(name | (-1 << 12));
-		Pixel fg = (colourPattern & 0x80) ? blinkFg : plainFg;
-		Pixel bg = (colourPattern & 0x80) ? blinkBg : plainBg;
-		unsigned pattern = patternArea[charcode * 8];
-		pixelPtr[0] = (pattern & 0x80) ? fg : bg;
-		pixelPtr[1] = (pattern & 0x40) ? fg : bg;
-		pixelPtr[2] = (pattern & 0x20) ? fg : bg;
-		pixelPtr[3] = (pattern & 0x10) ? fg : bg;
-		pixelPtr[4] = (pattern & 0x08) ? fg : bg;
-		pixelPtr[5] = (pattern & 0x04) ? fg : bg;
-		pixelPtr += 6;
+	unsigned colorStart = (line / 8) * (80 / 8);
+	unsigned nameStart  = (line / 8) * 80;
+	for (unsigned i = 0; i < (80 / 8); ++i) {
+		unsigned colorPattern = vram.colourTable.readNP(
+			(colorStart + i) | (-1 << 9));
+		const byte* nameArea = vram.nameTable.getReadArea(
+			(nameStart + 8 * i) | (-1 << 12), 8);
+
+		Pixel fg0 = (colorPattern & 0x80) ? blinkFg : plainFg;
+		Pixel bg0 = (colorPattern & 0x80) ? blinkBg : plainBg;
+		unsigned pattern0 = patternArea[nameArea[0] * 8];
+		pixelPtr[ 0] = (pattern0 & 0x80) ? fg0 : bg0;
+		pixelPtr[ 1] = (pattern0 & 0x40) ? fg0 : bg0;
+		pixelPtr[ 2] = (pattern0 & 0x20) ? fg0 : bg0;
+		pixelPtr[ 3] = (pattern0 & 0x10) ? fg0 : bg0;
+		pixelPtr[ 4] = (pattern0 & 0x08) ? fg0 : bg0;
+		pixelPtr[ 5] = (pattern0 & 0x04) ? fg0 : bg0;
+
+		Pixel fg1 = (colorPattern & 0x40) ? blinkFg : plainFg;
+		Pixel bg1 = (colorPattern & 0x40) ? blinkBg : plainBg;
+		unsigned pattern1 = patternArea[nameArea[1] * 8];
+		pixelPtr[ 6] = (pattern1 & 0x80) ? fg1 : bg1;
+		pixelPtr[ 7] = (pattern1 & 0x40) ? fg1 : bg1;
+		pixelPtr[ 8] = (pattern1 & 0x20) ? fg1 : bg1;
+		pixelPtr[ 9] = (pattern1 & 0x10) ? fg1 : bg1;
+		pixelPtr[10] = (pattern1 & 0x08) ? fg1 : bg1;
+		pixelPtr[11] = (pattern1 & 0x04) ? fg1 : bg1;
+
+		Pixel fg2 = (colorPattern & 0x20) ? blinkFg : plainFg;
+		Pixel bg2 = (colorPattern & 0x20) ? blinkBg : plainBg;
+		unsigned pattern2 = patternArea[nameArea[2] * 8];
+		pixelPtr[12] = (pattern2 & 0x80) ? fg2 : bg2;
+		pixelPtr[13] = (pattern2 & 0x40) ? fg2 : bg2;
+		pixelPtr[14] = (pattern2 & 0x20) ? fg2 : bg2;
+		pixelPtr[15] = (pattern2 & 0x10) ? fg2 : bg2;
+		pixelPtr[16] = (pattern2 & 0x08) ? fg2 : bg2;
+		pixelPtr[17] = (pattern2 & 0x04) ? fg2 : bg2;
+
+		Pixel fg3 = (colorPattern & 0x10) ? blinkFg : plainFg;
+		Pixel bg3 = (colorPattern & 0x10) ? blinkBg : plainBg;
+		unsigned pattern3 = patternArea[nameArea[3] * 8];
+		pixelPtr[18] = (pattern3 & 0x80) ? fg3 : bg3;
+		pixelPtr[19] = (pattern3 & 0x40) ? fg3 : bg3;
+		pixelPtr[20] = (pattern3 & 0x20) ? fg3 : bg3;
+		pixelPtr[21] = (pattern3 & 0x10) ? fg3 : bg3;
+		pixelPtr[22] = (pattern3 & 0x08) ? fg3 : bg3;
+		pixelPtr[23] = (pattern3 & 0x04) ? fg3 : bg3;
+
+		Pixel fg4 = (colorPattern & 0x08) ? blinkFg : plainFg;
+		Pixel bg4 = (colorPattern & 0x08) ? blinkBg : plainBg;
+		unsigned pattern4 = patternArea[nameArea[4] * 8];
+		pixelPtr[24] = (pattern4 & 0x80) ? fg4 : bg4;
+		pixelPtr[25] = (pattern4 & 0x40) ? fg4 : bg4;
+		pixelPtr[26] = (pattern4 & 0x20) ? fg4 : bg4;
+		pixelPtr[27] = (pattern4 & 0x10) ? fg4 : bg4;
+		pixelPtr[28] = (pattern4 & 0x08) ? fg4 : bg4;
+		pixelPtr[29] = (pattern4 & 0x04) ? fg4 : bg4;
+
+		Pixel fg5 = (colorPattern & 0x04) ? blinkFg : plainFg;
+		Pixel bg5 = (colorPattern & 0x04) ? blinkBg : plainBg;
+		unsigned pattern5 = patternArea[nameArea[5] * 8];
+		pixelPtr[30] = (pattern5 & 0x80) ? fg5 : bg5;
+		pixelPtr[31] = (pattern5 & 0x40) ? fg5 : bg5;
+		pixelPtr[32] = (pattern5 & 0x20) ? fg5 : bg5;
+		pixelPtr[33] = (pattern5 & 0x10) ? fg5 : bg5;
+		pixelPtr[34] = (pattern5 & 0x08) ? fg5 : bg5;
+		pixelPtr[35] = (pattern5 & 0x04) ? fg5 : bg5;
+
+		Pixel fg6 = (colorPattern & 0x02) ? blinkFg : plainFg;
+		Pixel bg6 = (colorPattern & 0x02) ? blinkBg : plainBg;
+		unsigned pattern6 = patternArea[nameArea[6] * 8];
+		pixelPtr[36] = (pattern6 & 0x80) ? fg6 : bg6;
+		pixelPtr[37] = (pattern6 & 0x40) ? fg6 : bg6;
+		pixelPtr[38] = (pattern6 & 0x20) ? fg6 : bg6;
+		pixelPtr[39] = (pattern6 & 0x10) ? fg6 : bg6;
+		pixelPtr[40] = (pattern6 & 0x08) ? fg6 : bg6;
+		pixelPtr[41] = (pattern6 & 0x04) ? fg6 : bg6;
+
+		Pixel fg7 = (colorPattern & 0x01) ? blinkFg : plainFg;
+		Pixel bg7 = (colorPattern & 0x01) ? blinkBg : plainBg;
+		unsigned pattern7 = patternArea[nameArea[7] * 8];
+		pixelPtr[42] = (pattern7 & 0x80) ? fg7 : bg7;
+		pixelPtr[43] = (pattern7 & 0x40) ? fg7 : bg7;
+		pixelPtr[44] = (pattern7 & 0x20) ? fg7 : bg7;
+		pixelPtr[45] = (pattern7 & 0x10) ? fg7 : bg7;
+		pixelPtr[46] = (pattern7 & 0x08) ? fg7 : bg7;
+		pixelPtr[47] = (pattern7 & 0x04) ? fg7 : bg7;
+
+		pixelPtr += 48;
 	}
 }
 

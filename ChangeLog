@@ -8,6 +8,8 @@ $Id$
 	* Removed dirty checks from CharacterConverter
 	* Added VDPVRAM::getReadArea() and use it to optimize
 	  CharacterConverter
+	* Optimized CharacterConverter::renderText2:
+	   see comments in code
 
 2006-12-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Refactored sound code:
