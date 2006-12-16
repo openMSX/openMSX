@@ -1,15 +1,12 @@
 set_help_text trainer \
 {game trainers version 1.7
-
 please join us looking for cheats and submit them to the www.openmsx.org forum
-
 credits:
-  copyright 2005-2006 Albert Beevendorp all rights reserved
-  copyright 2005-2006 Patrick van Arkel all rights reserved
-  copyright 2006 Benoit Delvaux all rights reserved
+  copyright 2005-2006 albert beevendorp all rights reserved
+  copyright 2005-2006 patrick van arkel all rights reserved
+  copyright 2006 benoit delvaux all rights reserved
 
 the definition of cheating according to google:
-
 - defeat someone in an expectation through trickery or deceit
 - deceiver: someone who leads you to believe something that is not true
 - a deception for profit to yourself
@@ -17,7 +14,7 @@ the definition of cheating according to google:
 although the definition of cheating is mostly negative
 this time i turned it into something fun.
 
-openmsx is made to work together with ips patches. Albert has some ips
+openmsx is made to work together with ips patches. albert has some ips
 patches ready at http://ips.tni.nl/ for even more cheating ;)
 
 please cheat responsible!
@@ -28,7 +25,6 @@ proc poke {addr val} 	{debug write memory $addr $val}
 proc peek {addr}	{return [debug read memory $addr]}
 
 #trainers
-
 proc trainer_f1spirit {} {
 	#player 1 always first place
 	poke 0xe331 1
@@ -146,7 +142,6 @@ proc trainer_athleticland {} {
 	after time 0.1 trainer_athleticland
 }
 
-
 proc trainer_cabbagepatchkids {} {
 	#lives
 	poke 0xe050 99
@@ -219,7 +214,7 @@ proc trainer_kingsvalley1 {} {
 proc trainer_konamisboxing {} {
 	#lives
 	poke 0xe218 0
-	#enemy live (KO after one hit)
+	#enemy live (ko after one hit)
 	poke 0xe21a 9
 	after time 2 trainer_konamisboxing
 }
@@ -250,7 +245,7 @@ proc trainer_mopiranger {} {
 	poke 0xe1c0 7
 	#y-position blue enemy
 	poke 0xe1f0 7
-	#y-position Big Razzon
+	#y-position big razzon
 	poke 0xe220 7
 	after time 1 trainer_mopiranger
 }
@@ -416,7 +411,6 @@ proc trainer_gradius1 {} {
 	#poke 0xe426 0
 	#x-pos enemy
 	#poke 0xe446 0
-
 	after time 0.5 trainer_gradius1
 }
 
@@ -502,9 +496,9 @@ proc trainer_gradius2 {} {
 	#fake metalion mode
 	#poke 0xe446 1
 	#simulate cartridge in slot 2
-	# 1 = Q-Bert
-	# 4 = Penguin Adventure
-	# 8 = The Maze Of Galious
+	# 1 = q-bert
+	# 4 = penguin adventure
+	# 8 = the maze of galious
 	# 255 = all the 3 cartridges
 	#poke 0xf0f5 255
 	#xpos enemy
@@ -569,7 +563,6 @@ proc trainer_gradius2beta {} {
 	poke 0xe439 3
 	after time 2 trainer_gradius2beta
 }	
-
 proc trainer_golvellius1 {} {
 	#max health and full bar
 	poke 0xe022 240
@@ -648,9 +641,7 @@ proc trainer_goonies {} {
 	#pale blue book
 	#poke 0xe176 128
 	#poke 0xe187 1
-	#!
 	#items - 2d group
-	#!
 	#blue raincoat
 	#poke 0xe177 1
 	#poke 0xe188 1
@@ -675,9 +666,7 @@ proc trainer_goonies {} {
 	#blue helmet
 	#poke 0xe177 128
 	#poke 0xe18f 1
-	#!
 	#items - 3rd group
-	#!
 	#yellow helmet
 	#poke 0xe178 1
 	#poke 0xe190 1
@@ -819,7 +808,7 @@ proc trainer_salamander {} {
 	poke 0xe300 0x99
 	#stage (1-7)
 	# 1-6 = normal stage
-	# 7 = special stage (requires Gradius 2 in slot 2)
+	# 7 = special stage (requires gradius 2 in slot 2)
 	#poke 0xe301 1
 	#scroll stop (only for part of stage 1)
 	#poke 0xe309 1
@@ -885,7 +874,7 @@ proc trainer_salamander {} {
 	poke 0xe430 1
 	#option 4 in position 4
 	poke 0xe432 4
-	#spark light (only for planet Lavinia)
+	#spark light (only for planet lavinia)
 	#poke 0xe630 3
 	after time 5 trainer_salamander
 }
@@ -949,7 +938,6 @@ proc trainer_dragonbuster {} {
 	#!poke 0xc2fd 0x99
 	#!poke 0xc2fe 0x99
 	#!poke 0xc2ff 0x99
-
 	after time 5 trainer_dragonbuster
 }
 
@@ -1007,7 +995,6 @@ proc trainer_xak1 {} {
 	#super latok mode
 	poke 0x1fd4 1
 	poke 0x2473 0x44
-
 	#enchanted sword 1
 	poke 0x1c13 99
 	#enchanted sword 2
@@ -1020,7 +1007,6 @@ proc trainer_xak1 {} {
 	poke 0x1c17 99
 	#enchanted sword 6
 	poke 0x1c18 99
-
 	#enchanted armor 1
 	poke 0x1c19 99
 	#enchanted armor 2
@@ -1033,7 +1019,6 @@ proc trainer_xak1 {} {
 	poke 0x1c1d 99
 	#enchanted armor 6
 	poke 0x1c1e 99
-
 	#enchanted armor 1
 	poke 0x1c1f 99
 	#enchanted armor 2
@@ -1046,7 +1031,6 @@ proc trainer_xak1 {} {
 	poke 0x1c23 99
 	#enchanted armor 6
 	poke 0x1c24 99
-
 	#bread
 	poke 0x1c25 99
 	#meat
@@ -1067,7 +1051,6 @@ proc trainer_xak1 {} {
 	poke 0x1c2d 99
 	#feather/grass (?)
 	poke 0x1c2e 99
-
 	#light green scroll
 	poke 0x1c2f 99
 	#blue scroll
@@ -1078,14 +1061,12 @@ proc trainer_xak1 {} {
 	poke 0x1c32 99
 	#purple scroll
 	poke 0x1c33 99
-
 	#blue ball (no fun intended)
 	poke 0x1c34 99
 	#green ball
 	poke 0x1c35 99
 	#red ball
 	poke 0x1c36 99
-
 	#red cape
 	poke 0x1c37 99
 	#paint bucket (?)
@@ -1123,27 +1104,20 @@ proc trainer_sd-snatcher {} {
 	#max out all stats
 	poke 0xce82 255
 	poke 0xce83 255
-
 	poke 0xce85 255
 	poke 0xce86 255
-
 	poke 0xce88 255
 	poke 0xce89 255
-
 	poke 0xce8b 255
 	poke 0xce8c 255
-
 	#max life
 	poke 0xce81 255
-
 	#money
 	poke 0xce8d 255
 	poke 0xce8e 255
-
 	#all locations accessible
 	poke 0xcdc0 255
 	poke 0xcdc1 1
-
 	#junkers
 	poke 0xc451 99
 		
@@ -1155,47 +1129,36 @@ proc trainer_sd-snatcher {} {
 		
 	#jyro
 	poke 0xc461 99
-
 	#bomb
 	poke 0xc400 2
 	poke 0xc401 255
-
 	#dball
 	poke 0xc408 2
 	poke 0xc409 255
-
 	#rancher
 	poke 0xc410 2
 	poke 0xc411 255
-
 	#t blaster
 	poke 0xc418 2
 	poke 0xc419 255
-
 	#g mine
 	poke 0xc420 2
 	poke 0xc421 255
-
 	#comet
 	poke 0xc428 2
 	poke 0xc429 255
-
 	#chaf
 	poke 0xc430 2
 	poke 0xc431 255
-
 	#milkyway
 	poke 0xc438 2
 	poke 0xc439 255
-
 	#c killer
 	poke 0xc440 2
 	poke 0xc441 255
-
 	#flare
 	poke 0xc448 2
 	poke 0xc449 255
-
 	#stringray
 	poke 0xc3a8 2
 	poke 0xc4a9 255
@@ -1204,7 +1167,6 @@ proc trainer_sd-snatcher {} {
 	#ammo for stingray
 	poke 0xc3a9 231
 	poke 0xc3aa 3
-
 	#f. ball
 	poke 0xc3b0 2
 	poke 0xc4b1 255
@@ -1213,7 +1175,6 @@ proc trainer_sd-snatcher {} {
 	#ammo for f. ball
 	poke 0xc3b1 231
 	poke 0xc3b2 3
-
 	#k. sprint
 	poke 0xc3b8 2
 	poke 0xc4b9 255
@@ -1222,7 +1183,6 @@ proc trainer_sd-snatcher {} {
 	#ammo for k. sprint
 	poke 0xc3b9 231
 	poke 0xc3ba 3
-
 	#storm
 	poke 0xc3c0 2
 	poke 0xc4c1 255
@@ -1231,7 +1191,6 @@ proc trainer_sd-snatcher {} {
 	#ammo for storm
 	poke 0xc3c1 231
 	poke 0xc3c2 3
-
 	#k. sprint
 	poke 0xc3c8 2
 	poke 0xc4c9 255
@@ -1240,7 +1199,6 @@ proc trainer_sd-snatcher {} {
 	#ammo for k. sprint
 	poke 0xc3c9 231
 	poke 0xc3ca 3
-
 	#b. hawk
 	poke 0xc3d0 2
 	poke 0xc4d1 255
@@ -1249,7 +1207,6 @@ proc trainer_sd-snatcher {} {
 	#ammo for b. hawk
 	poke 0xc3d1 231
 	poke 0xc3d2 3
-
 	#g. hound
 	poke 0xc3d8 2
 	poke 0xc4d9 255
@@ -1258,7 +1215,6 @@ proc trainer_sd-snatcher {} {
 	#ammo for g.hound
 	poke 0xc3d9 231
 	poke 0xc3da 3
-
 	#i. cepter
 	poke 0xc3e0 2
 	poke 0xc4e1 255
@@ -1267,7 +1223,6 @@ proc trainer_sd-snatcher {} {
 	#ammo for i. cepter
 	poke 0xc3e1 231
 	poke 0xc3e2 3
-
 	#s. grade
 	poke 0xc3e8 2
 	poke 0xc4e9 255
@@ -1276,7 +1231,6 @@ proc trainer_sd-snatcher {} {
 	#ammo for s. grade
 	poke 0xc3e9 231
 	poke 0xc3ea 3
-
 	#n. point
 	poke 0xc3f0 2
 	poke 0xc4f1 255
@@ -1285,7 +1239,6 @@ proc trainer_sd-snatcher {} {
 	#ammo for n. point
 	poke 0xc3f1 231
 	poke 0xc3f2 3
-
 	#big 9 matrix
 	poke 0xc3f8 2
 	poke 0xc4f9 255
@@ -1294,11 +1247,9 @@ proc trainer_sd-snatcher {} {
 	#ammo for big 9 matrix
 	poke 0xc3f9 231
 	poke 0xc3fa 3
-
 	#kill litle spiders in one blast
 	poke 0xc820 0
 	poke 0xc840 0
-
 	#max rank
 	poke 0xce80 64
 	#max str level
@@ -1307,7 +1258,6 @@ proc trainer_sd-snatcher {} {
 	poke 0xce87 64
 	#max speed level
 	poke 0xce8a 64
-
 	#put weapons in slots (put the weapon value from 2 to 1 or else you will not be able to deselect it)
 	#!poke 0xc150 1
 	#!poke 0xc150 10
@@ -1352,9 +1302,9 @@ proc trainer_andorogynus  {} {
 }
 
 proc trainer_aliens {} {
-	#Ripley life
+	#ripley life
 	poke 0x042a 255
-	#Ripley ammo
+	#ripley ammo
 	poke 0x042d 32
 	after time 1 trainer_aliens
 }
@@ -1370,7 +1320,6 @@ proc trainer_aliens2_msx1 {} {
 	poke 0xe28e 250
 	after time 15 trainer_aliens2_msx1
 }
-
 
 
 proc trainer_galaga {} {
@@ -1454,47 +1403,38 @@ proc trainer_magicalwizzkid {} {
 proc trainer_metalgear1 {} {
 	#power bar
 	poke 0xc131 48
-
 	#handgun in slot 1
 	poke 0xc500 1
 	poke 0xc501 0x99
 	poke 0xc502 0x9
-
 	#smg in slot 2
 	poke 0xc504 2
 	poke 0xc505 0x99
 	poke 0xc506 0x9
-
 	#grenade launcher in slot 3
 	poke 0xc508 3
 	poke 0xc509 0x99
 	poke 0xc50a 0x9
-
 	#rocket launcher in slot 4
 	poke 0xc50c 4
 	poke 0xc50d 0x99
 	poke 0xc50e 0x9
-
 	#p-bomb in slot 5
 	poke 0xc510 5
 	poke 0xc511 0x99
 	poke 0xc512 0x9
-
 	#l-main in slot 6
 	poke 0xc514 6
 	poke 0xc515 0x99
 	poke 0xc516 0x9
-
 	#missle in slot 7
 	poke 0xc518 7
 	poke 0xc519 0x99
 	poke 0xc51a 0x9
-
 	#silencer in slot 4
 	poke 0xc51c 8
 	#enemies can't hurt you
 	#!poke 0xc199 255
-
 	#cart 1
 	#poke 0xc5ad 1
 	poke 0xc538 14
@@ -1527,11 +1467,9 @@ proc trainer_metalgear1 {} {
 	#poke 0xc5b4 1
 	poke 0xc554 21
 	poke 0xc555 56
-
 	#ratio
 	poke 0xc535 0x99
 	poke 0xc534 22
-
 	#armor
 	poke 0xc558 1
 	#bomb blast suit
@@ -1560,7 +1498,6 @@ proc trainer_metalgear1 {} {
 	poke 0xc588 24
 	#box
 	poke 0xc58c 25
-
 	#put a nuclear warhead on your remote missles 8)
 	if {[peek 0xc142] == 7} {
 		 poke 0xc142 16
@@ -1598,23 +1535,17 @@ proc trainer_metalgear1 {} {
 	#!poke 0xc135 19
 	#!poke 0xc135 20
 	#!poke 0xc135 21
-
 	#active keycard
 	#! poke 0xc135 x (13+x)
-
 	#stop destruction timer
 	#!poke 0xc13d 0x99
 	#!poke 0xc13e 0x99
-
 	#enemy 1 gone
 	#poke 0xd005 0
-
 	#enemy 2 gone
 	#poke 0xd085 0
-
 	#enemy 3 gone
 	#poke 0xd105 0
-
 	#enemy 4 gone
 	#poke 0xd185 0
 	
@@ -1632,74 +1563,58 @@ proc trainer_metalgear1 {} {
 proc trainer_metalgear2 {} {
 	#life bar
 	poke 0xca53 32
-
 	#get gun
 	poke 0xd600 1
 	poke 0xd601 0x99
 	poke 0xd602 0x9
-
 	#get sub machine gun
 	poke 0xd604 1
 	poke 0xd605 0x99
 	poke 0xd606 0x9
-
 	#get grendates
 	poke 0xd608 1
 	poke 0xd609 0x99
 	poke 0xd60a 0x9
-
 	#get surface to air missles
 	poke 0xd610 1
 	poke 0xd611 0x99
 	poke 0xd612 0x9
-
 	#get remote missles
 	poke 0xd614 1
 	poke 0xd615 0x99
 	poke 0xd616 0x9
-
 	#get c4 explosvies
 	poke 0xd618 1
 	poke 0xd619 0x99
 	poke 0xd61a 0x9
-
 	#get landmines
 	poke 0xd61c 1
 	poke 0xd61d 0x99
 	poke 0xd61e 0x9
-
 	#get camoflage
 	poke 0xd620 1
 	poke 0xd621 0x99
 	poke 0xd622 0x9
-
 	#get gas grenade
 	poke 0xd624 1
 	poke 0xd625 0x99
 	poke 0xd626 0x9
-
 	#get remote mice
 	poke 0xd628 1
 	poke 0xd629 0x99
 	poke 0xd630 0x9
-
 	#get zippo
 	poke 0xd634 1
 	poke 0xd635 1
-
 	#get silencer
 	poke 0xd62c 1
 	poke 0xd62d 1
-
 	#do not sink into the swamp
 	poke 0xcb29 32
-
 	#invisible until an alert is triggered
 	poke 0xca3c 1
-
 	#set avoiding time to 0
 	poke 0xd42b 0
-
 	#open path trough jungle
 	poke 0xd430 2
 after time 2 trainer_metalgear2
@@ -1758,16 +1673,13 @@ proc trainer_usas {} {
 	#!poke 0xe330 1
 	#!poke 0xe338 1
 	#!poke 0xe340 1
-
 	#temple enemy dies after 1 hit/1st block (big enemy)
 	poke 0xc412 1
 	#2nd block 1st block (big enemy) gone after 1 hit
 	poke 0xc492 1
-
 	#wit can jump more than twice
 	poke 0xc248 0
 	poke 0xc265 0
-
 	after time 1 trainer_usas
 }
 
@@ -1989,16 +1901,13 @@ proc trainer_maze_of_galious {} {
 	poke 0xe099 1
 	#cross
 	poke 0xe07a 1
-
 	#use bible until kingdom come
 	poke 0xe531 1
 	#screen stays frozen for as long as you are in that screen
 	poke 0xe0d6 64
-
 	#world 10 location 0 = middle tower 1 = right tower 2 = left tower 3 = start
 	poke 0xe06e	3
 	poke 0xe06d	 0x01
-
 	#world 1 items
 	#poke 0xe063 0xf0
 	#world 2 items
@@ -2019,7 +1928,6 @@ proc trainer_maze_of_galious {} {
 	#poke 0xe06b 0xf0
 	#world 10 items
 	#poke 0xe06c 0xe0
-
 	#poke unvulnerable
 	poke 0xe518 1
 	#big enemy dies after 1 hit
@@ -2182,12 +2090,10 @@ proc trainer_dirdeaf {} {
 	poke 0xb8b35 1
 	#weapon 58
 	poke 0xb8b6 1
-
 	#life container 1
 	poke 0xb8bb 255
 	#life container 2
 	poke 0xb8bc 255
-
 	#defence 1
 	poke 0xb8b7 1
 	#defence 2
@@ -2196,7 +2102,6 @@ proc trainer_dirdeaf {} {
 	poke 0xb8b9 1
 	#defence 4
 	poke 0xb8ba 1
-
 	#card1
 	poke 0xb8bf 1
 	#card2
@@ -2239,7 +2144,6 @@ proc trainer_golvellius2 {} {
 	#find
 	poke 0xcbac 0x99
 	poke 0xcbad 0x99
-
 	#iron sword
 	#!poke 0xcb01 1
 	#bronze sword
@@ -2461,13 +2365,10 @@ proc trainer_penguinadventure  {} {
 	#!slot 3
 	#!poke 0xe12f 0xa
 	#!poke 0xe132 0xa
-
 	#kill dragon with one shot
 	poke 0xe53c 19
-
 	#get 8 dancing penguins
 	poke 0xe0dd 8
-
 	after time 15 trainer_penguinadventure
 }
 
@@ -2538,7 +2439,6 @@ proc trainer_dragonslayer4_msx2 {} {
 	poke 0xc069 109
 	#keys
 	poke 0xc06a 109
-
 	#wings
 	poke 0xc06f 99
 	#armor
@@ -2555,7 +2455,6 @@ proc trainer_dragonslayer4_msx2 {} {
 	poke 0xc075 99
 	#master key
 	poke 0xc076 99
-
 	#helmet
 	poke 0xc077 99
 	#scepter
@@ -2572,7 +2471,6 @@ proc trainer_dragonslayer4_msx2 {} {
 	poke 0xc07d 1
 	#sword
 	poke 0xc07e 99
-
 	#invincible
 	#!poke 0xc08b 255
 	#jump high
@@ -2587,7 +2485,6 @@ proc trainer_dragonslayer4_msx2 {} {
 	poke 0xc06e 40
 	#walk faster
 	poke 0xc08e 255
-
 	#put in slot 1 : pick axe
 	#poke 0xc060 2
 	#put in slot 2 : harpoon
@@ -2596,7 +2493,6 @@ proc trainer_dragonslayer4_msx2 {} {
 	#poke 0xc062 14
 	#in game player (try different values)
 	#!poke 0xc050 0
-
 after time 1 trainer_dragonslayer4_msx2
 }
 
@@ -2609,7 +2505,6 @@ proc trainer_dragonslayer4_msx1 {} {
 	poke 0xe095 100
 	#keys
 	poke 0xe096 100
-
 	#wings
 	poke 0xe09b 99
 	#armor
@@ -2626,7 +2521,6 @@ proc trainer_dragonslayer4_msx1 {} {
 	poke 0xe0a1 99
 	#master key
 	poke 0xe0a2 99
-
 	#helmet
 	poke 0xe0a3 99
 	#scepter
@@ -2643,12 +2537,10 @@ proc trainer_dragonslayer4_msx1 {} {
 	poke 0xe0a9 1
 	#sword
 	poke 0xe0aa 99
-
 	#jump high
 	poke 0xe097 40
 	#strong weapons
 	poke 0xe098 99
-
 	after time 1 trainer_dragonslayer4_msx1
 }
 
@@ -2660,7 +2552,6 @@ proc trainer_druid {} {
 	poke 0xc025 99
 	#ammo 3
 	poke 0xc026 99
-
 	#key
 	poke 0xc027 99
 	#timer
@@ -2669,7 +2560,6 @@ proc trainer_druid {} {
 	poke 0xc029 99
 	#death
 	poke 0xc02a 99
-
 	after time 2 trainer_druid
 }
 proc trainer_eggerland1 {} {
@@ -2717,27 +2607,22 @@ proc trainer_crossblaim {} {
 	poke 0xeebb 0x99
 	poke 0xeebc 0x99
 	poke 0xeebd 0x99
-
 	#power
 	poke 0xead4 255
-
 	#engine 1
 	poke 0xeeab 255
 	#engine 2
 	poke 0xeeac 255
 	#engine 3
 	poke 0xeead 255
-
 	#power container 1
 	poke 0xeeae 250
 	#power container 2
 	poke 0xeeaf 250
-
 	#big laser gun
 	poke 0xeea2 255
 	#big laser gun 2
 	poke 0xeea3 255
-
 	#bullet for gun (#1)
 	poke 0xeeb6 255
 	#bullet for bazooka (#1)
@@ -2746,7 +2631,6 @@ proc trainer_crossblaim {} {
 	poke 0xeea6 255
 	#darts
 	poke 0xeea7 255
-
 	#all keys
 	poke 0xeeb0 1
 	poke 0xeeb1 1
@@ -2958,7 +2842,6 @@ proc trainer_kingkong2 {} {
 	#money
 	poke 0xc135 0x99
 	poke 0xc136 0x99
-
 	#knife
 	poke 0xc2a0 1
 	poke 0xc340 255
@@ -2971,19 +2854,16 @@ proc trainer_kingkong2 {} {
 	#boomerang
 	poke 0xc2a6 10
 	poke 0xc349 0x99
-
 	#vortex
 	poke 0xc2c0 34
 	poke 0xc2c1 255
 	poke 0xc361 255
-
 	after time 2 trainer_kingkong2
 }
 
 proc trainer_ikariwarriors {} {
 	#rapid fire (set interval between shots)
 	poke 0xc418 0
-
 	#set kind of ammo for weapons 1 and 2
 	# 0 = nothing
 	# 1 = regular
@@ -2994,28 +2874,24 @@ proc trainer_ikariwarriors {} {
 	# 6 = high explosive tank bullets
 	# 7 = hand granates
 	# 8 = high explosive hand granades
-
 	#1st weapon player 1
 	poke 0xc41d 6
 	#2nd weapon player 1
 	poke 0xc41e 8
 	#lives player 1
 	poke 0xc415 99
-
 	#1st weapon player 2
 	poke 0xc43d 6
 	#2nd weapon player 2
 	poke 0xc43e 8
 	#lives player 2
 	poke 0xc435 99
-
 	#fun with spites
 	#poke 0xc416 [sprite]
 	after time 2 trainer_ikariwarriors
 }
 
 proc trainer_firebird {} {
-
 	#ilovehinotori
 	poke 0xc4e2 1
 	#turbo
@@ -3027,21 +2903,18 @@ proc trainer_firebird {} {
 	poke 0xc160 0x99
 	#200 money
 	poke 0xc845 200
-
 	#shoes
 	poke 0xc850 3
 	#bug (red beetle?)
 	poke 0xc85c 9
 	#compas
 	poke 0xc884 1
-
 	#packages
 	poke 0xc870 9
 	#scrolls
 	poke 0xc874 9
 	#leaflets (?)
 	poke 0xc878 9
-
 	#top 1st last stone
 	poke 0xc88c 1
 	#top 2nd last stone
@@ -3054,7 +2927,6 @@ proc trainer_firebird {} {
 	poke 0xc89c 1
 	#top last stone
 	poke 0xc8a0 1
-
 	#1st midle stone
 	poke 0xc8bc 1
 	#2nd midle stone
@@ -3078,7 +2950,6 @@ proc trainer_firebird {} {
 	poke 0xc8b4 1
 	#lower sixth stone
 	poke 0xc8b8 1
-
 	#first main stone
 	poke 0xc8dc 1
 	#second main stone
@@ -3089,10 +2960,8 @@ proc trainer_firebird {} {
 	poke 0xc8e8 1
 	#fifth main stone
 	poke 0xc8ec 1
-
 	#bifi's tip for the combo with game master
 	poke 0xc110 1
-
 	after time 2 trainer_firebird
 }
 
@@ -3142,7 +3011,6 @@ proc trainer_bombaman {} {
 	#poke 0x1dc5 3
 	# time
 	#poke 0x18a2 58
-
 	after time 2 trainer_bombaman
 }
 
@@ -3164,12 +3032,10 @@ proc trainer_psychoworld {} {
 	# 3=max up mode
 	# 4=
 	# 5=extra mode
-
 	#lets go for power mode (not sure if it works push f4 on start screen of stage 1)
 	poke 0xd40d 0
 	#unlimited power ups (use 1 trough 9)
 	poke 0xd401 255
-
 	#get all weapons
 	poke 0xa212 255
 	#normal schot power up
@@ -3180,7 +3046,6 @@ proc trainer_psychoworld {} {
 	poke 0xa215 5
 	#sonic shot power up
 	poke 0xa216 5
-
 	after time 2 trainer_psychoworld
 }
 
@@ -3192,7 +3057,6 @@ proc trainer_strategicmars {} {
 	poke 0xc1bc 14
 	#schield
 	poke 0xc1bb 14
-
 	after time 1 trainer_strategicmars
 }
 
@@ -3257,7 +3121,6 @@ proc trainer_terramex {} {
 proc trainer_eindeloos {} {
 	#unlimited lives
 	poke 0x9c91 99
-
 	#big enemy 1 y-pos
 	poke 0x9486 200
 	#big enemy 2 y-pos
@@ -3383,7 +3246,6 @@ proc trainer_ashiguine1 {} {
 	#energy
 	poke 0xe030 255
 	after time 2 trainer_ashiguine1
-
 }
 
 proc trainer_pineaplin {} {
@@ -3396,7 +3258,6 @@ proc trainer_pineaplin {} {
 	poke 0xc023 9
 	poke 0xc024 9
 	poke 0xc025 9
-
 	after time 2 trainer_pineaplin
 }
 
@@ -3488,7 +3349,6 @@ proc trainer_alifem36 {} {
 	#laser shots
 	poke 0xc52b 255
 	poke 0xd3b4 255
-
 	after time 2 trainer_alifem36
 }
 
@@ -3513,7 +3373,6 @@ proc trainer_dragonslayer6 {} {
 	poke 0x230c 255
 	poke 0x230d 255
 	poke 0x230e 255
-
 	#experience runan (max exp)
 	poke 0x234c 255
 	poke 0x234d 255
@@ -3530,7 +3389,6 @@ proc trainer_dragonslayer6 {} {
 	#max magic runan
 	poke 0x234a 0x0f
 	poke 0x234b 0x27
-
 	# life ro
 	poke 0x2384 0x0f
 	poke 0x2385 0x27
@@ -3547,7 +3405,6 @@ proc trainer_dragonslayer6 {} {
 	#max magic ro
 	poke 0x238a 0x0f
 	poke 0x238b 0x27
-
 	# life gale
 	poke 0x23c4 0x0f
 	poke 0x23c5 0x27
@@ -3686,10 +3543,8 @@ proc trainer_arkanoid1 {} {
 	poke 0xe551 1
 	#99 lives
 	poke 0xe01d 99
-
 	#ball above bat
 	poke 0xe0f6 [expr {[peek 0xe0ce]+16}]
-
 	#thanks for these cheats mars2000you
 	#normal ball speed
 	poke 0xe255 12
@@ -3723,7 +3578,6 @@ proc trainer_arkanoid2 {} {
 	}
 	#ball always above bat
 	poke 0xc021 [peek 0xc786]
-
 	after time 0.1 trainer_arkanoid2
 }
 
@@ -3996,7 +3850,6 @@ proc trainer_hydlide1_msx2 {} {
 	poke 0xa7bd 100
 	poke 0xa7bf 9
 	poke 0xa7c3 100
-
 	#sword
 	poke 0xa7ce 255
 	#shield
@@ -4017,14 +3870,12 @@ proc trainer_hydlide1_msx2 {} {
 	poke 0xa7d6 255
 	#green christal
 	poke 0xa7d7 255
-
 	#fairy 1
 	poke 0xa7d8 255
 	#fairy 2
 	poke 0xa7d9 255
 	#fairy 3
 	poke 0xa7da 255
-
 	after time 1 trainer_hydlide1_msx2
 }
 
@@ -4432,7 +4283,6 @@ proc trainer_gradius3 {} {
 	#poke 0xe986 0
 	#x-pos enemy
 	#poke 0xe9c6 0
-
 	after time 0.5 trainer_gradius3
 }
 
@@ -4479,7 +4329,6 @@ proc trainer_headoverheals {} {
 	poke 0x223d 0x99
 	#ammo player 1
 	poke 0x2243 0x99
-
 	#lives player 2
 	poke 0x2241 0x99
 	#shield player 2
@@ -4769,7 +4618,6 @@ proc trainer_tnt {} {
 	#poke 0x7074 100
 	#ammo (bootleg version)
 	#poke 0x4894 255
-
 	#lives
 	poke 0x320e 255
 	#ammo
@@ -4874,19 +4722,16 @@ proc trainer_randar3 {} {
 	#magic player 1
 	poke 0xd016 0x3
 	poke 0xd017 0xe7
-
 	#life mick
 	poke 0xd074 0x3
 	poke 0xd075 0xe7
 	#magic mick
 	poke 0xd076 0x3
 	poke 0xd077 0xe7
-
 	#money
 	poke 0xd185 254
 	poke 0xd186 255
 	poke 0xd187 255
-
 	after time 1 trainer_randar3
 }
 
@@ -5076,18 +4921,14 @@ proc trainer_daiva5 {} {
 	poke 0xd0d6 97
 	#cruisers in stock
 	poke 0xd0c2 99
-
 	#damage on planets
 	poke 0x950a 0
 	poke 0x950b 0
-
 	#stop timer on planets
 	poke 0x94ee 0
-
 	#money
 	poke 0xd7ab 255
 	poke 0xd7ac 255
-
 after time 1 trainer_daiva5
 }
 
@@ -5097,10 +4938,8 @@ proc trainer_daiva4 {} {
 	poke 0xc4ef 99
 	poke 0xc4f0 99
 	poke 0xc4f1 99
-
 	#life on planet
 	poke 0xd408 255
-
 	after time 10 trainer_daiva4
 }
 
@@ -5173,22 +5012,18 @@ proc trainer_finalfantasy {} {
 	#gold
 	poke 0xc255 255
 	poke 0xc256 255
-
 	#life player 1
 	poke 0xc00a 99
 	poke 0xc008 255
 	poke 0xc009 255
-
 	#life player 2
 	poke 0xc04a 99
 	poke 0xc048 255
 	poke 0xc049 255
-
 	#life player 3
 	poke 0xc08a 99
 	poke 0xc088 255
 	poke 0xc089 255
-
 	#life player 4
 	poke 0xc0ca 99
 	poke 0xc0c8 255
@@ -5236,7 +5071,6 @@ proc trainer_fray  {} {
 	poke 0x228a 255
 	#auto big shot (hold c to hold)
 	poke 0x2286 49
-
 	#scepter 1
 	poke 0x2295 2
 	#scepter 2
@@ -5253,7 +5087,6 @@ proc trainer_fray  {} {
 	poke 0x229b 2
 	#scepter 8
 	poke 0x229c 2
-
 	#medium shield
 	poke 0x229e 1
 	#iron shield
@@ -5262,7 +5095,6 @@ proc trainer_fray  {} {
 	poke 0x22a0 1
 	#gold shield
 	poke 0x22a1 1
-
 	#slice of bread
 	poke 0x22a2 99
 	#slice of bacon
@@ -5291,7 +5123,6 @@ proc trainer_fray  {} {
 	poke 0x22ae 99
 	#scroll 11
 	poke 0x22af 99
-
 after time 1 trainer_fray
 }
 
@@ -5784,6 +5615,7 @@ proc trainer_break_in {} {
 	poke 0x8a7b 0
 	#invisible guardian (hard game !)
 	#poke 0x8a83 0
+	#ball above bat
 	poke 0x8487 [expr {[peek 0x85d3]+16}]
 	after frame trainer_break_in
 }
@@ -5937,7 +5769,9 @@ proc trainer_ballout_special {} {
 proc trainer_bankbuster {} {
 	#lives
 	poke 0x63fd 99
-	after time 1 trainer_bankbuster
+	#ball above bat
+	poke 0x4b01 [peek 0x4e04]
+	after time 0.1 trainer_bankbuster
 }
 
 proc trainer_exterlien {} {
@@ -5956,7 +5790,6 @@ proc trainer_legendlyknight {} {
 	poke 0xd07c 0x20
 	#invincible
 	poke 0xd083 255
-
 	#short sword
 	poke 0xe301 1
 	#fire arrow
@@ -5967,7 +5800,6 @@ proc trainer_legendlyknight {} {
 	poke 0xe304 1
 	#thunder
 	poke 0xe305 1
-
 	#holy water
 	poke 0xe306 1
 	#glasses
@@ -5982,7 +5814,6 @@ proc trainer_legendlyknight {} {
 	poke 0xe30b 1
 	#key
 	poke 0xe30c 1
-
 	#kill end boss with one shot
 	poke 0xd08c 1
 	after time 1 trainer_legendlyknight
@@ -6029,7 +5860,6 @@ proc trainer_hydlide2 {} {
 }
 
 proc trainer_zukkoke_yajikita_onmitsudoutyuu {} {
-
 	#life
 	poke 0xe060 0x99
 	#something
@@ -6041,7 +5871,6 @@ proc trainer_zukkoke_yajikita_onmitsudoutyuu {} {
 	poke 0xe065 0x99
 	#something
 	poke 0xe064 0x9
-
 	#item 1-8
 	poke 0xe066 0x9
 	poke 0xe067 0x9
@@ -6094,7 +5923,6 @@ proc trainer_pumpkinadventure3 {} {
 	poke 0xd4a9 0x99
 	poke 0xd4aa 0x99
 	poke 0xd4ab 0x99
-
 	#key card white
 	poke 0xd47b 1
 	#key
@@ -6185,7 +6013,6 @@ proc trainer_pumpkinadventure3 {} {
 	poke 0xd4a6 1
 	#wallet
 	poke 0xd4a7 1
-
 	#steve life
 	poke 0xd5ba 0x99
 	poke 0xd5bb 0x99
@@ -6216,7 +6043,6 @@ proc trainer_pumpkinadventure3 {} {
 	poke 0xd5cc 0x99
 	#weapon
 	poke 0xd5cd 0x9
-
 	#bishop life
 	poke 0xd5f3 0x99
 	poke 0xd5f4 0x99
@@ -6247,7 +6073,6 @@ proc trainer_pumpkinadventure3 {} {
 	poke 0xd605 0x99
 	#weapon
 	poke 0xd606 0x9
-
 	#damien life
 	poke 0xd62c 0x99
 	poke 0xd62d 0x99
@@ -6278,7 +6103,6 @@ proc trainer_pumpkinadventure3 {} {
 	poke 0xd63e 0x99
 	#weapon
 	poke 0xd63f 0x9
-
 	#jeff life
 	poke 0xd665 0x99
 	poke 0xd666 0x99
@@ -6309,7 +6133,6 @@ proc trainer_pumpkinadventure3 {} {
 	poke 0xd677 0x99
 	#weapon
 	poke 0xd678 0x9
-
 	after time 1 trainer_pumpkinadventure3
 }
 
@@ -6416,9 +6239,9 @@ proc trainer_boggy84 {} {
 proc trainer_riseout {} {
 	#lives
 	poke 0xec06 255
-	#Red man x-postition
+	#red man x-postition
 	poke 0xed11 255
-	#Red man y-postition
+	#red man y-postition
 	poke 0xed12 191
 	after time 5 trainer_riseout
 }
@@ -6670,7 +6493,6 @@ proc trainer_legendlyninegems {} {
 	#gold
 	poke 0xb39b 0x99
 	poke 0xb39c 0x99
-
 	#magic card
 	poke 0xb441 255
 	#book
@@ -6892,7 +6714,7 @@ proc trainer_ninjaprincess {} {
 }
 
 proc trainer_hype {} {
-	#programmers mode (try B/L/numbers/function keys)
+	#programmers mode (try b/l/numbers/function keys)
 	poke 0xc00d 255
 	#invincible
 	poke 0xc00a 255
@@ -6903,65 +6725,48 @@ proc trainer_illusioncity {} {
 	#money
 	poke 0xc268 255
 	poke 0xc267 255
-
-	#level Tien Ren
+	#level tien ren
 	poke 0xc277 99
-
-	#exp Tien Ren
+	#exp tien ren
 	poke 0xc275 255
 	poke 0xc274 255
-
-	#hp Tien Ren
+	#hp tien ren
 	poke 0xc282 231
 	poke 0xc283 3
-
 	#extended offense tien ren
 	poke 0xc288 231
 	poke 0xc289 3
-
-	#extended defense Tien Ren
+	#extended defense tien ren
 	poke 0xc285 231
 	poke 0xc286 3
-
-	#tien extended Ren Agility
+	#tien extended ren agility
 	poke 0xc27b 99
-
-	#level Mei Hong
+	#level mei hong
 	poke 0xc29f 99
-
-	#exp Mei Hong
+	#exp mei hong
 	poke 0xc29d 255
 	poke 0xc29c 255
-
-	#hp Mei Hong
+	#hp mei hong
 	poke 0xf636 231
 	poke 0xf637 3
-
 	#extended offence mei hong
 	poke 0xc2b0 231
 	poke 0xc2b1 3
-
 	#extended defende mei hong
 	poke 0xc2ad 231
 	poke 0xc2ac 3
-
 	#extended agility mei hong
 	poke 0xc2a3 99
-
 	#exp old man
 	poke 0xc2ed 255
 	poke 0xc2ec 255
-
 	#level old man
 	poke 0xc2ef 99
-
-	#exp Kash
+	#exp kash
 	poke 0xc33d 255
 	poke 0xc33c 255
-
 	#defense
 	poke 0xc34d 255
-
 	after time 1 trainer_illusioncity
 }
 
@@ -7117,8 +6922,7 @@ proc trainer_nemesis1scc {} 	{trainer_gradius1scc}
 proc trainer_nemesis2 {} 	{trainer_gradius2}
 proc trainer_nemesis2beta {} 	{trainer_gradius2beta}
 proc trainer_nemesis3 {} 	{trainer_gradius3}
-proc trainer_BoukenRoman {}	{trainer_dota}
+proc trainer_boukenroman {}	{trainer_dota}
  
 
-
-### EOF ###
+### eof ###
