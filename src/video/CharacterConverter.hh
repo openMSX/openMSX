@@ -5,7 +5,6 @@
 
 #include "DisplayMode.hh"
 #include "openmsx.hh"
-#include <bitset>
 
 namespace openmsx {
 
@@ -163,21 +162,6 @@ private:
 
 	const Pixel* palFg;
 	const Pixel* palBg;
-
-	/** Dirty tables indicate which character blocks must be repainted.
-	  * The anyDirty variables are true when there is at least one
-	  * element in the dirty table that is true.
-	  * TODO:
-	  * Change tracking is currently disabled, so every change variable
-	  * is set to true. In the future change tracking will be restored.
-	  */
-	bool anyDirtyColour;
-	std::bitset<(1<<10)> dirtyColour;
-	bool anyDirtyPattern;
-	std::bitset<(1<<10)> dirtyPattern;
-	bool anyDirtyName;
-	std::bitset<(1<<12)> dirtyName;
-	bool dirtyForeground, dirtyBackground;
 };
 
 } // namespace openmsx

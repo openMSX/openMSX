@@ -2,32 +2,9 @@
 
 /*
 TODO:
-- Dirty checking is currently broken in some places.
-  Clean this up after new VRAM Window implemenation is in place.
-- Is it possible to combine dirtyPattern and dirtyColour into a single
-  dirty array?
-  Pitfalls:
-  * in SCREEN1, a colour change invalidates 8 consequetive characters
-  * A12 and A11 of patternMask and colourMask may be different
-    also, colourMask has A10..A6 as well
-    in most realistic cases however the two will be of equal size
 - Clean up renderGraphics2, it is currently very hard to understand
   with all the masks and quarters etc.
 - Try using a generic inlined pattern-to-pixels converter.
-- Fix character mode dirty checking to work with incremental rendering.
-  Approach 1:
-  * use two dirty arrays, one for this frame, one for next frame
-  * on every change, mark dirty in both arrays
-    (checking line is useless because of vertical scroll on screen splits)
-  * in frameStart, swap arrays
-  Approach 2:
-  * cache characters as 16x16 blocks and blit them to the screen
-  * on a name change, do nothing
-  * on a pattern or colour change, mark the block as dirty
-  * if a to-be-blitted block is dirty, recalculate it
-  I'll implement approach 1 on account of being very similar to the
-  existing code. Some time I'll implement approach 2 as well and see
-  if it is an improvement (in clarity and performance).
 - Correctly implement vertical scroll in text modes.
   Can be implemented by reordering blitting, but uses a smaller
   wrap than GFX modes: 8 lines instead of 256 lines.
@@ -64,11 +41,6 @@ CharacterConverter<Pixel>::CharacterConverter(
 	VDP& vdp_, const Pixel* palFg_, const Pixel* palBg_)
 	: vdp(vdp_), vram(vdp.getVRAM()), palFg(palFg_), palBg(palBg_)
 {
-	anyDirtyColour = anyDirtyPattern = anyDirtyName = true;
-	dirtyColour.set();
-	dirtyPattern.set();
-	dirtyName.set();
-	dirtyForeground = dirtyBackground = true;
 }
 
 template <class Pixel>
@@ -82,9 +54,6 @@ template <class Pixel>
 void CharacterConverter<Pixel>::renderText1(
 	Pixel* pixelPtr, int line)
 {
-	bool dirtyColours = dirtyForeground || dirtyBackground;
-	if (!(anyDirtyName || anyDirtyPattern || dirtyColours)) return;
-
 	Pixel fg = palFg[vdp.getForegroundColour()];
 	Pixel bg = palBg[vdp.getBackgroundColour()];
 
@@ -98,16 +67,14 @@ void CharacterConverter<Pixel>::renderText1(
 	int nameEnd = nameStart + 40;
 	for (int name = nameStart; name < nameEnd; name++) {
 		int charcode = vram.nameTable.readNP((name + 0xC00) | (-1 << 12));
-		if (dirtyColours || dirtyName[name] || dirtyPattern[charcode]) {
-			int pattern = vram.patternTable.readNP(
-				patternBaseLine | (charcode * 8));
-			pixelPtr[0] = (pattern & 0x80) ? fg : bg;
-			pixelPtr[1] = (pattern & 0x40) ? fg : bg;
-			pixelPtr[2] = (pattern & 0x20) ? fg : bg;
-			pixelPtr[3] = (pattern & 0x10) ? fg : bg;
-			pixelPtr[4] = (pattern & 0x08) ? fg : bg;
-			pixelPtr[5] = (pattern & 0x04) ? fg : bg;
-		}
+		int pattern = vram.patternTable.readNP(
+			patternBaseLine | (charcode * 8));
+		pixelPtr[0] = (pattern & 0x80) ? fg : bg;
+		pixelPtr[1] = (pattern & 0x40) ? fg : bg;
+		pixelPtr[2] = (pattern & 0x20) ? fg : bg;
+		pixelPtr[3] = (pattern & 0x10) ? fg : bg;
+		pixelPtr[4] = (pattern & 0x08) ? fg : bg;
+		pixelPtr[5] = (pattern & 0x04) ? fg : bg;
 		pixelPtr += 6;
 	}
 }
@@ -116,9 +83,6 @@ template <class Pixel>
 void CharacterConverter<Pixel>::renderText1Q(
 	Pixel* pixelPtr, int line)
 {
-	bool dirtyColours = dirtyForeground || dirtyBackground;
-	if (!(anyDirtyName || anyDirtyPattern || dirtyColours)) return;
-
 	Pixel fg = palFg[vdp.getForegroundColour()];
 	Pixel bg = palBg[vdp.getBackgroundColour()];
 
@@ -134,16 +98,14 @@ void CharacterConverter<Pixel>::renderText1Q(
 	for (int name = nameStart; name < nameEnd; ++name) {
 		int charcode = vram.nameTable.readNP((name + 0xC00) | (-1 << 12));
 		int patternNr = patternQuarter | charcode;
-		if (dirtyColours || dirtyName[name] || dirtyPattern[patternNr]) {
-			int pattern = vram.patternTable.readNP(
-				patternBaseLine | (patternNr * 8));
-			pixelPtr[0] = (pattern & 0x80) ? fg : bg;
-			pixelPtr[1] = (pattern & 0x40) ? fg : bg;
-			pixelPtr[2] = (pattern & 0x20) ? fg : bg;
-			pixelPtr[3] = (pattern & 0x10) ? fg : bg;
-			pixelPtr[4] = (pattern & 0x08) ? fg : bg;
-			pixelPtr[5] = (pattern & 0x04) ? fg : bg;
-		}
+		int pattern = vram.patternTable.readNP(
+			patternBaseLine | (patternNr * 8));
+		pixelPtr[0] = (pattern & 0x80) ? fg : bg;
+		pixelPtr[1] = (pattern & 0x40) ? fg : bg;
+		pixelPtr[2] = (pattern & 0x20) ? fg : bg;
+		pixelPtr[3] = (pattern & 0x10) ? fg : bg;
+		pixelPtr[4] = (pattern & 0x08) ? fg : bg;
+		pixelPtr[5] = (pattern & 0x04) ? fg : bg;
 		pixelPtr += 6;
 	}
 }
@@ -152,9 +114,6 @@ template <class Pixel>
 void CharacterConverter<Pixel>::renderText2(
 	Pixel* pixelPtr, int line)
 {
-	bool dirtyColours = dirtyForeground || dirtyBackground;
-	if (!(anyDirtyName || anyDirtyPattern || dirtyColours)) return;
-
 	Pixel plainFg = palFg[vdp.getForegroundColour()];
 	Pixel plainBg = palBg[vdp.getBackgroundColour()];
 	Pixel blinkFg, blinkBg;
@@ -182,24 +141,22 @@ void CharacterConverter<Pixel>::renderText2(
 			colourPattern <<= 1;
 		}
 		int charcode = vram.nameTable.readNP(name | (-1 << 12));
-		if (dirtyColours || dirtyName[name] || dirtyPattern[charcode]) {
-			Pixel fg, bg;
-			if (colourPattern & 0x80) {
-				fg = blinkFg;
-				bg = blinkBg;
-			} else {
-				fg = plainFg;
-				bg = plainBg;
-			}
-			int pattern = vram.patternTable.readNP(
-				patternBaseLine | (charcode * 8) );
-			pixelPtr[0] = (pattern & 0x80) ? fg : bg;
-			pixelPtr[1] = (pattern & 0x40) ? fg : bg;
-			pixelPtr[2] = (pattern & 0x20) ? fg : bg;
-			pixelPtr[3] = (pattern & 0x10) ? fg : bg;
-			pixelPtr[4] = (pattern & 0x08) ? fg : bg;
-			pixelPtr[5] = (pattern & 0x04) ? fg : bg;
+		Pixel fg, bg;
+		if (colourPattern & 0x80) {
+			fg = blinkFg;
+			bg = blinkBg;
+		} else {
+			fg = plainFg;
+			bg = plainBg;
 		}
+		int pattern = vram.patternTable.readNP(
+			patternBaseLine | (charcode * 8) );
+		pixelPtr[0] = (pattern & 0x80) ? fg : bg;
+		pixelPtr[1] = (pattern & 0x40) ? fg : bg;
+		pixelPtr[2] = (pattern & 0x20) ? fg : bg;
+		pixelPtr[3] = (pattern & 0x10) ? fg : bg;
+		pixelPtr[4] = (pattern & 0x08) ? fg : bg;
+		pixelPtr[5] = (pattern & 0x04) ? fg : bg;
 		pixelPtr += 6;
 	}
 }
@@ -216,30 +173,25 @@ template <class Pixel>
 void CharacterConverter<Pixel>::renderGraphic1(
 	Pixel* pixelPtr, int line)
 {
-	if (!(anyDirtyName || anyDirtyPattern || anyDirtyColour)) return;
-
 	int patternBaseLine = (-1 << 11) | (line & 7);
 	int scroll = vdp.getHorizontalScrollHigh();
 	const byte* namePtr = getNamePtr(line, scroll);
 	for (int n = 0; n < 32; ++n) {
 		int charcode = namePtr[scroll & 0x1F];
-		if (true /*dirtyName[name]*/ || dirtyPattern[charcode]
-		|| dirtyColour[charcode / 64]) {
-			int colour = vram.colourTable.readNP((charcode / 8) | (-1 << 6));
-			Pixel fg = palFg[colour >> 4];
-			Pixel bg = palFg[colour & 0x0F];
+		int colour = vram.colourTable.readNP((charcode / 8) | (-1 << 6));
+		Pixel fg = palFg[colour >> 4];
+		Pixel bg = palFg[colour & 0x0F];
 
-			int pattern = vram.patternTable.readNP(
-				patternBaseLine | (charcode * 8));
-			pixelPtr[0] = (pattern & 0x80) ? fg : bg;
-			pixelPtr[1] = (pattern & 0x40) ? fg : bg;
-			pixelPtr[2] = (pattern & 0x20) ? fg : bg;
-			pixelPtr[3] = (pattern & 0x10) ? fg : bg;
-			pixelPtr[4] = (pattern & 0x08) ? fg : bg;
-			pixelPtr[5] = (pattern & 0x04) ? fg : bg;
-			pixelPtr[6] = (pattern & 0x02) ? fg : bg;
-			pixelPtr[7] = (pattern & 0x01) ? fg : bg;
-		}
+		int pattern = vram.patternTable.readNP(
+			patternBaseLine | (charcode * 8));
+		pixelPtr[0] = (pattern & 0x80) ? fg : bg;
+		pixelPtr[1] = (pattern & 0x40) ? fg : bg;
+		pixelPtr[2] = (pattern & 0x20) ? fg : bg;
+		pixelPtr[3] = (pattern & 0x10) ? fg : bg;
+		pixelPtr[4] = (pattern & 0x08) ? fg : bg;
+		pixelPtr[5] = (pattern & 0x04) ? fg : bg;
+		pixelPtr[6] = (pattern & 0x02) ? fg : bg;
+		pixelPtr[7] = (pattern & 0x01) ? fg : bg;
 		pixelPtr += 8;
 		if (!(++scroll & 0x1F)) namePtr = getNamePtr(line, scroll);
 	}
@@ -249,30 +201,25 @@ template <class Pixel>
 void CharacterConverter<Pixel>::renderGraphic2(
 	Pixel* pixelPtr, int line)
 {
-	if (!(anyDirtyName || anyDirtyPattern || anyDirtyColour)) return;
-
 	int quarter = ((line / 8) * 32) & ~0xFF;
 	int baseLine = (-1 << 13) | (quarter << 3) | (line & 7);
 	int scroll = vdp.getHorizontalScrollHigh();
 	const byte* namePtr = getNamePtr(line, scroll);
 	for (int n = 0; n < 32; ++n) {
 		int charCode = namePtr[scroll & 0x1F];
-		if (true /*dirtyName[name]*/ || dirtyPattern[quarter | charCode]
-		|| dirtyColour[quarter | charCode]) {
-			int index = (charCode * 8) | baseLine;
-			int pattern = vram.patternTable.readNP(index);
-			int colour = vram.colourTable.readNP(index);
-			Pixel fg = palFg[colour >> 4];
-			Pixel bg = palFg[colour & 0x0F];
-			pixelPtr[0] = (pattern & 0x80) ? fg : bg;
-			pixelPtr[1] = (pattern & 0x40) ? fg : bg;
-			pixelPtr[2] = (pattern & 0x20) ? fg : bg;
-			pixelPtr[3] = (pattern & 0x10) ? fg : bg;
-			pixelPtr[4] = (pattern & 0x08) ? fg : bg;
-			pixelPtr[5] = (pattern & 0x04) ? fg : bg;
-			pixelPtr[6] = (pattern & 0x02) ? fg : bg;
-			pixelPtr[7] = (pattern & 0x01) ? fg : bg;
-		}
+		int index = (charCode * 8) | baseLine;
+		int pattern = vram.patternTable.readNP(index);
+		int colour = vram.colourTable.readNP(index);
+		Pixel fg = palFg[colour >> 4];
+		Pixel bg = palFg[colour & 0x0F];
+		pixelPtr[0] = (pattern & 0x80) ? fg : bg;
+		pixelPtr[1] = (pattern & 0x40) ? fg : bg;
+		pixelPtr[2] = (pattern & 0x20) ? fg : bg;
+		pixelPtr[3] = (pattern & 0x10) ? fg : bg;
+		pixelPtr[4] = (pattern & 0x08) ? fg : bg;
+		pixelPtr[5] = (pattern & 0x04) ? fg : bg;
+		pixelPtr[6] = (pattern & 0x02) ? fg : bg;
+		pixelPtr[7] = (pattern & 0x01) ? fg : bg;
 		pixelPtr += 8;
 		if (!(++scroll & 0x1F)) namePtr = getNamePtr(line, scroll);
 	}
@@ -282,22 +229,18 @@ template <class Pixel>
 void CharacterConverter<Pixel>::renderMultiHelper(
 	Pixel* pixelPtr, int line, int mask, int patternQuarter)
 {
-	if (!(anyDirtyName || anyDirtyPattern)) return;
-
 	int baseLine = mask | ((line / 4) & 7);
 	int scroll = vdp.getHorizontalScrollHigh();
 	const byte* namePtr = getNamePtr(line, scroll);
 	for (int n = 0; n < 32; ++n) {
 		int patternNr = patternQuarter | namePtr[scroll & 0x1F];
-		if (true /*dirtyName[name]*/ || dirtyPattern[patternNr]) {
-			int colour = vram.patternTable.readNP((patternNr * 8) | baseLine);
-			Pixel cl = palFg[colour >> 4];
-			Pixel cr = palFg[colour & 0x0F];
-			pixelPtr[0] = cl; pixelPtr[1] = cl;
-			pixelPtr[2] = cl; pixelPtr[3] = cl;
-			pixelPtr[4] = cr; pixelPtr[5] = cr;
-			pixelPtr[6] = cr; pixelPtr[7] = cr;
-		}
+		int colour = vram.patternTable.readNP((patternNr * 8) | baseLine);
+		Pixel cl = palFg[colour >> 4];
+		Pixel cr = palFg[colour & 0x0F];
+		pixelPtr[0] = cl; pixelPtr[1] = cl;
+		pixelPtr[2] = cl; pixelPtr[3] = cl;
+		pixelPtr[4] = cr; pixelPtr[5] = cr;
+		pixelPtr[6] = cr; pixelPtr[7] = cr;
 		pixelPtr += 8;
 		if (!(++scroll & 0x1F)) namePtr = getNamePtr(line, scroll);
 	}
@@ -323,8 +266,6 @@ template <class Pixel>
 void CharacterConverter<Pixel>::renderBogus(
 	Pixel* pixelPtr, int /*line*/)
 {
-	if (!(dirtyForeground || dirtyBackground)) return;
-
 	Pixel fg = palFg[vdp.getForegroundColour()];
 	Pixel bg = palBg[vdp.getBackgroundColour()];
 	for (int n = 8; n--; ) *pixelPtr++ = bg;
