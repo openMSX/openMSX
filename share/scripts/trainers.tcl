@@ -1,5 +1,5 @@
 set_help_text trainer \
-{game trainers version 1.6
+{game trainers version 1.7
 
 please join us looking for cheats and submit them to the www.openmsx.org forum
 
@@ -131,15 +131,38 @@ proc trainer_antartic_adventure {} {
 proc trainer_athleticland {} {
 	#lives
 	poke 0xe050 99
-	#time
-	poke 0xe055 55
-	after time 2 trainer_athleticland
+	#x-pos cabbage
+	poke 0xe0e9 1
+	#y-pos cabbage
+	poke 0xe0e8 0
+	#bird x-pos
+	poke 0xe101 0	
+	#bird y-pos
+	poke 0xe100 0
+	#stone x-pos
+	poke 0xe109 0	
+	#stone y-pos
+	poke 0xe10a 0
+	after time 0.1 trainer_athleticland
 }
+
 
 proc trainer_cabbagepatchkids {} {
 	#lives
 	poke 0xe050 99
-	after time 2 trainer_cabbagepatchkids
+	#x-pos cabbage
+	poke 0xe0e9 1
+	#y-pos cabbage
+	poke 0xe0e8 0
+	#bird x-pos
+	poke 0xe101 0	
+	#bird y-pos
+	poke 0xe100 0
+	#stone x-pos
+	poke 0xe109 0	
+	#stone y-pos
+	poke 0xe10a 0
+	after time 0.1 trainer_cabbagepatchkids
 }
 
 proc trainer_circuscharlie {} {
@@ -489,7 +512,7 @@ proc trainer_gradius2 {} {
 	#xpos enemy
 	#poke 0xe646 0
 	#xpos enemy
-	3poke 0xe686 0
+	#poke 0xe686 0
 	#xpos enemy
 	#poke 0xe6c6 0
 	#xpos enemy
@@ -499,7 +522,7 @@ proc trainer_gradius2 {} {
 	#xpos enemy
 	#poke 0xe786 0
 	#xpos enemy
-	#poke 0xe7c6 0	
+	#poke 0xe7c6 0
 	after time 0.5 trainer_gradius2
 }
 
@@ -1328,6 +1351,14 @@ proc trainer_andorogynus  {} {
 	after time 1 trainer_andorogynus
 }
 
+proc trainer_aliens {} {
+	#Ripley life
+	poke 0x042a 255
+	#Ripley ammo
+	poke 0x042d 32
+	after time 1 trainer_aliens
+}
+
 proc trainer_aliens2_msx1 {} {
 	#invincible
 	poke 0xe707 255
@@ -1339,6 +1370,8 @@ proc trainer_aliens2_msx1 {} {
 	poke 0xe28e 250
 	after time 15 trainer_aliens2_msx1
 }
+
+
 
 proc trainer_galaga {} {
 	#lives
@@ -3224,7 +3257,14 @@ proc trainer_terramex {} {
 proc trainer_eindeloos {} {
 	#unlimited lives
 	poke 0x9c91 99
-	after time 10 trainer_eindeloos
+
+	#big enemy 1 y-pos
+	poke 0x9486 200
+	#big enemy 2 y-pos
+	poke 0x9482 200
+	#big enemy 3 y-pos
+	poke 0x948a 200
+	after time 0.5 trainer_eindeloos
 }
 
 proc trainer_mobileplanet {} {
@@ -3288,7 +3328,7 @@ proc trainer_superrambospecial {} {
 proc trainer_supertriton {} {
 	#exp
 	poke 0xd023 255
-	 	#life
+	 #life
 	poke 0xd024 255
 	#red life
 	poke 0xd025 255
@@ -3646,6 +3686,10 @@ proc trainer_arkanoid1 {} {
 	poke 0xe551 1
 	#99 lives
 	poke 0xe01d 99
+
+	#ball above bat
+	poke 0xe0f6 [expr {[peek 0xe0ce]+16}]
+
 	#thanks for these cheats mars2000you
 	#normal ball speed
 	poke 0xe255 12
@@ -3662,7 +3706,8 @@ proc trainer_arkanoid1 {} {
 	poke 0xe326 1
 	#round (0-32)
 	#poke 0xe01b 0
-	after time 1 trainer_arkanoid1
+	
+	after time 0.1 trainer_arkanoid1
 }
 
 proc trainer_arkanoid2 {} {
@@ -3676,7 +3721,10 @@ proc trainer_arkanoid2 {} {
 	if {[peek 0xc020] >183} {
 		poke 0xc020 0	
 	}
-	after frame trainer_arkanoid2
+	#ball always above bat
+	poke 0xc021 [peek 0xc786]
+
+	after time 0.1 trainer_arkanoid2
 }
 
 proc trainer_inspecteurz {} {
@@ -4057,14 +4105,14 @@ proc trainer_deepforest {} {
 	#power
 	poke 0xeb1a 255
  	#money
-	 poke 0xeb1b 99
-	 poke 0xeb1c 99
-	 #untouchable
-	 #poke 0xea0e 255
-	 #jump higher
-	 poke 0xea0d 255
-	 poke 0xea0f 255
-	 poke 0xea08 255
+	poke 0xeb1b 99
+	poke 0xeb1c 99
+	#untouchable
+	#poke 0xea0e 255
+	#jump higher
+	poke 0xea0d 255
+	poke 0xea0f 255
+	poke 0xea08 255
  	after time 2 trainer_deepforest
 }
 
@@ -4253,13 +4301,13 @@ proc trainer_exoide-z_area5 {} {
 	after time 1 trainer_exoide-z_area5
 }
 
-proc trainer_thseus {} {
+proc trainer_theseus {} {
 	#power
 	poke 0xede3 0x9
 	poke 0xede2 0x99
 	#time
 	poke 0xeddc 0x02
-	after time 1 trainer_thseus
+	after time 1 trainer_theseus
 }
 
 proc trainer_monstersfair {} {
@@ -5151,7 +5199,11 @@ proc trainer_finalfantasy {} {
 proc trainer_breaker {} {
 	#balls
 	poke 0x953d 99
-	after time 1 trainer_breaker
+	#ball under bat
+	poke 0x922a [expr {[peek 0x9236]+8}]
+	#ball at same height as 2nd bat
+	poke 0x922c [expr {[peek 0x9237]-40}]
+	after frame trainer_breaker
 }
 
 proc trainer_bosconian  {} {
@@ -5732,7 +5784,8 @@ proc trainer_break_in {} {
 	poke 0x8a7b 0
 	#invisible guardian (hard game !)
 	#poke 0x8a83 0
-	after time 1 trainer_break_in
+	poke 0x8487 [expr {[peek 0x85d3]+16}]
+	after frame trainer_break_in
 }
 
 proc trainer_hypersports1 {} {
@@ -7053,8 +7106,8 @@ proc trainer_anaza {} {
 }
 
 proc trainer_autofire {} {
-	type "							  "
-	after time 1 trainer_autofire
+	type " "
+	after time 0.1 trainer_autofire
 }
 
 #alternative names
@@ -7064,5 +7117,8 @@ proc trainer_nemesis1scc {} 	{trainer_gradius1scc}
 proc trainer_nemesis2 {} 	{trainer_gradius2}
 proc trainer_nemesis2beta {} 	{trainer_gradius2beta}
 proc trainer_nemesis3 {} 	{trainer_gradius3}
+proc trainer_BoukenRoman {}	{trainer_dota}
+ 
+
 
 ### EOF ###
