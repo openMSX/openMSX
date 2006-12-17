@@ -183,41 +183,6 @@ public:
 		baseAddr = -1;
 	}
 
-	/** Gets a pointer to part of the VRAM in its current state.
-	  * The byte pointer to corresponds to the index given,
-	  * how many subsequent bytes correspond to subsequent indices
-	  * depends on the mask. It is the responsibility of the caller
-	  * to take this into account and to make sure no reads outside
-	  * the VRAM will occur.
-	  * @param index Index in table, with unused bits set to 1.
-	  * TODO:
-	  * Apply indexMask here, instead of at caller?
-	  * Seems we have to know an indexMask anyway, for inside checks.
-	  * I have forgotten to set the unused index so many times,
-	  * it is really a pitfall.
-	  * Because the method is inlined, an optimising compiler can
-	  * probably avoid performance loss on constant expressions.
-	  * @deprecated Prefer to use getReadArea instead
-	  */
-	inline const byte* readArea(unsigned index) const {
-		// Reads are only allowed if window is enabled.
-		assert(isEnabled());
-		unsigned addr = baseMask & index;
-		return &data[addr];
-	}
-
-	/** Gets a pointer to part of the VRAM in its current state.
-	  * See also readArea().
-	  * @param index Index in table.
-	  * @deprecated Prefer to use getReadArea instead
-	  */
-	inline const byte* readAreaIndex(unsigned index) const {
-		// index should fit inside indexMask, but we allow conflict
-		// for multi-page scroll bit
-		assert(!(index & indexMask & ~0x8000));
-		return readArea(index | indexMask);
-	}
-
 	/** Gets a pointer to a contiguous part of the VRAM. The region is 
 	  * [index, index + size) inside the current window.
 	  * @param index Index in table
@@ -234,12 +199,47 @@ public:
 		return &data[baseMask & (indexMask | index)];
 	}
 
+	/** Similar to getReadArea(), but now with planar addressing mode.
+	  * This means the region is split in two: one region for the even bytes
+	  * (ptr0) and another for the odd bytes (ptr1).
+	  * @param index Index in table
+	  * @param size Size of the block. This is only used to assert that
+	  *             requested block is not too large.
+	  * @param ptr0 out Pointer to the block of even numbered bytes.
+	  * @param ptr1 out Pointer to the block of odd  numbered bytes.
+	  */
+	inline void getReadAreaPlanar(
+			unsigned index, unsigned size,
+			const byte*& ptr0, const byte*& ptr1) const {
+		unsigned endIndex = index + size - 1;
+		unsigned areaBits = Math::floodRight(index ^ endIndex);
+		(void)areaBits;
+		assert((areaBits & baseMask) == areaBits);
+		assert((areaBits & ~indexMask) == areaBits);
+		assert(isEnabled());
+		unsigned addr = baseMask & (indexMask | index);
+		assert((addr & 1) == 0);
+		assert((size & 1) == 0);
+		ptr0 = &data[(addr / 2) | 0x00000];
+		ptr1 = &data[(addr / 2) | 0x10000];
+	}
+
 	/** Reads a byte from VRAM in its current state.
 	  * @param index Index in table, with unused bits set to 1.
-	  * TODO: Rename to "read", since all access is nonplanar (NP) now.
 	  */
 	inline byte readNP(unsigned index) const {
-		return *readArea(index);
+		assert(isEnabled());
+		return data[baseMask & index];
+	}
+
+	/** Similar to readNP, but now with planar addressing.
+	  * @param index Index in table, with unused bits set to 1.
+	  */
+	inline byte readPlanar(unsigned index) const {
+		assert(isEnabled());
+		unsigned addr = baseMask & index;
+		addr = ((addr << 16) | (addr >> 1)) & 0x1FFFF;
+		return data[addr];
 	}
 
 	/** Register an observer on this VRAM window.

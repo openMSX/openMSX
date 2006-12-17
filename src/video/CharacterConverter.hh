@@ -65,8 +65,7 @@ private:
 	  * @param blockPtr Pointer to array where host pixels will be written to.
 	  * @param pattern Pattern to convert.
 	  */
-	inline void convertMonoBlockRow(
-		byte* blockPtr, const byte pattern)
+	inline void convertMonoBlockRow(byte* blockPtr, const byte pattern)
 	{
 		blockPtr[0] = pattern & 0x80 ? 0xFF : 0;
 		blockPtr[1] = pattern & 0x40 ? 0xFF : 0;
@@ -84,8 +83,7 @@ private:
 	  * @param fg Foreground colour.
 	  * @param bg Background colour.
 	  */
-	inline void convertBlockRow(
-		Pixel* blockPtr, byte pattern, byte colour)
+	inline void convertBlockRow(Pixel* blockPtr, byte pattern, byte colour)
 	{
 		convertBlockRow(
 			blockPtr, pattern, palFg[colour >> 4], palFg[colour & 0x0F] );
@@ -96,8 +94,7 @@ public:
 	  * @param blockPtr Pointer to array where host pixels will be written to.
 	  * @param patternPtr Pointer to 8 pattern entries to convert.
 	  */
-	inline void convertMonoBlock(
-		byte* blockPtr, const byte* patternPtr)
+	inline void convertMonoBlock(byte* blockPtr, const byte* patternPtr)
 	{
 		convertMonoBlockRow(blockPtr,      patternPtr[0]);
 		convertMonoBlockRow(blockPtr +  8, patternPtr[1]);

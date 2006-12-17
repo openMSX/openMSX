@@ -1043,12 +1043,7 @@ void VDP::updateSpriteAttributeBase(const EmuTime& time)
 	if (mode == 1) {
 		vram->spriteAttribTable.setMask(base, -1 << 7, time);
 	} else { // mode == 2
-		if (displayMode.isPlanar()) {
-			vram->spriteAttribTable.setMask(
-				((base << 16) | (base >> 1)) & 0x1FFFF, 0x0FE00, time);
-		} else {
-			vram->spriteAttribTable.setMask(base, 0x1FC00, time);
-		}
+		vram->spriteAttribTable.setMask(base, -1 << 10, time);
 	}
 }
 
@@ -1059,7 +1054,6 @@ void VDP::updateSpritePatternBase(const EmuTime& time)
 		return;
 	}
 	int base = (controlRegs[6] << 11) | ~(-1 << 11);
-	if (displayMode.isPlanar()) base = ((base << 16) | (base >> 1)) & 0x1FFFF;
 	vram->spritePatternTable.setMask(base, -1 << 11, time);
 }
 

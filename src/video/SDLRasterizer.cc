@@ -55,7 +55,7 @@ inline void SDLRasterizer<Pixel>::renderBitmapLine(
 {
 	if (lineValidInMode[vramLine] != mode) {
 		const byte* vramPtr =
-			vram.bitmapCacheWindow.readArea(vramLine << 7);
+			vram.bitmapCacheWindow.getReadArea(vramLine * 128, 128);
 		bitmapConverter->convertLine(
 			bitmapDisplayCache->getLinePtr(vramLine, (Pixel*)0),
 			vramPtr);
@@ -88,20 +88,17 @@ template <class Pixel>
 inline void SDLRasterizer<Pixel>::renderPlanarBitmapLine(
 	byte mode, int vramLine)
 {
-	if ( lineValidInMode[vramLine] != mode
-	|| lineValidInMode[vramLine | 512] != mode ) {
-		int addr0 = vramLine << 7;
-		int addr1 = addr0 | 0x10000;
-		const byte* vramPtr0 =
-			vram.bitmapCacheWindow.readArea(addr0);
-		const byte* vramPtr1 =
-			vram.bitmapCacheWindow.readArea(addr1);
+	if ((lineValidInMode[vramLine |   0] != mode) ||
+	    (lineValidInMode[vramLine | 512] != mode)) {
+		const byte* vramPtr0;
+		const byte* vramPtr1;
+		vram.bitmapCacheWindow.getReadAreaPlanar(
+			vramLine * 256, 256, vramPtr0, vramPtr1);
 		bitmapConverter->convertLinePlanar(
 			bitmapDisplayCache->getLinePtr(vramLine, (Pixel*)0),
-			vramPtr0, vramPtr1
-			);
-		lineValidInMode[vramLine] =
-			lineValidInMode[vramLine | 512] = mode;
+			vramPtr0, vramPtr1);
+		lineValidInMode[vramLine |   0] = mode;
+		lineValidInMode[vramLine | 512] = mode;
 	}
 }
 

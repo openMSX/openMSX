@@ -196,8 +196,8 @@ inline static int translateX(int absoluteX)
 inline void GLRasterizer::renderBitmapLine(byte mode, int vramLine)
 {
 	if (lineValidInMode[vramLine] != mode) {
-		const byte *vramPtr =
-			vram.bitmapCacheWindow.readArea(vramLine << 7);
+		const byte* vramPtr =
+			vram.bitmapCacheWindow.getReadArea(vramLine * 128, 128);
 		bitmapConverter->convertLine(lineBuffer, vramPtr);
 		bitmapTexture->update(vramLine, lineBuffer, lineWidth);
 		lineValidInMode[vramLine] = mode;
@@ -223,16 +223,16 @@ inline void GLRasterizer::renderBitmapLines(byte line, int count)
 
 inline void GLRasterizer::renderPlanarBitmapLine(byte mode, int vramLine)
 {
-	if ((lineValidInMode[vramLine      ] != mode) ||
+	if ((lineValidInMode[vramLine |   0] != mode) ||
 	    (lineValidInMode[vramLine | 512] != mode)) {
-		int addr0 = vramLine << 7;
-		int addr1 = addr0 | 0x10000;
-		const byte* vramPtr0 = vram.bitmapCacheWindow.readArea(addr0);
-		const byte* vramPtr1 = vram.bitmapCacheWindow.readArea(addr1);
+		const byte* vramPtr0;
+		const byte* vramPtr1;
+		vram.bitmapCacheWindow.getReadAreaPlanar(
+			vramLine * 256, 256, vramPtr0, vramPtr1);
 		bitmapConverter->convertLinePlanar(lineBuffer, vramPtr0, vramPtr1);
 		bitmapTexture->update(vramLine, lineBuffer, lineWidth);
-		lineValidInMode[vramLine] =
-			lineValidInMode[vramLine | 512] = mode;
+		lineValidInMode[vramLine |   0] = mode;
+		lineValidInMode[vramLine | 512] = mode;
 	}
 }
 
@@ -821,8 +821,7 @@ void GLRasterizer::renderText1(
 				byte charPixels[8 * 8];
 				characterConverter->convertMonoBlock(
 					charPixels,
-					vram.patternTable.readArea((-1 << 11) | (charcode * 8))
-					);
+					vram.patternTable.getReadArea(charcode * 8, 8));
 				GLBindMonoBlock(textureId, charPixels);
 			}
 			// Plot current character.
@@ -880,7 +879,7 @@ void GLRasterizer::renderText2(
 				byte charPixels[8 * 8];
 				characterConverter->convertMonoBlock(
 					charPixels,
-					vram.patternTable.readArea((-1 << 11) | (charcode * 8)));
+					vram.patternTable.getReadArea(charcode * 8, 8));
 				GLBindMonoBlock(textureId, charPixels);
 			}
 			// Plot current character.
@@ -942,7 +941,7 @@ void GLRasterizer::renderGraphic1Row(
 			byte charPixels[8 * 8];
 			characterConverter->convertMonoBlock(
 				charPixels,
-				vram.patternTable.readArea((-1 << 11) | (charNr * 8)));
+				vram.patternTable.getReadArea(charNr * 8, 8));
 			GLBindMonoBlock(textureId, charPixels);
 		}
 		int colour = vram.colourTable.readNP((-1 << 6) | (charNr / 8));
@@ -1023,11 +1022,11 @@ void GLRasterizer::renderGraphic2Row(
 
 		if (!valid) {
 			Pixel charPixels[8 * 8];
-			int index = (-1 << 13) | (charNr * 8);
+			int char8 = charNr * 8;
 			characterConverter->convertColourBlock(
 				charPixels,
-				vram.patternTable.readArea(index),
-				vram.colourTable.readArea(index));
+				vram.patternTable.getReadArea(char8, 8),
+				vram.colourTable. getReadArea(char8, 8));
 			GLBindColourBlock(textureId, charPixels);
 		}
 		GLDrawColourBlock(textureId, x, screenLine);
@@ -1055,8 +1054,8 @@ void GLRasterizer::renderMultiColour(
 	int rowEnd = (vramLine + count + 3) / 4;
 	screenLine -= (vramLine & 3) * 2;
 	for (int row = rowStart; row < rowEnd; row++) {
-		const byte *namePtr = vram.nameTable.readArea(
-			(-1 << 10) | (row / 2) * 32 );
+		const byte* namePtr =
+			vram.nameTable.getReadArea((row / 2) * 32, 32);
 		for (int col = colStart; col < colEnd; col++) {
 			int charcode = namePtr[col];
 			int colour = vram.patternTable.readNP(

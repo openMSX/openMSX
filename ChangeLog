@@ -1,5 +1,11 @@
 $Id$
 
+2006-12-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* VDP code cleanup:
+	   Changed users of VDPVRAM::readArea() and VDPVRAM::readAreaIndex()
+	   to use VDPVRAM::getReadArea(). This method is safer to use, it also
+	   simplifies the code a bit (IMHO).
+
 2006-12-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed VDP bug introduced at 2006-11-18, s#0 was completely cleared
 	  upon read, only bit 7 must be cleared:

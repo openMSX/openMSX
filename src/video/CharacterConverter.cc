@@ -226,8 +226,8 @@ const byte* CharacterConverter<Pixel>::getNamePtr(int line, int scroll)
 {
 	// no need to test whether multi-page scrolling is enabled,
 	// indexMask in the nameTable already takes care of it
-	return vram.nameTable.readAreaIndex(
-		((line / 8) * 32) | ((scroll & 0x20) ? 0x8000 : 0));
+	return vram.nameTable.getReadArea(
+		((line / 8) * 32) | ((scroll & 0x20) ? 0x8000 : 0), 32);
 }
 template <class Pixel>
 void CharacterConverter<Pixel>::renderGraphic1(

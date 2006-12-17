@@ -54,33 +54,37 @@ static inline SpriteChecker::SpritePattern doublePattern(SpriteChecker::SpritePa
 	return a | (a >> 1);             // aabbccddeeffgghhiijjkkllmmnnoopp
 }
 
-inline SpriteChecker::SpritePattern SpriteChecker::calculatePattern(
-	int patternNr, int y)
-{
-	// Note: For sprite pattern, mask and index never overlap.
-	const byte *patternPtr = vram.spritePatternTable.readArea(
-		planar ? 0x0FC00 : 0x1F800 );
-	int index = patternNr * 8 + y;
-	if (planar) index = ((index << 16) | (index >> 1)) & 0x1FFFF;
-	SpritePattern pattern = patternPtr[index] << 24;
-	if (vdp.getSpriteSize() == 16) {
-		pattern |= patternPtr[index + (planar ? 8 : 16)] << 16;
-	}
-	return vdp.getSpriteMag() == 1 ? pattern : doublePattern(pattern);
-}
-
-// TODO: Integrate with calculatePattern.
 inline SpriteChecker::SpritePattern SpriteChecker::calculatePatternNP(
 	int patternNr, int y)
 {
-	// Note: For sprite pattern, mask and index never overlap.
-	const byte *patternPtr = vram.spritePatternTable.readArea((-1u << 11) | 0);
+	const byte* patternPtr = vram.spritePatternTable.getReadArea(0, 256 * 8);
 	int index = patternNr * 8 + y;
 	SpritePattern pattern = patternPtr[index] << 24;
 	if (vdp.getSpriteSize() == 16) {
 		pattern |= patternPtr[index + 16] << 16;
 	}
 	return vdp.getSpriteMag() == 1 ? pattern : doublePattern(pattern);
+}
+inline SpriteChecker::SpritePattern SpriteChecker::calculatePatternPlanar(
+	int patternNr, int y)
+{
+	const byte* ptr0;
+	const byte* ptr1;
+	vram.spritePatternTable.getReadAreaPlanar(0, 256 * 8, ptr0, ptr1);
+	int index = patternNr * 8 + y;
+	const byte* patternPtr = (index & 1) ? ptr1 : ptr0;
+	index /= 2;
+	SpritePattern pattern = patternPtr[index] << 24;
+	if (vdp.getSpriteSize() == 16) {
+		pattern |= patternPtr[index + (16 / 2)] << 16;
+	}
+	return vdp.getSpriteMag() == 1 ? pattern : doublePattern(pattern);
+}
+inline SpriteChecker::SpritePattern SpriteChecker::calculatePattern(
+	int patternNr, int y)
+{
+	return planar ? calculatePatternPlanar(patternNr, y)
+	              : calculatePatternNP    (patternNr, y);
 }
 
 inline int SpriteChecker::checkSprites1(
@@ -100,7 +104,7 @@ inline int SpriteChecker::checkSprites1(
 	int sprite, visibleIndex = 0;
 	int size = vdp.getSpriteSize();
 	int mag = vdp.getSpriteMag();
-	const byte *attributePtr = vram.spriteAttribTable.readArea((-1u << 7) | 0);
+	const byte* attributePtr = vram.spriteAttribTable.getReadArea(0, 32 * 4);
 	byte patternIndexMask = size == 16 ? 0xFC : 0xFF;
 	for (sprite = 0; sprite < 32; sprite++, attributePtr += 4) {
 		int y = *attributePtr;
@@ -200,18 +204,26 @@ inline int SpriteChecker::checkSprites2(
 	int sprite, visibleIndex = 0;
 	int size = vdp.getSpriteSize();
 	int mag = vdp.getSpriteMag();
-	// TODO: Should masks be applied while processing the tables?
-	//       For attribute, no (7 bits index), for
-	// Bit9 is set for attribute table, reset for colour table.
-	const byte *attributePtr = vram.spriteAttribTable.readArea(
-		planar ? 0x0FF00 : 0x1FE00 );
-	byte patternIndexMask = size == 16 ? 0xFC : 0xFF;
-	int index1 = planar ? 0x10000 : 1;
-	int index2 = planar ? 0x00001 : 2;
-	int indexIncr = planar ? 2 : 4;
+	int patternIndexMask = (size == 16) ? 0xFC : 0xFF;
+
+	const byte* attributePtr0;
+	const byte* attributePtr1;
+	if (planar) {
+		vram.spriteAttribTable.getReadAreaPlanar(
+			512, 32 * 4, attributePtr0, attributePtr1);
+	} else {
+		attributePtr0 = attributePtr1 =
+			vram.spriteAttribTable.getReadArea(512, 32 * 4);
+	}
+	const int index0 = planar ? (0 / 2) : 0;
+	const int index1 = planar ? (1 / 2) : 1;
+	const int index2 = planar ? (2 / 2) : 2;
+	const int indexIncr = planar ? 2 : 4;
+
 	// TODO: Verify CC implementation.
-	for (sprite = 0; sprite < 32; sprite++, attributePtr += indexIncr) {
-		int y = attributePtr[0];
+	for (sprite = 0; sprite < 32; ++sprite, attributePtr0 += indexIncr,
+		                                attributePtr1 += indexIncr) {
+		int y = attributePtr0[index0];
 		if (y == 216) break;
 		// Calculate line number within the sprite.
 		int spriteLine = ((line - y) & 0xFF) / mag;
@@ -228,19 +240,19 @@ inline int SpriteChecker::checkSprites2(
 				}
 				if (limitSprites) break;
 			}
-			int colourIndex = ((-1 << 10) | (sprite * 16 + spriteLine)) & 0x1FFFF;
-			if (planar) colourIndex =
-				((colourIndex << 16) | (colourIndex >> 1)) & 0x1FFFF;
-			byte colourAttrib = vram.spriteAttribTable.readNP(colourIndex);
+			int colorIndex = (-1 << 10) | (sprite * 16 + spriteLine);
+			byte colorAttrib = planar
+				? vram.spriteAttribTable.readPlanar(colorIndex)
+				: vram.spriteAttribTable.readNP    (colorIndex);
 			// Sprites with CC=1 are only visible if preceded by
 			// a sprite with CC=0.
-			if ((colourAttrib & 0x40) && visibleIndex == 0) continue;
-			SpriteInfo *sip = &visibleSprites[visibleIndex++];
-			int patternIndex = attributePtr[index2] & patternIndexMask;
+			if ((colorAttrib & 0x40) && visibleIndex == 0) continue;
+			SpriteInfo* sip = &visibleSprites[visibleIndex++];
+			int patternIndex = attributePtr0[index2] & patternIndexMask;
 			sip->pattern = calculatePattern(patternIndex, spriteLine);
-			sip->x = attributePtr[index1];
-			if (colourAttrib & 0x80) sip->x -= 32;
-			sip->colourAttrib = colourAttrib;
+			sip->x = attributePtr1[index1];
+			if (colorAttrib & 0x80) sip->x -= 32;
+			sip->colourAttrib = colorAttrib;
 		}
 	}
 	byte status = vdp.getStatusReg0();
