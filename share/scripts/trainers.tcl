@@ -163,7 +163,13 @@ proc trainer_cabbagepatchkids {} {
 proc trainer_circuscharlie {} {
 	#lives
 	poke 0xe050 99
-	after time 2 trainer_circuscharlie
+	#hoop/ball
+	poke 0xe150 0
+	#monkey 1 x-pos
+	poke 0xe1b0 0
+	#monkey 2 x-pos
+	poke 0xe170 0
+	after time 0.5 trainer_circuscharlie
 }
 
 proc trainer_comicbakkery {} {
@@ -894,6 +900,41 @@ proc trainer_zanac {} {
 	poke 0xe10f 48
 	#lives
 	poke 0xe10a 99
+
+	poke 0xe439 1
+	poke 0xe479 1
+	poke 0xe499 1
+	poke 0xe539 1
+	poke 0xe519 1
+
+	#eye 1 power
+	poke 0xe559 1
+	#eye 2 power
+	poke 0xe569 1
+	#eye 3 power
+	poke 0xe579 1
+	#eye 4 power
+	poke 0xe589 1
+	#eye 5 power
+	poke 0xe599 1
+	#eye 6 power
+	poke 0xe5a9 1
+	#eye 7 power
+	poke 0xe5b9 1
+	#eye 8 power
+	poke 0xe5c9 1
+	#eye 9 power
+	poke 0xe5d9 1
+	#eye 10 power
+	poke 0xe5e9 1
+	#eye 11 power
+	poke 0xe5f9 1
+	#eye 12 power
+	poke 0xe619 1
+	#eye 13 power
+	poke 0xe629 1
+	#eye 14 power
+	poke 0xe639 1
 	after time 1 trainer_zanac
 }
 
@@ -3274,7 +3315,31 @@ proc trainer_backtothefuture {} {
 	poke 0xf235 99
 	#time
 	poke 0xf232 13
-	after time 10 trainer_backtothefuture
+	#always have green boy
+	poke 0xf273 2
+	poke 0xf274 115
+	#always have girl
+	poke 0xf27d 2
+	poke 0xf27e 115
+	#enemy 1 y-x-pos 1
+	poke 0xf102 200
+	poke 0xf103 255
+	#enemy 2 y-x-pos 
+	poke 0xf109 200
+	poke 0xf110 255
+	#enemy 3 y-x-pos 
+	poke 0xf11c 200
+	poke 0xf11d 255
+	#enemy 4 y-x-pos 
+	poke 0xf129 200
+	poke 0xf12a 255	
+	#enemy 5 y-x-pos 
+	poke 0xf136 200
+	poke 0xf137 255	
+	#enemy 5 y-x-pos 
+	poke 0xf150 200
+	poke 0xf151 255	
+	after time 0.1 trainer_backtothefuture
 }
 
 proc trainer_bombermanspecial {} {
@@ -3700,8 +3765,22 @@ proc trainer_jackthenipper {} {
 
 proc trainer_jetsetwilly {} {
 	#lives
-	poke 0xca1a 17
-	after time 1 trainer_jetsetwilly
+	poke 0xf25d 17
+	#y-pos enemy 1
+	poke 0xf14b 170
+	#y-pos enemy 2
+	poke 0xf154 170
+	#y-pos enemy 3
+	poke 0xf15d 170
+	#y-pos enemy 4
+	poke 0xf166 170
+	#y-pos enemy 5
+	poke 0xf16f 170
+	#y-pos enemy 6
+	poke 0xf181 170
+	#y-pos enemy 7
+	poke 0xf178 170
+	after time 0.5 trainer_jetsetwilly
 }
 
 proc trainer_digdug {} {
