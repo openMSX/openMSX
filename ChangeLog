@@ -1,5 +1,13 @@
 $Id$
 
+2006-12-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* The -Wparentheses warning is now also enabled in c++ mode in recent
+	  gcc versions (4.3 SVN version). This for example warns when
+	  parentheses are omitted in places were people often are mistaken
+	  about operator precedence. And guess what .. openMSX got it wrong in
+	  a couple of places. In other places I just added extra parentheses
+	  to silence the warnings.
+
 2006-12-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* VDP code cleanup:
 	   Changed users of VDPVRAM::readArea() and VDPVRAM::readAreaIndex()

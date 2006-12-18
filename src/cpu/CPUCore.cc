@@ -1420,7 +1420,7 @@ template <class T> inline void CPUCore<T>::BIT_HL(byte bit)
 	R.setF((R.getF() & C_FLAG) |
 	       ZSPTable[RDMEM(R.HL) & (1 << bit)] |
 	       H_FLAG |
-	       (memptr >> 8) & (X_FLAG | Y_FLAG));
+	       ((memptr >> 8) & (X_FLAG | Y_FLAG)));
 	T::SMALL_DELAY();
 }
 template <class T> void CPUCore<T>::bit_0_xhl() { BIT_HL(0); }
@@ -1438,7 +1438,7 @@ template <class T> inline void CPUCore<T>::BIT_IX(byte bit)
 	R.setF((R.getF() & C_FLAG) |
 	       ZSPTable[RDMEM(memptr) & (1 << bit)] |
 	       H_FLAG |
-	       (memptr >> 8) & (X_FLAG | Y_FLAG));
+	       ((memptr >> 8) & (X_FLAG | Y_FLAG)));
 	T::SMALL_DELAY();
 }
 template <class T> void CPUCore<T>::bit_0_xix() { BIT_IX(0); }
@@ -1456,7 +1456,7 @@ template <class T> inline void CPUCore<T>::BIT_IY(byte bit)
 	R.setF((R.getF() & C_FLAG) |
 	       ZSPTable[RDMEM(memptr) & (1 << bit)] |
 	       H_FLAG |
-	       (memptr >> 8) & (X_FLAG | Y_FLAG));
+	       ((memptr >> 8) & (X_FLAG | Y_FLAG)));
 	T::SMALL_DELAY();
 }
 template <class T> void CPUCore<T>::bit_0_xiy() { BIT_IY(0); }
@@ -2620,7 +2620,7 @@ template <class T> inline void CPUCore<T>::BLOCK_IN(bool increase, bool repeat)
 	if (val & S_FLAG) f |= N_FLAG;
 	int k = val + ((R.getC() + (increase ? 1 : -1)) & 0xFF);
 	if (k & 0x100) f |= H_FLAG | C_FLAG;
-	R.setF(f | ZSPXYTable[(k & 0x07) ^ b] & P_FLAG);
+	R.setF(f | (ZSPXYTable[(k & 0x07) ^ b] & P_FLAG));
 	if (repeat && b) { T::BLOCK_DELAY(); R.PC -= 2; }
 }
 template <class T> void CPUCore<T>::ind()  { BLOCK_IN(false, false); }
@@ -2641,7 +2641,7 @@ template <class T> inline void CPUCore<T>::BLOCK_OUT(bool increase, bool repeat)
 	if (val & S_FLAG) f |= N_FLAG;
 	int k = val + R.getL();
 	if (k & 0x100) f |= H_FLAG | C_FLAG;
-	R.setF(f | ZSPXYTable[(k & 0x07) ^ b] & P_FLAG);
+	R.setF(f | (ZSPXYTable[(k & 0x07) ^ b] & P_FLAG));
 	if (repeat && b) { T::BLOCK_DELAY(); R.PC -= 2; }
 }
 template <class T> void CPUCore<T>::outd() { BLOCK_OUT(false, false); }
@@ -2654,8 +2654,8 @@ template <class T> void CPUCore<T>::otir() { BLOCK_OUT(true,  true ); }
 template <class T> void CPUCore<T>::nop() { }
 template <class T> void CPUCore<T>::ccf()
 {
-	R.setF(((R.getF() & (S_FLAG | Z_FLAG | P_FLAG | C_FLAG) |
-	        ((R.getF() & C_FLAG) ? H_FLAG : 0)) |
+	R.setF(((R.getF() & (S_FLAG | Z_FLAG | P_FLAG | C_FLAG)) |
+	        ((R.getF() & C_FLAG) ? H_FLAG : 0) |
 	        (R.getA() & (X_FLAG | Y_FLAG))                  ) ^ C_FLAG);
 }
 template <class T> void CPUCore<T>::cpl()

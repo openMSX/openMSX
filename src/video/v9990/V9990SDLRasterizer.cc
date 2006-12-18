@@ -251,7 +251,7 @@ void V9990SDLRasterizer<Pixel>::drawBxMode(
 	unsigned rollMask = vdp.getRollMask(0x1FFF);
 	unsigned scrollYBase = scrollY & ~rollMask;
 	while (displayHeight--) {
-		unsigned y = scrollYBase + (displayY + scrollY) & rollMask;
+		unsigned y = scrollYBase + ((displayY + scrollY) & rollMask);
 		unsigned address = vdp.XYtoVRAM(&x, y, colorMode);
 		Pixel* pixelPtr = workFrame->getLinePtr(fromY, (Pixel*)0) + fromX;
 		bitmapConverter->convertLine(pixelPtr, address, displayWidth,

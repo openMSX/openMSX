@@ -188,7 +188,7 @@ byte V9990::readIO(word port, const EmuTime& time)
 			// read register
 			result = readRegister(regSelect & 0x3F, time);
 			if (!(regSelect & 0x40)) {
-				regSelect =   regSelect      & 0xC0 |
+				regSelect = ( regSelect      & 0xC0) |
 				            ((regSelect + 1) & 0x3F);
 			}
 			break;
@@ -276,7 +276,7 @@ void V9990::writeIO(word port, byte val, const EmuTime& time)
 			// write register
 			writeRegister(regSelect & 0x3F, val, time);
 			if (!(regSelect & 0x80)) {
-				regSelect =   regSelect      & 0xC0 |
+				regSelect = ( regSelect      & 0xC0) |
 				            ((regSelect + 1) & 0x3F);
 			}
 			break;
@@ -454,7 +454,7 @@ inline void V9990::setVRAMAddr(RegisterId base, unsigned addr)
 {
 	regs[base + 0] =   addr &     0xFF;
 	regs[base + 1] =  (addr &   0xFF00) >> 8;
-	regs[base + 2] = ((addr & 0x070000) >> 16) | regs[base + 2] & 0x80;
+	regs[base + 2] = ((addr & 0x070000) >> 16) | (regs[base + 2] & 0x80);
 	// TODO check
 }
 

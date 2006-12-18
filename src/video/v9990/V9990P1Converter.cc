@@ -34,8 +34,8 @@ void V9990P1Converter<Pixel>::convertLine(Pixel* linePtr,
 	unsigned scrollBY = vdp.getScrollBY();
 	unsigned scrollAYBase = scrollAY & ~rollMask;
 	unsigned scrollBYBase = scrollBY & ~rollMask;
-	unsigned displayAY = scrollAYBase + (displayY + scrollAY) & rollMask;
-	unsigned displayBY = scrollBYBase + (displayY + scrollBY) & rollMask;
+	unsigned displayAY = scrollAYBase + ((displayY + scrollAY) & rollMask);
+	unsigned displayBY = scrollBYBase + ((displayY + scrollBY) & rollMask);
 
 	unsigned displayEnd = displayX + displayWidth;
 	unsigned end1 = std::max<int>(0, std::min<int>(prioX, displayEnd) - displayX);

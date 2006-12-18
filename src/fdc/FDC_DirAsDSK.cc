@@ -18,19 +18,33 @@
 using std::string;
 using std::transform;
 
-/* macros to change DirEntries */
-#define setsh(x,y) {x[0]=y;x[1]=y>>8;}
-#define setlg(x,y) {x[0]=y;x[1]=y>>8;x[2]=y>>16;x[3]=y>>24;}
-
-/* macros to read DirEntries */
-#define rdsh(x) (x[0]+(x[1]<<8))
-#define rdlg(x) (x[0]+(x[1]<<8)+(x[2]<<16)+(x[3]<<24))
-
 namespace openmsx {
 
-#define EOF_FAT 0xFFF /* signals EOF in FAT */
-#define NODIRENTRY    4000
-#define CACHEDSECTOR  4001
+// functions to set/get DirEntries
+static void set16(byte* p, unsigned value)
+{
+	p[0] = (value >> 0) & 0xFF;
+	p[1] = (value >> 8) & 0xFF;
+}
+static void set32(byte* p, unsigned value)
+{
+	p[0] = (value >>  0) & 0xFF;
+	p[1] = (value >>  8) & 0xFF;
+	p[2] = (value >> 16) & 0xFF;
+	p[3] = (value >> 24) & 0xFF;
+}
+static unsigned get16(const byte* p)
+{
+	return p[0] + (p[1] << 8);
+}
+static unsigned get32(const byte* p)
+{
+	return p[0] + (p[1] << 8) + (p[2] << 16) + (p[3] << 24);
+}
+
+static const int EOF_FAT = 0xFFF; // signals EOF in FAT
+static const int NODIRENTRY   = 4000;
+static const int CACHEDSECTOR = 4001;
 
 const string FDC_DirAsDSK::BootBlockFileName = ".sector.boot";
 const string FDC_DirAsDSK::CachedSectorsFileName = ".sector.cache";
@@ -186,8 +200,8 @@ FDC_DirAsDSK::FDC_DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings,
 
 	//clear the sectormap so that they all point to 'clean' sectors
 	for (int i = 0; i < 1440 ; i++) {
-		sectormap[i].dirEntryNr=NODIRENTRY;
-	};
+		sectormap[i].dirEntryNr = NODIRENTRY;
+	}
 
 	//read directory and fill the fake disk
 	struct dirent* d = readdir(dir);
@@ -413,23 +427,22 @@ void FDC_DirAsDSK::updateFileInDisk(const int dirindex)
 	       ? (mtim->tm_sec >> 1) + (mtim->tm_min << 5) +
 	         (mtim->tm_hour << 11)
 	       : 0;
-	setsh(mapdir[dirindex].msxinfo.time, t1);
+	set16(mapdir[dirindex].msxinfo.time, t1);
 	int t2 = mtim
 	       ? mtim->tm_mday + ((mtim->tm_mon + 1) << 5) +
 	         ((mtim->tm_year + 1900 - 1980) << 9)
 	       : 0;
-	setsh(mapdir[dirindex].msxinfo.date, t2);
+	set16(mapdir[dirindex].msxinfo.date, t2);
 	fsize = fst.st_size;
 
 	mapdir[dirindex].filesize=fsize;
-	int curcl = 2;
-	curcl=rdsh(mapdir[dirindex].msxinfo.startcluster );
+	int curcl = get16(mapdir[dirindex].msxinfo.startcluster);
 	// if there is no cluster assigned yet to this file, then find a free cluster
 	bool followFATClusters=true;
 	if (curcl == 0) {
 		followFATClusters=false;
 		curcl=findFirstFreeCluster();
-	setsh(mapdir[dirindex].msxinfo.startcluster, curcl);
+	set16(mapdir[dirindex].msxinfo.startcluster, curcl);
 	}
 	PRT_DEBUG("Starting at cluster " << curcl );
 
@@ -500,7 +513,7 @@ void FDC_DirAsDSK::updateFileInDisk(const int dirindex)
 			mapdir[dirindex].filename + " truncated.");
 	}
 	//write (possibly truncated) file size
-	setlg(mapdir[dirindex].msxinfo.size, fsize - size);
+	set32(mapdir[dirindex].msxinfo.size, fsize - size);
 
 }
 
@@ -565,10 +578,10 @@ void FDC_DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 				//the 3 vital informations needed
 				bool chgName=(memcmp( mapdir[dirCount].msxinfo.filename , buf, 11 ) ==0 ) ? true : false ;
 
-				bool chgClus=( rdsh(mapdir[dirCount].msxinfo.startcluster) ==
-						(buf[25] + buf[26]<<8 )  ) ? true : false ;
-				bool chgSize=( rdlg(mapdir[dirCount].msxinfo.size) ==
-						(buf[27] + buf[27]<<8 + buf[27]<<16 + buf[27]<<24 ) ) ? true : false ;
+				bool chgClus = get16(mapdir[dirCount].msxinfo.startcluster) ==
+						get16(&buf[25]);
+				bool chgSize = get32(mapdir[dirCount].msxinfo.size) ==
+						get32(&buf[27]);
 
 				PRT_DEBUG("	chgSize "<< (chgSize?"true":"false"));
 				PRT_DEBUG("	chgClus "<< (chgClus?"true":"false"));
