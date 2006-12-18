@@ -249,7 +249,7 @@ void V9990SDLRasterizer<Pixel>::drawBxMode(
 
 	unsigned scrollY = vdp.getScrollAY();
 	unsigned rollMask = vdp.getRollMask(0x1FFF);
-	unsigned scrollYBase = scrollY & ~rollMask;
+	unsigned scrollYBase = scrollY & ~rollMask & 0x1FFF;
 	while (displayHeight--) {
 		unsigned y = scrollYBase + ((displayY + scrollY) & rollMask);
 		unsigned address = vdp.XYtoVRAM(&x, y, colorMode);

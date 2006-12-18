@@ -32,8 +32,8 @@ void V9990P1Converter<Pixel>::convertLine(Pixel* linePtr,
 	unsigned rollMask = vdp.getRollMask(0x1FF);
 	unsigned scrollAY = vdp.getScrollAY();
 	unsigned scrollBY = vdp.getScrollBY();
-	unsigned scrollAYBase = scrollAY & ~rollMask;
-	unsigned scrollBYBase = scrollBY & ~rollMask;
+	unsigned scrollAYBase = scrollAY & ~rollMask & 0x1FF;
+	unsigned scrollBYBase = scrollBY & ~rollMask & 0x1FF;
 	unsigned displayAY = scrollAYBase + ((displayY + scrollAY) & rollMask);
 	unsigned displayBY = scrollBYBase + ((displayY + scrollBY) & rollMask);
 
