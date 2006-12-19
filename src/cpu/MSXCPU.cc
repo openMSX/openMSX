@@ -44,7 +44,8 @@ private:
 MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 	: motherboard(motherboard_)
 	, traceSetting(new BooleanSetting(motherboard.getCommandController(),
-	                              "cputrace", "CPU tracing on/off", false))
+	                              "cputrace", "CPU tracing on/off", false,
+	                              Setting::DONT_SAVE))
 	, z80 (new CPUCore<Z80TYPE> (motherboard, "z80",  *traceSetting,
 	                             EmuTime::zero))
 	, r800(new CPUCore<R800TYPE>(motherboard, "r800", *traceSetting,
