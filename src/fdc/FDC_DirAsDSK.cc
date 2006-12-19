@@ -5,12 +5,11 @@
 #include "BootBlocks.hh"
 #include "GlobalSettings.hh"
 #include "EnumSetting.hh"
+#include "File.hh"
+#include "FileException.hh"
+#include "ReadDir.hh"
 #include <algorithm>
-#include <cassert>
-#include <cstdio>
-#include <cstdlib>
 #include <cstring>
-#include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -84,13 +83,9 @@ int FDC_DirAsDSK::findFirstFreeCluster()
 // check if a filename is used in the emulated MSX disk
 bool FDC_DirAsDSK::checkMSXFileExists(const string& msxfilename)
 {
-	//TODO: complete this
-	string dir, file;
-	StringOp::splitOnLast(msxfilename, "/", dir, file);
-
 	for (int i = 0; i < 112; ++i) {
 		if (strncmp((const char*)(mapdir[i].msxinfo.filename),
-			    file.c_str(), 11) == 0) {
+			    msxfilename.c_str(), 11) == 0) {
 			return true;
 		}
 	}
@@ -113,15 +108,12 @@ static char toMSXChr(char a)
 {
 	return (a == ' ') ? '_' : ::toupper(a);
 }
-static string makeSimpleMSXFileName(const string& fullfilename)
+static string makeSimpleMSXFileName(string filename)
 {
-	string dir, fullfile;
-	StringOp::splitOnLast(fullfilename, "/", dir, fullfile);
-
-	transform(fullfile.begin(), fullfile.end(), fullfile.begin(), toMSXChr);
+	transform(filename.begin(), filename.end(), filename.begin(), toMSXChr);
 
 	string file, ext;
-	StringOp::splitOnLast(fullfile, ".", file, ext);
+	StringOp::splitOnLast(filename, ".", file, ext);
 	if (file.empty()) swap(file, ext);
 
 	file.resize(8, ' ');
@@ -132,41 +124,34 @@ static string makeSimpleMSXFileName(const string& fullfilename)
 FDC_DirAsDSK::FDC_DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings,
                            const string& fileName)
 	: SectorBasedDisk(fileName)
+	, hostDir(fileName)
 	, cliComm(cliComm_)
 {
-	// Here we create the fake diskimages based upon the files that can be
-	// found in the 'fileName' directory
-	DIR* dir = opendir(fileName.c_str());
-	if (dir == NULL) {
+	// create the diskimage based upon the files that can be
+	// found in the host directory
+	ReadDir dir(hostDir);
+	if (!dir.isValid()) {
 		throw MSXException("Not a directory");
 	}
-
-	// store filename as chroot dir for the msx disk
-	MSXrootdir = fileName;
 
 	// First create structure for the fake disk
 	nbSectors = 1440; // asume a DS disk is used
 	sectorsPerTrack = 9;
 	nbSides = 2;
 
-	// set default boot sector
-	const byte* bootSector = globalSettings.getBootSectorSetting().getValue()
-	                       ? BootBlocks::dos2BootBlock
-	                       : BootBlocks::dos1BootBlock;
-	memcpy(bootBlock, bootSector, SECTOR_SIZE);
-
-	// try to read boot block from file
-	struct stat fst;
 	bool readBootBlockFromFile = false;
-	string tmpfilename = MSXrootdir + '/' + bootBlockFileName;
-	if (stat(tmpfilename.c_str(), &fst) == 0) {
-		if (fst.st_size == (int)SECTOR_SIZE) {
-			readBootBlockFromFile = true;
-			if (FILE* file = fopen(tmpfilename.c_str(), "rb")) {
-				fread(bootBlock, 1, SECTOR_SIZE, file);
-				fclose(file);
-			}
-		}
+	try {
+		// try to read boot block from file
+		File file(hostDir + '/' + bootBlockFileName);
+		file.read(bootBlock, SECTOR_SIZE);
+		readBootBlockFromFile = true;
+	} catch (FileException& e) {
+		// or use default when that fails
+		const byte* bootSector
+			= globalSettings.getBootSectorSetting().getValue()
+			? BootBlocks::dos2BootBlock
+			: BootBlocks::dos1BootBlock;
+		memcpy(bootBlock, bootSector, SECTOR_SIZE);
 	}
 
 	// assign empty directory entries
@@ -175,7 +160,6 @@ FDC_DirAsDSK::FDC_DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings,
 	}
 
 	// Make a full clear FAT
-	saveCachedSectors = false;
 	memset(fat, 0, SECTOR_SIZE * SECTORS_PER_FAT);
 	// for some reason the first 3bytes are used to indicate the end of a
 	// cluster, making the first available cluster nr 2. Some sources say
@@ -192,98 +176,80 @@ FDC_DirAsDSK::FDC_DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings,
 	}
 
 	//read directory and fill the fake disk
-	struct dirent* d = readdir(dir);
-	while (d) {
+	while (struct dirent* d = dir.getEntry()) {
 		string name(d->d_name);
 		//TODO: if bootsector read from file we should skip this file
 		if (!(readBootBlockFromFile && (name == bootBlockFileName)) &&
 		    (name != cachedSectorsFileName)) {
 			// add file into fake dsk
-			updateFileInDSK(fileName + '/' + name);
+			updateFileInDSK(name);
 		}
-		d = readdir(dir);
 	}
-	closedir(dir);
 
 	// read the cached sectors
 	//TODO: we should check if the other files have changed since we
 	//      wrote the cached sectors, this could invalided the cache!
-	tmpfilename = MSXrootdir + '/' + cachedSectorsFileName;
-	if (stat(tmpfilename.c_str(), &fst) == 0) {
-		if ((fst.st_size % (SECTOR_SIZE + sizeof(int))) == 0) {
-			if (FILE* file = fopen(tmpfilename.c_str(), "rb")) {
-				saveCachedSectors = true; // make sure that we don't destroy the cache when destroying this object
-				int i;
-				while (fread(&i, 1, sizeof(int), file)) { // feof(file)
-
-					if (i == 0) {
-						// cached sector is 0, this should be impossible!
-					} else if (i < (1 + 2 * SECTORS_PER_FAT)) {
-						// cached sector is FAT sector
-						i = (i - 1) % SECTORS_PER_FAT;
-						fread(fat + i * SECTOR_SIZE, 1, SECTOR_SIZE, file);
-					} else if (i < 14) {
-						// cached sector is DIR sector
-						i -= (1 + 2 * SECTORS_PER_FAT);
-						int dirCount = i * 16;
-						for (int j = 0; j < 16; ++j) {
-							fread(&(mapdir[dirCount++].msxinfo), 1, 32, file);
-						}
-					} else {
-						//regular cached sector
-						byte* tmpbuf = (byte*)malloc(SECTOR_SIZE);
-						fread(tmpbuf, 1, SECTOR_SIZE, file);
-						cachedSectors[i] = tmpbuf;
-						sectormap[i].dirEntryNr = CACHEDSECTOR;
-					}
+	saveCachedSectors = false;
+	try {
+		File file(hostDir + '/' + cachedSectorsFileName);
+		unsigned num = file.getSize() / (SECTOR_SIZE + sizeof(unsigned));
+		for (unsigned i = 0; i < num; ++i) {
+			unsigned sector;
+			file.read(reinterpret_cast<byte*>(&sector), sizeof(unsigned));
+			if (sector == 0) {
+				// cached sector is 0, this should be impossible!
+			} else if (sector < (1 + 2 * SECTORS_PER_FAT)) {
+				// cached sector is FAT sector
+				unsigned f = (sector - 1) % SECTORS_PER_FAT;
+				file.read(fat + f * SECTOR_SIZE, SECTOR_SIZE);
+			} else if (sector < 14) {
+				// cached sector is DIR sector
+				unsigned d = sector - (1 + 2 * SECTORS_PER_FAT);
+				for (int j = 0; j < 16; ++j) {
+					byte* buf = reinterpret_cast<byte*>(
+						&mapdir[d * 16 + j].msxinfo);
+					file.read(buf, SECTOR_SIZE / 16);
 				}
-				fclose(file);
 			} else {
-				cliComm.printWarning(
-					"Couldn't open file " + tmpfilename);
+				//regular cached sector
+				cachedSectors[sector].resize(SECTOR_SIZE);
+				file.read(&cachedSectors[sector][0], SECTOR_SIZE);
+				sectormap[sector].dirEntryNr = CACHEDSECTOR;
 			}
-		} else {
-			// wrong filesize
 		}
-	} else {
-		// couldn't stat cached sector file
+		// make sure that we don't destroy the cache when destroying this object
+		saveCachedSectors = true;
+	} catch (FileException& e) {
+		// couldn't open/read cached sector file
 	}
 }
 
 FDC_DirAsDSK::~FDC_DirAsDSK()
 {
-	//writing the cached sectors to a file
-	string filename = MSXrootdir + '/' + cachedSectorsFileName;
-
+	// write cached sectors to a file
 	if (saveCachedSectors) {
-		if (FILE* file = fopen(filename.c_str(), "wb")) {
-			// if we have cached sectors we need also to save the fat and dir sectors!
-			for (int i = 1; i <= 14; ++i) {
+		try {
+			File file(hostDir + '/' + cachedSectorsFileName,
+			          File::TRUNCATE);
+			// always save fat and dir sectors
+			for (unsigned i = 1; i <= 14; ++i) {
 				byte tmpbuf[SECTOR_SIZE];
 				readLogicalSector(i, tmpbuf);
-				fwrite(&i, 1, sizeof(int), file);
-				fwrite(tmpbuf, 1, SECTOR_SIZE, file);
+				file.write(reinterpret_cast<const byte*>(&i),
+				           sizeof(unsigned));
+				file.write(tmpbuf, SECTOR_SIZE);
 			}
 
 			for (CachedSectors::const_iterator it = cachedSectors.begin();
 			     it != cachedSectors.end(); ++it) {
-				fwrite(&(it->first), 1, sizeof(int), file);
-				fwrite(it->second, 1, SECTOR_SIZE, file);
+				file.write(reinterpret_cast<const byte*>(&(it->first)),
+				           sizeof(unsigned));
+				file.write(&(it->second[0]), SECTOR_SIZE);
 			}
-			fclose(file);
-		} else {
+		} catch (FileException& e) {
 			cliComm.printWarning(
-				"Couldn't create cached sector file " + filename);
+				"Couldn't create cached sector file.");
 		}
-	} else {
-		// remove cached sectors file if it exists
-		unlink(filename.c_str());
-	}
-
-	//cleaning up memory from cached sectors
-	for (CachedSectors::const_iterator it = cachedSectors.begin();
-	     it != cachedSectors.end(); ++it) {
-		free(it->second);
 	}
 }
 
@@ -329,17 +295,16 @@ void FDC_DirAsDSK::readLogicalSector(unsigned sector, byte* buf)
 			// 0xE5 is the value used on the Philips VG8250
 			memset(buf, 0xE5, SECTOR_SIZE);
 		} else if (sectormap[sector].dirEntryNr == CACHEDSECTOR) {
-			memcpy(buf, cachedSectors[sector], SECTOR_SIZE);
+			memcpy(buf, &cachedSectors[sector][0], SECTOR_SIZE);
 		} else {
-			// open file and read data
+			// read data from host file
 			int offset = sectormap[sector].fileOffset;
 			string tmp = mapdir[sectormap[sector].dirEntryNr].filename;
 			checkAlterFileInDisk(tmp);
-			if (FILE* file = fopen(tmp.c_str(), "rb")) {
-				fseek(file, offset, SEEK_SET);
-				fread(buf, 1, SECTOR_SIZE, file);
-				fclose(file);
-			}
+			// let possible exception propagate up
+			File file(tmp);
+			file.seek(offset);
+			file.read(buf, SECTOR_SIZE);
 		}
 	}
 }
@@ -471,13 +436,13 @@ void FDC_DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 	if (sector == 0) {
 		//copy buffer into our fake bootsector and safe into file
 		memcpy(bootBlock, buf, SECTOR_SIZE);
-		string filename = MSXrootdir + '/' + bootBlockFileName;
-		if (FILE* file = fopen(filename.c_str(), "wb")) {
-			fwrite(buf, 1, SECTOR_SIZE, file);
-			fclose(file);
-		} else {
+		try {
+			File file(hostDir + '/' + bootBlockFileName,
+			          File::TRUNCATE);
+			file.write(buf, SECTOR_SIZE);
+		} catch (FileException& e) {
 			cliComm.printWarning(
-				"Couldn't create bootsector file " + filename);
+				"Couldn't create bootsector file.");
 		}
 
 	} else if (sector < (1 + 2 * SECTORS_PER_FAT)) {
@@ -567,11 +532,8 @@ void FDC_DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 		//make sure we write cached sectors to a file later on
 		saveCachedSectors = true;
 
-		if (cachedSectors[sector] == NULL) {
-			byte* tmp = (byte*)malloc(SECTOR_SIZE);
-			cachedSectors[sector] = tmp;
-		}
-		memcpy(cachedSectors[sector], buf, SECTOR_SIZE);
+		cachedSectors[sector].resize(SECTOR_SIZE);
+		memcpy(&cachedSectors[sector][0], buf, SECTOR_SIZE);
 		sectormap[sector].dirEntryNr = CACHEDSECTOR;
 	}
 }
@@ -581,8 +543,9 @@ bool FDC_DirAsDSK::writeProtected()
 	return false;
 }
 
-void FDC_DirAsDSK::updateFileInDSK(const string& fullfilename)
+void FDC_DirAsDSK::updateFileInDSK(const string& filename)
 {
+	string fullfilename = hostDir + '/' + filename;
 	struct stat fst;
 	if (stat(fullfilename.c_str(), &fst)) {
 		cliComm.printWarning("Error accessing " + fullfilename);
@@ -595,15 +558,16 @@ void FDC_DirAsDSK::updateFileInDSK(const string& fullfilename)
 	}
 	if (!checkFileUsedInDSK(fullfilename)) {
 		// add file to fakedisk
-		addFileToDSK(fullfilename);
+		addFileToDSK(filename);
 	} else {
 		//really update file
 		checkAlterFileInDisk(fullfilename);
 	}
 }
 
-void FDC_DirAsDSK::addFileToDSK(const string& fullfilename)
+void FDC_DirAsDSK::addFileToDSK(const string& filename)
 {
+	string fullfilename = hostDir + '/' + filename;
 	//get emtpy dir entry
 	int dirindex = 0;
 	while (!mapdir[dirindex].filename.empty()) {
@@ -616,7 +580,7 @@ void FDC_DirAsDSK::addFileToDSK(const string& fullfilename)
 	}
 
 	// create correct MSX filename
-	string MSXfilename = makeSimpleMSXFileName(fullfilename);
+	string MSXfilename = makeSimpleMSXFileName(filename);
 	if (checkMSXFileExists(MSXfilename)) {
 		//TODO: actually should increase vfat abrev if possible!!
 		cliComm.printWarning(

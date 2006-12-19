@@ -5,6 +5,7 @@
 
 #include "SectorBasedDisk.hh"
 #include <map>
+#include <vector>
 
 namespace openmsx {
 
@@ -67,8 +68,8 @@ private:
 	byte fat[SECTOR_SIZE * SECTORS_PER_FAT];
 
 	byte bootBlock[SECTOR_SIZE];
-	std::string MSXrootdir;
-	typedef std::map<const int, byte*> CachedSectors;
+	std::string hostDir;
+	typedef std::map<unsigned, std::vector<byte> > CachedSectors;
 	CachedSectors cachedSectors;
 	bool saveCachedSectors;
 
