@@ -11,30 +11,6 @@ namespace openmsx {
 class CliComm;
 class GlobalSettings;
 
-struct MSXDirEntry {
-	byte filename[8];
-	byte ext[3];
-	byte attrib;
-	byte reserved[10]; /* unused */
-	byte time[2];
-	byte date[2];
-	byte startcluster[2];
-	byte size[4];
-};
-
-struct MappedDirEntry {
-	MSXDirEntry msxinfo;
-	int filesize; // used to dedect changes that need to be updated in the
-	              // emulated disk, content changes are automatically
-	              // handled :-)
-	std::string filename;
-};
-
-struct ReverseSector {
-	int dirEntryNr;
-	long fileOffset;
-};
-
 class FDC_DirAsDSK : public SectorBasedDisk
 {
 public:
@@ -43,7 +19,6 @@ public:
 	virtual ~FDC_DirAsDSK();
 
 private:
-	static const int MAX_CLUSTER = 720;
 	static const int SECTORS_PER_FAT = 3;
 
 	// SectorBasedDisk
@@ -53,27 +28,48 @@ private:
 
 	bool checkFileUsedInDSK(const std::string& fullfilename);
 	bool checkMSXFileExists(const std::string& msxfilename);
-	std::string makeSimpleMSXFileName(const std::string& fullfilename);
 	void addFileToDSK(const std::string& fullfilename);
 	void checkAlterFileInDisk(const std::string& fullfilename);
 	void checkAlterFileInDisk(const int dirindex);
 	void updateFileInDisk(const int dirindex);
 	void updateFileInDSK(const std::string& fullfilename);
 	int findFirstFreeCluster();
-	word ReadFAT(word clnr);
-	void WriteFAT(word clnr, word val);
+	word readFAT(word clnr);
+	void writeFAT(word clnr, word val);
+
+	struct MSXDirEntry {
+		byte filename[8];
+		byte ext[3];
+		byte attrib;
+		byte reserved[10];
+		byte time[2];
+		byte date[2];
+		byte startcluster[2];
+		byte size[4];
+	};
+
+	struct MappedDirEntry {
+		MSXDirEntry msxinfo;
+		int filesize; // used to dedect changes that need to be updated in the
+			      // emulated disk, content changes are automatically
+			      // handled :-)
+		std::string filename;
+	};
+
+	struct ReverseSector {
+		int dirEntryNr;
+		long fileOffset;
+	};
 
 	MappedDirEntry mapdir[112]; // max nr of entries in root directory:
 	                            // 7 sectors, each 16 entries
 	ReverseSector sectormap[1440]; // was 1440, quick hack to fix formatting
-	byte FAT[SECTOR_SIZE * SECTORS_PER_FAT];
+	byte fat[SECTOR_SIZE * SECTORS_PER_FAT];
 
-	static const byte DefaultBootBlock[];
-	static const std::string BootBlockFileName;
-	static const std::string CachedSectorsFileName;
-	byte BootBlock[SECTOR_SIZE];
+	byte bootBlock[SECTOR_SIZE];
 	std::string MSXrootdir;
-	std::map<const int, byte*> cachedSectors;
+	typedef std::map<const int, byte*> CachedSectors;
+	CachedSectors cachedSectors;
 	bool saveCachedSectors;
 
 	CliComm& cliComm; // TODO don't use CliComm to report errors/warnings
