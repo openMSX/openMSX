@@ -198,11 +198,18 @@ byte V9990::readIO(word port, const EmuTime& time)
 			break;
 
 		case STATUS: {
-			int ticks = getUCTicksThisFrame(time);
-			int x = UCtoX(ticks, getDisplayMode());
-			int y = ticks / V9990DisplayTiming::UC_TICKS_PER_LINE;
-			bool hr = (x < 64) || (576 <= x); // TODO not correct
-			bool vr = (y < 14) || (226 <= y); // TODO not correct
+			const V9990DisplayPeriod& hor = getHorizontalTiming();
+			const V9990DisplayPeriod& ver = getVerticalTiming();
+			unsigned left   = hor.blank + hor.border1;
+			unsigned right  = left + hor.display;
+			unsigned top    = ver.blank + ver.border1;
+			unsigned bottom = top + ver.display;
+			unsigned ticks = getUCTicksThisFrame(time);
+			unsigned x = UCtoX(ticks, getDisplayMode());
+			unsigned y = ticks / V9990DisplayTiming::UC_TICKS_PER_LINE;
+			bool hr = (x < left) || (right  <= x);
+			bool vr = (y < top)  || (bottom <= y);
+
 			result = cmdEngine->getStatus(time) |
 				 (vr ? 0x40 : 0x00) |
 				 (hr ? 0x20 : 0x00) |
