@@ -297,14 +297,17 @@ void FDC_DirAsDSK::readLogicalSector(unsigned sector, byte* buf)
 		} else if (sectormap[sector].dirEntryNr == CACHEDSECTOR) {
 			memcpy(buf, &cachedSectors[sector][0], SECTOR_SIZE);
 		} else {
+			// in case (end of) file only fills partial sector
+			memset(buf, 0, SECTOR_SIZE);
 			// read data from host file
 			int offset = sectormap[sector].fileOffset;
 			string tmp = mapdir[sectormap[sector].dirEntryNr].filename;
 			checkAlterFileInDisk(tmp);
 			// let possible exception propagate up
 			File file(tmp);
+			unsigned size = file.getSize();
 			file.seek(offset);
-			file.read(buf, SECTOR_SIZE);
+			file.read(buf, std::min<int>(size - offset, SECTOR_SIZE));
 		}
 	}
 }
