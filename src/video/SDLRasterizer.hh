@@ -66,11 +66,7 @@ private:
 	  */
 	inline static int translateX(int absoluteX, bool narrow);
 
-	inline void renderBitmapLine(byte mode, int vramLine);
-	inline void renderBitmapLines(byte line, int count);
-	inline void renderPlanarBitmapLine(byte mode, int vramLine);
-	inline void renderPlanarBitmapLines(byte line, int count);
-	inline void renderCharacterLines(byte line, int count);
+	inline void renderBitmapLine(Pixel* buf, unsigned vramLine);
 
 	/** Get the pixel colour of a graphics 7 colour index.
 	  */
@@ -149,27 +145,9 @@ private:
 	  */
 	RawFrame* workFrame;
 
-	/** Cache for rendered VRAM in character modes.
-	  * Cache line (N + scroll) corresponds to display line N.
-	  * It holds a single page of 256 lines.
-	  */
-	RawFrame* charDisplayCache;
-
-	/** Cache for rendered VRAM in bitmap modes.
-	  * Cache line N corresponds to VRAM at N * 128.
-	  * It holds up to 4 pages of 256 lines each.
-	  * In Graphics6/7 the lower two pages are used.
-	  */
-	RawFrame* bitmapDisplayCache;
-
 	/** The current renderer settings (gamma, brightness, contrast)
 	  */
 	RenderSettings& renderSettings;
-
-	/** Display mode the line is valid in.
-	  * 0xFF means invalid in every mode.
-	  */
-	byte lineValidInMode[256 * 4];
 
 	/** VRAM to pixels converter for character display modes.
 	  */

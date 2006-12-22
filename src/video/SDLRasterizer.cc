@@ -50,86 +50,18 @@ inline int SDLRasterizer<Pixel>::translateX(int absoluteX, bool narrow)
 }
 
 template <class Pixel>
-inline void SDLRasterizer<Pixel>::renderBitmapLine(
-	byte mode, int vramLine)
+inline void SDLRasterizer<Pixel>::renderBitmapLine(Pixel* buf, unsigned vramLine)
 {
-	if (lineValidInMode[vramLine] != mode) {
-		const byte* vramPtr =
-			vram.bitmapCacheWindow.getReadArea(vramLine * 128, 128);
-		bitmapConverter->convertLine(
-			bitmapDisplayCache->getLinePtr(vramLine, (Pixel*)0),
-			vramPtr);
-		lineValidInMode[vramLine] = mode;
-	}
-}
-
-template <class Pixel>
-inline void SDLRasterizer<Pixel>::renderBitmapLines(
-	byte line, int count)
-{
-	byte mode = vdp.getDisplayMode().getByte();
-	// Which bits in the name mask determine the page?
-	int pageMask = 0x200 | vdp.getEvenOddMask();
-	int nameMask = vram.nameTable.getMask() >> 7;
-
-	while (count--) {
-		// TODO: Optimise addr and line; too many conversions right now.
-		int vramLine = nameMask & (pageMask | line);
-		renderBitmapLine(mode, vramLine);
-		if (vdp.isMultiPageScrolling()) {
-			vramLine &= ~0x100;
-			renderBitmapLine(mode, vramLine);
-		}
-		line++; // is a byte, so wraps at 256
-	}
-}
-
-template <class Pixel>
-inline void SDLRasterizer<Pixel>::renderPlanarBitmapLine(
-	byte mode, int vramLine)
-{
-	if ((lineValidInMode[vramLine |   0] != mode) ||
-	    (lineValidInMode[vramLine | 512] != mode)) {
+	if (vdp.getDisplayMode().isPlanar()) {
 		const byte* vramPtr0;
 		const byte* vramPtr1;
 		vram.bitmapCacheWindow.getReadAreaPlanar(
 			vramLine * 256, 256, vramPtr0, vramPtr1);
-		bitmapConverter->convertLinePlanar(
-			bitmapDisplayCache->getLinePtr(vramLine, (Pixel*)0),
-			vramPtr0, vramPtr1);
-		lineValidInMode[vramLine |   0] = mode;
-		lineValidInMode[vramLine | 512] = mode;
-	}
-}
-
-template <class Pixel>
-inline void SDLRasterizer<Pixel>::renderPlanarBitmapLines(
-	byte line, int count)
-{
-	byte mode = vdp.getDisplayMode().getByte();
-	// Which bits in the name mask determine the page?
-	int pageMask = vdp.getEvenOddMask();
-	while (count--) {
-		// TODO: Optimise addr and line; too many conversions right now.
-		int vramLine = (vram.nameTable.getMask() >> 7) & (pageMask | line);
-		renderPlanarBitmapLine(mode, vramLine);
-		if (vdp.isMultiPageScrolling()) {
-			vramLine &= ~0x100;
-			renderPlanarBitmapLine(mode, vramLine);
-		}
-		line++; // is a byte, so wraps at 256
-	}
-}
-
-template <class Pixel>
-inline void SDLRasterizer<Pixel>::renderCharacterLines(
-	byte line, int count)
-{
-	while (count--) {
-		// Render this line.
-		characterConverter->convertLine(
-			charDisplayCache->getLinePtr(line, (Pixel*)0), line);
-		line++; // is a byte, so wraps at 256
+		bitmapConverter->convertLinePlanar(buf, vramPtr0, vramPtr1);
+	} else {
+		const byte* vramPtr =
+			vram.bitmapCacheWindow.getReadArea(vramLine * 128, 128);
+		bitmapConverter->convertLine(buf, vramPtr);
 	}
 }
 
@@ -148,14 +80,6 @@ SDLRasterizer<Pixel>::SDLRasterizer(
 	, spriteConverter(new SpriteConverter<Pixel>(vdp.getSpriteChecker()))
 {
 	workFrame = new RawFrame(screen.getFormat(), 640, 240);
-
-	// Create display caches.
-	charDisplayCache = new RawFrame(
-		screen.getFormat(), 512, vdp.isMSX1VDP() ? 192 : 256
-		);
-	bitmapDisplayCache = vdp.isMSX1VDP()
-		? NULL
-		: new RawFrame(screen.getFormat(), 512, 256 * 4);
 
 	// Init the palette.
 	precalcPalette();
@@ -182,8 +106,6 @@ SDLRasterizer<Pixel>::~SDLRasterizer()
 	renderSettings.getBrightness() .detach(*this);
 	renderSettings.getContrast()   .detach(*this);
 
-	delete bitmapDisplayCache;
-	delete charDisplayCache;
 	delete workFrame;
 }
 
@@ -199,9 +121,6 @@ void SDLRasterizer<Pixel>::reset()
 	// Init renderer state.
 	setDisplayMode(vdp.getDisplayMode());
 	spriteConverter->setTransparency(vdp.getTransparency());
-
-	// Invalidate bitmap cache.
-	memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 
 	resetPalette();
 }
@@ -255,22 +174,13 @@ void SDLRasterizer<Pixel>::setDisplayMode(DisplayMode mode)
 }
 
 template <class Pixel>
-void SDLRasterizer<Pixel>::setPalette(
-	int index, int grb)
+void SDLRasterizer<Pixel>::setPalette(int index, int grb)
 {
 	// Update SDL colours in palette.
 	Pixel newColor = V9938_COLOURS[(grb >> 4) & 7][grb >> 8][grb & 7];
-	if ((palFg[index     ] != newColor) ||
-	    (palFg[index + 16] != newColor) ||
-	    (palBg[index     ] != newColor)) {
-		palFg[index     ] = newColor;
-		palFg[index + 16] = newColor;
-		palBg[index     ] = newColor;
-		// Any line containing pixels of this colour must be repainted.
-		// We don't know which lines contain which colours,
-		// so we have to repaint them all.
-		memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
-	}
+	palFg[index     ] = newColor;
+	palFg[index + 16] = newColor;
+	palBg[index     ] = newColor;
 
 	precalcColourIndex0(vdp.getDisplayMode(), vdp.getTransparency(),
 	                    vdp.getBackgroundColour());
@@ -359,32 +269,17 @@ void SDLRasterizer<Pixel>::precalcColourIndex0(
 
 	int tpIndex = transparency ? bgcolorIndex : 0;
 	if (mode.getBase() != DisplayMode::GRAPHIC5) {
-		if (palFg[0] != palBg[tpIndex]) {
-			palFg[0] = palBg[tpIndex];
-
-			// Any line containing pixels of colour 0 must be repainted.
-			// We don't know which lines contain such pixels,
-			// so we have to repaint them all.
-			memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
-		}
+		palFg[0] = palBg[tpIndex];
 	} else {
-		if ((palFg[ 0] != palBg[tpIndex >> 2]) ||
-		    (palFg[16] != palBg[tpIndex &  3])) {
-			palFg[ 0] = palBg[tpIndex >> 2];
-			palFg[16] = palBg[tpIndex &  3];
-
-			// Any line containing pixels of colour 0 must be repainted.
-			// We don't know which lines contain such pixels,
-			// so we have to repaint them all.
-			memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
-		}
+		palFg[ 0] = palBg[tpIndex >> 2];
+		palFg[16] = palBg[tpIndex &  3];
 	}
 }
 
 template <class Pixel>
-void SDLRasterizer<Pixel>::updateVRAMCache(int address)
+void SDLRasterizer<Pixel>::updateVRAMCache(int /*address*/)
 {
-	lineValidInMode[address >> 7] = 0xFF;
+	// TODO can we get rid of this method? GLRasterizer still needs it
 }
 
 template <class Pixel>
@@ -432,8 +327,8 @@ template <class Pixel>
 void SDLRasterizer<Pixel>::drawDisplay(
 	int /*fromX*/, int fromY,
 	int displayX, int displayY,
-	int displayWidth, int displayHeight
-) {
+	int displayWidth, int displayHeight)
+{
 	DisplayMode mode = vdp.getDisplayMode();
 	unsigned lineWidth = mode.getLineWidth();
 	if (lineWidth == 256) {
@@ -445,8 +340,7 @@ void SDLRasterizer<Pixel>::drawDisplay(
 	// Clip to screen area.
 	int screenLimitY = std::min(
 		fromY + displayHeight - lineRenderTop,
-		240
-		);
+		240);
 	int screenY = fromY - lineRenderTop;
 	if (screenY < 0) {
 		displayY -= screenY;
@@ -487,13 +381,6 @@ void SDLRasterizer<Pixel>::drawDisplay(
 	}
 
 	if (mode.isBitmapMode()) {
-		// Bring bitmap cache up to date.
-		if (mode.isPlanar()) {
-			renderPlanarBitmapLines(displayY, displayHeight);
-		} else {
-			renderBitmapLines(displayY, displayHeight);
-		}
-
 		// Which bits in the name mask determine the page?
 		int pageMaskOdd = (mode.isPlanar() ? 0x000 : 0x200) |
 		                  vdp.getEvenOddMask();
@@ -501,18 +388,17 @@ void SDLRasterizer<Pixel>::drawDisplay(
 		                 ? (pageMaskOdd & ~0x100)
 		                 : pageMaskOdd;
 
-		// Copy from cache to screen.
 		for (int y = screenY; y < screenLimitY; y++) {
 			const int vramLine[2] = {
 				(vram.nameTable.getMask() >> 7) & (pageMaskEven | displayY),
 				(vram.nameTable.getMask() >> 7) & (pageMaskOdd  | displayY)
-				};
+			};
 
 			int firstPageWidth = pageBorder - displayX;
 			if (firstPageWidth > 0) {
-				const Pixel* src = bitmapDisplayCache->getLinePtr(
-					vramLine[scrollPage1], (Pixel*)0) +
-						displayX + hScroll;
+				Pixel buf[512];
+				renderBitmapLine(buf, vramLine[scrollPage1]);
+				const Pixel* src = buf + displayX + hScroll;
 				Pixel* dst = workFrame->getLinePtr(y, (Pixel*)0)
 				           + leftBackground + displayX;
 				MemoryOps::stream_memcpy(dst, src, firstPageWidth);
@@ -523,8 +409,9 @@ void SDLRasterizer<Pixel>::drawDisplay(
 				unsigned x = displayX < pageBorder
 					? 0 : displayX + hScroll - lineWidth;
 				unsigned num = displayWidth - firstPageWidth;
-				const Pixel* src = bitmapDisplayCache->getLinePtr(
-					vramLine[scrollPage2], (Pixel*)0) + x;
+				Pixel buf[512];
+				renderBitmapLine(buf, vramLine[scrollPage2]);
+				const Pixel* src = buf + x;
 				Pixel* dst = workFrame->getLinePtr(y, (Pixel*)0)
 				           + leftBackground + displayX
 					   + firstPageWidth;
@@ -535,14 +422,13 @@ void SDLRasterizer<Pixel>::drawDisplay(
 			displayY = (displayY + 1) & 255;
 		}
 	} else {
-		renderCharacterLines(displayY, displayHeight);
-
-		// TODO: Implement horizontal scroll high.
+		// horizontal scroll (high) is implemented in CharacterConverter
 		for (int y = screenY; y < screenLimitY; y++) {
 			assert(!vdp.isMSX1VDP() || displayY < 192);
 
-			const Pixel* src = charDisplayCache->getLinePtr(
-				displayY, (Pixel*)0) + displayX;
+			Pixel buf[512];
+			characterConverter->convertLine(buf, displayY);
+			const Pixel* src = buf + displayX;
 			Pixel* dst = workFrame->getLinePtr(y, (Pixel*)0)
 			           + leftBackground + displayX;
 			MemoryOps::stream_memcpy(dst, src, displayWidth);
@@ -557,14 +443,13 @@ template <class Pixel>
 void SDLRasterizer<Pixel>::drawSprites(
 	int /*fromX*/, int fromY,
 	int displayX, int displayY,
-	int displayWidth, int displayHeight
-) {
+	int displayWidth, int displayHeight)
+{
 	// Clip to screen area.
 	// TODO: Code duplicated from drawDisplay.
 	int screenLimitY = std::min(
 		fromY + displayHeight - lineRenderTop,
-		240
-		);
+		240);
 	int screenY = fromY - lineRenderTop;
 	if (screenY < 0) {
 		displayY -= screenY;
@@ -582,8 +467,7 @@ void SDLRasterizer<Pixel>::drawSprites(
 	int limitY = fromY + displayHeight;
 	int screenX = translateX(
 		vdp.getLeftSprites(),
-		vdp.getDisplayMode().getLineWidth() == 512
-		);
+		vdp.getDisplayMode().getLineWidth() == 512);
 	for (int y = fromY; y < limitY; y++, screenY++) {
 		Pixel* pixelPtr = workFrame->getLinePtr(screenY, (Pixel*)0) + screenX;
 		if (spriteMode == 1) {
@@ -603,9 +487,6 @@ void SDLRasterizer<Pixel>::update(const Setting& setting)
 	    (&setting == &renderSettings.getColorMatrix())) {
 		precalcPalette();
 		resetPalette();
-
-		// Invalidate bitmap cache (still needed for non-palette modes)
-		memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
 	}
 }
 
