@@ -8,6 +8,7 @@
 #include "InfoCommand.hh"
 #include "Interpreter.hh"
 #include "Setting.hh"
+#include "MSXCliComm.hh"
 #include "StringOp.hh"
 #include <iostream>
 
@@ -152,7 +153,7 @@ void MSXCommandController::splitList(const string& list,
 
 CliComm& MSXCommandController::getCliComm()
 {
-	return globalCommandController.getCliComm();
+	return motherboard.getMSXCliComm();
 }
 
 GlobalSettings& MSXCommandController::getGlobalSettings()
