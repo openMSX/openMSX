@@ -1,4 +1,4 @@
-// $Id: $
+// $Id$
 
 #include "RecordedCommand.hh"
 #include "MSXCommandController.hh"

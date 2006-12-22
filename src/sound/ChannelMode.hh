@@ -1,4 +1,4 @@
-// $Id: $
+// $Id$
 
 #ifndef CHANNELMODE_HH
 #define CHANNELMODE_HH

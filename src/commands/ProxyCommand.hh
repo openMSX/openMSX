@@ -1,4 +1,4 @@
-// $Id: $
+// $Id$
 
 #ifndef PROXYCOMMAND_HH
 #define PROXYCOMMAND_HH

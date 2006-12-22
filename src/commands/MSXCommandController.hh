@@ -1,4 +1,4 @@
-// $Id: $
+// $Id$
 
 #ifndef MSXCOMMANDCONTROLLER_HH
 #define MSXCOMMANDCONTROLLER_HH

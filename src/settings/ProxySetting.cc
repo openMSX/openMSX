@@ -1,4 +1,4 @@
-// $Id: $
+// $Id$
 
 #include "ProxySetting.hh"
 #include "GlobalCommandController.hh"

@@ -1,4 +1,4 @@
-// $Id: $
+// $Id$
 
 #include "ProxyCommand.hh"
 #include "MSXCommandController.hh"

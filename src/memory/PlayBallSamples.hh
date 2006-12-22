@@ -1,4 +1,4 @@
-// $Id: $
+// $Id$
 
 // Sample data taken from BlueMSX
 //   http://www.bluemsx.com

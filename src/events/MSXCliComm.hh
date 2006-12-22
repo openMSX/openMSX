@@ -1,4 +1,4 @@
-// $Id: $
+// $Id$
 
 #ifndef MSXCLICOMM_HH
 #define MSXCLICOMM_HH

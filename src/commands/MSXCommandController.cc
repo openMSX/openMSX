@@ -1,4 +1,4 @@
-// $Id: $
+// $Id$
 
 #include "MSXCommandController.hh"
 #include "GlobalCommandController.hh"

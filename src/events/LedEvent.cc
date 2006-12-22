@@ -1,4 +1,4 @@
-// $Id: $
+// $Id$
 
 #include "LedEvent.hh"
 #include "MSXMotherBoard.hh"

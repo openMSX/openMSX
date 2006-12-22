@@ -1,4 +1,4 @@
-// $Id: $
+// $Id$
 
 #ifndef SAMPLEPLAYER_HH
 #define SAMPLEPLAYER_HH

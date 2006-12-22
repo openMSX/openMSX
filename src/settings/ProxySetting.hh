@@ -1,4 +1,4 @@
-// $Id: $
+// $Id$
 
 #ifndef PROXYSETTINGNODE_HH
 #define PROXYSETTINGNODE_HH

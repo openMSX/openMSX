@@ -1,4 +1,4 @@
-// $Id: $
+// $Id$
 
 #include "MSXCliComm.hh"
 #include "GlobalCliComm.hh"
