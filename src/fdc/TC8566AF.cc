@@ -543,6 +543,7 @@ void TC8566AF::writeDataCommandPhase(byte data, const EmuTime& time)
 			StartRecord        = data;
 			break;
 		case 4:
+			fillerByte      = data;
 			SectorPtr       = 0;
 			dataInputOutput = 0;
 			Phase           = PHASE_DATATRANSFER;
@@ -676,7 +677,7 @@ void TC8566AF::writeDataTransferPhase(byte data, const EmuTime& /*time*/)
 			break;
 		case 1:
 			try {
-				memset(Sector, 0, 512);
+				memset(Sector, fillerByte, 512);
 				byte dummy;
 				int dummy2;
 				drive[DriveSelect]->setSide(data);

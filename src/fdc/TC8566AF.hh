@@ -126,6 +126,7 @@ private:
 	byte StartRecord;
 	byte StartN;
 	byte SectorsPerCylinder;
+	byte fillerByte; // for format command
 
 //	byte DiskLEDOn;		// 0 = disk LED off,	1 = disk LED on
 //	byte DiskMotorOn;	// 0 = disk motor off,	1 = disk motor on

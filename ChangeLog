@@ -4,6 +4,8 @@ $Id$
 	* Removed charDisplayCache and bitmapDisplayCache from SDLRasterizer:
 	   - I measured around 5% speedup in screen5,
 	     around 20%(!) in screen0/80
+	* Make TC8566AF use the correct filler byte during format:
+	   fix copied from blueMSX
 
 2006-12-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* The -Wparentheses warning is now also enabled in c++ mode in recent
