@@ -34,8 +34,11 @@ public:
 		lineWidth[line] = 1;
 	}
 
+	virtual unsigned getRowLength() const;
+
 protected:
 	virtual void* getLinePtrImpl(unsigned line);
+	virtual bool hasContiguousStorage() const;
 
 private:
 	unsigned maxWidth;

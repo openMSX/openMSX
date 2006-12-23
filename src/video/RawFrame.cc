@@ -20,6 +20,7 @@ RawFrame::RawFrame(
 	//  SSE instruction need 16 byte aligned data
 	//  cache line size on athlon and P4 CPUs is 64 bytes
 	pitch = ((bytesPerPixel * maxWidth) + 63) & ~63;
+	maxWidth = pitch / bytesPerPixel;
 	data = reinterpret_cast<char*>(
 			MemoryOps::mallocAligned(64, pitch * height));
 
@@ -54,6 +55,16 @@ unsigned RawFrame::getLineWidth(unsigned line)
 void* RawFrame::getLinePtrImpl(unsigned line)
 {
 	return data + line * pitch;
+}
+
+unsigned RawFrame::getRowLength() const
+{
+	return maxWidth; // in pixels (not in bytes)
+}
+
+bool RawFrame::hasContiguousStorage() const
+{
+	return true;
 }
 
 } // namespace openmsx

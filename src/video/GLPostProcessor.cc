@@ -354,21 +354,30 @@ void GLPostProcessor::uploadFrame()
 void GLPostProcessor::uploadBlock(
 	unsigned srcStartY, unsigned srcEndY, unsigned lineWidth)
 {
-	for (unsigned y = srcStartY; y < srcEndY; ++y) {
-		unsigned* dummy = 0;
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, paintFrame->getRowLength());
+	unsigned y = srcStartY;
+	unsigned remainingLines = srcEndY - srcStartY;
+	while (remainingLines) {
+		unsigned lines;
+		const unsigned* data = paintFrame->getMultiLinePtr(
+			y, remainingLines, lines, lineWidth, (unsigned*)0);
 		glTexSubImage2D(
-			GL_TEXTURE_2D,            // target
-			0,                        // level
-			0,                        // offset x
-			y,                        // offset y
-			lineWidth,                // width
-			1,                        // height
-			GL_BGRA,                  // format
-			GL_UNSIGNED_BYTE,         // type
-			paintFrame->getLinePtr(y, lineWidth, dummy)); // data
+			GL_TEXTURE_2D,     // target
+			0,                 // level
+			0,                 // offset x
+			y,                 // offset y
+			lineWidth,         // width
+			lines,             // height
+			GL_BGRA,           // format
+			GL_UNSIGNED_BYTE,  // type
+			data);             // data
 		//GLUtil::checkGLError("GLPostProcessor::uploadFrame");
 		paintFrame->freeLineBuffers(); // ASAP to keep cache warm
+
+		y += lines;
+		remainingLines -= lines;
 	}
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0); // restore default
 
 	if (currScaler.get()) {
 		currScaler->uploadBlock(srcStartY, srcEndY, lineWidth, *paintFrame);

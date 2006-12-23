@@ -89,6 +89,49 @@ public:
 		}
 	}
 
+	/** Similar to the above getLinePtr() method, but now tries to get
+	  * multiple lines at once. This is not always possible, so the actual
+	  * number of lines is returned in 'actualLines', it will always be at
+	  * least 1.
+	  */
+	template <typename Pixel>
+	inline const Pixel* getMultiLinePtr(
+		int line, unsigned numLines, unsigned& actualLines,
+		unsigned width, Pixel* dummy)
+	{
+		actualLines = 1;
+		int height = getHeight();
+		if ((line < 0) || (height <= line)) {
+			return getLinePtr(line, width, dummy);
+		}
+		const Pixel* internalData = getLinePtr(line, dummy);
+		unsigned internalWidth = getLineWidth(line);
+		if (internalWidth != width) {
+			return scaleLine(internalData, internalWidth, width);
+		}
+		if (!hasContiguousStorage()) {
+			return internalData;
+		}
+		while (--numLines) {
+			++line;
+			if ((line == height) || (getLineWidth(line) != width)) {
+				break;
+			}
+			++actualLines;
+		}
+		return internalData;
+	}
+
+	/** Returns the distance (in pixels) between two consecutive lines.
+	  * Is meant to be used in combination with getMultiLinePtr(). The
+	  * result is only meaningful when hasContiguousStorage() returns
+	  * true (also only in that case does getMultiLinePtr() return more
+	  * than 1 line).
+	  */
+	virtual unsigned getRowLength() const {
+		return 0;
+	}
+
 	/** Recycles the buffers allocated for scaling lines, see getLinePtr.
 	  */
 	void freeLineBuffers();
@@ -102,6 +145,14 @@ protected:
 	  * a typed return value.
 	  */
 	virtual void* getLinePtrImpl(unsigned line) = 0;
+
+	/** Returns true when two consecutive rows are also consecutive in
+	  * memory.
+	  */
+	virtual bool hasContiguousStorage() const {
+		return false;
+	}
+
 	// TODO: I don't understand why I need to declare a subclass as friend
 	//       to give it access to a protected method, but without this
 	//       GCC 3.3.5-pre will not compile it.
