@@ -9,7 +9,6 @@
 // - (partly) overwrite existing wav files with new tape data (not very hi prio)
 // - handle read-only cassette images (e.g.: CAS images or WAV files with a RO
 //   flag): refuse to go to record mode when those are selected
-// - CLEAN UP! It's a bit messy now.
 // - smartly auto-set the position of tapes: if you insert an existing WAV
 //   file, it will have the position at the start, assuming PLAY mode by
 //   default.  When specifiying record mode at insert (somehow), it should be
@@ -509,6 +508,7 @@ const std::string& CassettePlayer::schedName() const
 void CassettePlayer::executeUntil(const EmuTime& time, int /*userData*/)
 {
 	// tape ended
+	cliComm.printWarning("Tape end reached... stopping. You may need to insert another tape image that contains side B. (Or you used the wrong loading command.)");
 	setState(STOP, time);
 }
 
