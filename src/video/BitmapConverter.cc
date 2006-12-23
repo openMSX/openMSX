@@ -19,10 +19,10 @@ template <class Pixel>
 void BitmapConverter<Pixel>::renderGraphic4(
 	Pixel* pixelPtr, const byte* vramPtr0, const byte* /*vramPtr1*/)
 {
-	for (int n = 128; n--; ) {
-		byte colour = *vramPtr0++;
-		*pixelPtr++ = palette16[colour >> 4];
-		*pixelPtr++ = palette16[colour & 15];
+	for (unsigned i = 0; i < 128; ++i) {
+		unsigned data = vramPtr0[i];
+		pixelPtr[2 * i + 0] = palette16[data >> 4];
+		pixelPtr[2 * i + 1] = palette16[data & 15];
 	}
 }
 
@@ -30,12 +30,12 @@ template <class Pixel>
 void BitmapConverter<Pixel>::renderGraphic5(
 	Pixel* pixelPtr, const byte* vramPtr0, const byte* /*vramPtr1*/)
 {
-	for (int n = 128; n--; ) {
-		byte colour = *vramPtr0++;
-		*pixelPtr++ = palette16[ 0 + ((colour >> 6) & 3)];
-		*pixelPtr++ = palette16[16 + ((colour >> 4) & 3)];
-		*pixelPtr++ = palette16[ 0 + ((colour >> 2) & 3)];
-		*pixelPtr++ = palette16[16 + ((colour >> 0) & 3)];
+	for (unsigned i = 0; i < 128; ++i) {
+		unsigned data = vramPtr0[i];
+		pixelPtr[4 * i + 0] = palette16[ 0 + ((data >> 6) & 3)];
+		pixelPtr[4 * i + 1] = palette16[16 + ((data >> 4) & 3)];
+		pixelPtr[4 * i + 2] = palette16[ 0 + ((data >> 2) & 3)];
+		pixelPtr[4 * i + 3] = palette16[16 + ((data >> 0) & 3)];
 	}
 }
 
@@ -43,14 +43,13 @@ template <class Pixel>
 void BitmapConverter<Pixel>::renderGraphic6(
 	Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
 {
-	for (int n = 128; n--; ) {
-		byte color1 = *vramPtr0++;
-		*pixelPtr++ = palette16[color1 >> 4];
-		*pixelPtr++ = palette16[color1 & 0x0F];
-
-		byte color2 = *vramPtr1++;
-		*pixelPtr++ = palette16[color2 >> 4];
-		*pixelPtr++ = palette16[color2 & 0x0F];
+	for (unsigned i = 0; i < 128; ++i) {
+		unsigned data0 = vramPtr0[i];
+		unsigned data1 = vramPtr1[i];
+		pixelPtr[4 * i + 0] = palette16[data0 >> 4];
+		pixelPtr[4 * i + 1] = palette16[data0 & 15];
+		pixelPtr[4 * i + 2] = palette16[data1 >> 4];
+		pixelPtr[4 * i + 3] = palette16[data1 & 15];
 	}
 }
 
@@ -58,9 +57,9 @@ template <class Pixel>
 void BitmapConverter<Pixel>::renderGraphic7(
 	Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
 {
-	for (int n = 128; n--; ) {
-		*pixelPtr++ = palette256[*vramPtr0++];
-		*pixelPtr++ = palette256[*vramPtr1++];
+	for (unsigned i = 0; i < 128; ++i) {
+		pixelPtr[2 * i + 0] = palette256[vramPtr0[i]];
+		pixelPtr[2 * i + 1] = palette256[vramPtr1[i]];
 	}
 }
 
@@ -68,18 +67,18 @@ template <class Pixel>
 void BitmapConverter<Pixel>::renderYJK(
 	Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
 {
-	for (int n = 64; n--; ) {
-		byte p[4];
-		p[0] = *vramPtr0++;
-		p[1] = *vramPtr1++;
-		p[2] = *vramPtr0++;
-		p[3] = *vramPtr1++;
+	for (unsigned i = 0; i < 64; ++i) {
+		unsigned p[4];
+		p[0] = vramPtr0[2 * i + 0];
+		p[1] = vramPtr1[2 * i + 0];
+		p[2] = vramPtr0[2 * i + 1];
+		p[3] = vramPtr1[2 * i + 1];
 
 		int j = (p[2] & 7) + ((p[3] & 3) << 3) - ((p[3] & 4) << 3);
 		int k = (p[0] & 7) + ((p[1] & 3) << 3) - ((p[1] & 4) << 3);
 
-		for (int i = 0; i < 4; i++) {
-			int y = p[i] >> 3;
+		for (unsigned n = 0; n < 4; ++n) {
+			int y = p[n] >> 3;
 			int r = y + j;
 			int g = y + k;
 			int b = (5 * y - 2 * j - k) / 4;
@@ -88,7 +87,7 @@ void BitmapConverter<Pixel>::renderYJK(
 			if (b < 0) b = 0; else if (b > 31) b = 31;
 			int col = (r << 10) + (g << 5) + b;
 
-			*pixelPtr++ = palette32768[col];
+			pixelPtr[4 * i + n] = palette32768[col];
 		}
 	}
 }
@@ -97,24 +96,24 @@ template <class Pixel>
 void BitmapConverter<Pixel>::renderYAE(
 	Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
 {
-	for (int n = 64; n--; ) {
-		byte p[4];
-		p[0] = *vramPtr0++;
-		p[1] = *vramPtr1++;
-		p[2] = *vramPtr0++;
-		p[3] = *vramPtr1++;
+	for (unsigned i = 0; i < 64; ++i) {
+		unsigned p[4];
+		p[0] = vramPtr0[2 * i + 0];
+		p[1] = vramPtr1[2 * i + 0];
+		p[2] = vramPtr0[2 * i + 1];
+		p[3] = vramPtr1[2 * i + 1];
 
 		int j = (p[2] & 7) + ((p[3] & 3) << 3) - ((p[3] & 4) << 3);
 		int k = (p[0] & 7) + ((p[1] & 3) << 3) - ((p[1] & 4) << 3);
 
-		for (int i = 0; i < 4; i++) {
+		for (unsigned n = 0; n < 4; ++n) {
 			Pixel pix;
-			if (p[i] & 0x08) {
+			if (p[n] & 0x08) {
 				// YAE
-				pix = palette16[p[i] >> 4];
+				pix = palette16[p[n] >> 4];
 			} else {
 				// YJK
-				int y = p[i] >> 3;
+				int y = p[n] >> 3;
 				int r = y + j;
 				int g = y + k;
 				int b = (5 * y - 2 * j - k) / 4;
@@ -123,7 +122,7 @@ void BitmapConverter<Pixel>::renderYAE(
 				if (b < 0) b = 0; else if (b > 31) b = 31;
 				pix = palette32768[(r << 10) + (g << 5) + b];
 			}
-			*pixelPtr++ = pix;
+			pixelPtr[4 * i + n] = pix;
 		}
 	}
 }
@@ -133,8 +132,10 @@ template <class Pixel>
 void BitmapConverter<Pixel>::renderBogus(
 	Pixel* pixelPtr, const byte* /*vramPtr0*/, const byte* /*vramPtr1*/)
 {
-	Pixel colour = palette16[0];
-	for (int n = 256; n--; ) *pixelPtr++ = colour;
+	Pixel color = palette16[0];
+	for (unsigned i = 0; i < 256; ++i) {
+		pixelPtr[i] = color;
+	}
 }
 
 // Force template instantiation.

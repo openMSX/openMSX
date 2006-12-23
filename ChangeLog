@@ -4,6 +4,10 @@ $Id$
 	* Try to upload larger texture blocks at once in GLPostProcessor (was
 	  one line at a time):
 	   - I measured upto 15% speedup (scale_algo=simple scale_factor=2) 
+	* Use array arithmetic iso pointer arithmetic in BitmapConverter:
+	   - can be better optimized by gcc (and compilers in general)
+	   - though, impact on total emulation time is not that big. I
+	     measured about 1% speedup 
 
 2006-12-22 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Removed charDisplayCache and bitmapDisplayCache from SDLRasterizer:
