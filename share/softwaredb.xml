@@ -8,7 +8,7 @@
 	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
-<softwaredb xml:lang="en" timestamp="1163885500">
+<softwaredb xml:lang="en" timestamp="1166987223">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -1269,6 +1269,24 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">a2de457567e87c794fba8e35c992eac352da78be</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Beepertron</title>
+		<system>MSX</system>
+		<company>Dioniso</company>
+		<year>2006</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">65961a1926b24c8efa71f2ab68cbafa2d0122acf</hash>
+				<remark>
+					<text>MSXDEV06</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -5865,7 +5883,7 @@
 			<original value="false"/>
 			<megarom>
 				<type>ASCII8</type>
-				<hash algo="sha1">2ae97f3c8152f56695c3d3a2dedaa781bf0a15f1</hash>
+				<hash algo="sha1">fd7b23a4f1c2058b966b5ddd52cf7ae44a0eebb0</hash>
 				<remark>
 					<text>Needs SCC in slot 2</text>
 				</remark>
@@ -5883,16 +5901,6 @@
 			<megarom>
 				<type>KonamiSCC</type>
 				<hash algo="sha1">d63e20369f98487767810a0c57603bef6a2a07e5</hash>
-			</megarom>
-		</dump>
-		<dump>
-			<original value="false"/>
-			<megarom>
-				<type>KonamiSCC</type>
-				<hash algo="sha1">fd7b23a4f1c2058b966b5ddd52cf7ae44a0eebb0</hash>
-				<remark>
-					<text>tr Pg</text>
-				</remark>
 			</megarom>
 		</dump>
 		<dump>
@@ -6007,7 +6015,7 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Griel\&#39;s Quest for the Sangraal</title>
+		<title xml:lang="en">Griel&#39;s Quest for the Sangraal</title>
 		<system>MSX</system>
 		<company>Karoshi Corporation</company>
 		<year>2005</year>
@@ -7087,6 +7095,24 @@
 				<boot>scc+</boot>
 				<hash algo="sha1">fcd563fe7ccb293be1f1adb0da7d6f0da8fc7e2e</hash>
 			</sccpluscart>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">I.N.E.R.T.I.A.</title>
+		<system>MSX</system>
+		<company>Andrea Rossetti</company>
+		<year>2006</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">a53610adcf84bdb1b84d94d4c6d1f0a7d45e9ddd</hash>
+				<remark>
+					<text>MSXDEV06</text>
+				</remark>
+			</rom>
 		</dump>
 	</software>
 	<software>
@@ -8878,6 +8904,24 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Los Jardines de Zee Wang Zu</title>
+		<system>MSX</system>
+		<company>Hability game</company>
+		<year>2006</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">ba6bff43e5773c6777f73ebc63b4f38466dc2630</hash>
+				<remark>
+					<text>MSXDEV06</text>
+				</remark>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Lot Lot</title>
 		<system>MSX</system>
 		<company>Irem</company>
@@ -9709,6 +9753,40 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Monster Hunter (English)</title>
+		<system>MSX</system>
+		<company>Nerlaska</company>
+		<year>2006</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>KonamiSCC</type>
+				<hash algo="sha1">aa6055ba0e433aa9c93df4444783cacb9628a7e2</hash>
+				<remark>
+					<text>MSXDEV06</text>
+				</remark>
+			</megarom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Monster Hunter (Espaniol)</title>
+		<system>MSX</system>
+		<company>Nerlaska</company>
+		<year>2006</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>KonamiSCC</type>
+				<hash algo="sha1">7b8015f919c8dd95db683f3f3d0799cf7ef1bc22</hash>
+				<remark>
+					<text>MSXDEV06</text>
+				</remark>
+			</megarom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Monster&#39;s Fair</title>
 		<system>MSX</system>
 		<company>Toho</company>
@@ -10356,7 +10434,7 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Namake\&#39;s Bridgedrome</title>
+		<title xml:lang="en">Namake&#39;s Bridgedrome</title>
 		<system>MSX</system>
 		<company>Buresto Faiya</company>
 		<year>2005</year>
@@ -10523,6 +10601,40 @@
 			<rom>
 				<hash algo="sha1">5b20c3e0b9f1f29149039d5246be881a6b0dfdb1</hash>
 			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Night City (English)</title>
+		<system>MSX</system>
+		<company>German G&#243;mez Herrera</company>
+		<year>2005</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>GenericKonami</type>
+				<hash algo="sha1">22f9b0238ff48840fb7d45ac93a7f15495393920</hash>
+				<remark>
+					<text>MSXDEV06</text>
+				</remark>
+			</megarom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Night City (Espaniol)</title>
+		<system>MSX</system>
+		<company>German G&#243;mez Herrera</company>
+		<year>2006</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>GenericKonami</type>
+				<hash algo="sha1">4b138e041947990309c228890914689908d46685</hash>
+				<remark>
+					<text>MSXDEV06</text>
+				</remark>
+			</megarom>
 		</dump>
 	</software>
 	<software>
@@ -10812,6 +10924,24 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">5b53794d3d73df29cbcec411c0f65e9e9898977f</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Operation Wolf (MSXdev Version)</title>
+		<system>MSX</system>
+		<company>TOYBOX</company>
+		<year>2006</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">366cc928a5dd5948bf6cf2ab1e00efcb2b6a8fd8</hash>
+				<remark>
+					<text>MSXDEV06</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -11190,6 +11320,24 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">295578c06ff3f451f5203fc467a191c9ea335952</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Penguin Cafe</title>
+		<system>MSX</system>
+		<company>The exMSXcaf&#233; Team </company>
+		<year>2006</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">058af0079b868387ad39c6b8a390b18b936d0e48</hash>
+				<remark>
+					<text>MSXDEV06</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -12906,6 +13054,40 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Skate Air (English)</title>
+		<system>MSX</system>
+		<company>German G&#243;mez Herrera</company>
+		<year>2006</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>GenericKonami</type>
+				<hash algo="sha1">7a0a1c5570a3361ad75406eea07c93fdad9fde02</hash>
+				<remark>
+					<text>MSXDEV06</text>
+				</remark>
+			</megarom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Skate Air (Espaniol)</title>
+		<system>MSX</system>
+		<company>German G&#243;mez Herrera</company>
+		<year>2006</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>GenericKonami</type>
+				<hash algo="sha1">e6ba7a6ecda80a1c844542be0b2a44a4a33dc113</hash>
+				<remark>
+					<text>MSXDEV06</text>
+				</remark>
+			</megarom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Ski Command</title>
 		<system>MSX</system>
 		<company>Casio</company>
@@ -13689,6 +13871,23 @@
 					<text>Zemina</text>
 				</remark>
 			</megarom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Sudoku</title>
+		<system>MSX</system>
+		<year>2006</year>
+		<country>NL</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">c44cccb53e2f0cc8560c288354744f29d2488850</hash>
+				<remark>
+					<text>MSXDEV06</text>
+				</remark>
+			</rom>
 		</dump>
 	</software>
 	<software>
@@ -14888,6 +15087,24 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">7dbeaf25e3a1a66f9c6b331332dc36e73b511d4a</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Traffic Jam</title>
+		<system>MSX</system>
+		<company>Imanok</company>
+		<year>2006</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">0f7f55fe448d20fc65dc03c2a4f1717761671e43</hash>
+				<remark>
+					<text>MSXDEV06</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -23779,9 +23996,9 @@
 	</software>
 </softwaredb>
 <!--
-Roms in this database : 2230
+Roms in this database : 2243
 Good MSX entries 		: 755
-SHA1 values 			: 2230
+SHA1 values 			: 2243
 CRC32 values 			: 0
-Parse time 28.724 seconds on Sat Nov 18 22:32:08 CET 2006
+Parse time 18.471 seconds on Sun Dec 24 20:07:22 CET 2006
  -->
