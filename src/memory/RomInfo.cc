@@ -180,7 +180,7 @@ void RomInfo::print(CliComm& cliComm) const
 		} else if (getOrigType() == "working") {
 			status = "Modified but confirmed working";
 		} else {
-			status = "Unknown (might be broken!)";
+			status = "Unknown";
 		}
 	}
 	string info = "Found this ROM in the database:\n"
