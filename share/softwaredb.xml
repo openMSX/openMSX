@@ -3,12 +3,12 @@
 <!--
  The romdb.xml file contains information about rom mapper types
 																			 	
-	© 2004-2005 Benoit Delvaux	(Filling the database / testing games)			
-	© 2003 Nicolas Beyaert		(Initial database)								
-	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
+	Â© 2004-2005 Benoit Delvaux	(Filling the database / testing games)			
+	Â© 2003 Nicolas Beyaert		(Initial database)								
+	Â© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
-<softwaredb xml:lang="en" timestamp="1166987223">
+<softwaredb xml:lang="en" timestamp="1167036283">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -1280,14 +1280,13 @@
 		<country>ES</country>
 		<dump>
 			<original value="false"/>
-			<rom>
-				<type>Normal</type>
-				<start>0x4000</start>
+			<megarom>
+				<type>konami</type>
 				<hash algo="sha1">65961a1926b24c8efa71f2ab68cbafa2d0122acf</hash>
 				<remark>
 					<text>MSXDEV06</text>
 				</remark>
-			</rom>
+			</megarom>
 		</dump>
 	</software>
 	<software>
@@ -5880,16 +5879,6 @@
 		<year>1987</year>
 		<country>JP</country>
 		<dump>
-			<original value="false"/>
-			<megarom>
-				<type>ASCII8</type>
-				<hash algo="sha1">fd7b23a4f1c2058b966b5ddd52cf7ae44a0eebb0</hash>
-				<remark>
-					<text>Needs SCC in slot 2</text>
-				</remark>
-			</megarom>
-		</dump>
-		<dump>
 			<original value="true">GoodMSX</original>
 			<megarom>
 				<type>KonamiSCC</type>
@@ -5901,6 +5890,16 @@
 			<megarom>
 				<type>KonamiSCC</type>
 				<hash algo="sha1">d63e20369f98487767810a0c57603bef6a2a07e5</hash>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>KonamiSCC</type>
+				<hash algo="sha1">fd7b23a4f1c2058b966b5ddd52cf7ae44a0eebb0</hash>
+				<remark>
+					<text>tr Pg</text>
+				</remark>
 			</megarom>
 		</dump>
 		<dump>
@@ -10612,7 +10611,7 @@
 		<dump>
 			<original value="false"/>
 			<megarom>
-				<type>GenericKonami</type>
+				<type>Konami</type>
 				<hash algo="sha1">22f9b0238ff48840fb7d45ac93a7f15495393920</hash>
 				<remark>
 					<text>MSXDEV06</text>
@@ -10629,7 +10628,7 @@
 		<dump>
 			<original value="false"/>
 			<megarom>
-				<type>GenericKonami</type>
+				<type>Konami</type>
 				<hash algo="sha1">4b138e041947990309c228890914689908d46685</hash>
 				<remark>
 					<text>MSXDEV06</text>
@@ -13062,7 +13061,7 @@
 		<dump>
 			<original value="false"/>
 			<megarom>
-				<type>GenericKonami</type>
+				<type>Konami</type>
 				<hash algo="sha1">7a0a1c5570a3361ad75406eea07c93fdad9fde02</hash>
 				<remark>
 					<text>MSXDEV06</text>
@@ -13079,7 +13078,7 @@
 		<dump>
 			<original value="false"/>
 			<megarom>
-				<type>GenericKonami</type>
+				<type>Konami</type>
 				<hash algo="sha1">e6ba7a6ecda80a1c844542be0b2a44a4a33dc113</hash>
 				<remark>
 					<text>MSXDEV06</text>
@@ -24000,5 +23999,5 @@ Roms in this database : 2243
 Good MSX entries 		: 755
 SHA1 values 			: 2243
 CRC32 values 			: 0
-Parse time 18.471 seconds on Sun Dec 24 20:07:22 CET 2006
+Parse time 7.754 seconds on Mon Dec 25 9:44:50 CET 2006
  -->
