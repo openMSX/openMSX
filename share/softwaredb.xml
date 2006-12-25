@@ -3,9 +3,9 @@
 <!--
  The romdb.xml file contains information about rom mapper types
 																			 	
-	Â© 2004-2005 Benoit Delvaux	(Filling the database / testing games)			
-	Â© 2003 Nicolas Beyaert		(Initial database)								
-	Â© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
+	© 2004-2005 Benoit Delvaux	(Filling the database / testing games)			
+	© 2003 Nicolas Beyaert		(Initial database)								
+	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
 <softwaredb xml:lang="en" timestamp="1167036283">
