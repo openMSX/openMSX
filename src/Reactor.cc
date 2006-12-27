@@ -325,7 +325,7 @@ void Reactor::enterMainLoop()
 		lock.take(mbSem);
 	}
 	if (motherBoard.get()) {
-		motherBoard->exitCPULoop();
+		motherBoard->exitCPULoopAsync();
 	}
 }
 

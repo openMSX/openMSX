@@ -12,6 +12,7 @@
 #include "CPUCore.hh"
 #include "Z80.hh"
 #include "R800.hh"
+#include "Thread.hh"
 #include "StringOp.hh"
 #include "likely.hh"
 #include <iomanip>
@@ -134,10 +135,16 @@ template <class T> void CPUCore<T>::doReset(const EmuTime& time)
 // exit the CPU loop, but that's harmless
 //  TODO thread issues are always tricky, can someone confirm this really
 //       is thread safe
-template <class T> void CPUCore<T>::exitCPULoop()
+template <class T> void CPUCore<T>::exitCPULoopAsync()
 {
 	// can get called from non-main threads
 	exitLoop = true;
+}
+template <class T> void CPUCore<T>::exitCPULoopSync()
+{
+	assert(Thread::isMainThread());
+	exitLoop = true;
+	T::enableLimit(false);
 }
 template <class T> inline bool CPUCore<T>::needExitCPULoop()
 {
@@ -149,11 +156,17 @@ template <class T> inline bool CPUCore<T>::needExitCPULoop()
 	return false;
 }
 
+template <class T> void CPUCore<T>::setSlowInstructions()
+{
+	slowInstructions = 2;
+	T::enableLimit(false);
+}
+
 template <class T> void CPUCore<T>::raiseIRQ()
 {
 	assert(IRQStatus >= 0);
 	if (IRQStatus == 0) {
-		slowInstructions++;
+		setSlowInstructions();
 	}
 	IRQStatus++;
 }
@@ -169,7 +182,7 @@ template <class T> void CPUCore<T>::raiseNMI()
 	assert(NMIStatus >= 0);
 	if (NMIStatus == 0) {
 		nmiEdge = true;
-		slowInstructions++;
+		setSlowInstructions();
 	}
 	NMIStatus++;
 }
@@ -185,6 +198,7 @@ template <class T> void CPUCore<T>::wait(const EmuTime& time)
 	assert(time >= getCurrentTime());
 	scheduler.schedule(time);
 	T::advanceTime(time);
+	T::setLimit(scheduler.getNext());
 }
 
 template <class T> void CPUCore<T>::doBreak()
@@ -293,6 +307,7 @@ template <class T> inline byte CPUCore<T>::READ_PORT(word port)
 	T::PRE_IO(port);
 	scheduler.schedule(T::getTime());
 	byte result = interface->readIO(port, T::getTime());
+	T::setLimit(scheduler.getNext());
 	T::POST_IO(port);
 	return result;
 }
@@ -303,6 +318,7 @@ template <class T> inline void CPUCore<T>::WRITE_PORT(word port, byte value)
 	T::PRE_IO(port);
 	scheduler.schedule(T::getTime());
 	interface->writeIO(port, value, T::getTime());
+	T::setLimit(scheduler.getNext());
 	T::POST_IO(port);
 }
 
@@ -335,6 +351,7 @@ template <class T> byte CPUCore<T>::RDMEMslow(word address)
 	// uncacheable
 	scheduler.schedule(T::getTime());
 	byte result = interface->readMem(address, T::getTime());
+	T::setLimit(scheduler.getNext());
 	T::POST_MEM(address);
 	return result;
 }
@@ -369,6 +386,7 @@ template <class T> void CPUCore<T>::WRMEMslow(word address, byte value)
 	// uncacheable
 	scheduler.schedule(T::getTime());
 	interface->writeMem(address, value, T::getTime());
+	T::setLimit(scheduler.getNext());
 	T::POST_MEM(address);
 }
 
@@ -504,7 +522,7 @@ template <class T> void CPUCore<T>::executeSlow()
 	} else if (unlikely(R.HALT || paused)) {
 		// in halt mode
 		R.R += T::advanceHalt(T::haltStates(), scheduler.getNext());
-		slowInstructions = 2;
+		setSlowInstructions();
 	} else {
 		R.IFF1 = R.nextIFF1;
 		cpuTracePre();
@@ -523,7 +541,7 @@ template <class T> void CPUCore<T>::executeInternal()
 	assert(!breaked);
 
 	scheduler.schedule(T::getTime());
-	slowInstructions = 2;
+	setSlowInstructions();
 
 	if (continued || step) {
 		// at least one instruction
@@ -549,8 +567,17 @@ template <class T> void CPUCore<T>::executeInternal()
 				executeSlow();
 				scheduler.schedule(T::getTime());
 			} else {
-				while (!slowInstructions) {
-					executeFast();
+				while (slowInstructions == 0) {
+					T::enableLimit(true);
+					T::setLimit(scheduler.getNext());
+					while (likely(!T::limitReached())) {
+						// too much overhead for non-debug build
+						#ifdef DEBUG
+						assert(T::getTime() < scheduler.getNext());
+						assert(slowInstructions == 0);
+						#endif
+						executeFast();
+					}
 					scheduler.schedule(T::getTime());
 					if (needExitCPULoop()) return;
 				}
@@ -2440,14 +2467,14 @@ template <class T> void CPUCore<T>::reti()
 	// same as retn
 	T::RETN_DELAY();
 	R.IFF1 = R.nextIFF1 = R.IFF2;
-	slowInstructions = 2;
+	setSlowInstructions();
 	RET();
 }
 template <class T> void CPUCore<T>::retn()
 {
 	T::RETN_DELAY();
 	R.IFF1 = R.nextIFF1 = R.IFF2;
-	slowInstructions = 2;
+	setSlowInstructions();
 	RET();
 }
 
@@ -2712,12 +2739,12 @@ template <class T> void CPUCore<T>::ei()
 	R.IFF1 = false;		// no ints after this instruction
 	R.nextIFF1 = true;	// but allow them after next instruction
 	R.IFF2 = true;
-	slowInstructions = 2;
+	setSlowInstructions();
 }
 template <class T> void CPUCore<T>::halt()
 {
 	R.HALT = true;
-	slowInstructions = 2;
+	setSlowInstructions();
 
 	if (!(R.IFF1 || R.nextIFF1 || R.IFF2)) { 
 		motherboard.getMSXCliComm().printWarning(

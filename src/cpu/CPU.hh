@@ -74,10 +74,17 @@ public:
 	 */
 	virtual void execute() = 0;
 
-	/**
-	 * TODO
-	 */
-	virtual void exitCPULoop() = 0;
+	/** Request to exit the main CPU emulation loop.
+	  * This method may only be called from the main thread. The CPU loop
+	  * will immediately be exited (current instruction will be finished,
+	  * but no new instruction will be executed).
+	  */
+	virtual void exitCPULoopSync() = 0;
+
+	/** Similar to exitCPULoopSync(), but this method may be called from
+	  * any thread. Although now the loop will only be exited 'soon'.
+	  */
+	virtual void exitCPULoopAsync() = 0;
 
 	/**
 	 * Sets the CPU its current time.

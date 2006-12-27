@@ -92,10 +92,10 @@ public:
 	 */
 	void lowerNMI();
 
-	/**
-	 * TODO
-	 */
-	void exitCPULoop();
+	/** See CPU::exitCPULoopsync() */
+	void exitCPULoopSync();
+	/** See CPU::exitCPULoopAsync() */
+	void exitCPULoopAsync();
 
 	/**
 	 * Is the R800 currently active

@@ -99,8 +99,8 @@ void Scheduler::scheduleHelper(const EmuTime& limit)
 		Schedulable* device = sp.getDevice();
 		assert(device);
 		int userData = sp.getUserData();
-		//PRT_DEBUG ("Sched: Scheduling " << device->schedName()
-		//		<< " " << userData << " till " << time);
+		//std::cout << "Sched: Scheduling " << device->schedName()
+		//          << " " << userData << " till " << time << std::endl;
 		device->executeUntil(time, userData);
 	}
 }

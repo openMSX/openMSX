@@ -100,7 +100,7 @@ void MSXCPU::setActiveCPU(CPUType cpu)
 	if (newCPU != activeCPU) {
 		newCPU->warp(activeCPU->getCurrentTime());
 		newCPU->invalidateMemCache(0x0000, 0x10000);
-		exitCPULoop();
+		exitCPULoopSync();
 		activeCPU = newCPU;
 	}
 }
@@ -115,9 +115,13 @@ void MSXCPU::execute()
 	activeCPU->execute();
 }
 
-void MSXCPU::exitCPULoop()
+void MSXCPU::exitCPULoopSync()
 {
-	activeCPU->exitCPULoop();
+	activeCPU->exitCPULoopSync();
+}
+void MSXCPU::exitCPULoopAsync()
+{
+	activeCPU->exitCPULoopAsync();
 }
 
 
@@ -178,7 +182,7 @@ void MSXCPU::update(const Setting& setting)
 {
 	(void)setting;
 	assert(&setting == traceSetting.get());
-	exitCPULoop();
+	exitCPULoopSync();
 }
 
 // Command

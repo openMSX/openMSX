@@ -58,10 +58,10 @@ public:
 	 */
 	bool execute();
 
-	/** Request to exit the main CPU loop.
-	  * Note: can get called from different threads
-	  */
-	void exitCPULoop();
+	/** See CPU::exitCPULoopsync(). */
+	void exitCPULoopSync();
+	/** See CPU::exitCPULoopAsync(). */
+	void exitCPULoopAsync();
 
 	/**
 	 * Block the complete MSX (CPU and devices), used by breakpoints

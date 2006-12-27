@@ -1,5 +1,10 @@
 $Id$
 
+2006-12-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Optimized inner CPU emulation loop:
+	   - there were 3 tests per instruction, reduced that to just 1
+	   - total emulation is about 3% faster in Space Manbow test
+
 2006-12-23 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Try to upload larger texture blocks at once in GLPostProcessor (was
 	  one line at a time):

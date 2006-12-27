@@ -48,8 +48,6 @@ public:
 	/** Calculate the number of ticks this clock has to tick to reach
 	  * or go past the given time.
 	  * It is not allowed to call this method for a time in the past.
-	  * TODO: This method is only used for implementing the HALT instruction.
-	  *       Maybe it's possible to calculate this in another way?
 	  */
 	unsigned getTicksTillUp(const EmuTime& e) const {
 		assert(e.time >= lastTick.time);

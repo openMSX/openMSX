@@ -63,7 +63,8 @@ public:
 	const string& getMachineName() const;
 
 	bool execute();
-	void exitCPULoop();
+	void exitCPULoopSync();
+	void exitCPULoopAsync();
 	void block();
 	void unblock();
 	void pause();
@@ -614,7 +615,7 @@ bool MSXMotherBoardImpl::execute()
 void MSXMotherBoardImpl::block()
 {
 	++blockedCounter;
-	exitCPULoop();
+	exitCPULoopSync();
 	getMSXMixer().mute();
 }
 
@@ -653,7 +654,7 @@ void MSXMotherBoardImpl::removeDevice(MSXDevice& device)
 void MSXMotherBoardImpl::scheduleReset()
 {
 	needReset = true;
-	exitCPULoop();
+	exitCPULoopSync();
 }
 
 void MSXMotherBoardImpl::doReset(const EmuTime& time)
@@ -703,7 +704,7 @@ void MSXMotherBoardImpl::powerUp()
 void MSXMotherBoardImpl::schedulePowerDown()
 {
 	needPowerDown = true;
-	exitCPULoop();
+	exitCPULoopSync();
 }
 
 void MSXMotherBoardImpl::doPowerDown(const EmuTime& time)
@@ -727,10 +728,14 @@ void MSXMotherBoardImpl::doPowerDown(const EmuTime& time)
 	}
 }
 
-void MSXMotherBoardImpl::exitCPULoop()
+void MSXMotherBoardImpl::exitCPULoopSync()
 {
-	// this method can get called from different threads
-	getCPU().exitCPULoop();
+	getCPU().exitCPULoopSync();
+}
+
+void MSXMotherBoardImpl::exitCPULoopAsync()
+{
+	getCPU().exitCPULoopAsync();
 }
 
 // Observer<Setting>
@@ -953,9 +958,13 @@ bool MSXMotherBoard::execute()
 {
 	return pimple->execute();
 }
-void MSXMotherBoard::exitCPULoop()
+void MSXMotherBoard::exitCPULoopSync()
 {
-	pimple->exitCPULoop();
+	pimple->exitCPULoopSync();
+}
+void MSXMotherBoard::exitCPULoopAsync()
+{
+	pimple->exitCPULoopAsync();
 }
 void MSXMotherBoard::block()
 {

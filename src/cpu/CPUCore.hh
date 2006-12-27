@@ -40,7 +40,8 @@ public:
 	void doReset(const EmuTime& time);
 
 	virtual void execute();
-	virtual void exitCPULoop();
+	virtual void exitCPULoopSync();
+	virtual void exitCPULoopAsync();
 	virtual void warp(const EmuTime& time);
 	virtual const EmuTime& getCurrentTime() const;
 	virtual void wait(const EmuTime& time);
@@ -97,6 +98,7 @@ public:
 private:
 	void doContinue2();
 	bool needExitCPULoop();
+	void setSlowInstructions();
 
 	// Observer<Setting>
 	virtual void update(const Setting& setting);

@@ -95,7 +95,7 @@ void CPU::insertBreakPoint(std::auto_ptr<BreakPoint> bp_)
 {
 	BreakPoint* bp = bp_.release();
 	breakPoints.insert(std::make_pair(bp->getAddress(), bp));
-	exitCPULoop();
+	exitCPULoopSync();
 }
 
 void CPU::removeBreakPoint(const BreakPoint& bp)
@@ -109,7 +109,7 @@ void CPU::removeBreakPoint(const BreakPoint& bp)
 			break;
 		}
 	}
-	exitCPULoop();
+	exitCPULoopSync();
 }
 
 const CPU::BreakPoints& CPU::getBreakPoints() const
@@ -120,7 +120,7 @@ const CPU::BreakPoints& CPU::getBreakPoints() const
 void CPU::setPaused(bool paused_)
 {
 	paused = paused_;
-	exitCPULoop();
+	exitCPULoopSync();
 }
 
 void CPU::checkBreakPoints(std::pair<BreakPoints::const_iterator,
