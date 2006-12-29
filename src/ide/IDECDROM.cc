@@ -41,9 +41,6 @@ IDECDROM::IDECDROM(MSXMotherBoard& motherBoard_, const XMLElement& /*config*/,
                    const EmuTime& /*time*/)
 	: AbstractIDEDevice(motherBoard_)
 	, motherBoard(motherBoard_)
-	, cdxCommand(new CDXCommand(motherBoard.getMSXCommandController(),
-	                            motherBoard.getMSXEventDistributor(),
-	                            motherBoard.getScheduler(), *this))
 {
 	MSXMotherBoard::SharedStuff& info =
 		motherBoard.getSharedStuff("cdInUse");
@@ -63,6 +60,9 @@ IDECDROM::IDECDROM(MSXMotherBoard& motherBoard_, const XMLElement& /*config*/,
 	}
 	name = string("cd") + char('a' + id);
 	cdInUse[id] = true;
+	cdxCommand.reset(new CDXCommand(motherBoard.getMSXCommandController(),
+	                                motherBoard.getMSXEventDistributor(),
+	                                motherBoard.getScheduler(), *this));
 
 	senseKey = 0;
 

@@ -48,7 +48,7 @@ private:
 	MSXMotherBoard& motherBoard;
 	DiskManipulator& diskManipulator;
 	std::string name;
-	const std::auto_ptr<HDCommand> hdCommand;
+	std::auto_ptr<HDCommand> hdCommand;
 	std::auto_ptr<File> file;
 	unsigned transferSectorNumber;
 

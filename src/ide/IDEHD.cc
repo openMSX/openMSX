@@ -45,10 +45,6 @@ IDEHD::IDEHD(MSXMotherBoard& motherBoard_, const XMLElement& config,
 	: AbstractIDEDevice(motherBoard_)
 	, motherBoard(motherBoard_)
 	, diskManipulator(motherBoard.getDiskManipulator())
-	, hdCommand(new HDCommand(motherBoard.getMSXCommandController(),
-	                          motherBoard.getMSXEventDistributor(),
-	                          motherBoard.getScheduler(),
-	                          motherBoard.getMSXCliComm(), *this))
 {
 	MSXMotherBoard::SharedStuff& info =
 		motherBoard.getSharedStuff("hdInUse");
@@ -81,6 +77,10 @@ IDEHD::IDEHD(MSXMotherBoard& motherBoard_, const XMLElement& config,
 
 	diskManipulator.registerDrive(*this);
 	hdInUse[id] = true;
+	hdCommand.reset(new HDCommand(motherBoard.getMSXCommandController(),
+	                              motherBoard.getMSXEventDistributor(),
+	                              motherBoard.getScheduler(),
+	                              motherBoard.getMSXCliComm(), *this));
 
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "add");
 }
