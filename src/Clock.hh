@@ -92,6 +92,20 @@ public:
 		lastTick.time += n * MASTER_TICKS;
 	}
 
+	/** Advance this clock by the given number of ticks.
+	  * This method is similar to operator+=, but it's optimized for
+	  * speed. OTOH the amount of ticks should not be too large,
+	  * otherwise an overflow occurs. Use operator+() when the duration
+	  * of the ticks approaches 1 second.
+	  */
+	void fastAdd(unsigned n) {
+		#ifdef DEBUG
+		// we don't even want this overhead in development versions
+		assert((n * MASTER_TICKS) < (1ull << 32));
+		#endif
+		lastTick.time += n * static_cast<unsigned>(MASTER_TICKS);
+	}
+
 private:
 	/** Time of this clock's last tick.
 	  */
