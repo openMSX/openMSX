@@ -1,5 +1,13 @@
 $Id$
 
+2006-12-29 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Various VDPCmdEngine related optimizations:
+	   - in VDPVRAM: only track time in DEBUG mode
+	                 no need to notify bitmapCacheWindow and nameTable
+	     in VDPCmdEngine: use Clock::fastAdd
+	   - between 2% and 3% faster in vdp-copy-intensive MSX software (I
+	     tested Space Manbow intro demo)
+
 2006-12-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimized inner CPU emulation loop:
 	   - there were 3 tests per instruction, reduced that to just 1
