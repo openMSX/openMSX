@@ -5,7 +5,7 @@
 
 # Optimisation flags.
 CXXFLAGS+=-O3 -DNDEBUG \
-	-ffast-math -funroll-loops
+	-ffast-math -funroll-loops -fomit-frame-pointer
 
 # Strip executable?
 OPENMSX_STRIP:=true
