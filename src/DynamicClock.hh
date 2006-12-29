@@ -94,7 +94,7 @@ public:
 	/** Advance this clock by the given number of ticks.
 	  * This method is similar to operator+=, but it's optimized for
 	  * speed. OTOH the amount of ticks should not be too large,
-	  * otherwise an overflow occurs. Use add() when the duration
+	  * otherwise an overflow occurs. Use operator+() when the duration
 	  * of the ticks approaches 1 second.
 	  */
 	void fastAdd(unsigned n) {
