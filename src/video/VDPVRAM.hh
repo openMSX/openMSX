@@ -500,8 +500,13 @@ private:
 		assert(!nameTable.hasObserver());
 
 		// only used in GLRasterizer, can we get rid of this?
-		colourTable.notify(address, time);
-		patternTable.notify(address, time);
+		if (colourTable.hasObserver()) {
+			colourTable.notify(address, time);
+			patternTable.notify(address, time);
+		} else {
+			// either both or none have an observer 
+			assert(!patternTable.hasObserver());
+		}
 
 		/* TODO:
 		There seems to be a significant difference between subsystem sync

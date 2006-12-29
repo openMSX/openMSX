@@ -74,7 +74,7 @@ const unsigned LMMM_TIMING[5] = { 129, 197, 129, 132, 0 };
 template <class Mode>
 static inline unsigned clipNX_1_pixel(unsigned DX, unsigned NX, byte ARG)
 {
-	if (DX >= Mode::PIXELS_PER_LINE) {
+	if (unlikely(DX >= Mode::PIXELS_PER_LINE)) {
 		return 1;
 	}
 	NX = NX ? NX : Mode::PIXELS_PER_LINE;
@@ -90,7 +90,7 @@ static inline unsigned clipNX_1_byte(unsigned DX, unsigned NX, byte ARG)
 		Mode::PIXELS_PER_LINE >> Mode::PIXELS_PER_BYTE_SHIFT;
 
 	DX >>= Mode::PIXELS_PER_BYTE_SHIFT;
-	if (BYTES_PER_LINE <= DX) {
+	if (unlikely(BYTES_PER_LINE <= DX)) {
 		return 1;
 	}
 	NX >>= Mode::PIXELS_PER_BYTE_SHIFT;
@@ -103,7 +103,8 @@ static inline unsigned clipNX_1_byte(unsigned DX, unsigned NX, byte ARG)
 template <class Mode>
 static inline unsigned clipNX_2_pixel(unsigned SX, unsigned DX, unsigned NX, byte ARG)
 {
-	if (SX >= Mode::PIXELS_PER_LINE || DX >= Mode::PIXELS_PER_LINE) {
+	if (unlikely(SX >= Mode::PIXELS_PER_LINE) ||
+	    unlikely(DX >= Mode::PIXELS_PER_LINE)) {
 		return 1;
 	}
 	NX = NX ? NX : Mode::PIXELS_PER_LINE;
@@ -120,7 +121,8 @@ static inline unsigned clipNX_2_byte(unsigned SX, unsigned DX, unsigned NX, byte
 
 	SX >>= Mode::PIXELS_PER_BYTE_SHIFT;
 	DX >>= Mode::PIXELS_PER_BYTE_SHIFT;
-	if ((BYTES_PER_LINE <= SX) || (BYTES_PER_LINE <= DX)) {
+	if (unlikely(BYTES_PER_LINE <= SX) ||
+	    unlikely(BYTES_PER_LINE <= DX)) {
 		return 1;
 	}
 	NX >>= Mode::PIXELS_PER_BYTE_SHIFT;
