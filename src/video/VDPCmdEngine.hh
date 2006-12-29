@@ -8,6 +8,7 @@
 #include "Observer.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
+#include "likely.hh"
 #include <memory>
 
 namespace openmsx {
@@ -78,7 +79,7 @@ public:
           * recently
 	  * @param time The moment in emulated time this get occurs.
 	  */
-	inline int getBorderX(const EmuTime& time) {
+	inline unsigned getBorderX(const EmuTime& time) {
 		sync(time);
 		return ASX;
 	}
@@ -118,7 +119,7 @@ public:
 		  *   VRAM before the write is performed.
 		  */
 		virtual void pset(const EmuTime& time, VDPVRAM& vram,
-		                  int addr, byte colour, byte mask) = 0;
+		                  unsigned addr, byte colour, byte mask) = 0;
 		virtual ~LogOp() {}
 	};
 
@@ -130,11 +131,11 @@ private:
 		static const byte COLOUR_MASK = 0x0F;
 		static const byte PIXELS_PER_BYTE = 2;
 		static const byte PIXELS_PER_BYTE_SHIFT = 1;
-		static const word PIXELS_PER_LINE = 256;
-		static inline int addressOf(int x, int y, bool extVRAM);
-		static inline byte point(VDPVRAM& vram, int x, int y, bool extVRAM);
+		static const unsigned PIXELS_PER_LINE = 256;
+		static inline unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
+		static inline byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
 		static inline void pset(const EmuTime& time, VDPVRAM& vram,
-			int x, int y, bool extVRAM, byte colour, LogOp& op);
+			unsigned x, unsigned y, bool extVRAM, byte colour, LogOp& op);
 	};
 
 	/** Represents V9938 Graphic 5 mode (SCREEN6).
@@ -144,11 +145,11 @@ private:
 		static const byte COLOUR_MASK = 0x03;
 		static const byte PIXELS_PER_BYTE = 4;
 		static const byte PIXELS_PER_BYTE_SHIFT = 2;
-		static const word PIXELS_PER_LINE = 512;
-		static inline int addressOf(int x, int y, bool extVRAM);
-		static inline byte point(VDPVRAM& vram, int x, int y, bool extVRAM);
+		static const unsigned PIXELS_PER_LINE = 512;
+		static inline unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
+		static inline byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
 		static inline void pset(const EmuTime& time, VDPVRAM& vram,
-			int x, int y, bool extVRAM, byte colour, LogOp& op);
+			unsigned x, unsigned y, bool extVRAM, byte colour, LogOp& op);
 	};
 
 	/** Represents V9938 Graphic 6 mode (SCREEN7).
@@ -158,11 +159,11 @@ private:
 		static const byte COLOUR_MASK = 0x0F;
 		static const byte PIXELS_PER_BYTE = 2;
 		static const byte PIXELS_PER_BYTE_SHIFT = 1;
-		static const word PIXELS_PER_LINE = 512;
-		static inline int addressOf(int x, int y, bool extVRAM);
-		static inline byte point(VDPVRAM& vram, int x, int y, bool extVRAM);
+		static const unsigned PIXELS_PER_LINE = 512;
+		static inline unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
+		static inline byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
 		static inline void pset(const EmuTime& time, VDPVRAM& vram,
-			int x, int y, bool extVRAM, byte colour, LogOp& op);
+			unsigned x, unsigned y, bool extVRAM, byte colour, LogOp& op);
 	};
 
 	/** Represents V9938 Graphic 7 mode (SCREEN8).
@@ -172,11 +173,11 @@ private:
 		static const byte COLOUR_MASK = 0xFF;
 		static const byte PIXELS_PER_BYTE = 1;
 		static const byte PIXELS_PER_BYTE_SHIFT = 0;
-		static const word PIXELS_PER_LINE = 256;
-		static inline int addressOf(int x, int y, bool extVRAM);
-		static inline byte point(VDPVRAM& vram, int x, int y, bool extVRAM);
+		static const unsigned PIXELS_PER_LINE = 256;
+		static inline unsigned addressOf(unsigned x, unsigned y, bool extVRAM);
+		static inline byte point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM);
 		static inline void pset(const EmuTime& time, VDPVRAM& vram,
-			int x, int y, bool extVRAM, byte colour, LogOp& op);
+			unsigned x, unsigned y, bool extVRAM, byte colour, LogOp& op);
 	};
 
 	/** This is an abstract base class the VDP commands
@@ -194,28 +195,13 @@ private:
 		  */
 		virtual void execute(const EmuTime& time) = 0;
 
-		/** Copy progress state from another command.
-		  * TODO: Look for a design in which this method is not needed.
-		  */
-		void copyProgressFrom(VDPCmd& other);
-
 	protected:
 		VDPCmdEngine& engine;
 		VDPVRAM& vram;
-
-		/** Time at which the next operation cycle starts.
-		  * A cycle consists of reading source VRAM (if applicable),
-		  * reading destination VRAM (if applicable),
-		  * writing destination VRAM and updating coordinates.
-		  * For perfect timing each phase within a cycle should be timed
-		  * explicitly, but for now we use an average execution time per
-		  * cycle.
-		  */
-		Clock<VDP::TICKS_PER_SECOND> clock;
 	};
 
 	template <template <class Mode> class Command>
-	void createEngines(int cmd);
+	void createEngines(unsigned cmd);
 
 	/** Abort
 	  */
@@ -270,11 +256,11 @@ private:
 	  */
 	class BlockCmd : public VDPCmd {
 	public:
-		BlockCmd(VDPCmdEngine& engine, VDPVRAM& vram, const int* timing);
+		BlockCmd(VDPCmdEngine& engine, VDPVRAM& vram, const unsigned* timing);
 	protected:
-		void calcFinishTime(word NX, word NY);
+		void calcFinishTime(unsigned NX, unsigned NY);
 
-		const int* timing;
+		const unsigned* timing;
 	};
 
 	/** Logical move VDP -> VRAM.
@@ -368,8 +354,8 @@ private:
 
 	/** Get the current command timing, depends on vdp settings (sprites, display).
 	  */
-	inline int getTiming() {
-		return brokenTiming ? 4 : vdp.getAccessTiming();
+	inline unsigned getTiming() {
+		return likely(!brokenTiming) ? vdp.getAccessTiming() : 4;
 	}
 
 	/** Report the VDP command specified in the registers.
@@ -377,11 +363,21 @@ private:
 	void reportVdpCommand();
 
 
+	/** Time at which the next operation cycle starts.
+	  * A cycle consists of reading source VRAM (if applicable),
+	  * reading destination VRAM (if applicable),
+	  * writing destination VRAM and updating coordinates.
+	  * For perfect timing each phase within a cycle should be timed
+	  * explicitly, but for now we use an average execution time per
+	  * cycle.
+	  */
+	Clock<VDP::TICKS_PER_SECOND> clock;
+
 	/** VDP command registers.
 	  */
-	word SX, SY, DX, DY, NX, NY; // registers that can be set by CPU
-	word ASX, ADX, ANX; // Temporary registers used in the VDP commands
-                            // Register ASX can be read (via status register 8/9)
+	unsigned SX, SY, DX, DY, NX, NY; // registers that can be set by CPU
+	unsigned ASX, ADX, ANX; // Temporary registers used in the VDP commands
+                                // Register ASX can be read (via status register 8/9)
 	byte COL, ARG, CMD, LOG;
 
 	/** The command engine status (part of S#2).

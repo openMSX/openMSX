@@ -40,7 +40,6 @@ TODO:
 #include "VDPVRAM.hh"
 #include "BooleanSetting.hh"
 #include "RenderSettings.hh"
-#include "likely.hh"
 #include <iostream>
 #include <cassert>
 #include <algorithm>
@@ -60,34 +59,34 @@ const byte EQ  = 0x02;
 const byte MAJ = 0x01;
 
 // Timing tables:
-//               Sprites:    On   On   Off  Off
-//               Screen:     Off  On   Off  On
-const int SRCH_TIMING[5] = {  92, 125,  92,  92, 0 };
-const int LINE_TIMING[5] = { 120, 147, 120, 132, 0 };
-const int HMMV_TIMING[5] = {  49,  65,  49,  62, 0 };
-const int LMMV_TIMING[5] = {  98, 137,  98, 124, 0 };
-const int YMMM_TIMING[5] = {  65, 125,  65,  68, 0 };
-const int HMMM_TIMING[5] = {  92, 136,  92,  97, 0 };
-const int LMMM_TIMING[5] = { 129, 197, 129, 132, 0 };
+//                    Sprites:    On   On   Off  Off
+//                    Screen:     Off  On   Off  On
+const unsigned SRCH_TIMING[5] = {  92, 125,  92,  92, 0 };
+const unsigned LINE_TIMING[5] = { 120, 147, 120, 132, 0 };
+const unsigned HMMV_TIMING[5] = {  49,  65,  49,  62, 0 };
+const unsigned LMMV_TIMING[5] = {  98, 137,  98, 124, 0 };
+const unsigned YMMM_TIMING[5] = {  65, 125,  65,  68, 0 };
+const unsigned HMMM_TIMING[5] = {  92, 136,  92,  97, 0 };
+const unsigned LMMM_TIMING[5] = { 129, 197, 129, 132, 0 };
 
 // Inline methods first, to make sure they are actually inlined:
 
 template <class Mode>
-static inline word clipNX_1_pixel(word DX, word NX, byte ARG)
+static inline unsigned clipNX_1_pixel(unsigned DX, unsigned NX, byte ARG)
 {
 	if (DX >= Mode::PIXELS_PER_LINE) {
 		return 1;
 	}
 	NX = NX ? NX : Mode::PIXELS_PER_LINE;
 	return (ARG & DIX)
-		? min(NX, (word)(DX + 1))
-		: min(NX, (word)(Mode::PIXELS_PER_LINE - DX));
+		? min(NX, DX + 1)
+		: min(NX, Mode::PIXELS_PER_LINE - DX);
 }
 
 template <class Mode>
-static inline word clipNX_1_byte(word DX, word NX, byte ARG)
+static inline unsigned clipNX_1_byte(unsigned DX, unsigned NX, byte ARG)
 {
-	static const word BYTES_PER_LINE =
+	static const unsigned BYTES_PER_LINE =
 		Mode::PIXELS_PER_LINE >> Mode::PIXELS_PER_BYTE_SHIFT;
 
 	DX >>= Mode::PIXELS_PER_BYTE_SHIFT;
@@ -97,26 +96,26 @@ static inline word clipNX_1_byte(word DX, word NX, byte ARG)
 	NX >>= Mode::PIXELS_PER_BYTE_SHIFT;
 	NX = NX ? NX : BYTES_PER_LINE;
 	return (ARG & DIX)
-		? min(NX, (word)(DX + 1))
-		: min(NX, (word)(BYTES_PER_LINE - DX));
+		? min(NX, DX + 1)
+		: min(NX, BYTES_PER_LINE - DX);
 }
 
 template <class Mode>
-static inline word clipNX_2_pixel(word SX, word DX, word NX, byte ARG)
+static inline unsigned clipNX_2_pixel(unsigned SX, unsigned DX, unsigned NX, byte ARG)
 {
 	if (SX >= Mode::PIXELS_PER_LINE || DX >= Mode::PIXELS_PER_LINE) {
 		return 1;
 	}
 	NX = NX ? NX : Mode::PIXELS_PER_LINE;
 	return (ARG & DIX)
-		? min(NX, (word)(min(SX, DX) + 1))
-		: min(NX, (word)(Mode::PIXELS_PER_LINE - max(SX, DX)));
+		? min(NX, min(SX, DX) + 1)
+		: min(NX, Mode::PIXELS_PER_LINE - max(SX, DX));
 }
 
 template <class Mode>
-static inline word clipNX_2_byte(word SX, word DX, word NX, byte ARG)
+static inline unsigned clipNX_2_byte(unsigned SX, unsigned DX, unsigned NX, byte ARG)
 {
-	static const word BYTES_PER_LINE =
+	static const unsigned BYTES_PER_LINE =
 		Mode::PIXELS_PER_LINE >> Mode::PIXELS_PER_BYTE_SHIFT;
 
 	SX >>= Mode::PIXELS_PER_BYTE_SHIFT;
@@ -127,25 +126,25 @@ static inline word clipNX_2_byte(word SX, word DX, word NX, byte ARG)
 	NX >>= Mode::PIXELS_PER_BYTE_SHIFT;
 	NX = NX ? NX : BYTES_PER_LINE;
 	return (ARG & DIX)
-		? min(NX, (word)(min(SX, DX) + 1))
-		: min(NX, (word)(BYTES_PER_LINE - max(SX, DX)));
+		? min(NX, min(SX, DX) + 1)
+		: min(NX, BYTES_PER_LINE - max(SX, DX));
 }
 
-static inline word clipNY_1(word DY, word NY, byte ARG)
+static inline unsigned clipNY_1(unsigned DY, unsigned NY, byte ARG)
 {
 	NY = NY ? NY : 1024;
-	return (ARG & DIY) ? min(NY, (word)(DY + 1)) : NY;
+	return (ARG & DIY) ? min(NY, DY + 1) : NY;
 }
 
-static inline word clipNY_2(word SY, word DY, word NY, byte ARG)
+static inline unsigned clipNY_2(unsigned SY, unsigned DY, unsigned NY, byte ARG)
 {
 	NY = NY ? NY : 1024;
-	return (ARG & DIY) ? min(NY, (word)(min(SY, DY) + 1)) : NY;
+	return (ARG & DIY) ? min(NY, min(SY, DY) + 1) : NY;
 }
 
 // Graphic4Mode:
 
-inline int VDPCmdEngine::Graphic4Mode::addressOf(int x, int y, bool extVRAM)
+inline unsigned VDPCmdEngine::Graphic4Mode::addressOf(unsigned x, unsigned y, bool extVRAM)
 {
 	return likely(!extVRAM)
 		? (((y & 1023) << 7) | ((x & 255) >> 1))
@@ -153,14 +152,14 @@ inline int VDPCmdEngine::Graphic4Mode::addressOf(int x, int y, bool extVRAM)
 }
 
 inline byte VDPCmdEngine::Graphic4Mode::point(
-	VDPVRAM& vram, int x, int y, bool extVRAM)
+	VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM)
 {
 	return ( vram.cmdReadWindow.readNP(addressOf(x, y, extVRAM))
 		>> (((~x) & 1) << 2) ) & 15;
 }
 
 inline void VDPCmdEngine::Graphic4Mode::pset(
-	const EmuTime& time, VDPVRAM& vram, int x, int y, bool extVRAM,
+	const EmuTime& time, VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM,
 	byte colour, LogOp& op)
 {
 	byte sh = ((~x) & 1) << 2;
@@ -169,21 +168,21 @@ inline void VDPCmdEngine::Graphic4Mode::pset(
 
 // Graphic5Mode:
 
-inline int VDPCmdEngine::Graphic5Mode::addressOf(int x, int y, bool extVRAM)
+inline unsigned VDPCmdEngine::Graphic5Mode::addressOf(unsigned x, unsigned y, bool extVRAM)
 {
 	return likely(!extVRAM)
 		? (((y & 1023) << 7) | ((x & 511) >> 2))
 		: (((y &  511) << 7) | ((x & 511) >> 2) | 0x20000);
 }
 
-inline byte VDPCmdEngine::Graphic5Mode::point(VDPVRAM& vram, int x, int y, bool extVRAM)
+inline byte VDPCmdEngine::Graphic5Mode::point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM)
 {
 	return ( vram.cmdReadWindow.readNP(addressOf(x, y, extVRAM))
 		>> (((~x) & 3) << 1) ) & 3;
 }
 
 inline void VDPCmdEngine::Graphic5Mode::pset(
-	const EmuTime& time, VDPVRAM& vram, int x, int y, bool extVRAM,
+	const EmuTime& time, VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM,
 	byte colour, LogOp& op)
 {
 	byte sh = ((~x) & 3) << 1;
@@ -192,21 +191,21 @@ inline void VDPCmdEngine::Graphic5Mode::pset(
 
 // Graphic6Mode:
 
-inline int VDPCmdEngine::Graphic6Mode::addressOf(int x, int y, bool extVRAM)
+inline unsigned VDPCmdEngine::Graphic6Mode::addressOf(unsigned x, unsigned y, bool extVRAM)
 {
 	return likely(!extVRAM)
 		? (((x & 2) << 15) | ((y & 511) << 7) | ((x & 511) >> 2))
 		: (0x20000         | ((y & 511) << 7) | ((x & 511) >> 2));
 }
 
-inline byte VDPCmdEngine::Graphic6Mode::point(VDPVRAM& vram, int x, int y, bool extVRAM)
+inline byte VDPCmdEngine::Graphic6Mode::point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM)
 {
 	return ( vram.cmdReadWindow.readNP(addressOf(x, y, extVRAM))
 		>> (((~x) & 1) << 2) ) & 15;
 }
 
 inline void VDPCmdEngine::Graphic6Mode::pset(
-	const EmuTime& time, VDPVRAM& vram, int x, int y, bool extVRAM,
+	const EmuTime& time, VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM,
 	byte colour, LogOp& op)
 {
 	byte sh = ((~x) & 1) << 2;
@@ -215,20 +214,20 @@ inline void VDPCmdEngine::Graphic6Mode::pset(
 
 // Graphic7Mode:
 
-inline int VDPCmdEngine::Graphic7Mode::addressOf(int x, int y, bool extVRAM)
+inline unsigned VDPCmdEngine::Graphic7Mode::addressOf(unsigned x, unsigned y, bool extVRAM)
 {
 	return likely(!extVRAM)
 		? (((x & 1) << 16) | ((y & 511) << 7) | ((x & 255) >> 1))
 		: (0x20000         | ((y & 511) << 7) | ((x & 255) >> 1));
 }
 
-inline byte VDPCmdEngine::Graphic7Mode::point(VDPVRAM& vram, int x, int y, bool extVRAM)
+inline byte VDPCmdEngine::Graphic7Mode::point(VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM)
 {
 	return vram.cmdReadWindow.readNP(addressOf(x, y, extVRAM));
 }
 
 inline void VDPCmdEngine::Graphic7Mode::pset(
-	const EmuTime& time, VDPVRAM& vram, int x, int y, bool extVRAM,
+	const EmuTime& time, VDPVRAM& vram, unsigned x, unsigned y, bool extVRAM,
 	byte colour, LogOp& op)
 {
 	op.pset(time, vram, addressOf(x, y, extVRAM), colour, 0);
@@ -241,7 +240,7 @@ typedef VDPCmdEngine::LogOp LogOp;
 class DummyOp: public LogOp {
 public:
 	virtual void pset(
-		const EmuTime& /*time*/, VDPVRAM& /*vram*/, int /*addr*/,
+		const EmuTime& /*time*/, VDPVRAM& /*vram*/, unsigned /*addr*/,
 		byte /*colour*/, byte /*mask*/)
 	{
 		// Undefined logical operations do nothing.
@@ -251,7 +250,7 @@ public:
 class ImpOp: public LogOp {
 public:
 	virtual void pset(
-		const EmuTime& time, VDPVRAM& vram, int addr, byte colour, byte mask)
+		const EmuTime& time, VDPVRAM& vram, unsigned addr, byte colour, byte mask)
 	{
 		vram.cmdWrite(addr,
 			(vram.cmdWriteWindow.readNP(addr) & mask) | colour,
@@ -262,7 +261,7 @@ public:
 class AndOp: public LogOp {
 public:
 	virtual void pset(
-		const EmuTime& time, VDPVRAM& vram, int addr, byte colour, byte mask)
+		const EmuTime& time, VDPVRAM& vram, unsigned addr, byte colour, byte mask)
 	{
 		vram.cmdWrite(addr,
 			vram.cmdWriteWindow.readNP(addr) & (colour | mask),
@@ -274,7 +273,7 @@ class OrOp: public LogOp {
 public:
 	virtual void pset(
 		const EmuTime& time, VDPVRAM& vram,
-		int addr, byte colour, byte /*mask*/)
+		unsigned addr, byte colour, byte /*mask*/)
 	{
 		vram.cmdWrite(addr,
 			vram.cmdWriteWindow.readNP(addr) | colour,
@@ -286,7 +285,7 @@ class XorOp: public LogOp {
 public:
 	virtual void pset(
 		const EmuTime& time, VDPVRAM& vram,
-		int addr, byte colour, byte /*mask*/)
+		unsigned addr, byte colour, byte /*mask*/)
 	{
 		vram.cmdWrite(addr,
 			vram.cmdWriteWindow.readNP(addr) ^ colour,
@@ -297,7 +296,7 @@ public:
 class NotOp: public LogOp {
 public:
 	virtual void pset(
-		const EmuTime& time, VDPVRAM& vram, int addr, byte colour, byte mask)
+		const EmuTime& time, VDPVRAM& vram, unsigned addr, byte colour, byte mask)
 	{
 		vram.cmdWrite(addr,
 			(vram.cmdWriteWindow.readNP(addr) & mask) | ~(colour | mask),
@@ -309,7 +308,7 @@ template <class Op>
 class TransparentOp: public Op {
 public:
 	virtual void pset(
-		const EmuTime& time, VDPVRAM& vram, int addr, byte colour, byte mask)
+		const EmuTime& time, VDPVRAM& vram, unsigned addr, byte colour, byte mask)
 	{
 		if (colour) Op::pset(time, vram, addr, colour, mask);
 	}
@@ -334,7 +333,7 @@ static auto_ptr<LogOp> operations[16] = {
 // Construction and destruction:
 
 template <template <class Mode> class Command>
-void VDPCmdEngine::createEngines(int cmd) {
+void VDPCmdEngine::createEngines(unsigned cmd) {
 	commands[cmd][0] = new Command<Graphic4Mode>(*this, vram);
 	commands[cmd][1] = new Command<Graphic5Mode>(*this, vram);
 	commands[cmd][2] = new Command<Graphic6Mode>(*this, vram);
@@ -343,7 +342,8 @@ void VDPCmdEngine::createEngines(int cmd) {
 
 VDPCmdEngine::VDPCmdEngine(VDP& vdp_, RenderSettings& renderSettings_,
 	CommandController& commandController)
-	: vdp(vdp_), vram(vdp.getVRAM())
+	: clock(EmuTime::zero)
+	, vdp(vdp_), vram(vdp.getVRAM())
 	, renderSettings(renderSettings_)
 	, hasExtendedVRAM(vram.getSize() == (192 * 1024))
 	, statusChangeTime(EmuTime::infinity)
@@ -357,8 +357,8 @@ VDPCmdEngine::VDPCmdEngine(VDP& vdp_, RenderSettings& renderSettings_,
 	COL = ARG = CMD = LOG = 0;
 
 	AbortCmd* abort = new AbortCmd(*this, vram);
-	for (int cmd = 0x0; cmd < 0x4; cmd++) {
-		for (int mode = 0; mode < 4; mode++) {
+	for (unsigned cmd = 0x0; cmd < 0x4; ++cmd) {
+		for (unsigned mode = 0; mode < 4; ++mode) {
 			commands[cmd][mode] = abort;
 		}
 	}
@@ -390,8 +390,8 @@ VDPCmdEngine::~VDPCmdEngine()
 	// Abort command:
 	delete commands[0][0];
 	// Other commands:
-	for (int cmd = 4; cmd < 16; cmd++) {
-		for (int mode = 0; mode < 4; mode++) {
+	for (unsigned cmd = 4; cmd < 16; ++cmd) {
+		for (unsigned mode = 0; mode < 4; ++mode) {
 			delete commands[cmd][mode];
 		}
 	}
@@ -401,7 +401,7 @@ void VDPCmdEngine::reset(const EmuTime& time)
 {
 	status = 0;
 	scrMode = -1;
-	for (int i = 0; i < 15; i++) {
+	for (unsigned i = 0; i < 15; ++i) {
 		setCmdReg(i, 0, time);
 	}
 
@@ -540,9 +540,7 @@ void VDPCmdEngine::updateDisplayMode(DisplayMode mode, const EmuTime& time)
 				//       but it is not yet clear what happens in VRAM.
 				commandDone(time);
 			} else {
-				VDPCmd* newCommand = commands[CMD][newScrMode];
-				newCommand->copyProgressFrom(*currentCommand);
-				currentCommand = newCommand;
+				currentCommand = commands[CMD][newScrMode];
 			}
 		}
 		sync(time);
@@ -608,7 +606,7 @@ void VDPCmdEngine::commandDone(const EmuTime& time)
 // VDPCmd:
 
 VDPCmdEngine::VDPCmd::VDPCmd(VDPCmdEngine& engine_, VDPVRAM& vram_)
-	: engine(engine_), vram(vram_), clock(EmuTime::zero)
+	: engine(engine_), vram(vram_)
 {
 }
 
@@ -616,44 +614,6 @@ VDPCmdEngine::VDPCmd::~VDPCmd()
 {
 }
 
-void VDPCmdEngine::VDPCmd::copyProgressFrom(VDPCmd& other)
-{
-	clock.reset(other.clock.getTime());
-}
-
-
-// Many VDP commands are executed in some kind of loop but
-// essentially, there are only a few basic loop structures
-// that are re-used. We define the loop structures that are
-// re-used here so that they have to be entered only once.
-
-// Loop over DX, DY.
-#define post_x_y() \
-		clock += delta; \
-		engine.ADX += TX; \
-		if (--engine.ANX == 0) { \
-			engine.DY += TY; --(engine.NY); \
-			engine.ADX = engine.DX; engine.ANX = NX; \
-			if (--NY == 0) { \
-				engine.commandDone(clock.getTime()); \
-				break; \
-			} \
-		} \
-	}
-
-// Loop over SX, DX, SY, DY.
-#define post_xxyy() \
-		clock += delta; \
-		engine.ASX += TX; engine.ADX += TX; \
-		if (--engine.ANX == 0) { \
-			engine.SY += TY; engine.DY += TY; --(engine.NY); \
-			engine.ASX = engine.SX; engine.ADX = engine.DX; engine.ANX = NX; \
-			if (--NY == 0) { \
-				engine.commandDone(clock.getTime()); \
-				break; \
-			} \
-		} \
-	}
 
 // ABORT
 
@@ -683,16 +643,16 @@ VDPCmdEngine::PointCmd<Mode>::PointCmd(VDPCmdEngine& engine, VDPVRAM& vram)
 template <class Mode>
 void VDPCmdEngine::PointCmd<Mode>::start(const EmuTime& time)
 {
-	clock.reset(time);
-	vram.cmdReadWindow.setMask(0x3FFFF, -1 << 18, clock.getTime());
-	vram.cmdWriteWindow.disable(clock.getTime());
+	engine.clock.reset(time);
+	vram.cmdReadWindow.setMask(0x3FFFF, -1 << 18, engine.clock.getTime());
+	vram.cmdWriteWindow.disable(engine.clock.getTime());
 	bool srcExt  = engine.ARG & MXS;
 	bool doPoint = !srcExt || engine.hasExtendedVRAM;
 
 	engine.COL = likely(doPoint)
 	           ? Mode::point(vram, engine.SX, engine.SY, srcExt)
 	           : 0xFF;
-	engine.commandDone(clock.getTime());
+	engine.commandDone(engine.clock.getTime());
 }
 
 template <class Mode>
@@ -712,18 +672,18 @@ VDPCmdEngine::PsetCmd<Mode>::PsetCmd(VDPCmdEngine& engine, VDPVRAM& vram)
 template <class Mode>
 void VDPCmdEngine::PsetCmd<Mode>::start(const EmuTime& time)
 {
-	clock.reset(time);
-	vram.cmdReadWindow.disable(clock.getTime());
-	vram.cmdWriteWindow.setMask(0x3FFFF, -1 << 18, clock.getTime());
+	engine.clock.reset(time);
+	vram.cmdReadWindow.disable(engine.clock.getTime());
+	vram.cmdWriteWindow.setMask(0x3FFFF, -1 << 18, engine.clock.getTime());
 	bool dstExt = engine.ARG & MXD;
 	bool doPset = !dstExt || engine.hasExtendedVRAM;
 
 	if (likely(doPset)) {
 		byte col = engine.COL & Mode::COLOUR_MASK;
-		Mode::pset(clock.getTime(), vram, engine.DX, engine.DY,
+		Mode::pset(engine.clock.getTime(), vram, engine.DX, engine.DY,
 		           dstExt, col, *engine.currentOperation);
 	}
-	engine.commandDone(clock.getTime());
+	engine.commandDone(engine.clock.getTime());
 }
 
 template <class Mode>
@@ -743,9 +703,9 @@ VDPCmdEngine::SrchCmd<Mode>::SrchCmd(VDPCmdEngine& engine, VDPVRAM& vram)
 template <class Mode>
 void VDPCmdEngine::SrchCmd<Mode>::start(const EmuTime& time)
 {
-	clock.reset(time);
-	vram.cmdReadWindow.setMask(0x3FFFF, -1 << 18, clock.getTime());
-	vram.cmdWriteWindow.disable(clock.getTime());
+	engine.clock.reset(time);
+	vram.cmdReadWindow.setMask(0x3FFFF, -1 << 18, engine.clock.getTime());
+	vram.cmdWriteWindow.disable(engine.clock.getTime());
 	engine.ASX = engine.SX;
 	engine.statusChangeTime = EmuTime::zero; // we can find it any moment
 }
@@ -754,29 +714,28 @@ template <class Mode>
 void VDPCmdEngine::SrchCmd<Mode>::execute(const EmuTime& time)
 {
 	byte CL = engine.COL & Mode::COLOUR_MASK;
-	char TX = (engine.ARG & DIX) ? -1 : 1;
+	int TX = (engine.ARG & DIX) ? -1 : 1;
 	bool AEQ = (engine.ARG & EQ) != 0; // TODO: Do we look for "==" or "!="?
-	int delta = SRCH_TIMING[engine.getTiming()];
+	unsigned delta = SRCH_TIMING[engine.getTiming()];
 
 	// TODO use MXS or MXD here?
 	//  datasheet says MXD but MXS seems more logical
 	bool srcExt  = engine.ARG & MXS;
 	bool doPoint = !srcExt || engine.hasExtendedVRAM;
 
-	while (clock.before(time)) {
+	while (engine.clock.before(time)) {
 		byte p = likely(doPoint)
 		       ? Mode::point(vram, engine.ASX, engine.SY, srcExt)
 		       : 0xFF;
+		engine.clock.fastAdd(delta);
 		if ((p == CL) ^ AEQ) {
-			clock += delta;
 			engine.status |= 0x10; // border detected
-			engine.commandDone(clock.getTime());
+			engine.commandDone(engine.clock.getTime());
 			break;
 		}
-		clock += delta;
 		if ((engine.ASX += TX) & Mode::PIXELS_PER_LINE) {
 			engine.status &= 0xEF; // border not detected
-			engine.commandDone(clock.getTime());
+			engine.commandDone(engine.clock.getTime());
 			break;
 		}
 	}
@@ -794,9 +753,9 @@ VDPCmdEngine::LineCmd<Mode>::LineCmd(VDPCmdEngine& engine, VDPVRAM& vram)
 template <class Mode>
 void VDPCmdEngine::LineCmd<Mode>::start(const EmuTime& time)
 {
-	clock.reset(time);
-	vram.cmdReadWindow.disable(clock.getTime());
-	vram.cmdWriteWindow.setMask(0x3FFFF, -1 << 18, clock.getTime());
+	engine.clock.reset(time);
+	vram.cmdReadWindow.disable(engine.clock.getTime());
+	vram.cmdWriteWindow.setMask(0x3FFFF, -1 << 18, engine.clock.getTime());
 	engine.NY &= 1023;
 	engine.ASX = ((engine.NX - 1) >> 1);
 	engine.ADX = engine.DX;
@@ -808,20 +767,20 @@ template <class Mode>
 void VDPCmdEngine::LineCmd<Mode>::execute(const EmuTime& time)
 {
 	byte CL = engine.COL & Mode::COLOUR_MASK;
-	char TX = (engine.ARG & DIX) ? -1 : 1;
-	char TY = (engine.ARG & DIY) ? -1 : 1;
-	int delta = LINE_TIMING[engine.getTiming()];
+	int TX = (engine.ARG & DIX) ? -1 : 1;
+	int TY = (engine.ARG & DIY) ? -1 : 1;
+	unsigned delta = LINE_TIMING[engine.getTiming()];
 	bool dstExt = engine.ARG & MXD;
 	bool doPset = !dstExt || engine.hasExtendedVRAM;
 
 	if ((engine.ARG & MAJ) == 0) {
 		// X-Axis is major direction.
-		while (clock.before(time)) {
+		while (engine.clock.before(time)) {
 			if (likely(doPset)) {
-				Mode::pset(clock.getTime(), vram, engine.ADX, engine.DY,
+				Mode::pset(engine.clock.getTime(), vram, engine.ADX, engine.DY,
 				           dstExt, CL, *engine.currentOperation);
 			}
-			clock += delta;
+			engine.clock.fastAdd(delta);
 			engine.ADX += TX;
 			if (engine.ASX < engine.NY) {
 				engine.ASX += engine.NX;
@@ -830,18 +789,18 @@ void VDPCmdEngine::LineCmd<Mode>::execute(const EmuTime& time)
 			engine.ASX -= engine.NY;
 			engine.ASX &= 1023; // mask to 10 bits range
 			if (engine.ANX++ == engine.NX || (engine.ADX & Mode::PIXELS_PER_LINE)) {
-				engine.commandDone(clock.getTime());
+				engine.commandDone(engine.clock.getTime());
 				break;
 			}
 		}
 	} else {
 		// Y-Axis is major direction.
-		while (clock.before(time)) {
+		while (engine.clock.before(time)) {
 			if (likely(doPset)) {
-				Mode::pset(clock.getTime(), vram, engine.ADX, engine.DY,
+				Mode::pset(engine.clock.getTime(), vram, engine.ADX, engine.DY,
 				           dstExt, CL, *engine.currentOperation);
 			}
-			clock += delta;
+			engine.clock.fastAdd(delta);
 			engine.DY += TY;
 			if (engine.ASX < engine.NY) {
 				engine.ASX += engine.NX;
@@ -850,7 +809,7 @@ void VDPCmdEngine::LineCmd<Mode>::execute(const EmuTime& time)
 			engine.ASX -= engine.NY;
 			engine.ASX &= 1023; // mask to 10 bits range
 			if (engine.ANX++ == engine.NX || (engine.ADX & Mode::PIXELS_PER_LINE)) {
-				engine.commandDone(clock.getTime());
+				engine.commandDone(engine.clock.getTime());
 				break;
 			}
 		}
@@ -861,16 +820,16 @@ void VDPCmdEngine::LineCmd<Mode>::execute(const EmuTime& time)
 // BlockCmd
 
 VDPCmdEngine::BlockCmd::BlockCmd(VDPCmdEngine& engine, VDPVRAM& vram,
-		                 const int* timing_)
+		                 const unsigned* timing_)
 	: VDPCmd(engine, vram), timing(timing_)
 {
 }
 
-void VDPCmdEngine::BlockCmd::calcFinishTime(word NX, word NY)
+void VDPCmdEngine::BlockCmd::calcFinishTime(unsigned NX, unsigned NY)
 {
 	if (engine.currentCommand) {
-		int ticks = ((NX * (NY - 1)) + engine.ANX) * timing[engine.getTiming()];
-		engine.statusChangeTime = clock + ticks;
+		unsigned ticks = ((NX * (NY - 1)) + engine.ANX) * timing[engine.getTiming()];
+		engine.statusChangeTime = engine.clock + ticks;
 	}
 }
 
@@ -886,12 +845,12 @@ VDPCmdEngine::LmmvCmd<Mode>::LmmvCmd(VDPCmdEngine& engine, VDPVRAM& vram)
 template <class Mode>
 void VDPCmdEngine::LmmvCmd<Mode>::start(const EmuTime& time)
 {
-	clock.reset(time);
-	vram.cmdReadWindow.disable(clock.getTime());
-	vram.cmdWriteWindow.setMask(0x3FFFF, -1 << 18, clock.getTime());
+	engine.clock.reset(time);
+	vram.cmdReadWindow.disable(engine.clock.getTime());
+	vram.cmdWriteWindow.setMask(0x3FFFF, -1 << 18, engine.clock.getTime());
 	engine.NY &= 1023;
-	word NX = clipNX_1_pixel<Mode>(engine.DX, engine.NX, engine.ARG);
-	word NY = clipNY_1(engine.DY, engine.NY, engine.ARG);
+	unsigned NX = clipNX_1_pixel<Mode>(engine.DX, engine.NX, engine.ARG);
+	unsigned NY = clipNY_1(engine.DY, engine.NY, engine.ARG);
 	engine.ADX = engine.DX;
 	engine.ANX = NX;
 	calcFinishTime(NX, NY);
@@ -901,22 +860,32 @@ template <class Mode>
 void VDPCmdEngine::LmmvCmd<Mode>::execute(const EmuTime& time)
 {
 	engine.NY &= 1023;
-	word NX = clipNX_1_pixel<Mode>(engine.DX, engine.NX, engine.ARG);
-	word NY = clipNY_1(engine.DY, engine.NY, engine.ARG);
-	char TX = (engine.ARG & DIX) ? -1 : 1;
-	char TY = (engine.ARG & DIY) ? -1 : 1;
+	unsigned NX = clipNX_1_pixel<Mode>(engine.DX, engine.NX, engine.ARG);
+	unsigned NY = clipNY_1(engine.DY, engine.NY, engine.ARG);
+	int TX = (engine.ARG & DIX) ? -1 : 1;
+	int TY = (engine.ARG & DIY) ? -1 : 1;
 	engine.ANX = clipNX_1_pixel<Mode>(engine.ADX, engine.ANX, engine.ARG);
 	byte CL = engine.COL & Mode::COLOUR_MASK;
-	int delta = LMMV_TIMING[engine.getTiming()];
+	unsigned delta = LMMV_TIMING[engine.getTiming()];
 	bool dstExt = engine.ARG & MXD;
 	bool doPset = !dstExt || engine.hasExtendedVRAM;
 
-	while (clock.before(time)) {
+	while (engine.clock.before(time)) {
 		if (likely(doPset)) {
-			Mode::pset(clock.getTime(), vram, engine.ADX, engine.DY,
+			Mode::pset(engine.clock.getTime(), vram, engine.ADX, engine.DY,
 			           dstExt, CL, *engine.currentOperation);
 		}
-	post_x_y()
+		engine.clock.fastAdd(delta);
+		engine.ADX += TX;
+		if (--engine.ANX == 0) {
+			engine.DY += TY; --(engine.NY);
+			engine.ADX = engine.DX; engine.ANX = NX;
+			if (--NY == 0) {
+				engine.commandDone(engine.clock.getTime());
+				break;
+			}
+		}
+	}
 
 	calcFinishTime(NX, NY);
 }
@@ -933,13 +902,13 @@ VDPCmdEngine::LmmmCmd<Mode>::LmmmCmd(VDPCmdEngine& engine, VDPVRAM& vram)
 template <class Mode>
 void VDPCmdEngine::LmmmCmd<Mode>::start(const EmuTime& time)
 {
-	clock.reset(time);
-	vram.cmdReadWindow.setMask(0x3FFFF, -1 << 18, clock.getTime());
-	vram.cmdWriteWindow.setMask(0x3FFFF, -1 << 18, clock.getTime());
+	engine.clock.reset(time);
+	vram.cmdReadWindow.setMask(0x3FFFF, -1 << 18, engine.clock.getTime());
+	vram.cmdWriteWindow.setMask(0x3FFFF, -1 << 18, engine.clock.getTime());
 	engine.NY &= 1023;
-	word NX = clipNX_2_pixel<Mode>(
+	unsigned NX = clipNX_2_pixel<Mode>(
 		engine.SX, engine.DX, engine.NX, engine.ARG );
-	word NY = clipNY_2(engine.SY, engine.DY, engine.NY, engine.ARG);
+	unsigned NY = clipNY_2(engine.SY, engine.DY, engine.NY, engine.ARG);
 	engine.ASX = engine.SX;
 	engine.ADX = engine.DX;
 	engine.ANX = NX;
@@ -950,27 +919,37 @@ template <class Mode>
 void VDPCmdEngine::LmmmCmd<Mode>::execute(const EmuTime& time)
 {
 	engine.NY &= 1023;
-	word NX = clipNX_2_pixel<Mode>(
+	unsigned NX = clipNX_2_pixel<Mode>(
 		engine.SX, engine.DX, engine.NX, engine.ARG );
-	word NY = clipNY_2(engine.SY, engine.DY, engine.NY, engine.ARG);
-	char TX = (engine.ARG & DIX) ? -1 : 1;
-	char TY = (engine.ARG & DIY) ? -1 : 1;
+	unsigned NY = clipNY_2(engine.SY, engine.DY, engine.NY, engine.ARG);
+	int TX = (engine.ARG & DIX) ? -1 : 1;
+	int TY = (engine.ARG & DIY) ? -1 : 1;
 	engine.ANX = clipNX_2_pixel<Mode>(engine.ASX, engine.ADX, engine.ANX, engine.ARG);
-	int delta = LMMM_TIMING[engine.getTiming()];
+	unsigned delta = LMMM_TIMING[engine.getTiming()];
 	bool srcExt  = engine.ARG & MXS;
 	bool dstExt  = engine.ARG & MXD;
 	bool doPoint = !srcExt || engine.hasExtendedVRAM;
 	bool doPset  = !dstExt || engine.hasExtendedVRAM;
 
-	while (clock.before(time)) {
+	while (engine.clock.before(time)) {
 		if (likely(doPset)) {
 			byte p = likely(doPoint)
 			       ? Mode::point(vram, engine.ASX, engine.SY, srcExt)
 			       : 0xFF;
-			Mode::pset(clock.getTime(), vram, engine.ADX, engine.DY,
-			           dstExt, p, *engine.currentOperation);
+			Mode::pset(engine.clock.getTime(), vram, engine.ADX, engine.DY,
+				   dstExt, p, *engine.currentOperation);
 		}
-	post_xxyy()
+		engine.clock.fastAdd(delta);
+		engine.ASX += TX; engine.ADX += TX;
+		if (--engine.ANX == 0) {
+			engine.SY += TY; engine.DY += TY; --(engine.NY);
+			engine.ASX = engine.SX; engine.ADX = engine.DX; engine.ANX = NX;
+			if (--NY == 0) {
+				engine.commandDone(engine.clock.getTime());
+				break;
+			}
+		}
+	}
 
 	calcFinishTime(NX, NY);
 }
@@ -987,11 +966,11 @@ VDPCmdEngine::LmcmCmd<Mode>::LmcmCmd(VDPCmdEngine& engine, VDPVRAM& vram)
 template <class Mode>
 void VDPCmdEngine::LmcmCmd<Mode>::start(const EmuTime& time)
 {
-	clock.reset(time);
-	vram.cmdReadWindow.setMask(0x3FFFF, -1 << 18, clock.getTime());
-	vram.cmdWriteWindow.disable(clock.getTime());
+	engine.clock.reset(time);
+	vram.cmdReadWindow.setMask(0x3FFFF, -1 << 18, engine.clock.getTime());
+	vram.cmdWriteWindow.disable(engine.clock.getTime());
 	engine.NY &= 1023;
-	word NX = clipNX_1_pixel<Mode>(engine.SX, engine.NX, engine.ARG);
+	unsigned NX = clipNX_1_pixel<Mode>(engine.SX, engine.NX, engine.ARG);
 	engine.ASX = engine.SX;
 	engine.ANX = NX;
 	engine.statusChangeTime = EmuTime::zero;
@@ -1003,10 +982,10 @@ template <class Mode>
 void VDPCmdEngine::LmcmCmd<Mode>::execute(const EmuTime& time)
 {
 	engine.NY &= 1023;
-	word NX = clipNX_1_pixel<Mode>(engine.SX, engine.NX, engine.ARG);
-	word NY = clipNY_1(engine.SY, engine.NY, engine.ARG);
-	char TX = (engine.ARG & DIX) ? -1 : 1;
-	char TY = (engine.ARG & DIY) ? -1 : 1;
+	unsigned NX = clipNX_1_pixel<Mode>(engine.SX, engine.NX, engine.ARG);
+	unsigned NY = clipNY_1(engine.SY, engine.NY, engine.ARG);
+	int TX = (engine.ARG & DIX) ? -1 : 1;
+	int TY = (engine.ARG & DIY) ? -1 : 1;
 	engine.ANX = clipNX_1_pixel<Mode>(engine.ASX, engine.ANX, engine.ARG);
 	bool srcExt  = engine.ARG & MXS;
 	bool doPoint = !srcExt || engine.hasExtendedVRAM;
@@ -1044,11 +1023,11 @@ VDPCmdEngine::LmmcCmd<Mode>::LmmcCmd(VDPCmdEngine& engine, VDPVRAM& vram)
 template <class Mode>
 void VDPCmdEngine::LmmcCmd<Mode>::start(const EmuTime& time)
 {
-	clock.reset(time);
-	vram.cmdReadWindow.disable(clock.getTime());
-	vram.cmdWriteWindow.setMask(0x3FFFF, -1 << 18, clock.getTime());
+	engine.clock.reset(time);
+	vram.cmdReadWindow.disable(engine.clock.getTime());
+	vram.cmdWriteWindow.setMask(0x3FFFF, -1 << 18, engine.clock.getTime());
 	engine.NY &= 1023;
-	word NX = clipNX_1_pixel<Mode>(engine.DX, engine.NX, engine.ARG);
+	unsigned NX = clipNX_1_pixel<Mode>(engine.DX, engine.NX, engine.ARG);
 	engine.ADX = engine.DX;
 	engine.ANX = NX;
 	engine.statusChangeTime = EmuTime::zero;
@@ -1060,10 +1039,10 @@ template <class Mode>
 void VDPCmdEngine::LmmcCmd<Mode>::execute(const EmuTime& time)
 {
 	engine.NY &= 1023;
-	word NX = clipNX_1_pixel<Mode>(engine.DX, engine.NX, engine.ARG);
-	word NY = clipNY_1(engine.DY, engine.NY, engine.ARG);
-	char TX = (engine.ARG & DIX) ? -1 : 1;
-	char TY = (engine.ARG & DIY) ? -1 : 1;
+	unsigned NX = clipNX_1_pixel<Mode>(engine.DX, engine.NX, engine.ARG);
+	unsigned NY = clipNY_1(engine.DY, engine.NY, engine.ARG);
+	int TX = (engine.ARG & DIX) ? -1 : 1;
+	int TY = (engine.ARG & DIY) ? -1 : 1;
 	engine.ANX = clipNX_1_pixel<Mode>(engine.ADX, engine.ANX, engine.ARG);
 	bool dstExt = engine.ARG & MXD;
 	bool doPset  = !dstExt || engine.hasExtendedVRAM;
@@ -1071,9 +1050,9 @@ void VDPCmdEngine::LmmcCmd<Mode>::execute(const EmuTime& time)
 	if (engine.transfer) {
 		byte col = engine.COL & Mode::COLOUR_MASK;
 		// TODO: Write time is inaccurate.
-		clock.reset(time);
+		engine.clock.reset(time);
 		if (likely(doPset)) {
-			Mode::pset(clock.getTime(), vram, engine.ADX, engine.DY,
+			Mode::pset(engine.clock.getTime(), vram, engine.ADX, engine.DY,
 			           dstExt, col, *engine.currentOperation);
 		}
 		// Execution is emulated as instantaneous, so don't bother
@@ -1106,12 +1085,12 @@ VDPCmdEngine::HmmvCmd<Mode>::HmmvCmd(VDPCmdEngine& engine, VDPVRAM& vram)
 template <class Mode>
 void VDPCmdEngine::HmmvCmd<Mode>::start(const EmuTime& time)
 {
-	clock.reset(time);
-	vram.cmdReadWindow.disable(clock.getTime());
-	vram.cmdWriteWindow.setMask(0x3FFFF, -1 << 18, clock.getTime());
+	engine.clock.reset(time);
+	vram.cmdReadWindow.disable(engine.clock.getTime());
+	vram.cmdWriteWindow.setMask(0x3FFFF, -1 << 18, engine.clock.getTime());
 	engine.NY &= 1023;
-	word NX = clipNX_1_byte<Mode>(engine.DX, engine.NX, engine.ARG);
-	word NY = clipNY_1(engine.DY, engine.NY, engine.ARG);
+	unsigned NX = clipNX_1_byte<Mode>(engine.DX, engine.NX, engine.ARG);
+	unsigned NY = clipNY_1(engine.DY, engine.NY, engine.ARG);
 	engine.ADX = engine.DX;
 	engine.ANX = NX;
 	calcFinishTime(NX, NY);
@@ -1121,23 +1100,33 @@ template <class Mode>
 void VDPCmdEngine::HmmvCmd<Mode>::execute(const EmuTime& time)
 {
 	engine.NY &= 1023;
-	word NX = clipNX_1_byte<Mode>(engine.DX, engine.NX, engine.ARG);
-	word NY = clipNY_1(engine.DY, engine.NY, engine.ARG);
-	char TX = (engine.ARG & DIX)
+	unsigned NX = clipNX_1_byte<Mode>(engine.DX, engine.NX, engine.ARG);
+	unsigned NY = clipNY_1(engine.DY, engine.NY, engine.ARG);
+	int TX = (engine.ARG & DIX)
 		? -Mode::PIXELS_PER_BYTE : Mode::PIXELS_PER_BYTE;
-	char TY = (engine.ARG & DIY) ? -1 : 1;
+	int TY = (engine.ARG & DIY) ? -1 : 1;
 	engine.ANX = clipNX_1_byte<Mode>(
 		engine.ADX, engine.ANX << Mode::PIXELS_PER_BYTE_SHIFT, engine.ARG );
-	int delta = HMMV_TIMING[engine.getTiming()];
+	unsigned delta = HMMV_TIMING[engine.getTiming()];
 	bool dstExt = engine.ARG & MXD;
 	bool doPset  = !dstExt || engine.hasExtendedVRAM;
 
-	while (clock.before(time)) {
+	while (engine.clock.before(time)) {
 		if (likely(doPset)) {
 			vram.cmdWrite(Mode::addressOf(engine.ADX, engine.DY, dstExt),
-			              engine.COL, clock.getTime());
+			              engine.COL, engine.clock.getTime());
 		}
-	post_x_y()
+		engine.clock.fastAdd(delta);
+		engine.ADX += TX;
+		if (--engine.ANX == 0) {
+			engine.DY += TY; --(engine.NY);
+			engine.ADX = engine.DX; engine.ANX = NX;
+			if (--NY == 0) {
+				engine.commandDone(engine.clock.getTime());
+				break;
+			}
+		}
+	}
 
 	calcFinishTime(NX, NY);
 }
@@ -1154,13 +1143,13 @@ VDPCmdEngine::HmmmCmd<Mode>::HmmmCmd(VDPCmdEngine& engine, VDPVRAM& vram)
 template <class Mode>
 void VDPCmdEngine::HmmmCmd<Mode>::start(const EmuTime& time)
 {
-	clock.reset(time);
-	vram.cmdReadWindow.setMask(0x3FFFF, -1 << 18, clock.getTime());
-	vram.cmdWriteWindow.setMask(0x3FFFF, -1 << 18, clock.getTime());
+	engine.clock.reset(time);
+	vram.cmdReadWindow.setMask(0x3FFFF, -1 << 18, engine.clock.getTime());
+	vram.cmdWriteWindow.setMask(0x3FFFF, -1 << 18, engine.clock.getTime());
 	engine.NY &= 1023;
-	word NX = clipNX_2_byte<Mode>(
+	unsigned NX = clipNX_2_byte<Mode>(
 		engine.SX, engine.DX, engine.NX, engine.ARG );
-	word NY = clipNY_2(engine.SY, engine.DY, engine.NY, engine.ARG);
+	unsigned NY = clipNY_2(engine.SY, engine.DY, engine.NY, engine.ARG);
 	engine.ASX = engine.SX;
 	engine.ADX = engine.DX;
 	engine.ANX = NX;
@@ -1171,30 +1160,40 @@ template <class Mode>
 void VDPCmdEngine::HmmmCmd<Mode>::execute(const EmuTime& time)
 {
 	engine.NY &= 1023;
-	word NX = clipNX_2_byte<Mode>(
+	unsigned NX = clipNX_2_byte<Mode>(
 		engine.SX, engine.DX, engine.NX, engine.ARG);
-	word NY = clipNY_2(engine.SY, engine.DY, engine.NY, engine.ARG);
-	char TX = (engine.ARG & DIX)
+	unsigned NY = clipNY_2(engine.SY, engine.DY, engine.NY, engine.ARG);
+	int TX = (engine.ARG & DIX)
 		? -Mode::PIXELS_PER_BYTE : Mode::PIXELS_PER_BYTE;
-	char TY = (engine.ARG & DIY) ? -1 : 1;
+	int TY = (engine.ARG & DIY) ? -1 : 1;
 	engine.ANX = clipNX_2_byte<Mode>(
 		engine.ASX, engine.ADX, engine.ANX << Mode::PIXELS_PER_BYTE_SHIFT, engine.ARG );
-	int delta = HMMM_TIMING[engine.getTiming()];
+	unsigned delta = HMMM_TIMING[engine.getTiming()];
 	bool srcExt  = engine.ARG & MXS;
 	bool dstExt  = engine.ARG & MXD;
 	bool doPoint = !srcExt || engine.hasExtendedVRAM;
 	bool doPset  = !dstExt || engine.hasExtendedVRAM;
 
-	while (clock.before(time)) {
+	while (engine.clock.before(time)) {
 		if (likely(doPset)) {
 			byte p = likely(doPoint)
 			       ? vram.cmdReadWindow.readNP(
 			               Mode::addressOf(engine.ASX, engine.SY, srcExt))
 			       : 0xFF;
 			vram.cmdWrite(Mode::addressOf(engine.ADX, engine.DY, dstExt),
-			              p, clock.getTime());
+			              p, engine.clock.getTime());
 		}
-	post_xxyy()
+		engine.clock.fastAdd(delta);
+		engine.ASX += TX; engine.ADX += TX;
+		if (--engine.ANX == 0) {
+			engine.SY += TY; engine.DY += TY; --(engine.NY);
+			engine.ASX = engine.SX; engine.ADX = engine.DX; engine.ANX = NX;
+			if (--NY == 0) {
+				engine.commandDone(engine.clock.getTime());
+				break;
+			}
+		}
+	}
 
 	calcFinishTime(NX, NY);
 }
@@ -1211,13 +1210,13 @@ VDPCmdEngine::YmmmCmd<Mode>::YmmmCmd(VDPCmdEngine& engine, VDPVRAM& vram)
 template <class Mode>
 void VDPCmdEngine::YmmmCmd<Mode>::start(const EmuTime& time)
 {
-	clock.reset(time);
-	vram.cmdReadWindow.setMask(0x3FFFF, -1 << 18, clock.getTime());
-	vram.cmdWriteWindow.setMask(0x3FFFF, -1 << 18, clock.getTime());
+	engine.clock.reset(time);
+	vram.cmdReadWindow.setMask(0x3FFFF, -1 << 18, engine.clock.getTime());
+	vram.cmdWriteWindow.setMask(0x3FFFF, -1 << 18, engine.clock.getTime());
 	engine.NY &= 1023;
-	word NX = clipNX_1_byte<Mode>(engine.DX, 512, engine.ARG);
+	unsigned NX = clipNX_1_byte<Mode>(engine.DX, 512, engine.ARG);
 		// large enough so that it gets clipped
-	word NY = clipNY_2(engine.SY, engine.DY, engine.NY, engine.ARG);
+	unsigned NY = clipNY_2(engine.SY, engine.DY, engine.NY, engine.ARG);
 	engine.ADX = engine.DX;
 	engine.ANX = NX;
 	calcFinishTime(NX, NY);
@@ -1227,14 +1226,14 @@ template <class Mode>
 void VDPCmdEngine::YmmmCmd<Mode>::execute(const EmuTime& time)
 {
 	engine.NY &= 1023;
-	word NX = clipNX_1_byte<Mode>(engine.DX, 512, engine.ARG);
+	unsigned NX = clipNX_1_byte<Mode>(engine.DX, 512, engine.ARG);
 		// large enough so that it gets clipped
-	word NY = clipNY_2(engine.SY, engine.DY, engine.NY, engine.ARG);
-	char TX = (engine.ARG & DIX)
+	unsigned NY = clipNY_2(engine.SY, engine.DY, engine.NY, engine.ARG);
+	int TX = (engine.ARG & DIX)
 		? -Mode::PIXELS_PER_BYTE : Mode::PIXELS_PER_BYTE;
-	char TY = (engine.ARG & DIY) ? -1 : 1;
+	int TY = (engine.ARG & DIY) ? -1 : 1;
 	engine.ANX = clipNX_1_byte<Mode>(engine.ADX, 512, engine.ARG);
-	int delta = YMMM_TIMING[engine.getTiming()];
+	unsigned delta = YMMM_TIMING[engine.getTiming()];
 
 	// TODO does this use MXD for both read and write?
 	//  it says so in the datasheet, but it seems unlogical
@@ -1242,14 +1241,24 @@ void VDPCmdEngine::YmmmCmd<Mode>::execute(const EmuTime& time)
 	bool dstExt = engine.ARG & MXD;
 	bool doPset  = !dstExt || engine.hasExtendedVRAM;
 
-	while (clock.before(time)) {
+	while (engine.clock.before(time)) {
 		if (likely(doPset)) {
 			byte p = vram.cmdReadWindow.readNP(
 			              Mode::addressOf(engine.ADX, engine.SY, dstExt));
 			vram.cmdWrite(Mode::addressOf(engine.ADX, engine.DY, dstExt),
-			              p, clock.getTime());
+			              p, engine.clock.getTime());
 		}
-	post_xxyy()
+		engine.clock.fastAdd(delta);
+		engine.ASX += TX; engine.ADX += TX;
+		if (--engine.ANX == 0) {
+			engine.SY += TY; engine.DY += TY; --(engine.NY);
+			engine.ASX = engine.SX; engine.ADX = engine.DX; engine.ANX = NX;
+			if (--NY == 0) {
+				engine.commandDone(engine.clock.getTime());
+				break;
+			}
+		}
+	}
 
 	calcFinishTime(NX, NY);
 }
@@ -1266,11 +1275,11 @@ VDPCmdEngine::HmmcCmd<Mode>::HmmcCmd(VDPCmdEngine& engine, VDPVRAM& vram)
 template <class Mode>
 void VDPCmdEngine::HmmcCmd<Mode>::start(const EmuTime& time)
 {
-	clock.reset(time);
-	vram.cmdReadWindow.disable(clock.getTime());
-	vram.cmdWriteWindow.setMask(0x3FFFF, -1 << 18, clock.getTime());
+	engine.clock.reset(time);
+	vram.cmdReadWindow.disable(engine.clock.getTime());
+	vram.cmdWriteWindow.setMask(0x3FFFF, -1 << 18, engine.clock.getTime());
 	engine.NY &= 1023;
-	word NX = clipNX_1_byte<Mode>(engine.DX, engine.NX, engine.ARG);
+	unsigned NX = clipNX_1_byte<Mode>(engine.DX, engine.NX, engine.ARG);
 	engine.ADX = engine.DX;
 	engine.ANX = NX;
 	engine.statusChangeTime = EmuTime::zero;
@@ -1282,11 +1291,11 @@ template <class Mode>
 void VDPCmdEngine::HmmcCmd<Mode>::execute(const EmuTime& time)
 {
 	engine.NY &= 1023;
-	word NX = clipNX_1_byte<Mode>(engine.DX, engine.NX, engine.ARG);
-	word NY = clipNY_1(engine.DY, engine.NY, engine.ARG);
-	char TX = (engine.ARG & DIX)
+	unsigned NX = clipNX_1_byte<Mode>(engine.DX, engine.NX, engine.ARG);
+	unsigned NY = clipNY_1(engine.DY, engine.NY, engine.ARG);
+	int TX = (engine.ARG & DIX)
 		? -Mode::PIXELS_PER_BYTE : Mode::PIXELS_PER_BYTE;
-	char TY = (engine.ARG & DIY) ? -1 : 1;
+	int TY = (engine.ARG & DIY) ? -1 : 1;
 	engine.ANX = clipNX_1_byte<Mode>(
 		engine.ADX, engine.ANX << Mode::PIXELS_PER_BYTE_SHIFT, engine.ARG );
 	bool dstExt = engine.ARG & MXD;
@@ -1310,7 +1319,7 @@ void VDPCmdEngine::HmmcCmd<Mode>::execute(const EmuTime& time)
 			engine.DY += TY; --(engine.NY);
 			engine.ADX = engine.DX; engine.ANX = NX;
 			if (--NY == 0) {
-				engine.commandDone(clock.getTime());
+				engine.commandDone(engine.clock.getTime());
 			}
 		}
 	}
