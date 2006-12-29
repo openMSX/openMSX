@@ -242,6 +242,12 @@ public:
 		return data[addr];
 	}
 
+	/** Is there an observer registered for this window?
+	  */
+	inline bool hasObserver() const {
+		return observer;
+	}
+
 	/** Register an observer on this VRAM window.
 	  * It will be called when changes occur within the window.
 	  * There can be only one observer per window at any given time.
@@ -347,8 +353,10 @@ public:
 	  *       the other sync which checks against the cmd write window.
 	  */
 	inline void cmdWrite(unsigned address, byte value, const EmuTime& time) {
+		#ifdef DEBUG
 		// Rewriting history is not allowed.
-		assert(time >= clock.getTime());
+		assert(time >= vramTime);
+		#endif
 		assert(vdp.isInsideFrame(time));
 
 		// handle mirroring and non-present ram chips
@@ -376,8 +384,10 @@ public:
 	  * @param time The moment in emulated time this write occurs.
 	  */
 	inline void cpuWrite(unsigned address, byte value, const EmuTime& time) {
+		#ifdef DEBUG
 		// Rewriting history is not allowed.
-		assert(time >= clock.getTime());
+		assert(time >= vramTime);
+		#endif
 		assert(vdp.isInsideFrame(time));
 		
 		// handle mirroring and non-present ram chips
@@ -409,8 +419,10 @@ public:
 	  * @return The VRAM contents at the specified address.
 	  */
 	inline byte cpuRead(unsigned address, const EmuTime& time) {
+		#ifdef DEBUG
 		// VRAM should never get ahead of CPU.
-		assert(time >= clock.getTime());
+		assert(time >= vramTime);
+		#endif
 		assert(vdp.isInsideFrame(time));
 
 		address &= sizeMask;
@@ -474,12 +486,20 @@ private:
 		spritePatternTable.notify(address, time);
 
 		data[address] = value;
-		clock.advance(time);
+		#ifdef DEBUG
+		vramTime = time;
+		#endif
 
 		// Cache dirty marking should happen after the commit,
 		// otherwise the cache could be re-validated based on old state.
-		bitmapCacheWindow.notify(address, time);
-		nameTable.notify(address, time);
+		 
+		// these two seem to be unused
+		// bitmapCacheWindow.notify(address, time);
+		// nameTable.notify(address, time);
+		assert(!bitmapCacheWindow.hasObserver());
+		assert(!nameTable.hasObserver());
+
+		// only used in GLRasterizer, can we get rid of this?
 		colourTable.notify(address, time);
 		patternTable.notify(address, time);
 
@@ -513,10 +533,11 @@ private:
 	SpriteChecker* spriteChecker;
 
 	/** Current time: the moment up until when the VRAM is updated.
-	  * TODO: Is this just for debugging or is it functional?
-	  *       Maybe it should stay in either case, possibly between IFDEFs.
+	  * Note: This is only used for debugging.
 	  */
-	Clock<VDP::TICKS_PER_SECOND> clock;
+	#ifdef DEBUG
+	EmuTime vramTime;
+	#endif
 
 	/** Mask to handle vram mirroring 
 	  * Note: this only handles mirroring at power-of-2 sizes

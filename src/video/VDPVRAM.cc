@@ -33,7 +33,9 @@ static unsigned bufferSize(unsigned size)
 VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, const EmuTime& time)
 	: vdp(vdp_)
 	, data(vdp.getMotherBoard(), "VRAM", "Video RAM.", bufferSize(size))
-	, clock(time)
+	#ifdef DEBUG
+	, vramTime(time)
+	#endif
 	, sizeMask(Math::powerOfTwo(data.getSize()) - 1)
 	, actualSize(size)
 	, cmdReadWindow(data)
@@ -46,6 +48,8 @@ VDPVRAM::VDPVRAM(VDP& vdp_, unsigned size, const EmuTime& time)
 	, spriteAttribTable(data)
 	, spritePatternTable(data)
 {
+	(void)time;
+
 	// Initialise VRAM data array.
 	// TODO: Fill with checkerboard pattern NMS8250 has.
 	memset(&data[0], 0, data.getSize());
