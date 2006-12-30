@@ -56,6 +56,8 @@ GLHQLiteScaler::GLHQLiteScaler()
 	             GL_LUMINANCE,     // format
 	             GL_UNSIGNED_SHORT,// type
 	             NULL);            // data
+	edgeBuffer.reset(new PixelBuffer<unsigned short>());
+	edgeBuffer->setImage(320, 240);
 
 	SystemFileContext context;
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -128,24 +130,26 @@ void GLHQLiteScaler::uploadBlock(
 {
 	if (lineWidth != 320) return;
 
-	unsigned edgeBuf2[(320 / 2) * (240 + 2)];
+	unsigned tmpBuf2[320 / 2];
 	#ifndef NDEBUG
 	// Avoid UMR. In optimized mode we don't care.
-	memset(edgeBuf2, 0, (320 / 2) * sizeof(unsigned));
+	memset(tmpBuf2, 0, (320 / 2) * sizeof(unsigned));
 	#endif
 
 	Pixel* dummy = 0;
 	const Pixel* curr = paintFrame.getLinePtr(srcStartY - 1, lineWidth, dummy);
 	const Pixel* next = paintFrame.getLinePtr(srcStartY + 0, lineWidth, dummy);
-	calcEdgesGL(curr, next, edgeBuf2, EdgeHQLite());
+	calcEdgesGL(curr, next, tmpBuf2, EdgeHQLite());
 
+	edgeBuffer->bind();
+	unsigned short* mapped = edgeBuffer->mapWrite();
 	for (unsigned y = srcStartY; y < srcEndY; ++y) {
 		curr = next;
 		next = paintFrame.getLinePtr(y + 1, lineWidth, dummy);
-
-		unsigned* edges2 = &edgeBuf2[(320 / 2) * (y - srcStartY + 1)];
-		calcEdgesGL(curr, next, edges2, EdgeHQLite());
+		calcEdgesGL(curr, next, tmpBuf2, EdgeHQLite());
+		memcpy(mapped + 320 * y, tmpBuf2, 320 * sizeof(unsigned short));
 	}
+	edgeBuffer->unmap();
 
 	edgeTexture->bind();
 	glTexSubImage2D(GL_TEXTURE_2D,       // target
@@ -156,7 +160,8 @@ void GLHQLiteScaler::uploadBlock(
 	                srcEndY - srcStartY, // height
 	                GL_LUMINANCE,        // format
 	                GL_UNSIGNED_SHORT,   // type
-	                &edgeBuf2[2 * (320 / 2)]); // data
+	                edgeBuffer->getOffset(0, srcStartY)); // data
+	edgeBuffer->unbind();
 }
 
 } // namespace openmsx

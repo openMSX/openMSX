@@ -136,7 +136,7 @@ void calcEdgesGL(const unsigned* curr, const unsigned* next,
 			c8 = next[2 * xx + 2];
 			if (edgeOp(c6, c8)) pattern |= 0x0400;
 
-			edges2[xx + 320 / 2] = pattern;
+			edges2[xx] = pattern;
 		}
 
 		pattern = (pattern << (16 + 1)) & 0xA8000000;
@@ -151,7 +151,7 @@ void calcEdgesGL(const unsigned* curr, const unsigned* next,
 
 		if (edgeOp(c6, c9)) pattern |= 0x1600;
 
-		edges2[159 + 320 / 2] = pattern;
+		edges2[159] = pattern;
 	} else {
 		unsigned pattern = 0;
 		Pixel c5 = curr[0];
@@ -176,7 +176,7 @@ void calcEdgesGL(const unsigned* curr, const unsigned* next,
 			c8 = next[2 * xx + 2];
 			if (edgeOp(c6, c8)) pattern |= 0x04000000;
 
-			edges2[xx + 320 / 2] = pattern;
+			edges2[xx] = pattern;
 		}
 
 		pattern = (pattern >> (16 -1)) & 0xA800;
@@ -191,7 +191,7 @@ void calcEdgesGL(const unsigned* curr, const unsigned* next,
 
 		if (edgeOp(c6, c9)) pattern |= 0x16000000;
 
-		edges2[159 + 320 / 2] = pattern;
+		edges2[159] = pattern;
 	}
 }
 

@@ -23,6 +23,7 @@
 
 #include "build-info.hh"
 #include <string>
+#include <cassert>
 
 namespace openmsx {
 
@@ -104,8 +105,6 @@ inline void drawRect(GLint x, GLint y, GLint width, GLint height, GLuint colour)
 
 } // namespace GLUtil
 
-class PixelBuffer;
-
 
 /** Most basic/generic texture: only contains a texture ID.
   */
@@ -159,13 +158,6 @@ public:
 	void updateImage(GLint x, GLint y,
 	                 GLsizei width, GLsizei height,
 	                 GLuint* data);
-
-	/** Redefines (part of) the image for this texture.
-	  */
-	void updateImage(GLint x, GLint y,
-	                 GLsizei width, GLsizei height,
-	                 const PixelBuffer& buffer,
-	                 GLuint bx, GLuint by);
 
 	GLsizei getWidth () const { return width;  }
 	GLsizei getHeight() const { return height; }
@@ -255,9 +247,9 @@ private:
 /** Wrapper around a pixel buffer.
   * The pixel buffer will be allocated in VRAM if possible, in main RAM
   * otherwise.
-  * The pixel type is GLuint, so each entry in the buffer is 32 bits wide.
+  * The pixel type is templatized T.
   */
-class PixelBuffer
+template <typename T> class PixelBuffer
 {
 public:
 	PixelBuffer();
@@ -269,25 +261,32 @@ public:
 	  */
 	void setImage(GLuint width, GLuint height);
 
+	/** Bind this PixelBuffer. Must be called before the methods
+	  * getOffset() or mapWrite() are used. (Is a wrapper around
+	  * glBindBuffer).
+	  */
+	void bind() const;
+
+	/** Unbind this buffer. 
+	  */
+	void unbind() const;
+
 	/** Gets a pointer relative to the start of this buffer.
 	  * You must not dereference this pointer, but you can pass it to
 	  * glTexImage etc when this buffer is bound as the source.
+	  * @pre This PixelBuffer must be bound (see bind()) before calling
+	  *      this method.
 	  */
-	GLuint* getOffset(GLuint x, GLuint y) const;
+	T* getOffset(GLuint x, GLuint y) const;
 
-	/** Bind this buffer as the source for pixel transfer operations such as
-	  * glTexImage.
-	  */
-	void bindSrc() const;
-
-	/** Unbind this buffer as the source for pixel transfer operations.
-	  */
-	void unbindSrc() const;
-
-	/** Maps the contents of this buffer into memory for writing.
+	/** Maps the contents of this buffer into memory. The returned buffer
+	  * is write-only (reading could be very slow or even result in a
+	  * segfault).
 	  * @return Pointer through which you can write pixels to this buffer.
+	  * @pre This PixelBuffer must be bound (see bind()) before calling
+	  *      this method.
 	  */
-	GLuint* mapWrite() const;
+	T* mapWrite() const;
 
 	/** Unmaps the contents of this buffer.
 	  * After this call, you must no longer use the pointer returned by
@@ -305,7 +304,7 @@ private:
 	/** Pointer to main RAM fallback, or 0 if no main RAM buffer was
 	  * allocated.
 	  */
-	GLuint* allocated;
+	T* allocated;
 
 	/** Number of pixels per line.
 	  */
@@ -315,6 +314,114 @@ private:
 	  */
 	GLuint height;
 };
+
+// class PixelBuffer
+
+template <typename T>
+PixelBuffer<T>::PixelBuffer()
+{
+	allocated = NULL;
+#ifdef GL_VERSION_1_5
+	if (GLEW_ARB_pixel_buffer_object) {
+		glGenBuffers(1, &bufferId);
+	} else
+#endif
+	{
+		//std::cerr << "OpenGL pixel buffers are not available" << std::endl;
+		bufferId = 0;
+	}
+}
+
+template <typename T>
+PixelBuffer<T>::~PixelBuffer()
+{
+	free(allocated);
+#ifdef GL_VERSION_1_5
+	if (bufferId != 0) {
+		glDeleteBuffers(1, &bufferId);
+	}
+#endif
+}
+
+template <typename T>
+void PixelBuffer<T>::setImage(GLuint width, GLuint height)
+{
+	this->width = width;
+	this->height = height;
+#ifdef GL_VERSION_1_5
+	if (bufferId != 0) {
+		bind();
+		// TODO make performance hint configurable?
+		glBufferData(GL_PIXEL_UNPACK_BUFFER_ARB,
+		             width * height * 4,
+		             NULL, // leave data undefined
+		             GL_STREAM_DRAW); // performance hint
+		unbind();
+	} else
+#endif
+	{
+		allocated = reinterpret_cast<T*>(
+			realloc(allocated, width * height * sizeof(T)));
+	}
+}
+
+template <typename T>
+void PixelBuffer<T>::bind() const
+{
+#ifdef GL_VERSION_1_5
+	if (bufferId != 0) {
+		glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, bufferId);
+	}
+#endif
+}
+
+template <typename T>
+void PixelBuffer<T>::unbind() const
+{
+#ifdef GL_VERSION_1_5
+	if (bufferId != 0) {
+		glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
+	}
+#endif
+}
+
+template <typename T>
+T* PixelBuffer<T>::getOffset(GLuint x, GLuint y) const
+{
+	assert(x < width);
+	assert(y < height);
+	unsigned offset = x + width * y;
+#ifdef GL_VERSION_1_5
+	if (bufferId != 0) {
+		return (T*)NULL + offset;
+	}
+#endif
+	return allocated + offset;
+}
+
+template <typename T>
+T* PixelBuffer<T>::mapWrite() const
+{
+#ifdef GL_VERSION_1_5
+	if (bufferId != 0) {
+		return reinterpret_cast<T*>(glMapBuffer(
+			GL_PIXEL_UNPACK_BUFFER_ARB, GL_WRITE_ONLY));
+	}
+#endif
+	return allocated;
+}
+
+template <typename T>
+void PixelBuffer<T>::unmap() const
+{
+#ifdef GL_VERSION_1_5
+	if (bufferId != 0) {
+		glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER_ARB);
+	}
+#endif
+}
+
+
 
 /** Wrapper around an OpenGL shader: a program executed on the GPU.
   * This class is a base class for vertex and fragment shaders.

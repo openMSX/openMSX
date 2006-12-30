@@ -1,5 +1,10 @@
 $Id$
 
+2006-12-30 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Use Pixel Buffer Objects (PBO) for faster texture upload in
+	  GLHQScaler and GLHQLiteScaler:
+	   - 'Space Manbow'-test is about 10% faster here, using hqlite2x
+
 2006-12-29 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Various VDPCmdEngine related optimizations:
 	   - in VDPVRAM: only track time in DEBUG mode

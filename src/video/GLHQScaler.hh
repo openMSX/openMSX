@@ -11,6 +11,7 @@ namespace openmsx {
 
 class ShaderProgram;
 class Texture;
+template <typename T> class PixelBuffer;
 
 class GLHQScaler : public GLScaler, private noncopyable
 {
@@ -30,6 +31,7 @@ private:
 	std::auto_ptr<Texture> edgeTexture;
 	std::auto_ptr<Texture> offsetTexture[3];
 	std::auto_ptr<Texture> weightTexture[3];
+	std::auto_ptr<PixelBuffer<unsigned short> > edgeBuffer;
 };
 
 } // namespace openmsx
