@@ -151,9 +151,11 @@ I8254::Counter::Counter(Scheduler& scheduler, ClockPinListener* listener,
 void I8254::Counter::reset(const EmuTime& time)
 {
 	currentTime = time;
-	ltchCtrl = ltchCntr = false;
-	readOrder = writeOrder = LOW;
-	control = 0x30;	// Write BOTH / mode 0 / binary mode
+	ltchCtrl = false;
+	ltchCntr = false;
+	readOrder  = LOW;
+	writeOrder = LOW;
+	control = 0x30; // Write BOTH / mode 0 / binary mode
 	active = false;
 	counting = true;
 }

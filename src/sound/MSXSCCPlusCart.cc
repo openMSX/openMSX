@@ -44,11 +44,13 @@ MSXSCCPlusCart::MSXSCCPlusCart(MSXMotherBoard& motherBoard,
 		highRAM = true;
 	} else if (subtype == "mirrored") {
 		mapperMask = 0x07;
-		lowRAM = highRAM = true;
+		lowRAM  = true;
+		highRAM = true;
 	} else {
 		// subtype "expanded", and all others
 		mapperMask = 0x0F;
-		lowRAM = highRAM = true;
+		lowRAM  = true;
+		highRAM = true;
 	}
 
 	// make valgrind happy

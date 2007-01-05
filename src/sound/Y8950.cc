@@ -278,8 +278,18 @@ Y8950::Patch::Patch()
 
 void Y8950::Patch::reset()
 {
-	AM = PM = EG = false;
-	KR = ML = KL = TL = FB = AR = DR = SL = RR = 0;
+	AM = false;
+	PM = false;
+	EG = false;
+	KR = 0;
+	ML = 0;
+	KL = 0;
+	TL = 0;
+	FB = 0;
+	AR = 0;
+	DR = 0;
+	SL = 0;
+	RR = 0;
 }
 
 

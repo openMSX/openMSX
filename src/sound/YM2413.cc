@@ -713,8 +713,9 @@ void YM2413::update_rhythm_mode()
 void YM2413::update_key_status()
 {
 	for (int i = 0; i < 9; ++i) {
-		ch[i].mod.slot_on_flag = ch[i].car.slot_on_flag =
-			reg[0x20 + i] & 0x10;
+		bool slot_on = reg[0x20 + i] & 0x10;
+		ch[i].mod.slot_on_flag = slot_on;
+		ch[i].car.slot_on_flag = slot_on;
 	}
 	if (reg[0x0e] & 0x20) {
 		ch[6].mod.slot_on_flag |= reg[0x0e] & 0x10; // BD1

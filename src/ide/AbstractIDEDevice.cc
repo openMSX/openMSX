@@ -13,7 +13,8 @@ namespace openmsx {
 AbstractIDEDevice::AbstractIDEDevice(MSXMotherBoard& motherBoard_)
 	: motherBoard(motherBoard_)
 {
-	transferRead = transferWrite = false;
+	transferRead = false;
+	transferWrite = false;
 }
 
 AbstractIDEDevice::~AbstractIDEDevice()

@@ -422,7 +422,8 @@ template <class T> inline void CPUCore<T>::nmi()
 {
 	PUSH(R.PC);
 	R.HALT = false;
-	R.IFF1 = R.nextIFF1 = false;
+	R.IFF1 = false;
+	R.nextIFF1 = false;
 	R.PC = 0x0066;
 	T::NMI_DELAY();
 	M1Cycle();
@@ -434,7 +435,7 @@ template <class T> inline void CPUCore<T>::irq0()
 	// TODO current implementation only works for 1-byte instructions
 	//      ok for MSX
 	R.HALT = false;
-	R.IFF1 = R.nextIFF1 = R.IFF2 = false;
+	R.di();
 	T::IM0_DELAY();
 	executeInstruction1(interface->dataBus());
 }
@@ -443,7 +444,7 @@ template <class T> inline void CPUCore<T>::irq0()
 template <class T> inline void CPUCore<T>::irq1()
 {
 	R.HALT = false;
-	R.IFF1 = R.nextIFF1 = R.IFF2 = false;
+	R.di();
 	T::IM1_DELAY();
 	executeInstruction1(0xFF);	// RST 0x38
 }
@@ -452,7 +453,7 @@ template <class T> inline void CPUCore<T>::irq1()
 template <class T> inline void CPUCore<T>::irq2()
 {
 	R.HALT = false;
-	R.IFF1 = R.nextIFF1 = R.IFF2 = false;
+	R.di();
 	PUSH(R.PC);
 	word x = interface->dataBus() | (R.I << 8);
 	R.PC  = RDMEM(x + 0);
@@ -2466,14 +2467,16 @@ template <class T> void CPUCore<T>::reti()
 {
 	// same as retn
 	T::RETN_DELAY();
-	R.IFF1 = R.nextIFF1 = R.IFF2;
+	R.IFF1     = R.IFF2;
+	R.nextIFF1 = R.IFF2;
 	setSlowInstructions();
 	RET();
 }
 template <class T> void CPUCore<T>::retn()
 {
 	T::RETN_DELAY();
-	R.IFF1 = R.nextIFF1 = R.IFF2;
+	R.IFF1     = R.IFF2;
+	R.nextIFF1 = R.IFF2;
 	setSlowInstructions();
 	RET();
 }
@@ -2732,7 +2735,7 @@ template <class T> void CPUCore<T>::exx()
 template <class T> void CPUCore<T>::di()
 {
 	T::DI_DELAY();
-	R.IFF1 = R.nextIFF1 = R.IFF2 = false;
+	R.di();
 }
 template <class T> void CPUCore<T>::ei()
 {

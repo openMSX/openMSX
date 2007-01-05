@@ -215,7 +215,9 @@ AY8910::Amplitude::Amplitude(const XMLElement& config)
 	}
 
 	vol[0] = vol[1] = vol[2] = 0;
-	envChan[0] = envChan[1] = envChan[2] = false;
+	envChan[0] = false;
+	envChan[1] = false;
+	envChan[2] = false;
 	envVolume = 0;
 	setMasterVolume(0); // avoid UMR
 }
@@ -281,8 +283,13 @@ inline bool AY8910::Amplitude::anyEnvelope()
 inline AY8910::Envelope::Envelope(Amplitude& amplitude)
 	: amplitude(amplitude)
 {
-	period = count = step = attack = 0;
-	hold = alternate = holding = false;
+	period = 0;
+	count  = 0;
+	step   = 0;
+	attack = 0;
+	hold      = false;
+	alternate = false;
+	holding   = false;
 }
 
 inline void AY8910::Envelope::reset()

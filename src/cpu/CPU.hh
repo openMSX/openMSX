@@ -65,8 +65,16 @@ public:
 		inline void setIYh(byte x) { IY = (IY & 0x00FF) | (x << 8); }
 		inline void setIYl(byte x) { IY = (IY & 0xFF00) | x; }
 
-		inline void ei() { IFF1 = nextIFF1 = IFF2 = true; }
-		inline void di() { IFF1 = nextIFF1 = IFF2 = false; }
+		inline void ei() {
+			IFF1     = true;
+			IFF2     = true;
+			nextIFF1 = true;
+		}
+		inline void di() {
+			IFF1     = false;
+			IFF2     = false;
+			nextIFF1 = false;
+		}
 	};
 
 	/**
