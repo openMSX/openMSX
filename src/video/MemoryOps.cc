@@ -326,7 +326,7 @@ void stream_memcpy(unsigned* dst, const unsigned* src, unsigned num)
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
 	if (cpu.hasMMXEXT()) {
-		if (!num) return;
+		if (unlikely(num == 0)) return;
 		// align on 8-byte boundary
 		if (unlikely((long)dst & 4)) {
 			*dst++ = *src++;
@@ -438,7 +438,7 @@ void stream_memcpy(word* dst, const word* src, unsigned num)
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
 	if (cpu.hasMMXEXT()) {
-		if (!num) return;
+		if (unlikely(!num)) return;
 		// align on 4-byte boundary
 		if (unlikely((long)dst & 2)) {
 			*dst++ = *src++;

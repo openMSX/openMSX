@@ -51,7 +51,7 @@ public:
 	  */
 	unsigned getTicksTillUp(const EmuTime& e) const {
 		assert(e.time >= lastTick.time);
-		return (e.time - lastTick.time + step - 1) / step; // round up
+		return (e.time - lastTick.time + (step - 1)) / step;
 	}
 
 	/** Change the frequency at which this clock ticks.
@@ -60,6 +60,7 @@ public:
 	void setFreq(unsigned freq) {
 		assert((MAIN_FREQ / freq) < (1ull << 32));
 		step = MAIN_FREQ / freq;
+		assert(step);
 	}
 
 	/** Returns the frequency (in Hz) at which this clock ticks.
