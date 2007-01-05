@@ -1,5 +1,11 @@
 $Id$
 
+2007-01-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Use PBO for faster texture upload in GLPostProcessor:
+	   - depending on the system this is only a small (1%) or a big (10%)
+	     speedup
+	   - when PBOs are not supported we still use the old code
+
 2006-12-30 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Use Pixel Buffer Objects (PBO) for faster texture upload in
 	  GLHQScaler and GLHQLiteScaler:

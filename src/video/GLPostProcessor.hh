@@ -56,7 +56,11 @@ private:
 	  */
 	RenderSettings::ScaleAlgorithm scaleAlgorithm;
 
-	typedef std::map<unsigned, ColourTexture*> Textures;
+	struct TextureData {
+		ColourTexture* tex;
+		PixelBuffer<unsigned>* pbo;
+	};
+	typedef std::map<unsigned, TextureData> Textures;
 	Textures textures;
 	unsigned height;
 

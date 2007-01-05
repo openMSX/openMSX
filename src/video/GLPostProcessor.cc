@@ -11,6 +11,7 @@
 #include "DoubledFrame.hh"
 #include "RawFrame.hh"
 #include "Math.hh"
+#include "MemoryOps.hh"
 #include "InitException.hh"
 #include <algorithm>
 #include <cassert>
@@ -154,7 +155,8 @@ GLPostProcessor::~GLPostProcessor()
 
 	for (Textures::iterator it = textures.begin();
 	     it != textures.end(); ++it) {
-		delete it->second;
+		delete it->second.tex;
+		delete it->second.pbo;
 	}
 }
 
@@ -235,9 +237,9 @@ void GLPostProcessor::paint()
 	     it != regions.end(); ++it) {
 		//fprintf(stderr, "post processing lines %d-%d: %d\n",
 		//	it->srcStartY, it->srcEndY, it->lineWidth);
-		assert(textures[it->lineWidth]);
+		assert(textures.find(it->lineWidth) != textures.end());
 		currScaler->scaleImage(
-			*textures[it->lineWidth],
+			*textures[it->lineWidth].tex,
 			it->srcStartY, it->srcEndY, it->lineWidth,      // src
 			it->dstStartY, it->dstEndY, screen.getWidth()); // dst
 		//GLUtil::checkGLError("GLPostProcessor::paint");
@@ -328,18 +330,6 @@ void GLPostProcessor::uploadFrame()
 	const unsigned srcHeight = paintFrame->getHeight();
 	for (Regions::const_iterator it = regions.begin();
 	     it != regions.end(); ++it) {
-		// bind texture (create if needed)
-		ColourTexture* tex;
-		Textures::iterator it2 = textures.find(it->lineWidth);
-		if (it2 != textures.end()) {
-			tex = it2->second;
-		} else {
-			tex = new ColourTexture();
-			tex->setWrapMode(false);
-			tex->setImage(it->lineWidth, height * 2);
-			textures[it->lineWidth] = tex;
-		}
-		tex->bind();
 		// upload data
 		// TODO get before/after data from scaler
 		unsigned before = 1;
@@ -350,35 +340,87 @@ void GLPostProcessor::uploadFrame()
 	}
 }
 
-// require: correct texture is already bound
 void GLPostProcessor::uploadBlock(
 	unsigned srcStartY, unsigned srcEndY, unsigned lineWidth)
 {
-	glPixelStorei(GL_UNPACK_ROW_LENGTH, paintFrame->getRowLength());
-	unsigned y = srcStartY;
-	unsigned remainingLines = srcEndY - srcStartY;
-	while (remainingLines) {
-		unsigned lines;
-		const unsigned* data = paintFrame->getMultiLinePtr(
-			y, remainingLines, lines, lineWidth, (unsigned*)0);
-		glTexSubImage2D(
-			GL_TEXTURE_2D,     // target
-			0,                 // level
-			0,                 // offset x
-			y,                 // offset y
-			lineWidth,         // width
-			lines,             // height
-			GL_BGRA,           // format
-			GL_UNSIGNED_BYTE,  // type
-			data);             // data
-		//GLUtil::checkGLError("GLPostProcessor::uploadFrame");
-		paintFrame->freeLineBuffers(); // ASAP to keep cache warm
+	// create texture/pbo if needed
+	Textures::iterator it = textures.find(lineWidth);
+	ColourTexture* tex;
+	PixelBuffer<unsigned>* pbo;
+	if (it != textures.end()) {
+		tex = it->second.tex;
+		pbo = it->second.pbo;
+	} else {
+		tex = new ColourTexture();
+		tex->setWrapMode(false);
+		tex->setImage(lineWidth, height * 2); // *2 for interlace
 
-		y += lines;
-		remainingLines -= lines;
+		pbo = new PixelBuffer<unsigned>();
+		if (pbo->openGLSupported()) {
+			pbo->setImage(lineWidth, height * 2);
+		} else {
+			delete pbo;
+			pbo = 0;
+		}
+
+		TextureData textureData;
+		textureData.tex = tex;
+		textureData.pbo = pbo;
+		textures[lineWidth] = textureData;
 	}
-	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0); // restore default
 
+	// bind texture
+	tex->bind();
+
+	// upload data
+	if (pbo) {
+		pbo->bind();
+		unsigned* mapped = pbo->mapWrite();
+		for (unsigned y = srcStartY; y < srcEndY; ++y) {
+			const unsigned* data =
+				paintFrame->getLinePtr(y, lineWidth, (unsigned*)0);
+			MemoryOps::stream_memcpy(mapped + y * lineWidth, data, lineWidth);
+			paintFrame->freeLineBuffers(); // ASAP to keep cache warm
+		}
+		pbo->unmap();
+		glTexSubImage2D(
+			GL_TEXTURE_2D,       // target
+			0,                   // level
+			0,                   // offset x
+			srcStartY,           // offset y
+			lineWidth,           // width
+			srcEndY - srcStartY, // height
+			GL_BGRA,             // format
+			GL_UNSIGNED_BYTE,    // type
+			pbo->getOffset(0, srcStartY)); // data
+		pbo->unbind();
+	} else {
+		glPixelStorei(GL_UNPACK_ROW_LENGTH, paintFrame->getRowLength());
+		unsigned y = srcStartY;
+		unsigned remainingLines = srcEndY - srcStartY;
+		while (remainingLines) {
+			unsigned lines;
+			const unsigned* data = paintFrame->getMultiLinePtr(
+				y, remainingLines, lines, lineWidth, (unsigned*)0);
+			glTexSubImage2D(
+				GL_TEXTURE_2D,     // target
+				0,                 // level
+				0,                 // offset x
+				y,                 // offset y
+				lineWidth,         // width
+				lines,             // height
+				GL_BGRA,           // format
+				GL_UNSIGNED_BYTE,  // type
+				data);             // data
+			paintFrame->freeLineBuffers(); // ASAP to keep cache warm
+
+			y += lines;
+			remainingLines -= lines;
+		}
+		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0); // restore default
+	}
+
+	// possibly upload scaler specific data
 	if (currScaler.get()) {
 		currScaler->uploadBlock(srcStartY, srcEndY, lineWidth, *paintFrame);
 	}

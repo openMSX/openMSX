@@ -255,6 +255,13 @@ public:
 	PixelBuffer();
 	~PixelBuffer();
 
+	/** Are PBOs supported by this openGL implementation?
+	  * This class implements a SW fallback in case PBOs are not directly
+	  * supported by this openGL implementation, but it will probably
+	  * be a lot slower.
+	  */
+	bool openGLSupported() const;
+
 	/** Sets the image for this buffer.
 	  * TODO: Actually, only image size for now;
 	  *       later, if we need it, image data too.
@@ -341,6 +348,12 @@ PixelBuffer<T>::~PixelBuffer()
 		glDeleteBuffers(1, &bufferId);
 	}
 #endif
+}
+
+template <typename T>
+bool PixelBuffer<T>::openGLSupported() const
+{
+	return bufferId != 0;
 }
 
 template <typename T>
