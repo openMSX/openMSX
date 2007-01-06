@@ -5,7 +5,10 @@
 #include "VisibleSurface.hh"
 #include "DeinterlacedFrame.hh"
 #include "DoubledFrame.hh"
+#include "RenderSettings.hh"
+#include "BooleanSetting.hh"
 #include "RawFrame.hh"
+#include "AviRecorder.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -17,6 +20,8 @@ PostProcessor::PostProcessor(CommandController& commandController,
 	: VideoLayer(videoSource, commandController, display)
 	, renderSettings(display.getRenderSettings())
 	, screen(screen_)
+	, paintFrame(0)
+	, recorder(0)
 {
 	currFrame = new RawFrame(screen.getFormat(), maxWidth, height);
 	prevFrame = new RawFrame(screen.getFormat(), maxWidth, height);
@@ -26,6 +31,9 @@ PostProcessor::PostProcessor(CommandController& commandController,
 
 PostProcessor::~PostProcessor()
 {
+	if (recorder) {
+		recorder->stop();
+	}
 	delete currFrame;
 	delete prevFrame;
 	delete deinterlacedFrame;
@@ -57,7 +65,54 @@ RawFrame* PostProcessor::rotateFrames(
 	prevFrame = currFrame;
 	currFrame = finishedFrame;
 	reuseFrame->init(field);
+
+	// TODO: When frames are being skipped or if (de)interlace was just
+	//       turned on, it's not guaranteed that prevFrame is a
+	//       different field from currFrame.
+	//       Or in the case of frame skip, it might be the right field,
+	//       but from several frames ago.
+	FrameSource::FieldType currType = currFrame->getField();
+	if (currType != FrameSource::FIELD_NONINTERLACED) {
+		if (renderSettings.getDeinterlace().getValue()) {
+			// deinterlaced
+			if (currType == FrameSource::FIELD_ODD) {
+				deinterlacedFrame->init(prevFrame, currFrame);
+			} else {
+				deinterlacedFrame->init(currFrame, prevFrame);
+			}
+			paintFrame = deinterlacedFrame;
+		} else {
+			// interlaced
+			interlacedFrame->init(currFrame,
+				(currType == FrameSource::FIELD_ODD) ? 1 : 0);
+			paintFrame = interlacedFrame;
+		}
+	} else {
+		// non interlaced
+		paintFrame = currFrame;
+	}
+
+	if (recorder) {
+		const void* lines[240];
+		for (int i = 0; i < 240; ++i) {
+			// TODO 16/32bpp
+			lines[i] = paintFrame->getLinePtr320_240(i, (unsigned*)0);
+		}
+		recorder->addImage(lines);
+		finishedFrame->freeLineBuffers();
+	}
+
 	return reuseFrame;
+}
+
+void PostProcessor::setRecorder(AviRecorder* recorder_)
+{
+	recorder = recorder_;
+}
+
+unsigned PostProcessor::getBpp() const
+{
+	return screen.getFormat()->BitsPerPixel;
 }
 
 } // namespace openmsx

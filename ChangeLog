@@ -1,6 +1,27 @@
 $Id$
 
 2007-01-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented experimental video recording:
+	   - still very much work in progress, but for simple cases it should
+	     already work
+	   - user interface is still VERY primitive: the 'record' command
+	     starts recording to 'test.avi' and only stops when openmsx is
+	     exited
+	   - changing between PAL/NTSC during recording doesn't work yet
+	   - changing sound sample freq during recording doesn't work yet
+	   - recording is not possible (yet?) with SDLGL renderer
+	   - generated avi file uses the ZMBV codec (same as used in dosbox)
+	     this codec is well suited for video-game like gfx and allows
+	     real-time encoding on not too old machines. On my 3-year old
+	     system i can do real-time recording of simple games, but I can't
+	     record sphere in real-time (due to moonsound emulation??)
+	   - the ZMBV codec is not very common. In mplayer (linux/windows)
+	     can handle it, VLC version 0.8.6 not yet (development version
+	     can). For windows you need to install zmbv.dll, but note that
+	     there is a faulty zmbv.dll that can only play 8bpp (openMSX
+	     movies are 16bpp or 32bpp).
+
+2007-01-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Use PBO for faster texture upload in GLPostProcessor:
 	   - depending on the system this is only a small (1%) or a big (10%)
 	     speedup

@@ -11,6 +11,7 @@
 #include "GlobalSettings.hh"
 #include "IntegerSetting.hh"
 #include "EnumSetting.hh"
+#include "AviRecorder.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -47,6 +48,7 @@ MSXMixer::MSXMixer(Mixer& mixer_, Scheduler& scheduler,
 	, prevTime(EmuTime::zero)
 	, soundDeviceInfo(new SoundDeviceInfoTopic(
 	              msxCommandController.getMachineInfoCommand(), *this))
+	, recorder(0)
 {
 	sampleRate = 0;
 	fragmentSize = 0;
@@ -63,6 +65,9 @@ MSXMixer::MSXMixer(Mixer& mixer_, Scheduler& scheduler,
 
 MSXMixer::~MSXMixer()
 {
+	if (recorder) {
+		recorder->stop();
+	}
 	assert(infos.empty());
 
 	throttleManager.detach(*this);
@@ -153,12 +158,18 @@ void MSXMixer::updateStream2(const EmuTime& time)
 	generate(mixBuffer, count, prevTime, interval1);
 	double factor = mixer.uploadBuffer(*this, mixBuffer, count);
 	prevTime += interval1 * count;
-
-	factor = (factor + 15.0) / 16.0; // don't adjust too quickly
-	interval1 *= factor;
-	interval1 = std::min(interval1, interval1max);
-	interval1 = std::max(interval1, interval1min);
-	//std::cerr << "DEBUG interval1: " << interval1.toDouble() << std::endl;
+	if (recorder) {
+		recorder->addWave(count, mixBuffer);
+		factor = 1.0;
+	}
+	if (factor != 1.0) {
+		// check for 1.0 to avoid accumulating rounding errors
+		factor = (factor + 15.0) / 16.0; // don't adjust too quickly
+		interval1 *= factor;
+		interval1 = std::min(interval1, interval1max);
+		interval1 = std::max(interval1, interval1min);
+		//std::cerr << "DEBUG interval1: " << interval1.toDouble() << std::endl;
+	}
 }
 
 void MSXMixer::generate(short* output, unsigned samples,
@@ -256,8 +267,13 @@ void MSXMixer::unmute()
 
 void MSXMixer::reInit()
 {
-	double percent = speedSetting.getValue();
-	interval1 = EmuDuration(percent / (sampleRate * 100));
+	if (recorder) {
+		// do as if speed=100
+		interval1 = EmuDuration(1.0 / sampleRate);
+	} else {
+		double percent = speedSetting.getValue();
+		interval1 = EmuDuration(percent / (sampleRate * 100));
+	}
 	interval1max = interval1 * 4;
 	interval1min = interval1 / 4;
 
@@ -291,6 +307,17 @@ void MSXMixer::setMixerParams(unsigned newFragmentSize, unsigned newSampleRate)
 	}
 
 	if (needReInit) reInit();
+}
+
+void MSXMixer::setRecorder(AviRecorder* recorder_)
+{
+	recorder = recorder_;
+	reInit();
+}
+
+unsigned MSXMixer::getSampleRate() const
+{
+	return sampleRate;
 }
 
 void MSXMixer::update(const Setting& setting)

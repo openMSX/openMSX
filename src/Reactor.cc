@@ -14,6 +14,7 @@
 #include "Display.hh"
 #include "Mixer.hh"
 #include "IconStatus.hh"
+#include "AviRecorder.hh"
 #include "Timer.hh"
 #include "Alarm.hh"
 #include "GlobalSettings.hh"
@@ -97,6 +98,7 @@ Reactor::Reactor()
 	, quitCommand(new QuitCommand(getCommandController(), *this))
 	, machineCommand(new MachineCommand(getCommandController(), *this))
 	, testMachineCommand(new TestMachineCommand(getCommandController(), *this))
+	, aviRecordCommand(new AviRecorder(*this))
 	, extensionInfo(new ConfigInfo(
 	       getGlobalCommandController().getOpenMSXInfoCommand(),
 	       "extensions"))

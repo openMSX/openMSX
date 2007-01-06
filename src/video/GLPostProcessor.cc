@@ -7,8 +7,6 @@
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
 #include "VisibleSurface.hh"
-#include "DeinterlacedFrame.hh"
-#include "DoubledFrame.hh"
 #include "RawFrame.hh"
 #include "Math.hh"
 #include "MemoryOps.hh"
@@ -40,8 +38,6 @@ GLPostProcessor::GLPostProcessor(
 			"or video card driver doesn't support framebuffer "
 			"objects.");
 	}
-
-	paintFrame = NULL;
 
 	scaleAlgorithm = (RenderSettings::ScaleAlgorithm)-1; // not a valid scaler
 
@@ -300,31 +296,6 @@ void GLPostProcessor::update(const Setting& setting)
 
 void GLPostProcessor::uploadFrame()
 {
-	// TODO: When frames are being skipped or if (de)interlace was just
-	//       turned on, it's not guaranteed that prevFrame is a
-	//       different field from currFrame.
-	//       Or in the case of frame skip, it might be the right field,
-	//       but from several frames ago.
-	FrameSource::FieldType field = currFrame->getField();
-	if (field != FrameSource::FIELD_NONINTERLACED) {
-		if (renderSettings.getDeinterlace().getValue()) {
-			// deinterlaced
-			if (field == FrameSource::FIELD_ODD) {
-				deinterlacedFrame->init(prevFrame, currFrame);
-			} else {
-				deinterlacedFrame->init(currFrame, prevFrame);
-			}
-			paintFrame = deinterlacedFrame;
-		} else {
-			// interlaced
-			interlacedFrame->init(currFrame,
-				(field == FrameSource::FIELD_ODD) ? 1 : 0);
-			paintFrame = interlacedFrame;
-		}
-	} else {
-		// non interlaced
-		paintFrame = currFrame;
-	}
 	createRegions();
 
 	const unsigned srcHeight = paintFrame->getHeight();

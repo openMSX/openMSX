@@ -23,6 +23,7 @@ class IntegerSetting;
 template <typename T> class EnumSetting;
 class Setting;
 class SoundDeviceInfoTopic;
+class AviRecorder;
 
 class MSXMixer : private Schedulable, private Observer<Setting>
                , private Observer<ThrottleManager>
@@ -68,6 +69,11 @@ public:
 	 * A fragment size of zero means the Mixer is muted.
 	 */
 	void setMixerParams(unsigned fragmentSize, unsigned sampleRate);
+
+	// Called by AviRecorder
+	
+	void setRecorder(AviRecorder* recorder);
+	unsigned getSampleRate() const;
 	
 private:
 	void updateMasterVolume(int masterVolume);
@@ -119,6 +125,8 @@ private:
 
 	friend class SoundDeviceInfoTopic;
 	const std::auto_ptr<SoundDeviceInfoTopic> soundDeviceInfo;
+
+	AviRecorder* recorder;
 };
 
 } // namespace openmsx

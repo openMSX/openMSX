@@ -31,7 +31,8 @@ SRC_HDR:= \
 	MemoryOps \
 	FrameSource RawFrame DeinterlacedFrame DoubledFrame PostProcessor \
 	OutputSurface VisibleSurface SDLVisibleSurface \
-	Icon
+	Icon \
+	AviRecorder AviWriter ZMBVEncoder
 
 HDR_ONLY:= \
 	DirtyChecker \

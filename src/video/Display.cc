@@ -162,6 +162,17 @@ void Display::detach(VideoSystemChangeListener& listener)
 	listeners.erase(it);
 }
 
+Layer* Display::findLayer(const string& name) const
+{
+	for (Layers::const_iterator it = layers.begin();
+	     it != layers.end(); ++it) {
+		if ((*it)->getName() == name) {
+			return *it;
+		}
+	}
+	return 0;
+}
+
 Display::Layers::iterator Display::baseLayer()
 {
 	// Note: It is possible to cache this, but since the number of layers is

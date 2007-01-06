@@ -8,8 +8,6 @@
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
 #include "VisibleSurface.hh"
-#include "DeinterlacedFrame.hh"
-#include "DoubledFrame.hh"
 #include "RawFrame.hh"
 #include "HostCPU.hh"
 #include "Math.hh"
@@ -235,32 +233,7 @@ FBPostProcessor<Pixel>::~FBPostProcessor()
 template <class Pixel>
 void FBPostProcessor<Pixel>::paint()
 {
-	// TODO: When frames are being skipped or if (de)interlace was just
-	//       turned on, it's not guaranteed that prevFrame is a
-	//       different field from currFrame.
-	//       Or in the case of frame skip, it might be the right field,
-	//       but from several frames ago.
-	FrameSource* frame;
-	FrameSource::FieldType field = currFrame->getField();
-	if (field != FrameSource::FIELD_NONINTERLACED) {
-		if (renderSettings.getDeinterlace().getValue()) {
-			// deinterlaced
-			if (field == FrameSource::FIELD_ODD) {
-				deinterlacedFrame->init(prevFrame, currFrame);
-			} else {
-				deinterlacedFrame->init(currFrame, prevFrame);
-			}
-			frame = deinterlacedFrame;
-		} else {
-			// interlaced
-			interlacedFrame->init(currFrame,
-				(field == FrameSource::FIELD_ODD) ? 1 : 0);
-			frame = interlacedFrame;
-		}
-	} else {
-		// non interlaced
-		frame = currFrame;
-	}
+	if (!paintFrame) return;
 
 	// New scaler algorithm selected?
 	RenderSettings::ScaleAlgorithm algo =
@@ -274,7 +247,7 @@ void FBPostProcessor<Pixel>::paint()
 	}
 
 	// Scale image.
-	const unsigned srcHeight = frame->getHeight();
+	const unsigned srcHeight = paintFrame->getHeight();
 	const unsigned dstHeight = screen.getHeight();
 
 	unsigned g = Math::gcd(srcHeight, dstHeight);
@@ -291,11 +264,11 @@ void FBPostProcessor<Pixel>::paint()
 		assert(srcStartY < srcHeight);
 
 		// get region with equal lineWidth
-		unsigned lineWidth = getLineWidth(frame, srcStartY, srcStep);
+		unsigned lineWidth = getLineWidth(paintFrame, srcStartY, srcStep);
 		unsigned srcEndY = srcStartY + srcStep;
 		unsigned dstEndY = dstStartY + dstStep;
 		while ((srcEndY < srcHeight) && (dstEndY < dstHeight) &&
-		       (getLineWidth(frame, srcEndY, srcStep) == lineWidth)) {
+		       (getLineWidth(paintFrame, srcEndY, srcStep) == lineWidth)) {
 			srcEndY += srcStep;
 			dstEndY += dstStep;
 		}
@@ -304,9 +277,9 @@ void FBPostProcessor<Pixel>::paint()
 		//fprintf(stderr, "post processing lines %d-%d: %d\n",
 		//	srcStartY, srcEndY, lineWidth );
 		currScaler->scaleImage(
-			*frame, srcStartY, srcEndY, lineWidth, // source
+			*paintFrame, srcStartY, srcEndY, lineWidth, // source
 			screen, dstStartY, dstEndY); // dest
-		frame->freeLineBuffers();
+		paintFrame->freeLineBuffers();
 
 		// next region
 		srcStartY = srcEndY;

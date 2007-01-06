@@ -49,6 +49,8 @@ public:
 	void attach(VideoSystemChangeListener& listener);
 	void detach(VideoSystemChangeListener& listener);
 
+	Layer* findLayer(const std::string& name) const;
+
 private:
 	void resetVideoSystem();
 	void setWindowTitle();

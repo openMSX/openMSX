@@ -15,6 +15,7 @@ class VisibleSurface;
 class RawFrame;
 class DeinterlacedFrame;
 class DoubledFrame;
+class AviRecorder;
 
 /** Abstract base class for post processors.
   * A post processor builds the frame that is displayed from the MSX frame,
@@ -42,6 +43,9 @@ public:
 	  */
 	virtual RawFrame* rotateFrames(
 		RawFrame* finishedFrame, FrameSource::FieldType field);
+
+	void setRecorder(AviRecorder* recorder);
+	unsigned getBpp() const;
 
 protected:
 	/** Returns the maximum width for lines [y..y+step).
@@ -76,6 +80,11 @@ protected:
 	/** Each line of currFrame twice, to get double vertical resolution.
 	  */
 	DoubledFrame* interlacedFrame;
+	
+	/** TODO */
+	FrameSource* paintFrame;
+
+	AviRecorder* recorder;
 };
 
 } // namespace openmsx

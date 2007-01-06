@@ -64,8 +64,6 @@ private:
 	Textures textures;
 	unsigned height;
 
-	FrameSource* paintFrame;
-
 	unsigned frameCounter;
 
 	// Noise effect:

@@ -122,6 +122,10 @@ public:
 		return internalData;
 	}
 
+	/** TODO used for avi recording */
+	template <typename Pixel>
+	const Pixel* getLinePtr320_240(unsigned line, Pixel* dummy);
+
 	/** Returns the distance (in pixels) between two consecutive lines.
 	  * Is meant to be used in combination with getMultiLinePtr(). The
 	  * result is only meaningful when hasContiguousStorage() returns
