@@ -20,6 +20,8 @@ $Id$
 	     can). For windows you need to install zmbv.dll, but note that
 	     there is a faulty zmbv.dll that can only play 8bpp (openMSX
 	     movies are 16bpp or 32bpp).
+	   - doesn't play well with frameskip yet, as a temporary workaround
+	     you can set maxframekip=0 for now
 
 2007-01-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Use PBO for faster texture upload in GLPostProcessor:
