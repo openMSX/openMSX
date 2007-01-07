@@ -34,7 +34,7 @@ public:
 	  * clock (UC) running at 42MHz - the smallest common multple
 	  * of 14 and 21 MHz.
 	  */
-	static const int UC_TICKS_PER_SECOND = 42554540;
+	static const int UC_TICKS_PER_SECOND = 3579545 * 12; // 42.9MHz
 
 	/** The number of clockticks per line is independent of the crystal
 	  * used or the display mode (NTSC/PAL)
