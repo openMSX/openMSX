@@ -205,7 +205,7 @@ byte V9990::readIO(word port, const EmuTime& time)
 			unsigned top    = ver.blank + ver.border1;
 			unsigned bottom = top + ver.display;
 			unsigned ticks = getUCTicksThisFrame(time);
-			unsigned x = UCtoX(ticks, getDisplayMode());
+			unsigned x = ticks % V9990DisplayTiming::UC_TICKS_PER_LINE;
 			unsigned y = ticks / V9990DisplayTiming::UC_TICKS_PER_LINE;
 			bool hr = (x < left) || (right  <= x);
 			bool vr = (y < top)  || (bottom <= y);
