@@ -22,6 +22,7 @@ PostProcessor::PostProcessor(CommandController& commandController,
 	, screen(screen_)
 	, paintFrame(0)
 	, recorder(0)
+	, prevTime(EmuTime::zero)
 {
 	currFrame = new RawFrame(screen.getFormat(), maxWidth, height);
 	prevFrame = new RawFrame(screen.getFormat(), maxWidth, height);
@@ -59,8 +60,12 @@ const std::string& PostProcessor::getName()
 }
 
 RawFrame* PostProcessor::rotateFrames(
-	RawFrame* finishedFrame, FrameSource::FieldType field)
+	RawFrame* finishedFrame, FrameSource::FieldType field,
+	const EmuTime& time)
 {
+	lastFrameDuration = time - prevTime;
+	prevTime = time;
+
 	RawFrame* reuseFrame = prevFrame;
 	prevFrame = currFrame;
 	currFrame = finishedFrame;
@@ -95,8 +100,11 @@ RawFrame* PostProcessor::rotateFrames(
 	if (recorder) {
 		const void* lines[240];
 		for (int i = 0; i < 240; ++i) {
-			// TODO 16/32bpp
-			lines[i] = paintFrame->getLinePtr320_240(i, (unsigned*)0);
+			if (getBpp() == 32) {
+				lines[i] = paintFrame->getLinePtr320_240(i, (unsigned*)0);
+			} else {
+				lines[i] = paintFrame->getLinePtr320_240(i, (word*)0);
+			}
 		}
 		recorder->addImage(lines);
 		finishedFrame->freeLineBuffers();
@@ -113,6 +121,11 @@ void PostProcessor::setRecorder(AviRecorder* recorder_)
 unsigned PostProcessor::getBpp() const
 {
 	return screen.getFormat()->BitsPerPixel;
+}
+
+double PostProcessor::getLastFrameDuration() const
+{
+	return lastFrameDuration.toDouble();
 }
 
 } // namespace openmsx

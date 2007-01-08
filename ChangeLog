@@ -1,5 +1,13 @@
 $Id$
 
+2007-01-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Avi recording fixes:
+	   - no longer require that V9938 has the exact name "VDP" in machine
+	     hardwareconfig.xml file
+	   - print warning when a change in framerate/samplerate is detected
+	     during recording
+	   - fixed bug in conversion routine while recording in 16bpp mode
+
 2007-01-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented experimental video recording:
 	   - still very much work in progress, but for simple cases it should

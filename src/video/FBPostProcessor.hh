@@ -31,7 +31,8 @@ public:
 	virtual void paint();
 
 	virtual RawFrame* rotateFrames(
-		RawFrame* finishedFrame, FrameSource::FieldType field);
+		RawFrame* finishedFrame, FrameSource::FieldType field,
+		const EmuTime& time);
 
 private:
 	void preCalcNoise(double factor);

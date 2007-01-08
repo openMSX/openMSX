@@ -104,7 +104,7 @@ void V9990PixelRenderer::frameEnd(const EmuTime& time)
 		sync(time, true);
 
 		unsigned long long time1 = Timer::getTime();
-		rasterizer->frameEnd();
+		rasterizer->frameEnd(time);
 		unsigned long long time2 = Timer::getTime();
 		unsigned long long current = time2 - time1;
 		const double ALPHA = 0.2;

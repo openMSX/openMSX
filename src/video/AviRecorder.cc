@@ -1,14 +1,19 @@
 // $Id: $
 
+// TODO frameskip
+//      record gfx9000
+//      implement a command to start/stop recording / specify filename
+
 #include "AviRecorder.hh"
 #include "AviWriter.hh"
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
 #include "Display.hh"
 #include "PostProcessor.hh"
-#include "VDP.hh"
 #include "MSXMixer.hh"
 #include "Scheduler.hh"
+#include "GlobalCliComm.hh"
+#include <cmath>
 #include <cassert>
 
 using std::string;
@@ -49,20 +54,17 @@ void AviRecorder::start(const string& filename)
 	if (!postProcessor) {
 		return;
 	}
-	VDP* vdp = dynamic_cast<VDP*>(motherBoard->findDevice("VDP"));
-	if (!vdp) {
-		return;
-	}
 
 	postProcessor->setRecorder(this);
 	mixer->setRecorder(this);
-	// TODO get bpp
 	unsigned bpp = postProcessor->getBpp();
-	double fps = vdp->isPalTiming()
-	           ? (6.0 * 3579545.0) / (1368.0 * 313.0)  // PAL
-	           : (6.0 * 3579545.0) / (1368.0 * 262.0); // NTSC
-	unsigned sampleRate = mixer->getSampleRate();
-	writer.reset(new AviWriter(filename, 320, 240, bpp, fps, sampleRate));
+	frameDuration = postProcessor->getLastFrameDuration();
+	sampleRate = mixer->getSampleRate();
+	writer.reset(new AviWriter(filename, 320, 240, bpp,
+	                           1.0 / frameDuration, sampleRate));
+
+	warnedFps = false;
+	warnedSampleRate = false;
 }
 
 void AviRecorder::addWave(unsigned num, short* data)
@@ -72,7 +74,22 @@ void AviRecorder::addWave(unsigned num, short* data)
 
 void AviRecorder::addImage(const void** lines)
 {
-	// TODO check fps/samplerate is still the same
+	if (!warnedSampleRate && mixer &&
+	    (mixer->getSampleRate() != sampleRate)) {
+		warnedSampleRate = true;
+		reactor.getGlobalCliComm().printWarning(
+			"Detected audio sample frequency change during "
+			"avi recording. Audio/video might get out of sync "
+			"because of this.");
+	}
+	if (!warnedFps &&
+	    (fabs(postProcessor->getLastFrameDuration() - frameDuration) > 1e-5)) {
+		warnedFps = true;
+		reactor.getGlobalCliComm().printWarning(
+			"Detected frame rate change (PAL/NTSC or frameskip) "
+			"during avi recording. Audio/video might get out of "
+			"sync because of this.");
+	}
 	if (mixer) {
 		mixer->updateStream(scheduler->getCurrentTime());
 	}

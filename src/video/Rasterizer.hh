@@ -8,6 +8,8 @@
 
 namespace openmsx {
 
+class EmuTime;
+
 class Rasterizer
 {
 public:
@@ -27,7 +29,7 @@ public:
 	/** Indicates the start of a new frame.
 	  * The rasterizer can fetch per-frame settings from the VDP.
 	  */
-	virtual void frameStart() = 0;
+	virtual void frameStart(const EmuTime& time) = 0;
 
 	/** Indicates the end of the current frame.
 	  * The rasterizer can perform image post processing.

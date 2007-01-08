@@ -295,13 +295,14 @@ void FBPostProcessor<Pixel>::paint()
 
 template <class Pixel>
 RawFrame* FBPostProcessor<Pixel>::rotateFrames(
-	RawFrame* finishedFrame, FrameSource::FieldType field)
+	RawFrame* finishedFrame, FrameSource::FieldType field,
+	const EmuTime& time)
 {
 	for (unsigned y = 0; y < screen.getHeight(); ++y) {
 		noiseShift[y] = rand() & (NOISE_SHIFT - 1) & ~7;
 	}
 
-	return PostProcessor::rotateFrames(finishedFrame, field);
+	return PostProcessor::rotateFrames(finishedFrame, field, time);
 }
 
 

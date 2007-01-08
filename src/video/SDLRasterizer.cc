@@ -137,12 +137,13 @@ void SDLRasterizer<Pixel>::resetPalette()
 }
 
 template <class Pixel>
-void SDLRasterizer<Pixel>::frameStart()
+void SDLRasterizer<Pixel>::frameStart(const EmuTime& time)
 {
 	workFrame = postProcessor->rotateFrames(workFrame,
 	    vdp.isInterlaced()
 	    ? (vdp.getEvenOdd() ? FrameSource::FIELD_ODD : FrameSource::FIELD_EVEN)
-	    : FrameSource::FIELD_NONINTERLACED);
+	    : FrameSource::FIELD_NONINTERLACED,
+	    time);
 
 	// Calculate line to render at top of screen.
 	// Make sure the display area is centered.

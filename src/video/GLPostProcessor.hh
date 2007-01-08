@@ -32,7 +32,8 @@ public:
 	virtual void paint();
 
 	virtual RawFrame* rotateFrames(
-		RawFrame* finishedFrame, FrameSource::FieldType field);
+		RawFrame* finishedFrame, FrameSource::FieldType field,
+		const EmuTime& time);
 
 protected:
 	// Observer<Setting> interface:

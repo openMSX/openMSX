@@ -17,7 +17,7 @@ void V9990DummyRasterizer::frameStart()
 {
 }
 
-void V9990DummyRasterizer::frameEnd()
+void V9990DummyRasterizer::frameEnd(const EmuTime& /*time*/)
 {
 }
 

@@ -179,7 +179,7 @@ void PixelRenderer::frameStart(const EmuTime& time)
 	}
 	if (!renderFrame) return;
 
-	rasterizer->frameStart();
+	rasterizer->frameStart(time);
 
 	accuracy = renderSettings.getAccuracy().getValue();
 

@@ -275,9 +275,11 @@ void GLPostProcessor::paint()
 }
 
 RawFrame* GLPostProcessor::rotateFrames(
-	RawFrame* finishedFrame, FrameSource::FieldType field)
+	RawFrame* finishedFrame, FrameSource::FieldType field,
+	const EmuTime& time)
 {
-	RawFrame* reuseFrame = PostProcessor::rotateFrames(finishedFrame, field);
+	RawFrame* reuseFrame =
+		PostProcessor::rotateFrames(finishedFrame, field, time);
 	uploadFrame();
 	++frameCounter;
 	noiseX = (double)rand() / RAND_MAX;

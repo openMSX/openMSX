@@ -5,6 +5,7 @@
 
 #include "FrameSource.hh"
 #include "VideoLayer.hh"
+#include "EmuTime.hh"
 
 namespace openmsx {
 
@@ -42,10 +43,12 @@ public:
 	  * @return RawFrame object that can be used for building the next frame.
 	  */
 	virtual RawFrame* rotateFrames(
-		RawFrame* finishedFrame, FrameSource::FieldType field);
+		RawFrame* finishedFrame, FrameSource::FieldType field,
+		const EmuTime& time);
 
 	void setRecorder(AviRecorder* recorder);
 	unsigned getBpp() const;
+	double getLastFrameDuration() const;
 
 protected:
 	/** Returns the maximum width for lines [y..y+step).
@@ -85,6 +88,8 @@ protected:
 	FrameSource* paintFrame;
 
 	AviRecorder* recorder;
+	EmuTime prevTime;
+	EmuDuration lastFrameDuration;
 };
 
 } // namespace openmsx
