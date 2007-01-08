@@ -22,6 +22,7 @@ public:
 	virtual void drawDisplay(int fromX, int fromY,
 	                         int displayX, int displayY,
 	                         int displayWidth, int displayHeight);
+	virtual bool isRecording() const;
 };
 
 } // namespace openmsx

@@ -55,6 +55,11 @@ void V9990GLRasterizer::drawDisplay(
 {
 }
 
+bool V9990GLRasterizer::isRecording() const
+{
+	return false;
+}
+
 } // namespace openmsx
 
 

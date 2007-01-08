@@ -45,4 +45,9 @@ void V9990DummyRasterizer::drawDisplay(int /*fromX*/, int /*fromY*/,
 {
 }
 
+bool V9990DummyRasterizer::isRecording() const
+{
+	return false;
+}
+
 } // namespace openmsx

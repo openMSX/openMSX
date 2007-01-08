@@ -56,6 +56,7 @@ public:
 		int fromX, int fromY,
 		int displayX, int displayY,
 		int displayWidth, int displayHeight);
+	virtual bool isRecording() const;
 
 private:
 	/** Translate from absolute VDP coordinates to screen coordinates:

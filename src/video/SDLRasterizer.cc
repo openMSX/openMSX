@@ -480,6 +480,12 @@ void SDLRasterizer<Pixel>::drawSprites(
 }
 
 template <class Pixel>
+bool SDLRasterizer<Pixel>::isRecording() const
+{
+	return postProcessor->isRecording();
+}
+
+template <class Pixel>
 void SDLRasterizer<Pixel>::update(const Setting& setting)
 {
 	if ((&setting == &renderSettings.getGamma()) ||

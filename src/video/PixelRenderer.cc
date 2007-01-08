@@ -170,8 +170,12 @@ void PixelRenderer::frameStart(const EmuTime& time)
 			renderFrame = true;
 		} else {
 			++frameSkipCounter;
-			renderFrame = realTime.timeLeft(
-				(unsigned)finishFrameDuration, time);
+			if (rasterizer->isRecording()) {
+				renderFrame = true;
+			} else {
+				renderFrame = realTime.timeLeft(
+					(unsigned)finishFrameDuration, time);
+			}
 			if (renderFrame) {
 				frameSkipCounter = 0;
 			}

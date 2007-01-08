@@ -76,8 +76,12 @@ void V9990PixelRenderer::frameStart(const EmuTime& time)
 			drawFrame = true;
 		} else {
 			++frameSkipCounter;
-			drawFrame = realTime.timeLeft(
-				(unsigned)finishFrameDuration, time);
+			if (rasterizer->isRecording()) {
+				drawFrame = true;
+			} else {
+				drawFrame = realTime.timeLeft(
+					(unsigned)finishFrameDuration, time);
+			}
 			if (drawFrame) {
 				frameSkipCounter = 0;
 			}

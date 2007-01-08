@@ -118,6 +118,11 @@ void PostProcessor::setRecorder(AviRecorder* recorder_)
 	recorder = recorder_;
 }
 
+bool PostProcessor::isRecording() const
+{
+	return recorder;
+}
+
 unsigned PostProcessor::getBpp() const
 {
 	return screen.getFormat()->BitsPerPixel;

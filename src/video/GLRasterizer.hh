@@ -60,6 +60,7 @@ public:
 		int fromX, int fromY,
 		int displayX, int displayY,
 		int displayWidth, int displayHeight);
+	virtual bool isRecording() const;
 
 private:
 	inline void renderBitmapLine(byte mode, int vramLine);

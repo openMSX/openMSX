@@ -47,6 +47,7 @@ public:
 		const EmuTime& time);
 
 	void setRecorder(AviRecorder* recorder);
+	bool isRecording() const;
 	unsigned getBpp() const;
 	double getLastFrameDuration() const;
 

@@ -1292,6 +1292,11 @@ void GLRasterizer::drawSprites(
 	glDisable(GL_TEXTURE_2D);
 }
 
+bool GLRasterizer::isRecording() const
+{
+	return false;
+}
+
 void GLRasterizer::update(const Setting& setting)
 {
 	VideoLayer::update(setting);

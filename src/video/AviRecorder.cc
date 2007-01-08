@@ -1,7 +1,6 @@
 // $Id: $
 
-// TODO frameskip
-//      record gfx9000
+// TODO record gfx9000
 //      implement a command to start/stop recording / specify filename
 
 #include "AviRecorder.hh"

@@ -80,6 +80,9 @@ public:
 		int fromX, int fromY,
 		int displayX, int displayY,
 		int displayWidth, int displayHeight) = 0;
+	
+	/** TODO */
+	virtual bool isRecording() const = 0;
 };
 
 } // namespace openmsx

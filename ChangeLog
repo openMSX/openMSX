@@ -7,6 +7,9 @@ $Id$
 	   - print warning when a change in framerate/samplerate is detected
 	     during recording
 	   - fixed bug in conversion routine while recording in 16bpp mode
+	   - during recording frameskip is kept constant at minframeskip, thus
+	     for example with minframeskip=1 you can record movies with
+	     25/30fps instead of the usual 50/60fps
 
 2007-01-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented experimental video recording:

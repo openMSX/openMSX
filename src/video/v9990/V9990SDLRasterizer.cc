@@ -319,6 +319,12 @@ void V9990SDLRasterizer<Pixel>::resetPalette()
 }
 
 template <class Pixel>
+bool V9990SDLRasterizer<Pixel>::isRecording() const
+{
+	return postProcessor->isRecording();
+}
+
+template <class Pixel>
 void V9990SDLRasterizer<Pixel>::update(const Setting& setting)
 {
 	if ((&setting == &renderSettings.getGamma()) ||
