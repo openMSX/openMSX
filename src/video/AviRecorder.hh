@@ -32,6 +32,10 @@ private:
 	virtual std::string help(const std::vector<std::string>& tokens) const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
+	std::string processStart(const std::vector<std::string>& tokens);
+	std::string processStop(const std::vector<std::string>& tokens);
+	std::string processToggle(const std::vector<std::string>& tokens);
+
 	Reactor& reactor;
 	std::vector<short> audioBuf;
 	std::auto_ptr<AviWriter> writer;

@@ -4,6 +4,7 @@
 
 #include "AviWriter.hh"
 #include "ZMBVEncoder.hh"
+#include "CommandException.hh"
 #include <algorithm>
 #include <cstring>
 #include <cstdlib>
@@ -35,7 +36,8 @@ AviWriter::AviWriter(const std::string& filename, unsigned width_,
 {
 	file = fopen(filename.c_str(), "wb");
 	if (!file) {
-		//TODO throw
+		throw CommandException("Couldn't open " + filename +
+		                       " for writing.");
 	}
 	char dummy[AVI_HEADER_SIZE];
 	memset(dummy, 0, AVI_HEADER_SIZE);

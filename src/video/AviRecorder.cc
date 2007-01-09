@@ -1,7 +1,7 @@
 // $Id: $
 
 // TODO record gfx9000
-//      implement a command to start/stop recording / specify filename
+//      merge with soundlog command
 
 #include "AviRecorder.hh"
 #include "AviWriter.hh"
@@ -12,6 +12,7 @@
 #include "MSXMixer.hh"
 #include "Scheduler.hh"
 #include "GlobalCliComm.hh"
+#include "FileOperations.hh"
 #include <cmath>
 #include <cassert>
 
@@ -42,16 +43,17 @@ void AviRecorder::start(const string& filename)
 	stop();
 	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
 	if (!motherBoard) {
-		return;
+		throw CommandException("No active MSX machine.");
 	}
 	scheduler = &motherBoard->getScheduler();
 	mixer = &motherBoard->getMSXMixer();
 
 	Display& display = reactor.getDisplay();
-	Layer* layer = display.findLayer("V99x8 PostProcessor");
+	Layer* layer = display.findLayer("V99x8 PostProcessor"); // TODO
 	postProcessor = dynamic_cast<PostProcessor*>(layer);
 	if (!postProcessor) {
-		return;
+		throw CommandException(
+			"Current renderer doesn't support video recording.");
 	}
 
 	postProcessor->setRecorder(this);
@@ -111,21 +113,97 @@ void AviRecorder::stop()
 }
 
 
-string AviRecorder::execute(const vector<string>& /*tokens*/)
+string AviRecorder::execute(const vector<string>& tokens)
 {
-	// TODO
-	start("test.avi");
+	if (tokens.size() < 2) {
+		throw CommandException("Missing argument");
+	}
+	if (tokens[1] == "start") {
+		return processStart(tokens);
+	} else if (tokens[1] == "stop") {
+		return processStop(tokens);
+	} else if (tokens[1] == "toggle") {
+		return processToggle(tokens);
+	}
+	throw SyntaxError();
+}
+
+string AviRecorder::processStart(const vector<string>& tokens)
+{
+	string filename;
+	string prefix = "openmsx";
+	switch (tokens.size()) {
+	case 2:
+		// nothing
+		break;
+	case 3:
+		if (tokens[2] == "-prefix") {
+			throw CommandException("Missing argument");
+		}
+		filename = tokens[2];
+		break;
+	case 4:
+		if (tokens[2] != "-prefix") {
+			throw SyntaxError();
+		}
+		prefix = tokens[3];
+		break;
+	default:
+		throw SyntaxError();
+	}
+	if (filename.empty()) {
+		filename = FileOperations::getNextNumberedFileName(
+			"videos", prefix, ".avi");
+	}
+	
+	if (writer.get()) {
+		return "Already recording.";
+	}
+	start(filename);
+	return "Recording to " + filename;
+}
+
+string AviRecorder::processStop(const vector<string>& tokens)
+{
+	if (tokens.size() != 2) {
+		throw SyntaxError();
+	}
+	stop();
 	return "";
+}
+
+string AviRecorder::processToggle(const vector<string>& tokens)
+{
+	if (writer.get()) {
+		// drop extra tokens
+		vector<string> tmp(tokens.begin(), tokens.begin() + 2);
+		return processStop(tmp);
+	} else {
+		return processStart(tokens);
+	}
 }
 
 string AviRecorder::help(const vector<string>& /*tokens*/) const
 {
-	return "TODO";
+	return "Controls video recording: write openmsx audio/video to a .avi file.\n"
+	       "record start              Record to file 'openmsxNNNN.avi'\n"
+	       "record start <filename>   Record to given file\n"
+	       "record start -prefix foo  Record to file 'fooNNNN.avi'\n"
+	       "record stop               Stop recording\n"
+	       "record toggle             Toggle recording (useful as keybinding)\n";
 }
 
-void AviRecorder::tabCompletion(vector<string>& /*tokens*/) const
+void AviRecorder::tabCompletion(vector<string>& tokens) const
 {
-	// TODO
+	if (tokens.size() == 2) {
+		const char* const str[3] = { "start", "stop", "toggle" };
+		std::set<string> cmds(str, str + 3);
+		completeString(tokens, cmds);
+	} else if ((tokens.size() == 3) && (tokens[1] == "start")) {
+		const char* const str[1] = { "-prefix" };
+		std::set<string> cmds(str, str + 1);
+		completeString(tokens, cmds);
+	}
 }
 
 } // namespace openmsx

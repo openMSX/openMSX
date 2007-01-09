@@ -379,6 +379,19 @@ plug / unplug
     unplug joyportb
 
 
+record
+--------
+
+  Controls video recording: write openMSX audio/video to a .avi file.
+
+  usage:
+    record start              Record to file "openmsxNNNN.wav"
+    record start <filename>   Record to indicated file
+    record start -prefix foo  Record to file "fooNNNN.wav"
+    record stop               Stop recording
+    record toggle             Toggle recording
+
+
 remove_extension
 ----------------
 

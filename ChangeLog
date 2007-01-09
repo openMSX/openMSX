@@ -1,5 +1,12 @@
 $Id$
 
+2007-01-09 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Improved 'record' command:
+	   - syntax is very similar to the 'soundlog' command,
+	     see 'help record'
+	   - in the future the record and soundlog command might be merged,
+	     with an option to select recording audio/video/both
+
 2007-01-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Avi recording fixes:
 	   - no longer require that V9938 has the exact name "VDP" in machine
