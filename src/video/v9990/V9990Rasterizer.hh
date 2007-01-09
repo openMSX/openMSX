@@ -81,7 +81,8 @@ public:
 		int displayX, int displayY,
 		int displayWidth, int displayHeight) = 0;
 	
-	/** TODO */
+	/** Is video recording active?
+	  */
 	virtual bool isRecording() const = 0;
 };
 

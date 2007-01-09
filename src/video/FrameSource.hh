@@ -122,7 +122,13 @@ public:
 		return internalData;
 	}
 
-	/** TODO used for avi recording */
+	/** Get a pointer to a given line in this frame, the frame is scaled
+	  * to 320x240 pixels. The difference between this method and
+	  * getLinePtr() is that this method also does vertical scaling.
+	  * You should also call freeLineBuffers() to release possible internal
+	  * allocated buffers.
+	  * This is used for video recording.
+	  */
 	template <typename Pixel>
 	const Pixel* getLinePtr320_240(unsigned line, Pixel* dummy);
 

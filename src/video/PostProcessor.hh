@@ -40,15 +40,35 @@ public:
 	  * @param finishedFrame Frame that has just become available.
 	  * @param field Specifies what role (if any) the new frame plays in
 	  *   interlacing.
+	  * @param time The moment in time the frame becomes available. Used to
+	  *             calculate the framerate for recording (depends on
+	  *             PAL/NTSC, frameskip).
 	  * @return RawFrame object that can be used for building the next frame.
 	  */
 	virtual RawFrame* rotateFrames(
 		RawFrame* finishedFrame, FrameSource::FieldType field,
 		const EmuTime& time);
 
+	/** Start/stop recording.
+	  * @param recorder Finished frames should be pushed to this
+	  *                 AviRecorder. Can also be a NULL pointer, meaning
+	  *                 recording is stopped.
+	  */
 	void setRecorder(AviRecorder* recorder);
+
+	/** Is recording active.
+	  * ATM used to keep frameskip constant during recording.
+	  */
 	bool isRecording() const;
+
+	/** Get the number of bits per pixel for the pixels in these frames.
+	  * @return Possible values are 15, 16 or 32
+	  */
 	unsigned getBpp() const;
+
+	/** Get the time (in seconds) between the last two frames (between last
+	  * two calls to rotateFrames()).
+	  */
 	double getLastFrameDuration() const;
 
 protected:
@@ -61,35 +81,39 @@ protected:
 		VisibleSurface& screen, VideoSource videoSource,
 		unsigned maxWidth, unsigned height);
 
-	/** Render settings
-	  */
+	/** Render settings */
 	RenderSettings& renderSettings;
 
-	/** The surface which is visible to the user.
-	  */
+	/** The surface which is visible to the user. */
 	VisibleSurface& screen;
 
-	/** The last finished frame, ready to be displayed.
-	  */
+	/** The last finished frame, ready to be displayed. */
 	RawFrame* currFrame;
 
-	/** The frame before currFrame, ready to be displayed.
-	  */
+	/** The frame before currFrame, ready to be displayed. */
 	RawFrame* prevFrame;
 
-	/** Combined currFrame and prevFrame.
-	  */
+	/** Combined currFrame and prevFrame. */
 	DeinterlacedFrame* deinterlacedFrame;
 
-	/** Each line of currFrame twice, to get double vertical resolution.
-	  */
+	/** Each line of currFrame twice, to get double vertical resolution. */
 	DoubledFrame* interlacedFrame;
 	
-	/** TODO */
+	/** Represents a frame as it should be displayed.
+	  * This can be simply a RawFrame or two RawFrames combined in a
+	  * DeinterlacedFrame or DoubledFrame.
+	  */
 	FrameSource* paintFrame;
 
+	/** Video recorder, NULL when not recording. */
 	AviRecorder* recorder;
+
+	/** Time when rotateFrames() was last called. */
 	EmuTime prevTime;
+
+	/** Duration of last frame (difference between last and second-to-last
+	  * time rotateFrames() was called).
+	  */
 	EmuDuration lastFrameDuration;
 };
 
