@@ -1,13 +1,13 @@
 // $Id: $
 
-// TODO record gfx9000
-//      merge with soundlog command
+// TODO merge with soundlog command
 
 #include "AviRecorder.hh"
 #include "AviWriter.hh"
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
 #include "Display.hh"
+#include "RenderSettings.hh"
 #include "PostProcessor.hh"
 #include "MSXMixer.hh"
 #include "Scheduler.hh"
@@ -24,7 +24,9 @@ namespace openmsx {
 AviRecorder::AviRecorder(Reactor& reactor_)
 	: SimpleCommand(reactor_.getCommandController(), "record")
 	, reactor(reactor_)
-	, postProcessor(0)
+	, videoSource(0)
+	, postProcessor1(0)
+	, postProcessor2(0)
 	, mixer(0)
 	, scheduler(0)
 {
@@ -33,9 +35,6 @@ AviRecorder::AviRecorder(Reactor& reactor_)
 AviRecorder::~AviRecorder()
 {
 	assert(!writer.get());
-	assert(!postProcessor);
-	assert(!mixer);
-	assert(!scheduler);
 }
 
 void AviRecorder::start(const string& filename)
@@ -49,17 +48,26 @@ void AviRecorder::start(const string& filename)
 	mixer = &motherBoard->getMSXMixer();
 
 	Display& display = reactor.getDisplay();
-	Layer* layer = display.findLayer("V99x8 PostProcessor"); // TODO
-	postProcessor = dynamic_cast<PostProcessor*>(layer);
-	if (!postProcessor) {
+	videoSource = &display.getRenderSettings().getVideoSource();
+	Layer* layer1 = display.findLayer("V99x8 PostProcessor");
+	Layer* layer2 = display.findLayer("V9990 PostProcessor");
+	postProcessor1 = dynamic_cast<PostProcessor*>(layer1);
+	postProcessor2 = dynamic_cast<PostProcessor*>(layer2);
+	PostProcessor* activePP = videoSource->getValue() == VIDEO_MSX
+	                        ? postProcessor1 : postProcessor2;
+	if (!activePP) {
 		throw CommandException(
 			"Current renderer doesn't support video recording.");
 	}
-
-	postProcessor->setRecorder(this);
+	if (postProcessor1) {
+		postProcessor1->setRecorder(this);
+	}
+	if (postProcessor2) {
+		postProcessor2->setRecorder(this);
+	}
 	mixer->setRecorder(this);
-	unsigned bpp = postProcessor->getBpp();
-	frameDuration = postProcessor->getLastFrameDuration();
+	unsigned bpp = activePP->getBpp();
+	frameDuration = activePP->getLastFrameDuration();
 	sampleRate = mixer->getSampleRate();
 	writer.reset(new AviWriter(filename, 320, 240, bpp,
 	                           1.0 / frameDuration, sampleRate));
@@ -83,8 +91,10 @@ void AviRecorder::addImage(const void** lines)
 			"avi recording. Audio/video might get out of sync "
 			"because of this.");
 	}
+	PostProcessor* activePP = videoSource->getValue() == VIDEO_MSX
+	                        ? postProcessor1 : postProcessor2;
 	if (!warnedFps &&
-	    (fabs(postProcessor->getLastFrameDuration() - frameDuration) > 1e-5)) {
+	    (fabs(activePP->getLastFrameDuration() - frameDuration) > 1e-5)) {
 		warnedFps = true;
 		reactor.getGlobalCliComm().printWarning(
 			"Detected frame rate change (PAL/NTSC or frameskip) "
@@ -100,9 +110,13 @@ void AviRecorder::addImage(const void** lines)
 
 void AviRecorder::stop()
 {
-	if (postProcessor) {
-		postProcessor->setRecorder(0);
-		postProcessor = 0;
+	if (postProcessor1) {
+		postProcessor1->setRecorder(0);
+		postProcessor1 = 0;
+	}
+	if (postProcessor2) {
+		postProcessor2->setRecorder(0);
+		postProcessor2 = 0;
 	}
 	if (mixer) {
 		mixer->setRecorder(0);

@@ -6,6 +6,8 @@ $Id$
 	     see 'help record'
 	   - in the future the record and soundlog command might be merged,
 	     with an option to select recording audio/video/both
+	* Implemented gfx9000 video recording:
+	   - active videosource ('videosource' setting) now gets recorded
 
 2007-01-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Avi recording fixes:

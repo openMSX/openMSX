@@ -11,6 +11,7 @@
 namespace openmsx {
 
 class Reactor;
+class VideoSourceSetting;
 class AviWriter;
 class PostProcessor;
 class MSXMixer;
@@ -37,9 +38,11 @@ private:
 	std::string processToggle(const std::vector<std::string>& tokens);
 
 	Reactor& reactor;
+	VideoSourceSetting* videoSource;
 	std::vector<short> audioBuf;
 	std::auto_ptr<AviWriter> writer;
-	PostProcessor* postProcessor;
+	PostProcessor* postProcessor1;
+	PostProcessor* postProcessor2;
 	MSXMixer* mixer;
 	Scheduler* scheduler;
 	double frameDuration;
