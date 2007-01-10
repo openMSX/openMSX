@@ -13,6 +13,7 @@ namespace openmsx {
 class Reactor;
 class VideoSourceSetting;
 class AviWriter;
+class WavWriter;
 class PostProcessor;
 class MSXMixer;
 class Scheduler;
@@ -22,13 +23,15 @@ class AviRecorder : private SimpleCommand
 public:
 	AviRecorder(Reactor& reactor);
 	~AviRecorder();
-	void start(const std::string& filename);
 
 	void addWave(unsigned num, short* data);
 	void addImage(const void** lines);
 	void stop();
 
 private:
+	void start(bool recordAudio, bool recordVideo,
+	           const std::string& filename);
+
 	virtual std::string execute(const std::vector<std::string>& tokens);
 	virtual std::string help(const std::vector<std::string>& tokens) const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
@@ -40,7 +43,8 @@ private:
 	Reactor& reactor;
 	VideoSourceSetting* videoSource;
 	std::vector<short> audioBuf;
-	std::auto_ptr<AviWriter> writer;
+	std::auto_ptr<AviWriter> aviWriter;
+	std::auto_ptr<WavWriter> wavWriter;
 	PostProcessor* postProcessor1;
 	PostProcessor* postProcessor2;
 	MSXMixer* mixer;

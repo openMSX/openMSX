@@ -17,8 +17,8 @@ public:
 	~WavWriter();
 
 	void write8mono(unsigned char val);
-	void write8mono(unsigned char* buf, size_t len);
-	void write16stereo(short left, short right);
+	void write8mono(unsigned char* buf, unsigned len);
+	void write16stereo(short* buffer, unsigned samples);
 
 	/** Flush data to file and update header. Try to make (possibly)
 	  * incomplete file already usable for external programs.

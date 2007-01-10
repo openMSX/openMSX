@@ -197,16 +197,9 @@ double Mixer::uploadBuffer(MSXMixer& msxMixer, short* buffer, unsigned len)
 	(void)msxMixer;
 
 	if (wavWriter.get()) {
-		writeWaveData(buffer, len);
+		wavWriter->write16stereo(buffer, len);
 	}
 	return driver->uploadBuffer(buffer, len);
-}
-
-void Mixer::writeWaveData(short* buffer, unsigned samples)
-{
-	for (unsigned i = 0; i < samples; ++i) {
-		wavWriter->write16stereo(buffer[2 * i + 0], buffer[2 * i + 1]);
-	}
 }
 
 void Mixer::update(const Setting& setting)

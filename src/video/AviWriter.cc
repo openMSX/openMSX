@@ -5,9 +5,11 @@
 #include "AviWriter.hh"
 #include "ZMBVEncoder.hh"
 #include "CommandException.hh"
+#include "build-info.hh"
 #include <algorithm>
 #include <cstring>
 #include <cstdlib>
+#include <cassert>
 
 namespace openmsx {
 
@@ -60,6 +62,8 @@ AviWriter::~AviWriter()
 #define AVIOUTw(_S_) writeLE2(&avi_header[header_pos], _S_);header_pos+=2;
 #define AVIOUTd(_S_) writeLE4(&avi_header[header_pos], _S_);header_pos+=4;
 
+	bool hasAudio = audiorate != 0;
+
 	// write avi header
 	AVIOUT4("RIFF");                    // Riff header 
 	AVIOUTd(AVI_HEADER_SIZE + written - 8 + index.size());
@@ -77,7 +81,7 @@ AviWriter::~AviWriter()
 	AVIOUTd(0x110);                     // Flags,0x10 has index, 0x100 interleaved
 	AVIOUTd(frames);                    // TotalFrames
 	AVIOUTd(0);                         // InitialFrames
-	AVIOUTd(2);                         // Stream count
+	AVIOUTd(hasAudio? 2 : 1);           // Stream count
 	AVIOUTd(0);                         // SuggestedBufferSize
 	AVIOUTd(width);                     // Width
 	AVIOUTd(height);                    // Height
@@ -121,36 +125,38 @@ AviWriter::~AviWriter()
 	AVIOUTd(0);                         // ClrUsed: Number of colors used
 	AVIOUTd(0);                         // ClrImportant: Number of colors important
 
-	// Audio stream list
-	AVIOUT4("LIST");
-	AVIOUTd(4 + 8 + 56 + 8 + 16);       // Length of list in bytes
-	AVIOUT4("strl");
-	// The audio stream header
-	AVIOUT4("strh");
-	AVIOUTd(56);                        // # of bytes to follow
-	AVIOUT4("auds");
-	AVIOUTd(0);                         // Format (Optionally)
-	AVIOUTd(0);                         // Flags
-	AVIOUTd(0);                         // Reserved, MS says: wPriority, wLanguage
-	AVIOUTd(0);                         // InitialFrames
-	AVIOUTd(4);                         // Scale
-	AVIOUTd(audiorate * 4);             // Rate, actual rate is scale/rate
-	AVIOUTd(0);                         // Start
-	AVIOUTd(audiowritten);              // Length
-	AVIOUTd(0);                         // SuggestedBufferSize
-	AVIOUTd(~0);                        // Quality
-	AVIOUTd(4);                         // SampleSize
-	AVIOUTd(0);                         // Frame
-	AVIOUTd(0);                         // Frame
-	// The audio stream format
-	AVIOUT4("strf");
-	AVIOUTd(16);                        // # of bytes to follow
-	AVIOUTw(1);                         // Format, WAVE_ZMBV_FORMAT_PCM
-	AVIOUTw(2);                         // Number of channels
-	AVIOUTd(audiorate);                 // SamplesPerSec
-	AVIOUTd(audiorate * 4);             // AvgBytesPerSec
-	AVIOUTw(4);                         // BlockAlign
-	AVIOUTw(16);                        // BitsPerSample
+	if (hasAudio) {
+		// Audio stream list
+		AVIOUT4("LIST");
+		AVIOUTd(4 + 8 + 56 + 8 + 16);// Length of list in bytes
+		AVIOUT4("strl");
+		// The audio stream header
+		AVIOUT4("strh");
+		AVIOUTd(56);                // # of bytes to follow
+		AVIOUT4("auds");
+		AVIOUTd(0);                 // Format (Optionally)
+		AVIOUTd(0);                 // Flags
+		AVIOUTd(0);                 // Reserved, MS says: wPriority, wLanguage
+		AVIOUTd(0);                 // InitialFrames
+		AVIOUTd(4);                 // Scale
+		AVIOUTd(audiorate * 4);     // Rate, actual rate is scale/rate
+		AVIOUTd(0);                 // Start
+		AVIOUTd(audiowritten);      // Length
+		AVIOUTd(0);                 // SuggestedBufferSize
+		AVIOUTd(~0);                // Quality
+		AVIOUTd(4);                 // SampleSize
+		AVIOUTd(0);                 // Frame
+		AVIOUTd(0);                 // Frame
+		// The audio stream format
+		AVIOUT4("strf");
+		AVIOUTd(16);                // # of bytes to follow
+		AVIOUTw(1);                 // Format, WAVE_ZMBV_FORMAT_PCM
+		AVIOUTw(2);                 // Number of channels
+		AVIOUTd(audiorate);         // SamplesPerSec
+		AVIOUTd(audiorate * 4);     // AvgBytesPerSec
+		AVIOUTw(4);                 // BlockAlign
+		AVIOUTw(16);                // BitsPerSample
+	}
 
 	// Finish stream list, i.e. put number of bytes in the list to proper pos
 	int nmain = header_pos - main_list - 4;
@@ -201,6 +207,10 @@ void AviWriter::addAviChunk(const char* tag, unsigned size, void* data, unsigned
 	writeLE4(&index[idxsize + 12], size);
 }
 
+static inline unsigned short bswap16(unsigned short val)
+{
+	return ((val & 0xFF00) >> 8) | ((val & 0x00FF) << 8);
+}
 void AviWriter::addFrame(const void** lineData, unsigned samples, short* sampleData)
 {
 	bool keyFrame = (frames++ % 300 == 0);
@@ -210,7 +220,17 @@ void AviWriter::addFrame(const void** lineData, unsigned samples, short* sampleD
 	addAviChunk("00dc", size, buffer, keyFrame ? 0x10 : 0x0);
 
 	if (samples) {
-		addAviChunk("01wb", samples * 2 * sizeof(short), sampleData, 0);
+		assert(audiorate != 0);
+		if (OPENMSX_BIGENDIAN) {
+			short buf[2 * samples];
+			for (unsigned i = 0; i < samples; ++i) {
+				buf[2 * i + 0] = bswap16(sampleData[2 * i + 0]);
+				buf[2 * i + 1] = bswap16(sampleData[2 * i + 1]);
+			}
+			addAviChunk("01wb", samples * 2 * sizeof(short), buf, 0);
+		} else {
+			addAviChunk("01wb", samples * 2 * sizeof(short), sampleData, 0);
+		}
 		audiowritten += samples;
 	}
 }

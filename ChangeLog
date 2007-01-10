@@ -1,5 +1,10 @@
 $Id$
 
+2007-01-10 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Extended the record command to optionally record only audio or video:
+	   - 'record start' accepts two new flags: -noaudio and -novideo
+	   - the soundlog command is obsolete now
+
 2007-01-09 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Improved 'record' command:
 	   - syntax is very similar to the 'soundlog' command,

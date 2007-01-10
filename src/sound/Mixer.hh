@@ -53,7 +53,6 @@ public:
 private:
 	void reloadDriver();
 	void muteHelper();
-	void writeWaveData(short* buffer, unsigned samples);
 
 	// Observer<Setting>
 	virtual void update(const Setting& setting);

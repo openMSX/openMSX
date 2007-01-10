@@ -82,13 +82,20 @@ void WavWriter::write8mono(unsigned char* val, size_t len)
 	bytes += fwrite(val, 1, len, wavfp);
 }
 
-void WavWriter::write16stereo(short left, short right)
+void WavWriter::write16stereo(short* buffer, unsigned samples)
 {
-	short buf[2];
-	buf[0] = litEnd_16(left);
-	buf[1] = litEnd_16(right);
-	fwrite(buf, 4, 1, wavfp);
-	bytes += 4;
+	unsigned size = 4 * samples;
+	if (OPENMSX_BIGENDIAN) {
+		short buf[2 * samples];
+		for (unsigned i = 0; i < samples; ++i) {
+			buf[2 * i + 0] = litEnd_16(buffer[2 * i + 0]);
+			buf[2 * i + 1] = litEnd_16(buffer[2 * i + 1]);
+		}
+		fwrite(buf, 1, size, wavfp);
+	} else {
+		fwrite(buffer, 1, size, wavfp);
+	}
+	bytes += size;
 }
 
 void WavWriter::flush()

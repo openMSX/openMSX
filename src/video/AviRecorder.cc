@@ -1,9 +1,8 @@
 // $Id: $
 
-// TODO merge with soundlog command
-
 #include "AviRecorder.hh"
 #include "AviWriter.hh"
+#include "WavWriter.hh"
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
 #include "Display.hh"
@@ -34,78 +33,57 @@ AviRecorder::AviRecorder(Reactor& reactor_)
 
 AviRecorder::~AviRecorder()
 {
-	assert(!writer.get());
+	assert(!aviWriter.get());
+	assert(!wavWriter.get());
 }
 
-void AviRecorder::start(const string& filename)
+void AviRecorder::start(bool recordAudio, bool recordVideo,
+                        const string& filename)
 {
 	stop();
 	MSXMotherBoard* motherBoard = reactor.getMotherBoard();
 	if (!motherBoard) {
 		throw CommandException("No active MSX machine.");
 	}
-	scheduler = &motherBoard->getScheduler();
-	mixer = &motherBoard->getMSXMixer();
-
-	Display& display = reactor.getDisplay();
-	videoSource = &display.getRenderSettings().getVideoSource();
-	Layer* layer1 = display.findLayer("V99x8 PostProcessor");
-	Layer* layer2 = display.findLayer("V9990 PostProcessor");
-	postProcessor1 = dynamic_cast<PostProcessor*>(layer1);
-	postProcessor2 = dynamic_cast<PostProcessor*>(layer2);
-	PostProcessor* activePP = videoSource->getValue() == VIDEO_MSX
-	                        ? postProcessor1 : postProcessor2;
-	if (!activePP) {
-		throw CommandException(
-			"Current renderer doesn't support video recording.");
+	if (recordAudio) {
+		mixer = &motherBoard->getMSXMixer();
+		sampleRate = mixer->getSampleRate();
+		warnedSampleRate = false;
 	}
+	if (recordVideo) {
+		Display& display = reactor.getDisplay();
+		scheduler = &motherBoard->getScheduler();
+		videoSource = &display.getRenderSettings().getVideoSource();
+		Layer* layer1 = display.findLayer("V99x8 PostProcessor");
+		Layer* layer2 = display.findLayer("V9990 PostProcessor");
+		postProcessor1 = dynamic_cast<PostProcessor*>(layer1);
+		postProcessor2 = dynamic_cast<PostProcessor*>(layer2);
+		PostProcessor* activePP = videoSource->getValue() == VIDEO_MSX
+					? postProcessor1 : postProcessor2;
+		if (!activePP) {
+			throw CommandException(
+				"Current renderer doesn't support video recording.");
+		}
+		unsigned bpp = activePP->getBpp();
+		frameDuration = activePP->getLastFrameDuration();
+		warnedFps = false;
+
+		aviWriter.reset(new AviWriter(filename, 320, 240, bpp,
+		                              1.0 / frameDuration, sampleRate));
+	} else {
+		assert(recordAudio);
+		wavWriter.reset(new WavWriter(filename, 2, 16, sampleRate));
+	}
+	// only set recorders when all errors are checked for
 	if (postProcessor1) {
 		postProcessor1->setRecorder(this);
 	}
 	if (postProcessor2) {
 		postProcessor2->setRecorder(this);
 	}
-	mixer->setRecorder(this);
-	unsigned bpp = activePP->getBpp();
-	frameDuration = activePP->getLastFrameDuration();
-	sampleRate = mixer->getSampleRate();
-	writer.reset(new AviWriter(filename, 320, 240, bpp,
-	                           1.0 / frameDuration, sampleRate));
-
-	warnedFps = false;
-	warnedSampleRate = false;
-}
-
-void AviRecorder::addWave(unsigned num, short* data)
-{
-	audioBuf.insert(audioBuf.end(), data, data + 2 * num);
-}
-
-void AviRecorder::addImage(const void** lines)
-{
-	if (!warnedSampleRate && mixer &&
-	    (mixer->getSampleRate() != sampleRate)) {
-		warnedSampleRate = true;
-		reactor.getGlobalCliComm().printWarning(
-			"Detected audio sample frequency change during "
-			"avi recording. Audio/video might get out of sync "
-			"because of this.");
-	}
-	PostProcessor* activePP = videoSource->getValue() == VIDEO_MSX
-	                        ? postProcessor1 : postProcessor2;
-	if (!warnedFps &&
-	    (fabs(activePP->getLastFrameDuration() - frameDuration) > 1e-5)) {
-		warnedFps = true;
-		reactor.getGlobalCliComm().printWarning(
-			"Detected frame rate change (PAL/NTSC or frameskip) "
-			"during avi recording. Audio/video might get out of "
-			"sync because of this.");
-	}
 	if (mixer) {
-		mixer->updateStream(scheduler->getCurrentTime());
+		mixer->setRecorder(this);
 	}
-	writer->addFrame(lines, audioBuf.size() / 2, &audioBuf[0]);
-	audioBuf.clear();
 }
 
 void AviRecorder::stop()
@@ -123,7 +101,46 @@ void AviRecorder::stop()
 		mixer = 0;
 	}
 	scheduler = 0;
-	writer.reset();
+	sampleRate = 0;
+	aviWriter.reset();
+	wavWriter.reset();
+}
+
+void AviRecorder::addWave(unsigned num, short* data)
+{
+	if (!warnedSampleRate && (mixer->getSampleRate() != sampleRate)) {
+		warnedSampleRate = true;
+		reactor.getGlobalCliComm().printWarning(
+			"Detected audio sample frequency change during "
+			"avi recording. Audio/video might get out of sync "
+			"because of this.");
+	}
+	if (wavWriter.get()) {
+		wavWriter->write16stereo(data, num);
+	} else {
+		assert(aviWriter.get());
+		audioBuf.insert(audioBuf.end(), data, data + 2 * num);
+	}
+}
+
+void AviRecorder::addImage(const void** lines)
+{
+	assert(!wavWriter.get());
+	PostProcessor* activePP = videoSource->getValue() == VIDEO_MSX
+	                        ? postProcessor1 : postProcessor2;
+	if (!warnedFps &&
+	    (fabs(activePP->getLastFrameDuration() - frameDuration) > 1e-5)) {
+		warnedFps = true;
+		reactor.getGlobalCliComm().printWarning(
+			"Detected frame rate change (PAL/NTSC or frameskip) "
+			"during avi recording. Audio/video might get out of "
+			"sync because of this.");
+	}
+	if (mixer) {
+		mixer->updateStream(scheduler->getCurrentTime());
+	}
+	aviWriter->addFrame(lines, audioBuf.size() / 2, &audioBuf[0]);
+	audioBuf.clear();
 }
 
 
@@ -146,34 +163,58 @@ string AviRecorder::processStart(const vector<string>& tokens)
 {
 	string filename;
 	string prefix = "openmsx";
-	switch (tokens.size()) {
-	case 2:
+	bool recordAudio = true;
+	bool recordVideo = true;
+	
+	vector<string> arguments;
+	for (unsigned i = 2; i < tokens.size(); ++i) {
+		if (StringOp::startsWith(tokens[i], "-")) {
+			if (tokens[i] == "--") {
+				arguments.insert(arguments.end(),
+					tokens.begin() + i + 1, tokens.end());
+				break;
+			}
+			if (tokens[i] == "-prefix") {
+				if (++i == tokens.size()) {
+					throw CommandException("Missing argument");
+				}
+				prefix = tokens[i];
+			} else if (tokens[i] == "-novideo") {
+				recordVideo = false;
+			} else if (tokens[i] == "-noaudio") {
+				recordAudio = false;
+			} else {
+				throw CommandException("Invalid option");
+			}
+		} else {
+			arguments.push_back(tokens[i]);
+		}
+	}
+	if (!recordAudio && !recordVideo) {
+		throw CommandException("Can't have both -noaudio and -novideo.");
+	}
+	switch (arguments.size()) {
+	case 0:
 		// nothing
 		break;
-	case 3:
-		if (tokens[2] == "-prefix") {
-			throw CommandException("Missing argument");
-		}
-		filename = tokens[2];
-		break;
-	case 4:
-		if (tokens[2] != "-prefix") {
-			throw SyntaxError();
-		}
-		prefix = tokens[3];
+	case 1:
+		filename = arguments[0];
 		break;
 	default:
 		throw SyntaxError();
 	}
+
 	if (filename.empty()) {
+		string directory = recordVideo ? "videos" : "soundlogs";
+		string extension = recordVideo ? ".avi"   : ".wav";
 		filename = FileOperations::getNextNumberedFileName(
-			"videos", prefix, ".avi");
+			directory, prefix, extension);
 	}
 	
-	if (writer.get()) {
+	if (aviWriter.get() || wavWriter.get()) {
 		return "Already recording.";
 	}
-	start(filename);
+	start(recordAudio, recordVideo, filename);
 	return "Recording to " + filename;
 }
 
@@ -188,7 +229,7 @@ string AviRecorder::processStop(const vector<string>& tokens)
 
 string AviRecorder::processToggle(const vector<string>& tokens)
 {
-	if (writer.get()) {
+	if (aviWriter.get()) {
 		// drop extra tokens
 		vector<string> tmp(tokens.begin(), tokens.begin() + 2);
 		return processStop(tmp);
@@ -204,7 +245,9 @@ string AviRecorder::help(const vector<string>& /*tokens*/) const
 	       "record start <filename>   Record to given file\n"
 	       "record start -prefix foo  Record to file 'fooNNNN.avi'\n"
 	       "record stop               Stop recording\n"
-	       "record toggle             Toggle recording (useful as keybinding)\n";
+	       "record toggle             Toggle recording (useful as keybinding)\n"
+	       "\n"
+	       "The start subcommand also accept an optional -novideo or -noaudio flag.\n";
 }
 
 void AviRecorder::tabCompletion(vector<string>& tokens) const
@@ -213,9 +256,9 @@ void AviRecorder::tabCompletion(vector<string>& tokens) const
 		const char* const str[3] = { "start", "stop", "toggle" };
 		std::set<string> cmds(str, str + 3);
 		completeString(tokens, cmds);
-	} else if ((tokens.size() == 3) && (tokens[1] == "start")) {
-		const char* const str[1] = { "-prefix" };
-		std::set<string> cmds(str, str + 1);
+	} else if ((tokens.size() >= 3) && (tokens[1] == "start")) {
+		const char* const str[3] = { "-prefix", "-noaudio", "-novideo" };
+		std::set<string> cmds(str, str + 3);
 		completeString(tokens, cmds);
 	}
 }
