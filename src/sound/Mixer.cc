@@ -5,44 +5,19 @@
 #include "NullSoundDriver.hh"
 #include "SDLSoundDriver.hh"
 #include "DirectXSoundDriver.hh"
-#include "WavWriter.hh"
-#include "CliComm.hh"
 #include "CommandController.hh"
-#include "Command.hh"
 #include "GlobalSettings.hh"
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
-#include "FileOperations.hh"
-#include <algorithm>
 #include <cassert>
 
-using std::set;
-using std::string;
-using std::vector;
-
 namespace openmsx {
-
-class SoundlogCommand : public SimpleCommand
-{
-public:
-	SoundlogCommand(CommandController& commandController, Mixer& mixer);
-	virtual string execute(const vector<string>& tokens);
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
-private:
-	string stopSoundLogging(const vector<string>& tokens);
-	string startSoundLogging(const vector<string>& tokens);
-	string toggleSoundLogging(const vector<string>& tokens);
-	Mixer& mixer;
-};
-
 
 Mixer::Mixer(CommandController& commandController_)
 	: muteCount(0)
 	, commandController(commandController_)
 	, pauseSetting(commandController.getGlobalSettings().getPauseSetting())
-	, soundlogCommand(new SoundlogCommand(commandController, *this))
 {
 	// default values
 #ifdef _WIN32
@@ -196,9 +171,6 @@ double Mixer::uploadBuffer(MSXMixer& msxMixer, short* buffer, unsigned len)
 	assert(msxMixers.front() == &msxMixer);
 	(void)msxMixer;
 
-	if (wavWriter.get()) {
-		wavWriter->write16stereo(buffer, len);
-	}
 	return driver->uploadBuffer(buffer, len);
 }
 
@@ -217,131 +189,11 @@ void Mixer::update(const Setting& setting)
 			unmute();
 		}
 	} else if ((&setting == samplesSetting.get()) ||
-	           (&setting == soundDriverSetting.get())) {
-		reloadDriver();
-	} else if (&setting == frequencySetting.get()) {
-		if (wavWriter.get()) {
-			wavWriter.reset();
-			commandController.getCliComm().printWarning(
-				"Stopped logging sound, because of change of "
-				"frequency setting");
-		}
+	           (&setting == soundDriverSetting.get()) || 
+	           (&setting == frequencySetting.get())) {
 		reloadDriver();
 	} else {
 		assert(false);
-	}
-}
-
-
-// class SoundlogCommand
-
-SoundlogCommand::SoundlogCommand(
-		CommandController& commandController, Mixer& mixer_)
-	: SimpleCommand(commandController, "soundlog")
-	, mixer(mixer_)
-{
-}
-
-string SoundlogCommand::execute(const vector<string>& tokens)
-{
-	if (tokens.size() < 2) {
-		throw CommandException("Missing argument");
-	}
-	if (tokens[1] == "start") {
-		return startSoundLogging(tokens);
-	} else if (tokens[1] == "stop") {
-		return stopSoundLogging(tokens);
-	} else if (tokens[1] == "toggle") {
-		return toggleSoundLogging(tokens);
-	}
-	throw SyntaxError();
-}
-
-string SoundlogCommand::startSoundLogging(const vector<string>& tokens)
-{
-	string filename;
-	switch (tokens.size()) {
-	case 2:
-		filename = FileOperations::getNextNumberedFileName(
-			"soundlogs", "openmsx", ".wav");
-		break;
-	case 3:
-		if (tokens[2] == "-prefix") {
-			throw SyntaxError();
-		} else {
-			filename = tokens[2];
-		}
-		break;
-	case 4:
-		if (tokens[2] == "-prefix") {
-			filename = FileOperations::getNextNumberedFileName(
-				"soundlogs", tokens[3], ".wav");
-		} else {
-			throw SyntaxError();
-		}
-		break;
-	default:
-		throw SyntaxError();
-	}
-
-	if (!mixer.wavWriter.get()) {
-		try {
-			mixer.wavWriter.reset(new WavWriter(filename,
-				2, 16, mixer.frequencySetting->getValue()));
-			mixer.commandController.getCliComm().printInfo(
-				"Started logging sound to " + filename);
-			return filename;
-		} catch (MSXException& e) {
-			throw CommandException(e.getMessage());
-		}
-	} else {
-		return "Already logging!";
-	}
-}
-
-string SoundlogCommand::stopSoundLogging(const vector<string>& tokens)
-{
-	if (tokens.size() != 2) throw SyntaxError();
-	if (mixer.wavWriter.get()) {
-		mixer.wavWriter.reset();
-		return "SoundLogging stopped.";
-	} else {
-		return "Sound logging was not enabled, are you trying to fool me?";
-	}
-}
-
-string SoundlogCommand::toggleSoundLogging(const vector<string>& tokens)
-{
-	if (tokens.size() != 2) throw SyntaxError();
-	if (!mixer.wavWriter.get()) {
-		return startSoundLogging(tokens);
-	} else {
-		return stopSoundLogging(tokens);
-	}
-}
-
-string SoundlogCommand::help(const vector<string>& /*tokens*/) const
-{
-	return "Controls sound logging: writing the openMSX sound to a wav file.\n"
-	       "soundlog start              Log sound to file \"openmsxNNNN.wav\"\n"
-	       "soundlog start <filename>   Log sound to indicated file\n"
-	       "soundlog start -prefix foo  Log sound to file \"fooNNNN.wav\"\n"
-	       "soundlog stop               Stop logging sound\n"
-	       "soundlog toggle             Toggle sound logging state\n";
-}
-
-void SoundlogCommand::tabCompletion(vector<string>& tokens) const
-{
-	if (tokens.size() == 2) {
-		set<string> cmds;
-		cmds.insert("start");
-		cmds.insert("stop");
-		cmds.insert("toggle");
-		completeString(tokens, cmds);
-	} else if ((tokens.size() == 3) && (tokens[1] == "start")) {
-		set<string> cmds;
-		cmds.insert("-prefix");
-		completeString(tokens, cmds);
 	}
 }
 

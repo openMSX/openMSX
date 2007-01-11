@@ -1,6 +1,9 @@
 $Id$
 
 2007-01-10 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Reimplemented 'soundlog' command as a Tcl script
+
+2007-01-10 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Extended the record command to optionally record only audio or video:
 	   - 'record start' accepts two new flags: -noaudio and -novideo
 	   - the soundlog command is obsolete now

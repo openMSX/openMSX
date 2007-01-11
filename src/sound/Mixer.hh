@@ -16,9 +16,7 @@ class MSXMixer;
 class IntegerSetting;
 class BooleanSetting;
 template <typename T> class EnumSetting;
-class WavWriter;
 class Setting;
-class SoundlogCommand;
 
 class Mixer : private Observer<Setting>, private noncopyable
 {
@@ -71,11 +69,6 @@ private:
 	enum SoundDriverType { SND_NULL, SND_SDL, SND_DIRECTX };
 	std::auto_ptr<EnumSetting<SoundDriverType> > soundDriverSetting;
 	BooleanSetting& pauseSetting;
-
-	std::auto_ptr<WavWriter> wavWriter;
-
-	friend class SoundlogCommand;
-	const std::auto_ptr<SoundlogCommand> soundlogCommand;
 };
 
 } // namespace openmsx
