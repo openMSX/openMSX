@@ -77,7 +77,7 @@ void WavWriter::write8mono(unsigned char val)
 	write8mono(&val, 1);
 }
 
-void WavWriter::write8mono(unsigned char* val, size_t len)
+void WavWriter::write8mono(unsigned char* val, unsigned len)
 {
 	bytes += fwrite(val, 1, len, wavfp);
 }
