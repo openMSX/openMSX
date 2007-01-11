@@ -229,7 +229,7 @@ string AviRecorder::processStop(const vector<string>& tokens)
 
 string AviRecorder::processToggle(const vector<string>& tokens)
 {
-	if (aviWriter.get()) {
+	if (aviWriter.get() || wavWriter.get()) {
 		// drop extra tokens
 		vector<string> tmp(tokens.begin(), tokens.begin() + 2);
 		return processStop(tmp);
