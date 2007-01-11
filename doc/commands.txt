@@ -385,11 +385,13 @@ record
   Controls video recording: write openMSX audio/video to a .avi file.
 
   usage:
-    record start              Record to file "openmsxNNNN.wav"
+    record start              Record to file "openmsxNNNN.avi"
     record start <filename>   Record to indicated file
-    record start -prefix foo  Record to file "fooNNNN.wav"
+    record start -prefix foo  Record to file "fooNNNN.avi"
     record stop               Stop recording
     record toggle             Toggle recording
+
+    The start subcommand also accept an optional -novideo or -noaudio flag.
 
 
 remove_extension
