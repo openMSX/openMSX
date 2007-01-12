@@ -3,9 +3,9 @@
 #ifndef DISPLAY_HH
 #define DISPLAY_HH
 
-#include "Layer.hh"
 #include "RendererFactory.hh"
 #include "EventListener.hh"
+#include "LayerListener.hh"
 #include "Observer.hh"
 #include "CircularBuffer.hh"
 #include "noncopyable.hh"
@@ -14,6 +14,7 @@
 
 namespace openmsx {
 
+class Layer;
 class Reactor;
 class VideoSystem;
 class RenderSettings;

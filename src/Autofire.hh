@@ -5,7 +5,6 @@
 
 #include "Observer.hh"
 #include "DynamicClock.hh"
-#include "openmsx.hh"
 #include "noncopyable.hh"
 #include <string>
 #include <memory>
@@ -32,15 +31,11 @@ public:
 	         const std::string& name);
 	virtual ~Autofire();
 
-	/**
-	 * Give the output signal in negative logic.
-	 *
-	 * When auto-fire is on, bit 0 will
-	 * alternate between 0 and 1.
-	 *
-	 * When auto-fire is off, bit 0 will be 0.
-	 */
-	byte getSignal(const EmuTime& time);
+	/** Get the output signal in negative logic.
+	  * @result When auto-fire is on, result will alternate between true
+	  *         and false. When auto-fire if off result is false.
+	  */
+	bool getSignal(const EmuTime& time);
 
 private:
 	/** Sets the clock frequency according to the current value of the speed

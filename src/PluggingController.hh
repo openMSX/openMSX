@@ -13,8 +13,6 @@ class MSXMotherBoard;
 class Connector;
 class Pluggable;
 class MSXCliComm;
-class Scheduler;
-class MSXEventDistributor;
 class PlugCmd;
 class UnplugCmd;
 class PluggableInfo;

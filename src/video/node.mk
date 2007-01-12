@@ -11,7 +11,6 @@ SRC_HDR:= \
 	Renderer RendererFactory RenderSettings PixelRenderer \
 	SDLVideoSystem SDLRasterizer FBPostProcessor SDLSnow \
 	DummyRenderer \
-	XRenderer \
 	BitmapConverter CharacterConverter \
 	Scanline \
 	ScalerFactory \
@@ -44,7 +43,8 @@ HDR_ONLY:= \
 	Scaler \
 	Rasterizer \
 	HQCommon \
-	VideoSystemChangeListener
+	VideoSystemChangeListener \
+	LayerListener
 
 DIST:= \
 	HQ2xScaler-1x1to2x2.nn \

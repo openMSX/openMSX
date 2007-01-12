@@ -9,6 +9,7 @@
 #include "Y8950.hh"
 #include "Y8950Adpcm.hh"
 #include "Y8950KeyboardConnector.hh"
+#include "Y8950Periphery.hh"
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
 #include "DACSound16S.hh"

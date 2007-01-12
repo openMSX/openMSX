@@ -3,7 +3,6 @@
 #ifndef Y8950_HH
 #define Y8950_HH
 
-#include "Y8950Periphery.hh"
 #include "SoundDevice.hh"
 #include "EmuTimer.hh"
 #include "IRQHelper.hh"
@@ -14,6 +13,7 @@ namespace openmsx {
 
 class Y8950Adpcm;
 class Y8950KeyboardConnector;
+class Y8950Periphery;
 class DACSound16S;
 class MSXMotherBoard;
 class Y8950Debuggable;

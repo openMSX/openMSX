@@ -4,7 +4,6 @@
 #define COMMANDLINEPARSER_HH
 
 #include "StringOp.hh"
-#include "openmsx.hh"
 #include "noncopyable.hh"
 #include <string>
 #include <vector>
@@ -45,7 +44,7 @@ public:
 	explicit CommandLineParser(Reactor& reactor);
 	~CommandLineParser();
 	void registerOption(const std::string& str, CLIOption& cliOption,
-		byte prio = 8, byte length = 2);
+		unsigned prio = 8, unsigned length = 2);
 	void registerFileClass(const std::string& str,
 	                       CLIFileType& cliFileType);
 	void parse(int argc, char** argv);
@@ -65,14 +64,14 @@ private:
 	struct OptionData
 	{
 		CLIOption* option;
-		byte prio;
-		byte length; // length in parameters
+		unsigned prio;
+		unsigned length; // length in parameters
 	};
 
 	bool parseFileName(const std::string& arg,
 	                   std::list<std::string>& cmdLine);
 	bool parseOption(const std::string& arg,
-	                 std::list<std::string>& cmdLine, byte prio);
+	                 std::list<std::string>& cmdLine, unsigned prio);
 	void registerFileTypes();
 	void createMachineSetting();
 

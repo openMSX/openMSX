@@ -1,6 +1,7 @@
 // $Id$
 
 #include "Display.hh"
+#include "Layer.hh"
 #include "VideoSystem.hh"
 #include "EventDistributor.hh"
 #include "FinishFrameEvent.hh"

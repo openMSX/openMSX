@@ -5,10 +5,10 @@
 #ifndef I8251_HH
 #define I8251_HH
 
-#include "openmsx.hh"
 #include "ClockPin.hh"
 #include "SerialDataInterface.hh"
 #include "Schedulable.hh"
+#include "openmsx.hh"
 
 namespace openmsx {
 

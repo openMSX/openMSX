@@ -3,7 +3,6 @@
 #ifndef HARDWARECONFIG_HH
 #define HARDWARECONFIG_HH
 
-#include "XMLElement.hh"
 #include "noncopyable.hh"
 #include <string>
 #include <vector>
@@ -13,6 +12,7 @@ namespace openmsx {
 
 class MSXMotherBoard;
 class MSXDevice;
+class XMLElement;
 
 class HardwareConfig : private noncopyable
 {

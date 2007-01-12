@@ -5,7 +5,6 @@
 
 #include "Command.hh"
 #include "EventListener.hh"
-#include "Schedulable.hh"
 #include "Event.hh"
 #include <map>
 
@@ -14,6 +13,7 @@ namespace openmsx {
 class Reactor;
 class EventDistributor;
 class CommandController;
+class AfterCmd;
 
 class AfterCommand : public SimpleCommand, private EventListener
 {
@@ -28,7 +28,6 @@ public:
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 
 private:
-
 	std::string afterTime(const std::vector<std::string>& tokens);
 	std::string afterIdle(const std::vector<std::string>& tokens);
 	std::string afterInfo(const std::vector<std::string>& tokens);
@@ -40,72 +39,13 @@ private:
 	// EventListener
 	virtual bool signalEvent(shared_ptr<const Event> event);
 
-
-	class AfterCmd {
-	public:
-		virtual ~AfterCmd();
-		const std::string& getCommand() const;
-		const std::string& getId() const;
-		virtual const std::string& getType() const = 0;
-		void execute();
-	protected:
-		AfterCmd(AfterCommand& afterCommand,
-		         const std::string& command);
-	private:
-		AfterCommand& afterCommand;
-		std::string command;
-		std::string id;
-		static unsigned lastAfterId;
-	};
-
-	class AfterTimedCmd : public AfterCmd, private Schedulable {
-	public:
-		double getTime() const;
-		void reschedule();
-	protected:
-		AfterTimedCmd(Scheduler& scheduler,
-		              AfterCommand& afterCommand,
-		              const std::string& command, double time);
-	private:
-		virtual void executeUntil(const EmuTime& time, int userData);
-		virtual void schedulerDeleted();
-		virtual const std::string& schedName() const;
-
-		double time;
-	};
-
-	class AfterTimeCmd : public AfterTimedCmd {
-	public:
-		AfterTimeCmd(Scheduler& scheduler,
-		             AfterCommand& afterCommand,
-		             const std::string& command, double time);
-		virtual const std::string& getType() const;
-	};
-
-	class AfterIdleCmd : public AfterTimedCmd {
-	public:
-		AfterIdleCmd(Scheduler& scheduler,
-		             AfterCommand& afterCommand,
-		             const std::string& command, double time);
-		virtual const std::string& getType() const;
-	};
-
-	template<EventType T>
-	class AfterEventCmd : public AfterCmd {
-	public:
-		AfterEventCmd(AfterCommand& afterCommand,
-		              const std::string& type,
-		              const std::string& command);
-		virtual const std::string& getType() const;
-	private:
-		const std::string type;
-	};
-
 	typedef std::map<std::string, AfterCmd*> AfterCmdMap;
 	AfterCmdMap afterCmds;
 
 	Reactor& reactor;
 	EventDistributor& eventDistributor;
+
+	friend class AfterCmd;
 };
 
 } // namespace openmsx

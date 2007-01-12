@@ -10,7 +10,6 @@
 namespace openmsx {
 
 class MSXMotherBoard;
-class XMLElement;
 class CartCmd;
 class HardwareConfig;
 

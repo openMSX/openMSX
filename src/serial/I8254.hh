@@ -8,10 +8,10 @@
 #ifndef I8254_HH
 #define I8254_HH
 
-#include "openmsx.hh"
-#include "noncopyable.hh"
 #include "EmuTime.hh"
 #include "ClockPin.hh"
+#include "openmsx.hh"
+#include "noncopyable.hh"
 
 namespace openmsx {
 

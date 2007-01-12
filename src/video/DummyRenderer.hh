@@ -3,7 +3,6 @@
 #ifndef DUMMYRENDERER_HH
 #define DUMMYRENDERER_HH
 
-#include "openmsx.hh"
 #include "Renderer.hh"
 #include "Layer.hh"
 

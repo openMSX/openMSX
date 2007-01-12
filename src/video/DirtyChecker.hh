@@ -3,9 +3,9 @@
 #ifndef DIRTYCHECKER_HH
 #define DIRTYCHECKER_HH
 
+#include "VRAMObserver.hh"
 #include <cassert>
 #include <bitset>
-#include "VRAMObserver.hh"
 
 namespace openmsx {
 

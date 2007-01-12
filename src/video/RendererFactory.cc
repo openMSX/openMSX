@@ -16,7 +16,6 @@
 // Renderers:
 #include "DummyRenderer.hh"
 #include "PixelRenderer.hh"
-#include "XRenderer.hh"
 #include "V9990DummyRenderer.hh"
 #include "V9990PixelRenderer.hh"
 
@@ -52,10 +51,6 @@ Renderer* RendererFactory::createRenderer(VDP& vdp, Display& display)
 		case SDLGL_FB16:
 		case SDLGL_FB32:
 			return new PixelRenderer(vdp, display);
-#ifdef HAVE_X11
-		case XLIB:
-			return new XRenderer(XLIB, vdp);
-#endif
 		default:
 			assert(false);
 			return 0;
@@ -107,10 +102,6 @@ auto_ptr<RendererFactory::RendererSetting>
 		rendererMap["SDLGL-FB16"] = SDLGL_FB16;
 		rendererMap["SDLGL-FB32"] = SDLGL_FB32;
 	}
-#endif
-#ifdef HAVE_X11
-	// XRenderer is not ready for users.
-	// rendererMap["Xlib" ] = XLIB;
 #endif
 	auto_ptr<RendererSetting> setting(new RendererSetting(commandController,
 		"renderer", "rendering back-end used to display the MSX screen",

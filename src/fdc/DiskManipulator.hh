@@ -10,7 +10,6 @@
 namespace openmsx {
 
 class CommandController;
-class GlobalSettings;
 class DiskContainer;
 class DiskChanger;
 class SectorAccessibleDisk;

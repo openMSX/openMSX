@@ -3,8 +3,8 @@
 #ifndef Y8950KEYBOARDDEVICE_HH
 #define Y8950KEYBOARDDEVICE_HH
 
-#include "openmsx.hh"
 #include "Pluggable.hh"
+#include "openmsx.hh"
 
 namespace openmsx {
 

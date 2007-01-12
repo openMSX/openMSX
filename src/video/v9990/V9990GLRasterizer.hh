@@ -4,7 +4,6 @@
 #define V9990GLRASTERIZER_HH
 
 #include "V9990Rasterizer.hh"
-#include "GLUtil.hh"
 
 namespace openmsx {
 

@@ -6,6 +6,7 @@
 #include "Ram.hh"
 #include "Rom.hh"
 #include "MachineConfig.hh"
+#include "XMLElement.hh"
 #include "MSXException.hh"
 
 namespace openmsx {

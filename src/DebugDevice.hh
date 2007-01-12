@@ -3,9 +3,9 @@
 #ifndef DEBUGDEVICE_HH
 #define DEBUGDEVICE_HH
 
+#include "MSXDevice.hh"
 #include <fstream>
 #include <memory>
-#include "MSXDevice.hh"
 
 namespace openmsx {
 

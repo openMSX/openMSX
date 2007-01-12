@@ -45,9 +45,10 @@ void Autofire::update(const Setting& setting)
 	setClock();
 }
 
-byte Autofire::getSignal(const EmuTime& time)
+bool Autofire::getSignal(const EmuTime& time)
 {
-	return speedSetting->getValue() == 0 ? 0 : clock.getTicksTill(time) & 1;
+	return speedSetting->getValue() == 0 ?
+		false : clock.getTicksTill(time) & 1;
 }
 
 } // namespace openmsx

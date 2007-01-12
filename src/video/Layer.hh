@@ -84,15 +84,6 @@ private:
 	ZIndex z;
 };
 
-
-class LayerListener
-{
-public:
-	virtual void updateZ(Layer& layer) = 0;
-protected:
-	virtual ~LayerListener() {}
-};
-
 } // namespace openmsx
 
 #endif

@@ -76,7 +76,7 @@ void MSXPSG::writeIO(word port, byte value, const EmuTime& time)
 byte MSXPSG::readA(const EmuTime& time)
 {
 	byte joystick = ports[selectedPort]->read(time) |
-	                ((renShaTurbo.getSignal(time)) << 4);
+	                ((renShaTurbo.getSignal(time)) ? 0x10 : 0x00);
 	byte cassetteInput = cassette.cassetteIn(time) ? 0x80 : 0x00;
 	byte keyLayout = keyLayoutBit ? 0x40 : 0x00;
 	return joystick | keyLayout | cassetteInput;

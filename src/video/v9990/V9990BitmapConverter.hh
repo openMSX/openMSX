@@ -3,8 +3,8 @@
 #ifndef V9990BITMAPCONVERTER_HH
 #define V9990BITMAPCONVERTER_HH
 
-#include "openmsx.hh"
 #include "V9990ModeEnum.hh"
+#include "openmsx.hh"
 
 namespace openmsx {
 

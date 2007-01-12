@@ -7,6 +7,7 @@
 #include "MSXMotherBoard.hh"
 #include "SimpleDebuggable.hh"
 #include "MachineConfig.hh"
+#include "XMLElement.hh"
 #include "MSXException.hh"
 
 using std::string;

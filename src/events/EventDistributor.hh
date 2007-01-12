@@ -6,9 +6,9 @@
 #include "Event.hh"
 #include "Semaphore.hh"
 #include "shared_ptr.hh"
+#include "noncopyable.hh"
 #include <map>
 #include <vector>
-#include <noncopyable.hh>
 
 namespace openmsx {
 

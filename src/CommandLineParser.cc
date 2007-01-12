@@ -177,7 +177,7 @@ CommandLineParser::~CommandLineParser()
 }
 
 void CommandLineParser::registerOption(
-	const string& str, CLIOption& cliOption, byte prio, byte length)
+	const string& str, CLIOption& cliOption, unsigned prio, unsigned length)
 {
 	OptionData temp;
 	temp.option = &cliOption;
@@ -225,7 +225,7 @@ void CommandLineParser::registerFileTypes()
 }
 
 bool CommandLineParser::parseOption(
-	const string& arg, list<string>& cmdLine, byte priority)
+	const string& arg, list<string>& cmdLine, unsigned priority)
 {
 	map<string, OptionData>::const_iterator it1 = optionMap.find(arg);
 	if (it1 != optionMap.end()) {
@@ -342,7 +342,7 @@ void CommandLineParser::parse(int argc, char** argv)
 						map<string, OptionData>::const_iterator it1 =
 							optionMap.find(arg);
 						if (it1 != optionMap.end()) {
-							for (int i = 0; i < it1->second.length - 1; ++i) {
+							for (unsigned i = 0; i < it1->second.length - 1; ++i) {
 								if (!cmdLine.empty()) {
 									backupCmdLine.push_back(cmdLine.front());
 									cmdLine.pop_front();

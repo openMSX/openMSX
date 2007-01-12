@@ -3,7 +3,6 @@
 #ifndef RENSHATURBO_HH
 #define RENSHATURBO_HH
 
-#include "openmsx.hh"
 #include "noncopyable.hh"
 #include <memory>
 
@@ -28,15 +27,11 @@ public:
 	            const XMLElement& machineConfig);
 	~RenShaTurbo();
 
-	/**
-	 * Give the output signal in negative logic
-	 *
-	 * When auto-fire is on, bit 0 will
-	 * alternate between 0 and 1
-	 *
-	 * When auto-fire is off, bit 0 will be 0
-	 */
-	byte getSignal(const EmuTime& time);
+	/** Get the output signal in negative logic.
+	  * @result When auto-fire is on, result will alternate between true
+	  *         and false. When auto-fire if off result is false.
+	  */
+	bool getSignal(const EmuTime& time);
 
 private:
 	// The Autofire circuit

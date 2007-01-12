@@ -4,6 +4,7 @@
 #include "CommandController.hh"
 #include "CliComm.hh"
 #include "Scheduler.hh"
+#include "Schedulable.hh"
 #include "EventDistributor.hh"
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
@@ -17,6 +18,73 @@ using std::vector;
 using std::set;
 
 namespace openmsx {
+
+class AfterCmd
+{
+public:
+	virtual ~AfterCmd();
+	const std::string& getCommand() const;
+	const std::string& getId() const;
+	virtual const std::string& getType() const = 0;
+	void execute();
+protected:
+	AfterCmd(AfterCommand& afterCommand,
+		 const std::string& command);
+private:
+	AfterCommand& afterCommand;
+	std::string command;
+	std::string id;
+	static unsigned lastAfterId;
+};
+
+class AfterTimedCmd : public AfterCmd, private Schedulable
+{
+public:
+	double getTime() const;
+	void reschedule();
+protected:
+	AfterTimedCmd(Scheduler& scheduler,
+		      AfterCommand& afterCommand,
+		      const std::string& command, double time);
+private:
+	virtual void executeUntil(const EmuTime& time, int userData);
+	virtual void schedulerDeleted();
+	virtual const std::string& schedName() const;
+
+	double time;
+};
+
+class AfterTimeCmd : public AfterTimedCmd
+{
+public:
+	AfterTimeCmd(Scheduler& scheduler,
+		     AfterCommand& afterCommand,
+		     const std::string& command, double time);
+	virtual const std::string& getType() const;
+};
+
+class AfterIdleCmd : public AfterTimedCmd
+{
+public:
+	AfterIdleCmd(Scheduler& scheduler,
+		     AfterCommand& afterCommand,
+		     const std::string& command, double time);
+	virtual const std::string& getType() const;
+};
+
+template<EventType T>
+class AfterEventCmd : public AfterCmd
+{
+public:
+	AfterEventCmd(AfterCommand& afterCommand,
+		      const std::string& type,
+		      const std::string& command);
+	virtual const std::string& getType() const;
+private:
+	const std::string type;
+};
+
+
 
 AfterCommand::AfterCommand(Reactor& reactor_,
                            EventDistributor& eventDistributor_,
@@ -262,9 +330,9 @@ template<EventType T> void AfterCommand::executeEvents()
 
 // class AfterCmd
 
-unsigned AfterCommand::AfterCmd::lastAfterId = 0;
+unsigned AfterCmd::lastAfterId = 0;
 
-AfterCommand::AfterCmd::AfterCmd(AfterCommand& afterCommand_,
+AfterCmd::AfterCmd(AfterCommand& afterCommand_,
                                  const string& command_)
 	: afterCommand(afterCommand_), command(command_)
 {
@@ -275,22 +343,22 @@ AfterCommand::AfterCmd::AfterCmd(AfterCommand& afterCommand_,
 	afterCommand.afterCmds[id] = this;
 }
 
-AfterCommand::AfterCmd::~AfterCmd()
+AfterCmd::~AfterCmd()
 {
 	afterCommand.afterCmds.erase(id);
 }
 
-const string& AfterCommand::AfterCmd::getCommand() const
+const string& AfterCmd::getCommand() const
 {
 	return command;
 }
 
-const string& AfterCommand::AfterCmd::getId() const
+const string& AfterCmd::getId() const
 {
 	return id;
 }
 
-void AfterCommand::AfterCmd::execute()
+void AfterCmd::execute()
 {
 	try {
 		afterCommand.getCommandController().executeCommand(command);
@@ -304,7 +372,7 @@ void AfterCommand::AfterCmd::execute()
 
 // class  AfterTimedCmd
 
-AfterCommand::AfterTimedCmd::AfterTimedCmd(
+AfterTimedCmd::AfterTimedCmd(
 		Scheduler& scheduler,
 		AfterCommand& afterCommand,
 		const string& command, double time_)
@@ -316,30 +384,30 @@ AfterCommand::AfterTimedCmd::AfterTimedCmd(
 	reschedule();
 }
 
-double AfterCommand::AfterTimedCmd::getTime() const
+double AfterTimedCmd::getTime() const
 {
 	return time;
 }
 
-void AfterCommand::AfterTimedCmd::reschedule()
+void AfterTimedCmd::reschedule()
 {
 	removeSyncPoint();
 	EmuTime t = getScheduler().getCurrentTime() + EmuDuration(time);
 	setSyncPoint(t);
 }
 
-void AfterCommand::AfterTimedCmd::executeUntil(const EmuTime& /*time*/,
+void AfterTimedCmd::executeUntil(const EmuTime& /*time*/,
                                                int /*userData*/)
 {
 	execute();
 }
 
-void AfterCommand::AfterTimedCmd::schedulerDeleted()
+void AfterTimedCmd::schedulerDeleted()
 {
 	delete this;
 }
 
-const string& AfterCommand::AfterTimedCmd::schedName() const
+const string& AfterTimedCmd::schedName() const
 {
 	static const string sched_name("AfterCmd");
 	return sched_name;
@@ -348,7 +416,7 @@ const string& AfterCommand::AfterTimedCmd::schedName() const
 
 // class AfterTimeCmd
 
-AfterCommand::AfterTimeCmd::AfterTimeCmd(
+AfterTimeCmd::AfterTimeCmd(
 		Scheduler& scheduler,
 		AfterCommand& afterCommand,
 		const string& command, double time)
@@ -356,7 +424,7 @@ AfterCommand::AfterTimeCmd::AfterTimeCmd(
 {
 }
 
-const string& AfterCommand::AfterTimeCmd::getType() const
+const string& AfterTimeCmd::getType() const
 {
 	static const string type("time");
 	return type;
@@ -365,7 +433,7 @@ const string& AfterCommand::AfterTimeCmd::getType() const
 
 // class AfterIdleCmd
 
-AfterCommand::AfterIdleCmd::AfterIdleCmd(
+AfterIdleCmd::AfterIdleCmd(
 		Scheduler& scheduler,
 		AfterCommand& afterCommand,
 		const string& command, double time)
@@ -373,7 +441,7 @@ AfterCommand::AfterIdleCmd::AfterIdleCmd(
 {
 }
 
-const string& AfterCommand::AfterIdleCmd::getType() const
+const string& AfterIdleCmd::getType() const
 {
 	static const string type("idle");
 	return type;
@@ -383,7 +451,7 @@ const string& AfterCommand::AfterIdleCmd::getType() const
 // class AfterEventCmd
 
 template<EventType T>
-AfterCommand::AfterEventCmd<T>::AfterEventCmd(
+AfterEventCmd<T>::AfterEventCmd(
 		AfterCommand& afterCommand, const string& type_,
 		const string& command)
 	: AfterCmd(afterCommand, command), type(type_)
@@ -391,7 +459,7 @@ AfterCommand::AfterEventCmd<T>::AfterEventCmd(
 }
 
 template<EventType T>
-const string& AfterCommand::AfterEventCmd<T>::getType() const
+const string& AfterEventCmd<T>::getType() const
 {
 	return type;
 }

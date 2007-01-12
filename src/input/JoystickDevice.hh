@@ -3,8 +3,8 @@
 #ifndef JOYSTICKDEVICE_HH
 #define JOYSTICKDEVICE_HH
 
-#include "openmsx.hh"
 #include "Pluggable.hh"
+#include "openmsx.hh"
 
 namespace openmsx {
 

@@ -22,9 +22,9 @@ RenShaTurbo::~RenShaTurbo()
 {
 }
 
-byte RenShaTurbo::getSignal(const EmuTime& time)
+bool RenShaTurbo::getSignal(const EmuTime& time)
 {
-	return autofire.get() ? autofire->getSignal(time) : 0;
+	return autofire.get() ? autofire->getSignal(time) : false;
 }
 
 } // namespace openmsx

@@ -1,6 +1,7 @@
 // $Id$
 
 #include "ExtensionConfig.hh"
+#include "XMLElement.hh"
 #include "MSXMotherBoard.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"

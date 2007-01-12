@@ -1,6 +1,7 @@
 // $Id$
 
 #include "Layer.hh"
+#include "LayerListener.hh"
 
 namespace openmsx {
 
