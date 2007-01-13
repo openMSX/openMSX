@@ -25,6 +25,6 @@ proc soundlog {args} {
 	if {$args == [list "stop"]} {
 		record stop
 	} else {
-		eval "record $args -novideo"
+		eval "record $args -audioonly"
 	}
 }
