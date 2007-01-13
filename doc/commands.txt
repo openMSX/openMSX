@@ -391,7 +391,7 @@ record
     record stop               Stop recording
     record toggle             Toggle recording
 
-    The start subcommand also accept an optional -audioonly or -videoonly flag.
+    The start subcommand also accepts an optional -audioonly or -videoonly flag.
     In case of -audioonly, the functionality is similar to the now deprecated
     soundlog command, which records all audio to a .wav file.
 

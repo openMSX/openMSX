@@ -247,7 +247,7 @@ string AviRecorder::help(const vector<string>& /*tokens*/) const
 	       "record stop               Stop recording\n"
 	       "record toggle             Toggle recording (useful as keybinding)\n"
 	       "\n"
-	       "The start subcommand also accept an optional -audioonly or -videoonly flag.\n";
+	       "The start subcommand also accepts an optional -audioonly or -videoonly flag.\n";
 }
 
 void AviRecorder::tabCompletion(vector<string>& tokens) const
