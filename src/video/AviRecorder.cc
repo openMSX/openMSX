@@ -179,9 +179,9 @@ string AviRecorder::processStart(const vector<string>& tokens)
 					throw CommandException("Missing argument");
 				}
 				prefix = tokens[i];
-			} else if (tokens[i] == "-novideo") {
+			} else if (tokens[i] == "-audioonly") {
 				recordVideo = false;
-			} else if (tokens[i] == "-noaudio") {
+			} else if (tokens[i] == "-videoonly") {
 				recordAudio = false;
 			} else {
 				throw CommandException("Invalid option");
@@ -191,7 +191,7 @@ string AviRecorder::processStart(const vector<string>& tokens)
 		}
 	}
 	if (!recordAudio && !recordVideo) {
-		throw CommandException("Can't have both -noaudio and -novideo.");
+		throw CommandException("Can't have both -videoonly and -audioonly.");
 	}
 	switch (arguments.size()) {
 	case 0:
@@ -247,7 +247,7 @@ string AviRecorder::help(const vector<string>& /*tokens*/) const
 	       "record stop               Stop recording\n"
 	       "record toggle             Toggle recording (useful as keybinding)\n"
 	       "\n"
-	       "The start subcommand also accept an optional -novideo or -noaudio flag.\n";
+	       "The start subcommand also accept an optional -audioonly or -videoonly flag.\n";
 }
 
 void AviRecorder::tabCompletion(vector<string>& tokens) const
@@ -257,7 +257,7 @@ void AviRecorder::tabCompletion(vector<string>& tokens) const
 		std::set<string> cmds(str, str + 3);
 		completeString(tokens, cmds);
 	} else if ((tokens.size() >= 3) && (tokens[1] == "start")) {
-		const char* const str[3] = { "-prefix", "-noaudio", "-novideo" };
+		const char* const str[3] = { "-prefix", "-videoonly", "-audioonly" };
 		std::set<string> cmds(str, str + 3);
 		completeString(tokens, cmds);
 	}

@@ -391,8 +391,8 @@ record
     record stop               Stop recording
     record toggle             Toggle recording
 
-    The start subcommand also accept an optional -novideo or -noaudio flag.
-    In case of -novideo, the functionality is similar to the now deprecated
+    The start subcommand also accept an optional -audioonly or -videoonly flag.
+    In case of -audioonly, the functionality is similar to the now deprecated
     soundlog command, which records all audio to a .wav file.
 
 
@@ -599,7 +599,7 @@ soundlog
 
   Controls sound logging: writing the openMSX sound to a wav file.
 
-  This command is deprecated, use "record --novideo", see above.
+  This command is deprecated, use "record --audioonly", see above.
 
   usage:
     soundlog start              Log sound to file "openmsxNNNN.wav"
