@@ -55,6 +55,8 @@ byte TurboRFDC::readMem(word address, const EmuTime& time)
 			result = peekMem(address, time);
 			break;
 		}
+		//std::cout << "TurboRFDC read 0x" << std::hex << (int)address <<
+		//                           " 0x" << (int)result << std::dec << std::endl;
 	} else {
 		result = peekMem(address, time);
 	}
@@ -93,7 +95,6 @@ byte TurboRFDC::peekMem(word address, const EmuTime& time) const
 	} else {
 		result = 0xFF;
 	}
-	//PRT_DEBUG("TurboRFDC: read 0x" << hex << (int)address << " 0x" << (int)result << dec);
 	return result;
 }
 
@@ -110,12 +111,13 @@ const byte* TurboRFDC::getReadCacheLine(word start) const
 
 void TurboRFDC::writeMem(word address, byte value, const EmuTime& time)
 {
-	//PRT_DEBUG("TurboRFDC: write 0x" << hex << (int)address << " 0x" << (int)value << dec);
 	if ((address == 0x6000) || (address == 0x7FF0) || (address == 0x7FFE)) {
 		getMotherBoard().getCPU().invalidateMemCache(0x4000, 0x4000);
 		memory = &(*rom)[0x4000 * (value & blockMask)];
 		return;
 	} else {
+		//std::cout << "TurboRFDC write 0x" << std::hex << (int)address <<
+		//                            " 0x" << (int)value << std::dec << std::endl;
 		switch (address & 0x3FFF) {
 		case 0x3FF2:
 		case 0x3FF8:

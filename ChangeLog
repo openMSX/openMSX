@@ -1,6 +1,11 @@
 $Id$
 
-2007-01-10 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2007-01-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Synchronized TC8566AF code with blueMSX version:
+	   - seems to fix [ 1630933 ] "Formatting on turboR goes wrong when 
+	     not booting with a disk".
+
+2007-01-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Reimplemented 'soundlog' command as a Tcl script
 
 2007-01-10 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
