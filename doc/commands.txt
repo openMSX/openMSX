@@ -599,6 +599,8 @@ soundlog
 
   Controls sound logging: writing the openMSX sound to a wav file.
 
+  This command is deprecated, use "record --novideo", see above.
+
   usage:
     soundlog start              Log sound to file "openmsxNNNN.wav"
     soundlog start <filename>   Log sound to indicated file
