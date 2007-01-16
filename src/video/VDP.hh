@@ -21,6 +21,7 @@ class SpriteChecker;
 class VDPRegDebug;
 class VDPStatusRegDebug;
 class VDPPaletteDebug;
+class MSXCliComm;
 
 /** Unified implementation of MSX Video Display Processors (VDPs).
   * MSX1 VDP is Texas Instruments TMS9918A or TMS9928A.
@@ -795,6 +796,16 @@ private:
 	  * Contains the lower 14 bits of the current VRAM access address.
 	  */
 	int vramPointer;
+
+	/** Command line communications.  
+	  * Used to print a warning if the software being emulated would
+	  * cause a normal MSX to freeze.  
+	  */
+	MSXCliComm& cliComm;
+	/** Has a warning been printed. 
+	  * This is set when a warning about setting the dotclock direction 
+	  * is printed.  */
+	bool warningPrinted;
 
 	friend class VDPRegDebug;
 	friend class VDPStatusRegDebug;

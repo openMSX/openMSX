@@ -1,5 +1,11 @@
 $Id$
 
+2007-01-16  Arnold Metselaar  <arnold.metselaar@planet.nl>
+	* Print warning if bit 0 of VDP register 9 is set to one; on a
+	  real MSX2 this causes the screen to go black and the computer to
+	  freeze. 
+	   - closes [ 1354347 ].
+
 2007-01-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Synchronized TC8566AF code with blueMSX version:
 	   - seems to fix [ 1630933 ] "Formatting on turboR goes wrong when 

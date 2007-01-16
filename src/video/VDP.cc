@@ -30,6 +30,7 @@ TODO:
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
+#include "MSXCliComm.hh"
 #include <sstream>
 #include <cassert>
 
@@ -75,6 +76,8 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, displayStartSyncTime(time)
 	, vScanSyncTime(time)
 	, hScanSyncTime(time)
+	, cliComm(motherBoard.getMSXCliComm())
+	, warningPrinted(false)
 	, vdpRegDebug      (new VDPRegDebug      (*this))
 	, vdpStatusRegDebug(new VDPStatusRegDebug(*this))
 	, vdpPaletteDebug  (new VDPPaletteDebug  (*this))
@@ -920,6 +923,14 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime& time)
 		updateSpritePatternBase(time);
 		break;
 	case 9:
+		if ((val & 1) && ! warningPrinted) {
+			warningPrinted=true;
+			cliComm.printWarning 
+				("The running MSX software has set bit 0 of VDP register 9 "
+				 "(dot clock direction) to one. In an ordinary MSX, "
+				 "the screen would go black and the CPU would stop running.");
+			// TODO: Emulate such behaviour.
+		}
 		if (change & 0x80) {
 			/*
 			cerr << "changed to " << (val & 0x80 ? 212 : 192) << " lines"
