@@ -500,10 +500,11 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime& time)
 	case AY_CFINE:
 	case AY_CCOARSE:
 		tone[reg / 2].setPeriod(
-			regs[reg & ~1] + 256 * (regs[reg | 1] & 0x0F), updateStep );
+			regs[reg & ~1] + 256 * (regs[reg | 1] & 0x0F), updateStep);
 		break;
 	case AY_NOISEPER:
-		noise.setPeriod(value & 0x1F, updateStep);
+		// half the frequency of tone generation
+		noise.setPeriod(value & 0x1F, updateStep * 2);
 		break;
 	case AY_AVOL:
 	case AY_BVOL:
@@ -513,8 +514,10 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime& time)
 		break;
 	case AY_EFINE:
 	case AY_ECOARSE:
+		// also half the frequency of tone generation, but handled
+		// inside Envelope::setPeriod()
 		envelope.setPeriod(
-			regs[AY_EFINE] + 256 * regs[AY_ECOARSE], updateStep );
+			regs[AY_EFINE] + 256 * regs[AY_ECOARSE], updateStep);
 		break;
 	case AY_ESHAPE:
 		envelope.setShape(value);
