@@ -417,6 +417,10 @@ proc trainer_gradius1 {} {
 	#poke 0xe426 0
 	#x-pos enemy
 	#poke 0xe446 0
+	#use hyper over and over again
+ 	poke 0xe06e 0
+	#user per stage all weapons cheat over and over again
+	poke 0xe071 0
 	after time 0.5 trainer_gradius1
 }
 
@@ -1541,8 +1545,8 @@ proc trainer_metalgear1 {} {
 	poke 0xc58c 25
 	#put a nuclear warhead on your remote missles 8)
 	if {[peek 0xc142] == 7} {
-		 poke 0xc142 16
-	 }
+		poke 0xc142 16
+	}
 	#cart 1
 	#if {[peek 0xc3d2] == 2}  {puts "cart 1"}
 	#if {[peek 0xc3d2] == 66} {puts "cart 1"}
@@ -1948,7 +1952,7 @@ proc trainer_maze_of_galious {} {
 	poke 0xe0d6 64
 	#world 10 location 0 = middle tower 1 = right tower 2 = left tower 3 = start
 	poke 0xe06e	3
-	poke 0xe06d	 0x01
+	poke 0xe06d	0x01
 	#world 1 items
 	#poke 0xe063 0xf0
 	#world 2 items
@@ -2084,11 +2088,11 @@ proc trainer_spacemanbow {} {
 	poke 0xcb48 128
 	poke 0xcb49 3
 	#way option 1 (6=back 7=up 8=front)
-	poke 0xcb50 6
+	poke 0xcb50 7
 	#enable option 1
 	poke 0xcb51 1
 	#way option 2 (2=front 3=down 4=back)
-	poke 0xcb58 4
+	poke 0xcb58 3
 	#enable option 2
 	poke 0xcb59 1
 	after time 1 trainer_spacemanbow
@@ -2379,8 +2383,8 @@ proc trainer_penguinadventure  {} {
 	poke 0xe171 1
 	poke 0xe172 1
 	#invincible
-	poke 0xe1f1 1
-	poke 0xe089 0x99
+	#poke 0xe1f1 1
+	#poke 0xe089 0x99
 	#lives
 	poke 0xe090 0x99
 	#poke time never runs out
@@ -3232,7 +3236,7 @@ proc trainer_superrambospecial {} {
 proc trainer_supertriton {} {
 	#exp
 	poke 0xd023 255
-	 #life
+	#life
 	poke 0xd024 255
 	#red life
 	poke 0xd025 255
@@ -3242,7 +3246,7 @@ proc trainer_supertriton {} {
 proc trainer_triton {} {
 	#exp
 	poke 0xe43b 100
-	 #life
+	#life
 	poke 0xe439 99
 	#magic balls
 	poke 0xe43c 99
@@ -3252,7 +3256,7 @@ proc trainer_triton {} {
 proc trainer_afterburner {} {
 	#missles
 	poke 0x5e23 255
-	 #lives
+	#lives
 	poke 0x5e4e 100
 	after time 10 trainer_afterburner
 }
@@ -3299,7 +3303,18 @@ proc trainer_pineaplin {} {
 	poke 0xc023 9
 	poke 0xc024 9
 	poke 0xc025 9
-	after time 2 trainer_pineaplin
+	#bat x-y-pos
+	poke 0xe020 1
+	poke 0xe020 0
+	#turtle x-y-pos
+	poke 0xe030 1
+	poke 0xe031 0
+	#snake x-y-pos
+	poke 0xe040 1
+	poke 0xe041 0
+	#bridge always closed (just walk to the next stage)
+	poke 0xe250 5
+	after time 0.1 trainer_pineaplin
 }
 
 proc trainer_godzilla {} {
@@ -3678,7 +3693,7 @@ proc trainer_boulderdash1 {} {
 	#lives
 	poke 0xd98f 255
 	#unvulnerable
-	 poke 0xd83c 0
+	poke 0xd83c 0
 	after frame trainer_boulderdash1
 }
 
@@ -4466,9 +4481,9 @@ proc trainer_knightlore {} {
 }
 
 proc trainer_pitfall2 {} {
-	 if {[peek 0xe05d] != 9} {
-		 poke 0xe050 0
-	 }
+	if {[peek 0xe05d] != 9} {
+		poke 0xe050 0
+	}
 	#power (89abcd)
 	poke 0xe058 9
 	poke 0xe059 9
@@ -5328,14 +5343,14 @@ proc trainer_saimazoom {} {
 	# 106 = gun*
 	# 107 = nothing
 	if {[peek 0xd9e8] < 100} {
-		 poke 0xd9e8 100
-	 }
+		poke 0xd9e8 100
+	}
 	
-	 poke  0xd9e8 [expr [peek 0xd9e8]+1]
+	poke  0xd9e8 [expr [peek 0xd9e8]+1]
 	
 	if {[peek 0xd9e8] > 106} {
-		 poke 0xd9e8 100
-	 }
+		poke 0xd9e8 100
+	}
 	after time 1 trainer_saimazoom
 }
 
@@ -6989,10 +7004,84 @@ proc trainer_anaza {} {
 	after time 1 trainer_anaza
 }
 
+proc trainer_chasehq {} {
+	#time
+	poke 0xa17e 0x99
+	#turbo
+	poke 0xa170 5
+	after time 10 trainer_chasehq
+}
+
+proc trainer_wizzardslair {} {
+	#power
+	poke 0x9e2e 255
+	#ammo
+	poke 0x9e2f 255
+	#key
+	poke 0x9e2b 99
+	#golden ring
+	poke 0x9e2c 99
+	#diamand
+	poke 0x9e2d 99
+	#lives
+	poke 0x9e31 99
+	#invincible
+	#poke 0x7c1e 99
+	#gold
+	poke 0x9e30 255
+	#walk fast
+	poke 0x7c1f 255
+	#endless color
+	poke 0x7c1d 143
+	poke 0x7c09 4
+	poke 0xbc06 4
+	after time 1 trainer_wizzardslair
+}
+
+proc vampierpal {} {
+	setcolor 0 000
+	setcolor 1 000
+	setcolor 2 162
+	setcolor 3 273
+	setcolor 4 045
+	setcolor 5 156
+	setcolor 6 510
+	setcolor 7 267
+	setcolor 8 621
+	setcolor 9 732
+	setcolor 10 651
+	setcolor 11 762
+	setcolor 12 051
+	setcolor 13 727
+	setcolor 14 666
+	setcolor 15 777
+}
+
+
+proc trainer_wordinvader {} {
+
+	set whole_page ""
+	for {set i 0} { $i < 600 } { incr i } {
+		if {[debug read VRAM $i] > 33} {append whole_page [format %c [debug read VRAM $i]]}
+	}
+	type [string trim $whole_page]
+	#word 1 stay on line 1
+	poke 0xc3d2 255
+	poke 0xc3da 255
+	poke 0xc3e2 255
+	poke 0xc3ea 255
+	poke 0xc3f2 255
+after time 3 trainer_wordinvader
+}
+
+
 proc trainer_autofire {} {
 	type " "
 	after time 0.1 trainer_autofire
 }
+
+
+
 
 #alternative names
 proc trainer_firehawk {} 	{trainer_thexder2}
