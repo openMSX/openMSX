@@ -1,6 +1,11 @@
 $Id$
 
 2007-01-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed bug in SCC:
+	   volume of 5th SCC channel could be wrong right after waveform was
+	   updated (e.g. audible in Quarth)
+
+2007-01-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed PSG noise frequency
 
 2007-01-16  Arnold Metselaar  <arnold.metselaar@planet.nl>
