@@ -156,10 +156,11 @@ void SCC::reset(const EmuTime& /*time*/)
 	}
 
 	for (unsigned i = 0; i < 5; ++i) {
-		for (unsigned j = 0; j < 32; ++j) {
-			// don't clear wave forms
-			volAdjustedWave[i][j] = 0;
-		}
+		//for (unsigned j = 0; j < 32; ++j) {
+		//	// don't clear wave forms
+		//	volAdjustedWave[i][j] = 0;
+		//}
+		// don't clear wave forms
 		count[i] = 0;
 		pos[i] = (unsigned)-1;
 		freq[i] = 0;
@@ -354,11 +355,11 @@ void SCC::writeWave(byte channel, byte address, byte value)
 	if (!readOnly[channel]) {
 		byte pos = address & 0x1F;
 		wave[channel][pos] = value;
-		volAdjustedWave[channel][pos] = adjust(value, volume[channel]);
+		//volAdjustedWave[channel][pos] = adjust(value, volume[channel]);
 		if ((currentChipMode != SCC_plusmode) && (channel == 3)) {
 			// copy waveform 4 -> waveform 5
 			wave[4][pos] = wave[3][pos];
-			volAdjustedWave[4][pos] = volAdjustedWave[3][pos];
+			//volAdjustedWave[4][pos] = volAdjustedWave[3][pos];
 		}
 	}
 }
@@ -395,10 +396,10 @@ void SCC::setFreqVol(byte address, byte value)
 		// change volume
 		byte channel = address - 0x0A;
 		volume[channel] = value & 0xF;
-		for (int i = 0; i < 32; ++i) {
-			volAdjustedWave[channel][i] =
-				adjust(wave[channel][i], volume[channel]);
-		}
+		//for (int i = 0; i < 32; ++i) {
+		//	volAdjustedWave[channel][i] =
+		//		adjust(wave[channel][i], volume[channel]);
+		//}
 		checkMute();
 	} else {
 		// change enable-bits
@@ -493,7 +494,8 @@ void SCC::updateBuffer(unsigned length, int* buffer,
 				unsigned newPos = count[i] >> 23;
 				if (newPos != pos[i]) {
 					pos[i] = newPos;
-					out[i] = volAdjustedWave[i][newPos];
+					//out[i] = volAdjustedWave[i][newPos];
+					out[i] = adjust(wave[i][newPos], volume[i]);
 				}
 				if (enable & 1) {
 					mixed += out[i];
@@ -516,7 +518,8 @@ void SCC::updateBuffer(unsigned length, int* buffer,
 				unsigned newPos = count[i] >> 23;
 				if (newPos != pos[i]) {
 					pos[i] = newPos;
-					out[i] = volAdjustedWave[i][newPos];
+					//out[i] = volAdjustedWave[i][newPos];
+					out[i] = adjust(wave[i][newPos], volume[i]);
 				}
 				if (enable & 1) {
 					mixed += out[i];
