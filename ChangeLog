@@ -1,6 +1,13 @@
 $Id$
 
-2007-01-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2007-01-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added FrameBufferObject utility class:
+	   - was part of an experiment to implement a fully shader based
+	     hq(lite) scaler (current one is still partly done by CPU). This
+	     needs some more work, but the FrameBufferObject part is already
+	     useable.
+
+2007-01-23 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed bug in SCC:
 	   volume of 5th SCC channel could be wrong right after waveform was
 	   updated (e.g. audible in Quarth)

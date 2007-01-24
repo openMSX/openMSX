@@ -48,27 +48,23 @@ GLPostProcessor::GLPostProcessor(
 	noiseY = 0.0;
 	preCalcNoise(renderSettings.getNoise().getValue());
 
-	renderSettings.getNoise().attach(*this);
-
 	storedFrame = false;
-	glGenFramebuffersEXT(2, fb);
-	glGenTextures(2, color_tex);
 	for (int i = 0; i < 2; ++i) {
-		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb[i]);
-		glBindTexture(GL_TEXTURE_2D, color_tex[i]);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8,
-		             screen.getWidth(), screen.getHeight(),
-		             0, GL_RGB, GL_INT, NULL);
-		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
-		                          GL_COLOR_ATTACHMENT0_EXT,
-		                          GL_TEXTURE_2D, color_tex[i], 0);
-		assert(glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) ==
-		       GL_FRAMEBUFFER_COMPLETE_EXT);
+		colorTex[i].reset(new Texture());
+		colorTex[i]->bind();
+		colorTex[i]->setWrapMode(false);
+		colorTex[i]->enableInterpolation();
+		glTexImage2D(GL_TEXTURE_2D,     // target
+			     0,                 // level
+			     GL_RGB8,           // internal format
+			     screen.getWidth(), // width
+			     screen.getHeight(),// height
+			     0,                 // border
+			     GL_RGB,            // format
+			     GL_UNSIGNED_BYTE,  // type
+			     NULL);             // data
+		fbo[i].reset(new FrameBufferObject(*colorTex[i]));
 	}
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
 	// generate display list for 3d deform
 	static const int GRID_SIZE = 16;
@@ -139,15 +135,15 @@ GLPostProcessor::GLPostProcessor(
 	glPopMatrix();
 	glDisable(GL_LIGHTING);
 	glEndList();
+
+	renderSettings.getNoise().attach(*this);
 }
 
 GLPostProcessor::~GLPostProcessor()
 {
-	glDeleteLists(monitor3DList, 1);
-	glDeleteTextures(2, color_tex);
-	glDeleteFramebuffersEXT(2, fb);
-
 	renderSettings.getNoise().detach(*this);
+
+	glDeleteLists(monitor3DList, 1);
 
 	for (Textures::iterator it = textures.begin();
 	     it != textures.end(); ++it) {
@@ -224,7 +220,7 @@ void GLPostProcessor::paint()
 
 	if (renderToTexture) {
 		glBindTexture(GL_TEXTURE_2D, 0);
-		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb[frameCounter & 1]);
+		fbo[frameCounter & 1]->bind();
 	}
 
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
@@ -247,8 +243,8 @@ void GLPostProcessor::paint()
 	drawGlow(glow);
 
 	if (renderToTexture) {
-		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-		glBindTexture(GL_TEXTURE_2D, color_tex[frameCounter & 1]);
+		fbo[frameCounter & 1]->unbind();
+		colorTex[frameCounter & 1]->bind();
 
 		glEnable(GL_TEXTURE_2D);
 		if (deform == RenderSettings::DEFORM_3D) {
@@ -403,7 +399,7 @@ void GLPostProcessor::drawGlow(int glow)
 {
 	if ((glow == 0) || !storedFrame) return;
 
-	glBindTexture(GL_TEXTURE_2D, color_tex[(frameCounter & 1)^ 1]);
+	colorTex[(frameCounter & 1) ^ 1]->bind();
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

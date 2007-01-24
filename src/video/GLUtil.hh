@@ -23,6 +23,7 @@
 
 #include "build-info.hh"
 #include <string>
+#include <vector>
 #include <cassert>
 
 namespace openmsx {
@@ -142,6 +143,8 @@ public:
 protected:
 	int type;
 	GLuint textureId;
+
+	friend class FrameBufferObject;
 };
 
 class ColourTexture: public Texture
@@ -242,6 +245,23 @@ private:
 	/** Was the previous frame image stored?
 	  */
 	bool stored;
+};
+
+class FrameBufferObject
+{
+public:
+	FrameBufferObject(Texture& texture);
+	~FrameBufferObject();
+
+	void bind();
+	static void unbind();
+	void push();
+	static void pop();
+
+private:
+	GLuint bufferId;
+	static GLuint currentId;
+	static std::vector<GLuint> stack;
 };
 
 /** Wrapper around a pixel buffer.

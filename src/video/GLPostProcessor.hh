@@ -16,6 +16,8 @@ class GLScaler;
 class CommandController;
 class Display;
 class VisibleSurface;
+class Texture;
+class FrameBufferObject;
 
 /** Rasterizer using SDL.
   */
@@ -91,8 +93,8 @@ private:
 	typedef std::vector<Region> Regions;
 	Regions regions;
 
-	GLuint fb[2];
-	GLuint color_tex[2];
+	std::auto_ptr<Texture> colorTex[2];
+	std::auto_ptr<FrameBufferObject> fbo[2];
 	GLuint monitor3DList;
 	bool storedFrame;
 };

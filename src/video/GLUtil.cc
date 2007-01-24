@@ -4,6 +4,7 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
+#include "InitException.hh"
 #include "Math.hh"
 #include "Version.hh"
 #include <iostream>
@@ -368,6 +369,61 @@ void StoredFrame::drawBlend(
 	glColor4f(1.0, 0.0, 0.0, alpha);
 	draw(offsetX, offsetY, width, height);
 	glDisable(GL_BLEND);
+}
+
+
+// class FrameBufferObject
+
+GLuint FrameBufferObject::currentId = 0;
+std::vector<GLuint> FrameBufferObject::stack;
+
+FrameBufferObject::FrameBufferObject(Texture& texture)
+{
+	assert(texture.type == GL_TEXTURE_2D);
+	glGenFramebuffersEXT(1, &bufferId);
+	push();
+	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
+	                          GL_COLOR_ATTACHMENT0_EXT,
+	                          GL_TEXTURE_2D, texture.textureId, 0);
+	if (glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) !=
+	    GL_FRAMEBUFFER_COMPLETE_EXT) {
+		throw InitException(
+			"Your OpenGL implementation support for "
+			"framebuffer objects is too limited.");
+	}
+	pop();
+}
+
+FrameBufferObject::~FrameBufferObject()
+{
+	assert(currentId != bufferId);
+	glDeleteFramebuffersEXT(1, &bufferId);
+}
+
+void FrameBufferObject::bind()
+{
+	currentId = bufferId;
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, currentId);
+}
+
+void FrameBufferObject::unbind()
+{
+	currentId = 0;
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, currentId);
+}
+
+void FrameBufferObject::push()
+{
+	stack.push_back(currentId);
+	bind();
+}
+
+void FrameBufferObject::pop()
+{
+	assert(!stack.empty());
+	currentId = stack.back();
+	stack.pop_back();
+	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, currentId);
 }
 
 
