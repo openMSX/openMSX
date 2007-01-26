@@ -1,5 +1,9 @@
 $Id$
 
+2007-01-26 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Make FilePool return a File object iso a filename:
+	   - (g)zipped files won't be decompressed twice this way
+
 2007-01-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added FrameBufferObject utility class:
 	   - was part of an experiment to implement a fully shader based

@@ -41,7 +41,7 @@ public:
 
 private:
 	void init(GlobalCliComm& cliComm, const XMLElement& config);
-	void read(const XMLElement& config, const std::string& filename);
+	void read(const XMLElement& config);
 	bool checkSHA1(const XMLElement& config);
 
 	MSXMotherBoard& motherBoard;

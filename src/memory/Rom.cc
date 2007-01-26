@@ -73,25 +73,32 @@ void Rom::init(GlobalCliComm& cliComm, const XMLElement& config)
 	const XMLElement* filenameElem = config.findChild("filename");
 	if (!sums.empty() || filenameElem) {
 		// file specified with SHA1 or filename
-		string filename;
-		if (filenameElem) {
-			filename = filenameElem->getData();
-		}
 		for (XMLElement::Children::const_iterator it = sums.begin();
 		     it != sums.end(); ++it) {
 			const string& sha1 = (*it)->getData();
-			string sha1File = motherBoard.getFilePool().getFile(sha1);
-			if (!sha1File.empty()) {
-				filename = sha1File;
+			file = motherBoard.getFilePool().getFile(sha1);
+			if (file.get()) {
 				sha1sum = sha1;
 				break;
 			}
 		}
-		if (filename.empty()) {
-			throw MSXException("Couldn't find ROM file for \"" +
-			                   config.getId() + "\".");
+		if (!file.get()) {
+			if (filenameElem) {
+				string filename = filenameElem->getData();
+				try {
+					filename = config.getFileContext().
+					             resolve(filename);
+					file.reset(new File(filename));
+				} catch (FileException& e) {
+					throw MSXException("Error reading ROM: " +
+					                   filename);
+				}
+			} else {
+				throw MSXException("Couldn't find ROM file for \"" +
+				                   config.getId() + "\".");
+			}
 		}
-		read(config, filename);
+		read(config);
 
 	} else if (config.findChild("firstblock")) {
 		// part of the TurboR main ROM
@@ -155,14 +162,9 @@ void Rom::init(GlobalCliComm& cliComm, const XMLElement& config)
 
 
 
-void Rom::read(const XMLElement& config, const string& filename)
+void Rom::read(const XMLElement& config)
 {
-	// open file
-	try {
-		file.reset(new File(config.getFileContext().resolve(filename)));
-	} catch (FileException& e) {
-		throw MSXException("Error reading ROM: " + filename);
-	}
+	assert(file.get());
 
 	// get filesize
 	int fileSize;
@@ -186,14 +188,16 @@ void Rom::read(const XMLElement& config, const string& filename)
 		tmp = file->mmap() + offset;
 		rom = tmp;
 	} catch (FileException &e) {
-		throw MSXException("Error reading ROM image: " + filename);
+		throw MSXException("Error reading ROM image: " +
+		                   file->getURL());
 	}
 
 	// verify SHA1
 	if (!checkSHA1(config)) {
 		motherBoard.getMSXCliComm().printWarning(
 			"SHA1 sum for '" + config.getId() +
-			"' does not match with sum of '" + filename + "'.");
+			"' does not match with sum of '" +
+			file->getURL() + "'.");
 	}
 }
 

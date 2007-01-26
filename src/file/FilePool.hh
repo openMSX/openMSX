@@ -7,11 +7,13 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <memory>
 #include <time.h>
 
 namespace openmsx {
 
 class SettingsConfig;
+class File;
 
 class FilePool : private noncopyable
 {
@@ -19,7 +21,7 @@ public:
 	explicit FilePool(SettingsConfig& settingsConfig);
 	~FilePool();
 
-	std::string getFile(const std::string& sha1sum);
+	std::auto_ptr<File> getFile(const std::string& sha1sum);
 
 private:
 	typedef std::multimap<std::string, std::pair<time_t, std::string> > Pool;
@@ -28,11 +30,11 @@ private:
 	void readSha1sums();
 	void writeSha1sums();
 
-	std::string getFromPool(const std::string& sha1sum);
-	std::string scanDirectory(const std::string& sha1sum,
-	                          const std::string& directory);
-	std::string scanFile(const std::string& sha1sum,
-	                     const std::string& filename);
+	std::auto_ptr<File> getFromPool(const std::string& sha1sum);
+	std::auto_ptr<File> scanDirectory(const std::string& sha1sum,
+	                                  const std::string& directory);
+	std::auto_ptr<File> scanFile(const std::string& sha1sum,
+	                             const std::string& filename);
 	Pool::iterator findInDatabase(const std::string& filename);
 
 	Pool pool;
