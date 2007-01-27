@@ -1,5 +1,9 @@
 $Id$
 
+2007-01-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Removed enum setting info topics:
+	   code was already commented out (see 2006-11-04)
+
 2007-01-26 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Make FilePool return a File object iso a filename:
 	   - (g)zipped files won't be decompressed twice this way

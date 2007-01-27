@@ -8,6 +8,7 @@
 #include "FileOperations.hh"
 #include "Alarm.hh"
 #include "Command.hh"
+#include "GlobalCommandController.hh"
 #include "InfoTopic.hh"
 #include "GlobalCliComm.hh"
 #include "Timer.hh"

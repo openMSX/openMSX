@@ -5,13 +5,9 @@
 
 #include "SettingPolicy.hh"
 #include "SettingImpl.hh"
-#include "InfoTopic.hh"
-#include "InfoCommand.hh"
 #include "TclObject.hh"
-#include "GlobalCommandController.hh"
 #include "CommandException.hh"
 #include "Completer.hh"
-#include "CliComm.hh"
 #include "StringOp.hh"
 #include <map>
 #include <set>
@@ -41,24 +37,6 @@ protected:
 private:
 	std::string name;
 	Map enumMap;
-
-	class EnumInfo : public InfoTopic {
-	public:
-		EnumInfo(GlobalCommandController& commandController,
-		         EnumSettingPolicy& parent, const std::string& name);
-		virtual void execute(const std::vector<TclObject*>& tokens,
-		                     TclObject& result) const;
-		virtual std::string help(const std::vector<std::string>& tokens) const;
-	private:
-		EnumSettingPolicy& parent;
-		GlobalCommandController& commandController;
-	};
-	// EnumInfo enumInfo;
-	// TODO temporarily disabled enum-setting info topics (is already
-	// deprecated). Either remove it completely before next release
-	// (small(?) backwards compatibility problem) or implement a
-	// (deprecated as well) mechanism to handle this in combination with
-	// machine specific enum settings.
 };
 
 template <typename T> class EnumSetting : public SettingImpl<EnumSettingPolicy<T> >
@@ -79,7 +57,6 @@ EnumSettingPolicy<T>::EnumSettingPolicy(
 		const std::string& name_, const Map& map_)
 	: SettingPolicy<T>(commandController)
 	, name(name_), enumMap(map_)
-	//***, enumInfo(commandController.getGlobalCommandController(), *this, name)
 {
 }
 
@@ -154,38 +131,6 @@ void EnumSettingPolicy<T>::additionalInfo(TclObject& result) const
 	valueList.addListElements(values.begin(), values.end());
 	result.addListElement(valueList);
 }
-
-
-template<typename T>
-EnumSettingPolicy<T>::EnumInfo::EnumInfo(GlobalCommandController& commandController_,
-                                         EnumSettingPolicy& parent_,
-                                         const std::string& name)
-	: InfoTopic(commandController_.getOpenMSXInfoCommand(), name)
-	, parent(parent_)
-	, commandController(commandController_)
-{
-}
-
-template<typename T>
-void EnumSettingPolicy<T>::EnumInfo::execute(
-	const std::vector<TclObject*>& /*tokens*/,
-	TclObject& result) const
-{
-	commandController.getCliComm().printWarning(
-		"'openmsx_info " + getName() + "' is deprecated, "
-		"please use 'openmsx_info setting " + getName() + "'.");
-	std::set<std::string> values;
-	parent.getPossibleValues(values);
-	result.addListElements(values.begin(), values.end());
-}
-
-template<typename T>
-std::string EnumSettingPolicy<T>::EnumInfo::help(
-	const std::vector<std::string>& /*tokens*/) const
-{
-	return "Returns all possible values for this setting.";
-}
-
 
 
 template <typename T>

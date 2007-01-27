@@ -6,6 +6,7 @@
 #include "SDLSoundDriver.hh"
 #include "DirectXSoundDriver.hh"
 #include "CommandController.hh"
+#include "CliComm.hh"
 #include "GlobalSettings.hh"
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"

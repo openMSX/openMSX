@@ -11,6 +11,7 @@
 #include "MSXMotherBoard.hh"
 #include "Command.hh"
 #include "GlobalCliComm.hh"
+#include "InfoTopic.hh"
 #include "Display.hh"
 #include "Mixer.hh"
 #include "IconStatus.hh"
