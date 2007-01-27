@@ -26,7 +26,25 @@ ZMBVEncoder::ZMBVEncoder(unsigned width_, unsigned height_, unsigned bpp)
 	setupBuffers(bpp);
 	createVectorTable();
 	memset(&zstream, 0, sizeof(zstream));
-	deflateInit(&zstream, 4);
+	deflateInit(&zstream, 6); // compression level
+
+	// I did a small test: compression level vs compression speed
+	//  (recorded Space Manbow intro, video only)
+	//
+	// level |  time  | size
+	// ------+--------+----------
+	//   0   | 1m12.6 | 139442594
+	//   1   | 1m12.1 |   5217288
+	//   2   | 1m10.8 |   4887258
+	//   3   | 1m11.8 |   4610668
+	//   4   | 1m13.1 |   3791932  <-- old default
+	//   5   | 1m14.2 |   3602078
+	//   6   | 1m14.5 |   3363766  <-- current default
+	//   7   | 1m15.8 |   3333938
+	//   8   | 1m25.0 |   3301168
+	//   9   | 2m04.1 |   3253706
+	//
+	// Level 6 seems a good compromise between size/speed for THIS test.
 }
 
 ZMBVEncoder::~ZMBVEncoder()
