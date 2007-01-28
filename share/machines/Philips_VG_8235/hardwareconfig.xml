@@ -94,7 +94,8 @@
           <drives>1</drives>
           <rom>
             <filename>roms/vg8235_disk.rom</filename>
-            <sha1>1bf0696816b242081e1041a16e5ff73710792865</sha1>
+            <sha1>8954e59aa79310c7b719ecf0cde1e82fb731dcd1</sha1>
+	    <sha1>849f93867ff7846b27f84d0be418569faf058ac2</sha1>
           </rom>
           <mem base="0x4000" size="0x8000"/>
         </WD2793>

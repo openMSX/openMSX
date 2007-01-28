@@ -93,7 +93,7 @@
           <drives>1</drives>
           <rom>
             <filename>roms/vg8230_disk.rom</filename>
-            <sha1>7782c039c32e9c3a731bd0cac4eba80749f11a96</sha1>
+            <sha1>0f5798850d11b316a4254b222ca08cc4ad6d4da2</sha1>
           </rom>
           <mem base="0x4000" size="0x8000"/>
         </WD2793>
