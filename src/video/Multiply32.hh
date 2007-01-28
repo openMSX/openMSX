@@ -44,6 +44,7 @@ private:
 
 template<> class Multiply32<word>
 {
+	// Note that 0 <= n < 32; on x86 this doesn't matter but on PPC it does.
 	inline unsigned rotRight(unsigned a, unsigned n) const
 	{
 		return (a >> n) | (a << (32 - n));

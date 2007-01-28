@@ -19,6 +19,7 @@ Multiply32<unsigned>::Multiply32(const SDL_PixelFormat* /*format*/)
 // gcc can optimize these rotate functions to just one instruction.
 // We don't really need a rotate, but we do need a shift over a positive or
 // negative (not known at compile time) distance, rotate handles this just fine.
+// Note that 0 <= n < 32; on x86 this doesn't matter but on PPC it does.
 static inline unsigned rotLeft(unsigned a, unsigned n)
 {
 	return (a << n) | (a >> (32 - n));
@@ -30,9 +31,9 @@ Multiply32<word>::Multiply32(const SDL_PixelFormat* format)
 	Gmask1 = format->Gmask;
 	Bmask1 = format->Bmask;
 
-	Rshift1 = (2 + format->Rloss) - format->Rshift;
-	Gshift1 = (2 + format->Gloss) - format->Gshift;
-	Bshift1 = (2 + format->Bloss) - format->Bshift;
+	Rshift1 = ((2 + format->Rloss) - format->Rshift) & 31;
+	Gshift1 = ((2 + format->Gloss) - format->Gshift) & 31;
+	Bshift1 = ((2 + format->Bloss) - format->Bshift) & 31;
 
 	Rmask2 = ((1 << (2 + format->Rloss)) - 1) <<
 	                (10 + format->Rshift - 2 * (2 + format->Rloss));
@@ -41,13 +42,13 @@ Multiply32<word>::Multiply32(const SDL_PixelFormat* format)
 	Bmask2 = ((1 << (2 + format->Bloss)) - 1) <<
 	                (10 + format->Bshift - 2 * (2 + format->Bloss));
 
-	Rshift2 = 2 * (2 + format->Rloss) - format->Rshift - 10;
-	Gshift2 = 2 * (2 + format->Gloss) - format->Gshift - 10;
-	Bshift2 = 2 * (2 + format->Bloss) - format->Bshift - 10;
+	Rshift2 = (2 * (2 + format->Rloss) - format->Rshift - 10) & 31;
+	Gshift2 = (2 * (2 + format->Gloss) - format->Gshift - 10) & 31;
+	Bshift2 = (2 * (2 + format->Bloss) - format->Bshift - 10) & 31;
 
-	Rshift3 = Rshift1 + 0;
-	Gshift3 = Gshift1 + 10;
-	Bshift3 = Bshift1 + 20;
+	Rshift3 = (Rshift1 +  0) & 31;
+	Gshift3 = (Gshift1 + 10) & 31;
+	Bshift3 = (Bshift1 + 20) & 31;
 
 	factor = 0;
 	memset(tab, 0, sizeof(tab));
