@@ -88,13 +88,15 @@
 
       <secondary slot="3">
         <WD2793 id="Memory Mapped FDC">
+          <mem base="0x4000" size="0x8000"/>
+          <!-- Verified on real 8245: rom only visible in page1, FDC registers
+               in both page 1 and 2. This is different from a 8250! -->
           <broken_fdc_read>false</broken_fdc_read>
           <drives>1</drives>
           <rom>
             <filename>roms/nms8245_disk.rom</filename>
             <sha1>c3f3ca454d66a0bc791f1d4b60e6857b44eb8755</sha1>
           </rom>
-          <mem base="0x4000" size="0x8000"/>
         </WD2793>
       </secondary>
 

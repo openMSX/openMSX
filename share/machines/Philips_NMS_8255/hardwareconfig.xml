@@ -89,13 +89,16 @@
 
       <secondary slot="3">
         <WD2793 id="Memory Mapped FDC">
+          <mem base="0x0000" size="0x10000"/>
+          <!-- Verified on a real 8250 and 8280: FDC registers are visible
+               in all 4 pages, rom only in page 1. This is handled internally
+               in the WD2793 device -->
           <broken_fdc_read>false</broken_fdc_read>
           <drives>2</drives>
           <rom>
             <filename>roms/nms8250_disk.rom</filename>
             <sha1>c3efedda7ab947a06d9345f7b8261076fa7ceeef</sha1>
           </rom>
-          <mem base="0x4000" size="0x8000"/>
         </WD2793>
       </secondary>
 

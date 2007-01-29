@@ -54,6 +54,11 @@ byte PhilipsFDC::readMem(word address, const EmuTime& time)
 byte PhilipsFDC::peekMem(word address, const EmuTime& time) const
 {
 	byte value;
+	// FDC registers are mirrored in
+	//   0x3FF8-0x3FFF
+	//   0x7FF8-0x7FFF
+	//   0xBFF8-0xBFFF
+	//   0xFFF8-0xFFFF
 	switch (address & 0x3FFF) {
 	case 0x3FF8:
 		value = controller->peekStatusReg(time);
@@ -99,8 +104,8 @@ byte PhilipsFDC::peekMem(word address, const EmuTime& time) const
 		break;
 
 	default:
-		if (address < 0x8000) {
-			// ROM only visible in 0x0000-0x7FFF
+		if ((0x4000 <= address) && (address < 0x8000)) {
+			// ROM only visible in 0x4000-0x7FFF
 			value = MSXFDC::peekMem(address, time);
 		} else {
 			value = 255;
@@ -118,8 +123,8 @@ const byte* PhilipsFDC::getReadCacheLine(word start) const
 	// else normal ROM behaviour
 	if ((start & 0x3FF8 & CacheLine::HIGH) == (0x3FF8 & CacheLine::HIGH)) {
 		return NULL;
-	} else if (start < 0x8000) {
-		// ROM visible in 0x0000-0x7FFF
+	} else if ((0x4000 <= start) && (start < 0x8000)) {
+		// ROM visible in 0x4000-0x7FFF
 		return MSXFDC::getReadCacheLine(start);
 	} else {
 		return unmappedRead;

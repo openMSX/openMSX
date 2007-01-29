@@ -1,5 +1,12 @@
 $Id$
 
+2007-01-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed mirroring of FDC registers in NMS 8250/8255/8280:
+	   FDC registers are mirrored in all 4 pages, rom only in page 1
+	* Added comment in NMS 8245 config:
+	   FDC registers are mirrored in page 1/2, rom only in page 1
+	   It was already implemented like this
+
 2007-01-28 Manuel Bilderbeek <manuel@msxnet.org>
 	* Implemented mirroring of subROM in all pages on Philips NMS 8250
 	  (and derivatives)... TODO: find out which other machines have this.
