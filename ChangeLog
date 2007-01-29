@@ -1,5 +1,9 @@
 $Id$
 
+2007-01-28 Manuel Bilderbeek <manuel@msxnet.org>
+	* Implemented mirroring of subROM in all pages on Philips NMS 8250
+	  (and derivatives)... TODO: find out which other machines have this.
+
 2007-01-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Removed enum setting info topics:
 	   code was already commented out (see 2006-11-04)

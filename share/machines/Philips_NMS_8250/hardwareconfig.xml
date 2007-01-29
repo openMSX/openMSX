@@ -35,7 +35,7 @@
 
       <secondary slot="0">
         <ROM id="MSX Sub ROM">
-          <mem base="0x0000" size="0x4000"/>
+          <mem base="0x0000" size="0x10000"/> <!-- it is mirrored all over the slot -->
           <rom>
             <sha1>5c1f9c7fb655e43d38e5dd1fcc6b942b2ff68b02</sha1>
             <filename>roms/nms8250_msx2sub.rom</filename>
