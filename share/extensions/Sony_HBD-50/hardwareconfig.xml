@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!-- $Id: hardwareconfig.xml,v 1.1 2003/03/24 22:27:44 m9710797 Exp $ -->
+<!DOCTYPE msxconfig SYSTEM "msxconfig2.dtd">
+<msxconfig>
+  <info>
+    <manufacturer>Sony</manufacturer>
+    <code>HBD-50</code>
+    <release_year>1985</release_year>
+    <description>External Single Sided Double Density 3.5" disk drive.</description>
+    <type>external disk drive</type>
+  </info>
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <WD2793 id="Sony HBD-50 diskROM/FDC">
+          <mem base="0x0000" size="0x10000"/>
+          <!-- Verified on a real Sony HBD-50: FDC registers are visible
+               in all 4 pages, rom only in page 1. This is handled internally
+               in the WD2793 device -->
+          <broken_fdc_read>false</broken_fdc_read>
+          <singlesided/>
+          <rom>
+            <sha1>ab57b4c8e5d47c2a39031c2057b97d2d10546582</sha1>
+            <sha1>2144036d6573d666143e890e5413956bfe8f66c5</sha1>
+            <filename>roms/hbd-50.rom</filename>
+          </rom>
+          <drives>1</drives>
+        </WD2793>
+      </secondary>
+    </primary>
+  </devices>
+</msxconfig>

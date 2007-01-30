@@ -1,5 +1,8 @@
 $Id$
 
+2007-01-30 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added Sony HBD-50 disk drive extension (with proper FDC mirroring)
+
 2007-01-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed mirroring of FDC registers in NMS 8250/8255/8280:
 	   FDC registers are mirrored in all 4 pages, rom only in page 1
