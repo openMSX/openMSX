@@ -1,5 +1,10 @@
 $Id$
 
+2007-01-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Replaced filter in SCC code:
+	   - used 4x oversampling + low pass FIR filter
+	   - still WIP
+
 2007-01-30 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added Sony HBD-50 disk drive extension (with proper FDC mirroring)
 

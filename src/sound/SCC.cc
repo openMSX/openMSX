@@ -103,6 +103,8 @@ using std::string;
 
 namespace openmsx {
 
+static const int oversampling = 4;
+
 class SCCDebuggable : public SimpleDebuggable
 {
 public:
@@ -175,7 +177,7 @@ void SCC::reset(const EmuTime& /*time*/)
 
 void SCC::setSampleRate(int sampleRate)
 {
-	baseStep = (1ULL << 28) * 3579545ULL / 32 / sampleRate;
+	baseStep = (1ULL << 28) * 3579545ULL / (32 * oversampling * sampleRate);
 }
 
 void SCC::setVolume(int maxVolume)
@@ -460,36 +462,98 @@ void SCC::setDeformReg(byte value, const EmuTime& time)
 	}
 }
 
-int SCC::filter(int input)
+
+// http://bifi.msxnet.org/msxnet/tech/scc_emulation.html
+// http://www.dsptutor.freeuk.com/KaiserFilterDesign/KaiserFilterDesign.html
+//
+// Kaiser Window FIR Filter
+// 
+// Filter type: Low pass
+// Passband: 0.0 - 750.0 Hz
+// Order: 94
+// Transition band: 250.0 Hz
+// Stopband attenuation: 50.0 dB
+// 
+static int filter4(int in1, int in2, int in3, int in4)
 {
-	// filter code copied from BlueMSX
-	in[4] = in[3];
-	in[3] = in[2];
-	in[2] = in[1];
-	in[1] = in[0];
-	in[0] = input;
-
-	inHp[2] = inHp[1];
-	inHp[1] = inHp[0];
-	inHp[0] = (1 * (in[0] + in[4]) + 12 * (in[1] + in[3]) + 45 * in[2]) / 100;
-
-	outHp[2] = outHp[1];
-	outHp[1] = outHp[0];
-	outHp[0] = ( 997 * ( inHp[0] + inHp[2]) +
-	            1994 * (outHp[1] - inHp[1]) -
-	             994 *  outHp[2]) / 1000;
-
-	return outHp[0];
+	static int in[95] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	                      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			      0, 0, 0, 0, 0 };
+	for (int i = 0; i < 91; ++i) {
+		in[i] = in[i + 4];
+	}
+	in[91] = in1;
+	in[92] = in2;
+	in[93] = in3;
+	in[94] = in4;
+	double res =  2.8536195E-4 * (in[ 0] + in[94]) +
+	              9.052306E-5  * (in[ 1] + in[93]) +
+	             -2.6902245E-4 * (in[ 2] + in[92]) +
+	             -6.375284E-4  * (in[ 3] + in[91]) +
+	             -7.87536E-4   * (in[ 4] + in[90]) +
+	             -5.3910224E-4 * (in[ 5] + in[89]) +
+	              1.1107049E-4 * (in[ 6] + in[88]) +
+	              9.2801993E-4 * (in[ 7] + in[87]) +
+	              0.0015018889 * (in[ 8] + in[86]) +
+	              0.0014338732 * (in[ 9] + in[85]) +
+	              5.688559E-4  * (in[10] + in[84]) +
+	             -8.479743E-4  * (in[11] + in[83]) +
+	             -0.0021999443 * (in[12] + in[82]) +
+	             -0.0027432537 * (in[13] + in[81]) +
+	             -0.0019824558 * (in[14] + in[80]) +
+	              2.018935E-9  * (in[15] + in[79]) +
+	              0.0024515253 * (in[16] + in[78]) +
+	              0.00419754   * (in[17] + in[77]) +
+	              0.0041703423 * (in[18] + in[76]) +
+	              0.0019952168 * (in[19] + in[75]) +
+	             -0.0016656333 * (in[20] + in[74]) +
+	             -0.005242034  * (in[21] + in[73]) +
+	             -0.0068841926 * (in[22] + in[72]) +
+	             -0.005360789  * (in[23] + in[71]) +
+	             -8.1365916E-4 * (in[24] + in[70]) +
+	              0.0050464263 * (in[25] + in[69]) +
+	              0.00950725   * (in[26] + in[68]) +
+	              0.010038091  * (in[27] + in[67]) +
+	              0.005602208  * (in[28] + in[66]) +
+	             -0.00253724   * (in[29] + in[65]) +
+	             -0.011011368  * (in[30] + in[64]) +
+	             -0.015622435  * (in[31] + in[63]) +
+	             -0.013267951  * (in[32] + in[62]) +
+	             -0.0036876823 * (in[33] + in[61]) +
+	              0.009843254  * (in[34] + in[60]) +
+	              0.021394625  * (in[35] + in[59]) +
+	              0.02469893   * (in[36] + in[58]) +
+	              0.01608393   * (in[37] + in[57]) +
+	             -0.0032088074 * (in[38] + in[56]) +
+	             -0.026453404  * (in[39] + in[55]) +
+	             -0.043139543  * (in[40] + in[54]) +
+	             -0.042553578  * (in[41] + in[53]) +
+	             -0.018007802  * (in[42] + in[52]) +
+	              0.029919287  * (in[43] + in[51]) +
+	              0.09252273   * (in[44] + in[50]) +
+	              0.15504532   * (in[45] + in[49]) +
+	              0.20112106   * (in[46] + in[48]) +
+	              0.2180678    *  in[47];
+	return static_cast<int>(res);
 }
 
 void SCC::updateBuffer(unsigned length, int* buffer,
      const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
 {
+	int tmpBuf[oversampling * length];
+
 	nbSamples += length;
 	if ((deformValue & 0xC0) == 0x00) {
 		// No rotation stuff, this is almost always true. So it makes
 		// sense to have a special optimized routine for this case
-		while (length--) {
+		for (unsigned j = 0; j < oversampling * length; ++j) {
 			int mixed = 0;
 			byte enable = ch_enable;
 			for (int i = 0; i < 5; ++i, enable >>= 1) {
@@ -503,12 +567,12 @@ void SCC::updateBuffer(unsigned length, int* buffer,
 					mixed += out[i];
 				}
 			}
-			*buffer++ = filter((masterVolume * mixed) / 256);
+			tmpBuf[j] = (masterVolume * mixed) / 256;
 		}
 	} else {
 		// Rotation mode
 		//  TODO not completely correct
-		while (length--) {
+		for (unsigned j = 0; j < oversampling * length; ++j) {
 			int mixed = 0;
 			byte enable = ch_enable;
 			for (int i = 0; i < 5; ++i, enable >>= 1) {
@@ -526,8 +590,14 @@ void SCC::updateBuffer(unsigned length, int* buffer,
 					mixed += out[i];
 				}
 			}
-			*buffer++ = filter((masterVolume * mixed) / 256);
+			tmpBuf[j] = (masterVolume * mixed) / 256;
 		}
+	}
+	for (unsigned i = 0; i < length; ++i) {
+		buffer[i] = filter4(tmpBuf[oversampling * i + 0],
+		                    tmpBuf[oversampling * i + 1],
+		                    tmpBuf[oversampling * i + 2],
+		                    tmpBuf[oversampling * i + 3]);
 	}
 }
 
