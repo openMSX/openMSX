@@ -3655,3 +3655,60 @@ create_trainer "Wizard's Lair" {time 1} {
 	"walk fast" {poke 0x7c1f 255}
 	"endless color" {poke 0x7c1d 143;poke 0x7c09 4;poke 0xbc06 4}
 }
+
+create_trainer "RNFF-MSXdev06" {time 1} {
+	"power" {poke 0xed95 0x09;poke 0xed94 0x99}
+	"keys" {poke 0xed92 0x99}
+	"bolts" {poke 0xed93 0x98}
+}
+
+create_trainer "Traffic Jam-MSXdev06" {time 1} {
+	"time" {poke 0xeb3f 232;poke 0xeb40 3}
+	"moves (do not leave active)" {poke 0xeb3d 0}
+}
+
+create_trainer "Operation Wolf-MSXdev06" {time 1} {
+	"ammo" {poke 0xed3e 32}
+	"power" {poke 0xea55 255}
+	"handgrenade" {poke 0xed3d 4}
+	"always fast shot" {poke 0xea51 9}
+	"hostages freed" {poke 0xecb5 5}
+}
+
+create_trainer "Malaika-MSXdev06" {time 1} {
+	"lives" {poke 0xe982 0x99}
+	"hearts" {poke 0xe98d 4}
+	"invincible" {poke 0xe9cd 1}
+	"for super mario mod)" {poke 0xe9cd 2}
+	"invincible timer" {poke 0xe9ce 16}
+	"pearls" {poke 0xe985 0x99;poke 0xe986 0x9}
+}
+
+create_trainer "Monster Hunter-MSXdev06" {time 1} {
+	"gold" {poke 0xe10b 255;poke 0xe10c 255}
+	"power" {poke 0xe10e 255}
+	"all weapons" {poke 0xe115 1;poke 0xe116 1;poke 0xe117 1;poke 0xe118 1;poke 0xe119 1;poke 0xe11a 1;poke 0xe11b 1;poke 0xe11c 1;poke 0xe11d 1;poke 0xe11e 1;poke 0xe11f 1;poke 0xe120 1;poke 0xe121 1;poke 0xe122 1;poke 0xe123 1}
+	"all armor" {poke 0xe124 1;poke 0xe125 1;poke 0xe126 1;poke 0xe127 1;poke 0xe128 1;poke 0xe129 1;poke 0xe12a 1;poke 0xe12b 1;poke 0xe12c 1;poke 0xe12d 1;poke 0xe12e 1;poke 0xe12f 1;poke 0xe130 1;poke 0xe131 1;poke 0xe132 1}
+	"all magic" {poke 0xe133 9;poke 0xe134 9;poke 0xe135 9;poke 0xe136 9;poke 0xe137 9;poke 0xe138 9;poke 0xe139 9;poke 0xe13a 9;poke 0xe13b 9;poke 0xe13c 9;poke 0xe13d 9;poke 0xe13e 9;poke 0xe13f 9;poke 0xe140 9;poke 0xe141 9}
+	"items in inventory" {poke 0xe16f 20}
+	"glasses" {poke 0xe14f 1}
+	"red key" {poke 0xe150 2}
+	"blue key" {poke 0xe151 3}
+	"green key " {poke 0xe152 4}
+	"bow key" {poke 0xe153 5}
+	"gold key" {poke 0xe154 6}
+	"silver key" {poke 0xe155 7}
+	"black key" {poke 0xe156 8}
+	"purple key" {poke 0xe157 9}
+	"g-coin" {poke 0xe158 10}
+	"heart" {poke 0xe159 11}
+	"bottle" {poke 0xe15a 12}
+	"coin" {poke 0xe15b 13}
+	"letter" {poke 0xe15c 16}
+	"gold ball" {poke 0xe15d 17}
+	"blue ball" {poke 0xe15e 18}
+	"green ball" {poke 0xe15f 19}
+	"red ball" {poke 0xe160 20}
+	"thing" {poke 0xe161 21}
+	"cat" {poke 0xe162 0}
+}
