@@ -512,8 +512,18 @@ void GlobalCommandController::tabCompletion(vector<string>& tokens)
 				string result = command.executeCommand();
 				vector<string> split;
 				splitList(result, split);
+				bool sensitive = true;
+				if (!split.empty()) {
+					if (split.back() == "false") {
+						split.pop_back();
+						sensitive = false;
+					} else if (split.back() == "true") {
+						split.pop_back();
+						sensitive = true;
+					}
+				}
 				set<string> completions(split.begin(), split.end());
-				Completer::completeString(tokens, completions);
+				Completer::completeString(tokens, completions, sensitive);
 			} catch (CommandException& e) {
 				cliComm->printWarning(
 					"Error while executing tab-completion "

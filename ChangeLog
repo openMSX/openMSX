@@ -1,5 +1,11 @@
 $Id$
 
+2007-02-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Allow case insensitive tabcomplition in Tcl scripts:
+	   - requires a make install
+	   - changed newtrainers.tcl and cpuregs.tcl scripts to use this,
+	     maybe it's useful for others as well
+
 2007-01-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Replaced filter in SCC code:
 	   - used 4x oversampling + low pass FIR filter

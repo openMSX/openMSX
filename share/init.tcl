@@ -20,13 +20,22 @@ proc set_help_text { command help } {
 # internal proc to make tabcompletion available to TCL procs
 proc __tabcompletion { args } {
 	set command [lindex $args 0]
-	if [info exists ::__tabcompletion_proc($command)] {
-		return [eval $::__tabcompletion_proc($command) $args]
+	set result ""
+	if [info exists ::__tabcompletion_proc_sensitive($command)] {
+		set result [eval $::__tabcompletion_proc_sensitive($command) $args]
+		lappend result true
+	} elseif [info exists ::__tabcompletion_proc_insensitive($command)] {
+		set result [eval $::__tabcompletion_proc_insensitive($command) $args]
+		lappend result false
 	}
-	return ""
+	return $result
 }
-proc set_tabcompletion_proc { command proc } {
-	set ::__tabcompletion_proc($command) $proc
+proc set_tabcompletion_proc { command proc {case_sensitive true} } {
+	if $case_sensitive {
+		set ::__tabcompletion_proc_sensitive($command) $proc
+	} else {
+		set ::__tabcompletion_proc_insensitive($command) $proc
+	}
 }
 
 set_help_text data_file \

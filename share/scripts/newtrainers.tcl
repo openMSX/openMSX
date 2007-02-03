@@ -10,7 +10,7 @@ set_help_text trainer "trainer stuff .. blabla ..
   trainer circuscharlie 1 2
   trainer pippols lives \"jump shoes\"\
 "
-set_tabcompletion_proc trainer __tab_trainer
+set_tabcompletion_proc trainer __tab_trainer false
 proc __tab_trainer {args} {
 	if {[llength $args] == 2} {
 		set result [array names ::__trainers]
