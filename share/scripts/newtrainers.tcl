@@ -894,7 +894,9 @@ create_trainer "familice parodic1" {time 2} {
 	"lives" {poke 0xe003 99}
 	"eggs" {poke 0xe025 255}
 	"invincible" {poke 0xe30e 255}
-	"full weapons" {poke 0xe050 4;poke 0xe051 4;poke 0xe052 4;poke 0xe053 4;poke 0xe054 4;poke 0xe055 4;poke 0xe056 4;poke 0xe057 4;poke 0xe058 4;poke 0xe059 4}
+	"full weapons" {poke 0xe050 4;poke 0xe051 4;poke 0xe052 4;
+			poke 0xe053 4;poke 0xe054 4;poke 0xe055 4;
+			poke 0xe056 4;poke 0xe057 4;poke 0xe058 4;poke 0xe059 4}
 }
 
 create_trainer "monmonmonster" {time 2} {
@@ -914,18 +916,21 @@ create_trainer "maze_of_galious" {time 1} {
 	"max exp" {poke 0xe051 1;poke 0xe055 1}
 	"bible (ctrl) uses left" {poke 0xe531 255}
 	"zeus cheat" {poke 0xe027 1}
-	"active weapon (0 = nothing, 1 t/m 6 = arrow, cer.arrow, fire, rolling fire, mine, magnifying glass)" {#poke 0xe510 1
-
-
-}
-	"all combi's with konami carts (thanks bifi)" {poke 0xf0f8 255}
+	"active weapon - nothing)" {poke 0xe510 0}
+	"active weapon - arrow" {poke 0xe510 1}
+	"active weapon - cer.arrow" {poke 0xe510 2}
+	"active weapon - fire" {poke 0xe510 3}
+	"active weapon - rolling fire" {poke 0xe510 4}
+	"active weapon - mine" {poke 0xe510 5}
+	"active weapon - magnifying glass" {poke 0xe510 1}
+	"all combi's with konami carts" {poke 0xf0f8 255}
 	"arrows" {poke 0xe070 1}
 	"ceramic arrows" {poke 0xe071 1}
 	"rolling fire" {poke 0xe072 1}
 	"fire" {poke 0xe073 1}
 	"mine" {poke 0xe074 255}
 	"magnifying glass" {poke 0xe075 1}
-	"zeus cheat(bifi)" {poke 0xe027 1}
+	"zeus cheat" {poke 0xe027 1}
 	"necklace" {poke 0xe07c 1}
 	"crown" {poke 0xe07d 1}
 	"helm" {poke 0xe07e 1}
@@ -959,7 +964,7 @@ create_trainer "maze_of_galious" {time 1} {
 	"cross" {poke 0xe07a 1}
 	"use bible until kingdom come" {poke 0xe531 1}
 	"screen stays frozen for as long as you are in that screen" {poke 0xe0d6 64}
-	"world 10 location 0 = middle tower 1 = right tower 2 = left tower 3 = start" {poke 0xe06e 3;poke 0xe06d 0x01}
+	"world 10 location set @ start (0 = middle tower 1 = right tower 2 = left tower 3 = start)" {poke 0xe06e 3;poke 0xe06d 0x01}
 	"world 1 items" {poke 0xe063 0xf0}
 	"world 2 items" {poke 0xe064 0xf0}
 	"world 3 items" {poke 0xe065 0xf0}
@@ -988,7 +993,7 @@ create_trainer "vampirekiller" {time 1} {
 	"axe" {poke 0xc416 3}
 	"blue cross" {poke 0xc416 4}
 	"holy water" {poke 0xc416 5}
-	"game master combo (thanks bifi)" {poke 0xe600 255}
+	"game master combo" {poke 0xe600 255}
 }
 
 create_trainer "superlaydock_mission_striker" {time 2} {
@@ -1187,7 +1192,7 @@ create_trainer "penguinadventure" {time 15} {
 	"lives" {poke 0xe090 0x99}
 	"poke time never runs out" {poke 0xe08b 0x00;poke 0xe08c 0x3}
 	"pause counter (good ending i have been told)" {poke 0xe0de 1}
-	"noriko cheat(thanks bifi)" {poke 0xf0f7 254}
+	"noriko cheat" {poke 0xf0f7 254}
 	"kill dragon with one shot" {poke 0xe53c 19}
 	"get 8 dancing penguins" {poke 0xe0dd 8}
 }
@@ -1917,7 +1922,7 @@ create_trainer "jpwinkle" {time 2} {
 	"wings" {poke 0xe0af 255}
 	"axe" {poke 0xe0b0 30;poke 0xe0bc 255}
 	"hamer" {poke 0xe0b1 20;poke 0xe0bd 255}
-	"blue lamp" {#poke 0xe0ae 255}
+	"blue lamp" {poke 0xe0ae 255}
 	"red lamp" {poke 0xe0ad 255}
 	"cross" {poke 0xe0ac 255}
 }
@@ -2621,7 +2626,7 @@ create_trainer "tensairabbiandaifunsen" {time 10} {
 
 create_trainer "madrider" {time 1} {
 	"timer" {poke 0xc510 59}
-	"full speed" {#poke 0xc577 255}
+	"full speed" {poke 0xc577 255}
 }
 
 create_trainer "castle_of_blackburn" {time 10} {
@@ -2821,10 +2826,11 @@ create_trainer "thecure" {time 1} {
 	"invincible" {poke 0xdadf 4}
 	"get yellow key" {poke 0xdae0 1}
 	"get white key" {poke 0xdae1 1}
-	"kill enemy with one hit (end boss 3 caution!)" {#poke 0xdb8d 1}
+	"kill enemy with one hit (end boss 3 caution!)" {poke 0xdb8d 1}
 	"hearts" {poke 0xdd44 0x99}
 	"next stage (-1)" {#poke 0xdd46 1}
-	"optional weapon (1 holy water/2 daggers)" {poke 0xdae5 2}
+	"optional weapon - holy water" {poke 0xdae5 1}
+	"optional weapon - daggers" {poke 0xdae5 2}
 	"sand of time" {poke 0xdae4 1}
 }
 
@@ -3725,3 +3731,4 @@ create_trainer "wizzardslair" {time 1} {
 
 set ::__active_trainer ""
 
+#--EOF--
