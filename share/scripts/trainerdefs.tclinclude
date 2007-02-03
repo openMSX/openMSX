@@ -424,7 +424,7 @@ create_trainer "Salamander" {time 1} {
 	"option 1 player 2 (0=player 1)" {poke 0xe401 1}
 	"option 1 in position 1" {poke 0xe402 1}
 	"option 2 active" {poke 0xe410 1}
-	"option 2 player 2" (0=player 1) {poke 0xe411 1}
+	"option 2 player 2 (0=player 1)" {poke 0xe411 1}
 	"option 2 in position 2" {poke 0xe412 2}
 	"option 3 active" {poke 0xe420 1}
 	"option 3 player 2 (0=player 1)" {poke 0xe421 1}
