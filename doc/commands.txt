@@ -856,8 +856,7 @@ display_deform
 frequency
 ---------
 
-  The sound mixer frequency. Changing this setting only takes effect the next
-  time openMSX is started.
+  The sound mixer frequency.
 
   usage:
     set frequency        shows the current setting 
@@ -1189,8 +1188,7 @@ rs232-outputfilename
 samples
 -------
 
-  Sets the size of the sound mixer buffer. Changing this setting only takes
-  effect the next time openMSX is started.
+  Sets the size of the sound mixer buffer.
 
   usage:
     set samples       shows the current setting 
