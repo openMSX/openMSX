@@ -37,7 +37,7 @@
         <ROM id="MSX Sub ROM">
           <mem base="0x0000" size="0x10000"/> <!-- it is mirrored all over the slot -->
           <rom>
-            <sha1>5c1f9c7fb655e43d38e5dd1fcc6b942b2ff68b02</sha1>
+            <sha1>5c1f9c7fb655e43d38e5dd1fcc6b942b2ff68b02</sha1> <!-- same as 8245/00, verified by mth -->
             <filename>roms/nms8250_msx2sub.rom</filename>
           </rom>
         </ROM>
@@ -59,6 +59,7 @@
           <broken_fdc_read>false</broken_fdc_read>
           <rom>
             <sha1>c3efedda7ab947a06d9345f7b8261076fa7ceeef</sha1>
+	    <sha1>8625c6b633d9cca2875e4dc33404fb98653379d7</sha1> <!-- verified by mth's 8250, same as previous with different FDC register values -->
             <filename>roms/nms8250_disk.rom</filename>
           </rom>
           <drives>1</drives>

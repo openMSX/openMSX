@@ -71,7 +71,7 @@
         <ROM id="MSX Sub ROM">
           <rom>
             <filename>roms/vg8230_msx2sub.rom</filename>
-            <sha1>3288894e1be6af705871499b23c85732dbc40993</sha1>
+            <sha1>3288894e1be6af705871499b23c85732dbc40993</sha1> <!-- verified on 8230/00 from Luc -->
           </rom>
           <mem base="0x0000" size="0x4000"/> <!-- Verified on real MSX: no mirroring at all! -->
         </ROM>

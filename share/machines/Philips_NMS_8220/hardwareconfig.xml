@@ -71,9 +71,9 @@
         <ROM id="MSX Sub ROM">
           <rom>
             <filename>roms/nms8220_msx2sub.rom</filename>
-            <sha1>f5eb0a396097572589f2a6efeed045044e9425e4</sha1>
+            <sha1>f5eb0a396097572589f2a6efeed045044e9425e4</sha1> <!-- confirmed by Luc on 8220/00 -->
           </rom>
-          <mem base="0x0000" size="0x4000"/>
+          <mem base="0x0000" size="0x4000"/> <!-- NO mirroring -->
         </ROM>
       </secondary>
 
@@ -90,9 +90,10 @@
         <ROM id="MSX Designer">
           <rom>
             <filename>roms/nms8220_designer.rom</filename>
-            <sha1>cb754aed85b3e97a7d3c5894310df7ca18f89f41</sha1>
+            <sha1>cb754aed85b3e97a7d3c5894310df7ca18f89f41</sha1> <!-- version 12-06-1986 -->
+            <sha1>5df95d033ae70b107697b69470126ce1b7ae9eb5</sha1> <!-- version 13-08-1986 -->
           </rom>
-          <mem base="0x4000" size="0x4000"/>
+          <mem base="0x4000" size="0x8000"/> <!-- ROM is mirrored in page 2 -->
         </ROM>
       </secondary>
 
