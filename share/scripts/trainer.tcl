@@ -1,14 +1,19 @@
-set_help_text trainer "trainer stuff .. blabla ..
- usage:
-  trainer             bla
-  trainer <name>          blabla
-  trainer <name> all        bla 
-  trainer <name> \[<items> ..\]  blabla
-  trainer deactivate        bla
- examples:
+set_help_text trainer "
+Copyright 2007 the openMSX team
+-----------------------------------------------------------------------------------
+Usage:
+  trainer                      See which trainer is currently active
+  trainer <name>               See which cheats are currently active in the trainer
+  trainer <name> all           Activate all cheats in the trainer
+  trainer <name> \[<items> ..\]  Toggle cheats on/off
+  trainer deactivate           Deactivated trainers
+Examples:
   trainer frogger all
   trainer circuscharlie 1 2
   trainer pippols lives \"jump shoes\"\
+
+
+When switching trainers the current active trainer will be deactivated.
 "
 set_tabcompletion_proc trainer __tab_trainer false
 proc __tab_trainer {args} {
