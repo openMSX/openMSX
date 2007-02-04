@@ -1,3 +1,21 @@
+# Cheat definitions - Version 2.0
+#
+#  Copyright 2005-2007 Albert Beevendorp all rights reserved
+#  Copyright 2005-2007 Patrick van Arkel all rights reserved
+#  Copyright 2006-2007 Benoit Delvaux all rights reserved
+#
+# The definition of cheating according to google:
+# - Defeat someone in an expectation through trickery or deceit
+# - Deceiver: someone who leads you to believe something that is not true
+# - A deception for profit to yourself
+#
+# openMSX is made to work together with ips patches. albert has some ips
+# Patches can be found at http://ips.tni.nl/ for translations and more cheats.
+#
+# Please cheat responsible!
+#
+#
+
 create_trainer "F-1 Spirit" {time 1} {
 	"player 1 always first place" {poke 0xe331 1}
 	"all combis with konami carts" {poke 0xe1de 2}
@@ -787,7 +805,8 @@ create_trainer "Usas" {time 1} {
 	"speed rate 1 coin" {poke 0xc2d8 1;poke 0xc2d9 0}
 	"jump rate 1 coin" {poke 0xc2da 1;poke 0xc2db 0}
 	"jump rate 1 coin" {poke 0xc2dc 1;poke 0xc2dd 0}
-	"big door open" {poke 0xe328 1}
+	"temple boss door open" {poke 0xd510 0; poke 0xd514 48}
+	"stage boss door open" {poke 0xe328 1}
 }
 
 create_trainer "Aleste" {time 1} {
@@ -3712,3 +3731,5 @@ create_trainer "Monster Hunter-MSXdev06" {time 1} {
 	"thing" {poke 0xe161 21}
 	"cat" {poke 0xe162 0}
 }
+
+### EOF ###
