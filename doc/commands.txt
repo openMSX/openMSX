@@ -479,6 +479,26 @@ toggle
     toggle throttle
 
 
+trainer
+-------
+
+  Control game trainers. You can enable or disable individual cheats of each trainer.
+  Make use of the TAB key to see what is available.
+  When switching trainers, the currently active trainer will be deactivated.
+
+  usage:
+    trainer                      see which trainer is currently active
+    trainer <game>               see which cheats are currently active in the trainer
+    trainer <game> all           activate all cheats in the trainer of <game>
+    trainer <game> \[<cheat> ..\]  toggle cheats of <game> on/off
+    trainer deactivate           deactivate all trainers
+
+  examples:
+    trainer Frogger all
+    trainer Circus\ Charlie 1 2
+    trainer Pippols lives \"jump shoes\"\
+
+
 type
 ----
 
