@@ -1,12 +1,24 @@
 $Id$
 
+2007-02-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* SCC filter fixes:
+	   - wasn't correct when there were multiple SCC cartridges
+	   - replaced FIR filter with a cheaper one that also matches Sean's
+	     measurements
+	   - it's still not alias free, but fixing this requires a whole new
+	     approach
+	* Added interruptable sleep() method in EventDistributor:
+	   - sleeps for a given amount of time or till a event gets posted
+	   - used in the Reactor mainloop (e.g. when emulation is
+	     paused/breaked). Should improve response time in the debugger
+
 2007-02-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Allow case insensitive tabcomplition in Tcl scripts:
 	   - requires a make install
 	   - changed newtrainers.tcl and cpuregs.tcl scripts to use this,
 	     maybe it's useful for others as well
 
-2007-01-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2007-01-30 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Replaced filter in SCC code:
 	   - used 4x oversampling + low pass FIR filter
 	   - still WIP

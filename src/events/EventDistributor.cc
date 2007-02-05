@@ -68,6 +68,7 @@ void EventDistributor::distributeEvent(Event* event)
 		//             EventDistributor::unregisterEventListener()
 		//   thread 2: EventDistributor::distributeEvent()
 		//             Reactor::enterMainLoop()
+		cond.signalAll();
 		lock.release();
 		reactor.enterMainLoop();
 	}
@@ -103,6 +104,11 @@ void EventDistributor::deliverEvents()
 		}
 		sem.down();
 	}
+}
+
+bool EventDistributor::sleep(unsigned us)
+{
+	return cond.waitTimeout(us);
 }
 
 } // namespace openmsx

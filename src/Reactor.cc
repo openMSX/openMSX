@@ -16,7 +16,6 @@
 #include "Mixer.hh"
 #include "IconStatus.hh"
 #include "AviRecorder.hh"
-#include "Timer.hh"
 #include "Alarm.hh"
 #include "GlobalSettings.hh"
 #include "BooleanSetting.hh"
@@ -391,7 +390,7 @@ void Reactor::run(CommandLineParser& parser)
 		if (!blocked) blocked = !motherboard->execute();
 		if (blocked) {
 			display.repaint();
-			Timer::sleep(100 * 1000);
+			getEventDistributor().sleep(100 * 1000);
 		}
 	}
 }
