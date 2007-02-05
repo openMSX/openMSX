@@ -43,7 +43,7 @@ private:
 	void setFreqVol(byte address, byte value);
 	byte getFreqVol(byte address);
 
-	int filter(int input);
+	int filter4(int in1, int in2, int in3, int in4);
 
 	static const int CLOCK_FREQ = 3579545;
 	static const unsigned int SCC_STEP =
@@ -69,7 +69,8 @@ private:
 	bool rotate[5];
 	bool readOnly[5];
 
-	int in[5], inHp[3], outHp[3];
+	// previous input values for FIR filter
+	int in[48];
 
 	friend class SCCDebuggable;
 	const std::auto_ptr<SCCDebuggable> debuggable;
