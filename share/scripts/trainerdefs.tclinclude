@@ -749,13 +749,20 @@ create_trainer "Metal Gear" {time 1} {
 	"antidote" {poke 0xc584 13}
 	"uniform" {poke 0xc588 24}
 	"box" {poke 0xc58c 25}
-	"put a nuclear warhead on your remote missiles 8)" {poke 0xc142 16}
+	"put a nuclear warhead on your remote missiles 8)" {if {[peek 0xc142] == 7} {poke 0xc142 16}}
 	"active keycard" {poke 0xc135 x}
-	"stop destruction timer" {poke 0xc13d 0x99}
+	"stop destruction timer" {poke 0xc13d 0x99;poke 0xc13e 0x99}
 	"enemy 1 gone" {poke 0xd005 0}
 	"enemy 2 gone" {poke 0xd085 0}
 	"enemy 3 gone" {poke 0xd105 0}
 	"enemy 4 gone" {poke 0xd185 0}
+	"open all doors" {for {set i 0xc450} { $i < 0xc4fe } { incr i } {poke $i 0}}
+	"close all doors" {for {set i 0xc450} { $i < 0xc4fe } { incr i } {poke $i 1}}
+
+
+	
+
+
 }
 
 create_trainer "Metal Gear 2 - Solid Snake" {time 2} {
@@ -807,6 +814,7 @@ create_trainer "Usas" {time 1} {
 	"jump rate 1 coin" {poke 0xc2dc 1;poke 0xc2dd 0}
 	"temple boss door open" {poke 0xd510 0; poke 0xd514 48}
 	"stage boss door open" {poke 0xe328 1}
+	"weak enemies" {poke 0xc412 1;poke 0xc492 1;poke 0xc512 1;poke 0xc592 1;poke 0xc612 1;poke 0xc692 1;poke 0xc712 1;poke 0xc792 1;}
 }
 
 create_trainer "Aleste" {time 1} {
@@ -959,6 +967,13 @@ create_trainer "Vampire Killer" {time 1} {
 	"blue cross" {poke 0xc416 4}
 	"holy water" {poke 0xc416 5}
 	"game master combo" {poke 0xe600 255}
+	"main enemy dies after 1 hit" {poke 0xc418 0}
+	"silver cross is always active" {poke 0xc440 255}
+	"x-pos enemy 1" {poke 0xc805 128}
+	"x-pos enemy 2" {poke 0xc885 128}
+	"strengt enemys 1" {poke 0xc80d 1}
+	"strengt enemys 2" {poke 0xc88d 1}	
+
 }
 
 create_trainer "Super Laydock Mission Striker" {time 2} {
@@ -1257,6 +1272,21 @@ create_trainer "Dragon Slayer4 (MSX1)" {time 1} {
 	"strong weapons" {poke 0xe098 99}
 }
 
+create_trainer "Gryzor" {time 1} {
+	"power bar" {poke 0xe2c9 32}
+	"invincible" {poke 0xe31e 200}
+	"normal gun" {poke 0xe032 0}
+	"laser gun" {poke 0xe032 1}
+	"rotating gun" {poke 0xe032 2}
+	"machine gun" {poke 0xe032 3}
+	"circling gun" {poke 0xe032 4}
+	"2 way gun" {poke 0xe032 5}
+	"4 way gun" {poke 0xe032 6}
+	"4 fragment gun" {poke 0xe032 7}
+	"underground stages get easier" {poke 0xe50b 200}
+	"end bosses and underground stages get easier" {poke 0xe50b 200;poke 0xe51b 200;poke 0xe52b 200;poke 0xe53b 200;poke 0xe54b 200;poke 0xe55b 200;poke 0xe56b 200;poke 0xe57b 200;poke 0xe58b 200}
+}
+
 create_trainer "Druid" {time 2} {
 	"ammo 1" {poke 0xc024 99}
 	"ammo 2" {poke 0xc025 99}
@@ -1433,6 +1463,14 @@ create_trainer "King Kong 2" {time 2} {
 	"stones" {poke 0xc2a4 8;poke 0xc347 0x99}
 	"boomerang" {poke 0xc2a6 10;poke 0xc349 0x99}
 	"vortex" {poke 0xc2c0 34;poke 0xc2c1 255;poke 0xc361 255}
+	"big enemy dies after 1 hit" {poke 0xd00d 1}
+	"enemy dies after 1 hit" {poke 0xd08d 1}
+	"enemy dies after 1 hit" {poke 0xd10d 1}
+	"enemy dies after 1 hit" {poke 0xd08d 1}
+	"enemy dies after 1 hit" {poke 0xd18d 1}
+	"enemy dies after 1 hit" {poke 0xd20d 1}
+	"enemy dies after 1 hit" {poke 0xd28d 1}
+	"enemy dies after 1 hit" {poke 0xd30d 1}
 }
 
 create_trainer "Ikari" {time 2} {
@@ -2966,6 +3004,7 @@ create_trainer "Break-In" {frame} {
 	"open room 4" {poke 0x883f 28;poke 0x8840 28;poke 0x8841 28;poke 0x8842 28}
 	"frozen guardian" {poke 0x8a7b 0}
 	"invisible guardian (hard game!)" {poke 0x8a83 0}
+	"ball above bat" {poke 0x8487 [expr {[peek 0x85d3]+16}]}
 }
 
 create_trainer "Hyper Sports 1" {time 1} {
@@ -3698,7 +3737,7 @@ create_trainer "Malaika-MSXdev06" {time 1} {
 	"lives" {poke 0xe982 0x99}
 	"hearts" {poke 0xe98d 4}
 	"invincible" {poke 0xe9cd 1}
-	"for super mario mod)" {poke 0xe9cd 2}
+	"for super mario mod" {poke 0xe9cd 2}
 	"invincible timer" {poke 0xe9ce 16}
 	"pearls" {poke 0xe985 0x99;poke 0xe986 0x9}
 }
@@ -3730,6 +3769,19 @@ create_trainer "Monster Hunter-MSXdev06" {time 1} {
 	"red ball" {poke 0xe160 20}
 	"thing" {poke 0xe161 21}
 	"cat" {poke 0xe162 0}
+}
+
+create trainer "Word Invaders" {time 1} {
+"solve all words" {
+			set whole_page ""
+			for {set i 0} { $i < 600 } { incr i } {if {[debug read VRAM $i] > 33} {append whole_page [format %c [debug read VRAM $i]]}};
+			type [string trim $whole_page];
+			poke 0xc3d2 255;
+			poke 0xc3da 255;
+			poke 0xc3e2 255;
+			poke 0xc3ea 255;
+			poke 0xc3f2 255;
+		}
 }
 
 ### EOF ###
