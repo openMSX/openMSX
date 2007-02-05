@@ -1,4 +1,4 @@
-// $Id: $
+// $Id$
 
 #ifndef CONDVAR_HH
 #define CONDVAR_HH
@@ -19,8 +19,8 @@ public:
 	void wait();
 
 	/** Same as wait(), but with a timeout.
-	  * @param The maximum time to wait, in micro seconds.
-	  * @result Returns true iff we return because of a timeout.
+	  * @param us The maximum time to wait, in micro seconds.
+	  * @result Returns true if we return because of a timeout.
 	  */
 	bool waitTimeout(unsigned us);
 
@@ -28,7 +28,7 @@ public:
 	 */
 	void signal();
 
-	/** Wake all threads that are waiting on this condtion variable.
+	/** Wake all threads that are waiting on this condition variable.
 	 */
 	void signalAll();
 
