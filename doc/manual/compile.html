@@ -92,11 +92,11 @@ Windows is also a supported platform for openMSX. Most Windows users will just d
 </dd>
 <dt>Mac OS X</dt>
 <dd>
-You can compile openMSX on Mac OS X. Nowadays we have at least one developer that runs Mac OS X and as a result support for Mac OS X has improved a lot in openMSX 0.5.1. However, we do not have a binary package or a GUI yet, so you will have to use openMSX from the command line for now.
+You can compile openMSX on Mac OS X. Nowadays we have at least one developer that runs Mac OS X and as a result support for Mac OS X has improved a lot as of openMSX 0.5.1. However, we do not have a binary package or a GUI yet, so you will have to use openMSX from the command line for now, unless you use third party software like <a class="external" href="http://www5f.biglobe.ne.jp/~nekocan/group_soft/ht_soft.html">Nekolauncher openMSX</a>.
 <br />
 This manual contains all the essential info to compile openMSX on Mac OS X. However, if you are not experienced in compiling software yourself, there is a nice
 <a class="external" href="http://www.msxgamesbox.com/Sections/emumac/openmsx.php">article at The MSX Games bOX</a>
-which explains everything in more detail.
+which explains everything in more detail. It seems to be getting a bit outdated, though, but it may still give you valuable hints.
 </dd>
 <dt>FreeBSD/NetBSD/OpenBSD</dt>
 <dd>
@@ -292,7 +292,7 @@ href="http://tortoisesvn.tigris.org/">TortoiseSVN</a>.
 With the following line you can retrieve the latest sources:
 </p>
 <div class="commandline">
-svn co https://svn.sourceforge.net/svnroot/openmsx/openmsx/trunk openMSX
+svn co https://openmsx.svn.sourceforge.net/svnroot/openmsx/openmsx/trunk openMSX
 </div>
 <p>
 In this line you specified where you want to retrieve the files from
@@ -421,9 +421,7 @@ On a Debian testing system, they are called:
 <dd>Network library for SDL.</dd>
 -->
 
-
 </dl>
-
 
 <p>
 Furthermore, you need the XML library and the PNG library:
@@ -473,7 +471,7 @@ packages for OpenGL installed. Since openMSX 0.6.1, we use the GLEW library (ver
 If you have an nVidia card, go to the
 <a class="external" href="http://www.nvidia.com/linux">nVidia web site</a>
 for drivers, which include an OpenGL implementation. ATI users can check out the <a class="external" href="http://www.ati.com/support/faq/linux.html">ATI web site</a> for drivers. For other cards, try Mesa, which can be found in packages like
-<code>xlibmesa-gl</code> and <code>xlibmesa-gl-dev</code> (Debian)
+<code>libgl1-mesa-glx</code> and <code>libgl1-mesa-dev</code> (Debian)
 or <code>XFree86-GLX</code> and <code>XFree86-GLX-devel</code> (SUSE).
 However, nowadays there is a big chance that your system already has hardware accelerated OpenGL supported in the default installation of your Xorg or Windows environment. Just make sure you install the development header files for the OpenGL library if you want to compile openMSX with support for it.
 </p>
@@ -729,7 +727,7 @@ At the moment of writing, there are four trackers:
 Bugs, Support Requests, Patches and Feature Requests.
 </li>
 <li>
-Post a message on the forum on <a class="external" href="http://www.openmsx.org/">www.openmsx.org</a> or the <a class="external" href="http://sourceforge.net/forum/?group_id=38274">openMSX forums</a> at SourceForge.
+Post a message on the forum on <a class="external" href="http://www.openmsx.org/">www.openmsx.org</a><!-- or the <a class="external" href="http://sourceforge.net/forum/?group_id=38274">openMSX forums</a> at SourceForge-->.
 </li>
 </ol>
 
@@ -740,7 +738,7 @@ This will only work if you did not strip the openMSX binary
 of its debug symbols.
 
 Another useful thing to do is to install the debug versions of libstdc++ and libc6,
-and then run openmsx with an LD_LIBRARY_PATH=/usr/lib/debug exported in the environment.
+and then run openmsx with an <code>LD_LIBRARY_PATH=/usr/lib/debug</code> exported in the environment.
 This will give a more detailed stacktrace, especially in optimized code.
 </p>
 
