@@ -32,7 +32,11 @@
 		<li><a class="internal" href="#videosource">It seems the MSX hangs when running GFX9000 software; what's wrong?</a></li>
 		<li><a class="internal" href="#leds">Great, those new OSD LEDs! How do I get rid of them?</a></li>
 	</ul></li>
-	<li><a class="internal" href="#otherquestion">My question is not listed here.</a> </li>
+	<li><a class="internal" href="#other">Other</a>:
+	<ul class="toc">
+		<li><a class="internal" href="#codec">What codec do you use to record videos and where do I get it (because I only get blackness in my videos)?</a> </li>
+		<li><a class="internal" href="#otherquestion">My question is not listed here.</a> </li>
+	</ul></li>
 </ul>
 
 <h2><a id="install">Installing openMSX</a></h2>
@@ -63,7 +67,7 @@ The easiest way to install openMSX is to use a ready-made package. Whether one i
 <dd>You can find an ebuild for openMSX in the "games-emulation" category. Catapult does not have an ebuild yet.
 </dd>
 <dt>Slackware Linux</dt>
-<dd>You can find binary packages for Pentium 2 and higher on the <a href="http://www.linuxpackages.net/">Linux Packages</a> site.
+<dd>You can find binary packages for Pentium 2 and higher on the <a href="http://www.linuxpackages.net/">Linux Packages</a> site, but they seem to be somewhat outdated.
 </dd>
 <dt>FreeBSD</dt>
 <dd>There is a port for openMSX in FreeBSD 6. It is called simply "openmsx". There is no port for Catapult yet.
@@ -83,7 +87,7 @@ If you still think openMSX is difficult to install, <a class="external" href="co
 <h3><a id="ziporexe">Should I download the ZIP or the EXE for Windows?</a></h3>
 
 <p>
-We strongly recommend to use the EXE. It contains a very comfortable installer and <em>really</em> won't touch your Windows registry if you don't want that! The price you pay if you want the registry unharmed: you can't use the built-in uninstaller...
+We strongly recommend to use the EXE. It contains a very comfortable installer and <em>really</em> won't touch your Windows registry if you don't want that! The price you pay if you want the registry unharmed: you can't use the built-in uninstaller... Do note that Catapult saves its preferences in the User registry of Windows though. This is a very normal thing to do for user programs. If you don't want that, don't use Catapult (nor most other Windows programs).
 </p>
 
 <p>
@@ -91,7 +95,7 @@ With the EXE, your openMSX experience is only about 3 clicks away. The ZIP file 
 </p>
 
 <p>
-Maybe you noticed that the ZIP file is a little bit bigger than the EXE. The reason for this is that the EXE file has better compression! The actual contents is exactly the same.
+Maybe you noticed that for some releases the ZIP file is a little bit bigger than the EXE. The reason for this is that the EXE file has better compression! The actual contents is exactly the same.
 </p>
 
 <h3><a id="roms">Why doesn't openMSX come with system ROMs?</a></h3>
@@ -117,7 +121,7 @@ Ever since openMSX comes with the optional GUI dubbed "openMSX Catapult", it is 
 </p>
 
 <p>
-Catapult doesn't give you access to all features of openMSX, though. You can do a lot more by using the openMSX built-in console. You can read a lot more about this in <a class="external" href="user.html#controlling">the User's Manual</a>.
+Catapult doesn't give you access to all features of openMSX, though. You can do a lot more by using the openMSX built-in console. You can read a lot more about this in <a class="external" href="user.html#controlling">the User's Manual</a>. It's not a GUI, but we did our best to make this console as easy to use as possible.
 </p>
 
 <p>
@@ -125,7 +129,7 @@ If you still think openMSX is difficult to use, please tell us why! Contact info
 </p>
 
 <p>
-Oh, you might wonder: why don't you make a normal GUI like other emulators? One in which the emulation is inside the GUI? The reason is that we are currently not able to make that: the wxWidgets toolkit we use does not support it and we want to keep the GUI optional, so we cannot make it part of the main application. This may change in the near future, when we are going to use the Qt toolkit to make the GUI.
+Oh, you might wonder: why don't you make a normal GUI like other emulators? One in which the emulation is inside the GUI? The reason is that we are currently not able to make that: the GUI toolkit we use does not support it and we want to keep the GUI optional, so we cannot make it part of the main application.
 </p>
 
 <h3><a id="c-bios">All I get is "No cartridge found." What's wrong?</a></h3>
@@ -140,13 +144,13 @@ Oh, you might wonder: why don't you make a normal GUI like other emulators? One 
 </p>
 
 <p>
-So, the message is not from openMSX, but from C-BIOS, which tries to start a cartridge that is inserted in the MSX that is being emulated by openMSX. And it seems you didn't insert any cartridge for it... So, either run openMSX with a ROM image or install real MSX system ROMs for a certain machine and run that one.
+So, the message is not from openMSX, but from C-BIOS, an MSX program which tries to start a cartridge that is inserted in the MSX that is being emulated by openMSX. And it seems you didn't insert any cartridge for it... So, either run openMSX with a ROM image or install real MSX system ROMs for a certain machine and run that one.
 </p>
 
 <p>Note that the current version of C-BIOS can only run cartridges and does not support disk or tape usage. More information can be found in the <a class="external" href="setup.html#cbios">Setup Guide</a>.
 </p>
 
-<h3><a name="savegame">How do I save my game?</a></h3>
+<h3><a id="savegame">How do I save my game?</a></h3>
 
 <p>
 You've been playing a game and want to continue another time, so you want to save your progress. openMSX does not support save states yet. Therefore you should save the way you would on a real MSX. How that works, depends on the game:
@@ -193,7 +197,7 @@ This is explained in the <a class="external" href="user.html#harddisks">User's M
 The real GFX9000 has an external video connector to which you can connect a second monitor. Because of limits of the SDL library we used to create openMSX, we cannot have more than one window for openMSX, so we cannot emulate a second monitor. To see the GFX9000 in action, you need to switch the videosource setting, which equals to a so-called SCART-switch in the real world: <code>set videosource GFX9000</code>. If you started openMSX without GFX9000 extension, this videosource is not available. To get your normal MSX screen back, you should type <code>set videosource MSX</code>. If you want to toggle with a hot key between them, it might be useful to bind a key for it. E.g.: <code>bind F6 cycle videosource</code>. <code>cycle</code> is a TCL command that cycles through the options of the setting in the parameter.
 </p>
 
-<p>Note that GFX9000 emulation does not work with the SDLGL renderer yet and that it's incomplete, slow and buggy anyways...</p>
+<p>Note that GFX9000 emulation does not work with the SDLGL renderer and that the emulation quality is not as good yet as the classical MSX video chips.</p>
 
 <h3><a id="leds">Great, those new OSD LEDs! How do I get rid of them?</a></h3>
 
@@ -205,6 +209,20 @@ Open the console with F10 (Cmd+L on Mac) and type:
 <p>If you have <code>autosave_at_exit</code> set to <code>on</code>, this change will be permanent, until you load another icon set. This gives you the default:</p>
 
 <div class="commandline">load_icons set1 bottom</div>
+
+<h3><a id="codec">What codec do you use to record videos and where do I get it (because I only get blackness in my videos)?</a></h3>
+
+<p>
+The ZMBV (Zip Motion Blocks Video) codec is used, which has been developed in the <a class="external" href="http://dosbox.sourceforge.net/">DosBox project</a>. It enables openMSX to encode video in real time (on most systems), have a very good compression ratio and give excellent video quality, because it is a lossless codec. Razor sharp movies! Also, because the encoder is built in, it doesn't make openMSX depend on an external codec to be installed for recording video.
+</p>
+
+<p>
+A developer of DosBox built Win32 a binary of the codec for our users. It is included in the openMSX 0.6.2 (and up) Win32 installer, but you can also <a href="http://openmsx.sourceforge.net/util/zmbv_codec_win32.zip">download it separately from our web site</a>. After unzipping the file, use the .INF file to install the codec by right-clicking on it. Note that other binaries of this codec that you can find on the internet may not work, as not all of them have support for more than 8 bits per pixel recordings.
+</p>
+
+<p>
+You only need this codec installer to be able to replay the videos on a Windows system. (Although a workaround could be to upload it to Google video, where it is re-encodeded into a lossy MPEG-4 format.) Programs like Virtual Dub can use the codec and re-encode it in another way. On other operating systems, you can use any video player which supports this codec; e.g. <code>mplayer</code>. Re-encoding can be done with e.g. <code>mencoder</code>.
+</p>
 
 <h2><a id="otherquestion">My question is not listed here.</a></h2>
 
