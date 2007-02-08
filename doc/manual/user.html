@@ -82,6 +82,7 @@
 			<li><a class="internal" href="#gamma">6.4 Gamma Correction</a></li>
 			<li><a class="internal" href="#videoeffects">6.5 Special Effects</a></li>
 			<li><a class="internal" href="#gfx9000">6.6 GFX9000/Video sources</a></li>
+			<li><a class="internal" href="#recording">6.7 Video recording</a></li>
 		</ol>
 	</li>
 
@@ -236,15 +237,19 @@ In this chapter we will tell you how to select MSX machines and how to use exten
 <h3><a id="machines">2.1 Machines</a></h3>
 
 <p>
-If you start openMSX without any command line parameters, you will get the default machine, which is stored in the <code>machine</code> setting, see the <a class="external" href="setup.html#settings">Setup Guide</a>. If you did not change the default machine, you will get the C-BIOS MSX2+ machine.
+If you start openMSX without any command line parameters, you will get the default machine, which is stored in the <code>default_machine</code> setting, see the <a class="external" href="setup.html#settings">Setup Guide</a>. If you did not change the default machine, you will get the C-BIOS MSX2+ machine.
 </p>
 
 <p>
-To select a different MSX machine, use the <code>-machine</code> command line argument:
+To select a different MSX machine, you can use the <code>-machine</code> command line argument:
 </p>
 <div class="commandline">
     openmsx -machine Panasonic_FS-A1GT
 </div>
+<p>
+But, you can also use the <code>machine</code> command to switch at run time in the console, which is explained in the next chapter.
+</p>
+
 <p>
 The C-BIOS machines come with ROMs installed; for other machines you will have to install system ROMs yourself, see the <a class="external" href="setup.html#systemroms">Setup Guide</a> for details.
 </p>
@@ -260,6 +265,9 @@ We will use the FMPAC as an example. openMSX ships with a definition (XML file) 
 <div class="commandline">
     openmsx -ext fmpac
 </div>
+<p>
+Similar to machines, you can also use the <code>ext</code> command in the console to do it at run time.
+</p>
 <p>
 If you look in the <code>share/extensions</code> directory, you will see all the extensions known to openMSX. For example <code>-ext mbstereo</code> gives you the MoonBlaster stereo effect: FMPAC on the left speaker and MSX-AUDIO on the right speaker.
 </p>
@@ -278,7 +286,7 @@ Often used other command line options will be discussed later in this manual. Fo
 
 <p>
 openMSX has a built-in command interface called the <em>console</em>,
-which allows you to control various aspects of openMSX while it is running.
+which allows you to control almost all aspects of openMSX while it is running.
 You can access the console by pressing F10
 (with default key mapping) when the focus is on the emulator window.
 This will give you a command line in the openMSX window.
@@ -295,7 +303,7 @@ change settings at run time and to change key bindings, among others.
 </p>
 
 <p>
-One very practical feature of the console command line is that you can use "completion" features. Just try typing half a command and then press the TAB key; openMSX will then try to finish the word you were typing or show the possibilities in case of ambiguities. You can use it also for file names, connectors, pluggables and settings.
+One very practical feature of the console command line is that you can use "completion" features. Just try typing half a command and then press the TAB key; openMSX will then try to finish the word you were typing or show the possibilities in case of ambiguities. You can use it also for file names, connectors, pluggables and settings, but also for machine and extension names.
 </p>
 
 <!--
@@ -307,14 +315,14 @@ Add the complete list of commands from commands.txt somewhere.
 <h3><a id="importantconsole">3.2 Some Simple Console Commands</a></h3>
 
 <p>
-You can reset your MSX with the Console command <code>reset</code> and exit openMSX with the command <code>exit</code>. Other commands will be discussed later on in this manual.
+You can reset your MSX with the Console command <code>reset</code> and exit openMSX with the command <code>exit</code>. As is explained in the previous chapter, you can change machines with the <code>machine</code> command and you can insert extensions with the <code>ext</code> command. Remove extensions with the <code>remove_extension</code> command or list them with the <code>list_extensions</code> command. Other commands will be discussed later on in this manual.
 </p>
 
 <h3><a id="settings">3.3 Settings</a></h3>
 
 <p>
 An interesting console command is <code>set</code>. You can use it to change the various
-settings. E.g., you can use it to set the current renderer. <!-- If you use it without parameters, you will get a list of settings.--> If you issue set with only the setting (like <code>set renderer</code>), you will get the current value of that setting.
+settings. E.g., you can use it to set the current renderer. If you issue set with only the setting (like <code>set renderer</code>), you will get the current value of that setting.
 Settings that have only two possible values can also be toggled with the <code>toggle</code>
 command (an example is the default key binding of F12 to <code>toggle
 fullscreen</code>, see also below). A complete list of settings should also be in the file
@@ -357,7 +365,7 @@ You can save all your current settings with the <code>save_settings</code> comma
 <h3><a id="plug">3.4 Plug</a></h3>
 
 <p>
-The console command <code>plug</code> can be used to plug the so called pluggables (devices) into connectors on the MSX. Examples of connectors are the joystick ports, the printer port, the MIDI in and out connector, the cassette port, etc. Examples of pluggables are joysticks and mice (see below), but also printer loggers and MIDI equipment. The command <code>plug</code> without any parameters will show a list of connectors and what pluggables are plugged into them. Using <code>plug [connector]</code> will only show what is plugged into [connector]. You will not be surprised that the command <code>plug [connector] [pluggable]</code> will plug the [pluggable] into the [connector].
+The console command <code>plug</code> can be used to plug the so called pluggables (devices) into connectors on the MSX. Examples of connectors are the joystick ports, the printer port, the MIDI in and out connector, the cassette port, etc. Examples of pluggables are joysticks and mice (see below), but also printers and MIDI equipment. The command <code>plug</code> without any parameters will show a list of connectors and what pluggables are plugged into them. Using <code>plug [connector]</code> will only show what is plugged into [connector]. You will not be surprised that the command <code>plug [connector] [pluggable]</code> will plug the [pluggable] into the [connector].
 </p>
 
 <p>
@@ -409,6 +417,10 @@ If wanted, openMSX can apply IPS patches to ROM software before running it. IPS 
 <div class="commandline">openmsx -cart galious.rom -ips galiouspatch.ips</div>
 <p>
 As with the <code>-romtype</code> option, the <code>-ips</code> option on the command line must follow the ROM file it applies to directly. You can also use multiple <code>-ips</code> options if you want to apply multiple patches.
+</p>
+
+<p>
+If you already have openMSX running and want to insert cartridges at run time (maybe even when the MSX is powered on), you can use the <code>carta</code> command in the console as well, which is just as powerful.
 </p>
 
 <h3><a id="disks">4.2 Running Disk Software</a></h3>
@@ -537,9 +549,9 @@ not present, the file is created with this size. The image will end up in your o
 <p>
 As of openMSX 0.6.1, you can specify the harddisk image to be used on the command line:
 </p>
-<div class="commandline">openmsx -ext ide -hda myhd.dsk</div>
+<div class="commandline">openmsx -ext ide -hda symbos.dsk</div>
 <p>
-This means that you're using the ide extension with myhd.dsk as harddisk image. You can also change the harddisk image at run time in the console (only when the MSX is powered off via the <code>power</code> setting). This works the same as the <code>diska</code> command:
+This means that you're using the ide extension with symbos.dsk as harddisk image. You can also change the harddisk image at run time in the console (only when the MSX is powered off via the <code>power</code> setting). This works the same as the <code>diska</code> command:
 </p>
 <div class="commandline">
     hda &lt;diskimage&gt;
@@ -644,7 +656,7 @@ To make it even more comfortable to run software from CAS images, try the follow
 </div>
 
 <p>
-Note that saving to CAS files is not possible; CAS files will be regarded as read-only tapes.
+Note that saving to CAS files (new or existing ones) is not possible; one can only save to new cassette images in WAV format.
 </p>
 
 <h4><a id="tapejack">4.3.3 Using Jack audio connection kit</a></h4>
@@ -663,9 +675,9 @@ To be able to connect the openMSX cassetteport to other applications
 via Jack you will need:
 </p>
 <ul>
-<li>An openMSX build compiled with Jack-support</li>
-<li>An MSX hardware configuration with a cassette port (see above)</li>
-<li>A running Jack daemon</li>
+<li>an openMSX build compiled with Jack-support</li>
+<li>an MSX hardware configuration with a cassette port (see above)</li>
+<li>a running Jack daemon</li>
 </ul>
 
 <p>
@@ -827,6 +839,7 @@ The SDLGL renderer is only useful if you have a hardware accelerated
 OpenGL library; a software GL implementation will be very slow.
 See the Setup Guide for
 <a class="external" href="setup.html#opengl">OpenGL performance tips</a>.
+Not everything is supported on this renderer, though. It is likely that it will disappear in the future.
 </dd>
 
 <dt>SDLGL-PP</dt>
@@ -838,6 +851,7 @@ As with SDLGL, the SDLGL-PP renderer is only useful if you have a hardware accel
 OpenGL library; a software GL implementation will be very slow.
 See the Setup Guide for
 <a class="external" href="setup.html#opengl">OpenGL performance tips</a>.
+If your card supports it, we recommend to use this renderer.
 </dd>
 
 
@@ -898,7 +912,7 @@ Most MSX screen modes are only 256&times;212 pixels big. This is quite small for
 </p>
 
 <p>
-An exception to all of this is the SDLGL-PP renderer. With this renderer (when using a suitable video card and driver), scaling is done on the graphics card hardware and will not take extra CPU power. This renderer gives you also the possibility to use a <code>scale_factor</code> of 4. The down side is that not all scalers have been implemented for this renderer. See also below.
+An exception to all of this is the SDLGL-PP renderer. With this renderer (when using a suitable video card and driver), scaling is done on the graphics card hardware and will not take extra CPU power. This renderer also gives you the possibility to use a <code>scale_factor</code> of 4. The down side is that not all scalers have been implemented for this renderer. See also below.
 </p>
 
 <p>
@@ -917,7 +931,7 @@ previously the SDLLo renderer, which is the fastest scaling method available.
 
 <dt><a class="external" href="http://scale2x.sourceforge.net/">ScaleNx</a></dt>
 <dd>
-This scaler algorithm smoothes edges by using only original colours, so it will not give any blur. It is fast and its image is less blocky than that of the simple scaler. However, all corners are rounded, which does not look good on all graphics. The original algorithm only supports a scaling factor of 2, but for openMSX we extended it to work with a factor of 3 as well.
+This scaler algorithm smoothes edges by using only original colours, so it will not give any blur. It is fast and its image is less blocky than that of the simple scaler. However, all corners are rounded, which does not look good on all graphics. The original algorithm only supports a scaling factor of 2, but for openMSX we extended it to work with a factor of 3 and 4 as well.
 </dd>
 
 
@@ -927,7 +941,7 @@ This scaler algorithm smoothes edges by interpolating neighbouring pixels.
 It is heaver on the CPU than the simple and ScaleNx algorithms.
 It does a good job on most graphics, except for high-contrast edges;
 for example white fonts on a black background get some nasty gray lines around them.
-Also corners are rounded, similar to ScaleNx. The original algorithm only supports a scaling factor of 2, but for openMSX we extended it to work with a factor of 3 as well. This scaler is not available in the SDLGL-PP renderer.
+Also corners are rounded, similar to ScaleNx. The original algorithm only supports a scaling factor of 2, but for openMSX we extended it to work with a factor of 3 and 4 as well. This scaler is not available in the SDLGL-PP renderer.
 </dd>
 
 <dt><a class="external" href="http://www.hiend3d.com/">hq</a></dt>
@@ -936,13 +950,13 @@ This scaler algorithm looks somewhat similar to SaI, but its output is sharper.
 This complex algorithm is very heavy on the CPU; use this algorithm only on fast PCs.
 It does a good job on most graphics; it avoids excessive blurring and it keeps corners sharp.
 On some graphics, it does not identify edges correctly, making those edges blocky instead of smooth.
-Especially with a scaling factor of 3, it can give a very smooth looking image. This scaler is not available in the SDLGL-PP renderer.
+Especially with high scaling factors, it can give a very smooth looking image.
 </dd>
 
 <dt>hqlite</dt>
 <dd>
 This is a variant of hq: the resulting image is close to hq, but it is
-calculated a lot faster. It has a good quality per CPU usage ratio. This scaler is not available in the SDLGL-PP renderer.
+calculated a lot faster. It has a good quality per CPU usage ratio.
 </dd>
 
 <dt>RGBTriplet</dt>
@@ -958,7 +972,7 @@ This algorithm is trying to emulate the fact that on a CRT brighter pixels look 
 </dl>
 
 <p>
-A small demonstration of some of the algorithms can be found on <a class="external" href="http://openmsx.sourceforge.net">the openMSX web site</a>.
+A small (somewhat outdated) demonstration of some of the algorithms can be found on <a class="external" href="http://openmsx.sourceforge.net">the openMSX web site</a>.
 </p>
 
 <h3><a id="gamma">6.4 Gamma Correction</a></h3>
@@ -1048,8 +1062,8 @@ This feature works only in the <code>SDLGL-PP</code> renderer.
 <h3><a id="gfx9000">6.6 GFX9000/Video source</a></h3>
 
 <p>
-openMSX has GFX9000 emulation. Note that it still a bit experimental: it is not complete and thus may show relatively many glitches. It is also quite slow and it does not work with the SDLGL
-renderer yet. Despite of all this, we thought you might wanted to play around
+openMSX has GFX9000 emulation. Note that it still quite new, so it is not as complete and functional as the video emulation of the classical MSX chips. It is also slower than the classical video chips and it does not work with the SDLGL
+renderer. Despite of all this, we thought you might wanted to play around
 with it anyway...
 </p>
 
@@ -1069,6 +1083,12 @@ type <code>set videosource MSX</code>. If you want to toggle with a hot key
 between them, it might be useful to bind a key for it. E.g.: <code>bind F6
 cycle videosource</code>.<br/>
 <code>cycle</code> is a TCL command that cycles through the options of the setting in the parameter.
+</p>
+
+<h3><a id="recording">6.7 Video recording</a></h3>
+
+<p>
+A new feature of openMSX 0.6.2 is the video recorder. This enables you to record the audio and video rendered by openMSX to an AVI file. (You can read about the codec in the <a class="external" href="faq.html#codec">FAQ</a>.) When replaying it, it should be perfectly in sync without any hiccups, even if the emulation ran too slow when you recorded it. The output video is in 320&times;240 format. It records the current video source (see previous section) and the sound is recorded with the current <code>frequency</code> setting. If you change this setting during recording, or, more importantly, if the software changes from PAL (50Hz) to NTSC (60Hz) during recording, the video will get out of sync with the audio. Any special effects will not be recorded. Finally, here is how to use it: use <code>record start</code> to record to a default file name (you can use an additional filename parameter if you don't like that). <code>record stop</code> stops recording and <code>record toggle</code> toggles it, as you would expect. If you like, you can use <code>-audioonly</code> (see next chapter) or <code>-videoonly</code> options to record only sound or video.
 </p>
 
 <h2><a id="audio">7. Audio</a></h2>
@@ -1126,25 +1146,21 @@ pluggables.
 <h3><a id="soundlogger">7.3 Recording Audio to File</a></h3>
 
 <p>
-A new feature as of openMSX 0.5.2 is the so-called sound logger. It enables you
-to record the sound you hear on the speakers to a WAV file. Note that recording
+openMSX 0.6.2 has an improved way to record audio to a file, without any quality loss.
+It enables you to record the sound generated from the emulated MSX perfectly.
+Note that recording
 sound to the uncompressed WAV format will take a lot of disk space. At 44.1kHz
 it will take about 176 kB per second.
 </p>
 
 <p>
-You can simply start the recording of sound by issuing the command
-<code>soundlog start</code>. It will automatically choose a file name and save
+You can simply start the recording of sound by issuing the command <code>record start -audioonly</code>
+(or the old command <code>soundlog start</code>). It will automatically choose a file name and save
 it in the <code>soundlogs</code> directory in your personal openMSX folder. You
 can also add an extra parameter to specify the filename for the new WAV file.
-The other two sub commands that speak for themselves are <code>soundlog
-stop</code> and <code>soundlog toggle</code>. The latter is useful if you bind
+The other two sub commands that speak for themselves are <code>record stop</code> (<code>soundlog
+stop</code>) and <code>record toggle -audioonly</code> (<code>soundlog toggle</code>). The latter is useful if you bind
 this command to some hot key.
-</p>
-
-<p>
-Note that for now, the exact sound as you can hear it from the speakers will be
-recorded, including any stutters that may be in it.
 </p>
 
 <h2><a id="debugdevice">8. Debug Device</a></h2>
@@ -1161,7 +1177,7 @@ Note that openMSX also contains real built in debugging functions, which can be
 accessed with the <code>debug</code> command. More information about it is in
 the aforementioned <code>commands.txt</code> file. With that debugger you can
 read and write all registers and memory of almost all devices that are
-supported in openMSX. It also supports break points and stepping.
+supported in openMSX. It also supports break points, watch points and stepping.
 </p>
 
 
