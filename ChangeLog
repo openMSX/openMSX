@@ -1,5 +1,14 @@
 $Id$
 
+2007-02-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented proper resample algorithm for SCC:
+	   - does not introduce aliassing (graph+9 in solid snake sound test
+	     works properly now)
+	   - because there is no seperate filter anymore, those filter
+	     characteristics based on Sean's measurements are gone.
+	     Need to investigate this, because it was not clear whether this
+	     extra filter improved sound quality
+
 2007-02-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* SCC filter fixes:
 	   - wasn't correct when there were multiple SCC cartridges

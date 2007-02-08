@@ -4,6 +4,7 @@
 #define SCC_HH
 
 #include "SoundDevice.hh"
+#include "Resample.hh"
 #include "Clock.hh"
 #include "openmsx.hh"
 #include <memory>
@@ -13,7 +14,7 @@ namespace openmsx {
 class MSXMotherBoard;
 class SCCDebuggable;
 
-class SCC : public SoundDevice
+class SCC : public SoundDevice, private Resample
 {
 public:
 	enum ChipMode {SCC_Real, SCC_Compatible, SCC_plusmode};
@@ -36,6 +37,9 @@ private:
 	virtual void updateBuffer(unsigned length, int* buffer,
 		const EmuTime& time, const EmuDuration& sampDur);
 
+	// Resample
+	virtual void generateInput(float* buffer, unsigned num);
+
 	inline void checkMute();
 	byte readWave(byte channel, byte address, const EmuTime& time);
 	void writeWave(byte channel, byte offset, byte value);
@@ -51,7 +55,6 @@ private:
 
 	ChipMode currentChipMode;
 	int masterVolume;
-	unsigned baseStep;
 	unsigned nbSamples;
 
 	signed char wave[5][32];

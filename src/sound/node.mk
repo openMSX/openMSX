@@ -20,12 +20,16 @@ SRC_HDR:= \
 	AudioInputConnector AudioInputDevice \
 	DummyAudioInputDevice WavAudioInput \
 	WavWriter \
-	SamplePlayer
+	SamplePlayer \
+	Resample 
 
 HDR_ONLY:= \
 	ChannelMode \
 	SoundDriver \
 	Y8950Periphery
+
+DIST:= \
+	ResampleCoeffs.ii
 
 include build/node-end.mk
 

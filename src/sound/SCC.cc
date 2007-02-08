@@ -98,12 +98,11 @@
 #include "SCC.hh"
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
+#include <cmath>
 
 using std::string;
 
 namespace openmsx {
-
-static const int oversampling = 4;
 
 class SCCDebuggable : public SimpleDebuggable
 {
@@ -177,7 +176,7 @@ void SCC::reset(const EmuTime& /*time*/)
 
 void SCC::setSampleRate(int sampleRate)
 {
-	baseStep = (1ULL << 28) * 3579545ULL / (32 * oversampling * sampleRate);
+	setResampleRatio(3579545.0 / 32, sampleRate);
 }
 
 void SCC::setVolume(int maxVolume)
@@ -393,7 +392,7 @@ void SCC::setFreqVol(byte address, byte value)
 			// 4 bit frequency
 			frq >>= 8;
 		}
-		incr[channel] = (frq <= 8) ? 0 : baseStep / (frq + 1);
+		incr[channel] = (frq <= 8) ? 0 : (1 << 28) / (frq + 1);
 		count[channel] &= 0x0F800000; // reset to begin of byte
 		pos[channel] = (unsigned)-1;
 
@@ -462,52 +461,13 @@ void SCC::setDeformReg(byte value, const EmuTime& time)
 	}
 }
 
-int SCC::filter4(int in1, int in2, int in3, int in4)
+void SCC::generateInput(float* buffer, unsigned num)
 {
-	for (int i = 0; i < 44; ++i) {
-		in[i] = in[i + 4];
-	}
-	in[44] = in1;
-	in[45] = in2;
-	in[46] = in3;
-	in[47] = in4;
-	double res = 9.933929780445367e-04 * (in[ 0] + in[47]) +
-	             1.113004134878559e-03 * (in[ 1] + in[46]) +
-	             1.371396256432482e-03 * (in[ 2] + in[45]) +
-	             1.393836346459741e-03 * (in[ 3] + in[44]) +
-	             1.204588604126285e-03 * (in[ 4] + in[43]) +
-	             9.869850505216315e-04 * (in[ 5] + in[42]) +
-	             1.039731859870241e-03 * (in[ 6] + in[41]) +
-	             1.676305202618232e-03 * (in[ 7] + in[40]) +
-	             3.074714262700807e-03 * (in[ 8] + in[39]) +
-	             5.169720661381251e-03 * (in[ 9] + in[38]) +
-	             7.622749777814645e-03 * (in[10] + in[37]) +
-	             9.936730301917706e-03 * (in[11] + in[36]) +
-	             1.166661667435904e-02 * (in[12] + in[35]) +
-	             1.268605043731603e-02 * (in[13] + in[34]) +
-	             1.336587468520814e-02 * (in[14] + in[33]) +
-	             1.460115302660201e-02 * (in[15] + in[32]) +
-	             1.759653982993173e-02 * (in[16] + in[31]) +
-	             2.348833916665432e-02 * (in[17] + in[30]) +
-	             3.287008210651235e-02 * (in[18] + in[29]) +
-	             4.543958974547382e-02 * (in[19] + in[28]) +
-	             5.985637070100842e-02 * (in[20] + in[27]) +
-	             7.396255113970492e-02 * (in[21] + in[26]) +
-	             8.524707614757042e-02 * (in[22] + in[25]) +
-	             9.153737528123571e-02 * (in[23] + in[24]);
-	return static_cast<int>(res);
-}
-
-void SCC::updateBuffer(unsigned length, int* buffer,
-     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
-{
-	int tmpBuf[oversampling * length];
-
-	nbSamples += length;
+	nbSamples += num;
 	if ((deformValue & 0xC0) == 0x00) {
 		// No rotation stuff, this is almost always true. So it makes
 		// sense to have a special optimized routine for this case
-		for (unsigned j = 0; j < oversampling * length; ++j) {
+		for (unsigned j = 0; j < num; ++j) {
 			int mixed = 0;
 			byte enable = ch_enable;
 			for (int i = 0; i < 5; ++i, enable >>= 1) {
@@ -521,12 +481,12 @@ void SCC::updateBuffer(unsigned length, int* buffer,
 					mixed += out[i];
 				}
 			}
-			tmpBuf[j] = (masterVolume * mixed) / 256;
+			buffer[j] = (masterVolume * mixed) / 256;
 		}
 	} else {
 		// Rotation mode
 		//  TODO not completely correct
-		for (unsigned j = 0; j < oversampling * length; ++j) {
+		for (unsigned j = 0; j < num; ++j) {
 			int mixed = 0;
 			byte enable = ch_enable;
 			for (int i = 0; i < 5; ++i, enable >>= 1) {
@@ -544,14 +504,18 @@ void SCC::updateBuffer(unsigned length, int* buffer,
 					mixed += out[i];
 				}
 			}
-			tmpBuf[j] = (masterVolume * mixed) / 256;
+			buffer[j] = (masterVolume * mixed) / 256;
 		}
 	}
+}
+
+void SCC::updateBuffer(unsigned length, int* buffer,
+     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
+{
+	float tmpBuf[length];
+	generateOutput(tmpBuf, length);
 	for (unsigned i = 0; i < length; ++i) {
-		buffer[i] = filter4(tmpBuf[oversampling * i + 0],
-		                    tmpBuf[oversampling * i + 1],
-		                    tmpBuf[oversampling * i + 2],
-		                    tmpBuf[oversampling * i + 3]);
+		buffer[i] = lrintf(tmpBuf[i]);
 	}
 }
 
