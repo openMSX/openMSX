@@ -51,9 +51,6 @@
 		<ol class="toc">
 			<li><a class="internal" href="#opengl">6.1 OpenGL</a></li>
 			<li><a class="internal" href="#tuningvarious">6.2 Various Tuning Tips</a></li>
-			<!--
-			<li><a class="internal" href="#linuxrtc">6.2 Timing using the Real Time Clock (Linux)</a></li>
-			-->
 		</ol>
 	</li>
 	<li><a class="internal" href="#contact">7. Contact Info</a></li>
@@ -292,8 +289,8 @@ This way, you can emulate the MSX machines you are familiar with.
 The easiest way to dump system ROMs is to run a special dumping tool on your
 real MSX, which copies the contents of the system ROMs to disk.
 Sean Young has made such tools, you can find the
-<a class="external" href="http://www.msxnet.org/utils/saverom">tools and documentation</a>
-on his web site.
+<a class="external" href="http://bifi.msxnet.org/msxnet/utils/saverom.html">tools and documentation</a>
+on BiFi's web site.
 These tools can also be used to dump cartridge ROMs, which may be useful later,
 if you want to use certain extensions or play games.
 </p>
@@ -330,7 +327,7 @@ Whatever you decide, is your own responsibility.
 <h4><a id="romlocation">3.4.1 ROM Locations</a></h4>
 
 <p>
-After you dumped or downloaded the ROM images, copy them
+After you dumped or downloaded the ROM images, you can copy them
 to the appropriate subdirectory called <code>roms</code> in the
 machine directory.
 For example, if you dumped the ROMs of a Philips NMS 8250 machine,
@@ -342,7 +339,7 @@ the ROM images to have.
 <p>There is also an easier way. The so-called ROM pools: special directories where openMSX will look
 for ROM files. The default ROM pool is the <code>share/systemroms</code>
 directory. So, you can just as well
-put all your system ROMs in that directory.
+put all your system ROMs in that directory. If you have problems with this, please read one of the next sections about Checksums.
 </p>
 
 <h4><a id="romsplit">3.4.2 How to handle split ROMs</a></h4>
@@ -389,6 +386,15 @@ the configuration file and the sha1sum doesn't match a warning will be
 printed.
 </p>
 
+<p>
+A typical case in which you can have problems with check sums (or ROMs not getting found in a ROM pool) is disk ROMs.
+The ROM dump can be correct, and still have a different check sum. This is because part of
+the ROM is not actually ROM, but mapped on the registers of the floppy
+controller. When you are sure it is correct, don't put it in a ROM pool, but put it in the proper directory, which is explained above.
+Alternatively, you could change the check sum in the XML file that describes
+the machine you made the ROM dump for.
+</p>
+
 
 <h2><a id="settings">4. User Preferences</a></h2>
 
@@ -398,7 +404,7 @@ Almost all user preferences can be done via the openMSX console, at openMSX run 
 
 <p>
 One of the preferences is the default machine:
-the machine openMSX uses if you did not specify one on the command line. The name of this setting is <code>machine</code>. As of openMSX 0.6.1, changing this setting also has an immediate effect: the specified machine will be started right away. Note that this is still experimental; the error handling should still be improved.
+the machine openMSX uses if you did not specify one on the command line. The name of this setting is <code>default_machine</code>. Switching machines at run time is not done via a setting anymore as of openMSX 0.6.2, but via a command (more about them in <a class="external" href="user.html#controlling">the User's Manual</a>).
 </p>
 
 <p>
@@ -570,7 +576,7 @@ If you have an nVidia card, go to the
 <a class="external" href="http://www.nvidia.com/linux">nVidia web site</a>
 for drivers, which include an OpenGL implementation. ATI users can check out the <a class="external" href="http://www.ati.com/support/faq/linux.html">ATI web site</a> for drivers.
 For other cards, try Mesa, which can be found in packages like
-<code>xlibmesa-gl</code> and <code>xlibmesa-gl-dev</code> (Debian)
+<code>libgl1-mesa-glx</code> and <code>ligl1-mesa-dev</code> (Debian)
 or <code>XFree86-GLX</code> and <code>XFree86-GLX-devel</code> (SUSE). 
 However, nowadays there is a big chance that your system already has hardware accelerated OpenGL supported in the default installation of your Xorg or Windows environment. Just make sure you install the development header files for the OpenGL library if you want to compile openMSX with support for it.
 </p>
@@ -611,8 +617,8 @@ openMSX uses your platform's default setting.
 Increase the number of frames that may be skipped (<code>set maxframeskip 10</code>, for example).
 </li>
 <li>
-Use a <code>scale_factor</code> of 1 with the SDL renderer (75% less pixels to fill). For most
-games (and any MSX1 software) it works perfectly, especially when using full screen. The drawback: no special effects at all, not even scanlines.
+Use a <code>scale_factor</code> of 1 with the SDL renderer (75% less pixels to fill compared to the default setting of 2). For most
+games (and any MSX1 software) it works perfectly, especially when using full screen. The drawback: no special effects at all, not even scanlines. Turning off special effects can also mean a speed up, of course.
 </li>
 <li>
 Use a lower sound mixing frequency, for example 22050Hz instead of 44100Hz. Use
