@@ -1,5 +1,8 @@
 $Id$
 
+2007-02-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Set version=0.6.2-pre1, release_flag=true
+
 2007-02-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented proper resample algorithm for SCC:
 	   - does not introduce aliassing (graph+9 in solid snake sound test
