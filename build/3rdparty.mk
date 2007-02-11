@@ -12,10 +12,10 @@ SUPPORTDIR:=build/package-darwin
 
 # These were the most recent versions at the moment of writing this Makefile.
 # You can use other versions if you like; adjust the names accordingly.
-PACKAGE_PNG:=libpng-1.2.12
+PACKAGE_PNG:=libpng-1.2.16
 PACKAGE_SDL:=SDL-1.2.11
 PACKAGE_SDL_IMAGE:=SDL_image-1.2.5
-PACKAGE_GLEW:=glew-1.3.4
+PACKAGE_GLEW:=glew-1.3.5
 
 # Unfortunately not all packages stick to naming conventions such as putting
 # the sources in a dir that includes the version number.
@@ -73,7 +73,7 @@ $(STATIC_DIR)/build-SDL_IMAGE/Makefile: \
 		--disable-xcf \
 		--disable-xpm \
 		--prefix=$(PWD)/$(STATIC_DIR)/install \
-		CFLAGS=$(shell $(PWD)/$(STATIC_DIR)/install/bin/libpng12-config --cflags)
+		CFLAGS="$(shell $(PWD)/$(STATIC_DIR)/install/bin/libpng12-config --cflags)"
 
 # Configure libpng.
 $(STATIC_DIR)/build-PNG/Makefile: \
