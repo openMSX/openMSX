@@ -181,7 +181,7 @@ void SCC::setSampleRate(int sampleRate)
 
 void SCC::setVolume(int maxVolume)
 {
-	masterVolume = maxVolume;
+	masterVolume = 2 * maxVolume;
 }
 
 void SCC::setChipMode(ChipMode newMode)
