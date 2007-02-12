@@ -8,7 +8,10 @@ for their great ZMBV lossless video codec.
 
 Then, there are quite some internal changes and bug fixes. We also made better
 use of our new advanced SDLGL-PP renderer; it can do almost the same as the SDL
-renderer now (and more).
+renderer now (and more). We have also done our best to do various considerable
+speed optimizations for this release. The SDLGL-PP renderer can be up to 50%
+faster and also the SDL renderer is about 6% faster. So, if you had problems
+with speed, you might want to give this release a try.
 
 The trainers that are shipped with openMSX are now a lot more user friendly. It
 is possible to enable or disable individual cheats of a trained game.
