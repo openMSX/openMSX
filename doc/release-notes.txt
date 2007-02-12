@@ -3,11 +3,12 @@ Release Notes for openMSX 0.6.2 (2007-02-??)
 
 The most interesting change for users in this release is the addition of the
 video recorder. It enables you to record (very accurate) videos, including
-sound, of what you are doing with your emulated MSX.
+sound, of what you are doing with your emulated MSX. Thanks to the DosBox Team
+for their great ZMBV lossless video codec.
 
-For the rest, there are quite some internal changes and bug fixes. We also made
-better use of our new advanced SDLGL-PP renderer; it can do almost everything
-now.
+Then, there are quite some internal changes and bug fixes. We also made better
+use of our new advanced SDLGL-PP renderer; it can do almost the same as the SDL
+renderer now (and more).
 
 The trainers that are shipped with openMSX are now a lot more user friendly. It
 is possible to enable or disable individual cheats of a trained game.
@@ -15,25 +16,24 @@ is possible to enable or disable individual cheats of a trained game.
 New or improved emulator features:
 - Video recording and improved sound recording (stutterless).
 - SDLGL-PP renderer (OpenGL-2.0), now adds hq and hqlite in hardware and
-  optimizations.
+  various speed optimizations.
 - More usable trainers
 - Extended hotkeys: you can now bind any host event to a TCL command, which
   means you can e.g. let openMSX push the MSX F1 key if you press a certain
   button on your PC game pad.
-- Event recording and replaying (only available at command line, so per
-  session).
+- Event recording and replaying (experimental for now: only available at
+  command line, so per session).
 - Debugger now supports watchpoint regions.
 
 MSX device support:
-- Dot matrix graphical printer emulation added.
+- Dot matrix graphical printer emulation added (thanks to the blueMSX Team).
 - V9990 enhancements: deinterlace, cursor Y position in overscan mode, huge
-  optimizations for P modes.
-- Huge improvements in SCC emulation, by using a better downsampling algorithm.
+  speed optimizations for P modes.
 - SCC sound quality improvements (no more aliasing).
 - Small bugfixes in various devices: MSX-Audio, V9990, VDP, SCC, PSG, TC8566AF.
 - Support for the Playball mapper (and samples).
 - Cassetteplayer recognizes end of tape and stops.
-- Various optimizations: VDP command engine, Z80, video rendering, V9990,
+- Various speed optimizations: VDP command engine, Z80, video rendering, V9990,
   debugger response time in break mode.
 - Fixed mirroring of some FDC registers and diskROMs.
 
@@ -53,7 +53,8 @@ Known issues / caveats:
 - Until we reach version 1.0.0, file formats can change in an incompatible way
   without backwards compatibility. This happened between 0.4.0 and 0.5.0, for
   example. Keep this in mind if you create machine descriptions, ROM database
-  entries etc.
+  entries etc. We do try to be backwards compatible for at least one release,
+  though. Keep in mind that openMSX is still evolving at a considerable speed.
 - openMSX is confirmed to run on the following operating systems: Linux, Win32,
   Mac OS X, FreeBSD, OpenBSD and NetBSD; on x86, x86-64, Sparc and PPC CPU's.
   Running on other operating systems (wherever SDL runs) or CPU's should be
