@@ -8,6 +8,7 @@
 namespace openmsx {
 
 class SamplePlayer;
+class WavData;
 
 class RomPlayBall : public Rom16kBBlocks
 {
@@ -25,6 +26,7 @@ public:
 
 private:
 	std::auto_ptr<SamplePlayer> samplePlayer;
+	std::auto_ptr<WavData> sample[15];
 };
 
 } // namespace openmsx

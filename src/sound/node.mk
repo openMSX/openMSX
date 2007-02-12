@@ -21,6 +21,7 @@ SRC_HDR:= \
 	DummyAudioInputDevice WavAudioInput \
 	WavWriter \
 	SamplePlayer \
+	WavData \
 	Resample 
 
 HDR_ONLY:= \

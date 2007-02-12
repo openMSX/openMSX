@@ -3,9 +3,13 @@
 #include "RomPlayBall.hh"
 #include "MSXMotherBoard.hh"
 #include "SamplePlayer.hh"
-#include "PlayBallSamples.hh"
+#include "FileContext.hh"
+#include "WavData.hh"
 #include "CacheLine.hh"
 #include "Rom.hh"
+#include "MSXCliComm.hh"
+#include "MSXException.hh"
+#include "StringOp.hh"
 
 namespace openmsx {
 
@@ -20,6 +24,24 @@ RomPlayBall::RomPlayBall(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 	samplePlayer.reset(new SamplePlayer(motherBoard.getMSXMixer(), getName(),
 	                         "Sony PlayBall DAC", config));
+
+	bool alreadyWarned = false;
+	for (int i = 0; i < 15; ++i) {
+		try {
+			SystemFileContext context;
+			std::string filename =
+				"playball/playball_" + StringOp::toString(i) + ".wav";
+			sample[i].reset(new WavData(context.resolve(filename)));
+		} catch (MSXException& e) {
+			if (!alreadyWarned) {
+				alreadyWarned = true;
+				motherBoard.getMSXCliComm().printWarning(
+					"Couldn't read playball sample data: " +
+					e.getMessage() +
+					". Continuing without sample data.");
+			}
+		}
+	}
 
 	reset(time);
 }
@@ -58,24 +80,13 @@ const byte* RomPlayBall::getReadCacheLine(word address) const
 
 void RomPlayBall::writeMem(word address, byte value, const EmuTime& /*time*/)
 {
-	const byte* sampleBuf[15] = {
-		playball0,  playball1,  playball2,  playball3,
-		playball4,  playball0,  playball6,  playball7,
-		playball8,  playball9,  playball10, playball11,
-		playball12, playball13, playball14
-	};
-	unsigned sampleSize[15] = {
-		sizeof(playball0),  sizeof(playball1),  sizeof(playball2),
-		sizeof(playball3),  sizeof(playball4),  sizeof(playball0),
-		sizeof(playball6),  sizeof(playball7),  sizeof(playball8),
-		sizeof(playball9),  sizeof(playball10), sizeof(playball11),
-		sizeof(playball12), sizeof(playball13), sizeof(playball14)
-	};
-
 	if (address == 0xBFFF) {
-		if ((value <= 14) && !samplePlayer->isPlaying()) {
-			samplePlayer->play(sampleBuf[value], sampleSize[value],
-			                   8, 11025);
+		if ((value <= 14) && !samplePlayer->isPlaying() &&
+		    sample[value].get()) {
+			samplePlayer->play(sample[value]->getData(),
+			                   sample[value]->getSize(),
+			                   sample[value]->getBits(),
+			                   sample[value]->getFreq());
 		}
 	}
 }

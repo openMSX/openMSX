@@ -1,5 +1,12 @@
 $Id$
 
+2007-02-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* No longer include playball samples as data in the source code:
+	   - instead read them as 15 wav files in
+	       share/playball/playball_0.wav
+	       ...
+	       share/playball/playball_14.wav
+
 2007-02-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Set version=0.6.2-pre1, release_flag=true
 
