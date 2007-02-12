@@ -1,0 +1,12 @@
+playball sample data
+
+not distributed together with openmsx for copyright reasons
+
+put wav files in this directory with the following filenames:
+  playball_0.wav
+  playball_1.wav
+  ...
+  playball_14.wav
+
+(note that playball_0.wav and playball_5.wav are the same sound,
+ you do need to provide them both though)
