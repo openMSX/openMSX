@@ -4,7 +4,6 @@
 #define MULTIPLY32_HH
 
 #include "openmsx.hh"
-#include "build-info.hh"
 
 struct SDL_PixelFormat;
 
@@ -28,14 +27,13 @@ public:
 
 	inline unsigned mul32(unsigned p) const
 	{
-		if (OPENMSX_BIGENDIAN) p >>= 8;
 		return (((p & 0xFF00FF) * factor) & 0xFF00FF00) |
 		       (((p & 0x00FF00) * factor) & 0x00FF0000);
 	}
 
 	inline unsigned conv32(unsigned p) const
 	{
-		return OPENMSX_BIGENDIAN ? p : (p >> 8);
+		return p >> 8;
 	}
 
 private:
