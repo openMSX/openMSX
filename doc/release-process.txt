@@ -90,6 +90,9 @@ Put the release on SourceForge:
   Refresh View".
 - File info: "Processor = Any", "File Type = Source .gz".
   Finally, choose "Update/Refresh".
+- Update the platform downloads. For Windows, Mac OS, Linux and *BSD, set the
+  proper release files. This menu can be found next to "Manage Packages /
+  Releases", under "Create / Edit Download Page".
 
 Announce:
 - Post change list to msx.org.
