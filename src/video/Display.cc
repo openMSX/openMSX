@@ -280,6 +280,7 @@ void Display::doRendererSwitch()
 			renderSettings->getRenderer().getValueString() +
 			": " + e.getMessage());
 		renderSettings->getRenderer().setValue(RendererFactory::SDL);
+		currentRenderer = RendererFactory::SDL;
 		doRendererSwitch2();
 	}
 
