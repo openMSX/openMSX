@@ -716,9 +716,9 @@ template <class T> void CPUCore<T>::ld_iyl_iyh() { R.setIYl(R.getIYh()); }
 template <class T> void CPUCore<T>::ld_iyl_iyl() { }
 
 // LD SP,ss
-template <class T> void CPUCore<T>::ld_sp_hl()   { R.SP = R.HL; }
-template <class T> void CPUCore<T>::ld_sp_ix()   { R.SP = R.IX; }
-template <class T> void CPUCore<T>::ld_sp_iy()   { R.SP = R.IY; }
+template <class T> void CPUCore<T>::ld_sp_hl() { T::LD_SP_HL_DELAY(); R.SP = R.HL; }
+template <class T> void CPUCore<T>::ld_sp_ix() { T::LD_SP_HL_DELAY(); R.SP = R.IX; }
+template <class T> void CPUCore<T>::ld_sp_iy() { T::LD_SP_HL_DELAY(); R.SP = R.IY; }
 
 // LD (ss),a
 template <class T> inline void CPUCore<T>::WR_X_A(word x)
@@ -2642,8 +2642,8 @@ template <class T> void CPUCore<T>::ldir() { BLOCK_LD(true,  true ); }
 template <class T> inline void CPUCore<T>::BLOCK_IN(bool increase, bool repeat)
 {
 	T::SMALL_DELAY();
+	byte b = R.getB() - 1; R.setB(b); // decr before use
 	byte val = READ_PORT(R.BC);
-	byte b = R.getB() - 1; R.setB(b);
 	WRMEM(R.HL, val);
 	if (increase) R.HL++; else R.HL--;
 	byte f = ZSTable[b];
@@ -2664,8 +2664,8 @@ template <class T> inline void CPUCore<T>::BLOCK_OUT(bool increase, bool repeat)
 {
 	T::SMALL_DELAY();
 	byte val = RDMEM(R.HL);
-	byte b = R.getB() - 1; R.setB(b);
 	WRITE_PORT(R.BC, val);
+	byte b = R.getB() - 1; R.setB(b); // decr after use
 	if (increase) R.HL++; else R.HL--;
 	byte f = ZSXYTable[b];
 	if (val & S_FLAG) f |= N_FLAG;
@@ -2860,34 +2860,14 @@ template <class T> void CPUCore<T>::ed()
 template <class T> void CPUCore<T>::dd()
 {
 	byte opcode = RDMEM_OPCODE(R.PC++);
-	if ((opcode != 0xCB) && (opcode != 0xDD) && (opcode != 0xFD)) {
-		M1Cycle();
-	} else {
-		T::SMALL_DELAY();
-	}
-	(this->*opcode_dd[opcode])();
-}
-template <class T> void CPUCore<T>::dd2()
-{
-	byte opcode = RDMEM_OPCODE(R.PC++);
-	T::SMALL_DELAY();
+	M1Cycle();
 	(this->*opcode_dd[opcode])();
 }
 
 template <class T> void CPUCore<T>::fd()
 {
 	byte opcode = RDMEM_OPCODE(R.PC++);
-	if ((opcode != 0xCB) && (opcode != 0xDD) && (opcode != 0xFD)) {
-		M1Cycle();
-	} else {
-		T::SMALL_DELAY();
-	}
-	(this->*opcode_fd[opcode])();
-}
-template <class T> void CPUCore<T>::fd2()
-{
-	byte opcode = RDMEM_OPCODE(R.PC++);
-	T::SMALL_DELAY();
+	M1Cycle();
 	(this->*opcode_fd[opcode])();
 }
 

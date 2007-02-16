@@ -346,7 +346,7 @@ template<> const C::FuncPtr C::opcode_dd[256] = {
   &C::ret_nc    ,&C::pop_de    ,&C::jp_nc      ,&C::out_byte_a,
   &C::call_nc   ,&C::push_de   ,&C::sub_byte   ,&C::rst_10    ,
   &C::ret_c     ,&C::exx       ,&C::jp_c       ,&C::in_a_byte ,
-  &C::call_c    ,&C::dd2       ,&C::sbc_a_byte ,&C::rst_18    ,
+  &C::call_c    ,&C::dd        ,&C::sbc_a_byte ,&C::rst_18    ,
   &C::ret_po    ,&C::pop_ix    ,&C::jp_po      ,&C::ex_xsp_ix ,
   &C::call_po   ,&C::push_ix   ,&C::and_byte   ,&C::rst_20    ,
   &C::ret_pe    ,&C::jp_ix     ,&C::jp_pe      ,&C::ex_de_hl  ,
@@ -354,7 +354,7 @@ template<> const C::FuncPtr C::opcode_dd[256] = {
   &C::ret_p     ,&C::pop_af    ,&C::jp_p       ,&C::di        ,
   &C::call_p    ,&C::push_af   ,&C::or_byte    ,&C::rst_30    ,
   &C::ret_m     ,&C::ld_sp_ix  ,&C::jp_m       ,&C::ei        ,
-  &C::call_m    ,&C::fd2       ,&C::cp_byte    ,&C::rst_38
+  &C::call_m    ,&C::fd        ,&C::cp_byte    ,&C::rst_38
 };
 
 template<> const C::FuncPtr C::opcode_fd[256] = {
@@ -416,7 +416,7 @@ template<> const C::FuncPtr C::opcode_fd[256] = {
   &C::ret_nc    ,&C::pop_de    ,&C::jp_nc      ,&C::out_byte_a,
   &C::call_nc   ,&C::push_de   ,&C::sub_byte   ,&C::rst_10    ,
   &C::ret_c     ,&C::exx       ,&C::jp_c       ,&C::in_a_byte ,
-  &C::call_c    ,&C::dd2       ,&C::sbc_a_byte ,&C::rst_18    ,
+  &C::call_c    ,&C::dd        ,&C::sbc_a_byte ,&C::rst_18    ,
   &C::ret_po    ,&C::pop_iy    ,&C::jp_po      ,&C::ex_xsp_iy ,
   &C::call_po   ,&C::push_iy   ,&C::and_byte   ,&C::rst_20    ,
   &C::ret_pe    ,&C::jp_iy     ,&C::jp_pe      ,&C::ex_de_hl  ,
@@ -424,7 +424,7 @@ template<> const C::FuncPtr C::opcode_fd[256] = {
   &C::ret_p     ,&C::pop_af    ,&C::jp_p       ,&C::di        ,
   &C::call_p    ,&C::push_af   ,&C::or_byte    ,&C::rst_30    ,
   &C::ret_m     ,&C::ld_sp_iy  ,&C::jp_m       ,&C::ei        ,
-  &C::call_m    ,&C::fd2       ,&C::cp_byte    ,&C::rst_38
+  &C::call_m    ,&C::fd        ,&C::cp_byte    ,&C::rst_38
 };
 
 template<> const C::FuncPtr C::opcode_main[256] = {

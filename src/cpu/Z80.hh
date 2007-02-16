@@ -26,6 +26,7 @@ protected:
 	inline void BLOCK_DELAY()    { add(5); }
 	inline void RLD_DELAY()      { add(4); }
 	inline void EX_SP_HL_DELAY() { add(2); }
+	inline void LD_SP_HL_DELAY() { add(2); }
 	inline void LDI_DELAY()      { add(2); }
 	inline void DD_CB_DELAY()    { add(2); }
 	inline void PARALLEL_DELAY() { add(2); }

@@ -37,6 +37,7 @@ protected:
 	inline void BLOCK_DELAY()    { add(1); }
 	inline void RLD_DELAY()      { add(1); }
 	inline void EX_SP_HL_DELAY() { }
+	inline void LD_SP_HL_DELAY() { }
 	inline void LDI_DELAY()      { }
 	inline void DD_CB_DELAY()    { }
 	inline void PARALLEL_DELAY() { }

@@ -2,6 +2,13 @@ $Id$
 
 2007-02-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed assert on exit when a (real) joystick was still plugged
+	* Small Z80 fixes:
+	   - timing of LD DP,{HL,IX,IY} was two cycles too short
+	   - number of M-cycles (and thus also timing) of instructions with
+	     multiple prefixes (like DD CB xx xx or DD DD DD xx) was wrong
+	   - off by one error in high part of 16-bit port number in
+	     ini/ind/outi/outd instructions (complete bc register is put on
+	     the address bus) b register was decremented too soon or too late
 
 2007-02-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* No longer include playball samples as data in the source code:

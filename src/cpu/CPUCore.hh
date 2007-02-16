@@ -1512,9 +1512,7 @@ private:
 	void cb();
 	void ed();
 	void dd();
-	void dd2();
 	void fd();
-	void fd2();
 
 	friend class MSXCPU;
 	friend class Z80TYPE;
