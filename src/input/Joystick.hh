@@ -37,6 +37,7 @@ public:
 private:
 	Joystick(MSXEventDistributor& eventDistributor, unsigned joyNum);
 	virtual ~Joystick();
+	void closeJoystick();
 
 	// MSXEventListener
 	virtual void signalEvent(shared_ptr<const Event> event,

@@ -28,6 +28,7 @@ void Joystick::registerAll(MSXEventDistributor& eventDistributor,
 Joystick::Joystick(MSXEventDistributor& eventDistributor_, unsigned joyNum_)
 	: eventDistributor(eventDistributor_)
 	, joyNum(joyNum_)
+	, joystick(0)
 {
 	PRT_DEBUG("Creating a Joystick object for joystick " << joyNum);
 	assert(joyNum < (unsigned)SDL_NumJoysticks());
@@ -37,6 +38,9 @@ Joystick::Joystick(MSXEventDistributor& eventDistributor_, unsigned joyNum_)
 
 Joystick::~Joystick()
 {
+	if (joystick) {
+		closeJoystick();
+	}
 }
 
 //Pluggable
@@ -66,8 +70,14 @@ void Joystick::plugHelper(Connector& /*connector*/, const EmuTime& /*time*/)
 
 void Joystick::unplugHelper(const EmuTime& /*time*/)
 {
+	closeJoystick();
+}
+
+void Joystick::closeJoystick()
+{
 	eventDistributor.unregisterEventListener(*this);
 	SDL_JoystickClose(joystick);
+	joystick = 0;
 }
 
 
