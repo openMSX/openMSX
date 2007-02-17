@@ -29,8 +29,7 @@ SRC_HDR:= \
 	MSXHBI55
 
 HDR_ONLY:= \
-	RomTypes \
-	PlayBallSamples
+	RomTypes
 
 include build/node-end.mk
 
