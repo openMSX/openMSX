@@ -23,6 +23,7 @@ PostProcessor::PostProcessor(CommandController& commandController,
 	, paintFrame(0)
 	, recorder(0)
 	, prevTime(EmuTime::zero)
+	, lastFrameDuration((1368.0 * 262.0) / (3579545.0 * 6.0)) // NTSC
 {
 	currFrame = new RawFrame(screen.getFormat(), maxWidth, height);
 	prevFrame = new RawFrame(screen.getFormat(), maxWidth, height);
