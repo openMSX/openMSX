@@ -141,7 +141,7 @@ void MSXMixer::unregisterSound(SoundDevice& device)
 
 void MSXMixer::updateStream(const EmuTime& time)
 {
-	if (!muteCount && fragmentSize) {
+	if ((!muteCount && fragmentSize) || recorder) {
 		updateStream2(time);
 	}
 }
@@ -155,8 +155,15 @@ void MSXMixer::updateStream2(const EmuTime& time)
 
 	short mixBuffer[8192 * 2];
 	count = std::min(8192u, count);
-	generate(mixBuffer, count, prevTime, interval1);
-	double factor = mixer.uploadBuffer(*this, mixBuffer, count);
+	double factor;
+	if (!muteCount && fragmentSize) {
+		generate(mixBuffer, count, prevTime, interval1);
+		factor = mixer.uploadBuffer(*this, mixBuffer, count);
+	} else {
+		assert(recorder);
+		memset(mixBuffer, 0, count * 2 * sizeof(short));
+		factor = 1.0;
+	}
 	prevTime += interval1 * count;
 	if (recorder) {
 		recorder->addWave(count, mixBuffer);
@@ -282,6 +289,10 @@ void MSXMixer::reInit()
 		prevTime = getScheduler().getCurrentTime();
 		EmuDuration interval2 = interval1 * fragmentSize;
 		setSyncPoint(prevTime + interval2);
+	} else if (recorder) {
+		prevTime = getScheduler().getCurrentTime();
+		EmuDuration interval2 = interval1 * 512;
+		setSyncPoint(prevTime + interval2);
 	}
 }
 
@@ -375,6 +386,10 @@ void MSXMixer::executeUntil(const EmuTime& time, int /*userData*/)
 	if (!muteCount && fragmentSize) {
 		updateStream2(time);
 		EmuDuration interval2 = interval1 * fragmentSize;
+		setSyncPoint(time + interval2);
+	} else if (recorder) {
+		updateStream2(time);
+		EmuDuration interval2 = interval1 * 512;
 		setSyncPoint(time + interval2);
 	}
 }
