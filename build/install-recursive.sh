@@ -36,15 +36,15 @@ do
 	then
 		if [ "$name" != .svn ]
 		then
-			$0 "$path" "$dst/$name"
+			$0 "$path" "$dst"
 		fi
 	else
-		install -m 0755 -d "$dst"
+		install -m 0755 -d "$dst/$dir"
 		mode=0644
 		if [ -x "$path" ]
 		then
 			mode=0755
 		fi
-		install -m $mode "$path" "$dst"
+		install -m $mode "$path" "$dst/$dir"
 	fi
 done
