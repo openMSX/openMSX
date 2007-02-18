@@ -569,7 +569,7 @@ endif
 	@install -d $(INSTALL_BINARY_DIR)
 	@install $(BINARY_FULL) $(INSTALL_BINARY_DIR)/$(BINARY_FILE)
 	@echo "  Data files..."
-	@sh build/install-recursive.sh share $(INSTALL_SHARE_DIR)
+	@sh build/install-recursive.sh share . $(INSTALL_SHARE_DIR)
 	@echo "  Documentation..."
 	@install -d  $(INSTALL_DOC_DIR)
 	@install -m 0644 README GPL AUTHORS $(INSTALL_DOC_DIR)
@@ -580,7 +580,7 @@ endif
 ifeq ($(INSTALL_CONTRIB),true)
 	@echo "  C-BIOS..."
 	@install -m 0644 Contrib/README.cbios $(INSTALL_DOC_DIR)/cbios.txt
-	@sh build/install-recursive.sh Contrib/cbios $(INSTALL_SHARE_DIR)/machines
+	@sh build/install-recursive.sh Contrib/cbios . $(INSTALL_SHARE_DIR)/machines
 endif
 ifeq ($(USE_SYMLINK),true)
 	@echo "  Creating symlinks..."
@@ -615,9 +615,9 @@ dist: $(DETECTSYS_SCRIPT)
 	@rm -rf $(DIST_PATH)
 	@echo "Gathering files for distribution..."
 	@mkdir -p $(DIST_PATH)
-	@build/install-recursive.sh $(DIST_FULL) $(DIST_PATH)
-	@build/install-recursive.sh $(HEADERS_FULL) $(DIST_PATH)
-	@build/install-recursive.sh $(SOURCES_FULL) $(DIST_PATH)
+	@build/install-recursive.sh . $(DIST_FULL) $(DIST_PATH)
+	@build/install-recursive.sh . $(HEADERS_FULL) $(DIST_PATH)
+	@build/install-recursive.sh . $(SOURCES_FULL) $(DIST_PATH)
 	@echo "Creating tarball..."
 	@cd $(DIST_BASE) && \
 		GZIP=--best tar zcf $(PACKAGE_FULL).tar.gz $(PACKAGE_FULL)

@@ -1,25 +1,27 @@
 #!/bin/sh
 # $Id$
 
-if [ $# -lt 2 ]
+if [ $# -lt 3 ]
 then
-	echo "Usage: $0 (<src-file>|<src-dir>)+ <dst-dir>" >&2
+	echo "Usage: $0 <base> (<src-file>|<src-dir>)+ <dst-dir>" >&2
 	exit 1
 fi
 
-if [ $# -eq 2 ]
+base="$1"
+shift
+
+src="$base/$1"
+shift
+if [ $# -eq 1 ]
 then
-	src="$1"
-	shift
 	if [ -d "$src" ]
 	then
 		src="$src"/*
 	fi
 else
-	src=""
 	while [ $# -ne 1 ]
 	do
-		src="$src $1"
+		src="$src $base/$1"
 		shift
 	done
 fi
@@ -28,7 +30,7 @@ dst="$1"
 for path in $src
 do
 	name=`basename "$path"`
-	dir=`dirname "$path"`
+	dir=`dirname "${path#$base/}"`
 	if [ -L "$path" ]
 	then
 		echo "skipping symbolic link: $path"
@@ -36,7 +38,7 @@ do
 	then
 		if [ "$name" != .svn ]
 		then
-			$0 "$path" "$dst"
+			$0 "$base" "${path#$base/}" "$dst"
 		fi
 	else
 		install -m 0755 -d "$dst/$dir"
