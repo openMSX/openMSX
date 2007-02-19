@@ -556,7 +556,9 @@ void FDC_DirAsDSK::updateFileInDSK(const string& filename)
 	}
 	if (!S_ISREG(fst.st_mode)) {
 		// we only handle regular files for now
-		cliComm.printWarning("Not a regular file: " + fullfilename);
+		if (filename != "." && filename != "..") { // don't warn for these files, as they occur in any directory except the root one
+			cliComm.printWarning("Not a regular file: " + fullfilename);
+		}
 		return;
 	}
 	if (!checkFileUsedInDSK(fullfilename)) {
