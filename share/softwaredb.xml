@@ -8,7 +8,7 @@
 	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
-<softwaredb xml:lang="en" timestamp="1167036283">
+<softwaredb xml:lang="en" timestamp="1171906525">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -10611,7 +10611,7 @@
 		<dump>
 			<original value="false"/>
 			<megarom>
-				<type>Konami</type>
+				<type>ascii8</type>
 				<hash algo="sha1">22f9b0238ff48840fb7d45ac93a7f15495393920</hash>
 				<remark>
 					<text>MSXDEV06</text>
@@ -10628,7 +10628,7 @@
 		<dump>
 			<original value="false"/>
 			<megarom>
-				<type>Konami</type>
+				<type>ascii8</type>
 				<hash algo="sha1">4b138e041947990309c228890914689908d46685</hash>
 				<remark>
 					<text>MSXDEV06</text>
@@ -13061,7 +13061,7 @@
 		<dump>
 			<original value="false"/>
 			<megarom>
-				<type>Konami</type>
+				<type>ascii8</type>
 				<hash algo="sha1">7a0a1c5570a3361ad75406eea07c93fdad9fde02</hash>
 				<remark>
 					<text>MSXDEV06</text>
@@ -13078,7 +13078,7 @@
 		<dump>
 			<original value="false"/>
 			<megarom>
-				<type>Konami</type>
+				<type>ascii8</type>
 				<hash algo="sha1">e6ba7a6ecda80a1c844542be0b2a44a4a33dc113</hash>
 				<remark>
 					<text>MSXDEV06</text>
@@ -17634,6 +17634,23 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Halnote</title>
+		<system>MSX</system>
+		<company>Hal</company>
+		<year>1987</year>
+		<country>JP</country>
+		<dump>
+			<original value="true">GoodMSX</original>
+			<megarom>
+				<type>Halnote</type>
+				<hash algo="sha1">1af617bfd11b10a71936c606174a80019762ea71</hash>
+				<remark>
+					<text>Needs System Disk</text>
+				</remark>
+			</megarom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Hardball</title>
 		<system>MSX</system>
 		<company>Sony</company>
@@ -21431,23 +21448,6 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Halnote</title>
-		<system>MSX</system>
-		<company>Hal</company>
-		<year>1987</year>
-		<country>JP</country>
-		<dump>
-			<original value="true">GoodMSX</original>
-			<systemrom>
-				<type>Halnote</type>
-				<hash algo="sha1">1af617bfd11b10a71936c606174a80019762ea71</hash>
-				<remark>
-					<text>Needs System Disk</text>
-				</remark>
-			</systemrom>
-		</dump>
-	</software>
-	<software>
 		<title xml:lang="en">Liftrom Inform&#225;tica 2.7 Disk-Basic</title>
 		<system>MSX</system>
 		<company>Liftrom Inform&#225;tica</company>
@@ -23999,5 +23999,5 @@ Roms in this database : 2243
 Good MSX entries 		: 755
 SHA1 values 			: 2243
 CRC32 values 			: 0
-Parse time 7.754 seconds on Mon Dec 25 9:44:50 CET 2006
+Parse time 8.747 seconds on Mon Feb 19 18:35:34 CET 2007
  -->
