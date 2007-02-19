@@ -1,5 +1,12 @@
 $Id$
 
+2007-02-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed SDLGL-PP simple scaler factor=1 deinterlace mode:
+	   - in the previous implementation this caused a (floating-point)
+	     division by zero. This could give strange results.
+	   - Now we disable scanlines when there are more lines in the input
+	     than in the output. This is also how it works in the SDL renderer
+
 2007-02-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed assert on exit when a (real) joystick was still plugged
 	* Small Z80 fixes:
