@@ -56,6 +56,7 @@ MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 	, debuggable(new MSXCPUDebuggable(motherboard_, *this))
 {
 	activeCPU = z80.get();	// setActiveCPU(CPU_Z80);
+	newCPU = 0;
 
 	motherboard.getDebugger().setCPU(this);
 	traceSetting->attach(*this);
@@ -83,25 +84,23 @@ void MSXCPU::doReset(const EmuTime& time)
 
 void MSXCPU::setActiveCPU(CPUType cpu)
 {
-	CPU* newCPU;
+	CPU* tmp;
 	switch (cpu) {
 		case CPU_Z80:
 			PRT_DEBUG("Active CPU: Z80");
-			newCPU = z80.get();
+			tmp = z80.get();
 			break;
 		case CPU_R800:
 			PRT_DEBUG("Active CPU: R800");
-			newCPU = r800.get();
+			tmp = r800.get();
 			break;
 		default:
 			assert(false);
 			newCPU = NULL;	// prevent warning
 	}
-	if (newCPU != activeCPU) {
-		newCPU->warp(activeCPU->getCurrentTime());
-		newCPU->invalidateMemCache(0x0000, 0x10000);
+	if (tmp != activeCPU) {
 		exitCPULoopSync();
-		activeCPU = newCPU;
+		newCPU = tmp;
 	}
 }
 
@@ -112,6 +111,12 @@ void MSXCPU::setDRAMmode(bool dram)
 
 void MSXCPU::execute()
 {
+	if (newCPU) {
+		newCPU->warp(activeCPU->getCurrentTime());
+		newCPU->invalidateMemCache(0x0000, 0x10000);
+		activeCPU = newCPU;
+		newCPU = 0;
+	}
 	activeCPU->execute();
 }
 

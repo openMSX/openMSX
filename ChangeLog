@@ -6,6 +6,13 @@ $Id$
 	     division by zero. This could give strange results.
 	   - Now we disable scanlines when there are more lines in the input
 	     than in the output. This is also how it works in the SDL renderer
+	* Fixed bug in switching between Z80/R800:
+	   - switching _very_ fast (by OTIR) between Z80/R800 triggered an
+	     assert that time goes backwards!
+	   - problem was that we record the switch time at the moment the OUT
+	     is executed and then still finish the rest of the instruction. So
+	     there is a slight moment in emutime that both CPUs are executing.
+	   - solved by only switching between two instructions
 
 2007-02-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed assert on exit when a (real) joystick was still plugged

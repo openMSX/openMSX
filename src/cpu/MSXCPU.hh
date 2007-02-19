@@ -150,6 +150,7 @@ private:
 	const std::auto_ptr<CPUCore<R800TYPE> > r800;
 
 	CPU* activeCPU;
+	CPU* newCPU;
 	EmuTime reference;
 
 	friend class TimeInfoTopic;
