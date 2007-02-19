@@ -5,6 +5,7 @@
 #include "V9990.hh"
 #include "MemoryOps.hh"
 #include "GLUtil.hh"
+#include <algorithm>
 
 namespace openmsx {
 

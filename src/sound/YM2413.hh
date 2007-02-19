@@ -6,6 +6,7 @@
 #include "YM2413Core.hh"
 #include "SoundDevice.hh"
 #include "openmsx.hh"
+#include <memory>
 
 namespace openmsx {
 

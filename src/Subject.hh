@@ -4,6 +4,7 @@
 #define SUBJECT_HH
 
 #include "Observer.hh"
+#include <algorithm>
 #include <vector>
 #include <cassert>
 
