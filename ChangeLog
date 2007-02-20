@@ -1,5 +1,13 @@
 $Id$
 
+2007-02-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed hang in altparty demo:
+	   - Demo polls FH bit in VDP status reg S#0. but when line interrupt
+	     register has value 229 this went wrong. Reason is that for this
+	     line the duration of FH=1 is partly in the current and partly in
+	     the next frame. Old implementation only set FH=1 in the current
+	     frame.
+
 2007-02-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed SDLGL-PP simple scaler factor=1 deinterlace mode:
 	   - in the previous implementation this caused a (floating-point)

@@ -653,6 +653,11 @@ byte VDP::peekStatusReg(byte reg, const EmuTime& time) const
 			// TODO: Precalc matchLength?
 			int afterMatch =
 			       getTicksThisFrame(time) - horizontalScanOffset;
+			if (afterMatch < 0) {
+				afterMatch += getTicksPerFrame();
+				// afterMatch can still be negative at this
+				// point, see scheduleHScan()
+			}
 			int matchLength = (displayMode.isTextMode() ? 87 : 59)
 			                  + 27 + 100 + 102;
 			return statusReg1 |
