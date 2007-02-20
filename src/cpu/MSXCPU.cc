@@ -96,7 +96,7 @@ void MSXCPU::setActiveCPU(CPUType cpu)
 			break;
 		default:
 			assert(false);
-			newCPU = NULL;	// prevent warning
+			tmp = NULL;	// prevent warning
 	}
 	if (tmp != activeCPU) {
 		exitCPULoopSync();
