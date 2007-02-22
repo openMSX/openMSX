@@ -9,21 +9,23 @@
 #include "BooleanSetting.hh"
 #include "RawFrame.hh"
 #include "AviRecorder.hh"
+#include "CliComm.hh"
 #include <algorithm>
 #include <cassert>
 
 namespace openmsx {
 
-PostProcessor::PostProcessor(CommandController& commandController,
+PostProcessor::PostProcessor(CommandController& commandController_,
 	Display& display, VisibleSurface& screen_, VideoSource videoSource,
 	unsigned maxWidth, unsigned height)
-	: VideoLayer(videoSource, commandController, display)
+	: VideoLayer(videoSource, commandController_, display)
 	, renderSettings(display.getRenderSettings())
 	, screen(screen_)
 	, paintFrame(0)
 	, recorder(0)
 	, prevTime(EmuTime::zero)
 	, lastFrameDuration((1368.0 * 262.0) / (3579545.0 * 6.0)) // NTSC
+	, commandController(commandController_)
 {
 	currFrame = new RawFrame(screen.getFormat(), maxWidth, height);
 	prevFrame = new RawFrame(screen.getFormat(), maxWidth, height);
@@ -34,6 +36,10 @@ PostProcessor::PostProcessor(CommandController& commandController,
 PostProcessor::~PostProcessor()
 {
 	if (recorder) {
+		commandController.getCliComm().printWarning(
+			"Videorecording stopped, because you quit openMSX, "
+			"changed machine, or changed a video setting "
+			"during recording.");
 		recorder->stop();
 	}
 	delete currFrame;

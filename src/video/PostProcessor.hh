@@ -115,6 +115,9 @@ protected:
 	  * time rotateFrames() was called).
 	  */
 	EmuDuration lastFrameDuration;
+
+private:
+	CommandController& commandController;
 };
 
 } // namespace openmsx
