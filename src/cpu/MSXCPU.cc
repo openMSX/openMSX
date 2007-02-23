@@ -293,7 +293,7 @@ byte MSXCPUDebuggable::read(unsigned address)
 	case 24:
 		return regs.I;
 	case 25:
-		return regs.R;
+		return (regs.R & 0x7F) | (regs.R2 & 0x80);
 	case 26:
 		return regs.IM;
 	case 27:
@@ -322,7 +322,7 @@ void MSXCPUDebuggable::write(unsigned address, byte value)
 		regs.I = value;
 		break;
 	case 25:
-		regs.R = value;
+		regs.R = regs.R2 = value;
 		break;
 	case 26:
 		if (value < 3) {
