@@ -1,5 +1,17 @@
 $Id$
 
+2007-02-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed(?) data corruption when using 'diskmanipulator import':
+	   - I had no idea were in the code the bug was, so i started
+	     doing clanups/simplifications till I understood the code
+	     again and found the bug.
+	   - Turned out the dirty status of the FAT chache was not set
+	     correctly by the writeFAT() method.
+	   - Another bug happened when a there is not enough free space
+	     left on the disk to completely import a file: the file was
+	     imported as far as ossible, the FAT was updated, but not the
+	     directory entry.
+
 2007-02-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed hang in altparty demo:
 	   - Demo polls FH bit in VDP status reg S#1. but when line interrupt
