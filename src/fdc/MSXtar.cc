@@ -1012,6 +1012,19 @@ bool MSXtar::usePartition(unsigned partition)
 	return hasPartitionTable;
 }
 
+static void logicalToCHS(unsigned logical, unsigned& cylinder,
+                         unsigned& head, unsigned& sector)
+{
+	// This is made to fit the openMSX harddisk configuration:
+	//  32 sectors/track   16 heads
+	unsigned tmp = logical + 1;
+	sector = tmp % 32;
+	if (sector == 0) sector = 32;
+	tmp = (tmp - sector) / 32;
+	head = tmp % 16;
+	cylinder = tmp / 16;
+}
+
 void MSXtar::createDiskFile(std::vector<unsigned> sizes)
 {
 	byte buf[SECTOR_SIZE];
@@ -1021,10 +1034,26 @@ void MSXtar::createDiskFile(std::vector<unsigned> sizes)
 	if (sizes.size() > 1) {
 		memset(buf, 0, SECTOR_SIZE);
 		strncpy((char*)buf, PARTAB_HEADER, 11);
+		buf[SECTOR_SIZE - 2] = 0x55;
+		buf[SECTOR_SIZE - 1] = 0xAA;
 
 		partitionOffset = 1;
 		for (unsigned i = 0; (i < sizes.size()) && (i < 30); ++i) {
 			Partition* p = (Partition*)(buf + (14 + (30 - i) * 16));
+			unsigned startCylinder, startHead, startSector;
+			unsigned endCylinder, endHead, endSector;
+			logicalToCHS(partitionOffset,
+			             startCylinder, startHead, startSector);
+			logicalToCHS(partitionOffset + sizes[i] - 1,
+			             endCylinder, endHead, endSector);
+			p->boot_ind = (i == 0) ? 0x80 : 0x00; // bootflag
+			p->head = startHead;
+			p->sector = startSector;
+			p->cyl = startCylinder;
+			p->sys_ind = 0x01; // FAT12
+			p->end_head = endHead;
+			p->end_sector = endSector;
+			p->end_cyl = endCylinder;
 			setlg(p->start4, partitionOffset);
 			setlg(p->size4, sizes[i]);
 			partitionNbSectors = sizes[i];
