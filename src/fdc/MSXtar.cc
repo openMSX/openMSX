@@ -8,8 +8,10 @@
 #include "StringOp.hh"
 #include "BootBlocks.hh"
 #include <sys/stat.h>
+#include <time.h>
 #include <utime.h>
 #include <unistd.h>
+#include <cstdlib>
 #include <algorithm>
 #include <cassert>
 
@@ -161,6 +163,12 @@ void MSXtar::readLogicalSector(unsigned sector, byte* buf)
 MSXtar::MSXtar(SectorAccessibleDisk& sectordisk)
 	: disk(sectordisk)
 {
+	static bool init = false;
+	if (!init) {
+		init = true;
+		srand(time(0));
+	}
+
 	fatCacheDirty = false;
 	partitionOffset = 0;
 	partitionNbSectors = disk.getNbSectors();
@@ -274,6 +282,11 @@ void MSXtar::setBootSector(byte* buf, unsigned nbSectors)
 	boot->descriptor[0] = descriptor;
 	setsh(boot->reservedsectors, nbReservedSectors);
 	setsh(boot->hiddensectors, nbHiddenSectors);
+
+	// set random volume id
+	for (int i = 0x27; i < 0x2B; ++i) {
+		buf[i] = rand() & 0x7F;
+	}
 }
 
 // Format a diskimage with correct bootsector, FAT etc.
