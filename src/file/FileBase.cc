@@ -48,15 +48,16 @@ void FileBase::truncate(unsigned newSize)
 		PRT_DEBUG("Default truncate() can't shrink file!");
 		return;
 	}
-	unsigned grow = newSize - oldSize;
+	unsigned remaining = newSize - oldSize;
 	seek(oldSize);
 
 	const unsigned BUF_SIZE = 4096;
 	byte buf[BUF_SIZE];
 	memset(buf, 0, BUF_SIZE);
-	while (grow > 0) {
-		write(buf, std::min(BUF_SIZE, grow));
-		grow -= BUF_SIZE;
+	while (remaining) {
+		unsigned chunkSize = std::min(BUF_SIZE, remaining);
+		write(buf, chunkSize);
+		remaining -= chunkSize;
 	}
 }
 
