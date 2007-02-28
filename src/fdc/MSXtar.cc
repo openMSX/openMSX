@@ -128,7 +128,7 @@ void MSXtar::parseBootSectorFAT(const byte* buf)
 	fatCacheDirty = false;
 	fatBuffer.resize(SECTOR_SIZE * sectorsPerFat);
 	for (unsigned i = 0; i < sectorsPerFat; ++i) {
-		disk.readLogicalSector(i + 1,
+		disk.readLogicalSector(i + 1 + partitionOffset,
 		                       &fatBuffer[SECTOR_SIZE * i]);
 	}
 }
@@ -191,7 +191,7 @@ void MSXtar::writeCachedFAT()
 {
 	if (fatCacheDirty) {
 		for (unsigned i = 0; i < fatBuffer.size() / SECTOR_SIZE; ++i) {
-			disk.writeLogicalSector(i + 1,
+			disk.writeLogicalSector(i + 1 + partitionOffset,
 			                        &fatBuffer[SECTOR_SIZE * i]);
 		}
 		fatCacheDirty = false;
