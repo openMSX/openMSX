@@ -1,5 +1,14 @@
 $Id$
 
+2007-0228 Manuel Bilderbeek <manuel@msxnet.org>
+	* Fixed a bug in the tabCompletion of the enable command.
+	* Added a small help for the enable command, pointing to a new
+	  documentation file: doc/openmsx-control-xml.txt. This text explains
+	  the protocol used for external communication (CliComm).
+	* Removed deprecated update types (deprecated in openMSX 0.6.1, but they
+	  were not used by any external application we know about): break and
+	  resume.
+
 2007-02-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed(?) data corruption when using 'diskmanipulator import':
 	   - I had no idea were in the code the bug was, so i started

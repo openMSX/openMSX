@@ -16,8 +16,6 @@ public:
 	};
 	enum UpdateType {
 		LED,
-		BREAK,
-		RESUME,
 		SETTING,
 		HARDWARE,
 		PLUG,

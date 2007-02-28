@@ -208,10 +208,6 @@ template <class T> void CPUCore<T>::doBreak()
 
 		motherboard.block();
 
-		// TODO break update is deprecated
-		motherboard.getMSXCliComm().update(CliComm::BREAK, "pc",
-					   "0x" + StringOp::toHexString(R.PC, 4));
-
 		motherboard.getMSXCliComm().update(CliComm::STATUS, "cpu", "suspended");
 		motherboard.getEventDistributor().distributeEvent(
 			new SimpleEvent<OPENMSX_BREAK_EVENT>());
@@ -230,9 +226,6 @@ template <class T> void CPUCore<T>::doContinue()
 {
 	if (breaked) {
 		continued = true;
-		// TODO resume update is deprecated
-		motherboard.getMSXCliComm().update(CliComm::RESUME, "pc",
-	                                   "0x" + StringOp::toHexString(R.PC, 4));
 		doContinue2();
 	}
 }

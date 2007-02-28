@@ -104,8 +104,7 @@ void GlobalCliComm::addConnection(auto_ptr<CliConnection> connection)
 }
 
 const char* const updateStr[CliComm::NUM_UPDATES] = {
-	"led", "break", "resume", "setting",
-	"hardware", "plug", "unplug", "media", "status"
+	"led", "setting", "hardware", "plug", "unplug", "media", "status"
 };
 void GlobalCliComm::log(LogLevel level, const string& message)
 {
@@ -215,7 +214,7 @@ CliConnection& UpdateCmd::getConnection()
 	CliConnection* connection = getCommandController().getConnection();
 	if (!connection) {
 		throw CommandException("This command only makes sense when "
-		                    "it's used from an external connection.");
+		                    "it's used from an external application.");
 	}
 	return *connection;
 }
@@ -232,16 +231,12 @@ string UpdateCmd::execute(const vector<string>& tokens)
 	} else {
 		throw SyntaxError();
 	}
-	// TODO deprecated
-	if ((tokens[2] == "break") || (tokens[2] == "resume")) {
-		return "Update event '" + tokens[2] + "' is deprecated.";
-	}
 	return "";
 }
 
 string UpdateCmd::help(const vector<string>& /*tokens*/) const
 {
-	static const string helpText = "TODO";
+	static const string helpText = "Enable or disable update events for external applications. See doc/openmsx-control-xml.txt.";
 	return helpText;
 }
 
@@ -253,6 +248,7 @@ void UpdateCmd::tabCompletion(vector<string>& tokens) const
 			ops.insert("enable");
 			ops.insert("disable");
 			completeString(tokens, ops);
+			break;
 		}
 		case 3: {
 			set<string> types(updateStr,
