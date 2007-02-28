@@ -1,5 +1,7 @@
-This small text documents the XML protocol you can talk to openMSX to control it
-from another process. 
+This small text documents the XML protocol you can talk to openMSX to control
+it from another process. Use it if you are an application developer and want to
+program such an application. It can be anything, e.g. a launcher, GUI or
+debugger. This document is not written for normal users.
 
 There are two ways to do this. The first (and oldest) way is using a pipe. On
 Windows you can use a named pipe, on other systems you use stdio. To enable
