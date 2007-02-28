@@ -10,7 +10,8 @@ SUBDIRS:=manual
 INSTALL_DOCS:= \
 	release-notes.txt release-history.txt \
 	commands.txt exampleconfigs.xml \
-	using-diskmanipulator.txt
+	using-diskmanipulator.txt \
+	openmsx-control-xml.txt
 
 DIST:=$(INSTALL_DOCS) \
 	msxinfo-article.html schema1.png schema2.png \
