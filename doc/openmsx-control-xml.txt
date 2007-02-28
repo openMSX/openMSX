@@ -1,0 +1,157 @@
+This small text documents the XML protocol you can talk to openMSX to control it
+from another process. 
+
+There are two ways to do this. The first (and oldest) way is using a pipe. On
+Windows you can use a named pipe, on other systems you use stdio. To enable
+this, start openMSX like this:
+
+openmsx -control stdio
+or
+openmsx -control pipe
+(for Windows).
+
+After this, openMSX expects XML input on the pipe and it will also give you
+output. The first output it gives is this:
+
+<openmsx-output>
+<log level="info">Using default machine: Boosted_MSX2_EN</log>
+
+On non-Windows systems you can easily try it out by just starting openMSX like
+this. You give XML commands via the keyboard in the terminal and openMSX will
+print its responses on the terminal as well.
+
+This first output is the opening tag (<openmsx-output>) and a log message. All
+messages that are normally printed on stdout in the terminal from which you
+start openMSX are in a <log> tag. The level can be "info" or "warning" and the
+message is in the text node itself.
+
+When you want to start communicating back, you ALWAYS have to start with the
+opening tag first:
+
+<openmsx-control>
+
+When starting openMSX with the -control option, it will not show a window: it
+starts with the 'none' renderer. So, a nice example (if you're still
+experimenting on the command line) would be to type this:
+
+<command>set renderer SDL</command>
+
+With the <command> tag you can give any openMSX console command to openMSX. The
+commands are documented in the file doc/commands.txt.
+
+Every <command> will result in a reply from openMSX. In the above case it will
+be:
+
+<reply result="ok">SDL</reply>
+
+The order is guaranteed, i.e. the replies will follow in the same order as in
+which you gave the commands to openMSX. In this reply example, you see that the
+command succeeded (result=ok) and it also gives you the actual result text that
+would also be printed on the console. In this case, the value of the renderer
+setting. When a command fails, you get something like this:
+
+<command>biep</command>
+<reply result="nok">invalid command name "biep"
+</reply>
+
+"biep" is not a valid command, and openMSX tells you this via a "nok" reply with
+the error message in the text node.
+
+The next important thing is events. When you use this interface to control
+openMSX, you want to know when things change. For this, you can enable events
+for certain event classes.
+
+An example:
+
+<command>update enable led</command>
+
+This command will enable updates about LED events. So, when a LED changes, you
+get messages like this:
+
+<update type="led" machine="machine1" name="power">on</update>
+
+So, when you get <update> tags, openMSX tells you that something changed. In
+this case, it is a LED update, for the machine with ID "machine1". The name of
+the LED is "power" and the value is in the text node: on.
+
+Here is a list of the currently available event types and when they are sent:
+
+hardware	when changes in hardware occur (machine change)
+led		when LED status changes
+media		when media change (disk images, cartridges, etc.)
+plug		when pluggables get plugged
+setting		when settings change
+status		when status changes (currently pause and debug break status)
+unplug		when pluggables get unplugged
+
+(Note: there is no update yet for extensions that get added or removed at run
+time.)
+
+Some examples:
+
+Someone changed machines from Boosted MSX2 to Toshiba HX-10 at run time:
+<update type="hardware" name="machine2">add</update>
+<update type="hardware" machine="machine2" name="carta">add</update>
+<update type="hardware" machine="machine2" name="cartb">add</update>
+<update type="hardware" machine="machine2" name="cassetteplayer">add</update>
+<update type="hardware" machine="machine1" name="diskb">remove</update>
+<update type="hardware" machine="machine1" name="diska">remove</update>
+<update type="hardware" machine="machine1" name="carta">remove</update>
+<update type="hardware" machine="machine1" name="cartb">remove</update>
+<update type="hardware" machine="machine1" name="cartc">remove</update>
+<update type="hardware" machine="machine1" name="cassetteplayer">remove</update>
+<update type="hardware" name="machine1">remove</update>
+<update type="hardware" name="machine2">select</update>
+
+CAPS LED went to OFF:
+<update type="led" machine="machine2" name="caps">off</update>
+
+A tape was inserted in the cassetteplayer:
+<update type="media" machine="machine2" name="cassetteplayer">/home/manuel/msx-soft/tapes/Zoids.zip</update>
+
+The cassetteplayer got into play mode:
+<update type="status" machine="machine2" name="cassetteplayer">play</update>
+
+Someone plugged in a joystick:
+<update type="plug" machine="machine2" name="joyporta">joystick1</update>
+And unplugs it again:
+<update type="unplug" machine="machine2" name="joyporta"></update>
+
+Someone set the maxframeskip setting to 12:
+<update type="setting" name="maxframeskip">12</update>
+
+openMSX got paused:
+<update type="status" name="paused">true</update>
+openMSX got into a debug break state:
+<update type="status" machine="machine1" name="cpu">suspended</update>
+openMSX got out of debug break state:
+<update type="status" machine="machine1" name="cpu">running</update>
+
+And with this, you should have all info that you need to make any external
+application that can control openMSX via pipes. When using a socket, everything
+except connecting is the same.
+
+Connecting on non-Windows systems goes with a UNIX domain socket. openMSX puts
+the socket in /tmp/openmsx-<username>/socket.<pid>. The /tmp/ dir can be
+overridden by environment variables TMPDIR, TMP or TEMP (in that order).
+
+On Windows (which does not support UNIX domain sockets), the socket is a normal
+TCP socket. The port number is random between 9938 and 9958. It's random to
+enforce applications to deal with multiple running openMSX processes. The port
+number will be put in the following text file:
+%USERPROFILE%\Documents and Settings\<username>\Local Settings\Temp\openmsx-default
+or, when %USERPROFILE% does not exist:
+%TMPDIR%\openmsx-default or
+%TMP%\openmsx-default or
+%TEMP%\openmsx-default or as a last resort:
+C:\WINDOWS\TEMP
+
+DISCLAIMER: it is possible that some update events are still missing and it is
+also possible that the structure of the replies and commands change. We will do
+our best to be backwards compatible, though.
+
+Real world examples can be found here:
+- in the Contrib directory of openMSX (openmsx-control*)
+- in the code of the old openMSX Catapult (C++ via pipes)
+- in the code of the new openMSX Catapult (Python, still via pipes)
+- in the code of the openMSX GUI Debugger (C++ via socket)
