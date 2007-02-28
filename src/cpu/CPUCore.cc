@@ -71,7 +71,7 @@ template <class T> void CPUCore<T>::setInterface(MSXCPUInterface* interf)
 
 template <class T> void CPUCore<T>::warp(const EmuTime& time)
 {
-	assert(T::getTime() < time);
+	assert(T::getTime() <= time);
 	T::setTime(time);
 }
 
