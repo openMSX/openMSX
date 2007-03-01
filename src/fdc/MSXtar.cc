@@ -1014,6 +1014,9 @@ bool MSXtar::usePartition(unsigned partition)
 		if (rdlg(p->start4) != 0) {
 			partitionOffset = rdlg(p->start4);
 			partitionNbSectors = rdlg(p->size4);
+			if (p->sys_ind != 0x01) {
+				throw MSXException("Not a FAT12 partition");
+			}
 		} else {
 			hasPartitionTable = false;
 		}
