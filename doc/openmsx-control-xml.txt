@@ -141,7 +141,7 @@ On Windows (which does not support UNIX domain sockets), the socket is a normal
 TCP socket. The port number is random between 9938 and 9958. It's random to
 enforce applications to deal with multiple running openMSX processes. The port
 number will be put in the following text file:
-%USERPROFILE%\Documents and Settings\<username>\Local Settings\Temp\openmsx-default
+%USERPROFILE%\Documents and Settings\<username>\Local Settings\Temp\openmsx-default\socket.<pid>.
 or, when %USERPROFILE% does not exist:
 %TMPDIR%\openmsx-default or
 %TMP%\openmsx-default or
