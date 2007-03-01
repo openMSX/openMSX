@@ -13,7 +13,6 @@
 #include "Z80.hh"
 #include "R800.hh"
 #include "Thread.hh"
-#include "StringOp.hh"
 #include "likely.hh"
 #include <iomanip>
 #include <iostream>

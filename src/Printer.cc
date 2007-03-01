@@ -2,7 +2,6 @@
 
 #include "Printer.hh"
 #include "ScreenShotSaver.hh"
-#include "StringOp.hh"
 #include "FileOperations.hh"
 #include "FloatSetting.hh"
 #include "MSXMotherBoard.hh"

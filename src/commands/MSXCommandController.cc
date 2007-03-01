@@ -9,7 +9,6 @@
 #include "Interpreter.hh"
 #include "Setting.hh"
 #include "MSXCliComm.hh"
-#include "StringOp.hh"
 #include <iostream>
 
 using std::string;

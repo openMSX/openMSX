@@ -12,7 +12,6 @@
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "MSXCommandController.hh"
-#include "StringOp.hh"
 //#include <tk.h>
 
 using std::set;
