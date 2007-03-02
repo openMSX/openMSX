@@ -20,11 +20,11 @@ A million repetitions of "a"
 34AA973C D4C4DAA4 F61EEB2B DBAD2731 6534016F
 */
 
+#include "sha1.hh"
+#include "build-info.hh"
 #include <cassert>
 #include <cstdio>
 #include <memory.h>
-#include "build-info.hh"
-#include "sha1.hh"
 
 using std::string;
 

@@ -4,7 +4,6 @@
 #define V9990BITMAPCONVERTER_HH
 
 #include "V9990ModeEnum.hh"
-#include "openmsx.hh"
 
 namespace openmsx {
 

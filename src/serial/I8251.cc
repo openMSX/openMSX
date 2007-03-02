@@ -1,7 +1,6 @@
 // $Id$
 
 #include "I8251.hh"
-#include "Scheduler.hh"
 #include <cassert>
 
 using std::string;

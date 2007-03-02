@@ -4,11 +4,9 @@
 #include "RenderSettings.hh"
 #include "Scaler.hh"
 #include "ScalerFactory.hh"
-#include "BooleanSetting.hh"
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
 #include "VisibleSurface.hh"
-#include "RawFrame.hh"
 #include "HostCPU.hh"
 #include "Math.hh"
 #include <algorithm>

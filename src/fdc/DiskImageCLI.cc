@@ -5,9 +5,6 @@
 #include "CommandController.hh"
 #include "CommandLineParser.hh"
 #include "TclObject.hh"
-#include "GlobalSettings.hh"
-#include "XMLElement.hh"
-#include "FileContext.hh"
 #include "MSXException.hh"
 
 using std::list;

@@ -2,7 +2,6 @@
 
 #include "XMLLoader.hh"
 #include "XMLElement.hh"
-#include "StringOp.hh"
 
 using std::auto_ptr;
 using std::string;

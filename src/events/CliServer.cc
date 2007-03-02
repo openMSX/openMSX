@@ -1,9 +1,6 @@
 // $Id$
 
 #include "CliServer.hh"
-#include "CommandController.hh"
-#include "IntegerSetting.hh"
-#include "EnumSetting.hh"
 #include "GlobalCliComm.hh"
 #include "CliConnection.hh"
 #include "StringOp.hh"
@@ -11,7 +8,6 @@
 #include "MSXException.hh"
 #include <string>
 #include <memory>
-#include <cassert>
 #include <sys/stat.h>
 #include <unistd.h>
 

@@ -24,7 +24,6 @@ TODO:
 #include "OutputSurface.hh"
 #include "Renderer.hh"
 #include "RenderSettings.hh"
-#include "BooleanSetting.hh"
 #include "FloatSetting.hh"
 #include "IntegerSetting.hh"
 #include "StringSetting.hh"

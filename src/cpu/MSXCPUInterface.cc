@@ -3,7 +3,6 @@
 #include "MSXCPUInterface.hh"
 #include "DummyDevice.hh"
 #include "SimpleDebuggable.hh"
-#include "Command.hh"
 #include "MSXCommandController.hh"
 #include "InfoTopic.hh"
 #include "CommandException.hh"

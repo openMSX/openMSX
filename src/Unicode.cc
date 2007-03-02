@@ -1,7 +1,6 @@
 //$Id$
 
 #include "Unicode.hh"
-#include <algorithm>
 #include <iostream>
 
 using std::string;

@@ -34,7 +34,6 @@
 #include "MSXCliComm.hh"
 #include "CommandException.hh"
 #include "Scheduler.hh"
-#include "MSXEventDistributor.hh"
 #include "EventDistributor.hh"
 #include "FileOperations.hh"
 #include "WavWriter.hh"

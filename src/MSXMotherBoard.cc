@@ -28,7 +28,6 @@
 #include "RealTime.hh"
 #include "DeviceFactory.hh"
 #include "BooleanSetting.hh"
-#include "FileContext.hh"
 #include "GlobalSettings.hh"
 #include "Command.hh"
 #include "RecordedCommand.hh"

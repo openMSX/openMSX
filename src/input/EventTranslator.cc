@@ -2,7 +2,6 @@
 
 #include "EventTranslator.hh"
 #include "EventDelay.hh"
-#include "InputEvents.hh"
 #include "EventDistributor.hh"
 
 namespace openmsx {

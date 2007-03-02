@@ -9,12 +9,10 @@
 
 namespace openmsx {
 
-class Mixer;
-
 class SDLSoundDriver : public SoundDriver, private noncopyable
 {
 public:
-	SDLSoundDriver(Mixer& mixer, unsigned frequency, unsigned samples);
+	SDLSoundDriver(unsigned frequency, unsigned samples);
 	virtual ~SDLSoundDriver();
 
 	virtual void mute();
@@ -32,7 +30,6 @@ private:
 	static void audioCallbackHelper(void* userdata, byte* strm, int len);
 	void audioCallback(short* stream, unsigned len);
 
-	Mixer& mixer;
 	unsigned frequency;
 	short* mixBuffer;
 	unsigned fragmentSize;

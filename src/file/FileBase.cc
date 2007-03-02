@@ -1,8 +1,7 @@
 // $Id$
 
-#include <cassert>
-#include <algorithm>
 #include "FileBase.hh"
+#include <algorithm>
 
 using std::string;
 

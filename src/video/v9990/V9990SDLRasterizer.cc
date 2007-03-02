@@ -7,14 +7,12 @@
 #include "V9990BitmapConverter.hh"
 #include "V9990P1Converter.hh"
 #include "V9990P2Converter.hh"
-#include "BooleanSetting.hh"
 #include "FloatSetting.hh"
 #include "StringSetting.hh"
 #include "Display.hh"
 #include "VisibleSurface.hh"
 #include "RenderSettings.hh"
 #include "MemoryOps.hh"
-#include "MSXMotherBoard.hh"
 #include <algorithm>
 
 using std::min;

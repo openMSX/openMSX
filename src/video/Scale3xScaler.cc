@@ -15,7 +15,6 @@ Visit the Scale2x site for info:
 #include "Scale3xScaler.hh"
 #include "FrameSource.hh"
 #include "OutputSurface.hh"
-#include "HostCPU.hh"
 #include "openmsx.hh"
 
 namespace openmsx {

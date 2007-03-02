@@ -10,8 +10,6 @@
 #include "InputEvents.hh"
 #include "XMLElement.hh"
 #include "SettingsConfig.hh"
-#include "openmsx.hh"
-#include "checked_cast.hh"
 #include <cassert>
 
 using std::string;

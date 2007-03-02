@@ -1,7 +1,6 @@
 // $Id$
 
 #include "GlobalSettings.hh"
-#include "FileContext.hh"
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
 #include "StringSetting.hh"

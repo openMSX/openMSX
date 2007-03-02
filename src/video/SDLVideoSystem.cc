@@ -10,7 +10,6 @@
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
 #include "IntegerSetting.hh"
-#include "VideoSourceSetting.hh"
 #include "EventDistributor.hh"
 #include "InputEventGenerator.hh"
 #include <cassert>

@@ -6,7 +6,6 @@
 #include <cstring>
 #include <cstdio>
 #include <sstream>
-#include <cassert>
 #include "FileOperations.hh"
 #include "FileException.hh"
 #include "CompressedFileAdapter.hh"

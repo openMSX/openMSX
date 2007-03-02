@@ -23,7 +23,6 @@
 #include "PanasonicRam.hh"
 #include "MSXRTC.hh"
 #include "RomFactory.hh"
-#include "MSXRom.hh"
 #include "MSXPrinterPort.hh"
 #include "MSXSCCPlusCart.hh"
 #include "PhilipsFDC.hh"

@@ -5,7 +5,6 @@
 #include "FrameSource.hh"
 #include "OutputSurface.hh"
 #include "RenderSettings.hh"
-#include "IntegerSetting.hh"
 #include "MemoryOps.hh"
 #include "HostCPU.hh"
 #include "openmsx.hh"

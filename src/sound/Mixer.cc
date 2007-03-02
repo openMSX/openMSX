@@ -88,7 +88,6 @@ void Mixer::reloadDriver()
 			break;
 		case SND_SDL:
 			driver.reset(new SDLSoundDriver(
-				*this,
 				frequencySetting->getValue(),
 				samplesSetting->getValue()));
 			break;

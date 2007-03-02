@@ -1,7 +1,6 @@
 // $Id$
 
 #include "SDLSoundDriver.hh"
-#include "Mixer.hh"
 #include "MSXException.hh"
 #include "Math.hh"
 #include "build-info.hh"
@@ -11,10 +10,8 @@
 
 namespace openmsx {
 
-SDLSoundDriver::SDLSoundDriver(Mixer& mixer_,
-                               unsigned wantedFreq, unsigned wantedSamples)
-	: mixer(mixer_)
-	, muted(true)
+SDLSoundDriver::SDLSoundDriver(unsigned wantedFreq, unsigned wantedSamples)
+	: muted(true)
 {
 	SDL_AudioSpec desired;
 	desired.freq     = wantedFreq;

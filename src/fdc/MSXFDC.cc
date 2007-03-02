@@ -6,7 +6,6 @@
 #include "XMLElement.hh"
 #include "StringOp.hh"
 #include "MSXException.hh"
-#include "MSXMotherBoard.hh"
 
 namespace openmsx {
 

@@ -5,7 +5,6 @@
 #include "MemoryOps.hh"
 #include "LineScalers.hh"
 #include "openmsx.hh"
-#include <iostream>
 
 namespace openmsx {
 

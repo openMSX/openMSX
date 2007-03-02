@@ -2,7 +2,6 @@
 
 #include "DSKDiskImage.hh"
 #include "File.hh"
-#include "FileException.hh"
 
 using std::string;
 

@@ -8,8 +8,6 @@
 
 namespace openmsx {
 
-class EmuTime;
-
 /**
  * This (abstract) class defines the DiskDrive interface
  */

@@ -8,17 +8,13 @@
 #include "BreakPoint.hh"
 #include "MSXWatchIODevice.hh"
 #include "TclObject.hh"
-#include "MSXCommandController.hh"
 #include "RecordedCommand.hh"
 #include "CommandException.hh"
 #include "StringOp.hh"
 #include <cassert>
-#include <sstream>
-#include <iomanip>
 #include <memory>
 
 using std::map;
-using std::ostringstream;
 using std::set;
 using std::string;
 using std::vector;

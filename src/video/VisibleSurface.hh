@@ -6,7 +6,6 @@
 #include "OutputSurface.hh"
 #include <string>
 #include <memory>
-#include <SDL.h>
 
 namespace openmsx {
 

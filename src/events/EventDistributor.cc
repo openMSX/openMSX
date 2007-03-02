@@ -3,7 +3,6 @@
 #include "EventDistributor.hh"
 #include "EventListener.hh"
 #include "Reactor.hh"
-#include "openmsx.hh"
 #include <cassert>
 
 using std::pair;

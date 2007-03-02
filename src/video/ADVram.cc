@@ -3,7 +3,6 @@
 #include "ADVram.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
-#include "MSXMotherBoard.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
 #include <algorithm>
