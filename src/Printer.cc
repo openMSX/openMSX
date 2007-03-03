@@ -53,7 +53,7 @@ void PrinterCore::plugHelper(Connector& /*connector*/, const EmuTime& /*time*/)
 
 void PrinterCore::unplugHelper(const EmuTime& /*time*/)
 {
-	// nothing
+	forceFormFeed();
 }
 
 

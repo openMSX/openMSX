@@ -1,6 +1,9 @@
 $Id$
 
-2007-0228 Manuel Bilderbeek <manuel@msxnet.org>
+2007-03-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Force a FormFeed when a printer is unplugged
+
+2007-02-28 Manuel Bilderbeek <manuel@msxnet.org>
 	* Fixed a bug in the tabCompletion of the enable command.
 	* Added a small help for the enable command, pointing to a new
 	  documentation file: doc/openmsx-control-xml.txt. This text explains
