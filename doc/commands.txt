@@ -116,7 +116,7 @@ debug
       are:
         - the VDP registers
         - the currently visible memory for the Z80
-        - the contest of the RAM
+        - the contents of the RAM
         - ...
 
     debug desc <name>
