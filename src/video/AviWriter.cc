@@ -29,12 +29,11 @@ static inline void writeLE4(unsigned char* p, unsigned x)
 }
 
 AviWriter::AviWriter(const std::string& filename, unsigned width_,
-                     unsigned height_, unsigned bpp, double fps_,
-                     unsigned freq_)
+                     unsigned height_, unsigned bpp, unsigned freq_)
 	: width(width_)
 	, height(height_)
 	, audiorate(freq_)
-	, fps(fps_)
+	, fps(50.0)
 {
 	file = fopen(filename.c_str(), "wb");
 	if (!file) {
@@ -179,6 +178,11 @@ AviWriter::~AviWriter()
 	fseek(file, 0, SEEK_SET);
 	fwrite(&avi_header, 1, AVI_HEADER_SIZE, file);
 	fclose(file);
+}
+
+void AviWriter::setFps(double fps_)
+{
+	fps = fps_;
 }
 
 void AviWriter::addAviChunk(const char* tag, unsigned size, void* data, unsigned flags)

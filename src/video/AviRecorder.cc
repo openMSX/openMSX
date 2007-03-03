@@ -23,11 +23,12 @@ namespace openmsx {
 AviRecorder::AviRecorder(Reactor& reactor_)
 	: SimpleCommand(reactor_.getCommandController(), "record")
 	, reactor(reactor_)
-	, videoSource(0)
 	, postProcessor1(0)
 	, postProcessor2(0)
 	, mixer(0)
 	, scheduler(0)
+	, duration(EmuDuration::infinity)
+	, prevTime(EmuTime::infinity)
 {
 }
 
@@ -53,7 +54,8 @@ void AviRecorder::start(bool recordAudio, bool recordVideo,
 	if (recordVideo) {
 		Display& display = reactor.getDisplay();
 		scheduler = &motherBoard->getScheduler();
-		videoSource = &display.getRenderSettings().getVideoSource();
+		VideoSourceSetting* videoSource =
+			&display.getRenderSettings().getVideoSource();
 		Layer* layer1 = display.findLayer("V99x8 PostProcessor");
 		Layer* layer2 = display.findLayer("V9990 PostProcessor");
 		postProcessor1 = dynamic_cast<PostProcessor*>(layer1);
@@ -65,11 +67,10 @@ void AviRecorder::start(bool recordAudio, bool recordVideo,
 				"Current renderer doesn't support video recording.");
 		}
 		unsigned bpp = activePP->getBpp();
-		frameDuration = activePP->getLastFrameDuration();
 		warnedFps = false;
 
 		aviWriter.reset(new AviWriter(filename, 320, 240, bpp,
-		                              1.0 / frameDuration, sampleRate));
+		                              sampleRate));
 	} else {
 		assert(recordAudio);
 		wavWriter.reset(new WavWriter(filename, 2, 16, sampleRate));
@@ -123,19 +124,23 @@ void AviRecorder::addWave(unsigned num, short* data)
 	}
 }
 
-void AviRecorder::addImage(const void** lines)
+void AviRecorder::addImage(const void** lines, const EmuTime& time)
 {
 	assert(!wavWriter.get());
-	PostProcessor* activePP = videoSource->getValue() == VIDEO_MSX
-	                        ? postProcessor1 : postProcessor2;
-	if (!warnedFps &&
-	    (fabs(activePP->getLastFrameDuration() - frameDuration) > 1e-5)) {
-		warnedFps = true;
-		reactor.getGlobalCliComm().printWarning(
-			"Detected frame rate change (PAL/NTSC or frameskip) "
-			"during avi recording. Audio/video might get out of "
-			"sync because of this.");
+	if (duration != EmuDuration::infinity) {
+		if (!warnedFps && ((time - prevTime) != duration)) {
+			warnedFps = true;
+			reactor.getGlobalCliComm().printWarning(
+				"Detected frame rate change (PAL/NTSC or frameskip) "
+				"during avi recording. Audio/video might get out of "
+				"sync because of this.");
+		}
+	} else if (prevTime != EmuTime::infinity) {
+		duration = time - prevTime;
+		aviWriter->setFps(1.0 / duration.toDouble());
 	}
+	prevTime = time;
+
 	if (mixer) {
 		mixer->updateStream(scheduler->getCurrentTime());
 	}

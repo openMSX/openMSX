@@ -24,7 +24,6 @@ PostProcessor::PostProcessor(CommandController& commandController_,
 	, paintFrame(0)
 	, recorder(0)
 	, prevTime(EmuTime::zero)
-	, lastFrameDuration((1368.0 * 262.0) / (3579545.0 * 6.0)) // NTSC
 	, commandController(commandController_)
 {
 	currFrame = new RawFrame(screen.getFormat(), maxWidth, height);
@@ -70,7 +69,6 @@ RawFrame* PostProcessor::rotateFrames(
 	RawFrame* finishedFrame, FrameSource::FieldType field,
 	const EmuTime& time)
 {
-	lastFrameDuration = time - prevTime;
 	prevTime = time;
 
 	RawFrame* reuseFrame = prevFrame;
@@ -113,7 +111,7 @@ RawFrame* PostProcessor::rotateFrames(
 				lines[i] = paintFrame->getLinePtr320_240(i, (word*)0);
 			}
 		}
-		recorder->addImage(lines);
+		recorder->addImage(lines, time);
 		finishedFrame->freeLineBuffers();
 	}
 
@@ -133,11 +131,6 @@ bool PostProcessor::isRecording() const
 unsigned PostProcessor::getBpp() const
 {
 	return screen.getFormat()->BitsPerPixel;
-}
-
-double PostProcessor::getLastFrameDuration() const
-{
-	return lastFrameDuration.toDouble();
 }
 
 } // namespace openmsx

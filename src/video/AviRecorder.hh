@@ -4,6 +4,7 @@
 #define AVIRECORDER_HH
 
 #include "Command.hh"
+#include "EmuTime.hh"
 #include <string>
 #include <vector>
 #include <memory>
@@ -25,7 +26,7 @@ public:
 	~AviRecorder();
 
 	void addWave(unsigned num, short* data);
-	void addImage(const void** lines);
+	void addImage(const void** lines, const EmuTime& time);
 	void stop();
 
 private:
@@ -41,7 +42,6 @@ private:
 	std::string processToggle(const std::vector<std::string>& tokens);
 
 	Reactor& reactor;
-	VideoSourceSetting* videoSource;
 	std::vector<short> audioBuf;
 	std::auto_ptr<AviWriter> aviWriter;
 	std::auto_ptr<WavWriter> wavWriter;
@@ -53,6 +53,8 @@ private:
 	unsigned sampleRate;
 	bool warnedFps;
 	bool warnedSampleRate;
+	EmuDuration duration;
+	EmuTime prevTime;
 };
 
 } // namespace openmsx

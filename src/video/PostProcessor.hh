@@ -66,11 +66,6 @@ public:
 	  */
 	unsigned getBpp() const;
 
-	/** Get the time (in seconds) between the last two frames (between last
-	  * two calls to rotateFrames()).
-	  */
-	double getLastFrameDuration() const;
-
 protected:
 	/** Returns the maximum width for lines [y..y+step).
 	  */
@@ -110,11 +105,6 @@ protected:
 
 	/** Time when rotateFrames() was last called. */
 	EmuTime prevTime;
-
-	/** Duration of last frame (difference between last and second-to-last
-	  * time rotateFrames() was called).
-	  */
-	EmuDuration lastFrameDuration;
 
 private:
 	CommandController& commandController;

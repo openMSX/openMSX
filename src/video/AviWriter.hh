@@ -18,9 +18,10 @@ class AviWriter
 {
 public:
 	AviWriter(const std::string& filename, unsigned width, unsigned height,
-	          unsigned bpp, double fps, unsigned freq);
+	          unsigned bpp, unsigned freq);
 	~AviWriter();
 	void addFrame(const void** lineData, unsigned samples, short* sampleData);
+	void setFps(double fps);
 
 private:
 	void addAviChunk(const char* tag, unsigned size, void* data, unsigned flags);
@@ -28,7 +29,7 @@ private:
 	const unsigned width;
 	const unsigned height;
 	const unsigned audiorate;
-	const double fps;
+	double fps;
 
 	unsigned frames;
 	unsigned audiowritten;
