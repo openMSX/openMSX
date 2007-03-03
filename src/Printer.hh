@@ -15,35 +15,12 @@
 #include "PrinterPortDevice.hh"
 #include "openmsx.hh"
 #include <memory>
-#include <vector>
 
 namespace openmsx {
 
 class MSXMotherBoard;
 class FloatSetting;
-
-class Paper
-{
-public:
-	Paper(unsigned x, unsigned y);
-	~Paper();
-
-	std::string save() const;
-	void setDotSize(double sizeX, double sizeY);
-	void plot(double x, double y);
-
-private:
-	byte& dot(unsigned x, unsigned y);
-
-	byte* buf;
-	unsigned sizeX;
-	unsigned sizeY;
-
-	double radiusX;
-	double radiusY;
-	int radius16;
-	std::vector<int> table;
-};
+class Paper;
 
 
 // Abstract printer class

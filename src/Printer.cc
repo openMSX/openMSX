@@ -8,6 +8,7 @@
 #include "MSXCliComm.hh"
 #include "Math.hh"
 #include <algorithm>
+#include <vector>
 #include <cassert>
 #include <cmath>
 #include <cstring>
@@ -17,6 +18,30 @@ using std::min;
 using std::string;
 
 namespace openmsx {
+
+class Paper
+{
+public:
+	Paper(unsigned x, unsigned y);
+	~Paper();
+
+	std::string save() const;
+	void setDotSize(double sizeX, double sizeY);
+	void plot(double x, double y);
+
+private:
+	byte& dot(unsigned x, unsigned y);
+
+	byte* buf;
+	unsigned sizeX;
+	unsigned sizeY;
+
+	double radiusX;
+	double radiusY;
+	int radius16;
+	std::vector<int> table;
+};
+
 
 PrinterCore::PrinterCore()
 	: toPrint(0), prevStrobe(true)
