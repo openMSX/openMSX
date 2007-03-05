@@ -5,6 +5,7 @@
 
 #include "noncopyable.hh"
 #include <vector>
+#include <string>
 #include <memory>
 
 namespace openmsx {

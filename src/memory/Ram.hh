@@ -5,6 +5,7 @@
 
 #include "openmsx.hh"
 #include "noncopyable.hh"
+#include <string>
 #include <cassert>
 #include <memory>
 

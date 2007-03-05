@@ -10,6 +10,7 @@
 #include "CircularBuffer.hh"
 #include "noncopyable.hh"
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace openmsx {
