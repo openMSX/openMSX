@@ -68,6 +68,8 @@ void AviRecorder::start(bool recordAudio, bool recordVideo,
 		}
 		unsigned bpp = activePP->getBpp();
 		warnedFps = false;
+		duration = EmuDuration::infinity;
+		prevTime = EmuTime::infinity;
 
 		aviWriter.reset(new AviWriter(filename, 320, 240, bpp,
 		                              sampleRate));
