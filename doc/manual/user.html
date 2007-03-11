@@ -38,6 +38,7 @@
 			<li><a class="internal" href="#importantconsole">3.2 Some Simple Console Commands</a></li>
 			<li><a class="internal" href="#settings">3.3 Settings</a></li>
 			<li><a class="internal" href="#plug">3.4 Plug</a></li>
+			<li><a class="internal" href="#trainer">3.5 Game Trainer</a></li>
 		</ol>
 	</li>
 	<li><a class="internal" href="#media">4. Running MSX Software and Using Media</a>
@@ -289,7 +290,7 @@ openMSX has a built-in command interface called the <em>console</em>,
 which allows you to control almost all aspects of openMSX while it is running.
 You can access the console by pressing F10
 (with default key mapping) when the focus is on the emulator window.  This will
-give you a command line in the openMSX window. Note that due to a <a class="external" href="http://sourceforge.net/tracker/index.php?func=detail&aid=1157373&group_id=38274&atid=421861">known problem</a>
+give you a command line in the openMSX window. Note that due to a <a class="external" href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=1157373&amp;group_id=38274&amp;atid=421861">known problem</a>
 in SDL on Windows, the console won't come up if you went to fullscreen by using
 ALT-ENTER. Use F12 to go to fullscreen to work around this problem. (See also 3.3: Settings and 5.1.1: Keymapping on a PC.)
 </p>
@@ -379,6 +380,21 @@ Note that using the "tab completion" feature can help you a lot in getting an id
 Add the complete list of pluggables here.
 </p>
 -->
+
+<h3><a id="trainer">3.5 Game Trainer</a></h3>
+
+<p>
+openMSX 0.6.2 comes with a completely reworked game trainer system. Although it has to be used from the console, it is very easy to use. As always, you could type: <code>help trainer</code>, for some basic help.
+</p>
+
+<p>
+Suppose you want to cheat on Metal Gear. Then it would be useful to type: <code>trainer Metal[TAB]</code>, which will expand to: <code>trainer Metal\ Gear</code>. When you then press enter, you see which cheats are available in the Metal Gear trainer. You can active them by typing e.g.: <code>trainer Metal\ Gear 1 2 3 4</code>. This will activate (toggle) the first 4 cheats (as the list will tell you which is printed after the command: the crosses mean an active cheat). You can also use the descriptions instead of the numbers: <code>trainer Metal\ Gear "enemy 1 gone" "enemy 2 gone"</code>. Or, if you want to activate all cheats, as was default in the old cheat system, you could simply type: <code>trainer Metal\ Gear all</code>.
+</p>
+
+<p>
+If this sounds a bit difficult for you, just try it out. It's really much easier when you actually work with it.
+As always in the console, using TAB to complete your commands and their options proves to be very useful!
+</p>
 
 <h2><a id="media">4. Running MSX Software and Using Media</a></h2>
 
