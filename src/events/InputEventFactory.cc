@@ -49,6 +49,9 @@ static bool upDown(const string& str)
 static EventPtr parseMouseEvent(
 		const string& str, const vector<string>& components)
 {
+	if (components.size() < 2) {
+		throw CommandException("Invalid mouse event: " + str);
+	}
 	if (components[1] == "motion") {
 		if (components.size() != 4) {
 			throw CommandException("Invalid mouse motion event: " + str);
