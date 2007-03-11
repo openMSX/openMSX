@@ -31,24 +31,43 @@ after
 bind / unbind / bind_default / unbind_default
 ---------------------------------------------
   
-  Associate key presses with commands. Whenever you press one of the programmed
-  keys, the corresponding command will be executed.
-  To customize your keybindings you should use the (un)bind commands. A script
-  that wants to provide a default binding for its functionality needs to use
-  bind_default. 
-  
+  Associate events (like key presses) with commands. Whenever the specified event
+  occurs (e.g. you press the specified key), the corresponding command will be
+  executed. To customize your bindings you should use the (un)bind
+  commands. A script that wants to provide a default binding for its
+  functionality needs to use bind_default.
+
+  Events can be:
+  <key>[,release]            - treated as "keyb <key>[,release]"
+  keyb <key>[,release]       - <key> is pressed [or released]
+  mouse button<n> <up/down>  - mouse button <n> went up or down
+  mouse motion <x> <y>       - mouse motion of <x> and <y>
+  joy<n> button<m> <up/down> - button <m> of joystick <n> went up/down
+  joy<n> axis<m> <value>     - axis <m> of joystick <n> got value <value>
+  focus <boolean>            - the openMSX window got (1) or lost (0) focus
+
   usage:
-    bind                    shows all bindings
-    bind   <key>            shows binding for this key
-    bind   <key> <command>  make a new binding
-    unbind <key>            undo binding for this key
+    bind                      shows all bindings
+    bind   <key>              shows binding for this key
+    bind   <event>            shows binding for this event
+    bind   <event> <command>  make a new binding
+    unbind <key>              undo binding for this event
   
   examples:
     bind PAGEUP "set speed 100"
     bind PAGEDOWN "set speed 50"
-    unbind F9
-    bind F9 "set throttle off"
-    bind F9,release "set throttle on"
+    only go to full throttle when F9 is pressed (like BrMSX):
+      unbind F9
+      bind F9 "set throttle off"
+      bind F9,release "set throttle on"
+    fMSX-like behaviour (pause when window loses focus):
+      bind "focus 0" "set pause on"
+      bind "focus 1" "set pause off"
+    middle-click to toggle grab-status:
+      bind "mouse button2 down" "toggle grabinput"
+    map button 8 of joystick 1 to F2-key:
+      bind "joy1 button8 down" "keymatrixdown 6 0x40"
+      bind "joy1 button8 up" "keymatrixup 6 0x40"
 
 
 cart / cart<x>
