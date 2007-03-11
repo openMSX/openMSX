@@ -160,7 +160,7 @@ SET_WINDOW_ICON:=true
 # Load CPU specific settings.
 $(call DEFCHECK,OPENMSX_TARGET_CPU)
 include $(MAKE_PATH)/cpu-$(OPENMSX_TARGET_CPU).mk
-# Check that all expected variables were defined by OS specific Makefile:
+# Check that all expected variables were defined by CPU specific Makefile:
 # - endianess
 $(call BOOLCHECK,BIG_ENDIAN)
 # - flavour (user selectable; platform specific default)
