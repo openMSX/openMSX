@@ -245,6 +245,15 @@ string CartCmd::execute(const vector<string>& tokens, const EmuTime& /*time*/)
 {
 	string result;
 	string cartname = tokens[0];
+	
+	// strip namespace qualification
+	//  TODO investigate whether it's a good idea to strip namespace at a
+	//       higher level for all commands. How does that interact with
+	//       the event recording feature?
+	string::size_type pos = cartname.rfind("::");
+	if (pos != string::npos) {
+		cartname = cartname.substr(pos + 2);
+	}
 	if (tokens.size() == 1) {
 		// query name of cartridge
 		const ExtensionConfig* extConf = getExtensionConfig(cartname);
