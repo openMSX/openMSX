@@ -593,7 +593,27 @@ href="http://www.msx.org/forumtopic6184.html">some</a> <a class="external"
 href="http://www.msx.org/forumtopic3015p15.html">threads</a> on the MSX Resource
 Center forum that may give you valuable hints.
 </p>
-
+<p>
+You can side step these procedures by using the <code>diskmanipulator</code> to
+create the initial hd image, and you can immediately put some files and
+subdirectories on it. For instance to create a hard disk with 3 partitions of
+32 megabyte on it, and have each partition filled with files and subdirectories
+you can do the following:
+</p>
+<p>
+Start openMSX with the ide extentition, then type in the console:
+</p>
+<div class="commandline">
+set power off<br>
+diskmanipulator create /tmp/new-hd.dsk 32M 32M 32M<br>
+hda /tmp/new-hd.dsk<br>
+diskmanipulator import hda1 /home/david/msxdostools/<br>
+diskmanipulator import hda2 /home/david/msxdemos/<br>
+diskmanipulator import hda3 /home/david/msxdrawings/<br>
+set power on
+</div>
+<p>
+</p>
 <p>
 For clarity: because the emulation is done on a big disk image, there can be no data corruption of your PC's harddisk. This does mean that you need free
 disk space for this image, which can be quite big (default 100MB). So, in other words,  you
@@ -816,7 +836,24 @@ To connect a fake joystick (emulated with the arrow keys), you can use this <cod
 <p>
 will connect a fake joystick to joystick port A. Button A of the joystick is mapped to the space bar and Button B to M, when using the default configuration. There are two keyjoysticks, 1 and 2. If you like, you can change the bindings in the console and save the settings as usual. Examples: <code>set keyjoystick2.triga LCTRL</code> or <code>set keyjoystick1.up KP8</code>.
 </p>
-
+<p>
+Most modern joysticks have more buttons then the 2 buttons that are allowed by the MSX standard. Therefore a lot of games uses extra keys on the keyboard for extra functionality. for instance, all most all Konami games use F1 to pause the game. You can assign these extra functionality to your joystick by using the <code>bind</code> command. As an example here is how to map button 4 of the first joystick to the F1-key, button 5 to F2,...
+</p>
+<div class="commandline">
+  bind "joy1 button4 down" "keymatrixdown 6 0x20"<br>
+  bind "joy1 button4 up" "keymatrixup 6 0x20"<br>
+  bind "joy1 button5 down" "keymatrixdown 6 0x40"<br>
+  bind "joy1 button5 up" "keymatrixup 6 0x40"<br>
+  bind "joy1 button6 down" "keymatrixdown 6 0x80"<br>
+  bind "joy1 button6 up" "keymatrixup 6 0x80"<br>
+  bind "joy1 button7 down" "keymatrixdown 7 0x01"<br>
+  bind "joy1 button7 up" "keymatrixup 7 0x01"<br>
+  bind "joy1 button8 down" "keymatrixdown 7 0x02"<br>
+  bind "joy1 button8 up" "keymatrixup 7 0x02"<br>
+</div>
+<p>
+For a more detailed explanation of this command see the commands.txt file.
+</p>
 <h3><a id="mouse">5.3 Mouse</a></h3>
 
 <p>
