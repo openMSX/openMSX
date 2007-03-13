@@ -6,13 +6,26 @@
 # It enables only the features needed by openMSX: for example from SDL_image
 # we only need PNG handling cability.
 
-STATIC_DIR:=derived/3rdparty
-TARBALLS_DIR:=$(STATIC_DIR)/download
-SOURCE_DIR:=$(STATIC_DIR)/src
-SUPPORTDIR:=build/package-darwin
-TIMESTAMP_DIR:=$(STATIC_DIR)/timestamps
-BUILD_DIR:=$(STATIC_DIR)/build
-INSTALL_DIR:=$(STATIC_DIR)/install
+ifeq ($(origin OPENMSX_TARGET_CPU),undefined)
+$(error You should pass OPENMSX_TARGET_CPU)
+endif
+ifeq ($(origin OPENMSX_TARGET_OS),undefined)
+$(error You should pass OPENMSX_TARGET_OS)
+endif
+
+# Load flavour specific settings.
+include build/flavour-$(OPENMSX_FLAVOUR).mk
+CFLAGS:=$(CXXFLAGS)
+export CFLAGS
+
+BUILD_PATH:=derived/$(OPENMSX_TARGET_CPU)-$(OPENMSX_TARGET_OS)-$(OPENMSX_FLAVOUR)/3rdparty
+
+TARBALLS_DIR:=derived/3rdparty/download
+SOURCE_DIR:=derived/3rdparty/src
+PATCHES_DIR:=build/3rdparty
+TIMESTAMP_DIR:=$(BUILD_PATH)/timestamps
+BUILD_DIR:=$(BUILD_PATH)/build
+INSTALL_DIR:=$(BUILD_PATH)/install
 
 # Download locations for package sources.
 DOWNLOAD_PNG:=ftp://ftp.simplesystems.org/pub/libpng/png/src
@@ -51,11 +64,6 @@ INSTALL_PARAMS_GLEW:=GLEW_DEST=$(PWD)/$(INSTALL_DIR)
 # returns the name of the package.
 findpackage=$(strip $(foreach PACKAGE,$(PACKAGES),$(if $(filter $(2),$($(1)_$(PACKAGE))),$(PACKAGE),)))
 
-# We want a small distribution set, so optimize for size.
-# We got pretty good results with -Os in benchmarks, so it is not likely to
-# harm performance.
-export CFLAGS:=-Os
-
 .PHONY: all clean download
 
 all: $(INSTALL_TARGETS)
@@ -84,7 +92,8 @@ $(BUILD_DIR)/$(PACKAGE_SDL)/Makefile: \
 	cd $(@D) && $(PWD)/$</configure \
 		--disable-debug \
 		--disable-cdrom \
-		--prefix=$(PWD)/$(INSTALL_DIR)
+		--prefix=$(PWD)/$(INSTALL_DIR) \
+		CFLAGS="$(CFLAGS)"
 # While openMSX does not use "cpuinfo", "endian" and "file" modules, other
 # modules do and if we disable them, SDL will not link.
 
@@ -109,14 +118,15 @@ $(BUILD_DIR)/$(PACKAGE_SDL_IMAGE)/Makefile: \
 		--disable-xcf \
 		--disable-xpm \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
-		CFLAGS="$(shell $(PWD)/$(INSTALL_DIR)/bin/libpng12-config --cflags)"
+		CFLAGS="$(CFLAGS) $(shell $(PWD)/$(INSTALL_DIR)/bin/libpng12-config --cflags)"
 
 # Configure libpng.
 $(BUILD_DIR)/$(PACKAGE_PNG)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_PNG)
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$</configure \
-		--prefix=$(PWD)/$(INSTALL_DIR)
+		--prefix=$(PWD)/$(INSTALL_DIR) \
+		CFLAGS="$(CFLAGS)"
 
 # Don't configure GLEW.
 # GLEW does not support building outside of the source tree, so just copy
@@ -132,7 +142,7 @@ $(foreach PACKAGE,$(PACKAGES_STD),$(SOURCE_DIR)/$(PACKAGE_$(PACKAGE))): \
   $(SOURCE_DIR)/%: $(TARBALLS_DIR)/%.tar.gz
 	mkdir -p $(@D)
 	tar -zxf $< -C $(@D)
-	test ! -e $(SUPPORTDIR)/$(<F:%.tar.gz=%.diff) || patch -p1 -N -u -d $@ < $(SUPPORTDIR)/$(<F:%.tar.gz=%.diff)
+	test ! -e $(PATCHES_DIR)/$(<F:%.tar.gz=%.diff) || patch -p1 -N -u -d $@ < $(PATCHES_DIR)/$(<F:%.tar.gz=%.diff)
 	touch $@
 
 # Extract GLEW.
@@ -141,7 +151,7 @@ $(SOURCE_DIR)/$(PACKAGE_GLEW): $(TARBALLS_DIR)/$(TARBALL_GLEW)
 	mkdir -p $(@D)
 	tar -zxf $< -C $(@D)
 	mv $(@D)/glew $@
-	test ! -e $(SUPPORTDIR)/$(<F:%-src.tgz=%.diff) || patch -p1 -N -u -d $@ < $(SUPPORTDIR)/$(<F:%-src.tgz=%.diff)
+	test ! -e $(PATCHES_DIR)/$(<F:%-src.tgz=%.diff) || patch -p1 -N -u -d $@ < $(PATCHES_DIR)/$(<F:%-src.tgz=%.diff)
 	touch $@
 
 # Download source packages.

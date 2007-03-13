@@ -22,7 +22,7 @@
 # Logical targets which require dependency files.
 DEPEND_TARGETS:=all default install run bindist
 # Logical targets which do not require dependency files.
-NODEPEND_TARGETS:=clean config probe
+NODEPEND_TARGETS:=clean config probe 3rdparty
 # Mark all logical targets as such.
 .PHONY: $(DEPEND_TARGETS) $(NODEPEND_TARGETS)
 
@@ -622,6 +622,15 @@ dist: $(DETECTSYS_SCRIPT)
 	@cd $(DIST_BASE) && \
 		GZIP=--best tar zcf $(PACKAGE_FULL).tar.gz $(PACKAGE_FULL)
 
+
+# Compile 3rd Party Libraries
+# ===========================
+
+3rdparty:
+	make -f $(MAKE_PATH)/3rdparty.mk \
+		OPENMSX_TARGET_CPU=$(OPENMSX_TARGET_CPU) \
+		OPENMSX_TARGET_OS=$(OPENMSX_TARGET_OS) \
+		OPENMSX_FLAVOUR=$(OPENMSX_FLAVOUR)
 
 # Precompiled Headers
 # ===================

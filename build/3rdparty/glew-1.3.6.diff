@@ -1,0 +1,14 @@
+diff -ur glew-1.3.6.org/Makefile glew-1.3.6/Makefile
+--- glew-1.3.6.org/Makefile	Tue Mar 13 01:29:30 2007
++++ glew-1.3.6/Makefile	Tue Mar 13 01:32:48 2007
+@@ -60,7 +60,9 @@
+ STRIP = -s
+ endif
+ INCLUDE = -Iinclude
+-CFLAGS = $(OPT) $(WARN) $(INCLUDE) $(CFLAGS.EXTRA)
++# openMSX dedicated build: use flavour's optimization flags instead:
++#CFLAGS = $(OPT) $(WARN) $(INCLUDE) $(CFLAGS.EXTRA)
++CFLAGS += $(WARN) $(INCLUDE) $(CFLAGS.EXTRA)
+ 
+ LIB.SRCS = src/glew.c
+ LIB.OBJS = $(LIB.SRCS:.c=.o)
