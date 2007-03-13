@@ -46,14 +46,19 @@ DISABLED_HEADERS+=GLEW_H
 
 # Assume all static libraries come from the same distribution (such as Fink or
 # DarwinPorts); use SDL's config script to find the rest.
-STATIC_LIBS_DIR:=$(shell sdl-config --static-libs | sed -e "s%^\(.* \)*\(/.*\)/libSDL\.a.*$$%\2%" 2>> /dev/null)
+SDL_CONFIG_PATH:=$(shell PATH=$(PATH) ; which sdl-config)
+ifneq ($(shell test -x $(SDL_CONFIG_PATH) ; echo $$?),0)
+$(error Cannot execute sdl-config)
+endif
+
+STATIC_LIBS_DIR:=$(shell $(SDL_CONFIG_PATH) --static-libs | sed -e "s%^\(.* \)*\(/.*\)/libSDL\.a.*$$%\2%" 2>> /dev/null)
 
 PNG_LDFLAGS:=$(STATIC_LIBS_DIR)/libpng.a
 # TODO: In theory this should return the flags for static linking,
 #       but in libpng 1.2.8 it just returns the dynamic link flags.
 #PNG_LDFLAGS:=`libpng-config --static --libs 2>> $(LOG)`
 
-SDL_LDFLAGS:=`sdl-config --static-libs | sed -e \"s/-L[^ ]*//g\" 2>> $(LOG)`
+SDL_LDFLAGS:=`$(SDL_CONFIG_PATH) --static-libs | sed -e \"s/-L[^ ]*//g\" 2>> $(LOG)`
 
 # Note: Depending on how SDL_image is compiled, it may or may not need libjpeg.
 SDL_IMAGE_LDFLAGS:=$(SDL_LDFLAGS) $(PNG_LDFLAGS) \
