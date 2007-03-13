@@ -22,7 +22,7 @@
 # Logical targets which require dependency files.
 DEPEND_TARGETS:=all default install run bindist
 # Logical targets which do not require dependency files.
-NODEPEND_TARGETS:=clean config probe 3rdparty
+NODEPEND_TARGETS:=clean config probe 3rdparty staticbindist
 # Mark all logical targets as such.
 .PHONY: $(DEPEND_TARGETS) $(NODEPEND_TARGETS)
 
@@ -623,14 +623,31 @@ dist: $(DETECTSYS_SCRIPT)
 		GZIP=--best tar zcf $(PACKAGE_FULL).tar.gz $(PACKAGE_FULL)
 
 
-# Compile 3rd Party Libraries
-# ===========================
+# Binary Packaging Using 3rd Party Libraries
+# ==========================================
+
+# Select "bindist" flavour unless explicitly overridden on the command line.
+ifeq ($(origin OPENMSX_FLAVOUR),command line)
+BINDIST_FLAVOUR=$(OPENMSX_FLAVOUR)
+else
+BINDIST_FLAVOUR=bindist
+endif
+
+# Select platform variant suitable for binary packaging.
+BINDIST_TARGET_OS=$(OPENMSX_TARGET_OS:darwin=darwin-app)
 
 3rdparty:
-	make -f $(MAKE_PATH)/3rdparty.mk \
+	$(MAKE) -f $(MAKE_PATH)/3rdparty.mk \
 		OPENMSX_TARGET_CPU=$(OPENMSX_TARGET_CPU) \
-		OPENMSX_TARGET_OS=$(OPENMSX_TARGET_OS) \
-		OPENMSX_FLAVOUR=$(OPENMSX_FLAVOUR)
+		OPENMSX_TARGET_OS=$(BINDIST_TARGET_OS) \
+		OPENMSX_FLAVOUR=$(BINDIST_FLAVOUR)
+
+staticbindist: 3rdparty
+	$(MAKE) -f build/main.mk bindist \
+		OPENMSX_TARGET_CPU=$(OPENMSX_TARGET_CPU) \
+		OPENMSX_TARGET_OS=$(BINDIST_TARGET_OS) \
+		OPENMSX_FLAVOUR=$(BINDIST_FLAVOUR) \
+		PATH=$(PWD)/$(BUILD_BASE)/$(OPENMSX_TARGET_CPU)-$(BINDIST_TARGET_OS)-$(BINDIST_FLAVOUR)/3rdparty/install/bin:$(PATH)
 
 # Precompiled Headers
 # ===================
