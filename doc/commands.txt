@@ -842,8 +842,7 @@ contrast
 cputrace
 --------
 
-  Enable/disable CPU instruction tracing
-  [ only available when compiled with DEBUG option ]
+  Enable/disable CPU instruction tracing.
  
  
 debugoutput
