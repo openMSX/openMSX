@@ -46,25 +46,33 @@ DISABLED_HEADERS+=GLEW_H
 
 # Assume all static libraries come from the same distribution (such as Fink or
 # DarwinPorts); use SDL's config script to find the rest.
-SDL_CONFIG_PATH:=$(shell PATH=$(PATH) ; which sdl-config)
-ifneq ($(shell test -x $(SDL_CONFIG_PATH) ; echo $$?),0)
+ifeq ($(STATIC_INSTALL_DIR),)
+STATIC_INSTALL_DIR:=$(shell sdl-config --static-libs | sed -e "s%^\(.* \)*\(/.*\)/lib/libSDL\.a.*$$%\2%" 2>> /dev/null)
+else
+# Static install dir was passed explicitly; check that it contains sdl-config.
+# Otherwise, we might pick up systemwide libraries in the probe.
+ifneq ($(shell test -x $(STATIC_INSTALL_DIR)/bin/sdl-config ; echo $$?),0)
 $(error Cannot execute sdl-config)
 endif
+endif
 
-STATIC_LIBS_DIR:=$(shell $(SDL_CONFIG_PATH) --static-libs | sed -e "s%^\(.* \)*\(/.*\)/libSDL\.a.*$$%\2%" 2>> /dev/null)
-
-PNG_LDFLAGS:=$(STATIC_LIBS_DIR)/libpng.a
+PNG_CFLAGS:=`$(STATIC_INSTALL_DIR)/bin/libpng-config --cflags 2>> $(LOG)`
+PNG_LDFLAGS:=$(STATIC_INSTALL_DIR)/lib/libpng.a
 # TODO: In theory this should return the flags for static linking,
 #       but in libpng 1.2.8 it just returns the dynamic link flags.
-#PNG_LDFLAGS:=`libpng-config --static --libs 2>> $(LOG)`
+#PNG_LDFLAGS:=`$(STATIC_INSTALL_DIR)/bin/libpng-config --static --libs 2>> $(LOG)`
+PNG_RESULT:=`$(STATIC_INSTALL_DIR)/bin/libpng-config --version`
 
-SDL_LDFLAGS:=`$(SDL_CONFIG_PATH) --static-libs | sed -e \"s/-L[^ ]*//g\" 2>> $(LOG)`
+SDL_CFLAGS:=`$(STATIC_INSTALL_DIR)/bin/sdl-config --cflags 2>> $(LOG)`
+SDL_LDFLAGS:=`$(STATIC_INSTALL_DIR)/bin/sdl-config --static-libs | sed -e \"s/-L[^ ]*//g\" 2>> $(LOG)`
+SDL_RESULT:=`$(STATIC_INSTALL_DIR)/bin/sdl-config --version`
 
+SDL_IMAGE_CFLAGS:=$(SDL_CFLAGS)
 # Note: Depending on how SDL_image is compiled, it may or may not need libjpeg.
 SDL_IMAGE_LDFLAGS:=$(SDL_LDFLAGS) $(PNG_LDFLAGS) \
-	$(STATIC_LIBS_DIR)/libSDL_image.a \
-	$(shell grep -q "\-ljpeg" $(STATIC_LIBS_DIR)/libSDL_image.la 2>> /dev/null \
-		&& echo "$(STATIC_LIBS_DIR)/libjpeg.a")
+	$(STATIC_INSTALL_DIR)/lib/libSDL_image.a \
+	$(shell grep -q "\-ljpeg" $(STATIC_INSTALL_DIR)/lib/libSDL_image.la 2>> /dev/null \
+		&& echo "$(STATIC_INSTALL_DIR)/lib/libjpeg.a")
 
-GLEW_CFLAGS:=-I$(STATIC_LIBS_DIR)/../include
-GLEW_LDFLAGS:=$(STATIC_LIBS_DIR)/libGLEW.a
+GLEW_CFLAGS:=-I$(STATIC_INSTALL_DIR)/include
+GLEW_LDFLAGS:=$(STATIC_INSTALL_DIR)/lib/libGLEW.a
