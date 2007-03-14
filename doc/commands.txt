@@ -1174,6 +1174,19 @@ printerlogfilename
     set printerlogfilename myprinterlog.txt  log to myprinterlog.txt
 
 
+print-resolution
+----------------
+
+  Sets the resolution (in dpi) for the emulated dot-matrix printer.
+
+  The Emulated printer 'prints' pages as .png files. This settings determines
+  the resolution of those images.
+
+  usage:
+    set print-resolution       shows the current setting
+    set print-resolution 600   set resolution to 600dpi
+
+
 r800_freq and r800_freq_locked
 ------------------------------
 
@@ -1417,6 +1430,14 @@ videosource
     set videosource          shows the current setting
     set videosource MSX      switch to normal MSX screen
     set videosource GFX9000  switch to GFX9000 screen
+
+
+v9990cmdtrace
+-------------
+
+  Enable/disable V9990 command tracing. This setting is only
+  available when the gfx9000 extension is inserted.
+  [ mainly useful for debugging purposes ]
 
 
 z80_freq and z80_freq_locked
