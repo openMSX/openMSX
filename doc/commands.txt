@@ -1179,7 +1179,7 @@ print-resolution
 
   Sets the resolution (in dpi) for the emulated dot-matrix printer.
 
-  The Emulated printer 'prints' pages as .png files. This settings determines
+  The emulated printer 'prints' pages as .png files. This settings determines
   the resolution of those images.
 
   usage:
@@ -1435,8 +1435,7 @@ videosource
 v9990cmdtrace
 -------------
 
-  Enable/disable V9990 command tracing. This setting is only
-  available when the gfx9000 extension is inserted.
+  Enable/disable V9990 command tracing. 
   [ mainly useful for debugging purposes ]
 
 
@@ -1456,4 +1455,4 @@ z80_freq and z80_freq_locked
     set Z80_freq 7159090
     bind F8 "toggle z80_freq_locked"
        F8 now switches between 3.5MHz and 7MHz
-       
+
