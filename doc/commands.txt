@@ -1224,6 +1224,32 @@ rs232-outputfilename
     set rs232-outputfilename myrs232output.txt  write to myrs232output.txt
 
 
+rtcmode
+-------
+
+  Sets the Real Time Clock mode. Can be either 'RealTime' or 'EmuTime'.
+
+  In 'RealTime' mode the MSX clock is always synchronized with the host
+  clock, even when for example emulation is paused for a while or when
+  emulation is run at 200% of real speed. 
+
+  In 'EmuTime' mode the time is only synchronized with the host clock when
+  openMSX starts. From then on the clock ticks at the same pace as the
+  emulated machine. So when emulation is paused, the clock is paused as well.
+  If emulation is run at 200% speed, the clock also ticks twice as fast.
+
+  In 'EmuTime' mode it's not possible for a MSX program to detect whether
+  it's running on a real or on an emulated machine. That's why this is the
+  default mode. On the other hand the 'RealTime' mode might be better if
+  for example you care that timestamps of files written by the emulated MSX
+  machine are in sync with the host machine time.
+
+  usage:
+    set rtcmode             shows the current mode
+    set rtcmode EmuTime     set EmuTime mode (the default)
+    set rtcmode RealTime    set RealTime mode
+
+
 samples
 -------
 
