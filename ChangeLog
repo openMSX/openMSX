@@ -1,5 +1,12 @@
 $Id$
 
+2007-03-15 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added Al-Alamiah AX170 (prevously added Yamaha AX350II).
+	  - NOTE: it is not certain if these configs are correct and I have
+	    not been able to verify the ROM dumps. They are added only to have
+	    some working Arabic machines, do not use them for compatibility
+	    testing or something. (Have fun!)
+
 2007-03-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Force a FormFeed when a printer is unplugged
 	* Better algorithm to calculate framerate for avi recording:
