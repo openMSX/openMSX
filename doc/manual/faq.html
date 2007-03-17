@@ -32,6 +32,7 @@
 		<li><a class="internal" href="#videosource">It seems the MSX hangs when running GFX9000 software; what's wrong?</a></li>
 		<li><a class="internal" href="#leds">Great, those new OSD LEDs! How do I get rid of them?</a></li>
 		<li><a class="internal" href="#commands">Where is the full list of commands and settings?</a></li>
+		<li><a class="internal" href="#slow">Why is openMSX so slow? Why do I need a state of the art PC to run it?</a></li>
 	</ul></li>
 	<li><a class="internal" href="#other">Other</a>:
 	<ul class="toc">
@@ -216,6 +217,15 @@ Open the console with F10 (Cmd+L on Mac) and type:
 
 <p>
 The full list of commands and settings that are available in the console can be found in the doc directory of your openMSX distribution, in the file commands.txt. Check it out, it's really useful!
+</p>
+
+<h3><a id="slow">Why is openMSX so slow? Why do I need a state of the art PC to run it?</a></h3>
+
+<p>
+Actually, openMSX is not so slow, depending on what you ask it to do. If you have minimal hardware, you should use minimal settings as well, to get decent speed. This was proven by Karloch who ran openMSX 0.6.0 on a 206MHz HP Jornada 720, see <a class="external" href="http://www.msx.org/forumtopic6031.html">this thread on MRC</a>. On PC's, it really helps of your graphics card is not slow, or actually, the pipe between the CPU and the graphics card. Tips on how to performance tune openMSX can be found in the <a class="external" href="setup.html#tuning">Setup Guide</a>. The developers do their best to keep the performance of openMSX as good as possible, whilst still achieving the highest level of accuracy that we can.
+</p>
+<p>
+In general people wonder why you need 200MHz+ machines to emulate a computer based on a 3.5MHz CPU. Well, you don't only have to emulate the CPU, you also have to emulate the VDP (21MHz), the monitor (writing at least 50 times per second at least 256&times;192 pixels to a window), the sound chips, etc. This is relatively simple hardware, but having that run in software with cycle accuracy is quite heavy. In general, it is a lot of work for a general purpose CPU to emulate functionality that was originally made in dedicated hardware. Rebuilding an MSX in general purpose hardware (using VHDL on FPGA) is already a lot less demanding. An example of this is the One Chip MSX.
 </p>
 
 <h2><a id="other">Other</a></h2>
