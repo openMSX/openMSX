@@ -14,7 +14,6 @@
 # - SDL
 # - SDL_image
 # - GLEW
-# - libjpeg (used by SDL_image)
 # No libraries will be included in the app folder.
 # The following libraries will be disabled:
 # - Jack
