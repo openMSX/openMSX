@@ -4,6 +4,14 @@
 # In practice, this is used for Mac OS X; I'm not sure all of it applies to
 # other Darwin-based systems.
 #
+# TODO:
+# This Makefile does two things:
+# - sets SET_WINDOW_ICON to false, so app folder icon is used
+# - sets flags for linking non-platform libs statically
+# However, these should be two independent choices:
+# - executable intended as standalone vs intended for use in app folder
+# - link non-platform libs statically vs dynamically
+#
 # The following libraries are standard on Mac OS X:
 # - libxml2
 # - OpenGL
