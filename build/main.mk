@@ -116,16 +116,8 @@ PACKAGE_FULL:=$(PACKAGE_NAME)-$(PACKAGE_DETAILED_VERSION)
 # experience with cross-compilation, a more sophisticated system can be
 # designed.
 
-ifeq ($(origin OPENMSX_TARGET_CPU),environment)
-ifeq ($(origin OPENMSX_TARGET_OS),environment)
 # Do not perform autodetection if platform was specified by the user.
-else # OPENMSX_TARGET_OS not from environment
-$(error You have specified OPENMSX_TARGET_CPU but not OPENMSX_TARGET_OS)
-endif # OPENMSX_TARGET_OS
-else # OPENMSX_TARGET_CPU not from environment
-ifeq ($(origin OPENMSX_TARGET_OS),environment)
-$(error You have specified OPENMSX_TARGET_OS but not OPENMSX_TARGET_CPU)
-else # OPENMSX_TARGET_OS not from environment
+ifneq ($(filter undefined,$(origin OPENMSX_TARGET_CPU) $(origin OPENMSX_TARGET_OS)),)
 
 DETECTSYS_PATH:=$(BUILD_BASE)/detectsys
 DETECTSYS_MAKE:=$(DETECTSYS_PATH)/detectsys.mk
@@ -138,8 +130,7 @@ $(DETECTSYS_MAKE): $(DETECTSYS_SCRIPT)
 	@mkdir -p $(@D)
 	@sh $< > $@
 
-endif # OPENMSX_TARGET_OS
-endif # OPENMSX_TARGET_CPU
+endif # OPENMSX_TARGET_CPU && OPENMSX_TARGET_OS
 
 PLATFORM:=
 ifneq ($(origin OPENMSX_TARGET_OS),undefined)
