@@ -419,7 +419,7 @@ endif
 # Probe for headers and functions.
 # TODO: It would be cleaner to include probe.mk and probe-results.mk,
 #       instead of executing them in a sub-make.
-$(PROBE_MAKE): $(PROBE_SCRIPT) $(MAKE_PATH)/tcl-search.sh
+$(PROBE_MAKE): $(PROBE_SCRIPT) $(MAKE_PATH)/custom.mk $(MAKE_PATH)/tcl-search.sh
 	@OUTDIR=$(@D) OPENMSX_TARGET_OS=$(OPENMSX_TARGET_OS) COMPILE="$(CXX)" \
 		$(MAKE) --no-print-directory -f $<
 	@PROBE_MAKE=$(PROBE_MAKE) MAKE_PATH=$(MAKE_PATH) \

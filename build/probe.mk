@@ -145,8 +145,14 @@ DISABLED_FUNCS:=
 DISABLED_LIBS:=
 DISABLED_HEADERS:=
 
+# Initial value of DISABLED_LIBRARIES is set here.
+include build/custom.mk
+
 # Allow the OS specific Makefile to override if necessary.
 include build/platform-$(OPENMSX_TARGET_OS).mk
+
+DISABLED_HEADERS+=$(addsuffix _H,$(DISABLED_LIBRARIES))
+DISABLED_LIBS+=$(DISABLED_LIBRARIES)
 
 
 # Implementation

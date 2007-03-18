@@ -30,11 +30,9 @@ include build/platform-darwin.mk
 # replace this with its own low-res icon.
 SET_WINDOW_ICON:=false
 
-# Disable Jack: there is an OS X version (jackosx.com), but since we do not
-# include the Jack framework in the app folder, the executable should not be
-# linked to it.
-DISABLED_HEADERS+=JACK_H
-DISABLED_LIBS+=JACK
+# Disable Jack: there is an OS X version (jackosx.com), but we do not want to
+# use it in the binary distribution of openMSX.
+DISABLED_LIBRARIES+=JACK
 
 # GLEW header can be <GL/glew.h> or just <glew.h>; the dedicated version we use
 # resides in the "GL" dir, so don't look for the other one, or we might pick
