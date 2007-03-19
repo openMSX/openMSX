@@ -372,9 +372,7 @@ endif
 # Determine common compile flags.
 INCLUDE_INTERNAL:=$(sort $(foreach header,$(HEADERS_FULL),$(patsubst %/,%,$(dir $(header)))))
 INCLUDE_INTERNAL+=$(CONFIG_PATH)
-INCLUDE_EXTERNAL:= # TODO: Define these here or platform-*.mk?
-INCLUDE_EXTERNAL+=/usr/X11R6/include
-COMPILE_FLAGS:=$(addprefix -I,$(INCLUDE_INTERNAL) $(INCLUDE_EXTERNAL))
+COMPILE_FLAGS:=$(addprefix -I,$(INCLUDE_INTERNAL))
 
 # Determine common link flags.
 LINK_FLAGS_PREFIX:=-Wl,
