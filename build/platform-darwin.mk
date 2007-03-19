@@ -9,7 +9,11 @@ USE_SYMLINK:=true
 OPENMSX_CXX?=g++
 
 # Compile for the selected CPU.
+ifeq ($(OPENMSX_TARGET_CPU),x86)
+override CXXFLAGS+=-arch i386
+else
 override CXXFLAGS+=-arch $(OPENMSX_TARGET_CPU)
+endif
 
 # File name extension of executables.
 EXEEXT:=
