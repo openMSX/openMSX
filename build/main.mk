@@ -180,7 +180,7 @@ include $(MAKE_PATH)/flavour-$(OPENMSX_FLAVOUR).mk
 OPENMSX_PROFILE?=false
 $(call BOOLCHECK,OPENMSX_PROFILE)
 ifeq ($(OPENMSX_PROFILE),true)
-  CXXFLAGS+=-pg
+  override CXXFLAGS+=-pg
 endif
 
 
@@ -282,19 +282,23 @@ endif
 
 # Determine compiler.
 $(call DEFCHECK,OPENMSX_CXX)
+# Note: If CXX is passed as an argument to Make, it is not possible to change
+#       its value without the "override" directive.
+#       We respect the user's choices and only use "override" to add things.
+CXX:=$(OPENMSX_CXX)
 DEPEND_FLAGS:=
-ifneq ($(filter %g++,$(OPENMSX_CXX))$(filter g++%,$(OPENMSX_CXX)),)
+ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX)),)
   # Generic compilation flags.
-  CXXFLAGS+=-pipe
+  override CXXFLAGS+=-pipe
   # Stricter warning and error reporting.
-  CXXFLAGS+=-Wall
+  override CXXFLAGS+=-Wall
   # Empty definition of used headers, so header removal doesn't break things.
   DEPEND_FLAGS+=-MP
 else
-  ifneq ($(filter %gcc,$(OPENMSX_CXX))$(filter gcc%,$(OPENMSX_CXX)),)
+  ifneq ($(filter %gcc,$(CXX))$(filter gcc%,$(CXX)),)
     $(error Set OPENMSX_CXX to your "g++" executable instead of "gcc")
   endif
-  ifneq ($(filter %icc,$(OPENMSX_CXX)),)
+  ifneq ($(filter %icc,$(CXX)),)
     # Report all errors, warnings and remarks, except the following remarks:
     # (on the openmsx-devel list these were discussed and it was decided to
     # disable them since fixing them would not improve code quality)
@@ -305,7 +309,7 @@ else
     #  383: "value copied to temporary, reference to temporary used"
     #  869: "parameter [name] was never referenced"
     #  981: "operands are evaluated in unspecified order"
-    CXXFLAGS+=-Wall -wd177,185,271,279,383,869,981
+    override CXXFLAGS+=-Wall -wd177,185,271,279,383,869,981
     # Temporarily disabled remarks: (may be re-enabled some time)
     #  111: "statement is unreachable"
     #       Occurs in template where code is unreachable for some expansions
@@ -325,15 +329,14 @@ else
     #       thinks hiding is occurring there.
     # 1469: ""cc" clobber ignored"
     #       Seems to be caused by glibc headers.
-    CXXFLAGS+=-wd111,444,530,810,1125,1469
+    override CXXFLAGS+=-wd111,444,530,810,1125,1469
   else
-    $(warning Unsupported compiler: $(OPENMSX_CXX), please update Makefile)
+    $(warning Unsupported compiler: $(CXX), please update Makefile)
   endif
 endif
-export CXX:=$(OPENMSX_CXX)
 # Check if ccache usage was requested
 ifeq ($(USE_CCACHE),true)
-	CXX:=ccache $(CXX)
+	override CXX:=ccache $(CXX)
 endif
 # Use precompiled headers?
 # TODO: Autodetect this: USE_PRECOMPH == compiler_is_g++ && g++_version >= 3.4
