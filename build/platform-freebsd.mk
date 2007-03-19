@@ -23,7 +23,7 @@ X11BASE?=/usr/X11R6
 #  Define PKGBASE when different.
 PKGBASE?=/usr/local
 
-CXXFLAGS+=-D_REENTRANT -D_THREAD_SAFE \
+override CXXFLAGS+=-D_REENTRANT -D_THREAD_SAFE \
 	`if [ -d $(X11BASE)/include ]; then echo '-I$(X11BASE)/include'; fi` \
 	`if [ -d $(PKGBASE)/include ]; then echo '-I$(PKGBASE)/include'; fi`
 

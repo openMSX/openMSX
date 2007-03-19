@@ -12,7 +12,7 @@ OPENMSX_CXX?=g++
 EXEEXT:=.exe
 
 # Compiler flags.
-CXXFLAGS+= \
+override CXXFLAGS+= \
 	-mthreads -mconsole -mms-bitfields \
 	-I/mingw/include -I/mingw/include/w32api\
 	`if test -d /usr/local/include; then echo '-I/usr/local/include -I/usr/local/include/directx'; fi` \

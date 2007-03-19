@@ -11,7 +11,7 @@ OPENMSX_CXX?=$(CXX)
 # File name extension of executables.
 EXEEXT:=
 
-CXXFLAGS+=-D_REENTRANT -D_THREAD_SAFE
+override CXXFLAGS+=-D_REENTRANT -D_THREAD_SAFE
 LINK_FLAGS+=-pthread
 
 # Probe Overrides
