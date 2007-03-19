@@ -76,9 +76,13 @@ INDENT:=sed -e "s/^/  /"
 
 # Will be added to by platform specific Makefile, by flavour specific Makefile
 # and by this Makefile.
+# Note: CXXFLAGS is overridable from the command line; COMPILE_FLAGS is not.
+#       We use CXXFLAGS for flavour specific flags and COMPILE_FLAGS for
+#       platform specific flags.
+CXXFLAGS:=
+COMPILE_FLAGS:=
 # Note: LDFLAGS are passed to the linker itself, LINK_FLAGS are passed to the
 #       compiler in the link phase.
-CXXFLAGS:=
 LDFLAGS:=
 LINK_FLAGS:=
 
@@ -372,7 +376,7 @@ endif
 # Determine common compile flags.
 INCLUDE_INTERNAL:=$(sort $(foreach header,$(HEADERS_FULL),$(patsubst %/,%,$(dir $(header)))))
 INCLUDE_INTERNAL+=$(CONFIG_PATH)
-COMPILE_FLAGS:=$(addprefix -I,$(INCLUDE_INTERNAL))
+COMPILE_FLAGS+=$(addprefix -I,$(INCLUDE_INTERNAL))
 
 # Determine common link flags.
 LINK_FLAGS_PREFIX:=-Wl,
