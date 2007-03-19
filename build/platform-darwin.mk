@@ -8,6 +8,9 @@ USE_SYMLINK:=true
 # Default compiler.
 OPENMSX_CXX?=g++
 
+# Compile for the selected CPU.
+override CXXFLAGS+=-arch $(OPENMSX_TARGET_CPU)
+
 # File name extension of executables.
 EXEEXT:=
 
