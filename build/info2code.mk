@@ -7,7 +7,9 @@
 
 # Sanity checks on required Make variables.
 $(call DEFCHECK,OPENMSX_TARGET_CPU)
+ifneq ($(OPENMSX_TARGET_CPU),univ)
 $(call BOOLCHECK,BIG_ENDIAN)
+endif
 $(call BOOLCHECK,SET_WINDOW_ICON)
 #$(call DEFCHECK,INSTALL_SHARE_DIR)
 

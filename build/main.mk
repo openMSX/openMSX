@@ -157,7 +157,9 @@ $(call DEFCHECK,OPENMSX_TARGET_CPU)
 include $(MAKE_PATH)/cpu-$(OPENMSX_TARGET_CPU).mk
 # Check that all expected variables were defined by CPU specific Makefile:
 # - endianess
+ifneq ($(OPENMSX_TARGET_CPU),univ)
 $(call BOOLCHECK,BIG_ENDIAN)
+endif
 # - flavour (user selectable; platform specific default)
 $(call DEFCHECK,OPENMSX_FLAVOUR)
 
@@ -223,6 +225,7 @@ GENERATED_HEADERS:=$(VERSION_HEADER) $(CONFIG_HEADER) $(COMPONENTS_HEADER)
 # =============
 
 include $(MAKE_PATH)/info2code.mk
+ifneq ($(OPENMSX_TARGET_CPU),univ)
 ifneq ($(filter $(DEPEND_TARGETS),$(MAKECMDGOALS)),)
 -include $(PROBE_MAKE)
 ifeq ($(PROBE_MAKE_INCLUDED),true)
@@ -230,8 +233,9 @@ include $(COMPONENTS_MAKE)
 $(call BOOLCHECK,COMPONENT_CORE)
 $(call BOOLCHECK,COMPONENT_GL)
 $(call BOOLCHECK,COMPONENT_JACK)
-endif
-endif
+endif # PROBE_MAKE_INCLUDED
+endif # goal requires dependencies
+endif # universal binary
 
 
 # Filesets
@@ -503,6 +507,24 @@ $(RESOURCE_OBJ): $(RESOURCE_SRC) $(RESOURCE_HEADER)
 endif
 
 # Link executable.
+ifeq ($(OPENMSX_TARGET_CPU),univ)
+BINARY_FOR_CPU=$(BINARY_FULL:$(BUILD_BASE)/univ-%=$(BUILD_BASE)/$(1)-%)
+SINGLE_CPU_BINARIES=$(foreach CPU,ppc x86,$(call BINARY_FOR_CPU,$(CPU)))
+
+.PHONY: $(SINGLE_CPU_BINARIES)
+$(SINGLE_CPU_BINARIES):
+	@echo "Start compile for $(firstword $(subst -, ,$(@:$(BUILD_BASE)/%=%))) CPU..."
+	@$(MAKE) -f build/main.mk all \
+		OPENMSX_TARGET_CPU=$(firstword $(subst -, ,$(@:$(BUILD_BASE)/%=%))) \
+		OPENMSX_TARGET_OS=$(OPENMSX_TARGET_OS) \
+		OPENMSX_FLAVOUR=$(OPENMSX_FLAVOUR) \
+		STATIC_INSTALL_DIR=$(STATIC_INSTALL_DIR)
+	@echo "Finished compile for $(firstword $(subst -, ,$(@:$(BUILD_BASE)/%=%))) CPU."
+
+$(BINARY_FULL): $(SINGLE_CPU_BINARIES)
+	@mkdir -p $(@D)
+	@lipo -create $^ -output $@
+else
 $(BINARY_FULL): $(OBJECTS_FULL) $(RESOURCE_OBJ)
 ifeq ($(OPENMSX_SUBSET),)
 	@echo "Linking $(notdir $@)..."
@@ -519,7 +541,8 @@ ifeq ($(OPENMSX_SUBSET),)
   endif
 else
 	@echo "Not linking $(notdir $@) because only a subset was built."
-endif
+endif # subset
+endif # universal binary
 
 # Run executable.
 run: all
