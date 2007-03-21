@@ -46,6 +46,15 @@ DISABLED_LIBRARIES+=JACK
 # up a different version somewhere on the system.
 DISABLED_HEADERS+=GLEW_H
 
+# Select the SDK for the OS X version we want to be compatible with.
+ifeq ($(OPENMSX_TARGET_CPU),ppc)
+export NEXT_ROOT=$(firstword $(sort $(wildcard /Developer/SDKs/MacOSX10.3.?.sdk)))
+else
+export NEXT_ROOT="/Developer/SDKs/MacOSX10.4u.sdk"
+endif
+$(warning $(NEXT_ROOT))
+
+
 # Probe Overrides
 # ===============
 
