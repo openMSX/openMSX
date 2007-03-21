@@ -36,9 +36,8 @@ void MSXMoonSound::reset(const EmuTime& time)
 
 byte MSXMoonSound::readIO(word port, const EmuTime& time)
 {
-	getMotherBoard().getMSXMixer().updateStream(time); // TODO optimize
 	byte result;
-	if ((port&0xFF) < 0xC0) {
+	if ((port & 0xFF) < 0xC0) {
 		// WAVE part  0x7E-0x7F
 		switch (port & 0x01) {
 		case 0: // read latch, not supported
@@ -75,7 +74,7 @@ byte MSXMoonSound::readIO(word port, const EmuTime& time)
 byte MSXMoonSound::peekIO(word port, const EmuTime& time) const
 {
 	byte result;
-	if ((port&0xFF) < 0xC0) {
+	if ((port & 0xFF) < 0xC0) {
 		// WAVE part  0x7E-0x7F
 		switch (port & 0x01) {
 		case 0: // read latch, not supported

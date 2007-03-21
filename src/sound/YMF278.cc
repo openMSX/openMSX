@@ -545,6 +545,7 @@ void YMF278::writeRegOPL4(byte reg, byte data, const EmuTime& time)
 
 void YMF278::writeReg(byte reg, byte data, const EmuTime& time)
 {
+	updateStream(time); // TODO optimize only for regs that directly influence sound
 	// Handle slot registers specifically
 	if (reg >= 0x08 && reg <= 0xF7) {
 		int snum = (reg - 8) % 24;
@@ -721,6 +722,7 @@ void YMF278::writeReg(byte reg, byte data, const EmuTime& time)
 
 byte YMF278::readReg(byte reg, const EmuTime& time)
 {
+	// no need to call updateStream(time)
 	byte result;
 	switch(reg) {
 		case 2: // 3 upper bits are device ID
@@ -761,6 +763,7 @@ byte YMF278::peekReg(byte reg) const
 
 byte YMF278::readStatus(const EmuTime& time)
 {
+	// no need to call updateStream(time)
 	return peekStatus(time);
 }
 

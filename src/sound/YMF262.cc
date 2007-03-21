@@ -1220,6 +1220,7 @@ void YMF262::update_channels(YMF262Channel &ch)
 
 byte YMF262::readReg(int r)
 {
+	// no need to call updateStream(time)
 	return peekReg(r);
 }
 
@@ -1239,6 +1240,8 @@ void YMF262::writeReg(int r, byte v, const EmuTime& time)
 }
 void YMF262::writeRegForce(int r, byte v, const EmuTime& time)
 {
+	updateStream(time); // TODO optimize only for regs that directly influence sound
+
 	reg[r] = v;
 
 	byte ch_offset = 0;
@@ -1841,6 +1844,7 @@ YMF262::~YMF262()
 
 byte YMF262::readStatus()
 {
+	// no need to call updateStream(time)
 	byte result = status | status2;
 	status2 = 0;
 	return result;
