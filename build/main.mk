@@ -318,7 +318,7 @@ ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX)),)
   # Empty definition of used headers, so header removal doesn't break things.
   DEPEND_FLAGS+=-MP
   # Plain C compiler, for the 3rd party libs.
-  CC:=gcc
+  CC:=$(subst g++,gcc,$(CXX))
 else
   ifneq ($(filter %gcc,$(CXX))$(filter gcc%,$(CXX)),)
     $(error Set OPENMSX_CXX to your "g++" executable instead of "gcc")
