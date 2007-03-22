@@ -171,9 +171,9 @@ include $(MAKE_PATH)/cpu-$(OPENMSX_TARGET_CPU).mk
 # - endianess
 ifneq ($(OPENMSX_TARGET_CPU),univ)
 $(call BOOLCHECK,BIG_ENDIAN)
-endif
 # - flavour (user selectable; platform specific default)
 $(call DEFCHECK,OPENMSX_FLAVOUR)
+endif
 
 # Load OS specific settings.
 $(call DEFCHECK,OPENMSX_TARGET_OS)
@@ -188,8 +188,10 @@ $(call BOOLCHECK,USE_SYMLINK)
 # Flavours
 # ========
 
+ifneq ($(OPENMSX_TARGET_CPU),univ)
 # Load flavour specific settings.
 include $(MAKE_PATH)/flavour-$(OPENMSX_FLAVOUR).mk
+endif
 
 
 # Profiling
