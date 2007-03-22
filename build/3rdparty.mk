@@ -6,19 +6,14 @@
 # It enables only the features needed by openMSX: for example from SDL_image
 # we only need PNG handling cability.
 
-ifeq ($(origin OPENMSX_TARGET_CPU),undefined)
-$(error You should pass OPENMSX_TARGET_CPU)
-endif
-ifeq ($(origin OPENMSX_TARGET_OS),undefined)
-$(error You should pass OPENMSX_TARGET_OS)
+ifeq ($(origin BUILD_PATH),undefined)
+$(error You should pass BUILD_PATH)
 endif
 
-# Load flavour specific settings.
-include build/flavour-$(OPENMSX_FLAVOUR).mk
-CFLAGS:=$(CXXFLAGS)
-export CFLAGS
-
-BUILD_PATH:=derived/$(OPENMSX_TARGET_CPU)-$(OPENMSX_TARGET_OS)-$(OPENMSX_FLAVOUR)/3rdparty
+# Compiler selection, compiler flags, SDK selection.
+# These variables are already exported, but we make it explicit here.
+export CC
+export NEXT_ROOT
 
 TARBALLS_DIR:=derived/3rdparty/download
 SOURCE_DIR:=derived/3rdparty/src
@@ -90,10 +85,11 @@ $(BUILD_DIR)/$(PACKAGE_SDL)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_SDL)
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$</configure \
+		--disable-video-x11 \
 		--disable-debug \
 		--disable-cdrom \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
-		CFLAGS="$(CFLAGS)"
+		CFLAGS="$(_CFLAGS)"
 # While openMSX does not use "cpuinfo", "endian" and "file" modules, other
 # modules do and if we disable them, SDL will not link.
 
@@ -106,6 +102,7 @@ $(BUILD_DIR)/$(PACKAGE_SDL_IMAGE)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_SDL_IMAGE) $(PNG_CONFIG_SCRIPT) $(SDL_CONFIG_SCRIPT)
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$</configure \
+		--disable-sdltest \
 		--disable-bmp \
 		--disable-gif \
 		--disable-jpg \
@@ -118,7 +115,7 @@ $(BUILD_DIR)/$(PACKAGE_SDL_IMAGE)/Makefile: \
 		--disable-xcf \
 		--disable-xpm \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
-		CFLAGS="$(CFLAGS) $(shell $(PWD)/$(INSTALL_DIR)/bin/libpng12-config --cflags)"
+		CFLAGS="$(_CFLAGS) $(shell $(PWD)/$(INSTALL_DIR)/bin/libpng12-config --cflags)"
 
 # Configure libpng.
 $(BUILD_DIR)/$(PACKAGE_PNG)/Makefile: \
@@ -126,7 +123,7 @@ $(BUILD_DIR)/$(PACKAGE_PNG)/Makefile: \
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$</configure \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
-		CFLAGS="$(CFLAGS)"
+		CFLAGS="$(_CFLAGS)"
 
 # Don't configure GLEW.
 # GLEW does not support building outside of the source tree, so just copy

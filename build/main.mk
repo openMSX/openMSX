@@ -87,6 +87,9 @@ COMPILE_ENV:=
 LDFLAGS:=
 LINK_FLAGS:=
 LINK_ENV:=
+# Flags that specify the target platform.
+# These should be inherited by the 3rd party libs Makefile.
+TARGET_FLAGS:=
 
 
 # Customisation
@@ -297,6 +300,9 @@ endif
 # Compiler and Flags
 # ==================
 
+COMPILE_FLAGS+=$(TARGET_FLAGS)
+LINK_FLAGS+=$(TARGET_FLAGS)
+
 # Determine compiler.
 $(call DEFCHECK,OPENMSX_CXX)
 # Note: If CXX is passed as an argument to Make, it is not possible to change
@@ -311,6 +317,8 @@ ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX)),)
   COMPILE_FLAGS+=-Wall
   # Empty definition of used headers, so header removal doesn't break things.
   DEPEND_FLAGS+=-MP
+  # Plain C compiler, for the 3rd party libs.
+  CC:=gcc
 else
   ifneq ($(filter %gcc,$(CXX))$(filter gcc%,$(CXX)),)
     $(error Set OPENMSX_CXX to your "g++" executable instead of "gcc")
@@ -347,12 +355,15 @@ else
     # 1469: ""cc" clobber ignored"
     #       Seems to be caused by glibc headers.
     COMPILE_FLAGS+=-wd111,444,530,810,1125,1469
+    # Plain C compiler, for the 3rd party libs.
+    CC:=icc
   else
     $(warning Unsupported compiler: $(CXX), please update Makefile)
   endif
 endif
 # Check if ccache usage was requested
 ifeq ($(USE_CCACHE),true)
+	override CC:=ccache $(CC)
 	override CXX:=ccache $(CXX)
 endif
 # Use precompiled headers?
@@ -664,13 +675,21 @@ endif
 # Select platform variant suitable for binary packaging.
 BINDIST_TARGET_OS=$(OPENMSX_TARGET_OS:darwin=darwin-app)
 
+ifeq ($(OPENMSX_TARGET_CPU),univ)
 .PHONY: $(addprefix 3rdparty-,$(CPU_LIST))
 3rdparty: $(addprefix 3rdparty-,$(CPU_LIST))
 $(addprefix 3rdparty-,$(CPU_LIST)):
-	$(MAKE) -f $(MAKE_PATH)/3rdparty.mk \
+	$(MAKE) -f $(MAKE_PATH)/main.mk 3rdparty \
 		OPENMSX_TARGET_CPU=$(@:3rdparty-%=%) \
 		OPENMSX_TARGET_OS=$(BINDIST_TARGET_OS) \
 		OPENMSX_FLAVOUR=$(BINDIST_FLAVOUR)
+else
+3rdparty:
+	$(MAKE) -f $(MAKE_PATH)/3rdparty.mk \
+		BUILD_PATH=$(BUILD_PATH)/3rdparty \
+		CC="$(CC) $(TARGET_FLAGS)" _CFLAGS="$(CXXFLAGS)" \
+		$(COMPILE_ENV)
+endif
 
 staticbindist: 3rdparty
 	$(MAKE) -f build/main.mk bindist \
@@ -678,6 +697,7 @@ staticbindist: 3rdparty
 		OPENMSX_TARGET_OS=$(BINDIST_TARGET_OS) \
 		OPENMSX_FLAVOUR=$(BINDIST_FLAVOUR) \
 		STATIC_INSTALL_DIR=$(BUILD_BASE)/$(OPENMSX_TARGET_CPU)-$(BINDIST_TARGET_OS)-$(BINDIST_FLAVOUR)/3rdparty/install
+
 
 # Precompiled Headers
 # ===================

@@ -10,11 +10,9 @@ OPENMSX_CXX?=g++
 
 # Compile for the selected CPU.
 ifeq ($(OPENMSX_TARGET_CPU),x86)
-COMPILE_FLAGS+=-arch i386
-LINK_FLAGS+=-arch i386
+TARGET_FLAGS+=-arch i386
 else
-COMPILE_FLAGS+=-arch $(OPENMSX_TARGET_CPU)
-LINK_FLAGS+=-arch $(OPENMSX_TARGET_CPU)
+TARGET_FLAGS+=-arch $(OPENMSX_TARGET_CPU)
 endif
 
 # File name extension of executables.
