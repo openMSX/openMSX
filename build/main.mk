@@ -154,6 +154,13 @@ ifneq ($(PLATFORM),)
 # - should openMSX set a window icon?
 SET_WINDOW_ICON:=true
 
+# List of CPUs to compile for.
+ifeq ($(OPENMSX_TARGET_CPU),univ)
+CPU_LIST:=ppc x86
+else
+CPU_LIST:=$(OPENMSX_TARGET_CPU)
+endif
+
 # Load CPU specific settings.
 $(call DEFCHECK,OPENMSX_TARGET_CPU)
 include $(MAKE_PATH)/cpu-$(OPENMSX_TARGET_CPU).mk
@@ -511,7 +518,7 @@ endif
 # Link executable.
 ifeq ($(OPENMSX_TARGET_CPU),univ)
 BINARY_FOR_CPU=$(BINARY_FULL:$(BUILD_BASE)/univ-%=$(BUILD_BASE)/$(1)-%)
-SINGLE_CPU_BINARIES=$(foreach CPU,ppc x86,$(call BINARY_FOR_CPU,$(CPU)))
+SINGLE_CPU_BINARIES=$(foreach CPU,$(CPU_LIST),$(call BINARY_FOR_CPU,$(CPU)))
 
 .PHONY: $(SINGLE_CPU_BINARIES)
 $(SINGLE_CPU_BINARIES):
@@ -657,9 +664,11 @@ endif
 # Select platform variant suitable for binary packaging.
 BINDIST_TARGET_OS=$(OPENMSX_TARGET_OS:darwin=darwin-app)
 
-3rdparty:
+.PHONY: $(addprefix 3rdparty-,$(CPU_LIST))
+3rdparty: $(addprefix 3rdparty-,$(CPU_LIST))
+$(addprefix 3rdparty-,$(CPU_LIST)):
 	$(MAKE) -f $(MAKE_PATH)/3rdparty.mk \
-		OPENMSX_TARGET_CPU=$(OPENMSX_TARGET_CPU) \
+		OPENMSX_TARGET_CPU=$(@:3rdparty-%=%) \
 		OPENMSX_TARGET_OS=$(BINDIST_TARGET_OS) \
 		OPENMSX_FLAVOUR=$(BINDIST_FLAVOUR)
 
