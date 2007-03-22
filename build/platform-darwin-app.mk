@@ -52,8 +52,8 @@ SDK_PATH:=$(firstword $(sort $(wildcard /Developer/SDKs/MacOSX10.3.?.sdk)))
 else
 SDK_PATH:=/Developer/SDKs/MacOSX10.4u.sdk
 endif
-COMPILE_ENV+=NEXTROOT=$(SDK_PATH)
-LINK_ENV+=NEXTROOT=$(SDK_PATH)
+COMPILE_ENV+=NEXT_ROOT=$(SDK_PATH)
+LINK_ENV+=NEXT_ROOT=$(SDK_PATH)
 
 
 # Probe Overrides
