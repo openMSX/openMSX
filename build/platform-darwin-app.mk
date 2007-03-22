@@ -60,6 +60,8 @@ LINK_ENV+=NEXT_ROOT=$(SDK_PATH)
 # Probe Overrides
 # ===============
 
+ifneq ($(OPENMSX_TARGET_CPU),univ)
+
 # Assume all static libraries come from the same distribution (such as Fink or
 # DarwinPorts); use SDL's config script to find the rest.
 ifeq ($(STATIC_INSTALL_DIR),)
@@ -92,3 +94,5 @@ SDL_IMAGE_LDFLAGS:=$(SDL_LDFLAGS) $(PNG_LDFLAGS) \
 
 GLEW_CFLAGS:=-I$(STATIC_INSTALL_DIR)/include
 GLEW_LDFLAGS:=$(STATIC_INSTALL_DIR)/lib/libGLEW.a
+
+endif
