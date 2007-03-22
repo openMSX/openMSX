@@ -2010,19 +2010,25 @@ div.note {
   <p>Controls the contrast of the video output. Can be between -100 and 100. Lower values are less contrast, higher
   values are more contrast. The default is 0.</p>
 
-  <table>
-    <tr>
-      <td><code>set contrast</code></td>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-      <td>shows the current setting</td>
-    </tr>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set contrast</code></td>
 
-    <tr>
-      <td><code>set contrast -5</code></td>
+        <td>shows the current setting</td>
+      </tr>
 
-      <td>reduce the video contrast a bit</td>
-    </tr>
-  </table>
+      <tr>
+        <td><code>set contrast -5</code></td>
+
+        <td>reduce the video contrast a bit</td>
+      </tr>
+    </table>
+  </div>
 
   <h3><a id="cputrace" name="cputrace">cputrace</a></h3>
 
@@ -2369,14 +2375,39 @@ div.note {
   </div>
 
   <div class="usage">
-    <code>set icon.fdd.xcoord 250</code><br />
-    <code>set icon.fdd.ycoord 0</code><br />
-    <code>set icon.fdd.active.image fdd-on.png</code><br />
-    <code>set icon.fdd.active.image fdd-off.png</code><br />
-    <code>set icon.fdd.active.fade-delay 0</code> don't fade out active fdd LED<br />
-    <code>set icon.fdd.active.fade-duration 5000</code><br />
-    <code>set icon.fdd.non-active.fade-delay 5000</code><br />
-    <code>set icon.fdd.non-active.fade-duration 5000</code><br />
+    <table>
+      <tr>
+        <td><code>set icon.fdd.xcoord 250</code></td>
+      </tr>
+
+      <tr>
+        <td><code>set icon.fdd.ycoord 0</code></td>
+      </tr>
+
+      <tr>
+        <td><code>set icon.fdd.active.image fdd-on.png</code></td>
+      </tr>
+
+      <tr>
+        <td><code>set icon.fdd.active.image fdd-off.png</code></td>
+      </tr>
+
+      <tr>
+        <td><code>set icon.fdd.active.fade-delay 0</code> don't fade out active fdd LED</td>
+      </tr>
+
+      <tr>
+        <td><code>set icon.fdd.active.fade-duration 5000</code></td>
+      </tr>
+
+      <tr>
+        <td><code>set icon.fdd.non-active.fade-delay 5000</code></td>
+      </tr>
+
+      <tr>
+        <td><code>set icon.fdd.non-active.fade-duration 5000</code></td>
+      </tr>
+    </table>
   </div>
 
   <div class="note">
@@ -3046,7 +3077,11 @@ div.note {
   </div>
 
   <div class="usage">
-    <code>set sound_driver sdl</code>
+    <table>
+      <tr>
+        <td><code>set sound_driver sdl</code></td>
+      </tr>
+    </table>
   </div>
 
   <h3><a id="speed" name="speed">speed</a></h3>
@@ -3290,15 +3325,21 @@ div.note {
   </div>
 
   <div class="usage">
-    overclock Z80 to 14MHz<br />
-    <code>set z80_freq 14318180</code><br />
-    <code>set z80_freq_locked false</code><br />
-    <br />
-    F8 switches between 3.5MHz and 7MHz<br />
-    <code>set Z80_freq 7159090</code><br />
-    <code>bind F8 "toggle z80_freq_locked"</code>
+    <table>
+      <tr>
+        <td>overclock Z80 to 14MHz<br />
+        <code>set z80_freq 14318180</code><br />
+        <code>set z80_freq_locked false</code></td>
+      </tr>
+
+      <tr>
+        <td>F8 switches between 3.5MHz and 7MHz<br />
+        <code>set Z80_freq 7159090</code><br />
+        <code>bind F8 "toggle z80_freq_locked"</code></td>
+      </tr>
+    </table>
   </div>
 
-  <p class="version">$Id: $</p>
+  <p class="version">$Id:$</p>
 </body>
 </html>
