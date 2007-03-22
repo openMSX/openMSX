@@ -195,7 +195,7 @@ include $(MAKE_PATH)/flavour-$(OPENMSX_FLAVOUR).mk
 OPENMSX_PROFILE?=false
 $(call BOOLCHECK,OPENMSX_PROFILE)
 ifeq ($(OPENMSX_PROFILE),true)
-  override CXXFLAGS+=-pg
+  COMPILE_FLAGS+=-pg
 endif
 
 
@@ -306,9 +306,9 @@ CXX:=$(OPENMSX_CXX)
 DEPEND_FLAGS:=
 ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX)),)
   # Generic compilation flags.
-  override CXXFLAGS+=-pipe
+  COMPILE_FLAGS+=-pipe
   # Stricter warning and error reporting.
-  override CXXFLAGS+=-Wall
+  COMPILE_FLAGS+=-Wall
   # Empty definition of used headers, so header removal doesn't break things.
   DEPEND_FLAGS+=-MP
 else
@@ -326,7 +326,7 @@ else
     #  383: "value copied to temporary, reference to temporary used"
     #  869: "parameter [name] was never referenced"
     #  981: "operands are evaluated in unspecified order"
-    override CXXFLAGS+=-Wall -wd177,185,271,279,383,869,981
+    COMPILE_FLAGS+=-Wall -wd177,185,271,279,383,869,981
     # Temporarily disabled remarks: (may be re-enabled some time)
     #  111: "statement is unreachable"
     #       Occurs in template where code is unreachable for some expansions
@@ -346,7 +346,7 @@ else
     #       thinks hiding is occurring there.
     # 1469: ""cc" clobber ignored"
     #       Seems to be caused by glibc headers.
-    override CXXFLAGS+=-wd111,444,530,810,1125,1469
+    COMPILE_FLAGS+=-wd111,444,530,810,1125,1469
   else
     $(warning Unsupported compiler: $(CXX), please update Makefile)
   endif
