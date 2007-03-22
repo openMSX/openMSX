@@ -48,10 +48,12 @@ DISABLED_HEADERS+=GLEW_H
 
 # Select the SDK for the OS X version we want to be compatible with.
 ifeq ($(OPENMSX_TARGET_CPU),ppc)
-export NEXT_ROOT=$(firstword $(sort $(wildcard /Developer/SDKs/MacOSX10.3.?.sdk)))
+SDK_PATH:=$(firstword $(sort $(wildcard /Developer/SDKs/MacOSX10.3.?.sdk)))
 else
-export NEXT_ROOT="/Developer/SDKs/MacOSX10.4u.sdk"
+SDK_PATH:=/Developer/SDKs/MacOSX10.4u.sdk
 endif
+COMPILE_ENV+=NEXTROOT=$(SDK_PATH)
+LINK_ENV+=NEXTROOT=$(SDK_PATH)
 
 
 # Probe Overrides

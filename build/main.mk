@@ -81,10 +81,12 @@ INDENT:=sed -e "s/^/  /"
 #       platform specific flags.
 CXXFLAGS:=
 COMPILE_FLAGS:=
+COMPILE_ENV:=
 # Note: LDFLAGS are passed to the linker itself, LINK_FLAGS are passed to the
 #       compiler in the link phase.
 LDFLAGS:=
 LINK_FLAGS:=
+LINK_ENV:=
 
 
 # Customisation
@@ -483,7 +485,7 @@ $(OBJECTS_FULL): $(OBJECTS_PATH)/%.o: $(SOURCES_PATH)/%.cc $(DEPEND_PATH)/%.d
 	@echo "Compiling $(patsubst $(SOURCES_PATH)/%,%,$<)..."
 	@mkdir -p $(@D)
 	@mkdir -p $(patsubst $(OBJECTS_PATH)%,$(DEPEND_PATH)%,$(@D))
-	@$(CXX) $(PRECOMPH_FLAGS) \
+	@$(COMPILE_ENV) $(CXX) $(PRECOMPH_FLAGS) \
 		$(DEPEND_FLAGS) -MMD -MF $(DEPEND_SUBST) \
 		-o $@ $(CXXFLAGS) $(COMPILE_FLAGS) -c $<
 	@touch $@ # Force .o file to be newer than .d file.
@@ -514,7 +516,7 @@ SINGLE_CPU_BINARIES=$(foreach CPU,ppc x86,$(call BINARY_FOR_CPU,$(CPU)))
 .PHONY: $(SINGLE_CPU_BINARIES)
 $(SINGLE_CPU_BINARIES):
 	@echo "Start compile for $(firstword $(subst -, ,$(@:$(BUILD_BASE)/%=%))) CPU..."
-	@$(MAKE) -f build/main.mk all \
+	@$(LINK_ENV) $(MAKE) -f build/main.mk all \
 		OPENMSX_TARGET_CPU=$(firstword $(subst -, ,$(@:$(BUILD_BASE)/%=%))) \
 		OPENMSX_TARGET_OS=$(OPENMSX_TARGET_OS) \
 		OPENMSX_FLAVOUR=$(OPENMSX_FLAVOUR) \
