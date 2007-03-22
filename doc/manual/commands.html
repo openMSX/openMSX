@@ -1,14 +1,17 @@
-<?xml version="1.0" encoding="iso-8859-1" ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.0//EN"
-"http://www.w3.org/TR/xhtml-basic/xhtml-basic10.dtd">
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-<link title="Purple" rel="stylesheet" href="manual-purple.css" type="text/css" />
-<link title="Minty" rel="alternate stylesheet" href="manual-minty.css" type="text/css" />
-<link title="Plain" rel="alternate stylesheet" href="manual.css" type="text/css" />
-<title>openMSX User's Manual</title>
+  <meta name="generator" content="HTML Tidy for Linux/x86 (vers 1 September 2005), see www.w3.org" />
+  <link title="Purple" rel="stylesheet" href="manual-purple.css" type="text/css" />
+  <link title="Minty" rel="alternate stylesheet" href="manual-minty.css" type="text/css" />
+  <link title="Plain" rel="alternate stylesheet" href="manual.css" type="text/css" />
+
+  <title>openMSX User's Manual</title>
 <style type="text/css">
+/*<![CDATA[*/
 
 td {
   vertical-align: top;
@@ -64,1890 +67,3238 @@ div.note {
 
 
 
+/*]]>*/
 </style>
-
 </head>
 
 <body>
+  <h1>openMSX console commands</h1>
 
-<h1>openMSX console commands</h1>
+  <ol class="toc">
+    <li>COMMANDS
 
-<ol class="toc">
-<li>COMMANDS
-<ol class="toclist">
-<li><a class="internal" href="#after">after</a></li>
-	<li><a class="internal" href="#bind">bind / unbind / bind_default / unbind_default</a></li>
-	<li><a class="internal" href="#cart">cart / cart<x></a></li>
-	<li><a class="internal" href="#cassetteplayer">cassetteplayer</a></li>
-	<li><a class="internal" href="#cdacdb">cda / cdb</a></li>
-	<li><a class="internal" href="#debug">debug</a></li>
-	<li><a class="internal" href="#diskadiskb">diska / diskb</a></li>
-	<li><a class="internal" href="#diskmanipulator">diskmanipulator</a></li>
-	<li><a class="internal" href="#escape_grab">escape_grab</a></li>
-	<li><a class="internal" href="#ext">ext</a></li>
-	<li><a class="internal" href="#hdahdb">hda / hdb</a></li>
-	<li><a class="internal" href="#help">help</a></li>
-	<li><a class="internal" href="#iomap">iomap</a></li>
-	<li><a class="internal" href="#keymatrixup / keymatrixdown">keymatrixup / keymatrixdown</a></li>
-	<li><a class="internal" href="#list_extensions">list_extensions</a></li>
-	<li><a class="internal" href="#load_settings">load_settings</a></li>
-	<li><a class="internal" href="#machine">machine</a></li>
-	<li><a class="internal" href="#machine_info">machine_info</a></li>
-	<li><a class="internal" href="#openmsx_info">openmsx_info</a></li>
-	<li><a class="internal" href="#palette">palette</a></li>
-	<li><a class="internal" href="#plugunplug">plug / unplug</a></li>
-	<li><a class="internal" href="#record">record</a></li>
-	<li><a class="internal" href="#remove_extension">remove_extension</a></li>
-	<li><a class="internal" href="#reset">reset</a></li>
-	<li><a class="internal" href="#save_settings">save_settings</a></li>
-	<li><a class="internal" href="#screenshot">screenshot</a></li>
-	<li><a class="internal" href="#set">set</a></li>
-	<li><a class="internal" href="#slotmap">slotmap</a></li>
-	<li><a class="internal" href="#slotselect">slotselect</a></li>
-	<li><a class="internal" href="#toggle">toggle</a></li>
-	<li><a class="internal" href="#trainer">trainer</a></li>
-	<li><a class="internal" href="#type">type</a></li>
-	<li><a class="internal" href="#update">update</a></li>
-	<li><a class="internal" href="#vdpregs">vdpregs</a></li>
-	</ol>
-<li>OLD COMMANDS
-<ol class="toclist">
-	<li><a class="internal" href="#aliasunalias">alias / unalias</a></li>
-	<li><a class="internal" href="#decr">decr</a></li>
-	<li><a class="internal" href="#incr">incr</a></li>
-	<li><a class="internal" href="#quit">quit</a></li>
-	<li><a class="internal" href="#restoredefault">restoredefault</a></li>
-	<li><a class="internal" href="#soundlog">soundlog</a></li>
-	</ol>
-<li>SETTINGS
-<ol class="toclist">
-	<li><a class="internal" href="#accuracy">accuracy</a></li>
-	<li><a class="internal" href="#audio-inputfilename">audio-inputfilename</a></li>
-	<li><a class="internal" href="#autoruncassettes">autoruncassettes</a></li>
-	<li><a class="internal" href="#blur">blur</a></li>
-	<li><a class="internal" href="#bootsector">bootsector</a></li>
-	<li><a class="internal" href="#brightness">brightness</a></li>
-	<li><a class="internal" href="#cmdtiming">cmdtiming</a></li>
-	<li><a class="internal" href="#color_matrix">color_matrix</a></li>
-	<li><a class="internal" href="#console">console</a></li>
-	<li><a class="internal" href="#consolebackground">consolebackground</a></li>
-	<li><a class="internal" href="#consolecolumns">consolecolumns</a></li>
-	<li><a class="internal" href="#consolefont">consolefont</a></li>
-	<li><a class="internal" href="#consoleplacement">consoleplacement</a></li>
-	<li><a class="internal" href="#consolerows">consolerows</a></li>
-	<li><a class="internal" href="#contrast">contrast</a></li>
-	<li><a class="internal" href="#cputrace">cputrace</a></li>
-	<li><a class="internal" href="#debugoutput">debugoutput</a></li>
-	<li><a class="internal" href="#default_machine">default_machine</a></li>
-	<li><a class="internal" href="#deinterlace">deinterlace</a></li>
-	<li><a class="internal" href="#display_deform">display_deform</a></li>
-	<li><a class="internal" href="#frequency">frequency</a></li>
-	<li><a class="internal" href="#firmwareswitch">firmwareswitch</a></li>
-	<li><a class="internal" href="#fullscreen">fullscreen</a></li>
-	<li><a class="internal" href="#fullspeedwhenloading">fullspeedwhenloading</a></li>
-	<li><a class="internal" href="#gamma">gamma</a></li>
-	<li><a class="internal" href="#glow">glow</a></li>
-	<li><a class="internal" href="#grabinput">grabinput</a></li>
-	<li><a class="internal" href="#icon.name.setting">icon.&lt;name&gt;.&lt;setting&gt;</a></li>
-	<li><a class="internal" href="#inputdelay">inputdelay</a></li>
-	<li><a class="internal" href="#keyjoystick_n_button">keyjoystick&lt;n&gt;.&lt;button&gt;</a></li>
-	<li><a class="internal" href="#limitsprites">limitsprites</a></li>
-	<li><a class="internal" href="#master_volume">master_volume</a></li>
-	<li><a class="internal" href="#maxframeskip">maxframeskip</a></li>
-	<li><a class="internal" href="#midi-in-readfilename">midi-in-readfilename</a></li>
-	<li><a class="internal" href="#midi-out-logfilename">midi-out-logfilename</a></li>
-	<li><a class="internal" href="#minframeskip">minframeskip</a></li>
-	<li><a class="internal" href="#mute">mute</a></li>
-	<li><a class="internal" href="#noise">noise</a></li>
-	<li><a class="internal" href="#pause">pause</a></li>
-	<li><a class="internal" href="#power">power</a></li>
-	<li><a class="internal" href="#printerlogfilename">printerlogfilename</a></li>
-	<li><a class="internal" href="#print-resolution">print-resolution</a></li>
-	<li><a class="internal" href="#r800_freq">r800_freq and r800_freq_locked</a></li>
-	<li><a class="internal" href="#renderer">renderer</a></li>
-	<li><a class="internal" href="#renshaturbo">renshaturbo</a></li>
-	<li><a class="internal" href="#rs232-inputfilename">rs232-inputfilename</a></li>
-	<li><a class="internal" href="#rs232-outputfilename">rs232-outputfilename</a></li>
-	<li><a class="internal" href="#rtcmode">rtcmode</a></li>
-	<li><a class="internal" href="#samples">samples</a></li>
-	<li><a class="internal" href="#save_settings_on_exit">save_settings_on_exit</a></li>
-	<li><a class="internal" href="#scale_algorithm">scale_algorithm</a></li>
-	<li><a class="internal" href="#scale_factor">scale_factor</a></li>
-	<li><a class="internal" href="#scanline">scanline</a></li>
-	<li><a class="internal" href="#sound_driver">sound_driver</a></li>
-	<li><a class="internal" href="#speed">speed</a></li>
-	<li><a class="internal" href="#[soundchip]_mode">[soundchip]_mode</a></li>
-	<li><a class="internal" href="#[soundchip]_volume">[soundchip]_volume</a></li>
-	<li><a class="internal" href="#throttle">throttle</a></li>
-	<li><a class="internal" href="#umr_callback">umr_callback</a></li>
-	<li><a class="internal" href="#user_directories">user_directories</a></li>
-	<li><a class="internal" href="#vdpcmdtrace">vdpcmdtrace</a></li>
-	<li><a class="internal" href="#videosource">videosource</a></li>
-	<li><a class="internal" href="#v9990cmdtrace">v9990cmdtrace</a></li>
-	<li><a class="internal" href="#z80_freq and z80_freq_locked">z80_freq and z80_freq_locked</a></li>
-</ol>
-</ol>
+      <ol class="toclist">
+        <li><a class="internal" href="#after">after</a></li>
 
-<h3><a id="after">after</a></h3>
+        <li><a class="internal" href="#bind">bind / unbind / bind_default / unbind_default</a></li>
 
-  <p>Execute a command after a certain time, or after a certain time of being
-  idle. It is possible the query a list of postponed commands and also to
-  cancel postponed commands.</p>
+        <li><a class="internal" href="#cart">cart / cart&lt;x&gt;</a></li>
 
-  <div class="usagetitle">usage:</div>
+        <li><a class="internal" href="#cassetteplayer">cassetteplayer</a></li>
 
-<div class="usage">
-<table>
-<tr><td><code>after time &lt;seconds&gt; &lt;command&gt;</code></td><td>execute a command after some time</td></tr>
-<tr><td><code>after idle &lt;seconds&gt; &lt;command&gt;</code></td><td>execute a command after some time being idle</td></tr>
-<tr><td><code>after frame &lt;command&gt;</code></td><td>execute a command after a new frame is drawn</td></tr>
-<tr><td><code>after break &lt;command&gt;</code></td><td>execute a command after a breakpoint is reached</td></tr>
-<tr><td><code>after boot &lt;command&gt;</code></td><td>execute a command after a (re)boot</td></tr>
-<tr><td><code>after machine_switch &lt;command&gt;</code></td><td>execute a command after switch to new a machine</td></tr>
-<tr><td><code>after info</code></td><td>list all postponed commands</td></tr>
-<tr><td><code>after cancel &lt;id&gt;</code></td><td>cancel the postponed command with given id</td></tr>
-</table>  
-</div>
+        <li><a class="internal" href="#cdacdb">cda / cdb</a></li>
 
-  <div class="examplestitle">examples:</div>
+        <li><a class="internal" href="#debug">debug</a></li>
+
+        <li><a class="internal" href="#diskadiskb">diska / diskb</a></li>
+
+        <li><a class="internal" href="#diskmanipulator">diskmanipulator</a></li>
+
+        <li><a class="internal" href="#escape_grab">escape_grab</a></li>
+
+        <li><a class="internal" href="#ext">ext</a></li>
+
+        <li><a class="internal" href="#hdahdb">hda / hdb</a></li>
+
+        <li><a class="internal" href="#help">help</a></li>
+
+        <li><a class="internal" href="#iomap">iomap</a></li>
+
+        <li><a class="internal" href="#keymatrix">keymatrixup / keymatrixdown</a></li>
+
+        <li><a class="internal" href="#list_extensions">list_extensions</a></li>
+
+        <li><a class="internal" href="#load_settings">load_settings</a></li>
+
+        <li><a class="internal" href="#machine">machine</a></li>
+
+        <li><a class="internal" href="#machine_info">machine_info</a></li>
+
+        <li><a class="internal" href="#openmsx_info">openmsx_info</a></li>
+
+        <li><a class="internal" href="#palette">palette</a></li>
+
+        <li><a class="internal" href="#plugunplug">plug / unplug</a></li>
+
+        <li><a class="internal" href="#record">record</a></li>
+
+        <li><a class="internal" href="#remove_extension">remove_extension</a></li>
+
+        <li><a class="internal" href="#reset">reset</a></li>
+
+        <li><a class="internal" href="#save_settings">save_settings</a></li>
+
+        <li><a class="internal" href="#screenshot">screenshot</a></li>
+
+        <li><a class="internal" href="#set">set</a></li>
+
+        <li><a class="internal" href="#slotmap">slotmap</a></li>
+
+        <li><a class="internal" href="#slotselect">slotselect</a></li>
+
+        <li><a class="internal" href="#toggle">toggle</a></li>
+
+        <li><a class="internal" href="#trainer">trainer</a></li>
+
+        <li><a class="internal" href="#type">type</a></li>
+
+        <li><a class="internal" href="#update">update</a></li>
+
+        <li><a class="internal" href="#vdpregs">vdpregs</a></li>
+      </ol>
+    </li>
+
+    <li>OLD COMMANDS
+
+      <ol class="toclist">
+        <li><a class="internal" href="#aliasunalias">alias / unalias</a></li>
+
+        <li><a class="internal" href="#decr">decr</a></li>
+
+        <li><a class="internal" href="#incr">incr</a></li>
+
+        <li><a class="internal" href="#quit">quit</a></li>
+
+        <li><a class="internal" href="#restoredefault">restoredefault</a></li>
+
+        <li><a class="internal" href="#soundlog">soundlog</a></li>
+      </ol>
+    </li>
+
+    <li>SETTINGS
+
+      <ol class="toclist">
+        <li><a class="internal" href="#accuracy">accuracy</a></li>
+
+        <li><a class="internal" href="#audio-inputfilename">audio-inputfilename</a></li>
+
+        <li><a class="internal" href="#autoruncassettes">autoruncassettes</a></li>
+
+        <li><a class="internal" href="#blur">blur</a></li>
+
+        <li><a class="internal" href="#bootsector">bootsector</a></li>
+
+        <li><a class="internal" href="#brightness">brightness</a></li>
+
+        <li><a class="internal" href="#cmdtiming">cmdtiming</a></li>
+
+        <li><a class="internal" href="#color_matrix">color_matrix</a></li>
+
+        <li><a class="internal" href="#console">console</a></li>
+
+        <li><a class="internal" href="#consolebackground">consolebackground</a></li>
+
+        <li><a class="internal" href="#consolecolumns">consolecolumns</a></li>
+
+        <li><a class="internal" href="#consolefont">consolefont</a></li>
+
+        <li><a class="internal" href="#consoleplacement">consoleplacement</a></li>
+
+        <li><a class="internal" href="#consolerows">consolerows</a></li>
+
+        <li><a class="internal" href="#contrast">contrast</a></li>
+
+        <li><a class="internal" href="#cputrace">cputrace</a></li>
+
+        <li><a class="internal" href="#debugoutput">debugoutput</a></li>
+
+        <li><a class="internal" href="#default_machine">default_machine</a></li>
+
+        <li><a class="internal" href="#deinterlace">deinterlace</a></li>
+
+        <li><a class="internal" href="#display_deform">display_deform</a></li>
+
+        <li><a class="internal" href="#frequency">frequency</a></li>
+
+        <li><a class="internal" href="#firmwareswitch">firmwareswitch</a></li>
+
+        <li><a class="internal" href="#fullscreen">fullscreen</a></li>
+
+        <li><a class="internal" href="#fullspeedwhenloading">fullspeedwhenloading</a></li>
+
+        <li><a class="internal" href="#gamma">gamma</a></li>
+
+        <li><a class="internal" href="#glow">glow</a></li>
+
+        <li><a class="internal" href="#grabinput">grabinput</a></li>
+
+        <li><a class="internal" href="#icon.name.setting">icon.&lt;name&gt;.&lt;setting&gt;</a></li>
+
+        <li><a class="internal" href="#inputdelay">inputdelay</a></li>
+
+        <li><a class="internal" href="#keyjoystick_n_button">keyjoystick&lt;n&gt;.&lt;button&gt;</a></li>
+
+        <li><a class="internal" href="#limitsprites">limitsprites</a></li>
+
+        <li><a class="internal" href="#master_volume">master_volume</a></li>
+
+        <li><a class="internal" href="#maxframeskip">maxframeskip</a></li>
+
+        <li><a class="internal" href="#midi-in-readfilename">midi-in-readfilename</a></li>
+
+        <li><a class="internal" href="#midi-out-logfilename">midi-out-logfilename</a></li>
+
+        <li><a class="internal" href="#minframeskip">minframeskip</a></li>
+
+        <li><a class="internal" href="#mute">mute</a></li>
+
+        <li><a class="internal" href="#noise">noise</a></li>
+
+        <li><a class="internal" href="#pause">pause</a></li>
+
+        <li><a class="internal" href="#power">power</a></li>
+
+        <li><a class="internal" href="#printerlogfilename">printerlogfilename</a></li>
+
+        <li><a class="internal" href="#print-resolution">print-resolution</a></li>
+
+        <li><a class="internal" href="#r800_freq">r800_freq and r800_freq_locked</a></li>
+
+        <li><a class="internal" href="#renderer">renderer</a></li>
+
+        <li><a class="internal" href="#renshaturbo">renshaturbo</a></li>
+
+        <li><a class="internal" href="#rs232-inputfilename">rs232-inputfilename</a></li>
+
+        <li><a class="internal" href="#rs232-outputfilename">rs232-outputfilename</a></li>
+
+        <li><a class="internal" href="#rtcmode">rtcmode</a></li>
+
+        <li><a class="internal" href="#samples">samples</a></li>
+
+        <li><a class="internal" href="#save_settings_on_exit">save_settings_on_exit</a></li>
+
+        <li><a class="internal" href="#scale_algorithm">scale_algorithm</a></li>
+
+        <li><a class="internal" href="#scale_factor">scale_factor</a></li>
+
+        <li><a class="internal" href="#scanline">scanline</a></li>
+
+        <li><a class="internal" href="#sound_driver">sound_driver</a></li>
+
+        <li><a class="internal" href="#speed">speed</a></li>
+
+        <li><a class="internal" href="#soundchip_mode">[soundchip]_mode</a></li>
+
+        <li><a class="internal" href="#soundchip_volume">[soundchip]_volume</a></li>
+
+        <li><a class="internal" href="#throttle">throttle</a></li>
+
+        <li><a class="internal" href="#umr_callback">umr_callback</a></li>
+
+        <li><a class="internal" href="#user_directories">user_directories</a></li>
+
+        <li><a class="internal" href="#vdpcmdtrace">vdpcmdtrace</a></li>
+
+        <li><a class="internal" href="#videosource">videosource</a></li>
+
+        <li><a class="internal" href="#v9990cmdtrace">v9990cmdtrace</a></li>
+
+        <li><a class="internal" href="#z80_freq">z80_freq and z80_freq_locked</a></li>
+      </ol>
+    </li>
+  </ol>
+
+  <h3><a id="after" name="after">after</a></h3>
+
+  <p>Execute a command after a certain time, or after a certain time of being idle. It is possible the query a list of
+  postponed commands and also to cancel postponed commands.</p>
+
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>after time &lt;seconds&gt; &lt;command&gt;</code></td>
+
+        <td>execute a command after some time</td>
+      </tr>
+
+      <tr>
+        <td><code>after idle &lt;seconds&gt; &lt;command&gt;</code></td>
+
+        <td>execute a command after some time being idle</td>
+      </tr>
+
+      <tr>
+        <td><code>after frame &lt;command&gt;</code></td>
+
+        <td>execute a command after a new frame is drawn</td>
+      </tr>
+
+      <tr>
+        <td><code>after break &lt;command&gt;</code></td>
+
+        <td>execute a command after a breakpoint is reached</td>
+      </tr>
+
+      <tr>
+        <td><code>after boot &lt;command&gt;</code></td>
+
+        <td>execute a command after a (re)boot</td>
+      </tr>
+
+      <tr>
+        <td><code>after machine_switch &lt;command&gt;</code></td>
+
+        <td>execute a command after switch to new a machine</td>
+      </tr>
+
+      <tr>
+        <td><code>after info</code></td>
+
+        <td>list all postponed commands</td>
+      </tr>
+
+      <tr>
+        <td><code>after cancel &lt;id&gt;</code></td>
+
+        <td>cancel the postponed command with given id</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="examplestitle">
+    examples:
+  </div>
+
   <div class="examples">
-    <code>after time 10 &quot;set renderer SDLGL&quot;</code><br/>
-    <code>after idle 100 quit</code><br/>
-    <code>after info</code><br/>
+    <code>after time 10 "set renderer SDLGL"</code><br />
+    <code>after idle 100 quit</code><br />
+    <code>after info</code><br />
     <code>after cancel 2</code>
-    </div>
+  </div>
 
-<h3><a id="bind">bind / unbind / bind_default / unbind_default</a></h3>
-  
-  <p>Associate events (like key presses) with commands. Whenever the specified event
-  occurs (e.g. you press the specified key), the corresponding command will be
-  executed. To customize your bindings you should use the (un)bind
-  commands. A script that wants to provide a default binding for its
-  functionality needs to use bind_default.</p>
+  <h3><a id="bind" name="bind">bind / unbind / bind_default / unbind_default</a></h3>
+
+  <p>Associate events (like key presses) with commands. Whenever the specified event occurs (e.g. you press the
+  specified key), the corresponding command will be executed. To customize your bindings you should use the (un)bind
+  commands. A script that wants to provide a default binding for its functionality needs to use bind_default.</p>
 
   <p>Events can be:</p>
-  <p><table style="margin-left: 32pt;"> <!-- quick hack due to unforseen behaviour of css -->
-    <tr><td><code>&lt;key&gt;[,release]</code></td><td>treated as &quot;keyb &lt;key&gt;[,release]&quot;</td></tr>
-  <tr><td><code>keyb &lt;key&gt;[,release]</code></td><td>&lt;key&gt; is pressed [or released]</td></tr>
-  <tr><td><code>mouse button&lt;n&gt; &lt;up/down&gt;</code></td><td>mouse button &lt;n&gt; went up or down</td></tr>
-  <tr><td><code>mouse motion &lt;x&gt; &lt;y&gt;</code></td><td>mouse motion of &lt;x&gt; and &lt;y&gt;</td></tr>
-  <tr><td><code>joy&lt;n&gt; button&lt;m&gt; &lt;up/down&gt;</code></td><td>button &lt;m&gt; of joystick &lt;n&gt; went up/down</td></tr>
-  <tr><td><code>joy&lt;n&gt; axis&lt;m&gt; &lt;value&gt;</code></td><td>axis &lt;m&gt; of joystick &lt;n&gt; got value &lt;value&gt;</td></tr>
-  <tr><td><code>focus &lt;boolean&gt;</code></td><td>the openMSX window got (1) or lost (0) focus</td></tr>
-</table></p>
-  <div class="usagetitle">usage:</div>
 
-<div class="usage">
-  <table>
-<tr><td><code>bind</code></td><td>shows all bindings</td></tr>
-    <tr><td><code>bind   &lt;key&gt;</code></td><td>shows binding for this key</td></tr>
-    <tr><td><code>bind   &lt;event&gt;</code></td><td>shows binding for this event</td></tr>
-    <tr><td><code>bind   &lt;event&gt; &lt;command&gt;</code></td><td>make a new binding</td></tr>
-    <tr><td><code>unbind &lt;key&gt;</code></td><td>undo binding for this event</td></tr>
+  <table style="margin-left: 32pt;">
+    <!-- quick hack due to unforseen behaviour of css -->
+
+    <tr>
+      <td><code>&lt;key&gt;[,release]</code></td>
+
+      <td>treated as "keyb &lt;key&gt;[,release]"</td>
+    </tr>
+
+    <tr>
+      <td><code>keyb &lt;key&gt;[,release]</code></td>
+
+      <td>&lt;key&gt; is pressed [or released]</td>
+    </tr>
+
+    <tr>
+      <td><code>mouse button&lt;n&gt; &lt;up/down&gt;</code></td>
+
+      <td>mouse button &lt;n&gt; went up or down</td>
+    </tr>
+
+    <tr>
+      <td><code>mouse motion &lt;x&gt; &lt;y&gt;</code></td>
+
+      <td>mouse motion of &lt;x&gt; and &lt;y&gt;</td>
+    </tr>
+
+    <tr>
+      <td><code>joy&lt;n&gt; button&lt;m&gt; &lt;up/down&gt;</code></td>
+
+      <td>button &lt;m&gt; of joystick &lt;n&gt; went up/down</td>
+    </tr>
+
+    <tr>
+      <td><code>joy&lt;n&gt; axis&lt;m&gt; &lt;value&gt;</code></td>
+
+      <td>axis &lt;m&gt; of joystick &lt;n&gt; got value &lt;value&gt;</td>
+    </tr>
+
+    <tr>
+      <td><code>focus &lt;boolean&gt;</code></td>
+
+      <td>the openMSX window got (1) or lost (0) focus</td>
+    </tr>
   </table>
+
+  <div class="usagetitle">
+    usage:
   </div>
-  
-  <div class="examplestitle">examples:</div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>bind</code></td>
+
+        <td>shows all bindings</td>
+      </tr>
+
+      <tr>
+        <td><code>bind &lt;key&gt;</code></td>
+
+        <td>shows binding for this key</td>
+      </tr>
+
+      <tr>
+        <td><code>bind &lt;event&gt;</code></td>
+
+        <td>shows binding for this event</td>
+      </tr>
+
+      <tr>
+        <td><code>bind &lt;event&gt; &lt;command&gt;</code></td>
+
+        <td>make a new binding</td>
+      </tr>
+
+      <tr>
+        <td><code>unbind &lt;key&gt;</code></td>
+
+        <td>undo binding for this event</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="examplestitle">
+    examples:
+  </div>
+
   <div class="examples">
-    <code>bind PAGEUP &quot;set speed 100&quot;</code><br />
-    <code>bind PAGEDOWN &quot;set speed 50&quot;</code><br /><br />
+    <code>bind PAGEUP "set speed 100"</code><br />
+    <code>bind PAGEDOWN "set speed 50"</code><br />
+    <br />
     only go to full throttle when F9 is pressed (like BrMSX):<br />
     <code>unbind F9</code><br />
-    <code>bind F9 &quot;set throttle off&quot;</code><br />
-    <code>bind F9,release &quot;set throttle on&quot;</code><br/><br/>
+    <code>bind F9 "set throttle off"</code><br />
+    <code>bind F9,release "set throttle on"</code><br />
+    <br />
     fMSX-like behaviour (pause when window loses focus):<br />
-    <code>bind &quot;focus 0&quot; &quot;set pause on&quot;</code><br />
-    <code>bind &quot;focus 1&quot; &quot;set pause off&quot;</code><br /><br />
+    <code>bind "focus 0" "set pause on"</code><br />
+    <code>bind "focus 1" "set pause off"</code><br />
+    <br />
     middle-click to toggle grab-status:<br />
-    <code>bind &quot;mouse button2 down&quot; &quot;toggle grabinput&quot;</code><br /><br />
+    <code>bind "mouse button2 down" "toggle grabinput"</code><br />
+    <br />
     map button 8 of joystick 1 to F2-key:<br />
-    <code>bind &quot;joy1 button8 down&quot; &quot;keymatrixdown 6 0x40&quot;</code><br />
-    <code>bind &quot;joy1 button8 up&quot; &quot;keymatrixup 6 0x40&quot;</code><br />
-</div>
+    <code>bind "joy1 button8 down" "keymatrixdown 6 0x40"</code><br />
+    <code>bind "joy1 button8 up" "keymatrixup 6 0x40"</code><br />
+  </div>
 
-<h3><a id="cart">cart / cart<x></a></h3>
+  <h3><a id="cart" name="cart">cart / cart&lt;x&gt;</a></h3>
 
-  <p>Insert a game rom in a running MSX. The 'cart' command inserts the rom in the
-  first available slot. The 'carta', 'cartb', .. commands insert in the
-  specified slot. The roms can be removed again with the eject subcommand.
-  See also the commands 'ext', 'list_extensions' and 'remove_extension'.</p>
+  <p>Insert a game rom in a running MSX. The 'cart' command inserts the rom in the first available slot. The 'carta',
+  'cartb', .. commands insert in the specified slot. The roms can be removed again with the eject subcommand. See also
+  the commands 'ext', 'list_extensions' and 'remove_extension'.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-  <table>
-<tr><td><code>cart KMARE.ROM</code></td><td>Insert rom in first free slot</td></tr>
-    <tr><td><code>cart insert KMARE.ROM</code></td><td>Insert rom in first free slot</td></tr>
-    <tr><td><code>carta USAS.ROM -ips USAS.IPS</code></td><td>Insert rom in specified slot and apply IPS patch</td></tr>
-    <tr><td><code>carta eject</code></td><td>Eject the cartridge from slot a</td></tr>
-  </table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>cart KMARE.ROM</code></td>
 
+        <td>Insert rom in first free slot</td>
+      </tr>
 
-<h3><a id="cassetteplayer">cassetteplayer</a></h3>
+      <tr>
+        <td><code>cart insert KMARE.ROM</code></td>
 
-  <p>Insert a tape image in a virtual cassette player. The file must be in .wav
-  format. Don't forget to connect the cassetteplayer to the cassette port.</p>
-  
-  <div class="usagetitle">usage:</div>
+        <td>Insert rom in first free slot</td>
+      </tr>
 
-<div class="usage">
-  <table>
-<tr><td><code>cassetteplayer insert &lt;tape image&gt;</code></td><td>insert tape image in virtual cassette player</td></tr>
-    <tr><td><code>cassetteplayer eject</code></td><td>remove tape from virtual cassette player</td></tr>
-    <tr><td><code>cassetteplayer rewind</code></td><td>rewind the current tape</td></tr>
-    <tr><td><code>cassetteplayer motorcontrol on|off</code></td><td>sets whether motor control signal (remote) is obeyed (default: on)</td></tr>
-    <tr><td><code>cassetteplayer new [&lt;tape image&gt;]</code></td><td>create new tape image and go to record mode</td></tr>
-    <tr><td><code>cassetteplayer play</code></td><td>go to play mode (when in record mode) and rewind the tape</td></tr>
-  </table>
-</div>
+      <tr>
+        <td><code>carta USAS.ROM -ips USAS.IPS</code></td>
 
-<h3><a id="cdacdb">cda / cdb</a></h3>
+        <td>Insert rom in specified slot and apply IPS patch</td>
+      </tr>
 
-  <p>Change the CDROM image. &quot;cda&quot;, &quot;cdb&quot;, etc., are assigned to all available
-  CDROM drives in the MSX. They will not correspond to drive names as used
-  in MSX-DOS!</p>
+      <tr>
+        <td><code>carta eject</code></td>
 
-  <div class="usagetitle">usage:</div>
+        <td>Eject the cartridge from slot a</td>
+      </tr>
+    </table>
+  </div>
 
-<div class="usage">
-  <table>
-<tr><td><code>cda &lt;iso image&gt;</code></td><td>use ISO image for CDROM drive &quot;cda&quot; </td></tr>
-    <tr><td><code>cda insert &lt;iso image&gt;</code></td><td>use ISO image for CDROM drive &quot;cda&quot;</td></tr>
-    <tr><td><code>cda eject</code></td><td>eject CDROM from CDROM drive &quot;cda&quot;</td></tr>
-    <tr><td><code>cda</code></td><td>show current ISO image for CDROM drive &quot;cda&quot;</td></tr>
-  </table>
-</div>
+  <h3><a id="cassetteplayer" name="cassetteplayer">cassetteplayer</a></h3>
 
+  <p>Insert a tape image in a virtual cassette player. The file must be in .wav format. Don't forget to connect the
+  cassetteplayer to the cassette port.</p>
 
-<h3><a id="debug">debug</a></h3>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-  <p>This command implements a debugger interface. It's meant to be used by an
-  external debugger. The general format of the debug command is</p>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>cassetteplayer insert &lt;tape image&gt;</code></td>
+
+        <td>insert tape image in virtual cassette player</td>
+      </tr>
+
+      <tr>
+        <td><code>cassetteplayer eject</code></td>
+
+        <td>remove tape from virtual cassette player</td>
+      </tr>
+
+      <tr>
+        <td><code>cassetteplayer rewind</code></td>
+
+        <td>rewind the current tape</td>
+      </tr>
+
+      <tr>
+        <td><code>cassetteplayer motorcontrol on|off</code></td>
+
+        <td>sets whether motor control signal (remote) is obeyed (default: on)</td>
+      </tr>
+
+      <tr>
+        <td><code>cassetteplayer new [&lt;tape image&gt;]</code></td>
+
+        <td>create new tape image and go to record mode</td>
+      </tr>
+
+      <tr>
+        <td><code>cassetteplayer play</code></td>
+
+        <td>go to play mode (when in record mode) and rewind the tape</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="cdacdb" name="cdacdb">cda / cdb</a></h3>
+
+  <p>Change the CDROM image. "cda", "cdb", etc., are assigned to all available CDROM drives in the MSX. They will not
+  correspond to drive names as used in MSX-DOS!</p>
+
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>cda &lt;iso image&gt;</code></td>
+
+        <td>use ISO image for CDROM drive "cda"</td>
+      </tr>
+
+      <tr>
+        <td><code>cda insert &lt;iso image&gt;</code></td>
+
+        <td>use ISO image for CDROM drive "cda"</td>
+      </tr>
+
+      <tr>
+        <td><code>cda eject</code></td>
+
+        <td>eject CDROM from CDROM drive "cda"</td>
+      </tr>
+
+      <tr>
+        <td><code>cda</code></td>
+
+        <td>show current ISO image for CDROM drive "cda"</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="debug" name="debug">debug</a></h3>
+
+  <p>This command implements a debugger interface. It's meant to be used by an external debugger. The general format of
+  the debug command is</p>
 
   <p><code>debug &lt;subcommand&gt; [&lt;extra arguments&gt;]</code></p>
 
-  <p>where 'extra arguments' are specific for each subcommand. Below is a list
-  of all subcommands:</p>
-<div class="usage">
-<table>
-    <tr><td><code>debug list</code></td><td>
-      Returns a list of all debuggables.<br/>A debuggable is (part of) the state
-      of<br/>a MSX device that can be accessed via these debug commands.<br/>Examples
-      are:<br />
+  <p>where 'extra arguments' are specific for each subcommand. Below is a list of all subcommands:</p>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>debug list</code></td>
+
+        <td>Returns a list of all debuggables.<br />
+        A debuggable is (part of) the state of<br />
+        a MSX device that can be accessed via these debug commands.<br />
+        Examples are:<br />
         - the VDP registers<br />
         - the currently visible memory for the Z80<br />
         - the contents of the RAM<br />
-        - ...</td></tr>
-    <tr><td><code>debug desc &lt;name&gt;</code></td><td>Returns a description of this debuggable</td></tr>
-    <tr><td><code>debug size &lt;name&gt;</code></td><td>Returns the size of this debuggable</td></tr>
-    <tr><td><code>debug read &lt;name&gt; &lt;addr&gt;</code></td><td>Read a byte from a debuggable</td></tr>
-    <tr><td><code>debug write &lt;name&gt; &lt;addr&gt; &lt;val&gt;</code></td><td>Write a byte to a debuggable</td></tr>
-    <tr><td><code>debug read_block &lt;name&gt; &lt;addr&gt; &lt;size&gt;</code></td><td>Read a whole block at once</td></tr>
-    <tr><td><code>debug write_block &lt;name&gt; &lt;addr&gt; &lt;values&gt;</code></td><td>Write a whole block at once </td></tr>
-    <tr><td><code>debug break</code></td><td>Break CPU at current position</td></tr>
-    <tr><td><code>debug breaked</code></td><td>Query CPU breaked status</td></tr>
-    <tr><td><code>debug cont</code></td><td>Continue execution after break</td></tr>
-    <tr><td><code>debug step</code></td><td>Execute one instruction</td></tr>
-    <tr><td><code>debug list_bp</code></td><td>List the active breakpoints</td></tr>
-    <tr><td><code>debug set_bp &lt;addr&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td><td>Insert a new breakpoint at the given address. Optionally you can specify
-      a condition and a command. When the CPU is about to execute the
-      instruction at the given address, the condition will be evaluated, if
-      this evaluates to true then the command is executed.
-      The condition can be any TCL expression and the command can be any TCL
-      command. The default condition is 'true' and  the default command is
-      <code>&quot;debug break&quot;</code>.</td></tr>
-    <tr><td><code>debug remove_bp &lt;id&gt;</code></td><td>Remove a certain breakpoint</td></tr>
-    <tr><td><code>debug list_watchpoints</code></td><td>List all defined watchpoints</td></tr>
-    <tr><td><code>debug set_watchpoint &lt;type&gt; &lt;region&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td><td>Insert a new watchpoint. When the CPU is about to read or write to/from
-      the specified memory or IO region, the condition is evaluated. If
-      the condition evaluated to true, the command is executed.
-      The condition and the command are similar to the ones in the 'set_bp'
-      subcommand.
-      A watchpoint can either be set on a single memory address or IO port
-      (specify a single value), or on a whole memory or IO port range (specify
-      a begin/end pair). For example:
-        <code>debug set_watchpoint write_mem {0x8000 0x8fff}</code>
-</td></tr>
-    <tr><td><code>debug remove_watchpoint &lt;id&gt;</code></td><td>Remove a certain watchpoint</td></tr>
-    <tr><td><code>debug disasm [&lt;addr&gt;]</code></td><td>disassemble instructions at PC or given address</td></tr>
-</table>
-</div>
+        - ...</td>
+      </tr>
 
-  <div class="note">Note: Some of the commands are pretty low level. In the share/scripts
-        directory you'll find some TCL scripts that offer convenience wrappers
-        around these commands. For example:
-           showmem, disasm, cpuregs, save_debuggable, vdp, ...
-	   </div>
+      <tr>
+        <td><code>debug desc &lt;name&gt;</code></td>
 
+        <td>Returns a description of this debuggable</td>
+      </tr>
 
-<h3><a id="diskadiskb">diska / diskb</a></h3>
+      <tr>
+        <td><code>debug size &lt;name&gt;</code></td>
 
-  <p>Insert a disk image in a drive. Optionally apply an IPS patch to the disk
-  image. &quot;diska&quot;, &quot;diskb&quot;, etc., are assigned to all available &quot;physical&quot; disk
-  drives in the MSX. They will not correspond to drive names as used in
+        <td>Returns the size of this debuggable</td>
+      </tr>
+
+      <tr>
+        <td><code>debug read &lt;name&gt; &lt;addr&gt;</code></td>
+
+        <td>Read a byte from a debuggable</td>
+      </tr>
+
+      <tr>
+        <td><code>debug write &lt;name&gt; &lt;addr&gt; &lt;val&gt;</code></td>
+
+        <td>Write a byte to a debuggable</td>
+      </tr>
+
+      <tr>
+        <td><code>debug read_block &lt;name&gt; &lt;addr&gt; &lt;size&gt;</code></td>
+
+        <td>Read a whole block at once</td>
+      </tr>
+
+      <tr>
+        <td><code>debug write_block &lt;name&gt; &lt;addr&gt; &lt;values&gt;</code></td>
+
+        <td>Write a whole block at once</td>
+      </tr>
+
+      <tr>
+        <td><code>debug break</code></td>
+
+        <td>Break CPU at current position</td>
+      </tr>
+
+      <tr>
+        <td><code>debug breaked</code></td>
+
+        <td>Query CPU breaked status</td>
+      </tr>
+
+      <tr>
+        <td><code>debug cont</code></td>
+
+        <td>Continue execution after break</td>
+      </tr>
+
+      <tr>
+        <td><code>debug step</code></td>
+
+        <td>Execute one instruction</td>
+      </tr>
+
+      <tr>
+        <td><code>debug list_bp</code></td>
+
+        <td>List the active breakpoints</td>
+      </tr>
+
+      <tr>
+        <td><code>debug set_bp &lt;addr&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td>
+
+        <td>Insert a new breakpoint at the given address. Optionally you can specify a condition and a command. When
+        the CPU is about to execute the instruction at the given address, the condition will be evaluated, if this
+        evaluates to true then the command is executed. The condition can be any TCL expression and the command can be
+        any TCL command. The default condition is 'true' and the default command is <code>"debug break"</code>.</td>
+      </tr>
+
+      <tr>
+        <td><code>debug remove_bp &lt;id&gt;</code></td>
+
+        <td>Remove a certain breakpoint</td>
+      </tr>
+
+      <tr>
+        <td><code>debug list_watchpoints</code></td>
+
+        <td>List all defined watchpoints</td>
+      </tr>
+
+      <tr>
+        <td><code>debug set_watchpoint &lt;type&gt; &lt;region&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td>
+
+        <td>Insert a new watchpoint. When the CPU is about to read or write to/from the specified memory or IO region,
+        the condition is evaluated. If the condition evaluated to true, the command is executed. The condition and the
+        command are similar to the ones in the 'set_bp' subcommand. A watchpoint can either be set on a single memory
+        address or IO port (specify a single value), or on a whole memory or IO port range (specify a begin/end pair).
+        For example: <code>debug set_watchpoint write_mem {0x8000 0x8fff}</code></td>
+      </tr>
+
+      <tr>
+        <td><code>debug remove_watchpoint &lt;id&gt;</code></td>
+
+        <td>Remove a certain watchpoint</td>
+      </tr>
+
+      <tr>
+        <td><code>debug disasm [&lt;addr&gt;]</code></td>
+
+        <td>disassemble instructions at PC or given address</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="note">
+    Note: Some of the commands are pretty low level. In the share/scripts directory you'll find some TCL scripts that
+    offer convenience wrappers around these commands. For example: showmem, disasm, cpuregs, save_debuggable, vdp, ...
+  </div>
+
+  <h3><a id="diskadiskb" name="diskadiskb">diska / diskb</a></h3>
+
+  <p>Insert a disk image in a drive. Optionally apply an IPS patch to the disk image. "diska", "diskb", etc., are
+  assigned to all available "physical" disk drives in the MSX. They will not correspond to drive names as used in
   MSX-DOS!</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>diska &lt;disk image&gt;</code></td><td>insert disk image in drive &quot;diska&quot;</td></tr>
-    <tr><td><code>diska &lt;disk image&gt; &lt;ips&gt;</code></td><td>insert disk image and apply IPS patch</td></tr>
-    <tr><td><code>diska -eject</code></td><td>remove disk from drive &quot;diska&quot;</td></tr>
-    <tr><td><code>diska -ramdsk</code></td><td>insert scratch disk in drive &quot;diska&quot;</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>diska &lt;disk image&gt;</code></td>
 
+        <td>insert disk image in drive "diska"</td>
+      </tr>
 
-<h3><a id="diskmanipulator">diskmanipulator</a></h3>
+      <tr>
+        <td><code>diska &lt;disk image&gt; &lt;ips&gt;</code></td>
 
-  <p>Used to manipulate the (files on) a disk image.
-  For an in-depth explanation and examples see the file 
+        <td>insert disk image and apply IPS patch</td>
+      </tr>
+
+      <tr>
+        <td><code>diska -eject</code></td>
+
+        <td>remove disk from drive "diska"</td>
+      </tr>
+
+      <tr>
+        <td><code>diska -ramdsk</code></td>
+
+        <td>insert scratch disk in drive "diska"</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="diskmanipulator" name="diskmanipulator">diskmanipulator</a></h3>
+
+  <p>Used to manipulate the (files on) a disk image. For an in-depth explanation and examples see the file
   'Using-diskmanipulator.txt'.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<code>diskmanipulator savedsk &lt;disk name&gt; &lt;dskfilename&gt;</code><br />
-    <code>diskmanipulator import  &lt;disk name&gt; &lt;host directory&gt;</code><br />
-    <code>diskmanipulator export  &lt;disk name&gt; &lt;host directory&gt;</code><br />
-    <code>diskmanipulator mkdir   &lt;disk name&gt; &lt;MSX directory&gt;</code><br />
-    <code>diskmanipulator chdir   &lt;disk name&gt; &lt;MSX directory&gt;</code><br />
-    <code>diskmanipulator dir     &lt;disk name&gt;</code><br />
-    <code>diskmanipulator format  &lt;disk name&gt;</code><br />
+  <div class="usage">
+    <code>diskmanipulator savedsk &lt;disk name&gt; &lt;dskfilename&gt;</code><br />
+    <code>diskmanipulator import &lt;disk name&gt; &lt;host directory&gt;</code><br />
+    <code>diskmanipulator export &lt;disk name&gt; &lt;host directory&gt;</code><br />
+    <code>diskmanipulator mkdir &lt;disk name&gt; &lt;MSX directory&gt;</code><br />
+    <code>diskmanipulator chdir &lt;disk name&gt; &lt;MSX directory&gt;</code><br />
+    <code>diskmanipulator dir &lt;disk name&gt;</code><br />
+    <code>diskmanipulator format &lt;disk name&gt;</code><br />
+    <code>diskmanipulator create &lt;dskfilename&gt; &lt;size/option&gt; &lt;size/option&gt; ...</code><br />
+  </div>
 
-    <code>diskmanipulator create  &lt;dskfilename&gt; &lt;size/option&gt; &lt;size/option&gt; ...</code><br />
-</div>
+  <h3><a id="escape_grab" name="escape_grab">escape_grab</a></h3>
 
+  <p>Only has effect in windowed mode and when the 'grabinput' setting is active. Temporarily release the input grab.
+  When window has lost and regained the focus the grab is again effective.</p>
 
-<h3><a id="escape_grab">escape_grab</a></h3>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-  <p>Only has effect in windowed mode and when the 'grabinput' setting is active.
-  Temporarily release the input grab. When window has lost and regained the
-  focus the grab is again effective.</p>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>escape_grab</code></td>
 
-  <div class="usagetitle">usage:</div>
+        <td>temporarily release the input grab</td>
+      </tr>
+    </table>
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>escape_grab</code></td><td>temporarily release the input grab</td></tr>
-</table>
-</div>
+  <h3><a id="ext" name="ext">ext</a></h3>
 
+  <p>Insert a MSX extension in a running MSX machine. The extension can be removed again with the 'remove_extension'
+  command. See also the commands 'cart', 'list_extensions' and 'remove_extension'.</p>
 
-<h3><a id="ext">ext</a></h3>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-  <p>Insert a MSX extension in a running MSX machine. The extension can be removed
-  again with the 'remove_extension' command. See also the commands 'cart',
-  'list_extensions' and 'remove_extension'.</p>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>ext fmpac</code></td>
 
-  <div class="usagetitle">usage:</div>
+        <td>Insert a FM-PAC in a running MSX machine.</td>
+      </tr>
+    </table>
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>ext fmpac</code></td><td>Insert a FM-PAC in a running MSX machine.</td></tr>
-</table>
-</div>
+  <h3><a id="hdahdb" name="hdahdb">hda / hdb</a></h3>
 
+  <p>Change the hard disk image. "hda", "hdb", etc., are assigned to all available hard disk drives in the MSX. They
+  will not correspond to drive names as used in MSX-DOS!</p>
 
-<h3><a id="hdahdb">hda / hdb</a></h3>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-  <p>Change the hard disk image. &quot;hda&quot;, &quot;hdb&quot;, etc., are assigned to all available
-  hard disk drives in the MSX. They will not correspond to drive names as used
-  in MSX-DOS!</p>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>hda &lt;disk image&gt;</code></td>
 
-  <div class="usagetitle">usage:</div>
+        <td>use hard disk image for hard disk "hda"</td>
+      </tr>
 
-<div class="usage">
-<table>
-<tr><td><code>hda &lt;disk image&gt;</code></td><td>use hard disk image for hard disk &quot;hda&quot;</td></tr>
-    <tr><td><code>hda insert &lt;disk image&gt;</code></td><td>use hard disk image for hard disk &quot;hda&quot;</td></tr>
-    <tr><td><code>hda</code></td><td>show current hard disk image for hard disk &quot;hda&quot;</td></tr>
-</table>
-</div>
+      <tr>
+        <td><code>hda insert &lt;disk image&gt;</code></td>
 
+        <td>use hard disk image for hard disk "hda"</td>
+      </tr>
 
-<h3><a id="help">help</a></h3>
+      <tr>
+        <td><code>hda</code></td>
+
+        <td>show current hard disk image for hard disk "hda"</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="help" name="help">help</a></h3>
 
   <p>Shows help info.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>help</code></td><td>shows a list of all possible commands</td></tr>
-<tr><td><code>help &lt;command&gt;</code></td><td>shows help info for a specific command</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>help</code></td>
 
+        <td>shows a list of all possible commands</td>
+      </tr>
 
-<h3><a id="iomap">iomap</a></h3>
+      <tr>
+        <td><code>help &lt;command&gt;</code></td>
+
+        <td>shows help info for a specific command</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="iomap" name="iomap">iomap</a></h3>
 
   <p>Shows what I/O ports are connected to which devices.</p>
+
   <p>[ mainly useful for debugging purposes ]</p>
 
+  <h3><a id="keymatrix" name="keymatrix">keymatrixup / keymatrixdown</a></h3>
 
-<h3><a id="keymatrixup / keymatrixdown">keymatrixup / keymatrixdown</a></h3>
+  <p>Press or release keys from the MSX keyboard matrix. Mainly useful to make an external program press MSX keys.</p>
 
-  <p>Press or release keys from the MSX keyboard matrix. Mainly useful to make
-  an external program press MSX keys.</p>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>keymatrixup &lt;row&gt; &lt;mask&gt;</code></td>
 
-<div class="usage">
-<table>
-<tr><td><code>keymatrixup &lt;row&gt; &lt;mask&gt;</code></td><td>release the indicated MSX keys</td></tr>
-    <tr><td><code>keymatrixdown &lt;row&gt; &lt;mask&gt;</code></td><td>press the indicated MSX keys</td></tr>
-</table>
-</div>
+        <td>release the indicated MSX keys</td>
+      </tr>
 
-  <div class="examplestitle">examples:</div>
+      <tr>
+        <td><code>keymatrixdown &lt;row&gt; &lt;mask&gt;</code></td>
+
+        <td>press the indicated MSX keys</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="examplestitle">
+    examples:
+  </div>
+
   <div class="examples">
-    <code>keymatrixup 6 0x01</code><br/>
+    <code>keymatrixup 6 0x01</code><br />
     <code>keymatrixdown 6 0x01</code>
-</div>
+  </div>
 
-<h3><a id="list_extensions">list_extensions</a></h3>
+  <h3><a id="list_extensions" name="list_extensions">list_extensions</a></h3>
 
-  <p>Returns a list of inserted roms and extensions. These can be removed with the
-  'remove_extension' command or additional items can be added with the 'cart'
-  and 'ext' commands.</p>
+  <p>Returns a list of inserted roms and extensions. These can be removed with the 'remove_extension' command or
+  additional items can be added with the 'cart' and 'ext' commands.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>list_extensions</code></td><td>lists all currently inserted roms and extension</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>list_extensions</code></td>
 
+        <td>lists all currently inserted roms and extension</td>
+      </tr>
+    </table>
+  </div>
 
-<h3><a id="load_settings">load_settings</a></h3>
+  <h3><a id="load_settings" name="load_settings">load_settings</a></h3>
 
-  <p>Load settings from a given file. The settings file must not be complete,
-  settings that are not mentioned in the given file are left untouched.</p>
+  <p>Load settings from a given file. The settings file must not be complete, settings that are not mentioned in the
+  given file are left untouched.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>load_settings &lt;filename&gt;</code></td><td>Load settings from the given file</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>load_settings &lt;filename&gt;</code></td>
 
+        <td>Load settings from the given file</td>
+      </tr>
+    </table>
+  </div>
 
-<h3><a id="machine">machine</a></h3>
+  <h3><a id="machine" name="machine">machine</a></h3>
 
   <p>Switch to a new MSX machine.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>machine</code></td><td>Returns the handle for the currently active machine</td></tr>
-<tr><td><code>machine &lt;machine name&gt;</code></td><td>Switch to the specified machine, also returns the handle for that machine</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>machine</code></td>
 
-  <div class="note">Note:
-    The machine handle mostly used for external applications controlling
-    openMSX. For interactive use it's not used much.</div>
+        <td>Returns the handle for the currently active machine</td>
+      </tr>
 
+      <tr>
+        <td><code>machine &lt;machine name&gt;</code></td>
 
-<h3><a id="machine_info">machine_info</a></h3>
+        <td>Switch to the specified machine, also returns the handle for that machine</td>
+      </tr>
+    </table>
+  </div>
 
-  <p>Shows information about a certain topic. This command is similar to the
-  openmsx_info command. The topics of 'machine_info' are all machine specific,
-  while the topics of 'openmsx_info' are generic.</p>
+  <div class="note">
+    Note: The machine handle mostly used for external applications controlling openMSX. For interactive use it's not
+    used much.
+  </div>
 
-  <div class="usagetitle">usage:</div>
+  <h3><a id="machine_info" name="machine_info">machine_info</a></h3>
 
-<div class="usage">
-<table>
-<tr><td><code>machine_info</code></td><td>shows a list of all possible topics</td></tr>
-<tr><td><code>machine_info &lt;topic&gt;</code></td><td>shows info on this specific topic</td></tr>
-</table>
-</div>
+  <p>Shows information about a certain topic. This command is similar to the openmsx_info command. The topics of
+  'machine_info' are all machine specific, while the topics of 'openmsx_info' are generic.</p>
 
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<h3><a id="openmsx_info">openmsx_info</a></h3>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>machine_info</code></td>
+
+        <td>shows a list of all possible topics</td>
+      </tr>
+
+      <tr>
+        <td><code>machine_info &lt;topic&gt;</code></td>
+
+        <td>shows info on this specific topic</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="openmsx_info" name="openmsx_info">openmsx_info</a></h3>
 
   <p>Shows information about a certain topic. See also 'machine_info'.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>openmsx_info</code></td><td>shows a list of all possible topics</td></tr>
-<tr><td><code>openmsx_info &lt;topic&gt;</code></td><td>shows info on this specific topic</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>openmsx_info</code></td>
 
+        <td>shows a list of all possible topics</td>
+      </tr>
 
-<h3><a id="palette">palette</a></h3>
+      <tr>
+        <td><code>openmsx_info &lt;topic&gt;</code></td>
+
+        <td>shows info on this specific topic</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="palette" name="palette">palette</a></h3>
 
   <p>Shows the current VDP palette settings.</p>
+
   <p>[ mainly useful for debugging purposes ]</p>
 
+  <h3><a id="plugunplug" name="plugunplug">plug / unplug</a></h3>
 
-<h3><a id="plugunplug">plug / unplug</a></h3>
+  <p>Plugs or unplugs a plug into a connector, for example plug a virtual joystick into a virtual joystick port.</p>
 
-  <p>Plugs or unplugs a plug into a connector, for example plug a virtual joystick
-  into a virtual joystick port.</p>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>plug</code></td>
 
-<div class="usage">
-<table>
-<tr><td><code>plug</code></td><td>shows all currently connected plugs</td></tr>
-    <tr><td><code>plug &lt;connector&gt;</code></td><td>shows currently connected plug for the specified connector</td></tr>
-    <tr><td><code>plug &lt;connector&gt; &lt;plug&gt;</code></td><td>plugs the specified plug into the specified connector</td></tr>
-    <tr><td><code>unplug &lt;connector&gt;</code></td><td>unplugs the plug connected to the specified connector</td></tr>
-</table>
-</div>
+        <td>shows all currently connected plugs</td>
+      </tr>
 
-  <div class="examplestitle">examples:</div>
+      <tr>
+        <td><code>plug &lt;connector&gt;</code></td>
+
+        <td>shows currently connected plug for the specified connector</td>
+      </tr>
+
+      <tr>
+        <td><code>plug &lt;connector&gt; &lt;plug&gt;</code></td>
+
+        <td>plugs the specified plug into the specified connector</td>
+      </tr>
+
+      <tr>
+        <td><code>unplug &lt;connector&gt;</code></td>
+
+        <td>unplugs the plug connected to the specified connector</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="examplestitle">
+    examples:
+  </div>
+
   <div class="examples">
-    <code>plug cassetteport cassetteplayer</code><br/>
-    <code>plug joyporta mouse</code><br/>
-    <code>plug printerport logger</code><br/>
-    <code>unplug joyportb</code><br/>
-</div>
+    <code>plug cassetteport cassetteplayer</code><br />
+    <code>plug joyporta mouse</code><br />
+    <code>plug printerport logger</code><br />
+    <code>unplug joyportb</code><br />
+  </div>
 
-<h3><a id="record">record</a></h3>
+  <h3><a id="record" name="record">record</a></h3>
 
   <p>Controls video recording: write openMSX audio/video to a .avi file.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>record start</code></td><td>Record to file &quot;openmsxNNNN.avi&quot;</td></tr>
-<tr><td><code>record start &lt;filename&gt;</code></td><td>Record to indicated file</td></tr>
-<tr><td><code>record start -prefix foo</code></td><td>Record to file &quot;fooNNNN.avi&quot;</td></tr>
-<tr><td><code>record stop</code></td><td>Stop recording</td></tr>
-<tr><td><code>record toggle</code></td><td>Toggle recording</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>record start</code></td>
 
-    <p>The start subcommand also accepts an optional -audioonly or -videoonly flag.
-    In case of -audioonly, the functionality is similar to the now deprecated
-    soundlog command, which records all audio to a .wav file.</p>
+        <td>Record to file "openmsxNNNN.avi"</td>
+      </tr>
 
+      <tr>
+        <td><code>record start &lt;filename&gt;</code></td>
 
-<h3><a id="remove_extension">remove_extension</a></h3>
+        <td>Record to indicated file</td>
+      </tr>
 
-  <p>Remove a rom or extension from a running MSX machine. See also the commands
-  'cart', 'ext', 'list_extensions'.</p>
+      <tr>
+        <td><code>record start -prefix foo</code></td>
 
-  <div class="usagetitle">usage:</div>
+        <td>Record to file "fooNNNN.avi"</td>
+      </tr>
 
-<div class="usage">
-<table>
-<tr><td><code>remove_extension fmpac</code></td><td>removes the fmpac extension from the running msx </td></tr>
-</table>
-</div>
+      <tr>
+        <td><code>record stop</code></td>
 
+        <td>Stop recording</td>
+      </tr>
 
-<h3><a id="reset">reset</a></h3>
+      <tr>
+        <td><code>record toggle</code></td>
+
+        <td>Toggle recording</td>
+      </tr>
+    </table>
+  </div>
+
+  <p>The start subcommand also accepts an optional -audioonly or -videoonly flag. In case of -audioonly, the
+  functionality is similar to the now deprecated soundlog command, which records all audio to a .wav file.</p>
+
+  <h3><a id="remove_extension" name="remove_extension">remove_extension</a></h3>
+
+  <p>Remove a rom or extension from a running MSX machine. See also the commands 'cart', 'ext', 'list_extensions'.</p>
+
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>remove_extension fmpac</code></td>
+
+        <td>removes the fmpac extension from the running msx</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="reset" name="reset">reset</a></h3>
 
   <p>Resets the emulated MSX.</p>
 
-
-<h3><a id="save_settings">save_settings</a></h3>
+  <h3><a id="save_settings" name="save_settings">save_settings</a></h3>
 
   <p>Write the current openMSX settings to a settings file.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>save_settings</code></td><td>Save settings to the default settings file  </td></tr>
-    <tr><td><code>save_settings &lt;filename&gt;</code></td><td>Save settings to the given filename</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>save_settings</code></td>
 
+        <td>Save settings to the default settings file</td>
+      </tr>
 
-<h3><a id="screenshot">screenshot</a></h3>
+      <tr>
+        <td><code>save_settings &lt;filename&gt;</code></td>
+
+        <td>Save settings to the given filename</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="screenshot" name="screenshot">screenshot</a></h3>
 
   <p>Take a screenshot.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>screenshot</code></td><td>Write screenshot to file &quot;openmsxNNNN.png&quot;</td></tr>
-    <tr><td><code>screenshot &lt;filename&gt;</code></td><td>Write screenshot to indicated file</td></tr>
-    <tr><td><code>screenshot -prefix foo</code></td><td>Write screenshot to file &quot;fooNNNN.png&quot;</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>screenshot</code></td>
 
+        <td>Write screenshot to file "openmsxNNNN.png"</td>
+      </tr>
 
-<h3><a id="set">set</a></h3>
+      <tr>
+        <td><code>screenshot &lt;filename&gt;</code></td>
+
+        <td>Write screenshot to indicated file</td>
+      </tr>
+
+      <tr>
+        <td><code>screenshot -prefix foo</code></td>
+
+        <td>Write screenshot to file "fooNNNN.png"</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="set" name="set">set</a></h3>
 
   <p>Change or query the value of various settings.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>set</code></td><td>Shows a list of all supported settings </td></tr>
-    <tr><td><code>set &lt;setting&gt;</code></td><td>Query the current value of the specified setting</td></tr>
-    <tr><td><code>set &lt;setting&gt; &lt;value&gt;</code></td><td>Change the specified setting to the given value</td></tr>
-  </table>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set</code></td>
+
+        <td>Shows a list of all supported settings</td>
+      </tr>
+
+      <tr>
+        <td><code>set &lt;setting&gt;</code></td>
+
+        <td>Query the current value of the specified setting</td>
+      </tr>
+
+      <tr>
+        <td><code>set &lt;setting&gt; &lt;value&gt;</code></td>
+
+        <td>Change the specified setting to the given value</td>
+      </tr>
+    </table>
   </div>
 
   <p>Settings that can be adjusted with this command are listed below.</p>
 
-  <div class="examplestitle">examples:</div>
+  <div class="examplestitle">
+    examples:
+  </div>
+
   <div class="examples">
     <code>set accuracy pixel</code><br />
     <code>set blur 25</code><br />
     <code>set scanline 20</code><br />
     <code>set deinterlace on</code><br />
-</div>
+  </div>
 
-<h3><a id="slotmap">slotmap</a></h3>
+  <h3><a id="slotmap" name="slotmap">slotmap</a></h3>
 
   <p>Shows the slot mappings of the emulated MSX.</p>
+
   <p>[ mainly useful for debugging purposes ]</p>
 
-
-<h3><a id="slotselect">slotselect</a></h3>
+  <h3><a id="slotselect" name="slotselect">slotselect</a></h3>
 
   <p>Shows the currently selected slots.</p>
+
   <p>[ mainly useful for debugging purposes ]</p>
 
-
-<h3><a id="toggle">toggle</a></h3>
+  <h3><a id="toggle" name="toggle">toggle</a></h3>
 
   <p>Toggles any boolean (on-off) setting.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>toggle &lt;setting&gt;</code></td><td>toggles the specified setting</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>toggle &lt;setting&gt;</code></td>
 
-  <div class="examplestitle">examples:</div>
+        <td>toggles the specified setting</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="examplestitle">
+    examples:
+  </div>
+
   <div class="examples">
-    <code>toggle mute</code><br/>
+    <code>toggle mute</code><br />
     <code>toggle throttle</code>
-</div>
+  </div>
 
-<h3><a id="trainer">trainer</a></h3>
+  <h3><a id="trainer" name="trainer">trainer</a></h3>
 
-  <p>Control game trainers. You can enable or disable individual cheats of each trainer.
-  Make use of the TAB key to see what is available.
-  When switching trainers, the currently active trainer will be deactivated.</p>
+  <p>Control game trainers. You can enable or disable individual cheats of each trainer. Make use of the TAB key to see
+  what is available. When switching trainers, the currently active trainer will be deactivated.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>trainer</code></td><td>see which trainer is currently active</td></tr>
-    <tr><td><code>trainer &lt;game&gt;</code></td><td>see which cheats are currently active in the trainer</td></tr>
-    <tr><td><code>trainer &lt;game&gt; all</code></td><td>activate all cheats in the trainer of &lt;game&gt;</td></tr>
-    <tr><td><code>trainer &lt;game&gt; \[&lt;cheat&gt; ..\]</code></td><td>toggle cheats of &lt;game&gt; on/off</td></tr>
-    <tr><td><code>trainer deactivate</code></td><td>deactivate all trainers</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>trainer</code></td>
 
-  <div class="examplestitle">examples:</div>
+        <td>see which trainer is currently active</td>
+      </tr>
+
+      <tr>
+        <td><code>trainer &lt;game&gt;</code></td>
+
+        <td>see which cheats are currently active in the trainer</td>
+      </tr>
+
+      <tr>
+        <td><code>trainer &lt;game&gt; all</code></td>
+
+        <td>activate all cheats in the trainer of &lt;game&gt;</td>
+      </tr>
+
+      <tr>
+        <td><code>trainer &lt;game&gt; \[&lt;cheat&gt; ..\]</code></td>
+
+        <td>toggle cheats of &lt;game&gt; on/off</td>
+      </tr>
+
+      <tr>
+        <td><code>trainer deactivate</code></td>
+
+        <td>deactivate all trainers</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="examplestitle">
+    examples:
+  </div>
+
   <div class="examples">
     <code>trainer Frogger all</code><br />
     <code>trainer Circus\ Charlie 1 2</code><br />
-    <code>trainer Pippols lives \&quot;jump shoes\&quot;\</code>
-</div>
+    <code>trainer Pippols lives \"jump shoes\"\</code>
+  </div>
 
-<h3><a id="type">type</a></h3>
+  <h3><a id="type" name="type">type</a></h3>
 
-  <p>Type a string in the emulated MSX. This command automatically presses and
-  releases keys in the simulated MSX keyboard matrix. This command is mainly
-  useful for demoing.</p>
+  <p>Type a string in the emulated MSX. This command automatically presses and releases keys in the simulated MSX
+  keyboard matrix. This command is mainly useful for demoing.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<code>type &quot;Hello world!&quot;</code>
-</div>
+  <div class="usage">
+    <code>type "Hello world!"</code>
+  </div>
 
+  <h3><a id="update" name="update">update</a></h3>
 
-<h3><a id="update">update</a></h3>
+  <p>Enable or disable update notifications of a certain type. This command is mainly useful for external programs
+  controlling openmsx.</p>
 
-  <p>Enable or disable update notifications of a certain type.
-  This command is mainly useful for external programs controlling openmsx.</p>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>update enable &lt;type&gt;</code></td>
 
-<div class="usage">
-<table>
-<tr><td><code>update enable &lt;type&gt;</code></td><td>enable notifications for this type</td></tr>
-    <tr><td><code>update disable &lt;type&gt;</code></td><td>disable notifications for this type</td></tr>
-</table>
-</div>
+        <td>enable notifications for this type</td>
+      </tr>
 
-  <div class="examplestitle">examples:</div>
+      <tr>
+        <td><code>update disable &lt;type&gt;</code></td>
+
+        <td>disable notifications for this type</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="examplestitle">
+    examples:
+  </div>
+
   <div class="examples">
-    <code>update enable led</code><br/>
+    <code>update enable led</code><br />
     <code>update disable setting</code>
-</div>
+  </div>
 
-<h3><a id="vdpregs">vdpregs</a></h3>
+  <h3><a id="vdpregs" name="vdpregs">vdpregs</a></h3>
 
   <p>Shows the current VDP register settings.</p>
+
   <p>[ mainly useful for debugging purposes ]</p>
 
+  <h2><a id="OLD_COMMANDS" name="OLD_COMMANDS">OLD COMMANDS</a></h2>
 
+  <p>The following commands existed in older openMSX version. For backwards compatibility they are still supported for
+  a while. In later versions they will be removed.</p>
 
-<h2><a id="OLD_COMMANDS">OLD COMMANDS</a></h2>
-<p>
-  The following commands existed in older openMSX version. For backwards
-  compatibility they are still supported for a while. In later versions they
-  will be removed.
-</p>
-<h3><a id="aliasunalias">alias / unalias</a></h3>
+  <h3><a id="aliasunalias" name="aliasunalias">alias / unalias</a></h3>
 
   <p>Create a new command that is an alias for another (group of) command(s).</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>alias &lt;name&gt; &lt;command&gt;</code></td><td>define an alias</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>alias &lt;name&gt; &lt;command&gt;</code></td>
 
-  <div class="examplestitle">examples:</div>
+        <td>define an alias</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="examplestitle">
+    examples:
+  </div>
+
   <div class="examples">
-    <code>alias gl &quot;set renderer SDLGL&quot;</code><br/>
-    <code>alias restart &quot;set power off ; set power on&quot;</code>
-</div>
+    <code>alias gl "set renderer SDLGL"</code><br />
+    <code>alias restart "set power off ; set power on"</code>
+  </div>
 
-  <div class="note">Note: This is not 100% compatible with the old alias command. Better use
-        the more powerful TCL &quot;proc&quot; command.</div class="note">
+  <div class="note">
+    Note: This is not 100% compatible with the old alias command. Better use the more powerful TCL "proc" command.
+  </div>
 
-<h3><a id="decr">decr</a></h3>
+  <h3><a id="decr" name="decr">decr</a></h3>
 
   <p>Decrement an integer setting.</p>
 
-  <p>This command is deprecated, better use the native TCL command &quot;incr&quot; and
-  negate the offset.</p>
+  <p>This command is deprecated, better use the native TCL command "incr" and negate the offset.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>decr</code></td><td>shows all integer settings</td></tr>
-    <tr><td><code>decr &lt;setting&gt;</code></td><td>decrement the specified setting</td></tr>
-    <tr><td><code>decr &lt;setting&gt; &lt;num&gt;</code></td><td>decrement the specified setting with given amount</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>decr</code></td>
 
-  <div class="examplestitle">examples:</div>
+        <td>shows all integer settings</td>
+      </tr>
+
+      <tr>
+        <td><code>decr &lt;setting&gt;</code></td>
+
+        <td>decrement the specified setting</td>
+      </tr>
+
+      <tr>
+        <td><code>decr &lt;setting&gt; &lt;num&gt;</code></td>
+
+        <td>decrement the specified setting with given amount</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="examplestitle">
+    examples:
+  </div>
+
   <div class="examples">
-    <code>decr speed</code><br/>
+    <code>decr speed</code><br />
     <code>decr renshaturbo 10</code>
-</div>
+  </div>
 
-<h3><a id="incr">incr</a></h3>
+  <h3><a id="incr" name="incr">incr</a></h3>
 
   <p>Increment an integer setting.</p>
 
   <p>This command is now a native TCL command.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>incr</code></td><td>shows all integer settings</td></tr>
-    <tr><td><code>incr &lt;setting&gt;</code></td><td>increment the specified setting</td></tr>
-    <tr><td><code>incr &lt;setting&gt; &lt;num&gt;</code></td><td>increment the specified setting with given amount</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>incr</code></td>
 
-  <div class="examplestitle">examples:</div>
+        <td>shows all integer settings</td>
+      </tr>
+
+      <tr>
+        <td><code>incr &lt;setting&gt;</code></td>
+
+        <td>increment the specified setting</td>
+      </tr>
+
+      <tr>
+        <td><code>incr &lt;setting&gt; &lt;num&gt;</code></td>
+
+        <td>increment the specified setting with given amount</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="examplestitle">
+    examples:
+  </div>
+
   <div class="examples">
-    <code>incr speed</code><br/>
+    <code>incr speed</code><br />
     <code>incr renshaturbo 10</code>
-</div>
+  </div>
 
-<h3><a id="quit">quit</a></h3>
+  <h3><a id="quit" name="quit">quit</a></h3>
 
   <p>Quits the emulator.</p>
 
-  <p>The native TCL command is called &quot;exit&quot;.</p>
+  <p>The native TCL command is called "exit".</p>
 
-
-<h3><a id="restoredefault">restoredefault</a></h3>
+  <h3><a id="restoredefault" name="restoredefault">restoredefault</a></h3>
 
   <p>Restore the default value for a setting.</p>
 
-  <p>This command is deprecated, better use &quot;<code>unset &lt;setting&gt;</code>&quot;.</p>
+  <p>This command is deprecated, better use "<code>unset &lt;setting&gt;</code>".</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<code>restoredefault &lt;setting&gt;</code>  Restores the default value for the given setting
-</div>
+  <div class="usage">
+    <code>restoredefault &lt;setting&gt;</code> Restores the default value for the given setting
+  </div>
 
-  <div class="examplestitle">examples:</div>
+  <div class="examplestitle">
+    examples:
+  </div>
+
   <div class="examples">
     <code>restoredefault PSG_volume</code>
-</div>
+  </div>
 
-<h3><a id="soundlog">soundlog</a></h3>
+  <h3><a id="soundlog" name="soundlog">soundlog</a></h3>
 
   <p>Controls sound logging: writing the openMSX sound to a wav file.</p>
 
-  <p>This command is deprecated, use &quot;record --audioonly&quot;, see above.</p>
+  <p>This command is deprecated, use "record --audioonly", see above.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>soundlog start</code></td><td>Log sound to file &quot;openmsxNNNN.wav&quot;</td></tr>
-    <tr><td><code>soundlog start &lt;filename&gt;</code></td><td>Log sound to indicated file</td></tr>
-    <tr><td><code>soundlog start -prefix foo</code></td><td>Log sound to file &quot;fooNNNN.wav&quot;</td></tr>
-    <tr><td><code>soundlog stop</code></td><td>Stop logging sound</td></tr>
-    <tr><td><code>soundlog toggle</code></td><td>Toggle sound logging state</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>soundlog start</code></td>
 
+        <td>Log sound to file "openmsxNNNN.wav"</td>
+      </tr>
 
-<h2><a id="SETTINGS">SETTINGS</a></h2>
+      <tr>
+        <td><code>soundlog start &lt;filename&gt;</code></td>
 
-<h3><a id="accuracy">accuracy</a></h3>
+        <td>Log sound to indicated file</td>
+      </tr>
+
+      <tr>
+        <td><code>soundlog start -prefix foo</code></td>
+
+        <td>Log sound to file "fooNNNN.wav"</td>
+      </tr>
+
+      <tr>
+        <td><code>soundlog stop</code></td>
+
+        <td>Stop logging sound</td>
+      </tr>
+
+      <tr>
+        <td><code>soundlog toggle</code></td>
+
+        <td>Toggle sound logging state</td>
+      </tr>
+    </table>
+  </div>
+
+  <h2><a id="SETTINGS" name="SETTINGS">SETTINGS</a></h2>
+
+  <h3><a id="accuracy" name="accuracy">accuracy</a></h3>
 
   <p>Sets the render accuracy. Currently there are three render modes:</p>
-  <p><ul>
+
+  <ul>
     <li>screen accurate: This is the fastest but also least accurate mode.</li>
-    <li>line accurate: This is the recommended mode. Most tricks are 
-                     rendered correctly.</li>
-    <li>pixel accurate: This is the slowest but also most accurate mode.
-                      In this mode even the 'Unknown Reality scope part'
-                      is rendered correctly.</li>
-  </ul></p>
 
-  <div class="usagetitle">usage:</div>
+    <li>line accurate: This is the recommended mode. Most tricks are rendered correctly.</li>
 
-<div class="usage">
-<table>
-<tr><td><code>set accuracy</code></td><td>shows the current setting</td></tr>
-    <tr><td><code>set accuracy screen</code></td><td>selects screen accurate rendering</td></tr>
-    <tr><td><code>set accuracy line</code></td><td>selects line accurate rendering</td></tr>
-    <tr><td><code>set accuracy pixel</code></td><td>selects pixel accurate rendering</td></tr>
-</table>
-</div>
+    <li>pixel accurate: This is the slowest but also most accurate mode. In this mode even the 'Unknown Reality scope
+    part' is rendered correctly.</li>
+  </ul>
 
-  <div class="note">Note: not all renderers support all render modes</div class="note">
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<h3><a id="audio-inputfilename">audio-inputfilename</a></h3>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set accuracy</code></td>
+
+        <td>shows the current setting</td>
+      </tr>
+
+      <tr>
+        <td><code>set accuracy screen</code></td>
+
+        <td>selects screen accurate rendering</td>
+      </tr>
+
+      <tr>
+        <td><code>set accuracy line</code></td>
+
+        <td>selects line accurate rendering</td>
+      </tr>
+
+      <tr>
+        <td><code>set accuracy pixel</code></td>
+
+        <td>selects pixel accurate rendering</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="note">
+    Note: not all renderers support all render modes
+  </div>
+
+  <h3><a id="audio-inputfilename" name="audio-inputfilename">audio-inputfilename</a></h3>
 
   <p>Sets the file(name) from which the wave input is read for the sampler.</p>
-  <p>By default, it is read from &quot;audio-input.wav&quot; when available.</p>
-  
-  <div class="usagetitle">usage:</div>
 
-<div class="usage">
-<table>
-<tr><td><code>set audio+inputfilename</code></td><td>shows the current setting</td></tr>
-<tr><td><code>set audio+inputfilename mysample.wav</code></td><td>read from mysample.wav</td></tr>
-</table>
-</div>
+  <p>By default, it is read from "audio-input.wav" when available.</p>
 
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<h3><a id="autoruncassettes">autoruncassettes</a></h3>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set audio+inputfilename</code></td>
 
-  <p>Switches the auto-run cassettes feature on or off. When it's enabled,
-  openMSX will try to type the proper loading instruction when a cassette
-  is inserted.</p>
-  <div class="usagetitle">usage:</div>
+        <td>shows the current setting</td>
+      </tr>
 
-<div class="usage">
-<table>
-<tr><td><code>set autoruncassettes</code></td><td>shows the current setting</td></tr>
-    <tr><td><code>set autoruncassettes on</code></td><td>try to run cassettes automatically</td></tr>
-    <tr><td><code>set autoruncassettes off</code></td><td>disable the feature</td></tr>
-</table>
-</div>
-  <div class="note"> Note: this only works with CAS images for now and it is
-  still an experimental feature.</div>
+      <tr>
+        <td><code>set audio+inputfilename mysample.wav</code></td>
 
+        <td>read from mysample.wav</td>
+      </tr>
+    </table>
+  </div>
 
+  <h3><a id="autoruncassettes" name="autoruncassettes">autoruncassettes</a></h3>
 
-<h3><a id="blur">blur</a></h3>
+  <p>Switches the auto-run cassettes feature on or off. When it's enabled, openMSX will try to type the proper loading
+  instruction when a cassette is inserted.</p>
+
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set autoruncassettes</code></td>
+
+        <td>shows the current setting</td>
+      </tr>
+
+      <tr>
+        <td><code>set autoruncassettes on</code></td>
+
+        <td>try to run cassettes automatically</td>
+      </tr>
+
+      <tr>
+        <td><code>set autoruncassettes off</code></td>
+
+        <td>disable the feature</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="note">
+    Note: this only works with CAS images for now and it is still an experimental feature.
+  </div>
+
+  <h3><a id="blur" name="blur">blur</a></h3>
 
   <p>Sets the amount of horizontal blur effect.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>set blur</code></td><td>shows the current setting</td></tr>
-    <tr><td><code>set blur &lt;value&gt;</code></td><td>change the value</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set blur</code></td>
 
-  <div class="note">Note: not all renderers support this.</div>
+        <td>shows the current setting</td>
+      </tr>
 
-<h3><a id="bootsector">bootsector</a></h3>
+      <tr>
+        <td><code>set blur &lt;value&gt;</code></td>
 
-  <p>Sets the boot sector type for DirAsDSK. Default: DOS2. Only relevant on
-  turboR, because it boots differently depending on this sector of the disk
-  in drive A.</p>
+        <td>change the value</td>
+      </tr>
+    </table>
+  </div>
 
-  <div class="usagetitle">usage:</div>
+  <div class="note">
+    Note: not all renderers support this.
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>set bootsector</code></td><td>shows the current setting</td></tr>
-    <tr><td><code>set bootsector DOS1</code></td><td>use a DOS1 boot sector</td></tr>
-</table>
-</div>
+  <h3><a id="bootsector" name="bootsector">bootsector</a></h3>
 
+  <p>Sets the boot sector type for DirAsDSK. Default: DOS2. Only relevant on turboR, because it boots differently
+  depending on this sector of the disk in drive A.</p>
 
-<h3><a id="brightness">brightness</a></h3>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-  <p>Controls the brightness of the video output. Can be between -100 and 100.
-  Lower values are darker, higher values are brighter. The default is 0.</p>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set bootsector</code></td>
 
-  <div class="usagetitle">usage:</div>
+        <td>shows the current setting</td>
+      </tr>
 
-<div class="usage">
-<table>
-<table>
-    <tr><td><code>set brightness</code></td><td>shows the current setting</td></tr>
-    <tr><td><code>set brightness 5</code></td><td>make the video output a bit brighter then default</td></tr>
-</table>
-</div>
+      <tr>
+        <td><code>set bootsector DOS1</code></td>
 
-<h3><a id="cmdtiming">cmdtiming</a></h3>
+        <td>use a DOS1 boot sector</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="brightness" name="brightness">brightness</a></h3>
+
+  <p>Controls the brightness of the video output. Can be between -100 and 100. Lower values are darker, higher values
+  are brighter. The default is 0.</p>
+
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td><code>set brightness</code></td>
+
+        <td>shows the current setting</td>
+      </tr>
+
+      <tr>
+        <td><code>set brightness 5</code></td>
+
+        <td>make the video output a bit brighter then default</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="cmdtiming" name="cmdtiming">cmdtiming</a></h3>
 
   <p>Controls VDP command execution timing.</p>
+
   <p>[ mainly useful for debugging purposes ]</p>
-  
 
-<h3><a id="color_matrix">color_matrix</a></h3>
+  <h3><a id="color_matrix" name="color_matrix">color_matrix</a></h3>
 
-  <p>This setting represents a 3x3 matrix that is used to transform MSX RGB colors
-  to host RGB colors. This setting can be used to generate all kind of color
-  schemes, see scripts/monitor.tcl for examples.</p>
+  <p>This setting represents a 3x3 matrix that is used to transform MSX RGB colors to host RGB colors. This setting can
+  be used to generate all kind of color schemes, see scripts/monitor.tcl for examples.</p>
   <pre>
         | . . . |   | Rm |   | Rh |
         | . . . | x | Gm | = | Gh |
         | . . . |   | Bm |   | Bh |
-  </pre>
-  <div class="usagetitle">usage:</div>
+  
+</pre>
 
-<div class="usage">
-<table>
-<tr><td><code>set color_matrix</code></td><td>shows the current value</td></tr>
-<tr><td><code>set color_matrix { { 1 0 0 } { 0 1 0 } { 0 0 1 } }</code></td><td>this is the default (no color transformation)</td></tr>
-    <tr><td><code>set color_matrix { { .33 .33 .33 } { .33 .33 .33 } { .33 .33 .33 } }</code></td><td>transform to greyscale</td></tr>
-</table>
-</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-  <div class="note">Note:
-    It is often more convenient to use the scripts/monitor.tcl script.</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set color_matrix</code></td>
 
+        <td>shows the current value</td>
+      </tr>
 
-<h3><a id="console">console</a></h3>
+      <tr>
+        <td><code>set color_matrix { { 1 0 0 } { 0 1 0 } { 0 0 1 } }</code></td>
+
+        <td>this is the default (no color transformation)</td>
+      </tr>
+
+      <tr>
+        <td><code>set color_matrix { { .33 .33 .33 } { .33 .33 .33 } { .33 .33 .33 } }</code></td>
+
+        <td>transform to greyscale</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="note">
+    Note: It is often more convenient to use the scripts/monitor.tcl script.
+  </div>
+
+  <h3><a id="console" name="console">console</a></h3>
 
   <p>Turns the console on or off.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>set console</code></td><td>shows the current setting</td></tr>
-    <tr><td><code>set console on</code></td><td>turns the console on</td></tr>
-    <tr><td><code>set console off</code></td><td>turns the console off</td></tr>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set console</code></td>
+
+        <td>shows the current setting</td>
+      </tr>
+
+      <tr>
+        <td><code>set console on</code></td>
+
+        <td>turns the console on</td>
+      </tr>
+
+      <tr>
+        <td><code>set console off</code></td>
+
+        <td>turns the console off</td>
+      </tr>
     </table>
-    </div>
-    
+  </div>
 
-<h3><a id="consolebackground">consolebackground</a></h3>
+  <h3><a id="consolebackground" name="consolebackground">consolebackground</a></h3>
 
-  <p>Change the console background image. Most image formats (.png, .jpeg,
-  .gif, ...) are supported. Some renderers (openGL) can use an alpha
-  channel, this channel is only present in .png images.</p>
+  <p>Change the console background image. Most image formats (.png, .jpeg, .gif, ...) are supported. Some renderers
+  (openGL) can use an alpha channel, this channel is only present in .png images.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>set consolebackground</code></td><td>shows the current setting</td></tr>
-    <tr><td><code>set consolebackground &lt;image&gt;</code></td><td>sets a new background</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set consolebackground</code></td>
 
+        <td>shows the current setting</td>
+      </tr>
 
-<h3><a id="consolecolumns">consolecolumns</a></h3>
+      <tr>
+        <td><code>set consolebackground &lt;image&gt;</code></td>
+
+        <td>sets a new background</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="consolecolumns" name="consolecolumns">consolecolumns</a></h3>
 
   <p>Change the width of the console measured by the number of columns.</p>
-  
-  <div class="usagetitle">usage:</div>
 
-<div class="usage">
-<table>
-<tr><td><code>set consolecolumns</code></td><td>shows the current setting</td></tr>
-    <tr><td><code>set consolecolumns &lt;value&gt;</code></td><td>set the specified width</td></tr>
-</table>
-</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set consolecolumns</code></td>
 
-<h3><a id="consolefont">consolefont</a></h3>
+        <td>shows the current setting</td>
+      </tr>
 
-  <p>Change the console font. Most image formats (.png, .jpeg, .gif, ...)
-  are supported. The image must contain a 16x16 matrix with the characters
-  in ASCII order. Some renderers (openGL) require an alpha channel to have
-  transparency in the font, this channel is only present in .png images.</p>
+      <tr>
+        <td><code>set consolecolumns &lt;value&gt;</code></td>
 
-  <div class="usagetitle">usage:</div>
+        <td>set the specified width</td>
+      </tr>
+    </table>
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>set consolefont</code></td><td>shows the current setting</td></tr>
-    <tr><td><code>set consolefont &lt;image&gt;</code></td><td>sets a new font</td></tr>
-</table>
-</div>
+  <h3><a id="consolefont" name="consolefont">consolefont</a></h3>
 
+  <p>Change the console font. Most image formats (.png, .jpeg, .gif, ...) are supported. The image must contain a 16x16
+  matrix with the characters in ASCII order. Some renderers (openGL) require an alpha channel to have transparency in
+  the font, this channel is only present in .png images.</p>
 
-<h3><a id="consoleplacement">consoleplacement</a></h3>
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set consolefont</code></td>
+
+        <td>shows the current setting</td>
+      </tr>
+
+      <tr>
+        <td><code>set consolefont &lt;image&gt;</code></td>
+
+        <td>sets a new font</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="consoleplacement" name="consoleplacement">consoleplacement</a></h3>
 
   <p>Change the position of the console within the emulator</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>set consoleplacement</code></td><td>shows the current setting</td></tr>
-    <tr><td><code>set consoleplacement &lt;place&gt;</code></td><td>moves the console the the specified location
-  &lt;place&gt; can be topleft, top, topright, left, center, right, bottomleft,
-  bottom and bottomright.</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set consoleplacement</code></td>
 
+        <td>shows the current setting</td>
+      </tr>
 
+      <tr>
+        <td><code>set consoleplacement &lt;place&gt;</code></td>
 
-<h3><a id="consolerows">consolerows</a></h3>
+        <td>moves the console the the specified location &lt;place&gt; can be topleft, top, topright, left, center,
+        right, bottomleft, bottom and bottomright.</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="consolerows" name="consolerows">consolerows</a></h3>
 
   <p>Change the height of the console measured by the number of rows.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>set consolerows</code></td><td>shows the current setting</td></tr>
-    <tr><td><code>set consolerows &lt;value&gt;</code></td><td>set the specified width</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set consolerows</code></td>
 
+        <td>shows the current setting</td>
+      </tr>
 
-<h3><a id="contrast">contrast</a></h3>
+      <tr>
+        <td><code>set consolerows &lt;value&gt;</code></td>
 
-  <p>Controls the contrast of the video output. Can be between -100 and 100.
-  Lower values are less contrast, higher values are more contrast. The
-  default is 0.</p>
+        <td>set the specified width</td>
+      </tr>
+    </table>
+  </div>
 
-<p><table>
-    <tr><td><code>set contrast</code></td><td>shows the current setting</td></tr>
-    <tr><td><code>set contrast -5</code></td><td>reduce the video contrast a bit</td></tr>
-</table></p>
+  <h3><a id="contrast" name="contrast">contrast</a></h3>
 
+  <p>Controls the contrast of the video output. Can be between -100 and 100. Lower values are less contrast, higher
+  values are more contrast. The default is 0.</p>
 
-<h3><a id="cputrace">cputrace</a></h3>
+  <table>
+    <tr>
+      <td><code>set contrast</code></td>
+
+      <td>shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set contrast -5</code></td>
+
+      <td>reduce the video contrast a bit</td>
+    </tr>
+  </table>
+
+  <h3><a id="cputrace" name="cputrace">cputrace</a></h3>
 
   <p>Enable/disable CPU instruction tracing.</p>
- 
- 
-<h3><a id="debugoutput">debugoutput</a></h3>
+
+  <h3><a id="debugoutput" name="debugoutput">debugoutput</a></h3>
 
   <p>Selects the file to where the output from the debug device goes.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>set debugoutput</code></td><td>shows the current output file</td></tr>
-    <tr><td><code>set debugoutput &lt;output file&gt;</code></td><td>set the specified output file</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set debugoutput</code></td>
 
+        <td>shows the current output file</td>
+      </tr>
 
-<h3><a id="default_machine">default_machine</a></h3>
+      <tr>
+        <td><code>set debugoutput &lt;output file&gt;</code></td>
 
-  <p>The default machine. OpenMSX uses this machine when it is started without
-  &quot;-machine&quot; option.</p>
+        <td>set the specified output file</td>
+      </tr>
+    </table>
+  </div>
 
-  <div class="usagetitle">usage:</div>
+  <h3><a id="default_machine" name="default_machine">default_machine</a></h3>
 
-<div class="usage">
-<table>
-<tr><td><code>set machine</code></td><td>shows current setting</td></tr>
-    <tr><td><code>set machine Panasonic_FS-A1GT</code></td><td>use this machine next time openMSX is started</td></tr>
-</table>
-</div>
+  <p>The default machine. OpenMSX uses this machine when it is started without "-machine" option.</p>
 
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<h3><a id="deinterlace">deinterlace</a></h3>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set machine</code></td>
+
+        <td>shows current setting</td>
+      </tr>
+
+      <tr>
+        <td><code>set machine Panasonic_FS-A1GT</code></td>
+
+        <td>use this machine next time openMSX is started</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="deinterlace" name="deinterlace">deinterlace</a></h3>
 
   <p>Turns deinterlacing on/off.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>set deinterlace</code></td><td>shows the current setting</td></tr>
-    <tr><td><code>set deinterlace on</code></td><td>turns deinterlacing on</td></tr>
-    <tr><td><code>set deinterlace off</code></td><td>turns deinterlacing off</td></tr>
-</table>
-</div>
-  <div class="note">Note: not all renderers support deinterlacing.</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set deinterlace</code></td>
 
+        <td>shows the current setting</td>
+      </tr>
 
-<h3><a id="display_deform">display_deform</a></h3>
+      <tr>
+        <td><code>set deinterlace on</code></td>
 
-  <p>Select display deformation effect. This only has effect on the SDLGL-PP
-  renderer. Currently supported effects are 'normal', 'horizontal_stretch'
-  and '3d'.</p>
+        <td>turns deinterlacing on</td>
+      </tr>
 
-  <div class="usagetitle">usage:</div>
+      <tr>
+        <td><code>set deinterlace off</code></td>
 
-<div class="usage">
-<table>
-<tr><td><code>set display_deform</code></td><td>shows the current setting</td></tr>
-    <tr><td><code>set display_deform 3d</code></td><td>select the 3d display view</td></tr>
-</table>
-</div>
+        <td>turns deinterlacing off</td>
+      </tr>
+    </table>
+  </div>
 
+  <div class="note">
+    Note: not all renderers support deinterlacing.
+  </div>
 
-<h3><a id="frequency">frequency</a></h3>
+  <h3><a id="display_deform" name="display_deform">display_deform</a></h3>
+
+  <p>Select display deformation effect. This only has effect on the SDLGL-PP renderer. Currently supported effects are
+  'normal', 'horizontal_stretch' and '3d'.</p>
+
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set display_deform</code></td>
+
+        <td>shows the current setting</td>
+      </tr>
+
+      <tr>
+        <td><code>set display_deform 3d</code></td>
+
+        <td>select the 3d display view</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="frequency" name="frequency">frequency</a></h3>
 
   <p>The sound mixer frequency.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>set frequency</code></td><td>shows the current setting </td></tr>
-    <tr><td><code>set frequency 44100</code></td><td>use 44.1kHz mixing frequency</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set frequency</code></td>
 
+        <td>shows the current setting</td>
+      </tr>
 
-<h3><a id="firmwareswitch">firmwareswitch</a></h3>
+      <tr>
+        <td><code>set frequency 44100</code></td>
 
-  <p>Some machines (e.g. turboR) have a switch on the front (or on the back) that
-  controls if the machine should boot 'normally' or start the built in
-  software, also called firmware. This setting controls the position of that
+        <td>use 44.1kHz mixing frequency</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="firmwareswitch" name="firmwareswitch">firmwareswitch</a></h3>
+
+  <p>Some machines (e.g. turboR) have a switch on the front (or on the back) that controls if the machine should boot
+  'normally' or start the built in software, also called firmware. This setting controls the position of that
   switch.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>set firmwareswitch</code></td><td>shows the current setting</td></tr>
-    <tr><td><code>set firmwareswitch on</code></td><td>in this position the internal software is started</td></tr>
-    <tr><td><code>set firmwareswitch off</code></td><td>in this position the machine boots 'normally'</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set firmwareswitch</code></td>
 
+        <td>shows the current setting</td>
+      </tr>
 
-<h3><a id="fullscreen">fullscreen</a></h3>
+      <tr>
+        <td><code>set firmwareswitch on</code></td>
+
+        <td>in this position the internal software is started</td>
+      </tr>
+
+      <tr>
+        <td><code>set firmwareswitch off</code></td>
+
+        <td>in this position the machine boots 'normally'</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="fullscreen" name="fullscreen">fullscreen</a></h3>
 
   <p>Switch to / back from fullscreen mode.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>set fullscreen</code></td><td>shows the current setting</td></tr>
-    <tr><td><code>set fullscreen on</code></td><td>switch to fullscreen mode</td></tr>
-    <tr><td><code>set fullscreen off</code></td><td>switch to normal mode</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set fullscreen</code></td>
 
+        <td>shows the current setting</td>
+      </tr>
 
-<h3><a id="fullspeedwhenloading">fullspeedwhenloading</a></h3>
+      <tr>
+        <td><code>set fullscreen on</code></td>
 
-  <p>When enabled, openMSX will try to detect when it is loading from diskette or
-  cassette and in case it is, it will run at full speed (taking all CPU power
-  it can get). This can be convenient if you're not interested in the realistic
-  loading times on MSX. Default is off, because it is not according to the
-  behaviour of a real MSX.</p>
+        <td>switch to fullscreen mode</td>
+      </tr>
 
-  <div class="usagetitle">usage:</div>
+      <tr>
+        <td><code>set fullscreen off</code></td>
 
-<div class="usage">
-<table>
-<tr><td><code>set fullspeedwhenloading</code></td><td>shows the current setting</td></tr>
-<tr><td><code>set fullspeedwhenloading on</code></td><td>enable the full speed when loading feature</td></tr>
-<tr><td><code>set fullspeedwhenloading off</code></td><td>disable the feature</td></tr>
-</table>
-</div>
+        <td>switch to normal mode</td>
+      </tr>
+    </table>
+  </div>
 
+  <h3><a id="fullspeedwhenloading" name="fullspeedwhenloading">fullspeedwhenloading</a></h3>
 
-<h3><a id="gamma">gamma</a></h3>
+  <p>When enabled, openMSX will try to detect when it is loading from diskette or cassette and in case it is, it will
+  run at full speed (taking all CPU power it can get). This can be convenient if you're not interested in the realistic
+  loading times on MSX. Default is off, because it is not according to the behaviour of a real MSX.</p>
+
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set fullspeedwhenloading</code></td>
+
+        <td>shows the current setting</td>
+      </tr>
+
+      <tr>
+        <td><code>set fullspeedwhenloading on</code></td>
+
+        <td>enable the full speed when loading feature</td>
+      </tr>
+
+      <tr>
+        <td><code>set fullspeedwhenloading off</code></td>
+
+        <td>disable the feature</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="gamma" name="gamma">gamma</a></h3>
 
   <p>Sets the amount of gamma correction: low is dark, high is bright</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>set gamma</code></td><td>shows the current value</td></tr>
-    <tr><td><code>set gamma &lt;num&gt;</code></td><td>set new value</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set gamma</code></td>
 
-    
-<h3><a id="glow">glow</a></h3>
-  
+        <td>shows the current value</td>
+      </tr>
+
+      <tr>
+        <td><code>set gamma &lt;num&gt;</code></td>
+
+        <td>set new value</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="glow" name="glow">glow</a></h3>
+
   <p>Sets the amount of glow effect.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>set glow</code></td><td>shows the current setting</td></tr>
-<tr><td><code>set glow &lt;value&gt;</code></td><td>change the value</td></tr>
-</table>
-</div>
-  <div class="note">Note: not all renderers support this.</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set glow</code></td>
 
+        <td>shows the current setting</td>
+      </tr>
 
-<h3><a id="grabinput">grabinput</a></h3>
+      <tr>
+        <td><code>set glow &lt;value&gt;</code></td>
 
-  <p>Controls whether openMSX grabs all input or not. When this setting is turned
-  on, all input is directly passed to openMSX. The mouse pointer can't leave
-  the openMSX window and the window manager won't be able to react to keyboard
+        <td>change the value</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="note">
+    Note: not all renderers support this.
+  </div>
+
+  <h3><a id="grabinput" name="grabinput">grabinput</a></h3>
+
+  <p>Controls whether openMSX grabs all input or not. When this setting is turned on, all input is directly passed to
+  openMSX. The mouse pointer can't leave the openMSX window and the window manager won't be able to react to keyboard
   shortcuts.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>set grabinput</code></td><td>shows the current setting</td></tr>
-    <tr><td><code>set grabinput on</code></td><td>turn input grabbing mode on</td></tr>
-    <tr><td><code>set grabinput off</code></td><td>turn input grabbing mode off</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set grabinput</code></td>
 
+        <td>shows the current setting</td>
+      </tr>
 
-<h3><a id="icon.name.setting">icon.&lt;name&gt;.&lt;setting&gt;</a></h3>
-<p>
-<code>icon.&lt;name&gt;.xcoord</code><br />
-<code>icon.&lt;name&gt;.ycoord</code><br />
-<code>icon.&lt;name&gt;.active.image</code><br />
-<code>icon.&lt;name&gt;.non-active.image</code><br />
-<code>icon.&lt;name&gt;.active.fade-delay</code><br />
-<code>icon.&lt;name&gt;.active.fade-duration</code><br />
-<code>icon.&lt;name&gt;.non-active.fade-delay</code><br />
-<code>icon.&lt;name&gt;.non-active.fade-duration</code>
-</p>
+      <tr>
+        <td><code>set grabinput on</code></td>
+
+        <td>turn input grabbing mode on</td>
+      </tr>
+
+      <tr>
+        <td><code>set grabinput off</code></td>
+
+        <td>turn input grabbing mode off</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="icon.name.setting" name="icon.name.setting">icon.&lt;name&gt;.&lt;setting&gt;</a></h3>
+
+  <p><code>icon.&lt;name&gt;.xcoord</code><br />
+  <code>icon.&lt;name&gt;.ycoord</code><br />
+  <code>icon.&lt;name&gt;.active.image</code><br />
+  <code>icon.&lt;name&gt;.non-active.image</code><br />
+  <code>icon.&lt;name&gt;.active.fade-delay</code><br />
+  <code>icon.&lt;name&gt;.active.fade-duration</code><br />
+  <code>icon.&lt;name&gt;.non-active.fade-delay</code><br />
+  <code>icon.&lt;name&gt;.non-active.fade-duration</code></p>
+
   <p>Controls the appearance of the OSD LED icons.</p>
 
   <p>&lt;name&gt; can be 'caps', 'fdd', 'kana', 'pause', 'power' or 'turbo'.</p>
 
-  <p>The position is set with the 'xcoord' and 'ycoord' settings. The active and
-  non-active version have the same position. The value is in pixels and (0,0)
-  corresponds to the top-left of the screen.</p>
-  <p>The image for the LED can be specified with the '(non-)active.image' setting.
-  This can be an image of any size and the image can have an alpha
-  (=transparency) channel. Typically this will be .png files.</p>
+  <p>The position is set with the 'xcoord' and 'ycoord' settings. The active and non-active version have the same
+  position. The value is in pixels and (0,0) corresponds to the top-left of the screen.</p>
 
-  <p>Fade duration and delay control how (and if) the icon will fade away. When
-  the LED changes status (on-&gt;off or off-&gt;on) the image is always shown, after
-  the 'delay' time it will start to fade out. The time from completely visible
-  to completely transparent is controlled with the fade.duration setting. Both
-  fade.duration and fade.delay are specified in milliseconds. A fade delay of 0
-  means don't fade out. Duration and delay can be set independently for active
-  and non-active image.</p>
+  <p>The image for the LED can be specified with the '(non-)active.image' setting. This can be an image of any size and
+  the image can have an alpha (=transparency) channel. Typically this will be .png files.</p>
 
-  <div class="usagetitle">usage:</div>
+  <p>Fade duration and delay control how (and if) the icon will fade away. When the LED changes status (on-&gt;off or
+  off-&gt;on) the image is always shown, after the 'delay' time it will start to fade out. The time from completely
+  visible to completely transparent is controlled with the fade.duration setting. Both fade.duration and fade.delay are
+  specified in milliseconds. A fade delay of 0 means don't fade out. Duration and delay can be set independently for
+  active and non-active image.</p>
 
-<div class="usage">
-<code>set icon.fdd.xcoord 250</code><br />
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <code>set icon.fdd.xcoord 250</code><br />
     <code>set icon.fdd.ycoord 0</code><br />
     <code>set icon.fdd.active.image fdd-on.png</code><br />
     <code>set icon.fdd.active.image fdd-off.png</code><br />
-    <code>set icon.fdd.active.fade-delay 0</code>             don't fade out active fdd LED<br />
+    <code>set icon.fdd.active.fade-delay 0</code> don't fade out active fdd LED<br />
     <code>set icon.fdd.active.fade-duration 5000</code><br />
     <code>set icon.fdd.non-active.fade-delay 5000</code><br />
     <code>set icon.fdd.non-active.fade-duration 5000</code><br />
-    </div>
+  </div>
 
-  <div class="note">Note: In the future the position'xcoord' and 'ycoord' settings  will most likely change so that it is resolution
-        independent (scale_factor setting)</div class="note">
+  <div class="note">
+    Note: In the future the position'xcoord' and 'ycoord' settings will most likely change so that it is resolution
+    independent (scale_factor setting)
+  </div>
 
-
-<h3><a id="inputdelay">inputdelay</a></h3>
+  <h3><a id="inputdelay" name="inputdelay">inputdelay</a></h3>
 
   <p>[ Only Change this if you understand what this setting does]</p>
 
-  <p>Input events for the MSX machine are delayed by this amount. Increase this
-  value when the MSX machine misses keyboard presses when you type very fast.
-  Decrease this value to reduce the latency between pressing a key on the host
-  machine and seeing it being typed in the MSX machine.</p>
-  
-  <div class="note">Note: the default value (3/100s) should almost always be OK, this small delay
-        is practically not noticeable and still allows the MSX machine to get
-        accurate timing on the input events.</div>
+  <p>Input events for the MSX machine are delayed by this amount. Increase this value when the MSX machine misses
+  keyboard presses when you type very fast. Decrease this value to reduce the latency between pressing a key on the
+  host machine and seeing it being typed in the MSX machine.</p>
 
-
-<h3><a id="keyjoystick_n_button">keyjoystick&lt;n&gt;.&lt;button&gt;</a></h3>
-
-  <p>&lt;n&gt;        1, 2</p>
-  <p>&lt;button&gt;   up, down, left, right, triga, trigb</p>
-
-  <p>Configure the keys of the keyjoysticks. It's likely this will change in the
-  future.</p>
-
-  <div class="usagetitle">usage:</div>
-
-<div class="usage">
-<table>
-<tr><td><code>set keyjoystick1.up W</code></td></tr>
-<tr><td><code>set keyjoystick1.down S</code></td></tr>
-<tr><td><code>set keyjoystick1.left A</code></td></tr>
-<tr><td><code>set keyjoystick1.right D</code></td></tr>
-<tr><td><code>set keyjoystick1.triga SPACE</code></td></tr>
-</table>
-</div>
-
-
-<h3><a id="limitsprites">limitsprites</a></h3>
-
-  <p>Limit number of sprites per line. Turn on for realism (default), turn off to
-  reduce sprite flashing. Note that some games make use of this limitation.</p>
-
-  <div class="usagetitle">usage:</div>
-
-<div class="usage">
-<table>
-<tr><td><code>set limitsprites</code></td><td></td></tr>
-    <tr><td><code>set limitsprites on</code></td><td>limit number of sprites per line</td></tr>
-    <tr><td><code>set limitsprites off</code></td><td>no limit on number of sprites per line</td></tr>
-</table>
-</div>
-
-
-<h3><a id="master_volume">master_volume</a></h3>
-
-  <p>Controls the overall openMSX volume. The volume of individual sound device can
-  be controlled with the [soundchip]_volume settings, see below.</p>
-
-  <div class="usagetitle">usage:</div>
-
-<div class="usage">
-<table>
-<tr><td><code>set master_volume</code></td><td>shows current setting</td></tr>
-    <tr><td><code>set master_volume 50</code></td><td>set master volume to 50%</td></tr>
-  </table>
+  <div class="note">
+    Note: the default value (3/100s) should almost always be OK, this small delay is practically not noticeable and
+    still allows the MSX machine to get accurate timing on the input events.
   </div>
-  
 
-<h3><a id="maxframeskip">maxframeskip</a></h3>
+  <h3><a id="keyjoystick_n_button" name="keyjoystick_n_button">keyjoystick&lt;n&gt;.&lt;button&gt;</a></h3>
 
-  <p>Set the maximum amount of frame skips. Frame skip here means: &quot;show a frame
-  and then skip &lt;number&gt; frames&quot;. So 0 means show everything, 1 means show
-  every second frame, ...</p>
+  <p>&lt;n&gt; 1, 2</p>
 
-  <div class="usagetitle">usage:</div>
+  <p>&lt;button&gt; up, down, left, right, triga, trigb</p>
 
-<div class="usage">
-<table>
-<tr><td><code>set maxframeskip</code></td><td>shows the current setting</td></tr>
-    <tr><td><code>set maxframeskip &lt;number&gt;</code></td><td>sets the number of frame skips</td></tr>
-</table>
-</div>
+  <p>Configure the keys of the keyjoysticks. It's likely this will change in the future.</p>
 
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<h3><a id="midi-in-readfilename">midi-in-readfilename</a></h3>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set keyjoystick1.up W</code></td>
+      </tr>
 
-  <p>Sets the file(name) from which the MIDI input is read.
-  By default, it is read from /dev/midi when available.</p>
-  
-  <div class="usagetitle">usage:</div>
+      <tr>
+        <td><code>set keyjoystick1.down S</code></td>
+      </tr>
 
-<div class="usage">
-<table>
-<tr><td><code>set midi-in-readfilename</code></td><td>shows the current setting</td></tr>
-<tr><td><code>set midi-in-readfilename mymidilog.dat</code></td><td>read from mymidilog.dat</td></tr>
-</table>
-</div>
+      <tr>
+        <td><code>set keyjoystick1.left A</code></td>
+      </tr>
 
+      <tr>
+        <td><code>set keyjoystick1.right D</code></td>
+      </tr>
 
-<h3><a id="midi-out-logfilename">midi-out-logfilename</a></h3>
+      <tr>
+        <td><code>set keyjoystick1.triga SPACE</code></td>
+      </tr>
+    </table>
+  </div>
 
-  <p>Sets the file(name) to which the MIDI output is logged.
-  By default, it logs to /dev/midi when available.</p>
-  
-  <div class="usagetitle">usage:</div>
+  <h3><a id="limitsprites" name="limitsprites">limitsprites</a></h3>
 
-<div class="usage">
-<table>
-<tr><td><code>set midi-out-logfilename</code></td><td>shows the current setting</td></tr>
-<tr><td><code>set midi-out-logfilename mymidilog.dat</code></td><td>log to mymidilog.dat</td></tr>
-</table>
-</div>
+  <p>Limit number of sprites per line. Turn on for realism (default), turn off to reduce sprite flashing. Note that
+  some games make use of this limitation.</p>
 
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<h3><a id="minframeskip">minframeskip</a></h3>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set limitsprites</code></td>
 
-  <p>Set the minimum amount of frame skips. Frame skip here means: &quot;show a frame
-  and then skip &lt;number&gt; frames&quot;. So 0 means show everything, 1 means show
-  every second frame, ...</p>
+        <td></td>
+      </tr>
 
-  <div class="usagetitle">usage:</div>
+      <tr>
+        <td><code>set limitsprites on</code></td>
 
-<div class="usage">
-<table>
-<tr><td><code>set minframeskip</code></td><td>shows the current setting</td></tr>
-    <tr><td><code>set minframeskip &lt;number&gt;</code></td><td>sets the number of frame skips</td></tr>
-</table>
-</div>
+        <td>limit number of sprites per line</td>
+      </tr>
 
-  
-<h3><a id="mute">mute</a></h3>
+      <tr>
+        <td><code>set limitsprites off</code></td>
+
+        <td>no limit on number of sprites per line</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="master_volume" name="master_volume">master_volume</a></h3>
+
+  <p>Controls the overall openMSX volume. The volume of individual sound device can be controlled with the
+  [soundchip]_volume settings, see below.</p>
+
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set master_volume</code></td>
+
+        <td>shows current setting</td>
+      </tr>
+
+      <tr>
+        <td><code>set master_volume 50</code></td>
+
+        <td>set master volume to 50%</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="maxframeskip" name="maxframeskip">maxframeskip</a></h3>
+
+  <p>Set the maximum amount of frame skips. Frame skip here means: "show a frame and then skip &lt;number&gt; frames".
+  So 0 means show everything, 1 means show every second frame, ...</p>
+
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set maxframeskip</code></td>
+
+        <td>shows the current setting</td>
+      </tr>
+
+      <tr>
+        <td><code>set maxframeskip &lt;number&gt;</code></td>
+
+        <td>sets the number of frame skips</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="midi-in-readfilename" name="midi-in-readfilename">midi-in-readfilename</a></h3>
+
+  <p>Sets the file(name) from which the MIDI input is read. By default, it is read from /dev/midi when available.</p>
+
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set midi-in-readfilename</code></td>
+
+        <td>shows the current setting</td>
+      </tr>
+
+      <tr>
+        <td><code>set midi-in-readfilename mymidilog.dat</code></td>
+
+        <td>read from mymidilog.dat</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="midi-out-logfilename" name="midi-out-logfilename">midi-out-logfilename</a></h3>
+
+  <p>Sets the file(name) to which the MIDI output is logged. By default, it logs to /dev/midi when available.</p>
+
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set midi-out-logfilename</code></td>
+
+        <td>shows the current setting</td>
+      </tr>
+
+      <tr>
+        <td><code>set midi-out-logfilename mymidilog.dat</code></td>
+
+        <td>log to mymidilog.dat</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="minframeskip" name="minframeskip">minframeskip</a></h3>
+
+  <p>Set the minimum amount of frame skips. Frame skip here means: "show a frame and then skip &lt;number&gt; frames".
+  So 0 means show everything, 1 means show every second frame, ...</p>
+
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set minframeskip</code></td>
+
+        <td>shows the current setting</td>
+      </tr>
+
+      <tr>
+        <td><code>set minframeskip &lt;number&gt;</code></td>
+
+        <td>sets the number of frame skips</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="mute" name="mute">mute</a></h3>
 
   <p>Mute / unmute the sound output.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>set mute</code></td><td>shows the current setting</td></tr>
-    <tr><td><code>set mute on</code></td><td>mute sound</td></tr>
-    <tr><td><code>set mute off</code></td><td>unmute sound</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set mute</code></td>
 
+        <td>shows the current setting</td>
+      </tr>
 
-<h3><a id="noise">noise</a></h3>
+      <tr>
+        <td><code>set mute on</code></td>
 
-  <p>Controls the amount of Gaussian noise that is added to the video output.
-  This can give a more authentic look to the video output. Values can be
-  between 0 and 100, 0 is no noise. </p>
-    
-  <div class="usagetitle">usage:</div>
+        <td>mute sound</td>
+      </tr>
 
-<div class="usage">
-<table>
-    <tr><td><code>set noise</code></td><td>shows the current setting</td></tr>
-    <tr><td><code>set noise 7</code></td><td>add a moderate amount of noise</td></tr>
-</table>
-</div>
+      <tr>
+        <td><code>set mute off</code></td>
 
-<h3><a id="pause">pause</a></h3>
+        <td>unmute sound</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="noise" name="noise">noise</a></h3>
+
+  <p>Controls the amount of Gaussian noise that is added to the video output. This can give a more authentic look to
+  the video output. Values can be between 0 and 100, 0 is no noise.</p>
+
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set noise</code></td>
+
+        <td>shows the current setting</td>
+      </tr>
+
+      <tr>
+        <td><code>set noise 7</code></td>
+
+        <td>add a moderate amount of noise</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="pause" name="pause">pause</a></h3>
 
   <p>Pauses the emulation.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>set pause</code></td><td>shows the current setting</td></tr>
-    <tr><td><code>set pause on</code></td><td>pauses emulation</td></tr>
-    <tr><td><code>set pause off</code></td><td>unpauses emulation</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set pause</code></td>
 
+        <td>shows the current setting</td>
+      </tr>
 
-<h3><a id="power">power</a></h3>
+      <tr>
+        <td><code>set pause on</code></td>
+
+        <td>pauses emulation</td>
+      </tr>
+
+      <tr>
+        <td><code>set pause off</code></td>
+
+        <td>unpauses emulation</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="power" name="power">power</a></h3>
 
   <p>Turn the power of the emulated MSX machine on or off.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>set power</code></td><td>shows the current setting</td></tr>
-    <tr><td><code>set power on</code></td><td>turn MSX machine on (the default)</td></tr>
-    <tr><td><code>set power off</code></td><td>turn MSX machine off</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set power</code></td>
 
+        <td>shows the current setting</td>
+      </tr>
 
-<h3><a id="printerlogfilename">printerlogfilename</a></h3>
+      <tr>
+        <td><code>set power on</code></td>
+
+        <td>turn MSX machine on (the default)</td>
+      </tr>
+
+      <tr>
+        <td><code>set power off</code></td>
+
+        <td>turn MSX machine off</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="printerlogfilename" name="printerlogfilename">printerlogfilename</a></h3>
 
   <p>Sets the file(name) to which the printer logger logs</p>
-  
-  <div class="usagetitle">usage:</div>
 
-<div class="usage">
-<table>
-<tr><td><code>set printerlogfilename</code></td><td>shows the current setting</td></tr>
-<tr><td><code>set printerlogfilename myprinterlog.txt</code></td><td>log to myprinterlog.txt</td></tr>
-</table>
-</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<h3><a id="print-resolution">print-resolution</a></h3>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set printerlogfilename</code></td>
 
-<p>Sets the resolution (in dpi) for the emulated dot-matrix printer.</p>
+        <td>shows the current setting</td>
+      </tr>
 
-<p>The emulated printer 'prints' pages as .png files. This settings determines
-  the resolution of those images.</p>
+      <tr>
+        <td><code>set printerlogfilename myprinterlog.txt</code></td>
 
-  <div class="usagetitle">usage:</div>
+        <td>log to myprinterlog.txt</td>
+      </tr>
+    </table>
+  </div>
 
-<div class="usage">
-<table>
-    <tr><td><code>set print-resolution</code></td><td>shows the current setting</td></tr>
-    <tr><td><code>set print-resolution 600</code></td><td>set resolution to 600dpi</td></tr>
-</table>
-</div>
+  <h3><a id="print-resolution" name="print-resolution">print-resolution</a></h3>
 
+  <p>Sets the resolution (in dpi) for the emulated dot-matrix printer.</p>
 
+  <p>The emulated printer 'prints' pages as .png files. This settings determines the resolution of those images.</p>
 
-<h3><a id="r800_freq">r800_freq and r800_freq_locked</a></h3>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<p>These two settings control the R800 clock frequency. See z80_freq and
-z80_freq_locked for more details.</p>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set print-resolution</code></td>
 
+        <td>shows the current setting</td>
+      </tr>
 
-<h3><a id="renderer">renderer</a></h3>
+      <tr>
+        <td><code>set print-resolution 600</code></td>
+
+        <td>set resolution to 600dpi</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="r800_freq" name="r800_freq">r800_freq and r800_freq_locked</a></h3>
+
+  <p>These two settings control the R800 clock frequency. See z80_freq and z80_freq_locked for more details.</p>
+
+  <h3><a id="renderer" name="renderer">renderer</a></h3>
 
   <p>Switch to a different VDP renderer.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>set renderer</code></td><td>shows the current setting</td></tr>
-    <tr><td><code>set renderer SDL</code></td><td>switch to the SDL renderer</td></tr>
-    <tr><td><code>set renderer SDLGL</code></td><td>switch to the SDLGL renderer</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set renderer</code></td>
 
+        <td>shows the current setting</td>
+      </tr>
 
-<h3><a id="renshaturbo">renshaturbo</a></h3>
+      <tr>
+        <td><code>set renderer SDL</code></td>
 
-  <p>Sets the speed of the built-in auto fire on some Japanese MSX models
-  (including the turboR machines)</p>
+        <td>switch to the SDL renderer</td>
+      </tr>
 
-  <div class="usagetitle">usage:</div>
+      <tr>
+        <td><code>set renderer SDLGL</code></td>
 
-<div class="usage">
-<table>
-<tr><td><code>set renshaturbo</code></td><td>shows the current renshaturbo value</td></tr>
-    <tr><td><code>set renshaturbo &lt;num&gt;</code></td><td>set speed to value &lt;num&gt;, from 0 to 100 (0 means off)</td></tr>
-</table>
-</div>
+        <td>switch to the SDLGL renderer</td>
+      </tr>
+    </table>
+  </div>
 
+  <h3><a id="renshaturbo" name="renshaturbo">renshaturbo</a></h3>
 
-<h3><a id="rs232-inputfilename">rs232-inputfilename</a></h3>
+  <p>Sets the speed of the built-in auto fire on some Japanese MSX models (including the turboR machines)</p>
+
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set renshaturbo</code></td>
+
+        <td>shows the current renshaturbo value</td>
+      </tr>
+
+      <tr>
+        <td><code>set renshaturbo &lt;num&gt;</code></td>
+
+        <td>set speed to value &lt;num&gt;, from 0 to 100 (0 means off)</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="rs232-inputfilename" name="rs232-inputfilename">rs232-inputfilename</a></h3>
 
   <p>Sets the file(name) from which the RS232-tester reads data</p>
-  
-  <div class="usagetitle">usage:</div>
 
-<div class="usage">
-<table>
-<tr><td><code>set rs232-inputfilename</code></td><td>shows the current setting</td></tr>
-    <tr><td><code>set rs232-inputfilename myrs232input.txt</code></td><td>read from myrs232input.txt</td></tr>
-</table>
-</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set rs232-inputfilename</code></td>
 
-<h3><a id="rs232-outputfilename">rs232-outputfilename</a></h3>
+        <td>shows the current setting</td>
+      </tr>
+
+      <tr>
+        <td><code>set rs232-inputfilename myrs232input.txt</code></td>
+
+        <td>read from myrs232input.txt</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="rs232-outputfilename" name="rs232-outputfilename">rs232-outputfilename</a></h3>
 
   <p>Sets the file(name) to which the RS232-tester outputs the data</p>
-  
-  <div class="usagetitle">usage:</div>
 
-<div class="usage">
-<table>
-<tr><td><code>set rs232-outputfilename</code></td><td>shows the current setting</td></tr>
-    <tr><td><code>set rs232-outputfilename myrs232output.txt</code></td><td>write to myrs232output.txt</td></tr>
-</table>
-</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set rs232-outputfilename</code></td>
 
-<h3><a id="rtcmode">rtcmode</a></h3>
+        <td>shows the current setting</td>
+      </tr>
 
-<p>Sets the Real Time Clock mode. Can be either 'RealTime' or 'EmuTime'.</p>
+      <tr>
+        <td><code>set rs232-outputfilename myrs232output.txt</code></td>
 
-<p>In 'RealTime' mode the MSX clock is always synchronized with the host
-  clock, even when for example emulation is paused for a while or when
-  emulation is run at 200% of real speed.</p>
+        <td>write to myrs232output.txt</td>
+      </tr>
+    </table>
+  </div>
 
-<p>In 'EmuTime' mode the time is only synchronized with the host clock when
-  openMSX starts. From then on the clock ticks at the same pace as the
-  emulated machine. So when emulation is paused, the clock is paused as well.
-  If emulation is run at 200% speed, the clock also ticks twice as fast.</p>
+  <h3><a id="rtcmode" name="rtcmode">rtcmode</a></h3>
 
-<p>In 'EmuTime' mode it's not possible for a MSX program to detect whether
-  it's running on a real or on an emulated machine. That's why this is the
-  default mode. On the other hand the 'RealTime' mode might be better if
-  for example you care that timestamps of files written by the emulated MSX
-  machine are in sync with the host machine time.</p>
+  <p>Sets the Real Time Clock mode. Can be either 'RealTime' or 'EmuTime'.</p>
 
-  <div class="usagetitle">usage:</div>
+  <p>In 'RealTime' mode the MSX clock is always synchronized with the host clock, even when for example emulation is
+  paused for a while or when emulation is run at 200% of real speed.</p>
 
-<div class="usage">
-<table>
-    <tr><td><code>set rtcmode</code></td><td>shows the current mode</td></tr>
-    <tr><td><code>set rtcmode EmuTime</code></td><td>set EmuTime mode (the default)</td></tr>
-    <tr><td><code>set rtcmode RealTime</code></td><td>set RealTime mode</td></tr>
-</table>
-</div>
+  <p>In 'EmuTime' mode the time is only synchronized with the host clock when openMSX starts. From then on the clock
+  ticks at the same pace as the emulated machine. So when emulation is paused, the clock is paused as well. If
+  emulation is run at 200% speed, the clock also ticks twice as fast.</p>
 
+  <p>In 'EmuTime' mode it's not possible for a MSX program to detect whether it's running on a real or on an emulated
+  machine. That's why this is the default mode. On the other hand the 'RealTime' mode might be better if for example
+  you care that timestamps of files written by the emulated MSX machine are in sync with the host machine time.</p>
 
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<h3><a id="samples">samples</a></h3>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set rtcmode</code></td>
+
+        <td>shows the current mode</td>
+      </tr>
+
+      <tr>
+        <td><code>set rtcmode EmuTime</code></td>
+
+        <td>set EmuTime mode (the default)</td>
+      </tr>
+
+      <tr>
+        <td><code>set rtcmode RealTime</code></td>
+
+        <td>set RealTime mode</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="samples" name="samples">samples</a></h3>
 
   <p>Sets the size of the sound mixer buffer.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>set samples</code></td><td>shows the current setting </td></tr>
-    <tr><td><code>set samples 1024</code></td><td>use mixing buffer of 1024 samples</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set samples</code></td>
 
+        <td>shows the current setting</td>
+      </tr>
 
-<h3><a id="save_settings_on_exit">save_settings_on_exit</a></h3>
+      <tr>
+        <td><code>set samples 1024</code></td>
 
-  <p>Automatically save the current settings when openMSX exits (execute a
-  save_settings command).</p>
-
-  <div class="usagetitle">usage:</div>
-
-<div class="usage">
-<table>
-<tr><td><code>set save_settings_on_exit</code></td><td>Show current setting</td></tr>
-    <tr><td><code>set save_settings_on_exit true</code></td><td>Enable auto save</td></tr>
-    <tr><td><code>set save_settings_on_exit false</code></td><td>Disable auto save</td></tr>
+        <td>use mixing buffer of 1024 samples</td>
+      </tr>
     </table>
-    </div>
-    
+  </div>
 
-<h3><a id="scale_algorithm">scale_algorithm</a></h3>
-  
+  <h3><a id="save_settings_on_exit" name="save_settings_on_exit">save_settings_on_exit</a></h3>
+
+  <p>Automatically save the current settings when openMSX exits (execute a save_settings command).</p>
+
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set save_settings_on_exit</code></td>
+
+        <td>Show current setting</td>
+      </tr>
+
+      <tr>
+        <td><code>set save_settings_on_exit true</code></td>
+
+        <td>Enable auto save</td>
+      </tr>
+
+      <tr>
+        <td><code>set save_settings_on_exit false</code></td>
+
+        <td>Disable auto save</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="scale_algorithm" name="scale_algorithm">scale_algorithm</a></h3>
+
   <p>Select the algorithm used to transform MSX pixels to host pixels.</p>
-  
-  <div class="usagetitle">usage:</div>
 
-<div class="usage">
-<table>
-<tr><td><code>set scale_algorithm</code></td><td>Show current setting</td></tr>
-    <tr><td><code>set scale_algorithm simple</code></td><td>Select the default scale algorithm</td></tr>
-    <tr><td><code>set scale_algorithm hq</code></td><td>Select the hq scale algorithm</td></tr>
-</table>
-</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set scale_algorithm</code></td>
 
-<h3><a id="scale_factor">scale_factor</a></h3>
+        <td>Show current setting</td>
+      </tr>
 
-  <p>Select the scale factor. Scale factor 'n' means the typical MSX pixel
-  (MSX resolution 256x212) is mapped on 'n' host pixels. For the moment
-  the possible values are 1, 2 or 3. In the future we may support a wider
-  range or even non integer values.</p>
+      <tr>
+        <td><code>set scale_algorithm simple</code></td>
 
-  <div class="usagetitle">usage:</div>
+        <td>Select the default scale algorithm</td>
+      </tr>
 
-<div class="usage">
-<table>
-<tr><td><code>set scale_factor</code></td><td>Show current setting</td></tr>
-    <tr><td><code>set scale_factor &lt;n&gt;</code></td><td>Set a new scale factor</td></tr>
-</table>
-</div>
+      <tr>
+        <td><code>set scale_algorithm hq</code></td>
 
+        <td>Select the hq scale algorithm</td>
+      </tr>
+    </table>
+  </div>
 
-<h3><a id="scanline">scanline</a></h3>
+  <h3><a id="scale_factor" name="scale_factor">scale_factor</a></h3>
+
+  <p>Select the scale factor. Scale factor 'n' means the typical MSX pixel (MSX resolution 256x212) is mapped on 'n'
+  host pixels. For the moment the possible values are 1, 2 or 3. In the future we may support a wider range or even non
+  integer values.</p>
+
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set scale_factor</code></td>
+
+        <td>Show current setting</td>
+      </tr>
+
+      <tr>
+        <td><code>set scale_factor &lt;n&gt;</code></td>
+
+        <td>Set a new scale factor</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="scanline" name="scanline">scanline</a></h3>
 
   <p>Sets the amount of scanline effect.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>set scanline</code></td><td>shows the current setting</td></tr>
-    <tr><td><code>set scanline &lt;value&gt;</code></td><td>change the value</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set scanline</code></td>
 
-  <div class="note">Note: not all renderers support this.</div class="note">
+        <td>shows the current setting</td>
+      </tr>
 
-<h3><a id="sound_driver">sound_driver</a></h3>
+      <tr>
+        <td><code>set scanline &lt;value&gt;</code></td>
 
-  <p>Select the sound output driver. The list of available sound drivers is
-  platform specific.</p>
+        <td>change the value</td>
+      </tr>
+    </table>
+  </div>
 
-  <div class="usagetitle">usage:</div>
+  <div class="note">
+    Note: not all renderers support this.
+  </div>
 
-<div class="usage">
-<code>set sound_driver sdl</code>
-</div>
+  <h3><a id="sound_driver" name="sound_driver">sound_driver</a></h3>
 
+  <p>Select the sound output driver. The list of available sound drivers is platform specific.</p>
 
-<h3><a id="speed">speed</a></h3>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-  <p>Sets the emulation speed relative to the speed of a real MSX. Speed 100 means
-  as fast as a real MSX.</p>
+  <div class="usage">
+    <code>set sound_driver sdl</code>
+  </div>
 
-  <div class="usagetitle">usage:</div>
+  <h3><a id="speed" name="speed">speed</a></h3>
 
-<div class="usage">
-<table>
-<tr><td><code>set speed</code></td><td>shows current emulation speed</td></tr>
-    <tr><td><code>set speed &lt;num&gt;</code></td><td>set new emulation speed</td></tr>
-</table>
-</div>
+  <p>Sets the emulation speed relative to the speed of a real MSX. Speed 100 means as fast as a real MSX.</p>
 
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<h3><a id="[soundchip]_mode">[soundchip]_mode</a></h3>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set speed</code></td>
 
-  <p>Sets the channel mode for individual sound chips. Note that chips which are in
-  stereo mode cannot be set to another mode and chips that are not in stereo
-  mode, can of course never be set to stereo mode.</p>
+        <td>shows current emulation speed</td>
+      </tr>
 
-  <div class="usagetitle">usage:</div>
+      <tr>
+        <td><code>set speed &lt;num&gt;</code></td>
 
-<div class="usage">
-<table>
-<tr><td><code>set [soundchip]_mode</code></td><td>shows the current setting</td></tr>
-    <tr><td><code>set [soundchip]_mode &lt;mode&gt;</code></td><td>set new mode</td></tr>
-</table>
-</div>
+        <td>set new emulation speed</td>
+      </tr>
+    </table>
+  </div>
 
-  <div class="examplestitle">examples:</div>
+  <h3><a id="soundchip_mode" name="soundchip_mode">[soundchip]_mode</a></h3>
+
+  <p>Sets the channel mode for individual sound chips. Note that chips which are in stereo mode cannot be set to
+  another mode and chips that are not in stereo mode, can of course never be set to stereo mode.</p>
+
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set [soundchip]_mode</code></td>
+
+        <td>shows the current setting</td>
+      </tr>
+
+      <tr>
+        <td><code>set [soundchip]_mode &lt;mode&gt;</code></td>
+
+        <td>set new mode</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="examplestitle">
+    examples:
+  </div>
+
   <div class="examples">
-    <code>set PSG_mode</code><br/>
-    <code>set PSG_mode left</code><br/>
-    <code>set &quot;FMPAC_mode&quot; mono</code>
-</div>
+    <code>set PSG_mode</code><br />
+    <code>set PSG_mode left</code><br />
+    <code>set "FMPAC_mode" mono</code>
+  </div>
 
-<h3><a id="[soundchip]_volume">[soundchip]_volume</a></h3>
+  <h3><a id="soundchip_volume" name="soundchip_volume">[soundchip]_volume</a></h3>
 
   <p>Sets the volume for individual sound chips.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>set [soundchip]_volume</code></td><td>shows the current setting</td></tr>
-    <tr><td><code>set [soundchip]_volume &lt;num&gt;</code></td><td>set new volume</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set [soundchip]_volume</code></td>
 
-  <div class="examplestitle">examples:</div>
-  <div class="examples">
-    <code>set PSG_volume</code><br/>
-    <code>set PSG_volume 18000</code><br/>
-    <code>set &quot;FMPAC_volume&quot; 15000</code>
-</div>
+        <td>shows the current setting</td>
+      </tr>
 
-<h3><a id="throttle">throttle</a></h3>
+      <tr>
+        <td><code>set [soundchip]_volume &lt;num&gt;</code></td>
 
-  <p>Sets throttle mode. In throttle mode the emulator tries to run at the
-  specified speed (see speed command). When throttling is turned off the
-  emulator runs as fast as possible.</p>
-
-  <div class="usagetitle">usage:</div>
-
-<div class="usage">
-<table>
-<tr><td><code>set throttle</code></td><td>shows the current setting</td></tr>
-    <tr><td><code>set throttle on</code></td><td>turn throttle mode on</td></tr>
-    <tr><td><code>set throttle off</code></td><td>turn throttle mode off</td></tr>
+        <td>set new volume</td>
+      </tr>
     </table>
-    </div>
-    
+  </div>
 
-<h3><a id="umr_callback">umr_callback</a></h3>
+  <div class="examplestitle">
+    examples:
+  </div>
 
-  <p>The TCL procedure to be called when an Uninitialized Memory Read has been
-  detected. This is only useful for debugging MSX programs. An example
-  callback is available in scripts/umrcallback.tcl. You can active it
-  with 'set umr_callback umrcallback'. </p>
+  <div class="examples">
+    <code>set PSG_volume</code><br />
+    <code>set PSG_volume 18000</code><br />
+    <code>set "FMPAC_volume" 15000</code>
+  </div>
 
-  <div class="usagetitle">usage:</div>
+  <h3><a id="throttle" name="throttle">throttle</a></h3>
 
-<div class="usage">
-<table>
-<tr><td><code>set umr_callback</code></td><td>shows the current UMR callback setting</td></tr>
-    <tr><td><code>set umr_callback umrcallback</code></td><td>sets callback proc to 'umrcallback'</td></tr>
-</table>
-</div>
+  <p>Sets throttle mode. In throttle mode the emulator tries to run at the specified speed (see speed command). When
+  throttling is turned off the emulator runs as fast as possible.</p>
 
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<h3><a id="user_directories">user_directories</a></h3>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set throttle</code></td>
 
-  <p>The list of &quot;user directories&quot;. This makes it a bit more convenient to
-  insert disks, tapes, roms, ... See manual for more details.
-  This setting is a list in TCL format (items are space separated or enclosed
-  in braces, see TCL manual for details). Thus all TCL functions to manipulate
-  lists can be used on this setting.</p>
+        <td>shows the current setting</td>
+      </tr>
 
-  <div class="usagetitle">usage:</div>
+      <tr>
+        <td><code>set throttle on</code></td>
 
-<div class="usage">
-<table>
-<tr><td><code>set user_directories</code></td><td>Shows the current list</td></tr>
-<tr><td><code>set user_directories &quot;~/disks ~/roms&quot;</code></td><td>Replace the list with a new one</td></tr>
-<tr><td><code>set user_directories {}</code></td><td>Remove all user directories</td></tr>
-<tr><td><code>lappend user_directories ~/tapes</code></td><td>Add a directory to the list</td></tr>
-</table>
-</div>
+        <td>turn throttle mode on</td>
+      </tr>
 
+      <tr>
+        <td><code>set throttle off</code></td>
 
-<h3><a id="vdpcmdtrace">vdpcmdtrace</a></h3>
+        <td>turn throttle mode off</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="umr_callback" name="umr_callback">umr_callback</a></h3>
+
+  <p>The TCL procedure to be called when an Uninitialized Memory Read has been detected. This is only useful for
+  debugging MSX programs. An example callback is available in scripts/umrcallback.tcl. You can active it with 'set
+  umr_callback umrcallback'.</p>
+
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set umr_callback</code></td>
+
+        <td>shows the current UMR callback setting</td>
+      </tr>
+
+      <tr>
+        <td><code>set umr_callback umrcallback</code></td>
+
+        <td>sets callback proc to 'umrcallback'</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="user_directories" name="user_directories">user_directories</a></h3>
+
+  <p>The list of "user directories". This makes it a bit more convenient to insert disks, tapes, roms, ... See manual
+  for more details. This setting is a list in TCL format (items are space separated or enclosed in braces, see TCL
+  manual for details). Thus all TCL functions to manipulate lists can be used on this setting.</p>
+
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set user_directories</code></td>
+
+        <td>Shows the current list</td>
+      </tr>
+
+      <tr>
+        <td><code>set user_directories "~/disks ~/roms"</code></td>
+
+        <td>Replace the list with a new one</td>
+      </tr>
+
+      <tr>
+        <td><code>set user_directories {}</code></td>
+
+        <td>Remove all user directories</td>
+      </tr>
+
+      <tr>
+        <td><code>lappend user_directories ~/tapes</code></td>
+
+        <td>Add a directory to the list</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3><a id="vdpcmdtrace" name="vdpcmdtrace">vdpcmdtrace</a></h3>
 
   <p>Enable/disable VDP command tracing.</p>
+
   <p>[ mainly useful for debugging purposes ]</p>
 
-
-<h3><a id="videosource">videosource</a></h3>
+  <h3><a id="videosource" name="videosource">videosource</a></h3>
 
   <p>Switch between 'normal' (V99x8) or 'GFX9000' (V9990) videosource.</p>
 
-  <div class="usagetitle">usage:</div>
+  <div class="usagetitle">
+    usage:
+  </div>
 
-<div class="usage">
-<table>
-<tr><td><code>set videosource</code></td><td>shows the current setting</td></tr>
-<tr><td><code>set videosource MSX</code></td><td>switch to normal MSX screen</td></tr>
-<tr><td><code>set videosource GFX9000</code></td><td>switch to GFX9000 screen</td></tr>
-</table>
-</div>
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set videosource</code></td>
 
-<h3><a id="v9990cmdtrace">v9990cmdtrace</a></h3>
+        <td>shows the current setting</td>
+      </tr>
 
-<p>Enable/disable V9990 command tracing. This setting is only
- available when the gfx9000 extension is inserted.</p>
-<p>[ mainly useful for debugging purposes ]</p>
+      <tr>
+        <td><code>set videosource MSX</code></td>
 
-<h3><a id="z80_freq and z80_freq_locked">z80_freq and z80_freq_locked</a></h3>
+        <td>switch to normal MSX screen</td>
+      </tr>
 
-  <p>These two settings control the Z80 clock frequency. When z80_freq_locked is
-  true the emulated Z80 runs at the normal 3.5MHz (or optionally 5.3MHz on some
-  machines). When z80_freq_locked is false the value of z80_freq is taken as
-  Z80 clock frequency.</p>
+      <tr>
+        <td><code>set videosource GFX9000</code></td>
 
-  <div class="usagetitle">usage:</div>
+        <td>switch to GFX9000 screen</td>
+      </tr>
+    </table>
+  </div>
 
-<div class="usage">
-overclock Z80 to 14MHz<br />
-<code>set z80_freq 14318180</code><br />
-<code>set z80_freq_locked false</code><br />
-<br />
-F8 switches between 3.5MHz and 7MHz<br/>
-<code>set Z80_freq 7159090</code><br />
-<code>bind F8 &quot;toggle z80_freq_locked&quot;</code>
-</div>
-       
-<p class="version">
-$Id: $
-</p>
+  <h3><a id="v9990cmdtrace" name="v9990cmdtrace">v9990cmdtrace</a></h3>
 
+  <p>Enable/disable V9990 command tracing. This setting is only available when the gfx9000 extension is inserted.</p>
+
+  <p>[ mainly useful for debugging purposes ]</p>
+
+  <h3><a id="z80_freq" name="z80_freq">z80_freq and z80_freq_locked</a></h3>
+
+  <p>These two settings control the Z80 clock frequency. When z80_freq_locked is true the emulated Z80 runs at the
+  normal 3.5MHz (or optionally 5.3MHz on some machines). When z80_freq_locked is false the value of z80_freq is taken
+  as Z80 clock frequency.</p>
+
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    overclock Z80 to 14MHz<br />
+    <code>set z80_freq 14318180</code><br />
+    <code>set z80_freq_locked false</code><br />
+    <br />
+    F8 switches between 3.5MHz and 7MHz<br />
+    <code>set Z80_freq 7159090</code><br />
+    <code>bind F8 "toggle z80_freq_locked"</code>
+  </div>
+
+  <p class="version">$Id: $</p>
 </body>
 </html>
