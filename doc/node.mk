@@ -9,7 +9,7 @@ SUBDIRS:=manual
 # Below is the list of docs that should be included in installation.
 INSTALL_DOCS:= \
 	release-notes.txt release-history.txt \
-	commands.txt exampleconfigs.xml \
+	exampleconfigs.xml \
 	using-diskmanipulator.txt \
 	openmsx-control-xml.txt
 

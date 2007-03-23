@@ -128,53 +128,9 @@ Thanks to all of them!
 <h3><a id="history">1.4 Revision History</a></h3>
 
 <p>
-This section gives an overview of the changes that were made to this document.
-It doesn't contain every single modification (use the  <a class="external"
-href="http://svn.sourceforge.net/viewvc/openmsx/openmsx/trunk/doc/manual/setup.html?view=log">SVN log</a> for that),
-only the big picture.
+For the revision history, please refer to the <a class="external"
+href="http://svn.sourceforge.net/viewvc/openmsx/openmsx/trunk/doc/manual/setup.html?view=log">SVN log</a>.
 </p>
-
-<dl>
-<dl>
-<dt>2006-07-01: Manuel Bilderbeek</dt>
-<dd>
-Updates for version 0.6.1.
-</dd>
-
-<dt>2005-02-19: Manuel Bilderbeek</dt>
-<dd>
-Various updates for version 0.5.1, mainly C-BIOS related.
-</dd>
-
-<dt>2004-09-28: Manuel Bilderbeek</dt>
-<dd>
-Various updates for version 0.5.0.
-</dd>
-
-<dt>2004-04-25: Manuel Bilderbeek</dt>
-<dd>
-Various updates for version 0.4.0.
-</dd>
-
-<dt>2003-09-21: Maarten ter Huurne</dt>
-<dd>
-Split the Setup Guide off from the openMSX HOWTO.
-Converted to XHTML.
-Restructured the document.
-Rewrote some text to fit better in the new structure and format.
-</dd>
-
-<dt>2002, 2003: Manuel Bilderbeek &amp; others</dt>
-<dd>
-Various updates to the HOWTO.
-</dd>
-
-<dt>2002: Manuel Bilderbeek &amp; Jorrith Schaap</dt>
-<dd>
-Original text written as part of the openMSX HOWTO.
-</dd>
-
-</dl>
 
 <h2><a id="machext">2. Machines and Extensions</a></h2>
 
@@ -399,23 +355,23 @@ the machine you made the ROM dump for.
 <h2><a id="settings">4. User Preferences</a></h2>
 
 <p>
-Almost all user preferences can be done via the openMSX console, at openMSX run time. This is more thoroughly explained in <a class="external" href="user.html#controlling">the User's Manual</a>. In short: you can save your settings with the <code>save_settings</code> command, which will save the settings in <code>~/.openMSX/share/settings.xml</code> (UNIX) or <code>My Documents\openMSX\share\settings.xml</code> (Windows), your personal settings file. The settings file will be loaded every time openMSX starts. You can still manually edit this file, but it is not really necessary anymore: just edit the settings from the console. Note that openMSX doesn't ship a <code>settings.xml</code> file anymore. If you save your settings for the first time, it is generated from the current settings, which may be the built in defaults.
+Almost all user preferences can be done via the openMSX console, at openMSX run time. This is more thoroughly explained in <a class="external" href="user.html#controlling">the User's Manual</a>. In short: you can save your settings with the <code><a class="external" href="commands.html#save_settings">save_settings</a></code> command, which will save the settings in <code>~/.openMSX/share/settings.xml</code> (UNIX) or <code>My Documents\openMSX\share\settings.xml</code> (Windows), your personal settings file. The settings file will be loaded every time openMSX starts. You can still manually edit this file, but it is not really necessary anymore: just edit the settings from the console. Note that openMSX doesn't ship a <code>settings.xml</code> file anymore. If you save your settings for the first time, it is generated from the current settings, which may be the built in defaults.
 </p>
 
 <p>
 One of the preferences is the default machine:
-the machine openMSX uses if you did not specify one on the command line. The name of this setting is <code>default_machine</code>. Switching machines at run time is not done via a setting anymore as of openMSX 0.6.2, but via a command (more about them in <a class="external" href="user.html#controlling">the User's Manual</a>).
+the machine openMSX uses if you did not specify one on the command line. The name of this setting is <code><a class="external" href="commands.html#default_machine">default_machine</a></code>. Switching machines at run time is not done via a setting anymore as of openMSX 0.6.2, but via the <code><a class="external" href="commands.html#machine">machine</a></code> command (more about this in <a class="external" href="user.html#controlling">the User's Manual</a>).
 </p>
 
 <p>
-A convenient setting is called <code>user_directories</code>. With this setting you can specify directories in which openMSX should look for to find
+A convenient setting is called <code><a class="external" href="commands.html#user_directories">user_directories</a></code>. With this setting you can specify directories in which openMSX should look for to find
 files that you mention on the command line or in the openMSX console.
 If
-you have some big directory with a lot of disk images, e.g., you can add the path to the TCL list that holds the user directories with this setting, so that you don't have to specify the whole path anymore. Use this to make things just a little more comfortable. For example: <code>set user_directories "~/diskimages /mnt/datadisk/MSX-soft/diskimages ~/.openMSX/ROMs ~/.openMSX"</code> specifies four user directories in which is searched.
+you have some big directory with a lot of disk images, e.g., you can add the path to the TCL list that holds the user directories with this setting, so that you don't have to specify the whole path anymore. Use this to make things just a little more comfortable. For example: <code>set <a class="external" href="commands.html#user_directories">user_directories</a> "~/diskimages /mnt/datadisk/MSX-soft/diskimages ~/.openMSX/ROMs ~/.openMSX"</code> specifies four user directories in which is searched.
 </p>
 
 <p>
-By using the <code>bind</code> command you can create custom key bindings. These bindings will also be saved as settings in your settings file if you issue a <code>save_settings</code> command.
+By using the <code><a class="external" href="commands.html#bind">bind</a></code> command you can create custom key bindings. These bindings will also be saved as settings in your settings file if you issue a <code><a class="external" href="commands.html#save_settings">save_settings</a></code> command.
 </p>
 
 
@@ -427,7 +383,7 @@ See the "FileTypes" section of the file.
 -->
 
 <p>
-The other settings are discussed in <a class="external" href="user.html#controlling">the User's Manual</a> and in the file <code>doc/commands.txt</code>.
+The other settings are discussed in <a class="external" href="user.html#controlling">the User's Manual</a> and there is an overview can be found in the <a class="external" href="commands.html">Console Command Overview</a>.
 </p>
 
 <p>
@@ -614,15 +570,15 @@ Use 16-bit colour mode ("High Colours", "65536 colours") instead of 32-bit ("Tru
 openMSX uses your platform's default setting.
 </li>
 <li>
-Increase the number of frames that may be skipped (<code>set maxframeskip 10</code>, for example).
+Increase the number of frames that may be skipped (<code>set <a class="external" href="commands.html#maxframeskip">maxframeskip</a> 10</code>, for example).
 </li>
 <li>
-Use a <code>scale_factor</code> of 1 with the SDL renderer (75% less pixels to fill compared to the default setting of 2). For most
+Use a <code><a class="external" href="commands.html#scale_factor">scale_factor</a></code> of 1 with the SDL renderer (75% less pixels to fill compared to the default setting of 2). For most
 games (and any MSX1 software) it works perfectly, especially when using full screen. The drawback: no special effects at all, not even scanlines. Turning off special effects can also mean a speed up, of course.
 </li>
 <li>
 Use a lower sound mixing frequency, for example 22050Hz instead of 44100Hz. Use
-the <code>frequency</code> setting for this.
+the <code><a class="external" href="commands.html#frequency">frequency</a></code> setting for this.
 </li>
 <li>
 Use less sound channels, for example use MSX-MUSIC (maximum 9 channels)
