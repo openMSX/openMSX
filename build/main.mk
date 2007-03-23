@@ -123,7 +123,7 @@ ifeq ($(3RDPARTY_FLAG),true)
 $(call DEFCHECK,OPENMSX_TARGET_CPU)
 $(call DEFCHECK,OPENMSX_TARGET_OS)
 $(call DEFCHECK,OPENMSX_FLAVOUR)
-STATIC_INSTALL_DIR=$(BUILD_BASE)/$(OPENMSX_TARGET_CPU)-$(OPENMSX_TARGET_OS)-$(OPENMSX_FLAVOUR)/3rdparty/install
+STATIC_INSTALL_DIR:=$(BUILD_BASE)/$(OPENMSX_TARGET_CPU)-$(OPENMSX_TARGET_OS)-$(OPENMSX_FLAVOUR)/3rdparty/install
 endif
 
 
@@ -453,7 +453,9 @@ endif
 # TODO: It would be cleaner to include probe.mk and probe-results.mk,
 #       instead of executing them in a sub-make.
 $(PROBE_MAKE): $(PROBE_SCRIPT) $(MAKE_PATH)/custom.mk $(MAKE_PATH)/tcl-search.sh
-	@OUTDIR=$(@D) OPENMSX_TARGET_OS=$(OPENMSX_TARGET_OS) COMPILE="$(CXX)" \
+	@OUTDIR=$(@D) OPENMSX_TARGET_OS=$(OPENMSX_TARGET_OS) \
+		COMPILE="$(CXX) $(TARGET_FLAGS)" \
+		STATIC_INSTALL_DIR=$(STATIC_INSTALL_DIR) \
 		$(MAKE) --no-print-directory -f $<
 	@PROBE_MAKE=$(PROBE_MAKE) MAKE_PATH=$(MAKE_PATH) \
 		$(MAKE) --no-print-directory -f $(MAKE_PATH)/probe-results.mk
@@ -547,7 +549,7 @@ SINGLE_CPU_BINARIES=$(foreach CPU,$(CPU_LIST),$(call BINARY_FOR_CPU,$(CPU)))
 .PHONY: $(SINGLE_CPU_BINARIES)
 $(SINGLE_CPU_BINARIES):
 	@echo "Start compile for $(firstword $(subst -, ,$(@:$(BUILD_BASE)/%=%))) CPU..."
-	@$(LINK_ENV) $(MAKE) -f build/main.mk all \
+	@$(MAKE) -f build/main.mk all \
 		OPENMSX_TARGET_CPU=$(firstword $(subst -, ,$(@:$(BUILD_BASE)/%=%))) \
 		OPENMSX_TARGET_OS=$(OPENMSX_TARGET_OS) \
 		OPENMSX_FLAVOUR=$(OPENMSX_FLAVOUR) \
@@ -562,7 +564,7 @@ $(BINARY_FULL): $(OBJECTS_FULL) $(RESOURCE_OBJ)
 ifeq ($(OPENMSX_SUBSET),)
 	@echo "Linking $(notdir $@)..."
 	@mkdir -p $(@D)
-	@$(CXX) -o $@ $(CXXFLAGS) $^ $(LINK_FLAGS)
+	@$(LINK_ENV) $(CXX) -o $@ $(CXXFLAGS) $^ $(LINK_FLAGS)
   ifeq ($(STRIP_SEPARATE),true)
 	@echo "Stripping $(notdir $@)..."
 	@strip $@
