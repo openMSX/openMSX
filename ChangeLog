@@ -1,5 +1,11 @@
 $Id$
 
+2007-03-23 Manuel Bilderbeek <manuel@msxnet.org>
+	* Integrated David's new commands.html into the manuals. Thanks for
+	  converting it!
+	* Removed commands.txt and references to it.
+	* Get rid of in-manual revision history.
+
 2007-03-22 Maarten ter Huurne <maarten@treewalker.org>
 	* Universal binary support for Mac OS X:
 	    make staticbindist OPENMSX_TARGET_CPU=univ
