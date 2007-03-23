@@ -703,6 +703,7 @@ else
 	$(MAKE) -f $(MAKE_PATH)/3rdparty.mk \
 		BUILD_PATH=$(BUILD_PATH)/3rdparty \
 		CC="$(CC) $(TARGET_FLAGS)" _CFLAGS="$(CXXFLAGS)" \
+		LD="$(CC) $(TARGET_FLAGS)" \
 		$(COMPILE_ENV)
 endif
 

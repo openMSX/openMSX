@@ -13,6 +13,7 @@ endif
 # Compiler selection, compiler flags, SDK selection.
 # These variables are already exported, but we make it explicit here.
 export CC
+export LD
 export NEXT_ROOT
 
 TARBALLS_DIR:=derived/3rdparty/download
