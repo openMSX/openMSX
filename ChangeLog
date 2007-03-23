@@ -1,5 +1,13 @@
 $Id$
 
+2007-03-22 Maarten ter Huurne <maarten@treewalker.org>
+	* Universal binary support for Mac OS X:
+	    make staticbindist OPENMSX_TARGET_CPU=univ
+	  There are probably still some issues left, but the infrastructure for
+	  building universal binaries is now complete.
+	  Thanks a lot to BouKiCHi for providing the scripts on which this
+	  universal binary support is based.
+
 2007-03-15 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added Al-Alamiah AX170 (prevously added Yamaha AX350II).
 	  - NOTE: it is not certain if these configs are correct and I have
@@ -149,12 +157,12 @@ $Id$
 2007-01-16  Arnold Metselaar  <arnold.metselaar@planet.nl>
 	* Print warning if bit 0 of VDP register 9 is set to one; on a
 	  real MSX2 this causes the screen to go black and the computer to
-	  freeze. 
+	  freeze.
 	   - closes [ 1354347 ].
 
 2007-01-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Synchronized TC8566AF code with blueMSX version:
-	   - seems to fix [ 1630933 ] "Formatting on turboR goes wrong when 
+	   - seems to fix [ 1630933 ] "Formatting on turboR goes wrong when
 	     not booting with a disk".
 
 2007-01-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
@@ -235,11 +243,11 @@ $Id$
 2006-12-23 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Try to upload larger texture blocks at once in GLPostProcessor (was
 	  one line at a time):
-	   - I measured upto 15% speedup (scale_algo=simple scale_factor=2) 
+	   - I measured upto 15% speedup (scale_algo=simple scale_factor=2)
 	* Use array arithmetic iso pointer arithmetic in BitmapConverter:
 	   - can be better optimized by gcc (and compilers in general)
 	   - though, impact on total emulation time is not that big. I
-	     measured about 1% speedup 
+	     measured about 1% speedup
 
 2006-12-22 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Removed charDisplayCache and bitmapDisplayCache from SDLRasterizer:
@@ -287,7 +295,7 @@ $Id$
 	   - Fixed bug in sound-genration-timing to real-time tuning algorithm.
 	     On some systems this caused a floating point exception.
 
-2006-12-11  Arnold Metselaar  <arnold.metselaar@planet.nl>	
+2006-12-11  Arnold Metselaar  <arnold.metselaar@planet.nl>
 	* src/sound/SDLSoundDriver.cc: ensure the left argument to % is
 	  positive, fixes distorted sound and floating point exceptions.
 
@@ -402,7 +410,7 @@ $Id$
 	     there are changes to private member variables or functions
 
 2006-11-09 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
-	* Added machine add/remove/select clicomm update 
+	* Added machine add/remove/select clicomm update
 	* Extended 'machine' command:
 	   - without parameters it returns the handle of the current machine
 	   - on a successful machine switch it also returns the handle
@@ -455,7 +463,7 @@ $Id$
 	* Unified advram-p and advram-s to a single advram,
 	 - use "?0" to specify: subslot "0" if expanded,
 	 - src/CartridgeSlotManager.cc: parse "?0",
-	 - src/MSXDevice.cc, src/config/HardwareConfig.cc: 
+	 - src/MSXDevice.cc, src/config/HardwareConfig.cc:
 	    handle the case of "?0",
 	 - TODO: get rid of the special values for slot numbers.
 
