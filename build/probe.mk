@@ -192,10 +192,10 @@ hello: init
 	@echo "int main(int argc, char** argv) {" >> $(OUTDIR)/$@.cc
 	@echo "  std::cout << \"Hello World!\" << std::endl;" >> $(OUTDIR)/$@.cc
 	@echo "}" >> $(OUTDIR)/$@.cc
-	@if $(COMPILE) $(CXXFLAGS) -c $(OUTDIR)/$@.cc -o $(OUTDIR)/$@.o 2>> $(LOG); \
-	then echo "Compiler works: $(COMPILE) $(CXXFLAGS)" >> $(LOG); \
+	@if $(COMPILE) $(COMPILE_FLAGS) -c $(OUTDIR)/$@.cc -o $(OUTDIR)/$@.o 2>> $(LOG); \
+	then echo "Compiler works: $(COMPILE) $(COMPILE_FLAGS)" >> $(LOG); \
 	     echo "COMPILER:=true" >> $(OUTMAKE); \
-	else echo "Compiler broken: $(COMPILE) $(CXXFLAGS)" >> $(LOG); \
+	else echo "Compiler broken: $(COMPILE) $(COMPILE_FLAGS)" >> $(LOG); \
 	     echo "COMPILER:=false" >> $(OUTMAKE); \
 	fi
 	@rm -f $(OUTDIR)/$@.cc $(OUTDIR)/$@.o
@@ -209,7 +209,7 @@ $(CHECK_FUNCS): init
 	@echo "#include $($@_HEADER)" >> $(OUTDIR)/$@.cc
 	@echo "void (*f)() = reinterpret_cast<void (*)()>($($@_FUNC));" \
 		>> $(OUTDIR)/$@.cc
-	@if $(COMPILE) $(CXXFLAGS) -c $(OUTDIR)/$@.cc -o $(OUTDIR)/$@.o \
+	@if $(COMPILE) $(COMPILE_FLAGS) -c $(OUTDIR)/$@.cc -o $(OUTDIR)/$@.o \
 		2>> $(LOG); \
 	then echo "Found function: $@" >> $(LOG); \
 	     echo "#define HAVE_$@ 1" >> $(OUTHEADER); \
@@ -232,7 +232,7 @@ $(CHECK_HEADERS): init
 	@if [ -n "$($(@:%_H=%)_PREHEADER)" ]; then \
 		echo "#include $($(@:%_H=%)_PREHEADER)"; fi >> $(OUTDIR)/$@.cc
 	@echo "#include $($(@:%_H=%)_HEADER)" >> $(OUTDIR)/$@.cc
-	@if FLAGS="$($(@:%_H=%_CFLAGS))" && $(COMPILE) $(CXXFLAGS) $$FLAGS \
+	@if FLAGS="$($(@:%_H=%_CFLAGS))" && $(COMPILE) $(COMPILE_FLAGS) $$FLAGS \
 		-c $(OUTDIR)/$@.cc -o $(OUTDIR)/$@.o 2>> $(LOG); \
 	then echo "Found header: $(@:%_H=%)" >> $(LOG); \
 	     echo "#define HAVE_$@ 1" >> $(OUTHEADER); \
@@ -252,7 +252,7 @@ $(DISABLED_HEADERS): init
 # Try to link dummy program to the library.
 $(CHECK_LIBS): init
 	@echo "int main(int argc, char **argv) { return 0; }" > $(OUTDIR)/$@.cc
-	@if FLAGS="$($@_LDFLAGS)" && $(COMPILE) $(CXXFLAGS) \
+	@if FLAGS="$($@_LDFLAGS)" && $(COMPILE) \
 		$(OUTDIR)/$@.cc -o $(OUTDIR)/$@.exe $(LINK_FLAGS) $$FLAGS 2>> $(LOG); \
 	then echo "Found library: $@" >> $(LOG); \
 	     echo "#define HAVE_$@_LIB 1" >> $(OUTHEADER); \
