@@ -6,5 +6,4 @@
 BIG_ENDIAN:=true
 
 # Default build flavour.
-OPENMSX_FLAVOUR?=ppc64
-
+OPENMSX_FLAVOUR?=opt
