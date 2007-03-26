@@ -38,14 +38,3 @@ LINK_FLAGS+=-pthread \
 MMAP_PREHEADER:=<sys/types.h>
 SYS_MMAN_PREHEADER:=<sys/types.h>
 SYS_SOCKET_PREHEADER:=<sys/types.h>
-
-# libpng related.
-#  openMSX depends on libpng.
-#  Here we expect user installed libpng via ports/packages.
-#  Fortunately, ports/packages make symlinks
-#  $(PKGBASE)/include/libpng/*.h to $(PKGBASE)/include/*.h .
-#  So, just use CXXFLAGS and LINK_FLAGS set in above.
-#  Should use "$(PKGBASE)/libdata/pkgconfig/libpng12.pc" ?
-PNG_CFLAGS:=
-PNG_LDFLAGS:=-lpng
-PNG_RESULT:=yes

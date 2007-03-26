@@ -22,3 +22,14 @@ SDL_CFLAGS:=`$(SDLCONFIGSCRIPT) --cflags 2>> $(LOG)`
 
 SDL_LDFLAGS:=`$(SDLCONFIGSCRIPT) --libs 2>> $(LOG)`
 SDL_RESULT:=`$(SDLCONFIGSCRIPT) --version`
+
+# libpng related.
+#  openMSX depends on libpng.
+#  Here we expect user installed libpng via ports/packages.
+#  Fortunately, ports/packages make symlinks
+#  $(PKGBASE)/include/libpng/*.h to $(PKGBASE)/include/*.h .
+#  So, just use CXXFLAGS and LINK_FLAGS set in above.
+#  Should use "$(PKGBASE)/libdata/pkgconfig/libpng12.pc" ?
+PNG_CFLAGS:=
+PNG_LDFLAGS:=-lpng
+PNG_RESULT:=yes
