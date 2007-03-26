@@ -3,12 +3,8 @@
 # Configuration for "ppc" flavour:
 # Optimised for PPC-G4 and higher.
 
-# Optimisation flags.
-CXXFLAGS+=-O3 -DNDEBUG -mpowerpc-gfxopt
-#CXXFLAGS+=-mcpu=7450 -maltivec -mabi=altivec
-CXXFLAGS+=-mcpu=G4 -maltivec -mabi=altivec
+# Start with generic optimisation flags.
+include build/flavour-opt.mk
 
-# Strip executable?
-# TODO: Stripping would be good, but linker doesn't understand "--strip-all".
-OPENMSX_STRIP:=false
-
+# Add PPC specific flags.
+CXXFLAGS+=-mcpu=G4 -mtune=G4 -mpowerpc-gfxopt -maltivec -mabi=altivec
