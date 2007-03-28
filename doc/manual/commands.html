@@ -85,19 +85,21 @@ div.note {
 
         <li><a class="internal" href="#cassetteplayer">cassetteplayer</a></li>
 
-        <li><a class="internal" href="#cdacdb">cda / cdb</a></li>
+        <li><a class="internal" href="#cd">cd&lt;x&gt;</a></li>
 
         <li><a class="internal" href="#debug">debug</a></li>
 
-        <li><a class="internal" href="#diskadiskb">diska / diskb</a></li>
+        <li><a class="internal" href="#disk">disk&lt;x&gt;</a></li>
 
         <li><a class="internal" href="#diskmanipulator">diskmanipulator</a></li>
 
         <li><a class="internal" href="#escape_grab">escape_grab</a></li>
 
+        <li><a class="internal" href="#exit">exit</a></li>
+
         <li><a class="internal" href="#ext">ext</a></li>
 
-        <li><a class="internal" href="#hdahdb">hda / hdb</a></li>
+        <li><a class="internal" href="#hd">hd&lt;x&gt;</a></li>
 
         <li><a class="internal" href="#help">help</a></li>
 
@@ -251,7 +253,7 @@ div.note {
 
         <li><a class="internal" href="#print-resolution">print-resolution</a></li>
 
-        <li><a class="internal" href="#r800_freq">r800_freq and r800_freq_locked</a></li>
+        <li><a class="internal" href="#r800_freq">r800_freq / r800_freq_locked</a></li>
 
         <li><a class="internal" href="#renderer">renderer</a></li>
 
@@ -277,9 +279,9 @@ div.note {
 
         <li><a class="internal" href="#speed">speed</a></li>
 
-        <li><a class="internal" href="#soundchip_mode">[soundchip]_mode</a></li>
+        <li><a class="internal" href="#soundchip_mode">&lt;soundchip&gt;_mode</a></li>
 
-        <li><a class="internal" href="#soundchip_volume">[soundchip]_volume</a></li>
+        <li><a class="internal" href="#soundchip_volume">&lt;soundchip&gt;_volume</a></li>
 
         <li><a class="internal" href="#throttle">throttle</a></li>
 
@@ -293,14 +295,14 @@ div.note {
 
         <li><a class="internal" href="#v9990cmdtrace">v9990cmdtrace</a></li>
 
-        <li><a class="internal" href="#z80_freq">z80_freq and z80_freq_locked</a></li>
+        <li><a class="internal" href="#z80_freq">z80_freq / z80_freq_locked</a></li>
       </ol>
     </li>
   </ol>
 
   <h3><a id="after" name="after">after</a></h3>
 
-  <p>Execute a command after a certain time, or after a certain time of being idle. It is possible the query a list of
+  <p>Execute a command after a certain time, or after a certain time of being idle. It is possible to query a list of
   postponed commands and also to cancel postponed commands.</p>
 
   <div class="usagetitle">
@@ -372,7 +374,7 @@ div.note {
 
   <h3><a id="bind" name="bind">bind / unbind / bind_default / unbind_default</a></h3>
 
-  <p>Associate events (like key presses) with commands. Whenever the specified event occurs (e.g. you press the
+  <p>Associate events (such as key presses) with commands. Whenever the specified event occurs (e.g. you press the
   specified key), the corresponding command will be executed. To customize your bindings you should use the (un)bind
   commands. A script that wants to provide a default binding for its functionality needs to use bind_default.</p>
 
@@ -574,9 +576,9 @@ div.note {
     </table>
   </div>
 
-  <h3><a id="cdacdb" name="cdacdb">cda / cdb</a></h3>
+  <h3><a id="cd" name="cd">cd&lt;x&gt;</a></h3>
 
-  <p>Change the CDROM image. "cda", "cdb", etc., are assigned to all available CDROM drives in the MSX. They will not
+  <p>Change the CDROM image. The commands <code>cda</code>, <code>cdb</code> etc. are assigned to all available CDROM drives in the MSX. They will not
   correspond to drive names as used in MSX-DOS!</p>
 
   <div class="usagetitle">
@@ -751,10 +753,11 @@ div.note {
     offer convenience wrappers around these commands. For example: showmem, disasm, cpuregs, save_debuggable, vdp, ...
   </div>
 
-  <h3><a id="diskadiskb" name="diskadiskb">diska / diskb</a></h3>
+  <h3><a id="disk" name="disk">disk&lt;x&gt;</a></h3>
 
-  <p>Insert a disk image in a drive. Optionally apply an IPS patch to the disk image. "diska", "diskb", etc., are
-  assigned to all available "physical" disk drives in the MSX. They will not correspond to drive names as used in
+  <p>Insert a disk image in a drive. Optionally apply an IPS patch to the disk image.
+  The commands <code>diska</code>, <code>diskb</code> etc. are
+  assigned to all available "physical" disk drives in the MSX. They might not correspond to drive names as used in
   MSX-DOS!</p>
 
   <div class="usagetitle">
@@ -828,6 +831,12 @@ div.note {
     </table>
   </div>
 
+  <h3><a id="exit" name="exit">exit</a></h3>
+
+  <p>Exits the emulator.</p>
+
+  <p>Technically this exits the TCL interpreter, but that shuts down openMSX as well.</p>
+
   <h3><a id="ext" name="ext">ext</a></h3>
 
   <p>Insert a MSX extension in a running MSX machine. The extension can be removed again with the 'remove_extension'
@@ -847,9 +856,9 @@ div.note {
     </table>
   </div>
 
-  <h3><a id="hdahdb" name="hdahdb">hda / hdb</a></h3>
+  <h3><a id="hd" name="hd">hd&lt;x&gt;</a></h3>
 
-  <p>Change the hard disk image. "hda", "hdb", etc., are assigned to all available hard disk drives in the MSX. They
+  <p>Change the hard disk image. The commands <code>hda</code>, <code>hdb</code> etc. are assigned to all available hard disk drives in the MSX. They
   will not correspond to drive names as used in MSX-DOS!</p>
 
   <div class="usagetitle">
@@ -1541,7 +1550,7 @@ div.note {
 
   <p>Quits the emulator.</p>
 
-  <p>The native TCL command is called "exit".</p>
+  <p>The native TCL command is called <code><a class="internal" href="#exit">exit</a></code>.</p>
 
   <h3><a id="restoredefault" name="restoredefault">restoredefault</a></h3>
 
@@ -2497,7 +2506,7 @@ div.note {
   <h3><a id="master_volume" name="master_volume">master_volume</a></h3>
 
   <p>Controls the overall openMSX volume. The volume of individual sound device can be controlled with the
-  [soundchip]_volume settings, see below.</p>
+  &lt;soundchip&gt;_volume settings, see below.</p>
 
   <div class="usagetitle">
     usage:
@@ -2782,7 +2791,7 @@ div.note {
     </table>
   </div>
 
-  <h3><a id="r800_freq" name="r800_freq">r800_freq and r800_freq_locked</a></h3>
+  <h3><a id="r800_freq" name="r800_freq">r800_freq / r800_freq_locked</a></h3>
 
   <p>These two settings control the R800 clock frequency. See z80_freq and z80_freq_locked for more details.</p>
 
@@ -3107,7 +3116,7 @@ div.note {
     </table>
   </div>
 
-  <h3><a id="soundchip_mode" name="soundchip_mode">[soundchip]_mode</a></h3>
+  <h3><a id="soundchip_mode" name="soundchip_mode">&lt;soundchip&gt;_mode</a></h3>
 
   <p>Sets the channel mode for individual sound chips. Note that chips which are in stereo mode cannot be set to
   another mode and chips that are not in stereo mode, can of course never be set to stereo mode.</p>
@@ -3119,13 +3128,13 @@ div.note {
   <div class="usage">
     <table>
       <tr>
-        <td><code>set [soundchip]_mode</code></td>
+        <td><code>set &lt;soundchip&gt;_mode</code></td>
 
         <td>shows the current setting</td>
       </tr>
 
       <tr>
-        <td><code>set [soundchip]_mode &lt;mode&gt;</code></td>
+        <td><code>set &lt;soundchip&gt;_mode &lt;mode&gt;</code></td>
 
         <td>set new mode</td>
       </tr>
@@ -3142,7 +3151,7 @@ div.note {
     <code>set "FMPAC_mode" mono</code>
   </div>
 
-  <h3><a id="soundchip_volume" name="soundchip_volume">[soundchip]_volume</a></h3>
+  <h3><a id="soundchip_volume" name="soundchip_volume">&lt;soundchip&gt;_volume</a></h3>
 
   <p>Sets the volume for individual sound chips.</p>
 
@@ -3153,13 +3162,13 @@ div.note {
   <div class="usage">
     <table>
       <tr>
-        <td><code>set [soundchip]_volume</code></td>
+        <td><code>set &lt;soundchip&gt;_volume</code></td>
 
         <td>shows the current setting</td>
       </tr>
 
       <tr>
-        <td><code>set [soundchip]_volume &lt;num&gt;</code></td>
+        <td><code>set &lt;soundchip&gt;_volume &lt;num&gt;</code></td>
 
         <td>set new volume</td>
       </tr>
@@ -3313,7 +3322,7 @@ div.note {
 
   <p>[ mainly useful for debugging purposes ]</p>
 
-  <h3><a id="z80_freq" name="z80_freq">z80_freq and z80_freq_locked</a></h3>
+  <h3><a id="z80_freq" name="z80_freq">z80_freq / z80_freq_locked</a></h3>
 
   <p>These two settings control the Z80 clock frequency. When z80_freq_locked is true the emulated Z80 runs at the
   normal 3.5MHz (or optionally 5.3MHz on some machines). When z80_freq_locked is false the value of z80_freq is taken

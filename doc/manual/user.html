@@ -393,13 +393,13 @@ for example. Or, if you use a disk image with an extension that is unknown to op
 You can also change disks at run time of course. Just type
 </p>
 <div class="commandline">
-    <a class="external" href="commands.html#diskadiskb">diska</a> &lt;diskimage&gt;
+    <a class="external" href="commands.html#disk">diska</a> &lt;diskimage&gt;
 </div>
 <p>
 in the console to put the specified disk image in drive A. To eject the disk from drive A, use:
 </p>
 <div class="commandline">
-    <a class="external" href="commands.html#diskadiskb">diska</a> -eject
+    <a class="external" href="commands.html#disk">diska</a> -eject
 </div>
 <p>
 Note that inserting another disk image automatically ejects the previous one.
@@ -421,7 +421,7 @@ The <code>-ips</code> option must follow directly the disk image on the command 
 You can also apply the patches when changing disks at run time. Just type something like
 </p>
 <div class="commandline">
-    <a class="external" href="commands.html#diskadiskb">diska</a> SDSNAT1C.DSK sdsnat1-eng.ips sd-cheat.ips
+    <a class="external" href="commands.html#disk">diska</a> SDSNAT1C.DSK sdsnat1-eng.ips sd-cheat.ips
 </div>
 <p>
 in the console to put the specified disk image SDSNAT1C.DSK in drive A, with both IPS patches applied.
@@ -504,10 +504,10 @@ As of openMSX 0.6.1, you can specify the harddisk image to be used on the comman
 </p>
 <div class="commandline">openmsx -ext ide -hda symbos.dsk</div>
 <p>
-This means that you're using the ide extension with symbos.dsk as harddisk image. You can also change the harddisk image at run time in the console (only when the MSX is powered off via the <code><a class="external" href="commands.html#power">power</a></code> setting). This works the same as the <code><a class="external" href="commands.html#diskadiskb">diska</a></code> command:
+This means that you're using the ide extension with symbos.dsk as harddisk image. You can also change the harddisk image at run time in the console (only when the MSX is powered off via the <code><a class="external" href="commands.html#power">power</a></code> setting). This works the same as the <code><a class="external" href="commands.html#disk">diska</a></code> command:
 </p>
 <div class="commandline">
-    <a class="external" href="commands.html#hdahdb">hda</a> &lt;diskimage&gt;
+    <a class="external" href="commands.html#hd">hda</a> &lt;diskimage&gt;
 </div>
 
 <p>
@@ -541,7 +541,7 @@ Start openMSX with the ide extension, then type in the console:
 <div class="commandline">
 set <a class="external" href="commands.html#power">power</a> off<br/>
 <a class="external" href="commands.html#diskmanipulator">diskmanipulator</a> create /tmp/new-hd.dsk 32M 32M 32M<br/>
-<a class="external" href="commands.html#hdahdb">hda</a> /tmp/new-hd.dsk<br/>
+<a class="external" href="commands.html#hd">hda</a> /tmp/new-hd.dsk<br/>
 <a class="external" href="commands.html#diskmanipulator">diskmanipulator</a> import hda1 /home/david/msxdostools/<br/>
 <a class="external" href="commands.html#diskmanipulator">diskmanipulator</a> import hda2 /home/david/msxdemos/<br/>
 <a class="external" href="commands.html#diskmanipulator">diskmanipulator</a> import hda3 /home/david/msxdrawings/<br/>
@@ -563,7 +563,7 @@ href="#dirasdisk">DirAsDsk section</a> for more details.
 </p>
 
 <p>
-Last but not least: as of openMSX 0.6.1, there is (limited) support for CD-ROM with the 'ide' extension. The default configuration has a CD-ROM player on the slave port of the IDE interface. You can insert an ISO image in that virtual CD-ROM player with the <code>-cda</code> command line option and change it at run time with the <code><a class="external" href="commands.html#cdacdb">cda</a></code> console command, all similar to the aforementioned <code><a class="external" href="commands.html#hdahdb">hda</a></code> and <code><a class="external" href="commands.html#diskadiskb">diska</a></code> commands and options.
+Last but not least: as of openMSX 0.6.1, there is (limited) support for CD-ROM with the 'ide' extension. The default configuration has a CD-ROM player on the slave port of the IDE interface. You can insert an ISO image in that virtual CD-ROM player with the <code>-cda</code> command line option and change it at run time with the <code><a class="external" href="commands.html#cd">cda</a></code> console command, all similar to the aforementioned <code><a class="external" href="commands.html#hd">hda</a></code> and <code><a class="external" href="commands.html#disk">diska</a></code> commands and options.
 </p>
 
 <h3><a id="tape">4.3 Running Tape Software</a></h3>
