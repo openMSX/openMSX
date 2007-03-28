@@ -4,10 +4,14 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-  <meta name="generator" content="HTML Tidy for Linux/x86 (vers 1 September 2005), see www.w3.org" />
-  <link title="Purple" rel="stylesheet" href="manual-purple.css" type="text/css" />
-  <link title="Minty" rel="alternate stylesheet" href="manual-minty.css" type="text/css" />
-  <link title="Plain" rel="alternate stylesheet" href="manual.css" type="text/css" />
+  <meta name="generator" content=
+  "HTML Tidy for Linux/x86 (vers 1 September 2005), see www.w3.org" />
+  <link title="Purple" rel="stylesheet" href="manual-purple.css"
+  type="text/css" />
+  <link title="Minty" rel="alternate stylesheet" href=
+  "manual-minty.css" type="text/css" />
+  <link title="Plain" rel="alternate stylesheet" href="manual.css"
+  type="text/css" />
 
   <title>openMSX User's Manual</title>
 <style type="text/css">
@@ -77,246 +81,403 @@ div.note {
 
 <body>
   <h1>diskmanipulator</h1>
-  <p>This is probably the most exuberant console command available in openMSX.
-It implements the basic stuff needed to handle files and subdirs on MSX media.
-It also helps one creating new disk image files, both simple 360 kB and 720 kB
-disks as well as IDE-HD images containing up to 30 partitions of each 32 MB.
-Creating disk images and manipulating the files on them can be done without the
-need of a running emulated MSX (set power off).</p>
-<p>First we will see the generic structure of the command, then the individual
-commands are explained in more depth. At the end of this document you'll find 
-some example of typical usage sequences.
-<div class="note">Important: this command is only available if openMSX is emulating an MSX model that has diskdrives. Even if you're planning to only use the virtual_drive device!
-</div>
-<h2>generic structure</h2>
 
-<p>The general command structure is always of the form:</p>
+  <p>This is probably the most exuberant console command available
+  in openMSX. It implements the basic stuff needed to handle files
+  and subdirs on MSX media. It also helps one creating new disk
+  image files, both simple 360 kB and 720 kB disks as well as
+  IDE-HD images containing up to 30 partitions of each 32 MB.
+  Creating disk images and manipulating the files on them can be
+  done without the need of a running emulated MSX (set power
+  off).</p>
 
-<p><code>diskmanipulator &lt;command&gt; &lt;disk name&gt; &lt;command arguments&gt;</code> where</p>
+  <p>First we will see the generic structure of the command, then
+  the individual commands are explained in more depth. At the end
+  of this document you'll find some example of typical usage
+  sequences.</p>
 
-<p>'commands' is one of: import, export, savedsk, format, create,
-dir, mkdir, chdir</p>
+  <div class="note">
+    Important: this command is only available if openMSX is
+    emulating an MSX model that has diskdrives. Even if you're
+    planning to only use the virtual_drive device!
+  </div>
 
-<p>'disk name' is most likely: diska, diskb, hda or the special virtual_drive
-        device. diska, diskb or hda are the drives available to the running
-        emulated MSX machine. This allows interaction with the currently used
-	disk images.<br />
-        In case the disk contains an MSX-IDE compatible partition table you can
-        add a partition number, from 1 till 31, to the disk name to determine on
-        which partition the command needs to act (e.g. hda2 is the second
-        partition on the master IDE disk, hdb3 is the third partition on the
-	slave IDE disk).</p>
+  <h2>generic structure</h2>
 
-	<p>'command arguments' depend upon the command involved, see the detailed
-	descriptions of the commands below.</p>
-	
-	<p>The diskmanipulator and all its commands (including most parameters) can be tab-completed in the console</p>
+  <p>The general command structure is always of the form:</p>
 
-	<h2>Detailed explanation</h2>
-	<p>These are the commands understood by the diskmanipulator:</p>
-<p><ol class="toclist" >
-<li><a class="internal" href="#import">import</a></li>
-<li><a class="internal" href="#export">export</a></li>
-<li><a class="internal" href="#savedsk">savedsk</a></li>
-<li><a class="internal" href="#format">format</a></li>
-<li><a class="internal" href="#create">create</a></li>
-<li><a class="internal" href="#dir">dir</a></li>
-<li><a class="internal" href="#mkdir">mkdir</a></li>
-<li><a class="internal" href="#chdir">chdir</a></li>
-</ol></p>
-	<h3><a id="savedsk">savedsk</a></h3>
-	<div class="structuretitle">structure:</div>
-	<p><code>diskmanipulator savedsk &lt;disk name&gt; &lt;dskfilename&gt;</code></p>
+  <p><code>diskmanipulator &lt;command&gt; &lt;disk name&gt;
+  &lt;command arguments&gt;</code> where</p>
 
-	<div class="explanationtitle">explanation:</div>
-	<p>This simply reads all the sectors of the &lt;disk name&gt; and saves them
-	again in the file specified by &lt;dskfilename&gt;.<br />
-        This is thus equivalent to copying a dsk file on your host OS.</p>
-	<p>The added values are:</p>
-	<ul>
-	<li>the possibility of saving a ramdsk (see diska -ramdsk)</li>
-        <li> saving your current DirAsDisk image into a real dsk file</li>
-        <li> copying the currently used image file in case your host-OS would give
-          sharing violations while the file is being used by openMSX (Windows)</li>
-        <li> saving a dsk file if you by accident already removed the directory
-          entry, while openMSX is still using an open file handle towards it.(the non MS os's)</li>
-	</ul>
-	  <h3><a id="import">import</a></h3>
-<div class="structuretitle">structure:</div>
-<p><code>diskmanipulator import &lt;disk name&gt; &lt;host directory|host file&gt;...</code></p>
+  <p>'commands' is one of: import, export, savedsk, format, create,
+  dir, mkdir, chdir</p>
 
-	<div class="explanationtitle">explanation:</div>
-	<p>This will import the single &lt;host file&gt; into the disk inserted in
-        &lt;disk name&gt;.  In case of a &lt;host directory&gt; it  will import the
-        files and subdirectories in &lt;host directory&gt; into the inserted disk.
-        Multiple files and directories can be specified at the same time.
-        The place were the files will be added in the MSX directory structure
-	is influenced by the '<code>chdir</code>' command.</p>
+  <p>'disk name' is most likely: diska, diskb, hda or the special
+  virtual_drive device. diska, diskb or hda are the drives
+  available to the running emulated MSX machine. This allows
+  interaction with the currently used disk images.<br />
+  In case the disk contains an MSX-IDE compatible partition table
+  you can add a partition number, from 1 till 31, to the disk name
+  to determine on which partition the command needs to act (e.g.
+  hda2 is the second partition on the master IDE disk, hdb3 is the
+  third partition on the slave IDE disk).</p>
 
-	<p>If you want to use wild-cards when importing files, you will have to use
-        the TCL glob-command. This command will perform the wild-card expansion
-	and return a TCL list. Enclose the glob command in between '[' and ']':</p>
+  <p>'command arguments' depend upon the command involved, see the
+  detailed descriptions of the commands below.</p>
 
-	<p><code>diskmanipulator import hda1 [glob *.txt] [glob *.asc]</code></p>
+  <p>The diskmanipulator and all its commands (including most
+  parameters) can be tab-completed in the console</p>
 
-	<p>This command will copy all files matching *.txt and *.asc in the current
-       directory on the host OS to the first partition of the master IDE drive
-       on the emulated MSX.</p>
+  <h2>Detailed explanation</h2>
 
-       <p>The glob-command can also take extra options. For instance, if you only
-        want to expand regular files and not the names of directories you can
-	do this:</p>
+  <p>These are the commands understood by the diskmanipulator:</p>
 
-	<p><code>diskmanipulator import hda1 [glob -type f info*]</code></p>
+  <ol class="toclist">
+    <li><a class="internal" href="#import">import</a></li>
 
-	<p>Consult you local TCL guru or documentation for more info about the
-	glob-command and TCL lists.</p>
+    <li><a class="internal" href="#export">export</a></li>
 
+    <li><a class="internal" href="#savedsk">savedsk</a></li>
 
-	<h3><a id="export">export</a></h3>
-<div class="structuretitle">structure:</div>
-<p><code>diskmanipulator export &lt;disk name&gt; &lt;host directory&gt;</code></p>
+    <li><a class="internal" href="#format">format</a></li>
 
-	<div class="explanationtitle">explanation:</div>
-	<p>This will export the files and subdirectories from the disk inserted in
-        &lt;disk name&gt; to the &lt;host directory&gt; on your host OS.
-        The subdirectory that will be exported from the MSX disk image is
-	influenced by the '<code>chdir</code>' command.</p>
+    <li><a class="internal" href="#create">create</a></li>
 
-	<h3><a id="chdir">chdir</a></h3>
-<div class="structuretitle">structure:</div>
-<p><code>diskmanipulator chdir &lt;disk name&gt; &lt;MSX directory&gt;</code></p>
+    <li><a class="internal" href="#dir">dir</a></li>
 
-	<div class="explanationtitle">explanation:</div>
-	<p>This command will select the directory on the MSX disk image that will
-	be used for the export and import commands.</p>
+    <li><a class="internal" href="#mkdir">mkdir</a></li>
 
-	<div class="note">
-	The directory structure on the MSX disk image can not be tab completed!
-	</div>
+    <li><a class="internal" href="#chdir">chdir</a></li>
+  </ol>
 
+  <h3><a id="savedsk" name="savedsk">savedsk</a></h3>
 
-	<h3><a id="mkdir">mkdir</a></h3>
-<div class="structuretitle">structure:</div>
-<p><code>diskmanipulator mkdir &lt;disk name&gt; &lt;MSX directory&gt;</code></p>
+  <div class="structuretitle">
+    structure:
+  </div>
 
-	<div class="explanationtitle">explanation:</div>
-	<p>This command will create the directory on the MSX disk image.
-        Al the needed parent directories will be created if they do not yet
-	exist.</p>
+  <p><code>diskmanipulator savedsk &lt;disk name&gt;
+  &lt;dskfilename&gt;</code></p>
 
-	<h3><a id="dir">dir</a></h3>
-<div class="structuretitle">structure:</div>
-<p><code>diskmanipulator dir &lt;disk name&gt;</code></p>
+  <div class="explanationtitle">
+    explanation:
+  </div>
 
-	<div class="explanationtitle">explanation:</div>
-	<p>This will show the directory content of the curring working directory.
-	The output is formatted in a '<code>files,l</code>' like manner.</p>
+  <p>This simply reads all the sectors of the &lt;disk name&gt; and
+  saves them again in the file specified by
+  &lt;dskfilename&gt;.<br />
+  This is thus equivalent to copying a dsk file on your host
+  OS.</p>
 
-	<h3><a id="format">format</a></h3>
-<div class="structuretitle">structure:</div>
-<p><code>diskmanipulator format &lt;disk name&gt;</code></p>
+  <p>The added values are:</p>
 
-	<div class="explanationtitle">explanation:</div>
-	<p>The currently selected partition from &lt;disk name&gt; will be cleanly
-	formated with a MSX-DOS2 boot sector.<br />
-	FAT and directory sectors will be correctly initialised.</p>
-	<p>Currently there is no way to specifiy that you want it formated with a MSX-DOS1 bootsector<br />
-	If you need this (some old non-standard programs require this) then
-	you'll need to format the disk from within the emulated MSX itself in
-	an MSX-DOS1 like environment. Most MSX2 without the DOS2 extension will
-	do this for you if in basic you start the command '<code>CALL
-	FORMAT</code>'</p>
+  <ul>
+    <li>the possibility of saving a ramdsk (see diska -ramdsk)</li>
 
-	<h3><a id="create">create</a></h3>
-<div class="structuretitle">structure:</div>
-<p><code>diskmanipulator create  &lt;dskfilename&gt; &lt;size/option&gt; &lt;size/option&gt;...</code></p>
+    <li>saving your current DirAsDisk image into a real dsk
+    file</li>
 
-	<div class="explanationtitle">explanation:</div>
-	<p>You can create new dsk files using this command.</p>
-	<p>This new disk will be formated using an MSX-DOS2 boot sector.</p>
-	<p>You can specify multiple sizes in which case an MSX IDE compatible
-        partitioned image will be created, each partition will be formatted as
-        required. If a size of 360k or 720k is given, a normal floppy disk image
-        is created single or double sided, respectively, both double density.
-	Any larger value will result in a valid MSX IDE hard disk image.</p>
+    <li>copying the currently used image file in case your host-OS
+    would give sharing violations while the file is being used by
+    openMSX (Windows)</li>
 
-	<p>You can specify the disk/partition sizes be using the following
-	postfixes:</p>
-	<ul>
-                <li> S or s      -&gt;  size in sectors</li>
-                <li> B or b      -&gt;  size in bytes</li>
-                <li> K or k      -&gt;  size in kilobytes (default)</li>
-		<li> M or m      -&gt;  size in megabytes</li>
-	</ul>
+    <li>saving a dsk file if you by accident already removed the
+    directory entry, while openMSX is still using an open file
+    handle towards it.(the non MS os's)</li>
+  </ul>
 
-	<h2>Usage examples</h2>
-	<p>In  these examples we will run the diskmanipulator while the virtual
-	machine is powered off.</p>
-	<p>It is possible to run these commands while the machine is turned on
-	ofcourse, but be warned that this might have some strange, unexpected
-	behaviour depending on the emulated MSX model and the running software
-	on this MSX.</p>
-	<p>For instance, the Turbo-R models contain a physical switch inside their
-	diskdrives to detect disk changes, if no disk change is detected their
-	internal MSX-DOS2 kernel will cache certain sectors, so that using the
-	'<code>diskmanipulator import</code>' command will not show up if you
-	perform a '<code>files</code>' or '<code>dir</code>'. Even worse, if
-	you would write from the emulated MSX towards the disk you will overide
-	the result of the import.<br />
-	The same is ofcourse valid if you'ld be running a diskcache program in
-	your emulated MSX machine!</p>
-	<div class="examplestitle">creating a new disk with content</div>
-	<div class="examples">
-		Here we create a regular 720 Kb (double sided, double density) disk.<br />
-		Then we place the files and subdirs of the directory /tmp/todisk/ on this new disk.<br>
-		<ul>
-			<li><code>set power off</code></li>
-			<li><code>diskmanipulator create /tmp/new-disk.dsk 720</code></li>
-			<li><code>diskmanipulator import virtual_drive /tmp/new-disk.dsk 720</code></li>
-		</ul>
-	</div>
+  <h3><a id="import" name="import">import</a></h3>
 
-	<div class="examplestitle">creating a new harddisk image with content</div>
-	<div class="examples">
-		Here we create a new HD image with 3 partions the first
-		partition is 32 megabytes, then 16 megabytes and finaly a small
-		one of 720 kilobytes.<br />
-		Then we place the files and subdirs of the directory
-		/tmp/topart1/ on the first partition and /tmp/topart3/ to the
-		tirth partition.<br />
-		<ul>
-			<li>start openMSX with the ide extension</li>
-			<li><code>set power off</code></li>
-			<li><code>diskmanipulator create /tmp/new-hd.dsk 32M 16M 720</code></li>
-			<li><code>hda /tmp/new-hd.dsk</code> (for this the emulated MSX has to be powered off!)</li>
-			<li><code>diskmanipulator import hda1 /tmp/topart1</code></li>
-			<li><code>diskmanipulator import hda3 /tmp/topart3</code></li>
-		</ul>
-	</div>
+  <div class="structuretitle">
+    structure:
+  </div>
 
-	<div class="examplestitle">importing data in a new subdirectory</div>
-	<div class="examples">
-		On the diskimage /tmp/disk.dsk we will create a new subdirectory called 'newsub' and then we fill this one with the txt files from /home/david/sources<br />
-		<ul>
-			<li>start openMSX with the ide extension</li>
-			<li><code>set power off</code></li>
-			<li><code>diska /tmp/disk.dsk 32M 16M 720</code></li>
-			<li><code>diskmanipulator mkdir diska newsub</code></li>
-			<li><code>diskmanipulator chdir diska newsub</code></li>
-			<li><code>diskmanipulator import diska [glob -type f /home/david/sources/*.txt]</code></li>
-		</ul>
-	</div>
+  <p><code>diskmanipulator import &lt;disk name&gt; &lt;host
+  directory|host file&gt;...</code></p>
 
-	<div class="examplestitle">extracting files from an MSX harddisk image to the host OS</div>
-	<div class="examples">
-		We will extract files from the currenlty used harddisk image on partition1 in the MSX subdir '\demos\calculus' to /tmp/<br />
-		<ul>
-			<li>start openMSX with the ide extension</li>
-			<li><code>diskmanipulator chdir hda1 /demos/calculus</code></li>
-			<li><code>diskmanipulator export hda1 /tmp</code></li>
-		</ul>
-	</div>
+  <div class="explanationtitle">
+    explanation:
+  </div>
+
+  <p>This will import the single &lt;host file&gt; into the disk
+  inserted in &lt;disk name&gt;. In case of a &lt;host
+  directory&gt; it will import the files and subdirectories in
+  &lt;host directory&gt; into the inserted disk. Multiple files and
+  directories can be specified at the same time. The place were the
+  files will be added in the MSX directory structure is influenced
+  by the '<code>chdir</code>' command.</p>
+
+  <p>If you want to use wild-cards when importing files, you will
+  have to use the TCL glob-command. This command will perform the
+  wild-card expansion and return a TCL list. Enclose the glob
+  command in between '[' and ']':</p>
+
+  <p><code>diskmanipulator import hda1 [glob *.txt] [glob
+  *.asc]</code></p>
+
+  <p>This command will copy all files matching *.txt and *.asc in
+  the current directory on the host OS to the first partition of
+  the master IDE drive on the emulated MSX.</p>
+
+  <p>The glob-command can also take extra options. For instance, if
+  you only want to expand regular files and not the names of
+  directories you can do this:</p>
+
+  <p><code>diskmanipulator import hda1 [glob -type f
+  info*]</code></p>
+
+  <p>Consult you local TCL guru or documentation for more info
+  about the glob-command and TCL lists.</p>
+
+  <h3><a id="export" name="export">export</a></h3>
+
+  <div class="structuretitle">
+    structure:
+  </div>
+
+  <p><code>diskmanipulator export &lt;disk name&gt; &lt;host
+  directory&gt;</code></p>
+
+  <div class="explanationtitle">
+    explanation:
+  </div>
+
+  <p>This will export the files and subdirectories from the disk
+  inserted in &lt;disk name&gt; to the &lt;host directory&gt; on
+  your host OS. The subdirectory that will be exported from the MSX
+  disk image is influenced by the '<code>chdir</code>' command.</p>
+
+  <h3><a id="chdir" name="chdir">chdir</a></h3>
+
+  <div class="structuretitle">
+    structure:
+  </div>
+
+  <p><code>diskmanipulator chdir &lt;disk name&gt; &lt;MSX
+  directory&gt;</code></p>
+
+  <div class="explanationtitle">
+    explanation:
+  </div>
+
+  <p>This command will select the directory on the MSX disk image
+  that will be used for the export and import commands.</p>
+
+  <div class="note">
+    The directory structure on the MSX disk image can not be tab
+    completed!
+  </div>
+
+  <h3><a id="mkdir" name="mkdir">mkdir</a></h3>
+
+  <div class="structuretitle">
+    structure:
+  </div>
+
+  <p><code>diskmanipulator mkdir &lt;disk name&gt; &lt;MSX
+  directory&gt;</code></p>
+
+  <div class="explanationtitle">
+    explanation:
+  </div>
+
+  <p>This command will create the directory on the MSX disk image.
+  Al the needed parent directories will be created if they do not
+  yet exist.</p>
+
+  <h3><a id="dir" name="dir">dir</a></h3>
+
+  <div class="structuretitle">
+    structure:
+  </div>
+
+  <p><code>diskmanipulator dir &lt;disk name&gt;</code></p>
+
+  <div class="explanationtitle">
+    explanation:
+  </div>
+
+  <p>This will show the directory content of the curring working
+  directory. The output is formatted in a '<code>files,l</code>'
+  like manner.</p>
+
+  <h3><a id="format" name="format">format</a></h3>
+
+  <div class="structuretitle">
+    structure:
+  </div>
+
+  <p><code>diskmanipulator format &lt;disk name&gt;</code></p>
+
+  <div class="explanationtitle">
+    explanation:
+  </div>
+
+  <p>The currently selected partition from &lt;disk name&gt; will
+  be cleanly formated with a MSX-DOS2 boot sector.<br />
+  FAT and directory sectors will be correctly initialised.</p>
+
+  <p>Currently there is no way to specifiy that you want it
+  formated with a MSX-DOS1 bootsector<br />
+  If you need this (some old non-standard programs require this)
+  then you'll need to format the disk from within the emulated MSX
+  itself in an MSX-DOS1 like environment. Most MSX2 without the
+  DOS2 extension will do this for you if in basic you start the
+  command '<code>CALL FORMAT</code>'</p>
+
+  <h3><a id="create" name="create">create</a></h3>
+
+  <div class="structuretitle">
+    structure:
+  </div>
+
+  <p><code>diskmanipulator create &lt;dskfilename&gt;
+  &lt;size/option&gt; &lt;size/option&gt;...</code></p>
+
+  <div class="explanationtitle">
+    explanation:
+  </div>
+
+  <p>You can create new dsk files using this command.</p>
+
+  <p>This new disk will be formated using an MSX-DOS2 boot
+  sector.</p>
+
+  <p>You can specify multiple sizes in which case an MSX IDE
+  compatible partitioned image will be created, each partition will
+  be formatted as required. If a size of 360k or 720k is given, a
+  normal floppy disk image is created single or double sided,
+  respectively, both double density. Any larger value will result
+  in a valid MSX IDE hard disk image.</p>
+
+  <p>You can specify the disk/partition sizes be using the
+  following postfixes:</p>
+
+  <ul>
+    <li>S or s -&gt; size in sectors</li>
+
+    <li>B or b -&gt; size in bytes</li>
+
+    <li>K or k -&gt; size in kilobytes (default)</li>
+
+    <li>M or m -&gt; size in megabytes</li>
+  </ul>
+
+  <h2>Usage examples</h2>
+
+  <p>In these examples we will run the diskmanipulator while the
+  virtual machine is powered off.</p>
+
+  <p>It is possible to run these commands while the machine is
+  turned on ofcourse, but be warned that this might have some
+  strange, unexpected behaviour depending on the emulated MSX model
+  and the running software on this MSX.</p>
+
+  <p>For instance, the Turbo-R models contain a physical switch
+  inside their diskdrives to detect disk changes, if no disk change
+  is detected their internal MSX-DOS2 kernel will cache certain
+  sectors, so that using the '<code>diskmanipulator import</code>'
+  command will not show up if you perform a '<code>files</code>' or
+  '<code>dir</code>'. Even worse, if you would write from the
+  emulated MSX towards the disk you will overide the result of the
+  import.<br />
+  The same is ofcourse valid if you'ld be running a diskcache
+  program in your emulated MSX machine!</p>
+
+  <div class="examplestitle">
+    creating a new disk with content
+  </div>
+
+  <div class="examples">
+    Here we create a regular 720 Kb (double sided, double density)
+    disk.<br />
+    Then we place the files and subdirs of the directory
+    /tmp/todisk/ on this new disk.<br />
+
+    <ul>
+      <li><code>set power off</code></li>
+
+      <li><code>diskmanipulator create /tmp/new-disk.dsk
+      720</code></li>
+
+      <li><code>diskmanipulator import virtual_drive
+      /tmp/new-disk.dsk 720</code></li>
+    </ul>
+  </div>
+
+  <div class="examplestitle">
+    creating a new harddisk image with content
+  </div>
+
+  <div class="examples">
+    Here we create a new HD image with 3 partions the first
+    partition is 32 megabytes, then 16 megabytes and finaly a small
+    one of 720 kilobytes.<br />
+    Then we place the files and subdirs of the directory
+    /tmp/topart1/ on the first partition and /tmp/topart3/ to the
+    tirth partition.<br />
+
+    <ul>
+      <li>start openMSX with the ide extension</li>
+
+      <li><code>set power off</code></li>
+
+      <li><code>diskmanipulator create /tmp/new-hd.dsk 32M 16M
+      720</code></li>
+
+      <li><code>hda /tmp/new-hd.dsk</code> (for this the emulated
+      MSX has to be powered off!)</li>
+
+      <li><code>diskmanipulator import hda1
+      /tmp/topart1</code></li>
+
+      <li><code>diskmanipulator import hda3
+      /tmp/topart3</code></li>
+    </ul>
+  </div>
+
+  <div class="examplestitle">
+    importing data in a new subdirectory
+  </div>
+
+  <div class="examples">
+    On the diskimage /tmp/disk.dsk we will create a new
+    subdirectory called 'newsub' and then we fill this one with the
+    txt files from /home/david/sources<br />
+
+    <ul>
+      <li>start openMSX with the ide extension</li>
+
+      <li><code>set power off</code></li>
+
+      <li><code>diska /tmp/disk.dsk 32M 16M 720</code></li>
+
+      <li><code>diskmanipulator mkdir diska newsub</code></li>
+
+      <li><code>diskmanipulator chdir diska newsub</code></li>
+
+      <li><code>diskmanipulator import diska [glob -type f
+      /home/david/sources/*.txt]</code></li>
+    </ul>
+  </div>
+
+  <div class="examplestitle">
+    extracting files from an MSX harddisk image to the host OS
+  </div>
+
+  <div class="examples">
+    We will extract files from the currenlty used harddisk image on
+    partition1 in the MSX subdir '\demos\calculus' to /tmp/<br />
+
+    <ul>
+      <li>start openMSX with the ide extension</li>
+
+      <li><code>diskmanipulator chdir hda1
+      /demos/calculus</code></li>
+
+      <li><code>diskmanipulator export hda1 /tmp</code></li>
+    </ul>
+  </div>
 
   <p class="version">$Id$</p>
 </body>
