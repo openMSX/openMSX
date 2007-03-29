@@ -13,7 +13,7 @@
   <link title="Plain" rel="alternate stylesheet" href="manual.css"
   type="text/css" />
 
-  <title>openMSX User's Manual</title>
+  <title>Using Diskmanipulator</title>
 <style type="text/css">
 /*<![CDATA[*/
 
@@ -80,7 +80,7 @@ div.note {
 </head>
 
 <body>
-  <h1>diskmanipulator</h1>
+  <h1>Using Diskmanipulator</h1>
 
   <p>This is probably the most exuberant console command available
   in openMSX. It implements the basic stuff needed to handle files
@@ -88,8 +88,8 @@ div.note {
   image files, both simple 360 kB and 720 kB disks as well as
   IDE-HD images containing up to 30 partitions of each 32 MB.
   Creating disk images and manipulating the files on them can be
-  done without the need of a running emulated MSX (set power
-  off).</p>
+  done without the need of a running emulated MSX (<code>set power
+  off</code>).</p>
 
   <p>First we will see the generic structure of the command, then
   the individual commands are explained in more depth. At the end
@@ -97,12 +97,12 @@ div.note {
   sequences.</p>
 
   <div class="note">
-    Important: this command is only available if openMSX is
+    Important: for now, this command is only available if openMSX is
     emulating an MSX model that has diskdrives. Even if you're
     planning to only use the virtual_drive device!
   </div>
 
-  <h2>generic structure</h2>
+  <h2>Generic structure</h2>
 
   <p>The general command structure is always of the form:</p>
 
