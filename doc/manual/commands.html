@@ -302,7 +302,10 @@ div.note {
 
   <h3><a id="after" name="after">after</a></h3>
 
-  <p>Execute a command after a certain time, or after a certain time of being idle. It is possible to query a list of
+  <p>Execute a command after a certain event occurs, for example a given amount of time has passed or the emulator has been idle for a given amount of time.
+  Every postponed command executes just once; if you want a command to run periodically, you have to issue it again every time it runs.
+  The <code>after</code> command returns the id of the postponed command.
+  It is possible to query a list of
   postponed commands and also to cancel postponed commands.</p>
 
   <div class="usagetitle">
@@ -314,49 +317,50 @@ div.note {
       <tr>
         <td><code>after time &lt;seconds&gt; &lt;command&gt;</code></td>
 
-        <td>execute a command after some time</td>
+        <td>Execute a command after some time</td>
       </tr>
 
       <tr>
         <td><code>after idle &lt;seconds&gt; &lt;command&gt;</code></td>
 
-        <td>execute a command after some time being idle</td>
+        <td>Execute a command after some time being idle</td>
       </tr>
 
       <tr>
         <td><code>after frame &lt;command&gt;</code></td>
 
-        <td>execute a command after a new frame is drawn</td>
+        <td>Execute a command when a video frame is finished
+        (VDP scanning reaches vsync)</td>
       </tr>
 
       <tr>
         <td><code>after break &lt;command&gt;</code></td>
 
-        <td>execute a command after a breakpoint is reached</td>
+        <td>Execute a command after a breakpoint is reached</td>
       </tr>
 
       <tr>
         <td><code>after boot &lt;command&gt;</code></td>
 
-        <td>execute a command after a (re)boot</td>
+        <td>Execute a command after a (re)boot</td>
       </tr>
 
       <tr>
         <td><code>after machine_switch &lt;command&gt;</code></td>
 
-        <td>execute a command after switch to new a machine</td>
+        <td>Execute a command after switch to new a machine</td>
       </tr>
 
       <tr>
         <td><code>after info</code></td>
 
-        <td>list all postponed commands</td>
+        <td>List all postponed commands</td>
       </tr>
 
       <tr>
         <td><code>after cancel &lt;id&gt;</code></td>
 
-        <td>cancel the postponed command with given id</td>
+        <td>Cancel the postponed command with given id</td>
       </tr>
     </table>
   </div>
@@ -366,8 +370,8 @@ div.note {
   </div>
 
   <div class="examples">
-    <code>after time 10 "set renderer SDLGL"</code><br />
-    <code>after idle 100 quit</code><br />
+    <code>after time 2.6 "set renderer SDLGL"</code><br />
+    <code>after idle 100 exit</code><br />
     <code>after info</code><br />
     <code>after cancel 2</code>
   </div>
@@ -386,7 +390,7 @@ div.note {
     <tr>
       <td><code>&lt;key&gt;[,release]</code></td>
 
-      <td>treated as "keyb &lt;key&gt;[,release]"</td>
+      <td>Short for <code>keyb &lt;key&gt;[,release]</code></td>
     </tr>
 
     <tr>
@@ -398,31 +402,31 @@ div.note {
     <tr>
       <td><code>mouse button&lt;n&gt; &lt;up/down&gt;</code></td>
 
-      <td>mouse button &lt;n&gt; went up or down</td>
+      <td>Mouse button &lt;n&gt; went up or down</td>
     </tr>
 
     <tr>
       <td><code>mouse motion &lt;x&gt; &lt;y&gt;</code></td>
 
-      <td>mouse motion of &lt;x&gt; and &lt;y&gt;</td>
+      <td>Mouse motion of &lt;x&gt; and &lt;y&gt;</td>
     </tr>
 
     <tr>
       <td><code>joy&lt;n&gt; button&lt;m&gt; &lt;up/down&gt;</code></td>
 
-      <td>button &lt;m&gt; of joystick &lt;n&gt; went up/down</td>
+      <td>Button &lt;m&gt; of joystick &lt;n&gt; went up/down</td>
     </tr>
 
     <tr>
       <td><code>joy&lt;n&gt; axis&lt;m&gt; &lt;value&gt;</code></td>
 
-      <td>axis &lt;m&gt; of joystick &lt;n&gt; got value &lt;value&gt;</td>
+      <td>Axis &lt;m&gt; of joystick &lt;n&gt; got value &lt;value&gt;</td>
     </tr>
 
     <tr>
       <td><code>focus &lt;boolean&gt;</code></td>
 
-      <td>the openMSX window got (1) or lost (0) focus</td>
+      <td>The openMSX window got (1) or lost (0) focus</td>
     </tr>
   </table>
 
@@ -435,31 +439,31 @@ div.note {
       <tr>
         <td><code>bind</code></td>
 
-        <td>shows all bindings</td>
+        <td>Show all bindings</td>
       </tr>
 
       <tr>
         <td><code>bind &lt;key&gt;</code></td>
 
-        <td>shows binding for this key</td>
+        <td>Show binding for the given key</td>
       </tr>
 
       <tr>
         <td><code>bind &lt;event&gt;</code></td>
 
-        <td>shows binding for this event</td>
+        <td>Show binding for this event</td>
       </tr>
 
       <tr>
         <td><code>bind &lt;event&gt; &lt;command&gt;</code></td>
 
-        <td>make a new binding</td>
+        <td>Make a new binding</td>
       </tr>
 
       <tr>
         <td><code>unbind &lt;key&gt;</code></td>
 
-        <td>undo binding for this event</td>
+        <td>Undo binding for this event</td>
       </tr>
     </table>
   </div>
@@ -472,28 +476,28 @@ div.note {
     <code>bind PAGEUP "set speed 100"</code><br />
     <code>bind PAGEDOWN "set speed 50"</code><br />
     <br />
-    only go to full throttle when F9 is pressed (like BrMSX):<br />
+    Only run with full throttle while F9 is pressed (like BrMSX):<br />
     <code>unbind F9</code><br />
     <code>bind F9 "set throttle off"</code><br />
     <code>bind F9,release "set throttle on"</code><br />
     <br />
-    fMSX-like behaviour (pause when window loses focus):<br />
+    Pause when window loses focus (like fMSX):<br />
     <code>bind "focus 0" "set pause on"</code><br />
     <code>bind "focus 1" "set pause off"</code><br />
     <br />
-    middle-click to toggle grab-status:<br />
+    Middle-click to toggle input grabbing:<br />
     <code>bind "mouse button2 down" "toggle grabinput"</code><br />
     <br />
-    map button 8 of joystick 1 to F2-key:<br />
+    Map button 8 of joystick 1 to F2-key:<br />
     <code>bind "joy1 button8 down" "keymatrixdown 6 0x40"</code><br />
     <code>bind "joy1 button8 up" "keymatrixup 6 0x40"</code><br />
   </div>
 
   <h3><a id="cart" name="cart">cart / cart&lt;x&gt;</a></h3>
 
-  <p>Insert a game rom in a running MSX. The 'cart' command inserts the rom in the first available slot. The 'carta',
-  'cartb', .. commands insert in the specified slot. The roms can be removed again with the eject subcommand. See also
-  the commands 'ext', 'list_extensions' and 'remove_extension'.</p>
+  <p>Insert a ROM cartridge in a running MSX. The <code>cart</code> command inserts the cartridge in the first available slot. The <code>carta</code>, <code>cartb</code> etc. commands insert it in the specified slot. The cartridges can be removed again with the <code>eject</code> subcommand.</p>
+
+  <p>ROM cartridges are a special class of extensions. For extensions that are not ROM cartridges, see the commands <code><a class="internal" href="#ext">ext</a></code>, <code><a class="internal" href="#list_extensions">list_extensions</a></code> and <code><a class="internal" href="#remove_extension">remove_extension</a></code>.</p>
 
   <div class="usagetitle">
     usage:
@@ -504,33 +508,32 @@ div.note {
       <tr>
         <td><code>cart KMARE.ROM</code></td>
 
-        <td>Insert rom in first free slot</td>
+        <td>Insert ROM cartridge in first free slot</td>
       </tr>
 
       <tr>
         <td><code>cart insert KMARE.ROM</code></td>
 
-        <td>Insert rom in first free slot</td>
+        <td>Insert ROM cartridge in first free slot</td>
       </tr>
 
       <tr>
         <td><code>carta USAS.ROM -ips USAS.IPS</code></td>
 
-        <td>Insert rom in specified slot and apply IPS patch</td>
+        <td>Insert ROM cartridge in slot A, with IPS patch applied to the ROM contents</td>
       </tr>
 
       <tr>
         <td><code>carta eject</code></td>
 
-        <td>Eject the cartridge from slot a</td>
+        <td>Eject the currently inserted cartridge from slot A</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="cassetteplayer" name="cassetteplayer">cassetteplayer</a></h3>
 
-  <p>Insert a tape image in a virtual cassette player. The file must be in .wav format. Don't forget to connect the
-  cassetteplayer to the cassette port.</p>
+  <p>Controls the openMSX cassette player. The various subcommands can be used to insert, remove, create and rewind tape images.</p>
 
   <div class="usagetitle">
     usage:
@@ -541,37 +544,37 @@ div.note {
       <tr>
         <td><code>cassetteplayer insert &lt;tape image&gt;</code></td>
 
-        <td>insert tape image in virtual cassette player</td>
+        <td>Insert tape image (WAV or CAS format) in the cassette player</td>
       </tr>
 
       <tr>
         <td><code>cassetteplayer eject</code></td>
 
-        <td>remove tape from virtual cassette player</td>
+        <td>Remove tape from virtual cassette player</td>
       </tr>
 
       <tr>
         <td><code>cassetteplayer rewind</code></td>
 
-        <td>rewind the current tape</td>
+        <td>Rewind the current tape</td>
       </tr>
 
       <tr>
         <td><code>cassetteplayer motorcontrol on|off</code></td>
 
-        <td>sets whether motor control signal (remote) is obeyed (default: on)</td>
+        <td>Selects whether motor control signal (remote) is obeyed (default: on)</td>
       </tr>
 
       <tr>
         <td><code>cassetteplayer new [&lt;tape image&gt;]</code></td>
 
-        <td>create new tape image and go to record mode</td>
+        <td>Create new tape image and go to record mode</td>
       </tr>
 
       <tr>
         <td><code>cassetteplayer play</code></td>
 
-        <td>go to play mode (when in record mode) and rewind the tape</td>
+        <td>Go to play mode (when in record mode) and rewind the tape</td>
       </tr>
     </table>
   </div>
@@ -579,7 +582,7 @@ div.note {
   <h3><a id="cd" name="cd">cd&lt;x&gt;</a></h3>
 
   <p>Change the CDROM image. The commands <code>cda</code>, <code>cdb</code> etc. are assigned to all available CDROM drives in the MSX. They will not
-  correspond to drive names as used in MSX-DOS!</p>
+  correspond to drive names as used in MSX-DOS.</p>
 
   <div class="usagetitle">
     usage:
@@ -590,33 +593,33 @@ div.note {
       <tr>
         <td><code>cda &lt;iso image&gt;</code></td>
 
-        <td>use ISO image for CDROM drive "cda"</td>
+        <td>Use ISO image for CDROM drive "cda"</td>
       </tr>
 
       <tr>
         <td><code>cda insert &lt;iso image&gt;</code></td>
 
-        <td>use ISO image for CDROM drive "cda"</td>
+        <td>Use ISO image for CDROM drive "cda"</td>
       </tr>
 
       <tr>
         <td><code>cda eject</code></td>
 
-        <td>eject CDROM from CDROM drive "cda"</td>
+        <td>Eject CDROM from CDROM drive "cda"</td>
       </tr>
 
       <tr>
         <td><code>cda</code></td>
 
-        <td>show current ISO image for CDROM drive "cda"</td>
+        <td>Show current ISO image for CDROM drive "cda"</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="debug" name="debug">debug</a></h3>
 
-  <p>This command implements a debugger interface. It's meant to be used by an external debugger. The general format of
-  the debug command is</p>
+  <p>This command provides access to the debugger functionality of openMSX. It's meant to be used by an external debugger. The general format of
+  the debug command is:</p>
 
   <p><code>debug &lt;subcommand&gt; [&lt;extra arguments&gt;]</code></p>
 
@@ -627,7 +630,7 @@ div.note {
       <tr>
         <td><code>debug list</code></td>
 
-        <td>Returns a list of all debuggables.<br />
+        <td>Return a list of all debuggables.<br />
         A debuggable is (part of) the state of<br />
         a MSX device that can be accessed via these debug commands.<br />
         Examples are:<br />
@@ -640,13 +643,13 @@ div.note {
       <tr>
         <td><code>debug desc &lt;name&gt;</code></td>
 
-        <td>Returns a description of this debuggable</td>
+        <td>Return a description of this debuggable</td>
       </tr>
 
       <tr>
         <td><code>debug size &lt;name&gt;</code></td>
 
-        <td>Returns the size of this debuggable</td>
+        <td>Return the size of this debuggable</td>
       </tr>
 
       <tr>
@@ -682,7 +685,7 @@ div.note {
       <tr>
         <td><code>debug breaked</code></td>
 
-        <td>Query CPU breaked status</td>
+        <td>Query CPU break status</td>
       </tr>
 
       <tr>
@@ -743,7 +746,7 @@ div.note {
       <tr>
         <td><code>debug disasm [&lt;addr&gt;]</code></td>
 
-        <td>disassemble instructions at PC or given address</td>
+        <td>Disassemble instructions at PC or given address</td>
       </tr>
     </table>
   </div>
@@ -758,7 +761,7 @@ div.note {
   <p>Insert a disk image in a drive. Optionally apply an IPS patch to the disk image.
   The commands <code>diska</code>, <code>diskb</code> etc. are
   assigned to all available "physical" disk drives in the MSX. They might not correspond to drive names as used in
-  MSX-DOS!</p>
+  MSX-DOS.</p>
 
   <div class="usagetitle">
     usage:
@@ -769,32 +772,32 @@ div.note {
       <tr>
         <td><code>diska &lt;disk image&gt;</code></td>
 
-        <td>insert disk image in drive "diska"</td>
+        <td>Insert disk image in drive "diska"</td>
       </tr>
 
       <tr>
         <td><code>diska &lt;disk image&gt; &lt;ips&gt;</code></td>
 
-        <td>insert disk image and apply IPS patch</td>
+        <td>Insert disk image and apply IPS patch</td>
       </tr>
 
       <tr>
         <td><code>diska -eject</code></td>
 
-        <td>remove disk from drive "diska"</td>
+        <td>Remove disk from drive "diska"</td>
       </tr>
 
       <tr>
         <td><code>diska -ramdsk</code></td>
 
-        <td>insert scratch disk in drive "diska"</td>
+        <td>Insert scratch disk in drive "diska"</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="diskmanipulator" name="diskmanipulator">diskmanipulator</a></h3>
 
-  <p>Used to manipulate the (files on) a disk image. For an in-depth explanation and examples <a class="external" href="using-diskmanipulator.html">see the separate manual "Using diskmanipulator"</a>.</p>
+  <p>Used to manipulate the (files on) a disk image. For an in-depth explanation and examples see the separate manual titled <a class="external" href="using-diskmanipulator.html">Using Diskmanipulator</a>.</p>
 
   <div class="usagetitle">
     usage:
@@ -813,8 +816,8 @@ div.note {
 
   <h3><a id="escape_grab" name="escape_grab">escape_grab</a></h3>
 
-  <p>Only has effect in windowed mode and when the 'grabinput' setting is active. Temporarily release the input grab.
-  When window has lost and regained the focus the grab is again effective.</p>
+  <p>Only has effect in windowed mode and when the <code><a class="internal" href="#grabinput">grabinput</a></code> setting is active. Temporarily release the input grab.
+  After the openMSX window has lost and regained the focus, the grab is again effective.</p>
 
   <div class="usagetitle">
     usage:
@@ -825,21 +828,32 @@ div.note {
       <tr>
         <td><code>escape_grab</code></td>
 
-        <td>temporarily release the input grab</td>
+        <td>Temporarily release the input grab</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="exit" name="exit">exit</a></h3>
 
-  <p>Exits the emulator.</p>
+  <p>This command exits the TCL interpreter, which leads to openMSX exiting as well.</p>
 
-  <p>Technically this exits the TCL interpreter, but that shuts down openMSX as well.</p>
+  <div class="usagetitle">
+    usage:
+  </div>
 
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>exit</code></td>
+
+        <td>Exits the emulator</p>
+      </tr>
+    </table>
+  </div>
   <h3><a id="ext" name="ext">ext</a></h3>
 
-  <p>Insert a MSX extension in a running MSX machine. The extension can be removed again with the 'remove_extension'
-  command. See also the commands 'cart', 'list_extensions' and 'remove_extension'.</p>
+  <p>Insert an MSX extension in a running MSX machine. The extension can be removed again with the <code><a class="internal" href="#remove_extension">remove_extension</a></code>
+  command. See also the commands <code><a class="internal" href="#cart">cart</a></code>, <code><a class="internal" href="#list_extensions">list_extensions</a></code> and <code><a class="internal" href="#remove_extension">remove_extension</a></code>.</p>
 
   <div class="usagetitle">
     usage:
@@ -850,7 +864,7 @@ div.note {
       <tr>
         <td><code>ext fmpac</code></td>
 
-        <td>Insert a FM-PAC in a running MSX machine.</td>
+        <td>Insert an FM-PAC in a running MSX machine</td>
       </tr>
     </table>
   </div>
@@ -1120,7 +1134,7 @@ div.note {
 
   <h3><a id="record" name="record">record</a></h3>
 
-  <p>Controls video recording: write openMSX audio/video to a .avi file.</p>
+  <p>Controls video recording: write openMSX audio/video to an AVI file.</p>
 
   <div class="usagetitle">
     usage:
@@ -1160,8 +1174,9 @@ div.note {
     </table>
   </div>
 
-  <p>The start subcommand also accepts an optional -audioonly or -videoonly flag. In case of -audioonly, the
-  functionality is similar to the now deprecated soundlog command, which records all audio to a .wav file.</p>
+  <p>The <code>start</code> subcommand also accepts an optional <code>-audioonly</code> or <code>-videoonly</code> flag.
+  In case of <code>-audioonly</code>, the
+  functionality is similar to the now deprecated <code><a href="#soundlog">soundlog</a></code> command, which records all audio to a WAV file.</p>
 
   <h3><a id="remove_extension" name="remove_extension">remove_extension</a></h3>
 
@@ -1390,7 +1405,7 @@ div.note {
   <h3><a id="update" name="update">update</a></h3>
 
   <p>Enable or disable update notifications of a certain type. This command is mainly useful for external programs
-  controlling openmsx.</p>
+  controlling openMSX.</p>
 
   <div class="usagetitle">
     usage:
@@ -1436,6 +1451,8 @@ div.note {
 
   <p>Create a new command that is an alias for another (group of) command(s).</p>
 
+  <p>It is better to use the more powerful TCL <code>proc</code> command.</p>
+
   <div class="usagetitle">
     usage:
   </div>
@@ -1460,14 +1477,14 @@ div.note {
   </div>
 
   <div class="note">
-    Note: This is not 100% compatible with the old alias command. Better use the more powerful TCL "proc" command.
+    Note: The backwards compatibility implementation of the <code>alias</code> command is not 100% compatible with the old <code>alias</code> command. It is recommended that you update your scripts to use the TCL <code>proc</code> command.
   </div>
 
   <h3><a id="decr" name="decr">decr</a></h3>
 
   <p>Decrement an integer setting.</p>
 
-  <p>This command is deprecated, better use the native TCL command "incr" and negate the offset.</p>
+  <p>This command is deprecated, better use the native TCL command <code><a href="#incr">incr</a></code> and negate the offset.</p>
 
   <div class="usagetitle">
     usage:
@@ -1549,13 +1566,13 @@ div.note {
 
   <p>Quits the emulator.</p>
 
-  <p>The native TCL command is called <code><a class="internal" href="#exit">exit</a></code>.</p>
+  <p>Please use <code><a class="internal" href="#exit">exit</a></code> instead.</p>
 
   <h3><a id="restoredefault" name="restoredefault">restoredefault</a></h3>
 
   <p>Restore the default value for a setting.</p>
 
-  <p>This command is deprecated, better use "<code>unset &lt;setting&gt;</code>".</p>
+  <p>This command is deprecated, better use <code>unset &lt;setting&gt;</code>.</p>
 
   <div class="usagetitle">
     usage:
@@ -1577,7 +1594,7 @@ div.note {
 
   <p>Controls sound logging: writing the openMSX sound to a wav file.</p>
 
-  <p>This command is deprecated, use "record --audioonly", see above.</p>
+  <p>This command is deprecated, use <code><a href="#record">record</a> --audioonly</code>.</p>
 
   <div class="usagetitle">
     usage:
@@ -1621,16 +1638,22 @@ div.note {
 
   <h3><a id="accuracy" name="accuracy">accuracy</a></h3>
 
-  <p>Sets the render accuracy. Currently there are three render modes:</p>
+  <p>Sets the render accuracy. openMSX supports three levels of render accuracy:</p>
 
-  <ul>
-    <li>screen accurate: This is the fastest but also least accurate mode.</li>
+  <dl>
+    <dt>screen accurate:</dt>
+    <dd>Changes in VDP state become effective only once per video frame. Works well for most MSX1 software, but will break a lot of MSX2 software (anything that does so-called raster effects).</dd>
 
-    <li>line accurate: This is the recommended mode. Most tricks are rendered correctly.</li>
+    <dt>line accurate:</dt>
+    <dd>Changes in VDP state become effective only once per display line. Works well for almost all software.</dd>
 
-    <li>pixel accurate: This is the slowest but also most accurate mode. In this mode even the 'Unknown Reality scope
-    part' is rendered correctly.</li>
-  </ul>
+    <dt>pixel accurate:</dt>
+    <dd>Changes in VDP state become effective immediately. In this mode even the 'Unknown Reality scope part' is rendered correctly.</dd>
+  </dl>
+
+  <p>In some cases switching to a lower accuracy level can speed up emulation, but in many cases the speed difference is neglible.</p>
+
+  <p>The default is pixel accuracy, since this is the most realistic. If the software you are running shows a jittery screen split and you would prefer a stable screen split, switching to line accuracy can help.</p>
 
   <div class="usagetitle">
     usage:
@@ -1664,10 +1687,6 @@ div.note {
     </table>
   </div>
 
-  <div class="note">
-    Note: not all renderers support all render modes
-  </div>
-
   <h3><a id="audio-inputfilename" name="audio-inputfilename">audio-inputfilename</a></h3>
 
   <p>Sets the file(name) from which the wave input is read for the sampler.</p>
@@ -1681,13 +1700,13 @@ div.note {
   <div class="usage">
     <table>
       <tr>
-        <td><code>set audio+inputfilename</code></td>
+        <td><code>set audio-inputfilename</code></td>
 
         <td>shows the current setting</td>
       </tr>
 
       <tr>
-        <td><code>set audio+inputfilename mysample.wav</code></td>
+        <td><code>set audio-inputfilename mysample.wav</code></td>
 
         <td>read from mysample.wav</td>
       </tr>
@@ -1726,7 +1745,7 @@ div.note {
   </div>
 
   <div class="note">
-    Note: this only works with CAS images for now and it is still an experimental feature.
+    Note: This only works with CAS images for now and it is still an experimental feature.
   </div>
 
   <h3><a id="blur" name="blur">blur</a></h3>
@@ -1754,7 +1773,7 @@ div.note {
   </div>
 
   <div class="note">
-    Note: not all renderers support this.
+    Note: Not all renderers support this.
   </div>
 
   <h3><a id="bootsector" name="bootsector">bootsector</a></h3>
@@ -1890,8 +1909,7 @@ div.note {
 
   <h3><a id="consolebackground" name="consolebackground">consolebackground</a></h3>
 
-  <p>Change the console background image. Most image formats (.png, .jpeg, .gif, ...) are supported. Some renderers
-  (openGL) can use an alpha channel, this channel is only present in .png images.</p>
+  <p>Change the console background image. Images in the PNG format are certainly supported, other image formats such as JPEG and GIF might be supported depending on how your openMSX was compiled (more accurately, how SDL_image was compiled). Some renderers (OpenGL) can use an alpha channel, this channel is only present in PNG images.</p>
 
   <div class="usagetitle">
     usage:
@@ -1939,9 +1957,7 @@ div.note {
 
   <h3><a id="consolefont" name="consolefont">consolefont</a></h3>
 
-  <p>Change the console font. Most image formats (.png, .jpeg, .gif, ...) are supported. The image must contain a 16x16
-  matrix with the characters in ASCII order. Some renderers (openGL) require an alpha channel to have transparency in
-  the font, this channel is only present in .png images.</p>
+  <p>Change the console font. Images in the PNG format are certainly supported, other image formats such as JPEG and GIF might be supported depending on how your openMSX was compiled (more accurately, how SDL_image was compiled). The image must contain a 16x16 matrix with the characters in ASCII order. Some renderers (OpenGL) require an alpha channel to have transparency in the font, this channel is only present in PNG images.</p>
 
   <div class="usagetitle">
     usage:
@@ -2039,7 +2055,7 @@ div.note {
 
   <h3><a id="cputrace" name="cputrace">cputrace</a></h3>
 
-  <p>Enable/disable CPU instruction tracing.</p>
+  <p>Enable/disable CPU instruction tracing. When enabled, the state of the Z80 is printed on stdout after every instruction. This creates a lot of output and slows down emulation considerably, but it can be very useful for debugging.</p>
 
   <h3><a id="debugoutput" name="debugoutput">debugoutput</a></h3>
 
@@ -2067,7 +2083,7 @@ div.note {
 
   <h3><a id="default_machine" name="default_machine">default_machine</a></h3>
 
-  <p>The default machine. OpenMSX uses this machine when it is started without "-machine" option.</p>
+  <p>The default machine. openMSX uses this machine when it is started without the <code>-machine</code> option.</p>
 
   <div class="usagetitle">
     usage:
@@ -2076,15 +2092,15 @@ div.note {
   <div class="usage">
     <table>
       <tr>
-        <td><code>set machine</code></td>
+        <td><code>set default_machine</code></td>
 
         <td>shows current setting</td>
       </tr>
 
       <tr>
-        <td><code>set machine Panasonic_FS-A1GT</code></td>
+        <td><code>set default_machine Panasonic_FS-A1GT</code></td>
 
-        <td>use this machine next time openMSX is started</td>
+        <td>use the turboR GT the next time openMSX is started</td>
       </tr>
     </table>
   </div>
@@ -2120,7 +2136,7 @@ div.note {
   </div>
 
   <div class="note">
-    Note: not all renderers support deinterlacing.
+    Note: Not all renderers support deinterlacing.
   </div>
 
   <h3><a id="display_deform" name="display_deform">display_deform</a></h3>
@@ -2229,7 +2245,7 @@ div.note {
       <tr>
         <td><code>set fullscreen off</code></td>
 
-        <td>switch to normal mode</td>
+        <td>switch to windowed mode</td>
       </tr>
     </table>
   </div>
@@ -2268,7 +2284,11 @@ div.note {
 
   <h3><a id="gamma" name="gamma">gamma</a></h3>
 
-  <p>Sets the amount of gamma correction: low is dark, high is bright</p>
+  <p>Sets the amount of gamma correction. A value of 1.0 will turn off gamma correction. Lower values will result in a darker image, higher values in a brighter image.</p>
+
+  <p>If you want to get a realistic picture, set the openMSX gamma correction to <i>PC gamma / MSX gamma</i>. TVs use a standardised gamma of 2.5, let's take that as the value of <i>MSX gamma</i>. You can measure the gamma of your PC screen with a simple test such as the Gamma Measurement Image in <a class="external" href="http://www.bberger.net/rwb/gamma.html">Robert W. Berger's "An Explanation of Monitor Gamma"</a>. If your <i>PC gamma</i> would be for example 2.0, the most realistic value for gamma correction would be 2.0 / 2.5 = 0.8.</p>
+
+  <p>Alternatively, you can just try a few values and see what you like.</p>
 
   <div class="usagetitle">
     usage:
@@ -2292,7 +2312,7 @@ div.note {
 
   <h3><a id="glow" name="glow">glow</a></h3>
 
-  <p>Sets the amount of glow effect.</p>
+  <p>Sets the amount of afterglow effect: 0 is off and 100 is a very heavy afterglow.</p>
 
   <div class="usagetitle">
     usage:
@@ -2315,14 +2335,16 @@ div.note {
   </div>
 
   <div class="note">
-    Note: not all renderers support this.
+    Note: Not all renderers support this.
   </div>
 
   <h3><a id="grabinput" name="grabinput">grabinput</a></h3>
 
-  <p>Controls whether openMSX grabs all input or not. When this setting is turned on, all input is directly passed to
+  <p>Controls whether openMSX grabs all input events or not. When this setting is turned on, all input events are directly passed to
   openMSX. The mouse pointer can't leave the openMSX window and the window manager won't be able to react to keyboard
   shortcuts.</p>
+
+   <p>You can turn this setting on when you want to use mouse-controlled MSX software while openMSX is in windowed mode. It is best turned off in all other cases.</p>
 
   <div class="usagetitle">
     usage:
@@ -2369,7 +2391,7 @@ div.note {
   position. The value is in pixels and (0,0) corresponds to the top-left of the screen.</p>
 
   <p>The image for the LED can be specified with the '(non-)active.image' setting. This can be an image of any size and
-  the image can have an alpha (=transparency) channel. Typically this will be .png files.</p>
+  the image can have an alpha (=transparency) channel. Typically this will be PNG files.</p>
 
   <p>Fade duration and delay control how (and if) the icon will fade away. When the LED changes status (on-&gt;off or
   off-&gt;on) the image is always shown, after the 'delay' time it will start to fade out. The time from completely
@@ -2431,7 +2453,7 @@ div.note {
   host machine and seeing it being typed in the MSX machine.</p>
 
   <div class="note">
-    Note: the default value (3/100s) should almost always be OK, this small delay is practically not noticeable and
+    Note: The default value (3/100s) should almost always be OK, this small delay is practically not noticeable and
     still allows the MSX machine to get accurate timing on the input events.
   </div>
 
@@ -2473,8 +2495,9 @@ div.note {
 
   <h3><a id="limitsprites" name="limitsprites">limitsprites</a></h3>
 
-  <p>Limit number of sprites per line. Turn on for realism (default), turn off to reduce sprite flashing. Note that
-  some games make use of this limitation.</p>
+  <p>Controls whether the VDP has a limit on the number of sprites it can display per line. The default is on, because the real VDP has such a limit. You can turn off the limit to reduce sprite flashing in games such as Aleste. Note that some games (Penguin Adventure, among others) make use of this limitation, so they will display incorrectly if the limit is turned off.</p>
+
+  <p>The 5th/9th sprite status flag of the VDP is not influenced by the <code>limitsprites</code> setting: the flag always takes the limit into account.</p>
 
   <div class="usagetitle">
     usage:
@@ -2505,7 +2528,7 @@ div.note {
   <h3><a id="master_volume" name="master_volume">master_volume</a></h3>
 
   <p>Controls the overall openMSX volume. The volume of individual sound device can be controlled with the
-  &lt;soundchip&gt;_volume settings, see below.</p>
+  <code><a class="internal" href="#soundchip_volume">&lt;soundchip&gt;_volume</a></code> settings.</p>
 
   <div class="usagetitle">
     usage:
@@ -2529,8 +2552,14 @@ div.note {
 
   <h3><a id="maxframeskip" name="maxframeskip">maxframeskip</a></h3>
 
-  <p>Set the maximum amount of frame skips. Frame skip here means: "show a frame and then skip &lt;number&gt; frames".
-  So 0 means show everything, 1 means show every second frame, ...</p>
+  <p>Sets the maximum amount of frames to skip: show a frame and then skip at most &lt;number&gt; frames.
+  So 0 means show everything, 1 means show at least every second frame etc.</p>
+
+  <p>Frame skipping is done on demand, as a way to keep the flow of time for the emulated MSX in sync with the flow of real time. You can set limits on the amount of frame skipping with the <code><a class="internal" href="#minframeskip">minframeskip</a></code> and <code>maxframeskip</code> setting.</p>
+
+  <p>In a situation where the number of consequetive frames specified by <code>maxframeskip</code> has been skipped, openMSX will display the next frame, even if that means emulation will start lagging behind real time.</p>
+
+  <p>When <code><a class="internal" href="#throttle">throttle</a></code> is off, the number of skipped frames will be equal to <code>maxframeskip</code>.</p>
 
   <div class="usagetitle">
     usage:
@@ -2554,7 +2583,7 @@ div.note {
 
   <h3><a id="midi-in-readfilename" name="midi-in-readfilename">midi-in-readfilename</a></h3>
 
-  <p>Sets the file(name) from which the MIDI input is read. By default, it is read from /dev/midi when available.</p>
+  <p>Sets the file(name) from which the MIDI input is read. By default, it is read from <code>/dev/midi</code> when available.</p>
 
   <div class="usagetitle">
     usage:
@@ -2578,7 +2607,7 @@ div.note {
 
   <h3><a id="midi-out-logfilename" name="midi-out-logfilename">midi-out-logfilename</a></h3>
 
-  <p>Sets the file(name) to which the MIDI output is logged. By default, it logs to /dev/midi when available.</p>
+  <p>Sets the file(name) to which the MIDI output is logged. By default, it logs to <code>/dev/midi</code> when available.</p>
 
   <div class="usagetitle">
     usage:
@@ -2602,8 +2631,12 @@ div.note {
 
   <h3><a id="minframeskip" name="minframeskip">minframeskip</a></h3>
 
-  <p>Set the minimum amount of frame skips. Frame skip here means: "show a frame and then skip &lt;number&gt; frames".
-  So 0 means show everything, 1 means show every second frame, ...</p>
+  <p>Sets the minimum amount of frames to skip: show a frame and then skip at least &lt;number&gt; frames.
+  So 0 means no forced frame skipping, 1 means skip at least every second frame etc.</p>
+
+  <p>Frame skipping is done on demand, as a way to keep the flow of time for the emulated MSX in sync with the flow of real time. You can set limits on the amount of frame skipping with the <code>minframeskip</code> and <code><a class="internal" href="#maxframeskip">maxframeskip</a></code> setting.</p>
+
+  <p>The <code>minframeskip</code> setting can be useful if you want to ease the burden on your PC processor, for example for longer battery life on a laptop. It can also be useful if your PC is consistently too slow to run without frame skipping: in such cases video might be smoother with a low but constant frame rate than with a fluctuating frame rate.</p>
 
   <div class="usagetitle">
     usage:
@@ -2768,7 +2801,7 @@ div.note {
 
   <p>Sets the resolution (in dpi) for the emulated dot-matrix printer.</p>
 
-  <p>The emulated printer 'prints' pages as .png files. This settings determines the resolution of those images.</p>
+  <p>The emulated printer 'prints' pages as PNG files. This settings determines the resolution of those images.</p>
 
   <div class="usagetitle">
     usage:
@@ -2820,6 +2853,12 @@ div.note {
         <td><code>set renderer SDLGL</code></td>
 
         <td>switch to the SDLGL renderer</td>
+      </tr>
+
+      <tr>
+        <td><code>set renderer SDLGL-PP</code></td>
+
+        <td>switch to the SDLGL-PP renderer</td>
       </tr>
     </table>
   </div>
@@ -3072,7 +3111,7 @@ div.note {
   </div>
 
   <div class="note">
-    Note: not all renderers support this.
+    Note: Not all renderers support this.
   </div>
 
   <h3><a id="sound_driver" name="sound_driver">sound_driver</a></h3>
