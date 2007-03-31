@@ -98,7 +98,7 @@ div.note {
 
         <li><a class="internal" href="#iomap">iomap</a></li>
 
-        <li><a class="internal" href="#keymatrix">keymatrixup / keymatrixdown</a></li>
+        <li><a class="internal" href="#keymatrix">keymatrixdown / keymatrixup</a></li>
 
         <li><a class="internal" href="#list_extensions">list_extensions</a></li>
 
@@ -130,6 +130,8 @@ div.note {
 
         <li><a class="internal" href="#slotselect">slotselect</a></li>
 
+        <li><a class="internal" href="#soundlog">soundlog</a></li>
+
         <li><a class="internal" href="#toggle">toggle</a></li>
 
         <li><a class="internal" href="#trainer">trainer</a></li>
@@ -154,8 +156,6 @@ div.note {
         <li><a class="internal" href="#quit">quit</a></li>
 
         <li><a class="internal" href="#restoredefault">restoredefault</a></li>
-
-        <li><a class="internal" href="#soundlog">soundlog</a></li>
       </ol>
     </li>
 
@@ -865,7 +865,7 @@ div.note {
   <h3><a id="hd" name="hd">hd&lt;x&gt;</a></h3>
 
   <p>Change the hard disk image. The commands <code>hda</code>, <code>hdb</code> etc. are assigned to all available hard disk drives in the MSX. They
-  will not correspond to drive names as used in MSX-DOS!</p>
+  will not correspond to drive names as used in MSX-DOS.</p>
 
   <div class="usagetitle">
     usage:
@@ -876,26 +876,26 @@ div.note {
       <tr>
         <td><code>hda &lt;disk image&gt;</code></td>
 
-        <td>use hard disk image for hard disk "hda"</td>
+        <td>Use hard disk image for hard disk "hda"</td>
       </tr>
 
       <tr>
         <td><code>hda insert &lt;disk image&gt;</code></td>
 
-        <td>use hard disk image for hard disk "hda"</td>
+        <td>Use hard disk image for hard disk "hda"</td>
       </tr>
 
       <tr>
         <td><code>hda</code></td>
 
-        <td>show current hard disk image for hard disk "hda"</td>
+        <td>Show current hard disk image for hard disk "hda"</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="help" name="help">help</a></h3>
 
-  <p>Shows help info.</p>
+  <p>Shows help info for console commands.</p>
 
   <div class="usagetitle">
     usage:
@@ -906,26 +906,20 @@ div.note {
       <tr>
         <td><code>help</code></td>
 
-        <td>shows a list of all possible commands</td>
+        <td>Shows a list of all possible commands</td>
       </tr>
 
       <tr>
         <td><code>help &lt;command&gt;</code></td>
 
-        <td>shows help info for a specific command</td>
+        <td>Shows help info for a specific command</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="iomap" name="iomap">iomap</a></h3>
 
-  <p>Shows what I/O ports are connected to which devices.</p>
-
-  <p>[ mainly useful for debugging purposes ]</p>
-
-  <h3><a id="keymatrix" name="keymatrix">keymatrixup / keymatrixdown</a></h3>
-
-  <p>Press or release keys from the MSX keyboard matrix. Mainly useful to make an external program press MSX keys.</p>
+  <p>Shows what I/O ports are connected to which devices. The related command <code><a class="internal" href="#slotmap">slotmap</a></code> shows a similar overview, but for memory-mapped devices.</p>
 
   <div class="usagetitle">
     usage:
@@ -934,15 +928,33 @@ div.note {
   <div class="usage">
     <table>
       <tr>
-        <td><code>keymatrixup &lt;row&gt; &lt;mask&gt;</code></td>
+        <td><code>iomap</code></td>
 
-        <td>release the indicated MSX keys</td>
+        <td>Shows the I/O map of the current MSX machine</td>
       </tr>
+    </table>
+  </div>
 
+  <h3><a id="keymatrix" name="keymatrix">keymatrixdown / keymatrixup</a></h3>
+
+  <p>Press or release keys in the MSX keyboard matrix. Can be used to make an external program or TCL script press MSX keys.</p>
+
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
       <tr>
         <td><code>keymatrixdown &lt;row&gt; &lt;mask&gt;</code></td>
 
-        <td>press the indicated MSX keys</td>
+        <td>Press the indicated MSX keys</td>
+      </tr>
+
+      <tr>
+        <td><code>keymatrixup &lt;row&gt; &lt;mask&gt;</code></td>
+
+        <td>Release the indicated MSX keys</td>
       </tr>
     </table>
   </div>
@@ -952,14 +964,14 @@ div.note {
   </div>
 
   <div class="examples">
-    <code>keymatrixup 6 0x01</code><br />
-    <code>keymatrixdown 6 0x01</code>
+    <code>keymatrixdown 6 0x01</code><br />
+    <code>keymatrixup 6 0x01</code>
   </div>
 
   <h3><a id="list_extensions" name="list_extensions">list_extensions</a></h3>
 
-  <p>Returns a list of inserted roms and extensions. These can be removed with the 'remove_extension' command or
-  additional items can be added with the 'cart' and 'ext' commands.</p>
+  <p>Returns a list of inserted cartridges and extensions. These can be removed with the <code><a class="internal" href="#remove_extension">remove_extension</a></code> command or
+  additional items can be added with the <code><a class="internal" href="#cart">cart</a></code> and <code><a class="internal" href="#ext">ext</a></code> commands.</p>
 
   <div class="usagetitle">
     usage:
@@ -970,15 +982,14 @@ div.note {
       <tr>
         <td><code>list_extensions</code></td>
 
-        <td>lists all currently inserted roms and extension</td>
+        <td>Lists all currently inserted cartridges and extensions</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="load_settings" name="load_settings">load_settings</a></h3>
 
-  <p>Load settings from a given file. The settings file must not be complete, settings that are not mentioned in the
-  given file are left untouched.</p>
+  <p>Load settings from a given settings XML file. The settings file does not have to be complete: settings that are not mentioned in the given file are left untouched. See also <code><a class="internal" href="#save_settings">save_settings</a></code>.</p>
 
   <div class="usagetitle">
     usage:
@@ -1019,14 +1030,13 @@ div.note {
   </div>
 
   <div class="note">
-    Note: The machine handle mostly used for external applications controlling openMSX. For interactive use it's not
-    used much.
+    Note: The machine handle mostly used for external applications controlling openMSX. For interactive use you can omit the machine handle to have the commands operate on the current machine.
   </div>
 
   <h3><a id="machine_info" name="machine_info">machine_info</a></h3>
 
-  <p>Shows information about a certain topic. This command is similar to the openmsx_info command. The topics of
-  'machine_info' are all machine specific, while the topics of 'openmsx_info' are generic.</p>
+  <p>Shows information about a certain topic. This command is similar to the <code><a class="internal" href="#openmsx_info">openmsx_info</a></code> command. The topics of
+  <code>machine_info</code> are all machine specific, while the topics of <code><a class="internal" href="#openmsx_info">openmsx_info</a></code> are generic.</p>
 
   <div class="usagetitle">
     usage:
@@ -1037,20 +1047,20 @@ div.note {
       <tr>
         <td><code>machine_info</code></td>
 
-        <td>shows a list of all possible topics</td>
+        <td>Shows a list of all possible topics</td>
       </tr>
 
       <tr>
         <td><code>machine_info &lt;topic&gt;</code></td>
 
-        <td>shows info on this specific topic</td>
+        <td>Shows info on the given topic</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="openmsx_info" name="openmsx_info">openmsx_info</a></h3>
 
-  <p>Shows information about a certain topic. See also 'machine_info'.</p>
+  <p>Shows information about a certain topic. For machine-specific topics, use the related command <code><a class="internal" href="#machine_info">machine_info</a></code>.</p>
 
   <div class="usagetitle">
     usage:
@@ -1061,13 +1071,13 @@ div.note {
       <tr>
         <td><code>openmsx_info</code></td>
 
-        <td>shows a list of all possible topics</td>
+        <td>Shows a list of all possible topics</td>
       </tr>
 
       <tr>
         <td><code>openmsx_info &lt;topic&gt;</code></td>
 
-        <td>shows info on this specific topic</td>
+        <td>Shows info on the given topic</td>
       </tr>
     </table>
   </div>
@@ -1076,7 +1086,19 @@ div.note {
 
   <p>Shows the current VDP palette settings.</p>
 
-  <p>[ mainly useful for debugging purposes ]</p>
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>palette</code></td>
+
+        <td>Show the currently active colour palette</td>
+      </tr>
+    </table>
+  </div>
 
   <h3><a id="plugunplug" name="plugunplug">plug / unplug</a></h3>
 
@@ -1091,25 +1113,25 @@ div.note {
       <tr>
         <td><code>plug</code></td>
 
-        <td>shows all currently connected plugs</td>
+        <td>Shows all currently connected plugs</td>
       </tr>
 
       <tr>
         <td><code>plug &lt;connector&gt;</code></td>
 
-        <td>shows currently connected plug for the specified connector</td>
+        <td>Shows currently connected plug for the specified connector</td>
       </tr>
 
       <tr>
         <td><code>plug &lt;connector&gt; &lt;plug&gt;</code></td>
 
-        <td>plugs the specified plug into the specified connector</td>
+        <td>Plugs the specified plug into the specified connector</td>
       </tr>
 
       <tr>
         <td><code>unplug &lt;connector&gt;</code></td>
 
-        <td>unplugs the plug connected to the specified connector</td>
+        <td>Unplugs the plug connected to the specified connector</td>
       </tr>
     </table>
   </div>
@@ -1168,12 +1190,11 @@ div.note {
   </div>
 
   <p>The <code>start</code> subcommand also accepts an optional <code>-audioonly</code> or <code>-videoonly</code> flag.
-  In case of <code>-audioonly</code>, the
-  functionality is similar to the now deprecated <code><a href="#soundlog">soundlog</a></code> command, which records all audio to a WAV file.</p>
+  The <code><a class="internal" href="#soundlog">soundlog</a></code> command is a shorthand for <code>record -audioonly</code>.</p>
 
   <h3><a id="remove_extension" name="remove_extension">remove_extension</a></h3>
 
-  <p>Remove a rom or extension from a running MSX machine. See also the commands 'cart', 'ext', 'list_extensions'.</p>
+  <p>Remove a cartridge or extension from a running MSX machine. See also the commands <code><a class="internal" href="#cart">cart</a></code>, <code><a class="internal" href="#ext">ext</a></code>, <code><a class="internal" href="#list_extensions">list_extensions</a></code>.</p>
 
   <div class="usagetitle">
     usage:
@@ -1184,18 +1205,34 @@ div.note {
       <tr>
         <td><code>remove_extension fmpac</code></td>
 
-        <td>removes the fmpac extension from the running msx</td>
+        <td>Removes the FM-PAC extension from the running MSX</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="reset" name="reset">reset</a></h3>
 
-  <p>Resets the emulated MSX.</p>
+  <p>Emulates the pressing of the reset button on the MSX. This sends a reset pulse to all devices, but does not erase memory contents.</p>
+
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>reset</code></td>
+
+        <td>Resets the current machine</td>
+      </tr>
+    </table>
+  </div>
 
   <h3><a id="save_settings" name="save_settings">save_settings</a></h3>
 
-  <p>Write the current openMSX settings to a settings file.</p>
+  <p>Write the current openMSX settings to a settings XML file. See also <code><a class="internal" href="#load_settings">load_settings</a></code>.</p>
+
+  <p>If you disabled <code><a class="internal" href="#save_settings_on_exit">save_settings_on_exit</a></code>, you can use this command to save your preferences.</p>
 
   <div class="usagetitle">
     usage:
@@ -1212,14 +1249,14 @@ div.note {
       <tr>
         <td><code>save_settings &lt;filename&gt;</code></td>
 
-        <td>Save settings to the given filename</td>
+        <td>Save settings to the given file</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="screenshot" name="screenshot">screenshot</a></h3>
 
-  <p>Take a screenshot.</p>
+  <p>Take a screenshot of the openMSX screen. This includes the console and icons if those are visible when the screenshot is taken. The screenshots are PNG files and are saved in the <code>screenshots</code> subdirectory of the openMSX data directory in your home directory.</p>
 
   <div class="usagetitle">
     usage:
@@ -1277,7 +1314,7 @@ div.note {
     </table>
   </div>
 
-  <p>Settings that can be adjusted with this command are listed below.</p>
+  <p>The settings that can be adjusted with this command are listed and explained at the end of this document.</p>
 
   <div class="examplestitle">
     examples:
@@ -1292,15 +1329,71 @@ div.note {
 
   <h3><a id="slotmap" name="slotmap">slotmap</a></h3>
 
-  <p>Shows the slot mappings of the emulated MSX.</p>
+  <p>Shows what devices are inserted into which slots. The related command <code><a class="internal" href="#iomap">iomap</a></code> shows a similar overview, but for I/O mapped devices.</p>
 
-  <p>[ mainly useful for debugging purposes ]</p>
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>slotmap</code></td>
+
+        <td>Shows the slot map of the current MSX machine</td>
+      </tr>
+    </table>
+  </div>
 
   <h3><a id="slotselect" name="slotselect">slotselect</a></h3>
 
   <p>Shows the currently selected slots.</p>
 
   <p>[ mainly useful for debugging purposes ]</p>
+
+  <h3><a id="soundlog" name="soundlog">soundlog</a></h3>
+
+  <p>Controls sound logging: writing the openMSX sound to a WAV file.</p>
+
+  <p>This command is a shorthand for <code><a class="internal" href="#record">record</a> -audioonly</code>.</p>
+
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>soundlog start</code></td>
+
+        <td>Log sound to file "openmsxNNNN.wav"</td>
+      </tr>
+
+      <tr>
+        <td><code>soundlog start &lt;filename&gt;</code></td>
+
+        <td>Log sound to indicated file</td>
+      </tr>
+
+      <tr>
+        <td><code>soundlog start -prefix foo</code></td>
+
+        <td>Log sound to file "fooNNNN.wav"</td>
+      </tr>
+
+      <tr>
+        <td><code>soundlog stop</code></td>
+
+        <td>Stop logging sound</td>
+      </tr>
+
+      <tr>
+        <td><code>soundlog toggle</code></td>
+
+        <td>Toggle sound logging state</td>
+      </tr>
+    </table>
+  </div>
 
   <h3><a id="toggle" name="toggle">toggle</a></h3>
 
@@ -1581,50 +1674,6 @@ div.note {
 
   <div class="examples">
     <code>restoredefault PSG_volume</code>
-  </div>
-
-  <h3><a id="soundlog" name="soundlog">soundlog</a></h3>
-
-  <p>Controls sound logging: writing the openMSX sound to a wav file.</p>
-
-  <p>This command is deprecated, use <code><a href="#record">record</a> --audioonly</code>.</p>
-
-  <div class="usagetitle">
-    usage:
-  </div>
-
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>soundlog start</code></td>
-
-        <td>Log sound to file "openmsxNNNN.wav"</td>
-      </tr>
-
-      <tr>
-        <td><code>soundlog start &lt;filename&gt;</code></td>
-
-        <td>Log sound to indicated file</td>
-      </tr>
-
-      <tr>
-        <td><code>soundlog start -prefix foo</code></td>
-
-        <td>Log sound to file "fooNNNN.wav"</td>
-      </tr>
-
-      <tr>
-        <td><code>soundlog stop</code></td>
-
-        <td>Stop logging sound</td>
-      </tr>
-
-      <tr>
-        <td><code>soundlog toggle</code></td>
-
-        <td>Toggle sound logging state</td>
-      </tr>
-    </table>
   </div>
 
   <h2><a id="SETTINGS" name="SETTINGS">SETTINGS</a></h2>
