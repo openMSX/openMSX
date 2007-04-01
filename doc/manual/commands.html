@@ -924,6 +924,10 @@ div.note {
     </table>
   </div>
 
+  <div class="note">
+    Note: Because of disk caching, changing the hard disk when the MSX is running can lead to corruption of the hard disk contents. Therefore openMSX blocks the <code>hd&lt;x&gt;</code> commands unless the MSX is powered off.
+  </div>
+
   <h3><a id="help" name="help">help</a></h3>
 
   <p>Shows help info for console commands.</p>
@@ -1263,6 +1267,7 @@ div.note {
   </div>
 
   <p>The <code>start</code> subcommand also accepts an optional <code>-audioonly</code> or <code>-videoonly</code> flag.
+  If only audio is recorded, the created file will be a WAV file instead of an AVI file.
   The <code><a class="internal" href="#soundlog">soundlog</a></code> command is a shorthand for <code>record -audioonly</code>.</p>
 
   <h3><a id="remove_extension" name="remove_extension">remove_extension</a></h3>
