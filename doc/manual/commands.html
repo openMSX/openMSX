@@ -80,6 +80,8 @@ div.note {
 
         <li><a class="internal" href="#cd">cd&lt;x&gt;</a></li>
 
+        <li><a class="internal" href="#cycle">cycle</a></li>
+
         <li><a class="internal" href="#debug">debug</a></li>
 
         <li><a class="internal" href="#disk">disk&lt;x&gt;</a></li>
@@ -95,6 +97,8 @@ div.note {
         <li><a class="internal" href="#hd">hd&lt;x&gt;</a></li>
 
         <li><a class="internal" href="#help">help</a></li>
+
+        <li><a class="internal" href="#incr">incr</a></li>
 
         <li><a class="internal" href="#iomap">iomap</a></li>
 
@@ -138,6 +142,8 @@ div.note {
 
         <li><a class="internal" href="#type">type</a></li>
 
+        <li><a class="internal" href="#unset">unset</a></li>
+
         <li><a class="internal" href="#update">update</a></li>
 
         <li><a class="internal" href="#vdpregs">vdpregs</a></li>
@@ -150,8 +156,6 @@ div.note {
         <li><a class="internal" href="#aliasunalias">alias / unalias</a></li>
 
         <li><a class="internal" href="#decr">decr</a></li>
-
-        <li><a class="internal" href="#incr">incr</a></li>
 
         <li><a class="internal" href="#quit">quit</a></li>
 
@@ -609,6 +613,33 @@ div.note {
     </table>
   </div>
 
+  <h3><a id="cycle" name="cycle">cycle</a></h3>
+
+  <p>Iterates through the values of an enumerated setting.</p>
+
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>cycle &lt;setting&gt;</code></td>
+
+        <td>Changes the specified setting to the next value in the cycle</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="examplestitle">
+    examples:
+  </div>
+
+  <div class="examples">
+    <code>cycle scale_algorithm</code><br />
+    <code>cycle videosource</code>
+  </div>
+
   <h3><a id="debug" name="debug">debug</a></h3>
 
   <p>This command provides access to the debugger functionality of openMSX. It's meant to be used by an external debugger. The general format of
@@ -917,6 +948,48 @@ div.note {
     </table>
   </div>
 
+  <h3><a id="incr" name="incr">incr</a></h3>
+
+  <p>Increment an integer setting.</p>
+
+  <p>This used to be an openMSX custom command, but is now a native TCL command.</p>
+
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>incr</code></td>
+
+        <td>Shows all integer settings</td>
+      </tr>
+
+      <tr>
+        <td><code>incr &lt;setting&gt;</code></td>
+
+        <td>Increment the specified setting by one</td>
+      </tr>
+
+      <tr>
+        <td><code>incr &lt;setting&gt; &lt;num&gt;</code></td>
+
+        <td>Increment the specified setting by the given amount</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="examplestitle">
+    examples:
+  </div>
+
+  <div class="examples">
+    <code>incr speed</code><br />
+    <code>incr renshaturbo 10</code><br />
+    <code>incr scanline -5</code>
+  </div>
+
   <h3><a id="iomap" name="iomap">iomap</a></h3>
 
   <p>Shows what I/O ports are connected to which devices. The related command <code><a class="internal" href="#slotmap">slotmap</a></code> shows a similar overview, but for memory-mapped devices.</p>
@@ -1084,7 +1157,7 @@ div.note {
 
   <h3><a id="palette" name="palette">palette</a></h3>
 
-  <p>Shows the current VDP palette settings.</p>
+  <p>Shows the current VDP palette settings.  Related command: <code><a class="internal" href="#vdpregs">vdpregs</a></code>.</p>
 
   <div class="usagetitle">
     usage:
@@ -1095,7 +1168,7 @@ div.note {
       <tr>
         <td><code>palette</code></td>
 
-        <td>Show the currently active colour palette</td>
+        <td>Show the currently active color palette</td>
       </tr>
     </table>
   </div>
@@ -1286,7 +1359,7 @@ div.note {
 
   <h3><a id="set" name="set">set</a></h3>
 
-  <p>Change or query the value of various settings.</p>
+  <p>Change or query the value of various settings. See also: <code><a class="internal" href="#unset">unset</a></code>.</p>
 
   <div class="usagetitle">
     usage:
@@ -1347,9 +1420,21 @@ div.note {
 
   <h3><a id="slotselect" name="slotselect">slotselect</a></h3>
 
-  <p>Shows the currently selected slots.</p>
+  <p>Shows the currently selected slots. To see what devices are located in the slots, use the <code><a class="internal" href="#slotmap">slotmap</a></code> command.</p>
 
-  <p>[ mainly useful for debugging purposes ]</p>
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>slotselect</code></td>
+
+        <td>Shows the currently selected slot for each page</td>
+      </tr>
+    </table>
+  </div>
 
   <h3><a id="soundlog" name="soundlog">soundlog</a></h3>
 
@@ -1397,7 +1482,7 @@ div.note {
 
   <h3><a id="toggle" name="toggle">toggle</a></h3>
 
-  <p>Toggles any boolean (on-off) setting.</p>
+  <p>Toggles any boolean (on/off) setting: if it was on, it will be turned off and vice versa.</p>
 
   <div class="usagetitle">
     usage:
@@ -1408,7 +1493,7 @@ div.note {
       <tr>
         <td><code>toggle &lt;setting&gt;</code></td>
 
-        <td>toggles the specified setting</td>
+        <td>Toggles the specified setting</td>
       </tr>
     </table>
   </div>
@@ -1436,31 +1521,31 @@ div.note {
       <tr>
         <td><code>trainer</code></td>
 
-        <td>see which trainer is currently active</td>
+        <td>See which trainer is currently active</td>
       </tr>
 
       <tr>
         <td><code>trainer &lt;game&gt;</code></td>
 
-        <td>see which cheats are currently active in the trainer</td>
+        <td>See which cheats are currently active in the trainer</td>
       </tr>
 
       <tr>
         <td><code>trainer &lt;game&gt; all</code></td>
 
-        <td>activate all cheats in the trainer of &lt;game&gt;</td>
+        <td>Activate all cheats in the trainer of &lt;game&gt;</td>
       </tr>
 
       <tr>
         <td><code>trainer &lt;game&gt; \[&lt;cheat&gt; ..\]</code></td>
 
-        <td>toggle cheats of &lt;game&gt; on/off</td>
+        <td>Toggle cheats of &lt;game&gt; on/off</td>
       </tr>
 
       <tr>
         <td><code>trainer deactivate</code></td>
 
-        <td>deactivate all trainers</td>
+        <td>Deactivate all trainers</td>
       </tr>
     </table>
   </div>
@@ -1478,7 +1563,7 @@ div.note {
   <h3><a id="type" name="type">type</a></h3>
 
   <p>Type a string in the emulated MSX. This command automatically presses and releases keys in the simulated MSX
-  keyboard matrix. This command is mainly useful for demoing.</p>
+  keyboard matrix. This command is useful for demoing and for automating tasks in MSX-BASIC.</p>
 
   <div class="usagetitle">
     usage:
@@ -1488,10 +1573,33 @@ div.note {
     <code>type "Hello world!"</code>
   </div>
 
+  <h3><a id="unset" name="unset">unset</a></h3>
+
+  <p>Undefines a TCL variable. When used on openMSX settings, they are reverted to their default value. See also: <code><a class="internal" href="#set">set</a></code>.</p>
+
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>unset &lt;variable&gt;</code></td>
+
+        <td>Undefines the given variable</td>
+      </tr>
+
+      <tr>
+        <td><code>unset &lt;setting&gt;</code></td>
+
+        <td>Reverts the given setting to its default value</td>
+      </tr>
+    </table>
+  </div>
+
   <h3><a id="update" name="update">update</a></h3>
 
-  <p>Enable or disable update notifications of a certain type. This command is mainly useful for external programs
-  controlling openMSX.</p>
+  <p>Enable or disable update notifications of a certain type. This command is intended for external programs controlling openMSX.</p>
 
   <div class="usagetitle">
     usage:
@@ -1524,9 +1632,21 @@ div.note {
 
   <h3><a id="vdpregs" name="vdpregs">vdpregs</a></h3>
 
-  <p>Shows the current VDP register settings.</p>
+  <p>Shows the current register settings of the Video Display Processor (VDP). Related command: <code><a class="internal" href="#palette">palette</a></code>.</p>
 
-  <p>[ mainly useful for debugging purposes ]</p>
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>vdpregs</code></td>
+
+        <td>Shows the current VDP control register contents</td>
+      </tr>
+    </table>
+  </div>
 
   <h2><a id="OLD_COMMANDS" name="OLD_COMMANDS">OLD COMMANDS</a></h2>
 
@@ -1548,7 +1668,7 @@ div.note {
       <tr>
         <td><code>alias &lt;name&gt; &lt;command&gt;</code></td>
 
-        <td>define an alias</td>
+        <td>Defines an alias</td>
       </tr>
     </table>
   </div>
@@ -1570,7 +1690,7 @@ div.note {
 
   <p>Decrement an integer setting.</p>
 
-  <p>This command is deprecated, better use the native TCL command <code><a href="#incr">incr</a></code> and negate the offset.</p>
+  <p>This command is deprecated, please use the <code><a class="internal" href="#incr">incr</a></code> command with a negative offset instead.</p>
 
   <div class="usagetitle">
     usage:
@@ -1581,19 +1701,19 @@ div.note {
       <tr>
         <td><code>decr</code></td>
 
-        <td>shows all integer settings</td>
+        <td>Shows all integer settings</td>
       </tr>
 
       <tr>
         <td><code>decr &lt;setting&gt;</code></td>
 
-        <td>decrement the specified setting</td>
+        <td>Decrement the specified setting by one</td>
       </tr>
 
       <tr>
         <td><code>decr &lt;setting&gt; &lt;num&gt;</code></td>
 
-        <td>decrement the specified setting with given amount</td>
+        <td>Decrement the specified setting by the given amount</td>
       </tr>
     </table>
   </div>
@@ -1607,11 +1727,11 @@ div.note {
     <code>decr renshaturbo 10</code>
   </div>
 
-  <h3><a id="incr" name="incr">incr</a></h3>
+  <h3><a id="quit" name="quit">quit</a></h3>
 
-  <p>Increment an integer setting.</p>
+  <p>Quits the emulator.</p>
 
-  <p>This command is now a native TCL command.</p>
+  <p>Please use <code><a class="internal" href="#exit">exit</a></code> instead.</p>
 
   <div class="usagetitle">
     usage:
@@ -1620,45 +1740,18 @@ div.note {
   <div class="usage">
     <table>
       <tr>
-        <td><code>incr</code></td>
+        <td><code>quit</code></td>
 
-        <td>shows all integer settings</td>
-      </tr>
-
-      <tr>
-        <td><code>incr &lt;setting&gt;</code></td>
-
-        <td>increment the specified setting</td>
-      </tr>
-
-      <tr>
-        <td><code>incr &lt;setting&gt; &lt;num&gt;</code></td>
-
-        <td>increment the specified setting with given amount</td>
+        <td>Exits openMSX</td>
       </tr>
     </table>
   </div>
-
-  <div class="examplestitle">
-    examples:
-  </div>
-
-  <div class="examples">
-    <code>incr speed</code><br />
-    <code>incr renshaturbo 10</code>
-  </div>
-
-  <h3><a id="quit" name="quit">quit</a></h3>
-
-  <p>Quits the emulator.</p>
-
-  <p>Please use <code><a class="internal" href="#exit">exit</a></code> instead.</p>
 
   <h3><a id="restoredefault" name="restoredefault">restoredefault</a></h3>
 
   <p>Restore the default value for a setting.</p>
 
-  <p>This command is deprecated, better use <code>unset &lt;setting&gt;</code>.</p>
+  <p>This command is deprecated, please use <code><a class="internal" href="#unset">unset</a> &lt;setting&gt;</code> instead.</p>
 
   <div class="usagetitle">
     usage:
@@ -1706,32 +1799,32 @@ div.note {
       <tr>
         <td><code>set accuracy</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set accuracy screen</code></td>
 
-        <td>selects screen accurate rendering</td>
+        <td>Selects screen accurate rendering</td>
       </tr>
 
       <tr>
         <td><code>set accuracy line</code></td>
 
-        <td>selects line accurate rendering</td>
+        <td>Selects line accurate rendering</td>
       </tr>
 
       <tr>
         <td><code>set accuracy pixel</code></td>
 
-        <td>selects pixel accurate rendering</td>
+        <td>Selects pixel accurate rendering</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="audio-inputfilename" name="audio-inputfilename">audio-inputfilename</a></h3>
 
-  <p>Sets the file(name) from which the wave input is read for the sampler.</p>
+  <p>Sets the audio file from which the wave input is read for the sampler.</p>
 
   <p>By default, it is read from "audio-input.wav" when available.</p>
 
@@ -1744,20 +1837,24 @@ div.note {
       <tr>
         <td><code>set audio-inputfilename</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set audio-inputfilename mysample.wav</code></td>
 
-        <td>read from mysample.wav</td>
+        <td>Read from "mysample.wav"</td>
       </tr>
     </table>
   </div>
 
+  <div class="note">
+    Note: The file is fully read into memory, so under Linux/UNIX do not attempt to read from a device node such as <code>/dev/dsp</code>.
+  </div>
+
   <h3><a id="autoruncassettes" name="autoruncassettes">autoruncassettes</a></h3>
 
-  <p>Switches the auto-run cassettes feature on or off. When it's enabled, openMSX will try to type the proper loading
+  <p>Switches the "auto-run cassettes" feature on or off. When it's enabled, openMSX will try to type the proper loading
   instruction when a cassette is inserted.</p>
 
   <div class="usagetitle">
@@ -1769,19 +1866,19 @@ div.note {
       <tr>
         <td><code>set autoruncassettes</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set autoruncassettes on</code></td>
 
-        <td>try to run cassettes automatically</td>
+        <td>Try to run cassettes automatically</td>
       </tr>
 
       <tr>
         <td><code>set autoruncassettes off</code></td>
 
-        <td>disable the feature</td>
+        <td>Do nothing when cassettes are inserted</td>
       </tr>
     </table>
   </div>
@@ -1792,7 +1889,7 @@ div.note {
 
   <h3><a id="blur" name="blur">blur</a></h3>
 
-  <p>Sets the amount of horizontal blur effect.</p>
+  <p>Sets the amount of horizontal blur effect. A value of 0 turns off blur, while 100 selects maximum blur.</p>
 
   <div class="usagetitle">
     usage:
@@ -1803,13 +1900,13 @@ div.note {
       <tr>
         <td><code>set blur</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set blur &lt;value&gt;</code></td>
 
-        <td>change the value</td>
+        <td>Change the value</td>
       </tr>
     </table>
   </div>
@@ -1821,7 +1918,7 @@ div.note {
   <h3><a id="bootsector" name="bootsector">bootsector</a></h3>
 
   <p>Sets the boot sector type for DirAsDSK. Default: DOS2. Only relevant on turboR, because it boots differently
-  depending on this sector of the disk in drive A.</p>
+  depending on the type of boot sector on the disk in drive A.</p>
 
   <div class="usagetitle">
     usage:
@@ -1832,21 +1929,22 @@ div.note {
       <tr>
         <td><code>set bootsector</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set bootsector DOS1</code></td>
 
-        <td>use a DOS1 boot sector</td>
+        <td>Use a DOS1 boot sector</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="brightness" name="brightness">brightness</a></h3>
 
-  <p>Controls the brightness of the video output. Can be between -100 and 100. Lower values are darker, higher values
-  are brighter. The default is 0.</p>
+  <p>Controls the brightness of the video output. Can be between -100 and 100. Lower values are darker, higher values are brighter. The default is 0, which is neutral. This setting shifts the brigtness of all colors, including black and white, while the <code><a class="internal" href="#gamma">gamma</a></code> setting changes the relative brightness of colors but does not change black and white.</p>
+
+  <p>The section about the <code><a class="internal" href="#noise">noise</a></code> setting describes a typical way of using <code>brightness</code>.</p>
 
   <div class="usagetitle">
     usage:
@@ -1861,13 +1959,13 @@ div.note {
       <tr>
         <td><code>set brightness</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set brightness 5</code></td>
 
-        <td>make the video output a bit brighter then default</td>
+        <td>Make the video output a bit brighter than default</td>
       </tr>
     </table>
   </div>
@@ -1876,18 +1974,57 @@ div.note {
 
   <p>Controls VDP command execution timing.</p>
 
-  <p>[ mainly useful for debugging purposes ]</p>
+  <p>This is useful for debugging and for speeding up games where the command engine performance is a bottleneck.</p>
+
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td></td>
+      </tr>
+
+      <tr>
+        <td><code>set cmdtiming</code></td>
+
+        <td>Shows the current setting</td>
+      </tr>
+
+      <tr>
+        <td><code>set cmdtiming broken</code></td>
+
+        <td>Make VDP commands finish instantly</td>
+      </tr>
+
+      <tr>
+        <td><code>set cmdtiming real</code></td>
+
+        <td>Make VDP commands take a realistic amount of time</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="note">
+    Note: When set to <code>broken</code> the emulated MSX acts different from a real MSX. This might cause some software to fail.
+  </div>
 
   <h3><a id="color_matrix" name="color_matrix">color_matrix</a></h3>
 
   <p>This setting represents a 3x3 matrix that is used to transform MSX RGB colors to host RGB colors. This setting can
-  be used to generate all kind of color schemes, see scripts/monitor.tcl for examples.</p>
-  <pre>
-        | . . . |   | Rm |   | Rh |
-        | . . . | x | Gm | = | Gh |
-        | . . . |   | Bm |   | Bh |
+  be used to generate all kind of color schemes, see <code>scripts/monitor.tcl</code> for examples.</p>
 
-</pre>
+  <p>To get the following color transformation:</p>
+  <pre>
+        | a b c |   | Rm |   | Rh |
+        | d e f | x | Gm | = | Gh |
+        | g h i |   | Bm |   | Bh |
+  </pre>
+  <p>Use this command:</p>
+  <pre>
+        set color_matrix { { a b c } { d e f } { g h i } }
+  </pre>
 
   <div class="usagetitle">
     usage:
@@ -1898,30 +2035,30 @@ div.note {
       <tr>
         <td><code>set color_matrix</code></td>
 
-        <td>shows the current value</td>
+        <td>Shows the current value</td>
       </tr>
 
       <tr>
         <td><code>set color_matrix { { 1 0 0 } { 0 1 0 } { 0 0 1 } }</code></td>
 
-        <td>this is the default (no color transformation)</td>
+        <td>This is the default (no color transformation)</td>
       </tr>
 
       <tr>
         <td><code>set color_matrix { { .33 .33 .33 } { .33 .33 .33 } { .33 .33 .33 } }</code></td>
 
-        <td>transform to greyscale</td>
+        <td>Transform to greyscale</td>
       </tr>
     </table>
   </div>
 
   <div class="note">
-    Note: It is often more convenient to use the scripts/monitor.tcl script.
+    Note: It is often more convenient to use the <code>scripts/monitor.tcl</code> script.
   </div>
 
   <h3><a id="console" name="console">console</a></h3>
 
-  <p>Turns the console on or off.</p>
+  <p>Turns the openMSX on-screen console on or off.</p>
 
   <div class="usagetitle">
     usage:
@@ -1932,19 +2069,19 @@ div.note {
       <tr>
         <td><code>set console</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set console on</code></td>
 
-        <td>turns the console on</td>
+        <td>Turns the console on</td>
       </tr>
 
       <tr>
         <td><code>set console off</code></td>
 
-        <td>turns the console off</td>
+        <td>Turns the console off</td>
       </tr>
     </table>
   </div>
@@ -1962,13 +2099,13 @@ div.note {
       <tr>
         <td><code>set consolebackground</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set consolebackground &lt;image&gt;</code></td>
 
-        <td>sets a new background</td>
+        <td>Sets a new background image</td>
       </tr>
     </table>
   </div>
@@ -1986,13 +2123,13 @@ div.note {
       <tr>
         <td><code>set consolecolumns</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set consolecolumns &lt;value&gt;</code></td>
 
-        <td>set the specified width</td>
+        <td>Set the specified width</td>
       </tr>
     </table>
   </div>
@@ -2010,20 +2147,20 @@ div.note {
       <tr>
         <td><code>set consolefont</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set consolefont &lt;image&gt;</code></td>
 
-        <td>sets a new font</td>
+        <td>Sets a new font</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="consoleplacement" name="consoleplacement">consoleplacement</a></h3>
 
-  <p>Change the position of the console within the emulator</p>
+  <p>Changes the position of the console on the emulator screen.</p>
 
   <div class="usagetitle">
     usage:
@@ -2034,14 +2171,13 @@ div.note {
       <tr>
         <td><code>set consoleplacement</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set consoleplacement &lt;place&gt;</code></td>
 
-        <td>moves the console the the specified location &lt;place&gt; can be topleft, top, topright, left, center,
-        right, bottomleft, bottom and bottomright.</td>
+        <td>Moves the console the the specified location; <code>&lt;place&gt;</code> can be <code>topleft</code>, <code>top</code>, <code>topright</code>, <code>left</code>, <code>center</code>, <code>right</code>, <code>bottomleft</code>, <code>bottom</code> or <code>bottomright</code>.</td>
       </tr>
     </table>
   </div>
@@ -2059,21 +2195,22 @@ div.note {
       <tr>
         <td><code>set consolerows</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set consolerows &lt;value&gt;</code></td>
 
-        <td>set the specified width</td>
+        <td>Set the specified width</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="contrast" name="contrast">contrast</a></h3>
 
-  <p>Controls the contrast of the video output. Can be between -100 and 100. Lower values are less contrast, higher
-  values are more contrast. The default is 0.</p>
+  <p>Controls the contrast of the video output. Can be between -100 and 100. Lower values are less contrast, higher values are more contrast. The default is 0, which is neutral.</p>
+
+  <p>The section about the <code><a class="internal" href="#noise">noise</a></code> setting describes a typical way of using <code>contrast</code>.</p>
 
   <div class="usagetitle">
     usage:
@@ -2084,13 +2221,13 @@ div.note {
       <tr>
         <td><code>set contrast</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set contrast -5</code></td>
 
-        <td>reduce the video contrast a bit</td>
+        <td>Reduce the video contrast a bit</td>
       </tr>
     </table>
   </div>
@@ -2732,8 +2869,9 @@ div.note {
 
   <h3><a id="noise" name="noise">noise</a></h3>
 
-  <p>Controls the amount of Gaussian noise that is added to the video output. This can give a more authentic look to
-  the video output. Values can be between 0 and 100, 0 is no noise.</p>
+  <p>Controls the amount of Gaussian noise that is added to the video output. A small amount of noise can give a more authentic look to the video output on TFTs. Values can be between 0 and 100, where 0 is no noise and 100 is lots of noise.</p>
+
+  <p>This setting is best combined with <code><a class="internal" href="#brightness">brightness</a></code> and <code><a class="internal" href="#contrast">contrast</a></code>: noise creates small random fluctuations in the brightness of pixels. When noise is applied to pure black, it is not possible to make it any darker, so half of the time the noise is uneffective. The same happens with pure white. By setting the <code><a class="internal" href="#brightness">brightness</a></code> slightly above 0 and <code><a class="internal" href="#contrast">contrast</a></code> slightly below 0, you will get a better looking noise effect.</p>
 
   <div class="usagetitle">
     usage:
@@ -3368,7 +3506,7 @@ div.note {
 
   <h3><a id="videosource" name="videosource">videosource</a></h3>
 
-  <p>Switch between 'normal' (V99x8) or 'GFX9000' (V9990) videosource.</p>
+  <p>Switch between <code>MSX</code> (V99x8) or <code>GFX9000</code> (V9990) video source.</p>
 
   <div class="usagetitle">
     usage:
