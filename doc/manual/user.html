@@ -98,10 +98,9 @@
 	<li><a class="internal" href="#debugdevice">8. Debug Device</a>
 		<ol class="toc">
 			<li><a class="internal" href="#debugdeviceenable">8.1 Enabling the Debug Device</a></li>
-			<li><a class="internal" href="#debugdeviceports">8.2 The Output Ports</a></li>
+			<li><a class="internal" href="#debugdeviceports">8.2 Output Ports</a></li>
 			<li><a class="internal" href="#debugdevicemode1">8.3 Single Byte Mode</a></li>
 			<li><a class="internal" href="#debugdevicemode2">8.4 Multi Byte Mode</a></li>
-			<li><a class="internal" href="#debugdeviceoutput">8.5 Controlling the Output</a></li>
 		</ol>
 	</li>
 	<li><a class="internal" href="#contact">9. Contact Info</a></li>
@@ -1154,49 +1153,25 @@ this command to some hot key.
 <h2><a id="debugdevice">8. Debug Device</a></h2>
 
 <p>
-This chapter describes how the debug device, built in openMSX, can be used to
-the advantage of an MSX programmer. This is an artificial MSX device
-that is connected to an MSX I/O port. It can be used to send debug messages to
-the host operating system.
+This chapter describes how an MSX programmer can use the openMSX built-in debug device. This is an artificial MSX device that is connected to an MSX I/O port. It can be used to send debug messages to the host operating system.
 </p>
 
 <p>
-Note that openMSX also contains real built in debugging functions, which can be
-accessed with the <code><a class="external" href="commands.html#debug">debug</a></code> command. More information about it is in
-the <a class="external" href="commands.html#debug">Console Command Overview</a>. With that debugger you can
-read and write all registers and memory of almost all devices that are
-supported in openMSX. It also supports break points, watch points and stepping.
+Note that openMSX also contains built-in debugging functions, which can be accessed with the <code><a class="external" href="commands.html#debug">debug</a></code> console command. With that debugger you can read and write all registers and memory of almost all devices that are supported in openMSX. It also supports break points, watch points and stepping.
 </p>
 
 
 <h3><a id="debugdeviceenable">8.1 Enabling the Debug Device</a></h3>
 
 <p>
-The easiest way to enable the debugdevice is to start openMSX with the
-debugdevice extension. To do this, simply add <code>-ext debugdevice</code> to the
-openMSX command line.
+To enable the debug device, insert the <code>debugdevice</code> extension. To do this when starting openMSX, simply add <code>-ext debugdevice</code> to the openMSX command line. If openMSX is already running, you can use the <code><a class="external" href="commands.html#ext">ext</a></code> console command.
 </p>
 
 <p>
-Another way to make the device work is to add it to the <code>hardwareconfig.xml</code> from
-the machine that is used. If, for example, the device has to be used on the
-Philips NMS 8250, the following lines can be added to the <code>hardwareconfig.xml</code>
-file in the <code>share/machines/Philips_NMS_8250</code> directory.
-</p>
-<pre>
-  &lt;DebugDevice id="Debug Device"&gt;
-    &lt;io base="0x2E" num="2" type="O"/&gt;
-    &lt;filename&gt;stdout&lt;/filename&gt;
-  &lt;/DebugDevice&gt;
-</pre>
-
-<p>
-The third line is optional and can specify any filename you
-like, including <code>stdout</code>.
+You can use the <code><a class="external" href="commands.html#debugoutput">debugoutput</a></code> setting to specify the file name to write the debug output to.
 </p>
 
-
-<h3><a id="debugdeviceports">8.2 The Output Ports</a></h3>
+<h3><a id="debugdeviceports">8.2 Output Ports</a></h3>
 
 <p>
 Controlling the device is done from within an MSX program. For this purpose, the
@@ -1204,24 +1179,22 @@ output ports 0x2E and 0x2F are used. The first port is the Mode Set Register. By
 </p>
 <table>
   <tr> <th>bit(s)</th><th>meaning</th> </tr>
-  <tr> <td>7  </td> <td> unused </td> </tr>
-  <tr> <td>6  </td> <td> line feed mode (0 = line feed at mode change, 1 no line feed)</td> </tr>
-  <tr> <td>4-5</td> <td> output mode (0 = OFF, 1 = single byte, 2 = multi byte)</td> </tr>
-  <tr> <td>0-3</td> <td> parameters for mode 1 (see below)</td> </tr>
-  <tr> <td>0-1</td> <td> parameters for mode 2 (see below)</td> </tr>
+  <tr> <td>7  </td> <td>unused</td> </tr>
+  <tr> <td>6  </td> <td>line feed mode (0 = line feed at mode change, 1 no line feed)</td> </tr>
+  <tr> <td>5-4</td> <td>output mode (0 = OFF, 1 = single byte, 2 = multi byte)</td> </tr>
+  <tr> <td>3-0</td> <td>mode-specific parameters (see below)</td> </tr>
 </table>
 
 <p>
-When using mode 1, single byte mode, these are the parameters:
+When using mode 1, single byte mode, the lower 4 bits each enable a particular output format:
 </p>
 <table>
   <tr> <th>bit(s)</th><th>meaning</th> </tr>
-  <tr> <td>0</td> <td>  hexadecimal mode on/off </td> </tr>
-  <tr> <td>1</td> <td>  binary mode on/off</td> </tr>
-  <tr> <td>2</td> <td>  decimal mode on/off</td> </tr>
-  <tr> <td>3</td> <td>  ASCII mode on/off</td> </tr>
+  <tr> <td>3</td> <td>ASCII mode on/off</td> </tr>
+  <tr> <td>2</td> <td>decimal mode on/off</td> </tr>
+  <tr> <td>1</td> <td>binary mode on/off</td> </tr>
+  <tr> <td>0</td> <td>hexadecimal mode on/off</td> </tr>
 </table>
-
 <p>
 So, every parameter bit turns an output format on or off and more than one output format can be specified at the same time.
 </p>
@@ -1231,7 +1204,8 @@ The parameters for mode 2 (multi byte mode) are as follows:
 </p>
 <table>
   <tr> <th>bit(s)</th><th>meaning</th> </tr>
-  <tr> <td>0-1</td> <td> mode (0 = hex, 1 = binary, 2 = decimal, 3 = ASCII mode)</td> </tr>
+  <tr> <td>3-2</td> <td>unused</td> </tr>
+  <tr> <td>1-0</td> <td>mode (0 = hex, 1 = binary, 2 = decimal, 3 = ASCII mode)</td> </tr>
 </table>
 
 <h3><a id="debugdevicemode1">8.3 Single Byte Mode</a></h3>
@@ -1331,13 +1305,6 @@ output, all we need to do is change <code>xx</code> for <code>$23</code>:
 <p>
 In this special case, the space in between the data is left out. Any special
 character like carriage return, linefeed, beep or tab will be printed as you would expect.
-</p>
-
-<h3><a id="debugdeviceoutput">8.5 Controlling the Output</a></h3>
-
-<p>
-The openMSX console can be used to control the output of the device. This is
-done by the setting <code><a class="external" href="commands.html#debugoutput">debugoutput</a></code>. You can set it to any file name or to the special settings <code>stdout</code> and <code>stderr</code>, which lets the output go to these special streams.
 </p>
 
 <h2><a id="contact">9. Contact Info</a></h2>
