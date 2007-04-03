@@ -19,7 +19,7 @@
 <ol class="toc">
 	<li><a class="internal" href="#intro">1. Introduction</a>
 		<ol class="toc">
-			<li><a class="internal" href="#newver">1.1 New Versions of this Document</a></li>
+			<li><a class="internal" href="#newver">1.1 New Versions of This Document</a></li>
 			<li><a class="internal" href="#purpose">1.2 Purpose</a></li>
 			<li><a class="internal" href="#contrib">1.3 Contributors</a></li>
 			<li><a class="internal" href="#history">1.4 Revision History</a></li>
@@ -56,7 +56,7 @@
 				<ol class="toc">
 					<li><a class="internal" href="#tapewav">4.3.1 Using WAV files</a></li>
 					<li><a class="internal" href="#cas">4.3.2 Using CAS files</a></li>
-					<li><a class="internal" href="#tapejack">4.3.3 Using Jack audio connection kit</a></li>
+					<li><a class="internal" href="#tapejack">4.3.3 Using Jack Audio Connection Kit</a></li>
 				</ol>
 			</li>
 		</ol>
@@ -82,8 +82,8 @@
 			<li><a class="internal" href="#scalers">6.3 Scalers</a></li>
 			<li><a class="internal" href="#gamma">6.4 Gamma Correction</a></li>
 			<li><a class="internal" href="#videoeffects">6.5 Special Effects</a></li>
-			<li><a class="internal" href="#gfx9000">6.6 GFX9000/Video sources</a></li>
-			<li><a class="internal" href="#recording">6.7 Video recording</a></li>
+			<li><a class="internal" href="#gfx9000">6.6 GFX9000</a></li>
+			<li><a class="internal" href="#recording">6.7 Video Recording</a></li>
 		</ol>
 	</li>
 
@@ -109,7 +109,7 @@
 
 <h2><a id="intro">1. Introduction</a></h2>
 
-<h3><a id="newver">1.1 New Versions of this Document</a></h3>
+<h3><a id="newver">1.1 New Versions of This Document</a></h3>
 <p>
 The latest version of the openMSX manual can be found on the openMSX home page:
 </p>
@@ -629,7 +629,7 @@ To make it even more comfortable to run software from CAS images, try the follow
 Note that saving to CAS files (new or existing ones) is not possible; one can only save to new cassette images in WAV format.
 </p>
 
-<h4><a id="tapejack">4.3.3 Using Jack audio connection kit</a></h4>
+<h4><a id="tapejack">4.3.3 Using Jack Audio Connection Kit</a></h4>
 
 <p>
 Using <a class="external"
@@ -1046,7 +1046,7 @@ This feature works only in the <code>SDLGL-PP</code> renderer.
 
 </dl>
 
-<h3><a id="gfx9000">6.6 GFX9000/Video source</a></h3>
+<h3><a id="gfx9000">6.6 GFX9000</a></h3>
 
 <p>
 openMSX has GFX9000 emulation. Note that it still quite new, so it is not as complete and functional as the video emulation of the classical MSX chips. It is also slower than the classical video chips and it does not work with the SDLGL
@@ -1072,7 +1072,7 @@ cycle <a class="external" href="commands.html#videosource">videosource</a></code
 <code>cycle</code> is a TCL command that cycles through the options of the setting in the parameter.
 </p>
 
-<h3><a id="recording">6.7 Video recording</a></h3>
+<h3><a id="recording">6.7 Video Recording</a></h3>
 
 <p>
 A new feature of openMSX 0.6.2 is the video recorder. This enables you to record the audio and video rendered by openMSX to an AVI file. (You can read about the codec in the <a class="external" href="faq.html#codec">FAQ</a>.) When replaying it, it should be perfectly in sync without any hiccups, even if the emulation ran too slow when you recorded it. The output video is in 320&times;240 format. It records the current video source (see previous section) and the sound is recorded with the current <code><a class="external" href="commands.html#frequency">frequency</a></code> setting. If you change this setting during recording, or, more importantly, if the software changes from PAL (50Hz) to NTSC (60Hz) during recording, the video will get out of sync with the audio. Any special effects will not be recorded. Finally, here is how to use it: use <code><a class="external" href="commands.html#record">record</a> start</code> to record to a default file name (you can use an additional filename parameter if you don't like that). <code><a class="external" href="commands.html#record">record</a> stop</code> stops recording and <code><a class="external" href="commands.html#record">record</a> toggle</code> toggles it, as you would expect. If you like, you can use <code>-audioonly</code> (see next chapter) or <code>-videoonly</code> options to record only sound or video.
