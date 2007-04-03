@@ -1,4 +1,4 @@
-body, h1, h2, h3, h4, h5 {
+body {
 	color: black;
 	background-color: white;
 }
@@ -47,20 +47,16 @@ div.commandline, pre {
 	margin-bottom: 0.5em;
 }
 p.todo {
-	background-color: white;
 	color: red;
 }
 a.internal, a.external:visited {
 	color: #000080;
-	background-color: white;
 }
 a.external:link {
 	color: #0000FF;
-	background-color: white;
 }
 a.external:active {
 	color: #8080FF;
-	background-color: white;
 }
 
 th {
