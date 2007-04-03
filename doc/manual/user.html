@@ -1133,21 +1133,11 @@ pluggables.
 <h3><a id="soundlogger">7.3 Recording Audio to File</a></h3>
 
 <p>
-openMSX 0.6.2 has an improved way to record audio to a file, without any quality loss.
-It enables you to record the sound generated from the emulated MSX perfectly.
-Note that recording
-sound to the uncompressed WAV format will take a lot of disk space. At 44.1kHz
-it will take about 176 kB per second.
+openMSX 0.6.2 has an improved way to record audio to a file: it records the sound at the exact speed at which it should be produced, no matter the speed at which the emulation was running while recording. Note that recording sound to the uncompressed WAV format will take a lot of disk space: at 44.1 kHz it will take about 176 kB per second.
 </p>
 
 <p>
-You can simply start the recording of sound by issuing the command <code><a class="external" href="commands.html#record">record</a> start -audioonly</code>
-(or the old command <code>soundlog start</code>). It will automatically choose a file name and save
-it in the <code>soundlogs</code> directory in your personal openMSX folder. You
-can also add an extra parameter to specify the filename for the new WAV file.
-The other two sub commands that speak for themselves are <code><a class="external" href="commands.html#record">record</a> stop</code> (<code>soundlog
-stop</code>) and <code><a class="external" href="commands.html#record">record</a> toggle -audioonly</code> (<code>soundlog toggle</code>). The latter is useful if you bind
-this command to some hot key.
+You can start the recording of sound by issuing the command <code><a class="external" href="commands.html#soundlog">soundlog</a> start</code>. It will automatically choose a file name and save it in the <code>soundlogs</code> directory in your personal openMSX folder. You can also add an extra parameter to specify the filename for the new WAV file. To stop recording, use <code><a class="external" href="commands.html#soundlog">soundlog</a> stop</code>. You can toggle the recording status using <code><a class="external" href="commands.html#soundlog">soundlog</a> toggle</code>, which is useful if you <code><a class="external" href="commands.html#bind">bind</a></code> this command to a hot key.
 </p>
 
 <h2><a id="debugdevice">8. Debug Device</a></h2>
