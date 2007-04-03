@@ -2239,11 +2239,39 @@ div.note {
 
   <h3><a id="cputrace" name="cputrace">cputrace</a></h3>
 
-  <p>Enable/disable CPU instruction tracing. When enabled, the state of the Z80 is printed on stdout after every instruction. This creates a lot of output and slows down emulation considerably, but it can be very useful for debugging.</p>
+  <p>Enable/disable CPU instruction tracing. When enabled, the state of the CPU (Z80/R800) is printed on stdout after every instruction. This creates a lot of output and slows down emulation considerably, but it can be very useful for debugging.</p>
+
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set cputrace</code></td>
+
+        <td>Shows the current setting</td>
+      </tr>
+
+      <tr>
+        <td><code>set cputrace on</code></td>
+
+        <td>Enables CPU tracing</td>
+      </tr>
+
+      <tr>
+        <td><code>set cputrace off</code></td>
+
+        <td>Disables CPU tracing</td>
+      </tr>
+    </table>
+  </div>
 
   <h3><a id="debugoutput" name="debugoutput">debugoutput</a></h3>
 
   <p>Selects the file to where the output from the debug device goes.</p>
+
+  <p>The User's Manual <a class="external" href="user.html#debugdevice">describes the debug device</a> in more detail.</p>
 
   <div class="usagetitle">
     usage:
@@ -2254,20 +2282,36 @@ div.note {
       <tr>
         <td><code>set debugoutput</code></td>
 
-        <td>shows the current output file</td>
+        <td>Shows the current output file name</td>
+      </tr>
+
+      <tr>
+        <td><code>set debugoutput stdout</code></td>
+
+        <td>Writes debug output to openMSX's standard output stream</td>
+      </tr>
+
+      <tr>
+        <td><code>set debugoutput stderr</code></td>
+
+        <td>Writes debug output to openMSX's standard error stream</td>
       </tr>
 
       <tr>
         <td><code>set debugoutput &lt;output file&gt;</code></td>
 
-        <td>set the specified output file</td>
+        <td>Writes debug output to the specified file</td>
       </tr>
     </table>
   </div>
 
+  <div class="note">
+    Note: This setting only exists if the <code>debugdevice</code> extension is present in the current MSX machine.
+  </div>
+
   <h3><a id="default_machine" name="default_machine">default_machine</a></h3>
 
-  <p>The default machine. openMSX uses this machine when it is started without the <code>-machine</code> option.</p>
+  <p>Selects the default MSX model. openMSX uses this machine when it is started without the <code>-machine</code> option.</p>
 
   <div class="usagetitle">
     usage:
@@ -2278,20 +2322,20 @@ div.note {
       <tr>
         <td><code>set default_machine</code></td>
 
-        <td>shows current setting</td>
+        <td>Shows current setting</td>
       </tr>
 
       <tr>
         <td><code>set default_machine Panasonic_FS-A1GT</code></td>
 
-        <td>use the turboR GT the next time openMSX is started</td>
+        <td>Use the turboR GT the next time openMSX is started</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="deinterlace" name="deinterlace">deinterlace</a></h3>
 
-  <p>Turns deinterlacing on/off.</p>
+  <p>Turns deinterlacing on/off. Deinterlace is a filter which combines the even and odd field of interlaced video into a single frame which has double vertical resolution. It results in a sharp and stable image, but can show artifacts on fast animations.</p>
 
   <div class="usagetitle">
     usage:
@@ -2302,19 +2346,19 @@ div.note {
       <tr>
         <td><code>set deinterlace</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set deinterlace on</code></td>
 
-        <td>turns deinterlacing on</td>
+        <td>Turns deinterlacing on</td>
       </tr>
 
       <tr>
         <td><code>set deinterlace off</code></td>
 
-        <td>turns deinterlacing off</td>
+        <td>Turns deinterlacing off</td>
       </tr>
     </table>
   </div>
@@ -2325,8 +2369,7 @@ div.note {
 
   <h3><a id="display_deform" name="display_deform">display_deform</a></h3>
 
-  <p>Select display deformation effect. This only has effect on the SDLGL-PP renderer. Currently supported effects are
-  'normal', 'horizontal_stretch' and '3d'.</p>
+  <p>Select display deformation effect. This effect is only supported in the SDLGL-PP renderer.</p>
 
   <div class="usagetitle">
     usage:
@@ -2337,20 +2380,32 @@ div.note {
       <tr>
         <td><code>set display_deform</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
+      </tr>
+
+      <tr>
+        <td><code>set display_deform normal</code></td>
+
+        <td>Turns off display deform</td>
+      </tr>
+
+      <tr>
+        <td><code>set display_deform horizontal_stretch</code></td>
+
+        <td>Stretches the image horizontally, to match the aspect ratio of the real MSX</td>
       </tr>
 
       <tr>
         <td><code>set display_deform 3d</code></td>
 
-        <td>select the 3d display view</td>
+        <td>Deforms the image in 3D, to look like a CRT (like JEmu2)</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="frequency" name="frequency">frequency</a></h3>
 
-  <p>The sound mixer frequency.</p>
+  <p>Sets the sound mixer frequency. Sound hardware and sound APIs typically support a limited set of frequencies, such as 11025 Hz, 22050 Hz, 44100 Hz and 48000 Hz.</p>
 
   <div class="usagetitle">
     usage:
@@ -2361,13 +2416,13 @@ div.note {
       <tr>
         <td><code>set frequency</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set frequency 44100</code></td>
 
-        <td>use 44.1kHz mixing frequency</td>
+        <td>Use 44.1 kHz mixing frequency (CD quality)</td>
       </tr>
     </table>
   </div>
@@ -2375,7 +2430,7 @@ div.note {
   <h3><a id="firmwareswitch" name="firmwareswitch">firmwareswitch</a></h3>
 
   <p>Some machines (e.g. turboR) have a switch on the front (or on the back) that controls if the machine should boot
-  'normally' or start the built in software, also called firmware. This setting controls the position of that
+  'normally' or start the built-in software, also called firmware. This setting controls the position of that
   switch.</p>
 
   <div class="usagetitle">
@@ -2387,26 +2442,26 @@ div.note {
       <tr>
         <td><code>set firmwareswitch</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set firmwareswitch on</code></td>
 
-        <td>in this position the internal software is started</td>
+        <td>Boot into the internal software</td>
       </tr>
 
       <tr>
         <td><code>set firmwareswitch off</code></td>
 
-        <td>in this position the machine boots 'normally'</td>
+        <td>Boot into MSX-BASIC or on-disk software</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="fullscreen" name="fullscreen">fullscreen</a></h3>
 
-  <p>Switch to / back from fullscreen mode.</p>
+  <p>Switch to/from fullscreen mode.</p>
 
   <div class="usagetitle">
     usage:
@@ -2417,28 +2472,28 @@ div.note {
       <tr>
         <td><code>set fullscreen</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set fullscreen on</code></td>
 
-        <td>switch to fullscreen mode</td>
+        <td>Switch to fullscreen mode</td>
       </tr>
 
       <tr>
         <td><code>set fullscreen off</code></td>
 
-        <td>switch to windowed mode</td>
+        <td>Switch to windowed mode</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="fullspeedwhenloading" name="fullspeedwhenloading">fullspeedwhenloading</a></h3>
 
-  <p>When enabled, openMSX will try to detect when it is loading from diskette or cassette and in case it is, it will
-  run at full speed (taking all CPU power it can get). This can be convenient if you're not interested in the realistic
-  loading times on MSX. Default is off, because it is not according to the behaviour of a real MSX.</p>
+  <p>When enabled, openMSX will try to detect when the MSX is loading from diskette or cassette. During loading openMSX will run at full speed (<code><a class="internal" href="#throttle">throttle</a></code> off). This can be convenient if you're not interested in the realistic but slow loading times on MSX. Default is off, because it is not according to the behaviour of a real MSX.</p>
+
+  <p>Unlike the fast loading features in for example fMSX, <code>fullspeedwhenloading</code> does not intercept BIOS calls. Instead, it speeds up the emulation of the entire MSX, including all hardware devices. This avoids bugs like VRAM corruption in several games (for example the intro of Aleste Gaiden), as well as working correctly with software that uses a custom loader that bypasses the BIOS.</p>
 
   <div class="usagetitle">
     usage:
@@ -2449,19 +2504,19 @@ div.note {
       <tr>
         <td><code>set fullspeedwhenloading</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set fullspeedwhenloading on</code></td>
 
-        <td>enable the full speed when loading feature</td>
+        <td>Load as fast as possible</td>
       </tr>
 
       <tr>
         <td><code>set fullspeedwhenloading off</code></td>
 
-        <td>disable the feature</td>
+        <td>Load at the same speed as a real MSX</td>
       </tr>
     </table>
   </div>
@@ -2483,13 +2538,13 @@ div.note {
       <tr>
         <td><code>set gamma</code></td>
 
-        <td>shows the current value</td>
+        <td>Shows the current value</td>
       </tr>
 
       <tr>
         <td><code>set gamma &lt;num&gt;</code></td>
 
-        <td>set new value</td>
+        <td>Sets a new gamma correction amount</td>
       </tr>
     </table>
   </div>
@@ -2507,13 +2562,13 @@ div.note {
       <tr>
         <td><code>set glow</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set glow &lt;value&gt;</code></td>
 
-        <td>change the value</td>
+        <td>Change the amount of afterglow</td>
       </tr>
     </table>
   </div>
@@ -2539,19 +2594,19 @@ div.note {
       <tr>
         <td><code>set grabinput</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set grabinput on</code></td>
 
-        <td>turn input grabbing mode on</td>
+        <td>Starts grabbing all input events</td>
       </tr>
 
       <tr>
         <td><code>set grabinput off</code></td>
 
-        <td>turn input grabbing mode off</td>
+        <td>Stops grabbing all input events</td>
       </tr>
     </table>
   </div>
@@ -2569,19 +2624,13 @@ div.note {
 
   <p>Controls the appearance of the OSD LED icons.</p>
 
-  <p>&lt;name&gt; can be 'caps', 'fdd', 'kana', 'pause', 'power' or 'turbo'.</p>
+  <p>&lt;name&gt; can be <code>caps</code>, <code>fdd</code>, <code>kana</code>, <code>pause</code>, <code>power</code> or <code>turbo</code>.</p>
 
-  <p>The position is set with the 'xcoord' and 'ycoord' settings. The active and non-active version have the same
-  position. The value is in pixels and (0,0) corresponds to the top-left of the screen.</p>
+  <p>The position is set with the <code>xcoord</code> and <code>ycoord</code> settings. The active and non-active version have the same position. The value is in pixels and (0,0) corresponds to the top-left corner of the screen.</p>
 
-  <p>The image for the LED can be specified with the '(non-)active.image' setting. This can be an image of any size and
-  the image can have an alpha (=transparency) channel. Typically this will be PNG files.</p>
+  <p>The image for the LED can be specified with the <code>(non-)active.image</code> setting. This can be an image of any size and the image can have an alpha (transparency) channel. Typically this will be a PNG file.</p>
 
-  <p>Fade duration and delay control how (and if) the icon will fade away. When the LED changes status (on-&gt;off or
-  off-&gt;on) the image is always shown, after the 'delay' time it will start to fade out. The time from completely
-  visible to completely transparent is controlled with the fade.duration setting. Both fade.duration and fade.delay are
-  specified in milliseconds. A fade delay of 0 means don't fade out. Duration and delay can be set independently for
-  active and non-active image.</p>
+  <p>Fade duration and delay control how (and if) the icon will fade away. When the LED changes status (on-&gt;off or off-&gt;on) the image is always shown, after the <code>fade-delay</code> time it will start to fade out. The time from completely  visible to completely transparent is controlled with the <code>fade-duration</code> setting. Both <code>fade-delay</code> and <code>fade-duration</code> are specified in milliseconds. A <code>fade-delay</code> of 0 turns off fading. Delay and duration can be set independently for the active and non-active image.</p>
 
   <div class="usagetitle">
     usage:
@@ -2624,30 +2673,44 @@ div.note {
   </div>
 
   <div class="note">
-    Note: In the future the position'xcoord' and 'ycoord' settings will most likely change so that it is resolution
-    independent (scale_factor setting)
+    Note: In the future the position <code>xcoord</code> and <code>ycoord</code> settings will most likely change so that it is resolution independent (see <code><a class="internal" href="#scale_factor">scale_factor</a></code> setting)
   </div>
 
   <h3><a id="inputdelay" name="inputdelay">inputdelay</a></h3>
 
-  <p>[ Only Change this if you understand what this setting does]</p>
+  <p>Input events for the MSX machine are delayed by this amount. Increase this value when the MSX machine misses keyboard presses when you type very fast. Decrease this value to reduce the latency between pressing a key on the host machine and seeing it being typed in the MSX machine.</p>
 
-  <p>Input events for the MSX machine are delayed by this amount. Increase this value when the MSX machine misses
-  keyboard presses when you type very fast. Decrease this value to reduce the latency between pressing a key on the
-  host machine and seeing it being typed in the MSX machine.</p>
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set inputdelay</code></td>
+
+        <td>Shows the current value</td>
+      </tr>
+
+      <tr>
+        <td><code>set inputdelay &lt;time&gt;</code></td>
+
+        <td>Sets the input delay to the specified number of seconds</td>
+      </tr>
+    </table>
+  </div>
 
   <div class="note">
-    Note: The default value (3/100s) should almost always be OK, this small delay is practically not noticeable and
-    still allows the MSX machine to get accurate timing on the input events.
+    Note: The default value of 0.03 seconds should almost always be OK, this small delay is practically not noticeable and still allows the MSX machine to get accurate timing on the input events. Please <b>do not change</b> the value of this setting unless you know what you are doing.
   </div>
 
   <h3><a id="keyjoystick_n_button" name="keyjoystick_n_button">keyjoystick&lt;n&gt;.&lt;button&gt;</a></h3>
 
-  <p>&lt;n&gt; 1, 2</p>
-
-  <p>&lt;button&gt; up, down, left, right, triga, trigb</p>
-
   <p>Configure the keys of the keyjoysticks. It's likely this will change in the future.</p>
+
+  <p>Valid values for <code>&lt;n&gt;</code>: <code>1</code>, <code>2</code>.</p>
+
+  <p>Valid values for <code>&lt;button&gt;</code>: <code>up</code>, <code>down</code>, <code>left</code>, <code>right</code>, <code>triga</code>, <code>trigb</code>.</p>
 
   <div class="usagetitle">
     usage:
@@ -2692,27 +2755,26 @@ div.note {
       <tr>
         <td><code>set limitsprites</code></td>
 
-        <td></td>
+        <td>Shows the current value</td>
       </tr>
 
       <tr>
         <td><code>set limitsprites on</code></td>
 
-        <td>limit number of sprites per line</td>
+        <td>Limits number of sprites per line</td>
       </tr>
 
       <tr>
         <td><code>set limitsprites off</code></td>
 
-        <td>no limit on number of sprites per line</td>
+        <td>Turns off number of sprites per line limit</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="master_volume" name="master_volume">master_volume</a></h3>
 
-  <p>Controls the overall openMSX volume. The volume of individual sound device can be controlled with the
-  <code><a class="internal" href="#soundchip_volume">&lt;soundchip&gt;_volume</a></code> settings.</p>
+  <p>Controls the overall openMSX volume. The volume of individual sound devices can be controlled with the <code><a class="internal" href="#soundchip_volume">&lt;soundchip&gt;_volume</a></code> settings.</p>
 
   <div class="usagetitle">
     usage:
@@ -2723,25 +2785,24 @@ div.note {
       <tr>
         <td><code>set master_volume</code></td>
 
-        <td>shows current setting</td>
+        <td>Shows current setting</td>
       </tr>
 
       <tr>
         <td><code>set master_volume 50</code></td>
 
-        <td>set master volume to 50%</td>
+        <td>Sets master volume to 50%</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="maxframeskip" name="maxframeskip">maxframeskip</a></h3>
 
-  <p>Sets the maximum amount of frames to skip: show a frame and then skip at most &lt;number&gt; frames.
-  So 0 means show everything, 1 means show at least every second frame etc.</p>
+  <p>Sets the maximum amount of frames to skip: show a frame and then skip at most &lt;number&gt; frames. So 0 means show everything (no frame skipping), 1 means show at least every second frame etc.</p>
 
   <p>Frame skipping is done on demand, as a way to keep the flow of time for the emulated MSX in sync with the flow of real time. You can set limits on the amount of frame skipping with the <code><a class="internal" href="#minframeskip">minframeskip</a></code> and <code>maxframeskip</code> setting.</p>
 
-  <p>In a situation where the number of consequetive frames specified by <code>maxframeskip</code> has been skipped, openMSX will display the next frame, even if that means emulation will start lagging behind real time.</p>
+  <p>In a situation where the number of consecutive frames specified by <code>maxframeskip</code> has been skipped, openMSX will display the next frame, even if that means emulation will start lagging behind real time.</p>
 
   <p>When <code><a class="internal" href="#throttle">throttle</a></code> is off, the number of skipped frames will be equal to <code>maxframeskip</code>.</p>
 
@@ -2754,20 +2815,20 @@ div.note {
       <tr>
         <td><code>set maxframeskip</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set maxframeskip &lt;number&gt;</code></td>
 
-        <td>sets the number of frame skips</td>
+        <td>Sets the maximum number of consecutive frame skips</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="midi-in-readfilename" name="midi-in-readfilename">midi-in-readfilename</a></h3>
 
-  <p>Sets the file(name) from which the MIDI input is read. By default, it is read from <code>/dev/midi</code> when available.</p>
+  <p>Sets the file from which the MIDI input is read. By default, it is set to <code>/dev/midi</code> when available.</p>
 
   <div class="usagetitle">
     usage:
@@ -2778,20 +2839,20 @@ div.note {
       <tr>
         <td><code>set midi-in-readfilename</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set midi-in-readfilename mymidilog.dat</code></td>
 
-        <td>read from mymidilog.dat</td>
+        <td>Read MIDI events from "mymidilog.dat"</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="midi-out-logfilename" name="midi-out-logfilename">midi-out-logfilename</a></h3>
 
-  <p>Sets the file(name) to which the MIDI output is logged. By default, it logs to <code>/dev/midi</code> when available.</p>
+  <p>Sets the file to which the MIDI output is logged. By default, it logs to <code>/dev/midi</code> when available.</p>
 
   <div class="usagetitle">
     usage:
@@ -2802,13 +2863,13 @@ div.note {
       <tr>
         <td><code>set midi-out-logfilename</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set midi-out-logfilename mymidilog.dat</code></td>
 
-        <td>log to mymidilog.dat</td>
+        <td>Log MIDI events to "mymidilog.dat"</td>
       </tr>
     </table>
   </div>
@@ -2831,20 +2892,20 @@ div.note {
       <tr>
         <td><code>set minframeskip</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set minframeskip &lt;number&gt;</code></td>
 
-        <td>sets the number of frame skips</td>
+        <td>Sets the number of frame skips</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="mute" name="mute">mute</a></h3>
 
-  <p>Mute / unmute the sound output.</p>
+  <p>Mute/unmute all sound output.</p>
 
   <div class="usagetitle">
     usage:
@@ -2855,19 +2916,19 @@ div.note {
       <tr>
         <td><code>set mute</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set mute on</code></td>
 
-        <td>mute sound</td>
+        <td>Mute sound</td>
       </tr>
 
       <tr>
         <td><code>set mute off</code></td>
 
-        <td>unmute sound</td>
+        <td>Unmute sound</td>
       </tr>
     </table>
   </div>
@@ -2887,13 +2948,13 @@ div.note {
       <tr>
         <td><code>set noise</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set noise 7</code></td>
 
-        <td>add a moderate amount of noise</td>
+        <td>Add a moderate amount of noise</td>
       </tr>
     </table>
   </div>
@@ -2911,21 +2972,25 @@ div.note {
       <tr>
         <td><code>set pause</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set pause on</code></td>
 
-        <td>pauses emulation</td>
+        <td>Pauses emulation</td>
       </tr>
 
       <tr>
         <td><code>set pause off</code></td>
 
-        <td>unpauses emulation</td>
+        <td>Unpauses emulation</td>
       </tr>
     </table>
+  </div>
+
+  <div class="note">
+    Note: Some video settings cannot be applied to an already rendered frame and will therefore not take effect until openMSX is unpaused.
   </div>
 
   <h3><a id="power" name="power">power</a></h3>
@@ -2941,26 +3006,26 @@ div.note {
       <tr>
         <td><code>set power</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set power on</code></td>
 
-        <td>turn MSX machine on (the default)</td>
+        <td>Turns the MSX machine on (the default)</td>
       </tr>
 
       <tr>
         <td><code>set power off</code></td>
 
-        <td>turn MSX machine off</td>
+        <td>Turns the MSX machine off</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="printerlogfilename" name="printerlogfilename">printerlogfilename</a></h3>
 
-  <p>Sets the file(name) to which the printer logger logs</p>
+  <p>Sets the file to which the printer logger writes.</p>
 
   <div class="usagetitle">
     usage:
@@ -2971,13 +3036,13 @@ div.note {
       <tr>
         <td><code>set printerlogfilename</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set printerlogfilename myprinterlog.txt</code></td>
 
-        <td>log to myprinterlog.txt</td>
+        <td>Log to "myprinterlog.txt"</td>
       </tr>
     </table>
   </div>
@@ -2997,24 +3062,24 @@ div.note {
       <tr>
         <td><code>set print-resolution</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set print-resolution 600</code></td>
 
-        <td>set resolution to 600dpi</td>
+        <td>Sets resolution to 600 dpi</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="r800_freq" name="r800_freq">r800_freq / r800_freq_locked</a></h3>
 
-  <p>These two settings control the R800 clock frequency. See z80_freq and z80_freq_locked for more details.</p>
+  <p>These two settings control the R800 clock frequency. See <code><a class="internal" href="#z80_freq">z80_freq / z80_freq_locked</a></code> for details.</p>
 
   <h3><a id="renderer" name="renderer">renderer</a></h3>
 
-  <p>Switch to a different VDP renderer.</p>
+  <p>Switch to a different video renderer. See the <a class="external" href="user.html#renderers">User's Manual</a> for a description of the available renderers.</p>
 
   <div class="usagetitle">
     usage:
@@ -3025,32 +3090,20 @@ div.note {
       <tr>
         <td><code>set renderer</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
-        <td><code>set renderer SDL</code></td>
+        <td><code>set renderer &lt;name&gt;</code></td>
 
-        <td>switch to the SDL renderer</td>
-      </tr>
-
-      <tr>
-        <td><code>set renderer SDLGL</code></td>
-
-        <td>switch to the SDLGL renderer</td>
-      </tr>
-
-      <tr>
-        <td><code>set renderer SDLGL-PP</code></td>
-
-        <td>switch to the SDLGL-PP renderer</td>
+        <td>Switches to the given renderer</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="renshaturbo" name="renshaturbo">renshaturbo</a></h3>
 
-  <p>Sets the speed of the built-in auto fire on some Japanese MSX models (including the turboR machines)</p>
+  <p>Sets the speed of the built-in auto fire on some Japanese MSX models, for example the turboR machines. A value of 0 turns off auto fire, while 100 selects the most rapid auto fire.</p>
 
   <div class="usagetitle">
     usage:
@@ -3061,20 +3114,24 @@ div.note {
       <tr>
         <td><code>set renshaturbo</code></td>
 
-        <td>shows the current renshaturbo value</td>
+        <td>Shows the current renshaturbo value</td>
       </tr>
 
       <tr>
         <td><code>set renshaturbo &lt;num&gt;</code></td>
 
-        <td>set speed to value &lt;num&gt;, from 0 to 100 (0 means off)</td>
+        <td>Sets speed to value &lt;num&gt;</td>
       </tr>
     </table>
   </div>
 
+  <div class="note">
+    Note: This setting is only available if the current MSX machine has hardware Rensha Turbo support.
+  </div>
+
   <h3><a id="rs232-inputfilename" name="rs232-inputfilename">rs232-inputfilename</a></h3>
 
-  <p>Sets the file(name) from which the RS232-tester reads data</p>
+  <p>Sets the file from which the RS232-tester reads data.</p>
 
   <div class="usagetitle">
     usage:
@@ -3085,20 +3142,20 @@ div.note {
       <tr>
         <td><code>set rs232-inputfilename</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set rs232-inputfilename myrs232input.txt</code></td>
 
-        <td>read from myrs232input.txt</td>
+        <td>Reads from "myrs232input.txt"</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="rs232-outputfilename" name="rs232-outputfilename">rs232-outputfilename</a></h3>
 
-  <p>Sets the file(name) to which the RS232-tester outputs the data</p>
+  <p>Sets the file to which the RS232-tester writes the data.</p>
 
   <div class="usagetitle">
     usage:
@@ -3109,31 +3166,26 @@ div.note {
       <tr>
         <td><code>set rs232-outputfilename</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set rs232-outputfilename myrs232output.txt</code></td>
 
-        <td>write to myrs232output.txt</td>
+        <td>Write to "myrs232output.txt"</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="rtcmode" name="rtcmode">rtcmode</a></h3>
 
-  <p>Sets the Real Time Clock mode. Can be either 'RealTime' or 'EmuTime'.</p>
+  <p>Sets the Real Time Clock mode. Can be either <code>RealTime</code> or <code>EmuTime</code>.</p>
 
-  <p>In 'RealTime' mode the MSX clock is always synchronized with the host clock, even when for example emulation is
-  paused for a while or when emulation is run at 200% of real speed.</p>
+  <p>In <code>RealTime</code> mode the MSX clock is always synchronized with the host clock, even when for example emulation is paused for a while or when emulation is run at 200% of real speed.</p>
 
-  <p>In 'EmuTime' mode the time is only synchronized with the host clock when openMSX starts. From then on the clock
-  ticks at the same pace as the emulated machine. So when emulation is paused, the clock is paused as well. If
-  emulation is run at 200% speed, the clock also ticks twice as fast.</p>
+  <p>In <code>EmuTime</code> mode the time is only synchronized with the host clock when openMSX starts. From then on the clock ticks at the same pace as the emulated machine. So when emulation is paused, the clock is paused as well. If emulation is run at 200% speed, the clock also ticks twice as fast.</p>
 
-  <p>In 'EmuTime' mode it's not possible for a MSX program to detect whether it's running on a real or on an emulated
-  machine. That's why this is the default mode. On the other hand the 'RealTime' mode might be better if for example
-  you care that timestamps of files written by the emulated MSX machine are in sync with the host machine time.</p>
+  <p>In <code>EmuTime</code> mode it's not possible for a MSX program to detect whether it's running on a real or on an emulated machine. That's why this is the default mode. On the other hand the <code>RealTime</code> mode might be better if for example you care that timestamps of files written by the emulated MSX machine are in sync with the host machine time.</p>
 
   <div class="usagetitle">
     usage:
@@ -3144,26 +3196,26 @@ div.note {
       <tr>
         <td><code>set rtcmode</code></td>
 
-        <td>shows the current mode</td>
+        <td>Shows the current mode</td>
       </tr>
 
       <tr>
         <td><code>set rtcmode EmuTime</code></td>
 
-        <td>set EmuTime mode (the default)</td>
+        <td>Set EmuTime mode (the default)</td>
       </tr>
 
       <tr>
         <td><code>set rtcmode RealTime</code></td>
 
-        <td>set RealTime mode</td>
+        <td>Set RealTime mode</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="samples" name="samples">samples</a></h3>
 
-  <p>Sets the size of the sound mixer buffer.</p>
+  <p>Sets the size of the sound mixer buffer. Higher values help against buffer underruns (hickups), but increase the latency of the sound output.</p>
 
   <div class="usagetitle">
     usage:
@@ -3174,20 +3226,20 @@ div.note {
       <tr>
         <td><code>set samples</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set samples 1024</code></td>
 
-        <td>use mixing buffer of 1024 samples</td>
+        <td>Use a mixing buffer of 1024 samples</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="save_settings_on_exit" name="save_settings_on_exit">save_settings_on_exit</a></h3>
 
-  <p>Automatically save the current settings when openMSX exits (execute a save_settings command).</p>
+  <p>Automatically save the current settings when openMSX exits: execute a <code><a class="internal" href="#save_settings">save_settings</a></code> command on exit.</p>
 
   <div class="usagetitle">
     usage:
@@ -3202,13 +3254,13 @@ div.note {
       </tr>
 
       <tr>
-        <td><code>set save_settings_on_exit true</code></td>
+        <td><code>set save_settings_on_exit on</code></td>
 
         <td>Enable auto save</td>
       </tr>
 
       <tr>
-        <td><code>set save_settings_on_exit false</code></td>
+        <td><code>set save_settings_on_exit off</code></td>
 
         <td>Disable auto save</td>
       </tr>
@@ -3217,7 +3269,8 @@ div.note {
 
   <h3><a id="scale_algorithm" name="scale_algorithm">scale_algorithm</a></h3>
 
-  <p>Select the algorithm used to transform MSX pixels to host pixels.</p>
+  <p>Selects the algorithm used to transform MSX pixels to host pixels. The User's Manual contains <a class="external" href="user.html#scalers">more information about scalers</a>.
+  </p>
 
   <div class="usagetitle">
     usage:
@@ -3228,28 +3281,30 @@ div.note {
       <tr>
         <td><code>set scale_algorithm</code></td>
 
-        <td>Show current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set scale_algorithm simple</code></td>
 
-        <td>Select the default scale algorithm</td>
+        <td>Selects the default scale algorithm</td>
       </tr>
 
       <tr>
         <td><code>set scale_algorithm hq</code></td>
 
-        <td>Select the hq scale algorithm</td>
+        <td>Selects the HQ2x/3x/4x scale algorithm</td>
       </tr>
     </table>
   </div>
 
+  <div class="note">
+    Note: Not all renderers support all scale algorithms.
+  </div>
+
   <h3><a id="scale_factor" name="scale_factor">scale_factor</a></h3>
 
-  <p>Select the scale factor. Scale factor 'n' means the typical MSX pixel (MSX resolution 256x212) is mapped on 'n'
-  host pixels. For the moment the possible values are 1, 2 or 3. In the future we may support a wider range or even non
-  integer values.</p>
+  <p>Selects the scale factor. Scale factor &lt;n&gt; means the typical MSX pixel (MSX resolution 256x212) is mapped on &lt;n&gt; by &lt;n&gt; host pixels. For the moment the possible values are 1 to 4. In the future we may support a wider range or even non-integer values. The User's Manual contains <a class="external" href="user.html#scalers">more information about scalers</a>.</p>
 
   <div class="usagetitle">
     usage:
@@ -3260,15 +3315,19 @@ div.note {
       <tr>
         <td><code>set scale_factor</code></td>
 
-        <td>Show current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set scale_factor &lt;n&gt;</code></td>
 
-        <td>Set a new scale factor</td>
+        <td>Sets a new scale factor</td>
       </tr>
     </table>
+  </div>
+
+  <div class="note">
+    Note: Not all renderers support all scale factors.
   </div>
 
   <h3><a id="scanline" name="scanline">scanline</a></h3>
@@ -3284,19 +3343,19 @@ div.note {
       <tr>
         <td><code>set scanline</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set scanline &lt;value&gt;</code></td>
 
-        <td>change the value</td>
+        <td>Changes the value</td>
       </tr>
     </table>
   </div>
 
   <div class="note">
-    Note: Not all renderers support this.
+    Note: Some scalers will not render scanlines at all.
   </div>
 
   <h3><a id="sound_driver" name="sound_driver">sound_driver</a></h3>
@@ -3311,13 +3370,21 @@ div.note {
     <table>
       <tr>
         <td><code>set sound_driver sdl</code></td>
+
+        <td>Selects the SDL sound driver (all platforms)</td>
+      </tr>
+
+      <tr>
+        <td><code>set sound_driver directx</code></td>
+
+        <td>Selects the DirectX sound driver (Windows only)</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="speed" name="speed">speed</a></h3>
 
-  <p>Sets the emulation speed relative to the speed of a real MSX. Speed 100 means as fast as a real MSX.</p>
+  <p>Sets the emulation speed relative to the speed of a real MSX. Speed 100 means as fast as a real MSX, lower values are slower than real MSX, higher values are faster than real MSX.</p>
 
   <div class="usagetitle">
     usage:
@@ -3328,21 +3395,20 @@ div.note {
       <tr>
         <td><code>set speed</code></td>
 
-        <td>shows current emulation speed</td>
+        <td>Shows current emulation speed</td>
       </tr>
 
       <tr>
         <td><code>set speed &lt;num&gt;</code></td>
 
-        <td>set new emulation speed</td>
+        <td>Sets new emulation speed</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="soundchip_mode" name="soundchip_mode">&lt;soundchip&gt;_mode</a></h3>
 
-  <p>Sets the channel mode for individual sound chips. Note that chips which are in stereo mode cannot be set to
-  another mode and chips that are not in stereo mode, can of course never be set to stereo mode.</p>
+  <p>Sets the channel mode for individual sound chips. Note that stereo chips can only be in stereo mode and mono chips can never be set to stereo mode.</p>
 
   <div class="usagetitle">
     usage:
@@ -3353,13 +3419,25 @@ div.note {
       <tr>
         <td><code>set &lt;soundchip&gt;_mode</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
-        <td><code>set &lt;soundchip&gt;_mode &lt;mode&gt;</code></td>
+        <td><code>set &lt;soundchip&gt;_mode mono</code></td>
 
-        <td>set new mode</td>
+        <td>Plays a mono sound on both the left and right channel</td>
+      </tr>
+
+      <tr>
+        <td><code>set &lt;soundchip&gt;_mode left</code></td>
+
+        <td>Plays a mono sound on only the left channel</td>
+      </tr>
+
+      <tr>
+        <td><code>set &lt;soundchip&gt;_mode right</code></td>
+
+        <td>Plays a mono sound on only the right channel</td>
       </tr>
     </table>
   </div>
