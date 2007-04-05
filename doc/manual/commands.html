@@ -660,8 +660,7 @@ div.note {
         Examples are:<br />
         - the VDP registers<br />
         - the currently visible memory for the Z80<br />
-        - the contents of the RAM<br />
-        - ...</td>
+        - the contents of the RAM</td>
       </tr>
 
       <tr>
@@ -777,7 +776,7 @@ div.note {
 
   <div class="note">
     Note: Some of the commands are pretty low level. In the share/scripts directory you'll find some TCL scripts that
-    offer convenience wrappers around these commands. For example: showmem, disasm, cpuregs, save_debuggable, vdp, ...
+    offer convenience wrappers around these commands. For example: <code>showmem</code>, <code>disasm</code>, <code>cpuregs</code>, <code>save_debuggable</code>, <code>vdp</code> etc.
   </div>
 
   <h3><a id="disk" name="disk">disk&lt;x&gt;</a></h3>
@@ -821,7 +820,7 @@ div.note {
 
   <h3><a id="diskmanipulator" name="diskmanipulator">diskmanipulator</a></h3>
 
-  <p>Used to manipulate the (files on) a disk image. For an in-depth explanation and examples see the separate manual titled <a class="external" href="using-diskmanipulator.html">Using Diskmanipulator</a>.</p>
+  <p>Used to manipulate (the files on) a disk image. For an in-depth explanation and examples see the separate manual titled <a class="external" href="using-diskmanipulator.html">Using Diskmanipulator</a>.</p>
 
   <div class="usagetitle">
     usage:
@@ -3079,7 +3078,7 @@ div.note {
 
   <h3><a id="renderer" name="renderer">renderer</a></h3>
 
-  <p>Switch to a different video renderer. See the <a class="external" href="user.html#renderers">User's Manual</a> for a description of the available renderers.</p>
+  <p>Switch to a different video renderer. See the User's Manual for <a class="external" href="user.html#renderers">a description of the available renderers</a>.</p>
 
   <div class="usagetitle">
     usage:
@@ -3454,7 +3453,8 @@ div.note {
 
   <h3><a id="soundchip_volume" name="soundchip_volume">&lt;soundchip&gt;_volume</a></h3>
 
-  <p>Sets the volume for individual sound chips.</p>
+  <p>Sets the volume for individual sound chips. The overall volume is controlled by the <code><a class="internal" href="#master_volume">master_volume</a></code> setting.  
+  </p>
 
   <div class="usagetitle">
     usage:
@@ -3465,13 +3465,13 @@ div.note {
       <tr>
         <td><code>set &lt;soundchip&gt;_volume</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set &lt;soundchip&gt;_volume &lt;num&gt;</code></td>
 
-        <td>set new volume</td>
+        <td>Sets new volume; 0 is off, 100 is maximum</td>
       </tr>
     </table>
   </div>
@@ -3482,14 +3482,13 @@ div.note {
 
   <div class="examples">
     <code>set PSG_volume</code><br />
-    <code>set PSG_volume 18000</code><br />
-    <code>set "FMPAC_volume" 15000</code>
+    <code>set PSG_volume 60</code><br />
+    <code>set "FMPAC_volume" 50</code>
   </div>
 
   <h3><a id="throttle" name="throttle">throttle</a></h3>
 
-  <p>Sets throttle mode. In throttle mode the emulator tries to run at the specified speed (see speed command). When
-  throttling is turned off the emulator runs as fast as possible.</p>
+  <p>Sets throttle mode. In throttle mode the emulator tries to run at the specified speed relative to a real MSX (see <a class="internal" href="#speed">speed</a> command). When throttling is turned off the emulator runs as fast as possible.</p>
 
   <div class="usagetitle">
     usage:
@@ -3500,28 +3499,28 @@ div.note {
       <tr>
         <td><code>set throttle</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set throttle on</code></td>
 
-        <td>turn throttle mode on</td>
+        <td>Turn throttle mode on (normal operation)</td>
       </tr>
 
       <tr>
         <td><code>set throttle off</code></td>
 
-        <td>turn throttle mode off</td>
+        <td>Turn throttle mode off (fast forward)</td>
       </tr>
     </table>
   </div>
 
   <h3><a id="umr_callback" name="umr_callback">umr_callback</a></h3>
 
-  <p>The TCL procedure to be called when an Uninitialized Memory Read has been detected. This is only useful for
-  debugging MSX programs. An example callback is available in scripts/umrcallback.tcl. You can active it with 'set
-  umr_callback umrcallback'.</p>
+  <p>Selects the TCL procedure to be called when an Uninitialized Memory Read has been detected. This is useful for debugging MSX programs: uninitialized memory is not guaranteed to have any particular value, so reading it is most likely a bug.</p>
+
+  <p>By default this setting is empty, which means that nothing is done when an Uninitialized Memory Read is detected. We ship a useful procedure called <code>umrcallback</code> which logs all UMRs. You can activate it with <code>set umr_callback umrcallback</code>. You can find the source code for this procedure in <code>scripts/umrcallback.tcl</code>.</p>
 
   <div class="usagetitle">
     usage:
@@ -3532,21 +3531,20 @@ div.note {
       <tr>
         <td><code>set umr_callback</code></td>
 
-        <td>shows the current UMR callback setting</td>
+        <td>Shows the current UMR callback setting</td>
       </tr>
 
       <tr>
         <td><code>set umr_callback umrcallback</code></td>
 
-        <td>sets callback proc to 'umrcallback'</td>
+        <td>Sets callback proc to <code>umrcallback</code></td>
       </tr>
     </table>
   </div>
 
   <h3><a id="user_directories" name="user_directories">user_directories</a></h3>
 
-  <p>The list of "user directories". This makes it a bit more convenient to insert disks, tapes, roms, ... See manual
-  for more details. This setting is a list in TCL format (items are space separated or enclosed in braces, see TCL
+  <p>Contains the list of "user directories". This makes it a bit more convenient to insert disks, tapes, ROMs etc. The Setup Guide describes <a class="external" href="setup.html#settings">how the user directories mechanism works</a>. This setting is a list in TCL format (items are space separated or enclosed in braces, see TCL
   manual for details). Thus all TCL functions to manipulate lists can be used on this setting.</p>
 
   <div class="usagetitle">
@@ -3583,9 +3581,33 @@ div.note {
 
   <h3><a id="vdpcmdtrace" name="vdpcmdtrace">vdpcmdtrace</a></h3>
 
-  <p>Enable/disable VDP command tracing.</p>
+  <p>Enable/disable VDP command tracing. When enabled, every VDP command is logged on stdout. This is useful when debugging MSX programs that use the VDP command engine.</p>
 
-  <p>[ mainly useful for debugging purposes ]</p>
+  <div class="usagetitle">
+    usage:
+  </div>
+
+  <div class="usage">
+    <table>
+      <tr>
+        <td><code>set vdpcmdtrace</code></td>
+
+        <td>Shows the current setting</td>
+      </tr>
+
+      <tr>
+        <td><code>set vdpcmdtrace on</code></td>
+
+        <td>Enables VDP command tracing</td>
+      </tr>
+
+      <tr>
+        <td><code>set vdpcmdtrace off</code></td>
+
+        <td>Disables VDP command tracing</td>
+      </tr>
+    </table>
+  </div>
 
   <h3><a id="videosource" name="videosource">videosource</a></h3>
 
@@ -3600,34 +3622,30 @@ div.note {
       <tr>
         <td><code>set videosource</code></td>
 
-        <td>shows the current setting</td>
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
         <td><code>set videosource MSX</code></td>
 
-        <td>switch to normal MSX screen</td>
+        <td>Switch to normal MSX screen</td>
       </tr>
 
       <tr>
         <td><code>set videosource GFX9000</code></td>
 
-        <td>switch to GFX9000 screen</td>
+        <td>Switch to GFX9000 screen</td>
       </tr>
     </table>
   </div>
 
+  <div class="note">
+    Note: This setting is only available if the <code>gfx9000</code> extension is present.
+  </div>
+
   <h3><a id="v9990cmdtrace" name="v9990cmdtrace">v9990cmdtrace</a></h3>
 
-  <p>Enable/disable V9990 command tracing. This setting is only available when the gfx9000 extension is inserted.</p>
-
-  <p>[ mainly useful for debugging purposes ]</p>
-
-  <h3><a id="z80_freq" name="z80_freq">z80_freq / z80_freq_locked</a></h3>
-
-  <p>These two settings control the Z80 clock frequency. When z80_freq_locked is true the emulated Z80 runs at the
-  normal 3.5MHz (or optionally 5.3MHz on some machines). When z80_freq_locked is false the value of z80_freq is taken
-  as Z80 clock frequency.</p>
+  <p>Enable/disable V9990 command tracing. This is the V9990 equivalent of <code><a class="internal" href="#vdpcmdtrace">vdpcmdtrace</a></code>.</p>
 
   <div class="usagetitle">
     usage:
@@ -3636,17 +3654,45 @@ div.note {
   <div class="usage">
     <table>
       <tr>
-        <td>overclock Z80 to 14MHz<br />
-        <code>set z80_freq 14318180</code><br />
-        <code>set z80_freq_locked false</code></td>
+        <td><code>set v9990cmdtrace</code></td>
+
+        <td>Shows the current setting</td>
       </tr>
 
       <tr>
-        <td>F8 switches between 3.5MHz and 7MHz<br />
-        <code>set Z80_freq 7159090</code><br />
-        <code>bind F8 "toggle z80_freq_locked"</code></td>
+        <td><code>set v9990cmdtrace on</code></td>
+
+        <td>Enables V9990 command tracing</td>
+      </tr>
+
+      <tr>
+        <td><code>set v9990cmdtrace off</code></td>
+
+        <td>Disables V9990 command tracing</td>
       </tr>
     </table>
+  </div>
+
+  <div class="note">
+    Note: This setting is only available if the <code>gfx9000</code> extension is present.
+  </div>
+
+  <h3><a id="z80_freq" name="z80_freq">z80_freq / z80_freq_locked</a></h3>
+
+  <p>These two settings control the Z80 clock frequency. When <code>z80_freq_locked</code> is true the emulated Z80 runs at the normal 3.5 MHz (or optionally 5.3 MHz on some machines). When <code>z80_freq_locked</code> is false the value of <code>z80_freq</code> is taken as the Z80 clock frequency.</p>
+
+  <div class="examplestitle">
+    examples:
+  </div>
+
+  <div class="examples">
+    Overclock Z80 to 14 MHz:<br />
+    <code>set z80_freq 14318180</code><br />
+    <code>set z80_freq_locked false</code><br />
+    <br />
+    F8 switches between 3.5 MHz and 7 MHz:<br />
+    <code>set Z80_freq 7159090</code><br />
+    <code>bind F8 "toggle z80_freq_locked"</code><br />
   </div>
 
   <p class="version">$Id$</p>
