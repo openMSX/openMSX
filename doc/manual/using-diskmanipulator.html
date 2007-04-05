@@ -28,7 +28,6 @@ div.structuretitle {
 }
 
 div.usage {
-  font-family: sans-serif;
   margin-left: 32pt;
 }
 
@@ -55,7 +54,6 @@ div.examplestitle {
 }
 
 div.examples {
-  font-family: sans-serif;
   margin-left: 32pt;
 }
 
@@ -64,12 +62,11 @@ table {
 }
 
 div.note {
-  font-family: sans-serif;
   font-style: italic;
   padding-left: 16pt;
   padding-top: 0.5em;
   padding-bottom: 0.5em;
-  background-color: #dddddd;
+  background-color: #E8E8E8;
 }
 
 
@@ -81,24 +78,23 @@ div.note {
 <body>
   <h1>Using Diskmanipulator</h1>
 
-  <p>This is probably the most exuberant console command available
+  <p>The <code>diskmanipulator</code> command is probably the most exuberant console command available
   in openMSX. It implements the basic stuff needed to handle files
-  and subdirs on MSX media. It also helps one creating new disk
+  and subdirectories on MSX media. It also helps one creating new disk
   image files, both simple 360 kB and 720 kB disks as well as
-  IDE-HD images containing up to 30 partitions of each 32 MB.
+  IDE-HD images containing up to 30 partitions of 32 MB each.
   Creating disk images and manipulating the files on them can be
   done without the need of a running emulated MSX (<code>set power
   off</code>).</p>
 
   <p>First we will see the generic structure of the command, then
   the individual commands are explained in more depth. At the end
-  of this document you'll find some example of typical usage
-  sequences.</p>
+  of this document you will find some <a class="internal" href="#examples">examples of typical use</a>.</p>
 
   <div class="note">
-    Important: for now, this command is only available if openMSX is
-    emulating an MSX model that has diskdrives. Even if you're
-    planning to only use the virtual_drive device!
+    Note: For now, this command is only available if openMSX is
+    emulating an MSX model that has diskdrives, even if you are
+    planning to only use the <code>virtual_drive</code> device!
   </div>
 
   <h2>Generic structure</h2>
@@ -362,36 +358,35 @@ div.note {
     <li>M or m -&gt; size in megabytes</li>
   </ul>
 
-  <h2>Usage examples</h2>
+  <h2><a id="examples">Examples</a></h2>
 
   <p>In these examples we will run the diskmanipulator while the
-  virtual machine is powered off.</p>
-
+  emulated MSX is powered off.</p>
+  
   <p>It is possible to run these commands while the machine is
   turned on ofcourse, but be warned that this might have some
   strange, unexpected behaviour depending on the emulated MSX model
   and the running software on this MSX.</p>
 
-  <p>For instance, the Turbo-R models contain a physical switch
-  inside their diskdrives to detect disk changes, if no disk change
+  <p>For instance, the turboR models contain a physical switch
+  inside their diskdrives to detect disk changes. If no disk change
   is detected their internal MSX-DOS2 kernel will cache certain
-  sectors, so that using the '<code>diskmanipulator import</code>'
-  command will not show up if you perform a '<code>files</code>' or
-  '<code>dir</code>'. Even worse, if you would write from the
-  emulated MSX towards the disk you will overide the result of the
-  import.<br />
-  The same is ofcourse valid if you'ld be running a diskcache
-  program in your emulated MSX machine!</p>
+  sectors, so that files imported using the <code>diskmanipulator import</code>
+  command will not show up if you perform a <code>files</code> or
+  <code>dir</code>. Even worse, if you would write from the
+  emulated MSX to the disk you will overwrite the result of the import.
+  The same would happen if you were running a disk cache
+  program in your emulated MSX machine.</p>
 
   <div class="examplestitle">
     creating a new disk with content
   </div>
 
   <div class="examples">
-    Here we create a regular 720 Kb (double sided, double density)
+    Here we create a regular 720 kB (double sided, double density)
     disk.<br />
-    Then we place the files and subdirs of the directory
-    /tmp/todisk/ on this new disk.<br />
+    Then we place the files and subdirectories from the directory
+    <code>/tmp/todisk/</code> on this new disk.
 
     <ul>
       <li><code>set power off</code></li>
@@ -413,8 +408,7 @@ div.note {
     partition is 32 megabytes, then 16 megabytes and finaly a small
     one of 720 kilobytes.<br />
     Then we place the files and subdirs of the directory
-    /tmp/topart1/ on the first partition and /tmp/topart3/ to the
-    tirth partition.<br />
+    <code>/tmp/topart1/</code> on the first partition and <code>/tmp/topart3/</code> to the third partition.
 
     <ul>
       <li>start openMSX with the ide extension</li>
@@ -440,9 +434,9 @@ div.note {
   </div>
 
   <div class="examples">
-    On the diskimage /tmp/disk.dsk we will create a new
-    subdirectory called 'newsub' and then we fill this one with the
-    txt files from /home/david/sources<br />
+    On the diskimage <code>/tmp/disk.dsk</code> we will create a new
+    subdirectory called <code>newsub</code> and then we fill this one with the
+    <code>.txt</code> files from <code>/home/david/sources</code>:
 
     <ul>
       <li>start openMSX with the ide extension</li>
@@ -466,7 +460,7 @@ div.note {
 
   <div class="examples">
     We will extract files from the currenlty used harddisk image on
-    partition1 in the MSX subdir '\demos\calculus' to /tmp/<br />
+    partition1 in the MSX subdir <code>\demos\calculus</code> to <code>/tmp/</code>:
 
     <ul>
       <li>start openMSX with the ide extension</li>
