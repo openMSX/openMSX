@@ -340,8 +340,7 @@ ol.toclist li {
 
   <div class="examples">
     Here we create a regular 720 kB (double sided, double density)
-    disk.<br />
-    Then we place the files and subdirectories from the directory
+    disk. Then we place the files and subdirectories from the directory
     <code>/tmp/todisk/</code> on this new disk.
 
     <ul>
@@ -350,8 +349,10 @@ ol.toclist li {
       <li><code>diskmanipulator create /tmp/new-disk.dsk
       720</code></li>
 
+      <li><code>virtual_drive /tmp/new-disk.dsk</code></li>
+
       <li><code>diskmanipulator import virtual_drive
-      /tmp/new-disk.dsk 720</code></li>
+      /tmp/todisk/</code></li>
     </ul>
   </div>
 
@@ -395,11 +396,9 @@ ol.toclist li {
     <code>.txt</code> files from <code>/home/david/sources</code>:
 
     <ul>
-      <li>start openMSX with the ide extension</li>
-
       <li><code>set power off</code></li>
 
-      <li><code>diska /tmp/disk.dsk 32M 16M 720</code></li>
+      <li><code>diska /tmp/disk.dsk</code></li>
 
       <li><code>diskmanipulator mkdir diska newsub</code></li>
 
