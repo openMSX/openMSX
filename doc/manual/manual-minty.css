@@ -17,6 +17,9 @@ h4 {
 	background-color: #E8FFF0;
 	padding-left: 4pt;
 }
+div.note {
+	background-color: #E8E8E8;
+}
 a.internal, a.external:visited {
 	color: #184830;
 }

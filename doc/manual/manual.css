@@ -46,6 +46,18 @@ div.commandline, pre {
 	margin-top: 0.5em;
 	margin-bottom: 0.5em;
 }
+div.note {
+	font-style: italic;
+	padding: 0.5em 4pt 0.5em 16pt;
+	margin-top: 0.5em;
+}
+div.usagetitle, div.examplestitle, div.explanationtitle, div.structuretitle {
+	font-style: italic;
+	margin-left: 16pt;
+}
+div.usage, div.examples {
+	margin-left: 32pt;
+}
 p.todo {
 	color: red;
 }

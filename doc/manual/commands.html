@@ -14,49 +14,21 @@
   <style type="text/css">
 /*<![CDATA[*/
 
-td {
-  vertical-align: top;
-  padding-right: 32pt;
-}
-
-div.usagetitle {
-  font-style: italic;
-  padding-left: 16pt;
-}
-
-div.usage {
-  margin-left: 32pt;
-}
-
-div.examplestitle {
-  font-style: italic;
-  padding-left: 16pt;
-}
-
 ol.toc li {
-  font-weight: bold;
+	font-weight: bold;
 }
-
 ol.toclist li {
-  padding-right: 8pt;
-  display: inline;
-  font-weight: normal;
+	padding-right: 8pt;
+	display: inline;
+	font-weight: normal;
 }
 
-div.examples {
-  margin-left: 32pt;
+div.usage table {
+	margin-left: 0;
 }
-
-table {
-  margin-left: 0pt;
-}
-
-div.note {
-  font-style: italic;
-  padding-left: 16pt;
-  padding-top: 0.5em;
-  padding-bottom: 0.5em;
-  background-color: #E8E8E8;
+div.usage td {
+	vertical-align: top;
+	padding-right: 32pt;
 }
 
 /*]]>*/
@@ -869,7 +841,7 @@ div.note {
       <tr>
         <td><code>exit</code></td>
 
-        <td>Exits the emulator</p>
+        <td>Exits the emulator</td>
       </tr>
     </table>
   </div>
@@ -3453,7 +3425,7 @@ div.note {
 
   <h3><a id="soundchip_volume" name="soundchip_volume">&lt;soundchip&gt;_volume</a></h3>
 
-  <p>Sets the volume for individual sound chips. The overall volume is controlled by the <code><a class="internal" href="#master_volume">master_volume</a></code> setting.  
+  <p>Sets the volume for individual sound chips. The overall volume is controlled by the <code><a class="internal" href="#master_volume">master_volume</a></code> setting.
   </p>
 
   <div class="usagetitle">
