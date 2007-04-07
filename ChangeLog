@@ -5894,7 +5894,7 @@ $Id$
 
 2003-06-01 Wouter Vermaelen <wouter.vermaelen@pi.be>
 	* Implemented MegaRam
-	* Implemented PAC  (like FM-PAC, but without FM and without ROM)
+	* Implemented PAC  (like FMPAC, but without FM and without ROM)
 
 2003-06-01 Herman Oudejans <hn.oudejans@quicknet.nl>
 	* Added a setting for grabbing mouse and keyboard input. When input
@@ -6591,7 +6591,7 @@ $Id$
 	   Illusion city works now!
 
 2003-01-22 Wouter Vermaelen <wouter.vermaelen@pi.be>
-	* Reworked MSX-MUSIC / FM-PAC:
+	* Reworked MSX-MUSIC / FMPAC:
 	   removed enable/disable logic from MSX-MUSIC
 
 2003-01-22 Wouter Vermaelen <wouter.vermaelen@pi.be>
@@ -8618,7 +8618,7 @@ $Id$
 	  evaluation order of parameters is not guaranteed.
 
 2001-12-01 Wouter Vermaelen <wouter.vermaelen@student.kuleuven.ac.be>
-	* added FM-PAC
+	* added FMPAC
 	* MSXMotherBoard is now also a CPUInterface, this eliminates one
 	  indirection in readMem()-like methods but these get called a few
 	  100 000 times a second. I measured 10%-20% performance gain
