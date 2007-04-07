@@ -1,4 +1,4 @@
-Release Notes for openMSX 0.6.2 (2007-02-??)
+Release Notes for openMSX 0.6.2 (2007-04-??)
 ============================================
 
 The most interesting change for users in this release is the addition of the
@@ -39,10 +39,17 @@ MSX device support:
 - Various speed optimizations: VDP command engine, Z80, video rendering, V9990,
   debugger response time in break mode.
 - Fixed mirroring of some FDC registers and diskROMs.
+- Added a few Arabic MSX machines, but note that they have not been verified
+  to be correct.
 
 Build system, packaging, documentation:
 - It is now possible to build a universal binary for MacOS X.
 - It is possible to build an app for MacOS X.
+- HTMLized the Console Command Reference and the diskmanipulator documentation.
+  There is now also linking to these new manuals, which improved the usefulness
+  of them a lot.
+- Added a text document about how developers can control openMSX from their own
+  application: doc/openmsx-control-xml.txt.
 
 And of course the usual various bug fixes.
 
