@@ -29,6 +29,10 @@ static const byte T_MSX_SYS  = 0x04; // System file
 static const byte T_MSX_VOL  = 0x08; // filename is Volume Label
 static const byte T_MSX_DIR  = 0x10; // entry is a subdir
 static const byte T_MSX_ARC  = 0x20; // Archive bit
+// This particular combination of flags indicates that this dir entry is used
+// to store a long Unicode file name.
+// For details, read http://home.teleport.com/~brainy/lfn.htm
+static const byte T_MSX_LFN  = 0x0F; // LFN entry (long files names)
 
 // functions to change DirEntries
 static inline void setsh(byte* x, unsigned y)
@@ -116,7 +120,7 @@ void MSXtar::parseBootSectorFAT(const byte* buf)
 {
 	// empty FAT buffer before filling it again (or for the first time)
 	writeCachedFAT();
-	
+
 	try {
 		parseBootSector(buf);
 	} catch (MSXException& e) {
@@ -841,7 +845,8 @@ string MSXtar::dir()
 		MSXDirEntry* direntry = (MSXDirEntry*)buf;
 		for (unsigned i = 0; i < 16; ++i) {
 			if ((direntry[i].filename[0] != 0xe5) &&
-			    (direntry[i].filename[0] != 0x00)) {
+			    (direntry[i].filename[0] != 0x00) &&
+			    (direntry[i].attrib != T_MSX_LFN)) {
 				// filename first (in condensed form for human readablitly)
 				string tmp = condensName(direntry[i]);
 				tmp.resize(13, ' ');
@@ -1021,7 +1026,7 @@ bool MSXtar::usePartition(unsigned partition)
 			hasPartitionTable = false;
 		}
 	}
-	
+
 	byte bootSector[SECTOR_SIZE];
 	readLogicalSector(0, bootSector);
 	parseBootSectorFAT(bootSector);
