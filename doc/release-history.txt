@@ -444,7 +444,7 @@ This new release brings you the following improvements:
   * Fixed console flickering.
 - Switched to Jarek Burczynski's YM2413 core (MSX-MUSIC).
 - Added high-pass IIR filter to mixer to avoid audio clipping.
-- Added I/O device multiplexing: you can now safely insert an FM-PAC in
+- Added I/O device multiplexing: you can now safely insert an FMPAC in
   an MSX turbo R, for example.
 - Added screenshot feature.
   Default key bindings changed to put this under PrtScr.

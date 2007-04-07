@@ -108,7 +108,7 @@ Philips NMS 8250 config -->
     </secondary>
   </primary>
 
-<!-- For an FM-PAC config, check out the fmpac extension -->
+<!-- For an FMPAC config, check out the fmpac extension -->
  
 <!-- For an MSX Audio config, check out the share/extensions/audio dir -->
                                           
