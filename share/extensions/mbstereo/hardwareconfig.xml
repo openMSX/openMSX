@@ -6,7 +6,7 @@
     <manufacturer>openMSX Team</manufacturer>
     <code></code>
     <release_year></release_year>
-    <description>Combination of FM-PAC on the left channel and generic MSX-AUDIO on the right channel, creating "Moonblaster Stereo".</description>
+    <description>Combination of FMPAC on the left channel and generic MSX-AUDIO on the right channel, creating "Moonblaster Stereo".</description>
     <type>sound expansion</type>
   </info>
   <devices>
