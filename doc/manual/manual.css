@@ -20,9 +20,6 @@ ol.toc {
 p, dl, ul, ol, h5 {
 	margin-left: 16pt;
 }
-table {
-	margin-left: 32pt;
-}
 p.image {
 	text-align: center;
 }
@@ -70,7 +67,12 @@ a.external:link {
 a.external:active {
 	color: #8080FF;
 }
-
+table {
+	margin-left: 32pt;
+}
 th {
 	text-align: left;
+}
+td {
+	vertical-align: top;
 }
