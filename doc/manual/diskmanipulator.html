@@ -51,7 +51,7 @@ ol.toclist li {
   <div class="note">
     Note: For now, this command is only available if openMSX is
     emulating an MSX model that has diskdrives, even if you are
-    planning to only use the <code>virtual_drive</code> device!
+    planning to only use the <code>virtual_drive</code> device.
   </div>
 
   <h2>General Syntax</h2>
@@ -68,9 +68,9 @@ ol.toclist li {
 
   <p><code>&lt;command arguments&gt;</code> depend upon the command involved, see the detailed descriptions of the commands below.</p>
 
-  <p>The diskmanipulator and all its commands (including most parameters) can be tab-completed in the console.</p>
+  <p>The diskmanipulator and all its commands (including most parameters) can be tab completed in the console.</p>
 
-  <h2>Detailed Explanation</h2>
+  <h2>Commands</h2>
 
   <p>These are the commands understood by the diskmanipulator:</p>
 
@@ -105,12 +105,12 @@ ol.toclist li {
     explanation:
   </div>
 
-  <p>This command will select the directory on the MSX disk image
-  that will be used for the export and import commands.</p>
+  <p>This command selects the directory on the MSX disk image
+  that will be used for the <code><a class="internal" href="#export">export</a></code> and <code><a class="internal" href="#import">import</a></code> commands.</p>
 
   <div class="note">
-    The directory structure on the MSX disk image can not be tab
-    completed!
+    Note: The directory structure on the MSX disk image can not be tab
+    completed.
   </div>
 
   <h3><a id="create" name="create">create</a></h3>
@@ -120,13 +120,13 @@ ol.toclist li {
   </div>
 
   <p><code>diskmanipulator create &lt;dskfilename&gt;
-  &lt;size/option&gt; &lt;size/option&gt;...</code></p>
+  &lt;size|option&gt; &lt;size|option&gt; ...</code></p>
 
   <div class="explanationtitle">
     explanation:
   </div>
 
-  <p>You can create new dsk files using this command.</p>
+  <p>You can create new disk images using this command.</p>
 
   <p>This new disk will be formated using an MSX-DOS2 boot
   sector.</p>
@@ -135,8 +135,8 @@ ol.toclist li {
   compatible partitioned image will be created, each partition will
   be formatted as required. If a size of 360 kB or 720 kB is given, a
   normal floppy disk image is created single or double sided,
-  respectively, both double density. Any larger value will result
-  in a valid MSX IDE hard disk image.</p>
+  respectively. Any larger value will result
+  in an MSX IDE hard disk image.</p>
 
   <p>You can specify the disk/partition sizes be using the
   following postfixes:</p>
@@ -164,8 +164,7 @@ ol.toclist li {
   </div>
 
   <p>This will show the directory content of the curring working
-  directory. The output is formatted in a '<code>files,l</code>'
-  like manner.</p>
+  directory. The output is formatted in similar to the MSX Disk BASIC 2.x command <code>files,l</code>.</p>
 
   <h3><a id="export" name="export">export</a></h3>
 
@@ -181,9 +180,9 @@ ol.toclist li {
   </div>
 
   <p>This will export the files and subdirectories from the disk
-  inserted in &lt;disk name&gt; to the &lt;host directory&gt; on
+  inserted in <code>&lt;disk name&gt;</code> to the <code>&lt;host directory&gt;</code> on
   your host OS. The subdirectory that will be exported from the MSX
-  disk image is influenced by the '<code>chdir</code>' command.</p>
+  disk image is selected by the <code><a class="internal" href="#chdir">chdir</a></code> command.</p>
 
   <h3><a id="format" name="format">format</a></h3>
 
@@ -197,17 +196,15 @@ ol.toclist li {
     explanation:
   </div>
 
-  <p>The currently selected partition from &lt;disk name&gt; will
-  be cleanly formated with a MSX-DOS2 boot sector.<br />
-  FAT and directory sectors will be correctly initialised.</p>
+  <p>The currently selected partition from <code>&lt;disk name&gt;</code> will
+  be cleanly formated with a MSX-DOS2 boot sector.
+  FAT and directory sectors will be correctly initialised.
+  Any data on the disk image / partition is lost!</p>
 
-  <p>Currently there is no way to specifiy that you want it
-  formated with a MSX-DOS1 bootsector<br />
-  If you need this (some old non-standard programs require this)
-  then you'll need to format the disk from within the emulated MSX
-  itself in an MSX-DOS1 like environment. Most MSX2 without the
-  DOS2 extension will do this for you if in basic you start the
-  command '<code>CALL FORMAT</code>'</p>
+  <div class="note">
+  Note: Currently <code>diskmanipulator</code> cannot format a disk with a MSX-DOS1 bootsector.
+  A few old non-standard programs require an MSX-DOS1 boot sector; to format a disk for these programs, format the disk from within the emulated MSX in an MSX-DOS1 environment. Most MSX2 machines without the <code>msxdos2</code> extension will do this for you if in MSX-BASIC you use the command <code>CALL FORMAT</code>.
+  </div>
 
   <h3><a id="import" name="import">import</a></h3>
 
@@ -216,41 +213,41 @@ ol.toclist li {
   </div>
 
   <p><code>diskmanipulator import &lt;disk name&gt; &lt;host
-  directory|host file&gt;...</code></p>
+  directory|host file&gt; ...</code></p>
 
   <div class="explanationtitle">
     explanation:
   </div>
 
-  <p>This will import the single &lt;host file&gt; into the disk
-  inserted in &lt;disk name&gt;. In case of a &lt;host
-  directory&gt; it will import the files and subdirectories in
-  &lt;host directory&gt; into the inserted disk. Multiple files and
+  <p>This will import the single <code>&lt;host file&gt;</code> into the disk
+  inserted in <code>&lt;disk name&gt;</code>. In case of a <code>&lt;host
+  directory&gt;</code> it will import the files and subdirectories in
+  <code>&lt;host directory&gt;</code> into the inserted disk. Multiple files and
   directories can be specified at the same time. The place were the
-  files will be added in the MSX directory structure is influenced
-  by the '<code>chdir</code>' command.</p>
+  files will be added in the MSX directory structure is selected
+  by the <code><a class="internal" href="#chdir">chdir</a></code> command.</p>
 
-  <p>If you want to use wild-cards when importing files, you will
-  have to use the TCL glob-command. This command will perform the
-  wild-card expansion and return a TCL list. Enclose the glob
+  <p>If you want to use wildcards when importing files, you will
+  have to use the TCL <code>glob</code> command. This command will perform the
+  wildcard expansion and return a TCL list. Enclose the <code>glob</code>
   command in between '[' and ']':</p>
 
   <p><code>diskmanipulator import hda1 [glob *.txt] [glob
   *.asc]</code></p>
 
-  <p>This command will copy all files matching *.txt and *.asc in
+  <p>This command will copy all files matching <code>*.txt</code> and <code>*.asc</code> in
   the current directory on the host OS to the first partition of
   the master IDE drive on the emulated MSX.</p>
 
-  <p>The glob-command can also take extra options. For instance, if
+  <p>The <code>glob</code> command can also take extra options. For instance, if
   you only want to expand regular files and not the names of
   directories you can do this:</p>
 
   <p><code>diskmanipulator import hda1 [glob -type f
   info*]</code></p>
 
-  <p>Consult you local TCL guru or documentation for more info
-  about the glob-command and TCL lists.</p>
+  <p>Consult your local TCL guru or documentation for more info
+  about the <code>glob</code> command and TCL lists.</p>
 
   <h3><a id="mkdir" name="mkdir">mkdir</a></h3>
 
@@ -265,8 +262,8 @@ ol.toclist li {
     explanation:
   </div>
 
-  <p>This command will create the directory on the MSX disk image.
-  Al the needed parent directories will be created if they do not
+  <p>This command will create the specified directory on the MSX disk image.
+  All the needed parent directories will be created if they do not
   yet exist.</p>
 
   <h3><a id="savedsk" name="savedsk">savedsk</a></h3>
@@ -282,27 +279,18 @@ ol.toclist li {
     explanation:
   </div>
 
-  <p>This simply reads all the sectors of the &lt;disk name&gt; and
-  saves them again in the file specified by
-  &lt;dskfilename&gt;.<br />
-  This is thus equivalent to copying a dsk file on your host
-  OS.</p>
-
-  <p>The added values are:</p>
+  <p>This simply reads all the sectors of the <code>&lt;disk name&gt;</code> and
+  saves them again in the file specified by <code>&lt;dskfilename&gt;</code>.
+  This command is mostly equivalent to copying a disk image file on your host OS, but it has the additional possibilities:</p>
 
   <ul>
-    <li>the possibility of saving a ramdsk (see diska -ramdsk)</li>
+    <li>saving a ramdsk (see <code><a class="external" href="commands.html#disk">diska</a> -ramdsk</code>) into a real disk image file</li>
 
-    <li>saving your current DirAsDisk image into a real dsk
-    file</li>
+    <li>saving your current DirAsDisk image into a real disk image file</li>
 
-    <li>copying the currently used image file in case your host-OS
-    would give sharing violations while the file is being used by
-    openMSX (Windows)</li>
+    <li>copying the currently active image file in case your host OS would give sharing violations while the file is being used by openMSX (Windows)</li>
 
-    <li>saving a dsk file if you by accident already removed the
-    directory entry, while openMSX is still using an open file
-    handle towards it.(the non MS os's)</li>
+    <li>saving a disk image if you removed the directory entry by accident, but openMSX still has an open file handle for the file (UNIX-like systems)</li>
   </ul>
 
   <h2><a id="examples">Examples</a></h2>
@@ -367,7 +355,7 @@ ol.toclist li {
       720</code></li>
 
       <li><code>hda /tmp/new-hd.dsk</code> (for this the emulated
-      MSX has to be powered off!)</li>
+      MSX has to be powered off)</li>
 
       <li><code>diskmanipulator import hda1
       /tmp/topart1</code></li>
