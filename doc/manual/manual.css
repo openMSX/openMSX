@@ -48,7 +48,7 @@ div.note {
 	padding: 0.5em 4pt 0.5em 16pt;
 	margin-top: 0.5em;
 }
-div.usagetitle, div.examplestitle, div.explanationtitle, div.structuretitle {
+div.usagetitle, div.examplestitle, div.explanationtitle, div.syntaxtitle {
 	font-style: italic;
 	margin-left: 16pt;
 }
