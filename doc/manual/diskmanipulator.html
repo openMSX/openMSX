@@ -75,58 +75,139 @@ ol.toclist li {
   <p>These are the commands understood by the diskmanipulator:</p>
 
   <ol class="toclist">
-    <li><a class="internal" href="#import">import</a></li>
-
-    <li><a class="internal" href="#export">export</a></li>
-
-    <li><a class="internal" href="#savedsk">savedsk</a></li>
-
-    <li><a class="internal" href="#format">format</a></li>
+    <li><a class="internal" href="#chdir">chdir</a></li>
 
     <li><a class="internal" href="#create">create</a></li>
 
     <li><a class="internal" href="#dir">dir</a></li>
 
+    <li><a class="internal" href="#export">export</a></li>
+
+    <li><a class="internal" href="#format">format</a></li>
+
+    <li><a class="internal" href="#import">import</a></li>
+
     <li><a class="internal" href="#mkdir">mkdir</a></li>
 
-    <li><a class="internal" href="#chdir">chdir</a></li>
+    <li><a class="internal" href="#savedsk">savedsk</a></li>
   </ol>
 
-  <h3><a id="savedsk" name="savedsk">savedsk</a></h3>
+  <h3><a id="chdir" name="chdir">chdir</a></h3>
 
   <div class="syntaxtitle">
     syntax:
   </div>
 
-  <p><code>diskmanipulator savedsk &lt;disk name&gt;
-  &lt;dskfilename&gt;</code></p>
+  <p><code>diskmanipulator chdir &lt;disk name&gt; &lt;MSX
+  directory&gt;</code></p>
 
   <div class="explanationtitle">
     explanation:
   </div>
 
-  <p>This simply reads all the sectors of the &lt;disk name&gt; and
-  saves them again in the file specified by
-  &lt;dskfilename&gt;.<br />
-  This is thus equivalent to copying a dsk file on your host
-  OS.</p>
+  <p>This command will select the directory on the MSX disk image
+  that will be used for the export and import commands.</p>
 
-  <p>The added values are:</p>
+  <div class="note">
+    The directory structure on the MSX disk image can not be tab
+    completed!
+  </div>
+
+  <h3><a id="create" name="create">create</a></h3>
+
+  <div class="syntaxtitle">
+    syntax:
+  </div>
+
+  <p><code>diskmanipulator create &lt;dskfilename&gt;
+  &lt;size/option&gt; &lt;size/option&gt;...</code></p>
+
+  <div class="explanationtitle">
+    explanation:
+  </div>
+
+  <p>You can create new dsk files using this command.</p>
+
+  <p>This new disk will be formated using an MSX-DOS2 boot
+  sector.</p>
+
+  <p>You can specify multiple sizes in which case an MSX IDE
+  compatible partitioned image will be created, each partition will
+  be formatted as required. If a size of 360 kB or 720 kB is given, a
+  normal floppy disk image is created single or double sided,
+  respectively, both double density. Any larger value will result
+  in a valid MSX IDE hard disk image.</p>
+
+  <p>You can specify the disk/partition sizes be using the
+  following postfixes:</p>
 
   <ul>
-    <li>the possibility of saving a ramdsk (see diska -ramdsk)</li>
+    <li>S or s -&gt; size in sectors</li>
 
-    <li>saving your current DirAsDisk image into a real dsk
-    file</li>
+    <li>B or b -&gt; size in bytes</li>
 
-    <li>copying the currently used image file in case your host-OS
-    would give sharing violations while the file is being used by
-    openMSX (Windows)</li>
+    <li>K or k -&gt; size in kilobytes (default)</li>
 
-    <li>saving a dsk file if you by accident already removed the
-    directory entry, while openMSX is still using an open file
-    handle towards it.(the non MS os's)</li>
+    <li>M or m -&gt; size in megabytes</li>
   </ul>
+
+  <h3><a id="dir" name="dir">dir</a></h3>
+
+  <div class="syntaxtitle">
+    syntax:
+  </div>
+
+  <p><code>diskmanipulator dir &lt;disk name&gt;</code></p>
+
+  <div class="explanationtitle">
+    explanation:
+  </div>
+
+  <p>This will show the directory content of the curring working
+  directory. The output is formatted in a '<code>files,l</code>'
+  like manner.</p>
+
+  <h3><a id="export" name="export">export</a></h3>
+
+  <div class="syntaxtitle">
+    syntax:
+  </div>
+
+  <p><code>diskmanipulator export &lt;disk name&gt; &lt;host
+  directory&gt;</code></p>
+
+  <div class="explanationtitle">
+    explanation:
+  </div>
+
+  <p>This will export the files and subdirectories from the disk
+  inserted in &lt;disk name&gt; to the &lt;host directory&gt; on
+  your host OS. The subdirectory that will be exported from the MSX
+  disk image is influenced by the '<code>chdir</code>' command.</p>
+
+  <h3><a id="format" name="format">format</a></h3>
+
+  <div class="syntaxtitle">
+    syntax:
+  </div>
+
+  <p><code>diskmanipulator format &lt;disk name&gt;</code></p>
+
+  <div class="explanationtitle">
+    explanation:
+  </div>
+
+  <p>The currently selected partition from &lt;disk name&gt; will
+  be cleanly formated with a MSX-DOS2 boot sector.<br />
+  FAT and directory sectors will be correctly initialised.</p>
+
+  <p>Currently there is no way to specifiy that you want it
+  formated with a MSX-DOS1 bootsector<br />
+  If you need this (some old non-standard programs require this)
+  then you'll need to format the disk from within the emulated MSX
+  itself in an MSX-DOS1 like environment. Most MSX2 without the
+  DOS2 extension will do this for you if in basic you start the
+  command '<code>CALL FORMAT</code>'</p>
 
   <h3><a id="import" name="import">import</a></h3>
 
@@ -171,45 +252,6 @@ ol.toclist li {
   <p>Consult you local TCL guru or documentation for more info
   about the glob-command and TCL lists.</p>
 
-  <h3><a id="export" name="export">export</a></h3>
-
-  <div class="syntaxtitle">
-    syntax:
-  </div>
-
-  <p><code>diskmanipulator export &lt;disk name&gt; &lt;host
-  directory&gt;</code></p>
-
-  <div class="explanationtitle">
-    explanation:
-  </div>
-
-  <p>This will export the files and subdirectories from the disk
-  inserted in &lt;disk name&gt; to the &lt;host directory&gt; on
-  your host OS. The subdirectory that will be exported from the MSX
-  disk image is influenced by the '<code>chdir</code>' command.</p>
-
-  <h3><a id="chdir" name="chdir">chdir</a></h3>
-
-  <div class="syntaxtitle">
-    syntax:
-  </div>
-
-  <p><code>diskmanipulator chdir &lt;disk name&gt; &lt;MSX
-  directory&gt;</code></p>
-
-  <div class="explanationtitle">
-    explanation:
-  </div>
-
-  <p>This command will select the directory on the MSX disk image
-  that will be used for the export and import commands.</p>
-
-  <div class="note">
-    The directory structure on the MSX disk image can not be tab
-    completed!
-  </div>
-
   <h3><a id="mkdir" name="mkdir">mkdir</a></h3>
 
   <div class="syntaxtitle">
@@ -227,82 +269,40 @@ ol.toclist li {
   Al the needed parent directories will be created if they do not
   yet exist.</p>
 
-  <h3><a id="dir" name="dir">dir</a></h3>
+  <h3><a id="savedsk" name="savedsk">savedsk</a></h3>
 
   <div class="syntaxtitle">
     syntax:
   </div>
 
-  <p><code>diskmanipulator dir &lt;disk name&gt;</code></p>
+  <p><code>diskmanipulator savedsk &lt;disk name&gt;
+  &lt;dskfilename&gt;</code></p>
 
   <div class="explanationtitle">
     explanation:
   </div>
 
-  <p>This will show the directory content of the curring working
-  directory. The output is formatted in a '<code>files,l</code>'
-  like manner.</p>
+  <p>This simply reads all the sectors of the &lt;disk name&gt; and
+  saves them again in the file specified by
+  &lt;dskfilename&gt;.<br />
+  This is thus equivalent to copying a dsk file on your host
+  OS.</p>
 
-  <h3><a id="format" name="format">format</a></h3>
-
-  <div class="syntaxtitle">
-    syntax:
-  </div>
-
-  <p><code>diskmanipulator format &lt;disk name&gt;</code></p>
-
-  <div class="explanationtitle">
-    explanation:
-  </div>
-
-  <p>The currently selected partition from &lt;disk name&gt; will
-  be cleanly formated with a MSX-DOS2 boot sector.<br />
-  FAT and directory sectors will be correctly initialised.</p>
-
-  <p>Currently there is no way to specifiy that you want it
-  formated with a MSX-DOS1 bootsector<br />
-  If you need this (some old non-standard programs require this)
-  then you'll need to format the disk from within the emulated MSX
-  itself in an MSX-DOS1 like environment. Most MSX2 without the
-  DOS2 extension will do this for you if in basic you start the
-  command '<code>CALL FORMAT</code>'</p>
-
-  <h3><a id="create" name="create">create</a></h3>
-
-  <div class="syntaxtitle">
-    syntax:
-  </div>
-
-  <p><code>diskmanipulator create &lt;dskfilename&gt;
-  &lt;size/option&gt; &lt;size/option&gt;...</code></p>
-
-  <div class="explanationtitle">
-    explanation:
-  </div>
-
-  <p>You can create new dsk files using this command.</p>
-
-  <p>This new disk will be formated using an MSX-DOS2 boot
-  sector.</p>
-
-  <p>You can specify multiple sizes in which case an MSX IDE
-  compatible partitioned image will be created, each partition will
-  be formatted as required. If a size of 360 kB or 720 kB is given, a
-  normal floppy disk image is created single or double sided,
-  respectively, both double density. Any larger value will result
-  in a valid MSX IDE hard disk image.</p>
-
-  <p>You can specify the disk/partition sizes be using the
-  following postfixes:</p>
+  <p>The added values are:</p>
 
   <ul>
-    <li>S or s -&gt; size in sectors</li>
+    <li>the possibility of saving a ramdsk (see diska -ramdsk)</li>
 
-    <li>B or b -&gt; size in bytes</li>
+    <li>saving your current DirAsDisk image into a real dsk
+    file</li>
 
-    <li>K or k -&gt; size in kilobytes (default)</li>
+    <li>copying the currently used image file in case your host-OS
+    would give sharing violations while the file is being used by
+    openMSX (Windows)</li>
 
-    <li>M or m -&gt; size in megabytes</li>
+    <li>saving a dsk file if you by accident already removed the
+    directory entry, while openMSX is still using an open file
+    handle towards it.(the non MS os's)</li>
   </ul>
 
   <h2><a id="examples">Examples</a></h2>
