@@ -14,7 +14,8 @@
   type="text/css" />
 
   <title>Using Diskmanipulator</title>
-<style type="text/css">
+
+  <style type="text/css">
 /*<![CDATA[*/
 
 div.examplestitle {
@@ -28,7 +29,7 @@ ol.toclist li {
 }
 
 /*]]>*/
-</style>
+  </style>
 </head>
 
 <body>
@@ -53,31 +54,21 @@ ol.toclist li {
     planning to only use the <code>virtual_drive</code> device!
   </div>
 
-  <h2>Generic Syntax</h2>
+  <h2>General Syntax</h2>
 
   <p>The general command syntax is always of the form:</p>
 
   <p><code>diskmanipulator &lt;command&gt; &lt;disk name&gt;
-  &lt;command arguments&gt;</code> where</p>
+  &lt;command arguments&gt;</code></p>
 
-  <p>'commands' is one of: import, export, savedsk, format, create,
-  dir, mkdir, chdir</p>
+  <p><code>&lt;command&gt;</code> specifies the action to be performed. The next section lists the commands available and explains them.</p>
 
-  <p>'disk name' is most likely: diska, diskb, hda or the special
-  virtual_drive device. diska, diskb or hda are the drives
-  available to the running emulated MSX machine. This allows
-  interaction with the currently used disk images.<br />
-  In case the disk contains an MSX-IDE compatible partition table
-  you can add a partition number, from 1 till 31, to the disk name
-  to determine on which partition the command needs to act (e.g.
-  hda2 is the second partition on the master IDE disk, hdb3 is the
-  third partition on the slave IDE disk).</p>
+  <p><code>&lt;disk name&gt;</code> specifies the disk to operate on. Typical values are: <code>diska</code>, <code>diskb</code>, <code>hda</code> or the special <code>virtual_drive</code> device. <code>disk&lt;x&gt;</code> and <code>hd&lt;x&gt;</code> are the drives available to the running emulated MSX machine. This allows interaction with the currently used disk images.<br />
+  In case the disk contains an MSX-IDE compatible partition table you can add a partition number (from 1 till 31) to the disk name to specify on which partition the command will act. For example <code>hda2</code> is the second partition on the master IDE disk, <code>hdb3</code> is the third partition on the slave IDE disk.</p>
 
-  <p>'command arguments' depend upon the command involved, see the
-  detailed descriptions of the commands below.</p>
+  <p><code>&lt;command arguments&gt;</code> depend upon the command involved, see the detailed descriptions of the commands below.</p>
 
-  <p>The diskmanipulator and all its commands (including most
-  parameters) can be tab-completed in the console</p>
+  <p>The diskmanipulator and all its commands (including most parameters) can be tab-completed in the console.</p>
 
   <h2>Detailed Explanation</h2>
 
