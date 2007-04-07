@@ -39,7 +39,7 @@ experimenting on the command line) would be to type this:
 <command>set renderer SDL</command>
 
 With the <command> tag you can give any openMSX console command to openMSX. The
-commands are documented in the Console Commands Overview part of the manual.
+commands are documented in the Console Commands Reference part of the manual.
 
 Every <command> will result in a reply from openMSX. In the above case it will
 be:
