@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
   <link title="Purple" rel="stylesheet" href="manual-purple.css" type="text/css" />
   <link title="Minty" rel="alternate stylesheet" href="manual-minty.css" type="text/css" />
@@ -15,11 +15,14 @@
 
 ol.toc li {
 	font-weight: bold;
+	text-transform: uppercase;
+	margin-top: 0.5em;
 }
 ol.toclist li {
+	font-weight: normal;
+	text-transform: none;
 	padding-right: 8pt;
 	display: inline;
-	font-weight: normal;
 }
 
 div.usage table {
@@ -38,7 +41,7 @@ div.usage td {
   <h1>openMSX Console Commands Overview</h1>
 
   <ol class="toc">
-    <li>COMMANDS
+    <li>Commands
 
       <ol class="toclist">
         <li><a class="internal" href="#after">after</a></li>
@@ -121,7 +124,7 @@ div.usage td {
       </ol>
     </li>
 
-    <li>OLD COMMANDS
+    <li>Old Commands
 
       <ol class="toclist">
         <li><a class="internal" href="#aliasunalias">alias / unalias</a></li>
@@ -134,7 +137,7 @@ div.usage td {
       </ol>
     </li>
 
-    <li>SETTINGS
+    <li>Settings
 
       <ol class="toclist">
         <li><a class="internal" href="#accuracy">accuracy</a></li>
@@ -267,6 +270,8 @@ div.usage td {
       </ol>
     </li>
   </ol>
+
+  <h2><a id="commands">Commands</a></h2>
 
   <h3><a id="after">after</a></h3>
 
@@ -1623,7 +1628,7 @@ div.usage td {
     </table>
   </div>
 
-  <h2><a id="OLD_COMMANDS">OLD COMMANDS</a></h2>
+  <h2><a id="old_commands">Old Commands</a></h2>
 
   <p>The following commands existed in older openMSX version. For backwards compatibility they are still supported for
   a while. In later versions they will be removed.</p>
@@ -1744,7 +1749,9 @@ div.usage td {
     <code>restoredefault PSG_volume</code>
   </div>
 
-  <h2><a id="SETTINGS">SETTINGS</a></h2>
+  <h2><a id="settings">Settings</a></h2>
+
+  <p>Settings control many aspects of openMSX. Below, the available settings are listed and described. You can change setting values with the <code><a class="internal" href="#set">set</a></code> command.</p>
 
   <h3><a id="accuracy">accuracy</a></h3>
 
