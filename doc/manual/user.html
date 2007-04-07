@@ -470,7 +470,7 @@ disk is full. Its main purpose is to facilitate cross platform development.
 As of openMSX 0.5.2, there is extra functionality to perform file
 imports and exports, with support for harddisk images with partitions and normal
 disk images. Please see the separate manual for this, called
-<a class="external" href="using-diskmanipulator.html">Using diskmanipulator</a>.
+<a class="external" href="diskmanipulator.html">Using diskmanipulator</a>.
 </p>
 
 <h4><a id="realdisks">4.2.3 Using Real Disks</a></h4>
@@ -528,7 +528,7 @@ href="http://www.msx.org/forumtopic3015p15.html">threads</a> on the MSX Resource
 Center forum that may give you valuable hints.
 </p>
 <p>
-You can side step these procedures by using the <code><a class="external" href="using-diskmanipulator.html">diskmanipulator</a></code> to
+You can side step these procedures by using the <code><a class="external" href="diskmanipulator.html">diskmanipulator</a></code> to
 create the initial hd image, and you can immediately put some files and
 subdirectories on it. For instance to create a hard disk with 3 partitions of
 32 megabyte on it, and have each partition filled with files and subdirectories
@@ -539,11 +539,11 @@ Start openMSX with the ide extension, then type in the console:
 </p>
 <div class="commandline">
 set <a class="external" href="commands.html#power">power</a> off<br/>
-<a class="external" href="using-diskmanipulator.html">diskmanipulator</a> <a class="external" href="using-diskmanipulator.html#create">create</a> /tmp/new-hd.dsk 32M 32M 32M<br/>
+<a class="external" href="diskmanipulator.html">diskmanipulator</a> <a class="external" href="diskmanipulator.html#create">create</a> /tmp/new-hd.dsk 32M 32M 32M<br/>
 <a class="external" href="commands.html#hd">hda</a> /tmp/new-hd.dsk<br/>
-<a class="external" href="using-diskmanipulator.html">diskmanipulator</a> <a class="external" href="using-diskmanipulator.html#import">import</a> hda1 /home/david/msxdostools/<br/>
-<a class="external" href="using-diskmanipulator.html">diskmanipulator</a> <a class="external" href="using-diskmanipulator.html#import">import</a> hda2 /home/david/msxdemos/<br/>
-<a class="external" href="using-diskmanipulator.html">diskmanipulator</a> <a class="external" href="using-diskmanipulator.html#import">import</a> hda3 /home/david/msxdrawings/<br/>
+<a class="external" href="diskmanipulator.html">diskmanipulator</a> <a class="external" href="diskmanipulator.html#import">import</a> hda1 /home/david/msxdostools/<br/>
+<a class="external" href="diskmanipulator.html">diskmanipulator</a> <a class="external" href="diskmanipulator.html#import">import</a> hda2 /home/david/msxdemos/<br/>
+<a class="external" href="diskmanipulator.html">diskmanipulator</a> <a class="external" href="diskmanipulator.html#import">import</a> hda3 /home/david/msxdrawings/<br/>
 set <a class="external" href="commands.html#power">power</a> on
 </div>
 <p>
