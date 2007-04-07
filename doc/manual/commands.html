@@ -25,10 +25,7 @@ ol.toclist li {
 	display: inline;
 }
 
-div.usage table {
-	margin-left: 0;
-}
-div.usage td {
+td {
 	vertical-align: top;
 	padding-right: 32pt;
 }
@@ -285,58 +282,56 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>after time &lt;seconds&gt; &lt;command&gt;</code></td>
+  <table>
+    <tr>
+      <td><code>after time &lt;seconds&gt; &lt;command&gt;</code></td>
 
-        <td>Execute a command after some time</td>
-      </tr>
+      <td>Execute a command after some time</td>
+    </tr>
 
-      <tr>
-        <td><code>after idle &lt;seconds&gt; &lt;command&gt;</code></td>
+    <tr>
+      <td><code>after idle &lt;seconds&gt; &lt;command&gt;</code></td>
 
-        <td>Execute a command after some time being idle</td>
-      </tr>
+      <td>Execute a command after some time being idle</td>
+    </tr>
 
-      <tr>
-        <td><code>after frame &lt;command&gt;</code></td>
+    <tr>
+      <td><code>after frame &lt;command&gt;</code></td>
 
-        <td>Execute a command when a video frame is finished
-        (VDP scanning reaches vsync)</td>
-      </tr>
+      <td>Execute a command when a video frame is finished
+      (VDP scanning reaches vsync)</td>
+    </tr>
 
-      <tr>
-        <td><code>after break &lt;command&gt;</code></td>
+    <tr>
+      <td><code>after break &lt;command&gt;</code></td>
 
-        <td>Execute a command after a breakpoint is reached</td>
-      </tr>
+      <td>Execute a command after a breakpoint is reached</td>
+    </tr>
 
-      <tr>
-        <td><code>after boot &lt;command&gt;</code></td>
+    <tr>
+      <td><code>after boot &lt;command&gt;</code></td>
 
-        <td>Execute a command after a (re)boot</td>
-      </tr>
+      <td>Execute a command after a (re)boot</td>
+    </tr>
 
-      <tr>
-        <td><code>after machine_switch &lt;command&gt;</code></td>
+    <tr>
+      <td><code>after machine_switch &lt;command&gt;</code></td>
 
-        <td>Execute a command after switch to new a machine</td>
-      </tr>
+      <td>Execute a command after switch to new a machine</td>
+    </tr>
 
-      <tr>
-        <td><code>after info</code></td>
+    <tr>
+      <td><code>after info</code></td>
 
-        <td>List all postponed commands</td>
-      </tr>
+      <td>List all postponed commands</td>
+    </tr>
 
-      <tr>
-        <td><code>after cancel &lt;id&gt;</code></td>
+    <tr>
+      <td><code>after cancel &lt;id&gt;</code></td>
 
-        <td>Cancel the postponed command with given id</td>
-      </tr>
-    </table>
-  </div>
+      <td>Cancel the postponed command with given id</td>
+    </tr>
+  </table>
 
   <div class="examplestitle">
     examples:
@@ -357,9 +352,7 @@ div.usage td {
 
   <p>Events can be:</p>
 
-  <table style="margin-left: 32pt;">
-    <!-- quick hack due to unforseen behaviour of css -->
-
+  <table>
     <tr>
       <td><code>&lt;key&gt;[,release]</code></td>
 
@@ -407,39 +400,37 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>bind</code></td>
+  <table>
+    <tr>
+      <td><code>bind</code></td>
 
-        <td>Show all bindings</td>
-      </tr>
+      <td>Show all bindings</td>
+    </tr>
 
-      <tr>
-        <td><code>bind &lt;key&gt;</code></td>
+    <tr>
+      <td><code>bind &lt;key&gt;</code></td>
 
-        <td>Show binding for the given key</td>
-      </tr>
+      <td>Show binding for the given key</td>
+    </tr>
 
-      <tr>
-        <td><code>bind &lt;event&gt;</code></td>
+    <tr>
+      <td><code>bind &lt;event&gt;</code></td>
 
-        <td>Show binding for this event</td>
-      </tr>
+      <td>Show binding for this event</td>
+    </tr>
 
-      <tr>
-        <td><code>bind &lt;event&gt; &lt;command&gt;</code></td>
+    <tr>
+      <td><code>bind &lt;event&gt; &lt;command&gt;</code></td>
 
-        <td>Make a new binding</td>
-      </tr>
+      <td>Make a new binding</td>
+    </tr>
 
-      <tr>
-        <td><code>unbind &lt;key&gt;</code></td>
+    <tr>
+      <td><code>unbind &lt;key&gt;</code></td>
 
-        <td>Undo binding for this event</td>
-      </tr>
-    </table>
-  </div>
+      <td>Undo binding for this event</td>
+    </tr>
+  </table>
 
   <div class="examplestitle">
     examples:
@@ -476,33 +467,31 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>cart KMARE.ROM</code></td>
+  <table>
+    <tr>
+      <td><code>cart KMARE.ROM</code></td>
 
-        <td>Insert ROM cartridge in first free slot</td>
-      </tr>
+      <td>Insert ROM cartridge in first free slot</td>
+    </tr>
 
-      <tr>
-        <td><code>cart insert KMARE.ROM</code></td>
+    <tr>
+      <td><code>cart insert KMARE.ROM</code></td>
 
-        <td>Insert ROM cartridge in first free slot</td>
-      </tr>
+      <td>Insert ROM cartridge in first free slot</td>
+    </tr>
 
-      <tr>
-        <td><code>carta USAS.ROM -ips USAS.IPS</code></td>
+    <tr>
+      <td><code>carta USAS.ROM -ips USAS.IPS</code></td>
 
-        <td>Insert ROM cartridge in slot A, with IPS patch applied to the ROM contents</td>
-      </tr>
+      <td>Insert ROM cartridge in slot A, with IPS patch applied to the ROM contents</td>
+    </tr>
 
-      <tr>
-        <td><code>carta eject</code></td>
+    <tr>
+      <td><code>carta eject</code></td>
 
-        <td>Eject the currently inserted cartridge from slot A</td>
-      </tr>
-    </table>
-  </div>
+      <td>Eject the currently inserted cartridge from slot A</td>
+    </tr>
+  </table>
 
   <h3><a id="cassetteplayer">cassetteplayer</a></h3>
 
@@ -512,45 +501,43 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>cassetteplayer insert &lt;tape image&gt;</code></td>
+  <table>
+    <tr>
+      <td><code>cassetteplayer insert &lt;tape image&gt;</code></td>
 
-        <td>Insert tape image (WAV or CAS format) in the cassette player</td>
-      </tr>
+      <td>Insert tape image (WAV or CAS format) in the cassette player</td>
+    </tr>
 
-      <tr>
-        <td><code>cassetteplayer eject</code></td>
+    <tr>
+      <td><code>cassetteplayer eject</code></td>
 
-        <td>Remove tape from virtual cassette player</td>
-      </tr>
+      <td>Remove tape from virtual cassette player</td>
+    </tr>
 
-      <tr>
-        <td><code>cassetteplayer rewind</code></td>
+    <tr>
+      <td><code>cassetteplayer rewind</code></td>
 
-        <td>Rewind the current tape</td>
-      </tr>
+      <td>Rewind the current tape</td>
+    </tr>
 
-      <tr>
-        <td><code>cassetteplayer motorcontrol on|off</code></td>
+    <tr>
+      <td><code>cassetteplayer motorcontrol on|off</code></td>
 
-        <td>Selects whether motor control signal (remote) is obeyed (default: on)</td>
-      </tr>
+      <td>Selects whether motor control signal (remote) is obeyed (default: on)</td>
+    </tr>
 
-      <tr>
-        <td><code>cassetteplayer new [&lt;tape image&gt;]</code></td>
+    <tr>
+      <td><code>cassetteplayer new [&lt;tape image&gt;]</code></td>
 
-        <td>Create new tape image and go to record mode</td>
-      </tr>
+      <td>Create new tape image and go to record mode</td>
+    </tr>
 
-      <tr>
-        <td><code>cassetteplayer play</code></td>
+    <tr>
+      <td><code>cassetteplayer play</code></td>
 
-        <td>Go to play mode (when in record mode) and rewind the tape</td>
-      </tr>
-    </table>
-  </div>
+      <td>Go to play mode (when in record mode) and rewind the tape</td>
+    </tr>
+  </table>
 
   <h3><a id="cd">cd&lt;x&gt;</a></h3>
 
@@ -561,33 +548,31 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>cda &lt;iso image&gt;</code></td>
+  <table>
+    <tr>
+      <td><code>cda &lt;iso image&gt;</code></td>
 
-        <td>Use ISO image for CDROM drive "cda"</td>
-      </tr>
+      <td>Use ISO image for CDROM drive "cda"</td>
+    </tr>
 
-      <tr>
-        <td><code>cda insert &lt;iso image&gt;</code></td>
+    <tr>
+      <td><code>cda insert &lt;iso image&gt;</code></td>
 
-        <td>Use ISO image for CDROM drive "cda"</td>
-      </tr>
+      <td>Use ISO image for CDROM drive "cda"</td>
+    </tr>
 
-      <tr>
-        <td><code>cda eject</code></td>
+    <tr>
+      <td><code>cda eject</code></td>
 
-        <td>Eject CDROM from CDROM drive "cda"</td>
-      </tr>
+      <td>Eject CDROM from CDROM drive "cda"</td>
+    </tr>
 
-      <tr>
-        <td><code>cda</code></td>
+    <tr>
+      <td><code>cda</code></td>
 
-        <td>Show current ISO image for CDROM drive "cda"</td>
-      </tr>
-    </table>
-  </div>
+      <td>Show current ISO image for CDROM drive "cda"</td>
+    </tr>
+  </table>
 
   <h3><a id="cycle">cycle</a></h3>
 
@@ -597,15 +582,13 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>cycle &lt;setting&gt;</code></td>
+  <table>
+    <tr>
+      <td><code>cycle &lt;setting&gt;</code></td>
 
-        <td>Changes the specified setting to the next value in the cycle</td>
-      </tr>
-    </table>
-  </div>
+      <td>Changes the specified setting to the next value in the cycle</td>
+    </tr>
+  </table>
 
   <div class="examplestitle">
     examples:
@@ -625,130 +608,128 @@ div.usage td {
 
   <p>where 'extra arguments' are specific for each subcommand. Below is a list of all subcommands:</p>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>debug list</code></td>
+  <table>
+    <tr>
+      <td><code>debug list</code></td>
 
-        <td>Return a list of all debuggables.<br />
-        A debuggable is (part of) the state of<br />
-        a MSX device that can be accessed via these debug commands.<br />
-        Examples are:<br />
-        - the VDP registers<br />
-        - the currently visible memory for the Z80<br />
-        - the contents of the RAM</td>
-      </tr>
+      <td>Return a list of all debuggables.<br />
+      A debuggable is (part of) the state of<br />
+      a MSX device that can be accessed via these debug commands.<br />
+      Examples are:<br />
+      - the VDP registers<br />
+      - the currently visible memory for the Z80<br />
+      - the contents of the RAM</td>
+    </tr>
 
-      <tr>
-        <td><code>debug desc &lt;name&gt;</code></td>
+    <tr>
+      <td><code>debug desc &lt;name&gt;</code></td>
 
-        <td>Return a description of this debuggable</td>
-      </tr>
+      <td>Return a description of this debuggable</td>
+    </tr>
 
-      <tr>
-        <td><code>debug size &lt;name&gt;</code></td>
+    <tr>
+      <td><code>debug size &lt;name&gt;</code></td>
 
-        <td>Return the size of this debuggable</td>
-      </tr>
+      <td>Return the size of this debuggable</td>
+    </tr>
 
-      <tr>
-        <td><code>debug read &lt;name&gt; &lt;addr&gt;</code></td>
+    <tr>
+      <td><code>debug read &lt;name&gt; &lt;addr&gt;</code></td>
 
-        <td>Read a byte from a debuggable</td>
-      </tr>
+      <td>Read a byte from a debuggable</td>
+    </tr>
 
-      <tr>
-        <td><code>debug write &lt;name&gt; &lt;addr&gt; &lt;val&gt;</code></td>
+    <tr>
+      <td><code>debug write &lt;name&gt; &lt;addr&gt; &lt;val&gt;</code></td>
 
-        <td>Write a byte to a debuggable</td>
-      </tr>
+      <td>Write a byte to a debuggable</td>
+    </tr>
 
-      <tr>
-        <td><code>debug read_block &lt;name&gt; &lt;addr&gt; &lt;size&gt;</code></td>
+    <tr>
+      <td><code>debug read_block &lt;name&gt; &lt;addr&gt; &lt;size&gt;</code></td>
 
-        <td>Read a whole block at once</td>
-      </tr>
+      <td>Read a whole block at once</td>
+    </tr>
 
-      <tr>
-        <td><code>debug write_block &lt;name&gt; &lt;addr&gt; &lt;values&gt;</code></td>
+    <tr>
+      <td><code>debug write_block &lt;name&gt; &lt;addr&gt; &lt;values&gt;</code></td>
 
-        <td>Write a whole block at once</td>
-      </tr>
+      <td>Write a whole block at once</td>
+    </tr>
 
-      <tr>
-        <td><code>debug break</code></td>
+    <tr>
+      <td><code>debug break</code></td>
 
-        <td>Break CPU at current position</td>
-      </tr>
+      <td>Break CPU at current position</td>
+    </tr>
 
-      <tr>
-        <td><code>debug breaked</code></td>
+    <tr>
+      <td><code>debug breaked</code></td>
 
-        <td>Query CPU break status</td>
-      </tr>
+      <td>Query CPU break status</td>
+    </tr>
 
-      <tr>
-        <td><code>debug cont</code></td>
+    <tr>
+      <td><code>debug cont</code></td>
 
-        <td>Continue execution after break</td>
-      </tr>
+      <td>Continue execution after break</td>
+    </tr>
 
-      <tr>
-        <td><code>debug step</code></td>
+    <tr>
+      <td><code>debug step</code></td>
 
-        <td>Execute one instruction</td>
-      </tr>
+      <td>Execute one instruction</td>
+    </tr>
 
-      <tr>
-        <td><code>debug list_bp</code></td>
+    <tr>
+      <td><code>debug list_bp</code></td>
 
-        <td>List the active breakpoints</td>
-      </tr>
+      <td>List the active breakpoints</td>
+    </tr>
 
-      <tr>
-        <td><code>debug set_bp &lt;addr&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td>
+    <tr>
+      <td><code>debug set_bp &lt;addr&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td>
 
-        <td>Insert a new breakpoint at the given address. Optionally you can specify a condition and a command. When
-        the CPU is about to execute the instruction at the given address, the condition will be evaluated, if this
-        evaluates to true then the command is executed. The condition can be any TCL expression and the command can be
-        any TCL command. The default condition is 'true' and the default command is <code>"debug break"</code>.</td>
-      </tr>
+      <td>Insert a new breakpoint at the given address. Optionally you can specify a condition and a command. When
+      the CPU is about to execute the instruction at the given address, the condition will be evaluated, if this
+      evaluates to true then the command is executed. The condition can be any TCL expression and the command can be
+      any TCL command. The default condition is 'true' and the default command is <code>"debug break"</code>.</td>
+    </tr>
 
-      <tr>
-        <td><code>debug remove_bp &lt;id&gt;</code></td>
+    <tr>
+      <td><code>debug remove_bp &lt;id&gt;</code></td>
 
-        <td>Remove a certain breakpoint</td>
-      </tr>
+      <td>Remove a certain breakpoint</td>
+    </tr>
 
-      <tr>
-        <td><code>debug list_watchpoints</code></td>
+    <tr>
+      <td><code>debug list_watchpoints</code></td>
 
-        <td>List all defined watchpoints</td>
-      </tr>
+      <td>List all defined watchpoints</td>
+    </tr>
 
-      <tr>
-        <td><code>debug set_watchpoint &lt;type&gt; &lt;region&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td>
+    <tr>
+      <td><code>debug set_watchpoint &lt;type&gt; &lt;region&gt; [&lt;cond&gt;] [&lt;cmd&gt;]</code></td>
 
-        <td>Insert a new watchpoint. When the CPU is about to read or write to/from the specified memory or IO region,
-        the condition is evaluated. If the condition evaluated to true, the command is executed. The condition and the
-        command are similar to the ones in the 'set_bp' subcommand. A watchpoint can either be set on a single memory
-        address or IO port (specify a single value), or on a whole memory or IO port range (specify a begin/end pair).
-        For example: <code>debug set_watchpoint write_mem {0x8000 0x8fff}</code></td>
-      </tr>
+      <td>Insert a new watchpoint. When the CPU is about to read or write to/from the specified memory or IO region,
+      the condition is evaluated. If the condition evaluated to true, the command is executed. The condition and the
+      command are similar to the ones in the 'set_bp' subcommand. A watchpoint can either be set on a single memory
+      address or IO port (specify a single value), or on a whole memory or IO port range (specify a begin/end pair).
+      For example: <code>debug set_watchpoint write_mem {0x8000 0x8fff}</code></td>
+    </tr>
 
-      <tr>
-        <td><code>debug remove_watchpoint &lt;id&gt;</code></td>
+    <tr>
+      <td><code>debug remove_watchpoint &lt;id&gt;</code></td>
 
-        <td>Remove a certain watchpoint</td>
-      </tr>
+      <td>Remove a certain watchpoint</td>
+    </tr>
 
-      <tr>
-        <td><code>debug disasm [&lt;addr&gt;]</code></td>
+    <tr>
+      <td><code>debug disasm [&lt;addr&gt;]</code></td>
 
-        <td>Disassemble instructions at PC or given address</td>
-      </tr>
-    </table>
-  </div>
+      <td>Disassemble instructions at PC or given address</td>
+    </tr>
+  </table>
 
   <div class="note">
     Note: Some of the commands are pretty low level. In the share/scripts directory you'll find some TCL scripts that
@@ -766,33 +747,31 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>diska &lt;disk image&gt;</code></td>
+  <table>
+    <tr>
+      <td><code>diska &lt;disk image&gt;</code></td>
 
-        <td>Insert disk image in drive "diska"</td>
-      </tr>
+      <td>Insert disk image in drive "diska"</td>
+    </tr>
 
-      <tr>
-        <td><code>diska &lt;disk image&gt; &lt;ips&gt;</code></td>
+    <tr>
+      <td><code>diska &lt;disk image&gt; &lt;ips&gt;</code></td>
 
-        <td>Insert disk image and apply IPS patch</td>
-      </tr>
+      <td>Insert disk image and apply IPS patch</td>
+    </tr>
 
-      <tr>
-        <td><code>diska -eject</code></td>
+    <tr>
+      <td><code>diska -eject</code></td>
 
-        <td>Remove disk from drive "diska"</td>
-      </tr>
+      <td>Remove disk from drive "diska"</td>
+    </tr>
 
-      <tr>
-        <td><code>diska -ramdsk</code></td>
+    <tr>
+      <td><code>diska -ramdsk</code></td>
 
-        <td>Insert scratch disk in drive "diska"</td>
-      </tr>
-    </table>
-  </div>
+      <td>Insert scratch disk in drive "diska"</td>
+    </tr>
+  </table>
 
   <h3><a id="diskmanipulator">diskmanipulator</a></h3>
 
@@ -822,15 +801,13 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>escape_grab</code></td>
+  <table>
+    <tr>
+      <td><code>escape_grab</code></td>
 
-        <td>Temporarily release the input grab</td>
-      </tr>
-    </table>
-  </div>
+      <td>Temporarily release the input grab</td>
+    </tr>
+  </table>
 
   <h3><a id="exit">exit</a></h3>
 
@@ -840,15 +817,14 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>exit</code></td>
+  <table>
+    <tr>
+      <td><code>exit</code></td>
 
-        <td>Exits the emulator</td>
-      </tr>
-    </table>
-  </div>
+      <td>Exits the emulator</td>
+    </tr>
+  </table>
+
   <h3><a id="ext">ext</a></h3>
 
   <p>Insert an MSX extension in a running MSX machine. The extension can be removed again with the <code><a class="internal" href="#remove_extension">remove_extension</a></code>
@@ -858,15 +834,13 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>ext fmpac</code></td>
+  <table>
+    <tr>
+      <td><code>ext fmpac</code></td>
 
-        <td>Insert an FM-PAC in a running MSX machine</td>
-      </tr>
-    </table>
-  </div>
+      <td>Insert an FM-PAC in a running MSX machine</td>
+    </tr>
+  </table>
 
   <h3><a id="hd">hd&lt;x&gt;</a></h3>
 
@@ -877,27 +851,25 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>hda &lt;disk image&gt;</code></td>
+  <table>
+    <tr>
+      <td><code>hda &lt;disk image&gt;</code></td>
 
-        <td>Use hard disk image for hard disk "hda"</td>
-      </tr>
+      <td>Use hard disk image for hard disk "hda"</td>
+    </tr>
 
-      <tr>
-        <td><code>hda insert &lt;disk image&gt;</code></td>
+    <tr>
+      <td><code>hda insert &lt;disk image&gt;</code></td>
 
-        <td>Use hard disk image for hard disk "hda"</td>
-      </tr>
+      <td>Use hard disk image for hard disk "hda"</td>
+    </tr>
 
-      <tr>
-        <td><code>hda</code></td>
+    <tr>
+      <td><code>hda</code></td>
 
-        <td>Show current hard disk image for hard disk "hda"</td>
-      </tr>
-    </table>
-  </div>
+      <td>Show current hard disk image for hard disk "hda"</td>
+    </tr>
+  </table>
 
   <div class="note">
     Note: Because of disk caching, changing the hard disk when the MSX is running can lead to corruption of the hard disk contents. Therefore openMSX blocks the <code>hd&lt;x&gt;</code> commands unless the MSX is powered off.
@@ -911,21 +883,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>help</code></td>
+  <table>
+    <tr>
+      <td><code>help</code></td>
 
-        <td>Shows a list of all possible commands</td>
-      </tr>
+      <td>Shows a list of all possible commands</td>
+    </tr>
 
-      <tr>
-        <td><code>help &lt;command&gt;</code></td>
+    <tr>
+      <td><code>help &lt;command&gt;</code></td>
 
-        <td>Shows help info for a specific command</td>
-      </tr>
-    </table>
-  </div>
+      <td>Shows help info for a specific command</td>
+    </tr>
+  </table>
 
   <h3><a id="incr">incr</a></h3>
 
@@ -937,27 +907,25 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>incr</code></td>
+  <table>
+    <tr>
+      <td><code>incr</code></td>
 
-        <td>Shows all integer settings</td>
-      </tr>
+      <td>Shows all integer settings</td>
+    </tr>
 
-      <tr>
-        <td><code>incr &lt;setting&gt;</code></td>
+    <tr>
+      <td><code>incr &lt;setting&gt;</code></td>
 
-        <td>Increment the specified setting by one</td>
-      </tr>
+      <td>Increment the specified setting by one</td>
+    </tr>
 
-      <tr>
-        <td><code>incr &lt;setting&gt; &lt;num&gt;</code></td>
+    <tr>
+      <td><code>incr &lt;setting&gt; &lt;num&gt;</code></td>
 
-        <td>Increment the specified setting by the given amount</td>
-      </tr>
-    </table>
-  </div>
+      <td>Increment the specified setting by the given amount</td>
+    </tr>
+  </table>
 
   <div class="examplestitle">
     examples:
@@ -977,15 +945,13 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>iomap</code></td>
+  <table>
+    <tr>
+      <td><code>iomap</code></td>
 
-        <td>Shows the I/O map of the current MSX machine</td>
-      </tr>
-    </table>
-  </div>
+      <td>Shows the I/O map of the current MSX machine</td>
+    </tr>
+  </table>
 
   <h3><a id="keymatrix">keymatrixdown / keymatrixup</a></h3>
 
@@ -995,21 +961,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>keymatrixdown &lt;row&gt; &lt;mask&gt;</code></td>
+  <table>
+    <tr>
+      <td><code>keymatrixdown &lt;row&gt; &lt;mask&gt;</code></td>
 
-        <td>Press the indicated MSX keys</td>
-      </tr>
+      <td>Press the indicated MSX keys</td>
+    </tr>
 
-      <tr>
-        <td><code>keymatrixup &lt;row&gt; &lt;mask&gt;</code></td>
+    <tr>
+      <td><code>keymatrixup &lt;row&gt; &lt;mask&gt;</code></td>
 
-        <td>Release the indicated MSX keys</td>
-      </tr>
-    </table>
-  </div>
+      <td>Release the indicated MSX keys</td>
+    </tr>
+  </table>
 
   <div class="examplestitle">
     examples:
@@ -1029,15 +993,13 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>list_extensions</code></td>
+  <table>
+    <tr>
+      <td><code>list_extensions</code></td>
 
-        <td>Lists all currently inserted cartridges and extensions</td>
-      </tr>
-    </table>
-  </div>
+      <td>Lists all currently inserted cartridges and extensions</td>
+    </tr>
+  </table>
 
   <h3><a id="load_settings">load_settings</a></h3>
 
@@ -1047,15 +1009,13 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>load_settings &lt;filename&gt;</code></td>
+  <table>
+    <tr>
+      <td><code>load_settings &lt;filename&gt;</code></td>
 
-        <td>Load settings from the given file</td>
-      </tr>
-    </table>
-  </div>
+      <td>Load settings from the given file</td>
+    </tr>
+  </table>
 
   <h3><a id="machine">machine</a></h3>
 
@@ -1065,21 +1025,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>machine</code></td>
+  <table>
+    <tr>
+      <td><code>machine</code></td>
 
-        <td>Returns the handle for the currently active machine</td>
-      </tr>
+      <td>Returns the handle for the currently active machine</td>
+    </tr>
 
-      <tr>
-        <td><code>machine &lt;machine name&gt;</code></td>
+    <tr>
+      <td><code>machine &lt;machine name&gt;</code></td>
 
-        <td>Switch to the specified machine, also returns the handle for that machine</td>
-      </tr>
-    </table>
-  </div>
+      <td>Switch to the specified machine, also returns the handle for that machine</td>
+    </tr>
+  </table>
 
   <div class="note">
     Note: The machine handle mostly used for external applications controlling openMSX. For interactive use you can omit the machine handle to have the commands operate on the current machine.
@@ -1094,21 +1052,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>machine_info</code></td>
+  <table>
+    <tr>
+      <td><code>machine_info</code></td>
 
-        <td>Shows a list of all possible topics</td>
-      </tr>
+      <td>Shows a list of all possible topics</td>
+    </tr>
 
-      <tr>
-        <td><code>machine_info &lt;topic&gt;</code></td>
+    <tr>
+      <td><code>machine_info &lt;topic&gt;</code></td>
 
-        <td>Shows info on the given topic</td>
-      </tr>
-    </table>
-  </div>
+      <td>Shows info on the given topic</td>
+    </tr>
+  </table>
 
   <h3><a id="openmsx_info">openmsx_info</a></h3>
 
@@ -1118,21 +1074,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>openmsx_info</code></td>
+  <table>
+    <tr>
+      <td><code>openmsx_info</code></td>
 
-        <td>Shows a list of all possible topics</td>
-      </tr>
+      <td>Shows a list of all possible topics</td>
+    </tr>
 
-      <tr>
-        <td><code>openmsx_info &lt;topic&gt;</code></td>
+    <tr>
+      <td><code>openmsx_info &lt;topic&gt;</code></td>
 
-        <td>Shows info on the given topic</td>
-      </tr>
-    </table>
-  </div>
+      <td>Shows info on the given topic</td>
+    </tr>
+  </table>
 
   <h3><a id="palette">palette</a></h3>
 
@@ -1142,15 +1096,13 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>palette</code></td>
+  <table>
+    <tr>
+      <td><code>palette</code></td>
 
-        <td>Show the currently active color palette</td>
-      </tr>
-    </table>
-  </div>
+      <td>Show the currently active color palette</td>
+    </tr>
+  </table>
 
   <h3><a id="plugunplug">plug / unplug</a></h3>
 
@@ -1160,33 +1112,31 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>plug</code></td>
+  <table>
+    <tr>
+      <td><code>plug</code></td>
 
-        <td>Shows all currently connected plugs</td>
-      </tr>
+      <td>Shows all currently connected plugs</td>
+    </tr>
 
-      <tr>
-        <td><code>plug &lt;connector&gt;</code></td>
+    <tr>
+      <td><code>plug &lt;connector&gt;</code></td>
 
-        <td>Shows currently connected plug for the specified connector</td>
-      </tr>
+      <td>Shows currently connected plug for the specified connector</td>
+    </tr>
 
-      <tr>
-        <td><code>plug &lt;connector&gt; &lt;plug&gt;</code></td>
+    <tr>
+      <td><code>plug &lt;connector&gt; &lt;plug&gt;</code></td>
 
-        <td>Plugs the specified plug into the specified connector</td>
-      </tr>
+      <td>Plugs the specified plug into the specified connector</td>
+    </tr>
 
-      <tr>
-        <td><code>unplug &lt;connector&gt;</code></td>
+    <tr>
+      <td><code>unplug &lt;connector&gt;</code></td>
 
-        <td>Unplugs the plug connected to the specified connector</td>
-      </tr>
-    </table>
-  </div>
+      <td>Unplugs the plug connected to the specified connector</td>
+    </tr>
+  </table>
 
   <div class="examplestitle">
     examples:
@@ -1207,39 +1157,37 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>record start</code></td>
+  <table>
+    <tr>
+      <td><code>record start</code></td>
 
-        <td>Record to file "openmsxNNNN.avi"</td>
-      </tr>
+      <td>Record to file "openmsxNNNN.avi"</td>
+    </tr>
 
-      <tr>
-        <td><code>record start &lt;filename&gt;</code></td>
+    <tr>
+      <td><code>record start &lt;filename&gt;</code></td>
 
-        <td>Record to indicated file</td>
-      </tr>
+      <td>Record to indicated file</td>
+    </tr>
 
-      <tr>
-        <td><code>record start -prefix foo</code></td>
+    <tr>
+      <td><code>record start -prefix foo</code></td>
 
-        <td>Record to file "fooNNNN.avi"</td>
-      </tr>
+      <td>Record to file "fooNNNN.avi"</td>
+    </tr>
 
-      <tr>
-        <td><code>record stop</code></td>
+    <tr>
+      <td><code>record stop</code></td>
 
-        <td>Stop recording</td>
-      </tr>
+      <td>Stop recording</td>
+    </tr>
 
-      <tr>
-        <td><code>record toggle</code></td>
+    <tr>
+      <td><code>record toggle</code></td>
 
-        <td>Toggle recording</td>
-      </tr>
-    </table>
-  </div>
+      <td>Toggle recording</td>
+    </tr>
+  </table>
 
   <p>The <code>start</code> subcommand also accepts an optional <code>-audioonly</code> or <code>-videoonly</code> flag.
   If only audio is recorded, the created file will be a WAV file instead of an AVI file.
@@ -1253,15 +1201,13 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>remove_extension fmpac</code></td>
+  <table>
+    <tr>
+      <td><code>remove_extension fmpac</code></td>
 
-        <td>Removes the FM-PAC extension from the running MSX</td>
-      </tr>
-    </table>
-  </div>
+      <td>Removes the FM-PAC extension from the running MSX</td>
+    </tr>
+  </table>
 
   <h3><a id="reset">reset</a></h3>
 
@@ -1271,15 +1217,13 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>reset</code></td>
+  <table>
+    <tr>
+      <td><code>reset</code></td>
 
-        <td>Resets the current machine</td>
-      </tr>
-    </table>
-  </div>
+      <td>Resets the current machine</td>
+    </tr>
+  </table>
 
   <h3><a id="save_settings">save_settings</a></h3>
 
@@ -1291,21 +1235,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>save_settings</code></td>
+  <table>
+    <tr>
+      <td><code>save_settings</code></td>
 
-        <td>Save settings to the default settings file</td>
-      </tr>
+      <td>Save settings to the default settings file</td>
+    </tr>
 
-      <tr>
-        <td><code>save_settings &lt;filename&gt;</code></td>
+    <tr>
+      <td><code>save_settings &lt;filename&gt;</code></td>
 
-        <td>Save settings to the given file</td>
-      </tr>
-    </table>
-  </div>
+      <td>Save settings to the given file</td>
+    </tr>
+  </table>
 
   <h3><a id="screenshot">screenshot</a></h3>
 
@@ -1315,27 +1257,25 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>screenshot</code></td>
+  <table>
+    <tr>
+      <td><code>screenshot</code></td>
 
-        <td>Write screenshot to file "openmsxNNNN.png"</td>
-      </tr>
+      <td>Write screenshot to file "openmsxNNNN.png"</td>
+    </tr>
 
-      <tr>
-        <td><code>screenshot &lt;filename&gt;</code></td>
+    <tr>
+      <td><code>screenshot &lt;filename&gt;</code></td>
 
-        <td>Write screenshot to indicated file</td>
-      </tr>
+      <td>Write screenshot to indicated file</td>
+    </tr>
 
-      <tr>
-        <td><code>screenshot -prefix foo</code></td>
+    <tr>
+      <td><code>screenshot -prefix foo</code></td>
 
-        <td>Write screenshot to file "fooNNNN.png"</td>
-      </tr>
-    </table>
-  </div>
+      <td>Write screenshot to file "fooNNNN.png"</td>
+    </tr>
+  </table>
 
   <h3><a id="set">set</a></h3>
 
@@ -1345,27 +1285,25 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set</code></td>
+  <table>
+    <tr>
+      <td><code>set</code></td>
 
-        <td>Shows a list of all supported settings</td>
-      </tr>
+      <td>Shows a list of all supported settings</td>
+    </tr>
 
-      <tr>
-        <td><code>set &lt;setting&gt;</code></td>
+    <tr>
+      <td><code>set &lt;setting&gt;</code></td>
 
-        <td>Query the current value of the specified setting</td>
-      </tr>
+      <td>Query the current value of the specified setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set &lt;setting&gt; &lt;value&gt;</code></td>
+    <tr>
+      <td><code>set &lt;setting&gt; &lt;value&gt;</code></td>
 
-        <td>Change the specified setting to the given value</td>
-      </tr>
-    </table>
-  </div>
+      <td>Change the specified setting to the given value</td>
+    </tr>
+  </table>
 
   <p>The settings that can be adjusted with this command are listed and explained at the end of this document.</p>
 
@@ -1388,15 +1326,13 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>slotmap</code></td>
+  <table>
+    <tr>
+      <td><code>slotmap</code></td>
 
-        <td>Shows the slot map of the current MSX machine</td>
-      </tr>
-    </table>
-  </div>
+      <td>Shows the slot map of the current MSX machine</td>
+    </tr>
+  </table>
 
   <h3><a id="slotselect">slotselect</a></h3>
 
@@ -1406,15 +1342,13 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>slotselect</code></td>
+  <table>
+    <tr>
+      <td><code>slotselect</code></td>
 
-        <td>Shows the currently selected slot for each page</td>
-      </tr>
-    </table>
-  </div>
+      <td>Shows the currently selected slot for each page</td>
+    </tr>
+  </table>
 
   <h3><a id="soundlog">soundlog</a></h3>
 
@@ -1426,39 +1360,37 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>soundlog start</code></td>
+  <table>
+    <tr>
+      <td><code>soundlog start</code></td>
 
-        <td>Log sound to file "openmsxNNNN.wav"</td>
-      </tr>
+      <td>Log sound to file "openmsxNNNN.wav"</td>
+    </tr>
 
-      <tr>
-        <td><code>soundlog start &lt;filename&gt;</code></td>
+    <tr>
+      <td><code>soundlog start &lt;filename&gt;</code></td>
 
-        <td>Log sound to indicated file</td>
-      </tr>
+      <td>Log sound to indicated file</td>
+    </tr>
 
-      <tr>
-        <td><code>soundlog start -prefix foo</code></td>
+    <tr>
+      <td><code>soundlog start -prefix foo</code></td>
 
-        <td>Log sound to file "fooNNNN.wav"</td>
-      </tr>
+      <td>Log sound to file "fooNNNN.wav"</td>
+    </tr>
 
-      <tr>
-        <td><code>soundlog stop</code></td>
+    <tr>
+      <td><code>soundlog stop</code></td>
 
-        <td>Stop logging sound</td>
-      </tr>
+      <td>Stop logging sound</td>
+    </tr>
 
-      <tr>
-        <td><code>soundlog toggle</code></td>
+    <tr>
+      <td><code>soundlog toggle</code></td>
 
-        <td>Toggle sound logging state</td>
-      </tr>
-    </table>
-  </div>
+      <td>Toggle sound logging state</td>
+    </tr>
+  </table>
 
   <h3><a id="toggle">toggle</a></h3>
 
@@ -1468,15 +1400,13 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>toggle &lt;setting&gt;</code></td>
+  <table>
+    <tr>
+      <td><code>toggle &lt;setting&gt;</code></td>
 
-        <td>Toggles the specified setting</td>
-      </tr>
-    </table>
-  </div>
+      <td>Toggles the specified setting</td>
+    </tr>
+  </table>
 
   <div class="examplestitle">
     examples:
@@ -1496,39 +1426,37 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>trainer</code></td>
+  <table>
+    <tr>
+      <td><code>trainer</code></td>
 
-        <td>See which trainer is currently active</td>
-      </tr>
+      <td>See which trainer is currently active</td>
+    </tr>
 
-      <tr>
-        <td><code>trainer &lt;game&gt;</code></td>
+    <tr>
+      <td><code>trainer &lt;game&gt;</code></td>
 
-        <td>See which cheats are currently active in the trainer</td>
-      </tr>
+      <td>See which cheats are currently active in the trainer</td>
+    </tr>
 
-      <tr>
-        <td><code>trainer &lt;game&gt; all</code></td>
+    <tr>
+      <td><code>trainer &lt;game&gt; all</code></td>
 
-        <td>Activate all cheats in the trainer of &lt;game&gt;</td>
-      </tr>
+      <td>Activate all cheats in the trainer of &lt;game&gt;</td>
+    </tr>
 
-      <tr>
-        <td><code>trainer &lt;game&gt; \[&lt;cheat&gt; ..\]</code></td>
+    <tr>
+      <td><code>trainer &lt;game&gt; \[&lt;cheat&gt; ..\]</code></td>
 
-        <td>Toggle cheats of &lt;game&gt; on/off</td>
-      </tr>
+      <td>Toggle cheats of &lt;game&gt; on/off</td>
+    </tr>
 
-      <tr>
-        <td><code>trainer deactivate</code></td>
+    <tr>
+      <td><code>trainer deactivate</code></td>
 
-        <td>Deactivate all trainers</td>
-      </tr>
-    </table>
-  </div>
+      <td>Deactivate all trainers</td>
+    </tr>
+  </table>
 
   <div class="examplestitle">
     examples:
@@ -1561,21 +1489,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>unset &lt;variable&gt;</code></td>
+  <table>
+    <tr>
+      <td><code>unset &lt;variable&gt;</code></td>
 
-        <td>Undefines the given variable</td>
-      </tr>
+      <td>Undefines the given variable</td>
+    </tr>
 
-      <tr>
-        <td><code>unset &lt;setting&gt;</code></td>
+    <tr>
+      <td><code>unset &lt;setting&gt;</code></td>
 
-        <td>Reverts the given setting to its default value</td>
-      </tr>
-    </table>
-  </div>
+      <td>Reverts the given setting to its default value</td>
+    </tr>
+  </table>
 
   <h3><a id="update">update</a></h3>
 
@@ -1585,21 +1511,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>update enable &lt;type&gt;</code></td>
+  <table>
+    <tr>
+      <td><code>update enable &lt;type&gt;</code></td>
 
-        <td>enable notifications for this type</td>
-      </tr>
+      <td>enable notifications for this type</td>
+    </tr>
 
-      <tr>
-        <td><code>update disable &lt;type&gt;</code></td>
+    <tr>
+      <td><code>update disable &lt;type&gt;</code></td>
 
-        <td>disable notifications for this type</td>
-      </tr>
-    </table>
-  </div>
+      <td>disable notifications for this type</td>
+    </tr>
+  </table>
 
   <div class="examplestitle">
     examples:
@@ -1618,15 +1542,13 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>vdpregs</code></td>
+  <table>
+    <tr>
+      <td><code>vdpregs</code></td>
 
-        <td>Shows the current VDP control register contents</td>
-      </tr>
-    </table>
-  </div>
+      <td>Shows the current VDP control register contents</td>
+    </tr>
+  </table>
 
   <h2><a id="old_commands">Old Commands</a></h2>
 
@@ -1643,15 +1565,13 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>alias &lt;name&gt; &lt;command&gt;</code></td>
+  <table>
+    <tr>
+      <td><code>alias &lt;name&gt; &lt;command&gt;</code></td>
 
-        <td>Defines an alias</td>
-      </tr>
-    </table>
-  </div>
+      <td>Defines an alias</td>
+    </tr>
+  </table>
 
   <div class="examplestitle">
     examples:
@@ -1676,27 +1596,25 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>decr</code></td>
+  <table>
+    <tr>
+      <td><code>decr</code></td>
 
-        <td>Shows all integer settings</td>
-      </tr>
+      <td>Shows all integer settings</td>
+    </tr>
 
-      <tr>
-        <td><code>decr &lt;setting&gt;</code></td>
+    <tr>
+      <td><code>decr &lt;setting&gt;</code></td>
 
-        <td>Decrement the specified setting by one</td>
-      </tr>
+      <td>Decrement the specified setting by one</td>
+    </tr>
 
-      <tr>
-        <td><code>decr &lt;setting&gt; &lt;num&gt;</code></td>
+    <tr>
+      <td><code>decr &lt;setting&gt; &lt;num&gt;</code></td>
 
-        <td>Decrement the specified setting by the given amount</td>
-      </tr>
-    </table>
-  </div>
+      <td>Decrement the specified setting by the given amount</td>
+    </tr>
+  </table>
 
   <div class="examplestitle">
     examples:
@@ -1717,15 +1635,13 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>quit</code></td>
+  <table>
+    <tr>
+      <td><code>quit</code></td>
 
-        <td>Exits openMSX</td>
-      </tr>
-    </table>
-  </div>
+      <td>Exits openMSX</td>
+    </tr>
+  </table>
 
   <h3><a id="restoredefault">restoredefault</a></h3>
 
@@ -1776,33 +1692,31 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set accuracy</code></td>
+  <table>
+    <tr>
+      <td><code>set accuracy</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set accuracy screen</code></td>
+    <tr>
+      <td><code>set accuracy screen</code></td>
 
-        <td>Selects screen accurate rendering</td>
-      </tr>
+      <td>Selects screen accurate rendering</td>
+    </tr>
 
-      <tr>
-        <td><code>set accuracy line</code></td>
+    <tr>
+      <td><code>set accuracy line</code></td>
 
-        <td>Selects line accurate rendering</td>
-      </tr>
+      <td>Selects line accurate rendering</td>
+    </tr>
 
-      <tr>
-        <td><code>set accuracy pixel</code></td>
+    <tr>
+      <td><code>set accuracy pixel</code></td>
 
-        <td>Selects pixel accurate rendering</td>
-      </tr>
-    </table>
-  </div>
+      <td>Selects pixel accurate rendering</td>
+    </tr>
+  </table>
 
   <h3><a id="audio-inputfilename">audio-inputfilename</a></h3>
 
@@ -1814,21 +1728,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set audio-inputfilename</code></td>
+  <table>
+    <tr>
+      <td><code>set audio-inputfilename</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set audio-inputfilename mysample.wav</code></td>
+    <tr>
+      <td><code>set audio-inputfilename mysample.wav</code></td>
 
-        <td>Read from "mysample.wav"</td>
-      </tr>
-    </table>
-  </div>
+      <td>Read from "mysample.wav"</td>
+    </tr>
+  </table>
 
   <div class="note">
     Note: The file is fully read into memory, so under Linux/UNIX do not attempt to read from a device node such as <code>/dev/dsp</code>.
@@ -1843,27 +1755,25 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set autoruncassettes</code></td>
+  <table>
+    <tr>
+      <td><code>set autoruncassettes</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set autoruncassettes on</code></td>
+    <tr>
+      <td><code>set autoruncassettes on</code></td>
 
-        <td>Try to run cassettes automatically</td>
-      </tr>
+      <td>Try to run cassettes automatically</td>
+    </tr>
 
-      <tr>
-        <td><code>set autoruncassettes off</code></td>
+    <tr>
+      <td><code>set autoruncassettes off</code></td>
 
-        <td>Do nothing when cassettes are inserted</td>
-      </tr>
-    </table>
-  </div>
+      <td>Do nothing when cassettes are inserted</td>
+    </tr>
+  </table>
 
   <div class="note">
     Note: This only works with CAS images for now and it is still an experimental feature.
@@ -1877,21 +1787,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set blur</code></td>
+  <table>
+    <tr>
+      <td><code>set blur</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set blur &lt;value&gt;</code></td>
+    <tr>
+      <td><code>set blur &lt;value&gt;</code></td>
 
-        <td>Change the value</td>
-      </tr>
-    </table>
-  </div>
+      <td>Change the value</td>
+    </tr>
+  </table>
 
   <div class="note">
     Note: Not all renderers support this.
@@ -1906,21 +1814,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set bootsector</code></td>
+  <table>
+    <tr>
+      <td><code>set bootsector</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set bootsector DOS1</code></td>
+    <tr>
+      <td><code>set bootsector DOS1</code></td>
 
-        <td>Use a DOS1 boot sector</td>
-      </tr>
-    </table>
-  </div>
+      <td>Use a DOS1 boot sector</td>
+    </tr>
+  </table>
 
   <h3><a id="brightness">brightness</a></h3>
 
@@ -1932,25 +1838,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td></td>
-      </tr>
+  <table>
+    <tr>
+      <td><code>set brightness</code></td>
 
-      <tr>
-        <td><code>set brightness</code></td>
+      <td>Shows the current setting</td>
+    </tr>
 
-        <td>Shows the current setting</td>
-      </tr>
+    <tr>
+      <td><code>set brightness 5</code></td>
 
-      <tr>
-        <td><code>set brightness 5</code></td>
-
-        <td>Make the video output a bit brighter than default</td>
-      </tr>
-    </table>
-  </div>
+      <td>Make the video output a bit brighter than default</td>
+    </tr>
+  </table>
 
   <h3><a id="cmdtiming">cmdtiming</a></h3>
 
@@ -1962,31 +1862,25 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td></td>
-      </tr>
+  <table>
+    <tr>
+      <td><code>set cmdtiming</code></td>
 
-      <tr>
-        <td><code>set cmdtiming</code></td>
+      <td>Shows the current setting</td>
+    </tr>
 
-        <td>Shows the current setting</td>
-      </tr>
+    <tr>
+      <td><code>set cmdtiming broken</code></td>
 
-      <tr>
-        <td><code>set cmdtiming broken</code></td>
+      <td>Make VDP commands finish instantly</td>
+    </tr>
 
-        <td>Make VDP commands finish instantly</td>
-      </tr>
+    <tr>
+      <td><code>set cmdtiming real</code></td>
 
-      <tr>
-        <td><code>set cmdtiming real</code></td>
-
-        <td>Make VDP commands take a realistic amount of time</td>
-      </tr>
-    </table>
-  </div>
+      <td>Make VDP commands take a realistic amount of time</td>
+    </tr>
+  </table>
 
   <div class="note">
     Note: When set to <code>broken</code> the emulated MSX acts different from a real MSX. This might cause some software to fail.
@@ -2012,27 +1906,25 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set color_matrix</code></td>
+  <table>
+    <tr>
+      <td><code>set color_matrix</code></td>
 
-        <td>Shows the current value</td>
-      </tr>
+      <td>Shows the current value</td>
+    </tr>
 
-      <tr>
-        <td><code>set color_matrix { { 1 0 0 } { 0 1 0 } { 0 0 1 } }</code></td>
+    <tr>
+      <td><code>set color_matrix { { 1 0 0 } { 0 1 0 } { 0 0 1 } }</code></td>
 
-        <td>This is the default (no color transformation)</td>
-      </tr>
+      <td>This is the default (no color transformation)</td>
+    </tr>
 
-      <tr>
-        <td><code>set color_matrix { { .33 .33 .33 } { .33 .33 .33 } { .33 .33 .33 } }</code></td>
+    <tr>
+      <td><code>set color_matrix { { .33 .33 .33 } { .33 .33 .33 } { .33 .33 .33 } }</code></td>
 
-        <td>Transform to greyscale</td>
-      </tr>
-    </table>
-  </div>
+      <td>Transform to greyscale</td>
+    </tr>
+  </table>
 
   <div class="note">
     Note: It is often more convenient to use the <code>scripts/monitor.tcl</code> script.
@@ -2046,27 +1938,25 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set console</code></td>
+  <table>
+    <tr>
+      <td><code>set console</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set console on</code></td>
+    <tr>
+      <td><code>set console on</code></td>
 
-        <td>Turns the console on</td>
-      </tr>
+      <td>Turns the console on</td>
+    </tr>
 
-      <tr>
-        <td><code>set console off</code></td>
+    <tr>
+      <td><code>set console off</code></td>
 
-        <td>Turns the console off</td>
-      </tr>
-    </table>
-  </div>
+      <td>Turns the console off</td>
+    </tr>
+  </table>
 
   <h3><a id="consolebackground">consolebackground</a></h3>
 
@@ -2076,21 +1966,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set consolebackground</code></td>
+  <table>
+    <tr>
+      <td><code>set consolebackground</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set consolebackground &lt;image&gt;</code></td>
+    <tr>
+      <td><code>set consolebackground &lt;image&gt;</code></td>
 
-        <td>Sets a new background image</td>
-      </tr>
-    </table>
-  </div>
+      <td>Sets a new background image</td>
+    </tr>
+  </table>
 
   <h3><a id="consolecolumns">consolecolumns</a></h3>
 
@@ -2100,21 +1988,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set consolecolumns</code></td>
+  <table>
+    <tr>
+      <td><code>set consolecolumns</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set consolecolumns &lt;value&gt;</code></td>
+    <tr>
+      <td><code>set consolecolumns &lt;value&gt;</code></td>
 
-        <td>Set the specified width</td>
-      </tr>
-    </table>
-  </div>
+      <td>Set the specified width</td>
+    </tr>
+  </table>
 
   <h3><a id="consolefont">consolefont</a></h3>
 
@@ -2124,21 +2010,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set consolefont</code></td>
+  <table>
+    <tr>
+      <td><code>set consolefont</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set consolefont &lt;image&gt;</code></td>
+    <tr>
+      <td><code>set consolefont &lt;image&gt;</code></td>
 
-        <td>Sets a new font</td>
-      </tr>
-    </table>
-  </div>
+      <td>Sets a new font</td>
+    </tr>
+  </table>
 
   <h3><a id="consoleplacement">consoleplacement</a></h3>
 
@@ -2148,21 +2032,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set consoleplacement</code></td>
+  <table>
+    <tr>
+      <td><code>set consoleplacement</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set consoleplacement &lt;place&gt;</code></td>
+    <tr>
+      <td><code>set consoleplacement &lt;place&gt;</code></td>
 
-        <td>Moves the console the the specified location; <code>&lt;place&gt;</code> can be <code>topleft</code>, <code>top</code>, <code>topright</code>, <code>left</code>, <code>center</code>, <code>right</code>, <code>bottomleft</code>, <code>bottom</code> or <code>bottomright</code>.</td>
-      </tr>
-    </table>
-  </div>
+      <td>Moves the console the the specified location; <code>&lt;place&gt;</code> can be <code>topleft</code>, <code>top</code>, <code>topright</code>, <code>left</code>, <code>center</code>, <code>right</code>, <code>bottomleft</code>, <code>bottom</code> or <code>bottomright</code>.</td>
+    </tr>
+  </table>
 
   <h3><a id="consolerows">consolerows</a></h3>
 
@@ -2172,21 +2054,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set consolerows</code></td>
+  <table>
+    <tr>
+      <td><code>set consolerows</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set consolerows &lt;value&gt;</code></td>
+    <tr>
+      <td><code>set consolerows &lt;value&gt;</code></td>
 
-        <td>Set the specified width</td>
-      </tr>
-    </table>
-  </div>
+      <td>Set the specified width</td>
+    </tr>
+  </table>
 
   <h3><a id="contrast">contrast</a></h3>
 
@@ -2198,21 +2078,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set contrast</code></td>
+  <table>
+    <tr>
+      <td><code>set contrast</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set contrast -5</code></td>
+    <tr>
+      <td><code>set contrast -5</code></td>
 
-        <td>Reduce the video contrast a bit</td>
-      </tr>
-    </table>
-  </div>
+      <td>Reduce the video contrast a bit</td>
+    </tr>
+  </table>
 
   <h3><a id="cputrace">cputrace</a></h3>
 
@@ -2222,27 +2100,25 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set cputrace</code></td>
+  <table>
+    <tr>
+      <td><code>set cputrace</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set cputrace on</code></td>
+    <tr>
+      <td><code>set cputrace on</code></td>
 
-        <td>Enables CPU tracing</td>
-      </tr>
+      <td>Enables CPU tracing</td>
+    </tr>
 
-      <tr>
-        <td><code>set cputrace off</code></td>
+    <tr>
+      <td><code>set cputrace off</code></td>
 
-        <td>Disables CPU tracing</td>
-      </tr>
-    </table>
-  </div>
+      <td>Disables CPU tracing</td>
+    </tr>
+  </table>
 
   <h3><a id="debugoutput">debugoutput</a></h3>
 
@@ -2254,33 +2130,31 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set debugoutput</code></td>
+  <table>
+    <tr>
+      <td><code>set debugoutput</code></td>
 
-        <td>Shows the current output file name</td>
-      </tr>
+      <td>Shows the current output file name</td>
+    </tr>
 
-      <tr>
-        <td><code>set debugoutput stdout</code></td>
+    <tr>
+      <td><code>set debugoutput stdout</code></td>
 
-        <td>Writes debug output to openMSX's standard output stream</td>
-      </tr>
+      <td>Writes debug output to openMSX's standard output stream</td>
+    </tr>
 
-      <tr>
-        <td><code>set debugoutput stderr</code></td>
+    <tr>
+      <td><code>set debugoutput stderr</code></td>
 
-        <td>Writes debug output to openMSX's standard error stream</td>
-      </tr>
+      <td>Writes debug output to openMSX's standard error stream</td>
+    </tr>
 
-      <tr>
-        <td><code>set debugoutput &lt;output file&gt;</code></td>
+    <tr>
+      <td><code>set debugoutput &lt;output file&gt;</code></td>
 
-        <td>Writes debug output to the specified file</td>
-      </tr>
-    </table>
-  </div>
+      <td>Writes debug output to the specified file</td>
+    </tr>
+  </table>
 
   <div class="note">
     Note: This setting only exists if the <code>debugdevice</code> extension is present in the current MSX machine.
@@ -2294,21 +2168,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set default_machine</code></td>
+  <table>
+    <tr>
+      <td><code>set default_machine</code></td>
 
-        <td>Shows current setting</td>
-      </tr>
+      <td>Shows current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set default_machine Panasonic_FS-A1GT</code></td>
+    <tr>
+      <td><code>set default_machine Panasonic_FS-A1GT</code></td>
 
-        <td>Use the turboR GT the next time openMSX is started</td>
-      </tr>
-    </table>
-  </div>
+      <td>Use the turboR GT the next time openMSX is started</td>
+    </tr>
+  </table>
 
   <h3><a id="deinterlace">deinterlace</a></h3>
 
@@ -2318,27 +2190,25 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set deinterlace</code></td>
+  <table>
+    <tr>
+      <td><code>set deinterlace</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set deinterlace on</code></td>
+    <tr>
+      <td><code>set deinterlace on</code></td>
 
-        <td>Turns deinterlacing on</td>
-      </tr>
+      <td>Turns deinterlacing on</td>
+    </tr>
 
-      <tr>
-        <td><code>set deinterlace off</code></td>
+    <tr>
+      <td><code>set deinterlace off</code></td>
 
-        <td>Turns deinterlacing off</td>
-      </tr>
-    </table>
-  </div>
+      <td>Turns deinterlacing off</td>
+    </tr>
+  </table>
 
   <div class="note">
     Note: Not all renderers support deinterlacing.
@@ -2352,33 +2222,31 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set display_deform</code></td>
+  <table>
+    <tr>
+      <td><code>set display_deform</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set display_deform normal</code></td>
+    <tr>
+      <td><code>set display_deform normal</code></td>
 
-        <td>Turns off display deform</td>
-      </tr>
+      <td>Turns off display deform</td>
+    </tr>
 
-      <tr>
-        <td><code>set display_deform horizontal_stretch</code></td>
+    <tr>
+      <td><code>set display_deform horizontal_stretch</code></td>
 
-        <td>Stretches the image horizontally, to match the aspect ratio of the real MSX</td>
-      </tr>
+      <td>Stretches the image horizontally, to match the aspect ratio of the real MSX</td>
+    </tr>
 
-      <tr>
-        <td><code>set display_deform 3d</code></td>
+    <tr>
+      <td><code>set display_deform 3d</code></td>
 
-        <td>Deforms the image in 3D, to look like a CRT (like JEmu2)</td>
-      </tr>
-    </table>
-  </div>
+      <td>Deforms the image in 3D, to look like a CRT (like JEmu2)</td>
+    </tr>
+  </table>
 
   <h3><a id="frequency">frequency</a></h3>
 
@@ -2388,21 +2256,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set frequency</code></td>
+  <table>
+    <tr>
+      <td><code>set frequency</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set frequency 44100</code></td>
+    <tr>
+      <td><code>set frequency 44100</code></td>
 
-        <td>Use 44.1 kHz mixing frequency (CD quality)</td>
-      </tr>
-    </table>
-  </div>
+      <td>Use 44.1 kHz mixing frequency (CD quality)</td>
+    </tr>
+  </table>
 
   <h3><a id="firmwareswitch">firmwareswitch</a></h3>
 
@@ -2414,27 +2280,25 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set firmwareswitch</code></td>
+  <table>
+    <tr>
+      <td><code>set firmwareswitch</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set firmwareswitch on</code></td>
+    <tr>
+      <td><code>set firmwareswitch on</code></td>
 
-        <td>Boot into the internal software</td>
-      </tr>
+      <td>Boot into the internal software</td>
+    </tr>
 
-      <tr>
-        <td><code>set firmwareswitch off</code></td>
+    <tr>
+      <td><code>set firmwareswitch off</code></td>
 
-        <td>Boot into MSX-BASIC or on-disk software</td>
-      </tr>
-    </table>
-  </div>
+      <td>Boot into MSX-BASIC or on-disk software</td>
+    </tr>
+  </table>
 
   <h3><a id="fullscreen">fullscreen</a></h3>
 
@@ -2444,27 +2308,25 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set fullscreen</code></td>
+  <table>
+    <tr>
+      <td><code>set fullscreen</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set fullscreen on</code></td>
+    <tr>
+      <td><code>set fullscreen on</code></td>
 
-        <td>Switch to fullscreen mode</td>
-      </tr>
+      <td>Switch to fullscreen mode</td>
+    </tr>
 
-      <tr>
-        <td><code>set fullscreen off</code></td>
+    <tr>
+      <td><code>set fullscreen off</code></td>
 
-        <td>Switch to windowed mode</td>
-      </tr>
-    </table>
-  </div>
+      <td>Switch to windowed mode</td>
+    </tr>
+  </table>
 
   <h3><a id="fullspeedwhenloading">fullspeedwhenloading</a></h3>
 
@@ -2476,27 +2338,25 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set fullspeedwhenloading</code></td>
+  <table>
+    <tr>
+      <td><code>set fullspeedwhenloading</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set fullspeedwhenloading on</code></td>
+    <tr>
+      <td><code>set fullspeedwhenloading on</code></td>
 
-        <td>Load as fast as possible</td>
-      </tr>
+      <td>Load as fast as possible</td>
+    </tr>
 
-      <tr>
-        <td><code>set fullspeedwhenloading off</code></td>
+    <tr>
+      <td><code>set fullspeedwhenloading off</code></td>
 
-        <td>Load at the same speed as a real MSX</td>
-      </tr>
-    </table>
-  </div>
+      <td>Load at the same speed as a real MSX</td>
+    </tr>
+  </table>
 
   <h3><a id="gamma">gamma</a></h3>
 
@@ -2510,21 +2370,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set gamma</code></td>
+  <table>
+    <tr>
+      <td><code>set gamma</code></td>
 
-        <td>Shows the current value</td>
-      </tr>
+      <td>Shows the current value</td>
+    </tr>
 
-      <tr>
-        <td><code>set gamma &lt;num&gt;</code></td>
+    <tr>
+      <td><code>set gamma &lt;num&gt;</code></td>
 
-        <td>Sets a new gamma correction amount</td>
-      </tr>
-    </table>
-  </div>
+      <td>Sets a new gamma correction amount</td>
+    </tr>
+  </table>
 
   <h3><a id="glow">glow</a></h3>
 
@@ -2534,21 +2392,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set glow</code></td>
+  <table>
+    <tr>
+      <td><code>set glow</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set glow &lt;value&gt;</code></td>
+    <tr>
+      <td><code>set glow &lt;value&gt;</code></td>
 
-        <td>Change the amount of afterglow</td>
-      </tr>
-    </table>
-  </div>
+      <td>Change the amount of afterglow</td>
+    </tr>
+  </table>
 
   <div class="note">
     Note: Not all renderers support this.
@@ -2566,27 +2422,25 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set grabinput</code></td>
+  <table>
+    <tr>
+      <td><code>set grabinput</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set grabinput on</code></td>
+    <tr>
+      <td><code>set grabinput on</code></td>
 
-        <td>Starts grabbing all input events</td>
-      </tr>
+      <td>Starts grabbing all input events</td>
+    </tr>
 
-      <tr>
-        <td><code>set grabinput off</code></td>
+    <tr>
+      <td><code>set grabinput off</code></td>
 
-        <td>Stops grabbing all input events</td>
-      </tr>
-    </table>
-  </div>
+      <td>Stops grabbing all input events</td>
+    </tr>
+  </table>
 
   <h3><a id="icon.name.setting">icon.&lt;name&gt;.&lt;setting&gt;</a></h3>
 
@@ -2613,41 +2467,39 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set icon.fdd.xcoord 250</code></td>
-      </tr>
+  <table>
+    <tr>
+      <td><code>set icon.fdd.xcoord 250</code></td>
+    </tr>
 
-      <tr>
-        <td><code>set icon.fdd.ycoord 0</code></td>
-      </tr>
+    <tr>
+      <td><code>set icon.fdd.ycoord 0</code></td>
+    </tr>
 
-      <tr>
-        <td><code>set icon.fdd.active.image fdd-on.png</code></td>
-      </tr>
+    <tr>
+      <td><code>set icon.fdd.active.image fdd-on.png</code></td>
+    </tr>
 
-      <tr>
-        <td><code>set icon.fdd.active.image fdd-off.png</code></td>
-      </tr>
+    <tr>
+      <td><code>set icon.fdd.active.image fdd-off.png</code></td>
+    </tr>
 
-      <tr>
-        <td><code>set icon.fdd.active.fade-delay 0</code> don't fade out active fdd LED</td>
-      </tr>
+    <tr>
+      <td><code>set icon.fdd.active.fade-delay 0</code> don't fade out active fdd LED</td>
+    </tr>
 
-      <tr>
-        <td><code>set icon.fdd.active.fade-duration 5000</code></td>
-      </tr>
+    <tr>
+      <td><code>set icon.fdd.active.fade-duration 5000</code></td>
+    </tr>
 
-      <tr>
-        <td><code>set icon.fdd.non-active.fade-delay 5000</code></td>
-      </tr>
+    <tr>
+      <td><code>set icon.fdd.non-active.fade-delay 5000</code></td>
+    </tr>
 
-      <tr>
-        <td><code>set icon.fdd.non-active.fade-duration 5000</code></td>
-      </tr>
-    </table>
-  </div>
+    <tr>
+      <td><code>set icon.fdd.non-active.fade-duration 5000</code></td>
+    </tr>
+  </table>
 
   <div class="note">
     Note: In the future the position <code>xcoord</code> and <code>ycoord</code> settings will most likely change so that it is resolution independent (see <code><a class="internal" href="#scale_factor">scale_factor</a></code> setting)
@@ -2661,21 +2513,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set inputdelay</code></td>
+  <table>
+    <tr>
+      <td><code>set inputdelay</code></td>
 
-        <td>Shows the current value</td>
-      </tr>
+      <td>Shows the current value</td>
+    </tr>
 
-      <tr>
-        <td><code>set inputdelay &lt;time&gt;</code></td>
+    <tr>
+      <td><code>set inputdelay &lt;time&gt;</code></td>
 
-        <td>Sets the input delay to the specified number of seconds</td>
-      </tr>
-    </table>
-  </div>
+      <td>Sets the input delay to the specified number of seconds</td>
+    </tr>
+  </table>
 
   <div class="note">
     Note: The default value of 0.03 seconds should almost always be OK, this small delay is practically not noticeable and still allows the MSX machine to get accurate timing on the input events. Please <b>do not change</b> the value of this setting unless you know what you are doing.
@@ -2693,29 +2543,27 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set keyjoystick1.up W</code></td>
-      </tr>
+  <table>
+    <tr>
+      <td><code>set keyjoystick1.up W</code></td>
+    </tr>
 
-      <tr>
-        <td><code>set keyjoystick1.down S</code></td>
-      </tr>
+    <tr>
+      <td><code>set keyjoystick1.down S</code></td>
+    </tr>
 
-      <tr>
-        <td><code>set keyjoystick1.left A</code></td>
-      </tr>
+    <tr>
+      <td><code>set keyjoystick1.left A</code></td>
+    </tr>
 
-      <tr>
-        <td><code>set keyjoystick1.right D</code></td>
-      </tr>
+    <tr>
+      <td><code>set keyjoystick1.right D</code></td>
+    </tr>
 
-      <tr>
-        <td><code>set keyjoystick1.triga SPACE</code></td>
-      </tr>
-    </table>
-  </div>
+    <tr>
+      <td><code>set keyjoystick1.triga SPACE</code></td>
+    </tr>
+  </table>
 
   <h3><a id="limitsprites">limitsprites</a></h3>
 
@@ -2727,27 +2575,25 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set limitsprites</code></td>
+  <table>
+    <tr>
+      <td><code>set limitsprites</code></td>
 
-        <td>Shows the current value</td>
-      </tr>
+      <td>Shows the current value</td>
+    </tr>
 
-      <tr>
-        <td><code>set limitsprites on</code></td>
+    <tr>
+      <td><code>set limitsprites on</code></td>
 
-        <td>Limits number of sprites per line</td>
-      </tr>
+      <td>Limits number of sprites per line</td>
+    </tr>
 
-      <tr>
-        <td><code>set limitsprites off</code></td>
+    <tr>
+      <td><code>set limitsprites off</code></td>
 
-        <td>Turns off number of sprites per line limit</td>
-      </tr>
-    </table>
-  </div>
+      <td>Turns off number of sprites per line limit</td>
+    </tr>
+  </table>
 
   <h3><a id="master_volume">master_volume</a></h3>
 
@@ -2757,21 +2603,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set master_volume</code></td>
+  <table>
+    <tr>
+      <td><code>set master_volume</code></td>
 
-        <td>Shows current setting</td>
-      </tr>
+      <td>Shows current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set master_volume 50</code></td>
+    <tr>
+      <td><code>set master_volume 50</code></td>
 
-        <td>Sets master volume to 50%</td>
-      </tr>
-    </table>
-  </div>
+      <td>Sets master volume to 50%</td>
+    </tr>
+  </table>
 
   <h3><a id="maxframeskip">maxframeskip</a></h3>
 
@@ -2787,21 +2631,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set maxframeskip</code></td>
+  <table>
+    <tr>
+      <td><code>set maxframeskip</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set maxframeskip &lt;number&gt;</code></td>
+    <tr>
+      <td><code>set maxframeskip &lt;number&gt;</code></td>
 
-        <td>Sets the maximum number of consecutive frame skips</td>
-      </tr>
-    </table>
-  </div>
+      <td>Sets the maximum number of consecutive frame skips</td>
+    </tr>
+  </table>
 
   <h3><a id="midi-in-readfilename">midi-in-readfilename</a></h3>
 
@@ -2811,21 +2653,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set midi-in-readfilename</code></td>
+  <table>
+    <tr>
+      <td><code>set midi-in-readfilename</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set midi-in-readfilename mymidilog.dat</code></td>
+    <tr>
+      <td><code>set midi-in-readfilename mymidilog.dat</code></td>
 
-        <td>Read MIDI events from "mymidilog.dat"</td>
-      </tr>
-    </table>
-  </div>
+      <td>Read MIDI events from "mymidilog.dat"</td>
+    </tr>
+  </table>
 
   <h3><a id="midi-out-logfilename">midi-out-logfilename</a></h3>
 
@@ -2835,21 +2675,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set midi-out-logfilename</code></td>
+  <table>
+    <tr>
+      <td><code>set midi-out-logfilename</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set midi-out-logfilename mymidilog.dat</code></td>
+    <tr>
+      <td><code>set midi-out-logfilename mymidilog.dat</code></td>
 
-        <td>Log MIDI events to "mymidilog.dat"</td>
-      </tr>
-    </table>
-  </div>
+      <td>Log MIDI events to "mymidilog.dat"</td>
+    </tr>
+  </table>
 
   <h3><a id="minframeskip">minframeskip</a></h3>
 
@@ -2864,21 +2702,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set minframeskip</code></td>
+  <table>
+    <tr>
+      <td><code>set minframeskip</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set minframeskip &lt;number&gt;</code></td>
+    <tr>
+      <td><code>set minframeskip &lt;number&gt;</code></td>
 
-        <td>Sets the number of frame skips</td>
-      </tr>
-    </table>
-  </div>
+      <td>Sets the number of frame skips</td>
+    </tr>
+  </table>
 
   <h3><a id="mute">mute</a></h3>
 
@@ -2888,27 +2724,25 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set mute</code></td>
+  <table>
+    <tr>
+      <td><code>set mute</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set mute on</code></td>
+    <tr>
+      <td><code>set mute on</code></td>
 
-        <td>Mute sound</td>
-      </tr>
+      <td>Mute sound</td>
+    </tr>
 
-      <tr>
-        <td><code>set mute off</code></td>
+    <tr>
+      <td><code>set mute off</code></td>
 
-        <td>Unmute sound</td>
-      </tr>
-    </table>
-  </div>
+      <td>Unmute sound</td>
+    </tr>
+  </table>
 
   <h3><a id="noise">noise</a></h3>
 
@@ -2920,21 +2754,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set noise</code></td>
+  <table>
+    <tr>
+      <td><code>set noise</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set noise 7</code></td>
+    <tr>
+      <td><code>set noise 7</code></td>
 
-        <td>Add a moderate amount of noise</td>
-      </tr>
-    </table>
-  </div>
+      <td>Add a moderate amount of noise</td>
+    </tr>
+  </table>
 
   <h3><a id="pause">pause</a></h3>
 
@@ -2944,27 +2776,25 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set pause</code></td>
+  <table>
+    <tr>
+      <td><code>set pause</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set pause on</code></td>
+    <tr>
+      <td><code>set pause on</code></td>
 
-        <td>Pauses emulation</td>
-      </tr>
+      <td>Pauses emulation</td>
+    </tr>
 
-      <tr>
-        <td><code>set pause off</code></td>
+    <tr>
+      <td><code>set pause off</code></td>
 
-        <td>Unpauses emulation</td>
-      </tr>
-    </table>
-  </div>
+      <td>Unpauses emulation</td>
+    </tr>
+  </table>
 
   <div class="note">
     Note: Some video settings cannot be applied to an already rendered frame and will therefore not take effect until openMSX is unpaused.
@@ -2978,27 +2808,25 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set power</code></td>
+  <table>
+    <tr>
+      <td><code>set power</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set power on</code></td>
+    <tr>
+      <td><code>set power on</code></td>
 
-        <td>Turns the MSX machine on (the default)</td>
-      </tr>
+      <td>Turns the MSX machine on (the default)</td>
+    </tr>
 
-      <tr>
-        <td><code>set power off</code></td>
+    <tr>
+      <td><code>set power off</code></td>
 
-        <td>Turns the MSX machine off</td>
-      </tr>
-    </table>
-  </div>
+      <td>Turns the MSX machine off</td>
+    </tr>
+  </table>
 
   <h3><a id="printerlogfilename">printerlogfilename</a></h3>
 
@@ -3008,21 +2836,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set printerlogfilename</code></td>
+  <table>
+    <tr>
+      <td><code>set printerlogfilename</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set printerlogfilename myprinterlog.txt</code></td>
+    <tr>
+      <td><code>set printerlogfilename myprinterlog.txt</code></td>
 
-        <td>Log to "myprinterlog.txt"</td>
-      </tr>
-    </table>
-  </div>
+      <td>Log to "myprinterlog.txt"</td>
+    </tr>
+  </table>
 
   <h3><a id="print-resolution">print-resolution</a></h3>
 
@@ -3034,21 +2860,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set print-resolution</code></td>
+  <table>
+    <tr>
+      <td><code>set print-resolution</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set print-resolution 600</code></td>
+    <tr>
+      <td><code>set print-resolution 600</code></td>
 
-        <td>Sets resolution to 600 dpi</td>
-      </tr>
-    </table>
-  </div>
+      <td>Sets resolution to 600 dpi</td>
+    </tr>
+  </table>
 
   <h3><a id="r800_freq">r800_freq / r800_freq_locked</a></h3>
 
@@ -3062,21 +2886,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set renderer</code></td>
+  <table>
+    <tr>
+      <td><code>set renderer</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set renderer &lt;name&gt;</code></td>
+    <tr>
+      <td><code>set renderer &lt;name&gt;</code></td>
 
-        <td>Switches to the given renderer</td>
-      </tr>
-    </table>
-  </div>
+      <td>Switches to the given renderer</td>
+    </tr>
+  </table>
 
   <h3><a id="renshaturbo">renshaturbo</a></h3>
 
@@ -3086,21 +2908,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set renshaturbo</code></td>
+  <table>
+    <tr>
+      <td><code>set renshaturbo</code></td>
 
-        <td>Shows the current renshaturbo value</td>
-      </tr>
+      <td>Shows the current renshaturbo value</td>
+    </tr>
 
-      <tr>
-        <td><code>set renshaturbo &lt;num&gt;</code></td>
+    <tr>
+      <td><code>set renshaturbo &lt;num&gt;</code></td>
 
-        <td>Sets speed to value &lt;num&gt;</td>
-      </tr>
-    </table>
-  </div>
+      <td>Sets speed to value &lt;num&gt;</td>
+    </tr>
+  </table>
 
   <div class="note">
     Note: This setting is only available if the current MSX machine has hardware Rensha Turbo support.
@@ -3114,21 +2934,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set rs232-inputfilename</code></td>
+  <table>
+    <tr>
+      <td><code>set rs232-inputfilename</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set rs232-inputfilename myrs232input.txt</code></td>
+    <tr>
+      <td><code>set rs232-inputfilename myrs232input.txt</code></td>
 
-        <td>Reads from "myrs232input.txt"</td>
-      </tr>
-    </table>
-  </div>
+      <td>Reads from "myrs232input.txt"</td>
+    </tr>
+  </table>
 
   <h3><a id="rs232-outputfilename">rs232-outputfilename</a></h3>
 
@@ -3138,21 +2956,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set rs232-outputfilename</code></td>
+  <table>
+    <tr>
+      <td><code>set rs232-outputfilename</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set rs232-outputfilename myrs232output.txt</code></td>
+    <tr>
+      <td><code>set rs232-outputfilename myrs232output.txt</code></td>
 
-        <td>Write to "myrs232output.txt"</td>
-      </tr>
-    </table>
-  </div>
+      <td>Write to "myrs232output.txt"</td>
+    </tr>
+  </table>
 
   <h3><a id="rtcmode">rtcmode</a></h3>
 
@@ -3168,27 +2984,25 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set rtcmode</code></td>
+  <table>
+    <tr>
+      <td><code>set rtcmode</code></td>
 
-        <td>Shows the current mode</td>
-      </tr>
+      <td>Shows the current mode</td>
+    </tr>
 
-      <tr>
-        <td><code>set rtcmode EmuTime</code></td>
+    <tr>
+      <td><code>set rtcmode EmuTime</code></td>
 
-        <td>Set EmuTime mode (the default)</td>
-      </tr>
+      <td>Set EmuTime mode (the default)</td>
+    </tr>
 
-      <tr>
-        <td><code>set rtcmode RealTime</code></td>
+    <tr>
+      <td><code>set rtcmode RealTime</code></td>
 
-        <td>Set RealTime mode</td>
-      </tr>
-    </table>
-  </div>
+      <td>Set RealTime mode</td>
+    </tr>
+  </table>
 
   <h3><a id="samples">samples</a></h3>
 
@@ -3198,21 +3012,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set samples</code></td>
+  <table>
+    <tr>
+      <td><code>set samples</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set samples 1024</code></td>
+    <tr>
+      <td><code>set samples 1024</code></td>
 
-        <td>Use a mixing buffer of 1024 samples</td>
-      </tr>
-    </table>
-  </div>
+      <td>Use a mixing buffer of 1024 samples</td>
+    </tr>
+  </table>
 
   <h3><a id="save_settings_on_exit">save_settings_on_exit</a></h3>
 
@@ -3222,27 +3034,25 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set save_settings_on_exit</code></td>
+  <table>
+    <tr>
+      <td><code>set save_settings_on_exit</code></td>
 
-        <td>Show current setting</td>
-      </tr>
+      <td>Show current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set save_settings_on_exit on</code></td>
+    <tr>
+      <td><code>set save_settings_on_exit on</code></td>
 
-        <td>Enable auto save</td>
-      </tr>
+      <td>Enable auto save</td>
+    </tr>
 
-      <tr>
-        <td><code>set save_settings_on_exit off</code></td>
+    <tr>
+      <td><code>set save_settings_on_exit off</code></td>
 
-        <td>Disable auto save</td>
-      </tr>
-    </table>
-  </div>
+      <td>Disable auto save</td>
+    </tr>
+  </table>
 
   <h3><a id="scale_algorithm">scale_algorithm</a></h3>
 
@@ -3253,27 +3063,25 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set scale_algorithm</code></td>
+  <table>
+    <tr>
+      <td><code>set scale_algorithm</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set scale_algorithm simple</code></td>
+    <tr>
+      <td><code>set scale_algorithm simple</code></td>
 
-        <td>Selects the default scale algorithm</td>
-      </tr>
+      <td>Selects the default scale algorithm</td>
+    </tr>
 
-      <tr>
-        <td><code>set scale_algorithm hq</code></td>
+    <tr>
+      <td><code>set scale_algorithm hq</code></td>
 
-        <td>Selects the HQ2x/3x/4x scale algorithm</td>
-      </tr>
-    </table>
-  </div>
+      <td>Selects the HQ2x/3x/4x scale algorithm</td>
+    </tr>
+  </table>
 
   <div class="note">
     Note: Not all renderers support all scale algorithms.
@@ -3287,21 +3095,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set scale_factor</code></td>
+  <table>
+    <tr>
+      <td><code>set scale_factor</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set scale_factor &lt;n&gt;</code></td>
+    <tr>
+      <td><code>set scale_factor &lt;n&gt;</code></td>
 
-        <td>Sets a new scale factor</td>
-      </tr>
-    </table>
-  </div>
+      <td>Sets a new scale factor</td>
+    </tr>
+  </table>
 
   <div class="note">
     Note: Not all renderers support all scale factors.
@@ -3315,21 +3121,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set scanline</code></td>
+  <table>
+    <tr>
+      <td><code>set scanline</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set scanline &lt;value&gt;</code></td>
+    <tr>
+      <td><code>set scanline &lt;value&gt;</code></td>
 
-        <td>Changes the value</td>
-      </tr>
-    </table>
-  </div>
+      <td>Changes the value</td>
+    </tr>
+  </table>
 
   <div class="note">
     Note: Some scalers will not render scanlines at all.
@@ -3343,21 +3147,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set sound_driver sdl</code></td>
+  <table>
+    <tr>
+      <td><code>set sound_driver sdl</code></td>
 
-        <td>Selects the SDL sound driver (all platforms)</td>
-      </tr>
+      <td>Selects the SDL sound driver (all platforms)</td>
+    </tr>
 
-      <tr>
-        <td><code>set sound_driver directx</code></td>
+    <tr>
+      <td><code>set sound_driver directx</code></td>
 
-        <td>Selects the DirectX sound driver (Windows only)</td>
-      </tr>
-    </table>
-  </div>
+      <td>Selects the DirectX sound driver (Windows only)</td>
+    </tr>
+  </table>
 
   <h3><a id="speed">speed</a></h3>
 
@@ -3367,21 +3169,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set speed</code></td>
+  <table>
+    <tr>
+      <td><code>set speed</code></td>
 
-        <td>Shows current emulation speed</td>
-      </tr>
+      <td>Shows current emulation speed</td>
+    </tr>
 
-      <tr>
-        <td><code>set speed &lt;num&gt;</code></td>
+    <tr>
+      <td><code>set speed &lt;num&gt;</code></td>
 
-        <td>Sets new emulation speed</td>
-      </tr>
-    </table>
-  </div>
+      <td>Sets new emulation speed</td>
+    </tr>
+  </table>
 
   <h3><a id="soundchip_mode">&lt;soundchip&gt;_mode</a></h3>
 
@@ -3391,33 +3191,31 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set &lt;soundchip&gt;_mode</code></td>
+  <table>
+    <tr>
+      <td><code>set &lt;soundchip&gt;_mode</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set &lt;soundchip&gt;_mode mono</code></td>
+    <tr>
+      <td><code>set &lt;soundchip&gt;_mode mono</code></td>
 
-        <td>Plays a mono sound on both the left and right channel</td>
-      </tr>
+      <td>Plays a mono sound on both the left and right channel</td>
+    </tr>
 
-      <tr>
-        <td><code>set &lt;soundchip&gt;_mode left</code></td>
+    <tr>
+      <td><code>set &lt;soundchip&gt;_mode left</code></td>
 
-        <td>Plays a mono sound on only the left channel</td>
-      </tr>
+      <td>Plays a mono sound on only the left channel</td>
+    </tr>
 
-      <tr>
-        <td><code>set &lt;soundchip&gt;_mode right</code></td>
+    <tr>
+      <td><code>set &lt;soundchip&gt;_mode right</code></td>
 
-        <td>Plays a mono sound on only the right channel</td>
-      </tr>
-    </table>
-  </div>
+      <td>Plays a mono sound on only the right channel</td>
+    </tr>
+  </table>
 
   <div class="examplestitle">
     examples:
@@ -3438,21 +3236,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set &lt;soundchip&gt;_volume</code></td>
+  <table>
+    <tr>
+      <td><code>set &lt;soundchip&gt;_volume</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set &lt;soundchip&gt;_volume &lt;num&gt;</code></td>
+    <tr>
+      <td><code>set &lt;soundchip&gt;_volume &lt;num&gt;</code></td>
 
-        <td>Sets new volume; 0 is off, 100 is maximum</td>
-      </tr>
-    </table>
-  </div>
+      <td>Sets new volume; 0 is off, 100 is maximum</td>
+    </tr>
+  </table>
 
   <div class="examplestitle">
     examples:
@@ -3472,27 +3268,25 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set throttle</code></td>
+  <table>
+    <tr>
+      <td><code>set throttle</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set throttle on</code></td>
+    <tr>
+      <td><code>set throttle on</code></td>
 
-        <td>Turn throttle mode on (normal operation)</td>
-      </tr>
+      <td>Turn throttle mode on (normal operation)</td>
+    </tr>
 
-      <tr>
-        <td><code>set throttle off</code></td>
+    <tr>
+      <td><code>set throttle off</code></td>
 
-        <td>Turn throttle mode off (fast forward)</td>
-      </tr>
-    </table>
-  </div>
+      <td>Turn throttle mode off (fast forward)</td>
+    </tr>
+  </table>
 
   <h3><a id="umr_callback">umr_callback</a></h3>
 
@@ -3504,21 +3298,19 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set umr_callback</code></td>
+  <table>
+    <tr>
+      <td><code>set umr_callback</code></td>
 
-        <td>Shows the current UMR callback setting</td>
-      </tr>
+      <td>Shows the current UMR callback setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set umr_callback umrcallback</code></td>
+    <tr>
+      <td><code>set umr_callback umrcallback</code></td>
 
-        <td>Sets callback proc to <code>umrcallback</code></td>
-      </tr>
-    </table>
-  </div>
+      <td>Sets callback proc to <code>umrcallback</code></td>
+    </tr>
+  </table>
 
   <h3><a id="user_directories">user_directories</a></h3>
 
@@ -3529,33 +3321,31 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set user_directories</code></td>
+  <table>
+    <tr>
+      <td><code>set user_directories</code></td>
 
-        <td>Shows the current list</td>
-      </tr>
+      <td>Shows the current list</td>
+    </tr>
 
-      <tr>
-        <td><code>set user_directories "~/disks ~/roms"</code></td>
+    <tr>
+      <td><code>set user_directories "~/disks ~/roms"</code></td>
 
-        <td>Replace the list with a new one</td>
-      </tr>
+      <td>Replace the list with a new one</td>
+    </tr>
 
-      <tr>
-        <td><code>set user_directories {}</code></td>
+    <tr>
+      <td><code>set user_directories {}</code></td>
 
-        <td>Remove all user directories</td>
-      </tr>
+      <td>Remove all user directories</td>
+    </tr>
 
-      <tr>
-        <td><code>lappend user_directories ~/tapes</code></td>
+    <tr>
+      <td><code>lappend user_directories ~/tapes</code></td>
 
-        <td>Add a directory to the list</td>
-      </tr>
-    </table>
-  </div>
+      <td>Add a directory to the list</td>
+    </tr>
+  </table>
 
   <h3><a id="vdpcmdtrace">vdpcmdtrace</a></h3>
 
@@ -3565,27 +3355,25 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set vdpcmdtrace</code></td>
+  <table>
+    <tr>
+      <td><code>set vdpcmdtrace</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set vdpcmdtrace on</code></td>
+    <tr>
+      <td><code>set vdpcmdtrace on</code></td>
 
-        <td>Enables VDP command tracing</td>
-      </tr>
+      <td>Enables VDP command tracing</td>
+    </tr>
 
-      <tr>
-        <td><code>set vdpcmdtrace off</code></td>
+    <tr>
+      <td><code>set vdpcmdtrace off</code></td>
 
-        <td>Disables VDP command tracing</td>
-      </tr>
-    </table>
-  </div>
+      <td>Disables VDP command tracing</td>
+    </tr>
+  </table>
 
   <h3><a id="videosource">videosource</a></h3>
 
@@ -3595,27 +3383,25 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set videosource</code></td>
+  <table>
+    <tr>
+      <td><code>set videosource</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set videosource MSX</code></td>
+    <tr>
+      <td><code>set videosource MSX</code></td>
 
-        <td>Switch to normal MSX screen</td>
-      </tr>
+      <td>Switch to normal MSX screen</td>
+    </tr>
 
-      <tr>
-        <td><code>set videosource GFX9000</code></td>
+    <tr>
+      <td><code>set videosource GFX9000</code></td>
 
-        <td>Switch to GFX9000 screen</td>
-      </tr>
-    </table>
-  </div>
+      <td>Switch to GFX9000 screen</td>
+    </tr>
+  </table>
 
   <div class="note">
     Note: This setting is only available if the <code>gfx9000</code> extension is present.
@@ -3629,27 +3415,25 @@ div.usage td {
     usage:
   </div>
 
-  <div class="usage">
-    <table>
-      <tr>
-        <td><code>set v9990cmdtrace</code></td>
+  <table>
+    <tr>
+      <td><code>set v9990cmdtrace</code></td>
 
-        <td>Shows the current setting</td>
-      </tr>
+      <td>Shows the current setting</td>
+    </tr>
 
-      <tr>
-        <td><code>set v9990cmdtrace on</code></td>
+    <tr>
+      <td><code>set v9990cmdtrace on</code></td>
 
-        <td>Enables V9990 command tracing</td>
-      </tr>
+      <td>Enables V9990 command tracing</td>
+    </tr>
 
-      <tr>
-        <td><code>set v9990cmdtrace off</code></td>
+    <tr>
+      <td><code>set v9990cmdtrace off</code></td>
 
-        <td>Disables V9990 command tracing</td>
-      </tr>
-    </table>
-  </div>
+      <td>Disables V9990 command tracing</td>
+    </tr>
+  </table>
 
   <div class="note">
     Note: This setting is only available if the <code>gfx9000</code> extension is present.
