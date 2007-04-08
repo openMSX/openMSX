@@ -32,7 +32,7 @@ ol.toclist li {
   in openMSX. It implements the basic stuff needed to handle files
   and subdirectories on MSX media. It also helps one creating new disk
   image files, both simple 360 kB and 720 kB disks as well as
-  IDE-HD images containing up to 30 partitions of 32 MB each.
+  hard disk images containing up to 30 partitions of 32 MB each.
   Creating disk images and manipulating the files on them can be
   done without the need of a running emulated MSX (<code>set power
   off</code>).</p>
@@ -289,9 +289,8 @@ ol.toclist li {
   <h2><a id="examples">Examples</a></h2>
 
   <p>In these examples we will run the diskmanipulator while the
-  emulated MSX is powered off.</p>
-
-  <p>It is possible to run these commands while the machine is
+  emulated MSX is powered off.
+  It is possible to run these commands while the machine is
   turned on ofcourse, but be warned that this might have some
   strange, unexpected behaviour depending on the emulated MSX model
   and the running software on this MSX.</p>
@@ -311,7 +310,7 @@ ol.toclist li {
   <p>
     Here we create a regular 720 kB (double sided, double density)
     disk. Then we place the files and subdirectories from the directory
-    <code>/tmp/todisk/</code> on this new disk.
+    <code>/tmp/todisk/</code> on this new disk:
   </p>
 
   <div class="commandline">
@@ -329,9 +328,9 @@ ol.toclist li {
   <p>
     Here we create a new HD image with 3 partions the first
     partition is 32 MB, then 16 MB and finaly a small
-    one of 720 kB.<br />
+    one of 720 kB.
     Then we place the files and subdirs of the directory
-    <code>/tmp/topart1/</code> on the first partition and <code>/tmp/topart3/</code> to the third partition.
+    <code>/tmp/topart1/</code> on the first partition and <code>/tmp/topart3/</code> on the third partition:
   </p>
 
   <div class="commandline">
@@ -352,7 +351,7 @@ ol.toclist li {
 
   <p>
     On the diskimage <code>/tmp/disk.dsk</code> we will create a new
-    subdirectory called <code>newsub</code> and then we fill this one with the
+    subdirectory called <code>newsub</code> and then we fill this subdirectory with the
     <code>.txt</code> files from <code>/home/david/sources</code>:
   </p>
 
