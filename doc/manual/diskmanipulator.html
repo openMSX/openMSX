@@ -16,11 +16,6 @@
   <style type="text/css">
 /*<![CDATA[*/
 
-div.examplestitle {
-	padding-left: 16pt;
-	margin-left: 0;
-	background-color: #E8E4FF;
-}
 ol.toclist li {
 	padding-right: 8pt;
 	display: inline;
@@ -49,7 +44,7 @@ ol.toclist li {
   <div class="note">
     Note: For now, this command is only available if openMSX is
     emulating an MSX model that has diskdrives, even if you are
-    planning to only use the <code>virtual_drive</code> device.
+    planning to only use the <code><a class="external" href="commands.html#disk">virtual_drive</a></code> device.
   </div>
 
   <h2>General Syntax</h2>
@@ -311,97 +306,83 @@ ol.toclist li {
   The same would happen if you were running a disk cache
   program in your emulated MSX machine.</p>
 
-  <div class="examplestitle">
-    creating a new disk with content
-  </div>
+  <h3>creating a new disk with content</h3>
 
-  <div class="examples">
+  <p>
     Here we create a regular 720 kB (double sided, double density)
     disk. Then we place the files and subdirectories from the directory
     <code>/tmp/todisk/</code> on this new disk.
+  </p>
 
-    <ul>
-      <li><code>set power off</code></li>
-
-      <li><code>diskmanipulator create /tmp/new-disk.dsk
-      720</code></li>
-
-      <li><code>virtual_drive /tmp/new-disk.dsk</code></li>
-
-      <li><code>diskmanipulator import virtual_drive
-      /tmp/todisk/</code></li>
-    </ul>
+  <div class="commandline">
+    set <a class="external" href="commands.html#power">power</a> off
+    <br />
+    diskmanipulator <a class="internal" href="#create">create</a> /tmp/new-disk.dsk 720
+    <br />
+    <a class="external" href="commands.html#disk">virtual_drive</a> /tmp/new-disk.dsk
+    <br />
+    diskmanipulator <a class="internal" href="#import">import</a> virtual_drive /tmp/todisk/
   </div>
 
-  <div class="examplestitle">
-    creating a new harddisk image with content
-  </div>
+  <h3>creating a new harddisk image with content</h3>
 
-  <div class="examples">
+  <p>
     Here we create a new HD image with 3 partions the first
     partition is 32 MB, then 16 MB and finaly a small
     one of 720 kB.<br />
     Then we place the files and subdirs of the directory
     <code>/tmp/topart1/</code> on the first partition and <code>/tmp/topart3/</code> to the third partition.
+  </p>
 
-    <ul>
-      <li>start openMSX with the ide extension</li>
-
-      <li><code>set power off</code></li>
-
-      <li><code>diskmanipulator create /tmp/new-hd.dsk 32M 16M
-      720</code></li>
-
-      <li><code>hda /tmp/new-hd.dsk</code> (for this the emulated
-      MSX has to be powered off)</li>
-
-      <li><code>diskmanipulator import hda1
-      /tmp/topart1</code></li>
-
-      <li><code>diskmanipulator import hda3
-      /tmp/topart3</code></li>
-    </ul>
+  <div class="commandline">
+    set <a class="external" href="commands.html#power">power</a> off
+    <br />
+    <a class="external" href="commands.html#ext">ext</a> ide
+    <br />
+    diskmanipulator <a class="internal" href="#create">create</a> /tmp/new-hd.dsk 32M 16M 720
+    <br />
+    <a class="external" href="commands.html#hd">hda</a> /tmp/new-hd.dsk
+    <br />
+    diskmanipulator <a class="internal" href="#import">import</a> hda1 /tmp/topart1
+    <br />
+    diskmanipulator <a class="internal" href="#import">import</a> hda3 /tmp/topart3
   </div>
 
-  <div class="examplestitle">
-    importing data in a new subdirectory
-  </div>
+  <h3>importing data in a new subdirectory</h3>
 
-  <div class="examples">
+  <p>
     On the diskimage <code>/tmp/disk.dsk</code> we will create a new
     subdirectory called <code>newsub</code> and then we fill this one with the
     <code>.txt</code> files from <code>/home/david/sources</code>:
+  </p>
 
-    <ul>
-      <li><code>set power off</code></li>
-
-      <li><code>diska /tmp/disk.dsk</code></li>
-
-      <li><code>diskmanipulator mkdir diska newsub</code></li>
-
-      <li><code>diskmanipulator chdir diska newsub</code></li>
-
-      <li><code>diskmanipulator import diska [glob -type f
-      /home/david/sources/*.txt]</code></li>
-    </ul>
+  <div class="commandline">
+    set <a class="external" href="commands.html#power">power</a> off
+    <br />
+    <a class="external" href="commands.html#disk">diska</a> /tmp/disk.dsk
+    <br />
+    diskmanipulator <a class="internal" href="#mkdir">mkdir</a> diska newsub
+    <br />
+    diskmanipulator <a class="internal" href="#chdir">chdir</a> diska newsub
+    <br />
+    diskmanipulator <a class="internal" href="#import">import</a> diska [glob -type f /home/david/sources/*.txt]
   </div>
 
-  <div class="examplestitle">
-    extracting files from an MSX harddisk image to the host OS
-  </div>
+  <h3>extracting files from an MSX harddisk image to the host OS</h3>
 
-  <div class="examples">
+  <p>
     We will extract files from the currenlty used harddisk image on
     partition1 in the MSX subdir <code>\demos\calculus</code> to <code>/tmp/</code>:
+  </p>
 
-    <ul>
-      <li>start openMSX with the ide extension</li>
-
-      <li><code>diskmanipulator chdir hda1
-      /demos/calculus</code></li>
-
-      <li><code>diskmanipulator export hda1 /tmp</code></li>
-    </ul>
+  <div class="commandline">
+    set <a class="external" href="commands.html#power">power</a> off
+    <br />
+    <a class="external" href="commands.html#ext">ext</a> ide
+    <br />
+    diskmanipulator <a class="internal" href="#chdir">chdir</a> hda1 /demos/calculus
+    <br />
+    diskmanipulator <a class="internal" href="#export">export</a> hda1 /tmp
   </div>
 
   <p class="version">$Id$</p>
