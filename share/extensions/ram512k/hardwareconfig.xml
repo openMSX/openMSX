@@ -6,7 +6,7 @@
     <manufacturer/>
     <code/>
     <release_year/>
-    <description>256kB memory mapper cartridge.</description>
+    <description>256 kB memory mapper cartridge.</description>
     <type>RAM expansion</type>
   </info>
   <devices>

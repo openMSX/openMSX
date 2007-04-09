@@ -6,7 +6,7 @@
     <manufacturer>Digital Design</manufacturer>
     <code>MegaRAM</code>
     <release_year></release_year>
-    <description>512kB MegaRAM.</description>
+    <description>512 kB MegaRAM.</description>
     <type>RAM expansion</type>
   </info>
   <devices>
