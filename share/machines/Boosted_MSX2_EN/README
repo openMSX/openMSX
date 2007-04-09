@@ -3,15 +3,15 @@ following features:
 
 - based on Philips NMS-8250 (most standard MSX2 in the Netherlands at least)
 - two external slots, slot B is a sub slot (2-1)
-- 2048kB memory mapper (in slot 3-2)
+- 2048 kB memory mapper (in slot 3-2)
 - 2 disk drives
-- V9958 VDP with 192kB VRAM
+- V9958 VDP with 192 kB VRAM
 - SCC+ in slot 2-0
 - FMPAC (slot 3-1)
 - MSX Audio
-- Moonsound with 640kB sample RAM
+- Moonsound with 640 kB sample RAM
 - GFX9000 (note that it's still experimental)
-- 512kB MegaRAM in slot 2-2
+- 512 kB MegaRAM in slot 2-2
 
 This configuration needs the following ROMs in the roms subdir:
 - nms8250_disk.rom, nms8250_basic-bios2.rom, nms8250_msx2sub.rom: same as
