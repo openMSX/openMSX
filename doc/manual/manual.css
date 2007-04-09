@@ -37,8 +37,15 @@ dd {
 	margin-left: 16pt;
 	margin-bottom: 0.5em;
 }
-div.commandline, pre {
+div.commandline, pre, code {
 	font-family: monospace;
+	letter-spacing: 0.1em;
+}
+code {
+	margin-left: 0.1em;
+	margin-right: 0.1em;
+}
+div.commandline, pre {
 	margin-left: 32pt;
 	margin-top: 0.5em;
 	margin-bottom: 0.5em;
@@ -52,7 +59,7 @@ div.usagetitle, div.examplestitle, div.explanationtitle, div.syntaxtitle {
 	font-style: italic;
 	margin-left: 16pt;
 }
-div.usage, div.examples {
+div.examples {
 	margin-left: 32pt;
 }
 p.todo {
