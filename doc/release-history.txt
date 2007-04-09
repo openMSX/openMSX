@@ -82,7 +82,7 @@ MSX device support:
   or "cdb" for the second CD-ROM etc. There is no support yet for audio tracks.
   Note that you have to run IDECDEX in the emulated MSX before you can use
   CD-ROMs; you can download it from Sunrise (http://www.msx.ch/sunformsx/).
-- Support for V9938 with only 16kB VRAM, as used in the SVI-738.
+- Support for V9938 with only 16 kB VRAM, as used in the SVI-738.
 - Major V9990 improvements.
 - Minor sound differences between two different PSG types (AY8910 and YM2149).
 - Added Ninja-tap, a joystick port expander.
@@ -153,7 +153,7 @@ MSX device support:
   loading.
 - Implemented saving to cassette (see above).
 - Implementation of SCREEN6 border and background stripes.
-- Implemented support for 192kB VRAM (now default in the Boosted_MSX2_EN
+- Implemented support for 192 kB VRAM (now default in the Boosted_MSX2_EN
   machine).
 - Implemented support for ADVRAM: use extension "advram-p" for machines in which
   slot 0 is not expanded (most MSXes) and use extension "advram-s" for machines
@@ -345,7 +345,7 @@ MSX device support:
 - MoonSound fixes.
 - Added slotexpander extension: use it to change one primary slot into four
   secondary slots.
-- 8kB BASIC ROMs now work correctly and are auto detected as well.
+- 8 kB BASIC ROMs now work correctly and are auto detected as well.
 - Added simple DC filter for cassette images.
   .wav files created by MicroWAVer should work now.
 - Fixes for TC8566AF FDC (used in turbo R), thanks to Daniel Vik:
@@ -562,7 +562,7 @@ openMSX 0.3.2 (2003-06-09)
 - New MSX devices:
   * MegaRAM
   * PAC (Panasonic SW-M001)
-  * Support for 8kB ROMs
+  * Support for 8 kB ROMs
 - New feature: grab input (try "set grabinput on").
   When enabled, the native mouse cursor cannot escape from the openMSX
   window anymore; makes using the mouse a lot easier in windowed mode.
