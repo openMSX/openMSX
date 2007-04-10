@@ -40,7 +40,8 @@
 	</li>
 	<li><a class="internal" href="#install">4. Installation</a></li>
 	<li><a class="internal" href="#next">5. Next Steps</a></li>
-	<li><a class="internal" href="#contact">6. Contact Info</a></li>
+	<li><a class="internal" href="#standalone">6. Stand-alone Binary</a></li>
+	<li><a class="internal" href="#contact">7. Contact Info</a></li>
 </ol>
 
 <h2><a id="intro">1. Introduction</a></h2>
@@ -92,15 +93,12 @@ Windows is also a supported platform for openMSX. Most Windows users will just d
 </dd>
 <dt>Mac OS X</dt>
 <dd>
-You can compile openMSX on Mac OS X. Nowadays we have at least one developer that runs Mac OS X and as a result support for Mac OS X has improved a lot as of openMSX 0.5.1. However, we do not have a binary package or a GUI yet, so you will have to use openMSX from the command line for now, unless you use third party software like <a class="external" href="http://www5f.biglobe.ne.jp/~nekocan/group_soft/ht_soft.html">Nekolauncher openMSX</a>.
-<br />
-This manual contains all the essential info to compile openMSX on Mac OS X. However, if you are not experienced in compiling software yourself, there is a nice
-<a class="external" href="http://www.msxgamesbox.com/Sections/emumac/openmsx.php">article at The MSX Games bOX</a>
-which explains everything in more detail. It seems to be getting a bit outdated, though, but it may still give you valuable hints.
+Since openMSX 0.6.0 we have a binary package for PPC and since openMSX 0.6.1 a universal binary. But if you like to make changes to the openMSX source code or follow the latest developments inbetween releases, you can compile openMSX yourself.<br />
+We do not have a GUI yet that works on Mac OS X, so you can either use openMSX from the command line for now, or use third party software like <a class="external" href="http://www5f.biglobe.ne.jp/~nekocan/group_soft/ht_soft.html">Nekolauncher openMSX</a> or <a class="external" href="http://www.cescoware.com/">openMSX Peashooter</a>.
 </dd>
 <dt>FreeBSD/NetBSD/OpenBSD</dt>
 <dd>
-openMSX was compiled successfully on FreeBSD 4 and 5 and OpenBSD. NetBSD build support is also integrated and should work as well, but we cannot easily test this. These are not platforms we support officially, but whenever a user finds compilation problems, we fix them, so usually compilation should work.
+openMSX was compiled successfully on FreeBSD 4 and 5 and OpenBSD. In FreeBSD 6, openMSX can even be found in the ports tree. NetBSD build support is also integrated and should work as well, but we cannot easily test this. These are not platforms we support officially, but whenever a user finds compilation problems, we fix them, so usually compilation should work.
 </dd>
 <dt>other operating systems</dt>
 <dd>
@@ -273,7 +271,7 @@ SVN administration directories which are all called <code>svn</code> or
 <code>.svn</code>.
 Do not mess with these, otherwise SVN will get confused.
 This directory created by SVN is what we will call in this manual <em>the top
-of the source tree</em>.  
+of the source tree</em>.
 </p>
 
 <p>
@@ -445,14 +443,14 @@ If you are using Fink, you should install the packages
 
 <h5>Microsoft Windows</h5>
 <p>
-If you want to build SDL yourself, please check out the patch which you can find in the directory <code>doc.dll\libSDL</code>. Apply this patch to the extracted <code>libSDL-1.2.9.zip</code>. Make sure you have the DirectX headers installed, see also <a class="external" href="http://www.libsdl.org/extras/win32/mingw32/README.txt">this README.txt</a>. After that, build it like this: 
+If you want to build SDL yourself, please check out the patch which you can find in the directory <code>doc.dll\libSDL</code>. Apply this patch to the extracted <code>libSDL-1.2.9.zip</code>. Make sure you have the DirectX headers installed, see also <a class="external" href="http://www.libsdl.org/extras/win32/mingw32/README.txt">this README.txt</a>. After that, build it like this:
 </p>
 
 <div class="commandline">
 ./autogen.sh<br/>
 ./configure --enable-stdio-redirect=no<br/>
 make<br/>
-make install 
+make install
 </div>
 
 <p>
@@ -508,7 +506,7 @@ If installing the correct libraries doesn't help,
 <a class="internal" href="#contact">contact the openMSX developers</a>.
 If you file a bug report, please attach the <code>probe.log</code> file
 that is written by the <code>configure</code> script in the directory
-<code>derived/[PLATFORM]-[FLAVOUR]/config/</code>.
+<code>derived/&lt;cpu&gt;-&lt;os&gt;-&lt;flavour&gt;/config/</code>.
 </p>
 
 <p>
@@ -548,7 +546,16 @@ Make sure you provide us with the error message you got.
 <h5>Mac OS X</h5>
 <p>
 The steps above apply to Mac OS X as well.
-If you have a G4 or better CPU, using <code>export OPENMSX_FLAVOUR=ppcg4</code> may give you a faster openMSX executable.
+If you have a G4 or better PPC CPU, using <code>export OPENMSX_FLAVOUR=ppcg4</code> may give you a faster openMSX executable.
+</p>
+<p>
+By default, openMSX is compiled for the type of CPU that is present in your Mac. If you want to build for a different CPU, use <code>export OPENMSX_TARGET_CPU=ppc</code> (PowerPC) or <code>export OPENMSX_TARGET_CPU=x86</code> (Intel). If you want to build a universal binary, use <code>export OPENMSX_TARGET_CPU=univ</code>.
+</p>
+<p>
+By default, only the openMSX executable itself is produced. If you want to create an application folder, define <code>export OPENMSX_TARGET_OS=darwin-app</code> before compilation.
+</p>
+<p>
+The normal build will link dynamically against the libraries available on your Mac. So if someone else wants to run the binary you built, that person has to install the same libraries. If you want a binary that does not have these external dependencies, read the chapter about <a class="internal" href="#standalone">building a stand-alone binary</a>.
 </p>
 
 <h2><a id="install">4. Installation</a></h2>
@@ -573,6 +580,9 @@ The easiest way to install openMSX system-wide is this command:
 <div class="commandline">
 sudo make install
 </div>
+<p>
+If you defined <code>export OPENMSX_TARGET_OS=darwin-app</code>, <code>make install</code> will create an application folder in <code>derived/&lt;cpu&gt;-darwin-app-&lt;flavour&gt;/bindist</code>. No <code>sudo</code> is needed.
+</p>
 
 <h2><a id="next">5. Next Steps</a></h2>
 
@@ -644,7 +654,36 @@ For example:
 /opt/openMSX/bin/openmsx
 </div>
 
-<h2><a id="contact">6. Contact Info</a></h2>
+<p>
+If you built an application folder, you can run it from Finder or from the command line:
+</p>
+<div class="commandline">
+open derived/&lt;cpu&gt;-darwin-app-&lt;flavour&gt;/bindist/openMSX.app
+</div>
+
+<h2><a id="standalone">6. Stand-alone Binary</a></h2>
+
+<p>
+This chapter describes how to build a binary of openMSX that does not depend on any library except those that are available on the platform by default. This procedure has only been implemented for Mac OS X, but it could be expanded for other operating systems without too much effort.
+</p>
+
+<p>
+The stand-alone binary is made by linking statically against all libraries which are not available as part of the basic platform. The build system will automatically download the sources for these libraries and build them in the minimal configuration needed by openMSX. If you want to change something about this process, for example switch to a newer library release, edit the <code>build/3rdparty.mk</code> Makefile.
+</p>
+
+<p>
+To build a stand-alone binary, run <code>make staticbindist</code>. Just like for normal compilation, you can set <code>OPENMSX_TARGET_CPU</code> to <code>ppc</code>, <code>x86</code> or <code>univ</code> to build for a different CPU. The files will be produced in <code>derived/&lt;cpu&gt;-darwin-app-&lt;flavour&gt;/bindist</code>.
+</p>
+
+<p>
+The stand-alone binary will be built in the special <code>bindist</code> flavour, which is optimized to give a good balance between speed and size. You can override it only by passing another flavour to Make like this: <code>make staticbindist OPENMSX_FLAVOUR=&lt;flavour&gt;</code>.
+</p>
+
+<p>
+The final output of <code>make staticbindist</code> is a DMG file in <code>derived/&lt;cpu&gt;-darwin-app-&lt;flavour&gt;/bindist</code>. This file is internet-enabled, which means it will be automatically mounted after it is downloaded.
+</p>
+
+<h2><a id="contact">7. Contact Info</a></h2>
 
 <p>
 Since openMSX is still in heavy development, feedback and bug reports are very
