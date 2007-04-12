@@ -566,6 +566,14 @@ void VDP::writeIO(word port, byte value, const EmuTime& time)
 					// it's not a register write because
 					// that breaks "SNOW26" demo
 				}
+				if (isMSX1VDP()) { 
+					// For these VDP's the VRAM pointer is modified when
+					// writing to VDP registers. Without this some demos won't
+					// run as on real MSX1, e.g. Planet of the Epas, Utopia and
+					// Waves 1.2. Thanks to dvik for finding this out. 
+					// Set read/write address.
+					vramPointer = ((word)value << 8 | dataLatch) & 0x3FFF;
+				}
 			} else {
 				// Set read/write address.
 				vramPointer = ((word)value << 8 | dataLatch) & 0x3FFF;

@@ -1,5 +1,10 @@
 $Id$
 
+2007-04-12 Manuel Bilderbeek <manuel@msxnet.org>
+	* Fix for MSX1 VDP's: on these VDP's the VRAM pointer is always
+	  updated when writing to the VDP registers. Fixes some MSX1 demos
+	  like Planet of the Epas.
+
 2007-03-23 Manuel Bilderbeek <manuel@msxnet.org>
 	* Integrated David's new commands.html into the manuals. Thanks for
 	  converting it!
