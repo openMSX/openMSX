@@ -20,13 +20,15 @@ Preparing for a release
 Creating a release candidate
 ----------------------------
 
-- Tag the CVS archive:
-    cvs rtag RELEASE_1_2_3 openMSX
+- Tag the SVN archive:
+    svn https://openmsx.svn.sourceforge.net/svnroot/openmsx/openmsx/trunk \
+        https://<host>/svnroot/openmsx/openmsx/tags/RELEASE_1_2_3 \
+        -m "Tagging release 1.2.3."
 - Export the tagged code:
-    cvs -d :ext:user@cvs.sourceforge.net:/cvsroot/openmsx \
-    export -r RELEASE_1_2_3 openMSX
+    svn export https://<host>/svnroot/openmsx/openmsx/tags/RELEASE_1_2_3 \
+        openmsx-1.2.3
   This step makes sure that exactly the tagged code will be released.
-  Export instead of checkout gets rid of the CVS admin directories.
+  Export instead of checkout gets rid of the SVN admin directories.
 - Create the distribution tar.gz file:
     make dist
 - Save the created file somewhere you can find it again:
@@ -68,10 +70,9 @@ Repeat until release worthy
 Create and test release candidates until a satisfactory release candidate
 is made, which will become the release.
 
-To move the release tag, use the following CVS command:
-  cvs tag -r <revision> -F RELEASE_1_2_3 <file>
-Maybe in the future release candidates will be made public as well, in that
-case they deserve a separate tag ("RELEASE_1_2_3_RC1").
+Last-minute patches have to be merged from "trunk" or the pre-release branch to
+the tag directory.
+TODO: Should we create a branch for every release?
 
 Make the release public
 -----------------------
@@ -99,7 +100,7 @@ Announce:
 - Post news item on sourceforge.net.
 
 Finally:
-- Put "Released openmsx-1.2.3." entry in the ChangeLog in CVS.
+- Put "Released openmsx-1.2.3." entry in the ChangeLog in SVN.
 - Set RELEASE_FLAG to false in build/version.mk
 - On the openMSX home page, update the lists "features of current release"
   and "features in development".
