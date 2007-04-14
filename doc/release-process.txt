@@ -21,9 +21,10 @@ Creating a release candidate
 ----------------------------
 
 - Tag the SVN archive:
-    svn https://openmsx.svn.sourceforge.net/svnroot/openmsx/openmsx/trunk \
-        https://<host>/svnroot/openmsx/openmsx/tags/RELEASE_1_2_3 \
-        -m "Tagging release 1.2.3."
+    svn copy \
+      https://openmsx.svn.sourceforge.net/svnroot/openmsx/openmsx/trunk \
+      https://<host>/svnroot/openmsx/openmsx/tags/RELEASE_1_2_3 \
+      -m "Tagging release 1.2.3."
 - Export the tagged code:
     svn export https://<host>/svnroot/openmsx/openmsx/tags/RELEASE_1_2_3 \
         openmsx-1.2.3
