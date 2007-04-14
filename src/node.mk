@@ -4,7 +4,7 @@ include build/node-start.mk
 
 SUBDIRS:= \
 	cassette commands config console cpu debugger events fdc file ide \
-	input memory serial settings sound thread video
+	input memory resource serial settings sound thread video
 
 SRC_HDR:= \
 	EmuTime EmuDuration \
@@ -60,4 +60,3 @@ DIST:= \
 	Doxyfile
 
 include build/node-end.mk
-
