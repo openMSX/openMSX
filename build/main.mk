@@ -690,22 +690,27 @@ endif
 # Select platform variant suitable for binary packaging.
 BINDIST_TARGET_OS=$(OPENMSX_TARGET_OS:darwin=darwin-app)
 
-ifeq ($(OPENMSX_TARGET_CPU),univ)
-.PHONY: $(addprefix 3rdparty-,$(CPU_LIST))
+.PHONY: $(addprefix 3rdparty-,$(CPU_LIST)) run-3rdparty
+
 3rdparty: $(addprefix 3rdparty-,$(CPU_LIST))
+
+# Recursive invocation for different CPUs.
+# This is used even when building for a single CPU, since the OS and flavour
+# can differ.
 $(addprefix 3rdparty-,$(CPU_LIST)):
-	$(MAKE) -f $(MAKE_PATH)/main.mk 3rdparty \
+	$(MAKE) -f $(MAKE_PATH)/main.mk run-3rdparty \
 		OPENMSX_TARGET_CPU=$(@:3rdparty-%=%) \
 		OPENMSX_TARGET_OS=$(BINDIST_TARGET_OS) \
 		OPENMSX_FLAVOUR=$(BINDIST_FLAVOUR)
-else
-3rdparty:
+
+# Call third party Makefile with the right arguments.
+# This is an internal target, users should select "3rdparty" instead.
+run-3rdparty:
 	$(MAKE) -f $(MAKE_PATH)/3rdparty.mk \
 		BUILD_PATH=$(BUILD_PATH)/3rdparty \
 		CC="$(CC) $(TARGET_FLAGS)" _CFLAGS="$(CXXFLAGS)" \
 		LD="$(CC) $(TARGET_FLAGS)" \
 		$(COMPILE_ENV)
-endif
 
 staticbindist: 3rdparty
 	$(MAKE) -f build/main.mk bindist \
