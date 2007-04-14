@@ -9,37 +9,15 @@
   <link title="Plain" rel="alternate stylesheet" href="manual.css" type="text/css" />
 
   <title>openMSX Console Command Reference</title>
-
-  <style type="text/css">
-/*<![CDATA[*/
-
-ol.toc li {
-	font-weight: bold;
-	text-transform: uppercase;
-	margin-top: 0.5em;
-}
-ol.toclist li {
-	font-weight: normal;
-	text-transform: none;
-	padding-right: 8pt;
-	display: inline;
-}
-
-td {
-	padding-right: 32pt;
-}
-
-/*]]>*/
-  </style>
 </head>
 
 <body>
   <h1>openMSX Console Command Reference</h1>
 
-  <ol class="toc">
+  <ol class="inlinetoccat">
     <li>Commands
 
-      <ol class="toclist">
+      <ol class="inlinetoc">
         <li><a class="internal" href="#after">after</a></li>
 
         <li><a class="internal" href="#bind">bind / unbind / bind_default / unbind_default</a></li>
@@ -122,7 +100,7 @@ td {
 
     <li>Old Commands
 
-      <ol class="toclist">
+      <ol class="inlinetoc">
         <li><a class="internal" href="#aliasunalias">alias / unalias</a></li>
 
         <li><a class="internal" href="#decr">decr</a></li>
@@ -135,7 +113,7 @@ td {
 
     <li>Settings
 
-      <ol class="toclist">
+      <ol class="inlinetoc">
         <li><a class="internal" href="#accuracy">accuracy</a></li>
 
         <li><a class="internal" href="#audio-inputfilename">audio-inputfilename</a></li>
@@ -277,7 +255,7 @@ td {
   It is possible to query a list of
   postponed commands and also to cancel postponed commands.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -332,7 +310,7 @@ td {
     </tr>
   </table>
 
-  <div class="examplestitle">
+  <div class="subsectiontitle">
     examples:
   </div>
 
@@ -395,7 +373,7 @@ td {
     </tr>
   </table>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -431,7 +409,7 @@ td {
     </tr>
   </table>
 
-  <div class="examplestitle">
+  <div class="subsectiontitle">
     examples:
   </div>
 
@@ -462,7 +440,7 @@ td {
 
   <p>ROM cartridges are a special class of extensions. For extensions that are not ROM cartridges, see the commands <code><a class="internal" href="#ext">ext</a></code>, <code><a class="internal" href="#list_extensions">list_extensions</a></code> and <code><a class="internal" href="#remove_extension">remove_extension</a></code>.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -496,7 +474,7 @@ td {
 
   <p>Controls the openMSX cassette player. The various subcommands can be used to insert, remove, create and rewind tape images.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -543,7 +521,7 @@ td {
   <p>Change the CDROM image. The commands <code>cda</code>, <code>cdb</code> etc. are assigned to all available CDROM drives in the MSX. They will not
   correspond to drive names as used in MSX-DOS.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -577,7 +555,7 @@ td {
 
   <p>Iterates through the values of an enumerated setting.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -589,7 +567,7 @@ td {
     </tr>
   </table>
 
-  <div class="examplestitle">
+  <div class="subsectiontitle">
     examples:
   </div>
 
@@ -744,7 +722,7 @@ td {
 
   <p>In addition to the physical <code>disk&lt;x&gt;</code> drives, there is the <code>virtual_drive</code>. This fake drive does not correspond to any MSX hardware. It can be used as a source or target for <code><a class="internal" href="#diskmanipulator">diskmanipulator</a></code> operations just like physical drives.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -785,7 +763,7 @@ td {
   <p>Only has effect in windowed mode and when the <code><a class="internal" href="#grabinput">grabinput</a></code> setting is active. Temporarily release the input grab.
   After the openMSX window has lost and regained the focus, the grab is again effective.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -801,7 +779,7 @@ td {
 
   <p>This command exits the TCL interpreter, which leads to openMSX exiting as well.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -818,7 +796,7 @@ td {
   <p>Insert an MSX extension in a running MSX machine. The extension can be removed again with the <code><a class="internal" href="#remove_extension">remove_extension</a></code>
   command. See also the commands <code><a class="internal" href="#cart">cart</a></code>, <code><a class="internal" href="#list_extensions">list_extensions</a></code> and <code><a class="internal" href="#remove_extension">remove_extension</a></code>.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -835,7 +813,7 @@ td {
   <p>Change the hard disk image. The commands <code>hda</code>, <code>hdb</code> etc. are assigned to all available hard disk drives in the MSX. They
   will not correspond to drive names as used in MSX-DOS.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -867,7 +845,7 @@ td {
 
   <p>Shows help info for console commands.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -891,7 +869,7 @@ td {
 
   <p>This used to be an openMSX custom command, but is now a native TCL command.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -915,7 +893,7 @@ td {
     </tr>
   </table>
 
-  <div class="examplestitle">
+  <div class="subsectiontitle">
     examples:
   </div>
 
@@ -929,7 +907,7 @@ td {
 
   <p>Shows what I/O ports are connected to which devices. The related command <code><a class="internal" href="#slotmap">slotmap</a></code> shows a similar overview, but for memory-mapped devices.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -945,7 +923,7 @@ td {
 
   <p>Press or release keys in the MSX keyboard matrix. Can be used to make an external program or TCL script press MSX keys.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -963,7 +941,7 @@ td {
     </tr>
   </table>
 
-  <div class="examplestitle">
+  <div class="subsectiontitle">
     examples:
   </div>
 
@@ -977,7 +955,7 @@ td {
   <p>Returns a list of inserted cartridges and extensions. These can be removed with the <code><a class="internal" href="#remove_extension">remove_extension</a></code> command or
   additional items can be added with the <code><a class="internal" href="#cart">cart</a></code> and <code><a class="internal" href="#ext">ext</a></code> commands.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -993,7 +971,7 @@ td {
 
   <p>Load settings from a given settings XML file. The settings file does not have to be complete: settings that are not mentioned in the given file are left untouched. See also <code><a class="internal" href="#save_settings">save_settings</a></code>.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1009,7 +987,7 @@ td {
 
   <p>Switch to a new MSX machine.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1036,7 +1014,7 @@ td {
   <p>Shows information about a certain topic. This command is similar to the <code><a class="internal" href="#openmsx_info">openmsx_info</a></code> command. The topics of
   <code>machine_info</code> are all machine specific, while the topics of <code><a class="internal" href="#openmsx_info">openmsx_info</a></code> are generic.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1058,7 +1036,7 @@ td {
 
   <p>Shows information about a certain topic. For machine-specific topics, use the related command <code><a class="internal" href="#machine_info">machine_info</a></code>.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1080,7 +1058,7 @@ td {
 
   <p>Shows the current VDP palette settings.  Related command: <code><a class="internal" href="#vdpregs">vdpregs</a></code>.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1096,7 +1074,7 @@ td {
 
   <p>Plugs or unplugs a plug into a connector, for example plug a virtual joystick into a virtual joystick port.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1126,7 +1104,7 @@ td {
     </tr>
   </table>
 
-  <div class="examplestitle">
+  <div class="subsectiontitle">
     examples:
   </div>
 
@@ -1141,7 +1119,7 @@ td {
 
   <p>Controls video recording: write openMSX audio/video to an AVI file.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1185,7 +1163,7 @@ td {
 
   <p>Remove a cartridge or extension from a running MSX machine. See also the commands <code><a class="internal" href="#cart">cart</a></code>, <code><a class="internal" href="#ext">ext</a></code>, <code><a class="internal" href="#list_extensions">list_extensions</a></code>.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1201,7 +1179,7 @@ td {
 
   <p>Emulates the pressing of the reset button on the MSX. This sends a reset pulse to all devices, but does not erase memory contents.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1219,7 +1197,7 @@ td {
 
   <p>If you disabled <code><a class="internal" href="#save_settings_on_exit">save_settings_on_exit</a></code>, you can use this command to save your preferences.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1241,7 +1219,7 @@ td {
 
   <p>Take a screenshot of the openMSX screen. This includes the console and icons if those are visible when the screenshot is taken. The screenshots are PNG files and are saved in the <code>screenshots</code> subdirectory of the openMSX data directory in your home directory.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1269,7 +1247,7 @@ td {
 
   <p>Change or query the value of various settings. See also: <code><a class="internal" href="#unset">unset</a></code>.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1295,7 +1273,7 @@ td {
 
   <p>The settings that can be adjusted with this command are listed and explained at the end of this document.</p>
 
-  <div class="examplestitle">
+  <div class="subsectiontitle">
     examples:
   </div>
 
@@ -1310,7 +1288,7 @@ td {
 
   <p>Shows what devices are inserted into which slots. The related command <code><a class="internal" href="#iomap">iomap</a></code> shows a similar overview, but for I/O mapped devices.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1326,7 +1304,7 @@ td {
 
   <p>Shows the currently selected slots. To see what devices are located in the slots, use the <code><a class="internal" href="#slotmap">slotmap</a></code> command.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1344,7 +1322,7 @@ td {
 
   <p>This command is a shorthand for <code><a class="internal" href="#record">record</a> -audioonly</code>.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1384,7 +1362,7 @@ td {
 
   <p>Toggles any boolean (on/off) setting: if it was on, it will be turned off and vice versa.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1396,7 +1374,7 @@ td {
     </tr>
   </table>
 
-  <div class="examplestitle">
+  <div class="subsectiontitle">
     examples:
   </div>
 
@@ -1410,7 +1388,7 @@ td {
   <p>Control game trainers. You can enable or disable individual cheats of each trainer. Make use of the TAB key to see
   what is available. When switching trainers, the currently active trainer will be deactivated.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1446,7 +1424,7 @@ td {
     </tr>
   </table>
 
-  <div class="examplestitle">
+  <div class="subsectiontitle">
     examples:
   </div>
 
@@ -1461,7 +1439,7 @@ td {
   <p>Type a string in the emulated MSX. This command automatically presses and releases keys in the simulated MSX
   keyboard matrix. This command is useful for demoing and for automating tasks in MSX-BASIC.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1477,7 +1455,7 @@ td {
 
   <p>Undefines a TCL variable. When used on openMSX settings, they are reverted to their default value. See also: <code><a class="internal" href="#set">set</a></code>.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1499,7 +1477,7 @@ td {
 
   <p>Enable or disable update notifications of a certain type. This command is intended for external programs controlling openMSX.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1517,7 +1495,7 @@ td {
     </tr>
   </table>
 
-  <div class="examplestitle">
+  <div class="subsectiontitle">
     examples:
   </div>
 
@@ -1530,7 +1508,7 @@ td {
 
   <p>Shows the current register settings of the Video Display Processor (VDP). Related command: <code><a class="internal" href="#palette">palette</a></code>.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1553,7 +1531,7 @@ td {
 
   <p>It is better to use the more powerful TCL <code>proc</code> command.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1565,7 +1543,7 @@ td {
     </tr>
   </table>
 
-  <div class="examplestitle">
+  <div class="subsectiontitle">
     examples:
   </div>
 
@@ -1584,7 +1562,7 @@ td {
 
   <p>This command is deprecated, please use the <code><a class="internal" href="#incr">incr</a></code> command with a negative offset instead.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1608,7 +1586,7 @@ td {
     </tr>
   </table>
 
-  <div class="examplestitle">
+  <div class="subsectiontitle">
     examples:
   </div>
 
@@ -1623,7 +1601,7 @@ td {
 
   <p>Please use <code><a class="internal" href="#exit">exit</a></code> instead.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1641,7 +1619,7 @@ td {
 
   <p>This command is deprecated, please use <code><a class="internal" href="#unset">unset</a> &lt;setting&gt;</code> instead.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1653,7 +1631,7 @@ td {
     </tr>
   </table>
 
-  <div class="examplestitle">
+  <div class="subsectiontitle">
     examples:
   </div>
 
@@ -1684,7 +1662,7 @@ td {
 
   <p>The default is pixel accuracy, since this is the most realistic. If the software you are running shows a jittery screen split and you would prefer a stable screen split, switching to line accuracy can help.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1720,7 +1698,7 @@ td {
 
   <p>By default, it is read from "audio-input.wav" when available.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1747,7 +1725,7 @@ td {
   <p>Switches the "auto-run cassettes" feature on or off. When it's enabled, openMSX will try to type the proper loading
   instruction when a cassette is inserted.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1779,7 +1757,7 @@ td {
 
   <p>Sets the amount of horizontal blur effect. A value of 0 turns off blur, while 100 selects maximum blur.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1806,7 +1784,7 @@ td {
   <p>Sets the boot sector type for DirAsDSK. Default: DOS2. Only relevant on turboR, because it boots differently
   depending on the type of boot sector on the disk in drive A.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1830,7 +1808,7 @@ td {
 
   <p>The section about the <code><a class="internal" href="#noise">noise</a></code> setting describes a typical way of using <code>brightness</code>.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1854,7 +1832,7 @@ td {
 
   <p>This is useful for debugging and for speeding up games where the command engine performance is a bottleneck.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1898,7 +1876,7 @@ td {
         set color_matrix { { a b c } { d e f } { g h i } }
   </pre>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1930,7 +1908,7 @@ td {
 
   <p>Turns the openMSX on-screen console on or off.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1958,7 +1936,7 @@ td {
 
   <p>Change the console background image. Images in the PNG format are certainly supported, other image formats such as JPEG and GIF might be supported depending on how your openMSX was compiled (more accurately, how SDL_image was compiled). Some renderers (OpenGL) can use an alpha channel, this channel is only present in PNG images.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -1980,7 +1958,7 @@ td {
 
   <p>Change the width of the console measured by the number of columns.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2002,7 +1980,7 @@ td {
 
   <p>Change the console font. Images in the PNG format are certainly supported, other image formats such as JPEG and GIF might be supported depending on how your openMSX was compiled (more accurately, how SDL_image was compiled). The image must contain a 16x16 matrix with the characters in ASCII order. Some renderers (OpenGL) require an alpha channel to have transparency in the font, this channel is only present in PNG images.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2024,7 +2002,7 @@ td {
 
   <p>Changes the position of the console on the emulator screen.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2046,7 +2024,7 @@ td {
 
   <p>Change the height of the console measured by the number of rows.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2070,7 +2048,7 @@ td {
 
   <p>The section about the <code><a class="internal" href="#noise">noise</a></code> setting describes a typical way of using <code>contrast</code>.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2092,7 +2070,7 @@ td {
 
   <p>Enable/disable CPU instruction tracing. When enabled, the state of the CPU (Z80/R800) is printed on stdout after every instruction. This creates a lot of output and slows down emulation considerably, but it can be very useful for debugging.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2122,7 +2100,7 @@ td {
 
   <p>The User's Manual <a class="external" href="user.html#debugdevice">describes the debug device</a> in more detail.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2160,7 +2138,7 @@ td {
 
   <p>Selects the default MSX model. openMSX uses this machine when it is started without the <code>-machine</code> option.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2182,7 +2160,7 @@ td {
 
   <p>Turns deinterlacing on/off. Deinterlace is a filter which combines the even and odd field of interlaced video into a single frame which has double vertical resolution. It results in a sharp and stable image, but can show artifacts on fast animations.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2214,7 +2192,7 @@ td {
 
   <p>Select display deformation effect. This effect is only supported in the SDLGL-PP renderer.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2248,7 +2226,7 @@ td {
 
   <p>Sets the sound mixer frequency. Sound hardware and sound APIs typically support a limited set of frequencies, such as 11025 Hz, 22050 Hz, 44100 Hz and 48000 Hz.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2272,7 +2250,7 @@ td {
   'normally' or start the built-in software, also called firmware. This setting controls the position of that
   switch.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2300,7 +2278,7 @@ td {
 
   <p>Switch to/from fullscreen mode.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2330,7 +2308,7 @@ td {
 
   <p>Unlike the fast loading features in for example fMSX, <code>fullspeedwhenloading</code> does not intercept BIOS calls. Instead, it speeds up the emulation of the entire MSX, including all hardware devices. This avoids bugs like VRAM corruption in several games (for example the intro of Aleste Gaiden), as well as working correctly with software that uses a custom loader that bypasses the BIOS.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2362,7 +2340,7 @@ td {
 
   <p>Alternatively, you can just try a few values and see what you like.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2384,7 +2362,7 @@ td {
 
   <p>Sets the amount of afterglow effect: 0 is off and 100 is a very heavy afterglow.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2414,7 +2392,7 @@ td {
 
    <p>You can turn this setting on when you want to use mouse-controlled MSX software while openMSX is in windowed mode. It is best turned off in all other cases.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2461,7 +2439,7 @@ td {
 
   <p>Fade duration and delay control how (and if) the icon will fade away. When the LED changes status (on-&gt;off or off-&gt;on) the image is always shown, after the <code>fade-delay</code> time it will start to fade out. The time from completely  visible to completely transparent is controlled with the <code>fade-duration</code> setting. Both <code>fade-delay</code> and <code>fade-duration</code> are specified in milliseconds. A <code>fade-delay</code> of 0 turns off fading. Delay and duration can be set independently for the active and non-active image.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2515,7 +2493,7 @@ td {
 
   <p>Input events for the MSX machine are delayed by this amount. Increase this value when the MSX machine misses keyboard presses when you type very fast. Decrease this value to reduce the latency between pressing a key on the host machine and seeing it being typed in the MSX machine.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2545,7 +2523,7 @@ td {
 
   <p>Valid values for <code>&lt;button&gt;</code>: <code>up</code>, <code>down</code>, <code>left</code>, <code>right</code>, <code>triga</code>, <code>trigb</code>.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2577,7 +2555,7 @@ td {
 
   <p>The 5th/9th sprite status flag of the VDP is not influenced by the <code>limitsprites</code> setting: the flag always takes the limit into account.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2605,7 +2583,7 @@ td {
 
   <p>Controls the overall openMSX volume. The volume of individual sound devices can be controlled with the <code><a class="internal" href="#soundchip_volume">&lt;soundchip&gt;_volume</a></code> settings.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2633,7 +2611,7 @@ td {
 
   <p>When <code><a class="internal" href="#throttle">throttle</a></code> is off, the number of skipped frames will be equal to <code>maxframeskip</code>.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2655,7 +2633,7 @@ td {
 
   <p>Sets the file from which the MIDI input is read. By default, it is set to <code>/dev/midi</code> when available.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2677,7 +2655,7 @@ td {
 
   <p>Sets the file to which the MIDI output is logged. By default, it logs to <code>/dev/midi</code> when available.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2704,7 +2682,7 @@ td {
 
   <p>The <code>minframeskip</code> setting can be useful if you want to ease the burden on your PC processor, for example for longer battery life on a laptop. It can also be useful if your PC is consistently too slow to run without frame skipping: in such cases video might be smoother with a low but constant frame rate than with a fluctuating frame rate.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2726,7 +2704,7 @@ td {
 
   <p>Mute/unmute all sound output.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2756,7 +2734,7 @@ td {
 
   <p>This setting is best combined with <code><a class="internal" href="#brightness">brightness</a></code> and <code><a class="internal" href="#contrast">contrast</a></code>: noise creates small random fluctuations in the brightness of pixels. When noise is applied to pure black, it is not possible to make it any darker, so half of the time the noise is uneffective. The same happens with pure white. By setting the <code><a class="internal" href="#brightness">brightness</a></code> slightly above 0 and <code><a class="internal" href="#contrast">contrast</a></code> slightly below 0, you will get a better looking noise effect.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2778,7 +2756,7 @@ td {
 
   <p>Pauses the emulation.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2810,7 +2788,7 @@ td {
 
   <p>Turn the power of the emulated MSX machine on or off.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2838,7 +2816,7 @@ td {
 
   <p>Sets the file to which the printer logger writes.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2862,7 +2840,7 @@ td {
 
   <p>The emulated printer 'prints' pages as PNG files. This settings determines the resolution of those images.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2888,7 +2866,7 @@ td {
 
   <p>Switch to a different video renderer. See the User's Manual for <a class="external" href="user.html#renderers">a description of the available renderers</a>.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2910,7 +2888,7 @@ td {
 
   <p>Sets the speed of the built-in auto fire on some Japanese MSX models, for example the turboR machines. A value of 0 turns off auto fire, while 100 selects the most rapid auto fire.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2936,7 +2914,7 @@ td {
 
   <p>Sets the file from which the RS232-tester reads data.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2958,7 +2936,7 @@ td {
 
   <p>Sets the file to which the RS232-tester writes the data.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -2986,7 +2964,7 @@ td {
 
   <p>In <code>EmuTime</code> mode it's not possible for a MSX program to detect whether it's running on a real or on an emulated machine. That's why this is the default mode. On the other hand the <code>RealTime</code> mode might be better if for example you care that timestamps of files written by the emulated MSX machine are in sync with the host machine time.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -3014,7 +2992,7 @@ td {
 
   <p>Sets the size of the sound mixer buffer. Higher values help against buffer underruns (hickups), but increase the latency of the sound output.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -3036,7 +3014,7 @@ td {
 
   <p>Automatically save the current settings when openMSX exits: execute a <code><a class="internal" href="#save_settings">save_settings</a></code> command on exit.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -3065,7 +3043,7 @@ td {
   <p>Selects the algorithm used to transform MSX pixels to host pixels. The User's Manual contains <a class="external" href="user.html#scalers">more information about scalers</a>.
   </p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -3097,7 +3075,7 @@ td {
 
   <p>Selects the scale factor. Scale factor &lt;n&gt; means the typical MSX pixel (MSX resolution 256x212) is mapped on &lt;n&gt; by &lt;n&gt; host pixels. For the moment the possible values are 1 to 4. In the future we may support a wider range or even non-integer values. The User's Manual contains <a class="external" href="user.html#scalers">more information about scalers</a>.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -3123,7 +3101,7 @@ td {
 
   <p>Sets the amount of scanline effect.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -3149,7 +3127,7 @@ td {
 
   <p>Select the sound output driver. The list of available sound drivers is platform specific.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -3171,7 +3149,7 @@ td {
 
   <p>Sets the emulation speed relative to the speed of a real MSX. Speed 100 means as fast as a real MSX, lower values are slower than real MSX, higher values are faster than real MSX.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -3193,7 +3171,7 @@ td {
 
   <p>Sets the channel mode for individual sound chips. Note that stereo chips can only be in stereo mode and mono chips can never be set to stereo mode.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -3223,7 +3201,7 @@ td {
     </tr>
   </table>
 
-  <div class="examplestitle">
+  <div class="subsectiontitle">
     examples:
   </div>
 
@@ -3238,7 +3216,7 @@ td {
   <p>Sets the volume for individual sound chips. The overall volume is controlled by the <code><a class="internal" href="#master_volume">master_volume</a></code> setting.
   </p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -3256,7 +3234,7 @@ td {
     </tr>
   </table>
 
-  <div class="examplestitle">
+  <div class="subsectiontitle">
     examples:
   </div>
 
@@ -3270,7 +3248,7 @@ td {
 
   <p>Sets throttle mode. In throttle mode the emulator tries to run at the specified speed relative to a real MSX (see <a class="internal" href="#speed">speed</a> command). When throttling is turned off the emulator runs as fast as possible.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -3300,7 +3278,7 @@ td {
 
   <p>By default this setting is empty, which means that nothing is done when an Uninitialized Memory Read is detected. We ship a useful procedure called <code>umrcallback</code> which logs all UMRs. You can activate it with <code>set umr_callback umrcallback</code>. You can find the source code for this procedure in <code>scripts/umrcallback.tcl</code>.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -3323,7 +3301,7 @@ td {
   <p>Contains the list of "user directories". This makes it a bit more convenient to insert disks, tapes, ROMs etc. The Setup Guide describes <a class="external" href="setup.html#settings">how the user directories mechanism works</a>. This setting is a list in TCL format (items are space separated or enclosed in braces, see TCL
   manual for details). Thus all TCL functions to manipulate lists can be used on this setting.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -3357,7 +3335,7 @@ td {
 
   <p>Enable/disable VDP command tracing. When enabled, every VDP command is logged on stdout. This is useful when debugging MSX programs that use the VDP command engine.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -3385,7 +3363,7 @@ td {
 
   <p>Switch between <code>MSX</code> (V99x8) or <code>GFX9000</code> (V9990) video source.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -3417,7 +3395,7 @@ td {
 
   <p>Enable/disable V9990 command tracing. This is the V9990 equivalent of <code><a class="internal" href="#vdpcmdtrace">vdpcmdtrace</a></code>.</p>
 
-  <div class="usagetitle">
+  <div class="subsectiontitle">
     usage:
   </div>
 
@@ -3449,7 +3427,7 @@ td {
 
   <p>These two settings control the Z80 clock frequency. When <code>z80_freq_locked</code> is true the emulated Z80 runs at the normal 3.5 MHz (or optionally 5.3 MHz on some machines). When <code>z80_freq_locked</code> is false the value of <code>z80_freq</code> is taken as the Z80 clock frequency.</p>
 
-  <div class="examplestitle">
+  <div class="subsectiontitle">
     examples:
   </div>
 
