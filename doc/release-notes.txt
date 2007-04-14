@@ -1,51 +1,51 @@
-Release Notes for openMSX 0.6.2 (2007-04-??)
+Release Notes for openMSX 0.6.2 (2007-04-15)
 ============================================
 
-The most interesting change for users in this release is the addition of the
-video recorder. It enables you to record (very accurate) videos, including
-sound, of what you are doing with your emulated MSX. Thanks to the DosBox Team
-for their great ZMBV lossless video codec.
+This release contains several new features and many bug fixes and optimizations.
 
-Then, there are quite some internal changes and bug fixes. We also made better
-use of our new advanced SDLGL-PP renderer; it can do almost the same as the SDL
-renderer now (and more). We have also done our best to do various considerable
-speed optimizations for this release. The SDLGL-PP renderer can be up to 50%
-faster and also the SDL renderer is about 6% faster. So, if you had problems
-with speed, you might want to give this release a try.
+The main new feature is the addition of the video recorder. It enables you to
+record videos, including sound, of what you are doing with your emulated MSX.
+Thanks to the DosBox Team for their great ZMBV lossless video codec.
+
+The most noticable speed optimizations are in the rendering: the SDLGL-PP
+renderer can be up to 50% faster and the SDL renderer is about 6% faster. If
+you were having problems with speed, give this release a try.
 
 The trainers that are shipped with openMSX are now a lot more user friendly. It
 is possible to enable or disable individual cheats of a trained game.
 
+Bug fixes in the PSG and SCC, as well as a new way of sample rate conversion,
+result in the PSG and SCC sounding very much like the real MSX now.
+
 New or improved emulator features:
 - Video recording and improved sound recording (stutterless).
-- SDLGL-PP renderer (OpenGL-2.0), now adds hq and hqlite in hardware and
-  various speed optimizations.
-- More usable trainers
+- SDLGL-PP renderer (OpenGL 2.0) can do hq and hqlite scaling in hardware.
+- More usable trainers.
 - Extended hotkeys: you can now bind any host event to a TCL command, which
   means you can e.g. let openMSX push the MSX F1 key if you press a certain
   button on your PC game pad.
 - Event recording and replaying (experimental for now: only available at
-  command line, so per session).
+  command line, recorded session starts when openMSX starts).
 - Debugger now supports watchpoint regions.
 
 MSX device support:
-- Dot matrix graphical printer emulation added (thanks to the blueMSX Team).
 - V9990 enhancements: deinterlace, cursor Y position in overscan mode, huge
   speed optimizations for P modes.
 - SCC sound quality improvements (no more aliasing).
-- Small bugfixes in various devices: MSX-Audio, V9990, VDP, SCC, PSG, TC8566AF.
 - Support for the Playball mapper (and samples).
+- Fixed mirroring of some FDC registers and diskROMs.
+- Dot matrix graphical printer emulation added (thanks to the blueMSX Team).
 - Cassetteplayer recognizes end of tape and stops.
+- Small bugfixes in various devices: MSX-Audio, V9990, VDP, SCC, PSG, TC8566AF.
 - Various speed optimizations: VDP command engine, Z80, video rendering, V9990,
   debugger response time in break mode.
-- Fixed mirroring of some FDC registers and diskROMs.
 - Added a few Arabic MSX machines, but note that they have not been verified
   to be correct.
 
 Build system, packaging, documentation:
-- It is now possible to build a universal binary for MacOS X.
-- It is possible to build an app for MacOS X.
-- HTMLized the Console Command Reference and the diskmanipulator documentation.
+- Added support for building an application folder on Mac OS X.
+- Added support for buidling a universal binary for Mac OS X.
+- HTML-ized the Console Command Reference and the diskmanipulator documentation.
   There is now also linking to these new manuals, which improved the usefulness
   of them a lot.
 - Added a text document about how developers can control openMSX from their own
@@ -73,7 +73,7 @@ Known issues / caveats:
   contact info), so we can make openMSX more portable.
 - CPU and graphics performance varies a lot, depending on the openMSX settings
   and the MSX hardware and software you're emulating. Some things run fine on a
-  200MHz machine, others are slow on a 2GHz machine. For performance tuning
+  200 MHz machine, others are slow on a 2 GHz machine. For performance tuning
   tips, see the Setup Guide.
 
 openMSX Home Page:
