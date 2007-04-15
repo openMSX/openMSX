@@ -14,7 +14,7 @@ namespace openmsx {
 class MSXMotherBoard;
 class SCCDebuggable;
 
-class SCC : public SoundDevice, private Resample
+class SCC : public SoundDevice, private Resample<1>
 {
 public:
 	enum ChipMode {SCC_Real, SCC_Compatible, SCC_plusmode};

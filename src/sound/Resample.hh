@@ -5,6 +5,7 @@
 
 namespace openmsx {
 
+template <unsigned CHANNELS>
 class Resample
 {
 protected:
@@ -18,14 +19,15 @@ protected:
 private:
 	static const unsigned BUF_LEN = 16384;
 
-	double calcOutput(int increment, int startFilterIndex);
+	void calcOutput(int increment, int startFilterIndex,
+	                double normFactor, float* output);
 	void prepareData(unsigned halfFilterLen, unsigned extra);
 
 	double ratio;
 	double lastPos;
 	unsigned bufCurrent;
 	unsigned bufEnd;
-	float buffer[BUF_LEN];
+	float buffer[BUF_LEN * CHANNELS];
 };
 
 } // namespace openmsx

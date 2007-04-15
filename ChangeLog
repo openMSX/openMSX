@@ -1,5 +1,8 @@
 $Id$
 
+2007-04-15 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Extended resampler class for stereo devices
+
 2007-04-15 Maarten ter Huurne <maarten@treewalker.org>
 	* Released openmsx-0.6.2.
 

@@ -37,7 +37,8 @@ static const int COEFF_HALF_LEN = COEFF_LEN - 1;
 #define FP_TO_INT(x)        (((x) >> SHIFT_BITS))
 #define FP_TO_DOUBLE(x)     (FP_FRACTION_PART(x) / FP_ONE)
 
-Resample::Resample()
+template <unsigned CHANNELS>
+Resample<CHANNELS>::Resample()
 {
 	ratio = 1.0;
 	lastPos = 0.0;
@@ -46,11 +47,13 @@ Resample::Resample()
 	memset(buffer, 0, sizeof(buffer));
 }
 
-Resample::~Resample()
+template <unsigned CHANNELS>
+Resample<CHANNELS>::~Resample()
 {
 }
 
-void Resample::setResampleRatio(double inFreq, double outFreq)
+template <unsigned CHANNELS>
+void Resample<CHANNELS>::setResampleRatio(double inFreq, double outFreq)
 {
 	ratio = inFreq / outFreq;
 	bufCurrent = BUF_LEN / 2;
@@ -58,7 +61,9 @@ void Resample::setResampleRatio(double inFreq, double outFreq)
 	memset(buffer, 0, sizeof(buffer));
 }
 
-double Resample::calcOutput(int increment, int startFilterIndex)
+template <unsigned CHANNELS>
+void Resample<CHANNELS>::calcOutput(
+	int increment, int startFilterIndex, double normFactor, float* output)
 {
 	int maxFilterIndex = INT_TO_FP(COEFF_HALF_LEN);
 
@@ -66,40 +71,53 @@ double Resample::calcOutput(int increment, int startFilterIndex)
 	int filterIndex = startFilterIndex;
 	int coeffCount = (maxFilterIndex - filterIndex) / increment;
 	filterIndex = filterIndex + coeffCount * increment;
-	int bufIndex = bufCurrent - coeffCount;
+	int bufIndex = (bufCurrent - coeffCount) * CHANNELS;
 
-	double left = 0.0;
+	double left[CHANNELS];
+	for (unsigned i = 0; i < CHANNELS; ++i) {
+		left[i] = 0.0;
+	}
 	do {
 		double fraction = FP_TO_DOUBLE(filterIndex);
 		int indx = FP_TO_INT(filterIndex);
 		double icoeff = coeffs[indx] +
 		                fraction * (coeffs[indx + 1] - coeffs[indx]);
-		left += icoeff * buffer[bufIndex];
+		for (unsigned i = 0; i < CHANNELS; ++i) {
+			left[i] += icoeff * buffer[bufIndex + i];
+		}
 		filterIndex -= increment;
-		++bufIndex;
+		bufIndex += CHANNELS;
 	} while (filterIndex >= INT_TO_FP(0));
 
 	// apply the right half of the filter
 	filterIndex = increment - startFilterIndex;
 	coeffCount = (maxFilterIndex - filterIndex) / increment;
 	filterIndex = filterIndex + coeffCount * increment;
-	bufIndex = bufCurrent + (1 + coeffCount);
+	bufIndex = (bufCurrent + (1 + coeffCount)) * CHANNELS;
 
-	double right = 0.0;
+	double right[CHANNELS];
+	for (unsigned i = 0; i < CHANNELS; ++i) {
+		right[i] = 0.0;
+	}
 	do {
 		double fraction = FP_TO_DOUBLE(filterIndex);
 		int indx = FP_TO_INT(filterIndex);
 		double icoeff = coeffs[indx] + 
 		                fraction * (coeffs[indx + 1] - coeffs[indx]);
-		right += icoeff * buffer[bufIndex];
+		for (unsigned i = 0; i < CHANNELS; ++i) {
+			right[i] += icoeff * buffer[bufIndex + i];
+		}
 		filterIndex -= increment;
-		--bufIndex;
+		bufIndex -= CHANNELS;
 	} while (filterIndex > INT_TO_FP(0));
 
-	return left + right;
+	for (unsigned i = 0; i < CHANNELS; ++i) {
+		output[i] = (left[i] + right[i]) * normFactor;
+	}
 }
 
-void Resample::prepareData(unsigned halfFilterLen, unsigned extra)
+template <unsigned CHANNELS>
+void Resample<CHANNELS>::prepareData(unsigned halfFilterLen, unsigned extra)
 {
 	assert(bufCurrent <= bufEnd);
 	assert(bufEnd <= BUF_LEN);
@@ -113,13 +131,14 @@ void Resample::prepareData(unsigned halfFilterLen, unsigned extra)
 		int overflow = missing - free;
 		if (overflow > 0) {
 			// close to end, restart at begin
-			memmove(buffer, buffer + bufCurrent - halfFilterLen,
-				(halfFilterLen + available) * sizeof(float));
+			memmove(buffer,
+			        buffer + (bufCurrent - halfFilterLen) * CHANNELS,
+			        (halfFilterLen + available) * sizeof(float) * CHANNELS);
 			bufCurrent = halfFilterLen;
 			bufEnd = halfFilterLen + available;
 			missing = std::min<unsigned>(missing, BUF_LEN - bufEnd);
 		}
-		generateInput(buffer + bufEnd, missing);
+		generateInput(buffer + bufEnd * CHANNELS, missing);
 		bufEnd += missing;
 	}
 
@@ -127,7 +146,8 @@ void Resample::prepareData(unsigned halfFilterLen, unsigned extra)
 	assert(bufEnd <= BUF_LEN);
 }
 
-void Resample::generateOutput(float* dataOut, unsigned num)
+template <unsigned CHANNELS>
+void Resample<CHANNELS>::generateOutput(float* dataOut, unsigned num)
 {
 	// check the sample rate ratio wrt the buffer len
 	double count = (COEFF_HALF_LEN + 2.0) / INDEX_INC;
@@ -161,7 +181,8 @@ void Resample::generateOutput(float* dataOut, unsigned num)
 		}
 
 		int startFilterIndex = DOUBLE_TO_FP(inputIndex * floatIncr);
-		dataOut[i] = normFactor * calcOutput(increment, startFilterIndex);
+		calcOutput(increment, startFilterIndex, normFactor,
+		           &dataOut[i * CHANNELS]);
 
 		// figure out the next index
 		inputIndex += ratio;
@@ -171,5 +192,9 @@ void Resample::generateOutput(float* dataOut, unsigned num)
 	}
 	lastPos = inputIndex;
 }
+
+// Force template instantiation.
+template class Resample<1>;
+template class Resample<2>;
 
 } // namespace openmsx
