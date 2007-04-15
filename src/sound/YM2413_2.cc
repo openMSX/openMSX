@@ -43,7 +43,6 @@ const int FREQ_SH = 16;	// 16.16 fixed point (frequency calculations)
 const int EG_SH   = 16;	// 16.16 fixed point (EG timing)
 const int LFO_SH  = 24;	//  8.24 fixed point (LFO calculations)
 const int FREQ_MASK = (1 << FREQ_SH) - 1;
-const unsigned EG_TIMER_OVERFLOW = (1 << EG_SH);
 
 // envelope output entries
 const int ENV_BITS = 10;
@@ -257,6 +256,9 @@ const int ENV_QUIET = TL_TAB_LEN >> 5;
 // two waveforms on OPLL type chips
 static unsigned sin_tab[SIN_LEN * 2];
 
+// fnumber->increment counter
+static int fn_tab[1024];
+
 // LFO Amplitude Modulation table (verified on real YM3812)
 // 27 output levels (triangle waveform); 1 level takes one of: 192, 256 or 448 samples
 //
@@ -407,13 +409,20 @@ Channel::Channel()
 // advance LFO to next sample
 inline void YM2413_2::advance_lfo()
 {
-	lfo_am_cnt += lfo_am_inc;
+	// Amplitude modulation: 27 output levels (triangle waveform)
+	// 1 level takes one of: 192, 256 or 448 samples
+	// One entry from LFO_AM_TABLE lasts for 64 samples
+	static const unsigned LFO_AM_INC = (1 << LFO_SH) / 64;
+	lfo_am_cnt += LFO_AM_INC;
 	if (lfo_am_cnt >= (LFO_AM_TAB_ELEMENTS << LFO_SH)) {
 		// lfo_am_table is 210 elements long
 		lfo_am_cnt -= (LFO_AM_TAB_ELEMENTS << LFO_SH);
 	}
-	LFO_AM = lfo_am_table[lfo_am_cnt >> LFO_SH ] >> 1;
-	lfo_pm_cnt += lfo_pm_inc;
+	LFO_AM = lfo_am_table[lfo_am_cnt >> LFO_SH] >> 1;
+
+	// Vibrato: 8 output levels (triangle waveform); 1 level takes 1024 samples
+	static const unsigned LFO_PM_INC = (1 << LFO_SH) / 1024;
+	lfo_pm_cnt += LFO_PM_INC;
 	LFO_PM = (lfo_pm_cnt >> LFO_SH) & 7;
 }
 
@@ -421,113 +430,90 @@ inline void YM2413_2::advance_lfo()
 inline void YM2413_2::advance()
 {
 	// Envelope Generator
-	eg_timer += eg_timer_add;
+	eg_cnt++;
+	for (int i = 0; i < 9 * 2; i++) {
+		Channel& ch = channels[i / 2];
+		Slot& op = ch.slots[i & 1];
 
-	while (eg_timer >= EG_TIMER_OVERFLOW) {
-		eg_timer -= EG_TIMER_OVERFLOW;
-		eg_cnt++;
+		switch (op.state) {
+		case EG_DMP:	// dump phase
+			// dump phase is performed by both operators in each channel
+			// when CARRIER envelope gets down to zero level,
+			// phases in BOTH opearators are reset (at the same time?)
+			if (!(eg_cnt & ((1 << op.eg_sh_dp) - 1))) {
+				op.volume += eg_inc[op.eg_sel_dp + ((eg_cnt >> op.eg_sh_dp) & 7)];
+				if (op.volume >= MAX_ATT_INDEX) {
+					op.volume = MAX_ATT_INDEX;
+					op.state = EG_ATT;
+					op.phase = 0;	// restart Phase Generator
+				}
+			}
+			break;
 
-		for (int i = 0; i < 9 * 2; i++) {
-			Channel& ch = channels[i / 2];
-			Slot& op = ch.slots[i & 1];
+		case EG_ATT:	// attack phase
+			if (!(eg_cnt & ((1 << op.eg_sh_ar) - 1))) {
+				op.volume += (~op.volume * (eg_inc[op.eg_sel_ar + ((eg_cnt >> op.eg_sh_ar) & 7)])) >> 2;
+				if (op.volume <= MIN_ATT_INDEX) {
+					op.volume = MIN_ATT_INDEX;
+					op.state = EG_DEC;
+				}
+			}
+			break;
 
-			switch (op.state) {
-			case EG_DMP:	// dump phase
-				// dump phase is performed by both operators in each channel
-				// when CARRIER envelope gets down to zero level,
-				// phases in BOTH opearators are reset (at the same time?)
-				if (!(eg_cnt & ((1 << op.eg_sh_dp) - 1))) {
-					op.volume += eg_inc[op.eg_sel_dp + ((eg_cnt >> op.eg_sh_dp) & 7)];
+		case EG_DEC:    // decay phase
+			if (!(eg_cnt & ((1 << op.eg_sh_dr) - 1))) {
+				op.volume += eg_inc[op.eg_sel_dr + ((eg_cnt >> op.eg_sh_dr) & 7)];
+				if (op.volume >= op.sl) {
+					op.state = EG_SUS;
+				}
+			}
+			break;
+
+		case EG_SUS:    // sustain phase
+			// this is important behaviour:
+			// one can change percusive/non-percussive modes on the fly and
+			// the chip will remain in sustain phase - verified on real YM3812
+			if (op.eg_type) {
+				// non-percussive mode (sustained tone)
+				// do nothing
+			} else {
+				// percussive mode
+				// during sustain phase chip adds Release Rate (in percussive mode)
+				if (!(eg_cnt & ((1 << op.eg_sh_rr) - 1))) {
+					op.volume += eg_inc[op.eg_sel_rr + ((eg_cnt >> op.eg_sh_rr) & 7)];
+
 					if (op.volume >= MAX_ATT_INDEX) {
 						op.volume = MAX_ATT_INDEX;
-						op.state = EG_ATT;
-						op.phase = 0;	// restart Phase Generator
 					}
 				}
-				break;
+				// else do nothing in sustain phase
+			}
+			break;
 
-			case EG_ATT:	// attack phase
-				if (!(eg_cnt & ((1 << op.eg_sh_ar) - 1))) {
-					op.volume += (~op.volume * (eg_inc[op.eg_sel_ar + ((eg_cnt >> op.eg_sh_ar) & 7)])) >> 2;
-					if (op.volume <= MIN_ATT_INDEX) {
-						op.volume = MIN_ATT_INDEX;
-						op.state = EG_DEC;
-					}
-				}
-				break;
-
-			case EG_DEC:    // decay phase
-				if (!(eg_cnt & ((1 << op.eg_sh_dr) - 1))) {
-					op.volume += eg_inc[op.eg_sel_dr + ((eg_cnt >> op.eg_sh_dr) & 7)];
-					if (op.volume >= op.sl) {
-						op.state = EG_SUS;
-					}
-				}
-				break;
-
-			case EG_SUS:    // sustain phase
-				// this is important behaviour:
-				// one can change percusive/non-percussive modes on the fly and
-				// the chip will remain in sustain phase - verified on real YM3812
+		case EG_REL:    // release phase
+			// exclude modulators in melody channels from performing anything in this mode
+			// allowed are only carriers in melody mode and rhythm slots in rhythm mode
+			//
+			// This table shows which operators and on what conditions are allowed to perform EG_REL:
+			// (a) - always perform EG_REL
+			// (n) - never perform EG_REL
+			// (r) - perform EG_REL in Rhythm mode ONLY
+			//   0: 0 (n),  1 (a)
+			//   1: 2 (n),  3 (a)
+			//   2: 4 (n),  5 (a)
+			//   3: 6 (n),  7 (a)
+			//   4: 8 (n),  9 (a)
+			//   5: 10(n),  11(a)
+			//   6: 12(r),  13(a)
+			//   7: 14(r),  15(a)
+			//   8: 16(r),  17(a)
+			if ((i & 1) || (rhythm && (i >= 12))) {
+				// exclude modulators
 				if (op.eg_type) {
 					// non-percussive mode (sustained tone)
-					// do nothing
-				} else {
-					// percussive mode
-					// during sustain phase chip adds Release Rate (in percussive mode)
-					if (!(eg_cnt & ((1 << op.eg_sh_rr) - 1))) {
-						op.volume += eg_inc[op.eg_sel_rr + ((eg_cnt >> op.eg_sh_rr) & 7)];
-
-						if (op.volume >= MAX_ATT_INDEX) {
-							op.volume = MAX_ATT_INDEX;
-						}
-					}
-					// else do nothing in sustain phase
-				}
-				break;
-
-			case EG_REL:    // release phase
-				// exclude modulators in melody channels from performing anything in this mode
-				// allowed are only carriers in melody mode and rhythm slots in rhythm mode
-				//
-				// This table shows which operators and on what conditions are allowed to perform EG_REL:
-				// (a) - always perform EG_REL
-				// (n) - never perform EG_REL
-				// (r) - perform EG_REL in Rhythm mode ONLY
-				//   0: 0 (n),  1 (a)
-				//   1: 2 (n),  3 (a)
-				//   2: 4 (n),  5 (a)
-				//   3: 6 (n),  7 (a)
-				//   4: 8 (n),  9 (a)
-				//   5: 10(n),  11(a)
-				//   6: 12(r),  13(a)
-				//   7: 14(r),  15(a)
-				//   8: 16(r),  17(a)
-				if ((i & 1) || (rhythm && (i >= 12))) {
-					// exclude modulators
-					if (op.eg_type) {
-						// non-percussive mode (sustained tone)
-						// this is correct: use RR when SUS = OFF
-						// and use RS when SUS = ON
-						if (ch.sus) {
-							if (!(eg_cnt & ((1 << op.eg_sh_rs) - 1))) {
-								op.volume += eg_inc[op.eg_sel_rs + ((eg_cnt >> op.eg_sh_rs) & 7)];
-								if (op.volume >= MAX_ATT_INDEX) {
-									op.volume = MAX_ATT_INDEX;
-									op.state = EG_OFF;
-								}
-							}
-						} else {
-							if (!(eg_cnt & ((1 << op.eg_sh_rr) - 1))) {
-								op.volume += eg_inc[op.eg_sel_rr + ((eg_cnt >> op.eg_sh_rr) & 7)];
-								if (op.volume >= MAX_ATT_INDEX) {
-									op.volume = MAX_ATT_INDEX;
-									op.state = EG_OFF;
-								}
-							}
-						}
-					} else {
-						// percussive mode
+					// this is correct: use RR when SUS = OFF
+					// and use RS when SUS = ON
+					if (ch.sus) {
 						if (!(eg_cnt & ((1 << op.eg_sh_rs) - 1))) {
 							op.volume += eg_inc[op.eg_sel_rs + ((eg_cnt >> op.eg_sh_rs) & 7)];
 							if (op.volume >= MAX_ATT_INDEX) {
@@ -535,13 +521,30 @@ inline void YM2413_2::advance()
 								op.state = EG_OFF;
 							}
 						}
+					} else {
+						if (!(eg_cnt & ((1 << op.eg_sh_rr) - 1))) {
+							op.volume += eg_inc[op.eg_sel_rr + ((eg_cnt >> op.eg_sh_rr) & 7)];
+							if (op.volume >= MAX_ATT_INDEX) {
+								op.volume = MAX_ATT_INDEX;
+								op.state = EG_OFF;
+							}
+						}
+					}
+				} else {
+					// percussive mode
+					if (!(eg_cnt & ((1 << op.eg_sh_rs) - 1))) {
+						op.volume += eg_inc[op.eg_sel_rs + ((eg_cnt >> op.eg_sh_rs) & 7)];
+						if (op.volume >= MAX_ATT_INDEX) {
+							op.volume = MAX_ATT_INDEX;
+							op.state = EG_OFF;
+						}
 					}
 				}
-				break;
-
-			default:
-				break;
 			}
+			break;
+
+		default:
+			break;
 		}
 	}
 
@@ -578,24 +581,21 @@ inline void YM2413_2::advance()
 	// bit0 XOR bit14 XOR bit15 XOR bit22
 	//
 	// Simply use bit 22 as the noise output.
-	noise_p += noise_f;
-	int i = noise_p >> FREQ_SH;	// number of events (shifts of the shift register)
-	noise_p &= FREQ_MASK;
-	while (i--) {
-		//  int j = ((noise_rng) ^ (noise_rng >> 14) ^ (noise_rng >> 15) ^ (noise_rng >> 22)) & 1;
-		//  noise_rng = (j << 22) | (noise_rng >> 1);
-		//
-		//    Instead of doing all the logic operations above, we
-		//    use a trick here (and use bit 0 as the noise output).
-		//    The difference is only that the noise bit changes one
-		//    step ahead. This doesn't matter since we don't know
-		//    what is real state of the noise_rng after the reset.
 
-		if (noise_rng & 1) {
-			noise_rng ^= 0x800302;
-		}
-		noise_rng >>= 1;
+	//  int j = ((noise_rng >>  0) ^ (noise_rng >> 14) ^
+	//           (noise_rng >> 15) ^ (noise_rng >> 22)) & 1;
+	//  noise_rng = (j << 22) | (noise_rng >> 1);
+	//
+	//    Instead of doing all the logic operations above, we
+	//    use a trick here (and use bit 0 as the noise output).
+	//    The difference is only that the noise bit changes one
+	//    step ahead. This doesn't matter since we don't know
+	//    what is real state of the noise_rng after the reset.
+
+	if (noise_rng & 1) {
+		noise_rng ^= 0x800302;
 	}
+	noise_rng >>= 1;
 }
 
 
@@ -892,33 +892,19 @@ void YM2413_2::init_tables()
 			sin_tab[SIN_LEN + i] = sin_tab[i];
 		}
 	}
-}
-
-
-void YM2413_2::setSampleRate(int sampleRate)
-{
-	const int CLOCK_FREQ = 3579545;
-	double freqbase = (CLOCK_FREQ / 72.0) / (double)sampleRate;
-
+	
 	// make fnumber -> increment counter table
 	for (int i = 0 ; i < 1024; i++) {
 		// OPLL (YM2413) phase increment counter = 18bit
 		// -10 because chip works with 10.10 fixed point, while we use 16.16
-		fn_tab[i] = (int)((double)i * 64 * freqbase * (1 << (FREQ_SH - 10)));
+		fn_tab[i] = i * 64 * (1 << (FREQ_SH - 10));
 	}
+}
 
-	// Amplitude modulation: 27 output levels (triangle waveform)
-	// 1 level takes one of: 192, 256 or 448 samples
-	// One entry from LFO_AM_TABLE lasts for 64 samples
-	lfo_am_inc = (unsigned)((1 << LFO_SH) * freqbase / 64);
-
-	// Vibrato: 8 output levels (triangle waveform); 1 level takes 1024 samples
-	lfo_pm_inc = (unsigned)((1 << LFO_SH) * freqbase / 1024);
-
-	// Noise generator: a step takes 1 sample
-	noise_f = (unsigned)((1 << FREQ_SH) * freqbase);
-
-	eg_timer_add  = (unsigned)((1 << EG_SH) * freqbase);
+void YM2413_2::setSampleRate(int sampleRate)
+{
+	const int CLOCK_FREQ = 3579545;
+	setResampleRatio(CLOCK_FREQ / 72.0, sampleRate);
 }
 
 inline void Slot::KEY_ON(byte key_set)
@@ -1327,7 +1313,6 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 
 void YM2413_2::reset(const EmuTime &time)
 {
-	eg_timer = 0;
 	eg_cnt   = 0;
 	noise_rng = 1;    // noise shift register
 
@@ -1362,10 +1347,10 @@ YM2413_2::YM2413_2(MSXMotherBoard& motherBoard, const std::string& name,
 	: SoundDevice(motherBoard.getMSXMixer(), name, "MSX-MUSIC")
 	, debuggable(new YM2413_2Debuggable(motherBoard, *this))
 {
-	eg_cnt = eg_timer = 0;
+	eg_cnt = 0;
 	rhythm = 0;
 	lfo_am_cnt = lfo_pm_cnt = 0;
-	noise_rng = noise_p = 0;
+	noise_rng = 0;
 	LFO_AM = LFO_PM = 0;
 	for (int i = 0; i < 9; ++i) {
 		instvol_r[i] = 0;
@@ -1379,31 +1364,6 @@ YM2413_2::YM2413_2(MSXMotherBoard& motherBoard, const std::string& name,
 YM2413_2::~YM2413_2()
 {
 	unregisterSound();
-}
-
-void YM2413_2::updateBuffer(unsigned length, int* buffer,
-     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
-{
-	while (length--) {
-		int output = 0;
-		advance_lfo();
-		output += channels[0].chan_calc(LFO_AM);
-		output += channels[1].chan_calc(LFO_AM);
-		output += channels[2].chan_calc(LFO_AM);
-		output += channels[3].chan_calc(LFO_AM);
-		output += channels[4].chan_calc(LFO_AM);
-		output += channels[5].chan_calc(LFO_AM);
-		if (!rhythm) {
-			output += channels[6].chan_calc(LFO_AM);
-			output += channels[7].chan_calc(LFO_AM);
-			output += channels[8].chan_calc(LFO_AM);
-		} else {
-			output += rhythm_calc(noise_rng & 1);
-		}
-		*(buffer++) = (maxVolume * output) >> 11;
-		advance();
-	}
-	checkMute();
 }
 
 void YM2413_2::checkMute()
@@ -1431,6 +1391,40 @@ bool YM2413_2::checkMuteHelper()
 		if (channels[8].slots[SLOT2].state != EG_OFF) return false;
 	}
 	return true;	// nothing playing, mute
+}
+
+void YM2413_2::generateInput(float* buffer, unsigned num)
+{
+	for (unsigned i = 0; i < num; ++i) {
+		int output = 0;
+		advance_lfo();
+		output += channels[0].chan_calc(LFO_AM);
+		output += channels[1].chan_calc(LFO_AM);
+		output += channels[2].chan_calc(LFO_AM);
+		output += channels[3].chan_calc(LFO_AM);
+		output += channels[4].chan_calc(LFO_AM);
+		output += channels[5].chan_calc(LFO_AM);
+		if (!rhythm) {
+			output += channels[6].chan_calc(LFO_AM);
+			output += channels[7].chan_calc(LFO_AM);
+			output += channels[8].chan_calc(LFO_AM);
+		} else {
+			output += rhythm_calc(noise_rng & 1);
+		}
+		buffer[i] = (maxVolume * output) >> 11;
+		advance();
+	}
+	checkMute();
+}
+
+void YM2413_2::updateBuffer(unsigned length, int* buffer,
+     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
+{
+	float tmpBuf[length];
+	generateOutput(tmpBuf, length);
+	for (unsigned i = 0; i < length; ++i) {
+		buffer[i] = lrintf(tmpBuf[i]);
+	}
 }
 
 void YM2413_2::setVolume(int newVolume)

@@ -41,21 +41,88 @@ static const double PM_DEPTH = 13.75;
 static const double AM_SPEED = 3.6413;
 static const double AM_DEPTH = 4.875;
 
+// Size of Sintable ( 8 -- 18 can be used, but 9 recommended.)
+static const int PG_BITS = 9;
+static const int PG_WIDTH = 1 << PG_BITS;
 
-int YM2413::pmtable[PM_PG_WIDTH];
-int YM2413::amtable[AM_PG_WIDTH];
-unsigned int YM2413::tllTable[16][8][1 << TL_BITS][4];
-int YM2413::rksTable[2][8][2];
-word YM2413::AR_ADJUST_TABLE[1 << EG_BITS];
-word YM2413::fullsintable[PG_WIDTH];
-word YM2413::halfsintable[PG_WIDTH];
-word* YM2413::waveform[2] = {fullsintable, halfsintable};
-short YM2413::dB2LinTab[(2 * DB_MUTE) * 2];
-unsigned int YM2413::dphaseARTable[16][16];
-unsigned int YM2413::dphaseDRTable[16][16];
-unsigned int YM2413::dphaseTable[512][8][16];
-unsigned int YM2413::pm_dphase;
-unsigned int YM2413::am_dphase;
+// Phase increment counter
+static const int DP_BITS = 18;
+static const int DP_WIDTH = 1 << DP_BITS;
+static const int DP_BASE_BITS = DP_BITS - PG_BITS;
+
+// Dynamic range (Accuracy of sin table)
+static const int DB_BITS = 8;
+static const int DB_MUTE = 1 << DB_BITS;
+
+// Dynamic range of envelope
+static const int EG_BITS = 7;
+static const int EG_MUTE = 1 << EG_BITS;
+
+// Dynamic range of total level
+static const int TL_BITS = 6;
+static const int TL_MUTE = 1 << TL_BITS;
+
+// Dynamic range of sustine level
+static const int SL_BITS = 4;
+static const int SL_MUTE = 1 << SL_BITS;
+
+// Bits for liner value
+static const int DB2LIN_AMP_BITS = 8;
+static const int SLOT_AMP_BITS = DB2LIN_AMP_BITS;
+
+// Bits for envelope phase incremental counter
+static const int EG_DP_BITS = 22;
+static const int EG_DP_WIDTH = 1 << EG_DP_BITS;
+
+// Bits for Pitch and Amp modulator
+static const int PM_PG_BITS = 8;
+static const int PM_PG_WIDTH = 1 << PM_PG_BITS;
+static const int PM_DP_BITS = 16;
+static const int PM_DP_WIDTH = 1 << PM_DP_BITS;
+static const int AM_PG_BITS = 8;
+static const int AM_PG_WIDTH = 1 << AM_PG_BITS;
+static const int AM_DP_BITS = 16;
+static const int AM_DP_WIDTH = 1 << AM_DP_BITS;
+
+// PM table is calcurated by PM_AMP * pow(2,PM_DEPTH*sin(x)/1200)
+static const int PM_AMP_BITS = 8;
+static const int PM_AMP = 1 << PM_AMP_BITS;
+
+// dB to linear table (used by Slot)
+static short dB2LinTab[(DB_MUTE + DB_MUTE) * 2];
+
+// WaveTable for each envelope amp
+static word fullsintable[PG_WIDTH];
+static word halfsintable[PG_WIDTH];
+static word* waveform[2] = {fullsintable, halfsintable};
+
+// LFO Table
+static int pmtable[PM_PG_WIDTH];
+static int amtable[AM_PG_WIDTH];
+
+// Noise and LFO
+static unsigned PM_DPHASE = unsigned(PM_SPEED * PM_DP_WIDTH / (CLOCK_FREQ / 72.0));
+static unsigned AM_DPHASE = unsigned(AM_SPEED * AM_DP_WIDTH / (CLOCK_FREQ / 72.0));
+
+// Liner to Log curve conversion table (for Attack rate).
+static word AR_ADJUST_TABLE[1 << EG_BITS];
+
+// Definition of envelope mode
+enum { READY, ATTACK, DECAY, SUSHOLD, SUSTINE, RELEASE, SETTLE, FINISH };
+
+// Phase incr table for Attack
+static unsigned dphaseARTable[16][16];
+// Phase incr table for Decay and Release
+static unsigned dphaseDRTable[16][16];
+
+// KSL + TL Table
+static unsigned tllTable[16][8][1 << TL_BITS][4];
+static int rksTable[2][8][2];
+
+// Phase incr table for PG
+static unsigned dphaseTable[512][8][16];
+
+// Empty voice data
 YM2413::Patch YM2413::nullPatch;
 
 
@@ -65,26 +132,26 @@ YM2413::Patch YM2413::nullPatch;
 //                                                   //
 //***************************************************//
 
-int YM2413::Slot::EG2DB(int d)
+static int EG2DB(int d)
 {
 	return d * (int)(EG_STEP / DB_STEP);
 }
-int YM2413::TL2EG(int d)
-{
-	return d * (int)(TL_STEP / EG_STEP);
-}
-int YM2413::Slot::SL2EG(int d)
+static int SL2EG(int d)
 {
 	return d * (int)(SL_STEP / EG_STEP);
 }
 
-unsigned int YM2413::DB_POS(double x)
+static int TL2EG(int d)
 {
-	return (unsigned int)(x / DB_STEP);
+	return d * (int)(TL_STEP / EG_STEP);
 }
-unsigned int YM2413::DB_NEG(double x)
+static unsigned DB_POS(double x)
 {
-	return (unsigned int)(2 * DB_MUTE + x / DB_STEP);
+	return (unsigned)(x / DB_STEP);
+}
+static unsigned DB_NEG(double x)
+{
+	return (unsigned)(2 * DB_MUTE + x / DB_STEP);
 }
 
 // Cut the lower b bit off
@@ -97,13 +164,6 @@ static inline T HIGHBITS(T c, int b)
 static inline unsigned EXPAND_BITS(unsigned x, int s, int d)
 {
 	return x << (d - s);
-}
-// Adjust envelope speed which depends on sampling rate
-static inline unsigned int rate_adjust(double x, int rate)
-{
-	double tmp = x * CLOCK_FREQ / 72 / rate + 0.5; // +0.5 to round
-	assert (tmp <= 4294967295U);
-	return (unsigned int)tmp;
 }
 
 static inline bool BIT(int s, int b)
@@ -119,7 +179,7 @@ static inline bool BIT(int s, int b)
 //***************************************************//
 
 // Table for AR to LogCurve.
-void YM2413::makeAdjustTable()
+static void makeAdjustTable()
 {
 	AR_ADJUST_TABLE[0] = (1 << EG_BITS) - 1;
 	for (int i = 1; i < (1 << EG_BITS); ++i) {
@@ -129,7 +189,7 @@ void YM2413::makeAdjustTable()
 }
 
 // Table for dB(0 .. (1<<DB_BITS)-1) to lin(0 .. DB2LIN_AMP_WIDTH)
-void YM2413::makeDB2LinTable()
+static void makeDB2LinTable()
 {
 	for (int i = 0; i < 2 * DB_MUTE; ++i) {
 		dB2LinTab[i] = (i < DB_MUTE)
@@ -141,7 +201,7 @@ void YM2413::makeDB2LinTable()
 }
 
 // lin(+0.0 .. +1.0) to  dB((1<<DB_BITS)-1 .. 0)
-int YM2413::lin2db(double d)
+static int lin2db(double d)
 {
 	return (d == 0)
 		? DB_MUTE - 1
@@ -149,7 +209,7 @@ int YM2413::lin2db(double d)
 }
 
 // Sin Table
-void YM2413::makeSinTable()
+static void makeSinTable()
 {
 	for (int i = 0; i < PG_WIDTH / 4; ++i)
 		fullsintable[i] = lin2db(sin(2.0 * M_PI * i / PG_WIDTH));
@@ -176,7 +236,7 @@ static inline double saw(double phase)
 }
 
 // Table for Pitch Modulator
-void YM2413::makePmTable()
+static void makePmTable()
 {
 	for (int i = 0; i < PM_PG_WIDTH; ++i) {
 		 pmtable[i] = (int)((double)PM_AMP *
@@ -186,7 +246,7 @@ void YM2413::makePmTable()
 }
 
 // Table for Amp Modulator
-void YM2413::makeAmTable()
+static void makeAmTable()
 {
 	for (int i = 0; i < AM_PG_WIDTH; ++i) {
 		amtable[i] = (int)((double)AM_DEPTH / 2 / DB_STEP *
@@ -195,9 +255,9 @@ void YM2413::makeAmTable()
 }
 
 // Phase increment counter table
-void YM2413::makeDphaseTable(int sampleRate)
+static void makeDphaseTable()
 {
-	unsigned int mltable[16] = {
+	unsigned mltable[16] = {
 		1,   1*2,  2*2,  3*2,  4*2,  5*2,  6*2,  7*2,
 		8*2, 9*2, 10*2, 10*2, 12*2, 12*2, 15*2, 15*2
 	};
@@ -206,15 +266,14 @@ void YM2413::makeDphaseTable(int sampleRate)
 		for (unsigned block = 0; block < 8; ++block) {
 			for (unsigned ML = 0; ML < 16; ++ML) {
 				dphaseTable[fnum][block][ML] =
-				    rate_adjust(((fnum * mltable[ML]) << block) >>
-				                (20 - DP_BITS),
-				                sampleRate);
+				    ((fnum * mltable[ML]) << block) >>
+				    (20 - DP_BITS);
 			}
 		}
 	}
 }
 
-void YM2413::makeTllTable()
+static void makeTllTable()
 {
 	double kltable[16] = {
 		( 0.000 * 2), ( 9.000 * 2), (12.000 * 2), (13.875 * 2),
@@ -234,7 +293,7 @@ void YM2413::makeTllTable()
 						tllTable[fnum][block][TL][KL] =
 						    (tmp <= 0) ?
 						    TL2EG(TL) :
-						    (unsigned int)((tmp >> (3 - KL)) / EG_STEP) + TL2EG(TL);
+						    (unsigned)((tmp >> (3 - KL)) / EG_STEP) + TL2EG(TL);
 					}
 				}
 			}
@@ -243,7 +302,7 @@ void YM2413::makeTllTable()
 }
 
 // Rate Table for Attack
-void YM2413::makeDphaseARTable(int sampleRate)
+static void makeDphaseARTable()
 {
 	for (int AR = 0; AR < 16; ++AR) {
 		for (int Rks = 0; Rks < 16; ++Rks) {
@@ -258,7 +317,7 @@ void YM2413::makeDphaseARTable(int sampleRate)
 				dphaseARTable[AR][Rks] = 0; // EG_DP_WIDTH
 				break;
 			default:
-				dphaseARTable[AR][Rks] = rate_adjust(3 * (RL + 4) << (RM + 1), sampleRate);
+				dphaseARTable[AR][Rks] = 3 * (RL + 4) << (RM + 1);
 				break;
 			}
 		}
@@ -266,7 +325,7 @@ void YM2413::makeDphaseARTable(int sampleRate)
 }
 
 // Rate Table for Decay
-void YM2413::makeDphaseDRTable(int sampleRate)
+static void makeDphaseDRTable()
 {
 	for (int DR = 0; DR < 16; ++DR) {
 		for (int Rks = 0; Rks < 16; ++Rks) {
@@ -278,14 +337,14 @@ void YM2413::makeDphaseDRTable(int sampleRate)
 				dphaseDRTable[DR][Rks] = 0;
 				break;
 			default:
-				dphaseDRTable[DR][Rks] = rate_adjust((RL + 4) << (RM - 1), sampleRate);
+				dphaseDRTable[DR][Rks] = (RL + 4) << (RM - 1);
 				break;
 			}
 		}
 	}
 }
 
-void YM2413::makeRksTable()
+static void makeRksTable()
 {
 	for (int fnum8 = 0; fnum8 < 2; ++fnum8) {
 		for (int block = 0; block < 8; ++block) {
@@ -614,6 +673,9 @@ YM2413::YM2413(MSXMotherBoard& motherBoard, const std::string& name,
 	makeTllTable();
 	makeRksTable();
 	makeSinTable();
+	makeDphaseTable();
+	makeDphaseARTable();
+	makeDphaseDRTable();
 
 	reset(time);
 	registerSound(config);
@@ -642,11 +704,7 @@ void YM2413::reset(const EmuTime &time)
 
 void YM2413::setSampleRate(int sampleRate)
 {
-	makeDphaseTable(sampleRate);
-	makeDphaseARTable(sampleRate);
-	makeDphaseDRTable(sampleRate);
-	pm_dphase = rate_adjust(PM_SPEED * PM_DP_WIDTH / (CLOCK_FREQ / 72), sampleRate);
-	am_dphase = rate_adjust(AM_SPEED * AM_DP_WIDTH / (CLOCK_FREQ / 72), sampleRate);
+	setResampleRatio(CLOCK_FREQ / 72.0, sampleRate);
 }
 
 
@@ -735,7 +793,7 @@ void YM2413::update_key_status()
 //******************************************************//
 
 // Convert Amp(0 to EG_HEIGHT) to Phase(0 to 4PI)
-int YM2413::Slot::wave2_4pi(int e)
+static int wave2_4pi(int e)
 {
 	int shift =  SLOT_AMP_BITS - PG_BITS - 1;
 	if (shift > 0) {
@@ -746,7 +804,7 @@ int YM2413::Slot::wave2_4pi(int e)
 }
 
 // Convert Amp(0 to EG_HEIGHT) to Phase(0 to 8PI)
-int YM2413::Slot::wave2_8pi(int e)
+static int wave2_8pi(int e)
 {
 	int shift = SLOT_AMP_BITS - PG_BITS - 2;
 	if (shift > 0) {
@@ -754,15 +812,6 @@ int YM2413::Slot::wave2_8pi(int e)
 	} else {
 		return e << -shift;
 	}
-}
-
-// Update AM, PM unit
-inline void YM2413::update_ampm()
-{
-	pm_phase = (pm_phase + pm_dphase) & (PM_DP_WIDTH - 1);
-	am_phase = (am_phase + am_dphase) & (AM_DP_WIDTH - 1);
-	lfo_am = amtable[HIGHBITS(am_phase, AM_DP_BITS - AM_PG_BITS)];
-	lfo_pm = pmtable[HIGHBITS(pm_phase, PM_DP_BITS - PM_PG_BITS)];
 }
 
 // PG
@@ -777,18 +826,11 @@ void YM2413::Slot::calc_phase(int lfo_pm)
 	pgout = HIGHBITS(phase, DP_BASE_BITS);
 }
 
-// Update Noise unit
-inline void YM2413::update_noise()
-{
-   if (noise_seed & 1) noise_seed ^= 0x8003020;
-   noise_seed >>= 1;
-}
-
 // EG
 void YM2413::Slot::calc_envelope(int lfo_am)
 {
 	#define S2E(x) (SL2EG((int)(x / SL_STEP)) << (EG_DP_BITS - EG_BITS))
-	static unsigned int SL[16] = {
+	static unsigned SL[16] = {
 		S2E( 0.0), S2E( 3.0), S2E( 6.0), S2E( 9.0),
 		S2E(12.0), S2E(15.0), S2E(18.0), S2E(21.0),
 		S2E(24.0), S2E(27.0), S2E(30.0), S2E(33.0),
@@ -914,12 +956,12 @@ int YM2413::Slot::calc_slot_snare(bool noise)
 }
 
 // TOP-CYM
-int YM2413::Slot::calc_slot_cym(unsigned int pgout_hh)
+int YM2413::Slot::calc_slot_cym(unsigned pgout_hh)
 {
 	if (egout >= (DB_MUTE - 1)) {
 		return 0;
 	}
-	unsigned int dbout
+	unsigned dbout
 	    = (((BIT(pgout_hh, PG_BITS - 8) ^ BIT(pgout_hh, PG_BITS - 1)) |
 	        BIT(pgout_hh, PG_BITS - 7)) ^
 	       (BIT(pgout, PG_BITS - 7) & !BIT(pgout, PG_BITS - 5)))
@@ -934,7 +976,7 @@ int YM2413::Slot::calc_slot_hat(int pgout_cym, bool noise)
 	if (egout >= (DB_MUTE - 1)) {
 		return 0;
 	}
-	unsigned int dbout;
+	unsigned dbout;
 	if (((BIT(pgout, PG_BITS - 8) ^ BIT(pgout, PG_BITS - 1)) |
 	     BIT(pgout, PG_BITS - 7)) ^
 	    (BIT(pgout_cym, PG_BITS - 7) & !BIT(pgout_cym, PG_BITS - 5))) {
@@ -947,9 +989,17 @@ int YM2413::Slot::calc_slot_hat(int pgout_cym, bool noise)
 
 inline int YM2413::calcSample()
 {
-	// while muted updated_ampm() and update_noise() aren't called, probably ok
-	update_ampm();
-	update_noise();
+	// while muted AM/PM/noise aren't updated, probably ok
+ 
+	// update AM, PM unit
+	pm_phase = (pm_phase + PM_DPHASE) & (PM_DP_WIDTH - 1);
+	am_phase = (am_phase + AM_DPHASE) & (AM_DP_WIDTH - 1);
+	lfo_am = amtable[HIGHBITS(am_phase, AM_DP_BITS - AM_PG_BITS)];
+	lfo_pm = pmtable[HIGHBITS(pm_phase, PM_DP_BITS - PM_PG_BITS)];
+
+	// update Noise unit
+	if (noise_seed & 1) noise_seed ^= 0x8003020;
+	noise_seed >>= 1;
 
 	for (int i = 0; i < 9; ++i) {
 		ch[i].mod.calc_phase(lfo_pm);
@@ -1023,13 +1073,22 @@ bool YM2413::checkMuteHelper()
 	return true;	// nothing is playing, then mute
 }
 
+void YM2413::generateInput(float* buffer, unsigned num)
+{
+	for (unsigned i = 0; i < num; ++i) {
+		buffer[i] = calcSample();
+	}
+	checkMute();
+}
+
 void YM2413::updateBuffer(unsigned length, int* buffer,
      const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
 {
-	while (length--) {
-		*(buffer++) = calcSample();
+	float tmpBuf[length];
+	generateOutput(tmpBuf, length);
+	for (unsigned i = 0; i < length; ++i) {
+		buffer[i] = lrintf(tmpBuf[i]);
 	}
-	checkMute();
 }
 
 void YM2413::setVolume(int newVolume)

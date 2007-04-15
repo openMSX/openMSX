@@ -5,6 +5,7 @@
 
 #include "YM2413Core.hh"
 #include "SoundDevice.hh"
+#include "Resample.hh"
 #include "openmsx.hh"
 #include <memory>
 
@@ -81,7 +82,7 @@ public:
 	byte sus;	// sus on/off (release speed in percussive mode)
 };
 
-class YM2413_2 : public YM2413Core, public SoundDevice
+class YM2413_2 : public YM2413Core, public SoundDevice, private Resample<1>
 {
 public:
 	YM2413_2(MSXMotherBoard& motherBoard, const std::string& name,
@@ -116,26 +117,23 @@ private:
 	virtual void updateBuffer(unsigned length, int* buffer,
 		const EmuTime& time, const EmuDuration& sampDur);
 
+	// Resample
+	virtual void generateInput(float* buffer, unsigned num);
+
 	int maxVolume;
 
 	Channel channels[9];	// OPLL chips have 9 channels
 	byte instvol_r[9];	// instrument/volume (or volume/volume in percussive mode)
 
 	unsigned eg_cnt;	// global envelope generator counter
-	unsigned eg_timer;	// global envelope generator counter works at frequency = chipclock/72
-	unsigned eg_timer_add; 	// step of eg_timer
 
 	bool rhythm;		// Rhythm mode
 
 	// LFO
 	unsigned lfo_am_cnt;
-	unsigned lfo_am_inc;
 	unsigned lfo_pm_cnt;
-	unsigned lfo_pm_inc;
 
 	int noise_rng;		// 23 bit noise shift register
-	int noise_p;		// current noise 'phase'
-	int noise_f;		// current noise period
 
 	// instrument settings
 	//   0     - user instrument
@@ -143,8 +141,6 @@ private:
 	//   16    - bass drum settings
 	//   17-18 - other percussion instruments
 	byte inst_tab[19][8];
-
-	int fn_tab[1024];	// fnumber->increment counter
 
 	byte LFO_AM;
 	byte LFO_PM;
