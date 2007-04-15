@@ -1,5 +1,12 @@
 $Id$
 
+2007-04-15 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added emulation of Yamaha YM2151 and partly the Yamaha SFG-05
+	  sound module. For the latter, I included the config of the Yamaha
+	  CX5MII/128. TODO: MIDI and keyboard, so only few software titles
+	  for it work. Thanks to Daniel Vik for his support! The code is 
+	  taken from blueMSX and MAME.
+
 2007-04-15 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Extended resampler class for stereo devices
 	* Speedup SDLGL-PP simple scaler

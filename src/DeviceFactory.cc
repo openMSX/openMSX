@@ -16,6 +16,7 @@
 #include "MSXFmPac.hh"
 #include "MSXAudio.hh"
 #include "MSXMoonSound.hh"
+#include "MSXYamahaSFG.hh"
 #include "MC6850.hh"
 #include "MSXKanji.hh"
 #include "MSXBunsetsu.hh"
@@ -87,6 +88,8 @@ std::auto_ptr<MSXDevice> DeviceFactory::create(
 		result.reset(new MSXAudio(motherBoard, conf, time));
 	} else if (type == "MusicModuleMIDI") {
 		result.reset(new MC6850(motherBoard, conf, time));
+	} else if (type == "YamahaSFG") {
+		result.reset(new MSXYamahaSFG(motherBoard, conf, time));
 	} else if (type == "MoonSound") {
 		result.reset(new MSXMoonSound(motherBoard, conf, time));
 	} else if (type == "Kanji") {
