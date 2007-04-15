@@ -43,6 +43,7 @@
 
 #include "SoundDevice.hh"
 #include "EmuTimer.hh"
+#include "Resample.hh"
 #include "IRQHelper.hh"
 #include "openmsx.hh"
 #include <memory>
@@ -102,7 +103,7 @@ public:
 
 	// waveform select
 	byte waveform_number;
-	unsigned int wavetable;
+	unsigned wavetable;
 };
 
 class YMF262Channel
@@ -111,7 +112,7 @@ public:
 	YMF262Channel();
 	void chan_calc(byte LFO_AM);
 	void chan_calc_ext(byte LFO_AM);
-	void CALC_FCSLOT(YMF262Slot &slot);
+	void CALC_FCSLOT(YMF262Slot& slot);
 
 	YMF262Slot slots[2];
 
@@ -131,7 +132,7 @@ public:
 	byte extended;	// set to 1 if this channel forms up a 4op channel with another channel(only used by first of pair of channels, ie 0,1,2 and 9,10,11)
 };
 
-class YMF262 : private SoundDevice, private EmuTimerCallback
+class YMF262 : private SoundDevice, private EmuTimerCallback, private Resample<2>
 {
 public:
 	YMF262(MSXMotherBoard& motherBoard, const std::string& name,
@@ -152,6 +153,9 @@ private:
 	virtual void updateBuffer(unsigned length, int* buffer,
 		const EmuTime& time, const EmuDuration& sampDur);
 
+	// Resample
+	virtual void generateInput(float* buffer, unsigned num);
+
 	void callback(byte flag);
 
 	void writeRegForce(int r, byte v, const EmuTime& time);
@@ -166,7 +170,7 @@ private:
 	void set_ksl_tl(byte sl, byte v);
 	void set_ar_dr(byte sl, byte v);
 	void set_sl_rr(byte sl, byte v);
-	void update_channels(YMF262Channel &ch);
+	void update_channels(YMF262Channel& ch);
 	void checkMute();
 	bool checkMuteHelper();
 
@@ -176,25 +180,16 @@ private:
 	unsigned pan[18*4];		// channels output masks (0xffffffff = enable); 4 masks per one channel
 
 	unsigned eg_cnt;		// global envelope generator counter
-	unsigned eg_timer;		// global envelope generator counter works at frequency = chipclock/288 (288=8*36)
-	unsigned eg_timer_add;		// step of eg_timer
-
-	unsigned fn_tab[1024];		// fnumber->increment counter
 
 	// LFO
 	byte LFO_AM;
 	byte LFO_PM;
-
 	byte lfo_am_depth;
 	byte lfo_pm_depth_range;
 	unsigned lfo_am_cnt;
-	unsigned lfo_am_inc;
 	unsigned lfo_pm_cnt;
-	unsigned lfo_pm_inc;
 
 	unsigned noise_rng;		// 23 bit noise shift register
-	unsigned noise_p;		// current noise 'phase'
-	unsigned noise_f;		// current noise period
 
 	bool OPL3_mode;			// OPL3 extension enable flag
 	byte rhythm;			// Rhythm mode
@@ -206,11 +201,11 @@ private:
 	IRQHelper irq;
 
 	// Bitmask for register 0x04
-	static const int R04_ST1          = 0x01;	// Timer1 Start
-	static const int R04_ST2          = 0x02;	// Timer2 Start
-	static const int R04_MASK_T2      = 0x20;	// Mask Timer2 flag
-	static const int R04_MASK_T1      = 0x40;	// Mask Timer1 flag
-	static const int R04_IRQ_RESET    = 0x80;	// IRQ RESET
+	static const int R04_ST1       = 0x01; // Timer1 Start
+	static const int R04_ST2       = 0x02; // Timer2 Start
+	static const int R04_MASK_T2   = 0x20; // Mask Timer2 flag
+	static const int R04_MASK_T1   = 0x40; // Mask Timer1 flag
+	static const int R04_IRQ_RESET = 0x80; // IRQ RESET
 
 	// Bitmask for status register
 	static const int STATUS_T2      = R04_MASK_T2;
@@ -219,7 +214,7 @@ private:
 	EmuTimerOPL4_1 timer1; //  80.8us OPL4  ( 80.5us OPL3)
 	EmuTimerOPL4_2 timer2; // 323.1us OPL4  (321.8us OPL3)
 
-	int chanout[18];		// 18 channels
+	int chanout[18]; // 18 channels
 	int maxVolume;
 
 	friend class YMF262Debuggable;
