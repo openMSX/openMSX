@@ -6,6 +6,11 @@ $Id$
 	  CX5MII/128. TODO: MIDI and keyboard, so only few software titles
 	  for it work. Thanks to Daniel Vik for his support! The code is 
 	  taken from blueMSX and MAME.
+	* Added emulation of the VLM5030 sound device, which is used in the
+	  unreleased Konami game Keyboard Master. For now, the sample ROM
+	  should be located in share/keyboardmaster with the name voice.rom.
+	  Thanks to Daniel Vik for his support. Also here, the code is
+	  taken from blueMSX and MAME.
 
 2007-04-15 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Extended resampler class for stereo devices

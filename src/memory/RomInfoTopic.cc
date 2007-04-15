@@ -23,6 +23,7 @@ RomInfoTopic::RomInfoTopic(InfoCommand& openMSXInfoCommand)
 	description[ROM_GENERIC_16KB] = "Generic 16kB";
 	description[ROM_KONAMI_SCC] = "Konami with SCC";
 	description[ROM_KONAMI] = "Konami MegaROM";
+	description[ROM_KBDMASTER] = "Konami Keyboard Master with VLM5030";
 	description[ROM_ASCII8] = "ASCII 8kB";
 	description[ROM_ASCII16] = "ASCII 16kB";
 	description[ROM_PADIAL8] = "Padial 8kB";

@@ -10,6 +10,7 @@
 #include "RomGeneric16kB.hh"
 #include "RomKonami4.hh"
 #include "RomKonami5.hh"
+#include "RomKonamiKeyboardMaster.hh"
 #include "RomAscii8kB.hh"
 #include "RomAscii8_8.hh"
 #include "RomAscii16kB.hh"
@@ -217,6 +218,9 @@ auto_ptr<MSXDevice> RomFactory::create(
 	case ROM_KONAMI:
 		return auto_ptr<MSXDevice>(
 			new RomKonami4(motherBoard, config, time, rom));
+	case ROM_KBDMASTER:
+		return auto_ptr<MSXDevice>(
+			new RomKonamiKeyboardMaster(motherBoard, config, time, rom));
 	case ROM_ASCII8:
 		return auto_ptr<MSXDevice>(
 			new RomAscii8kB(motherBoard, config, time, rom));

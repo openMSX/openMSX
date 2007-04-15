@@ -10,6 +10,7 @@ SRC_HDR:= \
 	DACSound16S DACSound8U \
 	KeyClick \
 	SCC MSXSCCPlusCart \
+	VLM5030 \
 	MSXAudio \
 	EmuTimer \
 	Y8950 Y8950Adpcm Y8950KeyboardConnector Y8950KeyboardDevice \
