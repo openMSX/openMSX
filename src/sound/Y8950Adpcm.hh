@@ -21,7 +21,6 @@ public:
 	virtual ~Y8950Adpcm();
 
 	void reset(const EmuTime& time);
-	void setSampleRate(int sr);
 	bool muted() const;
 	void writeReg(byte rg, byte data, const EmuTime& time);
 	byte readReg(byte rg);
@@ -45,8 +44,6 @@ private:
 
 	Y8950& y8950;
 	std::auto_ptr<Ram> ram;
-
-	int sampleRate;
 
 	unsigned startAddr;
 	unsigned stopAddr;

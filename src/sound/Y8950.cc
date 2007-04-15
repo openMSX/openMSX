@@ -43,15 +43,73 @@ static const double AM_SPEED  = 3.7;
 static const double AM_DEPTH  = 1.0;
 static const double AM_DEPTH2 = 4.8;
 
-short Y8950::dB2LinTab[(2*DB_MUTE)*2];
-int   Y8950::Slot::sintable[PG_WIDTH];
-int   Y8950::Slot::tllTable[16][8][1<<TL_BITS][4];
-int   Y8950::Slot::rksTable[2][8][2];
-int   Y8950::Slot::AR_ADJUST_TABLE[1<<EG_BITS];
-unsigned int Y8950::dphaseNoiseTable[1024][8];
-unsigned int Y8950::Slot::dphaseARTable[16][16];
-unsigned int Y8950::Slot::dphaseDRTable[16][16];
-unsigned int Y8950::Slot::dphaseTable[1024][8][16];
+// Dynamic range of envelope
+static const int EG_BITS = 9;
+static const int EG_MUTE = 1 << EG_BITS;
+// Dynamic range of sustine level
+static const int SL_BITS = 4;
+static const int SL_MUTE = 1 << SL_BITS;
+// Size of Sintable ( 1 -- 18 can be used, but 7 -- 14 recommended.)
+static const int PG_BITS = 10;
+static const int PG_WIDTH = 1 << PG_BITS;
+// Phase increment counter
+static const int DP_BITS = 19;
+static const int DP_WIDTH = 1 << DP_BITS;
+static const int DP_BASE_BITS = DP_BITS - PG_BITS;
+// Bits for envelope phase incremental counter
+static const int EG_DP_BITS = 23;
+static const int EG_DP_WIDTH = 1 << EG_DP_BITS;
+// Dynamic range of total level
+static const int TL_BITS = 6;
+static const int TL_MUTE = 1 << TL_BITS;
+
+// WaveTable for each envelope amp.
+static int sintable[PG_WIDTH];
+// Phase incr table for Attack.
+static unsigned int dphaseARTable[16][16];
+// Phase incr table for Decay and Release.
+static unsigned int dphaseDRTable[16][16];
+// KSL + TL Table.
+static int tllTable[16][8][1 << TL_BITS][4];
+static int rksTable[2][8][2];
+// Phase incr table for PG.
+static unsigned int dphaseTable[1024][8][16];
+// Liner to Log curve conversion table (for Attack rate).
+static int AR_ADJUST_TABLE[1 << EG_BITS];
+
+// Definition of envelope mode
+enum { ATTACK, DECAY, SUSHOLD, SUSTINE, RELEASE, FINISH };
+// Dynamic range
+static const int DB_BITS = 9;
+static const int DB_MUTE = 1 << DB_BITS;
+// PM table is calcurated by PM_AMP * pow(2, PM_DEPTH * sin(x) / 1200)
+static const int PM_AMP_BITS = 8;
+static const int PM_AMP = 1 << PM_AMP_BITS;
+
+static unsigned int dphaseNoiseTable[1024][8];
+
+// Bits for liner value
+static const int DB2LIN_AMP_BITS = 11;
+static const int SLOT_AMP_BITS = DB2LIN_AMP_BITS;
+
+// Bits for Pitch and Amp modulator
+static const int PM_PG_BITS = 8;
+static const int PM_PG_WIDTH = 1 << PM_PG_BITS;
+static const int PM_DP_BITS = 16;
+static const int PM_DP_WIDTH = 1 << PM_DP_BITS;
+static const int AM_PG_BITS = 8;
+static const int AM_PG_WIDTH = 1 << AM_PG_BITS;
+static const int AM_DP_BITS = 16;
+static const int AM_DP_WIDTH = 1 << AM_DP_BITS;
+
+// LFO Table
+static const unsigned PM_DPHASE = unsigned(PM_SPEED * PM_DP_WIDTH / (Y8950::CLOCK_FREQ/72.0));
+static const unsigned AM_DPHASE = unsigned(AM_SPEED * AM_DP_WIDTH / (Y8950::CLOCK_FREQ/72.0));
+static int pmtable[2][PM_PG_WIDTH];
+static int amtable[2][AM_PG_WIDTH];
+
+// dB to Liner table
+static short dB2LinTab[(2 * DB_MUTE) * 2];
 
 
 //**************************************************//
@@ -60,41 +118,29 @@ unsigned int Y8950::Slot::dphaseTable[1024][8][16];
 //                                                  //
 //**************************************************//
 
-int Y8950::Slot::ALIGN(int d, double SS, double SD)
+static int ALIGN(int d, double SS, double SD)
 {
-	return d*(int)(SS/SD);
+	return d * (int)(SS / SD);
 }
 
-int Y8950::DB_POS(int x)
+static int DB_POS(int x)
 {
-	return (int)(x/DB_STEP);
+	return (int)(x / DB_STEP);
 }
-int Y8950::DB_NEG(int x)
+static int DB_NEG(int x)
 {
-	return (int)(2*DB_MUTE+x/DB_STEP);
+	return (int)(2 * DB_MUTE + x / DB_STEP);
 }
 
 // Cut the lower b bits off
-int Y8950::HIGHBITS(int c, int b)
+static int HIGHBITS(int c, int b)
 {
 	return c >> b;
 }
-// Leave the lower b bits
-int Y8950::LOWBITS(int c, int b)
-{
-	return c & ((1<<b)-1);
-}
 // Expand x which is s bits to d bits
-int Y8950::EXPAND_BITS(int x, int s, int d)
+static int EXPAND_BITS(int x, int s, int d)
 {
-	return x << (d-s);
-}
-// Adjust envelope speed which depends on sampling rate
-unsigned int Y8950::rate_adjust(double x, int rate)
-{
-	double tmp = x * CLK_FREQ / 72 / rate + 0.5; // +0.5 to round
-	assert (tmp <= 4294967295U);
-	return (unsigned int)tmp;
+	return x << (d - s);
 }
 
 //**************************************************//
@@ -104,124 +150,138 @@ unsigned int Y8950::rate_adjust(double x, int rate)
 //**************************************************//
 
 // Table for AR to LogCurve.
-void Y8950::Slot::makeAdjustTable()
+static void makeAdjustTable()
 {
 	AR_ADJUST_TABLE[0] = 1 << EG_BITS;
-	for (int i = 1; i < (1 << EG_BITS); i++)
+	for (int i = 1; i < (1 << EG_BITS); ++i) {
 		AR_ADJUST_TABLE[i] = (int)((double)(1 << EG_BITS) - 1 -
 		         (1 << EG_BITS) * ::log(i) / ::log(1 << EG_BITS)) >> 1;
+	}
 }
 
 // Table for dB(0 -- (1<<DB_BITS)) to Liner(0 -- DB2LIN_AMP_WIDTH)
-void Y8950::Slot::makeDB2LinTable()
+static void makeDB2LinTable()
 {
-	for (int i=0; i < 2*DB_MUTE; i++) {
-		dB2LinTab[i] = (i<DB_MUTE) ?
-			(int)((double)((1<<DB2LIN_AMP_BITS)-1)*pow(10,-(double)i*DB_STEP/20)) :
-			0;
-		dB2LinTab[i + 2*DB_MUTE] = -dB2LinTab[i];
+	for (int i = 0; i < 2 * DB_MUTE; ++i) {
+		dB2LinTab[i] = (i < DB_MUTE)
+		             ? (int)((double)((1 << DB2LIN_AMP_BITS) - 1) * pow(10, -(double)i * DB_STEP / 20))
+			     : 0;
+		dB2LinTab[i + 2 * DB_MUTE] = -dB2LinTab[i];
 	}
 }
 
 // Liner(+0.0 - +1.0) to dB((1<<DB_BITS) - 1 -- 0)
-int Y8950::Slot::lin2db(double d)
+static int lin2db(double d)
 {
 	if (d < 1e-4) {
 		// (almost) zero
-		return DB_MUTE-1;
+		return DB_MUTE - 1;
 	}
-	int tmp = -(int)(20.0*log10(d)/DB_STEP);
-	if (tmp < DB_MUTE-1)
+	int tmp = -(int)(20.0 * log10(d) / DB_STEP);
+	if (tmp < DB_MUTE - 1) {
 		return tmp;
-	else
-		return DB_MUTE-1;
+	} else {
+		return DB_MUTE - 1;
+	}
 }
 
 // Sin Table
-void Y8950::Slot::makeSinTable()
+static void makeSinTable()
 {
-	for (int i=0; i < PG_WIDTH/4; i++)
-		sintable[i] = lin2db(sin(2.0*M_PI*i/PG_WIDTH));
-	for (int i=0; i < PG_WIDTH/4; i++)
-		sintable[PG_WIDTH/2 - 1 - i] = sintable[i];
-	for (int i=0; i < PG_WIDTH/2; i++)
-		sintable[PG_WIDTH/2 + i] = 2*DB_MUTE + sintable[i];
+	for (int i = 0; i < PG_WIDTH / 4; ++i) {
+		sintable[i] = lin2db(sin(2.0 * M_PI * i / PG_WIDTH));
+	}
+	for (int i = 0; i < PG_WIDTH / 4; i++) {
+		sintable[PG_WIDTH / 2 - 1 - i] = sintable[i];
+	}
+	for (int i = 0; i < PG_WIDTH / 2; i++) {
+		sintable[PG_WIDTH / 2 + i] = 2 * DB_MUTE + sintable[i];
+	}
 }
 
-void Y8950::makeDphaseNoiseTable(int sampleRate)
+static void makeDphaseNoiseTable()
 {
-	for (int i=0; i<1024; i++)
-		for (int j=0; j<8; j++)
-			dphaseNoiseTable[i][j] = rate_adjust(i<<j, sampleRate);
+	for (int i = 0; i < 1024; ++i) {
+		for (int j = 0; j < 8; ++j) {
+			dphaseNoiseTable[i][j] = i << j;
+		}
+	}
 }
 
 // Table for Pitch Modulator
-void Y8950::makePmTable()
+static void makePmTable()
 {
-	for (int i=0; i<PM_PG_WIDTH; i++)
-		pmtable[0][i] = (int)((double)PM_AMP * pow(2,(double)PM_DEPTH*sin(2.0*M_PI*i/PM_PG_WIDTH)/1200));
-	for (int i=0; i < PM_PG_WIDTH; i++)
-		pmtable[1][i] = (int)((double)PM_AMP * pow(2,(double)PM_DEPTH2*sin(2.0*M_PI*i/PM_PG_WIDTH)/1200));
+	for (int i = 0; i < PM_PG_WIDTH; ++i) {
+		pmtable[0][i] = (int)((double)PM_AMP * pow(2, (double)PM_DEPTH  * sin(2.0 * M_PI * i / PM_PG_WIDTH) / 1200));
+		pmtable[1][i] = (int)((double)PM_AMP * pow(2, (double)PM_DEPTH2 * sin(2.0 * M_PI * i / PM_PG_WIDTH) / 1200));
+	}
 }
 
 // Table for Amp Modulator
-void Y8950::makeAmTable()
+static void makeAmTable()
 {
-	for (int i=0; i<AM_PG_WIDTH; i++)
-		amtable[0][i] = (int)((double)AM_DEPTH/2/DB_STEP * (1.0 + sin(2.0*M_PI*i/PM_PG_WIDTH)));
-	for (int i=0; i<AM_PG_WIDTH; i++)
-		amtable[1][i] = (int)((double)AM_DEPTH2/2/DB_STEP * (1.0 + sin(2.0*M_PI*i/PM_PG_WIDTH)));
+	for (int i = 0; i < AM_PG_WIDTH; ++i) {
+		amtable[0][i] = (int)((double)AM_DEPTH  / 2 / DB_STEP * (1.0 + sin(2.0 * M_PI * i / PM_PG_WIDTH)));
+		amtable[1][i] = (int)((double)AM_DEPTH2 / 2 / DB_STEP * (1.0 + sin(2.0 * M_PI * i / PM_PG_WIDTH)));
+	}
 }
 
 // Phase increment counter table
-void Y8950::Slot::makeDphaseTable(int sampleRate)
+static void makeDphaseTable()
 {
 	int mltable[16] = {
-		1,1*2,2*2,3*2,4*2,5*2,6*2,7*2,8*2,9*2,10*2,10*2,12*2,12*2,15*2,15*2
+		  1, 1*2,  2*2,  3*2,  4*2,  5*2,  6*2 , 7*2,
+		8*2, 9*2, 10*2, 10*2, 12*2, 12*2, 15*2, 15*2
 	};
 
-	for (int fnum=0; fnum<1024; fnum++)
-		for (int block=0; block<8; block++)
-			for (int ML=0; ML<16; ML++)
+	for (int fnum = 0; fnum < 1024; ++fnum) {
+		for (int block = 0; block < 8; ++block) {
+			for (int ML = 0; ML < 16; ++ML) {
 				dphaseTable[fnum][block][ML] =
-					rate_adjust((((fnum * mltable[ML]) << block) >> (21 - DP_BITS)), sampleRate);
+					((fnum * mltable[ML]) << block) >> (21 - DP_BITS);
+			}
+		}
+	}
 }
 
-void Y8950::Slot::makeTllTable()
+static void makeTllTable()
 {
-	#define dB2(x) (int)((x)*2)
+	#define dB2(x) (int)((x) * 2)
 	static int kltable[16] = {
-		dB2( 0.000),dB2( 9.000),dB2(12.000),dB2(13.875),
-		dB2(15.000),dB2(16.125),dB2(16.875),dB2(17.625),
-		dB2(18.000),dB2(18.750),dB2(19.125),dB2(19.500),
-		dB2(19.875),dB2(20.250),dB2(20.625),dB2(21.000)
+		dB2( 0.000), dB2( 9.000), dB2(12.000), dB2(13.875),
+		dB2(15.000), dB2(16.125), dB2(16.875), dB2(17.625),
+		dB2(18.000), dB2(18.750), dB2(19.125), dB2(19.500),
+		dB2(19.875), dB2(20.250), dB2(20.625), dB2(21.000)
 	};
 
-	for (int fnum=0; fnum<16; fnum++)
-		for (int block=0; block<8; block++)
-			for (int TL=0; TL<64; TL++)
-				for (int KL=0; KL<4; KL++) {
+	for (int fnum = 0; fnum < 16; ++fnum) {
+		for (int block = 0; block < 8; ++block) {
+			for (int TL = 0; TL < 64; ++TL) {
+				for (int KL = 0; KL < 4; ++KL) {
 					if (KL==0) {
 						tllTable[fnum][block][TL][KL] = ALIGN(TL, TL_STEP, EG_STEP);
 					} else {
 						int tmp = kltable[fnum] - dB2(3.000) * (7 - block);
-						if (tmp <= 0)
+						if (tmp <= 0) {
 							tllTable[fnum][block][TL][KL] = ALIGN(TL, TL_STEP, EG_STEP);
-						else
-							tllTable[fnum][block][TL][KL] = (int)((tmp>>(3-KL))/EG_STEP) + ALIGN(TL, TL_STEP, EG_STEP);
+						} else {
+							tllTable[fnum][block][TL][KL] = (int)((tmp >> (3 - KL)) / EG_STEP) + ALIGN(TL, TL_STEP, EG_STEP);
+						}
 					}
 				}
+			}
+		}
+	}
 }
 
-
 // Rate Table for Attack
-void Y8950::Slot::makeDphaseARTable(int sampleRate)
+static void makeDphaseARTable()
 {
-	for (int AR=0; AR<16; AR++)
-		for (int Rks=0; Rks<16; Rks++) {
-			int RM = AR + (Rks>>2);
-			int RL = Rks&3;
-			if (RM>15) RM=15;
+	for (int AR = 0; AR < 16; ++AR) {
+		for (int Rks = 0; Rks < 16; ++Rks) {
+			int RM = AR + (Rks >> 2);
+			int RL = Rks & 3;
+			if (RM > 15) RM = 15;
 			switch (AR) {
 			case 0:
 				dphaseARTable[AR][Rks] = 0;
@@ -230,47 +290,48 @@ void Y8950::Slot::makeDphaseARTable(int sampleRate)
 				dphaseARTable[AR][Rks] = EG_DP_WIDTH;
 				break;
 			default:
-				dphaseARTable[AR][Rks] = rate_adjust((3*(RL+4) << (RM+1)), sampleRate);
+				dphaseARTable[AR][Rks] = (3 * (RL + 4)) << (RM + 1);
 				break;
 			}
 		}
+	}
 }
 
 // Rate Table for Decay
-void Y8950::Slot::makeDphaseDRTable(int sampleRate)
+static void makeDphaseDRTable()
 {
-	for (int DR=0; DR<16; DR++)
-		for (int Rks=0; Rks<16; Rks++) {
-			int RM = DR + (Rks>>2);
-			int RL = Rks&3;
-			if (RM>15) RM=15;
+	for (int DR = 0; DR < 16; ++DR) {
+		for (int Rks = 0; Rks < 16; ++Rks) {
+			int RM = DR + (Rks >> 2);
+			int RL = Rks & 3;
+			if (RM > 15) RM = 15;
 			switch (DR) {
 			case 0:
 				dphaseDRTable[DR][Rks] = 0;
 				break;
 			default:
-				dphaseDRTable[DR][Rks] = rate_adjust((RL+4) << (RM-1), sampleRate);
+				dphaseDRTable[DR][Rks] = (RL + 4) << (RM - 1);
 				break;
 			}
 		}
+	}
 }
 
-void Y8950::Slot::makeRksTable()
+static void makeRksTable()
 {
-	for (int fnum9=0; fnum9<2; fnum9++)
-		for (int block=0; block<8; block++)
-			for (int KR=0; KR<2; KR++) {
-				rksTable[fnum9][block][KR] = (KR != 0) ?
-					(block<<1) + fnum9:
-					 block>>1;
+	for (int fnum9 = 0; fnum9 < 2; ++fnum9) {
+		for (int block = 0; block < 8; ++block) {
+			for (int KR = 0; KR < 2; ++KR) {
+				rksTable[fnum9][block][KR] = (KR != 0)
+				                           ? (block << 1) + fnum9
+				                           : block >> 1;
 			}
+		}
+	}
 }
 
-//**********************************************************//
-//                                                          //
-//  Patch                                                   //
-//                                                          //
-//**********************************************************//
+
+// class Y8950::Patch
 
 Y8950::Patch::Patch()
 {
@@ -294,19 +355,7 @@ void Y8950::Patch::reset()
 }
 
 
-//**********************************************************//
-//                                                          //
-//  Slot                                                    //
-//                                                          //
-//**********************************************************//
-
-Y8950::Slot::Slot()
-{
-}
-
-Y8950::Slot::~Slot()
-{
-}
+// class Y8950::Slot
 
 void Y8950::Slot::reset()
 {
@@ -336,12 +385,12 @@ void Y8950::Slot::updatePG()
 
 void Y8950::Slot::updateTLL()
 {
-	tll = tllTable[fnum>>6][block][patch.TL][patch.KL];
+	tll = tllTable[fnum >> 6][block][patch.TL][patch.KL];
 }
 
 void Y8950::Slot::updateRKS()
 {
-	rks = rksTable[fnum>>9][block][patch.KR];
+	rks = rksTable[fnum >> 9][block][patch.KR];
 }
 
 void Y8950::Slot::updateEG()
@@ -399,19 +448,11 @@ void Y8950::Slot::slotOff()
 }
 
 
-//**********************************************************//
-//                                                          //
-//  Channel                                                 //
-//                                                          //
-//**********************************************************//
+// class Y8950::Channel
 
 Y8950::Channel::Channel()
 {
 	reset();
-}
-
-Y8950::Channel::~Channel()
-{
 }
 
 void Y8950::Channel::reset()
@@ -435,26 +476,18 @@ void Y8950::Channel::setBlock(int block)
 	mod.block = block;
 }
 
-// Channel key on
 void Y8950::Channel::keyOn()
 {
 	mod.slotOn();
 	car.slotOn();
 }
 
-// Channel key off
 void Y8950::Channel::keyOff()
 {
 	mod.slotOff();
 	car.slotOff();
 }
 
-
-//**********************************************************//
-//                                                          //
-//  Y8950                                                   //
-//                                                          //
-//**********************************************************//
 
 Y8950::Y8950(MSXMotherBoard& motherBoard, const std::string& name,
              const XMLElement& config, unsigned sampleRam, const EmuTime& time,
@@ -472,16 +505,21 @@ Y8950::Y8950(MSXMotherBoard& motherBoard, const std::string& name,
 {
 	makePmTable();
 	makeAmTable();
-	Slot::makeAdjustTable();
-	Slot::makeDB2LinTable();
-	Slot::makeTllTable();
-	Slot::makeRksTable();
-	Slot::makeSinTable();
+	makeAdjustTable();
+	makeDB2LinTable();
+	makeTllTable();
+	makeRksTable();
+	makeSinTable();
 
-	for (int i=0; i<9; i++) {
+	makeDphaseTable();
+	makeDphaseARTable();
+	makeDphaseDRTable();
+	makeDphaseNoiseTable();
+
+	for (int i = 0; i < 9; ++i) {
 		// TODO cleanup
-		slot[i*2+0] = &(ch[i].mod);
-		slot[i*2+1] = &(ch[i].car);
+		slot[i * 2 + 0] = &(ch[i].mod);
+		slot[i * 2 + 1] = &(ch[i].car);
 		ch[i].mod.plfo_am = &lfo_am;
 		ch[i].mod.plfo_pm = &lfo_pm;
 		ch[i].car.plfo_am = &lfo_am;
@@ -499,20 +537,15 @@ Y8950::~Y8950()
 
 void Y8950::setSampleRate(int sampleRate)
 {
-	adpcm->setSampleRate(sampleRate);
-	Y8950::Slot::makeDphaseTable(sampleRate);
-	Y8950::Slot::makeDphaseARTable(sampleRate);
-	Y8950::Slot::makeDphaseDRTable(sampleRate);
-	makeDphaseNoiseTable(sampleRate);
-	pm_dphase = rate_adjust(PM_SPEED * PM_DP_WIDTH / (CLK_FREQ/72), sampleRate);
-	am_dphase = rate_adjust(AM_SPEED * AM_DP_WIDTH / (CLK_FREQ/72), sampleRate);
+	setResampleRatio(CLOCK_FREQ / 72.0, sampleRate);
 }
 
 // Reset whole of opl except patch datas.
-void Y8950::reset(const EmuTime &time)
+void Y8950::reset(const EmuTime& time)
 {
-	for (int i=0; i<9; i++)
+	for (int i = 0; i < 9; ++i) {
 		ch[i].reset();
+	}
 	output[0] = 0;
 	output[1] = 0;
 
@@ -531,8 +564,9 @@ void Y8950::reset(const EmuTime &time)
 
 	// update the output buffer before changing the register
 	updateStream(time);
-	for (int i = 0; i < 0x100; ++i)
+	for (int i = 0; i < 0x100; ++i) {
 		reg[i] = 0x00;
+	}
 
 	reg[0x04] = 0x18;
 	reg[0x19] = 0x0F; // fixes 'Thunderbirds are Go'
@@ -541,7 +575,7 @@ void Y8950::reset(const EmuTime &time)
 	irq.reset();
 
 	adpcm->reset(time);
-	setMute(true);	// muted
+	setMute(true); // muted
 }
 
 
@@ -583,73 +617,76 @@ void Y8950::setRythmMode(int data)
 	}
 }
 
-//********************************************************//
-//                                                        //
-// Generate wave data                                     //
-//                                                        //
-//********************************************************//
+
+//
+// Generate wave data
+//
 
 // Convert Amp(0 to EG_HEIGHT) to Phase(0 to 4PI).
-int Y8950::Slot::wave2_4pi(int e)
+static int wave2_4pi(int e)
 {
 	int shift =  SLOT_AMP_BITS - PG_BITS - 1;
-	if (shift > 0)
+	if (shift > 0) {
 		return e >> shift;
-	else
+	} else {
 		return e << -shift;
+	}
 }
 
 // Convert Amp(0 to EG_HEIGHT) to Phase(0 to 8PI).
-int Y8950::Slot::wave2_8pi(int e)
+static int wave2_8pi(int e)
 {
 	int shift = SLOT_AMP_BITS - PG_BITS - 2;
-	if (shift > 0)
+	if (shift > 0) {
 		return e >> shift;
-	else
+	} else {
 		return e << -shift;
+	}
 }
-
 
 void Y8950::update_noise()
 {
-	if (noise_seed & 1)
+	if (noise_seed & 1) {
 		noise_seed ^= 0x24000;
+	}
 	noise_seed >>= 1;
-	whitenoise = noise_seed&1 ? DB_POS(6) : DB_NEG(6);
+	whitenoise = noise_seed & 1 ? DB_POS(6) : DB_NEG(6);
 
 	noiseA_phase += noiseA_dphase;
 	noiseB_phase += noiseB_dphase;
 
-	noiseA_phase &= (0x40<<11) - 1;
-	if ((noiseA_phase>>11)==0x3f)
+	noiseA_phase &= (0x40 << 11) - 1;
+	if ((noiseA_phase >> 11) == 0x3f) {
 		noiseA_phase = 0;
-	noiseA = noiseA_phase&(0x03<<11)?DB_POS(6):DB_NEG(6);
+	}
+	noiseA = noiseA_phase & (0x03 << 11) ? DB_POS(6) : DB_NEG(6);
 
-	noiseB_phase &= (0x10<<11) - 1;
-	noiseB = noiseB_phase&(0x0A<<11)?DB_POS(6):DB_NEG(6);
+	noiseB_phase &= (0x10 << 11) - 1;
+	noiseB = noiseB_phase & (0x0A << 11) ? DB_POS(6) : DB_NEG(6);
 }
 
 void Y8950::update_ampm()
 {
-	pm_phase = (pm_phase + pm_dphase)&(PM_DP_WIDTH - 1);
-	am_phase = (am_phase + am_dphase)&(AM_DP_WIDTH - 1);
+	pm_phase = (pm_phase + PM_DPHASE) & (PM_DP_WIDTH - 1);
+	am_phase = (am_phase + AM_DPHASE) & (AM_DP_WIDTH - 1);
 	lfo_am = amtable[am_mode][HIGHBITS(am_phase, AM_DP_BITS - AM_PG_BITS)];
 	lfo_pm = pmtable[pm_mode][HIGHBITS(pm_phase, PM_DP_BITS - PM_PG_BITS)];
 }
 
 void Y8950::Slot::calc_phase()
 {
-	if (patch.PM)
+	if (patch.PM) {
 		phase += (dphase * (*plfo_pm)) >> PM_AMP_BITS;
-	else
+	} else {
 		phase += dphase;
+	}
 	phase &= (DP_WIDTH - 1);
 	pgout = HIGHBITS(phase, DP_BASE_BITS);
 }
 
 void Y8950::Slot::calc_envelope()
 {
-	#define S2E(x) (ALIGN((unsigned int)(x/SL_STEP),SL_STEP,EG_STEP)<<(EG_DP_BITS-EG_BITS))
+	#define S2E(x) (ALIGN((unsigned int)(x / SL_STEP), SL_STEP, EG_STEP) << (EG_DP_BITS - EG_BITS))
 	static unsigned int SL[16] = {
 		S2E( 0), S2E( 3), S2E( 6), S2E( 9), S2E(12), S2E(15), S2E(18), S2E(21),
 		S2E(24), S2E(27), S2E(30), S2E(33), S2E(36), S2E(39), S2E(42), S2E(93)
@@ -697,32 +734,35 @@ void Y8950::Slot::calc_envelope()
 	case RELEASE:
 		eg_phase += eg_dphase;
 		egout = HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS);
-		if (egout >= (1<<EG_BITS)) {
+		if (egout >= (1 << EG_BITS)) {
 			eg_mode = FINISH;
-			egout = (1<<EG_BITS) - 1;
+			egout = (1 << EG_BITS) - 1;
 		}
 		break;
 
 	case FINISH:
-		egout = (1<<EG_BITS) - 1;
+		egout = (1 << EG_BITS) - 1;
 		break;
 	}
 
-	if (patch.AM)
-		egout = ALIGN(egout+tll,EG_STEP,DB_STEP) + (*plfo_am);
-	else
-		egout = ALIGN(egout+tll,EG_STEP,DB_STEP);
-	if (egout >= DB_MUTE)
-		egout = DB_MUTE-1;
+	if (patch.AM) {
+		egout = ALIGN(egout + tll, EG_STEP, DB_STEP) + (*plfo_am);
+	} else {
+		egout = ALIGN(egout + tll, EG_STEP, DB_STEP);
+	}
+	if (egout >= DB_MUTE) {
+		egout = DB_MUTE - 1;
+	}
 }
 
 int Y8950::Slot::calc_slot_car(int fm)
 {
 	calc_envelope();
 	calc_phase();
-	if (egout>=(DB_MUTE-1))
+	if (egout >= (DB_MUTE - 1)) {
 		return 0;
-	return dB2LinTab[sintable[(pgout+wave2_8pi(fm))&(PG_WIDTH-1)] + egout];
+	}
+	return dB2LinTab[sintable[(pgout + wave2_8pi(fm)) & (PG_WIDTH - 1)] + egout];
 }
 
 int Y8950::Slot::calc_slot_mod()
@@ -731,50 +771,50 @@ int Y8950::Slot::calc_slot_mod()
 	calc_envelope();
 	calc_phase();
 
-	if (egout>=(DB_MUTE-1)) {
+	if (egout >= (DB_MUTE - 1)) {
 		output[0] = 0;
-	} else if (patch.FB!=0) {
+	} else if (patch.FB != 0) {
 		int fm = wave2_4pi(feedback) >> (7-patch.FB);
-		output[0] = dB2LinTab[sintable[(pgout+fm)&(PG_WIDTH-1)] + egout];
-	} else
+		output[0] = dB2LinTab[sintable[(pgout + fm) & (PG_WIDTH - 1)] + egout];
+	} else {
 		output[0] = dB2LinTab[sintable[pgout] + egout];
+	}
 
-	feedback = (output[1] + output[0])>>1;
+	feedback = (output[1] + output[0]) >> 1;
 	return feedback;
 }
 
-// TOM
 int Y8950::Slot::calc_slot_tom()
 {
 	calc_envelope();
 	calc_phase();
-	if (egout>=(DB_MUTE-1))
+	if (egout >= (DB_MUTE - 1)) {
 		return 0;
+	}
 	return dB2LinTab[sintable[pgout] + egout];
 }
 
-// SNARE
 int Y8950::Slot::calc_slot_snare(int whitenoise)
 {
 	calc_envelope();
 	calc_phase();
-	if (egout>=(DB_MUTE-1))
+	if (egout >= (DB_MUTE - 1)) {
 		return 0;
-	if (pgout & (1<<(PG_BITS-1))) {
-		return (dB2LinTab[egout] + dB2LinTab[egout+whitenoise]) >> 1;
+	}
+	if (pgout & (1 << (PG_BITS - 1))) {
+		return (dB2LinTab[egout] + dB2LinTab[egout + whitenoise]) >> 1;
 	} else {
-		return (dB2LinTab[2*DB_MUTE + egout] + dB2LinTab[egout+whitenoise]) >> 1;
+		return (dB2LinTab[2 * DB_MUTE + egout] + dB2LinTab[egout + whitenoise]) >> 1;
 	}
 }
 
-// TOP-CYM
 int Y8950::Slot::calc_slot_cym(int a, int b)
 {
 	calc_envelope();
-	if (egout>=(DB_MUTE-1)) {
+	if (egout >= (DB_MUTE - 1)) {
 		return 0;
 	} else {
-		return (dB2LinTab[egout+a] + dB2LinTab[egout+b]) >> 1;
+		return (dB2LinTab[egout + a] + dB2LinTab[egout + b]) >> 1;
 	}
 }
 
@@ -782,10 +822,10 @@ int Y8950::Slot::calc_slot_cym(int a, int b)
 int Y8950::Slot::calc_slot_hat(int a, int b, int whitenoise)
 {
 	calc_envelope();
-	if (egout>=(DB_MUTE-1)) {
+	if (egout >= (DB_MUTE - 1)) {
 		return 0;
 	} else {
-		return (dB2LinTab[egout+whitenoise] + dB2LinTab[egout+a] + dB2LinTab[egout+b]) >>2;
+		return (dB2LinTab[egout+whitenoise] + dB2LinTab[egout+a] + dB2LinTab[egout+b]) >> 2;
 	}
 }
 
@@ -817,20 +857,21 @@ int Y8950::calcSample(int channelMask)
 		channelMask &= (1<< 6) - 1;
 		mix *= 2;
 	}
-	for (Channel *cp = ch; channelMask; channelMask >>=1, cp++) {
+	for (Channel* cp = ch; channelMask; channelMask >>= 1, ++cp) {
 		if (channelMask & 1) {
-			if (cp->alg)
+			if (cp->alg) {
 				mix += cp->car.calc_slot_car(0) +
 				       cp->mod.calc_slot_mod();
-			else
+			} else {
 				mix += cp->car.calc_slot_car(
 				         cp->mod.calc_slot_mod());
+			}
 		}
 	}
 
 	mix += adpcm->calcSample();
 
-	return (mix*maxVolume) >> DB2LIN_AMP_BITS;
+	return (mix * maxVolume) >> DB2LIN_AMP_BITS;
 }
 
 
@@ -842,11 +883,11 @@ void Y8950::checkMute()
 }
 bool Y8950::checkMuteHelper()
 {
-	for (int i = 0; i < 6; i++) {
+	for (int i = 0; i < 6; ++i) {
 		if (ch[i].car.eg_mode != FINISH) return false;
 	}
 	if (!rythm_mode) {
-		for(int i = 6; i < 9; i++) {
+		for(int i = 6; i < 9; ++i) {
 			if (ch[i].car.eg_mode != FINISH) return false;
 		}
 	} else {
@@ -860,20 +901,27 @@ bool Y8950::checkMuteHelper()
 	return adpcm->muted();
 }
 
-void Y8950::updateBuffer(unsigned length, int* buffer,
-     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
+void Y8950::generateInput(float* buffer, unsigned num)
 {
 	int channelMask = 0;
 	for (int i = 9; i--; ) {
 		channelMask <<= 1;
 		if (ch[i].car.eg_mode != FINISH) channelMask |= 1;
 	}
-
-	while (length--) {
-		*(buffer++) = calcSample(channelMask);
+	for (unsigned i = 0; i < num; ++i) {
+		buffer[i] = calcSample(channelMask);
 	}
-
 	checkMute();
+}
+
+void Y8950::updateBuffer(unsigned length, int* buffer,
+     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
+{
+	float tmpBuf[length];
+	generateOutput(tmpBuf, length);
+	for (unsigned i = 0; i < length; ++i) {
+		buffer[i] = lrintf(tmpBuf[i]);
+	}
 }
 
 void Y8950::setVolume(int newVolume)
@@ -881,25 +929,24 @@ void Y8950::setVolume(int newVolume)
 	maxVolume = newVolume;
 }
 
-//**************************************************//
-//                                                  //
-//                       I/O Ctrl                   //
-//                                                  //
-//**************************************************//
+
+//
+// I/O Ctrl
+//
 
 void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 {
 	//PRT_DEBUG("Y8950 write " << (int)rg << " " << (int)data);
 	int stbl[32] = {
-		 0, 2, 4, 1, 3, 5,-1,-1,
-		 6, 8,10, 7, 9,11,-1,-1,
-		12,14,16,13,15,17,-1,-1,
-		-1,-1,-1,-1,-1,-1,-1,-1
+		 0,  2,  4,  1,  3,  5, -1, -1,
+		 6,  8, 10,  7,  9, 11, -1, -1,
+		12, 14, 16, 13, 15, 17, -1, -1,
+		-1, -1, -1, -1, -1, -1, -1, -1
 	};
 
 	//TODO only for registers that influence sound
 	//TODO also ADPCM
-	//if (rg>=0x20) {
+	//if (rg >= 0x20) {
 		// update the output buffer before changing the register
 		updateStream(time);
 	//}
@@ -1014,60 +1061,60 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 		break;
 	}
 	case 0x20: {
-		int s = stbl[rg&0x1f];
+		int s = stbl[rg & 0x1f];
 		if (s >= 0) {
-			slot[s]->patch.AM = (data>>7)&1;
-			slot[s]->patch.PM = (data>>6)&1;
-			slot[s]->patch.EG = (data>>5)&1;
-			slot[s]->patch.KR = (data>>4)&1;
-			slot[s]->patch.ML = (data)&15;
+			slot[s]->patch.AM = (data >> 7) &  1;
+			slot[s]->patch.PM = (data >> 6) &  1;
+			slot[s]->patch.EG = (data >> 5) &  1;
+			slot[s]->patch.KR = (data >> 4) &  1;
+			slot[s]->patch.ML = (data >> 0) & 15;
 			slot[s]->updateAll();
 		}
 		reg[rg] = data;
 		break;
 	}
 	case 0x40: {
-		int s = stbl[rg&0x1f];
+		int s = stbl[rg & 0x1f];
 		if (s >= 0) {
-			slot[s]->patch.KL = (data>>6)&3;
-			slot[s]->patch.TL = (data)&63;
+			slot[s]->patch.KL = (data >> 6) &  3;
+			slot[s]->patch.TL = (data >> 0) & 63;
 			slot[s]->updateAll();
 		}
 		reg[rg] = data;
 		break;
 	}
 	case 0x60: {
-		int s = stbl[rg&0x1f];
+		int s = stbl[rg & 0x1f];
 		if (s >= 0) {
-			slot[s]->patch.AR = (data>>4)&15;
-			slot[s]->patch.DR = (data)&15;
+			slot[s]->patch.AR = (data >> 4) & 15;
+			slot[s]->patch.DR = (data >> 0) & 15;
 			slot[s]->updateEG();
 		}
 		reg[rg] = data;
 		break;
 	}
 	case 0x80: {
-		int s = stbl[rg&0x1f];
+		int s = stbl[rg & 0x1f];
 		if (s >= 0) {
-			slot[s]->patch.SL = (data>>4)&15;
-			slot[s]->patch.RR = (data)&15;
+			slot[s]->patch.SL = (data >> 4) & 15;
+			slot[s]->patch.RR = (data >> 0) & 15;
 			slot[s]->updateEG();
 		}
 		reg[rg] = data;
 		break;
 	}
 	case 0xa0: {
-		if (rg==0xbd) {
-			am_mode = (data>>7)&1;
-			pm_mode = (data>>6)&1;
+		if (rg == 0xbd) {
+			am_mode = (data >> 7) & 1;
+			pm_mode = (data >> 6) & 1;
 
 			setRythmMode(data);
 			if (rythm_mode) {
-				if (data&0x10) keyOn_BD();  else keyOff_BD();
-				if (data&0x08) keyOn_SD();  else keyOff_SD();
-				if (data&0x04) keyOn_TOM(); else keyOff_TOM();
-				if (data&0x02) keyOn_CYM(); else keyOff_CYM();
-				if (data&0x01) keyOn_HH();  else keyOff_HH();
+				if (data & 0x10) keyOn_BD();  else keyOff_BD();
+				if (data & 0x08) keyOn_SD();  else keyOff_SD();
+				if (data & 0x04) keyOn_TOM(); else keyOff_TOM();
+				if (data & 0x02) keyOn_CYM(); else keyOff_CYM();
+				if (data & 0x01) keyOn_HH();  else keyOff_HH();
 			}
 			ch[6].mod.updateAll();
 			ch[6].car.updateAll();
@@ -1079,42 +1126,43 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 			reg[rg] = data;
 			break;
 		}
-		if ((rg&0xf) > 8) {
+		if ((rg & 0xf) > 8) {
 			// 0xa9-0xaf 0xb9-0xbf
 			break;
 		}
-		if (!(rg&0x10)) {
+		if (!(rg & 0x10)) {
 			// 0xa0-0xa8
-			int c = rg-0xa0;
-			int fNum = data + ((reg[rg+0x10]&3)<<8);
-			int block = (reg[rg+0x10]>>2)&7;
+			int c = rg - 0xa0;
+			int fNum = data + ((reg[rg + 0x10] & 3) << 8);
+			int block = (reg[rg + 0x10] >> 2) & 7;
 			ch[c].setFnumber(fNum);
 			switch (c) {
-				case 7: noiseA_dphase = dphaseNoiseTable[fNum][block];
-					break;
-				case 8: noiseB_dphase = dphaseNoiseTable[fNum][block];
-					break;
+			case 7: noiseA_dphase = dphaseNoiseTable[fNum][block];
+				break;
+			case 8: noiseB_dphase = dphaseNoiseTable[fNum][block];
+				break;
 			}
 			ch[c].car.updateAll();
 			ch[c].mod.updateAll();
 			reg[rg] = data;
 		} else {
 			// 0xb0-0xb8
-			int c = rg-0xb0;
-			int fNum = ((data&3)<<8) + reg[rg-0x10];
-			int block = (data>>2)&7;
+			int c = rg - 0xb0;
+			int fNum = ((data & 3) << 8) + reg[rg - 0x10];
+			int block = (data >> 2) & 7;
 			ch[c].setFnumber(fNum);
 			ch[c].setBlock(block);
 			switch (c) {
-				case 7: noiseA_dphase = dphaseNoiseTable[fNum][block];
-					break;
-				case 8: noiseB_dphase = dphaseNoiseTable[fNum][block];
-					break;
+			case 7: noiseA_dphase = dphaseNoiseTable[fNum][block];
+				break;
+			case 8: noiseB_dphase = dphaseNoiseTable[fNum][block];
+				break;
 			}
-			if (data&0x20)
+			if (data & 0x20) {
 				ch[c].keyOn();
-			else
+			} else {
 				ch[c].keyOff();
+			}
 			ch[c].mod.updateAll();
 			ch[c].car.updateAll();
 			reg[rg] = data;
@@ -1124,9 +1172,9 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 	case 0xc0: {
 		if (rg > 0xc8)
 			break;
-		int c = rg-0xC0;
-		slot[c*2]->patch.FB = (data>>1)&7;
-		ch[c].alg = data&1;
+		int c = rg - 0xC0;
+		slot[c * 2]->patch.FB = (data >> 1) & 7;
+		ch[c].alg = data & 1;
 		reg[rg] = data;
 	}
 	}

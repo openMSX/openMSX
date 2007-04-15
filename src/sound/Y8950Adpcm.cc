@@ -13,9 +13,9 @@ namespace openmsx {
 const int ADPCM_VOLUME = 356;
 
 // Bitmask for register 0x07
-static const int R07_RESET        = 0x01;
-//static const int R07            = 0x02;.      // not used
-//static const int R07            = 0x04;.      // not used
+static const int R07_RESET = 0x01;
+//static const int R07     = 0x02;.      // not used
+//static const int R07     = 0x04;.      // not used
 const int R07_SP_OFF       = 0x08;
 const int R07_REPEAT       = 0x10;
 const int R07_MEMORY_DATA  = 0x20;
@@ -40,26 +40,14 @@ const int DDEF = 0x7F;
 const int DECODE_MAX = 32767;
 const int DECODE_MIN = -32768;
 
-const int GETA_BITS  = 14;
-const unsigned int MAX_STEP   = 1<<(16+GETA_BITS);
+const int GETA_BITS = 14;
+const unsigned int MAX_STEP = 1 << (16 + GETA_BITS);
 
-
-//**************************************************//
-//                                                  //
-//  Helper functions                                //
-//                                                  //
-//**************************************************//
 
 static int CLAP(int min, int x, int max)
 {
 	return (x < min) ? min : ((max < x) ? max : x);
 }
-
-//**********************************************************//
-//                                                          //
-//  Y8950Adpcm                                              //
-//                                                          //
-//**********************************************************//
 
 Y8950Adpcm::Y8950Adpcm(Y8950& y8950_, MSXMotherBoard& motherBoard,
                        const std::string& name, unsigned sampleRam)
@@ -85,14 +73,9 @@ void Y8950Adpcm::reset(const EmuTime &time)
 	reg7 = 0;
 	reg15 = 0;
 	readDelay = 0;
-	writeReg(0x12, 255, time);	// volume
+	writeReg(0x12, 255, time); // volume
 	restart();
 	y8950.setStatus(Y8950::STATUS_BUF_RDY);
-}
-
-void Y8950Adpcm::setSampleRate(int sr)
-{
-	sampleRate = sr;
 }
 
 bool Y8950Adpcm::playing() const
@@ -103,12 +86,6 @@ bool Y8950Adpcm::muted() const
 {
 	return !playing() || (reg7 & R07_SP_OFF);
 }
-
-//**************************************************//
-//                                                  //
-//                       I/O Ctrl                   //
-//                                                  //
-//**************************************************//
 
 void Y8950Adpcm::restart()
 {
@@ -125,7 +102,7 @@ void Y8950Adpcm::schedule(const EmuTime& time)
 {
 	if ((stopAddr > startAddr) && (delta != 0)) {
 		uint64 samples = stopAddr - memPntr + 1;
-		Clock<Y8950::CLK_FREQ> stop(time);
+		Clock<Y8950::CLOCK_FREQ> stop(time);
 		stop += (samples * (72 << 16) / delta);
 		setSyncPoint(stop.getTime());
 	}
@@ -199,12 +176,12 @@ void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime &time)
 
 	case 0x10: // DELTA-N (L)
 		delta = (delta & 0xFF00) | data;
-		step = Y8950::rate_adjust(delta << GETA_BITS, sampleRate);
+		step = delta << GETA_BITS;
 		volumeWStep = (int)((double)volume * step / MAX_STEP);
 		break;
 	case 0x11: // DELTA-N (H)
 		delta = (delta & 0x00FF) | (data << 8);
-		step = Y8950::rate_adjust(delta << GETA_BITS, sampleRate);
+		step = delta << GETA_BITS;
 		volumeWStep = (int)((double)volume * step / MAX_STEP);
 		break;
 
@@ -366,10 +343,10 @@ byte Y8950Adpcm::readMemory() const
 int Y8950Adpcm::calcSample()
 {
 	// This table values are from ymdelta.c by Tatsuyuki Satoh.
-	static const int F1[16] = { 1,   3,   5,   7,   9,  11,  13,  15,
-				   -1,  -3,  -5,  -7,  -9, -11, -13, -15};
-	static const int F2[16] = {57,  57,  57,  57,  77, 102, 128, 153,
-				   57,  57,  57,  57,  77, 102, 128, 153};
+	static const int F1[16] = {  1,   3,   5,   7,   9,  11,  13,  15,
+	                            -1,  -3,  -5,  -7,  -9, -11, -13, -15 };
+	static const int F2[16] = { 57,  57,  57,  57,  77, 102, 128, 153,
+	                            57,  57,  57,  57,  77, 102, 128, 153 };
 
 	if (muted()) {
 		return 0;

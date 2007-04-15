@@ -16,7 +16,8 @@ $Id$
 	* Extended resampler class for stereo devices
 	* Speedup SDLGL-PP simple scaler
 	* Use (stereo) resampler for YMF262 (FM-part of OPL4)
-	* Use resampler for (both) YM2413 cores
+	* Use resampler for (both) YM2413 cores (MSX-MUSIC)
+	* Use resampler for Y8950 (MSX-AUDIO)
 
 2007-04-15 Maarten ter Huurne <maarten@treewalker.org>
 	* Released openmsx-0.6.2.
