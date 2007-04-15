@@ -26,6 +26,7 @@ private:
 	RenderSettings& renderSettings;
 	std::auto_ptr<ShaderProgram> scalerProgram;
 	int texSizeLoc;
+	int texStepXLoc;
 	int alphaLoc;
 	int scanALoc;
 	int scanBLoc;

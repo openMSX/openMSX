@@ -20,11 +20,12 @@ GLSimpleScaler::GLSimpleScaler(RenderSettings& renderSettings_)
 		scalerProgram->activate();
 		GLint texLoc = scalerProgram->getUniformLocation("tex");
 		glUniform1i(texLoc, 0);
-		texSizeLoc = scalerProgram->getUniformLocation("texSize");
-		alphaLoc   = scalerProgram->getUniformLocation("alpha");
-		scanALoc   = scalerProgram->getUniformLocation("scan_a");
-		scanBLoc   = scalerProgram->getUniformLocation("scan_b");
-		scanCLoc   = scalerProgram->getUniformLocation("scan_c");
+		texSizeLoc  = scalerProgram->getUniformLocation("texSize");
+		texStepXLoc = scalerProgram->getUniformLocation("texStepX");
+		alphaLoc    = scalerProgram->getUniformLocation("alpha");
+		scanALoc    = scalerProgram->getUniformLocation("scan_a");
+		scanBLoc    = scalerProgram->getUniformLocation("scan_b");
+		scanCLoc    = scalerProgram->getUniformLocation("scan_c");
 	}
 #endif
 }
@@ -51,6 +52,7 @@ void GLSimpleScaler::scaleImage(
 		scalerProgram->activate();
 		GLfloat a = (yScale & 1) ? 0.5f : ((yScale + 1) / (2.0f * yScale));
 		glUniform2f(texSizeLoc, srcWidth, height);
+		glUniform3f(texStepXLoc, 1.0f / srcWidth, 1.0f / srcWidth, 0.0f);
 		glUniform1f(alphaLoc, blur);
 		glUniform1f(scanALoc, a);
 		glUniform1f(scanBLoc, 1.0f - scanline);

@@ -1,24 +1,20 @@
 // $Id$
-// Scale2x scaler.
 
 uniform sampler2D tex;
 uniform float alpha;
 uniform float scan_a;
 uniform float scan_b;
 uniform float scan_c;
+uniform vec3 texStepX; // = vec3(vec2(1.0 / texSize.x), 0.0);
 
 varying vec2 scaled;
-varying float y;
-varying float texStepX;
+varying vec3 misc;
 
 void main()
 {
-	vec2 xi = vec2(floor(scaled.x) + 0.5);
-	vec2 xf = vec2(fract(scaled.x));
-	vec2 t1 = ((xf - vec2(1.0, 0.0)) * alpha + xi) * texStepX;
-	vec3 t2 = vec3(t1, y);
-	vec4 col1 = texture2D(tex, t2.xz);
-	vec4 col2 = texture2D(tex, t2.yz);
+	vec3 t = (vec3(floor(scaled.x)) + alpha * vec3(fract(scaled.x))) * texStepX + misc;
+	vec4 col1 = texture2D(tex, t.xz);
+	vec4 col2 = texture2D(tex, t.yz);
 
 	float scan = scan_c + scan_b * abs(fract(scaled.y) - scan_a);
 	gl_FragColor = (col1 + col2) * scan;
