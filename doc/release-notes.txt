@@ -7,7 +7,7 @@ The main new feature is the addition of the video recorder. It enables you to
 record videos, including sound, of what you are doing with your emulated MSX.
 Thanks to the DosBox Team for their great ZMBV lossless video codec.
 
-The most noticable speed optimizations are in the rendering: the SDLGL-PP
+The most noticeable speed optimizations are in the rendering: the SDLGL-PP
 renderer can be up to 50% faster and the SDL renderer is about 6% faster. If
 you were having problems with speed, give this release a try.
 
@@ -21,7 +21,7 @@ New or improved emulator features:
 - Video recording and improved sound recording (stutterless).
 - SDLGL-PP renderer (OpenGL 2.0) can do hq and hqlite scaling in hardware.
 - More usable trainers.
-- Extended hotkeys: you can now bind any host event to a TCL command, which
+- Extended hot keys: you can now bind any host event to a TCL command, which
   means you can e.g. let openMSX push the MSX F1 key if you press a certain
   button on your PC game pad.
 - Event recording and replaying (experimental for now: only available at
@@ -36,7 +36,7 @@ MSX device support:
 - Fixed mirroring of some FDC registers and diskROMs.
 - Dot matrix graphical printer emulation added (thanks to the blueMSX Team).
 - Cassetteplayer recognizes end of tape and stops.
-- Small bugfixes in various devices: MSX-Audio, V9990, VDP, SCC, PSG, TC8566AF.
+- Small bug fixes in various devices: MSX-Audio, V9990, VDP, SCC, PSG, TC8566AF.
 - Various speed optimizations: VDP command engine, Z80, video rendering, V9990,
   debugger response time in break mode.
 - Added a few Arabic MSX machines, but note that they have not been verified
@@ -44,7 +44,7 @@ MSX device support:
 
 Build system, packaging, documentation:
 - Added support for building an application folder on Mac OS X.
-- Added support for buidling a universal binary for Mac OS X.
+- Added support for building a universal binary for Mac OS X.
 - HTML-ized the Console Command Reference and the diskmanipulator documentation.
   There is now also linking to these new manuals, which improved the usefulness
   of them a lot.
