@@ -129,14 +129,14 @@ private:
 	// operator methods
 	void envelopeKONKOFF(YM2151Operator* op, int v);
 	static void refreshEG(YM2151Operator* op);
-	int opCalc(YM2151Operator* op, unsigned int env, int pm);
-	int opCalc1(YM2151Operator* op, unsigned int env, int pm);
+	int opCalc(YM2151Operator* op, unsigned env, int pm);
+	int opCalc1(YM2151Operator* op, unsigned env, int pm);
 	inline unsigned volumeCalc(YM2151Operator* op, unsigned AM);
 	inline void keyOn(YM2151Operator* op, unsigned keySet);
 	inline void keyOff(YM2151Operator* op, unsigned keyClear);
 
 	// general chip mehods
-	void chanCalc(unsigned int chan);
+	void chanCalc(unsigned chan);
 	void chan7Calc();
 
 	void advanceEG();
