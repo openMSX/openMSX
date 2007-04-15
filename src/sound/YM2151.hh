@@ -171,7 +171,7 @@ private:
 	unsigned noise;          // noise enable/period register
 	                         // bit 7 - noise enable, bits 4-0 - noise period
 	unsigned noise_rng;      // 17 bit noise shift register
-	unsigned noise_p;        // current noise 'phase'
+	int noise_p;             // current noise 'phase'
 	unsigned noise_f;        // current noise period
 
 	unsigned csm_req;        // CSM  KEY ON / KEY OFF sequence request
