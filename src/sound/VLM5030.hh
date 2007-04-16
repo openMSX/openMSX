@@ -14,7 +14,7 @@ class Rom;
 class MSXMotherBoard;
 class XMLElement;
 
-class VLM5030 : public SoundDevice, private Resample<2>
+class VLM5030 : public SoundDevice, private Resample<1>
 {
 public:
 	VLM5030(MSXMotherBoard& motherBoard, const std::string& name,
