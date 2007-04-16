@@ -2,6 +2,10 @@ $Id$
 
 2007-04-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented SDLGL-PP RGBTriplet scaler
+	* Implemented SDLGL-PP SaI scaler:
+	    This algorithm is not well suited for a HW implementation (it
+	    has a lot of branches). So this scaler will probably run a bit
+	    slower than the other HW scalers.
 
 2007-04-15 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added emulation of Yamaha YM2151 and partly the Yamaha SFG-05
