@@ -58,7 +58,7 @@ SRC_HDR_$(COMPONENT_GL)+= \
 	SDLGLVisibleSurface GLSnow GLUtil GLImage \
 	GLRasterizer GLPostProcessor GLScalerFactory \
 	GLSimpleScaler GLScaleNxScaler GLTVScaler \
-	GLHQScaler GLHQLiteScaler
+	GLRGBScaler GLHQScaler GLHQLiteScaler
 
 HDR_ONLY_$(COMPONENT_GL)+= \
 	GLScaler

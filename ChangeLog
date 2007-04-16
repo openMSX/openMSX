@@ -1,5 +1,8 @@
 $Id$
 
+2007-04-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented SDLGL-PP RGBTriplet scaler
+
 2007-04-15 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added emulation of Yamaha YM2151 and partly the Yamaha SFG-05
 	  sound module. For the latter, I included the config of the Yamaha
