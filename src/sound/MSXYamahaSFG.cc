@@ -1,4 +1,4 @@
-// $Id: $
+// $Id$
 
 #include "MSXYamahaSFG.hh"
 #include "YM2151.hh"

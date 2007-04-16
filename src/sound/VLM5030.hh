@@ -1,4 +1,4 @@
-// $Id: $
+// $Id$
 
 #ifndef VLM5030_HH
 #define VLM5030_HH

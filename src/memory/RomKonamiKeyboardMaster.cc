@@ -1,4 +1,4 @@
-// $Id: $
+// $Id$
 
 #include "RomKonamiKeyboardMaster.hh"
 #include "VLM5030.hh"
