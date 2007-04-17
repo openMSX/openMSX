@@ -49,11 +49,11 @@ static inline void setlg(byte* x, unsigned y)
 }
 
 // functions to read DirEntries
-static inline unsigned rdsh(byte* x)
+static inline unsigned rdsh(const byte* x)
 {
 	return (x[0] << 0) + (x[1] << 8);
 }
-static inline unsigned rdlg(byte* x)
+static inline unsigned rdlg(const byte* x)
 {
 	return (x[0] << 0) + (x[1] << 8) + (x[2] << 16) + (x[3] << 24);
 }
@@ -79,7 +79,7 @@ unsigned MSXtar::sectorToCluster(unsigned sector)
   */
 void MSXtar::parseBootSector(const byte* buf)
 {
-	MSXBootSector* boot = (MSXBootSector*)buf;
+	const MSXBootSector* boot = (const MSXBootSector*)buf;
 	unsigned nbSectors = rdsh(boot->nrsectors);
 	if (nbSectors == 0) { // TODO: check limits more accurately
 		throw MSXException("Illegal number of sectors: " +
@@ -700,6 +700,7 @@ MSXtar::DirEntry MSXtar::findEntryInDir(
 {
 	DirEntry result;
 	result.sector = sector;
+	result.index = 0; // avoid warning (only some gcc versions complain) 
 	while (result.sector) {
 		// read sector and scan 16 entries
 		readLogicalSector(result.sector, buf);
