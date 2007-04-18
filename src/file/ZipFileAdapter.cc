@@ -1,6 +1,7 @@
 // $Id$
 
 #include <zlib.h>
+#include <cstdlib>
 #include "ZipFileAdapter.hh"
 #include "FileException.hh"
 

@@ -3,6 +3,7 @@
 #include "GZFileAdapter.hh"
 #include "FileException.hh"
 #include <cassert>
+#include <cstdlib>
 #include <zlib.h>
 
 namespace openmsx {

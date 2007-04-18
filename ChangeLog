@@ -1,5 +1,8 @@
 $Id$
 
+2007-04-18 Joost Yervante Damad <joost@teluna.org>
+	* fix build with gcc snapshot 20070326
+
 2007-04-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented SDLGL-PP RGBTriplet scaler
 	* Implemented SDLGL-PP SaI scaler:
