@@ -6,6 +6,7 @@
 #define YMF278_HH
 
 #include "SoundDevice.hh"
+#include "ChannelMixer.hh"
 #include "Clock.hh"
 #include "openmsx.hh"
 #include <memory>
@@ -69,7 +70,7 @@ public:
 	int lfo_max;
 };
 
-class YMF278 : public SoundDevice
+class YMF278 : public SoundDevice, private ChannelMixer
 {
 public:
 	YMF278(MSXMotherBoard& motherBoard, const std::string& name,
@@ -88,6 +89,9 @@ private:
 	virtual void setVolume(int newVolume);
 	virtual void updateBuffer(unsigned length, int* buffer,
 		const EmuTime& start, const EmuDuration& sampDur);
+
+	// ChannelMixer
+	virtual void generateChannels(int** bufs, unsigned num);
 
 	void writeReg(byte reg, byte data, const EmuTime& time);
 	byte readMem(unsigned address) const;

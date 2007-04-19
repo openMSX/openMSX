@@ -4,8 +4,9 @@
 #define VLM5030_HH
 
 #include "SoundDevice.hh"
-#include "openmsx.hh"
+#include "ChannelMixer.hh"
 #include "Resample.hh"
+#include "openmsx.hh"
 #include <memory>
 
 namespace openmsx {
@@ -14,7 +15,7 @@ class Rom;
 class MSXMotherBoard;
 class XMLElement;
 
-class VLM5030 : public SoundDevice, private Resample<1>
+class VLM5030 : public SoundDevice, private ChannelMixer, private Resample<1>
 {
 public:
 	VLM5030(MSXMotherBoard& motherBoard, const std::string& name,
@@ -42,6 +43,9 @@ private:
 	virtual void updateBuffer(
 		unsigned length, int* buffer, const EmuTime& start,
 		const EmuDuration& sampDur);
+
+	// ChannelMixer
+	virtual void generateChannels(int** bufs, unsigned num);
 
 	// Resample
 	virtual void generateInput(float* buffer, unsigned num);

@@ -3,6 +3,7 @@
 #include "WavWriter.hh"
 #include "MSXException.hh"
 #include "build-info.hh"
+#include <algorithm>
 
 namespace openmsx {
 
@@ -96,6 +97,22 @@ void WavWriter::write16stereo(short* buffer, unsigned samples)
 		fwrite(buffer, 1, size, wavfp);
 	}
 	bytes += size;
+}
+
+void WavWriter::write16mono(int* buffer, unsigned samples)
+{
+	short buf[samples];
+	for (unsigned i = 0; i < samples; ++i) {
+		buf[i] = litEnd_16(std::min(32767, std::max(-32768, buffer[i])));
+	}
+	unsigned size = sizeof(short) * samples;
+	fwrite(buf, 1, size, wavfp);
+	bytes += size;
+}
+
+void WavWriter::write16stereo(int* buffer, unsigned samples)
+{
+	write16mono(buffer, 2 * samples);
 }
 
 void WavWriter::flush()

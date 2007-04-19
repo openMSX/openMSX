@@ -683,9 +683,10 @@ inline int Channel::chan_calc(byte LFO_AM)
 //    8     14,17     B8        A8            +           +     +
 
 // calculate rhythm
-inline int YM2413_2::rhythm_calc(bool noise)
+inline void YM2413_2::rhythm_calc(int** bufs, unsigned sample)
 {
-	int output = 0;
+	bool noise = noise_rng & 1;
+
 	Slot& SLOT6_1 = channels[6].slots[SLOT1];
 	Slot& SLOT6_2 = channels[6].slots[SLOT2];
 	Slot& SLOT7_1 = channels[7].slots[SLOT1];
@@ -695,8 +696,10 @@ inline int YM2413_2::rhythm_calc(bool noise)
 
 	// Bass Drum (verified on real YM3812):
 	//  - depends on the channel 6 'connect' register:
-	//    when connect = 0 it works the same as in normal (non-rhythm) mode (op1->op2->out)
-	//    when connect = 1 _only_ operator 2 is present on output (op2->out), operator 1 is ignored
+	//    when connect = 0 it works the same as in normal (non-rhythm) mode
+	//                     (op1->op2->out)
+	//    when connect = 1 _only_ operator 2 is present on output (op2->out),
+	//                     operator 1 is ignored
 	//  - output sample always is multiplied by 2
 
 	// SLOT 1
@@ -712,20 +715,24 @@ inline int YM2413_2::rhythm_calc(bool noise)
 		if (!SLOT6_1.fb_shift) {
 			out = 0;
 		}
-		SLOT6_1.op1_out[1] = op_calc1(SLOT6_1.phase, env, (out << SLOT6_1.fb_shift), SLOT6_1.wavetable);
+		SLOT6_1.op1_out[1] = op_calc1(SLOT6_1.phase, env,
+		                              out << SLOT6_1.fb_shift,
+		                              SLOT6_1.wavetable);
 	}
 
 	// SLOT 2
 	env = SLOT6_2.volume_calc(LFO_AM);
-	if (env < ENV_QUIET) {
-		output += op_calc(SLOT6_2.phase, env, phase_modulation, SLOT6_2.wavetable);
-	}
+	bufs[6][sample] = (env < ENV_QUIET)
+		? adjust(2 * op_calc(SLOT6_2.phase, env, phase_modulation, SLOT6_2.wavetable))
+		: 0;
 
 	// Phase generation is based on:
-	//   HH  (13) channel 7->slot 1 combined with channel 8->slot 2 (same combination as TOP CYMBAL but different output phases)
+	//   HH  (13) channel 7->slot 1 combined with channel 8->slot 2
+	//            (same combination as TOP CYMBAL but different output phases)
 	//   SD  (16) channel 7->slot 1
 	//   TOM (14) channel 8->slot 1
-	//   TOP (17) channel 7->slot 1 combined with channel 8->slot 2 (same combination as HIGH HAT but different output phases)
+	//   TOP (17) channel 7->slot 1 combined with channel 8->slot 2
+	//            (same combination as HIGH HAT but different output phases)
 	// Envelope generation based on:
 	//   HH  channel 7->slot1
 	//   SD  channel 7->slot2
@@ -737,6 +744,7 @@ inline int YM2413_2::rhythm_calc(bool noise)
 
 	// High Hat (verified on real YM3812)
 	env = SLOT7_1.volume_calc(LFO_AM);
+	int out7 = 0;
 	if (env < ENV_QUIET) {
 		// high hat phase generation:
 		// phase = D0 or 234 (based on frequency only)
@@ -774,11 +782,13 @@ inline int YM2413_2::rhythm_calc(bool noise)
 				phase = 0xD0 >> 2;
 			}
 		}
-		output += op_calc(phase << FREQ_SH, env, 0, SLOT7_1.wavetable);
+		out7 = adjust(2 * op_calc(phase << FREQ_SH, env, 0, SLOT7_1.wavetable));
 	}
+	bufs[7][sample] = out7;
 
 	// Snare Drum (verified on real YM3812)
 	env = SLOT7_2.volume_calc(LFO_AM);
+	int out8 = 0;
 	if (env < ENV_QUIET) {
 		// base frequency derived from operator 1 in channel 7
 		bool bit8 = (SLOT7_1.phase >> FREQ_SH) & 0x100;
@@ -794,17 +804,19 @@ inline int YM2413_2::rhythm_calc(bool noise)
 		if (noise) {
 			phase ^= 0x100;
 		}
-		output += op_calc(phase << FREQ_SH, env, 0, SLOT7_2.wavetable);
+		out8 = adjust(2 * op_calc(phase << FREQ_SH, env, 0, SLOT7_2.wavetable));
 	}
+	bufs[8][sample] = out8;
 
 	// Tom Tom (verified on real YM3812)
 	env = SLOT8_1.volume_calc(LFO_AM);
-	if (env < ENV_QUIET) {
-		output += op_calc(SLOT8_1.phase, env, 0, SLOT8_1.wavetable);
-	}
+	bufs[9][sample] = (env < ENV_QUIET)
+		? adjust(2 * op_calc(SLOT8_1.phase, env, 0, SLOT8_1.wavetable))
+		: 0;
 
 	// Top Cymbal (verified on real YM2413)
 	env = SLOT8_2.volume_calc(LFO_AM);
+	int out10 = 0;
 	if (env < ENV_QUIET) {
 		// base frequency derived from operator 1 in channel 7
 		bool bit7 = (SLOT7_1.phase >> FREQ_SH) & 0x80;
@@ -824,9 +836,9 @@ inline int YM2413_2::rhythm_calc(bool noise)
 		if (res2) {
 			phase = 0x300;
 		}
-		output += op_calc(phase << FREQ_SH, env, 0, SLOT8_2.wavetable);
+		out10 = adjust(2 * op_calc(phase << FREQ_SH, env, 0, SLOT8_2.wavetable));
 	}
-	return output * 2;
+	bufs[10][sample] = out10;
 }
 
 
@@ -1345,6 +1357,7 @@ void YM2413_2::reset(const EmuTime &time)
 YM2413_2::YM2413_2(MSXMotherBoard& motherBoard, const std::string& name,
                    const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMSXMixer(), name, "MSX-MUSIC")
+	, ChannelMixer(11)
 	, debuggable(new YM2413_2Debuggable(motherBoard, *this))
 {
 	eg_cnt = 0;
@@ -1393,28 +1406,37 @@ bool YM2413_2::checkMuteHelper()
 	return true;	// nothing playing, mute
 }
 
-void YM2413_2::generateInput(float* buffer, unsigned num)
+inline int YM2413_2::adjust(int x)
+{
+	return (maxVolume * x) >> 11;
+}
+
+void YM2413_2::generateChannels(int** bufs, unsigned num)
 {
 	for (unsigned i = 0; i < num; ++i) {
-		int output = 0;
 		advance_lfo();
-		output += channels[0].chan_calc(LFO_AM);
-		output += channels[1].chan_calc(LFO_AM);
-		output += channels[2].chan_calc(LFO_AM);
-		output += channels[3].chan_calc(LFO_AM);
-		output += channels[4].chan_calc(LFO_AM);
-		output += channels[5].chan_calc(LFO_AM);
-		if (!rhythm) {
-			output += channels[6].chan_calc(LFO_AM);
-			output += channels[7].chan_calc(LFO_AM);
-			output += channels[8].chan_calc(LFO_AM);
-		} else {
-			output += rhythm_calc(noise_rng & 1);
+		int m = rhythm ? 6 : 9;
+		for (int j = 0; j < m; ++j) {
+			bufs[j][i] = adjust(channels[j].chan_calc(LFO_AM));
 		}
-		buffer[i] = (maxVolume * output) >> 11;
+		if (rhythm) {
+			rhythm_calc(bufs, i);
+		} else {
+			bufs[ 9] = 0;
+			bufs[10] = 0;
+		}
 		advance();
 	}
 	checkMute();
+}
+
+void YM2413_2::generateInput(float* buffer, unsigned num)
+{
+	int tmpBuf[num];
+	mixChannels(tmpBuf, num);
+	for (unsigned i = 0; i < num; ++i) {
+		buffer[i] = tmpBuf[i];
+	}
 }
 
 void YM2413_2::updateBuffer(unsigned length, int* buffer,

@@ -8,6 +8,8 @@ DACSound16S::DACSound16S(MSXMixer& mixer, const std::string& name,
                          const std::string& desc, const XMLElement& config,
                          const EmuTime& /*time*/)
 	: SoundDevice(mixer, name, desc)
+	, ChannelMixer(1)
+	, start(EmuTime::zero) // dummy
 {
 	lastWrittenValue = 0;
 	prevValue = prevA = prevB = 0;
@@ -45,8 +47,7 @@ void DACSound16S::writeDAC(short value, const EmuTime& time)
 	setMute(false);
 }
 
-void DACSound16S::updateBuffer(unsigned length, int* buffer,
-     const EmuTime& start, const EmuDuration& sampDur)
+void DACSound16S::generateChannels(int** bufs, unsigned num)
 {
 	// purge samples before start
 	Queue::iterator it = queue.begin();
@@ -61,7 +62,7 @@ void DACSound16S::updateBuffer(unsigned length, int* buffer,
 	int64 durB = sampDur.length() - durA;
 
 	EmuTime curr = start;
-	while (length--) {
+	for (unsigned i = 0; i < num; ++i) {
 		// 2x oversampling
 		EmuTime nextA = curr + halfDur;
 		EmuTime nextB = curr + sampDur;
@@ -90,12 +91,20 @@ void DACSound16S::updateBuffer(unsigned length, int* buffer,
 
 		// 4th order symmetrical FIR filter (1 3 3 1)
 		int value = (prevA + sampB + 3 * (prevB + sampA)) / 8;
-		*(buffer++) = value;
+		bufs[0][i] = value;
 		prevA = sampA;
 		prevB = sampB;
 	}
 
 	setMute(queue.empty() && (prevValue == 0));
+}
+
+void DACSound16S::updateBuffer(unsigned length, int* buffer,
+     const EmuTime& start_, const EmuDuration& sampDur_)
+{
+	start = start_;
+	sampDur = sampDur_;
+	mixChannels(buffer, length);
 }
 
 } // namespace openmsx

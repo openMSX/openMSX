@@ -100,6 +100,8 @@
 #include "MSXMotherBoard.hh"
 #include <cmath>
 
+#include <iostream>
+
 using std::string;
 
 namespace openmsx {
@@ -123,6 +125,7 @@ static string calcDescription(SCC::ChipMode mode)
 SCC::SCC(MSXMotherBoard& motherBoard, const string& name,
          const XMLElement& config, const EmuTime& time, ChipMode mode)
 	: SoundDevice(motherBoard.getMSXMixer(), name, calcDescription(mode))
+	, ChannelMixer(5)
 	, currentChipMode(mode)
 	, deformTimer(time)
 	, debuggable(new SCCDebuggable(motherBoard, *this))
@@ -133,12 +136,6 @@ SCC::SCC(MSXMotherBoard& motherBoard, const string& name,
 			wave[i][j] = 0;
 		}
 		out[i] = 0;
-	}
-
-	nbSamples = 9999;
-
-	for (unsigned i = 0; i < sizeof(in)/sizeof(int); ++i) {
-		in[i] = 0;
 	}
 
 	reset(time);
@@ -345,9 +342,10 @@ void SCC::writeMemInterface(byte address, byte value, const EmuTime& time)
 	}
 }
 
-static inline int adjust(signed char wav, byte vol)
+inline int SCC::adjust(signed char wav, byte vol)
 {
-	return (static_cast<int>(wav) * vol) / 16;
+	int tmp = (static_cast<int>(wav) * vol) / 16;
+	return (tmp * masterVolume) / 256;
 }
 
 void SCC::writeWave(byte channel, byte address, byte value)
@@ -461,51 +459,59 @@ void SCC::setDeformReg(byte value, const EmuTime& time)
 	}
 }
 
-void SCC::generateInput(float* buffer, unsigned num)
+void SCC::generateChannels(int** bufs, unsigned num)
 {
-	nbSamples += num;
 	if ((deformValue & 0xC0) == 0x00) {
 		// No rotation stuff, this is almost always true. So it makes
 		// sense to have a special optimized routine for this case
-		for (unsigned j = 0; j < num; ++j) {
-			int mixed = 0;
-			byte enable = ch_enable;
-			for (int i = 0; i < 5; ++i, enable >>= 1) {
-				count[i] = (count[i] + incr[i]) & 0x0FFFFFFF;
-				unsigned newPos = count[i] >> 23;
-				if (newPos != pos[i]) {
-					pos[i] = newPos;
-					out[i] = volAdjustedWave[i][newPos];
+		byte enable = ch_enable;
+		for (int i = 0; i < 5; ++i, enable >>= 1) {
+			if (enable & 1) {
+				for (unsigned j = 0; j < num; ++j) {
+					count[i] = (count[i] + incr[i]) & 0x0FFFFFFF;
+					unsigned newPos = count[i] >> 23;
+					if (newPos != pos[i]) {
+						pos[i] = newPos;
+						out[i] = volAdjustedWave[i][newPos];
+					}
+					bufs[i][j] = out[i];
 				}
-				if (enable & 1) {
-					mixed += out[i];
-				}
+			} else {
+				bufs[i] = 0; // channel muted
 			}
-			buffer[j] = (masterVolume * mixed) / 256;
 		}
 	} else {
 		// Rotation mode
 		//  TODO not completely correct
-		for (unsigned j = 0; j < num; ++j) {
-			int mixed = 0;
-			byte enable = ch_enable;
-			for (int i = 0; i < 5; ++i, enable >>= 1) {
-				unsigned cnt = count[i] + incr[i];
-				if (rotate[i]) {
-					cnt += (cnt >> 28) << 23;
+		byte enable = ch_enable;
+		for (int i = 0; i < 5; ++i, enable >>= 1) {
+			if (enable & 1) {
+				for (unsigned j = 0; j < num; ++j) {
+					unsigned cnt = count[i] + incr[i];
+					if (rotate[i]) {
+						cnt += (cnt >> 28) << 23;
+					}
+					count[i] = cnt & 0x0FFFFFFF;
+					unsigned newPos = count[i] >> 23;
+					if (newPos != pos[i]) {
+						pos[i] = newPos;
+						out[i] = volAdjustedWave[i][newPos];
+					}
+					bufs[i][j] = out[i];
 				}
-				count[i] = cnt & 0x0FFFFFFF;
-				unsigned newPos = count[i] >> 23;
-				if (newPos != pos[i]) {
-					pos[i] = newPos;
-					out[i] = volAdjustedWave[i][newPos];
-				}
-				if (enable & 1) {
-					mixed += out[i];
-				}
+			} else {
+				bufs[i] = 0; // channel muted
 			}
-			buffer[j] = (masterVolume * mixed) / 256;
 		}
+	}
+}
+
+void SCC::generateInput(float* buffer, unsigned num)
+{
+	int tmpBuf[num];
+	mixChannels(tmpBuf, num);
+	for (unsigned i = 0; i < num; ++i) {
+		buffer[i] = tmpBuf[i];
 	}
 }
 
@@ -524,21 +530,13 @@ void SCC::checkMute()
 	// SCC is muted unless an enabled channel with non-zero volume exists.
 	bool mute = true;
 	byte enable = ch_enable & 0x1F;
-	byte* volumePtr = volume;
-	while (enable) {
-		if ((enable & 1) && *volumePtr) {
+	for (int i = 0; i < 5; ++i, enable >>= 1) {
+		if ((enable & 1) && volume[i]) {
 			mute = false;
 			break;
 		}
-		enable >>= 1;
-		++volumePtr;
 	}
-	if (!mute) {
-		nbSamples = 0;
-		setMute(false);
-	} else if (nbSamples > 4000) {
-		setMute(true);
-	}
+	setMute(mute);
 }
 
 // SimpleDebuggable

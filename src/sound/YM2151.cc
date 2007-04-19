@@ -841,6 +841,7 @@ YM2151::YM2151(MSXMotherBoard& motherBoard, const std::string& name,
                const std::string& desc, const XMLElement& config,
                const EmuTime& time)
 	: SoundDevice(motherBoard.getMSXMixer(), name, desc)
+	, ChannelMixer(8, 2)
 	, irq(motherBoard.getCPU())
 	, timer1(motherBoard.getScheduler(), *this)
 	, timer2(motherBoard.getScheduler(), *this)
@@ -1466,52 +1467,39 @@ void YM2151::advance()
 	}
 }
 
-void YM2151::generateInput(float* buffer, unsigned length)
+int YM2151::adjust(int x)
 {
-	while (length--) {
+	return (maxVolume * x) / MAXAMP;
+}
+
+void YM2151::generateChannels(int** bufs, unsigned num)
+{
+	for (unsigned i = 0; i < num; ++i) {
 		advanceEG();
 
-		chanout[0] = 0;
-		chanout[1] = 0;
-		chanout[2] = 0;
-		chanout[3] = 0;
-		chanout[4] = 0;
-		chanout[5] = 0;
-		chanout[6] = 0;
+		for (int j = 0; j < 8-1; ++j) {
+			chanout[j] = 0;
+			chanCalc(j);
+		}
 		chanout[7] = 0;
+		chan7Calc(); // special case for channel 7
 
-		chanCalc(0);
-		chanCalc(1);
-		chanCalc(2);
-		chanCalc(3);
-		chanCalc(4);
-		chanCalc(5);
-		chanCalc(6);
-		chan7Calc();
-		
-		int outl = chanout[0] & pan[ 0];
-		int outr = chanout[0] & pan[ 1];
-		outl    += chanout[1] & pan[ 2];
-		outr    += chanout[1] & pan[ 3];
-		outl    += chanout[2] & pan[ 4];
-		outr    += chanout[2] & pan[ 5];
-		outl    += chanout[3] & pan[ 6];
-		outr    += chanout[3] & pan[ 7];
-		outl    += chanout[4] & pan[ 8];
-		outr    += chanout[4] & pan[ 9];
-		outl    += chanout[5] & pan[10];
-		outr    += chanout[5] & pan[11];
-		outl    += chanout[6] & pan[12];
-		outr    += chanout[6] & pan[13];
-		outl    += chanout[7] & pan[14];
-		outr    += chanout[7] & pan[15];
-
-		*(buffer++) = ( outl * maxVolume) / MAXAMP;
-		*(buffer++) = ( outr * maxVolume) / MAXAMP;
-
+		for (int j = 0; j < 8; ++j) {
+			bufs[j][2 * i + 0] = adjust(chanout[j] & pan[2 * j + 0]);
+			bufs[j][2 * i + 1] = adjust(chanout[j] & pan[2 * j + 1]);
+		}
 		advance();
 	}
 	checkMute();
+}
+
+void YM2151::generateInput(float* buffer, unsigned length)
+{
+        int tmpBuf[2 * length];
+        mixChannels(tmpBuf, length);
+        for (unsigned i = 0; i < 2 * length; ++i) {
+                buffer[i] = tmpBuf[i];
+        }
 }
 
 void YM2151::updateBuffer(unsigned length, int* buffer,

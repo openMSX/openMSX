@@ -651,6 +651,7 @@ static byte inst_data[16 + 3][8] = {
 YM2413::YM2413(MSXMotherBoard& motherBoard, const std::string& name,
                const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMSXMixer(), name, "MSX-MUSIC")
+	, ChannelMixer(11)
 	, debuggable(new YM2413Debuggable(motherBoard, *this))
 {
 	for (int i = 0; i < 16 + 3; ++i) {
@@ -987,9 +988,14 @@ int YM2413::Slot::calc_slot_hat(int pgout_cym, bool noise)
 	return dB2LinTab[dbout + egout];
 }
 
-inline int YM2413::calcSample()
+inline int YM2413::adjust(int x)
 {
-	// while muted AM/PM/noise aren't updated, probably ok
+	return (maxVolume * x) >> DB2LIN_AMP_BITS;
+}
+
+inline void YM2413::calcSample(int** bufs, unsigned sample)
+{
+	// during mute AM/PM/noise aren't updated, probably ok
  
 	// update AM, PM unit
 	pm_phase = (pm_phase + PM_DPHASE) & (PM_DP_WIDTH - 1);
@@ -1008,46 +1014,34 @@ inline int YM2413::calcSample()
 		ch[i].car.calc_envelope(lfo_am);
 	}
 
-	int channelMask = 0;
-	for (int i = 0; i < 9; ++i) {
-		if (ch[i].car.eg_mode != FINISH) {
-			channelMask |= (1 << i);
-		}
+	int m = (reg[0x0e] & 0x20) ? 6 : 9;
+	for (int i = 0; i < m; ++i) {
+		bufs[i][sample] = (ch[i].car.eg_mode != FINISH)
+			? adjust(ch[i].car.calc_slot_car(ch[i].mod.calc_slot_mod()))
+			: 0;
 	}
+	if (reg[0x0e] & 0x20) {
+		bufs[ 6][sample] = (ch[6].car.eg_mode != FINISH)
+			?  adjust(2 * ch[6].car.calc_slot_car(ch[6].mod.calc_slot_mod()))
+			: 0;
 
-	int mix = 0;
-	if (ch[6].patch_number & 0x10) {
-		if (channelMask & (1 << 6)) {
-			mix += ch[6].car.calc_slot_car(ch[6].mod.calc_slot_mod());
-			channelMask &= ~(1 << 6);
-		}
-	}
-	if (ch[7].patch_number & 0x10) {
-		if (ch[7].mod.eg_mode != FINISH) {
-			mix += ch[7].mod.calc_slot_hat(ch[8].car.pgout, noise_seed & 1);
-		}
-		if (channelMask & (1 << 7)) {
-			mix -= ch[7].car.calc_slot_snare(noise_seed & 1);
-			channelMask &= ~(1 << 7);
-		}
-	}
-	if (ch[8].patch_number & 0x10) {
-		if (ch[8].mod.eg_mode != FINISH) {
-			mix += ch[8].mod.calc_slot_tom();
-		}
-		if (channelMask & (1 << 8)) {
-			mix -= ch[8].car.calc_slot_cym(ch[7].mod.pgout);
-			channelMask &= ~(1 << 8);
-		}
-	}
-	mix *= 2;
+		bufs[ 7][sample] = (ch[7].mod.eg_mode != FINISH)
+			? adjust( 2 * ch[7].mod.calc_slot_hat(ch[8].car.pgout, noise_seed & 1))
+			: 0;
+		bufs[ 8][sample] = (ch[7].car.eg_mode != FINISH)
+			? adjust(-2 * ch[7].car.calc_slot_snare(noise_seed & 1))
+			: 0;
 
-	for (Channel* cp = ch; channelMask; channelMask >>= 1, ++cp) {
-		if (channelMask & 1) {
-			mix += cp->car.calc_slot_car(cp->mod.calc_slot_mod());
-		}
+		bufs[ 9][sample] = (ch[8].mod.eg_mode != FINISH)
+			? adjust( 2 * ch[8].mod.calc_slot_tom())
+			: 0;
+		bufs[10][sample] = (ch[8].car.eg_mode != FINISH)
+			? adjust(-2 * ch[8].car.calc_slot_cym(ch[7].mod.pgout))
+			: 0;
+	} else {
+		bufs[ 9] = 0;
+		bufs[10] = 0;
 	}
-	return (maxVolume * mix) >> DB2LIN_AMP_BITS;
 }
 
 void YM2413::checkMute()
@@ -1073,12 +1067,21 @@ bool YM2413::checkMuteHelper()
 	return true;	// nothing is playing, then mute
 }
 
-void YM2413::generateInput(float* buffer, unsigned num)
+void YM2413::generateChannels(int** bufs, unsigned num)
 {
 	for (unsigned i = 0; i < num; ++i) {
-		buffer[i] = calcSample();
+		calcSample(bufs, i);
 	}
 	checkMute();
+}
+
+void YM2413::generateInput(float* buffer, unsigned num)
+{
+	int tmpBuf[num];
+	mixChannels(tmpBuf, num);
+	for (unsigned i = 0; i < num; ++i) {
+		buffer[i] = tmpBuf[i];
+	}
 }
 
 void YM2413::updateBuffer(unsigned length, int* buffer,

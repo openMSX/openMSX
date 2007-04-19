@@ -231,7 +231,7 @@ int VLM5030::parseFrame()
 }
 
 // decode and buffering data
-void VLM5030::generateInput(float* buffer, unsigned length)
+void VLM5030::generateChannels(int** bufs, unsigned length)
 {
 	int buf_count = 0;
 
@@ -318,11 +318,11 @@ void VLM5030::generateInput(float* buffer, unsigned length)
 
 			// clipping, buffering
 			if (u[0] > 511) {
-				buffer[buf_count] = 511 << 6;
+				bufs[0][buf_count] = 511 << 6;
 			} else if (u[0] < -511) {
-				buffer[buf_count] = -511 << 6;
+				bufs[0][buf_count] = -511 << 6;
 			} else {
-				buffer[buf_count] = (u[0] << 6);
+				bufs[0][buf_count] = (u[0] << 6);
 			}
 			++buf_count;
 			--sample_count;
@@ -356,7 +356,7 @@ phase_stop:
 	}
 	// silent buffering
 	while (length > 0) {
-		buffer[buf_count++] = 0x00;
+		bufs[0][buf_count++] = 0;
 		--length;
 	}
 }
@@ -499,6 +499,7 @@ VLM5030::VLM5030(MSXMotherBoard& motherBoard, const std::string& name,
                  const std::string& desc, const XMLElement& config,
                  const EmuTime& time)
 	: SoundDevice(motherBoard.getMSXMixer(), name, desc)
+	, ChannelMixer(1)
 {
 	XMLElement voiceROMconfig(name);
 	voiceROMconfig.addAttribute("id", "name");
@@ -537,6 +538,15 @@ void VLM5030::setSampleRate(int sampleRate)
 {
        const int CLOCK_FREQ = 3579545;
        setResampleRatio(CLOCK_FREQ / 440.0, sampleRate);
+}
+
+void VLM5030::generateInput(float* buffer, unsigned length)
+{
+	int tmpBuf[length];
+	mixChannels(tmpBuf, length);
+	for (unsigned i = 0; i < length; ++i) {
+		buffer[i] = tmpBuf[i];
+	}
 }
 
 void VLM5030::updateBuffer(unsigned length, int* buffer,

@@ -5,6 +5,7 @@
 
 #include "YM2413Core.hh"
 #include "SoundDevice.hh"
+#include "ChannelMixer.hh"
 #include "Resample.hh"
 #include "openmsx.hh"
 #include <memory>
@@ -82,7 +83,8 @@ public:
 	byte sus;	// sus on/off (release speed in percussive mode)
 };
 
-class YM2413_2 : public YM2413Core, public SoundDevice, private Resample<1>
+class YM2413_2 : public YM2413Core, public SoundDevice,
+                 private ChannelMixer, private Resample<1>
 {
 public:
 	YM2413_2(MSXMotherBoard& motherBoard, const std::string& name,
@@ -100,7 +102,8 @@ private:
 
 	inline void advance_lfo();
 	inline void advance();
-	inline int rhythm_calc(bool noise);
+	inline void rhythm_calc(int** bufs, unsigned sample);
+	inline int adjust(int x);
 
 	inline void set_mul(byte slot, byte v);
 	inline void set_ksl_tl(byte chan, byte v);
@@ -116,6 +119,9 @@ private:
 	virtual void setSampleRate(int sampleRate);
 	virtual void updateBuffer(unsigned length, int* buffer,
 		const EmuTime& time, const EmuDuration& sampDur);
+
+	// ChannelMixer
+	virtual void generateChannels(int** bufs, unsigned num);
 
 	// Resample
 	virtual void generateInput(float* buffer, unsigned num);

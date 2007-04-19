@@ -24,7 +24,7 @@ SRC_HDR:= \
 	WavWriter \
 	SamplePlayer \
 	WavData \
-	Resample 
+	ChannelMixer Resample 
 
 HDR_ONLY:= \
 	ChannelMode \

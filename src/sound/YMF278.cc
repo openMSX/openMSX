@@ -4,6 +4,7 @@
 #include "Rom.hh"
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
+#include <algorithm>
 #include <cmath>
 
 namespace openmsx {
@@ -452,17 +453,16 @@ bool YMF278::anyActive()
 	return false;
 }
 
-void YMF278::updateBuffer(unsigned length, int* buffer,
-     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
+void YMF278::generateChannels(int** bufs, unsigned num)
 {
 	int vl = mix_level[pcm_l];
 	int vr = mix_level[pcm_r];
-	while (length--) {
-		int left = 0;
-		int right = 0;
+	for (unsigned j = 0; j < num; ++j) {
 		for (int i = 0; i < 24; i++) {
-			YMF278Slot &sl = slots[i];
+			YMF278Slot& sl = slots[i];
 			if (!sl.active) {
+				bufs[i][2 * j + 0] = 0;
+				bufs[i][2 * j + 1] = 0;
 				continue;
 			}
 
@@ -472,17 +472,12 @@ void YMF278::updateBuffer(unsigned length, int* buffer,
 
 			int volLeft  = vol + pan_left [(int)sl.pan] + vl;
 			int volRight = vol + pan_right[(int)sl.pan] + vr;
-
 			// TODO prob doesn't happen in real chip
-			if (volLeft < 0) {
-				volLeft = 0;
-			}
-			if (volRight < 0) {
-				volRight = 0;
-			}
+			volLeft  = std::max(0, volLeft);
+			volRight = std::max(0, volRight);
 
-			left  += (sample * volume[volLeft] ) >> 16;
-			right += (sample * volume[volRight]) >> 16;
+			bufs[i][2 * j + 0] = (sample * volume[volLeft] ) >> 16;
+			bufs[i][2 * j + 1] = (sample * volume[volRight]) >> 16;
 
 			if (sl.lfo_active && sl.vib) {
 				int oct = sl.OCT;
@@ -508,11 +503,14 @@ void YMF278::updateBuffer(unsigned length, int* buffer,
 				sl.sample2 = getSample(sl);
 			}
 		}
-		*buffer++ = left;
-		*buffer++ = right;
-
 		advance();
 	}
+}
+
+void YMF278::updateBuffer(unsigned length, int* buffer,
+     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
+{
+	mixChannels(buffer, length);
 }
 
 void YMF278::keyOnHelper(YMF278Slot& slot)
@@ -778,6 +776,7 @@ byte YMF278::peekStatus(const EmuTime& time) const
 YMF278::YMF278(MSXMotherBoard& motherBoard, const std::string& name, int ramSize,
                const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMSXMixer(), name, "MoonSound wave-part")
+	, ChannelMixer(24, 2)
 	, rom(new Rom(motherBoard, name + " ROM", "rom", config))
 	, loadTime(time), busyTime(time)
 	, debugRegisters(new DebugRegisters(*this, motherBoard))

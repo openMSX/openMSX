@@ -4,6 +4,7 @@
 #define SCC_HH
 
 #include "SoundDevice.hh"
+#include "ChannelMixer.hh"
 #include "Resample.hh"
 #include "Clock.hh"
 #include "openmsx.hh"
@@ -14,7 +15,7 @@ namespace openmsx {
 class MSXMotherBoard;
 class SCCDebuggable;
 
-class SCC : public SoundDevice, private Resample<1>
+class SCC : public SoundDevice, private ChannelMixer, private Resample<1>
 {
 public:
 	enum ChipMode {SCC_Real, SCC_Compatible, SCC_plusmode};
@@ -37,17 +38,19 @@ private:
 	virtual void updateBuffer(unsigned length, int* buffer,
 		const EmuTime& time, const EmuDuration& sampDur);
 
+	// ChannelMixer
+	virtual void generateChannels(int** bufs, unsigned num);
+
 	// Resample
 	virtual void generateInput(float* buffer, unsigned num);
 
 	inline void checkMute();
+	inline int adjust(signed char wav, byte vol);
 	byte readWave(byte channel, byte address, const EmuTime& time);
 	void writeWave(byte channel, byte offset, byte value);
 	void setDeformReg(byte value, const EmuTime& time);
 	void setFreqVol(byte address, byte value);
 	byte getFreqVol(byte address);
-
-	int filter4(int in1, int in2, int in3, int in4);
 
 	static const int CLOCK_FREQ = 3579545;
 	static const unsigned int SCC_STEP =
@@ -55,10 +58,9 @@ private:
 
 	ChipMode currentChipMode;
 	int masterVolume;
-	unsigned nbSamples;
 
 	signed char wave[5][32];
-	signed char volAdjustedWave[5][32];
+	int volAdjustedWave[5][32];
 	unsigned incr[5];
 	unsigned count[5];
 	unsigned pos[5];
@@ -71,9 +73,6 @@ private:
 	Clock<CLOCK_FREQ> deformTimer;
 	bool rotate[5];
 	bool readOnly[5];
-
-	// previous input values for FIR filter
-	int in[48];
 
 	friend class SCCDebuggable;
 	const std::auto_ptr<SCCDebuggable> debuggable;

@@ -1805,6 +1805,7 @@ void YMF262::reset(const EmuTime& time)
 YMF262::YMF262(MSXMotherBoard& motherBoard, const std::string& name,
                const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMSXMixer(), name, "MoonSound FM-part")
+	, ChannelMixer(18, 2)
 	, irq(motherBoard.getCPU())
 	, timer1(motherBoard.getScheduler(), *this)
 	, timer2(motherBoard.getScheduler(), *this)
@@ -1863,7 +1864,12 @@ bool YMF262::checkMuteHelper()
 	return true;
 }
 
-void YMF262::generateInput(float* buffer, unsigned num)
+int YMF262::adjust(int x)
+{
+	return (maxVolume * x) >> 13;
+}
+
+void YMF262::generateChannels(int** bufs, unsigned num)
 {
 	bool rhythmEnabled = rhythm & 0x20;
 
@@ -1940,24 +1946,26 @@ void YMF262::generateInput(float* buffer, unsigned num)
 		channels[16].chan_calc(LFO_AM);
 		channels[17].chan_calc(LFO_AM);
 
-		int a = 0;
-		int b = 0;
-		//int c = 0;
-		//int d = 0;
 		for (int i = 0; i < 18; ++i) {
-			a += chanout[i] & pan[4 * i + 0];
-			b += chanout[i] & pan[4 * i + 1];
-			//c += chanout[i] & pan[4 * i + 2];
-			//d += chanout[i] & pan[4 * i + 3];
+			bufs[i][2 * j + 0] = adjust(chanout[i] & pan[4 * i + 0]);
+			bufs[i][2 * j + 1] = adjust(chanout[i] & pan[4 * i + 1]);
+			//c += adjust(chanout[i] & pan[4 * i + 2]);  // unused
+			//d += adjust(chanout[i] & pan[4 * i + 3]);  // unused
 		}
-		buffer[2 * j + 0] = (a * maxVolume) >> 13;
-		buffer[2 * j + 1] = (b * maxVolume) >> 13;
-		// c and d unused
 
 		advance();
 	}
 
 	checkMute();
+}
+
+void YMF262::generateInput(float* buffer, unsigned num)
+{
+	int tmpBuf[2 * num];
+	mixChannels(tmpBuf, num);
+	for (unsigned i = 0; i < 2 * num; ++i) {
+		buffer[i] = tmpBuf[i];
+	}
 }
 
 void YMF262::updateBuffer(unsigned length, int* buffer,

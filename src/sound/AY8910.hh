@@ -4,6 +4,7 @@
 #define AY8910_HH
 
 #include "SoundDevice.hh"
+#include "ChannelMixer.hh"
 #include "openmsx.hh"
 #include <memory>
 
@@ -20,7 +21,7 @@ class AY8910Debuggable;
   * Only the AY-3-8910 is emulated, no surrounding hardware,
   * use the class AY8910Periphery to connect peripherals.
   */
-class AY8910 : public SoundDevice
+class AY8910 : public SoundDevice, private ChannelMixer
 {
 public:
 	AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
@@ -134,6 +135,9 @@ private:
 	virtual void setSampleRate(int sampleRate);
 	virtual void updateBuffer(unsigned length, int* buffer,
 		const EmuTime& time, const EmuDuration& sampDur);
+
+	// ChannelMixer
+	virtual void generateChannels(int** bufs, unsigned num);
 
 	void wrtReg(byte reg, byte value, const EmuTime& time);
 	void checkMute();

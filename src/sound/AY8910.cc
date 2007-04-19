@@ -389,6 +389,7 @@ inline void AY8910::Envelope::advance(int duration)
 AY8910::AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
                const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMSXMixer(), "PSG", "PSG")
+	, ChannelMixer(3)
 	, cliComm(motherBoard.getMSXCliComm())
 	, periphery(periphery_)
 	, amplitude(config)
@@ -579,8 +580,7 @@ void AY8910::setSampleRate(int sampleRate)
 }
 
 
-void AY8910::updateBuffer(unsigned length, int* buffer,
-     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
+void AY8910::generateChannels(int** bufs, unsigned length)
 {
 	/*
 	static long long totalSamples = 0, noiseOff = 0, toneOff = 0, bothOff = 0;
@@ -636,7 +636,7 @@ void AY8910::updateBuffer(unsigned length, int* buffer,
 	}
 
 	// Calculate samples.
-	while (length) {
+	for (unsigned i = 0; i < length; ++i) {
 		// semiVol keeps track of how long each square wave stays
 		// in the 1 position during the sample period.
 		int semiVol[3] = { 0, 0, 0 };
@@ -693,19 +693,17 @@ void AY8910::updateBuffer(unsigned length, int* buffer,
 		// TODO: Is it easy to detect when multiple samples have the same
 		//       value? (make nextEvent depend on tone events as well?)
 		//       At 44KHz, value typically changes once every 4 to 5 samples.
-		int chA = (semiVol[0] * amplitude.getVolume(0)) / FP_UNIT;
-		int chB = (semiVol[1] * amplitude.getVolume(1)) / FP_UNIT;
-		int chC = (semiVol[2] * amplitude.getVolume(2)) / FP_UNIT;
-		/*
-		static int prevSample = 0;
-		if (chA + chB + chC == prevSample) sameSample += 3;
-		else prevSample = chA + chB + chC;
-		*/
-		*(buffer++) = chA + chB + chC;
-		length--;
+		bufs[0][i] = (semiVol[0] * amplitude.getVolume(0)) / FP_UNIT;
+		bufs[1][i] = (semiVol[1] * amplitude.getVolume(1)) / FP_UNIT;
+		bufs[2][i] = (semiVol[2] * amplitude.getVolume(2)) / FP_UNIT;
 	}
 }
 
+void AY8910::updateBuffer(unsigned length, int* buffer,
+     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
+{
+	mixChannels(buffer, length);
+}
 
 // SimpleDebuggable
 

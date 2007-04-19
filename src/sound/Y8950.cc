@@ -493,6 +493,7 @@ Y8950::Y8950(MSXMotherBoard& motherBoard, const std::string& name,
              const XMLElement& config, unsigned sampleRam, const EmuTime& time,
              Y8950Periphery& perihery_)
 	: SoundDevice(motherBoard.getMSXMixer(), name, "MSX-AUDIO")
+	, ChannelMixer(12)
 	, irq(motherBoard.getCPU())
 	, perihery(perihery_)
 	, timer1(motherBoard.getScheduler(), *this)
@@ -829,51 +830,56 @@ int Y8950::Slot::calc_slot_hat(int a, int b, int whitenoise)
 	}
 }
 
-
-int Y8950::calcSample(int channelMask)
+inline int Y8950::adjust(int x)
 {
-	// while muted update_ampm() and update_noise() aren't called, probably ok
+	return (maxVolume * x) >> DB2LIN_AMP_BITS;
+}
+
+inline void Y8950::calcSample(int** bufs, unsigned sample)
+{
+	// during mute update_ampm() and update_noise() aren't called, probably ok
 	update_ampm();
 	update_noise();
 
-	int mix = 0;
-
+	int m = rythm_mode ? 6 : 9;
+	for (int i = 0; i < m; ++i) {
+		if (ch[i].car.eg_mode != FINISH) {
+			bufs[i][sample] = adjust(ch[i].alg
+				? ch[i].car.calc_slot_car(0) +
+				       ch[i].mod.calc_slot_mod()
+				: ch[i].car.calc_slot_car(
+				       ch[i].mod.calc_slot_mod()));
+		} else {
+			bufs[i][sample] = 0;
+		}
+	}
 	if (rythm_mode) {
 		// TODO wasn't in original source either
 		ch[7].mod.calc_phase();
 		ch[8].car.calc_phase();
-
-		if (channelMask & (1 << 6))
-			mix += ch[6].car.calc_slot_car(ch[6].mod.calc_slot_mod());
-		if (ch[7].mod.eg_mode != FINISH)
-			mix += ch[7].mod.calc_slot_hat(noiseA, noiseB, whitenoise);
-		if (channelMask & (1 << 7))
-			mix += ch[7].car.calc_slot_snare(whitenoise);
-		if (ch[8].mod.eg_mode != FINISH)
-			mix += ch[8].mod.calc_slot_tom();
-		if (channelMask & (1 << 8))
-			mix += ch[8].car.calc_slot_cym(noiseA, noiseB);
-
-		channelMask &= (1<< 6) - 1;
-		mix *= 2;
-	}
-	for (Channel* cp = ch; channelMask; channelMask >>= 1, ++cp) {
-		if (channelMask & 1) {
-			if (cp->alg) {
-				mix += cp->car.calc_slot_car(0) +
-				       cp->mod.calc_slot_mod();
-			} else {
-				mix += cp->car.calc_slot_car(
-				         cp->mod.calc_slot_mod());
-			}
-		}
+		
+		bufs[ 6][sample] = (ch[6].car.eg_mode != FINISH)
+			? adjust(2 * ch[6].car.calc_slot_car(ch[6].mod.calc_slot_mod()))
+			: 0;
+		bufs[ 7][sample] = (ch[7].mod.eg_mode != FINISH)
+			? adjust(2 * ch[7].mod.calc_slot_hat(noiseA, noiseB, whitenoise))
+			: 0;
+		bufs[ 8][sample] = (ch[7].car.eg_mode != FINISH)
+			? adjust(2 * ch[7].car.calc_slot_snare(whitenoise))
+			: 0;
+		bufs[ 9][sample] = (ch[8].mod.eg_mode != FINISH)
+			? adjust(2 * ch[8].mod.calc_slot_tom())
+			: 0;
+		bufs[10][sample] = (ch[8].car.eg_mode != FINISH)
+			? adjust(2 * ch[8].car.calc_slot_cym(noiseA, noiseB))
+			: 0;
+	} else {
+		bufs[ 9] = 0;
+		bufs[10] = 0;
 	}
 
-	mix += adpcm->calcSample();
-
-	return (mix * maxVolume) >> DB2LIN_AMP_BITS;
+	bufs[11][sample] = adpcm->calcSample();
 }
-
 
 void Y8950::checkMute()
 {
@@ -901,17 +907,21 @@ bool Y8950::checkMuteHelper()
 	return adpcm->muted();
 }
 
-void Y8950::generateInput(float* buffer, unsigned num)
+void Y8950::generateChannels(int** bufs, unsigned num)
 {
-	int channelMask = 0;
-	for (int i = 9; i--; ) {
-		channelMask <<= 1;
-		if (ch[i].car.eg_mode != FINISH) channelMask |= 1;
-	}
 	for (unsigned i = 0; i < num; ++i) {
-		buffer[i] = calcSample(channelMask);
+		calcSample(bufs, i);
 	}
 	checkMute();
+}
+
+void Y8950::generateInput(float* buffer, unsigned num)
+{
+	int tmpBuf[num];
+	mixChannels(tmpBuf, num);
+	for (unsigned i = 0; i < num; ++i) {
+		buffer[i] = tmpBuf[i];
+	}
 }
 
 void Y8950::updateBuffer(unsigned length, int* buffer,
