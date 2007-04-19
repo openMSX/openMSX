@@ -388,8 +388,7 @@ inline void AY8910::Envelope::advance(int duration)
 
 AY8910::AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
                const XMLElement& config, const EmuTime& time)
-	: SoundDevice(motherBoard.getMSXMixer(), "PSG", "PSG")
-	, ChannelMixer(3)
+	: SoundDevice(motherBoard.getMSXMixer(), "PSG", "PSG", 3)
 	, cliComm(motherBoard.getMSXCliComm())
 	, periphery(periphery_)
 	, amplitude(config)
@@ -399,7 +398,7 @@ AY8910::AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
 {
 	// make valgrind happy
 	memset(regs, 0, sizeof(regs));
-	setSampleRate(44100);
+	setOutputRate(44100);
 
 	reset(time);
 	registerSound(config);
@@ -565,7 +564,7 @@ void AY8910::setVolume(int volume)
 }
 
 
-void AY8910::setSampleRate(int sampleRate)
+void AY8910::setOutputRate(unsigned sampleRate)
 {
 	// The step clock for the tone and noise generators is the chip clock
 	// divided by 8; for the envelope generator of the AY-3-8910, it is half
@@ -577,6 +576,7 @@ void AY8910::setSampleRate(int sampleRate)
 
 	// !! look out for overflow !!
 	updateStep = (FP_UNIT * sampleRate) / (CLOCK / 8);
+	setInputRate(sampleRate);
 }
 
 
@@ -699,11 +699,6 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 	}
 }
 
-void AY8910::updateBuffer(unsigned length, int* buffer,
-     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
-{
-	mixChannels(buffer, length);
-}
 
 // SimpleDebuggable
 

@@ -498,8 +498,7 @@ void VLM5030::setST(bool pin, const EmuTime& time)
 VLM5030::VLM5030(MSXMotherBoard& motherBoard, const std::string& name,
                  const std::string& desc, const XMLElement& config,
                  const EmuTime& time)
-	: SoundDevice(motherBoard.getMSXMixer(), name, desc)
-	, ChannelMixer(1)
+	: SoundDevice(motherBoard.getMSXMixer(), name, desc, 1)
 {
 	XMLElement voiceROMconfig(name);
 	voiceROMconfig.addAttribute("id", "name");
@@ -534,10 +533,12 @@ void VLM5030::setVolume(int newVolume)
         maxVolume = newVolume;
 }
 
-void VLM5030::setSampleRate(int sampleRate)
+void VLM5030::setOutputRate(unsigned sampleRate)
 {
        const int CLOCK_FREQ = 3579545;
-       setResampleRatio(CLOCK_FREQ / 440.0, sampleRate);
+       double input = CLOCK_FREQ / 440.0;
+       setInputRate(static_cast<int>(input + 0.5));
+       setResampleRatio(input, sampleRate);
 }
 
 void VLM5030::generateInput(float* buffer, unsigned length)

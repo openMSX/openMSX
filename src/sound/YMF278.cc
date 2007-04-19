@@ -507,12 +507,6 @@ void YMF278::generateChannels(int** bufs, unsigned num)
 	}
 }
 
-void YMF278::updateBuffer(unsigned length, int* buffer,
-     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
-{
-	mixChannels(buffer, length);
-}
-
 void YMF278::keyOnHelper(YMF278Slot& slot)
 {
 	slot.active = true;
@@ -775,15 +769,15 @@ byte YMF278::peekStatus(const EmuTime& time) const
 
 YMF278::YMF278(MSXMotherBoard& motherBoard, const std::string& name, int ramSize,
                const XMLElement& config, const EmuTime& time)
-	: SoundDevice(motherBoard.getMSXMixer(), name, "MoonSound wave-part")
-	, ChannelMixer(24, 2)
+	: SoundDevice(motherBoard.getMSXMixer(), name, "MoonSound wave-part",
+	              24, true)
 	, rom(new Rom(motherBoard, name + " ROM", "rom", config))
 	, loadTime(time), busyTime(time)
 	, debugRegisters(new DebugRegisters(*this, motherBoard))
 	, debugMemory   (new DebugMemory   (*this, motherBoard))
 {
 	memadr = 0;	// avoid UMR
-	setSampleRate(44100);	// make valgrind happy
+	setOutputRate(44100);	// make valgrind happy
 
 	endRom = rom->getSize();
 	ramSize *= 1024;	// in kb
@@ -818,8 +812,9 @@ void YMF278::reset(const EmuTime& time)
 	loadTime = time;
 }
 
-void YMF278::setSampleRate(int sampleRate)
+void YMF278::setOutputRate(unsigned sampleRate)
 {
+	setInputRate(sampleRate);
 	freqbase = 44100.0 / (double)sampleRate;
 	eg_timer_add = (unsigned)((1 << EG_SH) * freqbase);
 }

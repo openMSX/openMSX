@@ -35,7 +35,6 @@
 
 #include "SoundDevice.hh"
 #include "EmuTimer.hh"
-#include "ChannelMixer.hh"
 #include "Resample.hh"
 #include "IRQHelper.hh"
 #include "openmsx.hh"
@@ -45,8 +44,7 @@ namespace openmsx {
 
 class MSXMotherBoard;
 
-class YM2151 : public SoundDevice, private EmuTimerCallback,
-               private ChannelMixer, private Resample<2>
+class YM2151 : public SoundDevice, private EmuTimerCallback, private Resample<2>
 {
 public:
 	YM2151(MSXMotherBoard& motherBoard, const std::string& name,
@@ -114,12 +112,10 @@ private:
 
 	// SoundDevice
 	virtual void setVolume(int maxVolume);
-	virtual void setSampleRate(int sampleRate);
+	virtual void setOutputRate(unsigned sampleRate);
+	virtual void generateChannels(int** bufs, unsigned num);
 	virtual void updateBuffer(unsigned length, int* buffer,
 	                          const EmuTime& start, const EmuDuration& sampDur);
-
-	// ChannelMixer
-	virtual void generateChannels(int** bufs, unsigned num);
 
 	 // Resample
         virtual void generateInput(float* buffer, unsigned num);

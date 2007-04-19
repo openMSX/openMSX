@@ -7,7 +7,7 @@ namespace openmsx {
 
 SamplePlayer::SamplePlayer(MSXMixer& mixer, const std::string& name,
                            const std::string& desc, const XMLElement& config)
-	: SoundDevice(mixer, name, desc)
+	: SoundDevice(mixer, name, desc, 1)
 {
 	registerSound(config);
 	reset();
@@ -29,8 +29,9 @@ void SamplePlayer::setVolume(int newVolume)
 	volume = newVolume * 3;
 }
 
-void SamplePlayer::setSampleRate(int sampleRate)
+void SamplePlayer::setOutputRate(unsigned sampleRate)
 {
+	setInputRate(sampleRate);
 	outFreq = sampleRate;
 }
 
@@ -62,22 +63,21 @@ inline int SamplePlayer::getSample(unsigned index)
 	     : ((short*)sampBuf)[index];
 }
 
-void SamplePlayer::updateBuffer(unsigned length, int* output,
-        const EmuTime& /*start*/, const EmuDuration& /*sampDur*/)
+void SamplePlayer::generateChannels(int** bufs, unsigned num)
 {
-	for (unsigned i = 0; i < length; ++i) {
+	for (unsigned i = 0; i < num; ++i) {
 		if (count < end) {
 			unsigned index = count >> 8;
 			int frac  = count & 0xFF;
 			int samp0 = getSample(index);
 			int samp1 = getSample(index + 1);
 			int samp  = ((0x100 - frac) * samp0 + frac * samp1) >> 8;
-			output[i] = (samp * volume) >> 15;
+			bufs[0][i] = (samp * volume) >> 15;
 			count += step;
 		} else {
 			setMute(true);
 			playing = false;
-			output[i] = 0;
+			bufs[0][i] = 0;
 		}
 	}
 }

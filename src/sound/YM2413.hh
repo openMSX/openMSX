@@ -5,7 +5,6 @@
 
 #include "YM2413Core.hh"
 #include "SoundDevice.hh"
-#include "ChannelMixer.hh"
 #include "Resample.hh"
 #include "openmsx.hh"
 #include <memory>
@@ -16,8 +15,7 @@ class EmuTime;
 class MSXMotherBoard;
 class YM2413Debuggable;
 
-class YM2413 : public YM2413Core, public SoundDevice,
-               private ChannelMixer, private Resample<1>
+class YM2413 : public YM2413Core, public SoundDevice, private Resample<1>
 {
 	struct Patch {
 		Patch();
@@ -117,12 +115,10 @@ public:
 private:
 	// SoundDevice
 	virtual void setVolume(int newVolume);
-	virtual void setSampleRate(int sampleRate);
+	virtual void setOutputRate(unsigned sampleRate);
+	virtual void generateChannels(int** bufs, unsigned num);
 	virtual void updateBuffer(unsigned length, int* buffer,
 		const EmuTime& time, const EmuDuration& sampDur);
-
-	// ChannelMixer
-	virtual void generateChannels(int** bufs, unsigned num);
 
 	// Resample
 	virtual void generateInput(float* buffer, unsigned num);

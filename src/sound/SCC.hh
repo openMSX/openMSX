@@ -4,7 +4,6 @@
 #define SCC_HH
 
 #include "SoundDevice.hh"
-#include "ChannelMixer.hh"
 #include "Resample.hh"
 #include "Clock.hh"
 #include "openmsx.hh"
@@ -15,7 +14,7 @@ namespace openmsx {
 class MSXMotherBoard;
 class SCCDebuggable;
 
-class SCC : public SoundDevice, private ChannelMixer, private Resample<1>
+class SCC : public SoundDevice, private Resample<1>
 {
 public:
 	enum ChipMode {SCC_Real, SCC_Compatible, SCC_plusmode};
@@ -33,13 +32,11 @@ public:
 
 private:
 	// SoundDevice
-	virtual void setSampleRate(int sampleRate);
+	virtual void setOutputRate(unsigned sampleRate);
 	virtual void setVolume(int maxVolume);
+	virtual void generateChannels(int** bufs, unsigned num);
 	virtual void updateBuffer(unsigned length, int* buffer,
 		const EmuTime& time, const EmuDuration& sampDur);
-
-	// ChannelMixer
-	virtual void generateChannels(int** bufs, unsigned num);
 
 	// Resample
 	virtual void generateInput(float* buffer, unsigned num);

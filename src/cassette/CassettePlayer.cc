@@ -73,7 +73,7 @@ CassettePlayer::CassettePlayer(
 		MSXEventDistributor& msxEventDistributor,
 		EventDistributor& eventDistributor_,
 		MSXCliComm& cliComm_)
-	: SoundDevice(mixer, getName(), getDescription())
+	: SoundDevice(mixer, getName(), getDescription(), 1)
 	, Schedulable(scheduler)
 	, state(STOP)
 	, motor(false), motorControl(true)
@@ -465,17 +465,17 @@ void CassettePlayer::setVolume(int newVolume)
 	volume = newVolume;
 }
 
-void CassettePlayer::setSampleRate(int sampleRate)
+void CassettePlayer::setOutputRate(unsigned sampleRate)
 {
+	setInputRate(sampleRate);
 	delta = EmuDuration(1.0 / sampleRate);
 }
 
-void CassettePlayer::updateBuffer(unsigned length, int* buffer,
-     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
+void CassettePlayer::generateChannels(int** bufs, unsigned num)
 {
 	assert(getState() == PLAY);
-	while (length--) {
-		*(buffer++) = (((int)getSample(playTapeTime)) * volume) >> 15;
+	for (unsigned i = 0; i < num; ++i) {
+		bufs[0][i] = (((int)getSample(playTapeTime)) * volume) >> 15;
 		playTapeTime += delta;
 	}
 }

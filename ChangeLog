@@ -5,6 +5,12 @@ $Id$
 	   - This is very much work in progress. There is no code yet to
 	     take advantage of this split. The code in the converted
 	     sounddevices should still be cleaned-up and optimized.
+	* Refactored SoundDevice and ChannelMixer:
+	   - merged SoundDevice and ChannelMixer classes
+	   - made SoundDevice aware of input and output sample rates
+	   - added methods in SoundDevice to record and mute individual
+	     channels. Next step is to actually use these methods.
+	      
 
 2007-04-18 Joost Yervante Damad <joost@teluna.org>
 	* fix build with gcc snapshot 20070326

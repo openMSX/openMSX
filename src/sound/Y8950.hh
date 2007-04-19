@@ -5,7 +5,6 @@
 
 #include "SoundDevice.hh"
 #include "EmuTimer.hh"
-#include "ChannelMixer.hh"
 #include "Resample.hh"
 #include "IRQHelper.hh"
 #include "openmsx.hh"
@@ -20,8 +19,7 @@ class DACSound16S;
 class MSXMotherBoard;
 class Y8950Debuggable;
 
-class Y8950 : public SoundDevice, private EmuTimerCallback,
-              private ChannelMixer, private Resample<1>
+class Y8950 : public SoundDevice, private EmuTimerCallback, private Resample<1>
 {
 	class Patch {
 	public:
@@ -120,12 +118,10 @@ public:
 private:
 	// SoundDevice
 	virtual void setVolume(int maxVolume);
-	virtual void setSampleRate(int sampleRate);
+	virtual void setOutputRate(unsigned sampleRate);
+	virtual void generateChannels(int** bufs, unsigned num);
 	virtual void updateBuffer(unsigned length, int* buffer,
 		const EmuTime& start, const EmuDuration& sampDur);
-
-	// ChannelMixer
-	virtual void generateChannels(int** bufs, unsigned num);
 
 	// Resample
 	virtual void generateInput(float* buffer, unsigned num);

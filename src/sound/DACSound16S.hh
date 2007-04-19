@@ -6,13 +6,12 @@
 #define DACSOUND16S_HH
 
 #include "SoundDevice.hh"
-#include "ChannelMixer.hh"
 #include "EmuTime.hh"
 #include <deque>
 
 namespace openmsx {
 
-class DACSound16S : public SoundDevice, private ChannelMixer
+class DACSound16S : public SoundDevice
 {
 public:
 	DACSound16S(MSXMixer& mixer, const std::string& name,
@@ -26,12 +25,10 @@ public:
 private:
 	// SoundDevice
 	virtual void setVolume(int newVolume);
-	virtual void setSampleRate(int sampleRate);
+	virtual void setOutputRate(unsigned sampleRate);
+	virtual void generateChannels(int** bufs, unsigned num);
 	virtual void updateBuffer(unsigned length, int* buffer,
 	        const EmuTime& start, const EmuDuration& sampDur);
-
-	// ChannelMixer
-	virtual void generateChannels(int** bufs, unsigned num);
 
 	struct Sample {
 		Sample(const EmuTime& time_, int value_)

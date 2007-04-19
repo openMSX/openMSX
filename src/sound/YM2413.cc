@@ -650,8 +650,7 @@ static byte inst_data[16 + 3][8] = {
 
 YM2413::YM2413(MSXMotherBoard& motherBoard, const std::string& name,
                const XMLElement& config, const EmuTime& time)
-	: SoundDevice(motherBoard.getMSXMixer(), name, "MSX-MUSIC")
-	, ChannelMixer(11)
+	: SoundDevice(motherBoard.getMSXMixer(), name, "MSX-MUSIC", 11)
 	, debuggable(new YM2413Debuggable(motherBoard, *this))
 {
 	for (int i = 0; i < 16 + 3; ++i) {
@@ -703,9 +702,11 @@ void YM2413::reset(const EmuTime &time)
 	setMute(true);	// set muted
 }
 
-void YM2413::setSampleRate(int sampleRate)
+void YM2413::setOutputRate(unsigned sampleRate)
 {
-	setResampleRatio(CLOCK_FREQ / 72.0, sampleRate);
+	double input = CLOCK_FREQ / 72.0;
+	setInputRate(static_cast<int>(input + 0.5));
+	setResampleRatio(input, sampleRate);
 }
 
 

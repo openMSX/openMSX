@@ -840,8 +840,7 @@ void YM2151::writeReg(byte r, byte v, const EmuTime& time)
 YM2151::YM2151(MSXMotherBoard& motherBoard, const std::string& name,
                const std::string& desc, const XMLElement& config,
                const EmuTime& time)
-	: SoundDevice(motherBoard.getMSXMixer(), name, desc)
-	, ChannelMixer(8, 2)
+	: SoundDevice(motherBoard.getMSXMixer(), name, desc, 8, true)
 	, irq(motherBoard.getCPU())
 	, timer1(motherBoard.getScheduler(), *this)
 	, timer2(motherBoard.getScheduler(), *this)
@@ -1517,10 +1516,12 @@ void YM2151::setVolume(int newVolume)
         maxVolume = newVolume;
 }
 
-void YM2151::setSampleRate(int sampleRate)
+void YM2151::setOutputRate(unsigned sampleRate)
 {
 	static const int CLCK_FREQ = 3579545;
-	setResampleRatio(CLCK_FREQ / 64.0, sampleRate);
+	double input = CLCK_FREQ / 64.0;
+	setInputRate(static_cast<int>(input + 0.5));
+	setResampleRatio(input, sampleRate);
 }
 
 void YM2151::callback(byte flag)

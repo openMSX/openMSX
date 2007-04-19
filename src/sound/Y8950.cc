@@ -492,8 +492,7 @@ void Y8950::Channel::keyOff()
 Y8950::Y8950(MSXMotherBoard& motherBoard, const std::string& name,
              const XMLElement& config, unsigned sampleRam, const EmuTime& time,
              Y8950Periphery& perihery_)
-	: SoundDevice(motherBoard.getMSXMixer(), name, "MSX-AUDIO")
-	, ChannelMixer(12)
+	: SoundDevice(motherBoard.getMSXMixer(), name, "MSX-AUDIO", 12)
 	, irq(motherBoard.getCPU())
 	, perihery(perihery_)
 	, timer1(motherBoard.getScheduler(), *this)
@@ -536,9 +535,11 @@ Y8950::~Y8950()
 	unregisterSound();
 }
 
-void Y8950::setSampleRate(int sampleRate)
+void Y8950::setOutputRate(unsigned sampleRate)
 {
-	setResampleRatio(CLOCK_FREQ / 72.0, sampleRate);
+	double input = CLOCK_FREQ / 72.0;
+	setInputRate(static_cast<int>(input + 0.5));
+	setResampleRatio(input, sampleRate);
 }
 
 // Reset whole of opl except patch datas.

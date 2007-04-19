@@ -43,7 +43,6 @@
 
 #include "SoundDevice.hh"
 #include "EmuTimer.hh"
-#include "ChannelMixer.hh"
 #include "Resample.hh"
 #include "IRQHelper.hh"
 #include "openmsx.hh"
@@ -133,8 +132,7 @@ public:
 	byte extended;	// set to 1 if this channel forms up a 4op channel with another channel(only used by first of pair of channels, ie 0,1,2 and 9,10,11)
 };
 
-class YMF262 : private SoundDevice, private EmuTimerCallback,
-               private ChannelMixer, private Resample<2>
+class YMF262 : private SoundDevice, private EmuTimerCallback, private Resample<2>
 {
 public:
 	YMF262(MSXMotherBoard& motherBoard, const std::string& name,
@@ -151,12 +149,10 @@ public:
 private:
 	// SoundDevice
 	virtual void setVolume(int volume);
-	virtual void setSampleRate(int sampleRate);
+	virtual void setOutputRate(unsigned sampleRate);
+	virtual void generateChannels(int** bufs, unsigned num);
 	virtual void updateBuffer(unsigned length, int* buffer,
 		const EmuTime& time, const EmuDuration& sampDur);
-
-	// ChannelMixer
-	virtual void generateChannels(int** bufs, unsigned num);
 
 	// Resample
 	virtual void generateInput(float* buffer, unsigned num);

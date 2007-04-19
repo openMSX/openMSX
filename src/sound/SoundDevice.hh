@@ -6,6 +6,7 @@
 #include "ChannelMode.hh"
 #include "noncopyable.hh"
 #include <string>
+#include <memory>
 
 namespace openmsx {
 
@@ -13,10 +14,13 @@ class MSXMixer;
 class XMLElement;
 class EmuTime;
 class EmuDuration;
+class WavWriter;
 
 class SoundDevice : private noncopyable
 {
 public:
+	static const unsigned MAX_CHANNELS = 24;
+
 	/**
 	 * Get the unique name that identifies this sound device.
 	 * Used to create setting names.
@@ -36,7 +40,7 @@ public:
 	 * Will be called by Mixer when the sound device registers.
 	 * Later on the user might (interactively) alter the volume of this
 	 * device. So the volume change must not necessarily have an immediate
-	 * effect for example (short) precalculated buffers must not be
+	 * effect. For example (short) precalculated buffers must not be
 	 * discarded.
 	 * @param newVolume The new volume, where 0 = silent and 32767 = max.
 	 */
@@ -48,6 +52,9 @@ public:
 	void increaseMuteCount();
 	void decreaseMuteCount();
 
+	void recordChannel(unsigned channel, const std::string& filename);
+	void muteChannel  (unsigned channel, bool muted);
+
 protected:
 	/**
 	 * Constructor.
@@ -57,7 +64,8 @@ protected:
 	 * @param description Description for this sound device
 	 */
 	SoundDevice(MSXMixer& mixer, const std::string& name,
-	            const std::string& description);
+	            const std::string& description,
+	            unsigned numChannels, bool stereo = false);
 	virtual ~SoundDevice();
 
 	/** This method is a convience warpper around the increase/
@@ -89,22 +97,19 @@ protected:
 	/** @see Mixer::updateStream */
 	void updateStream(const EmuTime& time);
 
+	void setInputRate(unsigned sampleRate);
+
 public: // Will be called by Mixer:
 	/**
 	 * When a SoundDevice registers itself with the Mixer, the Mixer sets
 	 * the required sampleRate through this method. All sound devices share
 	 * a common sampleRate.
-	 * It is not possible to change the samplerate on-the-fly.
 	 */
-	virtual void setSampleRate(int newSampleRate) = 0;
+	virtual void setOutputRate(unsigned sampleRate) = 0;
 
 	/**
 	 * Is this sound device muted?
 	 * @return true iff muted.
-	 *
-	 * Note: this method runs in a different thread, you can
-	 *       (un)lock this thread with lock() and unlock()
-	 *       methods in Mixer
 	 */
 	bool isMuted() const;
 
@@ -124,12 +129,13 @@ public: // Will be called by Mixer:
 	 * Samples are always ints, later they are converted to the systems
 	 * native format (e.g. 16-bit signed).
 	 * The Mixer will not call this method if the sound device is muted.
-	 *
-	 * Note: this method possibly runs in a different thread, you can
-	 *       (un)lock this thread with the (un)lock() methods in Mixer
 	 */
 	virtual void updateBuffer(unsigned length, int* buffer,
-	        const EmuTime& start, const EmuDuration& sampDur) = 0;
+	        const EmuTime& start, const EmuDuration& sampDur);
+
+protected:
+	virtual void generateChannels(int** buffers, unsigned num) = 0;
+	void mixChannels(int* dataOut, unsigned num);
 
 private:
 	MSXMixer& mixer;
@@ -138,6 +144,13 @@ private:
 
 	unsigned muteCount;
 	bool muted;
+
+	// channel mixer
+	unsigned inputSampleRate;
+	const unsigned numChannels;
+	const unsigned stereo;
+	std::auto_ptr<WavWriter> writer[MAX_CHANNELS];
+	bool channelMuted[MAX_CHANNELS];
 };
 
 } // namespace openmsx

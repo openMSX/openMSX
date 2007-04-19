@@ -913,10 +913,12 @@ void YM2413_2::init_tables()
 	}
 }
 
-void YM2413_2::setSampleRate(int sampleRate)
+void YM2413_2::setOutputRate(unsigned sampleRate)
 {
 	const int CLOCK_FREQ = 3579545;
-	setResampleRatio(CLOCK_FREQ / 72.0, sampleRate);
+	double input = CLOCK_FREQ / 72.0;
+	setInputRate(static_cast<int>(input + 0.5));
+	setResampleRatio(input, sampleRate);
 }
 
 inline void Slot::KEY_ON(byte key_set)
@@ -1356,8 +1358,7 @@ void YM2413_2::reset(const EmuTime &time)
 
 YM2413_2::YM2413_2(MSXMotherBoard& motherBoard, const std::string& name,
                    const XMLElement& config, const EmuTime& time)
-	: SoundDevice(motherBoard.getMSXMixer(), name, "MSX-MUSIC")
-	, ChannelMixer(11)
+	: SoundDevice(motherBoard.getMSXMixer(), name, "MSX-MUSIC", 11)
 	, debuggable(new YM2413_2Debuggable(motherBoard, *this))
 {
 	eg_cnt = 0;

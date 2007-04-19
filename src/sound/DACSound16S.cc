@@ -7,8 +7,7 @@ namespace openmsx {
 DACSound16S::DACSound16S(MSXMixer& mixer, const std::string& name,
                          const std::string& desc, const XMLElement& config,
                          const EmuTime& /*time*/)
-	: SoundDevice(mixer, name, desc)
-	, ChannelMixer(1)
+	: SoundDevice(mixer, name, desc, 1)
 	, start(EmuTime::zero) // dummy
 {
 	lastWrittenValue = 0;
@@ -26,9 +25,9 @@ void DACSound16S::setVolume(int newVolume)
 	volume = newVolume;
 }
 
-void DACSound16S::setSampleRate(int /*sampleRate*/)
+void DACSound16S::setOutputRate(unsigned sampleRate)
 {
-	// nothing
+	setInputRate(sampleRate);
 }
 
 void DACSound16S::reset(const EmuTime& time)

@@ -112,7 +112,7 @@ void MSXMixer::registerSound(SoundDevice& device, short volume,
 	infos[&device] = info;
 
 	devices[mode].push_back(&device);
-	device.setSampleRate(sampleRate);
+	device.setOutputRate(sampleRate);
 	device.setVolume((info.normalVolume * info.volumeSetting->getValue() *
 	                   masterVolume.getValue()) / (100 * 100));
 
@@ -307,7 +307,7 @@ void MSXMixer::setMixerParams(unsigned newFragmentSize, unsigned newSampleRate)
 			for (vector<SoundDevice*>::const_iterator it =
 				 devices[mode].begin();
 			     it != devices[mode].end(); ++it) {
-				(*it)->setSampleRate(sampleRate);
+				(*it)->setOutputRate(sampleRate);
 			}
 		}
 	}

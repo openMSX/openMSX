@@ -985,10 +985,12 @@ void YMF262::init_tables()
 }
 
 
-void YMF262::setSampleRate(int sampleRate)
+void YMF262::setOutputRate(unsigned sampleRate)
 {
 	const int CLOCK_FREQ = 3579545 * 4;
-	setResampleRatio(CLOCK_FREQ / (8.0 * 36.0), sampleRate);
+	double input = CLOCK_FREQ / (8.0 * 36.0);
+	setInputRate(static_cast<int>(input + 0.5));
+	setResampleRatio(input, sampleRate);
 }
 
 void YMF262Slot::FM_KEYON(byte key_set)
@@ -1804,8 +1806,8 @@ void YMF262::reset(const EmuTime& time)
 
 YMF262::YMF262(MSXMotherBoard& motherBoard, const std::string& name,
                const XMLElement& config, const EmuTime& time)
-	: SoundDevice(motherBoard.getMSXMixer(), name, "MoonSound FM-part")
-	, ChannelMixer(18, 2)
+	: SoundDevice(motherBoard.getMSXMixer(), name, "MoonSound FM-part",
+	              18, true)
 	, irq(motherBoard.getCPU())
 	, timer1(motherBoard.getScheduler(), *this)
 	, timer2(motherBoard.getScheduler(), *this)
