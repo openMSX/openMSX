@@ -1,6 +1,24 @@
 $Id$
 
-2007-04-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2007-04-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Recording/muting of individual sound device channels works:
+	   - it's still quick-and-dirty, but i wanted to have something
+	     working soon
+	   - use either via the <sounddevice>_ch<n>_record and
+	                        <sounddevice>_ch<n>_mute settings
+	     or via the record_channels Tcl script (no mute yet)
+	     examples:   record_channels PSG
+	                 record_channels SCC 1,3-5
+	                 record_channels stop
+	                 record_channels stop PSG 2
+	                 record_channels list
+	   - TODO: documentation
+	           make recording stutterless
+	           record silence when complete sounddevice is muted
+	              (muted manually or implicitly by the device itself)
+
+
+2007-04-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Converted sounddevices to generate output as seperate channels:
 	   - This is very much work in progress. There is no code yet to
 	     take advantage of this split. The code in the converted

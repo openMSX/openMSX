@@ -32,10 +32,9 @@ string StringSettingPolicy::getTypeString() const
 
 StringSetting::StringSetting(CommandController& commandController,
                              const string& name, const string& description,
-                             const string& initialValue)
+                             const string& initialValue, SaveSetting save)
 	: SettingImpl<StringSettingPolicy>(
-		commandController, name, description, initialValue,
-		Setting::SAVE)
+		commandController, name, description, initialValue, save)
 {
 }
 

@@ -11,6 +11,8 @@
 #include "GlobalSettings.hh"
 #include "IntegerSetting.hh"
 #include "EnumSetting.hh"
+#include "StringSetting.hh"
+#include "BooleanSetting.hh"
 #include "AviRecorder.hh"
 #include <algorithm>
 #include <cassert>
@@ -78,7 +80,7 @@ MSXMixer::~MSXMixer()
 }
 
 void MSXMixer::registerSound(SoundDevice& device, short volume,
-                             ChannelMode::Mode mode)
+                             ChannelMode::Mode mode, unsigned numChannels)
 {
 	const string& name = device.getName();
 	SoundDeviceInfo info;
@@ -109,8 +111,27 @@ void MSXMixer::registerSound(SoundDevice& device, short volume,
 	info.normalVolume = (volume * 100 * 100) / (75 * 75);
 	info.modeSetting->attach(*this);
 	info.volumeSetting->attach(*this);
-	infos[&device] = info;
 
+	for (unsigned i = 0; i < numChannels; ++i) {
+		SoundDeviceInfo::ChannelSettings channelSettings;
+		string ch_name = name + "_ch" + StringOp::toString(i + 1); 
+
+		channelSettings.recordSetting = new StringSetting(
+			msxCommandController, ch_name + "_record",
+			"filename to record this channel to",
+			"", Setting::DONT_SAVE);
+		channelSettings.recordSetting->attach(*this);
+
+		channelSettings.muteSetting = new BooleanSetting(
+			msxCommandController, ch_name + "_mute",
+			"sets mute-status of individual sound channels",
+			false, Setting::DONT_SAVE);
+		channelSettings.muteSetting->attach(*this);
+
+		info.channelSettings.push_back(channelSettings);
+	}
+
+	infos[&device] = info;
 	devices[mode].push_back(&device);
 	device.setOutputRate(sampleRate);
 	device.setVolume((info.normalVolume * info.volumeSetting->getValue() *
@@ -136,6 +157,14 @@ void MSXMixer::unregisterSound(SoundDevice& device)
 	delete it->second.volumeSetting;
 	it->second.modeSetting->detach(*this);
 	delete it->second.modeSetting;
+	for (vector<SoundDeviceInfo::ChannelSettings>::const_iterator it2 =
+	            it->second.channelSettings.begin();
+	     it2 != it->second.channelSettings.end(); ++it2) {
+		it2->recordSetting->detach(*this);
+		delete it2->recordSetting;
+		it2->muteSetting->detach(*this);
+		delete it2->muteSetting;
+	}
 	infos.erase(it);
 }
 
@@ -359,9 +388,49 @@ void MSXMixer::update(const Setting& setting)
 		it->first->setVolume(
 		     (masterVolume.getValue() * info.volumeSetting->getValue() *
 		      info.normalVolume) / (100 * 100));
+	} else if (dynamic_cast<const StringSetting*>(&setting)) {
+		changeRecordSetting(setting);
+	} else if (dynamic_cast<const BooleanSetting*>(&setting)) {
+		changeMuteSetting(setting);
 	} else {
 		assert(false);
 	}
+}
+
+void MSXMixer::changeRecordSetting(const Setting& setting)
+{
+	for (Infos::iterator it = infos.begin(); it != infos.end(); ++it) {
+		unsigned channel = 0;
+		for (vector<SoundDeviceInfo::ChannelSettings>::const_iterator it2 =
+			    it->second.channelSettings.begin();
+		     it2 != it->second.channelSettings.end();
+		     ++it2, ++channel) {
+			if (it2->recordSetting == &setting) {
+				it->first->recordChannel(
+					channel, it2->recordSetting->getValue());
+				return;
+			}
+		}
+	}
+	assert(false);
+}
+
+void MSXMixer::changeMuteSetting(const Setting& setting)
+{
+	for (Infos::iterator it = infos.begin(); it != infos.end(); ++it) {
+		unsigned channel = 0;
+		for (vector<SoundDeviceInfo::ChannelSettings>::const_iterator it2 =
+			    it->second.channelSettings.begin();
+		     it2 != it->second.channelSettings.end();
+		     ++it2, ++channel) {
+			if (it2->muteSetting == &setting) {
+				it->first->muteChannel(
+					channel, it2->muteSetting->getValue());
+				return;
+			}
+		}
+	}
+	assert(false);
 }
 
 void MSXMixer::update(const ThrottleManager& /*throttleManager*/)

@@ -89,7 +89,7 @@ void SoundDevice::registerSound(const XMLElement& config,
 			mode = ChannelMode::MONO;
 		}
 	}
-	mixer.registerSound(*this, volume, mode);
+	mixer.registerSound(*this, volume, mode, numChannels);
 }
 
 void SoundDevice::unregisterSound()

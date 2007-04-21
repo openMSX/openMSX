@@ -21,6 +21,8 @@ class MSXCommandController;
 class ThrottleManager;
 class IntegerSetting;
 template <typename T> class EnumSetting;
+class StringSetting;
+class BooleanSetting;
 class Setting;
 class SoundDeviceInfoTopic;
 class AviRecorder;
@@ -42,7 +44,7 @@ public:
 	 * 'regularly' called (see SoundDevice for more info).
 	 */
 	void registerSound(SoundDevice& device, short volume,
-	                   ChannelMode::Mode mode);
+	                   ChannelMode::Mode mode, unsigned numChannels);
 
 	/**
 	 * Every sounddevice must unregister before it is destructed
@@ -92,6 +94,9 @@ private:
 	// Observer<ThrottleManager>
 	virtual void update(const ThrottleManager& throttleManager);
 
+	void changeRecordSetting(const Setting& setting);
+	void changeMuteSetting(const Setting& setting);
+
 	unsigned sampleRate;
 	unsigned fragmentSize;
 
@@ -100,6 +105,11 @@ private:
 		int normalVolume;
 		IntegerSetting* volumeSetting;
 		EnumSetting<ChannelMode::Mode>* modeSetting;
+		struct ChannelSettings {
+			StringSetting* recordSetting;
+			BooleanSetting* muteSetting;
+		};
+		std::vector<ChannelSettings> channelSettings;
 	};
 	typedef std::map<SoundDevice*, SoundDeviceInfo> Infos;
 	Infos infos;

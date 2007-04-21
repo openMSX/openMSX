@@ -22,7 +22,7 @@ class StringSetting : public SettingImpl<StringSettingPolicy>
 public:
 	StringSetting(CommandController& commandController,
 	              const std::string& name, const std::string& description,
-	              const std::string& initialValue);
+	              const std::string& initialValue, SaveSetting save = SAVE);
 };
 
 } // namespace openmsx
