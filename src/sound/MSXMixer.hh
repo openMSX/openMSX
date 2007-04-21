@@ -57,6 +57,9 @@ public:
 	 */
 	void updateStream(const EmuTime& time);
 
+	// TODO
+	void setSynchronousMode(bool synchronous);
+
 	/** TODO
 	 * This methods (un)mute the sound.
 	 * These methods may be called multiple times, as long as
@@ -137,6 +140,7 @@ private:
 	const std::auto_ptr<SoundDeviceInfoTopic> soundDeviceInfo;
 
 	AviRecorder* recorder;
+	unsigned synchronousCounter;
 };
 
 } // namespace openmsx

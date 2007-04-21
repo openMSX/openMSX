@@ -51,6 +51,7 @@ MSXMixer::MSXMixer(Mixer& mixer_, Scheduler& scheduler,
 	, soundDeviceInfo(new SoundDeviceInfoTopic(
 	              msxCommandController.getMachineInfoCommand(), *this))
 	, recorder(0)
+	, synchronousCounter(0)
 {
 	sampleRate = 0;
 	fragmentSize = 0;
@@ -168,9 +169,19 @@ void MSXMixer::unregisterSound(SoundDevice& device)
 	infos.erase(it);
 }
 
+void MSXMixer::setSynchronousMode(bool synchronous)
+{
+	if (synchronous) {
+		++synchronousCounter;
+	} else {
+		assert(synchronousCounter > 0);
+		--synchronousCounter;
+	}
+}
+
 void MSXMixer::updateStream(const EmuTime& time)
 {
-	if ((!muteCount && fragmentSize) || recorder) {
+	if ((!muteCount && fragmentSize) || synchronousCounter) {
 		updateStream2(time);
 	}
 }
@@ -189,7 +200,7 @@ void MSXMixer::updateStream2(const EmuTime& time)
 		generate(mixBuffer, count, prevTime, interval1);
 		factor = mixer.uploadBuffer(*this, mixBuffer, count);
 	} else {
-		assert(recorder);
+		assert(synchronousCounter);
 		memset(mixBuffer, 0, count * 2 * sizeof(short));
 		factor = 1.0;
 	}
@@ -303,7 +314,7 @@ void MSXMixer::unmute()
 
 void MSXMixer::reInit()
 {
-	if (recorder) {
+	if (synchronousCounter) {
 		// do as if speed=100
 		interval1 = EmuDuration(1.0 / sampleRate);
 	} else {
@@ -318,7 +329,7 @@ void MSXMixer::reInit()
 		prevTime = getScheduler().getCurrentTime();
 		EmuDuration interval2 = interval1 * fragmentSize;
 		setSyncPoint(prevTime + interval2);
-	} else if (recorder) {
+	} else if (synchronousCounter) {
 		prevTime = getScheduler().getCurrentTime();
 		EmuDuration interval2 = interval1 * 512;
 		setSyncPoint(prevTime + interval2);
@@ -349,9 +360,12 @@ void MSXMixer::setMixerParams(unsigned newFragmentSize, unsigned newSampleRate)
 	if (needReInit) reInit();
 }
 
-void MSXMixer::setRecorder(AviRecorder* recorder_)
+void MSXMixer::setRecorder(AviRecorder* newRecorder)
 {
-	recorder = recorder_;
+	if (bool(recorder) != bool(newRecorder)) {
+		setSynchronousMode(newRecorder);
+	}
+	recorder = newRecorder;
 	reInit();
 }
 
@@ -456,7 +470,7 @@ void MSXMixer::executeUntil(const EmuTime& time, int /*userData*/)
 		updateStream2(time);
 		EmuDuration interval2 = interval1 * fragmentSize;
 		setSyncPoint(time + interval2);
-	} else if (recorder) {
+	} else if (synchronousCounter) {
 		updateStream2(time);
 		EmuDuration interval2 = interval1 * 512;
 		setSyncPoint(time + interval2);

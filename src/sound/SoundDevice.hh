@@ -149,6 +149,7 @@ private:
 	unsigned inputSampleRate;
 	const unsigned numChannels;
 	const unsigned stereo;
+	unsigned numRecordChannels;
 	std::auto_ptr<WavWriter> writer[MAX_CHANNELS];
 	bool channelMuted[MAX_CHANNELS];
 };

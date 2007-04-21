@@ -21,6 +21,7 @@ SoundDevice::SoundDevice(MSXMixer& mixer_, const string& name_,
 	: mixer(mixer_), name(name_), description(description_)
 	, muteCount(1), muted(true)
 	, numChannels(numChannels_), stereo(stereo_ ? 2 : 1)
+	, numRecordChannels(0)
 {
 	assert(numChannels <= MAX_CHANNELS);
 	assert(stereo == 1 || stereo == 2);
@@ -53,7 +54,7 @@ void SoundDevice::increaseMuteCount()
 
 void SoundDevice::decreaseMuteCount()
 {
-	assert(isMuted());
+	assert(muteCount > 0);
 	--muteCount;
 }
 
@@ -71,7 +72,9 @@ void SoundDevice::setMute(bool newMuted)
 
 bool SoundDevice::isMuted() const
 {
-	return muteCount;
+	// never mute when we're recording channels
+	// TODO fix this
+	return (numRecordChannels == 0) && muteCount;
 }
 
 void SoundDevice::registerSound(const XMLElement& config,
@@ -110,11 +113,28 @@ void SoundDevice::setInputRate(unsigned sampleRate)
 void SoundDevice::recordChannel(unsigned channel, const string& filename)
 {
 	assert(channel < numChannels);
+	bool wasRecording = writer[channel].get();
 	if (!filename.empty()) {
 		writer[channel].reset(new WavWriter(
 			filename, stereo, 16, inputSampleRate));
 	} else {
 		writer[channel].reset();
+	}
+	bool recording = writer[channel].get();
+	if (recording != wasRecording) {
+		if (recording) {
+			if (numRecordChannels == 0) {
+				mixer.setSynchronousMode(true);
+			}
+			++numRecordChannels;
+			assert(numRecordChannels <= numChannels);
+		} else {
+			assert(numRecordChannels > 0);
+			--numRecordChannels;
+			if (numRecordChannels == 0) {
+				mixer.setSynchronousMode(false);
+			}
+		}
 	}
 }
 

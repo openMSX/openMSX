@@ -16,7 +16,12 @@ $Id$
 	           make recording stutterless
 	           record silence when complete sounddevice is muted
 	              (muted manually or implicitly by the device itself)
-
+	* Improved channel recording:
+	   - Channel recording is now also stutterless.
+	   - Recording continues when sounddevice is internally muted.
+	     Unfortunately explicitly muting the device doesn't work now
+	     anymore when some channels of the device are beiing recorded.
+	     Fixing this requires some more work.
 
 2007-04-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Converted sounddevices to generate output as seperate channels:
