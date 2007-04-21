@@ -67,7 +67,7 @@ CommandConsole::CommandConsole(
 	      "\n"
 	      "Type 'help' to see a list of available commands "
 	      "(use <PgUp>/<PgDn> to scroll).\n"
-	      "Or read the commands.txt file that is shipped with openMSX.\n"
+	      "Or read the Console Command Reference in the manual.\n"
 	      "\n");
 
 	commandController.getInterpreter().setOutput(this);
