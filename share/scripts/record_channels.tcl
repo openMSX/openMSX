@@ -1,3 +1,37 @@
+set_help_text record_channels \
+{Convenience function to control recording of individual channels of
+sounddevice(s).
+
+There are three subcommand: start, stop and list to respectively start
+recording additional channels, to stop recording all or some channels and
+to list which channels are currently beiing recorded.
+  record_channels [start] [<device> [<channels>]]
+  record_channels  stop   [<device> [<channels>]]
+  record_channels  list
+
+Some examples will make it much clearer:
+  - To start recording:
+      record_channels start PSG      record all PSG channels
+      record_channels PSG            the 'start' keyword can be left out
+      record_channels SCC 1,4-5      only record channels 1, 4 and 5
+      record_channels SCC PSG 1      record all SCC channels, PSG channel 1
+  - To stop recording
+      record_channels stop           stop all recording
+      record_channels stop PSG       stop recording all PSG channels
+      record_channels stop SCC 3,5   stop recording SCC channels 3 and 5
+  - To show the current status
+      record_channels list           shows which channels are beiing recorded
+}
+
+set_tabcompletion_proc record_channels tab_record_channels
+proc tab_record_channels { args } {
+	set result [machine_info sounddevice]
+	if {[llength $args] == 2} {
+		set result [join [list $result "start stop list"]]
+	}
+	return $result
+}
+
 proc parse_channel_numbers { str } {
 	set result [list]
 	foreach a [split $str ", "] {
