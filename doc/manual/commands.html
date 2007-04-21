@@ -60,6 +60,8 @@
 
         <li><a class="internal" href="#machine_info">machine_info</a></li>
 
+	<li><a class="internal" href="#mute_channels">mute_channels / unmute_channels</a></li>
+
         <li><a class="internal" href="#openmsx_info">openmsx_info</a></li>
 
         <li><a class="internal" href="#palette">palette</a></li>
@@ -67,6 +69,8 @@
         <li><a class="internal" href="#plugunplug">plug / unplug</a></li>
 
         <li><a class="internal" href="#record">record</a></li>
+        
+	<li><a class="internal" href="#record_channels">record_channels</a></li>
 
         <li><a class="internal" href="#remove_extension">remove_extension</a></li>
 
@@ -187,7 +191,7 @@
         <li><a class="internal" href="#minframeskip">minframeskip</a></li>
 
         <li><a class="internal" href="#mute">mute</a></li>
-
+        
         <li><a class="internal" href="#noise">noise</a></li>
 
         <li><a class="internal" href="#pause">pause</a></li>
@@ -224,7 +228,11 @@
 
         <li><a class="internal" href="#speed">speed</a></li>
 
-        <li><a class="internal" href="#soundchip_mode">&lt;soundchip&gt;_mode</a></li>
+        <li><a class="internal" href="#soundchip_channel_record">&lt;soundchip&gt;_ch&lt;channel&gt;_record</a></li>
+        
+	<li><a class="internal" href="#soundchip_channel_mute">&lt;soundchip&gt;_ch&lt;channel&gt;_mute</a></li>
+        
+	<li><a class="internal" href="#soundchip_mode">&lt;soundchip&gt;_mode</a></li>
 
         <li><a class="internal" href="#soundchip_volume">&lt;soundchip&gt;_volume</a></li>
 
@@ -1032,6 +1040,38 @@
     </tr>
   </table>
 
+  <h3><a id="mute_channels">mute_channels / unmute_channels</a></h3>
+
+  <p>Mute or unmute specific individual channels of sound devices. The syntax is very similar to the <code><a class="internal" href="#record_channels">record_channels</a></code> command.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>mute_channels &lt;device&gt; [&lt;channels&gt;]] [&lt;device&gt; [&lt;channels&gt;]]</code></td>
+
+      <td>Mute the specified channels of the specified device(s). If no channels are specified, all channels of the device are muted.</td>
+    </tr>
+
+    <tr>
+      <td><code>unmute_channels &lt;device&gt; [&lt;channels&gt;]] [&lt;device&gt; [&lt;channels&gt;]]</code></td>
+
+      <td>Unmute the specified channels of the specified device(s). If no channels are specified, all channels of the device are unmuted.</td>
+    </tr>
+  </table>
+
+  <div class="subsectiontitle">
+    examples:
+  </div>
+
+  <div class="examples">
+    <code>mute_channels PSG</code><br />
+    <code>mute_channels SCC 2,4</code><br />
+    <code>unmute_channels PSG 1 SCC 3-4</code>
+  </div>
+
   <h3><a id="openmsx_info">openmsx_info</a></h3>
 
   <p>Shows information about a certain topic. For machine-specific topics, use the related command <code><a class="internal" href="#machine_info">machine_info</a></code>.</p>
@@ -1159,7 +1199,52 @@
   If only audio is recorded, the created file will be a WAV file instead of an AVI file.
   The <code><a class="internal" href="#soundlog">soundlog</a></code> command is a shorthand for <code>record -audioonly</code>.</p>
 
-  <h3><a id="remove_extension">remove_extension</a></h3>
+  <h3><a id="record_channels">record_channels</a></h3>
+
+  <p>A special command to record individual channels of sound chips to separate files. In the following commands you can specify devices and channels. Multiple devices can be specified and multiple channels as well. If you want to specify channels of a device, put them right after the device.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>record_channels [start] &lt;device&gt; [&lt;channels&gt;] [&lt;device&gt; [&lt;channels&gt;]]</code></td>
+
+      <td>Start recording the specified channel(s) of the specified device(s). If no channels are given, all channels of the device are recorded. </td>
+    </tr>
+
+    <tr>
+      <td><code>record_channels stop [&lt;device&gt; [&lt;channels&gt;]] [&lt;device&gt; [&lt;channels&gt;]]</code></td>
+
+      <td>Stop recording the specified channel(s) of the specified device(s). If no channels are given, recording for all channels is stopped for the given device(s). If no devices are given, all channel recording is stopped.</td>
+    </tr>
+
+    <tr>
+      <td><code>record_channels list</code></td>
+
+      <td>Lists which channels of which sound chips are currently being recorded.</td>
+    </tr>
+
+  </table>
+
+  <div class="subsectiontitle">
+    examples:
+  </div>
+
+  <div class="examples">
+    <code>record_channels start PSG</code><br />
+    <code>record_channels PSG</code><br />
+    <code>record_channels SCC 1,4-5</code><br />
+    <code>record_channels SCC PSG 1</code><br />
+    <code>record_channels "MSX Music" 7-9 SCC 3,5 PSG 2</code><br />
+    <code>record_channels stop</code><br />
+    <code>record_channels stop PSG</code><br />
+    <code>record_channels stop SCC 3,5</code><br />
+    <code>record_channels list</code>
+  </div>
+
+<h3><a id="remove_extension">remove_extension</a></h3>
 
   <p>Remove a cartridge or extension from a running MSX machine. See also the commands <code><a class="internal" href="#cart">cart</a></code>, <code><a class="internal" href="#ext">ext</a></code>, <code><a class="internal" href="#list_extensions">list_extensions</a></code>.</p>
 
@@ -3167,6 +3252,79 @@
     </tr>
   </table>
 
+  <h3><a id="soundchip_channel_record">&lt;soundchip&gt;_ch&lt;channel&gt;_record</a></h3>
+
+  <p>Sets the filename to which the sound of an individual channel of
+  individual sound chips should be recorded. When this setting is not set, no
+  recording takes place and recording starts as soon as the setting is set.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set &lt;soundchip&gt;_ch&lt;channel&gt;_record</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set &lt;soundchip&gt;_ch&lt;channel&gt;_record filename</code></td>
+
+      <td>Starts recording the sound of the specified chip and channel to the file with name &lt;filename&gt;</td>
+    </tr>
+
+  </table>
+
+  <div class="subsectiontitle">
+    examples:
+  </div>
+
+  <div class="examples">
+    <code>set SCC_ch1_record</code><br />
+    <code>set PSG_ch3 /tmp/PSG_ch3.wav</code>
+  </div>
+
+  <h3><a id="soundchip_channel_mute">&lt;soundchip&gt;_ch&lt;channel&gt;_mute</a></h3>
+
+  <p>Use to mute a specific channel of an individual sound chip.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set &lt;soundchip&gt;_ch&lt;channel&gt;_mute</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set &lt;soundchip&gt;_ch&lt;channel&gt;_record on</code></td>
+
+      <td>Mutes the sound of the specified channel of the specified chip</td>
+    </tr>
+
+    <tr>
+      <td><code>set &lt;soundchip&gt;_ch&lt;channel&gt;_record off</code></td>
+
+      <td>Unmutes the sound of the specified channel of the specified chip</td>
+    </tr>
+
+  </table>
+
+  <div class="subsectiontitle">
+    examples:
+  </div>
+
+  <div class="examples">
+    <code>set SCC_ch1_mute</code><br />
+    <code>set PSG_ch3_mute on</code><br />
+    <code>set SCC_ch5_mute off</code>
+  </div>
+
   <h3><a id="soundchip_mode">&lt;soundchip&gt;_mode</a></h3>
 
   <p>Sets the channel mode for individual sound chips. Note that stereo chips can only be in stereo mode and mono chips can never be set to stereo mode.</p>
@@ -3208,7 +3366,7 @@
   <div class="examples">
     <code>set PSG_mode</code><br />
     <code>set PSG_mode left</code><br />
-    <code>set "FMPAC_mode" mono</code>
+    <code>set FMPAC_mode mono</code>
   </div>
 
   <h3><a id="soundchip_volume">&lt;soundchip&gt;_volume</a></h3>
