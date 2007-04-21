@@ -23,10 +23,24 @@ Some examples will make it much clearer:
       record_channels list           shows which channels are beiing recorded
 }
 
-set_tabcompletion_proc record_channels tab_record_channels
-proc tab_record_channels { args } {
+set mute_help_text \
+{Convenience function to control (un)muting of individual channels of
+soundevice(s).
+
+Examples:
+  mute_channels PSG               mute all PSG channels
+  mute_channels SCC 2,4           mute SCC channels 2 and 4
+  unmute_channels PSG 1 SCC 3-4   unmute PSG channel 1, SCC channels 3 and 4
+}
+set_help_text mute_channels   $mute_help_text
+set_help_text unmute_channels $mute_help_text
+
+set_tabcompletion_proc record_channels tab_sounddevice_channels
+set_tabcompletion_proc mute_channels   tab_sounddevice_channels
+set_tabcompletion_proc unmute_channels tab_sounddevice_channels
+proc tab_sounddevice_channels { args } {
 	set result [machine_info sounddevice]
-	if {[llength $args] == 2} {
+	if {([lindex $args 0] == "record_channels") && ([llength $args] == 2)} {
 		set result [join [list $result "start stop list"]]
 	}
 	return $result
@@ -81,10 +95,35 @@ proc get_recording_channels { } {
 	return $result 
 }
 
+proc parse_device_channels { tokens } {
+	set sounddevices [machine_info sounddevice]
+	set device_channels [list]
+	while {[llength $tokens]} {
+		set device [lindex $tokens 0]
+		set tokens [lrange $tokens 1 end]
+		if {[lsearch $sounddevices $device] == -1} {
+			error "Unknown sounddevice: $device"
+		}
+		set range [lindex $tokens 0]
+		if {($range != "") && ([lsearch $sounddevices $range] == -1)} {
+			set channels [parse_channel_numbers $range]
+			set tokens [lrange $tokens 1 end]
+			foreach ch $channels {
+				if ![info exists ::${device}_ch${ch}_record] {
+					error "No channel $ch on sounddevice $device"
+				}
+			}
+		} else {
+			set channels [get_all_channels $device]
+		}
+		lappend device_channels $device $channels
+	}
+	return $device_channels
+}
+
 proc record_channels { args } {
 	set start true
 	set device_channels [list]
-	set sounddevices [machine_info sounddevice]
 
 	# parse subcommand (default is start)
 	set first [lindex $args 0]
@@ -100,25 +139,11 @@ proc record_channels { args } {
 	}
 
 	# parse devices/channels
-	while {[llength $args]} {
-		set device [lindex $args 0]
-		set args [lrange $args 1 end]
-		if {[lsearch $sounddevices $device] == -1} {
-			error "Unknown sounddevice: $device"
-		}
-		set range [lindex $args 0]
-		if {($range != "") && ([lsearch $sounddevices $range] == -1)} {
-			set channels [parse_channel_numbers $range]
-			set args [lrange $args 1 end]
-		} else {
-			set channels [get_all_channels $device]
-		}
-		lappend device_channels $device $channels
-	}
+	set device_channels [parse_device_channels $args]
 
 	# stop without any further arguments -> stop all
 	if {!$start && ![llength $device_channels]} {
-		foreach device $sounddevices {
+		foreach device [machine_info sounddevice] {
 			set channels [get_all_channels $device]
 			lappend device_channels $device $channels
 		}
@@ -128,14 +153,26 @@ proc record_channels { args } {
 	foreach {device channels} $device_channels {
 		foreach ch $channels {
 			set var ::${device}_ch${ch}_record
-			if ![info exists $var] {
-				error "No channel $ch on sounddevice $device"
-			}
 			if $start {
 				set $var ${device}-ch${ch}.wav
 			} else {
 				set $var ""
 			}
+		}
+	}
+}
+
+proc mute_channels { args } {
+	foreach {device channels} [parse_device_channels $args] {
+		foreach ch $channels {
+			set ::${device}_ch${ch}_mute true
+		}
+	}
+}
+proc unmute_channels { args } {
+	foreach {device channels} [parse_device_channels $args] {
+		foreach ch $channels {
+			set ::${device}_ch${ch}_mute false
 		}
 	}
 }

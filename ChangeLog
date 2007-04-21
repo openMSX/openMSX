@@ -23,6 +23,7 @@ $Id$
 	     anymore when some channels of the device are beiing recorded.
 	     Fixing this requires some more work.
 	* Added tabcompletion + help for the record_channels script
+	* Extended script with (un)mute_channels procs
 
 2007-04-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Converted sounddevices to generate output as seperate channels:
