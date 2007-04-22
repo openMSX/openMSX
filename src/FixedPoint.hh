@@ -18,6 +18,14 @@ private:
 	  */
 	static const int ONE = 1 << FRACTION_BITS;
 
+	/** Precalculated float value of 1 / ONE.
+	  */
+	static const float INV_ONE_F = 1.0f / ONE;
+
+	/** Precalculated double value of 1 / ONE.
+	  */
+	static const double INV_ONE_D = 1.0f / ONE;
+
 	/** Bitmask to filter out the fractional part of a fixed point
 	  * representation.
 	  */
@@ -42,13 +50,13 @@ public:
 	explicit FixedPoint(const double d) : value(lrint(d * ONE)) {};
 
 	int toInt() const { return value >> FRACTION_BITS; }
-	float toFloat() const { return static_cast<float>(value) / ONE; }
-	double toDouble() const { return static_cast<double>(value) / ONE; }
+	float toFloat() const { return value * INV_ONE_F; }
+	double toDouble() const { return value * INV_ONE_D; }
 	float fractionAsFloat() const {
-		return static_cast<float>(value & FRACTION_MASK) / ONE;
+		return (value & FRACTION_MASK) * INV_ONE_F;
 	}
 	double fractionAsDouble() const {
-		return static_cast<double>(value & FRACTION_MASK) / ONE;
+		return (value & FRACTION_MASK) * INV_ONE_D;
 	}
 
 	// Arithmetic operators:
