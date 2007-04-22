@@ -24,7 +24,7 @@ private:
 
 	/** Precalculated double value of 1 / ONE.
 	  */
-	static const double INV_ONE_D = 1.0f / ONE;
+	static const double INV_ONE_D = 1.0 / ONE;
 
 	/** Bitmask to filter out the fractional part of a fixed point
 	  * representation.
