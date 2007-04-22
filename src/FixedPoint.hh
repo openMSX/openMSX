@@ -37,9 +37,9 @@ private:
 	}
 
 public:
-	FixedPoint(const int i) : value(i << FRACTION_BITS) {};
-	FixedPoint(const float f) : value(lrintf(f * ONE)) {};
-	FixedPoint(const double d) : value(lrint(d * ONE)) {};
+	explicit FixedPoint(const int i) : value(i << FRACTION_BITS) {};
+	explicit FixedPoint(const float f) : value(lrintf(f * ONE)) {};
+	explicit FixedPoint(const double d) : value(lrint(d * ONE)) {};
 
 	int toInt() const { return value >> FRACTION_BITS; }
 	float toFloat() const { return static_cast<float>(value) / ONE; }
