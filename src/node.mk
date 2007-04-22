@@ -48,13 +48,13 @@ SRC_ONLY:= \
 	main
 
 HDR_ONLY:= \
-	Subject \
+	Subject Observer \
 	openmsx \
 	likely noncopyable shared_ptr checked_cast ScopedAssign \
 	Clock DynamicClock \
 	MSXException InitException \
 	PatchInterface \
-	Observer
+	FixedPoint
 
 DIST:= \
 	Doxyfile
