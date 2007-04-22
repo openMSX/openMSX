@@ -36,7 +36,7 @@ private:
 		return ret;
 	}
 public:
-	FixedPoint(const FixedPoint<FRACTION_BITS> other) : value(other.value) {};
+	FixedPoint(const FixedPoint<FRACTION_BITS>& other) : value(other.value) {};
 	FixedPoint(const int i) : value(i << FRACTION_BITS) {};
 	FixedPoint(const float f) : value(lrintf(f * ONE)) {};
 	FixedPoint(const double d) : value(lrint(d * ONE)) {};
