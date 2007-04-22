@@ -1,4 +1,4 @@
-// $Id: $
+// $Id$
 
 #ifndef RESAMPLE_HH
 #define RESAMPLE_HH

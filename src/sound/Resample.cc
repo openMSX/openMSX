@@ -1,4 +1,4 @@
-// $Id: $
+// $Id$
 
 // Based on libsamplerate-0.1.2 (aka Secret Rabit Code)
 //
