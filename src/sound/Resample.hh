@@ -5,6 +5,8 @@
 
 namespace openmsx {
 
+template <unsigned> class FixedPoint;
+
 template <unsigned CHANNELS>
 class Resample
 {
@@ -17,9 +19,10 @@ protected:
 	virtual void generateInput(float* buffer, unsigned num) = 0;
 
 private:
+	typedef FixedPoint<16> FilterIndex;
 	static const unsigned BUF_LEN = 16384;
 
-	void calcOutput(int increment, int startFilterIndex,
+	void calcOutput(FilterIndex increment, FilterIndex startFilterIndex,
 	                double normFactor, float* output);
 	void prepareData(unsigned halfFilterLen, unsigned extra);
 

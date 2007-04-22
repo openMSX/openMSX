@@ -14,6 +14,7 @@
 
 
 #include "Resample.hh"
+#include "FixedPoint.hh"
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
@@ -28,14 +29,6 @@ static const float coeffs[] = {
 static const int INDEX_INC = 128;
 static const int COEFF_LEN = sizeof(coeffs) / sizeof(float);
 static const int COEFF_HALF_LEN = COEFF_LEN - 1;
-
-#define SHIFT_BITS          16
-#define FP_ONE              ((double)(1 << SHIFT_BITS))
-#define DOUBLE_TO_FP(x)     (lrint((x) * FP_ONE))
-#define INT_TO_FP(x)        ((x) << SHIFT_BITS)
-#define FP_FRACTION_PART(x) ((x) & ((1 << SHIFT_BITS) - 1))
-#define FP_TO_INT(x)        (((x) >> SHIFT_BITS))
-#define FP_TO_DOUBLE(x)     (FP_FRACTION_PART(x) / FP_ONE)
 
 template <unsigned CHANNELS>
 Resample<CHANNELS>::Resample()
@@ -63,14 +56,15 @@ void Resample<CHANNELS>::setResampleRatio(double inFreq, double outFreq)
 
 template <unsigned CHANNELS>
 void Resample<CHANNELS>::calcOutput(
-	int increment, int startFilterIndex, double normFactor, float* output)
+	FilterIndex increment, FilterIndex startFilterIndex, double normFactor,
+	float* output)
 {
-	int maxFilterIndex = INT_TO_FP(COEFF_HALF_LEN);
+	FilterIndex maxFilterIndex(COEFF_HALF_LEN);
 
 	// apply the left half of the filter
-	int filterIndex = startFilterIndex;
-	int coeffCount = (maxFilterIndex - filterIndex) / increment;
-	filterIndex = filterIndex + coeffCount * increment;
+	FilterIndex filterIndex(startFilterIndex);
+	int coeffCount = (maxFilterIndex - filterIndex).divAsInt(increment);
+	filterIndex += increment * coeffCount;
 	int bufIndex = (bufCurrent - coeffCount) * CHANNELS;
 
 	double left[CHANNELS];
@@ -78,8 +72,8 @@ void Resample<CHANNELS>::calcOutput(
 		left[i] = 0.0;
 	}
 	do {
-		double fraction = FP_TO_DOUBLE(filterIndex);
-		int indx = FP_TO_INT(filterIndex);
+		double fraction = filterIndex.fractionAsDouble();
+		int indx = filterIndex.toInt();
 		double icoeff = coeffs[indx] +
 		                fraction * (coeffs[indx + 1] - coeffs[indx]);
 		for (unsigned i = 0; i < CHANNELS; ++i) {
@@ -87,12 +81,12 @@ void Resample<CHANNELS>::calcOutput(
 		}
 		filterIndex -= increment;
 		bufIndex += CHANNELS;
-	} while (filterIndex >= INT_TO_FP(0));
+	} while (filterIndex >= FilterIndex(0));
 
 	// apply the right half of the filter
 	filterIndex = increment - startFilterIndex;
-	coeffCount = (maxFilterIndex - filterIndex) / increment;
-	filterIndex = filterIndex + coeffCount * increment;
+	coeffCount = (maxFilterIndex - filterIndex).divAsInt(increment);
+	filterIndex += increment * coeffCount;
 	bufIndex = (bufCurrent + (1 + coeffCount)) * CHANNELS;
 
 	double right[CHANNELS];
@@ -100,16 +94,16 @@ void Resample<CHANNELS>::calcOutput(
 		right[i] = 0.0;
 	}
 	do {
-		double fraction = FP_TO_DOUBLE(filterIndex);
-		int indx = FP_TO_INT(filterIndex);
-		double icoeff = coeffs[indx] + 
+		double fraction = filterIndex.fractionAsDouble();
+		int indx = filterIndex.toInt();
+		double icoeff = coeffs[indx] +
 		                fraction * (coeffs[indx + 1] - coeffs[indx]);
 		for (unsigned i = 0; i < CHANNELS; ++i) {
 			right[i] += icoeff * buffer[bufIndex + i];
 		}
 		filterIndex -= increment;
 		bufIndex -= CHANNELS;
-	} while (filterIndex > INT_TO_FP(0));
+	} while (filterIndex > FilterIndex(0));
 
 	for (unsigned i = 0; i < CHANNELS; ++i) {
 		output[i] = (left[i] + right[i]) * normFactor;
@@ -163,7 +157,7 @@ void Resample<CHANNELS>::generateOutput(float* dataOut, unsigned num)
 	                 ? INDEX_INC / ratio
 	                 : INDEX_INC;
 	double normFactor = floatIncr / INDEX_INC;
-	int increment = DOUBLE_TO_FP(floatIncr);
+	FilterIndex increment(floatIncr);
 
 	double rem = fmod(inputIndex, 1.0);
 	bufCurrent = (bufCurrent + lrint(inputIndex - rem)) % BUF_LEN;
@@ -180,7 +174,7 @@ void Resample<CHANNELS>::generateOutput(float* dataOut, unsigned num)
 			prepareData(halfFilterLen, extra);
 		}
 
-		int startFilterIndex = DOUBLE_TO_FP(inputIndex * floatIncr);
+		FilterIndex startFilterIndex(inputIndex * floatIncr);
 		calcOutput(increment, startFilterIndex, normFactor,
 		           &dataOut[i * CHANNELS]);
 
