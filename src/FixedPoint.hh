@@ -44,7 +44,7 @@ public:
 	int toInt() const { return value >> FRACTION_BITS; }
 	float toFloat() const { return static_cast<float>(value) / ONE; }
 	double toDouble() const { return static_cast<double>(value) / ONE; }
-	double fractionAsFloat() const {
+	float fractionAsFloat() const {
 		return static_cast<float>(value & FRACTION_MASK) / ONE;
 	}
 	double fractionAsDouble() const {
