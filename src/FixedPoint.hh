@@ -30,8 +30,8 @@ private:
 	/** Create new floating point object from given representation.
 	  * Used by the overloaded operators.
 	  */
-	static inline FixedPoint<FRACTION_BITS> create(const int value) {
-		FixedPoint<FRACTION_BITS> ret;
+	static inline FixedPoint create(const int value) {
+		FixedPoint ret;
 		ret.value = value;
 		return ret;
 	}
@@ -53,60 +53,56 @@ public:
 
 	// Arithmetic operators:
 
-	FixedPoint<FRACTION_BITS> operator+(
-			const FixedPoint<FRACTION_BITS> other) const {
+	FixedPoint operator+(const FixedPoint other) const {
 		return create(value + other.value);
 	}
-	FixedPoint<FRACTION_BITS> operator-(
-			const FixedPoint<FRACTION_BITS> other) const {
+	FixedPoint operator-(const FixedPoint other) const {
 		return create(value - other.value);
 	}
-	FixedPoint<FRACTION_BITS> operator*(
-			const FixedPoint<FRACTION_BITS> other) const {
+	FixedPoint operator*(const FixedPoint other) const {
 		return create(static_cast<int>(
 			(static_cast<long long int>(value) * other.value) >> FRACTION_BITS
 			));
 	}
-	FixedPoint<FRACTION_BITS> operator*(const int i) const {
+	FixedPoint operator*(const int i) const {
 		return create(value * i);
 	}
-	FixedPoint<FRACTION_BITS> operator/(
-			const FixedPoint<FRACTION_BITS> other) const {
+	FixedPoint operator/(const FixedPoint other) const {
 		return create(static_cast<int>(
 			(static_cast<long long int>(value) << FRACTION_BITS) / other.value
 			));
 	}
-	FixedPoint<FRACTION_BITS> operator/(const int i) const {
+	FixedPoint operator/(const int i) const {
 		return create(value / i);
 	}
 
 	// Comparison operators:
 
-	bool operator==(const FixedPoint<FRACTION_BITS> other) const {
+	bool operator==(const FixedPoint other) const {
 		return value == other.value;
 	}
-	bool operator!=(const FixedPoint<FRACTION_BITS> other) const {
+	bool operator!=(const FixedPoint other) const {
 		return value != other.value;
 	}
-	bool operator<(const FixedPoint<FRACTION_BITS> other) const {
+	bool operator<(const FixedPoint other) const {
 		return value < other.value;
 	}
-	bool operator<=(const FixedPoint<FRACTION_BITS> other) const {
+	bool operator<=(const FixedPoint other) const {
 		return value <= other.value;
 	}
-	bool operator>(const FixedPoint<FRACTION_BITS> other) const {
+	bool operator>(const FixedPoint other) const {
 		return value > other.value;
 	}
-	bool operator>=(const FixedPoint<FRACTION_BITS> other) const {
+	bool operator>=(const FixedPoint other) const {
 		return value >= other.value;
 	}
 
 	// Arithmetic operators that modify this object:
 
-	void operator+=(const FixedPoint<FRACTION_BITS> other) {
+	void operator+=(const FixedPoint other) {
 		value += other.value;
 	}
-	void operator-=(const FixedPoint<FRACTION_BITS> other) {
+	void operator-=(const FixedPoint other) {
 		value -= other.value;
 	}
 
