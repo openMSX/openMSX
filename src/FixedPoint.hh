@@ -45,18 +45,64 @@ private:
 	}
 
 public:
+	// Conversion to fixed point:
+
 	explicit FixedPoint(const int i) : value(i << FRACTION_BITS) {};
 	explicit FixedPoint(const float f) : value(lrintf(f * ONE)) {};
 	explicit FixedPoint(const double d) : value(lrint(d * ONE)) {};
 
-	int toInt() const { return value >> FRACTION_BITS; }
-	float toFloat() const { return value * INV_ONE_F; }
-	double toDouble() const { return value * INV_ONE_D; }
+	// Conversion from fixed point:
+
+	/**
+	 * Returns the integer part (rounded down) of this fixed point number.
+	 * Note that for negative numbers, rounding occurs away from zero.
+	 */
+	int toInt() const {
+		return value >> FRACTION_BITS;
+	}
+
+	/**
+	 * Returns the float value that corresponds to this fixed point number.
+	 */
+	float toFloat() const {
+		return value * INV_ONE_F;
+	}
+
+	/**
+	 * Returns the double value that corresponds to this fixed point number.
+	 */
+	double toDouble() const {
+		return value * INV_ONE_D;
+	}
+
+	/**
+	 * Returns the fractional part of this fixed point number as a float.
+	 * The fractional part is never negative, even for negative fixed point
+	 * numbers.
+	 * x.toInt() + x.fractionAsFloat() is approximately equal to x.toFloat()
+	 */
 	float fractionAsFloat() const {
 		return (value & FRACTION_MASK) * INV_ONE_F;
 	}
+
+	/**
+	 * Returns the fractional part of this fixed point number as a double.
+	 * The fractional part is never negative, even for negative fixed point
+	 * numbers.
+	 * x.toInt() + x.fractionAsDouble() is approximately equal to x.toDouble()
+	 */
 	double fractionAsDouble() const {
 		return (value & FRACTION_MASK) * INV_ONE_D;
+	}
+
+	// Various arithmetic:
+
+	/**
+	 * Returns the result of a division between this fixed point number and
+	 * another, rounded towards zero.
+	 */
+	int divAsInt(const FixedPoint other) const {
+		return value / other.value;
 	}
 
 	// Arithmetic operators:
