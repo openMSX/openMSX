@@ -1209,7 +1209,7 @@
 
   <h3><a id="record_channels">record_channels</a></h3>
 
-  <p>A special command to record individual channels of sound chips to separate files. In the following commands you can specify devices and channels. Multiple devices can be specified and multiple channels as well. If you want to specify channels of a device, put them right after the device.</p>
+  <p>A high level command to record individual channels of sound chips to separate files. In the following variants of the command you can specify devices and channels. Multiple devices can be specified and multiple channels as well. If you want to specify channels of a device, put them right after the device.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -3264,7 +3264,10 @@
 
   <p>Sets the filename to which the sound of an individual channel of
   individual sound chips should be recorded. When this setting is not set, no
-  recording takes place and recording starts as soon as the setting is set.</p>
+  recording takes place and recording starts as soon as the setting is set.
+  Normally, you would probably prefer to use the <code><a class="internal"
+  href="#record_channels">record_channels</a></code> command to set up channel
+  recording instead of this low level setting.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -3296,7 +3299,10 @@
 
   <h3><a id="soundchip_channel_mute">&lt;soundchip&gt;_ch&lt;channel&gt;_mute</a></h3>
 
-  <p>Use to mute a specific channel of an individual sound chip.</p>
+  <p>Use to mute a specific channel of an individual sound chip.
+  Normally, you would probably prefer to use the <code><a class="internal"
+  href="#mute_channels">mute_channels</a></code> command to set up channel
+  muting instead of this low level setting.</p>
 
   <div class="subsectiontitle">
     usage:
