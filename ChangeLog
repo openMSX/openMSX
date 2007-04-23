@@ -1,5 +1,13 @@
 $Id$
 
+2007-04-23 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Extended mute_channel related procs:
+	    - mute_channels without any arguments lists which channels are
+	      currently muted
+	    - unmute_channels without arguments now unmutes all channels
+	    - new command 'solo' mutes everything expect for the specified
+	      channels
+
 2007-04-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Recording/muting of individual sound device channels works:
 	   - it's still quick-and-dirty, but i wanted to have something

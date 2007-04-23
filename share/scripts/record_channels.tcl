@@ -31,6 +31,9 @@ Examples:
   mute_channels PSG               mute all PSG channels
   mute_channels SCC 2,4           mute SCC channels 2 and 4
   unmute_channels PSG 1 SCC 3-4   unmute PSG channel 1, SCC channels 3 and 4
+  mute_channels                   show which channels are currently muted
+  unmute_channels                 unmute all channels on all devices
+  solo PSG 2                      mute everything except PSG channel 2
 }
 set_help_text mute_channels   $mute_help_text
 set_help_text unmute_channels $mute_help_text
@@ -38,6 +41,7 @@ set_help_text unmute_channels $mute_help_text
 set_tabcompletion_proc record_channels tab_sounddevice_channels
 set_tabcompletion_proc mute_channels   tab_sounddevice_channels
 set_tabcompletion_proc unmute_channels tab_sounddevice_channels
+set_tabcompletion_proc solo            tab_sounddevice_channels
 proc tab_sounddevice_channels { args } {
 	set result [machine_info sounddevice]
 	if {([lindex $args 0] == "record_channels") && ([llength $args] == 2)} {
@@ -77,6 +81,14 @@ proc get_all_channels { device } {
 	return $channels
 }
 
+proc get_all_devices_all_channels { } {
+	set result [list]
+	foreach device [machine_info sounddevice] {
+		lappend result $device [get_all_channels $device]
+	}
+	return $result
+}
+
 proc get_recording_channels { } {
 	set result [list]
 	set sounddevices [machine_info sounddevice]
@@ -85,6 +97,24 @@ proc get_recording_channels { } {
 		foreach ch [get_all_channels $device] {
 			set var ::${device}_ch${ch}_record
 			if {[set $var] != ""} {
+				lappend active $ch
+			}
+		}
+		if [llength $active] {
+			lappend result "$device: $active"
+		}
+	}
+	return $result 
+}
+
+proc get_muted_channels { } {
+	set result [list]
+	set sounddevices [machine_info sounddevice]
+	foreach device $sounddevices {
+		set active [list]
+		foreach ch [get_all_channels $device] {
+			set var ::${device}_ch${ch}_mute
+			if [set $var] {
 				lappend active $ch
 			}
 		}
@@ -162,17 +192,45 @@ proc record_channels { args } {
 	}
 }
 
-proc mute_channels { args } {
-	foreach {device channels} [parse_device_channels $args] {
+proc do_mute_channels { device_channels state } {
+	foreach {device channels} $device_channels {
 		foreach ch $channels {
-			set ::${device}_ch${ch}_mute true
+			set ::${device}_ch${ch}_mute $state
 		}
 	}
 }
+
+proc mute_channels { args } {
+	# parse devices/channels
+	set device_channels [parse_device_channels $args]
+
+	# no argumnets specified, list muted channels
+	if ![llength $device_channels] {
+		return [join [get_muted_channels] "\n"]
+	} 
+
+	# actually mute channels
+	do_mute_channels $device_channels true
+}
+
 proc unmute_channels { args } {
-	foreach {device channels} [parse_device_channels $args] {
-		foreach ch $channels {
-			set ::${device}_ch${ch}_mute false
-		}
+	# parse devices/channels
+	set device_channels [parse_device_channels $args]
+
+	# no arguments specified, unmute all channels
+	if ![llength $device_channels] {
+		set device_channels [get_all_devices_all_channels]
 	}
+
+	#actually unmute channels
+	do_mute_channels $device_channels false
+}
+
+proc solo { args } {
+	# parse devices/channels
+	set device_channels [parse_device_channels $args]
+
+	# mute everything, unmute specified channels
+	do_mute_channels [get_all_devices_all_channels] true
+	do_mute_channels $device_channels false
 }
