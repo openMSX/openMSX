@@ -7,6 +7,10 @@ $Id$
 	    - unmute_channels without arguments now unmutes all channels
 	    - new command 'solo' mutes everything expect for the specified
 	      channels
+	* Small optimization in SDLGL-PP simple scaler:
+	   - pack several scalar uniform variables in one uniform vector
+	     variable. Removes one MOV instruction from the compiled fragment
+	     shader.
 
 2007-04-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Recording/muting of individual sound device channels works:

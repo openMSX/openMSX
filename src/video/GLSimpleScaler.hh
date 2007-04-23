@@ -27,10 +27,7 @@ private:
 	std::auto_ptr<ShaderProgram> scalerProgram;
 	int texSizeLoc;
 	int texStepXLoc;
-	int alphaLoc;
-	int scanALoc;
-	int scanBLoc;
-	int scanCLoc;
+	int cnstLoc;
 };
 
 } // namespace openmsx
