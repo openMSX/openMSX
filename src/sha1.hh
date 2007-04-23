@@ -12,7 +12,6 @@ class SHA1
 {
 public:
 	SHA1();
-	~SHA1();
 
 	/** Update the hash value.
 	  */

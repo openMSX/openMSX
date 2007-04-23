@@ -106,10 +106,6 @@ SHA1::SHA1()
 	m_count = 0;
 }
 
-SHA1::~SHA1()
-{
-}
-
 void SHA1::transform(const byte buffer[64])
 {
 	WorkspaceBlock block(buffer);
