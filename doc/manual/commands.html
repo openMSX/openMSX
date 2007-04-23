@@ -60,7 +60,7 @@
 
         <li><a class="internal" href="#machine_info">machine_info</a></li>
 
-	<li><a class="internal" href="#mute_channels">mute_channels / unmute_channels</a></li>
+	<li><a class="internal" href="#mute_channels">mute_channels / unmute_channels / solo</a></li>
 
         <li><a class="internal" href="#openmsx_info">openmsx_info</a></li>
 
@@ -1040,7 +1040,7 @@
     </tr>
   </table>
 
-  <h3><a id="mute_channels">mute_channels / unmute_channels</a></h3>
+  <h3><a id="mute_channels">mute_channels / unmute_channels / solo</a></h3>
 
   <p>Mute or unmute specific individual channels of sound devices. The syntax is very similar to the <code><a class="internal" href="#record_channels">record_channels</a></code> command.</p>
 
@@ -1052,13 +1052,18 @@
     <tr>
       <td><code>mute_channels &lt;device&gt; [&lt;channels&gt;]] [&lt;device&gt; [&lt;channels&gt;]]</code></td>
 
-      <td>Mute the specified channels of the specified device(s). If no channels are specified, all channels of the device are muted.</td>
+      <td>Mute the specified channels of the specified device(s). If a device is given but no specific channels are specified, all channels of that device are muted. If no arguments are given at all, this command return a list of all currently muted channels.</td>
     </tr>
 
     <tr>
       <td><code>unmute_channels &lt;device&gt; [&lt;channels&gt;]] [&lt;device&gt; [&lt;channels&gt;]]</code></td>
 
-      <td>Unmute the specified channels of the specified device(s). If no channels are specified, all channels of the device are unmuted.</td>
+      <td>Unmute the specified channels of the specified device(s). If a device is given but no specific channels are specified, all channels of that device are unmuted. If no arguments are given at all, this command unmutes all channels of all devices. </td>
+    </tr>
+    <tr>
+      <td><code>solo &lt;device&gt; [&lt;channels&gt;]] [&lt;device&gt; [&lt;channels&gt;]]</code></td>
+
+      <td>Mute all channels of all devices except for the specified channels.</td>
     </tr>
   </table>
 
@@ -1067,9 +1072,12 @@
   </div>
 
   <div class="examples">
+    <code>mute_channels</code><br />
     <code>mute_channels PSG</code><br />
     <code>mute_channels SCC 2,4</code><br />
-    <code>unmute_channels PSG 1 SCC 3-4</code>
+    <code>unmute_channels</code><br />
+    <code>unmute_channels PSG 1 SCC 1,3-4</code><br />
+    <code>solo PSG 3</code>
   </div>
 
   <h3><a id="openmsx_info">openmsx_info</a></h3>
