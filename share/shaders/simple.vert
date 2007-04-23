@@ -9,7 +9,7 @@ varying vec3 misc;
 
 void main()
 {
-	const float alpha  = cnst.w;
+	float alpha  = cnst.w;
 
 	gl_Position = ftransform();
 	misc = vec3((vec2(0.5) + vec2(1.0, 0.0) * alpha) * texStepX.x, gl_MultiTexCoord0.t);

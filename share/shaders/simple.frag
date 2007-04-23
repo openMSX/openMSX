@@ -9,10 +9,10 @@ varying vec3 misc;
 
 void main()
 {
-	const float scan_a = cnst.x;
-	const float scan_b = cnst.y;
-	const float scan_c = cnst.z;
-	const float alpha  = cnst.w;
+	float scan_a = cnst.x;
+	float scan_b = cnst.y;
+	float scan_c = cnst.z;
+	float alpha  = cnst.w;
 
 	vec3 t = (vec3(floor(scaled.x)) + alpha * vec3(fract(scaled.x))) * texStepX + misc;
 	vec4 col1 = texture2D(tex, t.xz);
