@@ -37,6 +37,7 @@ Examples:
 }
 set_help_text mute_channels   $mute_help_text
 set_help_text unmute_channels $mute_help_text
+set_help_text solo             $mute_help_text
 
 set_tabcompletion_proc record_channels tab_sounddevice_channels
 set_tabcompletion_proc mute_channels   tab_sounddevice_channels
