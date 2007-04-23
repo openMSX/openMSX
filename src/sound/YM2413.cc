@@ -838,6 +838,7 @@ void YM2413::Slot::calc_envelope(int lfo_am)
 		S2E(24.0), S2E(27.0), S2E(30.0), S2E(33.0),
 		S2E(36.0), S2E(39.0), S2E(42.0), S2E(48.0)
 	};
+	#undef S2E
 
 	unsigned out;
 	switch (eg_mode) {
@@ -997,7 +998,7 @@ inline int YM2413::adjust(int x)
 inline void YM2413::calcSample(int** bufs, unsigned sample)
 {
 	// during mute AM/PM/noise aren't updated, probably ok
- 
+
 	// update AM, PM unit
 	pm_phase = (pm_phase + PM_DPHASE) & (PM_DP_WIDTH - 1);
 	am_phase = (am_phase + AM_DPHASE) & (AM_DP_WIDTH - 1);
