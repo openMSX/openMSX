@@ -20,9 +20,22 @@ class Slot
 public:
 	Slot();
 
-	inline int volume_calc(byte LFO_AM);
+	inline int op_calc(byte LFO_AM, unsigned phase, int pm);
+	inline void updateModulator(byte LFO_AM);
 	inline void KEY_ON (byte key_set);
 	inline void KEY_OFF(byte key_clr);
+
+	/**
+	 * Output of SLOT 1 can be used to phase modulate SLOT 2.
+	 */
+	inline int getPhaseModulation() {
+		return op1_out[0] << 17;
+	}
+
+	/**
+	 * Sets the amount of feedback [0..7].
+	 */
+	void setFeedbackShift(byte value);
 
 	byte ar;	// attack rate: AR<<2
 	byte dr;	// decay rate:  DR<<2
@@ -35,8 +48,6 @@ public:
 	// Phase Generator
 	int phase;	// frequency counter
 	int freq;	// frequency counter step
-	byte fb_shift;	// feedback shift value
-	int op1_out[2];	// slot1 output for feedback
 
 	// Envelope Generator
 	byte eg_type;	// percussive/nonpercussive mode
@@ -57,13 +68,19 @@ public:
 	byte eg_sh_rs;	// (release state for perc.mode)
 	byte eg_sel_rs;	// (release state for perc.mode)
 
-	byte key;	// 0 = KEY OFF, >0 = KEY ON
-
 	// LFO
 	byte AMmask;	// LFO Amplitude Modulation enable mask
 	byte vib;	// LFO Phase Modulation enable flag (active high)
 
 	int wavetable;	// waveform select
+
+private:
+	static const int ENV_QUIET;
+
+	byte fb_shift;	// feedback shift value
+	int op1_out[2];	// slot1 output for feedback
+
+	byte key;	// 0 = KEY OFF, >0 = KEY ON
 };
 
 class Channel
@@ -100,6 +117,9 @@ private:
 
 	inline void advance_lfo();
 	inline void advance();
+	inline unsigned genPhaseHighHat();
+	inline unsigned genPhaseSnare();
+	inline unsigned genPhaseCymbal();
 	inline void rhythm_calc(int** bufs, unsigned sample);
 	inline int adjust(int x);
 

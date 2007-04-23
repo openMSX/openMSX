@@ -243,6 +243,7 @@ static const byte mul_tab[16] =
 	ML(0.50), ML(1.00),ML( 2.00),ML( 3.00),ML( 4.00),ML( 5.00),ML( 6.00),ML( 7.00),
 	ML(8.00), ML(9.00),ML(10.00),ML(10.00),ML(12.00),ML(12.00),ML(15.00),ML(15.00)
 };
+#undef ML
 
 //  TL_TAB_LEN is calculated as:
 //  11 - sinus amplitude bits     (Y axis)
@@ -250,7 +251,7 @@ static const byte mul_tab[16] =
 //  TL_RES_LEN - sinus resolution (X axis)
 const int TL_TAB_LEN = 11 * 2 * TL_RES_LEN;
 static int tl_tab[TL_TAB_LEN];
-const int ENV_QUIET = TL_TAB_LEN >> 5;
+const int Slot::ENV_QUIET = TL_TAB_LEN >> 5;
 
 // sin waveform table in 'decibel' scale
 // two waveforms on OPLL type chips
@@ -599,56 +600,47 @@ inline void YM2413_2::advance()
 }
 
 
-inline int op_calc(unsigned phase, int env, int pm, int wave_tab)
+inline int Slot::op_calc(byte LFO_AM, unsigned phase, int pm)
 {
-	int i = (phase & ~FREQ_MASK) + (pm << 17);
-	int p = (env << 5) + sin_tab[wave_tab + ((i >> FREQ_SH) & SIN_MASK)];
-	if (p >= TL_TAB_LEN) {
+	int env = TLL + volume + (LFO_AM & AMmask);
+	if (env < ENV_QUIET) {
 		return 0;
+	} else {
+		int i = (phase & ~FREQ_MASK) + pm;
+		int p = (env << 5) + sin_tab[wavetable + ((i >> FREQ_SH) & SIN_MASK)];
+		return p < TL_TAB_LEN ? tl_tab[p] : 0;
 	}
-	return tl_tab[p];
 }
 
-inline int op_calc1(unsigned phase, int env, int pm, int wave_tab)
+inline void Slot::updateModulator(byte LFO_AM)
 {
-	int i = (phase & ~FREQ_MASK) + pm;
-	int p = (env << 5) + sin_tab[wave_tab + ((i >> FREQ_SH) & SIN_MASK)];
-	if (p >= TL_TAB_LEN) {
-		return 0;
-	}
-	return tl_tab[p];
+	// Compute phase modulation for slot 1.
+	int pm = fb_shift ? (op1_out[0] + op1_out[1]) << fb_shift : 0;
+	// Shift output in 2-place buffer.
+	op1_out[0] = op1_out[1];
+	// Calculate operator output.
+	op1_out[1] = op_calc(LFO_AM, phase, pm);
 }
 
-inline int Slot::volume_calc(byte LFO_AM)
-{
-	return TLL + volume + (LFO_AM & AMmask);
+void Slot::setFeedbackShift(byte value) {
+	fb_shift = value ? value + 8 : 0;
 }
 
 // calculate output
 inline int Channel::chan_calc(byte LFO_AM)
 {
 	// SLOT 1
-	int env = slots[SLOT1].volume_calc(LFO_AM);
-	int out = slots[SLOT1].op1_out[0] + slots[SLOT1].op1_out[1];
-
-	slots[SLOT1].op1_out[0] = slots[SLOT1].op1_out[1];
-	int phase_modulation = slots[SLOT1].op1_out[0];	// phase modulation input (SLOT 2)
-	slots[SLOT1].op1_out[1] = 0;
-
-	if (env < ENV_QUIET) {
-		if (!slots[SLOT1].fb_shift) {
-			out = 0;
-		}
-		slots[SLOT1].op1_out[1] = op_calc1(slots[SLOT1].phase, env, (out << slots[SLOT1].fb_shift), slots[SLOT1].wavetable);
-	}
+	slots[SLOT1].updateModulator(LFO_AM);
 
 	// SLOT 2
-	env = slots[SLOT2].volume_calc(LFO_AM);
-	if (env < ENV_QUIET) {
-		return op_calc(slots[SLOT2].phase, env, phase_modulation, slots[SLOT2].wavetable);
-	} else {
-		return 0;
-	}
+	return slots[SLOT2].op_calc(
+		LFO_AM, slots[SLOT2].phase, slots[SLOT1].getPhaseModulation()
+		);
+}
+
+inline int YM2413_2::adjust(int x)
+{
+	return (maxVolume * x) >> 11;
 }
 
 
@@ -682,18 +674,115 @@ inline int Channel::chan_calc(byte LFO_AM)
 //    7     13,16     B7        A7            +     +           +
 //    8     14,17     B8        A8            +           +     +
 
+// Phase generation is based on:
+//   HH  (13) channel 7->slot 1 combined with channel 8->slot 2
+//            (same combination as TOP CYMBAL but different output phases)
+//   SD  (16) channel 7->slot 1
+//   TOM (14) channel 8->slot 1
+//   TOP (17) channel 7->slot 1 combined with channel 8->slot 2
+//            (same combination as HIGH HAT but different output phases)
+//
+// The following formulas can be well optimized.
+//   I leave them in direct form for now (in case I've missed something).
+
+inline unsigned YM2413_2::genPhaseHighHat()
+{
+	const bool noise = noise_rng & 1;
+	Slot& SLOT7_1 = channels[7].slots[SLOT1];
+	Slot& SLOT8_2 = channels[8].slots[SLOT2];
+
+	// high hat phase generation:
+	// phase = D0 or 234 (based on frequency only)
+	// phase = 34 or 2D0 (based on noise)
+
+	// base frequency derived from operator 1 in channel 7
+	bool bit7 = (SLOT7_1.phase >> FREQ_SH) & 0x80;
+	bool bit3 = (SLOT7_1.phase >> FREQ_SH) & 0x08;
+	bool bit2 = (SLOT7_1.phase >> FREQ_SH) & 0x04;
+	bool res1 = (bit2 ^ bit7) | bit3;
+	// when res1 = 0 phase = 0x000 |  0xD0;
+	// when res1 = 1 phase = 0x200 | (0xD0 >> 2);
+	unsigned phase = res1 ? (0x200 | (0xD0 >> 2)) : 0xD0;
+
+	// enable gate based on frequency of operator 2 in channel 8
+	bool bit5e= (SLOT8_2.phase >> FREQ_SH) & 0x20;
+	bool bit3e= (SLOT8_2.phase >> FREQ_SH) & 0x08;
+	bool res2 = (bit3e | bit5e);
+	// when res2 = 0 pass the phase from calculation above (res1);
+	// when res2 = 1 phase = 0x200 | (0xd0>>2);
+	if (res2) {
+		phase = (0x200 | (0xD0 >> 2));
+	}
+
+	// when phase & 0x200 is set and noise=1 then phase = 0x200 |  0xD0
+	// when phase & 0x200 is set and noise=0 then phase = 0x200 | (0xD0 >> 2),
+	//   ie no change
+	if (phase & 0x200) {
+		if (noise) {
+			phase = 0x200 | 0xD0;
+		}
+	} else {
+		// when phase & 0x200 is clear and noise=1 then phase = 0xD0 >> 2
+		// when phase & 0x200 is clear and noise=0 then phase = 0xD0,
+		//   ie no change
+		if (noise) {
+			phase = 0xD0 >> 2;
+		}
+	}
+	return phase << FREQ_SH;
+}
+
+inline unsigned YM2413_2::genPhaseSnare()
+{
+	const bool noise = noise_rng & 1;
+	Slot& SLOT7_1 = channels[7].slots[SLOT1];
+
+	// base frequency derived from operator 1 in channel 7
+	bool bit8 = (SLOT7_1.phase >> FREQ_SH) & 0x100;
+
+	// when bit8 = 0 phase = 0x100;
+	// when bit8 = 1 phase = 0x200;
+	unsigned phase = bit8 ? 0x200 : 0x100;
+
+	// Noise bit XOR'es phase by 0x100
+	// when noisebit = 0 pass the phase from calculation above
+	// when noisebit = 1 phase ^= 0x100;
+	// in other words: phase ^= (noisebit<<8);
+	if (noise) {
+		phase ^= 0x100;
+	}
+	return phase << FREQ_SH;
+}
+
+inline unsigned YM2413_2::genPhaseCymbal()
+{
+	Slot& SLOT7_1 = channels[7].slots[SLOT1];
+	Slot& SLOT8_2 = channels[8].slots[SLOT2];
+
+	// base frequency derived from operator 1 in channel 7
+	bool bit7 = (SLOT7_1.phase >> FREQ_SH) & 0x80;
+	bool bit3 = (SLOT7_1.phase >> FREQ_SH) & 0x08;
+	bool bit2 = (SLOT7_1.phase >> FREQ_SH) & 0x04;
+	bool res1 = (bit2 ^ bit7) | bit3;
+	// when res1 = 0 phase = 0x000 | 0x100;
+	// when res1 = 1 phase = 0x200 | 0x100;
+	unsigned phase = res1 ? 0x300 : 0x100;
+
+	// enable gate based on frequency of operator 2 in channel 8
+	bool bit5e= (SLOT8_2.phase >> FREQ_SH) & 0x20;
+	bool bit3e= (SLOT8_2.phase >> FREQ_SH) & 0x08;
+	bool res2 = bit3e | bit5e;
+	// when res2 = 0 pass the phase from calculation above (res1);
+	// when res2 = 1 phase = 0x200 | 0x100;
+	if (res2) {
+		phase = 0x300;
+	}
+	return phase << FREQ_SH;
+}
+
 // calculate rhythm
 inline void YM2413_2::rhythm_calc(int** bufs, unsigned sample)
 {
-	bool noise = noise_rng & 1;
-
-	Slot& SLOT6_1 = channels[6].slots[SLOT1];
-	Slot& SLOT6_2 = channels[6].slots[SLOT2];
-	Slot& SLOT7_1 = channels[7].slots[SLOT1];
-	Slot& SLOT7_2 = channels[7].slots[SLOT2];
-	Slot& SLOT8_1 = channels[8].slots[SLOT1];
-	Slot& SLOT8_2 = channels[8].slots[SLOT2];
-
 	// Bass Drum (verified on real YM3812):
 	//  - depends on the channel 6 'connect' register:
 	//    when connect = 0 it works the same as in normal (non-rhythm) mode
@@ -701,144 +790,42 @@ inline void YM2413_2::rhythm_calc(int** bufs, unsigned sample)
 	//    when connect = 1 _only_ operator 2 is present on output (op2->out),
 	//                     operator 1 is ignored
 	//  - output sample always is multiplied by 2
+	Slot& SLOT6_1 = channels[6].slots[SLOT1];
+	Slot& SLOT6_2 = channels[6].slots[SLOT2];
 
 	// SLOT 1
-	int env = SLOT6_1.volume_calc(LFO_AM);
-
-	int out = SLOT6_1.op1_out[0] + SLOT6_1.op1_out[1];
-	SLOT6_1.op1_out[0] = SLOT6_1.op1_out[1];
-
-	int phase_modulation = SLOT6_1.op1_out[0];	// phase modulation input (SLOT 2)
-
-	SLOT6_1.op1_out[1] = 0;
-	if (env < ENV_QUIET) {
-		if (!SLOT6_1.fb_shift) {
-			out = 0;
-		}
-		SLOT6_1.op1_out[1] = op_calc1(SLOT6_1.phase, env,
-		                              out << SLOT6_1.fb_shift,
-		                              SLOT6_1.wavetable);
-	}
+	SLOT6_1.updateModulator(LFO_AM);
 
 	// SLOT 2
-	env = SLOT6_2.volume_calc(LFO_AM);
-	bufs[6][sample] = (env < ENV_QUIET)
-		? adjust(2 * op_calc(SLOT6_2.phase, env, phase_modulation, SLOT6_2.wavetable))
-		: 0;
+	bufs[6][sample] = adjust(2 * SLOT6_2.op_calc(
+		LFO_AM, SLOT6_2.phase, SLOT6_1.getPhaseModulation()
+		));
 
-	// Phase generation is based on:
-	//   HH  (13) channel 7->slot 1 combined with channel 8->slot 2
-	//            (same combination as TOP CYMBAL but different output phases)
-	//   SD  (16) channel 7->slot 1
-	//   TOM (14) channel 8->slot 1
-	//   TOP (17) channel 7->slot 1 combined with channel 8->slot 2
-	//            (same combination as HIGH HAT but different output phases)
 	// Envelope generation based on:
 	//   HH  channel 7->slot1
 	//   SD  channel 7->slot2
 	//   TOM channel 8->slot1
 	//   TOP channel 8->slot2
 
-	// The following formulas can be well optimized.
-	//   I leave them in direct form for now (in case I've missed something).
+	// TODO: Skip phase generation if output will 0 anyway.
+	//       Possible by passing phase generator as a template parameter to
+	//       op_calc.
 
 	// High Hat (verified on real YM3812)
-	env = SLOT7_1.volume_calc(LFO_AM);
-	int out7 = 0;
-	if (env < ENV_QUIET) {
-		// high hat phase generation:
-		// phase = D0 or 234 (based on frequency only)
-		// phase = 34 or 2D0 (based on noise)
-
-		// base frequency derived from operator 1 in channel 7
-		bool bit7 = (SLOT7_1.phase >> FREQ_SH) & 0x80;
-		bool bit3 = (SLOT7_1.phase >> FREQ_SH) & 0x08;
-		bool bit2 = (SLOT7_1.phase >> FREQ_SH) & 0x04;
-		bool res1 = (bit2 ^ bit7) | bit3;
-		// when res1 = 0 phase = 0x000 |  0xD0;
-		// when res1 = 1 phase = 0x200 | (0xD0 >> 2);
-		unsigned phase = res1 ? (0x200 | (0xD0 >> 2)) : 0xD0;
-
-		// enable gate based on frequency of operator 2 in channel 8
-		bool bit5e= (SLOT8_2.phase >> FREQ_SH) & 0x20;
-		bool bit3e= (SLOT8_2.phase >> FREQ_SH) & 0x08;
-		bool res2 = (bit3e | bit5e);
-		// when res2 = 0 pass the phase from calculation above (res1);
-		// when res2 = 1 phase = 0x200 | (0xd0>>2);
-		if (res2) {
-			phase = (0x200 | (0xD0 >> 2));
-		}
-
-		// when phase & 0x200 is set and noise=1 then phase = 0x200 |  0xD0
-		// when phase & 0x200 is set and noise=0 then phase = 0x200 | (0xD0 >> 2), ie no change
-		if (phase & 0x200) {
-			if (noise) {
-				phase = 0x200 | 0xD0;
-			}
-		} else {
-			// when phase & 0x200 is clear and noise=1 then phase = 0xD0 >> 2
-			// when phase & 0x200 is clear and noise=0 then phase = 0xD0, ie no change
-			if (noise) {
-				phase = 0xD0 >> 2;
-			}
-		}
-		out7 = adjust(2 * op_calc(phase << FREQ_SH, env, 0, SLOT7_1.wavetable));
-	}
-	bufs[7][sample] = out7;
+	Slot& SLOT7_1 = channels[7].slots[SLOT1];
+	bufs[7][sample] = adjust(2 * SLOT7_1.op_calc(LFO_AM, genPhaseHighHat(), 0));
 
 	// Snare Drum (verified on real YM3812)
-	env = SLOT7_2.volume_calc(LFO_AM);
-	int out8 = 0;
-	if (env < ENV_QUIET) {
-		// base frequency derived from operator 1 in channel 7
-		bool bit8 = (SLOT7_1.phase >> FREQ_SH) & 0x100;
-
-		// when bit8 = 0 phase = 0x100;
-		// when bit8 = 1 phase = 0x200;
-		unsigned phase = bit8 ? 0x200 : 0x100;
-
-		// Noise bit XOR'es phase by 0x100
-		// when noisebit = 0 pass the phase from calculation above
-		// when noisebit = 1 phase ^= 0x100;
-		// in other words: phase ^= (noisebit<<8);
-		if (noise) {
-			phase ^= 0x100;
-		}
-		out8 = adjust(2 * op_calc(phase << FREQ_SH, env, 0, SLOT7_2.wavetable));
-	}
-	bufs[8][sample] = out8;
+	Slot& SLOT7_2 = channels[7].slots[SLOT2];
+	bufs[8][sample] = adjust(2 * SLOT7_2.op_calc(LFO_AM, genPhaseSnare(), 0));
 
 	// Tom Tom (verified on real YM3812)
-	env = SLOT8_1.volume_calc(LFO_AM);
-	bufs[9][sample] = (env < ENV_QUIET)
-		? adjust(2 * op_calc(SLOT8_1.phase, env, 0, SLOT8_1.wavetable))
-		: 0;
+	Slot& SLOT8_1 = channels[8].slots[SLOT1];
+	bufs[9][sample] = adjust(2 * SLOT8_1.op_calc(LFO_AM, SLOT8_1.phase, 0));
 
 	// Top Cymbal (verified on real YM2413)
-	env = SLOT8_2.volume_calc(LFO_AM);
-	int out10 = 0;
-	if (env < ENV_QUIET) {
-		// base frequency derived from operator 1 in channel 7
-		bool bit7 = (SLOT7_1.phase >> FREQ_SH) & 0x80;
-		bool bit3 = (SLOT7_1.phase >> FREQ_SH) & 0x08;
-		bool bit2 = (SLOT7_1.phase >> FREQ_SH) & 0x04;
-		bool res1 = (bit2 ^ bit7) | bit3;
-		// when res1 = 0 phase = 0x000 | 0x100;
-		// when res1 = 1 phase = 0x200 | 0x100;
-		unsigned phase = res1 ? 0x300 : 0x100;
-
-		// enable gate based on frequency of operator 2 in channel 8
-		bool bit5e= (SLOT8_2.phase >> FREQ_SH) & 0x20;
-		bool bit3e= (SLOT8_2.phase >> FREQ_SH) & 0x08;
-		bool res2 = bit3e | bit5e;
-		// when res2 = 0 pass the phase from calculation above (res1);
-		// when res2 = 1 phase = 0x200 | 0x100;
-		if (res2) {
-			phase = 0x300;
-		}
-		out10 = adjust(2 * op_calc(phase << FREQ_SH, env, 0, SLOT8_2.wavetable));
-	}
-	bufs[10][sample] = out10;
+	Slot& SLOT8_2 = channels[8].slots[SLOT2];
+	bufs[10][sample] = adjust(2 * SLOT8_2.op_calc(LFO_AM, genPhaseCymbal(), 0));
 }
 
 
@@ -904,7 +891,7 @@ void YM2413_2::init_tables()
 			sin_tab[SIN_LEN + i] = sin_tab[i];
 		}
 	}
-	
+
 	// make fnumber -> increment counter table
 	for (int i = 0 ; i < 1024; i++) {
 		// OPLL (YM2413) phase increment counter = 18bit
@@ -1010,7 +997,7 @@ inline void YM2413_2::set_ksl_wave_fb(byte chan, byte v)
 	Channel& ch = channels[chan];
 	Slot& slot1 = ch.slots[SLOT1]; // modulator
 	slot1.wavetable = ((v & 0x08) >> 3) * SIN_LEN;
-	slot1.fb_shift  = (v & 7) ? ((v & 7) + 8) : 0;
+	slot1.setFeedbackShift(v & 7);
 
 	Slot& slot2 = ch.slots[SLOT2];	//carrier
 	int ksl = v >> 6; // 0 / 1.5 / 3.0 / 6.0 dB/OCT
@@ -1405,11 +1392,6 @@ bool YM2413_2::checkMuteHelper()
 		if (channels[8].slots[SLOT2].state != EG_OFF) return false;
 	}
 	return true;	// nothing playing, mute
-}
-
-inline int YM2413_2::adjust(int x)
-{
-	return (maxVolume * x) >> 11;
 }
 
 void YM2413_2::generateChannels(int** bufs, unsigned num)
