@@ -105,6 +105,14 @@ public:
 		return value / other.value;
 	}
 
+	/**
+	 * Returns this value rounded down.
+	 * The result is equal to FixedPoint(fp.toInt()).
+	 */
+	FixedPoint round() const {
+		return create(value & ~FRACTION_MASK);
+	}
+
 	// Arithmetic operators:
 
 	FixedPoint operator+(const FixedPoint other) const {
@@ -128,6 +136,12 @@ public:
 	}
 	FixedPoint operator/(const int i) const {
 		return create(value / i);
+	}
+	FixedPoint operator<<(const int b) const {
+		return create(value << b);
+	}
+	FixedPoint operator>>(const int b) const {
+		return create(value >> b);
 	}
 
 	// Comparison operators:
