@@ -125,9 +125,9 @@ static string calcDescription(SCC::ChipMode mode)
 SCC::SCC(MSXMotherBoard& motherBoard, const string& name,
          const XMLElement& config, const EmuTime& time, ChipMode mode)
 	: SoundDevice(motherBoard.getMSXMixer(), name, calcDescription(mode), 5)
-	, currentChipMode(mode)
-	, deformTimer(time)
 	, debuggable(new SCCDebuggable(motherBoard, *this))
+	, deformTimer(time)
+	, currentChipMode(mode)
 {
 	// Clear wave forms.
 	for (unsigned i = 0; i < 5; ++i) {

@@ -437,7 +437,45 @@ private:
 
 	// --- members ----------------------------------------------------
 
+	friend class V9990RegDebug;
+	friend class V9990PalDebug;
+	const std::auto_ptr<V9990RegDebug> v9990RegDebug;
+	const std::auto_ptr<V9990PalDebug> v9990PalDebug;
+
 	IRQHelper irq;
+
+	/** VRAM
+	  */
+	std::auto_ptr<V9990VRAM> vram;
+
+	/** Command Engine
+	  */
+	std::auto_ptr<V9990CmdEngine> cmdEngine;
+
+	/** Renderer
+	  */
+	std::auto_ptr<V9990Renderer> renderer;
+
+	/** Emulation time when this frame was started (VSYNC)
+	  */
+	Clock<V9990DisplayTiming::UC_TICKS_PER_SECOND> frameStartTime;
+
+	/** Time of the last set HSCAN sync point
+	  */
+	EmuTime hScanSyncTime;
+
+	/** Display timings
+	  */
+	const V9990DisplayPeriod* horTiming;
+	const V9990DisplayPeriod* verTiming;
+
+	/** Store display mode because it's queried a lot
+	  */
+	V9990DisplayMode mode;
+
+	/** Palette
+	  */
+	byte palette[0x100];
 
 	/** Status port (P#5)
 	  */
@@ -452,22 +490,6 @@ private:
 	byte regs[0x40];
 	byte regSelect;
 
-	/** VRAM
-	  */
-	std::auto_ptr<V9990VRAM> vram;
-
-	/** Command Engine
-	  */
-	std::auto_ptr<V9990CmdEngine> cmdEngine;
-
-	/** Renderer
-	  */
-	std::auto_ptr<V9990Renderer> renderer;
-
-	/** Palette
-	  */
-	byte palette[0x100];
-
 	/** Is PAL timing active?  False means NTSC timing
 	  */
 	bool palTiming;
@@ -476,23 +498,6 @@ private:
 	  * @see isInterlaced.
 	  */
 	bool interlaced;
-
-	/** Emulation time when this frame was started (VSYNC)
-	  */
-	Clock<V9990DisplayTiming::UC_TICKS_PER_SECOND> frameStartTime;
-
-	/** Store display mode because it's queried a lot
-	  */
-	V9990DisplayMode mode;
-
-	/** Time of the last set HSCAN sync point
-	  */
-	EmuTime hScanSyncTime;
-
-	/** Display timings
-	  */
-	const V9990DisplayPeriod* horTiming;
-	const V9990DisplayPeriod* verTiming;
 
 	/** Is the current scan position inside the display area?
 	  */
@@ -573,11 +578,6 @@ private:
 	  * @result Timestamp for next hor irq
 	  */
 	void scheduleHscan(const EmuTime& time);
-
-	friend class V9990RegDebug;
-	friend class V9990PalDebug;
-	const std::auto_ptr<V9990RegDebug> v9990RegDebug;
-	const std::auto_ptr<V9990PalDebug> v9990PalDebug;
 };
 
 } // namespace openmsx

@@ -561,7 +561,7 @@ inline void V9990CmdEngine::V9990Bpp16::psetColor(
   */
 V9990CmdEngine::V9990CmdEngine(V9990& vdp_, const EmuTime& time,
                                RenderSettings& settings_)
-	: vdp(vdp_), settings(settings_)
+	: settings(settings_), vdp(vdp_)
 {
 	MSXMotherBoard::SharedStuff& info =
 		vdp.getMotherBoard().getSharedStuff("v9990cmdtrace");

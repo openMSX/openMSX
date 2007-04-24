@@ -12,16 +12,16 @@ MSXMidi::MSXMidi(MSXMotherBoard& motherBoard, const XMLElement& config,
                  const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
 	, MidiInConnector(motherBoard.getPluggingController(), "msx-midi-in")
-	, timerIRQlatch(false), timerIRQenabled(false)
-	, timerIRQ(getMotherBoard().getCPU())
-	, rxrdyIRQlatch(false), rxrdyIRQenabled(false)
-	, rxrdyIRQ(getMotherBoard().getCPU())
 	, cntr0(*this), cntr2(*this)
 	, i8254(new I8254(motherBoard.getScheduler(), &cntr0, NULL, &cntr2, time))
 	, interf(*this)
 	, i8251(new I8251(motherBoard.getScheduler(), &interf, time))
 	, outConnector(new MidiOutConnector(motherBoard.getPluggingController(),
 	                                    "msx-midi-out"))
+	, timerIRQ(getMotherBoard().getCPU())
+	, rxrdyIRQ(getMotherBoard().getCPU())
+	, timerIRQlatch(false), timerIRQenabled(false)
+	, rxrdyIRQlatch(false), rxrdyIRQenabled(false)
 {
 	EmuDuration total(1.0 / 4e6); // 4MHz
 	EmuDuration hi   (1.0 / 8e6); // 8MHz half clock period

@@ -39,8 +39,8 @@ protected:
 	byte* mmem;
 
 private:
-	bool mmapWrite;
 	unsigned mmapSize;
+	bool mmapWrite;
 };
 
 } // namespace openmsx

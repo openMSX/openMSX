@@ -131,11 +131,6 @@ private:
 	typedef vector<MSXDevice*> Devices;
 	Devices availableDevices;
 
-	bool powered;
-	bool needReset;
-	bool needPowerDown;
-	int blockedCounter;
-
 	typedef map<string, MSXMotherBoard::SharedStuff> SharedStuffMap;
 	SharedStuffMap sharedStuffMap;
 
@@ -169,6 +164,11 @@ private:
 	auto_ptr<RemoveExtCmd> removeExtCommand;
 	auto_ptr<MachineNameInfo> machineNameInfo;
 	BooleanSetting& powerSetting;
+
+	int blockedCounter;
+	bool powered;
+	bool needReset;
+	bool needPowerDown;
 };
 
 
@@ -242,11 +242,11 @@ private:
 MSXMotherBoardImpl::MSXMotherBoardImpl(MSXMotherBoard& self_, Reactor& reactor_)
 	: self(self_)
 	, reactor(reactor_)
+	, powerSetting(getGlobalSettings().getPowerSetting())
+	, blockedCounter(0)
 	, powered(false)
 	, needReset(false)
 	, needPowerDown(false)
-	, blockedCounter(0)
-	, powerSetting(getGlobalSettings().getPowerSetting())
 {
 	self.pimple.reset(this);
 

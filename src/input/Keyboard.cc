@@ -69,8 +69,8 @@ private:
 	virtual const string& schedName() const;
 
 	Keyboard& keyboard;
-	char last;
 	string text;
+	char last;
 };
 
 

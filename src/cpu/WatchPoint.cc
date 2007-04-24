@@ -13,7 +13,7 @@ WatchPoint::WatchPoint(MSXCliComm& cliComm,
                        std::auto_ptr<TclObject> condition,
                        Type type_, unsigned beginAddr_, unsigned endAddr_)
 	: BreakPointBase(cliComm, command, condition)
-	, type(type_), beginAddr(beginAddr_), endAddr(endAddr_)
+	, beginAddr(beginAddr_), endAddr(endAddr_), type(type_)
 {
 	assert(beginAddr <= endAddr);
 	id = ++lastId;

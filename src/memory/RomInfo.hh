@@ -38,10 +38,10 @@ private:
 	const std::string year;
 	const std::string company;
 	const std::string country;
-	const bool original;
 	const std::string origType;
 	const std::string remark;
 	const RomType romType;
+	const bool original;
 };
 
 } // namespace openmsx

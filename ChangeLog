@@ -1,5 +1,10 @@
 $Id$
 
+2007-04-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Compiled with -Wpadded and fixed some of the warnings:
+	   - only fixed the cases that were solvable by rearranging the
+	     order of the fields locally in one class
+
 2007-04-23 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Extended mute_channel related procs:
 	    - mute_channels without any arguments lists which channels are

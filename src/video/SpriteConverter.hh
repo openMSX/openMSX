@@ -197,6 +197,10 @@ public:
 private:
 	SpriteChecker& spriteChecker;
 
+	/** The current sprite palette.
+	  */
+	Pixel* palette;
+
 	/** VDP transparency setting (R#8, bit5).
 	  */
 	bool transparency;
@@ -204,10 +208,6 @@ private:
 	/** The current display mode.
 	  */
 	DisplayMode mode;
-
-	/** The current sprite palette.
-	  */
-	Pixel* palette;
 };
 
 } // namespace openmsx

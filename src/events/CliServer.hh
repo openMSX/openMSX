@@ -29,15 +29,16 @@ private:
 	void createSocket();
 	bool exitAcceptLoop();
 
-	Thread thread;
-	bool exitLoop;
-	std::string socketName;
-	int portNumber; // windows only
-	SOCKET listenSock;
-
 	CommandController& commandController;
 	EventDistributor& eventDistributor;
 	GlobalCliComm& cliComm;
+
+	Thread thread;
+	std::string socketName;
+	int portNumber; // windows only
+	SOCKET listenSock;
+	bool exitLoop;
+
 };
 
 } // namespace openmsx

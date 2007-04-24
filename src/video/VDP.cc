@@ -70,17 +70,17 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
          const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
 	, Schedulable(motherBoard.getScheduler())
+	, cliComm(motherBoard.getMSXCliComm())
+	, vdpRegDebug      (new VDPRegDebug      (*this))
+	, vdpStatusRegDebug(new VDPStatusRegDebug(*this))
+	, vdpPaletteDebug  (new VDPPaletteDebug  (*this))
 	, frameStartTime(time)
 	, irqVertical(motherBoard.getCPU())
 	, irqHorizontal(motherBoard.getCPU())
 	, displayStartSyncTime(time)
 	, vScanSyncTime(time)
 	, hScanSyncTime(time)
-	, cliComm(motherBoard.getMSXCliComm())
 	, warningPrinted(false)
-	, vdpRegDebug      (new VDPRegDebug      (*this))
-	, vdpStatusRegDebug(new VDPStatusRegDebug(*this))
-	, vdpPaletteDebug  (new VDPPaletteDebug  (*this))
 {
 	interlaced = false;
 

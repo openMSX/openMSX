@@ -8,7 +8,7 @@ namespace openmsx {
 template<byte FLAG, unsigned FREQ_NOM, unsigned FREQ_DENOM, unsigned MAXVAL>
 EmuTimer<FLAG, FREQ_NOM, FREQ_DENOM, MAXVAL>::EmuTimer(
 		Scheduler& scheduler, EmuTimerCallback& cb_)
-	: Schedulable(scheduler), count(MAXVAL), counting(false), cb(cb_)
+	: Schedulable(scheduler), cb(cb_), count(MAXVAL), counting(false)
 {
 }
 

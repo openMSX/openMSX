@@ -30,9 +30,9 @@ public:
 	const std::string& getMachine() const;
 
 private:
+	std::string machine;
 	Led led;
 	bool status;
-	std::string machine;
 };
 
 } // namespace openmsx

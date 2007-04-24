@@ -391,9 +391,9 @@ AY8910::AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
 	: SoundDevice(motherBoard.getMSXMixer(), "PSG", "PSG", 3)
 	, cliComm(motherBoard.getMSXCliComm())
 	, periphery(periphery_)
+	, debuggable(new AY8910Debuggable(motherBoard, *this))
 	, amplitude(config)
 	, envelope(amplitude)
-	, debuggable(new AY8910Debuggable(motherBoard, *this))
 	, warningPrinted(false)
 {
 	// make valgrind happy

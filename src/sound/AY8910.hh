@@ -36,7 +36,7 @@ private:
 	class Generator {
 	public:
 		inline void reset(byte output = 0);
-		inline void setPeriod(int value, unsigned int updateStep);
+		inline void setPeriod(int value, unsigned updateStep);
 	protected:
 		Generator();
 
@@ -93,17 +93,17 @@ private:
 	class Amplitude {
 	public:
 		explicit Amplitude(const XMLElement& config);
-		inline unsigned int getVolume(byte chan);
+		inline unsigned getVolume(byte chan);
 		inline void setChannelVolume(byte chan, byte value);
 		inline void setEnvelopeVolume(byte volume);
 		inline void setMasterVolume(int volume);
 		inline bool anyEnvelope();
 	private:
-		unsigned int volTable[16];
-		unsigned int envVolTable[32];
-		unsigned int vol[3];
+		unsigned volTable[16];
+		unsigned envVolTable[32];
+		unsigned vol[3];
+		unsigned envVolume;
 		bool envChan[3];
-		unsigned int envVolume;
 		bool ay8910;
 	};
 
@@ -111,7 +111,7 @@ private:
 	public:
 		explicit inline Envelope(Amplitude& amplitude);
 		inline void reset();
-		inline void setPeriod(int value, unsigned int updateStep);
+		inline void setPeriod(int value, unsigned updateStep);
 		inline void setShape(byte shape);
 		inline bool isChanging();
 		inline void advance(int duration);
@@ -139,14 +139,14 @@ private:
 
 	MSXCliComm& cliComm;
 	AY8910Periphery& periphery;
-	unsigned int updateStep;
-	byte regs[16];
-	byte oldEnable;
+	const std::auto_ptr<AY8910Debuggable> debuggable;
 	ToneGenerator tone[3];
 	NoiseGenerator noise;
 	Amplitude amplitude;
 	Envelope envelope;
-	const std::auto_ptr<AY8910Debuggable> debuggable;
+	unsigned updateStep;
+	byte regs[16];
+	byte oldEnable;
 	bool warningPrinted;
 };
 

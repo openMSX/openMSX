@@ -190,24 +190,10 @@ private:
 	  */
 	StoredFrame storedFrame;
 
-	/** Is the frame buffer dirty?
-	  */
-	bool frameDirty;
-
 	/** Display mode the line is valid in.
 	  * 0xFF means invalid in every mode.
 	  */
 	byte lineValidInMode[256 * 4];
-
-	/** Display mode for which character cache is valid.
-	  * This is used to speed up bitmap/character mode splits,
-	  * like Space Manbow and Psycho World use.
-	  */
-	DisplayMode characterCacheMode;
-	/** Dirty checker for pattern table. */
-	DirtyChecker<(1<<10), 8> dirtyPattern;
-	/** Dirty checker for colour table. */
-	DirtyChecker<(1<<10), 8> dirtyColour;
 
 	GLuint colorChrTex[4 * 256];
 	GLuint monoChrTex[256];
@@ -228,6 +214,21 @@ private:
 	// noise effect
 	GLuint noiseTextures[2];
 	unsigned noiseSeq;
+
+	/** Dirty checker for pattern table. */
+	DirtyChecker<(1<<10), 8> dirtyPattern;
+	/** Dirty checker for colour table. */
+	DirtyChecker<(1<<10), 8> dirtyColour;
+	/** Display mode for which character cache is valid.
+	  * This is used to speed up bitmap/character mode splits,
+	  * like Space Manbow and Psycho World use.
+	  */
+	DisplayMode characterCacheMode;
+
+	/** Is the frame buffer dirty?
+	  */
+	bool frameDirty;
+
 };
 
 } // namespace openmsx

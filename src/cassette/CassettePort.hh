@@ -72,14 +72,15 @@ public:
 	virtual bool lastOut() const;
 private:
 	PluggingController& pluggingController;
-	bool lastOutput;
-	short nextSample;
-	EmuTime prevTime;
 
 	std::auto_ptr<CassettePlayer> cassettePlayer;
 #ifdef COMPONENT_JACK
 	std::auto_ptr<CassetteJack> cassetteJack;
 #endif
+
+	EmuTime prevTime;
+	short nextSample;
+	bool lastOutput;
 };
 
 class DummyCassettePort : public CassettePortInterface

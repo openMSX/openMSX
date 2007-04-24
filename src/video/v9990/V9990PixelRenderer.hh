@@ -75,12 +75,6 @@ private:
 	 */
 	RenderSettings::Accuracy accuracy;
 
-	/** Is display enabled?
-	  * Enabled means the current line is in the display area and
-	  * forced blanking is off.
-	  */
-	bool displayEnabled;
-
 	/** The last sync point's vertical position. In lines, starting
 	  * from VSYNC
 	  */
@@ -104,15 +98,21 @@ private:
 	  */
 	int verticalOffset;
 
+	/** Frameskip
+	  */
+	double finishFrameDuration;
+	int frameSkipCounter;
+
+	/** Is display enabled?
+	  * Enabled means the current line is in the display area and
+	  * forced blanking is off.
+	  */
+	bool displayEnabled;
+
 	/** Should current frame be draw or can it be skipped.
 	  */
 	bool drawFrame;
 	bool prevDrawFrame;
-
-	/** Frameskip
-	  */
-	int frameSkipCounter;
-	double finishFrameDuration;
 
 	/**
 	  */

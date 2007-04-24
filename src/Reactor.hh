@@ -98,16 +98,6 @@ private:
 	void unpause();
 	void pause();
 
-	bool paused;
-	int blockedCounter;
-
-	/**
-	 * True iff the Reactor should keep running.
-	 * When this is set to false, the Reactor will end the main loop after
-	 * finishing the pending request(s).
-	 */
-	bool running;
-
 	Semaphore mbSem;
 
 	// note: order of auto_ptr's is important
@@ -134,6 +124,16 @@ private:
 
 	std::auto_ptr<MSXMotherBoard> motherBoard;
 	std::auto_ptr<MSXMotherBoard> newMotherBoard;
+
+	int blockedCounter;
+	bool paused;
+
+	/**
+	 * True iff the Reactor should keep running.
+	 * When this is set to false, the Reactor will end the main loop after
+	 * finishing the pending request(s).
+	 */
+	bool running;
 
 	friend class QuitCommand;
 	friend class MachineCommand;

@@ -29,12 +29,12 @@ private:
     
 	int volume;
 	unsigned outFreq;
-	bool bits8;
 	const void* sampBuf;
 	unsigned count;
 	unsigned step;
 	unsigned end;
 	bool playing;
+	bool bits8;
 };
 
 } // namespace openmsx

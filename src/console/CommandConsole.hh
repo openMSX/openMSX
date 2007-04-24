@@ -63,24 +63,24 @@ private:
 	void loadHistory();
 	void saveHistory();
 
-	unsigned maxHistory;
-	std::string commandBuffer;
-	std::string prompt;
-	/** Are double commands allowed? */
-	bool removeDoubles;
-	CircularBuffer<std::string, LINESHISTORY> lines;
-	std::list<std::string> history;
-	std::list<std::string>::iterator commandScrollBack;
-	/** Saves Current Command to enable command recall. */
-	std::string currentLine;
-	int consoleScrollBack;
-	/** Position within the current command. */
-	unsigned cursorPosition;
-
 	GlobalCommandController& commandController;
 	EventDistributor& eventDistributor;
 	Display& display;
 	BooleanSetting& consoleSetting;
+
+	CircularBuffer<std::string, LINESHISTORY> lines;
+	std::string commandBuffer;
+	std::string prompt;
+	/** Saves Current Command to enable command recall. */
+	std::string currentLine;
+	std::list<std::string> history;
+	std::list<std::string>::iterator commandScrollBack;
+	unsigned maxHistory;
+	int consoleScrollBack;
+	/** Position within the current command. */
+	unsigned cursorPosition;
+	/** Are double commands allowed? */
+	bool removeDoubles;
 };
 
 } // namespace openmsx

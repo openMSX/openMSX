@@ -61,23 +61,24 @@ private:
 	enum CmdFaze {
 		FAZE_MODE, FAZE_SYNC1, FAZE_SYNC2, FAZE_CMD
 	} cmdFaze;
-	byte status;
-	byte command;
-	byte mode;
-	byte sync1, sync2;
 	ClockPin clock;
 	unsigned charLength;
 
 	SerialDataInterface::DataBits  recvDataBits;
 	SerialDataInterface::StopBits  recvStopBits;
-	bool                           recvParityEnabled;
 	SerialDataInterface::ParityBit recvParityBit;
+	bool                           recvParityEnabled;
 	byte                           recvBuf;
 	bool recvReady;
 
 	byte sendByte;
 	byte sendBuffer;
 	bool sendBuffered;
+
+	byte status;
+	byte command;
+	byte mode;
+	byte sync1, sync2;
 };
 
 } // namespace openmsx

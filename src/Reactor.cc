@@ -90,10 +90,7 @@ private:
 
 
 Reactor::Reactor()
-	: paused(false)
-	, blockedCounter(0)
-	, running(true)
-	, mbSem(1)
+	: mbSem(1)
 	, pauseSetting(getGlobalSettings().getPauseSetting())
 	, quitCommand(new QuitCommand(getCommandController(), *this))
 	, machineCommand(new MachineCommand(getCommandController(), *this))
@@ -105,6 +102,9 @@ Reactor::Reactor()
 	, machineInfo(new ConfigInfo(
 	       getGlobalCommandController().getOpenMSXInfoCommand(),
 	       "machines"))
+	, blockedCounter(0)
+	, paused(false)
+	, running(true)
 {
 	createMachineSetting();
 

@@ -218,11 +218,11 @@ static void deleteSocket(const string& socket)
 CliServer::CliServer(CommandController& commandController_,
                      EventDistributor& eventDistributor_,
                      GlobalCliComm& cliComm_)
-	: thread(this)
-	, listenSock(INVALID_SOCKET)
-	, commandController(commandController_)
+	: commandController(commandController_)
 	, eventDistributor(eventDistributor_)
 	, cliComm(cliComm_)
+	, thread(this)
+	, listenSock(INVALID_SOCKET)
 {
 	exitLoop = false;
 	sock_startup();

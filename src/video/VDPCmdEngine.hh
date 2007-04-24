@@ -363,6 +363,21 @@ private:
 	void reportVdpCommand();
 
 
+	/** The VDP this command engine is part of.
+	  */
+	VDP& vdp;
+	VDPVRAM& vram;
+
+	RenderSettings& renderSettings;
+
+	/** Only call reportVdpCommand() when this setting is turned on
+	  */
+	const std::auto_ptr<BooleanSetting> cmdTraceSetting;
+
+	VDPCmd* commands[16][4];
+	VDPCmd* currentCommand;
+	LogOp* currentOperation;
+
 	/** Time at which the next operation cycle starts.
 	  * A cycle consists of reading source VRAM (if applicable),
 	  * reading destination VRAM (if applicable),
@@ -372,6 +387,19 @@ private:
 	  * cycle.
 	  */
 	Clock<VDP::TICKS_PER_SECOND> clock;
+
+	/** Current screen mode.
+	  * 0 -> SCREEN5, 1 -> SCREEN6, 2 -> SCREEN7, 3 -> SCREEN8,
+	  * -1 -> other.
+	  */
+	int scrMode;
+
+	/** Lower bound for the time when the status register will change, IOW
+	  * the status register will not change before this time.
+	  * Can also be EmuTime::zero -> status can change any moment
+	  * or EmuTime::infinity -> this command doesn't change the status
+	  */
+	EmuTime statusChangeTime;
 
 	/** VDP command registers.
 	  */
@@ -393,19 +421,6 @@ private:
 	  */
 	bool transfer;
 
-	/** The VDP this command engine is part of.
-	  */
-	VDP& vdp;
-	VDPVRAM& vram;
-
-	RenderSettings& renderSettings;
-
-	/** Current screen mode.
-	  * 0 -> SCREEN5, 1 -> SCREEN6, 2 -> SCREEN7, 3 -> SCREEN8,
-	  * -1 -> other.
-	  */
-	int scrMode;
-
 	/** Flag that indicated whether extended VRAM is available
 	 */
 	const bool hasExtendedVRAM;
@@ -413,21 +428,6 @@ private:
 	/** Real command timing or instantaneous (broken) timing
 	  */
 	bool brokenTiming;
-
-	/** Lower bound for the time when the status register will change, IOW
-	  * the status register will not change before this time.
-	  * Can also be EmuTime::zero -> status can change any moment
-	  * or EmuTime::infinity -> this command doesn't change the status
-	  */
-	EmuTime statusChangeTime;
-
-	VDPCmd* commands[16][4];
-	VDPCmd* currentCommand;
-	LogOp* currentOperation;
-
-	/** Only call reportVdpCommand() when this setting is turned on
-	  */
-	const std::auto_ptr<BooleanSetting> cmdTraceSetting;
 };
 
 } // namespace openmsx

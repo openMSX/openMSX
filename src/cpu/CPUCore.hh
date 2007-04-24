@@ -103,23 +103,8 @@ private:
 	// Observer<Setting>
 	virtual void update(const Setting& setting);
 
-	/**
-	 * Set to true when there was a rising edge on the NMI line
-	 * (rising = non-active -> active).
-	 * Set to false when the CPU jumps to the NMI handler address.
-	 */
-	bool nmiEdge;
-
-	// state machine variables
-	CPURegs R;
-	int slowInstructions;
-	int NMIStatus;
-	int IRQStatus;
-	volatile bool exitLoop;
-
-	word memptr;
-	offset ofst;
-
+	MSXMotherBoard& motherboard;
+	Scheduler& scheduler;
 	MSXCPUInterface* interface;
 
 	// memory cache
@@ -128,15 +113,30 @@ private:
 	bool readCacheTried [CacheLine::NUM];
 	bool writeCacheTried[CacheLine::NUM];
 
-	MSXMotherBoard& motherboard;
-	Scheduler& scheduler;
-
 	// dynamic freq
 	std::auto_ptr<BooleanSetting> freqLocked;
 	std::auto_ptr<IntegerSetting> freqValue;
 	unsigned freq;
 
 	const BooleanSetting& traceSetting;
+
+	// state machine variables
+	int slowInstructions;
+	int NMIStatus;
+	int IRQStatus;
+	CPURegs R;
+
+	word memptr;
+	offset ofst;
+
+	/**
+	 * Set to true when there was a rising edge on the NMI line
+	 * (rising = non-active -> active).
+	 * Set to false when the CPU jumps to the NMI handler address.
+	 */
+	bool nmiEdge;
+
+	volatile bool exitLoop;
 
 
 	inline void cpuTracePre();

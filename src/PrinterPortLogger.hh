@@ -30,10 +30,10 @@ public:
 	virtual void unplugHelper(const EmuTime& time);
 
 private:
-	byte toPrint;
-	bool prevStrobe;
 	std::auto_ptr<File> file;
 	std::auto_ptr<FilenameSetting> logFilenameSetting;
+	byte toPrint;
+	bool prevStrobe;
 };
 
 } // namespace openmsx

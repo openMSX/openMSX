@@ -26,13 +26,9 @@ template <class T> CPUCore<T>::CPUCore(
 		MSXMotherBoard& motherboard_, const string& name,
 		const BooleanSetting& traceSetting_, const EmuTime& time)
 	: T(time)
-	, nmiEdge(false)
-	, NMIStatus(0)
-	, IRQStatus(0)
-	, exitLoop(false)
-	, interface(NULL)
 	, motherboard(motherboard_)
 	, scheduler(motherboard.getScheduler())
+	, interface(NULL)
 	, freqLocked(new BooleanSetting(motherboard.getCommandController(),
 	        name + "_freq_locked",
 	        "real (locked) or custom (unlocked) " + name + " frequency",
@@ -43,6 +39,10 @@ template <class T> CPUCore<T>::CPUCore(
 	        T::CLOCK_FREQ, 1000000, 100000000))
 	, freq(T::CLOCK_FREQ)
 	, traceSetting(traceSetting_)
+	, NMIStatus(0)
+	, IRQStatus(0)
+	, nmiEdge(false)
+	, exitLoop(false)
 {
 	if (freqLocked->getValue()) {
 		// locked

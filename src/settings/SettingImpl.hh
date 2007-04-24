@@ -72,10 +72,10 @@ private:
 	void setValue2(Type newValue, bool check);
 	void setValueString2(const std::string& valueString, bool check);
 
+	SettingChecker<POLICY>* checker;
 	Type value;
 	const Type defaultValue;
 	Type restoreValue;
-	SettingChecker<POLICY>* checker;
 };
 
 template<typename POLICY> class SettingChecker
@@ -96,9 +96,9 @@ SettingImpl<POLICY>::SettingImpl(
 	const Type& initialValue, SaveSetting save)
 	: Setting(commandController, name, description, save)
 	, POLICY(commandController)
+	, checker(NULL)
 	, value(initialValue), defaultValue(initialValue)
 	, restoreValue(initialValue)
-	, checker(NULL)
 {
 	init();
 }
@@ -111,9 +111,9 @@ SettingImpl<POLICY>::SettingImpl(
 	const Type& initialValue, SaveSetting save, T1 extra1, T2 extra2)
 	: Setting(commandController, name, description, save)
 	, POLICY(commandController, extra1, extra2)
+	, checker(NULL)
 	, value(initialValue), defaultValue(initialValue)
 	, restoreValue(initialValue)
-	, checker(NULL)
 {
 	init();
 }

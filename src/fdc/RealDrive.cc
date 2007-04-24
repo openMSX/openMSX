@@ -24,8 +24,8 @@ typedef std::bitset<MAX_DRIVES> DrivesInUse;
 
 RealDrive::RealDrive(MSXMotherBoard& motherBoard_, const EmuTime& time)
 	: Schedulable(motherBoard_.getScheduler())
-	, headPos(0), motorStatus(false), motorTimer(time)
-	, headLoadStatus(false), headLoadTimer(time)
+	, motorTimer(time), headLoadTimer(time)
+	, headPos(0), motorStatus(false), headLoadStatus(false)
 	, motherBoard(motherBoard_)
 	, loadingIndicator(new LoadingIndicator(
 	         motherBoard.getGlobalSettings().getThrottleManager()))

@@ -32,13 +32,13 @@ private:
 	void loadWave();
 	void update(const Setting& setting);
 
-	int length;
-	byte* buffer;
-	int freq;
-	EmuTime reference;
-	bool plugged;
-
 	const std::auto_ptr<FilenameSetting> audioInputFilenameSetting;
+
+	EmuTime reference;
+	byte* buffer;
+	int length;
+	int freq;
+	bool plugged;
 };
 
 } // namespace openmsx

@@ -37,13 +37,13 @@ private:
 	void writeReg(nibble reg, byte value, const EmuTime& time);
 
 	const std::auto_ptr<Rom> rom;
+	std::auto_ptr<IDEDevice> device[2];
 	const byte* internalBank;
-	bool ideRegsEnabled;
-	bool softReset;
 	byte readLatch;
 	byte writeLatch;
 	byte selectedDevice;
-	std::auto_ptr<IDEDevice> device[2];
+	bool ideRegsEnabled;
+	bool softReset;
 };
 
 } // namespace openmsx

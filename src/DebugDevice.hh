@@ -30,12 +30,12 @@ private:
 	void displayByte(byte value, DisplayType type);
 	void openOutput(const std::string& name);
 
-	DebugMode mode;
-	byte modeParameter;
 	std::auto_ptr<FilenameSetting> fileNameSetting;
 	std::ostream* outputstrm;
 	std::ofstream debugOut;
 	std::string fileNameString;
+	DebugMode mode;
+	byte modeParameter;
 };
 
 } // namespace openmsx

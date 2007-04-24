@@ -93,6 +93,53 @@ protected:
 
 	static const unsigned PIXEL_WIDTH = 8;
 
+	double graphDensity;
+	double fontDensity;
+	double hpos;
+	double vpos;
+	double pageTop;
+	double lineFeed;
+	double pageHeight;
+	double printAreaTop;
+	double printAreaBottom;
+	double pixelSizeX;
+	double pixelSizeY;
+	int  eightBit;
+	unsigned perforationSkip;
+	unsigned leftBorder;
+	unsigned rightBorder;
+	unsigned fontWidth;
+	unsigned remainingCommandBytes;
+	unsigned sizeEscPos;
+	unsigned sizeRemainingDataBytes;
+	unsigned ramLoadOffset;
+	unsigned ramLoadEnd;
+	unsigned lines;
+	enum CountryCode { 
+		CC_USA              = 0,
+		CC_FRANCE           = 1,
+		CC_GERMANY          = 2,
+		CC_UNITED_KINGDOM   = 3,
+		CC_DENMARK          = 4,
+		CC_SWEDEN           = 5,
+		CC_ITALY            = 6,
+		CC_SPAIN            = 7,
+		CC_JAPAN            = 8
+	};
+	CountryCode countryCode;
+
+	static const int MAX_ESC_CMDSIZE = 8; 
+	byte abEscSeq[MAX_ESC_CMDSIZE];
+
+	static const int MAX_FONT_WIDTH = 12;
+	struct FontInfo {
+		byte rom[256 * MAX_FONT_WIDTH];
+		byte ram[256 * MAX_FONT_WIDTH];
+		double pixelDelta;
+		unsigned charWidth;
+		bool useRam;
+	} fontInfo;
+
 	bool letterQuality;
 	bool bold;
 	bool proportional;
@@ -113,51 +160,6 @@ protected:
 	bool elite;
 	bool compressed;
 	bool noHighEscapeCodes;
-	int  eightBit;
-	unsigned perforationSkip;
-	unsigned leftBorder;
-	unsigned rightBorder;
-	unsigned fontWidth;
-	unsigned remainingCommandBytes;
-	unsigned sizeEscPos;
-	static const int MAX_ESC_CMDSIZE = 8; 
-	byte abEscSeq[MAX_ESC_CMDSIZE];
-	unsigned sizeRemainingDataBytes;
-	unsigned ramLoadOffset;
-	unsigned ramLoadEnd;
-	double graphDensity;
-	double fontDensity;
-	double hpos;
-	double vpos;
-	double pageTop;
-	double lineFeed;
-	double pageHeight;
-	unsigned lines;
-	double printAreaTop;
-	double printAreaBottom;
-	double pixelSizeX;
-	double pixelSizeY;
-	enum CountryCode { 
-		CC_USA              = 0,
-		CC_FRANCE           = 1,
-		CC_GERMANY          = 2,
-		CC_UNITED_KINGDOM   = 3,
-		CC_DENMARK          = 4,
-		CC_SWEDEN           = 5,
-		CC_ITALY            = 6,
-		CC_SPAIN            = 7,
-		CC_JAPAN            = 8
-	};
-	CountryCode countryCode;
-
-	static const int MAX_FONT_WIDTH = 12;
-	struct FontInfo {
-		byte rom[256 * MAX_FONT_WIDTH];
-		byte ram[256 * MAX_FONT_WIDTH];
-		bool useRam;
-		unsigned charWidth;
-		double pixelDelta;
-	} fontInfo;
 
 private:
 	MSXMotherBoard& motherBoard;

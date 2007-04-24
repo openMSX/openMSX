@@ -76,8 +76,8 @@ bool DummyCassettePort::lastOut() const
 CassettePort::CassettePort(MSXMotherBoard& motherBoard)
 	: CassettePortInterface()
 	, pluggingController(motherBoard.getPluggingController())
-        , nextSample(0)
 	, prevTime(EmuTime::zero)
+	, nextSample(0)
 {
 	cassettePlayer.reset(new CassettePlayer(
 		motherBoard.getMSXCommandController(),

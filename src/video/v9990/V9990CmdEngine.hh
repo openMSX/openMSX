@@ -335,17 +335,47 @@ private:
 		virtual void execute(const EmuTime& time);
 	};
 
+	RenderSettings& settings;
+
+	/** Only call reportV9990Command() when this setting is turned on
+	  */
+	BooleanSetting* cmdTraceSetting;
+
 	/** V9990 VDP this engine belongs to
 	  */
 	V9990& vdp;
 
-	/** Status bits
-	 */
-	byte status;
+	/** All commands
+	  */
+	V9990Cmd* commands[16][6];
+
+	/** The current command
+	  */
+	V9990Cmd* currentCommand;
+
+	/** VRAM read/write address for various commands
+	  */
+	unsigned srcAddress;
+	unsigned dstAddress;
+	unsigned nbBytes;
 
 	/** The X coord of a border detected by SRCH
 	 */
 	word borderX;
+
+	/** counters
+	  */
+	word ASX, ADX, ANX, ANY;
+
+	/** Command parameters
+	  */
+	word SX, SY, DX, DY, NX, NY;
+	word WM, fgCol, bgCol;
+	byte ARG, LOG, CMD;
+
+	/** Status bits
+	 */
+	byte status;
 
 	/** Data byte to transfer between V9990 and CPU
 	  */
@@ -358,36 +388,6 @@ private:
 	/** Partial data for LMMC command
 	  */ 
 	byte partial;
-
-	/** All commands
-	  */
-	V9990Cmd* commands[16][6];
-
-	/** The current command
-	  */
-	V9990Cmd* currentCommand;
-
-	/** Command parameters
-	  */
-	word SX, SY, DX, DY, NX, NY;
-	word WM, fgCol, bgCol;
-	byte ARG, LOG, CMD;
-
-	/** VRAM read/write address for various commands
-	  */
-	unsigned srcAddress;
-	unsigned dstAddress;
-	unsigned nbBytes;
-
-	/** counters
-	  */
-	word ASX, ADX, ANX, ANY;
-
-	RenderSettings& settings;
-
-	/** Only call reportV9990Command() when this setting is turned on
-	  */
-	BooleanSetting* cmdTraceSetting;
 
 	/** Real command timing or instantaneous (broken) timing
 	 */

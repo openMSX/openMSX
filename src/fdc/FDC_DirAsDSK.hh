@@ -62,6 +62,8 @@ private:
 		long fileOffset;
 	};
 
+	CliComm& cliComm; // TODO don't use CliComm to report errors/warnings
+
 	MappedDirEntry mapdir[112]; // max nr of entries in root directory:
 	                            // 7 sectors, each 16 entries
 	ReverseSector sectormap[1440]; // was 1440, quick hack to fix formatting
@@ -72,8 +74,6 @@ private:
 	typedef std::map<unsigned, std::vector<byte> > CachedSectors;
 	CachedSectors cachedSectors;
 	bool saveCachedSectors;
-
-	CliComm& cliComm; // TODO don't use CliComm to report errors/warnings
 };
 
 } // namespace openmsx

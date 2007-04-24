@@ -131,8 +131,7 @@ private:
 // class CommandLineParser
 
 CommandLineParser::CommandLineParser(Reactor& reactor_)
-	: parseStatus(UNPARSED)
-	, reactor(reactor_)
+	: reactor(reactor_)
 	, settingsConfig(reactor.getCommandController().getSettingsConfig())
 	, output(reactor.getGlobalCliComm())
 	, helpOption(new HelpOption(*this))
@@ -151,6 +150,7 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	, hdImageCLI(new HDImageCLI(*this))
 	, cdImageCLI(new CDImageCLI(*this))
 	, eventRecorderReplayerCLI(new MSXEventRecorderReplayerCLI(*this))
+	, parseStatus(UNPARSED)
 {
 	haveConfig = false;
 	haveSettings = false;

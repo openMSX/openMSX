@@ -56,45 +56,44 @@ private:
 	std::auto_ptr<Rom> rom;
 	int address_mask;
 
-	word address;
-	bool pin_BSY;
-	bool pin_ST;
-	bool pin_VCU;
-	bool pin_RST;
-	byte latch_data;
-	word vcu_addr_h;
-	byte parameter;
-	byte phase;
-
 	// state of option paramter
 	int frame_size;
 	int pitch_offset;
-	byte interp_step;
 
+	// these contain data describing the current and previous voice frames
+	// these are all used to contain the current state of the sound generation
+	unsigned current_energy;
+	unsigned current_pitch;
+	int current_k[10];
+	int x[10];
+
+	int maxVolume;
+
+	word address;
+	word vcu_addr_h;
+
+	signed_word old_k[10];
+	signed_word new_k[10];
+	signed_word target_k[10];
+	word old_energy;
+	word new_energy;
+	word target_energy;
+	byte old_pitch;
+	byte new_pitch;
+	byte target_pitch;
+
+	byte interp_step;
 	byte interp_count; // number of interp periods
 	byte sample_count; // sample number within interp
 	byte pitch_count;
 
-	// these contain data describing the current and previous voice frames
-	word old_energy;
-	byte old_pitch;
-	signed_word old_k[10];
-	word target_energy;
-	byte target_pitch;
-	signed_word target_k[10];
-
-	word new_energy;
-	byte new_pitch;
-	signed_word new_k[10];
-
-	// these are all used to contain the current state of the sound generation
-	unsigned int current_energy;
-	unsigned int current_pitch;
-	int current_k[10];
-
-	int x[10];
-
-	int maxVolume;
+	byte latch_data;
+	byte parameter;
+	byte phase;
+	bool pin_BSY;
+	bool pin_ST;
+	bool pin_VCU;
+	bool pin_RST;
 };
 
 } // namespace openmsx

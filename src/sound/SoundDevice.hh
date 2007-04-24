@@ -142,15 +142,14 @@ private:
 	const std::string name;
 	const std::string description;
 
-	unsigned muteCount;
-	bool muted;
+	std::auto_ptr<WavWriter> writer[MAX_CHANNELS];
 
-	// channel mixer
 	unsigned inputSampleRate;
 	const unsigned numChannels;
 	const unsigned stereo;
 	unsigned numRecordChannels;
-	std::auto_ptr<WavWriter> writer[MAX_CHANNELS];
+	unsigned muteCount;
+	bool muted;
 	bool channelMuted[MAX_CHANNELS];
 };
 

@@ -72,10 +72,10 @@ private:
 	xmlSAXHandler sax_handler;
 	ParseState user_data;
 
-	bool updateEnabled[CliComm::NUM_UPDATES];
-
 	CommandController& commandController;
 	EventDistributor& eventDistributor;
+	
+	bool updateEnabled[CliComm::NUM_UPDATES];
 };
 
 class StdioConnection : public CliConnection

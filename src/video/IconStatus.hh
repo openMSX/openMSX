@@ -25,8 +25,8 @@ private:
 	virtual bool signalEvent(shared_ptr<const Event> event);
 
 	EventDistributor& eventDistributor;
-	bool iconStatus[LedEvent::NUM_LEDS];
 	unsigned long long iconTime[LedEvent::NUM_LEDS];
+	bool iconStatus[LedEvent::NUM_LEDS];
 };
 
 } // namespace openmsx

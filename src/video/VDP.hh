@@ -618,6 +618,20 @@ private:
 	  */
 	void setPalette(int index, word grb, const EmuTime& time);
 
+
+	/** Command line communications.  
+	  * Used to print a warning if the software being emulated would
+	  * cause a normal MSX to freeze.  
+	  */
+	MSXCliComm& cliComm;
+
+	friend class VDPRegDebug;
+	friend class VDPStatusRegDebug;
+	friend class VDPPaletteDebug;
+	const std::auto_ptr<VDPRegDebug>       vdpRegDebug;
+	const std::auto_ptr<VDPStatusRegDebug> vdpStatusRegDebug;
+	const std::auto_ptr<VDPPaletteDebug>   vdpPaletteDebug;
+
 	/** Renderer that converts this VDP's state into an image.
 	  */
 	std::auto_ptr<Renderer> renderer;
@@ -629,6 +643,10 @@ private:
 	/** Sprite checker: calculates sprite patterns and collisions.
 	  */
 	std::auto_ptr<SpriteChecker> spriteChecker;
+
+	/** VRAM management object.
+	  */
+	std::auto_ptr<VDPVRAM> vram;
 
 	/** VDP version.
 	  */
@@ -645,10 +663,6 @@ private:
 	/** Manages horizontal scanning interrupt request.
 	  */
 	IRQHelper irqHorizontal;
-
-	/** Is the current scan position inside the display area?
-	  */
-	bool isDisplayArea;
 
 	/** VDP ticks between start of frame and start of display.
 	  */
@@ -670,18 +684,6 @@ private:
 	/** Time of last set HSCAN sync point.
 	  */
 	EmuTime hScanSyncTime;
-
-	/** Is PAL timing active? False means NTSC timing.
-	  * This value is updated at the start of every frame,
-	  * to avoid problems with mid-screen PAL/NTSC switching.
-	  * @see isPalTiming.
-	  */
-	bool palTiming;
-
-	/** Is interlace active?
-	  * @see isInterlaced.
-	  */
-	bool interlaced;
 
 	/** Absolute line number of display line zero.
 	  * @see getLineZero
@@ -718,6 +720,36 @@ private:
 	  */
 	byte controlValueMasks[32];
 
+	/** Blinking count: number of frames until next state.
+	  * If the ON or OFF period is 0, blinkCount is fixed to 0.
+	  */
+	int blinkCount;
+
+	/** VRAM read/write access pointer.
+	  * Contains the lower 14 bits of the current VRAM access address.
+	  */
+	int vramPointer;
+
+	/** V9938 palette.
+	  */
+	word palette[16];
+
+	/** Is the current scan position inside the display area?
+	  */
+	bool isDisplayArea;
+
+	/** Is PAL timing active? False means NTSC timing.
+	  * This value is updated at the start of every frame,
+	  * to avoid problems with mid-screen PAL/NTSC switching.
+	  * @see isPalTiming.
+	  */
+	bool palTiming;
+
+	/** Is interlace active?
+	  * @see isInterlaced.
+	  */
+	bool interlaced;
+
 	/** Status register 0.
 	  * Both the F flag (bit 7) and the sprite related bits (bits 6-0)
 	  * are stored here.
@@ -737,22 +769,9 @@ private:
 	  */
 	byte statusReg2;
 
-	/** V9938 palette.
-	  */
-	word palette[16];
-
 	/** Blinking state: should alternate colour / page be displayed?
 	  */
 	bool blinkState;
-
-	/** Blinking count: number of frames until next state.
-	  * If the ON or OFF period is 0, blinkCount is fixed to 0.
-	  */
-	int blinkCount;
-
-	/** VRAM management object.
-	  */
-	std::auto_ptr<VDPVRAM> vram;
 
 	/** First byte written through port #99, #9A or #9B.
 	  */
@@ -792,27 +811,10 @@ private:
 	  */
 	bool displayEnabled;
 
-	/** VRAM read/write access pointer.
-	  * Contains the lower 14 bits of the current VRAM access address.
-	  */
-	int vramPointer;
-
-	/** Command line communications.  
-	  * Used to print a warning if the software being emulated would
-	  * cause a normal MSX to freeze.  
-	  */
-	MSXCliComm& cliComm;
 	/** Has a warning been printed. 
 	  * This is set when a warning about setting the dotclock direction 
 	  * is printed.  */
 	bool warningPrinted;
-
-	friend class VDPRegDebug;
-	friend class VDPStatusRegDebug;
-	friend class VDPPaletteDebug;
-	const std::auto_ptr<VDPRegDebug>        vdpRegDebug;
-	const std::auto_ptr<VDPStatusRegDebug> vdpStatusRegDebug;
-	const std::auto_ptr<VDPPaletteDebug>   vdpPaletteDebug;
 };
 
 } // namespace openmsx

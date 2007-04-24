@@ -53,17 +53,18 @@ private:
 	virtual void signalEvent(shared_ptr<const Event> event,
 	                         const EmuTime& time);
 
-	std::string driveName;
-	DiskManipulator& manipulator;
-	std::auto_ptr<Disk> disk;
-	bool diskChangedFlag;
-
 	friend class DiskCommand;
 	const std::auto_ptr<DiskCommand> diskCommand;
+
 	CliComm& cliComm;
 	GlobalSettings& globalSettings;
 	MSXEventDistributor* msxEventDistributor;
 	Scheduler* scheduler;
+	DiskManipulator& manipulator;
+
+	std::string driveName;
+	std::auto_ptr<Disk> disk;
+	bool diskChangedFlag;
 };
 
 } // namespace openmsx

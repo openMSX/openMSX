@@ -53,6 +53,10 @@ private:
 	static const unsigned int SCC_STEP =
 		(unsigned)(((unsigned)(1 << 31)) / (CLOCK_FREQ / 2));
 
+	friend class SCCDebuggable;
+	const std::auto_ptr<SCCDebuggable> debuggable;
+
+	Clock<CLOCK_FREQ> deformTimer;
 	ChipMode currentChipMode;
 	int masterVolume;
 
@@ -67,12 +71,8 @@ private:
 	byte ch_enable;
 
 	byte deformValue;
-	Clock<CLOCK_FREQ> deformTimer;
 	bool rotate[5];
 	bool readOnly[5];
-
-	friend class SCCDebuggable;
-	const std::auto_ptr<SCCDebuggable> debuggable;
 };
 
 } // namespace openmsx

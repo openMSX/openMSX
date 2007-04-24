@@ -83,18 +83,9 @@ private:
 		                   //                 2-sustain(D2R)
 		                   //                 1-release(RR)
 		                   //                 0-off
-		byte eg_sh_ar;     //  (attack state)
-		byte eg_sel_ar;    //  (attack state)
 		unsigned tl;       // Total attenuation Level
 		int volume;        // current envelope attenuation level
-		byte eg_sh_d1r;    //  (decay state)
-		byte eg_sel_d1r;   //  (decay state)
 		unsigned d1l;      // envelope switches to sustain state after
-		                   // reaching this level
-		byte eg_sh_d2r;    //  (sustain state)
-		byte eg_sel_d2r;   //  (sustain state)
-		byte eg_sh_rr;     //  (release state)
-		byte eg_sel_rr;    //  (release state)
 
 		unsigned key;      // 0=last key was KEY OFF, 1=last key was KEY ON
 
@@ -106,6 +97,16 @@ private:
 
 		int* connect;      // operator output 'direction'
 		int* mem_connect;  // where to put the delayed sample (MEM)
+
+		byte eg_sh_ar;     //  (attack state)
+		byte eg_sel_ar;    //  (attack state)
+		byte eg_sh_d1r;    //  (decay state)
+		byte eg_sel_d1r;   //  (decay state)
+		                   // reaching this level
+		byte eg_sh_d2r;    //  (sustain state)
+		byte eg_sel_d2r;   //  (sustain state)
+		byte eg_sh_rr;     //  (release state)
+		byte eg_sel_rr;    //  (release state)
 	};
 
 	void setConnect(YM2151Operator* om1, int cha, int v);
@@ -147,6 +148,12 @@ private:
 	bool checkMuteHelper();
 	int adjust(int x);
 
+	IRQHelper irq;
+
+	// Timers (see EmuTimer class for details about timing)
+	EmuTimerOPM_1 timer1;
+	EmuTimerOPM_2 timer2;
+
 	YM2151Operator oper[32]; // the 32 operators
 
 	unsigned pan[16];        // channels output masks (0xffffffff = enable)
@@ -160,15 +167,8 @@ private:
 	                         // reaches this value
 	unsigned lfo_counter;    // LFO phase increment counter
 	unsigned lfo_counter_add;// step of lfo_counter
-	byte lfo_wsel;           // LFO waveform (0-saw, 1-square, 2-triangle,
-	                         //               3-random noise)
-	byte amd;                // LFO Amplitude Modulation Depth
-	signed char pmd;         // LFO Phase Modulation Depth
 	unsigned lfa;            // LFO current AM output
 	int lfp;                 // LFO current PM output
-
-	byte test;               // TEST register
-	byte ct;                 // output control pins (bit1-CT2, bit0-CT1)
 
 	unsigned noise;          // noise enable/period register
 	                         // bit 7 - noise enable, bits 4-0 - noise period
@@ -182,14 +182,6 @@ private:
 	                         // (bit 2); bit 7 - CSM mode (keyon to all 
 	                         // slots, everytime timer A overflows)
 	unsigned status;         // chip status (BUSY, IRQ Flags)
-
-	word timer_A_val;
-
-	IRQHelper irq;
-
-	// Timers (see EmuTimer class for details about timing)
-	EmuTimerOPM_1 timer1;
-	EmuTimerOPM_2 timer2;
 
 	// Frequency-deltas to get the closest frequency possible.
 	// There are 11 octaves because of DT2 (max 950 cents over base frequency)
@@ -218,6 +210,17 @@ private:
 	int mem;                 // one sample delay memory
 
 	int maxVolume;
+
+	word timer_A_val;
+
+	byte lfo_wsel;           // LFO waveform (0-saw, 1-square, 2-triangle,
+	                         //               3-random noise)
+	byte amd;                // LFO Amplitude Modulation Depth
+	signed char pmd;         // LFO Phase Modulation Depth
+
+	byte test;               // TEST register
+	byte ct;                 // output control pins (bit1-CT2, bit0-CT1)
+
 };
 
 } // namespace openmsx

@@ -17,10 +17,10 @@ static const XMLElement& getRomConfig(MSXMotherBoard& motherBoard)
 }
 
 PanasonicMemory::PanasonicMemory(MSXMotherBoard& motherBoard)
-	: rom(new Rom(motherBoard, "PanasonicRom", "Turbo-R main ROM",
+	: msxcpu(motherBoard.getCPU())
+	, rom(new Rom(motherBoard, "PanasonicRom", "Turbo-R main ROM",
 	              getRomConfig(motherBoard)))
 	, ram(NULL), dram(false)
-	, msxcpu(motherBoard.getCPU())
 {
 }
 

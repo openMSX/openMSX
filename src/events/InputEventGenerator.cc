@@ -33,8 +33,8 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
 		false, Setting::DONT_SAVE))
 	, escapeGrabState(ESCAPE_GRAB_WAIT_CMD)
 	, escapeGrabCmd(new EscapeGrabCmd(commandController, *this))
-	, keyRepeat(false)
 	, eventDistributor(eventDistributor_)
+	, keyRepeat(false)
 {
 	setGrabInput(grabInput->getValue());
 	grabInput->attach(*this);

@@ -64,8 +64,8 @@ private:
 	friend class EscapeGrabCmd;
 	const std::auto_ptr<EscapeGrabCmd> escapeGrabCmd;
 
-	bool keyRepeat;
 	EventDistributor& eventDistributor;
+	bool keyRepeat;
 };
 
 } // namespace openmsx

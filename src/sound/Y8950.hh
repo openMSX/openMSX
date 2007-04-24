@@ -65,8 +65,8 @@ class Y8950 : public SoundDevice, private EmuTimerCallback, private Resample<1>
 		int output[5];		// Output value of slot
 
 		// for Phase Generator (PG)
-		unsigned int phase;	// Phase
-		unsigned int dphase;	// Phase increment amount
+		unsigned phase;		// Phase
+		unsigned dphase;	// Phase increment amount
 		int pgout;		// Output
 
 		// for Envelope Generator (EG)
@@ -75,16 +75,16 @@ class Y8950 : public SoundDevice, private EmuTimerCallback, private Resample<1>
 		int tll;		// Total Level + Key scale level
 		int rks;		// Key scale offset (Rks)
 		int eg_mode;		// Current state
-		unsigned int eg_phase;	// Phase
-		unsigned int eg_dphase; // Phase increment amount
+		unsigned eg_phase;	// Phase
+		unsigned eg_dphase;	// Phase increment amount
 		int egout;		// Output
-
-		bool slotStatus;
-		Patch patch;
 
 		// refer to Y8950->
 		int* plfo_pm;
 		int* plfo_am;
+
+		Patch patch;
+		bool slotStatus;
 	};
 
 	class Channel {
@@ -96,8 +96,8 @@ class Y8950 : public SoundDevice, private EmuTimerCallback, private Resample<1>
 		inline void keyOn();
 		inline void keyOff();
 
-		bool alg;
 		Slot mod, car;
+		bool alg;
 	};
 
 public:
@@ -155,23 +155,22 @@ private:
 	int output[2];
 	// Registers
 	byte reg[0x100];
-	bool rythm_mode;
 	// Pitch Modulator
 	int pm_mode;
-	unsigned int pm_phase;
+	unsigned pm_phase;
 	// Amp Modulator
 	int am_mode;
-	unsigned int am_phase;
+	unsigned am_phase;
 
 	// Noise Generator
 	int noise_seed;
 	int whitenoise;
 	int noiseA;
 	int noiseB;
-	unsigned int noiseA_phase;
-	unsigned int noiseB_phase;
-	unsigned int noiseA_dphase;
-	unsigned int noiseB_dphase;
+	unsigned noiseA_phase;
+	unsigned noiseB_phase;
+	unsigned noiseA_dphase;
+	unsigned noiseB_dphase;
 
 	// Channel & Slot
 	Channel ch[9];
@@ -206,10 +205,7 @@ private:
 	static const int STATUS_T2      = R04_MASK_T2;
 	static const int STATUS_T1      = R04_MASK_T1;
 
-	byte status;     // STATUS Register
-	byte statusMask; // bit=0 -> masked
 	IRQHelper irq;
-
 	Y8950Periphery& perihery;
 
 	// Timers
@@ -228,6 +224,10 @@ private:
 
 	friend class Y8950Debuggable;
 	const std::auto_ptr<Y8950Debuggable> debuggable;
+
+	byte status;     // STATUS Register
+	byte statusMask; // bit=0 -> masked
+	bool rythm_mode;
 };
 
 } // namespace openmsx

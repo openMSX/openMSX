@@ -194,15 +194,7 @@ private:
 	  */
 	void setTransferWrite(bool status);
 
-	// ATA registers:
-	byte errorReg;
-	byte sectorCountReg;
-	byte sectorNumReg;
-	byte cylinderLowReg;
-	byte cylinderHighReg;
-	byte devHeadReg;
-	byte statusReg;
-	byte featureReg;
+	MSXMotherBoard& motherBoard;
 
 	/** Data buffer shared by all transfers.
 	  * The size must be a multiple of 512.
@@ -224,6 +216,16 @@ private:
 	  */
 	unsigned transferCount;
 
+	// ATA registers:
+	byte errorReg;
+	byte sectorCountReg;
+	byte sectorNumReg;
+	byte cylinderLowReg;
+	byte cylinderHighReg;
+	byte devHeadReg;
+	byte statusReg;
+	byte featureReg;
+
 	/** True iff the current transfer is part of an IDENTIFY DEVICE command.
 	  */
 	bool transferIdentifyBlock;
@@ -231,7 +233,6 @@ private:
 	bool transferRead;
 	bool transferWrite;
 
-	MSXMotherBoard& motherBoard;
 };
 
 } // namespace openmsx

@@ -61,6 +61,43 @@ public:
 	inline void FM_KEYON(byte key_set);
 	inline void FM_KEYOFF(byte key_clr);
 
+	// Phase Generator
+	unsigned Cnt;	// frequency counter
+	unsigned Incr;	// frequency counter step
+	int* connect;	// slot output pointer
+	int op1_out[2];	// slot1 output for feedback
+
+	// Envelope Generator
+	unsigned TL;	// total level: TL << 2
+	int TLL;	// adjusted now TL
+	int volume;	// envelope counter
+	int sl;		// sustain level: sl_tab[SL]
+
+	unsigned wavetable; // waveform select
+
+	unsigned eg_m_ar;// (attack state)
+	unsigned eg_m_dr;// (decay state)
+	unsigned eg_m_rr;// (release state)
+	byte eg_sh_ar;	// (attack state)
+	byte eg_sel_ar;	// (attack state)
+	byte eg_sh_dr;	// (decay state)
+	byte eg_sel_dr;	// (decay state)
+	byte eg_sh_rr;	// (release state)
+	byte eg_sel_rr;	// (release state)
+
+	byte key;	// 0 = KEY OFF, >0 = KEY ON
+
+	byte FB;	// PG: feedback shift value
+	byte CON;	// PG: connection (algorithm) type
+	byte eg_type;	// EG: percussive/non-percussive mode
+	byte state;	// EG: phase type
+
+	// LFO
+	byte AMmask;	// LFO Amplitude Modulation enable mask
+	byte vib;	// LFO Phase Modulation enable flag (active high)
+
+	byte waveform_number; // waveform select
+	
 	byte ar;	// attack rate: AR<<2
 	byte dr;	// decay rate:  DR<<2
 	byte rr;	// release rate:RR<<2
@@ -68,42 +105,6 @@ public:
 	byte ksl;	// keyscale level
 	byte ksr;	// key scale rate: kcode>>KSR
 	byte mul;	// multiple: mul_tab[ML]
-
-	// Phase Generator
-	unsigned Cnt;	// frequency counter
-	unsigned Incr;	// frequency counter step
-	byte FB;	// feedback shift value
-	int* connect;	// slot output pointer
-	int op1_out[2];	// slot1 output for feedback
-	byte CON;	// connection (algorithm) type
-
-	// Envelope Generator
-	byte eg_type;	// percussive/non-percussive mode
-	byte state;	// phase type
-	unsigned TL;	// total level: TL << 2
-	int TLL;	// adjusted now TL
-	int volume;	// envelope counter
-	int sl;		// sustain level: sl_tab[SL]
-
-	unsigned eg_m_ar;// (attack state)
-	byte eg_sh_ar;	// (attack state)
-	byte eg_sel_ar;	// (attack state)
-	unsigned eg_m_dr;// (decay state)
-	byte eg_sh_dr;	// (decay state)
-	byte eg_sel_dr;	// (decay state)
-	unsigned eg_m_rr;// (release state)
-	byte eg_sh_rr;	// (release state)
-	byte eg_sel_rr;	// (release state)
-
-	byte key;	// 0 = KEY OFF, >0 = KEY ON
-
-	// LFO
-	byte  AMmask;	// LFO Amplitude Modulation enable mask
-	byte vib;	// LFO Phase Modulation enable flag (active high)
-
-	// waveform select
-	byte waveform_number;
-	unsigned wavetable;
 };
 
 class YMF262Channel
@@ -176,31 +177,8 @@ private:
 	bool checkMuteHelper();
 	int adjust(int x);
 
-	byte reg[512];
-	YMF262Channel channels[18];	// OPL3 chips have 18 channels
-
-	unsigned pan[18*4];		// channels output masks (0xffffffff = enable); 4 masks per one channel
-
-	unsigned eg_cnt;		// global envelope generator counter
-
-	// LFO
-	byte LFO_AM;
-	byte LFO_PM;
-	byte lfo_am_depth;
-	byte lfo_pm_depth_range;
-	unsigned lfo_am_cnt;
-	unsigned lfo_pm_cnt;
-
-	unsigned noise_rng;		// 23 bit noise shift register
-
-	bool OPL3_mode;			// OPL3 extension enable flag
-	byte rhythm;			// Rhythm mode
-	byte nts;			// NTS (note select)
-
-	byte status;			// status flag
-	byte status2;
-	byte statusMask;		// status mask
-	IRQHelper irq;
+	friend class YMF262Debuggable;
+	const std::auto_ptr<YMF262Debuggable> debuggable;
 
 	// Bitmask for register 0x04
 	static const int R04_ST1       = 0x01; // Timer1 Start
@@ -216,11 +194,35 @@ private:
 	EmuTimerOPL4_1 timer1; //  80.8us OPL4  ( 80.5us OPL3)
 	EmuTimerOPL4_2 timer2; // 323.1us OPL4  (321.8us OPL3)
 
+	IRQHelper irq;
+
 	int chanout[18]; // 18 channels
 	int maxVolume;
 
-	friend class YMF262Debuggable;
-	const std::auto_ptr<YMF262Debuggable> debuggable;
+	byte reg[512];
+	YMF262Channel channels[18];	// OPL3 chips have 18 channels
+
+	unsigned pan[18*4];		// channels output masks 4 per channel
+	                                //    0xffffffff = enable
+	unsigned eg_cnt;		// global envelope generator counter
+	unsigned noise_rng;		// 23 bit noise shift register
+
+	// LFO
+	unsigned lfo_am_cnt;
+	unsigned lfo_pm_cnt;
+	byte LFO_AM;
+	byte LFO_PM;
+	byte lfo_am_depth;
+	byte lfo_pm_depth_range;
+
+	byte rhythm;			// Rhythm mode
+	byte nts;			// NTS (note select)
+	bool OPL3_mode;			// OPL3 extension enable flag
+
+	byte status;			// status flag
+	byte status2;
+	byte statusMask;		// status mask
+
 };
 
 } // namespace openmsx

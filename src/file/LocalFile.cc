@@ -17,8 +17,8 @@ using std::string;
 namespace openmsx {
 
 LocalFile::LocalFile(const string& filename_, File::OpenMode mode)
-	: filename(FileOperations::expandTilde(filename_)),
-	  readOnly(false)
+	: filename(FileOperations::expandTilde(filename_))
+	, readOnly(false)
 {
 	PRT_DEBUG("LocalFile: " << filename);
 

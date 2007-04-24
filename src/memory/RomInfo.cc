@@ -95,10 +95,10 @@ RomInfo::RomInfo(const string& ntitle,   const string& nyear,
 	, year(nyear)
 	, company(ncompany)
 	, country(ncountry)
-	, original(noriginal)
 	, origType(norigType)
 	, remark(nremark)
 	, romType(nromType)
+	, original(noriginal)
 {
 }
 

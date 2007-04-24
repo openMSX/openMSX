@@ -41,7 +41,6 @@ private:
 	enum RTCMode { EMUTIME, REALTIME };
 	static const int FREQ = 16384;
 
-	nibble modeReg, testReg, resetReg;
 	SRAM& regs;
 
 	Clock<FREQ> reference;
@@ -50,6 +49,8 @@ private:
 	int dayWeek, days, months, years, leapYear;
 
 	std::auto_ptr<EnumSetting<RTCMode> > modeSetting;
+
+	nibble modeReg, testReg, resetReg;
 };
 
 } // namespace openmsx

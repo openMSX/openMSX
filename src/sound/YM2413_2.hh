@@ -42,25 +42,19 @@ public:
 	 */
 	void setFeedbackShift(byte value);
 
-	byte ar;	// attack rate: AR<<2
-	byte dr;	// decay rate:  DR<<2
-	byte rr;	// release rate:RR<<2
-	byte KSR;	// key scale rate
-	byte ksl;	// keyscale level
-	byte ksr;	// key scale rate: kcode>>KSR
-	byte mul;	// multiple: mul_tab[ML]
-
 	// Phase Generator
 	FreqIndex phase;	// frequency counter
 	FreqIndex freq;	// frequency counter step
 
+	int wavetable;	// waveform select
+
 	// Envelope Generator
-	byte eg_type;	// percussive/nonpercussive mode
-	byte state;	// phase type
 	int TL;		// total level: TL << 2
 	int TLL;	// adjusted now TL
 	int volume;	// envelope counter
 	int sl;		// sustain level: sl_tab[SL]
+	byte eg_type;	// percussive/nonpercussive mode
+	byte state;	// phase type
 
 	byte eg_sh_dp;	// (dump state)
 	byte eg_sel_dp;	// (dump state)
@@ -73,15 +67,21 @@ public:
 	byte eg_sh_rs;	// (release state for perc.mode)
 	byte eg_sel_rs;	// (release state for perc.mode)
 
+	byte ar;	// attack rate: AR<<2
+	byte dr;	// decay rate:  DR<<2
+	byte rr;	// release rate:RR<<2
+	byte KSR;	// key scale rate
+	byte ksl;	// keyscale level
+	byte ksr;	// key scale rate: kcode>>KSR
+	byte mul;	// multiple: mul_tab[ML]
+
 	// LFO
 	byte AMmask;	// LFO Amplitude Modulation enable mask
 	byte vib;	// LFO Phase Modulation enable flag (active high)
 
-	int wavetable;	// waveform select
-
 private:
-	byte fb_shift;	// feedback shift value
 	int op1_out[2];	// slot1 output for feedback
+	byte fb_shift;	// feedback shift value
 
 	byte key;	// 0 = KEY OFF, >0 = KEY ON
 };
@@ -147,14 +147,14 @@ private:
 	// Resample
 	virtual void generateInput(float* buffer, unsigned num);
 
+	friend class YM2413_2Debuggable;
+	const std::auto_ptr<YM2413_2Debuggable> debuggable;
+
 	int maxVolume;
 
 	Channel channels[9];	// OPLL chips have 9 channels
-	byte instvol_r[9];	// instrument/volume (or volume/volume in percussive mode)
 
 	unsigned eg_cnt;	// global envelope generator counter
-
-	bool rhythm;		// Rhythm mode
 
 	// LFO
 	unsigned lfo_am_cnt;
@@ -174,8 +174,9 @@ private:
 
 	byte reg[0x40];
 
-	friend class YM2413_2Debuggable;
-	const std::auto_ptr<YM2413_2Debuggable> debuggable;
+	byte instvol_r[9];	// instrument/volume (or volume/volume in percussive mode)
+	bool rhythm;		// Rhythm mode
+
 };
 
 } // namespace openmsx

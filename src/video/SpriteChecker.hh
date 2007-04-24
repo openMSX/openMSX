@@ -357,15 +357,6 @@ private:
 	  */
 	int linesPerFrame;
 
-	/** Is the current display mode spriteless?
-	  */
-	bool mode0;
-
-	/** Is current display mode planar or not?
-	  * TODO: Introduce separate update methods for planar/nonplanar modes.
-	  */
-	bool planar;
-
 	/** The VDP this sprite checker is part of.
 	  */
 	VDP& vdp;
@@ -413,6 +404,15 @@ private:
 	  * in spriteBuffer[i].
 	  */
 	int spriteCount[313];
+
+	/** Is the current display mode spriteless?
+	  */
+	bool mode0;
+
+	/** Is current display mode planar or not?
+	  * TODO: Introduce separate update methods for planar/nonplanar modes.
+	  */
+	bool planar;
 };
 
 } // namespace openmsx

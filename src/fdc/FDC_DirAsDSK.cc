@@ -124,8 +124,8 @@ static string makeSimpleMSXFileName(string filename)
 FDC_DirAsDSK::FDC_DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings,
                            const string& fileName)
 	: SectorBasedDisk(fileName)
-	, hostDir(fileName)
 	, cliComm(cliComm_)
+	, hostDir(fileName)
 {
 	// create the diskimage based upon the files that can be
 	// found in the host directory

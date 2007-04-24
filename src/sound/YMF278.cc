@@ -771,10 +771,10 @@ YMF278::YMF278(MSXMotherBoard& motherBoard, const std::string& name, int ramSize
                const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMSXMixer(), name, "MoonSound wave-part",
 	              24, true)
-	, rom(new Rom(motherBoard, name + " ROM", "rom", config))
-	, loadTime(time), busyTime(time)
 	, debugRegisters(new DebugRegisters(*this, motherBoard))
 	, debugMemory   (new DebugMemory   (*this, motherBoard))
+	, loadTime(time), busyTime(time)
+	, rom(new Rom(motherBoard, name + " ROM", "rom", config))
 {
 	memadr = 0;	// avoid UMR
 	setOutputRate(44100);	// make valgrind happy

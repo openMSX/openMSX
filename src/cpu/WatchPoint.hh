@@ -31,9 +31,9 @@ public:
 
 private:
 	unsigned id;
-	Type type;
 	unsigned beginAddr;
 	unsigned endAddr;
+	Type type;
 
 	static unsigned lastId;
 };

@@ -29,6 +29,23 @@ public:
 	inline int compute_am();
 	void set_lfo(int newlfo);
 
+	unsigned startaddr;
+	unsigned loopaddr;
+	unsigned endaddr;
+	unsigned step;		// fixed-point frequency step
+	unsigned stepptr;	// fixed-point pointer into the sample
+	unsigned pos;
+	short sample1, sample2;
+
+	int env_vol;
+	unsigned env_vol_step;
+	unsigned env_vol_lim;
+
+	int lfo_cnt;
+	int lfo_step;
+	int lfo_max;
+	
+	int DL;
 	short wave;		// wavetable number
 	short FN;		// f-number
 	char OCT;		// octave
@@ -39,34 +56,17 @@ public:
 	char lfo;		// LFO
 	char vib;		// vibrato
 	char AM;		// AM level
-
 	char AR;
 	char D1R;
-	int  DL;
 	char D2R;
-	char RC;   		// rate correction
+	char RC;		// rate correction
 	char RR;
 
-	unsigned step;               // fixed-point frequency step
-	unsigned stepptr;		// fixed-point pointer into the sample
-	unsigned pos;
-	short sample1, sample2;
-
-	bool active;		// slot keyed on
 	byte bits;		// width of the samples
-	unsigned startaddr;
-	unsigned loopaddr;
-	unsigned endaddr;
+	bool active;		// slot keyed on
 
 	byte state;
-	int env_vol;
-	unsigned env_vol_step;
-	unsigned env_vol_lim;
-
 	bool lfo_active;
-	int lfo_cnt;
-	int lfo_step;
-	int lfo_max;
 };
 
 class YMF278 : public SoundDevice
@@ -97,6 +97,11 @@ private:
 	bool anyActive();
 	void keyOnHelper(YMF278Slot& slot);
 
+	friend class DebugRegisters;
+	friend class DebugMemory;
+	const std::auto_ptr<DebugRegisters> debugRegisters;
+	const std::auto_ptr<DebugMemory>    debugMemory;
+
 	/** The master clock, running at 33MHz. */
 	typedef Clock<33868800> MasterClock;
 
@@ -114,7 +119,14 @@ private:
 	/** Required delay after instrument load. */
 	static const EmuDuration LOAD_DELAY;
 
+	/** Time at which instrument loading is finished. */
+	EmuTime loadTime;
+	/** Time until which the YMF278 is busy. */
+	EmuTime busyTime;
+
 	YMF278Slot slots[24];
+
+	double freqbase;
 
 	/** Global envelope generator counter. */
 	unsigned eg_cnt;
@@ -125,8 +137,6 @@ private:
 	/** Envelope generator timer overlfows every 1 sample (on real chip). */
 	unsigned eg_timer_overflow;
 
-	char wavetblhdr;
-	char memmode;
 	int memadr;
 
 	int fm_l, fm_r;
@@ -142,19 +152,9 @@ private:
 	  */
 	int volume[256 * 4];
 
-	double freqbase;
-
 	byte regs[256];
-
-	/** Time at which instrument loading is finished. */
-	EmuTime loadTime;
-	/** Time until which the YMF278 is busy. */
-	EmuTime busyTime;
-
-	friend class DebugRegisters;
-	friend class DebugMemory;
-	const std::auto_ptr<DebugRegisters> debugRegisters;
-	const std::auto_ptr<DebugMemory>    debugMemory;
+	char wavetblhdr;
+	char memmode;
 };
 
 } // namespace openmsx

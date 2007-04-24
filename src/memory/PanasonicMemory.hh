@@ -36,12 +36,12 @@ public:
 	bool isWritable(unsigned address) const;
 
 private:
+	MSXCPU& msxcpu;
+
 	const std::auto_ptr<Rom> rom;
 	byte* ram;
 	unsigned ramSize;
 	bool dram;
-
-	MSXCPU& msxcpu;
 };
 
 } // namespace openmsx

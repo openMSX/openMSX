@@ -35,11 +35,11 @@ private:
 	void emulateJoystick();
 
 	MSXEventDistributor& eventDistributor;
-	byte status;
+	Clock<1000> lastTime; // ms
 	int faze;
 	int xrel, yrel;
 	int curxrel, curyrel;
-	Clock<1000> lastTime; // ms
+	byte status;
 	bool mouseMode;
 };
 

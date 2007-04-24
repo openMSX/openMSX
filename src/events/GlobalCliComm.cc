@@ -44,8 +44,8 @@ GlobalCliComm::GlobalCliComm(GlobalCommandController& commandController_,
 	: updateCmd(new UpdateCmd(commandController_, *this))
 	, commandController(commandController_)
 	, eventDistributor(eventDistributor_)
-	, xmlOutput(false)
 	, sem(1)
+	, xmlOutput(false)
 {
 	commandController.setCliComm(this);
 

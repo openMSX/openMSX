@@ -120,12 +120,6 @@ private:
 	  */
 	RenderSettings::Accuracy accuracy;
 
-	/** Is display enabled?
-	  * Enabled means the current line is in the display area and
-	  * forced blanking is off.
-	  */
-	bool displayEnabled;
-
 	/** Number of the next position within a line to render.
 	  * Expressed in VDP clock ticks since start of line.
 	  */
@@ -136,11 +130,6 @@ private:
 	  */
 	int nextY;
 
-	/** Should current frame be draw or can it be skipped.
-	  */
-	bool renderFrame;
-	bool prevRenderFrame;
-
 	int frameSkipCounter;
 	double finishFrameDuration;
 
@@ -148,6 +137,17 @@ private:
 	int textModeCounter;
 
 	const std::auto_ptr<Rasterizer> rasterizer;
+
+	/** Is display enabled?
+	  * Enabled means the current line is in the display area and
+	  * forced blanking is off.
+	  */
+	bool displayEnabled;
+
+	/** Should current frame be draw or can it be skipped.
+	  */
+	bool renderFrame;
+	bool prevRenderFrame;
 };
 
 } // namespace openmsx

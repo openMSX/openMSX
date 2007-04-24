@@ -51,12 +51,12 @@ protected:
 	static const int ROTATIONS_PER_SECOND = 5;
 	static const int INDEX_DURATION = TICKS_PER_ROTATION / 50;
 
-	int headPos;
-	bool motorStatus;
 	Clock<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND> motorTimer;
-	bool headLoadStatus;
 	Clock<1000> headLoadTimer; // ms
 	std::auto_ptr<DiskChanger> changer;
+	int headPos;
+	bool motorStatus;
+	bool headLoadStatus;
 
 private:
 	// This is all for the ThrottleManager

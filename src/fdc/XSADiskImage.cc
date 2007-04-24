@@ -134,7 +134,7 @@ int XSADiskImage::rdstrlen()
 // read string pos
 int XSADiskImage::rdstrpos()
 {
-	huf_node *hufpos = &huftbl[2*TBLSIZE - 2];
+	HufNode* hufpos = &huftbl[2*TBLSIZE - 2];
 
 	while (hufpos->child1) {
 		if (bitin()) {
@@ -202,7 +202,7 @@ void XSADiskImage::inithufinfo()
 void XSADiskImage::mkhuftbl()
 {
 	// Initialize the huffman tree
-	huf_node *hufpos = huftbl;
+	HufNode* hufpos = huftbl;
 	for (int i = 0; i != TBLSIZE; ++i) {
 		(hufpos++)->weight = 1+(tblsizes[i] >>= 1);
 	}
@@ -211,7 +211,8 @@ void XSADiskImage::mkhuftbl()
 	}
 	// Place the nodes in the correct manner in the tree
 	while (huftbl[2*TBLSIZE-2].weight == -1) {
-		huf_node  *l1pos, *l2pos;
+		HufNode* l1pos;
+		HufNode* l2pos;
 		for (hufpos=huftbl; !(hufpos->weight); ++hufpos) {
 			// nothing
 		}

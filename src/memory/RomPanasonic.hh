@@ -26,10 +26,10 @@ public:
 private:
 	void changeBank(byte region, int bank);
 
-	byte control;
-	int bankSelect[8];
 	std::auto_ptr<SRAM> sram;
+	int bankSelect[8];
 	int maxSRAMBank;
+	byte control;
 };
 
 } // namespace openmsx

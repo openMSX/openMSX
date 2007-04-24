@@ -115,9 +115,13 @@ private:
 	virtual void executeUntil(const EmuTime& time, int userData);
 	virtual const std::string& schedName() const;
 
-	State state;
-	std::auto_ptr<CassetteImage> playImage;
-	bool motor, motorControl;
+	static const size_t BUF_SIZE = 1024;
+	unsigned char buf[BUF_SIZE];
+
+	double lastX; // last unfiltered output
+	double lastY; // last filtered output
+	double partialOut;
+	double partialInterval;
 
 	/** The time in the world of the tape. Zero at the start of the tape. */
 	EmuTime tapeTime;
@@ -127,32 +131,26 @@ private:
 	/** Last time that tape time was synced with machine time. */
 	EmuTime prevTime;
 
-	double lastX; // last unfiltered output
-	double lastY; // last filtered output
-	double partialOut;
-	double partialInterval;
-	bool lastOutput;
-	size_t sampcnt;
-	static const size_t BUF_SIZE = 1024;
-	unsigned char buf[BUF_SIZE];
-
-	std::auto_ptr<WavWriter> recordImage;
-
-	MSXCommandController& msxCommandController;
-
-	const std::auto_ptr<TapeCommand> tapeCommand;
-
 	// SoundDevice
 	int volume;
 	EmuDuration delta;
 	EmuTime playTapeTime;
 	std::string casImage;
 
+	MSXCommandController& msxCommandController;
 	MSXCliComm& cliComm;
 	EventDistributor& eventDistributor;
 
+	const std::auto_ptr<TapeCommand> tapeCommand;
 	std::auto_ptr<LoadingIndicator> loadingIndicator;
 	std::auto_ptr<BooleanSetting> autoRunSetting;
+	std::auto_ptr<WavWriter> recordImage;
+	std::auto_ptr<CassetteImage> playImage;
+
+	size_t sampcnt;
+	State state;
+	bool lastOutput;
+	bool motor, motorControl;
 
 	friend class TapeCommand;
 };

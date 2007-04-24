@@ -49,21 +49,21 @@ private:
 	unsigned stopAddr;
 	unsigned addrMask;
 	unsigned memPntr;
-	bool romBank;
 
+	unsigned nowStep, step;
 	int volume;
-	word delta;
-	unsigned int nowStep, step;
 	int out, output;
 	int diff;
 	int nextLeveling;
 	int sampleStep;
 	int volumeWStep;
+	int readDelay;
+	word delta;
 
 	byte reg7;
 	byte reg15;
 	byte adpcm_data;
-	int readDelay;
+	bool romBank;
 };
 
 } // namespace openmsx

@@ -49,10 +49,10 @@ private:
 	GlobalCommandController& commandController;
 	EventDistributor& eventDistributor;
 
-	bool xmlOutput;
 	typedef std::vector<CliConnection*> Connections;
 	Connections connections;
 	Semaphore sem; // lock access to connections member
+	bool xmlOutput;
 
 	friend class MSXCliComm;
 };

@@ -39,8 +39,8 @@ public:
 private:
 	std::string filename;
 	FILE* file;
-	bool readOnly;
 	std::auto_ptr<PreCacheFile> cache;
+	bool readOnly;
 };
 
 } // namespace openmsx

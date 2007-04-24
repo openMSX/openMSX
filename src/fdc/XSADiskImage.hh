@@ -43,25 +43,26 @@ private:
 	void inithufinfo();
 	void mkhuftbl();
 
-	typedef struct huf_node {
+	struct HufNode {
 		int weight;
-		huf_node* child1;
-		huf_node* child2;
-	} huf_node;
+		HufNode* child1;
+		HufNode* child2;
+	};
 
 	byte* inbufpos;		// pos in input buffer
 	byte* outbuf;		// the output buffer
 	byte* outbufpos;	// pos in output buffer
 
-	byte bitflg;		// flag with the bits
-	byte bitcnt;		// nb bits left
-
 	int updhufcnt;
 	int cpdist[TBLSIZE + 1];
 	int cpdbmask[TBLSIZE];
 	int tblsizes[TBLSIZE];
+	HufNode huftbl[2 * TBLSIZE - 1];
+
+	byte bitflg;		// flag with the bits
+	byte bitcnt;		// nb bits left
+
 	static const int cpdext[TBLSIZE];	// Extra bits for distance codes
-	huf_node huftbl[2 * TBLSIZE - 1];
 };
 
 } // namespace openmsx

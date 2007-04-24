@@ -51,10 +51,10 @@ private:
 	Scheduler* scheduler;
 	double frameDuration;
 	unsigned sampleRate;
-	bool warnedFps;
-	bool warnedSampleRate;
 	EmuDuration duration;
 	EmuTime prevTime;
+	bool warnedFps;
+	bool warnedSampleRate;
 };
 
 } // namespace openmsx

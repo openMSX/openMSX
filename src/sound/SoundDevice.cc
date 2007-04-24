@@ -19,9 +19,9 @@ SoundDevice::SoundDevice(MSXMixer& mixer_, const string& name_,
                          const string& description_,
                          unsigned numChannels_, bool stereo_)
 	: mixer(mixer_), name(name_), description(description_)
-	, muteCount(1), muted(true)
 	, numChannels(numChannels_), stereo(stereo_ ? 2 : 1)
 	, numRecordChannels(0)
+	, muteCount(1), muted(true)
 {
 	assert(numChannels <= MAX_CHANNELS);
 	assert(stereo == 1 || stereo == 2);

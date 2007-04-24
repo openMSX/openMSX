@@ -17,14 +17,14 @@ MSXRS232::MSXRS232(MSXMotherBoard& motherBoard, const XMLElement& config,
                    const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
 	, RS232Connector(motherBoard.getPluggingController(), "msx-rs232")
-	, rxrdyIRQlatch(false)
-	, rxrdyIRQenabled(false)
-	, rxrdyIRQ(getMotherBoard().getCPU())
 	, cntr0(*this), cntr1(*this)
 	, i8254(new I8254(motherBoard.getScheduler(), &cntr0, &cntr1, NULL, time))
 	, interf(*this)
 	, i8251(new I8251(motherBoard.getScheduler(), &interf, time))
 	, rom(new Rom(motherBoard, MSXDevice::getName() + " ROM", "rom", config))
+	, rxrdyIRQ(getMotherBoard().getCPU())
+	, rxrdyIRQlatch(false)
+	, rxrdyIRQenabled(false)
 {
 	if (config.getChildDataAsBool("ram", false)) {
 		ram.reset(new Ram(motherBoard, MSXDevice::getName() + " RAM",

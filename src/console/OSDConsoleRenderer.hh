@@ -61,14 +61,15 @@ protected:
 	std::auto_ptr<FilenameSetting> backgroundSetting;
 	std::auto_ptr<FilenameSetting> fontSetting;
 	std::auto_ptr<Font> font;
-	bool blink;
+
 	unsigned long long lastBlinkTime;
-	unsigned lastCursorX;
-	unsigned lastCursorY;
 	unsigned destX;
 	unsigned destY;
 	unsigned destW;
 	unsigned destH;
+	unsigned lastCursorX;
+	unsigned lastCursorY;
+	bool blink;
 
 private:
 	void adjustColRow();
@@ -79,10 +80,10 @@ private:
 	virtual void check(SettingImpl<FilenameSetting::Policy>& setting,
 	                   std::string& value);
 
-	bool active;
 	unsigned long long time;
 	Reactor& reactor;
 	BooleanSetting& consoleSetting;
+	bool active;
 };
 
 } // namespace openmsx

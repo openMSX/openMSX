@@ -39,12 +39,12 @@ private:
 	typedef std::deque<Sample> Queue;
 	Queue queue;
 
+	EmuTime start;
+	EmuDuration sampDur;
 	int volume;
 	int prevValue;
 	int prevA, prevB;
 	short lastWrittenValue;
-	EmuTime start;
-	EmuDuration sampDur;
 };
 
 } // namespace openmsx

@@ -81,10 +81,6 @@ private:
 	typedef std::map<std::string, CLIFileType*, StringOp::caseless> FileClassMap;
 	FileClassMap fileClassMap;
 
-	bool haveConfig;
-	bool haveSettings;
-	ParseStatus parseStatus;
-
 	Reactor& reactor;
 	SettingsConfig& settingsConfig;
 	CliComm& output;
@@ -106,8 +102,10 @@ private:
 	const std::auto_ptr<HDImageCLI> hdImageCLI;
 	const std::auto_ptr<CDImageCLI> cdImageCLI;
 	const std::auto_ptr<MSXEventRecorderReplayerCLI> 
-					eventRecorderReplayerCLI;
-	
+	                                        eventRecorderReplayerCLI;
+	ParseStatus parseStatus;
+	bool haveConfig;
+	bool haveSettings;
 	bool hiddenStartup;
 
 	friend class ControlOption;

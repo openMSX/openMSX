@@ -42,17 +42,17 @@ protected:
 	unsigned nbSectors;
 
 private:
-	byte writeTrackBuf[SECTOR_SIZE];
+	std::auto_ptr<const PatchInterface> patch;
+
 	int writeTrackBufCur;
 	int writeTrackSectorCur;
+	int writeTrack_CRCcount;
+	int readTrackDataCount;
+	byte readTrackDataBuf[RAWTRACK_SIZE];
+	byte writeTrackBuf[SECTOR_SIZE];
 	byte writeTrack_track;
 	byte writeTrack_side;
 	byte writeTrack_sector;
-	int writeTrack_CRCcount;
-	byte readTrackDataBuf[RAWTRACK_SIZE];
-	int readTrackDataCount;
-
-	std::auto_ptr<const PatchInterface> patch;
 };
 
 } // namespace openmsx

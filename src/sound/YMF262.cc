@@ -1808,10 +1808,10 @@ YMF262::YMF262(MSXMotherBoard& motherBoard, const std::string& name,
                const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMSXMixer(), name, "MoonSound FM-part",
 	              18, true)
-	, irq(motherBoard.getCPU())
+	, debuggable(new YMF262Debuggable(motherBoard, *this))
 	, timer1(motherBoard.getScheduler(), *this)
 	, timer2(motherBoard.getScheduler(), *this)
-	, debuggable(new YMF262Debuggable(motherBoard, *this))
+	, irq(motherBoard.getCPU())
 {
 	LFO_AM = LFO_PM = 0;
 	lfo_am_depth = lfo_pm_depth_range = lfo_am_cnt = lfo_pm_cnt = 0;

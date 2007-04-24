@@ -11,13 +11,13 @@ using std::string;
 namespace openmsx {
 
 WavAudioInput::WavAudioInput(CommandController& commandController)
-	: length(0), buffer(0), freq(44100)
-	, reference(EmuTime::zero)
-	, plugged(false)
-	, audioInputFilenameSetting(new FilenameSetting(
+	: audioInputFilenameSetting(new FilenameSetting(
 		commandController, "audio-inputfilename",
 		"filename of the file where the sampler reads data from",
 		"audio-input.wav"))
+	, reference(EmuTime::zero)
+	, buffer(0), length(0), freq(44100)
+	, plugged(false)
 {
 	audioInputFilenameSetting->attach(*this);
 }

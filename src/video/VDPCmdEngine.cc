@@ -344,14 +344,14 @@ void VDPCmdEngine::createEngines(unsigned cmd) {
 
 VDPCmdEngine::VDPCmdEngine(VDP& vdp_, RenderSettings& renderSettings_,
 	CommandController& commandController)
-	: clock(EmuTime::zero)
-	, vdp(vdp_), vram(vdp.getVRAM())
+	: vdp(vdp_), vram(vdp.getVRAM())
 	, renderSettings(renderSettings_)
-	, hasExtendedVRAM(vram.getSize() == (192 * 1024))
-	, statusChangeTime(EmuTime::infinity)
 	, cmdTraceSetting(new BooleanSetting(
 		commandController, "vdpcmdtrace",
 		"VDP command tracing on/off", false))
+	, clock(EmuTime::zero)
+	, statusChangeTime(EmuTime::infinity)
+	, hasExtendedVRAM(vram.getSize() == (192 * 1024))
 {
 	status = 0;
 	transfer = false;

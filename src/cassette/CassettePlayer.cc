@@ -75,21 +75,21 @@ CassettePlayer::CassettePlayer(
 		MSXCliComm& cliComm_)
 	: SoundDevice(mixer, getName(), getDescription(), 1)
 	, Schedulable(scheduler)
-	, state(STOP)
-	, motor(false), motorControl(true)
 	, tapeTime(EmuTime::zero)
 	, recTime(EmuTime::zero)
 	, prevTime(EmuTime::zero)
-	, lastOutput(false)
-	, sampcnt(0)
-	, msxCommandController(msxCommandController_)
-	, tapeCommand(new TapeCommand(msxCommandController, msxEventDistributor,
-	                              scheduler, *this))
 	, playTapeTime(EmuTime::zero)
+	, msxCommandController(msxCommandController_)
 	, cliComm(cliComm_)
 	, eventDistributor(eventDistributor_)
+	, tapeCommand(new TapeCommand(msxCommandController, msxEventDistributor,
+	                              scheduler, *this))
 	, loadingIndicator(new LoadingIndicator(
 	       msxCommandController.getGlobalSettings().getThrottleManager()))
+	, sampcnt(0)
+	, state(STOP)
+	, lastOutput(false)
+	, motor(false), motorControl(true)
 {
 	autoRunSetting.reset(new BooleanSetting(msxCommandController,
 		"autoruncassettes", "automatically try to run cassettes", false));

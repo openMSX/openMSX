@@ -55,10 +55,11 @@ private:
 	std::auto_ptr<CDXCommand> cdxCommand;
 	std::auto_ptr<File> file;
 	unsigned byteCountLimit;
-	bool readSectorData;
 	unsigned transferOffset;
 
 	unsigned senseKey;
+
+	bool readSectorData;
 
 	// Removable Media Status Notification Feature Set
 	bool remMedStatNotifEnabled;

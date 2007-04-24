@@ -30,9 +30,9 @@ private:
 	void schedule(const EmuTime& time);
 	void unschedule();
 
+	EmuTimerCallback& cb;
 	int count;
 	bool counting;
-	EmuTimerCallback& cb;
 };
 
 typedef EmuTimer<0x40,  3579545, 64 * 2     , 1024> EmuTimerOPM_1;

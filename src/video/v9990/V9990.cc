@@ -71,12 +71,12 @@ V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config,
              const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
 	, Schedulable(motherBoard.getScheduler())
-	, irq(motherBoard.getCPU())
-	, pendingIRQs(0)
-	, frameStartTime(time)
-	, hScanSyncTime(time)
 	, v9990RegDebug(new V9990RegDebug(*this))
 	, v9990PalDebug(new V9990PalDebug(*this))
+	, irq(motherBoard.getCPU())
+	, frameStartTime(time)
+	, hScanSyncTime(time)
+	, pendingIRQs(0)
 {
         // clear regs TODO find realistic init values
         memset(regs, 0, sizeof(regs));

@@ -60,8 +60,6 @@ class YM2413 : public YM2413Core, public SoundDevice, private Resample<1>
 		inline void updateAll();
 
 		Patch* patch;
-		bool type;		// 0 : modulator 1 : carrier
-		bool slot_on_flag;
 
 		// OUTPUT
 		int feedback;
@@ -84,6 +82,9 @@ class YM2413 : public YM2413Core, public SoundDevice, private Resample<1>
 		unsigned eg_phase;	// Phase
 		unsigned eg_dphase;	// Phase increment amount
 		unsigned egout;		// output
+
+		bool type;		// 0 : modulator 1 : carrier
+		bool slot_on_flag;
 	};
 	friend class Slot;
 
@@ -143,6 +144,9 @@ private:
 	inline void update_key_status();
 
 private:
+	friend class YM2413Debuggable;
+	const std::auto_ptr<YM2413Debuggable> debuggable;
+
 	int maxVolume;
 
 	byte reg[0x40];
@@ -167,9 +171,6 @@ private:
 
 	// Empty voice data
 	static Patch nullPatch;
-
-	friend class YM2413Debuggable;
-	const std::auto_ptr<YM2413Debuggable> debuggable;
 };
 
 } // namespace openmsx

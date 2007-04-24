@@ -46,10 +46,6 @@ private:
 	void setRxRDYIRQ(bool status);
 	void enableRxRDYIRQ(bool enabled);
 
-	bool rxrdyIRQlatch;
-	bool rxrdyIRQenabled;
-	IRQHelper rxrdyIRQ;
-
 	// counter 0 rx clock pin
 	class Counter0 : public ClockPinListener {
 	public:
@@ -100,6 +96,11 @@ private:
 	const std::auto_ptr<I8251> i8251;
 	const std::auto_ptr<Rom> rom;
 	std::auto_ptr<Ram> ram;
+
+	IRQHelper rxrdyIRQ;
+	bool rxrdyIRQlatch;
+	bool rxrdyIRQenabled;
+
 };
 
 } // namespace openmsx

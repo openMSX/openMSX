@@ -39,14 +39,6 @@ private:
 	void executionPhaseWrite(byte value);
 
 	DiskDrive* drive[4]; 
-	byte driveSelect;
-	byte mainStatus;
-	byte status0;
-	byte status1;
-	byte status2;
-	byte status3;
-	byte commandCode;
-
 	enum Command {
 		CMD_UNKNOWN,
 		CMD_READ_DATA,
@@ -73,6 +65,21 @@ private:
 	} phase;
 	int phaseStep;
 
+	int sectorSize;
+	int sectorOffset;
+	//bool interrupt;
+
+	byte sectorBuf[4096];
+	Clock<1000000> delayTime;
+
+	byte driveSelect;
+	byte mainStatus;
+	byte status0;
+	byte status1;
+	byte status2;
+	byte status3;
+	byte commandCode;
+
 	byte cylinderNumber;
 	byte headNumber;
 	byte sectorNumber;
@@ -80,13 +87,6 @@ private:
 	byte currentTrack;
 	byte sectorsPerCylinder;
 	byte fillerByte;
-
-	int sectorSize;
-	int sectorOffset;
-	//bool interrupt;
-
-	byte sectorBuf[4096];
-	Clock<1000000> delayTime;
 };
 
 } // namespace openmsx
