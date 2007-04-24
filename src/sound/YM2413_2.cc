@@ -611,14 +611,14 @@ inline int Slot::op_calc(byte LFO_AM, FreqIndex phase, FreqIndex pm)
 {
 	int env = (TLL + volume + (LFO_AM & AMmask)) << 5;
 	if (env < TL_TAB_LEN) {
-		return 0;
-	} else {
 		// TODO: Is there a point in passing "phase" and "pm" as fixed point
 		//       values if we're just going to round them anyway?
 		int p = env + sin_tab[
 			wavetable + ((phase.toInt() + pm.toInt()) & SIN_MASK)
 			];
 		return p < TL_TAB_LEN ? tl_tab[p] : 0;
+	} else {
+		return 0;
 	}
 }
 
