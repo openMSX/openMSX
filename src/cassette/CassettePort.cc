@@ -48,11 +48,6 @@ CassetteDevice& CassettePortInterface::getPlugged() const
 
 // DummyCassettePort //
 
-DummyCassettePort::DummyCassettePort()
-	: CassettePortInterface()
-{
-}
-
 void DummyCassettePort::setMotor(bool /*status*/, const EmuTime& /*time*/)
 {
 	// do nothing
@@ -63,11 +58,11 @@ void DummyCassettePort::cassetteOut(bool /*output*/, const EmuTime& /*time*/)
 }
 bool DummyCassettePort::cassetteIn(const EmuTime& /*time*/)
 {
-	return true;	// TODO check on Turbo-R
+	return false;
 }
 bool DummyCassettePort::lastOut() const
 {
-  return false; // not relevant
+	return false; // not relevant
 }
 
 

@@ -86,7 +86,6 @@ private:
 class DummyCassettePort : public CassettePortInterface
 {
 public:
-	DummyCassettePort();
 	virtual void setMotor(bool status, const EmuTime& time);
 	virtual void cassetteOut(bool output, const EmuTime& time);
 	virtual bool cassetteIn(const EmuTime& time);
