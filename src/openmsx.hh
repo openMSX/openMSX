@@ -30,13 +30,13 @@ typedef short signed_word;
 typedef unsigned short word;
 
 /** 32 bit unsigned integer */
-typedef unsigned int uint32;
+typedef unsigned uint32;
 
 #ifdef _WIN32
 #ifdef	__MINGW32__
 #include <_mingw.h>	// for __int64
 #endif
-#define	uint	unsigned int
+#define	uint	unsigned 
 // Use define instead of typedef. See _mingw.h.
 /** 64 bit signed integer */
 #define	int64	__int64

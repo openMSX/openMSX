@@ -63,7 +63,7 @@ inline void AY8910::Generator::reset(byte output)
 	this->output = output;
 }
 
-inline void AY8910::Generator::setPeriod(int value, unsigned int updateStep)
+inline void AY8910::Generator::setPeriod(int value, unsigned updateStep)
 {
 	// A note about the period of tones, noise and envelope: for speed
 	// reasons, we count down from the period to 0, but careful studies of the
@@ -222,7 +222,7 @@ AY8910::Amplitude::Amplitude(const XMLElement& config)
 	setMasterVolume(0); // avoid UMR
 }
 
-inline unsigned int AY8910::Amplitude::getVolume(byte chan)
+inline unsigned AY8910::Amplitude::getVolume(byte chan)
 {
 	return vol[chan];
 }
@@ -298,7 +298,7 @@ inline void AY8910::Envelope::reset()
 	count = 0;
 }
 
-inline void AY8910::Envelope::setPeriod(int value, unsigned int updateStep)
+inline void AY8910::Envelope::setPeriod(int value, unsigned updateStep)
 {
 	// twice as fast as AY8910
 	const int old = period;

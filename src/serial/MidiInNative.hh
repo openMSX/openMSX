@@ -54,14 +54,14 @@ private:
 	// EventListener
 	virtual bool signalEvent(shared_ptr<const Event> event);
 
-	void procShortMsg(long unsigned int param);
+	void procShortMsg(long unsigned param);
 	void procLongMsg(LPMIDIHDR p);
 
 	EventDistributor& eventDistributor;
 	Scheduler& scheduler;
 	Thread thread;
-	unsigned int devidx;
-	unsigned int thrdid;
+	unsigned devidx;
+	unsigned thrdid;
 	std::deque<byte> queue;
 	Semaphore lock; // to protect queue
 	std::string name;

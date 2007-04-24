@@ -79,7 +79,7 @@ static RomType guessRomType(const Rom& rom)
 		//  with this instruction to the mapper-registers-addresses
 		//  occur.
 
-		unsigned int typeGuess[] = {0,0,0,0,0,0};
+		unsigned typeGuess[] = {0,0,0,0,0,0};
 		for (int i=0; i<size-3; i++) {
 			if (data[i] == 0x32) {
 				word value = data[i+1]+(data[i+2]<<8);

@@ -21,7 +21,7 @@ public:
 	  * If the sprite is less than 32 pixels wide,
 	  * the lower bits are unused.
 	  */
-	typedef unsigned int SpritePattern;
+	typedef unsigned SpritePattern;
 
 	/** Contains all the information to draw a line of a sprite.
 	  */

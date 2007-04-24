@@ -41,7 +41,7 @@ const int DECODE_MAX = 32767;
 const int DECODE_MIN = -32768;
 
 const int GETA_BITS = 14;
-const unsigned int MAX_STEP = 1 << (16 + GETA_BITS);
+const unsigned MAX_STEP = 1 << (16 + GETA_BITS);
 
 
 static int CLAP(int min, int x, int max)

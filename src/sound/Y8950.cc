@@ -66,14 +66,14 @@ static const int TL_MUTE = 1 << TL_BITS;
 // WaveTable for each envelope amp.
 static int sintable[PG_WIDTH];
 // Phase incr table for Attack.
-static unsigned int dphaseARTable[16][16];
+static unsigned dphaseARTable[16][16];
 // Phase incr table for Decay and Release.
-static unsigned int dphaseDRTable[16][16];
+static unsigned dphaseDRTable[16][16];
 // KSL + TL Table.
 static int tllTable[16][8][1 << TL_BITS][4];
 static int rksTable[2][8][2];
 // Phase incr table for PG.
-static unsigned int dphaseTable[1024][8][16];
+static unsigned dphaseTable[1024][8][16];
 // Liner to Log curve conversion table (for Attack rate).
 static int AR_ADJUST_TABLE[1 << EG_BITS];
 
@@ -86,7 +86,7 @@ static const int DB_MUTE = 1 << DB_BITS;
 static const int PM_AMP_BITS = 8;
 static const int PM_AMP = 1 << PM_AMP_BITS;
 
-static unsigned int dphaseNoiseTable[1024][8];
+static unsigned dphaseNoiseTable[1024][8];
 
 // Bits for liner value
 static const int DB2LIN_AMP_BITS = 11;
@@ -688,8 +688,8 @@ void Y8950::Slot::calc_phase()
 
 void Y8950::Slot::calc_envelope()
 {
-	#define S2E(x) (ALIGN((unsigned int)(x / SL_STEP), SL_STEP, EG_STEP) << (EG_DP_BITS - EG_BITS))
-	static unsigned int SL[16] = {
+	#define S2E(x) (ALIGN((unsigned)(x / SL_STEP), SL_STEP, EG_STEP) << (EG_DP_BITS - EG_BITS))
+	static unsigned SL[16] = {
 		S2E( 0), S2E( 3), S2E( 6), S2E( 9), S2E(12), S2E(15), S2E(18), S2E(21),
 		S2E(24), S2E(27), S2E(30), S2E(33), S2E(36), S2E(39), S2E(42), S2E(93)
 	};

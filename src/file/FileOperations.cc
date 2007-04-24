@@ -414,10 +414,10 @@ bool exists(const string& filename)
 }
 
 static int getNextNum(dirent* d, const string& prefix, const string& extension,
-                      const unsigned int nofdigits)
+                      const unsigned nofdigits)
 {
-	const unsigned int extensionlen = extension.length();
-	const unsigned int prefixlen = prefix.length();
+	const unsigned extensionlen = extension.length();
+	const unsigned prefixlen = prefix.length();
 	string name(d->d_name);
 
 	if ((name.length() != (prefixlen + nofdigits + extensionlen)) ||
@@ -437,7 +437,7 @@ static int getNextNum(dirent* d, const string& prefix, const string& extension,
 string getNextNumberedFileName(
 	const string& directory, const string& prefix, const string& extension)
 {
-	const unsigned int nofdigits = 4;
+	const unsigned nofdigits = 4;
 
 	int max_num = 0;
 

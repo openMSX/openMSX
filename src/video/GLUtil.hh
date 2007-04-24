@@ -30,10 +30,10 @@ namespace openmsx {
 
 namespace GLUtil {
 
-// The type "GLuint" is typically "unsigned int" on Windows and Linux and
+// The type "GLuint" is typically "unsigned" on Windows and Linux and
 // "unsigned long" on Mac OS X. We should expand some templates for both
-// "GLuint" and "unsigned int", but expanding a template twice is an error.
-// So if GLuint is "unsigned int", one of the template expansions should be
+// "GLuint" and "unsigned", but expanding a template twice is an error.
+// So if GLuint is "unsigned", one of the template expansions should be
 // skipped.
 //
 // We solve this by expanding the class using the type argument "ExpandGL",
@@ -47,7 +47,7 @@ namespace GLUtil {
 //   template class SomeClass<GLUtil::ExpandGL>;
 //
 class NoExpansion {};
-// ExpandFilter::ExpandType = (Type == unsigned int ? NoExpansion : Type)
+// ExpandFilter::ExpandType = (Type == unsigned ? NoExpansion : Type)
 template <class Type> class ExpandFilter {
 public:
 	typedef Type ExpandType;
@@ -56,7 +56,7 @@ template <> class ExpandFilter<unsigned> {
 public:
 	typedef NoExpansion ExpandType;
 };
-// ExpandGL = (Type == unsigned int ? NoExpansion : Type)
+// ExpandGL = (Type == unsigned ? NoExpansion : Type)
 typedef ExpandFilter<GLuint>::ExpandType ExpandGL;
 
 

@@ -49,7 +49,7 @@ static int tl_tab[TL_TAB_LEN];
 static const unsigned ENV_QUIET = TL_TAB_LEN >> 3;
 
 // sin waveform table in 'decibel' scale
-static unsigned int sin_tab[SIN_LEN];
+static unsigned sin_tab[SIN_LEN];
 
 // translate from D1L to volume index (16 D1L levels)
 static unsigned d1l_tab[16];

@@ -41,7 +41,7 @@ string utf8ToAscii(const string& utf8)
 			break;
 		case 0xC0:
 			char nbyte, mask;
-			unsigned int uni;
+			unsigned uni;
 			for (mask = 0x20, first -= 0xC0, nbyte = 2;
 			     first & mask;
 			     mask >>= 1, ++nbyte) {
