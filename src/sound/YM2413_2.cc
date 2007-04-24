@@ -117,6 +117,7 @@ static const int ksl_tab[8 * 16] =
 	DV(18.000),DV(18.750),DV(19.125),DV(19.500),
 	DV(19.875),DV(20.250),DV(20.625),DV(21.000)
 };
+#undef DV
 
 // sustain level table (3dB per step)
 // 0 - 15: 0, 3, 6, 9,12,15,18,21,24,27,30,33,36,39,42,45 (dB)
@@ -125,6 +126,7 @@ static const int sl_tab[16] = {
 	SC( 0),SC( 1),SC( 2),SC(3 ),SC(4 ),SC(5 ),SC(6 ),SC( 7),
 	SC( 8),SC( 9),SC(10),SC(11),SC(12),SC(13),SC(14),SC(15)
 };
+#undef SC
 
 const int RATE_STEPS = 8;
 static const byte eg_inc[15 * RATE_STEPS] =
