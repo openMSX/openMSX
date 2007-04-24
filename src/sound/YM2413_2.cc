@@ -39,10 +39,8 @@ private:
 };
 
 
-const int FREQ_SH = 16;	// 16.16 fixed point (frequency calculations)
 const int EG_SH   = 16;	// 16.16 fixed point (EG timing)
 const int LFO_SH  = 24;	//  8.24 fixed point (LFO calculations)
-const int FREQ_MASK = (1 << FREQ_SH) - 1;
 
 // envelope output entries
 const int ENV_BITS = 10;
@@ -257,9 +255,6 @@ const int Slot::ENV_QUIET = TL_TAB_LEN >> 5;
 // two waveforms on OPLL type chips
 static unsigned sin_tab[SIN_LEN * 2];
 
-// fnumber->increment counter
-static int fn_tab[1024];
-
 // LFO Amplitude Modulation table (verified on real YM3812)
 // 27 output levels (triangle waveform); 1 level takes one of: 192, 256 or 448 samples
 //
@@ -393,9 +388,10 @@ static const byte table[16 + 3][8] = {
 
 
 Slot::Slot()
+	: phase(0), freq(0)
 {
 	ar = dr = rr = KSR = ksl = ksr = mul = 0;
-	phase = freq = fb_shift = op1_out[0] = op1_out[1] = 0;
+	fb_shift = op1_out[0] = op1_out[1] = 0;
 	eg_type = state = TL = TLL = volume = sl = 0;
 	eg_sh_dp = eg_sel_dp = eg_sh_ar = eg_sel_ar = eg_sh_dr = 0;
 	eg_sel_dr = eg_sh_rr = eg_sel_rr = eg_sh_rs = eg_sel_rs = 0;
@@ -403,8 +399,17 @@ Slot::Slot()
 }
 
 Channel::Channel()
+	: fc(0)
 {
-	block_fnum = fc = ksl_base = kcode = sus = 0;
+	block_fnum = ksl_base = kcode = sus = 0;
+}
+
+inline FreqIndex YM2413_2::fnumToIncrement(int fnum)
+{
+	// OPLL (YM2413) phase increment counter = 18bit
+	// Chip works with 10.10 fixed point, while we use 16.16.
+	const byte block = (fnum & 0x1C00) >> 10;
+	return FreqIndex(fnum & 0x03FF) >> (11 - block);
 }
 
 // advance LFO to next sample
@@ -446,7 +451,7 @@ inline void YM2413_2::advance()
 				if (op.volume >= MAX_ATT_INDEX) {
 					op.volume = MAX_ATT_INDEX;
 					op.state = EG_ATT;
-					op.phase = 0;	// restart Phase Generator
+					op.phase = FreqIndex(0);	// restart Phase Generator
 				}
 			}
 			break;
@@ -561,8 +566,7 @@ inline void YM2413_2::advance()
 			if (lfo_fn_table_index_offset) {
 				// LFO phase modulation active
 				block_fnum += lfo_fn_table_index_offset;
-				byte block = (block_fnum & 0x1C00) >> 10;
-				op.phase += (fn_tab[block_fnum & 0x03FF] >> (7 - block)) * op.mul;
+				op.phase += fnumToIncrement(block_fnum) * op.mul;
 			} else {
 				// LFO phase modulation = zero
 				op.phase += op.freq;
@@ -600,14 +604,17 @@ inline void YM2413_2::advance()
 }
 
 
-inline int Slot::op_calc(byte LFO_AM, unsigned phase, int pm)
+inline int Slot::op_calc(byte LFO_AM, FreqIndex phase, FreqIndex pm)
 {
 	int env = TLL + volume + (LFO_AM & AMmask);
 	if (env < ENV_QUIET) {
 		return 0;
 	} else {
-		int i = (phase & ~FREQ_MASK) + pm;
-		int p = (env << 5) + sin_tab[wavetable + ((i >> FREQ_SH) & SIN_MASK)];
+		// TODO: Is there a point in passing "phase" and "pm" as fixed point
+		//       values if we're just going to round them anyway?
+		int p = (env << 5) + sin_tab[
+			wavetable + ((phase.toInt() + pm.toInt()) & SIN_MASK)
+			];
 		return p < TL_TAB_LEN ? tl_tab[p] : 0;
 	}
 }
@@ -615,15 +622,21 @@ inline int Slot::op_calc(byte LFO_AM, unsigned phase, int pm)
 inline void Slot::updateModulator(byte LFO_AM)
 {
 	// Compute phase modulation for slot 1.
-	int pm = fb_shift ? (op1_out[0] + op1_out[1]) << fb_shift : 0;
+	// Note: tl_tab contains 11bit values, so adding two output values will not
+	//       overflow the 16.16 fixed point number.
+	const FreqIndex pm =
+		  fb_shift
+		? FreqIndex(op1_out[0] + op1_out[1]) >> fb_shift
+		: FreqIndex(0);
 	// Shift output in 2-place buffer.
 	op1_out[0] = op1_out[1];
 	// Calculate operator output.
 	op1_out[1] = op_calc(LFO_AM, phase, pm);
 }
 
-void Slot::setFeedbackShift(byte value) {
-	fb_shift = value ? value + 8 : 0;
+void Slot::setFeedbackShift(byte value)
+{
+	fb_shift = value ? 8 - value : 0;
 }
 
 // calculate output
@@ -685,7 +698,7 @@ inline int YM2413_2::adjust(int x)
 // The following formulas can be well optimized.
 //   I leave them in direct form for now (in case I've missed something).
 
-inline unsigned YM2413_2::genPhaseHighHat()
+inline FreqIndex YM2413_2::genPhaseHighHat()
 {
 	const bool noise = noise_rng & 1;
 	Slot& SLOT7_1 = channels[7].slots[SLOT1];
@@ -696,17 +709,17 @@ inline unsigned YM2413_2::genPhaseHighHat()
 	// phase = 34 or 2D0 (based on noise)
 
 	// base frequency derived from operator 1 in channel 7
-	bool bit7 = (SLOT7_1.phase >> FREQ_SH) & 0x80;
-	bool bit3 = (SLOT7_1.phase >> FREQ_SH) & 0x08;
-	bool bit2 = (SLOT7_1.phase >> FREQ_SH) & 0x04;
+	bool bit7 = SLOT7_1.phase.toInt() & 0x80;
+	bool bit3 = SLOT7_1.phase.toInt() & 0x08;
+	bool bit2 = SLOT7_1.phase.toInt() & 0x04;
 	bool res1 = (bit2 ^ bit7) | bit3;
 	// when res1 = 0 phase = 0x000 |  0xD0;
 	// when res1 = 1 phase = 0x200 | (0xD0 >> 2);
-	unsigned phase = res1 ? (0x200 | (0xD0 >> 2)) : 0xD0;
+	int phase = res1 ? (0x200 | (0xD0 >> 2)) : 0xD0;
 
 	// enable gate based on frequency of operator 2 in channel 8
-	bool bit5e= (SLOT8_2.phase >> FREQ_SH) & 0x20;
-	bool bit3e= (SLOT8_2.phase >> FREQ_SH) & 0x08;
+	bool bit5e= SLOT8_2.phase.toInt() & 0x20;
+	bool bit3e= SLOT8_2.phase.toInt() & 0x08;
 	bool res2 = (bit3e | bit5e);
 	// when res2 = 0 pass the phase from calculation above (res1);
 	// when res2 = 1 phase = 0x200 | (0xd0>>2);
@@ -729,20 +742,20 @@ inline unsigned YM2413_2::genPhaseHighHat()
 			phase = 0xD0 >> 2;
 		}
 	}
-	return phase << FREQ_SH;
+	return FreqIndex(phase);
 }
 
-inline unsigned YM2413_2::genPhaseSnare()
+inline FreqIndex YM2413_2::genPhaseSnare()
 {
 	const bool noise = noise_rng & 1;
 	Slot& SLOT7_1 = channels[7].slots[SLOT1];
 
 	// base frequency derived from operator 1 in channel 7
-	bool bit8 = (SLOT7_1.phase >> FREQ_SH) & 0x100;
+	bool bit8 = SLOT7_1.phase.toInt() & 0x100;
 
 	// when bit8 = 0 phase = 0x100;
 	// when bit8 = 1 phase = 0x200;
-	unsigned phase = bit8 ? 0x200 : 0x100;
+	int phase = bit8 ? 0x200 : 0x100;
 
 	// Noise bit XOR'es phase by 0x100
 	// when noisebit = 0 pass the phase from calculation above
@@ -751,33 +764,33 @@ inline unsigned YM2413_2::genPhaseSnare()
 	if (noise) {
 		phase ^= 0x100;
 	}
-	return phase << FREQ_SH;
+	return FreqIndex(phase);
 }
 
-inline unsigned YM2413_2::genPhaseCymbal()
+inline FreqIndex YM2413_2::genPhaseCymbal()
 {
 	Slot& SLOT7_1 = channels[7].slots[SLOT1];
 	Slot& SLOT8_2 = channels[8].slots[SLOT2];
 
 	// base frequency derived from operator 1 in channel 7
-	bool bit7 = (SLOT7_1.phase >> FREQ_SH) & 0x80;
-	bool bit3 = (SLOT7_1.phase >> FREQ_SH) & 0x08;
-	bool bit2 = (SLOT7_1.phase >> FREQ_SH) & 0x04;
+	bool bit7 = SLOT7_1.phase.toInt() & 0x80;
+	bool bit3 = SLOT7_1.phase.toInt() & 0x08;
+	bool bit2 = SLOT7_1.phase.toInt() & 0x04;
 	bool res1 = (bit2 ^ bit7) | bit3;
 	// when res1 = 0 phase = 0x000 | 0x100;
 	// when res1 = 1 phase = 0x200 | 0x100;
-	unsigned phase = res1 ? 0x300 : 0x100;
+	int phase = res1 ? 0x300 : 0x100;
 
 	// enable gate based on frequency of operator 2 in channel 8
-	bool bit5e= (SLOT8_2.phase >> FREQ_SH) & 0x20;
-	bool bit3e= (SLOT8_2.phase >> FREQ_SH) & 0x08;
+	bool bit5e= SLOT8_2.phase.toInt() & 0x20;
+	bool bit3e= SLOT8_2.phase.toInt() & 0x08;
 	bool res2 = bit3e | bit5e;
 	// when res2 = 0 pass the phase from calculation above (res1);
 	// when res2 = 1 phase = 0x200 | 0x100;
 	if (res2) {
 		phase = 0x300;
 	}
-	return phase << FREQ_SH;
+	return FreqIndex(phase);
 }
 
 // calculate rhythm
@@ -813,19 +826,27 @@ inline void YM2413_2::rhythm_calc(int** bufs, unsigned sample)
 
 	// High Hat (verified on real YM3812)
 	Slot& SLOT7_1 = channels[7].slots[SLOT1];
-	bufs[7][sample] = adjust(2 * SLOT7_1.op_calc(LFO_AM, genPhaseHighHat(), 0));
+	bufs[7][sample] = adjust(
+		2 * SLOT7_1.op_calc(LFO_AM, genPhaseHighHat(), FreqIndex(0))
+		);
 
 	// Snare Drum (verified on real YM3812)
 	Slot& SLOT7_2 = channels[7].slots[SLOT2];
-	bufs[8][sample] = adjust(2 * SLOT7_2.op_calc(LFO_AM, genPhaseSnare(), 0));
+	bufs[8][sample] = adjust(
+		2 * SLOT7_2.op_calc(LFO_AM, genPhaseSnare(), FreqIndex(0))
+		);
 
 	// Tom Tom (verified on real YM3812)
 	Slot& SLOT8_1 = channels[8].slots[SLOT1];
-	bufs[9][sample] = adjust(2 * SLOT8_1.op_calc(LFO_AM, SLOT8_1.phase, 0));
+	bufs[9][sample] = adjust(
+		2 * SLOT8_1.op_calc(LFO_AM, SLOT8_1.phase, FreqIndex(0))
+		);
 
 	// Top Cymbal (verified on real YM2413)
 	Slot& SLOT8_2 = channels[8].slots[SLOT2];
-	bufs[10][sample] = adjust(2 * SLOT8_2.op_calc(LFO_AM, genPhaseCymbal(), 0));
+	bufs[10][sample] = adjust(
+		2 * SLOT8_2.op_calc(LFO_AM, genPhaseCymbal(), FreqIndex(0))
+		);
 }
 
 
@@ -890,13 +911,6 @@ void YM2413_2::init_tables()
 		} else {
 			sin_tab[SIN_LEN + i] = sin_tab[i];
 		}
-	}
-
-	// make fnumber -> increment counter table
-	for (int i = 0 ; i < 1024; i++) {
-		// OPLL (YM2413) phase increment counter = 18bit
-		// -10 because chip works with 10.10 fixed point, while we use 16.16
-		fn_tab[i] = i * 64 * (1 << (FREQ_SH - 10));
 	}
 }
 
@@ -1260,9 +1274,7 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 			// BLK 2,1,0 bits -> bits 3,2,1 of kcode, FNUM MSB -> kcode LSB
 			ch.kcode    = (block_fnum & 0x0f00) >> 8;
 			ch.ksl_base = ksl_tab[block_fnum >> 5];
-			block_fnum  = block_fnum * 2;
-			byte block  = (block_fnum & 0x1C00) >> 10;
-			ch.fc       = fn_tab[block_fnum & 0x03FF] >> (7 - block);
+			ch.fc       = fnumToIncrement(block_fnum * 2);
 
 			// refresh Total Level in both SLOTs of this channel
 			ch.slots[SLOT1].TLL = ch.slots[SLOT1].TL + (ch.ksl_base >> ch.slots[SLOT1].ksl);

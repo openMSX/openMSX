@@ -6,6 +6,7 @@
 #include "YM2413Core.hh"
 #include "SoundDevice.hh"
 #include "Resample.hh"
+#include "FixedPoint.hh"
 #include "openmsx.hh"
 #include <memory>
 
@@ -15,12 +16,16 @@ class EmuTime;
 class MSXMotherBoard;
 class YM2413_2Debuggable;
 
+/** 16.16 fixed point type for frequency calculations.
+  */
+typedef FixedPoint<16> FreqIndex;
+
 class Slot
 {
 public:
 	Slot();
 
-	inline int op_calc(byte LFO_AM, unsigned phase, int pm);
+	inline int op_calc(byte LFO_AM, FreqIndex phase, FreqIndex pm);
 	inline void updateModulator(byte LFO_AM);
 	inline void KEY_ON (byte key_set);
 	inline void KEY_OFF(byte key_clr);
@@ -28,8 +33,8 @@ public:
 	/**
 	 * Output of SLOT 1 can be used to phase modulate SLOT 2.
 	 */
-	inline int getPhaseModulation() {
-		return op1_out[0] << 17;
+	inline FreqIndex getPhaseModulation() {
+		return FreqIndex(op1_out[0] << 1);
 	}
 
 	/**
@@ -46,8 +51,8 @@ public:
 	byte mul;	// multiple: mul_tab[ML]
 
 	// Phase Generator
-	int phase;	// frequency counter
-	int freq;	// frequency counter step
+	FreqIndex phase;	// frequency counter
+	FreqIndex freq;	// frequency counter step
 
 	// Envelope Generator
 	byte eg_type;	// percussive/nonpercussive mode
@@ -93,7 +98,7 @@ public:
 	Slot slots[2];
 	// phase generator state
 	int block_fnum;	// block+fnum
-	int fc;		// Freq. freqement base
+	FreqIndex fc;	// Freq. freqement base
 	int ksl_base;	// KeyScaleLevel Base step
 	byte kcode;	// key code (for key scaling)
 	byte sus;	// sus on/off (release speed in percussive mode)
@@ -110,6 +115,8 @@ public:
 	void writeReg(byte r, byte v, const EmuTime& time);
 
 private:
+	static inline FreqIndex fnumToIncrement(int fnum);
+
 	void checkMute();
 	bool checkMuteHelper();
 
@@ -117,9 +124,9 @@ private:
 
 	inline void advance_lfo();
 	inline void advance();
-	inline unsigned genPhaseHighHat();
-	inline unsigned genPhaseSnare();
-	inline unsigned genPhaseCymbal();
+	inline FreqIndex genPhaseHighHat();
+	inline FreqIndex genPhaseSnare();
+	inline FreqIndex genPhaseCymbal();
 	inline void rhythm_calc(int** bufs, unsigned sample);
 	inline int adjust(int x);
 
