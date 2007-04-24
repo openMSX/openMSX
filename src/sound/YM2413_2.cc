@@ -249,7 +249,6 @@ static const byte mul_tab[16] =
 //  TL_RES_LEN - sinus resolution (X axis)
 const int TL_TAB_LEN = 11 * 2 * TL_RES_LEN;
 static int tl_tab[TL_TAB_LEN];
-const int Slot::ENV_QUIET = TL_TAB_LEN >> 5;
 
 // sin waveform table in 'decibel' scale
 // two waveforms on OPLL type chips
@@ -608,13 +607,13 @@ inline void YM2413_2::advance()
 
 inline int Slot::op_calc(byte LFO_AM, FreqIndex phase, FreqIndex pm)
 {
-	int env = TLL + volume + (LFO_AM & AMmask);
-	if (env < ENV_QUIET) {
+	int env = (TLL + volume + (LFO_AM & AMmask)) << 5;
+	if (env < TL_TAB_LEN) {
 		return 0;
 	} else {
 		// TODO: Is there a point in passing "phase" and "pm" as fixed point
 		//       values if we're just going to round them anyway?
-		int p = (env << 5) + sin_tab[
+		int p = env + sin_tab[
 			wavetable + ((phase.toInt() + pm.toInt()) & SIN_MASK)
 			];
 		return p < TL_TAB_LEN ? tl_tab[p] : 0;

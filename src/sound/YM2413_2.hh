@@ -80,8 +80,6 @@ public:
 	int wavetable;	// waveform select
 
 private:
-	static const int ENV_QUIET;
-
 	byte fb_shift;	// feedback shift value
 	int op1_out[2];	// slot1 output for feedback
 
