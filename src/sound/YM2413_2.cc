@@ -869,25 +869,18 @@ void YM2413_2::init_tables()
 		// result fits within 16 bits at maximum
 		int n = (int)m;	// 16 bits here
 		n >>= 4;	// 12 bits here
-		if (n & 1) {
-			// round to nearest
-			n = (n >> 1) + 1;
-		} else {
-			n =  n >> 1;
-		}
+		n = (n >> 1) + (n & 1); // round to nearest
 		// 11 bits here (rounded)
-		tl_tab[x * 2 + 0] = n;
-		tl_tab[x * 2 + 1] = -tl_tab[x * 2 + 0];
-
-		for (int i = 1; i < 11; i++) {
-			tl_tab[x * 2 + 0 + i * 2 * TL_RES_LEN] =  tl_tab[x * 2 + 0] >> i;
-			tl_tab[x * 2 + 1 + i * 2 * TL_RES_LEN] = -tl_tab[x * 2 + 0 + i * 2 * TL_RES_LEN];
+		for (int i = 0; i < 11; i++) {
+			tl_tab[x * 2 + 0 + i * 2 * TL_RES_LEN] = n >> i;
+			tl_tab[x * 2 + 1 + i * 2 * TL_RES_LEN] = -(n >> i);
 		}
 	}
 
 	for (int i = 0; i < SIN_LEN; i++) {
 		// non-standard sinus
-		double m = sin(((i * 2) + 1) * M_PI / SIN_LEN); // checked against the real chip
+		// checked against the real chip
+		double m = sin(((i * 2) + 1) * M_PI / SIN_LEN);
 
 		// we never reach zero here due to ((i*2)+1)
 		double o = (m > 0.0) ?
@@ -896,23 +889,15 @@ void YM2413_2::init_tables()
 		o = o / (ENV_STEP / 4);
 
 		int n = (int)(2.0 * o);
-		if (n & 1) {
-			// round to nearest
-			n = (n >> 1) + 1;
-		} else {
-			n =  n >> 1;
-		}
+		n = (n >> 1) + (n & 1); // round to nearest
 		// waveform 0: standard sinus
 		sin_tab[i] = n * 2 + (m >= 0.0 ? 0: 1);
 
 		// waveform 1:  __      __
 		//             /  \____/  \____
 		// output only first half of the sinus waveform (positive one)
-		if (i & (1 << (SIN_BITS - 1))) {
-			sin_tab[SIN_LEN + i] = TL_TAB_LEN;
-		} else {
-			sin_tab[SIN_LEN + i] = sin_tab[i];
-		}
+		sin_tab[SIN_LEN + i] =
+			(i & (1 << (SIN_BITS - 1))) ? TL_TAB_LEN : sin_tab[i];
 	}
 }
 
