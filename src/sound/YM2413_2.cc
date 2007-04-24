@@ -554,26 +554,28 @@ inline void YM2413_2::advance()
 		}
 	}
 
-	for (int i = 0; i < 9 * 2; i++) {
-		Channel& ch = channels[i / 2];
-		Slot& op = ch.slots[i & 1];
+	for (int ch = 0; ch < 9; ch++) {
+		Channel& channel = channels[ch];
+		for (int sl = 0; sl < 2; sl++) {
+			Slot& op = channel.slots[sl];
 
-		// Phase Generator
-		if (op.vib) {
-			int fnum_lfo   = 8 * ((ch.block_fnum & 0x01C0) >> 6);
-			int block_fnum = ch.block_fnum * 2;
-			int lfo_fn_table_index_offset = lfo_pm_table[LFO_PM + fnum_lfo];
-			if (lfo_fn_table_index_offset) {
-				// LFO phase modulation active
-				block_fnum += lfo_fn_table_index_offset;
-				op.phase += fnumToIncrement(block_fnum) * op.mul;
+			// Phase Generator
+			if (op.vib) {
+				int fnum_lfo   = 8 * ((channel.block_fnum & 0x01C0) >> 6);
+				int block_fnum = channel.block_fnum * 2;
+				int lfo_fn_table_index_offset = lfo_pm_table[LFO_PM + fnum_lfo];
+				if (lfo_fn_table_index_offset) {
+					// LFO phase modulation active
+					block_fnum += lfo_fn_table_index_offset;
+					op.phase += fnumToIncrement(block_fnum) * op.mul;
+				} else {
+					// LFO phase modulation = zero
+					op.phase += op.freq;
+				}
 			} else {
-				// LFO phase modulation = zero
+				// LFO phase modulation disabled for this operator
 				op.phase += op.freq;
 			}
-		} else {
-			// LFO phase modulation disabled for this operator
-			op.phase += op.freq;
 		}
 	}
 
