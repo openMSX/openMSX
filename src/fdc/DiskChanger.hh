@@ -53,9 +53,6 @@ private:
 	virtual void signalEvent(shared_ptr<const Event> event,
 	                         const EmuTime& time);
 
-	friend class DiskCommand;
-	const std::auto_ptr<DiskCommand> diskCommand;
-
 	CliComm& cliComm;
 	GlobalSettings& globalSettings;
 	MSXEventDistributor* msxEventDistributor;
@@ -64,6 +61,10 @@ private:
 
 	std::string driveName;
 	std::auto_ptr<Disk> disk;
+
+	friend class DiskCommand;
+	const std::auto_ptr<DiskCommand> diskCommand; // must come after driveName
+
 	bool diskChangedFlag;
 };
 

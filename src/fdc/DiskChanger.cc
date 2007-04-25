@@ -44,13 +44,13 @@ DiskChanger::DiskChanger(const string& driveName_,
                          DiskManipulator& manipulator_,
                          MSXEventDistributor* msxEventDistributor_,
                          Scheduler* scheduler_)
-	: diskCommand(new DiskCommand(commandController, *this))
-	, cliComm(commandController.getCliComm())
+	: cliComm(commandController.getCliComm())
 	, globalSettings(commandController.getGlobalSettings())
 	, msxEventDistributor(msxEventDistributor_)
 	, scheduler(scheduler_)
 	, manipulator(manipulator_)
 	, driveName(driveName_)
+	, diskCommand(new DiskCommand(commandController, *this))
 {
 	ejectDisk();
 	manipulator.registerDrive(*this);
