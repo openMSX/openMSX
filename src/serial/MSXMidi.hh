@@ -67,8 +67,6 @@ private:
 		MSXMidi& midi;
 	} cntr2;
 
-	const std::auto_ptr<I8254> i8254;
-
 	// I8251Interface
 	class I8251Interf : public I8251Interface {
 	public:
@@ -88,9 +86,6 @@ private:
 		MSXMidi& midi;
 	} interf;
 
-	const std::auto_ptr<I8251> i8251;
-	const std::auto_ptr<MidiOutConnector> outConnector;
-
 	IRQHelper timerIRQ;
 	IRQHelper rxrdyIRQ;
 	bool timerIRQlatch;
@@ -98,6 +93,10 @@ private:
 	bool rxrdyIRQlatch;
 	bool rxrdyIRQenabled;
 
+	// must come last
+	const std::auto_ptr<MidiOutConnector> outConnector;
+	const std::auto_ptr<I8251> i8251;
+	const std::auto_ptr<I8254> i8254;
 };
 
 } // namespace openmsx
