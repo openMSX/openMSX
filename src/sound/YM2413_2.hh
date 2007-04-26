@@ -32,8 +32,17 @@ class Slot
 public:
 	Slot();
 
-	inline int op_calc(byte LFO_AM, FreqIndex phase, FreqIndex pm);
-	inline void updateModulator(byte LFO_AM);
+	/**
+	 * Initializes those parts that cannot be initialized in the constructor,
+	 * because the constructor cannot have arguments since we want to create
+	 * an array of Slots.
+	 * This method should be called once, as soon as possible after
+	 * construction.
+	 */
+	void init(Globals& globals, Channel& channel);
+
+	inline int op_calc(FreqIndex phase, FreqIndex pm);
+	inline void updateModulator();
 	inline void KEY_ON (byte key_set);
 	inline void KEY_OFF(byte key_clr);
 
@@ -47,17 +56,17 @@ public:
 	/**
 	 * Temporary method: will be split later.
 	 */
-	inline void set_mul(Channel& channel, byte value);
+	inline void set_mul(byte value);
 
 	/**
 	 * Sets the total level: [0..63].
 	 */
-	inline void setTotalLevel(Channel& channel, byte value);
+	inline void setTotalLevel(byte value);
 
 	/**
 	 * Sets the key scale level: 0->0 / 1->1.5 / 2->3.0 / 3->6.0 dB/OCT.
 	 */
-	inline void setKeyScaleLevel(Channel& channel, byte value);
+	inline void setKeyScaleLevel(byte value);
 
 	/**
 	 * Sets the waveform: 0 = sinus, 1 = half sinus, half silence.
@@ -127,6 +136,9 @@ public:
 	byte vib;	// LFO Phase Modulation enable flag (active high)
 
 private:
+	Globals* globals;
+	Channel* channel;
+
 	int op1_out[2];	// slot1 output for feedback
 	byte fb_shift;	// feedback shift value
 
@@ -137,7 +149,7 @@ class Channel
 {
 public:
 	Channel();
-	inline int chan_calc(byte LFO_AM);
+	inline int chan_calc();
 	inline void CALC_FCSLOT(Slot *slot);
 
 	/**
@@ -177,12 +189,17 @@ private:
 class Globals
 {
 public:
+	Globals();
+
 	// instrument settings
 	//   0     - user instrument
 	//   1-15  - fixed instruments
 	//   16    - bass drum settings
 	//   17-18 - other percussion instruments
 	byte inst_tab[19][8];
+
+	byte LFO_AM;
+	byte LFO_PM;
 };
 
 class YM2413_2 : public YM2413Core, public SoundDevice, private Resample<1>
@@ -245,9 +262,6 @@ private:
 	LFOIndex lfo_pm_cnt;
 
 	int noise_rng;		// 23 bit noise shift register
-
-	byte LFO_AM;
-	byte LFO_PM;
 
 	byte reg[0x40];
 

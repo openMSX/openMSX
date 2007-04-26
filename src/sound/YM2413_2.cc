@@ -383,18 +383,6 @@ static const byte table[16 + 3][8] = {
 	{ 0x05, 0x01, 0x00, 0x00, 0xf8, 0xba, 0x49, 0x55 },// TOM(multi,env verified), TOP CYM(multi verified, env verified)
 };
 
-
-Slot::Slot()
-	: phase(0), freq(0)
-{
-	ar = dr = rr = KSR = ksl = ksr = mul = 0;
-	fb_shift = op1_out[0] = op1_out[1] = 0;
-	eg_type = state = TL = TLL = volume = sl = 0;
-	eg_sh_dp = eg_sel_dp = eg_sh_ar = eg_sel_ar = eg_sh_dr = 0;
-	eg_sel_dr = eg_sh_rr = eg_sel_rr = eg_sh_rs = eg_sel_rs = 0;
-	key = AMmask = vib = wavetable = 0;
-}
-
 inline FreqIndex YM2413_2::fnumToIncrement(int fnum)
 {
 	// OPLL (YM2413) phase increment counter = 18bit
@@ -415,12 +403,12 @@ inline void YM2413_2::advance_lfo()
 		// lfo_am_table is 210 elements long
 		lfo_am_cnt -= LFOIndex(LFO_AM_TAB_ELEMENTS);
 	}
-	LFO_AM = lfo_am_table[lfo_am_cnt.toInt()] >> 1;
+	globals.LFO_AM = lfo_am_table[lfo_am_cnt.toInt()] >> 1;
 
 	// Vibrato: 8 output levels (triangle waveform); 1 level takes 1024 samples
 	static const LFOIndex LFO_PM_INC = LFOIndex(1) / 1024;
 	lfo_pm_cnt += LFO_PM_INC;
-	LFO_PM = lfo_pm_cnt.toInt() & 7;
+	globals.LFO_PM = lfo_pm_cnt.toInt() & 7;
 }
 
 // advance to next sample
@@ -578,7 +566,8 @@ inline void YM2413_2::advance()
 			if (op.vib) {
 				int fnum_lfo   = 8 * ((channel.block_fnum & 0x01C0) >> 6);
 				int block_fnum = channel.block_fnum * 2;
-				int lfo_fn_table_index_offset = lfo_pm_table[LFO_PM + fnum_lfo];
+				int lfo_fn_table_index_offset =
+					lfo_pm_table[globals.LFO_PM + fnum_lfo];
 				if (lfo_fn_table_index_offset) {
 					// LFO phase modulation active
 					block_fnum += lfo_fn_table_index_offset;
@@ -621,9 +610,9 @@ inline void YM2413_2::advance()
 }
 
 
-inline int Slot::op_calc(byte LFO_AM, FreqIndex phase, FreqIndex pm)
+inline int Slot::op_calc(FreqIndex phase, FreqIndex pm)
 {
-	int env = (TLL + volume + (LFO_AM & AMmask)) << 5;
+	int env = (TLL + volume + (globals->LFO_AM & AMmask)) << 5;
 	if (env < TL_TAB_LEN) {
 		// TODO: Is there a point in passing "phase" and "pm" as fixed point
 		//       values if we're just going to round them anyway?
@@ -636,7 +625,7 @@ inline int Slot::op_calc(byte LFO_AM, FreqIndex phase, FreqIndex pm)
 	}
 }
 
-inline void Slot::updateModulator(byte LFO_AM)
+inline void Slot::updateModulator()
 {
 	// Compute phase modulation for slot 1.
 	// Note: tl_tab contains 11bit values, so adding two output values will not
@@ -648,18 +637,18 @@ inline void Slot::updateModulator(byte LFO_AM)
 	// Shift output in 2-place buffer.
 	op1_out[0] = op1_out[1];
 	// Calculate operator output.
-	op1_out[1] = op_calc(LFO_AM, phase, pm);
+	op1_out[1] = op_calc(phase, pm);
 }
 
 // calculate output
-inline int Channel::chan_calc(byte LFO_AM)
+inline int Channel::chan_calc()
 {
 	// SLOT 1
-	slots[SLOT1].updateModulator(LFO_AM);
+	slots[SLOT1].updateModulator();
 
 	// SLOT 2
 	return slots[SLOT2].op_calc(
-		LFO_AM, slots[SLOT2].phase, slots[SLOT1].getPhaseModulation()
+		slots[SLOT2].phase, slots[SLOT1].getPhaseModulation()
 		);
 }
 
@@ -819,11 +808,11 @@ inline void YM2413_2::rhythm_calc(int** bufs, unsigned sample)
 	Slot& SLOT6_2 = channels[6].slots[SLOT2];
 
 	// SLOT 1
-	SLOT6_1.updateModulator(LFO_AM);
+	SLOT6_1.updateModulator();
 
 	// SLOT 2
 	bufs[6][sample] = adjust(2 * SLOT6_2.op_calc(
-		LFO_AM, SLOT6_2.phase, SLOT6_1.getPhaseModulation()
+		SLOT6_2.phase, SLOT6_1.getPhaseModulation()
 		));
 
 	// Envelope generation based on:
@@ -839,25 +828,25 @@ inline void YM2413_2::rhythm_calc(int** bufs, unsigned sample)
 	// High Hat (verified on real YM3812)
 	Slot& SLOT7_1 = channels[7].slots[SLOT1];
 	bufs[7][sample] = adjust(
-		2 * SLOT7_1.op_calc(LFO_AM, genPhaseHighHat(), FreqIndex(0))
+		2 * SLOT7_1.op_calc(genPhaseHighHat(), FreqIndex(0))
 		);
 
 	// Snare Drum (verified on real YM3812)
 	Slot& SLOT7_2 = channels[7].slots[SLOT2];
 	bufs[8][sample] = adjust(
-		2 * SLOT7_2.op_calc(LFO_AM, genPhaseSnare(), FreqIndex(0))
+		2 * SLOT7_2.op_calc(genPhaseSnare(), FreqIndex(0))
 		);
 
 	// Tom Tom (verified on real YM3812)
 	Slot& SLOT8_1 = channels[8].slots[SLOT1];
 	bufs[9][sample] = adjust(
-		2 * SLOT8_1.op_calc(LFO_AM, SLOT8_1.phase, FreqIndex(0))
+		2 * SLOT8_1.op_calc(SLOT8_1.phase, FreqIndex(0))
 		);
 
 	// Top Cymbal (verified on real YM2413)
 	Slot& SLOT8_2 = channels[8].slots[SLOT2];
 	bufs[10][sample] = adjust(
-		2 * SLOT8_2.op_calc(LFO_AM, genPhaseCymbal(), FreqIndex(0))
+		2 * SLOT8_2.op_calc(genPhaseCymbal(), FreqIndex(0))
 		);
 }
 
@@ -943,27 +932,26 @@ inline void Slot::KEY_OFF(byte key_clr)
 }
 
 // set multi,am,vib,EG-TYP,KSR,mul
-inline void Slot::set_mul(Channel& channel, byte value)
+inline void Slot::set_mul(byte value)
 {
 	mul     = mul_tab[value & 0x0F];
 	KSR     = (value & 0x10) ? 0 : 2;
 	eg_type = (value & 0x20);
 	vib     = (value & 0x40);
 	AMmask  = (value & 0x80) ? ~0 : 0;
-	channel.CALC_FCSLOT(this);
+	channel->CALC_FCSLOT(this);
 }
 
-inline void Slot::setTotalLevel(Channel& channel, byte value)
+inline void Slot::setTotalLevel(byte value)
 {
 	TL  = value << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0)
-	TLL = TL + (channel.ksl_base >> ksl);
+	TLL = TL + (channel->ksl_base >> ksl);
 }
 
-inline void Slot::setKeyScaleLevel(Channel& channel, byte value)
+inline void Slot::setKeyScaleLevel(byte value)
 {
 	ksl = value ? (3 - value) : 31;
-	// TODO: Maybe a Slot object should store a reference to its channel?
-	TLL = TL + (channel.ksl_base >> ksl);
+	TLL = TL + (channel->ksl_base >> ksl);
 }
 
 inline void Slot::setWaveform(byte value)
@@ -1007,6 +995,24 @@ inline void Slot::setReleaseRate(byte value)
 	eg_sel_rr = eg_rate_select[rr + ksr];
 }
 
+
+Slot::Slot()
+	: phase(0), freq(0)
+{
+	ar = dr = rr = KSR = ksl = ksr = mul = 0;
+	fb_shift = op1_out[0] = op1_out[1] = 0;
+	eg_type = state = TL = TLL = volume = sl = 0;
+	eg_sh_dp = eg_sel_dp = eg_sh_ar = eg_sel_ar = eg_sh_dr = 0;
+	eg_sel_dr = eg_sh_rr = eg_sel_rr = eg_sh_rs = eg_sel_rs = 0;
+	key = AMmask = vib = wavetable = 0;
+}
+
+void Slot::init(Globals& globals, Channel& channel)
+{
+	this->globals = &globals;
+	this->channel = &channel;
+}
+
 Channel::Channel()
 	: fc(0)
 {
@@ -1016,6 +1022,8 @@ Channel::Channel()
 void Channel::init(Globals& globals)
 {
 	this->globals = &globals;
+	slots[SLOT1].init(globals, *this);
+	slots[SLOT2].init(globals, *this);
 }
 
 // update phase increment counter of operator (also update the EG rates if necessary)
@@ -1058,19 +1066,19 @@ void Channel::setInstrumentPart(int instrument, int part)
 	Slot& slot2 = slots[SLOT2];
 	switch (part) {
 	case 0:
-		slot1.set_mul(*this, inst[0]);
+		slot1.set_mul(inst[0]);
 		break;
 	case 1:
-		slot2.set_mul(*this, inst[1]);
+		slot2.set_mul(inst[1]);
 		break;
 	case 2:
-		slot1.setKeyScaleLevel(*this, inst[2] >> 6);
-		slot1.setTotalLevel(*this, inst[2] & 0x3F);
+		slot1.setKeyScaleLevel(inst[2] >> 6);
+		slot1.setTotalLevel(inst[2] & 0x3F);
 		break;
 	case 3:
 		slot1.setWaveform((inst[3] & 0x08) >> 3);
 		slot1.setFeedbackShift(inst[3] & 0x07);
-		slot2.setKeyScaleLevel(*this, inst[3] >> 6);
+		slot2.setKeyScaleLevel(inst[3] >> 6);
 		slot2.setWaveform((inst[3] & 0x10) >> 4);
 		break;
 	case 4:
@@ -1097,6 +1105,11 @@ void Channel::setInstrument(int instrument)
 	for (int part = 0; part < 8; part++) {
 		setInstrumentPart(instrument, part);
 	}
+}
+
+Globals::Globals()
+{
+	LFO_AM = LFO_PM = 0;
 }
 
 void YM2413_2::updateCustomInstrument(int part)
@@ -1331,7 +1344,6 @@ YM2413_2::YM2413_2(MSXMotherBoard& motherBoard, const std::string& name,
 	eg_cnt = 0;
 	rhythm = 0;
 	noise_rng = 0;
-	LFO_AM = LFO_PM = 0;
 	for (int ch = 0; ch < 9; ch++) {
 		instvol_r[ch] = 0;
 		channels[ch].init(globals);
@@ -1380,7 +1392,7 @@ void YM2413_2::generateChannels(int** bufs, unsigned num)
 		advance_lfo();
 		int m = rhythm ? 6 : 9;
 		for (int j = 0; j < m; ++j) {
-			bufs[j][i] = adjust(channels[j].chan_calc(LFO_AM));
+			bufs[j][i] = adjust(channels[j].chan_calc());
 		}
 		if (rhythm) {
 			rhythm_calc(bufs, i);
