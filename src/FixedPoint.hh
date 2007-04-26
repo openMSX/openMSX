@@ -8,8 +8,8 @@
 namespace openmsx {
 
 /** A fixed point number, implemented by a 32-bit signed integer.
-  * The FRACTION_BITS template argument selects the position of the decimal
-  * dot.
+  * The FRACTION_BITS template argument selects the position of the "binary
+  * point" (base 2 equivalent to decimal point).
   */
 template <unsigned FRACTION_BITS>
 class FixedPoint {
@@ -35,8 +35,9 @@ private:
 	  */
 	FixedPoint() {};
 
-	/** Create new floating point object from given representation.
+	/** Create new fixed point object from given representation.
 	  * Used by the overloaded operators.
+	  * @param value the internal representation.
 	  */
 	static inline FixedPoint create(const int value) {
 		FixedPoint ret;
@@ -109,7 +110,7 @@ public:
 	 * Returns this value rounded down.
 	 * The result is equal to FixedPoint(fp.toInt()).
 	 */
-	FixedPoint round() const {
+	FixedPoint floor() const {
 		return create(value & ~FRACTION_MASK);
 	}
 
@@ -129,6 +130,10 @@ public:
 	FixedPoint operator*(const int i) const {
 		return create(value * i);
 	}
+	/**
+	 * Divides two fixed point numbers.
+	 * The fractional part is rounded down.
+	 */
 	FixedPoint operator/(const FixedPoint other) const {
 		return create(static_cast<int>(
 			(static_cast<long long int>(value) << FRACTION_BITS) / other.value
