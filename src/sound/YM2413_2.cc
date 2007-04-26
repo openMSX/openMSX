@@ -1114,8 +1114,8 @@ Globals::Globals()
 
 void YM2413_2::updateCustomInstrument(int part)
 {
-	const byte chan_max = (rhythm) ? 6 : 9;
-	for (int chan = 0; chan < chan_max; chan++) {
+	const byte numMelodicChannels = (rhythm) ? 6 : 9;
+	for (int chan = 0; chan < numMelodicChannels; chan++) {
 		if ((instvol_r[chan] & 0xF0) == 0) {
 			channels[chan].setInstrumentPart(0, part);
 		}
@@ -1135,15 +1135,11 @@ void YM2413_2::setRhythmMode(bool rhythm)
 		// High hat and snare drum.
 		Channel& ch7 = channels[7];
 		ch7.setInstrument(17);
-		Slot& slot71 = ch7.slots[SLOT1]; // modulator envelope is HH
-		slot71.TL  = ((instvol_r[7] >> 4) << 2) << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0)
-		slot71.TLL = slot71.TL + (ch7.ksl_base >> slot71.ksl);
+		ch7.slots[SLOT1].setTotalLevel((instvol_r[7] >> 4) << 2); // High hat
 		// Tom-tom and top cymbal.
 		Channel& ch8 = channels[8];
 		ch8.setInstrument(18);
-		Slot& slot81 = ch8.slots[SLOT1]; // modulator envelope is TOM
-		slot81.TL  = ((instvol_r[8] >> 4) << 2) << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0)
-		slot81.TLL = slot81.TL + (ch8.ksl_base >> slot81.ksl);
+		ch8.slots[SLOT1].setTotalLevel((instvol_r[8] >> 4) << 2); // Tom-tom
 	} else { // ON -> OFF
 		channels[6].setInstrument(instvol_r[6] >> 4);
 		channels[7].setInstrument(instvol_r[7] >> 4);
@@ -1276,18 +1272,15 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 		instvol_r[chan] = v;  // store for later use
 
 		Channel& ch = channels[chan];
-		Slot& slot2 = ch.slots[SLOT2]; // carrier
-		slot2.TL  = ((v & 0x0F) << 2) << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0)
-		slot2.TLL = slot2.TL + (ch.ksl_base >> slot2.ksl);
+		ch.slots[SLOT2].setTotalLevel((v & 0x0F) << 2);
 
 		//check wether we are in rhythm mode and handle instrument/volume register accordingly
 		if ((chan >= 6) && rhythm) {
 			// we're in rhythm mode
 			if (chan >= 7) {
 				// only for channel 7 and 8 (channel 6 is handled in usual way)
-				Slot& slot1 = ch.slots[SLOT1]; // modulator envelope is HH(chan=7) or TOM(chan=8)
-				slot1.TL  = ((instvol_r[chan] >> 4) << 2) << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0)
-				slot1.TLL = slot1.TL + (ch.ksl_base >> slot1.ksl);
+				// modulator envelope is HH(chan=7) or TOM(chan=8)
+				ch.slots[SLOT1].setTotalLevel((instvol_r[chan] >> 4) << 2);
 			}
 		} else {
 			if ((old_instvol & 0xF0) != (v & 0xF0)) {
