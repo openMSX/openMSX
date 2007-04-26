@@ -44,6 +44,11 @@ public:
 	}
 
 	/**
+	 * Sets the total level: [0..63].
+	 */
+	inline void setTotalLevel(Channel& channel, byte value);
+
+	/**
 	 * Sets the key scale level: 0->0 / 1->1.5 / 2->3.0 / 3->6.0 dB/OCT.
 	 */
 	inline void setKeyScaleLevel(Channel& channel, byte value);
@@ -165,7 +170,6 @@ private:
 	inline int adjust(int x);
 
 	inline void set_mul(byte slot, byte v);
-	inline void set_ksl_tl(byte chan, byte v);
 	void load_instrument(byte chan, byte* inst);
 	void update_instrument_zero(byte r);
 	void setRhythmMode(bool newMode);

@@ -948,9 +948,15 @@ inline void Slot::KEY_OFF(byte key_clr)
 	}
 }
 
+inline void Slot::setTotalLevel(Channel& channel, byte value)
+{
+	TL  = value << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0)
+	TLL = TL + (channel.ksl_base >> ksl);
+}
+
 inline void Slot::setKeyScaleLevel(Channel& channel, byte value)
 {
-	ksl = ksl ? (3 - ksl) : 31;
+	ksl = value ? (3 - value) : 31;
 	// TODO: Maybe a Slot object should store a reference to its channel?
 	TLL = TL + (channel.ksl_base >> ksl);
 }
@@ -1043,19 +1049,6 @@ inline void YM2413_2::set_mul(byte sl, byte v)
 	ch.CALC_FCSLOT(&slot);
 }
 
-// set ksl, tl
-inline void YM2413_2::set_ksl_tl(byte chan, byte v)
-{
-	Channel& ch = channels[chan];
-	Slot& slot = ch.slots[SLOT1]; // modulator
-
-	int ksl = v >> 6; // 0 / 1.5 / 3.0 / 6.0 dB/OCT
-
-	slot.ksl = ksl ? (3 - ksl) : 31;
-	slot.TL  = (v & 0x3F) << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0)
-	slot.TLL = slot.TL + (ch.ksl_base >> slot.ksl);
-}
-
 void YM2413_2::load_instrument(byte ch, byte* inst)
 {
 	Channel& channel = channels[ch];
@@ -1064,7 +1057,8 @@ void YM2413_2::load_instrument(byte ch, byte* inst)
 
 	set_mul        (ch * 2,     inst[0]);
 	set_mul        (ch * 2 + 1, inst[1]);
-	set_ksl_tl     (ch,         inst[2]);
+	slot1.setKeyScaleLevel(channel, inst[2] >> 6);
+	slot1.setTotalLevel(channel, inst[2] & 0x3F);
 	slot1.setWaveform((inst[3] & 0x08) >> 3);
 	slot1.setFeedbackShift(inst[3] & 0x07);
 	slot2.setKeyScaleLevel(channel, inst[3] >> 6);
@@ -1102,19 +1096,22 @@ void YM2413_2::update_instrument_zero(byte r)
 	case 2:
 		for (int chan = 0; chan < chan_max; chan++) {
 			if ((instvol_r[chan] & 0xF0) == 0) {
-				set_ksl_tl(chan, inst[2]);
+				Channel& channel = channels[chan];
+				Slot& slot1 = channel.slots[SLOT1];
+				slot1.setKeyScaleLevel(channel, inst[2] >> 6);
+				slot1.setTotalLevel(channel, inst[2] & 0x3F);
 			}
 		}
 		break;
 	case 3:
 		for (int chan = 0; chan < chan_max; chan++) {
 			if ((instvol_r[chan] & 0xF0) == 0) {
-				Channel& ch = channels[chan];
-				Slot& slot1 = ch.slots[SLOT1];
-				Slot& slot2 = ch.slots[SLOT2];
+				Channel& channel = channels[chan];
+				Slot& slot1 = channel.slots[SLOT1];
+				Slot& slot2 = channel.slots[SLOT2];
 				slot1.setWaveform((inst[3] & 0x08) >> 3);
 				slot1.setFeedbackShift(inst[3] & 0x07);
-				slot2.setKeyScaleLevel(ch, inst[3] >> 6);
+				slot2.setKeyScaleLevel(channel, inst[3] >> 6);
 				slot2.setWaveform((inst[3] & 0x10) >> 4);
 			}
 		}
