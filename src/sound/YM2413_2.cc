@@ -1086,35 +1086,35 @@ void YM2413_2::update_instrument_zero(byte r)
 	byte chan_max = (rhythm) ? 6 : 9;
 	switch (r) {
 	case 0:
-		for (byte chan = 0; chan < chan_max; chan++) {
+		for (int chan = 0; chan < chan_max; chan++) {
 			if ((instvol_r[chan] & 0xF0) == 0) {
 				set_mul(chan * 2, inst[0]);
 			}
 		}
 		break;
 	case 1:
-		for (byte chan = 0; chan < chan_max; chan++) {
+		for (int chan = 0; chan < chan_max; chan++) {
 			if ((instvol_r[chan] & 0xF0) == 0) {
 				set_mul(chan * 2 + 1, inst[1]);
 			}
 		}
 		break;
 	case 2:
-		for (byte chan = 0; chan < chan_max; chan++) {
+		for (int chan = 0; chan < chan_max; chan++) {
 			if ((instvol_r[chan] & 0xF0) == 0) {
 				set_ksl_tl(chan, inst[2]);
 			}
 		}
 		break;
 	case 3:
-		for (byte chan = 0; chan < chan_max; chan++) {
+		for (int chan = 0; chan < chan_max; chan++) {
 			if ((instvol_r[chan] & 0xF0) == 0) {
 				set_ksl_wave_fb(chan, inst[3]);
 			}
 		}
 		break;
 	case 4:
-		for (byte chan = 0; chan < chan_max; chan++) {
+		for (int chan = 0; chan < chan_max; chan++) {
 			if ((instvol_r[chan] & 0xF0) == 0) {
 				Slot& slot = channels[chan].slots[SLOT1];
 				slot.setAttackRate(inst[4] >> 4);
@@ -1123,7 +1123,7 @@ void YM2413_2::update_instrument_zero(byte r)
 		}
 		break;
 	case 5:
-		for (byte chan = 0; chan < chan_max; chan++) {
+		for (int chan = 0; chan < chan_max; chan++) {
 			if ((instvol_r[chan] & 0xF0) == 0) {
 				Slot& slot = channels[chan].slots[SLOT2];
 				slot.setAttackRate(inst[5] >> 4);
@@ -1132,7 +1132,7 @@ void YM2413_2::update_instrument_zero(byte r)
 		}
 		break;
 	case 6:
-		for (byte chan = 0; chan < chan_max; chan++) {
+		for (int chan = 0; chan < chan_max; chan++) {
 			if ((instvol_r[chan] & 0xF0) == 0) {
 				Slot& slot = channels[chan].slots[SLOT1];
 				slot.setSustainLevel(inst[6] >> 4);
@@ -1141,7 +1141,7 @@ void YM2413_2::update_instrument_zero(byte r)
 		}
 		break;
 	case 7:
-		for (byte chan = 0; chan < chan_max; chan++) {
+		for (int chan = 0; chan < chan_max; chan++) {
 			if ((instvol_r[chan] & 0xF0) == 0) {
 				Slot& slot = channels[chan].slots[SLOT2];
 				slot.setSustainLevel(inst[7] >> 4);
