@@ -47,6 +47,16 @@ public:
 	void setFeedbackShift(byte value);
 
 	/**
+	 * Sets the attack rate [0..15].
+	 */
+	inline void setAttackRate(byte value);
+
+	/**
+	 * Sets the decay rate [0..15].
+	 */
+	inline void setDecayRate(byte value);
+
+	/**
 	 * Sets the sustain level [0..15].
 	 */
 	inline void setSustainLevel(byte value);

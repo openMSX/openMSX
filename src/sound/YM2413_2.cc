@@ -953,6 +953,25 @@ inline void Slot::KEY_OFF(byte key_clr)
 	}
 }
 
+inline void Slot::setAttackRate(byte value)
+{
+	ar = value ? 16 + (value << 2) : 0;
+	if ((ar + ksr) < (16 + 62)) {
+		eg_sh_ar  = eg_rate_shift [ar + ksr];
+		eg_sel_ar = eg_rate_select[ar + ksr];
+	} else {
+		eg_sh_ar  = 0;
+		eg_sel_ar = 13 * RATE_STEPS;
+	}
+}
+
+inline void Slot::setDecayRate(byte value)
+{
+	dr = value ? 16 + (value << 2) : 0;
+	eg_sh_dr  = eg_rate_shift [dr + ksr];
+	eg_sel_dr = eg_rate_select[dr + ksr];
+}
+
 inline void Slot::setSustainLevel(byte value)
 {
 	sl = sl_tab[value];
@@ -1040,26 +1059,6 @@ inline void YM2413_2::set_ksl_wave_fb(byte chan, byte v)
 	slot2.wavetable = ((v & 0x10) >> 4) * SIN_LEN;
 }
 
-// set attack rate & decay rate
-inline void YM2413_2::set_ar_dr(byte sl, byte v)
-{
-	Channel& ch = channels[sl / 2];
-	Slot& slot = ch.slots[sl & 1];
-
-	slot.ar = (v >> 4) ? (16 + ((v >> 4) << 2)) : 0;
-
-	if ((slot.ar + slot.ksr) < (16 + 62)) {
-		slot.eg_sh_ar  = eg_rate_shift [slot.ar + slot.ksr];
-		slot.eg_sel_ar = eg_rate_select[slot.ar + slot.ksr];
-	} else {
-		slot.eg_sh_ar  = 0;
-		slot.eg_sel_ar = 13 * RATE_STEPS;
-	}
-	slot.dr    = (v & 0x0F) ? (16 + ((v & 0x0F) << 2)) : 0;
-	slot.eg_sh_dr  = eg_rate_shift [slot.dr + slot.ksr];
-	slot.eg_sel_dr = eg_rate_select[slot.dr + slot.ksr];
-}
-
 void YM2413_2::load_instrument(byte ch, byte* inst)
 {
 	Channel& channel = channels[ch];
@@ -1070,8 +1069,10 @@ void YM2413_2::load_instrument(byte ch, byte* inst)
 	set_mul        (ch * 2 + 1, inst[1]);
 	set_ksl_tl     (ch,         inst[2]);
 	set_ksl_wave_fb(ch,         inst[3]);
-	set_ar_dr      (ch * 2,     inst[4]);
-	set_ar_dr      (ch * 2 + 1, inst[5]);
+	slot1.setAttackRate(inst[4] >> 4);
+	slot1.setDecayRate(inst[4] & 0x0F);
+	slot2.setAttackRate(inst[5] >> 4);
+	slot2.setDecayRate(inst[5] & 0x0F);
 	slot1.setSustainLevel(inst[6] >> 4);
 	slot1.setReleaseRate(inst[6] & 0x0F);
 	slot2.setSustainLevel(inst[7] >> 4);
@@ -1115,14 +1116,18 @@ void YM2413_2::update_instrument_zero(byte r)
 	case 4:
 		for (byte chan = 0; chan < chan_max; chan++) {
 			if ((instvol_r[chan] & 0xF0) == 0) {
-				set_ar_dr(chan * 2, inst[4]);
+				Slot& slot = channels[chan].slots[SLOT1];
+				slot.setAttackRate(inst[4] >> 4);
+				slot.setDecayRate(inst[4] & 0x0F);
 			}
 		}
 		break;
 	case 5:
 		for (byte chan = 0; chan < chan_max; chan++) {
 			if ((instvol_r[chan] & 0xF0) == 0) {
-				set_ar_dr(chan * 2 + 1, inst[5]);
+				Slot& slot = channels[chan].slots[SLOT2];
+				slot.setAttackRate(inst[5] >> 4);
+				slot.setDecayRate(inst[5] & 0x0F);
 			}
 		}
 		break;
