@@ -24,6 +24,7 @@ typedef FixedPoint<16> FreqIndex;
   */
 typedef FixedPoint<24> LFOIndex;
 
+class Globals;
 class Channel;
 
 class Slot
@@ -42,6 +43,11 @@ public:
 	inline FreqIndex getPhaseModulation() {
 		return FreqIndex(op1_out[0] << 1);
 	}
+
+	/**
+	 * Temporary method: will be split later.
+	 */
+	inline void set_mul(Channel& channel, byte value);
 
 	/**
 	 * Sets the total level: [0..63].
@@ -134,6 +140,28 @@ public:
 	inline int chan_calc(byte LFO_AM);
 	inline void CALC_FCSLOT(Slot *slot);
 
+	/**
+	 * Initializes those parts that cannot be initialized in the constructor,
+	 * because the constructor cannot have arguments since we want to create
+	 * an array of Channels.
+	 * This method should be called once, as soon as possible after
+	 * construction.
+	 */
+	void init(Globals& globals);
+
+	/**
+	 * Sets some synthesis parameters as specified by the instrument.
+	 * @param inst Pointer to instrument data.
+	 * @param part Part [0..7] of the instrument.
+	 */
+	void setInstrumentPart(int instrument, int part);
+
+	/**
+	 * Sets all synthesis parameters as specified by the instrument.
+	 * @param inst Pointer to instrument data.
+	 */
+	void setInstrument(int instrument);
+
 	Slot slots[2];
 	// phase generator state
 	int block_fnum;	// block+fnum
@@ -141,6 +169,20 @@ public:
 	int ksl_base;	// KeyScaleLevel Base step
 	byte kcode;	// key code (for key scaling)
 	byte sus;	// sus on/off (release speed in percussive mode)
+
+private:
+	Globals* globals;
+};
+
+class Globals
+{
+public:
+	// instrument settings
+	//   0     - user instrument
+	//   1-15  - fixed instruments
+	//   16    - bass drum settings
+	//   17-18 - other percussion instruments
+	byte inst_tab[19][8];
 };
 
 class YM2413_2 : public YM2413Core, public SoundDevice, private Resample<1>
@@ -169,9 +211,12 @@ private:
 	inline void rhythm_calc(int** bufs, unsigned sample);
 	inline int adjust(int x);
 
-	inline void set_mul(byte slot, byte v);
-	void load_instrument(byte chan, byte* inst);
-	void update_instrument_zero(byte r);
+	/**
+	 * Called when the custom instrument (instrument 0) has changed.
+	 * @param part Part [0..7] of the instrument.
+	 */
+	void updateCustomInstrument(int part);
+
 	void setRhythmMode(bool newMode);
 
 	// SoundDevice
@@ -189,6 +234,8 @@ private:
 
 	int maxVolume;
 
+	Globals globals;
+
 	Channel channels[9];	// OPLL chips have 9 channels
 
 	unsigned eg_cnt;	// global envelope generator counter
@@ -198,13 +245,6 @@ private:
 	LFOIndex lfo_pm_cnt;
 
 	int noise_rng;		// 23 bit noise shift register
-
-	// instrument settings
-	//   0     - user instrument
-	//   1-15  - fixed instruments
-	//   16    - bass drum settings
-	//   17-18 - other percussion instruments
-	byte inst_tab[19][8];
 
 	byte LFO_AM;
 	byte LFO_PM;

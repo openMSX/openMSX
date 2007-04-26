@@ -395,12 +395,6 @@ Slot::Slot()
 	key = AMmask = vib = wavetable = 0;
 }
 
-Channel::Channel()
-	: fc(0)
-{
-	block_fnum = ksl_base = kcode = sus = 0;
-}
-
 inline FreqIndex YM2413_2::fnumToIncrement(int fnum)
 {
 	// OPLL (YM2413) phase increment counter = 18bit
@@ -948,6 +942,17 @@ inline void Slot::KEY_OFF(byte key_clr)
 	}
 }
 
+// set multi,am,vib,EG-TYP,KSR,mul
+inline void Slot::set_mul(Channel& channel, byte value)
+{
+	mul     = mul_tab[value & 0x0F];
+	KSR     = (value & 0x10) ? 0 : 2;
+	eg_type = (value & 0x20);
+	vib     = (value & 0x40);
+	AMmask  = (value & 0x80) ? ~0 : 0;
+	channel.CALC_FCSLOT(this);
+}
+
 inline void Slot::setTotalLevel(Channel& channel, byte value)
 {
 	TL  = value << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0)
@@ -1002,6 +1007,17 @@ inline void Slot::setReleaseRate(byte value)
 	eg_sel_rr = eg_rate_select[rr + ksr];
 }
 
+Channel::Channel()
+	: fc(0)
+{
+	block_fnum = ksl_base = kcode = sus = 0;
+}
+
+void Channel::init(Globals& globals)
+{
+	this->globals = &globals;
+}
+
 // update phase increment counter of operator (also update the EG rates if necessary)
 inline void Channel::CALC_FCSLOT(Slot* slot)
 {
@@ -1035,163 +1051,90 @@ inline void Channel::CALC_FCSLOT(Slot* slot)
 	slot->eg_sel_dp = eg_rate_select[SLOT_dp + slot->ksr];
 }
 
-// set multi,am,vib,EG-TYP,KSR,mul
-inline void YM2413_2::set_mul(byte sl, byte v)
+void Channel::setInstrumentPart(int instrument, int part)
 {
-	Channel& ch = channels[sl / 2];
-	Slot& slot = ch.slots[sl & 1];
-
-	slot.mul     = mul_tab[v & 0x0F];
-	slot.KSR     = (v & 0x10) ? 0 : 2;
-	slot.eg_type = (v & 0x20);
-	slot.vib     = (v & 0x40);
-	slot.AMmask  = (v & 0x80) ? ~0 : 0;
-	ch.CALC_FCSLOT(&slot);
-}
-
-void YM2413_2::load_instrument(byte ch, byte* inst)
-{
-	Channel& channel = channels[ch];
-	Slot& slot1 = channel.slots[SLOT1];
-	Slot& slot2 = channel.slots[SLOT2];
-
-	set_mul        (ch * 2,     inst[0]);
-	set_mul        (ch * 2 + 1, inst[1]);
-	slot1.setKeyScaleLevel(channel, inst[2] >> 6);
-	slot1.setTotalLevel(channel, inst[2] & 0x3F);
-	slot1.setWaveform((inst[3] & 0x08) >> 3);
-	slot1.setFeedbackShift(inst[3] & 0x07);
-	slot2.setKeyScaleLevel(channel, inst[3] >> 6);
-	slot2.setWaveform((inst[3] & 0x10) >> 4);
-	slot1.setAttackRate(inst[4] >> 4);
-	slot1.setDecayRate(inst[4] & 0x0F);
-	slot2.setAttackRate(inst[5] >> 4);
-	slot2.setDecayRate(inst[5] & 0x0F);
-	slot1.setSustainLevel(inst[6] >> 4);
-	slot1.setReleaseRate(inst[6] & 0x0F);
-	slot2.setSustainLevel(inst[7] >> 4);
-	slot2.setReleaseRate(inst[7] & 0x0F);
-}
-
-void YM2413_2::update_instrument_zero(byte r)
-{
-	byte* inst = &inst_tab[0][0]; // point to user instrument
-
-	byte chan_max = (rhythm) ? 6 : 9;
-	switch (r) {
+	const byte* inst = globals->inst_tab[instrument];
+	Slot& slot1 = slots[SLOT1];
+	Slot& slot2 = slots[SLOT2];
+	switch (part) {
 	case 0:
-		for (int chan = 0; chan < chan_max; chan++) {
-			if ((instvol_r[chan] & 0xF0) == 0) {
-				set_mul(chan * 2, inst[0]);
-			}
-		}
+		slot1.set_mul(*this, inst[0]);
 		break;
 	case 1:
-		for (int chan = 0; chan < chan_max; chan++) {
-			if ((instvol_r[chan] & 0xF0) == 0) {
-				set_mul(chan * 2 + 1, inst[1]);
-			}
-		}
+		slot2.set_mul(*this, inst[1]);
 		break;
 	case 2:
-		for (int chan = 0; chan < chan_max; chan++) {
-			if ((instvol_r[chan] & 0xF0) == 0) {
-				Channel& channel = channels[chan];
-				Slot& slot1 = channel.slots[SLOT1];
-				slot1.setKeyScaleLevel(channel, inst[2] >> 6);
-				slot1.setTotalLevel(channel, inst[2] & 0x3F);
-			}
-		}
+		slot1.setKeyScaleLevel(*this, inst[2] >> 6);
+		slot1.setTotalLevel(*this, inst[2] & 0x3F);
 		break;
 	case 3:
-		for (int chan = 0; chan < chan_max; chan++) {
-			if ((instvol_r[chan] & 0xF0) == 0) {
-				Channel& channel = channels[chan];
-				Slot& slot1 = channel.slots[SLOT1];
-				Slot& slot2 = channel.slots[SLOT2];
-				slot1.setWaveform((inst[3] & 0x08) >> 3);
-				slot1.setFeedbackShift(inst[3] & 0x07);
-				slot2.setKeyScaleLevel(channel, inst[3] >> 6);
-				slot2.setWaveform((inst[3] & 0x10) >> 4);
-			}
-		}
+		slot1.setWaveform((inst[3] & 0x08) >> 3);
+		slot1.setFeedbackShift(inst[3] & 0x07);
+		slot2.setKeyScaleLevel(*this, inst[3] >> 6);
+		slot2.setWaveform((inst[3] & 0x10) >> 4);
 		break;
 	case 4:
-		for (int chan = 0; chan < chan_max; chan++) {
-			if ((instvol_r[chan] & 0xF0) == 0) {
-				Slot& slot = channels[chan].slots[SLOT1];
-				slot.setAttackRate(inst[4] >> 4);
-				slot.setDecayRate(inst[4] & 0x0F);
-			}
-		}
+		slot1.setAttackRate(inst[4] >> 4);
+		slot1.setDecayRate(inst[4] & 0x0F);
 		break;
 	case 5:
-		for (int chan = 0; chan < chan_max; chan++) {
-			if ((instvol_r[chan] & 0xF0) == 0) {
-				Slot& slot = channels[chan].slots[SLOT2];
-				slot.setAttackRate(inst[5] >> 4);
-				slot.setDecayRate(inst[5] & 0x0F);
-			}
-		}
+		slot2.setAttackRate(inst[5] >> 4);
+		slot2.setDecayRate(inst[5] & 0x0F);
 		break;
 	case 6:
-		for (int chan = 0; chan < chan_max; chan++) {
-			if ((instvol_r[chan] & 0xF0) == 0) {
-				Slot& slot = channels[chan].slots[SLOT1];
-				slot.setSustainLevel(inst[6] >> 4);
-				slot.setReleaseRate(inst[6] & 0x0F);
-			}
-		}
+		slot1.setSustainLevel(inst[6] >> 4);
+		slot1.setReleaseRate(inst[6] & 0x0F);
 		break;
 	case 7:
-		for (int chan = 0; chan < chan_max; chan++) {
-			if ((instvol_r[chan] & 0xF0) == 0) {
-				Slot& slot = channels[chan].slots[SLOT2];
-				slot.setSustainLevel(inst[7] >> 4);
-				slot.setReleaseRate(inst[7] & 0x0F);
-			}
-		}
+		slot2.setSustainLevel(inst[7] >> 4);
+		slot2.setReleaseRate(inst[7] & 0x0F);
 		break;
 	}
 }
 
-void YM2413_2::setRhythmMode(bool newMode)
+void Channel::setInstrument(int instrument)
 {
-	if (newMode == rhythm) {
+	for (int part = 0; part < 8; part++) {
+		setInstrumentPart(instrument, part);
+	}
+}
+
+void YM2413_2::updateCustomInstrument(int part)
+{
+	const byte chan_max = (rhythm) ? 6 : 9;
+	for (int chan = 0; chan < chan_max; chan++) {
+		if ((instvol_r[chan] & 0xF0) == 0) {
+			channels[chan].setInstrumentPart(0, part);
+		}
+	}
+}
+
+void YM2413_2::setRhythmMode(bool rhythm)
+{
+	if (this->rhythm == rhythm) {
 		return;
 	}
-	rhythm = newMode;
-	if (rhythm) {
-		// OFF -> ON
+	this->rhythm = rhythm;
 
-		// Load instrument settings for channel seven
-		load_instrument(6, &inst_tab[16][0]);
-
-		// Load instrument settings for channel eight. (High hat and snare drum)
-		load_instrument(7, &inst_tab[17][0]);
+	if (rhythm) { // OFF -> ON
+		// Bass drum.
+		channels[6].setInstrument(16);
+		// High hat and snare drum.
 		Channel& ch7 = channels[7];
+		ch7.setInstrument(17);
 		Slot& slot71 = ch7.slots[SLOT1]; // modulator envelope is HH
 		slot71.TL  = ((instvol_r[7] >> 4) << 2) << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0)
 		slot71.TLL = slot71.TL + (ch7.ksl_base >> slot71.ksl);
-
-		// Load instrument settings for channel nine. (Tom-tom and top cymbal)
-		load_instrument(8, &inst_tab[18][0]);
+		// Tom-tom and top cymbal.
 		Channel& ch8 = channels[8];
+		ch8.setInstrument(18);
 		Slot& slot81 = ch8.slots[SLOT1]; // modulator envelope is TOM
 		slot81.TL  = ((instvol_r[8] >> 4) << 2) << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0)
 		slot81.TLL = slot81.TL + (ch8.ksl_base >> slot81.ksl);
-	} else {
-		// ON -> OFF
-
-		// Load instrument settings for channel seven
-		load_instrument(6, &inst_tab[instvol_r[6] >> 4][0]);
-
-		// Load instrument settings for channel eight.
-		load_instrument(7, &inst_tab[instvol_r[7] >> 4][0]);
-
-		// Load instrument settings for channel nine.
-		load_instrument(8, &inst_tab[instvol_r[8] >> 4][0]);
-
+	} else { // ON -> OFF
+		channels[6].setInstrument(instvol_r[6] >> 4);
+		channels[7].setInstrument(instvol_r[7] >> 4);
+		channels[8].setInstrument(instvol_r[8] >> 4);
 		// BD key off
 		channels[6].slots[SLOT1].KEY_OFF(2);
 		channels[6].slots[SLOT2].KEY_OFF(2);
@@ -1226,8 +1169,8 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 		case 0x05:  // Attack, Decay (carrier)
 		case 0x06:  // Sustain, Release (modulator)
 		case 0x07:  // Sustain, Release (carrier)
-			inst_tab[0][r & 0x07] = v;
-			update_instrument_zero(r & 7);
+			globals.inst_tab[0][r & 0x07] = v;
+			updateCustomInstrument(r & 7);
 			break;
 
 		case 0x0E: {
@@ -1335,8 +1278,7 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 			}
 		} else {
 			if ((old_instvol & 0xF0) != (v & 0xF0)) {
-				byte* inst = &inst_tab[instvol_r[chan] >> 4][0];
-				load_instrument(chan, inst);
+				channels[chan].setInstrument(instvol_r[chan] >> 4);
 			}
 		}
 		break;
@@ -1355,9 +1297,9 @@ void YM2413_2::reset(const EmuTime &time)
 	noise_rng = 1;    // noise shift register
 
 	// setup instruments table
-	for (int i = 0; i < 19; i++) {
-		for (int c = 0; c < 8; c++) {
-			inst_tab[i][c] = table[i][c];
+	for (int instrument = 0; instrument < 19; instrument++) {
+		for (int part = 0; part < 8; part++) {
+			globals.inst_tab[instrument][part] = table[instrument][part];
 		}
 	}
 
@@ -1392,6 +1334,7 @@ YM2413_2::YM2413_2(MSXMotherBoard& motherBoard, const std::string& name,
 	LFO_AM = LFO_PM = 0;
 	for (int ch = 0; ch < 9; ch++) {
 		instvol_r[ch] = 0;
+		channels[ch].init(globals);
 	}
 	init_tables();
 
