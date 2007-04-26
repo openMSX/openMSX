@@ -953,6 +953,18 @@ inline void Slot::KEY_OFF(byte key_clr)
 	}
 }
 
+inline void Slot::setSustainLevel(byte value)
+{
+	sl = sl_tab[value];
+}
+
+inline void Slot::setReleaseRate(byte value)
+{
+	rr  = value ? 16 + (value << 2) : 0;
+	eg_sh_rr  = eg_rate_shift [rr + ksr];
+	eg_sel_rr = eg_rate_select[rr + ksr];
+}
+
 // update phase increment counter of operator (also update the EG rates if necessary)
 inline void Channel::CALC_FCSLOT(Slot* slot)
 {
@@ -1048,28 +1060,22 @@ inline void YM2413_2::set_ar_dr(byte sl, byte v)
 	slot.eg_sel_dr = eg_rate_select[slot.dr + slot.ksr];
 }
 
-// set sustain level & release rate
-inline void YM2413_2::set_sl_rr(byte sl, byte v)
+void YM2413_2::load_instrument(byte ch, byte* inst)
 {
-	Channel& ch = channels[sl / 2];
-	Slot& slot = ch.slots[sl & 1];
+	Channel& channel = channels[ch];
+	Slot& slot1 = channel.slots[SLOT1];
+	Slot& slot2 = channel.slots[SLOT2];
 
-	slot.sl  = sl_tab[v >> 4];
-	slot.rr  = (v & 0x0F) ? (16 + ((v & 0x0F) << 2)) : 0;
-	slot.eg_sh_rr  = eg_rate_shift [slot.rr + slot.ksr];
-	slot.eg_sel_rr = eg_rate_select[slot.rr + slot.ksr];
-}
-
-void YM2413_2::load_instrument(byte chan, byte slot, byte* inst)
-{
-	set_mul        (slot,     inst[0]);
-	set_mul        (slot + 1, inst[1]);
-	set_ksl_tl     (chan,     inst[2]);
-	set_ksl_wave_fb(chan,     inst[3]);
-	set_ar_dr      (slot,     inst[4]);
-	set_ar_dr      (slot + 1, inst[5]);
-	set_sl_rr      (slot,     inst[6]);
-	set_sl_rr      (slot + 1, inst[7]);
+	set_mul        (ch * 2,     inst[0]);
+	set_mul        (ch * 2 + 1, inst[1]);
+	set_ksl_tl     (ch,         inst[2]);
+	set_ksl_wave_fb(ch,         inst[3]);
+	set_ar_dr      (ch * 2,     inst[4]);
+	set_ar_dr      (ch * 2 + 1, inst[5]);
+	slot1.setSustainLevel(inst[6] >> 4);
+	slot1.setReleaseRate(inst[6] & 0x0F);
+	slot2.setSustainLevel(inst[7] >> 4);
+	slot2.setReleaseRate(inst[7] & 0x0F);
 }
 
 void YM2413_2::update_instrument_zero(byte r)
@@ -1123,14 +1129,18 @@ void YM2413_2::update_instrument_zero(byte r)
 	case 6:
 		for (byte chan = 0; chan < chan_max; chan++) {
 			if ((instvol_r[chan] & 0xF0) == 0) {
-				set_sl_rr(chan * 2, inst[6]);
+				Slot& slot = channels[chan].slots[SLOT1];
+				slot.setSustainLevel(inst[6] >> 4);
+				slot.setReleaseRate(inst[6] & 0x0F);
 			}
 		}
 		break;
 	case 7:
 		for (byte chan = 0; chan < chan_max; chan++) {
 			if ((instvol_r[chan] & 0xF0) == 0) {
-				set_sl_rr(chan * 2 + 1, inst[7]);
+				Slot& slot = channels[chan].slots[SLOT2];
+				slot.setSustainLevel(inst[7] >> 4);
+				slot.setReleaseRate(inst[7] & 0x0F);
 			}
 		}
 		break;
@@ -1147,17 +1157,17 @@ void YM2413_2::setRhythmMode(bool newMode)
 		// OFF -> ON
 
 		// Load instrument settings for channel seven
-		load_instrument(6, 12, &inst_tab[16][0]);
+		load_instrument(6, &inst_tab[16][0]);
 
 		// Load instrument settings for channel eight. (High hat and snare drum)
-		load_instrument(7, 14, &inst_tab[17][0]);
+		load_instrument(7, &inst_tab[17][0]);
 		Channel& ch7 = channels[7];
 		Slot& slot71 = ch7.slots[SLOT1]; // modulator envelope is HH
 		slot71.TL  = ((instvol_r[7] >> 4) << 2) << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0)
 		slot71.TLL = slot71.TL + (ch7.ksl_base >> slot71.ksl);
 
 		// Load instrument settings for channel nine. (Tom-tom and top cymbal)
-		load_instrument(8, 16, &inst_tab[18][0]);
+		load_instrument(8, &inst_tab[18][0]);
 		Channel& ch8 = channels[8];
 		Slot& slot81 = ch8.slots[SLOT1]; // modulator envelope is TOM
 		slot81.TL  = ((instvol_r[8] >> 4) << 2) << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0)
@@ -1166,13 +1176,13 @@ void YM2413_2::setRhythmMode(bool newMode)
 		// ON -> OFF
 
 		// Load instrument settings for channel seven
-		load_instrument(6, 12, &inst_tab[instvol_r[6] >> 4][0]);
+		load_instrument(6, &inst_tab[instvol_r[6] >> 4][0]);
 
 		// Load instrument settings for channel eight.
-		load_instrument(7, 14, &inst_tab[instvol_r[7] >> 4][0]);
+		load_instrument(7, &inst_tab[instvol_r[7] >> 4][0]);
 
 		// Load instrument settings for channel nine.
-		load_instrument(8, 16, &inst_tab[instvol_r[8] >> 4][0]);
+		load_instrument(8, &inst_tab[instvol_r[8] >> 4][0]);
 
 		// BD key off
 		channels[6].slots[SLOT1].KEY_OFF(2);
@@ -1316,10 +1326,9 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 				slot1.TLL = slot1.TL + (ch.ksl_base >> slot1.ksl);
 			}
 		} else {
-			if (!((old_instvol & 0xF0) == (v & 0xF0))) {
+			if ((old_instvol & 0xF0) != (v & 0xF0)) {
 				byte* inst = &inst_tab[instvol_r[chan] >> 4][0];
-				byte sl = chan * 2;
-				load_instrument(chan, sl, inst);
+				load_instrument(chan, inst);
 			}
 		}
 		break;

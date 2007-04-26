@@ -46,6 +46,16 @@ public:
 	 */
 	void setFeedbackShift(byte value);
 
+	/**
+	 * Sets the sustain level [0..15].
+	 */
+	inline void setSustainLevel(byte value);
+
+	/**
+	 * Sets the release rate [0..15].
+	 */
+	inline void setReleaseRate(byte value);
+
 	// Phase Generator
 	FreqIndex phase;	// frequency counter
 	FreqIndex freq;	// frequency counter step
@@ -136,8 +146,7 @@ private:
 	inline void set_ksl_tl(byte chan, byte v);
 	inline void set_ksl_wave_fb(byte chan, byte v);
 	inline void set_ar_dr(byte slot, byte v);
-	inline void set_sl_rr(byte slot, byte v);
-	void load_instrument(byte chan, byte slot, byte* inst);
+	void load_instrument(byte chan, byte* inst);
 	void update_instrument_zero(byte r);
 	void setRhythmMode(bool newMode);
 
