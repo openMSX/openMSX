@@ -38,10 +38,6 @@ private:
 	YM2413_2& ym2413;
 };
 
-
-const int EG_SH   = 16;	// 16.16 fixed point (EG timing)
-const int LFO_SH  = 24;	//  8.24 fixed point (LFO calculations)
-
 // envelope output entries
 const int ENV_BITS = 10;
 const int ENV_LEN  = 1 << ENV_BITS;
@@ -267,7 +263,7 @@ static unsigned sin_tab[SIN_LEN * 2];
 //
 // We use data>>1, until we find what it really is on real chip...
 
-const unsigned LFO_AM_TAB_ELEMENTS = 210;
+static const int LFO_AM_TAB_ELEMENTS = 210;
 static const byte lfo_am_table[LFO_AM_TAB_ELEMENTS] =
 {
 	0,0,0,0,0,0,0,
@@ -419,18 +415,18 @@ inline void YM2413_2::advance_lfo()
 	// Amplitude modulation: 27 output levels (triangle waveform)
 	// 1 level takes one of: 192, 256 or 448 samples
 	// One entry from LFO_AM_TABLE lasts for 64 samples
-	static const unsigned LFO_AM_INC = (1 << LFO_SH) / 64;
+	static const LFOIndex LFO_AM_INC = LFOIndex(1) / 64;
 	lfo_am_cnt += LFO_AM_INC;
-	if (lfo_am_cnt >= (LFO_AM_TAB_ELEMENTS << LFO_SH)) {
+	if (lfo_am_cnt >= LFOIndex(LFO_AM_TAB_ELEMENTS)) {
 		// lfo_am_table is 210 elements long
-		lfo_am_cnt -= (LFO_AM_TAB_ELEMENTS << LFO_SH);
+		lfo_am_cnt -= LFOIndex(LFO_AM_TAB_ELEMENTS);
 	}
-	LFO_AM = lfo_am_table[lfo_am_cnt >> LFO_SH] >> 1;
+	LFO_AM = lfo_am_table[lfo_am_cnt.toInt()] >> 1;
 
 	// Vibrato: 8 output levels (triangle waveform); 1 level takes 1024 samples
-	static const unsigned LFO_PM_INC = (1 << LFO_SH) / 1024;
+	static const LFOIndex LFO_PM_INC = LFOIndex(1) / 1024;
 	lfo_pm_cnt += LFO_PM_INC;
-	LFO_PM = (lfo_pm_cnt >> LFO_SH) & 7;
+	LFO_PM = lfo_pm_cnt.toInt() & 7;
 }
 
 // advance to next sample
@@ -1371,10 +1367,10 @@ YM2413_2::YM2413_2(MSXMotherBoard& motherBoard, const std::string& name,
                    const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMSXMixer(), name, "MSX-MUSIC", 11)
 	, debuggable(new YM2413_2Debuggable(motherBoard, *this))
+	, lfo_am_cnt(0), lfo_pm_cnt(0)
 {
 	eg_cnt = 0;
 	rhythm = 0;
-	lfo_am_cnt = lfo_pm_cnt = 0;
 	noise_rng = 0;
 	LFO_AM = LFO_PM = 0;
 	for (int ch = 0; ch < 9; ch++) {

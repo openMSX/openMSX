@@ -20,6 +20,10 @@ class YM2413_2Debuggable;
   */
 typedef FixedPoint<16> FreqIndex;
 
+/** 8.24 fixed point type for LFO calculations.
+  */
+typedef FixedPoint<24> LFOIndex;
+
 class Slot
 {
 public:
@@ -157,8 +161,8 @@ private:
 	unsigned eg_cnt;	// global envelope generator counter
 
 	// LFO
-	unsigned lfo_am_cnt;
-	unsigned lfo_pm_cnt;
+	LFOIndex lfo_am_cnt;
+	LFOIndex lfo_pm_cnt;
 
 	int noise_rng;		// 23 bit noise shift register
 
