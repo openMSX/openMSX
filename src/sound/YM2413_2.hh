@@ -24,6 +24,8 @@ typedef FixedPoint<16> FreqIndex;
   */
 typedef FixedPoint<24> LFOIndex;
 
+class Channel;
+
 class Slot
 {
 public:
@@ -42,9 +44,19 @@ public:
 	}
 
 	/**
+	 * Sets the key scale level: 0->0 / 1->1.5 / 2->3.0 / 3->6.0 dB/OCT.
+	 */
+	inline void setKeyScaleLevel(Channel& channel, byte value);
+
+	/**
+	 * Sets the waveform: 0 = sinus, 1 = half sinus, half silence.
+	 */
+	inline void setWaveform(byte value);
+
+	/**
 	 * Sets the amount of feedback [0..7].
 	 */
-	void setFeedbackShift(byte value);
+	inline void setFeedbackShift(byte value);
 
 	/**
 	 * Sets the attack rate [0..15].
@@ -154,8 +166,6 @@ private:
 
 	inline void set_mul(byte slot, byte v);
 	inline void set_ksl_tl(byte chan, byte v);
-	inline void set_ksl_wave_fb(byte chan, byte v);
-	inline void set_ar_dr(byte slot, byte v);
 	void load_instrument(byte chan, byte* inst);
 	void update_instrument_zero(byte r);
 	void setRhythmMode(bool newMode);

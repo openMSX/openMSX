@@ -657,11 +657,6 @@ inline void Slot::updateModulator(byte LFO_AM)
 	op1_out[1] = op_calc(LFO_AM, phase, pm);
 }
 
-void Slot::setFeedbackShift(byte value)
-{
-	fb_shift = value ? 8 - value : 0;
-}
-
 // calculate output
 inline int Channel::chan_calc(byte LFO_AM)
 {
@@ -953,6 +948,23 @@ inline void Slot::KEY_OFF(byte key_clr)
 	}
 }
 
+inline void Slot::setKeyScaleLevel(Channel& channel, byte value)
+{
+	ksl = ksl ? (3 - ksl) : 31;
+	// TODO: Maybe a Slot object should store a reference to its channel?
+	TLL = TL + (channel.ksl_base >> ksl);
+}
+
+inline void Slot::setWaveform(byte value)
+{
+	wavetable = value * SIN_LEN;
+}
+
+inline void Slot::setFeedbackShift(byte value)
+{
+	fb_shift = value ? 8 - value : 0;
+}
+
 inline void Slot::setAttackRate(byte value)
 {
 	ar = value ? 16 + (value << 2) : 0;
@@ -1044,21 +1056,6 @@ inline void YM2413_2::set_ksl_tl(byte chan, byte v)
 	slot.TLL = slot.TL + (ch.ksl_base >> slot.ksl);
 }
 
-// set ksl , waveforms, feedback
-inline void YM2413_2::set_ksl_wave_fb(byte chan, byte v)
-{
-	Channel& ch = channels[chan];
-	Slot& slot1 = ch.slots[SLOT1]; // modulator
-	slot1.wavetable = ((v & 0x08) >> 3) * SIN_LEN;
-	slot1.setFeedbackShift(v & 7);
-
-	Slot& slot2 = ch.slots[SLOT2];	//carrier
-	int ksl = v >> 6; // 0 / 1.5 / 3.0 / 6.0 dB/OCT
-	slot2.ksl = ksl ? (3 - ksl) : 31;
-	slot2.TLL = slot2.TL + (ch.ksl_base >> slot2.ksl);
-	slot2.wavetable = ((v & 0x10) >> 4) * SIN_LEN;
-}
-
 void YM2413_2::load_instrument(byte ch, byte* inst)
 {
 	Channel& channel = channels[ch];
@@ -1068,7 +1065,10 @@ void YM2413_2::load_instrument(byte ch, byte* inst)
 	set_mul        (ch * 2,     inst[0]);
 	set_mul        (ch * 2 + 1, inst[1]);
 	set_ksl_tl     (ch,         inst[2]);
-	set_ksl_wave_fb(ch,         inst[3]);
+	slot1.setWaveform((inst[3] & 0x08) >> 3);
+	slot1.setFeedbackShift(inst[3] & 0x07);
+	slot2.setKeyScaleLevel(channel, inst[3] >> 6);
+	slot2.setWaveform((inst[3] & 0x10) >> 4);
 	slot1.setAttackRate(inst[4] >> 4);
 	slot1.setDecayRate(inst[4] & 0x0F);
 	slot2.setAttackRate(inst[5] >> 4);
@@ -1109,7 +1109,13 @@ void YM2413_2::update_instrument_zero(byte r)
 	case 3:
 		for (int chan = 0; chan < chan_max; chan++) {
 			if ((instvol_r[chan] & 0xF0) == 0) {
-				set_ksl_wave_fb(chan, inst[3]);
+				Channel& ch = channels[chan];
+				Slot& slot1 = ch.slots[SLOT1];
+				Slot& slot2 = ch.slots[SLOT2];
+				slot1.setWaveform((inst[3] & 0x08) >> 3);
+				slot1.setFeedbackShift(inst[3] & 0x07);
+				slot2.setKeyScaleLevel(ch, inst[3] >> 6);
+				slot2.setWaveform((inst[3] & 0x10) >> 4);
 			}
 		}
 		break;
