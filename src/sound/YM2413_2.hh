@@ -41,6 +41,12 @@ public:
 	 */
 	void init(Globals& globals, Channel& channel);
 
+	/**
+	 * Update phase increment counter of operator.
+	 * Also updates the EG rates if necessary.
+	 */
+	void updateGenerators();
+
 	inline int op_calc(FreqIndex phase, FreqIndex pm);
 	inline void updateModulator();
 	inline void KEY_ON (byte key_set);
@@ -170,7 +176,6 @@ class Channel
 public:
 	Channel();
 	inline int chan_calc();
-	inline void CALC_FCSLOT(Slot *slot);
 
 	/**
 	 * Initializes those parts that cannot be initialized in the constructor,

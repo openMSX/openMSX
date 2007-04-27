@@ -1027,6 +1027,38 @@ void Slot::init(Globals& globals, Channel& channel)
 	this->channel = &channel;
 }
 
+void Slot::updateGenerators()
+{
+	// (frequency) phase increment counter
+	freq = channel->fc * mul;
+
+	const int ksrNew = channel->kcode >> KSR;
+	if (ksr != ksrNew) {
+		ksr = ksrNew;
+
+		// calculate envelope generator rates
+		if ((ar + ksr) < (16 + 62)) {
+			eg_sh_ar  = eg_rate_shift [ar + ksr];
+			eg_sel_ar = eg_rate_select[ar + ksr];
+		} else {
+			eg_sh_ar  = 0;
+			eg_sel_ar = 13 * RATE_STEPS;
+		}
+		eg_sh_dr  = eg_rate_shift [dr + ksr];
+		eg_sel_dr = eg_rate_select[dr + ksr];
+		eg_sh_rr  = eg_rate_shift [rr + ksr];
+		eg_sel_rr = eg_rate_select[rr + ksr];
+	}
+
+	const int rs = channel->sus ? 16 + (5 << 2) : 16 + (7 << 2);
+	eg_sh_rs  = eg_rate_shift [rs + ksr];
+	eg_sel_rs = eg_rate_select[rs + ksr];
+
+	const int dp = 16 + (13 << 2);
+	eg_sh_dp  = eg_rate_shift [dp + ksr];
+	eg_sel_dp = eg_rate_select[dp + ksr];
+}
+
 Channel::Channel()
 	: fc(0)
 {
@@ -1039,39 +1071,6 @@ void Channel::init(Globals& globals)
 	this->globals = &globals;
 	slots[SLOT1].init(globals, *this);
 	slots[SLOT2].init(globals, *this);
-}
-
-// update phase increment counter of operator (also update the EG rates if necessary)
-inline void Channel::CALC_FCSLOT(Slot* slot)
-{
-	// (frequency) phase increment counter
-	slot->freq = fc * slot->mul;
-	int ksr = kcode >> slot->KSR;
-
-	if (slot->ksr != ksr) {
-		slot->ksr = ksr;
-
-		// calculate envelope generator rates
-		if ((slot->ar + slot->ksr) < (16 + 62)) {
-			slot->eg_sh_ar  = eg_rate_shift [slot->ar + slot->ksr];
-			slot->eg_sel_ar = eg_rate_select[slot->ar + slot->ksr];
-		} else {
-			slot->eg_sh_ar  = 0;
-			slot->eg_sel_ar = 13 * RATE_STEPS;
-		}
-		slot->eg_sh_dr  = eg_rate_shift [slot->dr + slot->ksr];
-		slot->eg_sel_dr = eg_rate_select[slot->dr + slot->ksr];
-		slot->eg_sh_rr  = eg_rate_shift [slot->rr + slot->ksr];
-		slot->eg_sel_rr = eg_rate_select[slot->rr + slot->ksr];
-	}
-
-	int SLOT_rs = (sus) ? (16 + (5 << 2)) : (16 + (7 << 2));
-	slot->eg_sh_rs  = eg_rate_shift [SLOT_rs + slot->ksr];
-	slot->eg_sel_rs = eg_rate_select[SLOT_rs + slot->ksr];
-
-	int SLOT_dp = 16 + (13 << 2);
-	slot->eg_sh_dp  = eg_rate_shift [SLOT_dp + slot->ksr];
-	slot->eg_sel_dp = eg_rate_select[SLOT_dp + slot->ksr];
 }
 
 void Channel::setInstrumentPart(int instrument, int part)
@@ -1089,7 +1088,7 @@ void Channel::setInstrumentPart(int instrument, int part)
 		slot.setEnvelopeType(value & 0x20);
 		slot.setVibrato(value & 0x40);
 		slot.setAmplitudeModulation(value & 0x80);
-		CALC_FCSLOT(&slot);
+		slot.updateGenerators();
 		break;
 	}
 	case 2:
@@ -1281,8 +1280,8 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 			ch.slots[SLOT2].TLL = ch.slots[SLOT2].TL + (ch.ksl_base >> ch.slots[SLOT2].ksl);
 
 			// refresh frequency counter in both SLOTs of this channel
-			ch.CALC_FCSLOT(&ch.slots[SLOT1]);
-			ch.CALC_FCSLOT(&ch.slots[SLOT2]);
+			ch.slots[SLOT1].updateGenerators();
+			ch.slots[SLOT2].updateGenerators();
 		}
 		break;
 	}
