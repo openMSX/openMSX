@@ -931,15 +931,29 @@ inline void Slot::KEY_OFF(byte key_clr)
 	}
 }
 
-// set multi,am,vib,EG-TYP,KSR,mul
-inline void Slot::set_mul(byte value)
+inline void Slot::setFrequencyMultiplier(byte value)
 {
-	mul     = mul_tab[value & 0x0F];
-	KSR     = (value & 0x10) ? 0 : 2;
-	eg_type = (value & 0x20);
-	vib     = (value & 0x40);
-	AMmask  = (value & 0x80) ? ~0 : 0;
-	channel->CALC_FCSLOT(this);
+	mul = mul_tab[value];
+}
+
+inline void Slot::setKeyScaleRate(bool value)
+{
+	KSR = value ? 0 : 2;
+}
+
+inline void Slot::setEnvelopeType(bool value)
+{
+	eg_type = value;
+}
+
+inline void Slot::setVibrato(bool value)
+{
+	vib = value;
+}
+
+inline void Slot::setAmplitudeModulation(bool value)
+{
+	AMmask  = value ? ~0 : 0;
 }
 
 inline void Slot::setTotalLevel(byte value)
@@ -1067,11 +1081,17 @@ void Channel::setInstrumentPart(int instrument, int part)
 	Slot& slot2 = slots[SLOT2];
 	switch (part) {
 	case 0:
-		slot1.set_mul(inst[0]);
+	case 1: {
+		Slot& slot = slots[part];
+		byte value = inst[part];
+		slot.setFrequencyMultiplier(value & 0x0F);
+		slot.setKeyScaleRate(value & 0x10);
+		slot.setEnvelopeType(value & 0x20);
+		slot.setVibrato(value & 0x40);
+		slot.setAmplitudeModulation(value & 0x80);
+		CALC_FCSLOT(&slot);
 		break;
-	case 1:
-		slot2.set_mul(inst[1]);
-		break;
+	}
 	case 2:
 		slot1.setKeyScaleLevel(inst[2] >> 6);
 		slot1.setTotalLevel(inst[2] & 0x3F);

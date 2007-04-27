@@ -54,9 +54,29 @@ public:
 	}
 
 	/**
-	 * Temporary method: will be split later.
+	 * Sets the frequency multiplier [0..15].
 	 */
-	inline void set_mul(byte value);
+	inline void setFrequencyMultiplier(byte value);
+
+	/**
+	 * Sets the key scale rate: true->0, false->2.
+	 */
+	inline void setKeyScaleRate(bool value);
+
+	/**
+	 * Sets the envelope type: true->sustained, false->percussive.
+	 */
+	inline void setEnvelopeType(bool value);
+
+	/**
+	 * Enables (true) or disables (false) vibrato.
+	 */
+	inline void setVibrato(bool value);
+
+	/**
+	 * Enables (true) or disables (false) amplitude modulation.
+	 */
+	inline void setAmplitudeModulation(bool value);
 
 	/**
 	 * Sets the total level: [0..63].
