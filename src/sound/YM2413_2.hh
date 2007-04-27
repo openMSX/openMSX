@@ -174,7 +174,21 @@ public:
 	 */
 	void setInstrument(int instrument);
 
+	/**
+	 * Sets all synthesis parameters as specified by the current instrument.
+	 * The current instrument is determined by instvol_r.
+	 */
+	inline void setInstrument() {
+		setInstrument(instvol_r >> 4);
+	}
+
 	Slot slots[2];
+
+	/**
+	 * Instrument/volume (or volume/volume in rhythm mode).
+	 */
+	byte instvol_r;
+
 	// phase generator state
 	int block_fnum;	// block+fnum
 	FreqIndex fc;	// Freq. freqement base
@@ -265,9 +279,7 @@ private:
 
 	byte reg[0x40];
 
-	byte instvol_r[9];	// instrument/volume (or volume/volume in percussive mode)
 	bool rhythm;		// Rhythm mode
-
 };
 
 } // namespace openmsx

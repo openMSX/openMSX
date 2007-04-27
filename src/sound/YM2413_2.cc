@@ -1016,6 +1016,7 @@ void Slot::init(Globals& globals, Channel& channel)
 Channel::Channel()
 	: fc(0)
 {
+	instvol_r = 0;
 	block_fnum = ksl_base = kcode = sus = 0;
 }
 
@@ -1116,8 +1117,9 @@ void YM2413_2::updateCustomInstrument(int part)
 {
 	const byte numMelodicChannels = (rhythm) ? 6 : 9;
 	for (int chan = 0; chan < numMelodicChannels; chan++) {
-		if ((instvol_r[chan] & 0xF0) == 0) {
-			channels[chan].setInstrumentPart(0, part);
+		Channel& channel = channels[chan];
+		if ((channel.instvol_r & 0xF0) == 0) {
+			channel.setInstrumentPart(0, part);
 		}
 	}
 }
@@ -1135,15 +1137,15 @@ void YM2413_2::setRhythmMode(bool rhythm)
 		// High hat and snare drum.
 		Channel& ch7 = channels[7];
 		ch7.setInstrument(17);
-		ch7.slots[SLOT1].setTotalLevel((instvol_r[7] >> 4) << 2); // High hat
+		ch7.slots[SLOT1].setTotalLevel((ch7.instvol_r >> 4) << 2); // High hat
 		// Tom-tom and top cymbal.
 		Channel& ch8 = channels[8];
 		ch8.setInstrument(18);
-		ch8.slots[SLOT1].setTotalLevel((instvol_r[8] >> 4) << 2); // Tom-tom
+		ch8.slots[SLOT1].setTotalLevel((ch8.instvol_r >> 4) << 2); // Tom-tom
 	} else { // ON -> OFF
-		channels[6].setInstrument(instvol_r[6] >> 4);
-		channels[7].setInstrument(instvol_r[7] >> 4);
-		channels[8].setInstrument(instvol_r[8] >> 4);
+		channels[6].setInstrument();
+		channels[7].setInstrument();
+		channels[8].setInstrument();
 		// BD key off
 		channels[6].slots[SLOT1].KEY_OFF(2);
 		channels[6].slots[SLOT2].KEY_OFF(2);
@@ -1265,13 +1267,13 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 		break;
 	}
 
-	case 0x30: {
-		// inst 4 MSBs, VOL 4 LSBs
+	case 0x30: { // inst 4 MSBs, VOL 4 LSBs
 		byte chan = (r & 0x0F) % 9;	// verified on real YM2413
-		byte old_instvol = instvol_r[chan];
-		instvol_r[chan] = v;  // store for later use
-
 		Channel& ch = channels[chan];
+
+		byte old_instvol = ch.instvol_r;
+		ch.instvol_r = v;  // store for later use
+
 		ch.slots[SLOT2].setTotalLevel((v & 0x0F) << 2);
 
 		//check wether we are in rhythm mode and handle instrument/volume register accordingly
@@ -1280,11 +1282,11 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 			if (chan >= 7) {
 				// only for channel 7 and 8 (channel 6 is handled in usual way)
 				// modulator envelope is HH(chan=7) or TOM(chan=8)
-				ch.slots[SLOT1].setTotalLevel((instvol_r[chan] >> 4) << 2);
+				ch.slots[SLOT1].setTotalLevel((ch.instvol_r >> 4) << 2);
 			}
 		} else {
 			if ((old_instvol & 0xF0) != (v & 0xF0)) {
-				channels[chan].setInstrument(instvol_r[chan] >> 4);
+				ch.setInstrument();
 			}
 		}
 		break;
@@ -1338,7 +1340,6 @@ YM2413_2::YM2413_2(MSXMotherBoard& motherBoard, const std::string& name,
 	rhythm = 0;
 	noise_rng = 0;
 	for (int ch = 0; ch < 9; ch++) {
-		instvol_r[ch] = 0;
 		channels[ch].init(globals);
 	}
 	init_tables();
