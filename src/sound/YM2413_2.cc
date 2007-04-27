@@ -981,9 +981,10 @@ inline void Slot::setFeedbackShift(byte value)
 inline void Slot::setAttackRate(byte value)
 {
 	ar = value ? 16 + (value << 2) : 0;
-	if ((ar + ksr) < (16 + 62)) {
-		eg_sh_ar  = eg_rate_shift [ar + ksr];
-		eg_sel_ar = eg_rate_select[ar + ksr];
+	// TODO: This is duplicated in updateGenerators().
+	if ((ar + kcodeScaled) < (16 + 62)) {
+		eg_sh_ar  = eg_rate_shift [ar + kcodeScaled];
+		eg_sel_ar = eg_rate_select[ar + kcodeScaled];
 	} else {
 		eg_sh_ar  = 0;
 		eg_sel_ar = 13 * RATE_STEPS;
@@ -993,8 +994,8 @@ inline void Slot::setAttackRate(byte value)
 inline void Slot::setDecayRate(byte value)
 {
 	dr = value ? 16 + (value << 2) : 0;
-	eg_sh_dr  = eg_rate_shift [dr + ksr];
-	eg_sel_dr = eg_rate_select[dr + ksr];
+	eg_sh_dr  = eg_rate_shift [dr + kcodeScaled];
+	eg_sel_dr = eg_rate_select[dr + kcodeScaled];
 }
 
 inline void Slot::setSustainLevel(byte value)
@@ -1005,15 +1006,15 @@ inline void Slot::setSustainLevel(byte value)
 inline void Slot::setReleaseRate(byte value)
 {
 	rr  = value ? 16 + (value << 2) : 0;
-	eg_sh_rr  = eg_rate_shift [rr + ksr];
-	eg_sel_rr = eg_rate_select[rr + ksr];
+	eg_sh_rr  = eg_rate_shift [rr + kcodeScaled];
+	eg_sel_rr = eg_rate_select[rr + kcodeScaled];
 }
 
 
 Slot::Slot()
 	: phase(0), freq(0)
 {
-	ar = dr = rr = KSR = ksl = ksr = mul = 0;
+	ar = dr = rr = KSR = ksl = kcodeScaled = mul = 0;
 	fb_shift = op1_out[0] = op1_out[1] = 0;
 	eg_type = state = TL = TLL = volume = sl = 0;
 	eg_sh_dp = eg_sel_dp = eg_sh_ar = eg_sel_ar = eg_sh_dr = 0;
@@ -1032,31 +1033,31 @@ void Slot::updateGenerators()
 	// (frequency) phase increment counter
 	freq = channel->fc * mul;
 
-	const int ksrNew = channel->kcode >> KSR;
-	if (ksr != ksrNew) {
-		ksr = ksrNew;
+	const int kcodeScaledNew = channel->kcode >> KSR;
+	if (kcodeScaled != kcodeScaledNew) {
+		kcodeScaled = kcodeScaledNew;
 
 		// calculate envelope generator rates
-		if ((ar + ksr) < (16 + 62)) {
-			eg_sh_ar  = eg_rate_shift [ar + ksr];
-			eg_sel_ar = eg_rate_select[ar + ksr];
+		if ((ar + kcodeScaled) < (16 + 62)) {
+			eg_sh_ar  = eg_rate_shift [ar + kcodeScaled];
+			eg_sel_ar = eg_rate_select[ar + kcodeScaled];
 		} else {
 			eg_sh_ar  = 0;
 			eg_sel_ar = 13 * RATE_STEPS;
 		}
-		eg_sh_dr  = eg_rate_shift [dr + ksr];
-		eg_sel_dr = eg_rate_select[dr + ksr];
-		eg_sh_rr  = eg_rate_shift [rr + ksr];
-		eg_sel_rr = eg_rate_select[rr + ksr];
+		eg_sh_dr  = eg_rate_shift [dr + kcodeScaled];
+		eg_sel_dr = eg_rate_select[dr + kcodeScaled];
+		eg_sh_rr  = eg_rate_shift [rr + kcodeScaled];
+		eg_sel_rr = eg_rate_select[rr + kcodeScaled];
 	}
 
 	const int rs = channel->sus ? 16 + (5 << 2) : 16 + (7 << 2);
-	eg_sh_rs  = eg_rate_shift [rs + ksr];
-	eg_sel_rs = eg_rate_select[rs + ksr];
+	eg_sh_rs  = eg_rate_shift [rs + kcodeScaled];
+	eg_sel_rs = eg_rate_select[rs + kcodeScaled];
 
 	const int dp = 16 + (13 << 2);
-	eg_sh_dp  = eg_rate_shift [dp + ksr];
-	eg_sel_dp = eg_rate_select[dp + ksr];
+	eg_sh_dp  = eg_rate_shift [dp + kcodeScaled];
+	eg_sel_dp = eg_rate_select[dp + kcodeScaled];
 }
 
 Channel::Channel()

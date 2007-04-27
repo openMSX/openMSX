@@ -154,7 +154,7 @@ public:
 	byte rr;	// release rate:RR<<2
 	byte KSR;	// key scale rate
 	byte ksl;	// keyscale level
-	byte ksr;	// key scale rate: kcode>>KSR
+	byte kcodeScaled;	// key scale rate: kcode>>KSR
 	byte mul;	// multiple: mul_tab[ML]
 
 	// LFO
