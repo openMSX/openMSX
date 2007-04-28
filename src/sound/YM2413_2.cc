@@ -1017,8 +1017,6 @@ inline int Slot::op_calc(int phase, int pm)
 {
 	int env = (TLL + volume + (global->get_LFO_AM() & AMmask)) << 5;
 	if (env < TL_TAB_LEN) {
-		// TODO: Is there a point in passing "phase" and "pm" as fixed point
-		//       values if we're just going to round them anyway?
 		int p = env + sin_tab[
 			wavetable + ((phase + pm) & SIN_MASK)
 			];
