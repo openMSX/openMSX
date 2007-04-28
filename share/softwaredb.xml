@@ -8,7 +8,7 @@
 	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
-<softwaredb xml:lang="en" timestamp="1171906525">
+<softwaredb xml:lang="en" timestamp="1177776557">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -7769,8 +7769,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<type>Normal</type>
-				<start>0x4000</start>
+				<type>keyboardmaster</type>
 				<hash algo="sha1">2308dd0f15fb5395a1d8a08489daff65ead8e0f2</hash>
 				<remark>
 					<text>the _voice ROM should always be with the ROM image</text>
@@ -10433,7 +10432,7 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Namake&#39;s Bridgedrome</title>
+		<title xml:lang="en">Namake's Bridgedrome</title>
 		<system>MSX</system>
 		<company>Buresto Faiya</company>
 		<year>2005</year>
@@ -10611,7 +10610,7 @@
 		<dump>
 			<original value="false"/>
 			<megarom>
-				<type>ascii8</type>
+				<type>ASCII8</type>
 				<hash algo="sha1">22f9b0238ff48840fb7d45ac93a7f15495393920</hash>
 				<remark>
 					<text>MSXDEV06</text>
@@ -10628,7 +10627,7 @@
 		<dump>
 			<original value="false"/>
 			<megarom>
-				<type>ascii8</type>
+				<type>ASCII8</type>
 				<hash algo="sha1">4b138e041947990309c228890914689908d46685</hash>
 				<remark>
 					<text>MSXDEV06</text>
@@ -13061,7 +13060,7 @@
 		<dump>
 			<original value="false"/>
 			<megarom>
-				<type>ascii8</type>
+				<type>ASCII8</type>
 				<hash algo="sha1">7a0a1c5570a3361ad75406eea07c93fdad9fde02</hash>
 				<remark>
 					<text>MSXDEV06</text>
@@ -13078,7 +13077,7 @@
 		<dump>
 			<original value="false"/>
 			<megarom>
-				<type>ascii8</type>
+				<type>ASCII8</type>
 				<hash algo="sha1">e6ba7a6ecda80a1c844542be0b2a44a4a33dc113</hash>
 				<remark>
 					<text>MSXDEV06</text>
@@ -23999,5 +23998,5 @@ Roms in this database : 2243
 Good MSX entries 		: 755
 SHA1 values 			: 2243
 CRC32 values 			: 0
-Parse time 8.747 seconds on Mon Feb 19 18:35:34 CET 2007
+Parse time 7.001 seconds on Sat Apr 28 18:09:24 CEST 2007
  -->
