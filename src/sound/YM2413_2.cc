@@ -60,6 +60,8 @@ const byte SLOT2 = 1;
 // Envelope Generator phases
 enum EnvelopeState { EG_DMP, EG_ATT, EG_DEC, EG_SUS, EG_REL, EG_OFF };
 
+enum KeyPart { KEY_MAIN = 1, KEY_RHYTHM = 2 };
+
 // key scale level
 // table is 3dB/octave, DV converts this into 6dB/octave
 // 0.1875 is bit 0 weight of the envelope counter (volume) expressed
@@ -422,8 +424,15 @@ public:
 	inline void advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier);
 	inline void advancePhaseGenerator();
 
-	void KEY_ON (byte key_set);
-	void KEY_OFF(byte key_clr);
+	void setKeyOn(KeyPart part);
+	void setKeyOff(KeyPart part);
+	void setKeyOnOff(KeyPart part, bool enabled) {
+		if (enabled) {
+			setKeyOn(part);
+		} else {
+			setKeyOff(part);
+		}
+	}
 
 	/**
 	 * Returns the integer part of the frequency counter of this slot.
@@ -1278,20 +1287,20 @@ void YM2413_2::setOutputRate(unsigned sampleRate)
 	setResampleRatio(input, sampleRate);
 }
 
-void Slot::KEY_ON(byte key_set)
+void Slot::setKeyOn(KeyPart part)
 {
 	if (!key) {
 		// do NOT restart Phase Generator (verified on real YM2413)
 		// phase -> Dump
 		state = EG_DMP;
 	}
-	key |= key_set;
+	key |= part;
 }
 
-void Slot::KEY_OFF(byte key_clr)
+void Slot::setKeyOff(KeyPart part)
 {
 	if (key) {
-		key &= ~key_clr;
+		key &= ~part;
 		if (!key) {
 			// phase -> Release
 			if (state < EG_REL) {
@@ -1479,16 +1488,16 @@ void Global::setRhythmMode(bool rhythm)
 		channels[7].updateInstrument();
 		channels[8].updateInstrument();
 		// BD key off
-		channels[6].slots[SLOT1].KEY_OFF(2);
-		channels[6].slots[SLOT2].KEY_OFF(2);
+		channels[6].slots[SLOT1].setKeyOff(KEY_RHYTHM);
+		channels[6].slots[SLOT2].setKeyOff(KEY_RHYTHM);
 		// HH key off
-		channels[7].slots[SLOT1].KEY_OFF(2);
+		channels[7].slots[SLOT1].setKeyOff(KEY_RHYTHM);
 		// SD key off
-		channels[7].slots[SLOT2].KEY_OFF(2);
+		channels[7].slots[SLOT2].setKeyOff(KEY_RHYTHM);
 		// TOM key off
-		channels[8].slots[SLOT1].KEY_OFF(2);
+		channels[8].slots[SLOT1].setKeyOff(KEY_RHYTHM);
 		// TOP-CY off
-		channels[8].slots[SLOT2].KEY_OFF(2);
+		channels[8].slots[SLOT2].setKeyOff(KEY_RHYTHM);
 	}
 }
 
@@ -1498,37 +1507,16 @@ void Global::setRhythmFlags(byte flags)
 	setRhythmMode(flags & 0x20);
 	if (rhythm) {
 		// BD key on/off
-		if (flags & 0x10) {
-			channels[6].slots[SLOT1].KEY_ON (2);
-			channels[6].slots[SLOT2].KEY_ON (2);
-		} else {
-			channels[6].slots[SLOT1].KEY_OFF(2);
-			channels[6].slots[SLOT2].KEY_OFF(2);
-		}
+		channels[6].slots[SLOT1].setKeyOnOff(KEY_RHYTHM, flags & 0x10);
+		channels[6].slots[SLOT2].setKeyOnOff(KEY_RHYTHM, flags & 0x10);
 		// HH key on/off
-		if (flags & 0x01) {
-			channels[7].slots[SLOT1].KEY_ON (2);
-		} else {
-			channels[7].slots[SLOT1].KEY_OFF(2);
-		}
+		channels[7].slots[SLOT1].setKeyOnOff(KEY_RHYTHM, flags & 0x01);
 		// SD key on/off
-		if (flags & 0x08) {
-			channels[7].slots[SLOT2].KEY_ON (2);
-		} else {
-			channels[7].slots[SLOT2].KEY_OFF(2);
-		}
+		channels[7].slots[SLOT2].setKeyOnOff(KEY_RHYTHM, flags & 0x08);
 		// TOM key on/off
-		if (flags & 0x04) {
-			channels[8].slots[SLOT1].KEY_ON (2);
-		} else {
-			channels[8].slots[SLOT1].KEY_OFF(2);
-		}
+		channels[8].slots[SLOT1].setKeyOnOff(KEY_RHYTHM, flags & 0x04);
 		// TOP-CY key on/off
-		if (flags & 0x02) {
-			channels[8].slots[SLOT2].KEY_ON (2);
-		} else {
-			channels[8].slots[SLOT2].KEY_OFF(2);
-		}
+		channels[8].slots[SLOT2].setKeyOnOff(KEY_RHYTHM, flags & 0x02);
 	}
 }
 
@@ -1570,13 +1558,8 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 		} else {
 			// 20-28: suson, keyon, block, FNUM 8
 			block_fnum = ((v & 0x0F) << 8) | (ch.block_fnum & 0xFF);
-			if (v & 0x10) {
-				ch.slots[SLOT1].KEY_ON (1);
-				ch.slots[SLOT2].KEY_ON (1);
-			} else {
-				ch.slots[SLOT1].KEY_OFF(1);
-				ch.slots[SLOT2].KEY_OFF(1);
-			}
+			ch.slots[SLOT1].setKeyOnOff(KEY_MAIN, v & 0x10);
+			ch.slots[SLOT2].setKeyOnOff(KEY_MAIN, v & 0x10);
 			ch.sus = v & 0x20;
 		}
 		ch.setFrequency(block_fnum);
