@@ -558,20 +558,20 @@ public:
 	 * @param instrument Number of the instrument.
 	 * @param part Part [0..7] of the instrument.
 	 */
-	void setInstrumentPart(int instrument, int part);
+	void updateInstrumentPart(int instrument, int part);
 
 	/**
 	 * Sets all synthesis parameters as specified by the instrument.
 	 * @param instrument Number of the instrument.
 	 */
-	void setInstrument(int instrument);
+	void updateInstrument(int instrument);
 
 	/**
 	 * Sets all synthesis parameters as specified by the current instrument.
 	 * The current instrument is determined by instvol_r.
 	 */
-	inline void setInstrument() {
-		setInstrument(instvol_r >> 4);
+	void updateInstrument() {
+		updateInstrument(instvol_r >> 4);
 	}
 
 	Slot slots[2];
@@ -1380,7 +1380,7 @@ void Channel::init(Global& global)
 	slots[SLOT2].init(global, *this);
 }
 
-void Channel::setInstrumentPart(int instrument, int part)
+void Channel::updateInstrumentPart(int instrument, int part)
 {
 	const byte* inst = global->getInstrument(instrument);
 	Slot& slot1 = slots[SLOT1];
@@ -1427,10 +1427,10 @@ void Channel::setInstrumentPart(int instrument, int part)
 	}
 }
 
-void Channel::setInstrument(int instrument)
+void Channel::updateInstrument(int instrument)
 {
 	for (int part = 0; part < 8; part++) {
-		setInstrumentPart(instrument, part);
+		updateInstrumentPart(instrument, part);
 	}
 }
 
@@ -1458,7 +1458,7 @@ void Global::updateCustomInstrument(int part, byte value)
 	for (int chan = 0; chan < numMelodicChannels; chan++) {
 		Channel& channel = channels[chan];
 		if ((channel.instvol_r & 0xF0) == 0) {
-			channel.setInstrumentPart(0, part);
+			channel.updateInstrumentPart(0, part);
 		}
 	}
 }
@@ -1472,19 +1472,19 @@ void Global::setRhythmMode(bool rhythm)
 
 	if (rhythm) { // OFF -> ON
 		// Bass drum.
-		channels[6].setInstrument(16);
+		channels[6].updateInstrument(16);
 		// High hat and snare drum.
 		Channel& ch7 = channels[7];
-		ch7.setInstrument(17);
+		ch7.updateInstrument(17);
 		ch7.slots[SLOT1].setTotalLevel((ch7.instvol_r >> 4) << 2); // High hat
 		// Tom-tom and top cymbal.
 		Channel& ch8 = channels[8];
-		ch8.setInstrument(18);
+		ch8.updateInstrument(18);
 		ch8.slots[SLOT1].setTotalLevel((ch8.instvol_r >> 4) << 2); // Tom-tom
 	} else { // ON -> OFF
-		channels[6].setInstrument();
-		channels[7].setInstrument();
-		channels[8].setInstrument();
+		channels[6].updateInstrument();
+		channels[7].updateInstrument();
+		channels[8].updateInstrument();
 		// BD key off
 		channels[6].slots[SLOT1].KEY_OFF(2);
 		channels[6].slots[SLOT2].KEY_OFF(2);
@@ -1631,7 +1631,7 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 			}
 		} else {
 			if ((old_instvol & 0xF0) != (v & 0xF0)) {
-				ch.setInstrument();
+				ch.updateInstrument();
 			}
 		}
 		break;
