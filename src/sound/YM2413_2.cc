@@ -391,6 +391,14 @@ typedef FixedPoint<16> FreqIndex;
   */
 typedef FixedPoint<24> LFOIndex;
 
+static inline FreqIndex fnumToIncrement(int fnum)
+{
+	// OPLL (YM2413) phase increment counter = 18bit
+	// Chip works with 10.10 fixed point, while we use 16.16.
+	const byte block = (fnum & 0x1C00) >> 10;
+	return FreqIndex(fnum & 0x03FF) >> (11 - block);
+}
+
 class Global;
 class Channel;
 
@@ -416,6 +424,7 @@ public:
 
 	inline int op_calc(FreqIndex phase, FreqIndex pm);
 	inline void updateModulator();
+	inline void advancePhaseGenerator();
 
 	void KEY_ON (byte key_set);
 	void KEY_OFF(byte key_clr);
@@ -523,6 +532,14 @@ public:
 		sl = sl_tab[value];
 	}
 
+	/**
+	 * Called by Channel when block_fnum changes.
+	 */
+	void updateFrequency() {
+		updateTotalLevel();
+		updateGenerators();
+	}
+
 	// Phase Generator
 	FreqIndex phase;	// frequency counter
 	FreqIndex freq;	// frequency counter step
@@ -548,18 +565,6 @@ public:
 	byte eg_sh_rs;	// (release state for perc.mode)
 	byte eg_sel_rs;	// (release state for perc.mode)
 
-	byte ar;	// attack rate: AR<<2
-	byte dr;	// decay rate:  DR<<2
-	byte rr;	// release rate:RR<<2
-	byte KSR;	// key scale rate
-	byte ksl;	// keyscale level
-	byte kcodeScaled;	// key scale rate: kcode>>KSR
-	byte mul;	// multiple: mul_tab[ML]
-
-	// LFO
-	byte AMmask;	// LFO Amplitude Modulation enable mask
-	byte vib;	// LFO Phase Modulation enable flag (active high)
-
 private:
 	inline void updateTotalLevel();
 	inline void updateAttackRate();
@@ -573,6 +578,18 @@ private:
 	byte fb_shift;	// feedback shift value
 
 	byte key;	// 0 = KEY OFF, >0 = KEY ON
+
+	byte ar;	// attack rate: AR<<2
+	byte dr;	// decay rate:  DR<<2
+	byte rr;	// release rate:RR<<2
+	byte KSR;	// key scale rate
+	byte ksl;	// keyscale level
+	byte kcodeScaled;	// key scale rate: kcode>>KSR
+	byte mul;	// multiple: mul_tab[ML]
+
+	// LFO
+	byte AMmask;	// LFO Amplitude Modulation enable mask
+	byte vib;	// LFO Phase Modulation enable flag (active high)
 };
 
 class Channel
@@ -589,6 +606,11 @@ public:
 	 * construction.
 	 */
 	void init(Global& global);
+
+	/**
+	 * Sets the frequency for this channel.
+	 */
+	void setFrequency(int block_fnum);
 
 	/**
 	 * Sets some synthesis parameters as specified by the instrument.
@@ -632,8 +654,6 @@ private:
 class Global
 {
 public:
-	static inline FreqIndex fnumToIncrement(int fnum);
-
 	Global();
 
 	Channel& getChannelForReg(byte reg) {
@@ -651,6 +671,10 @@ public:
 
 	byte get_LFO_AM() {
 		return LFO_AM;
+	}
+
+	byte get_LFO_PM() {
+		return LFO_PM;
 	}
 
 	int adjust(int x) {
@@ -733,6 +757,27 @@ private:
 	int maxVolume;
 };
 
+inline void Slot::advancePhaseGenerator()
+{
+	if (vib) {
+		int fnum_lfo   = 8 * ((channel->block_fnum & 0x01C0) >> 6);
+		int block_fnum = channel->block_fnum * 2;
+		int lfo_fn_table_index_offset =
+			lfo_pm_table[global->get_LFO_PM() + fnum_lfo];
+		if (lfo_fn_table_index_offset) {
+			// LFO phase modulation active
+			block_fnum += lfo_fn_table_index_offset;
+			phase += fnumToIncrement(block_fnum) * mul;
+		} else {
+			// LFO phase modulation = zero
+			phase += freq;
+		}
+	} else {
+		// LFO phase modulation disabled for this operator
+		phase += freq;
+	}
+}
+
 inline void Slot::updateTotalLevel()
 {
 	TLL = TL + (channel->ksl_base >> ksl);
@@ -759,14 +804,6 @@ inline void Slot::updateReleaseRate()
 {
 	eg_sh_rr  = eg_rate_shift [rr + kcodeScaled];
 	eg_sel_rr = eg_rate_select[rr + kcodeScaled];
-}
-
-inline FreqIndex Global::fnumToIncrement(int fnum)
-{
-	// OPLL (YM2413) phase increment counter = 18bit
-	// Chip works with 10.10 fixed point, while we use 16.16.
-	const byte block = (fnum & 0x1C00) >> 10;
-	return FreqIndex(fnum & 0x03FF) >> (11 - block);
 }
 
 // advance LFO to next sample
@@ -938,26 +975,7 @@ inline void Global::advance()
 	for (int ch = 0; ch < 9; ch++) {
 		Channel& channel = channels[ch];
 		for (int sl = 0; sl < 2; sl++) {
-			Slot& op = channel.slots[sl];
-
-			// Phase Generator
-			if (op.vib) {
-				int fnum_lfo   = 8 * ((channel.block_fnum & 0x01C0) >> 6);
-				int block_fnum = channel.block_fnum * 2;
-				int lfo_fn_table_index_offset =
-					lfo_pm_table[LFO_PM + fnum_lfo];
-				if (lfo_fn_table_index_offset) {
-					// LFO phase modulation active
-					block_fnum += lfo_fn_table_index_offset;
-					op.phase += fnumToIncrement(block_fnum) * op.mul;
-				} else {
-					// LFO phase modulation = zero
-					op.phase += op.freq;
-				}
-			} else {
-				// LFO phase modulation disabled for this operator
-				op.phase += op.freq;
-			}
+			channel.slots[sl].advancePhaseGenerator();
 		}
 	}
 
@@ -1356,6 +1374,23 @@ void Channel::init(Global& global)
 	slots[SLOT2].init(global, *this);
 }
 
+void Channel::setFrequency(int block_fnum)
+{
+	if (this->block_fnum == block_fnum) {
+		return;
+	}
+	this->block_fnum = block_fnum;
+
+	// BLK 2,1,0 bits -> bits 3,2,1 of kcode, FNUM MSB -> kcode LSB
+	kcode    = (block_fnum & 0x0F00) >> 8;
+	ksl_base = ksl_tab[block_fnum >> 5];
+	fc       = fnumToIncrement(block_fnum * 2);
+
+	// Refresh Total Level and frequency counter in both SLOTs of this channel.
+	slots[SLOT1].updateFrequency();
+	slots[SLOT2].updateFrequency();
+}
+
 void Channel::updateInstrumentPart(int instrument, int part)
 {
 	const byte* inst = global->getInstrument(instrument);
@@ -1546,11 +1581,10 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 	case 0x10:
 	case 0x20: { // block, fnum, sus, keyon
 		Channel& ch = global->getChannelForReg(r);
-
 		int block_fnum;
 		if (r & 0x10) {
 			// 10-18: FNUM 0-7
-			block_fnum  = (ch.block_fnum & 0x0F00) | v;
+			block_fnum = (ch.block_fnum & 0x0F00) | v;
 		} else {
 			// 20-28: suson, keyon, block, FNUM 8
 			block_fnum = ((v & 0x0F) << 8) | (ch.block_fnum & 0xFF);
@@ -1563,26 +1597,7 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 			}
 			ch.sus = v & 0x20;
 		}
-
-		// update
-		if (ch.block_fnum != block_fnum) {
-			ch.block_fnum = block_fnum;
-
-			// BLK 2,1,0 bits -> bits 3,2,1 of kcode, FNUM MSB -> kcode LSB
-			ch.kcode    = (block_fnum & 0x0f00) >> 8;
-			ch.ksl_base = ksl_tab[block_fnum >> 5];
-			ch.fc       = global->fnumToIncrement(block_fnum * 2);
-
-			// refresh Total Level in both SLOTs of this channel
-			ch.slots[SLOT1].TLL =
-				ch.slots[SLOT1].TL + (ch.ksl_base >> ch.slots[SLOT1].ksl);
-			ch.slots[SLOT2].TLL =
-				ch.slots[SLOT2].TL + (ch.ksl_base >> ch.slots[SLOT2].ksl);
-
-			// refresh frequency counter in both SLOTs of this channel
-			ch.slots[SLOT1].updateGenerators();
-			ch.slots[SLOT2].updateGenerators();
-		}
+		ch.setFrequency(block_fnum);
 		break;
 	}
 
