@@ -58,12 +58,7 @@ const byte SLOT1 = 0;
 const byte SLOT2 = 1;
 
 // Envelope Generator phases
-const byte EG_DMP = 5;
-const byte EG_ATT = 4;
-const byte EG_DEC = 3;
-const byte EG_SUS = 2;
-const byte EG_REL = 1;
-const byte EG_OFF = 0;
+enum EnvelopeState { EG_DMP, EG_ATT, EG_DEC, EG_SUS, EG_REL, EG_OFF };
 
 // key scale level
 // table is 3dB/octave, DV converts this into 6dB/octave
@@ -556,7 +551,7 @@ public:
 	int volume;	// envelope counter
 	int sl;		// sustain level: sl_tab[SL]
 	byte eg_type;	// percussive/nonpercussive mode
-	byte state;	// phase type
+	EnvelopeState state;
 
 private:
 	inline void updateTotalLevel();
@@ -1311,9 +1306,10 @@ Slot::Slot()
 {
 	ar = dr = rr = KSR = ksl = kcodeScaled = mul = 0;
 	fb_shift = op1_out[0] = op1_out[1] = 0;
-	eg_type = state = TL = TLL = volume = sl = 0;
+	eg_type = TL = TLL = volume = sl = 0;
 	eg_sh_dp = eg_sel_dp = eg_sh_ar = eg_sel_ar = eg_sh_dr = 0;
 	eg_sel_dr = eg_sh_rr = eg_sel_rr = eg_sh_rs = eg_sel_rs = 0;
+	state = EG_OFF;
 	key = AMmask = vib = wavetable = 0;
 }
 
