@@ -17,7 +17,7 @@ class MSXMotherBoard;
 class YM2413_2Debuggable;
 
 // Defined in .cc:
-class Globals;
+class Global;
 
 class YM2413_2 : public YM2413Core, public SoundDevice, private Resample<1>
 {
@@ -45,7 +45,7 @@ private:
 	friend class YM2413_2Debuggable;
 	const std::auto_ptr<YM2413_2Debuggable> debuggable;
 
-	const std::auto_ptr<Globals> globals;
+	const std::auto_ptr<Global> global;
 
 	byte reg[0x40];
 };

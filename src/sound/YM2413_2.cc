@@ -391,7 +391,7 @@ typedef FixedPoint<16> FreqIndex;
   */
 typedef FixedPoint<24> LFOIndex;
 
-class Globals;
+class Global;
 class Channel;
 
 class Slot
@@ -406,7 +406,7 @@ public:
 	 * This method should be called once, as soon as possible after
 	 * construction.
 	 */
-	void init(Globals& globals, Channel& channel);
+	void init(Global& global, Channel& channel);
 
 	/**
 	 * Update phase increment counter of operator.
@@ -529,7 +529,7 @@ public:
 	byte vib;	// LFO Phase Modulation enable flag (active high)
 
 private:
-	Globals* globals;
+	Global* global;
 	Channel* channel;
 
 	int op1_out[2];	// slot1 output for feedback
@@ -551,7 +551,7 @@ public:
 	 * This method should be called once, as soon as possible after
 	 * construction.
 	 */
-	void init(Globals& globals);
+	void init(Global& global);
 
 	/**
 	 * Sets some synthesis parameters as specified by the instrument.
@@ -589,15 +589,15 @@ public:
 	byte sus;	// sus on/off (release speed in percussive mode)
 
 private:
-	Globals* globals;
+	Global* global;
 };
 
-class Globals
+class Global
 {
 public:
 	static inline FreqIndex fnumToIncrement(int fnum);
 
-	Globals();
+	Global();
 
 	Channel& getChannelForReg(byte reg) {
 		byte chan = (reg & 0x0F) % 9; // verified on real YM2413
@@ -696,7 +696,7 @@ private:
 	int maxVolume;
 };
 
-inline FreqIndex Globals::fnumToIncrement(int fnum)
+inline FreqIndex Global::fnumToIncrement(int fnum)
 {
 	// OPLL (YM2413) phase increment counter = 18bit
 	// Chip works with 10.10 fixed point, while we use 16.16.
@@ -705,7 +705,7 @@ inline FreqIndex Globals::fnumToIncrement(int fnum)
 }
 
 // advance LFO to next sample
-inline void Globals::advance_lfo()
+inline void Global::advance_lfo()
 {
 	// Amplitude modulation: 27 output levels (triangle waveform)
 	// 1 level takes one of: 192, 256 or 448 samples
@@ -725,7 +725,7 @@ inline void Globals::advance_lfo()
 }
 
 // advance to next sample
-inline void Globals::advance()
+inline void Global::advance()
 {
 	// Envelope Generator
 	eg_cnt++;
@@ -925,7 +925,7 @@ inline void Globals::advance()
 
 inline int Slot::op_calc(FreqIndex phase, FreqIndex pm)
 {
-	int env = (TLL + volume + (globals->get_LFO_AM() & AMmask)) << 5;
+	int env = (TLL + volume + (global->get_LFO_AM() & AMmask)) << 5;
 	if (env < TL_TAB_LEN) {
 		// TODO: Is there a point in passing "phase" and "pm" as fixed point
 		//       values if we're just going to round them anyway?
@@ -1007,7 +1007,7 @@ inline int Channel::chan_calc()
 // The following formulas can be well optimized.
 //   I leave them in direct form for now (in case I've missed something).
 
-inline FreqIndex Globals::genPhaseHighHat()
+inline FreqIndex Global::genPhaseHighHat()
 {
 	const bool noise = noise_rng & 1;
 	Slot& SLOT7_1 = channels[7].slots[SLOT1];
@@ -1054,7 +1054,7 @@ inline FreqIndex Globals::genPhaseHighHat()
 	return FreqIndex(phase);
 }
 
-inline FreqIndex Globals::genPhaseSnare()
+inline FreqIndex Global::genPhaseSnare()
 {
 	const bool noise = noise_rng & 1;
 	Slot& SLOT7_1 = channels[7].slots[SLOT1];
@@ -1076,7 +1076,7 @@ inline FreqIndex Globals::genPhaseSnare()
 	return FreqIndex(phase);
 }
 
-inline FreqIndex Globals::genPhaseCymbal()
+inline FreqIndex Global::genPhaseCymbal()
 {
 	Slot& SLOT7_1 = channels[7].slots[SLOT1];
 	Slot& SLOT8_2 = channels[8].slots[SLOT2];
@@ -1103,7 +1103,7 @@ inline FreqIndex Globals::genPhaseCymbal()
 }
 
 // calculate rhythm
-inline void Globals::rhythm_calc(int** bufs, unsigned sample)
+inline void Global::rhythm_calc(int** bufs, unsigned sample)
 {
 	// Bass Drum (verified on real YM3812):
 	//  - depends on the channel 6 'connect' register:
@@ -1158,7 +1158,7 @@ inline void Globals::rhythm_calc(int** bufs, unsigned sample)
 		);
 }
 
-void Globals::initTables()
+void Global::initTables()
 {
 	static bool alreadyInit = false;
 	if (alreadyInit) {
@@ -1328,9 +1328,9 @@ Slot::Slot()
 	key = AMmask = vib = wavetable = 0;
 }
 
-void Slot::init(Globals& globals, Channel& channel)
+void Slot::init(Global& global, Channel& channel)
 {
-	this->globals = &globals;
+	this->global = &global;
 	this->channel = &channel;
 }
 
@@ -1373,16 +1373,16 @@ Channel::Channel()
 	block_fnum = ksl_base = kcode = sus = 0;
 }
 
-void Channel::init(Globals& globals)
+void Channel::init(Global& global)
 {
-	this->globals = &globals;
-	slots[SLOT1].init(globals, *this);
-	slots[SLOT2].init(globals, *this);
+	this->global = &global;
+	slots[SLOT1].init(global, *this);
+	slots[SLOT2].init(global, *this);
 }
 
 void Channel::setInstrumentPart(int instrument, int part)
 {
-	const byte* inst = globals->getInstrument(instrument);
+	const byte* inst = global->getInstrument(instrument);
 	Slot& slot1 = slots[SLOT1];
 	Slot& slot2 = slots[SLOT2];
 	switch (part) {
@@ -1434,7 +1434,7 @@ void Channel::setInstrument(int instrument)
 	}
 }
 
-Globals::Globals()
+Global::Global()
 	: lfo_am_cnt(0), lfo_pm_cnt(0)
 {
 	initTables();
@@ -1448,7 +1448,7 @@ Globals::Globals()
 	}
 }
 
-void Globals::updateCustomInstrument(int part, byte value)
+void Global::updateCustomInstrument(int part, byte value)
 {
 	// Update instrument definition.
 	inst_tab[0][part] = value;
@@ -1463,7 +1463,7 @@ void Globals::updateCustomInstrument(int part, byte value)
 	}
 }
 
-void Globals::setRhythmMode(bool rhythm)
+void Global::setRhythmMode(bool rhythm)
 {
 	if (this->rhythm == rhythm) {
 		return;
@@ -1499,7 +1499,7 @@ void Globals::setRhythmMode(bool rhythm)
 	}
 }
 
-void Globals::setRhythmFlags(byte flags)
+void Global::setRhythmFlags(byte flags)
 {
 	// flags = X | X | mode | BD | SD | TOM | TC | HH
 	setRhythmMode(flags & 0x20);
@@ -1559,17 +1559,17 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 		case 0x05:  // Attack, Decay (carrier)
 		case 0x06:  // Sustain, Release (modulator)
 		case 0x07:  // Sustain, Release (carrier)
-			globals->updateCustomInstrument(r & 0x07, v);
+			global->updateCustomInstrument(r & 0x07, v);
 			break;
 		case 0x0E:
-			globals->setRhythmFlags(v);
+			global->setRhythmFlags(v);
 			break;
 		}
 		break;
 	}
 	case 0x10:
 	case 0x20: { // block, fnum, sus, keyon
-		Channel& ch = globals->getChannelForReg(r);
+		Channel& ch = global->getChannelForReg(r);
 
 		int block_fnum;
 		if (r & 0x10) {
@@ -1595,7 +1595,7 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 			// BLK 2,1,0 bits -> bits 3,2,1 of kcode, FNUM MSB -> kcode LSB
 			ch.kcode    = (block_fnum & 0x0f00) >> 8;
 			ch.ksl_base = ksl_tab[block_fnum >> 5];
-			ch.fc       = globals->fnumToIncrement(block_fnum * 2);
+			ch.fc       = global->fnumToIncrement(block_fnum * 2);
 
 			// refresh Total Level in both SLOTs of this channel
 			ch.slots[SLOT1].TLL =
@@ -1611,7 +1611,7 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 	}
 
 	case 0x30: { // inst 4 MSBs, VOL 4 LSBs
-		Channel& ch = globals->getChannelForReg(r);
+		Channel& ch = global->getChannelForReg(r);
 
 		byte old_instvol = ch.instvol_r;
 		ch.instvol_r = v;  // store for later use
@@ -1622,7 +1622,7 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 		// register accordingly.
 
 		byte chan = (r & 0x0F) % 9;	// verified on real YM2413
-		if (chan >= globals->getNumMelodicChannels()) {
+		if (chan >= global->getNumMelodicChannels()) {
 			// We're in rhythm mode.
 			if (chan >= 7) {
 				// Only for channel 7 and 8 (channel 6 is handled in usual way)
@@ -1643,7 +1643,7 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 	checkMute();
 }
 
-void Globals::reset()
+void Global::reset()
 {
 	eg_cnt   = 0;
 	noise_rng = 1;    // noise shift register
@@ -1656,7 +1656,7 @@ void Globals::reset()
 	}
 }
 
-void Globals::resetOperators()
+void Global::resetOperators()
 {
 	for (int c = 0; c < 9; c++) {
 		Channel& ch = channels[c];
@@ -1671,7 +1671,7 @@ void Globals::resetOperators()
 
 void YM2413_2::reset(const EmuTime &time)
 {
-	globals->reset();
+	global->reset();
 
 	// reset with register write
 	writeReg(0x0F, 0, time); //test reg
@@ -1679,7 +1679,7 @@ void YM2413_2::reset(const EmuTime &time)
 		writeReg(i, 0, time);
 	}
 
-	globals->resetOperators();
+	global->resetOperators();
 }
 
 
@@ -1687,7 +1687,7 @@ YM2413_2::YM2413_2(MSXMotherBoard& motherBoard, const std::string& name,
                    const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMSXMixer(), name, "MSX-MUSIC", 11)
 	, debuggable(new YM2413_2Debuggable(motherBoard, *this))
-	, globals(new Globals())
+	, global(new Global())
 {
 	reset(time);
 	registerSound(config);
@@ -1700,9 +1700,9 @@ YM2413_2::~YM2413_2()
 
 void YM2413_2::checkMute()
 {
-	setMute(globals->checkMuteHelper());
+	setMute(global->checkMuteHelper());
 }
-bool Globals::checkMuteHelper()
+bool Global::checkMuteHelper()
 {
 	const int numMelodicChannels = getNumMelodicChannels();
 	for (int ch = 0; ch < numMelodicChannels; ch++) {
@@ -1720,7 +1720,7 @@ bool Globals::checkMuteHelper()
 	return true;	// nothing playing, mute
 }
 
-void Globals::generateChannels(int** bufs, unsigned num)
+void Global::generateChannels(int** bufs, unsigned num)
 {
 	for (unsigned i = 0; i < num; ++i) {
 		advance_lfo();
@@ -1740,7 +1740,7 @@ void Globals::generateChannels(int** bufs, unsigned num)
 
 void YM2413_2::generateChannels(int** bufs, unsigned num)
 {
-	globals->generateChannels(bufs, num);
+	global->generateChannels(bufs, num);
 	checkMute();
 }
 
@@ -1765,7 +1765,7 @@ void YM2413_2::updateBuffer(unsigned length, int* buffer,
 
 void YM2413_2::setVolume(int newVolume)
 {
-	globals->setVolume(newVolume);
+	global->setVolume(newVolume);
 }
 
 
