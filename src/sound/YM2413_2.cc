@@ -422,7 +422,7 @@ public:
 	 */
 	void updateGenerators();
 
-	inline int op_calc(FreqIndex phase, FreqIndex pm);
+	inline int op_calc(int phase, int pm);
 	inline void updateModulator();
 	inline void advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier);
 	inline void advancePhaseGenerator();
@@ -431,10 +431,17 @@ public:
 	void KEY_OFF(byte key_clr);
 
 	/**
+	 * Returns the integer part of the frequency counter of this slot.
+	 */
+	int getPhase() {
+		return phase.toInt();
+	}
+
+	/**
 	 * Output of SLOT 1 can be used to phase modulate SLOT 2.
 	 */
-	FreqIndex getPhaseModulation() {
-		return FreqIndex(op1_out[0] << 1);
+	int getPhaseModulation() {
+		return op1_out[0] << 1;
 	}
 
 	/**
@@ -541,10 +548,6 @@ public:
 		updateGenerators();
 	}
 
-	// Phase Generator
-	FreqIndex phase;	// frequency counter
-	FreqIndex freq;	// frequency counter step
-
 	int wavetable;	// waveform select
 
 	// Envelope Generator
@@ -563,6 +566,10 @@ private:
 
 	Global* global;
 	Channel* channel;
+
+	// Phase Generator
+	FreqIndex phase;	// frequency counter
+	FreqIndex freq;	// frequency counter step
 
 	int op1_out[2];	// slot1 output for feedback
 	byte fb_shift;	// feedback shift value
@@ -693,9 +700,9 @@ public:
 	 */
 	inline void advance();
 
-	inline FreqIndex genPhaseHighHat();
-	inline FreqIndex genPhaseSnare();
-	inline FreqIndex genPhaseCymbal();
+	inline int genPhaseHighHat();
+	inline int genPhaseSnare();
+	inline int genPhaseCymbal();
 	inline void rhythm_calc(int** bufs, unsigned sample);
 
 	void reset();
@@ -1006,15 +1013,14 @@ inline void Global::advance()
 	noise_rng >>= 1;
 }
 
-
-inline int Slot::op_calc(FreqIndex phase, FreqIndex pm)
+inline int Slot::op_calc(int phase, int pm)
 {
 	int env = (TLL + volume + (global->get_LFO_AM() & AMmask)) << 5;
 	if (env < TL_TAB_LEN) {
 		// TODO: Is there a point in passing "phase" and "pm" as fixed point
 		//       values if we're just going to round them anyway?
 		int p = env + sin_tab[
-			wavetable + ((phase.toInt() + pm.toInt()) & SIN_MASK)
+			wavetable + ((phase + pm) & SIN_MASK)
 			];
 		return p < TL_TAB_LEN ? tl_tab[p] : 0;
 	} else {
@@ -1025,16 +1031,11 @@ inline int Slot::op_calc(FreqIndex phase, FreqIndex pm)
 inline void Slot::updateModulator()
 {
 	// Compute phase modulation for slot 1.
-	// Note: tl_tab contains 11bit values, so adding two output values will not
-	//       overflow the 16.16 fixed point number.
-	const FreqIndex pm =
-		  fb_shift
-		? FreqIndex(op1_out[0] + op1_out[1]) >> fb_shift
-		: FreqIndex(0);
+	const int pm = fb_shift ? (op1_out[0] + op1_out[1]) >> fb_shift : 0;
 	// Shift output in 2-place buffer.
 	op1_out[0] = op1_out[1];
 	// Calculate operator output.
-	op1_out[1] = op_calc(phase, pm);
+	op1_out[1] = op_calc(getPhase(), pm);
 }
 
 // calculate output
@@ -1045,7 +1046,7 @@ inline int Channel::chan_calc()
 
 	// SLOT 2
 	return slots[SLOT2].op_calc(
-		slots[SLOT2].phase, slots[SLOT1].getPhaseModulation()
+		slots[SLOT2].getPhase(), slots[SLOT1].getPhaseModulation()
 		);
 }
 
@@ -1091,7 +1092,7 @@ inline int Channel::chan_calc()
 // The following formulas can be well optimized.
 //   I leave them in direct form for now (in case I've missed something).
 
-inline FreqIndex Global::genPhaseHighHat()
+inline int Global::genPhaseHighHat()
 {
 	const bool noise = noise_rng & 1;
 	Slot& SLOT7_1 = channels[7].slots[SLOT1];
@@ -1102,17 +1103,17 @@ inline FreqIndex Global::genPhaseHighHat()
 	// phase = 34 or 2D0 (based on noise)
 
 	// base frequency derived from operator 1 in channel 7
-	bool bit7 = SLOT7_1.phase.toInt() & 0x80;
-	bool bit3 = SLOT7_1.phase.toInt() & 0x08;
-	bool bit2 = SLOT7_1.phase.toInt() & 0x04;
+	bool bit7 = SLOT7_1.getPhase() & 0x80;
+	bool bit3 = SLOT7_1.getPhase() & 0x08;
+	bool bit2 = SLOT7_1.getPhase() & 0x04;
 	bool res1 = (bit2 ^ bit7) | bit3;
 	// when res1 = 0 phase = 0x000 |  0xD0;
 	// when res1 = 1 phase = 0x200 | (0xD0 >> 2);
 	int phase = res1 ? (0x200 | (0xD0 >> 2)) : 0xD0;
 
 	// enable gate based on frequency of operator 2 in channel 8
-	bool bit5e= SLOT8_2.phase.toInt() & 0x20;
-	bool bit3e= SLOT8_2.phase.toInt() & 0x08;
+	bool bit5e= SLOT8_2.getPhase() & 0x20;
+	bool bit3e= SLOT8_2.getPhase() & 0x08;
 	bool res2 = (bit3e | bit5e);
 	// when res2 = 0 pass the phase from calculation above (res1);
 	// when res2 = 1 phase = 0x200 | (0xd0>>2);
@@ -1135,16 +1136,16 @@ inline FreqIndex Global::genPhaseHighHat()
 			phase = 0xD0 >> 2;
 		}
 	}
-	return FreqIndex(phase);
+	return phase;
 }
 
-inline FreqIndex Global::genPhaseSnare()
+inline int Global::genPhaseSnare()
 {
 	const bool noise = noise_rng & 1;
 	Slot& SLOT7_1 = channels[7].slots[SLOT1];
 
 	// base frequency derived from operator 1 in channel 7
-	bool bit8 = SLOT7_1.phase.toInt() & 0x100;
+	bool bit8 = SLOT7_1.getPhase() & 0x100;
 
 	// when bit8 = 0 phase = 0x100;
 	// when bit8 = 1 phase = 0x200;
@@ -1157,33 +1158,33 @@ inline FreqIndex Global::genPhaseSnare()
 	if (noise) {
 		phase ^= 0x100;
 	}
-	return FreqIndex(phase);
+	return phase;
 }
 
-inline FreqIndex Global::genPhaseCymbal()
+inline int Global::genPhaseCymbal()
 {
 	Slot& SLOT7_1 = channels[7].slots[SLOT1];
 	Slot& SLOT8_2 = channels[8].slots[SLOT2];
 
 	// base frequency derived from operator 1 in channel 7
-	bool bit7 = SLOT7_1.phase.toInt() & 0x80;
-	bool bit3 = SLOT7_1.phase.toInt() & 0x08;
-	bool bit2 = SLOT7_1.phase.toInt() & 0x04;
+	bool bit7 = SLOT7_1.getPhase() & 0x80;
+	bool bit3 = SLOT7_1.getPhase() & 0x08;
+	bool bit2 = SLOT7_1.getPhase() & 0x04;
 	bool res1 = (bit2 ^ bit7) | bit3;
 	// when res1 = 0 phase = 0x000 | 0x100;
 	// when res1 = 1 phase = 0x200 | 0x100;
 	int phase = res1 ? 0x300 : 0x100;
 
 	// enable gate based on frequency of operator 2 in channel 8
-	bool bit5e= SLOT8_2.phase.toInt() & 0x20;
-	bool bit3e= SLOT8_2.phase.toInt() & 0x08;
+	bool bit5e= SLOT8_2.getPhase() & 0x20;
+	bool bit3e= SLOT8_2.getPhase() & 0x08;
 	bool res2 = bit3e | bit5e;
 	// when res2 = 0 pass the phase from calculation above (res1);
 	// when res2 = 1 phase = 0x200 | 0x100;
 	if (res2) {
 		phase = 0x300;
 	}
-	return FreqIndex(phase);
+	return phase;
 }
 
 // calculate rhythm
@@ -1198,13 +1199,9 @@ inline void Global::rhythm_calc(int** bufs, unsigned sample)
 	//  - output sample always is multiplied by 2
 	Slot& SLOT6_1 = channels[6].slots[SLOT1];
 	Slot& SLOT6_2 = channels[6].slots[SLOT2];
-
-	// SLOT 1
 	SLOT6_1.updateModulator();
-
-	// SLOT 2
 	bufs[6][sample] = adjust(2 * SLOT6_2.op_calc(
-		SLOT6_2.phase, SLOT6_1.getPhaseModulation()
+		SLOT6_2.getPhase(), SLOT6_1.getPhaseModulation()
 		));
 
 	// Envelope generation based on:
@@ -1219,27 +1216,19 @@ inline void Global::rhythm_calc(int** bufs, unsigned sample)
 
 	// High Hat (verified on real YM3812)
 	Slot& SLOT7_1 = channels[7].slots[SLOT1];
-	bufs[7][sample] = adjust(
-		2 * SLOT7_1.op_calc(genPhaseHighHat(), FreqIndex(0))
-		);
+	bufs[7][sample] = adjust(2 * SLOT7_1.op_calc(genPhaseHighHat(), 0));
 
 	// Snare Drum (verified on real YM3812)
 	Slot& SLOT7_2 = channels[7].slots[SLOT2];
-	bufs[8][sample] = adjust(
-		2 * SLOT7_2.op_calc(genPhaseSnare(), FreqIndex(0))
-		);
+	bufs[8][sample] = adjust(2 * SLOT7_2.op_calc(genPhaseSnare(), 0));
 
 	// Tom Tom (verified on real YM3812)
 	Slot& SLOT8_1 = channels[8].slots[SLOT1];
-	bufs[9][sample] = adjust(
-		2 * SLOT8_1.op_calc(SLOT8_1.phase, FreqIndex(0))
-		);
+	bufs[9][sample] = adjust(2 * SLOT8_1.op_calc(SLOT8_1.getPhase(), 0));
 
 	// Top Cymbal (verified on real YM2413)
 	Slot& SLOT8_2 = channels[8].slots[SLOT2];
-	bufs[10][sample] = adjust(
-		2 * SLOT8_2.op_calc(genPhaseCymbal(), FreqIndex(0))
-		);
+	bufs[10][sample] = adjust(2 * SLOT8_2.op_calc(genPhaseCymbal(), 0));
 }
 
 void Global::initTables()
