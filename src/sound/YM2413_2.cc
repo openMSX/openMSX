@@ -1015,11 +1015,9 @@ inline void Global::advance()
 
 inline int Slot::op_calc(int phase, int pm)
 {
-	int env = (TLL + volume + (global->get_LFO_AM() & AMmask)) << 5;
+	const int env = (TLL + volume + (global->get_LFO_AM() & AMmask)) << 5;
 	if (env < TL_TAB_LEN) {
-		int p = env + sin_tab[
-			wavetable + ((phase + pm) & SIN_MASK)
-			];
+		const int p = env + sin_tab[wavetable + ((phase + pm) & SIN_MASK)];
 		return p < TL_TAB_LEN ? tl_tab[p] : 0;
 	} else {
 		return 0;
