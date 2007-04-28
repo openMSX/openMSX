@@ -597,6 +597,11 @@ class Globals
 public:
 	static inline FreqIndex fnumToIncrement(int fnum);
 
+	/**
+	 * Initialize "tl_tab" and "sin_tab".
+	 */
+	static void initTables();
+
 	Globals();
 
 	inline void advance_lfo();
@@ -1128,9 +1133,7 @@ inline void Globals::rhythm_calc(int** bufs, unsigned sample)
 		);
 }
 
-
-// generic table initialize
-void YM2413_2::init_tables()
+void Globals::initTables()
 {
 	static bool alreadyInit = false;
 	if (alreadyInit) {
@@ -1651,7 +1654,7 @@ YM2413_2::YM2413_2(MSXMotherBoard& motherBoard, const std::string& name,
 	, debuggable(new YM2413_2Debuggable(motherBoard, *this))
 	, globals(new Globals())
 {
-	init_tables();
+	globals->initTables();
 	reset(time);
 	registerSound(config);
 }

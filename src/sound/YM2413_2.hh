@@ -32,8 +32,6 @@ public:
 private:
 	void checkMute();
 
-	void init_tables();
-
 	// SoundDevice
 	virtual void setVolume(int newVolume);
 	virtual void setOutputRate(unsigned sampleRate);
