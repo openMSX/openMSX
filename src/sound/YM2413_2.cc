@@ -1294,7 +1294,7 @@ void Slot::KEY_OFF(byte key_clr)
 		key &= ~key_clr;
 		if (!key) {
 			// phase -> Release
-			if (state > EG_REL) {
+			if (state < EG_REL) {
 				state = EG_REL;
 			}
 		}
