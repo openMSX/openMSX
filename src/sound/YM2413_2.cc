@@ -555,17 +555,6 @@ public:
 	byte eg_type;	// percussive/nonpercussive mode
 	byte state;	// phase type
 
-	byte eg_sh_dp;	// (dump state)
-	byte eg_sel_dp;	// (dump state)
-	byte eg_sh_ar;	// (attack state)
-	byte eg_sel_ar;	// (attack state)
-	byte eg_sh_dr;	// (decay state)
-	byte eg_sel_dr;	// (decay state)
-	byte eg_sh_rr;	// (release state for non-perc.)
-	byte eg_sel_rr;	// (release state for non-perc.)
-	byte eg_sh_rs;	// (release state for perc.mode)
-	byte eg_sel_rs;	// (release state for perc.mode)
-
 private:
 	inline void updateTotalLevel();
 	inline void updateAttackRate();
@@ -579,6 +568,17 @@ private:
 	byte fb_shift;	// feedback shift value
 
 	byte key;	// 0 = KEY OFF, >0 = KEY ON
+
+	byte eg_sh_dp;	// (dump state)
+	byte eg_sel_dp;	// (dump state)
+	byte eg_sh_ar;	// (attack state)
+	byte eg_sel_ar;	// (attack state)
+	byte eg_sh_dr;	// (decay state)
+	byte eg_sel_dr;	// (decay state)
+	byte eg_sh_rr;	// (release state for non-perc.)
+	byte eg_sel_rr;	// (release state for non-perc.)
+	byte eg_sh_rs;	// (release state for perc.mode)
+	byte eg_sel_rs;	// (release state for perc.mode)
 
 	byte ar;	// attack rate: AR<<2
 	byte dr;	// decay rate:  DR<<2
