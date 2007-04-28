@@ -416,80 +416,112 @@ public:
 
 	inline int op_calc(FreqIndex phase, FreqIndex pm);
 	inline void updateModulator();
-	inline void KEY_ON (byte key_set);
-	inline void KEY_OFF(byte key_clr);
+
+	void KEY_ON (byte key_set);
+	void KEY_OFF(byte key_clr);
 
 	/**
 	 * Output of SLOT 1 can be used to phase modulate SLOT 2.
 	 */
-	inline FreqIndex getPhaseModulation() {
+	FreqIndex getPhaseModulation() {
 		return FreqIndex(op1_out[0] << 1);
 	}
 
 	/**
 	 * Sets the frequency multiplier [0..15].
 	 */
-	inline void setFrequencyMultiplier(byte value);
+	void setFrequencyMultiplier(byte value) {
+		mul = mul_tab[value];
+	}
 
 	/**
 	 * Sets the key scale rate: true->0, false->2.
 	 */
-	inline void setKeyScaleRate(bool value);
+	void setKeyScaleRate(bool value) {
+		KSR = value ? 0 : 2;
+	}
 
 	/**
 	 * Sets the envelope type: true->sustained, false->percussive.
 	 */
-	inline void setEnvelopeType(bool value);
+	void setEnvelopeType(bool value) {
+		eg_type = value;
+	}
 
 	/**
 	 * Enables (true) or disables (false) vibrato.
 	 */
-	inline void setVibrato(bool value);
+	void setVibrato(bool value) {
+		vib = value;
+	}
 
 	/**
 	 * Enables (true) or disables (false) amplitude modulation.
 	 */
-	inline void setAmplitudeModulation(bool value);
+	void setAmplitudeModulation(bool value) {
+		AMmask = value ? ~0 : 0;
+	}
 
 	/**
 	 * Sets the total level: [0..63].
 	 */
-	inline void setTotalLevel(byte value);
+	void setTotalLevel(byte value) {
+		TL  = value << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0)
+		updateTotalLevel();
+	}
 
 	/**
 	 * Sets the key scale level: 0->0 / 1->1.5 / 2->3.0 / 3->6.0 dB/OCT.
 	 */
-	inline void setKeyScaleLevel(byte value);
+	void setKeyScaleLevel(byte value) {
+		ksl = value ? (3 - value) : 31;
+		updateTotalLevel();
+	}
 
 	/**
 	 * Sets the waveform: 0 = sinus, 1 = half sinus, half silence.
 	 */
-	inline void setWaveform(byte value);
+	void setWaveform(byte value) {
+		wavetable = value * SIN_LEN;
+	}
 
 	/**
 	 * Sets the amount of feedback [0..7].
 	 */
-	inline void setFeedbackShift(byte value);
+	void setFeedbackShift(byte value) {
+		fb_shift = value ? 8 - value : 0;
+	}
 
 	/**
 	 * Sets the attack rate [0..15].
 	 */
-	inline void setAttackRate(byte value);
+	void setAttackRate(byte value) {
+		ar = value ? 16 + (value << 2) : 0;
+		updateAttackRate();
+	}
 
 	/**
 	 * Sets the decay rate [0..15].
 	 */
-	inline void setDecayRate(byte value);
-
-	/**
-	 * Sets the sustain level [0..15].
-	 */
-	inline void setSustainLevel(byte value);
+	void setDecayRate(byte value) {
+		dr = value ? 16 + (value << 2) : 0;
+		updateDecayRate();
+	}
 
 	/**
 	 * Sets the release rate [0..15].
 	 */
-	inline void setReleaseRate(byte value);
+	void setReleaseRate(byte value) {
+		rr  = value ? 16 + (value << 2) : 0;
+		updateReleaseRate();
+	}
+
+	/**
+	 * Sets the sustain level [0..15].
+	 */
+	void setSustainLevel(byte value) {
+		sl = sl_tab[value];
+	}
 
 	// Phase Generator
 	FreqIndex phase;	// frequency counter
@@ -529,6 +561,11 @@ public:
 	byte vib;	// LFO Phase Modulation enable flag (active high)
 
 private:
+	inline void updateTotalLevel();
+	inline void updateAttackRate();
+	inline void updateDecayRate();
+	inline void updateReleaseRate();
+
 	Global* global;
 	Channel* channel;
 
@@ -695,6 +732,34 @@ private:
 
 	int maxVolume;
 };
+
+inline void Slot::updateTotalLevel()
+{
+	TLL = TL + (channel->ksl_base >> ksl);
+}
+
+inline void Slot::updateAttackRate()
+{
+	if ((ar + kcodeScaled) < (16 + 62)) {
+		eg_sh_ar  = eg_rate_shift [ar + kcodeScaled];
+		eg_sel_ar = eg_rate_select[ar + kcodeScaled];
+	} else {
+		eg_sh_ar  = 0;
+		eg_sel_ar = 13 * RATE_STEPS;
+	}
+}
+
+inline void Slot::updateDecayRate()
+{
+	eg_sh_dr  = eg_rate_shift [dr + kcodeScaled];
+	eg_sel_dr = eg_rate_select[dr + kcodeScaled];
+}
+
+inline void Slot::updateReleaseRate()
+{
+	eg_sh_rr  = eg_rate_shift [rr + kcodeScaled];
+	eg_sel_rr = eg_rate_select[rr + kcodeScaled];
+}
 
 inline FreqIndex Global::fnumToIncrement(int fnum)
 {
@@ -1214,7 +1279,7 @@ void YM2413_2::setOutputRate(unsigned sampleRate)
 	setResampleRatio(input, sampleRate);
 }
 
-inline void Slot::KEY_ON(byte key_set)
+void Slot::KEY_ON(byte key_set)
 {
 	if (!key) {
 		// do NOT restart Phase Generator (verified on real YM2413)
@@ -1224,7 +1289,7 @@ inline void Slot::KEY_ON(byte key_set)
 	key |= key_set;
 }
 
-inline void Slot::KEY_OFF(byte key_clr)
+void Slot::KEY_OFF(byte key_clr)
 {
 	if (key) {
 		key &= ~key_clr;
@@ -1236,86 +1301,6 @@ inline void Slot::KEY_OFF(byte key_clr)
 		}
 	}
 }
-
-inline void Slot::setFrequencyMultiplier(byte value)
-{
-	mul = mul_tab[value];
-}
-
-inline void Slot::setKeyScaleRate(bool value)
-{
-	KSR = value ? 0 : 2;
-}
-
-inline void Slot::setEnvelopeType(bool value)
-{
-	eg_type = value;
-}
-
-inline void Slot::setVibrato(bool value)
-{
-	vib = value;
-}
-
-inline void Slot::setAmplitudeModulation(bool value)
-{
-	AMmask = value ? ~0 : 0;
-}
-
-inline void Slot::setTotalLevel(byte value)
-{
-	TL  = value << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0)
-	TLL = TL + (channel->ksl_base >> ksl);
-}
-
-inline void Slot::setKeyScaleLevel(byte value)
-{
-	ksl = value ? (3 - value) : 31;
-	TLL = TL + (channel->ksl_base >> ksl);
-}
-
-inline void Slot::setWaveform(byte value)
-{
-	wavetable = value * SIN_LEN;
-}
-
-inline void Slot::setFeedbackShift(byte value)
-{
-	fb_shift = value ? 8 - value : 0;
-}
-
-inline void Slot::setAttackRate(byte value)
-{
-	ar = value ? 16 + (value << 2) : 0;
-	// TODO: This is duplicated in updateGenerators().
-	if ((ar + kcodeScaled) < (16 + 62)) {
-		eg_sh_ar  = eg_rate_shift [ar + kcodeScaled];
-		eg_sel_ar = eg_rate_select[ar + kcodeScaled];
-	} else {
-		eg_sh_ar  = 0;
-		eg_sel_ar = 13 * RATE_STEPS;
-	}
-}
-
-inline void Slot::setDecayRate(byte value)
-{
-	dr = value ? 16 + (value << 2) : 0;
-	eg_sh_dr  = eg_rate_shift [dr + kcodeScaled];
-	eg_sel_dr = eg_rate_select[dr + kcodeScaled];
-}
-
-inline void Slot::setSustainLevel(byte value)
-{
-	sl = sl_tab[value];
-}
-
-inline void Slot::setReleaseRate(byte value)
-{
-	rr  = value ? 16 + (value << 2) : 0;
-	eg_sh_rr  = eg_rate_shift [rr + kcodeScaled];
-	eg_sel_rr = eg_rate_select[rr + kcodeScaled];
-}
-
 
 Slot::Slot()
 	: phase(0), freq(0)
@@ -1342,19 +1327,10 @@ void Slot::updateGenerators()
 	const int kcodeScaledNew = channel->kcode >> KSR;
 	if (kcodeScaled != kcodeScaledNew) {
 		kcodeScaled = kcodeScaledNew;
-
 		// calculate envelope generator rates
-		if ((ar + kcodeScaled) < (16 + 62)) {
-			eg_sh_ar  = eg_rate_shift [ar + kcodeScaled];
-			eg_sel_ar = eg_rate_select[ar + kcodeScaled];
-		} else {
-			eg_sh_ar  = 0;
-			eg_sel_ar = 13 * RATE_STEPS;
-		}
-		eg_sh_dr  = eg_rate_shift [dr + kcodeScaled];
-		eg_sel_dr = eg_rate_select[dr + kcodeScaled];
-		eg_sh_rr  = eg_rate_shift [rr + kcodeScaled];
-		eg_sel_rr = eg_rate_select[rr + kcodeScaled];
+		updateAttackRate();
+		updateDecayRate();
+		updateReleaseRate();
 	}
 
 	const int rs = channel->sus ? 16 + (5 << 2) : 16 + (7 << 2);
