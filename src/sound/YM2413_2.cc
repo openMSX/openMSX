@@ -424,6 +424,7 @@ public:
 
 	inline int op_calc(FreqIndex phase, FreqIndex pm);
 	inline void updateModulator();
+	inline void advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier);
 	inline void advancePhaseGenerator();
 
 	void KEY_ON (byte key_set);
@@ -686,6 +687,10 @@ public:
 	}
 
 	inline void advance_lfo();
+
+	/**
+	 * Advance envelope and phase generators to next sample.
+	 */
 	inline void advance();
 
 	inline FreqIndex genPhaseHighHat();
@@ -757,6 +762,140 @@ private:
 	int maxVolume;
 };
 
+inline void Slot::advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier)
+{
+	switch (state) {
+	case EG_DMP: // dump phase
+		// dump phase is performed by both operators in each channel
+		// when CARRIER envelope gets down to zero level,
+		// phases in BOTH opearators are reset (at the same time?)
+		if (!(eg_cnt & ((1 << eg_sh_dp) - 1))) {
+			volume += eg_inc[
+				eg_sel_dp + ((eg_cnt >> eg_sh_dp) & 7)
+				];
+			if (volume >= MAX_ATT_INDEX) {
+				volume = MAX_ATT_INDEX;
+				state = EG_ATT;
+				phase = FreqIndex(0); // restart Phase Generator
+			}
+		}
+		break;
+
+	case EG_ATT: // attack phase
+		if (!(eg_cnt & ((1 << eg_sh_ar) - 1))) {
+			volume += (~volume * (eg_inc[
+				eg_sel_ar + ((eg_cnt >> eg_sh_ar) & 7)
+				])) >> 2;
+			if (volume <= MIN_ATT_INDEX) {
+				volume = MIN_ATT_INDEX;
+				state = EG_DEC;
+			}
+		}
+		break;
+
+	case EG_DEC:    // decay phase
+		if (!(eg_cnt & ((1 << eg_sh_dr) - 1))) {
+			volume += eg_inc[
+				eg_sel_dr + ((eg_cnt >> eg_sh_dr) & 7)
+				];
+			if (volume >= sl) {
+				state = EG_SUS;
+			}
+		}
+		break;
+
+	case EG_SUS:    // sustain phase
+		// this is important behaviour:
+		// one can change percusive/non-percussive modes on the fly and
+		// the chip will remain in sustain phase
+		// - verified on real YM3812
+		if (eg_type) {
+			// non-percussive mode (sustained tone)
+			// do nothing
+		} else {
+			// percussive mode
+			// during sustain phase chip adds Release Rate (in
+			// percussive mode)
+			if (!(eg_cnt & ((1 << eg_sh_rr) - 1))) {
+				volume += eg_inc[
+					eg_sel_rr + ((eg_cnt >> eg_sh_rr) & 7)
+					];
+				if (volume >= MAX_ATT_INDEX) {
+					volume = MAX_ATT_INDEX;
+				}
+			}
+			// else do nothing in sustain phase
+		}
+		break;
+
+	case EG_REL:    // release phase
+		// exclude modulators in melody channels from performing
+		// anything in this mode
+		// allowed are only carriers in melody mode and rhythm slots in
+		// rhythm mode
+		//
+		// This table shows which operators and on what conditions are
+		// allowed to perform EG_REL:
+		// (a) - always perform EG_REL
+		// (n) - never perform EG_REL
+		// (r) - perform EG_REL in Rhythm mode ONLY
+		//   0: 0 (n),  1 (a)
+		//   1: 2 (n),  3 (a)
+		//   2: 4 (n),  5 (a)
+		//   3: 6 (n),  7 (a)
+		//   4: 8 (n),  9 (a)
+		//   5: 10(n),  11(a)
+		//   6: 12(r),  13(a)
+		//   7: 14(r),  15(a)
+		//   8: 16(r),  17(a)
+		if (carrier) {
+			if (eg_type) {
+				// non-percussive mode (sustained tone)
+				// this is correct: use RR when SUS = OFF
+				// and use RS when SUS = ON
+				if (channel->sus) {
+					if (!(eg_cnt & ((1 << eg_sh_rs) - 1))) {
+						volume += eg_inc[
+							eg_sel_rs
+							+ ((eg_cnt >> eg_sh_rs) & 7)
+							];
+						if (volume >= MAX_ATT_INDEX) {
+							volume = MAX_ATT_INDEX;
+							state = EG_OFF;
+						}
+					}
+				} else {
+					if (!(eg_cnt & ((1 << eg_sh_rr) - 1))) {
+						volume += eg_inc[
+							eg_sel_rr
+							+ ((eg_cnt >> eg_sh_rr) & 7)
+							];
+						if (volume >= MAX_ATT_INDEX) {
+							volume = MAX_ATT_INDEX;
+							state = EG_OFF;
+						}
+					}
+				}
+			} else {
+				// percussive mode
+				if (!(eg_cnt & ((1 << eg_sh_rs) - 1))) {
+					volume += eg_inc[
+						eg_sel_rs + ((eg_cnt >> eg_sh_rs) & 7)
+						];
+					if (volume >= MAX_ATT_INDEX) {
+						volume = MAX_ATT_INDEX;
+						state = EG_OFF;
+					}
+				}
+			}
+		}
+		break;
+
+	default:
+		break;
+	}
+}
+
 inline void Slot::advancePhaseGenerator()
 {
 	if (vib) {
@@ -826,156 +965,18 @@ inline void Global::advance_lfo()
 	LFO_PM = lfo_pm_cnt.toInt() & 7;
 }
 
-// advance to next sample
 inline void Global::advance()
 {
-	// Envelope Generator
 	eg_cnt++;
 	for (int ch = 0; ch < 9; ch++) {
 		Channel& channel = channels[ch];
 		for (int sl = 0; sl < 2; sl++) {
-			Slot& op = channel.slots[sl];
-
-			switch (op.state) {
-			case EG_DMP:	// dump phase
-				// dump phase is performed by both operators in each channel
-				// when CARRIER envelope gets down to zero level,
-				// phases in BOTH opearators are reset (at the same time?)
-				if (!(eg_cnt & ((1 << op.eg_sh_dp) - 1))) {
-					op.volume += eg_inc[
-						op.eg_sel_dp + ((eg_cnt >> op.eg_sh_dp) & 7)
-						];
-					if (op.volume >= MAX_ATT_INDEX) {
-						op.volume = MAX_ATT_INDEX;
-						op.state = EG_ATT;
-						op.phase = FreqIndex(0);	// restart Phase Generator
-					}
-				}
-				break;
-
-			case EG_ATT:	// attack phase
-				if (!(eg_cnt & ((1 << op.eg_sh_ar) - 1))) {
-					op.volume += (~op.volume * (eg_inc[
-						op.eg_sel_ar + ((eg_cnt >> op.eg_sh_ar) & 7)
-						])) >> 2;
-					if (op.volume <= MIN_ATT_INDEX) {
-						op.volume = MIN_ATT_INDEX;
-						op.state = EG_DEC;
-					}
-				}
-				break;
-
-			case EG_DEC:    // decay phase
-				if (!(eg_cnt & ((1 << op.eg_sh_dr) - 1))) {
-					op.volume += eg_inc[
-						op.eg_sel_dr + ((eg_cnt >> op.eg_sh_dr) & 7)
-						];
-					if (op.volume >= op.sl) {
-						op.state = EG_SUS;
-					}
-				}
-				break;
-
-			case EG_SUS:    // sustain phase
-				// this is important behaviour:
-				// one can change percusive/non-percussive modes on the fly and
-				// the chip will remain in sustain phase
-				// - verified on real YM3812
-				if (op.eg_type) {
-					// non-percussive mode (sustained tone)
-					// do nothing
-				} else {
-					// percussive mode
-					// during sustain phase chip adds Release Rate (in
-					// percussive mode)
-					if (!(eg_cnt & ((1 << op.eg_sh_rr) - 1))) {
-						op.volume += eg_inc[
-							op.eg_sel_rr + ((eg_cnt >> op.eg_sh_rr) & 7)
-							];
-
-						if (op.volume >= MAX_ATT_INDEX) {
-							op.volume = MAX_ATT_INDEX;
-						}
-					}
-					// else do nothing in sustain phase
-				}
-				break;
-
-			case EG_REL:    // release phase
-				// exclude modulators in melody channels from performing
-				// anything in this mode
-				// allowed are only carriers in melody mode and rhythm slots in
-				// rhythm mode
-				//
-				// This table shows which operators and on what conditions are
-				// allowed to perform EG_REL:
-				// (a) - always perform EG_REL
-				// (n) - never perform EG_REL
-				// (r) - perform EG_REL in Rhythm mode ONLY
-				//   0: 0 (n),  1 (a)
-				//   1: 2 (n),  3 (a)
-				//   2: 4 (n),  5 (a)
-				//   3: 6 (n),  7 (a)
-				//   4: 8 (n),  9 (a)
-				//   5: 10(n),  11(a)
-				//   6: 12(r),  13(a)
-				//   7: 14(r),  15(a)
-				//   8: 16(r),  17(a)
-				if (sl == 1 || (rhythm && ch >= 6)) {
-					// exclude modulators
-					if (op.eg_type) {
-						// non-percussive mode (sustained tone)
-						// this is correct: use RR when SUS = OFF
-						// and use RS when SUS = ON
-						if (channel.sus) {
-							if (!(eg_cnt & ((1 << op.eg_sh_rs) - 1))) {
-								op.volume += eg_inc[
-									op.eg_sel_rs
-									+ ((eg_cnt >> op.eg_sh_rs) & 7)
-									];
-								if (op.volume >= MAX_ATT_INDEX) {
-									op.volume = MAX_ATT_INDEX;
-									op.state = EG_OFF;
-								}
-							}
-						} else {
-							if (!(eg_cnt & ((1 << op.eg_sh_rr) - 1))) {
-								op.volume += eg_inc[
-									op.eg_sel_rr
-									+ ((eg_cnt >> op.eg_sh_rr) & 7)
-									];
-								if (op.volume >= MAX_ATT_INDEX) {
-									op.volume = MAX_ATT_INDEX;
-									op.state = EG_OFF;
-								}
-							}
-						}
-					} else {
-						// percussive mode
-						if (!(eg_cnt & ((1 << op.eg_sh_rs) - 1))) {
-							op.volume += eg_inc[
-								op.eg_sel_rs
-								+ ((eg_cnt >> op.eg_sh_rs) & 7)
-								];
-							if (op.volume >= MAX_ATT_INDEX) {
-								op.volume = MAX_ATT_INDEX;
-								op.state = EG_OFF;
-							}
-						}
-					}
-				}
-				break;
-
-			default:
-				break;
-			}
-		}
-	}
-
-	for (int ch = 0; ch < 9; ch++) {
-		Channel& channel = channels[ch];
-		for (int sl = 0; sl < 2; sl++) {
-			channel.slots[sl].advancePhaseGenerator();
+			Slot& slot = channel.slots[sl];
+			slot.advanceEnvelopeGenerator(
+				eg_cnt,
+				sl == 1 || (rhythm && ch >= 6) // act as carrier?
+				);
+			slot.advancePhaseGenerator();
 		}
 	}
 
