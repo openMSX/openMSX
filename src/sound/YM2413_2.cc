@@ -383,6 +383,284 @@ static const byte table[16 + 3][8] = {
 	{ 0x05, 0x01, 0x00, 0x00, 0xf8, 0xba, 0x49, 0x55 },// TOM(multi,env verified), TOP CYM(multi verified, env verified)
 };
 
+/** 16.16 fixed point type for frequency calculations.
+  */
+typedef FixedPoint<16> FreqIndex;
+
+/** 8.24 fixed point type for LFO calculations.
+  */
+typedef FixedPoint<24> LFOIndex;
+
+class Globals;
+class Channel;
+
+class Slot
+{
+public:
+	Slot();
+
+	/**
+	 * Initializes those parts that cannot be initialized in the constructor,
+	 * because the constructor cannot have arguments since we want to create
+	 * an array of Slots.
+	 * This method should be called once, as soon as possible after
+	 * construction.
+	 */
+	void init(Globals& globals, Channel& channel);
+
+	/**
+	 * Update phase increment counter of operator.
+	 * Also updates the EG rates if necessary.
+	 */
+	void updateGenerators();
+
+	inline int op_calc(FreqIndex phase, FreqIndex pm);
+	inline void updateModulator();
+	inline void KEY_ON (byte key_set);
+	inline void KEY_OFF(byte key_clr);
+
+	/**
+	 * Output of SLOT 1 can be used to phase modulate SLOT 2.
+	 */
+	inline FreqIndex getPhaseModulation() {
+		return FreqIndex(op1_out[0] << 1);
+	}
+
+	/**
+	 * Sets the frequency multiplier [0..15].
+	 */
+	inline void setFrequencyMultiplier(byte value);
+
+	/**
+	 * Sets the key scale rate: true->0, false->2.
+	 */
+	inline void setKeyScaleRate(bool value);
+
+	/**
+	 * Sets the envelope type: true->sustained, false->percussive.
+	 */
+	inline void setEnvelopeType(bool value);
+
+	/**
+	 * Enables (true) or disables (false) vibrato.
+	 */
+	inline void setVibrato(bool value);
+
+	/**
+	 * Enables (true) or disables (false) amplitude modulation.
+	 */
+	inline void setAmplitudeModulation(bool value);
+
+	/**
+	 * Sets the total level: [0..63].
+	 */
+	inline void setTotalLevel(byte value);
+
+	/**
+	 * Sets the key scale level: 0->0 / 1->1.5 / 2->3.0 / 3->6.0 dB/OCT.
+	 */
+	inline void setKeyScaleLevel(byte value);
+
+	/**
+	 * Sets the waveform: 0 = sinus, 1 = half sinus, half silence.
+	 */
+	inline void setWaveform(byte value);
+
+	/**
+	 * Sets the amount of feedback [0..7].
+	 */
+	inline void setFeedbackShift(byte value);
+
+	/**
+	 * Sets the attack rate [0..15].
+	 */
+	inline void setAttackRate(byte value);
+
+	/**
+	 * Sets the decay rate [0..15].
+	 */
+	inline void setDecayRate(byte value);
+
+	/**
+	 * Sets the sustain level [0..15].
+	 */
+	inline void setSustainLevel(byte value);
+
+	/**
+	 * Sets the release rate [0..15].
+	 */
+	inline void setReleaseRate(byte value);
+
+	// Phase Generator
+	FreqIndex phase;	// frequency counter
+	FreqIndex freq;	// frequency counter step
+
+	int wavetable;	// waveform select
+
+	// Envelope Generator
+	int TL;		// total level: TL << 2
+	int TLL;	// adjusted now TL
+	int volume;	// envelope counter
+	int sl;		// sustain level: sl_tab[SL]
+	byte eg_type;	// percussive/nonpercussive mode
+	byte state;	// phase type
+
+	byte eg_sh_dp;	// (dump state)
+	byte eg_sel_dp;	// (dump state)
+	byte eg_sh_ar;	// (attack state)
+	byte eg_sel_ar;	// (attack state)
+	byte eg_sh_dr;	// (decay state)
+	byte eg_sel_dr;	// (decay state)
+	byte eg_sh_rr;	// (release state for non-perc.)
+	byte eg_sel_rr;	// (release state for non-perc.)
+	byte eg_sh_rs;	// (release state for perc.mode)
+	byte eg_sel_rs;	// (release state for perc.mode)
+
+	byte ar;	// attack rate: AR<<2
+	byte dr;	// decay rate:  DR<<2
+	byte rr;	// release rate:RR<<2
+	byte KSR;	// key scale rate
+	byte ksl;	// keyscale level
+	byte kcodeScaled;	// key scale rate: kcode>>KSR
+	byte mul;	// multiple: mul_tab[ML]
+
+	// LFO
+	byte AMmask;	// LFO Amplitude Modulation enable mask
+	byte vib;	// LFO Phase Modulation enable flag (active high)
+
+private:
+	Globals* globals;
+	Channel* channel;
+
+	int op1_out[2];	// slot1 output for feedback
+	byte fb_shift;	// feedback shift value
+
+	byte key;	// 0 = KEY OFF, >0 = KEY ON
+};
+
+class Channel
+{
+public:
+	Channel();
+	inline int chan_calc();
+
+	/**
+	 * Initializes those parts that cannot be initialized in the constructor,
+	 * because the constructor cannot have arguments since we want to create
+	 * an array of Channels.
+	 * This method should be called once, as soon as possible after
+	 * construction.
+	 */
+	void init(Globals& globals);
+
+	/**
+	 * Sets some synthesis parameters as specified by the instrument.
+	 * @param inst Pointer to instrument data.
+	 * @param part Part [0..7] of the instrument.
+	 */
+	void setInstrumentPart(int instrument, int part);
+
+	/**
+	 * Sets all synthesis parameters as specified by the instrument.
+	 * @param inst Pointer to instrument data.
+	 */
+	void setInstrument(int instrument);
+
+	/**
+	 * Sets all synthesis parameters as specified by the current instrument.
+	 * The current instrument is determined by instvol_r.
+	 */
+	inline void setInstrument() {
+		setInstrument(instvol_r >> 4);
+	}
+
+	Slot slots[2];
+
+	/**
+	 * Instrument/volume (or volume/volume in rhythm mode).
+	 */
+	byte instvol_r;
+
+	// phase generator state
+	int block_fnum;	// block+fnum
+	FreqIndex fc;	// Freq. freqement base
+	int ksl_base;	// KeyScaleLevel Base step
+	byte kcode;	// key code (for key scaling)
+	byte sus;	// sus on/off (release speed in percussive mode)
+
+private:
+	Globals* globals;
+};
+
+class Globals
+{
+public:
+	static inline FreqIndex fnumToIncrement(int fnum);
+
+	Globals();
+
+	inline void advance_lfo();
+	inline void advance();
+
+	inline FreqIndex genPhaseHighHat();
+	inline FreqIndex genPhaseSnare();
+	inline FreqIndex genPhaseCymbal();
+	inline void rhythm_calc(int** bufs, unsigned sample);
+	inline int adjust(int x);
+
+	void reset();
+
+	/**
+	 * Called when the custom instrument (instrument 0) has changed.
+	 * @param part Part [0..7] of the instrument.
+	 */
+	void updateCustomInstrument(int part);
+
+	void setRhythmMode(bool newMode);
+	void setRhythmFlags(byte flags);
+
+	bool checkMuteHelper();
+
+	void generateChannels(int** bufs, unsigned num);
+
+	/**
+	 * OPLL chips have 9 channels.
+	 */
+	Channel channels[9];
+
+	/**
+	 * Instrument settings:
+	 *  0     - user instrument
+	 *  1-15  - fixed instruments
+	 *  16    - bass drum settings
+	 *  17-18 - other percussion instruments
+	 */
+	byte inst_tab[19][8];
+
+	/**
+	 * Global envelope generator counter.
+	 */
+	unsigned eg_cnt;
+
+	// LFO
+	LFOIndex lfo_am_cnt;
+	LFOIndex lfo_pm_cnt;
+	byte LFO_AM;
+	byte LFO_PM;
+
+	/**
+	 * Random generator for noise: 23 bit shift register.
+	 */
+	int noise_rng;
+
+	/**
+	 * Rhythm mode.
+	 */
+	bool rhythm;
+
+	int maxVolume;
+};
+
 inline FreqIndex Globals::fnumToIncrement(int fnum)
 {
 	// OPLL (YM2413) phase increment counter = 18bit
@@ -1247,11 +1525,11 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 		case 0x05:  // Attack, Decay (carrier)
 		case 0x06:  // Sustain, Release (modulator)
 		case 0x07:  // Sustain, Release (carrier)
-			globals.inst_tab[0][r & 0x07] = v;
-			globals.updateCustomInstrument(r & 0x07);
+			globals->inst_tab[0][r & 0x07] = v;
+			globals->updateCustomInstrument(r & 0x07);
 			break;
 		case 0x0E:
-			globals.setRhythmFlags(v);
+			globals->setRhythmFlags(v);
 			break;
 		}
 		break;
@@ -1259,7 +1537,7 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 	case 0x10:
 	case 0x20: { // block, fnum, sus, keyon
 		byte chan = (r & 0x0F) % 9;	// verified on real YM2413
-		Channel& ch = globals.channels[chan];
+		Channel& ch = globals->channels[chan];
 
 		int block_fnum;
 		if (r & 0x10) {
@@ -1284,7 +1562,7 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 			// BLK 2,1,0 bits -> bits 3,2,1 of kcode, FNUM MSB -> kcode LSB
 			ch.kcode    = (block_fnum & 0x0f00) >> 8;
 			ch.ksl_base = ksl_tab[block_fnum >> 5];
-			ch.fc       = globals.fnumToIncrement(block_fnum * 2);
+			ch.fc       = globals->fnumToIncrement(block_fnum * 2);
 
 			// refresh Total Level in both SLOTs of this channel
 			ch.slots[SLOT1].TLL =
@@ -1301,7 +1579,7 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 
 	case 0x30: { // inst 4 MSBs, VOL 4 LSBs
 		byte chan = (r & 0x0F) % 9;	// verified on real YM2413
-		Channel& ch = globals.channels[chan];
+		Channel& ch = globals->channels[chan];
 
 		byte old_instvol = ch.instvol_r;
 		ch.instvol_r = v;  // store for later use
@@ -1310,7 +1588,7 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 
 		// Check wether we are in rhythm mode and handle instrument/volume
 		// register accordingly.
-		if ((chan >= 6) && globals.rhythm) {
+		if ((chan >= 6) && globals->rhythm) {
 			// We're in rhythm mode.
 			if (chan >= 7) {
 				// Only for channel 7 and 8 (channel 6 is handled in usual way)
@@ -1346,7 +1624,7 @@ void Globals::reset()
 
 void YM2413_2::reset(const EmuTime &time)
 {
-	globals.reset();
+	globals->reset();
 
 	// reset with register write
 	writeReg(0x0F, 0, time); //test reg
@@ -1356,7 +1634,7 @@ void YM2413_2::reset(const EmuTime &time)
 
 	// reset operator parameters
 	for (int c = 0; c < 9; c++) {
-		Channel& ch = globals.channels[c];
+		Channel& ch = globals->channels[c];
 		for (int s = 0; s < 2; s++) {
 			// wave table
 			ch.slots[s].wavetable = 0;
@@ -1371,6 +1649,7 @@ YM2413_2::YM2413_2(MSXMotherBoard& motherBoard, const std::string& name,
                    const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMSXMixer(), name, "MSX-MUSIC", 11)
 	, debuggable(new YM2413_2Debuggable(motherBoard, *this))
+	, globals(new Globals())
 {
 	init_tables();
 	reset(time);
@@ -1384,7 +1663,7 @@ YM2413_2::~YM2413_2()
 
 void YM2413_2::checkMute()
 {
-	setMute(globals.checkMuteHelper());
+	setMute(globals->checkMuteHelper());
 }
 bool Globals::checkMuteHelper()
 {
@@ -1429,7 +1708,7 @@ void Globals::generateChannels(int** bufs, unsigned num)
 
 void YM2413_2::generateChannels(int** bufs, unsigned num)
 {
-	globals.generateChannels(bufs, num);
+	globals->generateChannels(bufs, num);
 	checkMute();
 }
 
@@ -1454,7 +1733,7 @@ void YM2413_2::updateBuffer(unsigned length, int* buffer,
 
 void YM2413_2::setVolume(int newVolume)
 {
-	globals.maxVolume = newVolume;
+	globals->maxVolume = newVolume;
 }
 
 
