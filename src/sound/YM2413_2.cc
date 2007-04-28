@@ -555,14 +555,14 @@ public:
 
 	/**
 	 * Sets some synthesis parameters as specified by the instrument.
-	 * @param inst Pointer to instrument data.
+	 * @param instrument Number of the instrument.
 	 * @param part Part [0..7] of the instrument.
 	 */
 	void setInstrumentPart(int instrument, int part);
 
 	/**
 	 * Sets all synthesis parameters as specified by the instrument.
-	 * @param inst Pointer to instrument data.
+	 * @param instrument Number of the instrument.
 	 */
 	void setInstrument(int instrument);
 
@@ -642,6 +642,7 @@ public:
 	/**
 	 * Called when the custom instrument (instrument 0) has changed.
 	 * @param part Part [0..7] of the instrument.
+	 * @param value The new value.
 	 */
 	void updateCustomInstrument(int part, byte value);
 
