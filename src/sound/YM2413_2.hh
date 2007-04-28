@@ -228,17 +228,70 @@ private:
 class Globals
 {
 public:
+	static inline FreqIndex fnumToIncrement(int fnum);
+
 	Globals();
 
-	// instrument settings
-	//   0     - user instrument
-	//   1-15  - fixed instruments
-	//   16    - bass drum settings
-	//   17-18 - other percussion instruments
+	inline void advance_lfo();
+	inline void advance();
+
+	inline FreqIndex genPhaseHighHat();
+	inline FreqIndex genPhaseSnare();
+	inline FreqIndex genPhaseCymbal();
+	inline void rhythm_calc(int** bufs, unsigned sample);
+	inline int adjust(int x);
+
+	void reset();
+
+	/**
+	 * Called when the custom instrument (instrument 0) has changed.
+	 * @param part Part [0..7] of the instrument.
+	 */
+	void updateCustomInstrument(int part);
+
+	void setRhythmMode(bool newMode);
+	void setRhythmFlags(byte flags);
+
+	bool checkMuteHelper();
+
+	void generateChannels(int** bufs, unsigned num);
+
+	/**
+	 * OPLL chips have 9 channels.
+	 */
+	Channel channels[9];
+
+	/**
+	 * Instrument settings:
+	 *  0     - user instrument
+	 *  1-15  - fixed instruments
+	 *  16    - bass drum settings
+	 *  17-18 - other percussion instruments
+	 */
 	byte inst_tab[19][8];
 
+	/**
+	 * Global envelope generator counter.
+	 */
+	unsigned eg_cnt;
+
+	// LFO
+	LFOIndex lfo_am_cnt;
+	LFOIndex lfo_pm_cnt;
 	byte LFO_AM;
 	byte LFO_PM;
+
+	/**
+	 * Random generator for noise: 23 bit shift register.
+	 */
+	int noise_rng;
+
+	/**
+	 * Rhythm mode.
+	 */
+	bool rhythm;
+
+	int maxVolume;
 };
 
 class YM2413_2 : public YM2413Core, public SoundDevice, private Resample<1>
@@ -252,28 +305,9 @@ public:
 	void writeReg(byte r, byte v, const EmuTime& time);
 
 private:
-	static inline FreqIndex fnumToIncrement(int fnum);
-
 	void checkMute();
-	bool checkMuteHelper();
 
 	void init_tables();
-
-	inline void advance_lfo();
-	inline void advance();
-	inline FreqIndex genPhaseHighHat();
-	inline FreqIndex genPhaseSnare();
-	inline FreqIndex genPhaseCymbal();
-	inline void rhythm_calc(int** bufs, unsigned sample);
-	inline int adjust(int x);
-
-	/**
-	 * Called when the custom instrument (instrument 0) has changed.
-	 * @param part Part [0..7] of the instrument.
-	 */
-	void updateCustomInstrument(int part);
-
-	void setRhythmMode(bool newMode);
 
 	// SoundDevice
 	virtual void setVolume(int newVolume);
@@ -288,23 +322,9 @@ private:
 	friend class YM2413_2Debuggable;
 	const std::auto_ptr<YM2413_2Debuggable> debuggable;
 
-	int maxVolume;
-
 	Globals globals;
 
-	Channel channels[9];	// OPLL chips have 9 channels
-
-	unsigned eg_cnt;	// global envelope generator counter
-
-	// LFO
-	LFOIndex lfo_am_cnt;
-	LFOIndex lfo_pm_cnt;
-
-	int noise_rng;		// 23 bit noise shift register
-
 	byte reg[0x40];
-
-	bool rhythm;		// Rhythm mode
 };
 
 } // namespace openmsx
