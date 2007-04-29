@@ -413,6 +413,8 @@ public:
 	 */
 	void init(Global& global, Channel& channel);
 
+	void resetOperators();
+
 	/**
 	 * Update phase increment counter of operator.
 	 * Also updates the EG rates if necessary.
@@ -432,6 +434,13 @@ public:
 		} else {
 			setKeyOff(part);
 		}
+	}
+
+	/**
+	 * Does this slot currently produce an output signal?
+	 */
+	bool isActive() {
+		return state != EG_OFF;
 	}
 
 	/**
@@ -552,16 +561,6 @@ public:
 		updateGenerators();
 	}
 
-	int wavetable;	// waveform select
-
-	// Envelope Generator
-	int TL;		// total level: TL << 2
-	int TLL;	// adjusted now TL
-	int volume;	// envelope counter
-	int sl;		// sustain level: sl_tab[SL]
-	byte eg_type;	// percussive/nonpercussive mode
-	EnvelopeState state;
-
 private:
 	inline void updateTotalLevel();
 	inline void updateAttackRate();
@@ -574,6 +573,16 @@ private:
 	// Phase Generator
 	FreqIndex phase;	// frequency counter
 	FreqIndex freq;	// frequency counter step
+
+	int wavetable;	// waveform select
+
+	// Envelope Generator
+	int TL;		// total level: TL << 2
+	int TLL;	// adjusted now TL
+	int volume;	// envelope counter
+	int sl;		// sustain level: sl_tab[SL]
+	byte eg_type;	// percussive/nonpercussive mode
+	EnvelopeState state;
 
 	int op1_out[2];	// slot1 output for feedback
 	byte fb_shift;	// feedback shift value
@@ -1328,6 +1337,13 @@ void Slot::init(Global& global, Channel& channel)
 	this->channel = &channel;
 }
 
+void Slot::resetOperators()
+{
+	wavetable = 0;
+	state     = EG_OFF;
+	volume    = MAX_ATT_INDEX;
+}
+
 void Slot::updateGenerators()
 {
 	// (frequency) phase increment counter
@@ -1618,9 +1634,7 @@ void Global::resetOperators()
 		Channel& ch = channels[c];
 		for (int s = 0; s < 2; s++) {
 			// wave table
-			ch.slots[s].wavetable = 0;
-			ch.slots[s].state     = EG_OFF;
-			ch.slots[s].volume    = MAX_ATT_INDEX;
+			ch.slots[s].resetOperators();
 		}
 	}
 }
@@ -1658,20 +1672,21 @@ void YM2413_2::checkMute()
 {
 	setMute(global->checkMuteHelper());
 }
+
 bool Global::checkMuteHelper()
 {
 	const int numMelodicChannels = getNumMelodicChannels();
 	for (int ch = 0; ch < numMelodicChannels; ch++) {
-		if (channels[ch].slots[SLOT2].state != EG_OFF) {
+		if (channels[ch].slots[SLOT2].isActive()) {
 			return false;
 		}
 	}
 	if (rhythm) {
-		if (channels[6].slots[SLOT2].state != EG_OFF) return false;
-		if (channels[7].slots[SLOT1].state != EG_OFF) return false;
-		if (channels[7].slots[SLOT2].state != EG_OFF) return false;
-		if (channels[8].slots[SLOT1].state != EG_OFF) return false;
-		if (channels[8].slots[SLOT2].state != EG_OFF) return false;
+		if (channels[6].slots[SLOT2].isActive()) return false;
+		if (channels[7].slots[SLOT1].isActive()) return false;
+		if (channels[7].slots[SLOT2].isActive()) return false;
+		if (channels[8].slots[SLOT1].isActive()) return false;
+		if (channels[8].slots[SLOT2].isActive()) return false;
 	}
 	return true;	// nothing playing, mute
 }
