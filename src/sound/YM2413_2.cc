@@ -124,120 +124,111 @@ static const int sl_tab[16] = {
 };
 #undef SC
 
-const int RATE_STEPS = 8;
-static const byte eg_inc[15 * RATE_STEPS] =
+static const byte eg_inc[15][8] =
 {
 	//cycle:0 1  2 3  4 5  6 7
 
-	/* 0 */ 0,1, 0,1, 0,1, 0,1, // rates 00..12 0 (increment by 0 or 1)
-	/* 1 */ 0,1, 0,1, 1,1, 0,1, // rates 00..12 1
-	/* 2 */ 0,1, 1,1, 0,1, 1,1, // rates 00..12 2
-	/* 3 */ 0,1, 1,1, 1,1, 1,1, // rates 00..12 3
+	/* 0 */ { 0,1, 0,1, 0,1, 0,1, }, // rates 00..12 0 (increment by 0 or 1)
+	/* 1 */ { 0,1, 0,1, 1,1, 0,1, }, // rates 00..12 1
+	/* 2 */ { 0,1, 1,1, 0,1, 1,1, }, // rates 00..12 2
+	/* 3 */ { 0,1, 1,1, 1,1, 1,1, }, // rates 00..12 3
 
-	/* 4 */ 1,1, 1,1, 1,1, 1,1, // rate 13 0 (increment by 1)
-	/* 5 */ 1,1, 1,2, 1,1, 1,2, // rate 13 1
-	/* 6 */ 1,2, 1,2, 1,2, 1,2, // rate 13 2
-	/* 7 */ 1,2, 2,2, 1,2, 2,2, // rate 13 3
+	/* 4 */ { 1,1, 1,1, 1,1, 1,1, }, // rate 13 0 (increment by 1)
+	/* 5 */ { 1,1, 1,2, 1,1, 1,2, }, // rate 13 1
+	/* 6 */ { 1,2, 1,2, 1,2, 1,2, }, // rate 13 2
+	/* 7 */ { 1,2, 2,2, 1,2, 2,2, }, // rate 13 3
 
-	/* 8 */ 2,2, 2,2, 2,2, 2,2, // rate 14 0 (increment by 2)
-	/* 9 */ 2,2, 2,4, 2,2, 2,4, // rate 14 1
-	/*10 */ 2,4, 2,4, 2,4, 2,4, // rate 14 2
-	/*11 */ 2,4, 4,4, 2,4, 4,4, // rate 14 3
+	/* 8 */ { 2,2, 2,2, 2,2, 2,2, }, // rate 14 0 (increment by 2)
+	/* 9 */ { 2,2, 2,4, 2,2, 2,4, }, // rate 14 1
+	/*10 */ { 2,4, 2,4, 2,4, 2,4, }, // rate 14 2
+	/*11 */ { 2,4, 4,4, 2,4, 4,4, }, // rate 14 3
 
-	/*12 */ 4,4, 4,4, 4,4, 4,4, // rates 15 0, 15 1, 15 2, 15 3 (increment by 4)
-	/*13 */ 8,8, 8,8, 8,8, 8,8, // rates 15 2, 15 3 for attack
-	/*14 */ 0,0, 0,0, 0,0, 0,0, // infinity rates for attack and decay(s)
+	/*12 */ { 4,4, 4,4, 4,4, 4,4, }, // rates 15 0, 15 1, 15 2, 15 3 (incr by 4)
+	/*13 */ { 8,8, 8,8, 8,8, 8,8, }, // rates 15 2, 15 3 for attack
+	/*14 */ { 0,0, 0,0, 0,0, 0,0, }, // infinity rates for attack and decay(s)
 };
 
-// note that there is no O(13) in this table - it's directly in the code
-#define O(a) (a * RATE_STEPS)
+// note that there is no value 13 in this table - it's directly in the code
 static const byte eg_rate_select[16 + 64 + 16] =
 {
 	// Envelope Generator rates (16 + 64 rates + 16 RKS)
 	// 16 infinite time rates
-	O(14),O(14),O(14),O(14),O(14),O(14),O(14),O(14),
-	O(14),O(14),O(14),O(14),O(14),O(14),O(14),O(14),
+	14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,
 
 	// rates 00-12
-	O( 0),O( 1),O( 2),O( 3),
-	O( 0),O( 1),O( 2),O( 3),
-	O( 0),O( 1),O( 2),O( 3),
-	O( 0),O( 1),O( 2),O( 3),
-	O( 0),O( 1),O( 2),O( 3),
-	O( 0),O( 1),O( 2),O( 3),
-	O( 0),O( 1),O( 2),O( 3),
-	O( 0),O( 1),O( 2),O( 3),
-	O( 0),O( 1),O( 2),O( 3),
-	O( 0),O( 1),O( 2),O( 3),
-	O( 0),O( 1),O( 2),O( 3),
-	O( 0),O( 1),O( 2),O( 3),
-	O( 0),O( 1),O( 2),O( 3),
+	 0, 1, 2, 3,
+	 0, 1, 2, 3,
+	 0, 1, 2, 3,
+	 0, 1, 2, 3,
+	 0, 1, 2, 3,
+	 0, 1, 2, 3,
+	 0, 1, 2, 3,
+	 0, 1, 2, 3,
+	 0, 1, 2, 3,
+	 0, 1, 2, 3,
+	 0, 1, 2, 3,
+	 0, 1, 2, 3,
+	 0, 1, 2, 3,
 
 	// rate 13
-	O( 4),O( 5),O( 6),O( 7),
+	 4, 5, 6, 7,
 
 	// rate 14
-	O( 8),O( 9),O(10),O(11),
+	 8, 9,10,11,
 
 	// rate 15
-	O(12),O(12),O(12),O(12),
+	12,12,12,12,
 
 	// 16 dummy rates (same as 15 3)
-	O(12),O(12),O(12),O(12),O(12),O(12),O(12),O(12),
-	O(12),O(12),O(12),O(12),O(12),O(12),O(12),O(12),
+	12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,
 };
-#undef O
 
 //rate  0,    1,    2,    3,    4,   5,   6,   7,  8,  9, 10, 11, 12, 13, 14, 15
 //shift 13,   12,   11,   10,   9,   8,   7,   6,  5,  4,  3,  2,  1,  0,  0,  0
 //mask  8191, 4095, 2047, 1023, 511, 255, 127, 63, 31, 15, 7,  3,  1,  0,  0,  0
 
-#define O(a) (a)
 static const byte eg_rate_shift[16 + 64 + 16] =
 {
 	// Envelope Generator counter shifts (16 + 64 rates + 16 RKS)
 	// 16 infinite time rates
-	O(0),O(0),O(0),O(0),O(0),O(0),O(0),O(0),
-	O(0),O(0),O(0),O(0),O(0),O(0),O(0),O(0),
+	 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 
 	// rates 00-12
-	O(13),O(13),O(13),O(13),
-	O(12),O(12),O(12),O(12),
-	O(11),O(11),O(11),O(11),
-	O(10),O(10),O(10),O(10),
-	O( 9),O( 9),O( 9),O( 9),
-	O( 8),O( 8),O( 8),O( 8),
-	O( 7),O( 7),O( 7),O( 7),
-	O( 6),O( 6),O( 6),O( 6),
-	O( 5),O( 5),O( 5),O( 5),
-	O( 4),O( 4),O( 4),O( 4),
-	O( 3),O( 3),O( 3),O( 3),
-	O( 2),O( 2),O( 2),O( 2),
-	O( 1),O( 1),O( 1),O( 1),
+	13,13,13,13,
+	12,12,12,12,
+	11,11,11,11,
+	10,10,10,10,
+	 9, 9, 9, 9,
+	 8, 8, 8, 8,
+	 7, 7, 7, 7,
+	 6, 6, 6, 6,
+	 5, 5, 5, 5,
+	 4, 4, 4, 4,
+	 3, 3, 3, 3,
+	 2, 2, 2, 2,
+	 1, 1, 1, 1,
 
 	// rate 13
-	O( 0),O( 0),O( 0),O( 0),
+	 0, 0, 0, 0,
 
 	// rate 14
-	O( 0),O( 0),O( 0),O( 0),
+	 0, 0, 0, 0,
 
 	// rate 15
-	O( 0),O( 0),O( 0),O( 0),
+	 0, 0, 0, 0,
 
 	// 16 dummy rates (same as 15 3)
-	O( 0),O( 0),O( 0),O( 0),O( 0),O( 0),O( 0),O( 0),
-	O( 0),O( 0),O( 0),O( 0),O( 0),O( 0),O( 0),O( 0),
+	 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 };
-#undef O
-
 
 // multiple table
 #define ML(x) (byte)(2 * x)
 static const byte mul_tab[16] =
 {
-	// 1/2, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,10,12,12,15,15
-	ML(0.50), ML(1.00),ML( 2.00),ML( 3.00),ML( 4.00),ML( 5.00),ML( 6.00),ML( 7.00),
-	ML(8.00), ML(9.00),ML(10.00),ML(10.00),ML(12.00),ML(12.00),ML(15.00),ML(15.00)
+	ML( 0.50), ML( 1.00), ML( 2.00), ML( 3.00),
+	ML( 4.00), ML( 5.00), ML( 6.00), ML( 7.00),
+	ML( 8.00), ML( 9.00), ML(10.00), ML(10.00),
+	ML(12.00), ML(12.00), ML(15.00), ML(15.00),
 };
 #undef ML
 
@@ -253,7 +244,8 @@ static int tl_tab[TL_TAB_LEN];
 static unsigned sin_tab[SIN_LEN * 2];
 
 // LFO Amplitude Modulation table (verified on real YM3812)
-// 27 output levels (triangle waveform); 1 level takes one of: 192, 256 or 448 samples
+// 27 output levels (triangle waveform);
+// 1 level takes one of: 192, 256 or 448 samples
 //
 // Length: 210 elements.
 //
@@ -832,7 +824,7 @@ inline void Slot::advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier)
 		// operators are reset (at the same time?).
 		// TODO: That sounds logical, but it does not match the implementation.
 		if (!(eg_cnt & ((1 << eg_sh_dp) - 1))) {
-			volume += eg_inc[eg_sel_dp + ((eg_cnt >> eg_sh_dp) & 7)];
+			volume += eg_inc[eg_sel_dp][(eg_cnt >> eg_sh_dp) & 7];
 			if (volume >= MAX_ATT_INDEX) {
 				volume = MAX_ATT_INDEX;
 				state = EG_ATTACK;
@@ -843,9 +835,8 @@ inline void Slot::advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier)
 
 	case EG_ATTACK:
 		if (!(eg_cnt & ((1 << eg_sh_ar) - 1))) {
-			volume += (~volume * (eg_inc[
-				eg_sel_ar + ((eg_cnt >> eg_sh_ar) & 7)
-				])) >> 2;
+			volume +=
+				(~volume * eg_inc[eg_sel_ar][(eg_cnt >> eg_sh_ar) & 7]) >> 2;
 			if (volume <= MIN_ATT_INDEX) {
 				volume = MIN_ATT_INDEX;
 				state = EG_DECAY;
@@ -855,7 +846,7 @@ inline void Slot::advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier)
 
 	case EG_DECAY:
 		if (!(eg_cnt & ((1 << eg_sh_dr) - 1))) {
-			volume += eg_inc[eg_sel_dr + ((eg_cnt >> eg_sh_dr) & 7)];
+			volume += eg_inc[eg_sel_dr][(eg_cnt >> eg_sh_dr) & 7];
 			if (volume >= sl) {
 				state = EG_SUSTAIN;
 			}
@@ -875,7 +866,7 @@ inline void Slot::advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier)
 			// during sustain phase chip adds Release Rate (in
 			// percussive mode)
 			if (!(eg_cnt & ((1 << eg_sh_rr) - 1))) {
-				volume += eg_inc[eg_sel_rr + ((eg_cnt >> eg_sh_rr) & 7)];
+				volume += eg_inc[eg_sel_rr][(eg_cnt >> eg_sh_rr) & 7];
 				if (volume >= MAX_ATT_INDEX) {
 					volume = MAX_ATT_INDEX;
 				}
@@ -892,7 +883,7 @@ inline void Slot::advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier)
 			const byte sel = sustain ? eg_sel_rs : eg_sel_rr;
 			const byte shift = sustain ? eg_sh_rs : eg_sh_rr;
 			if (!(eg_cnt & ((1 << shift) - 1))) {
-				volume += eg_inc[sel + ((eg_cnt >> shift) & 7)];
+				volume += eg_inc[sel][(eg_cnt >> shift) & 7];
 				if (volume >= MAX_ATT_INDEX) {
 					volume = MAX_ATT_INDEX;
 					state = EG_OFF;
@@ -939,7 +930,7 @@ inline void Slot::updateAttackRate()
 		eg_sel_ar = eg_rate_select[ar + kcodeScaled];
 	} else {
 		eg_sh_ar  = 0;
-		eg_sel_ar = 13 * RATE_STEPS;
+		eg_sel_ar = 13;
 	}
 }
 
