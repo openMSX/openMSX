@@ -391,12 +391,12 @@ typedef FixedPoint<16> FreqIndex;
   */
 typedef FixedPoint<24> LFOIndex;
 
-static inline FreqIndex fnumToIncrement(int fnum)
+static inline FreqIndex fnumToIncrement(int block_fnum)
 {
 	// OPLL (YM2413) phase increment counter = 18bit
 	// Chip works with 10.10 fixed point, while we use 16.16.
-	const byte block = (fnum & 0x1C00) >> 10;
-	return FreqIndex(fnum & 0x03FF) >> (11 - block);
+	const int block = (block_fnum & 0x1C00) >> 10;
+	return FreqIndex(block_fnum & 0x03FF) >> (11 - block);
 }
 
 class Global;
@@ -638,6 +638,20 @@ public:
 	void setFrequency(int block_fnum);
 
 	/**
+	 * Changes the lower 8 bits of the frequency for this channel.
+	 */
+	void setFrequencyLow(byte value) {
+		setFrequency((block_fnum & 0x0F00) | value);
+	}
+
+	/**
+	 * Changes the higher 4 bits of the frequency for this channel.
+	 */
+	void setFrequencyHigh(byte value) {
+		setFrequency((value << 8) | (block_fnum & 0x00FF));
+	}
+
+	/**
 	 * Sets some synthesis parameters as specified by the instrument.
 	 * @param instrument Number of the instrument.
 	 * @param part Part [0..7] of the instrument.
@@ -658,6 +672,30 @@ public:
 		updateInstrument(instvol_r >> 4);
 	}
 
+	int getBlockFNum() {
+		return block_fnum;
+	}
+
+	FreqIndex getFrequencyIncrement() {
+		return fc;
+	}
+
+	int getKeyScaleLevelBase() {
+		return ksl_base;
+	}
+
+	byte getKeyCode() {
+		return kcode;
+	}
+
+	bool isSustained() {
+		return sus;
+	}
+
+	void setSustain(bool sustained) {
+		sus = sustained;
+	}
+
 	Slot slots[2];
 
 	/**
@@ -665,15 +703,15 @@ public:
 	 */
 	byte instvol_r;
 
+private:
+	Global* global;
+
 	// phase generator state
 	int block_fnum;	// block+fnum
 	FreqIndex fc;	// Freq. freqement base
 	int ksl_base;	// KeyScaleLevel Base step
 	byte kcode;	// key code (for key scaling)
-	byte sus;	// sus on/off (release speed in percussive mode)
-
-private:
-	Global* global;
+	bool sus;	// sus on/off (release speed in percussive mode)
 };
 
 class Global
@@ -851,7 +889,7 @@ inline void Slot::advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier)
 		// Exclude modulators in melody channels from performing anything in
 		// this mode.
 		if (carrier) {
-			const bool sustain = !eg_sustain || channel->sus;
+			const bool sustain = !eg_sustain || channel->isSustained();
 			const byte sel = sustain ? eg_sel_rs : eg_sel_rr;
 			const byte shift = sustain ? eg_sh_rs : eg_sh_rr;
 			if (!(eg_cnt & ((1 << shift) - 1))) {
@@ -872,8 +910,8 @@ inline void Slot::advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier)
 inline void Slot::advancePhaseGenerator()
 {
 	if (vib) {
-		int fnum_lfo   = 8 * ((channel->block_fnum & 0x01C0) >> 6);
-		int block_fnum = channel->block_fnum * 2;
+		int fnum_lfo   = 8 * ((channel->getBlockFNum() & 0x01C0) >> 6);
+		int block_fnum = channel->getBlockFNum() * 2;
 		int lfo_fn_table_index_offset =
 			lfo_pm_table[global->get_LFO_PM() + fnum_lfo];
 		if (lfo_fn_table_index_offset) {
@@ -892,7 +930,7 @@ inline void Slot::advancePhaseGenerator()
 
 inline void Slot::updateTotalLevel()
 {
-	TLL = TL + (channel->ksl_base >> ksl);
+	TLL = TL + (channel->getKeyScaleLevelBase() >> ksl);
 }
 
 inline void Slot::updateAttackRate()
@@ -1299,9 +1337,9 @@ void Slot::resetOperators()
 void Slot::updateGenerators()
 {
 	// (frequency) phase increment counter
-	freq = channel->fc * mul;
+	freq = channel->getFrequencyIncrement() * mul;
 
-	const int kcodeScaledNew = channel->kcode >> KSR;
+	const int kcodeScaledNew = channel->getKeyCode() >> KSR;
 	if (kcodeScaled != kcodeScaledNew) {
 		kcodeScaled = kcodeScaledNew;
 		// calculate envelope generator rates
@@ -1310,7 +1348,7 @@ void Slot::updateGenerators()
 		updateReleaseRate();
 	}
 
-	const int rs = channel->sus ? 16 + (5 << 2) : 16 + (7 << 2);
+	const int rs = channel->isSustained() ? 16 + (5 << 2) : 16 + (7 << 2);
 	eg_sh_rs  = eg_rate_shift [rs + kcodeScaled];
 	eg_sel_rs = eg_rate_select[rs + kcodeScaled];
 
@@ -1323,7 +1361,8 @@ Channel::Channel()
 	: fc(0)
 {
 	instvol_r = 0;
-	block_fnum = ksl_base = kcode = sus = 0;
+	block_fnum = ksl_base = kcode = 0;
+	sus = false;
 }
 
 void Channel::init(Global& global)
@@ -1519,18 +1558,19 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 	case 0x10:
 	case 0x20: { // block, fnum, sus, keyon
 		Channel& ch = global->getChannelForReg(r);
-		int block_fnum;
 		if (r & 0x10) {
 			// 10-18: FNUM 0-7
-			block_fnum = (ch.block_fnum & 0x0F00) | v;
+			ch.setFrequencyLow(v);
 		} else {
 			// 20-28: suson, keyon, block, FNUM 8
-			block_fnum = ((v & 0x0F) << 8) | (ch.block_fnum & 0xFF);
 			ch.slots[SLOT1].setKeyOnOff(KEY_MAIN, v & 0x10);
 			ch.slots[SLOT2].setKeyOnOff(KEY_MAIN, v & 0x10);
-			ch.sus = v & 0x20;
+			ch.setSustain(v & 0x20);
+			// Note: When changing the frequency, a new value for RS is
+			//       computed using the sustain value, so make sure the new
+			//       sustain value is committed first.
+			ch.setFrequencyHigh(v & 0x0F);
 		}
-		ch.setFrequency(block_fnum);
 		break;
 	}
 
