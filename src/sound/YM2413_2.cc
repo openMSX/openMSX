@@ -737,7 +737,7 @@ public:
 	}
 
 	byte get_LFO_PM() {
-		return LFO_PM;
+		return lfo_pm_cnt.toInt() & 7;
 	}
 
 	int adjust(int x) {
@@ -809,7 +809,6 @@ private:
 	LFOIndex lfo_am_cnt;
 	LFOIndex lfo_pm_cnt;
 	byte LFO_AM;
-	byte LFO_PM;
 
 	/**
 	 * Rhythm mode.
@@ -910,14 +909,14 @@ inline void Slot::advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier)
 inline void Slot::advancePhaseGenerator()
 {
 	if (vib) {
-		int fnum_lfo   = 8 * ((channel->getBlockFNum() & 0x01C0) >> 6);
-		int block_fnum = channel->getBlockFNum() * 2;
-		int lfo_fn_table_index_offset =
-			lfo_pm_table[global->get_LFO_PM() + fnum_lfo];
+		const int lfo_fn_table_index_offset = lfo_pm_table[
+			global->get_LFO_PM() + 8 * ((channel->getBlockFNum() & 0x01FF) >> 6)
+			];
 		if (lfo_fn_table_index_offset) {
 			// LFO phase modulation active
-			block_fnum += lfo_fn_table_index_offset;
-			phase += fnumToIncrement(block_fnum) * mul;
+			phase += fnumToIncrement(
+				channel->getBlockFNum() * 2 + lfo_fn_table_index_offset
+				) * mul;
 		} else {
 			// LFO phase modulation = zero
 			phase += freq;
@@ -973,7 +972,6 @@ inline void Global::advance_lfo()
 	// Vibrato: 8 output levels (triangle waveform); 1 level takes 1024 samples
 	static const LFOIndex LFO_PM_INC = LFOIndex(1) / 1024;
 	lfo_pm_cnt += LFO_PM_INC;
-	LFO_PM = lfo_pm_cnt.toInt() & 7;
 }
 
 inline void Global::advance()
@@ -1448,7 +1446,7 @@ Global::Global()
 {
 	initTables();
 
-	LFO_AM = LFO_PM = 0;
+	LFO_AM = 0;
 	eg_cnt = 0;
 	rhythm = 0;
 	noise_rng = 0;
