@@ -758,11 +758,6 @@ create_trainer "Metal Gear" {time 1} {
 	"enemy 4 gone" {poke 0xd185 0}
 	"open all doors" {for {set i 0xc450} { $i < 0xc4fe } { incr i } {poke $i 0}}
 	"close all doors" {for {set i 0xc450} { $i < 0xc4fe } { incr i } {poke $i 1}}
-
-
-	
-
-
 }
 
 create_trainer "Metal Gear 2 - Solid Snake" {time 2} {
@@ -3780,6 +3775,20 @@ create_trainer "Monster Hunter-MSXdev06" {time 1} {
 	"cat" {poke 0xe162 0}
 }
 
+create_trainer "Devil Zone" {time 1} {
+	"Energy" {poke 0xd653 255}
+	"Invincible" {poke 0xd63e 255}
+	"End Boss Power 1" {poke 0xd654 1}
+	"99 Start" {poke 0xd652 0x99}
+	"Have Hourglass" {poke 0xd655 1}
+	"Have Clock" {poke 0xd656 1}
+	"Have Bomb" {poke 0xd657 1}
+	"Have Life Bottle" {poke 0xd658 1}
+	"Have Torch" {poke 0xd659 1}
+	"Have Green Ring" {poke 0xd65a 1}
+	"Full Time" {poke 0xd64d 0x99;poke 0xd64c 0x99}
+}
+
 create trainer "Word Invaders" {time 1} {
 "solve all words" {
 			set whole_page ""
@@ -3792,5 +3801,4 @@ create trainer "Word Invaders" {time 1} {
 			poke 0xc3f2 255;
 		}
 }
-
 ### EOF ###
