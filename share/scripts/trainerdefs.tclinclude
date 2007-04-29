@@ -3787,6 +3787,8 @@ create_trainer "Devil Zone" {time 1} {
 	"Have Torch" {poke 0xd659 1}
 	"Have Green Ring" {poke 0xd65a 1}
 	"Full Time" {poke 0xd64d 0x99;poke 0xd64c 0x99}
+	"lives" {poke 0xd651 0x99}
+
 }
 
 create trainer "Word Invaders" {time 1} {
