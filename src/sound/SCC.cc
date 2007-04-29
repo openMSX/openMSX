@@ -478,6 +478,8 @@ void SCC::generateChannels(int** bufs, unsigned num)
 					bufs[i][j] = out[i];
 				}
 			} else {
+				count[i] = (count[i] + num * incr[i]) & 0x0FFFFFFF;
+				pos[i] = -1; // invalidate out[i]
 				bufs[i] = 0; // channel muted
 			}
 		}
@@ -501,6 +503,8 @@ void SCC::generateChannels(int** bufs, unsigned num)
 					bufs[i][j] = out[i];
 				}
 			} else {
+				count[i] = (count[i] + num * incr[i]) & 0x0FFFFFFF;
+				pos[i] = -1; // invalidate out[i]
 				bufs[i] = 0; // channel muted
 			}
 		}
