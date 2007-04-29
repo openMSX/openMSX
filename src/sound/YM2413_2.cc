@@ -1675,18 +1675,14 @@ void YM2413_2::checkMute()
 
 bool Global::checkMuteHelper()
 {
-	const int numMelodicChannels = getNumMelodicChannels();
-	for (int ch = 0; ch < numMelodicChannels; ch++) {
+	for (int ch = 0; ch < 9; ch++) {
 		if (channels[ch].slots[SLOT2].isActive()) {
 			return false;
 		}
 	}
 	if (rhythm) {
-		if (channels[6].slots[SLOT2].isActive()) return false;
 		if (channels[7].slots[SLOT1].isActive()) return false;
-		if (channels[7].slots[SLOT2].isActive()) return false;
 		if (channels[8].slots[SLOT1].isActive()) return false;
-		if (channels[8].slots[SLOT2].isActive()) return false;
 	}
 	return true;	// nothing playing, mute
 }
