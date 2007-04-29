@@ -533,6 +533,7 @@ void SCC::updateBuffer(unsigned length, int* buffer,
 void SCC::checkMute()
 {
 	// SCC is muted unless an enabled channel with non-zero volume exists.
+	/*
 	bool mute = true;
 	byte enable = ch_enable & 0x1F;
 	for (int i = 0; i < 5; ++i, enable >>= 1) {
@@ -542,6 +543,14 @@ void SCC::checkMute()
 		}
 	}
 	setMute(mute);
+	*/
+	// MtH: Disabled device auto-mute: because of the filtering, the device can
+	//      still output non-zero samples even if all channels are disabled.
+	//      This can be heard in the intro of Metal Gear 2 - Solid Snake.
+	//      We should write auto-mute code that takes this into account and
+	//      put that code in a non-device-specific class such as SoundDevice or
+	//      Mixer.
+	setMute(false);
 }
 
 // SimpleDebuggable
