@@ -53,12 +53,15 @@ const int SIN_MASK = SIN_LEN - 1;
 
 const int TL_RES_LEN = 256;	// 8 bits addressing (real chip)
 
-// register number to channel number , slot offset
+// Slot offsets
 const byte SLOT1 = 0;
 const byte SLOT2 = 1;
 
 // Envelope Generator phases
-enum EnvelopeState { EG_DMP, EG_ATT, EG_DEC, EG_SUS, EG_REL, EG_OFF };
+// Note: These are ordered: phase constants are compared in the code.
+enum EnvelopeState {
+	EG_DUMP, EG_ATTACK, EG_DECAY, EG_SUSTAIN, EG_RELEASE, EG_OFF
+	};
 
 enum KeyPart { KEY_MAIN = 1, KEY_RHYTHM = 2 };
 
@@ -472,10 +475,11 @@ public:
 	}
 
 	/**
-	 * Sets the envelope type: true->sustained, false->percussive.
+	 * Sets the envelope type of the current instrument.
+	 * @param value true->sustained, false->percussive.
 	 */
-	void setEnvelopeType(bool value) {
-		eg_type = value;
+	void setEnvelopeSustained(bool value) {
+		eg_sustain = value;
 	}
 
 	/**
@@ -581,7 +585,7 @@ private:
 	int TLL;	// adjusted now TL
 	int volume;	// envelope counter
 	int sl;		// sustain level: sl_tab[SL]
-	byte eg_type;	// percussive/nonpercussive mode
+	bool eg_sustain;	// percussive/nonpercussive mode
 	EnvelopeState state;
 
 	int op1_out[2];	// slot1 output for feedback
@@ -785,51 +789,48 @@ private:
 inline void Slot::advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier)
 {
 	switch (state) {
-	case EG_DMP: // dump phase
-		// dump phase is performed by both operators in each channel
-		// when CARRIER envelope gets down to zero level,
-		// phases in BOTH opearators are reset (at the same time?)
+	case EG_DUMP:
+		// Dump phase is performed by both operators in each channel.
+		// When CARRIER envelope gets down to zero level, phases in BOTH
+		// operators are reset (at the same time?).
+		// TODO: That sounds logical, but it does not match the implementation.
 		if (!(eg_cnt & ((1 << eg_sh_dp) - 1))) {
-			volume += eg_inc[
-				eg_sel_dp + ((eg_cnt >> eg_sh_dp) & 7)
-				];
+			volume += eg_inc[eg_sel_dp + ((eg_cnt >> eg_sh_dp) & 7)];
 			if (volume >= MAX_ATT_INDEX) {
 				volume = MAX_ATT_INDEX;
-				state = EG_ATT;
+				state = EG_ATTACK;
 				phase = FreqIndex(0); // restart Phase Generator
 			}
 		}
 		break;
 
-	case EG_ATT: // attack phase
+	case EG_ATTACK:
 		if (!(eg_cnt & ((1 << eg_sh_ar) - 1))) {
 			volume += (~volume * (eg_inc[
 				eg_sel_ar + ((eg_cnt >> eg_sh_ar) & 7)
 				])) >> 2;
 			if (volume <= MIN_ATT_INDEX) {
 				volume = MIN_ATT_INDEX;
-				state = EG_DEC;
+				state = EG_DECAY;
 			}
 		}
 		break;
 
-	case EG_DEC:    // decay phase
+	case EG_DECAY:
 		if (!(eg_cnt & ((1 << eg_sh_dr) - 1))) {
-			volume += eg_inc[
-				eg_sel_dr + ((eg_cnt >> eg_sh_dr) & 7)
-				];
+			volume += eg_inc[eg_sel_dr + ((eg_cnt >> eg_sh_dr) & 7)];
 			if (volume >= sl) {
-				state = EG_SUS;
+				state = EG_SUSTAIN;
 			}
 		}
 		break;
 
-	case EG_SUS:    // sustain phase
+	case EG_SUSTAIN:
 		// this is important behaviour:
 		// one can change percusive/non-percussive modes on the fly and
 		// the chip will remain in sustain phase
 		// - verified on real YM3812
-		if (eg_type) {
+		if (eg_sustain) {
 			// non-percussive mode (sustained tone)
 			// do nothing
 		} else {
@@ -837,9 +838,7 @@ inline void Slot::advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier)
 			// during sustain phase chip adds Release Rate (in
 			// percussive mode)
 			if (!(eg_cnt & ((1 << eg_sh_rr) - 1))) {
-				volume += eg_inc[
-					eg_sel_rr + ((eg_cnt >> eg_sh_rr) & 7)
-					];
+				volume += eg_inc[eg_sel_rr + ((eg_cnt >> eg_sh_rr) & 7)];
 				if (volume >= MAX_ATT_INDEX) {
 					volume = MAX_ATT_INDEX;
 				}
@@ -848,70 +847,24 @@ inline void Slot::advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier)
 		}
 		break;
 
-	case EG_REL:    // release phase
-		// exclude modulators in melody channels from performing
-		// anything in this mode
-		// allowed are only carriers in melody mode and rhythm slots in
-		// rhythm mode
-		//
-		// This table shows which operators and on what conditions are
-		// allowed to perform EG_REL:
-		// (a) - always perform EG_REL
-		// (n) - never perform EG_REL
-		// (r) - perform EG_REL in Rhythm mode ONLY
-		//   0: 0 (n),  1 (a)
-		//   1: 2 (n),  3 (a)
-		//   2: 4 (n),  5 (a)
-		//   3: 6 (n),  7 (a)
-		//   4: 8 (n),  9 (a)
-		//   5: 10(n),  11(a)
-		//   6: 12(r),  13(a)
-		//   7: 14(r),  15(a)
-		//   8: 16(r),  17(a)
+	case EG_RELEASE:
+		// Exclude modulators in melody channels from performing anything in
+		// this mode.
 		if (carrier) {
-			if (eg_type) {
-				// non-percussive mode (sustained tone)
-				// this is correct: use RR when SUS = OFF
-				// and use RS when SUS = ON
-				if (channel->sus) {
-					if (!(eg_cnt & ((1 << eg_sh_rs) - 1))) {
-						volume += eg_inc[
-							eg_sel_rs
-							+ ((eg_cnt >> eg_sh_rs) & 7)
-							];
-						if (volume >= MAX_ATT_INDEX) {
-							volume = MAX_ATT_INDEX;
-							state = EG_OFF;
-						}
-					}
-				} else {
-					if (!(eg_cnt & ((1 << eg_sh_rr) - 1))) {
-						volume += eg_inc[
-							eg_sel_rr
-							+ ((eg_cnt >> eg_sh_rr) & 7)
-							];
-						if (volume >= MAX_ATT_INDEX) {
-							volume = MAX_ATT_INDEX;
-							state = EG_OFF;
-						}
-					}
-				}
-			} else {
-				// percussive mode
-				if (!(eg_cnt & ((1 << eg_sh_rs) - 1))) {
-					volume += eg_inc[
-						eg_sel_rs + ((eg_cnt >> eg_sh_rs) & 7)
-						];
-					if (volume >= MAX_ATT_INDEX) {
-						volume = MAX_ATT_INDEX;
-						state = EG_OFF;
-					}
+			const bool sustain = !eg_sustain || channel->sus;
+			const byte sel = sustain ? eg_sel_rs : eg_sel_rr;
+			const byte shift = sustain ? eg_sh_rs : eg_sh_rr;
+			if (!(eg_cnt & ((1 << shift) - 1))) {
+				volume += eg_inc[sel + ((eg_cnt >> shift) & 7)];
+				if (volume >= MAX_ATT_INDEX) {
+					volume = MAX_ATT_INDEX;
+					state = EG_OFF;
 				}
 			}
 		}
 		break;
 
-	default:
+	case EG_OFF:
 		break;
 	}
 }
@@ -1300,8 +1253,7 @@ void Slot::setKeyOn(KeyPart part)
 {
 	if (!key) {
 		// do NOT restart Phase Generator (verified on real YM2413)
-		// phase -> Dump
-		state = EG_DMP;
+		state = EG_DUMP;
 	}
 	key |= part;
 }
@@ -1311,9 +1263,8 @@ void Slot::setKeyOff(KeyPart part)
 	if (key) {
 		key &= ~part;
 		if (!key) {
-			// phase -> Release
-			if (state < EG_REL) {
-				state = EG_REL;
+			if (state < EG_RELEASE) {
+				state = EG_RELEASE;
 			}
 		}
 	}
@@ -1324,9 +1275,10 @@ Slot::Slot()
 {
 	ar = dr = rr = KSR = ksl = kcodeScaled = mul = 0;
 	fb_shift = op1_out[0] = op1_out[1] = 0;
-	eg_type = TL = TLL = volume = sl = 0;
+	TL = TLL = volume = sl = 0;
 	eg_sh_dp = eg_sel_dp = eg_sh_ar = eg_sel_ar = eg_sh_dr = 0;
 	eg_sel_dr = eg_sh_rr = eg_sel_rr = eg_sh_rs = eg_sel_rs = 0;
+	eg_sustain = false;
 	state = EG_OFF;
 	key = AMmask = vib = wavetable = 0;
 }
@@ -1410,7 +1362,7 @@ void Channel::updateInstrumentPart(int instrument, int part)
 		byte value = inst[part];
 		slot.setFrequencyMultiplier(value & 0x0F);
 		slot.setKeyScaleRate(value & 0x10);
-		slot.setEnvelopeType(value & 0x20);
+		slot.setEnvelopeSustained(value & 0x20);
 		slot.setVibrato(value & 0x40);
 		slot.setAmplitudeModulation(value & 0x80);
 		slot.updateGenerators();
