@@ -313,31 +313,31 @@ static const byte lfo_am_table[LFO_AM_TAB_ELEMENTS] =
 };
 
 // LFO Phase Modulation table (verified on real YM2413)
-static const char lfo_pm_table[8 * 8] =
+static const char lfo_pm_table[8][8] =
 {
 	// FNUM2/FNUM = 0 00xxxxxx (0x0000)
-	0, 0, 0, 0, 0, 0, 0, 0,
+	{ 0, 0, 0, 0, 0, 0, 0, 0, },
 
 	// FNUM2/FNUM = 0 01xxxxxx (0x0040)
-	1, 0, 0, 0,-1, 0, 0, 0,
+	{ 1, 0, 0, 0,-1, 0, 0, 0, },
 
 	// FNUM2/FNUM = 0 10xxxxxx (0x0080)
-	2, 1, 0,-1,-2,-1, 0, 1,
+	{ 2, 1, 0,-1,-2,-1, 0, 1, },
 
 	// FNUM2/FNUM = 0 11xxxxxx (0x00C0)
-	3, 1, 0,-1,-3,-1, 0, 1,
+	{ 3, 1, 0,-1,-3,-1, 0, 1, },
 
 	// FNUM2/FNUM = 1 00xxxxxx (0x0100)
-	4, 2, 0,-2,-4,-2, 0, 2,
+	{ 4, 2, 0,-2,-4,-2, 0, 2, },
 
 	// FNUM2/FNUM = 1 01xxxxxx (0x0140)
-	5, 2, 0,-2,-5,-2, 0, 2,
+	{ 5, 2, 0,-2,-5,-2, 0, 2, },
 
 	// FNUM2/FNUM = 1 10xxxxxx (0x0180)
-	6, 3, 0,-3,-6,-3, 0, 3,
+	{ 6, 3, 0,-3,-6,-3, 0, 3, },
 
 	// FNUM2/FNUM = 1 11xxxxxx (0x01C0)
-	7, 3, 0,-3,-7,-3, 0, 3,
+	{ 7, 3, 0,-3,-7,-3, 0, 3, },
 };
 
 // This is not 100% perfect yet but very close
@@ -900,9 +900,8 @@ inline void Slot::advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier)
 inline void Slot::advancePhaseGenerator()
 {
 	if (vib) {
-		const int lfo_fn_table_index_offset = lfo_pm_table[
-			global->get_LFO_PM() + 8 * ((channel->getBlockFNum() & 0x01FF) >> 6)
-			];
+		const int lfo_fn_table_index_offset = lfo_pm_table
+			[(channel->getBlockFNum() & 0x01FF) >> 6][global->get_LFO_PM()];
 		if (lfo_fn_table_index_offset) {
 			// LFO phase modulation active
 			phase += fnumToIncrement(
