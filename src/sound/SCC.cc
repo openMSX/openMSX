@@ -129,12 +129,17 @@ SCC::SCC(MSXMotherBoard& motherBoard, const string& name,
 	, deformTimer(time)
 	, currentChipMode(mode)
 {
-	// Clear wave forms.
+	// Clear all state that is unaffected by reset.
 	for (unsigned i = 0; i < 5; ++i) {
 		for (unsigned j = 0; j < 32; ++j) {
 			wave[i][j] = 0;
+			volAdjustedWave[i][j] = 0;
 		}
 		out[i] = 0;
+		count[i] = 0;
+		pos[i] = (unsigned)-1;
+		freq[i] = 0;
+		volume[i] = 0;
 	}
 
 	reset(time);
@@ -153,19 +158,11 @@ void SCC::reset(const EmuTime& /*time*/)
 	}
 
 	for (unsigned i = 0; i < 5; ++i) {
-		for (unsigned j = 0; j < 32; ++j) {
-			// don't clear wave forms
-			volAdjustedWave[i][j] = 0;
-		}
-		count[i] = 0;
-		pos[i] = (unsigned)-1;
-		freq[i] = 0;
-		volume[i] = 0;
 		rotate[i] = false;
 		readOnly[i] = false;
 	}
 	deformValue = 0;
-	ch_enable = 0xFF;
+	ch_enable = 0;
 
 	checkMute();
 }
