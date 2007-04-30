@@ -369,21 +369,18 @@ void SCC::writeWave(byte channel, byte address, byte value)
 
 void SCC::setFreqVol(byte address, byte value)
 {
-	address &= 0x0F; // regio is twice visible
+	address &= 0x0F; // region is visible twice
 	if (address < 0x0A) {
 		// change frequency
 		byte channel = address / 2;
-		if (address & 1) {
-			freq[channel] = ((value & 0xF) << 8) |
-			                (freq[channel] & 0xFF);
-		} else {
-			freq[channel] = (freq[channel] & 0xF00) |
-			                (value & 0xFF);
-		}
+		unsigned frq =
+			  (address & 1)
+			? ((value & 0xF) << 8) | (freq[channel] & 0xFF)
+			: (freq[channel] & 0xF00) | (value & 0xFF);
 		if (deformValue & 0x20) {
 			count[channel] = 0;
 		}
-		unsigned frq = freq[channel];
+		freq[channel] = frq;
 		if (deformValue & 2) {
 			// 8 bit frequency
 			frq &= 0xFF;
@@ -394,7 +391,6 @@ void SCC::setFreqVol(byte address, byte value)
 		incr[channel] = (frq <= 8) ? 0 : (1 << 28) / (frq + 1);
 		count[channel] &= 0x0F800000; // reset to begin of byte
 		pos[channel] = (unsigned)-1;
-
 	} else if (address < 0x0F) {
 		// change volume
 		byte channel = address - 0x0A;
