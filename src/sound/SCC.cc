@@ -375,9 +375,6 @@ void SCC::setFreqVol(byte address, byte value)
 			  (address & 1)
 			? ((value & 0xF) << 8) | (freq[channel] & 0xFF)
 			: (freq[channel] & 0xF00) | (value & 0xFF);
-		if (deformValue & 0x20) {
-			count[channel] = 0;
-		}
 		freq[channel] = frq;
 		if (deformValue & 2) {
 			// 8 bit frequency
@@ -387,7 +384,11 @@ void SCC::setFreqVol(byte address, byte value)
 			frq >>= 8;
 		}
 		incr[channel] = (frq <= 8) ? 0 : (1 << 28) / (frq + 1);
-		count[channel] &= 0x0F800000; // reset to begin of byte
+		if (deformValue & 0x20) {
+			count[channel] = 0; // reset to begin of sample
+		} else {
+			count[channel] &= 0x0F800000; // reset to begin of byte
+		}
 		pos[channel] = (unsigned)-1;
 	} else if (address < 0x0F) {
 		// change volume
