@@ -50,8 +50,6 @@ private:
 	byte getFreqVol(byte address);
 
 	static const int CLOCK_FREQ = 3579545;
-	static const unsigned SCC_STEP =
-		(unsigned)(((unsigned)(1 << 31)) / (CLOCK_FREQ / 2));
 
 	friend class SCCDebuggable;
 	const std::auto_ptr<SCCDebuggable> debuggable;
