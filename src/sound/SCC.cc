@@ -200,11 +200,9 @@ byte SCC::readMemInterface(byte address, const EmuTime& time)
 		if (address < 0x80) {
 			// read wave form 1..4
 			result = readWave(address >> 5, address, time);
-		} else if (address < 0xA0) {
-			// freq volume block
-			result = getFreqVol(address);
 		} else if (address < 0xE0) {
-			// no function
+			// 0x80..0x9F : freq volume block, write only
+			// 0xA0..0xDF : no function
 			result = 0xFF;
 		} else {
 			// deformation register
@@ -218,7 +216,7 @@ byte SCC::readMemInterface(byte address, const EmuTime& time)
 			result = readWave(address >> 5, address, time);
 		} else if (address < 0xA0) {
 			// freq volume block
-			result = getFreqVol(address);
+			result = 0xFF;
 		} else if (address < 0xC0) {
 			// read wave form 5
 			result = readWave(4, address, time);
@@ -237,7 +235,7 @@ byte SCC::readMemInterface(byte address, const EmuTime& time)
 			result = readWave(address >> 5, address, time);
 		} else if (address < 0xC0) {
 			// freq volume block
-			result = getFreqVol(address);
+			result = 0xFF;
 		} else if (address < 0xE0) {
 			// deformation register
 			setDeformReg(0xFF, time);
