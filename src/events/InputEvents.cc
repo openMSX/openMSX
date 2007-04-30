@@ -189,7 +189,7 @@ unsigned JoystickEvent::getJoystick() const
 
 void JoystickEvent::toStringHelper(TclObject& result) const
 {
-	result.addListElement("joy" + StringOp::toString(getJoystick()));
+	result.addListElement("joy" + StringOp::toString(getJoystick() + 1));
 }
 
 bool JoystickEvent::lessImpl(const InputEvent& other) const
