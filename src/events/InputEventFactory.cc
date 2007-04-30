@@ -80,7 +80,7 @@ static EventPtr parseJoystickEvent(
 	if (components.size() != 3) {
 		throw CommandException("Invalid joystick event: " + str);
 	}
-	unsigned joystick = StringOp::stringToInt(components[0].substr(3));
+	unsigned joystick = StringOp::stringToInt(components[0].substr(3)) - 1;
 	if (StringOp::startsWith(components[1], "button")) {
 		unsigned button = StringOp::stringToInt(components[1].substr(6));
 		if (upDown(components[2])) {
