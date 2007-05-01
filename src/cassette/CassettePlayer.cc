@@ -185,7 +185,6 @@ void CassettePlayer::checkInvariants() const
 {
 	switch (getState()) {
 	case STOP:
-		assert(isMuted());
 		assert(!recordImage.get());
 		break;
 	case PLAY:
@@ -194,7 +193,6 @@ void CassettePlayer::checkInvariants() const
 		assert(playImage.get());
 		break;
 	case RECORD:
-		assert(isMuted());
 		assert(!getImageName().empty());
 		assert(recordImage.get());
 		assert(!playImage.get());
