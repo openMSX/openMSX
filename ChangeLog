@@ -21,6 +21,10 @@ $Id$
 	     possible to solve it and have the mute optimization. It's just
 	     not implemeted yet.
 
+2007-04-30 Maarten ter Huurne <maarten@treewalker.org>
+	* Fixed MSX reading from SCC: frequency and volume block is write-only.
+	* Fixed SCC reset behaviour: only deform and channel enable are changed.
+
 2007-04-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Compiled with -Wpadded and fixed some of the warnings:
 	   - only fixed the cases that were solvable by rearranging the
@@ -32,7 +36,7 @@ $Id$
 	    - mute_channels without any arguments lists which channels are
 	      currently muted
 	    - unmute_channels without arguments now unmutes all channels
-	    - new command 'solo' mutes everything expect for the specified
+	    - new command 'solo' mutes everything except for the specified
 	      channels
 	* Small optimization in SDLGL-PP simple scaler:
 	   - pack several scalar uniform variables in one uniform vector
@@ -74,7 +78,6 @@ $Id$
 	   - made SoundDevice aware of input and output sample rates
 	   - added methods in SoundDevice to record and mute individual
 	     channels. Next step is to actually use these methods.
-	      
 
 2007-04-18 Joost Yervante Damad <joost@teluna.org>
 	* fix build with gcc snapshot 20070326
@@ -90,7 +93,7 @@ $Id$
 	* Added emulation of Yamaha YM2151 and partly the Yamaha SFG-05
 	  sound module. For the latter, I included the config of the Yamaha
 	  CX5MII/128. TODO: MIDI and keyboard, so only few software titles
-	  for it work. Thanks to Daniel Vik for his support! The code is 
+	  for it work. Thanks to Daniel Vik for his support! The code is
 	  taken from blueMSX and MAME.
 	* Added emulation of the VLM5030 sound device, which is used in the
 	  unreleased Konami game Keyboard Master. For now, the sample ROM
@@ -2766,7 +2769,7 @@ $Id$
 	   - copied filter code from BlueMSX (minor improvement)
 	* Enabled pixel/line accurate rendering for V9990 (WIP)
 
-005-04-09 Manuel Bilderbeek <manuel@msxnet.org>
+2005-04-09 Manuel Bilderbeek <manuel@msxnet.org>
 	* Switched the two YM2413 cores again. Okazaki is now default, because
 	  it sounds better now. Regarding drums, some sound better in Okazaki,
 	  some in Burczynski (e.g. the cymbal). Ideally the drums
