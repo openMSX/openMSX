@@ -35,13 +35,12 @@ private:
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void setVolume(int maxVolume);
 	virtual void generateChannels(int** bufs, unsigned num);
-	virtual void updateBuffer(unsigned length, int* buffer,
+	virtual bool updateBuffer(unsigned length, int* buffer,
 		const EmuTime& time, const EmuDuration& sampDur);
 
 	// Resample
-	virtual void generateInput(float* buffer, unsigned num);
+	virtual bool generateInput(float* buffer, unsigned num);
 
-	inline void checkMute();
 	inline int adjust(signed char wav, byte vol);
 	byte readWave(byte channel, byte address, const EmuTime& time);
 	void writeWave(byte channel, byte offset, byte value);

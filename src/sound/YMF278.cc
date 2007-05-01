@@ -328,7 +328,6 @@ void YMF278::advance()
 						if (op.env_vol >= MAX_ATT_INDEX) {
 							op.env_vol = MAX_ATT_INDEX;
 							op.active = false;
-							checkMute();
 						}
 					}
 				}
@@ -350,7 +349,6 @@ void YMF278::advance()
 						if (op.env_vol >= MAX_ATT_INDEX) {
 							op.env_vol = MAX_ATT_INDEX;
 							op.active = false;
-							checkMute();
 						}
 					}
 				}
@@ -370,7 +368,6 @@ void YMF278::advance()
 					if (op.env_vol >= MAX_ATT_INDEX) {
 						op.env_vol = MAX_ATT_INDEX;
 						op.active = false;
-						checkMute();
 					}
 				}
 				break;
@@ -386,7 +383,6 @@ void YMF278::advance()
 					if (op.env_vol >= MAX_ATT_INDEX) {
 						op.env_vol = MAX_ATT_INDEX;
 						op.active = false;
-						checkMute();
 					}
 				}
 				break;
@@ -438,11 +434,6 @@ short YMF278::getSample(YMF278Slot &op)
 	return sample;
 }
 
-void YMF278::checkMute()
-{
-	setMute(!anyActive());
-}
-
 bool YMF278::anyActive()
 {
 	for (int i = 0; i < 24; i++) {
@@ -455,6 +446,15 @@ bool YMF278::anyActive()
 
 void YMF278::generateChannels(int** bufs, unsigned num)
 {
+	if (!anyActive()) {
+		// TODO update internal state, even if muted
+		// TODO also mute individual channels
+		for (int i = 0; i < 24; ++i) {
+			bufs[i] = 0;
+		}
+		return;
+	}
+
 	int vl = mix_level[pcm_l];
 	int vr = mix_level[pcm_r];
 	for (unsigned j = 0; j < num; ++j) {
@@ -510,7 +510,6 @@ void YMF278::generateChannels(int** bufs, unsigned num)
 void YMF278::keyOnHelper(YMF278Slot& slot)
 {
 	slot.active = true;
-	setMute(false);
 
 	int oct = slot.OCT;
 	if (oct & 8) {
@@ -805,7 +804,6 @@ void YMF278::reset(const EmuTime& time)
 	for (int i = 255; i >= 0; i--) { // reverse order to avoid UMR
 		writeRegOPL4(i, 0, time);
 	}
-	setMute(true);
 	wavetblhdr = memmode = memadr = 0;
 	fm_l = fm_r = pcm_l = pcm_r = 0;
 	busyTime = time;

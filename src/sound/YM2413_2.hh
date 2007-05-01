@@ -30,17 +30,15 @@ public:
 	void writeReg(byte r, byte v, const EmuTime& time);
 
 private:
-	void checkMute();
-
 	// SoundDevice
 	virtual void setVolume(int newVolume);
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
-	virtual void updateBuffer(unsigned length, int* buffer,
+	virtual bool updateBuffer(unsigned length, int* buffer,
 		const EmuTime& time, const EmuDuration& sampDur);
 
 	// Resample
-	virtual void generateInput(float* buffer, unsigned num);
+	virtual bool generateInput(float* buffer, unsigned num);
 
 	friend class YM2413_2Debuggable;
 	const std::auto_ptr<YM2413_2Debuggable> debuggable;

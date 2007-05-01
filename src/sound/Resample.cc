@@ -132,7 +132,10 @@ void Resample<CHANNELS>::prepareData(unsigned halfFilterLen, unsigned extra)
 			bufEnd = halfFilterLen + available;
 			missing = std::min<unsigned>(missing, BUF_LEN - bufEnd);
 		}
-		generateInput(buffer + bufEnd * CHANNELS, missing);
+		if (!generateInput(buffer + bufEnd * CHANNELS, missing)) {
+			memset(buffer + bufEnd * CHANNELS, 0,
+			       missing * sizeof(float));
+		}
 		bufEnd += missing;
 	}
 
@@ -141,7 +144,7 @@ void Resample<CHANNELS>::prepareData(unsigned halfFilterLen, unsigned extra)
 }
 
 template <unsigned CHANNELS>
-void Resample<CHANNELS>::generateOutput(float* dataOut, unsigned num)
+bool Resample<CHANNELS>::generateOutput(float* dataOut, unsigned num)
 {
 	// check the sample rate ratio wrt the buffer len
 	double count = (COEFF_HALF_LEN + 2.0) / INDEX_INC;
@@ -185,6 +188,7 @@ void Resample<CHANNELS>::generateOutput(float* dataOut, unsigned num)
 		inputIndex = rem;
 	}
 	lastPos = inputIndex;
+	return true; // TODO
 }
 
 // Force template instantiation.

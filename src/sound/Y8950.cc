@@ -502,6 +502,7 @@ Y8950::Y8950(MSXMotherBoard& motherBoard, const std::string& name,
 	, dac13(new DACSound16S(motherBoard.getMSXMixer(), name + " DAC",
 	                        "MSX-AUDIO 13-bit DAC", config, time))
 	, debuggable(new Y8950Debuggable(motherBoard, *this))
+	, enabled(true)
 {
 	makePmTable();
 	makeAmTable();
@@ -577,7 +578,6 @@ void Y8950::reset(const EmuTime& time)
 	irq.reset();
 
 	adpcm->reset(time);
-	setMute(true); // muted
 }
 
 
@@ -882,14 +882,17 @@ inline void Y8950::calcSample(int** bufs, unsigned sample)
 	bufs[11][sample] = adpcm->calcSample();
 }
 
-void Y8950::checkMute()
+void Y8950::setEnabled(bool enabled_, const EmuTime& time)
 {
-	bool mute = checkMuteHelper();
-	//PRT_DEBUG("Y8950: muted " << mute);
-	setMute(mute);
+	updateStream(time);
+	enabled = enabled_;
 }
+
 bool Y8950::checkMuteHelper()
 {
+	if (!enabled) {
+		return true;
+	}
 	for (int i = 0; i < 6; ++i) {
 		if (ch[i].car.eg_mode != FINISH) return false;
 	}
@@ -910,28 +913,43 @@ bool Y8950::checkMuteHelper()
 
 void Y8950::generateChannels(int** bufs, unsigned num)
 {
+	if (checkMuteHelper()) {
+		// TODO update internal state even when muted
+		for (int i = 0; i < 12; ++i) {
+			bufs[i] = 0;
+		}
+		return;
+	}
+
 	for (unsigned i = 0; i < num; ++i) {
 		calcSample(bufs, i);
 	}
-	checkMute();
 }
 
-void Y8950::generateInput(float* buffer, unsigned num)
+bool Y8950::generateInput(float* buffer, unsigned num)
 {
 	int tmpBuf[num];
-	mixChannels(tmpBuf, num);
-	for (unsigned i = 0; i < num; ++i) {
-		buffer[i] = tmpBuf[i];
+	if (mixChannels(tmpBuf, num)) {
+		for (unsigned i = 0; i < num; ++i) {
+			buffer[i] = tmpBuf[i];
+		}
+		return true;
+	} else {
+		return false;
 	}
 }
 
-void Y8950::updateBuffer(unsigned length, int* buffer,
+bool Y8950::updateBuffer(unsigned length, int* buffer,
      const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
 {
 	float tmpBuf[length];
-	generateOutput(tmpBuf, length);
-	for (unsigned i = 0; i < length; ++i) {
-		buffer[i] = lrintf(tmpBuf[i]);
+	if (generateOutput(tmpBuf, length)) {
+		for (unsigned i = 0; i < length; ++i) {
+			buffer[i] = lrintf(tmpBuf[i]);
+		}
+		return true;
+	} else {
+		return false;
 	}
 }
 
@@ -1189,8 +1207,6 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 		reg[rg] = data;
 	}
 	}
-	//TODO only for registers that influence sound
-	checkMute();
 }
 
 byte Y8950::readReg(byte rg, const EmuTime &time)

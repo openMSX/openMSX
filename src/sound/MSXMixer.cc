@@ -233,9 +233,8 @@ void MSXMixer::generate(short* output, unsigned samples,
 		for (vector<SoundDevice*>::const_iterator it =
 		           devices[mode].begin();
 		     it != devices[mode].end(); ++it) {
-			if (!(*it)->isMuted()) {
-				(*it)->updateBuffer(samples, buffer,
-				                    start, sampDur);
+			if ((*it)->updateBuffer(samples, buffer,
+			                        start, sampDur)) {
 				++unmuted;
 				buffer += 8192 * 2;
 			}

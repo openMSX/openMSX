@@ -152,11 +152,11 @@ private:
 	virtual void setVolume(int volume);
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
-	virtual void updateBuffer(unsigned length, int* buffer,
+	virtual bool updateBuffer(unsigned length, int* buffer,
 		const EmuTime& time, const EmuDuration& sampDur);
 
 	// Resample
-	virtual void generateInput(float* buffer, unsigned num);
+	virtual bool generateInput(float* buffer, unsigned num);
 
 	void callback(byte flag);
 
@@ -173,7 +173,6 @@ private:
 	void set_ar_dr(byte sl, byte v);
 	void set_sl_rr(byte sl, byte v);
 	void update_channels(YMF262Channel& ch);
-	void checkMute();
 	bool checkMuteHelper();
 	int adjust(int x);
 

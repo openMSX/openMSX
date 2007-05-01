@@ -510,7 +510,6 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime& time)
 	case AY_BVOL:
 	case AY_CVOL:
 		amplitude.setChannelVolume(reg - AY_AVOL, value);
-		checkMute();
 		break;
 	case AY_EFINE:
 	case AY_ECOARSE:
@@ -534,7 +533,6 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime& time)
 			periphery.writeB(regs[AY_PORTB], time);
 		}
 		oldEnable = value;
-		checkMute();
 		break;
 	case AY_PORTA:
 		if (regs[AY_ENABLE] & PORT_A_DIRECTION) { // output
@@ -547,11 +545,6 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime& time)
 		}
 		break;
 	}
-}
-
-void AY8910::checkMute()
-{
-	setMute(((regs[AY_AVOL] | regs[AY_BVOL] | regs[AY_CVOL]) & 0x1F) == 0);
 }
 
 void AY8910::setVolume(int volume)
@@ -609,6 +602,17 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 			);
 	}
 	*/
+
+	if (((regs[AY_AVOL] | regs[AY_BVOL] | regs[AY_CVOL]) & 0x1F) == 0) {
+		// optimization: all channels volume 0
+		for (int i = 0; i < 3; ++i) {
+			tone[i].advance<false>(length * FP_UNIT);
+			bufs[i] = 0;
+		}
+		noise.advance(length * FP_UNIT);
+		envelope.advance(length * FP_UNIT);
+		return;
+	}
 
 	byte chanEnable = regs[AY_ENABLE];
 	// Disable channels with volume 0: since the sample value doesn't matter,

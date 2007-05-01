@@ -40,19 +40,17 @@ private:
 	virtual void setVolume(int maxVolume);
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
-	virtual void updateBuffer(
+	virtual bool updateBuffer(
 		unsigned length, int* buffer, const EmuTime& start,
 		const EmuDuration& sampDur);
 
 	// Resample
-	virtual void generateInput(float* buffer, unsigned num);
+	virtual bool generateInput(float* buffer, unsigned num);
 
 	void setupParameter(byte param);
 	int getBits(int sbit, int bits);
 	int parseFrame();
 
-	void checkMute();
-	
 	std::auto_ptr<Rom> rom;
 	int address_mask;
 

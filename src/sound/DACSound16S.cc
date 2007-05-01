@@ -43,7 +43,6 @@ void DACSound16S::writeDAC(short value, const EmuTime& time)
 	lastWrittenValue = value;
 
 	queue.push_back(Sample(time, (value * volume) >> 15));
-	setMute(false);
 }
 
 void DACSound16S::generateChannels(int** bufs, unsigned num)
@@ -54,6 +53,13 @@ void DACSound16S::generateChannels(int** bufs, unsigned num)
 	if (it != queue.begin()) {
 		prevValue = (it - 1)->value;
 		queue.erase(queue.begin(), it);
+	}
+
+	if (queue.empty() && (prevValue == 0)) {
+		// optimization: nothing interesting will happen this time, so
+		// return early
+		bufs[0] = 0;
+		return;
 	}
 
 	EmuDuration halfDur = sampDur / 2;
@@ -94,16 +100,14 @@ void DACSound16S::generateChannels(int** bufs, unsigned num)
 		prevA = sampA;
 		prevB = sampB;
 	}
-
-	setMute(queue.empty() && (prevValue == 0));
 }
 
-void DACSound16S::updateBuffer(unsigned length, int* buffer,
+bool DACSound16S::updateBuffer(unsigned length, int* buffer,
      const EmuTime& start_, const EmuDuration& sampDur_)
 {
 	start = start_;
 	sampDur = sampDur_;
-	mixChannels(buffer, length);
+	return mixChannels(buffer, length);
 }
 
 } // namespace openmsx

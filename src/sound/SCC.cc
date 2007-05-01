@@ -163,8 +163,6 @@ void SCC::reset(const EmuTime& /*time*/)
 	}
 	deformValue = 0;
 	ch_enable = 0;
-
-	checkMute();
 }
 
 void SCC::setOutputRate(unsigned sampleRate)
@@ -395,11 +393,9 @@ void SCC::setFreqVol(byte address, byte value)
 			volAdjustedWave[channel][i] =
 				adjust(wave[channel][i], volume[channel]);
 		}
-		checkMute();
 	} else {
 		// change enable-bits
 		ch_enable = value;
-		checkMute();
 	}
 }
 
@@ -459,7 +455,7 @@ void SCC::generateChannels(int** bufs, unsigned num)
 		// sense to have a special optimized routine for this case
 		byte enable = ch_enable;
 		for (int i = 0; i < 5; ++i, enable >>= 1) {
-			if (enable & 1) {
+			if ((enable & 1) && volume[i]) {
 				for (unsigned j = 0; j < num; ++j) {
 					count[i] = (count[i] + incr[i]) & 0x0FFFFFFF;
 					unsigned newPos = count[i] >> 23;
@@ -503,47 +499,33 @@ void SCC::generateChannels(int** bufs, unsigned num)
 	}
 }
 
-void SCC::generateInput(float* buffer, unsigned num)
+bool SCC::generateInput(float* buffer, unsigned num)
 {
 	int tmpBuf[num];
-	mixChannels(tmpBuf, num);
-	for (unsigned i = 0; i < num; ++i) {
-		buffer[i] = tmpBuf[i];
+	if (mixChannels(tmpBuf, num)) {
+		for (unsigned i = 0; i < num; ++i) {
+			buffer[i] = tmpBuf[i];
+		}
+		return true;
+	} else {
+		return false;
 	}
 }
 
-void SCC::updateBuffer(unsigned length, int* buffer,
+bool SCC::updateBuffer(unsigned length, int* buffer,
      const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
 {
 	float tmpBuf[length];
-	generateOutput(tmpBuf, length);
-	for (unsigned i = 0; i < length; ++i) {
-		buffer[i] = lrintf(tmpBuf[i]);
+	if (generateOutput(tmpBuf, length)) {
+		for (unsigned i = 0; i < length; ++i) {
+			buffer[i] = lrintf(tmpBuf[i]);
+		}
+		return true;
+	} else {
+		return false;
 	}
 }
 
-void SCC::checkMute()
-{
-	// SCC is muted unless an enabled channel with non-zero volume exists.
-	/*
-	bool mute = true;
-	byte enable = ch_enable & 0x1F;
-	for (int i = 0; i < 5; ++i, enable >>= 1) {
-		if ((enable & 1) && volume[i]) {
-			mute = false;
-			break;
-		}
-	}
-	setMute(mute);
-	*/
-	// MtH: Disabled device auto-mute: because of the filtering, the device can
-	//      still output non-zero samples even if all channels are disabled.
-	//      This can be heard in the intro of Metal Gear 2 - Solid Snake.
-	//      We should write auto-mute code that takes this into account and
-	//      put that code in a non-device-specific class such as SoundDevice or
-	//      Mixer.
-	setMute(false);
-}
 
 // SimpleDebuggable
 

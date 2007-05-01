@@ -699,7 +699,6 @@ void YM2413::reset(const EmuTime &time)
 	for (int i = 0; i < 0x40; i++) {
 		writeReg(i, 0, time);
 	}
-	setMute(true);	// set muted
 }
 
 void YM2413::setOutputRate(unsigned sampleRate)
@@ -1046,10 +1045,6 @@ inline void YM2413::calcSample(int** bufs, unsigned sample)
 	}
 }
 
-void YM2413::checkMute()
-{
-	setMute(checkMuteHelper());
-}
 bool YM2413::checkMuteHelper()
 {
 	for (int i = 0; i < 6; i++) {
@@ -1071,28 +1066,43 @@ bool YM2413::checkMuteHelper()
 
 void YM2413::generateChannels(int** bufs, unsigned num)
 {
+	if (checkMuteHelper()) {
+		// TODO update internal state, even if muted
+		for (int i = 0; i < 11; ++i) {
+			bufs[i] = 0;
+		}
+		return;
+	}
+
 	for (unsigned i = 0; i < num; ++i) {
 		calcSample(bufs, i);
 	}
-	checkMute();
 }
 
-void YM2413::generateInput(float* buffer, unsigned num)
+bool YM2413::generateInput(float* buffer, unsigned num)
 {
 	int tmpBuf[num];
-	mixChannels(tmpBuf, num);
-	for (unsigned i = 0; i < num; ++i) {
-		buffer[i] = tmpBuf[i];
+	if (mixChannels(tmpBuf, num)) {
+		for (unsigned i = 0; i < num; ++i) {
+			buffer[i] = tmpBuf[i];
+		}
+		return true;
+	} else {
+		return false;
 	}
 }
 
-void YM2413::updateBuffer(unsigned length, int* buffer,
+bool YM2413::updateBuffer(unsigned length, int* buffer,
      const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
 {
 	float tmpBuf[length];
-	generateOutput(tmpBuf, length);
-	for (unsigned i = 0; i < length; ++i) {
-		buffer[i] = lrintf(tmpBuf[i]);
+	if (generateOutput(tmpBuf, length)) {
+		for (unsigned i = 0; i < length; ++i) {
+			buffer[i] = lrintf(tmpBuf[i]);
+		}
+		return true;
+	} else {
+		return false;
 	}
 }
 
@@ -1280,7 +1290,6 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 	default:
 		break;
 	}
-	checkMute();
 }
 
 

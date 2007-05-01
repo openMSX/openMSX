@@ -27,7 +27,7 @@ private:
 	virtual void setVolume(int newVolume);
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
-	virtual void updateBuffer(unsigned length, int* buffer,
+	virtual bool updateBuffer(unsigned length, int* buffer,
 	        const EmuTime& start, const EmuDuration& sampDur);
 
 	struct Sample {

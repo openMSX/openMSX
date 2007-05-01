@@ -46,7 +46,7 @@ public:
 MSXAudio::MSXAudio(MSXMotherBoard& motherBoard, const XMLElement& config,
                    const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
-	, dacValue(0x80), dacEnabled(false), y8950Enabled(true)
+	, dacValue(0x80), dacEnabled(false)
 {
 	string type = StringOp::toLower(config.getChildData("type", "philips"));
 	if (type == "philips") {
@@ -120,18 +120,6 @@ void MSXAudio::writeIO(word port, byte value, const EmuTime& time)
 	}
 }
 
-void MSXAudio::enableY8950(bool enable)
-{
-	if (y8950Enabled != enable) {
-		y8950Enabled = enable;
-		if (y8950Enabled) {
-			y8950->decreaseMuteCount();
-		} else {
-			y8950->increaseMuteCount();
-		}
-	}
-}
-
 void MSXAudio::enableDAC(bool enable, const EmuTime& time)
 {
 	if (dacEnabled != enable) {
@@ -155,7 +143,7 @@ void MusicModulePeriphery::write(nibble outputs, nibble values,
                                  const EmuTime& time)
 {
 	nibble actual = (outputs & values) | (~outputs & read(time));
-	audio.enableY8950(actual & 8);
+	audio.y8950->setEnabled(actual & 8, time);
 	audio.enableDAC(actual & 1, time);
 }
 

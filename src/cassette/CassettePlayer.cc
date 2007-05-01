@@ -250,8 +250,6 @@ void CassettePlayer::updateLoadingState(const EmuTime& time)
 	if ((motor || !motorControl) && (getState() == PLAY)) {
 		setSyncPoint(time + (playImage->getEndTime() - tapeTime));
 	}
-
-	setMute((getState() != PLAY) || !isRolling());
 }
 
 void CassettePlayer::setImageName(const string& newImage)
@@ -473,7 +471,11 @@ void CassettePlayer::setOutputRate(unsigned sampleRate)
 
 void CassettePlayer::generateChannels(int** bufs, unsigned num)
 {
-	assert(getState() == PLAY);
+	if ((getState() != PLAY) || !isRolling()) {
+		bufs[0] = 0;
+		return;
+	}
+
 	for (unsigned i = 0; i < num; ++i) {
 		bufs[0][i] = (((int)getSample(playTapeTime)) * volume) >> 15;
 		playTapeTime += delta;

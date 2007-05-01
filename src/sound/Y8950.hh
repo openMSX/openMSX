@@ -106,7 +106,8 @@ public:
 	      Y8950Periphery& perihery);
 	virtual ~Y8950();
 
-	void reset(const EmuTime &time);
+	void setEnabled(bool enabled, const EmuTime& time);
+	void reset(const EmuTime& time);
 	void writeReg(byte reg, byte data, const EmuTime& time);
 	byte readReg(byte reg, const EmuTime& time);
 	byte peekReg(byte reg, const EmuTime& time) const;
@@ -120,11 +121,11 @@ private:
 	virtual void setVolume(int maxVolume);
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
-	virtual void updateBuffer(unsigned length, int* buffer,
+	virtual bool updateBuffer(unsigned length, int* buffer,
 		const EmuTime& start, const EmuDuration& sampDur);
 
 	// Resample
-	virtual void generateInput(float* buffer, unsigned num);
+	virtual bool generateInput(float* buffer, unsigned num);
 
 	inline void keyOn_BD();
 	inline void keyOn_SD();
@@ -142,7 +143,6 @@ private:
 
 	inline void calcSample(int** bufs, unsigned sample);
 	inline int adjust(int x);
-	void checkMute();
 	bool checkMuteHelper();
 
 	void setStatus(byte flags);
@@ -228,6 +228,7 @@ private:
 	byte status;     // STATUS Register
 	byte statusMask; // bit=0 -> masked
 	bool rythm_mode;
+	bool enabled;
 };
 
 } // namespace openmsx

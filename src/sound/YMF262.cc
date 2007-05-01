@@ -1225,7 +1225,6 @@ void YMF262::writeReg(int r, byte v, const EmuTime& time)
 		r &= ~0x100;
 	}
 	writeRegForce(r, v, time);
-	checkMute();
 }
 void YMF262::writeRegForce(int r, byte v, const EmuTime& time)
 {
@@ -1801,7 +1800,6 @@ void YMF262::reset(const EmuTime& time)
 			ch.slots[s].volume = MAX_ATT_INDEX;
 		}
 	}
-	setMute(true);
 }
 
 YMF262::YMF262(MSXMotherBoard& motherBoard, const std::string& name,
@@ -1844,12 +1842,6 @@ byte YMF262::peekStatus() const
 	return status | status2;
 }
 
-void YMF262::checkMute()
-{
-	bool mute = checkMuteHelper();
-	//PRT_DEBUG("YMF262: muted " << mute);
-	setMute(mute);
-}
 bool YMF262::checkMuteHelper()
 {
 	// TODO this doesn't always mute when possible
@@ -1873,6 +1865,14 @@ int YMF262::adjust(int x)
 
 void YMF262::generateChannels(int** bufs, unsigned num)
 {
+	if (checkMuteHelper()) {
+		// TODO update internal state, even if muted
+		for (int i = 0; i < 18; ++i) {
+			bufs[i] = 0;
+		}
+		return;
+	}
+
 	bool rhythmEnabled = rhythm & 0x20;
 
 	for (unsigned j = 0; j < num; ++j) {
@@ -1957,26 +1957,32 @@ void YMF262::generateChannels(int** bufs, unsigned num)
 
 		advance();
 	}
-
-	checkMute();
 }
 
-void YMF262::generateInput(float* buffer, unsigned num)
+bool YMF262::generateInput(float* buffer, unsigned num)
 {
 	int tmpBuf[2 * num];
-	mixChannels(tmpBuf, num);
-	for (unsigned i = 0; i < 2 * num; ++i) {
-		buffer[i] = tmpBuf[i];
+	if (mixChannels(tmpBuf, num)) {
+		for (unsigned i = 0; i < 2 * num; ++i) {
+			buffer[i] = tmpBuf[i];
+		}
+		return true;
+	} else {
+		return false;
 	}
 }
 
-void YMF262::updateBuffer(unsigned length, int* buffer,
+bool YMF262::updateBuffer(unsigned length, int* buffer,
      const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
 {
 	float tmpBuf[2 * length];
-	generateOutput(tmpBuf, length);
-	for (unsigned i = 0; i < 2 * length; ++i) {
-		buffer[i] = lrintf(tmpBuf[i]);
+	if (generateOutput(tmpBuf, length)) {
+		for (unsigned i = 0; i < 2 * length; ++i) {
+			buffer[i] = lrintf(tmpBuf[i]);
+		}
+		return true;
+	} else {
+		return false;
 	}
 }
 
@@ -2003,7 +2009,6 @@ byte YMF262Debuggable::read(unsigned address)
 void YMF262Debuggable::write(unsigned address, byte value, const EmuTime& time)
 {
 	ymf262.writeRegForce(address, value, time);
-	ymf262.checkMute();
 }
 
 } // namespace openmsx

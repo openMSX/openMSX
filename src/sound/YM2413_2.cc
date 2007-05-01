@@ -1592,7 +1592,6 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 	default:
 		break;
 	}
-	checkMute();
 }
 
 void Global::reset()
@@ -1648,11 +1647,6 @@ YM2413_2::~YM2413_2()
 	unregisterSound();
 }
 
-void YM2413_2::checkMute()
-{
-	setMute(global->checkMuteHelper());
-}
-
 bool Global::checkMuteHelper()
 {
 	for (int ch = 0; ch < 9; ch++) {
@@ -1669,6 +1663,14 @@ bool Global::checkMuteHelper()
 
 void Global::generateChannels(int** bufs, unsigned num)
 {
+	if (checkMuteHelper()) {
+		// TODO update internal state, even if muted
+		for (int i = 0; i < 11; ++i) {
+			bufs[i] = 0;
+		}
+		return;
+	}
+
 	for (unsigned i = 0; i < num; ++i) {
 		advance_lfo();
 		const int numMelodicChannels = getNumMelodicChannels();
@@ -1688,25 +1690,32 @@ void Global::generateChannels(int** bufs, unsigned num)
 void YM2413_2::generateChannels(int** bufs, unsigned num)
 {
 	global->generateChannels(bufs, num);
-	checkMute();
 }
 
-void YM2413_2::generateInput(float* buffer, unsigned num)
+bool YM2413_2::generateInput(float* buffer, unsigned num)
 {
 	int tmpBuf[num];
-	mixChannels(tmpBuf, num);
-	for (unsigned i = 0; i < num; ++i) {
-		buffer[i] = tmpBuf[i];
+	if (mixChannels(tmpBuf, num)) {
+		for (unsigned i = 0; i < num; ++i) {
+			buffer[i] = tmpBuf[i];
+		}
+		return true;
+	} else {
+		return false;
 	}
 }
 
-void YM2413_2::updateBuffer(unsigned length, int* buffer,
+bool YM2413_2::updateBuffer(unsigned length, int* buffer,
      const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
 {
 	float tmpBuf[length];
-	generateOutput(tmpBuf, length);
-	for (unsigned i = 0; i < length; ++i) {
-		buffer[i] = lrintf(tmpBuf[i]);
+	if (generateOutput(tmpBuf, length)) {
+		for (unsigned i = 0; i < length; ++i) {
+			buffer[i] = lrintf(tmpBuf[i]);
+		}
+		return true;
+	} else {
+		return false;
 	}
 }
 

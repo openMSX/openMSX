@@ -93,7 +93,6 @@ private:
 	void writeMem(unsigned address, byte value);
 	short getSample(YMF278Slot& op);
 	void advance();
-	void checkMute();
 	bool anyActive();
 	void keyOnHelper(YMF278Slot& slot);
 

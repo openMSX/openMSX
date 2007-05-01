@@ -135,7 +135,6 @@ private:
 	virtual void generateChannels(int** bufs, unsigned num);
 
 	void wrtReg(byte reg, byte value, const EmuTime& time);
-	void checkMute();
 
 	MSXCliComm& cliComm;
 	AY8910Periphery& periphery;

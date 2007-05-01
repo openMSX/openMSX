@@ -1,5 +1,26 @@
 $Id$
 
+2007-05-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Reworked internal sounddevice mute code:
+	   - As an optimization is was possible for a sounddevice to indicate
+	     that it won't produce sound in it's current state. In that case
+	     the mixer wouldn't bother to call the updateBuffer() method
+	     for such devices.
+	     It was also already possible for a sounddevice to indicate that
+	     a specific channel is completely silent.
+	     Now these two approaches are unified: sounddevice should only
+	     inidicate which individual channels are muted. If all of the
+	     channels are muted, the rest of the sound code detects this and
+	     the same optimization as before happens.
+	     In this new approach the updateBuffer() is called in any case,
+	     so it's now possible to both correctly update internal state and
+	     benefit from the muted optimization.
+	   - The glitches that happened after unmute on resampled devices are
+	     now gone. But that because muting is effectively disabled for
+	     these devices for now. Although this new approach does make it
+	     possible to solve it and have the mute optimization. It's just
+	     not implemeted yet.
+
 2007-04-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Compiled with -Wpadded and fixed some of the warnings:
 	   - only fixed the cases that were solvable by rearranging the

@@ -233,6 +233,11 @@ int VLM5030::parseFrame()
 // decode and buffering data
 void VLM5030::generateChannels(int** bufs, unsigned length)
 {
+	if (phase == PH_IDLE) {
+		bufs[0] = 0;
+		return;
+	}
+
 	int buf_count = 0;
 
 	// running
@@ -408,8 +413,6 @@ void VLM5030::reset(const EmuTime& /*time*/)
 	memset(x, 0, sizeof(x));
 	// reset parameters
 	setupParameter(0x00);
-
-	setMute(true);
 }
 
 // get BSY pin level
@@ -423,7 +426,6 @@ bool VLM5030::getBSY(const EmuTime& time)
 void VLM5030::writeData(byte data)
 {
 	latch_data = data;
-	checkMute();
 }
 
 // set RST pin level : reset / set table address A8-A15
@@ -442,7 +444,6 @@ void VLM5030::setRST (bool pin, const EmuTime& time)
 			}
 		}
 	}
-	checkMute();
 }
 
 // set VCU pin level : ?? unknown
@@ -541,30 +542,31 @@ void VLM5030::setOutputRate(unsigned sampleRate)
        setResampleRatio(input, sampleRate);
 }
 
-void VLM5030::generateInput(float* buffer, unsigned length)
+bool VLM5030::generateInput(float* buffer, unsigned length)
 {
 	int tmpBuf[length];
-	mixChannels(tmpBuf, length);
-	for (unsigned i = 0; i < length; ++i) {
-		buffer[i] = tmpBuf[i];
+	if (mixChannels(tmpBuf, length)) {
+		for (unsigned i = 0; i < length; ++i) {
+			buffer[i] = tmpBuf[i];
+		}
+		return true;
+	} else {
+		return false;
 	}
 }
 
-void VLM5030::updateBuffer(unsigned length, int* buffer,
+bool VLM5030::updateBuffer(unsigned length, int* buffer,
                            const EmuTime& /*start*/, const EmuDuration& /*sampDur*/)
 {
 	float tmpBuf[length];
-	generateOutput(tmpBuf, length);
-	for (unsigned i = 0; i < length; ++i) {
-		buffer[i] = lrintf(tmpBuf[i]);
+	if (generateOutput(tmpBuf, length)) {
+		for (unsigned i = 0; i < length; ++i) {
+			buffer[i] = lrintf(tmpBuf[i]);
+		}
+		return true;
+	} else {
+		return false;
 	}
-}
-
-void VLM5030::checkMute()
-{
-        bool mute = (phase == PH_IDLE);
-        //PRT_DEBUG("VLM5030: muted " << mute);
-        setMute(mute);
 }
 
 } // namespace openmsx

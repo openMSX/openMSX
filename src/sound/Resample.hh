@@ -15,8 +15,8 @@ protected:
 	virtual ~Resample();
 
 	void setResampleRatio(double inFreq, double outFreq);
-	void generateOutput(float* dataOut, unsigned num);
-	virtual void generateInput(float* buffer, unsigned num) = 0;
+	bool generateOutput(float* dataOut, unsigned num);
+	virtual bool generateInput(float* buffer, unsigned num) = 0;
 
 private:
 	typedef FixedPoint<16> FilterIndex;

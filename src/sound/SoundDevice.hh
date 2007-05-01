@@ -46,12 +46,6 @@ public:
 	 */
 	virtual void setVolume(int newVolume) = 0;
 
-	/** Methods to mute this sound device. These are meant to be used by
-	  * external (not this device) code.
-	  */
-	void increaseMuteCount();
-	void decreaseMuteCount();
-
 	void recordChannel(unsigned channel, const std::string& filename);
 	void muteChannel  (unsigned channel, bool muted);
 
@@ -67,15 +61,6 @@ protected:
 	            const std::string& description,
 	            unsigned numChannels, bool stereo = false);
 	virtual ~SoundDevice();
-
-	/** This method is a convience warpper around the increase/
-	  * decreaseMuteCount() methods. It's meant to be used internally
-	  * in the the device code (in the subclasses).
-	  * This method exists purely for optimizations. If the device doesn't
-	  * produce sound at the moment it can be muted.
-	  * @param muted True iff sound device is silent.
-	  */
-	void setMute(bool muted);
 
 	/**
 	 * Registers this sound device with the Mixer.
@@ -107,35 +92,55 @@ public: // Will be called by Mixer:
 	 */
 	virtual void setOutputRate(unsigned sampleRate) = 0;
 
-	/**
-	 * Is this sound device muted?
-	 * @return true iff muted.
-	 */
-	bool isMuted() const;
-
-	/**
-	 * Generate sample data
-	 * @param length The number of required samples
-	 * @param buffer This buffer should be filled
-	 * @param start EmuTime of the first sample. This might not be 100%
-	 *              exact, but it is guaranteed to increase monotonically.
-	 * @param sampDur Estimated duration of one sample. Note that the
-	 *                following equation is not always true (because it's
-	 *                just an estimation, otherwise it is true)
-	 *                  start + samples * length  !=  next(start)
-	 *
-	 * This method is regularly called from the Mixer, it should return a
-	 * pointer to a buffer filled with the required number of samples.
-	 * Samples are always ints, later they are converted to the systems
-	 * native format (e.g. 16-bit signed).
-	 * The Mixer will not call this method if the sound device is muted.
-	 */
-	virtual void updateBuffer(unsigned length, int* buffer,
+	/** Generate sample data
+	  * @param length The number of required samples
+	  * @param buffer This buffer should be filled
+	  * @param start EmuTime of the first sample. This might not be 100%
+	  *              exact, but it is guaranteed to increase monotonically.
+	  * @param sampDur Estimated duration of one sample. Note that the
+	  *                following equation is not always true (because it's
+	  *                just an estimation, otherwise it is true)
+	  *                  start + samples * length  !=  next(start)
+	  * @result false iff the output is empty. IOW filling the buffer with
+	  *         zeros or returning false has the same effect, but the latter
+	  *         can be more efficient
+	  *
+	  * This method is regularly called from the Mixer, it should return a
+	  * pointer to a buffer filled with the required number of samples.
+	  * Samples are always ints, later they are converted to the systems
+	  * native format (e.g. 16-bit signed).
+	  * The Mixer will not call this method if the sound device is muted.
+	  *
+	  * The default implementation simply calls mixChannels(). If you don't
+	  * need anything special you don't need to override this.
+	  */
+	virtual bool updateBuffer(unsigned length, int* buffer,
 	        const EmuTime& start, const EmuDuration& sampDur);
 
 protected:
+	/** Abstract method to generate the actual sound data.
+	  * @param buffers An array of pointer to buffers. Each buffer must
+	  *                be big enough to hold 'num' samples. 
+	  * @param num The number of samples.
+	  *
+	  * This method should fill each buffer with sound data that
+	  * corresponds to one channel of the sound device. The same channel
+	  * should each time be written to the same buffer (needed for record).
+	  *
+	  * If a certain channel is muted it is allowed to set the buffer
+	  * pointer to NULL. This has exactly the same effect as filling the
+	  * buffer completely with zeros, but it can be more efficient.
+	  */
 	virtual void generateChannels(int** buffers, unsigned num) = 0;
-	void mixChannels(int* dataOut, unsigned num);
+
+	/** Calls generateChannels() and combines the output to a single
+	  * channel.
+	  * @param dataOut Output buffer, must be big enough to hold
+	  *                'num' samples
+	  * @param num The number of samples
+	  * @result true iff at least one channel was unmuted
+	  */
+	bool mixChannels(int* dataOut, unsigned num);
 
 private:
 	MSXMixer& mixer;
@@ -148,8 +153,6 @@ private:
 	const unsigned numChannels;
 	const unsigned stereo;
 	unsigned numRecordChannels;
-	unsigned muteCount;
-	bool muted;
 	bool channelMuted[MAX_CHANNELS];
 };
 

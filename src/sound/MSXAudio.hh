@@ -25,7 +25,6 @@ public:
 	virtual void writeIO(word port, byte value, const EmuTime& time);
 
 private:
-	void enableY8950(bool enable);
 	void enableDAC(bool enable, const EmuTime& time);
 
 	std::auto_ptr<Y8950Periphery> periphery;
@@ -34,7 +33,6 @@ private:
 	int registerLatch;
 	byte dacValue;
 	bool dacEnabled;
-	bool y8950Enabled;
 
 	friend class MusicModulePeriphery;
 };

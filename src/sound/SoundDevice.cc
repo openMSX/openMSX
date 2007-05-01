@@ -21,7 +21,6 @@ SoundDevice::SoundDevice(MSXMixer& mixer_, const string& name_,
 	: mixer(mixer_), name(name_), description(description_)
 	, numChannels(numChannels_), stereo(stereo_ ? 2 : 1)
 	, numRecordChannels(0)
-	, muteCount(1), muted(true)
 {
 	assert(numChannels <= MAX_CHANNELS);
 	assert(stereo == 1 || stereo == 2);
@@ -45,36 +44,6 @@ const std::string& SoundDevice::getName() const
 const std::string& SoundDevice::getDescription() const
 {
 	return description;
-}
-
-void SoundDevice::increaseMuteCount()
-{
-	++muteCount;
-}
-
-void SoundDevice::decreaseMuteCount()
-{
-	assert(muteCount > 0);
-	--muteCount;
-}
-
-void SoundDevice::setMute(bool newMuted)
-{
-	if (newMuted != muted) {
-		muted = newMuted;
-		if (muted) {
-			increaseMuteCount();
-		} else {
-			decreaseMuteCount();
-		}
-	}
-}
-
-bool SoundDevice::isMuted() const
-{
-	// never mute when we're recording channels
-	// TODO fix this
-	return (numRecordChannels == 0) && muteCount;
 }
 
 void SoundDevice::registerSound(const XMLElement& config,
@@ -144,7 +113,7 @@ void SoundDevice::muteChannel(unsigned channel, bool muted)
 	channelMuted[channel] = muted;
 }
 
-void SoundDevice::mixChannels(int* dataOut, unsigned samples)
+bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 {
 	assert(samples <= MAX_SAMPLES);
 	int* bufs[numChannels];
@@ -176,6 +145,10 @@ void SoundDevice::mixChannels(int* dataOut, unsigned samples)
 			++unmuted;
 		}
 	}
+	if (!unmuted) {
+		// all channels muted
+		return false;
+	}
 
 	// actually mix channels
 	for (unsigned i = 0; i < samples * stereo; ++i) {
@@ -185,13 +158,14 @@ void SoundDevice::mixChannels(int* dataOut, unsigned samples)
 		}
 		dataOut[i] = out;
 	}
+	return true;
 }
 
-void SoundDevice::updateBuffer(
+bool SoundDevice::updateBuffer(
 	unsigned length, int* buffer,
 	const EmuTime& /*start*/, const EmuDuration& /*sampDur*/)
 {
-	mixChannels(buffer, length);
+	return mixChannels(buffer, length);
 }
 
 } // namespace openmsx

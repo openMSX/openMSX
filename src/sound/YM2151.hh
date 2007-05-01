@@ -115,11 +115,11 @@ private:
 	virtual void setVolume(int maxVolume);
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
-	virtual void updateBuffer(unsigned length, int* buffer,
+	virtual bool updateBuffer(unsigned length, int* buffer,
 	                          const EmuTime& start, const EmuDuration& sampDur);
 
 	 // Resample
-        virtual void generateInput(float* buffer, unsigned num);
+        virtual bool generateInput(float* buffer, unsigned num);
 
 	void callback(byte flag);
 	void setStatus(byte flags);
@@ -144,7 +144,6 @@ private:
 	void advanceEG();
 	void advance();
 
-	void checkMute();
 	bool checkMuteHelper();
 	int adjust(int x);
 

@@ -20,7 +20,6 @@ SamplePlayer::~SamplePlayer()
 
 void SamplePlayer::reset()
 {
-	setMute(true);
 	playing = false;
 }
 
@@ -47,7 +46,6 @@ void SamplePlayer::play(const void* buffer, unsigned bufferSize,
 
 	step = (inFreq << 8) / outFreq;
 
-	setMute(false);
 	playing = true;
 }
 
@@ -65,6 +63,10 @@ inline int SamplePlayer::getSample(unsigned index)
 
 void SamplePlayer::generateChannels(int** bufs, unsigned num)
 {
+	if (!playing) {
+		bufs[0] = 0;
+		return;
+	}
 	for (unsigned i = 0; i < num; ++i) {
 		if (count < end) {
 			unsigned index = count >> 8;
@@ -75,7 +77,6 @@ void SamplePlayer::generateChannels(int** bufs, unsigned num)
 			bufs[0][i] = (samp * volume) >> 15;
 			count += step;
 		} else {
-			setMute(true);
 			playing = false;
 			bufs[0][i] = 0;
 		}

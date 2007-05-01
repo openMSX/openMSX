@@ -834,7 +834,6 @@ void YM2151::writeReg(byte r, byte v, const EmuTime& time)
 		op->eg_sel_rr = eg_rate_select[op->rr + (op->kc >> op->ks)];
 		break;
 	}
-	checkMute();
 }
 
 YM2151::YM2151(MSXMotherBoard& motherBoard, const std::string& name,
@@ -856,13 +855,6 @@ YM2151::YM2151(MSXMotherBoard& motherBoard, const std::string& name,
 YM2151::~YM2151()
 {
 	unregisterSound();
-}
-
-void YM2151::checkMute()
-{
-        bool mute = checkMuteHelper();
-        //PRT_DEBUG("YM2151: muted " << mute);
-        setMute(mute);
 }
 
 bool YM2151::checkMuteHelper()
@@ -916,8 +908,6 @@ void YM2151::reset(const EmuTime &time)
 	}
 
 	irq.reset();
-
-	setMute(true);
 }
 
 int YM2151::opCalc(YM2151Operator* OP, unsigned env, int pm)
@@ -1251,61 +1241,59 @@ rate 11 1         |
 
 void YM2151::advanceEG()
 {
-	if (eg_timer++ != 3) { // envelope generator timer overlfows every 3 samples (on real chip)
+	if (eg_timer++ != 3) {
+		// envelope generator timer overlfows every 3 samples (on real chip)
 		return;
 	}
 	eg_timer = 0;
 	eg_cnt++;
 
 	// envelope generator
-	YM2151Operator* op = &oper[0]; // CH 0 M1
-	unsigned i = 32;
-	do {
-		switch(op->state) {
-			case EG_ATT: // attack phase
-				if (!(eg_cnt & ((1 << op->eg_sh_ar) - 1))) {
-					op->volume += (~op->volume *
-							(eg_inc[op->eg_sel_ar + ((eg_cnt >> op->eg_sh_ar) & 7)])
-						      ) >> 4;
-					if (op->volume <= MIN_ATT_INDEX) {
-						op->volume = MIN_ATT_INDEX;
-						op->state = EG_DEC;
-					}
+	for (int i = 0; i < 32; ++i) {
+		YM2151Operator& op = oper[i]; 
+		switch (op.state) {
+		case EG_ATT: // attack phase
+			if (!(eg_cnt & ((1 << op.eg_sh_ar) - 1))) {
+				op.volume += (~op.volume *
+						(eg_inc[op.eg_sel_ar + ((eg_cnt >> op.eg_sh_ar) & 7)])
+					      ) >> 4;
+				if (op.volume <= MIN_ATT_INDEX) {
+					op.volume = MIN_ATT_INDEX;
+					op.state = EG_DEC;
 				}
-				break;
+			}
+			break;
 
-			case EG_DEC: // decay phase
-				if (!(eg_cnt & ((1 << op->eg_sh_d1r) - 1))) {
-					op->volume += eg_inc[op->eg_sel_d1r + ((eg_cnt >> op->eg_sh_d1r) & 7)];
-					if ((unsigned)op->volume >= op->d1l) {
-						op->state = EG_SUS;
-					}
+		case EG_DEC: // decay phase
+			if (!(eg_cnt & ((1 << op.eg_sh_d1r) - 1))) {
+				op.volume += eg_inc[op.eg_sel_d1r + ((eg_cnt >> op.eg_sh_d1r) & 7)];
+				if ((unsigned)op.volume >= op.d1l) {
+					op.state = EG_SUS;
 				}
-				break;
+			}
+			break;
 
-			case EG_SUS: // sustain phase
-				if (!(eg_cnt & ((1 << op->eg_sh_d2r) - 1))) {
-					op->volume += eg_inc[op->eg_sel_d2r + ((eg_cnt >> op->eg_sh_d2r) & 7)];
-					if (op->volume >= MAX_ATT_INDEX) {
-						op->volume = MAX_ATT_INDEX;
-						op->state = EG_OFF;
-					}
+		case EG_SUS: // sustain phase
+			if (!(eg_cnt & ((1 << op.eg_sh_d2r) - 1))) {
+				op.volume += eg_inc[op.eg_sel_d2r + ((eg_cnt >> op.eg_sh_d2r) & 7)];
+				if (op.volume >= MAX_ATT_INDEX) {
+					op.volume = MAX_ATT_INDEX;
+					op.state = EG_OFF;
 				}
-				break;
+			}
+			break;
 
-			case EG_REL: // release phase
-				if (!(eg_cnt & ((1 << op->eg_sh_rr) - 1))) {
-					op->volume += eg_inc[op->eg_sel_rr + ((eg_cnt >> op->eg_sh_rr) & 7)];
-					if (op->volume >= MAX_ATT_INDEX) {
-						op->volume = MAX_ATT_INDEX;
-						op->state = EG_OFF;
-					}
+		case EG_REL: // release phase
+			if (!(eg_cnt & ((1 << op.eg_sh_rr) - 1))) {
+				op.volume += eg_inc[op.eg_sel_rr + ((eg_cnt >> op.eg_sh_rr) & 7)];
+				if (op.volume >= MAX_ATT_INDEX) {
+					op.volume = MAX_ATT_INDEX;
+					op.state = EG_OFF;
 				}
-				break;
+			}
+			break;
 		}
-		++op;
-		i--;
-	} while (i);
+	}
 }
 
 void YM2151::advance()
@@ -1473,6 +1461,14 @@ int YM2151::adjust(int x)
 
 void YM2151::generateChannels(int** bufs, unsigned num)
 {
+	if (checkMuteHelper()) {
+		// TODO update internal state, even if muted
+		for (int i = 0; i < 8; ++i) {
+			bufs[i] = 0;
+		}
+		return;
+	}
+
 	for (unsigned i = 0; i < num; ++i) {
 		advanceEG();
 
@@ -1489,31 +1485,38 @@ void YM2151::generateChannels(int** bufs, unsigned num)
 		}
 		advance();
 	}
-	checkMute();
 }
 
-void YM2151::generateInput(float* buffer, unsigned length)
+bool YM2151::generateInput(float* buffer, unsigned length)
 {
-        int tmpBuf[2 * length];
-        mixChannels(tmpBuf, length);
-        for (unsigned i = 0; i < 2 * length; ++i) {
-                buffer[i] = tmpBuf[i];
-        }
+	int tmpBuf[2 * length];
+	if (mixChannels(tmpBuf, length)) {
+		for (unsigned i = 0; i < 2 * length; ++i) {
+			buffer[i] = tmpBuf[i];
+		}
+		return true;
+	} else {
+		return false;
+	}
 }
 
-void YM2151::updateBuffer(unsigned length, int* buffer,
-                          const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
+bool YM2151::updateBuffer(unsigned length, int* buffer,
+		const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
 {
-        float tmpBuf[2 * length];
-        generateOutput(tmpBuf, length);
-        for (unsigned i = 0; i < 2 * length; ++i) {
-                buffer[i] = lrintf(tmpBuf[i]);
-        }
+	float tmpBuf[2 * length];
+	if (generateOutput(tmpBuf, length)) {
+		for (unsigned i = 0; i < 2 * length; ++i) {
+			buffer[i] = lrintf(tmpBuf[i]);
+		}
+		return true;
+	} else {
+		return false;
+	}
 }
 
 void YM2151::setVolume(int newVolume)
 {
-        maxVolume = newVolume;
+	maxVolume = newVolume;
 }
 
 void YM2151::setOutputRate(unsigned sampleRate)
