@@ -62,7 +62,8 @@ private:
 	unsigned incr[5];
 	unsigned count[5];
 	unsigned pos[5];
-	unsigned freq[5];
+	unsigned period[5];
+	unsigned orgPeriod[5];
 	int out[5];
 	byte volume[5];
 	byte ch_enable;

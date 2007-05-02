@@ -137,8 +137,9 @@ SCC::SCC(MSXMotherBoard& motherBoard, const string& name,
 		}
 		out[i] = 0;
 		count[i] = 0;
-		pos[i] = (unsigned)-1;
-		freq[i] = 0;
+		pos[i] = 0;
+		period[i] = 0;
+		orgPeriod[i] = 0;
 		volume[i] = 0;
 	}
 
@@ -254,9 +255,10 @@ byte SCC::readWave(byte channel, byte address, const EmuTime& time)
 		return wave[channel][address & 0x1F];
 	} else {
 		unsigned ticks = deformTimer.getTicksTill(time);
-		unsigned f = ((channel == 3) && (currentChipMode != SCC_plusmode)) ?
-			freq[4] : freq[channel];
-		unsigned shift = ticks / (f + 1);
+		unsigned per = period[
+			((channel == 3) && (currentChipMode != SCC_plusmode)) ? 4 : channel
+			];
+		unsigned shift = ticks / (per + 1);
 		return wave[channel][(address + shift) & 0x1F];
 	}
 }
@@ -269,9 +271,9 @@ byte SCC::getFreqVol(byte address)
 		// get frequency
 		byte channel = address / 2;
 		if (address & 1) {
-			return freq[channel] >> 8;
+			return orgPeriod[channel] >> 8;
 		} else {
-			return freq[channel] & 0xFF;
+			return orgPeriod[channel] & 0xFF;
 		}
 	} else if (address < 0x0F) {
 		// get volume
@@ -366,25 +368,24 @@ void SCC::setFreqVol(byte address, byte value)
 	if (address < 0x0A) {
 		// change frequency
 		byte channel = address / 2;
-		unsigned frq =
+		unsigned per =
 			  (address & 1)
-			? ((value & 0xF) << 8) | (freq[channel] & 0xFF)
-			: (freq[channel] & 0xF00) | (value & 0xFF);
-		freq[channel] = frq;
+			? ((value & 0xF) << 8) | (orgPeriod[channel] & 0xFF)
+			: (orgPeriod[channel] & 0xF00) | (value & 0xFF);
+		orgPeriod[channel] = per;
 		if (deformValue & 2) {
 			// 8 bit frequency
-			frq &= 0xFF;
+			per &= 0xFF;
 		} else if (deformValue & 1) {
 			// 4 bit frequency
-			frq >>= 8;
+			per >>= 8;
 		}
-		incr[channel] = (frq <= 8) ? 0 : (1 << 28) / (frq + 1);
+		period[channel] = per;
+		incr[channel] = (per <= 8) ? 0 : 32;
+		pos[channel] = 0; // reset to begin of byte
 		if (deformValue & 0x20) {
-			count[channel] = 0; // reset to begin of sample
-		} else {
-			count[channel] &= 0x0F800000; // reset to begin of byte
+			pos[channel] = 0; // reset to begin of waveform
 		}
-		pos[channel] = (unsigned)-1;
 	} else if (address < 0x0F) {
 		// change volume
 		byte channel = address - 0x0A;
@@ -457,18 +458,24 @@ void SCC::generateChannels(int** bufs, unsigned num)
 		for (int i = 0; i < 5; ++i, enable >>= 1) {
 			if ((enable & 1) && volume[i]) {
 				for (unsigned j = 0; j < num; ++j) {
-					count[i] = (count[i] + incr[i]) & 0x0FFFFFFF;
-					unsigned newPos = count[i] >> 23;
-					if (newPos != pos[i]) {
-						pos[i] = newPos;
-						out[i] = volAdjustedWave[i][newPos];
-					}
 					bufs[i][j] = out[i];
+					count[i] += incr[i];
+					// Note: Only for very small periods this loop will take
+					//       more than a single iteration.
+					while (count[i] > period[i]) {
+						pos[i] = (pos[i] + 1) % 32;
+						count[i] -= period[i] + 1;
+						out[i] = volAdjustedWave[i][pos[i]];
+					}
 				}
 			} else {
-				count[i] = (count[i] + num * incr[i]) & 0x0FFFFFFF;
-				pos[i] = (unsigned)-1; // invalidate out[i]
 				bufs[i] = 0; // channel muted
+				// Update phase counter.
+				unsigned newCount = count[i] + num * incr[i];
+				count[i] = newCount % (period[i] + 1);
+				pos[i] = (pos[i] + newCount / (period[i] + 1)) % 32;
+				// Channel stays off until next waveform index.
+				out[i] = 0;
 			}
 		}
 	} else {
@@ -478,22 +485,25 @@ void SCC::generateChannels(int** bufs, unsigned num)
 		for (int i = 0; i < 5; ++i, enable >>= 1) {
 			if (enable & 1) {
 				for (unsigned j = 0; j < num; ++j) {
-					unsigned cnt = count[i] + incr[i];
-					if (rotate[i]) {
-						cnt += (cnt >> 28) << 23;
-					}
-					count[i] = cnt & 0x0FFFFFFF;
-					unsigned newPos = count[i] >> 23;
-					if (newPos != pos[i]) {
-						pos[i] = newPos;
-						out[i] = volAdjustedWave[i][newPos];
-					}
 					bufs[i][j] = out[i];
+					count[i] += incr[i];
+					// Note: Only for very small periods this loop will take
+					//       more than a single iteration.
+					while (count[i] > period[i]) {
+						// TODO: Check this interpretation of rotation
+						//       on real SCC.
+						pos[i] = (pos[i] + 2) % 32;
+						count[i] -= period[i] + 1;
+						out[i] = volAdjustedWave[i][pos[i]];
+					}
 				}
 			} else {
-				count[i] = (count[i] + num * incr[i]) & 0x0FFFFFFF;
-				pos[i] = (unsigned)-1; // invalidate out[i]
-				bufs[i] = 0; // channel muted
+				// Update phase counter.
+				unsigned newCount = count[i] + num * incr[i];
+				count[i] = newCount % (period[i] + 1);
+				pos[i] = (pos[i] + newCount / (period[i] + 1)) % 32;
+				// Channel stays off until next waveform index.
+				out[i] = 0;
 			}
 		}
 	}
