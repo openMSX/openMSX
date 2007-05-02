@@ -382,7 +382,7 @@ void SCC::setFreqVol(byte address, byte value)
 		}
 		period[channel] = per;
 		incr[channel] = (per <= 8) ? 0 : 32;
-		pos[channel] = 0; // reset to begin of byte
+		count[channel] = 0; // reset to begin of byte
 		if (deformValue & 0x20) {
 			pos[channel] = 0; // reset to begin of waveform
 		}
