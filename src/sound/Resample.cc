@@ -14,7 +14,6 @@
 
 
 #include "Resample.hh"
-#include "FixedPoint.hh"
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
@@ -32,6 +31,7 @@ static const int COEFF_HALF_LEN = COEFF_LEN - 1;
 
 template <unsigned CHANNELS>
 Resample<CHANNELS>::Resample()
+	: increment(0)
 {
 	ratio = 1.0;
 	lastPos = 0.0;
@@ -52,12 +52,23 @@ void Resample<CHANNELS>::setResampleRatio(double inFreq, double outFreq)
 	bufCurrent = BUF_LEN / 2;
 	bufEnd     = BUF_LEN / 2;
 	memset(buffer, 0, sizeof(buffer));
+	
+	// check the sample rate ratio wrt the buffer len
+	double count = (COEFF_HALF_LEN + 2.0) / INDEX_INC;
+	if (ratio > 1.0) {
+		count *= ratio;
+	}
+	// maximum coefficients on either side of center point
+	halfFilterLen = lrint(count) + 1;
+
+	floatIncr = (ratio > 1.0) ? INDEX_INC / ratio : INDEX_INC;
+	normFactor = floatIncr / INDEX_INC;
+	increment = FilterIndex(floatIncr);
 }
 
 template <unsigned CHANNELS>
 void Resample<CHANNELS>::calcOutput(
-	FilterIndex increment, FilterIndex startFilterIndex, double normFactor,
-	float* output)
+	FilterIndex increment, FilterIndex startFilterIndex, float* output)
 {
 	FilterIndex maxFilterIndex(COEFF_HALF_LEN);
 
@@ -111,7 +122,7 @@ void Resample<CHANNELS>::calcOutput(
 }
 
 template <unsigned CHANNELS>
-void Resample<CHANNELS>::prepareData(unsigned halfFilterLen, unsigned extra)
+void Resample<CHANNELS>::prepareData(unsigned extra)
 {
 	assert(bufCurrent <= bufEnd);
 	assert(bufEnd <= BUF_LEN);
@@ -146,48 +157,26 @@ void Resample<CHANNELS>::prepareData(unsigned halfFilterLen, unsigned extra)
 template <unsigned CHANNELS>
 bool Resample<CHANNELS>::generateOutput(float* dataOut, unsigned num)
 {
-	// check the sample rate ratio wrt the buffer len
-	double count = (COEFF_HALF_LEN + 2.0) / INDEX_INC;
-	if (ratio > 1.0) {
-		count *= ratio;
-	}
-
-	// maximum coefficients on either side of center point
-	int halfFilterLen = lrint(count) + 1;
-
-	double inputIndex = lastPos;
-	double floatIncr = (ratio > 1.0)
-	                 ? INDEX_INC / ratio
-	                 : INDEX_INC;
-	double normFactor = floatIncr / INDEX_INC;
-	FilterIndex increment(floatIncr);
-
-	double rem = fmod(inputIndex, 1.0);
-	bufCurrent = (bufCurrent + lrint(inputIndex - rem)) % BUF_LEN;
-	inputIndex = rem;
-
 	// main processing loop
 	for (unsigned i = 0; i < num; ++i) {
 		// need to reload buffer?
 		int samplesInHand = (bufEnd - bufCurrent + BUF_LEN) % BUF_LEN;
-		if (samplesInHand <= halfFilterLen) {
+		if (samplesInHand <= (int)halfFilterLen) {
 			int extra = (ratio > 1.0)
 			          ? lrint((num - i) * ratio) + 1
 			          :       (num - i);
-			prepareData(halfFilterLen, extra);
+			prepareData(extra);
 		}
 
-		FilterIndex startFilterIndex(inputIndex * floatIncr);
-		calcOutput(increment, startFilterIndex, normFactor,
-		           &dataOut[i * CHANNELS]);
+		FilterIndex startFilterIndex(lastPos * floatIncr);
+		calcOutput(increment, startFilterIndex, &dataOut[i * CHANNELS]);
 
 		// figure out the next index
-		inputIndex += ratio;
-		rem = fmod(inputIndex, 1.0);
-		bufCurrent = (bufCurrent + lrint(inputIndex - rem)) % BUF_LEN;
-		inputIndex = rem;
+		lastPos += ratio;
+		double rem = fmod(lastPos, 1.0);
+		bufCurrent = (bufCurrent + lrint(lastPos - rem)) % BUF_LEN;
+		lastPos = rem;
 	}
-	lastPos = inputIndex;
 	return true; // TODO
 }
 

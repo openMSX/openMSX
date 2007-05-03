@@ -3,9 +3,9 @@
 #ifndef RESAMPLE_HH
 #define RESAMPLE_HH
 
-namespace openmsx {
+#include "FixedPoint.hh"
 
-template <unsigned> class FixedPoint;
+namespace openmsx {
 
 template <unsigned CHANNELS>
 class Resample
@@ -23,11 +23,15 @@ private:
 	static const unsigned BUF_LEN = 16384;
 
 	void calcOutput(FilterIndex increment, FilterIndex startFilterIndex,
-	                double normFactor, float* output);
-	void prepareData(unsigned halfFilterLen, unsigned extra);
+	                float* output);
+	void prepareData(unsigned extra);
 
 	double ratio;
+	double floatIncr;
+	double normFactor;
 	double lastPos;
+	FilterIndex increment;
+	unsigned halfFilterLen;
 	unsigned bufCurrent;
 	unsigned bufEnd;
 	float buffer[BUF_LEN * CHANNELS];
