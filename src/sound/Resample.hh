@@ -34,6 +34,7 @@ private:
 	unsigned halfFilterLen;
 	unsigned bufCurrent;
 	unsigned bufEnd;
+	unsigned nonzeroSamples;
 	float buffer[BUF_LEN * CHANNELS];
 };
 

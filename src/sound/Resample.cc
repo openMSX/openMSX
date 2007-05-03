@@ -38,6 +38,7 @@ Resample<CHANNELS>::Resample()
 	bufCurrent = BUF_LEN / 2;
 	bufEnd     = BUF_LEN / 2;
 	memset(buffer, 0, sizeof(buffer));
+	nonzeroSamples = 0;
 }
 
 template <unsigned CHANNELS>
@@ -144,11 +145,14 @@ void Resample<CHANNELS>::prepareData(unsigned extra)
 		bufEnd = halfFilterLen + available;
 		missing = std::min<unsigned>(missing, BUF_LEN - bufEnd);
 	}
-	if (!generateInput(buffer + bufEnd * CHANNELS, missing)) {
+	if (generateInput(buffer + bufEnd * CHANNELS, missing)) {
+		bufEnd += missing;
+		nonzeroSamples = bufEnd - bufCurrent + halfFilterLen;
+	} else {
 		memset(buffer + bufEnd * CHANNELS, 0,
 		       missing * sizeof(float));
+		bufEnd += missing;
 	}
-	bufEnd += missing;
 
 	assert(bufCurrent + halfFilterLen <= bufEnd);
 	assert(bufEnd <= BUF_LEN);
@@ -157,6 +161,8 @@ void Resample<CHANNELS>::prepareData(unsigned extra)
 template <unsigned CHANNELS>
 bool Resample<CHANNELS>::generateOutput(float* dataOut, unsigned num)
 {
+	bool anyNonZero = false;
+
 	// main processing loop
 	for (unsigned i = 0; i < num; ++i) {
 		// need to reload buffer?
@@ -168,18 +174,27 @@ bool Resample<CHANNELS>::generateOutput(float* dataOut, unsigned num)
 			          :       (num - i);
 			prepareData(extra);
 		}
-
-		FilterIndex startFilterIndex(lastPos * floatIncr);
-		calcOutput(increment, startFilterIndex, &dataOut[i * CHANNELS]);
+		if (nonzeroSamples) {
+			FilterIndex startFilterIndex(lastPos * floatIncr);
+			calcOutput(increment, startFilterIndex,
+			           &dataOut[i * CHANNELS]);
+			anyNonZero = true;
+		} else {
+			for (unsigned j = 0; j < CHANNELS; ++j) {
+				dataOut[i * CHANNELS + j] = 0.0f;
+			}
+		}
 
 		// figure out the next index
 		lastPos += ratio;
 		double rem = fmod(lastPos, 1.0);
-		bufCurrent += lrint(lastPos - rem);
+		int consumed = lrint(lastPos - rem);
+		bufCurrent += consumed;
+		nonzeroSamples = std::max<int>(0, nonzeroSamples - consumed);
 		assert(bufCurrent <= bufEnd);
 		lastPos = rem;
 	}
-	return true; // TODO
+	return anyNonZero;
 }
 
 // Force template instantiation.
