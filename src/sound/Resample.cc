@@ -131,24 +131,24 @@ void Resample<CHANNELS>::prepareData(unsigned extra)
 	unsigned available = bufEnd - bufCurrent;
 	unsigned request = halfFilterLen + extra;
 	int missing = request - available;
-	if (missing > 0) {
-		unsigned free = BUF_LEN - bufEnd;
-		int overflow = missing - free;
-		if (overflow > 0) {
-			// close to end, restart at begin
-			memmove(buffer,
-			        buffer + (bufCurrent - halfFilterLen) * CHANNELS,
-			        (halfFilterLen + available) * sizeof(float) * CHANNELS);
-			bufCurrent = halfFilterLen;
-			bufEnd = halfFilterLen + available;
-			missing = std::min<unsigned>(missing, BUF_LEN - bufEnd);
-		}
-		if (!generateInput(buffer + bufEnd * CHANNELS, missing)) {
-			memset(buffer + bufEnd * CHANNELS, 0,
-			       missing * sizeof(float));
-		}
-		bufEnd += missing;
+	assert(missing > 0);
+
+	unsigned free = BUF_LEN - bufEnd;
+	int overflow = missing - free;
+	if (overflow > 0) {
+		// close to end, restart at begin
+		memmove(buffer,
+			buffer + (bufCurrent - halfFilterLen) * CHANNELS,
+			(halfFilterLen + available) * sizeof(float) * CHANNELS);
+		bufCurrent = halfFilterLen;
+		bufEnd = halfFilterLen + available;
+		missing = std::min<unsigned>(missing, BUF_LEN - bufEnd);
 	}
+	if (!generateInput(buffer + bufEnd * CHANNELS, missing)) {
+		memset(buffer + bufEnd * CHANNELS, 0,
+		       missing * sizeof(float));
+	}
+	bufEnd += missing;
 
 	assert(bufCurrent + halfFilterLen <= bufEnd);
 	assert(bufEnd <= BUF_LEN);
@@ -160,8 +160,9 @@ bool Resample<CHANNELS>::generateOutput(float* dataOut, unsigned num)
 	// main processing loop
 	for (unsigned i = 0; i < num; ++i) {
 		// need to reload buffer?
-		int samplesInHand = (bufEnd - bufCurrent + BUF_LEN) % BUF_LEN;
-		if (samplesInHand <= (int)halfFilterLen) {
+		assert(bufCurrent <= bufEnd);
+		int available = bufEnd - bufCurrent;
+		if (available <= (int)halfFilterLen) {
 			int extra = (ratio > 1.0)
 			          ? lrint((num - i) * ratio) + 1
 			          :       (num - i);
@@ -174,7 +175,8 @@ bool Resample<CHANNELS>::generateOutput(float* dataOut, unsigned num)
 		// figure out the next index
 		lastPos += ratio;
 		double rem = fmod(lastPos, 1.0);
-		bufCurrent = (bufCurrent + lrint(lastPos - rem)) % BUF_LEN;
+		bufCurrent += lrint(lastPos - rem);
+		assert(bufCurrent <= bufEnd);
 		lastPos = rem;
 	}
 	return true; // TODO
