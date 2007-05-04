@@ -451,60 +451,28 @@ void SCC::setDeformReg(byte value, const EmuTime& time)
 
 void SCC::generateChannels(int** bufs, unsigned num)
 {
-	if ((deformValue & 0xC0) == 0x00) {
-		// No rotation stuff, this is almost always true. So it makes
-		// sense to have a special optimized routine for this case
-		byte enable = ch_enable;
-		for (int i = 0; i < 5; ++i, enable >>= 1) {
-			if ((enable & 1) && volume[i]) {
-				for (unsigned j = 0; j < num; ++j) {
-					bufs[i][j] = out[i];
-					count[i] += incr[i];
-					// Note: Only for very small periods this loop will take
-					//       more than a single iteration.
-					while (count[i] > period[i]) {
-						pos[i] = (pos[i] + 1) % 32;
-						count[i] -= period[i] + 1;
-						out[i] = volAdjustedWave[i][pos[i]];
-					}
+	byte enable = ch_enable;
+	for (int i = 0; i < 5; ++i, enable >>= 1) {
+		if ((enable & 1) && volume[i]) {
+			for (unsigned j = 0; j < num; ++j) {
+				bufs[i][j] = out[i];
+				count[i] += incr[i];
+				// Note: Only for very small periods this loop will take
+				//       more than a single iteration.
+				while (count[i] > period[i]) {
+					pos[i] = (pos[i] + 1) % 32;
+					count[i] -= period[i] + 1;
+					out[i] = volAdjustedWave[i][pos[i]];
 				}
-			} else {
-				bufs[i] = 0; // channel muted
-				// Update phase counter.
-				unsigned newCount = count[i] + num * incr[i];
-				count[i] = newCount % (period[i] + 1);
-				pos[i] = (pos[i] + newCount / (period[i] + 1)) % 32;
-				// Channel stays off until next waveform index.
-				out[i] = 0;
 			}
-		}
-	} else {
-		// Rotation mode
-		//  TODO not completely correct
-		byte enable = ch_enable;
-		for (int i = 0; i < 5; ++i, enable >>= 1) {
-			if (enable & 1) {
-				for (unsigned j = 0; j < num; ++j) {
-					bufs[i][j] = out[i];
-					count[i] += incr[i];
-					// Note: Only for very small periods this loop will take
-					//       more than a single iteration.
-					while (count[i] > period[i]) {
-						// TODO: Check this interpretation of rotation
-						//       on real SCC.
-						pos[i] = (pos[i] + 2) % 32;
-						count[i] -= period[i] + 1;
-						out[i] = volAdjustedWave[i][pos[i]];
-					}
-				}
-			} else {
-				// Update phase counter.
-				unsigned newCount = count[i] + num * incr[i];
-				count[i] = newCount % (period[i] + 1);
-				pos[i] = (pos[i] + newCount / (period[i] + 1)) % 32;
-				// Channel stays off until next waveform index.
-				out[i] = 0;
-			}
+		} else {
+			bufs[i] = 0; // channel muted
+			// Update phase counter.
+			unsigned newCount = count[i] + num * incr[i];
+			count[i] = newCount % (period[i] + 1);
+			pos[i] = (pos[i] + newCount / (period[i] + 1)) % 32;
+			// Channel stays off until next waveform index.
+			out[i] = 0;
 		}
 	}
 }
