@@ -22,8 +22,7 @@ private:
 	typedef FixedPoint<16> FilterIndex;
 	static const unsigned BUF_LEN = 16384;
 
-	void calcOutput(FilterIndex increment, FilterIndex startFilterIndex,
-	                float* output);
+	void calcOutput(FilterIndex startFilterIndex, float* output);
 	void prepareData(unsigned extra);
 
 	double ratio;

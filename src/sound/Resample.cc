@@ -53,7 +53,7 @@ void Resample<CHANNELS>::setResampleRatio(double inFreq, double outFreq)
 	bufCurrent = BUF_LEN / 2;
 	bufEnd     = BUF_LEN / 2;
 	memset(buffer, 0, sizeof(buffer));
-	
+
 	// check the sample rate ratio wrt the buffer len
 	double count = (COEFF_HALF_LEN + 2.0) / INDEX_INC;
 	if (ratio > 1.0) {
@@ -68,8 +68,7 @@ void Resample<CHANNELS>::setResampleRatio(double inFreq, double outFreq)
 }
 
 template <unsigned CHANNELS>
-void Resample<CHANNELS>::calcOutput(
-	FilterIndex increment, FilterIndex startFilterIndex, float* output)
+void Resample<CHANNELS>::calcOutput(FilterIndex startFilterIndex, float* output)
 {
 	FilterIndex maxFilterIndex(COEFF_HALF_LEN);
 
@@ -176,8 +175,7 @@ bool Resample<CHANNELS>::generateOutput(float* dataOut, unsigned num)
 		}
 		if (nonzeroSamples) {
 			FilterIndex startFilterIndex(lastPos * floatIncr);
-			calcOutput(increment, startFilterIndex,
-			           &dataOut[i * CHANNELS]);
+			calcOutput(startFilterIndex, &dataOut[i * CHANNELS]);
 			anyNonZero = true;
 		} else {
 			for (unsigned j = 0; j < CHANNELS; ++j) {
