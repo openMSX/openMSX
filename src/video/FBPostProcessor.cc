@@ -47,7 +47,7 @@ void FBPostProcessor<Pixel>::drawNoiseLine(
 {
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
-	if ((sizeof(Pixel) == 4) && cpu.hasMMXEXT()) {
+	if ((sizeof(Pixel) == 4) && cpu.hasSSE()) {
 		// extended-MMX 32bpp
 		assert(((4 * width) % 32) == 0);
 		asm (

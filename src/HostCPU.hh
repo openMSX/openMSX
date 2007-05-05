@@ -33,24 +33,32 @@ public:
 	  */
 	bool hasMMX() const { return mmxFlag; }
 
-	/** Does this CPU support MMX and the MMX extensions that came with SSE?
+	/** Does this CPU support the SSE instructions?
 	  */
-	bool hasMMXEXT() const { return mmxExtFlag; }
+	bool hasSSE() const { return sseFlag; }
+
+	/** Does this CPU support the SSE2 instructions?
+	  */
+	bool hasSSE2() const { return sse2Flag; }
 
 	/** Force openMSX to not use any MMX instructions, if available
 	  */
-	void forceDisableMMX() { mmxFlag = false; mmxExtFlag = false; }
+	void forceDisableMMX() { mmxFlag = false; forceDisableSSE(); }
 
-	/** Force openMSX to not use any MMX extensions that came with SSE,
-	  * if available
+	/** Force openMSX to not use any SSE (or MMX extensions), if available
 	  */
-	void forceDisableMMXEXT() { mmxExtFlag = false; }
+	void forceDisableSSE() { sseFlag = false; forceDisableSSE2(); }
+
+	/** Force openMSX to not use any SSE2 instructions, if available
+	  */
+	void forceDisableSSE2() { sse2Flag = false; }
 
 private:
 	HostCPU();
 
 	bool mmxFlag;
-	bool mmxExtFlag;
+	bool sseFlag;
+	bool sse2Flag;
 };
 
 } // namespace openmsx

@@ -237,7 +237,7 @@ template<bool STREAMING> static inline void memset_2_helper(
 
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
-	if (cpu.hasMMXEXT()) {
+	if (cpu.hasSSE()) {
 		if (STREAMING) {
 			memset4_2_SSE_s(out, num, val0, val1);
 		} else {
@@ -325,7 +325,7 @@ void stream_memcpy(unsigned* dst, const unsigned* src, unsigned num)
 	assert(((long)dst & 3) == 0);
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
-	if (cpu.hasMMXEXT()) {
+	if (cpu.hasSSE()) {
 		if (unlikely(num == 0)) return;
 		// align on 8-byte boundary
 		if (unlikely((long)dst & 4)) {
@@ -437,7 +437,7 @@ void stream_memcpy(word* dst, const word* src, unsigned num)
 	assert(((long)dst & 1) == 0);
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
-	if (cpu.hasMMXEXT()) {
+	if (cpu.hasSSE()) {
 		if (unlikely(!num)) return;
 		// align on 4-byte boundary
 		if (unlikely((long)dst & 2)) {

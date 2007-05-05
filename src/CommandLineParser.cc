@@ -109,7 +109,14 @@ public:
 	virtual const std::string& optionHelp() const;
 };
 
-class NoMMXEXTOption : public CLIOption {
+class NoSSEOption : public CLIOption {
+public:
+	virtual bool parseOption(const std::string& option,
+		std::list<std::string>& cmdLine);
+	virtual const std::string& optionHelp() const;
+};
+
+class NoSSE2Option : public CLIOption {
 public:
 	virtual bool parseOption(const std::string& option,
 		std::list<std::string>& cmdLine);
@@ -141,7 +148,8 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	, machineOption(new MachineOption(*this))
 	, settingOption(new SettingOption(*this))
 	, noMMXOption(new NoMMXOption())
-	, noMMXEXTOption(new NoMMXEXTOption())
+	, noSSEOption(new NoSSEOption())
+	, noSSE2Option(new NoSSE2Option())
 	, testConfigOption(new TestConfigOption(*this))
 	, msxRomCLI(new MSXRomCLI(*this))
 	, cliExtension(new CliExtension(*this))
@@ -165,7 +173,8 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	registerOption("-script",     *scriptOption, 1, 1);
 	#ifdef ASM_X86
 	registerOption("-nommx",      *noMMXOption, 1, 1);
-	registerOption("-nommxext",   *noMMXEXTOption, 1, 1);
+	registerOption("-nosse",      *noSSEOption, 1, 1);
+	registerOption("-nosse2",     *noSSE2Option, 1, 1);
 	#endif
 	registerOption("-testconfig", *testConfigOption, 1, 1);
 	
@@ -638,7 +647,7 @@ const string& SettingOption::optionHelp() const
 bool NoMMXOption::parseOption(const string& /*option*/,
 		list<string>& /*cmdLine*/)
 {
-	cout << "Disabling MMX " << endl;
+	cout << "Disabling MMX" << endl;
 	HostCPU::getInstance().forceDisableMMX();
 	return true;
 }
@@ -646,25 +655,43 @@ bool NoMMXOption::parseOption(const string& /*option*/,
 const string& NoMMXOption::optionHelp() const
 {
 	static const string text(
-		"Disables usage of MMX, including extensions (for debugging)");
+		"Disables usage of MMX, SSE and SSE2 (for debugging)");
 	return text;
 }
 
 
-// class NoMMXEXTOption
+// class NoSSEOption
 
-bool NoMMXEXTOption::parseOption(const string& /*option*/,
+bool NoSSEOption::parseOption(const string& /*option*/,
 		list<string>& /*cmdLine*/)
 {
-	cout << "Disabling MMX extensions" << endl;
-	HostCPU::getInstance().forceDisableMMXEXT();
+	cout << "Disabling SSE" << endl;
+	HostCPU::getInstance().forceDisableSSE();
 	return true;
 }
 
-const string& NoMMXEXTOption::optionHelp() const
+const string& NoSSEOption::optionHelp() const
 {
 	static const string text(
-		"Disables usage of MMX extensions (for debugging)");
+		"Disables usage of SSE and SSE2 (for debugging)");
+	return text;
+}
+
+
+// class NoSSE2Option
+
+bool NoSSE2Option::parseOption(const string& /*option*/,
+		list<string>& /*cmdLine*/)
+{
+	cout << "Disabling SSE2" << endl;
+	HostCPU::getInstance().forceDisableSSE2();
+	return true;
+}
+
+const string& NoSSE2Option::optionHelp() const
+{
+	static const string text(
+		"Disables usage of SSE2 (for debugging)");
 	return text;
 }
 

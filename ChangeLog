@@ -1,5 +1,9 @@
 $Id$
 
+2007-05-04 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added support for SSE2 in HostCPU
+	* Added SSE2 optimized routine in ScanLine class
+
 2007-05-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Reworked internal sounddevice mute code:
 	   - As an optimization is was possible for a sounddevice to indicate

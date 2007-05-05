@@ -2,15 +2,18 @@
 
 #include "HostCPU.hh"
 #include "openmsx.hh"
+#include <cassert>
 
 namespace openmsx {
 
 HostCPU::HostCPU()
 {
-	mmxFlag = false;
-	mmxExtFlag = false;
+	mmxFlag  = false;
+	sseFlag  = false;
+	sse2Flag = false;
 	#ifdef ASM_X86_32
-		// Note: On Mac OS X, EBX is in use by the OS, so we have to restore it.
+		// Note: On Mac OS X, EBX is in use by the OS,
+		//       so we have to restore it.
 		// Is CPUID instruction supported?
 		unsigned hasCPUID;
 		asm (
@@ -56,20 +59,25 @@ HostCPU::HostCPU()
 					: "a" (1) // 1: function
 					: "ecx"
 					);
-				mmxFlag = features & 0x800000;
-				bool sseFlag = features & 0x2000000;
-				mmxExtFlag = mmxFlag && sseFlag;
+				mmxFlag  = features & 0x0800000;
+				sseFlag  = features & 0x2000000;
+				sse2Flag = features & 0x4000000;
 			}
 		}
 	#endif
 	#ifdef ASM_X86_64
-		// X86_64 machines always have mmx and mmxExt
-		mmxFlag = true;
-		mmxExtFlag = true;
+		// X86_64 machines always have mmx, sse, sse2
+		mmxFlag  = true;
+		sseFlag  = true;
+		sse2Flag = true;
 	#endif
 
-	PRT_DEBUG("MMX:              " << mmxFlag);
-	PRT_DEBUG("MMX extensions:   " << mmxExtFlag);
+	PRT_DEBUG("MMX:  " << mmxFlag);
+	PRT_DEBUG("SSE:  " << sseFlag);
+	PRT_DEBUG("SSE2: " << sse2Flag);
+
+	if (hasSSE2()) { assert(hasMMX() && hasSSE()); }
+	if (hasSSE())  { assert(hasMMX()); }
 }
 
 } // namespace openmsx

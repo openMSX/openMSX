@@ -40,7 +40,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on2(Pixel* dst,
 
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
-	if ((sizeof(Pixel) == 4) && cpu.hasMMXEXT()) {
+	if ((sizeof(Pixel) == 4) && cpu.hasSSE()) {
 		asm (
 			"movq	(%0,%4), %%mm1;"     // m1 | e1  or  w2 | m2
 			"pshufw	$238, %%mm1, %%mm0;" // xx | w1
@@ -264,7 +264,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on2(Pixel* dst,
 		);
 		return;
 	};
-	if ((sizeof(Pixel) == 2) && cpu.hasMMXEXT()) {
+	if ((sizeof(Pixel) == 2) && cpu.hasSSE()) {
 		//           mm2: abcd
 		//mm0: xxx0  mm1: 1234  mm0: 5xxx
 		//                efgh
@@ -618,7 +618,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on1(Pixel* dst,
 
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
-	if ((sizeof(Pixel) == 4) && cpu.hasMMXEXT()) {
+	if ((sizeof(Pixel) == 4) && cpu.hasSSE()) {
 		asm (
 			"movq	(%0,%4), %%mm0;"     // 1 2
 			"pshufw	$68, %%mm0, %%mm2;"  // 1 1
@@ -822,7 +822,7 @@ void Scale2xScaler<Pixel>::scaleLineHalf_1on1(Pixel* dst,
 	//      aceg ikmo
 	// ...0 1234 5678 9...
 	//      bdfh jlnp
-	if ((sizeof(Pixel) == 2) && cpu.hasMMXEXT()) {
+	if ((sizeof(Pixel) == 2) && cpu.hasSSE()) {
 		asm (
 			"movq	(%0,%4), %%mm1;"     // 1234
 			"pshufw	$0, %%mm1, %%mm0;"   // ...0

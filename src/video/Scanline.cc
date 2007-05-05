@@ -92,7 +92,74 @@ void Scanline<Pixel>::draw(const Pixel* src1, const Pixel* src2,
 {
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
-	if ((sizeof(Pixel) == 4) && cpu.hasMMXEXT()) {
+	if ((sizeof(Pixel) == 4) && cpu.hasSSE2()) {
+		// SSE2 routine, 32bpp
+		assert(((4 * width) % 64) == 0);
+		
+		asm (
+			"movd	%3, %%xmm6;"
+			"pshuflw $0, %%xmm6, %%xmm6;"
+			"pxor	%%xmm7, %%xmm7;"
+			"pshufd  $0, %%xmm6, %%xmm6;"
+			".p2align 4,,15;"
+		"1:"
+			"movdqa	(%0,%4), %%xmm0;"
+			"pavgb	(%1,%4), %%xmm0;"
+			"movdqa	%%xmm0, %%xmm4;"
+			"punpcklbw %%xmm7, %%xmm0;"
+			"punpckhbw %%xmm7, %%xmm4;"
+			"pmulhuw %%xmm6, %%xmm0;"
+			"pmulhuw %%xmm6, %%xmm4;"
+			"packuswb %%xmm4, %%xmm0;"
+
+			"movdqa	16(%0,%4), %%xmm1;"
+			"pavgb	16(%1,%4), %%xmm1;"
+			"movdqa	%%xmm1, %%xmm5;"
+			"punpcklbw %%xmm7, %%xmm1;"
+			"punpckhbw %%xmm7, %%xmm5;"
+			"pmulhuw %%xmm6, %%xmm1;"
+			"pmulhuw %%xmm6, %%xmm5;"
+			"packuswb %%xmm5, %%xmm1;"
+
+			"movdqa	32(%0,%4), %%xmm2;"
+			"pavgb	32(%1,%4), %%xmm2;"
+			"movdqa	%%xmm2, %%xmm4;"
+			"punpcklbw %%xmm7, %%xmm2;"
+			"punpckhbw %%xmm7, %%xmm4;"
+			"pmulhuw %%xmm6, %%xmm2;"
+			"pmulhuw %%xmm6, %%xmm4;"
+			"packuswb %%xmm4, %%xmm2;"
+
+			"movdqa	48(%0,%4), %%xmm3;"
+			"pavgb	48(%1,%4), %%xmm3;"
+			"movdqa	%%xmm3, %%xmm5;"
+			"punpcklbw %%xmm7, %%xmm3;"
+			"punpckhbw %%xmm7, %%xmm5;"
+			"pmulhuw %%xmm6, %%xmm3;"
+			"pmulhuw %%xmm6, %%xmm5;"
+			"packuswb %%xmm5, %%xmm3;"
+
+			"movntps %%xmm0,   (%2,%4);"
+			"movntps %%xmm1, 16(%2,%4);"
+			"movntps %%xmm2, 32(%2,%4);"
+			"movntps %%xmm3, 48(%2,%4);"
+
+			"add	$64, %4;"
+			"jnz	1b;"
+
+			: // no output
+			: "r" (src1 + width) // 0
+			, "r" (src2 + width) // 1
+			, "r" (dst  + width) // 2
+			, "r" (factor << 8)  // 3
+			, "r" (-4 * width)   // 4
+			#ifdef __MMX__
+			: "mm0", "mm1", "mm2", "mm3", "mm4", "mm5", "mm6", "mm7"
+			#endif
+		);
+		return;
+
+	} else if ((sizeof(Pixel) == 4) && cpu.hasSSE()) {
 		// extended-MMX routine, 32bpp
 		assert(((4 * width) % 32) == 0);
 		asm (
@@ -212,7 +279,7 @@ void Scanline<Pixel>::draw(const Pixel* src1, const Pixel* src2,
 	// On Mac OS X, we are one register short, because EBX is not available.
 	// We disable this piece of assembly and fall back to the C++ code.
 	// It's unlikely modern Macs will be running in 16bpp anyway.
-	if ((sizeof(Pixel) == 2) && cpu.hasMMXEXT()) {
+	if ((sizeof(Pixel) == 2) && cpu.hasSSE()) {
 		// extended-MMX routine, 16bpp
 		assert(((2 * width) % 16) == 0);
 

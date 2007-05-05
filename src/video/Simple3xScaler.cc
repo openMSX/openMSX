@@ -310,7 +310,7 @@ void Blur_1on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long dst
 	unsigned long alpha = settings.getBlurFactor() / 3;
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
-	if ((sizeof(Pixel) == 4) && cpu.hasMMXEXT()) {
+	if ((sizeof(Pixel) == 4) && cpu.hasSSE()) {
 		// MMX-EXT routine, 32bpp
 		alpha *= 256;
 		unsigned t0, t1, t2, t3;

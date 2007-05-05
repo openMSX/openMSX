@@ -256,7 +256,7 @@ void Scale_1on2<Pixel, streaming>::operator()(
 {
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
-	if ((sizeof(Pixel) == 2) && streaming && cpu.hasMMXEXT()) {
+	if ((sizeof(Pixel) == 2) && streaming && cpu.hasSSE()) {
 		// extended-MMX routine 16bpp
 		assert((width % 32) == 0);
 		asm (
@@ -356,7 +356,7 @@ void Scale_1on2<Pixel, streaming>::operator()(
 		return;
 	}
 
-	if ((sizeof(Pixel) == 4) && streaming && cpu.hasMMXEXT()) {
+	if ((sizeof(Pixel) == 4) && streaming && cpu.hasSSE()) {
 		// extended-MMX routine 32bpp
 		assert(((2 * width) % 32) == 0);
 		asm (
@@ -470,7 +470,7 @@ void Scale_1on1<Pixel, streaming>::operator()(
 	#ifdef ASM_X86
 	assert((nBytes % 64) == 0);
 	const HostCPU& cpu = HostCPU::getInstance();
-	if (streaming && cpu.hasMMXEXT()) {
+	if (streaming && cpu.hasSSE()) {
 		// extended-MMX routine (both 16bpp and 32bpp)
 		asm (
 			".p2align 4,,15;"
@@ -566,7 +566,7 @@ void Scale_2on1<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long wi
 {
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
-	if ((sizeof(Pixel) == 4) && cpu.hasMMXEXT()) {
+	if ((sizeof(Pixel) == 4) && cpu.hasSSE()) {
 		// extended-MMX routine, 32bpp
 		assert(((4 * width) % 16) == 0);
 		asm volatile (
@@ -650,7 +650,7 @@ void Scale_2on1<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long wi
 		);
 		return;
 	}
-	if ((sizeof(Pixel) == 2) && cpu.hasMMXEXT()) {
+	if ((sizeof(Pixel) == 2) && cpu.hasSSE()) {
 		// extended-MMX routine, 16bpp
 		assert(((2 * width) % 16) == 0);
 		unsigned mask = pixelOps.getBlendMask();
