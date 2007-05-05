@@ -25,10 +25,10 @@ private:
 	void calcOutput(FilterIndex startFilterIndex, float* output);
 	void prepareData(unsigned extra);
 
-	double ratio;
-	double floatIncr;
-	double normFactor;
-	double lastPos;
+	float ratio;
+	float floatIncr;
+	float normFactor;
+	float lastPos;
 	FilterIndex increment;
 	unsigned halfFilterLen;
 	unsigned bufCurrent;

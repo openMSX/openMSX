@@ -78,14 +78,14 @@ void Resample<CHANNELS>::calcOutput(FilterIndex startFilterIndex, float* output)
 	filterIndex += increment * coeffCount;
 	int bufIndex = (bufCurrent - coeffCount) * CHANNELS;
 
-	double left[CHANNELS];
+	float left[CHANNELS];
 	for (unsigned i = 0; i < CHANNELS; ++i) {
 		left[i] = 0.0;
 	}
 	do {
-		double fraction = filterIndex.fractionAsDouble();
+		float fraction = filterIndex.fractionAsFloat();
 		int indx = filterIndex.toInt();
-		double icoeff = coeffs[indx] +
+		float icoeff = coeffs[indx] +
 		                fraction * (coeffs[indx + 1] - coeffs[indx]);
 		for (unsigned i = 0; i < CHANNELS; ++i) {
 			left[i] += icoeff * buffer[bufIndex + i];
@@ -100,14 +100,14 @@ void Resample<CHANNELS>::calcOutput(FilterIndex startFilterIndex, float* output)
 	filterIndex += increment * coeffCount;
 	bufIndex = (bufCurrent + (1 + coeffCount)) * CHANNELS;
 
-	double right[CHANNELS];
+	float right[CHANNELS];
 	for (unsigned i = 0; i < CHANNELS; ++i) {
 		right[i] = 0.0;
 	}
 	do {
-		double fraction = filterIndex.fractionAsDouble();
+		float fraction = filterIndex.fractionAsFloat();
 		int indx = filterIndex.toInt();
-		double icoeff = coeffs[indx] +
+		float icoeff = coeffs[indx] +
 		                fraction * (coeffs[indx + 1] - coeffs[indx]);
 		for (unsigned i = 0; i < CHANNELS; ++i) {
 			right[i] += icoeff * buffer[bufIndex + i];
@@ -185,7 +185,7 @@ bool Resample<CHANNELS>::generateOutput(float* dataOut, unsigned num)
 
 		// figure out the next index
 		lastPos += ratio;
-		double rem = fmod(lastPos, 1.0);
+		float rem = fmod(lastPos, 1.0);
 		int consumed = lrint(lastPos - rem);
 		bufCurrent += consumed;
 		nonzeroSamples = std::max<int>(0, nonzeroSamples - consumed);
