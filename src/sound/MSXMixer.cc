@@ -205,8 +205,10 @@ void MSXMixer::updateStream2(const EmuTime& time)
 		factor = 1.0;
 	}
 	prevTime += interval1 * count;
-	if (recorder) {
-		recorder->addWave(count, mixBuffer);
+	if (synchronousCounter) {
+		if (recorder) {
+			recorder->addWave(count, mixBuffer);
+		}
 		factor = 1.0;
 	}
 	if (factor != 1.0) {
