@@ -79,6 +79,19 @@ public:
 	unsigned getSampleRate() const;
 	
 private:
+	struct SoundDeviceInfo {
+		IntegerSetting* volumeSetting;
+		IntegerSetting* balanceSetting;
+		struct ChannelSettings {
+			StringSetting* recordSetting;
+			BooleanSetting* muteSetting;
+		};
+		std::vector<ChannelSettings> channelSettings;
+		int left1, right1, left2, right2;
+	};
+	typedef std::map<SoundDevice*, SoundDeviceInfo> Infos;
+
+	void updateVolumeParams(Infos::iterator it);
 	void updateMasterVolume(int masterVolume);
 	SoundDevice* getSoundDevice(const std::string& name);
 	void reInit();
@@ -101,16 +114,6 @@ private:
 	unsigned sampleRate;
 	unsigned fragmentSize;
 
-	struct SoundDeviceInfo {
-		int normalVolume;
-		IntegerSetting* volumeSetting;
-		struct ChannelSettings {
-			StringSetting* recordSetting;
-			BooleanSetting* muteSetting;
-		};
-		std::vector<ChannelSettings> channelSettings;
-	};
-	typedef std::map<SoundDevice*, SoundDeviceInfo> Infos;
 	Infos infos;
 
 	Mixer& mixer;

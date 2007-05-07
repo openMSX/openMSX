@@ -14,6 +14,7 @@
 #include "BooleanSetting.hh"
 #include "AviRecorder.hh"
 #include <algorithm>
+#include <cmath>
 #include <cassert>
 
 using std::remove;
@@ -86,9 +87,11 @@ void MSXMixer::registerSound(SoundDevice& device, short volume,
 	SoundDeviceInfo info;
 	info.volumeSetting = new IntegerSetting(msxCommandController,
 		name + "_volume", "the volume of this sound chip", 75, 0, 100);
+	info.balanceSetting = new IntegerSetting(msxCommandController,
+		name + "_balance", "the balance of this sound chip", 0, -100, 100);
 
-	info.normalVolume = (volume * 100 * 100) / (75 * 75);
 	info.volumeSetting->attach(*this);
+	info.balanceSetting->attach(*this);
 
 	for (unsigned i = 0; i < numChannels; ++i) {
 		SoundDeviceInfo::ChannelSettings channelSettings;
@@ -111,8 +114,11 @@ void MSXMixer::registerSound(SoundDevice& device, short volume,
 
 	infos[&device] = info;
 	device.setOutputRate(sampleRate);
-	device.setVolume((info.normalVolume * info.volumeSetting->getValue() *
-	                   masterVolume.getValue()) / (100 * 100));
+	device.setVolume(32767); // TODO remove
+
+	Infos::iterator it = infos.find(&device);
+	assert(it != infos.end());
+	updateVolumeParams(it);
 }
 
 void MSXMixer::unregisterSound(SoundDevice& device)
@@ -121,6 +127,8 @@ void MSXMixer::unregisterSound(SoundDevice& device)
 	assert(it != infos.end());
 	it->second.volumeSetting->detach(*this);
 	delete it->second.volumeSetting;
+	it->second.balanceSetting->detach(*this);
+	delete it->second.balanceSetting;
 	for (vector<SoundDeviceInfo::ChannelSettings>::const_iterator it2 =
 	            it->second.channelSettings.begin();
 	     it2 != it->second.channelSettings.end(); ++it2) {
@@ -200,13 +208,22 @@ void MSXMixer::generate(short* output, unsigned samples,
 		if (device.updateBuffer(samples, tmpBuf,
 					start, sampDur)) {
 			if (!device.isStereo()) {
+				int l1 = it->second.left1;
+				int r1 = it->second.right1;
 				for (unsigned i = 0; i < samples; ++i) {
-					mixBuf[2 * i + 0] += tmpBuf[i];
-					mixBuf[2 * i + 1] += tmpBuf[i];
+					mixBuf[2 * i + 0] += (l1 * tmpBuf[i]) >> 8;
+					mixBuf[2 * i + 1] += (r1 * tmpBuf[i]) >> 8;
 				}
 			} else {
-				for (unsigned i = 0; i < 2 * samples; ++i) {
-					mixBuf[i] += tmpBuf[i];
+				int l1 = it->second.left1;
+				int r1 = it->second.right1;
+				int l2 = it->second.left2;
+				int r2 = it->second.right2;
+				for (unsigned i = 0; i < samples; ++i) {
+					int in1 = tmpBuf[2 * i + 0];
+					int in2 = tmpBuf[2 * i + 1];
+					mixBuf[2 * i + 0] += (l1 * in1 + l2 * in2) >> 8;
+					mixBuf[2 * i + 1] += (r1 * in1 + r2 * in2) >> 8;
 				}
 			}
 		}
@@ -325,14 +342,13 @@ void MSXMixer::update(const Setting& setting)
 		reInit();
 	} else if (dynamic_cast<const IntegerSetting*>(&setting)) {
 		Infos::iterator it = infos.begin();
-		while (it != infos.end() && it->second.volumeSetting != &setting) {
+		while (it != infos.end() &&
+		       it->second.volumeSetting != &setting &&
+		       it->second.balanceSetting != &setting) {
 			++it;
 		}
 		assert(it != infos.end());
-		const SoundDeviceInfo& info = it->second;
-		it->first->setVolume(
-		     (masterVolume.getValue() * info.volumeSetting->getValue() *
-		      info.normalVolume) / (100 * 100));
+		updateVolumeParams(it);
 	} else if (dynamic_cast<const StringSetting*>(&setting)) {
 		changeRecordSetting(setting);
 	} else if (dynamic_cast<const BooleanSetting*>(&setting)) {
@@ -383,15 +399,45 @@ void MSXMixer::update(const ThrottleManager& /*throttleManager*/)
 	reInit();
 }
 
+void MSXMixer::updateVolumeParams(Infos::iterator it)
+{
+	SoundDeviceInfo& info = it->second;
+	int mVolume = masterVolume.getValue();
+	int dVolume = info.volumeSetting->getValue();
+	double volume = mVolume * dVolume / (100.0 * 100.0);
+	int balance = info.balanceSetting->getValue();
+	double l1, r1, l2, r2;
+	if (it->first->isStereo()) {
+		if (balance < 0) {
+			double b = (balance + 100.0) / 100.0;
+			l1 = volume;
+			r1 = 0.0;
+			l2 = volume * sqrt(1.0 - b);
+			r2 = volume * sqrt(b);
+		} else {
+			double b = balance / 100.0;
+			l1 = volume * sqrt(1.0 - b);
+			r1 = volume * sqrt(b);
+			l2 = 0.0;
+			r2 = volume;
+		}
+	} else {
+		double b = (balance + 100.0) / 200.0;
+		l1 = volume * sqrt(1.0 - b);
+		r1 = volume * sqrt(b);
+		l2 = r2 = 0.0; // dummy
+	}
+	info.left1  = static_cast<int>(l1 * 256);
+	info.right1 = static_cast<int>(r1 * 256);
+	info.left2  = static_cast<int>(l2 * 256);
+	info.right2 = static_cast<int>(r2 * 256);
+}
+
 // 0 <= mastervolume <= 100
 void MSXMixer::updateMasterVolume(int masterVolume)
 {
-	for (Infos::const_iterator it = infos.begin();
-	     it != infos.end(); ++it) {
-		const SoundDeviceInfo& info = it->second;
-		it->first->setVolume(
-		     (info.normalVolume * info.volumeSetting->getValue() *
-		      masterVolume) / (100 * 100));
+	for (Infos::iterator it = infos.begin(); it != infos.end(); ++it) {
+		updateVolumeParams(it);
 	}
 }
 
