@@ -1821,7 +1821,7 @@ YMF262::YMF262(MSXMotherBoard& motherBoard, const std::string& name,
 	init_tables();
 
 	reset(time);
-	registerSound(config, ChannelMode::STEREO);
+	registerSound(config);
 }
 
 YMF262::~YMF262()

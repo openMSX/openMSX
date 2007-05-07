@@ -46,22 +46,16 @@ const std::string& SoundDevice::getDescription() const
 	return description;
 }
 
-void SoundDevice::registerSound(const XMLElement& config,
-                                ChannelMode::Mode mode)
+bool SoundDevice::isStereo() const
+{
+	return stereo == 2;
+}
+
+void SoundDevice::registerSound(const XMLElement& config)
 {
 	const XMLElement& soundConfig = config.getChild("sound");
 	short volume = soundConfig.getChildDataAsInt("volume");
-	if (mode != ChannelMode::STEREO) {
-		string modeStr = soundConfig.getChildData("mode", "mono");
-		if (modeStr == "left") {
-			mode = ChannelMode::MONO_LEFT;
-		} else if (modeStr == "right") {
-			mode = ChannelMode::MONO_RIGHT;
-		} else {
-			mode = ChannelMode::MONO;
-		}
-	}
-	mixer.registerSound(*this, volume, mode, numChannels);
+	mixer.registerSound(*this, volume, numChannels);
 }
 
 void SoundDevice::unregisterSound()

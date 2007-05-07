@@ -10,7 +10,6 @@
 #include "ThrottleManager.hh"
 #include "GlobalSettings.hh"
 #include "IntegerSetting.hh"
-#include "EnumSetting.hh"
 #include "StringSetting.hh"
 #include "BooleanSetting.hh"
 #include "AviRecorder.hh"
@@ -81,36 +80,14 @@ MSXMixer::~MSXMixer()
 }
 
 void MSXMixer::registerSound(SoundDevice& device, short volume,
-                             ChannelMode::Mode mode, unsigned numChannels)
+                             unsigned numChannels)
 {
 	const string& name = device.getName();
 	SoundDeviceInfo info;
 	info.volumeSetting = new IntegerSetting(msxCommandController,
 		name + "_volume", "the volume of this sound chip", 75, 0, 100);
 
-	// once we're stereo, stay stereo. Once mono, stay mono.
-	// we could also choose not to offer any modeSetting in case we have
-	// a stereo mode initially. You can't query the mode then, though.
-	string defaultMode;
-	EnumSetting<ChannelMode::Mode>::Map modeMap;
-	if (mode == ChannelMode::STEREO) {
-		defaultMode = "stereo";
-		modeMap[defaultMode] = ChannelMode::STEREO;
-	} else {
-		defaultMode = "mono";
-		modeMap[defaultMode] = ChannelMode::MONO;
-		modeMap["left"] = ChannelMode::MONO_LEFT;
-		modeMap["right"] = ChannelMode::MONO_RIGHT;
-	}
-	modeMap["off"] = ChannelMode::OFF;
-	info.modeSetting = new EnumSetting<ChannelMode::Mode>(msxCommandController,
-		name + "_mode", "the channel mode of this sound chip",
-		modeMap[defaultMode], modeMap, Setting::DONT_SAVE);
-	info.modeSetting->setValue(mode);
-
-	info.mode = mode;
 	info.normalVolume = (volume * 100 * 100) / (75 * 75);
-	info.modeSetting->attach(*this);
 	info.volumeSetting->attach(*this);
 
 	for (unsigned i = 0; i < numChannels; ++i) {
@@ -133,31 +110,17 @@ void MSXMixer::registerSound(SoundDevice& device, short volume,
 	}
 
 	infos[&device] = info;
-	devices[mode].push_back(&device);
 	device.setOutputRate(sampleRate);
 	device.setVolume((info.normalVolume * info.volumeSetting->getValue() *
 	                   masterVolume.getValue()) / (100 * 100));
-
-	unsigned required = infos.size() * 8192 * 2;
-	if (mixBuffer.size() < required) {
-		mixBuffer.resize(required);
-	}
 }
 
 void MSXMixer::unregisterSound(SoundDevice& device)
 {
-	// note: no need to shrink mixBuffer
-
 	Infos::iterator it = infos.find(&device);
 	assert(it != infos.end());
-
-	ChannelMode::Mode mode = it->second.mode;
-	vector<SoundDevice*> &dev = devices[mode];
-	dev.erase(remove(dev.begin(), dev.end(), &device), dev.end());
 	it->second.volumeSetting->detach(*this);
 	delete it->second.volumeSetting;
-	it->second.modeSetting->detach(*this);
-	delete it->second.modeSetting;
 	for (vector<SoundDeviceInfo::ChannelSettings>::const_iterator it2 =
 	            it->second.channelSettings.begin();
 	     it2 != it->second.channelSettings.end(); ++it2) {
@@ -227,49 +190,31 @@ void MSXMixer::generate(short* output, unsigned samples,
 	assert(!muteCount && fragmentSize);
 	assert(samples <= 8192);
 
-	int modeOffset[ChannelMode::NB_MODES];
-	int unmuted = 0;
-	int* buffer = &mixBuffer[0];
-	for (int mode = 0; mode < ChannelMode::NB_MODES -1; mode++) { // -1 for OFF mode
-		modeOffset[mode] = unmuted;
-		for (vector<SoundDevice*>::const_iterator it =
-		           devices[mode].begin();
-		     it != devices[mode].end(); ++it) {
-			if ((*it)->updateBuffer(samples, buffer,
-			                        start, sampDur)) {
-				++unmuted;
-				buffer += 8192 * 2;
+	int mixBuf[2 * samples];
+	int tmpBuf[2 * samples];
+	memset(mixBuf, 0, 2 * samples * sizeof(int));
+
+	for (Infos::const_iterator it = infos.begin();
+	     it != infos.end(); ++it) {
+		SoundDevice& device = *it->first;
+		if (device.updateBuffer(samples, tmpBuf,
+					start, sampDur)) {
+			if (!device.isStereo()) {
+				for (unsigned i = 0; i < samples; ++i) {
+					mixBuf[2 * i + 0] += tmpBuf[i];
+					mixBuf[2 * i + 1] += tmpBuf[i];
+				}
+			} else {
+				for (unsigned i = 0; i < 2 * samples; ++i) {
+					mixBuf[i] += tmpBuf[i];
+				}
 			}
 		}
 	}
 
 	for (unsigned j = 0; j < samples; ++j) {
-		buffer = &mixBuffer[0];
-		int buf = 0;
-		int both = 0;
-		while (buf < modeOffset[ChannelMode::MONO + 1]) {
-			both  += buffer[j];
-			buffer += 8192 * 2;
-			++buf;
-		}
-		int left = both;
-		while (buf < modeOffset[ChannelMode::MONO_LEFT + 1]) {
-			left  += buffer[j];
-			buffer += 8192 * 2;
-			++buf;
-		}
-		int right = both;
-		while (buf < modeOffset[ChannelMode::MONO_RIGHT + 1]) {
-			right += buffer[j];
-			buffer += 8192 * 2;
-			++buf;
-		}
-		while (buf < unmuted) {
-			left  += buffer[2 * j + 0];
-			right += buffer[2 * j + 1];
-			buffer += 8192 * 2;
-			++buf;
-		}
+		int left  = mixBuf[2 * j + 0];
+		int right = mixBuf[2 * j + 1];
 
 		// DC removal filter
 		//   y(n) = x(n) - x(n-1) + R * y(n-1)
@@ -344,12 +289,9 @@ void MSXMixer::setMixerParams(unsigned newFragmentSize, unsigned newSampleRate)
 	if (sampleRate != newSampleRate) {
 		sampleRate = newSampleRate;
 		needReInit = true;
-		for (int mode = 0; mode < ChannelMode::NB_MODES; ++mode) {
-			for (vector<SoundDevice*>::const_iterator it =
-				 devices[mode].begin();
-			     it != devices[mode].end(); ++it) {
-				(*it)->setOutputRate(sampleRate);
-			}
+		for (Infos::const_iterator it = infos.begin();
+		     it != infos.end(); ++it) {
+			it->first->setOutputRate(sampleRate);
 		}
 	}
 
@@ -381,18 +323,6 @@ void MSXMixer::update(const Setting& setting)
 		updateMasterVolume(masterVolume.getValue());
 	} else if (&setting == &speedSetting) {
 		reInit();
-	} else if (dynamic_cast<const EnumSetting<ChannelMode::Mode>* >(&setting)) {
-		Infos::iterator it = infos.begin();
-		while (it != infos.end() && it->second.modeSetting != &setting) {
-			++it;
-		}
-		assert(it != infos.end());
-		SoundDeviceInfo &info = it->second;
-		ChannelMode::Mode oldmode = info.mode;
-		info.mode = info.modeSetting->getValue();
-		vector<SoundDevice*> &dev = devices[oldmode];
-		dev.erase(remove(dev.begin(), dev.end(), it->first), dev.end());
-		devices[info.mode].push_back(it->first);
 	} else if (dynamic_cast<const IntegerSetting*>(&setting)) {
 		Infos::iterator it = infos.begin();
 		while (it != infos.end() && it->second.volumeSetting != &setting) {

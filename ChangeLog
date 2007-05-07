@@ -1,5 +1,10 @@
 $Id$
 
+2007-05-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Removed <sounddevice>_mode setting:
+	   - will be replaced by a balance setting soon
+	   - TODO what about backwards compatibilty?
+
 2007-05-04 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added support for SSE2 in HostCPU
 	* Added SSE2 optimized routine in ScanLine class

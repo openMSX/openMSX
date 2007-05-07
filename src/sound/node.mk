@@ -27,7 +27,6 @@ SRC_HDR:= \
 	Resample 
 
 HDR_ONLY:= \
-	ChannelMode \
 	SoundDriver \
 	Y8950Periphery
 

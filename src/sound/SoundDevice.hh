@@ -3,7 +3,6 @@
 #ifndef SOUNDDEVICE_HH
 #define SOUNDDEVICE_HH
 
-#include "ChannelMode.hh"
 #include "noncopyable.hh"
 #include <string>
 #include <memory>
@@ -21,17 +20,20 @@ class SoundDevice : private noncopyable
 public:
 	static const unsigned MAX_CHANNELS = 24;
 
-	/**
-	 * Get the unique name that identifies this sound device.
-	 * Used to create setting names.
-	 */
+	/** Get the unique name that identifies this sound device.
+	  * Used to create setting names.
+	  */
 	const std::string& getName() const;
 
-	/**
-	 * Gets a description of this sound device,
-	 * to be presented to the user.
-	 */
+	/** Gets a description of this sound device,
+	  * to be presented to the user.
+	  */
 	const std::string& getDescription() const;
+
+	/** Is this a stereo device?
+	  * This is set in the constructor and cannot be changed anymore
+	  */
+	bool isStereo() const;
 
 	/**
 	 * Set the relative volume for this sound device.
@@ -50,13 +52,13 @@ public:
 	void muteChannel  (unsigned channel, bool muted);
 
 protected:
-	/**
-	 * Constructor.
-	 * Initially, a sound device is muted.
-	 * @param mixer The Mixer object
-	 * @param name Unique name per sound device
-	 * @param description Description for this sound device
-	 */
+	/** Constructor.
+	  * @param mixer The Mixer object
+	  * @param name Unique name per sound device
+	  * @param description Description for this sound device
+	  * @param numChannels The number of channels for this device
+	  * @param stereo Is this a stereo device
+	  */
 	SoundDevice(MSXMixer& mixer, const std::string& name,
 	            const std::string& description,
 	            unsigned numChannels, bool stereo = false);
@@ -67,11 +69,8 @@ protected:
 	 * Call this method when the sound device is ready to start receiving
 	 * calls to updateBuffer, so after all initialisation is done.
 	 * @param config Configuration data for this sound device.
-	 * @param mode ChannelMode::MONO for a mono device, ChannelMode::STEREO
-	 *             for stereo.
 	 */
-	void registerSound(const XMLElement& config,
-	                   ChannelMode::Mode mode = ChannelMode::MONO);
+	void registerSound(const XMLElement& config);
 
 	/**
 	 * Unregisters this sound device with the Mixer.

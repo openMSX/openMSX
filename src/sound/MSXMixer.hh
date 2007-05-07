@@ -3,7 +3,6 @@
 #ifndef MSXMIXER_HH
 #define MSXMIXER_HH
 
-#include "ChannelMode.hh"
 #include "Schedulable.hh"
 #include "Observer.hh"
 #include "EmuTime.hh"
@@ -20,7 +19,6 @@ class Scheduler;
 class MSXCommandController;
 class ThrottleManager;
 class IntegerSetting;
-template <typename T> class EnumSetting;
 class StringSetting;
 class BooleanSetting;
 class Setting;
@@ -44,7 +42,7 @@ public:
 	 * 'regularly' called (see SoundDevice for more info).
 	 */
 	void registerSound(SoundDevice& device, short volume,
-	                   ChannelMode::Mode mode, unsigned numChannels);
+	                   unsigned numChannels);
 
 	/**
 	 * Every sounddevice must unregister before it is destructed
@@ -104,10 +102,8 @@ private:
 	unsigned fragmentSize;
 
 	struct SoundDeviceInfo {
-		ChannelMode::Mode mode;
 		int normalVolume;
 		IntegerSetting* volumeSetting;
-		EnumSetting<ChannelMode::Mode>* modeSetting;
 		struct ChannelSettings {
 			StringSetting* recordSetting;
 			BooleanSetting* muteSetting;
@@ -116,9 +112,6 @@ private:
 	};
 	typedef std::map<SoundDevice*, SoundDeviceInfo> Infos;
 	Infos infos;
-
-	std::vector<SoundDevice*> devices[ChannelMode::NB_MODES];
-	std::vector<int> mixBuffer;
 
 	Mixer& mixer;
 	MSXCommandController& msxCommandController;

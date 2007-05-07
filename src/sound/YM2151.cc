@@ -849,7 +849,7 @@ YM2151::YM2151(MSXMotherBoard& motherBoard, const std::string& name,
 
 	reset(time);
 
-	registerSound(config, ChannelMode::STEREO);
+	registerSound(config);
 }
 
 YM2151::~YM2151()
