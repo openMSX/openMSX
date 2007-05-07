@@ -5,6 +5,7 @@
 
 #include "Command.hh"
 #include "MSXEventListener.hh"
+#include <memory>
 
 namespace openmsx {
 
