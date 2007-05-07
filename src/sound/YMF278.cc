@@ -476,8 +476,8 @@ void YMF278::generateChannels(int** bufs, unsigned num)
 			volLeft  = std::max(0, volLeft);
 			volRight = std::max(0, volRight);
 
-			bufs[i][2 * j + 0] = (sample * volume[volLeft] ) >> 16;
-			bufs[i][2 * j + 1] = (sample * volume[volRight]) >> 16;
+			bufs[i][2 * j + 0] = (sample * volume[volLeft] ) >> 14;
+			bufs[i][2 * j + 1] = (sample * volume[volRight]) >> 14;
 
 			if (sl.lfo_active && sl.vib) {
 				int oct = sl.OCT;
@@ -821,7 +821,7 @@ void YMF278::setVolume(int newVolume)
 {
 	// Volume table, 1 = -0.375dB, 8 = -3dB, 256 = -96dB
 	for (int i = 0; i < 256; i++) {
-		volume[i] = (int)(4.0 * (double)newVolume * pow(2.0, (-0.375 / 6) * i));
+		volume[i] = (int)((double)newVolume * pow(2.0, (-0.375 / 6) * i));
 	}
 	for (int i = 256; i < 256 * 4; i++) {
 		volume[i] = 0;
