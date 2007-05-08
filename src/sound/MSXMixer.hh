@@ -92,7 +92,7 @@ private:
 	typedef std::map<SoundDevice*, SoundDeviceInfo> Infos;
 
 	void updateVolumeParams(Infos::iterator it);
-	void updateMasterVolume(int masterVolume);
+	void updateMasterVolume();
 	SoundDevice* getSoundDevice(const std::string& name);
 	void reInit();
 	void updateStream2(const EmuTime& time);

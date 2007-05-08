@@ -80,9 +80,10 @@ MSXMixer::~MSXMixer()
 	mute(); // calls Mixer::unregisterMixer()
 }
 
-void MSXMixer::registerSound(SoundDevice& device, short volume,
+void MSXMixer::registerSound(SoundDevice& device, short /*volume*/,
                              unsigned numChannels)
 {
+	// TODO read volume/balance(mode) from config file
 	const string& name = device.getName();
 	SoundDeviceInfo info;
 	info.volumeSetting = new IntegerSetting(msxCommandController,
@@ -337,7 +338,7 @@ unsigned MSXMixer::getSampleRate() const
 void MSXMixer::update(const Setting& setting)
 {
 	if (&setting == &masterVolume) {
-		updateMasterVolume(masterVolume.getValue());
+		updateMasterVolume();
 	} else if (&setting == &speedSetting) {
 		reInit();
 	} else if (dynamic_cast<const IntegerSetting*>(&setting)) {
@@ -433,8 +434,7 @@ void MSXMixer::updateVolumeParams(Infos::iterator it)
 	info.right2 = static_cast<int>(r2 * 256);
 }
 
-// 0 <= mastervolume <= 100
-void MSXMixer::updateMasterVolume(int masterVolume)
+void MSXMixer::updateMasterVolume()
 {
 	for (Infos::iterator it = infos.begin(); it != infos.end(); ++it) {
 		updateVolumeParams(it);
