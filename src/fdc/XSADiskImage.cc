@@ -86,7 +86,7 @@ void XSADiskImage::chkheader()
 	outbufpos = outbuf;
 
 	// skip original filename
-	while (charin());
+	while (charin()) /*empty*/;
 }
 
 // the actual decompression algorithm itself

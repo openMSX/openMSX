@@ -62,7 +62,7 @@ static bool skipHeader(z_stream& s, std::string& originalName)
 	}
 	if ((flags & COMMENT) != 0) {
 		// skip the .gz file comment
-		while (getByte(s));
+		while (getByte(s)) /*empty*/;
 	}
 	if ((flags & HEAD_CRC) != 0) {
 		// skip the header crc
