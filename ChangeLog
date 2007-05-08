@@ -1,6 +1,9 @@
 $Id$
 
 2007-05-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added SSE2 optimized noise routine in FBPostProcessor
+
+2007-05-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Removed <sounddevice>_mode setting:
 	   - will be replaced by a balance setting soon
 	   - TODO what about backwards compatibilty?

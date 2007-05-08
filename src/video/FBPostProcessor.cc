@@ -16,7 +16,7 @@ namespace openmsx {
 
 static const unsigned NOISE_SHIFT = 8192;
 static const unsigned NOISE_BUF_SIZE = 2 * NOISE_SHIFT;
-static signed char noiseBuf[NOISE_BUF_SIZE];
+static signed char noiseBuf[NOISE_BUF_SIZE] __attribute__((__aligned__(16)));
 
 template <class Pixel>
 void FBPostProcessor<Pixel>::preCalcNoise(double factor)
@@ -47,6 +47,49 @@ void FBPostProcessor<Pixel>::drawNoiseLine(
 {
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
+	if ((sizeof(Pixel) == 4) && cpu.hasSSE2()) {
+		// SSE2 32bpp
+		assert(((4 * width) % 64) == 0);
+		asm (
+			"pcmpeqb  %%xmm7, %%xmm7;"
+			"psllw    $15, %%xmm7;"
+			"packsswb %%xmm7, %%xmm7;"
+			".p2align 4,,15;"
+		"0:"
+			"movdqa     (%0, %3), %%xmm0;"
+			"movdqa   16(%0, %3), %%xmm1;"
+			"movdqa   32(%0, %3), %%xmm2;"
+			"pxor     %%xmm7, %%xmm0;"
+			"movdqa   48(%0, %3), %%xmm3;"
+			"pxor     %%xmm7, %%xmm1;"
+			"pxor     %%xmm7, %%xmm2;"
+			"paddsb     (%2, %3), %%xmm0;"
+			"pxor     %%xmm7, %%xmm3;"
+			"paddsb   16(%2, %3), %%xmm1;"
+			"paddsb   32(%2, %3), %%xmm2;"
+			"pxor     %%xmm7, %%xmm0;"
+			"paddsb   48(%2, %3), %%xmm3;"
+			"pxor     %%xmm7, %%xmm1;"
+			"pxor     %%xmm7, %%xmm2;"
+			"movdqa   %%xmm0,   (%1, %3);"
+			"pxor     %%xmm7, %%xmm3;"
+			"movdqa   %%xmm1, 16(%1, %3);"
+			"movdqa   %%xmm2, 32(%1, %3);"
+			"movdqa   %%xmm3, 48(%1, %3);"
+			"add      $64, %3;"
+			"jnz      0b;"
+
+			: // no output
+			: "r" (in    + width)     // 0
+			, "r" (out   + width)     // 1
+			, "r" (noise + 4 * width) // 2
+			, "r" (-4 * width)        // 3
+			#ifdef __SSE__
+			: "xmm0", "xmm1", "xmm2", "xmm3", "xmm7"
+			#endif
+		);
+		return;
+	}
 	if ((sizeof(Pixel) == 4) && cpu.hasSSE()) {
 		// extended-MMX 32bpp
 		assert(((4 * width) % 32) == 0);
@@ -297,7 +340,7 @@ RawFrame* FBPostProcessor<Pixel>::rotateFrames(
 	const EmuTime& time)
 {
 	for (unsigned y = 0; y < screen.getHeight(); ++y) {
-		noiseShift[y] = rand() & (NOISE_SHIFT - 1) & ~7;
+		noiseShift[y] = rand() & (NOISE_SHIFT - 1) & ~15;
 	}
 
 	return PostProcessor::rotateFrames(finishedFrame, field, time);
