@@ -436,7 +436,7 @@ some place in your <code>mymsx/hardwareconfig.xml</code> file (between the <code
           &lt;mem base="0x4000" size="0x4000"/&gt;
           &lt;sound&gt;
             &lt;volume&gt;13000&lt;/volume&gt;
-            &lt;mode&gt;left&lt;/mode&gt;
+            &lt;balance&gt;-75&lt;/balance&gt;
           &lt;/sound&gt;
           &lt;rom&gt;
             &lt;sha1&gt;9d789166e3caf28e4742fe933d962e99618c633d&lt;/sha1&gt;
@@ -462,8 +462,8 @@ cartridge slot of the NMS-8250 is used. <code>&lt;secondary&gt;</code> means sub
 tag has the attribute <code>external="true"</code>, this means that the slot is visible on the outside of the machine and can thus be used for external cartridges like extensions and ROM software.
 As explained above, the parameter filename can be adjusted to the name of your (64kB!) FMPAC ROM
 file (note: if the file is not 64 kB (65536 bytes) in size, it won't work).
-"mode" defines to what channel the FMPAC's sound will be routed by
-default.
+"balance" defines to what channel the FMPAC's sound will be routed by
+default: in this case most of the sound goes to the left channel and a little bit goes to the right channel.
 "sramname" specifies the file name for file in which the SRAM contents will be
 saved to or loaded from. The saved files are compatible with the files that are
 saved by the (real) FMPAC commander's save option.
