@@ -45,7 +45,6 @@
           </rom>
           <sound>
             <volume>9000</volume>
-            <mode>mono</mode>
           </sound>
         </MSX-MUSIC>
       </secondary>

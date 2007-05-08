@@ -16,7 +16,6 @@
       <type>Philips</type>
       <sound>
         <volume>12000</volume>
-        <mode>mono</mode>
       </sound>
       <sampleram>32</sampleram>
     </MSX-AUDIO>

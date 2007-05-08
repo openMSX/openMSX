@@ -105,7 +105,7 @@
           <mem base="0x4000" size="0x4000"/>
           <sound>
             <volume>13000</volume>
-            <mode>left</mode>
+            <balance>-75</balance>
           </sound>
           <rom>
             <sha1>9d789166e3caf28e4742fe933d962e99618c633d</sha1>
@@ -123,7 +123,7 @@
       <type>Philips</type>
       <sound>
         <volume>12000</volume>
-        <mode>right</mode>
+        <balance>75</balance>
       </sound>
       <sampleram>256</sampleram>
     </MSX-AUDIO>

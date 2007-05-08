@@ -17,7 +17,6 @@
           <mem base="0x0000" size="0x10000"/>
           <sound>
             <volume>13000</volume>
-            <mode>mono</mode>
           </sound>
           <rom>
             <sha1>19bf90b8d2e695ffad61fff6f47f7fcda2f24a1d</sha1>

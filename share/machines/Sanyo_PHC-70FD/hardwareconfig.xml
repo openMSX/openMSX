@@ -130,7 +130,6 @@
           </rom>
           <sound>
             <volume>9000</volume>
-            <mode>mono</mode>
           </sound>
           <io base="0x7C" num="2" type="O"/>
           <mem base="0x4000" size="0x4000"/>

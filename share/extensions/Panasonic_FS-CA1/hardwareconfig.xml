@@ -15,7 +15,6 @@
       <type>Panasonic</type>
       <sound>
         <volume>12000</volume>
-        <mode>mono</mode>
       </sound>
       <!-- I'm not sure if this device actually has sampleRAM! -->
       <sampleram>32</sampleram>

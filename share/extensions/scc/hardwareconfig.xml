@@ -16,7 +16,6 @@
           <mem base="0x4000" size="0x8000"/>
           <sound>
             <volume>11500</volume>
-            <mode>mono</mode>
           </sound>
           <mappertype>SCC</mappertype>
           <rom/>
