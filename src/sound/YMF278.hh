@@ -85,7 +85,6 @@ public:
 private:
 	// SoundDevice
 	virtual void setOutputRate(unsigned sampleRate);
-	virtual void setVolume(int newVolume);
 	virtual void generateChannels(int** bufs, unsigned num);
 
 	void writeReg(byte reg, byte data, const EmuTime& time);

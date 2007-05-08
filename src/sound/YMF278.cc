@@ -785,6 +785,14 @@ YMF278::YMF278(MSXMotherBoard& motherBoard, const std::string& name, int ramSize
 
 	reset(time);
 	registerSound(config);
+
+	// Volume table, 1 = -0.375dB, 8 = -3dB, 256 = -96dB
+	for (int i = 0; i < 256; i++) {
+		volume[i] = (int)(32768.0 * pow(2.0, (-0.375 / 6) * i));
+	}
+	for (int i = 256; i < 256 * 4; i++) {
+		volume[i] = 0;
+	}
 }
 
 YMF278::~YMF278()
@@ -815,18 +823,6 @@ void YMF278::setOutputRate(unsigned sampleRate)
 	setInputRate(sampleRate);
 	freqbase = 44100.0 / (double)sampleRate;
 	eg_timer_add = (unsigned)((1 << EG_SH) * freqbase);
-}
-
-void YMF278::setVolume(int newVolume)
-{
-	// Volume table, 1 = -0.375dB, 8 = -3dB, 256 = -96dB
-	for (int i = 0; i < 256; i++) {
-		volume[i] = (int)((double)newVolume * pow(2.0, (-0.375 / 6) * i));
-	}
-	for (int i = 256; i < 256 * 4; i++) {
-		volume[i] = 0;
-	}
-
 }
 
 byte YMF278::readMem(unsigned address) const
@@ -891,6 +887,5 @@ void DebugMemory::write(unsigned address, byte value)
 {
 	ymf278.writeMem(address, value);
 }
-
 
 } // namespace openmsx

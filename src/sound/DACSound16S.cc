@@ -20,11 +20,6 @@ DACSound16S::~DACSound16S()
 	unregisterSound();
 }
 
-void DACSound16S::setVolume(int newVolume)
-{
-	volume = newVolume;
-}
-
 void DACSound16S::setOutputRate(unsigned sampleRate)
 {
 	setInputRate(sampleRate);
@@ -42,7 +37,7 @@ void DACSound16S::writeDAC(short value, const EmuTime& time)
 	if (value == lastWrittenValue) return;
 	lastWrittenValue = value;
 
-	queue.push_back(Sample(time, (value * volume) >> 15));
+	queue.push_back(Sample(time, value));
 }
 
 void DACSound16S::generateChannels(int** bufs, unsigned num)

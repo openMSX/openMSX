@@ -23,11 +23,9 @@ private:
 	inline int getSample(unsigned index);
 
 	// SoundDevice
-	virtual void setVolume(int newVolume);
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
     
-	int volume;
 	unsigned outFreq;
 	const void* sampBuf;
 	unsigned count;

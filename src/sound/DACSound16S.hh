@@ -24,7 +24,6 @@ public:
 
 private:
 	// SoundDevice
-	virtual void setVolume(int newVolume);
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
 	virtual bool updateBuffer(unsigned length, int* buffer,
@@ -41,7 +40,6 @@ private:
 
 	EmuTime start;
 	EmuDuration sampDur;
-	int volume;
 	int prevValue;
 	int prevA, prevB;
 	short lastWrittenValue;

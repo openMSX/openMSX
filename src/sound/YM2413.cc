@@ -991,7 +991,7 @@ int YM2413::Slot::calc_slot_hat(int pgout_cym, bool noise)
 
 inline int YM2413::adjust(int x)
 {
-	return (maxVolume * x) >> DB2LIN_AMP_BITS;
+	return x << (15 - DB2LIN_AMP_BITS);
 }
 
 inline void YM2413::calcSample(int** bufs, unsigned sample)
@@ -1104,11 +1104,6 @@ bool YM2413::updateBuffer(unsigned length, int* buffer,
 	} else {
 		return false;
 	}
-}
-
-void YM2413::setVolume(int newVolume)
-{
-	maxVolume = newVolume;
 }
 
 

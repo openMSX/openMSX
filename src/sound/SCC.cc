@@ -173,11 +173,6 @@ void SCC::setOutputRate(unsigned sampleRate)
 	setResampleRatio(input, sampleRate);
 }
 
-void SCC::setVolume(int maxVolume)
-{
-	masterVolume = 2 * maxVolume;
-}
-
 void SCC::setChipMode(ChipMode newMode)
 {
 	if (currentChipMode == SCC_Real) {
@@ -341,7 +336,7 @@ void SCC::writeMemInterface(byte address, byte value, const EmuTime& time)
 inline int SCC::adjust(signed char wav, byte vol)
 {
 	int tmp = (static_cast<int>(wav) * vol) / 16;
-	return (tmp * masterVolume) / 256;
+	return tmp * 256;
 }
 
 void SCC::writeWave(byte channel, byte address, byte value)

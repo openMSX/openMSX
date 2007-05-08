@@ -130,7 +130,6 @@ private:
 	};
 
 	// SoundDevice:
-	virtual void setVolume(int volume);
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
 

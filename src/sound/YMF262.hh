@@ -149,7 +149,6 @@ public:
 
 private:
 	// SoundDevice
-	virtual void setVolume(int volume);
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
 	virtual bool updateBuffer(unsigned length, int* buffer,
@@ -196,7 +195,6 @@ private:
 	IRQHelper irq;
 
 	int chanout[18]; // 18 channels
-	int maxVolume;
 
 	byte reg[512];
 	YMF262Channel channels[18];	// OPL3 chips have 18 channels

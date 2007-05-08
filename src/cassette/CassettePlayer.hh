@@ -48,7 +48,6 @@ public:
 	virtual void unplugHelper(const EmuTime& time);
 
 	// SoundDevice
-	virtual void setVolume(int newVolume);
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
 
@@ -132,7 +131,6 @@ private:
 	EmuTime prevTime;
 
 	// SoundDevice
-	int volume;
 	EmuDuration delta;
 	EmuTime playTapeTime;
 	std::string casImage;

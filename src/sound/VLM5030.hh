@@ -37,7 +37,6 @@ public:
 
 private:
 	// SoundDevice
-	virtual void setVolume(int maxVolume);
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
 	virtual bool updateBuffer(
@@ -64,8 +63,6 @@ private:
 	unsigned current_pitch;
 	int current_k[10];
 	int x[10];
-
-	int maxVolume;
 
 	word address;
 	word vcu_addr_h;

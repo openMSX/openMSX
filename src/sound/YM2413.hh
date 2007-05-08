@@ -115,7 +115,6 @@ public:
 
 private:
 	// SoundDevice
-	virtual void setVolume(int newVolume);
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
 	virtual bool updateBuffer(unsigned length, int* buffer,
@@ -145,8 +144,6 @@ private:
 private:
 	friend class YM2413Debuggable;
 	const std::auto_ptr<YM2413Debuggable> debuggable;
-
-	int maxVolume;
 
 	byte reg[0x40];
 

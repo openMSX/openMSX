@@ -1860,7 +1860,7 @@ bool YMF262::checkMuteHelper()
 
 int YMF262::adjust(int x)
 {
-	return (maxVolume * x) >> 13;
+	return x << 2;
 }
 
 void YMF262::generateChannels(int** bufs, unsigned num)
@@ -1984,11 +1984,6 @@ bool YMF262::updateBuffer(unsigned length, int* buffer,
 	} else {
 		return false;
 	}
-}
-
-void YMF262::setVolume(int newVolume)
-{
-	maxVolume = newVolume;
 }
 
 

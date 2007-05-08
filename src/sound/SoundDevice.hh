@@ -35,19 +35,6 @@ public:
 	  */
 	bool isStereo() const;
 
-	/**
-	 * Set the relative volume for this sound device.
-	 * This can be used for example to make an MSX-MUSIC sound louder
-	 * than an MSX-AUDIO.
-	 * Will be called by Mixer when the sound device registers.
-	 * Later on the user might (interactively) alter the volume of this
-	 * device. So the volume change must not necessarily have an immediate
-	 * effect. For example (short) precalculated buffers must not be
-	 * discarded.
-	 * @param newVolume The new volume, where 0 = silent and 32767 = max.
-	 */
-	virtual void setVolume(int newVolume) = 0;
-
 	void recordChannel(unsigned channel, const std::string& filename);
 	void muteChannel  (unsigned channel, bool muted);
 

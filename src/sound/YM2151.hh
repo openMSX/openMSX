@@ -112,7 +112,6 @@ private:
 	void setConnect(YM2151Operator* om1, int cha, int v);
 
 	// SoundDevice
-	virtual void setVolume(int maxVolume);
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
 	virtual bool updateBuffer(unsigned length, int* buffer,
@@ -145,7 +144,6 @@ private:
 	void advance();
 
 	bool checkMuteHelper();
-	int adjust(int x);
 
 	IRQHelper irq;
 
@@ -208,8 +206,6 @@ private:
 	int m2, c1, c2;          // Phase Modulation input for operators 2,3,4
 	int mem;                 // one sample delay memory
 
-	int maxVolume;
-
 	word timer_A_val;
 
 	byte lfo_wsel;           // LFO waveform (0-saw, 1-square, 2-triangle,
@@ -219,7 +215,6 @@ private:
 
 	byte test;               // TEST register
 	byte ct;                 // output control pins (bit1-CT2, bit0-CT1)
-
 };
 
 } // namespace openmsx

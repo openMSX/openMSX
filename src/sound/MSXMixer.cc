@@ -117,7 +117,6 @@ void MSXMixer::registerSound(SoundDevice& device, double volume,
 
 	infos[&device] = info;
 	device.setOutputRate(sampleRate);
-	device.setVolume(32767); // TODO remove
 
 	Infos::iterator it = infos.find(&device);
 	assert(it != infos.end());

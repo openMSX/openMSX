@@ -833,7 +833,7 @@ int Y8950::Slot::calc_slot_hat(int a, int b, int whitenoise)
 
 inline int Y8950::adjust(int x)
 {
-	return (maxVolume * x) >> DB2LIN_AMP_BITS;
+	return x << (15 - DB2LIN_AMP_BITS);
 }
 
 inline void Y8950::calcSample(int** bufs, unsigned sample)
@@ -952,12 +952,6 @@ bool Y8950::updateBuffer(unsigned length, int* buffer,
 		return false;
 	}
 }
-
-void Y8950::setVolume(int newVolume)
-{
-	maxVolume = newVolume;
-}
-
 
 //
 // I/O Ctrl

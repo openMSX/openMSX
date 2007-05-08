@@ -31,7 +31,6 @@ public:
 
 private:
 	// SoundDevice
-	virtual void setVolume(int newVolume);
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
 	virtual bool updateBuffer(unsigned length, int* buffer,

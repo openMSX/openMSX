@@ -23,11 +23,6 @@ void SamplePlayer::reset()
 	playing = false;
 }
 
-void SamplePlayer::setVolume(int newVolume)
-{
-	volume = newVolume * 3;
-}
-
 void SamplePlayer::setOutputRate(unsigned sampleRate)
 {
 	setInputRate(sampleRate);
@@ -74,7 +69,7 @@ void SamplePlayer::generateChannels(int** bufs, unsigned num)
 			int samp0 = getSample(index);
 			int samp1 = getSample(index + 1);
 			int samp  = ((0x100 - frac) * samp0 + frac * samp1) >> 8;
-			bufs[0][i] = (samp * volume) >> 15;
+			bufs[0][i] = 3 * samp;
 			count += step;
 		} else {
 			playing = false;

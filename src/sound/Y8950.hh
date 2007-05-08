@@ -118,7 +118,6 @@ public:
 
 private:
 	// SoundDevice
-	virtual void setVolume(int maxVolume);
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
 	virtual bool updateBuffer(unsigned length, int* buffer,
@@ -178,8 +177,6 @@ private:
 
 	int lfo_pm;
 	int lfo_am;
-
-	int maxVolume;
 
 	// Bitmask for register 0x04
 	// Timer1 Start.

@@ -529,11 +529,6 @@ VLM5030::~VLM5030()
 	unregisterSound();
 }
 
-void VLM5030::setVolume(int newVolume)
-{
-        maxVolume = newVolume;
-}
-
 void VLM5030::setOutputRate(unsigned sampleRate)
 {
        const int CLOCK_FREQ = 3579545;

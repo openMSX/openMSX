@@ -5,6 +5,8 @@ $Id$
 	* Restored parsing of the <volume> and <mode> tags in the
 	  soundsection of hardwareconfig files. There can also
 	  be a <balance> tag now (that overrules <mode>)
+	* Removed volume handling from sounddevice code:
+	   - it's now handled (together with balance) inside MSXMixer
 
 2007-05-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Removed <sounddevice>_mode setting:

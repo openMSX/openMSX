@@ -733,11 +733,7 @@ public:
 	}
 
 	int adjust(int x) {
-		return (maxVolume * x) >> 11;
-	}
-
-	void setVolume(int volume) {
-		maxVolume = volume;
+		return x << 4;
 	}
 
 	inline void advance_lfo();
@@ -811,8 +807,6 @@ private:
 	 * Random generator for noise: 23 bit shift register.
 	 */
 	int noise_rng;
-
-	int maxVolume;
 };
 
 inline void Slot::advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier)
@@ -1717,11 +1711,6 @@ bool YM2413_2::updateBuffer(unsigned length, int* buffer,
 	} else {
 		return false;
 	}
-}
-
-void YM2413_2::setVolume(int newVolume)
-{
-	global->setVolume(newVolume);
 }
 
 

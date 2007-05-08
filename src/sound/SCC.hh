@@ -33,7 +33,6 @@ public:
 private:
 	// SoundDevice
 	virtual void setOutputRate(unsigned sampleRate);
-	virtual void setVolume(int maxVolume);
 	virtual void generateChannels(int** bufs, unsigned num);
 	virtual bool updateBuffer(unsigned length, int* buffer,
 		const EmuTime& time, const EmuDuration& sampDur);
@@ -55,7 +54,6 @@ private:
 
 	Clock<CLOCK_FREQ> deformTimer;
 	ChipMode currentChipMode;
-	int masterVolume;
 
 	signed char wave[5][32];
 	int volAdjustedWave[5][32];

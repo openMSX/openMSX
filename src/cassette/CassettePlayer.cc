@@ -456,11 +456,6 @@ void CassettePlayer::unplugHelper(const EmuTime& time)
 }
 
 
-void CassettePlayer::setVolume(int newVolume)
-{
-	volume = newVolume;
-}
-
 void CassettePlayer::setOutputRate(unsigned sampleRate)
 {
 	setInputRate(sampleRate);
@@ -475,7 +470,7 @@ void CassettePlayer::generateChannels(int** bufs, unsigned num)
 	}
 
 	for (unsigned i = 0; i < num; ++i) {
-		bufs[0][i] = (((int)getSample(playTapeTime)) * volume) >> 15;
+		bufs[0][i] = getSample(playTapeTime);
 		playTapeTime += delta;
 	}
 }

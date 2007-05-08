@@ -219,7 +219,7 @@ AY8910::Amplitude::Amplitude(const XMLElement& config)
 	envChan[1] = false;
 	envChan[2] = false;
 	envVolume = 0;
-	setMasterVolume(0); // avoid UMR
+	setMasterVolume(32768);
 }
 
 inline unsigned AY8910::Amplitude::getVolume(byte chan)
@@ -546,16 +546,6 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime& time)
 		break;
 	}
 }
-
-void AY8910::setVolume(int volume)
-{
-	amplitude.setMasterVolume(volume);
-	// recalculate volume for all channels
-	for (int i = 0; i < 3; ++i) {
-		amplitude.setChannelVolume(i, regs[AY_AVOL + i]);
-	}
-}
-
 
 void AY8910::setOutputRate(unsigned sampleRate)
 {

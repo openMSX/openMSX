@@ -37,8 +37,6 @@ static const int SIN_MASK = SIN_LEN - 1;
 
 static const int TL_RES_LEN = 256; // 8 bits addressing (real chip)
 
-static const int MAXAMP = 32768; // code was designed to sound good with 16bit signed output
-
 // TL_TAB_LEN is calculated as:
 //  13 - sinus amplitude bits     (Y axis)
 //  2  - sinus sign bit           (Y axis)
@@ -1454,11 +1452,6 @@ void YM2151::advance()
 	}
 }
 
-int YM2151::adjust(int x)
-{
-	return (maxVolume * x) / MAXAMP;
-}
-
 void YM2151::generateChannels(int** bufs, unsigned num)
 {
 	if (checkMuteHelper()) {
@@ -1480,8 +1473,8 @@ void YM2151::generateChannels(int** bufs, unsigned num)
 		chan7Calc(); // special case for channel 7
 
 		for (int j = 0; j < 8; ++j) {
-			bufs[j][2 * i + 0] = adjust(chanout[j] & pan[2 * j + 0]);
-			bufs[j][2 * i + 1] = adjust(chanout[j] & pan[2 * j + 1]);
+			bufs[j][2 * i + 0] = chanout[j] & pan[2 * j + 0];
+			bufs[j][2 * i + 1] = chanout[j] & pan[2 * j + 1];
 		}
 		advance();
 	}
@@ -1512,11 +1505,6 @@ bool YM2151::updateBuffer(unsigned length, int* buffer,
 	} else {
 		return false;
 	}
-}
-
-void YM2151::setVolume(int newVolume)
-{
-	maxVolume = newVolume;
 }
 
 void YM2151::setOutputRate(unsigned sampleRate)
