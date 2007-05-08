@@ -2,6 +2,9 @@ $Id$
 
 2007-05-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added SSE2 optimized noise routine in FBPostProcessor
+	* Restored parsing of the <volume> and <mode> tags in the
+	  soundsection of hardwareconfig files. There can also
+	  be a <balance> tag now (that overrules <mode>)
 
 2007-05-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Removed <sounddevice>_mode setting:

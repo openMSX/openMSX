@@ -54,8 +54,19 @@ bool SoundDevice::isStereo() const
 void SoundDevice::registerSound(const XMLElement& config)
 {
 	const XMLElement& soundConfig = config.getChild("sound");
-	short volume = soundConfig.getChildDataAsInt("volume");
-	mixer.registerSound(*this, volume, numChannels);
+	double volume = soundConfig.getChildDataAsInt("volume") / 32767.0;
+	int balance = 0;
+	string mode = soundConfig.getChildData("mode", "mono");
+	if (mode == "mono") {
+		balance = 0;
+	} else if (mode == "left") {
+		balance = -100;
+	} else if (mode == "right") {
+		balance = 100;
+	}
+	balance = soundConfig.getChildDataAsInt("balance", balance);
+
+	mixer.registerSound(*this, volume, balance, numChannels);
 }
 
 void SoundDevice::unregisterSound()

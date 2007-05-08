@@ -41,8 +41,8 @@ public:
 	 * After registration the device its updateBuffer() method is
 	 * 'regularly' called (see SoundDevice for more info).
 	 */
-	void registerSound(SoundDevice& device, short volume,
-	                   unsigned numChannels);
+	void registerSound(SoundDevice& device, double volume,
+	                   int balance, unsigned numChannels);
 
 	/**
 	 * Every sounddevice must unregister before it is destructed
@@ -80,6 +80,7 @@ public:
 	
 private:
 	struct SoundDeviceInfo {
+		double defaultVolume;
 		IntegerSetting* volumeSetting;
 		IntegerSetting* balanceSetting;
 		struct ChannelSettings {

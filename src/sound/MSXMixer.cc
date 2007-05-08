@@ -80,16 +80,18 @@ MSXMixer::~MSXMixer()
 	mute(); // calls Mixer::unregisterMixer()
 }
 
-void MSXMixer::registerSound(SoundDevice& device, short /*volume*/,
-                             unsigned numChannels)
+void MSXMixer::registerSound(SoundDevice& device, double volume,
+                             int balance, unsigned numChannels)
 {
 	// TODO read volume/balance(mode) from config file
 	const string& name = device.getName();
 	SoundDeviceInfo info;
+	info.defaultVolume = volume;
 	info.volumeSetting = new IntegerSetting(msxCommandController,
 		name + "_volume", "the volume of this sound chip", 75, 0, 100);
 	info.balanceSetting = new IntegerSetting(msxCommandController,
-		name + "_balance", "the balance of this sound chip", 0, -100, 100);
+		name + "_balance", "the balance of this sound chip",
+		balance, -100, 100);
 
 	info.volumeSetting->attach(*this);
 	info.balanceSetting->attach(*this);
@@ -405,7 +407,7 @@ void MSXMixer::updateVolumeParams(Infos::iterator it)
 	SoundDeviceInfo& info = it->second;
 	int mVolume = masterVolume.getValue();
 	int dVolume = info.volumeSetting->getValue();
-	double volume = mVolume * dVolume / (100.0 * 100.0);
+	double volume = info.defaultVolume * mVolume * dVolume / (100.0 * 100.0);
 	int balance = info.balanceSetting->getValue();
 	double l1, r1, l2, r2;
 	if (it->first->isStereo()) {
