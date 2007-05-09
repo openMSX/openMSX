@@ -784,8 +784,6 @@ private:
 	 */
 	static void initTables();
 
-	bool checkMuteHelper();
-
 	/**
 	 * Instrument settings:
 	 *  0     - user instrument
