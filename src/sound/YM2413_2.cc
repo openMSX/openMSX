@@ -416,7 +416,7 @@ public:
 	 */
 	void updateGenerators();
 
-	inline int op_calc(int phase, int pm);
+	inline int calcOutput(int phase, int pm) const;
 	inline void updateModulator();
 	inline void advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier);
 	inline void advancePhaseGenerator();
@@ -434,21 +434,21 @@ public:
 	/**
 	 * Does this slot currently produce an output signal?
 	 */
-	bool isActive() {
+	bool isActive() const {
 		return state != EG_OFF;
 	}
 
 	/**
 	 * Returns the integer part of the frequency counter of this slot.
 	 */
-	int getPhase() {
+	int getPhase() const {
 		return phase.toInt();
 	}
 
 	/**
 	 * Output of SLOT 1 can be used to phase modulate SLOT 2.
 	 */
-	int getPhaseModulation() {
+	int getPhaseModulation() const {
 		return op1_out[0] << 1;
 	}
 
@@ -613,7 +613,11 @@ class Channel
 {
 public:
 	Channel();
-	inline int chan_calc();
+
+	/**
+	 * Calculate the value of the current sample produced by this channel.
+	 */
+	inline int calcOutput();
 
 	/**
 	 * Initializes those parts that cannot be initialized in the constructor,
@@ -736,7 +740,10 @@ public:
 		return x << 4;
 	}
 
-	inline void advance_lfo();
+	/**
+	 * Advance LFO to next sample.
+	 */
+	inline void advanceLFO();
 
 	/**
 	 * Advance envelope and phase generators to next sample.
@@ -746,7 +753,6 @@ public:
 	inline int genPhaseHighHat();
 	inline int genPhaseSnare();
 	inline int genPhaseCymbal();
-	inline void rhythm_calc(int** bufs, unsigned sample);
 
 	void reset();
 
@@ -765,7 +771,10 @@ public:
 	void setRhythmMode(bool newMode);
 	void setRhythmFlags(byte flags);
 
-	bool checkMuteHelper();
+	/**
+	 * Calculates the output of the rhythm channels [6..10].
+	 */
+	inline void generateRhythm(int** bufs, unsigned sample);
 
 	void generateChannels(int** bufs, unsigned num);
 
@@ -774,6 +783,8 @@ private:
 	 * Initialize "tl_tab" and "sin_tab".
 	 */
 	static void initTables();
+
+	bool checkMuteHelper();
 
 	/**
 	 * Instrument settings:
@@ -939,8 +950,7 @@ inline void Slot::updateReleaseRate()
 	eg_sel_rr = eg_rate_select[rr + kcodeScaled];
 }
 
-// advance LFO to next sample
-inline void Global::advance_lfo()
+inline void Global::advanceLFO()
 {
 	// Amplitude modulation: 27 output levels (triangle waveform)
 	// 1 level takes one of: 192, 256 or 448 samples
@@ -999,7 +1009,7 @@ inline void Global::advance()
 	noise_rng >>= 1;
 }
 
-inline int Slot::op_calc(int phase, int pm)
+inline int Slot::calcOutput(int phase, int pm) const
 {
 	const int env = (TLL + volume + (global->get_LFO_AM() & AMmask)) << 5;
 	if (env < TL_TAB_LEN) {
@@ -1017,17 +1027,16 @@ inline void Slot::updateModulator()
 	// Shift output in 2-place buffer.
 	op1_out[0] = op1_out[1];
 	// Calculate operator output.
-	op1_out[1] = op_calc(getPhase(), pm);
+	op1_out[1] = calcOutput(getPhase(), pm);
 }
 
-// calculate output
-inline int Channel::chan_calc()
+inline int Channel::calcOutput()
 {
 	// SLOT 1
 	slots[SLOT1].updateModulator();
 
 	// SLOT 2
-	return slots[SLOT2].op_calc(
+	return slots[SLOT2].calcOutput(
 		slots[SLOT2].getPhase(), slots[SLOT1].getPhaseModulation()
 		);
 }
@@ -1167,50 +1176,6 @@ inline int Global::genPhaseCymbal()
 		phase = 0x300;
 	}
 	return phase;
-}
-
-// calculate rhythm
-inline void Global::rhythm_calc(int** bufs, unsigned sample)
-{
-	// Bass Drum (verified on real YM3812):
-	//  - depends on the channel 6 'connect' register:
-	//    when connect = 0 it works the same as in normal (non-rhythm) mode
-	//                     (op1->op2->out)
-	//    when connect = 1 _only_ operator 2 is present on output (op2->out),
-	//                     operator 1 is ignored
-	//  - output sample always is multiplied by 2
-	Slot& SLOT6_1 = channels[6].slots[SLOT1];
-	Slot& SLOT6_2 = channels[6].slots[SLOT2];
-	SLOT6_1.updateModulator();
-	bufs[6][sample] = adjust(2 * SLOT6_2.op_calc(
-		SLOT6_2.getPhase(), SLOT6_1.getPhaseModulation()
-		));
-
-	// Envelope generation based on:
-	//   HH  channel 7->slot1
-	//   SD  channel 7->slot2
-	//   TOM channel 8->slot1
-	//   TOP channel 8->slot2
-
-	// TODO: Skip phase generation if output will 0 anyway.
-	//       Possible by passing phase generator as a template parameter to
-	//       op_calc.
-
-	// High Hat (verified on real YM3812)
-	Slot& SLOT7_1 = channels[7].slots[SLOT1];
-	bufs[7][sample] = adjust(2 * SLOT7_1.op_calc(genPhaseHighHat(), 0));
-
-	// Snare Drum (verified on real YM3812)
-	Slot& SLOT7_2 = channels[7].slots[SLOT2];
-	bufs[8][sample] = adjust(2 * SLOT7_2.op_calc(genPhaseSnare(), 0));
-
-	// Tom Tom (verified on real YM3812)
-	Slot& SLOT8_1 = channels[8].slots[SLOT1];
-	bufs[9][sample] = adjust(2 * SLOT8_1.op_calc(SLOT8_1.getPhase(), 0));
-
-	// Top Cymbal (verified on real YM2413)
-	Slot& SLOT8_2 = channels[8].slots[SLOT2];
-	bufs[10][sample] = adjust(2 * SLOT8_2.op_calc(genPhaseCymbal(), 0));
 }
 
 void Global::initTables()
@@ -1612,6 +1577,86 @@ void Global::resetOperators()
 	}
 }
 
+inline void Global::generateRhythm(int** bufs, unsigned sample)
+{
+	// Bass Drum (verified on real YM3812):
+	//  - depends on the channel 6 'connect' register:
+	//    when connect = 0 it works the same as in normal (non-rhythm) mode
+	//                     (op1->op2->out)
+	//    when connect = 1 _only_ operator 2 is present on output (op2->out),
+	//                     operator 1 is ignored
+	//  - output sample always is multiplied by 2
+	Slot& SLOT6_1 = channels[6].slots[SLOT1];
+	Slot& SLOT6_2 = channels[6].slots[SLOT2];
+	SLOT6_1.updateModulator();
+	bufs[6][sample] = adjust(2 * SLOT6_2.calcOutput(
+		SLOT6_2.getPhase(), SLOT6_1.getPhaseModulation()
+		));
+
+	// Envelope generation based on:
+	//   HH  channel 7->slot1
+	//   SD  channel 7->slot2
+	//   TOM channel 8->slot1
+	//   TOP channel 8->slot2
+
+	// TODO: Skip phase generation if output will 0 anyway.
+	//       Possible by passing phase generator as a template parameter to
+	//       calcOutput.
+
+	// High Hat (verified on real YM3812)
+	Slot& SLOT7_1 = channels[7].slots[SLOT1];
+	bufs[7][sample] = adjust(2 * SLOT7_1.calcOutput(genPhaseHighHat(), 0));
+
+	// Snare Drum (verified on real YM3812)
+	Slot& SLOT7_2 = channels[7].slots[SLOT2];
+	bufs[8][sample] = adjust(2 * SLOT7_2.calcOutput(genPhaseSnare(), 0));
+
+	// Tom Tom (verified on real YM3812)
+	Slot& SLOT8_1 = channels[8].slots[SLOT1];
+	bufs[9][sample] = adjust(2 * SLOT8_1.calcOutput(SLOT8_1.getPhase(), 0));
+
+	// Top Cymbal (verified on real YM2413)
+	Slot& SLOT8_2 = channels[8].slots[SLOT2];
+	bufs[10][sample] = adjust(2 * SLOT8_2.calcOutput(genPhaseCymbal(), 0));
+}
+
+void Global::generateChannels(int** bufs, unsigned num)
+{
+	const int numMelodicChannels = getNumMelodicChannels();
+	unsigned channelActiveBits = 0;
+	for (int ch = 0; ch < numMelodicChannels; ++ch) {
+		if (channels[ch].slots[SLOT2].isActive()) {
+			channelActiveBits |= 1 << ch;
+		} else {
+			bufs[ch] = 0;
+		}
+	}
+	if (rhythm) {
+		if (channels[7].slots[SLOT1].isActive()) {
+			//return false;
+		}
+		if (channels[8].slots[SLOT1].isActive()) {
+			//return false;
+		}
+	} else {
+		bufs[ 9] = 0;
+		bufs[10] = 0;
+	}
+	for (unsigned i = 0; i < num; ++i) {
+		advanceLFO();
+		for (int ch = 0; ch < numMelodicChannels; ++ch) {
+			if ((channelActiveBits >> ch) & 1) {
+				bufs[ch][i] = adjust(channels[ch].calcOutput());
+			}
+		}
+		if (rhythm) {
+			// TODO: Implement per-channel mute for rhythm channels.
+			generateRhythm(bufs, i);
+		}
+		advance();
+	}
+}
+
 void YM2413_2::reset(const EmuTime &time)
 {
 	global->reset();
@@ -1639,46 +1684,6 @@ YM2413_2::YM2413_2(MSXMotherBoard& motherBoard, const std::string& name,
 YM2413_2::~YM2413_2()
 {
 	unregisterSound();
-}
-
-bool Global::checkMuteHelper()
-{
-	for (int ch = 0; ch < 9; ch++) {
-		if (channels[ch].slots[SLOT2].isActive()) {
-			return false;
-		}
-	}
-	if (rhythm) {
-		if (channels[7].slots[SLOT1].isActive()) return false;
-		if (channels[8].slots[SLOT1].isActive()) return false;
-	}
-	return true;	// nothing playing, mute
-}
-
-void Global::generateChannels(int** bufs, unsigned num)
-{
-	if (checkMuteHelper()) {
-		// TODO update internal state, even if muted
-		for (int i = 0; i < 11; ++i) {
-			bufs[i] = 0;
-		}
-		return;
-	}
-
-	for (unsigned i = 0; i < num; ++i) {
-		advance_lfo();
-		const int numMelodicChannels = getNumMelodicChannels();
-		for (int ch = 0; ch < numMelodicChannels; ++ch) {
-			bufs[ch][i] = adjust(channels[ch].chan_calc());
-		}
-		if (rhythm) {
-			rhythm_calc(bufs, i);
-		} else {
-			bufs[ 9] = 0;
-			bufs[10] = 0;
-		}
-		advance();
-	}
 }
 
 void YM2413_2::generateChannels(int** bufs, unsigned num)
