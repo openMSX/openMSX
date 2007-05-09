@@ -1,6 +1,12 @@
 $Id$
 
-2007-05-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2007-05-09 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Optimized Resampler a bit:
+	   - used 'x - trunc(x)' instead of 'fmod(x, 1.0)'
+	   - but it's not used in the innermost loop so the speed gain is not
+	     that big (it is measurable though)
+
+2007-05-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added SSE2 optimized noise routine in FBPostProcessor
 	* Restored parsing of the <volume> and <mode> tags in the
 	  soundsection of hardwareconfig files. There can also

@@ -33,8 +33,8 @@ template <unsigned CHANNELS>
 Resample<CHANNELS>::Resample()
 	: increment(0)
 {
-	ratio = 1.0;
-	lastPos = 0.0;
+	ratio = 1.0f;
+	lastPos = 0.0f;
 	bufCurrent = BUF_LEN / 2;
 	bufEnd     = BUF_LEN / 2;
 	memset(buffer, 0, sizeof(buffer));
@@ -56,13 +56,13 @@ void Resample<CHANNELS>::setResampleRatio(double inFreq, double outFreq)
 
 	// check the sample rate ratio wrt the buffer len
 	double count = (COEFF_HALF_LEN + 2.0) / INDEX_INC;
-	if (ratio > 1.0) {
+	if (ratio > 1.0f) {
 		count *= ratio;
 	}
 	// maximum coefficients on either side of center point
 	halfFilterLen = lrint(count) + 1;
 
-	floatIncr = (ratio > 1.0) ? INDEX_INC / ratio : INDEX_INC;
+	floatIncr = (ratio > 1.0f) ? INDEX_INC / ratio : INDEX_INC;
 	normFactor = floatIncr / INDEX_INC;
 	increment = FilterIndex(floatIncr);
 }
@@ -80,7 +80,7 @@ void Resample<CHANNELS>::calcOutput(FilterIndex startFilterIndex, float* output)
 
 	float left[CHANNELS];
 	for (unsigned i = 0; i < CHANNELS; ++i) {
-		left[i] = 0.0;
+		left[i] = 0.0f;
 	}
 	do {
 		float fraction = filterIndex.fractionAsFloat();
@@ -102,7 +102,7 @@ void Resample<CHANNELS>::calcOutput(FilterIndex startFilterIndex, float* output)
 
 	float right[CHANNELS];
 	for (unsigned i = 0; i < CHANNELS; ++i) {
-		right[i] = 0.0;
+		right[i] = 0.0f;
 	}
 	do {
 		float fraction = filterIndex.fractionAsFloat();
@@ -168,7 +168,7 @@ bool Resample<CHANNELS>::generateOutput(float* dataOut, unsigned num)
 		assert(bufCurrent <= bufEnd);
 		int available = bufEnd - bufCurrent;
 		if (available <= (int)halfFilterLen) {
-			int extra = (ratio > 1.0)
+			int extra = (ratio > 1.0f)
 			          ? lrint((num - i) * ratio) + 1
 			          :       (num - i);
 			prepareData(extra);
@@ -185,12 +185,13 @@ bool Resample<CHANNELS>::generateOutput(float* dataOut, unsigned num)
 
 		// figure out the next index
 		lastPos += ratio;
-		float rem = fmod(lastPos, 1.0);
-		int consumed = lrint(lastPos - rem);
+		assert(lastPos >= 0.0f);
+		float intPos = truncf(lastPos);
+		lastPos -= intPos;
+		int consumed = lrint(intPos);
 		bufCurrent += consumed;
 		nonzeroSamples = std::max<int>(0, nonzeroSamples - consumed);
 		assert(bufCurrent <= bufEnd);
-		lastPos = rem;
 	}
 	return anyNonZero;
 }
