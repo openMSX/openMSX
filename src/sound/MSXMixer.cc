@@ -464,7 +464,7 @@ const std::string& MSXMixer::schedName() const
 
 // Sound device info
 
-SoundDevice* MSXMixer::getSoundDevice(const string& name)
+SoundDevice* MSXMixer::findDevice(const string& name) const
 {
 	for (Infos::const_iterator it = infos.begin();
 	     it != infos.end(); ++it) {
@@ -493,7 +493,7 @@ void SoundDeviceInfoTopic::execute(const vector<TclObject*>& tokens,
 		}
 		break;
 	case 3: {
-		SoundDevice* device = mixer.getSoundDevice(tokens[2]->getString());
+		SoundDevice* device = mixer.findDevice(tokens[2]->getString());
 		if (!device) {
 			throw CommandException("Unknown sound device");
 		}

@@ -77,6 +77,8 @@ public:
 	
 	void setRecorder(AviRecorder* recorder);
 	unsigned getSampleRate() const;
+
+	SoundDevice* findDevice(const std::string& name) const;
 	
 private:
 	struct SoundDeviceInfo {
@@ -94,7 +96,6 @@ private:
 
 	void updateVolumeParams(Infos::iterator it);
 	void updateMasterVolume();
-	SoundDevice* getSoundDevice(const std::string& name);
 	void reInit();
 	void updateStream2(const EmuTime& time);
 	void generate(short* buffer, unsigned samples, const EmuTime& start,

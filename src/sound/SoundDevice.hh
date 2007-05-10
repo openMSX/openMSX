@@ -41,7 +41,7 @@ public:
 protected:
 	/** Constructor.
 	  * @param mixer The Mixer object
-	  * @param name Unique name per sound device
+	  * @param name Name for this device, will be made unique
 	  * @param description Description for this sound device
 	  * @param numChannels The number of channels for this device
 	  * @param stereo Is this a stereo device

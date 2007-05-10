@@ -1,5 +1,8 @@
 $Id$
 
+2007-05-10 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Use 'SCC' instead of rom-name as name for the SCC sounddevice
+
 2007-05-09 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimized Resampler a bit:
 	   - used 'x - trunc(x)' instead of 'fmod(x, 1.0)'

@@ -4,6 +4,7 @@
 #include "MSXMixer.hh"
 #include "XMLElement.hh"
 #include "WavWriter.hh"
+#include "StringOp.hh"
 #include <cstring>
 #include <cassert>
 
@@ -15,11 +16,26 @@ static const unsigned MAX_SAMPLES = 16384;
 static int mixBuffer[SoundDevice::MAX_CHANNELS * MAX_SAMPLES * 2];
 static int silence[MAX_SAMPLES * 2];
 
+static string makeUnique(MSXMixer& mixer, const string& name)
+{
+	string result = name;
+	if (mixer.findDevice(result)) {
+		unsigned n = 0;
+		do {
+			result = name + " (" + StringOp::toString(++n) + ")";
+		} while (mixer.findDevice(result));
+	}
+	return result;
+}
+
 SoundDevice::SoundDevice(MSXMixer& mixer_, const string& name_,
                          const string& description_,
                          unsigned numChannels_, bool stereo_)
-	: mixer(mixer_), name(name_), description(description_)
-	, numChannels(numChannels_), stereo(stereo_ ? 2 : 1)
+	: mixer(mixer_)
+	, name(makeUnique(mixer, name_))
+	, description(description_)
+	, numChannels(numChannels_)
+	, stereo(stereo_ ? 2 : 1)
 	, numRecordChannels(0)
 {
 	assert(numChannels <= MAX_CHANNELS);
