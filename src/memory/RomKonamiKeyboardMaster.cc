@@ -14,8 +14,8 @@ RomKonamiKeyboardMaster::RomKonamiKeyboardMaster(
 		MSXMotherBoard& motherBoard, const XMLElement& config,
 		const EmuTime& time, std::auto_ptr<Rom> rom)
 	: Rom16kBBlocks(motherBoard, config, time, rom)
-	, vlm5030(new VLM5030(motherBoard, getName(),
-	                      "Konami Keyboard Master VLM5030", config, time))
+	, vlm5030(new VLM5030(motherBoard, "VLM5030",
+	                      "Konami Keyboard Master's VLM5030", config, time))
 {
 	setBank(0, unmappedRead);
 	setRom (1, 0);
