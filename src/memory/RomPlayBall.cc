@@ -22,8 +22,8 @@ RomPlayBall::RomPlayBall(MSXMotherBoard& motherBoard, const XMLElement& config,
 	setRom (2, 1);
 	setBank(3, unmappedRead);
 
-	samplePlayer.reset(new SamplePlayer(motherBoard.getMSXMixer(), getName(),
-	                         "Sony PlayBall DAC", config));
+	samplePlayer.reset(new SamplePlayer(motherBoard.getMSXMixer(), "Playball-DAC",
+	                         "Sony Playball's DAC", config));
 
 	bool alreadyWarned = false;
 	for (int i = 0; i < 15; ++i) {
