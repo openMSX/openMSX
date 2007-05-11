@@ -28,6 +28,7 @@ static const float coeffs[] = {
 static const int INDEX_INC = 128;
 static const int COEFF_LEN = sizeof(coeffs) / sizeof(float);
 static const int COEFF_HALF_LEN = COEFF_LEN - 1;
+static const unsigned TAB_LEN = 4096;
 
 template <unsigned CHANNELS>
 Resample<CHANNELS>::Resample()
@@ -65,6 +66,69 @@ void Resample<CHANNELS>::setResampleRatio(double inFreq, double outFreq)
 	floatIncr = (ratio > 1.0f) ? INDEX_INC / ratio : INDEX_INC;
 	normFactor = floatIncr / INDEX_INC;
 	increment = FilterIndex(floatIncr);
+
+	calculateCoeffs();
+}
+
+template <unsigned CHANNELS>
+double Resample<CHANNELS>::getCoeff(FilterIndex index)
+{
+	double fraction = index.fractionAsDouble();
+	int indx = index.toInt();
+	return coeffs[indx] + fraction * (coeffs[indx + 1] - coeffs[indx]);
+}
+
+template <unsigned CHANNELS>
+void Resample<CHANNELS>::calculateCoeffs()
+{
+	FilterIndex maxFilterIndex(COEFF_HALF_LEN);
+	int min_idx = -maxFilterIndex.divAsInt(increment);
+	int max_idx = 1 + (maxFilterIndex - (increment - FilterIndex(floatIncr))).divAsInt(increment);
+	int idx_cnt = max_idx - min_idx + 1;
+	filterLen = (idx_cnt + 3) & ~3; // round up to multiple of 4
+	min_idx -= (filterLen - idx_cnt);
+	table.resize(TAB_LEN * filterLen);
+
+	for (unsigned t = 0; t < TAB_LEN; ++t) {
+		double lastPos = double(t) / TAB_LEN;
+		FilterIndex startFilterIndex(lastPos * floatIncr);
+
+		FilterIndex filterIndex(startFilterIndex);
+		int coeffCount = (maxFilterIndex - filterIndex).divAsInt(increment);
+		filterIndex += increment * coeffCount;
+		int bufIndex = -coeffCount;
+		do {
+			table[t * filterLen + bufIndex - min_idx] =
+				getCoeff(filterIndex) * normFactor;
+			filterIndex -= increment;
+			bufIndex += 1;
+		} while (filterIndex >= FilterIndex(0));
+
+		filterIndex = increment - startFilterIndex;
+		coeffCount = (maxFilterIndex - filterIndex).divAsInt(increment);
+		filterIndex += increment * coeffCount;
+		bufIndex = 1 + coeffCount;
+		do {
+			table[t * filterLen + bufIndex - min_idx] =
+				getCoeff(filterIndex) * normFactor;
+			filterIndex -= increment;
+			bufIndex -= 1;
+		} while (filterIndex > FilterIndex(0));
+	}
+}
+
+template <unsigned CHANNELS>
+void Resample<CHANNELS>::calcOutput2(float lastPos, float* output)
+{
+	int t = static_cast<int>(lastPos * TAB_LEN + 0.5f);
+
+	for (unsigned ch = 0; ch < CHANNELS; ++ch) {
+		float r = 0.0f;
+		for (unsigned i = 0; i < filterLen; ++i) {
+			r += table[t * filterLen + i] * buffer[bufCurrent - halfFilterLen + i];
+		}
+		output[ch] = r;
+	}
 }
 
 template <unsigned CHANNELS>
@@ -174,8 +238,12 @@ bool Resample<CHANNELS>::generateOutput(float* dataOut, unsigned num)
 			prepareData(extra);
 		}
 		if (nonzeroSamples) {
-			FilterIndex startFilterIndex(lastPos * floatIncr);
-			calcOutput(startFilterIndex, &dataOut[i * CHANNELS]);
+			// -- old implementation
+			//FilterIndex startFilterIndex(lastPos * floatIncr);
+			//calcOutput(startFilterIndex, &dataOut[i * CHANNELS]);
+			// -- new implementation
+			calcOutput2(lastPos, &dataOut[i * CHANNELS]);
+			// --
 			anyNonZero = true;
 		} else {
 			for (unsigned j = 0; j < CHANNELS; ++j) {

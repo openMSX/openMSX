@@ -1,5 +1,11 @@
 $Id$
 
+2007-05-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Experimental speedup for the Resampler:
+	   - code is very quick-and-dirty
+	   - still contains both old and new implementation to make
+	     sound quality comparison between the two possible
+
 2007-05-10 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Use 'SCC' instead of rom-name as name for the SCC sounddevice
 
