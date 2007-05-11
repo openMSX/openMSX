@@ -493,10 +493,10 @@ void FDC_DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 					// Major change: new file started!
 				} else {
 					cliComm.printWarning(
-						"! A unussual change has been performed on this disk\n"
+						"! An unusual change has been performed on this disk\n"
 						"! are you running a disk editor or optimizer, or maybe\n"
-						"! a diskcache program\n"
-						"! Do not use 'dir as disk' emulation while running these kind of programs!\n");
+						"! a diskcache program?\n"
+						"! Do not use 'dir as disk' emulation while running these kinds of programs!\n");
 				}
 				if (chgName && !chgClus && !chgSize) {
 					if (buf[0] == 0xE5) {
@@ -526,7 +526,7 @@ void FDC_DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 			buf += 32;
 		}
 		cliComm.printWarning(
-			"writing to DIR not yet fully implemented !!!!");
+			"writing to DIR not yet fully implemented!");
 
 	} else {
 		// simply buffering everything for now, no write-through to host-OS
