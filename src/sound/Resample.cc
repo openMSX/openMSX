@@ -15,6 +15,7 @@
 
 #include "Resample.hh"
 #include "MemoryOps.hh"
+#include "HostCPU.hh"
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
@@ -128,11 +129,81 @@ void Resample<CHANNELS>::calculateCoeffs()
 template <unsigned CHANNELS>
 void Resample<CHANNELS>::calcOutput2(float lastPos, float* output)
 {
+	assert((filterLen & 3) == 0);
 	int t = static_cast<int>(lastPos * TAB_LEN + 0.5f) % TAB_LEN;
 
 	int tabIdx = t * filterLen;
+	int bufIdx = (bufCurrent - halfFilterLen) * CHANNELS;
+
+	const HostCPU& cpu = HostCPU::getInstance();
+	if ((CHANNELS == 1) && cpu.hasSSE()) {
+		// SSE version, mono
+		long filterLen16 = filterLen & ~15;
+		unsigned filterLenRest = filterLen - filterLen16;
+		asm (
+			"xorps	%%xmm0,%%xmm0;"
+			"xorps	%%xmm1,%%xmm1;"
+			"xorps	%%xmm2,%%xmm2;"
+			"xorps	%%xmm3,%%xmm3;"
+		"1:"
+			"movups	  (%0,%3),%%xmm4;"
+			"mulps	  (%1,%3),%%xmm4;"
+			"movups	16(%0,%3),%%xmm5;"
+			"mulps	16(%1,%3),%%xmm5;"
+			"movups	32(%0,%3),%%xmm6;"
+			"mulps	32(%1,%3),%%xmm6;"
+			"movups	48(%0,%3),%%xmm7;"
+			"mulps	48(%1,%3),%%xmm7;"
+			"addps	%%xmm4,%%xmm0;"
+			"addps	%%xmm5,%%xmm1;"
+			"addps	%%xmm6,%%xmm2;"
+			"addps	%%xmm7,%%xmm3;"
+			"add	$64,%3;"
+			"jnz	1b;"
+
+			"test	$8,%4;"
+			"jz	2f;"
+			"movups	  (%0,%3), %%xmm4;"
+			"mulps	  (%1,%3), %%xmm4;"
+			"movups	16(%0,%3), %%xmm5;"
+			"mulps	16(%1,%3), %%xmm5;"
+			"addps	%%xmm4,%%xmm0;"
+			"addps	%%xmm5,%%xmm1;"
+			"add	$32,%3;"
+		"2:"
+			"test	$4,%4;"
+			"jz	3f;"
+			"movups	  (%0,%3), %%xmm6;"
+			"mulps	  (%1,%3), %%xmm6;"
+			"addps	%%xmm6,%%xmm2;"
+		"3:"
+			"addps	%%xmm1,%%xmm0;"
+			"addps	%%xmm3,%%xmm2;"
+			"addps	%%xmm2,%%xmm0;"
+			"movaps	%%xmm0,%%xmm7;"
+			"shufps	$78,%%xmm0,%%xmm7;"
+			"addps	%%xmm0,%%xmm7;"
+			"movaps	%%xmm7,%%xmm0;"
+			"shufps	$177,%%xmm7,%%xmm0;"
+			"addss	%%xmm7,%%xmm0;"
+			"movss	%%xmm0,(%2);"
+
+			: // no output
+			: "r" (&buffer[bufIdx + filterLen16]) // 0
+			, "r" (&table[tabIdx + filterLen16]) // 1
+			, "r" (output) // 2
+			, "r" (-4 * filterLen16) // 3
+			, "r" (filterLenRest) // 4
+			#ifdef __SSE__
+			: "xmm0", "xmm1", "xmm2", "xmm3"
+			, "xmm4", "xmm5", "xmm6", "xmm7"
+			#endif
+		);
+		return;
+	}
+
+	// c++ version, both mono and stereo
 	for (unsigned ch = 0; ch < CHANNELS; ++ch) {
-		int bufIdx = (bufCurrent - halfFilterLen) * CHANNELS + ch;
 		float r0 = 0.0f;
 		float r1 = 0.0f;
 		float r2 = 0.0f;
@@ -148,6 +219,7 @@ void Resample<CHANNELS>::calcOutput2(float lastPos, float* output)
 			      buffer[bufIdx + CHANNELS * (i + 3)];
 		}
 		output[ch] = r0 + r1 + r2 + r3;
+		++bufIdx;
 	}
 }
 

@@ -1,5 +1,10 @@
 $Id$
 
+2007-05-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Additional speedup for the Resampler:
+	   - unrolled the loop (+ break dependencies)
+	   - added SSE optimized routine (mono only for the moment)
+
 2007-05-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Experimental speedup for the Resampler:
 	   - code is very quick-and-dirty
