@@ -120,7 +120,7 @@ void Resample<CHANNELS>::calculateCoeffs()
 template <unsigned CHANNELS>
 void Resample<CHANNELS>::calcOutput2(float lastPos, float* output)
 {
-	int t = static_cast<int>(lastPos * TAB_LEN + 0.5f);
+	int t = static_cast<int>(lastPos * TAB_LEN + 0.5f) % TAB_LEN;
 
 	for (unsigned ch = 0; ch < CHANNELS; ++ch) {
 		float r = 0.0f;
