@@ -97,6 +97,7 @@ void Resample<CHANNELS>::calculateCoeffs()
 	}
 	table = static_cast<float*>(MemoryOps::mallocAligned(
 		16, TAB_LEN * filterLen * sizeof(float)));
+	memset(table, 0, TAB_LEN * filterLen * sizeof(float));
 
 	for (unsigned t = 0; t < TAB_LEN; ++t) {
 		double lastPos = double(t) / TAB_LEN;
