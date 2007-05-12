@@ -10,6 +10,7 @@
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
 #include <cassert>
+#include <cstring>
 
 namespace openmsx {
 

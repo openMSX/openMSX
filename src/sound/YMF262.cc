@@ -43,6 +43,7 @@
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
 #include <cmath>
+#include <cstring>
 
 namespace openmsx {
 

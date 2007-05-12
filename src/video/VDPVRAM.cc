@@ -4,6 +4,7 @@
 #include "SpriteChecker.hh"
 #include "Renderer.hh"
 #include "Math.hh"
+#include <cstring>
 
 namespace openmsx {
 

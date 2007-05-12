@@ -27,6 +27,7 @@
 #include <iomanip>
 #include <algorithm>
 #include <iostream>
+#include <cstring>
 
 using std::auto_ptr;
 using std::ostringstream;

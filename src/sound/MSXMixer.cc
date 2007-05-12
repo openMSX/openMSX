@@ -15,6 +15,7 @@
 #include "AviRecorder.hh"
 #include <algorithm>
 #include <cmath>
+#include <cstring>
 #include <cassert>
 
 using std::remove;

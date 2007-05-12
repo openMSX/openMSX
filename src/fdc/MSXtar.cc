@@ -12,6 +12,7 @@
 #include <utime.h>
 #include <unistd.h>
 #include <cstdlib>
+#include <cstring>
 #include <algorithm>
 #include <cassert>
 

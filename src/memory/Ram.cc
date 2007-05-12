@@ -2,6 +2,7 @@
 
 #include "Ram.hh"
 #include "SimpleDebuggable.hh"
+#include <cstring>
 
 namespace openmsx {
 

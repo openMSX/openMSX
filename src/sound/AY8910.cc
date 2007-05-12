@@ -19,6 +19,7 @@
 #include "MSXException.hh"
 #include "StringOp.hh"
 #include <cassert>
+#include <cstring>
 
 using std::string;
 

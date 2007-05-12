@@ -9,6 +9,7 @@
 #include "YM2151.hh"
 #include "MSXMotherBoard.hh"
 #include <cmath>
+#include <cstring>
 
 namespace openmsx {
 

@@ -32,6 +32,7 @@ TODO:
 #include "MSXException.hh"
 #include "MSXCliComm.hh"
 #include <sstream>
+#include <cstring>
 #include <cassert>
 
 namespace openmsx {

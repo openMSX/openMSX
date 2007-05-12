@@ -9,7 +9,7 @@
 #include "GLUtil.hh"
 #include <map>
 #include <cassert>
-#include <cstdlib>
+#include <cstring>
 
 namespace openmsx {
 

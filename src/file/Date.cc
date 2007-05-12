@@ -4,6 +4,7 @@
 #include <sstream>
 #include <iomanip>
 #include <cstdio>
+#include <cstring>
 
 namespace openmsx {
 

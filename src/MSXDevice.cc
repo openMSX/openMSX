@@ -11,6 +11,7 @@
 #include <set>
 #include <algorithm>
 #include <cassert>
+#include <cstring>
 
 using std::string;
 using std::vector;

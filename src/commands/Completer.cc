@@ -6,6 +6,7 @@
 #include "FileOperations.hh"
 #include "ReadDir.hh"
 #include <algorithm>
+#include <strings.h>
 
 using std::vector;
 using std::string;

@@ -2,6 +2,7 @@
 
 #include "FileBase.hh"
 #include <algorithm>
+#include <cstring>
 
 using std::string;
 

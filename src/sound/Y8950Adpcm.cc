@@ -5,6 +5,7 @@
 #include "Clock.hh"
 #include "Ram.hh"
 #include "MSXMotherBoard.hh"
+#include <cstring>
 
 namespace openmsx {
 

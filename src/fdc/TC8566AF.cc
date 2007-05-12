@@ -8,6 +8,7 @@
 #include "TC8566AF.hh"
 #include "DiskDrive.hh"
 #include "MSXException.hh"
+#include <cstring>
 
 namespace openmsx {
 
