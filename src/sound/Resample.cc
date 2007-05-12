@@ -122,12 +122,20 @@ void Resample<CHANNELS>::calcOutput2(float lastPos, float* output)
 {
 	int t = static_cast<int>(lastPos * TAB_LEN + 0.5f) % TAB_LEN;
 
+	int tabIdx = t * filterLen;
+	int bufIdx = bufCurrent - halfFilterLen;
 	for (unsigned ch = 0; ch < CHANNELS; ++ch) {
-		float r = 0.0f;
-		for (unsigned i = 0; i < filterLen; ++i) {
-			r += table[t * filterLen + i] * buffer[bufCurrent - halfFilterLen + i];
+		float r0 = 0.0f;
+		float r1 = 0.0f;
+		float r2 = 0.0f;
+		float r3 = 0.0f;
+		for (unsigned i = 0; i < filterLen; i += 4) {
+			r0 += table[tabIdx + i + 0] * buffer[bufIdx + i + 0];
+			r1 += table[tabIdx + i + 1] * buffer[bufIdx + i + 1];
+			r2 += table[tabIdx + i + 2] * buffer[bufIdx + i + 2];
+			r3 += table[tabIdx + i + 3] * buffer[bufIdx + i + 3];
 		}
-		output[ch] = r;
+		output[ch] = r0 + r1 + r2 + r3;
 	}
 }
 
