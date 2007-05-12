@@ -137,6 +137,7 @@ SCC::SCC(MSXMotherBoard& motherBoard, const string& name,
 		}
 		out[i] = 0;
 		count[i] = 0;
+		incr[i] = 0;
 		pos[i] = 0;
 		period[i] = 0;
 		orgPeriod[i] = 0;
