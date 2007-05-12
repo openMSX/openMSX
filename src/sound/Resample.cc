@@ -202,6 +202,76 @@ void Resample<CHANNELS>::calcOutput2(float lastPos, float* output)
 		);
 		return;
 	}
+	
+	if ((CHANNELS == 2) && cpu.hasSSE()) {
+		// SSE version, stereo
+		long filterLen8 = filterLen & ~7;
+		unsigned filterLenRest = filterLen - filterLen8;
+		asm (
+			"xorps	%%xmm0,%%xmm0;"
+			"xorps	%%xmm1,%%xmm1;"
+			"xorps	%%xmm2,%%xmm2;"
+			"xorps	%%xmm3,%%xmm3;"
+		"1:"
+			"movups	  (%0,%3,2),%%xmm4;"
+			"movups	16(%0,%3,2),%%xmm5;"
+			"movaps	  (%1,%3),%%xmm6;"
+			"movaps	%%xmm6,%%xmm7;"
+			"shufps	 $80,%%xmm6,%%xmm6;"
+			"shufps	$250,%%xmm7,%%xmm7;"
+			"mulps	%%xmm4,%%xmm6;"
+			"mulps	%%xmm5,%%xmm7;"
+			"addps	%%xmm6,%%xmm0;"
+			"addps	%%xmm7,%%xmm1;"
+
+			"movups	32(%0,%3,2),%%xmm4;"
+			"movups	48(%0,%3,2),%%xmm5;"
+			"movaps	16(%1,%3),%%xmm6;"
+			"movaps	%%xmm6,%%xmm7;"
+			"shufps	 $80,%%xmm6,%%xmm6;"
+			"shufps	$250,%%xmm7,%%xmm7;"
+			"mulps	%%xmm4,%%xmm6;"
+			"mulps	%%xmm5,%%xmm7;"
+			"addps	%%xmm6,%%xmm2;"
+			"addps	%%xmm7,%%xmm3;"
+
+			"add	$32,%3;"
+			"jnz	1b;"
+
+			"test	$4,%4;"
+			"jz	2f;"
+			"movups	  (%0,%3,2),%%xmm4;"
+			"movups	16(%0,%3,2),%%xmm5;"
+			"movaps	  (%1,%3),%%xmm6;"
+			"movaps	%%xmm6,%%xmm7;"
+			"shufps	 $80,%%xmm6,%%xmm6;"
+			"shufps	$250,%%xmm7,%%xmm7;"
+			"mulps	%%xmm4,%%xmm6;"
+			"mulps	%%xmm5,%%xmm7;"
+			"addps	%%xmm6,%%xmm0;"
+			"addps	%%xmm7,%%xmm1;"
+		"2:"
+			"addps	%%xmm3,%%xmm2;"
+			"addps	%%xmm1,%%xmm0;"
+			"addps	%%xmm2,%%xmm0;"
+			"movaps	%%xmm0,%%xmm4;"
+			"shufps	$78,%%xmm0,%%xmm0;"
+			"addps	%%xmm4,%%xmm0;"
+			"movq	%%xmm0,(%2);"
+
+			: // no output
+			: "r" (&buffer[bufIdx + 2 * filterLen8]) // 0
+			, "r" (&table[tabIdx + filterLen8]) // 1
+			, "r" (output) // 2
+			, "r" (-4 * filterLen8) // 3
+			, "r" (filterLenRest) // 4
+			#ifdef __SSE__
+			: "xmm0", "xmm1", "xmm2", "xmm3"
+			, "xmm4", "xmm5", "xmm6", "xmm7"
+			#endif
+		);
+		return;
+	}
 
 	// c++ version, both mono and stereo
 	for (unsigned ch = 0; ch < CHANNELS; ++ch) {

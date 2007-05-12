@@ -4,6 +4,7 @@ $Id$
 	* Additional speedup for the Resampler:
 	   - unrolled the loop (+ break dependencies)
 	   - added SSE optimized routine (mono only for the moment)
+	   - also added SSE optimized stereo resampler
 
 2007-05-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Experimental speedup for the Resampler:
