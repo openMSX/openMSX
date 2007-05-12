@@ -4,7 +4,6 @@
 #define RESAMPLE_HH
 
 #include "FixedPoint.hh"
-#include <vector>
 
 namespace openmsx {
 
@@ -40,7 +39,7 @@ private:
 	unsigned nonzeroSamples;
 	unsigned filterLen;
 	float buffer[BUF_LEN * CHANNELS];
-	std::vector<float> table;
+	float* table;
 };
 
 } // namespace openmsx

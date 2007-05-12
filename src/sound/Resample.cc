@@ -14,6 +14,7 @@
 
 
 #include "Resample.hh"
+#include "MemoryOps.hh"
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
@@ -32,7 +33,7 @@ static const unsigned TAB_LEN = 4096;
 
 template <unsigned CHANNELS>
 Resample<CHANNELS>::Resample()
-	: increment(0)
+	: increment(0), table(0)
 {
 	ratio = 1.0f;
 	lastPos = 0.0f;
@@ -45,6 +46,9 @@ Resample<CHANNELS>::Resample()
 template <unsigned CHANNELS>
 Resample<CHANNELS>::~Resample()
 {
+	if (table) {
+		MemoryOps::freeAligned(table);
+	}
 }
 
 template <unsigned CHANNELS>
@@ -87,7 +91,11 @@ void Resample<CHANNELS>::calculateCoeffs()
 	int idx_cnt = max_idx - min_idx + 1;
 	filterLen = (idx_cnt + 3) & ~3; // round up to multiple of 4
 	min_idx -= (filterLen - idx_cnt);
-	table.resize(TAB_LEN * filterLen);
+	if (table) {
+		MemoryOps::freeAligned(table);
+	}
+	table = static_cast<float*>(MemoryOps::mallocAligned(
+		16, TAB_LEN * filterLen * sizeof(float)));
 
 	for (unsigned t = 0; t < TAB_LEN; ++t) {
 		double lastPos = double(t) / TAB_LEN;
@@ -123,17 +131,21 @@ void Resample<CHANNELS>::calcOutput2(float lastPos, float* output)
 	int t = static_cast<int>(lastPos * TAB_LEN + 0.5f) % TAB_LEN;
 
 	int tabIdx = t * filterLen;
-	int bufIdx = bufCurrent - halfFilterLen;
 	for (unsigned ch = 0; ch < CHANNELS; ++ch) {
+		int bufIdx = (bufCurrent - halfFilterLen) * CHANNELS + ch;
 		float r0 = 0.0f;
 		float r1 = 0.0f;
 		float r2 = 0.0f;
 		float r3 = 0.0f;
 		for (unsigned i = 0; i < filterLen; i += 4) {
-			r0 += table[tabIdx + i + 0] * buffer[bufIdx + i + 0];
-			r1 += table[tabIdx + i + 1] * buffer[bufIdx + i + 1];
-			r2 += table[tabIdx + i + 2] * buffer[bufIdx + i + 2];
-			r3 += table[tabIdx + i + 3] * buffer[bufIdx + i + 3];
+			r0 += table[tabIdx + i + 0] *
+			      buffer[bufIdx + CHANNELS * (i + 0)];
+			r1 += table[tabIdx + i + 1] *
+			      buffer[bufIdx + CHANNELS * (i + 1)];
+			r2 += table[tabIdx + i + 2] *
+			      buffer[bufIdx + CHANNELS * (i + 2)];
+			r3 += table[tabIdx + i + 3] *
+			      buffer[bufIdx + CHANNELS * (i + 3)];
 		}
 		output[ch] = r0 + r1 + r2 + r3;
 	}
