@@ -5,6 +5,9 @@ $Id$
 	   - unrolled the loop (+ break dependencies)
 	   - added SSE optimized routine (mono only for the moment)
 	   - also added SSE optimized stereo resampler
+	* Fixed memset4_2_MMX():
+	   - we used to pass a pointer to a struct on the stack, but
+	     newer gcc versions optimize this struct away
 
 2007-05-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Experimental speedup for the Resampler:

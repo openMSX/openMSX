@@ -76,13 +76,14 @@ static inline void memset4_2_MMX(
 		p[0] = val1; // start at odd pixel
 		++p; --n;
 	}
-	unsigned tmp[2] = { val0, val1 };
 	asm volatile (
-		"movq   (%0), %%mm0;"
+		"movd      %0,%%mm0;"
+		"movd      %1,%%mm1;"
+		"punpckldq %%mm1,%%mm0;"
 		: // no output
-		: "r" (tmp)
+		: "rm" (val0), "rm" (val1)
 		#ifdef __MMX__
-		: "mm0"
+		: "mm0", "mm1"
 		#endif
 	);
 	unsigned* e = p + n - 7;
