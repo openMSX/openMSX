@@ -879,7 +879,7 @@ inline void Y8950::calcSample(int** bufs, unsigned sample)
 		bufs[10] = 0;
 	}
 
-	bufs[11][sample] = adpcm->calcSample();
+	bufs[11][sample] = adjust(adpcm->calcSample());
 }
 
 void Y8950::setEnabled(bool enabled_, const EmuTime& time)
