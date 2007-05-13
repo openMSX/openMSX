@@ -617,7 +617,7 @@ public:
 	/**
 	 * Calculate the value of the current sample produced by this channel.
 	 */
-	inline int calcOutput();
+	inline int calcOutput() const;
 
 	/**
 	 * Initializes those parts that cannot be initialized in the constructor,
@@ -1029,12 +1029,8 @@ inline void Slot::updateModulator()
 	op1_out[1] = calcOutput(phase);
 }
 
-inline int Channel::calcOutput()
+inline int Channel::calcOutput() const
 {
-	// SLOT 1
-	slots[SLOT1].updateModulator();
-
-	// SLOT 2
 	return slots[SLOT2].calcOutput(
 		slots[SLOT2].getPhase() + slots[SLOT1].getPhaseModulation()
 		);
@@ -1575,8 +1571,10 @@ void Global::generateChannels(int** bufs, unsigned num)
 	for (unsigned i = 0; i < num; ++i) {
 		advanceLFO();
 		for (int ch = 0; ch < numMelodicChannels; ++ch) {
+			Channel& channel = channels[ch];
+			channel.slots[SLOT1].updateModulator();
 			if ((channelActiveBits >> ch) & 1) {
-				bufs[ch][i] = adjust(channels[ch].calcOutput());
+				bufs[ch][i] = adjust(channel.calcOutput());
 			}
 		}
 		if (rhythm) {
@@ -1588,13 +1586,10 @@ void Global::generateChannels(int** bufs, unsigned num)
 			//    when connect = 1 _only_ operator 2 is present on output (op2->out),
 			//                     operator 1 is ignored
 			//  - output sample always is multiplied by 2
+			Channel& channel6 = channels[6];
+			channel6.slots[SLOT1].updateModulator();
 			if (channelActiveBits & (1 << 6)) {
-				Slot& SLOT6_1 = channels[6].slots[SLOT1];
-				Slot& SLOT6_2 = channels[6].slots[SLOT2];
-				SLOT6_1.updateModulator();
-				bufs[6][i] = adjust(2 * SLOT6_2.calcOutput(
-					SLOT6_2.getPhase() + SLOT6_1.getPhaseModulation()
-					));
+				bufs[6][i] = adjust(2 * channel6.calcOutput());
 			}
 
 			// TODO: Skip phase generation if output will 0 anyway.
