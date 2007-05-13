@@ -1078,103 +1078,50 @@ inline int Channel::calcOutput()
 //   TOM (14) channel 8->slot 1
 //   TOP (17) channel 7->slot 1 combined with channel 8->slot 2
 //            (same combination as HIGH HAT but different output phases)
-//
-// The following formulas can be well optimized.
-//   I leave them in direct form for now (in case I've missed something).
 
 inline int Global::genPhaseHighHat()
 {
-	const bool noise = noise_rng & 1;
-	Slot& SLOT7_1 = channels[7].slots[SLOT1];
-	Slot& SLOT8_2 = channels[8].slots[SLOT2];
-
-	// high hat phase generation:
-	// phase = D0 or 234 (based on frequency only)
-	// phase = 34 or 2D0 (based on noise)
-
-	// base frequency derived from operator 1 in channel 7
-	bool bit7 = SLOT7_1.getPhase() & 0x80;
-	bool bit3 = SLOT7_1.getPhase() & 0x08;
-	bool bit2 = SLOT7_1.getPhase() & 0x04;
-	bool res1 = (bit2 ^ bit7) | bit3;
-	// when res1 = 0 phase = 0x000 |  0xD0;
-	// when res1 = 1 phase = 0x200 | (0xD0 >> 2);
-	int phase = res1 ? (0x200 | (0xD0 >> 2)) : 0xD0;
-
+	// hi == phase >= 0x200
+	bool hi;
 	// enable gate based on frequency of operator 2 in channel 8
-	bool bit5e= SLOT8_2.getPhase() & 0x20;
-	bool bit3e= SLOT8_2.getPhase() & 0x08;
-	bool res2 = (bit3e | bit5e);
-	// when res2 = 0 pass the phase from calculation above (res1);
-	// when res2 = 1 phase = 0x200 | (0xd0>>2);
-	if (res2) {
-		phase = (0x200 | (0xD0 >> 2));
-	}
-
-	// when phase & 0x200 is set and noise=1 then phase = 0x200 |  0xD0
-	// when phase & 0x200 is set and noise=0 then phase = 0x200 | (0xD0 >> 2),
-	//   ie no change
-	if (phase & 0x200) {
-		if (noise) {
-			phase = 0x200 | 0xD0;
-		}
+	if (channels[8].slots[SLOT2].getPhase() & 0x28) {
+		hi = true;
 	} else {
-		// when phase & 0x200 is clear and noise=1 then phase = 0xD0 >> 2
-		// when phase & 0x200 is clear and noise=0 then phase = 0xD0,
-		//   ie no change
-		if (noise) {
-			phase = 0xD0 >> 2;
-		}
+		// base frequency derived from operator 1 in channel 7
+		const int op71phase = channels[7].slots[SLOT1].getPhase();
+		const bool bit7 = op71phase & 0x80;
+		const bool bit3 = op71phase & 0x08;
+		const bool bit2 = op71phase & 0x04;
+		hi = (bit2 ^ bit7) | bit3;
 	}
-	return phase;
+	if (noise_rng & 1) {
+		return hi ? (0x200 | 0xD0) : (0xD0 >> 2);
+	} else {
+		return hi ? (0x200 | (0xD0 >> 2)) : 0xD0;
+	}
 }
 
 inline int Global::genPhaseSnare()
 {
-	const bool noise = noise_rng & 1;
-	Slot& SLOT7_1 = channels[7].slots[SLOT1];
-
 	// base frequency derived from operator 1 in channel 7
-	bool bit8 = SLOT7_1.getPhase() & 0x100;
-
-	// when bit8 = 0 phase = 0x100;
-	// when bit8 = 1 phase = 0x200;
-	int phase = bit8 ? 0x200 : 0x100;
-
-	// Noise bit XOR'es phase by 0x100
-	// when noisebit = 0 pass the phase from calculation above
-	// when noisebit = 1 phase ^= 0x100;
-	// in other words: phase ^= (noisebit<<8);
-	if (noise) {
-		phase ^= 0x100;
-	}
-	return phase;
+	// noise bit XOR'es phase by 0x100
+	return ((channels[7].slots[SLOT1].getPhase() & 0x100) + 0x100)
+	     ^ ((noise_rng & 1) << 8);
 }
 
 inline int Global::genPhaseCymbal()
 {
-	Slot& SLOT7_1 = channels[7].slots[SLOT1];
-	Slot& SLOT8_2 = channels[8].slots[SLOT2];
-
-	// base frequency derived from operator 1 in channel 7
-	bool bit7 = SLOT7_1.getPhase() & 0x80;
-	bool bit3 = SLOT7_1.getPhase() & 0x08;
-	bool bit2 = SLOT7_1.getPhase() & 0x04;
-	bool res1 = (bit2 ^ bit7) | bit3;
-	// when res1 = 0 phase = 0x000 | 0x100;
-	// when res1 = 1 phase = 0x200 | 0x100;
-	int phase = res1 ? 0x300 : 0x100;
-
 	// enable gate based on frequency of operator 2 in channel 8
-	bool bit5e= SLOT8_2.getPhase() & 0x20;
-	bool bit3e= SLOT8_2.getPhase() & 0x08;
-	bool res2 = bit3e | bit5e;
-	// when res2 = 0 pass the phase from calculation above (res1);
-	// when res2 = 1 phase = 0x200 | 0x100;
-	if (res2) {
-		phase = 0x300;
+	if (channels[8].slots[SLOT2].getPhase() & 0x28) {
+		return 0x300;
+	} else {
+		// base frequency derived from operator 1 in channel 7
+		const int op71Phase = channels[7].slots[SLOT1].getPhase();
+		const bool bit7 = op71Phase & 0x80;
+		const bool bit3 = op71Phase & 0x08;
+		const bool bit2 = op71Phase & 0x04;
+		return ((bit2 ^ bit7) | bit3) ? 0x300 : 0x100;
 	}
-	return phase;
 }
 
 void Global::initTables()
