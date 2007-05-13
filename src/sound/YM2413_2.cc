@@ -772,10 +772,8 @@ public:
 	void setRhythmFlags(byte flags);
 
 	/**
-	 * Calculates the output of the rhythm channels [6..10].
+	 * Generate output samples for each channel.
 	 */
-	inline void generateRhythm(int** bufs, unsigned sample);
-
 	void generateChannels(int** bufs, unsigned num);
 
 private:
@@ -1578,49 +1576,6 @@ void Global::resetOperators()
 	}
 }
 
-inline void Global::generateRhythm(int** bufs, unsigned sample)
-{
-	// Bass Drum (verified on real YM3812):
-	//  - depends on the channel 6 'connect' register:
-	//    when connect = 0 it works the same as in normal (non-rhythm) mode
-	//                     (op1->op2->out)
-	//    when connect = 1 _only_ operator 2 is present on output (op2->out),
-	//                     operator 1 is ignored
-	//  - output sample always is multiplied by 2
-	Slot& SLOT6_1 = channels[6].slots[SLOT1];
-	Slot& SLOT6_2 = channels[6].slots[SLOT2];
-	SLOT6_1.updateModulator();
-	bufs[6][sample] = adjust(2 * SLOT6_2.calcOutput(
-		SLOT6_2.getPhase() + SLOT6_1.getPhaseModulation()
-		));
-
-	// Envelope generation based on:
-	//   HH  channel 7->slot1
-	//   SD  channel 7->slot2
-	//   TOM channel 8->slot1
-	//   TOP channel 8->slot2
-
-	// TODO: Skip phase generation if output will 0 anyway.
-	//       Possible by passing phase generator as a template parameter to
-	//       calcOutput.
-
-	// High Hat (verified on real YM3812)
-	Slot& SLOT7_1 = channels[7].slots[SLOT1];
-	bufs[7][sample] = adjust(2 * SLOT7_1.calcOutput(genPhaseHighHat()));
-
-	// Snare Drum (verified on real YM3812)
-	Slot& SLOT7_2 = channels[7].slots[SLOT2];
-	bufs[8][sample] = adjust(2 * SLOT7_2.calcOutput(genPhaseSnare()));
-
-	// Tom Tom (verified on real YM3812)
-	Slot& SLOT8_1 = channels[8].slots[SLOT1];
-	bufs[9][sample] = adjust(2 * SLOT8_1.calcOutput(SLOT8_1.getPhase()));
-
-	// Top Cymbal (verified on real YM2413)
-	Slot& SLOT8_2 = channels[8].slots[SLOT2];
-	bufs[10][sample] = adjust(2 * SLOT8_2.calcOutput(genPhaseCymbal()));
-}
-
 void Global::generateChannels(int** bufs, unsigned num)
 {
 	const int numMelodicChannels = getNumMelodicChannels();
@@ -1633,13 +1588,40 @@ void Global::generateChannels(int** bufs, unsigned num)
 		}
 	}
 	if (rhythm) {
+		// Envelope generation based on:
+		//   BD  channel 6->slot2 (slot1 for phase modulation)
+		//   HH  channel 7->slot1
+		//   SD  channel 7->slot2
+		//   TOM channel 8->slot1
+		//   TOP channel 8->slot2
+
+		if (channels[6].slots[SLOT2].isActive()) {
+			channelActiveBits |= 1 << 6;
+		} else {
+			bufs[6] = 0;
+		}
 		if (channels[7].slots[SLOT1].isActive()) {
-			//return false;
+			channelActiveBits |= 1 << 7;
+		} else {
+			bufs[7] = 0;
+		}
+		if (channels[7].slots[SLOT2].isActive()) {
+			channelActiveBits |= 1 << 8;
+		} else {
+			bufs[8] = 0;
 		}
 		if (channels[8].slots[SLOT1].isActive()) {
-			//return false;
+			channelActiveBits |= 1 << 9;
+		} else {
+			bufs[9] = 0;
+		}
+		if (channels[8].slots[SLOT2].isActive()) {
+			channelActiveBits |= 1 << 10;
+		} else {
+			bufs[10] = 0;
 		}
 	} else {
+		// channel [6..8] are used for melody
 		bufs[ 9] = 0;
 		bufs[10] = 0;
 	}
@@ -1652,7 +1634,49 @@ void Global::generateChannels(int** bufs, unsigned num)
 		}
 		if (rhythm) {
 			// TODO: Implement per-channel mute for rhythm channels.
-			generateRhythm(bufs, i);
+			// Bass Drum (verified on real YM3812):
+			//  - depends on the channel 6 'connect' register:
+			//    when connect = 0 it works the same as in normal (non-rhythm) mode
+			//                     (op1->op2->out)
+			//    when connect = 1 _only_ operator 2 is present on output (op2->out),
+			//                     operator 1 is ignored
+			//  - output sample always is multiplied by 2
+			if (channelActiveBits & (1 << 6)) {
+				Slot& SLOT6_1 = channels[6].slots[SLOT1];
+				Slot& SLOT6_2 = channels[6].slots[SLOT2];
+				SLOT6_1.updateModulator();
+				bufs[6][i] = adjust(2 * SLOT6_2.calcOutput(
+					SLOT6_2.getPhase() + SLOT6_1.getPhaseModulation()
+					));
+			}
+
+			// TODO: Skip phase generation if output will 0 anyway.
+			//       Possible by passing phase generator as a template parameter to
+			//       calcOutput.
+
+			// High Hat (verified on real YM3812)
+			if (channelActiveBits & (1 << 7)) {
+				Slot& SLOT7_1 = channels[7].slots[SLOT1];
+				bufs[7][i] = adjust(2 * SLOT7_1.calcOutput(genPhaseHighHat()));
+			}
+
+			// Snare Drum (verified on real YM3812)
+			if (channelActiveBits & (1 << 8)) {
+				Slot& SLOT7_2 = channels[7].slots[SLOT2];
+				bufs[8][i] = adjust(2 * SLOT7_2.calcOutput(genPhaseSnare()));
+			}
+
+			// Tom Tom (verified on real YM3812)
+			if (channelActiveBits & (1 << 9)) {
+				Slot& SLOT8_1 = channels[8].slots[SLOT1];
+				bufs[9][i] = adjust(2 * SLOT8_1.calcOutput(SLOT8_1.getPhase()));
+			}
+
+			// Top Cymbal (verified on real YM2413)
+			if (channelActiveBits & (1 << 10)) {
+				Slot& SLOT8_2 = channels[8].slots[SLOT2];
+				bufs[10][i] = adjust(2 * SLOT8_2.calcOutput(genPhaseCymbal()));
+			}
 		}
 		advance();
 	}
