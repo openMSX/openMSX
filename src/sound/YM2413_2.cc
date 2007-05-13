@@ -416,7 +416,7 @@ public:
 	 */
 	void updateGenerators();
 
-	inline int calcOutput(int phase, int pm) const;
+	inline int calcOutput(int phase) const;
 	inline void updateModulator();
 	inline void advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier);
 	inline void advancePhaseGenerator();
@@ -1007,11 +1007,11 @@ inline void Global::advance()
 	noise_rng >>= 1;
 }
 
-inline int Slot::calcOutput(int phase, int pm) const
+inline int Slot::calcOutput(int phase) const
 {
 	const int env = (TLL + volume + (global->get_LFO_AM() & AMmask)) << 5;
 	if (env < TL_TAB_LEN) {
-		const int p = env + sin_tab[wavetable + ((phase + pm) & SIN_MASK)];
+		const int p = env + sin_tab[wavetable + (phase & SIN_MASK)];
 		return p < TL_TAB_LEN ? tl_tab[p] : 0;
 	} else {
 		return 0;
@@ -1020,12 +1020,15 @@ inline int Slot::calcOutput(int phase, int pm) const
 
 inline void Slot::updateModulator()
 {
-	// Compute phase modulation for slot 1.
-	const int pm = fb_shift ? (op1_out[0] + op1_out[1]) >> fb_shift : 0;
+	// Compute phase.
+	int phase = getPhase();
+	if (fb_shift) {
+		phase += (op1_out[0] + op1_out[1]) >> fb_shift;
+	}
 	// Shift output in 2-place buffer.
 	op1_out[0] = op1_out[1];
 	// Calculate operator output.
-	op1_out[1] = calcOutput(getPhase(), pm);
+	op1_out[1] = calcOutput(phase);
 }
 
 inline int Channel::calcOutput()
@@ -1035,7 +1038,7 @@ inline int Channel::calcOutput()
 
 	// SLOT 2
 	return slots[SLOT2].calcOutput(
-		slots[SLOT2].getPhase(), slots[SLOT1].getPhaseModulation()
+		slots[SLOT2].getPhase() + slots[SLOT1].getPhaseModulation()
 		);
 }
 
@@ -1588,7 +1591,7 @@ inline void Global::generateRhythm(int** bufs, unsigned sample)
 	Slot& SLOT6_2 = channels[6].slots[SLOT2];
 	SLOT6_1.updateModulator();
 	bufs[6][sample] = adjust(2 * SLOT6_2.calcOutput(
-		SLOT6_2.getPhase(), SLOT6_1.getPhaseModulation()
+		SLOT6_2.getPhase() + SLOT6_1.getPhaseModulation()
 		));
 
 	// Envelope generation based on:
@@ -1603,19 +1606,19 @@ inline void Global::generateRhythm(int** bufs, unsigned sample)
 
 	// High Hat (verified on real YM3812)
 	Slot& SLOT7_1 = channels[7].slots[SLOT1];
-	bufs[7][sample] = adjust(2 * SLOT7_1.calcOutput(genPhaseHighHat(), 0));
+	bufs[7][sample] = adjust(2 * SLOT7_1.calcOutput(genPhaseHighHat()));
 
 	// Snare Drum (verified on real YM3812)
 	Slot& SLOT7_2 = channels[7].slots[SLOT2];
-	bufs[8][sample] = adjust(2 * SLOT7_2.calcOutput(genPhaseSnare(), 0));
+	bufs[8][sample] = adjust(2 * SLOT7_2.calcOutput(genPhaseSnare()));
 
 	// Tom Tom (verified on real YM3812)
 	Slot& SLOT8_1 = channels[8].slots[SLOT1];
-	bufs[9][sample] = adjust(2 * SLOT8_1.calcOutput(SLOT8_1.getPhase(), 0));
+	bufs[9][sample] = adjust(2 * SLOT8_1.calcOutput(SLOT8_1.getPhase()));
 
 	// Top Cymbal (verified on real YM2413)
 	Slot& SLOT8_2 = channels[8].slots[SLOT2];
-	bufs[10][sample] = adjust(2 * SLOT8_2.calcOutput(genPhaseCymbal(), 0));
+	bufs[10][sample] = adjust(2 * SLOT8_2.calcOutput(genPhaseCymbal()));
 }
 
 void Global::generateChannels(int** bufs, unsigned num)
