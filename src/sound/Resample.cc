@@ -136,6 +136,7 @@ void Resample<CHANNELS>::calcOutput2(float lastPos, float* output)
 	int tabIdx = t * filterLen;
 	int bufIdx = (bufCurrent - halfFilterLen) * CHANNELS;
 
+	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
 	if ((CHANNELS == 1) && cpu.hasSSE()) {
 		// SSE version, mono
@@ -272,6 +273,7 @@ void Resample<CHANNELS>::calcOutput2(float lastPos, float* output)
 		);
 		return;
 	}
+	#endif
 
 	// c++ version, both mono and stereo
 	for (unsigned ch = 0; ch < CHANNELS; ++ch) {
