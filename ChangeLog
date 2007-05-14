@@ -1,5 +1,9 @@
 $Id$
 
+2007-05-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Share resample coeff table between Resample instances with the same
+	  resample ratio
+
 2007-05-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Additional speedup for the Resampler:
 	   - unrolled the loop (+ break dependencies)

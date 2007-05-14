@@ -22,8 +22,6 @@ private:
 	typedef FixedPoint<16> FilterIndex;
 	static const unsigned BUF_LEN = 16384;
 
-	void calculateCoeffs();
-	double getCoeff(FilterIndex index);
 	void calcOutput(FilterIndex startFilterIndex, float* output);
 	void calcOutput2(float lastPos, float* output);
 	void prepareData(unsigned extra);

@@ -12,11 +12,17 @@
 //   - changed/simplified API to better match openmsx use model
 //     (e.g. remove all error checking)
 
+// TODO current code is more complicated than needed because it supports
+//      two algorithms: the original algo and a version with precaclculated
+//      coeffs. This is useful when comparing both version (for sound quality)
+//      We should remove it later.
 
 #include "Resample.hh"
 #include "MemoryOps.hh"
 #include "HostCPU.hh"
+#include "noncopyable.hh"
 #include <algorithm>
+#include <map>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
@@ -32,69 +38,96 @@ static const int COEFF_LEN = sizeof(coeffs) / sizeof(float);
 static const int COEFF_HALF_LEN = COEFF_LEN - 1;
 static const unsigned TAB_LEN = 4096;
 
-template <unsigned CHANNELS>
-Resample<CHANNELS>::Resample()
-	: increment(0), table(0)
+
+class ResampleCoeffs : private noncopyable
 {
-	ratio = 1.0f;
-	lastPos = 0.0f;
-	bufCurrent = BUF_LEN / 2;
-	bufEnd     = BUF_LEN / 2;
-	memset(buffer, 0, sizeof(buffer));
-	nonzeroSamples = 0;
+public:
+	static ResampleCoeffs& instance();
+	void getCoeffs(double ratio, float*& table, unsigned& filterLen);
+	void releaseCoeffs(double ratio);
+
+private:
+	typedef FixedPoint<16> FilterIndex;
+
+	ResampleCoeffs();
+	~ResampleCoeffs();
+
+	double getCoeff(FilterIndex index);
+	void calcTable(double ratio, float*& table, unsigned& filterLen);
+
+	struct Element {
+		unsigned count;
+		float* table;
+		unsigned filterLen;
+	};
+	typedef std::map<double, Element> Cache;
+	Cache cache;
+};
+
+ResampleCoeffs::ResampleCoeffs()
+{
 }
 
-template <unsigned CHANNELS>
-Resample<CHANNELS>::~Resample()
+ResampleCoeffs::~ResampleCoeffs()
 {
-	if (table) {
-		MemoryOps::freeAligned(table);
+	assert(cache.empty());
+}
+
+ResampleCoeffs& ResampleCoeffs::instance()
+{
+	static ResampleCoeffs resampleCoeffs;
+	return resampleCoeffs;
+}
+
+void ResampleCoeffs::getCoeffs(
+	double ratio, float*& table, unsigned& filterLen)
+{
+	Cache::iterator it = cache.find(ratio);
+	if (it != cache.end()) {
+		it->second.count++;
+		table     = it->second.table;
+		filterLen = it->second.filterLen;
+		return;
+	}
+	calcTable(ratio, table, filterLen);
+	Element elem;
+	elem.count = 1;
+	elem.table = table;
+	elem.filterLen = filterLen;
+	cache[ratio] = elem;
+}
+
+void ResampleCoeffs::releaseCoeffs(double ratio)
+{
+	Cache::iterator it = cache.find(ratio);
+	assert(it != cache.end());
+	it->second.count--;
+	if (it->second.count == 0) {
+		MemoryOps::freeAligned(it->second.table);
+		cache.erase(it);
 	}
 }
 
-template <unsigned CHANNELS>
-void Resample<CHANNELS>::setResampleRatio(double inFreq, double outFreq)
-{
-	ratio = inFreq / outFreq;
-	bufCurrent = BUF_LEN / 2;
-	bufEnd     = BUF_LEN / 2;
-	memset(buffer, 0, sizeof(buffer));
-
-	// check the sample rate ratio wrt the buffer len
-	double count = (COEFF_HALF_LEN + 2.0) / INDEX_INC;
-	if (ratio > 1.0f) {
-		count *= ratio;
-	}
-	// maximum coefficients on either side of center point
-	halfFilterLen = lrint(count) + 1;
-
-	floatIncr = (ratio > 1.0f) ? INDEX_INC / ratio : INDEX_INC;
-	normFactor = floatIncr / INDEX_INC;
-	increment = FilterIndex(floatIncr);
-
-	calculateCoeffs();
-}
-
-template <unsigned CHANNELS>
-double Resample<CHANNELS>::getCoeff(FilterIndex index)
+double ResampleCoeffs::getCoeff(FilterIndex index)
 {
 	double fraction = index.fractionAsDouble();
 	int indx = index.toInt();
 	return coeffs[indx] + fraction * (coeffs[indx + 1] - coeffs[indx]);
 }
 
-template <unsigned CHANNELS>
-void Resample<CHANNELS>::calculateCoeffs()
+void ResampleCoeffs::calcTable(
+	double ratio, float*& table, unsigned& filterLen)
 {
+	double floatIncr = (ratio > 1.0) ? INDEX_INC / ratio : INDEX_INC;
+	double normFactor = floatIncr / INDEX_INC;
+	FilterIndex increment = FilterIndex(floatIncr);
 	FilterIndex maxFilterIndex(COEFF_HALF_LEN);
+
 	int min_idx = -maxFilterIndex.divAsInt(increment);
 	int max_idx = 1 + (maxFilterIndex - (increment - FilterIndex(floatIncr))).divAsInt(increment);
 	int idx_cnt = max_idx - min_idx + 1;
 	filterLen = (idx_cnt + 3) & ~3; // round up to multiple of 4
 	min_idx -= (filterLen - idx_cnt);
-	if (table) {
-		MemoryOps::freeAligned(table);
-	}
 	table = static_cast<float*>(MemoryOps::mallocAligned(
 		16, TAB_LEN * filterLen * sizeof(float)));
 	memset(table, 0, TAB_LEN * filterLen * sizeof(float));
@@ -125,6 +158,55 @@ void Resample<CHANNELS>::calculateCoeffs()
 			bufIndex -= 1;
 		} while (filterIndex > FilterIndex(0));
 	}
+}
+
+
+
+template <unsigned CHANNELS>
+Resample<CHANNELS>::Resample()
+	: increment(0), table(0)
+{
+	ratio = 1.0f;
+	lastPos = 0.0f;
+	bufCurrent = BUF_LEN / 2;
+	bufEnd     = BUF_LEN / 2;
+	memset(buffer, 0, sizeof(buffer));
+	nonzeroSamples = 0;
+}
+
+template <unsigned CHANNELS>
+Resample<CHANNELS>::~Resample()
+{
+	if (table) {
+		ResampleCoeffs::instance().releaseCoeffs(ratio);
+	}
+}
+
+template <unsigned CHANNELS>
+void Resample<CHANNELS>::setResampleRatio(double inFreq, double outFreq)
+{
+	ratio = inFreq / outFreq;
+	if (table) {
+		ResampleCoeffs::instance().releaseCoeffs(ratio);
+	}
+
+	bufCurrent = BUF_LEN / 2;
+	bufEnd     = BUF_LEN / 2;
+	memset(buffer, 0, sizeof(buffer));
+
+	// check the sample rate ratio wrt the buffer len
+	double count = (COEFF_HALF_LEN + 2.0) / INDEX_INC;
+	if (ratio > 1.0f) {
+		count *= ratio;
+	}
+	// maximum coefficients on either side of center point
+	halfFilterLen = lrint(count) + 1;
+
+	floatIncr = (ratio > 1.0f) ? INDEX_INC / ratio : INDEX_INC;
+	normFactor = floatIncr / INDEX_INC;
+	increment = FilterIndex(floatIncr);
+
+	ResampleCoeffs::instance().getCoeffs(ratio, table, filterLen);
 }
 
 template <unsigned CHANNELS>
