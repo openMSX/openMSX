@@ -40,8 +40,7 @@ private:
 
 // envelope output entries
 const int ENV_BITS = 10;
-const int ENV_LEN  = 1 << ENV_BITS;
-const double ENV_STEP = 128.0 / ENV_LEN;
+const double ENV_STEP = 128.0 / (1 << ENV_BITS);
 
 const int MAX_ATT_INDEX = (1 << (ENV_BITS - 2)) - 1;	// 255
 const int MIN_ATT_INDEX = 0;
@@ -1578,7 +1577,6 @@ void Global::generateChannels(int** bufs, unsigned num)
 			}
 		}
 		if (rhythm) {
-			// TODO: Implement per-channel mute for rhythm channels.
 			// Bass Drum (verified on real YM3812):
 			//  - depends on the channel 6 'connect' register:
 			//    when connect = 0 it works the same as in normal (non-rhythm) mode

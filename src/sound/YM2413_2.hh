@@ -14,10 +14,10 @@ namespace openmsx {
 
 class EmuTime;
 class MSXMotherBoard;
-class YM2413_2Debuggable;
 
 // Defined in .cc:
 class Global;
+class YM2413_2Debuggable;
 
 class YM2413_2 : public YM2413Core, public SoundDevice, private Resample<1>
 {
