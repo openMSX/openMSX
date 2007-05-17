@@ -462,15 +462,15 @@ void CassettePlayer::setOutputRate(unsigned sampleRate)
 	delta = EmuDuration(1.0 / sampleRate);
 }
 
-void CassettePlayer::generateChannels(int** bufs, unsigned num)
+void CassettePlayer::generateChannels(int** buffers, unsigned num)
 {
 	if ((getState() != PLAY) || !isRolling()) {
-		bufs[0] = 0;
+		buffers[0] = 0;
 		return;
 	}
 
 	for (unsigned i = 0; i < num; ++i) {
-		bufs[0][i] = getSample(playTapeTime);
+		buffers[0][i] = getSample(playTapeTime);
 		playTapeTime += delta;
 	}
 }

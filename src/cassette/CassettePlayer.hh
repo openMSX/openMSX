@@ -49,7 +49,7 @@ public:
 
 	// SoundDevice
 	virtual void setOutputRate(unsigned sampleRate);
-	virtual void generateChannels(int** bufs, unsigned num);
+	virtual void generateChannels(int** buffers, unsigned num);
 
 private:
 	enum State { PLAY, RECORD, STOP };
