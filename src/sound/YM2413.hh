@@ -121,7 +121,7 @@ private:
 		const EmuTime& time, const EmuDuration& sampDur);
 
 	// Resample
-	virtual bool generateInput(float* buffer, unsigned num);
+	virtual bool generateInput(int* buffer, unsigned num);
 
 	inline int adjust(int x);
 	inline void calcSample(int** bufs, unsigned sample);

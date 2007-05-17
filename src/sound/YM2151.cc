@@ -1481,31 +1481,15 @@ void YM2151::generateChannels(int** bufs, unsigned num)
 	}
 }
 
-bool YM2151::generateInput(float* buffer, unsigned length)
+bool YM2151::generateInput(int* buffer, unsigned length)
 {
-	int tmpBuf[2 * length];
-	if (mixChannels(tmpBuf, length)) {
-		for (unsigned i = 0; i < 2 * length; ++i) {
-			buffer[i] = tmpBuf[i];
-		}
-		return true;
-	} else {
-		return false;
-	}
+	return mixChannels(buffer, length);
 }
 
 bool YM2151::updateBuffer(unsigned length, int* buffer,
 		const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
 {
-	float tmpBuf[2 * length];
-	if (generateOutput(tmpBuf, length)) {
-		for (unsigned i = 0; i < 2 * length; ++i) {
-			buffer[i] = lrintf(tmpBuf[i]);
-		}
-		return true;
-	} else {
-		return false;
-	}
+	return generateOutput(buffer, length);
 }
 
 void YM2151::setOutputRate(unsigned sampleRate)

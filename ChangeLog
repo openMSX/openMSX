@@ -1,5 +1,9 @@
 $Id$
 
+2007-05-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Moved int<->float conversion from sounddevices to Resampler:
+	   - preparation for fast/low-quality resampler
+
 2007-05-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Share resample coeff table between Resample instances with the same
 	  resample ratio

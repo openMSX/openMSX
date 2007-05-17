@@ -37,7 +37,7 @@ private:
 		const EmuTime& time, const EmuDuration& sampDur);
 
 	// Resample
-	virtual bool generateInput(float* buffer, unsigned num);
+	virtual bool generateInput(int* buffer, unsigned num);
 
 	friend class YM2413_2Debuggable;
 	const std::auto_ptr<YM2413_2Debuggable> debuggable;

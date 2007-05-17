@@ -15,15 +15,15 @@ protected:
 	virtual ~Resample();
 
 	void setResampleRatio(double inFreq, double outFreq);
-	bool generateOutput(float* dataOut, unsigned num);
-	virtual bool generateInput(float* buffer, unsigned num) = 0;
+	bool generateOutput(int* dataOut, unsigned num);
+	virtual bool generateInput(int* buffer, unsigned num) = 0;
 
 private:
 	typedef FixedPoint<16> FilterIndex;
 	static const unsigned BUF_LEN = 16384;
 
-	void calcOutput(FilterIndex startFilterIndex, float* output);
-	void calcOutput2(float lastPos, float* output);
+	void calcOutput(FilterIndex startFilterIndex, int* output);
+	void calcOutput2(float lastPos, int* output);
 	void prepareData(unsigned extra);
 
 	float ratio;

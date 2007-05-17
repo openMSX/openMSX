@@ -1656,31 +1656,15 @@ void YM2413_2::generateChannels(int** bufs, unsigned num)
 	global->generateChannels(bufs, num);
 }
 
-bool YM2413_2::generateInput(float* buffer, unsigned num)
+bool YM2413_2::generateInput(int* buffer, unsigned num)
 {
-	int tmpBuf[num];
-	if (mixChannels(tmpBuf, num)) {
-		for (unsigned i = 0; i < num; ++i) {
-			buffer[i] = tmpBuf[i];
-		}
-		return true;
-	} else {
-		return false;
-	}
+	return mixChannels(buffer, num);
 }
 
 bool YM2413_2::updateBuffer(unsigned length, int* buffer,
      const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
 {
-	float tmpBuf[length];
-	if (generateOutput(tmpBuf, length)) {
-		for (unsigned i = 0; i < length; ++i) {
-			buffer[i] = lrintf(tmpBuf[i]);
-		}
-		return true;
-	} else {
-		return false;
-	}
+	return generateOutput(buffer, length);
 }
 
 

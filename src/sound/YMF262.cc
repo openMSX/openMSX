@@ -1960,31 +1960,15 @@ void YMF262::generateChannels(int** bufs, unsigned num)
 	}
 }
 
-bool YMF262::generateInput(float* buffer, unsigned num)
+bool YMF262::generateInput(int* buffer, unsigned num)
 {
-	int tmpBuf[2 * num];
-	if (mixChannels(tmpBuf, num)) {
-		for (unsigned i = 0; i < 2 * num; ++i) {
-			buffer[i] = tmpBuf[i];
-		}
-		return true;
-	} else {
-		return false;
-	}
+	return mixChannels(buffer, num);
 }
 
 bool YMF262::updateBuffer(unsigned length, int* buffer,
      const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
 {
-	float tmpBuf[2 * length];
-	if (generateOutput(tmpBuf, length)) {
-		for (unsigned i = 0; i < 2 * length; ++i) {
-			buffer[i] = lrintf(tmpBuf[i]);
-		}
-		return true;
-	} else {
-		return false;
-	}
+	return generateOutput(buffer, length);
 }
 
 

@@ -44,7 +44,7 @@ private:
 		const EmuDuration& sampDur);
 
 	// Resample
-	virtual bool generateInput(float* buffer, unsigned num);
+	virtual bool generateInput(int* buffer, unsigned num);
 
 	void setupParameter(byte param);
 	int getBits(int sbit, int bits);

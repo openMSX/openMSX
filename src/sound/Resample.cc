@@ -210,7 +210,7 @@ void Resample<CHANNELS>::setResampleRatio(double inFreq, double outFreq)
 }
 
 template <unsigned CHANNELS>
-void Resample<CHANNELS>::calcOutput2(float lastPos, float* output)
+void Resample<CHANNELS>::calcOutput2(float lastPos, int* output)
 {
 	assert((filterLen & 3) == 0);
 	int t = static_cast<int>(lastPos * TAB_LEN + 0.5f) % TAB_LEN;
@@ -270,7 +270,8 @@ void Resample<CHANNELS>::calcOutput2(float lastPos, float* output)
 			"movaps	%%xmm7,%%xmm0;"
 			"shufps	$177,%%xmm7,%%xmm0;"
 			"addss	%%xmm7,%%xmm0;"
-			"movss	%%xmm0,(%2);"
+			"cvtss2si %%xmm0,%%edx;"
+			"mov	%%edx,(%2);"
 
 			: // no output
 			: "r" (&buffer[bufIdx + filterLen16]) // 0
@@ -278,8 +279,9 @@ void Resample<CHANNELS>::calcOutput2(float lastPos, float* output)
 			, "r" (output) // 2
 			, "r" (-4 * filterLen16) // 3
 			, "r" (filterLenRest) // 4
+			: "edx"
 			#ifdef __SSE__
-			: "xmm0", "xmm1", "xmm2", "xmm3"
+			, "xmm0", "xmm1", "xmm2", "xmm3"
 			, "xmm4", "xmm5", "xmm6", "xmm7"
 			#endif
 		);
@@ -340,7 +342,9 @@ void Resample<CHANNELS>::calcOutput2(float lastPos, float* output)
 			"movaps	%%xmm0,%%xmm4;"
 			"shufps	$78,%%xmm0,%%xmm0;"
 			"addps	%%xmm4,%%xmm0;"
-			"movq	%%xmm0,(%2);"
+			"cvtps2pi %%xmm0,%%mm0;"
+			"movq	%%mm0,(%2);"
+			"emms;"
 
 			: // no output
 			: "r" (&buffer[bufIdx + 2 * filterLen8]) // 0
@@ -349,7 +353,8 @@ void Resample<CHANNELS>::calcOutput2(float lastPos, float* output)
 			, "r" (-4 * filterLen8) // 3
 			, "r" (filterLenRest) // 4
 			#ifdef __SSE__
-			: "xmm0", "xmm1", "xmm2", "xmm3"
+			: "mm0"
+			, "xmm0", "xmm1", "xmm2", "xmm3"
 			, "xmm4", "xmm5", "xmm6", "xmm7"
 			#endif
 		);
@@ -373,13 +378,13 @@ void Resample<CHANNELS>::calcOutput2(float lastPos, float* output)
 			r3 += table[tabIdx + i + 3] *
 			      buffer[bufIdx + CHANNELS * (i + 3)];
 		}
-		output[ch] = r0 + r1 + r2 + r3;
+		output[ch] = lrint(r0 + r1 + r2 + r3);
 		++bufIdx;
 	}
 }
 
 template <unsigned CHANNELS>
-void Resample<CHANNELS>::calcOutput(FilterIndex startFilterIndex, float* output)
+void Resample<CHANNELS>::calcOutput(FilterIndex startFilterIndex, int* output)
 {
 	FilterIndex maxFilterIndex(COEFF_HALF_LEN);
 
@@ -428,7 +433,7 @@ void Resample<CHANNELS>::calcOutput(FilterIndex startFilterIndex, float* output)
 	} while (filterIndex > FilterIndex(0));
 
 	for (unsigned i = 0; i < CHANNELS; ++i) {
-		output[i] = (left[i] + right[i]) * normFactor;
+		output[i] = lrint((left[i] + right[i]) * normFactor);
 	}
 }
 
@@ -455,7 +460,11 @@ void Resample<CHANNELS>::prepareData(unsigned extra)
 		bufEnd = halfFilterLen + available;
 		missing = std::min<unsigned>(missing, BUF_LEN - bufEnd);
 	}
-	if (generateInput(buffer + bufEnd * CHANNELS, missing)) {
+	int tmpBuf[missing * CHANNELS];
+	if (generateInput(tmpBuf, missing)) {
+		for (unsigned i = 0; i < missing * CHANNELS; ++i) {
+			buffer[bufEnd * CHANNELS + i] = tmpBuf[i];
+		}
 		bufEnd += missing;
 		nonzeroSamples = bufEnd - bufCurrent + halfFilterLen;
 	} else {
@@ -469,7 +478,7 @@ void Resample<CHANNELS>::prepareData(unsigned extra)
 }
 
 template <unsigned CHANNELS>
-bool Resample<CHANNELS>::generateOutput(float* dataOut, unsigned num)
+bool Resample<CHANNELS>::generateOutput(int* dataOut, unsigned num)
 {
 	bool anyNonZero = false;
 
@@ -494,7 +503,7 @@ bool Resample<CHANNELS>::generateOutput(float* dataOut, unsigned num)
 			anyNonZero = true;
 		} else {
 			for (unsigned j = 0; j < CHANNELS; ++j) {
-				dataOut[i * CHANNELS + j] = 0.0f;
+				dataOut[i * CHANNELS + j] = 0;
 			}
 		}
 

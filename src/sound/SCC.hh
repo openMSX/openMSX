@@ -38,7 +38,7 @@ private:
 		const EmuTime& time, const EmuDuration& sampDur);
 
 	// Resample
-	virtual bool generateInput(float* buffer, unsigned num);
+	virtual bool generateInput(int* buffer, unsigned num);
 
 	inline int adjust(signed char wav, byte vol);
 	byte readWave(byte channel, byte address, const EmuTime& time);

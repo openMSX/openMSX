@@ -124,7 +124,7 @@ private:
 		const EmuTime& start, const EmuDuration& sampDur);
 
 	// Resample
-	virtual bool generateInput(float* buffer, unsigned num);
+	virtual bool generateInput(int* buffer, unsigned num);
 
 	inline void keyOn_BD();
 	inline void keyOn_SD();

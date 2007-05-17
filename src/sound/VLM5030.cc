@@ -81,7 +81,6 @@ chirp 12-..: vokume   0   : silent
 #include "MSXMotherBoard.hh"
 #include "XMLElement.hh"
 #include "FileContext.hh"
-#include <cmath>
 #include <cstring>
 
 namespace openmsx {
@@ -538,31 +537,15 @@ void VLM5030::setOutputRate(unsigned sampleRate)
        setResampleRatio(input, sampleRate);
 }
 
-bool VLM5030::generateInput(float* buffer, unsigned length)
+bool VLM5030::generateInput(int* buffer, unsigned length)
 {
-	int tmpBuf[length];
-	if (mixChannels(tmpBuf, length)) {
-		for (unsigned i = 0; i < length; ++i) {
-			buffer[i] = tmpBuf[i];
-		}
-		return true;
-	} else {
-		return false;
-	}
+	return mixChannels(buffer, length);
 }
 
 bool VLM5030::updateBuffer(unsigned length, int* buffer,
                            const EmuTime& /*start*/, const EmuDuration& /*sampDur*/)
 {
-	float tmpBuf[length];
-	if (generateOutput(tmpBuf, length)) {
-		for (unsigned i = 0; i < length; ++i) {
-			buffer[i] = lrintf(tmpBuf[i]);
-		}
-		return true;
-	} else {
-		return false;
-	}
+	return generateOutput(buffer, length);
 }
 
 } // namespace openmsx
