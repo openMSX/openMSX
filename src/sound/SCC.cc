@@ -446,7 +446,7 @@ void SCC::generateChannels(int** bufs, unsigned num)
 {
 	byte enable = ch_enable;
 	for (int i = 0; i < 5; ++i, enable >>= 1) {
-		if ((enable & 1) && volume[i]) {
+		if ((enable & 1) && (volume[i] || out[i])) {
 			for (unsigned j = 0; j < num; ++j) {
 				bufs[i][j] = out[i];
 				count[i] += incr[i];
@@ -514,7 +514,7 @@ void SCCDebuggable::write(unsigned address, byte value, const EmuTime& time)
 		scc.writeWave(address >> 5, address, value);
 	} else if (address < 0xC0) {
 		// freq volume block
-		 scc.setFreqVol(address, value);
+		scc.setFreqVol(address, value);
 	} else if (address < 0xE0) {
 		// deformation register
 		scc.setDeformReg(value, time);
