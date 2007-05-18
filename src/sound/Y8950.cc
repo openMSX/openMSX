@@ -493,6 +493,7 @@ Y8950::Y8950(MSXMotherBoard& motherBoard, const std::string& name,
              const XMLElement& config, unsigned sampleRam, const EmuTime& time,
              Y8950Periphery& perihery_)
 	: SoundDevice(motherBoard.getMSXMixer(), name, "MSX-AUDIO", 12)
+        , Resample(motherBoard.getGlobalSettings(), 1)
 	, irq(motherBoard.getCPU())
 	, perihery(perihery_)
 	, timer1(motherBoard.getScheduler(), *this)

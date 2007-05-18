@@ -1,5 +1,10 @@
 $Id$
 
+2007-05-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added fast/low-quality resample algorithm
+	* Added 'resample' setting with possible values 'fast' and 'hq' to
+	  switch between the different resample algorithm
+
 2007-05-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Moved int<->float conversion from sounddevices to Resampler:
 	   - preparation for fast/low-quality resampler

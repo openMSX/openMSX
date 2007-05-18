@@ -36,6 +36,7 @@ public:
 	StringSetting&  getUserDirSetting();
 	StringSetting&  getUMRCallBackSetting();
 	EnumSetting<bool>& getBootSectorSetting();
+	EnumSetting<bool>& getResampleSetting();
 	ThrottleManager& getThrottleManager();
 
 private:
@@ -51,7 +52,8 @@ private:
 	std::auto_ptr<BooleanSetting> consoleSetting;
 	std::auto_ptr<StringSetting>  userDirSetting;
 	std::auto_ptr<StringSetting>  umrCallBackSetting;
-	std::auto_ptr<EnumSetting<bool> >  bootSectorSetting;
+	std::auto_ptr<EnumSetting<bool> > bootSectorSetting;
+	std::auto_ptr<EnumSetting<bool> > resampleSetting;
 	std::auto_ptr<ThrottleManager> throttleManager;
 };
 

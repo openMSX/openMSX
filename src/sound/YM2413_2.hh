@@ -19,7 +19,7 @@ class MSXMotherBoard;
 class Global;
 class YM2413_2Debuggable;
 
-class YM2413_2 : public YM2413Core, public SoundDevice, private Resample<1>
+class YM2413_2 : public YM2413Core, public SoundDevice, private Resample
 {
 public:
 	YM2413_2(MSXMotherBoard& motherBoard, const std::string& name,

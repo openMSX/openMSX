@@ -29,11 +29,18 @@ GlobalSettings::GlobalSettings(CommandController& commandController_)
 	        "user_directories", "list of user directories", ""));
 	umrCallBackSetting.reset(new StringSetting(commandController,
 	        "umr_callback", "TCL proc to call when an UMR is detected", ""));
-	EnumSetting<bool>::Map cmdMap;
-	cmdMap["DOS1"] = false;
-	cmdMap["DOS2"] = true;
+	EnumSetting<bool>::Map bootsectorMap;
+	bootsectorMap["DOS1"] = false;
+	bootsectorMap["DOS2"] = true;
 	bootSectorSetting.reset(new EnumSetting<bool>(commandController,
-		"bootsector", "boot sector type for dir-as-dsk", true, cmdMap));
+		"bootsector", "boot sector type for dir-as-dsk",
+		true, bootsectorMap));
+	EnumSetting<bool>::Map resampleMap;
+	resampleMap["fast"] = false;
+	resampleMap["hq"]   = true;
+	resampleSetting.reset(new EnumSetting<bool>(commandController,
+		"resampler", "Resample algorithm",
+		true, resampleMap));
 
 	throttleManager.reset(new ThrottleManager(commandController));
 
@@ -90,6 +97,11 @@ StringSetting& GlobalSettings::getUserDirSetting()
 EnumSetting<bool>& GlobalSettings::getBootSectorSetting()
 {
 	return *bootSectorSetting.get();
+}
+
+EnumSetting<bool>& GlobalSettings::getResampleSetting()
+{
+	return *resampleSetting.get();
 }
 
 // Observer<Setting>

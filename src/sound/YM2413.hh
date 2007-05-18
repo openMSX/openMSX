@@ -15,7 +15,7 @@ class EmuTime;
 class MSXMotherBoard;
 class YM2413Debuggable;
 
-class YM2413 : public YM2413Core, public SoundDevice, private Resample<1>
+class YM2413 : public YM2413Core, public SoundDevice, private Resample
 {
 	struct Patch {
 		Patch();

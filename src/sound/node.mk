@@ -24,10 +24,11 @@ SRC_HDR:= \
 	WavWriter \
 	SamplePlayer \
 	WavData \
-	Resample 
+	Resample ResampleHQ ResampleLQ
 
 HDR_ONLY:= \
 	SoundDriver \
+	ResampleAlgo \
 	Y8950Periphery
 
 DIST:= \

@@ -19,7 +19,7 @@ class DACSound16S;
 class MSXMotherBoard;
 class Y8950Debuggable;
 
-class Y8950 : public SoundDevice, private EmuTimerCallback, private Resample<1>
+class Y8950 : public SoundDevice, private EmuTimerCallback, private Resample
 {
 	class Patch {
 	public:

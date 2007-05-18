@@ -114,6 +114,14 @@ public:
 		return create(value & ~FRACTION_MASK);
 	}
 
+	/**
+	 * Returns the fractional part of this value.
+	 * The result is equal to fp - floor(fp).
+	 */
+	FixedPoint fract() const {
+		return create(value & FRACTION_MASK);
+	}
+
 	// Arithmetic operators:
 
 	FixedPoint operator+(const FixedPoint other) const {

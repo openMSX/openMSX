@@ -651,6 +651,7 @@ static byte inst_data[16 + 3][8] = {
 YM2413::YM2413(MSXMotherBoard& motherBoard, const std::string& name,
                const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMSXMixer(), name, "MSX-MUSIC", 11)
+        , Resample(motherBoard.getGlobalSettings(), 1)
 	, debuggable(new YM2413Debuggable(motherBoard, *this))
 {
 	for (int i = 0; i < 16 + 3; ++i) {

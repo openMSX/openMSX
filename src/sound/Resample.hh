@@ -3,41 +3,37 @@
 #ifndef RESAMPLE_HH
 #define RESAMPLE_HH
 
-#include "FixedPoint.hh"
+#include "Observer.hh"
+#include <memory>
 
 namespace openmsx {
 
-template <unsigned CHANNELS>
-class Resample
-{
-protected:
-	Resample();
-	virtual ~Resample();
+class ResampleAlgo;
+class GlobalSettings;
+class Setting;
+template<typename T> class EnumSetting;
 
+class Resample : private Observer<Setting>
+{
+public:
+	virtual bool generateInput(int* buffer, unsigned num) = 0;
+        
+protected:
+        Resample(GlobalSettings& globalSettings, unsigned channels);
+	virtual ~Resample();
 	void setResampleRatio(double inFreq, double outFreq);
 	bool generateOutput(int* dataOut, unsigned num);
-	virtual bool generateInput(int* buffer, unsigned num) = 0;
 
 private:
-	typedef FixedPoint<16> FilterIndex;
-	static const unsigned BUF_LEN = 16384;
+	void createResampler();
 
-	void calcOutput(FilterIndex startFilterIndex, int* output);
-	void calcOutput2(float lastPos, int* output);
-	void prepareData(unsigned extra);
+	// Observer<Setting>
+	void update(const Setting& setting);
 
-	float ratio;
-	float floatIncr;
-	float normFactor;
-	float lastPos;
-	FilterIndex increment;
-	unsigned halfFilterLen;
-	unsigned bufCurrent;
-	unsigned bufEnd;
-	unsigned nonzeroSamples;
-	unsigned filterLen;
-	float buffer[BUF_LEN * CHANNELS];
-	float* table;
+	double ratio;
+	std::auto_ptr<ResampleAlgo> algo;
+	const unsigned channels;
+	EnumSetting<bool>& resampleSetting;
 };
 
 } // namespace openmsx

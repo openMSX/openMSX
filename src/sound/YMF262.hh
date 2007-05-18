@@ -133,7 +133,7 @@ public:
 	byte extended;	// set to 1 if this channel forms up a 4op channel with another channel(only used by first of pair of channels, ie 0,1,2 and 9,10,11)
 };
 
-class YMF262 : private SoundDevice, private EmuTimerCallback, private Resample<2>
+class YMF262 : private SoundDevice, private EmuTimerCallback, private Resample
 {
 public:
 	YMF262(MSXMotherBoard& motherBoard, const std::string& name,

@@ -839,6 +839,7 @@ YM2151::YM2151(MSXMotherBoard& motherBoard, const std::string& name,
                const std::string& desc, const XMLElement& config,
                const EmuTime& time)
 	: SoundDevice(motherBoard.getMSXMixer(), name, desc, 8, true)
+        , Resample(motherBoard.getGlobalSettings(), 2)
 	, irq(motherBoard.getCPU())
 	, timer1(motherBoard.getScheduler(), *this)
 	, timer2(motherBoard.getScheduler(), *this)

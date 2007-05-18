@@ -44,7 +44,7 @@ namespace openmsx {
 
 class MSXMotherBoard;
 
-class YM2151 : public SoundDevice, private EmuTimerCallback, private Resample<2>
+class YM2151 : public SoundDevice, private EmuTimerCallback, private Resample
 {
 public:
 	YM2151(MSXMotherBoard& motherBoard, const std::string& name,
