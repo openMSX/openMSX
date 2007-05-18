@@ -52,7 +52,7 @@ bool ResampleLQ<CHANNELS>::generateOutput(int* dataOut, unsigned num)
 		// need to reload buffer?
 		int available = (bufEnd - bufStart) & BUF_MASK;
 		if (available <= p1) {
-			int request = std::min<int>((step * (num - i)).toInt() + 2,
+			int request = std::min<int>((step * (num - i)).toInt() + 2 + 1,
 			                            BUF_LEN - 1);
 			int missing = request - available;
 			assert(missing > 0);
