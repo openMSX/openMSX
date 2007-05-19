@@ -123,7 +123,6 @@ private:
 	// Resample
 	virtual bool generateInput(int* buffer, unsigned num);
 
-	inline int adjust(int x);
 	inline void calcSample(int** bufs, unsigned sample);
 
 	bool checkMuteHelper();

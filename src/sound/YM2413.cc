@@ -132,24 +132,24 @@ YM2413::Patch YM2413::nullPatch;
 //                                                   //
 //***************************************************//
 
-static int EG2DB(int d)
+static inline int EG2DB(int d)
 {
 	return d * (int)(EG_STEP / DB_STEP);
 }
-static int SL2EG(int d)
+static inline int SL2EG(int d)
 {
 	return d * (int)(SL_STEP / EG_STEP);
 }
 
-static int TL2EG(int d)
+static inline int TL2EG(int d)
 {
 	return d * (int)(TL_STEP / EG_STEP);
 }
-static unsigned DB_POS(double x)
+static inline unsigned DB_POS(double x)
 {
 	return (unsigned)(x / DB_STEP);
 }
-static unsigned DB_NEG(double x)
+static inline unsigned DB_NEG(double x)
 {
 	return (unsigned)(2 * DB_MUTE + x / DB_STEP);
 }
@@ -795,7 +795,7 @@ void YM2413::update_key_status()
 //******************************************************//
 
 // Convert Amp(0 to EG_HEIGHT) to Phase(0 to 4PI)
-static int wave2_4pi(int e)
+static inline int wave2_4pi(int e)
 {
 	int shift =  SLOT_AMP_BITS - PG_BITS - 1;
 	if (shift > 0) {
@@ -806,7 +806,7 @@ static int wave2_4pi(int e)
 }
 
 // Convert Amp(0 to EG_HEIGHT) to Phase(0 to 8PI)
-static int wave2_8pi(int e)
+static inline int wave2_8pi(int e)
 {
 	int shift = SLOT_AMP_BITS - PG_BITS - 2;
 	if (shift > 0) {
@@ -900,11 +900,7 @@ void YM2413::Slot::calc_envelope(int lfo_am)
 	} else {
 		out = EG2DB(out + tll);
 	}
-	if (out >= (unsigned)DB_MUTE) {
-		out = DB_MUTE - 1;
-	}
-
-	egout = out | 3;
+	egout = std::min<unsigned>(out, DB_MUTE - 1) | 3;
 }
 
 // CARRIOR
@@ -990,7 +986,7 @@ int YM2413::Slot::calc_slot_hat(int pgout_cym, bool noise)
 	return dB2LinTab[dbout + egout];
 }
 
-inline int YM2413::adjust(int x)
+static inline int adjust(int x)
 {
 	return x << (15 - DB2LIN_AMP_BITS);
 }
