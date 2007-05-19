@@ -13,6 +13,7 @@
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
 #include "DACSound16S.hh"
+#include <algorithm>
 #include <cmath>
 
 namespace openmsx {
@@ -28,10 +29,14 @@ private:
 };
 
 
-static const double EG_STEP = 0.1875;
-static const double SL_STEP = 3.0;
-static const double TL_STEP = 0.75;
-static const double DB_STEP = 0.1875;
+static const double EG_STEP = 0.1875; //  3/16
+static const double SL_STEP = 3.0;   
+static const double TL_STEP = 0.75;   // 12/16
+static const double DB_STEP = 0.1875; //  3/16
+
+static const unsigned SL_PER_EG = 16; // SL_STEP / EG_STEP
+static const unsigned TL_PER_EG =  4; // TL_STEP / EG_STEP
+static const unsigned EG_PER_DB =  1; // EG_STEP / DB_STEP
 
 // PM speed(Hz) and depth(cent)
 static const double PM_SPEED  = 6.4;
@@ -118,27 +123,22 @@ static short dB2LinTab[(2 * DB_MUTE) * 2];
 //                                                  //
 //**************************************************//
 
-static int ALIGN(int d, double SS, double SD)
-{
-	return d * (int)(SS / SD);
-}
-
-static int DB_POS(int x)
+static inline int DB_POS(int x)
 {
 	return (int)(x / DB_STEP);
 }
-static int DB_NEG(int x)
+static inline int DB_NEG(int x)
 {
 	return (int)(2 * DB_MUTE + x / DB_STEP);
 }
 
 // Cut the lower b bits off
-static int HIGHBITS(int c, int b)
+static inline int HIGHBITS(int c, int b)
 {
 	return c >> b;
 }
 // Expand x which is s bits to d bits
-static int EXPAND_BITS(int x, int s, int d)
+static inline int EXPAND_BITS(int x, int s, int d)
 {
 	return x << (d - s);
 }
@@ -178,11 +178,7 @@ static int lin2db(double d)
 		return DB_MUTE - 1;
 	}
 	int tmp = -(int)(20.0 * log10(d) / DB_STEP);
-	if (tmp < DB_MUTE - 1) {
-		return tmp;
-	} else {
-		return DB_MUTE - 1;
-	}
+	return std::min(tmp, DB_MUTE - 1);
 }
 
 // Sin Table
@@ -259,13 +255,13 @@ static void makeTllTable()
 			for (int TL = 0; TL < 64; ++TL) {
 				for (int KL = 0; KL < 4; ++KL) {
 					if (KL==0) {
-						tllTable[fnum][block][TL][KL] = ALIGN(TL, TL_STEP, EG_STEP);
+						tllTable[fnum][block][TL][KL] = TL * TL_PER_EG;
 					} else {
 						int tmp = kltable[fnum] - dB2(3.000) * (7 - block);
 						if (tmp <= 0) {
-							tllTable[fnum][block][TL][KL] = ALIGN(TL, TL_STEP, EG_STEP);
+							tllTable[fnum][block][TL][KL] = TL * TL_PER_EG;
 						} else {
-							tllTable[fnum][block][TL][KL] = (int)((tmp >> (3 - KL)) / EG_STEP) + ALIGN(TL, TL_STEP, EG_STEP);
+							tllTable[fnum][block][TL][KL] = (int)((tmp >> (3 - KL)) / EG_STEP) + (TL * TL_PER_EG);
 						}
 					}
 				}
@@ -626,7 +622,7 @@ void Y8950::setRythmMode(int data)
 //
 
 // Convert Amp(0 to EG_HEIGHT) to Phase(0 to 4PI).
-static int wave2_4pi(int e)
+static inline int wave2_4pi(int e)
 {
 	int shift =  SLOT_AMP_BITS - PG_BITS - 1;
 	if (shift > 0) {
@@ -637,7 +633,7 @@ static int wave2_4pi(int e)
 }
 
 // Convert Amp(0 to EG_HEIGHT) to Phase(0 to 8PI).
-static int wave2_8pi(int e)
+static inline int wave2_8pi(int e)
 {
 	int shift = SLOT_AMP_BITS - PG_BITS - 2;
 	if (shift > 0) {
@@ -689,7 +685,7 @@ void Y8950::Slot::calc_phase()
 
 void Y8950::Slot::calc_envelope()
 {
-	#define S2E(x) (ALIGN((unsigned)(x / SL_STEP), SL_STEP, EG_STEP) << (EG_DP_BITS - EG_BITS))
+	#define S2E(x) (((unsigned)(x / SL_STEP) * SL_PER_EG) << (EG_DP_BITS - EG_BITS))
 	static unsigned SL[16] = {
 		S2E( 0), S2E( 3), S2E( 6), S2E( 9), S2E(12), S2E(15), S2E(18), S2E(21),
 		S2E(24), S2E(27), S2E(30), S2E(33), S2E(36), S2E(39), S2E(42), S2E(93)
@@ -749,13 +745,11 @@ void Y8950::Slot::calc_envelope()
 	}
 
 	if (patch.AM) {
-		egout = ALIGN(egout + tll, EG_STEP, DB_STEP) + (*plfo_am);
+		egout = ((egout + tll) * EG_PER_DB) + (*plfo_am);
 	} else {
-		egout = ALIGN(egout + tll, EG_STEP, DB_STEP);
+		egout = ((egout + tll) * EG_PER_DB);
 	}
-	if (egout >= DB_MUTE) {
-		egout = DB_MUTE - 1;
-	}
+	egout = std::min(egout, DB_MUTE - 1);
 }
 
 int Y8950::Slot::calc_slot_car(int fm)
@@ -832,7 +826,7 @@ int Y8950::Slot::calc_slot_hat(int a, int b, int whitenoise)
 	}
 }
 
-inline int Y8950::adjust(int x)
+static inline int adjust(int x)
 {
 	return x << (15 - DB2LIN_AMP_BITS);
 }
@@ -1041,8 +1035,7 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 			if (reg[0x08] & 0x04) {
 				int tmp = ((signed char)reg[0x15]) * 256 + reg[0x16];
 				tmp = (tmp * 4) >> (7 - reg[0x17]);
-				if (tmp > 32767) tmp = 32767;
-				else if (tmp < -32768) tmp = -32768;
+				tmp = std::min(32767, std::max(-32768, tmp));
 				dac13->writeDAC(tmp, time);
 			}
 			break;
@@ -1065,7 +1058,6 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 			perihery.write(reg[0x18], reg[0x19], time);
 			break;
 		}
-
 		break;
 	}
 	case 0x20: {

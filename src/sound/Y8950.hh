@@ -141,7 +141,6 @@ private:
 	inline void update_ampm();
 
 	inline void calcSample(int** bufs, unsigned sample);
-	inline int adjust(int x);
 	bool checkMuteHelper();
 
 	void setStatus(byte flags);
