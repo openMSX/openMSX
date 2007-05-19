@@ -35,6 +35,7 @@ bool Resample::generateOutput(int* dataOut, unsigned num)
 
 void Resample::update(const Setting& setting)
 {
+	(void)setting;
 	assert(&setting == &resampleSetting);
 	createResampler();
 }
