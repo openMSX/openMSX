@@ -276,6 +276,7 @@ template <typename Pixel, bool STREAMING>
 void MemSet2<Pixel, STREAMING>::operator()(
 	Pixel* out, unsigned num, Pixel val0, Pixel val1) const
 {
+	if (!num) return;
 	if (sizeof(Pixel) == 2) {
 		memset_2_helper<STREAMING>(
 			reinterpret_cast<word*>(out), num, val0, val1
