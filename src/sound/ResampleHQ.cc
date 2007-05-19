@@ -19,6 +19,7 @@
 
 #include "ResampleHQ.hh"
 #include "Resample.hh"
+#include "FixedPoint.hh"
 #include "MemoryOps.hh"
 #include "HostCPU.hh"
 #include "noncopyable.hh"
@@ -165,27 +166,14 @@ void ResampleCoeffs::calcTable(
 
 template <unsigned CHANNELS>
 ResampleHQ<CHANNELS>::ResampleHQ(Resample& input_, double ratio_)
-	: input(input_), increment(0)
+	: input(input_)
 {
 	ratio = ratio_;
 	lastPos = 0.0f;
-	nonzeroSamples = 0;
         
-	bufCurrent = BUF_LEN / 2;
-	bufEnd     = BUF_LEN / 2;
-	memset(buffer, 0, sizeof(buffer));
-
-	// check the sample rate ratio wrt the buffer len
-	double count = (COEFF_HALF_LEN + 2.0) / INDEX_INC;
-	if (ratio > 1.0f) {
-		count *= ratio;
-	}
-	// maximum coefficients on either side of center point
-	halfFilterLen = lrint(count) + 1;
-
-	floatIncr = (ratio > 1.0f) ? INDEX_INC / ratio : INDEX_INC;
-	normFactor = floatIncr / INDEX_INC;
-	increment = FilterIndex(floatIncr);
+	bufStart = 0;
+	bufEnd   = 0;
+	nonzeroSamples = 0;
 
 	ResampleCoeffs::instance().getCoeffs(ratio, table, filterLen);
 }
@@ -197,13 +185,13 @@ ResampleHQ<CHANNELS>::~ResampleHQ()
 }
 
 template <unsigned CHANNELS>
-void ResampleHQ<CHANNELS>::calcOutput2(float lastPos, int* output)
+void ResampleHQ<CHANNELS>::calcOutput(float lastPos, int* output)
 {
 	assert((filterLen & 3) == 0);
 	int t = static_cast<int>(lastPos * TAB_LEN + 0.5f) % TAB_LEN;
 
 	int tabIdx = t * filterLen;
-	int bufIdx = (bufCurrent - halfFilterLen) * CHANNELS;
+	int bufIdx = bufStart * CHANNELS;
 
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
@@ -371,81 +359,24 @@ void ResampleHQ<CHANNELS>::calcOutput2(float lastPos, int* output)
 }
 
 template <unsigned CHANNELS>
-void ResampleHQ<CHANNELS>::calcOutput(FilterIndex startFilterIndex, int* output)
+void ResampleHQ<CHANNELS>::prepareData(unsigned request)
 {
-	FilterIndex maxFilterIndex(COEFF_HALF_LEN);
-
-	// apply the left half of the filter
-	FilterIndex filterIndex(startFilterIndex);
-	int coeffCount = (maxFilterIndex - filterIndex).divAsInt(increment);
-	filterIndex += increment * coeffCount;
-	int bufIndex = (bufCurrent - coeffCount) * CHANNELS;
-
-	float left[CHANNELS];
-	for (unsigned i = 0; i < CHANNELS; ++i) {
-		left[i] = 0.0f;
-	}
-	do {
-		float fraction = filterIndex.fractionAsFloat();
-		int indx = filterIndex.toInt();
-		float icoeff = coeffs[indx] +
-		                fraction * (coeffs[indx + 1] - coeffs[indx]);
-		for (unsigned i = 0; i < CHANNELS; ++i) {
-			left[i] += icoeff * buffer[bufIndex + i];
-		}
-		filterIndex -= increment;
-		bufIndex += CHANNELS;
-	} while (filterIndex >= FilterIndex(0));
-
-	// apply the right half of the filter
-	filterIndex = increment - startFilterIndex;
-	coeffCount = (maxFilterIndex - filterIndex).divAsInt(increment);
-	filterIndex += increment * coeffCount;
-	bufIndex = (bufCurrent + (1 + coeffCount)) * CHANNELS;
-
-	float right[CHANNELS];
-	for (unsigned i = 0; i < CHANNELS; ++i) {
-		right[i] = 0.0f;
-	}
-	do {
-		float fraction = filterIndex.fractionAsFloat();
-		int indx = filterIndex.toInt();
-		float icoeff = coeffs[indx] +
-		                fraction * (coeffs[indx + 1] - coeffs[indx]);
-		for (unsigned i = 0; i < CHANNELS; ++i) {
-			right[i] += icoeff * buffer[bufIndex + i];
-		}
-		filterIndex -= increment;
-		bufIndex -= CHANNELS;
-	} while (filterIndex > FilterIndex(0));
-
-	for (unsigned i = 0; i < CHANNELS; ++i) {
-		output[i] = lrint((left[i] + right[i]) * normFactor);
-	}
-}
-
-template <unsigned CHANNELS>
-void ResampleHQ<CHANNELS>::prepareData(unsigned extra)
-{
-	assert(bufCurrent <= bufEnd);
+	assert(bufStart <= bufEnd);
 	assert(bufEnd <= BUF_LEN);
-	assert(halfFilterLen <= bufCurrent);
 
-	unsigned available = bufEnd - bufCurrent;
-	unsigned request = halfFilterLen + extra;
-	int missing = request - available;
-	assert(missing > 0);
+	unsigned available = bufEnd - bufStart;
+	assert(request > available);
+	unsigned missing = request - available;
 
 	unsigned free = BUF_LEN - bufEnd;
 	int overflow = missing - free;
 	if (overflow > 0) {
 		// close to end, restart at begin
-		memmove(buffer,
-			buffer + (bufCurrent - halfFilterLen) * CHANNELS,
-			(halfFilterLen + available) * sizeof(float) * CHANNELS);
-		bufCurrent = halfFilterLen;
-		bufEnd = halfFilterLen + available;
-		missing = std::min<unsigned>(missing, BUF_LEN - bufEnd);
+		memmove(buffer, &buffer[bufStart * CHANNELS],
+			available * CHANNELS * sizeof(float));
+		bufStart = 0;
+		bufEnd = available;
+		missing = std::min(missing, BUF_LEN - bufEnd);
 	}
 	int tmpBuf[missing * CHANNELS];
 	if (input.generateInput(tmpBuf, missing)) {
@@ -453,14 +384,14 @@ void ResampleHQ<CHANNELS>::prepareData(unsigned extra)
 			buffer[bufEnd * CHANNELS + i] = tmpBuf[i];
 		}
 		bufEnd += missing;
-		nonzeroSamples = bufEnd - bufCurrent + halfFilterLen;
+		nonzeroSamples = bufEnd - bufStart;
 	} else {
-		memset(buffer + bufEnd * CHANNELS, 0,
-		       missing * sizeof(float));
+		memset(&buffer[bufEnd * CHANNELS], 0, missing * sizeof(float));
 		bufEnd += missing;
 	}
 
-	assert(bufCurrent + halfFilterLen <= bufEnd);
+	assert((bufEnd - bufStart) >= filterLen);
+	assert(bufStart <= bufEnd);
 	assert(bufEnd <= BUF_LEN);
 }
 
@@ -472,21 +403,16 @@ bool ResampleHQ<CHANNELS>::generateOutput(int* dataOut, unsigned num)
 	// main processing loop
 	for (unsigned i = 0; i < num; ++i) {
 		// need to reload buffer?
-		assert(bufCurrent <= bufEnd);
-		int available = bufEnd - bufCurrent;
-		if (available <= (int)halfFilterLen) {
+		assert(bufStart <= bufEnd);
+		unsigned available = bufEnd - bufStart;
+		if (available < filterLen) {
 			int extra = (ratio > 1.0f)
 			          ? lrint((num - i) * ratio) + 1
 			          :       (num - i);
-			prepareData(extra);
+			prepareData(filterLen + extra);
 		}
 		if (nonzeroSamples) {
-			// -- old implementation
-			//FilterIndex startFilterIndex(lastPos * floatIncr);
-			//calcOutput(startFilterIndex, &dataOut[i * CHANNELS]);
-			// -- new implementation
-			calcOutput2(lastPos, &dataOut[i * CHANNELS]);
-			// --
+			calcOutput(lastPos, &dataOut[i * CHANNELS]);
 			anyNonZero = true;
 		} else {
 			for (unsigned j = 0; j < CHANNELS; ++j) {
@@ -500,9 +426,9 @@ bool ResampleHQ<CHANNELS>::generateOutput(int* dataOut, unsigned num)
 		float intPos = truncf(lastPos);
 		lastPos -= intPos;
 		int consumed = lrint(intPos);
-		bufCurrent += consumed;
+		bufStart += consumed;
 		nonzeroSamples = std::max<int>(0, nonzeroSamples - consumed);
-		assert(bufCurrent <= bufEnd);
+		assert(bufStart <= bufEnd);
 	}
 	return anyNonZero;
 }

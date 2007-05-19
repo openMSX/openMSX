@@ -4,7 +4,6 @@
 #define RESAMPLEHQ_HH
 
 #include "ResampleAlgo.hh"
-#include "FixedPoint.hh"
 
 namespace openmsx {
 
@@ -20,21 +19,15 @@ public:
 	virtual bool generateOutput(int* dataOut, unsigned num);
 
 private:
-	typedef FixedPoint<16> FilterIndex;
 	static const unsigned BUF_LEN = 16384;
 
-	void calcOutput(FilterIndex startFilterIndex, int* output);
-	void calcOutput2(float lastPos, int* output);
-	void prepareData(unsigned extra);
+	void calcOutput(float lastPos, int* output);
+	void prepareData(unsigned request);
 
         Resample& input;
 	float ratio;
-	float floatIncr;
-	float normFactor;
 	float lastPos;
-	FilterIndex increment;
-	unsigned halfFilterLen;
-	unsigned bufCurrent;
+	unsigned bufStart;
 	unsigned bufEnd;
 	unsigned nonzeroSamples;
 	unsigned filterLen;

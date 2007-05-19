@@ -1,5 +1,9 @@
 $Id$
 
+2007-05-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Removed old (unoptimized) implementation of the high-quality
+	  resampler: sound quality is the same
+
 2007-05-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added fast/low-quality resample algorithm
 	* Added 'resample' setting with possible values 'fast' and 'hq' to
