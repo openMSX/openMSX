@@ -385,9 +385,10 @@ int Y8950Adpcm::calcSample()
 				//y8950.setStatus(Y8950::STATUS_EOS);
 			}
 		}
-		sampleStep = (nextLeveling - nowLeveling) * volumeWStep;
-		output = nowLeveling * volume;
-		output += (int)((double)sampleStep * ((double)nowStep/(double)delta));
+		int deltaLeveling = nextLeveling - nowLeveling;
+		sampleStep = deltaLeveling * volumeWStep;
+		int tmp = deltaLeveling * ((volume * nowStep) >> STEP_BITS);
+		output = nowLeveling * volume + tmp;
 	}
 	output += sampleStep;
 	return output >> 12;
