@@ -91,8 +91,6 @@ static const int DB_MUTE = 1 << DB_BITS;
 static const int PM_AMP_BITS = 8;
 static const int PM_AMP = 1 << PM_AMP_BITS;
 
-static unsigned dphaseNoiseTable[1024][8];
-
 // Bits for liner value
 static const int DB2LIN_AMP_BITS = 11;
 static const int SLOT_AMP_BITS = DB2LIN_AMP_BITS;
@@ -192,15 +190,6 @@ static void makeSinTable()
 	}
 	for (int i = 0; i < PG_WIDTH / 2; i++) {
 		sintable[PG_WIDTH / 2 + i] = 2 * DB_MUTE + sintable[i];
-	}
-}
-
-static void makeDphaseNoiseTable()
-{
-	for (int i = 0; i < 1024; ++i) {
-		for (int j = 0; j < 8; ++j) {
-			dphaseNoiseTable[i][j] = i << j;
-		}
 	}
 }
 
@@ -512,7 +501,6 @@ Y8950::Y8950(MSXMotherBoard& motherBoard, const std::string& name,
 	makeDphaseTable();
 	makeDphaseARTable();
 	makeDphaseDRTable();
-	makeDphaseNoiseTable();
 
 	for (int i = 0; i < 9; ++i) {
 		// TODO cleanup
@@ -1137,9 +1125,9 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 			int block = (reg[rg + 0x10] >> 2) & 7;
 			ch[c].setFnumber(fNum);
 			switch (c) {
-			case 7: noiseA_dphase = dphaseNoiseTable[fNum][block];
+			case 7: noiseA_dphase = fNum << block;
 				break;
-			case 8: noiseB_dphase = dphaseNoiseTable[fNum][block];
+			case 8: noiseB_dphase = fNum << block;
 				break;
 			}
 			ch[c].car.updateAll();
@@ -1153,9 +1141,9 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 			ch[c].setFnumber(fNum);
 			ch[c].setBlock(block);
 			switch (c) {
-			case 7: noiseA_dphase = dphaseNoiseTable[fNum][block];
+			case 7: noiseA_dphase = fNum << block;
 				break;
-			case 8: noiseB_dphase = dphaseNoiseTable[fNum][block];
+			case 8: noiseB_dphase = fNum << block;
 				break;
 			}
 			if (data & 0x20) {
