@@ -50,7 +50,7 @@ private:
 	unsigned addrMask;
 	unsigned memPntr;
 
-	unsigned nowStep, step;
+	unsigned nowStep;
 	int volume;
 	int out, output;
 	int diff;
@@ -58,7 +58,7 @@ private:
 	int sampleStep;
 	int volumeWStep;
 	int readDelay;
-	word delta;
+	int delta;
 
 	byte reg7;
 	byte reg15;
