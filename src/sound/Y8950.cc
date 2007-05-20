@@ -538,8 +538,8 @@ void Y8950::reset(const EmuTime& time)
 	output[1] = 0;
 
 	rythm_mode = false;
-	am_mode = 0;
-	pm_mode = 0;
+	am_mode = false;
+	pm_mode = false;
 	pm_phase = 0;
 	am_phase = 0;
 	noise_seed = 0xffff;

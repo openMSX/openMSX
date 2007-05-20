@@ -154,10 +154,8 @@ private:
 	// Registers
 	byte reg[0x100];
 	// Pitch Modulator
-	int pm_mode;
 	unsigned pm_phase;
 	// Amp Modulator
-	int am_mode;
 	unsigned am_phase;
 
 	// Noise Generator
@@ -224,6 +222,8 @@ private:
 	byte status;     // STATUS Register
 	byte statusMask; // bit=0 -> masked
 	bool rythm_mode;
+	bool am_mode;
+	bool pm_mode;
 	bool enabled;
 };
 
