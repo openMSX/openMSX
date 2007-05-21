@@ -355,8 +355,8 @@ static const byte lfo_am_table[LFO_AM_TAB_ELEMENTS] = {
 	 3,  3,  3,  3,
 	 2,  2,  2,  2,
 	 1,  1,  1,  1
-};          
-            
+};
+
 // LFO Phase Modulation table (verified on real YM3812)
 static const char lfo_pm_table[8 * 8 * 2] = {
 	// FNUM2/FNUM = 00 0xxxxxxx (0x0000)
@@ -752,7 +752,7 @@ void YMF262::chan_calc_rhythm(bool noise)
 	//          (same combination as TOP CYMBAL but different output phases)
 	// SD  (16) channel 7->slot 1
 	// TOM (14) channel 8->slot 1
-	// TOP (17) channel 7->slot 1 combined with channel 8->slot 2 
+	// TOP (17) channel 7->slot 1 combined with channel 8->slot 2
 	//          (same combination as HIGH HAT but different output phases)
 
 	// Envelope generation based on:
@@ -1898,7 +1898,7 @@ void YMF262::generateChannels(int** bufs, unsigned num)
 		channels[1].chan_calc(LFO_AM);
 		if (channels[1].extended) {
 			// extended 4op ch#1 part 2
-			channels[5].chan_calc_ext(LFO_AM);
+			channels[4].chan_calc_ext(LFO_AM);
 		} else {
 			// standard 2op ch#4
 			channels[4].chan_calc(LFO_AM);
