@@ -1640,8 +1640,7 @@ void YMF262::writeRegForce(int r, byte v, const EmuTime& time)
 			case 9: case 10: case 11:
 				if (ch.extended) {
 					YMF262Channel& ch3 = channels[chan_no + 3];
-					byte conn = (ch.slots[SLOT1].CON << 1) || (ch3.slots[SLOT1].CON);
-					switch(conn) {
+					switch((ch.slots[SLOT1].CON << 1) | ch3.slots[SLOT1].CON) {
 					case 0:
 						// 1 -> 2 -> 3 -> 4 - out
 						ch.slots[SLOT1].connect = &phase_modulation;
@@ -1689,8 +1688,7 @@ void YMF262::writeRegForce(int r, byte v, const EmuTime& time)
 			case 12: case 13: case 14: {
 				YMF262Channel& ch3 = channels[chan_no - 3];
 				if (ch3.extended) {
-					byte conn = (ch3.slots[SLOT1].CON << 1) || (ch.slots[SLOT1].CON);
-					switch(conn) {
+					switch((ch3.slots[SLOT1].CON << 1) | ch.slots[SLOT1].CON) {
 					case 0:
 						// 1 -> 2 -> 3 -> 4 - out
 						ch3.slots[SLOT1].connect = &phase_modulation;
