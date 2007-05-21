@@ -96,7 +96,7 @@ public:
 
 	// SCSI Device
 	void reset();
-	int isSelected();
+	bool isSelected();
 	int executeCmd(byte* cdb, SCSI_PHASE* phase, int* blocks);
 	int executingCmd(SCSI_PHASE* phase, int* blocks);
 	byte getStatusCode();
@@ -107,20 +107,20 @@ public:
 
 	int dataIn(int* blocks);
 	int dataOut(int* blocks);
-	void enable(int enable);
+	void enable(bool enable);
 
 private:
-	int getReady();
-	int diskChanged();
+	bool getReady();
+	bool diskChanged();
 	void testUnitReady();
 	void startStopUnit();
 	int inquiry();
 	int modeSense();
 	int requestSense();
-	int checkReadOnly();
+	bool checkReadOnly();
 	int readCapacity();
 //	int openMSX(); // some kind of special command
-	int checkAddress();
+	bool checkAddress();
 	int readSector(int* blocks);
 	int writeSector(int* blocks);
 	void formatUnit();
@@ -128,13 +128,13 @@ private:
 	int scsiId;             // SCSI ID 0..7
 	int deviceType;
 	int mode;
-	int enabled;
-	int unitAttention;              // Unit Attention (was: reset)
-	int motor;              // Reserved
+	bool enabled;
+	bool unitAttention;              // Unit Attention (was: reset)
+	bool motor;              // Reserved
 	int keycode;            // Sense key, ASC, ASCQ
-	int inserted;
-	int changed;            // Enhanced change flag for MEGA-SCSI driver
-	int changeCheck2;       // Disk change control flag
+	bool inserted;
+	bool changed;            // Enhanced change flag for MEGA-SCSI driver
+	bool changeCheck2;       // Disk change control flag
 	int currentSector;
 	int sectorSize;
 	int currentLength;

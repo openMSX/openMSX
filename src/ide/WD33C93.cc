@@ -1,8 +1,7 @@
-/*****************************************************************************
-** $Source: /cvsroot/bluemsx/blueMSX/Src/IoDevice/wd33c93.c,v $
-**
+// $Id$
+/* Ported from:
+** Source: /cvsroot/bluemsx/blueMSX/Src/IoDevice/wd33c93.c,v
 ** $Revision: 1.12 $
-**
 ** $Date$
 **
 ** Based on the WD33C93 emulation in MESS (www.mess.org).
@@ -11,22 +10,8 @@
 **
 ** Copyright (C) 2003-2006 Daniel Vik, Tomas Karlsson, white cat
 **
-** This program is free software; you can redistribute it and/or modify
-** it under the terms of the GNU General Public License as published by
-** the Free Software Foundation; either version 2 of the License, or
-** (at your option) any later version.
-** 
-** This program is distributed in the hope that it will be useful,
-** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-** GNU General Public License for more details.
-**
-** You should have received a copy of the GNU General Public License
-** along with this program; if not, write to the Free Software
-** Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-**
-******************************************************************************
 */
+
 #include "WD33C93.hh"
 #include "SCSI.hh"
 #include "SCSIDevice.hh"
@@ -136,8 +121,7 @@ WD33C93::WD33C93(const XMLElement& config)
 	// TODO: buffer  = archCdromBufferMalloc(BUFFER_SIZE);
 	buffer = (byte*)calloc(1, BUFFER_SIZE);
 	maxDev = 8;
-	devBusy = 0;
-	//timer = boardTimerCreate(wd33c93Irq, wd33c93);
+	devBusy = false;
 
 	XMLElement::Children targets;
 	config.getChildren("target", targets);
@@ -149,7 +133,7 @@ WD33C93::WD33C93(const XMLElement& config)
 		assert (id < maxDev);
 		const XMLElement& typeElem = target.getChild("type");
 		const std::string& type = typeElem.getData();
-		assert(type == "SCSIHD");
+		assert(type == "SCSIHD"); // we only do SCSIHD for now
    
    		dev[id].reset(new SCSIDevice(id, buffer, NULL, SDT_DirectAccess, MODE_SCSI1 | MODE_UNITATTENTION | MODE_FDS120 | MODE_REMOVABLE | MODE_NOVAXIS));
 	}
@@ -173,42 +157,15 @@ void WD33C93::disconnect()
 		}
 		regs[REG_AUX_STATUS]  = AS_INT;
 		phase          = BusFree;
-		//nextPhase    = -1;
 	}
-
-	//mci          = -1;
 	tc             = 0;
-	//atn          = 0;
 
 	PRT_DEBUG("busfree()");
 }
 
-/*
-static void WD33C93::irq(unsigned time)
-{
-    //timerRunning = 0;
-
-    // set IRQ flag
-    regs[REG_AUX_STATUS] = AS_DBR | AS_INT;
-    // clear busy flags
-    regs[REG_AUX_STATUS] &= ~(AS_CIP | AS_BSY);
-
-    // select w/ATN and transfer
-    regs[REG_SCSI_STATUS] = SS_XFER_END;
-    regs[REG_CMD_PHASE] = 0x60; // command successfully completed
-
-    //setInt();
-}
-*/
-
-void WD33C93::xferCb(int length) // Manuel: length??
-{
-	devBusy = 0;
-}
-
 void WD33C93::execCmd(byte value)
 {
-	int atn = 0;
+	bool atn = false;
 
 	if (regs[REG_AUX_STATUS] & AS_CIP) {
 		PRT_DEBUG("wd33c93ExecCmd() CIP error");
@@ -236,9 +193,9 @@ void WD33C93::execCmd(byte value)
 			break;
 
 		case 0x06:  /* Select with ATN (Lv2) */
-			atn = 1;
+			atn = true;
 		case 0x07:  /* Select Without ATN (Lv2) */
-			PRT_DEBUG("wd33c93 [CMD] Select (ATN " << (int)atn << ")");
+			PRT_DEBUG("wd33c93 [CMD] Select (ATN " << atn << ")");
 			targetId = regs[REG_DST_ID] & 7;
 			regs[REG_SCSI_STATUS] = SS_SEL_TIMEOUT;
 			tc = 0;
@@ -246,22 +203,22 @@ void WD33C93::execCmd(byte value)
 			break;
 
 		case 0x08:  /* Select with ATN and transfer (Lv2) */
-			atn = 1;
+			atn = true;
 		case 0x09:  /* Select without ATN and Transfer (Lv2) */
-			PRT_DEBUG("wd33c93 [CMD] Select and transfer (ATN " << (int)atn << ")");
+			PRT_DEBUG("wd33c93 [CMD] Select and transfer (ATN " << atn << ")");
 			targetId = regs[REG_DST_ID] & 7;
 
 			if (!devBusy && targetId < maxDev && /* targetId != myId  && */ 
 				(dev[targetId].get()!=NULL) && // TODO: use dummy
 					dev[targetId]->isSelected() ) {
 				if (atn) dev[targetId]->msgOut(regs[REG_TLUN] | 0x80);
-				devBusy = 1;
+				devBusy = true; 
 				counter = dev[targetId]->executeCmd(&regs[REG_CDB1],
 						&phase, &blockCounter);
 
 				switch (phase) {
 					case Status:
-						devBusy = 0;
+						devBusy = false;
 						regs[REG_TLUN] = dev[targetId]->getStatusCode();
 						dev[targetId]->msgIn();
 						regs[REG_SCSI_STATUS] = SS_XFER_END;
@@ -274,15 +231,12 @@ void WD33C93::execCmd(byte value)
 						break;
 
 					default:
-						devBusy = 0;
+						devBusy = false;
 						regs[REG_AUX_STATUS]  = AS_CIP | AS_BSY | AS_DBR;
 						pBuf = buffer;
 				}
 				//regs[REG_SRC_ID] |= regs[REG_DST_ID] & 7;
 			} else {
-				//timeout = boardSystemTime() + boardFrequency() / 16384;
-				//timerRunning = 1;
-				//boardTimerAdd(timer, timeout);
 				PRT_DEBUG("wd33c93 timeout on target " << (int)targetId);
 				tc = 0;
 				regs[REG_SCSI_STATUS]  = SS_SEL_TIMEOUT;
@@ -482,8 +436,6 @@ byte WD33C93::peekCtrl() const
 
 void WD33C93::reset(bool scsireset)
 {
-	int i;
-
 	PRT_DEBUG("wd33c93 reset");
 
 	// initialized register
@@ -496,7 +448,7 @@ void WD33C93::reset(bool scsireset)
 	phase  = BusFree;
 	pBuf   = buffer;
 	if (scsireset) {
-		for (i = 0; i < maxDev; ++i) {
+		for (int i = 0; i < maxDev; ++i) {
 			if ((dev[i].get()) != NULL) dev[i]->reset(); // TODO: use Dummy
 		}
 	}
