@@ -643,7 +643,7 @@ int SCSIDevice::writeSector(int* blocks)
 		//TODO: somehow map this to SectorAccessibleDisk::writeLogicalSector?
 	try {
 		file->seek(sectorSize * currentSector);
-		file->read(buffer, sectorSize * numSectors);
+		file->write(buffer, sectorSize * numSectors);
 		currentSector += numSectors;
 		currentLength -= numSectors;
 
