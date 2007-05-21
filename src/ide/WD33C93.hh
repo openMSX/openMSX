@@ -40,7 +40,7 @@ class WD33C93
 {
 public:
 	WD33C93(const XMLElement& config);
-	virtual ~WD33C93();
+	~WD33C93();
 
 	void reset(bool scsireset);
 

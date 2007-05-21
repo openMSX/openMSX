@@ -130,6 +130,37 @@
 
 namespace openmsx {
 
+WD33C93::WD33C93(const XMLElement& config)
+{
+	// TODO: buffer  = archCdromBufferMalloc(BUFFER_SIZE);
+	buffer = (byte*)calloc(1, BUFFER_SIZE);
+	maxDev = 8;
+	devBusy = 0;
+	//timer = boardTimerCreate(wd33c93Irq, wd33c93);
+
+	XMLElement::Children targets;
+	config.getChildren("target", targets);
+
+	for (XMLElement::Children::const_iterator it = targets.begin(); 
+	     it != targets.end(); ++it) {
+		const XMLElement& target = **it;
+		int id = target.getAttributeAsInt("id");
+		assert (id < maxDev);
+		const XMLElement& typeElem = target.getChild("type");
+		const std::string& type = typeElem.getData();
+		assert(type == "SCSIHD");
+   
+   		dev[id].reset(new SCSIDevice(id, buffer, NULL, SDT_DirectAccess, MODE_SCSI1 | MODE_UNITATTENTION | MODE_FDS120 | MODE_REMOVABLE | MODE_NOVAXIS));
+	}
+	reset(false);
+}
+
+WD33C93::~WD33C93()
+{
+	PRT_DEBUG("WD33C93 destroy");
+	free(buffer);
+}
+
 void WD33C93::disconnect()
 {
 	if (phase != BusFree) {
@@ -470,14 +501,6 @@ void WD33C93::reset(bool scsireset)
 	}
 }
 
-WD33C93::~WD33C93()
-{
-	//boardTimerDestroy(timer);
-	PRT_DEBUG("WD33C93 destroy");
-	//TODO: archCdromBufferFree(buffer);
-	free(buffer);
-}
-
 /* Here is some info on the parameters for SCSI devices:
 static SCSIDevice* wd33c93ScsiDevCreate(WD33C93* wd33c93, int id)
 {
@@ -513,29 +536,5 @@ static SCSIDevice* wd33c93ScsiDevCreate(WD33C93* wd33c93, int id)
 #endif
 }
 */
-WD33C93::WD33C93(const XMLElement& config)
-{
-	// TODO: buffer  = archCdromBufferMalloc(BUFFER_SIZE);
-	buffer = (byte*)calloc(1, BUFFER_SIZE);
-	maxDev  = 8;
-	devBusy = 0;
-	//timer = boardTimerCreate(wd33c93Irq, wd33c93);
-
-	XMLElement::Children targets;
-	config.getChildren("target", targets);
-
-	for (XMLElement::Children::const_iterator it = targets.begin(); 
-	     it != targets.end(); ++it) {
-		const XMLElement& target = **it;
-		int id = target.getAttributeAsInt("id");
-		assert (id < maxDev);
-		const XMLElement& typeElem = target.getChild("type");
-		const std::string& type = typeElem.getData();
-		assert(type == "SCSIHD");
-   
-   		dev[id].reset(new SCSIDevice(id, buffer, NULL, SDT_DirectAccess, MODE_SCSI1 | MODE_UNITATTENTION | MODE_FDS120 | MODE_REMOVABLE | MODE_NOVAXIS));
-	}
-	reset(false);
-}
 
 } // namespace openmsx
