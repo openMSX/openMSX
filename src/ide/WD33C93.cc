@@ -429,30 +429,23 @@ byte WD33C93::readCtrl()
 	return rv;
 }
 
-byte WD33C93::peek(word port)
+byte WD33C93::peekAuxStatus() const
 {
-	byte rv;
+	return regs[REG_AUX_STATUS];
+}
 
-	port &= 1;
-	if (port == 0) {
-		rv = regs[REG_AUX_STATUS];
-	} else {
-		switch (latch) {
-			case REG_TCH:
-				rv = (byte)((tc >> 16) & 0xff);
-				break;
-			case REG_TCM:
-				rv = (byte)((tc >> 8) & 0xff);
-				break;
-			case REG_TCL:
-				rv = (byte)(tc & 0xff);
-				break;
-			default:
-				rv = regs[latch];
-				break;
-		}
+byte WD33C93::peekCtrl() const
+{
+	switch (latch) {
+	case REG_TCH:
+		return (tc >> 16) & 0xff;
+	case REG_TCM:
+		return (tc >>  8) & 0xff;
+	case REG_TCL:
+		return (tc >>  0) & 0xff;
+	default:
+		return regs[latch];
 	}
-	return rv;
 }
 
 void WD33C93::reset(bool scsireset)
@@ -538,7 +531,7 @@ WD33C93::WD33C93(const XMLElement& config)
 		assert (id < maxDev);
 		const XMLElement& typeElem = target.getChild("type");
 		const std::string& type = typeElem.getData();
-		assert (type != "IDEHD"); // we only do IDEHD for now
+		assert(type == "SCSIHD");
    
    		dev[id].reset(new SCSIDevice(id, buffer, NULL, SDT_DirectAccess, MODE_SCSI1 | MODE_UNITATTENTION | MODE_FDS120 | MODE_REMOVABLE | MODE_NOVAXIS));
 	}

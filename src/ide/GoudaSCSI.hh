@@ -21,12 +21,14 @@ public:
 	virtual void reset(const EmuTime& time);
 
 	virtual byte readMem(word address, const EmuTime& time);
+	virtual const byte* getReadCacheLine(word start) const;
 	virtual byte readIO(word port, const EmuTime& time);
 	virtual void writeIO(word port, byte value, const EmuTime& time);
+	virtual byte peekIO(word port, const EmuTime& time) const;
 
 private:
 	const std::auto_ptr<Rom> rom;
-	std::auto_ptr<WD33C93> wd33c93;
+	const std::auto_ptr<WD33C93> wd33c93;
 };
 
 } // namespace openmsx

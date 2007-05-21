@@ -3,6 +3,7 @@
 #include "GoudaSCSI.hh"
 #include "WD33C93.hh"
 #include "Rom.hh"
+#include <cassert>
 
 namespace openmsx {
 
@@ -19,29 +20,39 @@ GoudaSCSI::~GoudaSCSI()
 {
 }
 
-void GoudaSCSI::reset(const EmuTime& time)
+void GoudaSCSI::reset(const EmuTime& /*time*/)
 {
 	wd33c93->reset(true);
 }
 
-byte GoudaSCSI::readIO(word port, const EmuTime& time)
+byte GoudaSCSI::readIO(word port, const EmuTime& /*time*/)
 {
-	byte result;
 	switch (port & 0x03) {
 	case 0:
-		result = wd33c93->readAuxStatus();
-		break;
+		return wd33c93->readAuxStatus();
 	case 1:
-		result = wd33c93->readCtrl();
-		break;
+		return wd33c93->readCtrl();
 	case 2:
-		result = 0xb0; // bit 4: 1 = Halt on SCSI parity error
-		break;
+		return 0xb0; // bit 4: 1 = Halt on SCSI parity error
 	default:
 		assert(false);
-		result = 0;
+		return 0;
 	}
-	return result;
+}
+
+byte GoudaSCSI::peekIO(word port, const EmuTime& /*time*/) const
+{
+	switch (port & 0x03) {
+	case 0:
+		return wd33c93->peekAuxStatus();
+	case 1:
+		return wd33c93->peekCtrl();
+	case 2:
+		return 0xb0; // bit 4: 1 = Halt on SCSI parity error
+	default:
+		assert(false);
+		return 0;
+	}
 }
 
 void GoudaSCSI::writeIO(word port, byte value, const EmuTime& time)
@@ -61,9 +72,14 @@ void GoudaSCSI::writeIO(word port, byte value, const EmuTime& time)
 	}
 }
 
-byte GoudaSCSI::readMem(word address, const EmuTime& time)
+byte GoudaSCSI::readMem(word address, const EmuTime& /*time*/)
 {
-	return (*rom)[address & (rom->getSize() - 1)];
+	return *getReadCacheLine(address);
+}
+
+const byte* GoudaSCSI::getReadCacheLine(word start) const
+{
+	return &(*rom)[start & (rom->getSize() - 1)];
 }
 
 } // namespace openmsx

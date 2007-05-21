@@ -28,8 +28,8 @@
 #ifndef WD33C93_HH
 #define WD33C93_HH
 
-#include "openmsx.hh"
 #include "SCSIDevice.hh" // needed for type SCSI_PHASE
+#include "openmsx.hh"
 #include <memory>
 
 namespace openmsx {
@@ -43,14 +43,11 @@ public:
 	virtual ~WD33C93();
 
 	void reset(bool scsireset);
+
 	byte readAuxStatus();
 	byte readCtrl();
-	
-	// TODO either make a peekAuxStatus() and a peekCtrl() or also
-	//      combine readAuxStatus()/readCtrl() and writeAddr()/writeCtrl()
-	//      into one method
-	byte peek(word port);
-	
+	byte peekAuxStatus() const;
+	byte peekCtrl() const;
 	void writeAdr(byte value);
 	void writeCtrl(byte value);
 
