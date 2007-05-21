@@ -37,6 +37,7 @@
 //TODO: #include "Led.h"
 #include "File.hh"
 #include "FileException.hh"
+#include <cstring>
 
 #include <iostream>
 #undef PRT_DEBUG

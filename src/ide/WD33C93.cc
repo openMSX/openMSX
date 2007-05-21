@@ -33,6 +33,7 @@
 #include "XMLElement.hh"
 // TODO: #include "ArchCdrom.h"
 #include <cassert>
+#include <cstring>
 #include <iostream>
 #undef PRT_DEBUG
 #define  PRT_DEBUG(mes)                          \
