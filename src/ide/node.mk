@@ -7,10 +7,12 @@ SRC_HDR:= \
 	DummyIDEDevice \
 	IDEDeviceFactory \
 	AbstractIDEDevice IDEHD IDECDROM \
-	HDImageCLI CDImageCLI
+	HDImageCLI CDImageCLI \
+	SCSIDevice WD33C93 GoudaSCSI
 
 HDR_ONLY:= \
-	IDEDevice
+	IDEDevice \
+	SCSI
 
 include build/node-end.mk
 

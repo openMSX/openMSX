@@ -1,5 +1,12 @@
 $Id$
 
+2007-05-21 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added initial GoudaSCSI support, ported from blueMSX.
+	  NOTE: DO NOT USE YET! 
+	  This is very much WIP! It's not working yet and contains lots of
+	  shortcuts and hardcoded stuff. So, again: don't use it. But please
+	  help improve it! :) (You are warned!)
+
 2007-05-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Removed old (unoptimized) implementation of the high-quality
 	  resampler: sound quality is the same
