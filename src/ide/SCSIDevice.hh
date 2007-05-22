@@ -67,8 +67,7 @@ public:
 
 	static const int BUFFER_SIZE        = 0x10000; // 64KB
 
-	SCSIDevice(int scsiId, byte* buf, char* name, int type, int mode
-		/*TODO:, CdromXferCompCb xferCompCb */);
+	SCSIDevice(byte scsiId, byte* buf, const char* name, byte type, int mode);
 	virtual ~SCSIDevice();
 
 	// SectorAccessibleDisk:
@@ -83,17 +82,17 @@ public:
 	// SCSI Device
 	void reset();
 	bool isSelected();
-	int executeCmd(byte* cdb, SCSI::Phase* phase, int* blocks);
-	int executingCmd(SCSI::Phase* phase, int* blocks);
+	int executeCmd(const byte* cdb, SCSI::Phase& phase, int& blocks);
+	int executingCmd(SCSI::Phase& phase, int& blocks);
 	byte getStatusCode();
 	int msgOut(byte value);
 	byte msgIn();
 	void disconnect();
-	void busReset();
+	void busReset(); // TODO not used?
 
-	int dataIn(int* blocks);
-	int dataOut(int* blocks);
-	void enable(bool enable);
+	int dataIn(int& blocks);
+	int dataOut(int& blocks);
+	void enable(bool enable); // TODO not used?
 
 private:
 	bool getReady();
@@ -106,28 +105,30 @@ private:
 	bool checkReadOnly();
 	int readCapacity();
 	bool checkAddress();
-	int readSector(int* blocks);
-	int writeSector(int* blocks);
+	int readSector(int& blocks);
+	int writeSector(int& blocks);
 	void formatUnit();
 
-	int scsiId;             // SCSI ID 0..7
-	int deviceType;
-	int mode;
+	const byte scsiId;     // SCSI ID 0..7
+	const byte deviceType; // TODO only needed because we don't have seperate
+	                       //  subclasses for the different devicetypes
+	const int mode;
+	const char* const productName;
+
 	bool enabled;
-	bool unitAttention;              // Unit Attention (was: reset)
-	bool motor;              // Reserved
-	int keycode;            // Sense key, ASC, ASCQ
+	bool unitAttention;    // Unit Attention (was: reset)
+	bool motor;            // Reserved
+	int keycode;           // Sense key, ASC, ASCQ
 	bool inserted;
-	bool changed;            // Enhanced change flag for MEGA-SCSI driver
-	bool changeCheck2;       // Disk change control flag
-	int currentSector;
-	int sectorSize;
-	int currentLength;
-	int message;
-	int lun;
+	bool changed;          // Enhanced change flag for MEGA-SCSI driver
+	bool changeCheck2;     // Disk change control flag
+	unsigned currentSector;
+	unsigned sectorSize;   // TODO should be a constant: 512 for HD, 2048 for CD
+	unsigned currentLength;
+	byte message;
+	byte lun;
 	byte cdb[12];          // Command Descriptor Block
 	byte* buffer;
-	char* productName;
 
 	std::auto_ptr<File> file;
 	std::string name;

@@ -20,6 +20,7 @@
 #include "SCSI.hh"
 #include "File.hh"
 #include "FileException.hh"
+#include <algorithm>
 #include <cstring>
 
 #include <iostream>
@@ -31,24 +32,20 @@
 
 using std::string;
 
-#define USE_SPECIALCOMMAND
+namespace openmsx {
 
 // Medium type (value like LS-120)
-#define MT_UNKNOWN      0x00
-#define MT_2DD_UN       0x10
-#define MT_2DD          0x11
-#define MT_2HD_UN       0x20
-#define MT_2HD_12_98    0x22
-#define MT_2HD_12       0x23
-#define MT_2HD_144      0x24
-#define MT_LS120        0x31
-#define MT_NO_DISK      0x70
-#define MT_DOOR_OPEN    0x71
-#define MT_FMT_ERROR    0x72
-
-#define BUFFER_BLOCK_SIZE   (BUFFER_SIZE / 512)
-
-namespace openmsx {
+static const byte MT_UNKNOWN   = 0x00;
+static const byte MT_2DD_UN    = 0x10;
+static const byte MT_2DD       = 0x11;
+static const byte MT_2HD_UN    = 0x20;
+static const byte MT_2HD_12_98 = 0x22;
+static const byte MT_2HD_12    = 0x23;
+static const byte MT_2HD_144   = 0x24;
+static const byte MT_LS120     = 0x31;
+static const byte MT_NO_DISK   = 0x70;
+static const byte MT_DOOR_OPEN = 0x71;
+static const byte MT_FMT_ERROR = 0x72;
 
 static const byte inqdata[36] = {
        0,   // bit5-0 device type code.
@@ -64,7 +61,8 @@ static const byte inqdata[36] = {
      'o', 'p', 'e', 'n', 'M', 'S', 'X', ' ',    // vendor ID (8bytes)
      'S', 'C', 'S', 'I', '2', ' ', 'H', 'a',    // product ID (16bytes)
      'r', 'd', 'd', 'i', 's', 'k', ' ', ' ',
-     '0', '1', '0', 'a' };                  // product version (ASCII 4bytes)
+     '0', '1', '0', 'a'                         // product version (ASCII 4bytes)
+};
 
 static const char sdt_name[10][10 + 1] =
 {
@@ -83,18 +81,18 @@ static const char sdt_name[10][10 + 1] =
 // for FDSFORM.COM
 static const char fds120[28 + 1]  = "IODATA  LS-120 COSM     0001";
 
-SCSIDevice::SCSIDevice(int scsiId_, byte* buf, char* name_,
-                       int type, int mode_/*TODO:, CdromXferCompCb xferCompCb*/) 
+SCSIDevice::SCSIDevice(byte scsiId_, byte* buf, const char* name_,
+                       byte type, int mode_) 
 	  : scsiId(scsiId_)
 	  , deviceType(type)
 	  , mode(mode_)
-	  , buffer(buf)
 	  , productName(name_)
+	  , buffer(buf)
 {
-	enabled       = true;
-	sectorSize    = 512;
+	enabled    = true;
+	sectorSize = 512;
 	/* TODO: MOVE CD-ROM STUFF TO SEPARATE CLASS
-	   cdrom         = NULL;
+	   cdrom = NULL;
 	
 	   disk.fileName[0] = 0;
 	   disk.fileNameInZip[0] = 0;
@@ -104,10 +102,10 @@ SCSIDevice::SCSIDevice(int scsiId_, byte* buf, char* name_,
 
 	if (type == SCSI::DT_CDROM) {
 		sectorSize = 2048;
-		  cdrom = archCdromCreate(xferCompCb, ref);
-		  if (cdrom == NULL) {
-		  enabled = false;
-		  }
+		cdrom = archCdromCreate(xferCompCb, ref);
+		if (cdrom == NULL) {
+			enabled = false;
+		}
 	}*/
 
 	string filename = "/tmp/SCSIdisk.dsk"; // TODO: don't hardcode this
@@ -127,34 +125,37 @@ SCSIDevice::SCSIDevice(int scsiId_, byte* buf, char* name_,
 SCSIDevice::~SCSIDevice()
 {
 	PRT_DEBUG("hdd close for hdd " << scsiId);
-	/* TODO:    if (deviceType == SCSI::DT_CDROM) {
-	   archCdromDestroy(cdrom);
-	   } */
+	/* TODO:
+	if (deviceType == SCSI::DT_CDROM) {
+		archCdromDestroy(cdrom);
+	}*/
 }
 
 void SCSIDevice::reset()
 {
-	/* TODO:    if (deviceType == SCSI::DT_CDROM) {
-	   archCdromHwReset(cdrom);
-	   }*/
+	/* TODO:
+	if (deviceType == SCSI::DT_CDROM) {
+		archCdromHwReset(cdrom);
+	}*/
 	changed       = false;
 	keycode       = 0;
 	currentSector = 0;
 	currentLength = 0;
 	motor         = true;
-	changeCheck2  = true;    // the first use always
-	unitAttention         = (mode & MODE_UNITATTENTION);
+	changeCheck2  = true; // the first use always
+	unitAttention = (mode & MODE_UNITATTENTION);
 
 	//TODO:    disk = propGetGlobalProperties()->media.disks[diskId];
-	/* TODO:    inserted   = (strlen(disk.fileName) > 0);
-	   if (inserted) {
-	   PRT_DEBUG("hdd %d: \n", scsiId);
-	   PRT_DEBUG("filename: %s\n", disk.fileName);
-	   PRT_DEBUG("     zip: %s\n", disk.fileNameInZip);
-	   }
-	   else if ((mode & MODE_NOVAXIS) && deviceType != SCSI::DT_CDROM) {
-	   enabled = false;
-	   }*/
+	/* TODO:
+	inserted = (strlen(disk.fileName) > 0);
+	if (inserted) {
+		PRT_DEBUG("hdd %d: \n", scsiId);
+		PRT_DEBUG("filename: %s\n", disk.fileName);
+		PRT_DEBUG("     zip: %s\n", disk.fileNameInZip);
+	} else if ((mode & MODE_NOVAXIS) && deviceType != SCSI::DT_CDROM) {
+		enabled = false;
+	}*/
+
 	// FOR NOW:
 	inserted = true;
 }
@@ -164,19 +165,20 @@ void SCSIDevice::busReset()
 	PRT_DEBUG("SCSI: bus reset on " << scsiId);
 	keycode = 0;
 	unitAttention = (mode & MODE_UNITATTENTION);
-	/* TODO: if (deviceType == SCSI::DT_CDROM) {
-	   archCdromBusReset(cdrom);
-	   }*/
+	/* TODO:
+	if (deviceType == SCSI::DT_CDROM) {
+		archCdromBusReset(cdrom);
+	}*/
 }
 
 void SCSIDevice::disconnect()
 {
 	/* TODO
-	   if (deviceType != SCSI::DT_CDROM) {
-	   ledSetHd(0);
-	   } else {
-	   archCdromDisconnect(cdrom);
-	   }*/
+	if (deviceType != SCSI::DT_CDROM) {
+		ledSetHd(0);
+	} else {
+		archCdromDisconnect(cdrom);
+	}*/
 }
 
 void SCSIDevice::enable(bool enable)
@@ -191,7 +193,7 @@ bool SCSIDevice::isSelected()
 	if (mode & MODE_REMOVABLE) {
 		if (!enabled && (mode & MODE_NOVAXIS) && 
 		    deviceType != SCSI::DT_CDROM) {
-			//TODO:            enabled = diskPresent(diskId) ? 1 : 0;
+			//TODO:    enabled = diskPresent(diskId) ? 1 : 0;
 			// FOR NOW:
 			enabled = true;
 		}
@@ -202,9 +204,9 @@ bool SCSIDevice::isSelected()
 
 bool SCSIDevice::getReady()
 {
-	/* TODO:    if (diskPresent(diskId)) { */
+	// TODO: if (diskPresent(diskId)) {
 	   return true;
-	  /* } */
+	//}
 	// TODO: keycode = SCSI::SENSE_MEDIUM_NOT_PRESENT;
 	// TODO: return false;
 }
@@ -212,38 +214,37 @@ bool SCSIDevice::getReady()
 bool SCSIDevice::diskChanged()
 {
 	/* TODO:
-	   FileProperties* pDisk;
-	   bool tmpChanged = diskChanged(diskId);
+	FileProperties* pDisk;
+	bool tmpChanged = diskChanged(diskId);
 
-	   if (tmpChanged) {
-	   motor = true;
-	   pDisk = &propGetGlobalProperties()->media.disks[diskId];
+	if (tmpChanged) {
+		   motor = true;
+		   pDisk = &propGetGlobalProperties()->media.disks[diskId];
 
-	   if (changeCheck2) {
-	   changeCheck2 = false;
-	   if (inserted &&
-	   (strcmp(disk.fileName, pDisk->fileName) == 0) &&
-	   (strcmp(disk.fileNameInZip, pDisk->fileNameInZip) == 0)) {
-	   PRT_DEBUG("Disk change invalidity\n\n");
-	   return 0;
-	   }
-	   }
-	   changed  = true;
-	   disk = *pDisk;
-	   inserted = true;
+		   if (changeCheck2) {
+			changeCheck2 = false;
+			if (inserted &&
+			    (strcmp(disk.fileName, pDisk->fileName) == 0) &&
+			    (strcmp(disk.fileNameInZip, pDisk->fileNameInZip) == 0)) {
+				PRT_DEBUG("Disk change invalidity\n\n");
+				return 0;
+			}
+		   }
+		   changed  = true;
+		   disk = *pDisk;
+		   inserted = true;
 
-	   PRT_DEBUG("hdd %d: disk change\n", scsiId);
-	   PRT_DEBUG("filename: %s\n", disk.fileName);
-	   PRT_DEBUG("     zip: %s\n", disk.fileNameInZip);
-	   } else {
-	   if (inserted & !diskPresent(diskId)) {
-	   inserted   = false;
-	   motor      = false;
-	   changed    = true;
-	   tmpChanged = true;
-	   }
-	   }
-	   */
+		   PRT_DEBUG("hdd %d: disk change\n", scsiId);
+		   PRT_DEBUG("filename: %s\n", disk.fileName);
+		   PRT_DEBUG("     zip: %s\n", disk.fileNameInZip);
+	} else {
+		if (inserted & !diskPresent(diskId)) {
+			inserted   = false;
+			motor      = false;
+			changed    = true;
+			tmpChanged = true;
+		}
+	}*/
 	bool tmpChanged = false; // REMOVE THIS LINE WHEN THE TODO IS DONE!!!!!!!!!!!!!!!!!!!
 
 	if (tmpChanged && (mode & MODE_UNITATTENTION)) {
@@ -269,25 +270,23 @@ void SCSIDevice::startStopUnit()
 	//TODO:    FileProperties* disk = &propGetGlobalProperties()->media.disks[diskId];
 
 	switch (cdb[4]) {
-	case 2:
-        // Eject
-//TODO        if (diskPresent(diskId)) {
-//            disk->fileName[0] = 0;
-//            disk->fileNameInZip[0] = 0;
-//            updateExtendedDiskName(diskId, disk->fileName, disk->fileNameInZip);
-//            boardChangeDiskette(diskId, NULL, NULL);
-            PRT_DEBUG("eject hdd " << scsiId);
-//        } 
-			break;
-	case 3:
-        // Insert
-//TODO        if (!diskPresent(diskId)) {
-//            *disk = disk;
-//            updateExtendedDiskName(diskId, disk->fileName, disk->fileNameInZip);
-//            boardChangeDiskette(diskId, disk->fileName, disk->fileNameInZip);
-            PRT_DEBUG("insert hdd " << scsiId);
-//        } 
-			break;
+	case 2: // Eject  TODO
+	//      if (diskPresent(diskId)) {
+	//      	disk->fileName[0] = 0;
+	//      	disk->fileNameInZip[0] = 0;
+	//      	updateExtendedDiskName(diskId, disk->fileName, disk->fileNameInZip);
+	//      	boardChangeDiskette(diskId, NULL, NULL);
+			PRT_DEBUG("eject hdd " << scsiId);
+	//      } 
+		break;
+	case 3: // Insert  TODO
+	//      if (!diskPresent(diskId)) {
+	//      	*disk = disk;
+	//      	updateExtendedDiskName(diskId, disk->fileName, disk->fileNameInZip);
+	//      	boardChangeDiskette(diskId, disk->fileName, disk->fileNameInZip);
+			PRT_DEBUG("insert hdd " << scsiId);
+	//      } 
+		break;
 	}
 	motor = cdb[4] & 1;
 	PRT_DEBUG("hdd " << scsiId << " motor: " << motor);
@@ -296,8 +295,8 @@ void SCSIDevice::startStopUnit()
 //TODO also a lot to do here, lots of interfacing with a SectorAccessibleDisk
 int SCSIDevice::inquiry()
 {
-	int total  = getNbSectors();
-	int length = currentLength;
+	unsigned total  = getNbSectors();
+	unsigned length = currentLength;
 	byte type  = deviceType & 0xff;
 	byte removable;
 	
@@ -334,12 +333,12 @@ int SCSIDevice::inquiry()
 	buffer[1] = removable;
 
 	if (!(mode & BIT_SCSI2)) {
-		buffer[2]  = 1;
-		buffer[3]  = 1;
+		buffer[2] = 1;
+		buffer[3] = 1;
 		if (!fdsmode) buffer[20] = '1';
 	} else {
 		if (mode & BIT_SCSI3) {
-			buffer[2]  = 5;
+			buffer[2] = 5;
 			if (!fdsmode) buffer[20] = '3';
 		}
 	}
@@ -381,16 +380,14 @@ int SCSIDevice::inquiry()
 
 int SCSIDevice::modeSense()
 {
-	int length = currentLength;
-
-	if ((length > 0) && (cdb[2] == 3)) {
-		int total       = getNbSectors();
-		int media       = MT_UNKNOWN;
-		int sectors     = 64;
-		int blockLength = sectorSize >> 8;
-		int tracks      = 8;
-		int size        = 4 + 24;
-		int removable   = mode & MODE_REMOVABLE ? 0xa0 : 0x80;
+	if ((currentLength > 0) && (cdb[2] == 3)) {
+		unsigned total   = getNbSectors();
+		byte media       = MT_UNKNOWN;
+		byte sectors     = 64;
+		byte blockLength = sectorSize >> 8;
+		byte tracks      = 8;
+		byte size        = 4 + 24;
+		byte removable   = mode & MODE_REMOVABLE ? 0xa0 : 0x80;
 
 		memset(buffer + 2, 0, 34);
 
@@ -401,7 +398,7 @@ int SCSIDevice::modeSense()
 				if (total == 1440) {
 					media       = MT_2DD;
 					sectors     = 9;
-					blockLength = 2048 >> 8;            // FDS-120 value
+					blockLength = 2048 >> 8; // FDS-120 value
 					tracks      = 160;
 					removable   = 0xa0;
 				} else {
@@ -417,35 +414,32 @@ int SCSIDevice::modeSense()
 		}
 
 		// Mode Parameter Header 4bytes
-		buffer[1] = media;              // Medium Type
-		buffer[3] = 8;                  // block descripter length
-		buffer   += 4;
+		buffer[1] = media; // Medium Type
+		buffer[3] = 8;     // block descripter length
+		buffer += 4;
 
 		// Disable Block Descriptor check
 		if (!(cdb[1] & 0x08)) {
 			// Block Descriptor 8bytes
-			buffer[1]  = (byte)((total >> 16) & 0xff); // 1..3 Number of Blocks
-			buffer[2]  = (byte)((total >>  8) & 0xff);
-			buffer[3]  = (byte)(total & 0xff);
-			buffer[6]  = (byte)(blockLength & 0xff);   // 5..7 Block Length in Bytes
-			buffer    += 8;
-			size      += 8;
+			buffer[1] = (total >> 16) & 0xff; // 1..3 Number of Blocks
+			buffer[2] = (total >>  8) & 0xff;
+			buffer[3] = (total >>  0) & 0xff;
+			buffer[6] = blockLength & 0xff;   // 5..7 Block Length in Bytes
+			buffer += 8;
+			size   += 8;
 		}
 
 		// Format Device Page 24bytes
-		buffer[0]  = 3;                 //     0 Page
-		buffer[1]  = 0x16;              //     1 Page Length
-		buffer[3]  = (byte)tracks;     //  2, 3 Tracks per Zone
-		buffer[11] = (byte)sectors;    // 10,11 Sectors per Track
-		buffer[12] = (byte)blockLength;// 12,13 Data Bytes per Physical Sector
-		buffer[20] = removable;         // 20    bit7 Soft Sector bit5 Removable
+		buffer[ 0] = 3;           //     0 Page
+		buffer[ 1] = 0x16;        //     1 Page Length
+		buffer[ 3] = tracks;      //  2, 3 Tracks per Zone
+		buffer[11] = sectors;     // 10,11 Sectors per Track
+		buffer[12] = blockLength; // 12,13 Data Bytes per Physical Sector
+		buffer[20] = removable;   // 20    bit7 Soft Sector bit5 Removable
+		// TODO is this correct?  it overwrites the value written above
+		buffer[ 0] = size - 1;    // sense data length
 
-		buffer[0] = size - 1;     // sense data length
-
-		if (length > size) {
-			length = size;
-		}
-		return length;
+		return std::min<unsigned>(currentLength, size);
 	}
 	keycode = SCSI::SENSE_INVALID_COMMAND_CODE;
 	return 0;
@@ -453,15 +447,9 @@ int SCSIDevice::modeSense()
 
 int SCSIDevice::requestSense()
 {
-	int tmpKeycode;
 	int length = currentLength;
-
-	if (unitAttention) {
-		unitAttention = false;
-		tmpKeycode = SCSI::SENSE_POWER_ON;
-	} else {
-		tmpKeycode = keycode;
-	}
+	int tmpKeycode = unitAttention ? SCSI::SENSE_POWER_ON : keycode;
+	unitAttention = false;
 
 	PRT_DEBUG("Request Sense: keycode = " << tmpKeycode);
 	keycode = SCSI::SENSE_NO_SENSE;
@@ -471,15 +459,15 @@ int SCSIDevice::requestSense()
 		if (mode & BIT_SCSI2) {
 			return 0;
 		}
-		buffer[0]    = (byte)((tmpKeycode >> 8) & 0xff);  // Sense code
+		buffer[ 0] = (tmpKeycode >>  8) & 0xff; // Sense code
 		length = 4;
 	} else {
-		buffer[0]  = 0x70;
-		buffer[2]  = (byte)((tmpKeycode >> 16) & 0xff);   // Sense key
-		buffer[7]  = 10;                                // Additional sense length
-		buffer[12] = (byte)((tmpKeycode >> 8) & 0xff);    // Additional sense code
-		buffer[13] = (byte)(tmpKeycode & 0xff);           // Additional sense code qualifier
-		if (length > 18) length = 18;
+		buffer[ 0] = 0x70;
+		buffer[ 2] = (tmpKeycode >> 16) & 0xff; // Sense key
+		buffer[ 7] = 10;                        // Additional sense length
+		buffer[12] = (tmpKeycode >>  8) & 0xff; // Additional sense code
+		buffer[13] = (tmpKeycode >>  0) & 0xff; // Additional sense code qualifier
+		length = std::min(length, 18);
 	}
 	return length;
 }
@@ -506,13 +494,13 @@ int SCSIDevice::readCapacity()
 	PRT_DEBUG("total block: " << (unsigned int)block);
 
 	--block;
-	buffer[0] = (byte)((block >> 24) & 0xff);
-	buffer[1] = (byte)((block >> 16) & 0xff);
-	buffer[2] = (byte)((block >>  8) & 0xff);
-	buffer[3] = (byte)(block & 0xff);
+	buffer[0] = (block >> 24) & 0xff;
+	buffer[1] = (block >> 16) & 0xff;
+	buffer[2] = (block >>  8) & 0xff;
+	buffer[3] = (block >>  0) & 0xff;
 	buffer[4] = 0;
 	buffer[5] = 0;
-	buffer[6] = (byte)((sectorSize >> 8) & 0xff);
+	buffer[6] = (sectorSize >> 8) & 0xff;
 	buffer[7] = 0;
 
 	return 8;
@@ -520,15 +508,14 @@ int SCSIDevice::readCapacity()
 
 bool SCSIDevice::checkAddress()
 {
-	int total = getNbSectors(); 
+	unsigned total = getNbSectors(); 
 	if (total == 0) {
 		keycode = SCSI::SENSE_MEDIUM_NOT_PRESENT;
 		PRT_DEBUG("hdd " << scsiId << ": drive not ready");
 		return false;
 	}
 
-	if ((currentSector >= 0) && (currentLength > 0) &&
-			(currentSector + currentLength <= total)) {
+	if ((currentLength > 0) && (currentSector + currentLength <= total)) {
 		return true;
 	}
 	PRT_DEBUG("hdd " << scsiId << ": IllegalBlockAddress");
@@ -537,19 +524,13 @@ bool SCSIDevice::checkAddress()
 }
 
 // Execute scsiDeviceCheckAddress previously.
-int SCSIDevice::readSector(int* blocks)
+int SCSIDevice::readSector(int& blocks)
 {
-	int counter;
-	int numSectors;
-
 	//TODO:    ledSetHd(1);
-	if (currentLength >= BUFFER_BLOCK_SIZE) {
-		numSectors  = BUFFER_BLOCK_SIZE;
-		counter     = BUFFER_SIZE;
-	} else {
-		numSectors  = currentLength;
-		counter     = currentLength * sectorSize;
-	}
+
+	const unsigned BUFFER_BLOCK_SIZE = BUFFER_SIZE / sectorSize;
+	unsigned numSectors = std::min(currentLength, BUFFER_BLOCK_SIZE);
+	unsigned counter = currentLength * sectorSize;
 
 	PRT_DEBUG("hdd#" << scsiId << " read sector: " << currentSector << " " << numSectors);
 	try {
@@ -558,16 +539,16 @@ int SCSIDevice::readSector(int* blocks)
 		file->read(buffer, sectorSize * numSectors);
 		currentSector += numSectors;
 		currentLength -= numSectors;
-		*blocks = currentLength;
+		blocks = currentLength;
 		return counter;
 	} catch (FileException& e) {
-		*blocks = 0;
+		blocks = 0;
 		keycode = SCSI::SENSE_UNRECOVERED_READ_ERROR;
 		return 0;
 	}
 }
 
-int SCSIDevice::dataIn(int* blocks)
+int SCSIDevice::dataIn(int& blocks)
 {
 	if (cdb[0] == SCSI::OP_READ10) {
 		int counter = readSector(blocks);
@@ -576,53 +557,44 @@ int SCSIDevice::dataIn(int* blocks)
 		}
 	}
 	PRT_DEBUG("dataIn error " << cdb[0]);
-	*blocks = 0;
+	blocks = 0;
 	return 0;
 }
 
 // Execute scsiDeviceCheckAddress and scsiDeviceCheckReadOnly previously.
-int SCSIDevice::writeSector(int* blocks)
+int SCSIDevice::writeSector(int& blocks)
 {
-	int numSectors;
-
 	//TODO:    ledSetHd(1);
-	if (currentLength >= BUFFER_BLOCK_SIZE) {
-		numSectors = BUFFER_BLOCK_SIZE;
-	} else {
-		numSectors = currentLength;
-	}
+
+	const unsigned BUFFER_BLOCK_SIZE = BUFFER_SIZE / sectorSize;
+	int numSectors = std::min(currentLength, BUFFER_BLOCK_SIZE);
 
 	PRT_DEBUG("hdd#" << scsiId << " write sector: " << currentSector << " " << numSectors);
-		//TODO: somehow map this to SectorAccessibleDisk::writeLogicalSector?
+	//TODO: somehow map this to SectorAccessibleDisk::writeLogicalSector?
 	try {
 		file->seek(sectorSize * currentSector);
 		file->write(buffer, sectorSize * numSectors);
 		currentSector += numSectors;
 		currentLength -= numSectors;
 
-		int counter;
-		if (currentLength >= BUFFER_BLOCK_SIZE) {
-			*blocks = currentLength - BUFFER_BLOCK_SIZE;
-			counter = BUFFER_SIZE;
-		} else {
-			*blocks = 0;
-			counter = currentLength * sectorSize;
-		}
+		unsigned tmp = std::min(currentLength, BUFFER_BLOCK_SIZE);
+		blocks = currentLength - tmp;
+		int counter = tmp * sectorSize;
 		return counter;
 	} catch (FileException& e) {
 		keycode = SCSI::SENSE_WRITE_FAULT;
-		*blocks = 0;
+		blocks = 0;
 		return 0;
 	}
 }
 
-int SCSIDevice::dataOut(int* blocks)
+int SCSIDevice::dataOut(int& blocks)
 {
 	if (cdb[0] == SCSI::OP_WRITE10) {
 		return writeSector(blocks);
 	}
 	PRT_DEBUG("dataOut error " << (int)cdb[0]);
-	*blocks = 0;
+	blocks = 0;
 	return 0;
 }
 
@@ -654,28 +626,30 @@ byte SCSIDevice::getStatusCode()
 	return result;
 }
 
-int SCSIDevice::executeCmd(byte* cdb_, SCSI::Phase* phase, int* blocks)
+int SCSIDevice::executeCmd(const byte* cdb_, SCSI::Phase& phase, int& blocks)
 {
+	const unsigned BUFFER_BLOCK_SIZE = BUFFER_SIZE / sectorSize;
+
 	PRT_DEBUG("SCSI Command: " << (int)cdb[0]);
 	memcpy(cdb, cdb_, 12);
 	message = 0;
-	*phase = SCSI::STATUS;
-	*blocks = 0;
+	phase = SCSI::STATUS;
+	blocks = 0;
 
 	/* TODO
 	if (deviceType == SCSI::DT_CDROM) {
 		int retval;
 		keycode = SCSI::SENSE_NO_SENSE;
-		*phase = SCSI::EXECUTE;
-		retval = archCdromExecCmd(cdrom, cdb_, buffer, BUFFER_SIZE);
+		phase = SCSI::EXECUTE;
+		retval = archCdromExecCmd(cdrom, cdb, buffer, BUFFER_SIZE);
 		switch (retval) {
 		case 0:
-			*phase = Status;
+			phase = Status;
 			break;
 		case -1:
 			break;
 		default:
-			*phase = SCSI::DATA_IN;
+			phase = SCSI::DATA_IN;
 			return retval;
 		}
 		return 0;
@@ -685,10 +659,10 @@ int SCSIDevice::executeCmd(byte* cdb_, SCSI::Phase* phase, int* blocks)
 
 	// check unit attention
 	if (unitAttention && (mode & MODE_UNITATTENTION) &&
-	    (cdb_[0] != SCSI::OP_INQUIRY) && (cdb_[0] != SCSI::OP_REQUEST_SENSE)) {
+	    (cdb[0] != SCSI::OP_INQUIRY) && (cdb[0] != SCSI::OP_REQUEST_SENSE)) {
 		unitAttention = false;
 		keycode = SCSI::SENSE_POWER_ON;
-		if (cdb_[0] == SCSI::OP_TEST_UNIT_READY) {
+		if (cdb[0] == SCSI::OP_TEST_UNIT_READY) {
 			changed = false;
 		}
 		PRT_DEBUG("Unit Attention. This command is not executed.");
@@ -696,46 +670,43 @@ int SCSIDevice::executeCmd(byte* cdb_, SCSI::Phase* phase, int* blocks)
 	}
 
 	// check LUN
-	if (((cdb_[1] & 0xe0) || lun) && (cdb_[0] != SCSI::OP_REQUEST_SENSE) &&
-			!(cdb_[0] == SCSI::OP_INQUIRY && !(mode & MODE_NOVAXIS))) {
+	if (((cdb[1] & 0xe0) || lun) && (cdb[0] != SCSI::OP_REQUEST_SENSE) &&
+	    !(cdb[0] == SCSI::OP_INQUIRY && !(mode & MODE_NOVAXIS))) {
 		keycode = SCSI::SENSE_INVALID_LUN;
 		PRT_DEBUG("check LUN error");
 		return 0;
 	}
 
-	if (cdb_[0] != SCSI::OP_REQUEST_SENSE) {
+	if (cdb[0] != SCSI::OP_REQUEST_SENSE) {
 		keycode = SCSI::SENSE_NO_SENSE;
 	}
 
-	int counter;
+	if (cdb[0] < SCSI::OP_GROUP1) {
+		currentSector = ((cdb[1] & 0x1f) << 16) | (cdb[2] << 8) | cdb[3];
+		currentLength = cdb[4];
 
-	if (cdb_[0] < SCSI::OP_GROUP1) {
-		currentSector = ((cdb_[1] & 0x1f) << 16) |
-			(cdb_[2] << 8) | cdb_[3];
-		currentLength = cdb_[4];
-
-		switch (cdb_[0]) {
+		switch (cdb[0]) {
 		case SCSI::OP_TEST_UNIT_READY:
 			PRT_DEBUG("TestUnitReady");
 			testUnitReady();
 			return 0;
 
-		case SCSI::OP_INQUIRY:
+		case SCSI::OP_INQUIRY: {
 			PRT_DEBUG("Inquiry " << currentLength);
-			counter = inquiry();
+			int counter = inquiry();
 			if (counter) {
-				*phase = SCSI::DATA_IN;
+				phase = SCSI::DATA_IN;
 			}
 			return counter;
-
-		case SCSI::OP_REQUEST_SENSE:
+		}
+		case SCSI::OP_REQUEST_SENSE: {
 			PRT_DEBUG("RequestSense");
-			counter = requestSense();
+			int counter = requestSense();
 			if (counter) {
-				*phase = SCSI::DATA_IN;
+				phase = SCSI::DATA_IN;
 			}
 			return counter;
-
+		}
 		case SCSI::OP_READ6:
 			PRT_DEBUG("Read6: " << currentSector << " " << currentLength);
 			if (currentLength == 0) {
@@ -743,10 +714,10 @@ int SCSIDevice::executeCmd(byte* cdb_, SCSI::Phase* phase, int* blocks)
 				currentLength = 256;
 			}
 			if (checkAddress()) {
-				counter = readSector(blocks);
-				if(counter) {
+				int counter = readSector(blocks);
+				if (counter) {
 					cdb[0] = SCSI::OP_READ10;
-					*phase = SCSI::DATA_IN;
+					phase = SCSI::DATA_IN;
 					return counter;
 				}
 			}
@@ -760,14 +731,11 @@ int SCSIDevice::executeCmd(byte* cdb_, SCSI::Phase* phase, int* blocks)
 			}
 			if (checkAddress() && !checkReadOnly()) {
 				// TODO:                ledSetHd(1);
-				if (currentLength >= BUFFER_BLOCK_SIZE) {
-					*blocks = currentLength - BUFFER_BLOCK_SIZE;
-					counter = BUFFER_SIZE;
-				} else {
-					counter = currentLength * sectorSize;
-				}
+				unsigned tmp = std::min(currentLength, BUFFER_BLOCK_SIZE);
+				blocks = currentLength - tmp;
+				int counter = tmp * sectorSize;
 				cdb[0] = SCSI::OP_WRITE10;
-				*phase = SCSI::DATA_OUT;
+				phase = SCSI::DATA_OUT;
 				return counter;
 			}
 			return 0;
@@ -779,14 +747,14 @@ int SCSIDevice::executeCmd(byte* cdb_, SCSI::Phase* phase, int* blocks)
 			checkAddress();
 			return 0;
 
-		case SCSI::OP_MODE_SENSE:
+		case SCSI::OP_MODE_SENSE: {
 			PRT_DEBUG("ModeSense: " << currentLength);
-			counter = modeSense();
+			int counter = modeSense();
 			if (counter) {
-				*phase = SCSI::DATA_IN;
+				phase = SCSI::DATA_IN;
 			}
 			return counter;
-
+		}
 		case SCSI::OP_FORMAT_UNIT:
 			PRT_DEBUG("FormatUnit");
 			formatUnit();
@@ -806,18 +774,18 @@ int SCSIDevice::executeCmd(byte* cdb_, SCSI::Phase* phase, int* blocks)
 			return 0;
 		}
 	} else {
-		currentSector = (cdb_[2] << 24) | (cdb_[3] << 16) |
-			(cdb_[4] << 8)  |  cdb_[5];
-		currentLength = (cdb_[7] << 8) + cdb_[8];
+		currentSector = (cdb[2] << 24) | (cdb[3] << 16) |
+		                (cdb[4] <<  8) | (cdb[5] <<  0);
+		currentLength = (cdb[7] <<  8) | (cdb[8] <<  0);
 
-		switch (cdb_[0]) {
+		switch (cdb[0]) {
 		case SCSI::OP_READ10:
 			PRT_DEBUG("Read10: " << currentSector << " " << currentLength);
 
 			if (checkAddress()) {
-				counter = readSector(blocks);
-				if(counter) {
-					*phase = SCSI::DATA_IN;
+				int counter = readSector(blocks);
+				if (counter) {
+					phase = SCSI::DATA_IN;
 					return counter;
 				}
 			}
@@ -827,25 +795,22 @@ int SCSIDevice::executeCmd(byte* cdb_, SCSI::Phase* phase, int* blocks)
 			PRT_DEBUG("Write10: " << currentSector << " " << currentLength);
 
 			if (checkAddress() && !checkReadOnly()) {
-				if (currentLength >= BUFFER_BLOCK_SIZE) {
-					*blocks = currentLength - BUFFER_BLOCK_SIZE;
-					counter = BUFFER_SIZE;
-				} else {
-					counter = currentLength * sectorSize;
-				}
-				*phase = SCSI::DATA_OUT;
+				int tmp = std::min(currentLength, BUFFER_BLOCK_SIZE);
+				blocks = currentLength - tmp;
+				int counter = tmp * sectorSize;
+				phase = SCSI::DATA_OUT;
 				return counter;
 			}
 			return 0;
 
-		case SCSI::OP_READ_CAPACITY:
+		case SCSI::OP_READ_CAPACITY: {
 			PRT_DEBUG("ReadCapacity");
-			counter = readCapacity();
+			int counter = readCapacity();
 			if (counter) {
-				*phase = SCSI::DATA_IN;
+				phase = SCSI::DATA_IN;
 			}
 			return counter;
-
+		}
 		case SCSI::OP_SEEK10:
 			PRT_DEBUG("Seek10: " << currentSector);
 			//TODO            ledSetHd(1);
@@ -855,27 +820,28 @@ int SCSIDevice::executeCmd(byte* cdb_, SCSI::Phase* phase, int* blocks)
 		}
 	}
 
-	PRT_DEBUG("unsupported command " << cdb_[0]);
+	PRT_DEBUG("unsupported command " << cdb[0]);
 	keycode = SCSI::SENSE_INVALID_COMMAND_CODE;
 	return 0;
 }
 
-int SCSIDevice::executingCmd(SCSI::Phase* phase, int* blocks)
+int SCSIDevice::executingCmd(SCSI::Phase& phase, int& blocks)
 {
 	int result = 0;
 
-	/* TODO    if (archCdromIsXferComplete(cdrom, &result)) {
-	 *phase = result ? SCSI::DATA_IN : Status;
-	 } else { */
-	*phase = SCSI::EXECUTE;
-	//    }
-	*blocks = 0;
+	/* TODO
+	if (archCdromIsXferComplete(cdrom, &result)) {
+		phase = result ? SCSI::DATA_IN : Status;
+	} else { */
+	phase = SCSI::EXECUTE;
+	// }
+	blocks = 0;
 	return result;
 }
 
 byte SCSIDevice::msgIn()
 {
-	byte result = (byte)(message & 0xff);
+	byte result = message;
 	message = 0;
 	//PRT_DEBUG("SCSIDevice " << scsiId << " msgIn returning " << result);
 	return result;

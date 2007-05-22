@@ -205,8 +205,8 @@ void WD33C93::execCmd(byte value)
 				dev[targetId]->msgOut(regs[REG_TLUN] | 0x80);
 			}
 			devBusy = true; 
-			counter = dev[targetId]->executeCmd(&regs[REG_CDB1],
-			                               &phase, &blockCounter);
+			counter = dev[targetId]->executeCmd(
+				&regs[REG_CDB1], phase, blockCounter);
 
 			switch (phase) {
 			case SCSI::STATUS:
@@ -286,7 +286,7 @@ void WD33C93::writeCtrl(byte value)
 			*pBuf++ = value;
 			--tc;
 			if (--counter == 0) {
-				counter = dev[targetId]->dataOut(&blockCounter);
+				counter = dev[targetId]->dataOut(blockCounter);
 				if (counter) {
 					pBuf = buffer;
 					return;
@@ -316,7 +316,7 @@ byte WD33C93::readAuxStatus()
 	byte rv = regs[REG_AUX_STATUS];
 
 	if (phase == SCSI::EXECUTE) {
-		counter = dev[targetId]->executingCmd(&phase, &blockCounter);
+		counter = dev[targetId]->executingCmd(phase, blockCounter);
 
 		switch (phase) {
 		case SCSI::STATUS: // TODO how can this ever be the case?
@@ -364,7 +364,7 @@ byte WD33C93::readCtrl()
 			--tc;
 			if (--counter == 0) {
 				if (blockCounter > 0) {
-					counter = dev[targetId]->dataIn(&blockCounter);
+					counter = dev[targetId]->dataIn(blockCounter);
 					if (counter) {
 						pBuf = buffer;
 						return rv;
