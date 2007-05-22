@@ -124,7 +124,7 @@ SCSIDevice::SCSIDevice(byte scsiId_, byte* buf, const char* name_,
 
 SCSIDevice::~SCSIDevice()
 {
-	PRT_DEBUG("hdd close for hdd " << scsiId);
+	PRT_DEBUG("hdd close for hdd " << (int)scsiId);
 	/* TODO:
 	if (deviceType == SCSI::DT_CDROM) {
 		archCdromDestroy(cdrom);
@@ -162,7 +162,7 @@ void SCSIDevice::reset()
 
 void SCSIDevice::busReset()
 {
-	PRT_DEBUG("SCSI: bus reset on " << scsiId);
+	PRT_DEBUG("SCSI: bus reset on " << (int)scsiId);
 	keycode = 0;
 	unitAttention = (mode & MODE_UNITATTENTION);
 	/* TODO:
@@ -276,7 +276,7 @@ void SCSIDevice::startStopUnit()
 	//      	disk->fileNameInZip[0] = 0;
 	//      	updateExtendedDiskName(diskId, disk->fileName, disk->fileNameInZip);
 	//      	boardChangeDiskette(diskId, NULL, NULL);
-			PRT_DEBUG("eject hdd " << scsiId);
+			PRT_DEBUG("eject hdd " << (int)scsiId);
 	//      } 
 		break;
 	case 3: // Insert  TODO
@@ -284,12 +284,12 @@ void SCSIDevice::startStopUnit()
 	//      	*disk = disk;
 	//      	updateExtendedDiskName(diskId, disk->fileName, disk->fileNameInZip);
 	//      	boardChangeDiskette(diskId, disk->fileName, disk->fileNameInZip);
-			PRT_DEBUG("insert hdd " << scsiId);
+			PRT_DEBUG("insert hdd " << (int)scsiId);
 	//      } 
 		break;
 	}
 	motor = cdb[4] & 1;
-	PRT_DEBUG("hdd " << scsiId << " motor: " << motor);
+	PRT_DEBUG("hdd " << (int)scsiId << " motor: " << motor);
 }
 
 //TODO also a lot to do here, lots of interfacing with a SectorAccessibleDisk
@@ -487,7 +487,7 @@ int SCSIDevice::readCapacity()
 
 	if (block == 0) {
 		keycode = SCSI::SENSE_MEDIUM_NOT_PRESENT;
-		PRT_DEBUG("hdd " << scsiId << ": drive not ready");
+		PRT_DEBUG("hdd " << (int)scsiId << ": drive not ready");
 		return 0;
 	}
 
@@ -511,14 +511,14 @@ bool SCSIDevice::checkAddress()
 	unsigned total = getNbSectors(); 
 	if (total == 0) {
 		keycode = SCSI::SENSE_MEDIUM_NOT_PRESENT;
-		PRT_DEBUG("hdd " << scsiId << ": drive not ready");
+		PRT_DEBUG("hdd " << (int)scsiId << ": drive not ready");
 		return false;
 	}
 
 	if ((currentLength > 0) && (currentSector + currentLength <= total)) {
 		return true;
 	}
-	PRT_DEBUG("hdd " << scsiId << ": IllegalBlockAddress");
+	PRT_DEBUG("hdd " << (int)scsiId << ": IllegalBlockAddress");
 	keycode = SCSI::SENSE_ILLEGAL_BLOCK_ADDRESS;
 	return false;
 }
@@ -532,7 +532,7 @@ int SCSIDevice::readSector(int& blocks)
 	unsigned numSectors = std::min(currentLength, BUFFER_BLOCK_SIZE);
 	unsigned counter = currentLength * sectorSize;
 
-	PRT_DEBUG("hdd#" << scsiId << " read sector: " << currentSector << " " << numSectors);
+	PRT_DEBUG("hdd#" << (int)scsiId << " read sector: " << currentSector << " " << numSectors);
 	try {
 		//TODO: somehow map this to SectorAccessibleDisk::readLogicalSector?
 		file->seek(sectorSize * currentSector);
@@ -569,7 +569,7 @@ int SCSIDevice::writeSector(int& blocks)
 	const unsigned BUFFER_BLOCK_SIZE = BUFFER_SIZE / sectorSize;
 	int numSectors = std::min(currentLength, BUFFER_BLOCK_SIZE);
 
-	PRT_DEBUG("hdd#" << scsiId << " write sector: " << currentSector << " " << numSectors);
+	PRT_DEBUG("hdd#" << (int)scsiId << " write sector: " << currentSector << " " << numSectors);
 	//TODO: somehow map this to SectorAccessibleDisk::writeLogicalSector?
 	try {
 		file->seek(sectorSize * currentSector);
@@ -858,7 +858,7 @@ Notes:
 */
 int SCSIDevice::msgOut(byte value)
 {
-	PRT_DEBUG("SCSI #" << scsiId << " message out: " << (int)value);
+	PRT_DEBUG("SCSI #" << (int)scsiId << " message out: " << (int)value);
 	if (value & 0x80) {
 		lun = value & 7;
 		return 0;
