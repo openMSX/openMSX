@@ -166,7 +166,7 @@ void WD33C93::execCmd(byte value)
 		PRT_DEBUG("wd33c93 [CMD] Reset controller");
 		memset(regs + 1, 0, 0x1a);
 		disconnect();
-		latch = 0;
+		latch = 0; // TODO: is this correct? Some doc says: reset to zero by masterreset-signal but not by reset command.
 		regs[REG_SCSI_STATUS] =
 			(regs[REG_OWN_ID] & OWN_EAF) ? SS_RESET_ADV : SS_RESET;
 		break;
@@ -249,6 +249,8 @@ void WD33C93::writeAdr(byte value)
 	latch = value & 0x1f;
 }
 
+// Latch incremented by one each time a register is accessed,
+// except for the address-, aux.status-, data- and command registers.
 void WD33C93::writeCtrl(byte value)
 {
 	//PRT_DEBUG("wd33c93 write #" << std::hex << (int)latch << ", " << (int)value);
@@ -278,7 +280,7 @@ void WD33C93::writeCtrl(byte value)
 
 	case REG_CMD:
 		execCmd(value);
-		return; // TODO no latch-inc ???
+		return; // no latch-inc for address-, aux.status-, data- and command regs.
 
 	case REG_DATA:
 		regs[REG_DATA] = value;
@@ -297,10 +299,10 @@ void WD33C93::writeCtrl(byte value)
 				disconnect();
 			}
 		}
-		return; // TODO no latch-inc ???
+		return; // no latch-inc for address-, aux.status-, data- and command regs.
 
 	case REG_AUX_STATUS:
-		return; // TODO no latch-inc ???
+		return; // no latch-inc for address-, aux.status-, data- and command regs.
 
 	default:
 		if (latch <= REG_SRC_ID) {
@@ -337,6 +339,8 @@ byte WD33C93::readAuxStatus()
 	return rv;
 }
 
+// Latch incremented by one each time a register is accessed,
+// except for the address-, aux.status-, data- and command registers.
 byte WD33C93::readCtrl()
 {
 	//PRT_DEBUG("ReadCtrl");
@@ -355,7 +359,7 @@ byte WD33C93::readCtrl()
 		break;
 
 	case REG_CMD:
-		return regs[REG_CMD]; // note: don't increase latch
+		return regs[REG_CMD]; // no latch-inc for address-, aux.status-, data- and command regs.
 
 	case REG_DATA:
 		if (phase == SCSI::DATA_IN) {
@@ -378,7 +382,7 @@ byte WD33C93::readCtrl()
 		} else {
 			rv = regs[REG_DATA];
 		}
-		return rv; // TODO no latch-inc ???
+		return rv; // no latch-inc for address-, aux.status-, data- and command regs.
 
 	case REG_TCH:
 		rv = (tc >> 16) & 0xff;
@@ -393,7 +397,7 @@ byte WD33C93::readCtrl()
 		break;
 
 	case REG_AUX_STATUS:
-		return readAuxStatus(); // TODO no latch-inc ???
+		return readAuxStatus(); // no latch-inc for address-, aux.status-, data- and command regs. 
 
 	default:
 		rv = regs[latch];
