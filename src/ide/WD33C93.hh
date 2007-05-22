@@ -12,12 +12,12 @@
 #ifndef WD33C93_HH
 #define WD33C93_HH
 
-#include "SCSIDevice.hh" // needed for type SCSI_PHASE
-#include "openmsx.hh"
+#include "SCSI.hh"
 #include <memory>
 
 namespace openmsx {
 
+class SCSIDevice;
 class XMLElement;
 
 class WD33C93
@@ -39,19 +39,18 @@ private:
 	void disconnect();
 	void execCmd(byte value);
 
-	int         myId;
-	int         targetId;
-	byte       latch;
-	byte       regs[32];
-        std::auto_ptr<SCSIDevice> dev[8];
-	int         maxDev;
-	SCSI_PHASE  phase;
-	int         counter;
-	int         blockCounter;
-	int         tc;
-	bool         devBusy;
-	byte*      pBuf;
-	byte*      buffer;
+	std::auto_ptr<SCSIDevice> dev[8];
+	byte* pBuf;
+	byte* buffer;
+	int counter;
+	int blockCounter;
+	int tc;
+	SCSI::Phase phase;
+	byte myId;
+	byte targetId;
+	byte regs[32];
+	byte latch;
+	bool devBusy;
 };
 
 } // namespace openmsx

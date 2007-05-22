@@ -34,53 +34,39 @@
 // - this class is more like a SCSIHD class.
 // So, TODO: split it up properly
 
-//TODO: #include "ArchCdrom.h"
-#include "openmsx.hh"
+#include "SCSI.hh"
 #include "SectorAccessibleDisk.hh"
 #include "DiskContainer.hh"
 #include "noncopyable.hh"
 #include <memory>
 #include <string>
 
-#define BIT_SCSI2           0x0001
-#define BIT_SCSI2_ONLY      0x0002
-#define BIT_SCSI3           0x0004
-
-#define MODE_SCSI1          0x0000
-#define MODE_SCSI2          0x0003
-#define MODE_SCSI3          0x0005
-#define MODE_UNITATTENTION  0x0008  // report unit attention
-#define MODE_MEGASCSI       0x0010  // report disk change when call of
-                                    // 'test unit ready'
-#define MODE_FDS120         0x0020  // change of inquiry when inserted floppy image
-#define MODE_CHECK2         0x0040  // mask to diskchange when load state
-#define MODE_REMOVABLE      0x0080
-#define MODE_NOVAXIS        0x0100
-
-#define BUFFER_SIZE         0x10000                 // 64KB
-#define BUFFER_BLOCK_SIZE   (BUFFER_SIZE / 512)
-
 namespace openmsx {
 
 class File;
 
-enum SCSI_PHASE {
-    BusFree     =  0,
-    Arbitration =  1,
-    Selection   =  2,
-    Reselection =  3,
-    Command     =  4,
-    Execute     =  5,
-    DataIn      =  6,
-    DataOut     =  7,
-    Status      =  8,
-    MsgOut      =  9,
-    MsgIn       = 10
-};
-
 class SCSIDevice : public SectorAccessibleDisk, public DiskContainer, private noncopyable
 {
 public:
+	static const int BIT_SCSI2          = 0x0001;
+	static const int BIT_SCSI2_ONLY     = 0x0002;
+	static const int BIT_SCSI3          = 0x0004;
+
+	static const int MODE_SCSI1         = 0x0000;
+	static const int MODE_SCSI2         = 0x0003;
+	static const int MODE_SCSI3         = 0x0005;
+	static const int MODE_UNITATTENTION = 0x0008; // report unit attention
+	static const int MODE_MEGASCSI      = 0x0010; // report disk change when call of
+	                                              // 'test unit ready'
+	static const int MODE_FDS120        = 0x0020; // change of inquiry when inserted
+	                                              // floppy image
+	static const int MODE_CHECK2        = 0x0040; // mask to diskchange when
+	                                              // load state
+	static const int MODE_REMOVABLE     = 0x0080;
+	static const int MODE_NOVAXIS       = 0x0100;
+
+	static const int BUFFER_SIZE        = 0x10000; // 64KB
+
 	SCSIDevice(int scsiId, byte* buf, char* name, int type, int mode
 		/*TODO:, CdromXferCompCb xferCompCb */);
 	virtual ~SCSIDevice();
@@ -97,8 +83,8 @@ public:
 	// SCSI Device
 	void reset();
 	bool isSelected();
-	int executeCmd(byte* cdb, SCSI_PHASE* phase, int* blocks);
-	int executingCmd(SCSI_PHASE* phase, int* blocks);
+	int executeCmd(byte* cdb, SCSI::Phase* phase, int* blocks);
+	int executingCmd(SCSI::Phase* phase, int* blocks);
 	byte getStatusCode();
 	int msgOut(byte value);
 	byte msgIn();
@@ -119,7 +105,6 @@ private:
 	int requestSense();
 	bool checkReadOnly();
 	int readCapacity();
-//	int openMSX(); // some kind of special command
 	bool checkAddress();
 	int readSector(int* blocks);
 	int writeSector(int* blocks);
@@ -140,11 +125,9 @@ private:
 	int currentLength;
 	int message;
 	int lun;
-//TODO	ArchCdrom* cdrom;
 	byte cdb[12];          // Command Descriptor Block
 	byte* buffer;
 	char* productName;
-//TODO	FileProperties disk;
 
 	std::auto_ptr<File> file;
 	std::string name;

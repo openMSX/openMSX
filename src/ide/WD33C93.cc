@@ -16,7 +16,6 @@
 #include "SCSI.hh"
 #include "SCSIDevice.hh"
 #include "XMLElement.hh"
-// TODO: #include "ArchCdrom.h"
 #include <cassert>
 #include <cstring>
 #include <iostream>
@@ -26,77 +25,68 @@
                 std::cout << mes << std::endl;  \
         } while (0)
 
+namespace openmsx {
 
-#define REG_OWN_ID      0x00
-#define REG_CONTROL     0x01
-#define REG_TIMEO       0x02
-#define REG_TSECS       0x03
-#define REG_THEADS      0x04
-#define REG_TCYL_HI     0x05
-#define REG_TCYL_LO     0x06
-#define REG_ADDR_HI     0x07
-#define REG_ADDR_2      0x08
-#define REG_ADDR_3      0x09
-#define REG_ADDR_LO     0x0a
-#define REG_SECNO       0x0b
-#define REG_HEADNO      0x0c
-#define REG_CYLNO_HI    0x0d
-#define REG_CYLNO_LO    0x0e
-#define REG_TLUN        0x0f
-#define REG_CMD_PHASE   0x10
-#define REG_SYN         0x11
-#define REG_TCH         0x12
-#define REG_TCM         0x13
-#define REG_TCL         0x14
-#define REG_DST_ID      0x15
-#define REG_SRC_ID      0x16
-#define REG_SCSI_STATUS 0x17    // (r)
-#define REG_CMD         0x18
-#define REG_DATA        0x19
-#define REG_QUEUE_TAG   0x1a
-#define REG_AUX_STATUS  0x1f    // (r)
+static const int MAX_DEV = 8;
 
-#define REG_CDBSIZE     0x00
-#define REG_CDB1        0x03
-#define REG_CDB2        0x04
-#define REG_CDB3        0x05
-#define REG_CDB4        0x06
-#define REG_CDB5        0x07
-#define REG_CDB6        0x08
-#define REG_CDB7        0x09
-#define REG_CDB8        0x0a
-#define REG_CDB9        0x0b
-#define REG_CDB10       0x0c
-#define REG_CDB11       0x0d
-#define REG_CDB12       0x0e
+static const byte REG_OWN_ID      = 0x00;
+static const byte REG_CONTROL     = 0x01;
+static const byte REG_TIMEO       = 0x02;
+static const byte REG_TSECS       = 0x03;
+static const byte REG_THEADS      = 0x04;
+static const byte REG_TCYL_HI     = 0x05;
+static const byte REG_TCYL_LO     = 0x06;
+static const byte REG_ADDR_HI     = 0x07;
+static const byte REG_ADDR_2      = 0x08;
+static const byte REG_ADDR_3      = 0x09;
+static const byte REG_ADDR_LO     = 0x0a;
+static const byte REG_SECNO       = 0x0b;
+static const byte REG_HEADNO      = 0x0c;
+static const byte REG_CYLNO_HI    = 0x0d;
+static const byte REG_CYLNO_LO    = 0x0e;
+static const byte REG_TLUN        = 0x0f;
+static const byte REG_CMD_PHASE   = 0x10;
+static const byte REG_SYN         = 0x11;
+static const byte REG_TCH         = 0x12;
+static const byte REG_TCM         = 0x13;
+static const byte REG_TCL         = 0x14;
+static const byte REG_DST_ID      = 0x15;
+static const byte REG_SRC_ID      = 0x16;
+static const byte REG_SCSI_STATUS = 0x17; // (r)
+static const byte REG_CMD         = 0x18;
+static const byte REG_DATA        = 0x19;
+static const byte REG_QUEUE_TAG   = 0x1a;
+static const byte REG_AUX_STATUS  = 0x1f; // (r)
 
-#define OWN_EAF         0x08    // ENABLE ADVANCED FEATURES
+static const byte REG_CDBSIZE     = 0x00;
+static const byte REG_CDB1        = 0x03;
+static const byte REG_CDB2        = 0x04;
+static const byte REG_CDB3        = 0x05;
+static const byte REG_CDB4        = 0x06;
+static const byte REG_CDB5        = 0x07;
+static const byte REG_CDB6        = 0x08;
+static const byte REG_CDB7        = 0x09;
+static const byte REG_CDB8        = 0x0a;
+static const byte REG_CDB9        = 0x0b;
+static const byte REG_CDB10       = 0x0c;
+static const byte REG_CDB11       = 0x0d;
+static const byte REG_CDB12       = 0x0e;
+
+static const byte OWN_EAF         = 0x08; // ENABLE ADVANCED FEATURES
 
 // SCSI STATUS
-#define SS_RESET        0x00    // reset
-#define SS_RESET_ADV    0x01    // reset w/adv. features
-#define SS_XFER_END     0x16    // select and transfer complete
-#define SS_SEL_TIMEOUT  0x42    // selection timeout
-#define SS_DISCONNECT   0x85
+static const byte SS_RESET        = 0x00; // reset
+static const byte SS_RESET_ADV    = 0x01; // reset w/adv. features
+static const byte SS_XFER_END     = 0x16; // select and transfer complete
+static const byte SS_SEL_TIMEOUT  = 0x42; // selection timeout
+static const byte SS_DISCONNECT   = 0x85;
 
 // AUX STATUS
-#define AS_DBR          0x01    // data buffer ready
-#define AS_CIP          0x10    // command in progress, chip is busy
-#define AS_BSY          0x20    // Level 2 command in progress
-#define AS_LCI          0x40    // last command ignored
-#define AS_INT          0x80
-
-/*
-#define MCI_IO          0x01
-#define MCI_CD          0x02
-#define MCI_MSG         0x04
-#define MCI_COMMAND     MCI_CD
-#define MCI_DATAIN      MCI_IO
-#define MCI_DATAOUT     0
-#define MCI_STATUS      (MCI_CD  | MCI_IO)
-#define MCI_MSGIN       (MCI_MSG | MCI_CD | MCI_IO)
-#define MCI_MSGOUT      (MCI_MSG | MCI_CD)
-*/
+static const byte AS_DBR          = 0x01; // data buffer ready
+static const byte AS_CIP          = 0x10; // command in progress, chip is busy
+static const byte AS_BSY          = 0x20; // Level 2 command in progress
+static const byte AS_LCI          = 0x40; // last command ignored
+static const byte AS_INT          = 0x80;
 
 /* command phase
 0x00    NO_SELECT
@@ -114,28 +104,27 @@
 0x60    COMPLETE_RECEIVED
 */
 
-namespace openmsx {
-
 WD33C93::WD33C93(const XMLElement& config)
 {
-	// TODO: buffer  = archCdromBufferMalloc(BUFFER_SIZE);
-	buffer = (byte*)calloc(1, BUFFER_SIZE);
-	maxDev = 8;
+	buffer = (byte*)malloc(SCSIDevice::BUFFER_SIZE);
 	devBusy = false;
 
 	XMLElement::Children targets;
 	config.getChildren("target", targets);
-
 	for (XMLElement::Children::const_iterator it = targets.begin(); 
 	     it != targets.end(); ++it) {
 		const XMLElement& target = **it;
 		int id = target.getAttributeAsInt("id");
-		assert (id < maxDev);
+		assert(id < MAX_DEV); // TODO should not assert on invalid input
 		const XMLElement& typeElem = target.getChild("type");
 		const std::string& type = typeElem.getData();
+		(void)type;
 		assert(type == "SCSIHD"); // we only do SCSIHD for now
    
-   		dev[id].reset(new SCSIDevice(id, buffer, NULL, SDT_DirectAccess, MODE_SCSI1 | MODE_UNITATTENTION | MODE_FDS120 | MODE_REMOVABLE | MODE_NOVAXIS));
+		dev[id].reset(new SCSIDevice(id, buffer, NULL, SCSI::DT_DirectAccess,
+		                SCSIDevice::MODE_SCSI1 | SCSIDevice::MODE_UNITATTENTION |
+		                SCSIDevice::MODE_FDS120 | SCSIDevice::MODE_REMOVABLE |
+		                SCSIDevice::MODE_NOVAXIS));
 	}
 	reset(false);
 }
@@ -148,106 +137,109 @@ WD33C93::~WD33C93()
 
 void WD33C93::disconnect()
 {
-	if (phase != BusFree) {
-		if ((targetId >= 0) && (targetId < maxDev)) {
-			dev[targetId]->disconnect();
-		}
+	if (phase != SCSI::BUS_FREE) {
+		assert(targetId < MAX_DEV);
+		dev[targetId]->disconnect();
 		if (regs[REG_SCSI_STATUS] != SS_XFER_END) {
 			regs[REG_SCSI_STATUS] = SS_DISCONNECT;
 		}
-		regs[REG_AUX_STATUS]  = AS_INT;
-		phase          = BusFree;
+		regs[REG_AUX_STATUS] = AS_INT;
+		phase = SCSI::BUS_FREE;
 	}
-	tc             = 0;
+	tc = 0;
 
 	PRT_DEBUG("busfree()");
 }
 
 void WD33C93::execCmd(byte value)
 {
-	bool atn = false;
-
 	if (regs[REG_AUX_STATUS] & AS_CIP) {
 		PRT_DEBUG("wd33c93ExecCmd() CIP error");
 		return;
 	}
 	//regs[REG_AUX_STATUS] |= AS_CIP;
 	regs[REG_CMD] = value;
+	
+	bool atn = false;
 	switch (value) {
-		case 0x00: /* Reset controller (software reset) */
-			PRT_DEBUG("wd33c93 [CMD] Reset controller");
-			memset(regs + 1, 0, 0x1a);
-			disconnect();
-			latch  = 0;
-			regs[REG_SCSI_STATUS] =
-				(regs[REG_OWN_ID] & OWN_EAF) ? SS_RESET_ADV : SS_RESET;
-			break;
+	case 0x00: // Reset controller (software reset)
+		PRT_DEBUG("wd33c93 [CMD] Reset controller");
+		memset(regs + 1, 0, 0x1a);
+		disconnect();
+		latch = 0;
+		regs[REG_SCSI_STATUS] =
+			(regs[REG_OWN_ID] & OWN_EAF) ? SS_RESET_ADV : SS_RESET;
+		break;
 
-		case 0x02:  /* Assert ATN */
-			PRT_DEBUG("wd33c93 [CMD] Assert ATN");
-			break;
+	case 0x02: // Assert ATN
+		PRT_DEBUG("wd33c93 [CMD] Assert ATN");
+		break;
 
-		case 0x04:  /* Disconnect */
-			PRT_DEBUG("wd33c93 [CMD] Disconnect");
-			disconnect();
-			break;
+	case 0x04: // Disconnect
+		PRT_DEBUG("wd33c93 [CMD] Disconnect");
+		disconnect();
+		break;
 
-		case 0x06:  /* Select with ATN (Lv2) */
-			atn = true;
-		case 0x07:  /* Select Without ATN (Lv2) */
-			PRT_DEBUG("wd33c93 [CMD] Select (ATN " << atn << ")");
-			targetId = regs[REG_DST_ID] & 7;
-			regs[REG_SCSI_STATUS] = SS_SEL_TIMEOUT;
-			tc = 0;
-			regs[REG_AUX_STATUS] = AS_INT;
-			break;
+	case 0x06: // Select with ATN (Lv2)
+		atn = true;
+		// fall-through
+	case 0x07: // Select Without ATN (Lv2)
+		PRT_DEBUG("wd33c93 [CMD] Select (ATN " << atn << ")");
+		targetId = regs[REG_DST_ID] & 7;
+		regs[REG_SCSI_STATUS] = SS_SEL_TIMEOUT;
+		tc = 0;
+		regs[REG_AUX_STATUS] = AS_INT;
+		break;
 
-		case 0x08:  /* Select with ATN and transfer (Lv2) */
-			atn = true;
-		case 0x09:  /* Select without ATN and Transfer (Lv2) */
-			PRT_DEBUG("wd33c93 [CMD] Select and transfer (ATN " << atn << ")");
-			targetId = regs[REG_DST_ID] & 7;
+	case 0x08: // Select with ATN and transfer (Lv2)
+		atn = true;
+		// fall-through
+	case 0x09: // Select without ATN and Transfer (Lv2)
+		PRT_DEBUG("wd33c93 [CMD] Select and transfer (ATN " << atn << ")");
+		targetId = regs[REG_DST_ID] & 7;
 
-			if (!devBusy && targetId < maxDev && /* targetId != myId  && */ 
-				(dev[targetId].get()!=NULL) && // TODO: use dummy
-					dev[targetId]->isSelected() ) {
-				if (atn) dev[targetId]->msgOut(regs[REG_TLUN] | 0x80);
-				devBusy = true; 
-				counter = dev[targetId]->executeCmd(&regs[REG_CDB1],
-						&phase, &blockCounter);
-
-				switch (phase) {
-					case Status:
-						devBusy = false;
-						regs[REG_TLUN] = dev[targetId]->getStatusCode();
-						dev[targetId]->msgIn();
-						regs[REG_SCSI_STATUS] = SS_XFER_END;
-						disconnect();
-						break;
-
-					case Execute:
-						regs[REG_AUX_STATUS]  = AS_CIP | AS_BSY;
-						pBuf = buffer;
-						break;
-
-					default:
-						devBusy = false;
-						regs[REG_AUX_STATUS]  = AS_CIP | AS_BSY | AS_DBR;
-						pBuf = buffer;
-				}
-				//regs[REG_SRC_ID] |= regs[REG_DST_ID] & 7;
-			} else {
-				PRT_DEBUG("wd33c93 timeout on target " << (int)targetId);
-				tc = 0;
-				regs[REG_SCSI_STATUS]  = SS_SEL_TIMEOUT;
-				regs[REG_AUX_STATUS]   = AS_INT;
+		if (!devBusy && targetId < MAX_DEV && /* targetId != myId  && */ 
+		    dev[targetId].get() && // TODO: use dummy
+		    dev[targetId]->isSelected()) {
+			if (atn) {
+				dev[targetId]->msgOut(regs[REG_TLUN] | 0x80);
 			}
-			break;
+			devBusy = true; 
+			counter = dev[targetId]->executeCmd(&regs[REG_CDB1],
+			                               &phase, &blockCounter);
 
-		case 0x18:  /* Translate Address (Lv2) */
-		default:
-			PRT_DEBUG("wd33c93 [CMD] unsupport command " << (int)value);
-			break;
+			switch (phase) {
+			case SCSI::STATUS:
+				devBusy = false;
+				regs[REG_TLUN] = dev[targetId]->getStatusCode();
+				dev[targetId]->msgIn();
+				regs[REG_SCSI_STATUS] = SS_XFER_END;
+				disconnect();
+				break;
+
+			case SCSI::EXECUTE:
+				regs[REG_AUX_STATUS] = AS_CIP | AS_BSY;
+				pBuf = buffer;
+				break;
+
+			default:
+				devBusy = false;
+				regs[REG_AUX_STATUS] = AS_CIP | AS_BSY | AS_DBR;
+				pBuf = buffer;
+			}
+			//regs[REG_SRC_ID] |= regs[REG_DST_ID] & 7;
+		} else {
+			PRT_DEBUG("wd33c93 timeout on target " << (int)targetId);
+			tc = 0;
+			regs[REG_SCSI_STATUS] = SS_SEL_TIMEOUT;
+			regs[REG_AUX_STATUS]  = AS_INT;
+		}
+		break;
+
+	case 0x18: // Translate Address (Lv2)
+	default:
+		PRT_DEBUG("wd33c93 [CMD] unsupport command " << (int)value);
+		break;
 	}
 }
 
@@ -261,86 +253,84 @@ void WD33C93::writeCtrl(byte value)
 {
 	//PRT_DEBUG("wd33c93 write #" << std::hex << (int)latch << ", " << (int)value);
 	switch (latch) {
-		case REG_OWN_ID:
-			regs[REG_OWN_ID] = value;
-			myId = value & 7;
-			PRT_DEBUG("wd33c93 myid = " << (int)myId);
-			break;
+	case REG_OWN_ID:
+		regs[REG_OWN_ID] = value;
+		myId = value & 7;
+		PRT_DEBUG("wd33c93 myid = " << (int)myId);
+		break;
 
-		case REG_TCH:
-			tc = (tc & 0x0000ffff) + (value << 16);
-			break;
+	case REG_TCH:
+		tc = (tc & 0x00ffff) + (value << 16);
+		break;
 
-		case REG_TCM:
-			tc = (tc & 0x00ff00ff) + (value << 8);
-			break;
+	case REG_TCM:
+		tc = (tc & 0xff00ff) + (value <<  8);
+		break;
 
-		case REG_TCL:
-			tc = (tc & 0x00ffff00) + value;
-			break;
+	case REG_TCL:
+		tc = (tc & 0xffff00) + (value <<  0);
+		break;
 
-		case REG_CMD_PHASE:
-			PRT_DEBUG("wd33c93 CMD_PHASE = " << (int)value);
-			regs[REG_CMD_PHASE] = value;
-			break;
+	case REG_CMD_PHASE:
+		PRT_DEBUG("wd33c93 CMD_PHASE = " << (int)value);
+		regs[REG_CMD_PHASE] = value;
+		break;
 
-		case REG_CMD:
-			execCmd(value);
-			return;     
+	case REG_CMD:
+		execCmd(value);
+		return; // TODO no latch-inc ???
 
-		case REG_DATA:
-			regs[REG_DATA] = value;
-			if (phase == DataOut) {
-				*pBuf++ = value;
-				--tc;
-				if (--counter == 0) {
-					counter = dev[targetId]->dataOut(&blockCounter);
-					if (counter) {
-						pBuf = buffer;
-						return;
-					}
-					regs[REG_TLUN] = dev[targetId]->getStatusCode();
-					dev[targetId]->msgIn();
-					regs[REG_SCSI_STATUS] = SS_XFER_END;
-					disconnect();
+	case REG_DATA:
+		regs[REG_DATA] = value;
+		if (phase == SCSI::DATA_OUT) {
+			*pBuf++ = value;
+			--tc;
+			if (--counter == 0) {
+				counter = dev[targetId]->dataOut(&blockCounter);
+				if (counter) {
+					pBuf = buffer;
+					return;
 				}
+				regs[REG_TLUN] = dev[targetId]->getStatusCode();
+				dev[targetId]->msgIn();
+				regs[REG_SCSI_STATUS] = SS_XFER_END;
+				disconnect();
 			}
-			return;
+		}
+		return; // TODO no latch-inc ???
 
-		case REG_AUX_STATUS:
-			return;
+	case REG_AUX_STATUS:
+		return; // TODO no latch-inc ???
 
-		default:
-			if (latch <= REG_SRC_ID) {
-				regs[latch] = value;
-			}
-			break;
+	default:
+		if (latch <= REG_SRC_ID) {
+			regs[latch] = value;
+		}
+		break;
 	}
-	latch++;
-	latch &= 0x1f;
+	latch = (latch + 1) & 0x1f;
 }
 
 byte WD33C93::readAuxStatus()
 {
 	byte rv = regs[REG_AUX_STATUS];
 
-	if (phase == Execute) {
-		counter =
-			dev[targetId]->executingCmd(&phase, &blockCounter);
+	if (phase == SCSI::EXECUTE) {
+		counter = dev[targetId]->executingCmd(&phase, &blockCounter);
 
 		switch (phase) {
-			case Status:
-				regs[REG_TLUN] = dev[targetId]->getStatusCode();
-				dev[targetId]->msgIn();
-				regs[REG_SCSI_STATUS] = SS_XFER_END;
-				disconnect();
-				break;
+		case SCSI::STATUS: // TODO how can this ever be the case?
+			regs[REG_TLUN] = dev[targetId]->getStatusCode();
+			dev[targetId]->msgIn();
+			regs[REG_SCSI_STATUS] = SS_XFER_END;
+			disconnect();
+			break;
 
-			case Execute:
-				break;
+		case SCSI::EXECUTE:
+			break;
 
-			default:
-				regs[REG_AUX_STATUS] |= AS_DBR;
+		default:
+			regs[REG_AUX_STATUS] |= AS_DBR;
 		}
 	}
 	//PRT_DEBUG("readAuxStatus returning " << std::hex << (int)rv);
@@ -353,65 +343,65 @@ byte WD33C93::readCtrl()
 	byte rv;
 
 	switch (latch) {
-		case REG_SCSI_STATUS:
-			rv = regs[REG_SCSI_STATUS];
-			//PRT_DEBUG1("wd33c93 SCSI_STATUS = %X\n", rv);
-			if (rv != SS_XFER_END) {
-				regs[REG_AUX_STATUS] &= ~AS_INT;
-			} else {
-				regs[REG_SCSI_STATUS] = SS_DISCONNECT;
-				regs[REG_AUX_STATUS]  = AS_INT;
-			}
-			break;
+	case REG_SCSI_STATUS:
+		rv = regs[REG_SCSI_STATUS];
+		//PRT_DEBUG1("wd33c93 SCSI_STATUS = %X\n", rv);
+		if (rv != SS_XFER_END) {
+			regs[REG_AUX_STATUS] &= ~AS_INT;
+		} else {
+			regs[REG_SCSI_STATUS] = SS_DISCONNECT;
+			regs[REG_AUX_STATUS]  = AS_INT;
+		}
+		break;
 
-		case REG_DATA:
-			if (phase == DataIn) {
-				rv = *pBuf++;
-				regs[REG_DATA] = rv;
-				--tc;
-				if (--counter == 0) {
-					if (blockCounter > 0) {
-						counter = dev[targetId]->dataIn(&blockCounter);
-						if (counter) {
-							pBuf = buffer;
-							return rv;
-						}
+	case REG_CMD:
+		return regs[REG_CMD]; // note: don't increase latch
+
+	case REG_DATA:
+		if (phase == SCSI::DATA_IN) {
+			rv = *pBuf++;
+			regs[REG_DATA] = rv;
+			--tc;
+			if (--counter == 0) {
+				if (blockCounter > 0) {
+					counter = dev[targetId]->dataIn(&blockCounter);
+					if (counter) {
+						pBuf = buffer;
+						return rv;
 					}
-					regs[REG_TLUN] = dev[targetId]->getStatusCode();
-					dev[targetId]->msgIn();
-					regs[REG_SCSI_STATUS] = SS_XFER_END;
-					disconnect();
 				}
-			} else {
-				rv = regs[REG_DATA];
+				regs[REG_TLUN] = dev[targetId]->getStatusCode();
+				dev[targetId]->msgIn();
+				regs[REG_SCSI_STATUS] = SS_XFER_END;
+				disconnect();
 			}
-			return rv;
+		} else {
+			rv = regs[REG_DATA];
+		}
+		return rv; // TODO no latch-inc ???
 
-		case REG_TCH:
-			rv = (byte)((tc >> 16) & 0xff);
-			break;
+	case REG_TCH:
+		rv = (tc >> 16) & 0xff;
+		break;
 
-		case REG_TCM:
-			rv = (byte)((tc >> 8) & 0xff);
-			break;
+	case REG_TCM:
+		rv = (tc >>  8) & 0xff;
+		break;
 
-		case REG_TCL:
-			rv = (byte)(tc & 0xff);
-			break;
+	case REG_TCL:
+		rv = (tc >>  0) & 0xff;
+		break;
 
-		case REG_AUX_STATUS:
-			return readAuxStatus();
+	case REG_AUX_STATUS:
+		return readAuxStatus(); // TODO no latch-inc ???
 
-		default:
-			rv = regs[latch];
-			break;
+	default:
+		rv = regs[latch];
+		break;
 	}
 	//PRT_DEBUG2("wd33c93 read #%X, %X\n", latch, rv);
 
-	if (latch != REG_CMD) {
-		latch++;
-		latch &= 0x1f;
-	}
+	latch = (latch + 1) & 0x1f;
 	return rv;
 }
 
@@ -442,14 +432,14 @@ void WD33C93::reset(bool scsireset)
 	memset(regs, 0, 0x1b);
 	memset(regs + 0x1b, 0xff, 4);
 	regs[REG_AUX_STATUS] = AS_INT;
-	myId   = 0;
-	latch  = 0;
-	tc     = 0;
-	phase  = BusFree;
-	pBuf   = buffer;
+	myId  = 0;
+	latch = 0;
+	tc    = 0;
+	phase = SCSI::BUS_FREE;
+	pBuf  = buffer;
 	if (scsireset) {
-		for (int i = 0; i < maxDev; ++i) {
-			if ((dev[i].get()) != NULL) dev[i]->reset(); // TODO: use Dummy
+		for (int i = 0; i < MAX_DEV; ++i) {
+			if (dev[i].get()) dev[i]->reset(); // TODO: use Dummy
 		}
 	}
 }
