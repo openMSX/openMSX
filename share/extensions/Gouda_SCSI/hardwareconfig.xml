@@ -1,0 +1,28 @@
+<?xml version="1.0" ?>
+<!-- $Id$ -->
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <manufacturer>MSX Club Gouda</manufacturer>
+    <code></code>
+    <release_year>1995</release_year>
+    <description>SCSI interface with hard disk.</description>
+    <type>external hard disk</type>
+  </info>
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <GoudaSCSI id="Gouda SCSI">
+          <io base="0x34" num="3"/>
+          <mem base="0x4000" size="0x4000"/>
+          <rom>
+            <filename>roms/novaxis.rom</filename>
+          </rom>
+          <target id="1">
+            <type>SCSIHD</type>
+          </target>
+       </GoudaSCSI>
+      </secondary>
+    </primary>
+  </devices>
+</msxconfig>
