@@ -419,7 +419,7 @@ void YM2151::keyOn(YM2151Operator* op, unsigned keySet) {
 		op->state = EG_ATT; /* KEY ON = attack */
 		op->volume += (~op->volume *
                           (eg_inc[op->eg_sel_ar + ((eg_cnt >> op->eg_sh_ar)&7)])
-                         ) >>4; 
+                         ) >>4;
 		if (op->volume <= MIN_ATT_INDEX) {
 			op->volume = MIN_ATT_INDEX;
 			op->state = EG_DEC;
@@ -657,7 +657,7 @@ void YM2151::writeReg(byte r, byte v, const EmuTime& time)
 			break;
 
 		case 0x12:
-			timer2.setValue(v); 
+			timer2.setValue(v);
 			break;
 
 		case 0x14: // CSM, irq flag reset, irq enable, timer start/stop
@@ -839,7 +839,7 @@ YM2151::YM2151(MSXMotherBoard& motherBoard, const std::string& name,
                const std::string& desc, const XMLElement& config,
                const EmuTime& time)
 	: SoundDevice(motherBoard.getMSXMixer(), name, desc, 8, true)
-        , Resample(motherBoard.getGlobalSettings(), 2)
+	, Resample(motherBoard.getGlobalSettings(), 2)
 	, irq(motherBoard.getCPU())
 	, timer1(motherBoard.getScheduler(), *this)
 	, timer2(motherBoard.getScheduler(), *this)
@@ -1250,7 +1250,7 @@ void YM2151::advanceEG()
 
 	// envelope generator
 	for (int i = 0; i < 32; ++i) {
-		YM2151Operator& op = oper[i]; 
+		YM2151Operator& op = oper[i];
 		switch (op.state) {
 		case EG_ATT: // attack phase
 			if (!(eg_cnt & ((1 << op.eg_sh_ar) - 1))) {
@@ -1377,7 +1377,7 @@ void YM2151::advance()
 	// Input to the bit16 is negated (bit0 XOR bit3) (EXNOR).
 	// Output of the register is negated (bit0 XOR bit3).
 	// Simply use bit16 as the noise output.
-	
+
 	// noise changes depending on the index in noise_tab (noise_f = noise_tab[x])
 	// noise_tab contains how many cycles/samples (x2) the noise should change.
 	// so, when it contains 29, noise should change every 14.5 cycles (2 out of 29).
@@ -1508,7 +1508,7 @@ void YM2151::callback(byte flag)
 			setStatus(1);
 		}
 		if (irq_enable & 0x80) {
-			csm_req = 2; // request KEY ON / KEY OFF sequence 
+			csm_req = 2; // request KEY ON / KEY OFF sequence
 		}
 	}
 	if (flag & 0x40) { // Timer 2

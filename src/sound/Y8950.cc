@@ -30,7 +30,7 @@ private:
 
 
 static const double EG_STEP = 0.1875; //  3/16
-static const double SL_STEP = 3.0;   
+static const double SL_STEP = 3.0;
 static const double TL_STEP = 0.75;   // 12/16
 static const double DB_STEP = 0.1875; //  3/16
 
@@ -478,7 +478,7 @@ Y8950::Y8950(MSXMotherBoard& motherBoard, const std::string& name,
              const XMLElement& config, unsigned sampleRam, const EmuTime& time,
              Y8950Periphery& perihery_)
 	: SoundDevice(motherBoard.getMSXMixer(), name, "MSX-AUDIO", 12)
-        , Resample(motherBoard.getGlobalSettings(), 1)
+	, Resample(motherBoard.getGlobalSettings(), 1)
 	, irq(motherBoard.getCPU())
 	, perihery(perihery_)
 	, timer1(motherBoard.getScheduler(), *this)
@@ -841,7 +841,7 @@ inline void Y8950::calcSample(int** bufs, unsigned sample)
 		// TODO wasn't in original source either
 		ch[7].mod.calc_phase();
 		ch[8].car.calc_phase();
-		
+
 		bufs[ 6][sample] = (ch[6].car.eg_mode != FINISH)
 			? adjust(2 * ch[6].car.calc_slot_car(ch[6].mod.calc_slot_mod()))
 			: 0;

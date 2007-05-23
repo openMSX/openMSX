@@ -500,7 +500,7 @@ VLM5030::VLM5030(MSXMotherBoard& motherBoard, const std::string& name,
                  const std::string& desc, const XMLElement& config,
                  const EmuTime& time)
 	: SoundDevice(motherBoard.getMSXMixer(), name, desc, 1)
-        , Resample(motherBoard.getGlobalSettings(), 1)
+	, Resample(motherBoard.getGlobalSettings(), 1)
 {
 	XMLElement voiceROMconfig(name);
 	voiceROMconfig.addAttribute("id", "name");
