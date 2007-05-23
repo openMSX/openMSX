@@ -491,7 +491,7 @@ public:
 	 * Sets the total level: [0..63].
 	 */
 	void setTotalLevel(byte value) {
-		TL  = value << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0)
+		TL = value << (ENV_BITS - 2 - 7); // 7 bits TL (bit 6 = always 0)
 		updateTotalLevel();
 	}
 
@@ -537,7 +537,7 @@ public:
 	 * Sets the release rate [0..15].
 	 */
 	void setReleaseRate(byte value) {
-		rr  = value ? 16 + (value << 2) : 0;
+		rr = value ? 16 + (value << 2) : 0;
 		updateReleaseRate();
 	}
 
@@ -1496,7 +1496,7 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 
 void Global::reset()
 {
-	eg_cnt   = 0;
+	eg_cnt    = 0;
 	noise_rng = 1;    // noise shift register
 
 	// setup instruments table
