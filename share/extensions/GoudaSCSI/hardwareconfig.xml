@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<!-- $Id: hardwareconfig.xml 5388 2006-05-21 13:55:55Z mthuurne $ -->
+<!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
@@ -13,14 +13,14 @@
     <primary slot="any">
       <secondary slot="any">
         <GoudaSCSI id="Gouda SCSI">
-	  <io base="0x34" num="3"/>
+          <io base="0x34" num="3"/>
           <mem base="0x4000" size="0x4000"/>
           <rom>
             <filename>roms/novaxis.rom</filename>
           </rom>
-	  <target id="1">
-	    <type>SCSIHD</type>
-	  </target>
+          <target id="1">
+            <type>SCSIHD</type>
+          </target>
        </GoudaSCSI>
       </secondary>
     </primary>
