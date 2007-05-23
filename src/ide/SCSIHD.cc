@@ -2,7 +2,7 @@
 /* Ported from:
 ** Source: /cvsroot/bluemsx/blueMSX/Src/IoDevice/ScsiDevice.c,v
 ** Revision: 1.10
-** Date: 2007/03/25 17:05:07
+** Date: 2007-05-21 21:38:29 +0200 (Mon, 21 May 2007)
 **
 ** More info: http://www.bluemsx.com
 **
@@ -16,8 +16,7 @@
  *  Message system might be imperfect.
  */
 
-#include "SCSIDevice.hh"
-#include "SCSI.hh"
+#include "SCSIHD.hh"
 #include "File.hh"
 #include "FileException.hh"
 #include <algorithm>
@@ -81,19 +80,18 @@ static const char sdt_name[10][10 + 1] =
 // for FDSFORM.COM
 static const char fds120[28 + 1]  = "IODATA  LS-120 COSM     0001";
 
-SCSIDevice::SCSIDevice(byte scsiId_, byte* buf, const char* name_,
-                       byte type, int mode_)
+SCSIHD::SCSIHD(byte scsiId_, byte* buf, const char* name_,
+                       byte type, int mode_) 
 	  : scsiId(scsiId_)
 	  , deviceType(type)
 	  , mode(mode_)
 	  , productName(name_)
 	  , buffer(buf)
 {
-	enabled    = true;
 	sectorSize = 512;
 	/* TODO: MOVE CD-ROM STUFF TO SEPARATE CLASS
 	   cdrom = NULL;
-
+	
 	   disk.fileName[0] = 0;
 	   disk.fileNameInZip[0] = 0;
 	   disk.directory[0] = 0;
@@ -122,7 +120,7 @@ SCSIDevice::SCSIDevice(byte scsiId_, byte* buf, const char* name_,
 	reset();
 }
 
-SCSIDevice::~SCSIDevice()
+SCSIHD::~SCSIHD()
 {
 	PRT_DEBUG("hdd close for hdd " << (int)scsiId);
 	/* TODO:
@@ -131,7 +129,7 @@ SCSIDevice::~SCSIDevice()
 	}*/
 }
 
-void SCSIDevice::reset()
+void SCSIHD::reset()
 {
 	/* TODO:
 	if (deviceType == SCSI::DT_CDROM) {
@@ -160,7 +158,7 @@ void SCSIDevice::reset()
 	inserted = true;
 }
 
-void SCSIDevice::busReset()
+void SCSIHD::busReset()
 {
 	PRT_DEBUG("SCSI: bus reset on " << (int)scsiId);
 	keycode = 0;
@@ -171,7 +169,7 @@ void SCSIDevice::busReset()
 	}*/
 }
 
-void SCSIDevice::disconnect()
+void SCSIHD::disconnect()
 {
 	/* TODO
 	if (deviceType != SCSI::DT_CDROM) {
@@ -181,17 +179,14 @@ void SCSIDevice::disconnect()
 	}*/
 }
 
-void SCSIDevice::enable(bool enable)
-{
-	enabled = enable;
-}
-
 // Check the initiator in the call origin.
-bool SCSIDevice::isSelected()
+bool SCSIHD::isSelected()
 {
 	lun = 0;
+	return true; // FOR NOW
+	/*
 	if (mode & MODE_REMOVABLE) {
-		if (!enabled && (mode & MODE_NOVAXIS) &&
+		if (!enabled && (mode & MODE_NOVAXIS) && 
 		    deviceType != SCSI::DT_CDROM) {
 			//TODO:    enabled = diskPresent(diskId) ? 1 : 0;
 			// FOR NOW:
@@ -199,10 +194,11 @@ bool SCSIDevice::isSelected()
 		}
 		return enabled;
 	}
-	return enabled /* TODO: && diskPresent(diskId) */;
+	return enabled // TODO: && diskPresent(diskId) ;
+	*/
 }
 
-bool SCSIDevice::getReady()
+bool SCSIHD::getReady()
 {
 	// TODO: if (diskPresent(diskId)) {
 	   return true;
@@ -211,7 +207,7 @@ bool SCSIDevice::getReady()
 	// TODO: return false;
 }
 
-bool SCSIDevice::diskChanged()
+bool SCSIHD::diskChanged()
 {
 	/* TODO:
 	FileProperties* pDisk;
@@ -253,7 +249,7 @@ bool SCSIDevice::diskChanged()
 	return tmpChanged;
 }
 
-void SCSIDevice::testUnitReady()
+void SCSIHD::testUnitReady()
 {
 	if ((mode & MODE_NOVAXIS) == 0) {
 		if (getReady() && changed && (mode & MODE_MEGASCSI)) {
@@ -265,7 +261,7 @@ void SCSIDevice::testUnitReady()
 }
 
 //TODO: lots of stuff in this method
-void SCSIDevice::startStopUnit()
+void SCSIHD::startStopUnit()
 {
 	//TODO:    FileProperties* disk = &propGetGlobalProperties()->media.disks[diskId];
 
@@ -277,7 +273,7 @@ void SCSIDevice::startStopUnit()
 	//      	updateExtendedDiskName(diskId, disk->fileName, disk->fileNameInZip);
 	//      	boardChangeDiskette(diskId, NULL, NULL);
 			PRT_DEBUG("eject hdd " << (int)scsiId);
-	//      }
+	//      } 
 		break;
 	case 3: // Insert  TODO
 	//      if (!diskPresent(diskId)) {
@@ -285,7 +281,7 @@ void SCSIDevice::startStopUnit()
 	//      	updateExtendedDiskName(diskId, disk->fileName, disk->fileNameInZip);
 	//      	boardChangeDiskette(diskId, disk->fileName, disk->fileNameInZip);
 			PRT_DEBUG("insert hdd " << (int)scsiId);
-	//      }
+	//      } 
 		break;
 	}
 	motor = cdb[4] & 1;
@@ -293,13 +289,13 @@ void SCSIDevice::startStopUnit()
 }
 
 //TODO also a lot to do here, lots of interfacing with a SectorAccessibleDisk
-int SCSIDevice::inquiry()
+int SCSIHD::inquiry()
 {
 	unsigned total  = getNbSectors();
 	unsigned length = currentLength;
 	byte type  = deviceType & 0xff;
 	byte removable;
-
+	
 	bool fdsmode = (mode & MODE_FDS120) && (total > 0) && (total <= 2880);
 
 	if (length == 0) return 0;
@@ -373,12 +369,12 @@ int SCSIDevice::inquiry()
 			*buffer = *fileName;
 			++buffer;
 			++fileName;
-		}
+		} 
 	}
 	return length;
 }
 
-int SCSIDevice::modeSense()
+int SCSIHD::modeSense()
 {
 	if ((currentLength > 0) && (cdb[2] == 3)) {
 		unsigned total   = getNbSectors();
@@ -445,7 +441,7 @@ int SCSIDevice::modeSense()
 	return 0;
 }
 
-int SCSIDevice::requestSense()
+int SCSIHD::requestSense()
 {
 	int length = currentLength;
 	int tmpKeycode = unitAttention ? SCSI::SENSE_POWER_ON : keycode;
@@ -472,7 +468,7 @@ int SCSIDevice::requestSense()
 	return length;
 }
 
-bool SCSIDevice::checkReadOnly()
+bool SCSIHD::checkReadOnly()
 {
 	if (file->isReadOnly()) {
 		keycode = SCSI::SENSE_WRITE_PROTECT;
@@ -481,7 +477,7 @@ bool SCSIDevice::checkReadOnly()
 	return false;
 }
 
-int SCSIDevice::readCapacity()
+int SCSIHD::readCapacity()
 {
 	unsigned block = getNbSectors();
 
@@ -506,9 +502,9 @@ int SCSIDevice::readCapacity()
 	return 8;
 }
 
-bool SCSIDevice::checkAddress()
+bool SCSIHD::checkAddress()
 {
-	unsigned total = getNbSectors();
+	unsigned total = getNbSectors(); 
 	if (total == 0) {
 		keycode = SCSI::SENSE_MEDIUM_NOT_PRESENT;
 		PRT_DEBUG("hdd " << (int)scsiId << ": drive not ready");
@@ -524,7 +520,7 @@ bool SCSIDevice::checkAddress()
 }
 
 // Execute scsiDeviceCheckAddress previously.
-int SCSIDevice::readSector(int& blocks)
+int SCSIHD::readSector(int& blocks)
 {
 	//TODO:    ledSetHd(1);
 
@@ -548,7 +544,7 @@ int SCSIDevice::readSector(int& blocks)
 	}
 }
 
-int SCSIDevice::dataIn(int& blocks)
+int SCSIHD::dataIn(int& blocks)
 {
 	if (cdb[0] == SCSI::OP_READ10) {
 		int counter = readSector(blocks);
@@ -562,7 +558,7 @@ int SCSIDevice::dataIn(int& blocks)
 }
 
 // Execute scsiDeviceCheckAddress and scsiDeviceCheckReadOnly previously.
-int SCSIDevice::writeSector(int& blocks)
+int SCSIHD::writeSector(int& blocks)
 {
 	//TODO:    ledSetHd(1);
 
@@ -588,7 +584,7 @@ int SCSIDevice::writeSector(int& blocks)
 	}
 }
 
-int SCSIDevice::dataOut(int& blocks)
+int SCSIHD::dataOut(int& blocks)
 {
 	if (cdb[0] == SCSI::OP_WRITE10) {
 		return writeSector(blocks);
@@ -599,7 +595,7 @@ int SCSIDevice::dataOut(int& blocks)
 }
 
 //  MBR erase only
-void SCSIDevice::formatUnit()
+void SCSIHD::formatUnit()
 {
 	if (getReady() && !checkReadOnly()) {
 		memset(buffer, 0, sectorSize);
@@ -614,7 +610,7 @@ void SCSIDevice::formatUnit()
 	}
 }
 
-byte SCSIDevice::getStatusCode()
+byte SCSIHD::getStatusCode()
 {
 	byte result;
 //TODO	if (deviceType != SCSI::DT_CDROM) {
@@ -626,7 +622,7 @@ byte SCSIDevice::getStatusCode()
 	return result;
 }
 
-int SCSIDevice::executeCmd(const byte* cdb_, SCSI::Phase& phase, int& blocks)
+int SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, int& blocks)
 {
 	const unsigned BUFFER_BLOCK_SIZE = BUFFER_SIZE / sectorSize;
 
@@ -825,7 +821,7 @@ int SCSIDevice::executeCmd(const byte* cdb_, SCSI::Phase& phase, int& blocks)
 	return 0;
 }
 
-int SCSIDevice::executingCmd(SCSI::Phase& phase, int& blocks)
+int SCSIHD::executingCmd(SCSI::Phase& phase, int& blocks)
 {
 	int result = 0;
 
@@ -839,7 +835,7 @@ int SCSIDevice::executingCmd(SCSI::Phase& phase, int& blocks)
 	return result;
 }
 
-byte SCSIDevice::msgIn()
+byte SCSIHD::msgIn()
 {
 	byte result = message;
 	message = 0;
@@ -856,7 +852,7 @@ Notes:
         bit1: Make it to a busfree if ATN has not been released.
         bit0: There is a message(MsgIn).
 */
-int SCSIDevice::msgOut(byte value)
+int SCSIHD::msgOut(byte value)
 {
 	PRT_DEBUG("SCSI #" << (int)scsiId << " message out: " << (int)value);
 	if (value & 0x80) {
@@ -884,31 +880,31 @@ int SCSIDevice::msgOut(byte value)
 	return ((value >= 0x04) && (value <= 0x11)) ? 3 : 1;
 }
 
-unsigned SCSIDevice::getNbSectors() const
+unsigned SCSIHD::getNbSectors() const
 {
-	return file->getSize() / sectorSize;
+	return file->getSize() / sectorSize; 
 }
 
 // NOTE: UNUSED FOR NOW!
-void SCSIDevice::readLogicalSector(unsigned sector, byte* buf)
+void SCSIHD::readLogicalSector(unsigned sector, byte* buf)
 {
 	file->seek(512 * sector);
 	file->read(buf, 512);
 }
 
 // NOTE: UNUSED FOR NOW!
-void SCSIDevice::writeLogicalSector(unsigned sector, const byte* buf)
+void SCSIHD::writeLogicalSector(unsigned sector, const byte* buf)
 {
 	file->seek(512 * sector);
 	file->write(buf, 512);
 }
 
-SectorAccessibleDisk* SCSIDevice::getSectorAccessibleDisk()
+SectorAccessibleDisk* SCSIHD::getSectorAccessibleDisk()
 {
 	return this;
 }
 
-const std::string& SCSIDevice::getContainerName() const
+const std::string& SCSIHD::getContainerName() const
 {
 	return name;
 }

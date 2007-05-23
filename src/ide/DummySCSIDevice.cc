@@ -1,0 +1,65 @@
+// $Id DummySCSIDevice.cc 4839 2005-11-11 22:00:07Z m9710797 $
+
+#include "DummySCSIDevice.hh"
+
+namespace openmsx {
+
+void DummySCSIDevice::reset()
+{
+	// do nothing
+}
+
+bool DummySCSIDevice::isSelected() 
+{
+	return false;
+}
+
+int DummySCSIDevice::executeCmd(const byte* cdb, SCSI::Phase& phase, int& blocks)
+{
+	// do nothing
+	return 0;
+}
+
+int DummySCSIDevice::executingCmd(SCSI::Phase& phase, int& blocks) 
+{
+	return 0;
+}
+
+byte DummySCSIDevice::getStatusCode()
+{
+	return SCSI::ST_CHECK_CONDITION;
+}
+
+int DummySCSIDevice::msgOut(byte value)
+{
+	return 0; // TODO: check if this is sane, but it doesn't seem to be used anyway
+}
+
+byte DummySCSIDevice::msgIn()
+{
+	return 0; // TODO: check if this is sane, but it doesn't seem to be used anyway
+}
+
+void DummySCSIDevice::disconnect() 
+{
+	// do nothing
+}
+
+void DummySCSIDevice::busReset()
+{
+	// do nothing
+}
+
+int DummySCSIDevice::dataIn(int& blocks)
+{
+	blocks = 0;
+	return 0;
+}
+
+int DummySCSIDevice::dataOut(int& blocks)
+{
+	blocks = 0;
+	return 0;
+}
+
+} // namespace openmsx

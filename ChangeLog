@@ -1,5 +1,10 @@
 $Id$
 
+2007-05-23 Manuel Bilderbeek <manuel@msxnet.org>
+	* (GoudaSCSI is basically working, yay! But please do not use it yet.)
+	* Introduced abstract base class for SCSIDevices and added
+	  DummySCSIDevice (and made use of it).
+
 2007-05-21 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added initial GoudaSCSI support, ported from blueMSX.
 	  NOTE: DO NOT USE YET! 

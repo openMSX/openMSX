@@ -15,6 +15,8 @@
 #include "WD33C93.hh"
 #include "SCSI.hh"
 #include "SCSIDevice.hh"
+#include "DummySCSIDevice.hh"
+#include "SCSIHD.hh"
 #include "XMLElement.hh"
 #include <cassert>
 #include <cstring>
@@ -121,10 +123,18 @@ WD33C93::WD33C93(const XMLElement& config)
 		(void)type;
 		assert(type == "SCSIHD"); // we only do SCSIHD for now
 
-		dev[id].reset(new SCSIDevice(id, buffer, NULL, SCSI::DT_DirectAccess,
+		dev[id].reset(new SCSIHD(id, buffer, NULL, SCSI::DT_DirectAccess,
 		                SCSIDevice::MODE_SCSI1 | SCSIDevice::MODE_UNITATTENTION |
 		                SCSIDevice::MODE_FDS120 | SCSIDevice::MODE_REMOVABLE |
 		                SCSIDevice::MODE_NOVAXIS));
+		PRT_DEBUG("Created SCSIHD on target " << id);
+	}
+	// fill remaining targets with dummy SCSI devices to prevent crashes
+	for (int i = 0; i < MAX_DEV; ++i) {
+		if (dev[i].get() == NULL) {
+			dev[i].reset(new DummySCSIDevice());
+			PRT_DEBUG("Created DummySCSIDevice on target " << i);
+		}
 	}
 	reset(false);
 }
@@ -199,7 +209,6 @@ void WD33C93::execCmd(byte value)
 		targetId = regs[REG_DST_ID] & 7;
 
 		if (!devBusy && targetId < MAX_DEV && /* targetId != myId  && */
-		    dev[targetId].get() && // TODO: use dummy
 		    dev[targetId]->isSelected()) {
 			if (atn) {
 				dev[targetId]->msgOut(regs[REG_TLUN] | 0x80);
@@ -443,7 +452,7 @@ void WD33C93::reset(bool scsireset)
 	pBuf  = buffer;
 	if (scsireset) {
 		for (int i = 0; i < MAX_DEV; ++i) {
-			if (dev[i].get()) dev[i]->reset(); // TODO: use Dummy
+			dev[i]->reset();
 		}
 	}
 }
