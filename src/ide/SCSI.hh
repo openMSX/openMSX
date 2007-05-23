@@ -1,9 +1,11 @@
+// $Id$
+// Ported from:
 /*****************************************************************************
-** $Source: /cvsroot/bluemsx/blueMSX/Src/IoDevice/ScsiDefs.h,v $
+** Source /cvsroot/bluemsx/blueMSX/Src/IoDevice/ScsiDefs.h,v
 **
-** $Revision: 1.2 $
+** Revision: 1.2
 **
-** $Date$
+** Date: 2007/03/24 08:01:48
 **
 ** More info: http://www.bluemsx.com
 **

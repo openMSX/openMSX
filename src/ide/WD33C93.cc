@@ -1,8 +1,8 @@
 // $Id$
 /* Ported from:
 ** Source: /cvsroot/bluemsx/blueMSX/Src/IoDevice/wd33c93.c,v
-** $Revision: 1.12 $
-** $Date$
+** Revision: 1.12
+** Date: 2007/03/25 17:05:07
 **
 ** Based on the WD33C93 emulation in MESS (www.mess.org).
 **
@@ -111,7 +111,7 @@ WD33C93::WD33C93(const XMLElement& config)
 
 	XMLElement::Children targets;
 	config.getChildren("target", targets);
-	for (XMLElement::Children::const_iterator it = targets.begin(); 
+	for (XMLElement::Children::const_iterator it = targets.begin();
 	     it != targets.end(); ++it) {
 		const XMLElement& target = **it;
 		int id = target.getAttributeAsInt("id");
@@ -120,7 +120,7 @@ WD33C93::WD33C93(const XMLElement& config)
 		const std::string& type = typeElem.getData();
 		(void)type;
 		assert(type == "SCSIHD"); // we only do SCSIHD for now
-   
+
 		dev[id].reset(new SCSIDevice(id, buffer, NULL, SCSI::DT_DirectAccess,
 		                SCSIDevice::MODE_SCSI1 | SCSIDevice::MODE_UNITATTENTION |
 		                SCSIDevice::MODE_FDS120 | SCSIDevice::MODE_REMOVABLE |
@@ -159,7 +159,7 @@ void WD33C93::execCmd(byte value)
 	}
 	//regs[REG_AUX_STATUS] |= AS_CIP;
 	regs[REG_CMD] = value;
-	
+
 	bool atn = false;
 	switch (value) {
 	case 0x00: // Reset controller (software reset)
@@ -198,13 +198,13 @@ void WD33C93::execCmd(byte value)
 		PRT_DEBUG("wd33c93 [CMD] Select and transfer (ATN " << atn << ")");
 		targetId = regs[REG_DST_ID] & 7;
 
-		if (!devBusy && targetId < MAX_DEV && /* targetId != myId  && */ 
+		if (!devBusy && targetId < MAX_DEV && /* targetId != myId  && */
 		    dev[targetId].get() && // TODO: use dummy
 		    dev[targetId]->isSelected()) {
 			if (atn) {
 				dev[targetId]->msgOut(regs[REG_TLUN] | 0x80);
 			}
-			devBusy = true; 
+			devBusy = true;
 			counter = dev[targetId]->executeCmd(
 				&regs[REG_CDB1], phase, blockCounter);
 
@@ -397,7 +397,7 @@ byte WD33C93::readCtrl()
 		break;
 
 	case REG_AUX_STATUS:
-		return readAuxStatus(); // no latch-inc for address-, aux.status-, data- and command regs. 
+		return readAuxStatus(); // no latch-inc for address-, aux.status-, data- and command regs.
 
 	default:
 		rv = regs[latch];

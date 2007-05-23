@@ -2,7 +2,7 @@
 /* Ported from:
 ** Source: /cvsroot/bluemsx/blueMSX/Src/IoDevice/ScsiDevice.c,v
 ** Revision: 1.10
-** Date: 2007-05-21 21:38:29 +0200 (Mon, 21 May 2007)
+** Date: 2007/03/25 17:05:07
 **
 ** More info: http://www.bluemsx.com
 **
@@ -82,7 +82,7 @@ static const char sdt_name[10][10 + 1] =
 static const char fds120[28 + 1]  = "IODATA  LS-120 COSM     0001";
 
 SCSIDevice::SCSIDevice(byte scsiId_, byte* buf, const char* name_,
-                       byte type, int mode_) 
+                       byte type, int mode_)
 	  : scsiId(scsiId_)
 	  , deviceType(type)
 	  , mode(mode_)
@@ -93,7 +93,7 @@ SCSIDevice::SCSIDevice(byte scsiId_, byte* buf, const char* name_,
 	sectorSize = 512;
 	/* TODO: MOVE CD-ROM STUFF TO SEPARATE CLASS
 	   cdrom = NULL;
-	
+
 	   disk.fileName[0] = 0;
 	   disk.fileNameInZip[0] = 0;
 	   disk.directory[0] = 0;
@@ -191,7 +191,7 @@ bool SCSIDevice::isSelected()
 {
 	lun = 0;
 	if (mode & MODE_REMOVABLE) {
-		if (!enabled && (mode & MODE_NOVAXIS) && 
+		if (!enabled && (mode & MODE_NOVAXIS) &&
 		    deviceType != SCSI::DT_CDROM) {
 			//TODO:    enabled = diskPresent(diskId) ? 1 : 0;
 			// FOR NOW:
@@ -277,7 +277,7 @@ void SCSIDevice::startStopUnit()
 	//      	updateExtendedDiskName(diskId, disk->fileName, disk->fileNameInZip);
 	//      	boardChangeDiskette(diskId, NULL, NULL);
 			PRT_DEBUG("eject hdd " << (int)scsiId);
-	//      } 
+	//      }
 		break;
 	case 3: // Insert  TODO
 	//      if (!diskPresent(diskId)) {
@@ -285,7 +285,7 @@ void SCSIDevice::startStopUnit()
 	//      	updateExtendedDiskName(diskId, disk->fileName, disk->fileNameInZip);
 	//      	boardChangeDiskette(diskId, disk->fileName, disk->fileNameInZip);
 			PRT_DEBUG("insert hdd " << (int)scsiId);
-	//      } 
+	//      }
 		break;
 	}
 	motor = cdb[4] & 1;
@@ -299,7 +299,7 @@ int SCSIDevice::inquiry()
 	unsigned length = currentLength;
 	byte type  = deviceType & 0xff;
 	byte removable;
-	
+
 	bool fdsmode = (mode & MODE_FDS120) && (total > 0) && (total <= 2880);
 
 	if (length == 0) return 0;
@@ -373,7 +373,7 @@ int SCSIDevice::inquiry()
 			*buffer = *fileName;
 			++buffer;
 			++fileName;
-		} 
+		}
 	}
 	return length;
 }
@@ -508,7 +508,7 @@ int SCSIDevice::readCapacity()
 
 bool SCSIDevice::checkAddress()
 {
-	unsigned total = getNbSectors(); 
+	unsigned total = getNbSectors();
 	if (total == 0) {
 		keycode = SCSI::SENSE_MEDIUM_NOT_PRESENT;
 		PRT_DEBUG("hdd " << (int)scsiId << ": drive not ready");
@@ -886,7 +886,7 @@ int SCSIDevice::msgOut(byte value)
 
 unsigned SCSIDevice::getNbSectors() const
 {
-	return file->getSize() / sectorSize; 
+	return file->getSize() / sectorSize;
 }
 
 // NOTE: UNUSED FOR NOW!
