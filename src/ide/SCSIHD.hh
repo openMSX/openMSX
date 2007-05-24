@@ -11,19 +11,18 @@
 #ifndef SCSIHD_HH
 #define SCSIHD_HH
 
-#include "SCSI.hh"
 #include "SCSIDevice.hh"
 #include "SectorAccessibleDisk.hh"
 #include "DiskContainer.hh"
 #include "noncopyable.hh"
 #include <memory>
-#include <string>
 
 namespace openmsx {
 
 class File;
 
-class SCSIHD : public SCSIDevice, public SectorAccessibleDisk, public DiskContainer, private noncopyable
+class SCSIHD : public SCSIDevice, public SectorAccessibleDisk,
+               public DiskContainer, private noncopyable
 {
 public:
 	SCSIHD(byte scsiId, byte* buf, const char* name, byte type, int mode);

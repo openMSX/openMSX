@@ -26,7 +26,7 @@ public:
 	static const int MODE_REMOVABLE     = 0x0080;
 	static const int MODE_NOVAXIS       = 0x0100;
 
-	static const int BUFFER_SIZE        = 0x10000; // 64KB
+	static const unsigned BUFFER_SIZE   = 0x10000; // 64KB
 
 	virtual ~SCSIDevice() {};
 

@@ -18,6 +18,7 @@
 
 #include "SCSIHD.hh"
 #include "File.hh"
+#include "FileOperations.hh"
 #include "FileException.hh"
 #include <algorithm>
 #include <cstring>
@@ -293,7 +294,7 @@ int SCSIHD::inquiry()
 {
 	unsigned total  = getNbSectors();
 	unsigned length = currentLength;
-	byte type  = deviceType & 0xff;
+	byte type = deviceType;
 	byte removable;
 	
 	bool fdsmode = (mode & MODE_FDS120) && (total > 0) && (total <= 2880);
@@ -312,7 +313,7 @@ int SCSIHD::inquiry()
 		removable = (mode & MODE_REMOVABLE) ? 0x80 : 0;
 
 		if (productName == NULL) {
-			int dt = deviceType;
+			byte dt = deviceType;
 			if (dt != SCSI::DT_DirectAccess) {
 				if (dt > SCSI::DT_Communications) {
 					dt = SCSI::DT_Communications + 1;
@@ -343,7 +344,7 @@ int SCSIHD::inquiry()
 		buffer[35] = 'A';
 	}
 	if (mode & BIT_SCSI3) {
-		if (length > 96) length = 96;
+		length = std::min(length, 96u);
 		buffer[4] = 91;
 		if (length > 56) {
 			memset(buffer + 56, 0, 40);
@@ -352,24 +353,14 @@ int SCSIHD::inquiry()
 			buffer[61] = 0x80;
 		}
 	} else {
-		if (length > 56) length = 56;
+		length = std::min(length, 56u);
 	}
 
-	const char* fileName;
 	if (length > 36){
+		string filename = FileOperations::getFilename(file->getURL());
+		filename.resize(20, ' ');
 		buffer += 36;
-		memset(buffer, ' ', 20);
-		/*TODO        fileName = strlen(disk.fileNameInZip) ? disk.fileNameInZip : disk.fileName;
-		  fileName = stripPath(fileName);*/
-		fileName = file->getURL().c_str();// TODO: strip path
-		for (int i = 0; i < 20; ++i) {
-			if (*fileName == 0) {
-				break;
-			}
-			*buffer = *fileName;
-			++buffer;
-			++fileName;
-		} 
+		memcpy(buffer, filename.data(), 20);
 	}
 	return length;
 }
