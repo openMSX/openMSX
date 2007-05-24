@@ -21,12 +21,14 @@ namespace openmsx {
 
 class File;
 class XMLElement;
+class MSXMotherBoard;
 
 class SCSIHD : public SCSIDevice, public SectorAccessibleDisk,
                public DiskContainer, private noncopyable
 {
 public:
-	SCSIHD(const XMLElement& targetconfig, byte* buf, const char* name, byte type, int mode);
+	SCSIHD(MSXMotherBoard& motherBoard, const XMLElement& targetconfig, 
+		byte* buf, const char* name, byte type, int mode);
 	virtual ~SCSIHD();
 
 	// SectorAccessibleDisk:
@@ -67,6 +69,8 @@ private:
 	int readSector(int& blocks);
 	int writeSector(int& blocks);
 	void formatUnit();
+
+	MSXMotherBoard& motherBoard;
 
 	const byte scsiId;     // SCSI ID 0..7
 	const byte deviceType; // TODO only needed because we don't have seperate

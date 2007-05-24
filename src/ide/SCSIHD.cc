@@ -21,17 +21,21 @@
 #include "FileOperations.hh"
 #include "FileException.hh"
 #include "FileContext.hh"
+#include "LedEvent.hh"
+#include "MSXMotherBoard.hh"
+#include "EventDistributor.hh"
 #include "XMLElement.hh"
 #include <algorithm>
 #include <cstring>
 
-#include <iostream>
-#undef PRT_DEBUG
+//#include <iostream>
+//#undef PRT_DEBUG
+/*
 #define  PRT_DEBUG(mes)                          \
         do {                                    \
                 std::cout << mes << std::endl;  \
         } while (0)
-
+*/
 using std::string;
 
 namespace openmsx {
@@ -83,9 +87,10 @@ static const char sdt_name[10][10 + 1] =
 // for FDSFORM.COM
 static const char fds120[28 + 1]  = "IODATA  LS-120 COSM     0001";
 
-SCSIHD::SCSIHD(const XMLElement& targetconfig, byte* buf, const char* name_,
-                       byte type, int mode_) 
-	  : scsiId(targetconfig.getAttributeAsInt("id"))
+SCSIHD::SCSIHD(MSXMotherBoard& motherBoard_, const XMLElement& targetconfig,
+		byte* buf, const char* name_, byte type, int mode_) 
+	  : motherBoard(motherBoard_)
+	  , scsiId(targetconfig.getAttributeAsInt("id"))
 	  , deviceType(type)
 	  , mode(mode_)
 	  , productName(name_)
@@ -175,12 +180,13 @@ void SCSIHD::busReset()
 
 void SCSIHD::disconnect()
 {
-	/* TODO
-	if (deviceType != SCSI::DT_CDROM) {
-		ledSetHd(0);
-	} else {
-		archCdromDisconnect(cdrom);
-	}*/
+	// TODO
+	//if (deviceType != SCSI::DT_CDROM) {
+	motherBoard.getEventDistributor().distributeEvent(
+			new LedEvent(LedEvent::FDD, false, motherBoard));
+	//} else {
+	//	archCdromDisconnect(cdrom);
+	//}
 }
 
 // Check the initiator in the call origin.
@@ -516,7 +522,8 @@ bool SCSIHD::checkAddress()
 // Execute scsiDeviceCheckAddress previously.
 int SCSIHD::readSector(int& blocks)
 {
-	//TODO:    ledSetHd(1);
+	motherBoard.getEventDistributor().distributeEvent(
+		new LedEvent(LedEvent::FDD, true, motherBoard));
 
 	const unsigned BUFFER_BLOCK_SIZE = BUFFER_SIZE / sectorSize;
 	unsigned numSectors = std::min(currentLength, BUFFER_BLOCK_SIZE);
@@ -554,7 +561,8 @@ int SCSIHD::dataIn(int& blocks)
 // Execute scsiDeviceCheckAddress and scsiDeviceCheckReadOnly previously.
 int SCSIHD::writeSector(int& blocks)
 {
-	//TODO:    ledSetHd(1);
+	motherBoard.getEventDistributor().distributeEvent(
+		new LedEvent(LedEvent::FDD, true, motherBoard));
 
 	const unsigned BUFFER_BLOCK_SIZE = BUFFER_SIZE / sectorSize;
 	int numSectors = std::min(currentLength, BUFFER_BLOCK_SIZE);
@@ -720,7 +728,9 @@ int SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, int& blocks)
 				currentLength = 256;
 			}
 			if (checkAddress() && !checkReadOnly()) {
-				// TODO:                ledSetHd(1);
+				motherBoard.getEventDistributor().distributeEvent(
+					new LedEvent(LedEvent::FDD, true,
+						motherBoard));
 				unsigned tmp = std::min(currentLength, BUFFER_BLOCK_SIZE);
 				blocks = currentLength - tmp;
 				int counter = tmp * sectorSize;
@@ -732,7 +742,8 @@ int SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, int& blocks)
 
 		case SCSI::OP_SEEK6:
 			PRT_DEBUG("Seek6: " << currentSector);
-			// TODO:            ledSetHd(1);
+			motherBoard.getEventDistributor().distributeEvent(
+				new LedEvent(LedEvent::FDD, true, motherBoard));
 			currentLength = 1;
 			checkAddress();
 			return 0;
@@ -803,7 +814,8 @@ int SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, int& blocks)
 		}
 		case SCSI::OP_SEEK10:
 			PRT_DEBUG("Seek10: " << currentSector);
-			//TODO            ledSetHd(1);
+			motherBoard.getEventDistributor().distributeEvent(
+				new LedEvent(LedEvent::FDD, true, motherBoard));
 			currentLength = 1;
 			checkAddress();
 			return 0;

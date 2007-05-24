@@ -1,5 +1,11 @@
 $Id$
 
+2007-05-24 Manuel Bilderbeek <manuel@msxnet.org>
+	* Read initial size and file name from config XML and create disk
+	  image in the persistent directory.
+	* GoudaSCSI is now usable!
+	* Implemented LED events for SCSIHD.
+
 2007-05-23 Manuel Bilderbeek <manuel@msxnet.org>
 	* (GoudaSCSI is basically working, yay! But please do not use it yet.)
 	* Introduced abstract base class for SCSIDevices and added

@@ -19,15 +19,18 @@
 #include "SCSIHD.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
+#include "MSXMotherBoard.hh"
 #include "StringOp.hh"
 #include <cassert>
 #include <cstring>
 #include <iostream>
-#undef PRT_DEBUG
+//#undef PRT_DEBUG
+/*
 #define  PRT_DEBUG(mes)                          \
         do {                                    \
                 std::cout << mes << std::endl;  \
         } while (0)
+*/
 
 namespace openmsx {
 
@@ -108,7 +111,7 @@ static const byte AS_INT          = 0x80;
 0x60    COMPLETE_RECEIVED
 */
 
-WD33C93::WD33C93(const XMLElement& config)
+WD33C93::WD33C93(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: buffer(SCSIDevice::BUFFER_SIZE)
 {
 	devBusy = false;
@@ -130,7 +133,7 @@ WD33C93::WD33C93(const XMLElement& config)
 		const XMLElement& typeElem = target.getChild("type");
 		const std::string& type = typeElem.getData();
 		if (type == "SCSIHD") {
-			dev[id].reset(new SCSIHD(target, &buffer[0], NULL,
+			dev[id].reset(new SCSIHD(motherBoard, target, &buffer[0], NULL,
 			        SCSI::DT_DirectAccess,
 			        SCSIDevice::MODE_SCSI1 | SCSIDevice::MODE_UNITATTENTION |
 			        SCSIDevice::MODE_FDS120 | SCSIDevice::MODE_REMOVABLE |
