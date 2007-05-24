@@ -14,6 +14,7 @@
 
 #include "SCSI.hh"
 #include <memory>
+#include <vector>
 
 namespace openmsx {
 
@@ -39,9 +40,9 @@ private:
 	void disconnect();
 	void execCmd(byte value);
 
+	std::vector<byte> buffer;
 	std::auto_ptr<SCSIDevice> dev[8];
-	byte* pBuf;
-	byte* buffer;
+	unsigned bufIdx;
 	int counter;
 	int blockCounter;
 	int tc;

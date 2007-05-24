@@ -31,7 +31,7 @@
 
 namespace openmsx {
 
-static const int MAX_DEV = 8;
+static const unsigned MAX_DEV = 8;
 
 static const byte REG_OWN_ID      = 0x00;
 static const byte REG_CONTROL     = 0x01;
@@ -109,8 +109,8 @@ static const byte AS_INT          = 0x80;
 */
 
 WD33C93::WD33C93(const XMLElement& config)
+	: buffer(SCSIDevice::BUFFER_SIZE)
 {
-	bool bufferAllocated = false;
 	devBusy = false;
 
 	XMLElement::Children targets;
@@ -118,26 +118,29 @@ WD33C93::WD33C93(const XMLElement& config)
 	for (XMLElement::Children::const_iterator it = targets.begin();
 	     it != targets.end(); ++it) {
 		const XMLElement& target = **it;
-		int id = target.getAttributeAsInt("id");
-		if (id >= MAX_DEV) throw MSXException("Invalid SCSI id: " + StringOp::toString(id) + " (should be 0.." + StringOp::toString(MAX_DEV - 1) + ")");
-		if (dev[id].get() != NULL) throw MSXException("Duplicate SCSI id: " + StringOp::toString(id));
+		unsigned id = target.getAttributeAsInt("id");
+		if (id >= MAX_DEV) {
+			throw MSXException(
+				"Invalid SCSI id: " + StringOp::toString(id) +
+				" (should be 0.." + StringOp::toString(MAX_DEV - 1) + ")");
+		}
+		if (dev[id].get()) {
+			throw MSXException("Duplicate SCSI id: " + StringOp::toString(id));
+		}
 		const XMLElement& typeElem = target.getChild("type");
 		const std::string& type = typeElem.getData();
 		if (type == "SCSIHD") {
-			if (!bufferAllocated) {
-				buffer = (byte*)malloc(SCSIDevice::BUFFER_SIZE);
-				bufferAllocated = true;
-			}
-			dev[id].reset(new SCSIHD(target, buffer, NULL, SCSI::DT_DirectAccess,
-		                SCSIDevice::MODE_SCSI1 | SCSIDevice::MODE_UNITATTENTION |
-		                SCSIDevice::MODE_FDS120 | SCSIDevice::MODE_REMOVABLE |
-		                SCSIDevice::MODE_NOVAXIS));
+			dev[id].reset(new SCSIHD(target, &buffer[0], NULL,
+			        SCSI::DT_DirectAccess,
+			        SCSIDevice::MODE_SCSI1 | SCSIDevice::MODE_UNITATTENTION |
+			        SCSIDevice::MODE_FDS120 | SCSIDevice::MODE_REMOVABLE |
+			        SCSIDevice::MODE_NOVAXIS));
 		} else {
 			throw MSXException("Unknown SCSI device: " + type);
 		}
 	}
 	// fill remaining targets with dummy SCSI devices to prevent crashes
-	for (int i = 0; i < MAX_DEV; ++i) {
+	for (unsigned i = 0; i < MAX_DEV; ++i) {
 		if (dev[i].get() == NULL) {
 			dev[i].reset(new DummySCSIDevice());
 		}
@@ -148,7 +151,6 @@ WD33C93::WD33C93(const XMLElement& config)
 WD33C93::~WD33C93()
 {
 	PRT_DEBUG("WD33C93 destroy");
-	free(buffer);
 }
 
 void WD33C93::disconnect()
@@ -234,13 +236,13 @@ void WD33C93::execCmd(byte value)
 
 			case SCSI::EXECUTE:
 				regs[REG_AUX_STATUS] = AS_CIP | AS_BSY;
-				pBuf = buffer;
+				bufIdx = 0;
 				break;
 
 			default:
 				devBusy = false;
 				regs[REG_AUX_STATUS] = AS_CIP | AS_BSY | AS_DBR;
-				pBuf = buffer;
+				bufIdx = 0;
 			}
 			//regs[REG_SRC_ID] |= regs[REG_DST_ID] & 7;
 		} else {
@@ -300,12 +302,12 @@ void WD33C93::writeCtrl(byte value)
 	case REG_DATA:
 		regs[REG_DATA] = value;
 		if (phase == SCSI::DATA_OUT) {
-			*pBuf++ = value;
+			buffer[bufIdx++] = value;
 			--tc;
 			if (--counter == 0) {
 				counter = dev[targetId]->dataOut(blockCounter);
 				if (counter) {
-					pBuf = buffer;
+					bufIdx = 0;
 					return;
 				}
 				regs[REG_TLUN] = dev[targetId]->getStatusCode();
@@ -378,14 +380,14 @@ byte WD33C93::readCtrl()
 
 	case REG_DATA:
 		if (phase == SCSI::DATA_IN) {
-			rv = *pBuf++;
+			rv = buffer[bufIdx++];
 			regs[REG_DATA] = rv;
 			--tc;
 			if (--counter == 0) {
 				if (blockCounter > 0) {
 					counter = dev[targetId]->dataIn(blockCounter);
 					if (counter) {
-						pBuf = buffer;
+						bufIdx = 0;
 						return rv;
 					}
 				}
@@ -455,9 +457,9 @@ void WD33C93::reset(bool scsireset)
 	latch = 0;
 	tc    = 0;
 	phase = SCSI::BUS_FREE;
-	pBuf  = buffer;
+	bufIdx  = 0;
 	if (scsireset) {
-		for (int i = 0; i < MAX_DEV; ++i) {
+		for (unsigned i = 0; i < MAX_DEV; ++i) {
 			dev[i]->reset();
 		}
 	}
