@@ -18,6 +18,8 @@
 #include "DummySCSIDevice.hh"
 #include "SCSIHD.hh"
 #include "XMLElement.hh"
+#include "MSXException.hh"
+#include "StringOp.hh"
 #include <cassert>
 #include <cstring>
 #include <iostream>
@@ -108,7 +110,7 @@ static const byte AS_INT          = 0x80;
 
 WD33C93::WD33C93(const XMLElement& config)
 {
-	buffer = (byte*)malloc(SCSIDevice::BUFFER_SIZE);
+	bool bufferAllocated = false;
 	devBusy = false;
 
 	XMLElement::Children targets;
@@ -117,23 +119,27 @@ WD33C93::WD33C93(const XMLElement& config)
 	     it != targets.end(); ++it) {
 		const XMLElement& target = **it;
 		int id = target.getAttributeAsInt("id");
-		assert(id < MAX_DEV); // TODO should not assert on invalid input
+		if (id >= MAX_DEV) throw MSXException("Invalid SCSI id: " + StringOp::toString(id) + " (should be 0.." + StringOp::toString(MAX_DEV - 1) + ")");
+		if (dev[id].get() != NULL) throw MSXException("Duplicate SCSI id: " + StringOp::toString(id));
 		const XMLElement& typeElem = target.getChild("type");
 		const std::string& type = typeElem.getData();
-		(void)type;
-		assert(type == "SCSIHD"); // we only do SCSIHD for now
-
-		dev[id].reset(new SCSIHD(id, buffer, NULL, SCSI::DT_DirectAccess,
+		if (type == "SCSIHD") {
+			if (!bufferAllocated) {
+				buffer = (byte*)malloc(SCSIDevice::BUFFER_SIZE);
+				bufferAllocated = true;
+			}
+			dev[id].reset(new SCSIHD(target, buffer, NULL, SCSI::DT_DirectAccess,
 		                SCSIDevice::MODE_SCSI1 | SCSIDevice::MODE_UNITATTENTION |
 		                SCSIDevice::MODE_FDS120 | SCSIDevice::MODE_REMOVABLE |
 		                SCSIDevice::MODE_NOVAXIS));
-		PRT_DEBUG("Created SCSIHD on target " << id);
+		} else {
+			throw MSXException("Unknown SCSI device: " + type);
+		}
 	}
 	// fill remaining targets with dummy SCSI devices to prevent crashes
 	for (int i = 0; i < MAX_DEV; ++i) {
 		if (dev[i].get() == NULL) {
 			dev[i].reset(new DummySCSIDevice());
-			PRT_DEBUG("Created DummySCSIDevice on target " << i);
 		}
 	}
 	reset(false);

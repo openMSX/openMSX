@@ -20,6 +20,8 @@
 #include "File.hh"
 #include "FileOperations.hh"
 #include "FileException.hh"
+#include "FileContext.hh"
+#include "XMLElement.hh"
 #include <algorithm>
 #include <cstring>
 
@@ -81,9 +83,9 @@ static const char sdt_name[10][10 + 1] =
 // for FDSFORM.COM
 static const char fds120[28 + 1]  = "IODATA  LS-120 COSM     0001";
 
-SCSIHD::SCSIHD(byte scsiId_, byte* buf, const char* name_,
+SCSIHD::SCSIHD(const XMLElement& targetconfig, byte* buf, const char* name_,
                        byte type, int mode_) 
-	  : scsiId(scsiId_)
+	  : scsiId(targetconfig.getAttributeAsInt("id"))
 	  , deviceType(type)
 	  , mode(mode_)
 	  , productName(name_)
@@ -106,15 +108,16 @@ SCSIHD::SCSIHD(byte scsiId_, byte* buf, const char* name_,
 			enabled = false;
 		}
 	}*/
-
-	string filename = "/tmp/SCSIdisk.dsk"; // TODO: don't hardcode this
-	try {
-		file.reset(new File(filename));
-	} catch (FileException& e) {
-		// image didn't exist yet, create new
-		file.reset(new File(filename, File::CREATE));
-		file->truncate(100 * 1024 * 1024); // TODO: don't hardcode this
-	}
+	
+	string filename = targetconfig.getFileContext().resolveCreate(
+                targetconfig.getChildData("filename"));
+        try {
+                file.reset(new File(filename));
+        } catch (FileException& e) {
+                // image didn't exist yet, create new
+                file.reset(new File(filename, File::CREATE));
+                file->truncate(targetconfig.getChildDataAsInt("size") * 1024 * 1024);
+        }
 
 	name = "sda";
 

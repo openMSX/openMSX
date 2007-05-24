@@ -20,12 +20,13 @@
 namespace openmsx {
 
 class File;
+class XMLElement;
 
 class SCSIHD : public SCSIDevice, public SectorAccessibleDisk,
                public DiskContainer, private noncopyable
 {
 public:
-	SCSIHD(byte scsiId, byte* buf, const char* name, byte type, int mode);
+	SCSIHD(const XMLElement& targetconfig, byte* buf, const char* name, byte type, int mode);
 	virtual ~SCSIHD();
 
 	// SectorAccessibleDisk:

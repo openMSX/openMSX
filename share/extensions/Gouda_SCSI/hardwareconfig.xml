@@ -20,6 +20,8 @@
           </rom>
           <target id="1">
             <type>SCSIHD</type>
+	    <filename>SCSIhd1.dsk</filename>
+	    <size>100</size>
           </target>
        </GoudaSCSI>
       </secondary>
