@@ -14,13 +14,14 @@ bool DummySCSIDevice::isSelected()
 	return false;
 }
 
-int DummySCSIDevice::executeCmd(const byte* cdb, SCSI::Phase& phase, int& blocks)
+int DummySCSIDevice::executeCmd(
+	const byte* /*cdb*/, SCSI::Phase& /*phase*/, int& /*blocks*/)
 {
 	// do nothing
 	return 0;
 }
 
-int DummySCSIDevice::executingCmd(SCSI::Phase& phase, int& blocks) 
+int DummySCSIDevice::executingCmd(SCSI::Phase& /*phase*/, int& /*blocks*/)
 {
 	return 0;
 }
@@ -30,7 +31,7 @@ byte DummySCSIDevice::getStatusCode()
 	return SCSI::ST_CHECK_CONDITION;
 }
 
-int DummySCSIDevice::msgOut(byte value)
+int DummySCSIDevice::msgOut(byte /*value*/)
 {
 	return 0; // TODO: check if this is sane, but it doesn't seem to be used anyway
 }
