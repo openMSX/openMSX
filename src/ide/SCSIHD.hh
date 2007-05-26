@@ -11,6 +11,7 @@
 #ifndef SCSIHD_HH
 #define SCSIHD_HH
 
+#include "HD.hh"
 #include "SCSIDevice.hh"
 #include "SectorAccessibleDisk.hh"
 #include "DiskContainer.hh"
@@ -23,7 +24,7 @@ class File;
 class XMLElement;
 class MSXMotherBoard;
 
-class SCSIHD : public SCSIDevice, public SectorAccessibleDisk,
+class SCSIHD : public HD, public SCSIDevice, public SectorAccessibleDisk,
                public DiskContainer, private noncopyable
 {
 public:
@@ -91,9 +92,6 @@ private:
 	byte lun;
 	byte cdb[12];          // Command Descriptor Block
 	byte* buffer;
-
-	std::auto_ptr<File> file;
-	std::string name;
 };
 
 } // namespace openmsx

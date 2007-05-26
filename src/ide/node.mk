@@ -3,6 +3,7 @@
 include build/node-start.mk
 
 SRC_HDR:= \
+	HD HDCommand \
 	SunriseIDE \
 	DummyIDEDevice \
 	IDEDeviceFactory \

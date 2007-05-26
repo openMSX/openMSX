@@ -1,110 +1,29 @@
 // $Id$
 
 #include "IDEHD.hh"
+#include "HD.hh"
 #include "File.hh"
-#include "FileContext.hh"
 #include "FileException.hh"
 #include "MSXMotherBoard.hh"
 #include "DiskManipulator.hh"
 #include "XMLElement.hh"
-#include "RecordedCommand.hh"
-#include "CommandException.hh"
-#include "GlobalSettings.hh"
-#include "BooleanSetting.hh"
-#include "MSXCliComm.hh"
 #include <cassert>
-#include <bitset>
-
-using std::string;
-using std::vector;
-using std::set;
 
 namespace openmsx {
 
-class HDCommand : public RecordedCommand
-{
-public:
-	HDCommand(MSXCommandController& msxCommandController,
-	          MSXEventDistributor& msxEventDistributor,
-	          Scheduler& scheduler, MSXCliComm& cliComm, IDEHD& hd);
-	virtual void execute(const std::vector<TclObject*>& tokens,
-		TclObject& result, const EmuTime& time);
-	virtual string help(const vector<string>& tokens) const;
-	virtual void tabCompletion(vector<string>& tokens) const;
-private:
-	IDEHD& hd;
-	MSXCliComm& cliComm;
-};
-
-
-static const unsigned MAX_HD = 26;
-typedef std::bitset<MAX_HD> HDInUse;
-
 IDEHD::IDEHD(MSXMotherBoard& motherBoard_, const XMLElement& config,
              const EmuTime& /*time*/)
-	: AbstractIDEDevice(motherBoard_)
+	: HD(motherBoard_, config)
+	, AbstractIDEDevice(motherBoard_)
 	, motherBoard(motherBoard_)
 	, diskManipulator(motherBoard.getDiskManipulator())
 {
-	MSXMotherBoard::SharedStuff& info =
-		motherBoard.getSharedStuff("hdInUse");
-	if (info.counter == 0) {
-		assert(info.stuff == NULL);
-		info.stuff = new HDInUse();
-	}
-	++info.counter;
-	HDInUse& hdInUse = *reinterpret_cast<HDInUse*>(info.stuff);
-
-	unsigned id = 0;
-	while (hdInUse[id]) {
-		++id;
-		if (id == MAX_HD) {
-			throw MSXException("Too many HDs");
-		}
-	}
-	// for exception safety, set hdInUse only at the end
-	name = string("hd") + char('a' + id);
-
-	string filename = config.getFileContext().resolveCreate(
-		config.getChildData("filename"));
-	try {
-		file.reset(new File(filename));
-	} catch (FileException& e) {
-		// image didn't exist yet, create new
-		file.reset(new File(filename, File::CREATE));
-		file->truncate(config.getChildDataAsInt("size") * 1024 * 1024);
-	}
-
 	diskManipulator.registerDrive(*this);
-	hdInUse[id] = true;
-	hdCommand.reset(new HDCommand(motherBoard.getMSXCommandController(),
-	                              motherBoard.getMSXEventDistributor(),
-	                              motherBoard.getScheduler(),
-	                              motherBoard.getMSXCliComm(), *this));
-
-	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "add");
 }
 
 IDEHD::~IDEHD()
 {
-	MSXMotherBoard::SharedStuff& info =
-		motherBoard.getSharedStuff("hdInUse");
-	assert(info.counter);
-	assert(info.stuff);
-	HDInUse& hdInUse = *reinterpret_cast<HDInUse*>(info.stuff);
-
-	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "remove");
-	unsigned id = name[2] - 'a';
-	assert(hdInUse[id]);
-	hdInUse[id] = false;
 	diskManipulator.unregisterDrive(*this);
-
-	--info.counter;
-	if (info.counter == 0) {
-		assert(hdInUse.none());
-		delete &hdInUse;
-		info.stuff = NULL;
-	}
 }
 
 bool IDEHD::isPacketDevice()
@@ -229,74 +148,7 @@ SectorAccessibleDisk* IDEHD::getSectorAccessibleDisk()
 
 const std::string& IDEHD::getContainerName() const
 {
-	return name;
-}
-
-
-// class HDCommand
-
-HDCommand::HDCommand(MSXCommandController& msxCommandController,
-                     MSXEventDistributor& msxEventDistributor,
-                     Scheduler& scheduler, MSXCliComm& cliComm_, IDEHD& hd_)
-	: RecordedCommand(msxCommandController, msxEventDistributor,
-	                  scheduler, hd_.name)
-	, hd(hd_)
-	, cliComm(cliComm_)
-{
-}
-
-void HDCommand::execute(const std::vector<TclObject*>& tokens, TclObject& result, 
-				const EmuTime& /*time*/)
-{
-	if (tokens.size() == 1) {
-		result.addListElement(hd.name + ':');
-		result.addListElement(hd.file->getURL());
-		// result.addListElement("readonly"); // TODO: add write protected flag when this is implemented
-	} else if ( (tokens.size() == 2) || ( (tokens.size() == 3) && tokens[1]->getString() == "insert")) {
-		CommandController& controller = getCommandController();
-		if (controller.getGlobalSettings().
-				getPowerSetting().getValue()) {
-			throw CommandException(
-					"Can only change hard disk image when MSX "
-					"is powered down.");
-		}
-		int fileToken = 1;
-		if (tokens[1]->getString() == "insert") {
-			if (tokens.size() > 2) {
-				fileToken = 2;
-			} else {
-				throw CommandException("Missing argument to insert subcommand");
-			}
-		}
-		try {
-			UserFileContext context(controller);
-			string filename = context.resolve(tokens[fileToken]->getString());
-			std::auto_ptr<File> newFile(new File(filename));
-			hd.file = newFile;
-			cliComm.update(CliComm::MEDIA, hd.name, filename);
-			// return filename; // Note: the diskX command doesn't do this either, so this has not been converted to TclObject style here
-		} catch (FileException& e) {
-			throw CommandException("Can't change hard disk image: " +
-			                       e.getMessage());
-		}
-	} else {
-		throw CommandException("Too many or wrong arguments.");
-	}
-}
-
-string HDCommand::help(const vector<string>& /*tokens*/) const
-{
-	return hd.name + ": change the hard disk image for this hard disk drive\n";
-}
-
-void HDCommand::tabCompletion(vector<string>& tokens) const
-{
-	set<string> extra;
-	if (tokens.size() < 3) {
-		extra.insert("insert");	
-	}
-	UserFileContext context(getCommandController());
-	completeFileName(tokens, context, extra);
+	return getName();
 }
 
 } // namespace openmsx

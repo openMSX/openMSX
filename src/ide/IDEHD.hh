@@ -6,6 +6,7 @@
 #include "AbstractIDEDevice.hh"
 #include "SectorAccessibleDisk.hh"
 #include "DiskContainer.hh"
+#include "HD.hh"
 #include "noncopyable.hh"
 #include <string>
 #include <memory>
@@ -15,10 +16,8 @@ namespace openmsx {
 class MSXMotherBoard;
 class XMLElement;
 class DiskManipulator;
-class File;
-class HDCommand;
 
-class IDEHD : public AbstractIDEDevice, public SectorAccessibleDisk,
+class IDEHD : public HD, public AbstractIDEDevice, public SectorAccessibleDisk,
               public DiskContainer, private noncopyable
 {
 public:
@@ -47,12 +46,7 @@ protected:
 private:
 	MSXMotherBoard& motherBoard;
 	DiskManipulator& diskManipulator;
-	std::string name;
-	std::auto_ptr<HDCommand> hdCommand;
-	std::auto_ptr<File> file;
 	unsigned transferSectorNumber;
-
-	friend class HDCommand;
 };
 
 } // namespace openmsx

@@ -17,6 +17,7 @@
  */
 
 #include "SCSIHD.hh"
+#include "HD.hh"
 #include "File.hh"
 #include "FileOperations.hh"
 #include "FileException.hh"
@@ -88,8 +89,9 @@ static const char sdt_name[10][10 + 1] =
 static const char fds120[28 + 1]  = "IODATA  LS-120 COSM     0001";
 
 SCSIHD::SCSIHD(MSXMotherBoard& motherBoard_, const XMLElement& targetconfig,
-		byte* buf, const char* name_, byte type, int mode_) 
-	  : motherBoard(motherBoard_)
+		byte* buf, const char* name_, byte type, int mode_)
+	  : HD(motherBoard_, targetconfig)
+	  , motherBoard(motherBoard_)
 	  , scsiId(targetconfig.getAttributeAsInt("id"))
 	  , deviceType(type)
 	  , mode(mode_)
@@ -114,18 +116,6 @@ SCSIHD::SCSIHD(MSXMotherBoard& motherBoard_, const XMLElement& targetconfig,
 		}
 	}*/
 	
-	string filename = targetconfig.getFileContext().resolveCreate(
-                targetconfig.getChildData("filename"));
-        try {
-                file.reset(new File(filename));
-        } catch (FileException& e) {
-                // image didn't exist yet, create new
-                file.reset(new File(filename, File::CREATE));
-                file->truncate(targetconfig.getChildDataAsInt("size") * 1024 * 1024);
-        }
-
-	name = "sda";
-
 	reset();
 }
 
@@ -912,7 +902,7 @@ SectorAccessibleDisk* SCSIHD::getSectorAccessibleDisk()
 
 const std::string& SCSIHD::getContainerName() const
 {
-	return name;
+	return getName();
 }
 
 } // namespace openmsx

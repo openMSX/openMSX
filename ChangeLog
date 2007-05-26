@@ -1,5 +1,16 @@
 $Id$
 
+2007-05-26 Manuel Bilderbeek <manuel@msxnet.org>
+	* Created common superclass for SCSIHD and IDEHD called... HD.
+	  This makes it possible to let HDCommand work with any kind of HD.
+	  Now you can use the hdx commands also for SCSIHD's.
+	  Note: (off-topic) diskmanipulator can't handle corrupt disks.
+	  Note 2: diskmanipulator doesn't support the partition table formats
+	  used on SCSI harddisks yet. So, until then, SCSI devices cannot be
+	  used from diskmanipulator.
+	  Note 3: implementation of HD class could be cleaner... (it's using a
+	  protected member "file" now...)
+
 2007-05-24 Manuel Bilderbeek <manuel@msxnet.org>
 	* Read initial size and file name from config XML and create disk
 	  image in the persistent directory.
