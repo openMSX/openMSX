@@ -1,21 +1,18 @@
 // $Id$
 
 #include "IDEHD.hh"
-#include "HD.hh"
 #include "File.hh"
 #include "FileException.hh"
 #include "MSXMotherBoard.hh"
 #include "DiskManipulator.hh"
-#include "XMLElement.hh"
 #include <cassert>
 
 namespace openmsx {
 
-IDEHD::IDEHD(MSXMotherBoard& motherBoard_, const XMLElement& config,
+IDEHD::IDEHD(MSXMotherBoard& motherBoard, const XMLElement& config,
              const EmuTime& /*time*/)
-	: HD(motherBoard_, config)
-	, AbstractIDEDevice(motherBoard_)
-	, motherBoard(motherBoard_)
+	: HD(motherBoard, config)
+	, AbstractIDEDevice(motherBoard)
 	, diskManipulator(motherBoard.getDiskManipulator())
 {
 	diskManipulator.registerDrive(*this);

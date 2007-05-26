@@ -3,13 +3,11 @@
 #ifndef IDEHD_HH
 #define IDEHD_HH
 
+#include "HD.hh"
 #include "AbstractIDEDevice.hh"
 #include "SectorAccessibleDisk.hh"
 #include "DiskContainer.hh"
-#include "HD.hh"
 #include "noncopyable.hh"
-#include <string>
-#include <memory>
 
 namespace openmsx {
 
@@ -44,7 +42,6 @@ protected:
 	virtual void executeCommand(byte cmd);
 
 private:
-	MSXMotherBoard& motherBoard;
 	DiskManipulator& diskManipulator;
 	unsigned transferSectorNumber;
 };

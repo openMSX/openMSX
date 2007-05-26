@@ -20,7 +20,6 @@
 
 namespace openmsx {
 
-class File;
 class XMLElement;
 class MSXMotherBoard;
 

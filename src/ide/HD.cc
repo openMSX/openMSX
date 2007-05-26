@@ -42,8 +42,8 @@ HD::HD(MSXMotherBoard& motherBoard_, const XMLElement& config)
 	// for exception safety, set hdInUse only at the end
 	name = string("hd") + char('a' + id);
 
-		string filename = config.getFileContext().resolveCreate(
-		config.getChildData("filename"));
+	string filename = config.getFileContext().resolveCreate(
+	config.getChildData("filename"));
 	try {
 		file.reset(new File(filename));
 	} catch (FileException& e) {

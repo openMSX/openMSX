@@ -4,6 +4,7 @@
 #define HD_HH
 
 #include <string>
+#include <memory>
 
 namespace openmsx {
 
@@ -18,17 +19,17 @@ public:
 	HD(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~HD();
 
-	virtual const std::string& getName() const;	
+	const std::string& getName() const;
 
 protected:
-	std::auto_ptr<File> file;	
+	std::auto_ptr<File> file;
 
 private:
 	MSXMotherBoard& motherBoard;
 	std::string name;
 	std::auto_ptr<HDCommand> hdCommand;
 
-	friend class HDCommand;	
+	friend class HDCommand;
 };
 
 } // namespace openmsx

@@ -17,11 +17,9 @@
  */
 
 #include "SCSIHD.hh"
-#include "HD.hh"
 #include "File.hh"
 #include "FileOperations.hh"
 #include "FileException.hh"
-#include "FileContext.hh"
 #include "LedEvent.hh"
 #include "MSXMotherBoard.hh"
 #include "EventDistributor.hh"
