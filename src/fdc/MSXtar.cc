@@ -827,12 +827,13 @@ void MSXtar::changeTime(string resultFile, MSXDirEntry& direntry)
 	unsigned d = rdsh(direntry.date);
 	struct tm mtim;
 	struct utimbuf utim;
-	mtim.tm_sec  =  (t & 0x001f) << 1;
-	mtim.tm_min  =  (t & 0x03e0) >> 5;
-	mtim.tm_hour =  (t & 0xf800) >> 11;
-	mtim.tm_mday =  (d & 0x001f);
-	mtim.tm_mon  =  (d & 0x01e0) >> 5;
-	mtim.tm_year = ((d & 0xfe00) >> 9) + 80;
+	mtim.tm_sec   =  (t & 0x001f) << 1;
+	mtim.tm_min   =  (t & 0x03e0) >> 5;
+	mtim.tm_hour  =  (t & 0xf800) >> 11;
+	mtim.tm_mday  =  (d & 0x001f);
+	mtim.tm_mon   =  (d & 0x01e0) >> 5;
+	mtim.tm_year  = ((d & 0xfe00) >> 9) + 80;
+	mtim.tm_isdst = -1;
 	utim.actime  = mktime(&mtim);
 	utim.modtime = mktime(&mtim);
 	utime(resultFile.c_str(), &utim);
@@ -986,16 +987,14 @@ static bool isPartitionTableSector(byte* buf)
 bool MSXtar::hasPartitionTable()
 {
 	byte buf[SECTOR_SIZE];
-	assert(partitionOffset == 0);
-	readLogicalSector(0, buf);
+	disk.readLogicalSector(0, buf);
 	return isPartitionTableSector(buf);
 }
 
 bool MSXtar::hasPartition(unsigned partition)
 {
 	byte buf[SECTOR_SIZE];
-	assert(partitionOffset == 0);
-	readLogicalSector(0, buf);
+	disk.readLogicalSector(0, buf);
 	if (!isPartitionTableSector(buf)) {
 		return false;
 	}
@@ -1013,7 +1012,7 @@ bool MSXtar::usePartition(unsigned partition)
 	byte partitionTable[SECTOR_SIZE];
 	partitionOffset = 0;
 	partitionNbSectors = disk.getNbSectors();
-	readLogicalSector(0, partitionTable);
+	disk.readLogicalSector(0, partitionTable);
 	bool hasPartitionTable = isPartitionTableSector(partitionTable);
 	if (hasPartitionTable) {
 		Partition* p = (Partition*)
@@ -1030,7 +1029,7 @@ bool MSXtar::usePartition(unsigned partition)
 	}
 
 	byte bootSector[SECTOR_SIZE];
-	readLogicalSector(0, bootSector);
+	disk.readLogicalSector(partitionOffset, bootSector);
 	parseBootSectorFAT(bootSector);
 	return hasPartitionTable;
 }
