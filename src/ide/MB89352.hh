@@ -30,8 +30,9 @@ public:
 
 	void reset(bool scsireset);
 	byte readRegister(byte reg);
-	byte peekRegister(byte reg);
+	byte peekRegister(byte reg) const;
 	byte readDREG();
+	byte peekDREG() const;
 	void writeRegister(byte reg, byte value);
 	void writeDREG(byte value);
 
@@ -40,7 +41,7 @@ private:
 	void softReset();
 	void setACKREQ(byte& value);
 	void resetACKREQ();
-	byte getSSTS();
+	byte getSSTS() const;
 
 	byte myId;                      // SPC SCSI ID 0..7
 	byte targetId;                  // SCSI Device target ID 0..7

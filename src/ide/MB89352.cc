@@ -645,7 +645,7 @@ void MB89352::writeRegister(byte reg, byte value)
 	}
 }
 
-byte MB89352::getSSTS()
+byte MB89352::getSSTS() const
 {
 	byte result = 1; // set fifo empty
 	if (isTransfer) {
@@ -722,15 +722,20 @@ byte MB89352::readRegister(byte reg)
 	return result;
 }
 
-byte MB89352::peekRegister(byte reg)
+byte MB89352::peekDREG() const
+{
+	if (isTransfer && (tc > 0)) {
+		return regs[REG_DREG];
+	} else {
+		return 0xFF;
+	}
+}
+
+byte MB89352::peekRegister(byte reg) const
 {
 	switch (reg) {
 	case REG_DREG:
-		if (isTransfer && (tc > 0)) {
-			return regs[REG_DREG];
-		} else {
-			return 0xFF;
-		}
+		return peekDREG();
 	case REG_PSNS:
 		return regs[REG_PSNS] | atn;
 	case REG_SSTS:

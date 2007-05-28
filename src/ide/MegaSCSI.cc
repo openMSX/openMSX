@@ -71,7 +71,7 @@ MegaSCSI::MegaSCSI(MSXMotherBoard& motherBoard, const XMLElement& config,
 	}
 	sramSize *= 1024; // in bytes
 	sram.reset(new SRAM(motherBoard, getName() + " SRAM", sramSize, config));
-	blockMask = (sramSize / 8192) - 1;
+	blockMask = (sramSize / 0x2000) - 1;
 }
 
 MegaSCSI::~MegaSCSI()
@@ -90,18 +90,18 @@ byte MegaSCSI::readMem(word address, const EmuTime& time)
 {
 	byte result;
 	if ((0x4000 <= address) && (address < 0xC000)) {
-		unsigned page = (address / 8192) - 2;
+		unsigned page = (address / 0x2000) - 2;
 		word addr = address & 0x1FFF;
 		if (mapped[page] == SPC) {
 			// SPC read
 			if (addr < 0x1000) {
 				// Data Register
-				result =  mb89352->readDREG();
+				result = mb89352->readDREG();
 			} else {
 				result = mb89352->readRegister(addr & 0x0F);
 			}
 		} else {
-			result = (*sram)[8192 * mapped[page] + addr];
+			result = (*sram)[0x2000 * mapped[page] + addr];
 		}
 	} else {
 		result = 0xFF;
@@ -109,15 +109,29 @@ byte MegaSCSI::readMem(word address, const EmuTime& time)
 	return result;
 }
 
+byte MegaSCSI::peekmem(word address, const EmuTime& time) const
+{
+	if (const byte* cacheline = getReadCacheLine(address)) {
+		return *cacheline;
+	} else {
+		address &= 0x1FFF;
+		if (address < 0x1000) {
+			return mb89352->peekDREG();
+		} else {
+			return mb89352->peekRegister(address & 0x0F);
+		}
+	}
+}
+
 const byte* MegaSCSI::getReadCacheLine(word address) const
 {
 	if ((0x4000 <= address) && (address < 0xC000)) {
-		unsigned page = (address / 8192) - 2;
+		unsigned page = (address / 0x2000) - 2;
 		address &= 0x1FFF;
 		if (mapped[page] == SPC) {
 			return NULL;
 		} else {
-			return &(*sram)[8192 * mapped[page] + address];
+			return &(*sram)[0x2000 * mapped[page] + address];
 		}
 	} else {
 		return unmappedRead;
@@ -130,7 +144,7 @@ void MegaSCSI::writeMem(word address, byte value, const EmuTime& time)
 		byte region = ((address >> 11) & 3);
 		setSRAM(region, value);
 	} else if ((0x4000 <= address) && (address < 0xC000)) {
-		unsigned page = (address / 8192) - 2;
+		unsigned page = (address / 0x2000) - 2;
 		address &= 0x1FFF;
 		if (mapped[page] == SPC) {
 			if (address < 0x1000) {
@@ -139,7 +153,7 @@ void MegaSCSI::writeMem(word address, byte value, const EmuTime& time)
 				mb89352->writeRegister(address & 0x0F, value);
 			}
 		} else if (isWriteable[page]) {
-			sram->write(8192 * mapped[page] + address, value);
+			sram->write(0x2000 * mapped[page] + address, value);
 		}
 	}
 }
@@ -149,7 +163,7 @@ byte* MegaSCSI::getWriteCacheLine(word address) const
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		return NULL;
 	} else if ((0x4000 <= address) && (address < 0xC000)) {
-		unsigned page = (address / 8192) - 2;
+		unsigned page = (address / 0x2000) - 2;
 		if (mapped[page] == SPC) {
 			return NULL;
 		} else if (isWriteable[page]) {
