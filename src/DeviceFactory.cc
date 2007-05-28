@@ -32,6 +32,7 @@
 #include "TurboRFDC.hh"
 #include "SunriseIDE.hh"
 #include "GoudaSCSI.hh"
+#include "MegaSCSI.hh"
 #include "MSXMatsushita.hh"
 #include "MSXKanji12.hh"
 #include "MSXMidi.hh"
@@ -121,6 +122,8 @@ std::auto_ptr<MSXDevice> DeviceFactory::create(
 		result.reset(new SunriseIDE(motherBoard, conf, time));
 	} else if (type == "GoudaSCSI") {
 		result.reset(new GoudaSCSI(motherBoard, conf, time));
+	} else if (type == "MegaSCSI") {
+		result.reset(new MegaSCSI(motherBoard, conf, time));
 	} else if (type == "Matsushita") {
 		result.reset(new MSXMatsushita(motherBoard, conf, time));
 	} else if (type == "Kanji12") {

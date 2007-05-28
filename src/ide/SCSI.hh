@@ -99,6 +99,7 @@ static const byte DT_Communications   = 0x09;
 static const byte DT_Undefined        = 0x1f;
 
 enum Phase {
+    UNDEFINED, // used in MB89532
     BUS_FREE,
     ARBITRATION,
     SELECTION,

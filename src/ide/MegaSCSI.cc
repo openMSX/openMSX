@@ -1,0 +1,167 @@
+// $Id$
+
+/*
+ * MEGA-SCSI and ESE-RAM cartridge:
+ *  The mapping does SRAM and MB89352A(MEGA-SCSI) to ASCII8 or
+ *  an interchangeable bank controller.
+ *
+ * Specification:
+ *  SRAM(MegaROM) controller: ASCII8 type
+ *  SRAM capacity           : 128, 256, 512 and 1024KB
+ *  SCSI Protocol Controller: Fujitsu MB89352A
+ *
+ * Bank changing address:
+ *  bank 4(0x4000-0x5fff): 0x6000 - 0x67FF (0x6000 used)
+ *  bank 6(0x6000-0x7fff): 0x6800 - 0x6FFF (0x6800 used)
+ *  bank 8(0x8000-0x9fff): 0x7000 - 0x77FF (0x7000 used)
+ *  bank A(0xa000-0xbfff): 0x7800 - 0x7FFF (0x7800 used)
+ *
+ * ESE-RAM Bank Map:
+ *  BANK 00H-7FH (read only)
+ *  BANK 80H-FFH (write and read. mirror of 00H-7FH)
+ *
+ * MEGA-SCSI Bank Map:
+ *  BANK 00H-3FH (sram read only. mirror of 80H-BFH)
+ *  BANK 40H-7EH (mirror of 7FH. Use is prohibited)
+ *  BANK 7FH     (SPC)
+ *  BANK 80H-FFH (sram write and read)
+ *
+ * SPC Bank:
+ *  0x0000 - 0x0FFF :
+ *      SPC Data register r/w (mirror of all 0x1FFA)
+ *  0x1000 - 0x1FEF :
+ *      mirror of 0x1FF0 - 0x1FFF
+ *      Use is prohibited about the image
+ *  0x1FF0 - 0x1FFE :
+ *      SPC register
+ *  0x1FFF :
+ *      un mapped
+ *
+ * Note:
+ *  It is possible to access it by putting it out to 8000H - BFFFH
+ *  though the SPC bank is arranged in chiefly 4000H-5FFF.
+ *
+ */
+
+#include "MegaSCSI.hh"
+#include "MB89352.hh"
+#include "SRAM.hh"
+#include "StringOp.hh"
+#include "MSXException.hh"
+#include "XMLElement.hh"
+#include <cassert>
+
+namespace openmsx {
+
+static const byte SPC = 0x7F;
+
+MegaSCSI::MegaSCSI(MSXMotherBoard& motherBoard, const XMLElement& config,
+                   const EmuTime& time)
+	: MSXDevice(motherBoard, config, time)
+	, mb89352(new MB89352(motherBoard, config))
+{
+	unsigned sramSize = config.getChildDataAsInt("sramsize", 1024); // size in kb
+	if (sramSize != 1024 && sramSize != 512 && sramSize != 256 && sramSize != 128) {
+		throw MSXException("SRAM size for " + getName() + 
+			" should be 128, 256, 512 or 1024kB and not " + 
+			StringOp::toString(sramSize) + "kB!");
+	}
+	sramSize *= 1024; // in bytes
+	sram.reset(new SRAM(motherBoard, getName() + " SRAM", sramSize, config));
+	blockMask = (sramSize / 8192) - 1;
+}
+
+MegaSCSI::~MegaSCSI()
+{
+}
+
+void MegaSCSI::reset(const EmuTime& time)
+{
+	for (int i = 0; i < 4; ++i) {
+		setSRAM(i, 0);
+	}
+	mb89352->reset(1);
+}
+
+byte MegaSCSI::readMem(word address, const EmuTime& time)
+{
+	byte result;
+	if ((0x4000 <= address) && (address < 0xC000)) {
+		unsigned page = (address / 8192) - 2;
+		word addr = address & 0x1FFF;
+		if (mapped[page] == SPC) {
+			// SPC read
+			if (addr < 0x1000) {
+				// Data Register
+				result =  mb89352->readDREG();
+			} else {
+				result = mb89352->readRegister(addr & 0x0F);
+			}
+		} else {
+			result = (*sram)[8192 * mapped[page] + addr];
+		}
+	} else {
+		result = 0xFF;
+	}
+	return result;
+}
+
+const byte* MegaSCSI::getReadCacheLine(word address) const
+{
+	return NULL;
+	if ((0x4000 <= address) && (address < 0xC000)) {
+		unsigned page = (address / 8192) - 2;
+		address &= 0x1FFF;
+		if (mapped[page] == SPC) {
+			return NULL;
+		} else {
+			return &(*sram)[8192 * mapped[page] + address];
+		}
+	} else {
+		return unmappedRead;
+	}
+}
+
+void MegaSCSI::writeMem(word address, byte value, const EmuTime& time)
+{
+	if ((0x6000 <= address) && (address < 0x8000)) {
+		byte region = ((address >> 11) & 3);
+		setSRAM(region, value);
+	} else if ((0x4000 <= address) && (address < 0xC000)) {
+		unsigned page = (address / 8192) - 2;
+		address &= 0x1FFF;
+		if (mapped[page] == SPC) {
+			if (address < 0x1000) {
+				mb89352->writeDREG(value);
+			} else {
+				mb89352->writeRegister(address & 0x0F, value);
+			}
+		} else if (isWriteable[page]) {
+			sram->write(8192 * mapped[page] + address, value);
+		}
+	}
+}
+
+byte* MegaSCSI::getWriteCacheLine(word address) const
+{
+	if ((0x6000 <= address) && (address < 0x8000)) {
+		return NULL;
+	} else if ((0x4000 <= address) && (address < 0xC000)) {
+		unsigned page = (address / 8192) - 2;
+		if (mapped[page] == SPC) {
+			return NULL;
+		} else if (isWriteable[page]) {
+			return NULL;
+		}
+	}
+	return unmappedWrite;
+}
+
+void MegaSCSI::setSRAM(unsigned region, byte block)
+{
+	assert(region < 4);
+	isWriteable[region] = block & 0x80;
+	mapped[region] = ((block & 0xC0) == 0x40) ? 0x7F : (block & blockMask);
+}
+
+} // namespace openmsx
