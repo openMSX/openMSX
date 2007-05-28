@@ -155,7 +155,7 @@ void MB89352::disconnect()
 
 	regs[REG_PSNS] = 0;
 	isBusy         = false;
-	isTransfer     = 0;
+	isTransfer     = false;
 	counter        = 0;
 	tc             = 0;
 	atn            = 0;
