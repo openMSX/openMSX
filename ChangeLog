@@ -1,5 +1,10 @@
 $Id$
 
+2007-05-28 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added initial MEGA-SCSI emulation.
+	  It's not working completely OK yet... Please help debugging :)
+	  (Thanks a lot to Wouter and Albert for their help.)
+
 2007-05-26 Manuel Bilderbeek <manuel@msxnet.org>
 	* Created common superclass for SCSIHD and IDEHD called... HD.
 	  This makes it possible to let HDCommand work with any kind of HD.
