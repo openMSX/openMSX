@@ -23,15 +23,6 @@
 #include <cassert>
 #include <string>
 
-#include <iostream>
-// TEMPORARY, for DEBUGGING:
-#undef PRT_DEBUG
-#define  PRT_DEBUG(mes)                          \
-        do {                                    \
-                std::cout << mes << std::endl;  \
-        } while (0)
-
-
 using std::string;
 
 namespace openmsx {
@@ -235,7 +226,7 @@ void MB89352::setACKREQ(byte& value)
 		if (counter < 0) {
 			//Initialize command routine
 			pCdb    = cdb;
-			counter = (value < 0x20) ? 6 : ((value < 0xa0) ? 10 : 12);
+			counter = (value < 0x20) ? 6 : ((value < 0xA0) ? 10 : 12);
 		}
 		*pCdb = value;
 		++pCdb;
@@ -605,17 +596,17 @@ void MB89352::writeRegister(byte reg, byte value)
 		break;
 
 	case REG_TCL:
-		tc = (tc & 0xffff00) + (value <<  0);
+		tc = (tc & 0xFFFF00) + (value <<  0);
 		//PRT_DEBUG1("set tcl: %d\n", tc);
 		break;
 
 	case REG_TCM:
-		tc = (tc & 0xff00ff) + (value <<  8);
+		tc = (tc & 0xFF00FF) + (value <<  8);
 		//PRT_DEBUG1("set tcm: %d\n", tc);
 		break;
 
 	case REG_TCH:
-		tc = (tc & 0x00ffff) + (value << 16);
+		tc = (tc & 0x00FFFF) + (value << 16);
 		//PRT_DEBUG1("set tch: %d\n", tc);
 		break;
 
@@ -640,7 +631,7 @@ void MB89352::writeRegister(byte reg, byte value)
 		break;
 
 	case REG_SCTL: {
-		bool flag = value & 0xe0;
+		bool flag = !(value & 0xE0);
 		if (flag != isEnabled) {
 			isEnabled = flag;
 			if (!flag) {

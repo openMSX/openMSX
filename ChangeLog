@@ -4,6 +4,9 @@ $Id$
 	* Added initial MEGA-SCSI emulation.
 	  It's not working completely OK yet... Please help debugging :)
 	  (Thanks a lot to Wouter and Albert for their help.)
+	* It seems to work after all: make sure to do a physical format of the
+	  disk first (using SFORM-2.COM).
+	* Lots of cleanups, also by Wouter.
 
 2007-05-26 Manuel Bilderbeek <manuel@msxnet.org>
 	* Created common superclass for SCSIHD and IDEHD called... HD.
