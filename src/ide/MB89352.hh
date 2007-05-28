@@ -22,7 +22,8 @@ class SCSIDevice;
 class XMLElement;
 class MSXMotherBoard;
 
-class MB89352 {
+class MB89352
+{
 public:
 	MB89352(MSXMotherBoard& motherBoard, const XMLElement& config);
 	~MB89352();
@@ -37,15 +38,15 @@ public:
 private:
 	void disconnect();
 	void softReset();
-	void setACKREQ(byte* value);
+	void setACKREQ(byte& value);
 	void resetACKREQ();
 	byte getSSTS();
 
-	byte myId;                       // SPC SCSI ID 0..7
-	byte targetId;                   // SCSI Device target ID 0..7
-	byte regs[16];                   // SPC register
+	byte myId;                      // SPC SCSI ID 0..7
+	byte targetId;                  // SCSI Device target ID 0..7
+	byte regs[16];                  // SPC register
 	bool rst;                       // SCSI bus reset signal
-	int atn;                        // SCSI bus attention signal
+	byte atn;                       // SCSI bus attention signal
 	SCSI::Phase phase;              //
 	SCSI::Phase nextPhase;          // for message system
 	bool isEnabled;                 // spc enable flag
@@ -57,11 +58,11 @@ private:
 	int blockCounter;               // Number of blocks outside buffer
 	                                // (512bytes / block)
 	int tc;                         // counter for hardware transfer
-	//TODO: bool devBusy;            // CDROM busy (buffer conflict prevention)
+	//TODO: bool devBusy;           // CDROM busy (buffer conflict prevention)
 	std::auto_ptr<SCSIDevice> dev[8];
 	byte* pCdb;                     // cdb pointer
 	unsigned bufIdx;                // buffer index
-	byte cdb[12];                  // Command Descripter Block
+	byte cdb[12];                   // Command Descripter Block
 	std::vector<byte> buffer;       // buffer for transfer
 };
 
