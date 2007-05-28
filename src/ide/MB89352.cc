@@ -100,7 +100,7 @@ MB89352::MB89352(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: buffer(SCSIDevice::BUFFER_SIZE)
 {
 	PRT_DEBUG("spc create");
-	//TODO: devBusy = 0;
+	//TODO: devBusy = false;
 
 	// ALMOST COPY PASTED FROM WD33C93:
 	
@@ -146,16 +146,15 @@ MB89352::~MB89352()
 void MB89352::disconnect()
 {
 	if (phase != SCSI::BUS_FREE) {
-		if ((targetId >= 0) && (targetId < 8)) {
-			dev[targetId]->disconnect();
-		}
+		assert(targetId < MAX_DEV);
+		dev[targetId]->disconnect();
 		regs[REG_INTS] |= INTS_Disconnected;
 		phase      = SCSI::BUS_FREE;
 		nextPhase  = SCSI::UNDEFINED;
 	}
 
 	regs[REG_PSNS] = 0;
-	isBusy         = 0;
+	isBusy         = false;
 	isTransfer     = 0;
 	counter        = 0;
 	tc             = 0;
@@ -164,14 +163,12 @@ void MB89352::disconnect()
 
 void MB89352::softReset()
 {
-	int i;
-
 	isEnabled = 0;
 
-	for (i = 2; i < 15; ++i) {
+	for (int i = 2; i < 15; ++i) {
 		regs[i] = 0;
 	}
-	regs[15] = 0xff;               // un mapped
+	regs[15] = 0xFF;               // un mapped
 	memset(cdb, 0, 12);
 
 	pCdb   = cdb;
@@ -180,19 +177,19 @@ void MB89352::softReset()
 	disconnect();
 }
 
-void MB89352::reset(int scsireset)
+void MB89352::reset(bool scsireset)
 {
 	//PRT_DEBUG("MB89352 reset");
 	regs[REG_BDID] = 0x80;     // Initial value
 	regs[REG_SCTL] = 0x80;
-	rst   = 0;
-	atn   = 0;
-	myId  = 7;
+	rst  = false;
+	atn  = 0;
+	myId = 7;
 
 	softReset();
 
 	if (scsireset) {
-		for (int i = 0; i < 8; ++i) {
+		for (byte i = 0; i < MAX_DEV; ++i) {
 			dev[i]->reset();
 		}
 	}
@@ -204,7 +201,7 @@ void MB89352::setACKREQ(byte* value)
 	if ((regs[REG_PSNS] & (PSNS_REQ | PSNS_BSY)) != (PSNS_REQ | PSNS_BSY)) {
 		PRT_DEBUG("set ACK/REQ: REQ/BSY check error");
 		if (regs[REG_PSNS] & PSNS_IO) { // SCSI -> SPC
-			*value = 0xff;
+			*value = 0xFF;
 		}
 		return;
 	}
@@ -213,7 +210,7 @@ void MB89352::setACKREQ(byte* value)
 	if (regs[FIX_PCTL] != (regs[REG_PSNS] & 7)) {
 		PRT_DEBUG("set ACK/REQ: phase check error");
 		if (regs[REG_PSNS] & PSNS_IO) { // SCSI -> SPC
-			*value = 0xff;
+			*value = 0xFF;
 		}
 		if (isTransfer) {
 			regs[REG_INTS] |= INTS_ServiceRequited;
@@ -331,7 +328,7 @@ void MB89352::resetACKREQ()
 				regs[REG_PSNS] = PSNS_REQ | PSNS_BSY | PSNS_COMMAND;
 			} else {
 				bufIdx = 0; // reset buffer index 
-				//TODO: devBusy = 1;
+				//TODO: devBusy = true;
 				counter =
 					dev[targetId]->executeCmd(cdb, phase, blockCounter);
 
@@ -352,7 +349,7 @@ void MB89352::resetACKREQ()
 						PRT_DEBUG("phase error");
 						break;
 				}
-				//TODO: devBusy = 0;
+				//TODO: devBusy = false;
 			}
 			break;
 
@@ -445,13 +442,13 @@ byte MB89352::readDREG()
 
 		--tc;
 		if (tc == 0) {
-			isTransfer = 0;
+			isTransfer = false;
 			regs[REG_INTS] |= INTS_CommandComplete;
 		}
-		regs[REG_MBC] = (regs[REG_MBC] - 1) & 0x0f;
+		regs[REG_MBC] = (regs[REG_MBC] - 1) & 0x0F;
 		return regs[REG_DREG];
 	} else {
-		return 0xff;
+		return 0xFF;
 	}
 }
 
@@ -465,21 +462,15 @@ void MB89352::writeDREG(byte value)
 
 		--tc;
 		if (tc == 0) {
-			isTransfer = 0;
+			isTransfer = false;
 			regs[REG_INTS] |= INTS_CommandComplete;
 		}
-		regs[REG_MBC] = (regs[REG_MBC] - 1) & 0x0f;
+		regs[REG_MBC] = (regs[REG_MBC] - 1) & 0x0F;
 	}
 }
 
 void MB89352::writeRegister(byte reg, byte value)
 {
-	int err;
-	int flag;
-	int x;
-	int i;
-	int cmd;
-
 	//PRT_DEBUG("SPC write register: " << std::hex << (int)reg << " " << std::hex << (int)value);
 
 	switch (reg) {
@@ -490,6 +481,7 @@ void MB89352::writeRegister(byte reg, byte value)
 			break;
 
 		case REG_SCMD:
+		{	// for local vars
 			if (!isEnabled) {
 				break;
 			}
@@ -498,20 +490,20 @@ void MB89352::writeRegister(byte reg, byte value)
 			if (value & 0x10) {
 				if (((regs[REG_SCMD] & 0x10) == 0) & (regs[REG_SCTL] == 0)) {
 					PRT_DEBUG("SPC: bus reset");
-					rst = 1;
+					rst = true;
 					regs[REG_INTS] |= INTS_ResetCondition;
-					for (i = 0; i < 8; ++i) {
+					for (byte i = 0; i < MAX_DEV; ++i) {
 						dev[i]->busReset();
 					}
 					disconnect();  // alternative routine
 				}
 			} else {
-				rst = 0;
+				rst = false;
 			}
 
 			regs[REG_SCMD] = value;
 
-			cmd = value >> 5;
+			int cmd = value >> 5;
 			//PRT_DEBUG1("SPC command: %x\n", cmd);
 
 			// execute spc command
@@ -533,6 +525,7 @@ void MB89352::writeRegister(byte reg, byte value)
 					break;
 
 				case CMD_Select:
+				{ // for local vars
 					if (rst) {
 						regs[REG_INTS] |= INTS_TimeOut;
 						break;
@@ -544,14 +537,14 @@ void MB89352::writeRegister(byte reg, byte value)
 						disconnect();
 						break;
 					}
-
-					x = regs[REG_BDID] & regs[REG_TEMPWR];
+					bool err = false;	
+					int x = regs[REG_BDID] & regs[REG_TEMPWR];
 					if (phase == SCSI::BUS_FREE && x && x != regs[REG_TEMPWR]) {
 						x = regs[REG_TEMPWR] & ~regs[REG_BDID];
 
 						// the targetID is calculated.
 						// It is given priority that the number is large.
-						for (targetId = 0; targetId < 8; ++targetId) {
+						for (targetId = 0; targetId < MAX_DEV; ++targetId) {
 							x = x >> 1;
 							if (x == 0) {
 								break;
@@ -561,10 +554,10 @@ void MB89352::writeRegister(byte reg, byte value)
 						if (/*!TODO: devBusy &&*/ dev[targetId]->isSelected()) {
 							PRT_DEBUG("selection OK of target " << (int)targetId);
 							regs[REG_INTS] |= INTS_CommandComplete;
-							isBusy  =  1;
+							isBusy  = true;
 							msgin   =  0;
 							counter = -1;
-							err          =  0;
+							err     =  false;
 							if (atn) {
 								phase          = SCSI::MSG_OUT;
 								nextPhase      = SCSI::COMMAND;
@@ -575,10 +568,10 @@ void MB89352::writeRegister(byte reg, byte value)
 								regs[REG_PSNS] = PSNS_REQ | PSNS_BSY | PSNS_COMMAND;
 							}
 						} else {
-							err = 1;
+							err = true;
 						}
 					} else {
-						err = 1;
+						err = true;
 					}
 
 					if (err) {
@@ -587,13 +580,13 @@ void MB89352::writeRegister(byte reg, byte value)
 						disconnect();
 					}
 					break;
-
-					// hardware transfer
+				}
+				// hardware transfer
 				case CMD_Transfer:
 					PRT_DEBUG("CMD_Transfer " << tc << " ( " << (tc/512) << ")");
 					if ((regs[FIX_PCTL] == (regs[REG_PSNS] & 7)) &&
 							(regs[REG_PSNS] & (PSNS_REQ | PSNS_BSY))) {
-						isTransfer = 1;            // set Xfer in Progress
+						isTransfer = true;            // set Xfer in Progress
 					} else {
 						regs[REG_INTS] |= INTS_ServiceRequited;
 						PRT_DEBUG("phase error");
@@ -621,7 +614,7 @@ void MB89352::writeRegister(byte reg, byte value)
 					break;
 			}
 			break;  // end of REG_SCMD
-
+		}
 		// Reset Interrupts
 		case REG_INTS:
 			regs[REG_INTS] &= ~value;
@@ -669,7 +662,8 @@ void MB89352::writeRegister(byte reg, byte value)
 			break;
 
 		case REG_SCTL:
-			flag = (value & 0xe0) ? 0 : 1;
+		{
+			bool flag = value & 0xe0;
 			if (flag != isEnabled) {
 				isEnabled = flag;
 				if (!flag) {
@@ -677,6 +671,7 @@ void MB89352::writeRegister(byte reg, byte value)
 				}
 			}
 			// throw to default
+		}
 		default:
 			regs[reg] = value;
 	}
@@ -759,7 +754,7 @@ byte MB89352::readRegister(byte reg)
 				}
 			}
 
-			result = (byte)((regs[REG_PSNS] | atn) & 0xff);
+			result = (byte)((regs[REG_PSNS] | atn) & 0xFF);
 			break;
 
 		case REG_SSTS:
@@ -767,19 +762,19 @@ byte MB89352::readRegister(byte reg)
 			break;
 
 		case REG_TCL:
-			result = (byte)(tc & 0xff);
+			result = (byte)(tc & 0xFF);
 			break;
 
 		case REG_TCM:
-			result = (byte)((tc >>  8) & 0xff);
+			result = (byte)((tc >>  8) & 0xFF);
 			break;
 
 		case REG_TCH:
-			result = (byte)((tc >> 16) & 0xff);
+			result = (byte)((tc >> 16) & 0xFF);
 			break;
 
 		default:
-			result = (byte)(regs[reg] & 0xff);
+			result = (byte)(regs[reg] & 0xFF);
 	}
 
 	//PRT_DEBUG2("SPC reg read: %x %x\n", reg, result);
@@ -793,28 +788,28 @@ byte MB89352::peekRegister(byte reg)
 	switch (reg) {
 		case REG_DREG:
 			if (isTransfer && (tc > 0)) {
-				return (byte)(regs[REG_DREG] & 0xff);
+				return (byte)(regs[REG_DREG] & 0xFF);
 			} else {
-				return 0xff;
+				return 0xFF;
 			}
 
 		case REG_PSNS:
-			return (byte)((regs[REG_PSNS] | atn) & 0xff);
+			return (byte)((regs[REG_PSNS] | atn) & 0xFF);
 
 		case REG_SSTS:
 			return getSSTS();
 
 		case REG_TCH:
-			return (byte)((tc >> 16) & 0xff);
+			return (byte)((tc >> 16) & 0xFF);
 
 		case REG_TCM:
-			return (byte)((tc >>  8) & 0xff);
+			return (byte)((tc >>  8) & 0xFF);
 
 		case REG_TCL:
-			return (byte)(tc & 0xff);
+			return (byte)(tc & 0xFF);
 
 		default:
-			return (byte)(regs[reg] & 0xff);
+			return (byte)(regs[reg] & 0xFF);
 	}
 }
 

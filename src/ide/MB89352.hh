@@ -27,7 +27,7 @@ public:
 	MB89352(MSXMotherBoard& motherBoard, const XMLElement& config);
 	~MB89352();
 
-	void reset(int scsireset);
+	void reset(bool scsireset);
 	byte readRegister(byte reg);
 	byte peekRegister(byte reg);
 	byte readDREG();
@@ -41,27 +41,27 @@ private:
 	void resetACKREQ();
 	byte getSSTS();
 
-	int myId;                       // SPC SCSI ID 0..7
-	int targetId;                   // SCSI Device target ID 0..7
-	int regs[16];                   // SPC register
-	int rst;                        // SCSI bus reset signal
+	byte myId;                       // SPC SCSI ID 0..7
+	byte targetId;                   // SCSI Device target ID 0..7
+	byte regs[16];                   // SPC register
+	bool rst;                       // SCSI bus reset signal
 	int atn;                        // SCSI bus attention signal
 	SCSI::Phase phase;              //
 	SCSI::Phase nextPhase;          // for message system
-	int isEnabled;                  // spc enable flag
-	int isBusy;                     // spc now working
-	int isTransfer;                 // hardware transfer mode
+	bool isEnabled;                 // spc enable flag
+	bool isBusy;                    // spc now working
+	bool isTransfer;                // hardware transfer mode
 	int msgin;                      // Message In flag
 	int counter;                    // read and written number of bytes
 	                                // within the range in the buffer
 	int blockCounter;               // Number of blocks outside buffer
 	                                // (512bytes / block)
 	int tc;                         // counter for hardware transfer
-	//TODO: int devBusy;            // CDROM busy (buffer conflict prevention)
+	//TODO: bool devBusy;            // CDROM busy (buffer conflict prevention)
 	std::auto_ptr<SCSIDevice> dev[8];
 	byte* pCdb;                     // cdb pointer
 	unsigned bufIdx;                // buffer index
-	byte  cdb[12];                  // Command Descripter Block
+	byte cdb[12];                  // Command Descripter Block
 	std::vector<byte> buffer;       // buffer for transfer
 };
 

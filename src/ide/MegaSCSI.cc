@@ -80,7 +80,7 @@ void MegaSCSI::reset(const EmuTime& time)
 	for (int i = 0; i < 4; ++i) {
 		setSRAM(i, 0);
 	}
-	mb89352->reset(1);
+	mb89352->reset(true);
 }
 
 byte MegaSCSI::readMem(word address, const EmuTime& time)
@@ -108,7 +108,6 @@ byte MegaSCSI::readMem(word address, const EmuTime& time)
 
 const byte* MegaSCSI::getReadCacheLine(word address) const
 {
-	return NULL;
 	if ((0x4000 <= address) && (address < 0xC000)) {
 		unsigned page = (address / 8192) - 2;
 		address &= 0x1FFF;
