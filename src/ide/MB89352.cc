@@ -25,6 +25,8 @@
 #include <cassert>
 #include <string>
 #include <iostream>
+// TEMPORARY, for DEBUGGING:
+#undef PRT_DEBUG
 #define  PRT_DEBUG(mes)                          \
         do {                                    \
                 std::cout << mes << std::endl;  \
