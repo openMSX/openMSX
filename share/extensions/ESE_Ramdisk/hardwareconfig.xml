@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<!-- $Id: hardwareconfig.xml 6520 2007-05-24 20:11:15Z manuelbi $ -->
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <manufacturer>ESE Artists' Factory</manufacturer>
+    <code>ESE Ramdisk</code>
+    <release_year>1995?</release_year>
+    <description>MSX SRAM disk.</description>
+    <type>SRAM cartridge</type>
+  </info>
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <ESERAM id="MEGA-SCSI">
+          <mem base="0x4000" size="0x8000"/>
+	  <sramsize>256</sramsize> <!-- this seems to be standard -->
+	  <sramname>ESE-RAM_1024.sram</sramname>
+       </ESERAM>
+      </secondary>
+    </primary>
+  </devices>
+</msxconfig>
