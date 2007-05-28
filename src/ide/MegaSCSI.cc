@@ -46,6 +46,8 @@
 #include "MegaSCSI.hh"
 #include "MB89352.hh"
 #include "SRAM.hh"
+#include "MSXMotherBoard.hh"
+#include "MSXCPU.hh"
 #include "StringOp.hh"
 #include "MSXException.hh"
 #include "XMLElement.hh"
@@ -59,6 +61,7 @@ MegaSCSI::MegaSCSI(MSXMotherBoard& motherBoard, const XMLElement& config,
                    const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
 	, mb89352(new MB89352(motherBoard, config))
+	, cpu(motherBoard.getCPU())
 {
 	unsigned sramSize = config.getChildDataAsInt("sramsize", 1024); // size in kb
 	if (sramSize != 1024 && sramSize != 512 && sramSize != 256 && sramSize != 128) {
@@ -158,6 +161,7 @@ byte* MegaSCSI::getWriteCacheLine(word address) const
 
 void MegaSCSI::setSRAM(unsigned region, byte block)
 {
+	cpu.invalidateMemCache(region * 0x2000 + 0x4000, 0x2000);
 	assert(region < 4);
 	isWriteable[region] = block & 0x80;
 	mapped[region] = ((block & 0xC0) == 0x40) ? 0x7F : (block & blockMask);
