@@ -4,11 +4,11 @@
  * MEGA-SCSI and ESE-RAM cartridge:
  *  The mapping does SRAM and MB89352A(MEGA-SCSI) to ASCII8 or
  *  an interchangeable bank controller.
+ *  The rest of this documentation is only about ESE-RAM specifically.
  *
  * Specification:
  *  SRAM(MegaROM) controller: ASCII8 type
  *  SRAM capacity           : 128, 256, 512 and 1024KB
- *  SCSI Protocol Controller: Fujitsu MB89352A
  *
  * Bank changing address:
  *  bank 4(0x4000-0x5fff): 0x6000 - 0x67FF (0x6000 used)
@@ -19,27 +19,6 @@
  * ESE-RAM Bank Map:
  *  BANK 00H-7FH (read only)
  *  BANK 80H-FFH (write and read. mirror of 00H-7FH)
- *
- * MEGA-SCSI Bank Map:
- *  BANK 00H-3FH (sram read only. mirror of 80H-BFH)
- *  BANK 40H-7EH (mirror of 7FH. Use is prohibited)
- *  BANK 7FH     (SPC)
- *  BANK 80H-FFH (sram write and read)
- *
- * SPC Bank:
- *  0x0000 - 0x0FFF :
- *      SPC Data register r/w (mirror of all 0x1FFA)
- *  0x1000 - 0x1FEF :
- *      mirror of 0x1FF0 - 0x1FFF
- *      Use is prohibited about the image
- *  0x1FF0 - 0x1FFE :
- *      SPC register
- *  0x1FFF :
- *      un mapped
- *
- * Note:
- *  It is possible to access it by putting it out to 8000H - BFFFH
- *  though the SPC bank is arranged in chiefly 4000H-5FFF.
  *
  */
 
