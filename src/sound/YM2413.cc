@@ -25,6 +25,151 @@ private:
 	YM2413& ym2413;
 };
 
+namespace YM2413Okazaki {
+
+class Patch {
+public:
+	Patch();
+	Patch(int n, const byte* data);
+
+	bool AM, PM, EG;
+	byte KR; // 0-1
+	byte ML; // 0-15
+	byte KL; // 0-3
+	byte TL; // 0-63
+	byte FB; // 0-7
+	byte WF; // 0-1
+	byte AR; // 0-15
+	byte DR; // 0-15
+	byte SL; // 0-15
+	byte RR; // 0-15
+};
+
+class Slot {
+public:
+	explicit Slot(bool type);
+	void reset(bool type);
+
+	inline void slotOn();
+	inline void slotOn2();
+	inline void slotOff();
+	inline void setPatch(Patch* patch);
+	inline void setVolume(int volume);
+	inline void calc_phase(int lfo_pm);
+	inline void calc_envelope(int lfo_am);
+	inline int calc_slot_car(int fm);
+	inline int calc_slot_mod();
+	inline int calc_slot_tom();
+	inline int calc_slot_snare(bool noise);
+	inline int calc_slot_cym(unsigned pgout_hh);
+	inline int calc_slot_hat(int pgout_cym, bool noise);
+	inline void updatePG();
+	inline void updateTLL();
+	inline void updateRKS();
+	inline void updateWF();
+	inline void updateEG();
+	inline void updateAll();
+
+	Patch* patch;
+
+	// OUTPUT
+	int feedback;
+	int output[5];		// Output value of slot
+
+	// for Phase Generator (PG)
+	word* sintbl;		// Wavetable
+	unsigned phase;		// Phase
+	unsigned dphase;	// Phase increment amount
+	unsigned pgout;		// output
+
+	// for Envelope Generator (EG)
+	int fnum;		// F-Number
+	int block;		// Block
+	int volume;		// Current volume
+	int sustine;		// Sustine 1 = ON, 0 = OFF
+	int tll;		// Total Level + Key scale level
+	int rks;		// Key scale offset (Rks)
+	int eg_mode;		// Current state
+	unsigned eg_phase;	// Phase
+	unsigned eg_dphase;	// Phase increment amount
+	unsigned egout;		// output
+
+	bool type;		// 0 : modulator 1 : carrier
+	bool slot_on_flag;
+};
+
+class Channel {
+public:
+	Channel();
+	void reset();
+	inline void setPatch(int num);
+	inline void setSustine(bool sustine);
+	inline void setVol(int volume);
+	inline void setFnumber(int fnum);
+	inline void setBlock(int block);
+	inline void keyOn();
+	inline void keyOff();
+
+	Patch* patches;
+	int patch_number;
+	Slot mod, car;
+};
+
+class Global {
+public:
+	Global(byte* reg);
+	void reset(const EmuTime& time);
+	void writeReg(byte reg, byte value, const EmuTime& time);
+
+	inline void keyOn_BD();
+	inline void keyOn_SD();
+	inline void keyOn_TOM();
+	inline void keyOn_HH();
+	inline void keyOn_CYM();
+	inline void keyOff_BD();
+	inline void keyOff_SD();
+	inline void keyOff_TOM();
+	inline void keyOff_HH();
+	inline void keyOff_CYM();
+	inline void update_rhythm_mode();
+	inline void update_key_status();
+
+	inline void calcSample(int** bufs, unsigned sample);
+
+	/**
+	 * Generate output samples for each channel.
+	 */
+	void generateChannels(int** bufs, unsigned num);
+
+	bool checkMuteHelper();
+
+private:
+	// Pitch Modulator
+	unsigned pm_phase;
+	int lfo_pm;
+
+	// Amp Modulator
+	unsigned am_phase;
+	int lfo_am;
+
+	// Noise Generator
+	int noise_seed;
+
+	// Channel & Slot
+	Channel ch[9];
+	Slot* slot[18];
+
+	// Registerbank from YM2413 class.
+	byte* reg;
+
+	// Voice Data
+	Patch patches[19 * 2];
+
+public:
+	// Empty voice data
+	static Patch nullPatch;
+};
+
 
 static const int CLOCK_FREQ = 3579545;
 
@@ -123,7 +268,7 @@ static int rksTable[2][8][2];
 static unsigned dphaseTable[512][8][16];
 
 // Empty voice data
-YM2413::Patch YM2413::nullPatch;
+Patch Global::nullPatch;
 
 
 //***************************************************//
@@ -363,14 +508,14 @@ static void makeRksTable()
 //                                                            //
 //************************************************************//
 
-YM2413::Patch::Patch()
+Patch::Patch()
 	: AM(false), PM(false), EG(false)
 	, KR(0), ML(0), KL(0), TL(0), FB(0)
 	, WF(0), AR(0), DR(0), SL(0), RR(0)
 {
 }
 
-YM2413::Patch::Patch(int n, const byte* data)
+Patch::Patch(int n, const byte* data)
 {
 	if (n == 0) {
 		AM = (data[0] >> 7) & 1;
@@ -408,13 +553,12 @@ YM2413::Patch::Patch(int n, const byte* data)
 //                      Slot                                  //
 //                                                            //
 //************************************************************//
-
-YM2413::Slot::Slot(bool type)
+Slot::Slot(bool type)
 {
 	reset(type);
 }
 
-void YM2413::Slot::reset(bool type_)
+void Slot::reset(bool type_)
 {
 	type = type_;
 	sintbl = waveform[0];
@@ -434,33 +578,33 @@ void YM2413::Slot::reset(bool type_)
 	volume = 0;
 	pgout = 0;
 	egout = 0;
-	patch = &nullPatch;
+	patch = &Global::nullPatch;
 	slot_on_flag = false;
 }
 
 
-void YM2413::Slot::updatePG()
+void Slot::updatePG()
 {
 	dphase = dphaseTable[fnum][block][patch->ML];
 }
 
-void YM2413::Slot::updateTLL()
+void Slot::updateTLL()
 {
 	tll = type ? tllTable[fnum >> 5][block][volume]   [patch->KL]:
 	             tllTable[fnum >> 5][block][patch->TL][patch->KL];
 }
 
-void YM2413::Slot::updateRKS()
+void Slot::updateRKS()
 {
 	rks = rksTable[fnum >> 8][block][patch->KR];
 }
 
-void YM2413::Slot::updateWF()
+void Slot::updateWF()
 {
 	sintbl = waveform[patch->WF];
 }
 
-void YM2413::Slot::updateEG()
+void Slot::updateEG()
 {
 	switch (eg_mode) {
 	case ATTACK:
@@ -492,7 +636,7 @@ void YM2413::Slot::updateEG()
 	}
 }
 
-void YM2413::Slot::updateAll()
+void Slot::updateAll()
 {
 	updatePG();
 	updateTLL();
@@ -503,7 +647,7 @@ void YM2413::Slot::updateAll()
 
 
 // Slot key on
-void YM2413::Slot::slotOn()
+void Slot::slotOn()
 {
 	eg_mode = ATTACK;
 	eg_phase = 0;
@@ -512,7 +656,7 @@ void YM2413::Slot::slotOn()
 }
 
 // Slot key on, without resetting the phase
-void YM2413::Slot::slotOn2()
+void Slot::slotOn2()
 {
 	eg_mode = ATTACK;
 	eg_phase = 0;
@@ -520,7 +664,7 @@ void YM2413::Slot::slotOn2()
 }
 
 // Slot key off
-void YM2413::Slot::slotOff()
+void Slot::slotOff()
 {
 	if (eg_mode == ATTACK) {
 		eg_phase = EXPAND_BITS(
@@ -534,12 +678,12 @@ void YM2413::Slot::slotOff()
 
 
 // Change a rhythm voice
-void YM2413::Slot::setPatch(Patch* ptch)
+void Slot::setPatch(Patch* ptch)
 {
 	patch = ptch;
 }
 
-void YM2413::Slot::setVolume(int newVolume)
+void Slot::setVolume(int newVolume)
 {
 	volume = newVolume;
 }
@@ -553,14 +697,14 @@ void YM2413::Slot::setVolume(int newVolume)
 //***********************************************************//
 
 
-YM2413::Channel::Channel()
+Channel::Channel()
 	: mod(false), car(true)
 {
 	reset();
 }
 
 // reset channel
-void YM2413::Channel::reset()
+void Channel::reset()
 {
 	mod.reset(false);
 	car.reset(true);
@@ -568,7 +712,7 @@ void YM2413::Channel::reset()
 }
 
 // Change a voice
-void YM2413::Channel::setPatch(int num)
+void Channel::setPatch(int num)
 {
 	patch_number = num;
 	mod.setPatch(&patches[2 * num + 0]);
@@ -576,7 +720,7 @@ void YM2413::Channel::setPatch(int num)
 }
 
 // Set sustine parameter
-void YM2413::Channel::setSustine(bool sustine)
+void Channel::setSustine(bool sustine)
 {
 	car.sustine = sustine;
 	if (mod.type) {
@@ -585,44 +729,43 @@ void YM2413::Channel::setSustine(bool sustine)
 }
 
 // Volume : 6bit ( Volume register << 2 )
-void YM2413::Channel::setVol(int volume)
+void Channel::setVol(int volume)
 {
 	car.volume = volume;
 }
 
 // Set F-Number (fnum : 9bit)
-void YM2413::Channel::setFnumber(int fnum)
+void Channel::setFnumber(int fnum)
 {
 	car.fnum = fnum;
 	mod.fnum = fnum;
 }
 
 // Set Block data (block : 3bit)
-void YM2413::Channel::setBlock(int block)
+void Channel::setBlock(int block)
 {
 	car.block = block;
 	mod.block = block;
 }
 
 // Channel key on
-void YM2413::Channel::keyOn()
+void Channel::keyOn()
 {
 	if (!mod.slot_on_flag) mod.slotOn();
 	if (!car.slot_on_flag) car.slotOn();
 }
 
 // Channel key off
-void YM2413::Channel::keyOff()
+void Channel::keyOff()
 {
 	// Note: no mod.slotOff() in original code!!!
 	if (car.slot_on_flag) car.slotOff();
 }
 
 
-
 //***********************************************************//
 //                                                           //
-//               YM2413                                      //
+//               Global                                      //
 //                                                           //
 //***********************************************************//
 
@@ -648,19 +791,12 @@ static byte inst_data[16 + 3][8] = {
 	{ 0x25,0x11,0x00,0x00,0xf8,0xfa,0xf8,0x55 }
 };
 
-YM2413::YM2413(MSXMotherBoard& motherBoard, const std::string& name,
-               const XMLElement& config, const EmuTime& time)
-	: SoundDevice(motherBoard.getMSXMixer(), name, "MSX-MUSIC", 11)
-	, Resample(motherBoard.getGlobalSettings(), 1)
-	, debuggable(new YM2413Debuggable(motherBoard, *this))
+Global::Global(byte* reg)
 {
+	this->reg = reg;
 	for (int i = 0; i < 16 + 3; ++i) {
 		patches[2 * i + 0] = Patch(0, inst_data[i]);
 		patches[2 * i + 1] = Patch(1, inst_data[i]);
-	}
-
-	for (int i = 0; i < 0x40; ++i) {
-		reg[i] = 0; // avoid UMR
 	}
 
 	for (int i = 0; i < 9; ++i) {
@@ -677,18 +813,9 @@ YM2413::YM2413(MSXMotherBoard& motherBoard, const std::string& name,
 	makeDphaseTable();
 	makeDphaseARTable();
 	makeDphaseDRTable();
-
-	reset(time);
-	registerSound(config);
 }
 
-YM2413::~YM2413()
-{
-	unregisterSound();
-}
-
-// Reset whole of OPLL except patch datas
-void YM2413::reset(const EmuTime &time)
+void Global::reset(const EmuTime &time)
 {
 	pm_phase = 0;
 	am_phase = 0;
@@ -702,33 +829,24 @@ void YM2413::reset(const EmuTime &time)
 	}
 }
 
-void YM2413::setOutputRate(unsigned sampleRate)
-{
-	double input = CLOCK_FREQ / 72.0;
-	setInputRate(static_cast<int>(input + 0.5));
-	setResampleRatio(input, sampleRate);
-}
-
-
 // Drum key on
-void YM2413::keyOn_BD()  { ch[6].keyOn(); }
-void YM2413::keyOn_HH()  { if (!ch[7].mod.slot_on_flag) ch[7].mod.slotOn2(); }
-void YM2413::keyOn_SD()  { if (!ch[7].car.slot_on_flag) ch[7].car.slotOn (); }
-void YM2413::keyOn_TOM() { if (!ch[8].mod.slot_on_flag) ch[8].mod.slotOn (); }
-void YM2413::keyOn_CYM() { if (!ch[8].car.slot_on_flag) ch[8].car.slotOn2(); }
+void Global::keyOn_BD()  { ch[6].keyOn(); }
+void Global::keyOn_HH()  { if (!ch[7].mod.slot_on_flag) ch[7].mod.slotOn2(); }
+void Global::keyOn_SD()  { if (!ch[7].car.slot_on_flag) ch[7].car.slotOn (); }
+void Global::keyOn_TOM() { if (!ch[8].mod.slot_on_flag) ch[8].mod.slotOn (); }
+void Global::keyOn_CYM() { if (!ch[8].car.slot_on_flag) ch[8].car.slotOn2(); }
 
 // Drum key off
-void YM2413::keyOff_BD() { ch[6].keyOff(); }
-void YM2413::keyOff_HH() { if (ch[7].mod.slot_on_flag) ch[7].mod.slotOff(); }
-void YM2413::keyOff_SD() { if (ch[7].car.slot_on_flag) ch[7].car.slotOff(); }
-void YM2413::keyOff_TOM(){ if (ch[8].mod.slot_on_flag) ch[8].mod.slotOff(); }
-void YM2413::keyOff_CYM(){ if (ch[8].car.slot_on_flag) ch[8].car.slotOff(); }
+void Global::keyOff_BD() { ch[6].keyOff(); }
+void Global::keyOff_HH() { if (ch[7].mod.slot_on_flag) ch[7].mod.slotOff(); }
+void Global::keyOff_SD() { if (ch[7].car.slot_on_flag) ch[7].car.slotOff(); }
+void Global::keyOff_TOM(){ if (ch[8].mod.slot_on_flag) ch[8].mod.slotOff(); }
+void Global::keyOff_CYM(){ if (ch[8].car.slot_on_flag) ch[8].car.slotOff(); }
 
-void YM2413::update_rhythm_mode()
+void Global::update_rhythm_mode()
 {
 	if (ch[6].patch_number & 0x10) {
-		if (!(ch[6].car.slot_on_flag ||
-		      (reg[0x0e] & 0x20))) {
+		if (!(ch[6].car.slot_on_flag || (reg[0x0e] & 0x20))) {
 			ch[6].mod.eg_mode = FINISH;
 			ch[6].car.eg_mode = FINISH;
 			ch[6].setPatch(reg[0x36] >> 4);
@@ -770,7 +888,7 @@ void YM2413::update_rhythm_mode()
 	}
 }
 
-void YM2413::update_key_status()
+void Global::update_key_status()
 {
 	for (int i = 0; i < 9; ++i) {
 		bool slot_on = reg[0x20 + i] & 0x10;
@@ -786,13 +904,6 @@ void YM2413::update_key_status()
 		ch[8].car.slot_on_flag |= reg[0x0e] & 0x02; // SYM
 	}
 }
-
-
-//******************************************************//
-//                                                      //
-//                 Generate wave data                   //
-//                                                      //
-//******************************************************//
 
 // Convert Amp(0 to EG_HEIGHT) to Phase(0 to 4PI)
 static inline int wave2_4pi(int e)
@@ -817,7 +928,7 @@ static inline int wave2_8pi(int e)
 }
 
 // PG
-void YM2413::Slot::calc_phase(int lfo_pm)
+void Slot::calc_phase(int lfo_pm)
 {
 	if (patch->PM) {
 		phase += (dphase * lfo_pm) >> PM_AMP_BITS;
@@ -829,7 +940,7 @@ void YM2413::Slot::calc_phase(int lfo_pm)
 }
 
 // EG
-void YM2413::Slot::calc_envelope(int lfo_am)
+void Slot::calc_envelope(int lfo_am)
 {
 	#define S2E(x) (SL2EG((int)(x / SL_STEP)) << (EG_DP_BITS - EG_BITS))
 	static unsigned SL[16] = {
@@ -904,7 +1015,7 @@ void YM2413::Slot::calc_envelope(int lfo_am)
 }
 
 // CARRIOR
-int YM2413::Slot::calc_slot_car(int fm)
+int Slot::calc_slot_car(int fm)
 {
 	if (egout >= (DB_MUTE - 1)) {
 		output[0] = 0;
@@ -917,7 +1028,7 @@ int YM2413::Slot::calc_slot_car(int fm)
 }
 
 // MODULATOR
-int YM2413::Slot::calc_slot_mod()
+int Slot::calc_slot_mod()
 {
 	output[1] = output[0];
 
@@ -934,7 +1045,7 @@ int YM2413::Slot::calc_slot_mod()
 }
 
 // TOM
-int YM2413::Slot::calc_slot_tom()
+int Slot::calc_slot_tom()
 {
 	return (egout >= (DB_MUTE - 1))
 	     ? 0
@@ -942,7 +1053,7 @@ int YM2413::Slot::calc_slot_tom()
 }
 
 // SNARE
-int YM2413::Slot::calc_slot_snare(bool noise)
+int Slot::calc_slot_snare(bool noise)
 {
 	if (egout >= (DB_MUTE - 1)) {
 		return 0;
@@ -955,7 +1066,7 @@ int YM2413::Slot::calc_slot_snare(bool noise)
 }
 
 // TOP-CYM
-int YM2413::Slot::calc_slot_cym(unsigned pgout_hh)
+int Slot::calc_slot_cym(unsigned pgout_hh)
 {
 	if (egout >= (DB_MUTE - 1)) {
 		return 0;
@@ -970,7 +1081,7 @@ int YM2413::Slot::calc_slot_cym(unsigned pgout_hh)
 }
 
 // HI-HAT
-int YM2413::Slot::calc_slot_hat(int pgout_cym, bool noise)
+int Slot::calc_slot_hat(int pgout_cym, bool noise)
 {
 	if (egout >= (DB_MUTE - 1)) {
 		return 0;
@@ -991,7 +1102,7 @@ static inline int adjust(int x)
 	return x << (15 - DB2LIN_AMP_BITS);
 }
 
-inline void YM2413::calcSample(int** bufs, unsigned sample)
+inline void Global::calcSample(int** bufs, unsigned sample)
 {
 	// during mute AM/PM/noise aren't updated, probably ok
 
@@ -1042,7 +1153,7 @@ inline void YM2413::calcSample(int** bufs, unsigned sample)
 	}
 }
 
-bool YM2413::checkMuteHelper()
+bool Global::checkMuteHelper()
 {
 	for (int i = 0; i < 6; i++) {
 		if (ch[i].car.eg_mode != FINISH) return false;
@@ -1061,7 +1172,7 @@ bool YM2413::checkMuteHelper()
 	return true;	// nothing is playing, then mute
 }
 
-void YM2413::generateChannels(int** bufs, unsigned num)
+void Global::generateChannels(int** bufs, unsigned num)
 {
 	if (checkMuteHelper()) {
 		// TODO update internal state, even if muted
@@ -1076,30 +1187,9 @@ void YM2413::generateChannels(int** bufs, unsigned num)
 	}
 }
 
-bool YM2413::generateInput(int* buffer, unsigned num)
-{
-	return mixChannels(buffer, num);
-}
-
-bool YM2413::updateBuffer(unsigned length, int* buffer,
-     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
-{
-	return generateOutput(buffer, length);
-}
-
-
-//**************************************************//
-//                                                  //
-//                       I/O Ctrl                   //
-//                                                  //
-//**************************************************//
-
-void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
+void Global::writeReg(byte regis, byte data, const EmuTime &time)
 {
 	//PRT_DEBUG("YM2413: write reg "<<(int)regis<<" "<<(int)data);
-
-	// update the output buffer before changing the register
-	updateStream(time);
 
 	assert (regis < 0x40);
 	reg[regis] = data;
@@ -1266,6 +1356,74 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 	default:
 		break;
 	}
+}
+
+} // namespace YM2413Okazaki
+
+//***********************************************************//
+//                                                           //
+//               YM2413                                      //
+//                                                           //
+//***********************************************************//
+
+YM2413::YM2413(MSXMotherBoard& motherBoard, const std::string& name,
+               const XMLElement& config, const EmuTime& time)
+	: SoundDevice(motherBoard.getMSXMixer(), name, "MSX-MUSIC", 11)
+        , Resample(motherBoard.getGlobalSettings(), 1)
+	, debuggable(new YM2413Debuggable(motherBoard, *this))
+	, global(new YM2413Okazaki::Global(reg))
+{
+	for (int i = 0; i < 0x40; ++i) {
+		reg[i] = 0; // avoid UMR
+	}
+	reset(time);
+	registerSound(config);
+}
+
+YM2413::~YM2413()
+{
+	unregisterSound();
+}
+
+// Reset whole of OPLL except patch datas
+void YM2413::reset(const EmuTime &time)
+{
+	// TODO: Is this needed, or is this done already at a higher level?
+	// update the output buffer before changing the register
+	updateStream(time);
+
+	global->reset(time);
+}
+
+void YM2413::setOutputRate(unsigned sampleRate)
+{
+	double input = YM2413Okazaki::CLOCK_FREQ / 72.0;
+	setInputRate(static_cast<int>(input + 0.5));
+	setResampleRatio(input, sampleRate);
+}
+
+void YM2413::generateChannels(int** bufs, unsigned num)
+{
+	global->generateChannels(bufs, num);
+}
+
+bool YM2413::generateInput(int* buffer, unsigned num)
+{
+	return mixChannels(buffer, num);
+}
+
+bool YM2413::updateBuffer(unsigned length, int* buffer,
+     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
+{
+	return generateOutput(buffer, length);
+}
+
+void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
+{
+	// update the output buffer before changing the register
+	updateStream(time);
+
+	global->writeReg(regis, data, time);
 }
 
 
