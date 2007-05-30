@@ -22,6 +22,7 @@
 #include "StringOp.hh"
 #include <cassert>
 #include <string>
+#include <cstring>
 
 using std::string;
 
