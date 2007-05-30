@@ -7,24 +7,12 @@
  */
 
 #include "YM2413.hh"
-#include "SimpleDebuggable.hh"
-#include "MSXMotherBoard.hh"
 #include <cmath>
 #include <cassert>
 #include <algorithm>
 #include <cstring>
 
 namespace openmsx {
-
-class YM2413Debuggable : public SimpleDebuggable
-{
-public:
-	YM2413Debuggable(MSXMotherBoard& motherBoard, YM2413& ym2413);
-	virtual byte read(unsigned address);
-	virtual void write(unsigned address, byte value, const EmuTime& time);
-private:
-	YM2413& ym2413;
-};
 
 namespace YM2413Okazaki {
 
@@ -1369,12 +1357,9 @@ void Global::writeReg(byte regis, byte data, const EmuTime &time)
 
 YM2413::YM2413(MSXMotherBoard& motherBoard, const std::string& name,
                const XMLElement& config, const EmuTime& time)
-	: SoundDevice(motherBoard.getMSXMixer(), name, "MSX-MUSIC", 11)
-	, Resample(motherBoard.getGlobalSettings(), 1)
-	, debuggable(new YM2413Debuggable(motherBoard, *this))
+	: YM2413Core(motherBoard, name)
 	, global(new YM2413Okazaki::Global(reg))
 {
-	memset(reg, 0, sizeof(reg)); // avoid UMR
 	reset(time);
 	registerSound(config);
 }
@@ -1394,27 +1379,9 @@ void YM2413::reset(const EmuTime &time)
 	global->reset(time);
 }
 
-void YM2413::setOutputRate(unsigned sampleRate)
-{
-	double input = YM2413Okazaki::CLOCK_FREQ / 72.0;
-	setInputRate(static_cast<int>(input + 0.5));
-	setResampleRatio(input, sampleRate);
-}
-
 void YM2413::generateChannels(int** bufs, unsigned num)
 {
 	global->generateChannels(bufs, num);
-}
-
-bool YM2413::generateInput(int* buffer, unsigned num)
-{
-	return mixChannels(buffer, num);
-}
-
-bool YM2413::updateBuffer(unsigned length, int* buffer,
-     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
-{
-	return generateOutput(buffer, length);
 }
 
 void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
@@ -1423,26 +1390,6 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 	updateStream(time);
 
 	global->writeReg(regis, data, time);
-}
-
-
-// SimpleDebuggable
-
-YM2413Debuggable::YM2413Debuggable(MSXMotherBoard& motherBoard, YM2413& ym2413_)
-	: SimpleDebuggable(motherBoard, ym2413_.getName() + " regs",
-	                   "MSX-MUSIC", 0x40)
-	, ym2413(ym2413_)
-{
-}
-
-byte YM2413Debuggable::read(unsigned address)
-{
-	return ym2413.reg[address];
-}
-
-void YM2413Debuggable::write(unsigned address, byte value, const EmuTime& time)
-{
-	ym2413.writeReg(address, value, time);
 }
 
 } // namespace openmsx
