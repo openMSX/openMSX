@@ -160,8 +160,6 @@ public:
 };
 
 
-static const int CLOCK_FREQ = 3579545;
-
 static const double DB_STEP = 48.0 / (1 << 8); //   48 / (1 << DB_BITS)
 static const double EG_STEP = 0.375;
 static const double TL_STEP = 0.75;
@@ -190,15 +188,9 @@ static const int DB_MUTE = 1 << DB_BITS;
 
 // Dynamic range of envelope
 static const int EG_BITS = 7;
-static const int EG_MUTE = 1 << EG_BITS;
 
 // Dynamic range of total level
 static const int TL_BITS = 6;
-static const int TL_MUTE = 1 << TL_BITS;
-
-// Dynamic range of sustine level
-static const int SL_BITS = 4;
-static const int SL_MUTE = 1 << SL_BITS;
 
 // Bits for liner value
 static const int DB2LIN_AMP_BITS = 8;
@@ -235,6 +227,7 @@ static int pmtable[PM_PG_WIDTH];
 static int amtable[AM_PG_WIDTH];
 
 // Noise and LFO
+static const int CLOCK_FREQ = 3579545;
 static unsigned PM_DPHASE = unsigned(PM_SPEED * PM_DP_WIDTH / (CLOCK_FREQ / 72.0));
 static unsigned AM_DPHASE = unsigned(AM_SPEED * AM_DP_WIDTH / (CLOCK_FREQ / 72.0));
 
