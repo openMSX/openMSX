@@ -26,7 +26,8 @@ SRC_HDR:= \
 	PanasonicMemory PanasonicRam \
 	MSXMegaRam \
 	MSXPac \
-	MSXHBI55 ESE_RAM
+	MSXHBI55 \
+	ESE_RAM ESE_SCC
 
 HDR_ONLY:= \
 	RomTypes

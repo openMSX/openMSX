@@ -1,0 +1,210 @@
+// $Id$
+/*
+ * 'Ese-SCC' cartride and 'MEGA-SCSI with SCC'(alias WAVE-SCSI) cartrige.
+ *
+ * Specification:
+ *  SRAM(MegaROM) controller: KONAMI_SCC type (KONAMI5)
+ *  SRAM capacity           : 128, 256, 512kB and 1024kb(WAVE-SCSI only)
+ *  SCSI Protocol controller: Fujitsu MB89352A
+ *
+ * ESE-SCC sram write control register:
+ *  7FFEH, 7FFFH SRAM write control.
+ *   bit4       = 1..SRAM writing in 4000H-7FFDH can be done.
+ *                   It is given priority more than bank changing.
+ *              = 0..SRAM read only
+ *   othet bit  = not used
+ *
+ * WAVE-SCSI bank control register
+ *             6bit register (MA13-MA18, B0-B5)
+ *  5000-57FF: 4000-5FFF change
+ *  7000-77FF: 6000-7FFF change
+ *  9000-97FF: 8000-9FFF change
+ *  B000-B7FF: A000-BFFF change
+ *
+ *  7FFE,7FFF: 2bit register
+ *       bit4: bank control MA20 (B7)
+ *       bit6: bank control MA19 (B6)
+ *  other bit: not used
+ *
+ * WAVE-SCSI bank map:
+ *  00-3F: SRAM read only. mirror of 80-BF.
+ *     3F: SCC
+ *  40-7F: SPC (MB89352A)
+ *  80-FF: SRAM read and write
+ *
+ * SPC BANK address map:
+ * 4000-4FFF spc data register (mirror of 5FFA)
+ * 5000-5FEF undefined specification
+ * 5FF0-5FFE spc register
+ *      5FFF unmapped
+ *
+ * WAVE-SCSI bank access map (X = accessible)
+ *           00-3F 80-BF C0-FF SPC  SCC
+ * 4000-5FFF   X     X     X    X    .
+ * 6000-7FFF   X     X     .    .    .
+ * 8000-9FFF   X     .     .    .    X
+ * A000-BFFF   X     .     .    .    .
+ *
+ */
+
+#include "ESE_SCC.hh"
+#include "SRAM.hh"
+#include "SCC.hh"
+#include "MB89352.hh"
+#include "MSXMotherBoard.hh"
+#include "MSXCPU.hh"
+#include "StringOp.hh"
+#include "MSXException.hh"
+#include "XMLElement.hh"
+#include <cassert>
+
+namespace openmsx {
+
+ESE_SCC::ESE_SCC(MSXMotherBoard& motherBoard, const XMLElement& config,
+                   const EmuTime& time)
+	: MSXDevice(motherBoard, config, time)
+	, cpu(motherBoard.getCPU())
+{
+	unsigned sramSize = config.getChildDataAsInt("sramsize", 256); // size in kb
+	if (sramSize != 1024 && sramSize != 512 && sramSize != 256 && sramSize != 128) {
+		throw MSXException("SRAM size for " + getName() + 
+			" should be 128, 256, 512 or 1024kB and not " + 
+			StringOp::toString(sramSize) + "kB!");
+	}
+	sramSize *= 1024; // in bytes
+	sram.reset(new SRAM(motherBoard, getName() + " SRAM", sramSize, config));
+	mapperMask = (sramSize / 0x2000) - 1;
+
+	// initialized mapper
+	mapperHigh  = 0;
+	sccEnable   = false;
+	spcEnable   = false;
+	writeEnable = false;
+	for (int i = 0; i < 4; ++i) {
+		mapper[i] = i;
+	}
+
+	// initialize SCC
+	scc.reset(new SCC(motherBoard, getName(), config, time));
+
+	// initialize SPC
+	// TODO only conditionally create this
+	// TODO 1024kb is only allowed for WAVE-SCSI
+	spc.reset(new MB89352(motherBoard, config));
+}
+
+ESE_SCC::~ESE_SCC()
+{
+}
+
+void ESE_SCC::reset(const EmuTime& time)
+{
+	setMapperHigh(0);
+	for (int i = 0; i < 4; ++i) {
+		setMapperLow(i, i);
+	}
+	scc->reset(time);
+	if (spc.get()) {
+		spc->reset(true);
+	}
+}
+
+void ESE_SCC::setMapperLow(unsigned page, byte value)
+{
+	value &= 0x3f; // use only 6bit
+	if (page == 2) {
+		// TODO take mapperHigh into account?
+		sccEnable = (value == 0x3f);
+	}
+	mapper[page] = (value | mapperHigh) & mapperMask;
+}
+
+void ESE_SCC::setMapperHigh(byte value)
+{
+	writeEnable = (value & 0x10);
+	if (!spc.get()) {
+		return; // only WAVE-SCSI supports 1024kB
+	}
+	
+	mapperHigh = (value & 0x40);
+	spcEnable = mapperHigh && !writeEnable;
+
+	for (int i = 0; i < 4; ++i) {
+		mapper[i] = ((mapper[i] & 0x3F) | mapperHigh) & mapperMask;
+	}
+}
+
+byte ESE_SCC::readMem(word address, const EmuTime& time)
+{
+	unsigned page = address / 0x2000 - 2;
+	// SPC
+	if (spcEnable && (page == 0)) {
+		address &= 0x1fff;
+		if (address < 0x1000) {
+			return spc->readDREG();
+		} else {
+			return spc->readRegister(address & 0x0f);
+		}
+	}
+	// SCC bank
+	if (sccEnable && (address >= 0x9800) && (address < 0xa000)) {
+		return scc->readMemInterface(address & 0xff, time);
+	}
+	// SRAM read
+	return (*sram)[mapper[page] * 0x2000 + (address & 0x1fff)];
+}
+
+// TODO peekMem()
+
+const byte* ESE_SCC::getReadCacheLine(word address) const
+{
+	// TODO
+	return NULL;
+}
+
+void ESE_SCC::writeMem(word address, byte value, const EmuTime& time)
+{
+	unsigned page = address / 0x2000 - 2;
+	// SPC Write
+	if (spcEnable && (page == 0)) {
+		address &= 0x1fff;
+		if (address < 0x1000) {
+			spc->writeDREG(value);
+		} else {
+			spc->writeRegister(address & 0x0f, value);
+		}
+		return;
+	}
+
+	// SCC write
+	if (sccEnable && (0x9800 <= address) && (address < 0xa000)) {
+		scc->writeMemInterface(address & 0xff, value, time);
+		return;
+	}
+
+	// set mapper high control register
+	if ((address | 0x0001) == 0x7FFF) {
+		setMapperHigh(value);
+		return;
+	}
+
+	// SRAM write (processing of 4000-7FFDH)
+	if (writeEnable && (page < 2)) {
+		sram->write(mapper[page] * 0x2000 + (address & 0x1FFF), value);
+		return;
+	}
+
+	// Bank change
+	if (((address & 0x1800) == 0x1000)) {
+		setMapperLow(page, value);
+		return;
+	}
+}
+
+byte* ESE_SCC::getWriteCacheLine(word address) const
+{
+	// TODO
+	return NULL;
+}
+
+} // namespace openmsx
