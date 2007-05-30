@@ -78,7 +78,7 @@ public:
 	int fnum;		// F-Number
 	int block;		// Block
 	int volume;		// Current volume
-	int sustine;		// Sustine 1 = ON, 0 = OFF
+	bool sustain;	// Sustain 1 = ON, 0 = OFF
 	int tll;		// Total Level + Key scale level
 	int rks;		// Key scale offset (Rks)
 	int eg_mode;		// Current state
@@ -95,7 +95,7 @@ public:
 	Channel();
 	void reset();
 	inline void setPatch(int num);
-	inline void setSustine(bool sustine);
+	inline void setSustain(bool sustain);
 	inline void setVol(int volume);
 	inline void setFnumber(int fnum);
 	inline void setBlock(int block);
@@ -236,7 +236,7 @@ static unsigned AM_DPHASE =
 static word AR_ADJUST_TABLE[1 << EG_BITS];
 
 // Definition of envelope mode
-enum { READY, ATTACK, DECAY, SUSHOLD, SUSTINE, RELEASE, SETTLE, FINISH };
+enum { READY, ATTACK, DECAY, SUSHOLD, SUSTAIN, RELEASE, SETTLE, FINISH };
 
 // Phase incr table for Attack
 static unsigned dphaseARTable[16][16];
@@ -560,7 +560,7 @@ void Slot::reset(bool type_)
 	eg_dphase = 0;
 	rks = 0;
 	tll = 0;
-	sustine = false;
+	sustain = false;
 	fnum = 0;
 	block = 0;
 	volume = 0;
@@ -601,11 +601,11 @@ void Slot::updateEG()
 	case DECAY:
 		eg_dphase = dphaseDRTable[patch->DR][rks];
 		break;
-	case SUSTINE:
+	case SUSTAIN:
 		eg_dphase = dphaseDRTable[patch->RR][rks];
 		break;
 	case RELEASE:
-		if (sustine) {
+		if (sustain) {
 			eg_dphase = dphaseDRTable[5][rks];
 		} else if (patch->EG) {
 			eg_dphase = dphaseDRTable[patch->RR][rks];
@@ -707,12 +707,12 @@ void Channel::setPatch(int num)
 	car.setPatch(&patches[2 * num + 1]);
 }
 
-// Set sustine parameter
-void Channel::setSustine(bool sustine)
+// Set sustain parameter
+void Channel::setSustain(bool sustain)
 {
-	car.sustine = sustine;
+	car.sustain = sustain;
 	if (mod.type) {
-		mod.sustine = sustine;
+		mod.sustain = sustain;
 	}
 }
 
@@ -959,7 +959,7 @@ void Slot::calc_envelope(int lfo_am)
 			if (patch->EG) {
 				eg_mode = SUSHOLD;
 			} else {
-				eg_mode = SUSTINE;
+				eg_mode = SUSTAIN;
 			}
 			updateEG();
 		}
@@ -967,11 +967,11 @@ void Slot::calc_envelope(int lfo_am)
 	case SUSHOLD:
 		out = HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS);
 		if (patch->EG == 0) {
-			eg_mode = SUSTINE;
+			eg_mode = SUSTAIN;
 			updateEG();
 		}
 		break;
-	case SUSTINE:
+	case SUSTAIN:
 	case RELEASE:
 		out = HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS);
 		eg_phase += eg_dphase;
@@ -1307,7 +1307,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime &time)
 		int block = (data >> 1) & 7;
 		ch[cha].setFnumber(fNum);
 		ch[cha].setBlock(block);
-		ch[cha].setSustine((data >> 5) & 1);
+		ch[cha].setSustain((data >> 5) & 1);
 		if (data & 0x10) {
 			ch[cha].keyOn();
 		} else {
