@@ -7,6 +7,7 @@
  */
 
 #include "YM2413.hh"
+#include "FixedPoint.hh"
 #include <cmath>
 #include <cassert>
 #include <algorithm>
@@ -15,6 +16,8 @@
 namespace openmsx {
 
 namespace YM2413Okazaki {
+
+typedef FixedPoint<8> PhaseModulation;
 
 class Patch {
 public:
@@ -44,7 +47,7 @@ public:
 	inline void slotOff();
 	inline void setPatch(Patch* patch);
 	inline void setVolume(int volume);
-	inline void calc_phase(int lfo_pm);
+	inline void calc_phase(PhaseModulation lfo_pm);
 	inline void calc_envelope(int lfo_am);
 	inline int calc_slot_car(int fm);
 	inline int calc_slot_mod();
@@ -135,7 +138,7 @@ public:
 private:
 	// Pitch Modulator
 	unsigned pm_phase;
-	int lfo_pm;
+	PhaseModulation lfo_pm;
 
 	// Amp Modulator
 	unsigned am_phase;
@@ -210,10 +213,6 @@ static const int AM_PG_WIDTH = 1 << AM_PG_BITS;
 static const int AM_DP_BITS = 16;
 static const int AM_DP_WIDTH = 1 << AM_DP_BITS;
 
-// PM table is calcurated by PM_AMP * pow(2,PM_DEPTH*sin(x)/1200)
-static const int PM_AMP_BITS = 8;
-static const int PM_AMP = 1 << PM_AMP_BITS;
-
 // dB to linear table (used by Slot)
 static short dB2LinTab[(DB_MUTE + DB_MUTE) * 2];
 
@@ -223,7 +222,7 @@ static word halfsintable[PG_WIDTH];
 static word* waveform[2] = {fullsintable, halfsintable};
 
 // LFO Table
-static int pmtable[PM_PG_WIDTH];
+static PhaseModulation pmtable[PM_PG_WIDTH];
 static int amtable[AM_PG_WIDTH];
 
 // Noise and LFO
@@ -368,9 +367,9 @@ static inline double saw(double phase)
 static void makePmTable()
 {
 	for (int i = 0; i < PM_PG_WIDTH; ++i) {
-		 pmtable[i] = (int)((double)PM_AMP *
-		     pow(2, (double)PM_DEPTH *
-		            saw(2.0 * M_PI * i / PM_PG_WIDTH) / 1200));
+		 pmtable[i] = PhaseModulation(pow(
+			2, double(PM_DEPTH) * saw(2.0 * M_PI * i / PM_PG_WIDTH) / 1200
+			));
 	}
 }
 
@@ -914,10 +913,10 @@ static inline int wave2_8pi(int e)
 }
 
 // PG
-void Slot::calc_phase(int lfo_pm)
+void Slot::calc_phase(PhaseModulation lfo_pm)
 {
 	if (patch->PM) {
-		phase += (dphase * lfo_pm) >> PM_AMP_BITS;
+		phase += (lfo_pm * dphase).toInt();
 	} else {
 		phase += dphase;
 	}
