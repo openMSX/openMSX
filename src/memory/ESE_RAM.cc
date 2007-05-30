@@ -53,14 +53,14 @@ ESE_RAM::~ESE_RAM()
 {
 }
 
-void ESE_RAM::reset(const EmuTime& time)
+void ESE_RAM::reset(const EmuTime& /*time*/)
 {
 	for (int i = 0; i < 4; ++i) {
 		setSRAM(i, 0);
 	}
 }
 
-byte ESE_RAM::readMem(word address, const EmuTime& time)
+byte ESE_RAM::readMem(word address, const EmuTime& /*time*/)
 {
 	byte result;
 	if ((0x4000 <= address) && (address < 0xC000)) {
@@ -84,7 +84,7 @@ const byte* ESE_RAM::getReadCacheLine(word address) const
 	}
 }
 
-void ESE_RAM::writeMem(word address, byte value, const EmuTime& time)
+void ESE_RAM::writeMem(word address, byte value, const EmuTime& /*time*/)
 {
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		byte region = ((address >> 11) & 3);
