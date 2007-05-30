@@ -12,6 +12,7 @@
 #include <cmath>
 #include <cassert>
 #include <algorithm>
+#include <cstring>
 
 namespace openmsx {
 
@@ -1369,13 +1370,11 @@ void Global::writeReg(byte regis, byte data, const EmuTime &time)
 YM2413::YM2413(MSXMotherBoard& motherBoard, const std::string& name,
                const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMSXMixer(), name, "MSX-MUSIC", 11)
-        , Resample(motherBoard.getGlobalSettings(), 1)
+	, Resample(motherBoard.getGlobalSettings(), 1)
 	, debuggable(new YM2413Debuggable(motherBoard, *this))
 	, global(new YM2413Okazaki::Global(reg))
 {
-	for (int i = 0; i < 0x40; ++i) {
-		reg[i] = 0; // avoid UMR
-	}
+	memset(reg, 0, sizeof(reg)); // avoid UMR
 	reset(time);
 	registerSound(config);
 }
