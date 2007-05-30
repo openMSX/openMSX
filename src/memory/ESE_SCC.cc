@@ -61,7 +61,7 @@
 namespace openmsx {
 
 ESE_SCC::ESE_SCC(MSXMotherBoard& motherBoard, const XMLElement& config,
-                   const EmuTime& time)
+                   const EmuTime& time, bool withSCSI)
 	: MSXDevice(motherBoard, config, time)
 	, cpu(motherBoard.getCPU())
 {
@@ -70,6 +70,9 @@ ESE_SCC::ESE_SCC(MSXMotherBoard& motherBoard, const XMLElement& config,
 		throw MSXException("SRAM size for " + getName() + 
 			" should be 128, 256, 512 or 1024kB and not " + 
 			StringOp::toString(sramSize) + "kB!");
+	}
+	if (!withSCSI && sramSize == 1024) {
+		throw MSXException("1024kB SRAM is only allowed in WAVE-SCSI!");
 	}
 	sramSize *= 1024; // in bytes
 	sram.reset(new SRAM(motherBoard, getName() + " SRAM", sramSize, config));
@@ -86,11 +89,11 @@ ESE_SCC::ESE_SCC(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 	// initialize SCC
 	scc.reset(new SCC(motherBoard, getName(), config, time));
-
-	// initialize SPC
-	// TODO only conditionally create this
-	// TODO 1024kb is only allowed for WAVE-SCSI
-	spc.reset(new MB89352(motherBoard, config));
+	
+	if (withSCSI) {
+		// initialize SPC
+		spc.reset(new MB89352(motherBoard, config));
+	}
 }
 
 ESE_SCC::~ESE_SCC()

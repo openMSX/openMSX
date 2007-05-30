@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+<!-- $Id: hardwareconfig.xml 6520 2007-05-24 20:11:15Z manuelbi $ -->
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+  <info>
+    <manufacturer>ESE Artists' Factory</manufacturer>
+    <code>ESE WAVE-SCSI</code>
+    <release_year>1995?</release_year>
+    <description>MSX SRAM disk with built in SCC and SCSI controller</description>
+    <type>SRAM cartridge with SCC and SCSI</type>
+  </info>
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <WaveSCSI id="ESE WAVE-SCSI">
+          <mem base="0x4000" size="0x8000"/>
+	  <sramsize>1024</sramsize>
+	  <sramname>WAVE-SCSI_1024.sram</sramname>
+          <sound>
+            <volume>13000</volume>
+          </sound>
+          <target id="1">
+            <type>SCSIHD</type>
+            <filename>SCSIhd1.dsk</filename>
+            <size>100</size>
+          </target>
+       </WaveSCSI>
+      </secondary>
+    </primary>
+  </devices>
+</msxconfig>
