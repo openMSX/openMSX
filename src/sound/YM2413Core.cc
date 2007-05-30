@@ -3,6 +3,7 @@
 #include "YM2413Core.hh"
 #include "MSXMotherBoard.hh"
 #include "SimpleDebuggable.hh"
+#include <cstring>
 
 namespace openmsx {
 
