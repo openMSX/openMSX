@@ -228,8 +228,10 @@ static int amtable[AM_PG_WIDTH];
 
 // Noise and LFO
 static const int CLOCK_FREQ = 3579545;
-static unsigned PM_DPHASE = unsigned(PM_SPEED * PM_DP_WIDTH / (CLOCK_FREQ / 72.0));
-static unsigned AM_DPHASE = unsigned(AM_SPEED * AM_DP_WIDTH / (CLOCK_FREQ / 72.0));
+static unsigned PM_DPHASE =
+	unsigned(PM_SPEED * PM_DP_WIDTH / (CLOCK_FREQ / 72.0));
+static unsigned AM_DPHASE =
+	unsigned(AM_SPEED * AM_DP_WIDTH / (CLOCK_FREQ / 72.0));
 
 // Liner to Log curve conversion table (for Attack rate).
 static word AR_ADJUST_TABLE[1 << EG_BITS];
@@ -416,7 +418,9 @@ static void makeTllTable()
 					if (KL == 0) {
 						tllTable[fnum][block][TL][KL] = TL2EG(TL);
 					} else {
-						int tmp = (int)(kltable[fnum] - (3.000 * 2) * (7 - block));
+						int tmp = (int)(
+							kltable[fnum] - (3.000 * 2) * (7 - block)
+							);
 						tllTable[fnum][block][TL][KL] =
 						    (tmp <= 0) ?
 						    TL2EG(TL) :
@@ -1117,7 +1121,8 @@ inline void Global::calcSample(int** bufs, unsigned sample)
 			: 0;
 
 		bufs[ 7][sample] = (ch[7].mod.eg_mode != FINISH)
-			? adjust( 2 * ch[7].mod.calc_slot_hat(ch[8].car.pgout, noise_seed & 1))
+			? adjust(2 * ch[7].mod.calc_slot_hat(ch[8].car.pgout,
+				noise_seed & 1))
 			: 0;
 		bufs[ 8][sample] = (ch[7].car.eg_mode != FINISH)
 			? adjust(-2 * ch[7].car.calc_slot_snare(noise_seed & 1))
