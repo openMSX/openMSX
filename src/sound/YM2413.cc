@@ -352,15 +352,18 @@ static void makeSinTable()
 		halfsintable[i] = fullsintable[0];
 }
 
+/**
+ * Sawtooth function with amplitude 1 and period 2Pi.
+ */
 static inline double saw(double phase)
 {
-  if (phase <= (M_PI / 2)) {
-    return phase * 2 / M_PI;
-  } else if (phase <= (M_PI * 3 / 2)) {
-    return 2.0 - (phase * 2 / M_PI);
-  } else {
-    return -4.0 + phase * 2 / M_PI;
-  }
+	if (phase <= (M_PI / 2)) {
+		return phase * 2 / M_PI;
+	} else if (phase <= (M_PI * 3 / 2)) {
+		return 2.0 - (phase * 2 / M_PI);
+	} else {
+		return -4.0 + phase * 2 / M_PI;
+	}
 }
 
 // Table for Pitch Modulator
