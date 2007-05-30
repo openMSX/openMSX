@@ -1167,14 +1167,6 @@ void Global::initTables()
 	}
 }
 
-void YM2413_2::setOutputRate(unsigned sampleRate)
-{
-	const int CLOCK_FREQ = 3579545;
-	double input = CLOCK_FREQ / 72.0;
-	setInputRate(static_cast<int>(input + 0.5));
-	setResampleRatio(input, sampleRate);
-}
-
 void Slot::setKeyOn(KeyPart part)
 {
 	if (!key) {
@@ -1415,85 +1407,6 @@ void Global::setRhythmFlags(byte flags)
 	}
 }
 
-void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
-{
-	PRT_DEBUG("YM2413: write reg " << (int)r << " " << (int)v);
-	reg[r] = v;
-
-	// update the output buffer before changing the register
-	updateStream(time);
-
-	switch (r & 0xF0) {
-	case 0x00: { // 00-0F: control
-		switch (r & 0x0F) {
-		case 0x00:  // AM/VIB/EGTYP/KSR/MULTI (modulator)
-		case 0x01:  // AM/VIB/EGTYP/KSR/MULTI (carrier)
-		case 0x02:  // Key Scale Level, Total Level (modulator)
-		case 0x03:  // Key Scale Level, carrier waveform, modulator waveform,
-		            // Feedback
-		case 0x04:  // Attack, Decay (modulator)
-		case 0x05:  // Attack, Decay (carrier)
-		case 0x06:  // Sustain, Release (modulator)
-		case 0x07:  // Sustain, Release (carrier)
-			global->updateCustomInstrument(r & 0x07, v);
-			break;
-		case 0x0E:
-			global->setRhythmFlags(v);
-			break;
-		}
-		break;
-	}
-	case 0x10:
-	case 0x20: { // block, fnum, sus, keyon
-		Channel& ch = global->getChannelForReg(r);
-		if (r & 0x10) {
-			// 10-18: FNUM 0-7
-			ch.setFrequencyLow(v);
-		} else {
-			// 20-28: suson, keyon, block, FNUM 8
-			ch.slots[SLOT1].setKeyOnOff(KEY_MAIN, v & 0x10);
-			ch.slots[SLOT2].setKeyOnOff(KEY_MAIN, v & 0x10);
-			ch.setSustain(v & 0x20);
-			// Note: When changing the frequency, a new value for RS is
-			//       computed using the sustain value, so make sure the new
-			//       sustain value is committed first.
-			ch.setFrequencyHigh(v & 0x0F);
-		}
-		break;
-	}
-
-	case 0x30: { // inst 4 MSBs, VOL 4 LSBs
-		Channel& ch = global->getChannelForReg(r);
-
-		byte old_instvol = ch.instvol_r;
-		ch.instvol_r = v;  // store for later use
-
-		ch.slots[SLOT2].setTotalLevel((v & 0x0F) << 2);
-
-		// Check wether we are in rhythm mode and handle instrument/volume
-		// register accordingly.
-
-		byte chan = (r & 0x0F) % 9;	// verified on real YM2413
-		if (chan >= global->getNumMelodicChannels()) {
-			// We're in rhythm mode.
-			if (chan >= 7) {
-				// Only for channel 7 and 8 (channel 6 is handled in usual way)
-				// modulator envelope is HH(chan=7) or TOM(chan=8).
-				ch.slots[SLOT1].setTotalLevel((ch.instvol_r >> 4) << 2);
-			}
-		} else {
-			if ((old_instvol & 0xF0) != (v & 0xF0)) {
-				ch.updateInstrument();
-			}
-		}
-		break;
-	}
-
-	default:
-		break;
-	}
-}
-
 void Global::reset()
 {
 	eg_cnt    = 0;
@@ -1622,7 +1535,27 @@ void Global::generateChannels(int** bufs, unsigned num)
 	}
 }
 
-void YM2413_2::reset(const EmuTime &time)
+
+// YM2413_2
+
+YM2413_2::YM2413_2(MSXMotherBoard& motherBoard, const std::string& name,
+                   const XMLElement& config, const EmuTime& time)
+	: SoundDevice(motherBoard.getMSXMixer(), name, "MSX-MUSIC", 11)
+	, Resample(motherBoard.getGlobalSettings(), 1)
+	, debuggable(new YM2413_2Debuggable(motherBoard, *this))
+	, global(new Global())
+{
+	memset(reg, 0, sizeof(reg)); // avoid UMR
+	reset(time);
+	registerSound(config);
+}
+
+YM2413_2::~YM2413_2()
+{
+	unregisterSound();
+}
+
+void YM2413_2::reset(const EmuTime& time)
 {
 	global->reset();
 
@@ -1635,21 +1568,12 @@ void YM2413_2::reset(const EmuTime &time)
 	global->resetOperators();
 }
 
-
-YM2413_2::YM2413_2(MSXMotherBoard& motherBoard, const std::string& name,
-                   const XMLElement& config, const EmuTime& time)
-	: SoundDevice(motherBoard.getMSXMixer(), name, "MSX-MUSIC", 11)
-	, Resample(motherBoard.getGlobalSettings(), 1)
-	, debuggable(new YM2413_2Debuggable(motherBoard, *this))
-	, global(new Global())
+void YM2413_2::setOutputRate(unsigned sampleRate)
 {
-	reset(time);
-	registerSound(config);
-}
-
-YM2413_2::~YM2413_2()
-{
-	unregisterSound();
+	const int CLOCK_FREQ = 3579545;
+	double input = CLOCK_FREQ / 72.0;
+	setInputRate(static_cast<int>(input + 0.5));
+	setResampleRatio(input, sampleRate);
 }
 
 void YM2413_2::generateChannels(int** bufs, unsigned num)
@@ -1668,8 +1592,87 @@ bool YM2413_2::updateBuffer(unsigned length, int* buffer,
 	return generateOutput(buffer, length);
 }
 
+void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
+{
+	PRT_DEBUG("YM2413: write reg " << (int)r << " " << (int)v);
+	reg[r] = v;
 
-// YM2413_2Registers
+	// update the output buffer before changing the register
+	updateStream(time);
+
+	switch (r & 0xF0) {
+	case 0x00: { // 00-0F: control
+		switch (r & 0x0F) {
+		case 0x00:  // AM/VIB/EGTYP/KSR/MULTI (modulator)
+		case 0x01:  // AM/VIB/EGTYP/KSR/MULTI (carrier)
+		case 0x02:  // Key Scale Level, Total Level (modulator)
+		case 0x03:  // Key Scale Level, carrier waveform, modulator waveform,
+		            // Feedback
+		case 0x04:  // Attack, Decay (modulator)
+		case 0x05:  // Attack, Decay (carrier)
+		case 0x06:  // Sustain, Release (modulator)
+		case 0x07:  // Sustain, Release (carrier)
+			global->updateCustomInstrument(r & 0x07, v);
+			break;
+		case 0x0E:
+			global->setRhythmFlags(v);
+			break;
+		}
+		break;
+	}
+	case 0x10:
+	case 0x20: { // block, fnum, sus, keyon
+		Channel& ch = global->getChannelForReg(r);
+		if (r & 0x10) {
+			// 10-18: FNUM 0-7
+			ch.setFrequencyLow(v);
+		} else {
+			// 20-28: suson, keyon, block, FNUM 8
+			ch.slots[SLOT1].setKeyOnOff(KEY_MAIN, v & 0x10);
+			ch.slots[SLOT2].setKeyOnOff(KEY_MAIN, v & 0x10);
+			ch.setSustain(v & 0x20);
+			// Note: When changing the frequency, a new value for RS is
+			//       computed using the sustain value, so make sure the new
+			//       sustain value is committed first.
+			ch.setFrequencyHigh(v & 0x0F);
+		}
+		break;
+	}
+
+	case 0x30: { // inst 4 MSBs, VOL 4 LSBs
+		Channel& ch = global->getChannelForReg(r);
+
+		byte old_instvol = ch.instvol_r;
+		ch.instvol_r = v;  // store for later use
+
+		ch.slots[SLOT2].setTotalLevel((v & 0x0F) << 2);
+
+		// Check wether we are in rhythm mode and handle instrument/volume
+		// register accordingly.
+
+		byte chan = (r & 0x0F) % 9;	// verified on real YM2413
+		if (chan >= global->getNumMelodicChannels()) {
+			// We're in rhythm mode.
+			if (chan >= 7) {
+				// Only for channel 7 and 8 (channel 6 is handled in usual way)
+				// modulator envelope is HH(chan=7) or TOM(chan=8).
+				ch.slots[SLOT1].setTotalLevel((ch.instvol_r >> 4) << 2);
+			}
+		} else {
+			if ((old_instvol & 0xF0) != (v & 0xF0)) {
+				ch.updateInstrument();
+			}
+		}
+		break;
+	}
+
+	default:
+		break;
+	}
+}
+
+
+// YM2413_2Debuggable
 
 YM2413_2Debuggable::YM2413_2Debuggable(
 		MSXMotherBoard& motherBoard, YM2413_2& ym2413_)
