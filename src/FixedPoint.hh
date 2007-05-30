@@ -31,10 +31,6 @@ private:
 	  */
 	static const int FRACTION_MASK = ONE - 1;
 
-	/** Creates an uninitialized fixed point object. Used by create().
-	  */
-	FixedPoint() {};
-
 	/** Create new fixed point object from given representation.
 	  * Used by the overloaded operators.
 	  * @param value the internal representation.
@@ -46,6 +42,11 @@ private:
 	}
 
 public:
+	/** Creates an uninitialized fixed point object.
+	  * This must be public to allow arrays of FixedPoint objects.
+	  */
+	explicit FixedPoint() {};
+
 	// Conversion to fixed point:
 
 	explicit FixedPoint(const int i) : value(i << FRACTION_BITS) {};
