@@ -4,8 +4,6 @@
 #include "YMF262.hh"
 #include "YMF278.hh"
 #include "XMLElement.hh"
-#include "MSXMotherBoard.hh"
-#include "MSXMixer.hh"
 
 namespace openmsx {
 

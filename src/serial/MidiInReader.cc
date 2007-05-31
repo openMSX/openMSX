@@ -5,7 +5,7 @@
 #include "EventDistributor.hh"
 #include "Scheduler.hh"
 #include "FilenameSetting.hh"
-#include <cstring>
+#include <cstdio>
 #include <cerrno>
 
 using std::string;

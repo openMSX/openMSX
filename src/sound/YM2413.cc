@@ -11,7 +11,6 @@
 #include <cmath>
 #include <cassert>
 #include <algorithm>
-#include <cstring>
 
 namespace openmsx {
 

@@ -19,13 +19,13 @@
 #include "SCSIHD.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
-#include "MSXMotherBoard.hh"
 #include "StringOp.hh"
 #include <cassert>
 #include <cstring>
-#include <iostream>
+
 //#undef PRT_DEBUG
 /*
+#include <iostream>
 #define  PRT_DEBUG(mes)                          \
         do {                                    \
                 std::cout << mes << std::endl;  \

@@ -4,7 +4,6 @@
 #include "MSXException.hh"
 #include "Math.hh"
 #include "SDLImage.hh"
-#include <SDL_image.h>
 #include <SDL.h>
 
 using std::string;

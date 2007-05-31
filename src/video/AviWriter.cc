@@ -6,7 +6,6 @@
 #include "ZMBVEncoder.hh"
 #include "CommandException.hh"
 #include "build-info.hh"
-#include <algorithm>
 #include <cstring>
 #include <cstdlib>
 #include <cassert>

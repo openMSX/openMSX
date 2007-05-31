@@ -12,7 +12,6 @@
 #include "GlobalCommandController.hh"
 #include "Command.hh"
 #include <memory>
-#include <cassert>
 
 using std::auto_ptr;
 using std::string;

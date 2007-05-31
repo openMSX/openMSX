@@ -12,7 +12,6 @@
 #include "Scheduler.hh"
 #include "GlobalCliComm.hh"
 #include "FileOperations.hh"
-#include <cmath>
 #include <cassert>
 
 using std::string;

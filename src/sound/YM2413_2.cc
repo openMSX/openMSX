@@ -24,7 +24,6 @@
 #include "YM2413_2.hh"
 #include "FixedPoint.hh"
 #include <cmath>
-#include <cstring>
 
 namespace openmsx {
 
