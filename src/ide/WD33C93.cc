@@ -133,10 +133,8 @@ WD33C93::WD33C93(MSXMotherBoard& motherBoard, const XMLElement& config)
 		const XMLElement& typeElem = target.getChild("type");
 		const std::string& type = typeElem.getData();
 		if (type == "SCSIHD") {
-			dev[id].reset(new SCSIHD(motherBoard, target, &buffer[0], NULL,
-			        SCSI::DT_DirectAccess,
+			dev[id].reset(new SCSIHD(motherBoard, target, &buffer[0],
 			        SCSIDevice::MODE_SCSI1 | SCSIDevice::MODE_UNITATTENTION |
-			        SCSIDevice::MODE_FDS120 | SCSIDevice::MODE_REMOVABLE |
 			        SCSIDevice::MODE_NOVAXIS));
 		} else {
 			throw MSXException("Unknown SCSI device: " + type);

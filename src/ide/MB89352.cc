@@ -113,10 +113,8 @@ MB89352::MB89352(MSXMotherBoard& motherBoard, const XMLElement& config)
 		const XMLElement& typeElem = target.getChild("type");
 		const string& type = typeElem.getData();
 		if (type == "SCSIHD") {
-			dev[id].reset(new SCSIHD(motherBoard, target, &buffer[0], NULL,
-			        SCSI::DT_DirectAccess,
-			        SCSIDevice::MODE_SCSI2 | SCSIDevice::MODE_MEGASCSI |
-			        SCSIDevice::MODE_FDS120 | SCSIDevice::MODE_REMOVABLE));
+			dev[id].reset(new SCSIHD(motherBoard, target, &buffer[0],
+			        SCSIDevice::MODE_SCSI2 | SCSIDevice::MODE_MEGASCSI));
 		} else {
 			throw MSXException("Unknown SCSI device: " + type);
 		}

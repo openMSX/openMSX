@@ -28,7 +28,7 @@ class SCSIHD : public HD, public SCSIDevice, public SectorAccessibleDisk,
 {
 public:
 	SCSIHD(MSXMotherBoard& motherBoard, const XMLElement& targetconfig, 
-		byte* buf, const char* name, byte type, int mode);
+		byte* buf, int mode);
 	virtual ~SCSIHD();
 
 	// SectorAccessibleDisk:
@@ -57,9 +57,7 @@ protected:
 
 private:
 	bool getReady();
-	bool diskChanged();
 	void testUnitReady();
-	void startStopUnit();
 	int inquiry();
 	int modeSense();
 	int requestSense();
@@ -73,19 +71,12 @@ private:
 	MSXMotherBoard& motherBoard;
 
 	const byte scsiId;     // SCSI ID 0..7
-	const byte deviceType; // TODO only needed because we don't have seperate
-	                       //  subclasses for the different devicetypes
 	const int mode;
-	const char* const productName;
 
 	bool unitAttention;    // Unit Attention (was: reset)
 	bool motor;            // Reserved
 	int keycode;           // Sense key, ASC, ASCQ
-	bool inserted;
-	bool changed;          // Enhanced change flag for MEGA-SCSI driver
-	bool changeCheck2;     // Disk change control flag
 	unsigned currentSector;
-	unsigned sectorSize;   // TODO should be a constant: 512 for HD, 2048 for CD
 	unsigned currentLength;
 	byte message;
 	byte lun;

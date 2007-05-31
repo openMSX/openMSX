@@ -1,5 +1,12 @@
 $Id$
 
+2007-05-31 Manuel Bilderbeek <manuel@msxnet.org>
+	* Removed all dead code from SCSIHD and attempted to move
+	  device-specific stuff inside the class. I'll try to make an
+	  LS-120 device soon, to demonstrate a removable device.
+	* Note that yesterday we also added ESE SCC and WAVE-SCSI. The latter
+	  doesn't seem to work properly, though.
+
 2007-05-28 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added initial MEGA-SCSI emulation.
 	  It's not working completely OK yet... Please help debugging :)

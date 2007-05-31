@@ -14,6 +14,10 @@
  *  It follows the SCSI1(CCS) standard or the SCSI2 standard.
  *  Only the direct access device is supported now.
  *  Message system might be imperfect.
+ *
+ *  NOTE: this version only supports a non-removable harddisk, as the class
+ *  name suggests. Refer to revision 6526 of this file to see what was removed
+ *  from the generic/parameterised code.
  */
 
 #include "SCSIHD.hh"
@@ -83,76 +87,30 @@ static const char sdt_name[10][10 + 1] =
 	{"???       "}
 };
 
-// for FDSFORM.COM
-static const char fds120[28 + 1]  = "IODATA  LS-120 COSM     0001";
+static const unsigned sectorSize = 512; // Always true for harddisk
 
 SCSIHD::SCSIHD(MSXMotherBoard& motherBoard_, const XMLElement& targetconfig,
-		byte* buf, const char* name_, byte type, int mode_)
+		byte* buf, int mode_)
 	  : HD(motherBoard_, targetconfig)
 	  , motherBoard(motherBoard_)
 	  , scsiId(targetconfig.getAttributeAsInt("id"))
-	  , deviceType(type)
 	  , mode(mode_)
-	  , productName(name_)
 	  , buffer(buf)
 {
-	sectorSize = 512;
-	/* TODO: MOVE CD-ROM STUFF TO SEPARATE CLASS
-	   cdrom = NULL;
-	
-	   disk.fileName[0] = 0;
-	   disk.fileNameInZip[0] = 0;
-	   disk.directory[0] = 0;
-	   disk.extensionFilter = 0;
-	   disk.type = 0;
-
-	if (type == SCSI::DT_CDROM) {
-		sectorSize = 2048;
-		cdrom = archCdromCreate(xferCompCb, ref);
-		if (cdrom == NULL) {
-			enabled = false;
-		}
-	}*/
-	
 	reset();
 }
 
 SCSIHD::~SCSIHD()
 {
 	PRT_DEBUG("hdd close for hdd " << (int)scsiId);
-	/* TODO:
-	if (deviceType == SCSI::DT_CDROM) {
-		archCdromDestroy(cdrom);
-	}*/
 }
 
 void SCSIHD::reset()
 {
-	/* TODO:
-	if (deviceType == SCSI::DT_CDROM) {
-		archCdromHwReset(cdrom);
-	}*/
-	changed       = false;
 	keycode       = 0;
 	currentSector = 0;
 	currentLength = 0;
-	motor         = true;
-	changeCheck2  = true; // the first use always
 	unitAttention = (mode & MODE_UNITATTENTION);
-
-	//TODO:    disk = propGetGlobalProperties()->media.disks[diskId];
-	/* TODO:
-	inserted = (strlen(disk.fileName) > 0);
-	if (inserted) {
-		PRT_DEBUG("hdd %d: \n", scsiId);
-		PRT_DEBUG("filename: %s\n", disk.fileName);
-		PRT_DEBUG("     zip: %s\n", disk.fileNameInZip);
-	} else if ((mode & MODE_NOVAXIS) && deviceType != SCSI::DT_CDROM) {
-		enabled = false;
-	}*/
-
-	// FOR NOW:
-	inserted = true;
 }
 
 void SCSIHD::busReset()
@@ -160,184 +118,54 @@ void SCSIHD::busReset()
 	PRT_DEBUG("SCSI: bus reset on " << (int)scsiId);
 	keycode = 0;
 	unitAttention = (mode & MODE_UNITATTENTION);
-	/* TODO:
-	if (deviceType == SCSI::DT_CDROM) {
-		archCdromBusReset(cdrom);
-	}*/
 }
 
 void SCSIHD::disconnect()
 {
-	// TODO
-	//if (deviceType != SCSI::DT_CDROM) {
 	motherBoard.getEventDistributor().distributeEvent(
 			new LedEvent(LedEvent::FDD, false, motherBoard));
-	//} else {
-	//	archCdromDisconnect(cdrom);
-	//}
 }
 
 // Check the initiator in the call origin.
 bool SCSIHD::isSelected()
 {
 	lun = 0;
-	return true; // FOR NOW
-	/*
-	if (mode & MODE_REMOVABLE) {
-		if (!enabled && (mode & MODE_NOVAXIS) && 
-		    deviceType != SCSI::DT_CDROM) {
-			//TODO:    enabled = diskPresent(diskId) ? 1 : 0;
-			// FOR NOW:
-			enabled = true;
-		}
-		return enabled;
-	}
-	return enabled // TODO: && diskPresent(diskId) ;
-	*/
+	return true; 
 }
 
 bool SCSIHD::getReady()
 {
-	// TODO: if (diskPresent(diskId)) {
-	   return true;
-	//}
-	// TODO: keycode = SCSI::SENSE_MEDIUM_NOT_PRESENT;
-	// TODO: return false;
-}
-
-bool SCSIHD::diskChanged()
-{
-	/* TODO:
-	FileProperties* pDisk;
-	bool tmpChanged = diskChanged(diskId);
-
-	if (tmpChanged) {
-		   motor = true;
-		   pDisk = &propGetGlobalProperties()->media.disks[diskId];
-
-		   if (changeCheck2) {
-			changeCheck2 = false;
-			if (inserted &&
-			    (strcmp(disk.fileName, pDisk->fileName) == 0) &&
-			    (strcmp(disk.fileNameInZip, pDisk->fileNameInZip) == 0)) {
-				PRT_DEBUG("Disk change invalidity\n\n");
-				return 0;
-			}
-		   }
-		   changed  = true;
-		   disk = *pDisk;
-		   inserted = true;
-
-		   PRT_DEBUG("hdd %d: disk change\n", scsiId);
-		   PRT_DEBUG("filename: %s\n", disk.fileName);
-		   PRT_DEBUG("     zip: %s\n", disk.fileNameInZip);
-	} else {
-		if (inserted & !diskPresent(diskId)) {
-			inserted   = false;
-			motor      = false;
-			changed    = true;
-			tmpChanged = true;
-		}
-	}*/
-	bool tmpChanged = false; // REMOVE THIS LINE WHEN THE TODO IS DONE!!!!!!!!!!!!!!!!!!!
-
-	if (tmpChanged && (mode & MODE_UNITATTENTION)) {
-		unitAttention = true;
-	}
-	return tmpChanged;
+	return true;
 }
 
 void SCSIHD::testUnitReady()
 {
-	if ((mode & MODE_NOVAXIS) == 0) {
-		if (getReady() && changed && (mode & MODE_MEGASCSI)) {
-			// Disk change is surely sent for the driver of MEGA-SCSI.
-			keycode = SCSI::SENSE_POWER_ON;
-		}
-	}
-	changed = false;
+	// changed = false;
 }
 
-//TODO: lots of stuff in this method
-void SCSIHD::startStopUnit()
-{
-	//TODO:    FileProperties* disk = &propGetGlobalProperties()->media.disks[diskId];
-
-	switch (cdb[4]) {
-	case 2: // Eject  TODO
-	//      if (diskPresent(diskId)) {
-	//      	disk->fileName[0] = 0;
-	//      	disk->fileNameInZip[0] = 0;
-	//      	updateExtendedDiskName(diskId, disk->fileName, disk->fileNameInZip);
-	//      	boardChangeDiskette(diskId, NULL, NULL);
-			PRT_DEBUG("eject hdd " << (int)scsiId);
-	//      } 
-		break;
-	case 3: // Insert  TODO
-	//      if (!diskPresent(diskId)) {
-	//      	*disk = disk;
-	//      	updateExtendedDiskName(diskId, disk->fileName, disk->fileNameInZip);
-	//      	boardChangeDiskette(diskId, disk->fileName, disk->fileNameInZip);
-			PRT_DEBUG("insert hdd " << (int)scsiId);
-	//      } 
-		break;
-	}
-	motor = cdb[4] & 1;
-	PRT_DEBUG("hdd " << (int)scsiId << " motor: " << motor);
-}
-
-//TODO also a lot to do here, lots of interfacing with a SectorAccessibleDisk
 int SCSIHD::inquiry()
 {
-	unsigned total  = getNbSectors();
 	unsigned length = currentLength;
-	byte type = deviceType;
-	byte removable;
 	
-	bool fdsmode = (mode & MODE_FDS120) && (total > 0) && (total <= 2880);
-
 	if (length == 0) return 0;
 
-	if (fdsmode) {
-		memcpy(buffer + 2, inqdata + 2, 6);
-		memcpy(buffer + 8, fds120, 28);
-		removable = 0x80;
-		if (type != SCSI::DT_DirectAccess) {
-			type = SCSI::DT_Processor;
-		}
-	} else {
-		memcpy(buffer + 2, inqdata + 2, 34);
-		removable = (mode & MODE_REMOVABLE) ? 0x80 : 0;
+	memcpy(buffer + 2, inqdata + 2, 34);
 
-		if (productName == NULL) {
-			byte dt = deviceType;
-			if (dt != SCSI::DT_DirectAccess) {
-				if (dt > SCSI::DT_Communications) {
-					dt = SCSI::DT_Communications + 1;
-				}
-				--dt;
-				memcpy(buffer + 22, sdt_name[dt], 10);
-			}
-		} else {
-			memcpy(buffer + 16, productName, 16);
-		}
-	}
-
-	buffer[0] = type;
-	buffer[1] = removable;
+	buffer[0] = SCSI::DT_DirectAccess;
+	buffer[1] = 0; // removable
 
 	if (!(mode & BIT_SCSI2)) {
 		buffer[2] = 1;
 		buffer[3] = 1;
-		if (!fdsmode) buffer[20] = '1';
+		buffer[20] = '1';
 	} else {
 		if (mode & BIT_SCSI3) {
 			buffer[2] = 5;
-			if (!fdsmode) buffer[20] = '3';
+			buffer[20] = '3';
 		}
 	}
 
-	if ((mode & MODE_CHECK2) && !fdsmode) {
+	if ((mode & MODE_CHECK2)) {
 		buffer[35] = 'A';
 	}
 	if (mode & BIT_SCSI3) {
@@ -371,30 +199,12 @@ int SCSIHD::modeSense()
 		byte blockLength = sectorSize >> 8;
 		byte tracks      = 8;
 		byte size        = 4 + 24;
-		byte removable   = mode & MODE_REMOVABLE ? 0xa0 : 0x80;
+		byte removable   = 0x80; // == not removable
 
 		memset(buffer + 2, 0, 34);
 
 		if (total == 0) {
 			media = MT_NO_DISK;
-		} else {
-			if (mode & MODE_FDS120) {
-				if (total == 1440) {
-					media       = MT_2DD;
-					sectors     = 9;
-					blockLength = 2048 >> 8; // FDS-120 value
-					tracks      = 160;
-					removable   = 0xa0;
-				} else {
-					if (total == 2880) {
-						media       = MT_2HD_144;
-						sectors     = 18;
-						blockLength = 2048 >> 8;
-						tracks      = 160;
-						removable   = 0xa0;
-					}
-				}
-			}
 		}
 
 		// Mode Parameter Header 4bytes
@@ -519,7 +329,6 @@ int SCSIHD::readSector(int& blocks)
 
 	PRT_DEBUG("hdd#" << (int)scsiId << " read sector: " << currentSector << " " << numSectors);
 	try {
-		//TODO: somehow map this to SectorAccessibleDisk::readLogicalSector?
 		file->seek(sectorSize * currentSector);
 		file->read(buffer, sectorSize * numSectors);
 		currentSector += numSectors;
@@ -556,7 +365,6 @@ int SCSIHD::writeSector(int& blocks)
 	int numSectors = std::min(currentLength, BUFFER_BLOCK_SIZE);
 
 	PRT_DEBUG("hdd#" << (int)scsiId << " write sector: " << currentSector << " " << numSectors);
-	//TODO: somehow map this to SectorAccessibleDisk::writeLogicalSector?
 	try {
 		file->seek(sectorSize * currentSector);
 		file->write(buffer, sectorSize * numSectors);
@@ -593,7 +401,6 @@ void SCSIHD::formatUnit()
 			file->seek(0);
 			file->write(buffer, sectorSize);
 			unitAttention = true;
-			changed = true;
 		} catch (FileException& e) {
 			keycode = SCSI::SENSE_WRITE_FAULT;
 		}
@@ -602,12 +409,7 @@ void SCSIHD::formatUnit()
 
 byte SCSIHD::getStatusCode()
 {
-	byte result;
-//TODO	if (deviceType != SCSI::DT_CDROM) {
-		result = keycode ? SCSI::ST_CHECK_CONDITION : SCSI::ST_GOOD;
-//	} else {
-//TODO          result = archCdromGetStatusCode(cdrom);
-//	}
+	byte result = keycode ? SCSI::ST_CHECK_CONDITION : SCSI::ST_GOOD;
 	PRT_DEBUG("SCSI status code: \n" << (int)result);
 	return result;
 }
@@ -622,34 +424,13 @@ int SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, int& blocks)
 	phase = SCSI::STATUS;
 	blocks = 0;
 
-	/* TODO
-	if (deviceType == SCSI::DT_CDROM) {
-		int retval;
-		keycode = SCSI::SENSE_NO_SENSE;
-		phase = SCSI::EXECUTE;
-		retval = archCdromExecCmd(cdrom, cdb, buffer, BUFFER_SIZE);
-		switch (retval) {
-		case 0:
-			phase = Status;
-			break;
-		case -1:
-			break;
-		default:
-			phase = SCSI::DATA_IN;
-			return retval;
-		}
-		return 0;
-	}*/
-
-	//TODO:    scsiDeviceDiskChanged(scsi);
-
 	// check unit attention
 	if (unitAttention && (mode & MODE_UNITATTENTION) &&
 	    (cdb[0] != SCSI::OP_INQUIRY) && (cdb[0] != SCSI::OP_REQUEST_SENSE)) {
 		unitAttention = false;
 		keycode = SCSI::SENSE_POWER_ON;
 		if (cdb[0] == SCSI::OP_TEST_UNIT_READY) {
-			changed = false;
+			// changed = false;
 		}
 		PRT_DEBUG("Unit Attention. This command is not executed.");
 		return 0;
@@ -750,8 +531,7 @@ int SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, int& blocks)
 			return 0;
 
 		case SCSI::OP_START_STOP_UNIT:
-			PRT_DEBUG("StartStopUnit");
-			startStopUnit();
+			PRT_DEBUG("StartStopUnit (Not supported for this device.)");
 			return 0;
 
 		case SCSI::OP_REZERO_UNIT:
@@ -817,16 +597,9 @@ int SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, int& blocks)
 
 int SCSIHD::executingCmd(SCSI::Phase& phase, int& blocks)
 {
-	int result = 0;
-
-	/* TODO
-	if (archCdromIsXferComplete(cdrom, &result)) {
-		phase = result ? SCSI::DATA_IN : Status;
-	} else { */
 	phase = SCSI::EXECUTE;
-	// }
 	blocks = 0;
-	return result;
+	return 0; // Always for non-CD-ROM it seems
 }
 
 byte SCSIHD::msgIn()
