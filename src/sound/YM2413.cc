@@ -61,7 +61,7 @@ public:
 	inline void updateEG();
 	inline void updateAll();
 
-	Patch& patch;
+	Patch* patch;
 
 	// OUTPUT
 	int feedback;
@@ -557,7 +557,6 @@ Patch::Patch(int n, const byte* data)
 //                                                            //
 //************************************************************//
 Slot::Slot(bool type)
-	: patch(Global::nullPatch)
 {
 	reset(type);
 }
@@ -582,49 +581,49 @@ void Slot::reset(bool type_)
 	volume = 0;
 	pgout = 0;
 	egout = 0;
-	patch = Global::nullPatch;
+	patch = &Global::nullPatch;
 	slot_on_flag = false;
 }
 
 
 void Slot::updatePG()
 {
-	dphase = dphaseTable[fnum][block][patch.ML];
+	dphase = dphaseTable[fnum][block][patch->ML];
 }
 
 void Slot::updateTLL()
 {
-	tll = type ? tllTable[fnum >> 5][block][volume]  [patch.KL]:
-	             tllTable[fnum >> 5][block][patch.TL][patch.KL];
+	tll = type ? tllTable[fnum >> 5][block][volume]   [patch->KL]:
+	             tllTable[fnum >> 5][block][patch->TL][patch->KL];
 }
 
 void Slot::updateRKS()
 {
-	rks = rksTable[fnum >> 8][block][patch.KR];
+	rks = rksTable[fnum >> 8][block][patch->KR];
 }
 
 void Slot::updateWF()
 {
-	sintbl = waveform[patch.WF];
+	sintbl = waveform[patch->WF];
 }
 
 void Slot::updateEG()
 {
 	switch (eg_mode) {
 	case ATTACK:
-		eg_dphase = dphaseARTable[patch.AR][rks];
+		eg_dphase = dphaseARTable[patch->AR][rks];
 		break;
 	case DECAY:
-		eg_dphase = dphaseDRTable[patch.DR][rks];
+		eg_dphase = dphaseDRTable[patch->DR][rks];
 		break;
 	case SUSTAIN:
-		eg_dphase = dphaseDRTable[patch.RR][rks];
+		eg_dphase = dphaseDRTable[patch->RR][rks];
 		break;
 	case RELEASE:
 		if (sustain) {
 			eg_dphase = dphaseDRTable[5][rks];
-		} else if (patch.EG) {
-			eg_dphase = dphaseDRTable[patch.RR][rks];
+		} else if (patch->EG) {
+			eg_dphase = dphaseDRTable[patch->RR][rks];
 		} else {
 			eg_dphase = dphaseDRTable[7][rks];
 		}
@@ -682,9 +681,9 @@ void Slot::slotOff()
 
 
 // Change a rhythm voice
-void Slot::setPatch(Patch& ptch)
+void Slot::setPatch(Patch& patch)
 {
-	patch = ptch;
+	this->patch = &patch;
 }
 
 void Slot::setVolume(int newVolume)
@@ -937,7 +936,7 @@ static inline int wave2_8pi(int e)
 // PG
 void Slot::calc_phase(PhaseModulation lfo_pm)
 {
-	if (patch.PM) {
+	if (patch->PM) {
 		phase += (lfo_pm * dphase).toInt();
 	} else {
 		phase += dphase;
@@ -963,7 +962,7 @@ void Slot::calc_envelope(int lfo_am)
 	case ATTACK:
 		out = AR_ADJUST_TABLE[HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS)];
 		eg_phase += eg_dphase;
-		if ((EG_DP_WIDTH & eg_phase) || (patch.AR == 15)) {
+		if ((EG_DP_WIDTH & eg_phase) || (patch->AR == 15)) {
 			out = 0;
 			eg_phase = 0;
 			eg_mode = DECAY;
@@ -973,9 +972,9 @@ void Slot::calc_envelope(int lfo_am)
 	case DECAY:
 		out = HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS);
 		eg_phase += eg_dphase;
-		if (eg_phase >= SL[patch.SL]) {
-			eg_phase = SL[patch.SL];
-			if (patch.EG) {
+		if (eg_phase >= SL[patch->SL]) {
+			eg_phase = SL[patch->SL];
+			if (patch->EG) {
 				eg_mode = SUSHOLD;
 			} else {
 				eg_mode = SUSTAIN;
@@ -985,7 +984,7 @@ void Slot::calc_envelope(int lfo_am)
 		break;
 	case SUSHOLD:
 		out = HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS);
-		if (patch.EG == 0) {
+		if (patch->EG == 0) {
 			eg_mode = SUSTAIN;
 			updateEG();
 		}
@@ -1013,7 +1012,7 @@ void Slot::calc_envelope(int lfo_am)
 		out = (1 << EG_BITS) - 1;
 		break;
 	}
-	if (patch.AM) {
+	if (patch->AM) {
 		out = EG2DB(out + tll) + lfo_am;
 	} else {
 		out = EG2DB(out + tll);
@@ -1041,8 +1040,8 @@ int Slot::calc_slot_mod()
 
 	if (egout >= (DB_MUTE - 1)) {
 		output[0] = 0;
-	} else if (patch.FB != 0) {
-		int fm = wave2_4pi(feedback) >> (7 - patch.FB);
+	} else if (patch->FB != 0) {
+		int fm = wave2_4pi(feedback) >> (7 - patch->FB);
 		output[0] = dB2LinTab[sintbl[(pgout + fm) & (PG_WIDTH - 1)] + egout];
 	} else {
 		output[0] = dB2LinTab[sintbl[pgout] + egout];
