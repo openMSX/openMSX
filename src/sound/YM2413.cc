@@ -1196,7 +1196,7 @@ void Global::generateChannels(int** bufs, unsigned num)
 	}
 }
 
-void Global::writeReg(byte regis, byte data, const EmuTime &time)
+void Global::writeReg(byte regis, byte data, const EmuTime& /*time*/)
 {
 	//PRT_DEBUG("YM2413: write reg "<<(int)regis<<" "<<(int)data);
 
