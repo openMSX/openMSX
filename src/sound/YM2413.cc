@@ -147,8 +147,8 @@ public:
 
 	bool checkMuteHelper();
 
-	Patch& getPatch(int n) {
-		return patches[n];
+	Patch& getPatch(int instrument, bool carrier) {
+		return patches[instrument][carrier];
 	}
 
 private:
@@ -171,7 +171,7 @@ private:
 	byte* reg;
 
 	// Voice Data
-	Patch patches[19 * 2];
+	Patch patches[19][2];
 
 public:
 	// Empty voice data
@@ -724,8 +724,8 @@ void Channel::reset()
 void Channel::setPatch(int num)
 {
 	patch_number = num;
-	mod.setPatch(global->getPatch(2 * num + 0));
-	car.setPatch(global->getPatch(2 * num + 1));
+	mod.setPatch(global->getPatch(num, false));
+	car.setPatch(global->getPatch(num, true));
 }
 
 // Set sustain parameter
@@ -804,8 +804,8 @@ Global::Global(byte* reg)
 {
 	this->reg = reg;
 	for (int i = 0; i < 16 + 3; ++i) {
-		patches[2 * i + 0] = Patch(0, inst_data[i]);
-		patches[2 * i + 1] = Patch(1, inst_data[i]);
+		patches[i][0] = Patch(0, inst_data[i]);
+		patches[i][1] = Patch(1, inst_data[i]);
 	}
 
 	for (int i = 0; i < 9; ++i) {
@@ -1205,11 +1205,11 @@ void Global::writeReg(byte regis, byte data, const EmuTime &time)
 
 	switch (regis) {
 	case 0x00:
-		patches[0].AM = (data >> 7) & 1;
-		patches[0].PM = (data >> 6) & 1;
-		patches[0].EG = (data >> 5) & 1;
-		patches[0].KR = (data >> 4) & 1;
-		patches[0].ML = (data >> 0) & 15;
+		patches[0][0].AM = (data >> 7) & 1;
+		patches[0][0].PM = (data >> 6) & 1;
+		patches[0][0].EG = (data >> 5) & 1;
+		patches[0][0].KR = (data >> 4) & 1;
+		patches[0][0].ML = (data >> 0) & 15;
 		for (int i = 0; i < 9; ++i) {
 			if (ch[i].patch_number == 0) {
 				ch[i].mod.updatePG();
@@ -1219,11 +1219,11 @@ void Global::writeReg(byte regis, byte data, const EmuTime &time)
 		}
 		break;
 	case 0x01:
-		patches[1].AM = (data >> 7) & 1;
-		patches[1].PM = (data >> 6) & 1;
-		patches[1].EG = (data >> 5) & 1;
-		patches[1].KR = (data >> 4) & 1;
-		patches[1].ML = (data >> 0) & 15;
+		patches[0][1].AM = (data >> 7) & 1;
+		patches[0][1].PM = (data >> 6) & 1;
+		patches[0][1].EG = (data >> 5) & 1;
+		patches[0][1].KR = (data >> 4) & 1;
+		patches[0][1].ML = (data >> 0) & 15;
 		for (int i = 0; i < 9; ++i) {
 			if(ch[i].patch_number == 0) {
 				ch[i].car.updatePG();
@@ -1233,8 +1233,8 @@ void Global::writeReg(byte regis, byte data, const EmuTime &time)
 		}
 		break;
 	case 0x02:
-		patches[0].KL = (data >> 6) & 3;
-		patches[0].TL = (data >> 0) & 63;
+		patches[0][0].KL = (data >> 6) & 3;
+		patches[0][0].TL = (data >> 0) & 63;
 		for (int i = 0; i < 9; ++i) {
 			if (ch[i].patch_number == 0) {
 				ch[i].mod.updateTLL();
@@ -1242,10 +1242,10 @@ void Global::writeReg(byte regis, byte data, const EmuTime &time)
 		}
 		break;
 	case 0x03:
-		patches[1].KL = (data >> 6) & 3;
-		patches[1].WF = (data >> 4) & 1;
-		patches[0].WF = (data >> 3) & 1;
-		patches[0].FB = (data >> 0) & 7;
+		patches[0][1].KL = (data >> 6) & 3;
+		patches[0][1].WF = (data >> 4) & 1;
+		patches[0][0].WF = (data >> 3) & 1;
+		patches[0][0].FB = (data >> 0) & 7;
 		for (int i = 0; i < 9; ++i) {
 			if (ch[i].patch_number == 0) {
 				ch[i].mod.updateWF();
@@ -1254,8 +1254,8 @@ void Global::writeReg(byte regis, byte data, const EmuTime &time)
 		}
 		break;
 	case 0x04:
-		patches[0].AR = (data >> 4) & 15;
-		patches[0].DR = (data >> 0) & 15;
+		patches[0][0].AR = (data >> 4) & 15;
+		patches[0][0].DR = (data >> 0) & 15;
 		for (int i = 0; i < 9; ++i) {
 			if(ch[i].patch_number == 0) {
 				ch[i].mod.updateEG();
@@ -1263,8 +1263,8 @@ void Global::writeReg(byte regis, byte data, const EmuTime &time)
 		}
 		break;
 	case 0x05:
-		patches[1].AR = (data >> 4) & 15;
-		patches[1].DR = (data >> 0) & 15;
+		patches[0][1].AR = (data >> 4) & 15;
+		patches[0][1].DR = (data >> 0) & 15;
 		for (int i = 0; i < 9; ++i) {
 			if (ch[i].patch_number == 0) {
 				ch[i].car.updateEG();
@@ -1272,8 +1272,8 @@ void Global::writeReg(byte regis, byte data, const EmuTime &time)
 		}
 		break;
 	case 0x06:
-		patches[0].SL = (data >> 4) & 15;
-		patches[0].RR = (data >> 0) & 15;
+		patches[0][0].SL = (data >> 4) & 15;
+		patches[0][0].RR = (data >> 0) & 15;
 		for (int i = 0; i < 9; ++i) {
 			if (ch[i].patch_number == 0) {
 				ch[i].mod.updateEG();
@@ -1281,8 +1281,8 @@ void Global::writeReg(byte regis, byte data, const EmuTime &time)
 		}
 		break;
 	case 0x07:
-		patches[1].SL = (data >> 4) & 15;
-		patches[1].RR = (data >> 0) & 15;
+		patches[0][1].SL = (data >> 4) & 15;
+		patches[0][1].RR = (data >> 0) & 15;
 		for (int i = 0; i < 9; i++) {
 			if (ch[i].patch_number == 0) {
 				ch[i].car.updateEG();
