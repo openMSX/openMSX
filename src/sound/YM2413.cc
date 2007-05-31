@@ -8,6 +8,7 @@
 
 #include "YM2413.hh"
 #include "FixedPoint.hh"
+#include "noncopyable.hh"
 #include <cmath>
 #include <cassert>
 #include <algorithm>
@@ -18,10 +19,15 @@ namespace YM2413Okazaki {
 
 typedef FixedPoint<8> PhaseModulation;
 
-class Patch {
+class Patch : private noncopyable {
 public:
+	/**
+	 * Creates an uninitialized Patch object; call init() before use.
+	 * This approach makes it possible to create an array of Patches.
+	 */
 	Patch();
-	Patch(int n, const byte* data);
+
+	void init(int n, const byte* data);
 
 	bool AM, PM, EG;
 	byte KR; // 0-1
@@ -518,7 +524,7 @@ Patch::Patch()
 {
 }
 
-Patch::Patch(int n, const byte* data)
+void Patch::init(int n, const byte* data)
 {
 	if (n == 0) {
 		AM = (data[0] >> 7) & 1;
@@ -802,10 +808,9 @@ Global::Global(byte* reg)
 {
 	this->reg = reg;
 	for (int i = 0; i < 16 + 3; ++i) {
-		patches[i][0] = Patch(0, inst_data[i]);
-		patches[i][1] = Patch(1, inst_data[i]);
+		patches[i][0].init(0, inst_data[i]);
+		patches[i][1].init(1, inst_data[i]);
 	}
-
 	for (int i = 0; i < 9; ++i) {
 		ch[i].init(*this);
 	}
