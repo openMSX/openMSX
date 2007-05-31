@@ -127,8 +127,8 @@ private:
 class Global {
 public:
 	Global(byte* reg);
-	void reset(const EmuTime& time);
-	void writeReg(byte reg, byte value, const EmuTime& time);
+	void reset();
+	void writeReg(byte reg, byte value);
 
 	inline void keyOn_BD();
 	inline void keyOn_SD();
@@ -826,7 +826,7 @@ Global::Global(byte* reg)
 	makeDphaseDRTable();
 }
 
-void Global::reset(const EmuTime &time)
+void Global::reset()
 {
 	pm_phase = 0;
 	am_phase = 0;
@@ -836,7 +836,7 @@ void Global::reset(const EmuTime &time)
 		ch[i].reset();
 	}
 	for (int i = 0; i < 0x40; i++) {
-		writeReg(i, 0, time);
+		writeReg(i, 0);
 	}
 }
 
@@ -1199,7 +1199,7 @@ void Global::generateChannels(int** bufs, unsigned num)
 	}
 }
 
-void Global::writeReg(byte regis, byte data, const EmuTime& /*time*/)
+void Global::writeReg(byte regis, byte data)
 {
 	//PRT_DEBUG("YM2413: write reg "<<(int)regis<<" "<<(int)data);
 
@@ -1399,7 +1399,7 @@ void YM2413::reset(const EmuTime &time)
 	// update the output buffer before changing the register
 	updateStream(time);
 
-	global->reset(time);
+	global->reset();
 }
 
 void YM2413::generateChannels(int** bufs, unsigned num)
@@ -1412,7 +1412,7 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
 	// update the output buffer before changing the register
 	updateStream(time);
 
-	global->writeReg(regis, data, time);
+	global->writeReg(regis, data);
 }
 
 } // namespace openmsx
