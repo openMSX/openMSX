@@ -78,7 +78,7 @@ public:
 	int fnum;		// F-Number
 	int block;		// Block
 	int volume;		// Current volume
-	bool sustain;	// Sustain 1 = ON, 0 = OFF
+	bool sustain;	// Sustain
 	int tll;		// Total Level + Key scale level
 	int rks;		// Key scale offset (Rks)
 	int eg_mode;		// Current state
@@ -1002,7 +1002,7 @@ void Slot::calc_envelope(int lfo_am)
 	egout = std::min<unsigned>(out, DB_MUTE - 1) | 3;
 }
 
-// CARRIOR
+// CARRIER
 int Slot::calc_slot_car(int fm)
 {
 	if (egout >= (DB_MUTE - 1)) {
