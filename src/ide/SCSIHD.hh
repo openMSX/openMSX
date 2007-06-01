@@ -28,7 +28,7 @@ class SCSIHD : public HD, public SCSIDevice, public SectorAccessibleDisk,
 {
 public:
 	SCSIHD(MSXMotherBoard& motherBoard, const XMLElement& targetconfig, 
-		byte* buf, int mode);
+		byte* buf, unsigned mode);
 	virtual ~SCSIHD();
 
 	// SectorAccessibleDisk:
@@ -44,38 +44,36 @@ protected:
 	// SCSI Device
 	virtual void reset();
 	virtual bool isSelected();
-	virtual int executeCmd(const byte* cdb, SCSI::Phase& phase, int& blocks);
-	virtual int executingCmd(SCSI::Phase& phase, int& blocks);
+	virtual unsigned executeCmd(const byte* cdb, SCSI::Phase& phase,
+	                            unsigned& blocks);
+	virtual unsigned executingCmd(SCSI::Phase& phase, unsigned& blocks);
 	virtual byte getStatusCode();
 	virtual int msgOut(byte value);
 	virtual byte msgIn();
 	virtual void disconnect();
 	virtual void busReset();
 
-	virtual int dataIn(int& blocks);
-	virtual int dataOut(int& blocks);
+	virtual unsigned dataIn(unsigned& blocks);
+	virtual unsigned dataOut(unsigned& blocks);
 
 private:
-	bool getReady();
-	void testUnitReady();
-	int inquiry();
-	int modeSense();
-	int requestSense();
+	unsigned inquiry();
+	unsigned modeSense();
+	unsigned requestSense();
 	bool checkReadOnly();
-	int readCapacity();
+	unsigned readCapacity();
 	bool checkAddress();
-	int readSector(int& blocks);
-	int writeSector(int& blocks);
+	unsigned readSector(unsigned& blocks);
+	unsigned writeSector(unsigned& blocks);
 	void formatUnit();
 
 	MSXMotherBoard& motherBoard;
 
 	const byte scsiId;     // SCSI ID 0..7
-	const int mode;
+	const unsigned mode;
 
 	bool unitAttention;    // Unit Attention (was: reset)
-	bool motor;            // Reserved
-	int keycode;           // Sense key, ASC, ASCQ
+	unsigned keycode;      // Sense key, ASC, ASCQ
 	unsigned currentSector;
 	unsigned currentLength;
 	byte message;

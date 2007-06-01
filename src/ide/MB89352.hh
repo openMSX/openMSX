@@ -56,7 +56,7 @@ private:
 	int msgin;                      // Message In flag
 	int counter;                    // read and written number of bytes
 	                                // within the range in the buffer
-	int blockCounter;               // Number of blocks outside buffer
+	unsigned blockCounter;          // Number of blocks outside buffer
 	                                // (512bytes / block)
 	int tc;                         // counter for hardware transfer
 	//TODO: bool devBusy;           // CDROM busy (buffer conflict prevention)

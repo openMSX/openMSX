@@ -57,19 +57,19 @@ static const byte OP_READ_CD_MSF           = 0xB9;
 static const byte OP_READ_CD               = 0xBE;
 
 // Sense data                               KEY | ASC | ASCQ
-static const int SENSE_NO_SENSE               = 0x000000;
-static const int SENSE_NOT_READY              = 0x020400;
-static const int SENSE_MEDIUM_NOT_PRESENT     = 0x023a00;
-static const int SENSE_UNRECOVERED_READ_ERROR = 0x031100;
-static const int SENSE_WRITE_FAULT            = 0x040300;
-static const int SENSE_INVALID_COMMAND_CODE   = 0x052000;
-static const int SENSE_ILLEGAL_BLOCK_ADDRESS  = 0x052100;
-static const int SENSE_INVALID_LUN            = 0x052500;
-static const int SENSE_POWER_ON               = 0x062900;
-static const int SENSE_WRITE_PROTECT          = 0x072700;
-static const int SENSE_MESSAGE_REJECT_ERROR   = 0x0b4300;
-static const int SENSE_INITIATOR_DETECTED_ERR = 0x0b4800;
-static const int SENSE_ILLEGAL_MESSAGE        = 0x0b4900;
+static const unsigned SENSE_NO_SENSE               = 0x000000;
+static const unsigned SENSE_NOT_READY              = 0x020400;
+static const unsigned SENSE_MEDIUM_NOT_PRESENT     = 0x023a00;
+static const unsigned SENSE_UNRECOVERED_READ_ERROR = 0x031100;
+static const unsigned SENSE_WRITE_FAULT            = 0x040300;
+static const unsigned SENSE_INVALID_COMMAND_CODE   = 0x052000;
+static const unsigned SENSE_ILLEGAL_BLOCK_ADDRESS  = 0x052100;
+static const unsigned SENSE_INVALID_LUN            = 0x052500;
+static const unsigned SENSE_POWER_ON               = 0x062900;
+static const unsigned SENSE_WRITE_PROTECT          = 0x072700;
+static const unsigned SENSE_MESSAGE_REJECT_ERROR   = 0x0b4300;
+static const unsigned SENSE_INITIATOR_DETECTED_ERR = 0x0b4800;
+static const unsigned SENSE_ILLEGAL_MESSAGE        = 0x0b4900;
 
 // Message
 static const byte MSG_COMMAND_COMPLETE       = 0x00;

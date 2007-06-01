@@ -14,14 +14,14 @@ bool DummySCSIDevice::isSelected()
 	return false;
 }
 
-int DummySCSIDevice::executeCmd(
-	const byte* /*cdb*/, SCSI::Phase& /*phase*/, int& /*blocks*/)
+unsigned DummySCSIDevice::executeCmd(
+	const byte* /*cdb*/, SCSI::Phase& /*phase*/, unsigned& /*blocks*/)
 {
 	// do nothing
 	return 0;
 }
 
-int DummySCSIDevice::executingCmd(SCSI::Phase& /*phase*/, int& /*blocks*/)
+unsigned DummySCSIDevice::executingCmd(SCSI::Phase& /*phase*/, unsigned& /*blocks*/)
 {
 	return 0;
 }
@@ -51,13 +51,13 @@ void DummySCSIDevice::busReset()
 	// do nothing
 }
 
-int DummySCSIDevice::dataIn(int& blocks)
+unsigned DummySCSIDevice::dataIn(unsigned& blocks)
 {
 	blocks = 0;
 	return 0;
 }
 
-int DummySCSIDevice::dataOut(int& blocks)
+unsigned DummySCSIDevice::dataOut(unsigned& blocks)
 {
 	blocks = 0;
 	return 0;

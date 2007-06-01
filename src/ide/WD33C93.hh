@@ -45,7 +45,7 @@ private:
 	std::auto_ptr<SCSIDevice> dev[8];
 	unsigned bufIdx;
 	int counter;
-	int blockCounter;
+	unsigned blockCounter;
 	int tc;
 	SCSI::Phase phase;
 	byte myId;

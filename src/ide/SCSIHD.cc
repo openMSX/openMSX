@@ -73,24 +73,11 @@ static const byte inqdata[36] = {
      '0', '1', '0', 'a'                         // product version (ASCII 4bytes)
 };
 
-static const char sdt_name[10][10 + 1] =
-{
-	{"Tape      "},
-	{"Printer   "},
-	{"Processor "},
-	{"WORM      "},
-	{"CD-ROM    "},
-	{"Scanner   "},
-	{"MO        "},
-	{"Jukebox   "},
-	{"COMM      "},
-	{"???       "}
-};
-
-static const unsigned sectorSize = 512; // Always true for harddisk
+static const unsigned SECTOR_SIZE = 512; // Always true for harddisk
+static const unsigned BUFFER_BLOCK_SIZE = SCSIHD::BUFFER_SIZE / SECTOR_SIZE;
 
 SCSIHD::SCSIHD(MSXMotherBoard& motherBoard_, const XMLElement& targetconfig,
-		byte* buf, int mode_)
+		byte* buf, unsigned mode_)
 	  : HD(motherBoard_, targetconfig)
 	  , motherBoard(motherBoard_)
 	  , scsiId(targetconfig.getAttributeAsInt("id"))
@@ -107,10 +94,9 @@ SCSIHD::~SCSIHD()
 
 void SCSIHD::reset()
 {
-	keycode       = 0;
 	currentSector = 0;
 	currentLength = 0;
-	unitAttention = (mode & MODE_UNITATTENTION);
+	busReset();
 }
 
 void SCSIHD::busReset()
@@ -133,17 +119,7 @@ bool SCSIHD::isSelected()
 	return true; 
 }
 
-bool SCSIHD::getReady()
-{
-	return true;
-}
-
-void SCSIHD::testUnitReady()
-{
-	// changed = false;
-}
-
-int SCSIHD::inquiry()
+unsigned SCSIHD::inquiry()
 {
 	unsigned length = currentLength;
 	
@@ -181,22 +157,21 @@ int SCSIHD::inquiry()
 		length = std::min(length, 56u);
 	}
 
-	if (length > 36){
+	if (length > 36) {
 		string filename = FileOperations::getFilename(file->getURL());
 		filename.resize(20, ' ');
-		buffer += 36;
-		memcpy(buffer, filename.data(), 20);
+		memcpy(buffer + 36, filename.data(), 20);
 	}
 	return length;
 }
 
-int SCSIHD::modeSense()
+unsigned SCSIHD::modeSense()
 {
 	if ((currentLength > 0) && (cdb[2] == 3)) {
 		unsigned total   = getNbSectors();
 		byte media       = MT_UNKNOWN;
 		byte sectors     = 64;
-		byte blockLength = sectorSize >> 8;
+		byte blockLength = SECTOR_SIZE >> 8;
 		byte tracks      = 8;
 		byte size        = 4 + 24;
 		byte removable   = 0x80; // == not removable
@@ -239,10 +214,10 @@ int SCSIHD::modeSense()
 	return 0;
 }
 
-int SCSIHD::requestSense()
+unsigned SCSIHD::requestSense()
 {
-	int length = currentLength;
-	int tmpKeycode = unitAttention ? SCSI::SENSE_POWER_ON : keycode;
+	unsigned length = currentLength;
+	unsigned tmpKeycode = unitAttention ? SCSI::SENSE_POWER_ON : keycode;
 	unitAttention = false;
 
 	PRT_DEBUG("Request Sense: keycode = " << tmpKeycode);
@@ -261,7 +236,7 @@ int SCSIHD::requestSense()
 		buffer[ 7] = 10;                        // Additional sense length
 		buffer[12] = (tmpKeycode >>  8) & 0xff; // Additional sense code
 		buffer[13] = (tmpKeycode >>  0) & 0xff; // Additional sense code qualifier
-		length = std::min(length, 18);
+		length = std::min(length, 18u);
 	}
 	return length;
 }
@@ -275,7 +250,7 @@ bool SCSIHD::checkReadOnly()
 	return false;
 }
 
-int SCSIHD::readCapacity()
+unsigned SCSIHD::readCapacity()
 {
 	unsigned block = getNbSectors();
 
@@ -285,7 +260,7 @@ int SCSIHD::readCapacity()
 		return 0;
 	}
 
-	PRT_DEBUG("total block: " << (unsigned int)block);
+	PRT_DEBUG("total block: " << block);
 
 	--block;
 	buffer[0] = (block >> 24) & 0xff;
@@ -294,7 +269,7 @@ int SCSIHD::readCapacity()
 	buffer[3] = (block >>  0) & 0xff;
 	buffer[4] = 0;
 	buffer[5] = 0;
-	buffer[6] = (sectorSize >> 8) & 0xff;
+	buffer[6] = (SECTOR_SIZE >> 8) & 0xff;
 	buffer[7] = 0;
 
 	return 8;
@@ -318,19 +293,18 @@ bool SCSIHD::checkAddress()
 }
 
 // Execute scsiDeviceCheckAddress previously.
-int SCSIHD::readSector(int& blocks)
+unsigned SCSIHD::readSector(unsigned& blocks)
 {
 	motherBoard.getEventDistributor().distributeEvent(
 		new LedEvent(LedEvent::FDD, true, motherBoard));
 
-	const unsigned BUFFER_BLOCK_SIZE = BUFFER_SIZE / sectorSize;
 	unsigned numSectors = std::min(currentLength, BUFFER_BLOCK_SIZE);
-	unsigned counter = currentLength * sectorSize;
+	unsigned counter = currentLength * SECTOR_SIZE;
 
 	PRT_DEBUG("hdd#" << (int)scsiId << " read sector: " << currentSector << " " << numSectors);
 	try {
-		file->seek(sectorSize * currentSector);
-		file->read(buffer, sectorSize * numSectors);
+		file->seek(SECTOR_SIZE * currentSector);
+		file->read(buffer, SECTOR_SIZE * numSectors);
 		currentSector += numSectors;
 		currentLength -= numSectors;
 		blocks = currentLength;
@@ -342,10 +316,10 @@ int SCSIHD::readSector(int& blocks)
 	}
 }
 
-int SCSIHD::dataIn(int& blocks)
+unsigned SCSIHD::dataIn(unsigned& blocks)
 {
 	if (cdb[0] == SCSI::OP_READ10) {
-		int counter = readSector(blocks);
+		unsigned counter = readSector(blocks);
 		if (counter) {
 			return counter;
 		}
@@ -356,24 +330,23 @@ int SCSIHD::dataIn(int& blocks)
 }
 
 // Execute scsiDeviceCheckAddress and scsiDeviceCheckReadOnly previously.
-int SCSIHD::writeSector(int& blocks)
+unsigned SCSIHD::writeSector(unsigned& blocks)
 {
 	motherBoard.getEventDistributor().distributeEvent(
 		new LedEvent(LedEvent::FDD, true, motherBoard));
 
-	const unsigned BUFFER_BLOCK_SIZE = BUFFER_SIZE / sectorSize;
-	int numSectors = std::min(currentLength, BUFFER_BLOCK_SIZE);
+	unsigned numSectors = std::min(currentLength, BUFFER_BLOCK_SIZE);
 
 	PRT_DEBUG("hdd#" << (int)scsiId << " write sector: " << currentSector << " " << numSectors);
 	try {
-		file->seek(sectorSize * currentSector);
-		file->write(buffer, sectorSize * numSectors);
+		file->seek(SECTOR_SIZE * currentSector);
+		file->write(buffer, SECTOR_SIZE * numSectors);
 		currentSector += numSectors;
 		currentLength -= numSectors;
 
 		unsigned tmp = std::min(currentLength, BUFFER_BLOCK_SIZE);
 		blocks = currentLength - tmp;
-		int counter = tmp * sectorSize;
+		unsigned counter = tmp * SECTOR_SIZE;
 		return counter;
 	} catch (FileException& e) {
 		keycode = SCSI::SENSE_WRITE_FAULT;
@@ -382,7 +355,7 @@ int SCSIHD::writeSector(int& blocks)
 	}
 }
 
-int SCSIHD::dataOut(int& blocks)
+unsigned SCSIHD::dataOut(unsigned& blocks)
 {
 	if (cdb[0] == SCSI::OP_WRITE10) {
 		return writeSector(blocks);
@@ -395,11 +368,11 @@ int SCSIHD::dataOut(int& blocks)
 //  MBR erase only
 void SCSIHD::formatUnit()
 {
-	if (getReady() && !checkReadOnly()) {
-		memset(buffer, 0, sectorSize);
+	if (!checkReadOnly()) {
+		memset(buffer, 0, SECTOR_SIZE);
 		try {
 			file->seek(0);
-			file->write(buffer, sectorSize);
+			file->write(buffer, SECTOR_SIZE);
 			unitAttention = true;
 		} catch (FileException& e) {
 			keycode = SCSI::SENSE_WRITE_FAULT;
@@ -414,10 +387,8 @@ byte SCSIHD::getStatusCode()
 	return result;
 }
 
-int SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, int& blocks)
+unsigned SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& blocks)
 {
-	const unsigned BUFFER_BLOCK_SIZE = BUFFER_SIZE / sectorSize;
-
 	PRT_DEBUG("SCSI Command: " << (int)cdb[0]);
 	memcpy(cdb, cdb_, 12);
 	message = 0;
@@ -455,12 +426,11 @@ int SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, int& blocks)
 		switch (cdb[0]) {
 		case SCSI::OP_TEST_UNIT_READY:
 			PRT_DEBUG("TestUnitReady");
-			testUnitReady();
 			return 0;
 
 		case SCSI::OP_INQUIRY: {
 			PRT_DEBUG("Inquiry " << currentLength);
-			int counter = inquiry();
+			unsigned counter = inquiry();
 			if (counter) {
 				phase = SCSI::DATA_IN;
 			}
@@ -468,7 +438,7 @@ int SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, int& blocks)
 		}
 		case SCSI::OP_REQUEST_SENSE: {
 			PRT_DEBUG("RequestSense");
-			int counter = requestSense();
+			unsigned counter = requestSense();
 			if (counter) {
 				phase = SCSI::DATA_IN;
 			}
@@ -477,11 +447,10 @@ int SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, int& blocks)
 		case SCSI::OP_READ6:
 			PRT_DEBUG("Read6: " << currentSector << " " << currentLength);
 			if (currentLength == 0) {
-				//currentLength = sectorSize >> 1;
-				currentLength = 256;
+				currentLength = SECTOR_SIZE / 2;
 			}
 			if (checkAddress()) {
-				int counter = readSector(blocks);
+				unsigned counter = readSector(blocks);
 				if (counter) {
 					cdb[0] = SCSI::OP_READ10;
 					phase = SCSI::DATA_IN;
@@ -493,8 +462,7 @@ int SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, int& blocks)
 		case SCSI::OP_WRITE6:
 			PRT_DEBUG("Write6: " << currentSector << " " << currentLength);
 			if (currentLength == 0) {
-				//currentLength = sectorSize >> 1;
-				currentLength = 256;
+				currentLength = SECTOR_SIZE / 2;
 			}
 			if (checkAddress() && !checkReadOnly()) {
 				motherBoard.getEventDistributor().distributeEvent(
@@ -502,7 +470,7 @@ int SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, int& blocks)
 						motherBoard));
 				unsigned tmp = std::min(currentLength, BUFFER_BLOCK_SIZE);
 				blocks = currentLength - tmp;
-				int counter = tmp * sectorSize;
+				unsigned counter = tmp * SECTOR_SIZE;
 				cdb[0] = SCSI::OP_WRITE10;
 				phase = SCSI::DATA_OUT;
 				return counter;
@@ -519,7 +487,7 @@ int SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, int& blocks)
 
 		case SCSI::OP_MODE_SENSE: {
 			PRT_DEBUG("ModeSense: " << currentLength);
-			int counter = modeSense();
+			unsigned counter = modeSense();
 			if (counter) {
 				phase = SCSI::DATA_IN;
 			}
@@ -552,7 +520,7 @@ int SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, int& blocks)
 			PRT_DEBUG("Read10: " << currentSector << " " << currentLength);
 
 			if (checkAddress()) {
-				int counter = readSector(blocks);
+				unsigned counter = readSector(blocks);
 				if (counter) {
 					phase = SCSI::DATA_IN;
 					return counter;
@@ -564,9 +532,9 @@ int SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, int& blocks)
 			PRT_DEBUG("Write10: " << currentSector << " " << currentLength);
 
 			if (checkAddress() && !checkReadOnly()) {
-				int tmp = std::min(currentLength, BUFFER_BLOCK_SIZE);
+				unsigned tmp = std::min(currentLength, BUFFER_BLOCK_SIZE);
 				blocks = currentLength - tmp;
-				int counter = tmp * sectorSize;
+				unsigned counter = tmp * SECTOR_SIZE;
 				phase = SCSI::DATA_OUT;
 				return counter;
 			}
@@ -574,7 +542,7 @@ int SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, int& blocks)
 
 		case SCSI::OP_READ_CAPACITY: {
 			PRT_DEBUG("ReadCapacity");
-			int counter = readCapacity();
+			unsigned counter = readCapacity();
 			if (counter) {
 				phase = SCSI::DATA_IN;
 			}
@@ -595,7 +563,7 @@ int SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, int& blocks)
 	return 0;
 }
 
-int SCSIHD::executingCmd(SCSI::Phase& phase, int& blocks)
+unsigned SCSIHD::executingCmd(SCSI::Phase& phase, unsigned& blocks)
 {
 	phase = SCSI::EXECUTE;
 	blocks = 0;
@@ -649,7 +617,7 @@ int SCSIHD::msgOut(byte value)
 
 unsigned SCSIHD::getNbSectors() const
 {
-	return file->getSize() / sectorSize; 
+	return file->getSize() / SECTOR_SIZE; 
 }
 
 // NOTE: UNUSED FOR NOW!

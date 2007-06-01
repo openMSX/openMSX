@@ -11,16 +11,17 @@ class DummySCSIDevice : public SCSIDevice
 public:
 	virtual void reset();
 	virtual bool isSelected();
-	virtual int executeCmd(const byte* cdb, SCSI::Phase& phase, int& blocks);
-	virtual int executingCmd(SCSI::Phase& phase, int& blocks);
+	virtual unsigned executeCmd(const byte* cdb, SCSI::Phase& phase,
+	                            unsigned& blocks);
+	virtual unsigned executingCmd(SCSI::Phase& phase, unsigned& blocks);
 	virtual byte getStatusCode();
 	virtual int msgOut(byte value);
 	virtual byte msgIn();
 	virtual void disconnect();
 	virtual void busReset(); // only used in MB89352 controller
 
-	virtual int dataIn(int& blocks);
-	virtual int dataOut(int& blocks);
+	virtual unsigned dataIn(unsigned& blocks);
+	virtual unsigned dataOut(unsigned& blocks);
 };
 
 } // namespace openmsx
