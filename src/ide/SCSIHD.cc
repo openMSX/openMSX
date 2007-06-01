@@ -141,9 +141,6 @@ unsigned SCSIHD::inquiry()
 		}
 	}
 
-	if ((mode & MODE_CHECK2)) {
-		buffer[35] = 'A';
-	}
 	if (mode & BIT_SCSI3) {
 		length = std::min(length, 96u);
 		buffer[4] = 91;

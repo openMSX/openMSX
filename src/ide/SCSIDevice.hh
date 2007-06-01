@@ -19,11 +19,6 @@ public:
 	static const unsigned MODE_UNITATTENTION = 0x0008; // report unit attention
 	static const unsigned MODE_MEGASCSI      = 0x0010; // report disk change when call of
 	                                              // 'test unit ready'
-	static const unsigned MODE_FDS120        = 0x0020; // change of inquiry when inserted
-	                                              // floppy image
-	static const unsigned MODE_CHECK2        = 0x0040; // mask to diskchange when
-	                                              // load state
-	static const unsigned MODE_REMOVABLE     = 0x0080;
 	static const unsigned MODE_NOVAXIS       = 0x0100;
 
 	static const unsigned BUFFER_SIZE   = 0x10000; // 64KB
