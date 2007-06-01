@@ -77,7 +77,7 @@ static const unsigned SECTOR_SIZE = 512; // Always true for harddisk
 static const unsigned BUFFER_BLOCK_SIZE = SCSIHD::BUFFER_SIZE / SECTOR_SIZE;
 
 SCSIHD::SCSIHD(MSXMotherBoard& motherBoard_, const XMLElement& targetconfig,
-		byte* buf, unsigned mode_)
+		byte* const buf, unsigned mode_)
 	  : HD(motherBoard_, targetconfig)
 	  , motherBoard(motherBoard_)
 	  , scsiId(targetconfig.getAttributeAsInt("id"))
@@ -164,6 +164,7 @@ unsigned SCSIHD::inquiry()
 
 unsigned SCSIHD::modeSense()
 {
+	byte* pBuffer = buffer;
 	if ((currentLength > 0) && (cdb[2] == 3)) {
 		unsigned total   = getNbSectors();
 		byte media       = MT_UNKNOWN;
@@ -173,37 +174,37 @@ unsigned SCSIHD::modeSense()
 		byte size        = 4 + 24;
 		byte removable   = 0x80; // == not removable
 
-		memset(buffer + 2, 0, 34);
+		memset(pBuffer + 2, 0, 34);
 
 		if (total == 0) {
 			media = MT_NO_DISK;
 		}
 
 		// Mode Parameter Header 4bytes
-		buffer[1] = media; // Medium Type
-		buffer[3] = 8;     // block descripter length
-		buffer += 4;
+		pBuffer[1] = media; // Medium Type
+		pBuffer[3] = 8;     // block descripter length
+		pBuffer += 4;
 
 		// Disable Block Descriptor check
 		if (!(cdb[1] & 0x08)) {
 			// Block Descriptor 8bytes
-			buffer[1] = (total >> 16) & 0xff; // 1..3 Number of Blocks
-			buffer[2] = (total >>  8) & 0xff;
-			buffer[3] = (total >>  0) & 0xff;
-			buffer[6] = blockLength & 0xff;   // 5..7 Block Length in Bytes
-			buffer += 8;
+			pBuffer[1] = (total >> 16) & 0xff; // 1..3 Number of Blocks
+			pBuffer[2] = (total >>  8) & 0xff;
+			pBuffer[3] = (total >>  0) & 0xff;
+			pBuffer[6] = blockLength & 0xff;   // 5..7 Block Length in Bytes
+			pBuffer += 8;
 			size   += 8;
 		}
 
 		// Format Device Page 24bytes
-		buffer[ 0] = 3;           //     0 Page
-		buffer[ 1] = 0x16;        //     1 Page Length
-		buffer[ 3] = tracks;      //  2, 3 Tracks per Zone
-		buffer[11] = sectors;     // 10,11 Sectors per Track
-		buffer[12] = blockLength; // 12,13 Data Bytes per Physical Sector
-		buffer[20] = removable;   // 20    bit7 Soft Sector bit5 Removable
-		// TODO is this correct?  it overwrites the value written above
-		buffer[ 0] = size - 1;    // sense data length
+		pBuffer[ 0] = 3;           //     0 Page
+		pBuffer[ 1] = 0x16;        //     1 Page Length
+		pBuffer[ 3] = tracks;      //  2, 3 Tracks per Zone
+		pBuffer[11] = sectors;     // 10,11 Sectors per Track
+		pBuffer[12] = blockLength; // 12,13 Data Bytes per Physical Sector
+		pBuffer[20] = removable;   // 20    bit7 Soft Sector bit5 Removable
+		
+		buffer[0] = size - 1;    // sense data length
 
 		return std::min<unsigned>(currentLength, size);
 	}

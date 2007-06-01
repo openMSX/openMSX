@@ -28,7 +28,7 @@ class SCSIHD : public HD, public SCSIDevice, public SectorAccessibleDisk,
 {
 public:
 	SCSIHD(MSXMotherBoard& motherBoard, const XMLElement& targetconfig, 
-		byte* buf, unsigned mode);
+		byte* const buf, unsigned mode);
 	virtual ~SCSIHD();
 
 	// SectorAccessibleDisk:
@@ -79,7 +79,7 @@ private:
 	byte message;
 	byte lun;
 	byte cdb[12];          // Command Descriptor Block
-	byte* buffer;
+	byte* const buffer;
 };
 
 } // namespace openmsx
