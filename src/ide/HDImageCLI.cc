@@ -34,7 +34,7 @@ bool HDImageCLI::parseOption(const string& option, list<string>& cmdLine)
 }
 const string& HDImageCLI::optionHelp() const
 {
-	static const string text("Use hard disk image in argument for the IDE extension");
+	static const string text("Use hard disk image in argument for the IDE or SCSI extensions");
 	return text;
 }
 
