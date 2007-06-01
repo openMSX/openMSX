@@ -1,5 +1,13 @@
 $Id$
 
+2007-06-01 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added an LS-120 SCSI device.
+	  - Mostly as demonstrator of a removable SCSI device.
+	  - Could be used to make a SCSICDROM easier to make.
+	  - Can also be used to determine common stuff between SCSI devices.
+	  - TODO: change 'lsX' commands to something better.
+	  - TODO: remove massive code duplication with SCSIHD/HDCommand.
+
 2007-05-31 Manuel Bilderbeek <manuel@msxnet.org>
 	* Removed all dead code from SCSIHD and attempted to move
 	  device-specific stuff inside the class. I'll try to make an

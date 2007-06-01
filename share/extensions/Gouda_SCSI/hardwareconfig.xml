@@ -24,6 +24,9 @@
 	    <filename>SCSIhd1.dsk</filename>
 	    <size>100</size>
           </target>
+          <target id="2">
+            <type>SCSILS120</type>
+          </target>
        </GoudaSCSI>
       </secondary>
     </primary>

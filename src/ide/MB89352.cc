@@ -17,6 +17,7 @@
 #include "SCSIDevice.hh"
 #include "DummySCSIDevice.hh"
 #include "SCSIHD.hh"
+#include "SCSILS120.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
@@ -114,6 +115,9 @@ MB89352::MB89352(MSXMotherBoard& motherBoard, const XMLElement& config)
 		const string& type = typeElem.getData();
 		if (type == "SCSIHD") {
 			dev[id].reset(new SCSIHD(motherBoard, target, &buffer[0],
+			        SCSIDevice::MODE_SCSI2 | SCSIDevice::MODE_MEGASCSI));
+		} else if (type == "SCSILS120") {
+			dev[id].reset(new SCSILS120(motherBoard, target, &buffer[0],
 			        SCSIDevice::MODE_SCSI2 | SCSIDevice::MODE_MEGASCSI));
 		} else {
 			throw MSXException("Unknown SCSI device: " + type);

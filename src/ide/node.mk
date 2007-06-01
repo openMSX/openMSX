@@ -9,7 +9,8 @@ SRC_HDR:= \
 	IDEDeviceFactory \
 	AbstractIDEDevice IDEHD IDECDROM \
 	HDImageCLI CDImageCLI \
-	DummySCSIDevice SCSIHD WD33C93 GoudaSCSI \
+	DummySCSIDevice SCSIHD SCSILS120 \
+	WD33C93 GoudaSCSI \
 	MB89352 MegaSCSI
 
 HDR_ONLY:= \
