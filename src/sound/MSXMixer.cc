@@ -169,16 +169,13 @@ void MSXMixer::updateStream2(const EmuTime& time)
 
 	short mixBuffer[8192 * 2];
 	count = std::min(8192u, count);
-	double factor;
-	if (!muteCount && fragmentSize) {
-		generate(mixBuffer, count, prevTime, interval1);
-		factor = mixer.uploadBuffer(*this, mixBuffer, count);
-	} else {
-		assert(synchronousCounter);
-		memset(mixBuffer, 0, count * 2 * sizeof(short));
-		factor = 1.0;
-	}
+	assert((!muteCount && fragmentSize) || synchronousCounter);
+	generate(mixBuffer, count, prevTime, interval1);
 	prevTime += interval1 * count;
+	double factor = 1.0;
+	if (!muteCount && fragmentSize) {
+		factor = mixer.uploadBuffer(*this, mixBuffer, count);
+	}
 	if (synchronousCounter) {
 		if (recorder) {
 			recorder->addWave(count, mixBuffer);
@@ -198,7 +195,7 @@ void MSXMixer::updateStream2(const EmuTime& time)
 void MSXMixer::generate(short* output, unsigned samples,
 	const EmuTime& start, const EmuDuration& sampDur)
 {
-	assert(!muteCount && fragmentSize);
+	assert((!muteCount && fragmentSize) || synchronousCounter);
 	assert(samples <= 8192);
 
 	int mixBuf[2 * samples];
