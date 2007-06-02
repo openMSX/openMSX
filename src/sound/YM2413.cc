@@ -71,7 +71,7 @@ public:
 
 	// OUTPUT
 	int feedback;
-	int output[5];		// Output value of slot
+	int output[2];		// Output value of slot
 
 	// for Phase Generator (PG)
 	word* sintbl;		// Wavetable
@@ -599,8 +599,7 @@ void Slot::updatePG()
 
 void Slot::updateTLL()
 {
-	tll = type ? tllTable[fnum >> 5][block][volume]   [patch->KL]:
-	             tllTable[fnum >> 5][block][patch->TL][patch->KL];
+	tll = tllTable[fnum >> 5][block][type ? volume : patch->TL][patch->KL]:
 }
 
 void Slot::updateRKS()
@@ -979,11 +978,7 @@ void Slot::calc_envelope(int lfo_am)
 		eg_phase += eg_dphase;
 		if (eg_phase >= SL[patch->SL]) {
 			eg_phase = SL[patch->SL];
-			if (patch->EG) {
-				eg_mode = SUSHOLD;
-			} else {
-				eg_mode = SUSTAIN;
-			}
+			eg_mode = patch->EG ? SUSHOLD : SUSTAIN;
 			updateEG();
 		}
 		break;
@@ -1017,10 +1012,9 @@ void Slot::calc_envelope(int lfo_am)
 		out = (1 << EG_BITS) - 1;
 		break;
 	}
+	out = EG2DB(out + tll);
 	if (patch->AM) {
-		out = EG2DB(out + tll) + lfo_am;
-	} else {
-		out = EG2DB(out + tll);
+		out += lfo_am;
 	}
 	egout = std::min<unsigned>(out, DB_MUTE - 1) | 3;
 }
@@ -1028,13 +1022,15 @@ void Slot::calc_envelope(int lfo_am)
 // CARRIER
 int Slot::calc_slot_car(int fm)
 {
+	int newValue;
 	if (egout >= (DB_MUTE - 1)) {
-		output[0] = 0;
+		newValue = 0;
 	} else {
-		output[0] = dB2LinTab[sintbl[(pgout + wave2_8pi(fm)) & (PG_WIDTH - 1)]
-		                       + egout];
+		int phase = (pgout + wave2_8pi(fm)) & (PG_WIDTH - 1);
+		newValue = dB2LinTab[sintbl[phase] + egout];
 	}
-	output[1] = (output[1] + output[0]) >> 1;
+	output[0] = newValue;
+	output[1] = (output[1] + newValue) >> 1;
 	return output[1];
 }
 
@@ -1042,16 +1038,19 @@ int Slot::calc_slot_car(int fm)
 int Slot::calc_slot_mod()
 {
 	output[1] = output[0];
-
+	int newValue;
 	if (egout >= (DB_MUTE - 1)) {
-		output[0] = 0;
-	} else if (patch->FB != 0) {
-		int fm = wave2_4pi(feedback) >> (7 - patch->FB);
-		output[0] = dB2LinTab[sintbl[(pgout + fm) & (PG_WIDTH - 1)] + egout];
+		newValue = 0;
 	} else {
-		output[0] = dB2LinTab[sintbl[pgout] + egout];
+		int phase = pgout;
+		if (patch->FB != 0) {
+			phase += wave2_4pi(feedback) >> (7 - patch->FB);
+			phase &= PG_WIDTH - 1;
+		}
+		newValue = dB2LinTab[sintbl[phase] + egout];
 	}
-	feedback = (output[1] + output[0]) >> 1;
+	output[0] = newValue;
+	feedback = (output[1] + newValue) >> 1;
 	return feedback;
 }
 
