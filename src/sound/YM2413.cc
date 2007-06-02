@@ -1402,10 +1402,9 @@ YM2413::~YM2413()
 }
 
 // Reset whole of OPLL except patch datas
-void YM2413::reset(const EmuTime &time)
+void YM2413::reset(const EmuTime& time)
 {
-	// TODO: Is this needed, or is this done already at a higher level?
-	// update the output buffer before changing the register
+	// update the output buffer before changing the registers
 	updateStream(time);
 
 	global->reset();
@@ -1416,7 +1415,7 @@ void YM2413::generateChannels(int** bufs, unsigned num)
 	global->generateChannels(bufs, num);
 }
 
-void YM2413::writeReg(byte regis, byte data, const EmuTime &time)
+void YM2413::writeReg(byte regis, byte data, const EmuTime& time)
 {
 	// update the output buffer before changing the register
 	updateStream(time);
