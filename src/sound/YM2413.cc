@@ -130,6 +130,10 @@ public:
 	void reset();
 	void writeReg(byte reg, byte value);
 
+	bool isRhythm() {
+		return reg[0x0E] & 0x20;
+	}
+
 	inline void keyOn_BD();
 	inline void keyOn_SD();
 	inline void keyOn_TOM();
@@ -856,12 +860,12 @@ void Global::keyOff_CYM(){ if (ch[8].car.slot_on_flag) ch[8].car.slotOff(); }
 void Global::update_rhythm_mode()
 {
 	if (ch[6].patch_number & 0x10) {
-		if (!(ch[6].car.slot_on_flag || (reg[0x0e] & 0x20))) {
+		if (!(ch[6].car.slot_on_flag || isRhythm())) {
 			ch[6].mod.eg_mode = FINISH;
 			ch[6].car.eg_mode = FINISH;
 			ch[6].setPatch(reg[0x36] >> 4);
 		}
-	} else if (reg[0x0e] & 0x20) {
+	} else if (isRhythm()) {
 		ch[6].mod.eg_mode = FINISH;
 		ch[6].car.eg_mode = FINISH;
 		ch[6].setPatch(16);
@@ -869,13 +873,13 @@ void Global::update_rhythm_mode()
 
 	if (ch[7].patch_number & 0x10) {
 		if (!((ch[7].mod.slot_on_flag && ch[7].car.slot_on_flag) ||
-		      (reg[0x0e] & 0x20))) {
+		      isRhythm())) {
 			ch[7].mod.type = false;
 			ch[7].mod.eg_mode = FINISH;
 			ch[7].car.eg_mode = FINISH;
 			ch[7].setPatch(reg[0x37] >> 4);
 		}
-	} else if (reg[0x0e] & 0x20) {
+	} else if (isRhythm()) {
 		ch[7].mod.type = true;
 		ch[7].mod.eg_mode = FINISH;
 		ch[7].car.eg_mode = FINISH;
@@ -884,13 +888,13 @@ void Global::update_rhythm_mode()
 
 	if (ch[8].patch_number & 0x10) {
 		if (!((ch[8].mod.slot_on_flag && ch[8].car.slot_on_flag) ||
-		      (reg[0x0e] & 0x20))) {
+		      isRhythm())) {
 			ch[8].mod.type = false;
 			ch[8].mod.eg_mode = FINISH;
 			ch[8].car.eg_mode = FINISH;
 			ch[8].setPatch(reg[0x38] >> 4);
 		}
-	} else if (reg[0x0e] & 0x20) {
+	} else if (isRhythm()) {
 		ch[8].mod.type = true;
 		ch[8].mod.eg_mode = FINISH;
 		ch[8].car.eg_mode = FINISH;
@@ -905,7 +909,7 @@ void Global::update_key_status()
 		ch[i].mod.slot_on_flag = slot_on;
 		ch[i].car.slot_on_flag = slot_on;
 	}
-	if (reg[0x0e] & 0x20) {
+	if (isRhythm()) {
 		ch[6].mod.slot_on_flag |= reg[0x0e] & 0x10; // BD1
 		ch[6].car.slot_on_flag |= reg[0x0e] & 0x10; // BD2
 		ch[7].mod.slot_on_flag |= reg[0x0e] & 0x01; // HH
@@ -1133,13 +1137,13 @@ inline void Global::calcSample(int** bufs, unsigned sample)
 		ch[i].car.calc_envelope(lfo_am);
 	}
 
-	int m = (reg[0x0e] & 0x20) ? 6 : 9;
+	int m = isRhythm() ? 6 : 9;
 	for (int i = 0; i < m; ++i) {
 		bufs[i][sample] = (ch[i].car.eg_mode != FINISH)
 			? adjust(ch[i].car.calc_slot_car(ch[i].mod.calc_slot_mod()))
 			: 0;
 	}
-	if (reg[0x0e] & 0x20) {
+	if (isRhythm()) {
 		bufs[ 6][sample] = (ch[6].car.eg_mode != FINISH)
 			?  adjust(2 * ch[6].car.calc_slot_car(ch[6].mod.calc_slot_mod()))
 			: 0;
@@ -1169,7 +1173,7 @@ bool Global::checkMuteHelper()
 	for (int i = 0; i < 6; i++) {
 		if (ch[i].car.eg_mode != FINISH) return false;
 	}
-	if (!(reg[0x0e] & 0x20)) {
+	if (!isRhythm()) {
 		for(int i = 6; i < 9; i++) {
 			 if (ch[i].car.eg_mode != FINISH) return false;
 		}
@@ -1347,7 +1351,7 @@ void Global::writeReg(byte regis, byte data)
 		int cha = regis & 0x0F;
 		int j = (data >> 4) & 15;
 		int v = data & 15;
-		if ((reg[0x0e] & 0x20) && (regis >= 0x36)) {
+		if (isRhythm() && (regis >= 0x36)) {
 			switch(regis) {
 			case 0x37:
 				ch[7].mod.setVolume(j << 2);
