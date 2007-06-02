@@ -122,8 +122,8 @@ template<class P>
 unsigned ZMBVEncoder::possibleBlock(int vx, int vy, unsigned offset)
 {
 	int ret = 0;
-	P* pold = ((P*)oldframe) + offset + (vy * pitch) + vx;
-	P* pnew = ((P*)newframe) + offset;
+	P* pold = &((P*)oldframe)[offset + (vy * pitch) + vx];
+	P* pnew = &((P*)newframe)[offset];
 	for (unsigned y = 0; y < BLOCK_HEIGHT; y += 4) {
 		for (unsigned x = 0; x < BLOCK_WIDTH; x += 4) {
 			if (pold[x] != pnew[x]) ++ret;
@@ -138,8 +138,8 @@ template<class P>
 unsigned ZMBVEncoder::compareBlock(int vx, int vy, unsigned offset)
 {
 	int ret = 0;
-	P* pold = ((P*)oldframe) + offset + (vy * pitch) + vx;
-	P* pnew = ((P*)newframe) + offset;
+	P* pold = &((P*)oldframe)[offset + (vy * pitch) + vx];
+	P* pnew = &((P*)newframe)[offset];
 	for (unsigned y = 0; y < BLOCK_HEIGHT; ++y) {
 		for (unsigned x = 0; x < BLOCK_WIDTH; ++x) {
 			if (pold[x] != pnew[x]) ++ret;
@@ -153,8 +153,8 @@ unsigned ZMBVEncoder::compareBlock(int vx, int vy, unsigned offset)
 template<class P>
 void ZMBVEncoder::addXorBlock(int vx, int vy, unsigned offset)
 {
-	P* pold = ((P*)oldframe) + offset + (vy * pitch) + vx;
-	P* pnew = ((P*)newframe) + offset;
+	P* pold = &((P*)oldframe)[offset + (vy * pitch) + vx];
+	P* pnew = &((P*)newframe)[offset];
 	for (unsigned y = 0; y < BLOCK_HEIGHT; ++y) {
 		for (unsigned x = 0; x < BLOCK_WIDTH; ++x) {
 			*((P*)&work[workUsed]) = pnew[x] ^ pold[x];
@@ -254,7 +254,7 @@ void ZMBVEncoder::compressFrame(bool keyFrame, const void** lineData,
 			addXorFrame<short>();
 			break;
 		case 4:
-			addXorFrame<long>();
+			addXorFrame<unsigned>();
 			break;
 		}
 	}
