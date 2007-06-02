@@ -23,6 +23,7 @@
 #include "MSXMemoryMapper.hh"
 #include "PanasonicRam.hh"
 #include "MSXRTC.hh"
+#include "PasswordCart.hh"
 #include "RomFactory.hh"
 #include "MSXPrinterPort.hh"
 #include "MSXSCCPlusCart.hh"
@@ -106,6 +107,8 @@ std::auto_ptr<MSXDevice> DeviceFactory::create(
 		result.reset(new PanasonicRam(motherBoard, conf, time));
 	} else if (type == "RTC") {
 		result.reset(new MSXRTC(motherBoard, conf, time));
+	} else if (type == "PasswordCart") {
+		result.reset(new PasswordCart(motherBoard, conf, time));
 	} else if (type == "ROM") {
 		result = RomFactory::create(motherBoard, conf, time);
 	} else if (type == "PrinterPort") {
