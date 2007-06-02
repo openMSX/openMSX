@@ -1,5 +1,12 @@
 $Id$
 
+2007-06-02 Albert Beevendorp
+	* Added Password Cartridge implementation.
+	  The value between the <password> tags in the hardwareconfig.xml
+	  may vary from 0x0000 to 0xffff. It's used by the BIOS to read the
+	  password from the cartridge if one is set. This implements feature
+	  request 1411507.
+
 2007-06-01 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added an LS-120 SCSI device.
 	  - Mostly as demonstrator of a removable SCSI device.
@@ -48,7 +55,7 @@ $Id$
 
 2007-05-21 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added initial GoudaSCSI support, ported from blueMSX.
-	  NOTE: DO NOT USE YET! 
+	  NOTE: DO NOT USE YET!
 	  This is very much WIP! It's not working yet and contains lots of
 	  shortcuts and hardcoded stuff. So, again: don't use it. But please
 	  help improve it! :) (You are warned!)
