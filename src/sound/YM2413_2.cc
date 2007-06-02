@@ -703,17 +703,8 @@ class Global
 public:
 	Global();
 
-	Channel& getChannelForReg(byte reg) {
-		byte chan = (reg & 0x0F) % 9; // verified on real YM2413
-		return channels[chan];
-	}
-
 	const byte* getInstrument(int instrument) {
 		return inst_tab[instrument];
-	}
-
-	int getNumMelodicChannels() {
-		return rhythm ? 6 : 9;
 	}
 
 	byte get_LFO_AM() {
@@ -722,6 +713,35 @@ public:
 
 	byte get_LFO_PM() {
 		return lfo_pm_cnt.toInt() & 7;
+	}
+
+	void reset();
+
+	/**
+	 * Reset operator parameters.
+	 */
+	void resetOperators();
+
+	/**
+	 * Generate output samples for each channel.
+	 */
+	void generateChannels(int** bufs, unsigned num);
+
+	void writeReg(byte r, byte v);
+
+private:
+	/**
+	 * Initialize "tl_tab" and "sin_tab".
+	 */
+	static void initTables();
+
+	int getNumMelodicChannels() {
+		return rhythm ? 6 : 9;
+	}
+
+	Channel& getChannelForReg(byte reg) {
+		byte chan = (reg & 0x0F) % 9; // verified on real YM2413
+		return channels[chan];
 	}
 
 	int adjust(int x) {
@@ -742,13 +762,6 @@ public:
 	inline int genPhaseSnare();
 	inline int genPhaseCymbal();
 
-	void reset();
-
-	/**
-	 * Reset operator parameters.
-	 */
-	void resetOperators();
-
 	/**
 	 * Called when the custom instrument (instrument 0) has changed.
 	 * @param part Part [0..7] of the instrument.
@@ -758,17 +771,6 @@ public:
 
 	void setRhythmMode(bool newMode);
 	void setRhythmFlags(byte flags);
-
-	/**
-	 * Generate output samples for each channel.
-	 */
-	void generateChannels(int** bufs, unsigned num);
-
-private:
-	/**
-	 * Initialize "tl_tab" and "sin_tab".
-	 */
-	static void initTables();
 
 	/**
 	 * Instrument settings:
@@ -1524,6 +1526,81 @@ void Global::generateChannels(int** bufs, unsigned num)
 	}
 }
 
+void Global::writeReg(byte r, byte v)
+{
+	PRT_DEBUG("YM2413: write reg " << (int)r << " " << (int)v);
+
+	switch (r & 0xF0) {
+	case 0x00: { // 00-0F: control
+		switch (r & 0x0F) {
+		case 0x00:  // AM/VIB/EGTYP/KSR/MULTI (modulator)
+		case 0x01:  // AM/VIB/EGTYP/KSR/MULTI (carrier)
+		case 0x02:  // Key Scale Level, Total Level (modulator)
+		case 0x03:  // Key Scale Level, carrier waveform, modulator waveform,
+		            // Feedback
+		case 0x04:  // Attack, Decay (modulator)
+		case 0x05:  // Attack, Decay (carrier)
+		case 0x06:  // Sustain, Release (modulator)
+		case 0x07:  // Sustain, Release (carrier)
+			updateCustomInstrument(r & 0x07, v);
+			break;
+		case 0x0E:
+			setRhythmFlags(v);
+			break;
+		}
+		break;
+	}
+	case 0x10:
+	case 0x20: { // block, fnum, sus, keyon
+		Channel& ch = getChannelForReg(r);
+		if (r & 0x10) {
+			// 10-18: FNUM 0-7
+			ch.setFrequencyLow(v);
+		} else {
+			// 20-28: suson, keyon, block, FNUM 8
+			ch.slots[SLOT1].setKeyOnOff(KEY_MAIN, v & 0x10);
+			ch.slots[SLOT2].setKeyOnOff(KEY_MAIN, v & 0x10);
+			ch.setSustain(v & 0x20);
+			// Note: When changing the frequency, a new value for RS is
+			//       computed using the sustain value, so make sure the new
+			//       sustain value is committed first.
+			ch.setFrequencyHigh(v & 0x0F);
+		}
+		break;
+	}
+
+	case 0x30: { // inst 4 MSBs, VOL 4 LSBs
+		Channel& ch = getChannelForReg(r);
+
+		byte old_instvol = ch.instvol_r;
+		ch.instvol_r = v;  // store for later use
+
+		ch.slots[SLOT2].setTotalLevel((v & 0x0F) << 2);
+
+		// Check wether we are in rhythm mode and handle instrument/volume
+		// register accordingly.
+
+		byte chan = (r & 0x0F) % 9;	// verified on real YM2413
+		if (chan >= getNumMelodicChannels()) {
+			// We're in rhythm mode.
+			if (chan >= 7) {
+				// Only for channel 7 and 8 (channel 6 is handled in usual way)
+				// modulator envelope is HH(chan=7) or TOM(chan=8).
+				ch.slots[SLOT1].setTotalLevel((ch.instvol_r >> 4) << 2);
+			}
+		} else {
+			if ((old_instvol & 0xF0) != (v & 0xF0)) {
+				ch.updateInstrument();
+			}
+		}
+		break;
+	}
+
+	default:
+		break;
+	}
+}
+
 
 // YM2413_2
 
@@ -1561,81 +1638,11 @@ void YM2413_2::generateChannels(int** bufs, unsigned num)
 
 void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 {
-	PRT_DEBUG("YM2413: write reg " << (int)r << " " << (int)v);
-	reg[r] = v;
-
 	// update the output buffer before changing the register
 	updateStream(time);
 
-	switch (r & 0xF0) {
-	case 0x00: { // 00-0F: control
-		switch (r & 0x0F) {
-		case 0x00:  // AM/VIB/EGTYP/KSR/MULTI (modulator)
-		case 0x01:  // AM/VIB/EGTYP/KSR/MULTI (carrier)
-		case 0x02:  // Key Scale Level, Total Level (modulator)
-		case 0x03:  // Key Scale Level, carrier waveform, modulator waveform,
-		            // Feedback
-		case 0x04:  // Attack, Decay (modulator)
-		case 0x05:  // Attack, Decay (carrier)
-		case 0x06:  // Sustain, Release (modulator)
-		case 0x07:  // Sustain, Release (carrier)
-			global->updateCustomInstrument(r & 0x07, v);
-			break;
-		case 0x0E:
-			global->setRhythmFlags(v);
-			break;
-		}
-		break;
-	}
-	case 0x10:
-	case 0x20: { // block, fnum, sus, keyon
-		Channel& ch = global->getChannelForReg(r);
-		if (r & 0x10) {
-			// 10-18: FNUM 0-7
-			ch.setFrequencyLow(v);
-		} else {
-			// 20-28: suson, keyon, block, FNUM 8
-			ch.slots[SLOT1].setKeyOnOff(KEY_MAIN, v & 0x10);
-			ch.slots[SLOT2].setKeyOnOff(KEY_MAIN, v & 0x10);
-			ch.setSustain(v & 0x20);
-			// Note: When changing the frequency, a new value for RS is
-			//       computed using the sustain value, so make sure the new
-			//       sustain value is committed first.
-			ch.setFrequencyHigh(v & 0x0F);
-		}
-		break;
-	}
-
-	case 0x30: { // inst 4 MSBs, VOL 4 LSBs
-		Channel& ch = global->getChannelForReg(r);
-
-		byte old_instvol = ch.instvol_r;
-		ch.instvol_r = v;  // store for later use
-
-		ch.slots[SLOT2].setTotalLevel((v & 0x0F) << 2);
-
-		// Check wether we are in rhythm mode and handle instrument/volume
-		// register accordingly.
-
-		byte chan = (r & 0x0F) % 9;	// verified on real YM2413
-		if (chan >= global->getNumMelodicChannels()) {
-			// We're in rhythm mode.
-			if (chan >= 7) {
-				// Only for channel 7 and 8 (channel 6 is handled in usual way)
-				// modulator envelope is HH(chan=7) or TOM(chan=8).
-				ch.slots[SLOT1].setTotalLevel((ch.instvol_r >> 4) << 2);
-			}
-		} else {
-			if ((old_instvol & 0xF0) != (v & 0xF0)) {
-				ch.updateInstrument();
-			}
-		}
-		break;
-	}
-
-	default:
-		break;
-	}
+	reg[r] = v;
+	global->writeReg(r, v);
 }
 
 } // namespace openmsx
