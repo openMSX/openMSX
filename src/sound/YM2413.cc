@@ -365,17 +365,22 @@ static int lin2db(double d)
 // Sin Table
 static void makeSinTable()
 {
-	for (int i = 0; i < PG_WIDTH / 4; ++i)
+	for (int i = 0; i < PG_WIDTH / 4; ++i) {
 		fullsintable[i] = lin2db(sin(2.0 * M_PI * i / PG_WIDTH));
-	for (int i = 0; i < PG_WIDTH / 4; ++i)
+	}
+	for (int i = 0; i < PG_WIDTH / 4; ++i) {
 		fullsintable[PG_WIDTH / 2 - 1 - i] = fullsintable[i];
-	for (int i = 0; i < PG_WIDTH / 2; ++i)
+	}
+	for (int i = 0; i < PG_WIDTH / 2; ++i) {
 		fullsintable[PG_WIDTH / 2 + i] = 2 * DB_MUTE + fullsintable[i];
+	}
 
-	for (int i = 0; i < PG_WIDTH / 2; ++i)
+	for (int i = 0; i < PG_WIDTH / 2; ++i) {
 		halfsintable[i] = fullsintable[i];
-	for (int i = PG_WIDTH / 2; i < PG_WIDTH; ++i)
+	}
+	for (int i = PG_WIDTH / 2; i < PG_WIDTH; ++i) {
 		halfsintable[i] = fullsintable[0];
+	}
 }
 
 /**
@@ -423,8 +428,7 @@ static void makeDphaseTable()
 		for (unsigned block = 0; block < 8; ++block) {
 			for (unsigned ML = 0; ML < 16; ++ML) {
 				dphaseTable[fnum][block][ML] =
-				    ((fnum * mltable[ML]) << block) >>
-				    (20 - DP_BITS);
+					((fnum * mltable[ML]) << block) >> (20 - DP_BITS);
 			}
 		}
 	}
@@ -450,9 +454,9 @@ static void makeTllTable()
 							kltable[fnum] - (3.000 * 2) * (7 - block)
 							);
 						tllTable[fnum][block][TL][KL] =
-						    (tmp <= 0) ?
-						    TL2EG(TL) :
-						    (unsigned)((tmp >> (3 - KL)) / EG_STEP) + TL2EG(TL);
+							(tmp <= 0) ?
+							TL2EG(TL) :
+							(unsigned)((tmp >> (3 - KL)) / EG_STEP) + TL2EG(TL);
 					}
 				}
 			}
@@ -682,9 +686,9 @@ void Slot::slotOff()
 {
 	if (eg_mode == ATTACK) {
 		eg_phase = EXPAND_BITS(
-			AR_ADJUST_TABLE[HIGHBITS(
-				eg_phase, EG_DP_BITS - EG_BITS)],
-			EG_BITS, EG_DP_BITS);
+			AR_ADJUST_TABLE[HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS)],
+			EG_BITS, EG_DP_BITS
+			);
 	}
 	eg_mode = RELEASE;
 	updateEG();
