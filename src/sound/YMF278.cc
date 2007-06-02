@@ -613,7 +613,14 @@ void YMF278::writeReg(byte reg, byte data, const EmuTime& time)
 			}
 			break;
 		case 4:
-			slot.pan = data & 0x0F;
+			if (data & 0x10) {
+				// output to DO1 pin:
+				// this pin is not used in moonsound
+				// we emulate this by muting the sound
+				slot.pan = 8; // both left/right -inf dB
+			} else {
+				slot.pan = data & 0x0F;
+			}
 
 			if (data & 0x020) {
 				// LFO reset
@@ -632,15 +639,13 @@ void YMF278::writeReg(byte reg, byte data, const EmuTime& time)
 					slot.state = EG_REL;
 				}
 				break;
-			case 1:	//tone off, damp
-				slot.state = EG_DMP;
-				break;
 			case 2:	//tone on, no damp
 				if (!(regs[reg] & 0x080)) {
 					keyOnHelper(slot);
 				}
 				break;
-			case 3:	//tone on, damp
+			case 1:	//tone off, damp
+			case 3:	//tone on,  damp
 				slot.state = EG_DMP;
 				break;
 			}
