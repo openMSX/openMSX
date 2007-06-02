@@ -27,7 +27,8 @@ public:
 	 */
 	Patch();
 
-	void init(int n, const byte* data);
+	void initModulator(const byte* data);
+	void initCarrier(const byte* data);
 
 	bool AM, PM, EG;
 	byte KR; // 0-1
@@ -528,37 +529,38 @@ Patch::Patch()
 {
 }
 
-void Patch::init(int n, const byte* data)
+void Patch::initModulator(const byte* data)
 {
-	if (n == 0) {
-		AM = (data[0] >> 7) & 1;
-		PM = (data[0] >> 6) & 1;
-		EG = (data[0] >> 5) & 1;
-		KR = (data[0] >> 4) & 1;
-		ML = (data[0] >> 0) & 15;
-		KL = (data[2] >> 6) & 3;
-		TL = (data[2] >> 0) & 63;
-		FB = (data[3] >> 0) & 7;
-		WF = (data[3] >> 3) & 1;
-		AR = (data[4] >> 4) & 15;
-		DR = (data[4] >> 0) & 15;
-		SL = (data[6] >> 4) & 15;
-		RR = (data[6] >> 0) & 15;
-	} else {
-		AM = (data[1] >> 7) & 1;
-		PM = (data[1] >> 6) & 1;
-		EG = (data[1] >> 5) & 1;
-		KR = (data[1] >> 4) & 1;
-		ML = (data[1] >> 0) & 15;
-		KL = (data[3] >> 6) & 3;
-		TL = 0;
-		FB = 0;
-		WF = (data[3] >> 4) & 1;
-		AR = (data[5] >> 4) & 15;
-		DR = (data[5] >> 0) & 15;
-		SL = (data[7] >> 4) & 15;
-		RR = (data[7] >> 0) & 15;
-	}
+	AM = (data[0] >> 7) & 1;
+	PM = (data[0] >> 6) & 1;
+	EG = (data[0] >> 5) & 1;
+	KR = (data[0] >> 4) & 1;
+	ML = (data[0] >> 0) & 15;
+	KL = (data[2] >> 6) & 3;
+	TL = (data[2] >> 0) & 63;
+	FB = (data[3] >> 0) & 7;
+	WF = (data[3] >> 3) & 1;
+	AR = (data[4] >> 4) & 15;
+	DR = (data[4] >> 0) & 15;
+	SL = (data[6] >> 4) & 15;
+	RR = (data[6] >> 0) & 15;
+}
+
+void Patch::initCarrier(const byte* data)
+{
+	AM = (data[1] >> 7) & 1;
+	PM = (data[1] >> 6) & 1;
+	EG = (data[1] >> 5) & 1;
+	KR = (data[1] >> 4) & 1;
+	ML = (data[1] >> 0) & 15;
+	KL = (data[3] >> 6) & 3;
+	TL = 0;
+	FB = 0;
+	WF = (data[3] >> 4) & 1;
+	AR = (data[5] >> 4) & 15;
+	DR = (data[5] >> 0) & 15;
+	SL = (data[7] >> 4) & 15;
+	RR = (data[7] >> 0) & 15;
 }
 
 //************************************************************//
@@ -603,7 +605,7 @@ void Slot::updatePG()
 
 void Slot::updateTLL()
 {
-	tll = tllTable[fnum >> 5][block][type ? volume : patch->TL][patch->KL]:
+	tll = tllTable[fnum >> 5][block][type ? volume : patch->TL][patch->KL];
 }
 
 void Slot::updateRKS()
@@ -811,8 +813,8 @@ Global::Global(byte* reg)
 {
 	this->reg = reg;
 	for (int i = 0; i < 16 + 3; ++i) {
-		patches[i][0].init(0, inst_data[i]);
-		patches[i][1].init(1, inst_data[i]);
+		patches[i][0].initModulator(inst_data[i]);
+		patches[i][1].initCarrier(inst_data[i]);
 	}
 	for (int i = 0; i < 9; ++i) {
 		ch[i].init(*this);
