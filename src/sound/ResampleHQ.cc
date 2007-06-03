@@ -12,11 +12,6 @@
 //   - changed/simplified API to better match openmsx use model
 //     (e.g. remove all error checking)
 
-// TODO current code is more complicated than needed because it supports
-//      two algorithms: the original algo and a version with precaclculated
-//      coeffs. This is useful when comparing both version (for sound quality)
-//      We should remove it later.
-
 #include "ResampleHQ.hh"
 #include "Resample.hh"
 #include "FixedPoint.hh"
@@ -170,7 +165,7 @@ ResampleHQ<CHANNELS>::ResampleHQ(Resample& input_, double ratio_)
 {
 	ratio = ratio_;
 	lastPos = 0.0f;
-        
+
 	bufStart = 0;
 	bufEnd   = 0;
 	nonzeroSamples = 0;
@@ -262,7 +257,7 @@ void ResampleHQ<CHANNELS>::calcOutput(float lastPos, int* output)
 		);
 		return;
 	}
-	
+
 	if ((CHANNELS == 2) && cpu.hasSSE()) {
 		// SSE version, stereo
 		long filterLen8 = filterLen & ~7;
