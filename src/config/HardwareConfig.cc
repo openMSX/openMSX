@@ -108,13 +108,8 @@ std::auto_ptr<XMLElement> HardwareConfig::loadConfig(
 		const string& path, const string& hwName)
 {
 	SystemFileContext context;
-	string filename;
-	try {
-		filename = context.resolve(path + '/' + hwName + ".xml");
-	} catch (FileException& e) {
-		filename = context.resolve(
-			path + '/' + hwName + "/hardwareconfig.xml");
-	}
+	string filename = context.resolve(
+		path + '/' + hwName + "/hardwareconfig.xml");
 	try {
 		File file(filename);
 		std::auto_ptr<XMLElement> result = XMLLoader::loadXML(
@@ -167,7 +162,7 @@ void HardwareConfig::parseSlots()
 			const string& secSlot = (*it2)->getAttribute("slot");
 			int ss = CartridgeSlotManager::getSlotNum(secSlot);
 			if (ss < 0) {
-				if ( (ss >= -128) && (0 <= ps) && (ps<4) 
+				if ( (ss >= -128) && (0 <= ps) && (ps<4)
 					 && motherBoard.getCPUInterface().isExpanded(ps))
 					ss += 128;
 				else {
