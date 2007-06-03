@@ -195,7 +195,7 @@ private:
 // Force all constants being defined, some compilers need this:
 
 template <unsigned FRACTION_BITS>
-const float FixedPoint<FRACTION_BITS>::ONE;
+const int FixedPoint<FRACTION_BITS>::ONE;
 
 template <unsigned FRACTION_BITS>
 const float FixedPoint<FRACTION_BITS>::INV_ONE_F;
