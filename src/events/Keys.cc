@@ -1,107 +1,21 @@
 // $Id$
 
 #include "Keys.hh"
+#include "StringOp.hh"
+#include <map>
 
 using std::string;
 
 namespace openmsx {
 
-Keys::KeyMap Keys::keymap;
+namespace Keys {
 
-Keys::KeyCode Keys::getCode(const string& name)
-{
-	initialize();
+typedef std::map<std::string, KeyCode, StringOp::caseless> KeyMap;
+static KeyMap keymap;
 
-	KeyCode result = static_cast<KeyCode>(0);
-	string::size_type lastPos = 0;
-	while (lastPos != string::npos) {
-		string::size_type pos = name.find_first_of(",+/", lastPos);
-		string part = (pos != string::npos)
-		            ? name.substr(lastPos, pos - lastPos)
-			    : name.substr(lastPos);
-		KeyMap::const_iterator it = keymap.find(part);
-		if (it != keymap.end()) {
-			KeyCode partCode = it->second;
-			if ((partCode & K_MASK) && (result & K_MASK)) {
-				// more than one non-modifier component
-				// is not allowed
-				return K_NONE;
-			}
-			result = static_cast<KeyCode>(result | partCode);
-		} else {
-			return K_NONE;
-		}
-		lastPos = pos;
-		if (lastPos != string::npos) {
-			++lastPos;
-		}
-	}
-	return result;
-}
-
-Keys::KeyCode Keys::getCode(SDLKey key, SDLMod mod, bool release)
-{
-	KeyCode result = (KeyCode)key;
-	if (mod & KMOD_CTRL) {
-		result = static_cast<KeyCode>(result | KM_CTRL);
-	}
-	if (mod & KMOD_SHIFT) {
-		result = static_cast<KeyCode>(result | KM_SHIFT);
-	}
-	if (mod & KMOD_ALT) {
-		result = static_cast<KeyCode>(result | KM_ALT);
-	}
-	if (mod & KMOD_META) {
-		result = static_cast<KeyCode>(result | KM_META);
-	}
-	if (release) {
-		result = static_cast<KeyCode>(result | KD_RELEASE);
-	}
-	return result;
-}
-
-const string Keys::getName(KeyCode keyCode)
-{
-	initialize();
-
-	string result;
-	for (KeyMap::const_iterator it = keymap.begin();
-	     it != keymap.end(); ++it) {
-		if (it->second == (keyCode & K_MASK)) {
-			result = it->first;
-			break;
-		}
-	}
-	if (result.empty()) {
-		return "unknown";
-	}
-	if (keyCode & KM_CTRL) {
-		result += "+CTRL";
-	}
-	if (keyCode & KM_SHIFT) {
-		result += "+SHIFT";
-	}
-	if (keyCode & KM_ALT) {
-		result += "+ALT";
-	}
-	if (keyCode & KM_META) {
-		result += "+META";
-	}
-	if (keyCode & KD_RELEASE) {
-		result += ",RELEASE";
-	}
-	return result;
-}
-
-Keys::KeyCode Keys::combine(KeyCode key, KeyCode modifier)
-{
-	return (KeyCode)((int)key | (int)modifier);
-}
-
-void Keys::initialize()
+static void initialize()
 {
 	static bool init = false;
-
 	if (init) return;
 	init = true;
 
@@ -360,6 +274,96 @@ void Keys::initialize()
 	keymap["RELEASE"]	= KD_RELEASE;
 }
 
+KeyCode getCode(const string& name)
+{
+	initialize();
+
+	KeyCode result = static_cast<KeyCode>(0);
+	string::size_type lastPos = 0;
+	while (lastPos != string::npos) {
+		string::size_type pos = name.find_first_of(",+/", lastPos);
+		string part = (pos != string::npos)
+		            ? name.substr(lastPos, pos - lastPos)
+			    : name.substr(lastPos);
+		KeyMap::const_iterator it = keymap.find(part);
+		if (it != keymap.end()) {
+			KeyCode partCode = it->second;
+			if ((partCode & K_MASK) && (result & K_MASK)) {
+				// more than one non-modifier component
+				// is not allowed
+				return K_NONE;
+			}
+			result = static_cast<KeyCode>(result | partCode);
+		} else {
+			return K_NONE;
+		}
+		lastPos = pos;
+		if (lastPos != string::npos) {
+			++lastPos;
+		}
+	}
+	return result;
+}
+
+KeyCode getCode(SDLKey key, SDLMod mod, bool release)
+{
+	KeyCode result = (KeyCode)key;
+	if (mod & KMOD_CTRL) {
+		result = static_cast<KeyCode>(result | KM_CTRL);
+	}
+	if (mod & KMOD_SHIFT) {
+		result = static_cast<KeyCode>(result | KM_SHIFT);
+	}
+	if (mod & KMOD_ALT) {
+		result = static_cast<KeyCode>(result | KM_ALT);
+	}
+	if (mod & KMOD_META) {
+		result = static_cast<KeyCode>(result | KM_META);
+	}
+	if (release) {
+		result = static_cast<KeyCode>(result | KD_RELEASE);
+	}
+	return result;
+}
+
+const string getName(KeyCode keyCode)
+{
+	initialize();
+
+	string result;
+	for (KeyMap::const_iterator it = keymap.begin();
+	     it != keymap.end(); ++it) {
+		if (it->second == (keyCode & K_MASK)) {
+			result = it->first;
+			break;
+		}
+	}
+	if (result.empty()) {
+		return "unknown";
+	}
+	if (keyCode & KM_CTRL) {
+		result += "+CTRL";
+	}
+	if (keyCode & KM_SHIFT) {
+		result += "+SHIFT";
+	}
+	if (keyCode & KM_ALT) {
+		result += "+ALT";
+	}
+	if (keyCode & KM_META) {
+		result += "+META";
+	}
+	if (keyCode & KD_RELEASE) {
+		result += ",RELEASE";
+	}
+	return result;
+}
+
+KeyCode combine(KeyCode key, KeyCode modifier)
+{
+	return (KeyCode)((int)key | (int)modifier);
+}
+
+} // namespace Keys
+
 } // namespace openmsx
-
-
