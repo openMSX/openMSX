@@ -192,6 +192,20 @@ private:
 	int value;
 };
 
+// Force all constants being defined, some compilers need this:
+
+template <unsigned FRACTION_BITS>
+const float FixedPoint<FRACTION_BITS>::ONE;
+
+template <unsigned FRACTION_BITS>
+const float FixedPoint<FRACTION_BITS>::INV_ONE_F;
+
+template <unsigned FRACTION_BITS>
+const double FixedPoint<FRACTION_BITS>::INV_ONE_D;
+
+template <unsigned FRACTION_BITS>
+const int FixedPoint<FRACTION_BITS>::FRACTION_MASK;
+
 } // namespace openmsx
 
 #endif // FIXEDPOINT_HH
