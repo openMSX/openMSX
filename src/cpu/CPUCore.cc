@@ -387,6 +387,7 @@ template <class T> inline byte CPUCore<T>::RDMEM_OPCODE(word address)
 	T::PRE_RDMEM_OPCODE(address);
 	return RDMEM_common(address);
 }
+
 template <class T> inline word CPUCore<T>::RD_WORD_PC()
 {
 	word res = RDMEM_OPCODE(R.PC + 0);
@@ -401,10 +402,29 @@ template <class T> inline byte CPUCore<T>::RDMEM(word address)
 	return RDMEM_common(address);
 }
 
+template <class T> inline word CPUCore<T>::RD_WORD(word address)
+{
+	word res = RDMEM(address + 0);
+	res     += RDMEM(address + 1) << 8;
+	return res;
+}
+
 template <class T> inline void CPUCore<T>::WRMEM(word address, byte value)
 {
 	T::PRE_WRMEM(address);
 	WRMEM_common(address, value);
+}
+
+template <class T> inline void CPUCore<T>::WR_WORD(word address, word value)
+{
+	WRMEM(address + 0, value & 255);
+	WRMEM(address + 1, value >> 8);
+}
+
+template <class T> inline void CPUCore<T>::WR_WORD_rev(word address, word value)
+{
+	WRMEM(address + 1, value >> 8);
+	WRMEM(address + 0, value & 255);
 }
 
 template <class T> inline void CPUCore<T>::M1Cycle() { T::M1_DELAY(); ++R.R; }
@@ -448,8 +468,7 @@ template <class T> inline void CPUCore<T>::irq2()
 	R.di();
 	PUSH(R.PC);
 	word x = interface->dataBus() | (R.I << 8);
-	R.PC  = RDMEM(x + 0);
-	R.PC += RDMEM(x + 1) << 8;
+	R.PC = RD_WORD(x);
 	T::IM2_DELAY();
 	M1Cycle();
 }
@@ -802,8 +821,7 @@ template <class T> void CPUCore<T>::ld_xbyte_a()
 template <class T> inline void CPUCore<T>::WR_NN_Y(word reg)
 {
 	memptr  = RD_WORD_PC();
-	WRMEM(memptr + 0, reg & 255);
-	WRMEM(memptr + 1, reg >> 8);
+	WR_WORD(memptr, reg);
 }
 template <class T> void CPUCore<T>::ld_xword_bc() { WR_NN_Y(R.BC); }
 template <class T> void CPUCore<T>::ld_xword_de() { WR_NN_Y(R.DE); }
@@ -896,8 +914,7 @@ template <class T> void CPUCore<T>::ld_l_xiy() { R.setL(RD_R_XIY()); }
 template <class T> inline word CPUCore<T>::RD_P_XX()
 {
 	memptr = RD_WORD_PC();
-	word res = RDMEM(memptr + 0);
-	res     += RDMEM(memptr + 1) << 8;
+	word res = RD_WORD(memptr);
 	++memptr;
 	return res;
 }
@@ -2374,9 +2391,8 @@ template <class T> void CPUCore<T>::rrd()
 template <class T> inline void CPUCore<T>::PUSH(word reg)
 {
 	T::PUSH_DELAY();
-	WRMEM(R.SP - 1, reg >> 8);
-	WRMEM(R.SP - 2, reg & 255);
 	R.SP -= 2;
+	WR_WORD_rev(R.SP, reg);
 }
 template <class T> void CPUCore<T>::push_af() { PUSH(R.AF); }
 template <class T> void CPUCore<T>::push_bc() { PUSH(R.BC); }
@@ -2389,8 +2405,7 @@ template <class T> void CPUCore<T>::push_iy() { PUSH(R.IY); }
 // POP ss
 template <class T> inline word CPUCore<T>::POP()
 {
-	word res = RDMEM(R.SP + 0);
-	res     += RDMEM(R.SP + 1) << 8;
+	word res = RD_WORD(R.SP);
 	R.SP += 2;
 	return res;
 }
@@ -2525,11 +2540,9 @@ template <class T> void CPUCore<T>::djnz()
 // EX (SP),ss
 template <class T> inline void CPUCore<T>::EX_SP(word& reg)
 {
-	memptr  = RDMEM(R.SP + 0);
-	memptr += RDMEM(R.SP + 1) << 8;
+	memptr = RD_WORD(R.SP);
 	T::SMALL_DELAY();
-	WRMEM(R.SP + 1, reg >> 8);
-	WRMEM(R.SP + 0, reg & 255);
+	WR_WORD_rev(R.SP, reg);
 	reg = memptr;
 	T::EX_SP_HL_DELAY();
 }
