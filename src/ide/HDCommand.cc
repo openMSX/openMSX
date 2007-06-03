@@ -29,7 +29,7 @@ HDCommand::HDCommand(MSXCommandController& msxCommandController,
 {
 }
 
-void HDCommand::execute(const std::vector<TclObject*>& tokens, TclObject& result, 
+void HDCommand::execute(const std::vector<TclObject*>& tokens, TclObject& result,
 				const EmuTime& /*time*/)
 {
 	if (tokens.size() == 1) {

@@ -36,7 +36,7 @@ typedef unsigned uint32;
 #ifdef	__MINGW32__
 #include <_mingw.h>	// for __int64
 #endif
-#define	uint	unsigned 
+#define	uint	unsigned
 // Use define instead of typedef. See _mingw.h.
 /** 64 bit signed integer */
 #define	int64	__int64

@@ -245,7 +245,7 @@ string CartCmd::execute(const vector<string>& tokens, const EmuTime& /*time*/)
 {
 	string result;
 	string cartname = tokens[0];
-	
+
 	// strip namespace qualification
 	//  TODO investigate whether it's a good idea to strip namespace at a
 	//       higher level for all commands. How does that interact with
@@ -271,7 +271,7 @@ string CartCmd::execute(const vector<string>& tokens, const EmuTime& /*time*/)
 	} else if ( (tokens[1] == "eject") || (tokens[1] == "-eject") ) {
 		// remove cartridge (or extension)
 		if (tokens[1] == "-eject") {
-			result += "Warning: use of '-eject' is deprecated, instead use the 'eject' subcommand";		
+			result += "Warning: use of '-eject' is deprecated, instead use the 'eject' subcommand";
 		}
 		const ExtensionConfig* extConf = getExtensionConfig(cartname);
 		if (extConf) {

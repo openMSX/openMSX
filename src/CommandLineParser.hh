@@ -103,7 +103,7 @@ private:
 	const std::auto_ptr<DiskImageCLI> diskImageCLI;
 	const std::auto_ptr<HDImageCLI> hdImageCLI;
 	const std::auto_ptr<CDImageCLI> cdImageCLI;
-	const std::auto_ptr<MSXEventRecorderReplayerCLI> 
+	const std::auto_ptr<MSXEventRecorderReplayerCLI>
 	                                        eventRecorderReplayerCLI;
 	ParseStatus parseStatus;
 	bool haveConfig;

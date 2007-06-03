@@ -193,7 +193,7 @@ short CassetteJack::readSample(const EmuTime& time)
 	double index_d = (time - basetime).toDouble() * samplerate;
 	size_t index_i = (size_t)floor(index_d);
 	double lambda = index_d - floor(index_d);
-	
+
 	// piecewise linear interpolation
 	sample_t* p = bf_in->getRdBlock();
 	double res =        lambda  *            p[index_i]                +
@@ -249,7 +249,7 @@ void CassetteJack::plugHelper(Connector& connector, const EmuTime& time)
 	cmtout = jack_port_register(self, "casout", JACK_DEFAULT_AUDIO_TYPE,
 	                            JackPortIsOutput | JackPortIsTerminal, 0);
 	if (!cmtout) initError("Unable to register jack casout port");
-	
+
 	cmtin = jack_port_register(self, "casin", JACK_DEFAULT_AUDIO_TYPE,
 	                           JackPortIsInput, 0);
 	if (!cmtout) initError("Unable to register jack casin port");
@@ -296,7 +296,7 @@ void CassetteJack::initError(std::string message)
 void CassetteJack::unplugHelper(const EmuTime& time)
 {
 	// TODO Should we do this?
-	// give the other jack-end the chance to finish reading 
+	// give the other jack-end the chance to finish reading
 	// what has been written
 	if (false) {
 		executeUntil(time, 0);

@@ -44,7 +44,7 @@ public:
 
 private:
 	void write(unsigned address, byte value);
-	
+
 	friend class MapperIODebuggable;
 	const std::auto_ptr<MapperIODebuggable> debuggable;
 	std::auto_ptr<MapperMask> mapperMask;

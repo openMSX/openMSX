@@ -38,7 +38,7 @@ private:
 	void commandPhaseWrite(byte value, const EmuTime& time);
 	void executionPhaseWrite(byte value);
 
-	DiskDrive* drive[4]; 
+	DiskDrive* drive[4];
 	enum Command {
 		CMD_UNKNOWN,
 		CMD_READ_DATA,

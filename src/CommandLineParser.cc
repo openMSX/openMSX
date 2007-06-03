@@ -177,7 +177,7 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	registerOption("-nosse2",     *noSSE2Option, 1, 1);
 	#endif
 	registerOption("-testconfig", *testConfigOption, 1, 1);
-	
+
 	registerFileTypes();
 }
 

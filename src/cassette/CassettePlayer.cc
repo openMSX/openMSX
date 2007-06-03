@@ -242,7 +242,7 @@ void CassettePlayer::updateLoadingState(const EmuTime& time)
 {
 	// TODO also set loadingIndicator for RECORD?
 	// note: we don't use isRolling()
-	loadingIndicator->update(motor && (getState() == PLAY)); 
+	loadingIndicator->update(motor && (getState() == PLAY));
 
 	removeSyncPoint();
 	if ((motor || !motorControl) && (getState() == PLAY)) {
@@ -498,7 +498,7 @@ const std::string& CassettePlayer::schedName() const
 	static const string schedName = "CassettePlayer";
 	return schedName;
 }
- 
+
 void CassettePlayer::executeUntil(const EmuTime& time, int /*userData*/)
 {
 	// tape ended

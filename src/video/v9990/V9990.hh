@@ -51,7 +51,7 @@ public:
 	inline bool isInterlaced() const {
 		return interlaced;
 	}
- 
+
 	/** Get even/odd page alternation status.
 	  * @return True iff even/odd page alternation is enabled.
 	  */

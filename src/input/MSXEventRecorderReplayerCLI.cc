@@ -3,7 +3,7 @@
 #include "MSXEventRecorderReplayerCLI.hh"
 #include "CommandLineParser.hh"
 #include "CLIOption.hh"
-#include "MSXEventRecorder.hh" 
+#include "MSXEventRecorder.hh"
 #include "MSXEventReplayer.hh"
 #include "MSXMotherBoard.hh"
 

@@ -15,7 +15,7 @@ class MSXEventDistributor;
 class MSXEventRecorder : private MSXEventListener, private noncopyable
 {
 public:
-	MSXEventRecorder(MSXEventDistributor& eventDistributor, 
+	MSXEventRecorder(MSXEventDistributor& eventDistributor,
 	                 const std::string& fileName);
 	virtual ~MSXEventRecorder();
 

@@ -13,7 +13,7 @@ class HDCommand;
 class File;
 class XMLElement;
 
-class HD 
+class HD
 {
 public:
 	HD(MSXMotherBoard& motherBoard, const XMLElement& config);

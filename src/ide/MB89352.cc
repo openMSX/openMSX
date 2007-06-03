@@ -96,7 +96,7 @@ MB89352::MB89352(MSXMotherBoard& motherBoard, const XMLElement& config)
 	//TODO: devBusy = false;
 
 	// ALMOST COPY PASTED FROM WD33C93:
-	
+
 	XMLElement::Children targets;
 	config.getChildren("target", targets);
 	for (XMLElement::Children::const_iterator it = targets.begin();
@@ -311,7 +311,7 @@ void MB89352::resetACKREQ()
 		if (--counter > 0) {
 			regs[REG_PSNS] = PSNS_REQ | PSNS_BSY | PSNS_COMMAND;
 		} else {
-			bufIdx = 0; // reset buffer index 
+			bufIdx = 0; // reset buffer index
 			//TODO: devBusy = true;
 			counter = dev[targetId]->executeCmd(cdb, phase, blockCounter);
 			switch (phase) {
@@ -508,7 +508,7 @@ void MB89352::writeRegister(byte reg, byte value)
 				disconnect();
 				break;
 			}
-			bool err = false;	
+			bool err = false;
 			int x = regs[REG_BDID] & regs[REG_TEMPWR];
 			if (phase == SCSI::BUS_FREE && x && x != regs[REG_TEMPWR]) {
 				x = regs[REG_TEMPWR] & ~regs[REG_BDID];

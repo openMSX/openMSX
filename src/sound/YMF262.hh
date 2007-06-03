@@ -97,7 +97,7 @@ public:
 	byte vib;	// LFO Phase Modulation enable flag (active high)
 
 	byte waveform_number; // waveform select
-	
+
 	byte ar;	// attack rate: AR<<2
 	byte dr;	// decay rate:  DR<<2
 	byte rr;	// release rate:RR<<2

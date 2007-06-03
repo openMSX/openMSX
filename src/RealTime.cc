@@ -50,7 +50,7 @@ RealTime::~RealTime()
 {
 	eventDistributor.unregisterEventListener(OPENMSX_FRAME_DRAWN_EVENT,  *this);
 	eventDistributor.unregisterEventListener(OPENMSX_FINISH_FRAME_EVENT, *this);
-	
+
 	powerSetting.detach(*this);
 	pauseSetting.detach(*this);
 	throttleManager.detach(*this);

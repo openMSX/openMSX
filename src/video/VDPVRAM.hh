@@ -151,7 +151,7 @@ public:
 	  * 	with the unused bits all ones.
 	  * @param time The moment in emulated time this change occurs.
 	  * TODO: In planar mode, the index bits are rotated one to the right.
-	  *       Solution: have the caller pass index mask instead of the 
+	  *       Solution: have the caller pass index mask instead of the
 	  *       number of bits.
 	  *       For many tables the number of index bits depends on the
 	  *       display mode anyway.
@@ -183,7 +183,7 @@ public:
 		baseAddr = -1;
 	}
 
-	/** Gets a pointer to a contiguous part of the VRAM. The region is 
+	/** Gets a pointer to a contiguous part of the VRAM. The region is
 	  * [index, index + size) inside the current window.
 	  * @param index Index in table
 	  * @param size Size of the block. This is only used to assert that
@@ -321,7 +321,7 @@ private:
 	  */
 	VRAMObserver* observer;
 
-	/** Mask to handle vram mirroring 
+	/** Mask to handle vram mirroring
 	  * Note: this only handles mirroring for power-of-2 sizes
 	  *       mirroring of extended VRAM is handled in a different way
 	  */
@@ -389,7 +389,7 @@ public:
 		assert(time >= vramTime);
 		#endif
 		assert(vdp.isInsideFrame(time));
-		
+
 		// handle mirroring and non-present ram chips
 		address &= sizeMask;
 		if (unlikely(address >= actualSize)) {
@@ -492,7 +492,7 @@ private:
 
 		// Cache dirty marking should happen after the commit,
 		// otherwise the cache could be re-validated based on old state.
-		 
+
 		// these two seem to be unused
 		// bitmapCacheWindow.notify(address, time);
 		// nameTable.notify(address, time);
@@ -504,7 +504,7 @@ private:
 			colourTable.notify(address, time);
 			patternTable.notify(address, time);
 		} else {
-			// either both or none have an observer 
+			// either both or none have an observer
 			assert(!patternTable.hasObserver());
 		}
 
@@ -544,7 +544,7 @@ private:
 	EmuTime vramTime;
 	#endif
 
-	/** Mask to handle vram mirroring 
+	/** Mask to handle vram mirroring
 	  * Note: this only handles mirroring at power-of-2 sizes
 	  *       mirroring of extended VRAM is handled in a different way
 	  */

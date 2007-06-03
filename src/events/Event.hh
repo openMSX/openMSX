@@ -49,7 +49,7 @@ enum EventType
 
 	/** Delayed repaint */
 	OPENMSX_DELAYED_REPAINT_EVENT,
-	
+
 	/** Command received on CliComm connection */
 	OPENMSX_CLICOMMAND_EVENT,
 

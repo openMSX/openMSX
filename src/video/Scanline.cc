@@ -95,7 +95,7 @@ void Scanline<Pixel>::draw(const Pixel* src1, const Pixel* src2,
 	if ((sizeof(Pixel) == 4) && cpu.hasSSE2()) {
 		// SSE2 routine, 32bpp
 		assert(((4 * width) % 64) == 0);
-		
+
 		asm (
 			"movd	%3, %%xmm6;"
 			"pshuflw $0, %%xmm6, %%xmm6;"

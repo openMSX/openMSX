@@ -136,7 +136,7 @@ byte TC8566AF::readStatus(const EmuTime& time)
 
 byte TC8566AF::peekDataPort() const
 {
-	switch (phase) {            
+	switch (phase) {
 	case PHASE_DATATRANSFER:
 		return executionPhasePeek();
 	case PHASE_RESULT:
@@ -149,7 +149,7 @@ byte TC8566AF::peekDataPort() const
 byte TC8566AF::readDataPort(const EmuTime& time)
 {
 	//interrupt = false;
-	switch (phase) {            
+	switch (phase) {
 	case PHASE_DATATRANSFER: {
 		byte result = executionPhaseRead();
 		delayTime.reset(time);
@@ -297,7 +297,7 @@ void TC8566AF::writeReg(int reg, byte data, const EmuTime& time)
 	//case 3: // control register 1
 	//	controlReg1 = data;
 	//	break;
-	
+
 	case 5: // data port
 		writeDataPort(data, time);
 		break;
@@ -391,9 +391,9 @@ void TC8566AF::commandPhase1(byte value, const EmuTime& time)
 	status0 |= //(drive[driveSelect]->ready() ? 0 : ST0_DS0) |
 	           (value & (ST0_DS0 | ST0_DS1)) |
 	           (drive[driveSelect]->dummyDrive() ? ST0_IC1 : 0);
-	status3  = (value & (ST3_DS0 | ST3_DS1)) | 
-	           (drive[driveSelect]->track00(time)    ? ST3_TK0 : 0) | 
-	           (drive[driveSelect]->doubleSided()    ? ST3_HD  : 0) | 
+	status3  = (value & (ST3_DS0 | ST3_DS1)) |
+	           (drive[driveSelect]->track00(time)    ? ST3_TK0 : 0) |
+	           (drive[driveSelect]->doubleSided()    ? ST3_HD  : 0) |
 	           (drive[driveSelect]->writeProtected() ? ST3_WP  : 0) |
 	           (drive[driveSelect]->ready()          ? ST3_RDY : 0);
 }
@@ -419,7 +419,7 @@ void TC8566AF::commandPhaseWrite(byte value, const EmuTime& time)
 		case 4:
 			number = value;
 			//sectorSize = diskGetSectorSize(driveSelect, side, currentTrack, 0);
-			//sectorOffset = (number == 1 && (commandCode & 0xc0) == 0x40) 
+			//sectorOffset = (number == 1 && (commandCode & 0xc0) == 0x40)
 			//             ? 0
 			//             : sectorSize; // FIXME
 			//sectorSize = ((MT == 0) && (MFM == 1) && (number == 2)) ? 512 : 0;
@@ -486,7 +486,7 @@ void TC8566AF::commandPhaseWrite(byte value, const EmuTime& time)
 		case 0:
 			commandPhase1(value, time);
 			break;
-		case 1: 
+		case 1:
 			while (value > currentTrack) {
 				drive[driveSelect]->step(true, time);
 				currentTrack++;

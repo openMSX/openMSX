@@ -66,7 +66,7 @@ inline byte reverseByte(byte a)
 	//   a = ((a & 0xCC) >> 2) | ((a & 0x33) << 2);
 	//   a = ((a & 0xAA) >> 1) | ((a & 0x55) << 1);
 	//   return a;
-	
+
 	// This only works for 8 bits (on a 32 bit machine) but it's slightly faster
 	// Found trick on this page:
 	//    http://graphics.stanford.edu/~seander/bithacks.html

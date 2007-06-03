@@ -701,7 +701,7 @@ MSXtar::DirEntry MSXtar::findEntryInDir(
 {
 	DirEntry result;
 	result.sector = sector;
-	result.index = 0; // avoid warning (only some gcc versions complain) 
+	result.index = 0; // avoid warning (only some gcc versions complain)
 	while (result.sector) {
 		// read sector and scan 16 entries
 		readLogicalSector(result.sector, buf);

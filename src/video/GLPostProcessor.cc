@@ -255,10 +255,10 @@ void GLPostProcessor::paint()
 			           ? (320.0f - 284.0f) / (2.0f * 320.0f)
 				   : 0.0f;
 			GLfloat x2 = 1.0f - x1;
-			glTexCoord2f(x1, 0.0f); glVertex2i(0, h); 
-			glTexCoord2f(x1, 1.0f); glVertex2i(0, 0); 
-			glTexCoord2f(x2, 1.0f); glVertex2i(w, 0); 
-			glTexCoord2f(x2, 0.0f); glVertex2i(w, h); 
+			glTexCoord2f(x1, 0.0f); glVertex2i(0, h);
+			glTexCoord2f(x1, 1.0f); glVertex2i(0, 0);
+			glTexCoord2f(x2, 1.0f); glVertex2i(w, 0);
+			glTexCoord2f(x2, 0.0f); glVertex2i(w, h);
 			glEnd();
 		}
 		glDisable(GL_TEXTURE_2D);
@@ -406,10 +406,10 @@ void GLPostProcessor::drawGlow(int glow)
 	glColor4f(0.0f, 0.0f, 0.0f, alpha);
 	int w = screen.getWidth();
 	int h = screen.getHeight();
-	glTexCoord2i(0, 0); glVertex2i(0, h); 
-	glTexCoord2i(0, 1); glVertex2i(0, 0); 
-	glTexCoord2i(1, 1); glVertex2i(w, 0); 
-	glTexCoord2i(1, 0); glVertex2i(w, h); 
+	glTexCoord2i(0, 0); glVertex2i(0, h);
+	glTexCoord2i(0, 1); glVertex2i(0, 0);
+	glTexCoord2i(1, 1); glVertex2i(w, 0);
+	glTexCoord2i(1, 0); glVertex2i(w, h);
 	glEnd();
 	glDisable(GL_BLEND);
 	glDisable(GL_TEXTURE_2D);

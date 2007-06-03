@@ -151,7 +151,7 @@ void Mixer::muteHelper()
 		(*it)->setMixerParams(samples, frequency);
 		msxMute = true; // mute all but the first MSXMixer
 	}
-	
+
 	if (mute) {
 		driver->mute();
 	} else {
@@ -189,7 +189,7 @@ void Mixer::update(const Setting& setting)
 			unmute();
 		}
 	} else if ((&setting == samplesSetting.get()) ||
-	           (&setting == soundDriverSetting.get()) || 
+	           (&setting == soundDriverSetting.get()) ||
 	           (&setting == frequencySetting.get())) {
 		reloadDriver();
 	} else {

@@ -193,7 +193,7 @@ void MSXDevice::registerSlots(const XMLElement& config)
 		}
 	}
 	if ( (0 > ss ) && (ss >= -128) ) {
-		if ( (0 <= ps) && (ps<4) 
+		if ( (0 <= ps) && (ps<4)
 			 && motherBoard.getCPUInterface().isExpanded(ps))
 			ss += 128;
 		else

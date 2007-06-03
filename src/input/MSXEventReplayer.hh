@@ -15,7 +15,7 @@ class MSXEventReplayer : private Schedulable
 {
 public:
 	MSXEventReplayer(Scheduler& scheduler,
-	                 MSXEventDistributor& eventDistributor_, 
+	                 MSXEventDistributor& eventDistributor_,
 	                 const std::string& fileName);
 
 private:

@@ -116,13 +116,13 @@ void SCSIHD::disconnect()
 bool SCSIHD::isSelected()
 {
 	lun = 0;
-	return true; 
+	return true;
 }
 
 unsigned SCSIHD::inquiry()
 {
 	unsigned length = currentLength;
-	
+
 	if (length == 0) return 0;
 
 	memcpy(buffer + 2, inqdata + 2, 34);
@@ -203,7 +203,7 @@ unsigned SCSIHD::modeSense()
 		pBuffer[11] = sectors;     // 10,11 Sectors per Track
 		pBuffer[12] = blockLength; // 12,13 Data Bytes per Physical Sector
 		pBuffer[20] = removable;   // 20    bit7 Soft Sector bit5 Removable
-		
+
 		buffer[0] = size - 1;    // sense data length
 
 		return std::min<unsigned>(currentLength, size);
@@ -275,7 +275,7 @@ unsigned SCSIHD::readCapacity()
 
 bool SCSIHD::checkAddress()
 {
-	unsigned total = getNbSectors(); 
+	unsigned total = getNbSectors();
 	if (total == 0) {
 		keycode = SCSI::SENSE_MEDIUM_NOT_PRESENT;
 		PRT_DEBUG("hdd " << (int)scsiId << ": drive not ready");
@@ -615,7 +615,7 @@ int SCSIHD::msgOut(byte value)
 
 unsigned SCSIHD::getNbSectors() const
 {
-	return file->getSize() / SECTOR_SIZE; 
+	return file->getSize() / SECTOR_SIZE;
 }
 
 // NOTE: UNUSED FOR NOW!

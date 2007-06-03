@@ -1,6 +1,6 @@
 // $Id$
 /* Ported from:
-** Source: /cvsroot/bluemsx/blueMSX/Src/IoDevice/MB89352.h,v 
+** Source: /cvsroot/bluemsx/blueMSX/Src/IoDevice/MB89352.h,v
 ** Revision: 1.4
 ** Date: 2007/03/28 17:35:35
 **

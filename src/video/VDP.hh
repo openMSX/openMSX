@@ -619,9 +619,9 @@ private:
 	void setPalette(int index, word grb, const EmuTime& time);
 
 
-	/** Command line communications.  
+	/** Command line communications.
 	  * Used to print a warning if the software being emulated would
-	  * cause a normal MSX to freeze.  
+	  * cause a normal MSX to freeze.
 	  */
 	MSXCliComm& cliComm;
 
@@ -811,8 +811,8 @@ private:
 	  */
 	bool displayEnabled;
 
-	/** Has a warning been printed. 
-	  * This is set when a warning about setting the dotclock direction 
+	/** Has a warning been printed.
+	  * This is set when a warning about setting the dotclock direction
 	  * is printed.  */
 	bool warningPrinted;
 };

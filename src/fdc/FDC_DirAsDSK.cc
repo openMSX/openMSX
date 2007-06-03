@@ -468,7 +468,7 @@ void FDC_DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 		//make sure we write changed sectors to the cache file later on
 		saveCachedSectors = true;
 		//create correct DIR sector
-		
+
 		// We assume that the dir entry is updatet as latest: So the
 		// fat and actual sectordata should already contain the correct
 		// data. Most MSX disk roms honour this behaviour for normal

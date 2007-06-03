@@ -27,7 +27,7 @@ class SCSIHD : public HD, public SCSIDevice, public SectorAccessibleDisk,
                public DiskContainer, private noncopyable
 {
 public:
-	SCSIHD(MSXMotherBoard& motherBoard, const XMLElement& targetconfig, 
+	SCSIHD(MSXMotherBoard& motherBoard, const XMLElement& targetconfig,
 		byte* const buf, unsigned mode);
 	virtual ~SCSIHD();
 

@@ -115,7 +115,7 @@ protected:
 	unsigned ramLoadOffset;
 	unsigned ramLoadEnd;
 	unsigned lines;
-	enum CountryCode { 
+	enum CountryCode {
 		CC_USA              = 0,
 		CC_FRANCE           = 1,
 		CC_GERMANY          = 2,
@@ -128,7 +128,7 @@ protected:
 	};
 	CountryCode countryCode;
 
-	static const int MAX_ESC_CMDSIZE = 8; 
+	static const int MAX_ESC_CMDSIZE = 8;
 	byte abEscSeq[MAX_ESC_CMDSIZE];
 
 	static const int MAX_FONT_WIDTH = 12;

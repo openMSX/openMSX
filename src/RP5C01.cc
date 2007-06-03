@@ -212,7 +212,7 @@ void RP5C01::updateTimeRegs(const EmuTime& time)
 		               ? elapsed : months / 12;
 		years    += carryYears;
 		leapYear += carryYears;
-		
+
 		fraction %= FREQ;
 		seconds  %= 60;
 		minutes  %= 60;

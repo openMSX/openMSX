@@ -78,7 +78,7 @@ void EventDistributor::deliverEvents()
 	ScopedLock lock(sem);
 	EventQueue eventsCopy;
 	swap(eventsCopy, scheduledEvents);
-	
+
 	for (EventQueue::const_iterator it = eventsCopy.begin();
 	     it != eventsCopy.end(); ++it) {
 		EventPtr event = *it;

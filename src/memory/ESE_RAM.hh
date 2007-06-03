@@ -25,7 +25,7 @@ public:
 	virtual const byte* getReadCacheLine(word start) const;
 	virtual byte* getWriteCacheLine(word start) const;
 
-private: 
+private:
 	void setSRAM(unsigned region, byte block);
 
 	std::auto_ptr<SRAM> sram;

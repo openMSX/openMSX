@@ -18,7 +18,7 @@ class VLM5030 : public SoundDevice, private Resample
 {
 public:
 	VLM5030(MSXMotherBoard& motherBoard, const std::string& name,
-	        const std::string& desc, const XMLElement& config, 
+	        const std::string& desc, const XMLElement& config,
 	        const EmuTime& time);
         ~VLM5030();
         void reset(const EmuTime& time);
@@ -32,7 +32,7 @@ public:
 	void setRST(bool pin, const EmuTime& time);
 	// set VCU pin level : ?? unknown
 	void setVCU(bool pin, const EmuTime& time);
-	// set ST pin level  : set table address A0-A7 / start speech 
+	// set ST pin level  : set table address A0-A7 / start speech
 	void setST(bool pin, const EmuTime& time);
 
 private:

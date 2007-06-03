@@ -2754,7 +2754,7 @@ template <class T> void CPUCore<T>::halt()
 	R.HALT = true;
 	setSlowInstructions();
 
-	if (!(R.IFF1 || R.nextIFF1 || R.IFF2)) { 
+	if (!(R.IFF1 || R.nextIFF1 || R.IFF2)) {
 		motherboard.getMSXCliComm().printWarning(
 			"DI; HALT detected, which means a hang. "
 			"You can just as well reset the MSX now...\n");

@@ -24,7 +24,7 @@ WavData::WavData(const string& filename, int wantedBits, int wantedFreq)
 		throw MSXException(string("WavData error: ") +
 		                   SDL_GetError());
 	}
-	
+
 	freq = (wantedFreq == 0) ? wavSpec.freq : wantedFreq;
 	bits = (wantedBits == 0) ? (is8Bit(wavSpec.format) ? 8 : 16)
 	                         : wantedBits;

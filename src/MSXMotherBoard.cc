@@ -115,7 +115,7 @@ public:
 	MSXDevice* findDevice(const string& name);
 
 	MSXMotherBoard::SharedStuff& getSharedStuff(const string& name);
-	
+
 private:
 	void deleteMachine();
 

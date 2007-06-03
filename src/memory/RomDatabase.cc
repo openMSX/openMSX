@@ -251,8 +251,8 @@ auto_ptr<RomInfo> RomDatabase::fetchRomInfo(GlobalCliComm& cliComm, const Rom& r
 	}
 
 	// no match found
-	return auto_ptr<RomInfo>(new RomInfo("", "", "", "", false, "", "", 
-	                                     ROM_UNKNOWN)); 
+	return auto_ptr<RomInfo>(new RomInfo("", "", "", "", false, "", "",
+	                                     ROM_UNKNOWN));
 }
 
 } // namespace openmsx

@@ -36,7 +36,7 @@ public:
 	byte read(unsigned addr);
 	byte peek(unsigned addr) const;
 	void write(unsigned addr, const byte value);
-	
+
 	const byte* getReadCacheLine(unsigned addr) const;
 	byte* getWriteCacheLine(unsigned addr) const;
 
@@ -53,7 +53,7 @@ public:
 
 private:
 	void callUMRCallBack(unsigned addr);
-	
+
 	std::vector<bool> completely_initialized_cacheline;
 	std::vector<std::bitset<CacheLine::SIZE> > uninitialized;
 	const std::auto_ptr<Ram> ram;

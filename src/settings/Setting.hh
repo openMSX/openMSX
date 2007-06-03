@@ -117,7 +117,7 @@ private:
 	/** see setDontSaveValue()
 	 */
 	std::string dontSaveValue;
-	
+
 	/** need to be saved flag
 	 */
 	bool save;

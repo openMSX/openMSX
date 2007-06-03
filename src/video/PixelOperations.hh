@@ -40,7 +40,7 @@ public:
 	inline unsigned getMaxRed() const;
 	inline unsigned getMaxGreen() const;
 	inline unsigned getMaxBlue() const;
-	
+
 	/** Blend the given colors into a single color.
 	  * The special case for blending between two colors with
 	  * an equal blend weight has an optimized implementation.

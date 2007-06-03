@@ -70,7 +70,7 @@ bool ResampleLQ<CHANNELS>::generateOutput(int* dataOut, unsigned num)
 			dataOut[i * CHANNELS + j] = out;
 			anyNonZero |= out;
 		}
-		
+
 		// figure out the next index
 		bufStart = (bufStart + p0) & BUF_MASK;
 		pos = fract + step;

@@ -106,7 +106,7 @@ public: // Will be called by Mixer:
 protected:
 	/** Abstract method to generate the actual sound data.
 	  * @param buffers An array of pointer to buffers. Each buffer must
-	  *                be big enough to hold 'num' samples. 
+	  *                be big enough to hold 'num' samples.
 	  * @param num The number of samples.
 	  *
 	  * This method should fill each buffer with sound data that

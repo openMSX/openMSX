@@ -22,7 +22,7 @@
  * {
  * 	typedef T type;
  * };
- * 
+ *
  * template<typename TO, typename FROM>
  * static TO checked_cast(FROM* from)
  * {

@@ -69,7 +69,7 @@ IDECDROM::IDECDROM(MSXMotherBoard& motherBoard_, const XMLElement& /*config*/,
 	remMedStatNotifEnabled = false;
 	mediaChanged = false;
 
-	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "add");	
+	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "add");
 }
 
 IDECDROM::~IDECDROM()
@@ -356,7 +356,7 @@ CDXCommand::CDXCommand(MSXCommandController& msxCommandController,
 {
 }
 
-void CDXCommand::execute(const std::vector<TclObject*>& tokens, TclObject& result, 
+void CDXCommand::execute(const std::vector<TclObject*>& tokens, TclObject& result,
 				const EmuTime& /*time*/)
 {
 	if (tokens.size() == 1) {
@@ -364,11 +364,11 @@ void CDXCommand::execute(const std::vector<TclObject*>& tokens, TclObject& resul
 		result.addListElement(cd.name + ':');
 		result.addListElement(file ? file->getURL() : "");
 		if (!file) result.addListElement("empty");
-	} else if ( (tokens.size() == 2) && ( 
+	} else if ( (tokens.size() == 2) && (
 		tokens[1]->getString() == "eject" || tokens[1]->getString() == "-eject" )) {
 		cd.eject();
 		// TODO check for locked tray
-		if ( tokens[1]->getString() == "-eject" ) { 
+		if ( tokens[1]->getString() == "-eject" ) {
 			result.setString(
 			"Warning: use of '-eject' is deprecated, instead use the 'eject' subcommand");
 		}

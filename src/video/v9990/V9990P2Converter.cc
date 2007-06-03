@@ -61,7 +61,7 @@ void V9990P2Converter<Pixel>::renderPattern(
 
 	x &= 1023;
 	Pixel* palette = palette64 + pal;
-	
+
 	unsigned nameAddr = nameTable + (((y / 8) * 128 + (x / 8)) * 2);
 	y = (y & 7) * 256;
 

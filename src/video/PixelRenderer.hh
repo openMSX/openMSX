@@ -26,7 +26,7 @@ class Setting;
   * Uses a Rasterizer to plot actual pixels for a specific video system.
   */
 class PixelRenderer : public Renderer, private Observer<Setting>,
-                      private noncopyable 
+                      private noncopyable
 {
 public:
 	PixelRenderer(VDP& vdp, Display& display);

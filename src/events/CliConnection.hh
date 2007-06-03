@@ -74,7 +74,7 @@ private:
 
 	CommandController& commandController;
 	EventDistributor& eventDistributor;
-	
+
 	bool updateEnabled[CliComm::NUM_UPDATES];
 };
 

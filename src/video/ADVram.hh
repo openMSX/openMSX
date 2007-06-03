@@ -23,13 +23,13 @@ public:
 
 	/** This method is called on reset.  Reset the mapper register and
 	 * the planar bit, if the device is configured with an enable bit
-	 * then that bit is reset as well.  
+	 * then that bit is reset as well.
 	 */
 	virtual void reset(const EmuTime& time);
 
 	/** Read a byte from an IO port, change mode bits.  The planar bit
 	 * and possibly the enable bit are set according to address lines
-	 * that are normally ignored for IO reads.  Returns 255.  
+	 * that are normally ignored for IO reads.  Returns 255.
 	 */
 	virtual byte readIO(word port, const EmuTime& time);
 
@@ -38,13 +38,13 @@ public:
 
 	/** Read a byte from a location in the video ram at a certain
 	 * time.  If the device is enabled then the value returned comes
-	 * from the video ram, otherwise it returns 255.  
+	 * from the video ram, otherwise it returns 255.
 	 */
 	virtual byte readMem(word address, const EmuTime& time);
 
 	/** Write a given byte at a certain time to a given location in
 	 * the video ram.  If the device is enabled then the write is
-	 * redirected to the video ram, if it is not, nothing happens.  
+	 * redirected to the video ram, if it is not, nothing happens.
 	 */
 	virtual void writeMem(word address, byte value, const EmuTime& time);
 

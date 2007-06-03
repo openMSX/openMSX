@@ -1481,7 +1481,7 @@ void V9990CmdEngine::CmdSRCH<Mode>::execute(const EmuTime& time)
 	typename Mode::Type mask = (1 << Mode::BITS_PER_PIXEL) -1;
 
 	int TX = (engine.ARG & DIX) ? -1 : 1;
-	bool AEQ = engine.ARG & NEQ; 
+	bool AEQ = engine.ARG & NEQ;
 
 	while (clock.before(time)) {
 		clock += delta;

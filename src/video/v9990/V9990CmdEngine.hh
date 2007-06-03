@@ -386,13 +386,13 @@ private:
 	byte bitsLeft;
 
 	/** Partial data for LMMC command
-	  */ 
+	  */
 	byte partial;
 
 	/** Real command timing or instantaneous (broken) timing
 	 */
 	bool brokenTiming;
-	
+
 	/** Create the engines for a given command.
 	  * For each bitdepth, a separate engine is created.
 	  */

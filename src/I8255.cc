@@ -22,7 +22,7 @@ const int BIT_NR       = 0x0E;
 const int SET_RESET    = 0x01;
 
 
-I8255::I8255(I8255Interface& interf, const EmuTime& time, 
+I8255::I8255(I8255Interface& interf, const EmuTime& time,
 		MSXCliComm& cliComm_)
 	: interface(interf)
 	, cliComm(cliComm_)
@@ -106,7 +106,7 @@ byte I8255::peekPortB(const EmuTime& time) const
 		}
 	case MODEB_1: // TODO but not relevant for MSX
 	default:
-		return 255; 
+		return 255;
 	}
 }
 

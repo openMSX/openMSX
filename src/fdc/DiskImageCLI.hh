@@ -24,7 +24,7 @@ public:
 private:
 	void parse(const std::string& drive, const std::string& image,
 	           std::list<std::string>& cmdLine);
-	
+
 	CommandController& commandController;
 	char driveLetter;
 };

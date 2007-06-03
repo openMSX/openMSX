@@ -24,7 +24,7 @@ namespace MemoryOps {
 	  * @param dst Destination address, must be aligned on unsigned/word
 	  *            boundary.
 	  * @param src Source address, must be aligned on unsigned/word
-	  *            boundary. 
+	  *            boundary.
 	  * @param num Number of elements (unsigned/word). Notice this is
 	  *            different from the normal memcpy function, there this
 	  *            parameter indicates the number of bytes.

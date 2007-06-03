@@ -93,7 +93,7 @@ protected:
 
 	/** Each line of currFrame twice, to get double vertical resolution. */
 	DoubledFrame* interlacedFrame;
-	
+
 	/** Represents a frame as it should be displayed.
 	  * This can be simply a RawFrame or two RawFrames combined in a
 	  * DeinterlacedFrame or DoubledFrame.

@@ -42,7 +42,7 @@ MidiInNative::MidiInNative(EventDistributor& eventDistributor_,
 {
 	name = w32_midiInGetVFN(num);
 	desc = w32_midiInGetRDN(num);
-	
+
 	eventDistributor.registerEventListener(OPENMSX_MIDI_IN_NATIVE_EVENT, *this);
 }
 

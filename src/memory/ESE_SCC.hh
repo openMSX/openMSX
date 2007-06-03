@@ -27,7 +27,7 @@ public:
 	virtual const byte* getReadCacheLine(word start) const;
 	virtual byte* getWriteCacheLine(word start) const;
 
-private: 
+private:
 	void setMapperLow(unsigned page, byte value);
 	void setMapperHigh(byte value);
 

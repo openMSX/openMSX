@@ -292,7 +292,7 @@ void V9990SDLRasterizer<Pixel>::preCalcPalettes()
 			}
 		}
 	}
-	
+
 	resetPalette();
 }
 

@@ -23,7 +23,7 @@ public:
 private:
 	// Runnable
 	virtual void run();
-	
+
 	const std::string name;
 	Thread thread;
 };

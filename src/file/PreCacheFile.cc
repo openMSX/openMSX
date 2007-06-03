@@ -21,7 +21,7 @@ void PreCacheFile::run()
 		// don't pre-cache non regular files (e.g. /dev/fd0)
 		return;
 	}
-	
+
 	FILE* file = fopen(name.c_str(), "rb");
 	if (!file) return;
 
@@ -29,7 +29,7 @@ void PreCacheFile::run()
 	unsigned size = (unsigned)ftell(file);
 	if (size < 1024 * 1024) {
 		// only pre-cache small files
-		
+
 		const unsigned BLOCK_SIZE = 4096;
 		unsigned block = 0;
 		unsigned repeat = 0;

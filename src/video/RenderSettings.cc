@@ -156,7 +156,7 @@ void RenderSettings::transformRGB(double& r, double& g, double& b)
 	double r2 = cm[0][0] * r + cm[0][1] * g + cm[0][2] * b;
 	double g2 = cm[1][0] * r + cm[1][1] * g + cm[1][2] * b;
 	double b2 = cm[2][0] * r + cm[2][1] * g + cm[2][2] * b;
-	
+
 	double gamma = 1.0 / getGamma().getValue();
 	r = conv2(r2, gamma);
 	g = conv2(g2, gamma);

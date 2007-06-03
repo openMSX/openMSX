@@ -142,7 +142,7 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 		bufs[i] = &mixBuffer[samples * stereo * i];
 	}
 	generateChannels(bufs, samples);
-	
+
 	// record channels
 	for (unsigned i = 0; i < numChannels; ++i) {
 		if (writer[i].get()) {
@@ -157,7 +157,7 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 			}
 		}
 	}
-	
+
 	// remove muted channels (explictly by user or by device itself)
 	unsigned unmuted = 0;
 	for (unsigned i = 0; i < numChannels; ++i) {

@@ -67,13 +67,13 @@ RealDrive::~RealDrive()
 	assert(info.counter);
 	assert(info.stuff);
 	DrivesInUse& drivesInUse = *reinterpret_cast<DrivesInUse*>(info.stuff);
-	
+
 	const string& driveName = changer->getDriveName();
 	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, driveName, "remove");
 	unsigned driveNum = driveName[4] - 'a';
 	assert(drivesInUse[driveNum]);
 	drivesInUse[driveNum] = false;
-	
+
 	--info.counter;
 	if (info.counter == 0) {
 		assert(drivesInUse.none());

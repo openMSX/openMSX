@@ -80,7 +80,7 @@ public:
 		int fromX, int fromY,
 		int displayX, int displayY,
 		int displayWidth, int displayHeight) = 0;
-	
+
 	/** Is video recording active?
 	  */
 	virtual bool isRecording() const = 0;

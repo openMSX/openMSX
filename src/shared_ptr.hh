@@ -7,7 +7,7 @@
  * Based on boost::shared_ptr
  *   http://www.boost.org/libs/smart_ptr/shared_ptr.htm
  * The boost version is more complete and faster but at the
- * moment we don't care about that. 
+ * moment we don't care about that.
  */
 
 #include <algorithm>
@@ -24,7 +24,7 @@ public:
 	{
 		++(*count);
 	}
-	
+
 	~shared_ptr()
 	{
 		if (--(*count) == 0) {

@@ -63,7 +63,7 @@ AviWriter::~AviWriter()
 	bool hasAudio = audiorate != 0;
 
 	// write avi header
-	AVIOUT4("RIFF");                    // Riff header 
+	AVIOUT4("RIFF");                    // Riff header
 	AVIOUTd(AVI_HEADER_SIZE + written - 8 + index.size());
 	AVIOUT4("AVI ");
 	AVIOUT4("LIST");                    // List header
@@ -191,7 +191,7 @@ void AviWriter::addAviChunk(const char* tag, unsigned size, void* data, unsigned
 	chunk[1] = tag[1];
 	chunk[2] = tag[2];
 	chunk[3] = tag[3];
-	writeLE4(&chunk[4], size);   
+	writeLE4(&chunk[4], size);
 	fwrite(chunk, 1, 8, file);
 
 	unsigned writesize = (size + 1) & ~1;

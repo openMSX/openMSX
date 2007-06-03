@@ -67,8 +67,8 @@ ESE_SCC::ESE_SCC(MSXMotherBoard& motherBoard, const XMLElement& config,
 {
 	unsigned sramSize = config.getChildDataAsInt("sramsize", 256); // size in kb
 	if (sramSize != 1024 && sramSize != 512 && sramSize != 256 && sramSize != 128) {
-		throw MSXException("SRAM size for " + getName() + 
-			" should be 128, 256, 512 or 1024kB and not " + 
+		throw MSXException("SRAM size for " + getName() +
+			" should be 128, 256, 512 or 1024kB and not " +
 			StringOp::toString(sramSize) + "kB!");
 	}
 	if (!withSCSI && sramSize == 1024) {
@@ -89,7 +89,7 @@ ESE_SCC::ESE_SCC(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 	// initialize SCC
 	scc.reset(new SCC(motherBoard, getName(), config, time));
-	
+
 	if (withSCSI) {
 		// initialize SPC
 		spc.reset(new MB89352(motherBoard, config));
@@ -128,7 +128,7 @@ void ESE_SCC::setMapperHigh(byte value)
 	if (!spc.get()) {
 		return; // only WAVE-SCSI supports 1024kB
 	}
-	
+
 	mapperHigh = (value & 0x40);
 	spcEnable = mapperHigh && !writeEnable;
 

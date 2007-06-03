@@ -171,7 +171,7 @@ string AviRecorder::processStart(const vector<string>& tokens)
 	string prefix = "openmsx";
 	bool recordAudio = true;
 	bool recordVideo = true;
-	
+
 	vector<string> arguments;
 	for (unsigned i = 2; i < tokens.size(); ++i) {
 		if (StringOp::startsWith(tokens[i], "-")) {
@@ -216,7 +216,7 @@ string AviRecorder::processStart(const vector<string>& tokens)
 		filename = FileOperations::getNextNumberedFileName(
 			directory, prefix, extension);
 	}
-	
+
 	if (aviWriter.get() || wavWriter.get()) {
 		return "Already recording.";
 	}

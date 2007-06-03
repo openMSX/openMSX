@@ -67,7 +67,7 @@ private:
 	const std::auto_ptr<KeyMatrixUpCmd>   keyMatrixUpCmd;
 	const std::auto_ptr<KeyMatrixDownCmd> keyMatrixDownCmd;
 	const std::auto_ptr<KeyInserter>      keyTypeCmd;
-	
+
 	byte cmdKeyMatrix[NR_KEYROWS];
 	byte userKeyMatrix[NR_KEYROWS];
 	byte keyMatrix[NR_KEYROWS];

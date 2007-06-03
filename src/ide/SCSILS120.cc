@@ -220,7 +220,7 @@ void SCSILS120::startStopUnit()
 	//      	updateExtendedDiskName(diskId, disk->fileName, disk->fileNameInZip);
 	//      	boardChangeDiskette(diskId, disk->fileName, disk->fileNameInZip);
 			PRT_DEBUG("insert ls120 " << (int)scsiId);
-	//      } 
+	//      }
 		break;
 	}
 }
@@ -229,7 +229,7 @@ unsigned SCSILS120::inquiry()
 {
 	unsigned total  = getNbSectors();
 	unsigned length = currentLength;
-	
+
 	bool fdsmode = (total > 0) && (total <= 2880);
 
 	if (length == 0) return 0;
@@ -332,7 +332,7 @@ unsigned SCSILS120::modeSense()
 		pBuffer[11] = sectors;     // 10,11 Sectors per Track
 		pBuffer[12] = blockLength; // 12,13 Data Bytes per Physical Sector
 		pBuffer[20] = removable;   // 20    bit7 Soft Sector bit5 Removable
-		
+
 		buffer[0] = size - 1;    // sense data length
 
 		return std::min<unsigned>(currentLength, size);
@@ -404,7 +404,7 @@ unsigned SCSILS120::readCapacity()
 
 bool SCSILS120::checkAddress()
 {
-	unsigned total = getNbSectors(); 
+	unsigned total = getNbSectors();
 	if (total == 0) {
 		keycode = SCSI::SENSE_MEDIUM_NOT_PRESENT;
 		PRT_DEBUG("ls120 " << (int)scsiId << ": drive not ready");
@@ -770,8 +770,8 @@ int SCSILS120::msgOut(byte value)
 
 unsigned SCSILS120::getNbSectors() const
 {
-	if (file.get()) { 
-		return file->getSize() / SECTOR_SIZE; 
+	if (file.get()) {
+		return file->getSize() / SECTOR_SIZE;
 	} else {
 		return 0;
 	}
@@ -812,7 +812,7 @@ LSXCommand::LSXCommand(MSXCommandController& msxCommandController,
 {
 }
 
-void LSXCommand::execute(const std::vector<TclObject*>& tokens, TclObject& result, 
+void LSXCommand::execute(const std::vector<TclObject*>& tokens, TclObject& result,
 				const EmuTime& /*time*/)
 {
 	if (tokens.size() == 1) {
@@ -820,11 +820,11 @@ void LSXCommand::execute(const std::vector<TclObject*>& tokens, TclObject& resul
 		result.addListElement(ls.name + ':');
 		result.addListElement(file ? file->getURL() : "");
 		if (!file) result.addListElement("empty");
-	} else if ( (tokens.size() == 2) && ( 
+	} else if ( (tokens.size() == 2) && (
 		tokens[1]->getString() == "eject" || tokens[1]->getString() == "-eject" )) {
 		ls.eject();
 		// TODO check for locked tray
-		if ( tokens[1]->getString() == "-eject" ) { 
+		if ( tokens[1]->getString() == "-eject" ) {
 			result.setString(
 			"Warning: use of '-eject' is deprecated, instead use the 'eject' subcommand");
 		}

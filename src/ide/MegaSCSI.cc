@@ -65,8 +65,8 @@ MegaSCSI::MegaSCSI(MSXMotherBoard& motherBoard, const XMLElement& config,
 {
 	unsigned sramSize = config.getChildDataAsInt("sramsize", 1024); // size in kb
 	if (sramSize != 1024 && sramSize != 512 && sramSize != 256 && sramSize != 128) {
-		throw MSXException("SRAM size for " + getName() + 
-			" should be 128, 256, 512 or 1024kB and not " + 
+		throw MSXException("SRAM size for " + getName() +
+			" should be 128, 256, 512 or 1024kB and not " +
 			StringOp::toString(sramSize) + "kB!");
 	}
 	sramSize *= 1024; // in bytes

@@ -9,7 +9,7 @@ void DummySCSIDevice::reset()
 	// do nothing
 }
 
-bool DummySCSIDevice::isSelected() 
+bool DummySCSIDevice::isSelected()
 {
 	return false;
 }
@@ -41,7 +41,7 @@ byte DummySCSIDevice::msgIn()
 	return 0; // TODO: check if this is sane, but it doesn't seem to be used anyway
 }
 
-void DummySCSIDevice::disconnect() 
+void DummySCSIDevice::disconnect()
 {
 	// do nothing
 }

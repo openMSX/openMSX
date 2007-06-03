@@ -275,7 +275,7 @@ void Simple3xScaler<Pixel>::scaleBlank2to3(
 
 template <class Pixel>
 Blur_1on3<Pixel>::Blur_1on3(const PixelOperations<Pixel>& pixelOps,
-                            const RenderSettings& settings_) 
+                            const RenderSettings& settings_)
 	: mult0(pixelOps.format)
 	, mult1(pixelOps.format)
 	, mult2(pixelOps.format)
@@ -290,7 +290,7 @@ void Blur_1on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long dst
 	/* The following code is equivalent to this loop. It is 2x unrolled
 	 * and common subexpressions have been eliminated. The last iteration
 	 * is also moved outside the for loop.
-	 * 
+	 *
 	 *  unsigned c0 = alpha / 2;
 	 *  unsigned c1 = c0 + alpha;
 	 *  unsigned c2 = 256 - c1;
@@ -389,10 +389,10 @@ void Blur_1on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long dst
 			"paddw     %%mm4, %%mm1;"          // b1 = t1 + s1 + g0
 			"packuswb  %%mm7, %%mm1;"          // b1 | b2
 			"add       $8, %[IN];"             // x += 2
-			"movq      %%mm1, 16(%[OUT],%[Y]);"// out[y + 4] = 
+			"movq      %%mm1, 16(%[OUT],%[Y]);"// out[y + 4] =
 			"add       $24, %[Y];"             // y += 6
 			"jnz       0b;"                    //
-			
+
 			"movq      %%mm5, %%mm1;"          // in[x + 1]
 			"movq      %%mm0, %%mm7;"          // p0
 			"punpckhbw   (%[CNST]), %%mm1;"    // p1 = unpack(in[x + 1])
@@ -418,7 +418,7 @@ void Blur_1on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long dst
 			"paddw     %%mm4, %%mm1;"          // s1 + g0
 			"paddw     %%mm2, %%mm1;"          // b1 = t1 + s1 + g0
 			"packuswb  %%mm7, %%mm1;"          // b1 | b2
-			"movq      %%mm1, 16(%[OUT]);"     // out[y + 4] = 
+			"movq      %%mm1, 16(%[OUT]);"     // out[y + 4] =
 
 			"emms;"
 

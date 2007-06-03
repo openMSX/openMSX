@@ -294,7 +294,7 @@ public:
 	  */
 	void bind() const;
 
-	/** Unbind this buffer. 
+	/** Unbind this buffer.
 	  */
 	void unbind() const;
 

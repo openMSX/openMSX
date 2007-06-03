@@ -17,7 +17,7 @@ class Resample : private Observer<Setting>
 {
 public:
 	virtual bool generateInput(int* buffer, unsigned num) = 0;
-        
+
 protected:
         Resample(GlobalSettings& globalSettings, unsigned channels);
 	virtual ~Resample();

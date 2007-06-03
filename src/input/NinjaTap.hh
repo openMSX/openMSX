@@ -14,7 +14,7 @@ public:
 	         const std::string& name);
 
 	//Pluggable
-	virtual const std::string& getDescription() const; 
+	virtual const std::string& getDescription() const;
 
 	//JoystickDevice
 	byte read(const EmuTime& time);

@@ -67,19 +67,19 @@ public:
 	void unmute();
 
 	// Called by Mixer or SoundDriver
-	
+
 	/** Set new fragment size and sample frequency.
 	 * A fragment size of zero means the Mixer is muted.
 	 */
 	void setMixerParams(unsigned fragmentSize, unsigned sampleRate);
 
 	// Called by AviRecorder
-	
+
 	void setRecorder(AviRecorder* recorder);
 	unsigned getSampleRate() const;
 
 	SoundDevice* findDevice(const std::string& name) const;
-	
+
 private:
 	struct SoundDeviceInfo {
 		double defaultVolume;
@@ -103,7 +103,7 @@ private:
 
 	// Schedulable
 	void executeUntil(const EmuTime& time, int userData);
-	const std::string& schedName() const;	
+	const std::string& schedName() const;
 
 	// Observer<Setting>
 	virtual void update(const Setting& setting);

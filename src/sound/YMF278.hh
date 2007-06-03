@@ -44,7 +44,7 @@ public:
 	int lfo_cnt;
 	int lfo_step;
 	int lfo_max;
-	
+
 	int DL;
 	short wave;		// wavetable number
 	short FN;		// f-number

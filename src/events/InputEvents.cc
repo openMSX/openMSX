@@ -74,7 +74,7 @@ KeyUpEvent::KeyUpEvent(Keys::KeyCode keyCode, word unicode)
 
 
 // class KeyDownEvent
- 
+
 KeyDownEvent::KeyDownEvent(Keys::KeyCode keyCode)
 	: KeyEvent(OPENMSX_KEY_DOWN_EVENT, keyCode, (word)-1)
 {

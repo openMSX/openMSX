@@ -176,7 +176,7 @@ private:
 	unsigned csm_req;        // CSM  KEY ON / KEY OFF sequence request
 
 	unsigned irq_enable;     // IRQ enable for timer B (bit 3) and timer A
-	                         // (bit 2); bit 7 - CSM mode (keyon to all 
+	                         // (bit 2); bit 7 - CSM mode (keyon to all
 	                         // slots, everytime timer A overflows)
 	unsigned status;         // chip status (BUSY, IRQ Flags)
 

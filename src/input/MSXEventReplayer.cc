@@ -50,7 +50,7 @@ void MSXEventReplayer::processLogEntry()
 void MSXEventReplayer::executeUntil(const EmuTime& time, int /*userData*/)
 {
 	try {
-	        InputEventFactory::EventPtr eventPtr = 
+	        InputEventFactory::EventPtr eventPtr =
 			InputEventFactory::createInputEvent(eventString);
 		try {
 			eventDistributor.distributeEvent(eventPtr, time);
@@ -61,7 +61,7 @@ void MSXEventReplayer::executeUntil(const EmuTime& time, int /*userData*/)
 		std::cerr << "Ignoring unknown event " << eventString
 		          << ", error was: " << e.getMessage() << std::endl;
 	}
-	
+
 	processLogEntry();
 }
 

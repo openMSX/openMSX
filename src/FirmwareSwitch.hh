@@ -16,7 +16,7 @@ class CliComm;
 class FirmwareSwitch : private noncopyable
 {
 public:
-	FirmwareSwitch(CommandController& commandController, 
+	FirmwareSwitch(CommandController& commandController,
 	               const XMLElement& config);
 	~FirmwareSwitch();
 

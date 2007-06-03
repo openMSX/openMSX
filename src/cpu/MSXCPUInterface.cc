@@ -213,7 +213,7 @@ void MSXCPUInterface::removeAllWatchPoints()
 	while (!watchPoints.empty()) {
 		removeWatchPoint(*watchPoints.back());
 	}
-	
+
 }
 
 byte MSXCPUInterface::readMemSlow(word address, const EmuTime& time)

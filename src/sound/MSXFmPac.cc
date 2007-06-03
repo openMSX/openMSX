@@ -88,7 +88,7 @@ const byte* MSXFmPac::getReadCacheLine(word address) const
 void MSXFmPac::writeMem(word address, byte value, const EmuTime& time)
 {
 	// 'enable' has no effect for memory mapped access
-	//   (thanks to BiFiMSX for investigating this) 
+	//   (thanks to BiFiMSX for investigating this)
 	address &= 0x3FFF;
 	switch (address) {
 		case 0x1FFE:
