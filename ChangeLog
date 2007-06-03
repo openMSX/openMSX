@@ -1,6 +1,15 @@
 $Id$
 
 2007-06-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* CPUCore optimization:
+	  - in RDMEM / WRMEM routines, keep cache line address in local
+	    variable instead of reading it twice from an array. Apparently gcc
+	    was not able to prove that array didn't change during a call to
+	    T::POST_MEM().
+	  - Gave more than 10% speedup here in a CPU only benchmark (zexall
+	    with frameskip=99)
+
+2007-06-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Sound recording (seperate channels or combined) now always records
 	  to sound, irregardless of the 'mute' setting
 
