@@ -3,6 +3,7 @@
 #ifndef MSXMOTHERBOARD_HH
 #define MSXMOTHERBOARD_HH
 
+#include "openmsx.hh"
 #include "noncopyable.hh"
 #include <memory>
 #include <vector>
@@ -86,6 +87,8 @@ public:
 	 */
 	void scheduleReset();
 	void doReset(const EmuTime& time);
+
+	byte readIRQVector();
 
 	const MachineConfig& getMachineConfig() const;
 	void loadMachine(const std::string& machine);

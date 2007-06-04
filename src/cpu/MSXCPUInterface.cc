@@ -135,24 +135,25 @@ auto_ptr<MSXCPUInterface> MSXCPUInterface::create(
 	}
 }
 
-MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard)
-	: memoryDebug       (new MemoryDebug       (*this, motherBoard))
-	, slottedMemoryDebug(new SlottedMemoryDebug(*this, motherBoard))
-	, ioDebug           (new IODebug           (*this, motherBoard))
+MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
+	: memoryDebug       (new MemoryDebug       (*this, motherBoard_))
+	, slottedMemoryDebug(new SlottedMemoryDebug(*this, motherBoard_))
+	, ioDebug           (new IODebug           (*this, motherBoard_))
 	, slotInfo        (new SlotInfo(
-		motherBoard.getMSXCommandController().getMachineInfoCommand(), *this))
+		motherBoard_.getMSXCommandController().getMachineInfoCommand(), *this))
 	, subSlottedInfo  (new SubSlottedInfo(
-		motherBoard.getMSXCommandController().getMachineInfoCommand(), *this))
+		motherBoard_.getMSXCommandController().getMachineInfoCommand(), *this))
 	, externalSlotInfo(new ExternalSlotInfo(
-		motherBoard.getMSXCommandController().getMachineInfoCommand(),
-		motherBoard.getSlotManager()))
+		motherBoard_.getMSXCommandController().getMachineInfoCommand(),
+		motherBoard_.getSlotManager()))
 	, inputPortInfo (new IOInfo(
-	        motherBoard.getMSXCommandController().getMachineInfoCommand(), *this, true))
+	        motherBoard_.getMSXCommandController().getMachineInfoCommand(), *this, true))
 	, outputPortInfo(new IOInfo(
-	        motherBoard.getMSXCommandController().getMachineInfoCommand(), *this, false))
-	, dummyDevice(motherBoard.getDummyDevice())
-	, msxcpu(motherBoard.getCPU())
-	, cliCommOutput(motherBoard.getMSXCliComm())
+	        motherBoard_.getMSXCommandController().getMachineInfoCommand(), *this, false))
+	, dummyDevice(motherBoard_.getDummyDevice())
+	, msxcpu(motherBoard_.getCPU())
+	, cliCommOutput(motherBoard_.getMSXCliComm())
+	, motherBoard(motherBoard_)
 {
 	for (int port = 0; port < 256; ++port) {
 		IO_In [port] = &dummyDevice;
@@ -511,6 +512,11 @@ void MSXCPUInterface::reset()
 		subSlotRegister[i] = 0;
 	}
 	setPrimarySlots(0);
+}
+
+byte MSXCPUInterface::readIRQVector()
+{
+	return motherBoard.readIRQVector();
 }
 
 void MSXCPUInterface::setPrimarySlots(byte value)

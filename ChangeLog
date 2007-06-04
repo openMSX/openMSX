@@ -8,6 +8,7 @@ $Id$
 	    was a huge speedup: upto 15% in a CPU only benchmark!! Forced
 	    inlining is responsible for the largest part of this speedup (very
 	    roughly 3/4 by always inline, 1/4 by new 16-bit routines).
+	* Experimental IM2 support for YamahaSfg05 (untested)
 
 2007-06-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* CPUCore optimization:

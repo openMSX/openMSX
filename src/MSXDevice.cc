@@ -277,6 +277,11 @@ void MSXDevice::reset(const EmuTime& /*time*/)
 	// nothing
 }
 
+byte MSXDevice::readIRQVector()
+{
+	return 0xFF;
+}
+
 void MSXDevice::powerDown(const EmuTime& /*time*/)
 {
 	// nothing

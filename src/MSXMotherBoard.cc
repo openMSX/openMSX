@@ -73,6 +73,7 @@ public:
 	void doPowerDown(const EmuTime& time);
 	void scheduleReset();
 	void doReset(const EmuTime& time);
+	byte readIRQVector();
 
 	const MachineConfig& getMachineConfig() const;
 	void loadMachine(const string& machine);
@@ -670,6 +671,16 @@ void MSXMotherBoardImpl::doReset(const EmuTime& time)
 		new SimpleEvent<OPENMSX_BOOT_EVENT>());
 }
 
+byte MSXMotherBoardImpl::readIRQVector()
+{
+	byte result = 0xff;
+	for (Devices::iterator it = availableDevices.begin();
+	     it != availableDevices.end(); ++it) {
+		result &= (*it)->readIRQVector();
+	}
+	return result;
+}
+
 void MSXMotherBoardImpl::powerUp()
 {
 	if (powered) return;
@@ -1000,6 +1011,10 @@ void MSXMotherBoard::scheduleReset()
 void MSXMotherBoard::doReset(const EmuTime& time)
 {
 	pimple->doReset(time);
+}
+byte MSXMotherBoard::readIRQVector()
+{
+	return pimple->readIRQVector();
 }
 const MachineConfig& MSXMotherBoard::getMachineConfig() const
 {

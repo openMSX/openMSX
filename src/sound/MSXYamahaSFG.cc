@@ -27,6 +27,7 @@ void MSXYamahaSFG::reset(const EmuTime& time)
 {
 	ym2151->reset(time);
 	registerLatch = 0; // TODO check
+	irqVector = 255; // TODO check
 }
 
 void MSXYamahaSFG::writeMem(word address, byte value, const EmuTime& time)
@@ -49,8 +50,8 @@ void MSXYamahaSFG::writeMem(word address, byte value, const EmuTime& time)
 		// TODO: ym2148SetVector(rm->ym2148, value);
 		break;
 	case 0x3FF4:
-		// TODO: ym2151SetIrqVector(rm->ym2151, value);
-		cerr << "TODO: ym2151->setIrqVector(0x" << hex << (int)value << dec << ")" << endl;
+		// IRQ vector for YM2151 (+ default vector ???)
+		irqVector = value;
 		break;
 	case 0x3FF5:
 		// TODO: ym2148WriteData(rm->ym2148, value);
@@ -59,6 +60,11 @@ void MSXYamahaSFG::writeMem(word address, byte value, const EmuTime& time)
 		// TODO: ym2148WriteCommand(rm->ym2148, value);
 		break;
 	}
+}
+
+byte MSXYamahaSFG::readIRQVector()
+{
+	return irqVector;
 }
 
 void MSXYamahaSFG::writeRegisterPort(byte value, const EmuTime& /*time*/)

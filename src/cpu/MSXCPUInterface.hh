@@ -151,9 +151,7 @@ public:
 	 * CPU uses this method to read 'extra' data from the databus
 	 * used in interrupt routines. In MSX this returns always 255.
 	 */
-	inline byte dataBus() {
-		return 255;
-	}
+	byte readIRQVector();
 
 	/*
 	 * Should only be used by PPI
@@ -241,6 +239,7 @@ private:
 	DummyDevice& dummyDevice;
 	MSXCPU& msxcpu;
 	MSXCliComm& cliCommOutput;
+	MSXMotherBoard& motherBoard;
 
 	std::auto_ptr<VDPIODelay> delayDevice;
 	friend class TurborCPUInterface;

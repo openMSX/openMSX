@@ -550,7 +550,7 @@ template <class T> inline void CPUCore<T>::irq0()
 	R.HALT = false;
 	R.di();
 	T::IM0_DELAY();
-	executeInstruction1(interface->dataBus());
+	executeInstruction1(interface->readIRQVector());
 }
 
 // IM1 interrupt
@@ -568,7 +568,7 @@ template <class T> inline void CPUCore<T>::irq2()
 	R.HALT = false;
 	R.di();
 	PUSH(R.PC);
-	word x = interface->dataBus() | (R.I << 8);
+	word x = interface->readIRQVector() | (R.I << 8);
 	R.PC = RD_WORD(x);
 	T::IM2_DELAY();
 	M1Cycle();

@@ -21,6 +21,7 @@ public:
 	virtual void reset(const EmuTime& time);
 	virtual byte readMem(word address, const EmuTime& time);
 	virtual void writeMem(word address, byte value, const EmuTime& time);
+	virtual byte readIRQVector();
 
 private:
 	void writeRegisterPort(byte value, const EmuTime& time);
@@ -29,6 +30,7 @@ private:
 	const std::auto_ptr<Rom> rom;
 	const std::auto_ptr<YM2151> ym2151;
 	int registerLatch;
+	byte irqVector;
 };
 
 } // namespace openmsx
