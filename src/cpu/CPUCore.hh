@@ -150,11 +150,15 @@ private:
 	void WRMEMslow(word address, byte value);
 	inline byte RDMEM_OPCODE(word address);
 	inline word RD_WORD_PC();
+	word RD_WORD_PC_slow();
 	inline word RD_WORD(word address);
+	word RD_WORD_slow(word address);
 	inline byte RDMEM(word address);
 	inline void WRMEM(word address, byte value);
 	inline void WR_WORD(word address, word value);
+	void WR_WORD_slow(word address, word value);
 	inline void WR_WORD_rev(word address, word value);
+	void WR_WORD_rev_slow(word address, word value);
 
 	inline void M1Cycle();
 	inline void executeInternal();

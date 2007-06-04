@@ -1,6 +1,15 @@
 $Id$
 
-2007-06-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2007-06-04 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Another CPUCore optimization:
+	  - Made optimized 16-bit read/write routines. Originally this gave a
+	    slowdown, caused by gcc no longer inlining some bigger routines.
+	    After forcing gcc to inline the memory read/write functions, there
+	    was a huge speedup: upto 15% in a CPU only benchmark!! Forced
+	    inlining is responsible for the largest part of this speedup (very
+	    roughly 3/4 by always inline, 1/4 by new 16-bit routines).
+
+2007-06-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* CPUCore optimization:
 	  - in RDMEM / WRMEM routines, keep cache line address in local
 	    variable instead of reading it twice from an array. Apparently gcc

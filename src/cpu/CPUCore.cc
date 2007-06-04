@@ -14,9 +14,16 @@
 #include "R800.hh"
 #include "Thread.hh"
 #include "likely.hh"
+#include "build-info.hh"
 #include <iomanip>
 #include <iostream>
 #include <cassert>
+
+#if __GNUC__ > 2
+#define ALWAYS_INLINE inline __attribute__((always_inline))
+#else
+#define ALWAYS_INLINE inline
+#endif
 
 using std::string;
 
@@ -314,7 +321,7 @@ template <class T> inline void CPUCore<T>::WRITE_PORT(word port, byte value)
 	T::POST_IO(port);
 }
 
-template <class T> inline byte CPUCore<T>::RDMEM_common(word address)
+template <class T> ALWAYS_INLINE byte CPUCore<T>::RDMEM_common(word address)
 {
 	const byte* line = readCacheLine[address >> CacheLine::BITS];
 	if (likely(line != NULL)) {
@@ -348,7 +355,7 @@ template <class T> byte CPUCore<T>::RDMEMslow(word address)
 	return result;
 }
 
-template <class T> inline void CPUCore<T>::WRMEM_common(word address, byte value)
+template <class T> ALWAYS_INLINE void CPUCore<T>::WRMEM_common(word address, byte value)
 {
 	byte* line = writeCacheLine[address >> CacheLine::BITS];
 	if (likely(line != NULL)) {
@@ -382,13 +389,51 @@ template <class T> void CPUCore<T>::WRMEMslow(word address, byte value)
 	T::POST_MEM(address);
 }
 
-template <class T> inline byte CPUCore<T>::RDMEM_OPCODE(word address)
+template <class T> ALWAYS_INLINE byte CPUCore<T>::RDMEM_OPCODE(word address)
 {
 	T::PRE_RDMEM_OPCODE(address);
 	return RDMEM_common(address);
 }
 
-template <class T> inline word CPUCore<T>::RD_WORD_PC()
+static ALWAYS_INLINE word read16LE(const byte* p)
+{
+	if (OPENMSX_BIGENDIAN) {
+		return p[0] + 256 * p[1];
+	} else {
+		return *(word*)(p);
+	}
+}
+
+static ALWAYS_INLINE void write16LE(byte* p, word value)
+{
+	if (OPENMSX_BIGENDIAN) {
+		p[0] = value & 0xff;
+		p[1] = value >> 8;
+	} else {
+		*(word*)(p) = value;
+	}
+}
+
+template <class T> ALWAYS_INLINE word CPUCore<T>::RD_WORD_PC()
+{
+	const byte* line = readCacheLine[R.PC >> CacheLine::BITS];
+	if (likely((R.PC & CacheLine::LOW) != CacheLine::LOW) &&
+		   (line != NULL)) {
+		// fast path: cached and two bytes in same cache line
+		T::PRE_RDMEM_OPCODE(R.PC);
+		T::PRE_RDMEM_OPCODE(R.PC); // same addr twice, ok
+		T::POST_MEM(R.PC);
+		T::POST_MEM(R.PC);
+		unsigned low = R.PC & CacheLine::LOW;
+		R.PC += 2;
+		return read16LE(&line[low]);
+	} else {
+		// slow path, not inline
+		return RD_WORD_PC_slow();
+	}
+}
+
+template <class T> word CPUCore<T>::RD_WORD_PC_slow()
 {
 	word res = RDMEM_OPCODE(R.PC + 0);
 	res     += RDMEM_OPCODE(R.PC + 1) << 8;
@@ -396,32 +441,88 @@ template <class T> inline word CPUCore<T>::RD_WORD_PC()
 	return res;
 }
 
-template <class T> inline byte CPUCore<T>::RDMEM(word address)
+template <class T> ALWAYS_INLINE byte CPUCore<T>::RDMEM(word address)
 {
 	T::PRE_RDMEM(address);
 	return RDMEM_common(address);
 }
 
-template <class T> inline word CPUCore<T>::RD_WORD(word address)
+template <class T> ALWAYS_INLINE word CPUCore<T>::RD_WORD(word address)
+{
+	const byte* line = readCacheLine[address >> CacheLine::BITS];
+	if (likely((address & CacheLine::LOW) != CacheLine::LOW) &&
+		   (line != NULL)) {
+		// fast path: cached and two bytes in same cache line
+		T::PRE_RDMEM(address);
+		T::PRE_RDMEM(address); // same addr twice, ok
+		T::POST_MEM(address);
+		T::POST_MEM(address);
+		unsigned low = address & CacheLine::LOW;
+		return read16LE(&line[low]);
+	} else {
+		// slow path, not inline
+		return RD_WORD_slow(address);
+	}
+}
+
+template <class T> word CPUCore<T>::RD_WORD_slow(word address)
 {
 	word res = RDMEM(address + 0);
 	res     += RDMEM(address + 1) << 8;
 	return res;
 }
 
-template <class T> inline void CPUCore<T>::WRMEM(word address, byte value)
+template <class T> ALWAYS_INLINE void CPUCore<T>::WRMEM(word address, byte value)
 {
 	T::PRE_WRMEM(address);
 	WRMEM_common(address, value);
 }
 
-template <class T> inline void CPUCore<T>::WR_WORD(word address, word value)
+template <class T> ALWAYS_INLINE void CPUCore<T>::WR_WORD(word address, word value)
+{
+	byte* line = writeCacheLine[address >> CacheLine::BITS];
+	if (likely((address & CacheLine::LOW) != CacheLine::LOW) &&
+		   (line != NULL)) {
+		// fast path: cached and two bytes in same cache line
+		T::PRE_WRMEM(address);
+		T::PRE_WRMEM(address); // same addr twice, ok
+		T::POST_MEM(address);
+		T::POST_MEM(address);
+		unsigned low = address & CacheLine::LOW;
+		write16LE(&line[low], value);
+	} else {
+		// slow path, not inline
+		WR_WORD_slow(address, value);
+	}
+}
+
+template <class T> void CPUCore<T>::WR_WORD_slow(word address, word value)
 {
 	WRMEM(address + 0, value & 255);
 	WRMEM(address + 1, value >> 8);
 }
 
-template <class T> inline void CPUCore<T>::WR_WORD_rev(word address, word value)
+template <class T> ALWAYS_INLINE void CPUCore<T>::WR_WORD_rev(word address, word value)
+{
+	byte* line = writeCacheLine[address >> CacheLine::BITS];
+	if (likely((address & CacheLine::LOW) != CacheLine::LOW) &&
+		   (line != NULL)) {
+		// fast path: cached and two bytes in same cache line
+		T::PRE_WRMEM(address);
+		T::PRE_WRMEM(address); // same addr twice, ok
+		T::POST_MEM(address);
+		T::POST_MEM(address);
+		unsigned low = address & CacheLine::LOW;
+		write16LE(&line[low], value);
+	} else {
+		// slow path, not inline
+		WR_WORD_rev_slow(address, value);
+	}
+}
+
+// same as WR_WORD, but writes high byte first
+template <class T> void CPUCore<T>::WR_WORD_rev_slow(
+	word address, word value)
 {
 	WRMEM(address + 1, value >> 8);
 	WRMEM(address + 0, value & 255);
