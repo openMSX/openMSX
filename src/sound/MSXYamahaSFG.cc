@@ -45,9 +45,11 @@ void MSXYamahaSFG::writeMem(word address, byte value, const EmuTime& time)
 		break;
 	case 0x3FF2:
 		// TODO: keyboardLatch = value;
+		std::cerr << "TODO: keyboardLatch = " << (int)value << std::endl;
 		break;
 	case 0x3FF3:
 		// TODO: ym2148SetVector(rm->ym2148, value);
+		std::cerr << "TODO: YM2148 set vector = " << (int)value << std::endl;
 		break;
 	case 0x3FF4:
 		// IRQ vector for YM2151 (+ default vector ???)
@@ -55,9 +57,11 @@ void MSXYamahaSFG::writeMem(word address, byte value, const EmuTime& time)
 		break;
 	case 0x3FF5:
 		// TODO: ym2148WriteData(rm->ym2148, value);
+		std::cerr << "TODO: YM2148 write data = " << (int)value << std::endl;
 		break;
 	case 0x3FF6:
 		// TODO: ym2148WriteCommand(rm->ym2148, value);
+		std::cerr << "TODO: YM2148 write command = " << (int)value << std::endl;
 		break;
 	}
 }
