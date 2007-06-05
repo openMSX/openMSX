@@ -68,11 +68,11 @@ private:
 	template <typename ScaleOp> void doScale1(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
-		ScaleOp scale);
+		ScaleOp& scale);
 	template <typename ScaleOp> void doScale2(FrameSource& src,
 		unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
-		ScaleOp scale);
+		ScaleOp& scale);
 
 	PixelOperations<Pixel> pixelOps;
 	Scanline<Pixel> scanline;
