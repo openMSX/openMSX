@@ -615,35 +615,49 @@ INSTALL_SHARE_DIR?=$(OPENMSX_INSTALL)/share
 INSTALL_DOC_DIR?=$(OPENMSX_INSTALL)/doc
 INSTALL_VERBOSE?=true
 
+# DESTDIR is a convention shared by at least GNU and FreeBSD to specify a path
+# prefix that will be used for all installed files.
+INSTALL_PREFIX:=$(if $(DESTDIR),$(DESTDIR)/,)
+
 install: all
 ifeq ($(INSTALL_VERBOSE),true)
 	@echo "Installing openMSX:"
 endif
 	@echo "  Executable..."
-	@install -d $(INSTALL_BINARY_DIR)
-	@install $(BINARY_FULL) $(INSTALL_BINARY_DIR)/$(BINARY_FILE)
+	@install -d $(INSTALL_PREFIX)$(INSTALL_BINARY_DIR)
+	@install $(BINARY_FULL) \
+		$(INSTALL_PREFIX)$(INSTALL_BINARY_DIR)/$(BINARY_FILE)
 	@echo "  Data files..."
-	@sh build/install-recursive.sh share . $(INSTALL_SHARE_DIR)
+	@sh build/install-recursive.sh share . \
+		$(INSTALL_PREFIX)$(INSTALL_SHARE_DIR)
 	@echo "  Documentation..."
-	@install -d  $(INSTALL_DOC_DIR)
-	@install -m 0644 README GPL AUTHORS $(INSTALL_DOC_DIR)
-	@install -m 0644 $(addprefix doc/,$(INSTALL_DOCS)) $(INSTALL_DOC_DIR)
-	@install -d $(INSTALL_DOC_DIR)/manual
+	@install -d  $(INSTALL_PREFIX)$(INSTALL_DOC_DIR)
+	@install -m 0644 README GPL AUTHORS $(INSTALL_PREFIX)$(INSTALL_DOC_DIR)
+	@install -m 0644 $(addprefix doc/,$(INSTALL_DOCS)) \
+		$(INSTALL_PREFIX)$(INSTALL_DOC_DIR)
+	@install -d $(INSTALL_PREFIX)$(INSTALL_DOC_DIR)/manual
 	@install -m 0644 $(addprefix doc/manual/,*.html *.css *.png) \
-		$(INSTALL_DOC_DIR)/manual
+		$(INSTALL_PREFIX)$(INSTALL_DOC_DIR)/manual
 ifeq ($(INSTALL_CONTRIB),true)
 	@echo "  C-BIOS..."
-	@install -m 0644 Contrib/README.cbios $(INSTALL_DOC_DIR)/cbios.txt
-	@sh build/install-recursive.sh Contrib/cbios . $(INSTALL_SHARE_DIR)/machines
+	@install -m 0644 Contrib/README.cbios \
+		$(INSTALL_PREFIX)$(INSTALL_DOC_DIR)/cbios.txt
+	@sh build/install-recursive.sh Contrib/cbios . \
+		$(INSTALL_PREFIX)$(INSTALL_SHARE_DIR)/machines
 endif
 ifeq ($(USE_SYMLINK),true)
 	@echo "  Creating symlinks..."
-	@ln -nsf Toshiba_HX-10 $(INSTALL_SHARE_DIR)/machines/msx1
-	@ln -nsf Philips_NMS_8250 $(INSTALL_SHARE_DIR)/machines/msx2
-	@ln -nsf Panasonic_FS-A1FX $(INSTALL_SHARE_DIR)/machines/msx2plus
-	@ln -nsf Panasonic_FS-A1GT $(INSTALL_SHARE_DIR)/machines/turbor
+	@ln -nsf Toshiba_HX-10 \
+		$(INSTALL_PREFIX)$(INSTALL_SHARE_DIR)/machines/msx1
+	@ln -nsf Philips_NMS_8250 \
+		$(INSTALL_PREFIX)$(INSTALL_SHARE_DIR)/machines/msx2
+	@ln -nsf Panasonic_FS-A1FX \
+		$(INSTALL_PREFIX)$(INSTALL_SHARE_DIR)/machines/msx2plus
+	@ln -nsf Panasonic_FS-A1GT \
+		$(INSTALL_PREFIX)$(INSTALL_SHARE_DIR)/machines/turbor
   ifeq ($(SYMLINK_FOR_BINARY),true)
-	@if [ $(INSTALL_BINARY_DIR) != /usr/local/bin ]; then \
+	@if [ $(INSTALL_BINARY_DIR) != /usr/local/bin \
+			-a -z "$(INSTALL_PREFIX)" ]; then \
 		if [ -d /usr/local/bin -a -w /usr/local/bin ]; then \
 			ln -sf $(INSTALL_BINARY_DIR)/$(BINARY_FILE) /usr/local/bin/openmsx; \
 		elif [ $(INSTALL_BINARY_DIR) != ~/bin -a -d ~/bin ]; then \

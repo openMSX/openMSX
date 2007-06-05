@@ -1,5 +1,12 @@
 $Id$
 
+2007-06-05 Maarten ter Huurne <maarten@treewalker.org>
+	* Added support for DESTDIR in the build system:
+	  If you run "make install DESTDIR=/some/path", all installation
+	  paths will have that prefix prepended to them.
+	  For example, the default location of the executable would become:
+	    /some/path/opt/openMSX/bin/openmsx
+
 2007-06-04 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Another CPUCore optimization:
 	  - Made optimized 16-bit read/write routines. Originally this gave a
