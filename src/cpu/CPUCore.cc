@@ -417,8 +417,8 @@ static ALWAYS_INLINE void write16LE(byte* p, word value)
 template <class T> ALWAYS_INLINE word CPUCore<T>::RD_WORD_PC()
 {
 	const byte* line = readCacheLine[R.PC >> CacheLine::BITS];
-	if (likely((R.PC & CacheLine::LOW) != CacheLine::LOW) &&
-		   (line != NULL)) {
+	if (likely(((R.PC & CacheLine::LOW) != CacheLine::LOW) &&
+		   (line != NULL))) {
 		// fast path: cached and two bytes in same cache line
 		T::PRE_RDMEM_OPCODE(R.PC);
 		T::PRE_RDMEM_OPCODE(R.PC); // same addr twice, ok
@@ -450,8 +450,8 @@ template <class T> ALWAYS_INLINE byte CPUCore<T>::RDMEM(word address)
 template <class T> ALWAYS_INLINE word CPUCore<T>::RD_WORD(word address)
 {
 	const byte* line = readCacheLine[address >> CacheLine::BITS];
-	if (likely((address & CacheLine::LOW) != CacheLine::LOW) &&
-		   (line != NULL)) {
+	if (likely(((address & CacheLine::LOW) != CacheLine::LOW) &&
+		   (line != NULL))) {
 		// fast path: cached and two bytes in same cache line
 		T::PRE_RDMEM(address);
 		T::PRE_RDMEM(address); // same addr twice, ok
@@ -481,8 +481,8 @@ template <class T> ALWAYS_INLINE void CPUCore<T>::WRMEM(word address, byte value
 template <class T> ALWAYS_INLINE void CPUCore<T>::WR_WORD(word address, word value)
 {
 	byte* line = writeCacheLine[address >> CacheLine::BITS];
-	if (likely((address & CacheLine::LOW) != CacheLine::LOW) &&
-		   (line != NULL)) {
+	if (likely(((address & CacheLine::LOW) != CacheLine::LOW) &&
+		   (line != NULL))) {
 		// fast path: cached and two bytes in same cache line
 		T::PRE_WRMEM(address);
 		T::PRE_WRMEM(address); // same addr twice, ok
@@ -505,8 +505,8 @@ template <class T> void CPUCore<T>::WR_WORD_slow(word address, word value)
 template <class T> ALWAYS_INLINE void CPUCore<T>::WR_WORD_rev(word address, word value)
 {
 	byte* line = writeCacheLine[address >> CacheLine::BITS];
-	if (likely((address & CacheLine::LOW) != CacheLine::LOW) &&
-		   (line != NULL)) {
+	if (likely(((address & CacheLine::LOW) != CacheLine::LOW) &&
+		   (line != NULL))) {
 		// fast path: cached and two bytes in same cache line
 		T::PRE_WRMEM(address);
 		T::PRE_WRMEM(address); // same addr twice, ok
