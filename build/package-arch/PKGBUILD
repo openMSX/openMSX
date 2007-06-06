@@ -1,0 +1,26 @@
+# PKGBUILD for openMSX
+# Contributor: Theo Smit <mappy@dutchlinuxclan.nl>
+pkgname=openmsx
+pkgver=0.6.2
+pkgrel=1
+pkgdesc="openMSX, a great opensource MSX emulator with lots of great features"
+arch=('i686')
+url="openmsx.sourceforge.net"
+license=('GPL')
+depends=(libxml2 gcc jack-audio-connection-kit sdl_image tcl)
+makedepends=()
+provides=()
+conflicts=()
+replaces=()
+backup=()
+install=
+source=(http://downloads.sourceforge.net/$pkgname/$pkgname-$pkgver.tar.gz)
+noextract=()
+md5sums=('282acf2ea7bf67e15a7b8d961c9556a5')
+
+build() {
+  cd $startdir/src/$pkgname-$pkgver
+  ./configure
+  make || return 1
+  make OPENMSX_INSTALL=$startdir/pkg/opt/openMSX install
+}

@@ -1,0 +1,28 @@
+PKGBUILD file for building an openMSX package for archlinux/i686, contributed
+by Theo Smit <mappy@dutchlinuxclan.nl>.
+
+This PKGBUILD was only tested on i686 (32-bit), if you want to build for an
+x86_64 machine you can try to modify the PKGBUILD accordingly. If you're lucky
+you only have to modify the "arch=" line.
+
+Usage:
+- Create a temporary working directory and go there:
+    $ mkdir /tmp/build-openmsx
+    $ cd /tmp/build-openmsx
+- Copy the PKGBUILD file there:
+    $ cp path/to/PKGBUILD .
+- Run the "makepkg" tool:
+    $ makepkg
+  This will download the sources for openMSX 0.6.2, verify the dependencies,
+  compile openMSX, install it in the temporary directory and archive that
+  installation into a binary openMSX package.
+- Install the binary package with the standard Arch package manager:
+    $ pacman -A openmsx-0.6.2-1-i686.pkg.tar.gz
+- Now you can start openMSX:
+    $ /opt/openMSX/bin/openmsx
+
+Please read the documentation in /opt/openMSX/doc/manual to learn more about
+openMSX, for example how to install additional system ROMs.
+
+------------------------------------------------------------------------------
+$Id$
