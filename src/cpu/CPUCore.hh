@@ -148,7 +148,7 @@ private:
 	byte RDMEMslow(word address);
 	inline void WRMEM_common(word address, byte value);
 	void WRMEMslow(word address, byte value);
-	inline byte RDMEM_OPCODE(word address);
+	inline byte RDMEM_OPCODE();
 	inline word RD_WORD_PC();
 	word RD_WORD_PC_slow();
 	inline word RD_WORD(word address);
@@ -581,7 +581,7 @@ private:
 	void adc_hl_hl();
 	void adc_hl_sp();
 
-	inline void ADDW(word &reg1, word reg2);
+	inline word ADDW(word reg1, word reg2);
 	void add_hl_bc();
 	void add_hl_de();
 	void add_hl_hl();
@@ -1424,7 +1424,7 @@ private:
 	void jr_z();
 	void djnz();
 
-	inline void EX_SP(word& reg);
+	inline word EX_SP(word reg);
 	void ex_xsp_hl();
 	void ex_xsp_ix();
 	void ex_xsp_iy();

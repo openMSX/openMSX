@@ -33,12 +33,6 @@ public:
 
 	class CPURegs {
 	public:
-		word AF,  BC,  DE,  HL, IX, IY, PC, SP;
-		word AF2, BC2, DE2, HL2;
-		bool nextIFF1, IFF1, IFF2, HALT;
-		byte IM, I;
-		byte R, R2;	// refresh = R&127 | R2&128
-
 		inline byte getA()   const { return AF >> 8; }
 		inline byte getF()   const { return AF & 255; }
 		inline byte getB()   const { return BC >> 8; }
@@ -47,10 +41,41 @@ public:
 		inline byte getE()   const { return DE & 255; }
 		inline byte getH()   const { return HL >> 8; }
 		inline byte getL()   const { return HL & 255; }
+		inline byte getA2()  const { return AF2 >> 8; }
+		inline byte getF2()  const { return AF2 & 255; }
+		inline byte getB2()  const { return BC2 >> 8; }
+		inline byte getC2()  const { return BC2 & 255; }
+		inline byte getD2()  const { return DE2 >> 8; }
+		inline byte getE2()  const { return DE2 & 255; }
+		inline byte getH2()  const { return HL2 >> 8; }
+		inline byte getL2()  const { return HL2 & 255; }
 		inline byte getIXh() const { return IX >> 8; }
 		inline byte getIXl() const { return IX & 255; }
 		inline byte getIYh() const { return IY >> 8; }
 		inline byte getIYl() const { return IY & 255; }
+		inline byte getPCh() const { return PC >> 8; }
+		inline byte getPCl() const { return PC & 255; }
+		inline byte getSPh() const { return SP >> 8; }
+		inline byte getSPl() const { return SP & 255; }
+		inline word getAF()  const { return AF; }
+		inline word getBC()  const { return BC; }
+		inline word getDE()  const { return DE; }
+		inline word getHL()  const { return HL; }
+		inline word getAF2() const { return AF2; }
+		inline word getBC2() const { return BC2; }
+		inline word getDE2() const { return DE2; }
+		inline word getHL2() const { return HL2; }
+		inline word getIX()  const { return IX; }
+		inline word getIY()  const { return IY; }
+		inline word getPC()  const { return PC; }
+		inline word getSP()  const { return SP; }
+		inline byte getIM()  const { return IM; }
+		inline byte getI()   const { return I; }
+		inline byte getR()   const { return (R & 0x7F) | (R2 & 0x80); }
+		inline bool getIFF1()     const { return IFF1; }
+		inline bool getIFF2()     const { return IFF2; }
+		inline bool getHALT()     const { return HALT; }
+		inline bool getNextIFF1() const { return nextIFF1; }
 
 		inline void setA(byte x)   { AF = (AF & 0x00FF) | (x << 8); }
 		inline void setF(byte x)   { AF = (AF & 0xFF00) | x; }
@@ -60,10 +85,43 @@ public:
 		inline void setE(byte x)   { DE = (DE & 0xFF00) | x; }
 		inline void setH(byte x)   { HL = (HL & 0x00FF) | (x << 8); }
 		inline void setL(byte x)   { HL = (HL & 0xFF00) | x; }
+		inline void setA2(byte x)  { AF2 = (AF2 & 0x00FF) | (x << 8); }
+		inline void setF2(byte x)  { AF2 = (AF2 & 0xFF00) | x; }
+		inline void setB2(byte x)  { BC2 = (BC2 & 0x00FF) | (x << 8); }
+		inline void setC2(byte x)  { BC2 = (BC2 & 0xFF00) | x; }
+		inline void setD2(byte x)  { DE2 = (DE2 & 0x00FF) | (x << 8); }
+		inline void setE2(byte x)  { DE2 = (DE2 & 0xFF00) | x; }
+		inline void setH2(byte x)  { HL2 = (HL2 & 0x00FF) | (x << 8); }
+		inline void setL2(byte x)  { HL2 = (HL2 & 0xFF00) | x; }
 		inline void setIXh(byte x) { IX = (IX & 0x00FF) | (x << 8); }
 		inline void setIXl(byte x) { IX = (IX & 0xFF00) | x; }
 		inline void setIYh(byte x) { IY = (IY & 0x00FF) | (x << 8); }
 		inline void setIYl(byte x) { IY = (IY & 0xFF00) | x; }
+		inline void setPCh(byte x) { PC = (PC & 0x00FF) | (x << 8); }
+		inline void setPCl(byte x) { PC = (PC & 0xFF00) | x; }
+		inline void setSPh(byte x) { SP = (SP & 0x00FF) | (x << 8); }
+		inline void setSPl(byte x) { SP = (SP & 0xFF00) | x; }
+		inline void setAF(word x)  { AF = x; }
+		inline void setBC(word x)  { BC = x; }
+		inline void setDE(word x)  { DE = x; }
+		inline void setHL(word x)  { HL = x; }
+		inline void setAF2(word x) { AF2 = x; }
+		inline void setBC2(word x) { BC2 = x; }
+		inline void setDE2(word x) { DE2 = x; }
+		inline void setHL2(word x) { HL2 = x; }
+		inline void setIX(word x)  { IX = x; }
+		inline void setIY(word x)  { IY = x; }
+		inline void setPC(word x)  { PC = x; }
+		inline void setSP(word x)  { SP = x; }
+		inline void setIM(byte x)  { IM = x; }
+		inline void setI(byte x)   { I = x; }
+		inline void setR(byte x)   { R = x; R2 = x; }
+		inline void setIFF1(bool x)     { IFF1 = x; }
+		inline void setIFF2(bool x)     { IFF2 = x; }
+		inline void setHALT(bool x)     { HALT = x; }
+		inline void setNextIFF1(bool x) { nextIFF1 = x; }
+
+		inline void incR(byte x) { R += x; }
 
 		inline void ei() {
 			IFF1     = true;
@@ -75,6 +133,13 @@ public:
 			IFF2     = false;
 			nextIFF1 = false;
 		}
+	private:
+		word AF, BC, DE, HL;
+		word AF2, BC2, DE2, HL2;
+		word IX, IY, PC, SP;
+		bool nextIFF1, IFF1, IFF2, HALT;
+		byte IM, I;
+		byte R, R2; // refresh = R&127 | R2&128
 	};
 
 	/**
@@ -172,7 +237,7 @@ protected:
 	{
 		std::pair<BreakPoints::const_iterator,
 		          BreakPoints::const_iterator> range =
-		                  breakPoints.equal_range(regs.PC);
+		                  breakPoints.equal_range(regs.getPC());
 		if (range.first == range.second) {
 			return false;
 		}

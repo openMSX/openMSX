@@ -282,64 +282,80 @@ MSXCPUDebuggable::MSXCPUDebuggable(MSXMotherBoard& motherboard, MSXCPU& cpu_)
 byte MSXCPUDebuggable::read(unsigned address)
 {
 	const CPU::CPURegs& regs = cpu.activeCPU->getRegisters();
-	const word* registers[] = {
-		&regs.AF,  &regs.BC,  &regs.DE,  &regs.HL,
-		&regs.AF2, &regs.BC2, &regs.DE2, &regs.HL2,
-		&regs.IX,  &regs.IY,  &regs.PC,  &regs.SP
-	};
-
-	assert(address < getSize());
 	switch (address) {
-	case 24:
-		return regs.I;
-	case 25:
-		return (regs.R & 0x7F) | (regs.R2 & 0x80);
-	case 26:
-		return regs.IM;
-	case 27:
-		return regs.IFF1 + 2 * regs.IFF2;
-	default:
-		if (address & 1) {
-			return *registers[address / 2] & 255;
-		} else {
-			return *registers[address / 2] >> 8;
-		}
+	case  0: return regs.getA();
+	case  1: return regs.getF();
+	case  2: return regs.getB();
+	case  3: return regs.getC();
+	case  4: return regs.getD();
+	case  5: return regs.getE();
+	case  6: return regs.getH();
+	case  7: return regs.getL();
+	case  8: return regs.getA2();
+	case  9: return regs.getF2();
+	case 10: return regs.getB2();
+	case 11: return regs.getC2();
+	case 12: return regs.getD2();
+	case 13: return regs.getE2();
+	case 14: return regs.getH2();
+	case 15: return regs.getL2();
+	case 16: return regs.getIXh();
+	case 17: return regs.getIXl();
+	case 18: return regs.getIYh();
+	case 19: return regs.getIYl();
+	case 20: return regs.getPCh();
+	case 21: return regs.getPCl();
+	case 22: return regs.getSPh();
+	case 23: return regs.getSPl();
+	case 24: return regs.getI();
+	case 25: return regs.getR();
+	case 26: return regs.getIM();
+	case 27: return regs.getIFF1() + 2 * regs.getIFF2();
 	}
+	assert(false);
+	return 0;
 }
 
 void MSXCPUDebuggable::write(unsigned address, byte value)
 {
 	CPU::CPURegs& regs = cpu.activeCPU->getRegisters();
-	word* registers[] = {
-		&regs.AF,  &regs.BC,  &regs.DE,  &regs.HL,
-		&regs.AF2, &regs.BC2, &regs.DE2, &regs.HL2,
-		&regs.IX,  &regs.IY,  &regs.PC,  &regs.SP
-	};
-
-	assert(address < getSize());
 	switch (address) {
-	case 24:
-		regs.I = value;
-		break;
-	case 25:
-		regs.R = regs.R2 = value;
-		break;
-	case 26:
-		if (value < 3) {
-			regs.IM = value;
-		}
+	case  0: regs.setA(value); break;
+	case  1: regs.setF(value); break;
+	case  2: regs.setB(value); break;
+	case  3: regs.setC(value); break;
+	case  4: regs.setD(value); break;
+	case  5: regs.setE(value); break;
+	case  6: regs.setH(value); break;
+	case  7: regs.setL(value); break;
+	case  8: regs.setA2(value); break;
+	case  9: regs.setF2(value); break;
+	case 10: regs.setB2(value); break;
+	case 11: regs.setC2(value); break;
+	case 12: regs.setD2(value); break;
+	case 13: regs.setE2(value); break;
+	case 14: regs.setH2(value); break;
+	case 15: regs.setL2(value); break;
+	case 16: regs.setIXh(value); break;
+	case 17: regs.setIXl(value); break;
+	case 18: regs.setIYh(value); break;
+	case 19: regs.setIYl(value); break;
+	case 20: regs.setPCh(value); break;
+	case 21: regs.setPCl(value); break;
+	case 22: regs.setSPh(value); break;
+	case 23: regs.setSPl(value); break;
+	case 24: regs.setI(value); break;
+	case 25: regs.setR(value); break;
+	case 26: 
+		if (value < 3) regs.setIM(value);
 		break;
 	case 27:
-		regs.IFF1 = value & 0x01;
-		regs.IFF2 = value & 0x02;
+		regs.setIFF1(value & 0x01);
+		regs.setNextIFF1(value & 0x01);
+		regs.setIFF2(value & 0x02);
 		break;
 	default:
-		word& w = *registers[address / 2];
-		if (address & 1) {
-			w = (w & 0xFF00) | value;
-		} else {
-			w = (w & 0x00FF) | (value << 8);
-		}
+		assert(false);
 		break;
 	}
 }
