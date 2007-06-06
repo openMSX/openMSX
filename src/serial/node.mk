@@ -7,6 +7,7 @@ SRC_HDR:= \
 	I8251 I8254 \
 	ClockPin \
 	MSXMidi \
+	YM2148 \
 	MidiInDevice DummyMidiInDevice MidiInConnector MidiInReader \
 	MidiOutDevice DummyMidiOutDevice MidiOutConnector MidiOutLogger \
 	MidiInNative MidiOutNative Midi_w32 \

@@ -10,6 +10,7 @@ namespace openmsx {
 
 class Rom;
 class YM2151;
+class YM2148;
 
 class MSXYamahaSFG : public MSXDevice
 {
@@ -29,6 +30,7 @@ private:
 
 	const std::auto_ptr<Rom> rom;
 	const std::auto_ptr<YM2151> ym2151;
+	const std::auto_ptr<YM2148> ym2148;
 	int registerLatch;
 	byte irqVector;
 };

@@ -2,6 +2,7 @@
 
 #include "MSXYamahaSFG.hh"
 #include "YM2151.hh"
+#include "YM2148.hh"
 #include "Rom.hh"
 
 #include <iostream> // debugging
@@ -15,6 +16,7 @@ MSXYamahaSFG::MSXYamahaSFG(MSXMotherBoard& motherBoard, const XMLElement& config
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
 	, ym2151(new YM2151(motherBoard, getName(),
 	                    "Yamaha SFG-01/05", config, time))
+	, ym2148(new YM2148())
 {
 	reset(time);
 }
@@ -26,6 +28,7 @@ MSXYamahaSFG::~MSXYamahaSFG()
 void MSXYamahaSFG::reset(const EmuTime& time)
 {
 	ym2151->reset(time);
+	ym2148->reset();
 	registerLatch = 0; // TODO check
 	irqVector = 255; // TODO check
 }
@@ -45,23 +48,20 @@ void MSXYamahaSFG::writeMem(word address, byte value, const EmuTime& time)
 		break;
 	case 0x3FF2:
 		// TODO: keyboardLatch = value;
-		std::cerr << "TODO: keyboardLatch = " << (int)value << std::endl;
+		//std::cerr << "TODO: keyboardLatch = " << (int)value << std::endl;
 		break;
 	case 0x3FF3:
-		// TODO: ym2148SetVector(rm->ym2148, value);
-		std::cerr << "TODO: YM2148 set vector = " << (int)value << std::endl;
+		ym2148->setVector(value);
 		break;
 	case 0x3FF4:
 		// IRQ vector for YM2151 (+ default vector ???)
 		irqVector = value;
 		break;
 	case 0x3FF5:
-		// TODO: ym2148WriteData(rm->ym2148, value);
-		std::cerr << "TODO: YM2148 write data = " << (int)value << std::endl;
+		ym2148->writeData(value);
 		break;
 	case 0x3FF6:
-		// TODO: ym2148WriteCommand(rm->ym2148, value);
-		std::cerr << "TODO: YM2148 write command = " << (int)value << std::endl;
+		ym2148->writeCommand(value);
 		break;
 	}
 }
@@ -98,11 +98,10 @@ byte MSXYamahaSFG::readMem(word address, const EmuTime& /*time*/)
 		// TODO: return getKbdStatus();
 		break;
 	case 0x3FF5:
-		// TODO: return ym2148->readData();
+		return ym2148->readData();
 		break;
 	case 0x3FF6:
-		return 0x01;
-		// TODO: return ym2148->readStatus();
+		return ym2148->readStatus();
 	}
 	return 0xFF;
 }

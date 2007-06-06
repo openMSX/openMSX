@@ -1,5 +1,10 @@
 $Id$
 
+2007-06-06 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added a dummy port of blueMSX's YM2148. TODO: actually fill in the
+	  code. It's harmless, so I checked it in to have a base for a real
+	  port.
+
 2007-06-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Access all CPU registers via getter/setters:
 	   - as preparartion for performance experiments, this change on its
