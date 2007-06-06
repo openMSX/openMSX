@@ -4,6 +4,9 @@ $Id$
 	* Access all CPU registers via getter/setters:
 	   - as preparartion for performance experiments, this change on its
 	     own has very little impact on the generated code
+	* Alternative implementation for CPURegs:
+	   - see comments in the code for details
+	   - this version is a few percent faster for me
 
 2007-06-05 Maarten ter Huurne <maarten@treewalker.org>
 	* Added support for DESTDIR in the build system:

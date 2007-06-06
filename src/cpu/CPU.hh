@@ -5,6 +5,7 @@
 
 #include "openmsx.hh"
 #include "noncopyable.hh"
+#include "build-info.hh"
 #include <vector>
 #include <map>
 #include <memory>
@@ -14,6 +15,14 @@ namespace openmsx {
 class EmuTime;
 class TclObject;
 class BreakPoint;
+
+template <bool bigEndian> struct z80regpair_8bit;
+template <> struct z80regpair_8bit<false> { byte l, h; };
+template <> struct z80regpair_8bit<true>  { byte h, l; };
+typedef union {
+	z80regpair_8bit<OPENMSX_BIGENDIAN> b;
+	word w;
+} z80regpair;
 
 class CPU : private noncopyable
 {
@@ -31,6 +40,15 @@ public:
 
 	typedef std::multimap<word, BreakPoint*> BreakPoints;
 
+/*
+ * Below are two different implementations for the CPURegs class:
+ *   1) use arithmetic to extract the upper/lower byte from a word
+ *   2) use a union to directly access the bytes in the word
+ * At some time in the past I replaced 2) with 1) because 1) was faster,
+ * but when I measure it now again 2) is faster.
+ * TODO need to investigate this further.
+ */
+#if 0
 	class CPURegs {
 	public:
 		inline byte getA()   const { return AF >> 8; }
@@ -141,6 +159,118 @@ public:
 		byte IM, I;
 		byte R, R2; // refresh = R&127 | R2&128
 	};
+#else
+	class CPURegs {
+	public:
+		inline byte getA()   const { return AF.b.h; }
+		inline byte getF()   const { return AF.b.l; }
+		inline byte getB()   const { return BC.b.h; }
+		inline byte getC()   const { return BC.b.l; }
+		inline byte getD()   const { return DE.b.h; }
+		inline byte getE()   const { return DE.b.l; }
+		inline byte getH()   const { return HL.b.h; }
+		inline byte getL()   const { return HL.b.l; }
+		inline byte getA2()  const { return AF2.b.h; }
+		inline byte getF2()  const { return AF2.b.l; }
+		inline byte getB2()  const { return BC2.b.h; }
+		inline byte getC2()  const { return BC2.b.l; }
+		inline byte getD2()  const { return DE2.b.h; }
+		inline byte getE2()  const { return DE2.b.l; }
+		inline byte getH2()  const { return HL2.b.h; }
+		inline byte getL2()  const { return HL2.b.l; }
+		inline byte getIXh() const { return IX.b.h; }
+		inline byte getIXl() const { return IX.b.l; }
+		inline byte getIYh() const { return IY.b.h; }
+		inline byte getIYl() const { return IY.b.l; }
+		inline byte getPCh() const { return PC.b.h; }
+		inline byte getPCl() const { return PC.b.l; }
+		inline byte getSPh() const { return SP.b.h; }
+		inline byte getSPl() const { return SP.b.l; }
+		inline word getAF()  const { return AF.w; }
+		inline word getBC()  const { return BC.w; }
+		inline word getDE()  const { return DE.w; }
+		inline word getHL()  const { return HL.w; }
+		inline word getAF2() const { return AF2.w; }
+		inline word getBC2() const { return BC2.w; }
+		inline word getDE2() const { return DE2.w; }
+		inline word getHL2() const { return HL2.w; }
+		inline word getIX()  const { return IX.w; }
+		inline word getIY()  const { return IY.w; }
+		inline word getPC()  const { return PC.w; }
+		inline word getSP()  const { return SP.w; }
+		inline byte getIM()  const { return IM; }
+		inline byte getI()   const { return I; }
+		inline byte getR()   const { return (R & 0x7F) | (R2 & 0x80); }
+		inline bool getIFF1()     const { return IFF1; }
+		inline bool getIFF2()     const { return IFF2; }
+		inline bool getHALT()     const { return HALT; }
+		inline bool getNextIFF1() const { return nextIFF1; }
+
+		inline void setA(byte x)   { AF.b.h = x; }
+		inline void setF(byte x)   { AF.b.l = x; }
+		inline void setB(byte x)   { BC.b.h = x; }
+		inline void setC(byte x)   { BC.b.l = x; }
+		inline void setD(byte x)   { DE.b.h = x; }
+		inline void setE(byte x)   { DE.b.l = x; }
+		inline void setH(byte x)   { HL.b.h = x; }
+		inline void setL(byte x)   { HL.b.l = x; }
+		inline void setA2(byte x)  { AF2.b.h = x; }
+		inline void setF2(byte x)  { AF2.b.l = x; }
+		inline void setB2(byte x)  { BC2.b.h = x; }
+		inline void setC2(byte x)  { BC2.b.l = x; }
+		inline void setD2(byte x)  { DE2.b.h = x; }
+		inline void setE2(byte x)  { DE2.b.l = x; }
+		inline void setH2(byte x)  { HL2.b.h = x; }
+		inline void setL2(byte x)  { HL2.b.l = x; }
+		inline void setIXh(byte x) { IX.b.h = x; }
+		inline void setIXl(byte x) { IX.b.l = x; }
+		inline void setIYh(byte x) { IY.b.h = x; }
+		inline void setIYl(byte x) { IY.b.l = x; }
+		inline void setPCh(byte x) { PC.b.h = x; }
+		inline void setPCl(byte x) { PC.b.l = x; }
+		inline void setSPh(byte x) { SP.b.h = x; }
+		inline void setSPl(byte x) { SP.b.l = x; }
+		inline void setAF(word x)  { AF.w = x; }
+		inline void setBC(word x)  { BC.w = x; }
+		inline void setDE(word x)  { DE.w = x; }
+		inline void setHL(word x)  { HL.w = x; }
+		inline void setAF2(word x) { AF2.w = x; }
+		inline void setBC2(word x) { BC2.w = x; }
+		inline void setDE2(word x) { DE2.w = x; }
+		inline void setHL2(word x) { HL2.w = x; }
+		inline void setIX(word x)  { IX.w = x; }
+		inline void setIY(word x)  { IY.w = x; }
+		inline void setPC(word x)  { PC.w = x; }
+		inline void setSP(word x)  { SP.w = x; }
+		inline void setIM(byte x)  { IM = x; }
+		inline void setI(byte x)   { I = x; }
+		inline void setR(byte x)   { R = x; R2 = x; }
+		inline void setIFF1(bool x)     { IFF1 = x; }
+		inline void setIFF2(bool x)     { IFF2 = x; }
+		inline void setHALT(bool x)     { HALT = x; }
+		inline void setNextIFF1(bool x) { nextIFF1 = x; }
+
+		inline void incR(byte x) { R += x; }
+
+		inline void ei() {
+			IFF1     = true;
+			IFF2     = true;
+			nextIFF1 = true;
+		}
+		inline void di() {
+			IFF1     = false;
+			IFF2     = false;
+			nextIFF1 = false;
+		}
+	private:
+		z80regpair AF, BC, DE, HL;
+		z80regpair AF2, BC2, DE2, HL2;
+		z80regpair IX, IY, PC, SP;
+		bool nextIFF1, IFF1, IFF2, HALT;
+		byte IM, I;
+		byte R, R2; // refresh = R&127 | R2&128
+	};
+#endif
 
 	/**
 	 * TODO
