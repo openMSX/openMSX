@@ -19,6 +19,10 @@ namespace YM2413Okazaki {
 
 typedef FixedPoint<8> PhaseModulation;
 
+enum EnvelopeMode {
+	ATTACK, DECAY, SUSHOLD, SUSTAIN, RELEASE, SETTLE, FINISH
+	};
+
 class Patch : private noncopyable {
 public:
 	/**
@@ -87,7 +91,7 @@ public:
 	bool sustain;	// Sustain
 	int tll;		// Total Level + Key scale level
 	int rks;		// Key scale offset (Rks)
-	int eg_mode;		// Current state
+	EnvelopeMode eg_mode;	// Current state
 	unsigned eg_phase;	// Phase
 	unsigned eg_dphase;	// Phase increment amount
 	unsigned egout;		// output
@@ -260,9 +264,6 @@ static unsigned AM_DPHASE =
 
 // Liner to Log curve conversion table (for Attack rate).
 static word AR_ADJUST_TABLE[1 << EG_BITS];
-
-// Definition of envelope mode
-enum { READY, ATTACK, DECAY, SUSHOLD, SUSTAIN, RELEASE, SETTLE, FINISH };
 
 // Phase incr table for Attack
 static unsigned dphaseARTable[16][16];
@@ -648,7 +649,6 @@ void Slot::updateEG()
 		break;
 	case SUSHOLD:
 	case FINISH:
-	default:
 		eg_dphase = 0;
 		break;
 	}
