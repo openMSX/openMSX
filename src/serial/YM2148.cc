@@ -7,16 +7,16 @@
 
 namespace openmsx {
 
-#define STAT_RXRDY      0x02
-#define STAT_TXEMPTY    0x01
-#define STAT_PE         0x10
-#define STAT_OE         0x20        //???  MR checks 0x30
-#define ST_INT          0x800
+static const unsigned STAT_RXRDY   = 0x02;
+static const unsigned STAT_TXEMPTY = 0x01;
+static const unsigned STAT_PE      = 0x10;
+static const unsigned STAT_OE      = 0x20; //???  MR checks 0x30
+static const unsigned ST_INT       = 0x800;
 
-#define CMD_RDINT  0x08
-#define CMD_RSTER  0x10
-#define CMD_WRINT  0x100
-#define CMD_RST    0x80
+static const unsigned CMD_RDINT = 0x08;
+static const unsigned CMD_RSTER = 0x10;
+static const unsigned CMD_WRINT = 0x100;
+static const unsigned CMD_RST   = 0x80;
 
 void YM2148::midiInCallback(byte* buffer, unsigned length)
 {
