@@ -1,0 +1,32 @@
+<?xml version="1.0" ?>
+<!-- $Id: hardwareconfig.xml,v 1.1 2003/03/24 22:27:44 m9710797 Exp $ -->
+<!-- missing required hardware: SFG-05 -->
+<!-- THere is also a /64 model, with a 64 kB mapper -->
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+
+  <info>
+    <manufacturer>Yamaha</manufacturer>
+    <code>SFG-05</code>
+    <release_year>?</release_year>
+    <description>FM Sound Synthesizer Unit mark II</description>
+    <type>sound expansion</type>
+  </info>
+
+  <devices>
+    <primary slot="any">
+      <secondary slot="any">
+        <YamahaSFG id="Yamaha SFG-05">
+          <mem base="0x0000" size="0x8000"/>
+          <sound>
+            <volume>13000</volume>
+          </sound>
+          <rom>
+	    <sha1>6680d7118d85418813f1db9449bf3e20942b16da</sha1>
+            <filename>roms/sfg-05.rom</filename>
+          </rom>
+        </YamahaSFG>
+      </secondary>
+    </primary>
+  </devices>
+</msxconfig>
