@@ -39,7 +39,6 @@ private:
 // Fixed point representation of 1.
 static const int FP_UNIT = 0x8000;
 
-static const int CLOCK = 3579545 / 2;
 static const int PORT_A_DIRECTION = 0x40;
 static const int PORT_B_DIRECTION = 0x80;
 enum Register {
@@ -390,6 +389,7 @@ inline void AY8910::Envelope::advance(int duration)
 AY8910::AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
                const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMSXMixer(), "PSG", "PSG", 3)
+	, Resample(motherBoard.getGlobalSettings(), 1)
 	, cliComm(motherBoard.getMSXCliComm())
 	, periphery(periphery_)
 	, debuggable(new AY8910Debuggable(motherBoard, *this))
@@ -553,14 +553,10 @@ void AY8910::setOutputRate(unsigned sampleRate)
 	// The step clock for the tone and noise generators is the chip clock
 	// divided by 8; for the envelope generator of the AY-3-8910, it is half
 	// that much (clock/16).
-	// Here we calculate the number of steps which happen during one sample
-	// at the given sample rate. No. of events = sample rate / (clock/8).
-	// FP_UNIT is a multiplier used to turn the fraction into a fixed point
-	// number.
-
-	// !! look out for overflow !!
-	updateStep = (FP_UNIT * sampleRate) / (CLOCK / 8);
-	setInputRate(sampleRate);
+	updateStep = FP_UNIT;
+	double input = (3579545.0 / 2) / 8;
+	setInputRate(static_cast<int>(input + 0.5));
+	setResampleRatio(input, sampleRate);
 }
 
 
@@ -692,6 +688,17 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 		bufs[1][i] = (semiVol[1] * amplitude.getVolume(1)) / FP_UNIT;
 		bufs[2][i] = (semiVol[2] * amplitude.getVolume(2)) / FP_UNIT;
 	}
+}
+
+bool AY8910::generateInput(int* buffer, unsigned num)
+{
+	return mixChannels(buffer, num);
+}
+
+bool AY8910::updateBuffer(unsigned length, int* buffer,
+     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
+{
+	return generateOutput(buffer, length);
 }
 
 

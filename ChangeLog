@@ -1,5 +1,8 @@
 $Id$
 
+2007-06-09 Maarten ter Huurne <maarten@treewalker.org>
+	* Use resampler for AY8910 (PSG).
+
 2007-06-06 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added a dummy port of blueMSX's YM2148. TODO: actually fill in the
 	  code. It's harmless, so I checked it in to have a base for a real
