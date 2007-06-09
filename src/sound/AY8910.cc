@@ -63,7 +63,7 @@ inline void AY8910::Generator::reset(byte output)
 	this->output = output;
 }
 
-inline void AY8910::Generator::setPeriod(int value, unsigned updateStep)
+inline void AY8910::Generator::setPeriod(int value)
 {
 	// A note about the period of tones, noise and envelope: for speed
 	// reasons, we count down from the period to 0, but careful studies of the
@@ -77,7 +77,7 @@ inline void AY8910::Generator::setPeriod(int value, unsigned updateStep)
 	// period. In that case, period = 0 is half as period = 1.
 	const int old = period;
 	if (value == 0) value = 1;
-	period = value * updateStep;
+	period = value * FP_UNIT;
 	count += period - old;
 	if (count <= 0) count = 1;
 }
@@ -298,14 +298,14 @@ inline void AY8910::Envelope::reset()
 	count = 0;
 }
 
-inline void AY8910::Envelope::setPeriod(int value, unsigned updateStep)
+inline void AY8910::Envelope::setPeriod(int value)
 {
 	// twice as fast as AY8910
 	const int old = period;
 	if (value == 0) {
-		period = updateStep / 2;
+		period = FP_UNIT / 2;
 	} else {
-		period = value * updateStep;
+		period = value * FP_UNIT;
 	}
 	count += period - old;
 	if (count <= 0) count = 1;
@@ -500,12 +500,11 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime& time)
 	case AY_BCOARSE:
 	case AY_CFINE:
 	case AY_CCOARSE:
-		tone[reg / 2].setPeriod(
-			regs[reg & ~1] + 256 * (regs[reg | 1] & 0x0F), updateStep);
+		tone[reg / 2].setPeriod(regs[reg & ~1] + 256 * (regs[reg | 1] & 0x0F));
 		break;
 	case AY_NOISEPER:
 		// half the frequency of tone generation
-		noise.setPeriod(value & 0x1F, updateStep * 2);
+		noise.setPeriod(2 * (value & 0x1F));
 		break;
 	case AY_AVOL:
 	case AY_BVOL:
@@ -516,8 +515,7 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime& time)
 	case AY_ECOARSE:
 		// also half the frequency of tone generation, but handled
 		// inside Envelope::setPeriod()
-		envelope.setPeriod(
-			regs[AY_EFINE] + 256 * regs[AY_ECOARSE], updateStep);
+		envelope.setPeriod(regs[AY_EFINE] + 256 * regs[AY_ECOARSE]);
 		break;
 	case AY_ESHAPE:
 		envelope.setShape(value);
@@ -553,7 +551,6 @@ void AY8910::setOutputRate(unsigned sampleRate)
 	// The step clock for the tone and noise generators is the chip clock
 	// divided by 8; for the envelope generator of the AY-3-8910, it is half
 	// that much (clock/16).
-	updateStep = FP_UNIT;
 	double input = (3579545.0 / 2) / 8;
 	setInputRate(static_cast<int>(input + 0.5));
 	setResampleRatio(input, sampleRate);

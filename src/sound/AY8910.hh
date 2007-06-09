@@ -37,7 +37,7 @@ private:
 	class Generator {
 	public:
 		inline void reset(byte output = 0);
-		inline void setPeriod(int value, unsigned updateStep);
+		inline void setPeriod(int value);
 	protected:
 		Generator();
 
@@ -112,7 +112,7 @@ private:
 	public:
 		explicit inline Envelope(Amplitude& amplitude);
 		inline void reset();
-		inline void setPeriod(int value, unsigned updateStep);
+		inline void setPeriod(int value);
 		inline void setShape(byte shape);
 		inline bool isChanging();
 		inline void advance(int duration);
@@ -148,7 +148,6 @@ private:
 	NoiseGenerator noise;
 	Amplitude amplitude;
 	Envelope envelope;
-	unsigned updateStep;
 	byte regs[16];
 	byte oldEnable;
 	bool warningPrinted;
