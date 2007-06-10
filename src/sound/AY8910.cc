@@ -606,62 +606,49 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 
 	// Calculate samples.
 	for (unsigned i = 0; i < length; ++i) {
+		// The 8910 has three outputs, each output is the mix of one of
+		// the three tone generators and of the (single) noise generator.
+		// The two are mixed BEFORE going into the DAC. The formula to mix
+		// each channel is:
+		//   (ToneOn | ToneDisable) & (NoiseOn | NoiseDisable),
+		//   where ToneOn and NoiseOn are the current generator state
+		//   and ToneDisable and NoiseDisable come from the enable reg.
+		// Note that this means that if both tone and noise are disabled,
+		// the output is 1, not 0, and can be modulated by changing the
+		// volume.
+
+		// Update state of noise generator.
+		byte chanFlags = chanEnable;
+		if (anyNoise) {
+			chanFlags |= noise.getOutput();
+			noise.advance();
+		}
+
+		// Mix tone generators with noise generator.
 		// semiVol keeps track of how long each square wave stays
 		// in the 1 position during the sample period.
 		int semiVol[3] = { 0, 0, 0 };
-		int left = FP_UNIT;
-		do {
-			// The 8910 has three outputs, each output is the mix of one of
-			// the three tone generators and of the (single) noise generator.
-			// The two are mixed BEFORE going into the DAC. The formula to mix
-			// each channel is:
-			//   (ToneOn | ToneDisable) & (NoiseOn | NoiseDisable),
-			//   where ToneOn and NoiseOn are the current generator state
-			//   and ToneDisable and NoiseDisable come from the enable reg.
-			// Note that this means that if both tone and noise are disabled,
-			// the output is 1, not 0, and can be modulated by changing the
-			// volume.
-
-			// Update state of noise generator.
-			byte chanFlags;
-			int nextEvent;
-			if (anyNoise) {
-				// Next event is end of this sample or noise flip.
-				chanFlags = noise.getOutput() | chanEnable;
-				noise.advance();
-				nextEvent = FP_UNIT;
-			} else {
-				// Next event is end of this sample.
-				chanFlags = chanEnable;
-				nextEvent = FP_UNIT;
+		for (byte chan = 0; chan < 3; chan++, chanFlags >>= 1) {
+			if ((chanFlags & 0x09) == 0x08) {
+				// Square wave: alternating between 0 and 1.
+				semiVol[chan] += tone[chan].advance<true>(FP_UNIT);
+			} else if ((chanFlags & 0x09) == 0x09) {
+				// Channel disabled: always 1.
+				semiVol[chan] += FP_UNIT;
+			} else if ((chanFlags & 0x09) == 0x00) {
+				// Tone enabled, but suppressed by noise state.
+				tone[chan].advance<false>(FP_UNIT);
+			} else { // (chanFlags & 0x09) == 0x01
+				// Tone disabled, noise state is 0.
+				// Nothing to do.
 			}
-
-			// Mix tone generators with noise generator.
-			for (byte chan = 0; chan < 3; chan++, chanFlags >>= 1) {
-				if ((chanFlags & 0x09) == 0x08) {
-					// Square wave: alternating between 0 and 1.
-					semiVol[chan] += tone[chan].advance<true>(nextEvent);
-				} else if ((chanFlags & 0x09) == 0x09) {
-					// Channel disabled: always 1.
-					semiVol[chan] += nextEvent;
-				} else if ((chanFlags & 0x09) == 0x00) {
-					// Tone enabled, but suppressed by noise state.
-					tone[chan].advance<false>(nextEvent);
-				} else { // (chanFlags & 0x09) == 0x01
-					// Tone disabled, noise state is 0.
-					// Nothing to do.
-				}
-			}
-
-			left -= nextEvent;
-		} while (left > 0);
+		}
 
 		// Update envelope.
 		if (enveloping) envelope.advance(FP_UNIT);
 
 		// Calculate D/A converter output.
-		// TODO: Is it easy to detect when multiple samples have the same
-		//       value? (make nextEvent depend on tone events as well?)
+		// TODO: Is it easy to detect when multiple samples have the same value?
 		//       At 44KHz, value typically changes once every 4 to 5 samples.
 		bufs[0][i] = (semiVol[0] * amplitude.getVolume(0)) / FP_UNIT;
 		bufs[1][i] = (semiVol[1] * amplitude.getVolume(1)) / FP_UNIT;
