@@ -38,6 +38,9 @@ private:
 	public:
 		inline void reset(byte output = 0);
 		inline void setPeriod(int value);
+		/** Gets the current output of this generator.
+		  */
+		inline byte getOutput();
 	protected:
 		Generator();
 
@@ -61,15 +64,13 @@ private:
 
 	class ToneGenerator: public Generator {
 	public:
-		/** Advance this generator in time.
-		  * @param duration Length of interval to simulate.
-		  * @return Amount of time the generator output is 1 during the given
-		  *    time interval.
-		  *    This value is only calculated if template parameter "enabled"
-		  *    is true, otherwise 0 is returned.
+		/** Advance tone generator one step in time.
 		  */
-		template <bool enabled>
-		inline int advance(int duration);
+		inline void advance();
+		/** Advance tone generator several steps in time.
+		  * @param duration Length of interval to simulate.
+		  */
+		inline void advance(int duration);
 	};
 
 	class NoiseGenerator: public Generator {
@@ -77,13 +78,10 @@ private:
 		NoiseGenerator();
 
 		inline void reset();
-		/** Gets the current output of this noise generator.
-		  */
-		inline byte getOutput();
-		/** Advance noise generator in time.
+		/** Advance noise generator one step in time.
 		  */
 		inline void advance();
-		/** Advance noise generator in time.
+		/** Advance noise generator several steps in time.
 		  * @param duration Length of interval to simulate.
 		  */
 		inline void advance(int duration);

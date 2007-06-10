@@ -74,33 +74,34 @@ inline void AY8910::Generator::setPeriod(int value)
 	period = value == 0 ? FP_UNIT : value * FP_UNIT;
 }
 
+inline byte AY8910::Generator::getOutput()
+{
+	return output;
+}
+
 
 // ToneGenerator:
 
-template <bool enabled>
-inline int AY8910::ToneGenerator::advance(int duration)
+inline void AY8910::ToneGenerator::advance()
+{
+	count += FP_UNIT;
+	if (count < period) {
+		return;
+	}
+	count = 0;
+	output ^= 1;
+}
+
+inline void AY8910::ToneGenerator::advance(int duration)
 {
 	if (count > period) count = period;
-	int highDuration = 0;
-	if (enabled && output) highDuration += period - count;
 	count += duration * FP_UNIT;
 	if (count >= period) {
 		// Calculate number of output transitions.
 		int cycles = count / period;
-		if (enabled) {
-			// Full square waves: output is 1 half of the time;
-			// which half doesn't matter.
-			highDuration += period * (cycles / 2);
-		}
-		if (cycles & 1) {
-			// Half a square wave.
-			output ^= 1;
-			if (enabled && output) highDuration += period;
-		}
 		count -= period * cycles; // equivalent to count %= period;
+		output ^= cycles & 1;
 	}
-	if (enabled && output) highDuration -= period - count;
-	return highDuration;
 }
 
 
@@ -115,11 +116,6 @@ inline void AY8910::NoiseGenerator::reset()
 {
 	Generator::reset(0x38);
 	random = 1;
-}
-
-inline byte AY8910::NoiseGenerator::getOutput()
-{
-	return output;
 }
 
 inline void AY8910::NoiseGenerator::advance()
@@ -571,7 +567,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 	if (((regs[AY_AVOL] | regs[AY_BVOL] | regs[AY_CVOL]) & 0x1F) == 0) {
 		// optimization: all channels volume 0
 		for (int i = 0; i < 3; ++i) {
-			tone[i].advance<false>(length);
+			tone[i].advance(length);
 			bufs[i] = 0;
 		}
 		noise.advance(length);
@@ -590,7 +586,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 	// Advance tone generators for channels that have tone disabled.
 	for (byte chan = 0; chan < 3; chan++) {
 		if (chanEnable & (0x01 << chan)) { // disabled
-			tone[chan].advance<false>(length);
+			tone[chan].advance(length);
 		}
 	}
 	// Noise enabled on any channel?
@@ -631,13 +627,14 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 		for (byte chan = 0; chan < 3; chan++, chanFlags >>= 1) {
 			if ((chanFlags & 0x09) == 0x08) {
 				// Square wave: alternating between 0 and 1.
-				semiVol[chan] += tone[chan].advance<true>(1);
+				semiVol[chan] += tone[chan].getOutput();
+				tone[chan].advance(1);
 			} else if ((chanFlags & 0x09) == 0x09) {
 				// Channel disabled: always 1.
-				semiVol[chan] += FP_UNIT;
+				semiVol[chan] += 1;
 			} else if ((chanFlags & 0x09) == 0x00) {
 				// Tone enabled, but suppressed by noise state.
-				tone[chan].advance<false>(1);
+				tone[chan].advance(1);
 			} else { // (chanFlags & 0x09) == 0x01
 				// Tone disabled, noise state is 0.
 				// Nothing to do.
@@ -650,9 +647,9 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 		// Calculate D/A converter output.
 		// TODO: Is it easy to detect when multiple samples have the same value?
 		//       At 44KHz, value typically changes once every 4 to 5 samples.
-		bufs[0][i] = (semiVol[0] * amplitude.getVolume(0)) / FP_UNIT;
-		bufs[1][i] = (semiVol[1] * amplitude.getVolume(1)) / FP_UNIT;
-		bufs[2][i] = (semiVol[2] * amplitude.getVolume(2)) / FP_UNIT;
+		bufs[0][i] = semiVol[0] * amplitude.getVolume(0);
+		bufs[1][i] = semiVol[1] * amplitude.getVolume(1);
+		bufs[2][i] = semiVol[2] * amplitude.getVolume(2);
 	}
 }
 
