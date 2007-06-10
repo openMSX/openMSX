@@ -71,7 +71,7 @@ inline void AY8910::Generator::setPeriod(int value)
 	// Also, note that period = 0 is the same as period = 1. This is mentioned
 	// in the YM2203 data sheets. However, this does NOT apply to the Envelope
 	// period. In that case, period = 0 is half as period = 1.
-	period = value == 0 ? FP_UNIT : value * FP_UNIT;
+	period = value == 0 ? 1 : value;
 }
 
 inline byte AY8910::Generator::getOutput()
@@ -84,18 +84,17 @@ inline byte AY8910::Generator::getOutput()
 
 inline void AY8910::ToneGenerator::advance()
 {
-	count += FP_UNIT;
-	if (count < period) {
-		return;
+	count++;
+	if (count >= period) {
+		count = 0;
+		output ^= 1;
 	}
-	count = 0;
-	output ^= 1;
 }
 
 inline void AY8910::ToneGenerator::advance(int duration)
 {
 	if (count > period) count = period;
-	count += duration * FP_UNIT;
+	count += duration;
 	if (count >= period) {
 		// Calculate number of output transitions.
 		int cycles = count / period;
@@ -120,44 +119,41 @@ inline void AY8910::NoiseGenerator::reset()
 
 inline void AY8910::NoiseGenerator::advance()
 {
-	count += FP_UNIT;
-	if (count < period) {
-		// Exit: end of interval.
-		return;
+	count++;
+	if (count >= period) {
+		count = 0;
+		// Is noise output going to change?
+		if ((random + 1) & 2) { // bit0 ^ bit1
+			// Exit: output flip.
+			output ^= 0x38;
+		}
+		// The Random Number Generator of the 8910 is a 17-bit shift register.
+		// The input to the shift register is bit0 XOR bit2 (bit0 is the
+		// output).
+		// The following is a fast way to compute bit 17 = bit0^bit2.
+		// Instead of doing all the logic operations, we only check bit 0,
+		// relying on the fact that after two shifts of the register, what now
+		// is bit 2 will become bit 0, and will invert, if necessary, bit 16,
+		// which previously was bit 18.
+		// Note: On Pentium 4, the "if" causes trouble in the pipeline.
+		//       After all this is pseudo-random and therefore a nightmare
+		//       for branch prediction.
+		//       A bit more calculation without a branch is faster.
+		//       Without the "if", the transformation described above still
+		//       speeds up the code, because the same "random & N"
+		//       subexpression appears twice (also when doing multiple cycles
+		//       in one go, see "advance" method).
+		//       TODO: Benchmark on other modern CPUs.
+		//if (random & 1) random ^= 0x28000;
+		//random >>= 1;
+		random = (random >> 1) ^ ((random & 1) << 14) ^ ((random & 1) << 16);
 	}
-	count = 0;
-
-	// Is noise output going to change?
-	if ((random + 1) & 2) { // bit0 ^ bit1
-		// Exit: output flip.
-		output ^= 0x38;
-	}
-	// The Random Number Generator of the 8910 is a 17-bit shift register.
-	// The input to the shift register is bit0 XOR bit2 (bit0 is the
-	// output).
-	// The following is a fast way to compute bit 17 = bit0^bit2.
-	// Instead of doing all the logic operations, we only check bit 0,
-	// relying on the fact that after two shifts of the register, what now
-	// is bit 2 will become bit 0, and will invert, if necessary, bit 16,
-	// which previously was bit 18.
-	// Note: On Pentium 4, the "if" causes trouble in the pipeline.
-	//       After all this is pseudo-random and therefore a nightmare
-	//       for branch prediction.
-	//       A bit more calculation without a branch is faster.
-	//       Without the "if", the transformation described above still
-	//       speeds up the code, because the same "random & N"
-	//       subexpression appears twice (also when doing multiple cycles
-	//       in one go, see "advance" method).
-	//       TODO: Benchmark on other modern CPUs.
-	//if (random & 1) random ^= 0x28000;
-	//random >>= 1;
-	random = (random >> 1) ^ ((random & 1) << 14) ^ ((random & 1) << 16);
 }
 
 inline void AY8910::NoiseGenerator::advance(int duration)
 {
 	if (count > period) count = period;
-	count += duration * FP_UNIT;
+	count += duration;
 	int cycles = count / period;
 	count -= cycles * period; // equivalent to count %= period
 	// See advanceToFlip for explanation of noise algorithm.
