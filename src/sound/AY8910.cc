@@ -83,7 +83,7 @@ inline int AY8910::ToneGenerator::advance(int duration)
 	if (count > period) count = period;
 	int highDuration = 0;
 	if (enabled && output) highDuration += period - count;
-	count += duration;
+	count += duration * FP_UNIT;
 	if (count >= period) {
 		// Calculate number of output transitions.
 		int cycles = count / period;
@@ -161,7 +161,7 @@ inline void AY8910::NoiseGenerator::advance()
 inline void AY8910::NoiseGenerator::advance(int duration)
 {
 	if (count > period) count = period;
-	count += duration;
+	count += duration * FP_UNIT;
 	int cycles = count / period;
 	count -= cycles * period; // equivalent to count %= period
 	// See advanceToFlip for explanation of noise algorithm.
@@ -338,7 +338,7 @@ inline void AY8910::Envelope::advance(int duration)
 {
 	if (!holding) {
 		if (count > period) count = period;
-		count += duration;
+		count += duration * FP_UNIT;
 		if (count >= period) {
 			const int steps = count / period;
 			step -= steps;
@@ -571,11 +571,11 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 	if (((regs[AY_AVOL] | regs[AY_BVOL] | regs[AY_CVOL]) & 0x1F) == 0) {
 		// optimization: all channels volume 0
 		for (int i = 0; i < 3; ++i) {
-			tone[i].advance<false>(length * FP_UNIT);
+			tone[i].advance<false>(length);
 			bufs[i] = 0;
 		}
-		noise.advance(length * FP_UNIT);
-		envelope.advance(length * FP_UNIT);
+		noise.advance(length);
+		envelope.advance(length);
 		return;
 	}
 
@@ -590,18 +590,18 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 	// Advance tone generators for channels that have tone disabled.
 	for (byte chan = 0; chan < 3; chan++) {
 		if (chanEnable & (0x01 << chan)) { // disabled
-			tone[chan].advance<false>(length * FP_UNIT);
+			tone[chan].advance<false>(length);
 		}
 	}
 	// Noise enabled on any channel?
 	bool anyNoise = (chanEnable & 0x38) != 0x38;
 	if (!anyNoise) {
-		noise.advance(length * FP_UNIT);
+		noise.advance(length);
 	}
 	// Envelope enabled on any channel?
 	bool enveloping = amplitude.anyEnvelope() && envelope.isChanging();
 	if (!enveloping) {
-		envelope.advance(length * FP_UNIT);
+		envelope.advance(length);
 	}
 
 	// Calculate samples.
@@ -631,13 +631,13 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 		for (byte chan = 0; chan < 3; chan++, chanFlags >>= 1) {
 			if ((chanFlags & 0x09) == 0x08) {
 				// Square wave: alternating between 0 and 1.
-				semiVol[chan] += tone[chan].advance<true>(FP_UNIT);
+				semiVol[chan] += tone[chan].advance<true>(1);
 			} else if ((chanFlags & 0x09) == 0x09) {
 				// Channel disabled: always 1.
 				semiVol[chan] += FP_UNIT;
 			} else if ((chanFlags & 0x09) == 0x00) {
 				// Tone enabled, but suppressed by noise state.
-				tone[chan].advance<false>(FP_UNIT);
+				tone[chan].advance<false>(1);
 			} else { // (chanFlags & 0x09) == 0x01
 				// Tone disabled, noise state is 0.
 				// Nothing to do.
@@ -645,7 +645,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 		}
 
 		// Update envelope.
-		if (enveloping) envelope.advance(FP_UNIT);
+		if (enveloping) envelope.advance(1);
 
 		// Calculate D/A converter output.
 		// TODO: Is it easy to detect when multiple samples have the same value?
