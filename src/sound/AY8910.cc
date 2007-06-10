@@ -615,37 +615,28 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 			chanFlags |= noise.getOutput();
 			noise.advance();
 		}
-
-		// Mix tone generators with noise generator.
-		// semiVol keeps track of how long each square wave stays
-		// in the 1 position during the sample period.
-		int semiVol[3] = { 0, 0, 0 };
-		for (byte chan = 0; chan < 3; chan++, chanFlags >>= 1) {
-			if ((chanFlags & 0x09) == 0x08) {
-				// Square wave: alternating between 0 and 1.
-				semiVol[chan] += tone[chan].getOutput();
-				tone[chan].advance(1);
-			} else if ((chanFlags & 0x09) == 0x09) {
-				// Channel disabled: always 1.
-				semiVol[chan] += 1;
-			} else if ((chanFlags & 0x09) == 0x00) {
-				// Tone enabled, but suppressed by noise state.
-				tone[chan].advance(1);
-			} else { // (chanFlags & 0x09) == 0x01
-				// Tone disabled, noise state is 0.
-				// Nothing to do.
-			}
-		}
-
 		// Update envelope.
 		if (enveloping) envelope.advance(1);
 
-		// Calculate D/A converter output.
-		// TODO: Is it easy to detect when multiple samples have the same value?
-		//       At 44KHz, value typically changes once every 4 to 5 samples.
-		bufs[0][i] = semiVol[0] * amplitude.getVolume(0);
-		bufs[1][i] = semiVol[1] * amplitude.getVolume(1);
-		bufs[2][i] = semiVol[2] * amplitude.getVolume(2);
+		// Mix tone generators with noise generator.
+		for (byte chan = 0; chan < 3; chan++, chanFlags >>= 1) {
+			int* out = &bufs[chan][i];
+			if ((chanFlags & 0x09) == 0x08) {
+				// Square wave: alternating between 0 and 1.
+				*out = tone[chan].getOutput() * amplitude.getVolume(chan);
+				tone[chan].advance(1);
+			} else if ((chanFlags & 0x09) == 0x09) {
+				// Channel disabled: always 1.
+				*out = amplitude.getVolume(chan);
+			} else if ((chanFlags & 0x09) == 0x00) {
+				// Tone enabled, but suppressed by noise state.
+				*out = 0;
+				tone[chan].advance(1);
+			} else { // (chanFlags & 0x09) == 0x01
+				// Tone disabled, noise state is 0.
+				*out = 0;
+			}
+		}
 	}
 }
 
