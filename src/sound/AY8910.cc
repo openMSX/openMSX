@@ -122,48 +122,40 @@ inline byte AY8910::NoiseGenerator::getOutput()
 	return output;
 }
 
-inline int AY8910::NoiseGenerator::advanceToFlip(int duration)
+inline void AY8910::NoiseGenerator::advance()
 {
-	if (count > period) count = period;
-	int left = duration;
-	while (true) {
-		count += left;
-		if (count < period) {
-			// Exit: end of interval.
-			return duration;
-		}
-		left = count - period;
-		count = 0;
-		// Is noise output going to change?
-		const bool flip = (random + 1) & 2; // bit0 ^ bit1
-		// The Random Number Generator of the 8910 is a 17-bit shift register.
-		// The input to the shift register is bit0 XOR bit2 (bit0 is the
-		// output).
-		// The following is a fast way to compute bit 17 = bit0^bit2.
-		// Instead of doing all the logic operations, we only check bit 0,
-		// relying on the fact that after two shifts of the register, what now
-		// is bit 2 will become bit 0, and will invert, if necessary, bit 16,
-		// which previously was bit 18.
-		// Note: On Pentium 4, the "if" causes trouble in the pipeline.
-		//       After all this is pseudo-random and therefore a nightmare
-		//       for branch prediction.
-		//       A bit more calculation without a branch is faster.
-		//       Without the "if", the transformation described above still
-		//       speeds up the code, because the same "random & N"
-		//       subexpression appears twice (also when doing multiple cycles
-		//       in one go, see "advance" method).
-		//       TODO: Benchmark on other modern CPUs.
-		//if (random & 1) random ^= 0x28000;
-		//random >>= 1;
-		random =  (random >> 1)
-		       ^ ((random & 1) << 14)
-		       ^ ((random & 1) << 16);
-		if (flip) {
-			// Exit: output flip.
-			output ^= 0x38;
-			return duration - left;
-		}
+	count += FP_UNIT;
+	if (count < period) {
+		// Exit: end of interval.
+		return;
 	}
+	count = 0;
+
+	// Is noise output going to change?
+	if ((random + 1) & 2) { // bit0 ^ bit1
+		// Exit: output flip.
+		output ^= 0x38;
+	}
+	// The Random Number Generator of the 8910 is a 17-bit shift register.
+	// The input to the shift register is bit0 XOR bit2 (bit0 is the
+	// output).
+	// The following is a fast way to compute bit 17 = bit0^bit2.
+	// Instead of doing all the logic operations, we only check bit 0,
+	// relying on the fact that after two shifts of the register, what now
+	// is bit 2 will become bit 0, and will invert, if necessary, bit 16,
+	// which previously was bit 18.
+	// Note: On Pentium 4, the "if" causes trouble in the pipeline.
+	//       After all this is pseudo-random and therefore a nightmare
+	//       for branch prediction.
+	//       A bit more calculation without a branch is faster.
+	//       Without the "if", the transformation described above still
+	//       speeds up the code, because the same "random & N"
+	//       subexpression appears twice (also when doing multiple cycles
+	//       in one go, see "advance" method).
+	//       TODO: Benchmark on other modern CPUs.
+	//if (random & 1) random ^= 0x28000;
+	//random >>= 1;
+	random = (random >> 1) ^ ((random & 1) << 14) ^ ((random & 1) << 16);
 }
 
 inline void AY8910::NoiseGenerator::advance(int duration)
@@ -636,7 +628,8 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 			if (anyNoise) {
 				// Next event is end of this sample or noise flip.
 				chanFlags = noise.getOutput() | chanEnable;
-				nextEvent = noise.advanceToFlip(left);
+				noise.advance();
+				nextEvent = FP_UNIT;
 			} else {
 				// Next event is end of this sample.
 				chanFlags = chanEnable;

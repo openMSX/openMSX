@@ -80,12 +80,9 @@ private:
 		/** Gets the current output of this noise generator.
 		  */
 		inline byte getOutput();
-		/** Advance noise generator in time, but not past the next output flip.
-		  * @param duration Length of interval to simulate.
-		  * @return Amount of time actually advanced.
-		  *   If no flip occurs, this is equal to the duration parameter.
+		/** Advance noise generator in time.
 		  */
-		inline int advanceToFlip(int duration);
+		inline void advance();
 		/** Advance noise generator in time.
 		  * @param duration Length of interval to simulate.
 		  */
