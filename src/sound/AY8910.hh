@@ -47,7 +47,10 @@ private:
 		  * its next output.
 		  */
 		int period;
-		/** Time left in this period: 1 <= count <= period. */
+		/** Time passed in this period.
+		  * Usually count will be smaller than period, but when the period
+		  * was recently changed this might not be the case.
+		  */
 		int count;
 		/** Current state of the wave.
 		  * For tones, this is 0 or 1.

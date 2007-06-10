@@ -58,28 +58,20 @@ AY8910::Generator::Generator()
 
 inline void AY8910::Generator::reset(byte output)
 {
-	period = 0;
 	count = 0;
 	this->output = output;
 }
 
 inline void AY8910::Generator::setPeriod(int value)
 {
-	// A note about the period of tones, noise and envelope: for speed
-	// reasons, we count down from the period to 0, but careful studies of the
-	// chip output prove that it instead counts up from 0 until the counter
-	// becomes greater or equal to the period. This is an important difference
-	// when the program is rapidly changing the period to modulate the sound.
-	// To compensate for the difference, when the period is changed we adjust
-	// our internal counter.
+	// Careful studies of the chip output prove that it instead counts up from
+	// 0 until the counter becomes greater or equal to the period. This is an
+	// important difference when the program is rapidly changing the period to
+	// modulate the sound.
 	// Also, note that period = 0 is the same as period = 1. This is mentioned
 	// in the YM2203 data sheets. However, this does NOT apply to the Envelope
 	// period. In that case, period = 0 is half as period = 1.
-	const int old = period;
-	if (value == 0) value = 1;
-	period = value * FP_UNIT;
-	count += period - old;
-	if (count <= 0) count = 1;
+	period = value == 0 ? FP_UNIT : value * FP_UNIT;
 }
 
 
@@ -88,12 +80,13 @@ inline void AY8910::Generator::setPeriod(int value)
 template <bool enabled>
 inline int AY8910::ToneGenerator::advance(int duration)
 {
+	if (count > period) count = period;
 	int highDuration = 0;
-	if (enabled && output) highDuration += count;
-	count -= duration;
-	if (count <= 0) {
+	if (enabled && output) highDuration += period - count;
+	count += duration;
+	if (count >= period) {
 		// Calculate number of output transitions.
-		int cycles = 1 + (-count) / period;
+		int cycles = count / period;
 		if (enabled) {
 			// Full square waves: output is 1 half of the time;
 			// which half doesn't matter.
@@ -104,9 +97,9 @@ inline int AY8910::ToneGenerator::advance(int duration)
 			output ^= 1;
 			if (enabled && output) highDuration += period;
 		}
-		count += period * cycles;
+		count -= period * cycles; // equivalent to count %= period;
 	}
-	if (enabled && output) highDuration -= count;
+	if (enabled && output) highDuration -= period - count;
 	return highDuration;
 }
 
@@ -131,15 +124,16 @@ inline byte AY8910::NoiseGenerator::getOutput()
 
 inline int AY8910::NoiseGenerator::advanceToFlip(int duration)
 {
+	if (count > period) count = period;
 	int left = duration;
 	while (true) {
-		if (count > left) {
+		count += left;
+		if (count < period) {
 			// Exit: end of interval.
-			count -= left;
 			return duration;
 		}
-		left -= count;
-		count = period;
+		left = count - period;
+		count = 0;
 		// Is noise output going to change?
 		const bool flip = (random + 1) & 2; // bit0 ^ bit1
 		// The Random Number Generator of the 8910 is a 17-bit shift register.
@@ -174,8 +168,10 @@ inline int AY8910::NoiseGenerator::advanceToFlip(int duration)
 
 inline void AY8910::NoiseGenerator::advance(int duration)
 {
-	int cycles = (duration + period - count) / period;
-	count += cycles * period - duration;
+	if (count > period) count = period;
+	count += duration;
+	int cycles = count / period;
+	count -= cycles * period; // equivalent to count %= period
 	// See advanceToFlip for explanation of noise algorithm.
 	for (; cycles >= 4405; cycles -= 4405) {
 		random ^= (random >> 10)
@@ -294,21 +290,13 @@ inline AY8910::Envelope::Envelope(Amplitude& amplitude)
 
 inline void AY8910::Envelope::reset()
 {
-	period = 0;
 	count = 0;
 }
 
 inline void AY8910::Envelope::setPeriod(int value)
 {
 	// twice as fast as AY8910
-	const int old = period;
-	if (value == 0) {
-		period = FP_UNIT / 2;
-	} else {
-		period = value * FP_UNIT;
-	}
-	count += period - old;
-	if (count <= 0) count = 1;
+	period = value == 0 ? FP_UNIT / 2 : value * FP_UNIT;
 }
 
 inline byte AY8910::Envelope::getVolume()
@@ -343,7 +331,7 @@ inline void AY8910::Envelope::setShape(byte shape)
 		hold = shape & 0x01;
 		alternate = shape & 0x02;
 	}
-	count = period;
+	count = 0;
 	step = 0x1F;
 	holding = false;
 	amplitude.setEnvelopeVolume(getVolume());
@@ -357,11 +345,12 @@ inline bool AY8910::Envelope::isChanging()
 inline void AY8910::Envelope::advance(int duration)
 {
 	if (!holding) {
-		count -= duration;
-		if (count <= 0) {
-			const int steps = 1 + (-count) / period;
+		if (count > period) count = period;
+		count += duration;
+		if (count >= period) {
+			const int steps = count / period;
 			step -= steps;
-			count += steps * period;
+			count -= steps * period; // equivalent to count %= period;
 
 			// Check current envelope position.
 			if (step < 0) {
