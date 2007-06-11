@@ -624,14 +624,14 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 			if ((chanFlags & 0x09) == 0x08) {
 				// Square wave: alternating between 0 and 1.
 				*out = tone[chan].getOutput() * amplitude.getVolume(chan);
-				tone[chan].advance(1);
+				tone[chan].advance();
 			} else if ((chanFlags & 0x09) == 0x09) {
 				// Channel disabled: always 1.
 				*out = amplitude.getVolume(chan);
 			} else if ((chanFlags & 0x09) == 0x00) {
 				// Tone enabled, but suppressed by noise state.
 				*out = 0;
-				tone[chan].advance(1);
+				tone[chan].advance();
 			} else { // (chanFlags & 0x09) == 0x01
 				// Tone disabled, noise state is 0.
 				*out = 0;
