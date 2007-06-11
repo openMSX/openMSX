@@ -17,6 +17,24 @@ unsigned powerOfTwo(unsigned a);
 
 void gaussian2(double& r1, double& r2);
 
+/** Clips x to the range [LO,HI].
+  * Slightly faster than    std::min(HI, std::max(LO, x))
+  * especially when no clipping is required.
+  */
+template <int LO, int HI>
+inline int clip(int x)
+{
+	return unsigned(x - LO) <= unsigned(HI - LO) ? x : (x < HI ? LO : HI);
+}
+
+/** Clip x to range [-32768,32767]. Special case of the version above.
+  * Optimized for the case when no clipping is needed.
+  */
+inline short clipIntToShort(int x)
+{
+	return short(x) == x ? x : (0x7FFF - (x >> 31));
+}
+
 /** Clips r * factor to the range [LO,HI].
   */
 template <int LO, int HI>

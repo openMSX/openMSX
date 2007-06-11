@@ -13,6 +13,7 @@
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
 #include "DACSound16S.hh"
+#include "Math.hh"
 #include <algorithm>
 #include <cmath>
 
@@ -1023,7 +1024,7 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 			if (reg[0x08] & 0x04) {
 				int tmp = ((signed char)reg[0x15]) * 256 + reg[0x16];
 				tmp = (tmp * 4) >> (7 - reg[0x17]);
-				tmp = std::min(32767, std::max(-32768, tmp));
+				tmp = Math::clipIntToShort(tmp);
 				dac13->writeDAC(tmp, time);
 			}
 			break;

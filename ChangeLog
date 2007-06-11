@@ -1,5 +1,11 @@
 $Id$
 
+2007-06-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added (optimized) clipping routines in Math.hh and use them
+	  in several places:
+	   - idea for int->short clipping is taken from Blip_Buffer
+	       http://slack.net/~ant/libs/audio.html#Blip_Buffer
+
 2007-06-09 Maarten ter Huurne <maarten@treewalker.org>
 	* Use resampler for AY8910 (PSG).
 

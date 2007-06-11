@@ -13,6 +13,7 @@
 #include "StringSetting.hh"
 #include "BooleanSetting.hh"
 #include "AviRecorder.hh"
+#include "Math.hh"
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -244,14 +245,8 @@ void MSXMixer::generate(short* output, unsigned samples,
 		outRight  = right - prevRight + ((1022 * outRight) >> 10);
 		prevRight = right;
 
-		// clip
-		if      (outLeft  > 32767)  outLeft  =  32767;
-		else if (outLeft  < -32768) outLeft  = -32768;
-		if      (outRight > 32767)  outRight =  32767;
-		else if (outRight < -32768) outRight = -32768;
-
-		output[2 * j + 0] = static_cast<short>(outLeft);
-		output[2 * j + 1] = static_cast<short>(outRight);
+		output[2 * j + 0] = Math::clipIntToShort(outLeft);
+		output[2 * j + 1] = Math::clipIntToShort(outRight);
 	}
 }
 

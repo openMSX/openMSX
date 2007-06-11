@@ -2,6 +2,7 @@
 
 #include "BitmapConverter.hh"
 #include "GLUtil.hh"
+#include "Math.hh"
 
 namespace openmsx {
 
@@ -79,14 +80,10 @@ void BitmapConverter<Pixel>::renderYJK(
 
 		for (unsigned n = 0; n < 4; ++n) {
 			int y = p[n] >> 3;
-			int r = y + j;
-			int g = y + k;
-			int b = (5 * y - 2 * j - k) / 4;
-			if (r < 0) r = 0; else if (r > 31) r = 31;
-			if (g < 0) g = 0; else if (g > 31) g = 31;
-			if (b < 0) b = 0; else if (b > 31) b = 31;
+			int r = Math::clip<0, 31>(y + j);
+			int g = Math::clip<0, 31>(y + k);
+			int b = Math::clip<0, 31>((5 * y - 2 * j - k) / 4);
 			int col = (r << 10) + (g << 5) + b;
-
 			pixelPtr[4 * i + n] = palette32768[col];
 		}
 	}
@@ -114,12 +111,9 @@ void BitmapConverter<Pixel>::renderYAE(
 			} else {
 				// YJK
 				int y = p[n] >> 3;
-				int r = y + j;
-				int g = y + k;
-				int b = (5 * y - 2 * j - k) / 4;
-				if (r < 0) r = 0; else if (r > 31) r = 31;
-				if (g < 0) g = 0; else if (g > 31) g = 31;
-				if (b < 0) b = 0; else if (b > 31) b = 31;
+				int r = Math::clip<0, 31>(y + j);
+				int g = Math::clip<0, 31>(y + k);
+				int b = Math::clip<0, 31>((5 * y - 2 * j - k) / 4);
 				pix = palette32768[(r << 10) + (g << 5) + b];
 			}
 			pixelPtr[4 * i + n] = pix;

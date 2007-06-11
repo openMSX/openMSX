@@ -2,6 +2,7 @@
 
 #include "WavWriter.hh"
 #include "MSXException.hh"
+#include "Math.hh"
 #include "build-info.hh"
 #include <algorithm>
 
@@ -103,7 +104,7 @@ void WavWriter::write16mono(int* buffer, unsigned samples)
 {
 	short buf[samples];
 	for (unsigned i = 0; i < samples; ++i) {
-		buf[i] = litEnd_16(std::min(32767, std::max(-32768, buffer[i])));
+		buf[i] = litEnd_16(Math::clipIntToShort(buffer[i]));
 	}
 	unsigned size = sizeof(short) * samples;
 	fwrite(buf, 1, size, wavfp);

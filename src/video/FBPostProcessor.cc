@@ -191,12 +191,12 @@ void FBPostProcessor<Pixel>::drawNoiseLine(
 			// only 3 is significantly faster (~20%).
 			// Typical pixel layout for little endian is ABGR and for big
 			// endian is ARGB, so we can use the same computation.
-			unsigned c1 = std::min<unsigned>(std::max<int>(
-				(p & 0x000000FF) + (n <<  0), 0), 0x000000FF);
-			unsigned c2 = std::min<unsigned>(std::max<int>(
-				(p & 0x0000FF00) + (n <<  8), 0), 0x0000FF00);
-			unsigned c3 = std::min<unsigned>(std::max<int>(
-				(p & 0x00FF0000) + (n << 16), 0), 0x00FF0000);
+			unsigned c1 = Math::clip<0, 0x0000FF>(
+				(p & 0x0000FF) + (n <<  0));
+			unsigned c2 = Math::clip<0, 0x00FF00>(
+				(p & 0x00FF00) + (n <<  8));
+			unsigned c3 = Math::clip<0, 0xFF0000>(
+				(p & 0xFF0000) + (n << 16));
 			out[i] = c1 | c2 | c3;
 		}
 	} else {

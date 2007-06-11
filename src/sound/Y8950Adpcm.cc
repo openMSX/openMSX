@@ -5,6 +5,7 @@
 #include "Clock.hh"
 #include "Ram.hh"
 #include "MSXMotherBoard.hh"
+#include "Math.hh"
 #include <cstring>
 
 namespace openmsx {
@@ -38,17 +39,9 @@ static const int DMAX = 0x6000;
 static const int DMIN = 0x7F;
 static const int DDEF = 0x7F;
 
-static const int DECODE_MAX = 32767;
-static const int DECODE_MIN = -32768;
-
 static const int STEP_BITS = 16;
 static const int STEP_MASK = (1 << STEP_BITS) -1;
 
-
-static inline int CLAP(int min, int x, int max)
-{
-	return (x < min) ? min : ((max < x) ? max : x);
-}
 
 Y8950Adpcm::Y8950Adpcm(Y8950& y8950_, MSXMotherBoard& motherBoard,
                        const std::string& name, unsigned sampleRam)
@@ -368,8 +361,8 @@ int Y8950Adpcm::calcSample()
 			val = adpcm_data & 0x0F;
 		}
 		int prevOut = out;
-		out = CLAP(DECODE_MIN, out + (diff * F1[val]) / 8, DECODE_MAX);
-		diff = CLAP(DMIN, (diff * F2[val]) / 64, DMAX);
+		out = Math::clipIntToShort(out + (diff * F1[val]) / 8);
+		diff = Math::clip<DMIN, DMAX>((diff * F2[val]) / 64);
 		int deltaNext = out - prevOut;
 		int nowLeveling = nextLeveling;
 		nextLeveling = prevOut + deltaNext / 2;

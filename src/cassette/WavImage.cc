@@ -3,6 +3,7 @@
 #include "WavImage.hh"
 #include "MSXException.hh"
 #include "File.hh"
+#include "Math.hh"
 #include <SDL.h>
 
 using std::string;
@@ -70,8 +71,7 @@ short WavImage::getSampleAt(const EmuTime& time)
 	        ? buffer[pos * 2] +
 	          (static_cast<signed char>(buffer[pos * 2 + 1]) << 8)
 	        : 0;
-	tmp -= average;
-	return tmp > 32767 ? 32767 : (tmp < -32768 ? -32768 : tmp);
+	return Math::clipIntToShort(tmp - average);
 }
 
 EmuTime WavImage::getEndTime() const
