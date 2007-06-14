@@ -9,11 +9,14 @@ Usage:
 }
 
 proc showdebuggable_line {debuggable address } {
-	set data ""
-	for {set i 0} {$i < 16} {incr i} {
-		set data "$data [format %02x [debug read $debuggable [expr $address+$i]]]"
+	set mem "[debug read_block $debuggable $address 16]"
+	binary scan $mem c* values
+	set hex ""
+	foreach val $values {
+		append hex "[format %02x [expr $val & 0xff]] "
 	}
-	return "[format %04x $address]:$data"
+	set asc [regsub -all {[^ !-~]} $mem {.}]
+	return "[format %04x $address]: $hex $asc"
 }
 
 proc showdebuggable {debuggable address {lines 8}} {
