@@ -1,6 +1,6 @@
 // $Id$
 
-#include "FDC_DirAsDSK.hh"
+#include "DirAsDSK.hh"
 #include "CliComm.hh"
 #include "BootBlocks.hh"
 #include "GlobalSettings.hh"
@@ -50,7 +50,7 @@ static unsigned getLE32(const byte* p)
 
 
 // read FAT-entry from FAT in memory
-word FDC_DirAsDSK::readFAT(word cluster)
+word DirAsDSK::readFAT(word cluster)
 {
 	const byte* p = fat + (cluster * 3) / 2;
 	return (cluster & 1)
@@ -59,7 +59,7 @@ word FDC_DirAsDSK::readFAT(word cluster)
 }
 
 // write an entry to FAT in memory
-void FDC_DirAsDSK::writeFAT(word cluster, word val)
+void DirAsDSK::writeFAT(word cluster, word val)
 {
 	byte* p = fat + (cluster * 3) / 2;
 	if (cluster & 1) {
@@ -71,7 +71,7 @@ void FDC_DirAsDSK::writeFAT(word cluster, word val)
 	}
 }
 
-int FDC_DirAsDSK::findFirstFreeCluster()
+int DirAsDSK::findFirstFreeCluster()
 {
 	int cluster = 2;
 	while ((cluster <= MAX_CLUSTER) && readFAT(cluster)) {
@@ -81,7 +81,7 @@ int FDC_DirAsDSK::findFirstFreeCluster()
 }
 
 // check if a filename is used in the emulated MSX disk
-bool FDC_DirAsDSK::checkMSXFileExists(const string& msxfilename)
+bool DirAsDSK::checkMSXFileExists(const string& msxfilename)
 {
 	for (int i = 0; i < 112; ++i) {
 		if (strncmp((const char*)(mapdir[i].msxinfo.filename),
@@ -93,7 +93,7 @@ bool FDC_DirAsDSK::checkMSXFileExists(const string& msxfilename)
 }
 
 // check if a file is already mapped into the fake DSK
-bool FDC_DirAsDSK::checkFileUsedInDSK(const string& fullfilename)
+bool DirAsDSK::checkFileUsedInDSK(const string& fullfilename)
 {
 	for (int i = 0; i < 112; ++i) {
 		if (mapdir[i].filename == fullfilename) {
@@ -121,7 +121,7 @@ static string makeSimpleMSXFileName(string filename)
 	return file + ext;
 }
 
-FDC_DirAsDSK::FDC_DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings,
+DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings,
                            const string& fileName)
 	: SectorBasedDisk(fileName)
 	, cliComm(cliComm_)
@@ -224,7 +224,7 @@ FDC_DirAsDSK::FDC_DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings,
 	}
 }
 
-FDC_DirAsDSK::~FDC_DirAsDSK()
+DirAsDSK::~DirAsDSK()
 {
 	// write cached sectors to a file
 	if (saveCachedSectors) {
@@ -253,7 +253,7 @@ FDC_DirAsDSK::~FDC_DirAsDSK()
 	}
 }
 
-void FDC_DirAsDSK::readLogicalSector(unsigned sector, byte* buf)
+void DirAsDSK::readLogicalSector(unsigned sector, byte* buf)
 {
 	if (sector == 0) {
 		//copy our fake bootsector into the buffer
@@ -312,7 +312,7 @@ void FDC_DirAsDSK::readLogicalSector(unsigned sector, byte* buf)
 	}
 }
 
-void FDC_DirAsDSK::checkAlterFileInDisk(const string& fullfilename)
+void DirAsDSK::checkAlterFileInDisk(const string& fullfilename)
 {
 	for (int i = 0; i < 112; ++i) {
 		if (mapdir[i].filename == fullfilename) {
@@ -321,7 +321,7 @@ void FDC_DirAsDSK::checkAlterFileInDisk(const string& fullfilename)
 	}
 }
 
-void FDC_DirAsDSK::checkAlterFileInDisk(int dirindex)
+void DirAsDSK::checkAlterFileInDisk(int dirindex)
 {
 	if (mapdir[dirindex].filename.empty()) {
 		return;
@@ -335,7 +335,7 @@ void FDC_DirAsDSK::checkAlterFileInDisk(int dirindex)
 	}
 }
 
-void FDC_DirAsDSK::updateFileInDisk(int dirindex)
+void DirAsDSK::updateFileInDisk(int dirindex)
 {
 	// compute time/date stamps
 	struct stat fst;
@@ -434,7 +434,7 @@ void FDC_DirAsDSK::updateFileInDisk(int dirindex)
 	setLE32(mapdir[dirindex].msxinfo.size, fsize - size);
 }
 
-void FDC_DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
+void DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 {
 	if (sector == 0) {
 		//copy buffer into our fake bootsector and safe into file
@@ -541,12 +541,12 @@ void FDC_DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 	}
 }
 
-bool FDC_DirAsDSK::writeProtected()
+bool DirAsDSK::writeProtected()
 {
 	return false;
 }
 
-void FDC_DirAsDSK::updateFileInDSK(const string& filename)
+void DirAsDSK::updateFileInDSK(const string& filename)
 {
 	string fullfilename = hostDir + '/' + filename;
 	struct stat fst;
@@ -570,7 +570,7 @@ void FDC_DirAsDSK::updateFileInDSK(const string& filename)
 	}
 }
 
-void FDC_DirAsDSK::addFileToDSK(const string& filename)
+void DirAsDSK::addFileToDSK(const string& filename)
 {
 	string fullfilename = hostDir + '/' + filename;
 	//get emtpy dir entry

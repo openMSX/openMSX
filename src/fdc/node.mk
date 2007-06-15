@@ -22,7 +22,7 @@ SRC_HDR:= \
 	DSKDiskImage \
 	XSADiskImage \
 	CRC16 \
-	FDC_DirAsDSK \
+	DirAsDSK \
 	EmptyDiskPatch \
 	RamDSKDiskImage \
 	MSXtar \

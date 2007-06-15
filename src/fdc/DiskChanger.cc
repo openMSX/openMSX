@@ -4,7 +4,7 @@
 #include "DummyDisk.hh"
 #include "RamDSKDiskImage.hh"
 #include "XSADiskImage.hh"
-#include "FDC_DirAsDSK.hh"
+#include "DirAsDSK.hh"
 #include "DSKDiskImage.hh"
 #include "CommandController.hh"
 #include "Command.hh"
@@ -150,7 +150,7 @@ void DiskChanger::insertDisk(const vector<TclObject*>& args)
 				//It is simply stat'ed, so even a directory name
 				//can be resolved and will be accepted as dsk name
 				// try to create fake DSK from a dir on host OS
-				newDisk.reset(new FDC_DirAsDSK(
+				newDisk.reset(new DirAsDSK(
 					cliComm, globalSettings, diskImage));
 			} catch (MSXException& e) {
 				// then try normal DSK
@@ -198,7 +198,7 @@ void DiskCommand::execute(const vector<TclObject*>& tokens, TclObject& result)
 		TclObject options(result.getInterpreter());
 		if (dynamic_cast<DummyDisk*>(diskChanger.disk.get())) {
 			options.addListElement("empty");
-		} else if (dynamic_cast<FDC_DirAsDSK*>(diskChanger.disk.get())) {
+		} else if (dynamic_cast<DirAsDSK*>(diskChanger.disk.get())) {
 			options.addListElement("dirasdisk");
 		} else if (dynamic_cast<RamDSKDiskImage*>(diskChanger.disk.get())) {
 			options.addListElement("ramdsk");

@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef FDC_DIRASDSK_HH
-#define FDC_DIRASDSK_HH
+#ifndef DIRASDSK_HH
+#define DIRASDSK_HH
 
 #include "SectorBasedDisk.hh"
 #include <map>
@@ -12,12 +12,12 @@ namespace openmsx {
 class CliComm;
 class GlobalSettings;
 
-class FDC_DirAsDSK : public SectorBasedDisk
+class DirAsDSK : public SectorBasedDisk
 {
 public:
-	FDC_DirAsDSK(CliComm& cliComm, GlobalSettings& globalSettings,
+	DirAsDSK(CliComm& cliComm, GlobalSettings& globalSettings,
 	             const std::string& fileName);
-	virtual ~FDC_DirAsDSK();
+	virtual ~DirAsDSK();
 
 private:
 	static const int SECTORS_PER_FAT = 3;
