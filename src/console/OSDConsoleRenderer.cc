@@ -5,6 +5,7 @@
 #include "EnumSetting.hh"
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
+#include "FilenameSetting.hh"
 #include "GlobalSettings.hh"
 #include "Display.hh"
 #include "Event.hh"
@@ -22,12 +23,24 @@ using std::string;
 
 namespace openmsx {
 
+class OSDSettingChecker : public SettingChecker<FilenameSetting::Policy>
+{
+public:
+	OSDSettingChecker(OSDConsoleRenderer& renderer);
+	virtual void check(SettingImpl<FilenameSetting::Policy>& setting,
+	                   std::string& value);
+private:
+	OSDConsoleRenderer& renderer;
+};
+
+
 // class OSDConsoleRenderer
 
 OSDConsoleRenderer::OSDConsoleRenderer(Reactor& reactor_)
 	: Layer(COVER_NONE, Z_CONSOLE)
 	, reactor(reactor_)
 	, consoleSetting(reactor.getGlobalSettings().getConsoleSetting())
+	, settingChecker(new OSDSettingChecker(*this))
 {
 	destX = destY = destW = destH = 0; // avoid UMR
 	font.reset(new DummyFont());
@@ -56,7 +69,7 @@ void OSDConsoleRenderer::initConsole()
 		"consolefont", "console font file",
 		"skins/ConsoleFontRaveLShaded.png"));
 	try {
-		fontSetting->setChecker(this);
+		fontSetting->setChecker(settingChecker.get());
 	} catch (MSXException& e) {
 		// we really need a font
 		throw FatalError(e.getMessage());
@@ -95,7 +108,7 @@ void OSDConsoleRenderer::initConsole()
 		"consolebackground", "console background file",
 		"skins/ConsoleBackgroundGrey.png"));
 	try {
-		backgroundSetting->setChecker(this);
+		backgroundSetting->setChecker(settingChecker.get());
 	} catch (MSXException& e) {
 		reactor.getGlobalCliComm().printWarning(e.getMessage());
 	}
@@ -217,19 +230,6 @@ bool OSDConsoleRenderer::updateConsoleRect()
 	return result;
 }
 
-void OSDConsoleRenderer::check(SettingImpl<FilenameSetting::Policy>& setting,
-                               string& value)
-{
-	SystemFileContext context;
-	string filename = value.empty() ? value : context.resolve(value);
-	if (&setting == backgroundSetting.get()) {
-		loadBackground(filename);
-	} else if (&setting == fontSetting.get()) {
-		loadFont(filename);
-	} else {
-		assert(false);
-	}
-}
 
 Display& OSDConsoleRenderer::getDisplay() const
 {
@@ -239,6 +239,28 @@ Display& OSDConsoleRenderer::getDisplay() const
 Console& OSDConsoleRenderer::getConsole() const
 {
 	return reactor.getCommandConsole();
+}
+
+
+// class OSDSettingChecker
+
+OSDSettingChecker::OSDSettingChecker(OSDConsoleRenderer& renderer_)
+	: renderer(renderer_)
+{
+}
+
+void OSDSettingChecker::check(SettingImpl<FilenameSetting::Policy>& setting,
+	                      string& value)
+{
+	SystemFileContext context;
+	string filename = value.empty() ? value : context.resolve(value);
+	if (&setting == renderer.backgroundSetting.get()) {
+		renderer.loadBackground(filename);
+	} else if (&setting == renderer.fontSetting.get()) {
+		renderer.loadFont(filename);
+	} else {
+		assert(false);
+	}
 }
 
 } // namespace openmsx

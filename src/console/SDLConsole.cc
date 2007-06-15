@@ -12,6 +12,7 @@
 #include "Console.hh"
 #include "File.hh"
 #include "Timer.hh"
+#include "MSXException.hh"
 #include <cassert>
 #include <SDL.h>
 

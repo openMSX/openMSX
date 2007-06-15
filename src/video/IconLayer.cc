@@ -5,6 +5,7 @@
 #include "Timer.hh"
 #include "SDLImage.hh"
 #include "IntegerSetting.hh"
+#include "FilenameSetting.hh"
 #include "CliComm.hh"
 #include "Display.hh"
 #include "IconStatus.hh"
@@ -19,6 +20,18 @@ using std::string;
 namespace openmsx {
 
 template <class IMAGE>
+class IconSettingChecker : public SettingChecker<FilenameSetting::Policy>
+{
+public:
+	IconSettingChecker(IconLayer<IMAGE>& iconLayer);
+	virtual void check(SettingImpl<FilenameSetting::Policy>& setting,
+	                   std::string& value);
+private:
+	IconLayer<IMAGE>& iconLayer;
+};
+
+
+template <class IMAGE>
 IconLayer<IMAGE>::IconLayer(CommandController& commandController,
                             Display& display_, IconStatus& iconStatus_,
                             SDL_Surface* screen)
@@ -28,6 +41,7 @@ IconLayer<IMAGE>::IconLayer(CommandController& commandController,
 	, iconStatus(iconStatus_)
 	, outputScreen(screen)
 	, scaleFactor(outputScreen->w / 640.0)
+	, iconSettingChecker(new IconSettingChecker<IMAGE>(*this))
 {
 	createSettings(commandController, LedEvent::POWER, "power");
 	createSettings(commandController, LedEvent::CAPS,  "caps");
@@ -65,7 +79,7 @@ void IconLayer<IMAGE>::createSettings(CommandController& commandController,
 			"completely opaque to completely transparent", 5000, 0, 1000000));
 
 		try {
-			ledInfo[led].name[i]->setChecker(this);
+			ledInfo[led].name[i]->setChecker(iconSettingChecker.get());
 		} catch (MSXException& e) {
 			commandController.getCliComm().printWarning(e.getMessage());
 		}
@@ -124,21 +138,30 @@ const string& IconLayer<IMAGE>::getName()
 	return NAME;
 }
 
+
+// class IconSettingChecker
+
 template <class IMAGE>
-void IconLayer<IMAGE>::check(SettingImpl<FilenameSetting::Policy>& setting,
-                             string& value)
+IconSettingChecker<IMAGE>::IconSettingChecker(IconLayer<IMAGE>& iconLayer_)
+	: iconLayer(iconLayer_)
+{
+}
+
+template <class IMAGE>
+void IconSettingChecker<IMAGE>::check(SettingImpl<FilenameSetting::Policy>& setting,
+                                      string& value)
 {
 	SystemFileContext context;
 	for (int i = 0; i < LedEvent::NUM_LEDS; ++i) {
 		for (int j = 0; j < 2; ++j) {
-			if (&setting == ledInfo[i].name[j].get()) {
+			if (&setting == iconLayer.ledInfo[i].name[j].get()) {
 				if (value.empty()) {
-					ledInfo[i].icon[j].reset();
+					iconLayer.ledInfo[i].icon[j].reset();
 				} else {
-					ledInfo[i].icon[j].reset(
-					    new IMAGE(outputScreen,
+					iconLayer.ledInfo[i].icon[j].reset(
+					    new IMAGE(iconLayer.outputScreen,
 					              context.resolve(value),
-					              scaleFactor));
+					              iconLayer.scaleFactor));
 				}
 				break;
 			}

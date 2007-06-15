@@ -5,7 +5,6 @@
 
 #include "Layer.hh"
 #include "LedEvent.hh"
-#include "FilenameSetting.hh"
 #include "noncopyable.hh"
 #include <memory>
 
@@ -17,10 +16,11 @@ class CommandController;
 class Display;
 class IconStatus;
 class IntegerSetting;
+class FilenameSetting;
+template <class IMAGE> class IconSettingChecker;
 
 template <class IMAGE>
-class IconLayer : public Layer, private SettingChecker<FilenameSetting::Policy>,
-                  private noncopyable
+class IconLayer : public Layer, private noncopyable
 {
 public:
 	IconLayer(CommandController& commandController,
@@ -36,14 +36,11 @@ private:
 	void createSettings(CommandController& commandController,
 	                    LedEvent::Led led, const std::string& name);
 
-	// SettingChecker
-	virtual void check(SettingImpl<FilenameSetting::Policy>& setting,
-	                   std::string& value);
-
 	Display& display;
 	IconStatus& iconStatus;
 	SDL_Surface* outputScreen;
 	double scaleFactor;
+        const std::auto_ptr<IconSettingChecker<IMAGE> > iconSettingChecker;
 
 	struct LedInfo {
 		std::auto_ptr<IntegerSetting> xcoord;
@@ -54,6 +51,8 @@ private:
 		std::auto_ptr<IMAGE> icon[2];
 	};
 	LedInfo ledInfo[LedEvent::NUM_LEDS];
+
+        friend class IconSettingChecker<IMAGE>;
 };
 
 class SDLImage;

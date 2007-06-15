@@ -4,7 +4,6 @@
 #define OSDCONSOLERENDERER_HH
 
 #include "Layer.hh"
-#include "FilenameSetting.hh"
 #include "Observer.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
@@ -16,13 +15,15 @@ namespace openmsx {
 class Reactor;
 class IntegerSetting;
 class Font;
+class Setting;
 class BooleanSetting;
+class FilenameSetting;
 class Display;
 class Console;
+class OSDSettingChecker;
 template <typename T> class EnumSetting;
 
 class OSDConsoleRenderer : public Layer, private Observer<Setting>,
-                           private SettingChecker<FilenameSetting::Policy>,
                            private noncopyable
 {
 public:
@@ -76,14 +77,13 @@ private:
 	void update(const Setting& setting);
 	void setActive(bool active);
 
-	// SettingChecker
-	virtual void check(SettingImpl<FilenameSetting::Policy>& setting,
-	                   std::string& value);
-
 	unsigned long long time;
 	Reactor& reactor;
 	BooleanSetting& consoleSetting;
 	bool active;
+        const std::auto_ptr<OSDSettingChecker> settingChecker;
+
+        friend class OSDSettingChecker;
 };
 
 } // namespace openmsx
