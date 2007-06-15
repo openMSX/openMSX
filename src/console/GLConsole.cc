@@ -4,6 +4,7 @@
 #include "GLFont.hh"
 #include "GLImage.hh"
 #include "Console.hh"
+#include "FilenameSetting.hh"
 #include "Timer.hh"
 #include <cassert>
 #include <SDL.h>

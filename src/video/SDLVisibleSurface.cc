@@ -7,6 +7,7 @@
 #include "SDLConsole.hh"
 #include "IconLayer.hh"
 #include <cstring>
+#include <cassert>
 
 namespace openmsx {
 

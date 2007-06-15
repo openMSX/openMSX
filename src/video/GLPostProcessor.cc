@@ -5,6 +5,7 @@
 #include "GLScalerFactory.hh"
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
+#include "EnumSetting.hh"
 #include "VisibleSurface.hh"
 #include "Math.hh"
 #include "MemoryOps.hh"
