@@ -182,56 +182,58 @@ void SCC::setChipMode(ChipMode newMode)
 	currentChipMode = newMode;
 }
 
-byte SCC::readMemInterface(byte address, const EmuTime& time)
+byte SCC::readMem(byte addr, const EmuTime& time)
+{
+        // Deform-register locations:
+        //   SCC_Real:       0xE0..0xFF
+        //   SCC_Compatible: 0xC0..0xDF
+        //   SCC_plusmode:   0xC0..0xDF
+        if (((currentChipMode == SCC_Real) && (addr >= 0xE0)) ||
+	    ((currentChipMode != SCC_Real) && (0xC0 <= addr) && (addr < 0xE0))) {
+	        setDeformReg(0xFF, time);
+        }
+        return peekMem(addr, time);
+}
+
+byte SCC::peekMem(byte address, const EmuTime& time) const
 {
 	byte result;
 	switch (currentChipMode) {
 	case SCC_Real:
 		if (address < 0x80) {
-			// read wave form 1..4
+			// 0x00..0x7F : read wave form 1..4
 			result = readWave(address >> 5, address, time);
-		} else if (address < 0xE0) {
+		} else {
 			// 0x80..0x9F : freq volume block, write only
 			// 0xA0..0xDF : no function
-			result = 0xFF;
-		} else {
-			// deformation register
-			setDeformReg(0xFF, time);
+			// 0xE0..0xFF : deformation register
 			result = 0xFF;
 		}
 		break;
 	case SCC_Compatible:
 		if (address < 0x80) {
-			// read wave form 1..4
+			// 0x00..0x7F : read wave form 1..4
 			result = readWave(address >> 5, address, time);
 		} else if (address < 0xA0) {
-			// freq volume block
+			// 0x80..0x9F : freq volume block
 			result = 0xFF;
 		} else if (address < 0xC0) {
-			// read wave form 5
+			// 0xA0..0xBF : read wave form 5
 			result = readWave(4, address, time);
-		} else if (address < 0xE0) {
-			// deformation register
-			setDeformReg(0xFF, time);
-			result = 0xFF;
 		} else {
-			// no function
+			// 0xC0..0xDF : deformation register
+			// 0xE0..0xFF : no function
 			result = 0xFF;
 		}
 		break;
 	case SCC_plusmode:
 		if (address < 0xA0) {
-			// read wave form 1..5
+			// 0x00..0x9F : read wave form 1..5
 			result = readWave(address >> 5, address, time);
-		} else if (address < 0xC0) {
-			// freq volume block
-			result = 0xFF;
-		} else if (address < 0xE0) {
-			// deformation register
-			setDeformReg(0xFF, time);
-			result = 0xFF;
 		} else {
-			// no function
+			// 0xA0..0xBF : freq volume block
+			// 0xC0..0xDF : deformation register
+			// 0xE0..0xFF : no function
 			result = 0xFF;
 		}
 		break;
@@ -243,7 +245,7 @@ byte SCC::readMemInterface(byte address, const EmuTime& time)
 	return result;
 }
 
-byte SCC::readWave(byte channel, byte address, const EmuTime& time)
+byte SCC::readWave(byte channel, byte address, const EmuTime& time) const
 {
 	if (!rotate[channel]) {
 		return wave[channel][address & 0x1F];
@@ -258,7 +260,7 @@ byte SCC::readWave(byte channel, byte address, const EmuTime& time)
 }
 
 
-byte SCC::getFreqVol(byte address)
+byte SCC::getFreqVol(byte address) const
 {
 	address &= 0x0F;
 	if (address < 0x0A) {
@@ -278,53 +280,53 @@ byte SCC::getFreqVol(byte address)
 	}
 }
 
-void SCC::writeMemInterface(byte address, byte value, const EmuTime& time)
+void SCC::writeMem(byte address, byte value, const EmuTime& time)
 {
 	updateStream(time);
 
 	switch (currentChipMode) {
 	case SCC_Real:
 		if (address < 0x80) {
-			// write wave form 1..4
+			// 0x00..0x7F : write wave form 1..4
 			writeWave(address >> 5, address, value);
 		} else if (address < 0xA0) {
-			// freq volume block
+			// 0x80..0x9F : freq volume block
 			setFreqVol(address, value);
 		} else if (address < 0xE0) {
-			// no function
+			// 0xA0..0xDF : no function
 		} else {
-			// deformation register
+			// 0xE0..0xFF : deformation register
 			setDeformReg(value, time);
 		}
 		break;
 	case SCC_Compatible:
 		if (address < 0x80) {
-			// write wave form 1..4
+			// 0x00..0x7F : write wave form 1..4
 			writeWave(address >> 5, address, value);
 		} else if (address < 0xA0) {
-			// freq volume block
+			// 0x80..0x9F : freq volume block
 			setFreqVol(address, value);
 		} else if (address < 0xC0) {
-			// ignore write wave form 5
+			// 0xA0..0xBF : ignore write wave form 5
 		} else if (address < 0xE0) {
-			// deformation register
+			// 0xC0..0xDF : deformation register
 			setDeformReg(value, time);
 		} else {
-			// no function
+			// 0xE0..0xFF : no function
 		}
 		break;
 	case SCC_plusmode:
 		if (address < 0xA0) {
-			// write wave form 1..5
+			// 0x00..0x9F : write wave form 1..5
 			writeWave(address >> 5, address, value);
 		} else if (address < 0xC0) {
-			// freq volume block
+			// 0xA0..0xBF : freq volume block
 			setFreqVol(address, value);
 		} else if (address < 0xE0) {
-			// deformation register
+			// 0xC0..0xDF : deformation register
 			setDeformReg(value, time);
 		} else {
-			// no function
+			// 0xE0..0xFF : no function
 		}
 		break;
 	default:
@@ -406,40 +408,40 @@ void SCC::setDeformReg(byte value, const EmuTime& time)
 		value &= ~0x80;
 	}
 	switch (value & 0xC0) {
-		case 0x00:
-			for (unsigned i = 0; i < 5; ++i) {
-				rotate[i] = false;
-				readOnly[i] = false;
-			}
-			break;
-		case 0x40:
-			for (unsigned i = 0; i < 5; ++i) {
-				rotate[i] = true;
-				readOnly[i] = true;
-			}
-			break;
-		case 0x80:
-			for (unsigned i = 0; i < 3; ++i) {
-				rotate[i] = false;
-				readOnly[i] = false;
-			}
-			for (unsigned i = 3; i < 5; ++i) {
-				rotate[i] = true;
-				readOnly[i] = true;
-			}
-			break;
-		case 0xC0:
-			for (unsigned i = 0; i < 3; ++i) {
-				rotate[i] = true;
-				readOnly[i] = true;
-			}
-			for (unsigned i = 3; i < 5; ++i) {
-				rotate[i] = false;
-				readOnly[i] = true;
-			}
-			break;
-		default:
-			assert(false);
+        case 0x00:
+                for (unsigned i = 0; i < 5; ++i) {
+                        rotate[i] = false;
+                        readOnly[i] = false;
+                }
+                break;
+        case 0x40:
+                for (unsigned i = 0; i < 5; ++i) {
+                        rotate[i] = true;
+                        readOnly[i] = true;
+                }
+                break;
+        case 0x80:
+                for (unsigned i = 0; i < 3; ++i) {
+                        rotate[i] = false;
+                        readOnly[i] = false;
+                }
+                for (unsigned i = 3; i < 5; ++i) {
+                        rotate[i] = true;
+                        readOnly[i] = true;
+                }
+                break;
+        case 0xC0:
+                for (unsigned i = 0; i < 3; ++i) {
+                        rotate[i] = true;
+                        readOnly[i] = true;
+                }
+                for (unsigned i = 3; i < 5; ++i) {
+                        rotate[i] = false;
+                        readOnly[i] = true;
+                }
+                break;
+        default:
+                assert(false);
 	}
 }
 

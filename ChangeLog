@@ -1,6 +1,13 @@
 $Id$
 
 2007-06-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed bug in SCC peek:
+	   - peek of deform register also triggered a reset of that
+	     register (like a regular read does)
+	* Implemented peekMem() for ESE_SCC / MSXSCCPlusCart
+	* Implemented read/write cache line stuff for ESE_SCC
+
+2007-06-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added (optimized) clipping routines in Math.hh and use them
 	  in several places:
 	   - idea for int->short clipping is taken from Blip_Buffer

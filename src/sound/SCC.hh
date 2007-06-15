@@ -26,8 +26,9 @@ public:
 
 	// interaction with realCartridge
 	void reset(const EmuTime& time);
-	byte readMemInterface(byte address,const EmuTime& time);
-	void writeMemInterface(byte address, byte value, const EmuTime& time);
+	byte readMem(byte address,const EmuTime& time);
+	byte peekMem(byte address,const EmuTime& time) const;
+	void writeMem(byte address, byte value, const EmuTime& time);
 	void setChipMode(ChipMode newMode);
 
 private:
@@ -41,11 +42,11 @@ private:
 	virtual bool generateInput(int* buffer, unsigned num);
 
 	inline int adjust(signed char wav, byte vol);
-	byte readWave(byte channel, byte address, const EmuTime& time);
+	byte readWave(byte channel, byte address, const EmuTime& time) const;
 	void writeWave(byte channel, byte offset, byte value);
 	void setDeformReg(byte value, const EmuTime& time);
 	void setFreqVol(byte address, byte value);
-	byte getFreqVol(byte address);
+	byte getFreqVol(byte address) const;
 
 	static const int CLOCK_FREQ = 3579545;
 

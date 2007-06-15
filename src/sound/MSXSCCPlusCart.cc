@@ -80,24 +80,34 @@ void MSXSCCPlusCart::reset(const EmuTime& time)
 }
 
 
-byte MSXSCCPlusCart::readMem(word address, const EmuTime& time)
+byte MSXSCCPlusCart::readMem(word addr, const EmuTime& time)
 {
 	byte result;
+	if (((enable == EN_SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
+	    ((enable == EN_SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
+                result = scc->readMem(addr & 0xFF, time);
+        } else {
+                result = peekMem(addr, time);
+        }
+	//PRT_DEBUG("SCC+ read "<< hex << (int)addr << " " << (int)result << dec);
+	return result;
+}
+
+byte MSXSCCPlusCart::peekMem(word addr, const EmuTime& time) const
+{
 	// modeRegister can not be read!
-	if (((enable == EN_SCC)     && (0x9800 <= address) && (address < 0xA000)) ||
-	    ((enable == EN_SCCPLUS) && (0xB800 <= address) && (address < 0xC000))) {
+	if (((enable == EN_SCC)     && (0x9800 <= addr) && (addr < 0xA000)) ||
+	    ((enable == EN_SCCPLUS) && (0xB800 <= addr) && (addr < 0xC000))) {
 		// SCC  visible in 0x9800 - 0x9FFF
 		// SCC+ visible in 0xB800 - 0xBFFF
-		result = scc->readMemInterface(address & 0xFF, time);
-	} else if ((0x4000 <= address) && (address < 0xC000)) {
+		return scc->peekMem(addr & 0xFF, time);
+	} else if ((0x4000 <= addr) && (addr < 0xC000)) {
 		// SCC(+) enabled/disabled but not requested so memory stuff
-		result = internalMemoryBank[(address >> 13) - 2][address & 0x1FFF];
+		return internalMemoryBank[(addr >> 13) - 2][addr & 0x1FFF];
 	} else {
 		// outside memory range
-		result = 0xFF;
+		return 0xFF;
 	}
-	//PRT_DEBUG("SCC+ read "<< hex << (int)address << " " << (int)result << dec);
-	return result;
 }
 
 const byte* MSXSCCPlusCart::getReadCacheLine(word start) const
@@ -166,12 +176,12 @@ void MSXSCCPlusCart::writeMem(word address, byte value, const EmuTime& time)
 		break;
 	case EN_SCC:
 		if ((0x9800 <= address) && (address < 0xA000)) {
-			scc->writeMemInterface(address & 0xFF, value, time);
+			scc->writeMem(address & 0xFF, value, time);
 		}
 		break;
 	case EN_SCCPLUS:
 		if ((0xB800 <= address) && (address < 0xC000)) {
-			scc->writeMemInterface(address & 0xFF, value, time);
+			scc->writeMem(address & 0xFF, value, time);
 		}
 		break;
 	}

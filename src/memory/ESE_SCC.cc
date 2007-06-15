@@ -119,7 +119,11 @@ void ESE_SCC::setMapperLow(unsigned page, byte value)
 		// TODO take mapperHigh into account?
 		sccEnable = (value == 0x3f);
 	}
-	mapper[page] = (value | mapperHigh) & mapperMask;
+	byte newValue = (value | mapperHigh) & mapperMask;
+        if (mapper[page] != newValue) {
+                mapper[page] = newValue;
+                cpu.invalidateMemCache(0x4000 + 0x2000 * page, 0x2000);
+        }
 }
 
 void ESE_SCC::setMapperHigh(byte value)
@@ -133,7 +137,11 @@ void ESE_SCC::setMapperHigh(byte value)
 	spcEnable = mapperHigh && !writeEnable;
 
 	for (int i = 0; i < 4; ++i) {
-		mapper[i] = ((mapper[i] & 0x3F) | mapperHigh) & mapperMask;
+		byte newValue = ((mapper[i] & 0x3F) | mapperHigh) & mapperMask;
+		if (mapper[i] != newValue) {
+		        mapper[i] = newValue;
+                        cpu.invalidateMemCache(0x4000 + 0x2000 * i, 0x2000);
+                }
 	}
 }
 
@@ -151,18 +159,45 @@ byte ESE_SCC::readMem(word address, const EmuTime& time)
 	}
 	// SCC bank
 	if (sccEnable && (address >= 0x9800) && (address < 0xa000)) {
-		return scc->readMemInterface(address & 0xff, time);
+		return scc->readMem(address & 0xff, time);
 	}
 	// SRAM read
 	return (*sram)[mapper[page] * 0x2000 + (address & 0x1fff)];
 }
 
-// TODO peekMem()
+byte ESE_SCC::peekMem(word address, const EmuTime& time) const
+{
+	unsigned page = address / 0x2000 - 2;
+	// SPC
+	if (spcEnable && (page == 0)) {
+		address &= 0x1fff;
+		if (address < 0x1000) {
+			return spc->peekDREG();
+		} else {
+			return spc->peekRegister(address & 0x0f);
+		}
+	}
+	// SCC bank
+	if (sccEnable && (address >= 0x9800) && (address < 0xa000)) {
+		return scc->peekMem(address & 0xff, time);
+	}
+	// SRAM read
+	return (*sram)[mapper[page] * 0x2000 + (address & 0x1fff)];
+}
 
 const byte* ESE_SCC::getReadCacheLine(word address) const
 {
-	// TODO
-	return NULL;
+	unsigned page = address / 0x2000 - 2;
+	// SPC
+	if (spcEnable && (page == 0)) {
+                return NULL;
+	}
+	// SCC bank
+	if (sccEnable && (address >= 0x9800) && (address < 0xa000)) {
+                return NULL;
+	}
+	// SRAM read
+	return &(*sram)[mapper[page] * 0x2000 + (address & 0x1fff)];
 }
 
 void ESE_SCC::writeMem(word address, byte value, const EmuTime& time)
@@ -181,7 +216,7 @@ void ESE_SCC::writeMem(word address, byte value, const EmuTime& time)
 
 	// SCC write
 	if (sccEnable && (0x9800 <= address) && (address < 0xa000)) {
-		scc->writeMemInterface(address & 0xff, value, time);
+		scc->writeMem(address & 0xff, value, time);
 		return;
 	}
 
@@ -204,10 +239,9 @@ void ESE_SCC::writeMem(word address, byte value, const EmuTime& time)
 	}
 }
 
-byte* ESE_SCC::getWriteCacheLine(word address) const
+byte* ESE_SCC::getWriteCacheLine(word /*address*/) const
 {
-	// TODO
-	return NULL;
+	return NULL; // not cacheable
 }
 
 } // namespace openmsx
