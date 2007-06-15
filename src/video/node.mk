@@ -44,7 +44,8 @@ HDR_ONLY:= \
 	Rasterizer \
 	HQCommon \
 	VideoSystemChangeListener \
-	LayerListener
+	LayerListener \
+	VideoSource
 
 DIST:= \
 	HQ2xScaler-1x1to2x2.nn \

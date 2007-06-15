@@ -18,7 +18,8 @@ VideoLayer::VideoLayer(VideoSource videoSource_,
 	, display(display_)
 	, renderSettings(display.getRenderSettings())
 	, videoSourceSetting(renderSettings.getVideoSource())
-	, videoSourceActivator(videoSourceSetting, videoSource)
+	, videoSourceActivator(new VideoSourceActivator(
+              videoSourceSetting, videoSource))
 	, powerSetting(commandController.getGlobalSettings().getPowerSetting())
 {
 	setCoverage(getCoverage());

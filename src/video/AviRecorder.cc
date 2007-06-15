@@ -6,13 +6,16 @@
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
 #include "Command.hh"
+#include "CommandException.hh"
 #include "Display.hh"
 #include "RenderSettings.hh"
+#include "VideoSourceSetting.hh"
 #include "PostProcessor.hh"
 #include "MSXMixer.hh"
 #include "Scheduler.hh"
 #include "GlobalCliComm.hh"
 #include "FileOperations.hh"
+#include "StringOp.hh"
 #include <cassert>
 
 using std::string;

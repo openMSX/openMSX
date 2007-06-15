@@ -6,6 +6,7 @@
 #include "ScalerFactory.hh"
 #include "IntegerSetting.hh"
 #include "FloatSetting.hh"
+#include "EnumSetting.hh"
 #include "VisibleSurface.hh"
 #include "HostCPU.hh"
 #include "Math.hh"

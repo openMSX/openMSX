@@ -4,7 +4,7 @@
 #define FINISHFRAMEEVENT_HH
 
 #include "Event.hh"
-#include "VideoSourceSetting.hh"
+#include "VideoSource.hh"
 
 namespace openmsx {
 

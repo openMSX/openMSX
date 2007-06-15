@@ -4,16 +4,20 @@
 #define VIDEOLAYER_HH
 
 #include "Layer.hh"
+#include "VideoSource.hh"
 #include "Observer.hh"
-#include "VideoSourceSetting.hh"
 #include "noncopyable.hh"
+#include <memory>
 
 namespace openmsx {
 
 class CommandController;
 class RenderSettings;
 class Display;
+class Setting;
 class BooleanSetting;
+class VideoSourceSetting;
+class VideoSourceActivator;
 
 class VideoLayer: public Layer, protected Observer<Setting>, private noncopyable
 {
@@ -43,7 +47,7 @@ private:
 	/** Reference to "videosource" setting. */
 	VideoSourceSetting& videoSourceSetting;
 	/** Activate the videosource */
-	VideoSourceActivator videoSourceActivator;
+	const std::auto_ptr<VideoSourceActivator> videoSourceActivator;
 	/** Reference to "power" setting. */
 	BooleanSetting& powerSetting;
 };

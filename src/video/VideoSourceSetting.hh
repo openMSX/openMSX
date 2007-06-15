@@ -3,15 +3,11 @@
 #ifndef VIDEOSOURCESETTING_HH
 #define VIDEOSOURCESETTING_HH
 
+#include "VideoSource.hh"
 #include "EnumSetting.hh"
 #include <set>
 
 namespace openmsx {
-
-/** Video sources: devices which produce a video stream.
-  */
-enum VideoSource { VIDEO_MSX, VIDEO_GFX9000 };
-
 
 class VideoSourceSettingPolicy : public EnumSettingPolicy<VideoSource>
 {
