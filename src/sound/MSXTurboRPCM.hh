@@ -5,15 +5,15 @@
 
 #include "MSXDevice.hh"
 #include "Clock.hh"
-#include "AudioInputConnector.hh"
 #include <memory>
 
 namespace openmsx {
 
 class MSXMixer;
+class AudioInputConnector;
 class DACSound8U;
 
-class MSXTurboRPCM : public MSXDevice, private AudioInputConnector
+class MSXTurboRPCM : public MSXDevice
 {
 public:
 	MSXTurboRPCM(MSXMotherBoard& motherBoard, const XMLElement& config,
@@ -31,7 +31,8 @@ private:
 	void hardwareMute(bool mute);
 
 	MSXMixer& mixer;
-	std::auto_ptr<DACSound8U> dac;
+        const std::auto_ptr<AudioInputConnector> connector;
+	const std::auto_ptr<DACSound8U> dac;
 	Clock<15750> reference;
 	byte DValue;
 	byte status;

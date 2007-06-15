@@ -54,7 +54,7 @@ public:
 	/**
 	 * Returns the Pluggable currently plugged in.
 	 */
-	virtual Pluggable& getPlugged() const = 0;
+	virtual Pluggable& getPlugged() const;
 
 protected:
 	/**

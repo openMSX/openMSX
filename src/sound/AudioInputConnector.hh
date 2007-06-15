@@ -4,7 +4,6 @@
 #define AUDIOINPUTCONNECTOR_HH
 
 #include "Connector.hh"
-#include "AudioInputDevice.hh"
 
 namespace openmsx {
 
@@ -20,7 +19,6 @@ public:
 	// Connector
 	virtual const std::string& getDescription() const;
 	virtual const std::string& getClass() const;
-	virtual AudioInputDevice& getPlugged() const;
 
 	short readSample(const EmuTime& time) const;
 

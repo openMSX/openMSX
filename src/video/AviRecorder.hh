@@ -3,7 +3,6 @@
 #ifndef AVIRECORDER_HH
 #define AVIRECORDER_HH
 
-#include "Command.hh"
 #include "EmuTime.hh"
 #include <string>
 #include <vector>
@@ -18,8 +17,9 @@ class WavWriter;
 class PostProcessor;
 class MSXMixer;
 class Scheduler;
+class RecordCommand;
 
-class AviRecorder : private SimpleCommand
+class AviRecorder
 {
 public:
 	AviRecorder(Reactor& reactor);
@@ -33,15 +33,12 @@ private:
 	void start(bool recordAudio, bool recordVideo,
 	           const std::string& filename);
 
-	virtual std::string execute(const std::vector<std::string>& tokens);
-	virtual std::string help(const std::vector<std::string>& tokens) const;
-	virtual void tabCompletion(std::vector<std::string>& tokens) const;
-
 	std::string processStart(const std::vector<std::string>& tokens);
 	std::string processStop(const std::vector<std::string>& tokens);
 	std::string processToggle(const std::vector<std::string>& tokens);
 
 	Reactor& reactor;
+        const std::auto_ptr<RecordCommand> recordCommand;
 	std::vector<short> audioBuf;
 	std::auto_ptr<AviWriter> aviWriter;
 	std::auto_ptr<WavWriter> wavWriter;
@@ -55,6 +52,8 @@ private:
 	EmuTime prevTime;
 	bool warnedFps;
 	bool warnedSampleRate;
+
+        friend class RecordCommand;
 };
 
 } // namespace openmsx

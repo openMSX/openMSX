@@ -5,6 +5,7 @@
 #include "WavWriter.hh"
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
+#include "Command.hh"
 #include "Display.hh"
 #include "RenderSettings.hh"
 #include "PostProcessor.hh"
@@ -19,9 +20,21 @@ using std::vector;
 
 namespace openmsx {
 
+class RecordCommand : public SimpleCommand
+{
+public:
+        RecordCommand(CommandController& commandController, AviRecorder& recorder);
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
+private:
+        AviRecorder& recorder;
+};
+
+
 AviRecorder::AviRecorder(Reactor& reactor_)
-	: SimpleCommand(reactor_.getCommandController(), "record")
-	, reactor(reactor_)
+	: reactor(reactor_)
+	, recordCommand(new RecordCommand(reactor.getCommandController(), *this))
 	, postProcessor1(0)
 	, postProcessor2(0)
 	, mixer(0)
@@ -150,21 +163,6 @@ void AviRecorder::addImage(const void** lines, const EmuTime& time)
 }
 
 
-string AviRecorder::execute(const vector<string>& tokens)
-{
-	if (tokens.size() < 2) {
-		throw CommandException("Missing argument");
-	}
-	if (tokens[1] == "start") {
-		return processStart(tokens);
-	} else if (tokens[1] == "stop") {
-		return processStop(tokens);
-	} else if (tokens[1] == "toggle") {
-		return processToggle(tokens);
-	}
-	throw SyntaxError();
-}
-
 string AviRecorder::processStart(const vector<string>& tokens)
 {
 	string filename;
@@ -244,7 +242,32 @@ string AviRecorder::processToggle(const vector<string>& tokens)
 	}
 }
 
-string AviRecorder::help(const vector<string>& /*tokens*/) const
+
+// class RecordCommand
+
+RecordCommand::RecordCommand(CommandController& commandController,
+                             AviRecorder& recorder_)
+        : SimpleCommand(commandController, "record")
+        , recorder(recorder_)
+{
+}
+
+string RecordCommand::execute(const vector<string>& tokens)
+{
+	if (tokens.size() < 2) {
+		throw CommandException("Missing argument");
+	}
+	if (tokens[1] == "start") {
+		return recorder.processStart(tokens);
+	} else if (tokens[1] == "stop") {
+		return recorder.processStop(tokens);
+	} else if (tokens[1] == "toggle") {
+		return recorder.processToggle(tokens);
+	}
+	throw SyntaxError();
+}
+
+string RecordCommand::help(const vector<string>& /*tokens*/) const
 {
 	return "Controls video recording: write openmsx audio/video to a .avi file.\n"
 	       "record start              Record to file 'openmsxNNNN.avi'\n"
@@ -256,7 +279,7 @@ string AviRecorder::help(const vector<string>& /*tokens*/) const
 	       "The start subcommand also accepts an optional -audioonly or -videoonly flag.\n";
 }
 
-void AviRecorder::tabCompletion(vector<string>& tokens) const
+void RecordCommand::tabCompletion(vector<string>& tokens) const
 {
 	if (tokens.size() == 2) {
 		const char* const str[3] = { "start", "stop", "toggle" };

@@ -2,6 +2,7 @@
 
 #include "MSXTurboRPCM.hh"
 #include "MSXMotherBoard.hh"
+#include "AudioInputConnector.hh"
 #include "DACSound8U.hh"
 #include "MSXMixer.hh"
 
@@ -10,8 +11,9 @@ namespace openmsx {
 MSXTurboRPCM::MSXTurboRPCM(MSXMotherBoard& motherBoard,
                            const XMLElement& config, const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
-	, AudioInputConnector(motherBoard.getPluggingController(), "pcminput")
 	, mixer(motherBoard.getMSXMixer())
+	, connector(new AudioInputConnector(
+              motherBoard.getPluggingController(), "pcminput"))
 	, dac(new DACSound8U(mixer, "PCM", "Turbo-R PCM", config, time))
 	, reference(time)
 	, hwMute(false)
@@ -110,7 +112,7 @@ byte MSXTurboRPCM::getSample(const EmuTime& time) const
 {
 	byte result;
 	if (status & 0x04) {
-		result = (readSample(time) / 256) + 0x80;
+		result = (connector->readSample(time) / 256) + 0x80;
 	} else {
 		result = 0x80;	// TODO check
 	}

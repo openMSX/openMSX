@@ -6,6 +6,7 @@
 #include "Scheduler.hh"
 #include "Schedulable.hh"
 #include "EventDistributor.hh"
+#include "Event.hh"
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
 #include "CommandException.hh"
@@ -153,6 +154,16 @@ AfterCommand::~AfterCommand()
 		OPENMSX_KEY_UP_EVENT, *this);
 }
 
+template<EventType T>
+static string afterEvent(const vector<string>& tokens, AfterCommand& after)
+{
+	if (tokens.size() != 3) {
+		throw SyntaxError();
+	}
+	AfterEventCmd<T>* cmd = new AfterEventCmd<T>(after, tokens[1], tokens[2]);
+	return cmd->getId();
+}
+
 string AfterCommand::execute(const vector<string>& tokens)
 {
 	if (tokens.size() < 2) {
@@ -163,13 +174,13 @@ string AfterCommand::execute(const vector<string>& tokens)
 	} else if (tokens[1] == "idle") {
 		return afterIdle(tokens);
 	} else if (tokens[1] == "frame") {
-		return afterEvent<OPENMSX_FINISH_FRAME_EVENT>(tokens);
+		return afterEvent<OPENMSX_FINISH_FRAME_EVENT>(tokens, *this);
 	} else if (tokens[1] == "break") {
-		return afterEvent<OPENMSX_BREAK_EVENT>(tokens);
+		return afterEvent<OPENMSX_BREAK_EVENT>(tokens, *this);
 	} else if (tokens[1] == "boot") {
-		return afterEvent<OPENMSX_BOOT_EVENT>(tokens);
+		return afterEvent<OPENMSX_BOOT_EVENT>(tokens, *this);
 	} else if (tokens[1] == "machine_switch") {
-		return afterEvent<OPENMSX_MACHINE_LOADED_EVENT>(tokens);
+		return afterEvent<OPENMSX_MACHINE_LOADED_EVENT>(tokens, *this);
 	} else if (tokens[1] == "info") {
 		return afterInfo(tokens);
 	} else if (tokens[1] == "cancel") {
@@ -217,16 +228,6 @@ string AfterCommand::afterIdle(const vector<string>& tokens)
 	double time = getTime(tokens[2]);
 	AfterIdleCmd* cmd = new AfterIdleCmd(
 		motherBoard->getScheduler(), *this, tokens[3], time);
-	return cmd->getId();
-}
-
-template<EventType T>
-string AfterCommand::afterEvent(const vector<string>& tokens)
-{
-	if (tokens.size() != 3) {
-		throw SyntaxError();
-	}
-	AfterEventCmd<T>* cmd = new AfterEventCmd<T>(*this, tokens[1], tokens[2]);
 	return cmd->getId();
 }
 
@@ -290,32 +291,11 @@ void AfterCommand::tabCompletion(vector<string>& tokens) const
 	// TODO : make more complete
 }
 
-
-bool AfterCommand::signalEvent(shared_ptr<const Event> event)
-{
-	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
-		executeEvents<OPENMSX_FINISH_FRAME_EVENT>();
-	} else if (event->getType() == OPENMSX_BREAK_EVENT) {
-		executeEvents<OPENMSX_BREAK_EVENT>();
-	} else if (event->getType() == OPENMSX_BOOT_EVENT) {
-		executeEvents<OPENMSX_BOOT_EVENT>();
-	} else if (event->getType() == OPENMSX_MACHINE_LOADED_EVENT) {
-		executeEvents<OPENMSX_MACHINE_LOADED_EVENT>();
-	} else {
-		for (AfterCmdMap::const_iterator it = afterCmds.begin();
-		     it != afterCmds.end(); ++it) {
-			if (dynamic_cast<AfterIdleCmd*>(it->second)) {
-				static_cast<AfterIdleCmd*>(it->second)->reschedule();
-			}
-		}
-	}
-	return true;
-}
-
-template<EventType T> void AfterCommand::executeEvents()
+template<EventType T> static void executeEvents(
+    const AfterCommand::AfterCmdMap& afterCmds)
 {
 	vector<AfterCmd*> tmp; // make copy because map will change
-	for (AfterCmdMap::const_iterator it = afterCmds.begin();
+	for (AfterCommand::AfterCmdMap::const_iterator it = afterCmds.begin();
 	     it != afterCmds.end(); ++it) {
 		if (dynamic_cast<AfterEventCmd<T>*>(it->second)) {
 			tmp.push_back(it->second);
@@ -325,6 +305,28 @@ template<EventType T> void AfterCommand::executeEvents()
 	     it != tmp.end(); ++it) {
 		(*it)->execute();
 	}
+}
+
+
+bool AfterCommand::signalEvent(shared_ptr<const Event> event)
+{
+	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
+		executeEvents<OPENMSX_FINISH_FRAME_EVENT>(afterCmds);
+	} else if (event->getType() == OPENMSX_BREAK_EVENT) {
+		executeEvents<OPENMSX_BREAK_EVENT>(afterCmds);
+	} else if (event->getType() == OPENMSX_BOOT_EVENT) {
+		executeEvents<OPENMSX_BOOT_EVENT>(afterCmds);
+	} else if (event->getType() == OPENMSX_MACHINE_LOADED_EVENT) {
+		executeEvents<OPENMSX_MACHINE_LOADED_EVENT>(afterCmds);
+	} else {
+		for (AfterCmdMap::const_iterator it = afterCmds.begin();
+		     it != afterCmds.end(); ++it) {
+			if (dynamic_cast<AfterIdleCmd*>(it->second)) {
+				static_cast<AfterIdleCmd*>(it->second)->reschedule();
+			}
+		}
+	}
+	return true;
 }
 
 

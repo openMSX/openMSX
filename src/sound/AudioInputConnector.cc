@@ -3,6 +3,7 @@
 #include "AudioInputConnector.hh"
 #include "DummyAudioInputDevice.hh"
 #include "PluggingController.hh"
+#include "AudioInputDevice.hh"
 
 namespace openmsx {
 
@@ -31,14 +32,9 @@ const std::string& AudioInputConnector::getClass() const
 	return className;
 }
 
-AudioInputDevice& AudioInputConnector::getPlugged() const
-{
-	return static_cast<AudioInputDevice&>(*plugged);
-}
-
 short AudioInputConnector::readSample(const EmuTime& time) const
 {
-	return getPlugged().readSample(time);
+	return static_cast<AudioInputDevice&>(getPlugged()).readSample(time);
 }
 
 } // namespace openmsx

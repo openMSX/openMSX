@@ -5,7 +5,6 @@
 
 #include "Command.hh"
 #include "EventListener.hh"
-#include "Event.hh"
 #include <map>
 
 namespace openmsx {
@@ -14,11 +13,14 @@ class Reactor;
 class EventDistributor;
 class CommandController;
 class AfterCmd;
+class Event;
 
 class AfterCommand : public SimpleCommand, private EventListener
 {
 public:
-	AfterCommand(Reactor& reactor,
+	typedef std::map<std::string, AfterCmd*> AfterCmdMap;
+
+        AfterCommand(Reactor& reactor,
 	             EventDistributor& eventDistributor,
 	             CommandController& commandController);
 	virtual ~AfterCommand();
@@ -32,16 +34,11 @@ private:
 	std::string afterIdle(const std::vector<std::string>& tokens);
 	std::string afterInfo(const std::vector<std::string>& tokens);
 	std::string afterCancel(const std::vector<std::string>& tokens);
-	template<EventType T> std::string afterEvent(
-		const std::vector<std::string>& tokens);
-	template<EventType T> void executeEvents();
 
 	// EventListener
 	virtual bool signalEvent(shared_ptr<const Event> event);
 
-	typedef std::map<std::string, AfterCmd*> AfterCmdMap;
 	AfterCmdMap afterCmds;
-
 	Reactor& reactor;
 	EventDistributor& eventDistributor;
 
