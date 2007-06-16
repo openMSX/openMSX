@@ -24,6 +24,7 @@ BUILD_DIR:=$(BUILD_PATH)/build
 INSTALL_DIR:=$(BUILD_PATH)/install
 
 # Download locations for package sources.
+DOWNLOAD_ZLIB:=http://downloads.sourceforge.net/libpng
 DOWNLOAD_PNG:=http://downloads.sourceforge.net/libpng
 DOWNLOAD_SDL:=http://www.libsdl.org/release
 DOWNLOAD_SDL_IMAGE:=http://www.libsdl.org/projects/SDL_image/release
@@ -31,20 +32,25 @@ DOWNLOAD_GLEW:=http://downloads.sourceforge.net/glew
 
 # These were the most recent versions at the moment of writing this Makefile.
 # You can use other versions if you like; adjust the names accordingly.
+PACKAGE_ZLIB:=zlib-1.2.3
 PACKAGE_PNG:=libpng-1.2.18
 PACKAGE_SDL:=SDL-1.2.11
 PACKAGE_SDL_IMAGE:=SDL_image-1.2.5
 PACKAGE_GLEW:=glew-1.4.0
 
+# Depending on the platform, some libraries are already available system-wide.
+SYSTEM_LIBS:=ZLIB
+
 # Unfortunately not all packages stick to naming conventions such as putting
 # the sources in a dir that includes the version number.
-PACKAGES_STD:=PNG SDL SDL_IMAGE
+PACKAGES_STD:=ZLIB PNG SDL SDL_IMAGE
 PACKAGES_NONSTD:=GLEW
-PACKAGES:=$(PACKAGES_STD) $(PACKAGES_NONSTD)
+PACKAGES:=$(filter-out $(SYSTEM_LIBS),$(PACKAGES_STD) $(PACKAGES_NONSTD))
 
 # Source tar file names for non-standard packages.
 TARBALL_GLEW:=$(PACKAGE_GLEW)-src.tgz
 # Source tar file names for standard packages.
+TARBALL_ZLIB:=$(PACKAGE_ZLIB).tar.gz
 TARBALL_PNG:=$(PACKAGE_PNG).tar.gz
 TARBALL_SDL:=$(PACKAGE_SDL).tar.gz
 TARBALL_SDL_IMAGE:=$(PACKAGE_SDL_IMAGE).tar.gz
@@ -79,7 +85,7 @@ $(INSTALL_TARGETS): $(TIMESTAMP_DIR)/install-%: $(TIMESTAMP_DIR)/build-%
 
 # Build.
 $(BUILD_TARGETS): $(TIMESTAMP_DIR)/build-%: $(BUILD_DIR)/%/Makefile
-	make -C $(<D)
+	make -C $(<D) $(MAKEVAR_OVERRIDE_$(call findpackage,PACKAGE,$*))
 	mkdir -p $(@D)
 	touch $@
 
@@ -128,6 +134,32 @@ $(BUILD_DIR)/$(PACKAGE_PNG)/Makefile: \
 	cd $(@D) && $(PWD)/$</configure \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		CFLAGS="$(_CFLAGS)"
+
+# Configure zlib.
+# Although it uses "configure", zlib does not support building outside of the
+# source tree, so just copy everything over (it's a small package).
+# You can configure zlib to build either a static lib, or a dynamic one, not
+# both. So we configure it for both types, store the resulting Makefiles and
+# replace the main Makefile to invoke both actual Makefiles.
+$(BUILD_DIR)/$(PACKAGE_ZLIB)/Makefile: \
+  $(SOURCE_DIR)/$(PACKAGE_ZLIB)
+	mkdir -p $(dir $(@D))
+	rm -rf $(@D)
+	cp -r $< $(@D)
+	cd $(@D) && ./configure \
+		--prefix=$(PWD)/$(INSTALL_DIR)
+	mv $(@D)/Makefile $(@D)/Makefile.static
+	cd $(@D) && ./configure \
+		--shared \
+		--prefix=$(PWD)/$(INSTALL_DIR)
+	mv $(@D)/Makefile $(@D)/Makefile.shared
+	echo 'all $$(MAKECMDGOALS):' > $(@D)/Makefile
+	echo '	make -f Makefile.static $$(MAKECMDGOALS)' >> $(@D)/Makefile
+	echo '	make -f Makefile.shared $$(MAKECMDGOALS)' >> $(@D)/Makefile
+
+# It is not possible to pass CFLAGS to zlib's configure, so force them via
+# the call to Make instead.
+MAKEVAR_OVERRIDE_ZLIB:=CFLAGS=$(_CFLAGS)
 
 # Don't configure GLEW.
 # GLEW does not support building outside of the source tree, so just copy
