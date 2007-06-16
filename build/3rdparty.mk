@@ -24,14 +24,14 @@ BUILD_DIR:=$(BUILD_PATH)/build
 INSTALL_DIR:=$(BUILD_PATH)/install
 
 # Download locations for package sources.
-DOWNLOAD_PNG:=ftp://ftp.simplesystems.org/pub/libpng/png/src
+DOWNLOAD_PNG:=http://downloads.sourceforge.net/libpng
 DOWNLOAD_SDL:=http://www.libsdl.org/release
 DOWNLOAD_SDL_IMAGE:=http://www.libsdl.org/projects/SDL_image/release
 DOWNLOAD_GLEW:=http://downloads.sourceforge.net/glew
 
 # These were the most recent versions at the moment of writing this Makefile.
 # You can use other versions if you like; adjust the names accordingly.
-PACKAGE_PNG:=libpng-1.2.16
+PACKAGE_PNG:=libpng-1.2.18
 PACKAGE_SDL:=SDL-1.2.11
 PACKAGE_SDL_IMAGE:=SDL_image-1.2.5
 PACKAGE_GLEW:=glew-1.3.6
