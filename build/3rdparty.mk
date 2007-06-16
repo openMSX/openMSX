@@ -91,6 +91,7 @@ $(BUILD_DIR)/$(PACKAGE_SDL)/Makefile: \
 		--disable-video-x11 \
 		--disable-debug \
 		--disable-cdrom \
+		--disable-stdio-redirect \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		CFLAGS="$(_CFLAGS)"
 # While openMSX does not use "cpuinfo", "endian" and "file" modules, other
