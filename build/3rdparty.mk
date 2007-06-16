@@ -34,7 +34,7 @@ DOWNLOAD_GLEW:=http://downloads.sourceforge.net/glew
 PACKAGE_PNG:=libpng-1.2.18
 PACKAGE_SDL:=SDL-1.2.11
 PACKAGE_SDL_IMAGE:=SDL_image-1.2.5
-PACKAGE_GLEW:=glew-1.3.6
+PACKAGE_GLEW:=glew-1.4.0
 
 # Unfortunately not all packages stick to naming conventions such as putting
 # the sources in a dir that includes the version number.
