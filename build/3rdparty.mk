@@ -158,6 +158,7 @@ $(SOURCE_DIR)/$(PACKAGE_GLEW): $(TARBALLS_DIR)/$(TARBALL_GLEW)
 # Check whether CURL is available.
 $(CURL_TEST):
 	curl --version ; if [ $$? != 2 ]; then echo "Please install CURL (http://curl.haxx.se/) and put it in the PATH."; false; fi
+	mkdir -p $(@D)
 	touch $@
 
 # Download source packages.
