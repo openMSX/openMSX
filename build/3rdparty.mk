@@ -171,20 +171,19 @@ $(BUILD_DIR)/$(PACKAGE_GLEW)/Makefile: \
 	cp -r $< $(@D)
 
 # Extract packages.
+# Name mapping for standardized packages:
 $(foreach PACKAGE,$(PACKAGES_STD),$(SOURCE_DIR)/$(PACKAGE_$(PACKAGE))): \
   $(SOURCE_DIR)/%: $(TARBALLS_DIR)/%.tar.gz
-	mkdir -p $(@D)
-	tar -zxf $< -C $(@D)
-	test ! -e $(PATCHES_DIR)/$(<F:%.tar.gz=%.diff) || patch -p1 -N -u -d $@ < $(PATCHES_DIR)/$(<F:%.tar.gz=%.diff)
-	touch $@
-
-# Extract GLEW.
+# Name mapping for GLEW:
 $(SOURCE_DIR)/$(PACKAGE_GLEW): $(TARBALLS_DIR)/$(TARBALL_GLEW)
+EXTRACTED_NAME_GLEW:=glew
+# Extraction rule:
+$(foreach PACKAGE,$(PACKAGES),$(SOURCE_DIR)/$(PACKAGE_$(PACKAGE))):
 	rm -rf $@
 	mkdir -p $(@D)
 	tar -zxf $< -C $(@D)
-	mv $(@D)/glew $@
-	test ! -e $(PATCHES_DIR)/$(<F:%-src.tgz=%.diff) || patch -p1 -N -u -d $@ < $(PATCHES_DIR)/$(<F:%-src.tgz=%.diff)
+	if [ -n "$(EXTRACTED_NAME_$(call findpackage,TARBALL,$(<F)))" ]; then mv $(@D)/$(EXTRACTED_NAME_$(call findpackage,TARBALL,$(<F))) $@ ; fi
+	test ! -e $(PATCHES_DIR)/$(PACKAGE_$(call findpackage,TARBALL,$(<F))).diff || patch -p1 -N -u -d $@ < $(PATCHES_DIR)/$(PACKAGE_$(call findpackage,TARBALL,$(<F))).diff
 	touch $@
 
 # Check whether CURL is available.
