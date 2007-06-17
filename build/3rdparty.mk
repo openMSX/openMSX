@@ -135,7 +135,8 @@ $(BUILD_DIR)/$(PACKAGE_SDL_IMAGE)/Makefile: \
 # The CPPFLAGS definition is a workaround for a bug in the configure script of
 # libpng 1.2.18 (reported as bug 1738534).
 $(BUILD_DIR)/$(PACKAGE_PNG)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_PNG)
+  $(SOURCE_DIR)/$(PACKAGE_PNG) \
+  $(foreach PACKAGE,$(filter-out $(SYSTEM_LIBS),ZLIB),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$</configure \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
