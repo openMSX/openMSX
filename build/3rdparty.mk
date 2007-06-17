@@ -40,8 +40,17 @@ PACKAGE_SDL_IMAGE:=SDL_image-1.2.5
 PACKAGE_GLEW:=glew-1.4.0
 PACKAGE_TCL:=tcl8.4.15
 
+# Check OS.
+# This is done for Tcl, but we can also use the result ourselves.
+TCL_OS_TEST:=case `uname -s` in MINGW*) echo "win";; Darwin) echo "macosx";; *) echo "unix";; esac
+TCL_OS:=$(shell $(TCL_OS_TEST))
+
 # Depending on the platform, some libraries are already available system-wide.
+ifeq ($(TCL_OS),win)
+SYSTEM_LIBS:=
+else
 SYSTEM_LIBS:=ZLIB TCL
+endif
 
 # Unfortunately not all packages stick to naming conventions such as putting
 # the sources in a dir that includes the version number.
@@ -179,8 +188,6 @@ $(BUILD_DIR)/$(PACKAGE_GLEW)/Makefile: \
 	cp -r $< $(@D)
 
 # Configure Tcl.
-TCL_OS_TEST:=case `uname -s` in MINGW*) echo "win";; Darwin) echo "macosx";; *) echo "unix";; esac
-TCL_OS:=$(shell $(TCL_OS_TEST))
 $(BUILD_DIR)/$(PACKAGE_TCL)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_TCL)
 	mkdir -p $(@D)
