@@ -128,7 +128,8 @@ $(BUILD_DIR)/$(PACKAGE_SDL_IMAGE)/Makefile: \
 		--disable-xcf \
 		--disable-xpm \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
-		CFLAGS="$(_CFLAGS) $(shell $(PWD)/$(INSTALL_DIR)/bin/libpng12-config --cflags)"
+		CFLAGS="$(_CFLAGS) $(shell $(PWD)/$(INSTALL_DIR)/bin/libpng12-config --cflags)" \
+		LDFLAGS="$(shell $(PWD)/$(INSTALL_DIR)/bin/libpng12-config --static --ldflags)"
 
 # Configure libpng.
 # The CPPFLAGS definition is a workaround for a bug in the configure script of
@@ -138,7 +139,8 @@ $(BUILD_DIR)/$(PACKAGE_PNG)/Makefile: \
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$</configure \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
-		CFLAGS="$(_CFLAGS)" CPPFLAGS=-I$(PWD)/$<
+		CFLAGS="$(_CFLAGS)" CPPFLAGS=-I$(PWD)/$< \
+		LDFLAGS=-L$(PWD)/$(INSTALL_DIR)/lib
 
 # Configure zlib.
 # Although it uses "configure", zlib does not support building outside of the
