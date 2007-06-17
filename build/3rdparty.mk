@@ -176,7 +176,7 @@ $(BUILD_DIR)/$(PACKAGE_ZLIB)/Makefile: \
 	echo '	make -f Makefile.static $$(MAKECMDGOALS)' >> $(@D)/Makefile
 	echo '	make -f Makefile.shared $$(MAKECMDGOALS)' >> $(@D)/Makefile
 # It is not possible to pass CFLAGS to zlib's configure.
-MAKEVAR_OVERRIDE_ZLIB:=CFLAGS=$(_CFLAGS)
+MAKEVAR_OVERRIDE_ZLIB:=CFLAGS="$(_CFLAGS)"
 
 # Don't configure GLEW.
 # GLEW does not support building outside of the source tree, so just copy
@@ -194,7 +194,7 @@ $(BUILD_DIR)/$(PACKAGE_TCL)/Makefile: \
 	cd $(@D) && $(PWD)/$</$(TCL_OS)/configure \
 		--prefix=$(PWD)/$(INSTALL_DIR)
 # Tcl's configure ignores CFLAGS passed to it.
-MAKEVAR_OVERRIDE_TCL:=CFLAGS_OPTIMIZE=$(_CFLAGS)
+MAKEVAR_OVERRIDE_TCL:=CFLAGS_OPTIMIZE="$(_CFLAGS)"
 
 # Extract packages.
 # Name mapping for standardized packages:
