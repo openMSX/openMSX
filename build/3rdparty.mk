@@ -29,6 +29,7 @@ DOWNLOAD_PNG:=http://downloads.sourceforge.net/libpng
 DOWNLOAD_SDL:=http://www.libsdl.org/release
 DOWNLOAD_SDL_IMAGE:=http://www.libsdl.org/projects/SDL_image/release
 DOWNLOAD_GLEW:=http://downloads.sourceforge.net/glew
+DOWNLOAD_TCL:=http://downloads.sourceforge.net/tcl
 
 # These were the most recent versions at the moment of writing this Makefile.
 # You can use other versions if you like; adjust the names accordingly.
@@ -37,14 +38,15 @@ PACKAGE_PNG:=libpng-1.2.18
 PACKAGE_SDL:=SDL-1.2.11
 PACKAGE_SDL_IMAGE:=SDL_image-1.2.5
 PACKAGE_GLEW:=glew-1.4.0
+PACKAGE_TCL:=tcl8.4.15
 
 # Depending on the platform, some libraries are already available system-wide.
-SYSTEM_LIBS:=ZLIB
+SYSTEM_LIBS:=ZLIB TCL
 
 # Unfortunately not all packages stick to naming conventions such as putting
 # the sources in a dir that includes the version number.
 PACKAGES_STD:=ZLIB PNG SDL SDL_IMAGE
-PACKAGES_NONSTD:=GLEW
+PACKAGES_NONSTD:=GLEW TCL
 PACKAGES:=$(filter-out $(SYSTEM_LIBS),$(PACKAGES_STD) $(PACKAGES_NONSTD))
 
 # Source tar file names for non-standard packages.
@@ -54,6 +56,7 @@ TARBALL_ZLIB:=$(PACKAGE_ZLIB).tar.gz
 TARBALL_PNG:=$(PACKAGE_PNG).tar.gz
 TARBALL_SDL:=$(PACKAGE_SDL).tar.gz
 TARBALL_SDL_IMAGE:=$(PACKAGE_SDL_IMAGE).tar.gz
+TARBALL_TCL:=$(PACKAGE_TCL)-src.tar.gz
 # All source tar file names.
 TARBALLS:=$(foreach PACKAGE,$(PACKAGES),$(TARBALL_$(PACKAGE)))
 
@@ -156,9 +159,7 @@ $(BUILD_DIR)/$(PACKAGE_ZLIB)/Makefile: \
 	echo 'all $$(MAKECMDGOALS):' > $(@D)/Makefile
 	echo '	make -f Makefile.static $$(MAKECMDGOALS)' >> $(@D)/Makefile
 	echo '	make -f Makefile.shared $$(MAKECMDGOALS)' >> $(@D)/Makefile
-
-# It is not possible to pass CFLAGS to zlib's configure, so force them via
-# the call to Make instead.
+# It is not possible to pass CFLAGS to zlib's configure.
 MAKEVAR_OVERRIDE_ZLIB:=CFLAGS=$(_CFLAGS)
 
 # Don't configure GLEW.
@@ -170,6 +171,17 @@ $(BUILD_DIR)/$(PACKAGE_GLEW)/Makefile: \
 	rm -rf $(@D)
 	cp -r $< $(@D)
 
+# Configure Tcl.
+# TODO: Select the right Tcl configure dir automatically.
+TCL_OS:=unix
+$(BUILD_DIR)/$(PACKAGE_TCL)/Makefile: \
+  $(SOURCE_DIR)/$(PACKAGE_TCL)
+	mkdir -p $(@D)
+	cd $(@D) && $(PWD)/$</$(TCL_OS)/configure \
+		--prefix=$(PWD)/$(INSTALL_DIR)
+# Tcl's configure ignores CFLAGS passed to it.
+MAKEVAR_OVERRIDE_TCL:=CFLAGS_OPTIMIZE=$(_CFLAGS)
+
 # Extract packages.
 # Name mapping for standardized packages:
 $(foreach PACKAGE,$(PACKAGES_STD),$(SOURCE_DIR)/$(PACKAGE_$(PACKAGE))): \
@@ -177,6 +189,8 @@ $(foreach PACKAGE,$(PACKAGES_STD),$(SOURCE_DIR)/$(PACKAGE_$(PACKAGE))): \
 # Name mapping for GLEW:
 $(SOURCE_DIR)/$(PACKAGE_GLEW): $(TARBALLS_DIR)/$(TARBALL_GLEW)
 EXTRACTED_NAME_GLEW:=glew
+# Name mapping for Tcl:
+$(SOURCE_DIR)/$(PACKAGE_TCL): $(TARBALLS_DIR)/$(TARBALL_TCL)
 # Extraction rule:
 $(foreach PACKAGE,$(PACKAGES),$(SOURCE_DIR)/$(PACKAGE_$(PACKAGE))):
 	rm -rf $@
