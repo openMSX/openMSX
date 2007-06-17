@@ -131,12 +131,14 @@ $(BUILD_DIR)/$(PACKAGE_SDL_IMAGE)/Makefile: \
 		CFLAGS="$(_CFLAGS) $(shell $(PWD)/$(INSTALL_DIR)/bin/libpng12-config --cflags)"
 
 # Configure libpng.
+# The CPPFLAGS definition is a workaround for a bug in the configure script of
+# libpng 1.2.18 (reported as bug 1738534).
 $(BUILD_DIR)/$(PACKAGE_PNG)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_PNG)
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$</configure \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
-		CFLAGS="$(_CFLAGS)"
+		CFLAGS="$(_CFLAGS)" CPPFLAGS=-I$(PWD)/$<
 
 # Configure zlib.
 # Although it uses "configure", zlib does not support building outside of the
