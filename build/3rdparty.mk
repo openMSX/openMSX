@@ -179,8 +179,8 @@ $(BUILD_DIR)/$(PACKAGE_GLEW)/Makefile: \
 	cp -r $< $(@D)
 
 # Configure Tcl.
-# TODO: Select the right Tcl configure dir automatically.
-TCL_OS:=unix
+TCL_OS_TEST:=case `uname -s` in MINGW*) echo "win";; Darwin) echo "macosx";; *) echo "unix";; esac
+TCL_OS:=$(shell $(TCL_OS_TEST))
 $(BUILD_DIR)/$(PACKAGE_TCL)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_TCL)
 	mkdir -p $(@D)
