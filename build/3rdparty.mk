@@ -30,6 +30,7 @@ DOWNLOAD_SDL:=http://www.libsdl.org/release
 DOWNLOAD_SDL_IMAGE:=http://www.libsdl.org/projects/SDL_image/release
 DOWNLOAD_GLEW:=http://downloads.sourceforge.net/glew
 DOWNLOAD_TCL:=http://downloads.sourceforge.net/tcl
+DOWNLOAD_XML:=http://xmlsoft.org/sources
 
 # These were the most recent versions at the moment of writing this Makefile.
 # You can use other versions if you like; adjust the names accordingly.
@@ -39,6 +40,7 @@ PACKAGE_SDL:=SDL-1.2.11
 PACKAGE_SDL_IMAGE:=SDL_image-1.2.5
 PACKAGE_GLEW:=glew-1.4.0
 PACKAGE_TCL:=tcl8.4.15
+PACKAGE_XML:=libxml2-2.6.29
 
 # Check OS.
 # This is done for Tcl, but we can also use the result ourselves.
@@ -49,25 +51,24 @@ TCL_OS:=$(shell $(TCL_OS_TEST))
 ifeq ($(TCL_OS),win)
 SYSTEM_LIBS:=
 else
-SYSTEM_LIBS:=ZLIB TCL
+SYSTEM_LIBS:=ZLIB TCL XML
 endif
 
 # Unfortunately not all packages stick to naming conventions such as putting
 # the sources in a dir that includes the version number.
-PACKAGES_STD:=ZLIB PNG SDL SDL_IMAGE
+PACKAGES_STD:=ZLIB PNG SDL SDL_IMAGE XML
 PACKAGES_NONSTD:=GLEW TCL
 PACKAGES:=$(filter-out $(SYSTEM_LIBS),$(PACKAGES_STD) $(PACKAGES_NONSTD))
 
 # Source tar file names for non-standard packages.
 TARBALL_GLEW:=$(PACKAGE_GLEW)-src.tgz
+TARBALL_TCL:=$(PACKAGE_TCL)-src.tar.gz
 # Source tar file names for standard packages.
 TARBALL_ZLIB:=$(PACKAGE_ZLIB).tar.gz
 TARBALL_PNG:=$(PACKAGE_PNG).tar.gz
 TARBALL_SDL:=$(PACKAGE_SDL).tar.gz
 TARBALL_SDL_IMAGE:=$(PACKAGE_SDL_IMAGE).tar.gz
-TARBALL_TCL:=$(PACKAGE_TCL)-src.tar.gz
-# All source tar file names.
-TARBALLS:=$(foreach PACKAGE,$(PACKAGES),$(TARBALL_$(PACKAGE)))
+TARBALL_XML:=$(PACKAGE_XML).tar.gz
 
 BUILD_TARGETS:=$(foreach PACKAGE,$(PACKAGES),$(TIMESTAMP_DIR)/build-$(PACKAGE_$(PACKAGE)))
 INSTALL_TARGETS:=$(foreach PACKAGE,$(PACKAGES),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
@@ -195,6 +196,21 @@ $(BUILD_DIR)/$(PACKAGE_TCL)/Makefile: \
 		--prefix=$(PWD)/$(INSTALL_DIR)
 # Tcl's configure ignores CFLAGS passed to it.
 MAKEVAR_OVERRIDE_TCL:=CFLAGS_OPTIMIZE="$(_CFLAGS)"
+
+# Configure libxml2.
+$(BUILD_DIR)/$(PACKAGE_XML)/Makefile: \
+  $(SOURCE_DIR)/$(PACKAGE_XML) \
+  $(foreach PACKAGE,$(filter-out $(SYSTEM_LIBS),ZLIB),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
+	mkdir -p $(@D)
+	cd $(@D) && $(PWD)/$</configure \
+		--prefix=$(PWD)/$(INSTALL_DIR) \
+		--with-minimum \
+ 		--with-push \
+		--with-sax1 \
+		$(if $(filter-out $(SYSTEM_LIBS),ZLIB),--with-zlib=$(PWD)/$(INSTALL_DIR),) \
+		CFLAGS="$(_CFLAGS)" \
+		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
+		LDFLAGS=-L$(PWD)/$(INSTALL_DIR)/lib
 
 # Extract packages.
 # Name mapping for standardized packages:
