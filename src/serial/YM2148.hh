@@ -44,8 +44,8 @@ public:
 
 private:
 	void midiInCallback(byte* buffer, unsigned length);
-	void onRecv(unsigned time);
-	void onTrans(unsigned time);
+	void onRecv();
+	void onTrans();
 
 //TODO:	MidiIO*     midiIo;
 	byte       command;

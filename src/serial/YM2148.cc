@@ -31,7 +31,7 @@ void YM2148::midiInCallback(byte* buffer, unsigned length)
 	//TODO: archSemaphoreSignal(semaphore);
 }
 
-void YM2148::onRecv(unsigned time)
+void YM2148::onRecv()
 {
 	timeRecv = 0;
 
@@ -61,7 +61,7 @@ void YM2148::onRecv(unsigned time)
 	   */
 }
 
-void YM2148::onTrans(unsigned time)
+void YM2148::onTrans()
 {
 	timeTrans = 0;
 
