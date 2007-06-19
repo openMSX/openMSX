@@ -508,7 +508,9 @@ VLM5030::VLM5030(MSXMotherBoard& motherBoard, const std::string& name,
 		new SystemFileContext()));
 	std::auto_ptr<XMLElement> romElement(
 		std::auto_ptr<XMLElement>(new XMLElement("rom")));
-	romElement->addChild(std::auto_ptr<XMLElement>(
+	romElement->addChild(std::auto_ptr<XMLElement>( // load by sha1sum
+		new XMLElement("sha1", "4f36d139ee4baa7d5980f765de9895570ee05f40")));
+	romElement->addChild(std::auto_ptr<XMLElement>( // or hardcoded filename in ditto dir
 		new XMLElement("filename", "keyboardmaster/voice.rom")));
 	voiceROMconfig.addChild(romElement);
 

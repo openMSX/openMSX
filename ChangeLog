@@ -1,5 +1,9 @@
 $Id$
 
+2007-06-19 Manuel Bilderbeek <manuel@msxnet.org>
+	* Voice ROM of Keyboard Master is now also searched in ROM pools (sha1
+	  is hardcoded).
+
 2007-06-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed bug in SCC peek:
 	   - peek of deform register also triggered a reset of that
