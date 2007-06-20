@@ -18,6 +18,8 @@ namespace openmsx {
 namespace YM2413Okazaki {
 
 typedef FixedPoint<8> PhaseModulation;
+typedef FixedPoint<15> EnvPhaseIndex;
+static const EnvPhaseIndex EG_DP_MAX = EnvPhaseIndex(1 << 7);
 
 enum EnvelopeMode {
 	ATTACK, DECAY, SUSHOLD, SUSTAIN, RELEASE, SETTLE, FINISH
@@ -92,8 +94,8 @@ public:
 	int tll;		// Total Level + Key scale level
 	int rks;		// Key scale offset (Rks)
 	EnvelopeMode eg_mode;	// Current state
-	unsigned eg_phase;	// Phase
-	unsigned eg_dphase;	// Phase increment amount
+	EnvPhaseIndex eg_phase;	// Phase
+	EnvPhaseIndex eg_dphase;	// Phase increment amount
 	unsigned egout;		// output
 
 	bool type;		// 0 : modulator 1 : carrier
@@ -229,10 +231,6 @@ static const int TL_BITS = 6;
 static const int DB2LIN_AMP_BITS = 8;
 static const int SLOT_AMP_BITS = DB2LIN_AMP_BITS;
 
-// Bits for envelope phase incremental counter
-static const int EG_DP_BITS = 22;
-static const int EG_DP_WIDTH = 1 << EG_DP_BITS;
-
 // Bits for Pitch and Amp modulator
 static const int PM_PG_BITS = 8;
 static const int PM_PG_WIDTH = 1 << PM_PG_BITS;
@@ -266,9 +264,9 @@ static unsigned AM_DPHASE =
 static word AR_ADJUST_TABLE[1 << EG_BITS];
 
 // Phase incr table for Attack
-static unsigned dphaseARTable[16][16];
+static EnvPhaseIndex dphaseARTable[16][16];
 // Phase incr table for Decay and Release
-static unsigned dphaseDRTable[16][16];
+static EnvPhaseIndex dphaseDRTable[16][16];
 
 // KSL + TL Table
 static unsigned tllTable[16][8][1 << TL_BITS][4];
@@ -314,11 +312,6 @@ template <typename T>
 static inline T HIGHBITS(T c, int b)
 {
 	return c >> b;
-}
-// Expand x which is s bits to d bits
-static inline unsigned EXPAND_BITS(unsigned x, int s, int d)
-{
-	return x << (d - s);
 }
 
 static inline bool BIT(int s, int b)
@@ -470,19 +463,20 @@ static void makeDphaseARTable()
 {
 	for (int AR = 0; AR < 16; ++AR) {
 		for (int Rks = 0; Rks < 16; ++Rks) {
-			int RM = AR + (Rks >> 2);
-			int RL = Rks & 3;
-			if (RM > 15) RM = 15;
 			switch (AR) {
 			case 0:
-				dphaseARTable[AR][Rks] = 0;
+				dphaseARTable[AR][Rks] = EnvPhaseIndex(0);
 				break;
 			case 15:
-				dphaseARTable[AR][Rks] = 0; // EG_DP_WIDTH
+				dphaseARTable[AR][Rks] = EnvPhaseIndex(0); // EG_DP_MAX
 				break;
-			default:
-				dphaseARTable[AR][Rks] = 3 * (RL + 4) << (RM + 1);
+			default: {
+				int RM = std::min(AR + (Rks >> 2), 15);
+				int RL = Rks & 3;
+				dphaseARTable[AR][Rks] =
+					EnvPhaseIndex(6 * (RL + 4)) >> (15 - RM);
 				break;
+			}
 			}
 		}
 	}
@@ -493,15 +487,15 @@ static void makeDphaseDRTable()
 {
 	for (int DR = 0; DR < 16; ++DR) {
 		for (int Rks = 0; Rks < 16; ++Rks) {
-			int RM = DR + (Rks >> 2);
-			int RL = Rks & 3;
-			if (RM > 15) RM = 15;
 			switch(DR) {
 			case 0:
-				dphaseDRTable[DR][Rks] = 0;
+				dphaseDRTable[DR][Rks] = EnvPhaseIndex(0);
 				break;
 			default:
-				dphaseDRTable[DR][Rks] = (RL + 4) << (RM - 1);
+				int RM = std::min(DR + (Rks >> 2), 15);
+				int RL = Rks & 3;
+				dphaseDRTable[DR][Rks] =
+					EnvPhaseIndex(RL + 4) >> (16 - RM);
 				break;
 			}
 		}
@@ -588,8 +582,8 @@ void Slot::reset(bool type_)
 	output[1] = 0;
 	feedback = 0;
 	eg_mode = FINISH;
-	eg_phase = EG_DP_WIDTH;
-	eg_dphase = 0;
+	eg_phase = EG_DP_MAX;
+	eg_dphase = EnvPhaseIndex(0);
 	rks = 0;
 	tll = 0;
 	sustain = false;
@@ -649,7 +643,7 @@ void Slot::updateEG()
 		break;
 	case SUSHOLD:
 	case FINISH:
-		eg_dphase = 0;
+		eg_dphase = EnvPhaseIndex(0);
 		break;
 	}
 }
@@ -668,7 +662,7 @@ void Slot::updateAll()
 void Slot::slotOn()
 {
 	eg_mode = ATTACK;
-	eg_phase = 0;
+	eg_phase = EnvPhaseIndex(0);
 	phase = 0;
 	updateEG();
 }
@@ -677,7 +671,7 @@ void Slot::slotOn()
 void Slot::slotOn2()
 {
 	eg_mode = ATTACK;
-	eg_phase = 0;
+	eg_phase = EnvPhaseIndex(0);
 	updateEG();
 }
 
@@ -685,10 +679,7 @@ void Slot::slotOn2()
 void Slot::slotOff()
 {
 	if (eg_mode == ATTACK) {
-		eg_phase = EXPAND_BITS(
-			AR_ADJUST_TABLE[HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS)],
-			EG_BITS, EG_DP_BITS
-			);
+		eg_phase = EnvPhaseIndex(AR_ADJUST_TABLE[eg_phase.toInt()]);
 	}
 	eg_mode = RELEASE;
 	updateEG();
@@ -962,8 +953,8 @@ void Slot::calc_phase(PhaseModulation lfo_pm)
 // EG
 void Slot::calc_envelope(int lfo_am)
 {
-	#define S2E(x) (SL2EG((int)(x / SL_STEP)) << (EG_DP_BITS - EG_BITS))
-	static unsigned SL[16] = {
+	#define S2E(x) (EnvPhaseIndex(x / SL_STEP))
+	static EnvPhaseIndex SL[16] = {
 		S2E( 0.0), S2E( 3.0), S2E( 6.0), S2E( 9.0),
 		S2E(12.0), S2E(15.0), S2E(18.0), S2E(21.0),
 		S2E(24.0), S2E(27.0), S2E(30.0), S2E(33.0),
@@ -974,17 +965,17 @@ void Slot::calc_envelope(int lfo_am)
 	unsigned out;
 	switch (eg_mode) {
 	case ATTACK:
-		out = AR_ADJUST_TABLE[HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS)];
+		out = AR_ADJUST_TABLE[eg_phase.toInt()];
 		eg_phase += eg_dphase;
-		if ((EG_DP_WIDTH & eg_phase) || (patch->AR == 15)) {
+		if ((eg_phase >= EG_DP_MAX) || (patch->AR == 15)) {
 			out = 0;
-			eg_phase = 0;
+			eg_phase = EnvPhaseIndex(0);
 			eg_mode = DECAY;
 			updateEG();
 		}
 		break;
 	case DECAY:
-		out = HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS);
+		out = eg_phase.toInt();
 		eg_phase += eg_dphase;
 		if (eg_phase >= SL[patch->SL]) {
 			eg_phase = SL[patch->SL];
@@ -993,7 +984,7 @@ void Slot::calc_envelope(int lfo_am)
 		}
 		break;
 	case SUSHOLD:
-		out = HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS);
+		out = eg_phase.toInt();
 		if (patch->EG == 0) {
 			eg_mode = SUSTAIN;
 			updateEG();
@@ -1001,7 +992,7 @@ void Slot::calc_envelope(int lfo_am)
 		break;
 	case SUSTAIN:
 	case RELEASE:
-		out = HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS);
+		out = eg_phase.toInt();
 		eg_phase += eg_dphase;
 		if (out >= (1 << EG_BITS)) {
 			eg_mode = FINISH;
@@ -1009,7 +1000,7 @@ void Slot::calc_envelope(int lfo_am)
 		}
 		break;
 	case SETTLE:
-		out = HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS);
+		out = eg_phase.toInt();
 		eg_phase += eg_dphase;
 		if (out >= (1 << EG_BITS)) {
 			eg_mode = ATTACK;
