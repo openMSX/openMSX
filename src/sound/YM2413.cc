@@ -180,7 +180,7 @@ private:
 	int noise_seed;
 
 	// Channel & Slot
-	Channel ch[9];
+	Channel channels[9];
 	Slot* slot[18];
 
 	// Registerbank from YM2413 class.
@@ -812,7 +812,7 @@ Global::Global(byte* reg)
 		patches[i][1].initCarrier(inst_data[i]);
 	}
 	for (int i = 0; i < 9; ++i) {
-		ch[i].init(*this);
+		channels[i].init(*this);
 	}
 	makePmTable();
 	makeAmTable();
@@ -833,7 +833,7 @@ void Global::reset()
 	noise_seed = 0xFFFF;
 
 	for(int i = 0; i < 9; i++) {
-		ch[i].reset();
+		channels[i].reset();
 	}
 	for (int i = 0; i < 0x40; i++) {
 		writeReg(i, 0);
@@ -841,61 +841,94 @@ void Global::reset()
 }
 
 // Drum key on
-void Global::keyOn_BD()  { ch[6].keyOn(); }
-void Global::keyOn_HH()  { if (!ch[7].mod.slot_on_flag) ch[7].mod.slotOn2(); }
-void Global::keyOn_SD()  { if (!ch[7].car.slot_on_flag) ch[7].car.slotOn (); }
-void Global::keyOn_TOM() { if (!ch[8].mod.slot_on_flag) ch[8].mod.slotOn (); }
-void Global::keyOn_CYM() { if (!ch[8].car.slot_on_flag) ch[8].car.slotOn2(); }
+void Global::keyOn_BD()
+{
+	channels[6].keyOn();
+}
+void Global::keyOn_HH()
+{
+	if (!channels[7].mod.slot_on_flag) channels[7].mod.slotOn2();
+}
+void Global::keyOn_SD()
+{
+	if (!channels[7].car.slot_on_flag) channels[7].car.slotOn ();
+}
+void Global::keyOn_TOM()
+{
+	if (!channels[8].mod.slot_on_flag) channels[8].mod.slotOn ();
+}
+void Global::keyOn_CYM()
+{
+	if (!channels[8].car.slot_on_flag) channels[8].car.slotOn2();
+}
 
 // Drum key off
-void Global::keyOff_BD() { ch[6].keyOff(); }
-void Global::keyOff_HH() { if (ch[7].mod.slot_on_flag) ch[7].mod.slotOff(); }
-void Global::keyOff_SD() { if (ch[7].car.slot_on_flag) ch[7].car.slotOff(); }
-void Global::keyOff_TOM(){ if (ch[8].mod.slot_on_flag) ch[8].mod.slotOff(); }
-void Global::keyOff_CYM(){ if (ch[8].car.slot_on_flag) ch[8].car.slotOff(); }
+void Global::keyOff_BD()
+{
+	channels[6].keyOff();
+}
+void Global::keyOff_HH()
+{
+	if (channels[7].mod.slot_on_flag) channels[7].mod.slotOff();
+}
+void Global::keyOff_SD()
+{
+	if (channels[7].car.slot_on_flag) channels[7].car.slotOff();
+}
+void Global::keyOff_TOM()
+{
+	if (channels[8].mod.slot_on_flag) channels[8].mod.slotOff();
+}
+void Global::keyOff_CYM()
+{
+	if (channels[8].car.slot_on_flag) channels[8].car.slotOff();
+}
 
 void Global::update_rhythm_mode()
 {
-	if (ch[6].patch_number & 0x10) {
-		if (!(ch[6].car.slot_on_flag || isRhythm())) {
-			ch[6].mod.eg_mode = FINISH;
-			ch[6].car.eg_mode = FINISH;
-			ch[6].setPatch(reg[0x36] >> 4);
+	Channel& ch6 = channels[6];
+	if (ch6.patch_number & 0x10) {
+		if (!(ch6.car.slot_on_flag || isRhythm())) {
+			ch6.mod.eg_mode = FINISH;
+			ch6.car.eg_mode = FINISH;
+			ch6.setPatch(reg[0x36] >> 4);
 		}
 	} else if (isRhythm()) {
-		ch[6].mod.eg_mode = FINISH;
-		ch[6].car.eg_mode = FINISH;
-		ch[6].setPatch(16);
+		ch6.mod.eg_mode = FINISH;
+		ch6.car.eg_mode = FINISH;
+		ch6.setPatch(16);
 	}
 
-	if (ch[7].patch_number & 0x10) {
-		if (!((ch[7].mod.slot_on_flag && ch[7].car.slot_on_flag) ||
+	Channel& ch7 = channels[7];
+	if (ch7.patch_number & 0x10) {
+		if (!((ch7.mod.slot_on_flag && ch7.car.slot_on_flag) ||
 		      isRhythm())) {
-			ch[7].mod.type = false;
-			ch[7].mod.eg_mode = FINISH;
-			ch[7].car.eg_mode = FINISH;
-			ch[7].setPatch(reg[0x37] >> 4);
+			ch7.mod.type = false;
+			ch7.mod.eg_mode = FINISH;
+			ch7.car.eg_mode = FINISH;
+			ch7.setPatch(reg[0x37] >> 4);
 		}
 	} else if (isRhythm()) {
-		ch[7].mod.type = true;
-		ch[7].mod.eg_mode = FINISH;
-		ch[7].car.eg_mode = FINISH;
-		ch[7].setPatch(17);
+		ch7.mod.type = true;
+		ch7.mod.eg_mode = FINISH;
+		ch7.car.eg_mode = FINISH;
+		ch7.setPatch(17);
 	}
 
-	if (ch[8].patch_number & 0x10) {
-		if (!((ch[8].mod.slot_on_flag && ch[8].car.slot_on_flag) ||
+	Channel& ch8 = channels[8];
+	if (ch8.patch_number & 0x10) {
+		if (!((ch8.mod.slot_on_flag && ch8.car.slot_on_flag) ||
 		      isRhythm())) {
-			ch[8].mod.type = false;
-			ch[8].mod.eg_mode = FINISH;
-			ch[8].car.eg_mode = FINISH;
-			ch[8].setPatch(reg[0x38] >> 4);
+			ch8.mod.type = false;
+			ch8.mod.eg_mode = FINISH;
+			ch8.car.eg_mode = FINISH;
+			ch8.setPatch(reg[0x38] >> 4);
 		}
 	} else if (isRhythm()) {
-		ch[8].mod.type = true;
-		ch[8].mod.eg_mode = FINISH;
-		ch[8].car.eg_mode = FINISH;
-		ch[8].setPatch(18);
+		ch8.mod.type = true;
+		ch8.mod.eg_mode = FINISH;
+		ch8.car.eg_mode = FINISH;
+		ch8.setPatch(18);
 	}
 }
 
@@ -903,16 +936,20 @@ void Global::update_key_status()
 {
 	for (int i = 0; i < 9; ++i) {
 		bool slot_on = reg[0x20 + i] & 0x10;
-		ch[i].mod.slot_on_flag = slot_on;
-		ch[i].car.slot_on_flag = slot_on;
+		Channel& ch = channels[i];
+		ch.mod.slot_on_flag = slot_on;
+		ch.car.slot_on_flag = slot_on;
 	}
 	if (isRhythm()) {
-		ch[6].mod.slot_on_flag |= reg[0x0e] & 0x10; // BD1
-		ch[6].car.slot_on_flag |= reg[0x0e] & 0x10; // BD2
-		ch[7].mod.slot_on_flag |= reg[0x0e] & 0x01; // HH
-		ch[7].car.slot_on_flag |= reg[0x0e] & 0x08; // SD
-		ch[8].mod.slot_on_flag |= reg[0x0e] & 0x04; // TOM
-		ch[8].car.slot_on_flag |= reg[0x0e] & 0x02; // SYM
+		Channel& ch6 = channels[6];
+		ch6.mod.slot_on_flag |= reg[0x0e] & 0x10; // BD1
+		ch6.car.slot_on_flag |= reg[0x0e] & 0x10; // BD2
+		Channel& ch7 = channels[7];
+		ch7.mod.slot_on_flag |= reg[0x0e] & 0x01; // HH
+		ch7.car.slot_on_flag |= reg[0x0e] & 0x08; // SD
+		Channel& ch8 = channels[8];
+		ch8.mod.slot_on_flag |= reg[0x0e] & 0x04; // TOM
+		ch8.car.slot_on_flag |= reg[0x0e] & 0x02; // SYM
 	}
 }
 
@@ -1128,36 +1165,41 @@ inline void Global::calcSample(int** bufs, unsigned sample)
 	noise_seed >>= 1;
 
 	for (int i = 0; i < 9; ++i) {
-		ch[i].mod.calc_phase(lfo_pm);
-		ch[i].mod.calc_envelope(lfo_am);
-		ch[i].car.calc_phase(lfo_pm);
-		ch[i].car.calc_envelope(lfo_am);
+		Channel& ch = channels[i];
+		ch.mod.calc_phase(lfo_pm);
+		ch.mod.calc_envelope(lfo_am);
+		ch.car.calc_phase(lfo_pm);
+		ch.car.calc_envelope(lfo_am);
 	}
 
 	int m = isRhythm() ? 6 : 9;
 	for (int i = 0; i < m; ++i) {
-		bufs[i][sample] = (ch[i].car.eg_mode != FINISH)
-			? adjust(ch[i].car.calc_slot_car(ch[i].mod.calc_slot_mod()))
+		Channel& ch = channels[i];
+		bufs[i][sample] = (ch.car.eg_mode != FINISH)
+			? adjust(ch.car.calc_slot_car(ch.mod.calc_slot_mod()))
 			: 0;
 	}
 	if (isRhythm()) {
-		bufs[ 6][sample] = (ch[6].car.eg_mode != FINISH)
-			?  adjust(2 * ch[6].car.calc_slot_car(ch[6].mod.calc_slot_mod()))
+		Channel& ch6 = channels[6];
+		bufs[ 6][sample] = (ch6.car.eg_mode != FINISH)
+			?  adjust(2 * ch6.car.calc_slot_car(ch6.mod.calc_slot_mod()))
 			: 0;
 
-		bufs[ 7][sample] = (ch[7].mod.eg_mode != FINISH)
-			? adjust(2 * ch[7].mod.calc_slot_hat(ch[8].car.pgout,
+		Channel& ch7 = channels[7];
+		Channel& ch8 = channels[8];
+		bufs[ 7][sample] = (ch7.mod.eg_mode != FINISH)
+			? adjust(2 * ch7.mod.calc_slot_hat(ch8.car.pgout,
 				noise_seed & 1))
 			: 0;
-		bufs[ 8][sample] = (ch[7].car.eg_mode != FINISH)
-			? adjust(-2 * ch[7].car.calc_slot_snare(noise_seed & 1))
+		bufs[ 8][sample] = (ch7.car.eg_mode != FINISH)
+			? adjust(-2 * ch7.car.calc_slot_snare(noise_seed & 1))
 			: 0;
 
-		bufs[ 9][sample] = (ch[8].mod.eg_mode != FINISH)
-			? adjust( 2 * ch[8].mod.calc_slot_tom())
+		bufs[ 9][sample] = (ch8.mod.eg_mode != FINISH)
+			? adjust( 2 * ch8.mod.calc_slot_tom())
 			: 0;
-		bufs[10][sample] = (ch[8].car.eg_mode != FINISH)
-			? adjust(-2 * ch[8].car.calc_slot_cym(ch[7].mod.pgout))
+		bufs[10][sample] = (ch8.car.eg_mode != FINISH)
+			? adjust(-2 * ch8.car.calc_slot_cym(ch7.mod.pgout))
 			: 0;
 	} else {
 		bufs[ 9] = 0;
@@ -1168,18 +1210,18 @@ inline void Global::calcSample(int** bufs, unsigned sample)
 bool Global::checkMuteHelper()
 {
 	for (int i = 0; i < 6; i++) {
-		if (ch[i].car.eg_mode != FINISH) return false;
+		if (channels[i].car.eg_mode != FINISH) return false;
 	}
 	if (!isRhythm()) {
 		for(int i = 6; i < 9; i++) {
-			 if (ch[i].car.eg_mode != FINISH) return false;
+			 if (channels[i].car.eg_mode != FINISH) return false;
 		}
 	} else {
-		if (ch[6].car.eg_mode != FINISH) return false;
-		if (ch[7].mod.eg_mode != FINISH) return false;
-		if (ch[7].car.eg_mode != FINISH) return false;
-		if (ch[8].mod.eg_mode != FINISH) return false;
-		if (ch[8].car.eg_mode != FINISH) return false;
+		if (channels[6].car.eg_mode != FINISH) return false;
+		if (channels[7].mod.eg_mode != FINISH) return false;
+		if (channels[7].car.eg_mode != FINISH) return false;
+		if (channels[8].mod.eg_mode != FINISH) return false;
+		if (channels[8].car.eg_mode != FINISH) return false;
 	}
 	return true;	// nothing is playing, then mute
 }
@@ -1214,10 +1256,11 @@ void Global::writeReg(byte regis, byte data)
 		patches[0][0].KR = (data >> 4) & 1;
 		patches[0][0].ML = (data >> 0) & 15;
 		for (int i = 0; i < 9; ++i) {
-			if (ch[i].patch_number == 0) {
-				ch[i].mod.updatePG();
-				ch[i].mod.updateRKS();
-				ch[i].mod.updateEG();
+			Channel& ch = channels[i];
+			if (ch.patch_number == 0) {
+				ch.mod.updatePG();
+				ch.mod.updateRKS();
+				ch.mod.updateEG();
 			}
 		}
 		break;
@@ -1228,10 +1271,11 @@ void Global::writeReg(byte regis, byte data)
 		patches[0][1].KR = (data >> 4) & 1;
 		patches[0][1].ML = (data >> 0) & 15;
 		for (int i = 0; i < 9; ++i) {
-			if(ch[i].patch_number == 0) {
-				ch[i].car.updatePG();
-				ch[i].car.updateRKS();
-				ch[i].car.updateEG();
+			Channel& ch = channels[i];
+			if(ch.patch_number == 0) {
+				ch.car.updatePG();
+				ch.car.updateRKS();
+				ch.car.updateEG();
 			}
 		}
 		break;
@@ -1239,8 +1283,9 @@ void Global::writeReg(byte regis, byte data)
 		patches[0][0].KL = (data >> 6) & 3;
 		patches[0][0].TL = (data >> 0) & 63;
 		for (int i = 0; i < 9; ++i) {
-			if (ch[i].patch_number == 0) {
-				ch[i].mod.updateTLL();
+			Channel& ch = channels[i];
+			if (ch.patch_number == 0) {
+				ch.mod.updateTLL();
 			}
 		}
 		break;
@@ -1250,9 +1295,10 @@ void Global::writeReg(byte regis, byte data)
 		patches[0][0].WF = (data >> 3) & 1;
 		patches[0][0].FB = (data >> 0) & 7;
 		for (int i = 0; i < 9; ++i) {
-			if (ch[i].patch_number == 0) {
-				ch[i].mod.updateWF();
-				ch[i].car.updateWF();
+			Channel& ch = channels[i];
+			if (ch.patch_number == 0) {
+				ch.mod.updateWF();
+				ch.car.updateWF();
 			}
 		}
 		break;
@@ -1260,8 +1306,9 @@ void Global::writeReg(byte regis, byte data)
 		patches[0][0].AR = (data >> 4) & 15;
 		patches[0][0].DR = (data >> 0) & 15;
 		for (int i = 0; i < 9; ++i) {
-			if(ch[i].patch_number == 0) {
-				ch[i].mod.updateEG();
+			Channel& ch = channels[i];
+			if (ch.patch_number == 0) {
+				ch.mod.updateEG();
 			}
 		}
 		break;
@@ -1269,8 +1316,9 @@ void Global::writeReg(byte regis, byte data)
 		patches[0][1].AR = (data >> 4) & 15;
 		patches[0][1].DR = (data >> 0) & 15;
 		for (int i = 0; i < 9; ++i) {
-			if (ch[i].patch_number == 0) {
-				ch[i].car.updateEG();
+			Channel& ch = channels[i];
+			if (ch.patch_number == 0) {
+				ch.car.updateEG();
 			}
 		}
 		break;
@@ -1278,8 +1326,9 @@ void Global::writeReg(byte regis, byte data)
 		patches[0][0].SL = (data >> 4) & 15;
 		patches[0][0].RR = (data >> 0) & 15;
 		for (int i = 0; i < 9; ++i) {
-			if (ch[i].patch_number == 0) {
-				ch[i].mod.updateEG();
+			Channel& ch = channels[i];
+			if (ch.patch_number == 0) {
+				ch.mod.updateEG();
 			}
 		}
 		break;
@@ -1287,12 +1336,14 @@ void Global::writeReg(byte regis, byte data)
 		patches[0][1].SL = (data >> 4) & 15;
 		patches[0][1].RR = (data >> 0) & 15;
 		for (int i = 0; i < 9; i++) {
-			if (ch[i].patch_number == 0) {
-				ch[i].car.updateEG();
+			Channel& ch = channels[i];
+			if (ch.patch_number == 0) {
+				ch.car.updateEG();
 			}
 		}
 		break;
 	case 0x0e:
+	{
 		update_rhythm_mode();
 		if (data & 0x20) {
 			if (data & 0x10) keyOn_BD();  else keyOff_BD();
@@ -1303,22 +1354,26 @@ void Global::writeReg(byte regis, byte data)
 		}
 		update_key_status();
 
-		ch[6].mod.updateAll();
-		ch[6].car.updateAll();
-		ch[7].mod.updateAll();
-		ch[7].car.updateAll();
-		ch[8].mod.updateAll();
-		ch[8].car.updateAll();
+		Channel& ch6 = channels[6];
+		ch6.mod.updateAll();
+		ch6.car.updateAll();
+		Channel& ch7 = channels[7];
+		ch7.mod.updateAll();
+		ch7.car.updateAll();
+		Channel& ch8 = channels[8];
+		ch8.mod.updateAll();
+		ch8.car.updateAll();
 		break;
-
+	}
 	case 0x10:  case 0x11:  case 0x12:  case 0x13:
 	case 0x14:  case 0x15:  case 0x16:  case 0x17:
 	case 0x18:
 	{
 		int cha = regis & 0x0F;
-		ch[cha].setFnumber(data + ((reg[0x20 + cha] & 1) << 8));
-		ch[cha].mod.updateAll();
-		ch[cha].car.updateAll();
+		Channel& ch = channels[cha];
+		ch.setFnumber(data + ((reg[0x20 + cha] & 1) << 8));
+		ch.mod.updateAll();
+		ch.car.updateAll();
 		break;
 	}
 	case 0x20:  case 0x21:  case 0x22:  case 0x23:
@@ -1326,18 +1381,19 @@ void Global::writeReg(byte regis, byte data)
 	case 0x28:
 	{
 		int cha = regis & 0x0F;
+		Channel& ch = channels[cha];
 		int fNum = ((data & 1) << 8) + reg[0x10 + cha];
 		int block = (data >> 1) & 7;
-		ch[cha].setFnumber(fNum);
-		ch[cha].setBlock(block);
-		ch[cha].setSustain((data >> 5) & 1);
+		ch.setFnumber(fNum);
+		ch.setBlock(block);
+		ch.setSustain((data >> 5) & 1);
 		if (data & 0x10) {
-			ch[cha].keyOn();
+			ch.keyOn();
 		} else {
-			ch[cha].keyOff();
+			ch.keyOff();
 		}
-		ch[cha].mod.updateAll();
-		ch[cha].car.updateAll();
+		ch.mod.updateAll();
+		ch.car.updateAll();
 		update_key_status();
 		update_rhythm_mode();
 		break;
@@ -1346,23 +1402,24 @@ void Global::writeReg(byte regis, byte data)
 	case 0x35: case 0x36: case 0x37: case 0x38:
 	{
 		int cha = regis & 0x0F;
+		Channel& ch = channels[cha];
 		int j = (data >> 4) & 15;
 		int v = data & 15;
 		if (isRhythm() && (regis >= 0x36)) {
 			switch(regis) {
 			case 0x37:
-				ch[7].mod.setVolume(j << 2);
+				channels[7].mod.setVolume(j << 2);
 				break;
 			case 0x38:
-				ch[8].mod.setVolume(j << 2);
+				channels[8].mod.setVolume(j << 2);
 				break;
 			}
 		} else {
-			ch[cha].setPatch(j);
+			ch.setPatch(j);
 		}
-		ch[cha].setVol(v << 2);
-		ch[cha].mod.updateAll();
-		ch[cha].car.updateAll();
+		ch.setVol(v << 2);
+		ch.mod.updateAll();
+		ch.car.updateAll();
 		break;
 	}
 	default:
