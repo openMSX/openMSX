@@ -406,7 +406,7 @@ static void makeAmTable()
 {
 	for (int i = 0; i < AM_PG_WIDTH; ++i) {
 		amtable[i] = (int)((double)AM_DEPTH / 2 / DB_STEP *
-		                   (1.0 + saw(2.0 * M_PI * i / PM_PG_WIDTH)));
+		                   (1.0 + saw(2.0 * M_PI * i / AM_PG_WIDTH)));
 	}
 }
 
