@@ -154,14 +154,13 @@ public:
 	inline void update_rhythm_mode();
 	inline void update_key_status();
 
-	inline void calcSample(int** bufs, unsigned sample);
+	inline void calcSample(
+		int** bufs, unsigned sample, unsigned channelActiveBits);
 
 	/**
 	 * Generate output samples for each channel.
 	 */
 	void generateChannels(int** bufs, unsigned num);
-
-	bool checkMuteHelper();
 
 	Patch& getPatch(int instrument, bool carrier) {
 		return patches[instrument][carrier];
@@ -1150,10 +1149,9 @@ static inline int adjust(int x)
 	return x << (15 - DB2LIN_AMP_BITS);
 }
 
-inline void Global::calcSample(int** bufs, unsigned sample)
+inline void Global::calcSample(
+	int** bufs, unsigned sample, unsigned channelActiveBits)
 {
-	// during mute AM/PM/noise aren't updated, probably ok
-
 	// update AM, PM unit
 	pm_phase = (pm_phase + PM_DPHASE) & (PM_DP_WIDTH - 1);
 	am_phase = (am_phase + AM_DPHASE) & (AM_DP_WIDTH - 1);
@@ -1164,6 +1162,8 @@ inline void Global::calcSample(int** bufs, unsigned sample)
 	if (noise_seed & 1) noise_seed ^= 0x8003020;
 	noise_seed >>= 1;
 
+	// TODO: Is there a point in updating the carrier when envelope is
+	//       in FINISH state? And what about the modulator?
 	for (int i = 0; i < 9; ++i) {
 		Channel& ch = channels[i];
 		ch.mod.calc_phase(lfo_pm);
@@ -1172,72 +1172,102 @@ inline void Global::calcSample(int** bufs, unsigned sample)
 		ch.car.calc_envelope(lfo_am);
 	}
 
+	// TODO: What to do with channels that enter FINISH state during
+	//       one generateChannels() call?
+	//        1. check both channelActiveBits and eg_mode
+	//           currently implemented; safe but maybe slow
+	//        2. update channelActiveBits
+	//        3. ignore eg_mode
+	//           only correct if the computed sample is 0
+	//           (in other words, if the bypass is only for speed)
 	int m = isRhythm() ? 6 : 9;
 	for (int i = 0; i < m; ++i) {
-		Channel& ch = channels[i];
-		bufs[i][sample] = (ch.car.eg_mode != FINISH)
-			? adjust(ch.car.calc_slot_car(ch.mod.calc_slot_mod()))
-			: 0;
+		if ((channelActiveBits >> i) & 1) {
+			Channel& ch = channels[i];
+			bufs[i][sample] = (ch.car.eg_mode != FINISH)
+				? adjust(ch.car.calc_slot_car(ch.mod.calc_slot_mod()))
+				: 0;
+		}
 	}
 	if (isRhythm()) {
-		Channel& ch6 = channels[6];
-		bufs[ 6][sample] = (ch6.car.eg_mode != FINISH)
-			?  adjust(2 * ch6.car.calc_slot_car(ch6.mod.calc_slot_mod()))
-			: 0;
+		if (channelActiveBits & (1 << 6)) {
+			Channel& ch6 = channels[6];
+			bufs[ 6][sample] = (ch6.car.eg_mode != FINISH)
+				?  adjust(2 * ch6.car.calc_slot_car(ch6.mod.calc_slot_mod()))
+				: 0;
+		}
 
 		Channel& ch7 = channels[7];
 		Channel& ch8 = channels[8];
-		bufs[ 7][sample] = (ch7.mod.eg_mode != FINISH)
-			? adjust(2 * ch7.mod.calc_slot_hat(ch8.car.pgout,
-				noise_seed & 1))
-			: 0;
-		bufs[ 8][sample] = (ch7.car.eg_mode != FINISH)
-			? adjust(-2 * ch7.car.calc_slot_snare(noise_seed & 1))
-			: 0;
-
-		bufs[ 9][sample] = (ch8.mod.eg_mode != FINISH)
-			? adjust( 2 * ch8.mod.calc_slot_tom())
-			: 0;
-		bufs[10][sample] = (ch8.car.eg_mode != FINISH)
-			? adjust(-2 * ch8.car.calc_slot_cym(ch7.mod.pgout))
-			: 0;
-	} else {
-		bufs[ 9] = 0;
-		bufs[10] = 0;
-	}
-}
-
-bool Global::checkMuteHelper()
-{
-	for (int i = 0; i < 6; i++) {
-		if (channels[i].car.eg_mode != FINISH) return false;
-	}
-	if (!isRhythm()) {
-		for(int i = 6; i < 9; i++) {
-			 if (channels[i].car.eg_mode != FINISH) return false;
+		if (channelActiveBits & (1 << 7)) {
+			bufs[ 7][sample] = (ch7.mod.eg_mode != FINISH)
+				? adjust(2 * ch7.mod.calc_slot_hat(ch8.car.pgout,
+					noise_seed & 1))
+				: 0;
 		}
-	} else {
-		if (channels[6].car.eg_mode != FINISH) return false;
-		if (channels[7].mod.eg_mode != FINISH) return false;
-		if (channels[7].car.eg_mode != FINISH) return false;
-		if (channels[8].mod.eg_mode != FINISH) return false;
-		if (channels[8].car.eg_mode != FINISH) return false;
+		if (channelActiveBits & (1 << 8)) {
+			bufs[ 8][sample] = (ch7.car.eg_mode != FINISH)
+				? adjust(-2 * ch7.car.calc_slot_snare(noise_seed & 1))
+				: 0;
+		}
+
+		if (channelActiveBits & (1 << 9)) {
+			bufs[ 9][sample] = (ch8.mod.eg_mode != FINISH)
+				? adjust( 2 * ch8.mod.calc_slot_tom())
+				: 0;
+		}
+		if (channelActiveBits & (1 << 10)) {
+			bufs[10][sample] = (ch8.car.eg_mode != FINISH)
+				? adjust(-2 * ch8.car.calc_slot_cym(ch7.mod.pgout))
+				: 0;
+		}
 	}
-	return true;	// nothing is playing, then mute
 }
 
 void Global::generateChannels(int** bufs, unsigned num)
 {
-	if (checkMuteHelper()) {
-		// TODO update internal state, even if muted
-		for (int i = 0; i < 11; ++i) {
-			bufs[i] = 0;
+	const int numMelodicChannels = isRhythm() ? 6 : 9;
+	unsigned channelActiveBits = 0;
+	for (int ch = 0; ch < numMelodicChannels; ch++) {
+		if (channels[ch].car.eg_mode != FINISH) {
+			channelActiveBits |= 1 << ch;
+		} else {
+			bufs[ch] = 0;
 		}
-		return;
 	}
-
+	if (isRhythm()) {
+		if (channels[6].car.eg_mode != FINISH) {
+			channelActiveBits |= 1 << 6;
+		} else {
+			bufs[6] = 0;
+		}
+		if (channels[7].mod.eg_mode != FINISH) {
+			channelActiveBits |= 1 << 7;
+		} else {
+			bufs[7] = 0;
+		}
+		if (channels[7].car.eg_mode != FINISH) {
+			channelActiveBits |= 1 << 8;
+		} else {
+			bufs[8] = 0;
+		}
+		if (channels[8].mod.eg_mode != FINISH) {
+			channelActiveBits |= 1 << 9;
+		} else {
+			bufs[9] = 0;
+		}
+		if (channels[8].car.eg_mode != FINISH) {
+			channelActiveBits |= 1 << 10;
+		} else {
+			bufs[10] = 0;
+		}
+	} else {
+		// channel [6..8] are used for melody
+		bufs[ 9] = 0;
+		bufs[10] = 0;
+	}
 	for (unsigned i = 0; i < num; ++i) {
-		calcSample(bufs, i);
+		calcSample(bufs, i, channelActiveBits);
 	}
 }
 
