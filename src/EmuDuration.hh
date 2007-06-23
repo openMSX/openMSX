@@ -56,6 +56,8 @@ public:
 		{ return EmuDuration(time / fact); }
 	unsigned operator/(const EmuDuration& d) const
 		{ return time / d.time; }
+	double div(const EmuDuration& d) const
+		{ return double(time) / d.time; }
 
 	EmuDuration& operator*=(double fact)
 		{ time = static_cast<uint64>(time * fact); return *this; }

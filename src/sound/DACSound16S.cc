@@ -36,7 +36,6 @@ void DACSound16S::writeDAC(short value, const EmuTime& time)
 
 	if (value == lastWrittenValue) return;
 	lastWrittenValue = value;
-
 	queue.push_back(Sample(time, value));
 }
 
@@ -50,6 +49,7 @@ void DACSound16S::generateChannels(int** bufs, unsigned num)
 		queue.erase(queue.begin(), it);
 	}
 
+	/* Old implementation commented out, remove this code later
 	if (queue.empty() && (prevValue == 0)) {
 		// optimization: nothing interesting will happen this time, so
 		// return early
@@ -94,6 +94,18 @@ void DACSound16S::generateChannels(int** bufs, unsigned num)
 		bufs[0][i] = value;
 		prevA = sampA;
 		prevB = sampB;
+	}
+	*/
+	
+	// BlipBuffer based implementation
+	EmuTime stop = start + sampDur * num;
+	while (!queue.empty() && (queue.front().time < stop)) {
+		double t = (queue.front().time - start).div(sampDur);
+		blip.update(BlipBuffer::TimeIndex(t), queue.front().value);
+		queue.pop_front();
+	}
+	if (!blip.readSamples(bufs[0], num)) {
+		bufs[0] = 0;
 	}
 }
 

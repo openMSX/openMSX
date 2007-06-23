@@ -1,5 +1,11 @@
 $Id$
 
+2007-06-23 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added experimental BlipBuffer support for DACSound based sound
+	  devices:
+	   - heavily based on
+	       http://slack.net/~ant/libs/audio.html#Blip_Buffer
+
 2007-06-19 Manuel Bilderbeek <manuel@msxnet.org>
 	* Voice ROM of Keyboard Master is now also searched in ROM pools (sha1
 	  is hardcoded).

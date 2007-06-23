@@ -123,6 +123,14 @@ public:
 		return create(value & FRACTION_MASK);
 	}
 
+	/**
+	 * Returns the fractional part of this value as an integer.
+	 * The result is equal to  (fract() * (1 << FRACTION_BITS)).toInt()
+	 */
+	unsigned fractAsInt() const {
+		return value & FRACTION_MASK;
+	}
+
 	// Arithmetic operators:
 
 	FixedPoint operator+(const FixedPoint other) const {

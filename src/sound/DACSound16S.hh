@@ -6,6 +6,7 @@
 #define DACSOUND16S_HH
 
 #include "SoundDevice.hh"
+#include "BlipBuffer.hh"
 #include "EmuTime.hh"
 #include <deque>
 
@@ -38,6 +39,7 @@ private:
 	typedef std::deque<Sample> Queue;
 	Queue queue;
 
+	BlipBuffer blip;
 	EmuTime start;
 	EmuDuration sampDur;
 	int prevValue;

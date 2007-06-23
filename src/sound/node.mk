@@ -24,7 +24,8 @@ SRC_HDR:= \
 	WavWriter \
 	SamplePlayer \
 	WavData \
-	Resample ResampleHQ ResampleLQ
+	Resample ResampleHQ ResampleLQ \
+	BlipBuffer
 
 HDR_ONLY:= \
 	SoundDriver \
