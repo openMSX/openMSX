@@ -317,6 +317,7 @@ create_trainer "Golvellius" {time 1} {
 	"max gold" {poke 0xe050 255;poke 0xe051 255}
 	"do not get paralyzed when hit by an enemy (after frame)" {poke 0xd01a 0}
 	"get all crystals (bitmask)" {poke 0xe05f 255}
+	"open all holes" {poke 0xe096 1}
 }
 
 create_trainer "Goonies" {time 1} {
