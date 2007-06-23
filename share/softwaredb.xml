@@ -8,7 +8,7 @@
 	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
-<softwaredb xml:lang="en" timestamp="1177776557">
+<softwaredb xml:lang="en" timestamp="1182597110">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -1280,13 +1280,12 @@
 		<country>ES</country>
 		<dump>
 			<original value="false"/>
-			<megarom>
-				<type>konami</type>
+			<rom>
 				<hash algo="sha1">65961a1926b24c8efa71f2ab68cbafa2d0122acf</hash>
 				<remark>
 					<text>MSXDEV06</text>
 				</remark>
-			</megarom>
+			</rom>
 		</dump>
 	</software>
 	<software>
@@ -5879,6 +5878,16 @@
 		<year>1987</year>
 		<country>JP</country>
 		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">fd7b23a4f1c2058b966b5ddd52cf7ae44a0eebb0</hash>
+				<remark>
+					<text>Needs SCC in slot 2</text>
+				</remark>
+			</megarom>
+		</dump>
+		<dump>
 			<original value="true">GoodMSX</original>
 			<megarom>
 				<type>KonamiSCC</type>
@@ -5890,16 +5899,6 @@
 			<megarom>
 				<type>KonamiSCC</type>
 				<hash algo="sha1">d63e20369f98487767810a0c57603bef6a2a07e5</hash>
-			</megarom>
-		</dump>
-		<dump>
-			<original value="false"/>
-			<megarom>
-				<type>KonamiSCC</type>
-				<hash algo="sha1">fd7b23a4f1c2058b966b5ddd52cf7ae44a0eebb0</hash>
-				<remark>
-					<text>tr Pg</text>
-				</remark>
 			</megarom>
 		</dump>
 		<dump>
@@ -10432,7 +10431,7 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Namake's Bridgedrome</title>
+		<title xml:lang="en">Namake`s Bridgedrome</title>
 		<system>MSX</system>
 		<company>Buresto Faiya</company>
 		<year>2005</year>
@@ -16007,7 +16006,7 @@
 			<rom>
 				<hash algo="sha1">46e9ed7b7f6dfda8eee266476c9ebc4dd9d8fcc2</hash>
 				<remark>
-					<text>Doesn&#39;t work correctly in open MSX yet with 16kB RAM.</text>
+					<text>Doesn&#39;t work correctly in open MSX yet with 16 kB RAM.</text>
 				</remark>
 			</rom>
 		</dump>
@@ -21368,7 +21367,7 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">FM-PAC</title>
+		<title xml:lang="en">FMPAC</title>
 		<system>MSX</system>
 		<company>-</company>
 		<year>19xx</year>
@@ -23998,5 +23997,5 @@ Roms in this database : 2243
 Good MSX entries 		: 755
 SHA1 values 			: 2243
 CRC32 values 			: 0
-Parse time 7.001 seconds on Sat Apr 28 18:09:24 CEST 2007
+Parse time 7.050 seconds on Sat Jun 23 13:11:57 CEST 2007
  -->
