@@ -3,6 +3,7 @@
 #include "Resample.hh"
 #include "ResampleHQ.hh"
 #include "ResampleLQ.hh"
+#include "ResampleBlip.hh"
 #include "GlobalSettings.hh"
 #include "EnumSetting.hh"
 #include <cassert>
@@ -42,18 +43,30 @@ void Resample::update(const Setting& setting)
 
 void Resample::createResampler()
 {
-	if (resampleSetting.getValue()) {
+	switch (resampleSetting.getValue()) {
+	case GlobalSettings::RESAMPLE_HQ:
 		if (channels == 1) {
 			algo.reset(new ResampleHQ<1>(*this, ratio));
 		} else {
 			algo.reset(new ResampleHQ<2>(*this, ratio));
 		}
-	} else {
+		break;
+	case GlobalSettings::RESAMPLE_LQ:
 		if (channels == 1) {
 			algo.reset(new ResampleLQ<1>(*this, ratio));
 		} else {
 			algo.reset(new ResampleLQ<2>(*this, ratio));
 		}
+		break;
+	case GlobalSettings::RESAMPLE_BLIP:
+		if (channels == 1) {
+			algo.reset(new ResampleBlip<1>(*this, ratio));
+		} else {
+			algo.reset(new ResampleBlip<2>(*this, ratio));
+		}
+		break;
+	default:
+		assert(false);
 	}
 }
 

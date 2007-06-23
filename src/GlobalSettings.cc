@@ -35,12 +35,13 @@ GlobalSettings::GlobalSettings(CommandController& commandController_)
 	bootSectorSetting.reset(new EnumSetting<bool>(commandController,
 		"bootsector", "boot sector type for dir-as-dsk",
 		true, bootsectorMap));
-	EnumSetting<bool>::Map resampleMap;
-	resampleMap["fast"] = false;
-	resampleMap["hq"]   = true;
-	resampleSetting.reset(new EnumSetting<bool>(commandController,
+	EnumSetting<ResampleType>::Map resampleMap;
+	resampleMap["hq"]   = RESAMPLE_HQ;
+	resampleMap["fast"] = RESAMPLE_LQ;
+	resampleMap["blip"] = RESAMPLE_BLIP;
+	resampleSetting.reset(new EnumSetting<ResampleType>(commandController,
 		"resampler", "Resample algorithm",
-		true, resampleMap));
+		RESAMPLE_HQ, resampleMap));
 
 	throttleManager.reset(new ThrottleManager(commandController));
 
@@ -99,7 +100,7 @@ EnumSetting<bool>& GlobalSettings::getBootSectorSetting()
 	return *bootSectorSetting.get();
 }
 
-EnumSetting<bool>& GlobalSettings::getResampleSetting()
+EnumSetting<GlobalSettings::ResampleType>& GlobalSettings::getResampleSetting()
 {
 	return *resampleSetting.get();
 }

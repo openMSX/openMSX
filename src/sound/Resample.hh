@@ -4,6 +4,7 @@
 #define RESAMPLE_HH
 
 #include "Observer.hh"
+#include "GlobalSettings.hh"
 #include <memory>
 
 namespace openmsx {
@@ -33,7 +34,7 @@ private:
 	double ratio;
 	std::auto_ptr<ResampleAlgo> algo;
 	const unsigned channels;
-	EnumSetting<bool>& resampleSetting;
+	EnumSetting<GlobalSettings::ResampleType>& resampleSetting;
 };
 
 } // namespace openmsx

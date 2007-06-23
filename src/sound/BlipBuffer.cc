@@ -125,7 +125,7 @@ void BlipBuffer::update(TimeIndex time, int amp)
 	buffer[(ofst + 15) & BUFFER_MASK] += imp_rev[BLIP_RES * 0] * delta;
 }
 
-bool BlipBuffer::readSamples(int* out, unsigned samples)
+bool BlipBuffer::readSamples(int* out, unsigned samples, unsigned pitch)
 {
 	static const int SAMPLE_SHIFT = BLIP_SAMPLE_BITS - 16;
 	static const int BASS_SHIFT = 9;
@@ -137,7 +137,7 @@ bool BlipBuffer::readSamples(int* out, unsigned samples)
 
 	int acc = accum;
 	for (unsigned i = 0; i < samples; ++i) {
-		out[i] = acc >> SAMPLE_SHIFT;
+		out[i * pitch] = acc >> SAMPLE_SHIFT;
 		acc -= acc >> BASS_SHIFT;
 		acc += buffer[offset];
 		buffer[offset] = 0;

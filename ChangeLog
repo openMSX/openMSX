@@ -5,6 +5,11 @@ $Id$
 	  devices:
 	   - heavily based on
 	       http://slack.net/~ant/libs/audio.html#Blip_Buffer
+	* Added BlipBuffer based resampler:
+	   - Selectable via 'set resampler blip'
+	   - I'm not sure we want to keep this global or if we want to make
+	     this resampler default for specific devices. But for now it's an
+	     easy way to experiment
 
 2007-06-19 Manuel Bilderbeek <manuel@msxnet.org>
 	* Voice ROM of Keyboard Master is now also searched in ROM pools (sha1

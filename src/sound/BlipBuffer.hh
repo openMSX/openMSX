@@ -28,7 +28,7 @@ public:
 	void update(TimeIndex time, int amplitude);
 
 	// Read the given amount of samples into destination buffer.
-	bool readSamples(int* dest, unsigned samples);
+	bool readSamples(int* dest, unsigned samples, unsigned pitch = 1);
 
 private:
 	static const unsigned BUFFER_SIZE = 1 << 14;
