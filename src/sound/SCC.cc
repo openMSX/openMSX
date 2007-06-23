@@ -184,15 +184,15 @@ void SCC::setChipMode(ChipMode newMode)
 
 byte SCC::readMem(byte addr, const EmuTime& time)
 {
-        // Deform-register locations:
-        //   SCC_Real:       0xE0..0xFF
-        //   SCC_Compatible: 0xC0..0xDF
-        //   SCC_plusmode:   0xC0..0xDF
-        if (((currentChipMode == SCC_Real) && (addr >= 0xE0)) ||
+	// Deform-register locations:
+	//   SCC_Real:       0xE0..0xFF
+	//   SCC_Compatible: 0xC0..0xDF
+	//   SCC_plusmode:   0xC0..0xDF
+	if (((currentChipMode == SCC_Real) && (addr >= 0xE0)) ||
 	    ((currentChipMode != SCC_Real) && (0xC0 <= addr) && (addr < 0xE0))) {
-	        setDeformReg(0xFF, time);
-        }
-        return peekMem(addr, time);
+		setDeformReg(0xFF, time);
+	}
+	return peekMem(addr, time);
 }
 
 byte SCC::peekMem(byte address, const EmuTime& time) const
@@ -408,40 +408,40 @@ void SCC::setDeformReg(byte value, const EmuTime& time)
 		value &= ~0x80;
 	}
 	switch (value & 0xC0) {
-        case 0x00:
-                for (unsigned i = 0; i < 5; ++i) {
-                        rotate[i] = false;
-                        readOnly[i] = false;
-                }
-                break;
-        case 0x40:
-                for (unsigned i = 0; i < 5; ++i) {
-                        rotate[i] = true;
-                        readOnly[i] = true;
-                }
-                break;
-        case 0x80:
-                for (unsigned i = 0; i < 3; ++i) {
-                        rotate[i] = false;
-                        readOnly[i] = false;
-                }
-                for (unsigned i = 3; i < 5; ++i) {
-                        rotate[i] = true;
-                        readOnly[i] = true;
-                }
-                break;
-        case 0xC0:
-                for (unsigned i = 0; i < 3; ++i) {
-                        rotate[i] = true;
-                        readOnly[i] = true;
-                }
-                for (unsigned i = 3; i < 5; ++i) {
-                        rotate[i] = false;
-                        readOnly[i] = true;
-                }
-                break;
-        default:
-                assert(false);
+	case 0x00:
+		for (unsigned i = 0; i < 5; ++i) {
+			rotate[i] = false;
+			readOnly[i] = false;
+		}
+		break;
+	case 0x40:
+		for (unsigned i = 0; i < 5; ++i) {
+			rotate[i] = true;
+			readOnly[i] = true;
+		}
+		break;
+	case 0x80:
+		for (unsigned i = 0; i < 3; ++i) {
+			rotate[i] = false;
+			readOnly[i] = false;
+		}
+		for (unsigned i = 3; i < 5; ++i) {
+			rotate[i] = true;
+			readOnly[i] = true;
+		}
+		break;
+	case 0xC0:
+		for (unsigned i = 0; i < 3; ++i) {
+			rotate[i] = true;
+			readOnly[i] = true;
+		}
+		for (unsigned i = 3; i < 5; ++i) {
+			rotate[i] = false;
+			readOnly[i] = true;
+		}
+		break;
+	default:
+		assert(false);
 	}
 }
 
@@ -479,7 +479,7 @@ bool SCC::generateInput(int* buffer, unsigned num)
 }
 
 bool SCC::updateBuffer(unsigned length, int* buffer,
-     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
+                       const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
 {
 	return generateOutput(buffer, length);
 }
