@@ -61,7 +61,7 @@
 namespace openmsx {
 
 ESE_SCC::ESE_SCC(MSXMotherBoard& motherBoard, const XMLElement& config,
-                   const EmuTime& time, bool withSCSI)
+                 const EmuTime& time, bool withSCSI)
 	: MSXDevice(motherBoard, config, time)
 	, cpu(motherBoard.getCPU())
 {
@@ -120,10 +120,10 @@ void ESE_SCC::setMapperLow(unsigned page, byte value)
 		sccEnable = (value == 0x3f);
 	}
 	byte newValue = (value | mapperHigh) & mapperMask;
-        if (mapper[page] != newValue) {
-                mapper[page] = newValue;
-                cpu.invalidateMemCache(0x4000 + 0x2000 * page, 0x2000);
-        }
+	if (mapper[page] != newValue) {
+		mapper[page] = newValue;
+		cpu.invalidateMemCache(0x4000 + 0x2000 * page, 0x2000);
+	}
 }
 
 void ESE_SCC::setMapperHigh(byte value)
@@ -139,9 +139,9 @@ void ESE_SCC::setMapperHigh(byte value)
 	for (int i = 0; i < 4; ++i) {
 		byte newValue = ((mapper[i] & 0x3F) | mapperHigh) & mapperMask;
 		if (mapper[i] != newValue) {
-		        mapper[i] = newValue;
-                        cpu.invalidateMemCache(0x4000 + 0x2000 * i, 0x2000);
-                }
+			mapper[i] = newValue;
+			cpu.invalidateMemCache(0x4000 + 0x2000 * i, 0x2000);
+		}
 	}
 }
 
@@ -190,11 +190,11 @@ const byte* ESE_SCC::getReadCacheLine(word address) const
 	unsigned page = address / 0x2000 - 2;
 	// SPC
 	if (spcEnable && (page == 0)) {
-                return NULL;
+		return NULL;
 	}
 	// SCC bank
 	if (sccEnable && (address >= 0x9800) && (address < 0xa000)) {
-                return NULL;
+		return NULL;
 	}
 	// SRAM read
 	return &(*sram)[mapper[page] * 0x2000 + (address & 0x1fff)];
