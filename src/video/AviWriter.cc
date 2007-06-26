@@ -1,4 +1,4 @@
-// $Id: $
+// $Id$
 
 // Code based on DOSBox-0.65
 
@@ -6,8 +6,10 @@
 #include "ZMBVEncoder.hh"
 #include "CommandException.hh"
 #include "build-info.hh"
+#include "Version.hh"
 #include <cstring>
 #include <cstdlib>
+#include <ctime>
 #include <cassert>
 
 namespace openmsx {
@@ -56,9 +58,12 @@ AviWriter::~AviWriter()
 	unsigned char avi_header[AVI_HEADER_SIZE];
 	unsigned header_pos = 0;
 
+	memset(&avi_header, '\0', AVI_HEADER_SIZE);
+
 #define AVIOUT4(_S_) memcpy(&avi_header[header_pos],_S_,4);header_pos+=4;
 #define AVIOUTw(_S_) writeLE2(&avi_header[header_pos], _S_);header_pos+=2;
 #define AVIOUTd(_S_) writeLE4(&avi_header[header_pos], _S_);header_pos+=4;
+#define AVIOUTs(_S_) memcpy(&avi_header[header_pos],_S_,strlen(_S_)+1);header_pos+=(strlen(_S_)+1 + 1) & ~1;
 
 	bool hasAudio = audiorate != 0;
 
@@ -156,15 +161,33 @@ AviWriter::~AviWriter()
 		AVIOUTw(16);                // BitsPerSample
 	}
 
+	const char* versionStr = const_cast<char*>(Version::FULL_VERSION.c_str());
+	char dateStr[11];
+	time_t t = time(NULL);
+	struct tm *tm = localtime(&t);
+	sprintf(dateStr, "%04d-%02d-%02d", 1900+tm->tm_year, tm->tm_mon+1, tm->tm_mday);
+	AVIOUT4("LIST");
+	AVIOUTd(4 + (4 + strlen(versionStr) + 1) + (4 + strlen(dateStr) + 1)); // Size of the list
+	AVIOUT4("INFO");
+        AVIOUT4("ISFT");
+	AVIOUTd(strlen(versionStr) + 1); // # of bytes to follow
+	AVIOUTs(versionStr);
+        AVIOUT4("ICRD");
+	AVIOUTd(strlen(dateStr) + 1); // # of bytes to follow
+	AVIOUTs(dateStr);
+	// TODO: add artist (IART), comments (ICMT), name (INAM), etc.
+
 	// Finish stream list, i.e. put number of bytes in the list to proper pos
 	int nmain = header_pos - main_list - 4;
 	int njunk = AVI_HEADER_SIZE - 8 - 12 - header_pos;
+	assert (njunk > 0); // maybe we should increase the AVI_HEADER_SIZE if this occurs
 	AVIOUT4("JUNK");
 	AVIOUTd(njunk);
 	// Fix the size of the main list
 	header_pos = main_list;
 	AVIOUTd(nmain);
 	header_pos = AVI_HEADER_SIZE - 12;
+	
 	AVIOUT4("LIST");
 	AVIOUTd(written + 4);               // Length of list in bytes
 	AVIOUT4("movi");

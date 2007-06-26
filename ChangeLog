@@ -1,5 +1,9 @@
 $Id$
 
+2007-06-26 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added Software and Creation Date info to AVI files.
+	* Added Creation Time info to PNG files (Software was already there).
+
 2007-06-23 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added experimental BlipBuffer support for DACSound based sound
 	  devices:
