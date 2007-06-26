@@ -59,10 +59,7 @@ private:
 
 
 static const int FREQ_SH   = 16;  // 16.16 fixed point (frequency calculations)
-static const int EG_SH     = 16;  // 16.16 fixed point (EG timing)
-static const int TIMER_SH  = 16;  // 16.16 fixed point (timers calculations)
 static const int FREQ_MASK = (1 << FREQ_SH) - 1;
-static const unsigned EG_TIMER_OVERFLOW = 1 << EG_SH;
 
 // envelope output entries
 static const int ENV_BITS    = 10;
