@@ -89,13 +89,13 @@ public:
 	byte key;	// 0 = KEY OFF, >0 = KEY ON
 
 	byte FB;	// PG: feedback shift value
-	byte CON;	// PG: connection (algorithm) type
-	byte eg_type;	// EG: percussive/non-percussive mode
+	bool CON;	// PG: connection (algorithm) type
+	bool eg_type;	// EG: percussive/non-percussive mode
 	byte state;	// EG: phase type
 
 	// LFO
 	byte AMmask;	// LFO Amplitude Modulation enable mask
-	byte vib;	// LFO Phase Modulation enable flag (active high)
+	bool vib;	// LFO Phase Modulation enable flag (active high)
 
 	byte waveform_number; // waveform select
 

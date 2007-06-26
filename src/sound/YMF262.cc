@@ -397,12 +397,13 @@ static int phase_modulation2; // phase modulation input (SLOT 3
 YMF262Slot::YMF262Slot()
 {
 	ar = dr = rr = KSR = ksl = ksr = mul = 0;
-	Cnt = Incr = FB = op1_out[0] = op1_out[1] = CON = 0;
+	Cnt = Incr = FB = op1_out[0] = op1_out[1] = 0;
+	CON = eg_type = vib = false;
 	connect = 0;
-	eg_type = state = TL = TLL = volume = sl = 0;
+	state = TL = TLL = volume = sl = 0;
 	eg_m_ar = eg_sh_ar = eg_sel_ar = eg_m_dr = eg_sh_dr = 0;
 	eg_sel_dr = eg_m_rr = eg_sh_rr = eg_sel_rr = 0;
-	key = AMmask = vib = waveform_number = wavetable = 0;
+	key = AMmask = waveform_number = wavetable = 0;
 }
 
 YMF262Channel::YMF262Channel()
@@ -541,22 +542,19 @@ void YMF262::advance()
 		}
 	}
 
+	// Phase Generator
 	for (int c = 0; c < 18; ++c) {
 		YMF262Channel& ch = channels[c];
 		for (int s = 0; s < 2; ++s) {
 			YMF262Slot& op = ch.slots[s];
-
-			// Phase Generator
 			if (op.vib) {
-				byte block;
 				unsigned block_fnum = ch.block_fnum;
 				unsigned fnum_lfo   = (block_fnum & 0x0380) >> 7;
 				int lfo_fn_table_index_offset = lfo_pm_table[LFO_PM + 16 * fnum_lfo];
-
 				if (lfo_fn_table_index_offset) {
 					// LFO phase modulation active
 					block_fnum += lfo_fn_table_index_offset;
-					block = (block_fnum & 0x1c00) >> 10;
+					byte block = (block_fnum & 0x1c00) >> 10;
 					op.Cnt += (fn_tab[block_fnum & 0x03ff] >> (7 - block)) * op.mul;
 				} else {
 					// LFO phase modulation  = zero
