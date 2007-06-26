@@ -218,7 +218,7 @@ private:
 	byte lfo_pm_depth_range;
 
 	byte rhythm;			// Rhythm mode
-	byte nts;			// NTS (note select)
+	bool nts;			// NTS (note select)
 	bool OPL3_mode;			// OPL3 extension enable flag
 
 	byte status;			// status flag

@@ -598,7 +598,7 @@ void YMF262::advance()
 static int op_calc(unsigned phase, unsigned env, int pm, unsigned wave_tab)
 {
 	int i = (phase & ~FREQ_MASK) + (pm << 16);
-	int p = (env << 4) + sin_tab[wave_tab + ((i >> FREQ_SH ) & SIN_MASK)];
+	int p = (env << 4) + sin_tab[wave_tab + ((i >> FREQ_SH) & SIN_MASK)];
 	return (p < TL_TAB_LEN) ? tl_tab[p] : 0;
 }
 
@@ -1296,7 +1296,7 @@ void YMF262::writeRegForce(int r, byte v, const EmuTime& time)
 			break;
 
 		case 0x08: // x,NTS,x,x, x,x,x,x
-			nts = v;
+			nts = v & 0x40;
 			break;
 
 		default:
@@ -1491,7 +1491,7 @@ void YMF262::writeRegForce(int r, byte v, const EmuTime& time)
 			// in the Manuals (verifed on real YMF262)
 			// if notesel == 0 -> lsb of kcode is bit 10 (MSB) of fnum
 			// if notesel == 1 -> lsb of kcode is bit 9 (MSB-1) of fnum
-			if (nts & 0x40) {
+			if (nts) {
 				ch.kcode |= (ch.block_fnum & 0x100) >> 8;	// notesel == 1
 			} else {
 				ch.kcode |= (ch.block_fnum & 0x200) >> 9;	// notesel == 0
@@ -1736,10 +1736,10 @@ void YMF262::writeRegForce(int r, byte v, const EmuTime& time)
 
 void YMF262::reset(const EmuTime& time)
 {
-	eg_cnt   = 0;
+	eg_cnt = 0;
 
 	noise_rng = 1;	// noise shift register
-	nts       = 0;	// note split
+	nts = false; // note split
 	resetStatus(0x60);
 
 	// reset with register write
@@ -1782,8 +1782,7 @@ YMF262::YMF262(MSXMotherBoard& motherBoard, const std::string& name,
 	LFO_AM = LFO_PM = 0;
 	lfo_am_depth = false;
 	lfo_pm_depth_range = 0;
-	noise_rng = 0;
-	rhythm = nts = 0;
+	rhythm = 0;
 	OPL3_mode = false;
 	status = status2 = statusMask = 0;
 
