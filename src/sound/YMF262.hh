@@ -209,7 +209,7 @@ private:
 	unsigned lfo_pm_cnt;
 	byte LFO_AM;
 	byte LFO_PM;
-	byte lfo_am_depth;
+	bool lfo_am_depth;
 	byte lfo_pm_depth_range;
 
 	byte rhythm;			// Rhythm mode

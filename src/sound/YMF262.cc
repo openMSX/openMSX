@@ -471,11 +471,7 @@ void YMF262::advance_lfo()
 	}
 
 	byte tmp = lfo_am_table[lfo_am_cnt >> LFO_SH];
-	if (lfo_am_depth) {
-		LFO_AM = tmp;
-	} else {
-		LFO_AM = tmp >> 2;
-	}
+	LFO_AM = lfo_am_depth ? tmp : tmp / 4;
 
 	// Vibrato: 8 output levels (triangle waveform); 1 level takes 1024 samples
 	static const unsigned LFO_PM_INC = (1 << LFO_SH) / 1024;
@@ -487,90 +483,94 @@ void YMF262::advance_lfo()
 void YMF262::advance()
 {
 	++eg_cnt;
-	for (int i = 0; i < 18 * 2; ++i) {
-		YMF262Channel& ch = channels[i / 2];
-		YMF262Slot& op = ch.slots[i & 1];
-		// Envelope Generator
-		switch(op.state) {
-		case EG_ATT:	// attack phase
-			if (!(eg_cnt & op.eg_m_ar)) {
-				op.volume += (~op.volume * eg_inc[op.eg_sel_ar + ((eg_cnt >> op.eg_sh_ar) & 7)]) >> 3;
-				if (op.volume <= MIN_ATT_INDEX) {
-					op.volume = MIN_ATT_INDEX;
-					op.state = EG_DEC;
+	for (int c = 0; c < 18; ++c) {
+		YMF262Channel& ch = channels[c];
+		for (int s = 0; s < 2; ++s) {
+			YMF262Slot& op = ch.slots[s];
+			// Envelope Generator
+			switch(op.state) {
+			case EG_ATT:	// attack phase
+				if (!(eg_cnt & op.eg_m_ar)) {
+					op.volume += (~op.volume * eg_inc[op.eg_sel_ar + ((eg_cnt >> op.eg_sh_ar) & 7)]) >> 3;
+					if (op.volume <= MIN_ATT_INDEX) {
+						op.volume = MIN_ATT_INDEX;
+						op.state = EG_DEC;
+					}
 				}
-			}
-			break;
+				break;
 
-		case EG_DEC:	// decay phase
-			if (!(eg_cnt & op.eg_m_dr)) {
-				op.volume += eg_inc[op.eg_sel_dr + ((eg_cnt >> op.eg_sh_dr) & 7)];
-				if (op.volume >= op.sl) {
-					op.state = EG_SUS;
+			case EG_DEC:	// decay phase
+				if (!(eg_cnt & op.eg_m_dr)) {
+					op.volume += eg_inc[op.eg_sel_dr + ((eg_cnt >> op.eg_sh_dr) & 7)];
+					if (op.volume >= op.sl) {
+						op.state = EG_SUS;
+					}
 				}
-			}
-			break;
+				break;
 
-		case EG_SUS:	// sustain phase
-			// this is important behaviour:
-			// one can change percusive/non-percussive
-			// modes on the fly and the chip will remain
-			// in sustain phase - verified on real YM3812
-			if (op.eg_type) {
-				// non-percussive mode
-				// do nothing
-			} else {
-				// percussive mode
-				// during sustain phase chip adds Release Rate (in percussive mode)
+			case EG_SUS:	// sustain phase
+				// this is important behaviour:
+				// one can change percusive/non-percussive
+				// modes on the fly and the chip will remain
+				// in sustain phase - verified on real YM3812
+				if (op.eg_type) {
+					// non-percussive mode
+					// do nothing
+				} else {
+					// percussive mode
+					// during sustain phase chip adds Release Rate (in percussive mode)
+					if (!(eg_cnt & op.eg_m_rr)) {
+						op.volume += eg_inc[op.eg_sel_rr + ((eg_cnt>>op.eg_sh_rr) & 7)];
+						if (op.volume >= MAX_ATT_INDEX) {
+							op.volume = MAX_ATT_INDEX;
+						}
+					} else {
+						// do nothing in sustain phase
+					}
+				}
+				break;
+
+			case EG_REL:	// release phase
 				if (!(eg_cnt & op.eg_m_rr)) {
 					op.volume += eg_inc[op.eg_sel_rr + ((eg_cnt>>op.eg_sh_rr) & 7)];
 					if (op.volume >= MAX_ATT_INDEX) {
 						op.volume = MAX_ATT_INDEX;
+						op.state = EG_OFF;
 					}
-				} else {
-					// do nothing in sustain phase
 				}
-			}
 			break;
 
-		case EG_REL:	// release phase
-			if (!(eg_cnt & op.eg_m_rr)) {
-				op.volume += eg_inc[op.eg_sel_rr + ((eg_cnt>>op.eg_sh_rr) & 7)];
-				if (op.volume >= MAX_ATT_INDEX) {
-					op.volume = MAX_ATT_INDEX;
-					op.state = EG_OFF;
-				}
+			default:
+				break;
 			}
-		break;
-
-		default:
-			break;
 		}
 	}
 
-	for (int i = 0; i < 18 * 2; ++i) {
-		YMF262Channel& ch = channels[i / 2];
-		YMF262Slot& op = ch.slots[i & 1];
+	for (int c = 0; c < 18; ++c) {
+		YMF262Channel& ch = channels[c];
+		for (int s = 0; s < 2; ++s) {
+			YMF262Slot& op = ch.slots[s];
 
-		// Phase Generator
-		if (op.vib) {
-			byte block;
-			unsigned block_fnum = ch.block_fnum;
-			unsigned fnum_lfo   = (block_fnum & 0x0380) >> 7;
-			int lfo_fn_table_index_offset = lfo_pm_table[LFO_PM + 16 * fnum_lfo];
+			// Phase Generator
+			if (op.vib) {
+				byte block;
+				unsigned block_fnum = ch.block_fnum;
+				unsigned fnum_lfo   = (block_fnum & 0x0380) >> 7;
+				int lfo_fn_table_index_offset = lfo_pm_table[LFO_PM + 16 * fnum_lfo];
 
-			if (lfo_fn_table_index_offset) {
-				// LFO phase modulation active
-				block_fnum += lfo_fn_table_index_offset;
-				block = (block_fnum & 0x1c00) >> 10;
-				op.Cnt += (fn_tab[block_fnum & 0x03ff] >> (7 - block)) * op.mul;
+				if (lfo_fn_table_index_offset) {
+					// LFO phase modulation active
+					block_fnum += lfo_fn_table_index_offset;
+					block = (block_fnum & 0x1c00) >> 10;
+					op.Cnt += (fn_tab[block_fnum & 0x03ff] >> (7 - block)) * op.mul;
+				} else {
+					// LFO phase modulation  = zero
+					op.Cnt += op.Incr;
+				}
 			} else {
-				// LFO phase modulation  = zero
+				// LFO phase modulation disabled for this operator
 				op.Cnt += op.Incr;
 			}
-		} else {
-			// LFO phase modulation disabled for this operator
-			op.Cnt += op.Incr;
 		}
 	}
 
@@ -604,20 +604,14 @@ static int op_calc(unsigned phase, unsigned env, int pm, unsigned wave_tab)
 {
 	int i = (phase & ~FREQ_MASK) + (pm << 16);
 	int p = (env << 4) + sin_tab[wave_tab + ((i >> FREQ_SH ) & SIN_MASK)];
-	if (p >= TL_TAB_LEN) {
-		return 0;
-	}
-	return tl_tab[p];
+	return (p < TL_TAB_LEN) ? tl_tab[p] : 0;
 }
 
 static int op_calc1(unsigned phase, unsigned env, int pm, unsigned wave_tab)
 {
 	int i = (phase & ~FREQ_MASK) + pm;
 	int p = (env << 4) + sin_tab[wave_tab + ((i >> FREQ_SH) & SIN_MASK)];
-	if (p >= TL_TAB_LEN) {
-		return 0;
-	}
-	return tl_tab[p];
+	return (p < TL_TAB_LEN) ? tl_tab[p] : 0;
 }
 
 inline int YMF262Slot::volume_calc(byte LFO_AM)
@@ -874,11 +868,7 @@ void YMF262::init_tables()
 		// result fits within 16 bits at maximum
 		int n = (int)m;		// 16 bits here
 		n >>= 4;		// 12 bits here
-		if (n & 1) {		// round to nearest
-			n = (n >> 1) + 1;
-		} else {
-			n = n >> 1;
-		}
+		n = (n >> 1) + (n & 1); // round to nearest
 		// 11 bits here (rounded)
 		n <<= 1;		// 12 bits here (as in real chip)
 		tl_tab[x * 2 + 0] = n;
@@ -901,11 +891,7 @@ void YMF262::init_tables()
 		o = o / (ENV_STEP / 4);
 
 		int n = (int)(2 * o);
-		if (n & 1) {// round to nearest
-			n = (n>>1)+1;
-		} else {
-			n = n>>1;
-		}
+		n = (n >> 1) + (n & 1); // round to nearest
 		sin_tab[i] = n * 2 + (m >= 0.0 ? 0 : 1);
 	}
 
@@ -914,11 +900,9 @@ void YMF262::init_tables()
 		// waveform 1:  __      __
 		//             /  \____/  \____
 		// output only first half of the sinus waveform (positive one)
-		if (i & (1 << (SIN_BITS - 1))) {
-			sin_tab[1 * SIN_LEN + i] = TL_TAB_LEN;
-		} else {
-			sin_tab[1 * SIN_LEN + i] = sin_tab[i];
-		}
+		sin_tab[1 * SIN_LEN + i] = (i & (1 << (SIN_BITS - 1)))
+		                         ? TL_TAB_LEN
+		                         : sin_tab[i];
 
 		// waveform 2:  __  __  __  __
 		//             /  \/  \/  \/  \.
@@ -928,52 +912,41 @@ void YMF262::init_tables()
 		// waveform 3:  _   _   _   _
 		//             / |_/ |_/ |_/ |_
 		// abs(output only first quarter of the sinus waveform)
-		if (i & (1 << (SIN_BITS - 2))) {
-			sin_tab[3 * SIN_LEN + i] = TL_TAB_LEN;
-		} else {
-			sin_tab[3 * SIN_LEN + i] = sin_tab[i & (SIN_MASK>>2)];
-		}
+		sin_tab[3 * SIN_LEN + i] = (i & (1 << (SIN_BITS - 2)))
+		                         ? TL_TAB_LEN
+		                         : sin_tab[i & (SIN_MASK>>2)];
 
-		// waveform 4:
-		//             /\  ____/\  ____
+		// waveform 4: /\  ____/\  ____
 		//               \/      \/
-		// output whole sinus waveform in half the cycle(step=2) and output 0 on the other half of cycle
-		if (i & (1 << (SIN_BITS - 1))) {
-			sin_tab[4 * SIN_LEN + i] = TL_TAB_LEN;
-		} else {
-			sin_tab[4 * SIN_LEN + i] = sin_tab[i * 2];
-		}
+		// output whole sinus waveform in half the cycle(step=2)
+		// and output 0 on the other half of cycle
+		sin_tab[4 * SIN_LEN + i] = (i & (1 << (SIN_BITS - 1)))
+		                         ? TL_TAB_LEN
+		                         : sin_tab[i * 2];
 
-		// waveform 5:
-		//             /\/\____/\/\____
+		// waveform 5: /\/\____/\/\____
 		//
-		// output abs(whole sinus) waveform in half the cycle(step=2) and output 0 on the other half of cycle
-		if (i & (1 << (SIN_BITS - 1))) {
-			sin_tab[5 * SIN_LEN + i] = TL_TAB_LEN;
-		} else {
-			sin_tab[5 * SIN_LEN + i] = sin_tab[(i * 2) & (SIN_MASK >> 1)];
-		}
+		// output abs(whole sinus) waveform in half the cycle(step=2)
+		// and output 0 on the other half of cycle
+		sin_tab[5 * SIN_LEN + i] = (i & (1 << (SIN_BITS - 1)))
+		                         ? TL_TAB_LEN
+		                         : sin_tab[(i * 2) & (SIN_MASK >> 1)];
 
 		// waveform 6: ____    ____
-		//
 		//                 ____    ____
-		// output maximum in half the cycle and output minimum on the other half of cycle
-		if (i & (1 << (SIN_BITS - 1))) {
-			sin_tab[6 * SIN_LEN + i] = 1;	// negative
-		} else {
-			sin_tab[6 * SIN_LEN + i] = 0;	// positive
-		}
+		// output maximum in half the cycle and output minimum
+		// on the other half of cycle
+		sin_tab[6 * SIN_LEN + i] = (i & (1 << (SIN_BITS - 1)))
+		                         ? 1  // negative
+		                         : 0; // positive
 
-		// waveform 7:
-		//             |\____  |\____
+		// waveform 7:|\____  |\____
 		//                   \|      \|
 		// output sawtooth waveform
 		int x = (i & (1 << (SIN_BITS - 1)))
 		      ? ((SIN_LEN - 1) - i) * 16 + 1  // negative: from 8177 to 1
 		      : i * 16;                       // positive: from 0 to 8176
-		if (x > TL_TAB_LEN) {
-			x = TL_TAB_LEN;	// clip to the allowed range
-		}
+		x = std::min(x, TL_TAB_LEN); // clip to the allowed range
 		sin_tab[7 * SIN_LEN + i] = x;
 	}
 
@@ -1025,26 +998,25 @@ void YMF262Channel::CALC_FCSLOT(YMF262Slot& slot)
 	slot.Incr = fc * slot.mul;
 	int ksr = kcode >> slot.KSR;
 
-	if (slot.ksr != ksr) {
-		slot.ksr = ksr;
+	if (slot.ksr == ksr) return;
+	slot.ksr = ksr;
 
-		// calculate envelope generator rates
-		if ((slot.ar + slot.ksr) < 16+60) {
-			slot.eg_sh_ar  = eg_rate_shift [slot.ar + slot.ksr ];
-			slot.eg_m_ar   = (1 << slot.eg_sh_ar) - 1;
-			slot.eg_sel_ar = eg_rate_select[slot.ar + slot.ksr ];
-		} else {
-			slot.eg_sh_ar  = 0;
-			slot.eg_m_ar   = (1 << slot.eg_sh_ar) - 1;
-			slot.eg_sel_ar = 13 * RATE_STEPS;
-		}
-		slot.eg_sh_dr  = eg_rate_shift [slot.dr + slot.ksr ];
-		slot.eg_m_dr   = (1 << slot.eg_sh_dr) - 1;
-		slot.eg_sel_dr = eg_rate_select[slot.dr + slot.ksr ];
-		slot.eg_sh_rr  = eg_rate_shift [slot.rr + slot.ksr ];
-		slot.eg_m_rr   = (1 << slot.eg_sh_rr) - 1;
-		slot.eg_sel_rr = eg_rate_select[slot.rr + slot.ksr ];
+	// calculate envelope generator rates
+	if ((slot.ar + slot.ksr) < 16+60) {
+		slot.eg_sh_ar  = eg_rate_shift [slot.ar + slot.ksr ];
+		slot.eg_m_ar   = (1 << slot.eg_sh_ar) - 1;
+		slot.eg_sel_ar = eg_rate_select[slot.ar + slot.ksr ];
+	} else {
+		slot.eg_sh_ar  = 0;
+		slot.eg_m_ar   = (1 << slot.eg_sh_ar) - 1;
+		slot.eg_sel_ar = 13 * RATE_STEPS;
 	}
+	slot.eg_sh_dr  = eg_rate_shift [slot.dr + slot.ksr ];
+	slot.eg_m_dr   = (1 << slot.eg_sh_dr) - 1;
+	slot.eg_sel_dr = eg_rate_select[slot.dr + slot.ksr ];
+	slot.eg_sh_rr  = eg_rate_shift [slot.rr + slot.ksr ];
+	slot.eg_m_rr   = (1 << slot.eg_sh_rr) - 1;
+	slot.eg_sel_rr = eg_rate_select[slot.rr + slot.ksr ];
 }
 
 // set multi,am,vib,EG-TYP,KSR,mul
@@ -1812,7 +1784,8 @@ YMF262::YMF262(MSXMotherBoard& motherBoard, const std::string& name,
 	, irq(motherBoard.getCPU())
 {
 	LFO_AM = LFO_PM = 0;
-	lfo_am_depth = lfo_pm_depth_range = lfo_am_cnt = lfo_pm_cnt = 0;
+	lfo_am_depth = false;
+	lfo_pm_depth_range = lfo_am_cnt = lfo_pm_cnt = 0;
 	noise_rng = 0;
 	rhythm = nts = 0;
 	OPL3_mode = false;
