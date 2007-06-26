@@ -45,13 +45,14 @@ public:
 	/** Creates an uninitialized fixed point object.
 	  * This must be public to allow arrays of FixedPoint objects.
 	  */
-	explicit FixedPoint() {};
+	explicit FixedPoint() {}
 
 	// Conversion to fixed point:
 
-	explicit FixedPoint(const int i) : value(i << FRACTION_BITS) {};
-	explicit FixedPoint(const float f) : value(lrintf(f * ONE)) {};
-	explicit FixedPoint(const double d) : value(lrint(d * ONE)) {};
+	explicit FixedPoint(const int i) : value(i << FRACTION_BITS) {}
+	explicit FixedPoint(const unsigned i) : value(i << FRACTION_BITS) {}
+	explicit FixedPoint(const float f) : value(lrintf(f * ONE)) {}
+	explicit FixedPoint(const double d) : value(lrint(d * ONE)) {}
 
 	// Conversion from fixed point:
 
