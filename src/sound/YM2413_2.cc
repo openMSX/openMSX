@@ -998,12 +998,8 @@ inline void Global::advance()
 inline int Slot::calcOutput(int phase) const
 {
 	const int env = (TLL + volume + (global->get_LFO_AM() & AMmask)) << 5;
-	if (env < TL_TAB_LEN) {
-		const int p = env + sin_tab[wavetable + (phase & SIN_MASK)];
-		return p < TL_TAB_LEN ? tl_tab[p] : 0;
-	} else {
-		return 0;
-	}
+	const int p = env + sin_tab[wavetable + (phase & SIN_MASK)];
+	return p < TL_TAB_LEN ? tl_tab[p] : 0;
 }
 
 inline void Slot::updateModulator()
