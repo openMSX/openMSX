@@ -60,7 +60,6 @@ private:
 
 static const int FREQ_SH   = 16;  // 16.16 fixed point (frequency calculations)
 static const int EG_SH     = 16;  // 16.16 fixed point (EG timing)
-static const int LFO_SH    = 24;  //  8.24 fixed point (LFO calculations)
 static const int TIMER_SH  = 16;  // 16.16 fixed point (timers calculations)
 static const int FREQ_MASK = (1 << FREQ_SH) - 1;
 static const unsigned EG_TIMER_OVERFLOW = 1 << EG_SH;
@@ -463,20 +462,19 @@ void YMF262::advance_lfo()
 	// Amplitude modulation: 27 output levels (triangle waveform);
 	// 1 level takes one of: 192, 256 or 448 samples
 	// One entry from LFO_AM_TABLE lasts for 64 samples
-	static const unsigned LFO_AM_INC = (1 << LFO_SH) / 64;
+	static const LFOIndex LFO_AM_INC = LFOIndex(1) / 64;
 	lfo_am_cnt += LFO_AM_INC;
-	if (lfo_am_cnt >= (LFO_AM_TAB_ELEMENTS << LFO_SH)) {
+	if (lfo_am_cnt >= LFOIndex(LFO_AM_TAB_ELEMENTS)) {
 		// lfo_am_table is 210 elements long
-		lfo_am_cnt -= (LFO_AM_TAB_ELEMENTS << LFO_SH);
+		lfo_am_cnt -= LFOIndex(LFO_AM_TAB_ELEMENTS);
 	}
-
-	byte tmp = lfo_am_table[lfo_am_cnt >> LFO_SH];
+	byte tmp = lfo_am_table[lfo_am_cnt.toInt()];
 	LFO_AM = lfo_am_depth ? tmp : tmp / 4;
 
 	// Vibrato: 8 output levels (triangle waveform); 1 level takes 1024 samples
-	static const unsigned LFO_PM_INC = (1 << LFO_SH) / 1024;
+	static const LFOIndex LFO_PM_INC = LFOIndex(1) / 1024;
 	lfo_pm_cnt += LFO_PM_INC;
-	LFO_PM = ((lfo_pm_cnt >> LFO_SH) & 7) | lfo_pm_depth_range;
+	LFO_PM = (lfo_pm_cnt.toInt() & 7) | lfo_pm_depth_range;
 }
 
 // advance to next sample
@@ -1782,10 +1780,11 @@ YMF262::YMF262(MSXMotherBoard& motherBoard, const std::string& name,
 	, timer1(motherBoard.getScheduler(), *this)
 	, timer2(motherBoard.getScheduler(), *this)
 	, irq(motherBoard.getCPU())
+	, lfo_am_cnt(0), lfo_pm_cnt(0)
 {
 	LFO_AM = LFO_PM = 0;
 	lfo_am_depth = false;
-	lfo_pm_depth_range = lfo_am_cnt = lfo_pm_cnt = 0;
+	lfo_pm_depth_range = 0;
 	noise_rng = 0;
 	rhythm = nts = 0;
 	OPL3_mode = false;

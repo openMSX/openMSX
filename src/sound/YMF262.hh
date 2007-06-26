@@ -45,6 +45,7 @@
 #include "EmuTimer.hh"
 #include "Resample.hh"
 #include "IRQHelper.hh"
+#include "FixedPoint.hh"
 #include "openmsx.hh"
 #include <memory>
 
@@ -204,9 +205,13 @@ private:
 	unsigned eg_cnt;		// global envelope generator counter
 	unsigned noise_rng;		// 23 bit noise shift register
 
+	/** 8.24 fixed point type for LFO calculations.
+	  */
+	typedef FixedPoint<24> LFOIndex;
+
 	// LFO
-	unsigned lfo_am_cnt;
-	unsigned lfo_pm_cnt;
+	LFOIndex lfo_am_cnt;
+	LFOIndex lfo_pm_cnt;
 	byte LFO_AM;
 	byte LFO_PM;
 	bool lfo_am_depth;
