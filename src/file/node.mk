@@ -13,7 +13,6 @@ SRC_HDR:= \
 	ZipFileAdapter \
 	ReadDir \
 	FilePool \
-	Date \
 	PreCacheFile
 
 HDR_ONLY:= \

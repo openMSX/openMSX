@@ -21,7 +21,6 @@ SRC_HDR:= \
 	DummyDisk \
 	DSKDiskImage \
 	XSADiskImage \
-	CRC16 \
 	DirAsDSK \
 	EmptyDiskPatch \
 	RamDSKDiskImage \

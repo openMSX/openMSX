@@ -4,7 +4,7 @@ include build/node-start.mk
 
 SUBDIRS:= \
 	cassette commands config console cpu debugger events fdc file ide \
-	input memory resource serial settings sound thread video
+	input memory resource serial settings sound thread utils video
 
 SRC_HDR:= \
 	EmuTime EmuDuration \
@@ -33,28 +33,20 @@ SRC_HDR:= \
 	FirmwareSwitch \
 	CommandLineParser CLIOption \
 	CliExtension \
-	Math sha1 \
-	CircularBuffer \
 	PluggingController Connector Pluggable PluggableFactory \
 	DebugDevice \
 	Autofire RenShaTurbo \
-	StringOp \
-	Unicode \
 	EmptyPatch IPSPatch \
-	Version \
-	HostCPU
+	Version
 
 SRC_ONLY:= \
 	main
 
 HDR_ONLY:= \
-	Subject Observer \
 	openmsx \
-	likely noncopyable shared_ptr checked_cast ScopedAssign \
 	Clock DynamicClock \
 	MSXException InitException \
-	PatchInterface \
-	FixedPoint
+	PatchInterface
 
 DIST:= \
 	Doxyfile
