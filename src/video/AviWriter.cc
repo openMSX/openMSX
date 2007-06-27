@@ -167,8 +167,10 @@ AviWriter::~AviWriter()
 	snprintf(dateStr, 11, "%04d-%02d-%02d", 1900 + tm->tm_year,
 		 tm->tm_mon + 1, tm->tm_mday);
 	AVIOUT4("LIST");
-	AVIOUTd(4 + (4 + strlen(versionStr) + 1) +
-	            (4 + strlen(dateStr   ) + 1)); // Size of the list
+	AVIOUTd(4 /*list type*/
+		+ (4 + 4 + ((strlen(versionStr) + 1) + 1) & ~1) // 1st chunk
+		+ (4 + 4 + ((strlen(dateStr   ) + 1) + 1) & ~1) // 2nd chunk
+		); // Size of the list
 	AVIOUT4("INFO");
         AVIOUT4("ISFT");
 	AVIOUTd(strlen(versionStr) + 1); // # of bytes to follow
@@ -177,6 +179,8 @@ AviWriter::~AviWriter()
 	AVIOUTd(strlen(dateStr) + 1); // # of bytes to follow
 	AVIOUTs(dateStr);
 	// TODO: add artist (IART), comments (ICMT), name (INAM), etc.
+	// use a loop over chunks (type + string) to create the above bytes in
+	// a much nicer way
 
 	// Finish stream list, i.e. put number of bytes in the list to proper pos
 	int nmain = header_pos - main_list - 4;
