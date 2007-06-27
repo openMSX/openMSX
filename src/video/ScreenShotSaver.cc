@@ -22,7 +22,7 @@ static bool IMG_SavePNG_RW(int width, int height, png_bytep* row_pointers,
 {
 	// initialize these before the goto
 	time_t t = time(NULL);
-	struct tm *tm = localtime(&t);
+	struct tm* tm = localtime(&t);
 
 	FILE* fp = fopen(filename.c_str(), "wb");
 	if (!fp) {
@@ -71,7 +71,9 @@ static bool IMG_SavePNG_RW(int width, int height, png_bytep* row_pointers,
 	text[1].compression = PNG_TEXT_COMPRESSION_NONE;
 	text[1].key  = const_cast<char*>("Creation Time");
 	char timeStr[10 + 1 + 8 + 1];
-	sprintf(timeStr, "%04d-%02d-%02d %02d:%02d:%02d", 1900+tm->tm_year, tm->tm_mon+1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
+	snprintf(timeStr, sizeof(timeStr), "%04d-%02d-%02d %02d:%02d:%02d",
+	         1900 + tm->tm_year, tm->tm_mon + 1, tm->tm_mday,
+		 tm->tm_hour, tm->tm_min, tm->tm_sec);
 	text[1].text = timeStr;
 	png_set_text(png_ptr, info_ptr, text, 2);
 

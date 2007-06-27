@@ -56,9 +56,8 @@ AviWriter::AviWriter(const std::string& filename, unsigned width_,
 AviWriter::~AviWriter()
 {
 	unsigned char avi_header[AVI_HEADER_SIZE];
+	memset(&avi_header, 0, AVI_HEADER_SIZE);
 	unsigned header_pos = 0;
-
-	memset(&avi_header, '\0', AVI_HEADER_SIZE);
 
 #define AVIOUT4(_S_) memcpy(&avi_header[header_pos],_S_,4);header_pos+=4;
 #define AVIOUTw(_S_) writeLE2(&avi_header[header_pos], _S_);header_pos+=2;
@@ -161,13 +160,15 @@ AviWriter::~AviWriter()
 		AVIOUTw(16);                // BitsPerSample
 	}
 
-	const char* versionStr = const_cast<char*>(Version::FULL_VERSION.c_str());
+	const char* versionStr = Version::FULL_VERSION.c_str();
 	char dateStr[11];
 	time_t t = time(NULL);
 	struct tm *tm = localtime(&t);
-	sprintf(dateStr, "%04d-%02d-%02d", 1900+tm->tm_year, tm->tm_mon+1, tm->tm_mday);
+	snprintf(dateStr, 11, "%04d-%02d-%02d", 1900 + tm->tm_year,
+		 tm->tm_mon + 1, tm->tm_mday);
 	AVIOUT4("LIST");
-	AVIOUTd(4 + (4 + strlen(versionStr) + 1) + (4 + strlen(dateStr) + 1)); // Size of the list
+	AVIOUTd(4 + (4 + strlen(versionStr) + 1) +
+	            (4 + strlen(dateStr   ) + 1)); // Size of the list
 	AVIOUT4("INFO");
         AVIOUT4("ISFT");
 	AVIOUTd(strlen(versionStr) + 1); // # of bytes to follow
@@ -180,7 +181,7 @@ AviWriter::~AviWriter()
 	// Finish stream list, i.e. put number of bytes in the list to proper pos
 	int nmain = header_pos - main_list - 4;
 	int njunk = AVI_HEADER_SIZE - 8 - 12 - header_pos;
-	assert (njunk > 0); // maybe we should increase the AVI_HEADER_SIZE if this occurs
+	assert(njunk > 0); // increase AVI_HEADER_SIZE if this occurs
 	AVIOUT4("JUNK");
 	AVIOUTd(njunk);
 	// Fix the size of the main list
