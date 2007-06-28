@@ -167,10 +167,10 @@ AviWriter::~AviWriter()
 	snprintf(dateStr, 11, "%04d-%02d-%02d", 1900 + tm->tm_year,
 		 tm->tm_mon + 1, tm->tm_mday);
 	AVIOUT4("LIST");
-	AVIOUTd(4 /*list type*/
-		+ (4 + 4 + ((strlen(versionStr) + 1) + 1) & ~1) // 1st chunk
-		+ (4 + 4 + ((strlen(dateStr   ) + 1) + 1) & ~1) // 2nd chunk
-		); // Size of the list
+	AVIOUTd(4 // list type
+		+ (4 + 4 + ((strlen(versionStr) + 1 + 1) & ~1)) // 1st chunk
+		+ (4 + 4 + ((strlen(dateStr   ) + 1 + 1) & ~1)) // 2nd chunk
+		); // size of the list
 	AVIOUT4("INFO");
         AVIOUT4("ISFT");
 	AVIOUTd(strlen(versionStr) + 1); // # of bytes to follow
