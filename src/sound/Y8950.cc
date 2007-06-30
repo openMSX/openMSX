@@ -51,7 +51,7 @@ static const double AM_DEPTH2 = 4.8;
 
 // Dynamic range of envelope
 static const int EG_BITS = 9;
-static const int EG_MUTE = 1 << EG_BITS;
+static const unsigned EG_MUTE = 1 << EG_BITS;
 // Dynamic range of sustine level
 static const int SL_BITS = 4;
 static const int SL_MUTE = 1 << SL_BITS;
@@ -70,7 +70,10 @@ static const int TL_BITS = 6;
 static const int TL_MUTE = 1 << TL_BITS;
 
 // WaveTable for each envelope amp.
-static int sintable[PG_WIDTH];
+//  values are in range[        0,   DB_MUTE)   (for positive values)
+//                  or [2*DB_MUTE, 3*DB_MUTE)   (for negative values)
+static unsigned sintable[PG_WIDTH];
+
 // Phase incr table for Attack.
 static unsigned dphaseARTable[16][16];
 // Phase incr table for Decay and Release.
@@ -80,8 +83,10 @@ static int tllTable[16][8][1 << TL_BITS][4];
 static int rksTable[2][8][2];
 // Phase incr table for PG.
 static unsigned dphaseTable[1024][8][16];
+
 // Liner to Log curve conversion table (for Attack rate).
-static int AR_ADJUST_TABLE[1 << EG_BITS];
+//   values are in the range [0 .. EG_MUTE]
+static unsigned AR_ADJUST_TABLE[1 << EG_BITS];
 
 // Definition of envelope mode
 enum { ATTACK, DECAY, SUSHOLD, SUSTINE, RELEASE, FINISH };
@@ -151,10 +156,12 @@ static inline int EXPAND_BITS(int x, int s, int d)
 // Table for AR to LogCurve.
 static void makeAdjustTable()
 {
-	AR_ADJUST_TABLE[0] = 1 << EG_BITS;
+	AR_ADJUST_TABLE[0] = EG_MUTE;
 	for (int i = 1; i < (1 << EG_BITS); ++i) {
-		AR_ADJUST_TABLE[i] = (int)((double)(1 << EG_BITS) - 1 -
-		         (1 << EG_BITS) * ::log(i) / ::log(1 << EG_BITS)) >> 1;
+		AR_ADJUST_TABLE[i] = (int)(double(EG_MUTE) - 1 -
+		         EG_MUTE * ::log(i) / ::log(1 << EG_BITS)) >> 1;
+		assert(AR_ADJUST_TABLE[i] <= EG_MUTE);
+		assert(AR_ADJUST_TABLE[i] >= 0);
 	}
 }
 
@@ -169,15 +176,18 @@ static void makeDB2LinTable()
 	}
 }
 
-// Liner(+0.0 - +1.0) to dB((1<<DB_BITS) - 1 -- 0)
-static int lin2db(double d)
+// Liner(+0.0 - +1.0) to dB(DB_MUTE-1 -- 0)
+static unsigned lin2db(double d)
 {
 	if (d < 1e-4) {
 		// (almost) zero
 		return DB_MUTE - 1;
 	}
 	int tmp = -(int)(20.0 * log10(d) / DB_STEP);
-	return std::min(tmp, DB_MUTE - 1);
+	int result = std::min(tmp, DB_MUTE - 1);
+	assert(result >= 0);
+	assert(result <= DB_MUTE - 1);
+	return result;
 }
 
 // Sin Table
