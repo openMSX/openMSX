@@ -17,11 +17,22 @@
 #include "IRQHelper.hh"
 #include "MSXMotherBoard.hh"
 #include "DACSound16S.hh"
+#include "FixedPoint.hh"
 #include "Math.hh"
 #include <algorithm>
 #include <cmath>
 
 namespace openmsx {
+
+// Dynamic range of envelope
+static const int EG_BITS = 9;
+static const unsigned EG_MUTE = 1 << EG_BITS;
+
+// Bits for envelope phase incremental counter
+static const int EG_DP_BITS = 23;
+typedef FixedPoint<EG_DP_BITS - EG_BITS> EnvPhaseIndex;
+static const EnvPhaseIndex EG_DP_MAX = EnvPhaseIndex(EG_MUTE);
+
 
 class Y8950Debuggable : public SimpleDebuggable
 {
@@ -88,8 +99,8 @@ public:
 	int tll;		// Total Level + Key scale level
 	int rks;		// Key scale offset (Rks)
 	int eg_mode;		// Current state
-	unsigned eg_phase;	// Phase
-	unsigned eg_dphase;	// Phase increment amount
+	EnvPhaseIndex eg_phase;	// Phase
+	EnvPhaseIndex eg_dphase;// Phase increment amount
 	int egout;		// Output
 
 	// refer to Y8950->
@@ -237,9 +248,6 @@ static const double AM_SPEED  = 3.7;
 static const double AM_DEPTH  = 1.0;
 static const double AM_DEPTH2 = 4.8;
 
-// Dynamic range of envelope
-static const int EG_BITS = 9;
-static const unsigned EG_MUTE = 1 << EG_BITS;
 // Dynamic range of sustine level
 static const int SL_BITS = 4;
 static const int SL_MUTE = 1 << SL_BITS;
@@ -250,9 +258,6 @@ static const int PG_WIDTH = 1 << PG_BITS;
 static const int DP_BITS = 19;
 static const int DP_WIDTH = 1 << DP_BITS;
 static const int DP_BASE_BITS = DP_BITS - PG_BITS;
-// Bits for envelope phase incremental counter
-static const int EG_DP_BITS = 23;
-static const int EG_DP_WIDTH = 1 << EG_DP_BITS;
 // Dynamic range of total level
 static const int TL_BITS = 6;
 static const int TL_MUTE = 1 << TL_BITS;
@@ -263,12 +268,14 @@ static const int TL_MUTE = 1 << TL_BITS;
 static unsigned sintable[PG_WIDTH];
 
 // Phase incr table for Attack.
-static unsigned dphaseARTable[16][16];
+static EnvPhaseIndex dphaseARTable[16][16];
 // Phase incr table for Decay and Release.
-static unsigned dphaseDRTable[16][16];
+static EnvPhaseIndex dphaseDRTable[16][16];
+
 // KSL + TL Table.
 static int tllTable[16][8][1 << TL_BITS][4];
 static int rksTable[2][8][2];
+
 // Phase incr table for PG.
 static unsigned dphaseTable[1024][8][16];
 
@@ -465,15 +472,16 @@ static void makeDphaseARTable()
 		for (int Rks = 0; Rks < 16; ++Rks) {
 			switch (AR) {
 			case 0:
-				dphaseARTable[AR][Rks] = 0;
+				dphaseARTable[AR][Rks] = EnvPhaseIndex(0);
 				break;
 			case 15:
-				dphaseARTable[AR][Rks] = EG_DP_WIDTH;
+				dphaseARTable[AR][Rks] = EG_DP_MAX;
 				break;
 			default: {
 				int RM = std::min(AR + (Rks >> 2), 15);
 				int RL = Rks & 3;
-				dphaseARTable[AR][Rks] = (3 * (RL + 4)) << (RM + 1);
+				dphaseARTable[AR][Rks] =
+					EnvPhaseIndex(12 * (RL + 4)) >> (15 - RM);
 				break;
 			}
 			}
@@ -488,12 +496,13 @@ static void makeDphaseDRTable()
 		for (int Rks = 0; Rks < 16; ++Rks) {
 			switch (DR) {
 			case 0:
-				dphaseDRTable[DR][Rks] = 0;
+				dphaseDRTable[DR][Rks] = EnvPhaseIndex(0);
 				break;
 			default: {
 				int RM = std::min(DR + (Rks >> 2), 15);
 				int RL = Rks & 3;
-				dphaseDRTable[DR][Rks] = (RL + 4) << (RM - 1);
+				dphaseDRTable[DR][Rks] =
+					EnvPhaseIndex(RL + 4) >> (15 - RM);
 				break;
 			}
 			}
@@ -546,8 +555,8 @@ void Y8950Slot::reset()
 	output[1] = 0;
 	feedback = 0;
 	eg_mode = FINISH;
-	eg_phase = EG_DP_WIDTH;
-	eg_dphase = 0;
+	eg_phase = EG_DP_MAX;
+	eg_dphase = EnvPhaseIndex(0);
 	rks = 0;
 	tll = 0;
 	fnum = 0;
@@ -591,7 +600,7 @@ void Y8950Slot::updateEG()
 		break;
 	case SUSHOLD:
 	case FINISH:
-		eg_dphase = 0;
+		eg_dphase = EnvPhaseIndex(0);
 		break;
 	}
 }
@@ -611,7 +620,7 @@ void Y8950Slot::slotOn()
 		slotStatus = true;
 		eg_mode = ATTACK;
 		phase = 0;
-		eg_phase = 0;
+		eg_phase = EnvPhaseIndex(0);
 	}
 }
 
@@ -621,7 +630,7 @@ void Y8950Slot::slotOff()
 	if (slotStatus) {
 		slotStatus = false;
 		if (eg_mode == ATTACK) {
-			eg_phase = EXPAND_BITS(AR_ADJUST_TABLE[HIGHBITS(eg_phase, EG_DP_BITS-EG_BITS)], EG_BITS, EG_DP_BITS);
+			eg_phase = EnvPhaseIndex(AR_ADJUST_TABLE[eg_phase.toInt()]);
 		}
 		eg_mode = RELEASE;
 	}
@@ -859,8 +868,8 @@ void Y8950Slot::calc_phase()
 	pgout = HIGHBITS(phase, DP_BASE_BITS);
 }
 
-#define S2E(x) (((unsigned)(x / SL_STEP) * SL_PER_EG) << (EG_DP_BITS - EG_BITS))
-static unsigned SL[16] = {
+#define S2E(x) EnvPhaseIndex(int(x / EG_STEP))
+static const EnvPhaseIndex SL[16] = {
 	S2E( 0), S2E( 3), S2E( 6), S2E( 9), S2E(12), S2E(15), S2E(18), S2E(21),
 	S2E(24), S2E(27), S2E(30), S2E(33), S2E(36), S2E(39), S2E(42), S2E(93)
 };
@@ -870,29 +879,29 @@ void Y8950Slot::calc_envelope()
 	switch (eg_mode) {
 	case ATTACK:
 		eg_phase += eg_dphase;
-		if (EG_DP_WIDTH & eg_phase) {
+		if (eg_phase >= EG_DP_MAX) {
 			egout = 0;
-			eg_phase = 0;
+			eg_phase = EnvPhaseIndex(0);
 			eg_mode = DECAY;
 			updateEG();
 		} else {
-			egout = AR_ADJUST_TABLE[HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS)];
+			egout = AR_ADJUST_TABLE[eg_phase.toInt()];
 		}
 		break;
 
 	case DECAY:
 		eg_phase += eg_dphase;
-		egout = HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS);
+		egout = eg_phase.toInt();
 		if (eg_phase >= SL[patch.SL]) {
 			eg_phase = SL[patch.SL];
 			eg_mode = patch.EG ? SUSHOLD : SUSTINE;
 			updateEG();
-			egout = HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS);
+			egout = eg_phase.toInt();
 		}
 		break;
 
 	case SUSHOLD:
-		egout = HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS);
+		egout = eg_phase.toInt();
 		if (!patch.EG) {
 			eg_mode = SUSTINE;
 			updateEG();
@@ -902,7 +911,7 @@ void Y8950Slot::calc_envelope()
 	case SUSTINE:
 	case RELEASE:
 		eg_phase += eg_dphase;
-		egout = HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS);
+		egout = eg_phase.toInt();
 		if (egout >= (1 << EG_BITS)) {
 			eg_mode = FINISH;
 			egout = (1 << EG_BITS) - 1;
