@@ -8,7 +8,7 @@
 
 namespace openmsx {
 
-static const int BLIP_SAMPLE_BITS = 30;
+static const int BLIP_SAMPLE_BITS = 29;
 static const int BLIP_RES = 1 << BlipBuffer::BLIP_PHASE_BITS;
 static const int IMPULSE_WIDTH = 16;
 
