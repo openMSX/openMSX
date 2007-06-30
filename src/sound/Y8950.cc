@@ -101,7 +101,7 @@ public:
 	int eg_mode;		// Current state
 	EnvPhaseIndex eg_phase;	// Phase
 	EnvPhaseIndex eg_dphase;// Phase increment amount
-	int egout;		// Output
+	unsigned egout;		// Output
 
 	// refer to Y8950->
 	int* plfo_pm;
@@ -448,17 +448,12 @@ static void makeTllTable()
 	for (int fnum = 0; fnum < 16; ++fnum) {
 		for (int block = 0; block < 8; ++block) {
 			for (int TL = 0; TL < 64; ++TL) {
-				for (int KL = 0; KL < 4; ++KL) {
-					if (KL==0) {
-						tllTable[fnum][block][TL][KL] = TL * TL_PER_EG;
-					} else {
-						int tmp = kltable[fnum] - dB2(3.000) * (7 - block);
-						if (tmp <= 0) {
-							tllTable[fnum][block][TL][KL] = TL * TL_PER_EG;
-						} else {
-							tllTable[fnum][block][TL][KL] = (int)((tmp >> (3 - KL)) / EG_STEP) + (TL * TL_PER_EG);
-						}
-					}
+				tllTable[fnum][block][TL][0] = TL * TL_PER_EG;
+				for (int KL = 1; KL < 4; ++KL) {
+					int tmp = kltable[fnum] - dB2(3.000) * (7 - block);
+					tllTable[fnum][block][TL][KL] = (tmp <= 0)
+						? TL * TL_PER_EG
+						: (int)((tmp >> (3 - KL)) / EG_STEP) + (TL * TL_PER_EG);
 				}
 			}
 		}
@@ -875,7 +870,6 @@ static const EnvPhaseIndex SL[16] = {
 };
 void Y8950Slot::calc_envelope()
 {
-
 	switch (eg_mode) {
 	case ATTACK:
 		eg_phase += eg_dphase;
@@ -891,13 +885,12 @@ void Y8950Slot::calc_envelope()
 
 	case DECAY:
 		eg_phase += eg_dphase;
-		egout = eg_phase.toInt();
 		if (eg_phase >= SL[patch.SL]) {
 			eg_phase = SL[patch.SL];
 			eg_mode = patch.EG ? SUSHOLD : SUSTINE;
 			updateEG();
-			egout = eg_phase.toInt();
 		}
+		egout = eg_phase.toInt();
 		break;
 
 	case SUSHOLD:
@@ -912,14 +905,14 @@ void Y8950Slot::calc_envelope()
 	case RELEASE:
 		eg_phase += eg_dphase;
 		egout = eg_phase.toInt();
-		if (egout >= (1 << EG_BITS)) {
+		if (egout >= EG_MUTE) {
 			eg_mode = FINISH;
-			egout = (1 << EG_BITS) - 1;
+			egout = EG_MUTE - 1;
 		}
 		break;
 
 	case FINISH:
-		egout = (1 << EG_BITS) - 1;
+		egout = EG_MUTE - 1;
 		break;
 	}
 
@@ -927,7 +920,7 @@ void Y8950Slot::calc_envelope()
 	if (patch.AM) {
 		egout += *plfo_am;
 	}
-	egout = std::min(egout, DB_MUTE - 1);
+	egout = std::min<unsigned>(egout, DB_MUTE - 1);
 }
 
 int Y8950Slot::calc_slot_car(int fm)
@@ -1528,4 +1521,3 @@ void Y8950::resetStatus(byte flags)
 }
 
 } // namespace openmsx
-
