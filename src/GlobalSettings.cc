@@ -41,7 +41,7 @@ GlobalSettings::GlobalSettings(CommandController& commandController_)
 	resampleMap["blip"] = RESAMPLE_BLIP;
 	resampleSetting.reset(new EnumSetting<ResampleType>(commandController,
 		"resampler", "Resample algorithm",
-		RESAMPLE_HQ, resampleMap));
+		RESAMPLE_BLIP, resampleMap));
 
 	throttleManager.reset(new ThrottleManager(commandController));
 
