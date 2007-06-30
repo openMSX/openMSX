@@ -10,7 +10,11 @@
 #include "Y8950Adpcm.hh"
 #include "Y8950KeyboardConnector.hh"
 #include "Y8950Periphery.hh"
+#include "SoundDevice.hh"
+#include "EmuTimer.hh"
+#include "Resample.hh"
 #include "SimpleDebuggable.hh"
+#include "IRQHelper.hh"
 #include "MSXMotherBoard.hh"
 #include "DACSound16S.hh"
 #include "Math.hh"
@@ -22,11 +26,195 @@ namespace openmsx {
 class Y8950Debuggable : public SimpleDebuggable
 {
 public:
-	Y8950Debuggable(MSXMotherBoard& motherBoard, Y8950& y8950);
+	Y8950Debuggable(MSXMotherBoard& motherBoard, Y8950Impl& y8950);
 	virtual byte read(unsigned address);
 	virtual void write(unsigned address, byte value, const EmuTime& time);
 private:
-	Y8950& y8950;
+	Y8950Impl& y8950;
+};
+
+
+class Y8950Patch {
+public:
+	Y8950Patch();
+	void reset();
+
+	bool AM, PM, EG;
+	byte KR; // 0-1
+	byte ML; // 0-15
+	byte KL; // 0-3
+	byte TL; // 0-63
+	byte FB; // 0-7
+	byte AR; // 0-15
+	byte DR; // 0-15
+	byte SL; // 0-15
+	byte RR; // 0-15
+};
+
+class Y8950Slot {
+public:
+	void reset();
+
+	inline void slotOn();
+	inline void slotOff();
+
+	inline void calc_phase();
+	inline void calc_envelope();
+	inline int calc_slot_car(int fm);
+	inline int calc_slot_mod();
+	inline int calc_slot_tom();
+	inline int calc_slot_snare(int whitenoise);
+	inline int calc_slot_cym(int a, int b);
+	inline int calc_slot_hat(int a, int b, int whitenoise);
+
+	inline void updateAll();
+	inline void updateEG();
+	inline void updateRKS();
+	inline void updateTLL();
+	inline void updatePG();
+
+	// OUTPUT
+	int feedback;
+	int output[5];		// Output value of slot
+
+	// for Phase Generator (PG)
+	unsigned phase;		// Phase
+	unsigned dphase;	// Phase increment amount
+	int pgout;		// Output
+
+	// for Envelope Generator (EG)
+	int fnum;		// F-Number
+	int block;		// Block
+	int tll;		// Total Level + Key scale level
+	int rks;		// Key scale offset (Rks)
+	int eg_mode;		// Current state
+	unsigned eg_phase;	// Phase
+	unsigned eg_dphase;	// Phase increment amount
+	int egout;		// Output
+
+	// refer to Y8950->
+	int* plfo_pm;
+	int* plfo_am;
+
+	Y8950Patch patch;
+	bool slotStatus;
+};
+
+class Y8950Channel {
+public:
+	Y8950Channel();
+	void reset();
+	inline void setFnumber(int fnum);
+	inline void setBlock(int block);
+	inline void keyOn();
+	inline void keyOff();
+
+	Y8950Slot mod, car;
+	bool alg;
+};
+
+class Y8950Impl : private SoundDevice, private EmuTimerCallback, private Resample
+{
+public:
+	Y8950Impl(Y8950& self, MSXMotherBoard& motherBoard,
+	          const std::string& name, const XMLElement& config,
+	          unsigned sampleRam, const EmuTime& time, 
+	          Y8950Periphery& perihery);
+	virtual ~Y8950Impl();
+
+	void setEnabled(bool enabled, const EmuTime& time);
+	void reset(const EmuTime& time);
+	void writeReg(byte reg, byte data, const EmuTime& time);
+	byte readReg(byte reg, const EmuTime& time);
+	byte peekReg(byte reg, const EmuTime& time) const;
+	byte readStatus();
+	byte peekStatus() const;
+
+	void setStatus(byte flags);
+	void resetStatus(byte flags);
+
+private:
+	// SoundDevice
+	virtual void setOutputRate(unsigned sampleRate);
+	virtual void generateChannels(int** bufs, unsigned num);
+	virtual bool updateBuffer(unsigned length, int* buffer,
+		const EmuTime& start, const EmuDuration& sampDur);
+
+	// Resample
+	virtual bool generateInput(int* buffer, unsigned num);
+
+	inline void keyOn_BD();
+	inline void keyOn_SD();
+	inline void keyOn_TOM();
+	inline void keyOn_HH();
+	inline void keyOn_CYM();
+	inline void keyOff_BD();
+	inline void keyOff_SD();
+	inline void keyOff_TOM();
+	inline void keyOff_HH();
+	inline void keyOff_CYM();
+	inline void setRythmMode(int data);
+	inline void update_noise();
+	inline void update_ampm();
+
+	inline void calcSample(int** bufs, unsigned sample);
+	bool checkMuteHelper();
+
+	void changeStatusMask(byte newMask);
+
+	void callback(byte flag);
+
+	int adr;
+	int output[2];
+	// Registers
+	byte reg[0x100];
+	// Pitch Modulator
+	unsigned pm_phase;
+	// Amp Modulator
+	unsigned am_phase;
+
+	// Noise Generator
+	int noise_seed;
+	int whitenoise;
+	int noiseA;
+	int noiseB;
+	unsigned noiseA_phase;
+	unsigned noiseB_phase;
+	unsigned noiseA_dphase;
+	unsigned noiseB_dphase;
+
+	// Channel & Slot
+	Y8950Channel ch[9];
+	Y8950Slot* slot[18];
+
+	int lfo_pm;
+	int lfo_am;
+
+	IRQHelper irq;
+	Y8950Periphery& perihery;
+
+	// Timers
+	EmuTimerOPL3_1 timer1; //  80us timer
+	EmuTimerOPL3_2 timer2; // 320us timer
+
+	// ADPCM
+	const std::auto_ptr<Y8950Adpcm> adpcm;
+
+	// Keyboard connector
+	const std::auto_ptr<Y8950KeyboardConnector> connector;
+
+	// 13-bit (exponential) DAC
+	const std::auto_ptr<DACSound16S> dac13;
+
+	friend class Y8950Debuggable;
+	const std::auto_ptr<Y8950Debuggable> debuggable;
+
+	byte status;     // STATUS Register
+	byte statusMask; // bit=0 -> masked
+	bool rythm_mode;
+	bool am_mode;
+	bool pm_mode;
+	bool enabled;
 };
 
 
@@ -324,14 +512,14 @@ static void makeRksTable()
 }
 
 
-// class Y8950::Patch
+// class Y8950Patch
 
-Y8950::Patch::Patch()
+Y8950Patch::Y8950Patch()
 {
 	reset();
 }
 
-void Y8950::Patch::reset()
+void Y8950Patch::reset()
 {
 	AM = false;
 	PM = false;
@@ -348,9 +536,9 @@ void Y8950::Patch::reset()
 }
 
 
-// class Y8950::Slot
+// class Y8950Slot
 
-void Y8950::Slot::reset()
+void Y8950Slot::reset()
 {
 	phase = 0;
 	dphase = 0;
@@ -371,22 +559,22 @@ void Y8950::Slot::reset()
 	updateAll();
 }
 
-void Y8950::Slot::updatePG()
+void Y8950Slot::updatePG()
 {
 	dphase = dphaseTable[fnum][block][patch.ML];
 }
 
-void Y8950::Slot::updateTLL()
+void Y8950Slot::updateTLL()
 {
 	tll = tllTable[fnum >> 6][block][patch.TL][patch.KL];
 }
 
-void Y8950::Slot::updateRKS()
+void Y8950Slot::updateRKS()
 {
 	rks = rksTable[fnum >> 9][block][patch.KR];
 }
 
-void Y8950::Slot::updateEG()
+void Y8950Slot::updateEG()
 {
 	switch (eg_mode) {
 	case ATTACK:
@@ -408,7 +596,7 @@ void Y8950::Slot::updateEG()
 	}
 }
 
-void Y8950::Slot::updateAll()
+void Y8950Slot::updateAll()
 {
 	updatePG();
 	updateTLL();
@@ -417,7 +605,7 @@ void Y8950::Slot::updateAll()
 }
 
 // Slot key on
-void Y8950::Slot::slotOn()
+void Y8950Slot::slotOn()
 {
 	if (!slotStatus) {
 		slotStatus = true;
@@ -428,7 +616,7 @@ void Y8950::Slot::slotOn()
 }
 
 // Slot key off
-void Y8950::Slot::slotOff()
+void Y8950Slot::slotOff()
 {
 	if (slotStatus) {
 		slotStatus = false;
@@ -440,14 +628,14 @@ void Y8950::Slot::slotOff()
 }
 
 
-// class Y8950::Channel
+// class Y8950Channel
 
-Y8950::Channel::Channel()
+Y8950Channel::Y8950Channel()
 {
 	reset();
 }
 
-void Y8950::Channel::reset()
+void Y8950Channel::reset()
 {
 	mod.reset();
 	car.reset();
@@ -455,42 +643,43 @@ void Y8950::Channel::reset()
 }
 
 // Set F-Number ( fnum : 10bit )
-void Y8950::Channel::setFnumber(int fnum)
+void Y8950Channel::setFnumber(int fnum)
 {
 	car.fnum = fnum;
 	mod.fnum = fnum;
 }
 
 // Set Block data (block : 3bit )
-void Y8950::Channel::setBlock(int block)
+void Y8950Channel::setBlock(int block)
 {
 	car.block = block;
 	mod.block = block;
 }
 
-void Y8950::Channel::keyOn()
+void Y8950Channel::keyOn()
 {
 	mod.slotOn();
 	car.slotOn();
 }
 
-void Y8950::Channel::keyOff()
+void Y8950Channel::keyOff()
 {
 	mod.slotOff();
 	car.slotOff();
 }
 
 
-Y8950::Y8950(MSXMotherBoard& motherBoard, const std::string& name,
-             const XMLElement& config, unsigned sampleRam, const EmuTime& time,
-             Y8950Periphery& perihery_)
+Y8950Impl::Y8950Impl(Y8950& self, MSXMotherBoard& motherBoard,
+                     const std::string& name, const XMLElement& config,
+                     unsigned sampleRam, const EmuTime& time,
+                     Y8950Periphery& perihery_)
 	: SoundDevice(motherBoard.getMSXMixer(), name, "MSX-AUDIO", 12)
 	, Resample(motherBoard.getGlobalSettings(), 1)
 	, irq(motherBoard.getCPU())
 	, perihery(perihery_)
 	, timer1(motherBoard.getScheduler(), *this)
 	, timer2(motherBoard.getScheduler(), *this)
-	, adpcm(new Y8950Adpcm(*this, motherBoard, name, sampleRam))
+	, adpcm(new Y8950Adpcm(self, motherBoard, name, sampleRam))
 	, connector(new Y8950KeyboardConnector(motherBoard.getPluggingController()))
 	, dac13(new DACSound16S(motherBoard.getMSXMixer(), name + " DAC",
 	                        "MSX-AUDIO 13-bit DAC", config, time))
@@ -523,20 +712,20 @@ Y8950::Y8950(MSXMotherBoard& motherBoard, const std::string& name,
 	registerSound(config);
 }
 
-Y8950::~Y8950()
+Y8950Impl::~Y8950Impl()
 {
 	unregisterSound();
 }
 
-void Y8950::setOutputRate(unsigned sampleRate)
+void Y8950Impl::setOutputRate(unsigned sampleRate)
 {
-	double input = CLOCK_FREQ / 72.0;
+	double input = Y8950::CLOCK_FREQ / 72.0;
 	setInputRate(static_cast<int>(input + 0.5));
 	setResampleRatio(input, sampleRate);
 }
 
 // Reset whole of opl except patch datas.
-void Y8950::reset(const EmuTime& time)
+void Y8950Impl::reset(const EmuTime& time)
 {
 	for (int i = 0; i < 9; ++i) {
 		ch[i].reset();
@@ -574,21 +763,21 @@ void Y8950::reset(const EmuTime& time)
 
 
 // Drum key on
-void Y8950::keyOn_BD()  { ch[6].keyOn(); }
-void Y8950::keyOn_HH()  { ch[7].mod.slotOn(); }
-void Y8950::keyOn_SD()  { ch[7].car.slotOn(); }
-void Y8950::keyOn_TOM() { ch[8].mod.slotOn(); }
-void Y8950::keyOn_CYM() { ch[8].car.slotOn(); }
+void Y8950Impl::keyOn_BD()  { ch[6].keyOn(); }
+void Y8950Impl::keyOn_HH()  { ch[7].mod.slotOn(); }
+void Y8950Impl::keyOn_SD()  { ch[7].car.slotOn(); }
+void Y8950Impl::keyOn_TOM() { ch[8].mod.slotOn(); }
+void Y8950Impl::keyOn_CYM() { ch[8].car.slotOn(); }
 
 // Drum key off
-void Y8950::keyOff_BD() { ch[6].keyOff(); }
-void Y8950::keyOff_HH() { ch[7].mod.slotOff(); }
-void Y8950::keyOff_SD() { ch[7].car.slotOff(); }
-void Y8950::keyOff_TOM(){ ch[8].mod.slotOff(); }
-void Y8950::keyOff_CYM(){ ch[8].car.slotOff(); }
+void Y8950Impl::keyOff_BD() { ch[6].keyOff(); }
+void Y8950Impl::keyOff_HH() { ch[7].mod.slotOff(); }
+void Y8950Impl::keyOff_SD() { ch[7].car.slotOff(); }
+void Y8950Impl::keyOff_TOM(){ ch[8].mod.slotOff(); }
+void Y8950Impl::keyOff_CYM(){ ch[8].car.slotOff(); }
 
 // Change Rhythm Mode
-void Y8950::setRythmMode(int data)
+void Y8950Impl::setRythmMode(int data)
 {
 	bool newMode = (data & 32) != 0;
 	if (rythm_mode != newMode) {
@@ -630,7 +819,7 @@ static inline int wave2_8pi(int e)
 	return (shift > 0) ? (e >> shift) : (e << -shift);
 }
 
-void Y8950::update_noise()
+void Y8950Impl::update_noise()
 {
 	if (noise_seed & 1) {
 		noise_seed ^= 0x24000;
@@ -651,7 +840,7 @@ void Y8950::update_noise()
 	noiseB = noiseB_phase & (0x0A << 11) ? DB_POS(6) : DB_NEG(6);
 }
 
-void Y8950::update_ampm()
+void Y8950Impl::update_ampm()
 {
 	pm_phase = (pm_phase + PM_DPHASE) & (PM_DP_WIDTH - 1);
 	am_phase = (am_phase + AM_DPHASE) & (AM_DP_WIDTH - 1);
@@ -659,7 +848,7 @@ void Y8950::update_ampm()
 	lfo_pm = pmtable[pm_mode][HIGHBITS(pm_phase, PM_DP_BITS - PM_PG_BITS)];
 }
 
-void Y8950::Slot::calc_phase()
+void Y8950Slot::calc_phase()
 {
 	if (patch.PM) {
 		phase += (dphase * (*plfo_pm)) >> PM_AMP_BITS;
@@ -675,7 +864,7 @@ static unsigned SL[16] = {
 	S2E( 0), S2E( 3), S2E( 6), S2E( 9), S2E(12), S2E(15), S2E(18), S2E(21),
 	S2E(24), S2E(27), S2E(30), S2E(33), S2E(36), S2E(39), S2E(42), S2E(93)
 };
-void Y8950::Slot::calc_envelope()
+void Y8950Slot::calc_envelope()
 {
 
 	switch (eg_mode) {
@@ -683,7 +872,7 @@ void Y8950::Slot::calc_envelope()
 		eg_phase += eg_dphase;
 		if (EG_DP_WIDTH & eg_phase) {
 			egout = 0;
-			eg_phase= 0;
+			eg_phase = 0;
 			eg_mode = DECAY;
 			updateEG();
 		} else {
@@ -732,7 +921,7 @@ void Y8950::Slot::calc_envelope()
 	egout = std::min(egout, DB_MUTE - 1);
 }
 
-int Y8950::Slot::calc_slot_car(int fm)
+int Y8950Slot::calc_slot_car(int fm)
 {
 	calc_envelope();
 	calc_phase();
@@ -742,7 +931,7 @@ int Y8950::Slot::calc_slot_car(int fm)
 	return dB2LinTab[sintable[(pgout + wave2_8pi(fm)) & (PG_WIDTH - 1)] + egout];
 }
 
-int Y8950::Slot::calc_slot_mod()
+int Y8950Slot::calc_slot_mod()
 {
 	output[1] = output[0];
 	calc_envelope();
@@ -761,7 +950,7 @@ int Y8950::Slot::calc_slot_mod()
 	return feedback;
 }
 
-int Y8950::Slot::calc_slot_tom()
+int Y8950Slot::calc_slot_tom()
 {
 	calc_envelope();
 	calc_phase();
@@ -771,7 +960,7 @@ int Y8950::Slot::calc_slot_tom()
 	return dB2LinTab[sintable[pgout] + egout];
 }
 
-int Y8950::Slot::calc_slot_snare(int whitenoise)
+int Y8950Slot::calc_slot_snare(int whitenoise)
 {
 	calc_envelope();
 	calc_phase();
@@ -785,7 +974,7 @@ int Y8950::Slot::calc_slot_snare(int whitenoise)
 	}
 }
 
-int Y8950::Slot::calc_slot_cym(int a, int b)
+int Y8950Slot::calc_slot_cym(int a, int b)
 {
 	calc_envelope();
 	if (egout >= (DB_MUTE - 1)) {
@@ -796,7 +985,7 @@ int Y8950::Slot::calc_slot_cym(int a, int b)
 }
 
 // HI-HAT
-int Y8950::Slot::calc_slot_hat(int a, int b, int whitenoise)
+int Y8950Slot::calc_slot_hat(int a, int b, int whitenoise)
 {
 	calc_envelope();
 	if (egout >= (DB_MUTE - 1)) {
@@ -811,7 +1000,7 @@ static inline int adjust(int x)
 	return x << (15 - DB2LIN_AMP_BITS);
 }
 
-inline void Y8950::calcSample(int** bufs, unsigned sample)
+inline void Y8950Impl::calcSample(int** bufs, unsigned sample)
 {
 	// during mute update_ampm() and update_noise() aren't called, probably ok
 	update_ampm();
@@ -857,13 +1046,13 @@ inline void Y8950::calcSample(int** bufs, unsigned sample)
 	bufs[11][sample] = adjust(adpcm->calcSample());
 }
 
-void Y8950::setEnabled(bool enabled_, const EmuTime& time)
+void Y8950Impl::setEnabled(bool enabled_, const EmuTime& time)
 {
 	updateStream(time);
 	enabled = enabled_;
 }
 
-bool Y8950::checkMuteHelper()
+bool Y8950Impl::checkMuteHelper()
 {
 	if (!enabled) {
 		return true;
@@ -886,7 +1075,7 @@ bool Y8950::checkMuteHelper()
 	return adpcm->muted();
 }
 
-void Y8950::generateChannels(int** bufs, unsigned num)
+void Y8950Impl::generateChannels(int** bufs, unsigned num)
 {
 	if (checkMuteHelper()) {
 		// TODO update internal state even when muted
@@ -901,12 +1090,12 @@ void Y8950::generateChannels(int** bufs, unsigned num)
 	}
 }
 
-bool Y8950::generateInput(int* buffer, unsigned num)
+bool Y8950Impl::generateInput(int* buffer, unsigned num)
 {
 	return mixChannels(buffer, num);
 }
 
-bool Y8950::updateBuffer(unsigned length, int* buffer,
+bool Y8950Impl::updateBuffer(unsigned length, int* buffer,
      const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
 {
 	return generateOutput(buffer, length);
@@ -916,7 +1105,7 @@ bool Y8950::updateBuffer(unsigned length, int* buffer,
 // I/O Ctrl
 //
 
-void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
+void Y8950Impl::writeReg(byte rg, byte data, const EmuTime& time)
 {
 	//PRT_DEBUG("Y8950 write " << (int)rg << " " << (int)data);
 	int stbl[32] = {
@@ -978,12 +1167,12 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 			break;
 
 		case 0x04: // FLAG CONTROL
-			if (data & R04_IRQ_RESET) {
+			if (data & Y8950::R04_IRQ_RESET) {
 				resetStatus(0x78);	// reset all flags
 			} else {
 				changeStatusMask((~data) & 0x78);
-				timer1.setStart(data & R04_ST1, time);
-				timer2.setStart(data & R04_ST2, time);
+				timer1.setStart(data & Y8950::R04_ST1, time);
+				timer2.setStart(data & Y8950::R04_ST2, time);
 				reg[rg] = data;
 			}
 			break;
@@ -1160,7 +1349,7 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 	}
 }
 
-byte Y8950::readReg(byte rg, const EmuTime &time)
+byte Y8950Impl::readReg(byte rg, const EmuTime &time)
 {
 	updateStream(time); // TODO only when necessary
 
@@ -1179,7 +1368,7 @@ byte Y8950::readReg(byte rg, const EmuTime &time)
 	return result;
 }
 
-byte Y8950::peekReg(byte rg, const EmuTime &time) const
+byte Y8950Impl::peekReg(byte rg, const EmuTime &time) const
 {
 	switch (rg) {
 		case 0x05: // (KEYBOARD IN)
@@ -1202,25 +1391,25 @@ byte Y8950::peekReg(byte rg, const EmuTime &time) const
 	}
 }
 
-byte Y8950::readStatus()
+byte Y8950Impl::readStatus()
 {
-	setStatus(STATUS_BUF_RDY);	// temp hack
+	setStatus(Y8950::STATUS_BUF_RDY);	// temp hack
 	byte result = peekStatus();
 	//std::cout << "status: " << (int)result << std::endl;
 	return result;
 }
 
-byte Y8950::peekStatus() const
+byte Y8950Impl::peekStatus() const
 {
 	return (status & (0x80 | statusMask)) | 0x06; // bit 1 and 2 are always 1
 }
 
-void Y8950::callback(byte flag)
+void Y8950Impl::callback(byte flag)
 {
 	setStatus(flag);
 }
 
-void Y8950::setStatus(byte flags)
+void Y8950Impl::setStatus(byte flags)
 {
 	status |= flags;
 	if (status & statusMask) {
@@ -1228,7 +1417,7 @@ void Y8950::setStatus(byte flags)
 		irq.set();
 	}
 }
-void Y8950::resetStatus(byte flags)
+void Y8950Impl::resetStatus(byte flags)
 {
 	status &= ~flags;
 	if (!(status & statusMask)) {
@@ -1236,7 +1425,7 @@ void Y8950::resetStatus(byte flags)
 		irq.reset();
 	}
 }
-void Y8950::changeStatusMask(byte newMask)
+void Y8950Impl::changeStatusMask(byte newMask)
 {
 	statusMask = newMask;
 	status &= statusMask;
@@ -1252,7 +1441,7 @@ void Y8950::changeStatusMask(byte newMask)
 
 // SimpleDebuggable
 
-Y8950Debuggable::Y8950Debuggable(MSXMotherBoard& motherBoard, Y8950& y8950_)
+Y8950Debuggable::Y8950Debuggable(MSXMotherBoard& motherBoard, Y8950Impl& y8950_)
 	: SimpleDebuggable(motherBoard, y8950_.getName() + " regs",
 	                   "MSX-AUDIO", 0x100)
 	, y8950(y8950_)
@@ -1267,6 +1456,66 @@ byte Y8950Debuggable::read(unsigned address)
 void Y8950Debuggable::write(unsigned address, byte value, const EmuTime& time)
 {
 	y8950.writeReg(address, value, time);
+}
+
+
+// class Y8950
+
+Y8950::Y8950(MSXMotherBoard& motherBoard, const std::string& name,
+             const XMLElement& config, unsigned sampleRam, const EmuTime& time,
+             Y8950Periphery& perihery)
+	: pimple(new Y8950Impl(*this, motherBoard, name, config, sampleRam,
+	                       time, perihery))
+{
+}
+
+Y8950::~Y8950()
+{
+}
+
+void Y8950::setEnabled(bool enabled, const EmuTime& time)
+{
+	pimple->setEnabled(enabled, time);
+}
+
+void Y8950::reset(const EmuTime& time)
+{
+	pimple->reset(time);
+}
+
+void Y8950::writeReg(byte reg, byte data, const EmuTime& time)
+{
+	pimple->writeReg(reg, data, time);
+}
+
+byte Y8950::readReg(byte reg, const EmuTime& time)
+{
+	return pimple->readReg(reg, time);
+}
+
+byte Y8950::peekReg(byte reg, const EmuTime& time) const
+{
+	return pimple->peekReg(reg, time);
+}
+
+byte Y8950::readStatus()
+{
+	return pimple->readStatus();
+}
+
+byte Y8950::peekStatus() const
+{
+	return pimple->peekStatus();
+}
+
+void Y8950::setStatus(byte flags)
+{
+	pimple->setStatus(flags);
+}
+
+void Y8950::resetStatus(byte flags)
+{
+	pimple->resetStatus(flags);
 }
 
 } // namespace openmsx

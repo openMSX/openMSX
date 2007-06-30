@@ -3,177 +3,22 @@
 #ifndef Y8950_HH
 #define Y8950_HH
 
-#include "SoundDevice.hh"
-#include "EmuTimer.hh"
-#include "Resample.hh"
-#include "IRQHelper.hh"
 #include "openmsx.hh"
+#include <string>
 #include <memory>
 
 namespace openmsx {
 
-class Y8950Adpcm;
-class Y8950KeyboardConnector;
-class Y8950Periphery;
-class DACSound16S;
 class MSXMotherBoard;
-class Y8950Debuggable;
+class XMLElement;
+class Y8950Periphery;
+class EmuTime;
+class Y8950Impl;
 
-class Y8950 : public SoundDevice, private EmuTimerCallback, private Resample
+class Y8950
 {
-	class Patch {
-	public:
-		Patch();
-		void reset();
-
-		bool AM, PM, EG;
-		byte KR; // 0-1
-		byte ML; // 0-15
-		byte KL; // 0-3
-		byte TL; // 0-63
-		byte FB; // 0-7
-		byte AR; // 0-15
-		byte DR; // 0-15
-		byte SL; // 0-15
-		byte RR; // 0-15
-	};
-
-	class Slot {
-	public:
-		void reset();
-
-		inline void slotOn();
-		inline void slotOff();
-
-		inline void calc_phase();
-		inline void calc_envelope();
-		inline int calc_slot_car(int fm);
-		inline int calc_slot_mod();
-		inline int calc_slot_tom();
-		inline int calc_slot_snare(int whitenoise);
-		inline int calc_slot_cym(int a, int b);
-		inline int calc_slot_hat(int a, int b, int whitenoise);
-
-		inline void updateAll();
-		inline void updateEG();
-		inline void updateRKS();
-		inline void updateTLL();
-		inline void updatePG();
-
-		// OUTPUT
-		int feedback;
-		int output[5];		// Output value of slot
-
-		// for Phase Generator (PG)
-		unsigned phase;		// Phase
-		unsigned dphase;	// Phase increment amount
-		int pgout;		// Output
-
-		// for Envelope Generator (EG)
-		int fnum;		// F-Number
-		int block;		// Block
-		int tll;		// Total Level + Key scale level
-		int rks;		// Key scale offset (Rks)
-		int eg_mode;		// Current state
-		unsigned eg_phase;	// Phase
-		unsigned eg_dphase;	// Phase increment amount
-		int egout;		// Output
-
-		// refer to Y8950->
-		int* plfo_pm;
-		int* plfo_am;
-
-		Patch patch;
-		bool slotStatus;
-	};
-
-	class Channel {
-	public:
-		Channel();
-		void reset();
-		inline void setFnumber(int fnum);
-		inline void setBlock(int block);
-		inline void keyOn();
-		inline void keyOff();
-
-		Slot mod, car;
-		bool alg;
-	};
-
 public:
-	Y8950(MSXMotherBoard& motherBoard, const std::string& name,
-	      const XMLElement& config, unsigned sampleRam, const EmuTime& time,
-	      Y8950Periphery& perihery);
-	virtual ~Y8950();
-
-	void setEnabled(bool enabled, const EmuTime& time);
-	void reset(const EmuTime& time);
-	void writeReg(byte reg, byte data, const EmuTime& time);
-	byte readReg(byte reg, const EmuTime& time);
-	byte peekReg(byte reg, const EmuTime& time) const;
-	byte readStatus();
-	byte peekStatus() const;
-
 	static const int CLOCK_FREQ = 3579545;
-
-private:
-	// SoundDevice
-	virtual void setOutputRate(unsigned sampleRate);
-	virtual void generateChannels(int** bufs, unsigned num);
-	virtual bool updateBuffer(unsigned length, int* buffer,
-		const EmuTime& start, const EmuDuration& sampDur);
-
-	// Resample
-	virtual bool generateInput(int* buffer, unsigned num);
-
-	inline void keyOn_BD();
-	inline void keyOn_SD();
-	inline void keyOn_TOM();
-	inline void keyOn_HH();
-	inline void keyOn_CYM();
-	inline void keyOff_BD();
-	inline void keyOff_SD();
-	inline void keyOff_TOM();
-	inline void keyOff_HH();
-	inline void keyOff_CYM();
-	inline void setRythmMode(int data);
-	inline void update_noise();
-	inline void update_ampm();
-
-	inline void calcSample(int** bufs, unsigned sample);
-	bool checkMuteHelper();
-
-	void setStatus(byte flags);
-	void resetStatus(byte flags);
-	void changeStatusMask(byte newMask);
-
-	void callback(byte flag);
-
-	int adr;
-	int output[2];
-	// Registers
-	byte reg[0x100];
-	// Pitch Modulator
-	unsigned pm_phase;
-	// Amp Modulator
-	unsigned am_phase;
-
-	// Noise Generator
-	int noise_seed;
-	int whitenoise;
-	int noiseA;
-	int noiseB;
-	unsigned noiseA_phase;
-	unsigned noiseB_phase;
-	unsigned noiseA_dphase;
-	unsigned noiseB_dphase;
-
-	// Channel & Slot
-	Channel ch[9];
-	Slot* slot[18];
-
-	int lfo_pm;
-	int lfo_am;
 
 	// Bitmask for register 0x04
 	// Timer1 Start.
@@ -199,32 +44,25 @@ private:
 	static const int STATUS_T2      = R04_MASK_T2;
 	static const int STATUS_T1      = R04_MASK_T1;
 
-	IRQHelper irq;
-	Y8950Periphery& perihery;
+	Y8950(MSXMotherBoard& motherBoard, const std::string& name,
+	      const XMLElement& config, unsigned sampleRam, const EmuTime& time,
+	      Y8950Periphery& perihery);
+	~Y8950();
 
-	// Timers
-	EmuTimerOPL3_1 timer1; //  80us timer
-	EmuTimerOPL3_2 timer2; // 320us timer
+	void setEnabled(bool enabled, const EmuTime& time);
+	void reset(const EmuTime& time);
+	void writeReg(byte reg, byte data, const EmuTime& time);
+	byte readReg(byte reg, const EmuTime& time);
+	byte peekReg(byte reg, const EmuTime& time) const;
+	byte readStatus();
+	byte peekStatus() const;
 
-	// ADPCM
-	const std::auto_ptr<Y8950Adpcm> adpcm;
-	friend class Y8950Adpcm;
+	// for ADPCM
+	void setStatus(byte flags);
+	void resetStatus(byte flags);
 
-	// Keyboard connector
-	const std::auto_ptr<Y8950KeyboardConnector> connector;
-
-	// 13-bit (exponential) DAC
-	const std::auto_ptr<DACSound16S> dac13;
-
-	friend class Y8950Debuggable;
-	const std::auto_ptr<Y8950Debuggable> debuggable;
-
-	byte status;     // STATUS Register
-	byte statusMask; // bit=0 -> masked
-	bool rythm_mode;
-	bool am_mode;
-	bool pm_mode;
-	bool enabled;
+private:
+	const std::auto_ptr<Y8950Impl> pimple;
 };
 
 } // namespace openmsx
