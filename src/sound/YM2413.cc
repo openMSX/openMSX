@@ -154,6 +154,7 @@ public:
 	inline void update_rhythm_mode();
 	inline void update_key_status();
 
+	inline void advance();
 	inline void calcSample(
 		int** bufs, unsigned sample, unsigned channelActiveBits);
 
@@ -1145,8 +1146,7 @@ static inline int adjust(int x)
 	return x << (15 - DB2LIN_AMP_BITS);
 }
 
-inline void Global::calcSample(
-	int** bufs, unsigned sample, unsigned channelActiveBits)
+inline void Global::advance()
 {
 	// update AM, PM unit
 	pm_phase = (pm_phase + PM_DPHASE) & (PM_DP_WIDTH - 1);
@@ -1167,7 +1167,11 @@ inline void Global::calcSample(
 		ch.car.calc_phase(lfo_pm);
 		ch.car.calc_envelope(lfo_am);
 	}
+}
 
+inline void Global::calcSample(
+	int** bufs, unsigned sample, unsigned channelActiveBits)
+{
 	// TODO: What to do with channels that enter FINISH state during
 	//       one generateChannels() call?
 	//        1. check both channelActiveBits and eg_mode
@@ -1263,6 +1267,7 @@ void Global::generateChannels(int** bufs, unsigned num)
 		bufs[10] = 0;
 	}
 	for (unsigned i = 0; i < num; ++i) {
+		advance();
 		calcSample(bufs, i, channelActiveBits);
 	}
 }
