@@ -989,7 +989,7 @@ void Slot::calc_phase(PhaseModulation lfo_pm)
 // EG
 void Slot::calc_envelope(int lfo_am)
 {
-	#define S2E(x) (EnvPhaseIndex(x / SL_STEP))
+	#define S2E(x) (EnvPhaseIndex(SL2EG(int(x / SL_STEP))))
 	static EnvPhaseIndex SL[16] = {
 		S2E( 0.0), S2E( 3.0), S2E( 6.0), S2E( 9.0),
 		S2E(12.0), S2E(15.0), S2E(18.0), S2E(21.0),
