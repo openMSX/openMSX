@@ -1,5 +1,9 @@
 $Id$
 
+2007-06-30 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* allow to use bindings on joysticks that are not plugged in (into the
+	  emulated MSX)
+
 2007-06-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Created new directory 'utils' and moved several files into it
 

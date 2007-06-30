@@ -28,18 +28,16 @@ void Joystick::registerAll(MSXEventDistributor& eventDistributor,
 Joystick::Joystick(MSXEventDistributor& eventDistributor_, unsigned joyNum_)
 	: eventDistributor(eventDistributor_)
 	, joyNum(joyNum_)
-	, joystick(0)
+	, name(string("joystick") + (char)('1' + joyNum))
+	, desc(string(SDL_JoystickName(joyNum)))
+	, joystick(SDL_JoystickOpen(joyNum))
 {
-	PRT_DEBUG("Creating a Joystick object for joystick " << joyNum);
-	assert(joyNum < (unsigned)SDL_NumJoysticks());
-	name = string("joystick") + (char)('1' + joyNum);
-	desc = string(SDL_JoystickName(joyNum));
 }
 
 Joystick::~Joystick()
 {
 	if (joystick) {
-		closeJoystick();
+		SDL_JoystickClose(joystick);
 	}
 }
 
@@ -56,8 +54,6 @@ const string& Joystick::getDescription() const
 
 void Joystick::plugHelper(Connector& /*connector*/, const EmuTime& /*time*/)
 {
-	PRT_DEBUG("Opening joystick " << SDL_JoystickName(joyNum));
-	joystick = SDL_JoystickOpen(joyNum);
 	if (!joystick) {
 		throw PlugException("Failed to open joystick device");
 	}
@@ -70,14 +66,7 @@ void Joystick::plugHelper(Connector& /*connector*/, const EmuTime& /*time*/)
 
 void Joystick::unplugHelper(const EmuTime& /*time*/)
 {
-	closeJoystick();
-}
-
-void Joystick::closeJoystick()
-{
 	eventDistributor.unregisterEventListener(*this);
-	SDL_JoystickClose(joystick);
-	joystick = 0;
 }
 
 

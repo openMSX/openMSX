@@ -37,7 +37,6 @@ public:
 private:
 	Joystick(MSXEventDistributor& eventDistributor, unsigned joyNum);
 	virtual ~Joystick();
-	void closeJoystick();
 
 	// MSXEventListener
 	virtual void signalEvent(shared_ptr<const Event> event,
@@ -47,11 +46,11 @@ private:
 
 	MSXEventDistributor& eventDistributor;
 
-	std::string name;
-	std::string desc;
+	const unsigned joyNum;
+	const std::string name;
+	const std::string desc;
+	SDL_Joystick* const joystick;
 
-	unsigned joyNum;
-	SDL_Joystick* joystick;
 	byte status;
 };
 
