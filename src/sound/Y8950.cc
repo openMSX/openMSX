@@ -265,9 +265,6 @@ static void makeDphaseARTable()
 {
 	for (int AR = 0; AR < 16; ++AR) {
 		for (int Rks = 0; Rks < 16; ++Rks) {
-			int RM = AR + (Rks >> 2);
-			int RL = Rks & 3;
-			if (RM > 15) RM = 15;
 			switch (AR) {
 			case 0:
 				dphaseARTable[AR][Rks] = 0;
@@ -275,9 +272,12 @@ static void makeDphaseARTable()
 			case 15:
 				dphaseARTable[AR][Rks] = EG_DP_WIDTH;
 				break;
-			default:
+			default: {
+				int RM = std::min(AR + (Rks >> 2), 15);
+				int RL = Rks & 3;
 				dphaseARTable[AR][Rks] = (3 * (RL + 4)) << (RM + 1);
 				break;
+			}
 			}
 		}
 	}
@@ -288,16 +288,16 @@ static void makeDphaseDRTable()
 {
 	for (int DR = 0; DR < 16; ++DR) {
 		for (int Rks = 0; Rks < 16; ++Rks) {
-			int RM = DR + (Rks >> 2);
-			int RL = Rks & 3;
-			if (RM > 15) RM = 15;
 			switch (DR) {
 			case 0:
 				dphaseDRTable[DR][Rks] = 0;
 				break;
-			default:
+			default: {
+				int RM = std::min(DR + (Rks >> 2), 15);
+				int RL = Rks & 3;
 				dphaseDRTable[DR][Rks] = (RL + 4) << (RM - 1);
 				break;
+			}
 			}
 		}
 	}
@@ -307,11 +307,8 @@ static void makeRksTable()
 {
 	for (int fnum9 = 0; fnum9 < 2; ++fnum9) {
 		for (int block = 0; block < 8; ++block) {
-			for (int KR = 0; KR < 2; ++KR) {
-				rksTable[fnum9][block][KR] = (KR != 0)
-				                           ? (block << 1) + fnum9
-				                           : block >> 1;
-			}
+			rksTable[fnum9][block][0] = block >> 1;
+			rksTable[fnum9][block][1] = (block << 1) + fnum9;
 		}
 	}
 }
@@ -382,24 +379,22 @@ void Y8950::Slot::updateRKS()
 void Y8950::Slot::updateEG()
 {
 	switch (eg_mode) {
-		case ATTACK:
-			eg_dphase = dphaseARTable[patch.AR][rks];
-			break;
-		case DECAY:
-			eg_dphase = dphaseDRTable[patch.DR][rks];
-			break;
-		case SUSTINE:
-			eg_dphase = dphaseDRTable[patch.RR][rks];
-			break;
-		case RELEASE:
-			eg_dphase = patch.EG ?
-			            dphaseDRTable[patch.RR][rks]:
-			            dphaseDRTable[7]       [rks];
-			break;
-		case SUSHOLD:
-		case FINISH:
-			eg_dphase = 0;
-			break;
+	case ATTACK:
+		eg_dphase = dphaseARTable[patch.AR][rks];
+		break;
+	case DECAY:
+		eg_dphase = dphaseDRTable[patch.DR][rks];
+		break;
+	case SUSTINE:
+		eg_dphase = dphaseDRTable[patch.RR][rks];
+		break;
+	case RELEASE:
+		eg_dphase = dphaseDRTable[patch.EG ? patch.RR : 7][rks];
+		break;
+	case SUSHOLD:
+	case FINISH:
+		eg_dphase = 0;
+		break;
 	}
 }
 
@@ -427,8 +422,9 @@ void Y8950::Slot::slotOff()
 {
 	if (slotStatus) {
 		slotStatus = false;
-		if (eg_mode == ATTACK)
+		if (eg_mode == ATTACK) {
 			eg_phase = EXPAND_BITS(AR_ADJUST_TABLE[HIGHBITS(eg_phase, EG_DP_BITS-EG_BITS)], EG_BITS, EG_DP_BITS);
+		}
 		eg_mode = RELEASE;
 	}
 }
@@ -614,22 +610,14 @@ void Y8950::setRythmMode(int data)
 static inline int wave2_4pi(int e)
 {
 	int shift =  SLOT_AMP_BITS - PG_BITS - 1;
-	if (shift > 0) {
-		return e >> shift;
-	} else {
-		return e << -shift;
-	}
+	return (shift > 0) ? (e >> shift) : (e << -shift);
 }
 
 // Convert Amp(0 to EG_HEIGHT) to Phase(0 to 8PI).
 static inline int wave2_8pi(int e)
 {
 	int shift = SLOT_AMP_BITS - PG_BITS - 2;
-	if (shift > 0) {
-		return e >> shift;
-	} else {
-		return e << -shift;
-	}
+	return (shift > 0) ? (e >> shift) : (e << -shift);
 }
 
 void Y8950::update_noise()
@@ -672,13 +660,13 @@ void Y8950::Slot::calc_phase()
 	pgout = HIGHBITS(phase, DP_BASE_BITS);
 }
 
+#define S2E(x) (((unsigned)(x / SL_STEP) * SL_PER_EG) << (EG_DP_BITS - EG_BITS))
+static unsigned SL[16] = {
+	S2E( 0), S2E( 3), S2E( 6), S2E( 9), S2E(12), S2E(15), S2E(18), S2E(21),
+	S2E(24), S2E(27), S2E(30), S2E(33), S2E(36), S2E(39), S2E(42), S2E(93)
+};
 void Y8950::Slot::calc_envelope()
 {
-	#define S2E(x) (((unsigned)(x / SL_STEP) * SL_PER_EG) << (EG_DP_BITS - EG_BITS))
-	static unsigned SL[16] = {
-		S2E( 0), S2E( 3), S2E( 6), S2E( 9), S2E(12), S2E(15), S2E(18), S2E(21),
-		S2E(24), S2E(27), S2E(30), S2E(33), S2E(36), S2E(39), S2E(42), S2E(93)
-	};
 
 	switch (eg_mode) {
 	case ATTACK:
@@ -697,15 +685,9 @@ void Y8950::Slot::calc_envelope()
 		eg_phase += eg_dphase;
 		egout = HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS);
 		if (eg_phase >= SL[patch.SL]) {
-			if (patch.EG) {
-				eg_phase = SL[patch.SL];
-				eg_mode = SUSHOLD;
-				updateEG();
-			} else {
-				eg_phase = SL[patch.SL];
-				eg_mode = SUSTINE;
-				updateEG();
-			}
+			eg_phase = SL[patch.SL];
+			eg_mode = patch.EG ? SUSHOLD : SUSTINE;
+			updateEG();
 			egout = HIGHBITS(eg_phase, EG_DP_BITS - EG_BITS);
 		}
 		break;
@@ -733,10 +715,9 @@ void Y8950::Slot::calc_envelope()
 		break;
 	}
 
+	egout = ((egout + tll) * EG_PER_DB);
 	if (patch.AM) {
-		egout = ((egout + tll) * EG_PER_DB) + (*plfo_am);
-	} else {
-		egout = ((egout + tll) * EG_PER_DB);
+		egout += *plfo_am;
 	}
 	egout = std::min(egout, DB_MUTE - 1);
 }
@@ -1094,8 +1075,8 @@ void Y8950::writeReg(byte rg, byte data, const EmuTime& time)
 	}
 	case 0xa0: {
 		if (rg == 0xbd) {
-			am_mode = (data >> 7) & 1;
-			pm_mode = (data >> 6) & 1;
+			am_mode = data & 0x80;
+			pm_mode = data & 0x40;
 
 			setRythmMode(data);
 			if (rythm_mode) {
@@ -1180,7 +1161,7 @@ byte Y8950::readReg(byte rg, const EmuTime &time)
 		case 0x14: //  ???
 		case 0x1A: // PCM-DATA
 			result = adpcm->readReg(rg);
-
+			break;
 		default:
 			result = peekReg(rg, time);
 	}
