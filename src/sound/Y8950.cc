@@ -322,13 +322,16 @@ static short dB2LinTab[(2 * DB_MUTE) * 2];
 //                                                  //
 //**************************************************//
 
-static inline int DB_POS(int x)
+static inline unsigned DB_POS(int x)
 {
-	return (int)(x / DB_STEP);
+	int result = static_cast<int>(x / DB_STEP);
+	assert(result < DB_MUTE);
+	assert(result >= 0);
+	return result;
 }
-static inline int DB_NEG(int x)
+static inline unsigned DB_NEG(int x)
 {
-	return (int)(2 * DB_MUTE + x / DB_STEP);
+	return 2 * DB_MUTE + DB_POS(x);
 }
 
 // Cut the lower b bits off
@@ -363,10 +366,14 @@ static void makeAdjustTable()
 // Table for dB(0 -- (1<<DB_BITS)) to Liner(0 -- DB2LIN_AMP_WIDTH)
 static void makeDB2LinTable()
 {
+	for (int i = 0; i < DB_MUTE; ++i) {
+		dB2LinTab[i] = (int)((double)((1 << DB2LIN_AMP_BITS) - 1) *
+		                     pow(10, -(double)i * DB_STEP / 20));
+	}
+	for (int i = DB_MUTE; i < 2 * DB_MUTE; ++i) {
+		dB2LinTab[i] = 0;
+	}
 	for (int i = 0; i < 2 * DB_MUTE; ++i) {
-		dB2LinTab[i] = (i < DB_MUTE)
-		             ? (int)((double)((1 << DB2LIN_AMP_BITS) - 1) * pow(10, -(double)i * DB_STEP / 20))
-			     : 0;
 		dB2LinTab[i + 2 * DB_MUTE] = -dB2LinTab[i];
 	}
 }
@@ -969,11 +976,8 @@ int Y8950Slot::calc_slot_snare(int whitenoise)
 	if (egout >= (DB_MUTE - 1)) {
 		return 0;
 	}
-	if (pgout & (1 << (PG_BITS - 1))) {
-		return (dB2LinTab[egout] + dB2LinTab[egout + whitenoise]) >> 1;
-	} else {
-		return (dB2LinTab[2 * DB_MUTE + egout] + dB2LinTab[egout + whitenoise]) >> 1;
-	}
+	unsigned tmp = (pgout & (1 << (PG_BITS - 1))) ? 0 : 2 * DB_MUTE;
+	return (dB2LinTab[tmp + egout] + dB2LinTab[egout + whitenoise]) >> 1;
 }
 
 int Y8950Slot::calc_slot_cym(int a, int b)
@@ -993,7 +997,9 @@ int Y8950Slot::calc_slot_hat(int a, int b, int whitenoise)
 	if (egout >= (DB_MUTE - 1)) {
 		return 0;
 	} else {
-		return (dB2LinTab[egout+whitenoise] + dB2LinTab[egout+a] + dB2LinTab[egout+b]) >> 2;
+		return (dB2LinTab[egout + whitenoise] +
+		        dB2LinTab[egout + a] +
+		        dB2LinTab[egout + b]) >> 2;
 	}
 }
 
