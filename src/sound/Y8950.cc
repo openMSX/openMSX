@@ -370,6 +370,7 @@ static void makeDB2LinTable()
 		dB2LinTab[i] = (int)((double)((1 << DB2LIN_AMP_BITS) - 1) *
 		                     pow(10, -(double)i * DB_STEP / 20));
 	}
+	assert(dB2LinTab[DB_MUTE - 1] == 0);
 	for (int i = DB_MUTE; i < 2 * DB_MUTE; ++i) {
 		dB2LinTab[i] = 0;
 	}
@@ -934,9 +935,6 @@ int Y8950Slot::calc_slot_car(int fm)
 {
 	calc_envelope();
 	calc_phase();
-	if (egout >= (DB_MUTE - 1)) {
-		return 0;
-	}
 	return dB2LinTab[sintable[(pgout + wave2_8pi(fm)) & (PG_WIDTH - 1)] + egout];
 }
 
@@ -946,9 +944,7 @@ int Y8950Slot::calc_slot_mod()
 	calc_envelope();
 	calc_phase();
 
-	if (egout >= (DB_MUTE - 1)) {
-		output[0] = 0;
-	} else if (patch.FB != 0) {
+	if (patch.FB != 0) {
 		int fm = wave2_4pi(feedback) >> (7-patch.FB);
 		output[0] = dB2LinTab[sintable[(pgout + fm) & (PG_WIDTH - 1)] + egout];
 	} else {
@@ -963,9 +959,6 @@ int Y8950Slot::calc_slot_tom()
 {
 	calc_envelope();
 	calc_phase();
-	if (egout >= (DB_MUTE - 1)) {
-		return 0;
-	}
 	return dB2LinTab[sintable[pgout] + egout];
 }
 
@@ -973,9 +966,6 @@ int Y8950Slot::calc_slot_snare(int whitenoise)
 {
 	calc_envelope();
 	calc_phase();
-	if (egout >= (DB_MUTE - 1)) {
-		return 0;
-	}
 	unsigned tmp = (pgout & (1 << (PG_BITS - 1))) ? 0 : 2 * DB_MUTE;
 	return (dB2LinTab[tmp + egout] + dB2LinTab[egout + whitenoise]) >> 1;
 }
@@ -983,24 +973,16 @@ int Y8950Slot::calc_slot_snare(int whitenoise)
 int Y8950Slot::calc_slot_cym(int a, int b)
 {
 	calc_envelope();
-	if (egout >= (DB_MUTE - 1)) {
-		return 0;
-	} else {
-		return (dB2LinTab[egout + a] + dB2LinTab[egout + b]) >> 1;
-	}
+	return (dB2LinTab[egout + a] + dB2LinTab[egout + b]) >> 1;
 }
 
 // HI-HAT
 int Y8950Slot::calc_slot_hat(int a, int b, int whitenoise)
 {
 	calc_envelope();
-	if (egout >= (DB_MUTE - 1)) {
-		return 0;
-	} else {
-		return (dB2LinTab[egout + whitenoise] +
-		        dB2LinTab[egout + a] +
-		        dB2LinTab[egout + b]) >> 2;
-	}
+	return (dB2LinTab[egout + whitenoise] +
+	        dB2LinTab[egout + a] +
+	        dB2LinTab[egout + b]) >> 2;
 }
 
 static inline int adjust(int x)
