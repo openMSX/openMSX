@@ -1,4 +1,4 @@
-// $Id: $
+// $Id$
 
 #include "AviRecorder.hh"
 #include "AviWriter.hh"
@@ -26,12 +26,12 @@ namespace openmsx {
 class RecordCommand : public SimpleCommand
 {
 public:
-        RecordCommand(CommandController& commandController, AviRecorder& recorder);
+	RecordCommand(CommandController& commandController, AviRecorder& recorder);
 	virtual string execute(const vector<string>& tokens);
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
-        AviRecorder& recorder;
+	AviRecorder& recorder;
 };
 
 
@@ -250,8 +250,8 @@ string AviRecorder::processToggle(const vector<string>& tokens)
 
 RecordCommand::RecordCommand(CommandController& commandController,
                              AviRecorder& recorder_)
-        : SimpleCommand(commandController, "record")
-        , recorder(recorder_)
+	: SimpleCommand(commandController, "record")
+	, recorder(recorder_)
 {
 }
 

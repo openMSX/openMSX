@@ -1,4 +1,4 @@
-// $Id: $
+// $Id$
 
 #ifndef AVIRECORDER_HH
 #define AVIRECORDER_HH
@@ -38,7 +38,7 @@ private:
 	std::string processToggle(const std::vector<std::string>& tokens);
 
 	Reactor& reactor;
-        const std::auto_ptr<RecordCommand> recordCommand;
+	const std::auto_ptr<RecordCommand> recordCommand;
 	std::vector<short> audioBuf;
 	std::auto_ptr<AviWriter> aviWriter;
 	std::auto_ptr<WavWriter> wavWriter;
@@ -53,7 +53,7 @@ private:
 	bool warnedFps;
 	bool warnedSampleRate;
 
-        friend class RecordCommand;
+	friend class RecordCommand;
 };
 
 } // namespace openmsx
