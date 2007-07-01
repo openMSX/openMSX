@@ -20,7 +20,7 @@ XMLException::XMLException(const string& msg)
 auto_ptr<XMLElement> XMLLoader::loadXML(const string& filename,
                                         const string& systemID)
 {
-	xmlDocPtr doc = xmlParseFile(filename.c_str());
+	xmlDocPtr doc = xmlReadFile(filename.c_str(), NULL, 0);
 	if (!doc) {
 		throw XMLException(filename + ": Document parsing failed");
 	}
