@@ -206,7 +206,6 @@ $(BUILD_DIR)/$(PACKAGE_XML)/Makefile: \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		--with-minimum \
  		--with-push \
-		--with-sax1 \
 		$(if $(filter-out $(SYSTEM_LIBS),ZLIB),--with-zlib=$(PWD)/$(INSTALL_DIR),) \
 		CFLAGS="$(_CFLAGS)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
