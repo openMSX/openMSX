@@ -2,41 +2,43 @@
 #
 # Entry point of build system.
 #
-# Do a sanity check on the given goal(s) and processes them sequentially.
+# Do a sanity check on the given action(s) and processes them sequentially.
 # Sequential processing is needed because for example "clean" and "all" cannot
-# run in parallel. Some goals might be able to run in parallel, but that is an
-# optimization we can do later, if it is really worth it.
+# run in parallel. Some actions might be able to run in parallel, but that is
+# an optimization we can do later, if it is really worth it.
+#
+# TODO: Current sequencer approach fails if the same action occurs twice.
 
-# All goals we want to expose to the user.
-USER_GOALS:=\
+# All actions we want to expose to the user.
+USER_ACTIONS:=\
 	3rdparty all bindist clean createsubs dist install probe run staticbindist
 
-# Mark all goals as logical targets.
-.PHONY: $(USER_GOALS)
+# Mark all actions as logical targets.
+.PHONY: $(USER_ACTIONS)
 
-# Reject unknown goals.
-UNKNOWN_GOALS:=$(filter-out $(USER_GOALS),$(MAKECMDGOALS))
-ifneq ($(UNKNOWN_GOALS),)
-ifeq ($(words $(UNKNOWN_GOALS)),1)
-$(error Unknown goal: $(UNKNOWN_GOALS))
+# Reject unknown actions.
+UNKNOWN_ACTIONS:=$(filter-out $(USER_ACTIONS),$(MAKECMDGOALS))
+ifneq ($(UNKNOWN_ACTIONS),)
+ifeq ($(words $(UNKNOWN_ACTIONS)),1)
+$(error Unknown action: $(UNKNOWN_ACTIONS))
 else
-$(error Unknown goals: $(UNKNOWN_GOALS))
+$(error Unknown actions: $(UNKNOWN_ACTIONS))
 endif
 endif
 
 ifeq ($(MAKECMDGOALS),)
-# Make default goal explicit.
+# Make default action explicit.
 MAKECMDGOALS:=all
 .PHONY: default
 default: all
 endif
 
 ifeq ($(words $(MAKECMDGOALS)),1)
-# Single goal, run it in this Make process.
+# Single action, run it in this Make process.
 include build/main.mk
 else
-# Multiple goals are given, process them sequentially.
-GOAL_SEQUENCE:=$(MAKECMDGOALS)
+# Multiple actions are given, process them sequentially.
+ACTION_SEQUENCE:=$(MAKECMDGOALS)
 include build/entry-seq.mk
 $(MAKECMDGOALS):
 	@$(MAKE) --no-print-directory -f build/main.mk $@

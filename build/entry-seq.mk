@@ -1,9 +1,10 @@
 # $Id$
 #
-# Declares a dependency between each pair of consecutive goals in GOAL_SEQUENCE.
+# Declares a dependency between each pair of consecutive actions in
+# ACTION_SEQUENCE.
 
-$(word 2,$(GOAL_SEQUENCE)): $(word 1,$(GOAL_SEQUENCE))
-GOAL_SEQUENCE:=$(wordlist 2,999999,$(GOAL_SEQUENCE))
-ifneq ($(words $(GOAL_SEQUENCE)),1)
+$(word 2,$(ACTION_SEQUENCE)): $(word 1,$(ACTION_SEQUENCE))
+ACTION_SEQUENCE:=$(wordlist 2,999999,$(ACTION_SEQUENCE))
+ifneq ($(words $(ACTION_SEQUENCE)),1)
 include build/entry-seq.mk
 endif
