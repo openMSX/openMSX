@@ -197,6 +197,13 @@ public:
 		value -= other.value;
 	}
 
+	/** Increase this value with the smallest possible amount. Typically
+	  * used to implement counters at the resolution of this datatype.
+	  */
+	void addQuantum() {
+		value += 1;
+	}
+
 private:
 	int value;
 };
