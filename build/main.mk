@@ -19,16 +19,18 @@
 # Logical Targets
 # ===============
 
+ifneq ($(words $(MAKECMDGOALS)),1)
+$(error main.mk can only handle once goal at a time)
+endif
+
+# TODO: "dist" and "createsubs" are missing
+# TODO: more missing?
 # Logical targets which require dependency files.
 DEPEND_TARGETS:=all default install run bindist
 # Logical targets which do not require dependency files.
 NODEPEND_TARGETS:=clean config probe 3rdparty staticbindist
 # Mark all logical targets as such.
 .PHONY: $(DEPEND_TARGETS) $(NODEPEND_TARGETS)
-
-# Default target; make sure this is always the first target in this Makefile.
-MAKECMDGOALS?=default
-default: all
 
 
 # Base Directories
@@ -444,7 +446,7 @@ Please install the needed libraries and their header files and rerun "configure"
 endif
 
 # Force a probe if "probe" target is passed explicitly.
-ifneq ($(filter probe,$(MAKECMDGOALS)),)
+ifeq ($(MAKECMDGOALS),probe)
 probe: $(PROBE_MAKE)
 .PHONY: $(PROBE_MAKE)
 endif
@@ -493,7 +495,7 @@ clean:
 	@rm -rf $(BUILD_PATH)
 
 # Create Makefiles in source subdirectories, to conveniently build a subset.
-ifneq ($(filter createsubs,$(MAKECMDGOALS)),)
+ifeq ($(MAKECMDGOALS),createsubs)
 # Function that concatenates list items to form a single string.
 # Usage: $(call JOIN,TEXT)
 JOIN=$(if $(1),$(firstword $(1))$(call JOIN,$(wordlist 2,999999,$(1))),)
