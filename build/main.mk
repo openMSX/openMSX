@@ -508,7 +508,7 @@ $(SUB_MAKEFILES):
 	@echo "Creating $@..."
 	@echo "export OPENMSX_SUBSET=$(@:$(SOURCES_PATH)/%GNUmakefile=%)" > $@
 	@echo "all:" >> $@
-	@echo "	@\$$(MAKE) -C $(RELPATH) -f build/main.mk" >> $@
+	@echo "	@\$$(MAKE) -C $(RELPATH) -f build/main.mk all" >> $@
 # Force re-creation every time this target is run.
 .PHONY: $(SUB_MAKEFILES)
 endif
