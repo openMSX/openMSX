@@ -131,6 +131,7 @@ public:
 	          const std::string& name, const XMLElement& config,
 	          unsigned sampleRam, const EmuTime& time, 
 	          Y8950Periphery& perihery);
+	void init(const XMLElement& config, const EmuTime& time);
 	virtual ~Y8950Impl();
 
 	void setEnabled(bool enabled, const EmuTime& time);
@@ -697,6 +698,14 @@ Y8950Impl::Y8950Impl(Y8950& self, MSXMotherBoard& motherBoard,
 	                        "MSX-AUDIO 13-bit DAC", config, time))
 	, debuggable(new Y8950Debuggable(motherBoard, *this))
 	, enabled(true)
+{
+}
+
+// Constructor is split in two phases (actual constructor and this init()
+// method). Reason is that adpcm->reset() calls setStatus() via the Y8950
+// object, but before constructor is finished the pointer from Y8950 to
+// Y8950Impl is not yet initialized.
+void Y8950Impl::init(const XMLElement& config, const EmuTime& time)
 {
 	makePmTable();
 	makeAmTable();
@@ -1457,6 +1466,7 @@ Y8950::Y8950(MSXMotherBoard& motherBoard, const std::string& name,
 	: pimple(new Y8950Impl(*this, motherBoard, name, config, sampleRam,
 	                       time, perihery))
 {
+	pimple->init(config, time);
 }
 
 Y8950::~Y8950()
