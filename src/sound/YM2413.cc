@@ -345,6 +345,7 @@ static void makeDB2LinTable()
 		dB2LinTab[i] = (int)((double)((1 << DB2LIN_AMP_BITS) - 1) *
 		                     pow(10, -(double)i * DB_STEP / 20));
 	}
+	dB2LinTab[DB_MUTE - 1] = 0;
 	for (int i = DB_MUTE; i < 2 * DB_MUTE; ++i) {
 		dB2LinTab[i] = 0;
 	}
@@ -1075,15 +1076,9 @@ void Slot::calc_envelope(int lfo_am)
 // CARRIER
 int Slot::calc_slot_car(int fm)
 {
-	int newValue;
-	if (egout >= (DB_MUTE - 1)) {
-		newValue = 0;
-	} else {
-		int phase = (pgout + wave2_8pi(fm)) & (PG_WIDTH - 1);
-		newValue = dB2LinTab[sintbl[phase] + egout];
-	}
-	output[0] = newValue;
-	output[1] = (output[1] + newValue) >> 1;
+	int phase = (pgout + wave2_8pi(fm)) & (PG_WIDTH - 1);
+	output[0] = dB2LinTab[sintbl[phase] + egout];
+	output[1] = (output[1] + output[0]) >> 1;
 	return output[1];
 }
 
@@ -1091,36 +1086,25 @@ int Slot::calc_slot_car(int fm)
 int Slot::calc_slot_mod()
 {
 	output[1] = output[0];
-	int newValue;
-	if (egout >= (DB_MUTE - 1)) {
-		newValue = 0;
-	} else {
-		int phase = pgout;
-		if (patch->FB != 0) {
-			phase += wave2_4pi(feedback) >> (7 - patch->FB);
-			phase &= PG_WIDTH - 1;
-		}
-		newValue = dB2LinTab[sintbl[phase] + egout];
+	int phase = pgout;
+	if (patch->FB != 0) {
+		phase += wave2_4pi(feedback) >> (7 - patch->FB);
+		phase &= PG_WIDTH - 1;
 	}
-	output[0] = newValue;
-	feedback = (output[1] + newValue) >> 1;
+	output[0] = dB2LinTab[sintbl[phase] + egout];
+	feedback = (output[1] + output[0]) >> 1;
 	return feedback;
 }
 
 // TOM
 int Slot::calc_slot_tom()
 {
-	return (egout >= (DB_MUTE - 1))
-	     ? 0
-	     : dB2LinTab[sintbl[pgout] + egout];
+	return dB2LinTab[sintbl[pgout] + egout];
 }
 
 // SNARE
 int Slot::calc_slot_snare(bool noise)
 {
-	if (egout >= (DB_MUTE - 1)) {
-		return 0;
-	}
 	if (BIT(pgout, 7)) {
 		return dB2LinTab[(noise ? DB_POS(0.0) : DB_POS(15.0)) + egout];
 	} else {
@@ -1131,9 +1115,6 @@ int Slot::calc_slot_snare(bool noise)
 // TOP-CYM
 int Slot::calc_slot_cym(unsigned pgout_hh)
 {
-	if (egout >= (DB_MUTE - 1)) {
-		return 0;
-	}
 	unsigned dbout
 	    = (((BIT(pgout_hh, PG_BITS - 8) ^ BIT(pgout_hh, PG_BITS - 1)) |
 	        BIT(pgout_hh, PG_BITS - 7)) ^
@@ -1146,9 +1127,6 @@ int Slot::calc_slot_cym(unsigned pgout_hh)
 // HI-HAT
 int Slot::calc_slot_hat(int pgout_cym, bool noise)
 {
-	if (egout >= (DB_MUTE - 1)) {
-		return 0;
-	}
 	unsigned dbout;
 	if (((BIT(pgout, PG_BITS - 8) ^ BIT(pgout, PG_BITS - 1)) |
 	     BIT(pgout, PG_BITS - 7)) ^
