@@ -24,11 +24,15 @@ $(error Unknown goals: $(UNKNOWN_GOALS))
 endif
 endif
 
+ifeq ($(MAKECMDGOALS),)
 # Make default goal explicit.
-MAKECMDGOALS?=all
+MAKECMDGOALS:=all
+.PHONY: default
+default: all
+endif
 
 ifeq ($(words $(MAKECMDGOALS)),1)
-# Single goal, run it in actual Makefile.
+# Single goal, run it in this Make process.
 include build/main.mk
 else
 # Multiple goals are given, process them sequentially.
