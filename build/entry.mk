@@ -8,7 +8,8 @@
 # optimization we can do later, if it is really worth it.
 
 # All goals we want to expose to the user.
-USER_GOALS:=3rdparty all bindist clean dist install probe run staticbindist
+USER_GOALS:=\
+	3rdparty all bindist clean createsubs dist install probe run staticbindist
 
 # Mark all goals as logical targets.
 .PHONY: $(USER_GOALS)
