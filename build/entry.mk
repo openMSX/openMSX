@@ -6,8 +6,6 @@
 # Sequential processing is needed because for example "clean" and "all" cannot
 # run in parallel. Some actions might be able to run in parallel, but that is
 # an optimization we can do later, if it is really worth it.
-#
-# TODO: Current sequencer approach fails if the same action occurs twice.
 
 # All actions we want to expose to the user.
 USER_ACTIONS:=\
@@ -38,8 +36,10 @@ ifeq ($(words $(MAKECMDGOALS)),1)
 include build/main.mk
 else
 # Multiple actions are given, process them sequentially.
-ACTION_SEQUENCE:=$(MAKECMDGOALS)
+# If the same action is given more than once, some warnings will be displayed,
+# but they will all be executed.
+ACTION_COUNTER:=$(MAKECMDGOALS:%=x)
 include build/entry-seq.mk
-$(MAKECMDGOALS):
-	@$(MAKE) --no-print-directory -f build/main.mk $@
+$(MAKECMDGOALS): sequence-$(words $(MAKECMDGOALS))
+	@true
 endif
