@@ -82,7 +82,7 @@ public:
 	int output[2];		// Output value of slot
 
 	// for Phase Generator (PG)
-	word* sintbl;		// Wavetable
+	unsigned* sintbl;		// Wavetable
 	unsigned phase;		// Phase
 	unsigned dphase;	// Phase increment amount
 	unsigned pgout;		// output
@@ -196,7 +196,11 @@ public:
 };
 
 
-static const double DB_STEP = 48.0 / (1 << 8); //   48 / (1 << DB_BITS)
+// Dynamic range (Accuracy of sin table)
+static const int DB_BITS = 8;
+static const int DB_MUTE = 1 << DB_BITS;
+
+static const double DB_STEP = 48.0 / DB_MUTE;
 static const double EG_STEP = 0.375;
 static const double TL_STEP = 0.75;
 static const double SL_STEP = 3.0;
@@ -217,10 +221,6 @@ static const int PG_WIDTH = 1 << PG_BITS;
 static const int DP_BITS = 18;
 static const int DP_WIDTH = 1 << DP_BITS;
 static const int DP_BASE_BITS = DP_BITS - PG_BITS;
-
-// Dynamic range (Accuracy of sin table)
-static const int DB_BITS = 8;
-static const int DB_MUTE = 1 << DB_BITS;
 
 // Dynamic range of envelope
 static const int EG_BITS = 7;
@@ -243,12 +243,14 @@ static const int AM_DP_BITS = 16;
 static const int AM_DP_WIDTH = 1 << AM_DP_BITS;
 
 // dB to linear table (used by Slot)
-static short dB2LinTab[(DB_MUTE + DB_MUTE) * 2];
+static int dB2LinTab[(DB_MUTE + DB_MUTE) * 2];
 
 // WaveTable for each envelope amp
-static word fullsintable[PG_WIDTH];
-static word halfsintable[PG_WIDTH];
-static word* waveform[2] = {fullsintable, halfsintable};
+//  values are in range[0,   DB_MUTE)           (for positive values)
+//                  or [2*DB_MUTE, 3*DB_MUTE)   (for negative values)
+static unsigned fullsintable[PG_WIDTH];
+static unsigned halfsintable[PG_WIDTH];
+static unsigned* waveform[2] = {fullsintable, halfsintable};
 
 // LFO Table
 static PhaseModulation pmtable[PM_PG_WIDTH];
@@ -262,7 +264,7 @@ static unsigned AM_DPHASE =
 	unsigned(AM_SPEED * AM_DP_WIDTH / (CLOCK_FREQ / 72.0));
 
 // Liner to Log curve conversion table (for Attack rate).
-static word AR_ADJUST_TABLE[1 << EG_BITS];
+static unsigned AR_ADJUST_TABLE[1 << EG_BITS];
 
 // Phase incr table for Attack
 static EnvPhaseIndex dphaseARTable[16][16];
@@ -297,11 +299,14 @@ static inline int TL2EG(int d)
 }
 static inline unsigned DB_POS(double x)
 {
-	return (unsigned)(x / DB_STEP);
+	int result = static_cast<int>(x / DB_STEP);
+	assert(0 <= x);
+	assert(x < DB_MUTE);
+	return result;
 }
 static inline unsigned DB_NEG(double x)
 {
-	return (unsigned)(2 * DB_MUTE + x / DB_STEP);
+	return 2 * DB_MUTE + DB_POS(x);
 }
 
 // Cut the lower b bit off
@@ -328,24 +333,27 @@ static void makeAdjustTable()
 {
 	AR_ADJUST_TABLE[0] = (1 << EG_BITS) - 1;
 	for (int i = 1; i < (1 << EG_BITS); ++i) {
-		AR_ADJUST_TABLE[i] = (unsigned short)((double)(1 << EG_BITS) - 1 -
+		AR_ADJUST_TABLE[i] = (unsigned)((double)(1 << EG_BITS) - 1 -
 		                     ((1 << EG_BITS) - 1) * ::log(i) / ::log(127));
 	}
 }
 
-// Table for dB(0 .. (1<<DB_BITS)-1) to lin(0 .. DB2LIN_AMP_WIDTH)
+// Table for dB(0 .. DB_MUTE-1) to lin(0 .. DB2LIN_AMP_WIDTH)
 static void makeDB2LinTable()
 {
+	for (int i = 0; i < DB_MUTE; ++i) {
+		dB2LinTab[i] = (int)((double)((1 << DB2LIN_AMP_BITS) - 1) *
+		                     pow(10, -(double)i * DB_STEP / 20));
+	}
+	for (int i = DB_MUTE; i < 2 * DB_MUTE; ++i) {
+		dB2LinTab[i] = 0;
+	}
 	for (int i = 0; i < 2 * DB_MUTE; ++i) {
-		dB2LinTab[i] = (i < DB_MUTE)
-		             ?  (short)((double)((1 << DB2LIN_AMP_BITS) - 1) *
-		                    pow(10, -(double)i * DB_STEP / 20))
-		             : 0;
 		dB2LinTab[i + 2 * DB_MUTE] = -dB2LinTab[i];
 	}
 }
 
-// lin(+0.0 .. +1.0) to  dB((1<<DB_BITS)-1 .. 0)
+// lin(+0.0 .. +1.0) to dB(DB_MUTE-1 .. 0)
 static int lin2db(double d)
 {
 	return (d == 0)
@@ -437,18 +445,15 @@ static void makeTllTable()
 	for (int fnum = 0; fnum < 16; ++fnum) {
 		for (int block = 0; block < 8; ++block) {
 			for (int TL = 0; TL < 64; ++TL) {
-				for (int KL = 0; KL < 4; ++KL) {
-					if (KL == 0) {
-						tllTable[fnum][block][TL][KL] = TL2EG(TL);
-					} else {
-						int tmp = (int)(
-							kltable[fnum] - (3.000 * 2) * (7 - block)
-							);
-						tllTable[fnum][block][TL][KL] =
-							(tmp <= 0) ?
-							TL2EG(TL) :
-							(unsigned)((tmp >> (3 - KL)) / EG_STEP) + TL2EG(TL);
-					}
+				tllTable[fnum][block][TL][0] = TL2EG(TL);
+				for (int KL = 1; KL < 4; ++KL) {
+					int tmp = (int)(
+						kltable[fnum] - (3.000 * 2) * (7 - block)
+						);
+					tllTable[fnum][block][TL][KL] =
+						(tmp <= 0) ?
+						TL2EG(TL) :
+						(unsigned)((tmp >> (3 - KL)) / EG_STEP) + TL2EG(TL);
 				}
 			}
 		}
