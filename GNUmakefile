@@ -1,1 +1,1 @@
-include build/main.mk
+include build/entry.mk
