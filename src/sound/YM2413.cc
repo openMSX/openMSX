@@ -7,6 +7,7 @@
  */
 
 #include "YM2413.hh"
+#include "YM2413Core.hh"
 #include "FixedPoint.hh"
 #include "noncopyable.hh"
 #include <cmath>
@@ -131,11 +132,14 @@ private:
 	Global* global;
 };
 
-class Global {
+class Global : public YM2413Core {
 public:
-	Global(byte* reg);
-	void reset();
-	void writeReg(byte reg, byte value);
+	Global(MSXMotherBoard& motherBoard, const std::string& name,
+               const XMLElement& config, const EmuTime& time);
+	virtual ~Global();
+
+	void reset(const EmuTime& time);
+	virtual void writeReg(byte reg, byte value, const EmuTime& time);
 
 	bool isRhythm() {
 		return reg[0x0E] & 0x20;
@@ -161,7 +165,7 @@ public:
 	/**
 	 * Generate output samples for each channel.
 	 */
-	void generateChannels(int** bufs, unsigned num);
+	virtual void generateChannels(int** bufs, unsigned num);
 
 	Patch& getPatch(int instrument, bool carrier) {
 		return patches[instrument][carrier];
@@ -182,9 +186,6 @@ private:
 	// Channel & Slot
 	Channel channels[9];
 	Slot* slot[18];
-
-	// Registerbank from YM2413 class.
-	byte* reg;
 
 	// Voice Data
 	Patch patches[19][2];
@@ -800,9 +801,10 @@ static byte inst_data[16 + 3][8] = {
 	{ 0x25,0x11,0x00,0x00,0xf8,0xfa,0xf8,0x55 }
 };
 
-Global::Global(byte* reg)
+Global::Global(MSXMotherBoard& motherBoard, const std::string& name,
+               const XMLElement& config, const EmuTime& time)
+	: YM2413Core(motherBoard, name)
 {
-	this->reg = reg;
 	for (int i = 0; i < 16 + 3; ++i) {
 		patches[i][0].initModulator(inst_data[i]);
 		patches[i][1].initCarrier(inst_data[i]);
@@ -820,10 +822,22 @@ Global::Global(byte* reg)
 	makeDphaseTable();
 	makeDphaseARTable();
 	makeDphaseDRTable();
+
+	reset(time);
+	registerSound(config);
 }
 
-void Global::reset()
+Global::~Global()
 {
+	unregisterSound();
+}
+
+// Reset whole of OPLL except patch datas
+void Global::reset(const EmuTime& time)
+{
+	// update the output buffer before changing the registers
+	updateStream(time);
+
 	pm_phase = 0;
 	am_phase = 0;
 	noise_seed = 0xFFFF;
@@ -832,7 +846,7 @@ void Global::reset()
 		channels[i].reset();
 	}
 	for (int i = 0; i < 0x40; i++) {
-		writeReg(i, 0);
+		writeReg(i, 0, time);
 	}
 }
 
@@ -1272,9 +1286,12 @@ void Global::generateChannels(int** bufs, unsigned num)
 	}
 }
 
-void Global::writeReg(byte regis, byte data)
+void Global::writeReg(byte regis, byte data, const EmuTime& time)
 {
 	//PRT_DEBUG("YM2413: write reg "<<(int)regis<<" "<<(int)data);
+
+	// update the output buffer before changing the register
+	updateStream(time);
 
 	assert (regis < 0x40);
 	reg[regis] = data;
@@ -1460,46 +1477,27 @@ void Global::writeReg(byte regis, byte data)
 
 } // namespace YM2413Okazaki
 
-//***********************************************************//
-//                                                           //
-//               YM2413                                      //
-//                                                           //
-//***********************************************************//
+
+// class YM2413
 
 YM2413::YM2413(MSXMotherBoard& motherBoard, const std::string& name,
                const XMLElement& config, const EmuTime& time)
-	: YM2413Core(motherBoard, name)
-	, global(new YM2413Okazaki::Global(reg))
+	: global(new YM2413Okazaki::Global(motherBoard, name, config, time))
 {
-	reset(time);
-	registerSound(config);
 }
 
 YM2413::~YM2413()
 {
-	unregisterSound();
 }
 
-// Reset whole of OPLL except patch datas
 void YM2413::reset(const EmuTime& time)
 {
-	// update the output buffer before changing the registers
-	updateStream(time);
-
-	global->reset();
-}
-
-void YM2413::generateChannels(int** bufs, unsigned num)
-{
-	global->generateChannels(bufs, num);
+	global->reset(time);
 }
 
 void YM2413::writeReg(byte regis, byte data, const EmuTime& time)
 {
-	// update the output buffer before changing the register
-	updateStream(time);
-
-	global->writeReg(regis, data);
+	global->writeReg(regis, data, time);
 }
 
 } // namespace openmsx

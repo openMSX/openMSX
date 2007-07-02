@@ -3,28 +3,26 @@
 #ifndef YM2413_2_HH
 #define YM2413_2_HH
 
-#include "YM2413Core.hh"
+#include "YM2413Interface.hh"
 #include <memory>
 
 namespace openmsx {
 
-// Defined in .cc:
-class Global;
+class MSXMotherBoard;
+class XMLElement;
+class Global; // Defined in .cc:
 
-class YM2413_2 : public YM2413Core
+class YM2413_2 : public YM2413Interface
 {
 public:
 	YM2413_2(MSXMotherBoard& motherBoard, const std::string& name,
 	         const XMLElement& config, const EmuTime& time);
 	virtual ~YM2413_2();
 
-	void reset(const EmuTime& time);
-	void writeReg(byte r, byte v, const EmuTime& time);
+	virtual void reset(const EmuTime& time);
+	virtual void writeReg(byte r, byte v, const EmuTime& time);
 
 private:
-	// SoundDevice
-	virtual void generateChannels(int** bufs, unsigned num);
-
 	const std::auto_ptr<Global> global;
 };
 

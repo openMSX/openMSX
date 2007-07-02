@@ -22,7 +22,6 @@ class YM2413Core: public SoundDevice, protected Resample
 public:
 	YM2413Core(MSXMotherBoard& motherBoard, const std::string& name);
 	virtual ~YM2413Core();
-	virtual void reset(const EmuTime& time) = 0;
 	virtual void writeReg(byte reg, byte value, const EmuTime& time) = 0;
 
 protected:

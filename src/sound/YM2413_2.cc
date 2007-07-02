@@ -22,6 +22,7 @@
  */
 
 #include "YM2413_2.hh"
+#include "YM2413Core.hh"
 #include "FixedPoint.hh"
 #include <cmath>
 
@@ -698,10 +699,12 @@ private:
 	bool sus;	// sus on/off (release speed in percussive mode)
 };
 
-class Global
+class Global : public YM2413Core
 {
 public:
-	Global();
+	Global(MSXMotherBoard& motherBoard, const std::string& name,
+	       const XMLElement& config, const EmuTime& time);
+	virtual ~Global();
 
 	const byte* getInstrument(int instrument) {
 		return inst_tab[instrument];
@@ -715,7 +718,7 @@ public:
 		return lfo_pm_cnt.toInt() & 7;
 	}
 
-	void reset();
+	void reset(const EmuTime& time);
 
 	/**
 	 * Reset operator parameters.
@@ -725,9 +728,9 @@ public:
 	/**
 	 * Generate output samples for each channel.
 	 */
-	void generateChannels(int** bufs, unsigned num);
+	virtual void generateChannels(int** bufs, unsigned num);
 
-	void writeReg(byte r, byte v);
+	virtual void writeReg(byte r, byte v, const EmuTime& time);
 
 private:
 	/**
@@ -1310,8 +1313,10 @@ void Channel::updateInstrument(int instrument)
 	}
 }
 
-Global::Global()
-	: lfo_am_cnt(0), lfo_pm_cnt(0)
+Global::Global(MSXMotherBoard& motherBoard, const std::string& name,
+               const XMLElement& config, const EmuTime& time)
+	: YM2413Core(motherBoard, name)
+	, lfo_am_cnt(0), lfo_pm_cnt(0)
 {
 	initTables();
 
@@ -1322,6 +1327,14 @@ Global::Global()
 	for (int ch = 0; ch < 9; ch++) {
 		channels[ch].init(*this);
 	}
+
+	reset(time);
+	registerSound(config);
+}
+
+Global::~Global()
+{
+	unregisterSound();
 }
 
 void Global::updateCustomInstrument(int part, byte value)
@@ -1394,7 +1407,7 @@ void Global::setRhythmFlags(byte flags)
 	}
 }
 
-void Global::reset()
+void Global::reset(const EmuTime& time)
 {
 	eg_cnt    = 0;
 	noise_rng = 1;    // noise shift register
@@ -1405,6 +1418,14 @@ void Global::reset()
 			inst_tab[instrument][part] = table[instrument][part];
 		}
 	}
+	
+	// reset with register write
+	writeReg(0x0F, 0, time); //test reg
+	for (int i = 0x3F; i >= 0x10; i--) {
+		writeReg(i, 0, time);
+	}
+
+	resetOperators();
 }
 
 void Global::resetOperators()
@@ -1522,9 +1543,14 @@ void Global::generateChannels(int** bufs, unsigned num)
 	}
 }
 
-void Global::writeReg(byte r, byte v)
+void Global::writeReg(byte r, byte v, const EmuTime& time)
 {
 	PRT_DEBUG("YM2413: write reg " << (int)r << " " << (int)v);
+	
+	// update the output buffer before changing the register
+	updateStream(time);
+
+	reg[r] = v;
 
 	switch (r & 0xF0) {
 	case 0x00: { // 00-0F: control
@@ -1602,43 +1628,22 @@ void Global::writeReg(byte r, byte v)
 
 YM2413_2::YM2413_2(MSXMotherBoard& motherBoard, const std::string& name,
                    const XMLElement& config, const EmuTime& time)
-	: YM2413Core(motherBoard, name)
-	, global(new Global())
+	: global(new Global(motherBoard, name, config, time))
 {
-	reset(time);
-	registerSound(config);
 }
 
 YM2413_2::~YM2413_2()
 {
-	unregisterSound();
 }
 
 void YM2413_2::reset(const EmuTime& time)
 {
-	global->reset();
-
-	// reset with register write
-	writeReg(0x0F, 0, time); //test reg
-	for (int i = 0x3F; i >= 0x10; i--) {
-		writeReg(i, 0, time);
-	}
-
-	global->resetOperators();
-}
-
-void YM2413_2::generateChannels(int** bufs, unsigned num)
-{
-	global->generateChannels(bufs, num);
+	global->reset(time);
 }
 
 void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 {
-	// update the output buffer before changing the register
-	updateStream(time);
-
-	reg[r] = v;
-	global->writeReg(r, v);
+	global->writeReg(r, v, time);
 }
 
 } // namespace openmsx

@@ -9,7 +9,7 @@
 namespace openmsx {
 
 class Rom;
-class YM2413Core;
+class YM2413Interface;
 
 class MSXMusic : public MSXDevice
 {
@@ -28,7 +28,7 @@ protected:
 	void writeDataPort(byte value, const EmuTime& time);
 
 	const std::auto_ptr<Rom> rom;
-	std::auto_ptr<YM2413Core> ym2413;
+	std::auto_ptr<YM2413Interface> ym2413;
 
 private:
 	int registerLatch;
