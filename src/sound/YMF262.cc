@@ -40,6 +40,11 @@
  */
 
 #include "YMF262.hh"
+#include "SoundDevice.hh"
+#include "EmuTimer.hh"
+#include "Resample.hh"
+#include "IRQHelper.hh"
+#include "FixedPoint.hh"
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
 #include <cmath>
@@ -50,11 +55,184 @@ namespace openmsx {
 class YMF262Debuggable : public SimpleDebuggable
 {
 public:
-	YMF262Debuggable(MSXMotherBoard& motherBoard, YMF262& ymf262);
+	YMF262Debuggable(MSXMotherBoard& motherBoard, YMF262Impl& ymf262);
 	virtual byte read(unsigned address);
 	virtual void write(unsigned address, byte value, const EmuTime& time);
 private:
-	YMF262& ymf262;
+	YMF262Impl& ymf262;
+};
+
+
+class YMF262Slot
+{
+public:
+	YMF262Slot();
+	inline int volume_calc(byte LFO_AM);
+	inline void FM_KEYON(byte key_set);
+	inline void FM_KEYOFF(byte key_clr);
+
+	// Phase Generator
+	unsigned Cnt;	// frequency counter
+	unsigned Incr;	// frequency counter step
+	int* connect;	// slot output pointer
+	int op1_out[2];	// slot1 output for feedback
+
+	// Envelope Generator
+	unsigned TL;	// total level: TL << 2
+	int TLL;	// adjusted now TL
+	int volume;	// envelope counter
+	int sl;		// sustain level: sl_tab[SL]
+
+	unsigned wavetable; // waveform select
+
+	unsigned eg_m_ar;// (attack state)
+	unsigned eg_m_dr;// (decay state)
+	unsigned eg_m_rr;// (release state)
+	byte eg_sh_ar;	// (attack state)
+	byte eg_sel_ar;	// (attack state)
+	byte eg_sh_dr;	// (decay state)
+	byte eg_sel_dr;	// (decay state)
+	byte eg_sh_rr;	// (release state)
+	byte eg_sel_rr;	// (release state)
+
+	byte key;	// 0 = KEY OFF, >0 = KEY ON
+
+	byte FB;	// PG: feedback shift value
+	bool CON;	// PG: connection (algorithm) type
+	bool eg_type;	// EG: percussive/non-percussive mode
+	byte state;	// EG: phase type
+
+	// LFO
+	byte AMmask;	// LFO Amplitude Modulation enable mask
+	bool vib;	// LFO Phase Modulation enable flag (active high)
+
+	byte waveform_number; // waveform select
+
+	byte ar;	// attack rate: AR<<2
+	byte dr;	// decay rate:  DR<<2
+	byte rr;	// release rate:RR<<2
+	byte KSR;	// key scale rate
+	byte ksl;	// keyscale level
+	byte ksr;	// key scale rate: kcode>>KSR
+	byte mul;	// multiple: mul_tab[ML]
+};
+
+class YMF262Channel
+{
+public:
+	YMF262Channel();
+	void chan_calc(byte LFO_AM);
+	void chan_calc_ext(byte LFO_AM);
+	void CALC_FCSLOT(YMF262Slot& slot);
+
+	YMF262Slot slots[2];
+
+	int block_fnum;	// block+fnum
+	int fc;		// Freq. Increment base
+	int ksl_base;	// KeyScaleLevel Base step
+	byte kcode;	// key code (for key scaling)
+
+	// there are 12 2-operator channels which can be combined in pairs
+	// to form six 4-operator channel, they are:
+	//  0 and 3,
+	//  1 and 4,
+	//  2 and 5,
+	//  9 and 12,
+	//  10 and 13,
+	//  11 and 14
+	byte extended;	// set to 1 if this channel forms up a 4op channel with another channel(only used by first of pair of channels, ie 0,1,2 and 9,10,11)
+};
+
+class YMF262Impl : private SoundDevice, private EmuTimerCallback, private Resample
+{
+public:
+	YMF262Impl(MSXMotherBoard& motherBoard, const std::string& name,
+	       const XMLElement& config, const EmuTime& time);
+	virtual ~YMF262Impl();
+
+	void reset(const EmuTime& time);
+	void writeReg(int r, byte v, const EmuTime& time);
+	byte readReg(int reg);
+	byte peekReg(int reg) const;
+	byte readStatus();
+	byte peekStatus() const;
+
+private:
+	// SoundDevice
+	virtual void setOutputRate(unsigned sampleRate);
+	virtual void generateChannels(int** bufs, unsigned num);
+	virtual bool updateBuffer(unsigned length, int* buffer,
+		const EmuTime& time, const EmuDuration& sampDur);
+
+	// Resample
+	virtual bool generateInput(int* buffer, unsigned num);
+
+	void callback(byte flag);
+
+	void writeRegForce(int r, byte v, const EmuTime& time);
+	void init_tables(void);
+	void setStatus(byte flag);
+	void resetStatus(byte flag);
+	void changeStatusMask(byte flag);
+	void advance_lfo();
+	void advance();
+	void chan_calc_rhythm(bool noise);
+	void set_mul(byte sl, byte v);
+	void set_ksl_tl(byte sl, byte v);
+	void set_ar_dr(byte sl, byte v);
+	void set_sl_rr(byte sl, byte v);
+	void update_channels(YMF262Channel& ch);
+	bool checkMuteHelper();
+	int adjust(int x);
+
+	friend class YMF262Debuggable;
+	const std::auto_ptr<YMF262Debuggable> debuggable;
+
+	// Bitmask for register 0x04
+	static const int R04_ST1       = 0x01; // Timer1 Start
+	static const int R04_ST2       = 0x02; // Timer2 Start
+	static const int R04_MASK_T2   = 0x20; // Mask Timer2 flag
+	static const int R04_MASK_T1   = 0x40; // Mask Timer1 flag
+	static const int R04_IRQ_RESET = 0x80; // IRQ RESET
+
+	// Bitmask for status register
+	static const int STATUS_T2      = R04_MASK_T2;
+	static const int STATUS_T1      = R04_MASK_T1;
+	// Timers (see EmuTimer class for details about timing)
+	EmuTimerOPL4_1 timer1; //  80.8us OPL4  ( 80.5us OPL3)
+	EmuTimerOPL4_2 timer2; // 323.1us OPL4  (321.8us OPL3)
+
+	IRQHelper irq;
+
+	int chanout[18]; // 18 channels
+
+	byte reg[512];
+	YMF262Channel channels[18];	// OPL3 chips have 18 channels
+
+	unsigned pan[18*4];		// channels output masks 4 per channel
+	                                //    0xffffffff = enable
+	unsigned eg_cnt;		// global envelope generator counter
+	unsigned noise_rng;		// 23 bit noise shift register
+
+	/** 8.24 fixed point type for LFO calculations.
+	  */
+	typedef FixedPoint<24> LFOIndex;
+
+	// LFO
+	LFOIndex lfo_am_cnt;
+	LFOIndex lfo_pm_cnt;
+	byte LFO_AM;
+	byte LFO_PM;
+	bool lfo_am_depth;
+	byte lfo_pm_depth_range;
+
+	byte rhythm;			// Rhythm mode
+	bool nts;			// NTS (note select)
+	bool OPL3_mode;			// OPL3 extension enable flag
+
+	byte status;			// status flag
+	byte status2;
+	byte statusMask;		// status mask
 };
 
 
@@ -412,13 +590,13 @@ YMF262Channel::YMF262Channel()
 }
 
 
-void YMF262::callback(byte flag)
+void YMF262Impl::callback(byte flag)
 {
 	setStatus(flag);
 }
 
 // status set and IRQ handling
-void YMF262::setStatus(byte flag)
+void YMF262Impl::setStatus(byte flag)
 {
 	// set status flag masking out disabled IRQs
 	status |= flag;
@@ -429,7 +607,7 @@ void YMF262::setStatus(byte flag)
 }
 
 // status reset and IRQ handling
-void YMF262::resetStatus(byte flag)
+void YMF262Impl::resetStatus(byte flag)
 {
 	// reset status flag
 	status &= ~flag;
@@ -440,7 +618,7 @@ void YMF262::resetStatus(byte flag)
 }
 
 // IRQ mask set
-void YMF262::changeStatusMask(byte flag)
+void YMF262Impl::changeStatusMask(byte flag)
 {
 	statusMask = flag;
 	status &= statusMask;
@@ -455,7 +633,7 @@ void YMF262::changeStatusMask(byte flag)
 
 
 // advance LFO to next sample
-void YMF262::advance_lfo()
+void YMF262Impl::advance_lfo()
 {
 	// Amplitude modulation: 27 output levels (triangle waveform);
 	// 1 level takes one of: 192, 256 or 448 samples
@@ -476,7 +654,7 @@ void YMF262::advance_lfo()
 }
 
 // advance to next sample
-void YMF262::advance()
+void YMF262Impl::advance()
 {
 	++eg_cnt;
 	for (int c = 0; c < 18; ++c) {
@@ -690,7 +868,7 @@ void YMF262Channel::chan_calc_ext(byte LFO_AM)
 //    8     14,17     B8        A8            +           +     +
 
 // calculate rhythm
-void YMF262::chan_calc_rhythm(bool noise)
+void YMF262Impl::chan_calc_rhythm(bool noise)
 {
 	YMF262Slot& SLOT6_1 = channels[6].slots[SLOT1];
 	YMF262Slot& SLOT6_2 = channels[6].slots[SLOT2];
@@ -845,7 +1023,7 @@ void YMF262::chan_calc_rhythm(bool noise)
 
 
 // generic table initialize
-void YMF262::init_tables()
+void YMF262Impl::init_tables()
 {
 	static bool alreadyInit = false;
 	if (alreadyInit) {
@@ -952,7 +1130,7 @@ void YMF262::init_tables()
 }
 
 
-void YMF262::setOutputRate(unsigned sampleRate)
+void YMF262Impl::setOutputRate(unsigned sampleRate)
 {
 	const int CLOCK_FREQ = 3579545 * 4;
 	double input = CLOCK_FREQ / (8.0 * 36.0);
@@ -1013,7 +1191,7 @@ void YMF262Channel::CALC_FCSLOT(YMF262Slot& slot)
 }
 
 // set multi,am,vib,EG-TYP,KSR,mul
-void YMF262::set_mul(byte sl, byte v)
+void YMF262Impl::set_mul(byte sl, byte v)
 {
 	int chan_no = sl / 2;
 	YMF262Channel& ch  = channels[chan_no];
@@ -1070,7 +1248,7 @@ void YMF262::set_mul(byte sl, byte v)
 }
 
 // set ksl & tl
-void YMF262::set_ksl_tl(byte sl, byte v)
+void YMF262Impl::set_ksl_tl(byte sl, byte v)
 {
 	int chan_no = sl/2;
 	YMF262Channel& ch = channels[chan_no];
@@ -1126,7 +1304,7 @@ void YMF262::set_ksl_tl(byte sl, byte v)
 }
 
 // set attack rate & decay rate
-void YMF262::set_ar_dr(byte sl, byte v)
+void YMF262Impl::set_ar_dr(byte sl, byte v)
 {
 	YMF262Channel& ch = channels[sl / 2];
 	YMF262Slot& slot = ch.slots[sl & 1];
@@ -1151,7 +1329,7 @@ void YMF262::set_ar_dr(byte sl, byte v)
 }
 
 // set sustain level & release rate
-void YMF262::set_sl_rr(byte sl, byte v)
+void YMF262Impl::set_sl_rr(byte sl, byte v)
 {
 	YMF262Channel& ch = channels[sl / 2];
 	YMF262Slot& slot = ch.slots[sl & 1];
@@ -1163,7 +1341,7 @@ void YMF262::set_sl_rr(byte sl, byte v)
 	slot.eg_sel_rr = eg_rate_select[slot.rr + slot.ksr];
 }
 
-void YMF262::update_channels(YMF262Channel& ch)
+void YMF262Impl::update_channels(YMF262Channel& ch)
 {
 	// update channel passed as a parameter and a channel at CH+=3;
 	if (ch.extended) {
@@ -1173,18 +1351,18 @@ void YMF262::update_channels(YMF262Channel& ch)
 	}
 }
 
-byte YMF262::readReg(int r)
+byte YMF262Impl::readReg(int r)
 {
 	// no need to call updateStream(time)
 	return peekReg(r);
 }
 
-byte YMF262::peekReg(int r) const
+byte YMF262Impl::peekReg(int r) const
 {
 	return reg[r];
 }
 
-void YMF262::writeReg(int r, byte v, const EmuTime& time)
+void YMF262Impl::writeReg(int r, byte v, const EmuTime& time)
 {
 	if (!OPL3_mode && (r != 0x105)) {
 		// in OPL2 mode the only accessible in set #2 is register 0x05
@@ -1192,7 +1370,7 @@ void YMF262::writeReg(int r, byte v, const EmuTime& time)
 	}
 	writeRegForce(r, v, time);
 }
-void YMF262::writeRegForce(int r, byte v, const EmuTime& time)
+void YMF262Impl::writeRegForce(int r, byte v, const EmuTime& time)
 {
 	updateStream(time); // TODO optimize only for regs that directly influence sound
 
@@ -1732,7 +1910,7 @@ void YMF262::writeRegForce(int r, byte v, const EmuTime& time)
 }
 
 
-void YMF262::reset(const EmuTime& time)
+void YMF262Impl::reset(const EmuTime& time)
 {
 	eg_cnt = 0;
 
@@ -1766,7 +1944,7 @@ void YMF262::reset(const EmuTime& time)
 	}
 }
 
-YMF262::YMF262(MSXMotherBoard& motherBoard, const std::string& name,
+YMF262Impl::YMF262Impl(MSXMotherBoard& motherBoard, const std::string& name,
                const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMSXMixer(), name, "MoonSound FM-part",
 	              18, true)
@@ -1790,12 +1968,12 @@ YMF262::YMF262(MSXMotherBoard& motherBoard, const std::string& name,
 	registerSound(config);
 }
 
-YMF262::~YMF262()
+YMF262Impl::~YMF262Impl()
 {
 	unregisterSound();
 }
 
-byte YMF262::readStatus()
+byte YMF262Impl::readStatus()
 {
 	// no need to call updateStream(time)
 	byte result = status | status2;
@@ -1803,12 +1981,12 @@ byte YMF262::readStatus()
 	return result;
 }
 
-byte YMF262::peekStatus() const
+byte YMF262Impl::peekStatus() const
 {
 	return status | status2;
 }
 
-bool YMF262::checkMuteHelper()
+bool YMF262Impl::checkMuteHelper()
 {
 	// TODO this doesn't always mute when possible
 	for (int i = 0; i < 18; i++) {
@@ -1824,12 +2002,12 @@ bool YMF262::checkMuteHelper()
 	return true;
 }
 
-int YMF262::adjust(int x)
+int YMF262Impl::adjust(int x)
 {
 	return x << 2;
 }
 
-void YMF262::generateChannels(int** bufs, unsigned num)
+void YMF262Impl::generateChannels(int** bufs, unsigned num)
 {
 	if (checkMuteHelper()) {
 		// TODO update internal state, even if muted
@@ -1925,12 +2103,12 @@ void YMF262::generateChannels(int** bufs, unsigned num)
 	}
 }
 
-bool YMF262::generateInput(int* buffer, unsigned num)
+bool YMF262Impl::generateInput(int* buffer, unsigned num)
 {
 	return mixChannels(buffer, num);
 }
 
-bool YMF262::updateBuffer(unsigned length, int* buffer,
+bool YMF262Impl::updateBuffer(unsigned length, int* buffer,
      const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
 {
 	return generateOutput(buffer, length);
@@ -1939,7 +2117,7 @@ bool YMF262::updateBuffer(unsigned length, int* buffer,
 
 // SimpleDebuggable
 
-YMF262Debuggable::YMF262Debuggable(MSXMotherBoard& motherBoard, YMF262& ymf262_)
+YMF262Debuggable::YMF262Debuggable(MSXMotherBoard& motherBoard, YMF262Impl& ymf262_)
 	: SimpleDebuggable(motherBoard, ymf262_.getName() + " regs",
 	                   "MoonSound FM-part registers", 0x200)
 	, ymf262(ymf262_)
@@ -1954,6 +2132,49 @@ byte YMF262Debuggable::read(unsigned address)
 void YMF262Debuggable::write(unsigned address, byte value, const EmuTime& time)
 {
 	ymf262.writeRegForce(address, value, time);
+}
+
+
+// class YMF262
+ 
+YMF262::YMF262(MSXMotherBoard& motherBoard, const std::string& name,
+       const XMLElement& config, const EmuTime& time)
+	: pimple(new YMF262Impl(motherBoard, name, config, time))
+{
+}
+
+YMF262::~YMF262()
+{
+}
+
+void YMF262::reset(const EmuTime& time)
+{
+	pimple->reset(time);
+}
+
+void YMF262::writeReg(int r, byte v, const EmuTime& time)
+{
+	pimple->writeReg(r, v, time);
+}
+
+byte YMF262::readReg(int reg)
+{
+	return pimple->readReg(reg);
+}
+
+byte YMF262::peekReg(int reg) const
+{
+	return pimple->peekReg(reg);
+}
+
+byte YMF262::readStatus()
+{
+	return pimple->readStatus();
+}
+
+byte YMF262::peekStatus() const
+{
+	return pimple->peekStatus();
 }
 
 } // namespace openmsx
