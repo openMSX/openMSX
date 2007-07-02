@@ -4,6 +4,7 @@
 #include "YMF262.hh"
 #include "YMF278.hh"
 #include "XMLElement.hh"
+#include <cassert>
 
 namespace openmsx {
 

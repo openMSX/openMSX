@@ -1,6 +1,10 @@
 $Id$
 
 2007-06-30 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Use pimple idiom to move implementation details from hh to cc for
+	   YM2413 YM2413_2 YMF262 YMF278
+
+2007-06-30 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* allow to use bindings on joysticks that are not plugged in (into the
 	  emulated MSX)
 
