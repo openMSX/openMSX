@@ -214,13 +214,11 @@ private:
 	unsigned eg_cnt;		// global envelope generator counter
 	unsigned noise_rng;		// 23 bit noise shift register
 
-	/** 8.24 fixed point type for LFO calculations.
-	  */
-	typedef FixedPoint<24> LFOIndex;
-
 	// LFO
-	LFOIndex lfo_am_cnt;
-	LFOIndex lfo_pm_cnt;
+	typedef FixedPoint< 6> LFOAMIndex;
+	typedef FixedPoint<10> LFOPMIndex;
+	LFOAMIndex lfo_am_cnt;
+	LFOPMIndex lfo_pm_cnt;
 	byte LFO_AM;
 	byte LFO_PM;
 	bool lfo_am_depth;
@@ -638,18 +636,16 @@ void YMF262Impl::advance_lfo()
 	// Amplitude modulation: 27 output levels (triangle waveform);
 	// 1 level takes one of: 192, 256 or 448 samples
 	// One entry from LFO_AM_TABLE lasts for 64 samples
-	static const LFOIndex LFO_AM_INC = LFOIndex(1) / 64;
-	lfo_am_cnt += LFO_AM_INC;
-	if (lfo_am_cnt >= LFOIndex(LFO_AM_TAB_ELEMENTS)) {
+	lfo_am_cnt.addQuantum();
+	if (lfo_am_cnt == LFOAMIndex(LFO_AM_TAB_ELEMENTS)) {
 		// lfo_am_table is 210 elements long
-		lfo_am_cnt -= LFOIndex(LFO_AM_TAB_ELEMENTS);
+		lfo_am_cnt = LFOAMIndex(0);
 	}
 	byte tmp = lfo_am_table[lfo_am_cnt.toInt()];
 	LFO_AM = lfo_am_depth ? tmp : tmp / 4;
 
 	// Vibrato: 8 output levels (triangle waveform); 1 level takes 1024 samples
-	static const LFOIndex LFO_PM_INC = LFOIndex(1) / 1024;
-	lfo_pm_cnt += LFO_PM_INC;
+	lfo_pm_cnt.addQuantum();
 	LFO_PM = (lfo_pm_cnt.toInt() & 7) | lfo_pm_depth_range;
 }
 
