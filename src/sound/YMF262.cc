@@ -63,6 +63,10 @@ private:
 };
 
 
+enum EnvelopeState {
+	EG_ATTACK, EG_DECAY, EG_SUSTAIN, EG_RELEASE, EG_OFF
+};
+
 class YMF262Slot
 {
 public:
@@ -100,7 +104,7 @@ public:
 	byte FB;	// PG: feedback shift value
 	bool CON;	// PG: connection (algorithm) type
 	bool eg_type;	// EG: percussive/non-percussive mode
-	byte state;	// EG: phase type
+	EnvelopeState state; // EG: phase type
 
 	// LFO
 	byte AMmask;	// LFO Amplitude Modulation enable mask
@@ -255,13 +259,6 @@ static const int TL_RES_LEN = 256;	// 8 bits addressing (real chip)
 // register number to channel number , slot offset
 static const byte SLOT1 = 0;
 static const byte SLOT2 = 1;
-
-// Envelope Generator phases
-static const int EG_ATT = 4;
-static const int EG_DEC = 3;
-static const int EG_SUS = 2;
-static const int EG_REL = 1;
-static const int EG_OFF = 0;
 
 
 // mapping of register number (offset) to slot number used by the emulator
@@ -576,7 +573,8 @@ YMF262Slot::YMF262Slot()
 	Cnt = Incr = FB = op1_out[0] = op1_out[1] = 0;
 	CON = eg_type = vib = false;
 	connect = 0;
-	state = TL = TLL = volume = sl = 0;
+	TL = TLL = volume = sl = 0;
+	state = EG_OFF;
 	eg_m_ar = eg_sh_ar = eg_sel_ar = eg_m_dr = eg_sh_dr = 0;
 	eg_sel_dr = eg_m_rr = eg_sh_rr = eg_sel_rr = 0;
 	key = AMmask = waveform_number = wavetable = 0;
@@ -658,27 +656,27 @@ void YMF262Impl::advance()
 		for (int s = 0; s < 2; ++s) {
 			YMF262Slot& op = ch.slots[s];
 			// Envelope Generator
-			switch(op.state) {
-			case EG_ATT:	// attack phase
+			switch (op.state) {
+			case EG_ATTACK:
 				if (!(eg_cnt & op.eg_m_ar)) {
 					op.volume += (~op.volume * eg_inc[op.eg_sel_ar + ((eg_cnt >> op.eg_sh_ar) & 7)]) >> 3;
 					if (op.volume <= MIN_ATT_INDEX) {
 						op.volume = MIN_ATT_INDEX;
-						op.state = EG_DEC;
+						op.state = EG_DECAY;
 					}
 				}
 				break;
 
-			case EG_DEC:	// decay phase
+			case EG_DECAY:
 				if (!(eg_cnt & op.eg_m_dr)) {
 					op.volume += eg_inc[op.eg_sel_dr + ((eg_cnt >> op.eg_sh_dr) & 7)];
 					if (op.volume >= op.sl) {
-						op.state = EG_SUS;
+						op.state = EG_SUSTAIN;
 					}
 				}
 				break;
 
-			case EG_SUS:	// sustain phase
+			case EG_SUSTAIN:
 				// this is important behaviour:
 				// one can change percusive/non-percussive
 				// modes on the fly and the chip will remain
@@ -690,7 +688,7 @@ void YMF262Impl::advance()
 					// percussive mode
 					// during sustain phase chip adds Release Rate (in percussive mode)
 					if (!(eg_cnt & op.eg_m_rr)) {
-						op.volume += eg_inc[op.eg_sel_rr + ((eg_cnt>>op.eg_sh_rr) & 7)];
+						op.volume += eg_inc[op.eg_sel_rr + ((eg_cnt >> op.eg_sh_rr) & 7)];
 						if (op.volume >= MAX_ATT_INDEX) {
 							op.volume = MAX_ATT_INDEX;
 						}
@@ -700,15 +698,15 @@ void YMF262Impl::advance()
 				}
 				break;
 
-			case EG_REL:	// release phase
+			case EG_RELEASE:
 				if (!(eg_cnt & op.eg_m_rr)) {
-					op.volume += eg_inc[op.eg_sel_rr + ((eg_cnt>>op.eg_sh_rr) & 7)];
+					op.volume += eg_inc[op.eg_sel_rr + ((eg_cnt >> op.eg_sh_rr) & 7)];
 					if (op.volume >= MAX_ATT_INDEX) {
 						op.volume = MAX_ATT_INDEX;
 						op.state = EG_OFF;
 					}
 				}
-			break;
+				break;
 
 			default:
 				break;
@@ -1140,7 +1138,7 @@ void YMF262Slot::FM_KEYON(byte key_set)
 		// restart Phase Generator
 		Cnt = 0;
 		// phase -> Attack
-		state = EG_ATT;
+		state = EG_ATTACK;
 	}
 	key |= key_set;
 }
@@ -1151,8 +1149,8 @@ void YMF262Slot::FM_KEYOFF(byte key_clr)
 		key &= ~key_clr;
 		if (!key) {
 			// phase -> Release
-			if (state > EG_REL) {
-				state = EG_REL;
+			if (state != EG_OFF) {
+				state = EG_RELEASE;
 			}
 		}
 	}
@@ -1989,7 +1987,7 @@ bool YMF262Impl::checkMuteHelper()
 		for (int j = 0; j < 2; j++) {
 			YMF262Slot& sl = channels[i].slots[j];
 			if (!((sl.state == EG_OFF) ||
-			      ((sl.state == EG_REL) &&
+			      ((sl.state == EG_RELEASE) &&
 			       ((sl.TLL + sl.volume) >= ENV_QUIET)))) {
 				return false;
 			}
