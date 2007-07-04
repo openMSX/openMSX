@@ -1165,7 +1165,7 @@ void Slot::setKeyOff(KeyPart part)
 	if (key) {
 		key &= ~part;
 		if (!key) {
-			if (state < EG_RELEASE) {
+			if (state != EG_OFF) {
 				state = EG_RELEASE;
 			}
 		}
