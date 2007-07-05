@@ -85,6 +85,7 @@ class YMF262Slot
 {
 public:
 	YMF262Slot();
+	inline int op_calc(unsigned phase, unsigned env, int pm);
 	inline int volume_calc(byte LFO_AM);
 	inline void FM_KEYON(byte key_set);
 	inline void FM_KEYOFF(byte key_clr);
@@ -783,9 +784,9 @@ void YMF262Impl::advance()
 }
 
 
-static int op_calc(unsigned phase, unsigned env, int pm, unsigned wave_tab)
+inline int YMF262Slot::op_calc(unsigned phase, unsigned env, int pm)
 {
-	int p = (env << 4) + sin_tab[wave_tab + ((phase + pm) & SIN_MASK)];
+	int p = (env << 4) + sin_tab[wavetable + ((phase + pm) & SIN_MASK)];
 	return (p < TL_TAB_LEN) ? tl_tab[p] : 0;
 }
 
@@ -809,14 +810,14 @@ void YMF262Channel::chan_calc(byte LFO_AM)
 		int out = slots[SLOT1].fb_shift
 		        ? slots[SLOT1].op1_out[0] + slots[SLOT1].op1_out[1]
 		        : 0;
-		slots[SLOT1].op1_out[1] = op_calc(slots[SLOT1].Cnt.toInt(), env, (out >> slots[SLOT1].fb_shift), slots[SLOT1].wavetable);
+		slots[SLOT1].op1_out[1] = slots[SLOT1].op_calc(slots[SLOT1].Cnt.toInt(), env, out >> slots[SLOT1].fb_shift);
 	}
 	*slots[SLOT1].connect += slots[SLOT1].op1_out[1];
 
 	// SLOT 2
 	env = slots[SLOT2].volume_calc(LFO_AM);
 	if (env < ENV_QUIET) {
-		*slots[SLOT2].connect += op_calc(slots[SLOT2].Cnt.toInt(), env, phase_modulation, slots[SLOT2].wavetable);
+		*slots[SLOT2].connect += slots[SLOT2].op_calc(slots[SLOT2].Cnt.toInt(), env, phase_modulation);
 	}
 }
 
@@ -828,13 +829,13 @@ void YMF262Channel::chan_calc_ext(byte LFO_AM)
 	// SLOT 1
 	int env  = slots[SLOT1].volume_calc(LFO_AM);
 	if (env < ENV_QUIET) {
-		*slots[SLOT1].connect += op_calc(slots[SLOT1].Cnt.toInt(), env, phase_modulation2, slots[SLOT1].wavetable );
+		*slots[SLOT1].connect += slots[SLOT1].op_calc(slots[SLOT1].Cnt.toInt(), env, phase_modulation2);
 	}
 
 	// SLOT 2
 	env = slots[SLOT2].volume_calc(LFO_AM);
 	if (env < ENV_QUIET) {
-		*slots[SLOT2].connect += op_calc(slots[SLOT2].Cnt.toInt(), env, phase_modulation, slots[SLOT2].wavetable);
+		*slots[SLOT2].connect += slots[SLOT2].op_calc(slots[SLOT2].Cnt.toInt(), env, phase_modulation);
 	}
 }
 
@@ -905,13 +906,13 @@ void YMF262Impl::chan_calc_rhythm(bool noise)
 		int out = SLOT6_1.fb_shift
 		        ? SLOT6_1.op1_out[0] + SLOT6_1.op1_out[1]
 		        : 0;
-		SLOT6_1.op1_out[1] = op_calc(SLOT6_1.Cnt.toInt(), env, (out >> SLOT6_1.fb_shift), SLOT6_1.wavetable);
+		SLOT6_1.op1_out[1] = SLOT6_1.op_calc(SLOT6_1.Cnt.toInt(), env, out >> SLOT6_1.fb_shift);
 	}
 
 	// SLOT 2
 	env = SLOT6_2.volume_calc(LFO_AM);
 	if (env < ENV_QUIET) {
-		chanout[6] += op_calc(SLOT6_2.Cnt.toInt(), env, phase_modulation, SLOT6_2.wavetable) * 2;
+		chanout[6] += SLOT6_2.op_calc(SLOT6_2.Cnt.toInt(), env, phase_modulation) * 2;
 	}
 
 	// Phase generation is based on:
@@ -970,7 +971,7 @@ void YMF262Impl::chan_calc_rhythm(bool noise)
 				phase = 0xd0 >> 2;
 			}
 		}
-		chanout[7] += op_calc(phase, env, 0, SLOT7_1.wavetable) * 2;
+		chanout[7] += SLOT7_1.op_calc(phase, env, 0) * 2;
 	}
 
 	// Snare Drum (verified on real YM3812)
@@ -989,13 +990,13 @@ void YMF262Impl::chan_calc_rhythm(bool noise)
 		if (noise) {
 			phase ^= 0x100;
 		}
-		chanout[7] += op_calc(phase, env, 0, SLOT7_2.wavetable) * 2;
+		chanout[7] += SLOT7_2.op_calc(phase, env, 0) * 2;
 	}
 
 	// Tom Tom (verified on real YM3812)
 	env = SLOT8_1.volume_calc(LFO_AM);
 	if (env < ENV_QUIET) {
-		chanout[8] += op_calc(SLOT8_1.Cnt.toInt(), env, 0, SLOT8_1.wavetable) * 2;
+		chanout[8] += SLOT8_1.op_calc(SLOT8_1.Cnt.toInt(), env, 0) * 2;
 	}
 
 	// Top Cymbal (verified on real YM3812)
@@ -1019,7 +1020,7 @@ void YMF262Impl::chan_calc_rhythm(bool noise)
 		if (res2) {
 			phase = 0x300;
 		}
-		chanout[8] += op_calc(phase, env, 0, SLOT8_2.wavetable) * 2;
+		chanout[8] += SLOT8_2.op_calc(phase, env, 0) * 2;
 	}
 }
 
