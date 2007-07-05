@@ -897,7 +897,7 @@ void YMF262Impl::chan_calc_rhythm(bool noise)
 		int out = SLOT6_1.fb_shift
 		        ? SLOT6_1.op1_out[0] + SLOT6_1.op1_out[1]
 		        : 0;
-		SLOT6_1.op1_out[1] = op_calc(SLOT6_1.Cnt, env, (out << SLOT6_1.fb_shift), SLOT6_1.wavetable);
+		SLOT6_1.op1_out[1] = op_calc(SLOT6_1.Cnt, env, (out >> SLOT6_1.fb_shift), SLOT6_1.wavetable);
 	}
 
 	// SLOT 2
