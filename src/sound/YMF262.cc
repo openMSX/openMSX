@@ -67,6 +67,8 @@ enum EnvelopeState {
 	EG_ATTACK, EG_DECAY, EG_SUSTAIN, EG_RELEASE, EG_OFF
 };
 
+class YMF262Channel;
+
 class YMF262Slot
 {
 public:
@@ -74,6 +76,8 @@ public:
 	inline int volume_calc(byte LFO_AM);
 	inline void FM_KEYON(byte key_set);
 	inline void FM_KEYOFF(byte key_clr);
+	inline void advanceEnvelopeGenerator(unsigned eg_cnt);
+	inline void advancePhaseGenerator(YMF262Channel& ch, unsigned LFO_PM);
 
 	// Phase Generator
 	unsigned Cnt;	// frequency counter
@@ -647,6 +651,86 @@ void YMF262Impl::advance_lfo()
 	LFO_PM = (lfo_pm_cnt.toInt() & 7) | lfo_pm_depth_range;
 }
 
+void YMF262Slot::advanceEnvelopeGenerator(unsigned eg_cnt)
+{
+	switch (state) {
+	case EG_ATTACK:
+		if (!(eg_cnt & eg_m_ar)) {
+			volume += (~volume * eg_inc[eg_sel_ar + ((eg_cnt >> eg_sh_ar) & 7)]) >> 3;
+			if (volume <= MIN_ATT_INDEX) {
+				volume = MIN_ATT_INDEX;
+				state = EG_DECAY;
+			}
+		}
+		break;
+
+	case EG_DECAY:
+		if (!(eg_cnt & eg_m_dr)) {
+			volume += eg_inc[eg_sel_dr + ((eg_cnt >> eg_sh_dr) & 7)];
+			if (volume >= sl) {
+				state = EG_SUSTAIN;
+			}
+		}
+		break;
+
+	case EG_SUSTAIN:
+		// this is important behaviour:
+		// one can change percusive/non-percussive
+		// modes on the fly and the chip will remain
+		// in sustain phase - verified on real YM3812
+		if (eg_type) {
+			// non-percussive mode
+			// do nothing
+		} else {
+			// percussive mode
+			// during sustain phase chip adds Release Rate (in percussive mode)
+			if (!(eg_cnt & eg_m_rr)) {
+				volume += eg_inc[eg_sel_rr + ((eg_cnt >> eg_sh_rr) & 7)];
+				if (volume >= MAX_ATT_INDEX) {
+					volume = MAX_ATT_INDEX;
+				}
+			} else {
+				// do nothing in sustain phase
+			}
+		}
+		break;
+
+	case EG_RELEASE:
+		if (!(eg_cnt & eg_m_rr)) {
+			volume += eg_inc[eg_sel_rr + ((eg_cnt >> eg_sh_rr) & 7)];
+			if (volume >= MAX_ATT_INDEX) {
+				volume = MAX_ATT_INDEX;
+				state = EG_OFF;
+			}
+		}
+		break;
+
+	default:
+		break;
+	}
+}
+
+void YMF262Slot::advancePhaseGenerator(YMF262Channel& ch, unsigned LFO_PM)
+{
+	if (vib) {
+		unsigned block_fnum = ch.block_fnum;
+		unsigned fnum_lfo   = (block_fnum & 0x0380) >> 7;
+		int lfo_fn_table_index_offset = lfo_pm_table[LFO_PM + 16 * fnum_lfo];
+		if (lfo_fn_table_index_offset) {
+			// LFO phase modulation active
+			block_fnum += lfo_fn_table_index_offset;
+			byte block = (block_fnum & 0x1c00) >> 10;
+			Cnt += (fn_tab[block_fnum & 0x03ff] >> (7 - block)) * mul;
+		} else {
+			// LFO phase modulation  = zero
+			Cnt += Incr;
+		}
+	} else {
+		// LFO phase modulation disabled for this operator
+		Cnt += Incr;
+	}
+}
+
 // advance to next sample
 void YMF262Impl::advance()
 {
@@ -655,87 +739,8 @@ void YMF262Impl::advance()
 		YMF262Channel& ch = channels[c];
 		for (int s = 0; s < 2; ++s) {
 			YMF262Slot& op = ch.slots[s];
-			// Envelope Generator
-			switch (op.state) {
-			case EG_ATTACK:
-				if (!(eg_cnt & op.eg_m_ar)) {
-					op.volume += (~op.volume * eg_inc[op.eg_sel_ar + ((eg_cnt >> op.eg_sh_ar) & 7)]) >> 3;
-					if (op.volume <= MIN_ATT_INDEX) {
-						op.volume = MIN_ATT_INDEX;
-						op.state = EG_DECAY;
-					}
-				}
-				break;
-
-			case EG_DECAY:
-				if (!(eg_cnt & op.eg_m_dr)) {
-					op.volume += eg_inc[op.eg_sel_dr + ((eg_cnt >> op.eg_sh_dr) & 7)];
-					if (op.volume >= op.sl) {
-						op.state = EG_SUSTAIN;
-					}
-				}
-				break;
-
-			case EG_SUSTAIN:
-				// this is important behaviour:
-				// one can change percusive/non-percussive
-				// modes on the fly and the chip will remain
-				// in sustain phase - verified on real YM3812
-				if (op.eg_type) {
-					// non-percussive mode
-					// do nothing
-				} else {
-					// percussive mode
-					// during sustain phase chip adds Release Rate (in percussive mode)
-					if (!(eg_cnt & op.eg_m_rr)) {
-						op.volume += eg_inc[op.eg_sel_rr + ((eg_cnt >> op.eg_sh_rr) & 7)];
-						if (op.volume >= MAX_ATT_INDEX) {
-							op.volume = MAX_ATT_INDEX;
-						}
-					} else {
-						// do nothing in sustain phase
-					}
-				}
-				break;
-
-			case EG_RELEASE:
-				if (!(eg_cnt & op.eg_m_rr)) {
-					op.volume += eg_inc[op.eg_sel_rr + ((eg_cnt >> op.eg_sh_rr) & 7)];
-					if (op.volume >= MAX_ATT_INDEX) {
-						op.volume = MAX_ATT_INDEX;
-						op.state = EG_OFF;
-					}
-				}
-				break;
-
-			default:
-				break;
-			}
-		}
-	}
-
-	// Phase Generator
-	for (int c = 0; c < 18; ++c) {
-		YMF262Channel& ch = channels[c];
-		for (int s = 0; s < 2; ++s) {
-			YMF262Slot& op = ch.slots[s];
-			if (op.vib) {
-				unsigned block_fnum = ch.block_fnum;
-				unsigned fnum_lfo   = (block_fnum & 0x0380) >> 7;
-				int lfo_fn_table_index_offset = lfo_pm_table[LFO_PM + 16 * fnum_lfo];
-				if (lfo_fn_table_index_offset) {
-					// LFO phase modulation active
-					block_fnum += lfo_fn_table_index_offset;
-					byte block = (block_fnum & 0x1c00) >> 10;
-					op.Cnt += (fn_tab[block_fnum & 0x03ff] >> (7 - block)) * op.mul;
-				} else {
-					// LFO phase modulation  = zero
-					op.Cnt += op.Incr;
-				}
-			} else {
-				// LFO phase modulation disabled for this operator
-				op.Cnt += op.Incr;
-			}
+			op.advanceEnvelopeGenerator(eg_cnt);
+			op.advancePhaseGenerator(ch, LFO_PM);
 		}
 	}
 
