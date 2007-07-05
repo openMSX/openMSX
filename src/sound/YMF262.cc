@@ -79,6 +79,12 @@ public:
 	inline void advanceEnvelopeGenerator(unsigned eg_cnt);
 	inline void advancePhaseGenerator(YMF262Channel& ch, unsigned LFO_PM);
 
+	/** Sets the amount of feedback [0..7]
+	 */
+	void setFeedbackShift(byte value) {
+		fb_shift = value ? 9 - value : 0;
+	}
+
 	// Phase Generator
 	unsigned Cnt;	// frequency counter
 	unsigned Incr;	// frequency counter step
@@ -105,7 +111,7 @@ public:
 
 	byte key;	// 0 = KEY OFF, >0 = KEY ON
 
-	byte FB;	// PG: feedback shift value
+	byte fb_shift;	// PG: feedback shift value
 	bool CON;	// PG: connection (algorithm) type
 	bool eg_type;	// EG: percussive/non-percussive mode
 	EnvelopeState state; // EG: phase type
@@ -243,7 +249,6 @@ private:
 
 
 static const int FREQ_SH   = 16;  // 16.16 fixed point (frequency calculations)
-static const int FREQ_MASK = (1 << FREQ_SH) - 1;
 
 // envelope output entries
 static const int ENV_BITS    = 10;
@@ -574,7 +579,7 @@ static int phase_modulation2; // phase modulation input (SLOT 3
 YMF262Slot::YMF262Slot()
 {
 	ar = dr = rr = KSR = ksl = ksr = mul = 0;
-	Cnt = Incr = FB = op1_out[0] = op1_out[1] = 0;
+	Cnt = Incr = fb_shift = op1_out[0] = op1_out[1] = 0;
 	CON = eg_type = vib = false;
 	connect = 0;
 	TL = TLL = volume = sl = 0;
@@ -772,15 +777,7 @@ void YMF262Impl::advance()
 
 static int op_calc(unsigned phase, unsigned env, int pm, unsigned wave_tab)
 {
-	int i = (phase & ~FREQ_MASK) + (pm << 16);
-	int p = (env << 4) + sin_tab[wave_tab + ((i >> FREQ_SH) & SIN_MASK)];
-	return (p < TL_TAB_LEN) ? tl_tab[p] : 0;
-}
-
-static int op_calc1(unsigned phase, unsigned env, int pm, unsigned wave_tab)
-{
-	int i = (phase & ~FREQ_MASK) + pm;
-	int p = (env << 4) + sin_tab[wave_tab + ((i >> FREQ_SH) & SIN_MASK)];
+	int p = (env << 4) + sin_tab[wave_tab + (((phase >> FREQ_SH) + pm) & SIN_MASK)];
 	return (p < TL_TAB_LEN) ? tl_tab[p] : 0;
 }
 
@@ -798,14 +795,13 @@ void YMF262Channel::chan_calc(byte LFO_AM)
 
 	// SLOT 1
 	int env = slots[SLOT1].volume_calc(LFO_AM);
-	int out = slots[SLOT1].op1_out[0] + slots[SLOT1].op1_out[1];
 	slots[SLOT1].op1_out[0] = slots[SLOT1].op1_out[1];
 	slots[SLOT1].op1_out[1] = 0;
 	if (env < ENV_QUIET) {
-		if (!slots[SLOT1].FB) {
-			out = 0;
-		}
-		slots[SLOT1].op1_out[1] = op_calc1(slots[SLOT1].Cnt, env, (out<<slots[SLOT1].FB), slots[SLOT1].wavetable);
+		int out = slots[SLOT1].fb_shift
+		        ? slots[SLOT1].op1_out[0] + slots[SLOT1].op1_out[1]
+		        : 0;
+		slots[SLOT1].op1_out[1] = op_calc(slots[SLOT1].Cnt, env, (out >> slots[SLOT1].fb_shift), slots[SLOT1].wavetable);
 	}
 	*slots[SLOT1].connect += slots[SLOT1].op1_out[1];
 
@@ -888,7 +884,6 @@ void YMF262Impl::chan_calc_rhythm(bool noise)
 
 	// SLOT 1
 	int env = SLOT6_1.volume_calc(LFO_AM);
-	int out = SLOT6_1.op1_out[0] + SLOT6_1.op1_out[1];
 	SLOT6_1.op1_out[0] = SLOT6_1.op1_out[1];
 
 	if (!SLOT6_1.CON) {
@@ -899,10 +894,10 @@ void YMF262Impl::chan_calc_rhythm(bool noise)
 
 	SLOT6_1.op1_out[1] = 0;
 	if (env < ENV_QUIET) {
-		if (!SLOT6_1.FB) {
-			out = 0;
-		}
-		SLOT6_1.op1_out[1] = op_calc1(SLOT6_1.Cnt, env, (out << SLOT6_1.FB), SLOT6_1.wavetable);
+		int out = SLOT6_1.fb_shift
+		        ? SLOT6_1.op1_out[0] + SLOT6_1.op1_out[1]
+		        : 0;
+		SLOT6_1.op1_out[1] = op_calc(SLOT6_1.Cnt, env, (out << SLOT6_1.fb_shift), SLOT6_1.wavetable);
 	}
 
 	// SLOT 2
@@ -1773,7 +1768,7 @@ void YMF262Impl::writeRegForce(int r, byte v, const EmuTime& time)
 			pan[base + 3] = (unsigned)~0;	// ch.D
 		}
 
-		ch.slots[SLOT1].FB  = (v >> 1) & 7 ? ((v >> 1) & 7) + 7 : 0;
+		ch.slots[SLOT1].setFeedbackShift((v >> 1) & 7);
 		ch.slots[SLOT1].CON = v & 1;
 
 		if (OPL3_mode) {
