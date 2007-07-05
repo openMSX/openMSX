@@ -1,5 +1,12 @@
 $Id$
 
+2007-07-05 Maarten ter Huurne <maarten@treewalker.org>
+	* Added vibrato effect for PSG.
+	  You can control it with the settings "PSG_vibrato_percent" and
+	  "PSG_vibrato_frequency". Good values are around 1.0% and 4.5Hz.
+	  By default "PSG_vibrato_percent" is 0, which turns off the effect.
+	  Thanks to Wolf for the idea and his feedback on experiments.
+
 2007-07-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Use pimple idiom to move implementation details from hh to cc for
 	   YM2413 YM2413_2 YMF262 YMF278

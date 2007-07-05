@@ -18,7 +18,9 @@
 #include "XMLElement.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
+#include "FloatSetting.hh"
 #include <cassert>
+#include <cmath>
 #include <cstring>
 
 using std::string;
@@ -35,6 +37,12 @@ private:
 	AY8910& ay8910;
 };
 
+
+// The step clock for the tone and noise generators is the chip clock
+// divided by 8; for the envelope generator of the AY-3-8910, it is half
+// that much (clock/16).
+static const double NATIVE_FREQ_DOUBLE = (3579545.0 / 2) / 8;
+static const int NATIVE_FREQ_INT = int(NATIVE_FREQ_DOUBLE + 0.5);
 
 // Fixed point representation of 1.
 static const int FP_UNIT = 0x8000;
@@ -82,11 +90,34 @@ inline byte AY8910::Generator::getOutput()
 
 // ToneGenerator:
 
+AY8910::ToneGenerator::ToneGenerator()
+	: parent(NULL), vibratoCount(0)
+{
+}
+
+inline void AY8910::ToneGenerator::setParent(AY8910& parent)
+{
+	this->parent = &parent;
+}
+
 inline void AY8910::ToneGenerator::advance()
 {
 	count++;
 	if (count >= period) {
+		vibratoCount += period;
 		count = 0;
+		float vibPerc = parent->vibratoPercent->getValue();
+		if (vibPerc != 0.0f) {
+			int vibratoPeriod = int(
+				NATIVE_FREQ_DOUBLE
+				/ parent->vibratoFrequency->getValue()
+				);
+			vibratoCount %= vibratoPeriod;
+			count += int(
+				sin((M_PI * 2 * vibratoCount) / vibratoPeriod)
+				* vibPerc * 0.01f * period
+				);
+		}
 		output ^= 1;
 	}
 }
@@ -370,9 +401,24 @@ AY8910::AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
 	, envelope(amplitude)
 	, warningPrinted(false)
 {
+	for (int chan = 0; chan < 3; chan++) {
+		tone[chan].setParent(*this);
+	}
+
 	// make valgrind happy
 	memset(regs, 0, sizeof(regs));
 	setOutputRate(44100);
+
+	const string& name = getName();
+	CommandController& commandController = motherBoard.getCommandController();
+	vibratoPercent.reset(new FloatSetting(commandController,
+		name + "_vibrato_percent", "controls strength of vibrato effect",
+		0.0f, 0.0f, 10.f
+		));
+	vibratoFrequency.reset(new FloatSetting(commandController,
+		name + "_vibrato_frequency", "frequency of vibrato effect in Hertz",
+		4.5f, 1.0f, 10.0f
+		));
 
 	reset(time);
 	registerSound(config);
@@ -521,12 +567,8 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime& time)
 
 void AY8910::setOutputRate(unsigned sampleRate)
 {
-	// The step clock for the tone and noise generators is the chip clock
-	// divided by 8; for the envelope generator of the AY-3-8910, it is half
-	// that much (clock/16).
-	double input = (3579545.0 / 2) / 8;
-	setInputRate(static_cast<int>(input + 0.5));
-	setResampleRatio(input, sampleRate);
+	setInputRate(NATIVE_FREQ_INT);
+	setResampleRatio(NATIVE_FREQ_DOUBLE, sampleRate);
 }
 
 

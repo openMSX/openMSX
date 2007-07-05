@@ -16,6 +16,7 @@ class AY8910Periphery;
 class XMLElement;
 class EmuTime;
 class AY8910Debuggable;
+class FloatSetting;
 
 /** This class implements the AY-3-8910 sound chip.
   * Only the AY-3-8910 is emulated, no surrounding hardware,
@@ -64,6 +65,8 @@ private:
 
 	class ToneGenerator: public Generator {
 	public:
+		ToneGenerator();
+		inline void setParent(AY8910& parent);
 		/** Advance tone generator one step in time.
 		  */
 		inline void advance();
@@ -71,6 +74,11 @@ private:
 		  * @param duration Length of interval to simulate.
 		  */
 		inline void advance(int duration);
+	private:
+		AY8910* parent;
+		/** Time passed since start of vibrato cycle.
+		  */
+		int vibratoCount;
 	};
 
 	class NoiseGenerator: public Generator {
@@ -142,6 +150,8 @@ private:
 	MSXCliComm& cliComm;
 	AY8910Periphery& periphery;
 	const std::auto_ptr<AY8910Debuggable> debuggable;
+	std::auto_ptr<FloatSetting> vibratoPercent;
+	std::auto_ptr<FloatSetting> vibratoFrequency;
 	ToneGenerator tone[3];
 	NoiseGenerator noise;
 	Amplitude amplitude;
