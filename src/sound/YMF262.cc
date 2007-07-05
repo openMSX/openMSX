@@ -203,6 +203,11 @@ private:
 	void changeStatusMask(byte flag);
 	void advance_lfo();
 	void advance();
+
+	inline int genPhaseHighHat();
+	inline int genPhaseSnare();
+	inline int genPhaseCymbal();
+
 	void chan_calc_rhythm(bool noise);
 	void set_mul(byte sl, byte v);
 	void set_ksl_tl(byte sl, byte v);
@@ -871,6 +876,95 @@ void YMF262Channel::chan_calc_ext(byte LFO_AM)
 //
 //    8     14,17     B8        A8            +           +     +
 
+// The following formulas can be well optimized.
+// I leave them in direct form for now (in case I've missed something).
+
+inline int YMF262Impl::genPhaseHighHat()
+{
+	// high hat phase generation:
+	// phase = d0 or 234 (based on frequency only)
+	// phase = 34 or 2d0 (based on noise)
+
+	// base frequency derived from operator 1 in channel 7
+	int op71phase = channels[7].slots[SLOT1].Cnt.toInt();
+	bool bit7 = op71phase & 0x80;
+	bool bit3 = op71phase & 0x08;
+	bool bit2 = op71phase & 0x04;
+	bool res1 = (bit2 ^ bit7) | bit3;
+	// when res1 = 0 phase = 0x000 | 0xd0;
+	// when res1 = 1 phase = 0x200 | (0xd0>>2);
+	unsigned phase = res1 ? (0x200 | (0xd0 >> 2)) : 0xd0;
+
+	// enable gate based on frequency of operator 2 in channel 8
+	int op82phase = channels[8].slots[SLOT2].Cnt.toInt();
+	bool bit5e= op82phase & 0x20;
+	bool bit3e= op82phase & 0x08;
+	bool res2 = (bit3e ^ bit5e);
+	// when res2 = 0 pass the phase from calculation above (res1);
+	// when res2 = 1 phase = 0x200 | (0xd0>>2);
+	if (res2) {
+		phase = (0x200 | (0xd0 >> 2));
+	}
+
+	// when phase & 0x200 is set and noise=1 then phase = 0x200|0xd0
+	// when phase & 0x200 is set and noise=0 then phase = 0x200|(0xd0>>2), ie no change
+	if (phase & 0x200) {
+		if (noise_rng & 1) {
+			phase = 0x200 | 0xd0;
+		}
+	} else {
+	// when phase & 0x200 is clear and noise=1 then phase = 0xd0>>2
+	// when phase & 0x200 is clear and noise=0 then phase = 0xd0, ie no change
+		if (noise_rng & 1) {
+			phase = 0xd0 >> 2;
+		}
+	}
+	return phase;
+}
+
+inline int YMF262Impl::genPhaseSnare()
+{
+	// base frequency derived from operator 1 in channel 7
+	bool bit8 = (channels[7].slots[SLOT1].Cnt.toInt()) & 0x100;
+	// when bit8 = 0 phase = 0x100;
+	// when bit8 = 1 phase = 0x200;
+	unsigned phase = bit8 ? 0x200 : 0x100;
+
+	// Noise bit XOR'es phase by 0x100
+	// when noisebit = 0 pass the phase from calculation above
+	// when noisebit = 1 phase ^= 0x100;
+	// in other words: phase ^= (noisebit<<8);
+	if (noise_rng & 1) {
+		phase ^= 0x100;
+	}
+	return phase;
+}
+
+inline int YMF262Impl::genPhaseCymbal()
+{
+	// base frequency derived from operator 1 in channel 7
+	int op71phase = channels[7].slots[SLOT1].Cnt.toInt();
+	bool bit7 = op71phase & 0x80;
+	bool bit3 = op71phase & 0x08;
+	bool bit2 = op71phase & 0x04;
+	bool res1 = (bit2 ^ bit7) | bit3;
+	// when res1 = 0 phase = 0x000 | 0x100;
+	// when res1 = 1 phase = 0x200 | 0x100;
+	unsigned phase = res1 ? 0x300 : 0x100;
+
+	// enable gate based on frequency of operator 2 in channel 8
+	int op82phase = channels[8].slots[SLOT2].Cnt.toInt();
+	bool bit5e= op82phase & 0x20;
+	bool bit3e= op82phase & 0x08;
+	bool res2 = bit3e ^ bit5e;
+	// when res2 = 0 pass the phase from calculation above (res1);
+	// when res2 = 1 phase = 0x200 | 0x100;
+	if (res2) {
+		phase = 0x300;
+	}
+	return phase;
+}
+
 // calculate rhythm
 void YMF262Impl::chan_calc_rhythm(bool noise)
 {
@@ -929,68 +1023,16 @@ void YMF262Impl::chan_calc_rhythm(bool noise)
 	// TOM channel 8->slot1
 	// TOP channel 8->slot2
 
-	// The following formulas can be well optimized.
-	// I leave them in direct form for now (in case I've missed something).
-
 	// High Hat (verified on real YM3812)
 	env = SLOT7_1.volume_calc(LFO_AM);
 	if (env < ENV_QUIET) {
-		// high hat phase generation:
-		// phase = d0 or 234 (based on frequency only)
-		// phase = 34 or 2d0 (based on noise)
-
-		// base frequency derived from operator 1 in channel 7
-		bool bit7 = (SLOT7_1.Cnt.toInt()) & 0x80;
-		bool bit3 = (SLOT7_1.Cnt.toInt()) & 0x08;
-		bool bit2 = (SLOT7_1.Cnt.toInt()) & 0x04;
-		bool res1 = (bit2 ^ bit7) | bit3;
-		// when res1 = 0 phase = 0x000 | 0xd0;
-		// when res1 = 1 phase = 0x200 | (0xd0>>2);
-		unsigned phase = res1 ? (0x200 | (0xd0 >> 2)) : 0xd0;
-
-		// enable gate based on frequency of operator 2 in channel 8
-		bool bit5e= (SLOT8_2.Cnt.toInt()) & 0x20;
-		bool bit3e= (SLOT8_2.Cnt.toInt()) & 0x08;
-		bool res2 = (bit3e ^ bit5e);
-		// when res2 = 0 pass the phase from calculation above (res1);
-		// when res2 = 1 phase = 0x200 | (0xd0>>2);
-		if (res2) {
-			phase = (0x200 | (0xd0 >> 2));
-		}
-
-		// when phase & 0x200 is set and noise=1 then phase = 0x200|0xd0
-		// when phase & 0x200 is set and noise=0 then phase = 0x200|(0xd0>>2), ie no change
-		if (phase & 0x200) {
-			if (noise) {
-				phase = 0x200 | 0xd0;
-			}
-		} else {
-		// when phase & 0x200 is clear and noise=1 then phase = 0xd0>>2
-		// when phase & 0x200 is clear and noise=0 then phase = 0xd0, ie no change
-			if (noise) {
-				phase = 0xd0 >> 2;
-			}
-		}
-		chanout[7] += SLOT7_1.op_calc(phase, env, 0) * 2;
+		chanout[7] += SLOT7_1.op_calc(genPhaseHighHat(), env, 0) * 2;
 	}
 
 	// Snare Drum (verified on real YM3812)
 	env = SLOT7_2.volume_calc(LFO_AM);
 	if (env < ENV_QUIET) {
-		// base frequency derived from operator 1 in channel 7
-		bool bit8 = (SLOT7_1.Cnt.toInt()) & 0x100;
-		// when bit8 = 0 phase = 0x100;
-		// when bit8 = 1 phase = 0x200;
-		unsigned phase = bit8 ? 0x200 : 0x100;
-
-		// Noise bit XOR'es phase by 0x100
-		// when noisebit = 0 pass the phase from calculation above
-		// when noisebit = 1 phase ^= 0x100;
-		// in other words: phase ^= (noisebit<<8);
-		if (noise) {
-			phase ^= 0x100;
-		}
-		chanout[7] += SLOT7_2.op_calc(phase, env, 0) * 2;
+		chanout[7] += SLOT7_2.op_calc(genPhaseSnare(), env, 0) * 2;
 	}
 
 	// Tom Tom (verified on real YM3812)
@@ -1002,25 +1044,7 @@ void YMF262Impl::chan_calc_rhythm(bool noise)
 	// Top Cymbal (verified on real YM3812)
 	env = SLOT8_2.volume_calc(LFO_AM);
 	if (env < ENV_QUIET) {
-		// base frequency derived from operator 1 in channel 7
-		bool bit7 = (SLOT7_1.Cnt.toInt()) & 0x80;
-		bool bit3 = (SLOT7_1.Cnt.toInt()) & 0x08;
-		bool bit2 = (SLOT7_1.Cnt.toInt()) & 0x04;
-		bool res1 = (bit2 ^ bit7) | bit3;
-		// when res1 = 0 phase = 0x000 | 0x100;
-		// when res1 = 1 phase = 0x200 | 0x100;
-		unsigned phase = res1 ? 0x300 : 0x100;
-
-		// enable gate based on frequency of operator 2 in channel 8
-		bool bit5e= (SLOT8_2.Cnt.toInt()) & 0x20;
-		bool bit3e= (SLOT8_2.Cnt.toInt()) & 0x08;
-		bool res2 = bit3e ^ bit5e;
-		// when res2 = 0 pass the phase from calculation above (res1);
-		// when res2 = 1 phase = 0x200 | 0x100;
-		if (res2) {
-			phase = 0x300;
-		}
-		chanout[8] += SLOT8_2.op_calc(phase, env, 0) * 2;
+		chanout[8] += SLOT8_2.op_calc(genPhaseCymbal(), env, 0) * 2;
 	}
 }
 
