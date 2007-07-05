@@ -69,6 +69,18 @@ enum EnvelopeState {
 
 class YMF262Channel;
 
+/** 16.16 fixed point type for frequency calculations
+ */
+typedef FixedPoint<16> FreqIndex;
+
+static inline FreqIndex fnumToIncrement(int block_fnum)
+{
+	// opn phase increment counter = 20bit
+	// chip works with 10.10 fixed point, while we use 16.16
+	int block = (block_fnum & 0x1C00) >> 10;
+	return FreqIndex(block_fnum & 0x03FF) >> (11 - block);
+}
+
 class YMF262Slot
 {
 public:
@@ -86,8 +98,8 @@ public:
 	}
 
 	// Phase Generator
-	unsigned Cnt;	// frequency counter
-	unsigned Incr;	// frequency counter step
+	FreqIndex Cnt;	// frequency counter
+	FreqIndex Incr;	// frequency counter step
 	int* connect;	// slot output pointer
 	int op1_out[2];	// slot1 output for feedback
 
@@ -142,7 +154,7 @@ public:
 	YMF262Slot slots[2];
 
 	int block_fnum;	// block+fnum
-	int fc;		// Freq. Increment base
+	FreqIndex fc;	// Freq. Increment base
 	int ksl_base;	// KeyScaleLevel Base step
 	byte kcode;	// key code (for key scaling)
 
@@ -247,8 +259,6 @@ private:
 	byte statusMask;		// status mask
 };
 
-
-static const int FREQ_SH   = 16;  // 16.16 fixed point (frequency calculations)
 
 // envelope output entries
 static const int ENV_BITS    = 10;
@@ -463,9 +473,6 @@ static const int ENV_QUIET = TL_TAB_LEN >> 4;
 // there are eight waveforms on OPL3 chips
 static unsigned sin_tab[SIN_LEN * 8];
 
-// fnumber->increment counter
-static unsigned fn_tab[1024];
-
 // LFO Amplitude Modulation table (verified on real YM3812)
 //  27 output levels (triangle waveform); 1 level takes one of: 192, 256 or 448 samples
 //
@@ -577,9 +584,10 @@ static int phase_modulation2; // phase modulation input (SLOT 3
 
 
 YMF262Slot::YMF262Slot()
+	: Cnt(0), Incr(0)
 {
 	ar = dr = rr = KSR = ksl = ksr = mul = 0;
-	Cnt = Incr = fb_shift = op1_out[0] = op1_out[1] = 0;
+	fb_shift = op1_out[0] = op1_out[1] = 0;
 	CON = eg_type = vib = false;
 	connect = 0;
 	TL = TLL = volume = sl = 0;
@@ -591,7 +599,8 @@ YMF262Slot::YMF262Slot()
 
 YMF262Channel::YMF262Channel()
 {
-	block_fnum = fc = ksl_base = kcode = extended = 0;
+	block_fnum = ksl_base = kcode = extended = 0;
+	fc = FreqIndex(0);
 }
 
 
@@ -723,9 +732,8 @@ void YMF262Slot::advancePhaseGenerator(YMF262Channel& ch, unsigned LFO_PM)
 		int lfo_fn_table_index_offset = lfo_pm_table[LFO_PM + 16 * fnum_lfo];
 		if (lfo_fn_table_index_offset) {
 			// LFO phase modulation active
-			block_fnum += lfo_fn_table_index_offset;
-			byte block = (block_fnum & 0x1c00) >> 10;
-			Cnt += (fn_tab[block_fnum & 0x03ff] >> (7 - block)) * mul;
+			Cnt += fnumToIncrement(block_fnum + lfo_fn_table_index_offset)
+			        * mul;
 		} else {
 			// LFO phase modulation  = zero
 			Cnt += Incr;
@@ -777,7 +785,7 @@ void YMF262Impl::advance()
 
 static int op_calc(unsigned phase, unsigned env, int pm, unsigned wave_tab)
 {
-	int p = (env << 4) + sin_tab[wave_tab + (((phase >> FREQ_SH) + pm) & SIN_MASK)];
+	int p = (env << 4) + sin_tab[wave_tab + ((phase + pm) & SIN_MASK)];
 	return (p < TL_TAB_LEN) ? tl_tab[p] : 0;
 }
 
@@ -801,14 +809,14 @@ void YMF262Channel::chan_calc(byte LFO_AM)
 		int out = slots[SLOT1].fb_shift
 		        ? slots[SLOT1].op1_out[0] + slots[SLOT1].op1_out[1]
 		        : 0;
-		slots[SLOT1].op1_out[1] = op_calc(slots[SLOT1].Cnt, env, (out >> slots[SLOT1].fb_shift), slots[SLOT1].wavetable);
+		slots[SLOT1].op1_out[1] = op_calc(slots[SLOT1].Cnt.toInt(), env, (out >> slots[SLOT1].fb_shift), slots[SLOT1].wavetable);
 	}
 	*slots[SLOT1].connect += slots[SLOT1].op1_out[1];
 
 	// SLOT 2
 	env = slots[SLOT2].volume_calc(LFO_AM);
 	if (env < ENV_QUIET) {
-		*slots[SLOT2].connect += op_calc(slots[SLOT2].Cnt, env, phase_modulation, slots[SLOT2].wavetable);
+		*slots[SLOT2].connect += op_calc(slots[SLOT2].Cnt.toInt(), env, phase_modulation, slots[SLOT2].wavetable);
 	}
 }
 
@@ -820,13 +828,13 @@ void YMF262Channel::chan_calc_ext(byte LFO_AM)
 	// SLOT 1
 	int env  = slots[SLOT1].volume_calc(LFO_AM);
 	if (env < ENV_QUIET) {
-		*slots[SLOT1].connect += op_calc(slots[SLOT1].Cnt, env, phase_modulation2, slots[SLOT1].wavetable );
+		*slots[SLOT1].connect += op_calc(slots[SLOT1].Cnt.toInt(), env, phase_modulation2, slots[SLOT1].wavetable );
 	}
 
 	// SLOT 2
 	env = slots[SLOT2].volume_calc(LFO_AM);
 	if (env < ENV_QUIET) {
-		*slots[SLOT2].connect += op_calc(slots[SLOT2].Cnt, env, phase_modulation, slots[SLOT2].wavetable);
+		*slots[SLOT2].connect += op_calc(slots[SLOT2].Cnt.toInt(), env, phase_modulation, slots[SLOT2].wavetable);
 	}
 }
 
@@ -897,13 +905,13 @@ void YMF262Impl::chan_calc_rhythm(bool noise)
 		int out = SLOT6_1.fb_shift
 		        ? SLOT6_1.op1_out[0] + SLOT6_1.op1_out[1]
 		        : 0;
-		SLOT6_1.op1_out[1] = op_calc(SLOT6_1.Cnt, env, (out >> SLOT6_1.fb_shift), SLOT6_1.wavetable);
+		SLOT6_1.op1_out[1] = op_calc(SLOT6_1.Cnt.toInt(), env, (out >> SLOT6_1.fb_shift), SLOT6_1.wavetable);
 	}
 
 	// SLOT 2
 	env = SLOT6_2.volume_calc(LFO_AM);
 	if (env < ENV_QUIET) {
-		chanout[6] += op_calc(SLOT6_2.Cnt, env, phase_modulation, SLOT6_2.wavetable) * 2;
+		chanout[6] += op_calc(SLOT6_2.Cnt.toInt(), env, phase_modulation, SLOT6_2.wavetable) * 2;
 	}
 
 	// Phase generation is based on:
@@ -931,17 +939,17 @@ void YMF262Impl::chan_calc_rhythm(bool noise)
 		// phase = 34 or 2d0 (based on noise)
 
 		// base frequency derived from operator 1 in channel 7
-		bool bit7 = (SLOT7_1.Cnt >> FREQ_SH) & 0x80;
-		bool bit3 = (SLOT7_1.Cnt >> FREQ_SH) & 0x08;
-		bool bit2 = (SLOT7_1.Cnt >> FREQ_SH) & 0x04;
+		bool bit7 = (SLOT7_1.Cnt.toInt()) & 0x80;
+		bool bit3 = (SLOT7_1.Cnt.toInt()) & 0x08;
+		bool bit2 = (SLOT7_1.Cnt.toInt()) & 0x04;
 		bool res1 = (bit2 ^ bit7) | bit3;
 		// when res1 = 0 phase = 0x000 | 0xd0;
 		// when res1 = 1 phase = 0x200 | (0xd0>>2);
 		unsigned phase = res1 ? (0x200 | (0xd0 >> 2)) : 0xd0;
 
 		// enable gate based on frequency of operator 2 in channel 8
-		bool bit5e= (SLOT8_2.Cnt>>FREQ_SH) & 0x20;
-		bool bit3e= (SLOT8_2.Cnt>>FREQ_SH) & 0x08;
+		bool bit5e= (SLOT8_2.Cnt.toInt()) & 0x20;
+		bool bit3e= (SLOT8_2.Cnt.toInt()) & 0x08;
 		bool res2 = (bit3e ^ bit5e);
 		// when res2 = 0 pass the phase from calculation above (res1);
 		// when res2 = 1 phase = 0x200 | (0xd0>>2);
@@ -962,14 +970,14 @@ void YMF262Impl::chan_calc_rhythm(bool noise)
 				phase = 0xd0 >> 2;
 			}
 		}
-		chanout[7] += op_calc(phase<<FREQ_SH, env, 0, SLOT7_1.wavetable) * 2;
+		chanout[7] += op_calc(phase, env, 0, SLOT7_1.wavetable) * 2;
 	}
 
 	// Snare Drum (verified on real YM3812)
 	env = SLOT7_2.volume_calc(LFO_AM);
 	if (env < ENV_QUIET) {
 		// base frequency derived from operator 1 in channel 7
-		bool bit8 = (SLOT7_1.Cnt>>FREQ_SH) & 0x100;
+		bool bit8 = (SLOT7_1.Cnt.toInt()) & 0x100;
 		// when bit8 = 0 phase = 0x100;
 		// when bit8 = 1 phase = 0x200;
 		unsigned phase = bit8 ? 0x200 : 0x100;
@@ -981,37 +989,37 @@ void YMF262Impl::chan_calc_rhythm(bool noise)
 		if (noise) {
 			phase ^= 0x100;
 		}
-		chanout[7] += op_calc(phase<<FREQ_SH, env, 0, SLOT7_2.wavetable) * 2;
+		chanout[7] += op_calc(phase, env, 0, SLOT7_2.wavetable) * 2;
 	}
 
 	// Tom Tom (verified on real YM3812)
 	env = SLOT8_1.volume_calc(LFO_AM);
 	if (env < ENV_QUIET) {
-		chanout[8] += op_calc(SLOT8_1.Cnt, env, 0, SLOT8_1.wavetable) * 2;
+		chanout[8] += op_calc(SLOT8_1.Cnt.toInt(), env, 0, SLOT8_1.wavetable) * 2;
 	}
 
 	// Top Cymbal (verified on real YM3812)
 	env = SLOT8_2.volume_calc(LFO_AM);
 	if (env < ENV_QUIET) {
 		// base frequency derived from operator 1 in channel 7
-		bool bit7 = (SLOT7_1.Cnt>>FREQ_SH) & 0x80;
-		bool bit3 = (SLOT7_1.Cnt>>FREQ_SH) & 0x08;
-		bool bit2 = (SLOT7_1.Cnt>>FREQ_SH) & 0x04;
+		bool bit7 = (SLOT7_1.Cnt.toInt()) & 0x80;
+		bool bit3 = (SLOT7_1.Cnt.toInt()) & 0x08;
+		bool bit2 = (SLOT7_1.Cnt.toInt()) & 0x04;
 		bool res1 = (bit2 ^ bit7) | bit3;
 		// when res1 = 0 phase = 0x000 | 0x100;
 		// when res1 = 1 phase = 0x200 | 0x100;
 		unsigned phase = res1 ? 0x300 : 0x100;
 
 		// enable gate based on frequency of operator 2 in channel 8
-		bool bit5e= (SLOT8_2.Cnt>>FREQ_SH) & 0x20;
-		bool bit3e= (SLOT8_2.Cnt>>FREQ_SH) & 0x08;
+		bool bit5e= (SLOT8_2.Cnt.toInt()) & 0x20;
+		bool bit3e= (SLOT8_2.Cnt.toInt()) & 0x08;
 		bool res2 = bit3e ^ bit5e;
 		// when res2 = 0 pass the phase from calculation above (res1);
 		// when res2 = 1 phase = 0x200 | 0x100;
 		if (res2) {
 			phase = 0x300;
 		}
-		chanout[8] += op_calc(phase<<FREQ_SH, env, 0, SLOT8_2.wavetable) * 2;
+		chanout[8] += op_calc(phase, env, 0, SLOT8_2.wavetable) * 2;
 	}
 }
 
@@ -1114,13 +1122,6 @@ void YMF262Impl::init_tables()
 		x = std::min(x, TL_TAB_LEN); // clip to the allowed range
 		sin_tab[7 * SIN_LEN + i] = x;
 	}
-
-	// make fnumber -> increment counter table
-	for (int i = 0; i < 1024; ++i) {
-		// opn phase increment counter = 20bit
-		// -10 because chip works with 10.10 fixed point, while we use 16.16
-		fn_tab[i] = i * 64 * (1 << (FREQ_SH - 10));
-	}
 }
 
 
@@ -1136,7 +1137,7 @@ void YMF262Slot::FM_KEYON(byte key_set)
 {
 	if (!key) {
 		// restart Phase Generator
-		Cnt = 0;
+		Cnt = FreqIndex(0);
 		// phase -> Attack
 		state = EG_ATTACK;
 	}
@@ -1649,10 +1650,9 @@ void YMF262Impl::writeRegForce(int r, byte v, const EmuTime& time)
 		}
 		// update
 		if (ch.block_fnum != block_fnum) {
-			byte block  = block_fnum >> 10;
 			ch.block_fnum = block_fnum;
 			ch.ksl_base = ksl_tab[block_fnum >> 6];
-			ch.fc       = fn_tab[block_fnum & 0x03FF] >> (7 - block);
+			ch.fc       = fnumToIncrement(block_fnum);
 
 			// BLK 2,1,0 bits -> bits 3,2,1 of kcode
 			ch.kcode = (ch.block_fnum & 0x1C00) >> 9;
