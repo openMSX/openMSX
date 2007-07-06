@@ -908,44 +908,27 @@ inline int YMF262Impl::genPhaseHighHat()
 inline int YMF262Impl::genPhaseSnare()
 {
 	// base frequency derived from operator 1 in channel 7
-	bool bit8 = (channels[7].slots[SLOT1].Cnt.toInt()) & 0x100;
-	// when bit8 = 0 phase = 0x100;
-	// when bit8 = 1 phase = 0x200;
-	unsigned phase = bit8 ? 0x200 : 0x100;
-
-	// Noise bit XOR'es phase by 0x100
-	// when noisebit = 0 pass the phase from calculation above
-	// when noisebit = 1 phase ^= 0x100;
-	// in other words: phase ^= (noisebit<<8);
-	if (noise_rng & 1) {
-		phase ^= 0x100;
-	}
-	return phase;
+	// noise bit XOR'es phase by 0x100
+	return ((channels[7].slots[SLOT1].Cnt.toInt() & 0x100) + 0x100)
+	     ^ ((noise_rng & 1) << 8);
 }
 
 inline int YMF262Impl::genPhaseCymbal()
 {
-	// base frequency derived from operator 1 in channel 7
-	int op71phase = channels[7].slots[SLOT1].Cnt.toInt();
-	bool bit7 = op71phase & 0x80;
-	bool bit3 = op71phase & 0x08;
-	bool bit2 = op71phase & 0x04;
-	bool res1 = (bit2 ^ bit7) | bit3;
-	// when res1 = 0 phase = 0x000 | 0x100;
-	// when res1 = 1 phase = 0x200 | 0x100;
-	unsigned phase = res1 ? 0x300 : 0x100;
-
 	// enable gate based on frequency of operator 2 in channel 8
+	//  NOTE: YM2413_2 uses bit5 | bit3, this core uses bit5 ^ bit3
+	//        most likely only one of the two is correct
 	int op82phase = channels[8].slots[SLOT2].Cnt.toInt();
-	bool bit5e= op82phase & 0x20;
-	bool bit3e= op82phase & 0x08;
-	bool res2 = bit3e ^ bit5e;
-	// when res2 = 0 pass the phase from calculation above (res1);
-	// when res2 = 1 phase = 0x200 | 0x100;
-	if (res2) {
-		phase = 0x300;
+	if ((op82phase ^ (op82phase << 2)) & 0x20) { // bit5 ^ bit3
+		return 0x300;
+	} else {
+		// base frequency derived from operator 1 in channel 7
+		int op71phase = channels[7].slots[SLOT1].Cnt.toInt();
+		bool bit7 = op71phase & 0x80;
+		bool bit3 = op71phase & 0x08;
+		bool bit2 = op71phase & 0x04;
+		return ((bit2 ^ bit7) | bit3) ? 0x300 : 0x100;
 	}
-	return phase;
 }
 
 // calculate rhythm
@@ -1157,21 +1140,20 @@ void YMF262Channel::CALC_FCSLOT(YMF262Slot& slot)
 	slot.ksr = ksr;
 
 	// calculate envelope generator rates
-	if ((slot.ar + slot.ksr) < 16+60) {
-		slot.eg_sh_ar  = eg_rate_shift [slot.ar + slot.ksr ];
-		slot.eg_m_ar   = (1 << slot.eg_sh_ar) - 1;
-		slot.eg_sel_ar = eg_rate_select[slot.ar + slot.ksr ];
+	if ((slot.ar + slot.ksr) < 16 + 60) {
+		slot.eg_sh_ar  = eg_rate_shift [slot.ar + slot.ksr];
+		slot.eg_sel_ar = eg_rate_select[slot.ar + slot.ksr];
 	} else {
 		slot.eg_sh_ar  = 0;
-		slot.eg_m_ar   = (1 << slot.eg_sh_ar) - 1;
 		slot.eg_sel_ar = 13 * RATE_STEPS;
 	}
-	slot.eg_sh_dr  = eg_rate_shift [slot.dr + slot.ksr ];
+	slot.eg_m_ar   = (1 << slot.eg_sh_ar) - 1;
+	slot.eg_sh_dr  = eg_rate_shift [slot.dr + slot.ksr];
 	slot.eg_m_dr   = (1 << slot.eg_sh_dr) - 1;
-	slot.eg_sel_dr = eg_rate_select[slot.dr + slot.ksr ];
-	slot.eg_sh_rr  = eg_rate_shift [slot.rr + slot.ksr ];
+	slot.eg_sel_dr = eg_rate_select[slot.dr + slot.ksr];
+	slot.eg_sh_rr  = eg_rate_shift [slot.rr + slot.ksr];
 	slot.eg_m_rr   = (1 << slot.eg_sh_rr) - 1;
-	slot.eg_sel_rr = eg_rate_select[slot.rr + slot.ksr ];
+	slot.eg_sel_rr = eg_rate_select[slot.rr + slot.ksr];
 }
 
 // set multi,am,vib,EG-TYP,KSR,mul
@@ -1294,19 +1276,16 @@ void YMF262Impl::set_ar_dr(byte sl, byte v)
 	YMF262Slot& slot = ch.slots[sl & 1];
 
 	slot.ar = (v >> 4) ? 16 + ((v >> 4) << 2) : 0;
-
 	if ((slot.ar + slot.ksr) < 16 + 60) {
 		// verified on real YMF262 - all 15 x rates take "zero" time
 		slot.eg_sh_ar  = eg_rate_shift [slot.ar + slot.ksr];
-		slot.eg_m_ar   = (1 << slot.eg_sh_ar) - 1;
 		slot.eg_sel_ar = eg_rate_select[slot.ar + slot.ksr];
 	} else {
 		slot.eg_sh_ar  = 0;
-		slot.eg_m_ar   = (1 << slot.eg_sh_ar) - 1;
 		slot.eg_sel_ar = 13 * RATE_STEPS;
 	}
-
-	slot.dr    = (v & 0x0F) ? 16 + ((v & 0x0F) << 2) : 0;
+	slot.eg_m_ar   = (1 << slot.eg_sh_ar) - 1;
+	slot.dr        = (v & 0x0F) ? 16 + ((v & 0x0F) << 2) : 0;
 	slot.eg_sh_dr  = eg_rate_shift [slot.dr + slot.ksr];
 	slot.eg_m_dr   = (1 << slot.eg_sh_dr) - 1;
 	slot.eg_sel_dr = eg_rate_select[slot.dr + slot.ksr];
