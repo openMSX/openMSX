@@ -493,7 +493,7 @@ public:
 	 * Sets the waveform: 0 = sinus, 1 = half sinus, half silence.
 	 */
 	void setWaveform(byte value) {
-		wavetable = value * SIN_LEN;
+		wavetable = &sin_tab[value * SIN_LEN];
 	}
 
 	/**
@@ -555,7 +555,7 @@ private:
 	FreqIndex phase;	// frequency counter
 	FreqIndex freq;	// frequency counter step
 
-	int wavetable;	// waveform select
+	unsigned* wavetable;	// waveform select
 
 	// Envelope Generator
 	int TL;		// total level: TL << 2
@@ -997,7 +997,7 @@ inline void Global::advance()
 inline int Slot::calcOutput(int phase) const
 {
 	const int env = (TLL + volume + (global->get_LFO_AM() & AMmask)) << 5;
-	const int p = env + sin_tab[wavetable + (phase & SIN_MASK)];
+	const int p = env + wavetable[phase & SIN_MASK];
 	return p < TL_TAB_LEN ? tl_tab[p] : 0;
 }
 
@@ -1182,7 +1182,8 @@ Slot::Slot()
 	eg_sel_dr = eg_sh_rr = eg_sel_rr = eg_sh_rs = eg_sel_rs = 0;
 	eg_sustain = false;
 	state = EG_OFF;
-	key = AMmask = vib = wavetable = 0;
+	key = AMmask = vib = 0;
+	wavetable = &sin_tab[0 * SIN_LEN];
 }
 
 void Slot::init(Global& global, Channel& channel)
@@ -1193,7 +1194,7 @@ void Slot::init(Global& global, Channel& channel)
 
 void Slot::resetOperators()
 {
-	wavetable = 0;
+	wavetable = &sin_tab[0 * SIN_LEN];
 	state     = EG_OFF;
 	volume    = MAX_ATT_INDEX;
 }

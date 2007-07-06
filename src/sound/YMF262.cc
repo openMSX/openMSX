@@ -109,7 +109,7 @@ public:
 	int volume;	// envelope counter
 	int sl;		// sustain level: sl_tab[SL]
 
-	unsigned wavetable; // waveform select
+	unsigned* wavetable; // waveform select
 
 	unsigned eg_m_ar;// (attack state)
 	unsigned eg_m_dr;// (decay state)
@@ -207,7 +207,7 @@ private:
 	inline int genPhaseSnare();
 	inline int genPhaseCymbal();
 
-	void chan_calc_rhythm(bool noise);
+	void chan_calc_rhythm();
 	void set_mul(byte sl, byte v);
 	void set_ksl_tl(byte sl, byte v);
 	void set_ar_dr(byte sl, byte v);
@@ -599,7 +599,8 @@ YMF262Slot::YMF262Slot()
 	state = EG_OFF;
 	eg_m_ar = eg_sh_ar = eg_sel_ar = eg_m_dr = eg_sh_dr = 0;
 	eg_sel_dr = eg_m_rr = eg_sh_rr = eg_sel_rr = 0;
-	key = AMmask = waveform_number = wavetable = 0;
+	key = AMmask = waveform_number = 0;
+	wavetable = &sin_tab[0 * SIN_LEN];
 }
 
 YMF262Channel::YMF262Channel()
@@ -791,7 +792,7 @@ void YMF262Impl::advance()
 inline int YMF262Slot::op_calc(unsigned phase, int pm, byte LFO_AM)
 {
 	unsigned env = (TLL + volume + (LFO_AM & AMmask)) << 4;
-	int p = env + sin_tab[wavetable + ((phase + pm) & SIN_MASK)];
+	int p = env + wavetable[(phase + pm) & SIN_MASK];
 	return (p < TL_TAB_LEN) ? tl_tab[p] : 0;
 }
 
@@ -948,7 +949,7 @@ inline int YMF262Impl::genPhaseCymbal()
 }
 
 // calculate rhythm
-void YMF262Impl::chan_calc_rhythm(bool noise)
+void YMF262Impl::chan_calc_rhythm()
 {
 	YMF262Slot& SLOT6_1 = channels[6].slots[SLOT1];
 	YMF262Slot& SLOT6_2 = channels[6].slots[SLOT2];
@@ -1885,7 +1886,7 @@ void YMF262Impl::writeRegForce(int r, byte v, const EmuTime& time)
 		if (!OPL3_mode) {
 			v &= 3;
 		}
-		ch.slots[slot & 1].wavetable = v * SIN_LEN;
+		ch.slots[slot & 1].wavetable = &sin_tab[v * SIN_LEN];
 		break;
 	}
 	}
@@ -2044,7 +2045,7 @@ void YMF262Impl::generateChannels(int** bufs, unsigned num)
 			channels[8].chan_calc(LFO_AM);
 		} else {
 			// Rhythm part
-			chan_calc_rhythm(noise_rng & 1);
+			chan_calc_rhythm();
 		}
 
 		// register set #2
