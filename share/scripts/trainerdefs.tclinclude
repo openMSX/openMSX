@@ -317,7 +317,7 @@ create_trainer "Golvellius" {time 1} {
 	"max gold" {poke 0xe050 255;poke 0xe051 255}
 	"do not get paralyzed when hit by an enemy (after frame)" {poke 0xd01a 0}
 	"get all crystals (bitmask)" {poke 0xe05f 255}
-	"open all holes" {poke 0xe096 1}
+	"open all holes" {poke 0xe096 1;}
 }
 
 create_trainer "Goonies" {time 1} {
@@ -630,6 +630,16 @@ create_trainer "SD-Snatcher" {time 1} {
 	"max strength level" {poke 0xce84 64}
 	"max deference level" {poke 0xce87 64}
 	"max speed level" {poke 0xce8a 64}
+	"Red Spider" {poke 0xC468 1;poke 0xC469 1;}
+	"3D Goggles" {poke 0xC470 1;poke 0xC471 1;}
+	"Mars Coupon" {poke 0xC478 1;poke 0xC479 1;}
+	"Movie Ticket" {poke 0xC480 1;poke 0xC481 1;}
+	"Card" {poke 0xC488 1;poke 0xC489 1;}
+	"Lingu Disk" {poke 0xC490 1;poke 0xC491 1;}
+	"Master Key" {poke 0xC498 1;poke 0xC499 1;}
+	"Blue Spider" {poke 0xC4A0 1;poke 0xC4A1 1;}
+	"VIP Card" {poke 0xC4A8 1;poke 0xC4A9 1;}
+	"L. Angel" {poke 0xC4B0 1;poke 0xC4B1 1;}
 	"walk trough walls on" {poke 0x92b6 0xc9}
 	"walk trough walls off" {poke 0x92b6 0}
 }
@@ -942,7 +952,6 @@ create_trainer "Maze of Galious" {time 1} {
 	"world 10 location Right Tower" {poke 0xe06e 1;poke 0xe06d 0x01}
 	"world 10 location Left Tower" {poke 0xe06e 2;poke 0xe06d 0x01}
 	"world 10 location at Start" {poke 0xe06e 3;poke 0xe06d 0x01}
-
 	"world 1 items" {poke 0xe063 0xf0}
 	"world 2 items" {poke 0xe064 0xf0}
 	"world 3 items" {poke 0xe065 0xf0}
@@ -978,7 +987,6 @@ create_trainer "Vampire Killer" {time 1} {
 	"x-pos enemy 2" {poke 0xc885 128}
 	"strengt enemys 1" {poke 0xc80d 1}
 	"strengt enemys 2" {poke 0xc88d 1}	
-
 }
 
 create_trainer "Super Laydock Mission Striker" {time 2} {
@@ -2434,10 +2442,32 @@ create_trainer "Corsarios 2" {time 1} {
 	"power" {poke 0x979b 9}
 }
 
-create_trainer "Green Beret" {time 1} {
+create_trainer "Green Beret" {time 0.1} {
 	"lives" {poke 0xf120 57}
 	"have bazooka" {poke 0xf0c3 4}
+	"Enemy 1 gone" {poke 0xf1f5 0}
+	"Enemy 2 gone" {poke 0xf20d 0}
+	"Enemy 3 gone" {poke 0xf225 0}
+	"Bullet gone " {poke 0xf156 255}
+	"Mines Gone" {poke 0xdfc2 254}
+	"Mines Gone" {poke 0xdfc6 254}
+	"Mines Gone" {poke 0xdfca 254}
+	"Mines Gone" {poke 0xdff2 254}
+	"Mines Gone" {poke 0xdff6 254}
+	"Mines Gone" {poke 0xdffa 254}
+	"Mines Gone" {poke 0xee5e 254}
+	"Mines Gone" {poke 0xee62 254}
+	"Mines Gone" {poke 0xee66 254}
+	"Mines Gone" {poke 0xee8e 254}
+	"Mines Gone" {poke 0xee92 254}
+	"Mines Gone" {poke 0xee96 254}
+	"Mines Gone" {poke 0xe022 254}
+	"Mines Gone" {poke 0xe026 254}
+	"Mines Gone" {poke 0xe02a 254}
+	"Mines Gone" {poke 0xe02e 254}
 }
+#0xf0df 3
+#0xf0e0 1
 
 create_trainer "Disc Warrior" {time 1} {
 	"power" {poke 0x8513 255}
@@ -3789,9 +3819,7 @@ create_trainer "Devil Zone" {time 1} {
 	"Have Green Ring" {poke 0xd65a 1}
 	"Full Time" {poke 0xd64d 0x99;poke 0xd64c 0x99}
 	"lives" {poke 0xd651 0x99}
-
 }
-
 create trainer "Word Invaders" {time 1} {
 "solve all words" {
 			set whole_page ""
