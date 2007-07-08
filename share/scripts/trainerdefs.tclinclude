@@ -1705,11 +1705,6 @@ create_trainer "Gall Force" {time 2} {
 	"all galls" {poke 0xc447 255;poke 0xcb12 7}
 }
 
-create_trainer "Beamrider" {time 5} {
-	"unlimited bombs" {poke 0xe22c 99}
-	"lives" {poke 0xe223 12}
-}
-
 create_trainer "Happy Fret" {time 1} {
 	"unlimited power" {poke 0xbea0 41}
 }
@@ -1724,11 +1719,6 @@ create_trainer "HERO" {time 5} {
 	"unlimited power/time" {poke 0xc174 100}
 	"unlimited bombs" {poke 0xc032 3}
 	"unlimited lives" {poke 0xc031 4}
-}
-
-create_trainer "Past Finder" {time 10} {
-	"keep radiation low" {poke 0xe126 1}
-	"lives" {poke 0xe004 10}
 }
 
 create_trainer "Terramex" {time 10} {
@@ -1961,7 +1951,7 @@ create_trainer "Arkanoid" {time 0.1} {
 	"round (0-32)" {#poke 0xe01b 0}
 }
 
-create_trainer "Arkanoid 2" {time 0.1} { 
+create_trainer "Arkanoid 2" {time 0.1} {
 	"prevent ball from going over the edge" {if {[peek 0xc020] >183} {poke 0xc020 0}}
 	"ball always above bat" {poke 0xc021 [peek 0xc786]}
 	"round (right:0-34;left:128-162)" {poke 0xc780 0}
@@ -2459,7 +2449,7 @@ create_trainer "Knightlore" {time 1} {
 }
 
 create_trainer "Pitfall 2" {time 1} {
-	"power (89abcd)" {poke 0xe058 9;poke 0xe059 9;poke 0xe05a 9;poke 0xe05b 9;poke 0xe05c 9;poke 0xe05d 9}
+	"power" {poke 0xe058 9;poke 0xe059 9;poke 0xe05a 9;poke 0xe05b 9;poke 0xe05c 9;poke 0xe05d 9}
 }
 
 create_trainer "Predator" {time 1} {
@@ -2813,11 +2803,11 @@ create_trainer "Dr Archie" {time 1} {
 }
 
 create_trainer "Ghostbusters" {time 0.10} {
-	"lives" {poke 0xefa8 0x99;poke 0xefa9 0x99}
-	"tries to get past the marsh mellow man" {poke 0xf13a 255}
-	"fast time" {poke 0xefe9 0x99}
+	"credit" {poke 0xefa8 0x99;poke 0xefa9 0x99}
+	"city pk energy" {poke 0xefe9 0x99}
 	"ghost x-position" {poke 0xf0ed 128}
 	"ghost y-position" {poke 0xf0ee 160}
+	"tries to get past the marshmallow man" {poke 0xf13a 255}
 }
 
 create_trainer "Replicart" {time 1} {
@@ -3144,18 +3134,18 @@ create_trainer "Grog's Revenge" {time 30} {
 }
 
 create_trainer "Actman" {time 1} {
-	"lives player 1" {poke 0xe2a7 6}
-	"lives player 2" {poke 0xe2a8 6}
-	"viewing mode" {poke 0xe2a9 8}
 	"sword" {poke 0xe1b4 1}
 	"axe" {poke 0xe1b4 2}
+	"bonus infinite time" {poke 0xe1e9 20}
 	"only one bear" {poke 0xe247 1}
 	"only one bird" {poke 0xe248 1}
 	"only one fish" {poke 0xe249 1}
 	"only one red monster" {poke 0xe24a 1}
 	"only one snake" {poke 0xe24b 1}
 	"only one blue monster" {poke 0xe24c 1}
-	"bonus infinite time" {poke 0xe1e9 20}
+	"lives player 1" {poke 0xe2a7 6}
+	"lives player 2" {poke 0xe2a8 6}
+	"viewing mode" {poke 0xe2a9 8}
 }
 
 create_trainer "Shout Match" {time 1} {
@@ -3295,11 +3285,6 @@ create_trainer "Deep Dungeon 2" {time 1} {
 	"max ac" {poke 0xc182 255}
 	"max ag" {poke 0xc184 255}
 	"max luck" {poke 0xc189 255}
-}
-
-create_trainer "Nsub" {time 1} {
-	"lives" {poke 0xc13b 3}
-	"round (0-99)" {#poke 0xc142 1}
 }
 
 create_trainer "Kobashi" {time 1} {
@@ -3789,7 +3774,7 @@ create_trainer "Haunted House" {time 1} {
 	"lives" {poke 0x4028 6}
 	"time" {poke 0x402c 0x9;poke 0x402d 0x9;poke 0x402e 0x9}
 	"keys" {poke 0x747e 3;poke 0x7484 1}
-	"shoots (f1)" {poke 0x747f 4;poke 0x7487 1}
+	"shots (f1)" {poke 0x747f 4;poke 0x7487 1}
 	"candle" {poke 0x7480 1;poke 0x748a 1}
 	"mirror" {poke 0x7481 1;poke 0x748d 1}
 	"cross" {poke 0x7482 1;poke 0x7490 1}
@@ -3933,7 +3918,7 @@ create_trainer "Blagger" {time 1} {
 	"air" {poke 0x9a85 255}
 }
 
-create_trainer "Chuckie Egg" {time 1} { 
+create_trainer "Chuckie Egg" {time 1} {
 	"only one egg is required" {poke 0xb216 1}
 	"lives" {poke 0xb21d 7}
 	"level (1-99;0)" {poke 0xb222 1}
@@ -4326,6 +4311,12 @@ create_trainer "Vortex Raider" {time 1} {
 	"enemy cant shoot" {poke 0x4241 1}
 }
 
+create_trainer "Star Wars" {time 1} {
+	"left base ammo" {poke 0x5bd8 10}
+	"middle base ammo" {poke 0x5bd9 10}
+	"right base ammo" {poke 0x5bda 10}
+}
+
 create_trainer "Astro Marine Corps 1" {time 1} { 
 	"mega ammo" {poke 0x469f 255}
 	"triple shoot" {poke 0x46ab 255;poke 0x46b7 255;poke 0x46c3 255}
@@ -4445,6 +4436,11 @@ create_trainer "Alcazar" {frame} {
 create_trainer "Power Drift" {time 1} { 
 	"credits" {poke 0xe431 9}
 	"always qualify" {poke 0xe434 2;poke 0xe435 0}
+}
+
+create_trainer "N-Sub" {time 1} {
+	"lives" {poke 0xc13b 3}
+	"round (0-99)" {poke 0xc142 1}
 }
 
 ### EOF ###
