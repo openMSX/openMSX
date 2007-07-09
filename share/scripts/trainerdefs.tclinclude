@@ -318,6 +318,7 @@ create_trainer "Golvellius" {time 1} {
 	"do not get paralyzed when hit by an enemy (after frame)" {poke 0xd01a 0}
 	"get all crystals (bitmask)" {poke 0xe05f 255}
 	"open all holes" {poke 0xe096 1}
+	"exit any cave to see ending" {poke 0xe01e 255}
 }
 
 create_trainer "Goonies" {time 1} {
@@ -4442,5 +4443,40 @@ create_trainer "N-Sub" {time 1} {
 	"lives" {poke 0xc13b 3}
 	"round (0-99)" {poke 0xc142 1}
 }
+
+create_trainer "Legend of Kage" {time 1} {
+	"lives" {poke 0xc03b 9}
+}
+
+create_trainer "Zenji" {time 1} {
+	"time (deactivate @ round end)" {poke 0xe192 0x30}
+}
+
+create_trainer "Megalopolis" {time 1} {
+	"Lives" {poke 0xe109 0}
+	"Max Defense NYC" {poke 0xe110 0}
+	"Max Defense LON" {poke 0xe111 0}
+	"Max Defense TKY" {poke 0xe112 0}
+	"Max Defense MOW" {poke 0xe113 0}
+	"Max Defense PEK" {poke 0xe114 0}
+	"Max Defense PAR" {poke 0xe115 0}
+}
+
+create_trainer "Tawarakun" {time 0.1} {
+	"flame 1" {poke 0xe0ff 255}
+	"flame 2" {poke 0xe110 255}
+	"flame 3" {poke 0xe121 255}
+	"Oxygen Level" {poke 0xe02e 32}
+	"Lives" {poke 0xe12f 5}
+}
+
+create_trainer "Scion" {time 1} {
+	"Lives" {poke 0xe044 0x10}
+	"Extension" {poke 0xe100 1}
+}
+
+create_trainer "Captain Chef" {time 1} {
+	"Chefs" {poke 0xcb15 10}
+} 
 
 ### EOF ###
