@@ -2,6 +2,7 @@
 
 #include "XMLLoader.hh"
 #include "XMLElement.hh"
+#include <libxml/xmlversion.h>
 
 using std::auto_ptr;
 using std::string;
@@ -20,7 +21,11 @@ XMLException::XMLException(const string& msg)
 auto_ptr<XMLElement> XMLLoader::loadXML(const string& filename,
                                         const string& systemID)
 {
+#if LIBXML_VERSION < 20600
+	xmlDocPtr doc = xmlParseFile(filename.c_str());
+#else
 	xmlDocPtr doc = xmlReadFile(filename.c_str(), NULL, 0);
+#endif
 	if (!doc) {
 		throw XMLException(filename + ": Document parsing failed");
 	}
