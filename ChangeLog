@@ -1,5 +1,16 @@
 $Id$
 
+2007-07-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented 'Super Lode Runner' mapper:
+	   This mapper is special because it ignores the SLOT-SELECT signal;
+	   it reacts to writes to address 0x0000 in _any_ slot. This violates
+	   the MSX standard.
+	   For a long time we didn't implement this mapper because it would
+	   add a (small?) performance hit on all memory writes.
+	   However, now, since we implemented the watchpoint infrastructure,
+	   the mapper can be implemented without any performance impact (no
+	   performance impact if the mapper is not inserted).
+
 2007-07-05 Maarten ter Huurne <maarten@treewalker.org>
 	* Added vibrato effect for PSG.
 	  You can control it with the settings "PSG_vibrato_percent" and

@@ -155,6 +155,17 @@ public:
 	 */
 	virtual byte peekMem(word address, const EmuTime& time) const;
 
+	/** Global writes.
+	  * Some devices violate the MSX standard by ignoring the SLOT-SELECT
+	  * signal; they react to writes to a certain address in _any_ slot.
+	  * Luckily the only known example so far is 'Super Lode Runner'.
+	  * This method is triggered for such 'global' writes.
+	  * You need to register each address for which you want this method
+	  * to be triggered.
+	  */
+	virtual void globalWrite(word address, byte value, const EmuTime& time);
+
+
 	/** Get the mother board this device belongs to
 	  */
 	MSXMotherBoard& getMotherBoard() const { return motherBoard; }

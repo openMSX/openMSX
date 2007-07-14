@@ -20,7 +20,7 @@ SRC_HDR:= \
 	RomHydlide2 RomRType RomCrossBlaim RomHarryFox \
 	RomGameMaster2 RomMajutsushi RomSynthesizer \
 	RomKorean80in1 RomKorean90in1 RomKorean126in1 \
-	RomPanasonic RomNational \
+	RomPanasonic RomNational RomSuperLodeRunner \
 	RomMSXAudio RomHalnote RomHolyQuran \
 	RomFSA1FM RomPlayBall \
 	PanasonicMemory PanasonicRam \

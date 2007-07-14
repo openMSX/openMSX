@@ -64,6 +64,12 @@ public:
 	void unregisterMemDevice(MSXDevice& device,
 	                         int primSl, int secSL, int base, int size);
 
+	/** (Un)register global writes.
+	  * @see MSXDevice::globalWrite()
+	  */
+	void   registerGlobalWrite(MSXDevice& device, word address);
+	void unregisterGlobalWrite(MSXDevice& device, word address);
+
 	/**
 	 * Reset (the slot state)
 	 */
@@ -249,6 +255,17 @@ private:
 	bool allowWriteCache[CacheLine::NUM];
 	std::bitset<CacheLine::SIZE> readWatchSet [CacheLine::NUM];
 	std::bitset<CacheLine::SIZE> writeWatchSet[CacheLine::NUM];
+
+	struct GlobalWriteInfo {
+		MSXDevice* device;
+		word addr;
+		bool operator==(const GlobalWriteInfo& rhs) {
+			return (device == rhs.device) &&
+			       (addr   == rhs.addr);
+		}
+	};
+	typedef std::vector<GlobalWriteInfo> GlobalWrites;
+	GlobalWrites globalWrites;
 };
 
 class TurborCPUInterface : public MSXCPUInterface

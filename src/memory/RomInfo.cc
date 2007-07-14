@@ -51,6 +51,7 @@ static const RomTypeMap& getRomTypeMap()
 		romTypeMap["HolyQuran"]      = ROM_HOLY_QURAN;
 		romTypeMap["Padial8"]        = ROM_PADIAL8;
 		romTypeMap["Padial16"]       = ROM_PADIAL16;
+		romTypeMap["SuperLodeRunner"]= ROM_SUPERLODERUNNER;
 
 		// ROM mapper types used for system ROMs in machines
 		romTypeMap["Panasonic"]      = ROM_PANASONIC;

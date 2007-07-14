@@ -219,10 +219,13 @@ void MSXCPUInterface::removeAllWatchPoints()
 
 byte MSXCPUInterface::readMemSlow(word address, const EmuTime& time)
 {
-	// execute read watches before actual read
-	if (unlikely(readWatchSet[address >> CacheLine::BITS]
-	                         [address &  CacheLine::LOW])) {
-		executeMemWatch(address, WatchPoint::READ_MEM);
+	// something special in this region?
+	if (unlikely(!allowReadCache[address >> CacheLine::BITS])) {
+		// execute read watches before actual read
+		if (readWatchSet[address >> CacheLine::BITS]
+		                [address &  CacheLine::LOW]) {
+			executeMemWatch(address, WatchPoint::READ_MEM);
+		}
 	}
 	if (unlikely((address == 0xFFFF) && isExpanded(primarySlotState[3]))) {
 		return 0xFF ^ subSlotRegister[primarySlotState[3]];
@@ -238,10 +241,22 @@ void MSXCPUInterface::writeMemSlow(word address, byte value, const EmuTime& time
 	} else {
 		visibleDevices[address>>14]->writeMem(address, value, time);
 	}
-	// execute write watches after actual write
-	if (unlikely(writeWatchSet[address >> CacheLine::BITS]
-	                          [address &  CacheLine::LOW])) {
-		executeMemWatch(address, WatchPoint::WRITE_MEM);
+	// something special in this region?
+	if (unlikely(!allowWriteCache[address >> CacheLine::BITS])) {
+		// slot-select-ignore writes (Super Lode Runner)
+		for (GlobalWrites::const_iterator it = globalWrites.begin();
+		     it != globalWrites.end(); ++it) {
+			// very primitive address selection mechanism,
+			// but more than enough for now
+			if (unlikely(it->addr == address)) {
+				it->device->globalWrite(address, value, time);
+			}
+		}
+		// execute write watches after actual write
+		if (writeWatchSet[address >> CacheLine::BITS]
+		                 [address &  CacheLine::LOW]) {
+			executeMemWatch(address, WatchPoint::WRITE_MEM);
+		}
 	}
 }
 
@@ -256,6 +271,10 @@ void MSXCPUInterface::setAllowedCache()
 	for (unsigned i = 0; i < CacheLine::NUM; ++i) {
 		if (readWatchSet [i].any()) allowReadCache [i] = false;
 		if (writeWatchSet[i].any()) allowWriteCache[i] = false;
+	}
+	for (GlobalWrites::const_iterator it = globalWrites.begin();
+	     it != globalWrites.end(); ++it) {
+		allowWriteCache[it->addr >> CacheLine::BITS] = false;
 	}
 }
 
@@ -486,6 +505,23 @@ void MSXCPUInterface::unregisterMemDevice(
 		base += partialSize;
 		size -= partialSize;
 	}
+}
+
+void MSXCPUInterface::registerGlobalWrite(MSXDevice& device, word address)
+{
+	GlobalWriteInfo info = { &device, address };
+	globalWrites.push_back(info);
+	setAllowedCache();
+}
+
+void MSXCPUInterface::unregisterGlobalWrite(MSXDevice& device, word address)
+{
+	GlobalWriteInfo info = { &device, address };
+	GlobalWrites::iterator it =
+		find(globalWrites.begin(), globalWrites.end(), info);
+	assert(it != globalWrites.end());
+	globalWrites.erase(it);
+	setAllowedCache();
 }
 
 void MSXCPUInterface::updateVisible(int page)

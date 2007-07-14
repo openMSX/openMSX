@@ -28,6 +28,7 @@ enum RomType {
 	ROM_DRAM         = 19,
 	ROM_PADIAL8      = 20,
 	ROM_PADIAL16     = 21,
+	ROM_SUPERLODERUNNER = 22,
 
 	ROM_PAGE0        = 32 + 1,
 	ROM_PAGE1        = 32 + 2,

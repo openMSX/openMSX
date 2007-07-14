@@ -19481,9 +19481,6 @@
 			<megarom>
 				<type>SuperLodeRunner</type>
 				<hash algo="sha1">4164dcdfe0613d0f4c53b6f3581548bbbad5eb43</hash>
-				<remark>
-					<text>Doesn&#39;t work correctly in open MSX yet</text>
-				</remark>
 			</megarom>
 		</dump>
 	</software>

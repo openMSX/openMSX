@@ -357,6 +357,12 @@ byte MSXDevice::peekMem(word address, const EmuTime& /*time*/) const
 	}
 }
 
+void MSXDevice::globalWrite(word /*address*/, byte /*value*/,
+                            const EmuTime& /*time*/)
+{
+	assert(false);
+}
+
 byte* MSXDevice::getWriteCacheLine(word /*start*/) const
 {
 	return NULL;	// uncacheable
