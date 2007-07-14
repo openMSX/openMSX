@@ -8,7 +8,7 @@
 	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
-<softwaredb xml:lang="en" timestamp="1182597110">
+<softwaredb xml:lang="en" timestamp="1184426503">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -526,7 +526,7 @@
 		<dump>
 			<original value="false"/>
 			<megarom>
-				<type>GenericKonami</type>
+				<type>KonamiSCC</type>
 				<hash algo="sha1">db33011d006201b3bd3bbc4c7c952da2990f36e4</hash>
 			</megarom>
 		</dump>
@@ -5978,7 +5978,7 @@
 		<system>MSX</system>
 		<company>Konami</company>
 		<year>1986</year>
-		<country>JP</country>
+		<country>GB</country>
 		<dump>
 			<original value="false"/>
 			<rom>
@@ -13589,7 +13589,7 @@
 		<dump>
 			<original value="false"/>
 			<megarom>
-				<type>GenericKonami</type>
+				<type>Konami</type>
 				<hash algo="sha1">1d129bde09c9db2433b334d36762704de94983ba</hash>
 			</megarom>
 		</dump>
@@ -14269,7 +14269,7 @@
 		<dump>
 			<original value="true">GoodMSX</original>
 			<megarom>
-				<type>SuperPierrot</type>
+				<type>ASCII16</type>
 				<hash algo="sha1">0d2f86dbb70f4b4a4e4dc1bc95df232f48856037</hash>
 				<remark>
 					<text>MSX1 Mode</text>
@@ -16441,14 +16441,14 @@
 		<dump>
 			<original value="false"/>
 			<megarom>
-				<type>GenericKonami</type>
+				<type>KonamiSCC</type>
 				<hash algo="sha1">9e790499af6916f82809e35d68cc159efe580f99</hash>
 			</megarom>
 		</dump>
 		<dump>
 			<original value="false"/>
 			<megarom>
-				<type>GenericKonami</type>
+				<type>Konami</type>
 				<hash algo="sha1">c843b8b0e5ed98d3bae68e701fb709ea178ed968</hash>
 			</megarom>
 		</dump>
@@ -16552,7 +16552,7 @@
 		<dump>
 			<original value="false"/>
 			<megarom>
-				<type>GenericKonami</type>
+				<type>Konami</type>
 				<hash algo="sha1">a8eeac428a5992a2390b1827db1358f4c733e200</hash>
 			</megarom>
 		</dump>
@@ -16945,7 +16945,7 @@
 		<dump>
 			<original value="false"/>
 			<megarom>
-				<type>GenericKonami</type>
+				<type>KonamiSCC</type>
 				<hash algo="sha1">27f9144fb24b434f7a75737aa694283084782766</hash>
 			</megarom>
 		</dump>
@@ -17363,7 +17363,7 @@
 		<dump>
 			<original value="false"/>
 			<megarom>
-				<type>GenericKonami</type>
+				<type>Konami</type>
 				<hash algo="sha1">02cfc41132d518e2b9fc632ec6ad00656bd9ec92</hash>
 			</megarom>
 		</dump>
@@ -18090,7 +18090,7 @@
 		<dump>
 			<original value="false"/>
 			<megarom>
-				<type>GenericKonami</type>
+				<type>Konami</type>
 				<hash algo="sha1">a5963fa6c95fbe34482862b0f7221b7766e3a194</hash>
 			</megarom>
 		</dump>
@@ -19271,7 +19271,7 @@
 		<dump>
 			<original value="false"/>
 			<megarom>
-				<type>GenericKonami</type>
+				<type>Konami</type>
 				<hash algo="sha1">a5f3ada0610ad32f59d2f114167612d4f62bec4e</hash>
 			</megarom>
 		</dump>
@@ -19664,7 +19664,7 @@
 		<dump>
 			<original value="false"/>
 			<megarom>
-				<type>GenericKonami</type>
+				<type>Konami</type>
 				<hash algo="sha1">2300aa82bfcbcf95329eb04e58bcd7e4ca0a7889</hash>
 			</megarom>
 		</dump>
@@ -23990,9 +23990,9 @@
 	</software>
 </softwaredb>
 <!--
-Roms in this database : 2243
+Roms in this database : 2242
 Good MSX entries 		: 755
-SHA1 values 			: 2243
+SHA1 values 			: 2242
 CRC32 values 			: 0
-Parse time 7.050 seconds on Sat Jun 23 13:11:57 CEST 2007
+Parse time 7.952 seconds on Sat Jul 14 17:21:51 CEST 2007
  -->
