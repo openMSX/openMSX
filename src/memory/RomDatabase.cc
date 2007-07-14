@@ -26,7 +26,8 @@ namespace openmsx {
 
 typedef map<string, RomInfo*, StringOp::caseless> DBMap;
 static DBMap romDBSHA1;
-
+typedef map<string, unsigned> UnknownTypes;
+UnknownTypes unknownTypes;
 
 RomDatabase::RomDatabase()
 {
@@ -92,9 +93,13 @@ static void parseEntry(GlobalCliComm& cliComm,
 		if ((*it2)->getAttribute("algo") != "sha1") {
 			continue;
 		}
+		RomType romType = RomInfo::nameToRomType(type);
+		if (romType == ROM_UNKNOWN) {
+			unknownTypes[type]++;
+		}
 		auto_ptr<RomInfo> romInfo(new RomInfo(
 			title, year, company, country, original, origType,
-			remark, RomInfo::nameToRomType(type)));
+			remark, romType));
 		string sha1 = (*it2)->getData();
 		addEntry(cliComm, romInfo, sha1, result);
 	}
@@ -226,8 +231,17 @@ static void initDatabase(GlobalCliComm& cliComm)
 	}
 	if (romDBSHA1.empty()) {
 		cliComm.printWarning(
-			"Couldn't load rom database.\n"
-			"Romtype detection might fail because of this.");
+			"Couldn't load software database.\n"
+			"This may cause incorrect ROM mapper types to be used.");
+	}
+	if (!unknownTypes.empty()) {
+		string output = "Unknown mapper types in software database: ";
+		for (UnknownTypes::iterator it = unknownTypes.begin();
+		     it != unknownTypes.end(); ++it) {
+			output += it->first +
+			       " (" + StringOp::toString(it->second) + "x); ";
+		}
+		cliComm.printWarning(output);
 	}
 }
 
