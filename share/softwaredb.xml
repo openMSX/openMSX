@@ -8,7 +8,7 @@
 	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
-<softwaredb xml:lang="en" timestamp="1184426503">
+<softwaredb xml:lang="en" timestamp="1184514547">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -7945,21 +7945,7 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">King&#39;s Valley 2 - MSX1 Version</title>
-		<system>MSX</system>
-		<company>Konami</company>
-		<year>1988</year>
-		<country>JP</country>
-		<dump>
-			<original value="true">GoodMSX</original>
-			<megarom>
-				<type>KonamiSCC</type>
-				<hash algo="sha1">cfd872d005b7bd4cdd6e06c4c0162191f0b0415d</hash>
-			</megarom>
-		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">King&#39;s Valley 2 - The Seal Of El Giza - MSX1 Version (Needs SCC in slot 2</title>
+		<title xml:lang="en">King&#39;s Valley 2 - The Seal Of El Giza - MSX1 Version</title>
 		<system>MSX</system>
 		<company>Konami</company>
 		<year>1988</year>
@@ -7969,6 +7955,16 @@
 			<megarom>
 				<type>ASCII8</type>
 				<hash algo="sha1">f3306e6f25d111da21ce66db3404f5f48acb25a1</hash>
+				<remark>
+					<text>Needs SCC in slot 2</text>
+				</remark>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="true">GoodMSX</original>
+			<megarom>
+				<type>KonamiSCC</type>
+				<hash algo="sha1">cfd872d005b7bd4cdd6e06c4c0162191f0b0415d</hash>
 			</megarom>
 		</dump>
 	</software>
@@ -12582,27 +12578,6 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Sangokusi - Romance Of Three Kingdoms - MSX1 Version</title>
-		<system>MSX</system>
-		<company>Koei</company>
-		<year>1986</year>
-		<country>JP</country>
-		<dump>
-			<original value="false"/>
-			<megarom>
-				<type>Konami</type>
-				<hash algo="sha1">96e2a7163c755fbea77abfd9d09a798687a5a993</hash>
-			</megarom>
-		</dump>
-		<dump>
-			<original value="false"/>
-			<megarom>
-				<type>Konami</type>
-				<hash algo="sha1">7ad40ae512bbf4ba688467ba23e16354b8421d0a</hash>
-			</megarom>
-		</dump>
-	</software>
-	<software>
 		<title xml:lang="en">Sangokusi 1 - Romance Of Three Kingdoms - MSX1 Version</title>
 		<system>MSX</system>
 		<company>Koei</company>
@@ -12620,6 +12595,20 @@
 			<megarom>
 				<type>KoeiSRAM32</type>
 				<hash algo="sha1">3f741ba2ab08c5e9fb658882b36b8e3d01682f58</hash>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Konami</type>
+				<hash algo="sha1">96e2a7163c755fbea77abfd9d09a798687a5a993</hash>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Konami</type>
+				<hash algo="sha1">7ad40ae512bbf4ba688467ba23e16354b8421d0a</hash>
 			</megarom>
 		</dump>
 	</software>
@@ -17812,20 +17801,6 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Hydlide 3 - The Space Memories - MSX2 Version</title>
-		<system>MSX</system>
-		<company>Zemina</company>
-		<year>1987</year>
-		<country>KR</country>
-		<dump>
-			<original value="false"/>
-			<megarom>
-				<type>GenericKonami</type>
-				<hash algo="sha1">5d2062ecc7176ca2b100724c2a17f877878d721d</hash>
-			</megarom>
-		</dump>
-	</software>
-	<software>
 		<title xml:lang="en">Hydlide 3 - The Space Memories MSX2 Version</title>
 		<system>MSX</system>
 		<company>T&#38;E Soft</company>
@@ -17836,6 +17811,13 @@
 			<megarom>
 				<type>ASCII8</type>
 				<hash algo="sha1">f182d4785e3eed00292f7ff4795c9dcc6c990a0a</hash>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>GenericKonami</type>
+				<hash algo="sha1">5d2062ecc7176ca2b100724c2a17f877878d721d</hash>
 			</megarom>
 		</dump>
 	</software>
@@ -23994,5 +23976,5 @@ Roms in this database : 2242
 Good MSX entries 		: 755
 SHA1 values 			: 2242
 CRC32 values 			: 0
-Parse time 7.952 seconds on Sat Jul 14 17:21:51 CEST 2007
+Parse time 7.077 seconds on Sun Jul 15 17:49:15 CEST 2007
  -->
