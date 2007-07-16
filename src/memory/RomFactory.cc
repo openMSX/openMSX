@@ -17,6 +17,7 @@
 #include "RomPadial8kB.hh"
 #include "RomPadial16kB.hh"
 #include "RomSuperLodeRunner.hh"
+#include "RomMSXDOS2.hh"
 #include "RomHydlide2.hh"
 #include "RomRType.hh"
 #include "RomCrossBlaim.hh"
@@ -237,6 +238,9 @@ auto_ptr<MSXDevice> RomFactory::create(
 	case ROM_SUPERLODERUNNER:
 		return auto_ptr<MSXDevice>(
 			new RomSuperLodeRunner(motherBoard, config, time, rom));
+	case ROM_MSXDOS2:
+		return auto_ptr<MSXDevice>(
+			new RomMSXDOS2(motherBoard, config, time, rom));
 	case ROM_R_TYPE:
 		return auto_ptr<MSXDevice>(
 			new RomRType(motherBoard, config, time, rom));

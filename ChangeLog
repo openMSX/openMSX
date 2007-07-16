@@ -1,5 +1,9 @@
 $Id$
 
+2007-07-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added proper MSXDOS2 mapper type (before we used generic16kb):
+	   - implemented by BiFiMSX, I only fixed some bugs
+
 2007-07-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented 'Super Lode Runner' mapper:
 	   This mapper is special because it ignores the SLOT-SELECT signal;

@@ -52,6 +52,7 @@ static const RomTypeMap& getRomTypeMap()
 		romTypeMap["Padial8"]        = ROM_PADIAL8;
 		romTypeMap["Padial16"]       = ROM_PADIAL16;
 		romTypeMap["SuperLodeRunner"]= ROM_SUPERLODERUNNER;
+		romTypeMap["MSXDOS2"]        = ROM_MSXDOS2;
 
 		// ROM mapper types used for system ROMs in machines
 		romTypeMap["Panasonic"]      = ROM_PANASONIC;
@@ -116,7 +117,6 @@ RomType RomInfo::nameToRomType(string name)
 		aliasMap["0"]             = "8kB";
 		aliasMap["GenericKonami"] = "8kB"; // probably actually used in a Zemina Box
 		aliasMap["1"]             = "16kB";
-		aliasMap["MSXDOS2"]       = "16kB"; // for now
 		aliasMap["2"]             = "KonamiSCC";
 		aliasMap["SCC"]           = "KonamiSCC";
 		aliasMap["KONAMI5"]       = "KonamiSCC";
