@@ -140,9 +140,9 @@ public:
 	void removeDevice(MSXDevice& device);
 
 	/** Find a MSXDevice by name
-	  * @Param name The name of the device as returned by
+	  * @param name The name of the device as returned by
 	  *             MSXDevice::getName()
-	  * @Return A pointer to the device or NULL if the device could not
+	  * @return A pointer to the device or NULL if the device could not
 	  *         be found.
 	  */
 	MSXDevice* findDevice(const std::string& name);
