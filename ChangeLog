@@ -1,5 +1,9 @@
 $Id$
 
+2006-02-26 Patrick van Arkel (vampiermsx@gmail.com)
+	* Updated to Version 2.1 of the cheat defenitions after
+	  adding a ton of new cheats provide by Mars2000you.
+
 2007-07-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added proper MSXDOS2 mapper type (before we used generic16kb):
 	   - implemented by BiFiMSX, I only fixed some bugs
