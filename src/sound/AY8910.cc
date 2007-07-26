@@ -64,7 +64,7 @@ static void initPerlin()
 {
 	// gradient lookup tables
 	for (int i = 0; i < 256; ++i) {
-		gx[i] = float(rand()) / (RAND_MAX / 2) - 1.0f; 
+		gx[i] = float(rand()) / (RAND_MAX / 2) - 1.0f;
 	}
 	gx[256]  = gx[0];
 }
@@ -475,7 +475,7 @@ AY8910::AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
 		0.0, 0.0, 10.0));
 	detuneFrequency.reset(new FloatSetting(commandController,
 		name + "_detune_frequency", "frequency of detune effect in Hertz",
-		4.5, 1.0, 10.0));
+		17.0, 1.0, 100.0));
 
 	reset(time);
 	registerSound(config);
