@@ -155,7 +155,7 @@ unsigned SCSIHD::inquiry()
 	}
 
 	if (length > 36) {
-		string filename = FileOperations::getFilename(file->getURL());
+		string filename = FileOperations::getFilename(getImageURL());
 		filename.resize(20, ' ');
 		memcpy(buffer + 36, filename.data(), 20);
 	}
@@ -241,7 +241,7 @@ unsigned SCSIHD::requestSense()
 
 bool SCSIHD::checkReadOnly()
 {
-	if (file->isReadOnly()) {
+	if (isImageReadOnly()) {
 		keycode = SCSI::SENSE_WRITE_PROTECT;
 		return true;
 	}
@@ -301,8 +301,9 @@ unsigned SCSIHD::readSector(unsigned& blocks)
 
 	PRT_DEBUG("hdd#" << (int)scsiId << " read sector: " << currentSector << " " << numSectors);
 	try {
-		file->seek(SECTOR_SIZE * currentSector);
-		file->read(buffer, SECTOR_SIZE * numSectors);
+		readFromImage(SECTOR_SIZE * currentSector,
+		              SECTOR_SIZE * numSectors,
+			      buffer);
 		currentSector += numSectors;
 		currentLength -= numSectors;
 		blocks = currentLength;
@@ -337,8 +338,9 @@ unsigned SCSIHD::writeSector(unsigned& blocks)
 
 	PRT_DEBUG("hdd#" << (int)scsiId << " write sector: " << currentSector << " " << numSectors);
 	try {
-		file->seek(SECTOR_SIZE * currentSector);
-		file->write(buffer, SECTOR_SIZE * numSectors);
+		writeToImage(SECTOR_SIZE * currentSector,
+		             SECTOR_SIZE * numSectors,
+			     buffer);
 		currentSector += numSectors;
 		currentLength -= numSectors;
 
@@ -369,8 +371,7 @@ void SCSIHD::formatUnit()
 	if (!checkReadOnly()) {
 		memset(buffer, 0, SECTOR_SIZE);
 		try {
-			file->seek(0);
-			file->write(buffer, SECTOR_SIZE);
+			writeLogicalSector(0, buffer);
 			unitAttention = true;
 		} catch (FileException& e) {
 			keycode = SCSI::SENSE_WRITE_FAULT;
@@ -615,21 +616,19 @@ int SCSIHD::msgOut(byte value)
 
 unsigned SCSIHD::getNbSectors() const
 {
-	return file->getSize() / SECTOR_SIZE;
+	return getImageSize() / SECTOR_SIZE;
 }
 
 // NOTE: UNUSED FOR NOW!
 void SCSIHD::readLogicalSector(unsigned sector, byte* buf)
 {
-	file->seek(512 * sector);
-	file->read(buf, 512);
+	readFromImage(SECTOR_SIZE * sector, SECTOR_SIZE, buf);
 }
 
 // NOTE: UNUSED FOR NOW!
 void SCSIHD::writeLogicalSector(unsigned sector, const byte* buf)
 {
-	file->seek(512 * sector);
-	file->write(buf, 512);
+	writeToImage(SECTOR_SIZE * sector, SECTOR_SIZE, buf);
 }
 
 SectorAccessibleDisk* SCSIHD::getSectorAccessibleDisk()

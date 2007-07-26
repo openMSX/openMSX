@@ -123,19 +123,17 @@ void IDEHD::executeCommand(byte cmd)
 
 void IDEHD::readLogicalSector(unsigned sector, byte* buf)
 {
-	file->seek(512 * sector);
-	file->read(buf, 512);
+	readFromImage(512 * sector, 512, buf);
 }
 
 void IDEHD::writeLogicalSector(unsigned sector, const byte* buf)
 {
-	file->seek(512 * sector);
-	file->write(buf, 512);
+	writeToImage(512 * sector, 512, buf);
 }
 
 unsigned IDEHD::getNbSectors() const
 {
-	return file->getSize() / 512;
+	return getImageSize() / 512;
 }
 
 SectorAccessibleDisk* IDEHD::getSectorAccessibleDisk()

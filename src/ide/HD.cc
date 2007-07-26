@@ -87,4 +87,31 @@ const std::string& HD::getName() const
 	return name;
 }
 
+void HD::readFromImage(unsigned offset, unsigned size, byte* buf)
+{
+	file->seek(offset);
+	file->read(buf, size);
+}
+
+void HD::writeToImage (unsigned offset, unsigned size, const byte* buf)
+{
+	file->seek(offset);
+	file->write(buf, size);
+}
+
+unsigned HD::getImageSize() const
+{
+	return file->getSize();
+}
+
+std::string HD::getImageURL() const
+{
+	return file->getURL();
+}
+
+bool HD::isImageReadOnly() const
+{
+	return file->isReadOnly();
+}
+
 } // namespace openmsx
