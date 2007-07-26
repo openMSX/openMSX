@@ -42,15 +42,17 @@ HD::HD(MSXMotherBoard& motherBoard_, const XMLElement& config)
 	// for exception safety, set hdInUse only at the end
 	name = string("hd") + char('a' + id);
 
-	string filename = config.getFileContext().resolveCreate(
-	config.getChildData("filename"));
+	filename = config.getFileContext().resolveCreate(
+		config.getChildData("filename"));
 	try {
 		file.reset(new File(filename));
+		filesize = file->getSize();
 	} catch (FileException& e) {
-		// image didn't exist yet, create new
-		file.reset(new File(filename, File::CREATE));
-		file->truncate(config.getChildDataAsInt("size") * 1024 * 1024);
+		// Image didn't exist yet, but postpone image creation:
+		// we don't want to create images during 'testconfig'
+		filesize = config.getChildDataAsInt("size") * 1024 * 1024;
 	}
+	alreadyTried = false;
 
 	hdInUse[id] = true;
 	hdCommand.reset(new HDCommand(motherBoard.getMSXCommandController(),
@@ -87,30 +89,53 @@ const std::string& HD::getName() const
 	return name;
 }
 
+void HD::openImage()
+{
+	if (file.get()) return;
+
+	// image didn't exist yet, create new
+	if (alreadyTried) {
+		throw FileException("No HD image");
+	}
+	alreadyTried = true;
+	try {
+		file.reset(new File(filename, File::CREATE));
+		file->truncate(filesize);
+	} catch (FileException& e) {
+		motherBoard.getMSXCliComm().printWarning(
+			"Couldn't create HD image: " + e.getMessage());
+		throw;
+	}
+}
+
 void HD::readFromImage(unsigned offset, unsigned size, byte* buf)
 {
+	openImage();
 	file->seek(offset);
 	file->read(buf, size);
 }
 
 void HD::writeToImage (unsigned offset, unsigned size, const byte* buf)
 {
+	openImage();
 	file->seek(offset);
 	file->write(buf, size);
 }
 
 unsigned HD::getImageSize() const
 {
-	return file->getSize();
+	return filesize;
 }
 
-std::string HD::getImageURL() const
+std::string HD::getImageURL()
 {
+	openImage();
 	return file->getURL();
 }
 
-bool HD::isImageReadOnly() const
+bool HD::isImageReadOnly()
 {
+	openImage();
 	return file->isReadOnly();
 }
 

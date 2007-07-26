@@ -26,16 +26,21 @@ protected:
 	void readFromImage(unsigned offset, unsigned size, byte* buf);
 	void writeToImage (unsigned offset, unsigned size, const byte* buf);
 	unsigned getImageSize() const;
-	std::string getImageURL() const;
-	bool isImageReadOnly() const;
+	std::string getImageURL();
+	bool isImageReadOnly();
 
 private:
+	void openImage();
+
 	MSXMotherBoard& motherBoard;
 	std::string name;
 	std::auto_ptr<HDCommand> hdCommand;
-	std::auto_ptr<File> file;
-
 	friend class HDCommand;
+
+	std::auto_ptr<File> file;
+	std::string filename;
+	unsigned filesize;
+	bool alreadyTried;
 };
 
 } // namespace openmsx

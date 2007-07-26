@@ -1,5 +1,10 @@
 $Id$
 
+2007-07-26 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed [ 1730148 ] config checker creates big HD images:
+	   image is now only create on first use (read/write), so
+	   not yet when the machine is instantiated (=config check)
+
 2006-02-26 Patrick van Arkel (vampiermsx@gmail.com)
 	* Updated to Version 2.1 of the cheat defenitions after
 	  adding a ton of new cheats provide by Mars2000you.
