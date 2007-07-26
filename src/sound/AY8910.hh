@@ -75,10 +75,13 @@ private:
 		  */
 		inline void advance(int duration);
 	private:
+		inline int getDetune();
+
 		AY8910* parent;
 		/** Time passed since start of vibrato cycle.
 		  */
 		int vibratoCount;
+		int detuneCount;
 	};
 
 	class NoiseGenerator: public Generator {
@@ -152,6 +155,8 @@ private:
 	const std::auto_ptr<AY8910Debuggable> debuggable;
 	std::auto_ptr<FloatSetting> vibratoPercent;
 	std::auto_ptr<FloatSetting> vibratoFrequency;
+	std::auto_ptr<FloatSetting> detunePercent;
+	std::auto_ptr<FloatSetting> detuneFrequency;
 	ToneGenerator tone[3];
 	NoiseGenerator noise;
 	Amplitude amplitude;

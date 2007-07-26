@@ -56,6 +56,45 @@ enum Register {
 	AY_ECOARSE = 12, AY_ESHAPE = 13, AY_PORTA = 14, AY_PORTB = 15
 };
 
+// Perlin noise
+
+static float gx[256 + 1];
+
+static void initPerlin()
+{
+	// gradient lookup tables
+	for (int i = 0; i < 256; ++i) {
+		gx[i] = float(rand()) / (RAND_MAX / 2) - 1.0f; 
+	}
+	gx[256]  = gx[0];
+}
+static inline float weight(float x)
+{
+	return (3.0f - 2.0f * x) * x * x;
+}
+static inline float lerp(float t, float a, float b)
+{
+	return a + t * (b - a);
+}
+static float perlin(float x)
+{
+	assert(0.0f <= x);
+	int xi = int(x);
+	float xf0 = x - xi;
+	float xf1 = xf0 - 1.0f;
+	xi &= 255;
+
+	// dotproducts between vectors and gradients
+	float v0 = gx[xi + 0] * xf0;
+	float v1 = gx[xi + 1] * xf1;
+
+	// interpolate
+	float wx = weight(xf0);
+	float result = lerp(wx, v0, v1);
+	assert(fabsf(result) <= 0.5f);
+	return result;
+}
+
 
 // Generator:
 
@@ -91,7 +130,7 @@ inline byte AY8910::Generator::getOutput()
 // ToneGenerator:
 
 AY8910::ToneGenerator::ToneGenerator()
-	: parent(NULL), vibratoCount(0)
+	: parent(NULL), vibratoCount(0), detuneCount(0)
 {
 }
 
@@ -100,24 +139,36 @@ inline void AY8910::ToneGenerator::setParent(AY8910& parent)
 	this->parent = &parent;
 }
 
+inline int AY8910::ToneGenerator::getDetune()
+{
+	int result = 0;
+	double vibPerc = parent->vibratoPercent->getValue();
+	if (vibPerc != 0.0) {
+		int vibratoPeriod = int(
+			NATIVE_FREQ_DOUBLE
+			/ parent->vibratoFrequency->getValue());
+		vibratoCount += period;
+		vibratoCount %= vibratoPeriod;
+		result += int(
+			sin((M_PI * 2 * vibratoCount) / vibratoPeriod)
+			* vibPerc * 0.01 * period);
+	}
+	double detunePerc = parent->detunePercent->getValue();
+	if (detunePerc != 0.0) {
+		double detunePeriod = NATIVE_FREQ_DOUBLE /
+			parent->detuneFrequency->getValue();
+		detuneCount += period;
+		result += int(perlin(detuneCount / detunePeriod) *
+			      2 * detunePerc * 0.01 * period);
+	}
+	return result;
+}
+
 inline void AY8910::ToneGenerator::advance()
 {
 	count++;
 	if (count >= period) {
-		vibratoCount += period;
-		count = 0;
-		float vibPerc = parent->vibratoPercent->getValue();
-		if (vibPerc != 0.0f) {
-			int vibratoPeriod = int(
-				NATIVE_FREQ_DOUBLE
-				/ parent->vibratoFrequency->getValue()
-				);
-			vibratoCount %= vibratoPeriod;
-			count += int(
-				sin((M_PI * 2 * vibratoCount) / vibratoPeriod)
-				* vibPerc * 0.01f * period
-				);
-		}
+		count = getDetune();
 		output ^= 1;
 	}
 }
@@ -401,6 +452,8 @@ AY8910::AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
 	, envelope(amplitude)
 	, warningPrinted(false)
 {
+	initPerlin();
+
 	for (int chan = 0; chan < 3; chan++) {
 		tone[chan].setParent(*this);
 	}
@@ -413,12 +466,16 @@ AY8910::AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
 	CommandController& commandController = motherBoard.getCommandController();
 	vibratoPercent.reset(new FloatSetting(commandController,
 		name + "_vibrato_percent", "controls strength of vibrato effect",
-		0.0f, 0.0f, 10.f
-		));
+		0.0, 0.0, 10.0));
 	vibratoFrequency.reset(new FloatSetting(commandController,
 		name + "_vibrato_frequency", "frequency of vibrato effect in Hertz",
-		4.5f, 1.0f, 10.0f
-		));
+		4.5, 1.0, 10.0));
+	detunePercent.reset(new FloatSetting(commandController,
+		name + "_detune_percent", "controls strength of detune effect",
+		0.0, 0.0, 10.0));
+	detuneFrequency.reset(new FloatSetting(commandController,
+		name + "_detune_frequency", "frequency of detune effect in Hertz",
+		4.5, 1.0, 10.0));
 
 	reset(time);
 	registerSound(config);

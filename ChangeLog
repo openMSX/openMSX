@@ -4,6 +4,12 @@ $Id$
 	* Fixed [ 1730148 ] config checker creates big HD images:
 	   image is now only create on first use (read/write), so
 	   not yet when the machine is instantiated (=config check)
+	* Added experimental PSG detune option, similar to PSG vibrato:
+	   - control with the PSG_detune_frequency and PSG_detune_percent
+	     settings
+	   - next step: experiment with the PSG detune/vibrato and hopefully
+	     remove one of the two again. Maybe also remove the
+	     PSG_*_frequency setting(s).
 
 2006-02-26 Patrick van Arkel (vampiermsx@gmail.com)
 	* Updated to Version 2.1 of the cheat defenitions after
