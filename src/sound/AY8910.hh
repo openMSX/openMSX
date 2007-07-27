@@ -80,8 +80,8 @@ private:
 		AY8910* parent;
 		/** Time passed since start of vibrato cycle.
 		  */
-		int vibratoCount;
-		int detuneCount;
+		unsigned vibratoCount;
+		unsigned detuneCount;
 	};
 
 	class NoiseGenerator: public Generator {

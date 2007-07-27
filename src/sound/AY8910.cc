@@ -58,41 +58,33 @@ enum Register {
 
 // Perlin noise
 
-static float gx[256 + 1];
+static float n[256 + 3];
 
-static void initPerlin()
+static void initDetune()
 {
-	// gradient lookup tables
 	for (int i = 0; i < 256; ++i) {
-		gx[i] = float(rand()) / (RAND_MAX / 2) - 1.0f;
+		n[i] = float(rand()) / (RAND_MAX / 2) - 1.0f; 
 	}
-	gx[256]  = gx[0];
+	n[256] = n[0];
+	n[257] = n[1];
+	n[258] = n[2];
 }
-static inline float weight(float x)
+static float noiseValue(float x)
 {
-	return (3.0f - 2.0f * x) * x * x;
-}
-static inline float lerp(float t, float a, float b)
-{
-	return a + t * (b - a);
-}
-static float perlin(float x)
-{
+	// cubic hermite spline interpolation
 	assert(0.0f <= x);
 	int xi = int(x);
-	float xf0 = x - xi;
-	float xf1 = xf0 - 1.0f;
+	float xf = x - xi;
 	xi &= 255;
-
-	// dotproducts between vectors and gradients
-	float v0 = gx[xi + 0] * xf0;
-	float v1 = gx[xi + 1] * xf1;
-
-	// interpolate
-	float wx = weight(xf0);
-	float result = lerp(wx, v0, v1);
-	assert(fabsf(result) <= 0.5f);
-	return result;
+	float n0 = n[xi + 0];
+	float n1 = n[xi + 1];
+	float n2 = n[xi + 2];
+	float n3 = n[xi + 3];
+	float a = n3 - n2 + n1 - n0;
+	float b = n0 - n1 - a;
+	float c = n2 - n0;
+	float d = n1;
+	return ((a * xf + b) * xf + c) * xf + d;
 }
 
 
@@ -158,8 +150,10 @@ inline int AY8910::ToneGenerator::getDetune()
 		double detunePeriod = NATIVE_FREQ_DOUBLE /
 			parent->detuneFrequency->getValue();
 		detuneCount += period;
-		result += int(perlin(detuneCount / detunePeriod) *
-			      2 * detunePerc * 0.01 * period);
+		double noiseIdx = detuneCount / detunePeriod;
+		double noise = noiseValue(noiseIdx);
+		noise += noiseValue(2.0 * noiseIdx) / 2.0;
+		result += int(noise * detunePerc * 0.01 * period);
 	}
 	return result;
 }
@@ -452,7 +446,7 @@ AY8910::AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
 	, envelope(amplitude)
 	, warningPrinted(false)
 {
-	initPerlin();
+	initDetune();
 
 	for (int chan = 0; chan < 3; chan++) {
 		tone[chan].setParent(*this);
