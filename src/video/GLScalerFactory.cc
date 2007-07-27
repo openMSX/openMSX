@@ -19,12 +19,17 @@ namespace openmsx {
 auto_ptr<GLScaler> GLScalerFactory::createScaler(RenderSettings& renderSettings)
 {
 	switch (renderSettings.getScaleAlgorithm().getValue()) {
+	case RenderSettings::SCALER_SAI:
+		// disabled for now:
+		//   - it doesn't work (yet) on ATI cards
+		//   - it probably has some bugs because (on nvidia cards)
+		//     it does not give the same result as the SW SaI scaler,
+		//     although it's reasonably close
+		//return auto_ptr<GLScaler>(new GLSaIScaler());
 	case RenderSettings::SCALER_SIMPLE:
 		return auto_ptr<GLScaler>(new GLSimpleScaler(renderSettings));
 	case RenderSettings::SCALER_RGBTRIPLET:
 		return auto_ptr<GLScaler>(new GLRGBScaler(renderSettings));
-	case RenderSettings::SCALER_SAI:
-		return auto_ptr<GLScaler>(new GLSaIScaler());
 	case RenderSettings::SCALER_SCALE:
 		return auto_ptr<GLScaler>(new GLScaleNxScaler());
 	case RenderSettings::SCALER_TV:
