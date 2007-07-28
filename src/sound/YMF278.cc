@@ -4,6 +4,7 @@
 
 #include "YMF278.hh"
 #include "SoundDevice.hh"
+#include "Resample.hh"
 #include "Rom.hh"
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
@@ -85,7 +86,7 @@ public:
 	bool lfo_active;
 };
 
-class YMF278Impl : public SoundDevice
+class YMF278Impl : public SoundDevice, private Resample
 {
 public:
 	YMF278Impl(MSXMotherBoard& motherBoard, const std::string& name,
@@ -102,6 +103,11 @@ private:
 	// SoundDevice
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
+	virtual bool updateBuffer(unsigned length, int* buffer,
+		const EmuTime& time, const EmuDuration& sampDur);
+
+	// Resample
+	virtual bool generateInput(int* buffer, unsigned num);
 
 	void writeReg(byte reg, byte data, const EmuTime& time);
 	byte readMem(unsigned address) const;
@@ -140,14 +146,10 @@ private:
 
 	YMF278Slot slots[24];
 
-	double freqbase;
-
 	/** Global envelope generator counter. */
 	unsigned eg_cnt;
 	/** Global envelope generator counter. */
 	unsigned eg_timer;
-	/** Step of eg_timer. */
-	unsigned eg_timer_add;
 	/** Envelope generator timer overlfows every 1 sample (on real chip). */
 	unsigned eg_timer_overflow;
 
@@ -389,7 +391,7 @@ void YMF278Slot::set_lfo(int newlfo)
 
 void YMF278Impl::advance()
 {
-	eg_timer += eg_timer_add;
+	eg_timer += 1 << EG_SH;
 	while (eg_timer >= EG_TIMER_OVERFLOW) {
 		eg_timer -= EG_TIMER_OVERFLOW;
 		eg_cnt++;
@@ -629,7 +631,7 @@ void YMF278Impl::generateChannels(int** bufs, unsigned num)
 				unsigned step = (oct >= 0)
 					? ((sl.FN | 1024) + sl.compute_vib()) << oct
 					: ((sl.FN | 1024) + sl.compute_vib()) >> -oct;
-				sl.stepptr += (unsigned)(step * freqbase);
+				sl.stepptr += step;
 			} else {
 				sl.stepptr += sl.step;
 			}
@@ -648,6 +650,17 @@ void YMF278Impl::generateChannels(int** bufs, unsigned num)
 	}
 }
 
+bool YMF278Impl::generateInput(int* buffer, unsigned num)
+{
+	return mixChannels(buffer, num);
+}
+
+bool YMF278Impl::updateBuffer(unsigned length, int* buffer,
+     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
+{
+	return generateOutput(buffer, length);
+}
+
 void YMF278Impl::keyOnHelper(YMF278Slot& slot)
 {
 	slot.active = true;
@@ -660,7 +673,7 @@ void YMF278Impl::keyOnHelper(YMF278Slot& slot)
 	unsigned step = (oct >= 0)
 		? (slot.FN | 1024) << oct
 		: (slot.FN | 1024) >> -oct;
-	slot.step = (unsigned)(step * freqbase);
+	slot.step = step;
 	slot.state = EG_ATT;
 	slot.stepptr = 0;
 	slot.pos = 0;
@@ -724,7 +737,7 @@ void YMF278Impl::writeReg(byte reg, byte data, const EmuTime& time)
 			unsigned step = (oct >= 0)
 				? (slot.FN | 1024) << oct
 				: (slot.FN | 1024) >> -oct;
-			slot.step = (unsigned)(step * freqbase);
+			slot.step = step;
 			break;
 		}
 		case 2: {
@@ -739,7 +752,7 @@ void YMF278Impl::writeReg(byte reg, byte data, const EmuTime& time)
 			unsigned step = (oct >= 0)
 				? (slot.FN | 1024) << oct
 				: (slot.FN | 1024) >> -oct;
-			slot.step = (unsigned)(step * freqbase);
+			slot.step = step;
 			break;
 		}
 		case 3:
@@ -916,6 +929,7 @@ YMF278Impl::YMF278Impl(MSXMotherBoard& motherBoard, const std::string& name,
                        int ramSize, const XMLElement& config, const EmuTime& time)
 	: SoundDevice(motherBoard.getMSXMixer(), name, "MoonSound wave-part",
 	              24, true)
+	, Resample(motherBoard.getGlobalSettings(), 2)
 	, debugRegisters(new DebugRegisters(*this, motherBoard))
 	, debugMemory   (new DebugMemory   (*this, motherBoard))
 	, loadTime(time), busyTime(time)
@@ -966,9 +980,8 @@ void YMF278Impl::reset(const EmuTime& time)
 
 void YMF278Impl::setOutputRate(unsigned sampleRate)
 {
-	setInputRate(sampleRate);
-	freqbase = 44100.0 / (double)sampleRate;
-	eg_timer_add = (unsigned)((1 << EG_SH) * freqbase);
+	setInputRate(44100);
+	setResampleRatio(44100, sampleRate);
 }
 
 byte YMF278Impl::readMem(unsigned address) const

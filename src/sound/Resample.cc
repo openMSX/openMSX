@@ -1,12 +1,15 @@
 // $Id$
 
 #include "Resample.hh"
+#include "ResampleTrivial.hh"
 #include "ResampleHQ.hh"
 #include "ResampleLQ.hh"
 #include "ResampleBlip.hh"
 #include "GlobalSettings.hh"
 #include "EnumSetting.hh"
 #include <cassert>
+
+#include <iostream>
 
 namespace openmsx {
 
@@ -43,30 +46,36 @@ void Resample::update(const Setting& setting)
 
 void Resample::createResampler()
 {
-	switch (resampleSetting.getValue()) {
-	case GlobalSettings::RESAMPLE_HQ:
-		if (channels == 1) {
-			algo.reset(new ResampleHQ<1>(*this, ratio));
-		} else {
-			algo.reset(new ResampleHQ<2>(*this, ratio));
+	if (ratio == 1.0) {
+		std::cout << "TRIVIAL" << std::endl;
+		algo.reset(new ResampleTrivial(*this));
+	} else {
+		std::cout << "NON-TRIVIAL" << std::endl;
+		switch (resampleSetting.getValue()) {
+		case GlobalSettings::RESAMPLE_HQ:
+			if (channels == 1) {
+				algo.reset(new ResampleHQ<1>(*this, ratio));
+			} else {
+				algo.reset(new ResampleHQ<2>(*this, ratio));
+			}
+			break;
+		case GlobalSettings::RESAMPLE_LQ:
+			if (channels == 1) {
+				algo.reset(new ResampleLQ<1>(*this, ratio));
+			} else {
+				algo.reset(new ResampleLQ<2>(*this, ratio));
+			}
+			break;
+		case GlobalSettings::RESAMPLE_BLIP:
+			if (channels == 1) {
+				algo.reset(new ResampleBlip<1>(*this, ratio));
+			} else {
+				algo.reset(new ResampleBlip<2>(*this, ratio));
+			}
+			break;
+		default:
+			assert(false);
 		}
-		break;
-	case GlobalSettings::RESAMPLE_LQ:
-		if (channels == 1) {
-			algo.reset(new ResampleLQ<1>(*this, ratio));
-		} else {
-			algo.reset(new ResampleLQ<2>(*this, ratio));
-		}
-		break;
-	case GlobalSettings::RESAMPLE_BLIP:
-		if (channels == 1) {
-			algo.reset(new ResampleBlip<1>(*this, ratio));
-		} else {
-			algo.reset(new ResampleBlip<2>(*this, ratio));
-		}
-		break;
-	default:
-		assert(false);
 	}
 }
 
