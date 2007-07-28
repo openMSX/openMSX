@@ -1,6 +1,10 @@
 $Id$
 
-2007-07-26 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2007-07-28 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed [ 1622018 ] New persistant directories created for every
+	  run-time switch
+
+2007-07-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Disabled openGL SaI shader, see comments in GLScalerFactory
 
 2007-07-26 Wouter Vermaelen <wouter.vermaelen@scarlet.be>

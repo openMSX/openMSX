@@ -117,6 +117,9 @@ public:
 
 	MSXMotherBoard::SharedStuff& getSharedStuff(const string& name);
 
+	string getUserName(const string& hwName);
+	void freeUserName(const string& hwName, const string& userName);
+
 private:
 	void deleteMachine();
 
@@ -134,6 +137,7 @@ private:
 
 	typedef map<string, MSXMotherBoard::SharedStuff> SharedStuffMap;
 	SharedStuffMap sharedStuffMap;
+	map<string, set<string> > userNames;
 
 	auto_ptr<MachineConfig> machineConfig;
 	MSXMotherBoard::Extensions extensions;
@@ -779,6 +783,26 @@ MSXMotherBoard::SharedStuff& MSXMotherBoardImpl::getSharedStuff(
 	return sharedStuffMap[name];
 }
 
+string MSXMotherBoardImpl::getUserName(const string& hwName)
+{
+	set<string>& s = userNames[hwName];
+	unsigned n = 0;
+	string userName;
+	do {
+		userName = "untitled" + StringOp::toString(++n);
+	} while (s.find(userName) != s.end());
+	s.insert(userName);
+	return userName;
+}
+
+void MSXMotherBoardImpl::freeUserName(const string& hwName,
+                                      const string& userName)
+{
+	set<string>& s = userNames[hwName];
+	assert(s.find(userName) != s.end());
+	s.erase(userName);
+}
+
 
 // AddRemoveUpdate
 
@@ -1161,6 +1185,15 @@ MSXDevice* MSXMotherBoard::findDevice(const string& name)
 MSXMotherBoard::SharedStuff& MSXMotherBoard::getSharedStuff(const string& name)
 {
 	return pimple->getSharedStuff(name);
+}
+string MSXMotherBoard::getUserName(const string& hwName)
+{
+	return pimple->getUserName(hwName);
+}
+void MSXMotherBoard::freeUserName(const string& hwName,
+                                  const string& userName)
+{
+	pimple->freeUserName(hwName, userName);
 }
 
 } // namespace openmsx

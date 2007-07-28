@@ -16,9 +16,9 @@ namespace openmsx {
 
 ExtensionConfig::ExtensionConfig(MSXMotherBoard& motherBoard,
                                  const string& extensionName)
-	: HardwareConfig(motherBoard)
+	: HardwareConfig(motherBoard, extensionName)
 {
-	load("extensions", extensionName);
+	load("extensions");
 	setName(extensionName);
 }
 
@@ -26,7 +26,7 @@ ExtensionConfig::ExtensionConfig(
 		MSXMotherBoard& motherBoard,
 		const string& romfile, const string& slotname,
 		const vector<string>& options)
-	: HardwareConfig(motherBoard)
+	: HardwareConfig(motherBoard, "rom")
 {
 	vector<string> ipsfiles;
 	string mapper;

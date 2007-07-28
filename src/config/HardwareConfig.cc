@@ -21,8 +21,9 @@ using std::string;
 
 namespace openmsx {
 
-HardwareConfig::HardwareConfig(MSXMotherBoard& motherBoard_)
+HardwareConfig::HardwareConfig(MSXMotherBoard& motherBoard_, const string& hwName_)
 	: motherBoard(motherBoard_)
+	, hwName(hwName_)
 {
 	for (int ps = 0; ps < 4; ++ps) {
 		for (int ss = 0; ss < 4; ++ss) {
@@ -32,10 +33,12 @@ HardwareConfig::HardwareConfig(MSXMotherBoard& motherBoard_)
 		expandedSlots[ps] = false;
 		allocatedPrimarySlots[ps] = -1;
 	}
+	userName = motherBoard.getUserName(hwName);
 }
 
 HardwareConfig::~HardwareConfig()
 {
+	motherBoard.freeUserName(hwName, userName);
 #ifndef NDEBUG
 	try {
 		testRemove();
@@ -105,7 +108,7 @@ void HardwareConfig::setConfig(std::auto_ptr<XMLElement> newConfig)
 }
 
 std::auto_ptr<XMLElement> HardwareConfig::loadConfig(
-		const string& path, const string& hwName)
+	const string& path, const string& hwName, const string& userName)
 {
 	SystemFileContext context;
 	string filename = context.resolve(
@@ -117,8 +120,6 @@ std::auto_ptr<XMLElement> HardwareConfig::loadConfig(
 
 		string baseName = FileOperations::getBaseName(file.getURL());
 
-		// TODO get user name
-		string userName;
 		result->setFileContext(std::auto_ptr<FileContext>(
 			new ConfigFileContext(baseName, hwName, userName)));
 		return result;
@@ -129,9 +130,10 @@ std::auto_ptr<XMLElement> HardwareConfig::loadConfig(
 	}
 }
 
-void HardwareConfig::load(const string& path, const string& hwName)
+void HardwareConfig::load(const string& path)
 {
-	setConfig(loadConfig(path, hwName));
+	assert(!userName.empty());
+	setConfig(loadConfig(path, hwName, userName));
 }
 
 void HardwareConfig::parseSlots()

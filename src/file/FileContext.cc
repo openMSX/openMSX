@@ -88,21 +88,11 @@ FileContext::FileContext(const FileContext& rhs)
 
 // class ConfigFileContext
 
-std::map<string, int> ConfigFileContext::nonames;
-
 ConfigFileContext::ConfigFileContext(const string& path,
                                      const string& hwDescr,
-                                     const string& userName_)
+                                     const string& userName)
 {
 	paths.push_back(path);
-
-	string userName(userName_);
-	if (userName == "") {
-		int num = ++nonames[hwDescr];
-		char buf[20];
-		snprintf(buf, 20, "untitled%d", num);
-		userName = buf;
-	}
 	savePaths.push_back(FileOperations::getUserOpenMSXDir() +
 	                    "/persistent/" + hwDescr + '/' + userName + '/');
 }

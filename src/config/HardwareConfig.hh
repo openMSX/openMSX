@@ -17,7 +17,7 @@ class XMLElement;
 class HardwareConfig : private noncopyable
 {
 public:
-	explicit HardwareConfig(MSXMotherBoard& motherBoard);
+	HardwareConfig(MSXMotherBoard& motherBoard, const std::string& hwName);
 	virtual ~HardwareConfig();
 
 	const XMLElement& getConfig() const;
@@ -31,11 +31,12 @@ public:
 	void testRemove() const;
 
 	static std::auto_ptr<XMLElement> loadConfig(
-		const std::string& path, const std::string& hwName);
+		const std::string& path, const std::string& hwName,
+		const std::string& userName);
 
 protected:
 	void setConfig(std::auto_ptr<XMLElement> config);
-	void load(const std::string& path, const std::string& hwName);
+	void load(const std::string& path);
 	MSXMotherBoard& getMotherBoard();
 
 private:
@@ -49,6 +50,8 @@ private:
 	void addDevice(MSXDevice* device);
 
 	MSXMotherBoard& motherBoard;
+	std::string hwName;
+	std::string userName;
 	std::auto_ptr<XMLElement> config;
 
 	bool externalSlots[4][4];

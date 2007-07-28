@@ -7,9 +7,9 @@ namespace openmsx {
 
 MachineConfig::MachineConfig(MSXMotherBoard& motherBoard,
                              const std::string& machineName)
-	: HardwareConfig(motherBoard)
+	: HardwareConfig(motherBoard, machineName)
 {
-	load("machines", machineName);
+	load("machines");
 }
 
 const XMLElement& MachineConfig::getDevices() const

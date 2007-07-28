@@ -5,7 +5,6 @@
 
 #include <string>
 #include <vector>
-#include <map>
 
 namespace openmsx {
 
@@ -25,7 +24,7 @@ protected:
 	FileContext();
 	explicit FileContext(const FileContext& rhs);
 	std::string resolve(const std::vector<std::string>& pathList,
-	               const std::string& filename) const;
+	                    const std::string& filename) const;
 
 	std::vector<std::string> paths;
 	std::vector<std::string> savePaths;
@@ -35,14 +34,12 @@ class ConfigFileContext : public FileContext
 {
 public:
 	ConfigFileContext(const std::string& path,
-			  const std::string& hwDescr,
-			  const std::string& userName);
+	                  const std::string& hwDescr,
+	                  const std::string& userName);
 	virtual ConfigFileContext* clone() const;
 
 private:
 	explicit ConfigFileContext(const ConfigFileContext& rhs);
-
-	static std::map<std::string, int> nonames;
 };
 
 class SystemFileContext : public FileContext
