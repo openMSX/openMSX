@@ -148,10 +148,6 @@ private:
 
 	/** Global envelope generator counter. */
 	unsigned eg_cnt;
-	/** Global envelope generator counter. */
-	unsigned eg_timer;
-	/** Envelope generator timer overlfows every 1 sample (on real chip). */
-	unsigned eg_timer_overflow;
 
 	int memadr;
 
@@ -391,153 +387,148 @@ void YMF278Slot::set_lfo(int newlfo)
 
 void YMF278Impl::advance()
 {
-	eg_timer += 1 << EG_SH;
-	while (eg_timer >= EG_TIMER_OVERFLOW) {
-		eg_timer -= EG_TIMER_OVERFLOW;
-		eg_cnt++;
+	eg_cnt++;
+	for (int i = 0; i < 24; i++) {
+		YMF278Slot &op = slots[i];
 
-		for (int i = 0; i < 24; i++) {
-			YMF278Slot &op = slots[i];
+		if (op.lfo_active) {
+			op.lfo_cnt++;
+			if (op.lfo_cnt < op.lfo_max) {
+				op.lfo_step++;
+			} else if (op.lfo_cnt < (op.lfo_max * 3)) {
+				op.lfo_step--;
+			} else {
+				op.lfo_step++;
+				if (op.lfo_cnt == (op.lfo_max * 4)) {
+					op.lfo_cnt = 0;
+				}
+			}
+		}
 
-			if (op.lfo_active) {
-				op.lfo_cnt++;
-				if (op.lfo_cnt < op.lfo_max) {
-					op.lfo_step++;
-				} else if (op.lfo_cnt < (op.lfo_max * 3)) {
-					op.lfo_step--;
+		// Envelope Generator
+		switch(op.state) {
+		case EG_ATT: {	// attack phase
+			byte rate = op.compute_rate(op.AR);
+			if (rate < 4) {
+				break;
+			}
+			byte shift = eg_rate_shift[rate];
+			if (!(eg_cnt & ((1 << shift) -1))) {
+				byte select = eg_rate_select[rate];
+				op.env_vol += (~op.env_vol * eg_inc[select + ((eg_cnt >> shift) & 7)]) >> 3;
+				if (op.env_vol <= MIN_ATT_INDEX) {
+					op.env_vol = MIN_ATT_INDEX;
+					if (op.DL) {
+						op.state = EG_DEC;
+					} else {
+						op.state = EG_SUS;
+					}
+				}
+			}
+			break;
+		}
+		case EG_DEC: {	// decay phase
+			byte rate = op.compute_rate(op.D1R);
+			if (rate < 4) {
+				break;
+			}
+			byte shift = eg_rate_shift[rate];
+			if (!(eg_cnt & ((1 << shift) -1))) {
+				byte select = eg_rate_select[rate];
+				op.env_vol += eg_inc[select + ((eg_cnt >> shift) & 7)];
+
+				if (((unsigned)op.env_vol > dl_tab[6]) && op.PRVB) {
+					op.state = EG_REV;
 				} else {
-					op.lfo_step++;
-					if (op.lfo_cnt == (op.lfo_max * 4)) {
-						op.lfo_cnt = 0;
+					if (op.env_vol >= op.DL) {
+						op.state = EG_SUS;
 					}
 				}
 			}
-
-			// Envelope Generator
-			switch(op.state) {
-			case EG_ATT: {	// attack phase
-				byte rate = op.compute_rate(op.AR);
-				if (rate < 4) {
-					break;
-				}
-				byte shift = eg_rate_shift[rate];
-				if (!(eg_cnt & ((1 << shift) -1))) {
-					byte select = eg_rate_select[rate];
-					op.env_vol += (~op.env_vol * eg_inc[select + ((eg_cnt >> shift) & 7)]) >> 3;
-					if (op.env_vol <= MIN_ATT_INDEX) {
-						op.env_vol = MIN_ATT_INDEX;
-						if (op.DL) {
-							op.state = EG_DEC;
-						} else {
-							op.state = EG_SUS;
-						}
-					}
-				}
+			break;
+		}
+		case EG_SUS: {	// sustain phase
+			byte rate = op.compute_rate(op.D2R);
+			if (rate < 4) {
 				break;
 			}
-			case EG_DEC: {	// decay phase
-				byte rate = op.compute_rate(op.D1R);
-				if (rate < 4) {
-					break;
-				}
-				byte shift = eg_rate_shift[rate];
-				if (!(eg_cnt & ((1 << shift) -1))) {
-					byte select = eg_rate_select[rate];
-					op.env_vol += eg_inc[select + ((eg_cnt >> shift) & 7)];
+			byte shift = eg_rate_shift[rate];
+			if (!(eg_cnt & ((1 << shift) -1))) {
+				byte select = eg_rate_select[rate];
+				op.env_vol += eg_inc[select + ((eg_cnt >> shift) & 7)];
 
-					if (((unsigned)op.env_vol > dl_tab[6]) && op.PRVB) {
-						op.state = EG_REV;
-					} else {
-						if (op.env_vol >= op.DL) {
-							op.state = EG_SUS;
-						}
-					}
-				}
-				break;
-			}
-			case EG_SUS: {	// sustain phase
-				byte rate = op.compute_rate(op.D2R);
-				if (rate < 4) {
-					break;
-				}
-				byte shift = eg_rate_shift[rate];
-				if (!(eg_cnt & ((1 << shift) -1))) {
-					byte select = eg_rate_select[rate];
-					op.env_vol += eg_inc[select + ((eg_cnt >> shift) & 7)];
-
-					if (((unsigned)op.env_vol > dl_tab[6]) && op.PRVB) {
-						op.state = EG_REV;
-					} else {
-						if (op.env_vol >= MAX_ATT_INDEX) {
-							op.env_vol = MAX_ATT_INDEX;
-							op.active = false;
-						}
-					}
-				}
-				break;
-			}
-			case EG_REL: {	// release phase
-				byte rate = op.compute_rate(op.RR);
-				if (rate < 4) {
-					break;
-				}
-				byte shift = eg_rate_shift[rate];
-				if (!(eg_cnt & ((1 << shift) -1))) {
-					byte select = eg_rate_select[rate];
-					op.env_vol += eg_inc[select + ((eg_cnt >> shift) & 7)];
-
-					if (((unsigned)op.env_vol > dl_tab[6]) && op.PRVB) {
-						op.state = EG_REV;
-					} else {
-						if (op.env_vol >= MAX_ATT_INDEX) {
-							op.env_vol = MAX_ATT_INDEX;
-							op.active = false;
-						}
-					}
-				}
-				break;
-			}
-			case EG_REV: {	//pseudo reverb
-				//TODO improve env_vol update
-				byte rate = op.compute_rate(5);
-				//if (rate < 4) {
-				//	break;
-				//}
-				byte shift = eg_rate_shift[rate];
-				if (!(eg_cnt & ((1 << shift) - 1))) {
-					byte select = eg_rate_select[rate];
-					op.env_vol += eg_inc[select + ((eg_cnt >> shift) & 7)];
-
+				if (((unsigned)op.env_vol > dl_tab[6]) && op.PRVB) {
+					op.state = EG_REV;
+				} else {
 					if (op.env_vol >= MAX_ATT_INDEX) {
 						op.env_vol = MAX_ATT_INDEX;
 						op.active = false;
 					}
 				}
+			}
+			break;
+		}
+		case EG_REL: {	// release phase
+			byte rate = op.compute_rate(op.RR);
+			if (rate < 4) {
 				break;
 			}
-			case EG_DMP: {	//damping
-				//TODO improve env_vol update, damp is just fastest decay now
-				byte rate = 56;
-				byte shift = eg_rate_shift[rate];
-				if (!(eg_cnt & ((1 << shift) - 1))) {
-					byte select = eg_rate_select[rate];
-					op.env_vol += eg_inc[select + ((eg_cnt >> shift) & 7)];
+			byte shift = eg_rate_shift[rate];
+			if (!(eg_cnt & ((1 << shift) -1))) {
+				byte select = eg_rate_select[rate];
+				op.env_vol += eg_inc[select + ((eg_cnt >> shift) & 7)];
 
+				if (((unsigned)op.env_vol > dl_tab[6]) && op.PRVB) {
+					op.state = EG_REV;
+				} else {
 					if (op.env_vol >= MAX_ATT_INDEX) {
 						op.env_vol = MAX_ATT_INDEX;
 						op.active = false;
 					}
 				}
-				break;
 			}
-			case EG_OFF:
-				// nothing
-				break;
+			break;
+		}
+		case EG_REV: {	//pseudo reverb
+			//TODO improve env_vol update
+			byte rate = op.compute_rate(5);
+			//if (rate < 4) {
+			//	break;
+			//}
+			byte shift = eg_rate_shift[rate];
+			if (!(eg_cnt & ((1 << shift) - 1))) {
+				byte select = eg_rate_select[rate];
+				op.env_vol += eg_inc[select + ((eg_cnt >> shift) & 7)];
 
-			default:
-				assert(false);
-				break;
+				if (op.env_vol >= MAX_ATT_INDEX) {
+					op.env_vol = MAX_ATT_INDEX;
+					op.active = false;
+				}
 			}
+			break;
+		}
+		case EG_DMP: {	//damping
+			//TODO improve env_vol update, damp is just fastest decay now
+			byte rate = 56;
+			byte shift = eg_rate_shift[rate];
+			if (!(eg_cnt & ((1 << shift) - 1))) {
+				byte select = eg_rate_select[rate];
+				op.env_vol += eg_inc[select + ((eg_cnt >> shift) & 7)];
+
+				if (op.env_vol >= MAX_ATT_INDEX) {
+					op.env_vol = MAX_ATT_INDEX;
+					op.active = false;
+				}
+			}
+			break;
+		}
+		case EG_OFF:
+			// nothing
+			break;
+
+		default:
+			assert(false);
+			break;
 		}
 	}
 }
@@ -963,7 +954,6 @@ YMF278Impl::~YMF278Impl()
 
 void YMF278Impl::reset(const EmuTime& time)
 {
-	eg_timer = 0;
 	eg_cnt   = 0;
 
 	for (int i = 0; i < 24; i++) {
