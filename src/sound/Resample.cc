@@ -9,8 +9,6 @@
 #include "EnumSetting.hh"
 #include <cassert>
 
-#include <iostream>
-
 namespace openmsx {
 
 Resample::Resample(GlobalSettings& globalSettings, unsigned channels_)
@@ -47,10 +45,8 @@ void Resample::update(const Setting& setting)
 void Resample::createResampler()
 {
 	if (ratio == 1.0) {
-		std::cout << "TRIVIAL" << std::endl;
 		algo.reset(new ResampleTrivial(*this));
 	} else {
-		std::cout << "NON-TRIVIAL" << std::endl;
 		switch (resampleSetting.getValue()) {
 		case GlobalSettings::RESAMPLE_HQ:
 			if (channels == 1) {
