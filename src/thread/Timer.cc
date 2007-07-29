@@ -25,6 +25,11 @@ static inline unsigned long long getSDLTicks()
 
 unsigned long long getTime()
 {
+/* QueryPerformanceCounter() has problems on modern CPUs,
+ *  - on dual core CPUs time can ge backwards (a bit) when your process
+ *    get scheduled on the other core
+ *  - the resolution of the timer can vary on CPUs that can change its
+ *    clock frequency (for power managment)
 #if defined (WIN32)
 	static LONGLONG hfFrequency = 0;
 
@@ -41,8 +46,8 @@ unsigned long long getTime()
 	// Assumes that the timer never wraps. The mask is just to
 	// ensure that the multiplication doesn't wrap.
 	return (li.QuadPart & ((long long)-1 >> 20)) * 1000000 / hfFrequency;
-
-#elif defined (HAVE_GETTIMEOFDAY)
+*/
+#if defined (HAVE_GETTIMEOFDAY)
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
 	return (unsigned long long)tv.tv_sec * 1000000 +
@@ -52,7 +57,7 @@ unsigned long long getTime()
 #endif
 }
 
-#ifdef WIN32
+/*#ifdef WIN32
 static void CALLBACK timerCallback(unsigned int,
                                    unsigned int,
                                    unsigned long eventHandle,
@@ -61,11 +66,11 @@ static void CALLBACK timerCallback(unsigned int,
 {
     SetEvent((HANDLE)eventHandle);
 }
-#endif
+#endif*/
 
 void sleep(unsigned long long us)
 {
-#if defined (WIN32)
+/*#if defined (WIN32)
 	us /= 1000;
 	if (us > 0) {
 		static HANDLE timerEvent = NULL;
@@ -77,7 +82,8 @@ void sleep(unsigned long long us)
 		WaitForSingleObject(timerEvent, INFINITE);
 		timeKillEvent(id);
 	}
-#elif defined (HAVE_USLEEP)
+*/
+#if defined (HAVE_USLEEP)
 	usleep(us);
 #else
 	SDL_Delay(us / 1000);

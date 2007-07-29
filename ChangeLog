@@ -1,5 +1,9 @@
 $Id$
 
+2007-07-29 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Commented out win32 specific sleep/timer code, it gives problems on
+	  dual core CPUs
+
 2007-07-28 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed [ 1622018 ] New persistant directories created for every
 	  run-time switch
