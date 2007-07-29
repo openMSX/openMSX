@@ -73,7 +73,7 @@
 	<li><a class="internal" href="#record_channels">record_channels</a></li>
 
         <li><a class="internal" href="#remove_extension">remove_extension</a></li>
-
+        
         <li><a class="internal" href="#reset">reset</a></li>
 
         <li><a class="internal" href="#save_settings">save_settings</a></li>
@@ -208,6 +208,8 @@
 
         <li><a class="internal" href="#renshaturbo">renshaturbo</a></li>
 
+        <li><a class="internal" href="#resampler">resampler</a></li>
+
         <li><a class="internal" href="#rs232-inputfilename">rs232-inputfilename</a></li>
 
         <li><a class="internal" href="#rs232-outputfilename">rs232-outputfilename</a></li>
@@ -228,11 +230,19 @@
 
         <li><a class="internal" href="#speed">speed</a></li>
 
+	<li><a class="internal" href="#soundchip_balance">&lt;soundchip&gt;_balance</a></li>
+
         <li><a class="internal" href="#soundchip_channel_record">&lt;soundchip&gt;_ch&lt;channel&gt;_record</a></li>
         
 	<li><a class="internal" href="#soundchip_channel_mute">&lt;soundchip&gt;_ch&lt;channel&gt;_mute</a></li>
         
-	<li><a class="internal" href="#soundchip_mode">&lt;soundchip&gt;_mode</a></li>
+        <li><a class="internal" href="#soundchip_detune_frequency">&lt;soundchip&gt;_detune_frequency</a></li>
+
+        <li><a class="internal" href="#soundchip_detune_percent">&lt;soundchip&gt;_detune_percent</a></li>
+
+        <li><a class="internal" href="#soundchip_vibrato_frequency">&lt;soundchip&gt;_vibrato_frequency</a></li>
+
+        <li><a class="internal" href="#soundchip_vibrato_percent">&lt;soundchip&gt;_vibrato_percent</a></li>
 
         <li><a class="internal" href="#soundchip_volume">&lt;soundchip&gt;_volume</a></li>
 
@@ -3003,6 +3013,41 @@
     Note: This setting is only available if the current MSX machine has hardware Rensha Turbo support.
   </div>
 
+  <h3><a id="resampler">resampler</a></h3>
+
+  <p>Sets the method to resample the sound of sound chips from their native frequency to the <a class="internal" href="#frequency">desired output frequency</a>.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set resampler</code></td>
+
+      <td>Shows the currently active resampler</td>
+    </tr>
+
+    <tr>
+      <td><code>set resampler fast</code></td>
+
+      <td>Sets a fast, but bad quality resampler, which can show a lot of aliasing</td>
+    </tr>
+
+    <tr>
+      <td><code>set resampler hq</code></td>
+
+      <td>Sets the highest quality resampler, but it takes the most CPU time</td>
+    </tr>
+
+    <tr>
+      <td><code>set resampler blip</code></td>
+
+      <td>Sets the <a href="http://slack.net/~ant/libs/audio.html#Blip_Buffer">Blip_Buffer</a> based resampler, which has the best quality per CPU usage ratio (this is the default value) </td>
+    </tr>
+  </table>
+
+
   <h3><a id="rs232-inputfilename">rs232-inputfilename</a></h3>
 
   <p>Sets the file from which the RS232-tester reads data.</p>
@@ -3260,6 +3305,50 @@
     </tr>
   </table>
 
+  <h3><a id="soundchip_balance">&lt;soundchip&gt;_balance</a></h3>
+
+  <p>Sets the balance (distribution over the left and right channe) for individual sound chips. It replaces the previously available <code>&lt;soundchip&gt;_mode</code> setting. The range is between -100 (totally left) and 100 (totally right).</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set &lt;soundchip&gt;_balance</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set &lt;soundchip&gt;_balance 0</code></td>
+
+      <td>Plays the output of this chip on both the left and right channel</td>
+    </tr>
+
+    <tr>
+      <td><code>set &lt;soundchip&gt;_balance -100</code></td>
+
+      <td>Plays the output of this chip on only the left channel</td>
+    </tr>
+
+    <tr>
+      <td><code>set &lt;soundchip&gt;_balance 75</code></td>
+
+      <td>Plays the output of this chip mostly on the right channel, but also a bit on the left channel</td>
+    </tr>
+  </table>
+
+  <div class="subsectiontitle">
+    examples:
+  </div>
+
+  <div class="examples">
+    <code>set PSG_balance</code><br />
+    <code>set PSG_balance -100</code><br />
+    <code>set FMPAC_balance 0</code>
+  </div>
+
   <h3><a id="soundchip_channel_record">&lt;soundchip&gt;_ch&lt;channel&gt;_record</a></h3>
 
   <p>Sets the filename to which the sound of an individual channel of
@@ -3339,9 +3428,10 @@
     <code>set SCC_ch5_mute off</code>
   </div>
 
-  <h3><a id="soundchip_mode">&lt;soundchip&gt;_mode</a></h3>
+  <h3><a id="soundchip_detune_frequency">&lt;soundchip&gt;_detune_frequency</a></h3>
 
-  <p>Sets the channel mode for individual sound chips. Note that stereo chips can only be in stereo mode and mono chips can never be set to stereo mode.</p>
+  <p>Sets the frequency of the detune (a random variation in a sound's frequency) effect. It makes a sound fatter and more natural, as if played by a human being.
+  </p>
 
   <div class="subsectiontitle">
     usage:
@@ -3349,27 +3439,15 @@
 
   <table>
     <tr>
-      <td><code>set &lt;soundchip&gt;_mode</code></td>
+      <td><code>set &lt;soundchip&gt;_detune_frequency</code></td>
 
       <td>Shows the current setting</td>
     </tr>
 
     <tr>
-      <td><code>set &lt;soundchip&gt;_mode mono</code></td>
+      <td><code>set &lt;soundchip&gt;_detune_frequency &lt;num&gt;</code></td>
 
-      <td>Plays a mono sound on both the left and right channel</td>
-    </tr>
-
-    <tr>
-      <td><code>set &lt;soundchip&gt;_mode left</code></td>
-
-      <td>Plays a mono sound on only the left channel</td>
-    </tr>
-
-    <tr>
-      <td><code>set &lt;soundchip&gt;_mode right</code></td>
-
-      <td>Plays a mono sound on only the right channel</td>
+      <td>Sets new detune frequency; 1 is minimum, 100 is maximum</td>
     </tr>
   </table>
 
@@ -3378,9 +3456,122 @@
   </div>
 
   <div class="examples">
-    <code>set PSG_mode</code><br />
-    <code>set PSG_mode left</code><br />
-    <code>set FMPAC_mode mono</code>
+    <code>set PSG_detune_frequency</code><br />
+    <code>set PSG_detune_frequency 5</code> (default)<br />
+  </div>
+
+  <div class="note">
+    Note: For now, this setting is only available for the PSG soundchip.
+  </div>
+
+  <h3><a id="soundchip_detune_percent">&lt;soundchip&gt;_detune_percent</a></h3>
+
+  <p>Sets the strength of the detune effect. By default it is 0, which means the effect is switched off.
+  </p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set &lt;soundchip&gt;_detune_percent</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set &lt;soundchip&gt;_detune_percent &lt;num&gt;</code></td>
+
+      <td>Sets new detune strength; 0 is minimum, 10 is maximum</td>
+    </tr>
+  </table>
+
+  <div class="subsectiontitle">
+    examples:
+  </div>
+
+  <div class="examples">
+    <code>set PSG_detune_percent</code><br />
+    <code>set PSG_detune_percent 0</code> (switched off, default)<br />
+    <code>set PSG_detune_percent 0.5</code> (recommended)<br />
+  </div>
+
+  <div class="note">
+    Note: For now, this setting is only available for the PSG soundchip.
+  </div>
+
+  <h3><a id="soundchip_vibrato_frequency">&lt;soundchip&gt;_vibrato_frequency</a></h3>
+
+  <p>Sets the frequency of the vibrato (a periodic variation in a sound's frequency) effect.
+  </p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set &lt;soundchip&gt;_vibrato_frequency</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set &lt;soundchip&gt;_vibrato_frequency &lt;num&gt;</code></td>
+
+      <td>Sets new vibrato frequency; 1 is minimum, 10 is maximum</td>
+    </tr>
+  </table>
+
+  <div class="subsectiontitle">
+    examples:
+  </div>
+
+  <div class="examples">
+    <code>set PSG_vibrato_frequency</code><br />
+    <code>set PSG_vibrato_frequency 5</code> (default)<br />
+  </div>
+
+  <div class="note">
+    Note: For now, this setting is only available for the PSG soundchip.
+  </div>
+
+  <h3><a id="soundchip_vibrato_percent">&lt;soundchip&gt;_vibrato_percent</a></h3>
+
+  <p>Sets the strength of the vibrato effect. By default it is 0, which means the effect is switched off.
+  </p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set &lt;soundchip&gt;_vibrato_percent</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set &lt;soundchip&gt;_vibrato_percent &lt;num&gt;</code></td>
+
+      <td>Sets new vibrato strength; 0 is minimum, 10 is maximum</td>
+    </tr>
+  </table>
+
+  <div class="subsectiontitle">
+    examples:
+  </div>
+
+  <div class="examples">
+    <code>set PSG_vibrato_percent</code><br />
+    <code>set PSG_vibrato_percent 0</code> (switched off, default)<br />
+    <code>set PSG_vibrato_percent 1</code> (recommended)<br />
+  </div>
+
+  <div class="note">
+    Note: For now, this setting is only available for the PSG soundchip.
   </div>
 
   <h3><a id="soundchip_volume">&lt;soundchip&gt;_volume</a></h3>

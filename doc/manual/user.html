@@ -1084,7 +1084,7 @@ The recorded AVI file will not suffer from any hiccups, even if the emulation ra
 Use the command <code><a class="external" href="commands.html#record">record</a> start</code> to record to a default file name, or you can use an additional parameter to specify a file. The command <code><a class="external" href="commands.html#record">record</a> stop</code> stops recording and <code><a class="external" href="commands.html#record">record</a> toggle</code> toggles it. You can use the <code>-audioonly</code> or <code>-videoonly</code> option to record only sound or video.
 </p>
 <p>
-If you want to put a recorded video on your web site, it is better to transcode the audio to MP3 or Vorbis format, as this makes the file a lot smaller. At the time of writing (April 2007), YouTube does not support the ZMBV codec, so if you want to upload your recording there you should transcode the video as well. Google Video does support the ZMBV codec. Trancoding videos can be done with programs such as <a class="external" href="http://www.virtualdub.org/">Virtual Dub</a> (Windows) or <a class="external" href="http://www.mplayerhq.hu/">MPlayer's MEncoder</a> (Linux/UNIX).
+If you want to put a recorded video on your web site, it is better to transcode the audio to MP3 or Vorbis format, as this makes the file a lot smaller. At the time of writing (April 2007), YouTube does not support the ZMBV codec, so if you want to upload your recording there you should transcode the video as well. Google Video does support the ZMBV codec. Transcoding videos can be done with programs such as <a class="external" href="http://www.virtualdub.org/">Virtual Dub</a> (Windows) or <a class="external" href="http://www.mplayerhq.hu/">MPlayer's MEncoder</a> (Linux/UNIX).
 </p>
 
 <h2><a id="audio">7. Audio</a></h2>
@@ -1104,7 +1104,12 @@ Each sound device in the MSX you are emulating also has its own volume setting. 
 </p>
 
 <p>
-All mono sound devices have an additional mode setting. You can use it to select whether this device should be audible on the left channel ("left"), the right channel ("right") or both channels ("mono"). Example: <code>set <a class="external" href="commands.html#soundchip_mode">PSG_mode</a> left</code>. Any sound device can also be individually muted by setting the channel mode to "off".
+The mode setting for sound devices which was present in previous versions of openMSX, has been replaced by a balance setting. For each sound device, you can control the distribution of the sound output of this chip over the left and right channel. This is very similar to the balance knob on (older?) hifi equipment.
+Example: <code>set <a class="external" href="commands.html#soundchip_balance">PSG_balance</a> -100</code>, which sets the PSG entirely to the left channel. Any sound device can also be individually (un)muted using the <a class="external" href="commands.html#mute_channels">mute_channels</a> command.
+</p>
+
+<p>
+If you'd like to apply some special effects to the sound, you should take a look at the <a class="external" href="commands.html#soundchip_vibrato_frequency">vibrato</a> and <a class="external" href="commands.html#soundchip_detune_frequency">detune</a> (both percent and frequency) settings, which can be only applied to the PSG, for now.
 </p>
 
 <p>
@@ -1149,6 +1154,10 @@ openMSX 0.6.2 has an improved way to record audio to a file: it records the soun
 
 <p>
 You can start the recording of sound by issuing the command <code><a class="external" href="commands.html#soundlog">soundlog</a> start</code>. It will automatically choose a file name and save it in the <code>soundlogs</code> directory in your personal openMSX folder. You can also add an extra parameter to specify the filename for the new WAV file. To stop recording, use <code><a class="external" href="commands.html#soundlog">soundlog</a> stop</code>. You can toggle the recording status using <code><a class="external" href="commands.html#soundlog">soundlog</a> toggle</code>, which is useful if you <code><a class="external" href="commands.html#bind">bind</a></code> this command to a hot key.
+</p>
+
+<p>
+openMSX 0.6.3 has an advanced feature for recording audio to file: it can record individual channels of sound chips to individual files on disk. The sound is in the native frequency of the sound chip this time, which means that for chips like PSG or SCC (which run at very high frequencies), the files will be huge. (You are warned!) This feature is easiest to control with the <code><a class="external" href="commands.html#record_channels">record_channels</a></code> command. Note that in contrast to the <code><a class="external" href="commands.html#soundlog">soundlog</a></code> command, the output file of this command ends up in the current directory and not in a special directory. We hope you can use this command to study the fantastic compositions of MSX software and make great remakes of them.
 </p>
 
 <h2><a id="debugdevice">8. Debug Device</a></h2>
