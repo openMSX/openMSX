@@ -463,13 +463,13 @@ AY8910::AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
 		0.0, 0.0, 10.0));
 	vibratoFrequency.reset(new FloatSetting(commandController,
 		name + "_vibrato_frequency", "frequency of vibrato effect in Hertz",
-		4.5, 1.0, 10.0));
+		5, 1.0, 10.0));
 	detunePercent.reset(new FloatSetting(commandController,
 		name + "_detune_percent", "controls strength of detune effect",
 		0.0, 0.0, 10.0));
 	detuneFrequency.reset(new FloatSetting(commandController,
 		name + "_detune_frequency", "frequency of detune effect in Hertz",
-		17.0, 1.0, 100.0));
+		5.0, 1.0, 100.0));
 
 	reset(time);
 	registerSound(config);
