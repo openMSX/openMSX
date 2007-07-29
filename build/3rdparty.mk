@@ -36,8 +36,8 @@ DOWNLOAD_XML:=http://xmlsoft.org/sources
 # You can use other versions if you like; adjust the names accordingly.
 PACKAGE_ZLIB:=zlib-1.2.3
 PACKAGE_PNG:=libpng-1.2.18
-PACKAGE_SDL:=SDL-1.2.11
-PACKAGE_SDL_IMAGE:=SDL_image-1.2.5
+PACKAGE_SDL:=SDL-1.2.12
+PACKAGE_SDL_IMAGE:=SDL_image-1.2.6
 PACKAGE_GLEW:=glew-1.4.0
 PACKAGE_TCL:=tcl8.4.15
 PACKAGE_XML:=libxml2-2.6.29
