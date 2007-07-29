@@ -279,11 +279,9 @@ MSXMotherBoardImpl::~MSXMotherBoardImpl()
 
 void MSXMotherBoardImpl::deleteMachine()
 {
-	for (MSXMotherBoard::Extensions::reverse_iterator it = extensions.rbegin();
-	     it != extensions.rend(); ++it) {
-		delete *it;
+	while (!extensions.empty()) {
+	 	removeExtension(*extensions.back());
 	}
-	extensions.clear();
 
 	machineConfig.reset();
 }
@@ -361,6 +359,7 @@ ExtensionConfig& MSXMotherBoardImpl::loadExtension(const string& name)
 	}
 	ExtensionConfig& result = *extension;
 	extensions.push_back(extension.release());
+	self.getMSXCliComm().update(CliComm::HARDWARE, result.getName(), "add");
 	return result;
 }
 
@@ -399,6 +398,7 @@ void MSXMotherBoardImpl::removeExtension(const ExtensionConfig& extension)
 	MSXMotherBoard::Extensions::iterator it =
 		find(extensions.begin(), extensions.end(), &extension);
 	assert(it != extensions.end());
+	self.getMSXCliComm().update(CliComm::HARDWARE, extension.getName(), "remove");
 	delete &extension;
 	extensions.erase(it);
 }
