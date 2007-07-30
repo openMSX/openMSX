@@ -38,7 +38,6 @@ private:
 	MSXCPU& cpu;
 
 	byte mapper[4];
-	byte mapperHigh;
 	byte mapperMask;
 	bool spcEnable;
 	bool sccEnable;

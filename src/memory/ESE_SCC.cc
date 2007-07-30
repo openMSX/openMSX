@@ -79,7 +79,6 @@ ESE_SCC::ESE_SCC(MSXMotherBoard& motherBoard, const XMLElement& config,
 	mapperMask = (sramSize / 0x2000) - 1;
 
 	// initialized mapper
-	mapperHigh  = 0;
 	sccEnable   = false;
 	spcEnable   = false;
 	writeEnable = false;
@@ -115,33 +114,48 @@ void ESE_SCC::reset(const EmuTime& time)
 void ESE_SCC::setMapperLow(unsigned page, byte value)
 {
 	value &= 0x3f; // use only 6bit
+	bool flush = false;
 	if (page == 2) {
-		// TODO take mapperHigh into account?
-		sccEnable = (value == 0x3f);
+		bool newSccEnable = (value == 0x3f);
+		if (newSccEnable != sccEnable) {
+			sccEnable = newSccEnable;
+			flush = true;
+		}
 	}
-	byte newValue = (value | mapperHigh) & mapperMask;
+	byte newValue = value;
+	if (page == 0) newValue |= mapper[0] & 0x40;
+	newValue &= mapperMask;
 	if (mapper[page] != newValue) {
 		mapper[page] = newValue;
+		flush = true;
+	}
+	if (flush) {
 		cpu.invalidateMemCache(0x4000 + 0x2000 * page, 0x2000);
 	}
 }
 
 void ESE_SCC::setMapperHigh(byte value)
 {
-	writeEnable = (value & 0x10);
+	writeEnable = value & 0x10; // no need to flush cache
 	if (!spc.get()) {
 		return; // only WAVE-SCSI supports 1024kB
 	}
 
-	mapperHigh = (value & 0x40);
-	spcEnable = mapperHigh && !writeEnable;
+	bool flush = false;
+	byte mapperHigh = value & 0x40;
+	bool newSpcEnable = mapperHigh && !writeEnable;
+	if (spcEnable != newSpcEnable) {
+		spcEnable = newSpcEnable;
+		flush = true;
+	}
 
-	for (int i = 0; i < 4; ++i) {
-		byte newValue = ((mapper[i] & 0x3F) | mapperHigh) & mapperMask;
-		if (mapper[i] != newValue) {
-			mapper[i] = newValue;
-			cpu.invalidateMemCache(0x4000 + 0x2000 * i, 0x2000);
-		}
+	byte newValue = ((mapper[0] & 0x3F) | mapperHigh) & mapperMask;
+	if (mapper[0] != newValue) {
+		mapper[0] = newValue;
+		flush = true;
+	}
+	if (flush) {
+		cpu.invalidateMemCache(0x4000, 0x2000);
 	}
 }
 
