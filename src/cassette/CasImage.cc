@@ -52,6 +52,23 @@ EmuTime CasImage::getEndTime() const
 	return clk.getTime();
 }
 
+unsigned CasImage::getFrequency() const
+{
+	return OUTPUT_FREQUENCY;
+}
+
+void CasImage::fillBuffer(unsigned pos, int** bufs, unsigned num) const
+{
+	unsigned nbSamples = output.size();
+	if (pos < nbSamples) {
+		for (unsigned i = 0; i < num; ++i, ++pos) {
+			bufs[0][i] = (pos < nbSamples) ? output[pos] * 256 : 0;
+		}
+	} else {
+		bufs[0] = 0;
+	}
+}
+
 void CasImage::write0()
 {
 	output.push_back( 127);

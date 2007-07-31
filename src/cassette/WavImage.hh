@@ -18,8 +18,12 @@ public:
 
 	virtual short getSampleAt(const EmuTime& time);
 	virtual EmuTime getEndTime() const;
+	virtual unsigned getFrequency() const;
+	virtual void fillBuffer(unsigned pos, int** bufs, unsigned num) const;
 
 private:
+	int getSample(unsigned pos) const;
+
 	unsigned nbSamples;
 	byte* buffer;
 	DynamicClock clock;

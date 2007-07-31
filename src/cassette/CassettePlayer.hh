@@ -6,6 +6,7 @@
 #include "EventListener.hh"
 #include "CassetteDevice.hh"
 #include "SoundDevice.hh"
+#include "Resample.hh"
 #include "Schedulable.hh"
 #include "EmuTime.hh"
 #include <string>
@@ -25,8 +26,9 @@ class MSXCommandController;
 class MSXEventDistributor;
 class EventDistributor;
 
-class CassettePlayer : public CassetteDevice, public SoundDevice,
-                       private EventListener, private Schedulable
+class CassettePlayer : public CassetteDevice, public SoundDevice
+                     , private Resample, private EventListener
+                     , private Schedulable
 {
 public:
 	CassettePlayer(MSXCommandController& msxCommandController,
@@ -49,7 +51,12 @@ public:
 
 	// SoundDevice
 	virtual void setOutputRate(unsigned sampleRate);
-	virtual void generateChannels(int** buffers, unsigned num);
+	virtual void generateChannels(int** bufs, unsigned num);
+	virtual bool updateBuffer(unsigned length, int* buffer,
+		const EmuTime& time, const EmuDuration& sampDur);
+
+	// Resample
+	virtual bool generateInput(int* buffer, unsigned num);
 
 private:
 	enum State { PLAY, RECORD, STOP };
@@ -131,8 +138,8 @@ private:
 	EmuTime prevTime;
 
 	// SoundDevice
-	EmuDuration delta;
-	EmuTime playTapeTime;
+	unsigned playPos;
+	unsigned outputRate;
 	std::string casImage;
 
 	MSXCommandController& msxCommandController;

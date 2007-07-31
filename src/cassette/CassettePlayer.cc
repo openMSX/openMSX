@@ -39,6 +39,7 @@
 #include "WavWriter.hh"
 #include "ThrottleManager.hh"
 #include "TclObject.hh"
+#include "DynamicClock.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -74,11 +75,12 @@ CassettePlayer::CassettePlayer(
 		EventDistributor& eventDistributor_,
 		MSXCliComm& cliComm_)
 	: SoundDevice(mixer, getName(), getDescription(), 1)
+	, Resample(msxCommandController_.getGlobalSettings(), 1)
 	, Schedulable(scheduler)
 	, tapeTime(EmuTime::zero)
 	, recTime(EmuTime::zero)
 	, prevTime(EmuTime::zero)
-	, playTapeTime(EmuTime::zero)
+	, playPos(0)
 	, msxCommandController(msxCommandController_)
 	, cliComm(cliComm_)
 	, eventDistributor(eventDistributor_)
@@ -273,12 +275,13 @@ void CassettePlayer::playTape(const string& filename, const EmuTime& time)
 	setImageName(filename);
 	rewind(time); // sets PLAY mode
 	autoRun();
+	setOutputRate(outputRate);
 }
 
 void CassettePlayer::rewind(const EmuTime& time)
 {
 	tapeTime = EmuTime::zero;
-	playTapeTime = EmuTime::zero;
+	playPos = 0;
 	setState(PLAY, time);
 }
 
@@ -339,7 +342,11 @@ void CassettePlayer::updatePlayPosition(const EmuTime& time)
 	assert(getState() == PLAY);
 	if (isRolling()) {
 		tapeTime += (time - prevTime);
-		playTapeTime = tapeTime;
+
+		assert(playImage.get());
+		DynamicClock clock(EmuTime::zero);
+		clock.setFreq(playImage->getFrequency());
+		playPos = clock.getTicksTill(tapeTime);
 	}
 	prevTime = time;
 }
@@ -456,10 +463,13 @@ void CassettePlayer::unplugHelper(const EmuTime& time)
 }
 
 
-void CassettePlayer::setOutputRate(unsigned sampleRate)
+void CassettePlayer::setOutputRate(unsigned newOutputRate)
 {
-	setInputRate(sampleRate);
-	delta = EmuDuration(1.0 / sampleRate);
+	outputRate = newOutputRate;
+	unsigned inputRate = playImage.get() ? playImage->getFrequency()
+	                                     : outputRate;
+	setInputRate(inputRate);
+	setResampleRatio(inputRate, outputRate);
 }
 
 void CassettePlayer::generateChannels(int** buffers, unsigned num)
@@ -468,11 +478,19 @@ void CassettePlayer::generateChannels(int** buffers, unsigned num)
 		buffers[0] = 0;
 		return;
 	}
+	playImage->fillBuffer(playPos, buffers, num);
+	playPos += num;
+}
 
-	for (unsigned i = 0; i < num; ++i) {
-		buffers[0][i] = getSample(playTapeTime);
-		playTapeTime += delta;
-	}
+bool CassettePlayer::generateInput(int* buffer, unsigned num)
+{
+	return mixChannels(buffer, num);
+}
+
+bool CassettePlayer::updateBuffer(unsigned length, int* buffer,
+     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
+{
+	return generateOutput(buffer, length);
 }
 
 

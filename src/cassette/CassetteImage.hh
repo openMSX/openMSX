@@ -17,6 +17,8 @@ public:
 	virtual ~CassetteImage();
 	virtual short getSampleAt(const EmuTime& time) = 0;
 	virtual EmuTime getEndTime() const = 0;
+	virtual unsigned getFrequency() const = 0;
+	virtual void fillBuffer(unsigned pos, int** bufs, unsigned num) const = 0;
 
 	FileType getFirstFileType() const;
 	std::string getFirstFileTypeAsString() const;

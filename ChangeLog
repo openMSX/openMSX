@@ -1,5 +1,8 @@
 $Id$
 
+2007-07-31 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Optimized cassetteplayer audio part, also use resampler
+
 2007-07-30 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Some fixes in ESE_SCC
 

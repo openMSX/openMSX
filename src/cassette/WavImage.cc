@@ -50,8 +50,7 @@ WavImage::WavImage(const string& fileName)
 	if (nbSamples > 0) {
 		long long total = 0;
 		for (unsigned i = 0; i < nbSamples; ++i) {
-			total += buffer[i * 2] +
-			         (static_cast<signed char>(buffer[i * 2 + 1]) << 8);
+			total += getSample(i);
 		}
 		average = static_cast<short>(total / nbSamples);
 	} else {
@@ -64,14 +63,18 @@ WavImage::~WavImage()
 	free(buffer);
 }
 
+int WavImage::getSample(unsigned pos) const
+{
+	return (pos < nbSamples)
+		? buffer[pos * 2] +
+		  (static_cast<signed char>(buffer[pos * 2 + 1]) << 8)
+		: 0;
+}
+
 short WavImage::getSampleAt(const EmuTime& time)
 {
 	unsigned pos = clock.getTicksTill(time);
-	int tmp = (pos < nbSamples)
-	        ? buffer[pos * 2] +
-	          (static_cast<signed char>(buffer[pos * 2 + 1]) << 8)
-	        : 0;
-	return Math::clipIntToShort(tmp - average);
+	return Math::clipIntToShort(getSample(pos) - average);
 }
 
 EmuTime WavImage::getEndTime() const
@@ -79,6 +82,22 @@ EmuTime WavImage::getEndTime() const
 	DynamicClock clk(clock);
 	clk += nbSamples;
 	return clk.getTime();
+}
+
+unsigned WavImage::getFrequency() const
+{
+	return clock.getFreq();
+}
+
+void WavImage::fillBuffer(unsigned pos, int** bufs, unsigned num) const
+{
+	if (pos < nbSamples) {
+		for (unsigned i = 0; i < num; ++i) {
+			bufs[0][i] = getSample(pos + i);
+		}
+	} else {
+		bufs[0] = 0;
+	}
 }
 
 } // namespace openmsx
