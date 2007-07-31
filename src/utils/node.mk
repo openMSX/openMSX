@@ -20,6 +20,7 @@ HDR_ONLY:= \
 	checked_cast \
 	likely \
 	noncopyable \
-	shared_ptr
+	shared_ptr \
+	static_assert
 
 include build/node-end.mk

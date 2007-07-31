@@ -4,6 +4,7 @@
 #define MATH_HH
 
 #include "openmsx.hh"
+#include "static_assert.hh"
 #include <algorithm>
 #include <cmath>
 
@@ -32,6 +33,7 @@ inline int clip(int x)
   */
 inline short clipIntToShort(int x)
 {
+	STATIC_ASSERT((-1 >> 1) == -1); // right-shift must preserve sign
 	return short(x) == x ? x : (0x7FFF - (x >> 31));
 }
 
