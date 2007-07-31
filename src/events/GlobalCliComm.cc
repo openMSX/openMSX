@@ -104,7 +104,8 @@ void GlobalCliComm::addConnection(auto_ptr<CliConnection> connection)
 }
 
 const char* const updateStr[CliComm::NUM_UPDATES] = {
-	"led", "setting", "hardware", "plug", "unplug", "media", "status"
+	"led", "setting", "hardware", "plug", "unplug", "media", "status", 
+		"extension"
 };
 void GlobalCliComm::log(LogLevel level, const string& message)
 {

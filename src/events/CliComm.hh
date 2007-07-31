@@ -22,6 +22,7 @@ public:
 		UNPLUG,
 		MEDIA,
 		STATUS,
+		EXTENSION,
 		NUM_UPDATES // must be last
 	};
 

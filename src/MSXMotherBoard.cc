@@ -359,7 +359,7 @@ ExtensionConfig& MSXMotherBoardImpl::loadExtension(const string& name)
 	}
 	ExtensionConfig& result = *extension;
 	extensions.push_back(extension.release());
-	self.getMSXCliComm().update(CliComm::HARDWARE, result.getName(), "add");
+	self.getMSXCliComm().update(CliComm::EXTENSION, result.getName(), "add");
 	return result;
 }
 
@@ -398,7 +398,7 @@ void MSXMotherBoardImpl::removeExtension(const ExtensionConfig& extension)
 	MSXMotherBoard::Extensions::iterator it =
 		find(extensions.begin(), extensions.end(), &extension);
 	assert(it != extensions.end());
-	self.getMSXCliComm().update(CliComm::HARDWARE, extension.getName(), "remove");
+	self.getMSXCliComm().update(CliComm::EXTENSION, extension.getName(), "remove");
 	delete &extension;
 	extensions.erase(it);
 }
