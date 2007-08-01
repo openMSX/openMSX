@@ -40,6 +40,7 @@
 #include "ThrottleManager.hh"
 #include "TclObject.hh"
 #include "DynamicClock.hh"
+#include "Clock.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -52,6 +53,11 @@ namespace openmsx {
 
 static const unsigned RECORD_FREQ = 44100;
 static const double OUTPUT_AMP = 60.0;
+
+enum SyncType {
+	END_OF_TAPE,
+	SYNC_AUDIO_EMU
+};
 
 class TapeCommand : public RecordedCommand
 {
@@ -81,6 +87,7 @@ CassettePlayer::CassettePlayer(
 	, recTime(EmuTime::zero)
 	, prevTime(EmuTime::zero)
 	, playPos(0)
+	, syncScheduled(false)
 	, msxCommandController(msxCommandController_)
 	, cliComm(cliComm_)
 	, eventDistributor(eventDistributor_)
@@ -246,9 +253,9 @@ void CassettePlayer::updateLoadingState(const EmuTime& time)
 	// note: we don't use isRolling()
 	loadingIndicator->update(motor && (getState() == PLAY));
 
-	removeSyncPoint();
+	removeSyncPoint(END_OF_TAPE);
 	if ((motor || !motorControl) && (getState() == PLAY)) {
-		setSyncPoint(time + (playImage->getEndTime() - tapeTime));
+		setSyncPoint(time + (playImage->getEndTime() - tapeTime), END_OF_TAPE);
 	}
 }
 
@@ -343,10 +350,13 @@ void CassettePlayer::updatePlayPosition(const EmuTime& time)
 	if (isRolling()) {
 		tapeTime += (time - prevTime);
 
-		assert(playImage.get());
-		DynamicClock clock(EmuTime::zero);
-		clock.setFreq(playImage->getFrequency());
-		playPos = clock.getTicksTill(tapeTime);
+		if (!syncScheduled) {
+			// don't sync too often, this improves sound quality
+			syncScheduled = true;
+			Clock<1> next(time);
+			next += 1;
+			setSyncPoint(next.getTime(), SYNC_AUDIO_EMU);
+		}
 	}
 	prevTime = time;
 }
@@ -517,11 +527,28 @@ const std::string& CassettePlayer::schedName() const
 	return schedName;
 }
 
-void CassettePlayer::executeUntil(const EmuTime& time, int /*userData*/)
+void CassettePlayer::executeUntil(const EmuTime& time, int userData)
 {
-	// tape ended
-	cliComm.printWarning("Tape end reached... stopping. You may need to insert another tape image that contains side B. (Or you used the wrong loading command.)");
-	setState(STOP, time);
+	switch (userData) {
+	case END_OF_TAPE:
+		// tape ended
+		cliComm.printWarning(
+			"Tape end reached... stopping. "
+			"You may need to insert another tape image "
+			"that contains side B. (Or you used the wrong "
+			"loading command.)");
+		setState(STOP, time);
+		break;
+	case SYNC_AUDIO_EMU:
+		if (playImage.get()) {
+			updatePlayPosition(time);
+			DynamicClock clk(EmuTime::zero);
+			clk.setFreq(playImage->getFrequency());
+			playPos = clk.getTicksTill(tapeTime);
+		}
+		syncScheduled = false;
+		break;
+	}
 }
 
 
