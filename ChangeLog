@@ -1,5 +1,8 @@
 $Id$
 
+2007-08-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added psg_profile Tcl script
+
 2007-07-31 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimized cassetteplayer audio part, also use resampler
 
