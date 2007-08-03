@@ -541,6 +541,7 @@ void CassettePlayer::executeUntil(const EmuTime& time, int userData)
 		break;
 	case SYNC_AUDIO_EMU:
 		if (playImage.get()) {
+			updateStream(time);
 			updatePlayPosition(time);
 			DynamicClock clk(EmuTime::zero);
 			clk.setFreq(playImage->getFrequency());
