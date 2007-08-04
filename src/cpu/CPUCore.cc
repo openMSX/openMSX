@@ -398,21 +398,19 @@ template <class T> ALWAYS_INLINE byte CPUCore<T>::RDMEM_OPCODE()
 
 static ALWAYS_INLINE word read16LE(const byte* p)
 {
-	if (OPENMSX_BIGENDIAN) {
+	if (OPENMSX_BIGENDIAN || !OPENMSX_UNALIGNED_MEMORY_ACCESS) {
 		return p[0] + 256 * p[1];
 	} else {
-		// TODO misaligned accesses allowed by host CPU?
 		return *reinterpret_cast<const word*>(p);
 	}
 }
 
 static ALWAYS_INLINE void write16LE(byte* p, word value)
 {
-	if (OPENMSX_BIGENDIAN) {
+	if (OPENMSX_BIGENDIAN || !OPENMSX_UNALIGNED_MEMORY_ACCESS) {
 		p[0] = value & 0xff;
 		p[1] = value >> 8;
 	} else {
-		// TODO misaligned accesses allowed by host CPU?
 		*reinterpret_cast<word*>(p) = value;
 	}
 }

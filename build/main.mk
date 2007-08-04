@@ -178,6 +178,8 @@ CPU_LIST:=$(OPENMSX_TARGET_CPU)
 endif
 
 # Load CPU specific settings.
+# - by default assume the CPU doesnt support unaligned memory accesses
+UNALIGNED_MEMORY_ACCESS:=false
 $(call DEFCHECK,OPENMSX_TARGET_CPU)
 include $(MAKE_PATH)/cpu-$(OPENMSX_TARGET_CPU).mk
 # Check that all expected variables were defined by CPU specific Makefile:

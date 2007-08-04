@@ -3,6 +3,8 @@ $Id$
 2007-08-04 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Enable -Wold-style-cast warnings by default
 	  abd fixed all warnings triggered by this
+	* In CPUCore only do unaligned memory accesses if we know
+	  the host CPU supports it
 
 2007-08-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added psg_profile Tcl script

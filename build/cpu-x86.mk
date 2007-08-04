@@ -5,6 +5,9 @@
 # Big or little endian?
 BIG_ENDIAN:=false
 
+# Allow unaligned memory accesses
+UNALIGNED_MEMORY_ACCESS:=true
+
 # Default build flavour.
 ifeq ($(filter darwin%,$(OPENMSX_TARGET_OS)),)
 # To run openMSX with decent speed, at least a Pentium 2 class machine
