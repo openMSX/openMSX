@@ -192,7 +192,7 @@ unsigned w32_midiOutOpen(const char *vfn)
 	if (w32_midiOutFindDev(&idx, &devid,vfn)) {
 		return unsigned(-1);
 	}
-	if (midiOutOpen(static_cast<HMIDIOUT*>(&vfnt_midiout[idx].handle), devid, 0, 0 ,0) != MMSYSERR_NOERROR) {
+	if (midiOutOpen(reinterpret_cast<HMIDIOUT*>(&vfnt_midiout[idx].handle), devid, 0, 0 ,0) != MMSYSERR_NOERROR) {
 		return unsigned(-1);
 	}
 	return idx;
@@ -200,7 +200,7 @@ unsigned w32_midiOutOpen(const char *vfn)
 
 int w32_midiOutClose(unsigned idx)
 {
-	midiOutReset(static_cast<HMIDIOUT>(vfnt_midiout[idx].handle));
+	midiOutReset(reinterpret_cast<HMIDIOUT>(vfnt_midiout[idx].handle));
 	if (midiOutClose(static_cast<HMIDIOUT>(vfnt_midiout[idx].handle)) == MMSYSERR_NOERROR) {
 		return 0;
 	} else {
@@ -215,12 +215,12 @@ static int w32_midiOutFlushExclusiveMsg(unsigned idx)
 	buf_out[idx].header.lpData = buf_out[idx].longmes;
 	buf_out[idx].header.dwBufferLength = buf_out[idx].longmes_cnt;
 	buf_out[idx].header.dwFlags = 0;
-	if ((i = midiOutPrepareHeader(static_cast<HMIDIOUT>(vfnt_midiout[idx].handle), &buf_out[idx].header, sizeof(buf_out[idx].header))) != MMSYSERR_NOERROR) {
+	if ((i = midiOutPrepareHeader(reinterpret_cast<HMIDIOUT>(vfnt_midiout[idx].handle), &buf_out[idx].header, sizeof(buf_out[idx].header))) != MMSYSERR_NOERROR) {
 		ostringstream out;
 		out << "midiOutPrepareHeader() returned " << i;
 		throw FatalError(out.str());
 	}
-	if ((i = midiOutLongMsg(static_cast<HMIDIOUT>(vfnt_midiout[idx].handle), &buf_out[idx].header, sizeof(buf_out[idx].header))) != MMSYSERR_NOERROR) {
+	if ((i = midiOutLongMsg(reinterpret_cast<HMIDIOUT>(vfnt_midiout[idx].handle), &buf_out[idx].header, sizeof(buf_out[idx].header))) != MMSYSERR_NOERROR) {
 		ostringstream out;
 		out << "midiOutLongMsg() returned " << i;
 		throw FatalError(out.str());
@@ -231,7 +231,7 @@ static int w32_midiOutFlushExclusiveMsg(unsigned idx)
 		Sleep(1);
 	}
 	// Sending Exclusive done.
-	if ((i = midiOutUnprepareHeader(static_cast<HMIDIOUT>(vfnt_midiout[idx].handle), &buf_out[idx].header, sizeof(buf_out[idx].header))) != MMSYSERR_NOERROR) {
+	if ((i = midiOutUnprepareHeader(reinterpret_cast<HMIDIOUT>(vfnt_midiout[idx].handle), &buf_out[idx].header, sizeof(buf_out[idx].header))) != MMSYSERR_NOERROR) {
 		ostringstream out;
 		out << "midiOutUnPrepareHeader() returned " << i;
 		throw FatalError(out.str());
@@ -289,20 +289,20 @@ int w32_midiOutPut(unsigned char value, unsigned idx)
 							// Sequencer Stop, Cable Check, System Reset, and Unknown...
 						state_out[idx] = 0;
 						buf_out[idx].shortmes = DWORD(value) & 0x0ff;
-						midiOutShortMsg(static_cast<HMIDIOUT>(vfnt_midiout[idx].handle), buf_out[idx].shortmes);
+						midiOutShortMsg(reinterpret_cast<HMIDIOUT>(vfnt_midiout[idx].handle), buf_out[idx].shortmes);
 						break;
 				}
 				break;
 			default:
 				state_out[idx] = 0;
 				buf_out[idx].shortmes = DWORD(value) & 0x0ff;
-				midiOutShortMsg(static_cast<HMIDIOUT>(vfnt_midiout[idx].handle), buf_out[idx].shortmes);
+				midiOutShortMsg(reinterpret_cast<HMIDIOUT>(vfnt_midiout[idx].handle), buf_out[idx].shortmes);
 				break;
 			}
 			break;
 		case 0x0041:
 			buf_out[idx].shortmes |= (DWORD(value) & 0x0ff) << 8;
-			midiOutShortMsg(static_cast<HMIDIOUT>(vfnt_midiout[idx].handle), buf_out[idx].shortmes);
+			midiOutShortMsg(reinterpret_cast<HMIDIOUT>(vfnt_midiout[idx].handle), buf_out[idx].shortmes);
 			state_out[idx] = 0;
 			break;
 		case 0x0082:
@@ -311,12 +311,12 @@ int w32_midiOutPut(unsigned char value, unsigned idx)
 			break;
 		case 0x0081:
 			buf_out[idx].shortmes |= (DWORD(value) & 0x0ff) << 16;
-			midiOutShortMsg(static_cast<HMIDIOUT>(vfnt_midiout[idx].handle), buf_out[idx].shortmes);
+			midiOutShortMsg(reinterpret_cast<HMIDIOUT>(vfnt_midiout[idx].handle), buf_out[idx].shortmes);
 			state_out[idx] = 0;
 			break;
 		default:
 			// not reach...
-			midiOutShortMsg(static_cast<HMIDIOUT>(vfnt_midiout[idx].handle), DWORD(value) & 0x0ff);
+			midiOutShortMsg(reinterpret_cast<HMIDIOUT>(vfnt_midiout[idx].handle), DWORD(value) & 0x0ff);
 			break;
 		}
 	}
@@ -392,16 +392,16 @@ unsigned w32_midiInOpen(const char *vfn, unsigned thrdid)
 	if (w32_midiInFindDev(&idx, &devid, vfn)) {
 		return unsigned(-1);
 	}
-	if (midiInOpen(static_cast<HMIDIIN*>(&vfnt_midiin[idx].handle), devid, thrdid, 0, CALLBACK_THREAD) != MMSYSERR_NOERROR) {
+	if (midiInOpen(reinterpret_cast<HMIDIIN*>(&vfnt_midiin[idx].handle), devid, thrdid, 0, CALLBACK_THREAD) != MMSYSERR_NOERROR) {
 		return unsigned(-1);
 	}
 	memset(&inhdr, 0, sizeof(MIDIHDR));
 	inhdr.lpData = inlongmes;
 	inhdr.dwBufferLength = OPENMSX_W32_MIDI_SYSMES_MAXLEN;
-	if (midiInPrepareHeader(static_cast<HMIDIIN>(vfnt_midiin[idx].handle), (LPMIDIHDR)&inhdr, sizeof(MIDIHDR)) != MMSYSERR_NOERROR) {
+	if (midiInPrepareHeader(reinterpret_cast<HMIDIIN>(vfnt_midiin[idx].handle), (LPMIDIHDR)&inhdr, sizeof(MIDIHDR)) != MMSYSERR_NOERROR) {
 		return unsigned(-1);
 	}
-	if (midiInAddBuffer(static_cast<HMIDIIN>(vfnt_midiin[idx].handle), static_cast<LPMIDIHDR>(&inhdr), sizeof(MIDIHDR)) != MMSYSERR_NOERROR) {
+	if (midiInAddBuffer(reinterpret_cast<HMIDIIN>(vfnt_midiin[idx].handle), static_cast<LPMIDIHDR>(&inhdr), sizeof(MIDIHDR)) != MMSYSERR_NOERROR) {
 		return unsigned(-1);
 	}
 	return idx;
@@ -409,11 +409,11 @@ unsigned w32_midiInOpen(const char *vfn, unsigned thrdid)
 
 int w32_midiInClose(unsigned idx)
 {
-	midiInStop(static_cast<HMIDIIN>(vfnt_midiin[idx].handle));
-	midiInReset(static_cast<HMIDIIN>(vfnt_midiin[idx].handle));
-	midiInUnprepareHeader(static_cast<HMIDIIN>(vfnt_midiin[idx].handle),
+	midiInStop(reinterpret_cast<HMIDIIN>(vfnt_midiin[idx].handle));
+	midiInReset(reinterpret_cast<HMIDIIN>(vfnt_midiin[idx].handle));
+	midiInUnprepareHeader(reinterpret_cast<HMIDIIN>(vfnt_midiin[idx].handle),
 	                      static_cast<LPMIDIHDR>(&inhdr), sizeof(MIDIHDR));
-	if (midiInClose(static_cast<HMIDIIN>(vfnt_midiin[idx].handle)) == MMSYSERR_NOERROR) {
+	if (midiInClose(reinterpret_cast<HMIDIIN>(vfnt_midiin[idx].handle)) == MMSYSERR_NOERROR) {
 		return 0;
 	} else {
 		return -1;
