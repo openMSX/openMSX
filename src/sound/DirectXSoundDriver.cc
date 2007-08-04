@@ -154,6 +154,11 @@ unsigned DirectXSoundDriver::getSamples() const
 	return fragmentSize;
 }
 
+// #define MAKE_HRESULT(s,f,c) ((HRESULT)(((unsigned long)(s)<<31)|((unsigned long)(f)<<16)|((unsigned long)(c))))
+// #define MAKE_DSHRESULT(code) MAKE_HRESULT(1, _FACDS, code)
+// #define DSERR_BUFFERLOST     MAKE_DSHRESULT(150)
+static const HRESULT OPENMSX_DSERR_BUFFERLOST = (1u << 31) | (_FACDS << 16) | 150;
+
 void DirectXSoundDriver::dxClear()
 {
 	void *audioBuffer1, *audioBuffer2;
@@ -161,7 +166,7 @@ void DirectXSoundDriver::dxClear()
 	if (IDirectSoundBuffer_Lock(
 			primaryBuffer, 0, bufferSize,
 			&audioBuffer1, &audioSize1,
-			&audioBuffer2, &audioSize2, 0) == DSERR_BUFFERLOST) {
+			&audioBuffer2, &audioSize2, 0) == OPENMSX_DSERR_BUFFERLOST) {
 		IDirectSoundBuffer_Restore(primaryBuffer);
 	} else {
 		memset(audioBuffer1, 0, audioSize1);
@@ -199,7 +204,7 @@ void DirectXSoundDriver::dxWriteOne(short* buffer, unsigned lockSize)
 		if (IDirectSoundBuffer_Lock(
 				primaryBuffer, bufferOffset, lockSize,
 				&audioBuffer1, &audioSize1, &audioBuffer2,
-				&audioSize2, 0) == DSERR_BUFFERLOST) {
+				&audioSize2, 0) == OPENMSX_DSERR_BUFFERLOST) {
 			IDirectSoundBuffer_Restore(primaryBuffer);
 			IDirectSoundBuffer_Lock(
 				primaryBuffer, bufferOffset, lockSize,
@@ -229,7 +234,7 @@ double DirectXSoundDriver::uploadBuffer(short* buffer, unsigned count)
 		bufferOffset = (readPos + bufferSize / 2) % bufferSize;
 
 		if (IDirectSoundBuffer_Play(primaryBuffer, 0, 0,
-					DSBPLAY_LOOPING) == DSERR_BUFFERLOST) {
+					DSBPLAY_LOOPING) == OPENMSX_DSERR_BUFFERLOST) {
 			IDirectSoundBuffer_Play(
 					primaryBuffer, 0, 0, DSBPLAY_LOOPING);
 		}
