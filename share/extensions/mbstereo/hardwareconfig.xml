@@ -3,10 +3,11 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
+    <name>Moonblaster Stereo</name>
     <manufacturer>openMSX Team</manufacturer>
-    <code></code>
+    <code/>
     <release_year></release_year>
-    <description>Combination of FMPAC on the left channel and generic MSX-AUDIO on the right channel, creating "Moonblaster Stereo".</description>
+    <description>Combination of FMPAC on the left channel and generic MSX-AUDIO on the right channel.</description>
     <type>sound expansion</type>
   </info>
   <devices>

@@ -3,8 +3,9 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
+    <name>Debug Device</name>
     <manufacturer>openMSX Team</manufacturer>
-    <code></code>
+    <code/>
     <release_year>2003</release_year>
     <description>Artificial device to create debug output, see the openMSX manual.</description>
     <type>debug tool</type>

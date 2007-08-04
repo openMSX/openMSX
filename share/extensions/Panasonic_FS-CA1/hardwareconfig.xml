@@ -3,6 +3,7 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
+    <name>MSX-AUDIO Unit</name>
     <manufacturer>Panasonic</manufacturer>
     <code>FS-CA1</code>
     <release_year>1986</release_year>

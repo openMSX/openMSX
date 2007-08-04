@@ -3,6 +3,7 @@
 <!DOCTYPE msxconfig SYSTEM "msxconfig2.dtd">
 <msxconfig>
   <info>
+    <name>3.5" Disk Drive</name>
     <manufacturer>Philips</manufacturer>
     <code>VY-0010</code>
     <release_year>1985</release_year>

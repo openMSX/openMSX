@@ -3,6 +3,7 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
+    <name>Kanji ROM</name>
     <manufacturer>Konami</manufacturer>
     <code>EC-702</code>
     <release_year>1985</release_year>

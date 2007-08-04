@@ -3,6 +3,7 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
+    <name>FMPAC</name>
     <manufacturer>Panasoft</manufacturer>
     <code>SW-M004</code>
     <release_year>1989</release_year>

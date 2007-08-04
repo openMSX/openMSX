@@ -3,6 +3,7 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
+    <name>Microsol Disk Drive</name>
     <manufacturer>Microsol</manufacturer>
     <code>CDX-2</code>
     <release_year>1986</release_year>

@@ -3,6 +3,7 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
+    <name>3.5 inch Floppy Disk Drive</name>
     <manufacturer>Panasonic</manufacturer>
     <code>FS-FD1A</code>
     <release_year>?</release_year>

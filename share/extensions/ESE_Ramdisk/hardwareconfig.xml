@@ -3,8 +3,9 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
+    <name>ESE Ramdisk</name>
     <manufacturer>ESE Artists' Factory</manufacturer>
-    <code>ESE Ramdisk</code>
+    <code/>
     <release_year>1995?</release_year>
     <description>MSX SRAM disk.</description>
     <type>SRAM cartridge</type>

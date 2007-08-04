@@ -3,6 +3,7 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
+    <name>SD-Snatcher Sound Cartridge</name>
     <manufacturer>Konami</manufacturer>
     <code></code>
     <release_year>1990</release_year>

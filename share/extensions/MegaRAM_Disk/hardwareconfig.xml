@@ -3,8 +3,9 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
+    <name>MegaRAM DISK</name>
     <manufacturer>Digital Design</manufacturer>
-    <code>MegaRAM DISK</code>
+    <code/>
     <release_year></release_year>
     <description>MegaRAM with built in RAM disk.</description>
     <type>RAM disk expansion</type>

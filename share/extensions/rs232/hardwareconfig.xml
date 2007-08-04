@@ -3,6 +3,7 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
+    <name>Generic MSX RS-232</name>
     <manufacturer/>
     <code/>
     <release_year/>

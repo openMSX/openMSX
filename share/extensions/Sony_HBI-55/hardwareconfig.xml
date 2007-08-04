@@ -3,6 +3,7 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
+    <name>Data Cartridge 4KBytes</name>
     <manufacturer>Sony</manufacturer>
     <code>HBI-55</code>
     <release_year>1984</release_year>

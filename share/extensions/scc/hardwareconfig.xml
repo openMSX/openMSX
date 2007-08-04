@@ -3,6 +3,7 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
+    <name>SCC</name>
     <manufacturer>Konami</manufacturer>
     <code/>
     <release_year/>

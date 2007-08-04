@@ -3,8 +3,9 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
+    <name>GFX9000</name>
     <manufacturer>Sunrise</manufacturer>
-    <code>GFX9000</code>
+    <code/>
     <release_year>1994</release_year>
     <description>Yamaha V9990 based graphics expansion.</description>
     <type>graphics expansion</type>

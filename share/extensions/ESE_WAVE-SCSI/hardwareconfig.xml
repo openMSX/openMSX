@@ -3,8 +3,9 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
+    <name>ESE WAVE-SCSI</name>
     <manufacturer>ESE Artists' Factory</manufacturer>
-    <code>ESE WAVE-SCSI</code>
+    <code/>
     <release_year>1995?</release_year>
     <description>MSX SRAM disk with built in SCC and SCSI controller</description>
     <type>SRAM cartridge with SCC and SCSI</type>

@@ -3,6 +3,7 @@
 <!DOCTYPE msxconfig SYSTEM "msxconfig2.dtd">
 <msxconfig>
   <info>
+    <name>Micro Floppydisk Drive</name>
     <manufacturer>Sony</manufacturer>
     <code>HBD-50</code>
     <release_year>1985</release_year>

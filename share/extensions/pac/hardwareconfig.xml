@@ -3,6 +3,7 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
+    <name>PAC</name>
     <manufacturer>Panasoft</manufacturer>
     <code>SW-M001</code>
     <release_year>1989</release_year>

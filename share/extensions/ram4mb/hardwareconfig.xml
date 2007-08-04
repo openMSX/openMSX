@@ -3,10 +3,11 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
+    <name>4 MB Memory Mapper</name>
     <manufacturer/>
     <code/>
     <release_year/>
-    <description>4MB memory mapper cartridge.</description>
+    <description>4 MB memory mapper cartridge.</description>
     <type>RAM expansion</type>
   </info>
   <devices>

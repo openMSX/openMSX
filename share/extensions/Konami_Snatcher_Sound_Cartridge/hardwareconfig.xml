@@ -3,8 +3,9 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
+    <name>Snatcher Sound Cartrdige</name>
     <manufacturer>Konami</manufacturer>
-    <code></code>
+    <code/>
     <release_year>1988</release_year>
     <description>Snatcher sound cartridge (a.k.a.: SCC+).</description>
     <type>sound expansion</type>

@@ -4,10 +4,11 @@
 <msxconfig>
 
   <info>
+    <name>FM Sound Synthesizer Unit mark II</name>
     <manufacturer>Yamaha</manufacturer>
     <code>SFG-05</code>
     <release_year>?</release_year>
-    <description>FM Sound Synthesizer Unit mark II</description>
+    <description>Yamaha YM-2151 based sound cartridge with MIDI</description>
     <type>sound expansion</type>
   </info>
 

@@ -3,6 +3,7 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
+    <name>Music-Module</name>
     <manufacturer>Philips</manufacturer>
     <code>NMS-1205</code>
     <release_year>1986</release_year>

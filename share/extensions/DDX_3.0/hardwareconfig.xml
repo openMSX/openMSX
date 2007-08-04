@@ -3,8 +3,9 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
+    <name>DDX 3.0</name>
     <manufacturer>Digital Design</manufacturer>
-    <code>DDX 3.0</code>
+    <code/>
     <release_year></release_year>
     <description>Double Sided Double Density port-based external floppy disk drive.</description>
     <type>external disk drive</type>
