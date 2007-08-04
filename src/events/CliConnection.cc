@@ -237,7 +237,7 @@ void StdioConnection::close()
 
 // INVALID_HANDLE_VALUE is #defined as  (HANDLE)(-1)
 // but that gives a old-style-cast warning
-static const HANDLE OPENMSX_INVALID_HANDLE_VALUE = static_cast<HANDLE>(-1);
+static const HANDLE OPENMSX_INVALID_HANDLE_VALUE = reinterpret_cast<HANDLE>(-1);
 
 PipeConnection::PipeConnection(CommandController& commandController,
                                EventDistributor& eventDistributor,
