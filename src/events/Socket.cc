@@ -135,7 +135,7 @@ int sock_recv(int sd, char* buf, size_t count)
 	// WinNT/2000 or on Unix.
 	int err;
 	int errlen = sizeof(err);
-	getsockopt(sd, SOL_SOCKET, SO_ERROR, (char*)&err, &errlen);
+	getsockopt(sd, SOL_SOCKET, SO_ERROR, reinterpret_cast<char*>(&err), &errlen);
 	if (err == WSAEWOULDBLOCK) return 0;
 	return -1;
 #else
@@ -152,7 +152,7 @@ int sock_send(int sd, const char* buf, size_t count)
 #ifdef _WIN32
 	int err;
 	int errlen = sizeof(err);
-	getsockopt(sd, SOL_SOCKET, SO_ERROR, (char*)&err, &errlen);
+	getsockopt(sd, SOL_SOCKET, SO_ERROR, reinterpret_cast<char*>(&err), &errlen);
 	if (err == WSAEWOULDBLOCK) return 0;
 	return -1;
 #else
