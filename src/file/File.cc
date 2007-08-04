@@ -53,12 +53,12 @@ File::~File()
 {
 }
 
-void File::read(byte* buffer, unsigned num)
+void File::read(void* buffer, unsigned num)
 {
 	file->read(buffer, num);
 }
 
-void File::write(const byte* buffer, unsigned num)
+void File::write(const void* buffer, unsigned num)
 {
 	file->write(buffer, num);
 }

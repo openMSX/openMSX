@@ -168,7 +168,7 @@ void SCC::reset(const EmuTime& /*time*/)
 void SCC::setOutputRate(unsigned sampleRate)
 {
 	double input = 3579545.0 / 32;
-	setInputRate(static_cast<int>(input + 0.5));
+	setInputRate(int(input + 0.5));
 	setResampleRatio(input, sampleRate);
 }
 
@@ -336,7 +336,7 @@ void SCC::writeMem(byte address, byte value, const EmuTime& time)
 
 inline int SCC::adjust(signed char wav, byte vol)
 {
-	int tmp = (static_cast<int>(wav) * vol) / 16;
+	int tmp = (int(wav) * vol) / 16;
 	return tmp * 256;
 }
 

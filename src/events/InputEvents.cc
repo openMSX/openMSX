@@ -63,7 +63,7 @@ bool KeyEvent::lessImpl(const InputEvent& other) const
 // class KeyUpEvent
 
 KeyUpEvent::KeyUpEvent(Keys::KeyCode keyCode)
-	: KeyEvent(OPENMSX_KEY_UP_EVENT, keyCode, (word)-1)
+	: KeyEvent(OPENMSX_KEY_UP_EVENT, keyCode, word(-1))
 {
 }
 
@@ -76,7 +76,7 @@ KeyUpEvent::KeyUpEvent(Keys::KeyCode keyCode, word unicode)
 // class KeyDownEvent
 
 KeyDownEvent::KeyDownEvent(Keys::KeyCode keyCode)
-	: KeyEvent(OPENMSX_KEY_DOWN_EVENT, keyCode, (word)-1)
+	: KeyEvent(OPENMSX_KEY_DOWN_EVENT, keyCode, word(-1))
 {
 }
 
@@ -339,8 +339,8 @@ unsigned ResizeEvent::getY() const
 void ResizeEvent::toStringImpl(TclObject& result) const
 {
 	result.addListElement("resize");
-	result.addListElement(static_cast<int>(getX()));
-	result.addListElement(static_cast<int>(getY()));
+	result.addListElement(int(getX()));
+	result.addListElement(int(getY()));
 }
 
 bool ResizeEvent::lessImpl(const InputEvent& other) const

@@ -145,11 +145,11 @@ int CartridgeSlotManager::getSpecificSlot(int slot, int& ps, int& ss,
 	assert((0 <= slot) && (slot < MAX_SLOTS));
 
 	if (!slots[slot].exists()) {
-		throw MSXException(string("slot-") + (char)('a' + slot) +
+		throw MSXException(string("slot-") + char('a' + slot) +
 		                   " not defined.");
 	}
 	if (slots[slot].used()) {
-		throw MSXException(string("slot-") + (char)('a' + slot) +
+		throw MSXException(string("slot-") + char('a' + slot) +
 		                   " already in use.");
 	}
 	ps = slots[slot].ps;
@@ -163,7 +163,7 @@ int CartridgeSlotManager::getAnyFreeSlot(int& ps, int& ss,
 {
 	// search for the lowest free slot
 	int result = -1;
-	unsigned slotNum = (unsigned)-1;
+	unsigned slotNum = unsigned(-1);
 	for (int slot = 0; slot < MAX_SLOTS; ++slot) {
 		if (slots[slot].exists() && !slots[slot].used()) {
 			unsigned p = slots[slot].ps;

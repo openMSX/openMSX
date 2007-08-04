@@ -77,7 +77,7 @@ AviWriter::~AviWriter()
 
 	AVIOUT4("avih");
 	AVIOUTd(56);                        // # of bytes to follow
-	AVIOUTd((unsigned)(1000000 / fps)); // Microseconds per frame
+	AVIOUTd(unsigned(1000000 / fps));   // Microseconds per frame
 	AVIOUTd(0);
 	AVIOUTd(0);                         // PaddingGranularity (whatever that might be)
 	AVIOUTd(0x110);                     // Flags,0x10 has index, 0x100 interleaved
@@ -105,7 +105,7 @@ AviWriter::~AviWriter()
 	AVIOUTd(0);                         // Reserved, MS says: wPriority, wLanguage
 	AVIOUTd(0);                         // InitialFrames
 	AVIOUTd(1000000);                   // Scale
-	AVIOUTd((unsigned)(1000000 * fps)); // Rate: Rate/Scale == samples/second
+	AVIOUTd(unsigned(1000000 * fps));   // Rate: Rate/Scale == samples/second
 	AVIOUTd(0);                         // Start
 	AVIOUTd(frames);                    // Length
 	AVIOUTd(0);                         // SuggestedBufferSize

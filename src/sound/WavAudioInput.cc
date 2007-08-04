@@ -50,8 +50,8 @@ void WavAudioInput::loadWave()
 		throw MSXException("Couldn't build wav converter");
 	}
 
-	buffer = (Uint8 *)malloc(wavLen * audioCVT.len_mult);
-	audioCVT.buf = buffer;
+	buffer = static_cast<short*>(malloc(wavLen * audioCVT.len_mult));
+	audioCVT.buf = reinterpret_cast<byte*>(buffer);
 	audioCVT.len = wavLen;
 	memcpy(buffer, wavBuf, wavLen);
 	SDL_FreeWAV(wavBuf);
@@ -60,7 +60,7 @@ void WavAudioInput::loadWave()
 		freeWave();
 		throw MSXException("Couldn't convert wav file to internal format");
 	}
-	length = (int)(audioCVT.len * audioCVT.len_ratio) / 2;
+	length = int(audioCVT.len * audioCVT.len_ratio) / 2;
 }
 
 void WavAudioInput::freeWave()
@@ -126,7 +126,7 @@ short WavAudioInput::readSample(const EmuTime& time)
 {
 	int pos = (time - reference).getTicksAt(freq);
 	if (pos < length) {
-		return ((short *)buffer)[pos];
+		return buffer[pos];
 	} else {
 		return 0;
 	}

@@ -48,7 +48,7 @@ WavData::WavData(const string& filename, int wantedBits, int wantedFreq)
 		free(buffer);
 		throw MSXException("Couldn't convert wav file to internal format");
 	}
-	length = (int)(audioCVT.len * audioCVT.len_ratio) / 2;
+	length = int(audioCVT.len * audioCVT.len_ratio) / 2;
 }
 
 WavData::~WavData()

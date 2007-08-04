@@ -58,7 +58,7 @@ enum KeyPart { KEY_MAIN = 1, KEY_RHYTHM = 2 };
 // table is 3dB/octave, DV converts this into 6dB/octave
 // 0.1875 is bit 0 weight of the envelope counter (volume) expressed
 // in the 'decibel' scale
-#define DV(x) (int)(x / 0.1875)
+#define DV(x) int(x / 0.1875)
 static const int ksl_tab[8 * 16] =
 {
 	// OCT 0
@@ -106,7 +106,7 @@ static const int ksl_tab[8 * 16] =
 
 // sustain level table (3dB per step)
 // 0 - 15: 0, 3, 6, 9,12,15,18,21,24,27,30,33,36,39,42,45 (dB)
-#define SC(db) (int)(((double)db) / ENV_STEP)
+#define SC(db) int((double(db)) / ENV_STEP)
 static const int sl_tab[16] = {
 	SC( 0),SC( 1),SC( 2),SC(3 ),SC(4 ),SC(5 ),SC(6 ),SC( 7),
 	SC( 8),SC( 9),SC(10),SC(11),SC(12),SC(13),SC(14),SC(15)
@@ -211,7 +211,7 @@ static const byte eg_rate_shift[16 + 64 + 16] =
 };
 
 // multiple table
-#define ML(x) (byte)(2 * x)
+#define ML(x) byte(2 * x)
 static const byte mul_tab[16] =
 {
 	ML( 0.50), ML( 1.00), ML( 2.00), ML( 3.00),
@@ -1119,7 +1119,7 @@ void Global::initTables()
 
 		// we never reach (1 << 16) here due to the (x + 1)
 		// result fits within 16 bits at maximum
-		int n = (int)m;	// 16 bits here
+		int n = int(m);	// 16 bits here
 		n >>= 4;	// 12 bits here
 		n = (n >> 1) + (n & 1); // round to nearest
 		// 11 bits here (rounded)
@@ -1138,7 +1138,7 @@ void Global::initTables()
 		double o = -8.0 * log(fabs(m)) / log(2); // convert to 'decibels'
 		o = o / (ENV_STEP / 4);
 
-		int n = (int)(2.0 * o);
+		int n = int(2.0 * o);
 		n = (n >> 1) + (n & 1); // round to nearest
 		// waveform 0: standard sinus
 		sin_tab[i] = n * 2 + (m >= 0.0 ? 0: 1);

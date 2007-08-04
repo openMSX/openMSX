@@ -231,7 +231,8 @@ void FBPostProcessor<Pixel>::drawNoise()
 	unsigned height = screen.getHeight();
 	unsigned width = screen.getWidth();
 	for (unsigned y = 0; y < height; ++y) {
-		Pixel* buf = screen.getLinePtr(y, (Pixel*)0);
+		Pixel* dummy = 0;
+		Pixel* buf = screen.getLinePtr(y, dummy);
 		drawNoiseLine(buf, buf, &noiseBuf[noiseShift[y]], width);
 	}
 }
@@ -256,8 +257,8 @@ FBPostProcessor<Pixel>::FBPostProcessor(CommandController& commandController,
 	, noiseShift(screen.getHeight())
 	, pixelOps(screen.getFormat())
 {
-	scaleAlgorithm = (RenderSettings::ScaleAlgorithm)-1; // not a valid scaler
-	scaleFactor = (unsigned)-1;
+	scaleAlgorithm = static_cast<RenderSettings::ScaleAlgorithm>(-1); // not a valid scaler
+	scaleFactor = unsigned(-1);
 
 	FloatSetting& noiseSetting = renderSettings.getNoise();
 	noiseSetting.attach(*this);

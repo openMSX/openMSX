@@ -80,7 +80,7 @@ void V9990PixelRenderer::frameStart(const EmuTime& time)
 				drawFrame = true;
 			} else {
 				drawFrame = realTime.timeLeft(
-					(unsigned)finishFrameDuration, time);
+					unsigned(finishFrameDuration), time);
 			}
 			if (drawFrame) {
 				frameSkipCounter = 0;

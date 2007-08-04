@@ -37,11 +37,11 @@ void SDLSnow<Pixel>::paint()
 {
 	const unsigned WIDTH = screen->w;
 	const unsigned HEIGHT = screen->h;
-	Pixel* pixels = (Pixel*)screen->pixels;
+	Pixel* pixels = static_cast<Pixel*>(screen->pixels);
 	for (unsigned y = 0; y < HEIGHT; y += 2) {
 		Pixel* p = &pixels[WIDTH * y];
 		for (unsigned x = 0; x < WIDTH; x += 2) {
-			byte a = (byte)random();
+			byte a = byte(random());
 			p[x + 0] = p[x + 1] = gray[a];
 		}
 		memcpy(p + WIDTH, p, WIDTH * sizeof(Pixel));

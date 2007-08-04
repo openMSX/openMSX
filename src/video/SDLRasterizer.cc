@@ -317,7 +317,8 @@ void SDLRasterizer<Pixel>::drawBorder(
 		unsigned width = (lineWidth == 512) ? 640 : 320;
 		MemoryOps::MemSet2<Pixel, MemoryOps::NO_STREAMING> memset;
 		for (int y = startY; y < endY; ++y) {
-			memset(workFrame->getLinePtr(y, (Pixel*)0) + x,
+			Pixel* dummy = 0;
+			memset(workFrame->getLinePtr(y, dummy) + x,
 			       num, border0, border1);
 			workFrame->setLineWidth(y, width);
 		}
@@ -400,7 +401,8 @@ void SDLRasterizer<Pixel>::drawDisplay(
 				Pixel buf[512];
 				renderBitmapLine(buf, vramLine[scrollPage1]);
 				const Pixel* src = buf + displayX + hScroll;
-				Pixel* dst = workFrame->getLinePtr(y, (Pixel*)0)
+				Pixel* dummy = 0;
+				Pixel* dst = workFrame->getLinePtr(y, dummy)
 				           + leftBackground + displayX;
 				MemoryOps::stream_memcpy(dst, src, firstPageWidth);
 			} else {
@@ -413,7 +415,8 @@ void SDLRasterizer<Pixel>::drawDisplay(
 				Pixel buf[512];
 				renderBitmapLine(buf, vramLine[scrollPage2]);
 				const Pixel* src = buf + x;
-				Pixel* dst = workFrame->getLinePtr(y, (Pixel*)0)
+				Pixel* dummy = 0;
+				Pixel* dst = workFrame->getLinePtr(y, dummy)
 				           + leftBackground + displayX
 					   + firstPageWidth;
 				MemoryOps::stream_memcpy(dst, src, num);
@@ -430,7 +433,8 @@ void SDLRasterizer<Pixel>::drawDisplay(
 			Pixel buf[512];
 			characterConverter->convertLine(buf, displayY);
 			const Pixel* src = buf + displayX;
-			Pixel* dst = workFrame->getLinePtr(y, (Pixel*)0)
+			Pixel* dummy = 0;
+			Pixel* dst = workFrame->getLinePtr(y, dummy)
 			           + leftBackground + displayX;
 			MemoryOps::stream_memcpy(dst, src, displayWidth);
 
@@ -470,7 +474,8 @@ void SDLRasterizer<Pixel>::drawSprites(
 		vdp.getLeftSprites(),
 		vdp.getDisplayMode().getLineWidth() == 512);
 	for (int y = fromY; y < limitY; y++, screenY++) {
-		Pixel* pixelPtr = workFrame->getLinePtr(screenY, (Pixel*)0) + screenX;
+		Pixel* dummy = 0;
+		Pixel* pixelPtr = workFrame->getLinePtr(screenY, dummy) + screenX;
 		if (spriteMode == 1) {
 			spriteConverter->drawMode1(y, displayX, displayLimitX, pixelPtr);
 		} else {

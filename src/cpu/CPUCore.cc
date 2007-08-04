@@ -401,7 +401,8 @@ static ALWAYS_INLINE word read16LE(const byte* p)
 	if (OPENMSX_BIGENDIAN) {
 		return p[0] + 256 * p[1];
 	} else {
-		return *(word*)(p);
+		// TODO misaligned accesses allowed by host CPU?
+		return *reinterpret_cast<const word*>(p);
 	}
 }
 
@@ -411,7 +412,8 @@ static ALWAYS_INLINE void write16LE(byte* p, word value)
 		p[0] = value & 0xff;
 		p[1] = value >> 8;
 	} else {
-		*(word*)(p) = value;
+		// TODO misaligned accesses allowed by host CPU?
+		*reinterpret_cast<word*>(p) = value;
 	}
 }
 
@@ -2917,7 +2919,7 @@ template <class T> inline void CPUCore<T>::MULUB(byte reg)
 {
 	// TODO check flags
 	T::MULUB_DELAY();
-	R.setHL((word)R.getA() * reg);
+	R.setHL(word(R.getA()) * reg);
 	R.setF((R.getF() & (N_FLAG | H_FLAG)) |
 	       (R.getHL() ? 0 : Z_FLAG) |
 	       ((R.getHL() & 0x8000) ? C_FLAG : 0));
@@ -2936,7 +2938,7 @@ template <class T> inline void CPUCore<T>::MULUW(word reg)
 {
 	// TODO check flags
 	T::MULUW_DELAY();
-	unsigned res = (unsigned)R.getHL() * reg;
+	unsigned res = unsigned(R.getHL()) * reg;
 	R.setDE(res >> 16);
 	R.setHL(res & 0xffff);
 	R.setF((R.getF() & (N_FLAG | H_FLAG)) |

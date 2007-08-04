@@ -122,7 +122,7 @@ static RomType guessRomType(const Rom& rom)
 		RomType type = ROM_GENERIC_8KB; // 0
 		for (int i=ROM_GENERIC_8KB; i <= ROM_ASCII16; i++) {
 			if ((typeGuess[i]) && (typeGuess[i]>=typeGuess[type])) {
-				type = (RomType)i;
+				type = static_cast<RomType>(i);
 			}
 		}
 		// in case of doubt we go for type 0

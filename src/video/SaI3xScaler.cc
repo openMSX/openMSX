@@ -327,7 +327,8 @@ public:
 		const Pixel* src3, unsigned srcWidth,
 		OutputSurface& dst, unsigned& dstY)
 	{
-		Pixel* dp = dst.getLinePtr(dstY++, (Pixel*)0);
+		Pixel* dummy = 0;
+		Pixel* dp = dst.getLinePtr(dstY++, dummy);
 		// Calculate fixed point coordinate.
 		const unsigned y1 = ((NY - i) << 16) / NY;
 

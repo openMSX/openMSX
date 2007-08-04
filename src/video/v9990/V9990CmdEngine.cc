@@ -778,12 +778,12 @@ void V9990CmdEngine::reportV9990Command()
 	          << " DY="  << std::dec << DY
 	          << " NX="  << std::dec << NX
 	          << " NY="  << std::dec << NY
-	          << " ARG=" << std::hex << (int)ARG
-	          << " LOG=" << std::hex << (int)LOG
+	          << " ARG=" << std::hex << int(ARG)
+	          << " LOG=" << std::hex << int(LOG)
 	          << " WM="  << std::hex << WM
 	          << " FC="  << std::hex << fgCol
 	          << " BC="  << std::hex << bgCol
-	          << " CMD=" << std::hex << (int)CMD
+	          << " CMD=" << std::hex << int(CMD)
 	          << std::endl;
 }
 
@@ -1491,7 +1491,7 @@ void V9990CmdEngine::CmdSRCH<Mode>::execute(const EmuTime& time)
 		if (Mode::BITS_PER_PIXEL == 16) {
 			value = Mode::point(vram, engine.ASX, engine.SY, pitch);
 			col = engine.fgCol;
-			mask2 = (typename Mode::Type)0xFFFF; // cast to avoid warning
+			mask2 = static_cast<typename Mode::Type>(0xFFFF); // cast to avoid warning
 		} else {
 			// TODO check
 			unsigned addr = Mode::addressOf(engine.ASX, engine.SY, pitch);

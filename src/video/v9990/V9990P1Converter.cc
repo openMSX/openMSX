@@ -175,7 +175,7 @@ void V9990P1Converter<Pixel>::renderPattern2(
 			}
 			width -= 2;
 			buffer += 2;
-		} while ((int)width > 0);
+		} while (int(width) > 0);
 	}
 }
 

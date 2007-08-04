@@ -109,11 +109,11 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 		// TODO 64 byte aligned (see RawFrame)
 		unsigned texW = Math::powerOfTwo(width);
 		unsigned texH = Math::powerOfTwo(height);
-		data = (char*)malloc(format.BytesPerPixel * texW * texH);
+		data = static_cast<char*>(malloc(format.BytesPerPixel * texW * texH));
 		pitch = width * format.BytesPerPixel;
 
-		texCoordX = (double)width  / texW;
-		texCoordY = (double)height / texH;
+		texCoordX = double(width)  / texW;
+		texCoordY = double(height) / texH;
 
 		texture.reset(new ColourTexture());
 		texture->bind();
@@ -141,9 +141,9 @@ bool SDLGLVisibleSurface::init()
 unsigned SDLGLVisibleSurface::mapRGB(double dr, double dg, double db)
 {
 	if (frameBuffer == FB_NONE) {
-		int r = static_cast<int>(dr * 255.0);
-		int g = static_cast<int>(dg * 255.0);
-		int b = static_cast<int>(db * 255.0);
+		int r = int(dr * 255.0);
+		int g = int(dg * 255.0);
+		int b = int(db * 255.0);
 		// convert to BGRA (is faster then RGBA for texture upload)
 		if (OPENMSX_BIGENDIAN) {
 			return (b << 24) | (g << 16) | (r <<  8) | 0x000000FF;

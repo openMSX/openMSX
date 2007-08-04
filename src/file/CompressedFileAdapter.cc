@@ -52,14 +52,14 @@ void CompressedFileAdapter::fillBuffer()
 	}
 }
 
-void CompressedFileAdapter::read(byte* buffer, unsigned num)
+void CompressedFileAdapter::read(void* buffer, unsigned num)
 {
 	fillBuffer();
 	memcpy(buffer, &buf[pos], num);
 	pos += num;
 }
 
-void CompressedFileAdapter::write(const byte* /*buffer*/, unsigned /*num*/)
+void CompressedFileAdapter::write(const void* /*buffer*/, unsigned /*num*/)
 {
 	throw FileException("Writing to compressed files not yet supported");
 }

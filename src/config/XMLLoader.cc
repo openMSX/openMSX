@@ -39,7 +39,7 @@ auto_ptr<XMLElement> XMLLoader::loadXML(const string& filename,
 		throw XMLException(filename + ": Missing systemID.\n"
 			"You're probably using an old incompatible file format.");
 	}
-	string actualID = (const char*)intSubset->SystemID;
+	string actualID = reinterpret_cast<const char*>(intSubset->SystemID);
 	if (actualID != systemID) {
 		throw XMLException(filename + ": systemID doesn't match "
 			"(expected " + systemID + ", got " + actualID + ")\n"
@@ -56,11 +56,12 @@ auto_ptr<XMLElement> XMLLoader::loadXML(const string& filename,
 
 void XMLLoader::init(XMLElement& elem, xmlNodePtr node)
 {
-	elem.setName((const char*)node->name);
+	elem.setName(reinterpret_cast<const char*>(node->name));
 	for (xmlNodePtr x = node->children; x != NULL ; x = x->next) {
 		switch (x->type) {
 		case XML_TEXT_NODE:
-			elem.setData(elem.getData() + (const char*)x->content);
+			elem.setData(elem.getData() +
+			             reinterpret_cast<const char*>(x->content));
 			break;
 		case XML_ELEMENT_NODE: {
 			std::auto_ptr<XMLElement> child(new XMLElement(""));
@@ -76,8 +77,8 @@ void XMLLoader::init(XMLElement& elem, xmlNodePtr node)
 	for (xmlAttrPtr x = node->properties; x != NULL ; x = x->next) {
 		switch (x->type) {
 		case XML_ATTRIBUTE_NODE: {
-			string name  = (const char*)x->name;
-			string value = (const char*)x->children->content;
+			string name  = reinterpret_cast<const char*>(x->name);
+			string value = reinterpret_cast<const char*>(x->children->content);
 			elem.addAttribute(name, value);
 			break;
 		}

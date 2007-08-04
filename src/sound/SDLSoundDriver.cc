@@ -94,8 +94,8 @@ unsigned SDLSoundDriver::getSamples() const
 void SDLSoundDriver::audioCallbackHelper(void* userdata, byte* strm, int len)
 {
 	assert((len & 3) == 0); // stereo, 16-bit
-	((SDLSoundDriver*)userdata)->
-		audioCallback((short*)strm, len / sizeof(short));
+	static_cast<SDLSoundDriver*>(userdata)->
+		audioCallback(reinterpret_cast<short*>(strm), len / sizeof(short));
 }
 
 unsigned SDLSoundDriver::getBufferFilled() const

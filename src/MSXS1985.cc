@@ -42,7 +42,7 @@ byte MSXS1985::peekIO(word port, const EmuTime& /*time*/) const
 	byte result;
 	switch (port & 0x0F) {
 	case 0:
-		result = (byte)~ID;
+		result = byte(~ID);
 		break;
 	case 2:
 		result = (*ram)[address];

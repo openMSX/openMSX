@@ -15,7 +15,7 @@ GLSnow::GLSnow(unsigned width_, unsigned height_)
 	// Create noise texture.
 	byte buf[128 * 128];
 	for (int i = 0; i < 128 * 128; ++i) {
-		buf[i] = (byte)rand();
+		buf[i] = byte(rand());
 	}
 	glGenTextures(1, &noiseTextureId);
 	glBindTexture(GL_TEXTURE_2D, noiseTextureId);
@@ -48,8 +48,8 @@ void GLSnow::paint()
 	static unsigned cnt = 0;
 
 	// Draw noise texture.
-	double x = (double)rand() / RAND_MAX;
-	double y = (double)rand() / RAND_MAX;
+	double x = double(rand()) / RAND_MAX;
+	double y = double(rand()) / RAND_MAX;
 	cnt = (cnt + 1) % 8;
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, noiseTextureId);

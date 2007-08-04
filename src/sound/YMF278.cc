@@ -211,7 +211,7 @@ const int mix_level[8] = {
 
 // decay level table (3dB per step)
 // 0 - 15: 0, 3, 6, 9,12,15,18,21,24,27,30,33,36,39,42,93 (dB)
-#define SC(db) (unsigned)(db * (2.0 / ENV_STEP))
+#define SC(db) unsigned(db * (2.0 / ENV_STEP))
 const unsigned dl_tab[16] = {
  SC( 0), SC( 1), SC( 2), SC(3 ), SC(4 ), SC(5 ), SC(6 ), SC( 7),
  SC( 8), SC( 9), SC(10), SC(11), SC(12), SC(13), SC(14), SC(31)
@@ -289,7 +289,7 @@ const byte eg_rate_shift[64] = {
 
 //number of steps to take in quarter of lfo frequency
 //TODO check if frequency matches real chip
-#define O(a) ((int)((EG_TIMER_OVERFLOW / a) / 6))
+#define O(a) int((EG_TIMER_OVERFLOW / a) / 6)
 const int lfo_period[8] = {
 	O(0.168), O(2.019), O(3.196), O(4.206),
 	O(5.215), O(5.888), O(6.224), O(7.066)
@@ -297,7 +297,7 @@ const int lfo_period[8] = {
 #undef O
 
 
-#define O(a) ((int)(a * 65536))
+#define O(a) int(a * 65536)
 const int vib_depth[8] = {
 	O(0),	   O(3.378),  O(5.065),  O(6.750),
 	O(10.114), O(20.170), O(40.106), O(79.307)
@@ -305,7 +305,7 @@ const int vib_depth[8] = {
 #undef O
 
 
-#define SC(db) (unsigned) (db * (2.0 / ENV_STEP))
+#define SC(db) unsigned(db * (2.0 / ENV_STEP))
 const int am_depth[8] = {
 	SC(0),	   SC(1.781), SC(2.906), SC(3.656),
 	SC(4.406), SC(5.906), SC(7.406), SC(11.91)
@@ -362,14 +362,14 @@ int YMF278Slot::compute_rate(int val)
 
 int YMF278Slot::compute_vib()
 {
-	return (((lfo_step << 8) / lfo_max) * vib_depth[(int)vib]) >> 24;
+	return (((lfo_step << 8) / lfo_max) * vib_depth[int(vib)]) >> 24;
 }
 
 
 int YMF278Slot::compute_am()
 {
 	if (lfo_active && AM) {
-		return (((lfo_step << 8) / lfo_max) * am_depth[(int)AM]) >> 12;
+		return (((lfo_step << 8) / lfo_max) * am_depth[int(AM)]) >> 12;
 	} else {
 		return 0;
 	}
@@ -381,7 +381,7 @@ void YMF278Slot::set_lfo(int newlfo)
 	lfo_cnt  = (((lfo_cnt  << 8) / lfo_max) * newlfo) >> 8;
 
 	lfo = newlfo;
-	lfo_max = lfo_period[(int)lfo];
+	lfo_max = lfo_period[int(lfo)];
 }
 
 
@@ -437,7 +437,7 @@ void YMF278Impl::advance()
 				byte select = eg_rate_select[rate];
 				op.env_vol += eg_inc[select + ((eg_cnt >> shift) & 7)];
 
-				if (((unsigned)op.env_vol > dl_tab[6]) && op.PRVB) {
+				if ((unsigned(op.env_vol) > dl_tab[6]) && op.PRVB) {
 					op.state = EG_REV;
 				} else {
 					if (op.env_vol >= op.DL) {
@@ -457,7 +457,7 @@ void YMF278Impl::advance()
 				byte select = eg_rate_select[rate];
 				op.env_vol += eg_inc[select + ((eg_cnt >> shift) & 7)];
 
-				if (((unsigned)op.env_vol > dl_tab[6]) && op.PRVB) {
+				if ((unsigned(op.env_vol) > dl_tab[6]) && op.PRVB) {
 					op.state = EG_REV;
 				} else {
 					if (op.env_vol >= MAX_ATT_INDEX) {
@@ -478,7 +478,7 @@ void YMF278Impl::advance()
 				byte select = eg_rate_select[rate];
 				op.env_vol += eg_inc[select + ((eg_cnt >> shift) & 7)];
 
-				if (((unsigned)op.env_vol > dl_tab[6]) && op.PRVB) {
+				if ((unsigned(op.env_vol) > dl_tab[6]) && op.PRVB) {
 					op.state = EG_REV;
 				} else {
 					if (op.env_vol >= MAX_ATT_INDEX) {
@@ -604,8 +604,8 @@ void YMF278Impl::generateChannels(int** bufs, unsigned num)
 			                sl.sample2 * sl.stepptr) >> 16;
 			int vol = sl.TL + (sl.env_vol >> 2) + sl.compute_am();
 
-			int volLeft  = vol + pan_left [(int)sl.pan] + vl;
-			int volRight = vol + pan_right[(int)sl.pan] + vr;
+			int volLeft  = vol + pan_left [int(sl.pan)] + vl;
+			int volRight = vol + pan_right[int(sl.pan)] + vr;
 			// TODO prob doesn't happen in real chip
 			volLeft  = std::max(0, volLeft);
 			volRight = std::max(0, volRight);
@@ -771,7 +771,7 @@ void YMF278Impl::writeReg(byte reg, byte data, const EmuTime& time)
 				// LFO reset
 				slot.lfo_active = false;
 				slot.lfo_cnt = 0;
-				slot.lfo_max = lfo_period[(int)slot.vib];
+				slot.lfo_max = lfo_period[int(slot.vib)];
 				slot.lfo_step = 0;
 			} else {
 				// LFO activate
@@ -939,7 +939,7 @@ YMF278Impl::YMF278Impl(MSXMotherBoard& motherBoard, const std::string& name,
 
 	// Volume table, 1 = -0.375dB, 8 = -3dB, 256 = -96dB
 	for (int i = 0; i < 256; i++) {
-		volume[i] = (int)(32768.0 * pow(2.0, (-0.375 / 6) * i));
+		volume[i] = int(32768.0 * pow(2.0, (-0.375 / 6) * i));
 	}
 	for (int i = 256; i < 256 * 4; i++) {
 		volume[i] = 0;

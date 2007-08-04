@@ -94,8 +94,8 @@ void KeyJoystick::signalEvent(shared_ptr<const Event> event,
 	case OPENMSX_KEY_DOWN_EVENT:
 	case OPENMSX_KEY_UP_EVENT: {
 		const KeyEvent& keyEvent = checked_cast<const KeyEvent&>(*event);
-		Keys::KeyCode key = (Keys::KeyCode)(
-			(int)keyEvent.getKeyCode() & (int)Keys::K_MASK);
+		Keys::KeyCode key = static_cast<Keys::KeyCode>(
+			int(keyEvent.getKeyCode()) & int(Keys::K_MASK));
 		if (event->getType() == OPENMSX_KEY_DOWN_EVENT) {
 			if      (key == up->getValue())    status &= ~JOY_UP;
 			else if (key == down->getValue())  status &= ~JOY_DOWN;

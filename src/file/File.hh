@@ -45,7 +45,7 @@ public:
 	 * @param num Number of bytes to read
 	 * @throws FileException
 	 */
-	void read(byte* buffer, unsigned num);
+	void read(void* buffer, unsigned num);
 
 	/**
 	 * Write to file.
@@ -53,7 +53,7 @@ public:
 	 * @param num Number of bytes to write
 	 * @throws FileException
 	 */
-	void write(const byte* buffer, unsigned num);
+	void write(const void* buffer, unsigned num);
 
 	/**
 	 * Map file in memory.

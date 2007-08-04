@@ -90,7 +90,7 @@ void GZFileAdapter::decompress()
 	inflateInit2(&s, -MAX_WBITS);
 
 	size = 64 * 1024;	// initial buffer size
-	buf = (byte*)malloc(size);
+	buf = static_cast<byte*>(malloc(size));
 	while (true) {
 		s.next_out = buf + s.total_out;
 		s.avail_out = size - s.total_out;
@@ -104,10 +104,10 @@ void GZFileAdapter::decompress()
 			throw FileException("Error decompressing gzip");
 		}
 		size *= 2;	// double buffer size
-		buf = (byte*)realloc(buf, size);
+		buf = static_cast<byte*>(realloc(buf, size));
 	}
 	size = s.total_out;
-	buf = (byte*)realloc(buf, size);	// free unused space in buf
+	buf = static_cast<byte*>(realloc(buf, size)); // free unused space in buf
 
 	inflateEnd(&s);
 

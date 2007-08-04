@@ -35,7 +35,7 @@ time_t fromString(const std::string& line)
 	    (tm.tm_hour < 0) || (23 < tm.tm_hour) ||
 	    (tm.tm_mday < 1) || (31 < tm.tm_mday) ||
 	    (tm.tm_year < 0)) {
-		return static_cast<time_t>(-1);
+		return time_t(-1);
 	}
 	for (int i = 0; i < 12; ++i) {
 		if (strcmp(month, months[i]) == 0) {
@@ -44,7 +44,7 @@ time_t fromString(const std::string& line)
 		}
 	}
 	if ((items != 7) || (tm.tm_mon == -1)) {
-		return static_cast<time_t>(-1);
+		return time_t(-1);
 	}
 	return mktime(&tm);
 }

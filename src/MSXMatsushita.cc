@@ -52,7 +52,7 @@ byte MSXMatsushita::peekIO(word port, const EmuTime& /*time*/) const
 	byte result;
 	switch (port & 0x0F) {
 	case 0:
-		result = static_cast<byte>(~ID);
+		result = byte(~ID);
 		break;
 	case 1:
 		result = firmwareSwitch->getStatus() ? 0x7F : 0xFF;

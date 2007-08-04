@@ -62,7 +62,7 @@ static void initImpulse()
 	double sum = 0.0;
 	double next = 0.0;
 	for (int i = 0; i < IMPULSES_SIZE; ++i) {
-		imp[i] = (int)floor((next - sum) * rescale + 0.5);
+		imp[i] = int(floor((next - sum) * rescale + 0.5));
 		sum += fimpulse[i];
 		next += fimpulse[i + BLIP_RES];
 	}

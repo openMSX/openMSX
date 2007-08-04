@@ -588,10 +588,10 @@ void VDPCmdEngine::reportVdpCommand()
 	};
 
 	std::cerr << "VDPCmd " << COMMANDS[CMD] << '-' << OPS[LOG]
-		<<  '(' << (int)SX << ',' << (int)SY << ")->("
-		        << (int)DX << ',' << (int)DY << ")," << (int)COL
-		<< " [" << (int)((ARG & DIX) ? -NX : NX)
-		<<  ',' << (int)((ARG & DIY) ? -NY : NY) << ']' << std::endl;
+		<<  '(' << int(SX) << ',' << int(SY) << ")->("
+		        << int(DX) << ',' << int(DY) << ")," << int(COL)
+		<< " [" << int((ARG & DIX) ? -NX : NX)
+		<<  ',' << int((ARG & DIY) ? -NY : NY) << ']' << std::endl;
 }
 
 void VDPCmdEngine::commandDone(const EmuTime& time)

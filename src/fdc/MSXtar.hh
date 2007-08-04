@@ -58,8 +58,8 @@ private:
 	};
 
 	struct MSXDirEntry {
-		byte filename[8];
-		byte ext[3];
+		char filename[8];
+		char ext[3];
 		byte attrib;
 		byte reserved[10];	// unused
 		byte time[2];

@@ -26,7 +26,7 @@ void PreCacheFile::run()
 	if (!file) return;
 
 	fseek(file, 0, SEEK_END);
-	unsigned size = (unsigned)ftell(file);
+	unsigned size = unsigned(ftell(file));
 	if (size < 1024 * 1024) {
 		// only pre-cache small files
 

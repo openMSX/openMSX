@@ -63,7 +63,7 @@ static bool parse(const string& line, string& sha1, time_t& time, string& filena
 	filename = line.substr(68);
 
 	return (sha1.find_first_not_of("0123456789abcdef") == string::npos) &&
-	       (time != static_cast<time_t>(-1));
+	       (time != time_t(-1));
 }
 
 static auto_ptr<File> calcSha1sum(const string& filename, string& sum)

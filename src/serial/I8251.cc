@@ -213,8 +213,8 @@ void I8251::setMode(byte value)
 		baudrate = 1;
 	}
 
-	charLength = (((2 * (1 + (int)dataBits + (parityEnable ? 1 : 0))) +
-	               (int)stopBits) * baudrate) / 2;
+	charLength = (((2 * (1 + int(dataBits) + (parityEnable ? 1 : 0))) +
+	               int(stopBits)) * baudrate) / 2;
 }
 
 void I8251::writeCommand(byte value, const EmuTime& time)
@@ -348,7 +348,7 @@ void I8251::send(byte value, const EmuTime& time)
 
 void I8251::executeUntil(const EmuTime& time, int userData)
 {
-	switch ((SyncPointType)userData) {
+	switch (userData) {
 	case RECV:
 		assert(command & CMD_RXE);
 		recvReady = true;

@@ -132,7 +132,7 @@ void SectorBasedDisk::initReadTrack(byte track, byte side)
 		*(tmppoint++) = 0xFE;
 		*(tmppoint++) = track;		//C: Cylinder number
 		*(tmppoint++) = side;		//H: Head Address
-		*(tmppoint++) = (byte)(j + 1);	//R: Record
+		*(tmppoint++) = byte(j + 1);	//R: Record
 		*(tmppoint++) = 0x02;		//N: Number (length of sector)
 		*(tmppoint++) = 0x00;		//CRC byte 1
 		*(tmppoint++) = 0x00;		//CRC byte 2
@@ -140,8 +140,8 @@ void SectorBasedDisk::initReadTrack(byte track, byte side)
 		read(track, j + 1, side, 512, tmppoint);
 		tmppoint += 512;
 		// end of sector
-		*(tmppoint++) = (byte)(j+1);	//CRC byte 1
-		*(tmppoint++) = (byte)(j+1);	//CRC byte 2
+		*(tmppoint++) = byte(j + 1);	//CRC byte 1
+		*(tmppoint++) = byte(j + 1);	//CRC byte 2
 		// TODO: check this number
 		for (int i = 0; i < 55; i++) *(tmppoint++) = 0x4E;
 		// TODO build correct CRC and read sector + place gap

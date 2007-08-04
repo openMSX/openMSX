@@ -18,8 +18,8 @@ class LocalFile : public FileBase
 public:
 	LocalFile(const std::string& filename, File::OpenMode mode);
 	virtual ~LocalFile();
-	virtual void read (byte* buffer, unsigned num);
-	virtual void write(const byte* buffer, unsigned num);
+	virtual void read (void* buffer, unsigned num);
+	virtual void write(const void* buffer, unsigned num);
 #ifdef	HAVE_MMAP
 	virtual byte* mmap(bool writeBack);
 	virtual void munmap();

@@ -84,7 +84,7 @@ int DirAsDSK::findFirstFreeCluster()
 bool DirAsDSK::checkMSXFileExists(const string& msxfilename)
 {
 	for (int i = 0; i < 112; ++i) {
-		if (strncmp((const char*)(mapdir[i].msxinfo.filename),
+		if (strncmp(mapdir[i].msxinfo.filename,
 			    msxfilename.c_str(), 11) == 0) {
 			return true;
 		}

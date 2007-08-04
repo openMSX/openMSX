@@ -52,8 +52,8 @@ bool SamplePlayer::isPlaying() const
 inline int SamplePlayer::getSample(unsigned index)
 {
 	return bits8
-	     ? (((unsigned char*)sampBuf)[index] - 0x80) * 256
-	     : ((short*)sampBuf)[index];
+	     ? (static_cast<const unsigned char*>(sampBuf)[index] - 0x80) * 256
+	     :  static_cast<const short*        >(sampBuf)[index];
 }
 
 void SamplePlayer::generateChannels(int** bufs, unsigned num)

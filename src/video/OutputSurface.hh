@@ -23,7 +23,7 @@ public:
 
 	template <typename Pixel>
 	Pixel* getLinePtr(unsigned y, Pixel* /*dummy*/) {
-		return (Pixel*)(data + y * pitch);
+		return reinterpret_cast<Pixel*>(data + y * pitch);
 	}
 
 	virtual unsigned mapRGB(double dr, double dg, double db);

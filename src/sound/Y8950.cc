@@ -325,7 +325,7 @@ static short dB2LinTab[(2 * DB_MUTE) * 2];
 
 static inline unsigned DB_POS(int x)
 {
-	int result = static_cast<int>(x / DB_STEP);
+	int result = int(x / DB_STEP);
 	assert(result < DB_MUTE);
 	assert(result >= 0);
 	return result;
@@ -357,7 +357,7 @@ static void makeAdjustTable()
 {
 	AR_ADJUST_TABLE[0] = EG_MUTE;
 	for (int i = 1; i < (1 << EG_BITS); ++i) {
-		AR_ADJUST_TABLE[i] = (int)(double(EG_MUTE) - 1 -
+		AR_ADJUST_TABLE[i] = int(double(EG_MUTE) - 1 -
 		         EG_MUTE * ::log(i) / ::log(1 << EG_BITS)) >> 1;
 		assert(AR_ADJUST_TABLE[i] <= EG_MUTE);
 		assert(AR_ADJUST_TABLE[i] >= 0);
@@ -368,8 +368,8 @@ static void makeAdjustTable()
 static void makeDB2LinTable()
 {
 	for (int i = 0; i < DB_MUTE; ++i) {
-		dB2LinTab[i] = (int)((double)((1 << DB2LIN_AMP_BITS) - 1) *
-		                     pow(10, -(double)i * DB_STEP / 20));
+		dB2LinTab[i] = int(double((1 << DB2LIN_AMP_BITS) - 1) *
+		                   pow(10, -double(i) * DB_STEP / 20));
 	}
 	assert(dB2LinTab[DB_MUTE - 1] == 0);
 	for (int i = DB_MUTE; i < 2 * DB_MUTE; ++i) {
@@ -387,7 +387,7 @@ static unsigned lin2db(double d)
 		// (almost) zero
 		return DB_MUTE - 1;
 	}
-	int tmp = -(int)(20.0 * log10(d) / DB_STEP);
+	int tmp = -int(20.0 * log10(d) / DB_STEP);
 	int result = std::min(tmp, DB_MUTE - 1);
 	assert(result >= 0);
 	assert(result <= DB_MUTE - 1);
@@ -412,8 +412,8 @@ static void makeSinTable()
 static void makePmTable()
 {
 	for (int i = 0; i < PM_PG_WIDTH; ++i) {
-		pmtable[0][i] = (int)((double)PM_AMP * pow(2, (double)PM_DEPTH  * sin(2.0 * M_PI * i / PM_PG_WIDTH) / 1200));
-		pmtable[1][i] = (int)((double)PM_AMP * pow(2, (double)PM_DEPTH2 * sin(2.0 * M_PI * i / PM_PG_WIDTH) / 1200));
+		pmtable[0][i] = int(double(PM_AMP) * pow(2, double(PM_DEPTH)  * sin(2.0 * M_PI * i / PM_PG_WIDTH) / 1200));
+		pmtable[1][i] = int(double(PM_AMP) * pow(2, double(PM_DEPTH2) * sin(2.0 * M_PI * i / PM_PG_WIDTH) / 1200));
 	}
 }
 
@@ -421,8 +421,8 @@ static void makePmTable()
 static void makeAmTable()
 {
 	for (int i = 0; i < AM_PG_WIDTH; ++i) {
-		amtable[0][i] = (int)((double)AM_DEPTH  / 2 / DB_STEP * (1.0 + sin(2.0 * M_PI * i / PM_PG_WIDTH)));
-		amtable[1][i] = (int)((double)AM_DEPTH2 / 2 / DB_STEP * (1.0 + sin(2.0 * M_PI * i / PM_PG_WIDTH)));
+		amtable[0][i] = int(double(AM_DEPTH)  / 2 / DB_STEP * (1.0 + sin(2.0 * M_PI * i / PM_PG_WIDTH)));
+		amtable[1][i] = int(double(AM_DEPTH2) / 2 / DB_STEP * (1.0 + sin(2.0 * M_PI * i / PM_PG_WIDTH)));
 	}
 }
 
@@ -446,7 +446,7 @@ static void makeDphaseTable()
 
 static void makeTllTable()
 {
-	#define dB2(x) (int)((x) * 2)
+	#define dB2(x) int((x) * 2)
 	static int kltable[16] = {
 		dB2( 0.000), dB2( 9.000), dB2(12.000), dB2(13.875),
 		dB2(15.000), dB2(16.125), dB2(16.875), dB2(17.625),
@@ -462,7 +462,7 @@ static void makeTllTable()
 					int tmp = kltable[fnum] - dB2(3.000) * (7 - block);
 					tllTable[fnum][block][TL][KL] = (tmp <= 0)
 						? TL * TL_PER_EG
-						: (int)((tmp >> (3 - KL)) / EG_STEP) + (TL * TL_PER_EG);
+						: int((tmp >> (3 - KL)) / EG_STEP) + (TL * TL_PER_EG);
 				}
 			}
 		}
@@ -741,7 +741,7 @@ Y8950Impl::~Y8950Impl()
 void Y8950Impl::setOutputRate(unsigned sampleRate)
 {
 	double input = Y8950::CLOCK_FREQ / 72.0;
-	setInputRate(static_cast<int>(input + 0.5));
+	setInputRate(int(input + 0.5));
 	setResampleRatio(input, sampleRate);
 }
 
@@ -1201,7 +1201,8 @@ void Y8950Impl::writeReg(byte rg, byte data, const EmuTime& time)
 		case 0x15: // DAC-DATA  (bit9-2)
 			reg[rg] = data;
 			if (reg[0x08] & 0x04) {
-				int tmp = ((signed char)reg[0x15]) * 256 + reg[0x16];
+				int tmp = static_cast<signed char>(reg[0x15]) * 256
+				        + reg[0x16];
 				tmp = (tmp * 4) >> (7 - reg[0x17]);
 				tmp = Math::clipIntToShort(tmp);
 				dac13->writeDAC(tmp, time);

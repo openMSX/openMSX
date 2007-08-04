@@ -392,13 +392,13 @@ void CassettePlayer::setSignal(bool output, const EmuTime& time)
 		if (rest <= samples) {
 			// enough to fill next interval
 			partialOut += out * rest;
-			fillBuf(1, (int)partialOut);
+			fillBuf(1, int(partialOut));
 			samples -= rest;
 
 			// fill complete intervals
-			int count = (int)samples;
+			int count = int(samples);
 			if (count > 0) {
-				fillBuf(count, (int)out);
+				fillBuf(count, int(out));
 			}
 			samples -= count;
 
@@ -424,7 +424,7 @@ void CassettePlayer::fillBuf(size_t length, double x)
 	while (length) {
 		int len = std::min(length, BUF_SIZE - sampcnt);
 		for (int j = 0; j < len; ++j) {
-			buf[sampcnt++] = (int)y + 128;
+			buf[sampcnt++] = int(y) + 128;
 			y *= A;
 		}
 		length -= len;

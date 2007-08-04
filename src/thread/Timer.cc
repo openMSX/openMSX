@@ -20,7 +20,7 @@ namespace Timer {
 
 static inline unsigned long long getSDLTicks()
 {
-	return (unsigned long long)SDL_GetTicks() * 1000;
+	return static_cast<unsigned long long>(SDL_GetTicks()) * 1000;
 }
 
 unsigned long long getTime()
@@ -50,8 +50,8 @@ unsigned long long getTime()
 #if defined (HAVE_GETTIMEOFDAY)
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
-	return (unsigned long long)tv.tv_sec * 1000000 +
-	       (unsigned long long)tv.tv_usec;
+	return static_cast<unsigned long long>(tv.tv_sec) * 1000000 +
+	       static_cast<unsigned long long>(tv.tv_usec);
 #else
 	return getSDLTicks();
 #endif

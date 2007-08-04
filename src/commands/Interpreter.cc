@@ -117,8 +117,8 @@ int Interpreter::outputProc(ClientData clientData, const char* buf,
                  int toWrite, int* /*errorCodePtr*/)
 {
 	try {
-		InterpreterOutput* output = ((Interpreter*)clientData)->output;
-
+		InterpreterOutput* output =
+			static_cast<Interpreter*>(clientData)->output;
 		string text(buf, toWrite);
 		if (!text.empty() && output) {
 			output->output(text);
@@ -189,7 +189,7 @@ void Interpreter::getCommandNames(set<string>& result)
 		return;
 	}
 	result.insert(&argv[0], &argv[argc]);
-	Tcl_Free((char*)argv);
+	Tcl_Free(reinterpret_cast<char*>(argv));
 }
 
 bool Interpreter::isComplete(const string& command) const
@@ -325,7 +325,7 @@ void Interpreter::splitList(const string& list, vector<string>& result,
 		throw CommandException(message);
 	}
 	result.assign(argv, argv + argc);
-	Tcl_Free((char*)argv);
+	Tcl_Free(reinterpret_cast<char*>(argv));
 }
 
 bool Interpreter::signalEvent(shared_ptr<const Event> event)

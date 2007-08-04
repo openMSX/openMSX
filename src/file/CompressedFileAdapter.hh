@@ -11,8 +11,8 @@ namespace openmsx {
 class CompressedFileAdapter : public FileBase
 {
 public:
-	virtual void read(byte* buffer, unsigned num);
-	virtual void write(const byte* buffer, unsigned num);
+	virtual void read(void* buffer, unsigned num);
+	virtual void write(const void* buffer, unsigned num);
 	virtual unsigned getSize();
 	virtual void seek(unsigned pos);
 	virtual unsigned getPos();

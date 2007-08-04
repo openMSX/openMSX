@@ -102,8 +102,8 @@ SDL_Surface* SDLImage::loadImage(const string& filename, double scaleFactor)
 {
 	SDL_Surface* picture = readImage(filename);
 	SDL_Surface* scaled = scaleImage32(picture,
-		static_cast<unsigned>(picture->w * scaleFactor),
-		static_cast<unsigned>(picture->h * scaleFactor));
+		unsigned(picture->w * scaleFactor),
+		unsigned(picture->h * scaleFactor));
 	SDL_FreeSurface(picture);
 
 	SDL_Surface* result = convertToDisplayFormat(scaled);
@@ -163,20 +163,20 @@ SDL_Surface* SDLImage::scaleImage32(
 SDL_Surface* SDLImage::convertToDisplayFormat(SDL_Surface* input)
 {
 	// scan image, are all alpha values the same?
-	const char* pixels = (char*)input->pixels;
+	const char* pixels = static_cast<const char*>(input->pixels);
 	unsigned width = input->w;
 	unsigned height = input->h;
 	unsigned pitch = input->pitch;
 	unsigned Amask = input->format->Amask;
 	unsigned bytes = input->format->BytesPerPixel;
-	unsigned pixel = *((Uint32*)pixels);
+	unsigned pixel = *reinterpret_cast<const unsigned*>(pixels);
 	unsigned alpha = pixel & Amask;
 
 	bool constant = true;
 	for (unsigned y = 0; y < height; ++y) {
 		const char* p = pixels + y * pitch;
 		for (unsigned x = 0; x < width; ++x) {
-			if ((*((unsigned*)p) & Amask) != alpha) {
+			if ((*reinterpret_cast<const unsigned*>(p) & Amask) != alpha) {
 				constant = false;
 				break;
 			}
@@ -207,9 +207,9 @@ struct ColorRGBA {
 	Uint8 a;
 };
 
-int SDLImage::zoomSurface(SDL_Surface* src, SDL_Surface* dst, bool smooth)
+void SDLImage::zoomSurface(SDL_Surface* src, SDL_Surface* dst, bool smooth)
 {
-	int x, y, sx, sy, *sax, *say, *csax, *csay, csx, csy, ex, ey, t1, t2, sstep;
+	int x, y, sx, sy, *csax, *csay, csx, csy, ex, ey, t1, t2, sstep;
 	ColorRGBA *c00, *c01, *c10, *c11;
 	ColorRGBA *sp, *csp, *dp;
 	int dgap;
@@ -218,21 +218,16 @@ int SDLImage::zoomSurface(SDL_Surface* src, SDL_Surface* dst, bool smooth)
 	if (smooth) {
 		// For interpolation: assume source dimension is one pixel
 		// smaller to avoid overflow on right and bottom edge.
-		sx = (int) (65536.0 * (double)(src->w - 1) / (double)dst->w);
-		sy = (int) (65536.0 * (double)(src->h - 1) / (double)dst->h);
+		sx = int(65536.0 * double(src->w - 1) / double(dst->w));
+		sy = int(65536.0 * double(src->h - 1) / double(dst->h));
 	} else {
-		sx = (int) (65536.0 * (double)src->w / (double)dst->w);
-		sy = (int) (65536.0 * (double)src->h / (double)dst->h);
+		sx = int(65536.0 * double(src->w) / double(dst->w));
+		sy = int(65536.0 * double(src->h) / double(dst->h));
 	}
 
 	// Allocate memory for row increments
-	if ((sax = (int *) malloc((dst->w + 1) * sizeof(Uint32))) == NULL) {
-		return -1;
-	}
-	if ((say = (int *) malloc((dst->h + 1) * sizeof(Uint32))) == NULL) {
-		free(sax);
-		return -1;
-	}
+	int sax[dst->w + 1];
+	int say[dst->h + 1];
 
 	// Precalculate row increments
 	csx = 0;
@@ -253,8 +248,8 @@ int SDLImage::zoomSurface(SDL_Surface* src, SDL_Surface* dst, bool smooth)
 	}
 
 	// Pointer setup
-	sp = csp = (ColorRGBA *) src->pixels;
-	dp = (ColorRGBA *) dst->pixels;
+	sp = csp = static_cast<ColorRGBA*>(src->pixels);
+	dp =       static_cast<ColorRGBA*>(dst->pixels);
 	dgap = dst->pitch - dst->w * 4;
 
 	// Switch between interpolating and non-interpolating code
@@ -267,7 +262,7 @@ int SDLImage::zoomSurface(SDL_Surface* src, SDL_Surface* dst, bool smooth)
 			c00 = csp;
 			c01 = csp;
 			c01++;
-			c10 = (ColorRGBA *) ((Uint8 *) csp + src->pitch);
+			c10 = reinterpret_cast<ColorRGBA*>(reinterpret_cast<Uint8*>(csp) + src->pitch);
 			c11 = c10;
 			c11++;
 			csax = sax;
@@ -300,9 +295,9 @@ int SDLImage::zoomSurface(SDL_Surface* src, SDL_Surface* dst, bool smooth)
 			}
 			// Advance source pointer
 			csay++;
-			csp = (ColorRGBA *) ((Uint8 *) csp + (*csay >> 16) * src->pitch);
+			csp = reinterpret_cast<ColorRGBA*>(reinterpret_cast<Uint8*>(csp) + (*csay >> 16) * src->pitch);
 			// Advance destination pointers
-			dp = (ColorRGBA *) ((Uint8 *) dp + dgap);
+			dp = reinterpret_cast<ColorRGBA*>(reinterpret_cast<Uint8*>(dp) + dgap);
 		}
 	} else {
 		// Non-Interpolating Zoom
@@ -321,17 +316,11 @@ int SDLImage::zoomSurface(SDL_Surface* src, SDL_Surface* dst, bool smooth)
 			}
 			// Advance source pointer
 			csay++;
-			csp = (ColorRGBA *) ((Uint8 *) csp + (*csay >> 16) * src->pitch);
+			csp = reinterpret_cast<ColorRGBA*>(reinterpret_cast<Uint8*>(csp) + (*csay >> 16) * src->pitch);
 			// Advance destination pointers
-			dp = (ColorRGBA *) ((Uint8 *) dp + dgap);
+			dp = reinterpret_cast<ColorRGBA*>(reinterpret_cast<Uint8*>(dp) + dgap);
 		}
 	}
-
-	// Remove temp arrays
-	free(sax);
-	free(say);
-
-	return 0;
 }
 
 } // namespace openmsx

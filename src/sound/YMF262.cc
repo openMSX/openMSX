@@ -298,7 +298,7 @@ static const int slot_array[32] = {
 // table is 3dB/octave , DV converts this into 6dB/octave
 // 0.1875 is bit 0 weight of the envelope counter (volume) expressed
 // in the 'decibel' scale
-#define DV(x) (int)(x / (0.1875 / 2.0))
+#define DV(x) int(x / (0.1875 / 2.0))
 static const unsigned ksl_tab[8 * 16] = {
 	// OCT 0
 	DV( 0.000), DV( 0.000), DV( 0.000), DV( 0.000),
@@ -345,7 +345,7 @@ static const unsigned ksl_tab[8 * 16] = {
 
 // sustain level table (3dB per step)
 // 0 - 15: 0, 3, 6, 9,12,15,18,21,24,27,30,33,36,39,42,93 (dB)
-#define SC(db) (unsigned) (db * (2.0 / ENV_STEP))
+#define SC(db) unsigned(db * (2.0 / ENV_STEP))
 static const unsigned sl_tab[16] = {
 	SC( 0), SC( 1), SC( 2), SC(3 ), SC(4 ), SC(5 ), SC(6 ), SC( 7),
 	SC( 8), SC( 9), SC(10), SC(11), SC(12), SC(13), SC(14), SC(31)
@@ -452,7 +452,7 @@ static const byte eg_rate_shift[16 + 64 + 16] =
 
 
 // multiple table
-#define ML(x) (byte)(2 * x)
+#define ML(x) byte(2 * x)
 static const byte mul_tab[16] = {
 	// 1/2, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,10,12,12,15,15
 	ML( 0.5), ML( 1.0), ML( 2.0), ML( 3.0),
@@ -1005,7 +1005,7 @@ void YMF262Impl::init_tables()
 
 		// we never reach (1<<16) here due to the (x+1)
 		// result fits within 16 bits at maximum
-		int n = (int)m;		// 16 bits here
+		int n = int(m);		// 16 bits here
 		n >>= 4;		// 12 bits here
 		n = (n >> 1) + (n & 1); // round to nearest
 		// 11 bits here (rounded)
@@ -1029,7 +1029,7 @@ void YMF262Impl::init_tables()
 			8 * ::log(-1.0 / m) / LOG2;	// convert to 'decibels'
 		o = o / (ENV_STEP / 4);
 
-		int n = (int)(2 * o);
+		int n = int(2 * o);
 		n = (n >> 1) + (n & 1); // round to nearest
 		sin_tab[i] = n * 2 + (m >= 0.0 ? 0 : 1);
 	}
@@ -1095,7 +1095,7 @@ void YMF262Impl::setOutputRate(unsigned sampleRate)
 {
 	const int CLOCK_FREQ = 3579545 * 4;
 	double input = CLOCK_FREQ / (8.0 * 36.0);
-	setInputRate(static_cast<int>(input + 0.5));
+	setInputRate(int(input + 0.5));
 	setResampleRatio(input, sampleRate);
 }
 
@@ -1718,16 +1718,16 @@ void YMF262Impl::writeRegForce(int r, byte v, const EmuTime& time)
 		int base = chan_no * 4;
 		if (OPL3_mode) {
 			// OPL3 mode
-			pan[base + 0] = (v & 0x10) ? (unsigned)~0 : 0;	// ch.A
-			pan[base + 1] = (v & 0x20) ? (unsigned)~0 : 0;	// ch.B
-			pan[base + 2] = (v & 0x40) ? (unsigned)~0 : 0;	// ch.C
-			pan[base + 3] = (v & 0x80) ? (unsigned)~0 : 0;	// ch.D
+			pan[base + 0] = (v & 0x10) ? unsigned(~0) : 0;	// ch.A
+			pan[base + 1] = (v & 0x20) ? unsigned(~0) : 0;	// ch.B
+			pan[base + 2] = (v & 0x40) ? unsigned(~0) : 0;	// ch.C
+			pan[base + 3] = (v & 0x80) ? unsigned(~0) : 0;	// ch.D
 		} else {
 			// OPL2 mode - always enabled
-			pan[base + 0] = (unsigned)~0;	// ch.A
-			pan[base + 1] = (unsigned)~0;	// ch.B
-			pan[base + 2] = (unsigned)~0;	// ch.C
-			pan[base + 3] = (unsigned)~0;	// ch.D
+			pan[base + 0] = unsigned(~0);	// ch.A
+			pan[base + 1] = unsigned(~0);	// ch.B
+			pan[base + 2] = unsigned(~0);	// ch.C
+			pan[base + 3] = unsigned(~0);	// ch.D
 		}
 
 		ch.slots[SLOT1].setFeedbackShift((v >> 1) & 7);

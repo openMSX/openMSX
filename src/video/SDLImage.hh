@@ -42,7 +42,7 @@ public:
 	static SDL_Surface* scaleImage32(SDL_Surface* input,
 	                                 unsigned width, unsigned height);
 	static SDL_Surface* convertToDisplayFormat(SDL_Surface* input);
-	static int zoomSurface(SDL_Surface* src, SDL_Surface* dst, bool smooth);
+	static void zoomSurface(SDL_Surface* src, SDL_Surface* dst, bool smooth);
 };
 
 } // namespace openmsx

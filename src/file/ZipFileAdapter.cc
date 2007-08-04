@@ -14,9 +14,7 @@ ZipFileAdapter::ZipFileAdapter(std::auto_ptr<FileBase> file_)
 
 void ZipFileAdapter::decompress()
 {
-	byte* inputBuf = file->mmap();
-
-	byte* ptr = inputBuf;
+	byte* ptr = file->mmap();
 
 	// file header id
 	if (((*ptr++) != 0x50) || ((*ptr++) != 0x4B) ||
@@ -58,7 +56,7 @@ void ZipFileAdapter::decompress()
 	extra_field_len += (*ptr++) << 8;
 
 	// original filename
-	originalName.assign((char*)ptr, filename_len);
+	originalName.assign(reinterpret_cast<char*>(ptr), filename_len);
 	ptr += filename_len;
 
 	// skip "extra field"
@@ -72,7 +70,7 @@ void ZipFileAdapter::decompress()
 	s.avail_in = comp_size;
 	inflateInit2(&s, -MAX_WBITS);
 
-	buf = (byte*)malloc(orig_size);
+	buf = static_cast<byte*>(malloc(orig_size));
 	s.next_out = buf;
 	s.avail_out = orig_size;
 

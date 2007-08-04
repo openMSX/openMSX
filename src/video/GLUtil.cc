@@ -224,8 +224,8 @@ void BitmapTexture::draw(
 	int srcL, int srcT, int srcR, int srcB,
 	int dstL, int dstT, int dstR, int dstB)
 {
-	static const GLfloat fx = 1.0f / static_cast<GLfloat>(WIDTH);
-	static const GLfloat fy = 1.0f / static_cast<GLfloat>(HEIGHT);
+	static const GLfloat fx = 1.0f / GLfloat(WIDTH);
+	static const GLfloat fy = 1.0f / GLfloat(HEIGHT);
 	const GLfloat srcLF = srcL * fx;
 	const GLfloat srcRF = srcR * fx;
 	const GLfloat srcTF = srcT * fy;
@@ -349,8 +349,8 @@ void StoredFrame::draw(int offsetX, int offsetY, int width, int height)
 	texture.bind();
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 	// TODO: Create display list(s)?
-	float x = static_cast<float>(width)  / textureWidth;
-	float y = static_cast<float>(height) / textureHeight;
+	float x = float(width)  / textureWidth;
+	float y = float(height) / textureHeight;
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.0f,    y); glVertex2i(offsetX,         offsetY         );
 	glTexCoord2f(   x,    y); glVertex2i(offsetX + width, offsetY         );

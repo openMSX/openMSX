@@ -122,8 +122,8 @@ template<class P>
 unsigned ZMBVEncoder::possibleBlock(int vx, int vy, unsigned offset)
 {
 	int ret = 0;
-	P* pold = &((P*)oldframe)[offset + (vy * pitch) + vx];
-	P* pnew = &((P*)newframe)[offset];
+	P* pold = &(reinterpret_cast<P*>(oldframe))[offset + (vy * pitch) + vx];
+	P* pnew = &(reinterpret_cast<P*>(newframe))[offset];
 	for (unsigned y = 0; y < BLOCK_HEIGHT; y += 4) {
 		for (unsigned x = 0; x < BLOCK_WIDTH; x += 4) {
 			if (pold[x] != pnew[x]) ++ret;
@@ -138,8 +138,8 @@ template<class P>
 unsigned ZMBVEncoder::compareBlock(int vx, int vy, unsigned offset)
 {
 	int ret = 0;
-	P* pold = &((P*)oldframe)[offset + (vy * pitch) + vx];
-	P* pnew = &((P*)newframe)[offset];
+	P* pold = &(reinterpret_cast<P*>(oldframe))[offset + (vy * pitch) + vx];
+	P* pnew = &(reinterpret_cast<P*>(newframe))[offset];
 	for (unsigned y = 0; y < BLOCK_HEIGHT; ++y) {
 		for (unsigned x = 0; x < BLOCK_WIDTH; ++x) {
 			if (pold[x] != pnew[x]) ++ret;
@@ -153,11 +153,11 @@ unsigned ZMBVEncoder::compareBlock(int vx, int vy, unsigned offset)
 template<class P>
 void ZMBVEncoder::addXorBlock(int vx, int vy, unsigned offset)
 {
-	P* pold = &((P*)oldframe)[offset + (vy * pitch) + vx];
-	P* pnew = &((P*)newframe)[offset];
+	P* pold = &(reinterpret_cast<P*>(oldframe))[offset + (vy * pitch) + vx];
+	P* pnew = &(reinterpret_cast<P*>(newframe))[offset];
 	for (unsigned y = 0; y < BLOCK_HEIGHT; ++y) {
 		for (unsigned x = 0; x < BLOCK_WIDTH; ++x) {
-			*((P*)&work[workUsed]) = pnew[x] ^ pold[x];
+			*reinterpret_cast<P*>(&work[workUsed]) = pnew[x] ^ pold[x];
 			workUsed += sizeof(P);
 		}
 		pold += pitch;
@@ -168,7 +168,7 @@ void ZMBVEncoder::addXorBlock(int vx, int vy, unsigned offset)
 template<class P>
 void ZMBVEncoder::addXorFrame()
 {
-	signed char* vectors = (signed char*)&work[workUsed];
+	signed char* vectors = reinterpret_cast<signed char*>(&work[workUsed]);
 
 	// Align the following xor data on 4 byte boundary
 	unsigned blockcount = blockOffsets.size();
@@ -216,7 +216,7 @@ void ZMBVEncoder::compressFrame(bool keyFrame, const void** lineData,
 	output[0] = 0; // first byte contains info about this frame
 	if (keyFrame) {
 		output[0] |= FLAG_KEYFRAME;
-		KeyframeHeader* header = (KeyframeHeader*)(writeBuf + writeDone);
+		KeyframeHeader* header = reinterpret_cast<KeyframeHeader*>(writeBuf + writeDone);
 		header->high_version = DBZV_VERSION_HIGH;
 		header->low_version = DBZV_VERSION_LOW;
 		header->compression = COMPRESSION_ZLIB;
@@ -259,11 +259,11 @@ void ZMBVEncoder::compressFrame(bool keyFrame, const void** lineData,
 		}
 	}
 	// Create the actual frame with compression
-	zstream.next_in = (Bytef*)work;
+	zstream.next_in = static_cast<Bytef*>(work);
 	zstream.avail_in = workUsed;
 	zstream.total_in = 0;
 
-	zstream.next_out = (Bytef*)(writeBuf + writeDone);
+	zstream.next_out = static_cast<Bytef*>(writeBuf + writeDone);
 	zstream.avail_out = outputSize - writeDone;
 	zstream.total_out = 0;
 	deflate(&zstream, Z_SYNC_FLUSH);

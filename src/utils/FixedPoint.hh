@@ -141,9 +141,8 @@ public:
 		return create(value - other.value);
 	}
 	FixedPoint operator*(const FixedPoint other) const {
-		return create(static_cast<int>(
-			(static_cast<long long int>(value) * other.value) >> FRACTION_BITS
-			));
+		return create(int(
+			(static_cast<long long>(value) * other.value) >> FRACTION_BITS));
 	}
 	FixedPoint operator*(const int i) const {
 		return create(value * i);
@@ -153,9 +152,8 @@ public:
 	 * The fractional part is rounded down.
 	 */
 	FixedPoint operator/(const FixedPoint other) const {
-		return create(static_cast<int>(
-			(static_cast<long long int>(value) << FRACTION_BITS) / other.value
-			));
+		return create(int(
+			(static_cast<long long>(value) << FRACTION_BITS) / other.value));
 	}
 	FixedPoint operator/(const int i) const {
 		return create(value / i);

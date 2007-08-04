@@ -258,7 +258,7 @@ void ImagePrinter::printGraphicByte(byte data)
 void ImagePrinter::seekPrinterHeadRelative(double offset)
 {
 	hpos += offset;
-	if ((unsigned)hpos > rightBorder) {
+	if (unsigned(hpos) > rightBorder) {
 		hpos = leftBorder;
 		vpos += lineFeed;
 		if (vpos >= pageHeight) {
@@ -274,14 +274,14 @@ void ImagePrinter::ensurePrintPage()
 		// A4 paper format (210mm x 297mm) at 300dpi
 		// TODO make this configurable
 		double dpi = dpiSetting->getValue();
-		unsigned paperSizeX = static_cast<unsigned>((210 / 25.4) * dpi);
-		unsigned paperSizeY = static_cast<unsigned>((297 / 25.4) * dpi);
+		unsigned paperSizeX = unsigned((210 / 25.4) * dpi);
+		unsigned paperSizeY = unsigned((297 / 25.4) * dpi);
 		paper.reset(new Paper(paperSizeX, paperSizeY));
 
 		unsigned dotsX, dotsY;
 		getNumberOfDots(dotsX, dotsY);
-		pixelSizeX = (double)paperSizeX / dotsX;
-		pixelSizeY = (double)paperSizeY / dotsY;
+		pixelSizeX = double(paperSizeX) / dotsX;
+		pixelSizeY = double(paperSizeY) / dotsY;
 		paper->setDotSize(pixelSizeX, pixelSizeY);
 	}
 }
@@ -352,7 +352,7 @@ void ImagePrinter::printVisibleCharacter(byte data)
 	printAreaBottom = max(printAreaBottom, destY + destHeight + dblStrikeOffset);
 
 	for (unsigned i = start; i < end; ++i) {
-		unsigned charBits = (unsigned)charBitmap[i + 1] << topBits;
+		unsigned charBits = unsigned(charBitmap[i + 1]) << topBits;
 
 		if (underline) {
 			charBits |= 2;
@@ -746,7 +746,7 @@ unsigned ImagePrinterMSX::parseNumber(unsigned sizeStart, unsigned sizeChars)
 		Value = Value * 10;
 		byte data = abEscSeq[sizeStart++];
 		if (data >= '0' && data <= '9') {
-			Value += (unsigned)(data - '0');
+			Value += unsigned(data - '0');
 		}
 	}
 	return Value;
@@ -912,7 +912,7 @@ void ImagePrinterMSX::processCharacter(byte data)
 				break;
 			case 9: { // HAT: Horizontal tabulator
 				// TODO: fix for other font-sizes
-				hpos = (((unsigned)hpos + 64 - leftBorder) & ~63)
+				hpos = ((unsigned(hpos) + 64 - leftBorder) & ~63)
 				     + leftBorder;
 				if (hpos < rightBorder) {
 					break;
@@ -1604,7 +1604,7 @@ void ImagePrinterEpson::processCharacter(byte data)
 			break;
 		case 9: { // Horizontal TAB
 			// TODO: fix for other font-sizes
-			hpos = (((unsigned)hpos + 64 - leftBorder) & ~63)
+			hpos = ((unsigned(hpos) + 64 - leftBorder) & ~63)
 			     + leftBorder;
 			if (hpos < rightBorder) {
 				break;
@@ -1692,8 +1692,8 @@ void Paper::setDotSize(double sizeX, double sizeY)
 	radiusX = sizeX / 2.0;
 	radiusY = sizeY / 2.0;
 
-	int rx = static_cast<int>(16 * radiusX);
-	int ry = static_cast<int>(16 * radiusY);
+	int rx = int(16 * radiusX);
+	int ry = int(16 * radiusY);
 	radius16 = ry;
 
 	table.clear();
@@ -1750,14 +1750,14 @@ void Paper::setDotSize(double sizeX, double sizeY)
 
 void Paper::plot(double xPos, double yPos)
 {
-	unsigned xx1 = max<int>(static_cast<int>(floor(xPos - radiusX)), 0);
-	unsigned xx2 = min<int>(static_cast<int>(ceil (xPos + radiusX)), sizeX);
-	unsigned yy1 = max<int>(static_cast<int>(floor(yPos - radiusY)), 0);
-	unsigned yy2 = min<int>(static_cast<int>(ceil (yPos + radiusY)), sizeY);
+	unsigned xx1 = max<int>(int(floor(xPos - radiusX)), 0);
+	unsigned xx2 = min<int>(int(ceil (xPos + radiusX)), sizeX);
+	unsigned yy1 = max<int>(int(floor(yPos - radiusY)), 0);
+	unsigned yy2 = min<int>(int(ceil (yPos + radiusY)), sizeY);
 
-	int y = 16 * yy1 - static_cast<int>(16 * yPos) + 16 + radius16;
+	int y = 16 * yy1 - int(16 * yPos) + 16 + radius16;
 	for (unsigned yy = yy1; yy < yy2; ++yy) {
-		int x = 16 * xx1 - static_cast<int>(16 * xPos);
+		int x = 16 * xx1 - int(16 * xPos);
 		for (unsigned xx = xx1; xx < xx2; ++xx) {
 			int sum = 0;
 			for (int i = 0; i < 16; ++i) {

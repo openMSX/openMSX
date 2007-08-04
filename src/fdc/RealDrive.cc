@@ -47,7 +47,7 @@ RealDrive::RealDrive(MSXMotherBoard& motherBoard_, const EmuTime& time)
 		}
 	}
 	drivesInUse[i] = true;
-	string driveName = string("disk") + static_cast<char>('a' + i);
+	string driveName = string("disk") + char('a' + i);
 
 	if (motherBoard.getCommandController().hasCommand(driveName)) {
 		throw MSXException("Duplicated drive name: " + driveName);

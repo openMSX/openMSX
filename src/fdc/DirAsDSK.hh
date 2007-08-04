@@ -39,7 +39,7 @@ private:
 	void writeFAT(word clnr, word val);
 
 	struct MSXDirEntry {
-		byte filename[8];
+		char filename[8];
 		byte ext[3];
 		byte attrib;
 		byte reserved[10];

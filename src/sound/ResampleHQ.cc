@@ -183,7 +183,7 @@ template <unsigned CHANNELS>
 void ResampleHQ<CHANNELS>::calcOutput(float lastPos, int* output)
 {
 	assert((filterLen & 3) == 0);
-	int t = static_cast<int>(lastPos * TAB_LEN + 0.5f) % TAB_LEN;
+	int t = int(lastPos * TAB_LEN + 0.5f) % TAB_LEN;
 
 	int tabIdx = t * filterLen;
 	int bufIdx = bufStart * CHANNELS;

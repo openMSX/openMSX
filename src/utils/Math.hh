@@ -42,7 +42,7 @@ inline short clipIntToShort(int x)
 template <int LO, int HI>
 inline int clip(double r, double factor)
 {
-	int a = (int)round(r * factor);
+	int a = int(round(r * factor));
 	return std::min(std::max(a, LO), HI);
 }
 

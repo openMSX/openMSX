@@ -360,12 +360,10 @@ bool XMLElement::isShallowEqual(const XMLElement& other) const
 
 string XMLElement::XMLEscape(const string& str)
 {
-	xmlChar* buffer = xmlEncodeEntitiesReentrant(NULL, (const xmlChar*)str.c_str());
-	string result = (const char*)buffer;
-	// buffer is allocated in C code, soo we free it the C-way:
-	if (buffer != NULL) {
-		xmlFree(buffer);
-	}
+	xmlChar* buffer = xmlEncodeEntitiesReentrant(
+		NULL, reinterpret_cast<const xmlChar*>(str.c_str()));
+	string result = reinterpret_cast<const char*>(buffer);
+	xmlFree(buffer);
 	return result;
 }
 

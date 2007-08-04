@@ -290,16 +290,16 @@ Patch Global::nullPatch;
 
 static inline int EG2DB(int d)
 {
-	return d * (int)(EG_STEP / DB_STEP);
+	return d * int(EG_STEP / DB_STEP);
 }
 
 static inline int TL2EG(int d)
 {
-	return d * (int)(TL_STEP / EG_STEP);
+	return d * int(TL_STEP / EG_STEP);
 }
 static inline unsigned DB_POS(double x)
 {
-	int result = static_cast<int>(x / DB_STEP);
+	int result = int(x / DB_STEP);
 	assert(0 <= x);
 	assert(x < DB_MUTE);
 	return result;
@@ -333,8 +333,8 @@ static void makeAdjustTable()
 {
 	AR_ADJUST_TABLE[0] = (1 << EG_BITS) - 1;
 	for (int i = 1; i < (1 << EG_BITS); ++i) {
-		AR_ADJUST_TABLE[i] = (unsigned)((double)(1 << EG_BITS) - 1 -
-		                     ((1 << EG_BITS) - 1) * ::log(i) / ::log(127));
+		AR_ADJUST_TABLE[i] = unsigned(double(1 << EG_BITS) - 1 -
+		                       ((1 << EG_BITS) - 1) * ::log(i) / ::log(127));
 	}
 }
 
@@ -342,8 +342,8 @@ static void makeAdjustTable()
 static void makeDB2LinTable()
 {
 	for (int i = 0; i < DB_MUTE; ++i) {
-		dB2LinTab[i] = (int)((double)((1 << DB2LIN_AMP_BITS) - 1) *
-		                     pow(10, -(double)i * DB_STEP / 20));
+		dB2LinTab[i] = int(double((1 << DB2LIN_AMP_BITS) - 1) *
+		                   pow(10, -double(i) * DB_STEP / 20));
 	}
 	dB2LinTab[DB_MUTE - 1] = 0;
 	for (int i = DB_MUTE; i < 2 * DB_MUTE; ++i) {
@@ -359,7 +359,7 @@ static int lin2db(double d)
 {
 	return (d == 0)
 		? DB_MUTE - 1
-		: std::min(-(int)(20.0 * log10(d) / DB_STEP), DB_MUTE - 1); // 0 - 127
+		: std::min(-int(20.0 * log10(d) / DB_STEP), DB_MUTE - 1); // 0 - 127
 }
 
 // Sin Table
@@ -411,8 +411,8 @@ static void makePmTable()
 static void makeAmTable()
 {
 	for (int i = 0; i < AM_PG_WIDTH; ++i) {
-		amtable[i] = (int)((double)AM_DEPTH / 2 / DB_STEP *
-		                   (1.0 + saw(2.0 * M_PI * i / AM_PG_WIDTH)));
+		amtable[i] = int(double(AM_DEPTH) / 2 / DB_STEP *
+		                 (1.0 + saw(2.0 * M_PI * i / AM_PG_WIDTH)));
 	}
 }
 
@@ -448,13 +448,12 @@ static void makeTllTable()
 			for (int TL = 0; TL < 64; ++TL) {
 				tllTable[fnum][block][TL][0] = TL2EG(TL);
 				for (int KL = 1; KL < 4; ++KL) {
-					int tmp = (int)(
-						kltable[fnum] - (3.000 * 2) * (7 - block)
-						);
+					int tmp = int(
+						kltable[fnum] - (3.000 * 2) * (7 - block));
 					tllTable[fnum][block][TL][KL] =
 						(tmp <= 0) ?
 						TL2EG(TL) :
-						(unsigned)((tmp >> (3 - KL)) / EG_STEP) + TL2EG(TL);
+						unsigned((tmp >> (3 - KL)) / EG_STEP) + TL2EG(TL);
 				}
 			}
 		}

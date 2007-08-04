@@ -303,8 +303,8 @@ void VLM5030::generateChannels(int** bufs, unsigned length)
 				current_val = 0x00;
 			} else if (old_pitch <= 1) {
 				// generate unvoiced samples here
-				current_val = (rand() & 1) ?  (int)current_energy
-				                           : -(int)current_energy;
+				current_val = (rand() & 1) ?  int(current_energy)
+				                           : -int(current_energy);
 			} else {
 				// generate voiced samples here
 				current_val = (pitch_count == 0) ? current_energy : 0;
@@ -465,7 +465,7 @@ void VLM5030::setST(bool pin, const EmuTime& time)
 		pin_ST = false;
 		if (pin_VCU) {
 			// direct access mode & address High
-			vcu_addr_h = ((int)latch_data << 8) + 0x01;
+			vcu_addr_h = (int(latch_data) << 8) + 0x01;
 		} else {
 			// check access mode
 			if (vcu_addr_h) {
@@ -474,9 +474,9 @@ void VLM5030::setST(bool pin, const EmuTime& time)
 				vcu_addr_h = 0;
 			} else {
 				// indirect access mode
-				int table = (latch_data & 0xfe) + (((int)latch_data & 1) << 8);
-				address = (((int)(*rom)[(table + 0) & address_mask]) << 8) |
-				                 (*rom)[(table + 1) & address_mask];
+				int table = (latch_data & 0xfe) + ((int(latch_data) & 1) << 8);
+				address = (((*rom)[(table + 0) & address_mask]) << 8) |
+				            (*rom)[(table + 1) & address_mask];
 			}
 			updateStream(time);
 			// reset process status
@@ -536,7 +536,7 @@ void VLM5030::setOutputRate(unsigned sampleRate)
 {
        const int CLOCK_FREQ = 3579545;
        double input = CLOCK_FREQ / 440.0;
-       setInputRate(static_cast<int>(input + 0.5));
+       setInputRate(int(input + 0.5));
        setResampleRatio(input, sampleRate);
 }
 

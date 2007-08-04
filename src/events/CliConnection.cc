@@ -59,9 +59,9 @@ CliConnection::CliConnection(CommandController& commandController_,
 	user_data.unknownLevel = 0;
 	user_data.object = this;
 	memset(&sax_handler, 0, sizeof(sax_handler));
-	sax_handler.startElement = (startElementSAXFunc)cb_start_element;
-	sax_handler.endElement   = (endElementSAXFunc)  cb_end_element;
-	sax_handler.characters   = (charactersSAXFunc)  cb_text;
+	sax_handler.startElement = cb_start_element;
+	sax_handler.endElement   = cb_end_element;
+	sax_handler.characters   = cb_text;
 
 	parser_context = xmlCreatePushParserCtxt(&sax_handler, &user_data, 0, 0, 0);
 
@@ -128,59 +128,62 @@ bool CliConnection::signalEvent(shared_ptr<const Event> event)
 	return true;
 }
 
-void CliConnection::cb_start_element(ParseState* user_data,
+void CliConnection::cb_start_element(void* user_data,
                      const xmlChar* name, const xmlChar** /*attrs*/)
 {
-	if (user_data->unknownLevel) {
-		++(user_data->unknownLevel);
+	ParseState* parseState = static_cast<ParseState*>(user_data);
+	if (parseState->unknownLevel) {
+		++(parseState->unknownLevel);
 		return;
 	}
-	switch (user_data->state) {
+	switch (parseState->state) {
 		case START:
-			if (strcmp((const char*)name, "openmsx-control") == 0) {
-				user_data->state = TAG_OPENMSX;
+			if (strcmp(reinterpret_cast<const char*>(name), "openmsx-control") == 0) {
+				parseState->state = TAG_OPENMSX;
 			} else {
-				++(user_data->unknownLevel);
+				++(parseState->unknownLevel);
 			}
 			break;
 		case TAG_OPENMSX:
-			if (strcmp((const char*)name, "command") == 0) {
-				user_data->state = TAG_COMMAND;
+			if (strcmp(reinterpret_cast<const char*>(name), "command") == 0) {
+				parseState->state = TAG_COMMAND;
 			} else {
-				++(user_data->unknownLevel);
+				++(parseState->unknownLevel);
 			}
 			break;
 		default:
-			++(user_data->unknownLevel);
+			++(parseState->unknownLevel);
 			break;
 	}
-	user_data->content.clear();
+	parseState->content.clear();
 }
 
-void CliConnection::cb_end_element(ParseState* user_data, const xmlChar* /*name*/)
+void CliConnection::cb_end_element(void* user_data, const xmlChar* /*name*/)
 {
-	if (user_data->unknownLevel) {
-		--(user_data->unknownLevel);
+	ParseState* parseState = static_cast<ParseState*>(user_data);
+	if (parseState->unknownLevel) {
+		--(parseState->unknownLevel);
 		return;
 	}
-	switch (user_data->state) {
+	switch (parseState->state) {
 		case TAG_OPENMSX:
-			user_data->object->end();
-			user_data->state = END;
+			parseState->object->end();
+			parseState->state = END;
 			break;
 		case TAG_COMMAND:
-			user_data->object->execute(user_data->content);
-			user_data->state = TAG_OPENMSX;
+			parseState->object->execute(parseState->content);
+			parseState->state = TAG_OPENMSX;
 			break;
 		default:
 			break;
 	}
 }
 
-void CliConnection::cb_text(ParseState* user_data, const xmlChar* chars, int len)
+void CliConnection::cb_text(void* user_data, const xmlChar* chars, int len)
 {
-	if (user_data->state == TAG_COMMAND) {
-		user_data->content.append((const char*)chars, len);
+	ParseState* parseState = static_cast<ParseState*>(user_data);
+	if (parseState->state == TAG_COMMAND) {
+		parseState->content.append(reinterpret_cast<const char*>(chars), len);
 	}
 }
 

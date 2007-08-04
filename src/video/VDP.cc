@@ -573,11 +573,11 @@ void VDP::writeIO(word port, byte value, const EmuTime& time)
 					// run as on real MSX1, e.g. Planet of the Epas, Utopia and
 					// Waves 1.2. Thanks to dvik for finding this out.
 					// Set read/write address.
-					vramPointer = ((word)value << 8 | dataLatch) & 0x3FFF;
+					vramPointer = (value << 8 | dataLatch) & 0x3FFF;
 				}
 			} else {
 				// Set read/write address.
-				vramPointer = ((word)value << 8 | dataLatch) & 0x3FFF;
+				vramPointer = (value << 8 | dataLatch) & 0x3FFF;
 				if (!(value & 0x40)) {
 					// Read ahead.
 					vramRead(time);
@@ -687,19 +687,19 @@ byte VDP::peekStatusReg(byte reg, const EmuTime& time) const
 			| cmdEngine->getStatus(time);
 	}
 	case 3:
-		return (byte)spriteChecker->getCollisionX(time);
+		return byte(spriteChecker->getCollisionX(time));
 	case 4:
-		return (byte)(spriteChecker->getCollisionX(time) >> 8) | 0xFE;
+		return byte(spriteChecker->getCollisionX(time) >> 8) | 0xFE;
 	case 5:
-		return (byte)spriteChecker->getCollisionY(time);
+		return byte(spriteChecker->getCollisionY(time));
 	case 6:
-		return (byte)(spriteChecker->getCollisionY(time) >> 8) | 0xFC;
+		return byte(spriteChecker->getCollisionY(time) >> 8) | 0xFC;
 	case 7:
 		return cmdEngine->readColour(time);
 	case 8:
-		return (byte)cmdEngine->getBorderX(time);
+		return byte(cmdEngine->getBorderX(time));
 	case 9:
-		return (byte)(cmdEngine->getBorderX(time) >> 8) | 0xFE;
+		return byte(cmdEngine->getBorderX(time) >> 8) | 0xFE;
 	default: // non-existent status register
 		return 0xFF;
 	}

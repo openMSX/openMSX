@@ -907,7 +907,7 @@ byte IODebug::read(unsigned address, const EmuTime& time)
 
 void IODebug::write(unsigned address, byte value, const EmuTime& time)
 {
-	interface.writeIO((word)address, value, time);
+	interface.writeIO(word(address), value, time);
 }
 
 

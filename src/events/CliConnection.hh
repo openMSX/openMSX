@@ -64,10 +64,10 @@ private:
 		CliConnection* object;
 	};
 
-	static void cb_start_element(ParseState* user_data, const xmlChar* name,
-				     const xmlChar** attrs);
-	static void cb_end_element(ParseState* user_data, const xmlChar* name);
-	static void cb_text(ParseState* user_data, const xmlChar* chars, int len);
+	static void cb_start_element(void* user_data, const xmlChar* name,
+	                             const xmlChar** attrs);
+	static void cb_end_element(void* user_data, const xmlChar* name);
+	static void cb_text(void* user_data, const xmlChar* chars, int len);
 
 	xmlSAXHandler sax_handler;
 	ParseState user_data;

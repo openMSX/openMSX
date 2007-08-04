@@ -29,7 +29,8 @@ public:
 	template <class Pixel>
 	inline void setBlank(unsigned line, Pixel color) {
 		assert(line < getHeight());
-		Pixel* pixels = getLinePtr(line, (Pixel*)0);
+		Pixel* dummy = 0;
+		Pixel* pixels = getLinePtr(line, dummy);
 		pixels[0] = color;
 		lineWidth[line] = 1;
 	}

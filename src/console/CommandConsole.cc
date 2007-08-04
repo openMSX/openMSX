@@ -396,8 +396,7 @@ void CommandConsole::normalKey(word chr)
 	if (!chr) return;
 	if (chr >= 0x100) return; // TODO: Support Unicode (how?).
 	resetScrollBack();
-	lines[0].insert(lines[0].begin() + cursorPosition,
-	                static_cast<char>(chr));
+	lines[0].insert(lines[0].begin() + cursorPosition, char(chr));
 	currentLine = lines[0];
 	++cursorPosition;
 }

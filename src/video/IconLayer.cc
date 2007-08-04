@@ -58,7 +58,7 @@ void IconLayer<IMAGE>::createSettings(CommandController& commandController,
 	string icon_name = "icon." + name;
 	ledInfo[led].xcoord.reset(new IntegerSetting(commandController,
 		icon_name + ".xcoord", "X-coordinate for LED icon",
-		((int)led) * 60, 0, 640));
+		int(led) * 60, 0, 640));
 	//Default is 640x480 and we want the default icons on the bottom
 	ledInfo[led].ycoord.reset(new IntegerSetting(commandController,
 		icon_name + ".ycoord", "Y-coordinate for LED icon",
@@ -122,10 +122,8 @@ void IconLayer<IMAGE>::paint()
 		}
 		IMAGE* icon = led.icon[status].get();
 		if (icon) {
-			unsigned x = static_cast<unsigned>(
-			                scaleFactor * led.xcoord->getValue());
-			unsigned y = static_cast<unsigned>(
-			                scaleFactor * led.ycoord->getValue());
+			unsigned x = unsigned(scaleFactor * led.xcoord->getValue());
+			unsigned y = unsigned(scaleFactor * led.ycoord->getValue());
 			icon->draw(x, y, alpha);
 		}
 	}

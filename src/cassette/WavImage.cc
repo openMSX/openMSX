@@ -44,7 +44,7 @@ WavImage::WavImage(const string& fileName)
 		free(buffer);
 		throw MSXException("Couldn't convert wav");
 	}
-	nbSamples = static_cast<unsigned>(audioCVT.len * audioCVT.len_ratio) / 2;
+	nbSamples = unsigned(audioCVT.len * audioCVT.len_ratio) / 2;
 
 	// calculate the average to subtract it later (simple DC filter)
 	if (nbSamples > 0) {
@@ -52,7 +52,7 @@ WavImage::WavImage(const string& fileName)
 		for (unsigned i = 0; i < nbSamples; ++i) {
 			total += getSample(i);
 		}
-		average = static_cast<short>(total / nbSamples);
+		average = short(total / nbSamples);
 	} else {
 		average = 0;
 	}

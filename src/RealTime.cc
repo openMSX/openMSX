@@ -70,7 +70,7 @@ EmuDuration RealTime::getEmuDuration(double realDur)
 bool RealTime::timeLeft(unsigned long long us, const EmuTime& time)
 {
 	unsigned long long realDuration =
-	   (unsigned long long)(getRealDuration(emuTime, time) * 1000000ULL);
+	   static_cast<unsigned long long>(getRealDuration(emuTime, time) * 1000000ULL);
 	unsigned long long currentRealTime = Timer::getTime();
 	return (currentRealTime + us) <
 	           (idealRealTime + realDuration + ALLOWED_LAG);
@@ -91,14 +91,14 @@ void RealTime::internalSync(const EmuTime& time, bool allowSleep)
 {
 	if (throttleManager.isThrottled()) {
 		unsigned long long realDuration =
-		    (unsigned long long)(getRealDuration(emuTime, time) *
-		                             1000000ULL);
+		    static_cast<unsigned long long>(
+		        getRealDuration(emuTime, time) * 1000000ULL);
 		idealRealTime += realDuration;
 		unsigned long long currentRealTime = Timer::getTime();
 		long long sleep = idealRealTime - currentRealTime;
 		if (allowSleep) {
 			//PRT_DEBUG("RT: want to sleep " << sleep << "us");
-			sleep += (long long)sleepAdjust;
+			sleep += static_cast<long long>(sleepAdjust);
 			long long delta = 0;
 			if (sleep > 0) {
 				//PRT_DEBUG("RT: Sleeping for " << sleep << "us");

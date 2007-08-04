@@ -18,7 +18,7 @@ SDLVisibleSurface::SDLVisibleSurface(
 	createSurface(width, height, flags);
 	memcpy(&format, surface->format, sizeof(SDL_PixelFormat));
 
-	data = (char*)surface->pixels;
+	data = static_cast<char*>(surface->pixels);
 	pitch = surface->pitch;
 }
 

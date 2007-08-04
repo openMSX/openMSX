@@ -426,7 +426,7 @@ T* PixelBuffer<T>::getOffset(GLuint x, GLuint y) const
 	unsigned offset = x + width * y;
 #ifdef GL_VERSION_1_5
 	if (bufferId != 0) {
-		return (T*)NULL + offset;
+		return static_cast<T*>(0) + offset;
 	}
 #endif
 	return allocated + offset;

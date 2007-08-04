@@ -422,10 +422,10 @@ void MSXMixer::updateVolumeParams(Infos::iterator it)
 		r1 = volume * sqrt(b);
 		l2 = r2 = 0.0; // dummy
 	}
-	info.left1  = static_cast<int>(l1 * 256);
-	info.right1 = static_cast<int>(r1 * 256);
-	info.left2  = static_cast<int>(l2 * 256);
-	info.right2 = static_cast<int>(r2 * 256);
+	info.left1  = int(l1 * 256);
+	info.right1 = int(r1 * 256);
+	info.left2  = int(l2 * 256);
+	info.right2 = int(r2 * 256);
 }
 
 void MSXMixer::updateMasterVolume()

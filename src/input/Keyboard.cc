@@ -190,8 +190,8 @@ void Keyboard::signalEvent(shared_ptr<const Event> event,
 		// an unwanted pressing of <return> in MSX after typing
 		// "set console off" in the console.
 		const KeyEvent& keyEvent = checked_cast<const KeyEvent&>(*event);
-		Keys::KeyCode key = (Keys::KeyCode)
-			((int)keyEvent.getKeyCode() & (int)Keys::K_MASK);
+		Keys::KeyCode key = static_cast<Keys::KeyCode>
+			(int(keyEvent.getKeyCode()) & int(Keys::K_MASK));
 		if (key != Keys::K_CAPSLOCK) {
 			processKey(type == OPENMSX_KEY_DOWN_EVENT, key);
 		} else {

@@ -38,7 +38,7 @@ GLPostProcessor::GLPostProcessor(
 			"objects.");
 	}
 
-	scaleAlgorithm = (RenderSettings::ScaleAlgorithm)-1; // not a valid scaler
+	scaleAlgorithm = static_cast<RenderSettings::ScaleAlgorithm>(-1); // not a valid scaler
 
 	noiseTextureA.setImage(256, 256);
 	noiseTextureB.setImage(256, 256);
@@ -277,8 +277,8 @@ RawFrame* GLPostProcessor::rotateFrames(
 		PostProcessor::rotateFrames(finishedFrame, field, time);
 	uploadFrame();
 	++frameCounter;
-	noiseX = (double)rand() / RAND_MAX;
-	noiseY = (double)rand() / RAND_MAX;
+	noiseX = double(rand()) / RAND_MAX;
+	noiseY = double(rand()) / RAND_MAX;
 	return reuseFrame;
 }
 
@@ -345,8 +345,9 @@ void GLPostProcessor::uploadBlock(
 		pbo->bind();
 		unsigned* mapped = pbo->mapWrite();
 		for (unsigned y = srcStartY; y < srcEndY; ++y) {
+			unsigned* dummy = 0;
 			const unsigned* data =
-				paintFrame->getLinePtr(y, lineWidth, (unsigned*)0);
+				paintFrame->getLinePtr(y, lineWidth, dummy);
 			MemoryOps::stream_memcpy(mapped + y * lineWidth, data, lineWidth);
 			paintFrame->freeLineBuffers(); // ASAP to keep cache warm
 		}
@@ -368,8 +369,9 @@ void GLPostProcessor::uploadBlock(
 		unsigned remainingLines = srcEndY - srcStartY;
 		while (remainingLines) {
 			unsigned lines;
+			unsigned* dummy = 0;
 			const unsigned* data = paintFrame->getMultiLinePtr(
-				y, remainingLines, lines, lineWidth, (unsigned*)0);
+				y, remainingLines, lines, lineWidth, dummy);
 			glTexSubImage2D(
 				GL_TEXTURE_2D,     // target
 				0,                 // level

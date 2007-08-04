@@ -180,9 +180,9 @@ void Y8950Adpcm::writeReg(byte rg, byte data, const EmuTime &time)
 		int oldVol = volume;
 		volume = (data * ADPCM_VOLUME) >> 8;
 		if (oldVol != 0) {
-			double factor = (double)volume / (double)oldVol;
-			output =     (int)((double)output     * factor);
-			sampleStep = (int)((double)sampleStep * factor);
+			double factor = double(volume) / double(oldVol);
+			output     = int(double(output)     * factor);
+			sampleStep = int(double(sampleStep) * factor);
 		}
 		volumeWStep = (volume * delta) >> STEP_BITS;
 		break;

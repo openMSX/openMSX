@@ -1,5 +1,9 @@
 $Id$
 
+2007-08-04 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Enable -Wold-style-cast warnings by default
+	  abd fixed all warnings triggered by this
+
 2007-08-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added psg_profile Tcl script
 

@@ -52,11 +52,11 @@ WavWriter::WavWriter(const std::string& filename,
 		0, 0, 0, 0,         // size of data block (filled in later)
 	};
 
-	*(short*)   (header + 22) = litEnd_16(channels);
-	*(unsigned*)(header + 24) = litEnd_32(frequency);
-	*(unsigned*)(header + 28) = litEnd_32((channels * frequency * bits) / 8);
-	*(short*)   (header + 32) = litEnd_16((channels * bits) / 8);
-	*(short*)   (header + 34) = litEnd_16(bits);
+	*reinterpret_cast<short*>   (header + 22) = litEnd_16(channels);
+	*reinterpret_cast<unsigned*>(header + 24) = litEnd_32(frequency);
+	*reinterpret_cast<unsigned*>(header + 28) = litEnd_32((channels * frequency * bits) / 8);
+	*reinterpret_cast<short*>   (header + 32) = litEnd_16((channels * bits) / 8);
+	*reinterpret_cast<short*>   (header + 34) = litEnd_16(bits);
 
 	fwrite(header, sizeof(header), 1, wavfp);
 }

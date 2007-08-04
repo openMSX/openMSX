@@ -271,7 +271,7 @@ public:
 	  * @return true iff the address is inside this window.
 	  */
 	inline bool isInside(unsigned address) const {
-		return (address & combiMask) == (unsigned)baseAddr;
+		return (address & combiMask) == unsigned(baseAddr);
 	}
 
 	/** Notifies the observer of this window of a VRAM change,

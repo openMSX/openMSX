@@ -48,9 +48,9 @@ static const int TICKS_VISIBLE_MIDDLE =
 
 inline static GLRasterizer::Pixel GLMapRGB(double dr, double dg, double db)
 {
-	int r = static_cast<int>(dr * 255.0);
-	int g = static_cast<int>(dg * 255.0);
-	int b = static_cast<int>(db * 255.0);
+	int r = int(dr * 255.0);
+	int g = int(dg * 255.0);
+	int b = int(db * 255.0);
 	if (OPENMSX_BIGENDIAN) {
 		return (r << 24) | (g << 16) | (b <<  8) | 0x000000FF;
 	} else {
@@ -503,8 +503,8 @@ void GLRasterizer::drawNoise()
 		{ {   0,   0 }, {   0, 480 }, { 640, 480 }, { 640,   0 } }
 	};
 
-	double x = (double)rand() / RAND_MAX;
-	double y = (double)rand() / RAND_MAX;
+	double x = double(rand()) / RAND_MAX;
+	double y = double(rand()) / RAND_MAX;
 	glPushAttrib(GL_ALL_ATTRIB_BITS);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE);

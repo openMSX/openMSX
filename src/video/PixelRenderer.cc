@@ -174,7 +174,7 @@ void PixelRenderer::frameStart(const EmuTime& time)
 				renderFrame = true;
 			} else {
 				renderFrame = realTime.timeLeft(
-					(unsigned)finishFrameDuration, time);
+					unsigned(finishFrameDuration), time);
 			}
 			if (renderFrame) {
 				frameSkipCounter = 0;

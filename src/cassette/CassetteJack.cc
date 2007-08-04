@@ -191,7 +191,7 @@ short CassetteJack::readSample(const EmuTime& time)
 	// ASSUMPTION: openmsx is blocked here we need not worry about the
 	// readpointer being advanced during this function
 	double index_d = (time - basetime).toDouble() * samplerate;
-	size_t index_i = (size_t)floor(index_d);
+	size_t index_i = size_t(floor(index_d));
 	double lambda = index_d - floor(index_d);
 
 	// piecewise linear interpolation
@@ -372,7 +372,7 @@ const std::string& CassetteJack::schedName() const
 
 int CassetteJack::process_callback(jack_nframes_t nframes, void* arg)
 {
-	return ((openmsx::CassetteJack*)arg)->jackCallBack(nframes);
+	return static_cast<openmsx::CassetteJack*>(arg)->jackCallBack(nframes);
 }
 int CassetteJack::jackCallBack(jack_nframes_t nframes)
 {
@@ -380,14 +380,14 @@ int CassetteJack::jackCallBack(jack_nframes_t nframes)
 	if (!running) return 1;
 
 	// produce audio data for out
-	char* dest = (char*)jack_port_get_buffer(cmtout, nframes);
-	char* src  = (char*)bf_out->getRdBlock();
+	void* dest = jack_port_get_buffer(cmtout, nframes);
+	const void* src  = bf_out->getRdBlock();
 	memcpy(dest, src, nframes * sizeof(sample_t));
 	bf_out->advanceRd();
 
 	// receive data from cmtin
-	src  = (char*)jack_port_get_buffer(cmtin, nframes);
-	dest = (char*)bf_in->getWrBlock();
+	src  = jack_port_get_buffer(cmtin, nframes);
+	dest = bf_in->getWrBlock();
 	memcpy(dest, src, nframes * sizeof(sample_t));
 	bf_in->advanceWr();
 	return 0;
@@ -395,18 +395,18 @@ int CassetteJack::jackCallBack(jack_nframes_t nframes)
 
 int CassetteJack::srate_callback(jack_nframes_t nframes, void* arg)
 {
-	return ((openmsx::CassetteJack*)arg)->srateCallBack(nframes);
+	return static_cast<openmsx::CassetteJack*>(arg)->srateCallBack(nframes);
 }
 int CassetteJack::srateCallBack(jack_nframes_t newrate)
 {
 	samplerate = newrate;
-	timestep = EmuDuration((double)bufsize / samplerate);
+	timestep = EmuDuration(double(bufsize) / samplerate);
 	return 0;
 }
 
 int CassetteJack::bufsize_callback(jack_nframes_t nframes, void* arg)
 {
-	return ((openmsx::CassetteJack*)arg)->bufsizeCallBack(nframes);
+	return static_cast<openmsx::CassetteJack*>(arg)->bufsizeCallBack(nframes);
 }
 int CassetteJack::bufsizeCallBack(jack_nframes_t /*newsize*/)
 {
@@ -429,7 +429,7 @@ int CassetteJack::bufsizeCallBack(jack_nframes_t /*newsize*/)
 
 void CassetteJack::shutdown_callback(void* arg)
 {
-	((openmsx::CassetteJack*)arg)->shutdownCallBack();
+	static_cast<openmsx::CassetteJack*>(arg)->shutdownCallBack();
 }
 void CassetteJack::shutdownCallBack()
 {

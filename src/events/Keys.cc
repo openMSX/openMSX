@@ -307,7 +307,7 @@ KeyCode getCode(const string& name)
 
 KeyCode getCode(SDLKey key, SDLMod mod, bool release)
 {
-	KeyCode result = (KeyCode)key;
+	KeyCode result = static_cast<KeyCode>(key);
 	if (mod & KMOD_CTRL) {
 		result = static_cast<KeyCode>(result | KM_CTRL);
 	}
@@ -361,7 +361,7 @@ const string getName(KeyCode keyCode)
 
 KeyCode combine(KeyCode key, KeyCode modifier)
 {
-	return (KeyCode)((int)key | (int)modifier);
+	return static_cast<KeyCode>(int(key) | int(modifier));
 }
 
 } // namespace Keys

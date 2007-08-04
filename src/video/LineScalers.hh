@@ -499,8 +499,8 @@ void Scale_1on1<Pixel, streaming>::operator()(
 			"emms;"
 
 			: // no output
-			: "r" ((char*)in  + nBytes) // 0
-			, "r" ((char*)out + nBytes) // 1
+			: "r" (reinterpret_cast<const char*>(in)  + nBytes) // 0
+			, "r" (reinterpret_cast<char*      >(out) + nBytes) // 1
 			, "r" (-nBytes) // 2
 			#ifdef __MMX__
 			: "mm0", "mm1", "mm2", "mm3",
@@ -539,8 +539,8 @@ void Scale_1on1<Pixel, streaming>::operator()(
 			"emms;"
 
 			: // no output
-			: "r" ((char*)in  + nBytes) // 0
-			, "r" ((char*)out + nBytes) // 1
+			: "r" (reinterpret_cast<const char*>(in)  + nBytes) // 0
+			, "r" (reinterpret_cast<char*      >(out) + nBytes) // 1
 			, "r" (-nBytes) // 2
 			#ifdef __MMX__
 			: "mm0", "mm1", "mm2", "mm3",

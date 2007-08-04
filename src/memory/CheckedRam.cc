@@ -99,7 +99,7 @@ void CheckedRam::callUMRCallBack(unsigned addr)
 	if (!callback.empty()) {
 		TclObject command(commandController.getInterpreter());
 		command.addListElement(callback);
-		command.addListElement(static_cast<int>(addr));
+		command.addListElement(int(addr));
 		command.addListElement(ram.get()->getName());
 		try {
 			command.executeCommand();

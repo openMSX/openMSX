@@ -64,11 +64,11 @@ LocalFile::~LocalFile()
 	fclose(file);
 }
 
-void LocalFile::read(byte* buffer, unsigned num)
+void LocalFile::read(void* buffer, unsigned num)
 {
 	long pos = ftell(file);
 	fseek(file, 0, SEEK_END);
-	unsigned size = (unsigned)ftell(file);
+	unsigned size = unsigned(ftell(file));
 	fseek(file, pos, SEEK_SET);
 	if ((pos + num) > size) {
 		throw FileException("Read beyond end of file");
@@ -80,7 +80,7 @@ void LocalFile::read(byte* buffer, unsigned num)
 	}
 }
 
-void LocalFile::write(const byte* buffer, unsigned num)
+void LocalFile::write(const void* buffer, unsigned num)
 {
 	fwrite(buffer, 1, num, file);
 	if (ferror(file)) {
@@ -93,13 +93,16 @@ byte* LocalFile::mmap(bool writeBack)
 {
 	if (!mmem) {
 		int flags = writeBack ? MAP_SHARED : MAP_PRIVATE;
-		mmem = (byte*)::mmap(0, getSize(), PROT_READ | PROT_WRITE,
-		                     flags, fileno(file), 0);
-		if (mmem == MAP_FAILED) {
+		mmem = ::mmap(0, getSize(), PROT_READ | PROT_WRITE,
+		              flags, fileno(file), 0);
+		// MAP_FAILED is #define'd using an old-style cast, we
+		// have to redefine it ourselves to avoid a warning
+		void* MY_MAP_FAILED = reinterpret_cast<void*>(-1);
+		if (mmem == MY_MAP_FAILED) {
 			throw FileException("Error mmapping file");
 		}
 	}
-	return mmem;
+	return static_cast<byte*>(mmem);
 }
 
 void LocalFile::munmap()
@@ -115,7 +118,7 @@ unsigned LocalFile::getSize()
 {
 	long pos = ftell(file);
 	fseek(file, 0, SEEK_END);
-	unsigned size = (unsigned)ftell(file);
+	unsigned size = unsigned(ftell(file));
 	fseek(file, pos, SEEK_SET);
 	return size;
 }
@@ -130,7 +133,7 @@ void LocalFile::seek(unsigned pos)
 
 unsigned LocalFile::getPos()
 {
-	return (unsigned)ftell(file);
+	return unsigned(ftell(file));
 }
 
 #ifdef HAVE_FTRUNCATE

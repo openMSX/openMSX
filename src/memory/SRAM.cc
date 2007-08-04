@@ -71,12 +71,11 @@ void SRAM::load()
 			  File::LOAD_PERSISTENT);
 		if (header) {
 			int length = strlen(header);
-			byte* temp = new byte[length];
+			char temp[length];
 			file.read(temp, length);
-			if (strncmp((char*)temp, header, length) != 0) {
+			if (strncmp(temp, header, length) != 0) {
 				headerOk = false;
 			}
-			delete[] temp;
 		}
 		if (headerOk) {
 			file.read(&ram[0], getSize());
@@ -98,7 +97,7 @@ void SRAM::save()
 			  File::SAVE_PERSISTENT);
 		if (header) {
 			int length = strlen(header);
-			file.write((const byte*)header, length);
+			file.write(header, length);
 		}
 		file.write(&ram[0], getSize());
 	} catch (FileException& e) {

@@ -71,18 +71,20 @@ int dasm(const MSXCPUInterface& interf, word pc, byte buf[4], std::string& dest,
 		switch (s[j]) {
 		case 'B':
 			buf[i] = interf.peekMem(pc + i, time);
-			dest += "#" + StringOp::toHexString((unsigned short) buf[i], 2);
+			dest += "#" + StringOp::toHexString(
+				static_cast<unsigned short>(buf[i]), 2);
 			i += 1;
 			break;
 		case 'R':
 			buf[i] = interf.peekMem(pc + i, time);
-			dest += "#" + StringOp::toHexString((pc + 2 + (signed char)buf[i]) & 0xFFFF, 4);
+			dest += "#" + StringOp::toHexString(
+				(pc + 2 + static_cast<signed char>(buf[i])) & 0xFFFF, 4);
 			i += 1;
 			break;
 		case 'W':
 			buf[i + 0] = interf.peekMem(pc + i + 0, time);
 			buf[i + 1] = interf.peekMem(pc + i + 1, time);
-			dest += "#" + StringOp::toHexString( buf[i] + buf[i + 1] * 256, 4);
+			dest += "#" + StringOp::toHexString(buf[i] + buf[i + 1] * 256, 4);
 			i += 2;
 			break;
 		case 'X':

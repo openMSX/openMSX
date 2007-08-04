@@ -180,19 +180,19 @@ void SHA1::finalize()
 {
 	byte finalcount[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 	for (int i = 0; i < 8; i++) {
-		finalcount[i] = static_cast<byte>(m_count >> ((7 - i) * 8));
+		finalcount[i] = byte(m_count >> ((7 - i) * 8));
 	}
 
-	update((const byte*)"\200", 1);
+	update(reinterpret_cast<const byte*>("\200"), 1);
 	while ((m_count & 504) != 448) {
-		update((const byte*)"\0", 1);
+		update(reinterpret_cast<const byte*>("\0"), 1);
 	}
 	update(finalcount, 8); // cause a transform()
 
 	char s[41];
 	for (int i = 0; i < 20; ++i) {
-		sprintf(s + i * 2, "%02x", static_cast<byte>(
-			m_state[i >> 2] >> ((3 - (i & 3)) * 8)));
+		sprintf(s + i * 2, "%02x",
+		        byte(m_state[i >> 2] >> ((3 - (i & 3)) * 8)));
 	}
 	digest = string(s, 40);
 }

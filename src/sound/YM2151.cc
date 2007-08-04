@@ -303,7 +303,7 @@ void YM2151::initTables()
 		// we never reach (1 << 16) here due to the (x + 1)
 		// result fits within 16 bits at maximum
 
-		int n = (int)m; // 16 bits here
+		int n = int(m); // 16 bits here
 		n >>= 4;        // 12 bits here
 		if (n & 1) {    // round to closest
 			n = (n >> 1) + 1;
@@ -334,7 +334,7 @@ void YM2151::initTables()
 		}
 		o = o / (ENV_STEP / 4);
 
-		int n = (int)(2.0 * o);
+		int n = int(2.0 * o);
 		if (n & 1) { // round to closest
 			n = (n >> 1) + 1;
 		} else {
@@ -346,8 +346,8 @@ void YM2151::initTables()
 	// calculate d1l_tab table
 	for (int i = 0; i < 16; ++i) {
 		// every 3 'dB' except for all bits = 1 = 45+48 'dB'
-		double m = (unsigned)((i != 15 ? i : i + 16) * (4.0 / ENV_STEP));
-		d1l_tab[i] = (unsigned)(m);
+		double m = unsigned((i != 15 ? i : i + 16) * (4.0 / ENV_STEP));
+		d1l_tab[i] = unsigned(m);
 	}
 }
 
@@ -366,7 +366,7 @@ void YM2151::initChipTables()
 
 		// octave 2 - reference octave
 		//   adjust to X.10 fixed point
-		freq[768 + 2 * 768 + i] = ((int)(phaseinc * mult)) & 0xffffffc0;
+		freq[768 + 2 * 768 + i] = int(phaseinc * mult) & 0xffffffc0;
 		// octave 0 and octave 1
 		for (int j = 0; j < 2; ++j) {
 			// adjust to X.10 fixed point
@@ -395,10 +395,10 @@ void YM2151::initChipTables()
 		for (int i = 0; i < 32; ++i) {
 
 			// calculate phase increment
-			double phaseinc = ((double)dt1_tab[j * 32 + i]) / (1 << 20) * (SIN_LEN);
+			double phaseinc = double(dt1_tab[j * 32 + i]) / (1 << 20) * (SIN_LEN);
 
 			// positive and negative values
-			dt1_freq[(j + 0) * 32 + i] = (int)(phaseinc * mult);
+			dt1_freq[(j + 0) * 32 + i] = int(phaseinc * mult);
 			dt1_freq[(j + 4) * 32 + i] = -dt1_freq[(j + 0) * 32 + i];
 		}
 	}
@@ -912,7 +912,7 @@ void YM2151::reset(const EmuTime &time)
 
 int YM2151::opCalc(YM2151Operator* OP, unsigned env, int pm)
 {
-	unsigned p = (env << 3) + sin_tab[(((int)((OP->phase & ~FREQ_MASK) + (pm << 15))) >> FREQ_SH) & SIN_MASK];
+	unsigned p = (env << 3) + sin_tab[(int((OP->phase & ~FREQ_MASK) + (pm << 15)) >> FREQ_SH) & SIN_MASK];
 	if (p >= TL_TAB_LEN) {
 		return 0;
 	}
@@ -930,7 +930,7 @@ int YM2151::opCalc1(YM2151Operator* OP, unsigned env, int pm)
 }
 
 unsigned YM2151::volumeCalc(YM2151Operator* OP, unsigned AM) {
-	return OP->tl + ((unsigned)OP->volume) + (AM & OP->AMmask);
+	return OP->tl + unsigned(OP->volume) + (AM & OP->AMmask);
 }
 
 void YM2151::chanCalc(unsigned chan)
@@ -1025,7 +1025,7 @@ void YM2151::chan7Calc()
 		if (env < 0x3ff) {
 			noiseout = (env ^ 0x3ff) * 2; // range of the YM2151 noise output is -2044 to 2040
 		}
-		chanout[7] += ((noise_rng & 0x10000) ? noiseout : (unsigned)-(int)noiseout); // bit 16 -> output
+		chanout[7] += (noise_rng & 0x10000) ? noiseout : unsigned(-int(noiseout)); // bit 16 -> output
 	} else {
 		if (env < ENV_QUIET) {
 			chanout[7] += opCalc(op + 3, env, c2);
@@ -1267,7 +1267,7 @@ void YM2151::advanceEG()
 		case EG_DEC: // decay phase
 			if (!(eg_cnt & ((1 << op.eg_sh_d1r) - 1))) {
 				op.volume += eg_inc[op.eg_sel_d1r + ((eg_cnt >> op.eg_sh_d1r) & 7)];
-				if ((unsigned)op.volume >= op.d1l) {
+				if (unsigned(op.volume) >= op.d1l) {
 					op.state = EG_SUS;
 				}
 			}
@@ -1497,7 +1497,7 @@ void YM2151::setOutputRate(unsigned sampleRate)
 {
 	static const int CLCK_FREQ = 3579545;
 	double input = CLCK_FREQ / 64.0;
-	setInputRate(static_cast<int>(input + 0.5));
+	setInputRate(int(input + 0.5));
 	setResampleRatio(input, sampleRate);
 }
 

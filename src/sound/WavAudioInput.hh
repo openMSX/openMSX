@@ -35,7 +35,7 @@ private:
 	const std::auto_ptr<FilenameSetting> audioInputFilenameSetting;
 
 	EmuTime reference;
-	byte* buffer;
+	short* buffer;
 	int length;
 	int freq;
 	bool plugged;

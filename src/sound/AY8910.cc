@@ -306,8 +306,8 @@ inline void AY8910::Amplitude::setMasterVolume(int volume)
 
 	double out = volume; // avoid clipping
 	for (int i = 31; i > 0; --i) {
-		envVolTable[i] = (unsigned)(out + 0.5); // round to nearest;
-		out *= 0.841395141645195;               // 1/(10^(1.5/20)) = 1/(1.5dB)
+		envVolTable[i] = unsigned(out + 0.5); // round to nearest;
+		out *= 0.841395141645195;             // 1/(10^(1.5/20)) = 1/(1.5dB)
 	}
 	envVolTable[0] = 0;
 	volTable[0] = 0;

@@ -80,7 +80,7 @@ unsigned MSXtar::sectorToCluster(unsigned sector)
   */
 void MSXtar::parseBootSector(const byte* buf)
 {
-	const MSXBootSector* boot = (const MSXBootSector*)buf;
+	const MSXBootSector* boot = reinterpret_cast<const MSXBootSector*>(buf);
 	unsigned nbSectors = rdsh(boot->nrsectors);
 	if (nbSectors == 0) { // TODO: check limits more accurately
 		throw MSXException("Illegal number of sectors: " +
@@ -142,7 +142,7 @@ void MSXtar::writeLogicalSector(unsigned sector, const byte* buf)
 {
 	assert(sector < partitionNbSectors);
 	unsigned fatSector = sector - 1;
-	if ((fatSector < (unsigned)sectorsPerFat) && !fatBuffer.empty()) {
+	if ((fatSector < sectorsPerFat) && !fatBuffer.empty()) {
 		// we have a cache and this is a sector of the 1st FAT
 		//   --> update cache
 		memcpy(&fatBuffer[SECTOR_SIZE * fatSector], buf, SECTOR_SIZE);
@@ -156,7 +156,7 @@ void MSXtar::readLogicalSector(unsigned sector, byte* buf)
 {
 	assert(sector < partitionNbSectors);
 	unsigned fatSector = sector - 1;
-	if ((fatSector < (unsigned)sectorsPerFat) && !fatBuffer.empty()) {
+	if ((fatSector < sectorsPerFat) && !fatBuffer.empty()) {
 		// we have a cache and this is a sector of the 1st FAT
 		//   --> read from cache
 		memcpy(buf, &fatBuffer[SECTOR_SIZE * fatSector], SECTOR_SIZE);
@@ -276,7 +276,7 @@ void MSXtar::setBootSector(byte* buf, unsigned nbSectors)
 		nbDirEntry = 112;
 		descriptor = 0xF9;
 	}
-	MSXBootSector* boot = (MSXBootSector*)buf;
+	MSXBootSector* boot = reinterpret_cast<MSXBootSector*>(buf);
 
 	setsh(boot->nrsectors, nbSectors);
 	setsh(boot->nrsides, nbSides);
@@ -310,7 +310,7 @@ void MSXtar::format()
 	}
 	writeLogicalSector(0, sectorbuf);
 
-	MSXBootSector* boot = (MSXBootSector*)sectorbuf;
+	MSXBootSector* boot = reinterpret_cast<MSXBootSector*>(sectorbuf);
 	byte descriptor = boot->descriptor[0];
 
 	// Assign default empty values to disk
@@ -425,7 +425,7 @@ unsigned MSXtar::findUsableIndexInSector(unsigned sector)
 {
 	byte buf[SECTOR_SIZE];
 	readLogicalSector(sector, buf);
-	MSXDirEntry* direntry = (MSXDirEntry*)buf;
+	MSXDirEntry* direntry = reinterpret_cast<MSXDirEntry*>(buf);
 
 	// find a not used (0x00) or delete entry (0xE5)
 	for (unsigned i = 0; i < 16; ++i) {
@@ -434,7 +434,7 @@ unsigned MSXtar::findUsableIndexInSector(unsigned sector)
 			return i;
 		}
 	}
-	return (unsigned)-1;
+	return unsigned(-1);
 }
 
 // This function returns the sector and dirindex for a new directory entry
@@ -452,7 +452,7 @@ MSXtar::DirEntry MSXtar::addEntryToDir(unsigned sector)
 		// add to the root directory
 		for (/* */ ; result.sector <= rootDirLast; result.sector++) {
 			result.index = findUsableIndexInSector(result.sector);
-			if (result.index != (unsigned)-1) {
+			if (result.index != unsigned(-1)) {
 				return result;
 			}
 		}
@@ -462,7 +462,7 @@ MSXtar::DirEntry MSXtar::addEntryToDir(unsigned sector)
 		// add to a subdir
 		while (true) {
 			result.index = findUsableIndexInSector(result.sector);
-			if (result.index != (unsigned)-1) {
+			if (result.index != unsigned(-1)) {
 				return result;
 			}
 			result.sector = getNextSector(result.sector);
@@ -528,7 +528,7 @@ unsigned MSXtar::addSubdir(
 	// load the sector
 	byte buf[SECTOR_SIZE];
 	readLogicalSector(result.sector, buf);
-	MSXDirEntry* direntries = (MSXDirEntry*)buf;
+	MSXDirEntry* direntries = reinterpret_cast<MSXDirEntry*>(buf);
 
 	MSXDirEntry& direntry = direntries[result.index];
 	direntry.attrib = T_MSX_DIR;
@@ -705,10 +705,9 @@ MSXtar::DirEntry MSXtar::findEntryInDir(
 	while (result.sector) {
 		// read sector and scan 16 entries
 		readLogicalSector(result.sector, buf);
-		MSXDirEntry* direntries = (MSXDirEntry*)buf;
+		MSXDirEntry* direntries = reinterpret_cast<MSXDirEntry*>(buf);
 		for (result.index = 0; result.index < 16; ++result.index) {
-			if (string((char*)direntries[result.index].filename, 11)
-			     == name) {
+			if (string(direntries[result.index].filename, 11) == name) {
 				return result;
 			}
 		}
@@ -737,7 +736,7 @@ string MSXtar::addFileToDSK(const string& fullname, unsigned rootSector)
 	byte buf[SECTOR_SIZE];
 	DirEntry dirEntry = addEntryToDir(rootSector);
 	readLogicalSector(dirEntry.sector, buf);
-	MSXDirEntry* direntries = (MSXDirEntry*)buf;
+	MSXDirEntry* direntries = reinterpret_cast<MSXDirEntry*>(buf);
 	MSXDirEntry& direntry = direntries[dirEntry.index];
 	memset(&direntry, 0, sizeof(MSXDirEntry));
 	memcpy(&direntry, msxName.c_str(), 11);
@@ -781,7 +780,7 @@ string MSXtar::recurseDirFill(const string& dirName, unsigned sector)
 			DirEntry direntry = findEntryInDir(msxFileName, sector, buf);
 			if (direntry.sector != 0) {
 				// entry already exists ..
-				MSXDirEntry* direntries = (MSXDirEntry*)buf;
+				MSXDirEntry* direntries = reinterpret_cast<MSXDirEntry*>(buf);
 				MSXDirEntry& msxdirentry = direntries[direntry.index];
 				if (msxdirentry.attrib & T_MSX_DIR) {
 					// .. and is a directory
@@ -845,10 +844,10 @@ string MSXtar::dir()
 	for (unsigned sector = chrootSector; sector != 0; sector = getNextSector(sector)) {
 		byte buf[SECTOR_SIZE];
 		readLogicalSector(sector, buf);
-		MSXDirEntry* direntry = (MSXDirEntry*)buf;
+		MSXDirEntry* direntry = reinterpret_cast<MSXDirEntry*>(buf);
 		for (unsigned i = 0; i < 16; ++i) {
-			if ((direntry[i].filename[0] != 0xe5) &&
-			    (direntry[i].filename[0] != 0x00) &&
+			if ((direntry[i].filename[0] != char(0xe5)) &&
+			    (direntry[i].filename[0] != char(0x00)) &&
 			    (direntry[i].attrib != T_MSX_LFN)) {
 				// filename first (in condensed form for human readablitly)
 				string tmp = condensName(direntry[i]);
@@ -912,7 +911,7 @@ void MSXtar::chroot(const string& newRootDir, bool createDir)
 			getTimeDate(now, t, d);
 			chrootSector = addSubdir(simple, t, d, chrootSector);
 		} else {
-			MSXDirEntry* direntries = (MSXDirEntry*)buf;
+			MSXDirEntry* direntries = reinterpret_cast<MSXDirEntry*>(buf);
 			MSXDirEntry& direntry = direntries[entry.index];
 			if (!(direntry.attrib & T_MSX_DIR)) {
 				throw MSXException(firstpart + " is not a directory.");
@@ -949,10 +948,10 @@ void MSXtar::recurseDirExtract(const string& dirName, unsigned sector)
 	for (/* */ ; sector != 0; sector = getNextSector(sector)) {
 		byte buf[SECTOR_SIZE];
 		readLogicalSector(sector, buf);
-		MSXDirEntry* direntry = (MSXDirEntry*)buf;
+		MSXDirEntry* direntry = reinterpret_cast<MSXDirEntry*>(buf);
 		for (unsigned i = 0; i < 16; ++i) {
-			if ((direntry[i].filename[0] != 0xe5) &&
-			    (direntry[i].filename[0] != 0x00) &&
+			if ((direntry[i].filename[0] != char(0xe5)) &&
+			    (direntry[i].filename[0] != char(0x00)) &&
 			    (direntry[i].filename[0] != '.')) {
 				string filename = condensName(direntry[i]);
 				string fullname = filename;
@@ -981,7 +980,7 @@ static const char* const PARTAB_HEADER= "\353\376\220MSX_IDE ";
   */
 static bool isPartitionTableSector(byte* buf)
 {
-	return strncmp((char*)buf, PARTAB_HEADER, 11) == 0;
+	return memcmp(buf, PARTAB_HEADER, 11) == 0;
 }
 
 bool MSXtar::hasPartitionTable()
@@ -998,7 +997,7 @@ bool MSXtar::hasPartition(unsigned partition)
 	if (!isPartitionTableSector(buf)) {
 		return false;
 	}
-	Partition* p = (Partition*)(buf + 14 + (30 - partition) * 16);
+	Partition* p = reinterpret_cast<Partition*>(buf + 14 + (30 - partition) * 16);
 	if (rdlg(p->start4) == 0) {
 		return false;
 	}
@@ -1015,7 +1014,7 @@ bool MSXtar::usePartition(unsigned partition)
 	disk.readLogicalSector(0, partitionTable);
 	bool hasPartitionTable = isPartitionTableSector(partitionTable);
 	if (hasPartitionTable) {
-		Partition* p = (Partition*)
+		Partition* p = reinterpret_cast<Partition*>
 			(partitionTable + 14 + (30 - partition) * 16);
 		if (rdlg(p->start4) != 0) {
 			partitionOffset = rdlg(p->start4);
@@ -1055,13 +1054,14 @@ void MSXtar::createDiskFile(std::vector<unsigned> sizes)
 	// create the partition table if needed
 	if (sizes.size() > 1) {
 		memset(buf, 0, SECTOR_SIZE);
-		strncpy((char*)buf, PARTAB_HEADER, 11);
+		memcpy(buf, PARTAB_HEADER, 11);
 		buf[SECTOR_SIZE - 2] = 0x55;
 		buf[SECTOR_SIZE - 1] = 0xAA;
 
 		partitionOffset = 1;
 		for (unsigned i = 0; (i < sizes.size()) && (i < 30); ++i) {
-			Partition* p = (Partition*)(buf + (14 + (30 - i) * 16));
+			Partition* p = reinterpret_cast<Partition*>
+				(buf + (14 + (30 - i) * 16));
 			unsigned startCylinder, startHead, startSector;
 			unsigned endCylinder, endHead, endSector;
 			logicalToCHS(partitionOffset,

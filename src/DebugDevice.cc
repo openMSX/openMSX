@@ -1,13 +1,13 @@
 // $Id$
 
-#include <iostream>
-#include <iomanip>
-#include "Clock.hh"
 #include "DebugDevice.hh"
+#include "Clock.hh"
 #include "FileOperations.hh"
 #include "FilenameSetting.hh"
 #include "XMLElement.hh"
 #include "MSXMotherBoard.hh"
+#include <iostream>
+#include <iomanip>
 
 using std::string;
 
@@ -130,7 +130,7 @@ void DebugDevice::displayByte(byte value, DisplayType type)
 		case HEX:
 			(*outputstrm) << std::hex << std::setw(2)
 			              << std::setfill('0')
-			              << (int)value << "h " << std::flush;
+			              << int(value) << "h " << std::flush;
 			break;
 		case BIN: {
 			byte mask = 128;
@@ -148,7 +148,7 @@ void DebugDevice::displayByte(byte value, DisplayType type)
 		case DEC:
 			(*outputstrm) << std::dec << std::setw(3)
 			              << std::setfill('0')
-			              << (int)value << " " << std::flush;
+			              << int(value) << " " << std::flush;
 			break;
 		case ASC:
 			(*outputstrm).put(value);

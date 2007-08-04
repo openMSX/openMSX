@@ -18,7 +18,7 @@ namespace MemoryOps {
 static inline void memset4_2_CPP(
 	unsigned* p, unsigned n, unsigned val0, unsigned val1)
 {
-	if (unlikely((long)p & 4)) {
+	if (unlikely(long(p) & 4)) {
 		p[0] = val1; // start at odd pixel
 		++p; --n;
 	}
@@ -72,7 +72,7 @@ static inline void memset4_2_CPP(
 static inline void memset4_2_MMX(
 	unsigned* p, unsigned n, unsigned val0, unsigned val1)
 {
-	if (unlikely((long)p & 4)) {
+	if (unlikely(long(p) & 4)) {
 		p[0] = val1; // start at odd pixel
 		++p; --n;
 	}
@@ -123,12 +123,12 @@ static inline void memset4_2_MMX(
 static inline void memset4_2_SSE(
 	unsigned* p, unsigned n, unsigned val0, unsigned val1)
 {
-	if (unlikely((long)p & 4)) {
+	if (unlikely(long(p) & 4)) {
 		p[0] = val1; // start at odd pixel
 		++p; --n;
 	}
 	if (likely(n >= 4)) {
-		if (unlikely((long)p & 8)) {
+		if (unlikely(long(p) & 8)) {
 			// SSE *must* have 16-byte aligned data
 			p[0] = val0;
 			p[1] = val1;
@@ -178,12 +178,12 @@ static inline void memset4_2_SSE(
 static inline void memset4_2_SSE_s(
 	unsigned* p, unsigned n, unsigned val0, unsigned val1)
 {
-	if (unlikely((long)p & 4)) {
+	if (unlikely(long(p) & 4)) {
 		p[0] = val1; // start at odd pixel
 		++p; --n;
 	}
 	if (likely(n >= 4)) {
-		if (unlikely((long)p & 8)) {
+		if (unlikely(long(p) & 8)) {
 			// SSE *must* have 16-byte aligned data
 			p[0] = val0;
 			p[1] = val1;
@@ -234,7 +234,7 @@ static inline void memset4_2_SSE_s(
 template<bool STREAMING> static inline void memset_2_helper(
 	unsigned* out, unsigned num, unsigned val0, unsigned val1)
 {
-	assert(((long)out & 3) == 0); // must be 4-byte aligned
+	assert((long(out) & 3) == 0); // must be 4-byte aligned
 
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
@@ -258,7 +258,7 @@ template<bool STREAMING> static inline void memset_2_helper(
 template<bool STREAMING> static inline void memset_2_helper(
 	word* out, unsigned num, word val0, word val1)
 {
-	if (unlikely((long)out & 2)) {
+	if (unlikely(long(out) & 2)) {
 		out[0] = val1;
 		++out; --num;
 	}
@@ -266,7 +266,7 @@ template<bool STREAMING> static inline void memset_2_helper(
 	unsigned val = OPENMSX_BIGENDIAN
 	             ? (val0 << 16) | val1
 	             : val0 | (val1 << 16);
-	memset_2_helper<STREAMING>((unsigned*)out, num / 2, val, val);
+	memset_2_helper<STREAMING>(reinterpret_cast<unsigned*>(out), num / 2, val, val);
 	if (num & 1) {
 		out[num - 1] = val0;
 	}
@@ -324,13 +324,13 @@ void stream_memcpy(unsigned* dst, const unsigned* src, unsigned num)
 {
 	// 'dst' must be 4-byte aligned. For best performance 'src' should also
 	// be 4-byte aligned, but it's not strictly needed.
-	assert(((long)dst & 3) == 0);
+	assert((long(dst) & 3) == 0);
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
 	if (cpu.hasSSE()) {
 		if (unlikely(num == 0)) return;
 		// align on 8-byte boundary
-		if (unlikely((long)dst & 4)) {
+		if (unlikely(long(dst) & 4)) {
 			*dst++ = *src++;
 			--num;
 		}
@@ -436,13 +436,13 @@ void stream_memcpy(word* dst, const word* src, unsigned num)
 {
 	// 'dst' must be 2-byte aligned. For best performance 'src' should also
 	// be 2-byte aligned, but it's not strictly needed.
-	assert(((long)dst & 1) == 0);
+	assert((long(dst) & 1) == 0);
 	#ifdef ASM_X86
 	const HostCPU& cpu = HostCPU::getInstance();
 	if (cpu.hasSSE()) {
 		if (unlikely(!num)) return;
 		// align on 4-byte boundary
-		if (unlikely((long)dst & 2)) {
+		if (unlikely(long(dst) & 2)) {
 			*dst++ = *src++;
 			--num;
 		}

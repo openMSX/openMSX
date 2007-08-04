@@ -93,7 +93,7 @@ void IPSPatch::copyBlock(unsigned src, byte* dst, unsigned num) const
 		int chunkOffset = src - chunkStart;
 		if (chunkOffset < 0) {
 			// start after src
-			assert(-chunkOffset < (int)num); // dont start past end
+			assert(-chunkOffset < int(num)); // dont start past end
 			chunkOffset = 0;
 		} else if (chunkOffset >= chunkSize) {
 			// chunk completely before src, skip
@@ -111,8 +111,8 @@ void IPSPatch::copyBlock(unsigned src, byte* dst, unsigned num) const
 			chunkSize -= overflow;
 		}
 		// copy
-		assert(chunkOffset < (int)it->second.size());
-		assert((chunkOffset + chunkSize) <= (int)it->second.size());
+		assert(chunkOffset < int(it->second.size()));
+		assert((chunkOffset + chunkSize) <= int(it->second.size()));
 		assert(src <= chunkStart);
 		assert((chunkStart + chunkSize) <= (src + num));
 		memcpy(dst + chunkStart - src, &it->second[chunkOffset],
