@@ -235,6 +235,10 @@ void StdioConnection::close()
 #ifdef _WIN32
 // class PipeConnection
 
+// INVALID_HANDLE_VALUE is #defined as  (HANDLE)(-1)
+// but that gives a old-style-cast warning
+static const HANDLE OPENMSX_INVALID_HANDLE_VALUE = static_cast<HANDLE>(-1);
+
 PipeConnection::PipeConnection(CommandController& commandController,
                                EventDistributor& eventDistributor,
                                const string& name)
@@ -243,7 +247,7 @@ PipeConnection::PipeConnection(CommandController& commandController,
 	string pipeName = "\\\\.\\pipe\\" + name;
 	pipeHandle = CreateFileA(pipeName.c_str(), GENERIC_READ, 0, NULL,
 	                         OPEN_EXISTING, 0, NULL);
-	if (pipeHandle == INVALID_HANDLE_VALUE) {
+	if (pipeHandle == OPENMSX_INVALID_HANDLE_VALUE) {
 		char msg[256];
 		snprintf(msg, 255, "Error reopening pipefile '%s': error %u",
 		         pipeName.c_str(), unsigned(GetLastError()));
@@ -260,7 +264,7 @@ PipeConnection::~PipeConnection()
 
 void PipeConnection::run()
 {
-	while (pipeHandle != INVALID_HANDLE_VALUE) {
+	while (pipeHandle != OPENMSX_INVALID_HANDLE_VALUE) {
 		char buf[BUF_SIZE];
 		unsigned long bytesRead;
 		if (!ReadFile(pipeHandle, buf, BUF_SIZE, &bytesRead, NULL)) {
@@ -273,17 +277,17 @@ void PipeConnection::run()
 
 void PipeConnection::output(const std::string& message)
 {
-	if (pipeHandle != INVALID_HANDLE_VALUE) {
+	if (pipeHandle != OPENMSX_INVALID_HANDLE_VALUE) {
 		std::cout << message << std::flush;
 	}
 }
 
 void PipeConnection::close()
 {
-	if (pipeHandle != INVALID_HANDLE_VALUE) {
+	if (pipeHandle != OPENMSX_INVALID_HANDLE_VALUE) {
 		// TODO: Proper locking
 		HANDLE _pipeHandle = pipeHandle;
-		pipeHandle = INVALID_HANDLE_VALUE;
+		pipeHandle = OPENMSX_INVALID_HANDLE_VALUE;
 		CloseHandle(_pipeHandle);
 	}
 }
@@ -312,7 +316,7 @@ void SocketConnection::run()
 	// No need to lock in this thread because we don't write to 'sd'
 	// and 'sd' only gets written to in this thread.
 	while (true) {
-		if (sd == INVALID_SOCKET) return;
+		if (sd == OPENMSX_INVALID_SOCKET) return;
 		char buf[BUF_SIZE];
 		int n = sock_recv(sd, buf, BUF_SIZE);
 		if (n > 0) {
@@ -333,7 +337,7 @@ void SocketConnection::output(const std::string& message)
 		int bytesSend;
 		{
 			ScopedLock lock(sem);
-			if (sd == INVALID_SOCKET) return;
+			if (sd == OPENMSX_INVALID_SOCKET) return;
 			bytesSend = sock_send(sd, &data[pos], bytesLeft);
 		}
 		if (bytesSend > 0) {
@@ -349,9 +353,9 @@ void SocketConnection::output(const std::string& message)
 void SocketConnection::close()
 {
 	ScopedLock lock(sem);
-	if (sd != INVALID_SOCKET) {
+	if (sd != OPENMSX_INVALID_SOCKET) {
 		SOCKET _sd = sd;
-		sd = INVALID_SOCKET;
+		sd = OPENMSX_INVALID_SOCKET;
 		sock_close(_sd);
 	}
 }

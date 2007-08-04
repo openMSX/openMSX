@@ -137,7 +137,7 @@ void CliServer::createSocket()
 
 #ifdef _WIN32
 	listenSock = socket(AF_INET, SOCK_STREAM, 0);
-	if (listenSock == INVALID_SOCKET) {
+	if (listenSock == OPENMSX_INVALID_SOCKET) {
 		throw MSXException(sock_error());
 	}
 	portNumber = openPort(listenSock);
@@ -152,7 +152,7 @@ void CliServer::createSocket()
 
 #else
 	listenSock = socket(AF_UNIX, SOCK_STREAM, 0);
-	if (listenSock == INVALID_SOCKET) {
+	if (listenSock == OPENMSX_INVALID_SOCKET) {
 		throw MSXException(sock_error());
 	}
 
@@ -198,7 +198,7 @@ bool CliServer::exitAcceptLoop()
 	addr.sun_family = AF_UNIX;
 	strcpy(addr.sun_path, socketName.c_str());
 // Code below is OS-independent, but unreachable on Windows:
-	if (sd == INVALID_SOCKET) {
+	if (sd == OPENMSX_INVALID_SOCKET) {
 		return false;
 	}
 	int r = connect(sd, reinterpret_cast<sockaddr*>(&addr), sizeof(addr));
@@ -222,7 +222,7 @@ CliServer::CliServer(CommandController& commandController_,
 	, eventDistributor(eventDistributor_)
 	, cliComm(cliComm_)
 	, thread(this)
-	, listenSock(INVALID_SOCKET)
+	, listenSock(OPENMSX_INVALID_SOCKET)
 {
 	exitLoop = false;
 	sock_startup();
@@ -232,7 +232,7 @@ CliServer::CliServer(CommandController& commandController_,
 CliServer::~CliServer()
 {
 	exitLoop = true;
-	if (listenSock != INVALID_SOCKET) {
+	if (listenSock != OPENMSX_INVALID_SOCKET) {
 		sock_close(listenSock);
 		if (!exitAcceptLoop()) {
 			// clean exit failed, try emergency exit
@@ -261,7 +261,7 @@ void CliServer::mainLoop()
 	while (!exitLoop) {
 		// wait for incomming connection
 		SOCKET sd = accept(listenSock, NULL, NULL);
-		if (sd == INVALID_SOCKET) {
+		if (sd == OPENMSX_INVALID_SOCKET) {
 			// sock_close(listenSock);  // hangs on win32
 			return;
 		}

@@ -20,9 +20,13 @@
 namespace openmsx {
 
 #ifndef _WIN32
-static const int INVALID_SOCKET = -1;
+static const int OPENMSX_INVALID_SOCKET = -1;
 static const int SOCKET_ERROR = -1;
 typedef int SOCKET;
+#else
+// INVALID_SOCKET is #defined as  (SOCKET)(~0)
+// but that gives a old-style-cast warning
+static const SOCKET OPENMSX_INVALID_SOCKET = static_cast<SOCKET>(~0);
 #endif
 
 std::string sock_error();
