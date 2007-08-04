@@ -80,8 +80,11 @@ std::string sock_error()
 void sock_startup()
 {
 #ifdef _WIN32
+	// MAKEWORD is #define'd as ((WORD)(((BYTE)(a))|(((WORD)((BYTE)(b)))<<8)))
+	// but using that gives old-style-cast warnings
+	WORD w = 1 | (1 << 8); // MAKEWORD(1, 1)
 	WSAData wsaData;
-	if (WSAStartup(MAKEWORD(1, 1), &wsaData) != 0) {
+	if (WSAStartup(w, &wsaData) != 0) {
 		throw FatalError(sock_error());
 	}
 #else
