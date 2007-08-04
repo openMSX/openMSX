@@ -506,7 +506,8 @@ void* mallocAligned(unsigned alignment, unsigned size)
 #else
 	unsigned long t = alignment - 1;
 	void* unaligned = malloc(size + t);
-	void* aligned = static_cast<void*>((static_cast<unsigned long>(unaligned) + t) & ~t);
+	void* aligned = reinterpret_cast<void*>(
+		(reinterpret_cast<unsigned long>(unaligned) + t) & ~t);
 	AllocMap::instance().insert(aligned, unaligned);
 	return aligned;
 #endif

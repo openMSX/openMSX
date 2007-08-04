@@ -201,7 +201,7 @@ unsigned w32_midiOutOpen(const char *vfn)
 int w32_midiOutClose(unsigned idx)
 {
 	midiOutReset(reinterpret_cast<HMIDIOUT>(vfnt_midiout[idx].handle));
-	if (midiOutClose(static_cast<HMIDIOUT>(vfnt_midiout[idx].handle)) == MMSYSERR_NOERROR) {
+	if (midiOutClose(reinterpret_cast<HMIDIOUT>(vfnt_midiout[idx].handle)) == MMSYSERR_NOERROR) {
 		return 0;
 	} else {
 		return -1;
@@ -398,7 +398,8 @@ unsigned w32_midiInOpen(const char *vfn, unsigned thrdid)
 	memset(&inhdr, 0, sizeof(MIDIHDR));
 	inhdr.lpData = inlongmes;
 	inhdr.dwBufferLength = OPENMSX_W32_MIDI_SYSMES_MAXLEN;
-	if (midiInPrepareHeader(reinterpret_cast<HMIDIIN>(vfnt_midiin[idx].handle), (LPMIDIHDR)&inhdr, sizeof(MIDIHDR)) != MMSYSERR_NOERROR) {
+	if (midiInPrepareHeader(reinterpret_cast<HMIDIIN>(vfnt_midiin[idx].handle),
+		                static_cast<LPMIDIHDR>(&inhdr), sizeof(MIDIHDR)) != MMSYSERR_NOERROR) {
 		return unsigned(-1);
 	}
 	if (midiInAddBuffer(reinterpret_cast<HMIDIIN>(vfnt_midiin[idx].handle), static_cast<LPMIDIHDR>(&inhdr), sizeof(MIDIHDR)) != MMSYSERR_NOERROR) {

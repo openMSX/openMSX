@@ -94,7 +94,7 @@ DirectXSoundDriver::DirectXSoundDriver(unsigned sampleRate, unsigned samples)
 	             | DSBCAPS_CTRLFREQUENCY      | DSBCAPS_CTRLPAN
 	             | DSBCAPS_CTRLVOLUME         | DSBCAPS_GLOBALFOCUS;
 	desc.dwBufferBytes = bufferSize;
-	desc.lpwfxFormat = static_cast<LPWAVEFORMATEX>(&pcmwf);
+	desc.lpwfxFormat = reinterpret_cast<LPWAVEFORMATEX>(&pcmwf);
 
 	if (IDirectSound_CreateSoundBuffer(
 			directSound, &desc, &primaryBuffer, NULL) != DS_OK) {
@@ -210,7 +210,7 @@ void DirectXSoundDriver::dxWriteOne(short* buffer, unsigned lockSize)
 
 	memcpy(audioBuffer1, buffer, audioSize1);
 	if (audioBuffer2) {
-		memcpy(audioBuffer2, (byte*)buffer + audioSize1, audioSize2);
+		memcpy(audioBuffer2, buffer + audioSize1, audioSize2);
 	}
 	IDirectSoundBuffer_Unlock(primaryBuffer, audioBuffer1, audioSize1,
 			audioBuffer2, audioSize2);

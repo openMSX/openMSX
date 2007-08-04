@@ -67,8 +67,10 @@ void VisibleSurface::createSurface(unsigned width, unsigned height, int flags)
 	RECT windowRect;
 	GetWindowRect(handle, &windowRect);
 	// ...and adjust if needed
+	// HWND_TOP is #defined as ((HWND)0)
+	HWND OPENMSX_HWND_TOP = static_cast<HWND>(0);
 	if ((windowRect.right < 0) || (windowRect.bottom < 0)) {
-		SetWindowPos(handle, HWND_TOP, lastWindowX, lastWindowY,
+		SetWindowPos(handle, OPENMSX_HWND_TOP, lastWindowX, lastWindowY,
 		             0, 0, SWP_NOSIZE);
 	}
 #endif
