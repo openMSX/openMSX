@@ -20,7 +20,7 @@ namespace openmsx {
 typedef unsigned char nibble;
 
 /** 8 bit signed integer */
-typedef char signed_byte;
+typedef signed char signed_byte;
 /** 8 bit unsigned integer */
 typedef unsigned char byte;
 
@@ -29,27 +29,15 @@ typedef short signed_word;
 /** 16 bit unsigned integer */
 typedef unsigned short word;
 
+/** 32 bit signed integer */
+typedef int int32;
 /** 32 bit unsigned integer */
 typedef unsigned uint32;
 
-#ifdef _WIN32
-#ifdef	__MINGW32__
-#include <_mingw.h>	// for __int64
-#endif
-#define	uint	unsigned
-// Use define instead of typedef. See _mingw.h.
-/** 64 bit signed integer */
-#define	int64	__int64
-/** 64 bit unsigned integer */
-#define	uint64	unsigned __int64
-#else
-// this is not portable to 64bit platforms? -> TODO check
 /** 64 bit signed integer */
 typedef long long int64;
-// this is not portable to 64bit platforms? -> TODO check
 /** 64 bit unsigned integer */
 typedef unsigned long long uint64;
-#endif
 
 #ifdef DEBUG
 
