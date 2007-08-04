@@ -283,7 +283,7 @@ string getUserHomeDir(const string& username)
 			FARPROC funcp = GetProcAddress(sh32dll, "SHGetSpecialFolderPathA");
 			if (funcp) {
 				char p[MAX_PATH + 1];
-				int res = ((BOOL(*)(HWND, LPSTR, int, BOOL))funcp)(0, p, CSIDL_PERSONAL, 1);
+				int res = reinterpret_cast<BOOL(*)(HWND, LPSTR, int, BOOL)>(funcp)(0, p, CSIDL_PERSONAL, 1);
 				if (res == TRUE) {
 					userDir = getConventionalPath(p);
 				}

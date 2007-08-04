@@ -113,12 +113,12 @@ static int openPort(SOCKET listenSock)
 	for (int n = 0; n < RANGE; ++n) {
 		int port = BASE + ((first + n) % RANGE);
 		sockaddr_in server_address;
-		memset((char*)&server_address, 0, sizeof(server_address));
+		memset(&server_address, 0, sizeof(server_address));
 		server_address.sin_family = AF_INET;
 		server_address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 		server_address.sin_port = htons(port);
-		if (bind(listenSock, (sockaddr*)&server_address,
-					sizeof(server_address)) != -1) {
+		if (bind(listenSock, reinterpret_cast<sockaddr*>(&server_address),
+		         sizeof(server_address)) != -1) {
 			return port;
 		}
 	}

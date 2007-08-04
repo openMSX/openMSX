@@ -246,7 +246,7 @@ PipeConnection::PipeConnection(CommandController& commandController,
 	if (pipeHandle == INVALID_HANDLE_VALUE) {
 		char msg[256];
 		snprintf(msg, 255, "Error reopening pipefile '%s': error %u",
-		         pipeName.c_str(), (unsigned int)GetLastError());
+		         pipeName.c_str(), unsigned(GetLastError()));
 		throw FatalError(msg);
 	}
 
