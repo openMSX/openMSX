@@ -94,7 +94,7 @@ DirectXSoundDriver::DirectXSoundDriver(unsigned sampleRate, unsigned samples)
 	             | DSBCAPS_CTRLFREQUENCY      | DSBCAPS_CTRLPAN
 	             | DSBCAPS_CTRLVOLUME         | DSBCAPS_GLOBALFOCUS;
 	desc.dwBufferBytes = bufferSize;
-	desc.lpwfxFormat = (LPWAVEFORMATEX)&pcmwf;
+	desc.lpwfxFormat = static_cast<LPWAVEFORMATEX>(&pcmwf);
 
 	if (IDirectSound_CreateSoundBuffer(
 			directSound, &desc, &primaryBuffer, NULL) != DS_OK) {

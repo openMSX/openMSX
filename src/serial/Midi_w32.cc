@@ -121,25 +121,27 @@ int w32_midiOutInit()
 	if (!num) {
 		return 0;
 	}
-	if ((state_out = (int*)malloc((num + 1) * sizeof(int))) == NULL) {
+	if ((state_out = static_cast<int*>(malloc((num + 1) * sizeof(int)))) == NULL) {
 		return 1;
 	}
 	memset(state_out, 0, (num + 1) * sizeof(int));
 
-	if ((buf_out = (struct outbuf*)malloc((num + 1) * sizeof(struct outbuf))) == NULL) {
+	if ((buf_out = static_cast<outbuf*>(malloc((num + 1) * sizeof(struct outbuf)))) == NULL) {
 		return 1;
 	}
 	memset(buf_out, 0, (num + 1) * sizeof(struct outbuf));
 
-	if ((vfnt_midiout = (struct vfn_midi*)malloc((num + 1) * sizeof(struct vfn_midi))) == NULL) {
+	if ((vfnt_midiout = static_cast<vfn_midi*>(malloc((num + 1) * sizeof(struct vfn_midi)))) == NULL) {
 		return 1;
 	}
 
+	// MIDI_MAPPER is #define's as ((UINT)-1)
+	UINT OPENMSX_MIDI_MAPPER = static_cast<UINT>(-1);
 	MIDIOUTCAPSA cap;
-	if (midiOutGetDevCapsA(MIDI_MAPPER, &cap, sizeof(cap)) != MMSYSERR_NOERROR) {
+	if (midiOutGetDevCapsA(OPENMSX_MIDI_MAPPER, &cap, sizeof(cap)) != MMSYSERR_NOERROR) {
 		return 2;
 	}
-	vfnt_midiout[0].devid = MIDI_MAPPER;
+	vfnt_midiout[0].devid = OPENMSX_MIDI_MAPPER;
 	w32_midiDevNameConv(vfnt_midiout[0].devname, cap.szPname);
 	strncpy(vfnt_midiout[0].vfname, "midi-out", MAXPATHLEN + 1);
 	vfnt_midiout_num ++;
@@ -188,18 +190,18 @@ unsigned w32_midiOutOpen(const char *vfn)
 {
 	unsigned idx, devid;
 	if (w32_midiOutFindDev(&idx, &devid,vfn)) {
-		return (unsigned)-1;
+		return unsigned(-1);
 	}
-	if (midiOutOpen((HMIDIOUT*)&vfnt_midiout[idx].handle, devid, 0, 0 ,0) != MMSYSERR_NOERROR) {
-		return (unsigned)-1;
+	if (midiOutOpen(static_cast<HMIDIOUT*>(&vfnt_midiout[idx].handle), devid, 0, 0 ,0) != MMSYSERR_NOERROR) {
+		return unsigned(-1);
 	}
 	return idx;
 }
 
 int w32_midiOutClose(unsigned idx)
 {
-	midiOutReset((HMIDIOUT)vfnt_midiout[idx].handle);
-	if (midiOutClose((HMIDIOUT)vfnt_midiout[idx].handle) == MMSYSERR_NOERROR) {
+	midiOutReset(static_cast<HMIDIOUT>(vfnt_midiout[idx].handle));
+	if (midiOutClose(static_cast<HMIDIOUT>(vfnt_midiout[idx].handle)) == MMSYSERR_NOERROR) {
 		return 0;
 	} else {
 		return -1;
@@ -213,12 +215,12 @@ static int w32_midiOutFlushExclusiveMsg(unsigned idx)
 	buf_out[idx].header.lpData = buf_out[idx].longmes;
 	buf_out[idx].header.dwBufferLength = buf_out[idx].longmes_cnt;
 	buf_out[idx].header.dwFlags = 0;
-	if ((i = midiOutPrepareHeader((HMIDIOUT)vfnt_midiout[idx].handle, &buf_out[idx].header, sizeof(buf_out[idx].header))) != MMSYSERR_NOERROR) {
+	if ((i = midiOutPrepareHeader(static_cast<HMIDIOUT>(vfnt_midiout[idx].handle), &buf_out[idx].header, sizeof(buf_out[idx].header))) != MMSYSERR_NOERROR) {
 		ostringstream out;
 		out << "midiOutPrepareHeader() returned " << i;
 		throw FatalError(out.str());
 	}
-	if ((i = midiOutLongMsg((HMIDIOUT)vfnt_midiout[idx].handle, &buf_out[idx].header, sizeof(buf_out[idx].header))) != MMSYSERR_NOERROR) {
+	if ((i = midiOutLongMsg(static_cast<HMIDIOUT>(vfnt_midiout[idx].handle), &buf_out[idx].header, sizeof(buf_out[idx].header))) != MMSYSERR_NOERROR) {
 		ostringstream out;
 		out << "midiOutLongMsg() returned " << i;
 		throw FatalError(out.str());
@@ -229,7 +231,7 @@ static int w32_midiOutFlushExclusiveMsg(unsigned idx)
 		Sleep(1);
 	}
 	// Sending Exclusive done.
-	if ((i = midiOutUnprepareHeader((HMIDIOUT)vfnt_midiout[idx].handle, &buf_out[idx].header, sizeof(buf_out[idx].header))) != MMSYSERR_NOERROR) {
+	if ((i = midiOutUnprepareHeader(static_cast<HMIDIOUT>(vfnt_midiout[idx].handle), &buf_out[idx].header, sizeof(buf_out[idx].header))) != MMSYSERR_NOERROR) {
 		ostringstream out;
 		out << "midiOutUnPrepareHeader() returned " << i;
 		throw FatalError(out.str());
@@ -265,56 +267,56 @@ int w32_midiOutPut(unsigned char value, unsigned idx)
 			case 0x0b0:	// Control Change
 			case 0x0e0:	// Pitch Wheel
 				state_out[idx] = 0x0082;
-				buf_out[idx].shortmes = ((DWORD)value) & 0x0ff;
+				buf_out[idx].shortmes = DWORD(value) & 0x0ff;
 				break;
 			case 0x0c0:	// Program Change
 			case 0x0d0:	// After Touch
 				state_out[idx] = 0x0041;
-				buf_out[idx].shortmes = ((DWORD)value) & 0x0ff;
+				buf_out[idx].shortmes = DWORD(value) & 0x0ff;
 				break;
 			case 0x0f0:	// SYSTEM MESSAGE (other than "EXCLUSIVE")
 				switch (value &0x0f) {
 					case 0x02:	// Song Position Pointer
 						state_out[idx] = 0x0082;
-						buf_out[idx].shortmes = ((DWORD)value) & 0x0ff;
+						buf_out[idx].shortmes = DWORD(value) & 0x0ff;
 						break;
 					case 0x01:	// Time Code
 					case 0x03:	// Song Select
 						state_out[idx] = 0x0041;
-						buf_out[idx].shortmes = ((DWORD)value) & 0x0ff;
+						buf_out[idx].shortmes = DWORD(value) & 0x0ff;
 						break;
 					default:	// Timing Clock, Sequencer Start, Sequencer Continue,
 							// Sequencer Stop, Cable Check, System Reset, and Unknown...
 						state_out[idx] = 0;
-						buf_out[idx].shortmes = ((DWORD)value) & 0x0ff;
-						midiOutShortMsg((HMIDIOUT)vfnt_midiout[idx].handle,buf_out[idx].shortmes);
+						buf_out[idx].shortmes = DWORD(value) & 0x0ff;
+						midiOutShortMsg(static_cast<HMIDIOUT>(vfnt_midiout[idx].handle), buf_out[idx].shortmes);
 						break;
 				}
 				break;
 			default:
 				state_out[idx] = 0;
-				buf_out[idx].shortmes = ((DWORD)value) & 0x0ff;
-				midiOutShortMsg((HMIDIOUT)vfnt_midiout[idx].handle,buf_out[idx].shortmes);
+				buf_out[idx].shortmes = DWORD(value) & 0x0ff;
+				midiOutShortMsg(static_cast<HMIDIOUT>(vfnt_midiout[idx].handle), buf_out[idx].shortmes);
 				break;
 			}
 			break;
 		case 0x0041:
-			buf_out[idx].shortmes |= ((((DWORD)value) & 0x0ff) << 8);
-			midiOutShortMsg((HMIDIOUT)vfnt_midiout[idx].handle,buf_out[idx].shortmes);
+			buf_out[idx].shortmes |= (DWORD(value) & 0x0ff) << 8;
+			midiOutShortMsg(static_cast<HMIDIOUT>(vfnt_midiout[idx].handle), buf_out[idx].shortmes);
 			state_out[idx] = 0;
 			break;
 		case 0x0082:
-			buf_out[idx].shortmes |= ((((DWORD)value) & 0x0ff) << 8);
+			buf_out[idx].shortmes |= (DWORD(value) & 0x0ff) << 8;
 			state_out[idx] = 0x0081;
 			break;
 		case 0x0081:
-			buf_out[idx].shortmes |= ((((DWORD)value) & 0x0ff) << 16);
-			midiOutShortMsg((HMIDIOUT)vfnt_midiout[idx].handle,buf_out[idx].shortmes);
+			buf_out[idx].shortmes |= (DWORD(value) & 0x0ff) << 16;
+			midiOutShortMsg(static_cast<HMIDIOUT>(vfnt_midiout[idx].handle), buf_out[idx].shortmes);
 			state_out[idx] = 0;
 			break;
 		default:
 			// not reach...
-			midiOutShortMsg((HMIDIOUT)vfnt_midiout[idx].handle,((DWORD)value) & 0x0ff);
+			midiOutShortMsg(static_cast<HMIDIOUT>(vfnt_midiout[idx].handle), DWORD(value) & 0x0ff);
 			break;
 		}
 	}
@@ -343,7 +345,7 @@ int w32_midiInInit()
 	if (!num) {
 		return 0;
 	}
-	if ((vfnt_midiin = (struct vfn_midi*)malloc((num + 1) * sizeof(struct vfn_midi))) == NULL) {
+	if ((vfnt_midiin = static_cast<vfn_midi*>(malloc((num + 1) * sizeof(struct vfn_midi)))) == NULL) {
 		return	1;
 	}
 	for (unsigned i = 0; i < num; ++i) {
@@ -388,29 +390,30 @@ unsigned w32_midiInOpen(const char *vfn, unsigned thrdid)
 {
 	unsigned idx, devid;
 	if (w32_midiInFindDev(&idx, &devid, vfn)) {
-		return (unsigned)-1;
+		return unsigned(-1);
 	}
-	if (midiInOpen((HMIDIIN*)&vfnt_midiin[idx].handle, devid, thrdid, 0, CALLBACK_THREAD) != MMSYSERR_NOERROR) {
-		return (unsigned)-1;
+	if (midiInOpen(static_cast<HMIDIIN*>(&vfnt_midiin[idx].handle), devid, thrdid, 0, CALLBACK_THREAD) != MMSYSERR_NOERROR) {
+		return unsigned(-1);
 	}
 	memset(&inhdr, 0, sizeof(MIDIHDR));
 	inhdr.lpData = inlongmes;
 	inhdr.dwBufferLength = OPENMSX_W32_MIDI_SYSMES_MAXLEN;
-	if (midiInPrepareHeader((HMIDIIN)vfnt_midiin[idx].handle, (LPMIDIHDR)&inhdr, sizeof(MIDIHDR)) != MMSYSERR_NOERROR) {
-		return (unsigned)-1;
+	if (midiInPrepareHeader(static_cast<HMIDIIN>(vfnt_midiin[idx].handle), (LPMIDIHDR)&inhdr, sizeof(MIDIHDR)) != MMSYSERR_NOERROR) {
+		return unsigned(-1);
 	}
-	if (midiInAddBuffer((HMIDIIN)vfnt_midiin[idx].handle, (LPMIDIHDR)&inhdr, sizeof(MIDIHDR)) != MMSYSERR_NOERROR) {
-		return (unsigned)-1;
+	if (midiInAddBuffer(static_cast<HMIDIIN>(vfnt_midiin[idx].handle), static_cast<LPMIDIHDR>(&inhdr), sizeof(MIDIHDR)) != MMSYSERR_NOERROR) {
+		return unsigned(-1);
 	}
 	return idx;
 }
 
 int w32_midiInClose(unsigned idx)
 {
-	midiInStop((HMIDIIN)vfnt_midiin[idx].handle);
-	midiInReset((HMIDIIN)vfnt_midiin[idx].handle);
-	midiInUnprepareHeader((HMIDIIN)vfnt_midiin[idx].handle, (LPMIDIHDR)&inhdr, sizeof(MIDIHDR));
-	if (midiInClose((HMIDIIN)vfnt_midiin[idx].handle) == MMSYSERR_NOERROR) {
+	midiInStop(static_cast<HMIDIIN>(vfnt_midiin[idx].handle));
+	midiInReset(static_cast<HMIDIIN>(vfnt_midiin[idx].handle));
+	midiInUnprepareHeader(static_cast<HMIDIIN>(vfnt_midiin[idx].handle),
+	                      static_cast<LPMIDIHDR>(&inhdr), sizeof(MIDIHDR));
+	if (midiInClose(static_cast<HMIDIIN>(vfnt_midiin[idx].handle)) == MMSYSERR_NOERROR) {
 		return 0;
 	} else {
 		return -1;

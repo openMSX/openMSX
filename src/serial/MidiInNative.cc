@@ -57,7 +57,7 @@ MidiInNative::~MidiInNative()
 void MidiInNative::plugHelper(Connector& connector_, const EmuTime& time)
 {
 	devidx = w32_midiInOpen(name.c_str(), thrdid);
-	if (devidx == (unsigned)-1) {
+	if (devidx == unsigned(-1)) {
 		throw PlugException("Failed to open " + name);
 	}
 
@@ -141,7 +141,7 @@ void MidiInNative::run()
 				procShortMsg(msg.lParam);
 				break;
 			case MM_MIM_LONGDATA:
-				procLongMsg((LPMIDIHDR)msg.lParam);
+				procLongMsg(reinterpret_cast<LPMIDIHDR>(msg.lParam));
 				break;
 			case MM_MIM_ERROR:
 			case MM_MIM_LONGERROR:
@@ -152,7 +152,7 @@ void MidiInNative::run()
 				break;
 		}
 	}
-	thrdid = (unsigned)NULL;
+	thrdid = 0;
 }
 
 // MidiInDevice

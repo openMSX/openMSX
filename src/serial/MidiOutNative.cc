@@ -34,7 +34,7 @@ MidiOutNative::~MidiOutNative()
 void MidiOutNative::plugHelper(Connector& connector, const EmuTime& time)
 {
 	devidx = w32_midiOutOpen(name.c_str());
-	if (devidx == (unsigned)-1) {
+	if (devidx == unsigned(-1)) {
 		throw PlugException("Failed to open " + name);
 	}
 }
