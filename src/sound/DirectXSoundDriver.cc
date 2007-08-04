@@ -215,7 +215,7 @@ void DirectXSoundDriver::dxWriteOne(short* buffer, unsigned lockSize)
 
 	memcpy(audioBuffer1, buffer, audioSize1);
 	if (audioBuffer2) {
-		memcpy(audioBuffer2, buffer + audioSize1, audioSize2);
+		memcpy(audioBuffer2, reinterpret_cast<byte*>(buffer) + audioSize1, audioSize2);
 	}
 	IDirectSoundBuffer_Unlock(primaryBuffer, audioBuffer1, audioSize1,
 			audioBuffer2, audioSize2);
