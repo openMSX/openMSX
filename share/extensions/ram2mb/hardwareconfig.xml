@@ -3,7 +3,7 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
-    <name>2 MB Memory Mapper</name>
+    <name>Memory Mapper (2 MB)</name>
     <manufacturer/>
     <code/>
     <release_year/>

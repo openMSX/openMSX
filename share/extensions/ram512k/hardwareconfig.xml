@@ -3,11 +3,11 @@
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
   <info>
-    <name>256 kB Memory Mapper</name>
+    <name>Memory Mapper (512 kB)</name>
     <manufacturer/>
     <code/>
     <release_year/>
-    <description>256 kB memory mapper cartridge.</description>
+    <description>512 kB memory mapper cartridge.</description>
     <type>RAM expansion</type>
   </info>
   <devices>

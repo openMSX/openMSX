@@ -4,7 +4,7 @@
 <msxconfig>
   <info>
     <name>ADVRAM</name>
-    <manufacturer/>
+    <manufacturer>Ademir Carchano</manufacturer>
     <code/>
     <release_year/>
     <description>A hardware modification that makes direct access to VRAM possible. This version can be enabled by software.</description>
