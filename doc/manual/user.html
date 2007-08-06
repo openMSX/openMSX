@@ -49,7 +49,6 @@
 					<li><a class="internal" href="#diskimages">4.2.1 Using Disk Images</a></li>
 					<li><a class="internal" href="#dirasdisk">4.2.2 Using Directories as Disks</a></li>
 					<li><a class="internal" href="#realdisks">4.2.3 Using Real Disks</a></li>
-					<li><a class="internal" href="#harddisks">4.2.4 Emulating MSX Harddisks</a></li>
 				</ol>
 			</li>
 			<li><a class="internal" href="#tape">4.3 Running Tape Software</a>
@@ -58,6 +57,14 @@
 					<li><a class="internal" href="#cas">4.3.2 Using CAS files</a></li>
 					<li><a class="internal" href="#tapejack">4.3.3 Using Jack Audio Connection Kit</a></li>
 				</ol>
+			</li>
+
+			<li><a class="internal" href="#harddisks">4.4 Emulating MSX Harddisks and CD-ROM</a>
+				<ol class="toc">
+					<li><a class="internal" href="#ide">4.4.1 Sunrise IDE</a></li>
+					<li><a class="internal" href="#scsi">4.4.2 SCSI devices</a></li>
+				</ol>
+
 			</li>
 		</ol>
 	</li>
@@ -488,83 +495,6 @@ disks. Only regular disks with normal files will work with it; specify A: as
 disk image to use it.
 </p>
 
-
-<h4><a id="harddisks">4.2.4 Emulating MSX Harddisks and CD-ROM</a></h4>
-
-<p>
-openMSX only supports the emulation of the Sunrise IDE interface at the moment.
-The extension for this is called 'ide'. The extension has a built in harddisk
-configuration, in the form of a 100MB sized disk image. This is the default size: if the harddisk image is
-not present, the file is created with this size. The image will end up in your openMSX user directory<code>/persistent/ide/untitled1/hd.dsk</code>.
-</p>
-
-<p>
-As of openMSX 0.6.1, you can specify the harddisk image to be used on the command line:
-</p>
-<div class="commandline">openmsx -ext ide -hda symbos.dsk</div>
-<p>
-This means that you're using the ide extension with symbos.dsk as harddisk image. You can also change the harddisk image at run time in the console (only when the MSX is powered off via the <code><a class="external" href="commands.html#power">power</a></code> setting). This works the same as the <code><a class="external" href="commands.html#disk">diska</a></code> command:
-</p>
-<div class="commandline">
-    <a class="external" href="commands.html#hd">hda</a> &lt;diskimage&gt;
-</div>
-
-<p>
-The 'ide' extension needs the BIOS that can be flashed into the Sunrise IDE
-interface. It can be downloaded from the <a class="external"
-href="http://www.msx.ch/sunformsx/download/dl-ide.html">Sunrise for MSX web
-site</a>.
-</p>
-
-<p>
-When using this extension for the first time, one has to consider it as using a
-real Sunrise IDE interface with a 100MB empty harddisk connected to the master
-slot. How to proceed is written in the text files that come with the FDISK
-program for IDE, downloadable from the <a class="external"
-href="http://www.msx.ch/sunformsx/download/dl-ide.html">Sunrise for MSX web
-site</a>. There are also <a class="external"
-href="http://www.msx.org/forumtopic6184.html">some</a> <a class="external"
-href="http://www.msx.org/forumtopic3015p15.html">threads</a> on the MSX Resource
-Center forum that may give you valuable hints.
-</p>
-<p>
-You can side step these procedures by using the <code><a class="external" href="diskmanipulator.html">diskmanipulator</a></code> to
-create the initial hd image, and you can immediately put some files and
-subdirectories on it. For instance to create a hard disk with 3 partitions of
-32 megabyte on it, and have each partition filled with files and subdirectories
-you can do the following:
-</p>
-<p>
-Start openMSX with the ide extension, then type in the console:
-</p>
-<div class="commandline">
-set <a class="external" href="commands.html#power">power</a> off<br/>
-<a class="external" href="diskmanipulator.html">diskmanipulator</a> <a class="external" href="diskmanipulator.html#create">create</a> /tmp/new-hd.dsk 32M 32M 32M<br/>
-<a class="external" href="commands.html#hd">hda</a> /tmp/new-hd.dsk<br/>
-<a class="external" href="diskmanipulator.html">diskmanipulator</a> <a class="external" href="diskmanipulator.html#import">import</a> hda1 /home/david/msxdostools/<br/>
-<a class="external" href="diskmanipulator.html">diskmanipulator</a> <a class="external" href="diskmanipulator.html#import">import</a> hda2 /home/david/msxdemos/<br/>
-<a class="external" href="diskmanipulator.html">diskmanipulator</a> <a class="external" href="diskmanipulator.html#import">import</a> hda3 /home/david/msxdrawings/<br/>
-set <a class="external" href="commands.html#power">power</a> on
-</div>
-<p>
-For clarity: because the emulation is done on a big disk image, there can be no data corruption of your PC's harddisk. This does mean that you need free
-disk space for this image, which can be quite big (default 100MB). So, in other words,  you
-can't really use your normal PC harddisk as an MSX harddisk for this extension.
-(Maybe on UNIX systems it works if you choose a device like
-<code>/dev/hdb</code> as harddisk image file, but we have not tested it and do
-note that it can cause loss of data of that partition or disk!)
-</p>
-
-<p>
-If you still want to use files from your real PC harddisk on the emulated MSX,
-you have to use the DirAsDsk feature. See the <a class="internal"
-href="#dirasdisk">DirAsDsk section</a> for more details.
-</p>
-
-<p>
-Last but not least: as of openMSX 0.6.1, there is (limited) support for CD-ROM with the 'ide' extension. The default configuration has a CD-ROM player on the slave port of the IDE interface. You can insert an ISO image in that virtual CD-ROM player with the <code>-cda</code> command line option and change it at run time with the <code><a class="external" href="commands.html#cd">cda</a></code> console command, all similar to the aforementioned <code><a class="external" href="commands.html#hd">hda</a></code> and <code><a class="external" href="commands.html#disk">diska</a></code> commands and options.
-</p>
-
 <h3><a id="tape">4.3 Running Tape Software</a></h3>
 <h4><a id="tapewav">4.3.1 Using WAV files</a></h4>
 
@@ -676,12 +606,123 @@ being developed.
 Note that openMSX can be compiled without Jack-support, use the normal cassetteplayer functions to save to tape in that case.
 </p>
 
+<h3><a id="harddisks">4.4 Emulating MSX Harddisks and CD-ROM</a></h3>
+
+<p>
+openMSX supports mostly the emulation of the Sunrise IDE interface, but there is also some experimental support for two types of SCSI interfaces: the Gouda/Novaxis SCSI interface and the MEGA-SCSI.
+</p>
+
+<p>
+The extensions that enable this have a built in harddisk
+configuration, in the form of a 100MB sized disk image. This is the default size: if the harddisk image is
+not present, the file is created with this size. The image will end up in your openMSX user directory<code>/persistent/NAME/untitled1/IMAGENAME.dsk</code>, where NAME is the name of the extension used and IMAGENAME is a name that is configured in the extension's XML file.
+</p>
+
+<p>When using these extensions for the first time, one has to treat them as if they are real interfaces with a blank harddisk connected. How to  them depends on the type, it is advisable to read the manuals. The sections below give some hints. The <code><a class="external" href="diskmanipulator.html">diskmanipulator</a></code> may be helpful, but only supports the IDE extension at the moment.
+</p>
+
+<p>
+For clarity: because the emulation is done on a big disk image, there can be no data corruption of your PC's harddisk. This does mean that you need free
+disk space for this image, which can be quite big (default 100MB). So, in other words, you
+can't really use your normal PC harddisk as an MSX harddisk for these extensions.
+(Maybe on UNIX systems it works if you choose a device like
+<code>/dev/hdb</code> as harddisk image file, but we have not tested it and do
+note that it can cause loss of data of that partition or disk!)
+</p>
+
+<p>
+If you still want to use files from your real PC harddisk on the emulated MSX,
+you have to use the DirAsDsk feature. See the <a class="internal"
+href="#dirasdisk">DirAsDsk section</a> for more details.
+</p>
+
+<p>Please read the following sections for details about the specific extensions.</p>
+
+<h4><a id="ide">4.4.1 Sunrise IDE</a></h4>
+
+<p>
+The extension for this is called 'ide'. By default it has a harddisk connected to the master port and a CD-ROM player connected to the slave port.
+</p>
+
+<p>
+If you don't want to use the default harddisk image as is described above, you can specify the harddisk image to be used on the command line:
+</p>
+<div class="commandline">openmsx -ext ide -hda symbos.dsk</div>
+<p>
+This means that you're using the ide extension with symbos.dsk as harddisk image. You can also change the harddisk image at run time in the console (only when the MSX is powered off via the <code><a class="external" href="commands.html#power">power</a></code> setting). This works the same as the <code><a class="external" href="commands.html#disk">diska</a></code> command:
+</p>
+<div class="commandline">
+    <a class="external" href="commands.html#hd">hda</a> &lt;diskimage&gt;
+</div>
+
+<p>
+The 'ide' extension needs the BIOS that can be flashed into the Sunrise IDE
+interface. It can be downloaded from the <a class="external"
+href="http://www.msx.ch/sunformsx/download/dl-ide.html">Sunrise for MSX web
+site</a>.
+</p>
+
+<p>
+The initialisation of a Sunrise IDE harddisk is described in the text files that come with the FDISK
+program for IDE, downloadable from the <a class="external"
+href="http://www.msx.ch/sunformsx/download/dl-ide.html">Sunrise for MSX web
+site</a>. There are also <a class="external"
+href="http://www.msx.org/forumtopic6184.html">some</a> <a class="external"
+href="http://www.msx.org/forumtopic3015p15.html">threads</a> on the MSX Resource
+Center forum that may give you valuable hints.
+</p>
+<p>
+You can side step these procedures by using the <code><a class="external" href="diskmanipulator.html">diskmanipulator</a></code> to
+create the initial hd image, and you can immediately put some files and
+subdirectories on it. For instance to create a hard disk with 3 partitions of
+32 megabyte on it, and have each partition filled with files and subdirectories
+you can do the following:
+</p>
+<p>
+Start openMSX with the ide extension, then type in the console:
+</p>
+<div class="commandline">
+set <a class="external" href="commands.html#power">power</a> off<br/>
+<a class="external" href="diskmanipulator.html">diskmanipulator</a> <a class="external" href="diskmanipulator.html#create">create</a> /tmp/new-hd.dsk 32M 32M 32M<br/>
+<a class="external" href="commands.html#hd">hda</a> /tmp/new-hd.dsk<br/>
+<a class="external" href="diskmanipulator.html">diskmanipulator</a> <a class="external" href="diskmanipulator.html#import">import</a> hda1 /home/david/msxdostools/<br/>
+<a class="external" href="diskmanipulator.html">diskmanipulator</a> <a class="external" href="diskmanipulator.html#import">import</a> hda2 /home/david/msxdemos/<br/>
+<a class="external" href="diskmanipulator.html">diskmanipulator</a> <a class="external" href="diskmanipulator.html#import">import</a> hda3 /home/david/msxdrawings/<br/>
+set <a class="external" href="commands.html#power">power</a> on
+</div>
+
+<p>
+As announced above, there is (limited) support for CD-ROM with the 'ide' extension. You can insert an ISO image in that virtual CD-ROM player with the <code>-cda</code> command line option and change it at run time with the <code><a class="external" href="commands.html#cd">cda</a></code> console command, all similar to the aforementioned <code><a class="external" href="commands.html#hd">hda</a></code> and <code><a class="external" href="commands.html#disk">diska</a></code> commands and options.
+</p>
+
+<h4><a id="scsi">4.4.2 SCSI</a></h4>
+
+<p>First of all: the SCSI emulation is experimental! There is a lot bigger chance that you may lose data on your emulated harddisk images with SCSI than with IDE! When we tried it, everything seemed fine, but you are warned.</p>
+
+<p>The SCSI extensions (currently Gouda_SCSI, ESE_MEGA-SCSI and ESE_WAVE-SCSI) have the default 100 MB harddisk image connected on target ID 1 and an (even more experimental) LS-120 device (basically a harddisk like media that can be changed/ejected when the power is on) on target ID 2.
+</p>
+
+<p>You cannot yet specify SCSI devices on the command line. However, you can change the harddisk image at run time in the console (only when the MSX is powered off via the <code><a class="external" href="commands.html#power">power</a></code> setting), exactly as with the Sunrise IDE extension:</p>
+<div class="commandline">
+    <a class="external" href="commands.html#hd">hda</a> &lt;diskimage&gt;
+</div>
+
+<p>
+To change the disk image of the LS-120 device, use the <code>lsa</code> (LS drive A) command, exactly the same as the <a class="external" href="commands.html#hd">hda</a> command. Of course you do not need to have the power turned off to do this, as this is the whole point of the LS-120 device. You can also just eject it, with the <code>eject</code> subcommand. At the time of writing there seems to be a bug when doing this: the device isn't listed in the device list if there is no media inserted.
+</p>
+
+<p>Initialisation for the ESE SCSI devices needs tools like MGINST, which can be found on <a class="external" href="http://www.msxnet.org/gtinter/nogame-e.htm">Takamichi's web site</a>. They include small manuals in English. This manual is not the place to explain the procedure, but the idea is as follows. First, install the MSX-DOS 2 kernel in the SRAM of the device, using the MGINST program (you might want to use KSAVER first to save the kernel of your DOS 2 cartridge). After this, the MSX will boot from the SRAM disk. Use the SFORM-1 (for MSX-DOS) or the SFORM-2 (for MSX-DOS 2) to format the drive (use a physical format, for now). Use ESET to assign drive letters to partitions.
+</p>
+
+<p>For the Novaxis SCSI interface, you need the Novaxis ROM, see also <a class="external" href="http://www.hansotten.com/msxscsi.html">Hans Otten's Page</a> or <a class="external" href="http://faq.msxnet.org/scsi.html">The Ultimate MSX FAQ</a>. Those sites also contain manuals for the Novaxis ROM. Initialisation is done with the NFDISK utility, which can be found on <a class="external" href="http://members.chello.nl/m.delorme/">Marcel Delorme's site</a>.
+</p>
+
 <h2><a id="input">5. Input Devices</a></h2>
 
 <h3><a id="keymapping">5.1 Key Mapping</a></h3>
 
 <p>
-The next subsections list the default key mapping of openMSX. The mapping of the special MSX keys is hardcoded, but the mapping of the keys for emulator functions is fully customizable using the <code>bind</code> command in the console. Your customized key bindings are saved together with the settings.
+The next subsections list the default key mapping of openMSX. The mapping of the special MSX keys is hardcoded, but the mapping of the keys for emulator functions is fully customisable using the <code>bind</code> command in the console. Your customised key bindings are saved together with the settings.
 </p>
 
 <h4><a id="keymappingpc">5.1.1 Key Mapping on PC</a></h4>
