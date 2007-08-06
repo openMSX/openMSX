@@ -17,8 +17,8 @@ set __psg_settings {::PSG_vibrato_percent ::PSG_vibrato_frequency
                     ::PSG_detune_percent  ::PSG_detune_frequency}
 set __psg_profile(normal)         { 0.0  -  0.0  -  }
 set __psg_profile(vibrato)        { 1.0 5.0 0.0  -  }
-set __psg_profile(detune)         { 0.0  -  1.0 5.0 }
-set __psg_profile(detune_vibrato) { 1.0 5.0 1.0 5.0 }
+set __psg_profile(detune)         { 0.0  -  0.5 5.0 }
+set __psg_profile(detune_vibrato) { 1.0 5.0 0.5 5.0 }
 
 proc __equal_psg_profile { values } {
 	foreach setting $::__psg_settings value $values {
