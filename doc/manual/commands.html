@@ -3031,19 +3031,19 @@
     <tr>
       <td><code>set resampler fast</code></td>
 
-      <td>Sets a fast, but bad quality resampler, which can show a lot of aliasing</td>
-    </tr>
-
-    <tr>
-      <td><code>set resampler hq</code></td>
-
-      <td>Sets the highest quality resampler, but it takes the most CPU time</td>
+      <td>Sets a fast, but low quality resampler. This uses simple linear interpolation, which can result in very audible aliasing effects in some cases. Although this is a relatively low quality algorithm, it's the algorthm that was used in pre-0.6.3 openMSX versions (and most other MSX emulators).</td>
     </tr>
 
     <tr>
       <td><code>set resampler blip</code></td>
 
-      <td>Sets the <a href="http://slack.net/~ant/libs/audio.html#Blip_Buffer">Blip_Buffer</a> based resampler, which has the best quality per CPU usage ratio (this is the default value) </td>
+      <td>Sets the <a href="http://slack.net/~ant/libs/audio.html#Blip_Buffer">Blip_Buffer</a> based resampler, which has the best quality per CPU usage ratio (this is the default value).</td>
+    </tr>
+    
+    <tr>
+      <td><code>set resampler hq</code></td>
+
+      <td>Sets the highest quality resampler, but it also takes the most CPU time. It's based on the <a href="http://www.mega-nerd.com/SRC/">libsamplerate</a> algorithm.</td>
     </tr>
   </table>
 
