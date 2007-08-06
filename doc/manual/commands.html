@@ -687,8 +687,8 @@
 
       <td>Insert a new breakpoint at the given address. Optionally you can specify a condition and a command. When
       the CPU is about to execute the instruction at the given address, the condition will be evaluated, if this
-      evaluates to true then the command is executed. The condition can be any TCL expression and the command can be
-      any TCL command. The default condition is 'true' and the default command is <code>"debug break"</code>.</td>
+      evaluates to true then the command is executed. The condition can be any Tcl expression and the command can be
+      any Tcl command. The default condition is 'true' and the default command is <code>"debug break"</code>.</td>
     </tr>
 
     <tr>
@@ -727,7 +727,7 @@
   </table>
 
   <div class="note">
-    Note: Some of the commands are pretty low level. In the share/scripts directory you'll find some TCL scripts that
+    Note: Some of the commands are pretty low level. In the share/scripts directory you'll find some Tcl scripts that
     offer convenience wrappers around these commands. For example: <code>showmem</code>, <code>disasm</code>, <code>cpuregs</code>, <code>save_debuggable</code>, <code>vdp</code> etc.
   </div>
 
@@ -795,7 +795,7 @@
 
   <h3><a id="exit">exit</a></h3>
 
-  <p>This command exits the TCL interpreter, which leads to openMSX exiting as well.</p>
+  <p>This command exits the Tcl interpreter, which leads to openMSX exiting as well.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -885,7 +885,7 @@
 
   <p>Increment an integer setting.</p>
 
-  <p>This used to be an openMSX custom command, but is now a native TCL command.</p>
+  <p>This used to be an openMSX custom command, but is now a native Tcl command.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -939,7 +939,7 @@
 
   <h3><a id="keymatrix">keymatrixdown / keymatrixup</a></h3>
 
-  <p>Press or release keys in the MSX keyboard matrix. Can be used to make an external program or TCL script press MSX keys. For some more information about the keymatrix, you could read the <a href="http://map.tni.nl/articles/keymatrix.php">article on the MAP</a>.</p>
+  <p>Press or release keys in the MSX keyboard matrix. Can be used to make an external program or Tcl script press MSX keys. For some more information about the keymatrix, you could read the <a href="http://map.tni.nl/articles/keymatrix.php">article on the MAP</a>.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -1556,7 +1556,7 @@
 
   <h3><a id="unset">unset</a></h3>
 
-  <p>Undefines a TCL variable. When used on openMSX settings, they are reverted to their default value. See also: <code><a class="internal" href="#set">set</a></code>.</p>
+  <p>Undefines a Tcl variable. When used on openMSX settings, they are reverted to their default value. See also: <code><a class="internal" href="#set">set</a></code>.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -1632,7 +1632,7 @@
 
   <p>Create a new command that is an alias for another (group of) command(s).</p>
 
-  <p>It is better to use the more powerful TCL <code>proc</code> command.</p>
+  <p>It is better to use the more powerful Tcl <code>proc</code> command.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -1656,7 +1656,7 @@
   </div>
 
   <div class="note">
-    Note: The backwards compatibility implementation of the <code>alias</code> command is not 100% compatible with the old <code>alias</code> command. It is recommended that you update your scripts to use the TCL <code>proc</code> command.
+    Note: The backwards compatibility implementation of the <code>alias</code> command is not 100% compatible with the old <code>alias</code> command. It is recommended that you update your scripts to use the Tcl <code>proc</code> command.
   </div>
 
   <h3><a id="decr">decr</a></h3>
@@ -3637,7 +3637,7 @@
 
   <h3><a id="umr_callback">umr_callback</a></h3>
 
-  <p>Selects the TCL procedure to be called when an Uninitialized Memory Read has been detected. This is useful for debugging MSX programs: uninitialized memory is not guaranteed to have any particular value, so reading it is most likely a bug.</p>
+  <p>Selects the Tcl procedure to be called when an Uninitialized Memory Read has been detected. This is useful for debugging MSX programs: uninitialized memory is not guaranteed to have any particular value, so reading it is most likely a bug.</p>
 
   <p>By default this setting is empty, which means that nothing is done when an Uninitialized Memory Read is detected. We ship a useful procedure called <code>umrcallback</code> which logs all UMRs. You can activate it with <code>set umr_callback umrcallback</code>. You can find the source code for this procedure in <code>scripts/umrcallback.tcl</code>.</p>
 
@@ -3661,8 +3661,8 @@
 
   <h3><a id="user_directories">user_directories</a></h3>
 
-  <p>Contains the list of "user directories". This makes it a bit more convenient to insert disks, tapes, ROMs etc. The Setup Guide describes <a class="external" href="setup.html#settings">how the user directories mechanism works</a>. This setting is a list in TCL format (items are space separated or enclosed in braces, see TCL
-  manual for details). Thus all TCL functions to manipulate lists can be used on this setting.</p>
+  <p>Contains the list of "user directories". This makes it a bit more convenient to insert disks, tapes, ROMs etc. The Setup Guide describes <a class="external" href="setup.html#settings">how the user directories mechanism works</a>. This setting is a list in Tcl format (items are space separated or enclosed in braces, see Tcl
+  manual for details). Thus all Tcl functions to manipulate lists can be used on this setting.</p>
 
   <div class="subsectiontitle">
     usage:
