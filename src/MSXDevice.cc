@@ -311,7 +311,7 @@ void MSXDevice::writeIO(word port, byte value, const EmuTime& /*time*/)
 	(void)port;
 	(void)value;
 	PRT_DEBUG("MSXDevice::writeIO(port 0x" << std::hex << int(port & 0xFF)
-	          << std::dec << ",value " << (int)value
+	          << std::dec << ",value " << int(value)
 	          << ") : No device implementation.");
 	// do nothing
 }
