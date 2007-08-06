@@ -748,7 +748,7 @@ void WD2793::startType4Cmd(const EmuTime& time)
 	byte flags = commandReg & 0x0F;
 	if (flags & (N2R_IRQ | R2N_IRQ)) {
 		// all flags not yet supported
-		PRT_DEBUG("WD2793 type 4 cmd, unimplemented bits " << (int)flags);
+		PRT_DEBUG("WD2793 type 4 cmd, unimplemented bits " << int(flags));
 	}
 
 	if (flags == 0x00) {

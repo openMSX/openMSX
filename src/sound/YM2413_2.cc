@@ -1540,7 +1540,7 @@ void Global::generateChannels(int** bufs, unsigned num)
 
 void Global::writeReg(byte r, byte v, const EmuTime& time)
 {
-	PRT_DEBUG("YM2413: write reg " << (int)r << " " << (int)v);
+	PRT_DEBUG("YM2413: write reg " << int(r) << " " << int(v));
 	
 	// update the output buffer before changing the register
 	updateStream(time);

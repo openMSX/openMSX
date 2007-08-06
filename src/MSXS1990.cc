@@ -74,7 +74,7 @@ void MSXS1990::writeIO(word port, byte value, const EmuTime& /*time*/)
 
 byte MSXS1990::readRegister(byte reg) const
 {
-	PRT_DEBUG("S1990: read reg " << (int)reg);
+	PRT_DEBUG("S1990: read reg " << int(reg));
 	switch (reg) {
 		case 5:
 			return firmwareSwitch->getStatus() ? 0x40 : 0x00;

@@ -503,7 +503,7 @@ void MB89352::writeRegister(byte reg, byte value)
 			}
 
 			if (regs[REG_PCTL] & 1) {
-				PRT_DEBUG("reselection error " << std::hex << (int)regs[REG_TEMPWR]);
+				PRT_DEBUG("reselection error " << std::hex << int(regs[REG_TEMPWR]));
 				regs[REG_INTS] |= INTS_TimeOut;
 				disconnect();
 				break;
@@ -523,7 +523,7 @@ void MB89352::writeRegister(byte reg, byte value)
 				}
 
 				if (/*!TODO: devBusy &&*/ dev[targetId]->isSelected()) {
-					PRT_DEBUG("selection OK of target " << (int)targetId);
+					PRT_DEBUG("selection OK of target " << int(targetId));
 					regs[REG_INTS] |= INTS_CommandComplete;
 					isBusy  = true;
 					msgin   =  0;
@@ -546,7 +546,7 @@ void MB89352::writeRegister(byte reg, byte value)
 			}
 
 			if (err) {
-				PRT_DEBUG("selection error on target " << (int)targetId);
+				PRT_DEBUG("selection error on target " << int(targetId));
 				regs[REG_INTS] |= INTS_TimeOut;
 				disconnect();
 			}

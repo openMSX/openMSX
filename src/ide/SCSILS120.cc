@@ -139,7 +139,7 @@ SCSILS120::SCSILS120(MSXMotherBoard& motherBoard_, const XMLElement& targetconfi
 
 SCSILS120::~SCSILS120()
 {
-	PRT_DEBUG("ls120 close for ls120 " << (int)scsiId);
+	PRT_DEBUG("ls120 close for ls120 " << int(scsiId));
 	MSXMotherBoard::SharedStuff& info =
                 motherBoard.getSharedStuff("lsInUse");
         assert(info.counter);
@@ -169,7 +169,7 @@ void SCSILS120::reset()
 
 void SCSILS120::busReset()
 {
-	PRT_DEBUG("SCSI: bus reset on " << (int)scsiId);
+	PRT_DEBUG("SCSI: bus reset on " << int(scsiId));
 	keycode = 0;
 	unitAttention = (mode & MODE_UNITATTENTION);
 }
@@ -212,14 +212,14 @@ void SCSILS120::startStopUnit()
 	switch (cdb[4]) {
 	case 2: // Eject
 		eject();
-		PRT_DEBUG("eject disk " << (int)scsiId);
+		PRT_DEBUG("eject disk " << int(scsiId));
 		break;
 	case 3: // Insert  TODO: how can this happen?
 	//      if (!diskPresent(diskId)) {
 	//      	*disk = disk;
 	//      	updateExtendedDiskName(diskId, disk->fileName, disk->fileNameInZip);
 	//      	boardChangeDiskette(diskId, disk->fileName, disk->fileNameInZip);
-			PRT_DEBUG("insert ls120 " << (int)scsiId);
+			PRT_DEBUG("insert ls120 " << int(scsiId));
 	//      }
 		break;
 	}
@@ -383,7 +383,7 @@ unsigned SCSILS120::readCapacity()
 
 	if (block == 0) {
 		keycode = SCSI::SENSE_MEDIUM_NOT_PRESENT;
-		PRT_DEBUG("ls120 " << (int)scsiId << ": drive not ready");
+		PRT_DEBUG("ls120 " << int(scsiId) << ": drive not ready");
 		return 0;
 	}
 
@@ -407,14 +407,14 @@ bool SCSILS120::checkAddress()
 	unsigned total = getNbSectors();
 	if (total == 0) {
 		keycode = SCSI::SENSE_MEDIUM_NOT_PRESENT;
-		PRT_DEBUG("ls120 " << (int)scsiId << ": drive not ready");
+		PRT_DEBUG("ls120 " << int(scsiId) << ": drive not ready");
 		return false;
 	}
 
 	if ((currentLength > 0) && (currentSector + currentLength <= total)) {
 		return true;
 	}
-	PRT_DEBUG("ls120 " << (int)scsiId << ": IllegalBlockAddress");
+	PRT_DEBUG("ls120 " << int(scsiId) << ": IllegalBlockAddress");
 	keycode = SCSI::SENSE_ILLEGAL_BLOCK_ADDRESS;
 	return false;
 }
@@ -428,7 +428,7 @@ unsigned SCSILS120::readSector(unsigned& blocks)
 	unsigned numSectors = std::min(currentLength, BUFFER_BLOCK_SIZE);
 	unsigned counter = currentLength * SECTOR_SIZE;
 
-	PRT_DEBUG("ls120#" << (int)scsiId << " read sector: " << currentSector << " " << numSectors);
+	PRT_DEBUG("ls120#" << int(scsiId) << " read sector: " << currentSector << " " << numSectors);
 	try {
 		//TODO: somehow map this to SectorAccessibleDisk::readLogicalSector?
 		file->seek(SECTOR_SIZE * currentSector);
@@ -452,7 +452,7 @@ unsigned SCSILS120::dataIn(unsigned& blocks)
 			return counter;
 		}
 	}
-	PRT_DEBUG("dataIn error " << cdb[0]);
+	PRT_DEBUG("dataIn error " << int(cdb[0]));
 	blocks = 0;
 	return 0;
 }
@@ -465,7 +465,7 @@ unsigned SCSILS120::writeSector(unsigned& blocks)
 
 	unsigned numSectors = std::min(currentLength, BUFFER_BLOCK_SIZE);
 
-	PRT_DEBUG("ls120#" << (int)scsiId << " write sector: " << currentSector << " " << numSectors);
+	PRT_DEBUG("ls120#" << int(scsiId) << " write sector: " << currentSector << " " << numSectors);
 	//TODO: somehow map this to SectorAccessibleDisk::writeLogicalSector?
 	try {
 		file->seek(SECTOR_SIZE * currentSector);
@@ -489,7 +489,7 @@ unsigned SCSILS120::dataOut(unsigned& blocks)
 	if (cdb[0] == SCSI::OP_WRITE10) {
 		return writeSector(blocks);
 	}
-	PRT_DEBUG("dataOut error " << (int)cdb[0]);
+	PRT_DEBUG("dataOut error " << int(cdb[0]));
 	blocks = 0;
 	return 0;
 }
@@ -513,7 +513,7 @@ void SCSILS120::formatUnit()
 byte SCSILS120::getStatusCode()
 {
 	byte result = keycode ? SCSI::ST_CHECK_CONDITION : SCSI::ST_GOOD;
-	PRT_DEBUG("SCSI status code: \n" << (int)result);
+	PRT_DEBUG("SCSI status code: \n" << int(result));
 	return result;
 }
 
@@ -540,7 +540,7 @@ void SCSILS120::insert(const string& filename)
 
 unsigned SCSILS120::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& blocks)
 {
-	PRT_DEBUG("SCSI Command: " << (int)cdb[0]);
+	PRT_DEBUG("SCSI Command: " << int(cdb[0]));
 	memcpy(cdb, cdb_, 12);
 	message = 0;
 	phase = SCSI::STATUS;
@@ -742,7 +742,7 @@ Notes:
 */
 int SCSILS120::msgOut(byte value)
 {
-	PRT_DEBUG("SCSI #" << (int)scsiId << " message out: " << (int)value);
+	PRT_DEBUG("SCSI #" << int(scsiId) << " message out: " << int(value));
 	if (value & 0x80) {
 		lun = value & 7;
 		return 0;

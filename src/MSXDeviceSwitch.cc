@@ -120,7 +120,7 @@ void MSXDeviceSwitch::writeIO(word port, byte value, const EmuTime& time)
 	port &= 0x0F;
 	if (port == 0x00) {
 		selected = value;
-		PRT_DEBUG("Switch " << (int)selected);
+		PRT_DEBUG("Switch " << int(selected));
 	} else if (devices[selected]) {
 		//PRT_DEBUG("Switch write device " << (int)selected << " port " << (int)port);
 		devices[selected]->writeIO(port, value, time);

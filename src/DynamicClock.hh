@@ -101,7 +101,7 @@ public:
 	void fastAdd(unsigned n) {
 		#ifdef DEBUG
 		// we don't even want this overhead in development versions
-		assert(((uint64)n * step) < (1ull << 32));
+		assert((uint64(n) * step) < (1ull << 32));
 		#endif
 		lastTick.time += n * step;
 	}

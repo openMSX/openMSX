@@ -72,8 +72,8 @@ byte MicrosolFDC::peekIO(word port, const EmuTime& time) const
 
 void MicrosolFDC::writeIO(word port, byte value, const EmuTime& time)
 {
-	PRT_DEBUG("MicrosolFDC: write 0x" << std::hex << (int)port << " 0x"
-	          << (int)value << std::dec);
+	PRT_DEBUG("MicrosolFDC: write 0x" << std::hex << int(port) << " 0x"
+	          << int(value) << std::dec);
 	switch (port & 0x07) {
 	case 0:
 		controller->setCommandReg(value, time);

@@ -89,7 +89,7 @@ SCSIHD::SCSIHD(MSXMotherBoard& motherBoard_, const XMLElement& targetconfig,
 
 SCSIHD::~SCSIHD()
 {
-	PRT_DEBUG("hdd close for hdd " << (int)scsiId);
+	PRT_DEBUG("hdd close for hdd " << int(scsiId));
 }
 
 void SCSIHD::reset()
@@ -101,7 +101,7 @@ void SCSIHD::reset()
 
 void SCSIHD::busReset()
 {
-	PRT_DEBUG("SCSI: bus reset on " << (int)scsiId);
+	PRT_DEBUG("SCSI: bus reset on " << int(scsiId));
 	keycode = 0;
 	unitAttention = (mode & MODE_UNITATTENTION);
 }
@@ -254,7 +254,7 @@ unsigned SCSIHD::readCapacity()
 
 	if (block == 0) {
 		keycode = SCSI::SENSE_MEDIUM_NOT_PRESENT;
-		PRT_DEBUG("hdd " << (int)scsiId << ": drive not ready");
+		PRT_DEBUG("hdd " << int(scsiId) << ": drive not ready");
 		return 0;
 	}
 
@@ -278,14 +278,14 @@ bool SCSIHD::checkAddress()
 	unsigned total = getNbSectors();
 	if (total == 0) {
 		keycode = SCSI::SENSE_MEDIUM_NOT_PRESENT;
-		PRT_DEBUG("hdd " << (int)scsiId << ": drive not ready");
+		PRT_DEBUG("hdd " << int(scsiId) << ": drive not ready");
 		return false;
 	}
 
 	if ((currentLength > 0) && (currentSector + currentLength <= total)) {
 		return true;
 	}
-	PRT_DEBUG("hdd " << (int)scsiId << ": IllegalBlockAddress");
+	PRT_DEBUG("hdd " << int(scsiId) << ": IllegalBlockAddress");
 	keycode = SCSI::SENSE_ILLEGAL_BLOCK_ADDRESS;
 	return false;
 }
@@ -299,7 +299,7 @@ unsigned SCSIHD::readSector(unsigned& blocks)
 	unsigned numSectors = std::min(currentLength, BUFFER_BLOCK_SIZE);
 	unsigned counter = currentLength * SECTOR_SIZE;
 
-	PRT_DEBUG("hdd#" << (int)scsiId << " read sector: " << currentSector << " " << numSectors);
+	PRT_DEBUG("hdd#" << int(scsiId) << " read sector: " << currentSector << " " << numSectors);
 	try {
 		readFromImage(SECTOR_SIZE * currentSector,
 		              SECTOR_SIZE * numSectors,
@@ -336,7 +336,7 @@ unsigned SCSIHD::writeSector(unsigned& blocks)
 
 	unsigned numSectors = std::min(currentLength, BUFFER_BLOCK_SIZE);
 
-	PRT_DEBUG("hdd#" << (int)scsiId << " write sector: " << currentSector << " " << numSectors);
+	PRT_DEBUG("hdd#" << int(scsiId) << " write sector: " << currentSector << " " << numSectors);
 	try {
 		writeToImage(SECTOR_SIZE * currentSector,
 		             SECTOR_SIZE * numSectors,
@@ -360,7 +360,7 @@ unsigned SCSIHD::dataOut(unsigned& blocks)
 	if (cdb[0] == SCSI::OP_WRITE10) {
 		return writeSector(blocks);
 	}
-	PRT_DEBUG("dataOut error " << (int)cdb[0]);
+	PRT_DEBUG("dataOut error " << int(cdb[0]));
 	blocks = 0;
 	return 0;
 }
@@ -382,13 +382,13 @@ void SCSIHD::formatUnit()
 byte SCSIHD::getStatusCode()
 {
 	byte result = keycode ? SCSI::ST_CHECK_CONDITION : SCSI::ST_GOOD;
-	PRT_DEBUG("SCSI status code: \n" << (int)result);
+	PRT_DEBUG("SCSI status code: \n" << int(result));
 	return result;
 }
 
 unsigned SCSIHD::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& blocks)
 {
-	PRT_DEBUG("SCSI Command: " << (int)cdb[0]);
+	PRT_DEBUG("SCSI Command: " << int(cdb[0]));
 	memcpy(cdb, cdb_, 12);
 	message = 0;
 	phase = SCSI::STATUS;
@@ -588,7 +588,7 @@ Notes:
 */
 int SCSIHD::msgOut(byte value)
 {
-	PRT_DEBUG("SCSI #" << (int)scsiId << " message out: " << (int)value);
+	PRT_DEBUG("SCSI #" << int(scsiId) << " message out: " << int(value));
 	if (value & 0x80) {
 		lun = value & 7;
 		return 0;

@@ -252,7 +252,7 @@ void WD33C93::execCmd(byte value)
 			}
 			//regs[REG_SRC_ID] |= regs[REG_DST_ID] & 7;
 		} else {
-			PRT_DEBUG("wd33c93 timeout on target " << (int)targetId);
+			PRT_DEBUG("wd33c93 timeout on target " << int(targetId));
 			tc = 0;
 			regs[REG_SCSI_STATUS] = SS_SEL_TIMEOUT;
 			regs[REG_AUX_STATUS]  = AS_INT;
@@ -261,7 +261,7 @@ void WD33C93::execCmd(byte value)
 
 	case 0x18: // Translate Address (Lv2)
 	default:
-		PRT_DEBUG("wd33c93 [CMD] unsupport command " << (int)value);
+		PRT_DEBUG("wd33c93 [CMD] unsupport command " << int(value));
 		break;
 	}
 }
@@ -281,7 +281,7 @@ void WD33C93::writeCtrl(byte value)
 	case REG_OWN_ID:
 		regs[REG_OWN_ID] = value;
 		myId = value & 7;
-		PRT_DEBUG("wd33c93 myid = " << (int)myId);
+		PRT_DEBUG("wd33c93 myid = " << int(myId));
 		break;
 
 	case REG_TCH:
@@ -297,7 +297,7 @@ void WD33C93::writeCtrl(byte value)
 		break;
 
 	case REG_CMD_PHASE:
-		PRT_DEBUG("wd33c93 CMD_PHASE = " << (int)value);
+		PRT_DEBUG("wd33c93 CMD_PHASE = " << int(value));
 		regs[REG_CMD_PHASE] = value;
 		break;
 
