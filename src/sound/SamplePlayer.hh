@@ -26,8 +26,8 @@ private:
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
 
-	unsigned outFreq;
 	const void* sampBuf;
+	unsigned outFreq;
 	unsigned count;
 	unsigned step;
 	unsigned end;

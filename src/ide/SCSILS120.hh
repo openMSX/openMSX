@@ -73,24 +73,20 @@ private:
 	void formatUnit();
 
 	MSXMotherBoard& motherBoard;
-
-	const byte scsiId;     // SCSI ID 0..7
+	byte* const buffer;
+	std::auto_ptr<File> file;
+	std::auto_ptr<LSXCommand> lsxCommand;
+	std::string name;
 	const int mode;
-
-	bool unitAttention;    // Unit Attention (was: reset)
 	int keycode;           // Sense key, ASC, ASCQ
-	bool mediaChanged;     // Enhanced change flag for MEGA-SCSI driver
 	unsigned currentSector;
 	unsigned currentLength;
+	const byte scsiId;     // SCSI ID 0..7
+	bool unitAttention;    // Unit Attention (was: reset)
+	bool mediaChanged;     // Enhanced change flag for MEGA-SCSI driver
 	byte message;
 	byte lun;
 	byte cdb[12];          // Command Descriptor Block
-	byte* const buffer;
-
-	std::auto_ptr<File> file;
-
-	std::string name;
-	std::auto_ptr<LSXCommand> lsxCommand;
 
 	friend class LSXCommand;
 };

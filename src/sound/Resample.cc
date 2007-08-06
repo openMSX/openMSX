@@ -12,8 +12,8 @@
 namespace openmsx {
 
 Resample::Resample(GlobalSettings& globalSettings, unsigned channels_)
-  : channels(channels_)
-  , resampleSetting(globalSettings.getResampleSetting())
+	: resampleSetting(globalSettings.getResampleSetting())
+	, channels(channels_)
 {
 	assert((channels == 1) || (channels == 2));
 	resampleSetting.attach(*this);
@@ -74,6 +74,5 @@ void Resample::createResampler()
 		}
 	}
 }
-
 
 } // namespace openmsx

@@ -39,6 +39,8 @@ private:
 	void executionPhaseWrite(byte value);
 
 	DiskDrive* drive[4];
+	Clock<1000000> delayTime;
+
 	enum Command {
 		CMD_UNKNOWN,
 		CMD_READ_DATA,
@@ -70,7 +72,6 @@ private:
 	//bool interrupt;
 
 	byte sectorBuf[4096];
-	Clock<1000000> delayTime;
 
 	byte driveSelect;
 	byte mainStatus;

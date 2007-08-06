@@ -16,9 +16,9 @@
 namespace openmsx {
 
 Mixer::Mixer(CommandController& commandController_)
-	: muteCount(0)
-	, commandController(commandController_)
+	: commandController(commandController_)
 	, pauseSetting(commandController.getGlobalSettings().getPauseSetting())
+	, muteCount(0)
 {
 	// default values
 #ifdef _WIN32

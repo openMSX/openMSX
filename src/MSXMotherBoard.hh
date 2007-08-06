@@ -153,9 +153,9 @@ public:
 	  * storage to implement per-machine reference counted objects.
 	  */
 	struct SharedStuff {
-		SharedStuff() : counter(0), stuff(NULL) {}
-		unsigned counter;
+		SharedStuff() : stuff(NULL), counter(0) {}
 		void* stuff;
+		unsigned counter;
 	};
 	SharedStuff& getSharedStuff(const std::string& name);
 

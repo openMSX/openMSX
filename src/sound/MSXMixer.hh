@@ -125,10 +125,6 @@ private:
 	IntegerSetting& speedSetting;
 	ThrottleManager& throttleManager;
 
-	unsigned muteCount;
-	int prevLeft, prevRight;
-	int outLeft, outRight;
-
 	EmuTime prevTime;
 	EmuDuration interval1; ///<  (Estimated) duration for one sample
 	EmuDuration interval1min;
@@ -139,6 +135,11 @@ private:
 
 	AviRecorder* recorder;
 	unsigned synchronousCounter;
+
+	unsigned muteCount;
+	int prevLeft, prevRight;
+	int outLeft, outRight;
+
 };
 
 } // namespace openmsx

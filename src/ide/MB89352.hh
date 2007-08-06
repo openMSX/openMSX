@@ -43,28 +43,28 @@ private:
 	void resetACKREQ();
 	byte getSSTS() const;
 
-	byte myId;                      // SPC SCSI ID 0..7
-	byte targetId;                  // SCSI Device target ID 0..7
-	byte regs[16];                  // SPC register
-	bool rst;                       // SCSI bus reset signal
-	byte atn;                       // SCSI bus attention signal
-	SCSI::Phase phase;              //
-	SCSI::Phase nextPhase;          // for message system
-	bool isEnabled;                 // spc enable flag
-	bool isBusy;                    // spc now working
-	bool isTransfer;                // hardware transfer mode
+	std::auto_ptr<SCSIDevice> dev[8];
+	byte* pCdb;                     // cdb pointer
+	std::vector<byte> buffer;       // buffer for transfer
+	unsigned bufIdx;                // buffer index
 	int msgin;                      // Message In flag
 	int counter;                    // read and written number of bytes
 	                                // within the range in the buffer
 	unsigned blockCounter;          // Number of blocks outside buffer
 	                                // (512bytes / block)
 	int tc;                         // counter for hardware transfer
+	SCSI::Phase phase;              //
+	SCSI::Phase nextPhase;          // for message system
+	byte myId;                      // SPC SCSI ID 0..7
+	byte targetId;                  // SCSI Device target ID 0..7
+	byte regs[16];                  // SPC register
+	bool rst;                       // SCSI bus reset signal
+	byte atn;                       // SCSI bus attention signal
+	bool isEnabled;                 // spc enable flag
+	bool isBusy;                    // spc now working
+	bool isTransfer;                // hardware transfer mode
 	//TODO: bool devBusy;           // CDROM busy (buffer conflict prevention)
-	std::auto_ptr<SCSIDevice> dev[8];
-	byte* pCdb;                     // cdb pointer
-	unsigned bufIdx;                // buffer index
 	byte cdb[12];                   // Command Descripter Block
-	std::vector<byte> buffer;       // buffer for transfer
 };
 
 } // namespace openmsx

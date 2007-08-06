@@ -26,17 +26,18 @@ public:
 private:
 	void addAviChunk(const char* tag, unsigned size, void* data, unsigned flags);
 
+	FILE* file;
+	std::auto_ptr<ZMBVEncoder> codec;
+	std::vector<unsigned char> index;
+
+	double fps;
 	const unsigned width;
 	const unsigned height;
 	const unsigned audiorate;
-	double fps;
 
 	unsigned frames;
 	unsigned audiowritten;
 	unsigned written;
-	FILE* file;
-	std::auto_ptr<ZMBVEncoder> codec;
-	std::vector<unsigned char> index;
 };
 
 } // namespace openmsx

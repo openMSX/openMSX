@@ -53,8 +53,8 @@ private:
 	void calcTable(double ratio, float*& table, unsigned& filterLen);
 
 	struct Element {
-		unsigned count;
 		float* table;
+		unsigned count;
 		unsigned filterLen;
 	};
 	typedef std::map<double, Element> Cache;

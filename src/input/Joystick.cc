@@ -27,10 +27,10 @@ void Joystick::registerAll(MSXEventDistributor& eventDistributor,
 
 Joystick::Joystick(MSXEventDistributor& eventDistributor_, unsigned joyNum_)
 	: eventDistributor(eventDistributor_)
+	, name(string("joystick") + char('1' + joyNum_))
+	, desc(string(SDL_JoystickName(joyNum_)))
+	, joystick(SDL_JoystickOpen(joyNum_))
 	, joyNum(joyNum_)
-	, name(string("joystick") + char('1' + joyNum))
-	, desc(string(SDL_JoystickName(joyNum)))
-	, joystick(SDL_JoystickOpen(joyNum))
 {
 }
 

@@ -107,10 +107,10 @@ typedef std::bitset<MAX_LS> LSInUse;
 
 SCSILS120::SCSILS120(MSXMotherBoard& motherBoard_, const XMLElement& targetconfig,
 		byte* const buf, unsigned mode_)
-	  : motherBoard(motherBoard_)
-	  , scsiId(targetconfig.getAttributeAsInt("id"))
-	  , mode(mode_)
-	  , buffer(buf)
+	: motherBoard(motherBoard_)
+	, buffer(buf)
+	, mode(mode_)
+	, scsiId(targetconfig.getAttributeAsInt("id"))
 {
 	MSXMotherBoard::SharedStuff& info =
                 motherBoard.getSharedStuff("lsInUse");

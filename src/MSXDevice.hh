@@ -227,9 +227,6 @@ private:
 
 	typedef std::vector<std::pair<unsigned, unsigned> > MemRegions;
 	MemRegions memRegions;
-	int ps;
-	int ss;
-	int externalSlotID;
 	std::vector<byte> inPorts;
 	std::vector<byte> outPorts;
 
@@ -239,6 +236,10 @@ private:
 
 	Devices references;
 	Devices referencedBy;
+	
+	int ps;
+	int ss;
+	int externalSlotID;
 };
 
 } // namespace openmsx

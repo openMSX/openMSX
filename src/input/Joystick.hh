@@ -46,10 +46,10 @@ private:
 
 	MSXEventDistributor& eventDistributor;
 
-	const unsigned joyNum;
 	const std::string name;
 	const std::string desc;
 	SDL_Joystick* const joystick;
+	const unsigned joyNum;
 
 	byte status;
 };

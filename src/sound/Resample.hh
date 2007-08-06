@@ -33,8 +33,8 @@ private:
 
 	double ratio;
 	std::auto_ptr<ResampleAlgo> algo;
-	const unsigned channels;
 	EnumSetting<GlobalSettings::ResampleType>& resampleSetting;
+	const unsigned channels;
 };
 
 } // namespace openmsx

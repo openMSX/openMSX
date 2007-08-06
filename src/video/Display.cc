@@ -63,14 +63,14 @@ private:
 
 
 Display::Display(Reactor& reactor_)
-	: currentRenderer(RendererFactory::UNINITIALIZED)
-	, alarm(new RepaintAlarm(reactor_.getEventDistributor()))
+	: alarm(new RepaintAlarm(reactor_.getEventDistributor()))
 	, screenShotCmd(new ScreenShotCmd(
 		reactor_.getCommandController(), *this))
 	, fpsInfo(new FpsInfoTopic(
 	      reactor_.getGlobalCommandController().getOpenMSXInfoCommand(), *this))
 	, reactor(reactor_)
 	, renderSettings(new RenderSettings(reactor.getCommandController()))
+	, currentRenderer(RendererFactory::UNINITIALIZED)
 	, switchInProgress(false)
 {
 	frameDurationSum = 0;

@@ -168,6 +168,18 @@ private:
 	  */
 	OutputSurface& screen;
 
+	/** VRAM to pixels converter for character display modes.
+	  */
+	std::auto_ptr<CharacterConverter<Pixel> >characterConverter;
+
+	/** VRAM to pixels converter for bitmap display modes.
+	  */
+	std::auto_ptr<BitmapConverter<Pixel> > bitmapConverter;
+
+	/** VRAM to pixels converter for sprites.
+	  */
+	std::auto_ptr<SpriteConverter<Pixel> > spriteConverter;
+
 	/** Work area for redefining textures.
 	  */
 	Pixel lineBuffer[512];
@@ -199,18 +211,6 @@ private:
 	GLuint monoChrTex[256];
 	GLuint stripeTexture;
 
-	/** VRAM to pixels converter for character display modes.
-	  */
-	std::auto_ptr<CharacterConverter<Pixel> >characterConverter;
-
-	/** VRAM to pixels converter for bitmap display modes.
-	  */
-	std::auto_ptr<BitmapConverter<Pixel> > bitmapConverter;
-
-	/** VRAM to pixels converter for sprites.
-	  */
-	std::auto_ptr<SpriteConverter<Pixel> > spriteConverter;
-
 	// noise effect
 	GLuint noiseTextures[2];
 	unsigned noiseSeq;
@@ -228,7 +228,6 @@ private:
 	/** Is the frame buffer dirty?
 	  */
 	bool frameDirty;
-
 };
 
 } // namespace openmsx

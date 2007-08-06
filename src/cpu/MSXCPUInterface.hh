@@ -232,16 +232,6 @@ private:
 	void updateVisible(int page);
 	void setSubSlot(byte primSlot, byte value);
 
-	MSXDevice* IO_In [256];
-	MSXDevice* IO_Out[256];
-
-	MSXDevice* slotLayout[4][4][4];
-	byte subSlotRegister[4];
-	byte primarySlotState[4];
-	byte secondarySlotState[4];
-	unsigned expanded[4];
-	MSXDevice* visibleDevices[4];
-
 	DummyDevice& dummyDevice;
 	MSXCPU& msxcpu;
 	MSXCliComm& cliCommOutput;
@@ -266,6 +256,15 @@ private:
 	};
 	typedef std::vector<GlobalWriteInfo> GlobalWrites;
 	GlobalWrites globalWrites;
+
+	MSXDevice* IO_In [256];
+	MSXDevice* IO_Out[256];
+	MSXDevice* slotLayout[4][4][4];
+	MSXDevice* visibleDevices[4];
+	byte subSlotRegister[4];
+	byte primarySlotState[4];
+	byte secondarySlotState[4];
+	unsigned expanded[4];
 };
 
 class TurborCPUInterface : public MSXCPUInterface

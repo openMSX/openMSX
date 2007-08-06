@@ -54,7 +54,7 @@ private:
 
 	VDP* vdp;
 	VDPVRAM* vram;
-    /** Bit mask applied to logical addresses, reflects vram size.  */
+	/** Bit mask applied to logical addresses, reflects vram size.  */
 	unsigned mask;
 	/** Base address of selected page in vram.  */
 	unsigned baseAddr;

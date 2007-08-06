@@ -87,7 +87,6 @@ CassettePlayer::CassettePlayer(
 	, recTime(EmuTime::zero)
 	, prevTime(EmuTime::zero)
 	, playPos(0)
-	, syncScheduled(false)
 	, msxCommandController(msxCommandController_)
 	, cliComm(cliComm_)
 	, eventDistributor(eventDistributor_)
@@ -99,6 +98,7 @@ CassettePlayer::CassettePlayer(
 	, state(STOP)
 	, lastOutput(false)
 	, motor(false), motorControl(true)
+	, syncScheduled(false)
 {
 	autoRunSetting.reset(new BooleanSetting(msxCommandController,
 		"autoruncassettes", "automatically try to run cassettes", false));

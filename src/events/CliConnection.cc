@@ -300,7 +300,7 @@ SocketConnection::SocketConnection(CommandController& commandController,
                                    EventDistributor& eventDistributor,
                                    SOCKET sd_)
 	: CliConnection(commandController, eventDistributor)
-	, sd(sd_), sem(1)
+	, sem(1), sd(sd_)
 {
 	start();
 }

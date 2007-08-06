@@ -27,9 +27,9 @@ public:
 private:
 	struct DriveSettings
 	{
-		int partition;
-		std::string workingDir[31];
 		DiskContainer* drive;
+		std::string workingDir[31];
+		int partition;
 	};
 	typedef std::vector<DriveSettings> DiskImages;
 	DiskImages diskImages;

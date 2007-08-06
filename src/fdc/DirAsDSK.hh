@@ -51,15 +51,15 @@ private:
 
 	struct MappedDirEntry {
 		MSXDirEntry msxinfo;
+		std::string filename;
 		int filesize; // used to dedect changes that need to be updated in the
 			      // emulated disk, content changes are automatically
 			      // handled :-)
-		std::string filename;
 	};
 
 	struct ReverseSector {
-		int dirEntryNr;
 		long fileOffset;
+		int dirEntryNr;
 	};
 
 	CliComm& cliComm; // TODO don't use CliComm to report errors/warnings

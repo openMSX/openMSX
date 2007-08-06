@@ -22,9 +22,9 @@ public:
 	inline word multiply(word p) const;
 	inline const word* getTable() const;
 private:
-	word tab[0x10000];
-	unsigned factor;
 	const SDL_PixelFormat* format;
+	unsigned factor;
+	word tab[0x10000];
 };
 
 template<> class Multiply<unsigned>

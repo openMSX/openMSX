@@ -36,6 +36,7 @@ template <class T> CPUCore<T>::CPUCore(
 	, motherboard(motherboard_)
 	, scheduler(motherboard.getScheduler())
 	, interface(NULL)
+	, traceSetting(traceSetting_)
 	, freqLocked(new BooleanSetting(motherboard.getCommandController(),
 	        name + "_freq_locked",
 	        "real (locked) or custom (unlocked) " + name + " frequency",
@@ -45,7 +46,6 @@ template <class T> CPUCore<T>::CPUCore(
 	        "custom " + name + " frequency (only valid when unlocked)",
 	        T::CLOCK_FREQ, 1000000, 100000000))
 	, freq(T::CLOCK_FREQ)
-	, traceSetting(traceSetting_)
 	, NMIStatus(0)
 	, IRQStatus(0)
 	, nmiEdge(false)

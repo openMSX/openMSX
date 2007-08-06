@@ -140,7 +140,6 @@ private:
 	// SoundDevice
 	unsigned playPos;
 	unsigned outputRate;
-	bool syncScheduled;
 	std::string casImage;
 
 	MSXCommandController& msxCommandController;
@@ -157,6 +156,7 @@ private:
 	State state;
 	bool lastOutput;
 	bool motor, motorControl;
+	bool syncScheduled;
 
 	friend class TapeCommand;
 };

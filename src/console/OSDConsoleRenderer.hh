@@ -80,8 +80,8 @@ private:
 	unsigned long long time;
 	Reactor& reactor;
 	BooleanSetting& consoleSetting;
-	bool active;
         const std::auto_ptr<OSDSettingChecker> settingChecker;
+	bool active;
 
         friend class OSDSettingChecker;
 };

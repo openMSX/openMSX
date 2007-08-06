@@ -353,10 +353,6 @@ private:
 	typedef void (SpriteChecker::*UpdateSpritesMethod)(int limit);
 	UpdateSpritesMethod updateSpritesMethod;
 
-	/** Number of lines (262/313) in the current frame.
-	  */
-	int linesPerFrame;
-
 	/** The VDP this sprite checker is part of.
 	  */
 	VDP& vdp;
@@ -376,6 +372,10 @@ private:
 	/** The emulation time when this frame was started (vsync).
 	  */
 	Clock<VDP::TICKS_PER_SECOND> frameStartTime;
+
+	/** Number of lines (262/313) in the current frame.
+	  */
+	int linesPerFrame;
 
 	/** Sprites are checked up to and excluding this display line.
 	  */

@@ -39,8 +39,6 @@ private:
 	/** Calculates the current coverage of this layer. */
 	Coverage getCoverage();
 
-	/** Video source that displays on this layer. */
-	VideoSource videoSource;
 	/** Settings shared between all renderers. */
 	Display& display;
 	RenderSettings& renderSettings;
@@ -50,6 +48,8 @@ private:
 	const std::auto_ptr<VideoSourceActivator> videoSourceActivator;
 	/** Reference to "power" setting. */
 	BooleanSetting& powerSetting;
+	/** Video source that displays on this layer. */
+	VideoSource videoSource;
 };
 
 } // namespace openmsx

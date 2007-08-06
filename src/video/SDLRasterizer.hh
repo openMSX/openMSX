@@ -101,6 +101,35 @@ private:
 	  */
 	VDPVRAM& vram;
 
+	/** The surface which is visible to the user.
+	  */
+	OutputSurface& screen;
+
+	/** The video post processor which displays the frames produced by this
+	  *  rasterizer.
+	  */
+	std::auto_ptr<PostProcessor> postProcessor;
+
+	/** The next frame as it is delivered by the VDP, work in progress.
+	  */
+	RawFrame* workFrame;
+
+	/** The current renderer settings (gamma, brightness, contrast)
+	  */
+	RenderSettings& renderSettings;
+
+	/** VRAM to pixels converter for character display modes.
+	  */
+	std::auto_ptr<CharacterConverter<Pixel> > characterConverter;
+
+	/** VRAM to pixels converter for bitmap display modes.
+	  */
+	std::auto_ptr<BitmapConverter<Pixel> > bitmapConverter;
+
+	/** VRAM to pixels converter for sprites.
+	  */
+	std::auto_ptr<SpriteConverter<Pixel> > spriteConverter;
+
 	/** Line to render at top of display.
 	  * After all, our screen is 240 lines while display is 262 or 313.
 	  */
@@ -132,35 +161,6 @@ private:
 	/** Host colours corresponding to each possible V9958 colour.
 	  */
 	Pixel V9958_COLOURS[32768];
-
-	/** The surface which is visible to the user.
-	  */
-	OutputSurface& screen;
-
-	/** The video post processor which displays the frames produced by this
-	  *  rasterizer.
-	  */
-	std::auto_ptr<PostProcessor> postProcessor;
-
-	/** The next frame as it is delivered by the VDP, work in progress.
-	  */
-	RawFrame* workFrame;
-
-	/** The current renderer settings (gamma, brightness, contrast)
-	  */
-	RenderSettings& renderSettings;
-
-	/** VRAM to pixels converter for character display modes.
-	  */
-	std::auto_ptr<CharacterConverter<Pixel> > characterConverter;
-
-	/** VRAM to pixels converter for bitmap display modes.
-	  */
-	std::auto_ptr<BitmapConverter<Pixel> > bitmapConverter;
-
-	/** VRAM to pixels converter for sprites.
-	  */
-	std::auto_ptr<SpriteConverter<Pixel> > spriteConverter;
 };
 
 } // namespace openmsx

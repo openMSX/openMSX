@@ -33,13 +33,14 @@ private:
 	byte& dot(unsigned x, unsigned y);
 
 	byte* buf;
-	unsigned sizeX;
-	unsigned sizeY;
+	std::vector<int> table;
 
 	double radiusX;
 	double radiusY;
 	int radius16;
-	std::vector<int> table;
+
+	unsigned sizeX;
+	unsigned sizeY;
 };
 
 

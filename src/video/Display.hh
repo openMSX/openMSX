@@ -79,9 +79,6 @@ private:
 	Layers layers;
 	std::auto_ptr<VideoSystem> videoSystem;
 
-	// the current renderer
-	RendererFactory::RendererID currentRenderer;
-
 	typedef std::vector<VideoSystemChangeListener*> Listeners;
 	Listeners listeners;
 
@@ -98,6 +95,10 @@ private:
 
 	Reactor& reactor;
 	std::auto_ptr<RenderSettings> renderSettings;
+
+	// the current renderer
+	RendererFactory::RendererID currentRenderer;
+
 	bool switchInProgress;
 };
 

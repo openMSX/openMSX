@@ -19,10 +19,10 @@ public:
 	const void* getData() const;
 
 private:
+	void* buffer;
 	int bits;
 	int freq;
 	int length;
-	void* buffer;
 };
 
 } // namespace openmsx

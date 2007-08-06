@@ -68,18 +68,19 @@ private:
 	void formatUnit();
 
 	MSXMotherBoard& motherBoard;
+	byte* const buffer;
 
-	const byte scsiId;     // SCSI ID 0..7
 	const unsigned mode;
 
-	bool unitAttention;    // Unit Attention (was: reset)
 	unsigned keycode;      // Sense key, ASC, ASCQ
 	unsigned currentSector;
 	unsigned currentLength;
+	
+	const byte scsiId;     // SCSI ID 0..7
+	bool unitAttention;    // Unit Attention (was: reset)
 	byte message;
 	byte lun;
 	byte cdb[12];          // Command Descriptor Block
-	byte* const buffer;
 };
 
 } // namespace openmsx

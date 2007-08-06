@@ -34,8 +34,8 @@ public:
 	void clear();
 
 private:
-	unsigned size;
 	byte* ram;
+	unsigned size; // must come before debuggable
 	const std::auto_ptr<RamDebuggable> debuggable;
 };
 

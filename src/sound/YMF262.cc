@@ -111,6 +111,7 @@ public:
 
 	unsigned* wavetable; // waveform select
 
+	EnvelopeState state; // EG: phase type
 	unsigned eg_m_ar;// (attack state)
 	unsigned eg_m_dr;// (decay state)
 	unsigned eg_m_rr;// (release state)
@@ -126,7 +127,6 @@ public:
 	byte fb_shift;	// PG: feedback shift value
 	bool CON;	// PG: connection (algorithm) type
 	bool eg_type;	// EG: percussive/non-percussive mode
-	EnvelopeState state; // EG: phase type
 
 	// LFO
 	byte AMmask;	// LFO Amplitude Modulation enable mask

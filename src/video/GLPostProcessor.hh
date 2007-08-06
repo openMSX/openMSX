@@ -55,9 +55,14 @@ private:
 	  */
 	std::auto_ptr<GLScaler> currScaler;
 
-	/** Currently active scale algorithm, used to detect scaler changes.
-	  */
-	RenderSettings::ScaleAlgorithm scaleAlgorithm;
+	std::auto_ptr<Texture> colorTex[2];
+	std::auto_ptr<FrameBufferObject> fbo[2];
+
+	// Noise effect:
+	LuminanceTexture noiseTextureA;
+	LuminanceTexture noiseTextureB;
+	double noiseX;
+	double noiseY;
 
 	struct TextureData {
 		ColourTexture* tex;
@@ -65,15 +70,6 @@ private:
 	};
 	typedef std::map<unsigned, TextureData> Textures;
 	Textures textures;
-	unsigned height;
-
-	unsigned frameCounter;
-
-	// Noise effect:
-	LuminanceTexture noiseTextureA;
-	LuminanceTexture noiseTextureB;
-	double noiseX;
-	double noiseY;
 
 	struct Region {
 		Region(unsigned srcStartY_, unsigned srcEndY_,
@@ -93,9 +89,15 @@ private:
 	typedef std::vector<Region> Regions;
 	Regions regions;
 
-	std::auto_ptr<Texture> colorTex[2];
-	std::auto_ptr<FrameBufferObject> fbo[2];
+	unsigned height;
+	unsigned frameCounter;
+	
+	/** Currently active scale algorithm, used to detect scaler changes.
+	  */
+	RenderSettings::ScaleAlgorithm scaleAlgorithm;
+
 	GLuint monitor3DList;
+
 	bool storedFrame;
 };
 

@@ -42,10 +42,10 @@ protected:
 	virtual bool hasContiguousStorage() const;
 
 private:
-	unsigned maxWidth;
-	unsigned* lineWidth;
-	unsigned pitch;
 	char* data;
+	unsigned* lineWidth;
+	unsigned maxWidth;
+	unsigned pitch;
 };
 
 } // namespace openmsx

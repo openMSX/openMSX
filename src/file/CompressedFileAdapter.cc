@@ -25,7 +25,7 @@ string CompressedFileAdapter::tmpDir;
 
 
 CompressedFileAdapter::CompressedFileAdapter(auto_ptr<FileBase> file_)
-	: file(file_), buf(0), pos(0), localName(0)
+	: file(file_), buf(0), localName(0), pos(0)
 {
 }
 

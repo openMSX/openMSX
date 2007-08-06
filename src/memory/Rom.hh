@@ -46,9 +46,6 @@ private:
 	bool checkSHA1(const XMLElement& config);
 
 	MSXMotherBoard& motherBoard;
-	std::string name;
-	const std::string description;
-	unsigned size;
 	const byte* rom;
 	byte* extendedRom;
 
@@ -57,6 +54,9 @@ private:
 	std::auto_ptr<RomDebuggable> romDebuggable;
 
 	mutable std::string sha1sum;
+	std::string name;
+	const std::string description;
+	unsigned size;
 };
 
 } // namespace openmsx

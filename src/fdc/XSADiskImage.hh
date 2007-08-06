@@ -44,9 +44,9 @@ private:
 	void mkhuftbl();
 
 	struct HufNode {
-		int weight;
 		HufNode* child1;
 		HufNode* child2;
+		int weight;
 	};
 
 	byte* inbufpos;		// pos in input buffer

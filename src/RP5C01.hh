@@ -42,13 +42,12 @@ private:
 	static const int FREQ = 16384;
 
 	SRAM& regs;
+	std::auto_ptr<EnumSetting<RTCMode> > modeSetting;
 
 	Clock<FREQ> reference;
 	int fraction;
 	int seconds, minutes, hours;
 	int dayWeek, days, months, years, leapYear;
-
-	std::auto_ptr<EnumSetting<RTCMode> > modeSetting;
 
 	nibble modeReg, testReg, resetReg;
 };

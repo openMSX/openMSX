@@ -388,18 +388,18 @@ private:
 	  */
 	Clock<VDP::TICKS_PER_SECOND> clock;
 
-	/** Current screen mode.
-	  * 0 -> SCREEN5, 1 -> SCREEN6, 2 -> SCREEN7, 3 -> SCREEN8,
-	  * -1 -> other.
-	  */
-	int scrMode;
-
 	/** Lower bound for the time when the status register will change, IOW
 	  * the status register will not change before this time.
 	  * Can also be EmuTime::zero -> status can change any moment
 	  * or EmuTime::infinity -> this command doesn't change the status
 	  */
 	EmuTime statusChangeTime;
+
+	/** Current screen mode.
+	  * 0 -> SCREEN5, 1 -> SCREEN6, 2 -> SCREEN7, 3 -> SCREEN8,
+	  * -1 -> other.
+	  */
+	int scrMode;
 
 	/** VDP command registers.
 	  */

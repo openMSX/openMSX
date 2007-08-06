@@ -76,13 +76,13 @@ public:
 	inline void updateAll();
 
 	Patch* patch;
+	unsigned* sintbl;	// Wavetable (for PG)
 
 	// OUTPUT
 	int feedback;
 	int output[2];		// Output value of slot
 
 	// for Phase Generator (PG)
-	unsigned* sintbl;		// Wavetable
 	unsigned phase;		// Phase
 	unsigned dphase;	// Phase increment amount
 	unsigned pgout;		// output
@@ -91,14 +91,13 @@ public:
 	int fnum;		// F-Number
 	int block;		// Block
 	int volume;		// Current volume
-	bool sustain;	// Sustain
 	int tll;		// Total Level + Key scale level
 	int rks;		// Key scale offset (Rks)
 	EnvelopeMode eg_mode;	// Current state
 	EnvPhaseIndex eg_phase;	// Phase
 	EnvPhaseIndex eg_dphase;	// Phase increment amount
 	unsigned egout;		// output
-
+	bool sustain;	// Sustain
 	bool type;		// 0 : modulator 1 : carrier
 	bool slot_on_flag;
 };
@@ -125,8 +124,8 @@ public:
 	inline void keyOn();
 	inline void keyOff();
 
-	int patch_number;
 	Slot mod, car;
+	int patch_number;
 
 private:
 	Global* global;
@@ -172,6 +171,13 @@ public:
 	}
 
 private:
+	// Channel & Slot
+	Slot* slot[18];
+	Channel channels[9];
+	
+	// Voice Data
+	Patch patches[19][2];
+
 	// Pitch Modulator
 	unsigned pm_phase;
 	PhaseModulation lfo_pm;
@@ -182,13 +188,6 @@ private:
 
 	// Noise Generator
 	int noise_seed;
-
-	// Channel & Slot
-	Channel channels[9];
-	Slot* slot[18];
-
-	// Voice Data
-	Patch patches[19][2];
 
 public:
 	// Empty voice data

@@ -324,14 +324,14 @@ public:
 private:
 	friend class ColourTexture;
 
-	/** Handle of the GL buffer, or 0 if no GL buffer is available.
-	  */
-	GLuint bufferId;
-
 	/** Pointer to main RAM fallback, or 0 if no main RAM buffer was
 	  * allocated.
 	  */
 	T* allocated;
+
+	/** Handle of the GL buffer, or 0 if no GL buffer is available.
+	  */
+	GLuint bufferId;
 
 	/** Number of pixels per line.
 	  */

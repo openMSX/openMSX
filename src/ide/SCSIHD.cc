@@ -80,9 +80,9 @@ SCSIHD::SCSIHD(MSXMotherBoard& motherBoard_, const XMLElement& targetconfig,
 		byte* const buf, unsigned mode_)
 	  : HD(motherBoard_, targetconfig)
 	  , motherBoard(motherBoard_)
-	  , scsiId(targetconfig.getAttributeAsInt("id"))
-	  , mode(mode_)
 	  , buffer(buf)
+	  , mode(mode_)
+	  , scsiId(targetconfig.getAttributeAsInt("id"))
 {
 	reset();
 }
@@ -573,7 +573,7 @@ byte SCSIHD::msgIn()
 {
 	byte result = message;
 	message = 0;
-	//PRT_DEBUG("SCSIDevice " << scsiId << " msgIn returning " << result);
+	//PRT_DEBUG("SCSIDevice " << int(scsiId) << " msgIn returning " << result);
 	return result;
 }
 

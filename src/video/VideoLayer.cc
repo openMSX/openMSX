@@ -14,13 +14,13 @@ namespace openmsx {
 VideoLayer::VideoLayer(VideoSource videoSource_,
                        CommandController& commandController,
                        Display& display_)
-	: videoSource(videoSource_)
-	, display(display_)
+	: display(display_)
 	, renderSettings(display.getRenderSettings())
 	, videoSourceSetting(renderSettings.getVideoSource())
 	, videoSourceActivator(new VideoSourceActivator(
-              videoSourceSetting, videoSource))
+              videoSourceSetting, videoSource_))
 	, powerSetting(commandController.getGlobalSettings().getPowerSetting())
+	, videoSource(videoSource_)
 {
 	setCoverage(getCoverage());
 	setZ(calcZ());

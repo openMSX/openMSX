@@ -84,6 +84,10 @@ public:
 	inline void updateTLL();
 	inline void updatePG();
 
+	// refer to Y8950->
+	int* plfo_pm;
+	int* plfo_am;
+
 	// OUTPUT
 	int feedback;
 	int output[5];		// Output value of slot
@@ -102,10 +106,6 @@ public:
 	EnvPhaseIndex eg_phase;	// Phase
 	EnvPhaseIndex eg_dphase;// Phase increment amount
 	unsigned egout;		// Output
-
-	// refer to Y8950->
-	int* plfo_pm;
-	int* plfo_am;
 
 	Y8950Patch patch;
 	bool slotStatus;

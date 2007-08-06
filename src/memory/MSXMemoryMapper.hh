@@ -41,8 +41,8 @@ private:
 	void createMapperIO();
 	void destroyMapperIO();
 
-	unsigned nbBlocks;
 	MSXMapperIO* mapperIO;
+	unsigned nbBlocks;
 };
 
 } // namespace openmsx

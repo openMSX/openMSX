@@ -648,10 +648,6 @@ private:
 	  */
 	std::auto_ptr<VDPVRAM> vram;
 
-	/** VDP version.
-	  */
-	VdpVersion version;
-
 	/** The emulation time when this frame was started (vsync).
 	  */
 	Clock<TICKS_PER_SECOND> frameStartTime;
@@ -664,15 +660,6 @@ private:
 	  */
 	IRQHelper irqHorizontal;
 
-	/** VDP ticks between start of frame and start of display.
-	  */
-	int displayStart;
-
-	/** VDP ticks between start of frame and the moment horizontal
-	  * scan match occurs.
-	  */
-	int horizontalScanOffset;
-
 	/** Time of last set DISPLAY_START sync point.
 	  */
 	EmuTime displayStartSyncTime;
@@ -684,6 +671,19 @@ private:
 	/** Time of last set HSCAN sync point.
 	  */
 	EmuTime hScanSyncTime;
+
+	/** VDP version.
+	  */
+	VdpVersion version;
+
+	/** VDP ticks between start of frame and start of display.
+	  */
+	int displayStart;
+
+	/** VDP ticks between start of frame and the moment horizontal
+	  * scan match occurs.
+	  */
+	int horizontalScanOffset;
 
 	/** Absolute line number of display line zero.
 	  * @see getLineZero

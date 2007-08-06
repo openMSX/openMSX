@@ -107,6 +107,8 @@ private:
 	Scheduler& scheduler;
 	MSXCPUInterface* interface;
 
+	const BooleanSetting& traceSetting;
+
 	// memory cache
 	const byte* readCacheLine[CacheLine::NUM];
 	byte* writeCacheLine[CacheLine::NUM];
@@ -117,8 +119,6 @@ private:
 	std::auto_ptr<BooleanSetting> freqLocked;
 	std::auto_ptr<IntegerSetting> freqValue;
 	unsigned freq;
-
-	const BooleanSetting& traceSetting;
 
 	// state machine variables
 	int slowInstructions;

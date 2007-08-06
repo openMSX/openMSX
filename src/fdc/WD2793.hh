@@ -49,7 +49,7 @@ private:
 		FSM_TYPE3_WAIT_LOAD,
 		FSM_TYPE3_LOADED,
 		FSM_IDX_IRQ
-	} fsmState;
+	};
 
 	virtual void executeUntil(const EmuTime& time, int state);
 	virtual const std::string& schedName() const;
@@ -89,6 +89,7 @@ private:
 	EmuTime commandStart;
 	Clock<1000000> DRQTimer;	// us
 
+	FSMState fsmState;
 	byte statusReg;
 	byte commandReg;
 	byte sectorReg;

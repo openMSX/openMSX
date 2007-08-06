@@ -54,17 +54,17 @@ private:
 	// EventListener
 	virtual bool signalEvent(shared_ptr<const Event> event);
 
-	std::auto_ptr<BooleanSetting> grabInput;
+	EventDistributor& eventDistributor;
+	const std::auto_ptr<BooleanSetting> grabInput;
+	const std::auto_ptr<EscapeGrabCmd> escapeGrabCmd;
+	friend class EscapeGrabCmd;
+
 	enum EscapeGrabState {
 		ESCAPE_GRAB_WAIT_CMD,
 		ESCAPE_GRAB_WAIT_LOST,
 		ESCAPE_GRAB_WAIT_GAIN
 	} escapeGrabState;
 
-	friend class EscapeGrabCmd;
-	const std::auto_ptr<EscapeGrabCmd> escapeGrabCmd;
-
-	EventDistributor& eventDistributor;
 	bool keyRepeat;
 };
 

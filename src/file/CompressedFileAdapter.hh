@@ -31,16 +31,16 @@ protected:
 
 	const std::auto_ptr<FileBase> file;
 	byte* buf;
-	unsigned size;
 	std::string originalName;
+	unsigned size;
 
 private:
 	void fillBuffer();
 
-	unsigned pos;
 	static int tmpCount;	   // nb of files in tmp dir
 	static std::string tmpDir; // name of tmp dir (when tmpCount > 0)
 	char* localName;	   // name of tmp file (when != 0)
+	unsigned pos;
 };
 
 } // namespace openmsx

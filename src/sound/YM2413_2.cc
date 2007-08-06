@@ -550,22 +550,21 @@ private:
 
 	Global* global;
 	Channel* channel;
+	unsigned* wavetable;	// waveform select
 
 	// Phase Generator
 	FreqIndex phase;	// frequency counter
 	FreqIndex freq;	// frequency counter step
-
-	unsigned* wavetable;	// waveform select
 
 	// Envelope Generator
 	int TL;		// total level: TL << 2
 	int TLL;	// adjusted now TL
 	int volume;	// envelope counter
 	int sl;		// sustain level: sl_tab[SL]
-	bool eg_sustain;	// percussive/nonpercussive mode
 	EnvelopeState state;
 
 	int op1_out[2];	// slot1 output for feedback
+	bool eg_sustain;// percussive/nonpercussive mode
 	byte fb_shift;	// feedback shift value
 
 	byte key;	// 0 = KEY OFF, >0 = KEY ON
@@ -790,6 +789,11 @@ private:
 	 */
 	unsigned eg_cnt;
 
+	/**
+	 * Random generator for noise: 23 bit shift register.
+	 */
+	int noise_rng;
+
 	typedef FixedPoint< 6> LFOAMIndex;
 	typedef FixedPoint<10> LFOPMIndex;
 	LFOAMIndex lfo_am_cnt;
@@ -800,11 +804,6 @@ private:
 	 * Rhythm mode.
 	 */
 	bool rhythm;
-
-	/**
-	 * Random generator for noise: 23 bit shift register.
-	 */
-	int noise_rng;
 };
 
 inline void Slot::advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier)

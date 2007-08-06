@@ -58,6 +58,9 @@ public:
 private:
 	// a single operator
 	struct YM2151Operator {
+		int* connect;      // operator output 'direction'
+		int* mem_connect;  // where to put the delayed sample (MEM)
+
 		unsigned phase;    // accumulated operator phase
 		unsigned freq;     // operator frequency count
 		int dt1;           // current DT1 (detune 1 phase inc/decrement) value
@@ -94,9 +97,6 @@ private:
 		unsigned d1r;      // decay rate
 		unsigned d2r;      // sustain rate
 		unsigned rr;       // release rate
-
-		int* connect;      // operator output 'direction'
-		int* mem_connect;  // where to put the delayed sample (MEM)
 
 		byte eg_sh_ar;     //  (attack state)
 		byte eg_sel_ar;    //  (attack state)

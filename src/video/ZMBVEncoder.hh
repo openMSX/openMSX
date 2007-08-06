@@ -59,14 +59,13 @@ private:
 
 	std::vector<unsigned> blockOffsets;
 	std::vector<CodecVector> vectorTable;
+	z_stream zstream;
 
 	unsigned width;
 	unsigned height;
 	unsigned pitch;
 	unsigned pixelsize;
 	Format format;
-
-	z_stream zstream;
 };
 
 } // namespace openmsx

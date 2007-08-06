@@ -59,7 +59,6 @@ private:
 	MSXMixers msxMixers;
 
 	std::auto_ptr<SoundDriver> driver;
-	int muteCount;
 	CommandController& commandController;
 
 	std::auto_ptr<BooleanSetting> muteSetting;
@@ -69,6 +68,8 @@ private:
 	enum SoundDriverType { SND_NULL, SND_SDL, SND_DIRECTX };
 	std::auto_ptr<EnumSetting<SoundDriverType> > soundDriverSetting;
 	BooleanSetting& pauseSetting;
+
+	int muteCount;
 };
 
 } // namespace openmsx

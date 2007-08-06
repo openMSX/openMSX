@@ -127,8 +127,8 @@ private:
 	virtual void close();
 	virtual void run();
 
-	SOCKET sd;
 	Semaphore sem;
+	SOCKET sd;
 };
 
 } // namespace openmsx

@@ -31,10 +31,10 @@ static inline void writeLE4(unsigned char* p, unsigned x)
 
 AviWriter::AviWriter(const std::string& filename, unsigned width_,
                      unsigned height_, unsigned bpp, unsigned freq_)
-	: width(width_)
+	: fps(50.0)
+	, width(width_)
 	, height(height_)
 	, audiorate(freq_)
-	, fps(50.0)
 {
 	file = fopen(filename.c_str(), "wb");
 	if (!file) {

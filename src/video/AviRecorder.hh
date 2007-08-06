@@ -47,9 +47,9 @@ private:
 	MSXMixer* mixer;
 	Scheduler* scheduler;
 	double frameDuration;
-	unsigned sampleRate;
 	EmuDuration duration;
 	EmuTime prevTime;
+	unsigned sampleRate;
 	bool warnedFps;
 	bool warnedSampleRate;
 

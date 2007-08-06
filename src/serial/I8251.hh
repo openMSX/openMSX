@@ -58,9 +58,6 @@ private:
 	void send(byte value, const EmuTime& time);
 
 	I8251Interface* interf;
-	enum CmdFaze {
-		FAZE_MODE, FAZE_SYNC1, FAZE_SYNC2, FAZE_CMD
-	} cmdFaze;
 	ClockPin clock;
 	unsigned charLength;
 
@@ -79,6 +76,10 @@ private:
 	byte command;
 	byte mode;
 	byte sync1, sync2;
+
+	enum CmdFaze {
+		FAZE_MODE, FAZE_SYNC1, FAZE_SYNC2, FAZE_CMD
+	} cmdFaze;
 };
 
 } // namespace openmsx

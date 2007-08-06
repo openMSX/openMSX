@@ -87,20 +87,7 @@ private:
 		unsigned index;
 	};
 
-	unsigned partitionOffset;
-	unsigned partitionNbSectors;
 
-	unsigned maxCluster;
-	unsigned sectorsPerCluster;
-	unsigned sectorsPerFat;
-	unsigned nbSectorsPerCluster;
-	unsigned rootDirStart; // first sector from the root directory
-	unsigned rootDirLast;  // last  sector from the root directory
-	unsigned chrootSector;
-	SectorAccessibleDisk& disk;
-
-	std::vector<byte> fatBuffer;
-	bool fatCacheDirty;
 	void writeCachedFAT();
 	void writeLogicalSector(unsigned sector, const byte* buf);
 	void readLogicalSector (unsigned sector,       byte* buf);
@@ -132,6 +119,23 @@ private:
 	void fileExtract(std::string resultFile, MSXDirEntry& direntry);
 	void recurseDirExtract(const std::string& dirName, unsigned sector);
 	void chroot(const std::string& newRootDir, bool createDir);
+
+
+	SectorAccessibleDisk& disk;
+	std::vector<byte> fatBuffer;
+
+	unsigned partitionOffset;
+	unsigned partitionNbSectors;
+
+	unsigned maxCluster;
+	unsigned sectorsPerCluster;
+	unsigned sectorsPerFat;
+	unsigned nbSectorsPerCluster;
+	unsigned rootDirStart; // first sector from the root directory
+	unsigned rootDirLast;  // last  sector from the root directory
+	unsigned chrootSector;
+
+	bool fatCacheDirty;
 };
 
 } // namespace openmsx

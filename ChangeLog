@@ -1,5 +1,12 @@
 $Id$
 
+2007-08-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Compiled with -Wpadded and changed the order of some members so that
+	  the enclosing struct/class requires less internal padding:
+	   - I did the same thing on 2007-04-24, however this time I'm
+	     compiling on x86_64, so pointers require 8 bytes (iso 4). There
+	     were also a few new classes that needed some shuffling.
+
 2007-08-04 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Enable -Wold-style-cast warnings by default
 	  abd fixed all warnings triggered by this

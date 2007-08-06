@@ -116,9 +116,10 @@ private:
 	  */
 	SpriteChecker& spriteChecker;
 
-	/** Accuracy setting for current frame.
-	  */
-	RenderSettings::Accuracy accuracy;
+	const std::auto_ptr<Rasterizer> rasterizer;
+
+	double finishFrameDuration;
+	int frameSkipCounter;
 
 	/** Number of the next position within a line to render.
 	  * Expressed in VDP clock ticks since start of line.
@@ -130,13 +131,12 @@ private:
 	  */
 	int nextY;
 
-	int frameSkipCounter;
-	double finishFrameDuration;
-
 	// internal VDP counter, actually belongs in VDP
 	int textModeCounter;
 
-	const std::auto_ptr<Rasterizer> rasterizer;
+	/** Accuracy setting for current frame.
+	  */
+	RenderSettings::Accuracy accuracy;
 
 	/** Is display enabled?
 	  * Enabled means the current line is in the display area and
