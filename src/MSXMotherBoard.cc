@@ -657,6 +657,7 @@ void MSXMotherBoardImpl::removeDevice(MSXDevice& device)
 
 void MSXMotherBoardImpl::scheduleReset()
 {
+	if (!powered) return;
 	needReset = true;
 	exitCPULoopSync();
 }
