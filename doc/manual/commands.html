@@ -59,6 +59,8 @@
         <li><a class="internal" href="#machine">machine</a></li>
 
         <li><a class="internal" href="#machine_info">machine_info</a></li>
+        
+	<li><a class="internal" href="#monitor_type">monitor_type</a></li>
 
 	<li><a class="internal" href="#mute_channels">mute_channels / unmute_channels / solo</a></li>
 
@@ -1050,6 +1052,34 @@
     </tr>
   </table>
 
+  <h3><a id="monitor_type">monitor_type</a></h3>
+
+  <p>Select a monitor color profile. This command is a convenience wrapper around the <code><a class="internal" href="#color_matrix">color_matrix</a></code> setting.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>monitor_type</code></td>
+
+      <td>Shows the currently selected color profile</td>
+    </tr>
+
+    <tr>
+      <td><code>monitor_type -list</code></td>
+
+      <td>Lists all available color profiles</td>
+    </tr>
+
+    <tr>
+      <td><code>monitor_type &lt;profile&gt;</code></td>
+
+      <td>Selects a new color profile</td>
+    </tr>
+  </table>
+
   <h3><a id="mute_channels">mute_channels / unmute_channels / solo</a></h3>
 
   <p>Mute or unmute specific individual channels of sound devices. The syntax is very similar to the <code><a class="internal" href="#record_channels">record_channels</a></code> command.</p>
@@ -2004,7 +2034,7 @@
   </table>
 
   <div class="note">
-    Note: It is often more convenient to use the <code>scripts/monitor.tcl</code> script.
+    Note: It is often more convenient to use the <a class="internal" href="#monitor_type">monitor_type</a> command.
   </div>
 
   <h3><a id="console">console</a></h3>
