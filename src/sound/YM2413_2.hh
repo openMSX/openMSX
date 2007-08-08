@@ -4,6 +4,7 @@
 #define YM2413_2_HH
 
 #include "YM2413Interface.hh"
+#include <string>
 #include <memory>
 
 namespace openmsx {
