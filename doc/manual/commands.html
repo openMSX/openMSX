@@ -54,6 +54,8 @@
 
         <li><a class="internal" href="#list_extensions">list_extensions</a></li>
 
+        <li><a class="internal" href="#load_icons">load_icons</a></li>
+
         <li><a class="internal" href="#load_settings">load_settings</a></li>
 
         <li><a class="internal" href="#machine">machine</a></li>
@@ -982,6 +984,33 @@
       <td>Lists all currently inserted cartridges and extensions</td>
     </tr>
   </table>
+
+  <h3><a id="load_icons">load_icons</a></h3>
+
+  <p>Load a different icon set (used for the On Screen Display (OSD) LEDs).</p>
+  <p>Icon sets are stored in the share/skins directory.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>load_icons &lt;name&gt;</code></td>
+
+      <td>Load the given icon set and place them at the top of the screen.</td>
+    </tr>
+
+    <tr>
+      <td><code>load_icons &lt;name&gt; &lt;position&gt;</code></td>
+
+      <td>Load the given icon set and place them at the requested position. Position can be <code>bottom</code>, <code>top</code>, <code>left</code> or <code>right</code>.</td>
+    </tr>
+  </table>
+  
+  <div class="note">
+    Note: This command is a convenience wrapper around the different <code><a class="internal" href="#icon.name.setting">icon.&lt;name&gt;.&lt;setting&gt;</a></code> settings.
+  </div>
 
   <h3><a id="load_settings">load_settings</a></h3>
 
@@ -2640,6 +2669,9 @@
 
   <div class="note">
     Note: In the future the position <code>xcoord</code> and <code>ycoord</code> settings will most likely change so that it is resolution independent (see <code><a class="internal" href="#scale_factor">scale_factor</a></code> setting)
+  </div>
+  <div class="note">
+    Note: It is often more convenient to use the <code><a class="internal" href="#load_icons">load_icons</a></code> command.
   </div>
 
   <h3><a id="inputdelay">inputdelay</a></h3>
