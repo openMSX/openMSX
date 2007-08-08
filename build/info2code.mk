@@ -53,4 +53,5 @@ $(VERSION_HEADER): ChangeLog $(MAKE_PATH)/info2code.mk $(MAKE_PATH)/version.mk
 	@echo "const bool Version::RELEASE = $(RELEASE_FLAG);" >> $@
 	@echo "const std::string Version::VERSION = \"$(PACKAGE_VERSION)\";" >> $@
 	@echo "const std::string Version::CHANGELOG_REVISION = \"$(CHANGELOG_REVISION)\";" >> $@
+	@echo "const std::string Version::BUILD_FLAVOUR = \"$(OPENMSX_FLAVOUR)\";" >> $@
 

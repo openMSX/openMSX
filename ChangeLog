@@ -1,5 +1,8 @@
 $Id$
 
+2007-08-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Show build flavour in the version string (not for release builds)
+
 2007-08-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Compiled with -Wpadded and changed the order of some members so that
 	  the enclosing struct/class requires less internal padding:
