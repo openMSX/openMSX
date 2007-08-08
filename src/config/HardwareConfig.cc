@@ -83,11 +83,11 @@ void HardwareConfig::testRemove() const
 	for (int ps = 0; ps < 4; ++ps) {
 		for (int ss = 0; ss < 4; ++ss) {
 			if (externalSlots[ps][ss]) {
-				slotManager.testRemoveExternalSlot(ps, ss);
+				slotManager.testRemoveExternalSlot(ps, ss, *this);
 			}
 		}
 		if (externalPrimSlots[ps]) {
-			slotManager.testRemoveExternalSlot(ps);
+			slotManager.testRemoveExternalSlot(ps, *this);
 		}
 		if (expandedSlots[ps]) {
 			motherBoard.getCPUInterface().testUnsetExpanded(

@@ -25,8 +25,8 @@ public:
 	void createExternalSlot(int ps, int ss);
 	void removeExternalSlot(int ps);
 	void removeExternalSlot(int ps, int ss);
-	void testRemoveExternalSlot(int ps) const;
-	void testRemoveExternalSlot(int ps, int ss) const;
+	void testRemoveExternalSlot(int ps, const HardwareConfig& allowed) const;
+	void testRemoveExternalSlot(int ps, int ss, const HardwareConfig& allowed) const;
 
 	int getSpecificSlot(int slot, int& ps, int& ss,
 	                    const HardwareConfig& hwConfig);
@@ -42,7 +42,9 @@ private:
 	struct Slot {
 		Slot() : ps(0), ss(0), command(NULL), config(NULL) {}
 		bool exists() const { return command; }
-		bool used() const { return config; }
+		bool used(const HardwareConfig* allowed = NULL) const {
+			return config && (config != allowed);
+		}
 
 		int ps;
 		int ss;

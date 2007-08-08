@@ -36,6 +36,7 @@
 #include "Observer.hh"
 #include <cassert>
 #include <map>
+#include <iostream>
 
 using std::set;
 using std::map;
@@ -280,7 +281,14 @@ MSXMotherBoardImpl::~MSXMotherBoardImpl()
 void MSXMotherBoardImpl::deleteMachine()
 {
 	while (!extensions.empty()) {
-	 	removeExtension(*extensions.back());
+		try {
+	 		removeExtension(*extensions.back());
+		} catch (MSXException& e) {
+			std::cerr << "Internal error: failed to remove "
+			             "extension while deleting a machine: "
+			          << e.getMessage() << std::endl;   
+			assert(false);
+		}
 	}
 
 	machineConfig.reset();

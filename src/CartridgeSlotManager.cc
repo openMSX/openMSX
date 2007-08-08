@@ -110,15 +110,17 @@ int CartridgeSlotManager::getSlot(int ps, int ss) const
 	return 0; // avoid warning
 }
 
-void CartridgeSlotManager::testRemoveExternalSlot(int ps) const
+void CartridgeSlotManager::testRemoveExternalSlot(
+	int ps, const HardwareConfig& allowed) const
 {
-	testRemoveExternalSlot(ps, -1);
+	testRemoveExternalSlot(ps, -1, allowed);
 }
 
-void CartridgeSlotManager::testRemoveExternalSlot(int ps, int ss) const
+void CartridgeSlotManager::testRemoveExternalSlot(
+	int ps, int ss, const HardwareConfig& allowed) const
 {
 	int slot = getSlot(ps, ss);
-	if (slots[slot].used()) {
+	if (slots[slot].used(&allowed)) {
 		throw MSXException("Slot still in use.");
 	}
 }
