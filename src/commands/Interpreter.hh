@@ -14,7 +14,6 @@
 namespace openmsx {
 
 class EventDistributor;
-class Reactor;
 class Command;
 class Setting;
 class InterpreterOutput;
@@ -23,7 +22,7 @@ class TclObject;
 class Interpreter : private EventListener, private noncopyable
 {
 public:
-	Interpreter(EventDistributor& eventDistributor, Reactor& reactor);
+	explicit Interpreter(EventDistributor& eventDistributor);
 	~Interpreter();
 
 	void setOutput(InterpreterOutput* output);
@@ -65,7 +64,6 @@ private:
                 const char* part1, const char* part2, int flags);
 
 	EventDistributor& eventDistributor;
-	Reactor& reactor;
 
 	static Tcl_ChannelType channelType;
 	Tcl_Interp* interp;

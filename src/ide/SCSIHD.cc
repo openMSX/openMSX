@@ -21,7 +21,6 @@
  */
 
 #include "SCSIHD.hh"
-#include "File.hh"
 #include "FileOperations.hh"
 #include "FileException.hh"
 #include "LedEvent.hh"

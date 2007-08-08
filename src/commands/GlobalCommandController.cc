@@ -177,7 +177,7 @@ CliConnection* GlobalCommandController::getConnection() const
 Interpreter& GlobalCommandController::getInterpreter()
 {
 	if (!interpreter.get()) {
-		interpreter.reset(new Interpreter(eventDistributor, reactor));
+		interpreter.reset(new Interpreter(eventDistributor));
 	}
 	return *interpreter;
 }

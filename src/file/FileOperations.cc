@@ -26,7 +26,6 @@
 #include "build-info.hh"
 #include "FileOperations.hh"
 #include "FileException.hh"
-#include "openmsx.hh"
 #include "StringOp.hh"
 #include <sstream>
 #include <cerrno>

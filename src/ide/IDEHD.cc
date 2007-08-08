@@ -1,7 +1,6 @@
 // $Id$
 
 #include "IDEHD.hh"
-#include "File.hh"
 #include "FileException.hh"
 #include "MSXMotherBoard.hh"
 #include "DiskManipulator.hh"

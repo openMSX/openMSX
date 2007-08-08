@@ -3,7 +3,6 @@
 // TODO: actually port it, see all the TODO's! :)
 
 #include "YM2148.hh"
-#include "MSXMotherBoard.hh"
 
 namespace openmsx {
 
@@ -67,8 +66,7 @@ void YM2148::onTrans()
 
 	if (status & STAT_TXEMPTY) {
 		txPending = 0;
-	}
-	else {
+	} else {
 		// TODO: midiIoTransmit(midiIo, txBuffer);
 		// TODO: timeTrans = boardSystemTime() + charTime;
 		// TODO: boardTimerAdd(timerTrans, timeTrans);
@@ -170,8 +168,7 @@ void YM2148::writeData(byte value)
 		// TODO: timeTrans = boardSystemTime() + charTime;
 		// TODO: boardTimerAdd(timerTrans, timeTrans);
 		txPending = 1;
-	}
-	else {
+	} else {
 		status &= ~STAT_TXEMPTY;
 		txBuffer = value;
 	}

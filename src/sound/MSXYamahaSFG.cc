@@ -5,9 +5,6 @@
 #include "YM2148.hh"
 #include "Rom.hh"
 
-#include <iostream> // debugging
-using namespace std; // debugging
-
 namespace openmsx {
 
 MSXYamahaSFG::MSXYamahaSFG(MSXMotherBoard& motherBoard, const XMLElement& config,
@@ -86,7 +83,7 @@ byte MSXYamahaSFG::readMem(word address, const EmuTime& /*time*/)
 {
 	if (address < 0x3FF0 || address >= 0x3FF8) {
 		// size can also be 16kB for SFG-01 or 32kB for SFG-05
-		return (*rom)[unsigned(address & (rom->getSize() - 1))];
+		return (*rom)[address & (rom->getSize() - 1)];
 	}
 
 	switch (address & 0x3FFF) {

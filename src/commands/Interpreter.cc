@@ -9,9 +9,6 @@
 #include "InterpreterOutput.hh"
 #include "openmsx.hh"
 #include "FileOperations.hh"
-#include "MSXMotherBoard.hh"
-#include "Reactor.hh"
-#include "MSXCommandController.hh"
 //#include <tk.h>
 
 using std::set;
@@ -60,9 +57,8 @@ void Interpreter::init(const char* programName)
 	Tcl_FindExecutable(programName);
 }
 
-Interpreter::Interpreter(EventDistributor& eventDistributor_, Reactor& reactor_)
+Interpreter::Interpreter(EventDistributor& eventDistributor_)
 	: eventDistributor(eventDistributor_)
-	, reactor(reactor_)
 {
 	interp = Tcl_CreateInterp();
 	Tcl_Preserve(interp);

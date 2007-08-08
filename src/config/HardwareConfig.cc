@@ -5,7 +5,6 @@
 #include "XMLElement.hh"
 #include "File.hh"
 #include "FileContext.hh"
-#include "FileException.hh"
 #include "FileOperations.hh"
 #include "MSXMotherBoard.hh"
 #include "CartridgeSlotManager.hh"
