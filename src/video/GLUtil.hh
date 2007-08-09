@@ -269,6 +269,11 @@ private:
   * otherwise.
   * The pixel type is templatized T.
   */
+struct PixelBuffers
+{
+	static bool enabled;
+};
+
 template <typename T> class PixelBuffer
 {
 public:
@@ -349,7 +354,8 @@ PixelBuffer<T>::PixelBuffer()
 {
 	allocated = NULL;
 #ifdef GL_VERSION_1_5
-	if (GLEW_ARB_pixel_buffer_object) {
+	if (PixelBuffers::enabled &&
+	    GLEW_ARB_pixel_buffer_object) {
 		glGenBuffers(1, &bufferId);
 	} else
 #endif

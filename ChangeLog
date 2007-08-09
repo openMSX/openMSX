@@ -1,6 +1,10 @@
 $Id$
 
 2007-08-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added -nopbo command line option to disable use of
+	  openGL Pixel Buffer Objects
+
+2007-08-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Show build flavour in the version string (not for release builds)
 	* Fixed crash on exit while removing an extension that created extra
 	  external slot(s) and occupied (some of) those itself.

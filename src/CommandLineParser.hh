@@ -26,6 +26,7 @@ class SettingOption;
 class NoMMXOption;
 class NoSSEOption;
 class NoSSE2Option;
+class NoPBOOption;
 class TestConfigOption;
 class MSXRomCLI;
 class CliExtension;
@@ -95,6 +96,7 @@ private:
 	const std::auto_ptr<NoMMXOption> noMMXOption;
 	const std::auto_ptr<NoSSEOption> noSSEOption;
 	const std::auto_ptr<NoSSE2Option> noSSE2Option;
+	const std::auto_ptr<NoPBOOption> noPBOOption;
 	const std::auto_ptr<TestConfigOption> testConfigOption;
 
 	const std::auto_ptr<MSXRomCLI> msxRomCLI;

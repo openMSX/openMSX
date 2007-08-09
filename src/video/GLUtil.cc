@@ -426,6 +426,7 @@ void FrameBufferObject::pop()
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, currentId);
 }
 
+bool PixelBuffers::enabled = true;
 
 // Utility function used by Shader.
 // Although this is not GL 2.0 dependent in itself, it is only used by GL 2.0

@@ -20,6 +20,7 @@
 #include "FileException.hh"
 #include "EnumSetting.hh"
 #include "HostCPU.hh"
+#include "GLUtil.hh"
 #include "Reactor.hh"
 #include <cassert>
 #include <iostream>
@@ -123,6 +124,13 @@ public:
 	virtual const std::string& optionHelp() const;
 };
 
+class NoPBOOption : public CLIOption {
+public:
+	virtual bool parseOption(const std::string& option,
+		std::list<std::string>& cmdLine);
+	virtual const std::string& optionHelp() const;
+};
+
 class TestConfigOption : public CLIOption
 {
 public:
@@ -150,6 +158,7 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	, noMMXOption(new NoMMXOption())
 	, noSSEOption(new NoSSEOption())
 	, noSSE2Option(new NoSSE2Option())
+	, noPBOOption(new NoPBOOption())
 	, testConfigOption(new TestConfigOption(*this))
 	, msxRomCLI(new MSXRomCLI(*this))
 	, cliExtension(new CliExtension(*this))
@@ -175,6 +184,9 @@ CommandLineParser::CommandLineParser(Reactor& reactor_)
 	registerOption("-nommx",      *noMMXOption, 1, 1);
 	registerOption("-nosse",      *noSSEOption, 1, 1);
 	registerOption("-nosse2",     *noSSE2Option, 1, 1);
+	#endif
+	#ifdef COMPONENT_GL
+	registerOption("-nopbo",      *noPBOOption, 1, 1);
 	#endif
 	registerOption("-testconfig", *testConfigOption, 1, 1);
 
@@ -692,6 +704,24 @@ const string& NoSSE2Option::optionHelp() const
 {
 	static const string text(
 		"Disables usage of SSE2 (for debugging)");
+	return text;
+}
+
+
+// class NoPBOOption
+
+bool NoPBOOption::parseOption(const string& /*option*/,
+		list<string>& /*cmdLine*/)
+{
+	cout << "Disabling PBO" << endl;
+	PixelBuffers::enabled = false;
+	return true;
+}
+
+const string& NoPBOOption::optionHelp() const
+{
+	static const string text(
+		"Disables usage of openGL PBO (for debugging)");
 	return text;
 }
 
