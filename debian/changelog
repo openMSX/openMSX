@@ -1,11 +1,48 @@
-openmsx (0.6.1-4+svn5741) UNRELEASED; urgency=low
+openmsx (0.6.4~pre0.svn6826) unstable; urgency=low
 
-  * add note to README.Debian pointing to freeware available on the internet
-  * build on arm again with optimizations; fixed in gcc-4.1 4.1.1ds1-15
-  * Provides: msx-emulator
-  * Suggests: waves (MSX1 mega demo by Daniel Vik)
+  * fix build dependencies
+  * prepare for new release
 
- -- Joost Yervante Damad <andete@debian.org>  Tue, 17 Oct 2006 20:26:42 +0200
+ -- Joost Yervante Damad <andete@debian.org>  Fri, 10 Aug 2007 20:12:13 +0200
+
+openmsx (0.6.2-3) unstable; urgency=low
+
+  * rebuild against libglew1.4-dev
+
+ -- Joost Yervante Damad <andete@debian.org>  Sun, 17 Jun 2007 10:56:47 +0200
+
+openmsx (0.6.2-2) unstable; urgency=low
+
+  * Fix build with gcc-snapshot (Closes: #419801)
+
+ -- Joost Yervante Damad <andete@debian.org>  Wed, 18 Apr 2007 20:55:14 +0200
+
+openmsx (0.6.2-1) unstable; urgency=low
+
+  * new upstream release
+  * build for arch i586 instead of i686
+
+ -- Joost Yervante Damad <andete@debian.org>  Sun, 15 Apr 2007 15:19:45 +0200
+
+openmsx (0.6.2~pre2-2) experimental; urgency=low
+
+  * update build/*ppc* from upstream
+
+ -- Joost Yervante Damad <andete@debian.org>  Tue, 27 Mar 2007 05:39:46 +0000
+
+openmsx (0.6.2~pre2-1) experimental; urgency=low
+
+  * 2nd upstream pre-release
+
+ -- Joost Yervante Damad <andete@debian.org>  Mon, 26 Mar 2007 17:18:58 +0000
+
+
+openmsx (0.6.1-5) unstable; urgency=medium
+
+  * update maintainer email
+  * hopefully fix kfreebsd build (backported from upstream)
+
+ -- Joost Yervante Damad <andete@debian.org>  Mon, 30 Oct 2006 20:43:43 +0100
 
 openmsx (0.6.1-4) unstable; urgency=medium
 

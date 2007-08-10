@@ -21,12 +21,12 @@ esac
 exit 0
 
 @DPATCH@
---- openmsx-0.6.1.orig/src/input/Keyboard.cc       2006-04-04 20:15:39.000000000 +0200
-+++ openmsx-0.6.1/src/input/Keyboard.cc    2006-04-04 20:19:51.000000000 +0200
-@@ -185,17 +185,7 @@
- 		Keys::KeyCode key = (Keys::KeyCode)
- 			((int)((KeyEvent&)event).getKeyCode() &
- 			 (int)Keys::K_MASK);
+--- openmsx-0.6.2.orig/src/input/Keyboard.cc	2007-08-10 20:13:30.000000000 +0200
++++ openmsx-0.6.2/src/input/Keyboard.cc	2007-08-10 20:22:55.000000000 +0200
+@@ -192,17 +192,7 @@
+ 		const KeyEvent& keyEvent = checked_cast<const KeyEvent&>(*event);
+ 		Keys::KeyCode key = static_cast<Keys::KeyCode>
+ 			(int(keyEvent.getKeyCode()) & int(Keys::K_MASK));
 -		if (key != Keys::K_CAPSLOCK) {
 -			processKey(type == OPENMSX_KEY_DOWN_EVENT, key);
 -		} else {
