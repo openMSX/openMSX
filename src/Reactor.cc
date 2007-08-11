@@ -335,6 +335,8 @@ void Reactor::run(CommandLineParser& parser)
 {
 	Display& display = getDisplay();
 	GlobalCommandController& commandController = getGlobalCommandController();
+	getDiskManipulator(); // make sure it gets instantiated
+	                      // (also on machines without disk drive)
 
 	// select initial machine before executing scripts
 	if (newMotherBoard.get()) {

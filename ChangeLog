@@ -1,5 +1,9 @@
 $Id$
 
+2007-08-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Made diskmanipulator command also available on machines without
+	  disk drives
+
 2007-08-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added -nopbo command line option to disable use of
 	  openGL Pixel Buffer Objects
