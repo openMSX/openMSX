@@ -1,4 +1,4 @@
-openmsx (0.6.4~pre0.svn6826) unstable; urgency=low
+openmsx (0.6.3~pre0.svn6826) unstable; urgency=low
 
   * fix build dependencies
   * prepare for new release
