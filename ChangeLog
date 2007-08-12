@@ -6,7 +6,7 @@ $Id$
 
 2007-08-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added -nopbo command line option to disable use of
-	  openGL Pixel Buffer Objects
+	  OpenGL Pixel Buffer Objects
 
 2007-08-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Show build flavour in the version string (not for release builds)
@@ -48,7 +48,7 @@ $Id$
 	   YMF278, as its native freq is 44100Hz)
 
 2007-07-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
-	* Disabled openGL SaI shader, see comments in GLScalerFactory
+	* Disabled OpenGL SaI shader, see comments in GLScalerFactory
 
 2007-07-26 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed [ 1730148 ] config checker creates big HD images:
@@ -61,9 +61,9 @@ $Id$
 	     remove one of the two again. Maybe also remove the
 	     PSG_*_frequency setting(s).
 
-2006-02-26 Patrick van Arkel (vampiermsx@gmail.com)
+2007-07-21 Patrick van Arkel (vampiermsx@gmail.com)
 	* Updated to Version 2.1 of the cheat defenitions after
-	  adding a ton of new cheats provide by Mars2000you.
+	  adding a ton of new cheats provided by Mars2000you.
 
 2007-07-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added proper MSXDOS2 mapper type (before we used generic16kb):
@@ -765,7 +765,7 @@ $Id$
 	* Added Philips NMS 801 "MSX Compatible". Thanks to the blueMSX team.
 
 2006-11-22 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
-	* Another SDLGL-PP hqlite optimization, openGL shader part this time:
+	* Another SDLGL-PP hqlite optimization, OpenGL shader part this time:
 	   - Before this change we sampled the color texture three times (to
 	     get texels C4, C5 and C6) and blended these these three colors
 	     each with a certain weight. The weight for the outer two pixels
@@ -1136,7 +1136,7 @@ $Id$
 	  openMSX console.
 
 2006-08-22 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
-	* Enable detection of more openGL extensions with glew:
+	* Enable detection of more OpenGL extensions with glew:
 	   - see comments in SDLGLVisibleSurface for details
 	   - might fix the problem PingPong is seeing:
 	       accoring to 'glewinfo' framebuffer_objects are support on his
@@ -2252,7 +2252,7 @@ $Id$
 	   also cleaned up reset handling code
 
 2005-11-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
-	* Only build SDLGLOutputSurface when openGL component is selected
+	* Only build SDLGLOutputSurface when OpenGL component is selected
 
 2005-11-01 Manuel Bilderbeek <manuel@msxnet.org>
 	* Optimization in RGBTriplet3xScaler: don't really call scale_1on1; if
@@ -2261,9 +2261,9 @@ $Id$
 2005-11-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Use OutputSurface iso directly SDL_Surface in Scalers:
 	   - preparation to use other than SDL framebuffers
-	   - openGL framebuffer code seems to work, but is not yet
+	   - OpenGL framebuffer code seems to work, but is not yet
 	     enabled. Performance is about the same as SDL on my system
-	* Experimental. Enabled openGL framebuffer renderers:
+	* Experimental. Enabled OpenGL framebuffer renderers:
 	   - use 'set renderer sdlgl-fb16' and 'sdl-gl32' to enable them
 	   - possibly we disable them for the release
 	* Fixed bug in MemoryOps:
@@ -2621,7 +2621,7 @@ $Id$
 2005-07-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Made CPU breaked status queryable with "debug breaked" subcommand
 	* Use glTexSubImage2D to reuse existing textures:
-	   can be faster in certain openGL implementations
+	   can be faster in certain OpenGL implementations
 
 2005-07-16 Maarten ter Huurne <maarten@treewalker.org>
 	* Optimized PNG images.
@@ -8300,7 +8300,7 @@ $Id$
 	* split console commands in tokens
 
 2002-03-05 Joost Yervante Damad <andete@worldcity.nl>
-	* simplified auto* support for openGL
+	* simplified auto* support for OpenGL
 	  see src/config.h after running autogen.sh
 	  to see which vars to use. For now it searches
 	  for <gl.h> or <GL/gl.h> and for -lGL
@@ -8316,7 +8316,7 @@ $Id$
 	* SCC cleanups and tiny tweaks
 
 2002-03-04 Joost Yervante Damad <andete@worldcity.nl>
-	* added auto* support for openGL
+	* added auto* support for OpenGL
 
 2002-03-03 Maarten ter Huurne <mth@stack.nl>
 	* Made sure unused bits in GRB palette value are zero.
