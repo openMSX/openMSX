@@ -218,6 +218,9 @@ bool Display::signalEvent(shared_ptr<const Event> event)
 void Display::setWindowTitle()
 {
 	string title = Version::FULL_VERSION;
+	if (!Version::RELEASE) {
+		title += " [" + Version::BUILD_FLAVOUR + "]";
+	}
 	if (MSXMotherBoard* motherboard = reactor.getMotherBoard()) {
 		const XMLElement& config = motherboard->getMachineConfig().getConfig();
 		title += " - " +
