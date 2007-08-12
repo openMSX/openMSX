@@ -21,6 +21,7 @@
 #include "MachineConfig.hh"
 #include "VideoSystemChangeListener.hh"
 #include "Version.hh"
+#include "build-info.hh"
 #include "checked_cast.hh"
 #include <algorithm>
 #include <cassert>
@@ -219,7 +220,7 @@ void Display::setWindowTitle()
 {
 	string title = Version::FULL_VERSION;
 	if (!Version::RELEASE) {
-		title += " [" + Version::BUILD_FLAVOUR + "]";
+		title += " [" + BUILD_FLAVOUR + "]";
 	}
 	if (MSXMotherBoard* motherboard = reactor.getMotherBoard()) {
 		const XMLElement& config = motherboard->getMachineConfig().getConfig();

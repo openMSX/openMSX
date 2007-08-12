@@ -580,7 +580,8 @@ bool VersionOption::parseOption(const string& /*option*/,
 		list<string>& /*cmdLine*/)
 {
 	cout << Version::FULL_VERSION << endl;
-	cout << "flavour: " << Version::BUILD_FLAVOUR << endl;
+	cout << "flavour: " << BUILD_FLAVOUR << endl;
+	cout << "components: " << BUILD_COMPONENTS << endl;
 	parser.parseStatus = CommandLineParser::EXIT;
 	return true;
 }
