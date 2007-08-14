@@ -43,8 +43,9 @@ MSX device support:
 - Support for the Super Lode Runner mapper, which violates the MSX spec.
 - Several small optimizations, mostly in SDLGL-PP renderer and CPU emulation.
 
-Build system, packaging, documentation:
-- Nothing, sorry.
+Backwards-compatibility issues:
+- <sounddevice>_mode setting (possible values left, right, mono, stereo) has
+  been replaced with <sounddevice>_balance (possible values [-100, 100])
 
 And of course the usual various bug fixes.
 
