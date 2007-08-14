@@ -715,8 +715,10 @@ const string& NoSSE2Option::optionHelp() const
 bool NoPBOOption::parseOption(const string& /*option*/,
 		list<string>& /*cmdLine*/)
 {
+	#ifdef COMPONENT_GL
 	cout << "Disabling PBO" << endl;
 	PixelBuffers::enabled = false;
+	#endif
 	return true;
 }
 
