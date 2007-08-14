@@ -26,8 +26,8 @@ could occur on dual core or hyperthreading CPU's.
 
 New or improved emulator features:
 - SDLGL-PP renderer (OpenGL 2.0) can do RGBTriplet scaling in hardware.
-- Several resampling algorithms now available: hq, blip and fast, removing all
-  aliasing related sound distortions.
+- Several resampling algorithms now available: hq, blip and fast, the first two
+  greatly reducing aliasing related sound distortions.
 - Channels of sound chips can be individually recorded and muted.
 - Sound chips now have a stereo balance setting instead of a mode (left, right,
   mono).
