@@ -1,55 +1,50 @@
-Release Notes for openMSX 0.6.2 (2007-04-15)
+Release Notes for openMSX 0.6.3 (2007-08-xx)
 ============================================
 
-This release contains several new features and many bug fixes and optimizations.
+This release contains mostly several new features and improvements related to
+sound. All sound chips are emulated at their native frequency and resampled
+using advanced resampling techniques to the desired output frequency (mostly
+44.1 kHz). This improves the sound quality a lot, because all aliasing
+distortions are gone, now!
 
-The main new feature is the addition of the video recorder. It enables you to
-record videos, including sound, of what you are doing with your emulated MSX.
-Thanks to the DosBox Team for their great ZMBV lossless video codec.
+More sound related improvements involve better control (stereo balance setting
+for each sound chip) and recording of sound chips (individual channels of sound
+chips can be recorded). For PSG we even introduced some sound effects: vibrato
+and detune can be enabled to get a fatter sound. Try this in Penguin Adventure!
 
-The most noticeable speed optimizations are in the rendering: the SDLGL-PP
-renderer can be up to 50% faster and the SDL renderer is about 6% faster. If
-you were having problems with speed, give this release a try.
+Thanks to the blueMSX Team, we were able to bring some quick and easy new
+features: emulation of the VLM5030, the sample chip used in the unreleased
+Konami game Keyboard Master and a partial emulation of the Yamaha SFG-05 sound
+module. (Still missing is the keyboard and MIDI support.)
 
-The trainers that are shipped with openMSX are now a lot more user friendly. It
-is possible to enable or disable individual cheats of a trained game.
+Also on the non-sound department the blueMSX Team enabled to create some new
+features: Gouda SCSI, MEGA-SCSI, ESE RAM, ESE SCC and WAVE SCSI. Note that the
+SCSI emulation is still experimental!
 
-Bug fixes in the PSG and SCC, as well as a new way of sample rate conversion,
-result in the PSG and SCC sounding very much like the real MSX now.
+Last but not least: a lock-up bug was removed from the Windows version, which
+could occur on dual core or hyperthreading CPU's.
 
 New or improved emulator features:
-- Video recording and improved sound recording (stutterless).
-- SDLGL-PP renderer (OpenGL 2.0) can do hq and hqlite scaling in hardware.
-- More usable trainers.
-- Extended hot keys: you can now bind any host event to a TCL command, which
-  means you can e.g. let openMSX push the MSX F1 key if you press a certain
-  button on your PC game pad.
-- Event recording and replaying (experimental for now: only available at
-  command line, recorded session starts when openMSX starts).
-- Debugger now supports watchpoint regions.
+- SDLGL-PP renderer (OpenGL 2.0) can do RGBTriplet scaling in hardware.
+- Several resampling algorithms now available: hq, blip and fast, removing all
+  aliasing related sound distortions.
+- Channels of sound chips can be individually recorded and muted.
+- Sound chips now have a stereo balance setting instead of a mode (left, right,
+  mono).
+- PSG sound effects: vibrato and detune.
 
 MSX device support:
-- V9990 enhancements: deinterlace, cursor Y position in overscan mode, huge
-  speed optimizations for P modes.
-- SCC sound quality improvements (no more aliasing).
-- Support for the Playball mapper (and samples).
-- Fixed mirroring of some FDC registers and diskROMs.
-- Dot matrix graphical printer emulation added (thanks to the blueMSX Team).
-- Cassetteplayer recognizes end of tape and stops.
-- Small bug fixes in various devices: MSX-Audio, V9990, VDP, SCC, PSG, TC8566AF.
-- Various speed optimizations: VDP command engine, Z80, video rendering, V9990,
-  debugger response time in break mode.
-- Added a few Arabic MSX machines, but note that they have not been verified
-  to be correct.
+- Partial support for Yamaha SFG-05 (only the YM2151, no keyboard and MIDI).
+- Support for the VLM5030 in Keyboard Master.
+- Support for ESE devices: MEGA SCSI, ESE RAM, ESE SCC, WAVE-SCSI (SCSI
+  experimental).
+- Support for Gouda/Novaxis SCSI (experimental).
+- Support for password cartridge.
+- Support for the Super Lode Runner mapper, which violates the MSX spec.
+- Several small optimizations, mostly in SDLGL-PP renderer and CPU emulation.
 
 Build system, packaging, documentation:
-- Added support for building an application folder on Mac OS X.
-- Added support for building a universal binary for Mac OS X.
-- HTML-ized the Console Command Reference and the diskmanipulator documentation.
-  There is now also linking to these new manuals, which improved the usefulness
-  of them a lot.
-- Added a text document about how developers can control openMSX from their own
-  application: doc/openmsx-control-xml.txt.
+- Nothing, sorry.
 
 And of course the usual various bug fixes.
 
@@ -77,7 +72,7 @@ Known issues / caveats:
   tips, see the Setup Guide.
 
 openMSX Home Page:
-  http://openmsx.sourceforge.net/
+  http://www.openmsx.org/
 Project page on SourceForge:
   http://sourceforge.net/projects/openmsx/
 Contact options:
