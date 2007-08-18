@@ -28,11 +28,6 @@ LINK_FLAGS:=-L/mingw/lib -L/mingw/lib/w32api -lwsock32 -ldsound \
 # Probe Overrides
 # ===============
 
-PNG_CFLAGS:=
-
-PNG_LDFLAGS:=-lpng
-PNG_RESULT:=yes
-
 GL_LDFLAGS:=-lopengl32
 
 GLEW_LDFLAGS:=-lglew32
