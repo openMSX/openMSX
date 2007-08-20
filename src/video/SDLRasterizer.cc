@@ -398,13 +398,17 @@ void SDLRasterizer<Pixel>::drawDisplay(
 
 			int firstPageWidth = pageBorder - displayX;
 			if (firstPageWidth > 0) {
-				Pixel buf[512];
-				renderBitmapLine(buf, vramLine[scrollPage1]);
-				const Pixel* src = buf + displayX + hScroll;
 				Pixel* dummy = 0;
 				Pixel* dst = workFrame->getLinePtr(y, dummy)
 				           + leftBackground + displayX;
-				MemoryOps::stream_memcpy(dst, src, firstPageWidth);
+				if ((displayX + hScroll) == 0) {
+					renderBitmapLine(dst, vramLine[scrollPage1]);
+				} else {
+					Pixel buf[512];
+					renderBitmapLine(buf, vramLine[scrollPage1]);
+					const Pixel* src = buf + displayX + hScroll;
+					MemoryOps::stream_memcpy(dst, src, firstPageWidth);
+				}
 			} else {
 				firstPageWidth = 0;
 			}
@@ -430,13 +434,17 @@ void SDLRasterizer<Pixel>::drawDisplay(
 		for (int y = screenY; y < screenLimitY; y++) {
 			assert(!vdp.isMSX1VDP() || displayY < 192);
 
-			Pixel buf[512];
-			characterConverter->convertLine(buf, displayY);
-			const Pixel* src = buf + displayX;
 			Pixel* dummy = 0;
 			Pixel* dst = workFrame->getLinePtr(y, dummy)
 			           + leftBackground + displayX;
-			MemoryOps::stream_memcpy(dst, src, displayWidth);
+			if (displayX == 0) {
+				characterConverter->convertLine(dst, displayY);
+			} else {
+				Pixel buf[512];
+				characterConverter->convertLine(buf, displayY);
+				const Pixel* src = buf + displayX;
+				MemoryOps::stream_memcpy(dst, src, displayWidth);
+			}
 
 			workFrame->setLineWidth(y, (lineWidth == 512) ? 640 : 320);
 			displayY = (displayY + 1) & 255;

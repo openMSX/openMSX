@@ -1,5 +1,10 @@
 $Id$
 
+2007-08-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Optimization in SDLRasterizer:
+	   - if possible directly render to destination (instead of to local
+	     buffer followed by memcpy)
+
 2007-08-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Made diskmanipulator command also available on machines without
 	  disk drives
