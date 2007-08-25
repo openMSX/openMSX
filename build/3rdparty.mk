@@ -40,7 +40,7 @@ PACKAGE_SDL:=SDL-1.2.12
 PACKAGE_SDL_IMAGE:=SDL_image-1.2.6
 PACKAGE_GLEW:=glew-1.4.0
 PACKAGE_TCL:=tcl8.4.15
-PACKAGE_XML:=libxml2-2.6.29
+PACKAGE_XML:=libxml2-2.6.30
 
 # Check OS.
 # This is done for Tcl, but we can also use the result ourselves.
