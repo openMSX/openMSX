@@ -160,8 +160,6 @@ $(BUILD_DIR)/$(PACKAGE_SDL_IMAGE)/Makefile: \
 		LDFLAGS="$(shell $(PWD)/$(INSTALL_DIR)/bin/libpng12-config --static --ldflags)"
 
 # Configure libpng.
-# The "-I$(PWD)/$<" part of the CPPFLAGS definition is a workaround for a bug
-# in the configure script of libpng 1.2.18 (reported as bug 1738534).
 $(BUILD_DIR)/$(PACKAGE_PNG)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_PNG) \
   $(foreach PACKAGE,$(filter-out $(SYSTEM_LIBS),ZLIB),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
@@ -169,7 +167,7 @@ $(BUILD_DIR)/$(PACKAGE_PNG)/Makefile: \
 	cd $(@D) && $(PWD)/$</configure \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		CFLAGS="$(_CFLAGS)" \
-		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include -I$(PWD)/$<" \
+		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
 		LDFLAGS=-L$(PWD)/$(INSTALL_DIR)/lib
 
 # Configure zlib.
