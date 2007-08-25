@@ -44,14 +44,31 @@ PACKAGE_XML:=libxml2-2.6.29
 
 # Check OS.
 # This is done for Tcl, but we can also use the result ourselves.
+# TODO: We want to use this Makefile for cross compilation in the future,
+#       which means we should not probe the local system except to provide a
+#       default OS when the user did not specify one.
 TCL_OS_TEST:=case `uname -s` in MINGW*) echo "win";; Darwin) echo "macosx";; *) echo "unix";; esac
 TCL_OS:=$(shell $(TCL_OS_TEST))
 
 # Depending on the platform, some libraries are already available system-wide.
-ifeq ($(TCL_OS),win)
-SYSTEM_LIBS:=
-else
+ifeq ($(TCL_OS),macosx)
 SYSTEM_LIBS:=ZLIB TCL XML
+else
+# On Windows none of the required libraries are part of the base system.
+# On Unix-like systems the libraries we use are often installed as dependencies
+# of installed applications, but not part of the base system. Also, which
+# optional dependencies are enabled for SDL and SDL_image varies. So if we want
+# to produce a binary that has a reasonable chance of running on many machines,
+# we cannot assume any library to be part of the base system.
+SYSTEM_LIBS:=
+endif
+
+# Although X11 is available on Windows and Mac OS X, most people do not have
+# it installed, so do not link against it.
+ifeq ($(TCL_OS),unix)
+USE_VIDEO_X11:=enable
+else
+USE_VIDEO_X11:=disable
 endif
 
 # Unfortunately not all packages stick to naming conventions such as putting
@@ -107,7 +124,7 @@ $(BUILD_DIR)/$(PACKAGE_SDL)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_SDL)
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$</configure \
-		--disable-video-x11 \
+		--$(USE_VIDEO_X11)-video-x11) \
 		--disable-debug \
 		--disable-cdrom \
 		--disable-stdio-redirect \
