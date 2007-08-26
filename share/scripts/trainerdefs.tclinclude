@@ -1,8 +1,8 @@
 # Cheat definitions - Version 2.1
 #
-#  Copyright 2005-2007 Albert Beevendorp all rights reserved
-#  Copyright 2005-2007 Patrick van Arkel all rights reserved
-#  Copyright 2006-2007 Benoit Delvaux all rights reserved
+# Copyright 2005-2007 Albert Beevendorp all rights reserved
+# Copyright 2005-2007 Patrick van Arkel all rights reserved
+# Copyright 2006-2007 Benoit Delvaux all rights reserved
 #
 # The definition of cheating according to google:
 # - Defeat someone in an expectation through trickery or deceit
@@ -903,14 +903,14 @@ create_trainer "Famicle Parodic" {time 2} {
 	"eggs" {poke 0xe025 255}
 	"invincible" {poke 0xe30e 255}
 	"full weapons" {poke 0xe050 4;poke 0xe051 4;poke 0xe052 4;
-			poke 0xe053 4;poke 0xe054 4;poke 0xe055 4;
-			poke 0xe056 4;poke 0xe057 4;poke 0xe058 4;poke 0xe059 4}
+	poke 0xe053 4;poke 0xe054 4;poke 0xe055 4;
+	poke 0xe056 4;poke 0xe057 4;poke 0xe058 4;poke 0xe059 4}
 }
 
 create_trainer "Mon Mon Monster" {time 2} {
 	"lives" {poke 0xe001 99}
-      	"life" {poke 0xe038 3}
-      	"rocks" {poke 0xe02c 99}
+	"life" {poke 0xe038 3}
+	"rocks" {poke 0xe02c 99}
 	"invincible" {poke 0xe31e 255}
 	"extra power bolt shot" {poke 0xe02d 1}
 	"rotating shots" {poke 0xe02e 1}
@@ -1015,7 +1015,7 @@ create_trainer "Vampire Killer" {time 1} {
 	"x-pos enemy 1" {poke 0xc805 128}
 	"x-pos enemy 2" {poke 0xc885 128}
 	"strengt enemys 1" {poke 0xc80d 1}
-	"strengt enemys 2" {poke 0xc88d 1}	
+	"strengt enemys 2" {poke 0xc88d 1}
 }
 
 create_trainer "Super Laydock Mission Striker" {time 2} {
@@ -2196,13 +2196,43 @@ create_trainer "Deep Forest" {time 2} {
 }
 
 create_trainer "Volguard" {time 1} {
-	"power" {poke 0xe392 255}
+	"mission (1-5)" {poke 0xe300 1}
+	"lives" {poke 0xe31c 7}
+	"first plane invulnerable (select when first enemies appear)" {poke 0xe345 1}
+	"second plane invulnerable (select when first enemies appear)" {poke 0xe34d 1}
+	"third plane invulnerable (select when first enemies appear)" {poke 0xe355 1}
+	"power (0,8,16,23)" {poke 0xe392 16}
+	"speed (0-4)" {poke 0xe39b 4}
 }
+
+# 0 = one plane
+# 8 = two planes
+# 16 = three planes
+# 23 = syncretize mode
+# one man with shield and without bombs
+# don't use the invulnerable cheat with this mode !
 
 create_trainer "Gyrodine" {time 1} {
 	"get parachute when hit" {poke 0xe5e4 250}
 	"lives" {poke 0xe5e0 10}
 }
+
+create_trainer "Volguard CAS" {time 1} {
+	"mission (1-5)" {poke 0x8000 1}
+	"lives" {poke 0x801c 7}
+	"first plane invulnerable (select when first enemies appear)" {poke 0x8045 1}
+	"second plane invulnerable (select when first enemies appear)" {poke 0x804d 1}
+	"third plane invulnerable (select when first enemies appear)" {poke 0x8055 1}
+	"power (0,8,16,23)" {poke 0x8092 16}
+	"speed (0-4)" {poke 0x809b 4}
+}
+
+# 0 = one plane
+# 8 = two planes
+# 16 = three planes
+# 23 = syncretize mode
+# one man with shield and without bombs
+# don't use the invulnerable cheat with this mode !
 
 create_trainer "Leonidas" {time 1} {
 	"homing shot" {poke 0xe32e 6}
@@ -2546,6 +2576,7 @@ create_trainer "After The War 2" {time 1} {
 	"end boss without bullets" {poke 0xc697 4}
 }
 # access code : 11423
+
 create_trainer "Satan 1" {time 1} {
 	"power unlimited" {poke 0x8462 0}
 	"some gauge" {poke 0xc88f 100}
@@ -3030,19 +3061,19 @@ create_trainer "Saimazoom" {time 1} {
 	"slot 3" {poke 0xd9ea 103}
 	"slot 4" {poke 0xd9eb 106}
 	"toggle trough items" {
-		if {[peek 0xd9e8] < 100} {poke 0xd9e8 100}
-		poke 0xd9e8 [expr [peek 0xd9e8]+1]
-		if {[peek 0xd9e8] > 106} {poke 0xd9e8 100}
+	if {[peek 0xd9e8] < 100} {poke 0xd9e8 100}
+	poke 0xd9e8 [expr [peek 0xd9e8]+1]
+	if {[peek 0xd9e8] > 106} {poke 0xd9e8 100}
 	}
 }
-		# 100 = bag
-		# 101 = water bottle
-		# 102 = knife*
-		# 103 = pick axe*
-		# 104 = key*
-		# 105 = kano*
-		# 106 = gun*
-		# 107 = nothing
+	# 100 = bag
+	# 101 = water bottle
+	# 102 = knife*
+	# 103 = pick axe*
+	# 104 = key*
+	# 105 = kano*
+	# 106 = gun*
+	# 107 = nothing
 create_trainer "Cure" {time 1} {
 	"power" {poke 0xdae6 64}
 	"invincible" {poke 0xdadf 4}
@@ -3580,7 +3611,14 @@ create_trainer "Pipi" {time 1} {
 }
 
 create_trainer "Zexas Limited" {time 60} {
-	"invincible" {poke 0xeecf 100}
+	"lives" {poke 0xeecf 99}
+	"invulnerable" {poke 0xeed5 0}
+}
+
+create_trainer "Zexas" {time 1} {
+	"lives" {poke 0xe5ef 99}
+	"fuel" {poke 0xe5f0 136}
+	"invulnerable" {poke 0xe650 11;poke 0xe660 0}
 }
 
 create_trainer "Bank Panic" {time 1} {
@@ -3734,16 +3772,38 @@ create_trainer "Vaxol" {time 1} {
 }
 
 create_trainer "Game Over part 1" {time 1} {
-	"lives" {poke 0xd9bb 11}
+	"lives" {poke 0xd9bb 10}
+	"bombs" {poke 0xd9bf 100}
+	"protected from mines (de-select after 3 robots)" {poke 0xd9c7 0}
+	"protected from enemies (de-select after 3 robots)" {poke 0xd9cb 1}
+	"shoot (2=normal 4=super)" {poke 0xd9cd 4}
 	"power" {poke 0xda1b 255}
-	"second shot" {poke 0xd9bf 100}
 }
 
 create_trainer "Game Over part 2" {time 1} {
-	"lives" {poke 0xd9bf 12}
+	"lives" {poke 0xd9bf 10}
+	"laser" {poke 0xd9c3 100}
+	"access to the lake" {poke 0xd9c5 1}
+	"access to the top" {poke 0xd9cb 1}
 	"power" {poke 0xda27 255}
-	"second shot" {poke 0xd9c3 100}
 }
+
+# access code : 65535
+
+create_trainer "Game Over 2 part 1" {time 1} {
+	"invulnerable" {poke 0xb9a1 0;poke 0xbd3a 33}
+	"lives" {poke 0xbfe6 57;poke 0xbfe7 57}
+}
+
+create_trainer "Game Over 2 part 2" {time 1} {
+	"lives" {poke 0xb9b9 57;poke 0xb9ba 57}
+	"has ionic turbo laser" {poke 0xc2a3 0}
+	"has access medallion" {poke 0xc5c0 0}
+	"energy" {poke 0xc718 0}
+	"has proton loader" {poke 0xc858 0}
+}
+
+# access code : 18757
 
 create_trainer "Flash Splash" {time 1} {
 	"lives (might not work 100%)" {poke 0xe000 255}
@@ -3791,7 +3851,7 @@ create_trainer "Haunted House" {time 1} {
 
 create_trainer "Exterminator" {time 1} {
 	"lives" {poke 0x4505 57}
-}	
+}
 create_trainer "Inca 1" {time 1} {
 	"lives player 1" {poke 0xde86 9}
 	"gold player 1" {poke 0xde8c 255}
@@ -4063,15 +4123,15 @@ create_trainer "Devil Zone" {time 1} {
 
 create_trainer "Word Invaders" {time 1} {
 "solve all words" {
-			set whole_page ""
-			for {set i 0} {$i < 600 } {incr i } {if {[debug read VRAM $i] > 33} {append whole_page [format %c [debug read VRAM $i]]}};
-			type [string trim $whole_page];
-			poke 0xc3d2 255;
-			poke 0xc3da 255;
-			poke 0xc3e2 255;
-			poke 0xc3ea 255;
-			poke 0xc3f2 255;
-		}
+	set whole_page ""
+	for {set i 0} {$i < 600 } {incr i } {if {[debug read VRAM $i] > 33} {append whole_page [format %c [debug read VRAM $i]]}};
+	type [string trim $whole_page];
+	poke 0xc3d2 255;
+	poke 0xc3da 255;
+	poke 0xc3e2 255;
+	poke 0xc3ea 255;
+	poke 0xc3f2 255;
+	}
 }
 
 create_trainer "Spelunker" {time 1} {
@@ -4258,7 +4318,9 @@ create_trainer "Time Bomb" {time 1} {
 	"lives player 1" {poke 0xde86 9}
 	"lives player 2" {poke 0xdeb6 9}
 	"x-pos easy start (de-select to move!)" {poke 0xdf23 90}
+	"invulnerable" {poke 0xdf2d 0}
 }
+
 
 create_trainer "Time Curb" {time 1} {
 	"lives" {poke 0x402a 3}
@@ -4688,5 +4750,260 @@ create_trainer "Capitan Trueno 2" {time 1} {
 # 8 = single green sword
 # 11 = single yellow sword
 # 13 = blue sword + green sword
+
+create_trainer "Capitan Sevilla 1" {time 1} {
+	"lives" {poke 0x5e80 3}
+	"sausage" {poke 0x5e84 6}
+	"capitan x-pos (0-255)" {poke 0x5e87 0}
+	"capitan y-pos (0-255)" {poke 0x5e88 0}
+	"invulnerable (but don't fall in water)" {poke 0x5e91 0;poke 0x5f80 0}
+	"superpower" {poke 0xfd85 255}
+}
+
+create_trainer "Capitan Sevilla 2" {time 1} {
+	"lives" {poke 0x5e80 3}
+	"sausage" {poke 0x5e84 6}
+	"capitan x-pos (0-255)" {poke 0x5e87 0}
+	"capitan y-pos (0-255)" {poke 0x5e88 0}
+	"invulnerable" {poke 0x5e91 0}
+	"superpower" {poke 0xfd85 255}
+}
+
+# access code : 335495
+
+create_trainer "Camelot Warriors" {time 1} {
+	"x-pos (0-255)" {poke 0xee45 0}
+	"y-pos (0-255)" {poke 0xee46 0}
+	"lives" {poke 0xee84 9}
+}
+
+create_trainer "Comando Tracer" {time 1} {
+	"all the colors" {poke 0xb09d 2;poke 0xb09e 3;poke 0xb09f 4;poke 0xb0a0 5;poke 0xb0a1 6;poke 0xb0a2 7}
+	"invulnerable (value 0 required for final countdown)" {poke 0xb222 255}
+	"invulnerable" {poke 0xb225 255}
+	"time (de-select for final countdown)" {poke 0xb30f 144}
+	"energy (de-select for final countdown)" {poke 0xb3cf 11}
+	"lives (de-select for final countdown)" {poke 0xb3f2 9}
+}
+
+create_trainer "Cosmic Sheriff" {time 1} {
+	"lives" {poke 0x9a81 255}
+	"time" {poke 0xa3f6 255}
+}
+
+create_trainer "Coaster Race" {time 1} {
+	"infinite time (de-select in goal)" {poke 0xc0ce 99}
+}
+
+create_trainer "Dustin" {time 1} {
+	"item 1 (1-15)" {poke 0x5b61 1}
+	"item 2 (1-15)" {poke 0x5b62 2}
+	"item 3 (1-15)" {poke 0x5b63 5}
+	"item 4 (1-15)" {poke 0x5b64 7}
+	"item 5 (1-15)" {poke 0x5b65 9}
+	"item 6 (1-15)" {poke 0x5b66 11}
+	"item 7 (1-15)" {poke 0x5b67 14}
+	"item 8 (1-15)" {poke 0x5b68 15}
+	"no red alarm" {poke 0x5b6a 0}
+	"alert" {poke 0xcedb 99}
+}
+
+# 1 = card
+# 2 = gun
+# 3 = bomb
+# 4 = lighter
+# 5 = statue
+# 6 = club
+# 7 = hammer
+# 8 = watch
+# 9 = antidote
+# 10 = tobacco
+# 11 = keys
+# 12 = whisky
+# 13 = money
+# 14 = bulletproof vest
+# 15 = bone
+
+create_trainer "Fernando Martin Basket Master" {time 1} {
+	"energy player 1" {poke 0xf0a0 74}
+	"energy player 2" {poke 0xf0a1 74}
+}
+
+create_trainer "Fernando Martin Executive" {time 1} {
+	"energy player 1" {poke 0x9415 22}
+	"energy player 2" {poke 0x942f 22}
+}
+
+create_trainer "Freddy Hardest 1" {time 1} {
+	"lives" {poke 0xd974 6}
+	"no snakes" {poke 0xe290 20}
+	"no hormigoids" {poke 0xe298 20}
+	"no koptes" {poke 0xe2a0 20}
+	"no ovoids" {poke 0xe2a8 20;poke 0x2b0 20}
+	"no flying robots" {poke 0xe2b8 20}
+}
+
+create_trainer "Freddy Hardest 2" {time 1} {
+	"always fire" {poke 0xe47c 5}
+	"lives" {poke 0xe481 6}
+	"no enemies" {poke 0xe4f3 0;poke 0xe4f4 0;poke 0xe4f5 0}
+}
+
+# access code : 897653
+
+create_trainer "Freddy Hardest In South Manhattan" {time 1} {
+	"energy" {poke 0xdfaa 127}
+	"almost no enemies" {poke 0xdfae 0;poke 0xdfb3 0}
+	"lives" {poke 0xdfc1 9}
+}
+
+create_trainer "Game Over part 1" {time 1} {
+	"lives" {poke 0xd9bb 10}
+	"bombs" {poke 0xd9bf 100}
+	"protected from mines (de-select after 3 robots)" {poke 0xd9c7 0}
+	"protected from enemies (de-select after 3 robots)" {poke 0xd9cb 1}
+	"shoot (2=normal 4=super)" {poke 0xd9cd 4}
+	"power" {poke 0xda1b 255}
+}
+
+create_trainer "Phantis 1" {time 1} {
+	"invulnerable" {poke 0xb7d6 33}
+	"lives" {poke 0xc413 57;poke 0xc414 57}
+}
+
+create_trainer "Phantis 2" {time 1} {
+	"lives" {poke 0xb76b 57;poke 0xb76c 57}
+	"has ionic turbo laser" {poke 0xc055 0}
+	"has access medallion" {poke 0xc372 0}
+	"energy" {poke 0xc4ce 0}
+	"has proton loader" {poke 0xc60e 0}
+}
+
+# access code : 18757
+
+create_trainer "Hammer Boy 1" {time 1} {
+	"invincible (de-select to get score)" {poke 0x4971 0;poke 0x4972 0}
+	"lives" {poke 0x497f 10}
+}
+
+create_trainer "Hammer Boy 2" {time 1} {
+	"invincible (de-select to get score)" {poke 0x4d26 0;poke 0x4d27 0}
+	"lives" {poke 0x4d34 10}
+}
+
+create_trainer "Highway Encounter" {time 1} {
+	"power" {poke 0x8f18 151}
+	"time" {poke 0x8f1a 0}
+}
+
+create_trainer "Hundra" {time 1} {
+	"lives" {poke 0x8fc5 4}
+	"energy" {poke 0x8fee 229}
+	"no damage when falling in water" {poke 0x8ff6 1}
+	"has three crystals" {poke 0x8ff7 3}
+	"axe always available" {poke 0x8ff8 0}
+	"protected from enemies" {poke 0x8ff9 255}
+}
+
+create_trainer "Meganova" {time 1} {
+	"lives" {poke 0xb9e5 255}
+}
+
+# access code part 2 : 26719
+# access code part 3 : 16640
+
+create_trainer "Megaphoenix" {time 1} {
+	"lives" {poke 0x7b5b 9}
+	"power (0-3)" {poke 0x7b5c 3}
+	"invulnerable" {poke 0x7baf 3;poke 0x83a2 0}
+}
+
+create_trainer "Oils Well" {time 1} {
+	"time" {poke 0xe0cc 90}
+	"almost no enemies" {poke 0xe0d2 1}
+}
+
+create_trainer "Heist" {time 1} {
+	"level (0-2)" {poke 0xe29e 0}
+	"lives" {poke 0xe2a8 153}
+	"keys" {poke 0xe2aa 153}
+	"time" {poke 0xe2ab 89}
+}
+
+create_trainer "Jackson City" {time 1} {
+	"invulnerability time" {poke 0x989d 99}
+	"lives" {poke 0x989f 9}
+	"fuel" {poke 0x98b5 127}
+}
+
+create_trainer "Oberon 69" {time 1} {
+	"energy" {poke 0x1281 96}
+	"ammo" {poke 0x12a5 136}
+	"time" {poke 0xab50 59}
+}
+
+create_trainer "Mike Gunner" {time 1} {
+	"injuries" {poke 0x7fd8 6}
+	"lives" {poke 0x7fda 2}
+}
+
+create_trainer "Narco Police" {time 1} {
+	"AA-A ammo" {poke 0x6d68 255}
+	"T-71 ammo" {poke 0x6d6a 255}
+	"Thor M2 ammo" {poke 0x6d6c 255}
+	"T-73 ammo" {poke 0x6d6e 255}
+	"T-72 ammo" {poke 0x6d70 255}
+	"MP 607 ammo" {poke 0x6d72 255}
+	"medical kit" {poke 0x6d74 255}
+	"teleport" {poke 0x6d76 255}
+	"bullet proof vest" {poke 0x6d78 255}
+	"no enemies" {poke 0xcd2d 1}
+	"lives" {poke 0xcd54 99}
+	"standard ammo" {poke 0xcd59 255}
+}
+
+create_trainer "Nonamed" {time 1} {
+	"higher jumps" {poke 0x5b09 1}
+	"lives" {poke 0x5b18 6}
+}
+
+create_trainer "Abu Simbel Profanation MSX2" {time 1} {
+	"x-pos (0-255)" {poke 0xca69 0}
+	"y-pos (0-100)" {poke 0xca6b 0}
+	"lives" {poke 0xccd9 99}
+}
+
+create_trainer "Abu Simbel Profanation MSX1" {time 1} {
+	"open passage 1" {poke 0x4fd5 1}
+	"open passage 2" {poke 0x4fd7 1}
+	"open passage 3" {poke 0x4fd9 1}
+	"open passage 4" {poke 0x4fda 1}
+	"open passage 5" {poke 0x4fdd 1}
+	"open passage 6" {poke 0x4fe1 1}
+	"open passage 7" {poke 0x4fe2 1}
+	"open passage 8" {poke 0x4fe6 1}
+	"open passage 9" {poke 0x4fed 1}
+	"open passage 10" {poke 0x4ff5 1}
+	"open passage 11" {poke 0x4ff6 1}
+	"open passage 12" {poke 0x4ffc 1}
+	"x-pos (0-255)" {poke 0x6850 0}
+	"y-pos (0-100)" {poke 0x6851 0}
+	"lives" {poke 0x6872 99}
+}
+
+create_trainer "Army Moves 1" {time 1} {
+	"jeep does not fall" {poke 0xceac 47}
+	"invulnerable" {poke 0xceae 0}
+	"lives" {poke 0xceb8 58}
+	"fuel" {poke 0xceca 255;poke 0xcecb 255}
+}
+
+create_trainer "Army Moves 2" {time 1} {
+	"no fall in water" {poke 0xceaa 0}
+	"lives" {poke 0xcec6 58}
+	"invulnerable" {poke 0xcede 0}
+}
+
+# access code : 37215
 
 ### EOF ###
