@@ -10,8 +10,8 @@ KeyClick::KeyClick(MSXMixer& mixer, const XMLElement& config,
                    const EmuTime& time)
 	: dac(new DACSound8U(mixer, "keyclick", "1-bit click generator",
 	                     config, time))
+	, status(false)
 {
-	status = false;
 }
 
 KeyClick::~KeyClick()

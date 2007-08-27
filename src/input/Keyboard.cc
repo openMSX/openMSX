@@ -54,7 +54,6 @@ public:
 	KeyInserter(MSXCommandController& msxCommandController,
 	            MSXEventDistributor& msxEventDistributor,
 	            Scheduler& scheduler, Keyboard& keyboard);
-	virtual ~KeyInserter();
 
 private:
 	void type(const string& str);
@@ -382,10 +381,6 @@ KeyInserter::KeyInserter(MSXCommandController& msxCommandController,
 	                  scheduler, "type")
 	, Schedulable(scheduler)
 	, keyboard(keyboard_), last(-1)
-{
-}
-
-KeyInserter::~KeyInserter()
 {
 }
 

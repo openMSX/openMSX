@@ -17,7 +17,7 @@ class KeyClick : private noncopyable
 {
 public:
 	KeyClick(MSXMixer& mixer, const XMLElement& config, const EmuTime& time);
-	virtual ~KeyClick();
+	~KeyClick();
 
 	void reset(const EmuTime& time);
 	void setClick(bool status, const EmuTime& time);
