@@ -596,21 +596,25 @@ template <class T> inline void CPUCore<T>::cpuTracePre()
 }
 template <class T> inline void CPUCore<T>::cpuTracePost()
 {
-	if (traceSetting.getValue()) {
-		byte opbuf[4];
-		string dasmOutput;
-		dasm(*interface, start_pc, opbuf, dasmOutput, T::getTime());
-		std::cout << std::setfill('0') << std::hex << std::setw(4) << start_pc
-		     << " : " << dasmOutput
-		     << " AF=" << std::setw(4) << R.getAF()
-		     << " BC=" << std::setw(4) << R.getBC()
-		     << " DE=" << std::setw(4) << R.getDE()
-		     << " HL=" << std::setw(4) << R.getHL()
-		     << " IX=" << std::setw(4) << R.getIX()
-		     << " IY=" << std::setw(4) << R.getIY()
-		     << " SP=" << std::setw(4) << R.getSP()
-		     << std::endl << std::dec;
+	if (unlikely(traceSetting.getValue())) {
+		cpuTracePost_slow();
 	}
+}
+template <class T> void CPUCore<T>::cpuTracePost_slow()
+{
+	byte opbuf[4];
+	string dasmOutput;
+	dasm(*interface, start_pc, opbuf, dasmOutput, T::getTime());
+	std::cout << std::setfill('0') << std::hex << std::setw(4) << start_pc
+	     << " : " << dasmOutput
+	     << " AF=" << std::setw(4) << R.getAF()
+	     << " BC=" << std::setw(4) << R.getBC()
+	     << " DE=" << std::setw(4) << R.getDE()
+	     << " HL=" << std::setw(4) << R.getHL()
+	     << " IX=" << std::setw(4) << R.getIX()
+	     << " IY=" << std::setw(4) << R.getIY()
+	     << " SP=" << std::setw(4) << R.getSP()
+	     << std::endl << std::dec;
 }
 
 template <class T> inline void CPUCore<T>::executeFast()

@@ -141,6 +141,7 @@ private:
 
 	inline void cpuTracePre();
 	inline void cpuTracePost();
+	void cpuTracePost_slow();
 
 	inline byte READ_PORT(word port);
 	inline void WRITE_PORT(word port, byte value);
