@@ -2,14 +2,7 @@
 # $Id$
 
 MYDIR=`dirname $0` || exit
-#MYDIR=/usr/share/automake-1.7
-#echo "  I'm located in $MYDIR" 1>&2
-
-TIMESTAMP=`$MYDIR/config.guess --time-stamp` || exit
-echo "  Using config.guess of $TIMESTAMP..." 1>&2
-
 GUESSED_CONFIG=`$MYDIR/config.guess` || exit
-echo "  Detected system: $GUESSED_CONFIG" 1>&2
 
 case "$GUESSED_CONFIG" in
 	*-*-*-*)
@@ -21,13 +14,10 @@ case "$GUESSED_CONFIG" in
 		GUESSED_OS=${GUESSED_CONFIG#*-*-}
 		;;
 	*)
-		echo "  Unknown format!" 1>&2
+		echo "Cannot parse system name \"$GUESSED_CONFIG\"!" 1>&2
 		exit 1
 		;;
 esac
-#echo "  CPU: ${GUESSED_CPU}" 1>&2
-#echo "  OS:  ${GUESSED_OS}" 1>&2
-
 case "$GUESSED_CPU" in
 	i?86)
 		OPENMSX_TARGET_CPU=x86;;
@@ -60,7 +50,7 @@ case "$GUESSED_CPU" in
 	s390*)
 		OPENMSX_TARGET_CPU=s390;;
 	*)
-		echo "  Unknown CPU \"$GUESSED_CPU\"!" 1>&2
+		echo "Unknown CPU \"$GUESSED_CPU\"!" 1>&2
 		exit 1
 		;;
 esac
@@ -82,10 +72,9 @@ case "$GUESSED_OS" in
 	*mingw*)
 		OPENMSX_TARGET_OS=mingw32;;
 	*)
-		echo "  Unknown OS \"$GUESSED_OS\"!" 1>&2
+		echo "Unknown OS \"$GUESSED_OS\"!" 1>&2
 		exit 1
 		;;
 esac
 
-echo "OPENMSX_TARGET_CPU?=$OPENMSX_TARGET_CPU"
-echo "OPENMSX_TARGET_OS?=$OPENMSX_TARGET_OS"
+echo "$OPENMSX_TARGET_CPU-$OPENMSX_TARGET_OS"

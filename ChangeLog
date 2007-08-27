@@ -1,6 +1,13 @@
 $Id$
 
+2007-08-27 Maarten ter Huurne <maarten@treewalker.org>
+	* Do not cache the result of native system detection.
+	  This makes it easy to use the same source tree on different systems,
+	  for example when the sources are on a network drive or if you do
+	  both 32-bit and 64-bit builds on an x86_64 system.
+
 2007-08-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Created release branch for openMSX 0.6.3.
 	* Various optimizations in CPU:
 	   - wrote specialized (simpler) code for instructions like
 	        xor a / cp a / or a / add a,a / sbc hl,hl
