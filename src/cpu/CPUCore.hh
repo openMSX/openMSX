@@ -582,6 +582,7 @@ private:
 	void adc_hl_sp();
 
 	inline word ADDW(word reg1, word reg2);
+	inline word ADDW2(word reg);
 	void add_hl_bc();
 	void add_hl_de();
 	void add_hl_hl();

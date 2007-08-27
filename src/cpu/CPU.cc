@@ -2,6 +2,7 @@
 
 #include "CPU.hh"
 #include "BreakPoint.hh"
+#include <cassert>
 
 namespace openmsx {
 
@@ -41,6 +42,10 @@ CPU::CPU()
 		ZSPXYTable[i] = zFlag | sFlag | xFlag | yFlag | vFlag;
 		ZSPTable[i]   = zFlag | sFlag |                 vFlag;
 	}
+	assert(ZSTable[0]     == ZS0);
+	assert(ZSXYTable[0]   == ZSXY0);
+	assert(ZSXYTable[255] == ZSXY255);
+	assert(ZSPXYTable[0]  == ZSPXY0);
 
 	for (int x = 0; x < 0x800; ++x) {
 		bool nf = x & 0x400;

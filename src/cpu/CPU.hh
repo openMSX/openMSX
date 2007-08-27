@@ -382,6 +382,10 @@ protected:
 	static byte ZSPXYTable[256];
 	static byte ZSPTable[256];
 	static word DAATable[0x800];
+	static const byte ZS0     = Z_FLAG;
+	static const byte ZSXY0   = Z_FLAG;
+	static const byte ZSXY255 = S_FLAG | X_FLAG | Y_FLAG;
+	static const byte ZSPXY0  = Z_FLAG | V_FLAG;
 
 	// TODO why exactly are these static?
 	// debug variables
