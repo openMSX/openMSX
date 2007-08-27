@@ -7,6 +7,9 @@ $Id$
 	   - split cpuTracePost in a small inlineable part and a non-inline
 	     rarely executed part
 	   - optimized time book-keeping in the read/write memory paths
+	* Small optimization in SDLRasterizer (+ cleanup):
+	   - don't render the same VRAM line twice in case of (single page)
+	     hardware horizontal scroll
 
 2007-08-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimization in SDLRasterizer:
