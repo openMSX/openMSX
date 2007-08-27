@@ -145,9 +145,8 @@ private:
 
 	inline byte READ_PORT(word port);
 	inline void WRITE_PORT(word port, byte value);
-	inline byte RDMEM_common(word address);
 	byte RDMEMslow(word address);
-	inline void WRMEM_common(word address, byte value);
+	byte RDMEM_OPCODEslow(word address);
 	void WRMEMslow(word address, byte value);
 	inline byte RDMEM_OPCODE();
 	inline word RD_WORD_PC();
