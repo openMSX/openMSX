@@ -1,6 +1,44 @@
 #!/bin/sh
 # $Id$
 
+# Use our own detection to quickly handle the simple cases.
+
+UNAME_OS=`uname -s`
+case "$UNAME_OS" in
+	Linux)
+		OPENMSX_TARGET_OS=linux;;
+	Darwin)
+		OPENMSX_TARGET_OS=darwin;;
+	# Note: For FreeBSD we want to know the difference between FreeBSD4,
+	#       FreeBSD5+ and Debian kFreeBSD, so we need config.guess.
+	NetBSD)
+		OPENMSX_TARGET_OS=netbsd;;
+	OpenBSD)
+		OPENMSX_TARGET_OS=openbsd;;
+	MINGW*)
+		OPENMSX_TARGET_OS=mingw32;;
+	*)
+		OPENMSX_TARGET_OS=;;
+esac
+UNAME_CPU=`uname -m`
+case "$UNAME_CPU" in
+	x86_64 | ppc | ppc64)
+		OPENMSX_TARGET_CPU=$UNAME_CPU;;
+	Power* | power*)
+		OPENMSX_TARGET_CPU=ppc;;
+	*86)
+		OPENMSX_TARGET_CPU=x86;;
+	*)
+		OPENMSX_TARGET_CPU=;;
+esac
+if [ -n "$OPENMSX_TARGET_OS" -a -n "$OPENMSX_TARGET_CPU" ]
+then
+	echo "$OPENMSX_TARGET_CPU-$OPENMSX_TARGET_OS"
+	exit 0
+fi
+
+# Use GNU's config.guess script for the difficult cases.
+
 MYDIR=`dirname $0` || exit
 GUESSED_CONFIG=`$MYDIR/config.guess` || exit
 
