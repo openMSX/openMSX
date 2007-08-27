@@ -1,5 +1,13 @@
 $Id$
 
+2007-08-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Various optimizations in CPU:
+	   - wrote specialized (simpler) code for instructions like
+	        xor a / cp a / or a / add a,a / sbc hl,hl
+	   - split cpuTracePost in a small inlineable part and a non-inline
+	     rarely executed part
+	   - optimized time book-keeping in the read/write memory paths
+
 2007-08-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimization in SDLRasterizer:
 	   - if possible directly render to destination (instead of to local
