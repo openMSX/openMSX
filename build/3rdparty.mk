@@ -50,6 +50,13 @@ PACKAGE_XML:=libxml2-2.6.30
 TCL_OS_TEST:=case `uname -s` in MINGW*) echo "win";; Darwin) echo "macosx";; *) echo "unix";; esac
 TCL_OS:=$(shell $(TCL_OS_TEST))
 
+# TODO: This is a temporary hack which fixes "configure" scripts on MinGW32.
+#       The real solution is to make "main.mk" pass a suitable linker, but
+#       we're not sure yet how to find a suitable linker.
+ifeq ($(TCL_OS),win)
+override LD=ld
+endif
+
 # Depending on the platform, some libraries are already available system-wide.
 ifeq ($(TCL_OS),macosx)
 SYSTEM_LIBS:=ZLIB TCL XML
