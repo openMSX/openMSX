@@ -26,7 +26,7 @@ protected:
 	// (if executed several million times per second)
 	inline void add(unsigned ticks) { extra += ticks; }
 	inline void sync() const {
-		if (limit >= 0) limit -= extra;
+		limit -= extra;
 		clock.fastAdd(extra); extra = 0;
 	}
 #endif
