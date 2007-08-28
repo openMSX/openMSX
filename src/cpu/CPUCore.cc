@@ -77,7 +77,7 @@ template <class T> void CPUCore<T>::setInterface(MSXCPUInterface* interf)
 
 template <class T> void CPUCore<T>::warp(const EmuTime& time)
 {
-	assert(T::getTime() <= time);
+	assert(T::getTimeFast() <= time);
 	T::setTime(time);
 }
 
@@ -128,7 +128,7 @@ template <class T> void CPUCore<T>::doReset(const EmuTime& time)
 	memptr = 0xFFFF;
 	invalidateMemCache(0x0000, 0x10000);
 
-	assert(T::getTime() <= time);
+	assert(T::getTimeFast() <= time);
 	T::setTime(time);
 
 	assert(NMIStatus == 0); // other devices must reset their NMI source
@@ -261,7 +261,7 @@ template <class T> void CPUCore<T>::disasmCommand(
 	byte outBuf[4];
 	std::string dasmOutput;
 	int len = dasm(*interface, address, outBuf, dasmOutput,
-	               T::getTime());
+	               T::getTimeFast());
 	result.addListElement(dasmOutput);
 	char tmp[3]; tmp[2] = 0;
 	for (int i = 0; i < len; ++i) {
@@ -303,7 +303,7 @@ template <class T> inline byte CPUCore<T>::READ_PORT(word port)
 {
 	memptr = port + 1;
 	T::PRE_IO(port);
-	EmuTime time = T::getTime();
+	EmuTime time = T::getTimeFast();
 	scheduler.schedule(time);
 	byte result = interface->readIO(port, time);
 	T::setLimit(scheduler.getNext());
@@ -315,7 +315,7 @@ template <class T> inline void CPUCore<T>::WRITE_PORT(word port, byte value)
 {
 	memptr = port + 1;
 	T::PRE_IO(port);
-	EmuTime time = T::getTime();
+	EmuTime time = T::getTimeFast();
 	scheduler.schedule(time);
 	interface->writeIO(port, value, time);
 	T::setLimit(scheduler.getNext());
@@ -340,7 +340,7 @@ template <class T> byte CPUCore<T>::RDMEM_OPCODEslow(word address)
 	// uncacheable
 	readCacheTried[high] = true;
 	T::PRE_RDMEM_OPCODE(address);
-	EmuTime time = T::getTime();
+	EmuTime time = T::getTimeFast();
 	scheduler.schedule(time);
 	byte result = interface->readMem(address, time);
 	T::setLimit(scheduler.getNext());
@@ -425,7 +425,7 @@ template <class T> byte CPUCore<T>::RDMEMslow(word address)
 	// uncacheable
 	readCacheTried[high] = true;
 	T::PRE_RDMEM(address);
-	EmuTime time = T::getTime();
+	EmuTime time = T::getTimeFast();
 	scheduler.schedule(time);
 	byte result = interface->readMem(address, time);
 	T::setLimit(scheduler.getNext());
@@ -489,7 +489,7 @@ template <class T> void CPUCore<T>::WRMEMslow(word address, byte value)
 	// uncacheable
 	writeCacheTried[high] = true;
 	T::PRE_WRMEM(address);
-	EmuTime time = T::getTime();
+	EmuTime time = T::getTimeFast();
 	scheduler.schedule(time);
 	interface->writeMem(address, value, time);
 	T::setLimit(scheduler.getNext());
@@ -634,7 +634,7 @@ template <class T> void CPUCore<T>::cpuTracePost_slow()
 {
 	byte opbuf[4];
 	string dasmOutput;
-	dasm(*interface, start_pc, opbuf, dasmOutput, T::getTime());
+	dasm(*interface, start_pc, opbuf, dasmOutput, T::getTimeFast());
 	std::cout << std::setfill('0') << std::hex << std::setw(4) << start_pc
 	     << " : " << dasmOutput
 	     << " AF=" << std::setw(4) << R.getAF()
@@ -691,14 +691,14 @@ template <class T> void CPUCore<T>::executeInternal()
 {
 	assert(!breaked);
 
-	scheduler.schedule(T::getTime());
+	scheduler.schedule(T::getTimeFast());
 	setSlowInstructions();
 
 	if (continued || step) {
 		// at least one instruction
 		continued = false;
 		executeSlow();
-		scheduler.schedule(T::getTime());
+		scheduler.schedule(T::getTimeFast());
 		--slowInstructions;
 		if (step) {
 			step = false;
@@ -716,7 +716,7 @@ template <class T> void CPUCore<T>::executeInternal()
 			if (slowInstructions) {
 				--slowInstructions;
 				executeSlow();
-				scheduler.schedule(T::getTime());
+				scheduler.schedule(T::getTimeFast());
 			} else {
 				while (slowInstructions == 0) {
 					T::enableLimit(true);
@@ -724,12 +724,12 @@ template <class T> void CPUCore<T>::executeInternal()
 					while (likely(!T::limitReached())) {
 						// too much overhead for non-debug build
 						#ifdef DEBUG
-						assert(T::getTime() < scheduler.getNext());
+						assert(T::getTimeFast() < scheduler.getNext());
 						assert(slowInstructions == 0);
 						#endif
 						executeFast();
 					}
-					scheduler.schedule(T::getTime());
+					scheduler.schedule(T::getTimeFast());
 					if (needExitCPULoop()) return;
 				}
 			}
@@ -744,11 +744,11 @@ template <class T> void CPUCore<T>::executeInternal()
 				cpuTracePre();
 				executeFast();
 				cpuTracePost();
-				scheduler.schedule(T::getTime());
+				scheduler.schedule(T::getTimeFast());
 			} else {
 				--slowInstructions;
 				executeSlow();
-				scheduler.schedule(T::getTime());
+				scheduler.schedule(T::getTimeFast());
 			}
 		}
 	}

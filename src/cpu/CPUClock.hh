@@ -33,6 +33,7 @@ protected:
 
 	// These are similar to the corresponding methods in DynamicClock.
 	const EmuTime& getTime() const { sync(); return clock.getTime(); }
+	const EmuTime getTimeFast() const { return clock.getFastAdd(extra); }
 	void setTime(const EmuTime& time) { sync(); clock.reset(time); }
 	void advanceTime(const EmuTime& time) { sync(); clock.advance(time); }
 	void setFreq(unsigned freq) { clock.setFreq(freq); }

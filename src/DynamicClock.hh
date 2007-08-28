@@ -105,6 +105,12 @@ public:
 		#endif
 		lastTick.time += n * step;
 	}
+	EmuTime getFastAdd(unsigned n) const {
+		#ifdef DEBUG
+		assert((uint64(n) * step) < (1ull << 32));
+		#endif
+		return EmuTime(lastTick.time + n * step);
+	}
 
 private:
 	/** Time of this clock's last tick.
