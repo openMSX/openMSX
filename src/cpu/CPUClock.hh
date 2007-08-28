@@ -4,6 +4,7 @@
 #define CPUCLOCK_HH
 
 #include "DynamicClock.hh"
+#include "likely.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -12,10 +13,7 @@ namespace openmsx {
 class CPUClock
 {
 protected:
-	explicit CPUClock(const EmuTime& time)
-		: clock(time), extra(0), limit(-1), limitEnabled(false)
-	{
-	}
+	explicit CPUClock(const EmuTime& time);
 
 // benchmarking showed a slowdown of ~3% on AMD64
 // when using the following code:
@@ -73,13 +71,9 @@ protected:
 	// (outside the inner loop, the real exit condition should be tested).
 
 	void setLimit(const EmuTime& time) {
-		if (limitEnabled) {
-			sync();
-			int newLimit = std::min(15000u, clock.getTicksTillUp(time));
-			if (limitReached()) {
-				limit = newLimit;
-			} else {
-				limit = std::min(limit, newLimit);
+		if (likely(limitEnabled)) {
+			if (unlikely(limitTime != time)) {
+				setLimit_slow(time);
 			}
 		} else {
 			assert(limit < 0);
@@ -87,14 +81,21 @@ protected:
 	}
 	void enableLimit(bool enable_) {
 		limitEnabled = enable_;
-		if (!limitEnabled) limit = -1;
+		if (limitEnabled) {
+			limitTime = EmuTime::infinity;
+		} else {
+			limit = -1;
+		}
 	}
 	bool limitReached() const {
 		return limit <= extra;
 	}
 
 private:
+	void setLimit_slow(const EmuTime& time);
+
 	mutable DynamicClock clock;
+	EmuTime limitTime;
 	mutable int extra;
 	mutable int limit;
 	bool limitEnabled;

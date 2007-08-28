@@ -1,5 +1,9 @@
 $Id$
 
+2007-08-28 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Split CPUClock::setLimit() in inline/non-inline part:
+	    gives a nice speedup in IO-port intensive applications
+
 2007-08-27 Maarten ter Huurne <maarten@treewalker.org>
 	* Do not cache the result of native system detection.
 	  This makes it easy to use the same source tree on different systems,

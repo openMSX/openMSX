@@ -3,7 +3,7 @@
 include build/node-start.mk
 
 SRC_HDR:= \
-	CPU CPUCore Dasm \
+	CPU CPUCore CPUClock Dasm \
 	Z80 R800 \
 	BreakPointBase BreakPoint WatchPoint \
 	MSXCPUInterface MSXCPU \
@@ -12,7 +12,7 @@ SRC_HDR:= \
 	VDPIODelay
 
 HDR_ONLY:= \
-	IRQHelper CPUClock \
+	IRQHelper \
 	CacheLine
 
 include build/node-end.mk
