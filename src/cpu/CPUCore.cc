@@ -303,8 +303,9 @@ template <class T> inline byte CPUCore<T>::READ_PORT(word port)
 {
 	memptr = port + 1;
 	T::PRE_IO(port);
-	scheduler.schedule(T::getTime());
-	byte result = interface->readIO(port, T::getTime());
+	EmuTime time = T::getTime();
+	scheduler.schedule(time);
+	byte result = interface->readIO(port, time);
 	T::setLimit(scheduler.getNext());
 	T::POST_IO(port);
 	return result;
@@ -314,8 +315,9 @@ template <class T> inline void CPUCore<T>::WRITE_PORT(word port, byte value)
 {
 	memptr = port + 1;
 	T::PRE_IO(port);
-	scheduler.schedule(T::getTime());
-	interface->writeIO(port, value, T::getTime());
+	EmuTime time = T::getTime();
+	scheduler.schedule(time);
+	interface->writeIO(port, value, time);
 	T::setLimit(scheduler.getNext());
 	T::POST_IO(port);
 }
@@ -338,8 +340,9 @@ template <class T> byte CPUCore<T>::RDMEM_OPCODEslow(word address)
 	// uncacheable
 	readCacheTried[high] = true;
 	T::PRE_RDMEM_OPCODE(address);
-	scheduler.schedule(T::getTime());
-	byte result = interface->readMem(address, T::getTime());
+	EmuTime time = T::getTime();
+	scheduler.schedule(time);
+	byte result = interface->readMem(address, time);
 	T::setLimit(scheduler.getNext());
 	T::POST_MEM(address);
 	return result;
@@ -422,8 +425,9 @@ template <class T> byte CPUCore<T>::RDMEMslow(word address)
 	// uncacheable
 	readCacheTried[high] = true;
 	T::PRE_RDMEM(address);
-	scheduler.schedule(T::getTime());
-	byte result = interface->readMem(address, T::getTime());
+	EmuTime time = T::getTime();
+	scheduler.schedule(time);
+	byte result = interface->readMem(address, time);
 	T::setLimit(scheduler.getNext());
 	T::POST_MEM(address);
 	return result;
@@ -485,8 +489,9 @@ template <class T> void CPUCore<T>::WRMEMslow(word address, byte value)
 	// uncacheable
 	writeCacheTried[high] = true;
 	T::PRE_WRMEM(address);
-	scheduler.schedule(T::getTime());
-	interface->writeMem(address, value, T::getTime());
+	EmuTime time = T::getTime();
+	scheduler.schedule(time);
+	interface->writeMem(address, value, time);
 	T::setLimit(scheduler.getNext());
 	T::POST_MEM(address);
 }
