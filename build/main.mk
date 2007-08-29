@@ -211,6 +211,7 @@ OPENMSX_PROFILE?=false
 $(call BOOLCHECK,OPENMSX_PROFILE)
 ifeq ($(OPENMSX_PROFILE),true)
   COMPILE_FLAGS+=-pg
+  LINK_FLAGS+=-pg
 endif
 
 
