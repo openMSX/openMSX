@@ -22,6 +22,19 @@ EXEEXT:=
 # I don't know why, but the linker suggests this.
 LINK_FLAGS+=-bind_at_load
 
+# Select the SDK for the OS X version we want to be compatible with.
+ifeq ($(OPENMSX_TARGET_CPU),ppc)
+SDK_PATH:=$(firstword $(sort $(wildcard /Developer/SDKs/MacOSX10.3.?.sdk)))
+OPENMSX_CXX:=g++-3.3
+else
+SDK_PATH:=/Developer/SDKs/MacOSX10.4u.sdk
+endif
+export NEXT_ROOT=$(SDK_PATH)
+
+# When NEXT_ROOT is defined, /usr/lib will not be scanned for libraries by
+# default, but users might have installed some dependencies there.
+LINK_FLAGS+=-L/usr/lib
+
 
 # Probe Overrides
 # ===============
