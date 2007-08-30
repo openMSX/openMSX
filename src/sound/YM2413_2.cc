@@ -794,6 +794,9 @@ private:
 	 */
 	int noise_rng;
 
+	/** Number of samples the output was completely silent. */
+	unsigned idleSamples;
+
 	typedef FixedPoint< 6> LFOAMIndex;
 	typedef FixedPoint<10> LFOPMIndex;
 	LFOAMIndex lfo_am_cnt;
@@ -1405,6 +1408,7 @@ void Global::reset(const EmuTime& time)
 {
 	eg_cnt    = 0;
 	noise_rng = 1;    // noise shift register
+	idleSamples = 0;
 
 	// setup instruments table
 	for (int instrument = 0; instrument < 19; instrument++) {
@@ -1435,6 +1439,8 @@ void Global::resetOperators()
 
 void Global::generateChannels(int** bufs, unsigned num)
 {
+	// TODO make channelActiveBits a member and
+	//      keep it up-to-date all the time
 	const int numMelodicChannels = getNumMelodicChannels();
 	unsigned channelActiveBits = 0;
 	for (int ch = 0; ch < numMelodicChannels; ++ch) {
@@ -1481,6 +1487,20 @@ void Global::generateChannels(int** bufs, unsigned num)
 		// channel [6..8] are used for melody
 		bufs[ 9] = 0;
 		bufs[10] = 0;
+	}
+	if (channelActiveBits) {
+		idleSamples = 0;
+	} else {
+		if (idleSamples > (CLOCK_FREQ / (72 * 5))) {
+			// Optimization:
+			//   idle for over 1/5s = 200ms
+			//   we don't care that noise / AM / PM isn't exactly
+			//   in sync with the real HW when music resumes
+			// Alternative:
+			//   implement an efficient advance(n) method
+			return;
+		}
+		idleSamples += num;
 	}
 	for (unsigned i = 0; i < num; ++i) {
 		advanceLFO();

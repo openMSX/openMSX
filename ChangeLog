@@ -1,5 +1,16 @@
 $Id$
 
+2007-08-30 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Optimized YM2413 and YM2413_2 idle mode:
+	    After profiling we found that even a completely idle YM2413 was
+	    at the top of a CPU profile (while running PSG games). The only
+	    thing the YM2413 was doing was updating the internal noise
+	    generator and AM/PM/evelope counters.
+	    Because this is so expensive we disable that after some idle
+	    time (for now 200ms). This means the noise sequence and AM/PM
+	    phase will not be exactly the same as on real HW when the music
+	    resumes, but that's most likely not audible.
+
 2007-08-29 Maarten ter Huurne <maarten@treewalker.org>
 	* Destruct File object before loading a file with IMG_Load from
 	  SDL_image. This should fix sharing violations on Windows.

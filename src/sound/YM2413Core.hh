@@ -20,6 +20,10 @@ class YM2413Debuggable;
 class YM2413Core: public SoundDevice, protected Resample
 {
 public:
+	// Input clock frequency.
+	// An output sample is generated every 72 cycles
+	static const int CLOCK_FREQ = 3579545;
+
 	YM2413Core(MSXMotherBoard& motherBoard, const std::string& name);
 	virtual ~YM2413Core();
 	virtual void writeReg(byte reg, byte value, const EmuTime& time) = 0;
