@@ -248,7 +248,8 @@ $(BUILD_DIR)/$(PACKAGE_XML)/Makefile: \
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$</configure \
 		--with-minimum \
- 		--with-push \
+		--with-push \
+		--with-sax1 \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		$(if $(filter-out $(SYSTEM_LIBS),ZLIB),--with-zlib=$(PWD)/$(INSTALL_DIR),) \
