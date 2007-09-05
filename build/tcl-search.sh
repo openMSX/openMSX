@@ -9,7 +9,7 @@ BEST_MINOR_VERSION=9999
 BEST_CFLAGS=
 BEST_LDFLAGS=
 
-if [ -z $TCL_CONFIG_DIR ]
+if [ -z "$TCL_CONFIG_DIR" ]
 then
 	SEARCH_DIRS="\
 		/usr/local/lib64/tcl8.* /usr/lib64/tcl8.* \
