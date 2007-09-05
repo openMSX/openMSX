@@ -223,6 +223,8 @@ $(BUILD_DIR)/$(PACKAGE_GLEW)/Makefile: \
 	cp -r $< $(@D)
 
 # Configure Tcl.
+# Note: Tcl seems to build either dynamic libs or static libs, which is why we
+#       have to pass --disable-shared to configure.
 ifeq ($(OPENMSX_TARGET_OS),mingw32)
 TCL_OS:=win
 else
@@ -237,7 +239,8 @@ $(BUILD_DIR)/$(PACKAGE_TCL)/Makefile: \
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$</$(TCL_OS)/configure \
 		--host=$(TARGET_TRIPLE) \
-		--prefix=$(PWD)/$(INSTALL_DIR)
+		--prefix=$(PWD)/$(INSTALL_DIR) \
+		--disable-shared
 # Tcl's configure ignores CFLAGS passed to it.
 MAKEVAR_OVERRIDE_TCL:=CFLAGS_OPTIMIZE="$(_CFLAGS)"
 
