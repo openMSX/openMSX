@@ -1,5 +1,15 @@
 $Id$
 
+2007-09-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Big optimization in CPU code:
+	   - Before we used function-to-member-pointers, now we use
+	     function-pointers to static functions that take an explicit
+	     'this' argument. This doesn't look as nice, but gcc can
+	     generate faster code for it.
+	   - In the 'zexall' test with renderer=none speed improved from about
+	     106s to 85s on my system! In a 'Space Manbow' test (also with
+	     renderer=none) speed improved from 54s to 48s!
+
 2007-08-30 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimized YM2413 and YM2413_2 idle mode:
 	    After profiling we found that even a completely idle YM2413 was
