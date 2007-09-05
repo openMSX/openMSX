@@ -108,7 +108,7 @@ INSTALL_TARGETS:=$(foreach PACKAGE,$(PACKAGES),$(TIMESTAMP_DIR)/install-$(PACKAG
 
 INSTALL_PARAMS_GLEW:=GLEW_DEST=$(PWD)/$(INSTALL_DIR)
 
-CURL_TEST:=$(TIMESTAMP_DIR)/check-curl
+CURL_TEST:=$(TARBALLS_DIR)/check-curl
 
 # Function which, given a variable name prefix and the variable's value,
 # returns the name of the package.
