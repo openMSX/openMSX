@@ -108,8 +108,6 @@ INSTALL_TARGETS:=$(foreach PACKAGE,$(PACKAGES),$(TIMESTAMP_DIR)/install-$(PACKAG
 
 INSTALL_PARAMS_GLEW:=GLEW_DEST=$(PWD)/$(INSTALL_DIR)
 
-CURL_TEST:=$(TARBALLS_DIR)/check-curl
-
 # Function which, given a variable name prefix and the variable's value,
 # returns the name of the package.
 findpackage=$(strip $(foreach PACKAGE,$(PACKAGES),$(if $(filter $(2),$($(1)_$(PACKAGE))),$(PACKAGE),)))
@@ -278,15 +276,10 @@ $(foreach PACKAGE,$(PACKAGES),$(SOURCE_DIR)/$(PACKAGE_$(PACKAGE))):
 	test ! -e $(PATCHES_DIR)/$(PACKAGE_$(call findpackage,TARBALL,$(<F))).diff || patch -p1 -N -u -d $@ < $(PATCHES_DIR)/$(PACKAGE_$(call findpackage,TARBALL,$(<F))).diff
 	touch $@
 
-# Check whether CURL is available.
-$(CURL_TEST):
-	curl --version ; if [ $$? != 2 ]; then echo "Please install CURL (http://curl.haxx.se/) and put it in the PATH."; false; fi
-	mkdir -p $(@D)
-	touch $@
-
 # Download source packages.
 TARBALLS:=$(foreach PACKAGE,$(PACKAGES),$(TARBALLS_DIR)/$(TARBALL_$(PACKAGE)))
 download: $(TARBALLS)
-$(TARBALLS): $(CURL_TEST)
+$(TARBALLS):
+	@curl --version ; if [ $$? != 2 ]; then echo "Please install CURL (http://curl.haxx.se/) and put it in the PATH."; false; fi
 	mkdir -p $(@D)
 	curl --fail --location -o $@ $(DOWNLOAD_$(call findpackage,TARBALL,$(@F)))/$(@F)
