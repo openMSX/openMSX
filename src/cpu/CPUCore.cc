@@ -939,18 +939,20 @@ template <class T> void CPUCore<T>::ld_xiy_l(S& s) { s.WR_XIY(s.R.getL()); }
 // LD (IX+e),n
 template <class T> void CPUCore<T>::ld_xix_byte(S& s)
 {
-	offset ofst = s.RDMEM_OPCODE();
+	word tmp = s.RD_WORD_PC();
+	offset ofst = tmp & 0xFF;
+	byte val = tmp >> 8;
 	s.memptr = s.R.getIX() + ofst;
-	byte val = s.RDMEM_OPCODE();
 	s.PARALLEL_DELAY(); s.WR_X_X(val);
 }
 
 // LD (IY+e),n
 template <class T> void CPUCore<T>::ld_xiy_byte(S& s)
 {
-	offset ofst = s.RDMEM_OPCODE();
+	word tmp = s.RD_WORD_PC();
+	offset ofst = tmp & 0xFF;
+	byte val = tmp >> 8;
 	s.memptr = s.R.getIY() + ofst;
-	byte val = s.RDMEM_OPCODE();
 	s.PARALLEL_DELAY(); s.WR_X_X(val);
 }
 
@@ -3101,16 +3103,18 @@ template <class T> void CPUCore<T>::muluw_hl_sp(S& s) { s.MULUW(s.R.getSP()); }
 // prefixes
 template <class T> void CPUCore<T>::dd_cb(S& s)
 {
-	s.ofst = s.RDMEM_OPCODE();
-	byte opcode = s.RDMEM_OPCODE();
+	word tmp = s.RD_WORD_PC();
+	s.ofst = tmp & 0xFF;
+	byte opcode = tmp >> 8;
 	s.DD_CB_DELAY();
 	(*opcode_dd_cb[opcode])(s);
 }
 
 template <class T> void CPUCore<T>::fd_cb(S& s)
 {
-	s.ofst = s.RDMEM_OPCODE();
-	byte opcode = s.RDMEM_OPCODE();
+	word tmp = s.RD_WORD_PC();
+	s.ofst = tmp & 0xFF;
+	byte opcode = tmp >> 8;
 	s.DD_CB_DELAY();
 	(*opcode_fd_cb[opcode])(s);
 }

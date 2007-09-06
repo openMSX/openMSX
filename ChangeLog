@@ -3,6 +3,7 @@ $Id$
 2007-09-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* CPU code tweak:
 	   - slightly better signed overflow calculation
+	   - use RD_WORD_PC to read two consecutive opcode bytes
 
 2007-09-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Big optimization in CPU code:
