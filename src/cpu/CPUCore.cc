@@ -1086,7 +1086,7 @@ template <class T> inline void CPUCore<T>::ADC(byte reg)
 	R.setF(ZSXYTable[res & 0xFF] |
 	       ((res & 0x100) ? C_FLAG : 0) |
 	       ((R.getA() ^ res ^ reg) & H_FLAG) |
-	       (((reg ^ R.getA() ^ 0x80) & (reg ^ res) & 0x80) ? V_FLAG : 0));
+	       (((R.getA() ^ res) & (reg ^ res) & 0x80) ? V_FLAG : 0));
 	R.setA(res);
 }
 template <class T> inline void CPUCore<T>::adc_a_a(S& s)
@@ -1131,7 +1131,7 @@ template <class T> inline void CPUCore<T>::ADD(byte reg)
 	R.setF(ZSXYTable[res & 0xFF] |
 	       ((res & 0x100) ? C_FLAG : 0) |
 	       ((R.getA() ^ res ^ reg) & H_FLAG) |
-	       (((reg ^ R.getA() ^ 0x80) & (reg ^ res) & 0x80) ? V_FLAG : 0));
+	       (((R.getA() ^ res) & (reg ^ res) & 0x80) ? V_FLAG : 0));
 	R.setA(res);
 }
 template <class T> inline void CPUCore<T>::add_a_a(S& s)
@@ -1490,7 +1490,7 @@ template <class T> inline void CPUCore<T>::ADCW(word reg)
 	R.setF((((R.getHL() ^ res ^ reg) >> 8) & H_FLAG) |
 	       ((res & 0x10000) ? C_FLAG : 0) |
 	       ((res & 0xffff) ? 0 : Z_FLAG) |
-	       (((reg ^ R.getHL() ^ 0x8000) & (reg ^ res) & 0x8000) ? V_FLAG : 0) |
+	       (((R.getHL() ^ res) & (reg ^ res) & 0x8000) ? V_FLAG : 0) |
 	       ((res >> 8) & (S_FLAG | X_FLAG | Y_FLAG)));
 	R.setHL(res);
 	T::OP_16_16_DELAY();
