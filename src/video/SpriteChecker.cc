@@ -63,7 +63,7 @@ inline SpriteChecker::SpritePattern SpriteChecker::calculatePatternNP(
 	if (vdp.getSpriteSize() == 16) {
 		pattern |= patternPtr[index + 16] << 16;
 	}
-	return vdp.getSpriteMag() == 1 ? pattern : doublePattern(pattern);
+	return !vdp.isSpriteMag() ? pattern : doublePattern(pattern);
 }
 inline SpriteChecker::SpritePattern SpriteChecker::calculatePatternPlanar(
 	int patternNr, int y)
@@ -78,7 +78,7 @@ inline SpriteChecker::SpritePattern SpriteChecker::calculatePatternPlanar(
 	if (vdp.getSpriteSize() == 16) {
 		pattern |= patternPtr[index + (16 / 2)] << 16;
 	}
-	return vdp.getSpriteMag() == 1 ? pattern : doublePattern(pattern);
+	return !vdp.isSpriteMag() ? pattern : doublePattern(pattern);
 }
 inline SpriteChecker::SpritePattern SpriteChecker::calculatePattern(
 	int patternNr, int y)
@@ -103,15 +103,17 @@ inline int SpriteChecker::checkSprites1(
 	bool limitSprites = limitSpritesSetting.getValue();
 	int sprite, visibleIndex = 0;
 	int size = vdp.getSpriteSize();
-	int mag = vdp.getSpriteMag();
+	bool mag = vdp.isSpriteMag();
+	int magSize = (mag + 1) * size;
 	const byte* attributePtr = vram.spriteAttribTable.getReadArea(0, 32 * 4);
 	byte patternIndexMask = size == 16 ? 0xFC : 0xFF;
 	for (sprite = 0; sprite < 32; sprite++, attributePtr += 4) {
 		int y = *attributePtr;
 		if (y == 208) break;
 		// Calculate line number within the sprite.
-		int spriteLine = ((line - y) & 0xFF) / mag;
-		if (spriteLine < size) {
+		int spriteLine = (line - y) & 0xFF;
+		if (spriteLine < magSize) {
+			if (mag) spriteLine /= 2;
 			if (visibleIndex == 4) {
 				// Five sprites on a line.
 				// According to TMS9918.pdf 5th sprite detection is only
@@ -156,7 +158,6 @@ inline int SpriteChecker::checkSprites1(
 	but there are max 4 sprites and therefore max 6 pairs.
 	If any collision is found, method returns at once.
 	*/
-	int magSize = size * mag;
 	for (int i = (visibleIndex < 4 ? visibleIndex : 4); --i >= 1; ) {
 		int x_i = visibleSprites[i].x;
 		SpritePattern pattern_i = visibleSprites[i].pattern;
@@ -203,7 +204,8 @@ inline int SpriteChecker::checkSprites2(
 	bool limitSprites = limitSpritesSetting.getValue();
 	int sprite, visibleIndex = 0;
 	int size = vdp.getSpriteSize();
-	int mag = vdp.getSpriteMag();
+	bool mag = vdp.isSpriteMag();
+	int magSize = (mag + 1) * size;
 	int patternIndexMask = (size == 16) ? 0xFC : 0xFF;
 
 	const byte* attributePtr0;
@@ -226,8 +228,9 @@ inline int SpriteChecker::checkSprites2(
 		int y = attributePtr0[index0];
 		if (y == 216) break;
 		// Calculate line number within the sprite.
-		int spriteLine = ((line - y) & 0xFF) / mag;
-		if (spriteLine < size) {
+		int spriteLine = (line - y) & 0xFF;
+		if (spriteLine < magSize) {
+			if (mag) spriteLine /= 2;
 			if (visibleIndex == 8) {
 				// Nine sprites on a line.
 				// According to TMS9918.pdf 5th sprite detection is only
@@ -283,7 +286,6 @@ inline int SpriteChecker::checkSprites2(
 	        Probably new approach is needed anyway for OR-ing.
 	If any collision is found, method returns at once.
 	*/
-	int magSize = size * mag;
 	for (int i = (visibleIndex < 8 ? visibleIndex : 8); --i >= 1; ) {
 		// If CC or IC is set, this sprite cannot collide.
 		if (visibleSprites[i].colourAttrib & 0x60) continue;

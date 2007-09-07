@@ -356,11 +356,10 @@ public:
 		return ((controlRegs[1] & 2) << 2) + 8;
 	}
 
-	/** Gets the sprite magnification.
-	  * @return Magnification: 1 = normal, 2 = double.
+	/** Are sprites magnified?
 	  */
-	inline int getSpriteMag() const {
-		return (controlRegs[1] & 1) + 1;
+	inline bool isSpriteMag() const {
+		return controlRegs[1] & 1;
 	}
 
 	/** Are commands possible in non Graphic modes? (V9958 only)
