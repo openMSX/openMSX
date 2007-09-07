@@ -80,12 +80,6 @@ inline SpriteChecker::SpritePattern SpriteChecker::calculatePatternPlanar(
 	}
 	return !vdp.isSpriteMag() ? pattern : doublePattern(pattern);
 }
-inline SpriteChecker::SpritePattern SpriteChecker::calculatePattern(
-	int patternNr, int y)
-{
-	return planar ? calculatePatternPlanar(patternNr, y)
-	              : calculatePatternNP    (patternNr, y);
-}
 
 inline int SpriteChecker::checkSprites1(
 	int line, SpriteChecker::SpriteInfo *visibleSprites)
@@ -186,8 +180,6 @@ inline int SpriteChecker::checkSprites1(
 	return visibleIndex;
 }
 
-// TODO: For higher performance, have separate routines for planar and
-//       non-planar modes.
 inline int SpriteChecker::checkSprites2(
 	int line, SpriteChecker::SpriteInfo *visibleSprites)
 {
@@ -208,54 +200,83 @@ inline int SpriteChecker::checkSprites2(
 	int magSize = (mag + 1) * size;
 	int patternIndexMask = (size == 16) ? 0xFC : 0xFF;
 
-	const byte* attributePtr0;
-	const byte* attributePtr1;
+	// because it gave a measurable performance boost, we duplicated the
+	// code for planar and non-planar modes
 	if (planar) {
+		const byte* attributePtr0;
+		const byte* attributePtr1;
 		vram.spriteAttribTable.getReadAreaPlanar(
 			512, 32 * 4, attributePtr0, attributePtr1);
-	} else {
-		attributePtr0 = attributePtr1 =
-			vram.spriteAttribTable.getReadArea(512, 32 * 4);
-	}
-	const int index0 = planar ? (0 / 2) : 0;
-	const int index1 = planar ? (1 / 2) : 1;
-	const int index2 = planar ? (2 / 2) : 2;
-	const int indexIncr = planar ? 2 : 4;
-
-	// TODO: Verify CC implementation.
-	for (sprite = 0; sprite < 32; ++sprite, attributePtr0 += indexIncr,
-		                                attributePtr1 += indexIncr) {
-		int y = attributePtr0[index0];
-		if (y == 216) break;
-		// Calculate line number within the sprite.
-		int spriteLine = (line - y) & 0xFF;
-		if (spriteLine < magSize) {
-			if (mag) spriteLine /= 2;
-			if (visibleIndex == 8) {
-				// Nine sprites on a line.
-				// According to TMS9918.pdf 5th sprite detection is only
-				// active when F flag is zero. Stuck to this for V9938.
-				// Dragon Quest 2 needs this
-				byte status = vdp.getStatusReg0();
-				if ((status & 0xC0) == 0) {
-					vdp.setSpriteStatus(
-					     0x40 | (status & 0x20) | sprite);
+		// TODO: Verify CC implementation.
+		for (sprite = 0; sprite < 32; ++sprite) {
+			int y = attributePtr0[2 * sprite + 0];
+			if (y == 216) break;
+			// Calculate line number within the sprite.
+			int spriteLine = (line - y) & 0xFF;
+			if (spriteLine < magSize) {
+				if (mag) spriteLine /= 2;
+				if (visibleIndex == 8) {
+					// Nine sprites on a line.
+					// According to TMS9918.pdf 5th sprite detection is only
+					// active when F flag is zero. Stuck to this for V9938.
+					// Dragon Quest 2 needs this
+					byte status = vdp.getStatusReg0();
+					if ((status & 0xC0) == 0) {
+						vdp.setSpriteStatus(
+						     0x40 | (status & 0x20) | sprite);
+					}
+					if (limitSprites) break;
 				}
-				if (limitSprites) break;
+				int colorIndex = (-1 << 10) | (sprite * 16 + spriteLine);
+				byte colorAttrib =
+					vram.spriteAttribTable.readPlanar(colorIndex);
+				// Sprites with CC=1 are only visible if preceded by
+				// a sprite with CC=0.
+				if ((colorAttrib & 0x40) && visibleIndex == 0) continue;
+				SpriteInfo* sip = &visibleSprites[visibleIndex++];
+				int patternIndex = attributePtr0[2 * sprite + 1] & patternIndexMask;
+				sip->pattern = calculatePatternPlanar(patternIndex, spriteLine);
+				sip->x = attributePtr1[2 * sprite + 0];
+				if (colorAttrib & 0x80) sip->x -= 32;
+				sip->colourAttrib = colorAttrib;
 			}
-			int colorIndex = (-1 << 10) | (sprite * 16 + spriteLine);
-			byte colorAttrib = planar
-				? vram.spriteAttribTable.readPlanar(colorIndex)
-				: vram.spriteAttribTable.readNP    (colorIndex);
-			// Sprites with CC=1 are only visible if preceded by
-			// a sprite with CC=0.
-			if ((colorAttrib & 0x40) && visibleIndex == 0) continue;
-			SpriteInfo* sip = &visibleSprites[visibleIndex++];
-			int patternIndex = attributePtr0[index2] & patternIndexMask;
-			sip->pattern = calculatePattern(patternIndex, spriteLine);
-			sip->x = attributePtr1[index1];
-			if (colorAttrib & 0x80) sip->x -= 32;
-			sip->colourAttrib = colorAttrib;
+		}
+	} else {
+		const byte* attributePtr0 =
+			vram.spriteAttribTable.getReadArea(512, 32 * 4);
+		// TODO: Verify CC implementation.
+		for (sprite = 0; sprite < 32; ++sprite) {
+			int y = attributePtr0[4 * sprite + 0];
+			if (y == 216) break;
+			// Calculate line number within the sprite.
+			int spriteLine = (line - y) & 0xFF;
+			if (spriteLine < magSize) {
+				if (mag) spriteLine /= 2;
+				if (visibleIndex == 8) {
+					// Nine sprites on a line.
+					// According to TMS9918.pdf 5th sprite detection is only
+					// active when F flag is zero. Stuck to this for V9938.
+					// Dragon Quest 2 needs this
+					byte status = vdp.getStatusReg0();
+					if ((status & 0xC0) == 0) {
+						vdp.setSpriteStatus(
+						     0x40 | (status & 0x20) | sprite);
+					}
+					if (limitSprites) break;
+				}
+				int colorIndex = (-1 << 10) | (sprite * 16 + spriteLine);
+				byte colorAttrib =
+					vram.spriteAttribTable.readNP(colorIndex);
+				// Sprites with CC=1 are only visible if preceded by
+				// a sprite with CC=0.
+				if ((colorAttrib & 0x40) && visibleIndex == 0) continue;
+				SpriteInfo* sip = &visibleSprites[visibleIndex++];
+				int patternIndex = attributePtr0[4 * sprite + 2] & patternIndexMask;
+				sip->pattern = calculatePatternNP(patternIndex, spriteLine);
+				sip->x = attributePtr0[4 * sprite + 1];
+				if (colorAttrib & 0x80) sip->x -= 32;
+				sip->colourAttrib = colorAttrib;
+			}
 		}
 	}
 	byte status = vdp.getStatusReg0();

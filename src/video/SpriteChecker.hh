@@ -316,16 +316,7 @@ private:
 	  *   Bit 31 is the leftmost bit of the sprite.
 	  *   Unused bits are zero.
 	  */
-	inline SpritePattern calculatePattern(int patternNr, int y);
-
-	/** Calculates a sprite pattern, non-planar addressing.
-	  * @see calculatePattern
-	  */
 	inline SpritePattern calculatePatternNP(int patternNr, int y);
-
-	/** Calculates a sprite pattern, planar addressing.
-	  * @see calculatePattern
-	  */
 	inline SpritePattern calculatePatternPlanar(int patternNr, int y);
 
 	/** Check sprite collision and number of sprites per line.

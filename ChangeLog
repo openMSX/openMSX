@@ -1,6 +1,12 @@
 $Id$
 
 2007-09-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* SpriteChecker improvements:
+	   - get rid of expensive division in SpriteChecker fast-path 
+	   - duplicate SpriteChecker::checkSprites2() for planar and
+	     non-planar modes
+
+2007-09-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* CPU code tweak:
 	   - slightly better signed overflow calculation
 	   - use RD_WORD_PC to read two consecutive opcode bytes
