@@ -1,14 +1,16 @@
 # $Id$
 #
 # Compiles 3rd party libraries needed by openMSX.
-# Actually, only those 3rd party libraries that are not in the default system
-# of Mac OS X, but others can be added later.
 # It enables only the features needed by openMSX: for example from SDL_image
 # we only need PNG handling cability.
 
 ifeq ($(origin BUILD_PATH),undefined)
 $(error You should pass BUILD_PATH)
 endif
+
+# Get information about the target OS.
+SYSTEM_LIBS:=
+include build/platform-$(OPENMSX_TARGET_OS).mk
 
 # Compiler selection, compiler flags, SDK selection.
 # These variables are already exported, but we make it explicit here.
@@ -35,7 +37,7 @@ DOWNLOAD_XML:=http://xmlsoft.org/sources
 # These were the most recent versions at the moment of writing this Makefile.
 # You can use other versions if you like; adjust the names accordingly.
 PACKAGE_ZLIB:=zlib-1.2.3
-PACKAGE_PNG:=libpng-1.2.19
+PACKAGE_PNG:=libpng-1.2.20rc6
 PACKAGE_SDL:=SDL-1.2.12
 PACKAGE_SDL_IMAGE:=SDL_image-1.2.6
 PACKAGE_GLEW:=glew-1.4.0
@@ -64,19 +66,6 @@ TARGET_TRIPLE:=$(TRIPLE_MACHINE)-unknown-$(TRIPLE_OS)
 #       we're not sure yet how to find a suitable linker.
 ifeq ($(OPENMSX_TARGET_OS),mingw32)
 override LD=ld
-endif
-
-# Depending on the platform, some libraries are already available system-wide.
-ifeq ($(OPENMSX_TARGET_OS),darwin)
-SYSTEM_LIBS:=ZLIB TCL XML
-else
-# On Windows none of the required libraries are part of the base system.
-# On Unix-like systems the libraries we use are often installed as dependencies
-# of installed applications, but not part of the base system. Also, which
-# optional dependencies are enabled for SDL and SDL_image varies. So if we want
-# to produce a binary that has a reasonable chance of running on many machines,
-# we cannot assume any library to be part of the base system.
-SYSTEM_LIBS:=
 endif
 
 # Although X11 is available on Windows and Mac OS X, most people do not have

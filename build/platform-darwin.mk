@@ -36,6 +36,10 @@ LINK_ENV+=NEXT_ROOT=$(SDK_PATH)
 # default, but users might have installed some dependencies there.
 LINK_FLAGS+=-L/usr/lib
 
+# These libraries are part of the base system, therefore we do not need to
+# link them statically for building a redistributable binary.
+SYSTEM_LIBS:=ZLIB TCL XML
+
 
 # Probe Overrides
 # ===============
