@@ -39,7 +39,6 @@ bool YM2413Core::generateInput(int* buffer, unsigned num)
 
 void YM2413Core::setOutputRate(unsigned sampleRate)
 {
-	static const int CLOCK_FREQ = 3579545;
 	double input = CLOCK_FREQ / 72.0;
 	setInputRate(int(input + 0.5));
 	setResampleRatio(input, sampleRate);

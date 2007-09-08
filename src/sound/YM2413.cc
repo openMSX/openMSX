@@ -189,6 +189,9 @@ private:
 	// Noise Generator
 	int noise_seed;
 
+	// Number of samples the output was completely silent
+	unsigned idleSamples;
+
 public:
 	// Empty voice data
 	static Patch nullPatch;
@@ -256,11 +259,10 @@ static PhaseModulation pmtable[PM_PG_WIDTH];
 static int amtable[AM_PG_WIDTH];
 
 // Noise and LFO
-static const int CLOCK_FREQ = 3579545;
 static unsigned PM_DPHASE =
-	unsigned(PM_SPEED * PM_DP_WIDTH / (CLOCK_FREQ / 72.0));
+	unsigned(PM_SPEED * PM_DP_WIDTH / (YM2413Core::CLOCK_FREQ / 72.0));
 static unsigned AM_DPHASE =
-	unsigned(AM_SPEED * AM_DP_WIDTH / (CLOCK_FREQ / 72.0));
+	unsigned(AM_SPEED * AM_DP_WIDTH / (YM2413Core::CLOCK_FREQ / 72.0));
 
 // Liner to Log curve conversion table (for Attack rate).
 static unsigned AR_ADJUST_TABLE[1 << EG_BITS];
@@ -845,6 +847,7 @@ void Global::reset(const EmuTime& time)
 	pm_phase = 0;
 	am_phase = 0;
 	noise_seed = 0xFFFF;
+	idleSamples = 0;
 
 	for(int i = 0; i < 9; i++) {
 		channels[i].reset();
@@ -1221,6 +1224,8 @@ inline void Global::calcSample(
 
 void Global::generateChannels(int** bufs, unsigned num)
 {
+	// TODO make channelActiveBits a member and
+	//      keep it up-to-date all the time
 	const int numMelodicChannels = isRhythm() ? 6 : 9;
 	unsigned channelActiveBits = 0;
 	for (int ch = 0; ch < numMelodicChannels; ch++) {
@@ -1260,6 +1265,20 @@ void Global::generateChannels(int** bufs, unsigned num)
 		// channel [6..8] are used for melody
 		bufs[ 9] = 0;
 		bufs[10] = 0;
+	}
+	if (channelActiveBits) {
+		idleSamples = 0;
+	} else {
+		if (idleSamples > (CLOCK_FREQ / (72 * 5))) {
+			// Optimization:
+			//   idle for over 1/5s = 200ms
+			//   we don't care that noise / AM / PM isn't exactly
+			//   in sync with the real HW when music resumes
+			// Alternative:
+			//   implement an efficient advance(n) method
+			return;
+		}
+		idleSamples += num;
 	}
 	for (unsigned i = 0; i < num; ++i) {
 		advance();
