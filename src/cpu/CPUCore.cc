@@ -691,7 +691,11 @@ template <class T> void CPUCore<T>::executeInternal()
 {
 	assert(!breaked);
 
-	scheduler.schedule(T::getTimeFast());
+	// note: Don't use getTimeFast() here, because 'once in a while' we
+	//       need to CPUClock::sync() to avoid overflow.
+	//       Should be done at least once per second (approx). So only
+	//       once in this method is enough.
+	scheduler.schedule(T::getTime());
 	setSlowInstructions();
 
 	if (continued || step) {
