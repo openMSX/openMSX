@@ -31,3 +31,5 @@ LINK_FLAGS:=-L/mingw/lib -L/mingw/lib/w32api -lwsock32 -lwinmm -ldsound \
 GL_LDFLAGS:=-lopengl32
 
 GLEW_LDFLAGS:=-lglew32
+
+SDL_LDFLAGS:=`sdl-config --libs 2>> $(LOG) | sed -e 's/-mwindows/-mconsole/'`
