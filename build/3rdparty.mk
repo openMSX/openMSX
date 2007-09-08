@@ -42,23 +42,32 @@ PACKAGE_GLEW:=glew-1.4.0
 PACKAGE_TCL:=tcl8.4.15
 PACKAGE_XML:=libxml2-2.6.30
 
-# Check OS.
-# This is done for Tcl, but we can also use the result ourselves.
-# TODO: We want to use this Makefile for cross compilation in the future,
-#       which means we should not probe the local system except to provide a
-#       default OS when the user did not specify one.
-TCL_OS_TEST:=case `uname -s` in MINGW*) echo "win";; Darwin) echo "macosx";; *) echo "unix";; esac
-TCL_OS:=$(shell $(TCL_OS_TEST))
+# Create a GNU-style system triple.
+ifeq ($(OPENMSX_TARGET_CPU),x86)
+TRIPLE_MACHINE:=i686
+else
+ifeq ($(OPENMSX_TARGET_CPU),ppc)
+TRIPLE_MACHINE:=powerpc
+else
+ifeq ($(OPENMSX_TARGET_CPU),ppc64)
+TRIPLE_MACHINE:=powerpc64
+else
+TRIPLE_MACHINE:=$(OPENMSX_TARGET_CPU)
+endif
+endif
+endif
+TRIPLE_OS:=$(OPENMSX_TARGET_OS)
+TARGET_TRIPLE:=$(TRIPLE_MACHINE)-unknown-$(TRIPLE_OS)
 
 # TODO: This is a temporary hack which fixes "configure" scripts on MinGW32.
 #       The real solution is to make "main.mk" pass a suitable linker, but
 #       we're not sure yet how to find a suitable linker.
-ifeq ($(TCL_OS),win)
+ifeq ($(OPENMSX_TARGET_OS),mingw32)
 override LD=ld
 endif
 
 # Depending on the platform, some libraries are already available system-wide.
-ifeq ($(TCL_OS),macosx)
+ifeq ($(OPENMSX_TARGET_OS),darwin)
 SYSTEM_LIBS:=ZLIB TCL XML
 else
 # On Windows none of the required libraries are part of the base system.
@@ -72,10 +81,10 @@ endif
 
 # Although X11 is available on Windows and Mac OS X, most people do not have
 # it installed, so do not link against it.
-ifeq ($(TCL_OS),unix)
-USE_VIDEO_X11:=enable
-else
+ifeq ($(filter linux freebsd freebsd4 kfreebsd netbsd openbsd,$(OPENMSX_TARGET_OS)),)
 USE_VIDEO_X11:=disable
+else
+USE_VIDEO_X11:=enable
 endif
 
 # Unfortunately not all packages stick to naming conventions such as putting
@@ -135,6 +144,7 @@ $(BUILD_DIR)/$(PACKAGE_SDL)/Makefile: \
 		--disable-debug \
 		--disable-cdrom \
 		--disable-stdio-redirect \
+		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		CFLAGS="$(_CFLAGS)"
 # While openMSX does not use "cpuinfo", "endian" and "file" modules, other
@@ -161,6 +171,7 @@ $(BUILD_DIR)/$(PACKAGE_SDL_IMAGE)/Makefile: \
 		--disable-tif \
 		--disable-xcf \
 		--disable-xpm \
+		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		CFLAGS="$(_CFLAGS) $(shell $(PWD)/$(INSTALL_DIR)/bin/libpng12-config --cflags)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
@@ -172,6 +183,7 @@ $(BUILD_DIR)/$(PACKAGE_PNG)/Makefile: \
   $(foreach PACKAGE,$(filter-out $(SYSTEM_LIBS),ZLIB),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$</configure \
+		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		CFLAGS="$(_CFLAGS)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
@@ -211,10 +223,20 @@ $(BUILD_DIR)/$(PACKAGE_GLEW)/Makefile: \
 	cp -r $< $(@D)
 
 # Configure Tcl.
+ifeq ($(OPENMSX_TARGET_OS),mingw32)
+TCL_OS:=win
+else
+ifeq ($(OPENMSX_TARGET_OS),darwin)
+TCL_OS:=maxosx
+else
+TCL_OS:=unix
+endif
+endif
 $(BUILD_DIR)/$(PACKAGE_TCL)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_TCL)
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$</$(TCL_OS)/configure \
+		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR)
 # Tcl's configure ignores CFLAGS passed to it.
 MAKEVAR_OVERRIDE_TCL:=CFLAGS_OPTIMIZE="$(_CFLAGS)"
@@ -225,9 +247,10 @@ $(BUILD_DIR)/$(PACKAGE_XML)/Makefile: \
   $(foreach PACKAGE,$(filter-out $(SYSTEM_LIBS),ZLIB),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$</configure \
-		--prefix=$(PWD)/$(INSTALL_DIR) \
 		--with-minimum \
  		--with-push \
+		--host=$(TARGET_TRIPLE) \
+		--prefix=$(PWD)/$(INSTALL_DIR) \
 		$(if $(filter-out $(SYSTEM_LIBS),ZLIB),--with-zlib=$(PWD)/$(INSTALL_DIR),) \
 		CFLAGS="$(_CFLAGS)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
