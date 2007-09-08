@@ -1,5 +1,11 @@
 $Id$
 
+2007-08-27 Maarten ter Huurne <maarten@treewalker.org>
+	* Do not cache the result of native system detection.
+	  This makes it easy to use the same source tree on different systems,
+	  for example when the sources are on a network drive or if you do
+	  both 32-bit and 64-bit builds on an x86_64 system.
+
 2007-08-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimization in SDLRasterizer:
 	   - if possible directly render to destination (instead of to local

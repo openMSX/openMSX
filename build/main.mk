@@ -140,18 +140,13 @@ endif
 
 # Do not perform autodetection if platform was specified by the user.
 ifneq ($(filter undefined,$(origin OPENMSX_TARGET_CPU) $(origin OPENMSX_TARGET_OS)),)
-
-DETECTSYS_PATH:=$(BUILD_BASE)/detectsys
-DETECTSYS_MAKE:=$(DETECTSYS_PATH)/detectsys.mk
 DETECTSYS_SCRIPT:=$(MAKE_PATH)/detectsys.sh
-
--include $(DETECTSYS_MAKE)
-
-$(DETECTSYS_MAKE): $(DETECTSYS_SCRIPT)
-	@echo "Autodetecting native system:"
-	@mkdir -p $(@D)
-	@sh $< > $@
-
+LOCAL_PLATFORM:=$(shell $(DETECTSYS_SCRIPT))
+ifeq ($(LOCAL_PLATFORM),)
+$(error No platform specified using OPENMSX_TARGET_CPU and OPENMSX_TARGET_OS and autodetection of local platform failed)
+endif
+OPENMSX_TARGET_CPU:=$(word 1,$(subst -, ,$(LOCAL_PLATFORM)))
+OPENMSX_TARGET_OS:=$(word 2,$(subst -, ,$(LOCAL_PLATFORM)))
 endif # OPENMSX_TARGET_CPU && OPENMSX_TARGET_OS
 
 PLATFORM:=
