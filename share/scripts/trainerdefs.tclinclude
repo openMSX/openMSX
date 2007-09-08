@@ -789,7 +789,6 @@ create_trainer "Metal Gear" {time 1} {
 	"uniform" {poke 0xc588 24}
 	"box" {poke 0xc58c 25}
 	"put a nuclear warhead on your remote missiles 8)" {if {[peek 0xc142] == 7} {poke 0xc142 16}}
-	"active keycard" {poke 0xc135 x}
 	"stop destruction timer" {poke 0xc13d 0x99;poke 0xc13e 0x99}
 	"enemy 1 gone" {poke 0xd005 0}
 	"enemy 2 gone" {poke 0xd085 0}
