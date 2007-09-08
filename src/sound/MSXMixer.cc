@@ -417,9 +417,11 @@ void MSXMixer::updateVolumeParams(Infos::iterator it)
 			r2 = volume;
 		}
 	} else {
+		// make sure that in case of rounding errors
+		// we don't take sqrt() of negative numbers
 		double b = (balance + 100.0) / 200.0;
-		l1 = volume * sqrt(1.0 - b);
-		r1 = volume * sqrt(b);
+		l1 = volume * sqrt(std::max(0.0, 1.0 - b));
+		r1 = volume * sqrt(std::max(0.0,       b));
 		l2 = r2 = 0.0; // dummy
 	}
 	info.left1  = int(l1 * 256);
