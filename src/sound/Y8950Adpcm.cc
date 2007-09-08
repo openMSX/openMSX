@@ -66,6 +66,7 @@ void Y8950Adpcm::reset(const EmuTime &time)
 	reg7 = 0;
 	reg15 = 0;
 	readDelay = 0;
+	romBank = false;
 	writeReg(0x12, 255, time); // volume
 	restart();
 	y8950.setStatus(Y8950::STATUS_BUF_RDY);
