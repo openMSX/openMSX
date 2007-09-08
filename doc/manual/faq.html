@@ -18,21 +18,21 @@
 <ul class="toccat">
 	<li><a class="internal" href="#install">Installing openMSX</a>:
 	<ul class="toc">
-		<li><a class="internal" href="#difficultinstall">Why is openMSX so difficult to install?</a></li>
+		<li><a class="internal" href="#easyinstall">What is the easiest way to install openMSX?</a></li>
 		<li><a class="internal" href="#ziporexe">Should I download the ZIP or the EXE for Windows?</a></li>
 		<li><a class="internal" href="#roms">Why doesn't openMSX come with system ROMs?</a></li>
 		<li><a class="internal" href="#whereroms">Where do I install the ROMs?</a> </li>
 	</ul></li>
 	<li><a class="internal" href="#use">Using openMSX</a>:
 	<ul class="toc">
-		<li><a class="internal" href="#difficultuse">Why is openMSX so difficult to use?</a></li>
+		<li><a class="internal" href="#easyuse">Is openMSX easy to use?</a></li>
 		<li><a class="internal" href="#c-bios">All I get is "Cartridge not found." What's wrong?</a></li>
 		<li><a class="internal" href="#savegame">How do I save my game?</a></li>
 		<li><a class="internal" href="#harddisk">What is the openMSX harddisk support?</a></li>
 		<li><a class="internal" href="#videosource">It seems the MSX hangs when running GFX9000 software; what's wrong?</a></li>
 		<li><a class="internal" href="#leds">Great, those new OSD LEDs! How do I get rid of them?</a></li>
 		<li><a class="internal" href="#commands">Where is the full list of commands and settings?</a></li>
-		<li><a class="internal" href="#slow">Why is openMSX so slow? Why do I need a state of the art PC to run it?</a></li>
+		<li><a class="internal" href="#slow">How can I speed up openMSX? How hard is it to emulate an old MSX on a modern PC?</a></li>
 	</ul></li>
 	<li><a class="internal" href="#other">Other</a>:
 	<ul class="toc">
@@ -44,7 +44,7 @@
 
 <h2><a id="install">Installing openMSX</a></h2>
 
-<h3><a id="difficultinstall">Why is openMSX so difficult to install?</a></h3>
+<h3><a id="easyinstall">What is the easiest way to install openMSX?</a></h3>
 
 <p>
 openMSX used to be difficult to install, but it isn't difficult at all, nowadays! At least: it shouldn't be.
@@ -117,10 +117,10 @@ See also the <a class="external" href="setup.html#romlocation">Setup Guide</a>.
 
 <h2><a id="use">Using openMSX</a></h2>
 
-<h3><a id="difficultuse">Why is openMSX so difficult to use?</a></h3>
+<h3><a id="easyuse">Is openMSX easy to use?</a></h3>
 
 <p>
-Ever since openMSX comes with the optional GUI dubbed "openMSX Catapult", it is not difficult to use either! The Windows installer installs it by default. For other systems, the same counts as for openMSX itself. Check out the <a class="external" href="http://openmsx.sourceforge.net/catapult-manual/">Catapult manual</a> for more information. For basic usage, you just select a machine to run and click on "Start"!
+Ever since openMSX comes with the optional GUI dubbed "openMSX Catapult", it is quite easy to use! The Windows installer installs it by default. For other systems, the same counts as for openMSX itself. Check out the <a class="external" href="http://openmsx.sourceforge.net/catapult-manual/">Catapult manual</a> for more information. For basic usage, you just select a machine to run and click on "Start"!
 </p>
 
 <p>
@@ -128,7 +128,7 @@ Catapult doesn't give you access to all features of openMSX, though. You can do 
 </p>
 
 <p>
-If you still think openMSX is difficult to use, please tell us why! Contact info is in <a class="external" href="user.html#contact">the manuals</a>.
+If you think openMSX is not easy to use, please tell us why! Contact info is in <a class="external" href="user.html#contact">the manuals</a>.
 </p>
 
 <p>
@@ -155,6 +155,8 @@ So, the message is not from openMSX, but from C-BIOS, an MSX program which tries
 
 <h3><a id="savegame">How do I save my game?</a></h3>
 
+<h4><a id="savegame-general">In General</a></h4>
+
 <p>
 You've been playing a game and want to continue another time, so you want to save your progress. openMSX does not support save states yet. Therefore you should save the way you would on a real MSX. How that works, depends on the game:
 </p>
@@ -164,7 +166,7 @@ You've been playing a game and want to continue another time, so you want to sav
 <dd>Some disk-based games save on one of the game disks. Make sure the disk is not write protected; in openMSX this means the disk image must be an ordinary DSK image (not compressed as ZIP or XSA) and not read-only.
 </dd>
 <dt>Separate Disk</dt>
-<dd>Some games save on a separate disk. You can create an empty disk for this purpose by opening the openMSX console with F10 (Cmd+L on Mac) and executing the command "<code><a class="external" href="commands.html#diskmanipulator">diskmanipulator</a> create filename.dsk 720</code>". Since many games save in fixed sector locations instead of files, it is best to reserve a separate save game disk for each game.
+<dd>Some games save on a separate disk. You can create an empty disk for this purpose by opening the openMSX console with F10 (Cmd+L on Mac) and executing the command <code><a class="external" href="commands.html#diskmanipulator">diskmanipulator</a> create filename.dsk 720</code>. Since many games save in fixed sector locations instead of files, it is best to reserve a separate save game disk for each game.
 </dd>
 <dt>PAC SRAM</dt>
 <dd>The PAC and FMPAC contain a bit of battery-powered memory that can be used for saving games. Make sure you insert the <code>pac</code> or <code>fmpac</code> extension when you start openMSX.
@@ -183,10 +185,69 @@ You've been playing a game and want to continue another time, so you want to sav
 <dd>Some games show a password that you can enter to resume the game at the same point. You can write down the password of course, or type it into a text file, but if you're really lazy, just make a screenshot! (press PrtScr)</dd>
 </dl>
 
+<h4><a id="savegame-mg">In Metal Gear</a></h4>
+
 <p>
-Many people wonder how to save in Metal Gear, in
-<a href="http://forum.openmsx.org/viewtopic.php?t=98">this forum post</a> Manuel Bilderbeek explains how that is done.
+Many people wonder how to save in Metal Gear. Here we will explain how that is done on a real MSX, which is also the way to work in openMSX.
 </p>
+
+<p>
+Metal Gear has two ways of saving games:
+</p>
+<ol>
+<li> The usual way. This is the save option from the game itself:
+  <ol class="alpha">
+    <li> Press <strong>F1</strong> and then <strong>F5</strong> and you can save on tape. <br />
+         For this to work, you need to use an MSX machine with a cassetteport. (So, you cannot use C-BIOS machines, because they do not have a cassetteport (yet)!)</li>
+    <li> Insert a tape with the console: <strong>F10</strong> (to open the console) and then type <code><a class="external" href="commands.html#cassetteplayer">cassetteplayer</a> new filename.wav</code>, where <code>filename.wav</code> is the (optional) name of the tape file that will be created to save the game to.</li>
+    <li> Type the file name in the Metal Gear game (can be any name, but you need to remember it! Choose something easy.) and press enter.
+      <br />The game will now save to that <code>filename.wav</code> cassette image file, under the name you just entered.</li>
+    <li> To verify: in the console type: <code><a class="external" href="commands.html#cassetteplayer">cassetteplayer</a> rewind</code> and then press "<strong>Y</strong>" in the game to verify.
+     <br />You can also skip this step.</li>
+ </ol>
+<p>
+Note that saving in this way is only useful after reaching the elevator. You will continue in the last elevator you were in.</p> 
+</li>
+<li> The special way. This is done with the Game Master 2 cartridge. You will have to start openMSX with both the Metal Gear cartridge and the Game Master 2 cartridge. The Game Master 2 cartridge should be in a lower slot than Metal Gear (mention it before Metal Gear on the command line, for example).
+   <ol class="alpha">
+    <li> After booting, select "<strong>GAME</strong>" to start Metal Gear.</li>
+    <li> At any time during the game, press the MSX <strong>STOP</strong> key (<strong>F8</strong> in openMSX). <br /> The CAPS LED will light, which means you are now in the Game Master mode.</li>
+    <li> Press <strong>CTRL</strong> to open the save and load menu. 
+     <br />For this to work, you need an MSX with a diskdrive (again: not C-BIOS yet!). </li>
+    <li> Insert a (blank) disk in the openMSX diskdrive.
+     <br />This can be a disk image you created with some external tool, but you can also create one from within openMSX itself: in the console, type <code><a class="external" href="commands.html#diskmanipulator">diskmanipulator</a> create filename.dsk 720</code>. Then insert the disk image in the drive: <code><a class="external" href="commands.html#disk">diska</a> filename.dsk</code>.</li>
+    <li> Choose "<strong>DISK SAVE</strong>" in the game from the menu.</li>
+    <li> Choose "<strong>GAME DATA</strong>" in the DISK-SAVE menu.</li>
+    <li> Input a filename for your save game. This will be the name of the file that that will end up on your disk image called <code>filename.dsk</code>. 
+      <br />The game will now be saved to disk.</li>
+    <li>After saving, choose "<strong>END</strong>" and press the <strong>STOP</strong> key again (<strong>F8</strong>). 
+     <br />The game will resume. </li>
+ </ol>
+</li>
+</ol>
+
+<p>
+For loading back your game:
+</p>
+<ol>
+ <li>The usual way:
+   <ol class="alpha">
+     <li> Press <strong>F1</strong> and then <strong>F4</strong> in the game and you can load from tape.</li>
+     <li> Insert the tape image into the cassetteplayer by typing in the console: <code><a class="external" href="commands.html#cassetteplayer">cassetteplayer</a> insert filename.wav</code>.</li>
+     <li> Type the filename you choose for the save game in step 1c  above. The game will now load the save game and start. If you want to retry, don't forget to rewind the cassette by typing <code><a class="external" href="commands.html#cassetteplayer">cassetteplayer</a> rewind</code> in the console.</li>
+   </ol>
+ </li>
+ <li>The special way:
+   <ol class="alpha">
+     <li> Start Metal Gear as described in steps 2a to 2c above in the saving instructions. </li>
+     <li> In the save and load menu, choose "<strong>DISK LOAD</strong>". </li>
+     <li> Insert the disk image which you inserted in step 2d above, to save your game on: <code><a class="external" href="commands.html#disk">diska</a> filename.dsk</code>. </li>
+     <li> Choose "<strong>GAME DATA</strong>". </li>
+     <li> The game will list the files on the disk that are save game files. Select the one you want to load and it will be loaded. </li>
+     <li> Choose "<strong>END</strong>" and press the <strong>STOP</strong> key (<strong>F8</strong>) to resume the game. </li>
+   </ol>
+ </li>
+</ol>
 
 <h3><a id="harddisk">What is the openMSX harddisk support?</a></h3>
 
@@ -220,10 +281,10 @@ The full list of commands and settings that are available in the console can be 
 <a class="external" href="settings.html">Console Command Reference</a>. Check it out, it's really useful!
 </p>
 
-<h3><a id="slow">Why is openMSX so slow? Why do I need a state of the art PC to run it?</a></h3>
+<h3><a id="slow">How can I speed up openMSX? How hard is it to emulate an old MSX on a modern PC?</a></h3>
 
 <p>
-Actually, openMSX is not so slow, depending on what you ask it to do. If you have minimal hardware, you should use minimal settings as well, to get decent speed. This was proven by Karloch who ran openMSX 0.6.0 on a 206MHz HP Jornada 720, see <a class="external" href="http://www.msx.org/forumtopic6031.html">this thread on MRC</a>. On PC's, it really helps of your graphics card is not slow, or actually, the pipe between the CPU and the graphics card. Tips on how to performance tune openMSX can be found in the <a class="external" href="setup.html#tuning">Setup Guide</a>. The developers do their best to keep the performance of openMSX as good as possible, whilst still achieving the highest level of accuracy that we can.
+Actually, openMSX is quite fast, depending on what you ask it to do. If you have minimal hardware, you should use minimal settings as well, to get decent speed. This was proven by Karloch who ran openMSX 0.6.0 on a 206MHz HP Jornada 720, see <a class="external" href="http://www.msx.org/forumtopic6031.html">this thread on MRC</a>. On PC's, it really helps of your graphics card is not slow, or actually, the pipe between the CPU and the graphics card. Tips on how to performance tune openMSX can be found in the <a class="external" href="setup.html#tuning">Setup Guide</a>. The developers do their best to keep the performance of openMSX as good as possible, whilst still achieving the highest level of accuracy that we can.
 </p>
 <p>
 In general people wonder why you need 200MHz+ machines to emulate a computer based on a 3.5MHz CPU. Well, you don't only have to emulate the CPU, you also have to emulate the VDP (21MHz), the monitor (writing at least 50 times per second at least 256&times;192 pixels to a window), the sound chips, etc. This is relatively simple hardware, but having that run in software with cycle accuracy is quite heavy. In general, it is a lot of work for a general purpose CPU to emulate functionality that was originally made in dedicated hardware. Rebuilding an MSX in general purpose hardware (using VHDL on FPGA) is already a lot less demanding. An example of this is the One Chip MSX.

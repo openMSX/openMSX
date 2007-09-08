@@ -31,6 +31,11 @@ ol.inlinetoc li {
 p, dl, ul, ol, h5 {
 	margin-left: 16pt;
 }
+
+ol.alpha {
+	list-style-type: lower-alpha;
+}
+
 p.image {
 	text-align: center;
 }
