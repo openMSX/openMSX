@@ -407,12 +407,12 @@ void MSXMixer::updateVolumeParams(Infos::iterator it)
 			double b = (balance + 100.0) / 100.0;
 			l1 = volume;
 			r1 = 0.0;
-			l2 = volume * sqrt(1.0 - b);
-			r2 = volume * sqrt(b);
+			l2 = volume * sqrt(std::max(0.0, 1.0 - b));
+			r2 = volume * sqrt(std::max(0.0,       b));
 		} else {
 			double b = balance / 100.0;
-			l1 = volume * sqrt(1.0 - b);
-			r1 = volume * sqrt(b);
+			l1 = volume * sqrt(std::max(0.0, 1.0 - b));
+			r1 = volume * sqrt(std::max(0.0,       b));
 			l2 = 0.0;
 			r2 = volume;
 		}
