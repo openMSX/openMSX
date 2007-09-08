@@ -1,5 +1,8 @@
 $Id$
 
+2007-09-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed harmless(?) UMR in Y8950Adpcm
+
 2007-08-30 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimized YM2413 and YM2413_2 idle mode:
 	    After profiling we found that even a completely idle YM2413 was
