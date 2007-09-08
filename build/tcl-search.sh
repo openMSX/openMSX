@@ -9,13 +9,20 @@ BEST_MINOR_VERSION=9999
 BEST_CFLAGS=
 BEST_LDFLAGS=
 
-for dir in \
-	/usr/local/lib64/tcl8.* /usr/lib64/tcl8.* \
-	/usr/local/lib64 /usr/lib64 \
-	/usr/local/lib/tcl8.* /usr/lib/tcl8.* \
-	/usr/local/lib /usr/lib \
-	/usr/local/bin /usr/bin \
-	`echo $PATH | sed -n "s/:/ /gp;s/\/bin/\/lib/gp"`
+if [ -z $TCL_CONFIG_DIR ]
+then
+	SEARCH_DIRS="\
+		/usr/local/lib64/tcl8.* /usr/lib64/tcl8.* \
+		/usr/local/lib64 /usr/lib64 \
+		/usr/local/lib/tcl8.* /usr/lib/tcl8.* \
+		/usr/local/lib /usr/lib \
+		/usr/local/bin /usr/bin \
+		`echo $PATH | sed -n 's/:/ /gp;s/\/bin/\/lib/gp'` \
+		"
+else
+	SEARCH_DIRS="$TCL_CONFIG_DIR"
+fi
+for dir in $SEARCH_DIRS
 do
 	if [ -r $dir/tclConfig.sh ]
 	then
