@@ -4,7 +4,7 @@ sounddevice(s).
 
 There are three subcommand: start, stop and list to respectively start
 recording additional channels, to stop recording all or some channels and
-to list which channels are currently beiing recorded.
+to list which channels are currently being recorded.
   record_channels [start] [<device> [<channels>]]
   record_channels  stop   [<device> [<channels>]]
   record_channels  list
