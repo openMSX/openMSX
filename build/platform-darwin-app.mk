@@ -46,16 +46,6 @@ DISABLED_LIBRARIES+=JACK
 # up a different version somewhere on the system.
 DISABLED_HEADERS+=GLEW_H
 
-# Select the SDK for the OS X version we want to be compatible with.
-ifeq ($(OPENMSX_TARGET_CPU),ppc)
-SDK_PATH:=$(firstword $(sort $(wildcard /Developer/SDKs/MacOSX10.3.?.sdk)))
-OPENMSX_CXX:=g++-3.3
-else
-SDK_PATH:=/Developer/SDKs/MacOSX10.4u.sdk
-endif
-COMPILE_ENV+=NEXT_ROOT=$(SDK_PATH)
-LINK_ENV+=NEXT_ROOT=$(SDK_PATH)
-
 
 # Probe Overrides
 # ===============

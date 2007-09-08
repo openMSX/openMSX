@@ -29,7 +29,8 @@ OPENMSX_CXX:=g++-3.3
 else
 SDK_PATH:=/Developer/SDKs/MacOSX10.4u.sdk
 endif
-export NEXT_ROOT=$(SDK_PATH)
+COMPILE_ENV+=NEXT_ROOT=$(SDK_PATH)
+LINK_ENV+=NEXT_ROOT=$(SDK_PATH)
 
 # When NEXT_ROOT is defined, /usr/lib will not be scanned for libraries by
 # default, but users might have installed some dependencies there.
