@@ -20,14 +20,14 @@ const int CHARS_PER_ROW = 16;
 const int CHARS_PER_COL = NUM_CHRS / CHARS_PER_ROW;
 
 
-SDLFont::SDLFont(File* file, SDL_Surface* surface)
+SDLFont::SDLFont(const std::string& filePath, SDL_Surface* surface)
 	: outputScreen(surface)
 {
 	// load the font bitmap
 	SDL_Surface* image1;
-	if (!(image1 = IMG_Load(file->getLocalName().c_str()))) {
+	if (!(image1 = IMG_Load(filePath.c_str()))) {
 		throw MSXException(
-			"Can't load font " + file->getLocalName() + ": " + IMG_GetError()
+			"Can't load font " + filePath + ": " + IMG_GetError()
 			);
 	}
 	fontSurface = SDL_DisplayFormatAlpha(image1);
@@ -42,7 +42,7 @@ SDLFont::SDLFont(File* file, SDL_Surface* surface)
 		format->Rmask, format->Gmask, format->Bmask, 0);
 	if (!workImage) {
 		SDL_FreeSurface(fontSurface);
-		throw MSXException("Can't create surface for font " + (file->getLocalName()));
+		throw MSXException("Can't create surface for font " + filePath);
 	}
 }
 

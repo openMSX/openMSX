@@ -15,7 +15,7 @@ class File;
 class SDLFont : public Font, private noncopyable
 {
 public:
-	SDLFont(File* file, SDL_Surface* surface);
+	SDLFont(const std::string& str, SDL_Surface* surface);
 	virtual ~SDLFont();
 
 	virtual void drawText(const std::string& str, int x, int y, byte alpha);

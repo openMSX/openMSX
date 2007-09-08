@@ -1,5 +1,9 @@
 $Id$
 
+2007-08-29 Maarten ter Huurne <maarten@treewalker.org>
+	* Destruct File object before loading a file with IMG_Load from
+	  SDL_image. This should fix sharing violations on Windows.
+
 2007-08-27 Maarten ter Huurne <maarten@treewalker.org>
 	* Do not cache the result of native system detection.
 	  This makes it easy to use the same source tree on different systems,
