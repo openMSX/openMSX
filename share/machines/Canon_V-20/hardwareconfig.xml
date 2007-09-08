@@ -55,6 +55,7 @@
     </VDP>
 
     <PSG id="PSG">
+      <type>YM2149</type> <!-- 'hap' checked in his real machine -->
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
       <sound>
