@@ -8,6 +8,7 @@ BEST_MAJOR_VERSION=9999
 BEST_MINOR_VERSION=9999
 BEST_CFLAGS=
 BEST_LDFLAGS=
+BEST_STATIC_LIBS=
 
 if [ -z "$TCL_CONFIG_DIR" ]
 then
@@ -75,6 +76,7 @@ do
 					BEST_LDFLAGS="${BEST_LDFLAGS}${EVALFLAG} "
 				done
 			fi
+			BEST_STATIC_LIBS=${TCL_EXEC_PREFIX}/lib/libtcl${TCL_VERSION}${TCL_DBGX}.a
 		fi
 	#else
 	#	echo "  No tclConfig.sh in $dir" 1>&2
@@ -101,6 +103,9 @@ else
 			--ldflags)
 				echo "$BEST_LDFLAGS"
 				;;
+			--static-libs)
+				echo "$BEST_STATIC_LIBS"
+				;;
 			--version)
 				echo "$BEST_MAJOR_VERSION.$BEST_MINOR_VERSION"
 				;;
@@ -122,6 +127,7 @@ Possible values for OPTION are:
 
   --cflags        print compile flags
   --ldflags       print linker flags
+  --static-libs   print linker flags for static linking
   --help          print this help and exit
   --version       print version information
 EOF
