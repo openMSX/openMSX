@@ -188,7 +188,9 @@ void ResampleHQ<CHANNELS>::calcOutput(float lastPos, int* output)
 	int tabIdx = t * filterLen;
 	int bufIdx = bufStart * CHANNELS;
 
-	#ifdef ASM_X86
+	#if defined(ASM_X86) && !defined(__APPLE__)
+	// On Mac OS X, we are one register short, because EBX is not available.
+	// We disable this piece of assembly and fall back to the C++ code.
 	const HostCPU& cpu = HostCPU::getInstance();
 	if ((CHANNELS == 1) && cpu.hasSSE()) {
 		// SSE version, mono
