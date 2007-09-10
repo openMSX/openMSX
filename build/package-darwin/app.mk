@@ -3,8 +3,6 @@
 # Create an application directory for Darwin.
 
 BINDIST_DIR:=$(BUILD_PATH)/bindist
-BINDIST_IMAGE:=$(BUILD_PATH)/$(PACKAGE_FULL)-mac-$(OPENMSX_TARGET_CPU)-bin.dmg
-BINDIST_README:=$(BINDIST_DIR)/README.html
 
 APP_SUPPORT_DIR:=build/package-darwin
 APP_DIR:=$(BINDIST_DIR)/openMSX.app
@@ -24,21 +22,26 @@ INSTALL_VERBOSE:=false
 
 .PHONY: bindist bindistclean
 
-bindist: install $(APP_PLIST) $(APP_ICON) $(BINDIST_README)
-	@echo "Creating disk image:"
-	@hdiutil create -srcfolder $(BINDIST_DIR) \
-		-volname openMSX \
-		-imagekey zlib-level=9 \
-		-ov $(BINDIST_IMAGE)
-	@hdiutil internet-enable -yes $(BINDIST_IMAGE)
+bindist: install
 
-# Force removal of old app before installing to new app.
+# Force removal of old destination dir before installing to new dir.
 install: bindistclean
 
 bindistclean: $(BINARY_FULL)
 	@echo "Removing any old binary package..."
 	@rm -rf $(BINDIST_DIR)
 	@echo "Creating binary package:"
+
+BINDIST_IMAGE:=$(BUILD_PATH)/$(PACKAGE_FULL)-mac-$(OPENMSX_TARGET_CPU)-bin.dmg
+BINDIST_README:=$(BINDIST_DIR)/README.html
+
+bindist: $(APP_PLIST) $(APP_ICON) $(BINDIST_README)
+	@echo "Creating disk image:"
+	@hdiutil create -srcfolder $(BINDIST_DIR) \
+		-volname openMSX \
+		-imagekey zlib-level=9 \
+		-ov $(BINDIST_IMAGE)
+	@hdiutil internet-enable -yes $(BINDIST_IMAGE)
 
 $(APP_PLIST): $(APP_DIR)/Contents/%: $(APP_SUPPORT_DIR)/% bindistclean
 	@echo "  Writing meta-info..."
