@@ -603,9 +603,15 @@ endif
 # First include the binary packaging Makefile, since it can redefine the
 # INSTALL_*_DIR variables.
 
-# Application directory for Darwin.
 ifeq ($(OPENMSX_TARGET_OS),darwin-app)
+# Application directory for Darwin.
+# This handles the "bindist" target, but can also be used with the "install"
+# target to create an app folder but no DMG.
 include $(MAKE_PATH)/package-darwin/app.mk
+else
+ifeq ($(MAKECMDGOALS),bindist)
+include $(MAKE_PATH)/bindist.mk
+endif
 endif
 
 # Note: Use OPENMSX_INSTALL only to create binary packages.
