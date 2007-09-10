@@ -1,5 +1,5 @@
 --- glew-1.4.0.org/Makefile	2007-03-02 17:56:00.000000000 +0100
-+++ glew-1.4.0/Makefile	2007-06-17 02:59:31.000000000 +0200
++++ glew-1.4.0/Makefile	2007-09-10 05:12:01.000000000 +0200
 @@ -60,7 +60,9 @@
  STRIP = -s
  endif
@@ -11,3 +11,18 @@
  
  LIB.SRCS = src/glew.c
  LIB.OBJS = $(LIB.SRCS:.c=.o)
+@@ -132,14 +134,9 @@
+ ifeq ($(patsubst mingw%,mingw,$(SYSTEM)), mingw)
+ 	$(INSTALL) -m 0644 lib/$(LIB.DEVLNK) $(LIBDIR)/
+ else
+-  ifeq ($(patsubst darwin%,darwin,$(SYSTEM)), darwin)
+ 	strip -x lib/$(LIB.STATIC)
+ 	$(INSTALL) -m 0644 lib/$(LIB.STATIC) $(LIBDIR)/
+ 	$(LN) $(LIB.SHARED) $(LIBDIR)/$(LIB.DEVLNK)
+-  else
+-	$(INSTALL) $(STRIP) -m 0644 lib/$(LIB.STATIC) $(LIBDIR)/
+-	$(LN) $(LIB.SHARED) $(LIBDIR)/$(LIB.DEVLNK)
+-  endif
+ endif
+ # utilities
+ 	$(INSTALL) -s -m 0755 bin/$(GLEWINFO.BIN) bin/$(VISUALINFO.BIN) $(BINDIR)/
