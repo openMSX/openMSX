@@ -21,7 +21,7 @@ MMAP_PREHEADER:=<sys/types.h>
 SYS_MMAN_PREHEADER:=<sys/types.h>
 SYS_SOCKET_PREHEADER:=<sys/types.h>
 
-PNG_CFLAGS:=
-
-PNG_LDFLAGS:=-lpng
-PNG_RESULT:=yes
+# Apparently libpng-config is not available.
+PNG_CFLAGS_SYS_DYN:=
+PNG_LDFLAGS_SYS_DYN:=-lpng
+PNG_RESULT_SYS_DYN:=yes
