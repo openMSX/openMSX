@@ -122,7 +122,7 @@ TCL_CFLAGS_3RD_STA:=`TCL_CONFIG_DIR=$(3RDPARTY_INSTALL_DIR)/lib build/tcl-search
 
 XML_HEADER:=<libxml/parser.h>
 XML_CFLAGS_SYS_DYN:=`xml2-config --cflags 2>> $(LOG)`
-XML_CFLAGS_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/xml2-config --cflags 2>> $(LOG)`
+XML_CFLAGS_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/xml2-config --cflags 2>> $(LOG)` -DLIBXML_STATIC
 
 ZLIB_HEADER:=<zlib.h>
 ZLIB_CFLAGS_SYS_DYN:=
