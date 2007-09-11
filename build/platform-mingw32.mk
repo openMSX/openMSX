@@ -31,7 +31,7 @@ LINK_FLAGS:=-L/mingw/lib -L/mingw/lib/w32api -lwsock32 -lwinmm -ldsound \
 GL_LDFLAGS:=-lopengl32
 
 GLEW_LDFLAGS_SYS_DYN:=-lglew32
-GLEW_LDFLAGS_3RD_STA:=$(3RDPARTY_INSTALL_DIR)/lib/libglew32.a
+GLEW_LDFLAGS_3RD_STA:=$(3RDPARTY_INSTALL_DIR)/lib/libglew32.dll.a
 
 SDL_LDFLAGS_SYS_DYN:=`sdl-config --libs | sed -e 's/-mwindows/-mconsole/' 2>> $(LOG)`
 SDL_LDFLAGS_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/sdl-config --static-libs | sed -e \"s/-L[^ ]*//g\" -e 's/-mwindows/-mconsole/' 2>> $(LOG)`
