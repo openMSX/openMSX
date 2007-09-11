@@ -147,7 +147,7 @@ JACK_LDFLAGS_3RD_STA:=$(3RDPARTY_INSTALL_DIR)/lib/libjack.a
 JACK_RESULT:=yes
 
 PNG_LDFLAGS_SYS_DYN:=`libpng-config --ldflags 2>> $(LOG)`
-PNG_LDFLAGS_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/libpng-config --ldflags 2>> $(LOG)`
+PNG_LDFLAGS_3RD_STA:=$(3RDPARTY_INSTALL_DIR)/lib/libpng12.a
 PNG_RESULT_SYS_DYN:=`libpng-config --version`
 PNG_RESULT_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/libpng-config --version`
 
