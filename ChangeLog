@@ -2,6 +2,9 @@ $Id$
 
 2007-09-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Use resampler for SamplePlayer
+	* Process samples per 4 in SoundDevice::mixChannels()
+	    On itself this is already faster, but it also paves the way for
+	    future SSE2 optimizations.
 
 2007-09-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed harmless(?) UMR in Y8950Adpcm

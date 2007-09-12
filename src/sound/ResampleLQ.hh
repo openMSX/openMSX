@@ -31,7 +31,7 @@ private:
 	Pos step;
 	unsigned bufStart;
 	unsigned bufEnd;
-	int buffer[BUF_LEN * CHANNELS];
+	int buffer[BUF_LEN * CHANNELS + 3];
 };
 
 } // namespace openmsx

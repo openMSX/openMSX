@@ -17,6 +17,10 @@ template<typename T> class EnumSetting;
 class Resample : private Observer<Setting>
 {
 public:
+	/** Note: To enable various optimizations (like SSE), this method is
+	  * allowed to generate up to 3 extra sample.
+	  * @see SoundDevice::updateBuffer()
+	  */
 	virtual bool generateInput(int* buffer, unsigned num) = 0;
 
 protected:

@@ -28,13 +28,13 @@ void ResampleLQ<CHANNELS>::prepareData(unsigned missing)
 	unsigned free = BUF_LEN - bufEnd;
 	if (missing < free) {
 		// new data fits without wrapping
-		fillBuffer(bufEnd, missing);
+		fillBuffer(bufEnd, missing); // 3 extra, ok
 		bufEnd += missing;
 		assert(bufEnd < BUF_LEN);
 	} else {
 		// partly fill at end, partly at begin
-		fillBuffer(bufEnd, free);
-		fillBuffer(0, missing - free);
+		fillBuffer(bufEnd, free); // 3 extra, ok
+		fillBuffer(0, missing - free); // 3 extra, ok
 		bufEnd = missing - free;
 		assert(bufEnd < bufStart);
 	}

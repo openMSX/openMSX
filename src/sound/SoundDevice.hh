@@ -95,10 +95,11 @@ public: // Will be called by Mixer:
 	  * pointer to a buffer filled with the required number of samples.
 	  * Samples are always ints, later they are converted to the systems
 	  * native format (e.g. 16-bit signed).
-	  * The Mixer will not call this method if the sound device is muted.
 	  *
-	  * The default implementation simply calls mixChannels(). If you don't
-	  * need anything special you don't need to override this.
+	  * Note: To enable various optimizations (like SSE), this method can
+	  * fill the output buffer with up to 3 extra samples. Those extra
+	  * samples should be ignored, though the caller must make sure the
+	  * buffer has enough space to hold them.
 	  */
 	virtual bool updateBuffer(unsigned length, int* buffer,
 	        const EmuTime& start, const EmuDuration& sampDur) = 0;
@@ -125,6 +126,11 @@ protected:
 	  *                'num' samples
 	  * @param num The number of samples
 	  * @result true iff at least one channel was unmuted
+	  *
+	  * Note: To enable various optimizations (like SSE), this method can
+	  * fill the output buffer with up to 3 extra samples. Those extra
+	  * samples should be ignored, though the caller must make sure the
+	  * buffer has enough space to hold them.
 	  */
 	bool mixChannels(int* dataOut, unsigned num);
 

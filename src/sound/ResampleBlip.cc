@@ -23,7 +23,7 @@ bool ResampleBlip<CHANNELS>::generateOutput(int* dataOut, unsigned num)
 {
 	double len = num * ratio;
 	int required = int(ceil(len - lastPos));
-	int buf[required * CHANNELS];
+	int buf[required * CHANNELS + 3];
 	if (input.generateInput(buf, required)) {
 		double pos = lastPos * invRatio;
 		for (int i = 0; i < required; ++i) {

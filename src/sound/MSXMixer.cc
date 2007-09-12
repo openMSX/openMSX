@@ -199,8 +199,8 @@ void MSXMixer::generate(short* output, unsigned samples,
 	assert((!muteCount && fragmentSize) || synchronousCounter);
 	assert(samples <= 8192);
 
-	int mixBuf[2 * samples];
-	int tmpBuf[2 * samples];
+	int mixBuf[2 * samples + 3];
+	int tmpBuf[2 * samples + 3];
 	memset(mixBuf, 0, 2 * samples * sizeof(int));
 
 	for (Infos::const_iterator it = infos.begin();

@@ -173,12 +173,21 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 
 	// actually mix channels
 	unsigned num = samples * stereo;
-	for (unsigned i = 0; i < num; ++i) {
-		int out = 0;
+	for (unsigned i = 0; i < num; i += 4) {
+		int out0 = 0;
+		int out1 = 0;
+		int out2 = 0;
+		int out3 = 0;
 		for (unsigned j = 0; j < unmuted; ++j) {
-			out += bufs[j][i];
+			out0 += bufs[j][i + 0];
+			out1 += bufs[j][i + 1];
+			out2 += bufs[j][i + 2];
+			out3 += bufs[j][i + 3];
 		}
-		dataOut[i] = out;
+		dataOut[i + 0] = out0;
+		dataOut[i + 1] = out1;
+		dataOut[i + 2] = out2;
+		dataOut[i + 3] = out3;
 	}
 	return true;
 }
