@@ -1,5 +1,8 @@
 $Id$
 
+2007-09-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Use resampler for SamplePlayer
+
 2007-09-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed harmless(?) UMR in Y8950Adpcm
 	* Don't take sqrt() of negative numbers (in case of rounding errors)

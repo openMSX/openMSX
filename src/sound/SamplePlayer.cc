@@ -1,13 +1,16 @@
 // $Id$
 
 #include "SamplePlayer.hh"
+#include "MSXMotherBoard.hh"
 #include <cassert>
 
 namespace openmsx {
 
-SamplePlayer::SamplePlayer(MSXMixer& mixer, const std::string& name,
+SamplePlayer::SamplePlayer(MSXMotherBoard& motherBoard, const std::string& name,
                            const std::string& desc, const XMLElement& config)
-	: SoundDevice(mixer, name, desc, 1)
+	: SoundDevice(motherBoard.getMSXMixer(), name, desc, 1)
+	, Resample(motherBoard.getGlobalSettings(), 1)
+	, inFreq(44100)
 {
 	registerSound(config);
 	reset();
@@ -23,25 +26,32 @@ void SamplePlayer::reset()
 	playing = false;
 }
 
-void SamplePlayer::setOutputRate(unsigned sampleRate)
+void SamplePlayer::setOutputRate(unsigned outFreq_)
 {
-	setInputRate(sampleRate);
-	outFreq = sampleRate;
+	outFreq = outFreq_;
+	setInputRate(inFreq);
+	setResampleRatio(inFreq, outFreq);
 }
 
-void SamplePlayer::play(const void* buffer, unsigned bufferSize,
-                        unsigned bits, unsigned inFreq)
+void SamplePlayer::play(const void* buffer, unsigned bufferSize_,
+                        unsigned bits, unsigned freq)
 {
 	sampBuf = buffer;
-	count = 0;
-	end = (bufferSize - 1) << 8;
+	index = 0;
+	bufferSize = bufferSize_;
 
 	assert((bits == 8) || (bits == 16));
 	bits8 = (bits == 8);
 
-	step = (inFreq << 8) / outFreq;
-
 	playing = true;
+
+	if (freq != inFreq) {
+		// this potentially switches resampler, so there might be
+		// some dropped samples if this is done in the middle of
+		// playing, though this shouldn't happen often (or at all)
+		inFreq = freq;
+		setOutputRate(outFreq);
+	}
 }
 
 bool SamplePlayer::isPlaying() const
@@ -58,24 +68,30 @@ inline int SamplePlayer::getSample(unsigned index)
 
 void SamplePlayer::generateChannels(int** bufs, unsigned num)
 {
-	if (!playing) {
+	if (!isPlaying()) {
 		bufs[0] = 0;
 		return;
 	}
 	for (unsigned i = 0; i < num; ++i) {
-		if (count < end) {
-			unsigned index = count >> 8;
-			int frac  = count & 0xFF;
-			int samp0 = getSample(index);
-			int samp1 = getSample(index + 1);
-			int samp  = ((0x100 - frac) * samp0 + frac * samp1) >> 8;
+		if (index < bufferSize) {
+			int samp = getSample(index++);
 			bufs[0][i] = 3 * samp;
-			count += step;
 		} else {
 			playing = false;
 			bufs[0][i] = 0;
 		}
 	}
+}
+
+bool SamplePlayer::generateInput(int* buffer, unsigned num)
+{
+	return mixChannels(buffer, num);
+}
+
+bool SamplePlayer::updateBuffer(unsigned length, int* buffer,
+     const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
+{
+	return generateOutput(buffer, length);
 }
 
 } // namespace openmsx
