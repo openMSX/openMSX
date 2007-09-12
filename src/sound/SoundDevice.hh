@@ -101,7 +101,7 @@ public: // Will be called by Mixer:
 	  * need anything special you don't need to override this.
 	  */
 	virtual bool updateBuffer(unsigned length, int* buffer,
-	        const EmuTime& start, const EmuDuration& sampDur);
+	        const EmuTime& start, const EmuDuration& sampDur) = 0;
 
 protected:
 	/** Abstract method to generate the actual sound data.

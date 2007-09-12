@@ -172,7 +172,8 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 	}
 
 	// actually mix channels
-	for (unsigned i = 0; i < samples * stereo; ++i) {
+	unsigned num = samples * stereo;
+	for (unsigned i = 0; i < num; ++i) {
 		int out = 0;
 		for (unsigned j = 0; j < unmuted; ++j) {
 			out += bufs[j][i];
@@ -180,13 +181,6 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 		dataOut[i] = out;
 	}
 	return true;
-}
-
-bool SoundDevice::updateBuffer(
-	unsigned length, int* buffer,
-	const EmuTime& /*start*/, const EmuDuration& /*sampDur*/)
-{
-	return mixChannels(buffer, length);
 }
 
 } // namespace openmsx
