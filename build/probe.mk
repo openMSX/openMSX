@@ -152,13 +152,13 @@ PNG_RESULT_SYS_DYN:=`libpng-config --version`
 PNG_RESULT_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/libpng-config --version`
 
 SDL_LDFLAGS_SYS_DYN:=`sdl-config --libs 2>> $(LOG)`
-SDL_LDFLAGS_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/sdl-config --static-libs | sed -e \"s/-L[^ ]*//g\" 2>> $(LOG)`
+SDL_LDFLAGS_3RD_STA:=$(3RDPARTY_INSTALL_DIR)/lib/libSDL.a
 SDL_RESULT_SYS_DYN:=`sdl-config --version`
 SDL_RESULT_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/sdl-config --version`
 
 # Note: "=" instead of ":=", so overriden value of SDL_LDFLAGS will be used.
 SDL_IMAGE_LDFLAGS_SYS_DYN=-lSDL_image $(SDL_LDFLAGS_SYS_DYN)
-SDL_IMAGE_LDFLAGS_3RD_STA=$(3RDPARTY_INSTALL_DIR)/lib/libSDL_image.a $(SDL_LDFLAGS_3RD_STA)
+SDL_IMAGE_LDFLAGS_3RD_STA=$(3RDPARTY_INSTALL_DIR)/lib/libSDL_image.a
 SDL_IMAGE_RESULT:=yes
 
 TCL_LDFLAGS_SYS_DYN:=`build/tcl-search.sh --ldflags 2>> $(LOG)`
