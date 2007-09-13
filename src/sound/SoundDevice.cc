@@ -137,6 +137,7 @@ void SoundDevice::muteChannel(unsigned channel, bool muted)
 bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 {
 	assert(samples <= MAX_SAMPLES);
+	assert(samples > 0);
 	int* bufs[numChannels];
 	for (unsigned i = 0; i < numChannels; ++i) {
 		bufs[i] = &mixBuffer[samples * stereo * i];
@@ -166,30 +167,71 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 			++unmuted;
 		}
 	}
-	if (!unmuted) {
-		// all channels muted
-		return false;
-	}
 
 	// actually mix channels
-	unsigned num = samples * stereo;
-	for (unsigned i = 0; i < num; i += 4) {
-		int out0 = 0;
-		int out1 = 0;
-		int out2 = 0;
-		int out3 = 0;
-		for (unsigned j = 0; j < unmuted; ++j) {
-			out0 += bufs[j][i + 0];
-			out1 += bufs[j][i + 1];
-			out2 += bufs[j][i + 2];
-			out3 += bufs[j][i + 3];
+	switch (unmuted) {
+	case 0:
+		// all channels muted
+		return false;
+	case 1:
+		memcpy(dataOut, bufs[0], samples * stereo * sizeof(int));
+		return true;
+	default: {
+		unsigned num = samples * stereo;
+		if (unmuted & 1) {
+			unsigned i = 0;
+			do {
+				int out0 = bufs[0][i + 0];
+				int out1 = bufs[0][i + 1];
+				int out2 = bufs[0][i + 2];
+				int out3 = bufs[0][i + 3];
+				unsigned j = 1;
+				do {
+					out0 += bufs[j + 0][i + 0];
+					out1 += bufs[j + 0][i + 1];
+					out2 += bufs[j + 0][i + 2];
+					out3 += bufs[j + 0][i + 3];
+					out0 += bufs[j + 1][i + 0];
+					out1 += bufs[j + 1][i + 1];
+					out2 += bufs[j + 1][i + 2];
+					out3 += bufs[j + 1][i + 3];
+					j += 2;
+				} while (j < unmuted);
+				dataOut[i + 0] = out0;
+				dataOut[i + 1] = out1;
+				dataOut[i + 2] = out2;
+				dataOut[i + 3] = out3;
+				i += 4;
+			} while (i < num);
+		} else {
+			unsigned i = 0;
+			do {
+				int out0 = 0;
+				int out1 = 0;
+				int out2 = 0;
+				int out3 = 0;
+				unsigned j = 0;
+				do {
+					out0 += bufs[j + 0][i + 0];
+					out1 += bufs[j + 0][i + 1];
+					out2 += bufs[j + 0][i + 2];
+					out3 += bufs[j + 0][i + 3];
+					out0 += bufs[j + 1][i + 0];
+					out1 += bufs[j + 1][i + 1];
+					out2 += bufs[j + 1][i + 2];
+					out3 += bufs[j + 1][i + 3];
+					j += 2;
+				} while (j < unmuted);
+				dataOut[i + 0] = out0;
+				dataOut[i + 1] = out1;
+				dataOut[i + 2] = out2;
+				dataOut[i + 3] = out3;
+				i += 4;
+			} while (i < num);
 		}
-		dataOut[i + 0] = out0;
-		dataOut[i + 1] = out1;
-		dataOut[i + 2] = out2;
-		dataOut[i + 3] = out3;
+		return true;
 	}
-	return true;
+	}
 }
 
 } // namespace openmsx

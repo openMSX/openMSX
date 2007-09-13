@@ -4,6 +4,8 @@ $Id$
 	* Mute individual PSG channels:
 	   - already speeds up the PSG code itself (though i only added code)
 	   - also enables speedups in the following stages of the audio flow
+	* In SoundDevice::mixChannels(), special case mixing of 0, 1, and
+	   odd or even number of channels, also unroll 2x
 
 2007-09-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Use resampler for SamplePlayer
