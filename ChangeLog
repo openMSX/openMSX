@@ -1,6 +1,11 @@
 $Id$
 
 2007-09-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Mute individual PSG channels:
+	   - already speeds up the PSG code itself (though i only added code)
+	   - also enables speedups in the following stages of the audio flow
+
+2007-09-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Use resampler for SamplePlayer
 	* Process samples per 4 in SoundDevice::mixChannels()
 	    On itself this is already faster, but it also paves the way for

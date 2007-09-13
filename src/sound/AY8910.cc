@@ -670,6 +670,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 	// we can use the fastest path.
 	for (byte chan = 0; chan < 3; chan++) {
 		if ((regs[AY_AVOL + chan] & 0x1F) == 0) {
+			bufs[chan] = 0;
 			chanEnable |= 0x09 << chan;
 		}
 	}
@@ -714,7 +715,9 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 
 		// Mix tone generators with noise generator.
 		for (byte chan = 0; chan < 3; chan++, chanFlags >>= 1) {
-			int* out = &bufs[chan][i];
+			int* buf = bufs[chan];
+			if (!buf) continue;
+			int* out = &buf[i];
 			if ((chanFlags & 0x09) == 0x08) {
 				// Square wave: alternating between 0 and 1.
 				*out = tone[chan].getOutput() * amplitude.getVolume(chan);
