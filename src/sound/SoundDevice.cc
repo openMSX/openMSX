@@ -5,6 +5,7 @@
 #include "XMLElement.hh"
 #include "WavWriter.hh"
 #include "StringOp.hh"
+#include "HostCPU.hh"
 #include <cstring>
 #include <cassert>
 
@@ -13,7 +14,8 @@ using std::string;
 namespace openmsx {
 
 static const unsigned MAX_SAMPLES = 16384;
-static int mixBuffer[SoundDevice::MAX_CHANNELS * MAX_SAMPLES * 2];
+static int mixBuffer[SoundDevice::MAX_CHANNELS * MAX_SAMPLES * 2]
+	__attribute__((aligned(16))); // align for SSE access
 static int silence[MAX_SAMPLES * 2];
 
 static string makeUnique(MSXMixer& mixer, const string& name)
@@ -139,8 +141,9 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 	assert(samples <= MAX_SAMPLES);
 	assert(samples > 0);
 	int* bufs[numChannels];
+	unsigned pitch = (samples * stereo + 3) & ~3; // align for SSE access
 	for (unsigned i = 0; i < numChannels; ++i) {
-		bufs[i] = &mixBuffer[samples * stereo * i];
+		bufs[i] = &mixBuffer[pitch * i];
 	}
 	generateChannels(bufs, samples);
 
@@ -179,6 +182,49 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 	default: {
 		unsigned num = samples * stereo;
 		if (unmuted & 1) {
+			#ifdef ASM_X86
+			const HostCPU& cpu = HostCPU::getInstance();
+			if (cpu.hasSSE2()) {
+				long dummy1;
+				long dummy2;
+				long zero = 0;
+				asm volatile (
+				"1:"
+					"mov	%6,%0;"          // j = -unmuted * sizeof(int*)
+					"mov	(%3,%0),%1;"     // p = buf[0]
+					"add	%4,%0;"          // j += sizeof(int*)
+					"movdqa	(%1,%2),%%xmm0;" // acc = buf[0][i]
+					".p2align 4,,15;"
+				"0:"
+					"mov	(%3,%0),%1;"     // p = buf[j + 0]
+					"paddd	(%1,%2),%%xmm0;" // acc += buf[j + 0][i]
+					"mov	8(%3,%0),%1;"    // p = buf[j + 1]
+					"add	%8,%0;"          // j += 2 * sizeof(int*)
+					"paddd	(%1,%2),%%xmm0;" // acc += buf[j + 1][i]
+					"jnz	0b;"             // while j negative
+
+					"movdqu	%%xmm0,(%5,%2);"
+					"add	$16,%2;"         // i += 4 * sizeof(int)
+					"cmp    %7,%2;"          //
+					"jb	1b;"             // while i < num
+
+					: "=&r" (dummy1)                  // %0 = j
+					, "=&r" (dummy2)                  // %1 = p
+					: "r"   (zero)                    // %2 = i
+					, "r"   (bufs + unmuted)          // %3
+					, "i"   (sizeof(int*))            // %4
+					, "r"   (dataOut)                 // %5
+					, "rm"  (-long(unmuted) * sizeof(int*)) // %6
+					, "rm"  (num * sizeof(int))       // %7
+					, "i"   (2 * sizeof(int*))        // %8
+					#ifdef __SSE__
+					: "xmm0"
+					#endif
+				);
+				return true;
+			}
+			#endif
+
 			unsigned i = 0;
 			do {
 				int out0 = bufs[0][i + 0];
@@ -204,6 +250,47 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 				i += 4;
 			} while (i < num);
 		} else {
+			#ifdef ASM_X86
+			const HostCPU& cpu = HostCPU::getInstance();
+			if (cpu.hasSSE2()) {
+				long dummy1;
+				long dummy2;
+				long zero = 0;
+				asm volatile (
+				"1:"
+					"mov	%6,%0;"          // j = -unmuted * sizeof(int*)
+					"pxor	%%xmm0,%%xmm0;"  // acc = buf[0][i]
+					".p2align 4,,15;"
+				"0:"
+					"mov	(%3,%0),%1;"     // p = buf[j + 0]
+					"paddd	(%1,%2),%%xmm0;" // acc += buf[j + 0][i]
+					"mov	8(%3,%0),%1;"    // p = buf[j + 1]
+					"add	%8,%0;"          // j += 2 * sizeof(int*)
+					"paddd	(%1,%2),%%xmm0;" // acc += buf[j + 1][i]
+					"jnz	0b;"             // while j negative
+
+					"movdqu	%%xmm0,(%5,%2);"
+					"add	$16,%2;"         // i += 4 * sizeof(int)
+					"cmp    %7,%2;"          //
+					"jb	1b;"             // while i < num
+
+					: "=&r" (dummy1)                  // %0 = j
+					, "=&r" (dummy2)                  // %1 = p
+					: "r"   (zero)                    // %2 = i
+					, "r"   (bufs + unmuted)          // %3
+					, "i"   (sizeof(int*))            // %4
+					, "r"   (dataOut)                 // %5
+					, "rm"  (-long(unmuted) * sizeof(int*)) // %6
+					, "rm"  (num * sizeof(int))       // %7
+					, "i"   (2 * sizeof(int*))        // %8
+					#ifdef __SSE__
+					: "xmm0"
+					#endif
+				);
+				return true;
+			}
+			#endif
+
 			unsigned i = 0;
 			do {
 				int out0 = 0;

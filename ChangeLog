@@ -6,6 +6,7 @@ $Id$
 	   - also enables speedups in the following stages of the audio flow
 	* In SoundDevice::mixChannels(), special case mixing of 0, 1, and
 	   odd or even number of channels, also unroll 2x
+	* Added SSE2 optimized version of SoundDevice::mixChannels()
 
 2007-09-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Use resampler for SamplePlayer
