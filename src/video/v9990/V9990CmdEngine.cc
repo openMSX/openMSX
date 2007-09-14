@@ -202,9 +202,9 @@ inline byte V9990CmdEngine::V9990P1::shift(
 	return (shift > 0) ? (value >> shift) : (value << -shift);
 }
 
-inline byte V9990CmdEngine::V9990P1::combine(byte olddata, byte newdata)
+inline byte V9990CmdEngine::V9990P1::shiftMask(unsigned x)
 {
-	return (olddata >> 4) | (newdata & 0xF0);
+	return (x & 1) ? 0x0F : 0xF0;
 }
 
 inline const byte* V9990CmdEngine::V9990P1::getLogOpLUT(byte op)
@@ -226,7 +226,7 @@ inline void V9990CmdEngine::V9990P1::pset(
 	byte dstColor = vram.readVRAMDirect(addr);
 	byte newColor = logOp(lut, srcColor, dstColor);
 	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
-	byte mask2 = mask1 & (0xF0 >> (4 * (x & 1)));
+	byte mask2 = mask1 & shiftMask(x);
 	byte result = (dstColor & ~mask2) | (newColor & mask2);
 	vram.writeVRAMDirect(addr, result);
 }
@@ -270,9 +270,9 @@ inline byte V9990CmdEngine::V9990P2::shift(
 	return (shift > 0) ? (value >> shift) : (value << -shift);
 }
 
-inline byte V9990CmdEngine::V9990P2::combine(byte olddata, byte newdata)
+inline byte V9990CmdEngine::V9990P2::shiftMask(unsigned x)
 {
-	return (olddata >> 4) | (newdata & 0xF0);
+	return (x & 1) ? 0x0F : 0xF0;
 }
 
 inline const byte* V9990CmdEngine::V9990P2::getLogOpLUT(byte op)
@@ -294,7 +294,7 @@ inline void V9990CmdEngine::V9990P2::pset(
 	byte dstColor = vram.readVRAMDirect(addr);
 	byte newColor = logOp(lut, srcColor, dstColor);
 	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
-	byte mask2 = mask1 & (0xF0 >> (4 * (x & 1)));
+	byte mask2 = mask1 & shiftMask(x);
 	byte result = (dstColor & ~mask2) | (newColor & mask2);
 	vram.writeVRAMDirect(addr, result);
 }
@@ -338,9 +338,9 @@ inline byte V9990CmdEngine::V9990Bpp2::shift(
 	return (shift > 0) ? (value >> shift) : (value << -shift);
 }
 
-inline byte V9990CmdEngine::V9990Bpp2::combine(byte olddata, byte newdata)
+inline byte V9990CmdEngine::V9990Bpp2::shiftMask(unsigned x)
 {
-	return (olddata >> 2) | (newdata & 0xC0);
+	return 0xC0 >> (2 * (x & 3));
 }
 
 inline const byte* V9990CmdEngine::V9990Bpp2::getLogOpLUT(byte op)
@@ -362,7 +362,7 @@ inline void V9990CmdEngine::V9990Bpp2::pset(
 	byte dstColor = vram.readVRAMDirect(addr);
 	byte newColor = logOp(lut, srcColor, dstColor);
 	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
-	byte mask2 = mask1 & (0xC0 >> (2 * (x & 3)));
+	byte mask2 = mask1 & shiftMask(x);
 	byte result = (dstColor & ~mask2) | (newColor & mask2);
 	vram.writeVRAMDirect(addr, result);
 }
@@ -406,9 +406,9 @@ inline byte V9990CmdEngine::V9990Bpp4::shift(
 	return (shift > 0) ? (value >> shift) : (value << -shift);
 }
 
-inline byte V9990CmdEngine::V9990Bpp4::combine(byte olddata, byte newdata)
+inline byte V9990CmdEngine::V9990Bpp4::shiftMask(unsigned x)
 {
-	return (olddata >> 4) | (newdata & 0xF0);
+	return (x & 1) ? 0x0F : 0xF0;
 }
 
 inline const byte* V9990CmdEngine::V9990Bpp4::getLogOpLUT(byte op)
@@ -430,7 +430,7 @@ inline void V9990CmdEngine::V9990Bpp4::pset(
 	byte dstColor = vram.readVRAMDirect(addr);
 	byte newColor = logOp(lut, srcColor, dstColor);
 	byte mask1 = (addr & 0x40000) ? (mask >> 8) : (mask & 0xFF);
-	byte mask2 = mask1 & (0xF0 >> (4 * (x & 1)));
+	byte mask2 = mask1 & shiftMask(x);
 	byte result = (dstColor & ~mask2) | (newColor & mask2);
 	vram.writeVRAMDirect(addr, result);
 }
@@ -473,9 +473,9 @@ inline byte V9990CmdEngine::V9990Bpp8::shift(
 	return value;
 }
 
-inline byte V9990CmdEngine::V9990Bpp8::combine(byte olddata, byte newdata)
+inline byte V9990CmdEngine::V9990Bpp8::shiftMask(unsigned x)
 {
-	return newdata;
+	return 0xFF;
 }
 
 inline const byte* V9990CmdEngine::V9990Bpp8::getLogOpLUT(byte op)
@@ -542,9 +542,9 @@ inline word V9990CmdEngine::V9990Bpp16::shift(
 	return value;
 }
 
-inline byte V9990CmdEngine::V9990Bpp16::combine(word olddata, word newdata)
+inline word V9990CmdEngine::V9990Bpp16::shiftMask(unsigned x)
 {
-	return newdata;
+	return 0xFFFF;
 }
 
 inline const byte* V9990CmdEngine::V9990Bpp16::getLogOpLUT(byte op)
@@ -921,8 +921,9 @@ void V9990CmdEngine::CmdLMMC<Mode>::execute(const EmuTime& time)
 		unsigned pitch = Mode::getPitch(engine.vdp.getImageWidth());
 		const byte* lut = Mode::getLogOpLUT(engine.LOG);
 		for (int i = 0; (engine.ANY > 0) && (i < Mode::PIXELS_PER_BYTE); ++i) {
+			byte data = Mode::shift(engine.data, i, engine.DX);
 			Mode::pset(vram, engine.DX, engine.DY, pitch,
-			           engine.data, engine.WM, lut, engine.LOG);
+			           data, engine.WM, lut, engine.LOG);
 
 			int dx = (engine.ARG & DIX) ? -1 : 1;
 			engine.DX += dx;
@@ -1023,8 +1024,7 @@ void V9990CmdEngine::CmdLMCM<Mode>::execute(const EmuTime& /*time*/)
 		typename Mode::Type data = 0;
 		for (int i = 0; (engine.ANY > 0) && (i < Mode::PIXELS_PER_BYTE); ++i) {
 			typename Mode::Type src = Mode::point(vram, engine.SX, engine.SY, pitch);
-			src = Mode::shift(src, engine.SX, 0); // shift to upper bits
-			data = Mode::combine(data, src);
+			data |= Mode::shift(src, engine.SX, i) & Mode::shiftMask(i);
 
 			int dx = (engine.ARG & DIX) ? -1 : 1;
 			engine.SX += dx;
