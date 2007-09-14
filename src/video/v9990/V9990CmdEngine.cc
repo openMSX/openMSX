@@ -847,15 +847,15 @@ void V9990CmdEngine::CmdLMMC<Mode>::start(const EmuTime& /*time*/)
 	}
 	engine.ANX = engine.NX;
 	engine.ANY = engine.NY;
-	engine.status &= ~TR;
+	engine.status |= TR;
 }
 
 template <>
 void V9990CmdEngine::CmdLMMC<V9990CmdEngine::V9990Bpp16>::execute(
 	const EmuTime& time)
 {
-	if (engine.status & TR) {
-		engine.status &= ~TR;
+	if (!(engine.status & TR)) {
+		engine.status |= TR;
 		if (engine.bitsLeft) {
 			engine.bitsLeft = 0;
 			engine.partial = engine.data;
@@ -885,8 +885,8 @@ void V9990CmdEngine::CmdLMMC<V9990CmdEngine::V9990Bpp16>::execute(
 template <class Mode>
 void V9990CmdEngine::CmdLMMC<Mode>::execute(const EmuTime& time)
 {
-	if (engine.status & TR) {
-		engine.status &= ~TR;
+	if (!(engine.status & TR)) {
+		engine.status |= TR;
 		unsigned pitch = Mode::getPitch(engine.vdp.getImageWidth());
 		const byte* lut = Mode::getLogOpLUT(engine.LOG);
 		for (int i = 0; (engine.ANY > 0) && (i < Mode::PIXELS_PER_BYTE); ++i) {
@@ -1045,14 +1045,14 @@ void V9990CmdEngine::CmdCMMC<Mode>::start(const EmuTime& /*time*/)
 {
 	engine.ANX = engine.NX;
 	engine.ANY = engine.NY;
-	engine.status &= ~TR;
+	engine.status |= TR;
 }
 
 template <class Mode>
 void V9990CmdEngine::CmdCMMC<Mode>::execute(const EmuTime& time)
 {
-	if (engine.status & TR) {
-		engine.status &= ~TR;
+	if (!(engine.status & TR)) {
+		engine.status |= TR;
 
 		unsigned pitch = Mode::getPitch(engine.vdp.getImageWidth());
 		int dx = (engine.ARG & DIX) ? -1 : 1;
@@ -1593,7 +1593,7 @@ void V9990CmdEngine::setCmdData(byte value, const EmuTime& time)
 {
 	sync(time);
 	data = value;
-	status |= TR;
+	status &= ~TR;
 }
 
 byte V9990CmdEngine::getCmdData(const EmuTime& time)
@@ -1611,7 +1611,7 @@ byte V9990CmdEngine::getCmdData(const EmuTime& time)
 void V9990CmdEngine::cmdReady(const EmuTime& /*time*/)
 {
 	currentCommand = NULL;
-	status &= ~CE;
+	status &= ~(CE | TR);
 	vdp.cmdReady();
 }
 

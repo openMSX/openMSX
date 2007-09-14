@@ -1,5 +1,12 @@
 $Id$
 
+2007-09-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed TR status bit in V9990 (was inverted):
+	   - TR=1 means ready for transfer, thus V9990 is *not* ready to
+	     execute (part of) the command, it's waiting for data
+	   - Apparently most SW doesn't bother to check this bit (since
+	     the V9990 is fast enough). However Symbos does check it!
+
 2007-09-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed harmless(?) UMR in Y8950Adpcm
 	* Don't take sqrt() of negative numbers (in case of rounding errors)
