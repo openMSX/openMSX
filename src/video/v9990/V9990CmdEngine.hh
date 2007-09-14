@@ -82,7 +82,7 @@ private:
 		static inline byte point(V9990VRAM& vram,
 		                         unsigned x, unsigned y, unsigned pitch);
 		static inline byte shift(byte value, unsigned fromX, unsigned toX);
-		static inline byte combine(byte olddata, byte newdata);
+		static inline byte shiftMask(unsigned x);
 		static inline const byte* getLogOpLUT(byte op);
 		static inline byte logOp(const byte* lut, byte src, byte dst);
 		static inline void pset(
@@ -103,7 +103,7 @@ private:
 		static inline byte point(V9990VRAM& vram,
 		                         unsigned x, unsigned y, unsigned pitch);
 		static inline byte shift(byte value, unsigned fromX, unsigned toX);
-		static inline byte combine(byte olddata, byte newdata);
+		static inline byte shiftMask(unsigned x);
 		static inline const byte* getLogOpLUT(byte op);
 		static inline byte logOp(const byte* lut, byte src, byte dst);
 		static inline void pset(
@@ -124,7 +124,7 @@ private:
 		static inline byte point(V9990VRAM& vram,
 		                         unsigned x, unsigned y, unsigned pitch);
 		static inline byte shift(byte value, unsigned fromX, unsigned toX);
-		static inline byte combine(byte olddata, byte newdata);
+		static inline byte shiftMask(unsigned x);
 		static inline const byte* getLogOpLUT(byte op);
 		static inline byte logOp(const byte* lut, byte src, byte dst);
 		static inline void pset(
@@ -145,7 +145,7 @@ private:
 		static inline byte point(V9990VRAM& vram,
 		                         unsigned x, unsigned y, unsigned pitch);
 		static inline byte shift(byte value, unsigned fromX, unsigned toX);
-		static inline byte combine(byte olddata, byte newdata);
+		static inline byte shiftMask(unsigned x);
 		static inline const byte* getLogOpLUT(byte op);
 		static inline byte logOp(const byte* lut, byte src, byte dst);
 		static inline void pset(
@@ -166,7 +166,7 @@ private:
 		static inline byte point(V9990VRAM& vram,
 		                         unsigned x, unsigned y, unsigned pitch);
 		static inline byte shift(byte value, unsigned fromX, unsigned toX);
-		static inline byte combine(byte olddata, byte newdata);
+		static inline byte shiftMask(unsigned x);
 		static inline const byte* getLogOpLUT(byte op);
 		static inline byte logOp(const byte* lut, byte src, byte dst);
 		static inline void pset(
@@ -187,7 +187,7 @@ private:
 		static inline word point(V9990VRAM& vram,
 		                         unsigned x, unsigned y, unsigned pitch);
 		static inline word shift(word value, unsigned fromX, unsigned toX);
-		static inline byte combine(word olddata, word newdata);
+		static inline word shiftMask(unsigned x);
 		static inline const byte* getLogOpLUT(byte op);
 		static inline word logOp(const byte* lut, word src, word dst, bool transp);
 		static inline void pset(

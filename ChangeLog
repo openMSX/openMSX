@@ -9,6 +9,7 @@ $Id$
 	* Initial implementation of V9990 LMCM command:
 	   - maybe not correct yet, but certainly better than no
 	     implementation
+	* Fixed odd/even pixel problem in LMMC and LMCM commands
 
 2007-09-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed harmless(?) UMR in Y8950Adpcm
