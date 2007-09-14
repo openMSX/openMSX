@@ -198,7 +198,11 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 				"0:"
 					"mov	(%3,%0),%1;"     // p = buf[j + 0]
 					"paddd	(%1,%2),%%xmm0;" // acc += buf[j + 0][i]
+				#ifdef ASM_X86_64
 					"mov	8(%3,%0),%1;"    // p = buf[j + 1]
+				#else
+					"mov	4(%3,%0),%1;"    // p = buf[j + 1]
+				#endif
 					"add	%8,%0;"          // j += 2 * sizeof(int*)
 					"paddd	(%1,%2),%%xmm0;" // acc += buf[j + 1][i]
 					"jnz	0b;"             // while j negative
@@ -264,7 +268,11 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 				"0:"
 					"mov	(%3,%0),%1;"     // p = buf[j + 0]
 					"paddd	(%1,%2),%%xmm0;" // acc += buf[j + 0][i]
+				#ifdef ASM_X86_64
 					"mov	8(%3,%0),%1;"    // p = buf[j + 1]
+				#else
+					"mov	4(%3,%0),%1;"    // p = buf[j + 1]
+				#endif
 					"add	%8,%0;"          // j += 2 * sizeof(int*)
 					"paddd	(%1,%2),%%xmm0;" // acc += buf[j + 1][i]
 					"jnz	0b;"             // while j negative
