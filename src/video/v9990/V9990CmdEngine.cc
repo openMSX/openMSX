@@ -202,6 +202,11 @@ inline byte V9990CmdEngine::V9990P1::shift(
 	return (shift > 0) ? (value >> shift) : (value << -shift);
 }
 
+inline byte V9990CmdEngine::V9990P1::combine(byte olddata, byte newdata)
+{
+	return (olddata >> 4) | (newdata & 0xF0);
+}
+
 inline const byte* V9990CmdEngine::V9990P1::getLogOpLUT(byte op)
 {
 	return &logOpLUT[(op & 0x10) ? LOG_BPP4 : LOG_NO_T][op & 0xF][0][0];
@@ -263,6 +268,11 @@ inline byte V9990CmdEngine::V9990P2::shift(
 {
 	int shift = 4 * ((toX & 1) - (fromX & 1));
 	return (shift > 0) ? (value >> shift) : (value << -shift);
+}
+
+inline byte V9990CmdEngine::V9990P2::combine(byte olddata, byte newdata)
+{
+	return (olddata >> 4) | (newdata & 0xF0);
 }
 
 inline const byte* V9990CmdEngine::V9990P2::getLogOpLUT(byte op)
@@ -328,6 +338,11 @@ inline byte V9990CmdEngine::V9990Bpp2::shift(
 	return (shift > 0) ? (value >> shift) : (value << -shift);
 }
 
+inline byte V9990CmdEngine::V9990Bpp2::combine(byte olddata, byte newdata)
+{
+	return (olddata >> 2) | (newdata & 0xC0);
+}
+
 inline const byte* V9990CmdEngine::V9990Bpp2::getLogOpLUT(byte op)
 {
 	return &logOpLUT[(op & 0x10) ? LOG_BPP2 : LOG_NO_T][op & 0xF][0][0];
@@ -389,6 +404,11 @@ inline byte V9990CmdEngine::V9990Bpp4::shift(
 {
 	int shift = 4 * ((toX & 1) - (fromX & 1));
 	return (shift > 0) ? (value >> shift) : (value << -shift);
+}
+
+inline byte V9990CmdEngine::V9990Bpp4::combine(byte olddata, byte newdata)
+{
+	return (olddata >> 4) | (newdata & 0xF0);
 }
 
 inline const byte* V9990CmdEngine::V9990Bpp4::getLogOpLUT(byte op)
@@ -453,6 +473,11 @@ inline byte V9990CmdEngine::V9990Bpp8::shift(
 	return value;
 }
 
+inline byte V9990CmdEngine::V9990Bpp8::combine(byte olddata, byte newdata)
+{
+	return newdata;
+}
+
 inline const byte* V9990CmdEngine::V9990Bpp8::getLogOpLUT(byte op)
 {
 	return &logOpLUT[(op & 0x10) ? LOG_BPP8 : LOG_NO_T][op & 0xF][0][0];
@@ -515,6 +540,11 @@ inline word V9990CmdEngine::V9990Bpp16::shift(
 	word value, unsigned /*fromX*/, unsigned /*toX*/)
 {
 	return value;
+}
+
+inline byte V9990CmdEngine::V9990Bpp16::combine(word olddata, word newdata)
+{
+	return newdata;
 }
 
 inline const byte* V9990CmdEngine::V9990Bpp16::getLogOpLUT(byte op)
@@ -644,6 +674,7 @@ void V9990CmdEngine::reset(const EmuTime& /*time*/)
 	currentCommand = NULL;
 	status = 0;
 	borderX = 0;
+	endAfterRead = false;
 }
 
 void V9990CmdEngine::setCmdReg(byte reg, byte value, const EmuTime& time)
@@ -969,13 +1000,53 @@ V9990CmdEngine::CmdLMCM<Mode>::CmdLMCM(V9990CmdEngine& engine,
 template <class Mode>
 void V9990CmdEngine::CmdLMCM<Mode>::start(const EmuTime& time)
 {
-	std::cout << "V9990: LMCM not yet implemented" << std::endl;
-	engine.cmdReady(time); // TODO dummy implementation
+	if (Mode::BITS_PER_PIXEL == 16) {
+		engine.bitsLeft = 0;
+	}
+	engine.ANX = engine.NX;
+	engine.ANY = engine.NY;
+	engine.status &= ~TR;
+	engine.endAfterRead = false;
 }
 
 template <class Mode>
 void V9990CmdEngine::CmdLMCM<Mode>::execute(const EmuTime& /*time*/)
 {
+	if (!(engine.status & TR)) {
+		engine.status |= TR;
+		if ((Mode::BITS_PER_PIXEL == 16) && engine.bitsLeft) {
+			engine.bitsLeft = 0;
+			engine.data = engine.partial;
+			return;
+		}
+		unsigned pitch = Mode::getPitch(engine.vdp.getImageWidth());
+		typename Mode::Type data = 0;
+		for (int i = 0; (engine.ANY > 0) && (i < Mode::PIXELS_PER_BYTE); ++i) {
+			typename Mode::Type src = Mode::point(vram, engine.SX, engine.SY, pitch);
+			src = Mode::shift(src, engine.SX, 0); // shift to upper bits
+			data = Mode::combine(data, src);
+
+			int dx = (engine.ARG & DIX) ? -1 : 1;
+			engine.SX += dx;
+			if (!--(engine.ANX)) {
+				int dy = (engine.ARG & DIY) ? -1 : 1;
+				engine.SX -= (engine.NX * dx);
+				engine.SY += dy;
+				if (!--(engine.ANY)) {
+					engine.endAfterRead = true;
+				} else {
+					engine.ANX = engine.NX;
+				}
+			}
+		}
+		if (Mode::BITS_PER_PIXEL == 16) {
+			engine.data = data & 0xff;
+			engine.partial = data >> 8;
+			engine.bitsLeft = 1;
+		} else {
+			engine.data = data;
+		}
+	}
 }
 
 // ====================================================================
@@ -1604,6 +1675,10 @@ byte V9990CmdEngine::getCmdData(const EmuTime& time)
 	if (status & TR) {
 		value = data;
 		status &= ~TR;
+		if (endAfterRead) {
+			endAfterRead = false;
+			cmdReady(time);
+		}
 	}
 	return value;
 }
