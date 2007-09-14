@@ -5,7 +5,10 @@ ifneq ($(PROBE_MAKE_INCLUDED),true)
 $(error Include probe results before including "components.mk")
 endif
 
-CORE_LIBS:=PNG SDL SDL_IMAGE TCL XML ZLIB
+# For static linking, it's important that if lib A depends on B, A is in the
+# list before B.
+# TODO: Would it be better to use different LDFLAGS instead?
+CORE_LIBS:=SDL SDL_IMAGE PNG TCL XML ZLIB
 ifneq ($(filter x,$(foreach LIB,$(CORE_LIBS),x$(HAVE_$(LIB)_LIB))),)
 COMPONENT_CORE:=false
 endif
