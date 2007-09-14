@@ -2,7 +2,8 @@
 #
 # Create an application directory for Darwin.
 
-BINDIST_DIR:=$(BUILD_PATH)/bindist
+# Start from platform-independent bindist support.
+include $(MAKE_PATH)/bindist.mk
 
 APP_SUPPORT_DIR:=build/package-darwin
 APP_DIR:=$(BINDIST_DIR)/openMSX.app
@@ -15,22 +16,6 @@ APP_ICON:=$(APP_RES)/openmsx-logo.icns
 INSTALL_BINARY_DIR:=$(APP_EXE_DIR)
 INSTALL_SHARE_DIR:=$(APP_DIR)/share
 INSTALL_DOC_DIR:=$(BINDIST_DIR)/Documentation
-# C-BIOS should be included.
-INSTALL_CONTRIB:=true
-# Do not display header and post-install instructions.
-INSTALL_VERBOSE:=false
-
-.PHONY: bindist bindistclean
-
-bindist: install
-
-# Force removal of old destination dir before installing to new dir.
-install: bindistclean
-
-bindistclean: $(BINARY_FULL)
-	@echo "Removing any old binary package..."
-	@rm -rf $(BINDIST_DIR)
-	@echo "Creating binary package:"
 
 BINDIST_IMAGE:=$(BUILD_PATH)/$(PACKAGE_FULL)-mac-$(OPENMSX_TARGET_CPU)-bin.dmg
 BINDIST_README:=$(BINDIST_DIR)/README.html
