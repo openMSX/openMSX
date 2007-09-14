@@ -19,8 +19,9 @@ INSTALL_DOC_DIR:=$(BINDIST_DIR)/Documentation
 
 BINDIST_IMAGE:=$(BUILD_PATH)/$(PACKAGE_FULL)-mac-$(OPENMSX_TARGET_CPU)-bin.dmg
 BINDIST_README:=$(BINDIST_DIR)/README.html
+BINDIST_LICENSE:=$(INSTALL_DOC_DIR)/GPL
 
-bindist: $(APP_PLIST) $(APP_ICON) $(BINDIST_README)
+bindist: $(APP_PLIST) $(APP_ICON) $(BINDIST_README) $(BINDIST_LICENSE)
 	@echo "Creating disk image:"
 	@hdiutil create -srcfolder $(BINDIST_DIR) \
 		-volname openMSX \
@@ -44,5 +45,9 @@ $(BINDIST_README): $(APP_SUPPORT_DIR)/README.html
 	@echo "  Copying README..."
 	@mkdir -p $(@D)
 	@cp $< $@
+
+$(BINDIST_LICENSE): GPL
+	@echo "  Copying license..."
+	@mkdir -p $(@D)
 # Remove form feeds from the GPL document, so Safari will treat it as text.
-	@awk '!/\f/ ; /\f/ { print "" }' GPL > $(INSTALL_DOC_DIR)/GPL
+	@awk '!/\f/ ; /\f/ { print "" }' $< > $@
