@@ -6,6 +6,9 @@ $Id$
 	     execute (part of) the command, it's waiting for data
 	   - Apparently most SW doesn't bother to check this bit (since
 	     the V9990 is fast enough). However Symbos does check it!
+	* Initial implementation of V9990 LMCM command:
+	   - maybe not correct yet, but certainly better than no
+	     implementation
 
 2007-09-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Mute individual PSG channels:
