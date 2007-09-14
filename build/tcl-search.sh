@@ -64,7 +64,7 @@ do
 				eval EVALFLAG=$FLAG
 				BEST_CFLAGS="${BEST_CFLAGS}${EVALFLAG} "
 			done
-			BEST_CFLAGS="${BEST_CFLAGS}${TCL_DEFS}"
+			BEST_CFLAGS="${TCL_DEFS}${BEST_CFLAGS}"
 			if [ -z "$TCL_LIB_SPEC" ]
 			then
 				# Workaround for MSYS.
