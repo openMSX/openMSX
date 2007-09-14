@@ -17,11 +17,9 @@ include build/platform-freebsd.mk
 #  But for users who use packages only, here use sdl11-config from ports/packages "sdl12".
 #  Why "11" even "sdl12" ? We don't know. Ask to maintainer of "sdl12" ports/packages...
 SDLCONFIGSCRIPT?=$(PKGBASE)/bin/sdl11-config
-
-SDL_CFLAGS:=`$(SDLCONFIGSCRIPT) --cflags 2>> $(LOG)`
-
-SDL_LDFLAGS:=`$(SDLCONFIGSCRIPT) --libs 2>> $(LOG)`
-SDL_RESULT:=`$(SDLCONFIGSCRIPT) --version`
+SDL_CFLAGS_SYS_DYN:=`$(SDLCONFIGSCRIPT) --cflags 2>> $(LOG)`
+SDL_LDFLAGS_SYS_DYN:=`$(SDLCONFIGSCRIPT) --libs 2>> $(LOG)`
+SDL_RESULT_SYS_DYN:=`$(SDLCONFIGSCRIPT) --version`
 
 # libpng related.
 #  openMSX depends on libpng.
@@ -30,6 +28,6 @@ SDL_RESULT:=`$(SDLCONFIGSCRIPT) --version`
 #  $(PKGBASE)/include/libpng/*.h to $(PKGBASE)/include/*.h .
 #  So, just use CXXFLAGS and LINK_FLAGS set in above.
 #  Should use "$(PKGBASE)/libdata/pkgconfig/libpng12.pc" ?
-PNG_CFLAGS:=
-PNG_LDFLAGS:=-lpng
-PNG_RESULT:=yes
+PNG_CFLAGS_SYS_DYN:=
+PNG_LDFLAGS_SYS_DYN:=-lpng
+PNG_RESULT_SYS_DYN:=yes

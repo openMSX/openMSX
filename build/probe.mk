@@ -4,6 +4,27 @@
 # Performs some test compiles, to check for headers and functions.
 # Unlike configure, it does not run any test code, so it is more friendly for
 # cross compiles.
+#
+# Some notes about static linking:
+# There are two ways of linking to static library: using the -l command line
+# option or specifying the full path to the library file as one of the inputs.
+# When using the -l option, the library search paths will be searched for a
+# dynamic version of the library, if that is not found, the search paths will
+# be searched for a static version of the library. This means we cannot force
+# static linking of a library this way. It is possible to force static linking
+# of all libraries, but we want to control it per library.
+# Conclusion: We have to specify the full path to each library that should be
+#             linked statically.
+#
+# Legend of the suffixes:
+# _SYS_DYN: link dynamically against system libs
+#           this is the default mode; useful for local binaries
+# _SYS_STA: link statically against system libs
+#           this seems pointless to me; not implemented
+# _3RD_DYN: link dynamically against libs from non-system dir
+#           might be useful; not implemented
+# _3RD_STA: link statically against libs from non-system dir
+#           this is how we build our redistributable binaries
 
 # This Makefile needs parameters to operate; check that they were specified:
 # - output directory
@@ -61,6 +82,7 @@ ALL_HEADERS:=$(addsuffix _H, \
 # we consider the GL headers found.
 GL_HEADER:=<gl.h>
 GL_GL_HEADER:=<GL/gl.h>
+GL_CFLAGS:=
 # Use GL_CFLAGS for GL_GL as well, if someone overrides it.
 # In any case, only GL_CFLAGS will be used by the actual build.
 GL_GL_CFLAGS=$(GL_CFLAGS)
@@ -68,31 +90,43 @@ GL_GL_CFLAGS=$(GL_CFLAGS)
 # The comment for the GL headers applies to GLEW as well.
 GLEW_HEADER:=<glew.h>
 GL_GLEW_HEADER:=<GL/glew.h>
-GL_GLEW_CFLAGS=$(GLEW_CFLAGS)
+GLEW_CFLAGS_SYS_DYN:=
+GLEW_CFLAGS_3RD_STA:=-I$(3RDPARTY_INSTALL_DIR)/include
+GL_GLEW_CFLAGS_SYS_DYN=$(GLEW_CFLAGS_SYS_DYN)
+GL_GLEW_CFLAGS_3RD_STA=$(GLEW_CFLAGS_3RD_STA)
 
 JACK_HEADER:=<jack/jack.h>
+JACK_CFLAGS_SYS_DYN:=
+JACK_CFLAGS_3RD_STA:=-I$(3RDPARTY_INSTALL_DIR)/include
 
 PNG_HEADER:=<png.h>
-PNG_CFLAGS:=`libpng-config --cflags 2>> $(LOG)`
+PNG_CFLAGS_SYS_DYN:=`libpng-config --cflags 2>> $(LOG)`
+PNG_CFLAGS_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/libpng-config --cflags 2>> $(LOG)`
 
 SDL_HEADER:=<SDL.h>
-SDL_CFLAGS:=`sdl-config --cflags 2>> $(LOG)`
+SDL_CFLAGS_SYS_DYN:=`sdl-config --cflags 2>> $(LOG)`
+SDL_CFLAGS_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/sdl-config --cflags 2>> $(LOG)`
 
 SDL_IMAGE_HEADER:=<SDL_image.h>
 # Note: "=" instead of ":=", so overriden value of SDL_CFLAGS will be used.
-SDL_IMAGE_CFLAGS=$(SDL_CFLAGS)
+SDL_IMAGE_CFLAGS_SYS_DYN=$(SDL_CFLAGS_SYS_DYN)
+SDL_IMAGE_CFLAGS_3RD_STA=$(SDL_CFLAGS_3RD_STA)
 
 SYS_MMAN_HEADER:=<sys/mman.h>
 
 SYS_SOCKET_HEADER:=<sys/socket.h>
 
 TCL_HEADER:=<tcl.h>
-TCL_CFLAGS:=`build/tcl-search.sh --cflags 2>> $(LOG)`
+TCL_CFLAGS_SYS_DYN:=`build/tcl-search.sh --cflags 2>> $(LOG)`
+TCL_CFLAGS_3RD_STA:=`TCL_CONFIG_DIR=$(3RDPARTY_INSTALL_DIR)/lib build/tcl-search.sh --cflags 2>> $(LOG)`
 
 XML_HEADER:=<libxml/parser.h>
-XML_CFLAGS:=`xml2-config --cflags 2>> $(LOG)`
+XML_CFLAGS_SYS_DYN:=`xml2-config --cflags 2>> $(LOG)`
+XML_CFLAGS_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/xml2-config --cflags 2>> $(LOG)`
 
 ZLIB_HEADER:=<zlib.h>
+ZLIB_CFLAGS_SYS_DYN:=
+ZLIB_CFLAGS_3RD_STA:=-I$(3RDPARTY_INSTALL_DIR)/include
 
 
 # Libraries
@@ -104,32 +138,48 @@ ALL_LIBS+=ABC XYZ
 GL_LDFLAGS:=-lGL
 GL_RESULT:=yes
 
-GLEW_LDFLAGS:=-lGLEW
+GLEW_LDFLAGS_SYS_DYN:=-lGLEW
+GLEW_LDFLAGS_3RD_STA:=$(3RDPARTY_INSTALL_DIR)/lib/libGLEW.a
 GLEW_RESULT:=yes
 
-JACK_LDFLAGS:=-ljack
+JACK_LDFLAGS_SYS_DYN:=-ljack
+JACK_LDFLAGS_3RD_STA:=$(3RDPARTY_INSTALL_DIR)/lib/libjack.a
 JACK_RESULT:=yes
 
-PNG_LDFLAGS:=`libpng-config --ldflags 2>> $(LOG)`
-PNG_RESULT:=`libpng-config --version`
+PNG_LDFLAGS_SYS_DYN:=`libpng-config --ldflags 2>> $(LOG)`
+PNG_LDFLAGS_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/libpng-config --ldflags 2>> $(LOG)`
+PNG_RESULT_SYS_DYN:=`libpng-config --version`
+PNG_RESULT_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/libpng-config --version`
 
-SDL_LDFLAGS:=`sdl-config --libs 2>> $(LOG)`
-SDL_RESULT:=`sdl-config --version`
+SDL_LDFLAGS_SYS_DYN:=`sdl-config --libs 2>> $(LOG)`
+SDL_LDFLAGS_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/sdl-config --static-libs | sed -e \"s/-L[^ ]*//g\" 2>> $(LOG)`
+SDL_RESULT_SYS_DYN:=`sdl-config --version`
+SDL_RESULT_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/sdl-config --version`
 
 # Note: "=" instead of ":=", so overriden value of SDL_LDFLAGS will be used.
-SDL_IMAGE_LDFLAGS=$(SDL_LDFLAGS) -lSDL_image
+SDL_IMAGE_LDFLAGS_SYS_DYN=-lSDL_image $(SDL_LDFLAGS_SYS_DYN)
+SDL_IMAGE_LDFLAGS_3RD_STA=$(3RDPARTY_INSTALL_DIR)/lib/libSDL_image.a $(SDL_LDFLAGS_3RD_STA)
 SDL_IMAGE_RESULT:=yes
 
-TCL_LDFLAGS:=`build/tcl-search.sh --ldflags 2>> $(LOG)`
-TCL_RESULT:=`build/tcl-search.sh --version 2>> $(LOG)`
+TCL_LDFLAGS_SYS_DYN:=`build/tcl-search.sh --ldflags 2>> $(LOG)`
+# Note: Tcl can be compiled with a static or a dynamic library, not both.
+#       So whether this returns static or dynamic link flags depends on how
+#       this copy of Tcl was built.
+TCL_LDFLAGS_3RD_STA:=`TCL_CONFIG_DIR=$(3RDPARTY_INSTALL_DIR)/lib build/tcl-search.sh --static-libs 2>> $(LOG)`
+TCL_RESULT_SYS_DYN:=`build/tcl-search.sh --version 2>> $(LOG)`
+TCL_RESULT_3RD_STA:=`TCL_CONFIG_DIR=$(3RDPARTY_INSTALL_DIR)/lib build/tcl-search.sh --version 2>> $(LOG)`
 
-XML_LDFLAGS:=`xml2-config --libs 2>> $(LOG)`
-XML_RESULT:=`xml2-config --version`
+XML_LDFLAGS_SYS_DYN:=`xml2-config --libs 2>> $(LOG)`
+XML_LDFLAGS_3RD_STA:=$(3RDPARTY_INSTALL_DIR)/lib/libxml2.a
+XML_RESULT_SYS_DYN:=`xml2-config --version`
+XML_RESULT_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/xml2-config --version`
 
-ZLIB_LDFLAGS:=-lz
+ZLIB_LDFLAGS_SYS_DYN:=-lz
+ZLIB_LDFLAGS_3RD_STA:=$(3RDPARTY_INSTALL_DIR)/lib/libz.a
 ZLIB_RESULT:=yes
 
 # Libraries that do not exist:
+# (these are to test error reporting, it is expected that they are not found)
 
 ABC_LDFLAGS:=`abc-config --libs 2>> $(LOG)`
 ABC_RESULT:=impossible
@@ -145,8 +195,21 @@ DISABLED_FUNCS:=
 DISABLED_LIBS:=
 DISABLED_HEADERS:=
 
+SYSTEM_LIBS:=
+
 # Initial value of DISABLED_LIBRARIES is set here.
 include build/custom.mk
+
+ifneq ($(filter 3RD_%,$(LINK_MODE)),)
+# Disable Jack: The CassetteJack feature is not useful for most end users, so
+# do not include Jack in the binary distribution of openMSX.
+DISABLED_LIBRARIES+=JACK
+
+# GLEW header can be <GL/glew.h> or just <glew.h>; the dedicated version we use
+# resides in the "GL" dir, so don't look for the other one, or we might pick
+# up a different version somewhere on the system.
+DISABLED_HEADERS+=GLEW_H
+endif
 
 # Allow the OS specific Makefile to override if necessary.
 include build/platform-$(OPENMSX_TARGET_OS).mk
@@ -157,6 +220,44 @@ DISABLED_LIBS+=$(DISABLED_LIBRARIES)
 
 # Implementation
 # ==============
+
+# Resolve probe strings depending on link mode and list of system libs.
+
+DEFCHECKGET=$(strip \
+	$(if $(filter _undefined,_$(origin $(1))), \
+		$(error Variable $(1) is undefined) ) \
+	)$($(1))
+RESOLVEMODE=$(call DEFCHECKGET,$(1)_$(2)_$(if $(filter $(1),$(SYSTEM_LIBS)),SYS_DYN,$(LINK_MODE)))
+
+GLEW_CFLAGS:=$(call RESOLVEMODE,GLEW,CFLAGS)
+GLEW_LDFLAGS:=$(call RESOLVEMODE,GLEW,LDFLAGS)
+
+JACK_CFLAGS:=$(call RESOLVEMODE,JACK,CFLAGS)
+JACK_LDFLAGS:=$(call RESOLVEMODE,JACK,LDFLAGS)
+
+PNG_CFLAGS:=$(call RESOLVEMODE,PNG,CFLAGS)
+PNG_LDFLAGS:=$(call RESOLVEMODE,PNG,LDFLAGS)
+PNG_RESULT:=$(call RESOLVEMODE,PNG,RESULT)
+
+SDL_CFLAGS:=$(call RESOLVEMODE,SDL,CFLAGS)
+SDL_LDFLAGS:=$(call RESOLVEMODE,SDL,LDFLAGS)
+SDL_RESULT:=$(call RESOLVEMODE,SDL,RESULT)
+
+SDL_IMAGE_CFLAGS:=$(call RESOLVEMODE,SDL_IMAGE,CFLAGS)
+SDL_IMAGE_LDFLAGS:=$(call RESOLVEMODE,SDL_IMAGE,LDFLAGS)
+
+TCL_CFLAGS:=$(call RESOLVEMODE,TCL,CFLAGS)
+TCL_LDFLAGS:=$(call RESOLVEMODE,TCL,LDFLAGS)
+TCL_RESULT:=$(call RESOLVEMODE,TCL,RESULT)
+
+XML_CFLAGS:=$(call RESOLVEMODE,XML,CFLAGS)
+XML_LDFLAGS:=$(call RESOLVEMODE,XML,LDFLAGS)
+XML_RESULT:=$(call RESOLVEMODE,XML,RESULT)
+
+ZLIB_CFLAGS:=$(call RESOLVEMODE,ZLIB,CFLAGS)
+ZLIB_LDFLAGS:=$(call RESOLVEMODE,ZLIB,LDFLAGS)
+
+# Determine which probes to run.
 
 CHECK_FUNCS:=$(filter-out $(DISABLED_FUNCS),$(ALL_FUNCS))
 CHECK_HEADERS:=$(filter-out $(DISABLED_HEADERS),$(ALL_HEADERS))
