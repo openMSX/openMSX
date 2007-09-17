@@ -101,7 +101,9 @@ JACK_CFLAGS_3RD_STA:=-I$(3RDPARTY_INSTALL_DIR)/include
 
 PNG_HEADER:=<png.h>
 PNG_CFLAGS_SYS_DYN:=`libpng-config --cflags 2>> $(LOG)`
-PNG_CFLAGS_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/libpng-config --cflags 2>> $(LOG)`
+# Note: The additional -I is to pick up the zlib headers when zlib is not
+#       installed systemwide.
+PNG_CFLAGS_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/libpng-config --cflags 2>> $(LOG)` -I$(3RDPARTY_INSTALL_DIR)/include
 
 SDL_HEADER:=<SDL.h>
 SDL_CFLAGS_SYS_DYN:=`sdl-config --cflags 2>> $(LOG)`
