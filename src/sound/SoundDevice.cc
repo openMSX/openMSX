@@ -12,7 +12,8 @@ using std::string;
 
 namespace openmsx {
 
-static const unsigned MAX_SAMPLES = 16384;
+static const unsigned MAX_FACTOR = 16; // 200kHz (PSG) -> 22kHz
+static const unsigned MAX_SAMPLES = 8192 * MAX_FACTOR;
 static int mixBuffer[SoundDevice::MAX_CHANNELS * MAX_SAMPLES * 2];
 static int silence[MAX_SAMPLES * 2];
 
