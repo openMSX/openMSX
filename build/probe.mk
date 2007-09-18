@@ -334,7 +334,8 @@ $(CHECK_HEADERS): init
 	@if [ -n "$($(@:%_H=%)_PREHEADER)" ]; then \
 		echo "#include $($(@:%_H=%)_PREHEADER)"; fi >> $(OUTDIR)/$@.cc
 	@echo "#include $($(@:%_H=%)_HEADER)" >> $(OUTDIR)/$@.cc
-	@if FLAGS="$($(@:%_H=%_CFLAGS))" && $(COMPILE) $(COMPILE_FLAGS) $$FLAGS \
+	@if FLAGS="$($(@:%_H=%_CFLAGS))" && eval $(COMPILE) \
+		$(COMPILE_FLAGS) "$$FLAGS" \
 		-c $(OUTDIR)/$@.cc -o $(OUTDIR)/$@.o 2>> $(LOG); \
 	then echo "Found header: $(@:%_H=%)" >> $(LOG); \
 	     echo "#define HAVE_$@ 1" >> $(OUTHEADER); \
@@ -354,8 +355,9 @@ $(DISABLED_HEADERS): init
 # Try to link dummy program to the library.
 $(CHECK_LIBS): init
 	@echo "int main(int argc, char **argv) { return 0; }" > $(OUTDIR)/$@.cc
-	@if FLAGS="$($@_LDFLAGS)" && $(COMPILE) \
-		$(OUTDIR)/$@.cc -o $(OUTDIR)/$@.exe $(LINK_FLAGS) $$FLAGS 2>> $(LOG); \
+	@if FLAGS="$($@_LDFLAGS)" && eval $(COMPILE) \
+		$(OUTDIR)/$@.cc -o $(OUTDIR)/$@.exe \
+		$(LINK_FLAGS) "$$FLAGS" 2>> $(LOG); \
 	then echo "Found library: $@" >> $(LOG); \
 	     echo "#define HAVE_$@_LIB 1" >> $(OUTHEADER); \
 	     echo "HAVE_$@_LIB:=$($@_RESULT)" >> $(OUTMAKE); \
