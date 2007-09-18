@@ -473,7 +473,7 @@ inline byte V9990CmdEngine::V9990Bpp8::shift(
 	return value;
 }
 
-inline byte V9990CmdEngine::V9990Bpp8::shiftMask(unsigned x)
+inline byte V9990CmdEngine::V9990Bpp8::shiftMask(unsigned /*x*/)
 {
 	return 0xFF;
 }
@@ -542,7 +542,7 @@ inline word V9990CmdEngine::V9990Bpp16::shift(
 	return value;
 }
 
-inline word V9990CmdEngine::V9990Bpp16::shiftMask(unsigned x)
+inline word V9990CmdEngine::V9990Bpp16::shiftMask(unsigned /*x*/)
 {
 	return 0xFFFF;
 }
@@ -999,7 +999,7 @@ V9990CmdEngine::CmdLMCM<Mode>::CmdLMCM(V9990CmdEngine& engine,
 }
 
 template <class Mode>
-void V9990CmdEngine::CmdLMCM<Mode>::start(const EmuTime& time)
+void V9990CmdEngine::CmdLMCM<Mode>::start(const EmuTime& /*time*/)
 {
 	if (Mode::BITS_PER_PIXEL == 16) {
 		engine.bitsLeft = 0;
