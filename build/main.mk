@@ -612,6 +612,11 @@ include $(MAKE_PATH)/package-darwin/app.mk
 else
 ifeq ($(MAKECMDGOALS),bindist)
 include $(MAKE_PATH)/bindist.mk
+ifeq ($(OPENMSX_TARGET_OS),mingw32)
+# In Windows the "share" dir is expected at the same level as the executable,
+# so do not put the executable in "bin".
+INSTALL_BINARY_DIR:=$(INSTALL_ROOT)
+endif
 endif
 endif
 
