@@ -305,6 +305,10 @@ public:
 	 */
 	virtual void wait(const EmuTime& time) = 0;
 
+	/** Inform CPU of new (possibly earlier) sync point.
+	 */
+	virtual void setNextSyncPoint(const EmuTime& time) = 0;
+
 	/**
 	 * Invalidate the CPU its cache for the interval
 	 * [start, start+num*CACHE_LINE_SIZE).

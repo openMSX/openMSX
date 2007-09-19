@@ -124,6 +124,8 @@ public:
 	// Pause
 	void setPaused(bool paused);
 
+	void setNextSyncPoint(const EmuTime& time);
+
 private:
 	// only for MSXMotherBoard
 	void execute();

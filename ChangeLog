@@ -4,6 +4,14 @@ $Id$
 	* Fixed bug in stereo blip resampler:
 	   in case only one of the two channels was active, we left the other
 	   channel undefined (now we fill it with zeros)
+	* Fixed bug in CPU code (probably introduced by me on 2007-08-28):
+	   - limitReached() bookkeeping was wrong when the advanceTime()
+	     method was used. This only happens when switching between
+	     Z80/R800. Fixed now.
+	   - This new implementation is also faster. Before the CPU polled
+	     the scheduler for the earliest sync-point (after every IO and
+	     memory mapped access). Now the Scheduler pushes new sync-point
+	     data to the CPU.
 
 2007-09-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed TR status bit in V9990 (was inverted):

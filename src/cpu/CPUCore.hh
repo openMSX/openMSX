@@ -51,6 +51,7 @@ public:
 	virtual void warp(const EmuTime& time);
 	virtual const EmuTime& getCurrentTime() const;
 	virtual void wait(const EmuTime& time);
+	virtual void setNextSyncPoint(const EmuTime& time);
 	virtual void invalidateMemCache(word start, unsigned size);
 	virtual CPURegs& getRegisters();
 	virtual void doStep();

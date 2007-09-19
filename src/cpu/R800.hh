@@ -55,8 +55,8 @@ protected:
 	inline void MULUW_DELAY()    { add(34); }
 	inline unsigned haltStates() { return 1; } // HALT + M1 // TODO check this
 
-	explicit R800TYPE(const EmuTime& time)
-		: CPUClock(time)
+	R800TYPE(const EmuTime& time, Scheduler& scheduler)
+		: CPUClock(time, scheduler)
 		, lastRefreshTime(time)
 		, lastPage(-1)
 	{
@@ -132,7 +132,7 @@ protected:
 		// documentation says refresh every 222 clocks
 		//  duration:  256/1024KB  13.5 clocks
 		//             512KB       21.5 clocks
-		const EmuTime& time = getTime();
+		EmuTime time = getTimeFast();
 		if (unlikely(lastRefreshTime.getTicksTill(time) >= 222)) {
 			lastRefreshTime.advance(time);
 			add(22);

@@ -3,6 +3,7 @@
 #include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
 #include "Debugger.hh"
+#include "Scheduler.hh"
 #include "SimpleDebuggable.hh"
 #include "MSXCommandController.hh"
 #include "BooleanSetting.hh"
@@ -59,12 +60,14 @@ MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 	newCPU = 0;
 
 	motherboard.getDebugger().setCPU(this);
+	motherboard.getScheduler().setCPU(this);
 	traceSetting->attach(*this);
 }
 
 MSXCPU::~MSXCPU()
 {
 	traceSetting->detach(*this);
+	motherboard.getScheduler().setCPU(0);
 	motherboard.getDebugger().setCPU(0);
 }
 
@@ -133,6 +136,11 @@ void MSXCPU::exitCPULoopAsync()
 const EmuTime& MSXCPU::getCurrentTime() const
 {
 	return activeCPU->getCurrentTime();
+}
+
+void MSXCPU::setNextSyncPoint(const EmuTime& time)
+{
+	activeCPU->setNextSyncPoint(time);
 }
 
 

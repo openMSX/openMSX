@@ -3,6 +3,7 @@
 #include "Scheduler.hh"
 #include "Schedulable.hh"
 #include "Thread.hh"
+#include "MSXCPU.hh"
 #include <cassert>
 #include <algorithm>
 
@@ -10,11 +11,14 @@ namespace openmsx {
 
 Scheduler::Scheduler()
 	: scheduleTime(EmuTime::zero)
+	, cpu(0)
+	, scheduleInProgress(false)
 {
 }
 
 Scheduler::~Scheduler()
 {
+	assert(!cpu);
 	SyncPoints copy(syncPoints);
 	for (SyncPoints::const_iterator it = copy.begin();
 	     it != copy.end(); ++it) {
@@ -36,6 +40,13 @@ void Scheduler::setSyncPoint(const EmuTime& time, Schedulable& device, int userD
 		std::upper_bound(syncPoints.begin(), syncPoints.end(), time,
 		            LessSyncPoint());
 	syncPoints.insert(it, SynchronizationPoint(time, &device, userData));
+
+	if (!scheduleInProgress && cpu) {
+		// only when scheduleHelper() is not being executed
+		// otherwise getNext() doesn't return the correct time and
+		// scheduleHelper() anyway calls setNextSyncPoint() at the end
+		cpu->setNextSyncPoint(getNext());
+	}
 }
 
 void Scheduler::removeSyncPoint(Schedulable& device, int userData)
@@ -80,6 +91,8 @@ const EmuTime& Scheduler::getCurrentTime() const
 
 void Scheduler::scheduleHelper(const EmuTime& limit)
 {
+	assert(!scheduleInProgress);
+	scheduleInProgress = true;
 	while (true) {
 		// Get next sync point.
 		const SynchronizationPoint sp =
@@ -103,6 +116,9 @@ void Scheduler::scheduleHelper(const EmuTime& limit)
 		//          << " " << userData << " till " << time << std::endl;
 		device->executeUntil(time, userData);
 	}
+	scheduleInProgress = false;
+
+	cpu->setNextSyncPoint(getNext());
 }
 
 } // namespace openmsx

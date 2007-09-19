@@ -11,6 +11,8 @@
 
 namespace openmsx {
 
+class MSXCPU;
+
 class Scheduler : private noncopyable
 {
 private:
@@ -55,6 +57,11 @@ private:
 public:
 	Scheduler();
 	~Scheduler();
+
+	void setCPU(MSXCPU* cpu_)
+	{
+		cpu = cpu_;
+	}
 
 	/**
 	 * Get the current scheduler time.
@@ -130,6 +137,8 @@ private:
 	typedef std::vector<SynchronizationPoint> SyncPoints;
 	SyncPoints syncPoints;
 	EmuTime scheduleTime;
+	MSXCPU* cpu;
+	bool scheduleInProgress;
 };
 
 } // namespace openmsx

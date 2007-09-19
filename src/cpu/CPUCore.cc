@@ -32,7 +32,7 @@ namespace openmsx {
 template <class T> CPUCore<T>::CPUCore(
 		MSXMotherBoard& motherboard_, const string& name,
 		const BooleanSetting& traceSetting_, const EmuTime& time)
-	: T(time)
+	: T(time, motherboard_.getScheduler())
 	, motherboard(motherboard_)
 	, scheduler(motherboard.getScheduler())
 	, interface(NULL)
@@ -203,7 +203,11 @@ template <class T> void CPUCore<T>::wait(const EmuTime& time)
 	assert(time >= getCurrentTime());
 	scheduler.schedule(time);
 	T::advanceTime(time);
-	T::setLimit(scheduler.getNext());
+}
+
+template <class T> void CPUCore<T>::setNextSyncPoint(const EmuTime& time)
+{
+	T::setLimit(time);
 }
 
 template <class T> void CPUCore<T>::doBreak()
@@ -306,7 +310,6 @@ template <class T> inline byte CPUCore<T>::READ_PORT(word port)
 	EmuTime time = T::getTimeFast();
 	scheduler.schedule(time);
 	byte result = interface->readIO(port, time);
-	T::setLimit(scheduler.getNext());
 	T::POST_IO(port);
 	return result;
 }
@@ -318,7 +321,6 @@ template <class T> inline void CPUCore<T>::WRITE_PORT(word port, byte value)
 	EmuTime time = T::getTimeFast();
 	scheduler.schedule(time);
 	interface->writeIO(port, value, time);
-	T::setLimit(scheduler.getNext());
 	T::POST_IO(port);
 }
 
@@ -343,7 +345,6 @@ template <class T> byte CPUCore<T>::RDMEM_OPCODEslow(word address)
 	EmuTime time = T::getTimeFast();
 	scheduler.schedule(time);
 	byte result = interface->readMem(address, time);
-	T::setLimit(scheduler.getNext());
 	T::POST_MEM(address);
 	return result;
 }
@@ -428,7 +429,6 @@ template <class T> byte CPUCore<T>::RDMEMslow(word address)
 	EmuTime time = T::getTimeFast();
 	scheduler.schedule(time);
 	byte result = interface->readMem(address, time);
-	T::setLimit(scheduler.getNext());
 	T::POST_MEM(address);
 	return result;
 }
@@ -492,7 +492,6 @@ template <class T> void CPUCore<T>::WRMEMslow(word address, byte value)
 	EmuTime time = T::getTimeFast();
 	scheduler.schedule(time);
 	interface->writeMem(address, value, time);
-	T::setLimit(scheduler.getNext());
 	T::POST_MEM(address);
 }
 template <class T> ALWAYS_INLINE void CPUCore<T>::WRMEM(word address, byte value)
@@ -724,7 +723,6 @@ template <class T> void CPUCore<T>::executeInternal()
 			} else {
 				while (slowInstructions == 0) {
 					T::enableLimit(true);
-					T::setLimit(scheduler.getNext());
 					while (likely(!T::limitReached())) {
 						// too much overhead for non-debug build
 						#ifdef DEBUG
