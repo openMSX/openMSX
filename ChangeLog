@@ -1,5 +1,10 @@
 $Id$
 
+2007-09-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed bug in stereo blip resampler:
+	   in case only one of the two channels was active, we left the other
+	   channel undefined (now we fill it with zeros)
+
 2007-09-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed TR status bit in V9990 (was inverted):
 	   - TR=1 means ready for transfer, thus V9990 is *not* ready to

@@ -2,6 +2,7 @@
 
 #include "ResampleBlip.hh"
 #include "Resample.hh"
+#include "static_assert.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -50,9 +51,27 @@ bool ResampleBlip<CHANNELS>::generateOutput(int* dataOut, unsigned num)
 	lastPos -= len;
 	assert(lastPos >= 0.0);
 
-	bool result = false;
+	bool results[CHANNELS];
 	for (unsigned ch = 0; ch < CHANNELS; ++ch) {
-		result |= blip[ch].readSamples(dataOut + ch, num, CHANNELS);
+		results[ch] = blip[ch].readSamples(dataOut + ch, num, CHANNELS);
+	}
+	STATIC_ASSERT((CHANNELS == 1) || (CHANNELS == 2));
+	bool result;
+	if (CHANNELS == 1) {
+		result = results[0];
+	} else {
+		if (results[0] == results[1]) {
+			// Both muted or both unmuted
+			result = results[0];
+		} else {
+			// One channel muted, the other not.
+			// We have to set the muted channel to all-zero.
+			unsigned offset = results[0] ? 1 : 0;
+			for (unsigned i = 0; i < num; ++i) {
+				dataOut[2 * i + offset] = 0;
+			}
+			result = true;
+		}
 	}
 	return result;
 }
