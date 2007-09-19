@@ -139,8 +139,9 @@ void SoundDevice::muteChannel(unsigned channel, bool muted)
 
 bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 {
+	if (samples == 0) return true;
+
 	assert(samples <= MAX_SAMPLES);
-	assert(samples > 0);
 	int* bufs[numChannels];
 	unsigned pitch = (samples * stereo + 3) & ~3; // align for SSE access
 	for (unsigned i = 0; i < numChannels; ++i) {
