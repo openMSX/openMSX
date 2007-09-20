@@ -17,7 +17,7 @@ INSTALL_BINARY_DIR:=$(APP_EXE_DIR)
 INSTALL_SHARE_DIR:=$(APP_DIR)/share
 INSTALL_DOC_DIR:=$(BINDIST_DIR)/Documentation
 
-BINDIST_IMAGE:=$(BUILD_PATH)/$(PACKAGE_FULL)-mac-$(OPENMSX_TARGET_CPU)-bin.dmg
+BINDIST_PACKAGE:=$(BUILD_PATH)/$(PACKAGE_FULL)-mac-$(OPENMSX_TARGET_CPU)-bin.dmg
 BINDIST_README:=$(BINDIST_DIR)/README.html
 BINDIST_LICENSE:=$(INSTALL_DOC_DIR)/GPL
 
@@ -26,8 +26,8 @@ bindist: $(APP_PLIST) $(APP_ICON) $(BINDIST_README) $(BINDIST_LICENSE)
 	@hdiutil create -srcfolder $(BINDIST_DIR) \
 		-volname openMSX \
 		-imagekey zlib-level=9 \
-		-ov $(BINDIST_IMAGE)
-	@hdiutil internet-enable -yes $(BINDIST_IMAGE)
+		-ov $(BINDIST_PACKAGE)
+	@hdiutil internet-enable -yes $(BINDIST_PACKAGE)
 
 $(APP_PLIST): $(APP_DIR)/Contents/%: $(APP_SUPPORT_DIR)/% bindistclean
 	@echo "  Writing meta-info..."

@@ -3,6 +3,7 @@
 # Create binary distribution directory.
 
 BINDIST_DIR:=$(BUILD_PATH)/bindist
+BINDIST_PACKAGE:=
 
 # Override install locations.
 # These can be overridden again in platform-specific bindist sections.
@@ -25,4 +26,5 @@ install: bindistclean
 bindistclean: $(BINARY_FULL)
 	@echo "Removing any old binary package..."
 	@rm -rf $(BINDIST_DIR)
+	@$(if $(BINDIST_PACKAGE),rm -f $(BINDIST_PACKAGE),)
 	@echo "Creating binary package:"
