@@ -26,7 +26,8 @@
         <ROM id="Panasonic FS-CA1 MSX-Audio ROM">
           <mem base="0x0000" size="0x10000"/>
           <rom>
-            <sha1>930eae7057af1652abae794072b296a59decd61b</sha1>
+	    <sha1>36d47cf70618fdb460f97a8ceb75013ec4529063</sha1> <!-- clean dump with EPROM reader from FRS -->
+            <sha1>930eae7057af1652abae794072b296a59decd61b</sha1> <!-- contains dirty RAM area -->
             <filename>roms/fs-ca1.rom</filename>
           </rom>
           <mappertype>MSX-AUDIO</mappertype>
