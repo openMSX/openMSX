@@ -5,8 +5,8 @@
 if [ -z "$MAKE" ]
 then
 	# Look for GNU Make; prefer "gmake" over "make".
-	echo "nothing:" | make -f - &> /dev/null && MAKE=make
-	echo "nothing:" | gmake -f - &> /dev/null && MAKE=gmake
+	(false ; echo "nothing:" | make -f - > /dev/null 2>&1) && MAKE=make
+	(false ; echo "nothing:" | gmake -f - > /dev/null 2>&1) && MAKE=gmake
 else
 	echo "Using value of MAKE environment variable: \"$MAKE\"."
 fi
@@ -19,7 +19,7 @@ then
 fi
 if [ "gmake" != "$MAKE" ]
 then
-	if ! ( $MAKE --version &> /dev/null \
+	if ! ( $MAKE --version > /dev/null 2>&1 \
 	&& ($MAKE --version 2> /dev/null | grep "GNU Make" > /dev/null) )
 	then
 		echo "Error: Make does not appear to be GNU Make."
