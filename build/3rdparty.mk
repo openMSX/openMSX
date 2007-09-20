@@ -153,6 +153,7 @@ $(BUILD_DIR)/$(PACKAGE_SDL_IMAGE)/Makefile: \
 		--disable-lbm \
 		--disable-pcx \
 		--enable-png \
+		--disable-png-shared \
 		--disable-pnm \
 		--disable-tga \
 		--disable-tif \
