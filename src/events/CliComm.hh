@@ -23,6 +23,7 @@ public:
 		MEDIA,
 		STATUS,
 		EXTENSION,
+		SOUNDDEVICE,
 		NUM_UPDATES // must be last
 	};
 

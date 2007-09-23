@@ -14,6 +14,7 @@
 #include "BooleanSetting.hh"
 #include "AviRecorder.hh"
 #include "Math.hh"
+#include "CliComm.hh"
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -123,6 +124,8 @@ void MSXMixer::registerSound(SoundDevice& device, double volume,
 	Infos::iterator it = infos.find(&device);
 	assert(it != infos.end());
 	updateVolumeParams(it);
+
+	msxCommandController.getCliComm().update(CliComm::SOUNDDEVICE, device.getName(), "add");
 }
 
 void MSXMixer::unregisterSound(SoundDevice& device)
@@ -142,6 +145,7 @@ void MSXMixer::unregisterSound(SoundDevice& device)
 		delete it2->muteSetting;
 	}
 	infos.erase(it);
+	msxCommandController.getCliComm().update(CliComm::SOUNDDEVICE, device.getName(), "remove");
 }
 
 void MSXMixer::setSynchronousMode(bool synchronous)
