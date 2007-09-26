@@ -116,9 +116,9 @@ private:
 	  */
 	RenderMethod renderMethod;
 
-	const Pixel* palette16;
-	const Pixel* palette256;
-	const Pixel* palette32768;
+	const Pixel* __restrict__ palette16;
+	const Pixel* __restrict__ palette256;
+	const Pixel* __restrict__ palette32768;
 };
 
 } // namespace openmsx

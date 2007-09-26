@@ -18,22 +18,25 @@ BitmapConverter<Pixel>::BitmapConverter(
 
 template <class Pixel>
 void BitmapConverter<Pixel>::renderGraphic4(
-	Pixel* pixelPtr, const byte* vramPtr0, const byte* /*vramPtr1*/)
+	Pixel* __restrict__ pixelPtr, const byte* vramPtr0, const byte* /*vramPtr1*/)
 {
-	for (unsigned i = 0; i < 128; ++i) {
-		unsigned data = vramPtr0[i];
-		pixelPtr[2 * i + 0] = palette16[data >> 4];
-		pixelPtr[2 * i + 1] = palette16[data & 15];
+	for (unsigned i = 0; i < 128; i += 2) {
+		unsigned data0 = vramPtr0[i + 0];
+		unsigned data1 = vramPtr0[i + 1];
+		pixelPtr[2 * i + 0] = palette16[data0 >> 4];
+		pixelPtr[2 * i + 1] = palette16[data0 & 15];
+		pixelPtr[2 * i + 2] = palette16[data1 >> 4];
+		pixelPtr[2 * i + 3] = palette16[data1 & 15];
 	}
 }
 
 template <class Pixel>
 void BitmapConverter<Pixel>::renderGraphic5(
-	Pixel* pixelPtr, const byte* vramPtr0, const byte* /*vramPtr1*/)
+	Pixel* __restrict__ pixelPtr, const byte* vramPtr0, const byte* /*vramPtr1*/)
 {
 	for (unsigned i = 0; i < 128; ++i) {
 		unsigned data = vramPtr0[i];
-		pixelPtr[4 * i + 0] = palette16[ 0 + ((data >> 6) & 3)];
+		pixelPtr[4 * i + 0] = palette16[ 0 +  (data >> 6)     ];
 		pixelPtr[4 * i + 1] = palette16[16 + ((data >> 4) & 3)];
 		pixelPtr[4 * i + 2] = palette16[ 0 + ((data >> 2) & 3)];
 		pixelPtr[4 * i + 3] = palette16[16 + ((data >> 0) & 3)];
@@ -42,7 +45,7 @@ void BitmapConverter<Pixel>::renderGraphic5(
 
 template <class Pixel>
 void BitmapConverter<Pixel>::renderGraphic6(
-	Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
+	Pixel* __restrict__ pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
 {
 	for (unsigned i = 0; i < 128; ++i) {
 		unsigned data0 = vramPtr0[i];
@@ -56,7 +59,7 @@ void BitmapConverter<Pixel>::renderGraphic6(
 
 template <class Pixel>
 void BitmapConverter<Pixel>::renderGraphic7(
-	Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
+	Pixel* __restrict__ pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
 {
 	for (unsigned i = 0; i < 128; ++i) {
 		pixelPtr[2 * i + 0] = palette256[vramPtr0[i]];
@@ -66,7 +69,7 @@ void BitmapConverter<Pixel>::renderGraphic7(
 
 template <class Pixel>
 void BitmapConverter<Pixel>::renderYJK(
-	Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
+	Pixel* __restrict__ pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
 {
 	for (unsigned i = 0; i < 64; ++i) {
 		unsigned p[4];
@@ -91,7 +94,7 @@ void BitmapConverter<Pixel>::renderYJK(
 
 template <class Pixel>
 void BitmapConverter<Pixel>::renderYAE(
-	Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
+	Pixel* __restrict__ pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
 {
 	for (unsigned i = 0; i < 64; ++i) {
 		unsigned p[4];
