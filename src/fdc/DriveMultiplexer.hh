@@ -4,7 +4,6 @@
 #define DRIVEMULTIPLEXER_HH
 
 #include "DiskDrive.hh"
-#include "noncopyable.hh"
 
 namespace openmsx {
 
@@ -12,7 +11,7 @@ namespace openmsx {
  * This class connects to a FDC as a normal DiskDrive and deligates all
  * requests to one of four other DiskDrives.
  */
-class DriveMultiplexer : public DiskDrive, private noncopyable
+class DriveMultiplexer : public DiskDrive
 {
 public:
 	enum DriveNum {

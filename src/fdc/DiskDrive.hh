@@ -4,6 +4,7 @@
 #define DISKDRIVE_HH
 
 #include "EmuTime.hh"
+#include "noncopyable.hh"
 #include "openmsx.hh"
 
 namespace openmsx {
@@ -11,7 +12,7 @@ namespace openmsx {
 /**
  * This (abstract) class defines the DiskDrive interface
  */
-class DiskDrive
+class DiskDrive : private noncopyable
 {
 public:
 	virtual ~DiskDrive();

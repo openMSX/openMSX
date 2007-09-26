@@ -21,9 +21,6 @@ class LoadingIndicator;
 class RealDrive : public DiskDrive, public Schedulable
 {
 public:
-	RealDrive(MSXMotherBoard& motherBoard, const EmuTime& time);
-	virtual ~RealDrive();
-
 	// DiskDrive interface
 	virtual bool ready();
 	virtual bool writeProtected();
@@ -50,6 +47,9 @@ protected:
 	static const int TICKS_PER_ROTATION = 6850;	// TODO
 	static const int ROTATIONS_PER_SECOND = 5;
 	static const int INDEX_DURATION = TICKS_PER_ROTATION / 50;
+
+	RealDrive(MSXMotherBoard& motherBoard, const EmuTime& time);
+	virtual ~RealDrive();
 
 	Clock<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND> motorTimer;
 	Clock<1000> headLoadTimer; // ms
