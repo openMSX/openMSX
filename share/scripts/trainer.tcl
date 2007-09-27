@@ -135,6 +135,8 @@ proc peek {addr}   {return [debug read memory $addr]}
 proc poke {addr val} {debug write memory $addr $val}
 proc peek {addr} {return [debug read memory $addr]}
 
+proc gettrainers {} {return [array names ::__trainers]}
+
 # source the trainer definitions (user may override system defaults) and ignore errors
 if {[catch {source $env(OPENMSX_SYSTEM_DATA)/scripts/trainerdefs.tclinclude}]} {
 }
