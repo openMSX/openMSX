@@ -1,5 +1,8 @@
 $Id$
 
+2007-09-29 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed Halnote mapper, based on info from blueMSX
+
 2007-09-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed bug in stereo blip resampler:
 	   in case only one of the two channels was active, we left the other
