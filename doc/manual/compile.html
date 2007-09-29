@@ -89,7 +89,7 @@ Most openMSX developers run some form of Linux, so this is the platform on which
 </dd>
 <dt>Windows</dt>
 <dd>
-Windows is also a supported platform for openMSX. Most Windows users will just download the binary release. But if you want to follow the latest developments or like to play with the code a bit, it is possible to compile openMSX on Windows yourself. For this you need MSYS and a variety of libraries.
+Windows is also a supported platform for openMSX. Most Windows users will just download the binary release. But if you want to follow the latest developments or like to play with the code a bit, it is possible to compile openMSX on Windows yourself. For this you need MinGW, MSYS and cURL.
 </dd>
 <dt>Mac OS X</dt>
 <dd>
@@ -339,6 +339,16 @@ Install the Xcode Tools from Apple, which you can download from the
 This package contains up-to-date versions of Make, GCC and SVN. If you are running Mac OS X 10.4 (Tiger), Xcode should be installable from the installation CD.
 </p>
 
+<h5>Microsoft Windows</h5>
+
+<p>You need to install MinGW, MSYS and cURL.</p>
+
+<p>You can download MinGW and MSYS from <a class="external" href="http://sourceforge.net/project/showfiles.php?group_id=2435">the download page</a> of the MinGW project. Download the latest version of the "Automated MinGW Installer" (5.1.3 is the latest at the time of writing) and download also "MSYS: Minimal System" (1.0.10 at the time of writing). Double click on the MinGW package after downloading and make sure to install the "current" flavour and check the "g++" component. Use the default installation directory (C:/MinGW), or at least a directory without spaces. For MSYS, the installer's default settings will be OK.
+</p>
+
+<p>The openMSX build system for Windows will use the program cURL to download the source code of the 3rd party libraries that openMSX is depending on. You need to have it in your default search path of Windows (or, if you're lazy, put it in the root of the openMSX source code, see below). You can download a binary of cURL from <a class="external" href="http://curl.haxx.se/download.html">its download page</a>. Use a binary from the "Win32 - Generic" category, near the bottom of the web page. Use one without SSL. (Currently, the top one is OK.)
+</p>
+
 <h3><a id="libs">3.2 Libraries</a></h3>
 
 <p>
@@ -430,8 +440,9 @@ However, nowadays there is a big chance that your system already has hardware ac
 </p>
 
 <h5>Mac OS X</h5>
-<p>
-You can get the libraries from either
+
+
+<p>The easiest thing to do is to use the <a class="internal" href="#standalone">stand-alone binary</a> method, which will get the libraries automatically. If you want to do things manually, you can get the libraries from either
 <a class="external" href="http://www.darwinports.org/">DarwinPorts</a>
 or
 <a class="external" href="http://fink.sourceforge.net/">Fink</a>. These are tools to give you access to a large collection of software packages (or ports). You can use them to install those packages (or ports).
@@ -443,18 +454,7 @@ If you are using Fink, you should install the packages
 
 <h5>Microsoft Windows</h5>
 <p>
-If you want to build SDL yourself, please check out the patch which you can find in the directory <code>doc.dll\libSDL</code>. Apply this patch to the extracted <code>libSDL-1.2.9.zip</code>. Make sure you have the DirectX headers installed, see also <a class="external" href="http://www.libsdl.org/extras/win32/mingw32/README.txt">this README.txt</a>. After that, build it like this:
-</p>
-
-<div class="commandline">
-./autogen.sh<br/>
-./configure --enable-stdio-redirect=no<br/>
-make<br/>
-make install
-</div>
-
-<p>
-The other libraries can be downloaded in binary and source form from several places.
+We recommend to use the <a class="internal" href="#standalone">stand-alone binary</a> method, which means the openMSX build system will download and compile all libraries automatically.
 </p>
 
 <h3><a id="compilenow">3.3 Compilation Itself</a></h3>
@@ -545,7 +545,7 @@ Make sure you provide us with the error message you got.
 
 <h5>Mac OS X</h5>
 <p>
-The steps above apply to Mac OS X as well.
+If you don't use the <a class="internal" href="#standalone">stand-alone binary</a> method, the steps above apply to Mac OS X as well.
 If you have a G4 or better PPC CPU, using <code>export OPENMSX_FLAVOUR=ppcg4</code> may give you a faster openMSX executable.
 </p>
 <p>
@@ -557,6 +557,10 @@ By default, only the openMSX executable itself is produced. If you want to creat
 <p>
 The normal build will link dynamically against the libraries available on your Mac. So if someone else wants to run the binary you built, that person has to install the same libraries. If you want a binary that does not have these external dependencies, read the chapter about <a class="internal" href="#standalone">building a stand-alone binary</a>.
 </p>
+
+<h5>Microsoft Windows</h5>
+
+<p>We recommend to use the <a class="internal" href="#standalone">stand-alone binary</a> method.</p>
 
 <h2><a id="install">4. Installation</a></h2>
 
@@ -575,6 +579,10 @@ so you may have to do <code>su</code> before <code>make install</code>.
 
 <h5>Mac OS X</h5>
 <p>
+If you used the <a class="internal" href="#standalone">stand-alone binary</a> method, you can use the resulting dmg file to install openMSX. If you did things manually, read on.
+</p>
+
+<p>
 The easiest way to install openMSX system-wide is this command:
 </p>
 <div class="commandline">
@@ -582,6 +590,11 @@ sudo make install
 </div>
 <p>
 If you defined <code>export OPENMSX_TARGET_OS=darwin-app</code>, <code>make install</code> will create an application folder in <code>derived/&lt;cpu&gt;-darwin-app-&lt;flavour&gt;/bindist</code>. No <code>sudo</code> is needed.
+</p>
+
+<h5>Microsoft Windows</h5>
+
+<p>The <a class="internal" href="#standalone">stand-alone binary</a> method will give you a result directory with a usuable openMSX binary in it. You can use it from any location. If you also want to build the openMSX installer, you should refer to the <code>package-win32</code> module in our Subversion repository. It contains a README file with a manual.
 </p>
 
 <h2><a id="next">5. Next Steps</a></h2>
@@ -664,23 +677,23 @@ open derived/&lt;cpu&gt;-darwin-app-&lt;flavour&gt;/bindist/openMSX.app
 <h2><a id="standalone">6. Stand-alone Binary</a></h2>
 
 <p>
-This chapter describes how to build a binary of openMSX that does not depend on any library except those that are available on the platform by default. This procedure has only been implemented for Mac OS X, but it could be expanded for other operating systems without too much effort.
+This chapter describes how to build a binary of openMSX that does not depend on any library except those that are available on the platform by default. This procedure is recommended to use on Mac OS X and especially on Microsoft Windows. 
 </p>
 
 <p>
-The stand-alone binary is made by linking statically against all libraries which are not available as part of the basic platform. The build system will automatically download the sources for these libraries and build them in the minimal configuration needed by openMSX. If you want to change something about this process, for example switch to a newer library release, edit the <code>build/3rdparty.mk</code> Makefile.
+The stand-alone binary is made by linking statically against all libraries which are not available as part of the basic platform. The build system will automatically download the sources for these libraries and build them in the minimal configuration needed by openMSX. If you want to change something about this process, for example switch to a newer library release, edit the <code>build/3rdparty.mk</code> Makefile. For just a plain build, no editing is needed at all.
 </p>
 
 <p>
-To build a stand-alone binary, run <code>make staticbindist</code>. Just like for normal compilation, you can set <code>OPENMSX_TARGET_CPU</code> to <code>ppc</code>, <code>x86</code> or <code>univ</code> to build for a different CPU. The files will be produced in <code>derived/&lt;cpu&gt;-darwin-app-&lt;flavour&gt;/bindist</code>.
+To build a stand-alone binary, run <code>make staticbindist</code> in the top of the source tree. (Note: on Microsoft Windows, you need to do this from the MSYS shell: double click the MSYS icon and type first <code>cd /c/openMSX</code> if the top of the source tree is located in <code>C:\openMSX</code>.) Just like for normal compilation, you can set <code>OPENMSX_TARGET_CPU</code> to <code>ppc</code>, <code>x86</code> or <code>univ</code> to build for a different CPU (only useful for Mac OS X). The files will be produced in <code>derived/&lt;cpu&gt;-darwin-app-&lt;flavour&gt;/bindist</code> on OS X, and in <code>derived/x86-mingw-xxxxxx</code> for Microsoft Windows, in which <code>xxxxxx</code> will be explained in the following paragraph. 
 </p>
 
 <p>
-The stand-alone binary will be built in the special <code>bindist</code> flavour, which is optimized to give a good balance between speed and size. You can override it only by passing another flavour to Make like this: <code>make staticbindist OPENMSX_FLAVOUR=&lt;flavour&gt;</code>.
+By default, the stand-alone binary will be built in the special <code>bindist</code> flavour, which is optimized to give a good balance between speed and size. You can override it only by passing another flavour to Make like this: <code>make staticbindist OPENMSX_FLAVOUR=&lt;flavour&gt;</code>. For Microsoft Windows, we recommend to use the <code>i686</code> flavour, because the default compiler (gcc 3.4.2) in MinGW has bugs that surface when using the <code>bindist</code> flavour.
 </p>
 
 <p>
-The final output of <code>make staticbindist</code> is a DMG file in <code>derived/&lt;cpu&gt;-darwin-app-&lt;flavour&gt;/bindist</code>. This file is internet-enabled, which means it will be automatically mounted after it is downloaded.
+The final output of <code>make staticbindist</code> is a DMG file in <code>derived/&lt;cpu&gt;-darwin-app-&lt;flavour&gt;/bindist</code> on Mac OS X. This file is internet-enabled, which means it will be automatically mounted after it is downloaded. On Microsoft Windows, you get a complete package in <code>derived\x86-mingw32-i686\bindist\install</code> in a typical case.
 </p>
 
 <h2><a id="contact">7. Contact Info</a></h2>
