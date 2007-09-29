@@ -367,9 +367,11 @@ ExtensionConfig& MSXMotherBoardImpl::loadExtension(const string& name)
 	}
 	ExtensionConfig& result = *extension;
 	extensions.push_back(extension.release());
+	self.getMSXCliComm().update(CliComm::EXTENSION, result.getName(), "add");
 	return result;
 }
 
+// TODO: remove duplication with loadExtension
 ExtensionConfig& MSXMotherBoardImpl::loadRom(
 		const string& romname, const string& slotname,
 		const vector<string>& options)
@@ -380,6 +382,7 @@ ExtensionConfig& MSXMotherBoardImpl::loadRom(
 	extension->createDevices();
 	ExtensionConfig& result = *extension;
 	extensions.push_back(extension.release());
+	self.getMSXCliComm().update(CliComm::EXTENSION, result.getName(), "add");
 	return result;
 }
 
@@ -405,6 +408,7 @@ void MSXMotherBoardImpl::removeExtension(const ExtensionConfig& extension)
 	MSXMotherBoard::Extensions::iterator it =
 		find(extensions.begin(), extensions.end(), &extension);
 	assert(it != extensions.end());
+	self.getMSXCliComm().update(CliComm::EXTENSION, extension.getName(), "remove");
 	delete &extension;
 	extensions.erase(it);
 }
@@ -891,7 +895,6 @@ string ExtCmd::execute(const vector<string>& tokens, const EmuTime& /*time*/)
 	try {
 		ExtensionConfig& extension =
 			motherBoard.loadExtension(tokens[1]);
-		motherBoard.getMSXCliComm().update(CliComm::EXTENSION, extension.getName(), "add");
 		return extension.getName();
 	} catch (MSXException& e) {
 		throw CommandException(e.getMessage());
@@ -931,9 +934,7 @@ string RemoveExtCmd::execute(const vector<string>& tokens, const EmuTime& /*time
 		throw CommandException("No such extension: " + tokens[1]);
 	}
 	try {
-		const string name = extension->getName();
 		motherBoard.removeExtension(*extension);
-		motherBoard.getMSXCliComm().update(CliComm::EXTENSION, name, "remove");
 	} catch (MSXException& e) {
 		throw CommandException("Can't remove extension '" + tokens[1] +
 		                       "': " + e.getMessage());
