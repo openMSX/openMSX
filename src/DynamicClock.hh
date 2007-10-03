@@ -4,6 +4,7 @@
 #define DYNAMICCLOCK_HH
 
 #include "EmuTime.hh"
+#include "Math.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -42,7 +43,7 @@ public:
 	  */
 	unsigned getTicksTill(const EmuTime& e) const {
 		assert(e.time >= lastTick.time);
-		return (e.time - lastTick.time) / step;
+		return Math::div_64_32(e.time - lastTick.time, step);
 	}
 
 	/** Calculate the number of ticks this clock has to tick to reach
@@ -51,15 +52,14 @@ public:
 	  */
 	unsigned getTicksTillUp(const EmuTime& e) const {
 		assert(e.time >= lastTick.time);
-		return (e.time - lastTick.time + (step - 1)) / step;
+		return Math::div_64_32(e.time - lastTick.time + (step - 1), step);
 	}
 
 	/** Change the frequency at which this clock ticks.
 	  * @param freq New frequency in Hertz.
 	  */
 	void setFreq(unsigned freq) {
-		assert((MAIN_FREQ / freq) < (1ull << 32));
-		step = MAIN_FREQ / freq;
+		step = MAIN_FREQ32 / freq;
 		assert(step);
 	}
 
@@ -68,7 +68,7 @@ public:
 	  */
 	unsigned getFreq() const {
 		assert(step);
-		return MAIN_FREQ / step;
+		return MAIN_FREQ32 / step;
 	}
 
 	/** Reset the clock to start ticking at the given time.
@@ -83,7 +83,7 @@ public:
 	  */
 	void advance(const EmuTime& e) {
 		assert(lastTick.time <= e.time);
-		lastTick.time = e.time - (e.time - lastTick.time) % step;
+		lastTick.time = e.time - Math::mod_64_32(e.time - lastTick.time, step);
 	}
 
 	/** Advance this clock by the given number of ticks.

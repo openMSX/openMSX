@@ -5,6 +5,7 @@
 
 #include "openmsx.hh"
 #include "static_assert.hh"
+#include "build-info.hh"
 #include <algorithm>
 #include <cmath>
 
@@ -101,6 +102,48 @@ inline unsigned floodRight(unsigned x)
 	x |= x >> 8;
 	x |= x >> 16;
 	return x;
+}
+
+// Perform a 64bit divide-by 32-bit operation. The quotient must fit in
+// 32-bit (results in a coredump otherwise)
+inline unsigned div_64_32(unsigned long long dividend, unsigned divisor)
+{
+#ifdef ASM_X86
+	unsigned quotient, remainder;
+	asm (
+		"divl %4;"
+		: "=a"(quotient)
+		, "=d"(remainder)
+		: "a"(unsigned(dividend >>  0))
+		, "d"(unsigned(dividend >> 32))
+		, "rm"(divisor)
+		: "cc"
+	);
+	return quotient;
+#else
+	return dividend / divisor;
+#endif
+}
+
+// Perform a 64bit modulo 32-bit operation. The quotient must fit in
+// 32-bit (results in a coredump otherwise)
+inline unsigned mod_64_32(unsigned long long dividend, unsigned divisor)
+{
+#ifdef ASM_X86
+	unsigned quotient, remainder;
+	asm (
+		"divl %4;"
+		: "=a"(quotient)
+		, "=d"(remainder)
+		: "a"(unsigned(dividend >>  0))
+		, "d"(unsigned(dividend >> 32))
+		, "rm"(divisor)
+		: "cc"
+	);
+	return remainder;
+#else
+	return dividend % divisor;
+#endif
 }
 
 } // namespace Math

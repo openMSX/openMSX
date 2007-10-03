@@ -5,6 +5,8 @@
 
 #include "EmuDuration.hh"
 #include "EmuTime.hh"
+#include "Math.hh"
+#include "static_assert.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -29,6 +31,8 @@ private:
 	static const unsigned long long R0 =
 		(((Q - (R1 * FREQ_NOM)) << 32) + (P & 0xFFFFFFFF)) / FREQ_NOM;
 	static const unsigned long long MASTER_TICKS = (R1 << 32) + R0;
+	static const unsigned MASTER_TICKS32 = MASTER_TICKS;
+	STATIC_ASSERT(MASTER_TICKS < 0x100000000ull);
 
 public:
 	// Note: default copy constructor and assigment operator are ok.
@@ -61,7 +65,7 @@ public:
 	  */
 	unsigned getTicksTill(const EmuTime& e) const {
 		assert(e.time >= lastTick.time);
-		return (e.time - lastTick.time) / MASTER_TICKS;
+		return Math::div_64_32(e.time - lastTick.time, MASTER_TICKS32);
 	}
 
 	/** Calculate the time at which this clock will have ticked the given
@@ -83,7 +87,8 @@ public:
 	  */
 	void advance(const EmuTime& e) {
 		assert(lastTick.time <= e.time);
-		lastTick.time = e.time - (e.time - lastTick.time) % MASTER_TICKS;
+		lastTick.time = e.time -
+			Math::mod_64_32(e.time - lastTick.time, MASTER_TICKS32);
 	}
 
 	/** Advance this clock by the given number of ticks.
@@ -103,7 +108,7 @@ public:
 		// we don't even want this overhead in development versions
 		assert((n * MASTER_TICKS) < (1ull << 32));
 		#endif
-		lastTick.time += n * static_cast<unsigned>(MASTER_TICKS);
+		lastTick.time += n * MASTER_TICKS32;
 	}
 
 private:

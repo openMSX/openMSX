@@ -1,5 +1,13 @@
 $Id$
 
+2007-10-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Optimized 64-bit divide-by 32-bit operations:
+	   - the x86 'divl' instruction already does a 64-bit by 32-bit
+	     division, though it generates a trap when the result does not
+	     fit in 32-bit. That's why it's not (directly) used by gcc.
+	     In certain (time critical) places in openmsx we know the result
+	     fits, so we can directly use this instruction.
+
 2007-10-03 David Heremans <david.heremans@gnu-linux.net>
 	* Extended the DiskManipulator:
 	   It is now possible to export a single file or subdir from the msx

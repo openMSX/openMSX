@@ -4,11 +4,14 @@
 #define EMUDUARTION_HH
 
 #include "openmsx.hh"
+#include "static_assert.hh"
 
 namespace openmsx {
 
 // constants
-const uint64 MAIN_FREQ = 3579545ULL * 1200ULL;
+static const uint64 MAIN_FREQ = 3579545ULL * 960;
+static const unsigned MAIN_FREQ32 = MAIN_FREQ;
+STATIC_ASSERT(MAIN_FREQ < (1ull << 32));
 
 
 class EmuDuration
@@ -24,7 +27,7 @@ public:
 		: time(uint64(duration * MAIN_FREQ)) {}
 
 	// conversions
-	double toDouble() const { return double(time) / MAIN_FREQ; }
+	double toDouble() const { return double(time) / MAIN_FREQ32; }
 	uint64 length() const { return time; }
 
 	// assignment operator
@@ -67,7 +70,7 @@ public:
 	// ticks
 	// TODO: Used in WavAudioInput. Keep or use DynamicClock instead?
 	unsigned getTicksAt(unsigned freq) const
-		{ return time / (MAIN_FREQ / freq); }
+		{ return time / (MAIN_FREQ32 / freq); }
 
 	static const EmuDuration zero;
 	static const EmuDuration infinity;
