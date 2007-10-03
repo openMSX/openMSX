@@ -943,6 +943,38 @@ void MSXtar::fileExtract(string resultFile, MSXDirEntry& direntry)
 	changeTime(resultFile, direntry);
 }
 
+//extracts a single item (file or directory) from the msximage to the host OS
+string MSXtar::singleItemExtract(const string& dirName, const string& itemName, unsigned sector)
+{
+	// first find out if the filename exists in current dir
+	byte dummy[SECTOR_SIZE];
+	string msxName = makeSimpleMSXFileName(itemName);
+	DirEntry entry = findEntryInDir(msxName, sector, dummy);
+	if (entry.sector == 0) {
+		return itemName + " not found!\n";
+	}
+
+	MSXDirEntry* direntries = reinterpret_cast<MSXDirEntry*>(dummy);
+	MSXDirEntry& msxdirentry = direntries[entry.index];
+	//create full name for loacl filesystem
+	string fullname = dirName + '/' + condensName(msxdirentry);
+
+	// ...and extract
+	if  (msxdirentry.attrib & T_MSX_DIR) {
+		//recursive extract this subdir
+		FileOperations::mkdirp(fullname);
+		recurseDirExtract(
+		    fullname,
+		    clusterToSector(rdsh(msxdirentry.startcluster)));
+	} else {
+		// it is a file
+		fileExtract(fullname, msxdirentry);
+	}
+	return "";
+}
+
+
+//extracts the contents of the directory (at sector) and all its subdirs to the host OS
 void MSXtar::recurseDirExtract(const string& dirName, unsigned sector)
 {
 	for (/* */ ; sector != 0; sector = getNextSector(sector)) {
@@ -1104,6 +1136,11 @@ string MSXtar::addDir(const string& rootDirName)
 string MSXtar::addFile(const string& filename)
 {
 	return addFileToDSK(filename, chrootSector);
+}
+
+string MSXtar::getItemFromDir(const string& rootDirName, const string& itemName)
+{
+	return singleItemExtract(rootDirName, itemName, chrootSector);
 }
 
 //temporary way to test export MSXtar functionality

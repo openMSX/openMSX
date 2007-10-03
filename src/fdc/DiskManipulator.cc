@@ -125,13 +125,13 @@ string DiskManipulator::execute(const vector<string>& tokens)
 		throw CommandException("Missing argument");
 
 	} else if ((tokens.size() != 4 && ( tokens[1] == "savedsk"
-	                                || tokens[1] == "mkdir"
-	                                || tokens[1] == "export"))
+	                                || tokens[1] == "mkdir"))
 	        || (tokens.size() != 3 && (tokens[1] == "dir"
 	                                || tokens[1] == "format"))
 	        || ((tokens.size() < 3 || tokens.size() > 4) &&
 	                                  (tokens[1] == "chdir"))
-	        || (tokens.size() < 4 && tokens[1] == "import")
+	        || (tokens.size() < 4 && ( tokens[1] == "export"
+					|| tokens[1] == "import"))
 	        || (tokens.size() <= 3 && (tokens[1] == "create"))) {
 		throw CommandException("Incorrect number of parameters");
 
@@ -140,7 +140,8 @@ string DiskManipulator::execute(const vector<string>& tokens)
 			throw CommandException(tokens[3] + " is not a directory");
 		}
 		DriveSettings& settings = getDriveSettings(tokens[2]);
-		exprt (settings, tokens[3]);
+		vector<string> lists(tokens.begin() + 3, tokens.end());
+		exprt (settings, lists);
 
 	} else if (tokens[1] == "import" ) {
 		DriveSettings& settings = getDriveSettings(tokens[2]);
@@ -502,12 +503,23 @@ string DiskManipulator::import(DriveSettings& driveData,
 	return messages;
 }
 
-void DiskManipulator::exprt(DriveSettings& driveData, const string& dirname)
+void DiskManipulator::exprt(DriveSettings& driveData,
+	                   const vector<string>& lists)
 {
 	try {
 		MSXtar workhorse(getDisk(driveData));
 		restoreCWD(workhorse, driveData);
-		workhorse.getDir(dirname);
+		vector<string>::const_iterator it = lists.begin();
+		string dirname= *it;
+		++it;
+		if (it ==  lists.end()){
+			workhorse.getDir(dirname);
+		} else {
+			//throw CommandException("Extracting specific files/dirs not yet implemented");
+			for ( /* */ ; it != lists.end(); ++it) {
+				workhorse.getItemFromDir(dirname,*it);
+			}
+		}
 	} catch (MSXException& e) {
 		throw CommandException(e.getMessage());
 	}

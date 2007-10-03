@@ -27,4 +27,4 @@ INSTALL_CONTRIB:=true
 # This works for every library openMSX uses, but disabling a mandatory library
 # will prevent openMSX from compiling.
 # Useful values are GL, GLEW and JACK.
-DISABLED_LIBRARIES:=
+DISABLED_LIBRARIES:=GL GLEW JACK

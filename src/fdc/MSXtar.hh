@@ -37,6 +37,7 @@ public:
 	// temporary way to test import MSXtar functionality
 	std::string addFile(const std::string& Filename);
 	std::string addDir(const std::string& rootDirName);
+	std::string getItemFromDir(const std::string& rootDirName, const std::string& itemName);
 	void getDir(const std::string& rootDirName);
 
 private:
@@ -118,6 +119,7 @@ private:
 	void changeTime(std::string resultFile, MSXDirEntry& direntry);
 	void fileExtract(std::string resultFile, MSXDirEntry& direntry);
 	void recurseDirExtract(const std::string& dirName, unsigned sector);
+	std::string singleItemExtract(const std::string& dirName, const std::string& itemName, unsigned sector);
 	void chroot(const std::string& newRootDir, bool createDir);
 
 
