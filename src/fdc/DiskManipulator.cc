@@ -140,8 +140,8 @@ string DiskManipulator::execute(const vector<string>& tokens)
 			throw CommandException(tokens[3] + " is not a directory");
 		}
 		DriveSettings& settings = getDriveSettings(tokens[2]);
-		vector<string> lists(tokens.begin() + 3, tokens.end());
-		exprt (settings, lists);
+		vector<string> lists(tokens.begin() + 4, tokens.end());
+		exprt(settings, tokens[3], lists);
 
 	} else if (tokens[1] == "import" ) {
 		DriveSettings& settings = getDriveSettings(tokens[2]);
@@ -503,21 +503,19 @@ string DiskManipulator::import(DriveSettings& driveData,
 	return messages;
 }
 
-void DiskManipulator::exprt(DriveSettings& driveData,
-	                   const vector<string>& lists)
+void DiskManipulator::exprt(DriveSettings& driveData, const string& dirname,
+                            const vector<string>& lists)
 {
 	try {
 		MSXtar workhorse(getDisk(driveData));
 		restoreCWD(workhorse, driveData);
-		vector<string>::const_iterator it = lists.begin();
-		string dirname= *it;
-		++it;
-		if (it ==  lists.end()){
+		if (lists.empty()) {
+			// export all
 			workhorse.getDir(dirname);
 		} else {
-			//throw CommandException("Extracting specific files/dirs not yet implemented");
-			for ( /* */ ; it != lists.end(); ++it) {
-				workhorse.getItemFromDir(dirname,*it);
+			for (vector<string>::const_iterator it = lists.begin();
+			     it != lists.end(); ++it) {
+				workhorse.getItemFromDir(dirname, *it);
 			}
 		}
 	} catch (MSXException& e) {
