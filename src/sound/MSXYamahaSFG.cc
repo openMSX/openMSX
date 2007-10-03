@@ -95,10 +95,13 @@ byte MSXYamahaSFG::readMem(word address, const EmuTime& /*time*/)
 		// TODO: return getKbdStatus();
 		break;
 	case 0x3FF5:
-		return ym2148->readData();
+		// For now disabled, as it breaks working functionality (YRM-104)
+		// return ym2148->readData();
 		break;
 	case 0x3FF6:
-		return ym2148->readStatus();
+		// For now disabled, as it breaks working functionality (YRM-104)
+		//return ym2148->readStatus();
+		break;
 	}
 	return 0xFF;
 }
