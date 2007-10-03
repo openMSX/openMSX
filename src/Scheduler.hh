@@ -20,7 +20,7 @@ private:
 	{
 	public:
 		SynchronizationPoint(const EmuTime& time,
-				     Schedulable* dev, int usrdat)
+		                     Schedulable* dev, int usrdat)
 			: timeStamp(time), device(dev), userData(usrdat) {}
 		const EmuTime& getTime() const { return timeStamp; }
 		Schedulable* getDevice() const { return device; }
@@ -30,27 +30,16 @@ private:
 		Schedulable* device;
 		int userData;
 	};
-	struct LessSyncPoint {
-		bool operator()(
-			const EmuTime& time,
-			const Scheduler::SynchronizationPoint& sp) const
-		{
-			return time < sp.getTime();
-		}
-		bool operator()(
-			const Scheduler::SynchronizationPoint& sp,
-			const EmuTime& time) const
-		{
-			return sp.getTime() < time;
-		}
-	};
 
+	struct LessSyncPoint {
+		bool operator()(const EmuTime& time,
+		                const SynchronizationPoint& sp) const;
+		bool operator()(const SynchronizationPoint& sp,
+		                const EmuTime& time) const;
+	};
 	struct FindSchedulable {
-		explicit FindSchedulable(Schedulable& schedulable_)
-			: schedulable(schedulable_) {}
-		bool operator()(Scheduler::SynchronizationPoint& sp) const {
-			return sp.getDevice() == &schedulable;
-		}
+		explicit FindSchedulable(Schedulable& schedulable);
+		bool operator()(SynchronizationPoint& sp) const;
 		Schedulable& schedulable;
 	};
 

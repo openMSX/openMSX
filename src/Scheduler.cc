@@ -9,6 +9,30 @@
 
 namespace openmsx {
 
+bool Scheduler::LessSyncPoint::operator()(
+	const EmuTime& time, const SynchronizationPoint& sp) const
+{
+	return time < sp.getTime();
+}
+
+bool Scheduler::LessSyncPoint::operator()(
+	const SynchronizationPoint& sp, const EmuTime& time) const
+{
+	return sp.getTime() < time;
+}
+
+
+Scheduler::FindSchedulable::FindSchedulable(Schedulable& schedulable_)
+	: schedulable(schedulable_)
+{
+}
+
+bool Scheduler::FindSchedulable::operator()(SynchronizationPoint& sp) const
+{
+	return sp.getDevice() == &schedulable;
+}
+
+
 Scheduler::Scheduler()
 	: scheduleTime(EmuTime::zero)
 	, cpu(0)
