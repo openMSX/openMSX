@@ -41,6 +41,7 @@ MSX device support:
 - Support for Gouda/Novaxis SCSI (experimental).
 - Support for password cartridge.
 - Support for the Super Lode Runner mapper, which violates the MSX spec.
+- Real support for the Halnote mapper (thanks to blueMSX team).
 - Several small optimizations, mostly in SDLGL-PP renderer and CPU emulation.
 
 Backwards-compatibility issues:
