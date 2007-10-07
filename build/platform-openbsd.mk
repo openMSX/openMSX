@@ -6,9 +6,9 @@
 USE_SYMLINK:=true
 
 # Default compiler.
-# OpenBSD 3.6 RELEASE has GCC 2.95 as base, which is not capable of compiling
-# openMSX. The egcc compiler is GCC 3.3.2.
-OPENMSX_CXX?=eg++
+# GCC 3.3 or later is needed to compile openMSX. If you have an old OpenBSD,
+# you might have to specify a different compiler than the systemwide one.
+OPENMSX_CXX?=g++
 
 # File name extension of executables.
 EXEEXT:=
