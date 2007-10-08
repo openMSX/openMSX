@@ -1,5 +1,10 @@
 $Id$
 
+2007-10-08 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added Sony HB-F1XDJ config, thanks to msxrestarter. Function and use
+	  of the big firmware ROM is not clear yet, but it should work, as it
+	  uses the Halnote mapper.
+
 2007-10-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimized 64-bit divide-by 32-bit operations:
 	   - the x86 'divl' instruction already does a 64-bit by 32-bit
