@@ -1,5 +1,10 @@
 $Id$
 
+2007-10-08 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added Sony HB-F1XDJ config, thanks to msxrestarter. Function and use
+	  of the big firmware ROM is not clear yet, but it should work, as it
+	  uses the Halnote mapper.
+
 2007-09-29 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed Halnote mapper, based on info from blueMSX
 
