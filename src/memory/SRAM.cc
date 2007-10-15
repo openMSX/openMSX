@@ -27,25 +27,26 @@ private:
 // class SRAM
 
 SRAM::SRAM(MSXMotherBoard& motherBoard, const string& name, int size,
-           const XMLElement& config_, const char* header_)
+           const XMLElement& config_, const char* header_, bool* loaded)
 	: ram(motherBoard, name, "sram", size)
 	, config(config_)
 	, header(header_)
 	, cliComm(motherBoard.getMSXCliComm())
 	, sramSync(new SRAMSync(*this))
 {
-	load();
+	load(loaded);
 }
 
 SRAM::SRAM(MSXMotherBoard& motherBoard, const string& name,
            const string& description, int size,
-	   const XMLElement& config_, const char* header_)
+	   const XMLElement& config_, const char* header_, bool* loaded)
 	: ram(motherBoard, name, description, size)
 	, config(config_)
 	, header(header_)
 	, cliComm(motherBoard.getMSXCliComm())
+	, sramSync(new SRAMSync(*this))
 {
-	load();
+	load(loaded);
 }
 
 SRAM::~SRAM()
@@ -62,8 +63,18 @@ void SRAM::write(unsigned addr, byte value)
 	ram[addr] = value;
 }
 
-void SRAM::load()
+void SRAM::memset(unsigned addr, byte c, unsigned size)
 {
+	if (!sramSync->pending()) {
+		sramSync->schedule(5000000); // sync to disk after 5s
+	}
+	assert((addr + size) <= getSize());
+	::memset(&ram[addr], c, size);
+}
+
+void SRAM::load(bool* loaded)
+{
+	if (loaded) *loaded = false;
 	const string& filename = config.getChildData("sramname");
 	try {
 		bool headerOk = true;
@@ -79,6 +90,7 @@ void SRAM::load()
 		}
 		if (headerOk) {
 			file.read(&ram[0], getSize());
+			if (loaded) *loaded = true;
 		} else {
 			cliComm.printWarning(
 				"Warning no correct SRAM file: " + filename);

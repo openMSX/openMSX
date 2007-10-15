@@ -35,6 +35,7 @@
 #include "RomKorean126in1.hh"
 #include "RomHolyQuran.hh"
 #include "RomFSA1FM.hh"
+#include "RomManbow2.hh"
 #include "Rom.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
@@ -311,6 +312,9 @@ auto_ptr<MSXDevice> RomFactory::create(
 	case ROM_FSA1FM2:
 		return auto_ptr<MSXDevice>(
 			new RomFSA1FM2(motherBoard, config, time, rom));
+	case ROM_MANBOW2:
+		return auto_ptr<MSXDevice>(
+			new RomManbow2(motherBoard, config, time, rom));
 	default:
 		throw MSXException("Unknown ROM type");
 	}

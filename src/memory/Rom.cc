@@ -248,6 +248,11 @@ const string& Rom::getSHA1Sum() const
 	return sha1sum;
 }
 
+MSXMotherBoard& Rom::getMotherBoard() const
+{
+	return motherBoard;
+}
+
 
 RomDebuggable::RomDebuggable(Debugger& debugger_, Rom& rom_)
 	: debugger(debugger_), rom(rom_)

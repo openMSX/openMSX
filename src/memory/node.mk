@@ -8,7 +8,7 @@ SRC_HDR:= \
 	MSXRam \
 	MSXRomCLI \
 	Ram SRAM CheckedRam \
-	Rom \
+	Rom AmdFlash \
 	RomInfo RomFactory RomDatabase \
 	RomInfoTopic \
 	MSXRom \
@@ -27,7 +27,8 @@ SRC_HDR:= \
 	MSXMegaRam \
 	MSXPac \
 	MSXHBI55 \
-	ESE_RAM ESE_SCC
+	ESE_RAM ESE_SCC \
+	RomManbow2
 
 HDR_ONLY:= \
 	RomTypes

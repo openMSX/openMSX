@@ -53,6 +53,7 @@ static const RomTypeMap& getRomTypeMap()
 		romTypeMap["Padial16"]       = ROM_PADIAL16;
 		romTypeMap["SuperLodeRunner"]= ROM_SUPERLODERUNNER;
 		romTypeMap["MSXDOS2"]        = ROM_MSXDOS2;
+		romTypeMap["Manbow2"]        = ROM_MANBOW2;
 
 		// ROM mapper types used for system ROMs in machines
 		romTypeMap["Panasonic"]      = ROM_PANASONIC;

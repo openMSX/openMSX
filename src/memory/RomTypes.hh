@@ -30,6 +30,7 @@ enum RomType {
 	ROM_PADIAL16     = 21,
 	ROM_SUPERLODERUNNER = 22,
 	ROM_MSXDOS2      = 23,
+	ROM_MANBOW2      = 24,
 
 	ROM_PAGE0        = 32 + 1,
 	ROM_PAGE1        = 32 + 2,

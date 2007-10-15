@@ -18,10 +18,12 @@ class SRAM : private noncopyable
 {
 public:
 	SRAM(MSXMotherBoard& motherBoard, const std::string& name, int size,
-	     const XMLElement& config, const char* header = NULL);
+	     const XMLElement& config, const char* header = NULL,
+	     bool* loaded = NULL);
 	SRAM(MSXMotherBoard& motherBoard, const std::string& name,
 	     const std::string& description, int size,
-	     const XMLElement& config, const char* header = NULL);
+	     const XMLElement& config, const char* header = NULL,
+	     bool* loaded = NULL);
 	virtual ~SRAM();
 
 	const byte& operator[](unsigned addr) const {
@@ -30,12 +32,13 @@ public:
 	}
 	// write() is non-inline because of the auto-sync to disk feature
 	void write(unsigned addr, byte value);
+	void memset(unsigned addr, byte c, unsigned size);
 	unsigned getSize() const {
 		return ram.getSize();
 	}
 
 private:
-	void load();
+	void load(bool* loaded);
 	void save();
 
 	Ram ram;

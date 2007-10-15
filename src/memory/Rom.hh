@@ -12,7 +12,6 @@
 namespace openmsx {
 
 class MSXMotherBoard;
-class EmuTime;
 class XMLElement;
 class File;
 class RomInfo;
@@ -39,6 +38,8 @@ public:
 	const std::string& getName() const;
 	const std::string& getDescription() const;
 	const std::string& getSHA1Sum() const;
+
+	MSXMotherBoard& getMotherBoard() const;
 
 private:
 	void init(GlobalCliComm& cliComm, const XMLElement& config);
