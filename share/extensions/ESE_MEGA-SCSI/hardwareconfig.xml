@@ -25,7 +25,7 @@
           <target id="2">
             <type>SCSILS120</type>
           </target>
-       </MegaSCSI>
+        </MegaSCSI>
       </secondary>
     </primary>
   </devices>
