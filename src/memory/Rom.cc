@@ -109,11 +109,17 @@ void Rom::init(GlobalCliComm& cliComm, const XMLElement& config)
 		assert(rom);
 
 	} else {
-		// Assumption: this only happens for an empty SCC
-		size = 0;
+		// for an empty SCC the <size> tag is missing, so take 0
+		// for MegaFlashRomSCC the <size> tag is used to specify
+		// the size of the mapper (and you don't care about initial
+		// content)
+		size = config.getChildDataAsInt("size", 0) * 1024; // in kb
+		extendedRom = new byte[size];
+		memset(extendedRom, 0xff, size);
+		rom = extendedRom;
 	}
 
-	if (size != 0 ) {
+	if (size != 0) {
 		const XMLElement* patchesElem = config.findChild("patches");
 		if (patchesElem) {
 			auto_ptr<const PatchInterface> patch(
@@ -133,8 +139,10 @@ void Rom::init(GlobalCliComm& cliComm, const XMLElement& config)
 				patch->copyBlock(0, const_cast<byte*>(rom), size);
 			} else {
 				size = patchSize;
-				extendedRom = new byte[size];
-				patch->copyBlock(0, extendedRom, size);
+				byte* newExtendedRom = new byte[size];
+				patch->copyBlock(0, newExtendedRom, size);
+				delete[] extendedRom;
+				extendedRom = newExtendedRom;
 				rom = extendedRom;
 			}
 		}

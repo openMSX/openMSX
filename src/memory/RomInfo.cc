@@ -138,6 +138,7 @@ RomType RomInfo::nameToRomType(string name)
 		aliasMap["KOREAN80IN1"]   = "Zemina80in1";
 		aliasMap["KOREAN90IN1"]   = "Zemina90in1";
 		aliasMap["KOREAN126IN1"]  = "Zemina126in1";
+		aliasMap["MegaFlashRomScc"]= "Manbow2";
 	}
 	const RomTypeMap& romTypeMap = getRomTypeMap();
 	AliasMap::const_iterator alias_it = aliasMap.find(name);

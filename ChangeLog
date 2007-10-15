@@ -4,6 +4,7 @@ $Id$
 	* Initial version of Manbow2 mapper:
 	   this is work in progress, possibly the way the flash is saved
 	   will still change
+	* Added MegaFlashRomScc extension
 
 2007-10-08 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added Sony HB-F1XDJ config, thanks to msxrestarter. Function and use
