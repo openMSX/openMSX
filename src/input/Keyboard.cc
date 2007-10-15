@@ -8,6 +8,7 @@
 #include "Keyboard.hh"
 #include "MSXEventDistributor.hh"
 #include "SettingsConfig.hh"
+#include "XMLElement.hh"
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
@@ -143,9 +144,8 @@ Keyboard::Keyboard(Scheduler& scheduler,
 	memset(cmdKeyMatrix,  255, sizeof(cmdKeyMatrix));
 	memset(userKeyMatrix, 255, sizeof(userKeyMatrix));
 
-	const XMLElement* config =
-		msxCommandController.getSettingsConfig().findChild("KeyMap");
-	if (config) {
+	if (const XMLElement* config = msxCommandController.
+			getSettingsConfig().getXMLElement().findChild("KeyMap")) {
 		string filename = config->getData();
 		loadKeymapfile(config->getFileContext().resolve(filename));
 	}

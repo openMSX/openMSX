@@ -215,8 +215,8 @@ void CommandLineParser::registerFileClass(
 
 void CommandLineParser::registerFileTypes()
 {
-	const XMLElement* config = settingsConfig.findChild("FileTypes");
-	if (config) {
+	if (const XMLElement* config =
+			settingsConfig.getXMLElement().findChild("FileTypes")) {
 		for (FileClassMap::const_iterator i = fileClassMap.begin();
 		     i != fileClassMap.end(); ++i) {
 			XMLElement::Children extensions;

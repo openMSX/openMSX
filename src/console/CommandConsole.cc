@@ -50,7 +50,7 @@ CommandConsole::CommandConsole(
 	maxHistory = 100;
 	removeDoubles = true;
 	if (const XMLElement* config = commandController.getSettingsConfig().
-	                                                 findChild("Console")) {
+		                        getXMLElement().findChild("Console")) {
 		maxHistory = config->getChildDataAsInt(
 			"historysize", maxHistory);
 		removeDoubles = config->getChildDataAsBool(

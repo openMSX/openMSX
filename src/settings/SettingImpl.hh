@@ -5,6 +5,7 @@
 
 #include "Setting.hh"
 #include "SettingsConfig.hh"
+#include "XMLElement.hh"
 #include "MSXException.hh"
 #include "CommandController.hh"
 
@@ -122,7 +123,8 @@ template<typename POLICY>
 void SettingImpl<POLICY>::init()
 {
 	CommandController& commandController = Setting::getCommandController();
-	SettingsConfig& settingsConfig = commandController.getSettingsConfig();
+	XMLElement& settingsConfig =
+		commandController.getSettingsConfig().getXMLElement();
 	if (needLoadSave()) {
 		const XMLElement* config = settingsConfig.findChild("settings");
 		if (config) {
@@ -144,8 +146,7 @@ template<typename POLICY>
 SettingImpl<POLICY>::~SettingImpl()
 {
 	CommandController& commandController = Setting::getCommandController();
-	SettingsConfig& settingsConfig = commandController.getSettingsConfig();
-	sync(settingsConfig);
+	sync(commandController.getSettingsConfig().getXMLElement());
 	commandController.unregisterSetting(*this);
 }
 

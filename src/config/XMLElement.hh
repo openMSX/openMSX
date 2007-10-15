@@ -23,7 +23,7 @@ public:
 	XMLElement(const std::string& name, const std::string& data = "");
 	XMLElement(const XMLElement& element);
 	const XMLElement& operator=(const XMLElement& element);
-	virtual ~XMLElement();
+	~XMLElement();
 
 	// name
 	const std::string& getName() const { return name; }

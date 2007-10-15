@@ -8,6 +8,7 @@
 #include "ReadDir.hh"
 #include "Date.hh"
 #include "SettingsConfig.hh"
+#include "XMLElement.hh"
 #include "sha1.hh"
 #include <fstream>
 #include <cassert>
@@ -27,8 +28,8 @@ const char* const FILE_CACHE = "/.filecache";
 
 FilePool::FilePool(SettingsConfig& settingsConfig)
 {
-	const XMLElement* config = settingsConfig.findChild("RomPool");
-	if (config) {
+	if (const XMLElement* config =
+			settingsConfig.getXMLElement().findChild("RomPool")) {
 		XMLElement::Children dirs;
 		config->getChildren("directory", dirs);
 		for (XMLElement::Children::const_iterator it = dirs.begin();

@@ -231,7 +231,7 @@ void HotKey::bind(EventPtr event, const string& command)
 	defaultMap.erase(event);
 	cmdMap[event] = command;
 
-	saveBindings(commandController.getSettingsConfig());
+	saveBindings(commandController.getSettingsConfig().getXMLElement());
 }
 
 void HotKey::unbind(EventPtr event)
@@ -244,7 +244,7 @@ void HotKey::unbind(EventPtr event)
 	defaultMap.erase(event);
 	cmdMap.erase(event);
 
-	saveBindings(commandController.getSettingsConfig());
+	saveBindings(commandController.getSettingsConfig().getXMLElement());
 }
 
 void HotKey::bindDefault(EventPtr event, const string& command)

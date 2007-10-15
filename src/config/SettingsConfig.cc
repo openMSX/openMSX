@@ -2,6 +2,7 @@
 
 #include "SettingsConfig.hh"
 #include "SettingsManager.hh"
+#include "XMLElement.hh"
 #include "XMLLoader.hh"
 #include "File.hh"
 #include "FileContext.hh"
@@ -12,6 +13,7 @@
 #include "GlobalCommandController.hh"
 #include "Command.hh"
 #include <memory>
+#include <cassert>
 
 using std::auto_ptr;
 using std::string;
@@ -46,14 +48,13 @@ private:
 
 SettingsConfig::SettingsConfig(GlobalCommandController& commandController_,
                                HotKey& hotKey_)
-	: XMLElement("settings")
-	, commandController(commandController_)
+	: commandController(commandController_)
 	, saveSettingsCommand(new SaveSettingsCommand(commandController, *this))
 	, loadSettingsCommand(new LoadSettingsCommand(commandController, *this))
+	, xmlElement(new XMLElement("settings"))
 	, hotKey(hotKey_)
 	, mustSaveSettings(false)
 {
-	setFileContext(auto_ptr<FileContext>(new SystemFileContext()));
 	settingsManager.reset(new SettingsManager(commandController));
 }
 
@@ -74,11 +75,12 @@ void SettingsConfig::loadSetting(FileContext& context, const string& filename)
 	try {
 		saveName = context.resolveCreate(filename);
 		File file(context.resolve(filename));
-		auto_ptr<XMLElement> doc(XMLLoader::loadXML(
-			file.getLocalName(), "settings.dtd"));
-		XMLElement::operator=(*doc);
-		getSettingsManager().loadSettings(*this);
-		hotKey.loadBindings(*this);
+		xmlElement = XMLLoader::loadXML(
+			file.getLocalName(), "settings.dtd");
+		xmlElement->setFileContext(
+			auto_ptr<FileContext>(new SystemFileContext()));
+		getSettingsManager().loadSettings(*xmlElement);
+		hotKey.loadBindings(*xmlElement);
 	} catch (XMLException& e) {
 		commandController.getCliComm().printWarning(
 			"Loading of settings failed: " + e.getMessage() + "\n"
@@ -91,11 +93,12 @@ void SettingsConfig::saveSetting(const string& filename)
 	const string& name = filename.empty() ? saveName : filename;
 	if (name.empty()) return;
 
-	getSettingsManager().saveSettings(*this);
-	hotKey.saveBindings(*this);
+	getSettingsManager().saveSettings(*xmlElement);
+	hotKey.saveBindings(*xmlElement);
 
 	File file(name, File::TRUNCATE);
-	string data = "<!DOCTYPE settings SYSTEM 'settings.dtd'>\n" + dump();
+	string data = "<!DOCTYPE settings SYSTEM 'settings.dtd'>\n" +
+	              xmlElement->dump();
 	file.write(data.c_str(), data.size());
 }
 
@@ -107,6 +110,12 @@ void SettingsConfig::setSaveSettings(bool save)
 SettingsManager& SettingsConfig::getSettingsManager()
 {
 	return *settingsManager; // ***
+}
+
+XMLElement& SettingsConfig::getXMLElement()
+{
+	assert(xmlElement.get());
+	return *xmlElement;
 }
 
 
