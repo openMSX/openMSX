@@ -10,6 +10,7 @@
 #include <map>
 #include <cassert>
 #include <cstring>
+#include <cstdlib>
 
 namespace openmsx {
 

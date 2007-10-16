@@ -82,6 +82,7 @@ chirp 12-..: vokume   0   : silent
 #include "XMLElement.hh"
 #include "FileContext.hh"
 #include <cstring>
+#include <cstdlib>
 
 namespace openmsx {
 

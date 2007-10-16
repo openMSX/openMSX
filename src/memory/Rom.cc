@@ -1,9 +1,7 @@
 // $Id$
 
-#include <string>
-#include <sstream>
-#include "XMLElement.hh"
 #include "Rom.hh"
+#include "XMLElement.hh"
 #include "RomInfo.hh"
 #include "RomDatabase.hh"
 #include "File.hh"
@@ -11,15 +9,17 @@
 #include "FileException.hh"
 #include "PanasonicMemory.hh"
 #include "MSXMotherBoard.hh"
-#include "StringOp.hh"
 #include "Debugger.hh"
 #include "Debuggable.hh"
-#include "sha1.hh"
 #include "MSXCliComm.hh"
 #include "FilePool.hh"
 #include "ConfigException.hh"
 #include "EmptyPatch.hh"
 #include "IPSPatch.hh"
+#include "StringOp.hh"
+#include "sha1.hh"
+#include <sstream>
+#include <string.h>
 
 using std::string;
 using std::auto_ptr;
