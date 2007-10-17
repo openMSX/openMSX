@@ -27,7 +27,7 @@
 	<ul class="toc">
 		<li><a class="internal" href="#easyuse">Is openMSX easy to use?</a></li>
 		<li><a class="internal" href="#c-bios">All I get is "Cartridge not found." What's wrong?</a></li>
-		<li><a class="internal" href="#nodrive">All I get is "Fatal error: No drive named 'diska'." What's wrong?</a></li>
+		<li><a class="internal" href="#nodrive">I get "Fatal error: No drive named 'diska'." What's wrong?</a></li>
 		<li><a class="internal" href="#savegame">How do I save my game?</a></li>
 		<li><a class="internal" href="#harddisk">What is the openMSX harddisk support?</a></li>
 		<li><a class="internal" href="#videosource">It seems the MSX hangs when running GFX9000 software; what's wrong?</a></li>
@@ -154,15 +154,15 @@ So, the message is not from openMSX, but from C-BIOS, an MSX program which tries
 <p>Note that the current version of C-BIOS can only run cartridges and does not support disk or tape usage. More information can be found in the <a class="external" href="setup.html#cbios">Setup Guide</a>.
 </p>
 
-<h3><a id="nodrive">All I get is "Fatal error: No drive named 'diska'." What's wrong?</a></h3>
+<h3><a id="nodrive">I get "Fatal error: No drive named 'diska'." What's wrong?</a></h3>
 
-<p>You are probably using Catapult with C-BIOS.</p>
+<p>You are probably using Catapult with C-BIOS and you're trying to run a program on a disk image.</p>
 
-<p>The C-BIOS machines that come with openMSX do not support disk or tape usage, see previous question. Please see the <a class="external" href="setup.html#cbios">Setup Guide</a>.</p>
+<p>Unfortunately, the C-BIOS machines that come with openMSX do not support disk or tape usage, see previous question. Please see the <a class="external" href="setup.html#cbios">Setup Guide</a>.</p>
 
 <p>The tricky thing is that the old (current) version of Catapult always shows the disk, tape and cartridge controls, independent whether the machine you're emulating actually supports them. This will be greatly improved in the new (upcoming, but not finished) Catapult.</p>
 
-<p>If you want to use disks or tapes with your emulated MSX, you will have to install the system ROMs of a real MSX (one with a disk drive!), until C-BIOS supports them as well. More about this in the <a class="external" href="setup.html#systemroms">Setup Guide</a>.</p>
+<p>If you want to use disks or tapes with your emulated MSX, you will have to install the system ROMs of a real MSX (one with a disk drive!) to emulate that one, until C-BIOS supports this as well. More about this in the <a class="external" href="setup.html#systemroms">Setup Guide</a>.</p>
 
 <h3><a id="savegame">How do I save my game?</a></h3>
 
