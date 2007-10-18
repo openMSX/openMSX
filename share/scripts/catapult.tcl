@@ -93,7 +93,7 @@ append listing [getLineNumber $addr];incr addr 4
 					if {[byte $addr]==0x1C} {incr addr;set tok [format "%d" [word $addr]];incr addr;		set forward 1}
 					if {[byte $addr]==0x1D} {incr addr;set tok "(TODO: Single)";					set forward 1}
 					if {[byte $addr]==0x1F} {incr addr;set tok "(TODO: Double)";					set forward 1}
-					if {[byte $addr]>0x11 && [byte $addr]<0x1a} {set tok [expr [byte $addr]-0x11];			set forward 1}
+					if {[byte $addr]>=0x11 && [byte $addr]<=0x1a} {set tok [expr [byte $addr]-0x11];			set forward 1}
 	 				if {$forward==0} {set tok [format "%c" [byte $addr]]}
 				} 
 			} 
