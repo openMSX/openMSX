@@ -455,10 +455,10 @@ However, nowadays there is a big chance that your system already has hardware ac
 
 
 <p>The easiest thing to do is to use the <a class="internal" href="#standalone">stand-alone binary</a> method, which will get the libraries automatically. If you want to do things manually, you can get the libraries from either
-<a class="external" href="http://www.darwinports.org/">DarwinPorts</a>
+<a class="external" href="http://www.macports.org/">MacPorts</a>
 or
-<a class="external" href="http://fink.sourceforge.net/">Fink</a>. These are tools to give you access to a large collection of software packages (or ports). You can use them to install those packages (or ports).
-If you are using DarwinPorts, you should install the ports
+<a class="external" href="http://www.finkproject.org/">Fink</a>. These are tools to give you access to a large collection of software packages (or ports). You can use them to install those packages (or ports).
+If you are using MacPorts, you should install the ports
 <code>libpng</code>, <code>libsdl</code> and <code>libsdl_image</code>.
 If you are using Fink, you should install the packages
 <code>libpng3</code>, <code>sdl</code> and <code>sdl-image</code>.
@@ -616,7 +616,7 @@ If you defined <code>export OPENMSX_TARGET_OS=darwin-app</code>, <code>make inst
 <h2><a id="standalone">5. Stand-alone Binary</a></h2>
 
 <p>
-This chapter describes how to build a binary of openMSX that does not depend on any library except those that are available on the platform by default. This procedure is recommended to use on Mac OS X and especially on Microsoft Windows. 
+This chapter describes how to build a binary of openMSX that does not depend on any library except those that are available on the platform by default. This procedure is recommended to use on Mac OS X and especially on Microsoft Windows.
 </p>
 
 <p>
@@ -628,7 +628,7 @@ The stand-alone binary is made by linking statically against all libraries which
 </p>
 
 <p>
-To build a stand-alone binary, run <code>make staticbindist</code> in the top of the source tree. (Note: on Microsoft Windows, you need to do this from the MSYS shell: double click the MSYS icon and type first <code>cd /c/openMSX</code> if the top of the source tree is located in <code>C:\openMSX</code>.) Just like for normal compilation, you can set <code>OPENMSX_TARGET_CPU</code> to <code>ppc</code>, <code>x86</code> or <code>univ</code> to build for a different CPU (only useful for Mac OS X). The files will be produced in <code>derived/&lt;cpu&gt;-darwin-app-&lt;flavour&gt;/bindist</code> on OS X, and in <code>derived/x86-mingw-xxxxxx</code> for Microsoft Windows, in which <code>xxxxxx</code> will be explained in the following paragraph. 
+To build a stand-alone binary, run <code>make staticbindist</code> in the top of the source tree. (Note: on Microsoft Windows, you need to do this from the MSYS shell: double click the MSYS icon and type first <code>cd /c/openMSX</code> if the top of the source tree is located in <code>C:\openMSX</code>.) Just like for normal compilation, you can set <code>OPENMSX_TARGET_CPU</code> to <code>ppc</code>, <code>x86</code> or <code>univ</code> to build for a different CPU (only useful for Mac OS X). The files will be produced in <code>derived/&lt;cpu&gt;-darwin-app-&lt;flavour&gt;/bindist</code> on OS X, and in <code>derived/x86-mingw-xxxxxx</code> for Microsoft Windows, in which <code>xxxxxx</code> will be explained in the following paragraph.
 </p>
 
 <p>
