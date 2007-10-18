@@ -79,20 +79,20 @@ append listing [getLineNumber $addr];incr addr 4
 				if {[byte $addr]==0x3a} {
 					set forward 0
 					incr addr;
-					if {[byte $addr]==0xa1} {set tok "ELSE";	set forward 1} 
+					if {[byte $addr]==0xa1} {set tok "ELSE";set forward 1} 
 					if {[byte $addr]==0x8f} {set tok "'";	set forward 1}
 					if {$forward==0} {set tok ":";		decr addr}
 				} else {
 					set forward 0
-					if {[byte $addr]==0x0} {incr addr;set tok [getLineNumber $addr];incr addr 3;	set forward 1}
-					if {[byte $addr]==0x0B} {incr addr;set tok [format "&O%o" [word $addr]];incr addr;		set forward 1}
-					if {[byte $addr]==0x0C} {incr addr;set tok [format "&H%x" [word $addr]];incr addr;		set forward 1}
-					if {[byte $addr]==0x0D} {set tok "(TODO GOSUB)";incr addr 2;				set forward 1}
-					if {[byte $addr]==0x0E} {incr addr;set tok [format "%d" [word $addr]];incr addr;		set forward 1}
-					if {[byte $addr]==0x0F} {incr addr;set tok [format "%d" [byte $addr]];				set forward 1}
-					if {[byte $addr]==0x1C} {incr addr;set tok [format "%d" [word $addr]];incr addr;		set forward 1}
-					if {[byte $addr]==0x1D} {incr addr;set tok "(TODO: Single)";					set forward 1}
-					if {[byte $addr]==0x1F} {incr addr;set tok "(TODO: Double)";					set forward 1}
+					if {[byte $addr]==0x0} {incr addr;set tok [getLineNumber $addr];incr addr 3;				set forward 1}
+					if {[byte $addr]==0x0B && $forward==0} {incr addr;set tok [format "&O%o" [word $addr]];incr addr;	set forward 1}
+					if {[byte $addr]==0x0C && $forward==0} {incr addr;set tok [format "&H%x" [word $addr]];incr addr;	set forward 1}
+					if {[byte $addr]==0x0D && $forward==0} {set tok "(TODO GOSUB)";incr addr 2;				set forward 1}
+					if {[byte $addr]==0x0E && $forward==0} {incr addr;set tok [format "%d" [word $addr]];incr addr;		set forward 1}
+					if {[byte $addr]==0x0F && $forward==0} {incr addr;set tok [format "%d" [byte $addr]];			set forward 1}
+					if {[byte $addr]==0x1C && $forward==0} {incr addr;set tok [format "%d" [word $addr]];incr addr;		set forward 1}
+					if {[byte $addr]==0x1D && $forward==0} {incr addr;set tok "(TODO: Single)";				set forward 1}
+					if {[byte $addr]==0x1F && $forward==0} {incr addr;set tok "(TODO: Double)";				set forward 1}
 					if {[byte $addr]>=0x11 && [byte $addr]<=0x1a} {set tok [expr [byte $addr]-0x11];			set forward 1}
 	 				if {$forward==0} {set tok [format "%c" [byte $addr]]}
 				} 
