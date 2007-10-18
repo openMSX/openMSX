@@ -708,13 +708,6 @@ dist: $(DETECTSYS_SCRIPT)
 # Binary Packaging Using 3rd Party Libraries
 # ==========================================
 
-# Select "bindist" flavour unless explicitly overridden on the command line.
-ifeq ($(origin OPENMSX_FLAVOUR),command line)
-BINDIST_FLAVOUR=$(OPENMSX_FLAVOUR)
-else
-BINDIST_FLAVOUR=bindist
-endif
-
 # Select platform variant suitable for binary packaging.
 BINDIST_TARGET_OS=$(OPENMSX_TARGET_OS:darwin=darwin-app)
 
@@ -729,7 +722,7 @@ $(addprefix 3rdparty-,$(CPU_LIST)):
 	$(MAKE) -f $(MAKE_PATH)/main.mk run-3rdparty \
 		OPENMSX_TARGET_CPU=$(@:3rdparty-%=%) \
 		OPENMSX_TARGET_OS=$(BINDIST_TARGET_OS) \
-		OPENMSX_FLAVOUR=$(BINDIST_FLAVOUR)
+		OPENMSX_FLAVOUR=$(OPENMSX_FLAVOUR)
 
 # Call third party Makefile with the right arguments.
 # This is an internal target, users should select "3rdparty" instead.
@@ -748,7 +741,7 @@ staticbindist: 3rdparty
 	$(MAKE) -f build/main.mk bindist \
 		OPENMSX_TARGET_CPU=$(OPENMSX_TARGET_CPU) \
 		OPENMSX_TARGET_OS=$(BINDIST_TARGET_OS) \
-		OPENMSX_FLAVOUR=$(BINDIST_FLAVOUR) \
+		OPENMSX_FLAVOUR=$(OPENMSX_FLAVOUR) \
 		3RDPARTY_FLAG=true
 
 
