@@ -219,6 +219,9 @@ endif
 # =====
 
 BUILD_PATH:=$(BUILD_BASE)/$(PLATFORM)-$(OPENMSX_FLAVOUR)
+ifeq ($(3RDPARTY_FLAG),true)
+  BUILD_PATH:=$(BUILD_PATH)-3rd
+endif
 ifeq ($(OPENMSX_PROFILE),true)
   BUILD_PATH:=$(BUILD_PATH)-profile
 endif
@@ -722,7 +725,8 @@ $(addprefix 3rdparty-,$(CPU_LIST)):
 	$(MAKE) -f $(MAKE_PATH)/main.mk run-3rdparty \
 		OPENMSX_TARGET_CPU=$(@:3rdparty-%=%) \
 		OPENMSX_TARGET_OS=$(BINDIST_TARGET_OS) \
-		OPENMSX_FLAVOUR=$(OPENMSX_FLAVOUR)
+		OPENMSX_FLAVOUR=$(OPENMSX_FLAVOUR) \
+		3RDPARTY_FLAG=true
 
 # Call third party Makefile with the right arguments.
 # This is an internal target, users should select "3rdparty" instead.
