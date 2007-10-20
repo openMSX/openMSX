@@ -118,17 +118,6 @@ endif
 PACKAGE_FULL:=$(PACKAGE_NAME)-$(PACKAGE_DETAILED_VERSION)
 
 
-# Own Build of 3rd Party Libs
-# ===========================
-
-ifeq ($(3RDPARTY_FLAG),true)
-$(call DEFCHECK,OPENMSX_TARGET_CPU)
-$(call DEFCHECK,OPENMSX_TARGET_OS)
-$(call DEFCHECK,OPENMSX_FLAVOUR)
-3RDPARTY_INSTALL_DIR:=$(BUILD_BASE)/$(OPENMSX_TARGET_CPU)-$(OPENMSX_TARGET_OS)-$(OPENMSX_FLAVOUR)/3rdparty/install
-endif
-
-
 # Platforms
 # =========
 
@@ -224,6 +213,11 @@ ifeq ($(3RDPARTY_FLAG),true)
 endif
 ifeq ($(OPENMSX_PROFILE),true)
   BUILD_PATH:=$(BUILD_PATH)-profile
+endif
+
+# Own build of 3rd party libs.
+ifeq ($(3RDPARTY_FLAG),true)
+3RDPARTY_INSTALL_DIR:=$(BUILD_PATH)/3rdparty/install
 endif
 
 SOURCES_PATH:=src
