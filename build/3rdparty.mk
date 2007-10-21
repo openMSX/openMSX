@@ -158,6 +158,7 @@ $(BUILD_DIR)/$(PACKAGE_SDL)/Makefile: \
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$</configure \
 		--$(USE_VIDEO_X11)-video-x11 \
+		--disable-directx \
 		--disable-debug \
 		--disable-cdrom \
 		--disable-stdio-redirect \
