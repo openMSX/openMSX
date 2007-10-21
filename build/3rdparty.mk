@@ -73,7 +73,7 @@ TARGET_TRIPLE:=$(TRIPLE_MACHINE)-unknown-$(TRIPLE_OS)
 #       The real solution is to make "main.mk" pass a suitable linker, but
 #       we're not sure yet how to find a suitable linker.
 ifeq ($(OPENMSX_TARGET_OS),mingw32)
-override LD=i586-mingw32msvc-ld
+override LD=ld
 endif
 
 # Although X11 is available on Windows and Mac OS X, most people do not have
