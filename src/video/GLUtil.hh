@@ -61,7 +61,7 @@ typedef ExpandFilter<GLuint>::ExpandType ExpandGL;
 
 
 // TODO this needs glu, but atm we don't link against glu (in windows)
-void checkGLError(const std::string& prefix);
+//void checkGLError(const std::string& prefix);
 
 /** Set primary drawing colour.
   */

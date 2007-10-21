@@ -17,7 +17,7 @@ SRC_HDR:= \
 	MSXFmPac MSXMusic \
 	YM2413Core YM2413 YM2413_2 \
 	MSXTurboRPCM \
-	YMF262 YMF278 MSXMoonSound MSXOPL3Cartridge \
+	YMF262 YMF278 MSXMoonSound \
 	YM2151 MSXYamahaSFG \
 	AudioInputConnector AudioInputDevice \
 	DummyAudioInputDevice WavAudioInput \
