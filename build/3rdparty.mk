@@ -164,7 +164,8 @@ $(BUILD_DIR)/$(PACKAGE_SDL)/Makefile: \
 		--disable-stdio-redirect \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
-		CFLAGS="$(_CFLAGS) -I$(PWD)/$(INSTALL_DIR)/include"
+		CFLAGS="$(_CFLAGS) -I$(PWD)/$(INSTALL_DIR)/include" \
+		LDFLAGS="-L$(PWD)/$(INSTALL_DIR)/lib"
 # While openMSX does not use "cpuinfo", "endian" and "file" modules, other
 # modules do and if we disable them, SDL will not link.
 
