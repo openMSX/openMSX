@@ -7,6 +7,12 @@
 ifeq ($(origin BUILD_PATH),undefined)
 $(error You should pass BUILD_PATH)
 endif
+ifeq ($(origin OPENMSX_TARGET_OS),undefined)
+$(error You should pass OPENMSX_TARGET_OS)
+endif
+ifeq ($(origin OPENMSX_TARGET_CPU),undefined)
+$(error You should pass OPENMSX_TARGET_CPU)
+endif
 
 # Get information about the target OS.
 SYSTEM_LIBS:=
@@ -33,6 +39,7 @@ DOWNLOAD_SDL_IMAGE:=http://www.libsdl.org/projects/SDL_image/release
 DOWNLOAD_GLEW:=http://downloads.sourceforge.net/glew
 DOWNLOAD_TCL:=http://downloads.sourceforge.net/tcl
 DOWNLOAD_XML:=http://xmlsoft.org/sources
+DOWNLOAD_DIRECTX:=http://alleg.sourceforge.net/files
 
 # These were the most recent versions at the moment of writing this Makefile.
 # You can use other versions if you like; adjust the names accordingly.
@@ -43,6 +50,7 @@ PACKAGE_SDL_IMAGE:=SDL_image-1.2.6
 PACKAGE_GLEW:=glew-1.4.0
 PACKAGE_TCL:=tcl8.4.15
 PACKAGE_XML:=libxml2-2.6.30
+PACKAGE_DIRECTX:=dx70
 
 # Create a GNU-style system triple.
 ifeq ($(OPENMSX_TARGET_CPU),x86)
@@ -80,11 +88,17 @@ endif
 # the sources in a dir that includes the version number.
 PACKAGES_STD:=ZLIB PNG SDL SDL_IMAGE XML
 PACKAGES_NONSTD:=GLEW TCL
-PACKAGES:=$(filter-out $(SYSTEM_LIBS),$(PACKAGES_STD) $(PACKAGES_NONSTD))
+PACKAGES_NOBUILD:=
+ifeq ($(OPENMSX_TARGET_OS),mingw32)
+PACKAGES_NOBUILD+=DIRECTX
+endif
+PACKAGES:=$(filter-out $(SYSTEM_LIBS),$(PACKAGES_STD) $(PACKAGES_NONSTD) $(PACKAGES_NOBUILD))
+PACKAGES_BUILD:=$(filter-out $(PACKAGES_NOBUILD),$(PACKAGES))
 
 # Source tar file names for non-standard packages.
 TARBALL_GLEW:=$(PACKAGE_GLEW)-src.tgz
 TARBALL_TCL:=$(PACKAGE_TCL)-src.tar.gz
+TARBALL_DIRECTX:=$(PACKAGE_DIRECTX)_mgw.zip
 # Source tar file names for standard packages.
 TARBALL_ZLIB:=$(PACKAGE_ZLIB).tar.gz
 TARBALL_PNG:=$(PACKAGE_PNG).tar.gz
@@ -92,8 +106,15 @@ TARBALL_SDL:=$(PACKAGE_SDL).tar.gz
 TARBALL_SDL_IMAGE:=$(PACKAGE_SDL_IMAGE).tar.gz
 TARBALL_XML:=$(PACKAGE_XML).tar.gz
 
-BUILD_TARGETS:=$(foreach PACKAGE,$(PACKAGES),$(TIMESTAMP_DIR)/build-$(PACKAGE_$(PACKAGE)))
-INSTALL_TARGETS:=$(foreach PACKAGE,$(PACKAGES),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
+BUILD_TARGETS:=$(foreach PACKAGE,$(PACKAGES_BUILD),$(TIMESTAMP_DIR)/build-$(PACKAGE_$(PACKAGE)))
+INSTALL_BUILD_TARGETS:=$(foreach PACKAGE,$(PACKAGES_BUILD),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
+INSTALL_NOBUILD_TARGETS:=$(foreach PACKAGE,$(PACKAGES_NOBUILD),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
+
+ifeq ($(filter $(PACKAGES),DIRECTX),)
+INSTALL_DIRECTX:=
+else
+INSTALL_DIRECTX:=$(TIMESTAMP_DIR)/install-$(PACKAGE_DIRECTX)
+endif
 
 INSTALL_PARAMS_GLEW:=GLEW_DEST=$(PWD)/$(INSTALL_DIR)
 
@@ -103,7 +124,7 @@ findpackage=$(strip $(foreach PACKAGE,$(PACKAGES),$(if $(filter $(2),$($(1)_$(PA
 
 .PHONY: all clean download
 
-all: $(INSTALL_TARGETS)
+all: $(INSTALL_BUILD_TARGETS) $(INSTALL_NOBUILD_TARGETS)
 
 clean:
 	rm -rf $(SOURCE_DIR)
@@ -111,10 +132,19 @@ clean:
 	rm -rf $(INSTALL_DIR)
 
 # Install.
-$(INSTALL_TARGETS): $(TIMESTAMP_DIR)/install-%: $(TIMESTAMP_DIR)/build-%
+$(INSTALL_BUILD_TARGETS): $(TIMESTAMP_DIR)/install-%: $(TIMESTAMP_DIR)/build-%
 	make -C $(BUILD_DIR)/$* install $(INSTALL_PARAMS_$(call findpackage,PACKAGE,$*))
 	mkdir -p $(@D)
 	touch $@
+
+ifneq ($(INSTALL_DIRECTX),)
+# Install DirectX headers.
+$(INSTALL_DIRECTX): $(TARBALLS_DIR)/$(TARBALL_DIRECTX)
+	mkdir -p $(INSTALL_DIR)
+	cd $(INSTALL_DIR) && unzip $(PWD)/$<
+	mkdir -p $(@D)
+	touch $@
+endif
 
 # Build.
 $(BUILD_TARGETS): $(TIMESTAMP_DIR)/build-%: $(BUILD_DIR)/%/Makefile
@@ -124,7 +154,7 @@ $(BUILD_TARGETS): $(TIMESTAMP_DIR)/build-%: $(BUILD_DIR)/%/Makefile
 
 # Configure SDL.
 $(BUILD_DIR)/$(PACKAGE_SDL)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_SDL)
+  $(SOURCE_DIR)/$(PACKAGE_SDL) $(INSTALL_DIRECTX)
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$</configure \
 		--$(USE_VIDEO_X11)-video-x11 \
@@ -133,7 +163,7 @@ $(BUILD_DIR)/$(PACKAGE_SDL)/Makefile: \
 		--disable-stdio-redirect \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
-		CFLAGS="$(_CFLAGS)"
+		CFLAGS="$(_CFLAGS) -I$(PWD)/$(INSTALL_DIR)/include"
 # While openMSX does not use "cpuinfo", "endian" and "file" modules, other
 # modules do and if we disable them, SDL will not link.
 
@@ -258,7 +288,7 @@ EXTRACTED_NAME_GLEW:=glew
 # Name mapping for Tcl:
 $(SOURCE_DIR)/$(PACKAGE_TCL): $(TARBALLS_DIR)/$(TARBALL_TCL)
 # Extraction rule:
-$(foreach PACKAGE,$(PACKAGES),$(SOURCE_DIR)/$(PACKAGE_$(PACKAGE))):
+$(foreach PACKAGE,$(PACKAGES_BUILD),$(SOURCE_DIR)/$(PACKAGE_$(PACKAGE))):
 	rm -rf $@
 	mkdir -p $(@D)
 	tar -zxf $< -C $(@D)
