@@ -1,5 +1,10 @@
 $Id$
 
+2007-10-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed detail in SCC rotation mode:
+	   if deform bits 7-6 are 10, wave form 4 rotates at freq5 speed
+	   see: http://www.msx.org/forumtopicl7875.html
+
 2007-10-15 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Initial version of Manbow2 mapper:
 	   this is work in progress, possibly the way the flash is saved

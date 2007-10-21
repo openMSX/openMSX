@@ -67,6 +67,9 @@
 //   - Channel 4-5 rotation speed is set by channel 5 freq (channel 4 freq
 //     is ignored for rotation)
 //
+// Also see this MRC thread:
+//  http://www.msx.org/forumtopicl7875.html
+//
 //-----------------------------------------------------------------------------
 //
 // On Sat, 09 Sep 2005, NYYRIKKI wrote (MRC post)
@@ -251,10 +254,11 @@ byte SCC::readWave(byte channel, byte address, const EmuTime& time) const
 		return wave[channel][address & 0x1F];
 	} else {
 		unsigned ticks = deformTimer.getTicksTill(time);
-		unsigned per = period[
-			((channel == 3) && (currentChipMode != SCC_plusmode)) ? 4 : channel
-			];
-		unsigned shift = ticks / (per + 1);
+		unsigned periodCh = ((channel == 3) &&
+		                     (currentChipMode != SCC_plusmode) &&
+		                     ((deformValue & 0xC0) == 0x40))
+		                  ? 4 : channel;
+		unsigned shift = ticks / (period[periodCh] + 1);
 		return wave[channel][(address + shift) & 0x1F];
 	}
 }
