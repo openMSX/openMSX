@@ -73,7 +73,7 @@ TARGET_TRIPLE:=$(TRIPLE_MACHINE)-unknown-$(TRIPLE_OS)
 #       The real solution is to make "main.mk" pass a suitable linker, but
 #       we're not sure yet how to find a suitable linker.
 ifeq ($(OPENMSX_TARGET_OS),mingw32)
-override LD=ld
+override LD=i586-mingw32msvc-ld
 endif
 
 # Although X11 is available on Windows and Mac OS X, most people do not have
@@ -98,7 +98,7 @@ PACKAGES_BUILD:=$(filter-out $(PACKAGES_NOBUILD),$(PACKAGES))
 # Source tar file names for non-standard packages.
 TARBALL_GLEW:=$(PACKAGE_GLEW)-src.tgz
 TARBALL_TCL:=$(PACKAGE_TCL)-src.tar.gz
-TARBALL_DIRECTX:=$(PACKAGE_DIRECTX)_mgw.zip
+TARBALL_DIRECTX:=$(PACKAGE_DIRECTX)_mgw.tar.gz
 # Source tar file names for standard packages.
 TARBALL_ZLIB:=$(PACKAGE_ZLIB).tar.gz
 TARBALL_PNG:=$(PACKAGE_PNG).tar.gz
@@ -141,7 +141,7 @@ ifneq ($(INSTALL_DIRECTX),)
 # Install DirectX headers.
 $(INSTALL_DIRECTX): $(TARBALLS_DIR)/$(TARBALL_DIRECTX)
 	mkdir -p $(INSTALL_DIR)
-	cd $(INSTALL_DIR) && unzip $(PWD)/$<
+	cd $(INSTALL_DIR) && tar -zxf $(PWD)/$<
 	mkdir -p $(@D)
 	touch $@
 endif
