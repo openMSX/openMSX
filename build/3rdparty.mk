@@ -141,7 +141,7 @@ ifneq ($(INSTALL_DIRECTX),)
 # Install DirectX headers.
 $(INSTALL_DIRECTX): $(TARBALLS_DIR)/$(TARBALL_DIRECTX)
 	mkdir -p $(INSTALL_DIR)
-	cd $(INSTALL_DIR) && tar -zxf $(PWD)/$<
+	tar -zxf $< -C $(INSTALL_DIR)
 	mkdir -p $(@D)
 	touch $@
 endif
