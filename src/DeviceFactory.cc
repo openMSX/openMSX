@@ -16,6 +16,7 @@
 #include "MSXFmPac.hh"
 #include "MSXAudio.hh"
 #include "MSXMoonSound.hh"
+#include "MSXOPL3Cartridge.hh"
 #include "MSXYamahaSFG.hh"
 #include "MC6850.hh"
 #include "MSXKanji.hh"
@@ -97,6 +98,8 @@ std::auto_ptr<MSXDevice> DeviceFactory::create(
 		result.reset(new MSXYamahaSFG(motherBoard, conf, time));
 	} else if (type == "MoonSound") {
 		result.reset(new MSXMoonSound(motherBoard, conf, time));
+	} else if (type == "OPL3Cartridge") {
+		result.reset(new MSXOPL3Cartridge(motherBoard, conf, time));
 	} else if (type == "Kanji") {
 		result.reset(new MSXKanji(motherBoard, conf, time));
 	} else if (type == "Bunsetsu") {

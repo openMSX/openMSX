@@ -620,7 +620,7 @@ This chapter describes how to build a binary of openMSX that does not depend on 
 </p>
 
 <p>
-For clarity, here's the very short version if you want quick results on Microsoft Windows: open an MSYS shell, go to the <em>top of the source tree</em> (e.g.: <code>cd /c/openMSX</code>) and type: <code>make staticbindist OPENMSX_FLAVOUR=i686</code>. That's all, read on for the long version.
+For clarity, here's the very short version if you want quick results on Microsoft Windows: open an MSYS shell, go to the <em>top of the source tree</em> (e.g.: <code>cd /c/openMSX</code>) and type: <code>make staticbindist</code>. That's all, read on for the long version.
 </p>
 
 <p>
@@ -628,15 +628,11 @@ The stand-alone binary is made by linking statically against all libraries which
 </p>
 
 <p>
-To build a stand-alone binary, run <code>make staticbindist</code> in the top of the source tree. (Note: on Microsoft Windows, you need to do this from the MSYS shell: double click the MSYS icon and type first <code>cd /c/openMSX</code> if the top of the source tree is located in <code>C:\openMSX</code>.) Just like for normal compilation, you can set <code>OPENMSX_TARGET_CPU</code> to <code>ppc</code>, <code>x86</code> or <code>univ</code> to build for a different CPU (only useful for Mac OS X). The files will be produced in <code>derived/&lt;cpu&gt;-darwin-app-&lt;flavour&gt;/bindist</code> on OS X, and in <code>derived/x86-mingw-xxxxxx</code> for Microsoft Windows, in which <code>xxxxxx</code> will be explained in the following paragraph.
+To build a stand-alone binary, run <code>make staticbindist</code> in the top of the source tree. (Note: on Microsoft Windows, you need to do this from the MSYS shell: double click the MSYS icon and type first <code>cd /c/openMSX</code> if the top of the source tree is located in <code>C:\openMSX</code>.) Just like for normal compilation, you can set <code>OPENMSX_TARGET_CPU</code> to <code>ppc</code>, <code>x86</code> or <code>univ</code> to build for a different CPU (only useful for Mac OS X). The files will be produced in <code>derived/&lt;cpu&gt;-darwin-app-&lt;flavour&gt;/bindist</code> on OS X, and in <code>derived\x86-mingw32-i686</code> for Microsoft Windows.
 </p>
 
 <p>
-By default, the stand-alone binary will be built in the special <code>bindist</code> flavour, which is optimized to give a good balance between speed and size. You can override it only by passing another flavour to Make like this: <code>make staticbindist OPENMSX_FLAVOUR=&lt;flavour&gt;</code>. For Microsoft Windows, we recommend to use the <code>i686</code> flavour, because the default compiler (gcc 3.4.2) in MinGW has bugs that surface when using the <code>bindist</code> flavour.
-</p>
-
-<p>
-The final output of <code>make staticbindist</code> is a DMG file in <code>derived/&lt;cpu&gt;-darwin-app-&lt;flavour&gt;/bindist</code> on Mac OS X. This file is internet-enabled, which means it will be automatically mounted after it is downloaded. On Microsoft Windows, you get a complete package in <code>derived\x86-mingw32-i686\bindist\install</code> in a typical case.
+The final output of <code>make staticbindist</code> is a DMG file in <code>derived/&lt;cpu&gt;-darwin-app-&lt;flavour&gt;/bindist</code> on Mac OS X. This file is internet-enabled, which means it will be automatically mounted after it is downloaded. On Microsoft Windows, you get a complete package in <code>derived\x86-mingw32-i686\bindist\install</code>.
 </p>
 
 
