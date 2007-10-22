@@ -64,60 +64,23 @@ This guide is about openMSX, the open source MSX emulator that tries to achieve
 near-perfect emulation by using a novel emulation model.
 You can find more information about openMSX on the
 <a class="external" href="http://openmsx.sourceforge.net/">openMSX home page</a>.
-You can also download the emulator itself from there.
 </p>
 
 <p>
-openMSX is in alpha state, which means that some things work but not all
-features are implemented yet.
-Many emulation features are implemented, but in terms of user interface
-it is rather bare bones, unless you use the optional Graphical User Interface dubbed openMSX Catapult.
-However, because the emulation is already pretty good,
-it would be nice if non-insiders would be able to play with it, too.
-For those people, we have written this guide.
-It explains how you can get the emulator running on your system,
-i.e. how to get the sources and compile them. Note that some software distributions may have packaged openMSX and will enable you to install it directly using package management tools. We refer to the documentation of the tools of the distribution you are using to install openMSX. If you use such a package, you can skip the largest part of this manual and start reading at chapter <a class="internal" href="#next">5. Next Steps</a>.
+If you just want to use openMSX, there is likely <a class="external" href="faq.html#easyinstall">a pre-packaged version</a> you can use. This document describes how you can compile openMSX from source, which is useful if:
 </p>
+<ul>
+<li>There is not yet a pre-packaged version for your favourite platform.</li>
+<li>You want to closely follow the latest developments.</li>
+<li>You want to make changes to openMSX.</li>
+</ul>
 
-<p>
-The level of support for compilation depends on the operating system:
-</p>
-<dl>
-<dt>Linux</dt>
-<dd>
-Most openMSX developers run some form of Linux, so this is the platform on which compilation is supported best.
-</dd>
-<dt>Windows</dt>
-<dd>
-Windows is also a supported platform for openMSX. Most Windows users will just download the binary release. But if you want to follow the latest developments or like to play with the code a bit, it is possible to compile openMSX on Windows yourself. For this you need MinGW, MSYS and cURL.
-</dd>
-<dt>Mac OS X</dt>
-<dd>
-Since openMSX 0.6.0 we have a binary package for PPC and since openMSX 0.6.1 a universal binary. But if you like to make changes to the openMSX source code or follow the latest developments inbetween releases, you can compile openMSX yourself.<br />
-We do not have a GUI yet that works on Mac OS X, so you can either use openMSX from the command line for now, or use third party software like <a class="external" href="http://www5f.biglobe.ne.jp/~nekocan/group_soft/ht_soft.html">Nekolauncher openMSX</a> or <a class="external" href="http://www.cescoware.com/">openMSX Peashooter</a>.
-</dd>
-<dt>FreeBSD/NetBSD/OpenBSD</dt>
-<dd>
-openMSX was compiled successfully on FreeBSD 4 and 5 and OpenBSD. In FreeBSD 6, openMSX can even be found in the ports tree. NetBSD build support is also integrated and should work as well, but we cannot easily test this. These are not platforms we support officially, but whenever a user finds compilation problems, we fix them, so usually compilation should work.
-</dd>
-<dt>other operating systems</dt>
-<dd>
-openMSX theoretically can compile on every system where you have g++ (the C++ compiler of GCC) and the required libraries are available. However, in practice every system is slightly different and a new operation system will not work out-of-the-box, especially because we have to explicitly add an integration file for each OS to support it. Still, it shouldn't take much effort to make openMSX build on a new OS.
-</dd>
-</dl>
 <p>
 If you need help compiling openMSX, please
 <a class="internal" href="#contact">contact us</a>.
 If you needed any modifications to make openMSX compile,
 please send those modifications to us,
 so we can make openMSX ever more portable.
-</p>
-
-<p>
-<em>Disclaimer:</em>
-We do not claim this guide is complete or even correct.
-What you do with the information in it is entirely at your own risk.
-We just hope it helps you enjoy openMSX more.
 </p>
 
 <h3><a id="contrib">1.3 Contributors</a></h3>
@@ -203,7 +166,7 @@ If you downloaded a version that is either a lot older or a lot newer than
 this guide, it is a good idea to read the guide included in your downloaded
 version instead of the version you're reading right now.
 You can find the Compilation Guide in the directory
-<code>openMSX/doc/manual</code>.
+<code>doc/manual</code>.
 </p>
 
 <h3><a id="getrelease">2.1 Released Version</a></h3>
@@ -311,26 +274,28 @@ is called <em>the top of the source tree</em>.
 <p>
 Before you can start compiling openMSX, you have to make sure your system
 has all the necessary build tools installed, as well as the libraries
-openMSX depends upon.
-The following sections list the packages you need.
+openMSX depends upon. The following sections tell you how you can prepare your system. Finally, the compilation itself is explained.
+</p>
+<p>
+Every section starts out with generic instructions, that apply to all platforms. At the end of each section, platform specific notes cover differences or additional steps for certain platforms.
 </p>
 
 <h3><a id="tools">3.1 Build Tools</a></h3>
 
 <p>
-For compilation, you need Make and a C++ compiler.
+For compilation, you need GNU Make and a C++ compiler.
 If you have compiled packages from source before,
 you probably have these installed already.
 </p>
 
 <dl>
 
-<dt>make</dt>
+<dt><code>make</code></dt>
 <dd>GNU implementation of the Make tool.
 Make interprets rules that define how a project should be built.
-At least version 3.79 and higher should suffice.</dd>
+Version 3.79 or higher should suffice.</dd>
 
-<dt>g++</dt>
+<dt><code>g++</code></dt>
 <dd>The GNU C++ compiler.
 Version 4.1 or later is recommended; 3.3 and 3.4 won't be able to build the debug flavour (see below), any lower version will not be able to build openMSX at all.
 </dd>
@@ -338,6 +303,7 @@ Version 4.1 or later is recommended; 3.3 and 3.4 won't be able to build the debu
 </dl>
 
 <h5>Mac OS X</h5>
+
 <p>
 Install the Xcode Tools from Apple, which you can download from the
 <a class="external" href="http://connect.apple.com/">Apple Developer Connection</a>
@@ -355,106 +321,67 @@ This package contains up-to-date versions of Make, GCC and SVN. If you are runni
 <p>The openMSX build system for Windows will use the program cURL to download the source code of the 3rd party libraries that openMSX is depending on. You need to have it in your default search path of Windows (or, if you're lazy, put it in the <em>top of the openMSX source tree</em>, see below). You can download a binary of cURL from <a class="external" href="http://curl.haxx.se/download.html">its download page</a>. Use a binary from the "Win32 - Generic" category, near the bottom of the web page. Use one without SSL. (Currently, the top one is OK.)
 </p>
 
-<p>After this, the easiest way to build openMSX on Windows is described directly in the <a class="internal" href="#standalone">Stand-alone Binary</a> section. Skip to there if you want quick results and read on if you want to know all details.
-</p>
-
 <h3><a id="libs">3.2 Libraries</a></h3>
 
 <p>
-openMSX depends on several libraries. For Mac OS X and Windows specific instructions, see at the end of this section.
+openMSX depends on the following libraries:
 </p>
-
-<p>
-You must have the runtime packages of these libraries install to be
-able to run openMSX.
-The runtime package for the "Foo" library is typically called
-<code>libfoo</code>.
-Also, for compiling openMSX you need the development packages of these
-libraries installed as well.
-Development packages are typically named
-<code>libfoo-dev</code> or <code>libfoo-devel</code>.
-</p>
-
-<p>
-First of all, you need some SDL packages,
-the run time ones and also the developer packages.
-You need the general SDL libs and SDL_image.
-The exact names of the package are different for each distribution.
-On a Debian testing system, they are called:
-</p>
-
 <dl>
 
-<dt>libsdl1.2debian and libsdl1.2-dev</dt>
-<dd>Simple DirectMedia Layer.</dd>
+<dt><a class="external" href="http://www.libsdl.org/">SDL</a></dt>
+<dd>Simple DirectMedia Layer, a cross-platform library that provides low-level access to video, audio and input devices.</dd>
 
-<dt>libsdl-image1.2 and libsdl-image1.2-dev</dt>
-<dd>Image loading library for SDL.</dd>
+<dt><a class="external" href="http://www.libsdl.org/projects/SDL_image/">SDL_image</a></dt>
+<dd>Library that integrates image reading and writing with SDL. SDL_image can support many image formats, but openMSX only requires PNG support.</dd>
 
-<!-- maybe in the future
-<dt>libsdl-net1.2 and libsdl-net1.2-dev</dt>
-<dd>Network library for SDL.</dd>
--->
-
-</dl>
-
-<p>
-Furthermore, you need the XML library and the PNG library:
-</p>
-
-<dl>
-
-<dt>libxml2 and libxml2-dev</dt>
-<dd>XML C library, originally developed for GNOME.</dd>
-
-<dt>libpng12-0 and libpng12-dev</dt>
+<dt><a class="external" href="http://www.libpng.org/pub/png/libpng.html">libpng</a></dt>
 <dd>Library for handling PNG images.</dd>
 
+<dt><a class="external" href="http://www.xmlsoft.org/">libxml2</a></dt>
+<dd>XML C library, originally developed for GNOME.</dd>
+
+<dt><a class="external" href="http://www.zlib.org/">zlib</a></dt>
+<dd>Library for file compression.</dd>
+
+<dt><a class="external" href="http://www.tcl.tk/">Tcl</a></dt>
+<dd>The Tool Command Language, an embeddable scripting language. openMSX requires Tcl 8.4; version 8.3 will not work.</dd>
+
+<dt><a class="external" href="http://www.opengl.org/">OpenGL</a> (optional)</dt>
+<dd>Library for accelerated graphics. It is likely that OpenGL is already installed on your system. If not, you should probably get the OpenGL implementation from the manufacturer of your graphics card. On Linux, using <a class="external" href="http://www.mesa3d.org/">Mesa</a> with a DRI driver can be an alternative.</dd>
+
+<dt><a class="external" href="http://glew.sourceforge.net/">GLEW</a> (optional)</dt>
+<dd>The OpenGL Extension Wrangler, a library that greatly simplifies the use of OpenGL extensions.</dd>
+
+<dt><a class="external" href="http://jackaudio.org/">JACK</a> (optional)</dt>
+<dd>The JACK Audio Connection Kit is a sound server that provides low latency connections between audio applications. Currently openMSX can use JACK only for connecting the cassette port (CassetteJack).</dd>
+
 </dl>
 
 <p>
-Finally you will also need Tcl 8.4:
+You can install the required libraries systemwide, or you can use the "3rd party libraries" support in the openMSX build system and build a stand-alone binary. Systemwide is recommended if you run a modular operating system (such as Linux, BSD or Mac OS X with MacPorts or Fink) and you intend to only use the openMSX binary on your computer. The 3rd party library system is recommended if you build for other operating systems (Windows, plain Mac OS X or embedded systems) or if you want to build a binary that can be used on other computers besides your own. If you choose the latter, please skip to the <a class="internal" href="#standalone">Stand-alone Binary</a> chapter.
 </p>
 
-<dl>
-<dt>tcl8.4 and tcl8.4-dev</dt>
-<dd>Tcl (the Tool Command Language) v8.4.</dd>
-</dl>
-
+<h5>Debian and Ubuntu Linux</h5>
 <p>
-Tcl 8.3 will not work.
-For some reason, several distributions still ship Tcl 8.3,
-even though Tcl 8.4 was released in 2002.
-If that is the case for your distribution,
-you should install Tcl 8.4 from source;
-you can find it on
-<a class="external" href="http://www.tcl.tk/">the Tcl site</a>.
+You can easily install all required packages using the "build dependencies" feature of the APT package manager:
 </p>
+<div class="commandline">
+sudo apt-get build-dep openmsx
+</div>
 
+<h5>Other Linux</h5>
 <p>
-openMSX can optionally use OpenGL for graphics.
-If you want to use this, make sure you have both the runtime and development
-packages for OpenGL installed. Since openMSX 0.6.1, we use the GLEW library (version 1.3.2 or later, 1.3.4 recommended) to handle OpenGL extensions:
-</p>
-
-<dl>
-<dt>libglew1 and libglew-dev</dt>
-<dd>The OpenGL Extension Wrangler.</dd>
-</dl>
-
-<p>
-If you have an nVidia card, go to the
-<a class="external" href="http://www.nvidia.com/linux">nVidia web site</a>
-for drivers, which include an OpenGL implementation. ATI users can check out the <a class="external" href="http://www.ati.com/support/faq/linux.html">ATI web site</a> for drivers. For other cards, try Mesa, which can be found in packages like
-<code>libgl1-mesa-glx</code> and <code>libgl1-mesa-dev</code> (Debian)
-or <code>Mesa</code> and <code>Mesa-devel</code> (SUSE).
-However, nowadays there is a big chance that your system already has hardware accelerated OpenGL supported in the default installation of your Xorg or Windows environment. Just make sure you install the development header files for the OpenGL library if you want to compile openMSX with support for it.
+Most Linux distributions have libraries split over two packages: a runtime package and a development package.
+The runtime package for the "Foo" library is typically called
+<code>libfoo</code>, the development package is typically named
+<code>libfoo-dev</code> or <code>libfoo-devel</code>.
+Applications that use a library only require the runtime package to be installed, but compilation requires both the runtime package and the development package to be installed.
 </p>
 
 <h5>Mac OS X</h5>
 
-
-<p>The easiest thing to do is to use the <a class="internal" href="#standalone">stand-alone binary</a> method, which will get the libraries automatically. If you want to do things manually, you can get the libraries from either
+<p>
+The easiest thing to do is to use the <a class="internal" href="#standalone">stand-alone binary</a> method, which will get the libraries automatically. If you want to do things manually, you can get the libraries from either
 <a class="external" href="http://www.macports.org/">MacPorts</a>
 or
 <a class="external" href="http://www.finkproject.org/">Fink</a>. These are tools to give you access to a large collection of software packages (or ports). You can use them to install those packages (or ports).
@@ -465,15 +392,12 @@ If you are using Fink, you should install the packages
 </p>
 
 <h5>Microsoft Windows</h5>
+
 <p>
-We recommend to use the <a class="internal" href="#standalone">stand-alone binary</a> method, which means the openMSX build system will download and compile all libraries automatically.
+We strongly recommend to use the <a class="internal" href="#standalone">stand-alone binary</a> method, which means the openMSX build system will download and compile all libraries automatically.
 </p>
 
 <h3><a id="compilenow">3.3 Compilation Itself</a></h3>
-
-<p>
-Again, for Mac OS X and Windows specific instructions, see at the end of this section.
-</p>
 
 <p>
 Now that all the necessary tools and libraries are installed,
@@ -482,27 +406,33 @@ you are almost ready to start the actual compilation of openMSX.
 
 <p>
 The first thing you may want to know is that you can build openMSX in
-different flavours. The default flavour for each platform will
-probably OK for most cases. For the Linux-on-x86 platform the default
+different flavours. The default flavour depends on the CPU, but is always one that is optimized for performance. For example for x86 processors the default
 flavour is "i686": i.e., with optimisations for Pentium II and higher,
-without any debugging stuff. If you are a tester, you should set the
-flavour to "devel", like this:
+without any debugging stuff. Note: On an older VIA Epia (with the Samuel 2 CPU at least), a binary built with "i686" flavour will not run. Please
+use the "opt" flavour for that platform.
+</p>
+<p>
+If you are testing new openMSX developments or making changes in openMSX, you can benefit from asserts and debug symbols. To get those, you should select the "devel" flavour, like this:
 </p>
 <div class="commandline">
 export OPENMSX_FLAVOUR=devel
 </div>
 <p>
-This will enable debugging symbols and asserts. Although the default
-flavours will probably be OK for most cases, you may want to write a
-specific flavour for your particular wishes. Check out the examples in
-the <code>build</code> directory. A final note: on an older VIA Epia (with the
-Samuel 2 CPU at least), a binary built with i686 flavour will not run. Please
-use the "opt" flavour for that platform.
+Although the default flavours will probably be OK for most cases, you may want to write a specific flavour for your particular wishes. The flavour files are all named <code>build/flavour-*.mk</code>.
 </p>
 
 <p>
-Now, we have the option to let a script check if you have indeed all
-necessary libraries and headers installed.
+You can select the C++ compiler to be used like this:
+</p>
+<div class="commandline">
+export OPENMSX_CXX=g++-4.2
+</div>
+<p>
+This can be useful if the default compiler on your system is an old GCC version which is either not capable of compiling openMSX, or generates less efficient code.
+</p>
+
+<p>
+Now we can let a script check if you have indeed all necessary libraries and headers installed.
 Go to the top of your openMSX source tree and run the following script:
 </p>
 <div class="commandline">
@@ -528,8 +458,7 @@ that is written by the <code>configure</code> script in the directory
 <p>
 You can customise the build process by editing the file
 <code>build/custom.mk</code>.
-Currently, there is one thing you can customise there:
-the installation directory (<code>INSTALL_BASE</code>).
+The most likely thing you might want to customise is the installation directory (<code>INSTALL_BASE</code>).
 If you are installing openMSX on a system on which you do not have
 superuser (root) privileges, you can set the installation directory
 to a subdirectory of your home directory.
@@ -560,23 +489,16 @@ Make sure you provide us with the error message you got.
 </p>
 
 <h5>Mac OS X</h5>
-<p>
-If you don't use the <a class="internal" href="#standalone">stand-alone binary</a> method, the steps above apply to Mac OS X as well.
-If you have a G4 or better PPC CPU, using <code>export OPENMSX_FLAVOUR=ppcg4</code> may give you a faster openMSX executable.
-</p>
+
 <p>
 By default, openMSX is compiled for the type of CPU that is present in your Mac. If you want to build for a different CPU, use <code>export OPENMSX_TARGET_CPU=ppc</code> (PowerPC) or <code>export OPENMSX_TARGET_CPU=x86</code> (Intel). If you want to build a universal binary, use <code>export OPENMSX_TARGET_CPU=univ</code>.
 </p>
 <p>
-By default, only the openMSX executable itself is produced. If you want to create an application folder, define <code>export OPENMSX_TARGET_OS=darwin-app</code> before compilation.
+If you have a G4 or better PPC CPU, using <code>export OPENMSX_FLAVOUR=ppcg4</code> may give you a faster openMSX executable.
 </p>
 <p>
-The normal build will link dynamically against the libraries available on your Mac. So if someone else wants to run the binary you built, that person has to install the same libraries. If you want a binary that does not have these external dependencies, read the chapter about <a class="internal" href="#standalone">building a stand-alone binary</a>.
+By default, only the openMSX executable itself is produced. If you want to create an application folder, define <code>export OPENMSX_TARGET_OS=darwin-app</code> before compilation. This application folder will still depend on the systemwide libraries, so it will not work on Macs without those libraries. But unlike the plain executable, it has a high resolution icon.
 </p>
-
-<h5>Microsoft Windows</h5>
-
-<p>We recommend to use the <a class="internal" href="#standalone">stand-alone binary</a> method.</p>
 
 <h2><a id="install">4. Installation</a></h2>
 
@@ -590,13 +512,10 @@ make install
 This installs openMSX, by default in <code>/opt/openMSX</code>.
 Note that only root has rights to write to system-wide directories such as
 <code>/opt</code>,
-so you may have to do <code>su</code> before <code>make install</code>.
+so you may have to do <code>su</code> before <code>make install</code>, or use <code>sudo</code>.
 </p>
 
 <h5>Mac OS X</h5>
-<p>
-If you used the <a class="internal" href="#standalone">stand-alone binary</a> method, you can use the resulting dmg file to install openMSX. If you did things manually, read on.
-</p>
 
 <p>
 The easiest way to install openMSX system-wide is this command:
@@ -608,11 +527,6 @@ sudo make install
 If you defined <code>export OPENMSX_TARGET_OS=darwin-app</code>, <code>make install</code> will create an application folder in <code>derived/&lt;cpu&gt;-darwin-app-&lt;flavour&gt;/bindist</code>. No <code>sudo</code> is needed.
 </p>
 
-<h5>Microsoft Windows</h5>
-
-<p>The <a class="internal" href="#standalone">stand-alone binary</a> method will give you a result directory with a usuable openMSX binary in it. You can use it from any location. If you also want to build the openMSX installer, you should refer to the <code>package-win32</code> module in our Subversion repository. It contains a README file with a manual.
-</p>
-
 <h2><a id="standalone">5. Stand-alone Binary</a></h2>
 
 <p>
@@ -620,21 +534,45 @@ This chapter describes how to build a binary of openMSX that does not depend on 
 </p>
 
 <p>
-For clarity, here's the very short version if you want quick results on Microsoft Windows: open an MSYS shell, go to the <em>top of the source tree</em> (e.g.: <code>cd /c/openMSX</code>) and type: <code>make staticbindist</code>. That's all, read on for the long version.
+The stand-alone binary is made by linking statically against all libraries which are not available as part of the basic platform. The build system will automatically download the sources for these libraries and build them in the minimal configuration needed by openMSX. If you want to change something about this process, for example switch to a newer library release, edit the <code>build/3rdparty.mk</code> Makefile.
 </p>
 
 <p>
-The stand-alone binary is made by linking statically against all libraries which are not available as part of the basic platform. The build system will automatically download the sources for these libraries and build them in the minimal configuration needed by openMSX. If you want to change something about this process, for example switch to a newer library release, edit the <code>build/3rdparty.mk</code> Makefile. For just a plain build, no editing is needed at all.
+Just like for normal compilation, you can set environment variables such as <code>OPENMSX_FLAVOUR</code>, <code>OPENMSX_CXX</code>, <code>OPENMSX_TARGET_CPU</code> and <code>OPENMSX_TARGET_OS</code>.
 </p>
 
 <p>
-To build a stand-alone binary, run <code>make staticbindist</code> in the top of the source tree. (Note: on Microsoft Windows, you need to do this from the MSYS shell: double click the MSYS icon and type first <code>cd /c/openMSX</code> if the top of the source tree is located in <code>C:\openMSX</code>.) Just like for normal compilation, you can set <code>OPENMSX_TARGET_CPU</code> to <code>ppc</code>, <code>x86</code> or <code>univ</code> to build for a different CPU (only useful for Mac OS X). The files will be produced in <code>derived/&lt;cpu&gt;-darwin-app-&lt;flavour&gt;/bindist</code> on OS X, and in <code>derived\x86-mingw32-i686</code> for Microsoft Windows.
+To build a stand-alone binary, run the following command at the top of the source tree:
+</p>
+<div class="commandline">
+make staticbindist
+</div>
+<p>
+The final output files will be produced in <code>derived/&lt;cpu&gt;-&lt;os&gt;-&lt;flavour&gt;-3rd/bindist</code>.
+</p>
+
+<h5>Mac OS X</h5>
+
+<p>
+The final output is a DMG file (Mac disk image) containing the openMSX application folder and documentation. This file is internet-enabled, which means it will be automatically mounted after it is downloaded.
+</p>
+
+<h5>Microsoft Windows</h5>
+
+<p>
+Here's the very short version if you want quick results on Microsoft Windows:
+</p>
+<ul>
+<li>open an MSYS shell</li>
+<li>go to the <em>top of the source tree</em> (e.g.: <code>cd /c/openMSX</code>)</li>
+<li>type: <code>make staticbindist</code></li>
+</ul>
+<p>You get a complete package in <code>derived\x86-mingw32-i686-3rd\bindist\install</code>.
 </p>
 
 <p>
-The final output of <code>make staticbindist</code> is a DMG file in <code>derived/&lt;cpu&gt;-darwin-app-&lt;flavour&gt;/bindist</code> on Mac OS X. This file is internet-enabled, which means it will be automatically mounted after it is downloaded. On Microsoft Windows, you get a complete package in <code>derived\x86-mingw32-i686\bindist\install</code>.
+If you additionally want to build the openMSX installer, you should refer to the <code>package-win32</code> module in our Subversion repository. It contains a README file with a manual.
 </p>
-
 
 <h2><a id="next">6. Next Steps</a></h2>
 
@@ -697,6 +635,7 @@ please contact us. The next chapter will tell you how.
 </p>
 
 <h5>Mac OS X</h5>
+
 <p>
 By default openMSX will not be in your search path.
 So to start it, you will have to specify the full path on the command line.
@@ -712,6 +651,10 @@ If you built an application folder, you can run it from Finder or from the comma
 <div class="commandline">
 open derived/&lt;cpu&gt;-darwin-app-&lt;flavour&gt;/bindist/openMSX.app
 </div>
+
+<p>
+We do not have a GUI yet that works on Mac OS X, so you can either use openMSX from the command line for now, or use third party software like <a class="external" href="http://www5f.biglobe.ne.jp/~nekocan/group_soft/ht_soft.html">Nekolauncher openMSX</a> or <a class="external" href="http://www.cescoware.com/">openMSX Peashooter</a>.
+</p>
 
 <h2><a id="contact">7. Contact Info</a></h2>
 
@@ -734,7 +677,7 @@ including an archive of old messages, can be found at SourceForge.
 </li>
 <li>
 Go to our IRC channel: <code>#openMSX</code> on <code>irc.freenode.net</code>
-and ask your question there.
+and ask your question there. If you don't get a reply immediately, please stick around for a while, or ask your question on the mailinglist (see below).
 </li>
 <li>
 If you want to address the openMSX developers directly,
@@ -751,7 +694,7 @@ At the moment of writing, there are four trackers:
 Bugs, Support Requests, Patches and Feature Requests.
 </li>
 <li>
-Post a message on the forum on <a class="external" href="http://www.openmsx.org/">www.openmsx.org</a><!-- or the <a class="external" href="http://sourceforge.net/forum/?group_id=38274">openMSX forums</a> at SourceForge-->.
+Post a message on the forum on <a class="external" href="http://www.openmsx.org/">www.openmsx.org</a>.
 </li>
 </ol>
 
