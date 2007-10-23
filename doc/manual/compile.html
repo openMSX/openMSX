@@ -24,24 +24,28 @@
 			<li><a class="internal" href="#history">1.4 Revision History</a></li>
 		</ol>
 	</li>
-	<li><a class="internal" href="#getsource">2. Getting the Source Code</a>
+	<li><a class="internal" href="#preparation">2. Preparation</a>
 		<ol class="toc">
-			<li><a class="internal" href="#getrelease">2.1 Released Version</a></li>
-			<li><a class="internal" href="#getsvn">2.2 SVN Checkout</a></li>
-			<li><a class="internal" href="#getsnapshot">2.3 SVN Snapshot</a></li>
+			<li><a class="internal" href="#tools">2.1 Build Tools</a></li>
+			<li><a class="internal" href="#libs">2.2 Libraries</a></li>
 		</ol>
 	</li>
-	<li><a class="internal" href="#compile">3. Compilation</a>
+	<li><a class="internal" href="#getsource">3. Getting the Source Code</a>
 		<ol class="toc">
-			<li><a class="internal" href="#tools">3.1 Build Tools</a></li>
-			<li><a class="internal" href="#libs">3.2 Libraries</a></li>
-			<li><a class="internal" href="#compilenow">3.3 Compilation Itself</a></li>
+			<li><a class="internal" href="#getrelease">3.1 Released Version</a></li>
+			<li><a class="internal" href="#getsvn">3.2 SVN Checkout</a></li>
+			<li><a class="internal" href="#getsnapshot">3.3 SVN Snapshot</a></li>
 		</ol>
 	</li>
-	<li><a class="internal" href="#install">4. Installation</a></li>
+	<li><a class="internal" href="#local">4. Binary for Local System</a>
+		<ol class="toc">
+			<li><a class="internal" href="#compilelocal">4.1 Compilation</a></li>
+			<li><a class="internal" href="#install">4.2 Installation</a></li>
+		</ol>
+	</li>
 	<li><a class="internal" href="#standalone">5. Stand-alone Binary</a></li>
 	<li><a class="internal" href="#next">6. Next Steps</a></li>
-	<li><a class="internal" href="#contact">7. Contact Info</a></li>
+<li><a class="internal" href="#contact">7. Contact Info</a></li>
 </ol>
 
 <h2><a id="intro">1. Introduction</a></h2>
@@ -105,182 +109,18 @@ For the revision history, please refer to the <a class="external"
 href="http://svn.sourceforge.net/viewvc/openmsx/openmsx/trunk/doc/manual/compile.html?view=log">SVN log</a>.
 </p>
 
-<h2><a id="getsource">2. Getting the Source Code</a></h2>
-
-<p>
-openMSX is developed using the tools
-<a class="external" href="http://www.sourceforge.net/">SourceForge.net</a>
-freely offers to open source projects.
-The code is stored in Subversion (SVN), an open source version management system.
-Once in a while an openMSX release is made.
-</p>
-
-<p>
-There are several options for getting the source code:
-</p>
-
-<dl>
-
-<dt><a class="internal" href="#getrelease">Released Version</a></dt>
-<dd>
-These are tested versions, which should give you little problem compiling
-and running.
-However, as openMSX development if often quite fast, they may not have all
-the latest features.
-Also there could be bugs that have been fixed since the last release.
-</dd>
-
-<dt><a class="internal" href="#getsvn">SVN Checkout</a></dt>
-<dd>
-Through SVN you can get the same development version the
-openMSX developers are using.
-This is the bleeding edge:
-the latest stuff, which may be great or may be horribly broken.
-Usually openMSX SVN compiles and runs fine, but we're only human,
-so once in a while it breaks.
-Also there may be changes that are not documented yet.
-</dd>
-
-<dt><a class="internal" href="#getsnapshot">SVN Snapshot</a></dt>
-<dd>
-A snapshot is created from a recent SVN checkout,
-in a <code>tar.gz</code> archive.
-A snapshot is therefore quite similar to a SVN checkout,
-but it doesn't require you to install and use SVN. It may lag a couple of days from the latest SVN sources. Moreover, SF.net staff recently turned off cron jobs, which means the snapshots are now updated on a very irregular basis.
-</dd>
-
-</dl>
-
-<p>
-Releases are intended for general users, SVN and SVN snapshots are intended for
-(would be) developers, heavy testers and people who want to follow new
-developments closely. It might be a good idea to play with a release first. If
-you like what you see and want to get in deeper, you can switch to SVN later.
-If you update often, it is best to use a SVN checkout rather than
-a SVN snapshot, because with a checkout you can do efficient incremental
-updates, saving network bandwidth and compile time.
-</p>
-
-<p>
-If you downloaded a version that is either a lot older or a lot newer than
-this guide, it is a good idea to read the guide included in your downloaded
-version instead of the version you're reading right now.
-You can find the Compilation Guide in the directory
-<code>doc/manual</code>.
-</p>
-
-<h3><a id="getrelease">2.1 Released Version</a></h3>
-
-<p>
-You can download a released version of openMSX from
-<a class="external" href="http://sourceforge.net/project/showfiles.php?group_id=38274"
->the download page at SourceForge</a>.
-The latest version is probably the best one. This guide assumes that you are using the latest release.
-</p>
-
-<p>
-After downloading, type:
-</p>
-<div class="commandline">tar xzvf openmsx-VERSION.tar.gz</div>
-<p>
-in which <code>VERSION</code> is the openMSX version you downloaded,
-or use the file name you saved the tar.gz file with.
-The directory that is created by uncompressing the <code>tar.gz</code> file
-is called <em>the top of the source tree</em>.
-</p>
-
-<h3><a id="getsvn">2.2 SVN Checkout</a></h3>
-
-<p>
-Getting a SVN checkout means you use SVN to retrieve the latest version
-of the source code of openMSX.
-This means you will need to install an SVN client.
-This package is usually named <code>subversion</code>.
-There are graphical front-ends for SVN,
-but this guide will tell you how to use SVN from the command line.
-More information about SVN can be found on the <a class="external"
-href="http://svnbook.red-bean.com/en/1.1/">Subversion book</a> site. Windows
-users might want to look at <a class="external"
-href="http://tortoisesvn.tigris.org/">TortoiseSVN</a>.
-</p>
-
-<p>
-With the following line you can retrieve the latest sources:
-</p>
-<div class="commandline">
-svn co https://openmsx.svn.sourceforge.net/svnroot/openmsx/openmsx/trunk openMSX
-</div>
-<p>
-In this line you specified where you want to retrieve the files from
-(host name of the SVN server),
-what project you want to retrieve (<em>openmsx</em> in this case), what
-module you want to get (<em>openmsx</em> in this case, which is the module that contains
-the sources of the main openMSX program), which branch you want
-to retrieve (<em>trunk</em> in this case, which is the main development branch) and what directory it should be
-checked out to (we chose <em>openMSX</em> in this example).
-</p>
-
-<p>In TortoiseSVN, use <code>https://openmsx.svn.sourceforge.net/svnroot/openmsx/openmsx/trunk</code> as "URL of repository" and e.g. <code>C:\</code> as "Checkout directory". Use the <code>HEAD</code> revision and click OK.
-</p>
-
-<p>
-If you're a developer, it makes sense to add the following option to the svn commandline as well:
-</p>
-<div class="commandline">
---username &lt;name-of-your-sourceforge-account&gt;
-</div>
-
-<p>
-The SVN command created a directory called <code>openMSX</code> for you
-in the current directory (or in the "Checkout directory" in TortoiseSVN). In addition to the openMSX code, you will see hidden
-SVN administration directories which are all called <code>svn</code> or
-<code>.svn</code>.
-Do not mess with these (nor move contents of this checkout directory around), otherwise SVN will get confused.
-This directory created by SVN is what we will call in this manual <em>the top
-of the source tree</em>.
-</p>
-
-<p>
-If you want to update your source tree later,
-go to the top of the source tree and type:
-</p>
-<div class="commandline">
-svn up
-</div>
-<p>
-or rightclick on the openMSX directory in your Windows explorer and select "SVN Update".
-</p>
-
-<h3><a id="getsnapshot">2.3 SVN Snapshot</a></h3>
-
-<p>
-First, download the
-<a class="external"
-href="http://openmsx.sourceforge.net/temp/openmsx-SVN-snapshot.tar.gz"
->most recent SVN snapshot</a>.
-</p>
-
-<p>
-After downloading, type:
-</p>
-<div class="commandline">tar xzvf openmsx-SVN-snapshot.tar.gz</div>
-<p>
-The directory that is created by uncompressing the <code>tar.gz</code> file
-is called <em>the top of the source tree</em>.
-</p>
-
-<h2><a id="compile">3. Compilation</a></h2>
+<h2><a id="preparation">2. Preparation</a></h2>
 
 <p>
 Before you can start compiling openMSX, you have to make sure your system
 has all the necessary build tools installed, as well as the libraries
-openMSX depends upon. The following sections tell you how you can prepare your system. Finally, the compilation itself is explained.
+openMSX depends upon. The following sections tell you how you can prepare your system.
 </p>
 <p>
 Every section starts out with generic instructions, that apply to all platforms. At the end of each section, platform specific notes cover differences or additional steps for certain platforms.
 </p>
 
-<h3><a id="tools">3.1 Build Tools</a></h3>
+<h3><a id="tools">2.1 Build Tools</a></h3>
 
 <p>
 For compilation, you need GNU Make and a C++ compiler.
@@ -318,10 +158,10 @@ This package contains up-to-date versions of Make, GCC and SVN. If you are runni
 <p>You can download MinGW and MSYS from <a class="external" href="http://sourceforge.net/project/showfiles.php?group_id=2435">the download page</a> of the MinGW project. Download the latest version of the "Automated MinGW Installer" (5.1.3 is the latest at the time of writing) and download also "MSYS: Minimal System" (1.0.10 at the time of writing). Double click on the MinGW package after downloading, choose "Download and Install", Package "Current", components "g++" and "mingw-make". Use the default installation directory (<code>C:\MinGW</code>), or at least a directory without spaces. For MSYS, the installer's default settings (destination directory <code>C:\msys\1.0</code>) will be OK. If you get questions in a post-install Command Prompt dialog, type: <code>y</code>, <code>y</code>, <code>C:/MinGW</code> (or the other directory you chose without spaces), <code>y</code>.
 </p>
 
-<p>The openMSX build system for Windows will use the program cURL to download the source code of the 3rd party libraries that openMSX is depending on. You need to have it in your default search path of Windows (or, if you're lazy, put it in the <em>top of the openMSX source tree</em>, see below). You can download a binary of cURL from <a class="external" href="http://curl.haxx.se/download.html">its download page</a>. Use a binary from the "Win32 - Generic" category, near the bottom of the web page. Use one without SSL, otherwise you may get errors about <code>libeay32.dll</code> not getting found. (Currently, the top one is OK.)
+<p>The openMSX build system for Windows will use the program cURL to download the source code of the 3rd party libraries that openMSX is depending on. You need to have it in your default search path of Windows (or, if you're lazy, put it in the <em>top of the openMSX source tree</em>, see below to find out what this means). You can download a binary of cURL from <a class="external" href="http://curl.haxx.se/download.html">its download page</a>. Use a binary from the "Win32 - Generic" category, near the bottom of the web page. Use one without SSL, otherwise you may get errors about <code>libeay32.dll</code> not getting found. (Currently, the top one is OK.)
 </p>
 
-<h3><a id="libs">3.2 Libraries</a></h3>
+<h3><a id="libs">2.2 Libraries</a></h3>
 
 <p>
 openMSX depends on the following libraries:
@@ -397,7 +237,180 @@ If you are using Fink, you should install the packages
 We strongly recommend to use the <a class="internal" href="#standalone">stand-alone binary</a> method, which means the openMSX build system will download and compile all libraries automatically.
 </p>
 
-<h3><a id="compilenow">3.3 Compilation Itself</a></h3>
+<h2><a id="getsource">3. Getting the Source Code</a></h2>
+
+<p>
+openMSX is developed using the tools
+<a class="external" href="http://www.sourceforge.net/">SourceForge.net</a>
+freely offers to open source projects.
+The code is stored in Subversion (SVN), an open source version management system.
+Once in a while an openMSX release is made.
+</p>
+
+<p>
+There are several options for getting the source code:
+</p>
+
+<dl>
+
+<dt><a class="internal" href="#getrelease">Released Version</a></dt>
+<dd>
+These are tested versions, which should give you little problem compiling
+and running.
+However, as openMSX development if often quite fast, they may not have all
+the latest features.
+Also there could be bugs that have been fixed since the last release.
+</dd>
+
+<dt><a class="internal" href="#getsvn">SVN Checkout</a></dt>
+<dd>
+Through SVN you can get the same development version the
+openMSX developers are using.
+This is the bleeding edge:
+the latest stuff, which may be great or may be horribly broken.
+Usually openMSX SVN compiles and runs fine, but we're only human,
+so once in a while it breaks.
+Also there may be changes that are not documented yet.
+</dd>
+
+<dt><a class="internal" href="#getsnapshot">SVN Snapshot</a></dt>
+<dd>
+A snapshot is created from a recent SVN checkout,
+in a <code>tar.gz</code> archive.
+A snapshot is therefore quite similar to a SVN checkout,
+but it doesn't require you to install and use SVN. It may lag a couple of days from the latest SVN sources. Moreover, SF.net staff sometimes turns off cron jobs, which means the snapshots may be updated on a very irregular basis.
+</dd>
+
+</dl>
+
+<p>
+Releases are intended for general users, SVN and SVN snapshots are intended for
+(would be) developers, heavy testers and people who want to follow new
+developments closely. It might be a good idea to play with a release first. If
+you like what you see and want to get in deeper, you can switch to SVN later.
+If you update often, it is best to use a SVN checkout rather than
+a SVN snapshot, because with a checkout you can do efficient incremental
+updates, saving network bandwidth and compile time.
+</p>
+
+<p>
+If you downloaded a version that is either a lot older or a lot newer than
+this guide, it is a good idea to read the guide included in your downloaded
+version instead of the version you're reading right now.
+You can find the Compilation Guide in the directory
+<code>doc/manual</code>.
+</p>
+
+<h3><a id="getrelease">3.1 Released Version</a></h3>
+
+<p>
+You can download a released version of openMSX from
+<a class="external" href="http://sourceforge.net/project/showfiles.php?group_id=38274"
+>the download page at SourceForge</a>.
+The latest version is probably the best one. This guide assumes that you are using the latest release.
+</p>
+
+<p>
+After downloading, type:
+</p>
+<div class="commandline">tar xzvf openmsx-VERSION.tar.gz</div>
+<p>
+in which <code>VERSION</code> is the openMSX version you downloaded, or use the
+file name you saved the tar.gz file with. This works in a UNIX or MSYS shell,
+you can also use another uncompression tool, of course.
+The directory that is created by uncompressing the <code>tar.gz</code> file
+is called <em>the top of the source tree</em>.
+</p>
+
+<h3><a id="getsvn">3.2 SVN Checkout</a></h3>
+
+<p>
+Getting a SVN checkout means you use SVN to retrieve the latest version
+of the source code of openMSX.
+This means you will need to install an SVN client.
+This package is usually named <code>subversion</code>.
+There are graphical front-ends for SVN,
+but this guide will tell you how to use SVN from the command line.
+More information about SVN can be found on the <a class="external"
+href="http://svnbook.red-bean.com/en/1.1/">Subversion book</a> site. Windows
+users might want to look at <a class="external"
+href="http://tortoisesvn.tigris.org/">TortoiseSVN</a>.
+</p>
+
+<p>
+With the following line you can retrieve the latest sources:
+</p>
+<div class="commandline">
+svn co https://openmsx.svn.sourceforge.net/svnroot/openmsx/openmsx/trunk openMSX
+</div>
+<p>
+In this line you specified where you want to retrieve the files from
+(host name of the SVN server),
+what project you want to retrieve (<em>openmsx</em> in this case), what
+module you want to get (<em>openmsx</em> in this case, which is the module that contains
+the sources of the main openMSX program), which branch you want
+to retrieve (<em>trunk</em> in this case, which is the main development branch) and what directory it should be
+checked out to (we chose <em>openMSX</em> in this example).
+</p>
+
+<p>In TortoiseSVN, use <code>https://openmsx.svn.sourceforge.net/svnroot/openmsx/openmsx/trunk</code> as "URL of repository" and e.g. <code>C:\</code> as "Checkout directory". Use the <code>HEAD</code> revision and click OK.
+</p>
+
+<p>
+If you're a developer, it makes sense to add the following option to the svn commandline as well:
+</p>
+<div class="commandline">
+--username &lt;name-of-your-sourceforge-account&gt;
+</div>
+
+<p>
+The SVN command created a directory called <code>openMSX</code> for you
+in the current directory (or in the "Checkout directory" in TortoiseSVN). In addition to the openMSX code, you will see hidden
+SVN administration directories which are all called <code>svn</code> or
+<code>.svn</code>.
+Do not mess with these (nor move contents of this checkout directory around), otherwise SVN will get confused.
+This directory created by SVN is what we will call in this manual <em>the top
+of the source tree</em>.
+</p>
+
+<p>
+If you want to update your source tree later,
+go to the top of the source tree and type:
+</p>
+<div class="commandline">
+svn up
+</div>
+<p>
+or rightclick on the openMSX directory in your Windows explorer and select "SVN Update".
+</p>
+
+<h3><a id="getsnapshot">3.3 SVN Snapshot</a></h3>
+
+<p>
+First, download the
+<a class="external"
+href="http://openmsx.sourceforge.net/temp/openmsx-SVN-snapshot.tar.gz"
+>most recent SVN snapshot</a>.
+</p>
+
+<p>
+After downloading, type:
+</p>
+<div class="commandline">tar xzvf openmsx-SVN-snapshot.tar.gz</div>
+<p>
+This works in a UNIX or MSYS shell, you can also use another uncompression
+tool, of course.
+The directory that is created by uncompressing the <code>tar.gz</code> file
+is called <em>the top of the source tree</em>.
+</p>
+
+<h2><a id="local">4 Binary for Local System</a></h2>
+
+<p>
+This section explains how to build openMSX for a local system. If you want to create a binary that runs everywhere, we recommend you to skip this chapter and use the <a class="internal" href="#standalone">stand-alone binary</a> method. We also recommend to do that for Mac OS X and especially for Microsoft Windows systems.
+</p>
+
+<h3><a id="compilelocal">4.1 Compilation</a></h3>
 
 <p>
 Now that all the necessary tools and libraries are installed,
@@ -500,7 +513,7 @@ If you have a G4 or better PPC CPU, using <code>export OPENMSX_FLAVOUR=ppcg4</co
 By default, only the openMSX executable itself is produced. If you want to create an application folder, define <code>export OPENMSX_TARGET_OS=darwin-app</code> before compilation. This application folder will still depend on the systemwide libraries, so it will not work on Macs without those libraries. But unlike the plain executable, it has a high resolution icon.
 </p>
 
-<h2><a id="install">4. Installation</a></h2>
+<h3><a id="install">4.2 Installation</a></h3>
 
 <p>
 To install openMSX, run the following command:
@@ -577,12 +590,16 @@ If you additionally want to build the openMSX installer, you should refer to the
 <h2><a id="next">6. Next Steps</a></h2>
 
 <p>
-If all went well, you should have openMSX installed now.
+If all went well, you should have openMSX installed now or have a stand alone working binary.
 You can test it by executing openMSX from the command line:
 </p>
 <div class="commandline">
 openmsx
 </div>
+
+<p>
+or, by double clicking the openMSX executable that resulted from the previous step.
+</p>
 
 <p>
 You should get a screen similar to this:
@@ -613,6 +630,10 @@ If you have a ROM image ready, you can try to run it with C-BIOS:
 <div class="commandline">
 openmsx ~/msx/games/my-favourite-game.rom
 </div>
+
+<p>
+or, you can just drop it on the openMSX executable.
+</p>
 
 <p>
 The next step would be to read the
