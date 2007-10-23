@@ -386,6 +386,8 @@ void SCC::setFreqVol(byte address, byte value)
 		if (deformValue & 0x20) {
 			pos[channel] = 0; // reset to begin of waveform
 		}
+		// after a freq change, update the output
+		out[channel] = volAdjustedWave[channel][pos[channel]];
 	} else if (address < 0x0F) {
 		// change volume
 		byte channel = address - 0x0A;
