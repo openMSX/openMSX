@@ -91,13 +91,13 @@
       <secondary slot="2"/>
 
       <secondary slot="3">
-       <ROM id="HB-F1XDJ">
+       <ROM id="HB-F1XDJ MSX-JE">
 	  <rom>
 	    <filename>roms/hb-f1xdj.rom</filename>
 	    <sha1>ade0c5ba5574f8114d7079050317099b4519e88f</sha1>
 	  </rom>
 	  <mem base="0x0000" size="0x10000"/>
-          <sramname>hb-f1xdj_halnote.sram</sramname>
+          <sramname>hb-f1xdj_msx-je.sram</sramname>
 	  <mappertype>Halnote</mappertype>
 	</ROM>
       </secondary>
