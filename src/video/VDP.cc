@@ -572,8 +572,9 @@ void VDP::writeIO(word port, byte value, const EmuTime& time)
 					// writing to VDP registers. Without this some demos won't
 					// run as on real MSX1, e.g. Planet of the Epas, Utopia and
 					// Waves 1.2. Thanks to dvik for finding this out.
+					// See also below about not using the latch on MSX1.
 					// Set read/write address.
-					vramPointer = (value << 8 | dataLatch) & 0x3FFF;
+					vramPointer = (value << 8 | (vramPointer & 0xFF)) & 0x3FFF;
 				}
 			} else {
 				// Set read/write address.
@@ -585,6 +586,13 @@ void VDP::writeIO(word port, byte value, const EmuTime& time)
 			}
 			registerDataStored = false;
 		} else {
+			// Note: on MSX1 there seems to be no
+			// latch used, but VDP address writes
+			// are done directly.
+			// Thanks to hap for finding this out. :)
+			if (isMSX1VDP()) {
+				vramPointer = (vramPointer & 0x3F00) | value;
+			} 
 			dataLatch = value;
 			registerDataStored = true;
 		}
