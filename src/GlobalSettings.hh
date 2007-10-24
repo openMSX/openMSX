@@ -26,6 +26,7 @@ class GlobalSettings : private Observer<Setting>, private noncopyable
 {
 public:
 	enum ResampleType { RESAMPLE_HQ, RESAMPLE_LQ, RESAMPLE_BLIP };
+	typedef enum SyncMode { SYNC_READONLY, SYNC_CACHEDWRITE, SYNC_NODELETE, SYNC_FULL } SyncMode_t ;
 
 	explicit GlobalSettings(CommandController& commandController);
 	~GlobalSettings();
@@ -38,6 +39,7 @@ public:
 	StringSetting&  getUserDirSetting();
 	StringSetting&  getUMRCallBackSetting();
 	EnumSetting<bool>& getBootSectorSetting();
+	EnumSetting<SyncMode>& getSyncDirAsDSKSetting();
 	EnumSetting<ResampleType>& getResampleSetting();
 	ThrottleManager& getThrottleManager();
 
@@ -55,6 +57,7 @@ private:
 	std::auto_ptr<StringSetting>  userDirSetting;
 	std::auto_ptr<StringSetting>  umrCallBackSetting;
 	std::auto_ptr<EnumSetting<bool> > bootSectorSetting;
+	std::auto_ptr<EnumSetting<SyncMode> > syncDirAsDSKSetting;
 	std::auto_ptr<EnumSetting<ResampleType> > resampleSetting;
 	std::auto_ptr<ThrottleManager> throttleManager;
 };

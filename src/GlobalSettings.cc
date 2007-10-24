@@ -29,6 +29,14 @@ GlobalSettings::GlobalSettings(CommandController& commandController_)
 	        "user_directories", "list of user directories", ""));
 	umrCallBackSetting.reset(new StringSetting(commandController,
 	        "umr_callback", "TCL proc to call when an UMR is detected", ""));
+	EnumSetting<SyncMode>::Map syncDirAsDSKMap;
+	syncDirAsDSKMap["read_only"] = SYNC_READONLY;
+	syncDirAsDSKMap["cached_write"] = SYNC_CACHEDWRITE;
+	syncDirAsDSKMap["nodelete"] = SYNC_NODELETE;
+	syncDirAsDSKMap["full"] = SYNC_FULL;
+	syncDirAsDSKSetting.reset(new EnumSetting<SyncMode>(commandController,
+		"syncDirAsDSK", "type of syncronisation between host directory and dir-as-dsk diskimage",
+		SYNC_READONLY, syncDirAsDSKMap));
 	EnumSetting<bool>::Map bootsectorMap;
 	bootsectorMap["DOS1"] = false;
 	bootsectorMap["DOS2"] = true;
@@ -93,6 +101,11 @@ StringSetting& GlobalSettings::getUMRCallBackSetting()
 StringSetting& GlobalSettings::getUserDirSetting()
 {
 	return *userDirSetting.get();
+}
+
+EnumSetting<GlobalSettings::SyncMode>& GlobalSettings::getSyncDirAsDSKSetting()
+{
+	return *syncDirAsDSKSetting.get();
 }
 
 EnumSetting<bool>& GlobalSettings::getBootSectorSetting()

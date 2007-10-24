@@ -7,6 +7,7 @@
 #include "EnumSetting.hh"
 #include "File.hh"
 #include "FileException.hh"
+#include "FileOperations.hh"
 #include "ReadDir.hh"
 #include <algorithm>
 #include <cstring>
@@ -14,13 +15,14 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <stdio.h>
+
 using std::string;
+//using GlobalSettings::SyncMode;
 
 namespace openmsx {
 
 static const int EOF_FAT = 0xFFF;
-static const int NODIRENTRY   = 4000;
-static const int CACHEDSECTOR = 4001;
 static const int MAX_CLUSTER = 720;
 static const string bootBlockFileName = ".sector.boot";
 static const string cachedSectorsFileName = ".sector.cache";
@@ -58,10 +60,36 @@ word DirAsDSK::readFAT(word cluster)
 	     : p[0] + ((p[1] & 0x0F) << 8);
 }
 
+// read FAT-entry from second FAT in memory
+// second FAT is only used internally in DirAsDisk to detect 
+// updates in the FAT, if the emulated MSX reads a sector from
+// the second cache, it actually gets a sector from the first FAT
+word DirAsDSK::readFAT2(word cluster)
+{
+	const byte* p = fat2 + (cluster * 3) / 2;
+	return (cluster & 1)
+	     ? (p[0] >> 4) + (p[1] << 4)
+	     : p[0] + ((p[1] & 0x0F) << 8);
+}
+
 // write an entry to FAT in memory
 void DirAsDSK::writeFAT(word cluster, word val)
 {
 	byte* p = fat + (cluster * 3) / 2;
+	if (cluster & 1) {
+		p[0] = (p[0] & 0x0F) + (val << 4);
+		p[1] = val >> 4;
+	} else {
+		p[0] = val;
+		p[1] = (p[1] & 0xF0) + ((val >> 8) & 0x0F);
+	}
+}
+
+// write an entry to FAT2 in memory
+// see note at DirAsDSK::readFAT2
+void DirAsDSK::writeFAT2(word cluster, word val)
+{
+	byte* p = fat2 + (cluster * 3) / 2;
 	if (cluster & 1) {
 		p[0] = (p[0] & 0x0F) + (val << 4);
 		p[1] = val >> 4;
@@ -127,6 +155,11 @@ DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings,
 	, cliComm(cliComm_)
 	, hostDir(fileName)
 {
+	//TODO: make these settings, for now as test purpose we define them here...
+	syncMode = globalSettings.getSyncDirAsDSKSetting().getValue();
+	//TODO persistentMode = globalSettings.getPersistentDirAsDSKSetting().getValue();
+	persistentMode = false;
+
 	// create the diskimage based upon the files that can be
 	// found in the host directory
 	ReadDir dir(hostDir);
@@ -161,6 +194,7 @@ DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings,
 
 	// Make a full clear FAT
 	memset(fat, 0, SECTOR_SIZE * SECTORS_PER_FAT);
+	memset(fat2, 0, SECTOR_SIZE * SECTORS_PER_FAT);
 	// for some reason the first 3bytes are used to indicate the end of a
 	// cluster, making the first available cluster nr 2. Some sources say
 	// that this indicates the disk format and fat[0] should 0xF7 for
@@ -169,10 +203,13 @@ DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings,
 	fat[0] = 0xF9;
 	fat[1] = 0xFF;
 	fat[2] = 0xFF;
+	fat2[0] = 0xF9;
+	fat2[1] = 0xFF;
+	fat2[2] = 0xFF;
 
 	//clear the sectormap so that they all point to 'clean' sectors
 	for (int i = 0; i < 1440; ++i) {
-		sectormap[i].dirEntryNr = NODIRENTRY;
+		sectormap[i].usage = CLEAN;
 	}
 
 	//read directory and fill the fake disk
@@ -189,7 +226,6 @@ DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings,
 	// read the cached sectors
 	//TODO: we should check if the other files have changed since we
 	//      wrote the cached sectors, this could invalided the cache!
-	saveCachedSectors = false;
 	try {
 		File file(hostDir + '/' + cachedSectorsFileName);
 		unsigned num = file.getSize() / (SECTOR_SIZE + sizeof(unsigned));
@@ -199,7 +235,7 @@ DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings,
 			if (sector == 0) {
 				// cached sector is 0, this should be impossible!
 			} else if (sector < (1 + 2 * SECTORS_PER_FAT)) {
-				// cached sector is FAT sector
+				// cached sector is FAT sector read from fat1
 				unsigned f = (sector - 1) % SECTORS_PER_FAT;
 				file.read(fat + f * SECTOR_SIZE, SECTOR_SIZE);
 			} else if (sector < 14) {
@@ -214,11 +250,12 @@ DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings,
 				//regular cached sector
 				cachedSectors[sector].resize(SECTOR_SIZE);
 				file.read(&cachedSectors[sector][0], SECTOR_SIZE);
-				sectormap[sector].dirEntryNr = CACHEDSECTOR;
+				sectormap[sector].usage = CACHED;
 			}
 		}
-		// make sure that we don't destroy the cache when destroying this object
-		saveCachedSectors = true;
+		// since we sued a cahce when creating this, we also want to update it afterwards I guess
+		// so make sure that we update the cache when destroying this object
+		persistentMode = true;
 	} catch (FileException& e) {
 		// couldn't open/read cached sector file
 	}
@@ -227,7 +264,7 @@ DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings,
 DirAsDSK::~DirAsDSK()
 {
 	// write cached sectors to a file
-	if (saveCachedSectors) {
+	if (persistentMode) {
 		try {
 			File file(hostDir + '/' + cachedSectorsFileName,
 			          File::TRUNCATE);
@@ -255,6 +292,35 @@ DirAsDSK::~DirAsDSK()
 
 void DirAsDSK::readLogicalSector(unsigned sector, byte* buf)
 {
+	printf("DirAsDSK::readLogicalSector: %i " , sector );
+	switch (sector){
+		case 0: printf("boot sector");
+		   break;
+		case 1:
+		case 2:
+		case 3:
+		   printf("FAT 1 sector %i",(sector-0));
+		   break;
+		case 4:
+		case 5:
+		case 6:
+		   printf("FAT 2 sector %i",(sector-3));
+		   break;
+		case 7:
+		case 8:
+		case 9:
+		case 10:
+		case 11:
+		case 12:
+		case 13:
+		   printf("DIR sector %i",(sector-6));
+		   break;
+		default:
+		   printf("data sector");
+		   break;
+	};
+	printf("\n");
+
 	if (sector == 0) {
 		//copy our fake bootsector into the buffer
 		memcpy(buf, bootBlock, SECTOR_SIZE);
@@ -290,24 +356,29 @@ void DirAsDSK::readLogicalSector(unsigned sector, byte* buf)
 	} else {
 		// else get map from sector to file and read correct block
 		// folowing same numbering as FAT eg. first data block is cluster 2
-		if (sectormap[sector].dirEntryNr == NODIRENTRY) {
+		if (sectormap[sector].usage == CLEAN) {
 			//return an 'empty' sector
 			// 0xE5 is the value used on the Philips VG8250
 			memset(buf, 0xE5, SECTOR_SIZE);
-		} else if (sectormap[sector].dirEntryNr == CACHEDSECTOR) {
+		} else if (sectormap[sector].usage == CACHED) {
 			memcpy(buf, &cachedSectors[sector][0], SECTOR_SIZE);
 		} else {
+			// first copy cached data
 			// in case (end of) file only fills partial sector
-			memset(buf, 0, SECTOR_SIZE);
+			memcpy(buf, &cachedSectors[sector][0], SECTOR_SIZE);
 			// read data from host file
 			int offset = sectormap[sector].fileOffset;
 			string tmp = mapdir[sectormap[sector].dirEntryNr].filename;
 			checkAlterFileInDisk(tmp);
-			// let possible exception propagate up
-			File file(tmp);
-			unsigned size = file.getSize();
-			file.seek(offset);
-			file.read(buf, std::min<int>(size - offset, SECTOR_SIZE));
+			// now try to read from file if possible
+			try {
+				File file(tmp);
+				unsigned size = file.getSize();
+				file.seek(offset);
+				file.read(buf, std::min<int>(size - offset, SECTOR_SIZE));
+			} catch (FileException& e) {
+			  // couldn't open/read cached sector file
+			}
 		}
 	}
 }
@@ -365,17 +436,34 @@ void DirAsDSK::updateFileInDisk(int dirindex)
 
 	unsigned size = fsize;
 	int prevcl = 0;
+	File file(mapdir[dirindex].filename,File::CREATE);
+
 	while (size && (curcl <= MAX_CLUSTER)) {
 		int logicalSector = 14 + 2 * (curcl - 2);
 
+		sectormap[logicalSector].usage = MIXED;
 		sectormap[logicalSector].dirEntryNr = dirindex;
 		sectormap[logicalSector].fileOffset = fsize - size;
+		cachedSectors[logicalSector].resize(SECTOR_SIZE);
+		byte* buf = reinterpret_cast<byte*>(
+						&cachedSectors[logicalSector][0] );
+		memset(buf, 0, SECTOR_SIZE); // in case (end of) file only fills partial sector
+		file.seek( sectormap[logicalSector].fileOffset );
+		file.read(buf, std::min<int>(size , SECTOR_SIZE));
+
 		size -= (size > SECTOR_SIZE) ? SECTOR_SIZE : size;
 
 		if (size) {
 			//fill next sector if there is data left
 			sectormap[++logicalSector].dirEntryNr = dirindex;
+			sectormap[logicalSector].usage = MIXED;
 			sectormap[logicalSector].fileOffset = fsize - size;
+			cachedSectors[logicalSector].resize(SECTOR_SIZE);
+			byte* buf = reinterpret_cast<byte*>(
+						&cachedSectors[logicalSector][0] );
+			memset(buf, 0, SECTOR_SIZE); // in case (end of) file only fills partial sector
+			file.seek( sectormap[logicalSector].fileOffset );
+			file.read(buf, std::min<int>(size , SECTOR_SIZE));
 			size -= (size > SECTOR_SIZE) ? SECTOR_SIZE : size;
 		}
 
@@ -414,14 +502,17 @@ void DirAsDSK::updateFileInDisk(int dirindex)
 				curcl = readFAT(curcl);
 				writeFAT(prevcl, 0);
 				int logicalSector = 14 + 2 * (prevcl - 2);
-				sectormap[logicalSector].dirEntryNr = NODIRENTRY;
+				sectormap[logicalSector].usage = CLEAN ;
+				sectormap[logicalSector].dirEntryNr = 0;
 				sectormap[logicalSector++].fileOffset = 0;
-				sectormap[logicalSector].dirEntryNr = NODIRENTRY;
+				sectormap[logicalSector].usage = CLEAN ;
+				sectormap[logicalSector].dirEntryNr = 0;
 				sectormap[logicalSector].fileOffset = 0;
 			}
 			writeFAT(prevcl, 0);
 			int logicalSector= 14 + 2 * (prevcl - 2);
-			sectormap[logicalSector].dirEntryNr = NODIRENTRY;
+			sectormap[logicalSector].usage = CLEAN ;
+			sectormap[logicalSector].dirEntryNr = 0;
 			sectormap[logicalSector].fileOffset = 0;
 		}
 	} else {
@@ -434,39 +525,226 @@ void DirAsDSK::updateFileInDisk(int dirindex)
 	setLE32(mapdir[dirindex].msxinfo.size, fsize - size);
 }
 
+void DirAsDSK::truncateCorrespondingFile(const int dirindex)
+{
+	string fullfilename = mapdir[dirindex].filename ;
+	if (fullfilename.empty() ){
+		//a total new file so we create the new name from the msx name
+		fullfilename = hostDir + '/' ;
+		byte* buf = reinterpret_cast<byte*>(
+			mapdir[dirindex].msxinfo.filename
+			);
+		//special case file is deleted but becuase rest of dirEntry changed
+		//while file is still deleted...
+		if (buf[0] == 0xE5) return;
+		fullfilename += condenseName(buf);
+		mapdir[dirindex].filename = fullfilename ;
+		};
+	printf("      truncateCorrespondingFile %s\n",fullfilename.c_str());
+	File file(fullfilename,File::CREATE);
+	int cursize = getLE32(mapdir[dirindex].msxinfo.size);
+	file.truncate(cursize);
+	mapdir[dirindex].filesize = cursize ;
+}
+
+void DirAsDSK::extractCacheToFile(const int dirindex)
+{
+	string fullfilename = mapdir[dirindex].filename ;
+	if (fullfilename.empty() ){
+		//a total new file so we create the new name from the msx name
+		fullfilename = hostDir + '/' ;
+		byte* buf = reinterpret_cast<byte*>(
+			mapdir[dirindex].msxinfo.filename
+			);
+		//special case: the file is deleted and we get here because the
+		//startcluster is still intact
+		if (buf[0] == 0xE5) return;
+		fullfilename += condenseName(buf);
+		mapdir[dirindex].filename = fullfilename ;
+		}
+
+	File file(fullfilename,File::CREATE);
+	int curcl = getLE16(mapdir[dirindex].msxinfo.startcluster);
+	//if we start a new file the currentcluster can be set to zero
+
+	unsigned int cursize = getLE32(mapdir[dirindex].msxinfo.size);
+	unsigned int offset=0;
+	//if the size is set to zero then we truncate to zero and leave
+	if (curcl==0 || cursize==0) {
+		file.truncate(0);
+		return;
+	}
+
+	while ((curcl <= MAX_CLUSTER) && (curcl != EOF_FAT) && (curcl != 0)) {
+		int logicalSector = 14 + 2 * (curcl - 2);
+
+		for (int i=0; i<2 ;i++){
+			if ((sectormap[logicalSector].usage == CACHED ||
+			    sectormap[logicalSector].usage == MIXED ) &&
+			    (cursize >= offset)				){
+				//transfer data
+				byte* buf = reinterpret_cast<byte*>(
+						&cachedSectors[logicalSector][0] );
+				file.seek(offset);
+				//OLD: int writesize=((cursize-offset)>SECTOR_SIZE)?SECTOR_SIZE:(cursize-offset);
+				unsigned int writesize= std::min<int>( cursize-offset, SECTOR_SIZE);
+				file.write(buf, writesize);
+
+				sectormap[logicalSector].usage = MIXED ;
+				sectormap[logicalSector].dirEntryNr = dirindex ;
+				sectormap[logicalSector].fileOffset = offset;
+			};
+			logicalSector++;
+			offset+=SECTOR_SIZE;
+		}
+		curcl = readFAT(curcl);
+	}
+}
+
+
 void DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 {
+	// is this actually needed ? 
+	if (syncMode == GlobalSettings::SYNC_READONLY ) return;
+	
+	//debug info
+	printf("DirAsDSK::writeLogicalSector: %i " , sector );
+	switch (sector){
+		case 0: printf("boot sector");
+		   break;
+		case 1:
+		case 2:
+		case 3:
+		   printf("FAT 1 sector %i",(sector-0));
+		   break;
+		case 4:
+		case 5:
+		case 6:
+		   printf("FAT 2 sector %i",(sector-3));
+		   break;
+		case 7:
+		case 8:
+		case 9:
+		case 10:
+		case 11:
+		case 12:
+		case 13:
+		   printf("DIR sector %i",(sector-6));
+		   break;
+		default:
+		   printf("data sector");
+		   break;
+	};
+	if (sector >= 14){
+	  printf("\n  Mode: ");
+	  switch (sectormap[sector].usage){
+		case CLEAN:
+			printf ("CLEAN");
+			break;
+		case CACHED:
+			printf ("CACHED");
+			break;
+		case MIXED:
+			printf ("MIXED ");
+			  printf("  direntry : %i \n" , sectormap[sector].dirEntryNr );
+			  printf("    => %s \n", mapdir[ sectormap[sector].dirEntryNr ].filename.c_str());
+			  printf("  fileOffset : %li " , sectormap[sector].fileOffset);
+			  break;
+		  };
+	};
+	printf("\n");
+
+
+	//
+	//Regular sectors
+	//
+	if (sector >= 14) {
+		// first and before all else buffer everything !!!!
+		//check if cachedSectors exists, if not assign memory.
+		cachedSectors[sector].resize(SECTOR_SIZE);
+		memcpy(&cachedSectors[sector][0], buf, SECTOR_SIZE);
+
+		// if in SYNC_CACHEDWRITE then simply mark sector as cached and be done with it
+		if (syncMode == GlobalSettings::SYNC_CACHEDWRITE ) {
+			//change to a regular cached sector
+			sectormap[sector].usage = CACHED;
+			sectormap[sector].dirEntryNr = 0;
+			sectormap[sector].fileOffset = 0;
+			return;
+		}
+
+		if (sectormap[sector].usage == MIXED ) {
+			// save data to host file
+			int offset = sectormap[sector].fileOffset;
+			int dirent = sectormap[sector].dirEntryNr;
+			string tmp = mapdir[dirent].filename;
+			try {
+				File file(tmp);
+				file.seek(offset);
+				int cursize = getLE32(mapdir[dirent].msxinfo.size);
+				unsigned int writesize = std::min<int>( cursize-offset, SECTOR_SIZE);
+				file.write(buf, writesize);
+			} catch (FileException& e) {
+				cliComm.printWarning(
+					"Couldn't write to file.");
+			}
+		} else {
+			// indicate data is cached, it might be CACHED already or it was CLEAN
+			sectormap[sector].usage = CACHED;
+		}
+		return;
+	}
+
+	//
+	//Special sectors
+	//
 	if (sector == 0) {
-		//copy buffer into our fake bootsector and safe into file
+		//copy buffer into our fake bootsector
 		memcpy(bootBlock, buf, SECTOR_SIZE);
-		try {
-			File file(hostDir + '/' + bootBlockFileName,
-			          File::TRUNCATE);
-			file.write(buf, SECTOR_SIZE);
-		} catch (FileException& e) {
-			cliComm.printWarning(
-				"Couldn't create bootsector file.");
+
+		if (persistentMode){
+			//and safe into file
+			try {
+				File file(hostDir + '/' + bootBlockFileName,
+					  File::TRUNCATE);
+				file.write(buf, SECTOR_SIZE);
+			} catch (FileException& e) {
+				cliComm.printWarning(
+					"Couldn't create bootsector file.");
+			}
 		}
 
 	} else if (sector < (1 + 2 * SECTORS_PER_FAT)) {
 		//copy to correct sector from FAT
-		//make sure we write changed sectors to the cache file later on
-		saveCachedSectors = true;
 
 		//during formatting sectors > 1+SECTORS_PER_FAT are empty (all
 		//bytes are 0) so we would erase the 3 bytes indentifier at the
 		//beginning of the FAT !!
 		//Since the two FATs should be identical after "normal" usage,
-		//we simply ignore writes (for now, later we could cache them
-		//perhaps)
+		//we use writes to the second FAT (which should be an exact backup
+		//of the first FAT to detect changes (files might have 
+		//grown/shrunk/added) so that they can be passed on to the HOST-OS
 		if (sector < (1 + SECTORS_PER_FAT)) {
 			sector = (sector - 1) % SECTORS_PER_FAT;
 			memcpy(fat + sector * SECTOR_SIZE, buf, SECTOR_SIZE);
+			return;
+		}
+		//writes to the second FAT so we check for changes
+		//but we fully ignore the sectors aftwerwards (see remark
+		//about identifier bytes above)
+	
+		int startcluster= std::max<int>( 2 , int((( sector - 1 - SECTORS_PER_FAT ) *2) /3) ) ;
+		int endcluster= std::min<int>( startcluster + 342 , int(( SECTOR_SIZE * SECTORS_PER_FAT  *2) /3) ) ;
+		for (int i=startcluster ; i < endcluster ; i++){
+			if ( readFAT(i) != readFAT2(i) ){
+				updateFileFromAlteredFatOnly(i);
+			}
 		}
 
-	} else if (sector < 14) {
-		//make sure we write changed sectors to the cache file later on
-		saveCachedSectors = true;
+		sector = (sector - 1) % SECTORS_PER_FAT;
+		memcpy(fat2 + sector * SECTOR_SIZE, buf, SECTOR_SIZE);
+
+	} else {
 		//create correct DIR sector
 
 		// We assume that the dir entry is updatet as latest: So the
@@ -485,28 +763,65 @@ void DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 				//if already deleted....
 
 				//the 3 vital informations needed
-				bool chgName = memcmp(mapdir[dirCount].msxinfo.filename, buf, 11) == 0;
-				bool chgClus = getLE16(mapdir[dirCount].msxinfo.startcluster) == getLE16(&buf[25]);
-				bool chgSize = getLE32(mapdir[dirCount].msxinfo.size) == getLE32(&buf[27]);
+				bool chgName = memcmp(mapdir[dirCount].msxinfo.filename, buf, 11) != 0;
+				bool chgClus = getLE16(mapdir[dirCount].msxinfo.startcluster) != getLE16(&buf[26]);
+				bool chgSize = getLE32(mapdir[dirCount].msxinfo.size) != getLE32(&buf[28]);
+				/*
+				here are the possible combinations encountered in normal usage so far,
+				the bool order is  chgName chgClus chgSize
+				0 0 0 : nothing changed for this direntry... :-)
+				0 0 1 : File has grown or shrunk
+				0 1 1 : name remains but size and cluster changed => second step in new file creation (cheked on NMS8250)
+				1 0 0 : a) Only create a name and size+cluster still zero => first step in new file creation (cheked on NMS8250)
+					   if we start a new file the currentcluster can be set to zero
+					   FI: on a Philips NMS8250 in Basic try : copy"con"to:"a.txt"
+					   it will first write the first 7 sectors, then the data, then
+					   update the 7 first sectors with correct data
+					b) name changed, others remained unchanged => file renamed
+					c) first char of name changed to 0xE5, others remained unchanged => file deleted
+				1 1 1 : a new file has been created (as done by a Panasonic FS A1GT)
+				*/
 
-				if (chgClus && chgName) {
-					// Major change: new file started!
-				} else {
-					cliComm.printWarning(
-						"! An unusual change has been performed on this disk\n"
-						"! are you running a disk editor or optimizer, or maybe\n"
-						"! a diskcache program?\n"
-						"! Do not use 'dir as disk' emulation while running these kinds of programs!\n");
-				}
+
+
+				printf("  dircount %i filename: %s \n",dirCount , mapdir[dirCount].filename.c_str()  );
+				printf ("  chgName: %i chgClus: %i chgSize: %i  \n",chgName,chgClus,chgSize);
+				printf("  Old start %i   New start %i\n", getLE16(mapdir[dirCount].msxinfo.startcluster) , getLE16(&buf[26]));
+				printf("  Old size %i  New size %i \n\n", getLE32(mapdir[dirCount].msxinfo.size) , getLE32(&buf[28]));
+
 				if (chgName && !chgClus && !chgSize) {
-					if (buf[0] == 0xE5) {
-					// dir entry has been deleted
-					//TODO: What now, really remove entry
-					//and clean sectors or keep around in
-					//case of an undelete ?? Later seems
-					//more real though, but is it safe
-					//enough for host OS files when writing
-					//sectors?
+					if (buf[0] == 0xE5 && syncMode == GlobalSettings::SYNC_FULL) {
+						// dir entry has been deleted
+						// delete file from host OS and 'clear' all sector data pointing to this HOST OS file
+						unlink(mapdir[dirCount].filename.c_str());
+						for (int i=14 ; i < 1440  ; i++){
+							if (sectormap[i].dirEntryNr == dirCount)
+								 sectormap[i].usage = CACHED;
+							}
+						mapdir[dirCount].filename.clear();
+					} else if (buf[0] != 0xE5 && (syncMode == GlobalSettings::SYNC_FULL || syncMode == GlobalSettings::SYNC_NODELETE)) {
+						int newClus = getLE16(&buf[26]);
+						int newSize = getLE32(&buf[28]);
+						string newfilename = hostDir + '/';
+						newfilename += condenseName(buf);
+						if (newClus == 0 && newSize == 0){
+							//creating a new file
+							mapdir[dirCount].filename = newfilename;
+							// we do not need to write anything since the MSX will update this later when the size is altered
+							try {
+								File file(newfilename, File::TRUNCATE);
+							} catch (FileException& e) {
+							  cliComm.printWarning(
+							      "Couldn't create new file.");
+							}
+
+						} else {
+							//rename file on host OS
+							if (rename(mapdir[dirCount].filename.c_str(),newfilename.c_str()) == 0){
+								//renaming on host Os succeeeded
+								 mapdir[dirCount].filename = newfilename;
+							}
+						}
 					} else {
 						cliComm.printWarning(
 							"File has been renamed in emulated disk, Host OS file (" +
@@ -514,36 +829,100 @@ void DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 					}
 				}
 
-				if (!chgName && !chgClus && chgSize) {
+				if (chgSize) {
+					// Cluster might have changed is this is a new file so chgClu is ignored
 					// content changed, extract the file
+					// Als name might have been changed (on a turbo R the single shot Dir update when creating new files)
+					if (getLE32(mapdir[dirCount].msxinfo.size) < getLE32(&buf[28])){
+						// new size is bigger, file has grown
+						memcpy(&(mapdir[dirCount].msxinfo), buf, 32);
+						extractCacheToFile(dirCount);
+					} else {
+						// new size is smaller, file has been reduced
+						// luckily the entire file is in cache, we need this since onm some
+						// MSX models during a copy from file to overwrite an existing file
+						// the sequence is that first the actual data is written and then
+						// the size is set to zero before it is set to the new value. If we
+						// didn't cache this, then all the 'mapped' sectors would lose their
+						// value
+
+						memcpy(&(mapdir[dirCount].msxinfo), buf, 32);
+						truncateCorrespondingFile(dirCount);
+
+						if (getLE32(&buf[28])  != 0)
+							extractCacheToFile(dirCount); // see copy remark above
+					}
+				}
+				if (!chgName && chgClus && !chgSize) {
+					cliComm.printWarning("this case of writing to DIR is  not yet implemented since we haven't encountered it in real life yet.");
 				}
 				//for now simply blindly take over info
 				memcpy(&(mapdir[dirCount].msxinfo), buf, 32);
-			} else {
-				// entry not changed
 			}
 			++dirCount;
 			buf += 32;
 		}
-		cliComm.printWarning(
-			"writing to DIR not yet fully implemented!");
-
-	} else {
-		// simply buffering everything for now, no write-through to host-OS
-		//check if cachedSectors exists, if not assign memory.
-
-		//make sure we write cached sectors to a file later on
-		saveCachedSectors = true;
-
-		cachedSectors[sector].resize(SECTOR_SIZE);
-		memcpy(&cachedSectors[sector][0], buf, SECTOR_SIZE);
-		sectormap[sector].dirEntryNr = CACHEDSECTOR;
 	}
+}
+
+void DirAsDSK:: updateFileFromAlteredFatOnly(int somecluster)
+{
+	// First look for the first cluster in this chain
+	unsigned int startcluster = somecluster;
+	int i=2 ;
+	while ( i <  int(( SECTOR_SIZE * SECTORS_PER_FAT  *2) /3)) {
+		if ( readFAT(i) == startcluster) {
+			startcluster = i;
+			i=1;
+		};
+		i++;
+	} 
+	// Find the corresponding direntry if any
+	// and extract file based on new clusterchain
+	for (i=0; i<112 ; i++){
+		if (startcluster == getLE16(mapdir[i].msxinfo.startcluster) ){
+			extractCacheToFile(i);
+			i=113;
+		}
+	}
+	
+	// from startcluster and somecluster on, update fat2 so that the check
+	// in writeLogicalSecor doesn't call this routine again for the same
+	// file-clusterfchain
+	int curcl = startcluster;
+	while ((curcl <= MAX_CLUSTER) && (curcl != EOF_FAT) && (curcl > 1)) {
+		int next=readFAT(curcl);
+		writeFAT2(curcl,next);
+		curcl=next;
+	};
+	curcl = somecluster;
+	while ((curcl <= MAX_CLUSTER) && (curcl != EOF_FAT) && (curcl > 1)) {
+		int next=readFAT(curcl);
+		writeFAT2(curcl,next);
+		curcl=next;
+	};
+
+}
+
+
+string DirAsDSK::condenseName(const byte* buf)
+{
+	string result;
+	for (unsigned i = 0; (i < 8) && (buf[i] != ' '); ++i) {
+		result += tolower(buf[i]);
+	}
+	if (buf[8] != ' ') {
+		result += '.';
+		for (unsigned i = 0; (i < 3) && (buf[8+i] != ' '); ++i) {
+			result += tolower(buf[8+i]);
+		}
+	}
+	return result;
 }
 
 bool DirAsDSK::writeProtected()
 {
-	return false;
+	return (syncMode != GlobalSettings::SYNC_READONLY ? false : true ) ;
 }
 
 void DirAsDSK::updateFileInDSK(const string& filename)
