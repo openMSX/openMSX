@@ -40,6 +40,7 @@ public:
 	StringSetting&  getUMRCallBackSetting();
 	EnumSetting<bool>& getBootSectorSetting();
 	EnumSetting<SyncMode>& getSyncDirAsDSKSetting();
+	BooleanSetting& getPersistentDirAsDSKSetting();
 	EnumSetting<ResampleType>& getResampleSetting();
 	ThrottleManager& getThrottleManager();
 
@@ -58,6 +59,7 @@ private:
 	std::auto_ptr<StringSetting>  umrCallBackSetting;
 	std::auto_ptr<EnumSetting<bool> > bootSectorSetting;
 	std::auto_ptr<EnumSetting<SyncMode> > syncDirAsDSKSetting;
+	std::auto_ptr<BooleanSetting> persistentDirAsDSKSetting;
 	std::auto_ptr<EnumSetting<ResampleType> > resampleSetting;
 	std::auto_ptr<ThrottleManager> throttleManager;
 };

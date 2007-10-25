@@ -162,7 +162,11 @@
 
         <li><a class="internal" href="#deinterlace">deinterlace</a></li>
 
-        <li><a class="internal" href="#display_deform">display_deform</a></li>
+        <li><a class="internal" href="#DirAsDSKmode">DirAsDSKmode</a></li>
+
+	<li><a class="internal" href="#DirAsDSKpersistent">DirAsDSKpersistent</a></li>
+
+	<li><a class="internal" href="#display_deform">display_deform</a></li>
 
         <li><a class="internal" href="#frequency">frequency</a></li>
 
@@ -2336,6 +2340,88 @@
 
       <td>Use the turboR GT the next time openMSX is started</td>
     </tr>
+  </table>
+
+  <h3><a id="DirAsDSKmode">DirAsDSKmode</a></h3>
+
+  <p>Determine the behavior of the DirAsDSK when inserting a directory to be used as diskimage.</p>
+
+  <p>The posible values are <code>read_only</code>, <code>cached_write</code>, <code>nodelete</code> and <code>full</code>.</p>
+  <p>Altough it is the most riscfull method the default is set to be <code>full</code> since this is wat most users expect from using DirAsDisk.</p>
+  
+  <table>
+    <tr>
+      <td><code>read_only</code></td>
+
+      <td>The MSX can not write to the virtual disk.<br>Changes on the host-OS are stilled transfered to the virtual disk</td>
+    </tr>
+
+    <tr>
+      <td><code>cached_write</code></td>
+
+      <td>The MSX can write to the virtual disk, all changes are however only cached in memory, no changes are passed onto the host-OS.<br>Changes on the host-OS are stilled transfered to the virtual disk, and will overide any changes that to MSX has made</td>
+    </tr>
+
+    <tr>
+      <td><code>nodelete</code></td>
+
+      <td>Changes are two ways, from Host-OS to MSX and vice versa.<BR>However deleting a file on the MSX will not erase the file from the HOST-OS. This can lead to unexpected behavior however if the MSX later recreates a file with the same name, since this will be reflected towards the HOST-OS.
+    </tr>
+
+    <tr>
+      <td><code>full</code></td>
+
+      <td>All changes are performed both ways, no restrictions apply</td>
+    </tr>
+  </table>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set DirAsDSKmode</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set DirAsDSKmode read_only</code></td>
+
+      <td>Disk image will be read only</td>
+    </tr>
+  </table>
+
+  <div class="note">
+    Note: this setting is only used when the directory is inserted, it is not possible to change the behaviour of the current virtual disk by altering the setting. The new setting will become effective after the current virtual disk has been ejected.
+  </div>
+  <div class="note">
+    Note: On turbo-R machine the MSX keeps a cache of the directory sectors in memory, thus changes made on the host OS are detected by the DirAsDSK routine but will not show up in those machines while the data sectors will be changed when reading however. This can cause unexpected data to be used in the MSX environment. To rectify this situation perform a disk eject and reinsert the de directory again. This will cause the hardware switch that the turbo-R has to be toggled, and it's internal cache to be invalidated. Since the turbo-R machines do not use a write cache the changes on the MSX side are correctly written to the host OS though.
+  </div>
+
+
+  <h3><a id="DirAsDSKpersistent">DirAsDSKpersistent</a></h3>
+
+  <p>When a DirAsDSK image is ejected from the emulated MSX, it is possible to store the cached sectors into hidden files in the directory. This way when the directory is used again, all cached sectors can be loaded again and sector writes can co-exist with the file based aproach offered by the DirAsDSK feature. Some file based games use arbitrary chosen sectors on a disk to store save states for intance without linking them to a file.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set DirAsDSKpersistent</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set deinterlace on</code></td>
+
+      <td>Turn cache writing on</td>
+    </tr>
+
   </table>
 
   <h3><a id="deinterlace">deinterlace</a></h3>

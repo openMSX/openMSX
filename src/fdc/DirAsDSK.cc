@@ -4,6 +4,7 @@
 #include "CliComm.hh"
 #include "BootBlocks.hh"
 #include "GlobalSettings.hh"
+#include "BooleanSetting.hh"
 #include "EnumSetting.hh"
 #include "File.hh"
 #include "FileException.hh"
@@ -149,16 +150,16 @@ static string makeSimpleMSXFileName(string filename)
 	return file + ext;
 }
 
-DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings,
+DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings_,
                            const string& fileName)
 	: SectorBasedDisk(fileName)
 	, cliComm(cliComm_)
 	, hostDir(fileName)
 {
 	//TODO: make these settings, for now as test purpose we define them here...
-	syncMode = globalSettings.getSyncDirAsDSKSetting().getValue();
-	//TODO persistentMode = globalSettings.getPersistentDirAsDSKSetting().getValue();
-	persistentMode = false;
+	globalSettings = &globalSettings_;
+	syncMode = globalSettings->getSyncDirAsDSKSetting().getValue();
+	bootSectorWritten = false;
 
 	// create the diskimage based upon the files that can be
 	// found in the host directory
@@ -181,7 +182,7 @@ DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings,
 	} catch (FileException& e) {
 		// or use default when that fails
 		const byte* bootSector
-			= globalSettings.getBootSectorSetting().getValue()
+			= globalSettings->getBootSectorSetting().getValue()
 			? BootBlocks::dos2BootBlock
 			: BootBlocks::dos1BootBlock;
 		memcpy(bootBlock, bootSector, SECTOR_SIZE);
@@ -220,6 +221,8 @@ DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings,
 		    (name != cachedSectorsFileName)) {
 			// add file into fake dsk
 			updateFileInDSK(name);
+			//and rememeber that we used this one!
+			discoveredFiles[name]=true;
 		}
 	}
 
@@ -253,9 +256,6 @@ DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings,
 				sectormap[sector].usage = CACHED;
 			}
 		}
-		// since we sued a cahce when creating this, we also want to update it afterwards I guess
-		// so make sure that we update the cache when destroying this object
-		persistentMode = true;
 	} catch (FileException& e) {
 		// couldn't open/read cached sector file
 	}
@@ -264,7 +264,19 @@ DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings,
 DirAsDSK::~DirAsDSK()
 {
 	// write cached sectors to a file
-	if (persistentMode) {
+	if ( globalSettings->getPersistentDirAsDSKSetting().getValue() ) {
+		//safe  bootsector file if needed
+		if (bootSectorWritten){
+			try {
+				File file(hostDir + '/' + bootBlockFileName,
+					  File::TRUNCATE);
+				file.write(bootBlock, SECTOR_SIZE);
+			} catch (FileException& e) {
+				cliComm.printWarning(
+					"Couldn't create bootsector file.");
+			}
+		}
+
 		try {
 			File file(hostDir + '/' + cachedSectorsFileName,
 			          File::TRUNCATE);
@@ -376,6 +388,11 @@ void DirAsDSK::readLogicalSector(unsigned sector, byte* buf)
 				unsigned size = file.getSize();
 				file.seek(offset);
 				file.read(buf, std::min<int>(size - offset, SECTOR_SIZE));
+				// and store the newly read data again in the sector cache 
+				// since checkAlterFileInDisk => updateFileInDisk only reads
+				// altered data if filesize has been changed and not if only
+				// content in file has changed
+				memcpy(&cachedSectors[sector][0], buf, SECTOR_SIZE);
 			} catch (FileException& e) {
 			  // couldn't open/read cached sector file
 			}
@@ -399,10 +416,18 @@ void DirAsDSK::checkAlterFileInDisk(int dirindex)
 	}
 
 	struct stat fst;
-	stat(mapdir[dirindex].filename.c_str(), &fst);
-	if (mapdir[dirindex].filesize != fst.st_size) {
-		// changed filesize
-		updateFileInDisk(dirindex);
+	if (stat(mapdir[dirindex].filename.c_str(), &fst) == 0) {
+		if (mapdir[dirindex].filesize != fst.st_size) {
+			// changed filesize
+			updateFileInDisk(dirindex);
+		}
+	} else {
+		//file can not be stat'ed => assume it has been deleted
+		//and thus delete it from the MSX DIR sectors by marking 
+		//the first filename char as 0xE5
+		printf(" host od file deleted ? %s  \n",mapdir[dirindex].filename.c_str());
+		mapdir[dirindex].msxinfo.filename[0]=0xE5; 
+		mapdir[dirindex].filename.clear();
 	}
 }
 
@@ -701,18 +726,7 @@ void DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 	if (sector == 0) {
 		//copy buffer into our fake bootsector
 		memcpy(bootBlock, buf, SECTOR_SIZE);
-
-		if (persistentMode){
-			//and safe into file
-			try {
-				File file(hostDir + '/' + bootBlockFileName,
-					  File::TRUNCATE);
-				file.write(buf, SECTOR_SIZE);
-			} catch (FileException& e) {
-				cliComm.printWarning(
-					"Couldn't create bootsector file.");
-			}
-		}
+		bootSectorWritten = true;
 
 	} else if (sector < (1 + 2 * SECTORS_PER_FAT)) {
 		//copy to correct sector from FAT

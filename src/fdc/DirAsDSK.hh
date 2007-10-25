@@ -82,11 +82,14 @@ private:
 	std::string hostDir;
 	typedef std::map<unsigned, std::vector<byte> > CachedSectors;
 	CachedSectors cachedSectors;
+	GlobalSettings* globalSettings;
 
 	GlobalSettings::SyncMode_t syncMode;
-	bool persistentMode;
+	bool bootSectorWritten;
 	std::string condenseName(const byte* buf);
 	void updateFileFromAlteredFatOnly(int somecluster);
+
+	std::map<std::string,bool> discoveredFiles;
 };
 
 } // namespace openmsx
