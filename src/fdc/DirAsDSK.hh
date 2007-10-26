@@ -58,6 +58,7 @@ private:
 	struct MappedDirEntry {
 		MSXDirEntry msxinfo;
 		std::string filename;
+		std::string shortname;
 		int filesize; // used to dedect changes that need to be updated in the
 			      // emulated disk, content changes are automatically
 			      // handled :-)
@@ -86,10 +87,13 @@ private:
 
 	GlobalSettings::SyncMode_t syncMode;
 	bool bootSectorWritten;
+	bool readBootBlockFromFile;
 	std::string condenseName(const byte* buf);
 	void updateFileFromAlteredFatOnly(int somecluster);
+	void scanHostDir();
 
-	std::map<std::string,bool> discoveredFiles;
+	typedef std::map<std::string,bool> DiscoveredFiles;
+	DiscoveredFiles discoveredFiles;
 };
 
 } // namespace openmsx

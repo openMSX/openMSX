@@ -150,6 +150,36 @@ static string makeSimpleMSXFileName(string filename)
 	return file + ext;
 }
 
+void DirAsDSK::scanHostDir()
+{
+	printf("Scanning HostDir for new files\n");
+	ReadDir dir(hostDir);
+	if (!dir.isValid()) {
+		//The netrie driectory might have been moved/erased
+		//but this should not stop the emulated disk from working
+		//since all data is allready cached by us.
+		return;
+	}
+	//read directory and fill the fake disk
+	while (struct dirent* d = dir.getEntry()) {
+		string name(d->d_name);
+		DiscoveredFiles::iterator it = discoveredFiles.find(name);
+		//check if file is added to diskimage
+		if ( it == discoveredFiles.end() ){
+			//TODO: if bootsector read from file we should skip this file
+			if (!(readBootBlockFromFile && (name == bootBlockFileName)) &&
+					(name != cachedSectorsFileName)) {
+				// add file into fake dsk
+				printf("found new file %s \n",d->d_name);
+				//and rememeber that we used this one!
+				discoveredFiles[name]=true;
+				addFileToDSK(name);
+			}
+		}
+	}
+
+}
+
 DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings_,
                            const string& fileName)
 	: SectorBasedDisk(fileName)
@@ -173,7 +203,7 @@ DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings_,
 	sectorsPerTrack = 9;
 	nbSides = 2;
 
-	bool readBootBlockFromFile = false;
+	readBootBlockFromFile = false;
 	try {
 		// try to read boot block from file
 		File file(hostDir + '/' + bootBlockFileName);
@@ -219,10 +249,10 @@ DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings_,
 		//TODO: if bootsector read from file we should skip this file
 		if (!(readBootBlockFromFile && (name == bootBlockFileName)) &&
 		    (name != cachedSectorsFileName)) {
-			// add file into fake dsk
-			updateFileInDSK(name);
 			//and rememeber that we used this one!
 			discoveredFiles[name]=true;
+			// add file into fake dsk
+			updateFileInDSK(name);
 		}
 	}
 
@@ -357,6 +387,10 @@ void DirAsDSK::readLogicalSector(unsigned sector, byte* buf)
 		//create correct DIR sector
 		sector -= (1 + 2 * SECTORS_PER_FAT);
 		int dirCount = sector * 16;
+		//check if there are new files on the HOST OS when we read this sector
+		if (dirCount == 0) {
+			scanHostDir();
+		};
 		for (int i = 0; i < 16; ++i) {
 			if (!mapdir[i].filename.empty()) {
 				checkAlterFileInDisk(dirCount);
@@ -522,7 +556,7 @@ void DirAsDSK::updateFileInDisk(int dirindex)
 
 		//clear remains of FAT if needed
 		if (followFATClusters) {
-			while ((curcl <= MAX_CLUSTER) && (curcl != EOF_FAT)) {
+			while ((curcl <= MAX_CLUSTER) && (curcl != 0) && (curcl != EOF_FAT)) {
 				prevcl = curcl;
 				curcl = readFAT(curcl);
 				writeFAT(prevcl, 0);
@@ -562,8 +596,13 @@ void DirAsDSK::truncateCorrespondingFile(const int dirindex)
 		//special case file is deleted but becuase rest of dirEntry changed
 		//while file is still deleted...
 		if (buf[0] == 0xE5) return;
-		fullfilename += condenseName(buf);
+		string shname = condenseName(buf);
+		fullfilename += shname;
 		mapdir[dirindex].filename = fullfilename ;
+		mapdir[dirindex].shortname = shname;
+		//remember we 'saw' this file already
+		discoveredFiles[shname]=true;
+		printf("      truncateCorrespondingFile of new Host OS file\n");
 		};
 	printf("      truncateCorrespondingFile %s\n",fullfilename.c_str());
 	File file(fullfilename,File::CREATE);
@@ -812,18 +851,29 @@ void DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 							if (sectormap[i].dirEntryNr == dirCount)
 								 sectormap[i].usage = CACHED;
 							}
+						//then forget that we ever saw the file 
+						//just in case one is recreated with the same name later on
+						
+						DiscoveredFiles::iterator it = discoveredFiles.find( mapdir[dirCount].shortname );
+						//if ( it != discoveredFiles.end() ) { it->erase(); };
+						discoveredFiles.erase(it); 
+						mapdir[dirCount].shortname.clear();
 						mapdir[dirCount].filename.clear();
 					} else if (buf[0] != 0xE5 && (syncMode == GlobalSettings::SYNC_FULL || syncMode == GlobalSettings::SYNC_NODELETE)) {
 						int newClus = getLE16(&buf[26]);
 						int newSize = getLE32(&buf[28]);
 						string newfilename = hostDir + '/';
-						newfilename += condenseName(buf);
+						string shname = condenseName(buf);
+						newfilename += shname; 
 						if (newClus == 0 && newSize == 0){
 							//creating a new file
 							mapdir[dirCount].filename = newfilename;
+							mapdir[dirCount].shortname = shname;
 							// we do not need to write anything since the MSX will update this later when the size is altered
 							try {
 								File file(newfilename, File::TRUNCATE);
+								//remember we 'saw' this file already
+								discoveredFiles[shname]=true;
 							} catch (FileException& e) {
 							  cliComm.printWarning(
 							      "Couldn't create new file.");
@@ -834,6 +884,12 @@ void DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 							if (rename(mapdir[dirCount].filename.c_str(),newfilename.c_str()) == 0){
 								//renaming on host Os succeeeded
 								 mapdir[dirCount].filename = newfilename;
+								 //forget about the old name
+								 discoveredFiles.erase(mapdir[dirCount].shortname);
+								 //remember we 'saw' this new file already
+								 discoveredFiles[shname]=true;
+								 mapdir[dirCount].shortname = shname;
+								 
 							}
 						}
 					} else {
@@ -989,6 +1045,8 @@ void DirAsDSK::addFileToDSK(const string& filename)
 
 	// fill in native file name
 	mapdir[dirindex].filename = fullfilename;
+	mapdir[dirindex].shortname = filename;
+	discoveredFiles[filename] = true;
 	// fill in MSX file name
 	memcpy(&(mapdir[dirindex].msxinfo.filename), MSXfilename.c_str(), 11);
 
