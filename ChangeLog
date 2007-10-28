@@ -1,5 +1,10 @@
 $Id$
 
+2007-10-28 David Heremans <david.heremans@gnu-linux.net>
+	* DirAsDisk now only saves 'CACHED' type sectors and the 
+	  final sector of 'MIXED' file caches in the '.sector.cache'
+	  when the disk is ejected.
+
 2007-10-26 David Heremans <david.heremans@gnu-linux.net>
 	* DirAsDisk now dedects new files on the Host OS
 

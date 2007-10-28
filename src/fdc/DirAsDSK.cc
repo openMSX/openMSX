@@ -321,9 +321,37 @@ DirAsDSK::~DirAsDSK()
 
 			for (CachedSectors::const_iterator it = cachedSectors.begin();
 			     it != cachedSectors.end(); ++it) {
-				file.write(reinterpret_cast<const byte*>(&(it->first)),
-				           sizeof(unsigned));
-				file.write(&(it->second[0]), SECTOR_SIZE);
+				switch (syncMode ){
+				case GlobalSettings::SYNC_NODELETE:
+				case GlobalSettings::SYNC_FULL:
+					if (
+					( sectormap[it->first].usage == CACHED)
+					||
+					(
+					    (sectormap[it->first].usage == MIXED) &&
+					     ((mapdir[sectormap[it->first].dirEntryNr].filesize -
+					      sectormap[it->first].fileOffset ) < SECTOR_SIZE )
+					  )
+					){
+						//if CACHED then we need to write anyway
+						//otherwise we only write if not all data
+						//is stored in the file
+						printf("writing to .sector.cache\n");
+						printf("        sector %i \n",it->first);
+						printf("        usage %i \n",sectormap[it->first].usage);
+						printf("        filesize %i \n",mapdir[sectormap[it->first].dirEntryNr].filesize);
+						printf("        fileoffset %li \n", sectormap[it->first].fileOffset );
+						file.write(reinterpret_cast<const byte*>(&(it->first)),
+						   sizeof(unsigned));
+						file.write(&(it->second[0]), SECTOR_SIZE);
+					};
+					break;
+				case GlobalSettings::SYNC_READONLY: // of course this is not really needed but it avoids a warning from gcc
+				case GlobalSettings::SYNC_CACHEDWRITE:
+					file.write(reinterpret_cast<const byte*>(&(it->first)),
+					   sizeof(unsigned));
+					file.write(&(it->second[0]), SECTOR_SIZE);
+				}
 			}
 		} catch (FileException& e) {
 			cliComm.printWarning(
