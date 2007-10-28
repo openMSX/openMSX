@@ -168,11 +168,13 @@ $(call DEFCHECK,OPENMSX_TARGET_CPU)
 include $(MAKE_PATH)/cpu-$(OPENMSX_TARGET_CPU).mk
 # Check that all expected variables were defined by CPU specific Makefile:
 # - endianess
-ifneq ($(OPENMSX_TARGET_CPU),univ)
+ifeq ($(OPENMSX_TARGET_CPU),univ)
+$(call DEFCHECK,BIG_ENDIAN)
+else
 $(call BOOLCHECK,BIG_ENDIAN)
+endif
 # - flavour (user selectable; platform specific default)
 $(call DEFCHECK,OPENMSX_FLAVOUR)
-endif
 
 # Load OS specific settings.
 $(call DEFCHECK,OPENMSX_TARGET_OS)
