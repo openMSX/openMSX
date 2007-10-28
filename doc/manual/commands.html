@@ -2403,7 +2403,7 @@
 
   <h3><a id="DirAsDSKpersistent">DirAsDSKpersistent</a></h3>
 
-  <p>When a DirAsDSK image is ejected from the emulated MSX, it is possible to store the cached sectors into hidden files in the directory. This way when the directory is used again, all cached sectors can be loaded again and sector writes can co-exist with the file based aproach offered by the DirAsDSK feature. Some file based games use arbitrary chosen sectors on a disk to store save states for intance without linking them to a file.</p>
+  <p>When DirAsDSK is used all saved data is internally stored in a cache. When the floppy is ejected from the emulated MSX, all this cached data will be lost. It is possible to store the cached sectors into a special file in the directory called '.sector.cache'. This way, when the directory is used again, all cached sectors can be loaded again and sector writes can co-exist with the file based approach offered by the DirAsDSK feature. Some file based games use arbitrary chosen sectors on a disk to store save states without linking them to a file. By saving the cached sector writes this data is persistent between sequential DirAsDisk usages.</p>
 
   <div class="subsectiontitle">
     usage:
@@ -2417,7 +2417,7 @@
     </tr>
 
     <tr>
-      <td><code>set deinterlace on</code></td>
+      <td><code>set DirAsDSKpersistent on</code></td>
 
       <td>Turn cache writing on</td>
     </tr>
