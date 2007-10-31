@@ -1,5 +1,12 @@
 $Id$
 
+2007-10-31 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Made normal and '_fast' variant of Clock::getTicksTill() and
+	  Clock::advance(). Use the _fast variant on places where speed is
+	  important and where it's safe to use.
+	  (Since 2007-10-03 we always used the fast variant, but occasionally
+	  that's wrong).
+
 2007-10-28 David Heremans <david.heremans@gnu-linux.net>
 	* DirAsDisk now only saves 'CACHED' type sectors and the 
 	  final sector of 'MIXED' file caches in the '.sector.cache'

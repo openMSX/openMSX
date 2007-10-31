@@ -133,8 +133,8 @@ protected:
 		//  duration:  256/1024KB  13.5 clocks
 		//             512KB       21.5 clocks
 		EmuTime time = getTimeFast();
-		if (unlikely(lastRefreshTime.getTicksTill(time) >= 222)) {
-			lastRefreshTime.advance(time);
+		if (unlikely(lastRefreshTime.getTicksTill_fast(time) >= 222)) {
+			lastRefreshTime.advance_fast(time);
 			add(22);
 		}
 	}

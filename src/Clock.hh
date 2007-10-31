@@ -65,6 +65,13 @@ public:
 	  */
 	unsigned getTicksTill(const EmuTime& e) const {
 		assert(e.time >= lastTick.time);
+		return (e.time - lastTick.time) / MASTER_TICKS;
+	}
+	/** Same as above, only faster, Though the time interval may not
+	  * be too large.
+	  */
+	unsigned getTicksTill_fast(const EmuTime& e) const {
+		assert(e.time >= lastTick.time);
 		return Math::div_64_32(e.time - lastTick.time, MASTER_TICKS32);
 	}
 
@@ -86,6 +93,13 @@ public:
 	  * It is not allowed to advance a clock to a time in the past.
 	  */
 	void advance(const EmuTime& e) {
+		assert(lastTick.time <= e.time);
+		lastTick.time = e.time - ((e.time - lastTick.time) % MASTER_TICKS);
+	}
+	/** Same as above, only faster, Though the time interval may not
+	  * be too large.
+	  */
+	void advance_fast(const EmuTime& e) {
 		assert(lastTick.time <= e.time);
 		lastTick.time = e.time -
 			Math::mod_64_32(e.time - lastTick.time, MASTER_TICKS32);

@@ -101,7 +101,8 @@ public:
 			assert(false);
 		}
 		if (mode0) {
-			currentLine = frameStartTime.getTicksTill(time) / VDP::TICKS_PER_LINE;
+			currentLine = frameStartTime.getTicksTill_fast(time)
+			                 / VDP::TICKS_PER_LINE;
 			if (currentLine > 0) {
 				// Every line in mode0 has 0 sprites, but none of the lines
 				// are ever requested by the renderer, except for the last
@@ -167,7 +168,8 @@ public:
 		// the display line. In reality, sprite checking is probably done
 		// during most of the line. Run tests on real MSX to make a more
 		// accurate model of sprite checking.
-		int limit = frameStartTime.getTicksTill(time) / VDP::TICKS_PER_LINE;
+		int limit = frameStartTime.getTicksTill_fast(time)
+		               / VDP::TICKS_PER_LINE;
 		if (currentLine < limit) {
 			// Call the right update method for the current display mode.
 			(this->*updateSpritesMethod)(limit);
@@ -200,7 +202,7 @@ public:
 	  * @param time Moment in emulated time the new frame starts.
 	  */
 	inline void frameStart(const EmuTime& time) {
-		frameStartTime.advance(time);
+		frameStartTime.advance_fast(time);
 		currentLine = 0;
 		linesPerFrame = vdp.isPalTiming() ? 313 : 262;
 		// Debug: -1 means uninitialised.

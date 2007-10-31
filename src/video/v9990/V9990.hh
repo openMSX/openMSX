@@ -103,7 +103,7 @@ public:
 	  * @return      Number of UC ticks.
 	  */
 	inline int getUCTicksThisFrame(const EmuTime& time) const {
-		return frameStartTime.getTicksTill(time);
+		return frameStartTime.getTicksTill_fast(time);
 	}
 
 	/** Is PAL timing active?

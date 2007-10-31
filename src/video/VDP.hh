@@ -337,7 +337,7 @@ public:
 	  * a given time and the start of this frame.
 	  */
 	inline int getTicksThisFrame(const EmuTime& time) const {
-		return frameStartTime.getTicksTill(time);
+		return frameStartTime.getTicksTill_fast(time);
 	}
 
 	/** Get VRAM access timing info.

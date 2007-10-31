@@ -501,7 +501,7 @@ void VDP::frameStart(const EmuTime& time)
 	}
 
 	// Schedule next VSYNC.
-	frameStartTime.advance(time);
+	frameStartTime.advance_fast(time);
 	setSyncPoint(frameStartTime + getTicksPerFrame(), VSYNC);
 	// Schedule DISPLAY_START, VSCAN and HSCAN.
 	scheduleDisplayStart(time);

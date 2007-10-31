@@ -628,7 +628,7 @@ void V9990::frameStart(const EmuTime& time)
 	setVerticalTiming();
 	status ^= 0x02; // flip EO bit
 
-	frameStartTime.advance(time);
+	frameStartTime.advance_fast(time);
 
 	// schedule next VSYNC
 	setSyncPoint(
@@ -780,7 +780,7 @@ void V9990::scheduleHscan(const EmuTime& time)
 		return;
 	}
 
-	int ticks = frameStartTime.getTicksTill(time);
+	int ticks = frameStartTime.getTicksTill_fast(time);
 	int offset;
 	if (regs[INTERRUPT_2] & 0x80) {
 		// every line
