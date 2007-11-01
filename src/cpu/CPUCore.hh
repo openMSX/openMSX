@@ -196,7 +196,6 @@ private:
 	static const FuncPtr opcode_fd[256];
 	static const FuncPtr opcode_main[256];
 
-	static void ld_a_a(S& s);
 	static void ld_a_b(S& s);
 	static void ld_a_c(S& s);
 	static void ld_a_d(S& s);
@@ -207,7 +206,6 @@ private:
 	static void ld_a_ixl(S& s);
 	static void ld_a_iyh(S& s);
 	static void ld_a_iyl(S& s);
-	static void ld_b_b(S& s);
 	static void ld_b_a(S& s);
 	static void ld_b_c(S& s);
 	static void ld_b_d(S& s);
@@ -218,7 +216,6 @@ private:
 	static void ld_b_ixl(S& s);
 	static void ld_b_iyh(S& s);
 	static void ld_b_iyl(S& s);
-	static void ld_c_c(S& s);
 	static void ld_c_a(S& s);
 	static void ld_c_b(S& s);
 	static void ld_c_d(S& s);
@@ -229,7 +226,6 @@ private:
 	static void ld_c_ixl(S& s);
 	static void ld_c_iyh(S& s);
 	static void ld_c_iyl(S& s);
-	static void ld_d_d(S& s);
 	static void ld_d_a(S& s);
 	static void ld_d_c(S& s);
 	static void ld_d_b(S& s);
@@ -240,7 +236,6 @@ private:
 	static void ld_d_ixl(S& s);
 	static void ld_d_iyh(S& s);
 	static void ld_d_iyl(S& s);
-	static void ld_e_e(S& s);
 	static void ld_e_a(S& s);
 	static void ld_e_c(S& s);
 	static void ld_e_b(S& s);
@@ -251,14 +246,12 @@ private:
 	static void ld_e_ixl(S& s);
 	static void ld_e_iyh(S& s);
 	static void ld_e_iyl(S& s);
-	static void ld_h_h(S& s);
 	static void ld_h_a(S& s);
 	static void ld_h_c(S& s);
 	static void ld_h_b(S& s);
 	static void ld_h_e(S& s);
 	static void ld_h_d(S& s);
 	static void ld_h_l(S& s);
-	static void ld_l_l(S& s);
 	static void ld_l_a(S& s);
 	static void ld_l_c(S& s);
 	static void ld_l_b(S& s);
@@ -270,7 +263,6 @@ private:
 	static void ld_ixh_c(S& s);
 	static void ld_ixh_d(S& s);
 	static void ld_ixh_e(S& s);
-	static void ld_ixh_ixh(S& s);
 	static void ld_ixh_ixl(S& s);
 	static void ld_ixl_a(S& s);
 	static void ld_ixl_b(S& s);
@@ -278,13 +270,11 @@ private:
 	static void ld_ixl_d(S& s);
 	static void ld_ixl_e(S& s);
 	static void ld_ixl_ixh(S& s);
-	static void ld_ixl_ixl(S& s);
 	static void ld_iyh_a(S& s);
 	static void ld_iyh_b(S& s);
 	static void ld_iyh_c(S& s);
 	static void ld_iyh_d(S& s);
 	static void ld_iyh_e(S& s);
-	static void ld_iyh_iyh(S& s);
 	static void ld_iyh_iyl(S& s);
 	static void ld_iyl_a(S& s);
 	static void ld_iyl_b(S& s);
@@ -292,7 +282,6 @@ private:
 	static void ld_iyl_d(S& s);
 	static void ld_iyl_e(S& s);
 	static void ld_iyl_iyh(S& s);
-	static void ld_iyl_iyl(S& s);
 
 	static void ld_sp_hl(S& s);
 	static void ld_sp_ix(S& s);
@@ -1461,25 +1450,25 @@ private:
 
 	static void out_byte_a(S& s);
 
-	inline void BLOCK_CP(bool increase, bool repeat);
+	inline void BLOCK_CP(int increase, bool repeat);
 	static void cpd(S& s);
 	static void cpi(S& s);
 	static void cpdr(S& s);
 	static void cpir(S& s);
 
-	inline void BLOCK_LD(bool increase, bool repeat);
+	inline void BLOCK_LD(int increase, bool repeat);
 	static void ldd(S& s);
 	static void ldi(S& s);
 	static void lddr(S& s);
 	static void ldir(S& s);
 
-	inline void BLOCK_IN(bool increase, bool repeat);
+	inline void BLOCK_IN(int increase, bool repeat);
 	static void ind(S& s);
 	static void ini(S& s);
 	static void indr(S& s);
 	static void inir(S& s);
 
-	inline void BLOCK_OUT(bool increase, bool repeat);
+	inline void BLOCK_OUT(int increase, bool repeat);
 	static void outd(S& s);
 	static void outi(S& s);
 	static void otdr(S& s);
@@ -1507,19 +1496,13 @@ private:
 	static void ld_r_a(S& s);
 
 	inline void MULUB(byte reg);
-	static void mulub_a_xhl(S& s);
-	static void mulub_a_a(S& s);
 	static void mulub_a_b(S& s);
 	static void mulub_a_c(S& s);
 	static void mulub_a_d(S& s);
 	static void mulub_a_e(S& s);
-	static void mulub_a_h(S& s);
-	static void mulub_a_l(S& s);
 
 	inline void MULUW(word reg);
 	static void muluw_hl_bc(S& s);
-	static void muluw_hl_de(S& s);
-	static void muluw_hl_hl(S& s);
 	static void muluw_hl_sp(S& s);
 
 	static void dd_cb(S& s);

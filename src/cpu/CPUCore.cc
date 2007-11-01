@@ -769,7 +769,6 @@ template <class T> inline bool CPUCore<T>::PO() { return !PE(); }
 
 
 // LD r,r
-template <class T> void CPUCore<T>::ld_a_a(S&)       { }
 template <class T> void CPUCore<T>::ld_a_b(S& s)     { s.R.setA(s.R.getB()); }
 template <class T> void CPUCore<T>::ld_a_c(S& s)     { s.R.setA(s.R.getC()); }
 template <class T> void CPUCore<T>::ld_a_d(S& s)     { s.R.setA(s.R.getD()); }
@@ -780,7 +779,6 @@ template <class T> void CPUCore<T>::ld_a_ixh(S& s)   { s.R.setA(s.R.getIXh()); }
 template <class T> void CPUCore<T>::ld_a_ixl(S& s)   { s.R.setA(s.R.getIXl()); }
 template <class T> void CPUCore<T>::ld_a_iyh(S& s)   { s.R.setA(s.R.getIYh()); }
 template <class T> void CPUCore<T>::ld_a_iyl(S& s)   { s.R.setA(s.R.getIYl()); }
-template <class T> void CPUCore<T>::ld_b_b(S&)       { }
 template <class T> void CPUCore<T>::ld_b_a(S& s)     { s.R.setB(s.R.getA()); }
 template <class T> void CPUCore<T>::ld_b_c(S& s)     { s.R.setB(s.R.getC()); }
 template <class T> void CPUCore<T>::ld_b_d(S& s)     { s.R.setB(s.R.getD()); }
@@ -791,7 +789,6 @@ template <class T> void CPUCore<T>::ld_b_ixh(S& s)   { s.R.setB(s.R.getIXh()); }
 template <class T> void CPUCore<T>::ld_b_ixl(S& s)   { s.R.setB(s.R.getIXl()); }
 template <class T> void CPUCore<T>::ld_b_iyh(S& s)   { s.R.setB(s.R.getIYh()); }
 template <class T> void CPUCore<T>::ld_b_iyl(S& s)   { s.R.setB(s.R.getIYl()); }
-template <class T> void CPUCore<T>::ld_c_c(S&)       { }
 template <class T> void CPUCore<T>::ld_c_a(S& s)     { s.R.setC(s.R.getA()); }
 template <class T> void CPUCore<T>::ld_c_b(S& s)     { s.R.setC(s.R.getB()); }
 template <class T> void CPUCore<T>::ld_c_d(S& s)     { s.R.setC(s.R.getD()); }
@@ -802,7 +799,6 @@ template <class T> void CPUCore<T>::ld_c_ixh(S& s)   { s.R.setC(s.R.getIXh()); }
 template <class T> void CPUCore<T>::ld_c_ixl(S& s)   { s.R.setC(s.R.getIXl()); }
 template <class T> void CPUCore<T>::ld_c_iyh(S& s)   { s.R.setC(s.R.getIYh()); }
 template <class T> void CPUCore<T>::ld_c_iyl(S& s)   { s.R.setC(s.R.getIYl()); }
-template <class T> void CPUCore<T>::ld_d_d(S&)       { }
 template <class T> void CPUCore<T>::ld_d_a(S& s)     { s.R.setD(s.R.getA()); }
 template <class T> void CPUCore<T>::ld_d_c(S& s)     { s.R.setD(s.R.getC()); }
 template <class T> void CPUCore<T>::ld_d_b(S& s)     { s.R.setD(s.R.getB()); }
@@ -813,7 +809,6 @@ template <class T> void CPUCore<T>::ld_d_ixh(S& s)   { s.R.setD(s.R.getIXh()); }
 template <class T> void CPUCore<T>::ld_d_ixl(S& s)   { s.R.setD(s.R.getIXl()); }
 template <class T> void CPUCore<T>::ld_d_iyh(S& s)   { s.R.setD(s.R.getIYh()); }
 template <class T> void CPUCore<T>::ld_d_iyl(S& s)   { s.R.setD(s.R.getIYl()); }
-template <class T> void CPUCore<T>::ld_e_e(S&)       { }
 template <class T> void CPUCore<T>::ld_e_a(S& s)     { s.R.setE(s.R.getA()); }
 template <class T> void CPUCore<T>::ld_e_c(S& s)     { s.R.setE(s.R.getC()); }
 template <class T> void CPUCore<T>::ld_e_b(S& s)     { s.R.setE(s.R.getB()); }
@@ -824,14 +819,12 @@ template <class T> void CPUCore<T>::ld_e_ixh(S& s)   { s.R.setE(s.R.getIXh()); }
 template <class T> void CPUCore<T>::ld_e_ixl(S& s)   { s.R.setE(s.R.getIXl()); }
 template <class T> void CPUCore<T>::ld_e_iyh(S& s)   { s.R.setE(s.R.getIYh()); }
 template <class T> void CPUCore<T>::ld_e_iyl(S& s)   { s.R.setE(s.R.getIYl()); }
-template <class T> void CPUCore<T>::ld_h_h(S&)       { }
 template <class T> void CPUCore<T>::ld_h_a(S& s)     { s.R.setH(s.R.getA()); }
 template <class T> void CPUCore<T>::ld_h_c(S& s)     { s.R.setH(s.R.getC()); }
 template <class T> void CPUCore<T>::ld_h_b(S& s)     { s.R.setH(s.R.getB()); }
 template <class T> void CPUCore<T>::ld_h_e(S& s)     { s.R.setH(s.R.getE()); }
 template <class T> void CPUCore<T>::ld_h_d(S& s)     { s.R.setH(s.R.getD()); }
 template <class T> void CPUCore<T>::ld_h_l(S& s)     { s.R.setH(s.R.getL()); }
-template <class T> void CPUCore<T>::ld_l_l(S&)       { }
 template <class T> void CPUCore<T>::ld_l_a(S& s)     { s.R.setL(s.R.getA()); }
 template <class T> void CPUCore<T>::ld_l_c(S& s)     { s.R.setL(s.R.getC()); }
 template <class T> void CPUCore<T>::ld_l_b(S& s)     { s.R.setL(s.R.getB()); }
@@ -843,7 +836,6 @@ template <class T> void CPUCore<T>::ld_ixh_b(S& s)   { s.R.setIXh(s.R.getB()); }
 template <class T> void CPUCore<T>::ld_ixh_c(S& s)   { s.R.setIXh(s.R.getC()); }
 template <class T> void CPUCore<T>::ld_ixh_d(S& s)   { s.R.setIXh(s.R.getD()); }
 template <class T> void CPUCore<T>::ld_ixh_e(S& s)   { s.R.setIXh(s.R.getE()); }
-template <class T> void CPUCore<T>::ld_ixh_ixh(S&)   { }
 template <class T> void CPUCore<T>::ld_ixh_ixl(S& s) { s.R.setIXh(s.R.getIXl()); }
 template <class T> void CPUCore<T>::ld_ixl_a(S& s)   { s.R.setIXl(s.R.getA()); }
 template <class T> void CPUCore<T>::ld_ixl_b(S& s)   { s.R.setIXl(s.R.getB()); }
@@ -851,13 +843,11 @@ template <class T> void CPUCore<T>::ld_ixl_c(S& s)   { s.R.setIXl(s.R.getC()); }
 template <class T> void CPUCore<T>::ld_ixl_d(S& s)   { s.R.setIXl(s.R.getD()); }
 template <class T> void CPUCore<T>::ld_ixl_e(S& s)   { s.R.setIXl(s.R.getE()); }
 template <class T> void CPUCore<T>::ld_ixl_ixh(S& s) { s.R.setIXl(s.R.getIXh()); }
-template <class T> void CPUCore<T>::ld_ixl_ixl(S&)   { }
 template <class T> void CPUCore<T>::ld_iyh_a(S& s)   { s.R.setIYh(s.R.getA()); }
 template <class T> void CPUCore<T>::ld_iyh_b(S& s)   { s.R.setIYh(s.R.getB()); }
 template <class T> void CPUCore<T>::ld_iyh_c(S& s)   { s.R.setIYh(s.R.getC()); }
 template <class T> void CPUCore<T>::ld_iyh_d(S& s)   { s.R.setIYh(s.R.getD()); }
 template <class T> void CPUCore<T>::ld_iyh_e(S& s)   { s.R.setIYh(s.R.getE()); }
-template <class T> void CPUCore<T>::ld_iyh_iyh(S&)   { }
 template <class T> void CPUCore<T>::ld_iyh_iyl(S& s) { s.R.setIYh(s.R.getIYl()); }
 template <class T> void CPUCore<T>::ld_iyl_a(S& s)   { s.R.setIYl(s.R.getA()); }
 template <class T> void CPUCore<T>::ld_iyl_b(S& s)   { s.R.setIYl(s.R.getB()); }
@@ -865,7 +855,6 @@ template <class T> void CPUCore<T>::ld_iyl_c(S& s)   { s.R.setIYl(s.R.getC()); }
 template <class T> void CPUCore<T>::ld_iyl_d(S& s)   { s.R.setIYl(s.R.getD()); }
 template <class T> void CPUCore<T>::ld_iyl_e(S& s)   { s.R.setIYl(s.R.getE()); }
 template <class T> void CPUCore<T>::ld_iyl_iyh(S& s) { s.R.setIYl(s.R.getIYh()); }
-template <class T> void CPUCore<T>::ld_iyl_iyl(S&)   { }
 
 // LD SP,ss
 template <class T> void CPUCore<T>::ld_sp_hl(S& s) {
@@ -1086,20 +1075,20 @@ template <class T> void CPUCore<T>::ld_sp_word(S& s) { s.R.setSP(s.RD_WORD_PC())
 // ADC A,r
 template <class T> inline void CPUCore<T>::ADC(byte reg)
 {
-	int res = R.getA() + reg + ((R.getF() & C_FLAG) ? 1 : 0);
+	unsigned res = R.getA() + reg + ((R.getF() & C_FLAG) ? 1 : 0);
 	R.setF(ZSXYTable[res & 0xFF] |
 	       ((res & 0x100) ? C_FLAG : 0) |
 	       ((R.getA() ^ res ^ reg) & H_FLAG) |
-	       (((R.getA() ^ res) & (reg ^ res) & 0x80) ? V_FLAG : 0));
+	       (((R.getA() ^ res) & (reg ^ res) & 0x80) >> 5)); // V_FLAG
 	R.setA(res);
 }
 template <class T> inline void CPUCore<T>::adc_a_a(S& s)
 {
-	int res = 2 * s.R.getA() + ((s.R.getF() & C_FLAG) ? 1 : 0);
+	unsigned res = 2 * s.R.getA() + ((s.R.getF() & C_FLAG) ? 1 : 0);
 	s.R.setF(ZSXYTable[res & 0xFF] |
 	         ((res & 0x100) ? C_FLAG : 0) |
 	         (res & H_FLAG) |
-	         (((s.R.getA() ^ res) & 0x80) ? V_FLAG : 0));
+	         (((s.R.getA() ^ res) & 0x80) >> 5)); // V_FLAG
 	s.R.setA(res);
 }
 template <class T> void CPUCore<T>::adc_a_b(S& s)   { s.ADC(s.R.getB()); }
@@ -1131,20 +1120,20 @@ template <class T> void CPUCore<T>::adc_a_xiy(S& s)
 // ADD A,r
 template <class T> inline void CPUCore<T>::ADD(byte reg)
 {
-	int res = R.getA() + reg;
+	unsigned res = R.getA() + reg;
 	R.setF(ZSXYTable[res & 0xFF] |
 	       ((res & 0x100) ? C_FLAG : 0) |
 	       ((R.getA() ^ res ^ reg) & H_FLAG) |
-	       (((R.getA() ^ res) & (reg ^ res) & 0x80) ? V_FLAG : 0));
+	       (((R.getA() ^ res) & (reg ^ res) & 0x80) >> 5)); // V_FLAG
 	R.setA(res);
 }
 template <class T> inline void CPUCore<T>::add_a_a(S& s)
 {
-	int res = 2 * s.R.getA();
+	unsigned res = 2 * s.R.getA();
 	s.R.setF(ZSXYTable[res & 0xFF] |
 	         ((res & 0x100) ? C_FLAG : 0) |
 	         (res & H_FLAG) |
-	         (((s.R.getA() ^ res) & 0x80) ? V_FLAG : 0));
+	         (((s.R.getA() ^ res) & 0x80) >> 5)); // V_FLAG
 	s.R.setA(res);
 }
 template <class T> void CPUCore<T>::add_a_b(S& s)   { s.ADD(s.R.getB()); }
@@ -1218,7 +1207,7 @@ template <class T> inline void CPUCore<T>::CP(byte reg)
 	       ((q & 0x100) ? C_FLAG : 0) |
 	       N_FLAG |
 	       ((R.getA() ^ q ^ reg) & H_FLAG) |
-	       (((reg ^ R.getA()) & (R.getA() ^ q) & 0x80) ? V_FLAG : 0));
+	       (((reg ^ R.getA()) & (R.getA() ^ q) & 0x80) >> 5)); // V_FLAG
 }
 template <class T> void CPUCore<T>::cp_a(S& s)
 {
@@ -1292,7 +1281,7 @@ template <class T> inline void CPUCore<T>::SBC(byte reg)
 	       ((res & 0x100) ? C_FLAG : 0) |
 	       N_FLAG |
 	       ((R.getA() ^ res ^ reg) & H_FLAG) |
-	       (((reg ^ R.getA()) & (R.getA() ^ res) & 0x80) ? V_FLAG : 0));
+	       (((reg ^ R.getA()) & (R.getA() ^ res) & 0x80) >> 5)); // V_FLAG
 	R.setA(res);
 }
 template <class T> void CPUCore<T>::sbc_a_a(S& s)
@@ -1335,7 +1324,7 @@ template <class T> inline void CPUCore<T>::SUB(byte reg)
 	       ((res & 0x100) ? C_FLAG : 0) |
 	       N_FLAG |
 	       ((R.getA() ^ res ^ reg) & H_FLAG) |
-	       (((reg ^ R.getA()) & (R.getA() ^ res) & 0x80) ? V_FLAG : 0));
+	       (((reg ^ R.getA()) & (R.getA() ^ res) & 0x80) >> 5)); // V_FLAG
 	R.setA(res);
 }
 template <class T> void CPUCore<T>::sub_a(S& s)
@@ -1405,13 +1394,13 @@ template <class T> void CPUCore<T>::xor_xiy(S& s)
 // DEC r
 template <class T> inline byte CPUCore<T>::DEC(byte reg)
 {
-	reg--;
+	byte res = reg - 1;
 	R.setF((R.getF() & C_FLAG) |
-	       ((reg == 0x7f) ? V_FLAG : 0) |
-	       (((reg & 0x0f) == 0x0f) ? H_FLAG : 0) |
-	       ZSXYTable[reg] |
+	       ((reg & ~res & 0x80) >> 5) | // V_FLAG
+	       (((res & 0x0F) + 1) & H_FLAG) |
+	       ZSXYTable[res] |
 	       N_FLAG);
-	return reg;
+	return res;
 }
 template <class T> void CPUCore<T>::dec_a(S& s)   { s.R.setA(  s.DEC(s.R.getA())); }
 template <class T> void CPUCore<T>::dec_b(S& s)   { s.R.setB(  s.DEC(s.R.getB())); }
@@ -1449,8 +1438,8 @@ template <class T> inline byte CPUCore<T>::INC(byte reg)
 {
 	reg++;
 	R.setF((R.getF() & C_FLAG) |
-	       ((reg == 0x80) ? V_FLAG : 0) |
-	       (((reg & 0x0f) == 0x00) ? H_FLAG : 0) |
+	       ((reg & -reg & 0x80) >> 5) | // V_FLAG
+	       (((reg & 0x0F) - 1) & H_FLAG) |
 	       ZSXYTable[reg]);
 	return reg;
 }
@@ -1490,23 +1479,38 @@ template <class T> void CPUCore<T>::inc_xiy(S& s)
 template <class T> inline void CPUCore<T>::ADCW(word reg)
 {
 	memptr = R.getHL() + 1;
-	int res = R.getHL() + reg + ((R.getF() & C_FLAG) ? 1 : 0);
-	R.setF((((R.getHL() ^ res ^ reg) >> 8) & H_FLAG) |
-	       ((res & 0x10000) ? C_FLAG : 0) |
-	       ((res & 0xffff) ? 0 : Z_FLAG) |
-	       (((R.getHL() ^ res) & (reg ^ res) & 0x8000) ? V_FLAG : 0) |
-	       ((res >> 8) & (S_FLAG | X_FLAG | Y_FLAG)));
+	unsigned res = R.getHL() + reg + ((R.getF() & C_FLAG) ? 1 : 0);
+	if (res & 0xFFFF) {
+		R.setF((((R.getHL() ^ res ^ reg) >> 8) & H_FLAG) |
+		       (res >> 16) | // C_FLAG
+		       0 | // Z_FLAG
+		       (((R.getHL() ^ res) & (reg ^ res) & 0x8000) >> 13) | // V_FLAG
+		       ((res >> 8) & (S_FLAG | X_FLAG | Y_FLAG)));
+	} else {
+		R.setF((((R.getHL() ^ reg) >> 8) & H_FLAG) |
+		       (res >> 16) | // C_FLAG
+		       Z_FLAG |
+		       ((R.getHL() & reg & 0x8000) >> 13) | // V_FLAG
+		       0); // S_FLAG X_FLAG Y_FLAG
+	}
 	R.setHL(res);
 	T::OP_16_16_DELAY();
 }
 template <class T> void CPUCore<T>::adc_hl_hl(S& s)
 {
 	s.memptr = s.R.getHL() + 1;
-	int res = 2 * s.R.getHL() + ((s.R.getF() & C_FLAG) ? 1 : 0);
-	s.R.setF(((res & 0x10000) ? C_FLAG : 0) |
-	       ((res & 0xffff) ? 0 : Z_FLAG) |
-	       (((s.R.getHL() ^ res) & 0x8000) ? V_FLAG : 0) |
-	       ((res >> 8) & (H_FLAG | S_FLAG | X_FLAG | Y_FLAG)));
+	unsigned res = 2 * s.R.getHL() + ((s.R.getF() & C_FLAG) ? 1 : 0);
+	if (res & 0xFFFF) {
+		s.R.setF((res >> 16) | // C_FLAG
+		         0 | // Z_FLAG
+		         (((s.R.getHL() ^ res) & 0x8000) >> 13) | // V_FLAG
+		         ((res >> 8) & (H_FLAG | S_FLAG | X_FLAG | Y_FLAG)));
+	} else {
+		s.R.setF((res >> 16) | // C_FLAG
+		         Z_FLAG |
+		         ((s.R.getHL() & 0x8000) >> 13) | // V_FLAG
+		         0); // H_FLAG S_FLAG X_FLAG Y_FLAG
+	}
 	s.R.setHL(res);
 	s.OP_16_16_DELAY();
 }
@@ -1518,7 +1522,7 @@ template <class T> void CPUCore<T>::adc_hl_sp(S& s) { s.ADCW(s.R.getSP()); }
 template <class T> inline word CPUCore<T>::ADDW(word reg1, word reg2)
 {
 	memptr = reg1 + 1;
-	int res = reg1 + reg2;
+	unsigned res = reg1 + reg2;
 	R.setF((R.getF() & (S_FLAG | Z_FLAG | V_FLAG)) |
 	       (((reg1 ^ res ^ reg2) >> 8) & H_FLAG) |
 	       ((res & 0x10000) ? C_FLAG : 0) |
@@ -1577,13 +1581,22 @@ template <class T> void CPUCore<T>::add_iy_sp(S& s) {
 template <class T> inline void CPUCore<T>::SBCW(word reg)
 {
 	memptr = R.getHL() + 1;
-	int res = R.getHL() - reg - ((R.getF() & C_FLAG) ? 1 : 0);
-	R.setF((((R.getHL() ^ res ^ reg) >> 8) & H_FLAG) |
-	       ((res & 0x10000) ? C_FLAG : 0) |
-	       ((res & 0xffff) ? 0 : Z_FLAG) |
-	       (((reg ^ R.getHL()) & (R.getHL() ^ res) & 0x8000) ? V_FLAG : 0) |
-	       ((res >> 8) & (S_FLAG | X_FLAG | Y_FLAG)) |
-	       N_FLAG);
+	unsigned res = R.getHL() - reg - ((R.getF() & C_FLAG) ? 1 : 0);
+	if (res & 0xFFFF) {
+		R.setF((((R.getHL() ^ res ^ reg) >> 8) & H_FLAG) |
+		       ((res & 0x10000) ? C_FLAG : 0) |
+		       0 | // Z_FLAG
+		       (((reg ^ R.getHL()) & (R.getHL() ^ res) & 0x8000) >> 13) | // V_FLAG
+		       ((res >> 8) & (S_FLAG | X_FLAG | Y_FLAG)) |
+		       N_FLAG);
+	} else {
+		R.setF((((R.getHL() ^ reg) >> 8) & H_FLAG) |
+		       ((res & 0x10000) ? C_FLAG : 0) |
+		       Z_FLAG |
+		       (((reg ^ R.getHL()) & R.getHL() & 0x8000) >> 13) | // V_FLAG
+		       0 | // S_FLAG X_FLAG Y_FLAG
+		       N_FLAG);
+	}
 	R.setHL(res);
 	T::OP_16_16_DELAY();
 }
@@ -2312,7 +2325,7 @@ template <class T> void CPUCore<T>::rlc_xiy_l(S& s) { s.R.setL(s.RLC_X_Y()); }
 template <class T> inline byte CPUCore<T>::RR(byte reg)
 {
 	byte c = reg & 1;
-	reg = (reg >> 1) | ((R.getF() & C_FLAG) ? 0x80 : 0);
+	reg = (reg >> 1) | ((R.getF() & C_FLAG) << 7);
 	R.setF(ZSPXYTable[reg] | (c ? C_FLAG : 0));
 	return reg;
 }
@@ -2607,10 +2620,10 @@ template <class T> void CPUCore<T>::rlca(S& s)
 }
 template <class T> void CPUCore<T>::rra(S& s)
 {
-	byte c = s.R.getF() & C_FLAG;
+	byte c = (s.R.getF() & C_FLAG) << 7;
 	s.R.setF((s.R.getF() & (S_FLAG | Z_FLAG | P_FLAG)) |
 	         ((s.R.getA() & 0x01) ? C_FLAG : 0));
-	s.R.setA((s.R.getA() >> 1) | (c ? 0x80 : 0));
+	s.R.setA((s.R.getA() >> 1) | c);
 	s.R.setF(s.R.getF() | (s.R.getA() & (X_FLAG | Y_FLAG)));
 }
 template <class T> void CPUCore<T>::rrca(S& s)
@@ -2856,18 +2869,18 @@ template <class T> void CPUCore<T>::out_byte_a(S& s)
 
 
 // block CP
-template <class T> inline void CPUCore<T>::BLOCK_CP(bool increase, bool repeat)
+template <class T> inline void CPUCore<T>::BLOCK_CP(int increase, bool repeat)
 {
 	byte val = RDMEM(R.getHL());
 	T::BLOCK_DELAY();
 	byte res = R.getA() - val;
-	R.setHL(R.getHL() + (increase ? 1 : -1));
+	R.setHL(R.getHL() + increase);
 	R.setBC(R.getBC() - 1);
 	byte f = (R.getF() & C_FLAG) |
 	         ((R.getA() ^ val ^ res) & H_FLAG) |
 	         ZSTable[res] |
 	         N_FLAG;
-	if (f & H_FLAG) res -= 1;
+	res -= ((f & H_FLAG) >> 4);
 	if (res & 0x02) f |= Y_FLAG; // bit 1 -> flag 5
 	if (res & 0x08) f |= X_FLAG; // bit 3 -> flag 3
 	if (R.getBC())  f |= V_FLAG;
@@ -2877,20 +2890,20 @@ template <class T> inline void CPUCore<T>::BLOCK_CP(bool increase, bool repeat)
 		R.setPC(R.getPC() - 2);
 	}
 }
-template <class T> void CPUCore<T>::cpd(S& s)  { s.BLOCK_CP(false, false); }
-template <class T> void CPUCore<T>::cpi(S& s)  { s.BLOCK_CP(true,  false); }
-template <class T> void CPUCore<T>::cpdr(S& s) { s.BLOCK_CP(false, true ); }
-template <class T> void CPUCore<T>::cpir(S& s) { s.BLOCK_CP(true,  true ); }
+template <class T> void CPUCore<T>::cpd(S& s)  { s.BLOCK_CP(-1, false); }
+template <class T> void CPUCore<T>::cpi(S& s)  { s.BLOCK_CP( 1, false); }
+template <class T> void CPUCore<T>::cpdr(S& s) { s.BLOCK_CP(-1, true ); }
+template <class T> void CPUCore<T>::cpir(S& s) { s.BLOCK_CP( 1, true ); }
 
 
 // block LD
-template <class T> inline void CPUCore<T>::BLOCK_LD(bool increase, bool repeat)
+template <class T> inline void CPUCore<T>::BLOCK_LD(int increase, bool repeat)
 {
 	byte val = RDMEM(R.getHL());
 	WRMEM(R.getDE(), val);
 	T::LDI_DELAY();
-	R.setHL(R.getHL() + (increase ? 1 : -1));
-	R.setDE(R.getDE() + (increase ? 1 : -1));
+	R.setHL(R.getHL() + increase);
+	R.setDE(R.getDE() + increase);
 	R.setBC(R.getBC() - 1);
 	byte f = R.getF() & (S_FLAG | Z_FLAG | C_FLAG);
 	if ((R.getA() + val) & 0x02) f |= Y_FLAG;	// bit 1 -> flag 5
@@ -2902,23 +2915,23 @@ template <class T> inline void CPUCore<T>::BLOCK_LD(bool increase, bool repeat)
 		R.setPC(R.getPC() - 2);
 	}
 }
-template <class T> void CPUCore<T>::ldd(S& s)  { s.BLOCK_LD(false, false); }
-template <class T> void CPUCore<T>::ldi(S& s)  { s.BLOCK_LD(true,  false); }
-template <class T> void CPUCore<T>::lddr(S& s) { s.BLOCK_LD(false, true ); }
-template <class T> void CPUCore<T>::ldir(S& s) { s.BLOCK_LD(true,  true ); }
+template <class T> void CPUCore<T>::ldd(S& s)  { s.BLOCK_LD(-1, false); }
+template <class T> void CPUCore<T>::ldi(S& s)  { s.BLOCK_LD( 1, false); }
+template <class T> void CPUCore<T>::lddr(S& s) { s.BLOCK_LD(-1, true ); }
+template <class T> void CPUCore<T>::ldir(S& s) { s.BLOCK_LD( 1, true ); }
 
 
 // block IN
-template <class T> inline void CPUCore<T>::BLOCK_IN(bool increase, bool repeat)
+template <class T> inline void CPUCore<T>::BLOCK_IN(int increase, bool repeat)
 {
 	T::SMALL_DELAY();
 	byte b = R.getB() - 1; R.setB(b); // decr before use
 	byte val = READ_PORT(R.getBC());
 	WRMEM(R.getHL(), val);
-	R.setHL(R.getHL() + (increase ? 1 : -1));
+	R.setHL(R.getHL() + increase);
 	byte f = ZSTable[b];
 	if (val & S_FLAG) f |= N_FLAG;
-	int k = val + ((R.getC() + (increase ? 1 : -1)) & 0xFF);
+	int k = val + ((R.getC() + increase) & 0xFF);
 	if (k & 0x100)    f |= H_FLAG | C_FLAG;
 	R.setF(f | (ZSPXYTable[(k & 0x07) ^ b] & P_FLAG));
 	if (repeat && b) {
@@ -2926,20 +2939,20 @@ template <class T> inline void CPUCore<T>::BLOCK_IN(bool increase, bool repeat)
 		R.setPC(R.getPC() - 2);
 	}
 }
-template <class T> void CPUCore<T>::ind(S& s)  { s.BLOCK_IN(false, false); }
-template <class T> void CPUCore<T>::ini(S& s)  { s.BLOCK_IN(true,  false); }
-template <class T> void CPUCore<T>::indr(S& s) { s.BLOCK_IN(false, true ); }
-template <class T> void CPUCore<T>::inir(S& s) { s.BLOCK_IN(true,  true ); }
+template <class T> void CPUCore<T>::ind(S& s)  { s.BLOCK_IN(-1, false); }
+template <class T> void CPUCore<T>::ini(S& s)  { s.BLOCK_IN( 1, false); }
+template <class T> void CPUCore<T>::indr(S& s) { s.BLOCK_IN(-1, true ); }
+template <class T> void CPUCore<T>::inir(S& s) { s.BLOCK_IN( 1, true ); }
 
 
 // block OUT
-template <class T> inline void CPUCore<T>::BLOCK_OUT(bool increase, bool repeat)
+template <class T> inline void CPUCore<T>::BLOCK_OUT(int increase, bool repeat)
 {
 	T::SMALL_DELAY();
 	byte val = RDMEM(R.getHL());
 	WRITE_PORT(R.getBC(), val);
 	byte b = R.getB() - 1; R.setB(b); // decr after use
-	R.setHL(R.getHL() + (increase ? 1 : -1));
+	R.setHL(R.getHL() + increase);
 	byte f = ZSXYTable[b];
 	if (val & S_FLAG) f |= N_FLAG;
 	int k = val + R.getL();
@@ -2950,10 +2963,10 @@ template <class T> inline void CPUCore<T>::BLOCK_OUT(bool increase, bool repeat)
 		R.setPC(R.getPC() - 2);
 	}
 }
-template <class T> void CPUCore<T>::outd(S& s) { s.BLOCK_OUT(false, false); }
-template <class T> void CPUCore<T>::outi(S& s) { s.BLOCK_OUT(true,  false); }
-template <class T> void CPUCore<T>::otdr(S& s) { s.BLOCK_OUT(false, true ); }
-template <class T> void CPUCore<T>::otir(S& s) { s.BLOCK_OUT(true,  true ); }
+template <class T> void CPUCore<T>::outd(S& s) { s.BLOCK_OUT(-1, false); }
+template <class T> void CPUCore<T>::outi(S& s) { s.BLOCK_OUT( 1, false); }
+template <class T> void CPUCore<T>::otdr(S& s) { s.BLOCK_OUT(-1, true ); }
+template <class T> void CPUCore<T>::otir(S& s) { s.BLOCK_OUT( 1, true ); }
 
 
 // various
@@ -2961,7 +2974,7 @@ template <class T> void CPUCore<T>::nop(S&) { }
 template <class T> void CPUCore<T>::ccf(S& s)
 {
 	s.R.setF(((s.R.getF() & (S_FLAG | Z_FLAG | P_FLAG | C_FLAG)) |
-	          ((s.R.getF() & C_FLAG) ? H_FLAG : 0) |
+	          ((s.R.getF() & C_FLAG) << 4) | // H_FLAG
 	          (s.R.getA() & (X_FLAG | Y_FLAG))                  ) ^ C_FLAG);
 }
 template <class T> void CPUCore<T>::cpl(S& s)
@@ -2974,10 +2987,9 @@ template <class T> void CPUCore<T>::cpl(S& s)
 }
 template <class T> void CPUCore<T>::daa(S& s)
 {
-	int i = s.R.getA();
-	if (s.R.getF() & C_FLAG) i |= 0x100;
-	if (s.R.getF() & H_FLAG) i |= 0x200;
-	if (s.R.getF() & N_FLAG) i |= 0x400;
+	unsigned i = s.R.getA();
+	i |= (s.R.getF() & (C_FLAG | N_FLAG)) << 8; // 0x100 0x200
+	i |= (s.R.getF() &  H_FLAG)           << 6; // 0x400
 	s.R.setAF(DAATable[i]);
 }
 template <class T> void CPUCore<T>::neg(S& s)
@@ -3075,14 +3087,14 @@ template <class T> inline void CPUCore<T>::MULUB(byte reg)
 	       (R.getHL() ? 0 : Z_FLAG) |
 	       ((R.getHL() & 0x8000) ? C_FLAG : 0));
 }
-template <class T> void CPUCore<T>::mulub_a_xhl(S&)   { } // TODO
-template <class T> void CPUCore<T>::mulub_a_a(S&)     { } // TODO
+//template <class T> void CPUCore<T>::mulub_a_xhl(S&)   { } // TODO
+//template <class T> void CPUCore<T>::mulub_a_a(S&)     { } // TODO
 template <class T> void CPUCore<T>::mulub_a_b(S& s)   { s.MULUB(s.R.getB()); }
 template <class T> void CPUCore<T>::mulub_a_c(S& s)   { s.MULUB(s.R.getC()); }
 template <class T> void CPUCore<T>::mulub_a_d(S& s)   { s.MULUB(s.R.getD()); }
 template <class T> void CPUCore<T>::mulub_a_e(S& s)   { s.MULUB(s.R.getE()); }
-template <class T> void CPUCore<T>::mulub_a_h(S&)     { } // TODO
-template <class T> void CPUCore<T>::mulub_a_l(S&)     { } // TODO
+//template <class T> void CPUCore<T>::mulub_a_h(S&)     { } // TODO
+//template <class T> void CPUCore<T>::mulub_a_l(S&)     { } // TODO
 
 // MULUW HL,ss
 template <class T> inline void CPUCore<T>::MULUW(word reg)
@@ -3097,8 +3109,8 @@ template <class T> inline void CPUCore<T>::MULUW(word reg)
 	       ((res & 0x80000000) ? C_FLAG : 0));
 }
 template <class T> void CPUCore<T>::muluw_hl_bc(S& s) { s.MULUW(s.R.getBC()); }
-template <class T> void CPUCore<T>::muluw_hl_de(S&)   { } // TODO
-template <class T> void CPUCore<T>::muluw_hl_hl(S&)   { } // TODO
+//template <class T> void CPUCore<T>::muluw_hl_de(S&)   { } // TODO
+//template <class T> void CPUCore<T>::muluw_hl_hl(S&)   { } // TODO
 template <class T> void CPUCore<T>::muluw_hl_sp(S& s) { s.MULUW(s.R.getSP()); }
 
 

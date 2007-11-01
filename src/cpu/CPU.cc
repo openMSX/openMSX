@@ -48,8 +48,8 @@ CPU::CPU()
 	assert(ZSPXYTable[0]  == ZSPXY0);
 
 	for (int x = 0; x < 0x800; ++x) {
-		bool nf = x & 0x400;
-		bool hf = x & 0x200;
+		bool hf = x & 0x400;
+		bool nf = x & 0x200;
 		bool cf = x & 0x100;
 		byte a = x & 0xFF;
 		byte hi = a / 16;

@@ -1,5 +1,10 @@
 $Id$
 
+2007-11-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Various CPUCore tweaks:
+	   - mostly to eliminate branches or to produce shorter code
+	   - I couldn't measure a speed difference, but the code is 2% shorter
+
 2007-10-31 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Made normal and '_fast' variant of Clock::getTicksTill() and
 	  Clock::advance(). Use the _fast variant on places where speed is
