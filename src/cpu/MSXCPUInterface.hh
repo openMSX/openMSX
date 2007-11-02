@@ -79,22 +79,20 @@ public:
 	 * This reads a byte from the currently selected device
 	 */
 	inline byte readMem(word address, const EmuTime& time) {
-		if (likely(allowReadCache[address >> CacheLine::BITS])) {
-			return visibleDevices[address >> 14]->readMem(address, time);
-		} else {
+		if (unlikely(disallowReadCache[address >> CacheLine::BITS])) {
 			return readMemSlow(address, time);
 		}
+		return visibleDevices[address >> 14]->readMem(address, time);
 	}
 
 	/**
 	 * This writes a byte to the currently selected device
 	 */
 	inline void writeMem(word address, byte value, const EmuTime& time) {
-		if (likely(allowWriteCache[address >> CacheLine::BITS])) {
-			visibleDevices[address>>14]->writeMem(address, value, time);
-		} else {
+		if (unlikely(disallowWriteCache[address >> CacheLine::BITS])) {
 			writeMemSlow(address, value, time);
 		}
+		visibleDevices[address>>14]->writeMem(address, value, time);
 	}
 
 	/**
@@ -126,11 +124,10 @@ public:
 	 * An interval will never contain the address 0xffff.
 	 */
 	inline const byte* getReadCacheLine(word start) const {
-		if (likely(allowReadCache[start >> CacheLine::BITS])) {
-			return visibleDevices[start >> 14]->getReadCacheLine(start);
-		} else {
+		if (unlikely(disallowReadCache[start >> CacheLine::BITS])) {
 			return NULL;
 		}
+		return visibleDevices[start >> 14]->getReadCacheLine(start);
 	}
 
 	/**
@@ -146,11 +143,10 @@ public:
 	 * An interval will never contain the address 0xffff.
 	 */
 	inline byte* getWriteCacheLine(word start) const {
-		if (likely(allowWriteCache[start >> CacheLine::BITS])) {
-			return visibleDevices[start >> 14]->getWriteCacheLine(start);
-		} else {
+		if (unlikely(disallowWriteCache[start >> CacheLine::BITS])) {
 			return NULL;
 		}
+		return visibleDevices[start >> 14]->getWriteCacheLine(start);
 	}
 
 	/**
@@ -196,7 +192,6 @@ protected:
 private:
 	byte readMemSlow(word address, const EmuTime& time);
 	void writeMemSlow(word address, byte value, const EmuTime& time);
-	void setAllowedCache();
 
 	MSXDevice*& getDevicePtr(byte port, bool isIn);
 
@@ -241,8 +236,8 @@ private:
 	friend class TurborCPUInterface;
 
 	WatchPoints watchPoints;
-	bool allowReadCache [CacheLine::NUM];
-	bool allowWriteCache[CacheLine::NUM];
+	byte disallowReadCache [CacheLine::NUM];
+	byte disallowWriteCache[CacheLine::NUM];
 	std::bitset<CacheLine::SIZE> readWatchSet [CacheLine::NUM];
 	std::bitset<CacheLine::SIZE> writeWatchSet[CacheLine::NUM];
 

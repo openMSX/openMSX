@@ -123,6 +123,11 @@ private:
 };
 
 
+// Bitfields used in the disallowReadCache and disallowWriteCache arrays
+static const byte SECUNDARY_SLOT_BIT = 0x01;
+static const byte MEMORY_WATCH_BIT   = 0x02;
+static const byte GLOBAL_WRITE_BIT   = 0x04;
+
 auto_ptr<MSXCPUInterface> MSXCPUInterface::create(
 		MSXMotherBoard& motherBoard, const XMLElement& machineConfig)
 {
@@ -173,7 +178,10 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 	for (int page = 0; page < 4; ++page) {
 		visibleDevices[page] = &dummyDevice;
 	}
-	setAllowedCache();
+
+	// initially allow all regions to be cached
+	memset(disallowReadCache,  0, sizeof(disallowReadCache));
+	memset(disallowWriteCache, 0, sizeof(disallowWriteCache));
 
 	// Note: SlotState is initialised at reset
 
@@ -220,7 +228,7 @@ void MSXCPUInterface::removeAllWatchPoints()
 byte MSXCPUInterface::readMemSlow(word address, const EmuTime& time)
 {
 	// something special in this region?
-	if (unlikely(!allowReadCache[address >> CacheLine::BITS])) {
+	if (unlikely(disallowReadCache[address >> CacheLine::BITS])) {
 		// execute read watches before actual read
 		if (readWatchSet[address >> CacheLine::BITS]
 		                [address &  CacheLine::LOW]) {
@@ -242,7 +250,7 @@ void MSXCPUInterface::writeMemSlow(word address, byte value, const EmuTime& time
 		visibleDevices[address>>14]->writeMem(address, value, time);
 	}
 	// something special in this region?
-	if (unlikely(!allowWriteCache[address >> CacheLine::BITS])) {
+	if (unlikely(disallowWriteCache[address >> CacheLine::BITS])) {
 		// slot-select-ignore writes (Super Lode Runner)
 		for (GlobalWrites::const_iterator it = globalWrites.begin();
 		     it != globalWrites.end(); ++it) {
@@ -257,24 +265,6 @@ void MSXCPUInterface::writeMemSlow(word address, byte value, const EmuTime& time
 		                 [address &  CacheLine::LOW]) {
 			executeMemWatch(address, WatchPoint::WRITE_MEM);
 		}
-	}
-}
-
-void MSXCPUInterface::setAllowedCache()
-{
-	memset(allowReadCache,  1, sizeof(allowReadCache));
-	memset(allowWriteCache, 1, sizeof(allowWriteCache));
-	if (isExpanded(primarySlotState[3])) {
-		allowReadCache [255] = false;
-		allowWriteCache[255] = false;
-	}
-	for (unsigned i = 0; i < CacheLine::NUM; ++i) {
-		if (readWatchSet [i].any()) allowReadCache [i] = false;
-		if (writeWatchSet[i].any()) allowWriteCache[i] = false;
-	}
-	for (GlobalWrites::const_iterator it = globalWrites.begin();
-	     it != globalWrites.end(); ++it) {
-		allowWriteCache[it->addr >> CacheLine::BITS] = false;
 	}
 }
 
@@ -511,7 +501,9 @@ void MSXCPUInterface::registerGlobalWrite(MSXDevice& device, word address)
 {
 	GlobalWriteInfo info = { &device, address };
 	globalWrites.push_back(info);
-	setAllowedCache();
+
+	disallowWriteCache[address >> CacheLine::BITS] |= GLOBAL_WRITE_BIT;
+	msxcpu.invalidateMemCache(address & CacheLine::HIGH, 0x100);
 }
 
 void MSXCPUInterface::unregisterGlobalWrite(MSXDevice& device, word address)
@@ -521,7 +513,17 @@ void MSXCPUInterface::unregisterGlobalWrite(MSXDevice& device, word address)
 		find(globalWrites.begin(), globalWrites.end(), info);
 	assert(it != globalWrites.end());
 	globalWrites.erase(it);
-	setAllowedCache();
+
+	for (GlobalWrites::const_iterator it = globalWrites.begin();
+	     it != globalWrites.end(); ++it) {
+		if ((it->addr >> CacheLine::BITS) ==
+		    (address  >> CacheLine::BITS)) {
+			// there is still a global write in this region
+			return;
+		}
+	}
+	disallowWriteCache[address >> CacheLine::BITS] &= ~GLOBAL_WRITE_BIT;
+	msxcpu.invalidateMemCache(address & CacheLine::HIGH, 0x100);
 }
 
 void MSXCPUInterface::updateVisible(int page)
@@ -565,7 +567,14 @@ void MSXCPUInterface::setPrimarySlots(byte value)
 		// Change the visible devices
 		updateVisible(page);
 	}
-	setAllowedCache();
+	if (isExpanded(primarySlotState[3])) {
+		disallowReadCache [0xFF] |=  SECUNDARY_SLOT_BIT;
+		disallowWriteCache[0xFF] |=  SECUNDARY_SLOT_BIT;
+	} else {
+		disallowReadCache [0xFF] &= ~SECUNDARY_SLOT_BIT;
+		disallowWriteCache[0xFF] &= ~SECUNDARY_SLOT_BIT;
+	}
+	msxcpu.invalidateMemCache(0xFFFF & CacheLine::HIGH, 0x100);
 }
 
 void MSXCPUInterface::setSubSlot(byte primSlot, byte value)
@@ -732,7 +741,18 @@ void MSXCPUInterface::updateMemWatch(WatchPoint::Type type)
 			}
 		}
 	}
-	setAllowedCache();
+	for (unsigned i = 0; i < CacheLine::NUM; ++i) {
+		if (readWatchSet [i].any()) {
+			disallowReadCache [i] |=  MEMORY_WATCH_BIT;
+		} else {
+			disallowReadCache [i] &= ~MEMORY_WATCH_BIT;
+		}
+		if (writeWatchSet[i].any()) {
+			disallowWriteCache[i] |=  MEMORY_WATCH_BIT;
+		} else {
+			disallowWriteCache[i] &= ~MEMORY_WATCH_BIT;
+		}
+	}
 	msxcpu.invalidateMemCache(0x0000, 0x10000);
 }
 

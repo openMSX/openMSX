@@ -1,6 +1,11 @@
 $Id$
 
 2007-11-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Optimized MSXCPUInterface::setPrimarySlot():
+	   more efficient way of updating the not-allowed-to-be-cached
+	   region information
+
+2007-11-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Various CPUCore tweaks:
 	   - mostly to eliminate branches or to produce shorter code
 	   - I couldn't measure a speed difference, but the code is 2% shorter
