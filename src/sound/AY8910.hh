@@ -29,19 +29,19 @@ public:
 	       const XMLElement& config, const EmuTime& time);
 	virtual ~AY8910();
 
-	byte readRegister(byte reg, const EmuTime& time);
-	byte peekRegister(byte reg, const EmuTime& time) const;
-	void writeRegister(byte reg, byte value, const EmuTime& time);
+	byte readRegister(unsigned reg, const EmuTime& time);
+	byte peekRegister(unsigned reg, const EmuTime& time) const;
+	void writeRegister(unsigned reg, byte value, const EmuTime& time);
 	void reset(const EmuTime& time);
 
 private:
 	class Generator {
 	public:
-		inline void reset(byte output = 0);
+		inline void reset(unsigned output = 0);
 		inline void setPeriod(int value);
 		/** Gets the current output of this generator.
 		  */
-		inline byte getOutput();
+		inline unsigned getOutput();
 	protected:
 		Generator();
 
@@ -60,7 +60,7 @@ private:
 		  * For tones, this is 0 or 1.
 		  * For noise, this is 0 or 0x38.
 		  */
-		byte output;
+		unsigned output;
 	};
 
 	class ToneGenerator: public Generator {
@@ -103,9 +103,9 @@ private:
 	class Amplitude {
 	public:
 		explicit Amplitude(const XMLElement& config);
-		inline unsigned getVolume(byte chan);
-		inline void setChannelVolume(byte chan, byte value);
-		inline void setEnvelopeVolume(byte volume);
+		inline unsigned getVolume(unsigned chan);
+		inline void setChannelVolume(unsigned chan, unsigned value);
+		inline void setEnvelopeVolume(unsigned volume);
 		inline void setMasterVolume(int volume);
 		inline bool anyEnvelope();
 	private:
@@ -122,14 +122,14 @@ private:
 		explicit inline Envelope(Amplitude& amplitude);
 		inline void reset();
 		inline void setPeriod(int value);
-		inline void setShape(byte shape);
+		inline void setShape(unsigned shape);
 		inline bool isChanging();
 		inline void advance(int duration);
 	private:
 		/** Gets the current envelope volume.
 		  * @return [0..15].
 		  */
-		inline byte getVolume();
+		inline unsigned getVolume();
 
 		Amplitude& amplitude;
 		int period;
@@ -148,7 +148,7 @@ private:
 	// Resample
 	virtual bool generateInput(int* buffer, unsigned num);
 
-	void wrtReg(byte reg, byte value, const EmuTime& time);
+	void wrtReg(unsigned reg, byte value, const EmuTime& time);
 
 	MSXCliComm& cliComm;
 	AY8910Periphery& periphery;
@@ -162,7 +162,6 @@ private:
 	Amplitude amplitude;
 	Envelope envelope;
 	byte regs[16];
-	byte oldEnable;
 	bool warningPrinted;
 };
 

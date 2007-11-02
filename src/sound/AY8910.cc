@@ -95,7 +95,7 @@ AY8910::Generator::Generator()
 	reset();
 }
 
-inline void AY8910::Generator::reset(byte output)
+inline void AY8910::Generator::reset(unsigned output)
 {
 	count = 0;
 	this->output = output;
@@ -113,7 +113,7 @@ inline void AY8910::Generator::setPeriod(int value)
 	period = value == 0 ? 1 : value;
 }
 
-inline byte AY8910::Generator::getOutput()
+inline unsigned AY8910::Generator::getOutput()
 {
 	return output;
 }
@@ -278,18 +278,18 @@ AY8910::Amplitude::Amplitude(const XMLElement& config)
 	setMasterVolume(32768);
 }
 
-inline unsigned AY8910::Amplitude::getVolume(byte chan)
+inline unsigned AY8910::Amplitude::getVolume(unsigned chan)
 {
 	return vol[chan];
 }
 
-inline void AY8910::Amplitude::setChannelVolume(byte chan, byte value)
+inline void AY8910::Amplitude::setChannelVolume(unsigned chan, unsigned value)
 {
 	envChan[chan] = value & 0x10;
 	vol[chan] = envChan[chan] ? envVolume : volTable[value & 0x0F];
 }
 
-inline void AY8910::Amplitude::setEnvelopeVolume(byte volume)
+inline void AY8910::Amplitude::setEnvelopeVolume(unsigned volume)
 {
 	envVolume = envVolTable[volume];
 	if (envChan[0]) vol[0] = envVolume;
@@ -360,12 +360,12 @@ inline void AY8910::Envelope::setPeriod(int value)
 	period = value == 0 ? FP_UNIT / 2 : value * FP_UNIT;
 }
 
-inline byte AY8910::Envelope::getVolume()
+inline unsigned AY8910::Envelope::getVolume()
 {
 	return step ^ attack;
 }
 
-inline void AY8910::Envelope::setShape(byte shape)
+inline void AY8910::Envelope::setShape(unsigned shape)
 {
 	// do 32 steps for both AY8910 and YM2149
 	/*
@@ -484,20 +484,19 @@ AY8910::~AY8910()
 void AY8910::reset(const EmuTime& time)
 {
 	// Reset generators and envelope.
-	for (byte chan = 0; chan < 3; chan++) {
+	for (unsigned chan = 0; chan < 3; ++chan) {
 		tone[chan].reset();
 	}
 	noise.reset();
 	envelope.reset();
 	// Reset registers and values derived from them.
-	oldEnable = 0;
-	for (byte reg = 0; reg <= 15; reg++) {
+	for (unsigned reg = 0; reg <= 15; ++reg) {
 		wrtReg(reg, 0, time);
 	}
 }
 
 
-byte AY8910::readRegister(byte reg, const EmuTime& time)
+byte AY8910::readRegister(unsigned reg, const EmuTime& time)
 {
 	assert(reg <= 15);
 	switch (reg) {
@@ -515,7 +514,7 @@ byte AY8910::readRegister(byte reg, const EmuTime& time)
 	return regs[reg];
 }
 
-byte AY8910::peekRegister(byte reg, const EmuTime& time) const
+byte AY8910::peekRegister(unsigned reg, const EmuTime& time) const
 {
 	assert(reg <= 15);
 	switch (reg) {
@@ -534,7 +533,7 @@ byte AY8910::peekRegister(byte reg, const EmuTime& time) const
 }
 
 
-void AY8910::writeRegister(byte reg, byte value, const EmuTime& time)
+void AY8910::writeRegister(unsigned reg, byte value, const EmuTime& time)
 {
 	assert(reg <= 15);
 	if ((reg < AY_PORTA) && (reg == AY_ESHAPE || regs[reg] != value)) {
@@ -543,7 +542,7 @@ void AY8910::writeRegister(byte reg, byte value, const EmuTime& time)
 	}
 	wrtReg(reg, value, time);
 }
-void AY8910::wrtReg(byte reg, byte value, const EmuTime& time)
+void AY8910::wrtReg(unsigned reg, byte value, const EmuTime& time)
 {
 	// Warn/force port directions
 	if (reg == AY_ENABLE) {
@@ -562,6 +561,7 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime& time)
 	}
 
 	// Note: unused bits are stored as well; they can be read back.
+	byte oldValue = regs[reg];
 	regs[reg] = value;
 
 	switch (reg) {
@@ -592,17 +592,16 @@ void AY8910::wrtReg(byte reg, byte value, const EmuTime& time)
 		envelope.setShape(value);
 		break;
 	case AY_ENABLE:
-		if ((value      & PORT_A_DIRECTION) &&
-		    !(oldEnable & PORT_A_DIRECTION)) {
+		if ((value     & PORT_A_DIRECTION) &&
+		    !(oldValue & PORT_A_DIRECTION)) {
 			// Changed from input to output.
 			periphery.writeA(regs[AY_PORTA], time);
 		}
 		if ((value     & PORT_B_DIRECTION) &&
-		    !(oldEnable & PORT_B_DIRECTION)) {
+		    !(oldValue & PORT_B_DIRECTION)) {
 			// Changed from input to output.
 			periphery.writeB(regs[AY_PORTB], time);
 		}
-		oldEnable = value;
 		break;
 	case AY_PORTA:
 		if (regs[AY_ENABLE] & PORT_A_DIRECTION) { // output
@@ -631,7 +630,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 	static long long envSamples = 0;
 	static long long sameSample = 0;
 	long long oldTotal = totalSamples;
-	for (byte chan = 0; chan < 3; chan++) {
+	for (unsigned chan = 0; chan < 3; ++chan) {
 		totalSamples += length;
 		if (regs[AY_ENABLE] & (0x08 << chan)) noiseOff += length;
 		if (regs[AY_ENABLE] & (0x01 << chan)) toneOff += length;
@@ -665,17 +664,17 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 		return;
 	}
 
-	byte chanEnable = regs[AY_ENABLE];
+	unsigned chanEnable = regs[AY_ENABLE];
 	// Disable channels with volume 0: since the sample value doesn't matter,
 	// we can use the fastest path.
-	for (byte chan = 0; chan < 3; chan++) {
+	for (unsigned chan = 0; chan < 3; ++chan) {
 		if ((regs[AY_AVOL + chan] & 0x1F) == 0) {
 			bufs[chan] = 0;
 			chanEnable |= 0x09 << chan;
 		}
 	}
 	// Advance tone generators for channels that have tone disabled.
-	for (byte chan = 0; chan < 3; chan++) {
+	for (unsigned chan = 0; chan < 3; ++chan) {
 		if (chanEnable & (0x01 << chan)) { // disabled
 			tone[chan].advance(length);
 		}
@@ -705,7 +704,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 		// volume.
 
 		// Update state of noise generator.
-		byte chanFlags = chanEnable;
+		unsigned chanFlags = chanEnable;
 		if (anyNoise) {
 			chanFlags |= noise.getOutput();
 			noise.advance();
@@ -714,7 +713,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 		if (enveloping) envelope.advance(1);
 
 		// Mix tone generators with noise generator.
-		for (byte chan = 0; chan < 3; chan++, chanFlags >>= 1) {
+		for (unsigned chan = 0; chan < 3; ++chan, chanFlags >>= 1) {
 			int* buf = bufs[chan];
 			if (!buf) continue;
 			int* out = &buf[i];
