@@ -66,7 +66,7 @@ private:
 
 	typedef enum Usage {CLEAN,CACHED,MIXED} Usage_t;
 	struct ReverseSector {
-		long fileOffset;
+		unsigned long fileOffset;
 		Usage_t usage;
 		int dirEntryNr;
 	};

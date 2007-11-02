@@ -487,7 +487,7 @@ void DirAsDSK::checkAlterFileInDisk(int dirindex)
 		//file can not be stat'ed => assume it has been deleted
 		//and thus delete it from the MSX DIR sectors by marking 
 		//the first filename char as 0xE5
-		printf(" host od file deleted ? %s  \n",mapdir[dirindex].filename.c_str());
+		printf(" host os file deleted ? %s  \n",mapdir[dirindex].filename.c_str());
 		mapdir[dirindex].msxinfo.filename[0]=0xE5; 
 		mapdir[dirindex].filename.clear();
 	}
