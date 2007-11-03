@@ -23,6 +23,7 @@ include build/platform-$(OPENMSX_TARGET_OS).mk
 export CC
 export LD
 export NEXT_ROOT
+export MACOSX_DEPLOYMENT_TARGET
 
 TARBALLS_DIR:=derived/3rdparty/download
 SOURCE_DIR:=derived/3rdparty/src
