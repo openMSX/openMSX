@@ -26,11 +26,13 @@ LINK_FLAGS+=-bind_at_load
 ifeq ($(OPENMSX_TARGET_CPU),ppc)
 SDK_PATH:=$(firstword $(sort $(wildcard /Developer/SDKs/MacOSX10.3.?.sdk)))
 OPENMSX_CXX:=g++-3.3
+OSX_VER:=10.3
 else
 SDK_PATH:=/Developer/SDKs/MacOSX10.4u.sdk
+OSX_VER:=10.4
 endif
-COMPILE_ENV+=NEXT_ROOT=$(SDK_PATH)
-LINK_ENV+=NEXT_ROOT=$(SDK_PATH)
+COMPILE_ENV+=NEXT_ROOT=$(SDK_PATH) MACOSX_DEPLOYMENT_TARGET=$(OSX_VER)
+LINK_ENV+=NEXT_ROOT=$(SDK_PATH) MACOSX_DEPLOYMENT_TARGET=$(OSX_VER)
 
 # When NEXT_ROOT is defined, /usr/lib will not be scanned for libraries by
 # default, but users might have installed some dependencies there.
