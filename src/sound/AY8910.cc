@@ -274,27 +274,24 @@ AY8910::Amplitude::Amplitude(const XMLElement& config)
 	envChan[0] = false;
 	envChan[1] = false;
 	envChan[2] = false;
-	envVolume = 0;
 	setMasterVolume(32768);
 }
 
-inline unsigned AY8910::Amplitude::getVolume(unsigned chan)
+const unsigned* AY8910::Amplitude::getEnvVolTable() const
 {
+	return envVolTable;
+}
+
+inline unsigned AY8910::Amplitude::getVolume(unsigned chan) const
+{
+	assert(!followsEnvelope(chan));
 	return vol[chan];
 }
 
 inline void AY8910::Amplitude::setChannelVolume(unsigned chan, unsigned value)
 {
 	envChan[chan] = value & 0x10;
-	vol[chan] = envChan[chan] ? envVolume : volTable[value & 0x0F];
-}
-
-inline void AY8910::Amplitude::setEnvelopeVolume(unsigned volume)
-{
-	envVolume = envVolTable[volume];
-	if (envChan[0]) vol[0] = envVolume;
-	if (envChan[1]) vol[1] = envVolume;
-	if (envChan[2]) vol[2] = envVolume;
+	vol[chan] = volTable[value & 0x0F];
 }
 
 inline void AY8910::Amplitude::setMasterVolume(int volume)
@@ -324,9 +321,15 @@ inline void AY8910::Amplitude::setMasterVolume(int volume)
 	}
 }
 
-inline bool AY8910::Amplitude::anyEnvelope()
+inline bool AY8910::Amplitude::anyEnvelope() const
 {
-	return envChan[0] || envChan[1] || envChan[2];
+	// note: bitwise or is faster in this case
+	return envChan[0] | envChan[1] | envChan[2];
+}
+
+inline bool AY8910::Amplitude::followsEnvelope(unsigned chan) const
+{
+	return envChan[chan];
 }
 
 
@@ -337,9 +340,9 @@ inline bool AY8910::Amplitude::anyEnvelope()
 //  we implement the YM2149 behaviour, but to get the AY8910 behaviour we
 //  repeat every level twice in the envVolTable
 
-inline AY8910::Envelope::Envelope(Amplitude& amplitude)
-	: amplitude(amplitude)
+inline AY8910::Envelope::Envelope(const unsigned* envVolTable_)
 {
+	envVolTable = envVolTable_;
 	period = 0;
 	count  = 0;
 	step   = 0;
@@ -360,9 +363,9 @@ inline void AY8910::Envelope::setPeriod(int value)
 	period = value == 0 ? FP_UNIT / 2 : value * FP_UNIT;
 }
 
-inline unsigned AY8910::Envelope::getVolume()
+inline unsigned AY8910::Envelope::getVolume() const
 {
-	return step ^ attack;
+	return envVolTable[step ^ attack]; // TODO cache this value?
 }
 
 inline void AY8910::Envelope::setShape(unsigned shape)
@@ -395,40 +398,43 @@ inline void AY8910::Envelope::setShape(unsigned shape)
 	count = 0;
 	step = 0x1F;
 	holding = false;
-	amplitude.setEnvelopeVolume(getVolume());
 }
 
-inline bool AY8910::Envelope::isChanging()
+inline bool AY8910::Envelope::isChanging() const
 {
 	return !holding;
 }
 
 inline void AY8910::Envelope::advance(int duration)
 {
-	if (!holding) {
-		if (count > period) count = period;
-		count += duration * FP_UNIT;
-		if (count >= period) {
-			const int steps = count / period;
-			step -= steps;
-			count -= steps * period; // equivalent to count %= period;
+	// For best performance callers should check upfront whether
+	//    isChanging() == true
+	// Though we can't assert on it because the condition might change
+	// in the inner loop(s) of generateChannels().
+	//assert(!holding);
 
-			// Check current envelope position.
-			if (step < 0) {
-				if (hold) {
-					if (alternate) attack ^= 0x1F;
-					holding = true;
-					step = 0;
-				} else {
-					// If step has looped an odd number of times
-					// (usually 1), invert the output.
-					if (alternate && (step & 0x10)) {
-						attack ^= 0x1F;
-					}
-					step &= 0x1F;
+	if (count > period) count = period; // TODO can we (re)move this?
+	count += duration * FP_UNIT;
+	if (count >= period) {
+		if (holding) return;
+		const int steps = count / period;
+		step -= steps;
+		count -= steps * period; // equivalent to count %= period;
+
+		// Check current envelope position.
+		if (step < 0) {
+			if (hold) {
+				if (alternate) attack ^= 0x1F;
+				holding = true;
+				step = 0;
+			} else {
+				// If step has looped an odd number of times
+				// (usually 1), invert the output.
+				if (alternate && (step & 0x10)) {
+					attack ^= 0x1F;
 				}
+				step &= 0x1F;
 			}
-			amplitude.setEnvelopeVolume(getVolume());
 		}
 	}
 }
@@ -444,7 +450,7 @@ AY8910::AY8910(MSXMotherBoard& motherBoard, AY8910Periphery& periphery_,
 	, periphery(periphery_)
 	, debuggable(new AY8910Debuggable(motherBoard, *this))
 	, amplitude(config)
-	, envelope(amplitude)
+	, envelope(amplitude.getEnvVolTable())
 	, warningPrinted(false)
 {
 	initDetune();
@@ -660,7 +666,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 			bufs[i] = 0;
 		}
 		noise.advance(length);
-		envelope.advance(length);
+		if (envelope.isChanging()) envelope.advance(length);
 		return;
 	}
 
@@ -673,64 +679,115 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 			chanEnable |= 0x09 << chan;
 		}
 	}
-	// Advance tone generators for channels that have tone disabled.
-	for (unsigned chan = 0; chan < 3; ++chan) {
-		if (chanEnable & (0x01 << chan)) { // disabled
-			tone[chan].advance(length);
-		}
-	}
-	// Noise enabled on any channel?
-	bool anyNoise = (chanEnable & 0x38) != 0x38;
-	if (!anyNoise) {
+
+	// Noise disabled on all channels?
+	if ((chanEnable & 0x38) == 0x38) {
 		noise.advance(length);
 	}
-	// Envelope enabled on any channel?
-	bool enveloping = amplitude.anyEnvelope() && envelope.isChanging();
-	if (!enveloping) {
-		envelope.advance(length);
+	// Envelope disabled on all channels?
+	if (!amplitude.anyEnvelope()) {
+		if (envelope.isChanging()) envelope.advance(length);
 	}
 
 	// Calculate samples.
-	for (unsigned i = 0; i < length; ++i) {
-		// The 8910 has three outputs, each output is the mix of one of
-		// the three tone generators and of the (single) noise generator.
-		// The two are mixed BEFORE going into the DAC. The formula to mix
-		// each channel is:
-		//   (ToneOn | ToneDisable) & (NoiseOn | NoiseDisable),
-		//   where ToneOn and NoiseOn are the current generator state
-		//   and ToneDisable and NoiseDisable come from the enable reg.
-		// Note that this means that if both tone and noise are disabled,
-		// the output is 1, not 0, and can be modulated by changing the
-		// volume.
+	// The 8910 has three outputs, each output is the mix of one of the
+	// three tone generators and of the (single) noise generator. The two
+	// are mixed BEFORE going into the DAC. The formula to mix each channel
+	// is:
+	//   (ToneOn | ToneDisable) & (NoiseOn | NoiseDisable),
+	//   where ToneOn and NoiseOn are the current generator state
+	//   and ToneDisable and NoiseDisable come from the enable reg.
+	// Note that this means that if both tone and noise are disabled, the
+	// output is 1, not 0, and can be modulated by changing the volume.
 
-		// Update state of noise generator.
-		unsigned chanFlags = chanEnable;
-		if (anyNoise) {
-			chanFlags |= noise.getOutput();
-			noise.advance();
-		}
-		// Update envelope.
-		if (enveloping) envelope.advance(1);
-
-		// Mix tone generators with noise generator.
-		for (unsigned chan = 0; chan < 3; ++chan, chanFlags >>= 1) {
-			int* buf = bufs[chan];
-			if (!buf) continue;
-			int* out = &buf[i];
-			if ((chanFlags & 0x09) == 0x08) {
-				// Square wave: alternating between 0 and 1.
-				*out = tone[chan].getOutput() * amplitude.getVolume(chan);
-				tone[chan].advance();
-			} else if ((chanFlags & 0x09) == 0x09) {
-				// Channel disabled: always 1.
-				*out = amplitude.getVolume(chan);
-			} else if ((chanFlags & 0x09) == 0x00) {
-				// Tone enabled, but suppressed by noise state.
-				*out = 0;
-				tone[chan].advance();
-			} else { // (chanFlags & 0x09) == 0x01
-				// Tone disabled, noise state is 0.
-				*out = 0;
+	Envelope initialEnvelope = envelope;
+	NoiseGenerator initialNoise = noise;
+	for (unsigned chan = 0; chan < 3; ++chan, chanEnable >>= 1) {
+		int* buf = bufs[chan];
+		if (!buf) continue;
+		if (envelope.isChanging() && amplitude.followsEnvelope(chan)) {
+			Envelope tmpEnvelope = initialEnvelope;
+			ToneGenerator& t = tone[chan];
+			if ((chanEnable & 0x09) == 0x08) {
+				// no noise, square wave: alternating between 0 and 1.
+				for (unsigned i = 0; i < length; ++i) {
+					buf[i] = t.getOutput() * tmpEnvelope.getVolume();
+					t.advance();
+					tmpEnvelope.advance(1);
+				}
+			} else if ((chanEnable & 0x09) == 0x09) {
+				// no noise, channel disabled: always 1.
+				for (unsigned i = 0; i < length; ++i) {
+					buf[i] = tmpEnvelope.getVolume();
+					tmpEnvelope.advance(1);
+				}
+				t.advance(length);
+			} else if ((chanEnable & 0x09) == 0x00) {
+				// noise enabled, tone enabled
+				NoiseGenerator tmpNoise = initialNoise;
+				for (unsigned i = 0; i < length; ++i) {
+					buf[i] = tmpNoise.getOutput()
+					       ? t.getOutput() * tmpEnvelope.getVolume()
+					       : 0;
+					t.advance();
+					tmpNoise.advance();
+					tmpEnvelope.advance(1);
+				}
+				noise = tmpNoise;
+			} else {
+				// noise enabled, tone disabled
+				NoiseGenerator tmpNoise = initialNoise;
+				for (unsigned i = 0; i < length; ++i) {
+					buf[i] = tmpNoise.getOutput()
+					       ? tmpEnvelope.getVolume()
+					       : 0;
+					tmpNoise.advance();
+					tmpEnvelope.advance(1);
+				}
+				noise = tmpNoise;
+				t.advance(length);
+			}
+			envelope = tmpEnvelope;
+		} else {
+			// no (changing) envelope on this channel
+			unsigned volume = amplitude.followsEnvelope(chan)
+			                ? envelope.getVolume()
+			                : amplitude.getVolume(chan);
+			ToneGenerator& t = tone[chan];
+			if ((chanEnable & 0x09) == 0x08) {
+				// no noise, square wave: alternating between 0 and 1.
+				for (unsigned i = 0; i < length; ++i) {
+					buf[i] = t.getOutput() * volume;
+					t.advance();
+				}
+			} else if ((chanEnable & 0x09) == 0x09) {
+				// no noise, channel disabled: always 1.
+				for (unsigned i = 0; i < length; ++i) {
+					buf[i] = volume;
+				}
+				t.advance(length);
+			} else if ((chanEnable & 0x09) == 0x00) {
+				// noise enabled, tone enabled
+				NoiseGenerator tmpNoise = initialNoise;
+				for (unsigned i = 0; i < length; ++i) {
+					buf[i] = tmpNoise.getOutput()
+					       ? t.getOutput() * volume
+					       : 0;
+					t.advance();
+					tmpNoise.advance();
+				}
+				noise = tmpNoise;
+			} else {
+				// noise enabled, tone disabled
+				NoiseGenerator tmpNoise = initialNoise;
+				for (unsigned i = 0; i < length; ++i) {
+					buf[i] = tmpNoise.getOutput()
+					       ? volume
+					       : 0;
+					tmpNoise.advance();
+				}
+				noise = tmpNoise;
+				t.advance(length);
 			}
 		}
 	}

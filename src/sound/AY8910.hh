@@ -103,35 +103,32 @@ private:
 	class Amplitude {
 	public:
 		explicit Amplitude(const XMLElement& config);
-		inline unsigned getVolume(unsigned chan);
+		const unsigned* getEnvVolTable() const;
+		inline unsigned getVolume(unsigned chan) const;
 		inline void setChannelVolume(unsigned chan, unsigned value);
-		inline void setEnvelopeVolume(unsigned volume);
 		inline void setMasterVolume(int volume);
-		inline bool anyEnvelope();
+		inline bool anyEnvelope() const;
+		inline bool followsEnvelope(unsigned chan) const;
 	private:
 		unsigned volTable[16];
 		unsigned envVolTable[32];
 		unsigned vol[3];
-		unsigned envVolume;
 		bool envChan[3];
 		bool ay8910;
 	};
 
 	class Envelope {
 	public:
-		explicit inline Envelope(Amplitude& amplitude);
+		explicit inline Envelope(const unsigned* envVolTable);
 		inline void reset();
 		inline void setPeriod(int value);
 		inline void setShape(unsigned shape);
-		inline bool isChanging();
+		inline bool isChanging() const;
 		inline void advance(int duration);
-	private:
-		/** Gets the current envelope volume.
-		  * @return [0..15].
-		  */
-		inline unsigned getVolume();
+		inline unsigned getVolume() const;
 
-		Amplitude& amplitude;
+	private:
+		const unsigned* envVolTable;
 		int period;
 		int count;
 		int step;

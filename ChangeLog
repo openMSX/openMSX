@@ -1,6 +1,15 @@
 $Id$
 
-2007-11-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2007-11-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Optimized AY8910::generateChannels():
+	   Swapped inner/outer loop. Now the outer loop goes over all (=3)
+	   channels and the inner loop over the samples. We (potentially)
+	   duplicate the calculations for the 'shared resources' between the
+	   channels (envelope and noise), but the inner loops are much
+	   simpler. In the cases I measured there was a significant net gain:
+	   it only takes 60% of the original time.
+
+2007-11-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimized MSXCPUInterface::setPrimarySlot():
 	   more efficient way of updating the not-allowed-to-be-cached
 	   region information
