@@ -650,7 +650,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 	}
 	// Envelope disabled on all channels?
 	if (envelope.isChanging() &&
-	    !(amplitude.getEnvelopeMask() & chanEnable)) {
+	    !(amplitude.getEnvelopeMask() & ~chanEnable)) {
 		envelope.advance(length);
 	}
 
