@@ -44,9 +44,6 @@ private:
 static const double NATIVE_FREQ_DOUBLE = (3579545.0 / 2) / 8;
 static const int NATIVE_FREQ_INT = int(NATIVE_FREQ_DOUBLE + 0.5);
 
-// Fixed point representation of 1.
-static const int FP_UNIT = 0x8000;
-
 static const int PORT_A_DIRECTION = 0x40;
 static const int PORT_B_DIRECTION = 0x80;
 enum Register {
@@ -92,7 +89,7 @@ static float noiseValue(float x)
 
 AY8910::Generator::Generator()
 {
-	reset();
+	reset(0);
 }
 
 inline void AY8910::Generator::reset(unsigned output)
@@ -189,7 +186,7 @@ AY8910::NoiseGenerator::NoiseGenerator()
 
 inline void AY8910::NoiseGenerator::reset()
 {
-	Generator::reset(0x38);
+	Generator::reset(1);
 	random = 1;
 }
 
@@ -201,7 +198,7 @@ inline void AY8910::NoiseGenerator::advance()
 		// Is noise output going to change?
 		if ((random + 1) & 2) { // bit0 ^ bit1
 			// Exit: output flip.
-			output ^= 0x38;
+			output ^= 1;
 		}
 		// The Random Number Generator of the 8910 is a 17-bit shift register.
 		// The input to the shift register is bit0 XOR bit2 (bit0 is the
@@ -253,7 +250,7 @@ inline void AY8910::NoiseGenerator::advance(int duration)
 		       ^ ((random & 1) << 14)
 		       ^ ((random & 1) << 16);
 	}
-	output = (random & 1) ? 0x38 : 0x00;
+	output = random & 1;
 }
 
 
@@ -359,7 +356,7 @@ inline void AY8910::Envelope::reset()
 inline void AY8910::Envelope::setPeriod(int value)
 {
 	// twice as fast as AY8910
-	period = value == 0 ? FP_UNIT / 2 : value * FP_UNIT;
+	period = value == 0 ? 1 : value * 2;
 }
 
 inline unsigned AY8910::Envelope::getVolume() const
@@ -413,7 +410,7 @@ inline void AY8910::Envelope::advance(int duration)
 	//assert(!holding);
 
 	if (count > period) count = period; // TODO can we (re)move this?
-	count += duration * FP_UNIT;
+	count += duration * 2;
 	if (count >= period) {
 		if (holding) return;
 		const int steps = count / period;
@@ -490,7 +487,7 @@ void AY8910::reset(const EmuTime& time)
 {
 	// Reset generators and envelope.
 	for (unsigned chan = 0; chan < 3; ++chan) {
-		tone[chan].reset();
+		tone[chan].reset(0);
 	}
 	noise.reset();
 	envelope.reset();
@@ -670,48 +667,45 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 		int* buf = bufs[chan];
 		if (!buf) continue;
 		if (envelope.isChanging() && amplitude.followsEnvelope(chan)) {
-			Envelope tmpEnvelope = initialEnvelope;
+			envelope = initialEnvelope;
 			ToneGenerator& t = tone[chan];
 			if ((chanEnable & 0x09) == 0x08) {
 				// no noise, square wave: alternating between 0 and 1.
 				for (unsigned i = 0; i < length; ++i) {
-					buf[i] = t.getOutput() * tmpEnvelope.getVolume();
+					buf[i] = t.getOutput() * envelope.getVolume();
 					t.advance();
-					tmpEnvelope.advance(1);
+					envelope.advance(1);
 				}
 			} else if ((chanEnable & 0x09) == 0x09) {
 				// no noise, channel disabled: always 1.
 				for (unsigned i = 0; i < length; ++i) {
-					buf[i] = tmpEnvelope.getVolume();
-					tmpEnvelope.advance(1);
+					buf[i] = envelope.getVolume();
+					envelope.advance(1);
 				}
 				t.advance(length);
 			} else if ((chanEnable & 0x09) == 0x00) {
 				// noise enabled, tone enabled
-				NoiseGenerator tmpNoise = initialNoise;
+				noise = initialNoise;
 				for (unsigned i = 0; i < length; ++i) {
-					buf[i] = tmpNoise.getOutput()
-					       ? t.getOutput() * tmpEnvelope.getVolume()
+					buf[i] = noise.getOutput()
+					       ? t.getOutput() * envelope.getVolume()
 					       : 0;
 					t.advance();
-					tmpNoise.advance();
-					tmpEnvelope.advance(1);
+					noise.advance();
+					envelope.advance(1);
 				}
-				noise = tmpNoise;
 			} else {
 				// noise enabled, tone disabled
-				NoiseGenerator tmpNoise = initialNoise;
+				noise = initialNoise;
 				for (unsigned i = 0; i < length; ++i) {
-					buf[i] = tmpNoise.getOutput()
-					       ? tmpEnvelope.getVolume()
+					buf[i] = noise.getOutput()
+					       ? envelope.getVolume()
 					       : 0;
-					tmpNoise.advance();
-					tmpEnvelope.advance(1);
+					noise.advance();
+					envelope.advance(1);
 				}
-				noise = tmpNoise;
 				t.advance(length);
 			}
-			envelope = tmpEnvelope;
 		} else {
 			// no (changing) envelope on this channel
 			unsigned volume = amplitude.followsEnvelope(chan)
@@ -732,25 +726,23 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 				t.advance(length);
 			} else if ((chanEnable & 0x09) == 0x00) {
 				// noise enabled, tone enabled
-				NoiseGenerator tmpNoise = initialNoise;
+				noise = initialNoise;
 				for (unsigned i = 0; i < length; ++i) {
-					buf[i] = tmpNoise.getOutput()
+					buf[i] = noise.getOutput()
 					       ? t.getOutput() * volume
 					       : 0;
 					t.advance();
-					tmpNoise.advance();
+					noise.advance();
 				}
-				noise = tmpNoise;
 			} else {
 				// noise enabled, tone disabled
-				NoiseGenerator tmpNoise = initialNoise;
+				noise = initialNoise;
 				for (unsigned i = 0; i < length; ++i) {
-					buf[i] = tmpNoise.getOutput()
+					buf[i] = noise.getOutput()
 					       ? volume
 					       : 0;
-					tmpNoise.advance();
+					noise.advance();
 				}
-				noise = tmpNoise;
 				t.advance(length);
 			}
 		}

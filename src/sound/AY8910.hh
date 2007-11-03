@@ -37,7 +37,7 @@ public:
 private:
 	class Generator {
 	public:
-		inline void reset(unsigned output = 0);
+		inline void reset(unsigned output);
 		inline void setPeriod(int value);
 		/** Gets the current output of this generator.
 		  */
