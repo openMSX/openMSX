@@ -69,7 +69,7 @@ private:
 		inline void setParent(AY8910& parent);
 		/** Advance tone generator one step in time.
 		  */
-		inline void advance();
+		inline bool advance();
 		/** Advance tone generator several steps in time.
 		  * @param duration Length of interval to simulate.
 		  */

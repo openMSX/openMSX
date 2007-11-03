@@ -19,6 +19,7 @@
 #include "MSXException.hh"
 #include "StringOp.hh"
 #include "FloatSetting.hh"
+#include "likely.hh"
 #include <cassert>
 #include <cmath>
 #include <cstring>
@@ -155,13 +156,15 @@ inline int AY8910::ToneGenerator::getDetune()
 	return result;
 }
 
-inline void AY8910::ToneGenerator::advance()
+inline bool AY8910::ToneGenerator::advance()
 {
-	count++;
+	++count;
 	if (count >= period) {
 		count = getDetune();
 		output ^= 1;
+		return true;
 	}
+	return false;
 }
 
 inline void AY8910::ToneGenerator::advance(int duration)
@@ -726,9 +729,12 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 			ToneGenerator& t = tone[chan];
 			if ((chanEnable & 0x09) == 0x08) {
 				// no noise, square wave: alternating between 0 and 1.
+				unsigned val = t.getOutput() * volume;
 				for (unsigned i = 0; i < length; ++i) {
-					buf[i] = t.getOutput() * volume;
-					t.advance();
+					buf[i] = val;
+					if (unlikely(t.advance())) {
+						val ^= volume;
+					}
 				}
 			} else if ((chanEnable & 0x09) == 0x09) {
 				// no noise, channel disabled: always 1.
@@ -739,11 +745,14 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 			} else if ((chanEnable & 0x09) == 0x00) {
 				// noise enabled, tone enabled
 				noise = initialNoise;
+				unsigned val = t.getOutput() * volume;
 				for (unsigned i = 0; i < length; ++i) {
 					buf[i] = noise.getOutput()
-					       ? t.getOutput() * volume
+					       ? val
 					       : 0;
-					t.advance();
+					if (unlikely(t.advance())) {
+						val ^= volume;
+					}
 					noise.advance();
 				}
 			} else {
