@@ -166,9 +166,15 @@ inline void AY8910::ToneGenerator::advance()
 
 inline void AY8910::ToneGenerator::advance(int duration)
 {
-	if (count > period) count = period;
+	int oldCount = count;
 	count += duration;
 	if (count >= period) {
+		if (oldCount > period) {
+			// this only happens when period was just changed,
+			// this code makes sure the effect of this method is the
+			// same as calling 'duration x advance()'
+			count -= oldCount - period;
+		}
 		// Calculate number of output transitions.
 		int cycles = count / period;
 		count -= period * cycles; // equivalent to count %= period;
@@ -225,7 +231,12 @@ inline void AY8910::NoiseGenerator::advance()
 
 inline void AY8910::NoiseGenerator::advance(int duration)
 {
-	if (count > period) count = period;
+	if (count > period) {
+		// this only happens when period was just changed,
+		// this code makes sure the effect of this method is the
+		// same as calling 'duration x advance()'
+		count = period;
+	}
 	count += duration;
 	int cycles = count / period;
 	count -= cycles * period; // equivalent to count %= period
@@ -361,7 +372,7 @@ inline void AY8910::Envelope::setPeriod(int value)
 
 inline unsigned AY8910::Envelope::getVolume() const
 {
-	return envVolTable[step ^ attack]; // TODO cache this value?
+	return envVolTable[step ^ attack];
 }
 
 inline void AY8910::Envelope::setShape(unsigned shape)
@@ -409,9 +420,15 @@ inline void AY8910::Envelope::advance(int duration)
 	// in the inner loop(s) of generateChannels().
 	//assert(!holding);
 
-	if (count > period) count = period; // TODO can we (re)move this?
+	int oldCount = count;
 	count += duration * 2;
 	if (count >= period) {
+		if (oldCount > period) {
+			// this only happens when period was just changed,
+			// this code makes sure the effect of this method is the
+			// same as calling 'duration x advance(1)'
+			count -= oldCount - period;
+		}
 		if (holding) return;
 		const int steps = count / period;
 		step -= steps;
