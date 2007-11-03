@@ -321,10 +321,9 @@ inline void AY8910::Amplitude::setMasterVolume(int volume)
 	}
 }
 
-inline bool AY8910::Amplitude::anyEnvelope() const
+inline unsigned AY8910::Amplitude::getEnvelopeMask() const
 {
-	// note: bitwise or is faster in this case
-	return envChan[0] | envChan[1] | envChan[2];
+	return envChan[0] | (envChan[1] << 1) | (envChan[2] << 2);
 }
 
 inline bool AY8910::Amplitude::followsEnvelope(unsigned chan) const
@@ -631,62 +630,28 @@ void AY8910::setOutputRate(unsigned sampleRate)
 
 void AY8910::generateChannels(int** bufs, unsigned length)
 {
-	/*
-	static long long totalSamples = 0, noiseOff = 0, toneOff = 0, bothOff = 0;
-	static long long envSamples = 0;
-	static long long sameSample = 0;
-	long long oldTotal = totalSamples;
-	for (unsigned chan = 0; chan < 3; ++chan) {
-		totalSamples += length;
-		if (regs[AY_ENABLE] & (0x08 << chan)) noiseOff += length;
-		if (regs[AY_ENABLE] & (0x01 << chan)) toneOff += length;
-		if ((regs[AY_ENABLE] & (0x09 << chan)) == (0x09 << chan)) {
-			bothOff += length;
-		}
-	}
-	if (amplitude.anyEnvelope()) envSamples += length;
-	if ((totalSamples / 100000) != (oldTotal / 100000)) {
-		fprintf(stderr,
-			"%lld samples, %3.3f%% noise, %3.3f%% tone, %3.3f%% neither, "
-			"%3.3f%% envelope, %3.3f%% same sample\n",
-			totalSamples,
-			100.0 * ((double)(totalSamples - noiseOff)/(double)totalSamples),
-			100.0 * ((double)(totalSamples - toneOff)/(double)totalSamples),
-			100.0 * ((double)bothOff/(double)totalSamples),
-			100.0 * ((double)envSamples/(double)totalSamples),
-			100.0 * ((double)sameSample/(double)totalSamples)
-			);
-	}
-	*/
-
-	if (((regs[AY_AVOL] | regs[AY_BVOL] | regs[AY_CVOL]) & 0x1F) == 0) {
-		// optimization: all channels volume 0
-		for (int i = 0; i < 3; ++i) {
-			tone[i].advance(length);
-			bufs[i] = 0;
-		}
-		noise.advance(length);
-		if (envelope.isChanging()) envelope.advance(length);
-		return;
-	}
-
-	unsigned chanEnable = regs[AY_ENABLE];
 	// Disable channels with volume 0: since the sample value doesn't matter,
 	// we can use the fastest path.
+	unsigned chanEnable = regs[AY_ENABLE];
 	for (unsigned chan = 0; chan < 3; ++chan) {
-		if ((regs[AY_AVOL + chan] & 0x1F) == 0) {
+		if ((!amplitude.followsEnvelope(chan) &&
+		     (amplitude.getVolume(chan) == 0)) ||
+		    (amplitude.followsEnvelope(chan) &&
+		     !envelope.isChanging() &&
+		     (envelope.getVolume() == 0))) {
 			bufs[chan] = 0;
+			tone[chan].advance(length);
 			chanEnable |= 0x09 << chan;
 		}
 	}
-
 	// Noise disabled on all channels?
 	if ((chanEnable & 0x38) == 0x38) {
 		noise.advance(length);
 	}
 	// Envelope disabled on all channels?
-	if (!amplitude.anyEnvelope()) {
-		if (envelope.isChanging()) envelope.advance(length);
+	if (envelope.isChanging() &&
+	    !(amplitude.getEnvelopeMask() & chanEnable)) {
+		envelope.advance(length);
 	}
 
 	// Calculate samples.
@@ -699,7 +664,6 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 	//   and ToneDisable and NoiseDisable come from the enable reg.
 	// Note that this means that if both tone and noise are disabled, the
 	// output is 1, not 0, and can be modulated by changing the volume.
-
 	Envelope initialEnvelope = envelope;
 	NoiseGenerator initialNoise = noise;
 	for (unsigned chan = 0; chan < 3; ++chan, chanEnable >>= 1) {

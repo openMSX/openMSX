@@ -8,6 +8,10 @@ $Id$
 	   channels (envelope and noise), but the inner loops are much
 	   simpler. In the cases I measured there was a significant net gain:
 	   it only takes 60% of the original time.
+	* Additional AY8910::generateChannels() optimization:
+	   - Also use the 'silent channel' optimization for channels that use
+	     envelope volume and envelope has reached zero (and stays there).
+	   - Simplified the initial tests in generateChannels()
 
 2007-11-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimized MSXCPUInterface::setPrimarySlot():
