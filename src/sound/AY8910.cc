@@ -201,11 +201,9 @@ inline void AY8910::NoiseGenerator::advance()
 	count++;
 	if (count >= period) {
 		count = 0;
-		// Is noise output going to change?
-		if ((random + 1) & 2) { // bit0 ^ bit1
-			// Exit: output flip.
-			output ^= 1;
-		}
+		// noise output changes when (bit1 ^ bit0) == 1
+		output ^= ((random + 1) & 2) >> 1;
+
 		// The Random Number Generator of the 8910 is a 17-bit shift register.
 		// The input to the shift register is bit0 XOR bit2 (bit0 is the
 		// output).
