@@ -660,11 +660,6 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 	if ((chanEnable & 0x38) == 0x38) {
 		noise.advance(length);
 	}
-	// Envelope disabled on all channels?
-	if (envelope.isChanging() &&
-	    !(amplitude.getEnvelopeMask() & ~chanEnable)) {
-		envelope.advance(length);
-	}
 
 	// Calculate samples.
 	// The 8910 has three outputs, each output is the mix of one of the
@@ -676,12 +671,14 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 	//   and ToneDisable and NoiseDisable come from the enable reg.
 	// Note that this means that if both tone and noise are disabled, the
 	// output is 1, not 0, and can be modulated by changing the volume.
+	bool envelopeUpdated = false;
 	Envelope initialEnvelope = envelope;
 	NoiseGenerator initialNoise = noise;
 	for (unsigned chan = 0; chan < 3; ++chan, chanEnable >>= 1) {
 		int* buf = bufs[chan];
 		if (!buf) continue;
 		if (envelope.isChanging() && amplitude.followsEnvelope(chan)) {
+			envelopeUpdated = true;
 			envelope = initialEnvelope;
 			ToneGenerator& t = tone[chan];
 			if ((chanEnable & 0x09) == 0x08) {
@@ -761,6 +758,11 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 				t.advance(length);
 			}
 		}
+	}
+
+	// Envelope not yet updated?
+	if (envelope.isChanging() && !envelopeUpdated) {
+		envelope.advance(length);
 	}
 }
 
