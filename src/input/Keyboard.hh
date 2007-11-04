@@ -31,6 +31,7 @@ public:
 	 * @param msxCommandController ref to the command controller
 	 * @param eventDistributor ref to the user input event distributor
 	 * @param keyboardType contains type of keyboard (0: international, 1: japanese, etc)
+	 * @param hasKeypad turn MSX keypad on/off
 	 * @param keyGhosting turn keyGhosting on/off
 	 */
 	Keyboard(Scheduler& scheduler, MSXCommandController& msxCommandController,
