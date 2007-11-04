@@ -320,6 +320,9 @@ KeyCode getCode(SDLKey key, SDLMod mod, bool release)
 	if (mod & KMOD_META) {
 		result = static_cast<KeyCode>(result | KM_META);
 	}
+	if (mod & KMOD_MODE) {
+		result = static_cast<KeyCode>(result | KM_MODE);
+	}
 	if (release) {
 		result = static_cast<KeyCode>(result | KD_RELEASE);
 	}

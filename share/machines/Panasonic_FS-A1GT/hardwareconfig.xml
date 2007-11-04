@@ -144,6 +144,7 @@
         <volume>16000</volume>
       </sound>
       <key_ghosting>true</key_ghosting>
+      <keyboard_type>1</keyboard_type>
     </PPI>
 
     <VDP id="VDP">

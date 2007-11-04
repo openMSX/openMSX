@@ -12,6 +12,11 @@ EventTranslator::EventTranslator(EventDistributor& eventDistributor_,
 	, eventDelay(eventDelay_)
 {
 	eventDistributor.registerEventListener(
+		OPENMSX_BOOT_EVENT,   *this, EventDistributor::MSX);
+	eventDistributor.registerEventListener(
+		OPENMSX_FOCUS_EVENT,   *this, EventDistributor::MSX);
+
+	eventDistributor.registerEventListener(
 		OPENMSX_KEY_DOWN_EVENT, *this, EventDistributor::MSX);
 	eventDistributor.registerEventListener(
 		OPENMSX_KEY_UP_EVENT,   *this, EventDistributor::MSX);
@@ -33,6 +38,11 @@ EventTranslator::EventTranslator(EventDistributor& eventDistributor_,
 
 EventTranslator::~EventTranslator()
 {
+	eventDistributor.unregisterEventListener(
+		OPENMSX_BOOT_EVENT, *this);
+	eventDistributor.unregisterEventListener(
+		OPENMSX_FOCUS_EVENT, *this);
+
 	eventDistributor.unregisterEventListener(
 		OPENMSX_KEY_DOWN_EVENT, *this);
 	eventDistributor.unregisterEventListener(

@@ -3,7 +3,10 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <sstream>
+#include <iostream>
 #include <cassert>
+#include <SDL.h>
 #include "Clock.hh"
 #include "Keyboard.hh"
 #include "MSXEventDistributor.hh"
@@ -21,6 +24,7 @@
 #include "checked_cast.hh"
 
 using std::string;
+using std::wstring;
 using std::vector;
 
 namespace openmsx {
@@ -69,8 +73,29 @@ private:
 	virtual const string& schedName() const;
 
 	Keyboard& keyboard;
-	string text;
-	char last;
+	wstring text;
+	bool releaseLast;
+	word last;
+};
+
+class BootCapsLockAligner : private MSXEventListener, private Schedulable
+{
+public:
+	BootCapsLockAligner(MSXEventDistributor& msxEventDistributor,
+			    Scheduler& scheduler, Keyboard& keyboard);
+	virtual ~BootCapsLockAligner();
+
+private:
+        // MSXEventListener
+        virtual void signalEvent(shared_ptr<const Event> event,
+                                 const EmuTime& time);
+
+	// Schedulable
+	virtual void executeUntil(const EmuTime& time, int userData);
+	virtual const string& schedName() const;
+
+	Keyboard& keyboard;
+	MSXEventDistributor& eventDistributor;
 };
 
 
@@ -126,9 +151,105 @@ void Keyboard::loadKeymapfile(const string& filename)
 	}
 }
 
+// TODO: implement correctly
+void Keyboard::parseUnicodeKeymapfile(const byte* buf, unsigned size)
+{
+	unsigned i = 0;
+	while  (i < size) {
+		string line;
+		bool done = false;
+		// Read one line from buffer
+		// Filter out any white-space
+		// Only read until # mark
+		while (!done && (i < size)) {
+			char c = buf[i++];
+			switch (c) {
+				case '#':
+					while ((i < size) &&
+					       (buf[i++] != '\n')) {
+						// skip till end of line
+					}
+					done = true;
+					break;
+				case '\r':
+				case '\t':
+				case ' ':
+					// skip whitespace
+					break;
+				case '\n':
+				case '\0':
+					// end of line
+					done = true;
+					break;
+				default:
+					line += c;
+					break;
+			}
+		}
+		int unicode, rowcol;
+		char modifiers[100];
+		byte modmask;
+		int rdnum = sscanf(line.c_str(), "%x,%x,%99s", &unicode, &rowcol, modifiers);
+		if (rdnum == 2) {
+			// there are no modifiers, empty the modifiers string
+			modifiers[0] = 0;
+			rdnum = 3;
+		}
+		if ( rdnum == 3) {
+			if (unicode < 0 || unicode > 65535) {
+				throw FatalError("Wrong unicode value in keymap file");
+			}
+			if (rowcol < 0 || rowcol >= 11*16 ) {
+				throw FatalError("Wrong rowcol value in keymap file");
+			}
+			if ((rowcol & 0x0f) > 7) {
+				throw FatalError("Too high column value in keymap file");
+			}
+			modmask = 0;
+			if (strstr(modifiers, "SHIFT") != NULL) {
+				modmask |= 1;
+			}
+			if (strstr(modifiers, "CTRL") != NULL) {
+				modmask |= 2;
+			}
+			if (strstr(modifiers, "GRAPH") != NULL) {
+				modmask |= 4;
+			}
+			if (strstr(modifiers, "CODE" ) != NULL) {
+				modmask |= 16;
+			}
+			// TODO: add support for CAPSLOCK and KANALOCK
+			// It is mainly needed for the 'InsertKeys' function when it
+			// receives kanji-codes
+//			if (strstr(modifiers, "CAPSLOCK") != NULL) {
+//				modmask != 32;
+//			}
+//			if (strstr(modifiers, "KANALOCK") != NULL) {
+//				modmask != 64;
+//			}
+// TODO: use constants for unicodeTab addressing or use a small structure
+			unicodeTab[unicode][0] = (rowcol>>4)&0x0f; // 0 = row
+			unicodeTab[unicode][1] = 1<<(rowcol&7); // 1 = keymask
+			unicodeTab[unicode][2] = modmask; // 2 = modmask
+		}
+	}
+}
+
+void Keyboard::loadUnicodeKeymapfile(const string& filename)
+{
+	try {
+		File file(filename);
+		byte* buf = file.mmap();
+		parseUnicodeKeymapfile(buf, file.getSize());
+	} catch (FileException &e) {
+		throw FatalError("Couldn't load unicode keymap file: " + filename);
+	}
+}
+
 Keyboard::Keyboard(Scheduler& scheduler,
                    MSXCommandController& msxCommandController,
-                   MSXEventDistributor& eventDistributor_, bool keyG)
+                   MSXEventDistributor& eventDistributor_,
+		   int keyboardType, bool hasKP, bool keyG)
 	: Schedulable(scheduler)
 	, eventDistributor(eventDistributor_)
 	, keyMatrixUpCmd  (new KeyMatrixUpCmd  (
@@ -137,25 +258,51 @@ Keyboard::Keyboard(Scheduler& scheduler,
 		msxCommandController, eventDistributor, scheduler, *this))
 	, keyTypeCmd(new KeyInserter(
 		msxCommandController, eventDistributor, scheduler, *this))
+        , bootCapsLockAligner(new BootCapsLockAligner(
+		eventDistributor, scheduler, *this))
 {
 	keyGhosting = keyG;
+	hasKeypad = hasKP;
 	keysChanged = false;
+	msxCapsLockOn = false;
+	msxmodifiers=0xff;
 	memset(keyMatrix,     255, sizeof(keyMatrix));
 	memset(cmdKeyMatrix,  255, sizeof(cmdKeyMatrix));
 	memset(userKeyMatrix, 255, sizeof(userKeyMatrix));
+	memset(dynKeymap, 0, sizeof(dynKeymap));
+	memset(unicodeTab, 0, sizeof(unicodeTab));
 
-	if (const XMLElement* config = msxCommandController.
-			getSettingsConfig().getXMLElement().findChild("KeyMap")) {
+	const XMLElement* config;
+
+	if ((config = msxCommandController.
+			getSettingsConfig().getXMLElement().findChild("CodeKanaHostkey"))) {
+		string keyname = config->getData();
+		Keys::KeyCode keyCode = Keys::getCode(keyname);
+		if (keyCode != 0) {
+			keyTab[keyCode][0]=6;
+			keyTab[keyCode][1]=0x10;
+		}
+	}
+
+	// TODO: decommission Matrix2Matrix keymap file, it is obsoleted
+	// by Unicode2Matrix keymap file
+	if ((config = msxCommandController.
+			getSettingsConfig().getXMLElement().findChild("KeyMap"))) {
 		string filename = config->getData();
 		loadKeymapfile(config->getFileContext().resolve(filename));
 	}
+
+	std::stringstream unicodeKeymapFilename;
+	unicodeKeymapFilename <<  "keymaps/" << keyboardType << ".keymap";
+	SystemFileContext context(true);
+	loadUnicodeKeymapfile(context.resolve(unicodeKeymapFilename.str()));
 
 	eventDistributor.registerEventListener(*this);
 	// We do not listen for CONSOLE_OFF_EVENTS because rescanning the
 	// keyboard can have unwanted side effects
 
-	// We may do something with focus-change events later, but SDL does
-	// not send them
+	// We listen for FOCUS change events, to align CAPS-lock status of MSX
+	// with host environment
 }
 
 Keyboard::~Keyboard()
@@ -178,11 +325,47 @@ const byte* Keyboard::getKeys()
 	return keyMatrix;
 }
 
+/*
+ * Align MSX caps lock state with host caps lock state
+ * WARNING: This function assumes that the MSX will see and
+ *          process the caps lock key press.
+ *          If MSX misses the key press for whatever reason (e.g.
+ *          interrupts are disabled), the caps lock state in this
+ *          module will mismatch with the real MSX caps lock state
+ * TODO: Find a solution for the above problem. For example by monitoring
+ *       the MSX caps-lock LED state.
+ */
+void Keyboard::alignCapsLock()
+{
+	bool hostCapsLockOn = ((SDL_GetModState() & KMOD_CAPS) != 0);
+
+	if (msxCapsLockOn != hostCapsLockOn) {
+		msxCapsLockOn = hostCapsLockOn;
+		processKey(true, Keys::K_CAPSLOCK);
+		Clock<1000> now(getScheduler().getCurrentTime());
+		setSyncPoint(now + 100);
+	}
+}
+
+/*
+ * Received an event (through EventTranslator class)
+ * Following events get processed:
+ *  OPENMSX_FOCUS_EVENT
+ *  OPENMSX_KEY_DOWN_EVENT
+ *  OPENMSX_KEY_UP_EVENT
+ */
 void Keyboard::signalEvent(shared_ptr<const Event> event,
                            const EmuTime& /*time*/)
 {
 	EventType type = event->getType();
-	if ((type == OPENMSX_KEY_DOWN_EVENT) ||
+	if (type == OPENMSX_FOCUS_EVENT) {
+		const FocusEvent& focusEvent = checked_cast<const FocusEvent&>(*event);
+		if (focusEvent.getGain() == true)
+		{
+			alignCapsLock();
+		}
+	}
+	else if ((type == OPENMSX_KEY_DOWN_EVENT) ||
 	    (type == OPENMSX_KEY_UP_EVENT)) {
 		// Ignore possible console on/off events:
 		// we do not rescan the keyboard since this may lead to
@@ -192,12 +375,21 @@ void Keyboard::signalEvent(shared_ptr<const Event> event,
 		Keys::KeyCode key = static_cast<Keys::KeyCode>
 			(int(keyEvent.getKeyCode()) & int(Keys::K_MASK));
 		if (key != Keys::K_CAPSLOCK) {
-			processKey(type == OPENMSX_KEY_DOWN_EVENT, key);
+                        processKeyEvent(type == OPENMSX_KEY_DOWN_EVENT, keyEvent);
 		} else {
 			// This is a workaround for a SDL 'feature' (it's
 			// actually a documented bug in SDL). In a future
 			// refactoring this workaround should be moved to a
 			// higher level.
+			// The bug/feature is that SDL sends a CAPSLOCK press event at
+			// the moment that the host CAPSLOCK status goes 'on'
+			// and it sends the release event only when the host CAPSLOCK status
+			// goes 'off'. However, the emulated MSX must see a press and release
+			// event when CAPSLOCK goes on and another press and release event when
+			// it goes off again. This is achieved by pressing CAPSLOCK key at the
+			// moment that the host CAPSLOCK status changes and releasing the
+			// the CAPSLOCK key shortly after (via a timed event)
+			msxCapsLockOn = !msxCapsLockOn;
 			processKey(true, Keys::K_CAPSLOCK);
 			Clock<1000> now(getScheduler().getCurrentTime());
 			setSyncPoint(now + 100);
@@ -216,20 +408,136 @@ const string& Keyboard::schedName() const
 	return schedName;
 }
 
+/*
+ * Process an SDL key press/release event. It concerns a
+ * special key (e.g. SHIFT, UP, DOWN, F1, F2, ...) that can not
+ * be unambiguously derived from a unicode character;
+ *  Map the SDL key to an equivalent MSX key press/release event
+ */
 void Keyboard::processKey(bool down, int key)
 {
 	if (key < MAX_KEYSYM) {
+		int row=keyTab[key][0];
+		byte mask=keyTab[key][1];
 		if (down) {
-			// Key pressed: reset bit in keyMatrix
-			userKeyMatrix[keyTab[key][0]] &= ~keyTab[key][1];
+			// Key pressed: reset bit in user keyMatrix
+			userKeyMatrix[row] &= ~mask;
+			if (row == 6) {
+				// Keep track of the MSX modifiers (CTRL, GRAPH, CODE, SHIFT)
+				// The MSX modifiers in row 6 of the matrix sometimes get
+				// overruled by the unicode character processing, in
+				// which case the unicode processing must be able to restore
+				// them to the real key-combinations pressed by the user
+				msxmodifiers &= ~(mask & 0x17);
+			}
 		} else {
 			// Key released: set bit in keyMatrix
-			userKeyMatrix[keyTab[key][0]] |= keyTab[key][1];
+			userKeyMatrix[row] |= mask;
+			if (row == 6) {
+				msxmodifiers |= (mask & 0x17);
+			}
 		}
 		keysChanged = true; // do ghosting at next getKeys()
 	}
 }
 
+static void bad_key(int key)
+{
+	std::cerr << "Keyboard::bad_key: too high key (" << key << ") encountered." << std::endl;
+}
+
+/*
+ * Process an SDL key event;
+ *  Check if it is a special key, in which case it can be directly
+ *  mapped to the MSX matrix.
+ *  Otherwise, retrieve the unicode character value for the event
+ *  and map the unicode character to the key-combination that must
+ *  be pressed to generate the equivalent character on the MSX
+ */
+void Keyboard::processKeyEvent(bool down, const KeyEvent& keyEvent)
+{
+	Keys::KeyCode keyCode = keyEvent.getKeyCode();
+	Keys::KeyCode key = static_cast<Keys::KeyCode>
+		(int(keyCode) & int(Keys::K_MASK));
+	word unicode;
+	
+	bool isOnKeypad = (
+		(key >= Keys::K_KP0 && key <= Keys::K_KP9) ||
+		(key == Keys::K_KP_PERIOD) ||
+		(key == Keys::K_KP_DIVIDE) ||
+		(key == Keys::K_KP_MULTIPLY) ||
+		(key == Keys::K_KP_MINUS) ||
+		(key == Keys::K_KP_PLUS) ||
+		(key == Keys::K_KP_ENTER) // note: Host KP_ENTER is mapped to MSX KP_COMMA
+	);
+
+
+	if (isOnKeypad && !hasKeypad) {
+		// User entered on host keypad but this MSX model does not have one
+		// Ignore the keypress/release
+		return; 
+	}
+	
+	if (down)
+	{
+		if ((userKeyMatrix[6] & 2) == 0 || isOnKeypad) {
+			// CTRL-key is active or user entered a key on numeric
+			// keypad. This maps to same unicode as some other
+			// key combinations (e.g. digit on main keyboard or TAB/DEL)
+			// Use unicode to handle the more common combination
+			// and use direct matrix to matrix mapping for the exceptional
+			// cases (CTRL+character or numeric keypad usage)
+			unicode = 0;
+		}
+		else {
+			unicode = keyEvent.getUnicode();
+		}
+		if (key < MAX_KEYSYM) {
+ 			// Remember which unicode character is currently derived
+			// from this SDL key. It must be stored here (during key-press)
+			// because during key-release SDL never returns the unicode
+			// value (it always returns the value 0). But we must know
+			// the unicode value in order to be able to perform the correct
+			// key-combination-release in the MSX
+			dynKeymap[key] = unicode;
+		} else {
+			bad_key(key);
+		}
+		if (unicode == 0) {
+			// It was an ambiguous key (numeric key-pad, CTRL+character)
+			// or a special key according to SDL (like HOME, INSERT, etc)
+			// or a first keystroke of a composed key 
+			// (e.g. altr-gr + = on azerty keyboard)
+			// Perform direct SDL matrix to MSX matrix mapping
+			// But only when it is not a first keystroke of a
+			// composed key
+			if ((keyCode & Keys::KM_MODE) == 0) {
+				processKey(down, key); 
+			}
+		}
+		else {
+			// It is a unicode character; map it to the right key-combination
+			pressUnicodeByUser(unicode, key, true);
+		}
+	} else {
+		// key was released
+		if (key < MAX_KEYSYM) {
+			unicode=dynKeymap[key]; // Get the unicode that was derived from this key
+			if (unicode == 0) {
+				// It was a special key, perform matrix to matrix mapping
+				// But only when it is not a first keystroke of a
+				// composed key
+				if ((keyCode & Keys::KM_MODE) == 0) {
+					processKey(down, key); 
+				}
+			}
+			else {
+				// It was a unicode character; map it to the right key-combination
+				pressUnicodeByUser(unicode, key, false);
+			}
+		}
+	}
+}
 
 void Keyboard::doKeyGhosting()
 {
@@ -286,52 +594,116 @@ string Keyboard::processCmd(const vector<string>& tokens, bool up)
 	return "";
 }
 
-void Keyboard::pressAscii(char asciiCode, bool down)
+/*
+ * This routine processes unicode characters. It maps a unicode character
+ * to the correct key-combination on the MSX.
+ *
+ * There are a few caveats with respect to the MSX and Host modifier keys
+ * that you must be aware about if you want to understand why the routine
+ * works as it works.
+ *
+ * Row 6 of the MSX keyboard matrix contains the MSX modifier keys:
+ *   CTRL, CODE, GRAPH and SHIFT
+ *
+ * The SHIFT key is also a modifier key on the host machine. However, the
+ * SHIFT key behaviour can differ between HOST and MSX for all 'special'
+ * characters (anything but A-Z).
+ * For example, on AZERTY host keyboard, user presses SHIFT+& to make the '1'
+ * On MSX QWERTY keyboard, the same key-combination leads to '!'.
+ * So this routine must not only PRESS the SHIFT key when required according
+ * to the unicode mapping table but it must also RELEASE the SHIFT key for all
+ * these special keys when the user PRESSES the key/character.
+ *
+ * On the other hand, for A-Z, this routine must not touch the SHIFT key at all.
+ * Otherwise it might give strange behaviour when CAPS lock is on (which also
+ * acts as a key-modifier for A-Z). The routine can rely on the fact that 
+ * SHIFT+A-Z behaviour is the same on all host and MSX keyboards. It is
+ * approximately the only part of keyboards that is de-facto standardized :-)
+ *
+ * For the other modifiers (CTRL, CODE and GRAPH), the routine must be able to
+ * PRESS them when required but there is no need to RELEASE them during
+ * character press. On the contrary; the host keys that map to CODE and GRAPH
+ * do not work as modifiers on the host itself, so if the routine would release
+ * them, it would give wrong result.
+ * For example, 'ALT-A' on Host will lead to unicode character 'a', just like
+ * only pressing the 'A' key. The MSX however must know about the difference.
+ *
+ * As a reminder: here is the build-up of row 6 of the MSX key matrix
+ *              7    6     5     4    3      2     1    0
+ * row  6   |  F3 |  F2 |  F1 | code| caps|graph| ctrl|shift|
+ */
+void Keyboard::pressUnicodeByUser(word unicode, int key, bool down)
 {
-  	for (int i = 0; i < 2; i++) {
-		byte row  = asciiTab[asciiCode & 0xFF][i] >> 8;
-		byte mask = asciiTab[asciiCode & 0xFF][i] & 0xFF;
-		if (down) {
-			cmdKeyMatrix[row] &= ~mask;
-		} else {
-			cmdKeyMatrix[row] |=  mask;
-		}
+	byte shiftkeymask = ( key >= Keys::K_A && key <= Keys::K_Z) ? 0x00 : 0x01;
+	byte row = unicodeTab[unicode][0];
+	byte mask = unicodeTab[unicode][1];
+	byte modmask = unicodeTab[unicode][2];
+	if (down) {
+		userKeyMatrix[row] &= ~mask;
+                userKeyMatrix[6] |= shiftkeymask;
+		userKeyMatrix[6] &= ~(modmask & (0xfe | shiftkeymask));
+	}
+	else {
+		userKeyMatrix[row] |= mask;
+		// Do not simply unpress code, graph, ctrl (and shift)
+		// but restore them to the values currently pressed
+		// by the user
+		userKeyMatrix[6] &= (msxmodifiers | ~0x17);
+		userKeyMatrix[6] |= (msxmodifiers & 0x17);
 	}
 	keysChanged = true;
 }
 
-bool Keyboard::commonKeys(char asciiCode1, char asciiCode2)
+/*
+ * Press an ASCII character. It is used by the 'Insert characters'
+ * function that is exposed to the console.
+ * The characters are inserted in a separate keyboard matrix, to prevent
+ * interference with the keypresses of the user on the MSX itself
+ */
+void Keyboard::pressAscii(word unicode, bool down)
 {
-	// get row / mask
-	byte row10  = asciiTab[asciiCode1 & 0xFF][0] >> 8;
-	byte row11  = asciiTab[asciiCode1 & 0xFF][1] >> 8;
-	byte row20  = asciiTab[asciiCode2 & 0xFF][0] >> 8;
-	byte row21  = asciiTab[asciiCode2 & 0xFF][1] >> 8;
-	byte mask10 = asciiTab[asciiCode1 & 0xFF][0] & 0xFF;
-	byte mask11 = asciiTab[asciiCode1 & 0xFF][1] & 0xFF;
-	byte mask20 = asciiTab[asciiCode2 & 0xFF][0] & 0xFF;
-	byte mask21 = asciiTab[asciiCode2 & 0xFF][1] & 0xFF;
+	byte row = unicodeTab[unicode][0];
+	byte mask = unicodeTab[unicode][1];
+	byte modmask = unicodeTab[unicode][2];
+	if (down) {
+		cmdKeyMatrix[row] &= ~mask;
+		cmdKeyMatrix[6] &= ~modmask;
+	}
+	else {
+		cmdKeyMatrix[row] |= mask;
+		cmdKeyMatrix[6] |= modmask;
+	}
+	keysChanged = true;
+}
 
-	// ignore modifier keys (shift, ctrl, graph, code)
-	if (row10 == 6) mask10 &= ~0x17;
-	if (row11 == 6) mask11 &= ~0x17;
+/*
+ * Check if there are common keys in the MSX matrix for
+ * two different ascii-codes.
+ * It is used by the 'insert keys' function to determine if it has to wait for
+ * a short while after releasing a character before pressing the next character
+ */
+bool Keyboard::commonKeys(word unicode1, word unicode2)
+{
+	// get row / mask of key (note: ignore modifier mask)
+	byte row1 = unicodeTab[unicode1][0];
+	byte mask1 = unicodeTab[unicode1][1];
+
+	byte row2 = unicodeTab[unicode2][0];
+	byte mask2 = unicodeTab[unicode2][1];
 
 	// common key on common row?
-	return ((row10 == row20) && (mask10 & mask20)) ||
-	       ((row10 == row21) && (mask10 & mask21)) ||
-	       ((row11 == row20) && (mask11 & mask20)) ||
-	       ((row11 == row21) && (mask11 & mask21));
+	return ((row1 == row2) && (mask1 & mask2));
 }
 
 
 // class KeyMatrixUpCmd
 
 KeyMatrixUpCmd::KeyMatrixUpCmd(MSXCommandController& msxCommandController,
-                               MSXEventDistributor& msxEventDistributor,
-                               Scheduler& scheduler, Keyboard& keyboard_)
-	: RecordedCommand(msxCommandController, msxEventDistributor,
-	                  scheduler, "keymatrixup")
-	, keyboard(keyboard_)
+		MSXEventDistributor& msxEventDistributor,
+		Scheduler& scheduler, Keyboard& keyboard_)
+: RecordedCommand(msxCommandController, msxEventDistributor,
+		scheduler, "keymatrixup")
+					 , keyboard(keyboard_)
 {
 }
 
@@ -351,11 +723,11 @@ string KeyMatrixUpCmd::help(const vector<string>& /*tokens*/) const
 // class KeyMatrixDownCmd
 
 KeyMatrixDownCmd::KeyMatrixDownCmd(MSXCommandController& msxCommandController,
-                                   MSXEventDistributor& msxEventDistributor,
-                                   Scheduler& scheduler, Keyboard& keyboard_)
-	: RecordedCommand(msxCommandController, msxEventDistributor,
-	                  scheduler, "keymatrixdown")
-	, keyboard(keyboard_)
+		MSXEventDistributor& msxEventDistributor,
+		Scheduler& scheduler, Keyboard& keyboard_)
+: RecordedCommand(msxCommandController, msxEventDistributor,
+		scheduler, "keymatrixdown")
+					   , keyboard(keyboard_)
 {
 }
 
@@ -375,12 +747,12 @@ string KeyMatrixDownCmd::help(const vector<string>& /*tokens*/) const
 // class KeyInserter
 
 KeyInserter::KeyInserter(MSXCommandController& msxCommandController,
-                         MSXEventDistributor& msxEventDistributor,
-                         Scheduler& scheduler, Keyboard& keyboard_)
-	: RecordedCommand(msxCommandController, msxEventDistributor,
-	                  scheduler, "type")
+		MSXEventDistributor& msxEventDistributor,
+		Scheduler& scheduler, Keyboard& keyboard_)
+: RecordedCommand(msxCommandController, msxEventDistributor,
+		scheduler, "type")
 	, Schedulable(scheduler)
-	, keyboard(keyboard_), last(-1)
+				, keyboard(keyboard_), releaseLast(false)
 {
 }
 
@@ -407,21 +779,30 @@ void KeyInserter::type(const string& str)
 	if (text.empty()) {
 		reschedule(getScheduler().getCurrentTime());
 	}
-	text += Unicode::utf8ToAscii(str);
+	text += Unicode::utf8ToUnicode(str); // TODO: refactor by using a utf8ToUnicode decoder
 }
 
 void KeyInserter::executeUntil(const EmuTime& time, int /*userData*/)
 {
-	keyboard.pressAscii(last, false);
+	if (releaseLast) {
+		keyboard.pressAscii(last, false); // release previous character
+	}
 	if (text.empty()) {
+		releaseLast = false;
 		return;
 	}
-	char current = text[0];
-	if (keyboard.commonKeys(last, current)) {
-		last = -1;
+	word current = text[0];
+	if (releaseLast == true && keyboard.commonKeys(last, current)) {
+		// There are common keys between previous and current character
+		// Do not immediately press again but give MSX the time to notice
+		// that the keys have been released
+		releaseLast = false;
 	} else {
+		// All keys in current char differ from previous char. The new keys
+		// can immediately be pressed
 		keyboard.pressAscii(current, true);
 		last = current;
+		releaseLast = true;
 		text = text.substr(1);
 	}
 	reschedule(time);
@@ -439,6 +820,49 @@ const string& KeyInserter::schedName() const
 	return schedName;
 }
 
+/*
+ * class BootCapsLockAligner
+ *
+ * It is used to align MSX CAPS lock status with the host CAPS lock status
+ * during the reset of the MSX.
+ * It listens to the 'BOOT' event and schedules the real alignment
+ * 2 seconds later. Reason is that it takes a while before the MSX
+ * reset routine starts monitoring the MSX keyboard.
+ */
+BootCapsLockAligner::BootCapsLockAligner(MSXEventDistributor& eventDistributor_,
+			    Scheduler& scheduler, Keyboard& keyboard_)
+	: Schedulable(scheduler) 
+	, keyboard(keyboard_)
+	, eventDistributor(eventDistributor_)
+{
+	eventDistributor.registerEventListener(*this);
+}
+
+BootCapsLockAligner::~BootCapsLockAligner()
+{
+	eventDistributor.unregisterEventListener(*this);
+}
+
+void BootCapsLockAligner::signalEvent(shared_ptr<const Event> event,
+                                 const EmuTime& /*time*/)
+{
+	EventType type = event->getType();
+	if (type == OPENMSX_BOOT_EVENT) {
+		Clock<100> now(getScheduler().getCurrentTime());
+		setSyncPoint(now + 200);
+	}
+}
+
+void BootCapsLockAligner::executeUntil(const EmuTime& time, int userData)
+{
+	keyboard.alignCapsLock();
+}
+
+const string& BootCapsLockAligner::schedName() const
+{
+	static const string schedName = "BootCapsLockAligner";
+	return schedName;
+}
 
 /** Keyboard bindings ****************************************/
 
@@ -471,6 +895,7 @@ const string& KeyInserter::schedName() const
 //  11   |     |     |     |     | 'NO'|     |'YES'|     |
 //       +-----+-----+-----+-----+-----+-----+-----+-----+
 
+// Mapping from SDL keys to MSX keys
 byte Keyboard::keyTab[MAX_KEYSYM][2] = {
 /* 0000 */
   {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
@@ -522,7 +947,7 @@ byte Keyboard::keyTab[MAX_KEYSYM][2] = {
   {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},
 /* 0100 */
   {9,0x08},{9,0x10},{9,0x20},{9,0x40},{9,0x80},{10,0x01},{10,0x02},{10,0x04},
-  {10,0x08},{10,0x10},{10,0x80},{9,0x04},{9,0x01},{10,0x20},{9,0x02},{7,0x80},
+  {10,0x08},{10,0x10},{10,0x80},{9,0x04},{9,0x01},{10,0x20},{9,0x02},{10,0x40},
 /* 0110 */
   {0,0x00},{8,0x20},{8,0x40},{8,0x80},{8,0x10},{8,0x04},{8,0x02},{0,0x00},
   {0,0x00},{0,0x00},{6,0x20},{6,0x40},{6,0x80},{7,0x01},{7,0x02},{0,0x00},
@@ -537,116 +962,5 @@ byte Keyboard::keyTab[MAX_KEYSYM][2] = {
   {0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00},{0,0x00}
 };
 
-// keypresses needed to type ascii characters
-// for each character there are shorts S[0], S[2]
-// S[i] >> 8   adresses a row in the keyboard matrix
-// S[i] & 0xFF gives the keys that need to be pressed in that row
-// two shorts is enough because all modifier keys on MSX are in the same row
-// table is for western keyboard layout
-// TODO: provide a setting to chance to other layout
-short Keyboard::asciiTab[256][2] =
-{
-	// 0x601, 0x	SHIFT
-	// 0x610, 0x	CODE
-	// 0x602, 0x	CTRL
-	// 0x604, 0x	GRAPH
-	// 0x611, 0x	SHIFT+CODE
-	// 0x603, 0x	SHIFT+CTRL
-	// 0x605, 0x	SHIFT+GRAPH
-
-	// 0x00
-	{0x603, 0x004}, {0x602, 0x240}, {0x602, 0x280}, {0x602, 0x301}, // ^@, ^A, ^B, ^C,
-	{0x602, 0x302}, {0x602, 0x304}, {0x602, 0x308}, {0x602, 0x310}, // ^D, ^E, ^F, ^G,
-	{0x720},        {0x708},        {0x602, 0x380}, {0x802},        // BS, TAB, LF, HOME,
-	{0x601, 0x802}, {0x780},        {0x602, 0x408}, {0x602, 0x410}, // CLS(FF), CR, ^N, ^O,
-	// 0x10
-	{0x602, 0x420}, {0x602, 0x440}, {0x804},        {0x602, 0x501}, // ^P, ^Q, INS, ^S,
-	{0x602, 0x502}, {0x602, 0x504}, {0x602, 0x508}, {0x602, 0x510}, // ^T, ^U, ^V, ^W,
-	{0x740},        {0x602, 0x540}, {0x602, 0x580}, {0x704},        // SEL, ^Y, EOF, ESC,
-	{0x880},        {0x810},        {0x820},        {0x840},        // RGT, LFT, UP, DWN,
-	// 0x20
-	{0x801},        {0x601, 0x002}, {0x601, 0x201}, {0x601, 0x008}, // SPC, !, ", #,
-	{0x601, 0x010}, {0x601, 0x020}, {0x601, 0x080}, {0x201},        // $, %, &, ',
-	{0x601, 0x102}, {0x601, 0x001}, {0x601, 0x101}, {0x601, 0x108}, // (, ), *, +,
-	{0x204},        {0x104},        {0x208},        {0x210},        // ,, -, ., /,
-	// 0x30
-	{0x001},        {0x002},        {0x004},        {0x008},        // 0, 1, 2, 3,
-	{0x010},        {0x020},        {0x040},        {0x080},        // 4, 5, 6, 7,
-	{0x101},        {0x102},        {0x601, 0x180}, {0x180},        // 8, 9, :, ;,
-	{0x601, 0x204}, {0x108},        {0x601, 0x208}, {0x601, 0x210}, // <, =, >, ?,
-	// 0x40
-	{0x601, 0x004}, {0x601, 0x240}, {0x601, 0x280}, {0x601, 0x301}, // @, A, B, C,
-	{0x601, 0x302}, {0x601, 0x304}, {0x601, 0x308}, {0x601, 0x310}, // D, E, F, G,
-	{0x601, 0x320}, {0x601, 0x340}, {0x601, 0x380}, {0x601, 0x401}, // H, I, J, K,
-	{0x601, 0x402}, {0x601, 0x404}, {0x601, 0x408}, {0x601, 0x410}, // L, M, N, O,
-	// 0x50
-	{0x601, 0x420}, {0x601, 0x440}, {0x601, 0x480}, {0x601, 0x501}, // P, Q, R, S,
-	{0x601, 0x502}, {0x601, 0x504}, {0x601, 0x508}, {0x601, 0x510}, // T, U, V, W,
-	{0x601, 0x520}, {0x601, 0x540}, {0x601, 0x580}, {0x120},        // X, Y, Z, [,
-	{0x110},        {0x140},        {0x601, 0x040}, {0x601, 0x104}, // \, ], ^, _,
-	// 0x60
-	{0x202},        {0x240},        {0x280},        {0x301},        // `, a, b, c,
-	{0x302},        {0x304},        {0x308},        {0x310},        // d, e, f, g,
-	{0x320},        {0x340},        {0x380},        {0x401},        // h, i, j, k,
-	{0x402},        {0x404},        {0x408},        {0x410},        // l, m, n, o,
-	// 0x70
-	{0x420},        {0x440},        {0x480},        {0x501},        // p, q, r, s,
-	{0x502},        {0x504},        {0x508},        {0x510},        // t, u, v, w,
-	{0x520},        {0x540},        {0x580},        {0x601, 0x120}, // x, y, z, {,
-	{0x601, 0x110}, {0x601, 0x140}, {0x601, 0x202}, {0x808},        // |, }, ~, DEL,
-	// 0x80
-	{0x611, 0x102}, {0x610, 0x310}, {0x610, 0x504}, {0x610, 0x440}, // 128, 129, 130, 131,
-	{0x610, 0x240}, {0x610, 0x580}, {0x610, 0x204}, {0x610, 0x102}, // 132, 133, 134, 135,
-	{0x610, 0x510}, {0x610, 0x501}, {0x610, 0x520}, {0x610, 0x302}, // 136, 137, 138, 139,
-	{0x610, 0x304}, {0x610, 0x301}, {0x611, 0x240}, {0x611, 0x204}, // 140, 141, 142, 143,
-	// 0x90
-	{0x611, 0x504}, {0x610, 0x380}, {0x611, 0x380}, {0x610, 0x480}, // 144, 145, 146, 147,
-	{0x610, 0x308}, {0x610, 0x508}, {0x610, 0x502}, {0x610, 0x280}, // 148, 149, 150, 151,
-	{0x610, 0x020}, {0x611, 0x308}, {0x611, 0x310}, {0x610, 0x010}, // 152, 153, 154, 155,
-	{0x611, 0x010}, {0x611, 0x020}, {0x611, 0x004}, {0x610, 0x002}, // 156, 157, 158, 159,
-	// 0xa0
-	{0x610, 0x540}, {0x610, 0x340}, {0x610, 0x410}, {0x610, 0x420}, // 160, 161, 162, 163,
-	{0x610, 0x408}, {0x611, 0x408}, {0x610, 0x208}, {0x610, 0x210}, // 164, 165, 166, 167,
-	{0x611, 0x210}, {0x605, 0x480}, {0x605, 0x540}, {0x604, 0x004}, // 168, 169, 170, 171,
-	{0x604, 0x002}, {0x611, 0x002}, {0x605, 0x204}, {0x605, 0x208}, // 172, 173, 174, 175,
-	// 0xb0
-	{0x611, 0x320}, {0x610, 0x320}, {0x611, 0x401}, {0x610, 0x401}, // 176, 177, 178, 179,
-	{0x611, 0x402}, {0x610, 0x402}, {0x611, 0x180}, {0x610, 0x180}, // 180, 181, 182, 183,
-	{0x611, 0x201}, {0x610, 0x201}, {0x604, 0x008}, {0x604, 0x202}, // 184, 185, 186, 187,
-	{0x604, 0x301}, {0x604, 0x020}, {0x611, 0x008}, {0x610, 0x008}, // 188, 189, 190, 191,
-	// 0xc0
-	{0x604, 0x504}, {0x605, 0x302}, {0x604, 0x410}, {0x605, 0x410}, // 192, 193, 194, 195,
-	{0x604, 0x240}, {0x605, 0x504}, {0x604, 0x380}, {0x604, 0x302}, // 196, 197, 198, 199,
-	{0x604, 0x402}, {0x605, 0x402}, {0x605, 0x380}, {0x605, 0x440}, // 200, 201, 202, 203,
-	{0x604, 0x440}, {0x604, 0x304}, {0x605, 0x304}, {0x604, 0x510}, // 204, 205, 206, 207,
-	// 0xd0
-	{0x605, 0x510}, {0x605, 0x501}, {0x604, 0x501}, {0x605, 0x408}, // 208, 209, 210, 211,
-	{0x605, 0x308}, {0x605, 0x508}, {0x605, 0x320}, {0x605, 0x420}, // 212, 213, 214, 215,
-	{0x611, 0x001}, {0x610, 0x004}, {0x610, 0x140}, {0x604, 0x420}, // 216, 217, 218, 219,
-	{0x604, 0x340}, {0x604, 0x401}, {0x605, 0x401}, {0x605, 0x340}, // 220, 221, 222, 223,
-	// 0xe0
-	{0x610, 0x040}, {0x610, 0x080}, {0x611, 0x101}, {0x611, 0x420}, // 224, 225, 226, 227,
-	{0x611, 0x202}, {0x610, 0x202}, {0x610, 0x404}, {0x610, 0x101}, // 228, 229, 230, 231,
-	{0x611, 0x120}, {0x610, 0x108}, {0x611, 0x140}, {0x610, 0x001}, // 232, 233, 234, 235,
-	{0x604, 0x101}, {0x610, 0x120}, {0x610, 0x104}, {0x604, 0x010}, // 236, 237, 238, 239,
-	// 0xf0
-	{0x605, 0x108}, {0x604, 0x108}, {0x604, 0x208}, {0x604, 0x204}, // 240, 241, 242, 243,
-	{0x604, 0x040}, {0x605, 0x040}, {0x605, 0x210}, {0x605, 0x202}, // 244, 245, 246, 247,
-	{0x605, 0x580}, {0x605, 0x520}, {0x605, 0x301}, {0x604, 0x080}, // 248, 249, 250, 251,
-	{0x605, 0x008}, {0x605, 0x004}, {0x605, 0x240}, {},             // 252, 253, 254, 255,
-};
-
 } // namespace openmsx
 
-/*
-  // dual char (0x01, 0x40 -> 0x01, 0x 5f)
-	{},             {0x604, 0x120}, {0x605, 0x120}, {0x605, 0x201}, // 00, 01, 02, 03,
-	{0x605, 0x180}, {0x604, 0x201}, {0x604, 0x180}, {0x604, 0x102}, // 04, 05, 06, 07,
-	{0x605, 0x102}, {0x604, 0x001}, {0x605, 0x001}, {0x604, 0x404}, // 08, 09, 10, 11,
-	{0x605, 0x404}, {0x604, 0x140}, {0x605, 0x140}, {0x604, 0x580}, // 12, 13, 14, 15,
-
-	{0x605, 0x310}, {0x604, 0x280}, {0x604, 0x502}, {0x604, 0x320}, // 16, 17, 18, 19,
-	{0x604, 0x308}, {0x604, 0x310}, {0x605, 0x110}, {0x604, 0x104}, // 20, 21, 22, 23,
-	{0x604, 0x480}, {0x604, 0x540}, {0x604, 0x508}, {0x604, 0x408}, // 24, 25, 26, 27,
-	{0x604, 0x520}, {0x604, 0x210}, {0x604, 0x110}, {0x605, 0x104}, // 28, 29, 30, 31,
-*/

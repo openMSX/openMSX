@@ -13,6 +13,9 @@ namespace Unicode
 	//string of 8-bit characters.
 	// characters >= 0x100 are mapped to '?' for now
 	std::string utf8ToAscii(const std::string& utf8);
+	//decodes a a string possibly containing UTF-8 sequences to a
+	//string of wide characters.
+	std::wstring utf8ToUnicode(const std::string& utf8);
 }
 
 } // namespace openmsx

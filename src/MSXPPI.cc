@@ -24,10 +24,12 @@ MSXPPI::MSXPPI(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, prevBits(15)
 {
 	bool keyGhosting = deviceConfig.getChildDataAsBool("key_ghosting", true);
+	int keyboardType = deviceConfig.getChildDataAsInt("keyboard_type", 0);
+	bool hasKeypad = deviceConfig.getChildDataAsBool("has_keypad", true);
 	keyboard.reset(new Keyboard(motherBoard.getScheduler(),
 	                            motherBoard.getMSXCommandController(),
 	                            motherBoard.getMSXEventDistributor(),
-	                            keyGhosting));
+				    keyboardType, hasKeypad, keyGhosting));
 	i8255.reset(new I8255(*this, time, motherBoard.getMSXCliComm()));
 	click.reset(new KeyClick(motherBoard.getMSXMixer(), config, time));
 

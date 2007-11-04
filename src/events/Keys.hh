@@ -274,10 +274,11 @@ enum KeyCode {
 	K_MASK		= 0xFFFF,
 
 	// Modifiers
-	KM_SHIFT	= 0x10000,
-	KM_CTRL		= 0x20000,
-	KM_ALT		= 0x40000,
-	KM_META		= 0x80000,
+	KM_SHIFT	= 0x010000,
+	KM_CTRL		= 0x020000,
+	KM_ALT		= 0x040000,
+	KM_META		= 0x080000,
+	KM_MODE		= 0x200000,
 
 	// Direction modifiers
 	KD_PRESS	= 0,		// key press

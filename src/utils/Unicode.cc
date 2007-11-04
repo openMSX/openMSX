@@ -4,14 +4,16 @@
 #include <iostream>
 
 using std::string;
+using std::wstring;
 
 namespace openmsx {
 
 namespace Unicode {
 
 /* decodes a a string possibly containing UTF-8 sequences to a
- * string of 8-bit characters.
- * characters >= 0x100 are mapped to '?' for now
+ * string of wide characters or to a string of 8-bit characters.
+ * In the 8-bit characters string, the characters >= 0x100 are
+ * mapped to '?'
  * this implementation follows the guidelines in
  * http://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-test.txt
  * except for the following:
@@ -31,7 +33,17 @@ static void bad_utf(const string& msg)
 string utf8ToAscii(const string& utf8)
 {
 	string res;
+	wstring wres = utf8ToUnicode(utf8);
+	for (wstring::const_iterator it = wres.begin(); it != wres.end(); /* */) {
+		unsigned unicode = *it++;
+		res.push_back(unicode < 0x100 ? char(unicode) : '?');
+	}
+	return res;
+}
 
+wstring utf8ToUnicode(const string& utf8)
+{
+	wstring res;
 	for (string::const_iterator it = utf8.begin(); it != utf8.end(); /* */) {
 		char first = *it++;
 		switch (first & 0xC0) {
@@ -60,7 +72,8 @@ string utf8ToAscii(const string& utf8)
 						uni = 0xFFFD;
 						break;
 					} else {
-						uni = (uni << 6) + (*it++ & 0x3F);
+						unsigned char ch = *it++;
+						uni = (uni << 6) + (ch & 0x3F);
 					}
 				}
 				// check for overlong sequences
@@ -76,10 +89,10 @@ string utf8ToAscii(const string& utf8)
 					bad_utf("illegal code");
 				}
 			}
-			res.push_back((uni > 0x100) ? '?' : char(uni));
+			res.push_back(uni);
 			break;
 		default:
-			res.push_back(first);
+			res.push_back(static_cast<unsigned char>(first));
 			break;
 		}
 	}
