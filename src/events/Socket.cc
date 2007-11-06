@@ -3,6 +3,7 @@
 #include "Socket.hh"
 #include "MSXException.hh"
 #include <map>
+#include <cerrno>
 
 namespace openmsx {
 

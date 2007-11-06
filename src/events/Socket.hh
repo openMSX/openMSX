@@ -3,7 +3,6 @@
 #ifndef SOCKET_HH
 #define SOCKET_HH
 
-#include <errno.h>
 #include <string>
 
 #ifndef _WIN32
