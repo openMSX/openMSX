@@ -88,8 +88,12 @@ private:
 	GlobalSettings::SyncMode_t syncMode;
 	bool bootSectorWritten;
 	bool readBootBlockFromFile;
+	bool readCache();
+	void saveCache();
+
 	std::string condenseName(const byte* buf);
 	void updateFileFromAlteredFatOnly(int somecluster);
+	void cleandisk();
 	void scanHostDir();
 
 	typedef std::map<std::string,bool> DiscoveredFiles;

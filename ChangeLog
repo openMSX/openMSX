@@ -1,5 +1,12 @@
 $Id$
 
+2007-11-06 David Heremans <david.heremans@gnu-linux.net>
+	* DirAsDisk has a new sector cache format:
+	  - Forced little endianess of numbers in the cache.
+	  - Made sure that files are mapped on the same sectors.
+	  - Invalidate the cache if files have changed size
+	  - New files are added afterwards and do not conflict with the cache.
+
 2007-11-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed manbow2 mapper type:
 	   First 7 sectors (1 sector is a 64kb block) are write-protected,
