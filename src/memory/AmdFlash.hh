@@ -5,7 +5,7 @@
 
 #include "openmsx.hh"
 #include "noncopyable.hh"
-#include <string>
+#include <vector>
 #include <memory>
 
 namespace openmsx {
@@ -13,13 +13,12 @@ namespace openmsx {
 class Rom;
 class SRAM;
 class XMLElement;
-class MSXCPU;
 
 class AmdFlash : private noncopyable
 {
 public:
-	AmdFlash(std::auto_ptr<Rom> rom, unsigned sectorSize,
-	         const XMLElement& config);
+	AmdFlash(std::auto_ptr<Rom> rom, unsigned logSectorSize,
+	         unsigned writeProtectedFlags, const XMLElement& config);
 	~AmdFlash();
 
 	void reset();
@@ -37,9 +36,12 @@ private:
 	bool checkCommandManifacturer();
 	bool partialMatch(unsigned len, const byte* dataSeq) const;
 
+	std::auto_ptr<Rom> rom;
 	std::auto_ptr<SRAM> ram;
-	MSXCPU& cpu;
-	const unsigned sectorSize;
+	const unsigned logSectorSize;
+	const unsigned sectorMask;
+	std::vector<int> writeAddress;
+	std::vector<const byte*> readAddress;
 	unsigned cmdAddr[2];
 
 	static const unsigned MAX_CMD_SIZE = 8;

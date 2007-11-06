@@ -4,6 +4,7 @@
 #define ROMMANBOW2_HH
 
 #include "MSXDevice.hh"
+#include "RomTypes.hh"
 #include <memory>
 
 namespace openmsx {
@@ -17,7 +18,7 @@ class RomManbow2 : public MSXDevice
 {
 public:
 	RomManbow2(MSXMotherBoard& motherBoard, const XMLElement& config,
-	           const EmuTime& time, std::auto_ptr<Rom> rom);
+	           const EmuTime& time, std::auto_ptr<Rom> rom, RomType type);
 	virtual ~RomManbow2();
 
 	virtual void reset(const EmuTime& time);

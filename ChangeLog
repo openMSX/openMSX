@@ -1,5 +1,12 @@
 $Id$
 
+2007-11-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed manbow2 mapper type:
+	   First 7 sectors (1 sector is a 64kb block) are write-protected,
+	   only the last sector is writable.
+	   Created a seperate mapper type 'MegaFlashRomScc' (existed already
+	   as an alias) which has the complete range writable.
+
 2007-11-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimized AY8910::generateChannels():
 	   Swapped inner/outer loop. Now the outer loop goes over all (=3)

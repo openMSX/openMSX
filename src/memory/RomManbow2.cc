@@ -6,14 +6,23 @@
 #include "AmdFlash.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"
+#include <cassert>
 
 namespace openmsx {
 
+static unsigned getWriteProtected(RomType type)
+{
+	assert((type == ROM_MANBOW2) || (type == ROM_MEGAFLASHROMSCC));
+	return (type == ROM_MANBOW2) ? 0x7F  // only last 64kb is writeable
+	                             : 0x00; // fully writeable
+}
+
 RomManbow2::RomManbow2(MSXMotherBoard& motherBoard, const XMLElement& config,
-                       const EmuTime& time, std::auto_ptr<Rom> rom)
+                       const EmuTime& time, std::auto_ptr<Rom> rom,
+                       RomType type)
 	: MSXDevice(motherBoard, config, time)
 	, scc(new SCC(motherBoard, "SCC", config, time))
-	, flash(new AmdFlash(rom, 0x10000, config))
+	, flash(new AmdFlash(rom, 16, getWriteProtected(type), config))
 	, cpu(motherBoard.getCPU())
 {
 	reset(time);

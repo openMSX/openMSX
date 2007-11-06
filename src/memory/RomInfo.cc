@@ -54,6 +54,7 @@ static const RomTypeMap& getRomTypeMap()
 		romTypeMap["SuperLodeRunner"]= ROM_SUPERLODERUNNER;
 		romTypeMap["MSXDOS2"]        = ROM_MSXDOS2;
 		romTypeMap["Manbow2"]        = ROM_MANBOW2;
+		romTypeMap["MegaFlashRomScc"]= ROM_MEGAFLASHROMSCC;
 
 		// ROM mapper types used for system ROMs in machines
 		romTypeMap["Panasonic"]      = ROM_PANASONIC;
@@ -138,7 +139,6 @@ RomType RomInfo::nameToRomType(string name)
 		aliasMap["KOREAN80IN1"]   = "Zemina80in1";
 		aliasMap["KOREAN90IN1"]   = "Zemina90in1";
 		aliasMap["KOREAN126IN1"]  = "Zemina126in1";
-		aliasMap["MegaFlashRomScc"]= "Manbow2";
 	}
 	const RomTypeMap& romTypeMap = getRomTypeMap();
 	AliasMap::const_iterator alias_it = aliasMap.find(name);

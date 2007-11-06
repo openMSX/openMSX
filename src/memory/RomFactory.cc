@@ -313,8 +313,9 @@ auto_ptr<MSXDevice> RomFactory::create(
 		return auto_ptr<MSXDevice>(
 			new RomFSA1FM2(motherBoard, config, time, rom));
 	case ROM_MANBOW2:
+	case ROM_MEGAFLASHROMSCC:
 		return auto_ptr<MSXDevice>(
-			new RomManbow2(motherBoard, config, time, rom));
+			new RomManbow2(motherBoard, config, time, rom, type));
 	default:
 		throw MSXException("Unknown ROM type");
 	}

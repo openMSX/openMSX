@@ -10,14 +10,48 @@
 
 namespace openmsx {
 
-AmdFlash::AmdFlash(std::auto_ptr<Rom> rom, unsigned sectorSize_,
-                   const XMLElement& config)
-	: cpu(rom->getMotherBoard().getCPU())
-	, sectorSize(sectorSize_)
+// writeProtectedFlags:  i-th bit=1 -> i-th sector write-protected
+AmdFlash::AmdFlash(std::auto_ptr<Rom> rom_, unsigned logSectorSize_,
+                   unsigned writeProtectedFlags, const XMLElement& config)
+	: rom(rom_)
+	, logSectorSize(logSectorSize_)
+	, sectorMask((1 << logSectorSize) -1)
 {
-	bool loaded;
-	ram.reset(new SRAM(rom->getMotherBoard(), rom->getName() + "_flash",
-	                  "flash rom", rom->getSize(), config, 0, &loaded));
+	unsigned totalSectors = rom->getSize() >> logSectorSize;
+	unsigned numWritable = 0;
+	writeAddress.resize(totalSectors);
+	for (unsigned i = 0; i < totalSectors; ++i) {
+		if (writeProtectedFlags & (1 << i)) {
+			writeAddress[i] = -1;
+		} else {
+			writeAddress[i] = numWritable << logSectorSize;
+			++numWritable;
+		}
+	}
+
+	unsigned writableSize = numWritable << logSectorSize;
+	bool loaded = false;
+	if (writableSize) {
+		ram.reset(new SRAM(rom->getMotherBoard(),
+		                   rom->getName() + "_flash",
+		                   "flash rom", writableSize, config,
+		                   0, &loaded));
+	}
+
+	readAddress.resize(totalSectors);
+	for (unsigned i = 0; i < totalSectors; ++i) {
+		const byte* romPtr = &(*rom)[i << logSectorSize];
+		if (writeAddress[i] != -1) {
+			readAddress[i] = &(*ram)[writeAddress[i]];
+			if (!loaded) {
+				memcpy(const_cast<byte*>(&(*ram)[writeAddress[i]]),
+				       romPtr, 1 << logSectorSize);
+			}
+		} else {
+			readAddress[i] = romPtr;
+		}
+	}
+
 	//switch (type) {
 	//case AMD_TYPE_1:
 	//	cmdAddr[0] = 0xaaa;
@@ -30,17 +64,12 @@ AmdFlash::AmdFlash(std::auto_ptr<Rom> rom, unsigned sectorSize_,
 	//default:
 	//	assert(false);
 	//}
-	if (!loaded) {
-		memcpy(const_cast<byte*>(&(*ram)[0]), &(*rom)[0], rom->getSize());
-	}
-	// TODO apply IPS patch
 
 	reset();
 }
 
 AmdFlash::~AmdFlash()
 {
-	// TODO create IPS patch
 }
 
 void AmdFlash::reset()
@@ -51,37 +80,44 @@ void AmdFlash::reset()
 
 unsigned AmdFlash::getSize() const
 {
-	return ram->getSize();
+	return rom->getSize();
 }
 
 byte AmdFlash::peek(unsigned address) const
 {
+	address &= getSize() - 1;
+	unsigned sector = address >> logSectorSize;
 	if (state == ST_IDLE) {
-		return (*ram)[address & (ram->getSize() - 1)];
+		unsigned offset = address & sectorMask;
+		return readAddress[sector][offset];
 	} else {
 		switch (address & 0xff) {
 		case 0:
 			return 0x01;
 		case 1:
 			return 0xa4;
+		case 2:
+			// 1 -> write protected
+			return (writeAddress[sector] == -1) ? 1 : 0;
+		default:
+			return 0xFF;
 		}
-		return 0xff;
 	}
 }
 
 byte AmdFlash::read(unsigned address)
 {
-	byte result = peek(address);
-	if (state != ST_IDLE) {
-		reset();
-	}
-	return result;
+	// note: after a read we stay in the same mode
+	return peek(address);
 }
 
 const byte* AmdFlash::getReadCacheLine(unsigned address) const
 {
 	if (state == ST_IDLE) {
-		return &(*ram)[address & (ram->getSize() - 1)];
+		address &= getSize() - 1;
+		unsigned sector = address >> logSectorSize;
+		unsigned offset = address & sectorMask;
+		return &readAddress[sector][offset];
 	} else {
 		return NULL;
 	}
@@ -90,7 +126,7 @@ const byte* AmdFlash::getReadCacheLine(unsigned address) const
 void AmdFlash::write(unsigned address, byte value)
 {
 	assert(cmdIdx < MAX_CMD_SIZE);
-	cmd[cmdIdx].addr = address;
+	cmd[cmdIdx].addr = address & (getSize() - 1);
 	cmd[cmdIdx].value = value;
 	++cmdIdx;
 	if (checkCommandManifacturer() ||
@@ -116,9 +152,12 @@ bool AmdFlash::checkCommandEraseSector()
 	if (partialMatch(5, cmdSeq)) {
 		if (cmdIdx < 6) return true;
 		if (cmd[5].value == 0x30) {
-			unsigned addr = cmd[5].addr & ~(sectorSize - 1);
-			ram->memset(addr & (ram->getSize() - 1),
-			            0xff, sectorSize);
+			unsigned addr = cmd[5].addr;
+			unsigned sector = addr >> logSectorSize;
+			if (writeAddress[sector] != -1) {
+				ram->memset(writeAddress[sector],
+				            0xff, 1 << logSectorSize);
+			}
 		}
 	}
 	return false;
@@ -130,7 +169,9 @@ bool AmdFlash::checkCommandEraseChip()
 	if (partialMatch(5, cmdSeq)) {
 		if (cmdIdx < 6) return true;
 		if (cmd[5].value == 0x10) {
-			ram->memset(0, 0xff, ram->getSize());
+			if (ram.get()) {
+				ram->memset(0, 0xff, ram->getSize());
+			}
 		}
 	}
 	return false;
@@ -141,8 +182,13 @@ bool AmdFlash::checkCommandProgram()
 	static const byte cmdSeq[] = { 0xaa, 0x55, 0xa0 };
 	if (partialMatch(3, cmdSeq)) {
 		if (cmdIdx < 4) return true;
-		unsigned addr = cmd[3].addr & (ram->getSize() - 1);
-		ram->write(addr, (*ram)[addr] & cmd[3].value);
+		unsigned addr = cmd[3].addr;
+		unsigned sector = addr >> logSectorSize;
+		if (writeAddress[sector] != -1) {
+			unsigned offset = addr & sectorMask;
+			unsigned ramAddr = writeAddress[sector] + offset;
+			ram->write(ramAddr, (*ram)[ramAddr] & cmd[3].value);
+		}
 	}
 	return false;
 }
@@ -153,7 +199,8 @@ bool AmdFlash::checkCommandManifacturer()
 	if (partialMatch(3, cmdSeq)) {
 		if (cmdIdx == 3) {
 			state = ST_IDENT;
-			cpu.invalidateMemCache(0x0000, 0x10000);
+			rom->getMotherBoard().getCPU().invalidateMemCache(
+				0x0000, 0x10000);
 		}
 		if (cmdIdx < 4) return true;
 	}
