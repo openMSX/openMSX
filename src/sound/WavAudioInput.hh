@@ -13,6 +13,7 @@ namespace openmsx {
 class CommandController;
 class FilenameSetting;
 class Setting;
+class WavData;
 
 class WavAudioInput : public AudioInputDevice, private Observer<Setting>
 {
@@ -28,16 +29,13 @@ public:
 	virtual short readSample(const EmuTime& time);
 
 private:
-	void freeWave();
 	void loadWave();
 	void update(const Setting& setting);
 
 	const std::auto_ptr<FilenameSetting> audioInputFilenameSetting;
 
+	std::auto_ptr<WavData> wav;
 	EmuTime reference;
-	short* buffer;
-	int length;
-	int freq;
 	bool plugged;
 };
 
