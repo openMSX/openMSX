@@ -540,7 +540,7 @@ void CassettePlayer::executeUntil(const EmuTime& time, int userData)
 		setState(STOP, time);
 		break;
 	case SYNC_AUDIO_EMU:
-		if (playImage.get()) {
+		if (getState() == PLAY) {
 			updateStream(time);
 			updatePlayPosition(time);
 			DynamicClock clk(EmuTime::zero);
