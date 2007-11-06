@@ -7,8 +7,11 @@
 #include "DynamicClock.hh"
 #include "noncopyable.hh"
 #include <string>
+#include <memory>
 
 namespace openmsx {
+
+class WavData;
 
 class WavImage : public CassetteImage, private noncopyable
 {
@@ -24,8 +27,7 @@ public:
 private:
 	int getSample(unsigned pos) const;
 
-	unsigned nbSamples;
-	byte* buffer;
+	std::auto_ptr<WavData> wav;
 	DynamicClock clock;
 	short average;
 };
