@@ -52,6 +52,7 @@ class ListExtCmd;
 class ExtCmd;
 class RemoveExtCmd;
 class MachineNameInfo;
+class DeviceInfo;
 
 class MSXMotherBoardImpl : private Observer<Setting>, private noncopyable
 {
@@ -169,6 +170,9 @@ private:
 	auto_ptr<ExtCmd>       extCommand;
 	auto_ptr<RemoveExtCmd> removeExtCommand;
 	auto_ptr<MachineNameInfo> machineNameInfo;
+	auto_ptr<DeviceInfo>   deviceInfo;
+	friend class DeviceInfo;
+
 	BooleanSetting& powerSetting;
 
 	int blockedCounter;
@@ -244,6 +248,18 @@ private:
 	MSXMotherBoardImpl& motherBoard;
 };
 
+class DeviceInfo : public InfoTopic
+{
+public:
+	DeviceInfo(MSXMotherBoardImpl& motherBoard);
+	virtual void execute(const vector<TclObject*>& tokens,
+	                     TclObject& result) const;
+	virtual string help(const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
+private:
+	MSXMotherBoardImpl& motherBoard;
+};
+
 
 MSXMotherBoardImpl::MSXMotherBoardImpl(MSXMotherBoard& self_, Reactor& reactor_)
 	: self(self_)
@@ -261,6 +277,7 @@ MSXMotherBoardImpl::MSXMotherBoardImpl(MSXMotherBoard& self_, Reactor& reactor_)
 	extCommand.reset(new ExtCmd(*this));
 	removeExtCommand.reset(new RemoveExtCmd(*this));
 	machineNameInfo.reset(new MachineNameInfo(*this));
+	deviceInfo.reset(new DeviceInfo(*this));
 
 	getMSXMixer().mute(); // powered down
 	getRealTime(); // make sure it's instantiated
@@ -979,6 +996,61 @@ void MachineNameInfo::execute(const vector<TclObject*>& /*tokens*/,
 string MachineNameInfo::help(const vector<string>& /*tokens*/) const
 {
 	return "Returns the configuration name for this machine.";
+}
+
+
+// DeviceInfo
+
+DeviceInfo::DeviceInfo(MSXMotherBoardImpl& motherBoard_)
+	: InfoTopic(motherBoard_.getMSXCommandController().getMachineInfoCommand(),
+	            "device")
+	, motherBoard(motherBoard_)
+{
+}
+
+void DeviceInfo::execute(const vector<TclObject*>& tokens,
+                         TclObject& result) const
+{
+	switch (tokens.size()) {
+	case 2:
+		for (MSXMotherBoardImpl::Devices::const_iterator it =
+		        motherBoard.availableDevices.begin();
+		     it != motherBoard.availableDevices.end(); ++it) {
+			result.addListElement((*it)->getName());
+		}
+		break;
+	case 3: {
+		string name = tokens[2]->getString();
+		MSXDevice* device = motherBoard.findDevice(name);
+		if (!device) {
+			throw CommandException("No such device: " + name);
+		}
+		device->getDeviceInfo(result);
+		break;
+	}
+	default:
+		throw SyntaxError();
+	}
+}
+
+string DeviceInfo::help(const vector<string>& /*tokens*/) const
+{
+	return "Without any arguments, returns the list of used device names.\n"
+	       "With a device name as argument, returns the type (and for some "
+	       "devices the subtype) of the given device.";
+}
+
+void DeviceInfo::tabCompletion(vector<string>& tokens) const
+{
+	if (tokens.size() == 3) {
+		set<string> names;
+		for (MSXMotherBoardImpl::Devices::const_iterator it =
+		         motherBoard.availableDevices.begin();
+		     it != motherBoard.availableDevices.end(); ++it) {
+			names.insert((*it)->getName());
+		}
+		completeString(tokens, names);
+	}
 }
 
 

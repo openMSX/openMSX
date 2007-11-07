@@ -6,6 +6,7 @@
 #include "CartridgeSlotManager.hh"
 #include "MSXCPUInterface.hh"
 #include "CacheLine.hh"
+#include "TclObject.hh"
 #include "StringOp.hh"
 #include "MSXException.hh"
 #include <set>
@@ -295,6 +296,17 @@ void MSXDevice::powerUp(const EmuTime& time)
 string MSXDevice::getName() const
 {
 	return deviceName;
+}
+
+void MSXDevice::getDeviceInfo(TclObject& result) const
+{
+	result.addListElement(deviceConfig.getName());
+	getExtraDeviceInfo(result);
+}
+
+void MSXDevice::getExtraDeviceInfo(TclObject& /*result*/) const
+{
+	// nothing
 }
 
 

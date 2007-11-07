@@ -15,6 +15,7 @@ class XMLElement;
 class EmuTime;
 class MSXMotherBoard;
 class HardwareConfig;
+class TclObject;
 
 /** An MSXDevice is an emulated hardware component connected to the bus
   * of the emulated MSX. There is no communication among devices, only
@@ -71,6 +72,11 @@ public:
 	 * Default implementation is normally ok.
 	 */
 	virtual std::string getName() const;
+
+	/** Get device info.
+	  * Used by the 'machine_info device' command.
+	  */
+	void getDeviceInfo(TclObject& result) const;
 
 
 	// IO
@@ -204,6 +210,12 @@ protected:
 	  */
 	friend class DeviceFactory;
 	virtual void init(const HardwareConfig& hwConf);
+
+	/** @see getDeviceInfo()
+	 * Default implementation does nothing. Subclasses can override this
+	 * method to add extra info (like subtypes).
+	 */
+	virtual void getExtraDeviceInfo(TclObject& result) const;
 
 	const XMLElement& deviceConfig;
 	friend class VDPIODelay;
