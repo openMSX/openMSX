@@ -127,6 +127,8 @@ PACKAGE_FULL:=$(PACKAGE_NAME)-$(PACKAGE_DETAILED_VERSION)
 # experience with cross-compilation, a more sophisticated system can be
 # designed.
 
+LINK_MODE:=$(if $(filter true,$(3RDPARTY_FLAG)),3RD_STA,SYS_DYN)
+
 # Do not perform autodetection if platform was specified by the user.
 ifneq ($(filter undefined,$(origin OPENMSX_TARGET_CPU) $(origin OPENMSX_TARGET_OS)),)
 DETECTSYS_SCRIPT:=$(MAKE_PATH)/detectsys.sh
@@ -458,7 +460,7 @@ $(PROBE_MAKE): $(PROBE_SCRIPT) $(MAKE_PATH)/custom.mk $(MAKE_PATH)/tcl-search.sh
 		OPENMSX_TARGET_CPU=$(OPENMSX_TARGET_CPU) \
 		COMPILE="$(CXX) $(TARGET_FLAGS)" \
 		3RDPARTY_INSTALL_DIR=$(3RDPARTY_INSTALL_DIR) \
-		LINK_MODE=$(if $(filter true,$(3RDPARTY_FLAG)),3RD_STA,SYS_DYN)
+		LINK_MODE=$(LINK_MODE)
 	@$(MAKE) --no-print-directory -f $(MAKE_PATH)/probe-results.mk \
 		PROBE_MAKE=$(PROBE_MAKE) MAKE_PATH=$(MAKE_PATH)
 
@@ -734,7 +736,7 @@ run-3rdparty:
 		OPENMSX_TARGET_CPU=$(OPENMSX_TARGET_CPU) \
 		OPENMSX_TARGET_OS=$(firstword $(subst -, ,$(OPENMSX_TARGET_OS))) \
 		CC="$(CC) $(TARGET_FLAGS)" _CFLAGS="$(CXXFLAGS)" \
-		LD="$(CC) $(TARGET_FLAGS)" \
+		LD="$(CC) $(TARGET_FLAGS)" LINK_MODE=$(LINK_MODE) \
 		$(COMPILE_ENV)
 
 staticbindist: 3rdparty
