@@ -58,9 +58,9 @@ endif
 
 DIR_IF_EXISTS=$(shell test -d $(1) && echo $(1))
 
-# DarwinPorts library and header paths.
-DARWINPORTS_CFLAGS:=$(addprefix -I,$(call DIR_IF_EXISTS,/opt/local/include))
-DARWINPORTS_LDFLAGS:=$(addprefix -L,$(call DIR_IF_EXISTS,/opt/local/lib))
+# MacPorts library and header paths.
+MACPORTS_CFLAGS:=$(addprefix -I,$(call DIR_IF_EXISTS,/opt/local/include))
+MACPORTS_LDFLAGS:=$(addprefix -L,$(call DIR_IF_EXISTS,/opt/local/lib))
 
 # Fink library and header paths.
 FINK_CFLAGS:=$(addprefix -I,$(call DIR_IF_EXISTS,/sw/include))
@@ -76,8 +76,8 @@ GL_CFLAGS:=-I$(SDK_PATH)/System/Library/Frameworks/OpenGL.framework/Headers
 GL_LDFLAGS:=-framework OpenGL -lGL \
 	-L$(SDK_PATH)/System/Library/Frameworks/OpenGL.framework/Libraries
 
-GLEW_CFLAGS_SYS_DYN+=$(DARWINPORTS_CFLAGS) $(FINK_CFLAGS)
-GLEW_LDFLAGS_SYS_DYN+=$(DARWINPORTS_LDFLAGS) $(FINK_LDFLAGS)
+GLEW_CFLAGS_SYS_DYN+=$(MACPORTS_CFLAGS) $(FINK_CFLAGS)
+GLEW_LDFLAGS_SYS_DYN+=$(MACPORTS_LDFLAGS) $(FINK_LDFLAGS)
 
 SDL_LDFLAGS_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/sdl-config --static-libs 2>> $(LOG)`
 
