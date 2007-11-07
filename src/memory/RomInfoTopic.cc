@@ -42,6 +42,8 @@ RomInfoTopic::RomInfoTopic(InfoCommand& openMSXInfoCommand)
 	description[ROM_FSA1FM1] = "Panasonic FS-A1FM internal mapper 1";
 	description[ROM_FSA1FM2] = "Panasonic FS-A1FM internal mapper 2";
 	description[ROM_DRAM] = "MSXturboR DRAM";
+	description[ROM_MANBOW2] = "Manbow2";
+	description[ROM_MEGAFLASHROMSCC] = "Mega Flash ROM SCC";
 
 	// plain variants
 	description[ROM_MIRRORED] = "Plain rom, mirrored (any size)";
