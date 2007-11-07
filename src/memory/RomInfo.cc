@@ -153,6 +153,19 @@ RomType RomInfo::nameToRomType(string name)
 	return it->second;
 }
 
+string RomInfo::romTypeToName(RomType type)
+{
+	const RomTypeMap& romTypeMap = getRomTypeMap();
+	for (RomTypeMap::const_iterator it = romTypeMap.begin();
+	     it != romTypeMap.end(); ++it) {
+		if (it->second == type) {
+			return it->first;
+		}
+	}
+	assert(false);
+	return "";
+}
+
 void RomInfo::getAllRomTypes(set<string>& result)
 {
 	const RomTypeMap& romTypeMap = getRomTypeMap();

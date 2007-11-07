@@ -4,6 +4,8 @@ $Id$
 	* Added 'machine_info device [<devicename>]' info topic:
 	   - Allows to query the device type of a given devicename
 	   - Preparation to be able to query rom types
+	* Extended 'machine_info device' to also return the romtype (only
+	  for roms of course)
 
 2007-11-06 David Heremans <david.heremans@gnu-linux.net>
 	* DirAsDisk has a new sector cache format:

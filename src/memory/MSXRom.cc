@@ -3,6 +3,8 @@
 #include "MSXRom.hh"
 #include "MSXMotherBoard.hh"
 #include "Rom.hh"
+#include "RomInfo.hh"
+#include "TclObject.hh"
 
 namespace openmsx {
 
@@ -25,6 +27,16 @@ void MSXRom::writeMem(word /*address*/, byte /*value*/, const EmuTime& /*time*/)
 byte* MSXRom::getWriteCacheLine(word /*address*/) const
 {
 	return unmappedWrite;
+}
+
+void MSXRom::setRomType(RomType type_)
+{
+	type = type_;
+}
+
+void MSXRom::getExtraDeviceInfo(TclObject& result) const
+{
+	result.addListElement(RomInfo::romTypeToName(type));
 }
 
 } // namespace openmsx

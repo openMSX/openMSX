@@ -17,7 +17,7 @@ class XMLElement;
 class AmdFlash : private noncopyable
 {
 public:
-	AmdFlash(std::auto_ptr<Rom> rom, unsigned logSectorSize,
+	AmdFlash(const Rom& rom, unsigned logSectorSize,
 	         unsigned writeProtectedFlags, const XMLElement& config);
 	~AmdFlash();
 
@@ -36,7 +36,7 @@ private:
 	bool checkCommandManifacturer();
 	bool partialMatch(unsigned len, const byte* dataSeq) const;
 
-	std::auto_ptr<Rom> rom;
+	const Rom& rom;
 	std::auto_ptr<SRAM> ram;
 	const unsigned logSectorSize;
 	const unsigned sectorMask;

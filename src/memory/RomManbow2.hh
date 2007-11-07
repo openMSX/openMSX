@@ -3,7 +3,7 @@
 #ifndef ROMMANBOW2_HH
 #define ROMMANBOW2_HH
 
-#include "MSXDevice.hh"
+#include "MSXRom.hh"
 #include "RomTypes.hh"
 #include <memory>
 
@@ -14,7 +14,7 @@ class SCC;
 class AmdFlash;
 class MSXCPU;
 
-class RomManbow2 : public MSXDevice
+class RomManbow2 : public MSXRom
 {
 public:
 	RomManbow2(MSXMotherBoard& motherBoard, const XMLElement& config,

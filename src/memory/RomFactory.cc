@@ -158,15 +158,16 @@ auto_ptr<MSXDevice> RomFactory::create(
 	}
 	PRT_DEBUG("RomType: " << type);
 
+	auto_ptr<MSXRom> result;
 	switch (type) {
 	case ROM_MIRRORED:
-		return auto_ptr<MSXDevice>(
-			new RomPlain(motherBoard, config, time, rom,
-			             RomPlain::MIRRORED));
+		result.reset(new RomPlain(motherBoard, config, time, rom,
+		                          RomPlain::MIRRORED));
+		break;
 	case ROM_NORMAL:
-		return auto_ptr<MSXDevice>(
-			new RomPlain(motherBoard, config, time, rom,
-		                     RomPlain::NOT_MIRRORED));
+		result.reset(new RomPlain(motherBoard, config, time, rom,
+		                          RomPlain::NOT_MIRRORED));
+		break;
 	case ROM_MIRRORED0000:
 	case ROM_MIRRORED2000:
 	case ROM_MIRRORED4000:
@@ -175,9 +176,9 @@ auto_ptr<MSXDevice> RomFactory::create(
 	case ROM_MIRROREDA000:
 	case ROM_MIRROREDC000:
 	case ROM_MIRROREDE000:
-		return auto_ptr<MSXDevice>(
-			new RomPlain(motherBoard, config, time, rom,
-				     RomPlain::MIRRORED, (type & 7) * 0x2000));
+		result.reset(new RomPlain(motherBoard, config, time, rom,
+		                     RomPlain::MIRRORED, (type & 7) * 0x2000));
+		break;
 	case ROM_NORMAL0000:
 	case ROM_NORMAL2000:
 	case ROM_NORMAL4000:
@@ -186,9 +187,9 @@ auto_ptr<MSXDevice> RomFactory::create(
 	case ROM_NORMALA000:
 	case ROM_NORMALC000:
 	case ROM_NORMALE000:
-		return auto_ptr<MSXDevice>(
-			new RomPlain(motherBoard, config, time, rom,
-				     RomPlain::NOT_MIRRORED, (type & 7) * 0x2000));
+		result.reset(new RomPlain(motherBoard, config, time, rom,
+		                 RomPlain::NOT_MIRRORED, (type & 7) * 0x2000));
+		break;
 	case ROM_PAGE0:
 	case ROM_PAGE1:
 	case ROM_PAGE01:
@@ -204,121 +205,127 @@ auto_ptr<MSXDevice> RomFactory::create(
 	case ROM_PAGE023:
 	case ROM_PAGE123:
 	case ROM_PAGE0123:
-		return auto_ptr<MSXDevice>(
-			new RomPageNN(motherBoard, config, time, rom, type & 0xF));
+		result.reset(new RomPageNN(
+		                   motherBoard, config, time, rom, type & 0xF));
+		break;
 	case ROM_DRAM:
-		return auto_ptr<MSXDevice>(
-			new RomDRAM(motherBoard, config, time, rom));
+		result.reset(new RomDRAM(motherBoard, config, time, rom));
+		break;
 	case ROM_GENERIC_8KB:
-		return auto_ptr<MSXDevice>(
-			new RomGeneric8kB(motherBoard, config, time, rom));
+		result.reset(new RomGeneric8kB(motherBoard, config, time, rom));
+		break;
 	case ROM_GENERIC_16KB:
-		return auto_ptr<MSXDevice>(
-			new RomGeneric16kB(motherBoard, config, time, rom));
+		result.reset(new RomGeneric16kB(motherBoard, config, time, rom));
+		break;
 	case ROM_KONAMI_SCC:
-		return auto_ptr<MSXDevice>(
-			new RomKonami5(motherBoard, config, time, rom));
+		result.reset(new RomKonami5(motherBoard, config, time, rom));
+		break;
 	case ROM_KONAMI:
-		return auto_ptr<MSXDevice>(
-			new RomKonami4(motherBoard, config, time, rom));
+		result.reset(new RomKonami4(motherBoard, config, time, rom));
+		break;
 	case ROM_KBDMASTER:
-		return auto_ptr<MSXDevice>(
-			new RomKonamiKeyboardMaster(motherBoard, config, time, rom));
+		result.reset(new RomKonamiKeyboardMaster(
+		                   motherBoard, config, time, rom));
+		break;
 	case ROM_ASCII8:
-		return auto_ptr<MSXDevice>(
-			new RomAscii8kB(motherBoard, config, time, rom));
+		result.reset(new RomAscii8kB(motherBoard, config, time, rom));
+		break;
 	case ROM_ASCII16:
-		return auto_ptr<MSXDevice>(
-			new RomAscii16kB(motherBoard, config, time, rom));
+		result.reset(new RomAscii16kB(motherBoard, config, time, rom));
+		break;
 	case ROM_PADIAL8:
-		return auto_ptr<MSXDevice>(
-			new RomPadial8kB(motherBoard, config, time, rom));
+		result.reset(new RomPadial8kB(motherBoard, config, time, rom));
+		break;
 	case ROM_PADIAL16:
-		return auto_ptr<MSXDevice>(
-			new RomPadial16kB(motherBoard, config, time, rom));
+		result.reset(new RomPadial16kB(motherBoard, config, time, rom));
+		break;
 	case ROM_SUPERLODERUNNER:
-		return auto_ptr<MSXDevice>(
-			new RomSuperLodeRunner(motherBoard, config, time, rom));
+		result.reset(new RomSuperLodeRunner(
+		                   motherBoard, config, time, rom));
+		break;
 	case ROM_MSXDOS2:
-		return auto_ptr<MSXDevice>(
-			new RomMSXDOS2(motherBoard, config, time, rom));
+		result.reset(new RomMSXDOS2(motherBoard, config, time, rom));
+		break;
 	case ROM_R_TYPE:
-		return auto_ptr<MSXDevice>(
-			new RomRType(motherBoard, config, time, rom));
+		result.reset(new RomRType(motherBoard, config, time, rom));
+		break;
 	case ROM_CROSS_BLAIM:
-		return auto_ptr<MSXDevice>(
-			new RomCrossBlaim(motherBoard, config, time, rom));
+		result.reset(new RomCrossBlaim(motherBoard, config, time, rom));
+		break;
 	case ROM_MSX_AUDIO:
-		return auto_ptr<MSXDevice>(
-			new RomMSXAudio(motherBoard, config, time, rom));
+		result.reset(new RomMSXAudio(motherBoard, config, time, rom));
+		break;
 	case ROM_HARRY_FOX:
-		return auto_ptr<MSXDevice>(
-			new RomHarryFox(motherBoard, config, time, rom));
+		result.reset(new RomHarryFox(motherBoard, config, time, rom));
+		break;
 	case ROM_ASCII8_8:
-		return auto_ptr<MSXDevice>(
-			new RomAscii8_8(motherBoard, config, time, rom,
-			                RomAscii8_8::ASCII8_8));
+		result.reset(new RomAscii8_8(motherBoard, config, time, rom,
+		                             RomAscii8_8::ASCII8_8));
+		break;
 	case ROM_KOEI_8:
-		return auto_ptr<MSXDevice>(
-			new RomAscii8_8(motherBoard, config, time, rom,
-			                RomAscii8_8::KOEI_8));
+		result.reset(new RomAscii8_8(motherBoard, config, time, rom,
+		                             RomAscii8_8::KOEI_8));
+		break;
 	case ROM_KOEI_32:
-		return auto_ptr<MSXDevice>(
-			new RomAscii8_8(motherBoard, config, time, rom,
-			                RomAscii8_8::KOEI_32));
+		result.reset(new RomAscii8_8(motherBoard, config, time, rom,
+		                             RomAscii8_8::KOEI_32));
+		break;
 	case ROM_WIZARDRY:
-		return auto_ptr<MSXDevice>(
-			new RomAscii8_8(motherBoard, config, time, rom,
-			                RomAscii8_8::WIZARDRY));
+		result.reset(new RomAscii8_8(motherBoard, config, time, rom,
+		                             RomAscii8_8::WIZARDRY));
+		break;
 	case ROM_ASCII16_2:
-		return auto_ptr<MSXDevice>(
-			new RomHydlide2(motherBoard, config, time, rom));
+		result.reset(new RomHydlide2(motherBoard, config, time, rom));
+		break;
 	case ROM_GAME_MASTER2:
-		return auto_ptr<MSXDevice>(
-			new RomGameMaster2(motherBoard, config, time, rom));
+		result.reset(new RomGameMaster2(motherBoard, config, time, rom));
+		break;
 	case ROM_PANASONIC:
-		return auto_ptr<MSXDevice>(
-			new RomPanasonic(motherBoard, config, time, rom));
+		result.reset(new RomPanasonic(motherBoard, config, time, rom));
+		break;
 	case ROM_NATIONAL:
-		return auto_ptr<MSXDevice>(
-			new RomNational(motherBoard, config, time, rom));
+		result.reset(new RomNational(motherBoard, config, time, rom));
+		break;
 	case ROM_MAJUTSUSHI:
-		return auto_ptr<MSXDevice>(
-			new RomMajutsushi(motherBoard, config, time, rom));
+		result.reset(new RomMajutsushi(motherBoard, config, time, rom));
+		break;
 	case ROM_SYNTHESIZER:
-		return auto_ptr<MSXDevice>(
-			new RomSynthesizer(motherBoard, config, time, rom));
+		result.reset(new RomSynthesizer(motherBoard, config, time, rom));
+		break;
 	case ROM_PLAYBALL:
-		return auto_ptr<MSXDevice>(
-			new RomPlayBall(motherBoard, config, time, rom));
+		result.reset(new RomPlayBall(motherBoard, config, time, rom));
+		break;
 	case ROM_HALNOTE:
-		return auto_ptr<MSXDevice>(
-			new RomHalnote(motherBoard, config, time, rom));
+		result.reset(new RomHalnote(motherBoard, config, time, rom));
+		break;
 	case ROM_ZEMINA80IN1:
-		return auto_ptr<MSXDevice>(
-			new RomKorean80in1(motherBoard, config, time, rom));
+		result.reset(new RomKorean80in1(motherBoard, config, time, rom));
+		break;
 	case ROM_ZEMINA90IN1:
-		return auto_ptr<MSXDevice>(
-			new RomKorean90in1(motherBoard, config, time, rom));
+		result.reset(new RomKorean90in1(motherBoard, config, time, rom));
+		break;
 	case ROM_ZEMINA126IN1:
-		return auto_ptr<MSXDevice>(
-			new RomKorean126in1(motherBoard, config, time, rom));
+		result.reset(new RomKorean126in1(motherBoard, config, time, rom));
+		break;
 	case ROM_HOLY_QURAN:
-		return auto_ptr<MSXDevice>(
-			new RomHolyQuran(motherBoard, config, time, rom));
+		result.reset(new RomHolyQuran(motherBoard, config, time, rom));
+		break;
 	case ROM_FSA1FM1:
-		return auto_ptr<MSXDevice>(
-			new RomFSA1FM1(motherBoard, config, time, rom));
+		result.reset(new RomFSA1FM1(motherBoard, config, time, rom));
+		break;
 	case ROM_FSA1FM2:
-		return auto_ptr<MSXDevice>(
-			new RomFSA1FM2(motherBoard, config, time, rom));
+		result.reset(new RomFSA1FM2(motherBoard, config, time, rom));
+		break;
 	case ROM_MANBOW2:
 	case ROM_MEGAFLASHROMSCC:
-		return auto_ptr<MSXDevice>(
-			new RomManbow2(motherBoard, config, time, rom, type));
+		result.reset(new RomManbow2(
+		                   motherBoard, config, time, rom, type));
+		break;
 	default:
 		throw MSXException("Unknown ROM type");
 	}
+	result->setRomType(type);
+	return auto_ptr<MSXDevice>(result);
 }
 
 } // namespace openmsx

@@ -11,13 +11,13 @@
 namespace openmsx {
 
 // writeProtectedFlags:  i-th bit=1 -> i-th sector write-protected
-AmdFlash::AmdFlash(std::auto_ptr<Rom> rom_, unsigned logSectorSize_,
+AmdFlash::AmdFlash(const Rom& rom_, unsigned logSectorSize_,
                    unsigned writeProtectedFlags, const XMLElement& config)
 	: rom(rom_)
 	, logSectorSize(logSectorSize_)
 	, sectorMask((1 << logSectorSize) -1)
 {
-	unsigned totalSectors = rom->getSize() >> logSectorSize;
+	unsigned totalSectors = rom.getSize() >> logSectorSize;
 	unsigned numWritable = 0;
 	writeAddress.resize(totalSectors);
 	for (unsigned i = 0; i < totalSectors; ++i) {
@@ -32,15 +32,15 @@ AmdFlash::AmdFlash(std::auto_ptr<Rom> rom_, unsigned logSectorSize_,
 	unsigned writableSize = numWritable << logSectorSize;
 	bool loaded = false;
 	if (writableSize) {
-		ram.reset(new SRAM(rom->getMotherBoard(),
-		                   rom->getName() + "_flash",
+		ram.reset(new SRAM(rom.getMotherBoard(),
+		                   rom.getName() + "_flash",
 		                   "flash rom", writableSize, config,
 		                   0, &loaded));
 	}
 
 	readAddress.resize(totalSectors);
 	for (unsigned i = 0; i < totalSectors; ++i) {
-		const byte* romPtr = &(*rom)[i << logSectorSize];
+		const byte* romPtr = &rom[i << logSectorSize];
 		if (writeAddress[i] != -1) {
 			readAddress[i] = &(*ram)[writeAddress[i]];
 			if (!loaded) {
@@ -80,7 +80,7 @@ void AmdFlash::reset()
 
 unsigned AmdFlash::getSize() const
 {
-	return rom->getSize();
+	return rom.getSize();
 }
 
 byte AmdFlash::peek(unsigned address) const
@@ -199,7 +199,7 @@ bool AmdFlash::checkCommandManifacturer()
 	if (partialMatch(3, cmdSeq)) {
 		if (cmdIdx == 3) {
 			state = ST_IDENT;
-			rom->getMotherBoard().getCPU().invalidateMemCache(
+			rom.getMotherBoard().getCPU().invalidateMemCache(
 				0x0000, 0x10000);
 		}
 		if (cmdIdx < 4) return true;
