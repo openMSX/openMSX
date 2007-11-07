@@ -39,6 +39,7 @@ else
 ifeq ($(OPENMSX_TARGET_CPU),ppc)
 SDK_PATH:=$(firstword $(sort $(wildcard /Developer/SDKs/MacOSX10.3.?.sdk)))
 OPENMSX_CXX:=g++-3.3
+LINK_FLAGS+=-Wl,-syslibroot,$(SDK_PATH)
 OSX_VER:=10.3
 OSX_MIN_REQ:=1030
 else
