@@ -15,14 +15,13 @@ bool is8Bit(Uint16 format)
 	return (format == AUDIO_U8) || (format == AUDIO_S8);
 }
 
-WavData::WavData(const string& filename, int wantedBits, int wantedFreq)
+WavData::WavData(const string& filename, unsigned wantedBits, unsigned wantedFreq)
 {
 	SDL_AudioSpec wavSpec;
 	Uint8* wavBuf;
 	Uint32 wavLen;
 	if (SDL_LoadWAV(filename.c_str(), &wavSpec, &wavBuf, &wavLen) == NULL) {
-		throw MSXException(string("WavData error: ") +
-		                   SDL_GetError());
+		throw MSXException(string("WavData error: ") + SDL_GetError());
 	}
 
 	freq = (wantedFreq == 0) ? wavSpec.freq : wantedFreq;
@@ -48,7 +47,7 @@ WavData::WavData(const string& filename, int wantedBits, int wantedFreq)
 		free(buffer);
 		throw MSXException("Couldn't convert wav file to internal format");
 	}
-	length = int(audioCVT.len * audioCVT.len_ratio) / 2;
+	length = unsigned(audioCVT.len * audioCVT.len_ratio) / 2;
 }
 
 WavData::~WavData()

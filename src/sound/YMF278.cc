@@ -544,7 +544,7 @@ short YMF278Impl::getSample(YMF278Slot &op)
 	}
 	case 1: {
 		// 12 bit
-		int addr = op.startaddr + ((op.pos / 2) * 3);
+		unsigned addr = op.startaddr + ((op.pos / 2) * 3);
 		if (op.pos & 1) {
 			sample = readMem(addr + 2) << 8 |
 				 ((readMem(addr + 1) << 4) & 0xF0);
@@ -556,7 +556,7 @@ short YMF278Impl::getSample(YMF278Slot &op)
 	}
 	case 2: {
 		// 16 bit
-		int addr = op.startaddr + (op.pos * 2);
+		unsigned addr = op.startaddr + (op.pos * 2);
 		sample = (readMem(addr + 0) << 8) |
 			 (readMem(addr + 1));
 		break;

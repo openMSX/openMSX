@@ -39,7 +39,7 @@ MSXMegaRam::MSXMegaRam(MSXMotherBoard& motherBoard, const XMLElement& config,
                        const EmuTime& time)
 	: MSXDevice(motherBoard, config, time)
 {
-	int size = config.getChildDataAsInt("size");
+	unsigned size = config.getChildDataAsInt("size");
 	numBlocks = size / 8;	// 8kb blocks
 	maskBlocks = Math::powerOfTwo(numBlocks) - 1;
 	ram.reset(new Ram(motherBoard, getName() + " RAM", "Mega-RAM",
@@ -50,7 +50,7 @@ MSXMegaRam::MSXMegaRam(MSXMotherBoard& motherBoard, const XMLElement& config,
 		                  config));
 	}
 
-	for (int i = 0; i < 4; i++) {
+	for (unsigned i = 0; i < 4; i++) {
 		setBank(i, 0);
 	}
 	writeMode = false;

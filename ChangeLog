@@ -1,5 +1,16 @@
 $Id$
 
+2007-11-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* In various places performed the following two optimizations:
+	  - Prefer to use int or unsigned int over shorter types (char,
+	    short). Results in both faster and shorter code (both on x86
+	    and ARM).
+	  - Prefer to use unsigned over signed types. Especially when the
+	    var is used in division or module operations (more important on
+	    ARM than on x86). But even a simple divide by 2 (or any power of
+	    2) is slower on signed types! This is because divide rounds
+	    toward zero, while a shift-right operation rounds down.
+
 2007-11-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added 'machine_info device [<devicename>]' info topic:
 	   - Allows to query the device type of a given devicename

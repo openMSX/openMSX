@@ -173,11 +173,11 @@ static const signed_word K5_table[] = {
        0,   -8127,  -16384,  -24511,   32638,   24511,   16254,    8127
 };
 
-int VLM5030::getBits(int sbit, int bits)
+int VLM5030::getBits(unsigned sbit, unsigned bits)
 {
 	unsigned offset = address + (sbit / 8);
-	int data = (*rom)[(offset + 0) & address_mask] +
-	           (*rom)[(offset + 1) & address_mask] * 256;
+	unsigned data = (*rom)[(offset + 0) & address_mask] +
+	                (*rom)[(offset + 1) & address_mask] * 256;
 	data >>= (sbit & 7);
 	data &= (0xFF >> (8 - bits));
 	return data;

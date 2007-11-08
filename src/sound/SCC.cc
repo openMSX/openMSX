@@ -248,7 +248,7 @@ byte SCC::peekMem(byte address, const EmuTime& time) const
 	return result;
 }
 
-byte SCC::readWave(byte channel, byte address, const EmuTime& time) const
+byte SCC::readWave(unsigned channel, unsigned address, const EmuTime& time) const
 {
 	if (!rotate[channel]) {
 		return wave[channel][address & 0x1F];
@@ -264,12 +264,12 @@ byte SCC::readWave(byte channel, byte address, const EmuTime& time) const
 }
 
 
-byte SCC::getFreqVol(byte address) const
+byte SCC::getFreqVol(unsigned address) const
 {
 	address &= 0x0F;
 	if (address < 0x0A) {
 		// get frequency
-		byte channel = address / 2;
+		unsigned channel = address / 2;
 		if (address & 1) {
 			return orgPeriod[channel] >> 8;
 		} else {
@@ -340,18 +340,18 @@ void SCC::writeMem(byte address, byte value, const EmuTime& time)
 
 inline int SCC::adjust(signed char wav, byte vol)
 {
-	int tmp = (int(wav) * vol) / 16;
+	int tmp = (int(wav) * vol) >> 4;
 	return tmp * 256;
 }
 
-void SCC::writeWave(byte channel, byte address, byte value)
+void SCC::writeWave(unsigned channel, unsigned address, byte value)
 {
 	// write to channel 5 only possible in SCC+ mode
 	assert(channel < 5);
 	assert((channel != 4) || (currentChipMode == SCC_plusmode));
 
 	if (!readOnly[channel]) {
-		byte pos = address & 0x1F;
+		unsigned pos = address & 0x1F;
 		wave[channel][pos] = value;
 		volAdjustedWave[channel][pos] = adjust(value, volume[channel]);
 		if ((currentChipMode != SCC_plusmode) && (channel == 3)) {
@@ -362,12 +362,12 @@ void SCC::writeWave(byte channel, byte address, byte value)
 	}
 }
 
-void SCC::setFreqVol(byte address, byte value)
+void SCC::setFreqVol(unsigned address, byte value)
 {
 	address &= 0x0F; // region is visible twice
 	if (address < 0x0A) {
 		// change frequency
-		byte channel = address / 2;
+		unsigned channel = address / 2;
 		unsigned per =
 			  (address & 1)
 			? ((value & 0xF) << 8) | (orgPeriod[channel] & 0xFF)
@@ -390,9 +390,9 @@ void SCC::setFreqVol(byte address, byte value)
 		out[channel] = volAdjustedWave[channel][pos[channel]];
 	} else if (address < 0x0F) {
 		// change volume
-		byte channel = address - 0x0A;
+		unsigned channel = address - 0x0A;
 		volume[channel] = value & 0xF;
-		for (int i = 0; i < 32; ++i) {
+		for (unsigned i = 0; i < 32; ++i) {
 			volAdjustedWave[channel][i] =
 				adjust(wave[channel][i], volume[channel]);
 		}
@@ -453,8 +453,8 @@ void SCC::setDeformReg(byte value, const EmuTime& time)
 
 void SCC::generateChannels(int** bufs, unsigned num)
 {
-	byte enable = ch_enable;
-	for (int i = 0; i < 5; ++i, enable >>= 1) {
+	unsigned enable = ch_enable;
+	for (unsigned i = 0; i < 5; ++i, enable >>= 1) {
 		if ((enable & 1) && (volume[i] || out[i])) {
 			for (unsigned j = 0; j < num; ++j) {
 				bufs[i][j] = out[i];

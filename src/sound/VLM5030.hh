@@ -47,7 +47,7 @@ private:
 	virtual bool generateInput(int* buffer, unsigned num);
 
 	void setupParameter(byte param);
-	int getBits(int sbit, int bits);
+	int getBits(unsigned sbit, unsigned bits);
 	int parseFrame();
 
 	std::auto_ptr<Rom> rom;

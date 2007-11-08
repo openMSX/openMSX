@@ -19,7 +19,7 @@ RomPanasonic::RomPanasonic(
 	const EmuTime& time, std::auto_ptr<Rom> rom_)
 	: Rom8kBBlocks(motherBoard, config, time, rom_)
 {
-	int sramSize = config.getChildDataAsInt("sramsize", 0);
+	unsigned sramSize = config.getChildDataAsInt("sramsize", 0);
 	if (sramSize) {
 		sram.reset(new SRAM(motherBoard, getName() + " SRAM",
 		                    sramSize * 1024, config));

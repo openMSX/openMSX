@@ -73,11 +73,11 @@ class YMF262Channel;
  */
 typedef FixedPoint<16> FreqIndex;
 
-static inline FreqIndex fnumToIncrement(int block_fnum)
+static inline FreqIndex fnumToIncrement(unsigned block_fnum)
 {
 	// opn phase increment counter = 20bit
 	// chip works with 10.10 fixed point, while we use 16.16
-	int block = (block_fnum & 0x1C00) >> 10;
+	unsigned block = (block_fnum & 0x1C00) >> 10;
 	return FreqIndex(block_fnum & 0x03FF) >> (11 - block);
 }
 
@@ -177,9 +177,9 @@ public:
 	virtual ~YMF262Impl();
 
 	void reset(const EmuTime& time);
-	void writeReg(int r, byte v, const EmuTime& time);
-	byte readReg(int reg);
-	byte peekReg(int reg) const;
+	void writeReg(unsigned r, byte v, const EmuTime& time);
+	byte readReg(unsigned reg);
+	byte peekReg(unsigned reg) const;
 	byte readStatus();
 	byte peekStatus() const;
 
@@ -195,8 +195,8 @@ private:
 
 	void callback(byte flag);
 
-	void writeRegForce(int r, byte v, const EmuTime& time);
-	void init_tables(void);
+	void writeRegForce(unsigned r, byte v, const EmuTime& time);
+	void init_tables();
 	void setStatus(byte flag);
 	void resetStatus(byte flag);
 	void changeStatusMask(byte flag);
@@ -208,10 +208,10 @@ private:
 	inline int genPhaseCymbal();
 
 	void chan_calc_rhythm();
-	void set_mul(byte sl, byte v);
-	void set_ksl_tl(byte sl, byte v);
-	void set_ar_dr(byte sl, byte v);
-	void set_sl_rr(byte sl, byte v);
+	void set_mul(unsigned sl, byte v);
+	void set_ksl_tl(unsigned sl, byte v);
+	void set_ar_dr(unsigned sl, byte v);
+	void set_sl_rr(unsigned sl, byte v);
 	void update_channels(YMF262Channel& ch);
 	bool checkMuteHelper();
 	int adjust(int x);
@@ -548,7 +548,7 @@ static const byte lfo_am_table[LFO_AM_TAB_ELEMENTS] = {
 };
 
 // LFO Phase Modulation table (verified on real YM3812)
-static const char lfo_pm_table[8 * 8 * 2] = {
+static const signed char lfo_pm_table[8 * 8 * 2] = {
 	// FNUM2/FNUM = 00 0xxxxxxx (0x0000)
 	0, 0, 0, 0, 0, 0, 0, 0,	//LFO PM depth = 0
 	0, 0, 0, 0, 0, 0, 0, 0,	//LFO PM depth = 1
@@ -1151,9 +1151,9 @@ void YMF262Channel::CALC_FCSLOT(YMF262Slot& slot)
 }
 
 // set multi,am,vib,EG-TYP,KSR,mul
-void YMF262Impl::set_mul(byte sl, byte v)
+void YMF262Impl::set_mul(unsigned sl, byte v)
 {
-	int chan_no = sl / 2;
+	unsigned chan_no = sl / 2;
 	YMF262Channel& ch  = channels[chan_no];
 	YMF262Slot& slot = ch.slots[sl & 1];
 
@@ -1208,9 +1208,9 @@ void YMF262Impl::set_mul(byte sl, byte v)
 }
 
 // set ksl & tl
-void YMF262Impl::set_ksl_tl(byte sl, byte v)
+void YMF262Impl::set_ksl_tl(unsigned sl, byte v)
 {
-	int chan_no = sl/2;
+	unsigned chan_no = sl/2;
 	YMF262Channel& ch = channels[chan_no];
 	YMF262Slot& slot = ch.slots[sl & 1];
 
@@ -1264,7 +1264,7 @@ void YMF262Impl::set_ksl_tl(byte sl, byte v)
 }
 
 // set attack rate & decay rate
-void YMF262Impl::set_ar_dr(byte sl, byte v)
+void YMF262Impl::set_ar_dr(unsigned sl, byte v)
 {
 	YMF262Channel& ch = channels[sl / 2];
 	YMF262Slot& slot = ch.slots[sl & 1];
@@ -1286,7 +1286,7 @@ void YMF262Impl::set_ar_dr(byte sl, byte v)
 }
 
 // set sustain level & release rate
-void YMF262Impl::set_sl_rr(byte sl, byte v)
+void YMF262Impl::set_sl_rr(unsigned sl, byte v)
 {
 	YMF262Channel& ch = channels[sl / 2];
 	YMF262Slot& slot = ch.slots[sl & 1];
@@ -1308,18 +1308,18 @@ void YMF262Impl::update_channels(YMF262Channel& ch)
 	}
 }
 
-byte YMF262Impl::readReg(int r)
+byte YMF262Impl::readReg(unsigned r)
 {
 	// no need to call updateStream(time)
 	return peekReg(r);
 }
 
-byte YMF262Impl::peekReg(int r) const
+byte YMF262Impl::peekReg(unsigned r) const
 {
 	return reg[r];
 }
 
-void YMF262Impl::writeReg(int r, byte v, const EmuTime& time)
+void YMF262Impl::writeReg(unsigned r, byte v, const EmuTime& time)
 {
 	if (!OPL3_mode && (r != 0x105)) {
 		// in OPL2 mode the only accessible in set #2 is register 0x05
@@ -1327,7 +1327,7 @@ void YMF262Impl::writeReg(int r, byte v, const EmuTime& time)
 	}
 	writeRegForce(r, v, time);
 }
-void YMF262Impl::writeRegForce(int r, byte v, const EmuTime& time)
+void YMF262Impl::writeRegForce(unsigned r, byte v, const EmuTime& time)
 {
 	updateStream(time); // TODO optimize only for regs that directly influence sound
 
@@ -1525,7 +1525,7 @@ void YMF262Impl::writeRegForce(int r, byte v, const EmuTime& time)
 		if ((r & 0x0F) > 8) {
 			return;
 		}
-		int chan_no = (r & 0x0F) + ch_offset;
+		unsigned chan_no = (r & 0x0F) + ch_offset;
 		YMF262Channel& ch  = channels[chan_no];
 		YMF262Channel& ch3 = channels[chan_no + 3];
 		int block_fnum;
@@ -1712,10 +1712,10 @@ void YMF262Impl::writeRegForce(int r, byte v, const EmuTime& time)
 		if ((r & 0xF) > 8) {
 			return;
 		}
-		int chan_no = (r & 0x0F) + ch_offset;
+		unsigned chan_no = (r & 0x0F) + ch_offset;
 		YMF262Channel& ch = channels[chan_no];
 
-		int base = chan_no * 4;
+		unsigned base = chan_no * 4;
 		if (OPL3_mode) {
 			// OPL3 mode
 			pan[base + 0] = (v & 0x10) ? unsigned(~0) : 0;	// ch.A
@@ -2108,17 +2108,17 @@ void YMF262::reset(const EmuTime& time)
 	pimple->reset(time);
 }
 
-void YMF262::writeReg(int r, byte v, const EmuTime& time)
+void YMF262::writeReg(unsigned r, byte v, const EmuTime& time)
 {
 	pimple->writeReg(r, v, time);
 }
 
-byte YMF262::readReg(int reg)
+byte YMF262::readReg(unsigned reg)
 {
 	return pimple->readReg(reg);
 }
 
-byte YMF262::peekReg(int reg) const
+byte YMF262::peekReg(unsigned reg) const
 {
 	return pimple->peekReg(reg);
 }

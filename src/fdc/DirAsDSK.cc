@@ -53,7 +53,7 @@ static unsigned getLE32(const byte* p)
 
 
 // read FAT-entry from FAT in memory
-word DirAsDSK::readFAT(word cluster)
+unsigned DirAsDSK::readFAT(unsigned cluster)
 {
 	const byte* p = fat + (cluster * 3) / 2;
 	return (cluster & 1)
@@ -65,7 +65,7 @@ word DirAsDSK::readFAT(word cluster)
 // second FAT is only used internally in DirAsDisk to detect 
 // updates in the FAT, if the emulated MSX reads a sector from
 // the second cache, it actually gets a sector from the first FAT
-word DirAsDSK::readFAT2(word cluster)
+unsigned DirAsDSK::readFAT2(unsigned cluster)
 {
 	const byte* p = fat2 + (cluster * 3) / 2;
 	return (cluster & 1)
@@ -74,7 +74,7 @@ word DirAsDSK::readFAT2(word cluster)
 }
 
 // write an entry to FAT in memory
-void DirAsDSK::writeFAT(word cluster, word val)
+void DirAsDSK::writeFAT(unsigned cluster, unsigned val)
 {
 	byte* p = fat + (cluster * 3) / 2;
 	if (cluster & 1) {
@@ -88,7 +88,7 @@ void DirAsDSK::writeFAT(word cluster, word val)
 
 // write an entry to FAT2 in memory
 // see note at DirAsDSK::readFAT2
-void DirAsDSK::writeFAT2(word cluster, word val)
+void DirAsDSK::writeFAT2(unsigned cluster, unsigned val)
 {
 	byte* p = fat2 + (cluster * 3) / 2;
 	if (cluster & 1) {

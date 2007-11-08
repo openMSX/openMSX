@@ -252,14 +252,14 @@ byte Y8950Adpcm::readReg(byte rg)
 byte Y8950Adpcm::peekReg(byte rg) const
 {
 	switch (rg) {
-		case 0x0F: // ADPCM-DATA
-			return peekData();
-		case 0x13: // TODO check
-			return out & 0xFF;
-		case 0x14: // TODO check
-			return out / 256;
-		default:
-			return 255;
+	case 0x0F: // ADPCM-DATA
+		return peekData();
+	case 0x13: // TODO check
+		return out & 0xFF;
+	case 0x14: // TODO check
+		return out >> 8;
+	default:
+		return 255;
 	}
 }
 

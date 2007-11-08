@@ -22,9 +22,9 @@ public:
 	~YMF262();
 
 	void reset(const EmuTime& time);
-	void writeReg(int r, byte v, const EmuTime& time);
-	byte readReg(int reg);
-	byte peekReg(int reg) const;
+	void writeReg(unsigned r, byte v, const EmuTime& time);
+	byte readReg(unsigned reg);
+	byte peekReg(unsigned reg) const;
 	byte readStatus();
 	byte peekStatus() const;
 

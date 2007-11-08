@@ -194,7 +194,7 @@ void I8251::setMode(byte value)
 		SerialDataInterface::EVEN : SerialDataInterface::ODD;
 	interf->setParityBit(parityEnable, parity);
 
-	int baudrate;
+	unsigned baudrate;
 	switch (mode & MODE_BAUDRATE) {
 	case MODE_SYNCHRONOUS:
 		baudrate = 1;
@@ -213,8 +213,8 @@ void I8251::setMode(byte value)
 		baudrate = 1;
 	}
 
-	charLength = (((2 * (1 + int(dataBits) + (parityEnable ? 1 : 0))) +
-	               int(stopBits)) * baudrate) / 2;
+	charLength = (((2 * (1 + unsigned(dataBits) + (parityEnable ? 1 : 0))) +
+	               unsigned(stopBits)) * baudrate) / 2;
 }
 
 void I8251::writeCommand(byte value, const EmuTime& time)

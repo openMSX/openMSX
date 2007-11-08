@@ -10,7 +10,7 @@ namespace openmsx {
 class WavData
 {
 public:
-	WavData(const std::string& filename, int bits = 0, int freq = 0);
+	WavData(const std::string& filename, unsigned bits = 0, unsigned freq = 0);
 	~WavData();
 
 	unsigned getFreq() const;
@@ -20,9 +20,9 @@ public:
 
 private:
 	void* buffer;
-	int bits;
-	int freq;
-	int length;
+	unsigned bits;
+	unsigned freq;
+	unsigned length;
 };
 
 } // namespace openmsx

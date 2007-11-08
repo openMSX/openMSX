@@ -68,7 +68,7 @@ void RP5C01::reset(const EmuTime& time)
 
 nibble RP5C01::readPort(nibble port, const EmuTime& time)
 {
-	assert (port<=0x0f);
+	assert(port <= 0x0f);
 	switch (port) {
 		case MODE_REG:
 			return modeReg;
@@ -77,9 +77,10 @@ nibble RP5C01::readPort(nibble port, const EmuTime& time)
 			// write only
 			return 0x0f;	// TODO check this
 		default:
-			int block = modeReg & MODE_BLOKSELECT;
-			if (block == TIME_BLOCK)
+			unsigned block = modeReg & MODE_BLOKSELECT;
+			if (block == TIME_BLOCK) {
 				updateTimeRegs(time);
+			}
 			nibble tmp = regs[block * 13 + port];
 			return tmp & mask[block][port];
 	}
@@ -105,9 +106,10 @@ void RP5C01::writePort(nibble port, nibble value, const EmuTime& time)
 				fraction = 0;
 			break;
 		default:
-			int block = modeReg & MODE_BLOKSELECT;
-			if (block == TIME_BLOCK)
+			unsigned block = modeReg & MODE_BLOKSELECT;
+			if (block == TIME_BLOCK) {
 				updateTimeRegs(time);
+			}
 			regs.write(block * 13 + port, value & mask[block][port]);
 			if (block == TIME_BLOCK)
 				regs2Time();
@@ -149,7 +151,7 @@ void RP5C01::regs2Time()
 
 void RP5C01::time2Regs()
 {
-	int hours_ = hours;
+	unsigned hours_ = hours;
 	if (!regs[ALARM_BLOCK * 13 + 10]) {
 		// 12 hours mode
 		if (hours >= 12) hours_ = (hours - 12) + 20;
@@ -171,9 +173,9 @@ void RP5C01::time2Regs()
 	regs.write(ALARM_BLOCK * 13 + 11,  leapYear);
 }
 
-static int daysInMonth(int month, int leapYear)
+static unsigned daysInMonth(unsigned month, unsigned leapYear)
 {
-	const int daysInMonths[12] = {
+	const unsigned daysInMonths[12] = {
 		31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
 	};
 
@@ -190,15 +192,15 @@ void RP5C01::updateTimeRegs(const EmuTime& time)
 
 		// in test mode increase sec/min/.. at a rate of 16384Hz
 		fraction += (modeReg & MODE_TIMERENABLE) ? elapsed : 0;
-		int carrySeconds = (testReg & TEST_SECONDS)
-		                 ? elapsed : fraction / FREQ;
+		unsigned carrySeconds = (testReg & TEST_SECONDS)
+		                      ? elapsed : fraction / FREQ;
 		seconds  += carrySeconds;
-		int carryMinutes = (testReg & TEST_MINUTES)
-		                 ? elapsed : seconds / 60;
+		unsigned carryMinutes = (testReg & TEST_MINUTES)
+		                      ? elapsed : seconds / 60;
 		minutes  += carryMinutes;
 		hours    += minutes / 60;
-		int carryDays = (testReg & TEST_DAYS)
-		              ? elapsed : hours / 24;
+		unsigned carryDays = (testReg & TEST_DAYS)
+		                   ? elapsed : hours / 24;
 		days     += carryDays;
 		dayWeek  += carryDays;
 		while (days >= daysInMonth(months, leapYear)) {
@@ -208,8 +210,8 @@ void RP5C01::updateTimeRegs(const EmuTime& time)
 			days -= daysInMonth(months, leapYear);
 			months++;
 		}
-		int carryYears = (testReg & TEST_YEARS)
-		               ? elapsed : months / 12;
+		unsigned carryYears = (testReg & TEST_YEARS)
+		                    ? elapsed : months / 12;
 		years    += carryYears;
 		leapYear += carryYears;
 
@@ -232,7 +234,7 @@ void RP5C01::updateTimeRegs(const EmuTime& time)
 
 void RP5C01::resetAlarm()
 {
-	for (int i = 2; i <= 8; i++) {
+	for (unsigned i = 2; i <= 8; ++i) {
 		regs.write(ALARM_BLOCK * 13 + i, 0);
 	}
 }

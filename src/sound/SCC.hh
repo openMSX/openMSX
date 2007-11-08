@@ -42,11 +42,11 @@ private:
 	virtual bool generateInput(int* buffer, unsigned num);
 
 	inline int adjust(signed char wav, byte vol);
-	byte readWave(byte channel, byte address, const EmuTime& time) const;
-	void writeWave(byte channel, byte offset, byte value);
+	byte readWave(unsigned channel, unsigned address, const EmuTime& time) const;
+	void writeWave(unsigned channel, unsigned offset, byte value);
 	void setDeformReg(byte value, const EmuTime& time);
-	void setFreqVol(byte address, byte value);
-	byte getFreqVol(byte address) const;
+	void setFreqVol(unsigned address, byte value);
+	byte getFreqVol(unsigned address) const;
 
 	static const int CLOCK_FREQ = 3579545;
 

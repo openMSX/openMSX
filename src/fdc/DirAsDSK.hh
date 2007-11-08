@@ -39,10 +39,10 @@ private:
 	void extractCacheToFile(const int dirindex);
 	void truncateCorrespondingFile(const int dirindex);
 	int findFirstFreeCluster();
-	word readFAT(word clnr);
-	word readFAT2(word clnr);
-	void writeFAT(word clnr, word val);
-	void writeFAT2(word clnr, word val);
+	unsigned readFAT(unsigned clnr);
+	unsigned readFAT2(unsigned clnr);
+	void writeFAT(unsigned clnr, unsigned val);
+	void writeFAT2(unsigned clnr, unsigned val);
 
 	struct MSXDirEntry {
 		char filename[8];

@@ -39,15 +39,15 @@ private:
 	void resetAlarm();
 
 	enum RTCMode { EMUTIME, REALTIME };
-	static const int FREQ = 16384;
+	static const unsigned FREQ = 16384;
 
 	SRAM& regs;
 	std::auto_ptr<EnumSetting<RTCMode> > modeSetting;
 
 	Clock<FREQ> reference;
-	int fraction;
-	int seconds, minutes, hours;
-	int dayWeek, days, months, years, leapYear;
+	unsigned fraction;
+	unsigned seconds, minutes, hours;
+	unsigned dayWeek, days, months, years, leapYear;
 
 	nibble modeReg, testReg, resetReg;
 };

@@ -311,7 +311,7 @@ void ImagePrinter::flushEmulatedPrinter()
 static unsigned compress9(unsigned a)
 {
 	unsigned result = 0;
-	for (int i = 0; i < 9; ++i) {
+	for (unsigned i = 0; i < 9; ++i) {
 		if (a & (1 << i)) {
 			result |= 1 << (i / 2);
 		}
