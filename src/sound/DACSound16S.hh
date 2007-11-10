@@ -42,8 +42,6 @@ private:
 	BlipBuffer blip;
 	EmuTime start;
 	EmuDuration sampDur;
-	int prevValue;
-	int prevA, prevB;
 	short lastWrittenValue;
 };
 

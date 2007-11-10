@@ -11,7 +11,6 @@ DACSound16S::DACSound16S(MSXMixer& mixer, const std::string& name,
 	, start(EmuTime::zero) // dummy
 {
 	lastWrittenValue = 0;
-	prevValue = prevA = prevB = 0;
 	registerSound(config);
 }
 
@@ -45,58 +44,9 @@ void DACSound16S::generateChannels(int** bufs, unsigned num)
 	Queue::iterator it = queue.begin();
 	while ((it != queue.end()) && (it->time < start)) ++it;
 	if (it != queue.begin()) {
-		prevValue = (it - 1)->value;
 		queue.erase(queue.begin(), it);
 	}
 
-	/* Old implementation commented out, remove this code later
-	if (queue.empty() && (prevValue == 0)) {
-		// optimization: nothing interesting will happen this time, so
-		// return early
-		bufs[0] = 0;
-		return;
-	}
-
-	EmuDuration halfDur = sampDur / 2;
-	int64 durA = halfDur.length();
-	int64 durB = sampDur.length() - durA;
-
-	EmuTime curr = start;
-	for (unsigned i = 0; i < num; ++i) {
-		// 2x oversampling
-		EmuTime nextA = curr + halfDur;
-		EmuTime nextB = curr + sampDur;
-
-		int64 sumA = 0;
-		while (!queue.empty() && (queue.front().time < nextA)) {
-			sumA += (queue.front().time - curr).length() * prevValue;
-			curr = queue.front().time;
-			prevValue = queue.front().value;
-			queue.pop_front();
-		}
-		sumA += (nextA - curr).length() * prevValue;
-		curr = nextA;
-		int sampA = sumA / durA;
-
-		int64 sumB = 0;
-		while (!queue.empty() && (queue.front().time < nextB)) {
-			sumB += (queue.front().time - curr).length() * prevValue;
-			curr = queue.front().time;
-			prevValue = queue.front().value;
-			queue.pop_front();
-		}
-		sumB += (nextB - curr).length() * prevValue;
-		curr = nextB;
-		int sampB = sumB / durB;
-
-		// 4th order symmetrical FIR filter (1 3 3 1)
-		int value = (prevA + sampB + 3 * (prevB + sampA)) / 8;
-		bufs[0][i] = value;
-		prevA = sampA;
-		prevB = sampB;
-	}
-	*/
-	
 	// BlipBuffer based implementation
 	EmuTime stop = start + sampDur * num;
 	while (!queue.empty() && (queue.front().time < stop)) {
