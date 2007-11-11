@@ -26,16 +26,11 @@ LINK_FLAGS+=-bind_at_load
 # link them statically for building a redistributable binary.
 SYSTEM_LIBS:=ZLIB TCL XML
 
-ifeq ($(filter 3RD_%,$(LINK_MODE)),)
-# Compile against local libs. We assume the binary is intended to be run on
-# this Mac only.
-SDK_PATH:=
-else
-# Compile against 3rdparty libs. We assume the binary is intended to be run
-# on different Mac OS X versions, so we compile against the SDKs for the
-# system-wide libraries.
-
 # Select the SDK for the OS X version we want to be compatible with.
+# TODO: When compiling an executable for local use, we could pick the OS X
+#       version we are running on instead of the oldest version we support.
+#       But at the moment I don't want to make this more complex than it
+#       already is.
 ifeq ($(OPENMSX_TARGET_CPU),ppc)
 SDK_PATH:=$(firstword $(sort $(wildcard /Developer/SDKs/MacOSX10.3.?.sdk)))
 OPENMSX_CXX:=g++-3.3
@@ -47,10 +42,26 @@ SDK_PATH:=/Developer/SDKs/MacOSX10.4u.sdk
 OSX_VER:=10.4
 OSX_MIN_REQ:=1040
 endif
-
 COMPILE_ENV+=NEXT_ROOT=$(SDK_PATH) MACOSX_DEPLOYMENT_TARGET=$(OSX_VER)
 LINK_ENV+=NEXT_ROOT=$(SDK_PATH) MACOSX_DEPLOYMENT_TARGET=$(OSX_VER)
 TARGET_FLAGS+=-D__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__=$(OSX_MIN_REQ)
+
+ifeq ($(filter 3RD_%,$(LINK_MODE)),)
+# Compile against local libs. We assume the binary is intended to be run on
+# this Mac only.
+# Note that even though we compile for local use, we still have to compile
+# against the SDK since OS X 10.3 will have link problems otherwise (the
+# QuickTime framework in particular is notorious for this).
+
+# When NEXT_ROOT is defined, /usr/lib will not be scanned for libraries by
+# default, but users might have installed some dependencies there.
+LINK_FLAGS+=-L/usr/lib
+else
+# Compile against 3rdparty libs. We assume the binary is intended to be run
+# on different Mac OS X versions, so we compile against the SDKs for the
+# system-wide libraries.
+
+# Nothing to define.
 endif
 
 
@@ -82,7 +93,7 @@ GLEW_LDFLAGS_SYS_DYN+=$(MACPORTS_LDFLAGS) $(FINK_LDFLAGS)
 
 SDL_LDFLAGS_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/sdl-config --static-libs 2>> $(LOG)`
 
-ifneq ($(SDK_PATH),)
+ifneq ($(filter 3RD_%,$(LINK_MODE)),)
 # Use tclConfig.sh from /usr and patch the output to point to the SDK dir
 # instead of /usr. Ideally we would use tclConfig.sh from the SDK, but the SDK
 # doesn't contain that file.
