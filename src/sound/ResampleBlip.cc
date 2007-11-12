@@ -3,6 +3,8 @@
 #include "ResampleBlip.hh"
 #include "Resample.hh"
 #include "static_assert.hh"
+#include "likely.hh"
+#include <algorithm>
 #include <cassert>
 
 namespace openmsx {
@@ -12,6 +14,7 @@ ResampleBlip<CHANNELS>::ResampleBlip(Resample& input_, double ratio_)
 	: input(input_)
 	, ratio(ratio_)
 	, invRatio(1.0 / ratio_)
+	, invRatioFP(invRatio)
 {
 	lastPos = 0.0;
 	for (unsigned ch = 0; ch < CHANNELS; ++ch) {
@@ -24,30 +27,48 @@ bool ResampleBlip<CHANNELS>::generateOutput(int* dataOut, unsigned num)
 {
 	double len = num * ratio;
 	int required = int(ceil(len - lastPos));
-	int buf[required * CHANNELS + 3];
-	if (input.generateInput(buf, required)) {
-		double pos = lastPos * invRatio;
-		for (int i = 0; i < required; ++i) {
+	if (required > 0) {
+		// 3 extra for padding, CHANNELS extra for sentinel
+		int buf[required * CHANNELS + std::max(3u, CHANNELS)];
+		if (input.generateInput(buf, required)) {
 			for (unsigned ch = 0; ch < CHANNELS; ++ch) {
-				if (buf[CHANNELS * i + ch] != lastInput[ch]) {
-					lastInput[ch] = buf[CHANNELS * i + ch];
-					blip[ch].update(BlipBuffer::TimeIndex(pos),
-					                lastInput[ch]);
+				// In case of PSG (and to a lesser degree SCC) it happens
+				// very often that two consecutive samples have the same
+				// value. We can benefit from this by setting a sentinel
+				// at the end of the buffer and move the end-of-loop test
+				// into the 'samples differ' branch.
+				assert(required > 0);
+				buf[CHANNELS * required + ch] = 
+					buf[CHANNELS * (required - 1) + ch] + 1;
+				FP pos(lastPos * invRatio);
+				int last = lastInput[ch]; // local var is slightly faster
+				int i = 0;
+				while (true) {
+					if (unlikely(buf[CHANNELS * i + ch] != last)) {
+						if (i == required) {
+							break;
+						}
+						last = buf[CHANNELS * i + ch];
+						blip[ch].update(BlipBuffer::TimeIndex(pos),
+						                last);
+					}
+					pos += invRatioFP;
+					++i;
+				}
+				lastInput[ch] = last;
+			}
+		} else {
+			// input all zero
+			for (unsigned ch = 0; ch < CHANNELS; ++ch) {
+				if (lastInput[ch] != 0) {
+					lastInput[ch] = 0;
+					double pos = lastPos * invRatio;
+					blip[ch].update(BlipBuffer::TimeIndex(pos), 0);
 				}
 			}
-			pos += invRatio;
 		}
-	} else {
-		// input all zero
-		for (unsigned ch = 0; ch < CHANNELS; ++ch) {
-			if (lastInput[ch] != 0) {
-				lastInput[ch] = 0;
-				double pos = lastPos * invRatio;
-				blip[ch].update(BlipBuffer::TimeIndex(pos), 0);
-			}
-		}
+		lastPos += required;
 	}
-	lastPos += required;
 	lastPos -= len;
 	assert(lastPos >= 0.0);
 

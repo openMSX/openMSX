@@ -54,6 +54,13 @@ public:
 	explicit FixedPoint(const float f) : value(lrintf(f * ONE)) {}
 	explicit FixedPoint(const double d) : value(lrint(d * ONE)) {}
 
+	static inline int shiftHelper(int x, int s) {
+		return (s >= 0) ? (x >> s) : (x << -s);
+	}
+	template <unsigned BITS2>
+	explicit FixedPoint(FixedPoint<BITS2> other)
+		: value(shiftHelper(other.getRawValue(), BITS2 - FRACTION_BITS)) {}
+
 	// Conversion from fixed point:
 
 	/**
@@ -200,6 +207,12 @@ public:
 	  */
 	void addQuantum() {
 		value += 1;
+	}
+
+	// Should only be used by other instances of this class
+	//  templatized friend declarations are not possible in c++
+	int getRawValue() {
+		return value;
 	}
 
 private:

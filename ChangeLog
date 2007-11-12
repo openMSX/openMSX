@@ -1,5 +1,11 @@
 $Id$
 
+2007-11-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Optimized ResampleBlip:
+	   This is not the blip algorithm itself, but the preprocess step that
+	   transforms a sequence of samples into a sequence of 'sample value
+	   changed' events.
+
 2007-11-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* In various places performed the following two optimizations:
 	  - Prefer to use int or unsigned int over shorter types (char,
