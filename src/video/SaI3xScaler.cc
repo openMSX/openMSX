@@ -34,11 +34,11 @@ void SaI3xScaler<Pixel>::scaleBlank1to3(
 	for (/* */; dstY < stopDstY; srcY += 1, dstY += 3) {
 		Pixel* dummy = 0;
 		Pixel color = src.getLinePtr(srcY, dummy)[0];
-		Pixel* dstLine0 = dst.getLinePtr(dstY + 0, dummy);
+		Pixel* dstLine0 = dst.getLinePtrDirect(dstY + 0, dummy);
 		memset(dstLine0, dst.getWidth(), color);
-		Pixel* dstLine1 = dst.getLinePtr(dstY + 1, dummy);
+		Pixel* dstLine1 = dst.getLinePtrDirect(dstY + 1, dummy);
 		memset(dstLine1, dst.getWidth(), color);
-		Pixel* dstLine2 = dst.getLinePtr(dstY + 2, dummy);
+		Pixel* dstLine2 = dst.getLinePtrDirect(dstY + 2, dummy);
 		memset(dstLine2, dst.getWidth(), color);
 	}
 	if (dstY != dst.getHeight()) {
@@ -328,7 +328,7 @@ public:
 		OutputSurface& dst, unsigned& dstY)
 	{
 		Pixel* dummy = 0;
-		Pixel* dp = dst.getLinePtr(dstY++, dummy);
+		Pixel* dp = dst.getLinePtrDirect(dstY++, dummy);
 		// Calculate fixed point coordinate.
 		const unsigned y1 = ((NY - i) << 16) / NY;
 
@@ -433,7 +433,7 @@ void SaI3xScaler<Pixel>::scaleAny(FrameSource& src,
 		const Pixel* src3 = src.getLinePtr(line + 2, srcWidth, dummy);
 
 		// Get destination line pointer.
-		Pixel* dp = dst.getLinePtr(dstY, dummy);
+		Pixel* dp = dst.getLinePtrDirect(dstY, dummy);
 
 		// Fractional parts of the fixed point Y coordinates.
 		const unsigned y1 = h & 0xffff;

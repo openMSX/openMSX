@@ -41,10 +41,10 @@ void SimpleScaler<Pixel>::scaleBlank1to2(
 	for (/* */; dstY < stopDstY; srcY += 1, dstY += 2) {
 		Pixel* dummy = 0;
 		Pixel color0 = src.getLinePtr(srcY, dummy)[0];
-		Pixel* dstLine0 = dst.getLinePtr(dstY + 0, dummy);
+		Pixel* dstLine0 = dst.getLinePtrDirect(dstY + 0, dummy);
 		memset(dstLine0, dst.getWidth(), color0);
 		Pixel color1 = scanline.darken(color0, scanlineFactor);
-		Pixel* dstLine1 = dst.getLinePtr(dstY + 1, dummy);
+		Pixel* dstLine1 = dst.getLinePtrDirect(dstY + 1, dummy);
 		memset(dstLine1, dst.getWidth(), color1);
 	}
 	if (dstY != dst.getHeight()) {
@@ -406,15 +406,15 @@ void SimpleScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	unsigned dstY = dstStartY;
 	Pixel* dummy = 0;
 	const Pixel* srcLine = src.getLinePtr(srcStartY++, srcWidth, dummy);
-	Pixel* prevDstLine0 = dst.getLinePtr(dstY++, dummy);
+	Pixel* prevDstLine0 = dst.getLinePtrDirect(dstY++, dummy);
 	blur1on2(srcLine, prevDstLine0, blur, srcWidth);
 
 	while (dstY < dstEndY - 1) {
 		srcLine = src.getLinePtr(srcStartY++, srcWidth, dummy);
-		Pixel* dstLine0 = dst.getLinePtr(dstY + 1, dummy);
+		Pixel* dstLine0 = dst.getLinePtrDirect(dstY + 1, dummy);
 		blur1on2(srcLine, dstLine0, blur, srcWidth);
 
-		Pixel* dstLine1 = dst.getLinePtr(dstY, dummy);
+		Pixel* dstLine1 = dst.getLinePtrDirect(dstY, dummy);
 		drawScanline(prevDstLine0, dstLine0, dstLine1, scanlineFactor,
 		             2 * srcWidth);
 
@@ -426,7 +426,7 @@ void SimpleScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	Pixel buf[2 * srcWidth];
 	blur1on2(srcLine, buf, blur, srcWidth);
 
-	Pixel* dstLine1 = dst.getLinePtr(dstY, dummy);
+	Pixel* dstLine1 = dst.getLinePtrDirect(dstY, dummy);
 	drawScanline(prevDstLine0, buf, dstLine1, scanlineFactor, 2 * srcWidth);
 }
 
@@ -441,15 +441,15 @@ void SimpleScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	unsigned dstY = dstStartY;
 	Pixel* dummy = 0;
 	const Pixel* srcLine = src.getLinePtr(srcStartY++, srcWidth, dummy);
-	Pixel* prevDstLine0 = dst.getLinePtr(dstY++, dummy);
+	Pixel* prevDstLine0 = dst.getLinePtrDirect(dstY++, dummy);
 	blur1on1(srcLine, prevDstLine0, blur, srcWidth);
 
 	while (dstY < dstEndY - 1) {
 		srcLine = src.getLinePtr(srcStartY++, srcWidth, dummy);
-		Pixel* dstLine0 = dst.getLinePtr(dstY + 1, dummy);
+		Pixel* dstLine0 = dst.getLinePtrDirect(dstY + 1, dummy);
 		blur1on1(srcLine, dstLine0, blur, srcWidth);
 
-		Pixel* dstLine1 = dst.getLinePtr(dstY + 0, dummy);
+		Pixel* dstLine1 = dst.getLinePtrDirect(dstY + 0, dummy);
 		drawScanline(prevDstLine0, dstLine0, dstLine1, scanlineFactor,
 		             srcWidth);
 
@@ -461,7 +461,7 @@ void SimpleScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	Pixel buf[srcWidth];
 	blur1on1(srcLine, buf, blur, srcWidth);
 
-	Pixel* dstLine1 = dst.getLinePtr(dstY, dummy);
+	Pixel* dstLine1 = dst.getLinePtrDirect(dstY, dummy);
 	drawScanline(prevDstLine0, buf, dstLine1, scanlineFactor, srcWidth);
 }
 

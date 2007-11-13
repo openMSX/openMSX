@@ -49,22 +49,22 @@ void Simple3xScaler<Pixel>::doScale1(FrameSource& src,
 	unsigned y = dstStartY;
 	Pixel* dummy = 0;
 	const Pixel* srcLine = src.getLinePtr(srcStartY++, srcWidth, dummy);
-	Pixel* prevDstLine0 = dst.getLinePtr(y + 0, dummy);
+	Pixel* prevDstLine0 = dst.getLinePtrDirect(y + 0, dummy);
 	scale(srcLine, prevDstLine0, dst.getWidth());
 
 	Scale_1on1<Pixel> copy;
-	Pixel* dstLine1     = dst.getLinePtr(y + 1, dummy);
+	Pixel* dstLine1     = dst.getLinePtrDirect(y + 1, dummy);
 	copy(prevDstLine0, dstLine1, dst.getWidth());
 
 	for (/* */; (y + 4) < dstEndY; y += 3, srcStartY += 1) {
 		srcLine = src.getLinePtr(srcStartY, srcWidth, dummy);
-		Pixel* dstLine0 = dst.getLinePtr(y + 3, dummy);
+		Pixel* dstLine0 = dst.getLinePtrDirect(y + 3, dummy);
 		scale(srcLine, dstLine0, dst.getWidth());
 
-		Pixel* dstLine1 = dst.getLinePtr(y + 4, dummy);
+		Pixel* dstLine1 = dst.getLinePtrDirect(y + 4, dummy);
 		copy(dstLine0, dstLine1, dst.getWidth());
 
-		Pixel* dstLine2 = dst.getLinePtr(y + 2, dummy);
+		Pixel* dstLine2 = dst.getLinePtrDirect(y + 2, dummy);
 		scanline.draw(prevDstLine0, dstLine0, dstLine2,
 		              scanlineFactor, dst.getWidth());
 
@@ -74,7 +74,7 @@ void Simple3xScaler<Pixel>::doScale1(FrameSource& src,
 	Pixel buf[dst.getWidth()];
 	scale(srcLine, buf, dst.getWidth());
 
-	Pixel* dstLine2 = dst.getLinePtr(y + 2, dummy);
+	Pixel* dstLine2 = dst.getLinePtrDirect(y + 2, dummy);
 	scanline.draw(prevDstLine0, buf, dstLine2,
 		      scanlineFactor, dst.getWidth());
 }
@@ -91,14 +91,14 @@ void Simple3xScaler<Pixel>::doScale2(FrameSource& src,
 	for (unsigned srcY = srcStartY, dstY = dstStartY; dstY < dstEndY;
 	     srcY += 2, dstY += 3) {
 		const Pixel* srcLine0 = src.getLinePtr(srcY + 0, srcWidth, dummy);
-		Pixel* dstLine0 = dst.getLinePtr(dstY + 0, dummy);
+		Pixel* dstLine0 = dst.getLinePtrDirect(dstY + 0, dummy);
 		scale(srcLine0, dstLine0, dst.getWidth());
 
 		const Pixel* srcLine1 = src.getLinePtr(srcY + 1, srcWidth, dummy);
-		Pixel* dstLine2 = dst.getLinePtr(dstY + 2, dummy);
+		Pixel* dstLine2 = dst.getLinePtrDirect(dstY + 2, dummy);
 		scale(srcLine1, dstLine2, dst.getWidth());
 
-		Pixel* dstLine1 = dst.getLinePtr(dstY + 1, dummy);
+		Pixel* dstLine1 = dst.getLinePtrDirect(dstY + 1, dummy);
 		scanline.draw(dstLine0, dstLine2, dstLine1,
 		              scanlineFactor, dst.getWidth());
 	}
@@ -232,12 +232,12 @@ void Simple3xScaler<Pixel>::scaleBlank1to3(
 	for (/* */; dstY < stopDstY; srcY += 1, dstY += 3) {
 		Pixel* dummy = 0;
 		Pixel color0 = src.getLinePtr(srcY, dummy)[0];
-		Pixel* dstLine0 = dst.getLinePtr(dstY + 0, dummy);
+		Pixel* dstLine0 = dst.getLinePtrDirect(dstY + 0, dummy);
 		memset(dstLine0, dst.getWidth(), color0);
-		Pixel* dstLine1 = dst.getLinePtr(dstY + 1, dummy);
+		Pixel* dstLine1 = dst.getLinePtrDirect(dstY + 1, dummy);
 		memset(dstLine1, dst.getWidth(), color0);
 		Pixel color1 = scanline.darken(color0, scanlineFactor);
-		Pixel* dstLine2 = dst.getLinePtr(dstY + 2, dummy);
+		Pixel* dstLine2 = dst.getLinePtrDirect(dstY + 2, dummy);
 		memset(dstLine2, dst.getWidth(), color1);
 	}
 	if (dstY != dst.getHeight()) {
@@ -262,11 +262,11 @@ void Simple3xScaler<Pixel>::scaleBlank2to3(
 		Pixel color0 = src.getLinePtr(srcY + 0, dummy)[0];
 		Pixel color1 = src.getLinePtr(srcY + 1, dummy)[0];
 		Pixel color01 = scanline.darken(color0, color1, scanlineFactor);
-		Pixel* dstLine0 = dst.getLinePtr(dstY + 0, dummy);
+		Pixel* dstLine0 = dst.getLinePtrDirect(dstY + 0, dummy);
 		memset(dstLine0, dst.getWidth(), color0);
-		Pixel* dstLine1 = dst.getLinePtr(dstY + 1, dummy);
+		Pixel* dstLine1 = dst.getLinePtrDirect(dstY + 1, dummy);
 		memset(dstLine1, dst.getWidth(), color01);
-		Pixel* dstLine2 = dst.getLinePtr(dstY + 2, dummy);
+		Pixel* dstLine2 = dst.getLinePtrDirect(dstY + 2, dummy);
 		memset(dstLine2, dst.getWidth(), color1);
 	}
 }

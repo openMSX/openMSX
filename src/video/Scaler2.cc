@@ -26,9 +26,9 @@ void Scaler2<Pixel>::scaleBlank1to2(
 	     dstY < dstEndY; srcY += 1, dstY += 2) {
 		Pixel* dummy = 0;
 		Pixel color = src.getLinePtr(srcY, dummy)[0];
-		Pixel* dstLine0 = dst.getLinePtr(dstY + 0, dummy);
+		Pixel* dstLine0 = dst.getLinePtrDirect(dstY + 0, dummy);
 		memset(dstLine0, dst.getWidth(), color);
-		Pixel* dstLine1 = dst.getLinePtr(dstY + 1, dummy);
+		Pixel* dstLine1 = dst.getLinePtrDirect(dstY + 1, dummy);
 		memset(dstLine1, dst.getWidth(), color);
 	}
 }
@@ -43,7 +43,7 @@ void Scaler2<Pixel>::scaleBlank1to1(
 	     dstY < dstEndY; srcY += 1, dstY += 1) {
 		Pixel* dummy = 0;
 		Pixel color = src.getLinePtr(srcY, dummy)[0];
-		Pixel* dstLine = dst.getLinePtr(dstY, dummy);
+		Pixel* dstLine = dst.getLinePtrDirect(dstY, dummy);
 		memset(dstLine, dst.getWidth(), color);
 	}
 }
@@ -58,9 +58,9 @@ static void doScale1(FrameSource& src,
 	for (unsigned y = dstStartY; y < dstEndY; y += 2, ++srcStartY) {
 		Pixel* dummy = 0;
 		const Pixel* srcLine = src.getLinePtr(srcStartY, srcWidth, dummy);
-		Pixel* dstLine1 = dst.getLinePtr(y + 0, dummy);
+		Pixel* dstLine1 = dst.getLinePtrDirect(y + 0, dummy);
 		scale(srcLine, dstLine1, dst.getWidth());
-		Pixel* dstLine2 = dst.getLinePtr(y + 1, dummy);
+		Pixel* dstLine2 = dst.getLinePtrDirect(y + 1, dummy);
 		if (IsTagged<ScaleOp, Streaming>::result) {
 			scale(srcLine, dstLine2, dst.getWidth());
 		} else {
@@ -79,7 +79,7 @@ static void doScale2(FrameSource& src,
 	     dstY < dstEndY; ++dstY, ++srcY) {
 		Pixel* dummy = 0;
 		const Pixel* srcLine = src.getLinePtr(srcY, srcWidth, dummy);
-		Pixel*       dstLine = dst.getLinePtr(dstY, dummy);
+		Pixel*       dstLine = dst.getLinePtrDirect(dstY, dummy);
 		scale(srcLine, dstLine, dst.getWidth());
 	}
 }

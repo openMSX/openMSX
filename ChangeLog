@@ -1,6 +1,16 @@
 $Id$
 
 2007-11-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* tiny speedup:
+	   Added non-virtual method RawFrame::getLinePtrDirect(), the base
+	   class already had a virtual method FrameSource::getLinePtr() that
+	   does the (on this level). In some places (like SDLRasterizer) we
+	   know we're working on a RawFrame, so using getLinePtrDirect is
+	   slightly faster.
+	   For consistency I also renamed the (non-virtual) method in
+	   OutputSurface to getLinePtrDirect().
+
+2007-11-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimized ResampleBlip:
 	   This is not the blip algorithm itself, but the preprocess step that
 	   transforms a sequence of samples into a sequence of 'sample value

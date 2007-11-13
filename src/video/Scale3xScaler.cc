@@ -158,11 +158,11 @@ void Scale3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 	const Pixel* srcCurr = src.getLinePtr(srcY + 0, srcWidth, dummy);
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 3) {
 		const Pixel* srcNext = src.getLinePtr(srcY + 1, srcWidth, dummy);
-		Pixel* dstUpper = dst.getLinePtr(dstY + 0, dummy);
+		Pixel* dstUpper = dst.getLinePtrDirect(dstY + 0, dummy);
 		scaleLine1on3Half(dstUpper, srcPrev, srcCurr, srcNext, srcWidth);
-		Pixel* dstMiddle = dst.getLinePtr(dstY + 1, dummy);
+		Pixel* dstMiddle = dst.getLinePtrDirect(dstY + 1, dummy);
 		scaleLine1on3Mid(dstMiddle, srcPrev, srcCurr, srcNext, srcWidth);
-		Pixel* dstLower = dst.getLinePtr(dstY + 2, dummy);
+		Pixel* dstLower = dst.getLinePtrDirect(dstY + 2, dummy);
 		scaleLine1on3Half(dstLower, srcNext, srcCurr, srcPrev, srcWidth);
 		srcPrev = srcCurr;
 		srcCurr = srcNext;

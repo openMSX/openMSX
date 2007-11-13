@@ -17,6 +17,11 @@ public:
 	RawFrame(const SDL_PixelFormat* format, unsigned maxWidth, unsigned height);
 	virtual ~RawFrame();
 
+	template<typename Pixel>
+	Pixel* getLinePtrDirect(unsigned y, Pixel* /*dummy*/) {
+		return reinterpret_cast<Pixel*>(data + y * pitch);
+	}
+
 	virtual unsigned getLineBufferSize() const;
 	virtual unsigned getLineWidth(unsigned line);
 
@@ -30,7 +35,7 @@ public:
 	inline void setBlank(unsigned line, Pixel color) {
 		assert(line < getHeight());
 		Pixel* dummy = 0;
-		Pixel* pixels = getLinePtr(line, dummy);
+		Pixel* pixels = getLinePtrDirect(line, dummy);
 		pixels[0] = color;
 		lineWidth[line] = 1;
 	}
