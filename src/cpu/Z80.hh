@@ -44,10 +44,10 @@ protected:
 	inline void MULUW_DELAY()    { assert(false); }
 	inline unsigned haltStates() { return 4 + WAIT_CYCLES; } // HALT + M1
 
-	inline void PRE_RDMEM_OPCODE(word /*address*/) { add(1); }
-	inline void PRE_RDMEM       (word /*address*/) { add(1); }
-	inline void PRE_WRMEM       (word /*address*/) { add(1); }
-	inline void POST_MEM        (word /*address*/) { add(2); }
+	inline void PRE_RDMEM_OPCODE(unsigned /*address*/) { add(1); }
+	inline void PRE_RDMEM       (unsigned /*address*/) { add(1); }
+	inline void PRE_WRMEM       (unsigned /*address*/) { add(1); }
+	inline void POST_MEM        (unsigned /*address*/) { add(2); }
 
 	inline void PRE_IO (word /*port*/) { add(1); }
 	inline void POST_IO(word /*port*/) { add(3); }

@@ -84,7 +84,7 @@ protected:
 		}
 	}
 
-	inline void PRE_RDMEM_OPCODE(word address)
+	inline void PRE_RDMEM_OPCODE(unsigned address)
 	{
 		if (likely(memoryDelay[address >> 14] == (1 - OFFSET))) {
 			int newPage = address >> 8;
@@ -97,7 +97,7 @@ protected:
 			add(1);
 		}
 	}
-	inline void PRE_RDMEM(word address)
+	inline void PRE_RDMEM(unsigned address)
 	{
 		if (likely(memoryDelay[address >> 14] == (1 - OFFSET))) {
 			int newPage = (address >> 8) + 256;
@@ -110,12 +110,12 @@ protected:
 			add(1);
 		}
 	}
-	inline void PRE_WRMEM(word /*address*/)
+	inline void PRE_WRMEM(unsigned /*address*/)
 	{
 		lastPage = -1;
 		add(1);
 	}
-	inline void POST_MEM(word address)
+	inline void POST_MEM(unsigned address)
 	{
 		add(memoryDelay[address >> 14] + OFFSET);
 	}
