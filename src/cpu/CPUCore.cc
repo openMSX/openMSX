@@ -1048,10 +1048,9 @@ template <class T> void CPUCore<T>::ld_l_xiy(S& s) { s.R.setL(s.RD_R_XIY()); }
 // LD ss,(nn)
 template <class T> inline word CPUCore<T>::RD_P_XX()
 {
-	memptr = RD_WORD_PC();
-	word res = RD_WORD(memptr);
-	++memptr;
-	return res;
+	unsigned addr = RD_WORD_PC();
+	memptr = addr + 1;
+	return RD_WORD(addr);
 }
 template <class T> void CPUCore<T>::ld_bc_xword(S& s) { s.R.setBC(s.RD_P_XX()); }
 template <class T> void CPUCore<T>::ld_de_xword(S& s) { s.R.setDE(s.RD_P_XX()); }
@@ -2673,9 +2672,9 @@ template <class T> void CPUCore<T>::push_iy(S& s) { s.PUSH(s.R.getIY()); }
 // POP ss
 template <class T> inline word CPUCore<T>::POP()
 {
-	word res = RD_WORD(R.getSP());
-	R.setSP(R.getSP() + 2);
-	return res;
+	unsigned addr = R.getSP();
+	R.setSP(addr + 2);
+	return RD_WORD(addr);
 }
 template <class T> void CPUCore<T>::pop_af(S& s) { s.R.setAF(s.POP()); }
 template <class T> void CPUCore<T>::pop_bc(S& s) { s.R.setBC(s.POP()); }
