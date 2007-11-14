@@ -1,6 +1,17 @@
 $Id$
 
 2007-11-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Optimized cacheline handling in CPUCore:
+	   - before it was used like this:
+	       const byte* line = readCacheLine[address >> 8];
+	       byte result = line[address & 0xFF];
+	     now it's like this:
+	       const byte* line = readCacheLine[address >> 8];
+	       byte result = line[address];
+	     So the cacheline doesn't store directly the address of the
+	     buffer, but the buffer minus (address & 0xFF00).
+
+2007-11-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* tiny speedup:
 	   Added non-virtual method RawFrame::getLinePtrDirect(), the base
 	   class already had a virtual method FrameSource::getLinePtr() that
