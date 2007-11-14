@@ -264,11 +264,11 @@ template <class T> void CPUCore<T>::disasmCommand(
 	word address = (tokens.size() < 3) ? R.getPC() : tokens[2]->getInt();
 	byte outBuf[4];
 	std::string dasmOutput;
-	int len = dasm(*interface, address, outBuf, dasmOutput,
+	unsigned len = dasm(*interface, address, outBuf, dasmOutput,
 	               T::getTimeFast());
 	result.addListElement(dasmOutput);
 	char tmp[3]; tmp[2] = 0;
-	for (int i = 0; i < len; ++i) {
+	for (unsigned i = 0; i < len; ++i) {
 		toHex(outBuf[i], tmp);
 		result.addListElement(tmp);
 	}
@@ -1197,7 +1197,7 @@ template <class T> void CPUCore<T>::and_xiy(S& s)
 // CP r
 template <class T> inline void CPUCore<T>::CP(byte reg)
 {
-	int q = R.getA() - reg;
+	unsigned q = R.getA() - reg;
 	R.setF(ZSTable[q & 0xFF] |
 	       (reg & (X_FLAG | Y_FLAG)) |	// XY from operand, not from result
 	       ((q & 0x100) ? C_FLAG : 0) |
@@ -1272,7 +1272,7 @@ template <class T> void CPUCore<T>::or_xiy(S& s)
 // SBC A,r
 template <class T> inline void CPUCore<T>::SBC(byte reg)
 {
-	int res = R.getA() - reg - ((R.getF() & C_FLAG) ? 1 : 0);
+	unsigned res = R.getA() - reg - ((R.getF() & C_FLAG) ? 1 : 0);
 	R.setF(ZSXYTable[res & 0xFF] |
 	       ((res & 0x100) ? C_FLAG : 0) |
 	       N_FLAG |
@@ -1315,7 +1315,7 @@ template <class T> void CPUCore<T>::sbc_a_xiy(S& s)
 // SUB r
 template <class T> inline void CPUCore<T>::SUB(byte reg)
 {
-	int res = R.getA() - reg;
+	unsigned res = R.getA() - reg;
 	R.setF(ZSXYTable[res & 0xFF] |
 	       ((res & 0x100) ? C_FLAG : 0) |
 	       N_FLAG |
@@ -1529,7 +1529,7 @@ template <class T> inline word CPUCore<T>::ADDW(word reg1, word reg2)
 template <class T> inline word CPUCore<T>::ADDW2(word reg)
 {
 	memptr = reg + 1;
-	int res = 2 * reg;
+	unsigned res = 2 * reg;
 	R.setF((R.getF() & (S_FLAG | Z_FLAG | V_FLAG)) |
 	       ((res & 0x10000) ? C_FLAG : 0) |
 	       ((res >> 8) & (H_FLAG | X_FLAG | Y_FLAG)));
@@ -2927,7 +2927,7 @@ template <class T> inline void CPUCore<T>::BLOCK_IN(int increase, bool repeat)
 	R.setHL(R.getHL() + increase);
 	byte f = ZSTable[b];
 	if (val & S_FLAG) f |= N_FLAG;
-	int k = val + ((R.getC() + increase) & 0xFF);
+	unsigned k = val + ((R.getC() + increase) & 0xFF);
 	if (k & 0x100)    f |= H_FLAG | C_FLAG;
 	R.setF(f | (ZSPXYTable[(k & 0x07) ^ b] & P_FLAG));
 	if (repeat && b) {
@@ -2951,7 +2951,7 @@ template <class T> inline void CPUCore<T>::BLOCK_OUT(int increase, bool repeat)
 	R.setHL(R.getHL() + increase);
 	byte f = ZSXYTable[b];
 	if (val & S_FLAG) f |= N_FLAG;
-	int k = val + R.getL();
+	unsigned k = val + R.getL();
 	if (k & 0x100)    f |= H_FLAG | C_FLAG;
 	R.setF(f | (ZSPXYTable[(k & 0x07) ^ b] & P_FLAG));
 	if (repeat && b) {

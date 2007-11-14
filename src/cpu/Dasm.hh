@@ -20,8 +20,8 @@ namespace openmsx {
   * @param time TODO
   * @return Length of the disassembled opcode in bytes
   */
-int dasm(const MSXCPUInterface& interf, word pc, byte buf[4], std::string& dest,
-         const EmuTime& time);
+unsigned dasm(const MSXCPUInterface& interf, word pc, byte buf[4],
+              std::string& dest, const EmuTime& time);
 
 } // namespace openmsx
 

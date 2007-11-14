@@ -17,11 +17,11 @@ static int abs(unsigned char a)
 	return (a & 128) ? (256 - a) : a;
 }
 
-int dasm(const MSXCPUInterface& interf, word pc, byte buf[4], std::string& dest,
-         const EmuTime& time)
+unsigned dasm(const MSXCPUInterface& interf, word pc, byte buf[4],
+              std::string& dest, const EmuTime& time)
 {
 	const char* s;
-	int i = 0;
+	unsigned i = 0;
 	const char* r = 0;
 
 	buf[0] = interf.peekMem(pc, time);
