@@ -62,18 +62,6 @@ public:
                                    TclObject& result) const;
 
 	/**
-	 * Read a byte from memory. If possible the byte is read from
-	 * cache, otherwise the readMem() method of MSXCPUInterface is used.
-	 */
-	byte readMem(word address);
-
-	/**
-	 * Write a byte from memory. If possible the byte is written to
-	 * cache, otherwise the writeMem() method of MSXCPUInterface is used.
-	 */
-	void writeMem(word address, byte value);
-
-	/**
 	 * Raises the maskable interrupt count.
 	 * Devices should call MSXCPU::raiseIRQ instead, or use the IRQHelper class.
 	 */
