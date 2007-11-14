@@ -278,11 +278,11 @@ enum KeyCode {
 	KM_CTRL		= 0x020000,
 	KM_ALT		= 0x040000,
 	KM_META		= 0x080000,
-	KM_MODE		= 0x200000,
+	KM_MODE		= 0x100000,
 
 	// Direction modifiers
 	KD_PRESS	= 0,		// key press
-	KD_RELEASE	= 0x100000	// key release
+	KD_RELEASE	= 0x200000	// key release
 };
 
 /**

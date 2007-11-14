@@ -10,6 +10,7 @@
 #include "CassettePort.hh"
 #include "XMLElement.hh"
 #include "RenShaTurbo.hh"
+#include <string>
 #include <cassert>
 
 namespace openmsx {
@@ -24,7 +25,7 @@ MSXPPI::MSXPPI(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, prevBits(15)
 {
 	bool keyGhosting = deviceConfig.getChildDataAsBool("key_ghosting", true);
-	int keyboardType = deviceConfig.getChildDataAsInt("keyboard_type", 0);
+	std::string keyboardType = deviceConfig.getChildData("keyboard_type", "int");
 	bool hasKeypad = deviceConfig.getChildDataAsBool("has_keypad", true);
 	keyboard.reset(new Keyboard(motherBoard.getScheduler(),
 	                            motherBoard.getMSXCommandController(),

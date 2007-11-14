@@ -4,6 +4,7 @@ include build/node-start.mk
 
 SRC_HDR:= \
 	Keyboard \
+	KeyboardSettings \
 	JoystickPort \
 	JoystickDevice \
 	DummyJoystick \

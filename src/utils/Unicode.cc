@@ -4,7 +4,6 @@
 #include <iostream>
 
 using std::string;
-using std::wstring;
 
 namespace openmsx {
 
@@ -33,17 +32,17 @@ static void bad_utf(const string& msg)
 string utf8ToAscii(const string& utf8)
 {
 	string res;
-	wstring wres = utf8ToUnicode(utf8);
-	for (wstring::const_iterator it = wres.begin(); it != wres.end(); /* */) {
-		unsigned unicode = *it++;
-		res.push_back(unicode < 0x100 ? char(unicode) : '?');
+	unicode1_string ures = utf8ToUnicode1(utf8);
+	for (unicode1_string::const_iterator it = ures.begin(); it != ures.end(); it++) {
+		unicode1_char uni = *it;
+		res.push_back(uni < 0x100 ? char(uni) : '?');
 	}
 	return res;
 }
 
-wstring utf8ToUnicode(const string& utf8)
+unicode1_string utf8ToUnicode1(const string& utf8)
 {
-	wstring res;
+	unicode1_string res;
 	for (string::const_iterator it = utf8.begin(); it != utf8.end(); /* */) {
 		char first = *it++;
 		switch (first & 0xC0) {
@@ -53,7 +52,7 @@ wstring utf8ToUnicode(const string& utf8)
 			break;
 		case 0xC0:
 			char nbyte, mask;
-			unsigned uni;
+			unicode1_char uni;
 			for (mask = 0x20, first -= 0xC0, nbyte = 2;
 			     first & mask;
 			     mask >>= 1, ++nbyte) {

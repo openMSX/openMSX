@@ -1,7 +1,7 @@
 #region: Korean
 #format: <UNICODE>, <ROW><COL>, <MODIFIERS>
 # <UNICODE>: hexadecimal unicode number
-# <ROW>: row in keyboard matrix (0-7)
+# <ROW>: row in keyboard matrix (hexadecimal: 0-B)
 # <COL>: column in keyboard matrix (0-7)
 # <MODIFIERS>: space separated list of modifiers:
 #              SHIFT CTRL GRAPH CODE CAPSLOCK KANALOCK

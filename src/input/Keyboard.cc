@@ -3,14 +3,15 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <sstream>
 #include <iostream>
 #include <cassert>
 #include <SDL.h>
-#include "Clock.hh"
 #include "Keyboard.hh"
+#include "Observer.hh"
+#include "Clock.hh"
 #include "MSXEventDistributor.hh"
 #include "SettingsConfig.hh"
+#include "MSXException.hh"
 #include "XMLElement.hh"
 #include "File.hh"
 #include "FileContext.hh"
@@ -24,7 +25,6 @@
 #include "checked_cast.hh"
 
 using std::string;
-using std::wstring;
 using std::vector;
 
 namespace openmsx {
@@ -73,9 +73,9 @@ private:
 	virtual const string& schedName() const;
 
 	Keyboard& keyboard;
-	wstring text;
+	Unicode::unicode1_string text;
 	bool releaseLast;
-	word last;
+	Unicode::unicode1_char last;
 };
 
 class BootCapsLockAligner : private MSXEventListener, private Schedulable
@@ -147,11 +147,10 @@ void Keyboard::loadKeymapfile(const string& filename)
 		byte* buf = file.mmap();
 		parseKeymapfile(buf, file.getSize());
 	} catch (FileException &e) {
-		throw FatalError("Couldn't load keymap file: " + filename);
+		throw MSXException("Couldn't load keymap file: " + filename);
 	}
 }
 
-// TODO: implement correctly
 void Keyboard::parseUnicodeKeymapfile(const byte* buf, unsigned size)
 {
 	unsigned i = 0;
@@ -197,13 +196,13 @@ void Keyboard::parseUnicodeKeymapfile(const byte* buf, unsigned size)
 		}
 		if ( rdnum == 3) {
 			if (unicode < 0 || unicode > 65535) {
-				throw FatalError("Wrong unicode value in keymap file");
+				throw MSXException("Wrong unicode value in keymap file");
 			}
 			if (rowcol < 0 || rowcol >= 11*16 ) {
-				throw FatalError("Wrong rowcol value in keymap file");
+				throw MSXException("Wrong rowcol value in keymap file");
 			}
 			if ((rowcol & 0x0f) > 7) {
-				throw FatalError("Too high column value in keymap file");
+				throw MSXException("Too high column value in keymap file");
 			}
 			modmask = 0;
 			if (strstr(modifiers, "SHIFT") != NULL) {
@@ -242,14 +241,14 @@ void Keyboard::loadUnicodeKeymapfile(const string& filename)
 		byte* buf = file.mmap();
 		parseUnicodeKeymapfile(buf, file.getSize());
 	} catch (FileException &e) {
-		throw FatalError("Couldn't load unicode keymap file: " + filename);
+		throw MSXException("Couldn't load unicode keymap file: " + filename);
 	}
 }
 
 Keyboard::Keyboard(Scheduler& scheduler,
                    MSXCommandController& msxCommandController,
                    MSXEventDistributor& eventDistributor_,
-		   int keyboardType, bool hasKP, bool keyG)
+		   string& keyboardType, bool hasKP, bool keyG)
 	: Schedulable(scheduler)
 	, eventDistributor(eventDistributor_)
 	, keyMatrixUpCmd  (new KeyMatrixUpCmd  (
@@ -260,6 +259,7 @@ Keyboard::Keyboard(Scheduler& scheduler,
 		msxCommandController, eventDistributor, scheduler, *this))
         , bootCapsLockAligner(new BootCapsLockAligner(
 		eventDistributor, scheduler, *this))
+	, keyboardSettings(new KeyboardSettings(msxCommandController))
 {
 	keyGhosting = keyG;
 	hasKeypad = hasKP;
@@ -272,30 +272,18 @@ Keyboard::Keyboard(Scheduler& scheduler,
 	memset(dynKeymap, 0, sizeof(dynKeymap));
 	memset(unicodeTab, 0, sizeof(unicodeTab));
 
-	const XMLElement* config;
 
-	if ((config = msxCommandController.
-			getSettingsConfig().getXMLElement().findChild("CodeKanaHostkey"))) {
-		string keyname = config->getData();
-		Keys::KeyCode keyCode = Keys::getCode(keyname);
-		if (keyCode != 0) {
-			keyTab[keyCode][0]=6;
-			keyTab[keyCode][1]=0x10;
-		}
+	SystemFileContext context(false);
+
+	string keymapFile = keyboardSettings->getKeymapFile().getValueString();
+	if (!keymapFile.empty())
+	{
+		loadKeymapfile(context.resolve(keymapFile));
 	}
+	keyboardSettings->getKeymapFile().attach(*this);
 
-	// TODO: decommission Matrix2Matrix keymap file, it is obsoleted
-	// by Unicode2Matrix keymap file
-	if ((config = msxCommandController.
-			getSettingsConfig().getXMLElement().findChild("KeyMap"))) {
-		string filename = config->getData();
-		loadKeymapfile(config->getFileContext().resolve(filename));
-	}
-
-	std::stringstream unicodeKeymapFilename;
-	unicodeKeymapFilename <<  "keymaps/" << keyboardType << ".keymap";
-	SystemFileContext context(true);
-	loadUnicodeKeymapfile(context.resolve(unicodeKeymapFilename.str()));
+	string unicodemapFilename = "unicodemaps/unicodemap." + keyboardType;
+	loadUnicodeKeymapfile(context.resolve(unicodemapFilename));
 
 	eventDistributor.registerEventListener(*this);
 	// We do not listen for CONSOLE_OFF_EVENTS because rescanning the
@@ -308,6 +296,7 @@ Keyboard::Keyboard(Scheduler& scheduler,
 Keyboard::~Keyboard()
 {
 	eventDistributor.unregisterEventListener(*this);
+	keyboardSettings->getKeymapFile().detach(*this);
 }
 
 
@@ -335,14 +324,14 @@ const byte* Keyboard::getKeys()
  * TODO: Find a solution for the above problem. For example by monitoring
  *       the MSX caps-lock LED state.
  */
-void Keyboard::alignCapsLock()
+void Keyboard::alignCapsLock(const EmuTime& time)
 {
 	bool hostCapsLockOn = ((SDL_GetModState() & KMOD_CAPS) != 0);
 
 	if (msxCapsLockOn != hostCapsLockOn) {
 		msxCapsLockOn = hostCapsLockOn;
-		processKey(true, Keys::K_CAPSLOCK);
-		Clock<1000> now(getScheduler().getCurrentTime());
+		updateKeyMatrix(true, 6, 0x08);
+		Clock<1000> now(time);
 		setSyncPoint(now + 100);
 	}
 }
@@ -355,14 +344,14 @@ void Keyboard::alignCapsLock()
  *  OPENMSX_KEY_UP_EVENT
  */
 void Keyboard::signalEvent(shared_ptr<const Event> event,
-                           const EmuTime& /*time*/)
+                           const EmuTime& time)
 {
 	EventType type = event->getType();
 	if (type == OPENMSX_FOCUS_EVENT) {
 		const FocusEvent& focusEvent = checked_cast<const FocusEvent&>(*event);
 		if (focusEvent.getGain() == true)
 		{
-			alignCapsLock();
+			alignCapsLock(time);
 		}
 	}
 	else if ((type == OPENMSX_KEY_DOWN_EVENT) ||
@@ -374,32 +363,74 @@ void Keyboard::signalEvent(shared_ptr<const Event> event,
 		const KeyEvent& keyEvent = checked_cast<const KeyEvent&>(*event);
 		Keys::KeyCode key = static_cast<Keys::KeyCode>
 			(int(keyEvent.getKeyCode()) & int(Keys::K_MASK));
-		if (key != Keys::K_CAPSLOCK) {
+		if (
+			type == OPENMSX_KEY_DOWN_EVENT &&
+			keyboardSettings->getTraceKeyPresses().getValue()
+		) {
+			printf("Key pressed, unicode codepoint: 0x%04x, SDL info: %s\n",
+				keyEvent.getUnicode(),
+				Keys::getName(keyEvent.getKeyCode()).c_str()
+				);
+		}
+		if (key == Keys::K_CAPSLOCK) {
+			processCapslockEvent(time);
+		}
+		else if (key == keyboardSettings->getCodeKanaHostKey().getValue()) {
+			processCodeKanaChange(type == OPENMSX_KEY_DOWN_EVENT);
+		}
+		else if (key == Keys::K_KP_ENTER) {
+			processKeypadEnterKey(type == OPENMSX_KEY_DOWN_EVENT);
+		}
+		else {
                         processKeyEvent(type == OPENMSX_KEY_DOWN_EVENT, keyEvent);
-		} else {
-			// This is a workaround for a SDL 'feature' (it's
-			// actually a documented bug in SDL). In a future
-			// refactoring this workaround should be moved to a
-			// higher level.
-			// The bug/feature is that SDL sends a CAPSLOCK press event at
-			// the moment that the host CAPSLOCK status goes 'on'
-			// and it sends the release event only when the host CAPSLOCK status
-			// goes 'off'. However, the emulated MSX must see a press and release
-			// event when CAPSLOCK goes on and another press and release event when
-			// it goes off again. This is achieved by pressing CAPSLOCK key at the
-			// moment that the host CAPSLOCK status changes and releasing the
-			// the CAPSLOCK key shortly after (via a timed event)
-			msxCapsLockOn = !msxCapsLockOn;
-			processKey(true, Keys::K_CAPSLOCK);
-			Clock<1000> now(getScheduler().getCurrentTime());
-			setSyncPoint(now + 100);
 		}
 	}
 }
 
+/*
+ * Process a change (up or down event) of the CODE/KANA key
+ * Currently, it simply presses or de-pressed the key
+ * in the MSX keyboard matrix
+ * TODO:
+ * In future, it should keep track of the KANALOCK state
+ * so that the keyboard driver can unlock/lock the KANA key if
+ * so required to process a certain unicode character.
+ * Please be aware that such special lock/unlock logic is also needed for
+ * the Philips VG8010, which has a CODELOCK key in stead of a CODE key
+ */
+void Keyboard::processCodeKanaChange(bool down)
+{
+	updateKeyMatrix(down, 6, 0x10);
+}
+
+/*
+ * Process a change event of the CAPSLOCK *STATUS*;
+ *  SDL sends a CAPSLOCK press event at the moment that the host CAPSLOCK
+ *  status goes 'on' and it sends the release event only when the host
+ *  CAPSLOCK status goes 'off'. However, the emulated MSX must see a press
+ *  and release event when CAPSLOCK status goes on and another press and
+ *  release event when it goes off again. This is achieved by pressing
+ *  CAPSLOCK key at the moment that the host CAPSLOCK status changes and
+ *  releasing the CAPSLOCK key shortly after (via a timed event)
+ *
+ * Please be aware that there is a 'bug-fix' for SDL that changes the
+ * behaviour of SDL with respect to the handling of the CAPSLOCK status.
+ * When this bug-fix is effective, SDL sends a press event at the moment that
+ * the user presses the CAPSLOCK key and a release event at the moment that the
+ * user releases the CAPSLOCK key. Once this bug-fix becomes the standard
+ * behaviour, this routine should be adapted accordingly.
+ */
+void Keyboard::processCapslockEvent(const EmuTime& time)
+{
+	msxCapsLockOn = !msxCapsLockOn;
+	updateKeyMatrix(true, 6, 0x08);
+	Clock<1000> now(time);
+	setSyncPoint(now + 100);
+}
+
 void Keyboard::executeUntil(const EmuTime& /*time*/, int /*userData*/)
 {
-	processKey(false, Keys::K_CAPSLOCK);
+	updateKeyMatrix(false, 6, 0x08);
 }
 
 const string& Keyboard::schedName() const
@@ -408,42 +439,67 @@ const string& Keyboard::schedName() const
 	return schedName;
 }
 
+void Keyboard::processKeypadEnterKey(bool down)
+{
+	if (!hasKeypad && !keyboardSettings->getAlwaysEnableKeypad().getValue()) {
+		// User entered on host keypad but this MSX model does not have one
+		// Ignore the keypress/release
+		return; 
+	}
+	int row;
+	byte mask;
+	if (keyboardSettings->getKpEnterMode().getValue() == KeyboardSettings::MSX_KP_COMMA)
+	{
+		row = 10;
+		mask = 0x40;
+	} 
+	else
+	{
+		row = 7;
+		mask = 0x80;
+	}
+	updateKeyMatrix(down, row, mask);
+}
+
 /*
  * Process an SDL key press/release event. It concerns a
  * special key (e.g. SHIFT, UP, DOWN, F1, F2, ...) that can not
  * be unambiguously derived from a unicode character;
  *  Map the SDL key to an equivalent MSX key press/release event
  */
-void Keyboard::processKey(bool down, int key)
+void Keyboard::processSdlKey(bool down, int key)
 {
 	if (key < MAX_KEYSYM) {
 		int row=keyTab[key][0];
 		byte mask=keyTab[key][1];
-		if (down) {
-			// Key pressed: reset bit in user keyMatrix
-			userKeyMatrix[row] &= ~mask;
-			if (row == 6) {
-				// Keep track of the MSX modifiers (CTRL, GRAPH, CODE, SHIFT)
-				// The MSX modifiers in row 6 of the matrix sometimes get
-				// overruled by the unicode character processing, in
-				// which case the unicode processing must be able to restore
-				// them to the real key-combinations pressed by the user
-				msxmodifiers &= ~(mask & 0x17);
-			}
-		} else {
-			// Key released: set bit in keyMatrix
-			userKeyMatrix[row] |= mask;
-			if (row == 6) {
-				msxmodifiers |= (mask & 0x17);
-			}
-		}
-		keysChanged = true; // do ghosting at next getKeys()
+		updateKeyMatrix(down, row, mask);
 	}
 }
 
-static void bad_key(int key)
+/*
+ * Update the MSX keyboard matrix
+ */
+void Keyboard::updateKeyMatrix(bool down, int row, byte mask)
 {
-	std::cerr << "Keyboard::bad_key: too high key (" << key << ") encountered." << std::endl;
+	if (down) {
+		// Key pressed: reset bit in user keyMatrix
+		userKeyMatrix[row] &= ~mask;
+		if (row == 6) {
+			// Keep track of the MSX modifiers (CTRL, GRAPH, CODE, SHIFT)
+			// The MSX modifiers in row 6 of the matrix sometimes get
+			// overruled by the unicode character processing, in
+			// which case the unicode processing must be able to restore
+			// them to the real key-combinations pressed by the user
+			msxmodifiers &= ~(mask & 0x17);
+		}
+	} else {
+		// Key released: set bit in keyMatrix
+		userKeyMatrix[row] |= mask;
+		if (row == 6) {
+			msxmodifiers |= (mask & 0x17);
+		}
+	}
+	keysChanged = true; // do ghosting at next getKeys()
 }
 
 /*
@@ -459,7 +515,7 @@ void Keyboard::processKeyEvent(bool down, const KeyEvent& keyEvent)
 	Keys::KeyCode keyCode = keyEvent.getKeyCode();
 	Keys::KeyCode key = static_cast<Keys::KeyCode>
 		(int(keyCode) & int(Keys::K_MASK));
-	word unicode;
+	Unicode::unicode1_char unicode;
 	
 	bool isOnKeypad = (
 		(key >= Keys::K_KP0 && key <= Keys::K_KP9) ||
@@ -467,12 +523,11 @@ void Keyboard::processKeyEvent(bool down, const KeyEvent& keyEvent)
 		(key == Keys::K_KP_DIVIDE) ||
 		(key == Keys::K_KP_MULTIPLY) ||
 		(key == Keys::K_KP_MINUS) ||
-		(key == Keys::K_KP_PLUS) ||
-		(key == Keys::K_KP_ENTER) // note: Host KP_ENTER is mapped to MSX KP_COMMA
+		(key == Keys::K_KP_PLUS)
 	);
 
 
-	if (isOnKeypad && !hasKeypad) {
+	if (isOnKeypad && !hasKeypad && !keyboardSettings->getAlwaysEnableKeypad().getValue()) {
 		// User entered on host keypad but this MSX model does not have one
 		// Ignore the keypress/release
 		return; 
@@ -501,7 +556,10 @@ void Keyboard::processKeyEvent(bool down, const KeyEvent& keyEvent)
 			// key-combination-release in the MSX
 			dynKeymap[key] = unicode;
 		} else {
-			bad_key(key);
+			// Unexpectedly high key-code. Can't store the unicode
+			// character for this key. Instead directly treat the key
+			// via matrix to matrix mapping
+			unicode = 0;
 		}
 		if (unicode == 0) {
 			// It was an ambiguous key (numeric key-pad, CTRL+character)
@@ -512,7 +570,7 @@ void Keyboard::processKeyEvent(bool down, const KeyEvent& keyEvent)
 			// But only when it is not a first keystroke of a
 			// composed key
 			if ((keyCode & Keys::KM_MODE) == 0) {
-				processKey(down, key); 
+				processSdlKey(down, key); 
 			}
 		}
 		else {
@@ -523,18 +581,21 @@ void Keyboard::processKeyEvent(bool down, const KeyEvent& keyEvent)
 		// key was released
 		if (key < MAX_KEYSYM) {
 			unicode=dynKeymap[key]; // Get the unicode that was derived from this key
-			if (unicode == 0) {
-				// It was a special key, perform matrix to matrix mapping
-				// But only when it is not a first keystroke of a
-				// composed key
-				if ((keyCode & Keys::KM_MODE) == 0) {
-					processKey(down, key); 
-				}
+		}
+		else {
+			unicode=0;
+		}
+		if (unicode == 0) {
+			// It was a special key, perform matrix to matrix mapping
+			// But only when it is not a first keystroke of a
+			// composed key
+			if ((keyCode & Keys::KM_MODE) == 0) {
+				processSdlKey(down, key); 
 			}
-			else {
-				// It was a unicode character; map it to the right key-combination
-				pressUnicodeByUser(unicode, key, false);
-			}
+		}
+		else {
+			// It was a unicode character; map it to the right key-combination
+			pressUnicodeByUser(unicode, key, false);
 		}
 	}
 }
@@ -632,7 +693,7 @@ string Keyboard::processCmd(const vector<string>& tokens, bool up)
  *              7    6     5     4    3      2     1    0
  * row  6   |  F3 |  F2 |  F1 | code| caps|graph| ctrl|shift|
  */
-void Keyboard::pressUnicodeByUser(word unicode, int key, bool down)
+void Keyboard::pressUnicodeByUser(Unicode::unicode1_char unicode, int key, bool down)
 {
 	byte shiftkeymask = ( key >= Keys::K_A && key <= Keys::K_Z) ? 0x00 : 0x01;
 	byte row = unicodeTab[unicode][0];
@@ -660,7 +721,7 @@ void Keyboard::pressUnicodeByUser(word unicode, int key, bool down)
  * The characters are inserted in a separate keyboard matrix, to prevent
  * interference with the keypresses of the user on the MSX itself
  */
-void Keyboard::pressAscii(word unicode, bool down)
+void Keyboard::pressAscii(Unicode::unicode1_char unicode, bool down)
 {
 	byte row = unicodeTab[unicode][0];
 	byte mask = unicodeTab[unicode][1];
@@ -678,11 +739,12 @@ void Keyboard::pressAscii(word unicode, bool down)
 
 /*
  * Check if there are common keys in the MSX matrix for
- * two different ascii-codes.
+ * two different unicodes.
  * It is used by the 'insert keys' function to determine if it has to wait for
- * a short while after releasing a character before pressing the next character
+ * a short while after releasing a key (to enter a certain character) before
+ * pressing the next key (to enter the next character)
  */
-bool Keyboard::commonKeys(word unicode1, word unicode2)
+bool Keyboard::commonKeys(Unicode::unicode1_char unicode1, Unicode::unicode1_char unicode2)
 {
 	// get row / mask of key (note: ignore modifier mask)
 	byte row1 = unicodeTab[unicode1][0];
@@ -695,15 +757,30 @@ bool Keyboard::commonKeys(word unicode1, word unicode2)
 	return ((row1 == row2) && (mask1 & mask2));
 }
 
+void Keyboard::update(const Setting& setting)
+{
+	if (&setting == &keyboardSettings->getKeymapFile()) {
+		SystemFileContext context(false);
+
+		string keymapFile = keyboardSettings->getKeymapFile().getValueString();
+		if (!keymapFile.empty())
+		{
+			loadKeymapfile(context.resolve(keymapFile));
+		}
+	} else {
+		assert(false);
+	}
+
+}
 
 // class KeyMatrixUpCmd
 
 KeyMatrixUpCmd::KeyMatrixUpCmd(MSXCommandController& msxCommandController,
 		MSXEventDistributor& msxEventDistributor,
 		Scheduler& scheduler, Keyboard& keyboard_)
-: RecordedCommand(msxCommandController, msxEventDistributor,
+	: RecordedCommand(msxCommandController, msxEventDistributor,
 		scheduler, "keymatrixup")
-					 , keyboard(keyboard_)
+	, keyboard(keyboard_)
 {
 }
 
@@ -725,9 +802,9 @@ string KeyMatrixUpCmd::help(const vector<string>& /*tokens*/) const
 KeyMatrixDownCmd::KeyMatrixDownCmd(MSXCommandController& msxCommandController,
 		MSXEventDistributor& msxEventDistributor,
 		Scheduler& scheduler, Keyboard& keyboard_)
-: RecordedCommand(msxCommandController, msxEventDistributor,
+	: RecordedCommand(msxCommandController, msxEventDistributor,
 		scheduler, "keymatrixdown")
-					   , keyboard(keyboard_)
+	, keyboard(keyboard_)
 {
 }
 
@@ -749,10 +826,11 @@ string KeyMatrixDownCmd::help(const vector<string>& /*tokens*/) const
 KeyInserter::KeyInserter(MSXCommandController& msxCommandController,
 		MSXEventDistributor& msxEventDistributor,
 		Scheduler& scheduler, Keyboard& keyboard_)
-: RecordedCommand(msxCommandController, msxEventDistributor,
+	: RecordedCommand(msxCommandController, msxEventDistributor,
 		scheduler, "type")
 	, Schedulable(scheduler)
-				, keyboard(keyboard_), releaseLast(false)
+	, keyboard(keyboard_)
+	, releaseLast(false)
 {
 }
 
@@ -779,7 +857,7 @@ void KeyInserter::type(const string& str)
 	if (text.empty()) {
 		reschedule(getScheduler().getCurrentTime());
 	}
-	text += Unicode::utf8ToUnicode(str); // TODO: refactor by using a utf8ToUnicode decoder
+	text += Unicode::utf8ToUnicode1(str);
 }
 
 void KeyInserter::executeUntil(const EmuTime& time, int /*userData*/)
@@ -791,7 +869,7 @@ void KeyInserter::executeUntil(const EmuTime& time, int /*userData*/)
 		releaseLast = false;
 		return;
 	}
-	word current = text[0];
+	Unicode::unicode1_char current = text[0];
 	if (releaseLast == true && keyboard.commonKeys(last, current)) {
 		// There are common keys between previous and current character
 		// Do not immediately press again but give MSX the time to notice
@@ -844,18 +922,18 @@ BootCapsLockAligner::~BootCapsLockAligner()
 }
 
 void BootCapsLockAligner::signalEvent(shared_ptr<const Event> event,
-                                 const EmuTime& /*time*/)
+                                 const EmuTime& time)
 {
 	EventType type = event->getType();
 	if (type == OPENMSX_BOOT_EVENT) {
-		Clock<100> now(getScheduler().getCurrentTime());
+		Clock<100> now(time);
 		setSyncPoint(now + 200);
 	}
 }
 
-void BootCapsLockAligner::executeUntil(const EmuTime& time, int userData)
+void BootCapsLockAligner::executeUntil(const EmuTime& time, int /*userData*/)
 {
-	keyboard.alignCapsLock();
+	keyboard.alignCapsLock(time);
 }
 
 const string& BootCapsLockAligner::schedName() const

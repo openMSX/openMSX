@@ -4,8 +4,12 @@
 #define KEYBOARD_HH
 
 #include "MSXEventListener.hh"
+#include "Unicode.hh"
+#include "Observer.hh"
 #include "Schedulable.hh"
 #include "openmsx.hh"
+#include "Keys.hh"
+#include "KeyboardSettings.hh"
 #include <string>
 #include <vector>
 #include <memory>
@@ -21,8 +25,10 @@ class KeyMatrixDownCmd;
 class KeyInserter;
 class KeyEvent;
 class BootCapsLockAligner;
+class Setting;
+template <typename T> class EnumSetting;
 
-class Keyboard : private MSXEventListener, private Schedulable
+class Keyboard : private MSXEventListener, private Schedulable, private Observer<Setting>
 {
 public:
 	/**
@@ -30,13 +36,13 @@ public:
 	 * @param scheduler ref to the scheduler
 	 * @param msxCommandController ref to the command controller
 	 * @param eventDistributor ref to the user input event distributor
-	 * @param keyboardType contains type of keyboard (0: international, 1: japanese, etc)
+	 * @param keyboardType contains filename extension of unicode keymap file
 	 * @param hasKeypad turn MSX keypad on/off
 	 * @param keyGhosting turn keyGhosting on/off
 	 */
 	Keyboard(Scheduler& scheduler, MSXCommandController& msxCommandController,
 	         MSXEventDistributor& eventDistributor, 
-		 int keyboardType, bool hasKeypad, bool keyGhosting);
+		 std::string& keyboardType, bool hasKeypad, bool keyGhosting);
 
 	virtual ~Keyboard();
 
@@ -45,9 +51,14 @@ public:
 	 */
 	const byte* getKeys();
 
+	EnumSetting<Keys::KeyCode>& getCodeKanaHostKey();
+
 	static const unsigned NR_KEYROWS = 16;
 
 private:
+	// Observer<Setting>
+	virtual void update(const Setting& setting);
+
 	// MSXEventListener
 	virtual void signalEvent(shared_ptr<const Event> event,
 	                         const EmuTime& time);
@@ -56,19 +67,22 @@ private:
 	virtual void executeUntil(const EmuTime& time, int userData);
 	virtual const std::string& schedName() const;
 
-	void alignCapsLock();
-	void processKey(bool down, int key);
+	void alignCapsLock(const EmuTime& time);
+	void processCodeKanaChange(bool down);
+	void processCapslockEvent(const EmuTime& time);
+	void processKeypadEnterKey(bool down);
+	void processSdlKey(bool down, int key);
         void processKeyEvent(bool down, const KeyEvent& keyEvent);
-	void normalKey(bool down, word chr, int);
+	void updateKeyMatrix(bool down, int row, byte mask);
 	void doKeyGhosting();
 	void parseKeymapfile(const byte* buf, unsigned size);
 	void loadKeymapfile(const std::string& filename);
 	void parseUnicodeKeymapfile(const byte* buf, unsigned size);
 	void loadUnicodeKeymapfile(const std::string& filename);
 	std::string processCmd(const std::vector<std::string>& tokens, bool up);
-	void pressUnicodeByUser(word unicode, int key, bool down);
-	void pressAscii(word unicode, bool down);
-	bool commonKeys(word unicode1, word unicode2);
+	void pressUnicodeByUser(Unicode::unicode1_char unicode, int key, bool down);
+	void pressAscii(Unicode::unicode1_char unicode, bool down);
+	bool commonKeys(Unicode::unicode1_char unicode1, Unicode::unicode1_char unicode2);
 
 	MSXEventDistributor& eventDistributor;
 
@@ -76,10 +90,12 @@ private:
 	friend class KeyMatrixDownCmd;
 	friend class KeyInserter;
 	friend class BootCapsLockAligner;
+
 	const std::auto_ptr<KeyMatrixUpCmd>   keyMatrixUpCmd;
 	const std::auto_ptr<KeyMatrixDownCmd> keyMatrixDownCmd;
 	const std::auto_ptr<KeyInserter>      keyTypeCmd;
 	const std::auto_ptr<BootCapsLockAligner> bootCapsLockAligner;
+	const std::auto_ptr<KeyboardSettings> keyboardSettings;
 
 	byte cmdKeyMatrix[NR_KEYROWS];
 	byte userKeyMatrix[NR_KEYROWS];
@@ -92,7 +108,7 @@ private:
 	static const int MAX_KEYSYM = 0x150;
 	static byte keyTab[MAX_KEYSYM][2];
 //	static short asciiTab[256][2];
-	word dynKeymap[MAX_KEYSYM];
+	Unicode::unicode1_char dynKeymap[MAX_KEYSYM];
 	byte unicodeTab[65536][3];
 };
 

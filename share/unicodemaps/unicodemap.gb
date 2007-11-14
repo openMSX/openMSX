@@ -1,7 +1,7 @@
-#region: International
+#region: United Kingdom/Great Britain
 #format: <UNICODE>, <ROW><COL>, <MODIFIERS>
 # <UNICODE>: hexadecimal unicode number
-# <ROW>: row in keyboard matrix (0-7)
+# <ROW>: row in keyboard matrix (hexadecimal: 0-B)
 # <COL>: column in keyboard matrix (0-7)
 # <MODIFIERS>: space separated list of modifiers:
 #              SHIFT CTRL GRAPH CODE CAPSLOCK KANALOCK
@@ -102,7 +102,7 @@
 005d, 16, 
 005e, 06, SHIFT 
 005f, 12, SHIFT 
-0060, 21, 
+0060, 14, CODE 
 0061, 26, 
 0062, 27, 
 0063, 30, 
@@ -136,9 +136,9 @@
 00a0, 80, 
 00a1, 01, SHIFT CODE 
 00a2, 04, CODE 
-00a3, 04, SHIFT CODE 
+00a3, 21, 
 00a5, 05, SHIFT CODE 
-00a7, 03, CODE 
+00a7, 03, CODE
 00aa, 23, CODE 
 00ab, 22, SHIFT GRAPH 
 00ac, 56, SHIFT GRAPH 
@@ -166,8 +166,8 @@
 00df, 07, CODE 
 00e0, 57, CODE 
 00e1, 56, CODE 
-00e2, 46, CODE 
 00e3, 35, CODE
+00e2, 46, CODE 
 00e4, 26, CODE 
 00e5, 22, CODE 
 00e6, 37, CODE 
@@ -194,8 +194,8 @@
 00ff, 05, CODE 
 0128, 40, SHIFT CODE
 0129, 40, CODE
-0169, 17, CODE
 0168, 17, SHIFT CODE
+0169, 17, CODE
 0192, 01, CODE 
 0393, 10, SHIFT CODE 
 0398, 13, CODE 

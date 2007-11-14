@@ -356,6 +356,9 @@ const string getName(KeyCode keyCode)
 	if (keyCode & KM_META) {
 		result += "+META";
 	}
+	if (keyCode & KM_MODE) {
+		result += "+MODE";
+	}
 	if (keyCode & KD_RELEASE) {
 		result += ",RELEASE";
 	}
