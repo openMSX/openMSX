@@ -280,11 +280,11 @@ Keyboard::Keyboard(Scheduler& scheduler,
 	{
 		loadKeymapfile(context.resolve(keymapFile));
 	}
-	keyboardSettings->getKeymapFile().attach(*this);
 
 	string unicodemapFilename = "unicodemaps/unicodemap." + keyboardType;
 	loadUnicodeKeymapfile(context.resolve(unicodemapFilename));
 
+	keyboardSettings->getKeymapFile().attach(*this);
 	eventDistributor.registerEventListener(*this);
 	// We do not listen for CONSOLE_OFF_EVENTS because rescanning the
 	// keyboard can have unwanted side effects
