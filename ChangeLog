@@ -1,6 +1,16 @@
 $Id$
 
-2007-11-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2007-11-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Optimization in CPUClock:
+	   Before this change we had two member variables 'limit' and 'extra'.
+	   Now they are replaced by 'limit' and 'remaining'. The variable
+	   'limit' still has the same meaning, the variable 'remaining' is equal
+	   to the old 'limit - extra'. So the same information is represented
+	   in a slightly different way.  The advantage is that the expression
+	   'limit <= extra' now becomes 'remaining <= 0'. This is slightly
+	   faster but it's used in the innermost CPU loop.
+
+2007-11-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimized cacheline handling in CPUCore:
 	   - before it was used like this:
 	       const byte* line = readCacheLine[address >> 8];

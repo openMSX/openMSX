@@ -26,16 +26,16 @@ protected:
 #else
 	// 64-bit addition is expensive
 	// (if executed several million times per second)
-	inline void add(unsigned ticks) { extra += ticks; }
+	inline void add(unsigned ticks) { remaining -= ticks; }
 	inline void sync() const {
-		limit -= extra;
-		clock.fastAdd(extra); extra = 0;
+		clock.fastAdd(limit - remaining);
+		limit = remaining;
 	}
 #endif
 
 	// These are similar to the corresponding methods in DynamicClock.
 	const EmuTime& getTime() const { sync(); return clock.getTime(); }
-	const EmuTime getTimeFast() const { return clock.getFastAdd(extra); }
+	const EmuTime getTimeFast() const { return clock.getFastAdd(limit - remaining); }
 	void setTime(const EmuTime& time) { sync(); clock.reset(time); }
 	void setFreq(unsigned freq) { clock.setFreq(freq); }
 	void advanceTime(const EmuTime& time);
@@ -75,13 +75,13 @@ protected:
 	void setLimit(const EmuTime& time);
 	void enableLimit(bool enable_);
 	inline bool limitReached() const {
-		return limit <= extra;
+		return remaining <= 0;
 	}
 
 private:
 	mutable DynamicClock clock;
 	Scheduler& scheduler;
-	mutable int extra;
+	mutable int remaining;
 	mutable int limit;
 	bool limitEnabled;
 };
