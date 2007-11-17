@@ -108,7 +108,8 @@ inline void AY8910::Generator::setPeriod(int value)
 	// Also, note that period = 0 is the same as period = 1. This is mentioned
 	// in the YM2203 data sheets. However, this does NOT apply to the Envelope
 	// period. In that case, period = 0 is half as period = 1.
-	period = value == 0 ? 1 : value;
+	period = std::max(1, value);
+	count = std::min(count, period - 1);
 }
 
 inline unsigned AY8910::Generator::getOutput()
@@ -169,15 +170,9 @@ inline bool AY8910::ToneGenerator::advance()
 
 inline void AY8910::ToneGenerator::advance(int duration)
 {
-	int oldCount = count;
+	assert(count < period);
 	count += duration;
 	if (count >= period) {
-		if (oldCount > period) {
-			// this only happens when period was just changed,
-			// this code makes sure the effect of this method is the
-			// same as calling 'duration x advance()'
-			count -= oldCount - period;
-		}
 		// Calculate number of output transitions.
 		int cycles = count / period;
 		count -= period * cycles; // equivalent to count %= period;
@@ -232,12 +227,7 @@ inline void AY8910::NoiseGenerator::advance()
 
 inline void AY8910::NoiseGenerator::advance(int duration)
 {
-	if (count > period) {
-		// this only happens when period was just changed,
-		// this code makes sure the effect of this method is the
-		// same as calling 'duration x advance()'
-		count = period;
-	}
+	assert(count < period);
 	count += duration;
 	int cycles = count / period;
 	count -= cycles * period; // equivalent to count %= period
@@ -351,7 +341,7 @@ inline bool AY8910::Amplitude::followsEnvelope(unsigned chan) const
 inline AY8910::Envelope::Envelope(const unsigned* envVolTable_)
 {
 	envVolTable = envVolTable_;
-	period = 0;
+	period = 1;
 	count  = 0;
 	step   = 0;
 	attack = 0;
@@ -368,7 +358,9 @@ inline void AY8910::Envelope::reset()
 inline void AY8910::Envelope::setPeriod(int value)
 {
 	// twice as fast as AY8910
-	period = value == 0 ? 1 : value * 2;
+	//  see also Generator::setPeriod()
+	period = std::max(1, 2 * value);
+	count = std::min(count, period - 1);
 }
 
 inline unsigned AY8910::Envelope::getVolume() const
@@ -421,19 +413,13 @@ inline void AY8910::Envelope::advance(int duration)
 	// in the inner loop(s) of generateChannels().
 	//assert(!holding);
 
-	int oldCount = count;
+	assert(count < period);
 	count += duration * 2;
 	if (count >= period) {
-		if (oldCount > period) {
-			// this only happens when period was just changed,
-			// this code makes sure the effect of this method is the
-			// same as calling 'duration x advance(1)'
-			count -= oldCount - period;
-		}
-		if (holding) return;
 		const int steps = count / period;
-		step -= steps;
 		count -= steps * period; // equivalent to count %= period;
+		if (holding) return;
+		step -= steps;
 
 		// Check current envelope position.
 		if (step < 0) {
