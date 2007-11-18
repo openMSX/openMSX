@@ -1,4 +1,4 @@
-#region: International
+#region: Spain (Espagna)
 #format: <UNICODE>, <ROW><COL>, <MODIFIERS>
 # <UNICODE>: hexadecimal unicode number
 # <ROW>: row in keyboard matrix (hexadecimal: 0-B)
@@ -63,14 +63,16 @@
 0037, 07, 
 0038, 10, 
 0039, 11, 
-003a, 17, SHIFT 
-003b, 17, 
+003A, 21, SHIFT
+003B, 21,
 003c, 22, SHIFT 
 003d, 13, 
 003e, 23, SHIFT 
 003f, 24, SHIFT 
 0040, 02, SHIFT 
+0041, 26,
 0041, 26, SHIFT 
+0042, 27,
 0042, 27, SHIFT 
 0043, 30, SHIFT 
 0044, 31, SHIFT 
@@ -101,9 +103,6 @@
 005d, 16, 
 005e, 06, SHIFT 
 005f, 12, SHIFT 
-0060, 21, 
-0061, 26, 
-0062, 27, 
 0063, 30, 
 0064, 31, 
 0065, 32, 
@@ -129,15 +128,14 @@
 0079, 56, 
 007a, 57, 
 007b, 15, SHIFT 
-007c, 14, SHIFT 
 007d, 16, SHIFT 
-007e, 21, SHIFT 
 007f, 83,            # Delete
 00a0, 80, 
 00a1, 01, SHIFT CODE 
 00a2, 04, CODE 
 00a3, 04, SHIFT CODE 
 00a5, 05, SHIFT CODE 
+00A6, 14, SHIFT
 00a7, 03, CODE 
 00aa, 23, CODE 
 00ab, 22, SHIFT GRAPH 
@@ -159,6 +157,7 @@
 00c6, 37, SHIFT CODE 
 00c7, 11, SHIFT CODE 
 00c9, 52, SHIFT CODE 
+00D1, 17, SHIFT
 00d1, 43, SHIFT CODE 
 00d5, 41, SHIFT CODE
 00d6, 33, SHIFT CODE 
@@ -180,6 +179,7 @@
 00ed, 36, CODE 
 00ee, 32, CODE 
 00ef, 31, CODE 
+00F1, 17,
 00f1, 43, CODE 
 00f2, 53, CODE 
 00f3, 44, CODE 

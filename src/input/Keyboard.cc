@@ -367,7 +367,8 @@ void Keyboard::signalEvent(shared_ptr<const Event> event,
 			type == OPENMSX_KEY_DOWN_EVENT &&
 			keyboardSettings->getTraceKeyPresses().getValue()
 		) {
-			printf("Key pressed, unicode codepoint: 0x%04x, SDL info: %s\n",
+			fprintf(stderr,
+				"Key pressed, unicode codepoint: 0x%04x, SDL info: %s\n",
 				keyEvent.getUnicode(),
 				Keys::getName(keyEvent.getKeyCode()).c_str()
 				);
@@ -727,6 +728,11 @@ void Keyboard::pressAscii(Unicode::unicode1_char unicode, bool down)
 	byte mask = unicodeTab[unicode][1];
 	byte modmask = unicodeTab[unicode][2];
 	if (down) {
+		if (keyboardSettings->getTraceKeyPresses().getValue()) {
+			fprintf(stderr,
+				"Key pasted, unicode codepoint: 0x%04x, row: %02d, mask: %02x, modmask: %02x\n",
+				unicode, row, mask, modmask);
+		}
 		cmdKeyMatrix[row] &= ~mask;
 		cmdKeyMatrix[6] &= ~modmask;
 	}

@@ -20,6 +20,7 @@
       <sound>
         <volume>16000</volume>
       </sound>
+      <keyboard_type>jp_ansi</keyboard_type>
       <io base="0xA8" num="4"/>
     </PPI>
 
