@@ -8,17 +8,6 @@ $Id$
 	   - Updated harwareconfig.xml of Sony_HB-F9P_Russian and
 	     of Panasonic_FS-A1 to test maps ru and jp_ansi
 
-2007-11-14 Alex Wulms
-	* Processed review comments of Wouter on Keyboard class
-	  and made several other small improvements
-
-2007-11-04 Alex Wulms
-	* Introduced unicode character handling in Keyboard class:
-	   - Before, SDL key-presses where mapped to MSX key-presses.
-	     Now, unicode characters get mapped to MSX key-combinations
-	     when SDL returns a unicode character. Otherwise, SDL key
-	     still gets mapped to MSX key
-
 2007-11-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimization in CPUClock:
 	   Before this change we had two member variables 'limit' and 'extra'.
@@ -28,6 +17,10 @@ $Id$
 	   in a slightly different way.  The advantage is that the expression
 	   'limit <= extra' now becomes 'remaining <= 0'. This is slightly
 	   faster but it's used in the innermost CPU loop.
+
+2007-11-14 Alex Wulms
+	* Processed review comments of Wouter on Keyboard class
+	  and made several other small improvements
 
 2007-11-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimized cacheline handling in CPUCore:
@@ -87,6 +80,13 @@ $Id$
 	   only the last sector is writable.
 	   Created a seperate mapper type 'MegaFlashRomScc' (existed already
 	   as an alias) which has the complete range writable.
+
+2007-11-04 Alex Wulms
+	* Introduced unicode character handling in Keyboard class:
+	   - Before, SDL key-presses where mapped to MSX key-presses.
+	     Now, unicode characters get mapped to MSX key-combinations
+	     when SDL returns a unicode character. Otherwise, SDL key
+	     still gets mapped to MSX key
 
 2007-11-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimized AY8910::generateChannels():
