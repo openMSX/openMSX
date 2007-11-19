@@ -1,5 +1,9 @@
 $Id$
 
+2007-11-19 Alex Wulms
+	* Removed conversion program (CVP) marker from russian keymap and
+	  removed few duplicate entries from spanish keymap
+
 2007-11-18 Alex Wulms
 	* Fixed unicode map jp_jis, introduced jp_ansi, ru, es :
 	   - The unicode maps are now derived from the MSX key
