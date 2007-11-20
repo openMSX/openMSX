@@ -1,5 +1,21 @@
 $Id$
 
+2007-11-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Big optimization in AY8910::generateChannels():
+	   Because the PSG generates mostly square waves and because we
+	   emulate the PSG at a high frequency (224kHz), lots of consecutive
+	   output samples have the same value (typically 100 or more!). We
+	   used to emulate the PSG step-by-step, instead now we calculate the
+	   moment in time when the output will change and output with that
+	   many equal samples.
+	   Because of this change PSG emulation itself became 3x-4x faster. On
+	   total emulation time this is upto 10% faster.
+	   This change was actually done as a preparation to use BlipBuffer
+	   more directly in the PSG code (because BlipBuffer only needs to
+	   know about changes in the sample stream). But on it's own it was
+	   already a nice speedup. This also means there is still potential
+	   for another big speedup.
+
 2007-11-19 Alex Wulms
 	* Removed conversion program (CVP) marker from russian keymap and
 	  removed few duplicate entries from spanish keymap

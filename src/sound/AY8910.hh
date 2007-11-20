@@ -42,6 +42,10 @@ private:
 		/** Gets the current output of this generator.
 		  */
 		inline unsigned getOutput();
+
+		inline unsigned getNextEventTime();
+		inline void advanceFast(unsigned duration);
+
 	protected:
 		Generator();
 
@@ -58,7 +62,6 @@ private:
 		int count;
 		/** Current state of the wave.
 		  * For tones, this is 0 or 1.
-		  * For noise, this is 0 or 0x38.
 		  */
 		unsigned output;
 	};
@@ -67,15 +70,15 @@ private:
 	public:
 		ToneGenerator();
 		inline void setParent(AY8910& parent);
-		/** Advance tone generator one step in time.
-		  */
-		inline bool advance();
 		/** Advance tone generator several steps in time.
 		  * @param duration Length of interval to simulate.
 		  */
 		inline void advance(int duration);
+
+		inline void doNextEvent(bool doDetune);
+
 	private:
-		inline int getDetune();
+		int getDetune();
 
 		AY8910* parent;
 		/** Time passed since start of vibrato cycle.
@@ -89,13 +92,13 @@ private:
 		NoiseGenerator();
 
 		inline void reset();
-		/** Advance noise generator one step in time.
-		  */
-		inline void advance();
 		/** Advance noise generator several steps in time.
 		  * @param duration Length of interval to simulate.
 		  */
 		inline void advance(int duration);
+
+		inline void doNextEvent();
+
 	private:
 		int random;
 	};
@@ -127,7 +130,13 @@ private:
 		inline void advance(int duration);
 		inline unsigned getVolume() const;
 
+		inline unsigned getNextEventTime();
+		inline void advanceFast(unsigned duration);
+		inline void doNextEvent();
+
 	private:
+		inline void doSteps(int steps);
+
 		const unsigned* envVolTable;
 		int period;
 		int count;

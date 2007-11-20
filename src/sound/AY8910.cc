@@ -117,6 +117,18 @@ inline unsigned AY8910::Generator::getOutput()
 	return output;
 }
 
+inline unsigned AY8910::Generator::getNextEventTime()
+{
+	assert(count < period);
+	return period - count;
+}
+
+inline void AY8910::Generator::advanceFast(unsigned duration)
+{
+	count += duration;
+	assert(count < period);
+}
+
 
 // ToneGenerator:
 
@@ -130,7 +142,7 @@ inline void AY8910::ToneGenerator::setParent(AY8910& parent)
 	this->parent = &parent;
 }
 
-inline int AY8910::ToneGenerator::getDetune()
+int AY8910::ToneGenerator::getDetune()
 {
 	int result = 0;
 	double vibPerc = parent->vibratoPercent->getValue();
@@ -154,18 +166,7 @@ inline int AY8910::ToneGenerator::getDetune()
 		noise += noiseValue(2.0 * noiseIdx) / 2.0;
 		result += int(noise * detunePerc * 0.01 * period);
 	}
-	return result;
-}
-
-inline bool AY8910::ToneGenerator::advance()
-{
-	++count;
-	if (count >= period) {
-		count = getDetune();
-		output ^= 1;
-		return true;
-	}
-	return false;
+	return std::min(result, period - 1);
 }
 
 inline void AY8910::ToneGenerator::advance(int duration)
@@ -178,6 +179,16 @@ inline void AY8910::ToneGenerator::advance(int duration)
 		count -= period * cycles; // equivalent to count %= period;
 		output ^= cycles & 1;
 	}
+}
+
+inline void AY8910::ToneGenerator::doNextEvent(bool doDetune)
+{
+	if (unlikely(doDetune)) {
+		count = getDetune();
+	} else {
+		count = 0;
+	}
+	output ^= 1;
 }
 
 
@@ -194,35 +205,32 @@ inline void AY8910::NoiseGenerator::reset()
 	random = 1;
 }
 
-inline void AY8910::NoiseGenerator::advance()
+inline void AY8910::NoiseGenerator::doNextEvent()
 {
-	count++;
-	if (count >= period) {
-		count = 0;
-		// noise output changes when (bit1 ^ bit0) == 1
-		output ^= ((random + 1) & 2) >> 1;
+	count = 0;
+	// noise output changes when (bit1 ^ bit0) == 1
+	output ^= ((random + 1) & 2) >> 1;
 
-		// The Random Number Generator of the 8910 is a 17-bit shift register.
-		// The input to the shift register is bit0 XOR bit2 (bit0 is the
-		// output).
-		// The following is a fast way to compute bit 17 = bit0^bit2.
-		// Instead of doing all the logic operations, we only check bit 0,
-		// relying on the fact that after two shifts of the register, what now
-		// is bit 2 will become bit 0, and will invert, if necessary, bit 16,
-		// which previously was bit 18.
-		// Note: On Pentium 4, the "if" causes trouble in the pipeline.
-		//       After all this is pseudo-random and therefore a nightmare
-		//       for branch prediction.
-		//       A bit more calculation without a branch is faster.
-		//       Without the "if", the transformation described above still
-		//       speeds up the code, because the same "random & N"
-		//       subexpression appears twice (also when doing multiple cycles
-		//       in one go, see "advance" method).
-		//       TODO: Benchmark on other modern CPUs.
-		//if (random & 1) random ^= 0x28000;
-		//random >>= 1;
-		random = (random >> 1) ^ ((random & 1) << 14) ^ ((random & 1) << 16);
-	}
+	// The Random Number Generator of the 8910 is a 17-bit shift register.
+	// The input to the shift register is bit0 XOR bit2 (bit0 is the
+	// output).
+	// The following is a fast way to compute bit 17 = bit0^bit2.
+	// Instead of doing all the logic operations, we only check bit 0,
+	// relying on the fact that after two shifts of the register, what now
+	// is bit 2 will become bit 0, and will invert, if necessary, bit 16,
+	// which previously was bit 18.
+	// Note: On Pentium 4, the "if" causes trouble in the pipeline.
+	//       After all this is pseudo-random and therefore a nightmare
+	//       for branch prediction.
+	//       A bit more calculation without a branch is faster.
+	//       Without the "if", the transformation described above still
+	//       speeds up the code, because the same "random & N"
+	//       subexpression appears twice (also when doing multiple cycles
+	//       in one go, see "advance" method).
+	//       TODO: Benchmark on other modern CPUs.
+	//if (random & 1) random ^= 0x28000;
+	//random >>= 1;
+	random = (random >> 1) ^ ((random & 1) << 14) ^ ((random & 1) << 16);
 }
 
 inline void AY8910::NoiseGenerator::advance(int duration)
@@ -405,7 +413,7 @@ inline bool AY8910::Envelope::isChanging() const
 	return !holding;
 }
 
-inline void AY8910::Envelope::advance(int duration)
+inline void AY8910::Envelope::doSteps(int steps)
 {
 	// For best performance callers should check upfront whether
 	//    isChanging() == true
@@ -413,31 +421,55 @@ inline void AY8910::Envelope::advance(int duration)
 	// in the inner loop(s) of generateChannels().
 	//assert(!holding);
 
-	assert(count < period);
-	count += duration * 2;
-	if (count >= period) {
-		const int steps = count / period;
-		count -= steps * period; // equivalent to count %= period;
-		if (holding) return;
-		step -= steps;
+	if (holding) return;
+	step -= steps;
 
-		// Check current envelope position.
-		if (step < 0) {
-			if (hold) {
-				if (alternate) attack ^= 0x1F;
-				holding = true;
-				step = 0;
-			} else {
-				// If step has looped an odd number of times
-				// (usually 1), invert the output.
-				if (alternate && (step & 0x10)) {
-					attack ^= 0x1F;
-				}
-				step &= 0x1F;
+	// Check current envelope position.
+	if (step < 0) {
+		if (hold) {
+			if (alternate) attack ^= 0x1F;
+			holding = true;
+			step = 0;
+		} else {
+			// If step has looped an odd number of times
+			// (usually 1), invert the output.
+			if (alternate && (step & 0x10)) {
+				attack ^= 0x1F;
 			}
+			step &= 0x1F;
 		}
 	}
 }
+
+inline void AY8910::Envelope::advance(int duration)
+{
+	assert(count < period);
+	count += duration * 2;
+	if (count >= period) {
+		int steps = count / period;
+		count -= steps * period; // equivalent to count %= period;
+		doSteps(steps);
+	}
+}
+
+inline void AY8910::Envelope::doNextEvent()
+{
+	count = 0;
+	doSteps(period == 1 ? 2 : 1);
+}
+
+inline unsigned AY8910::Envelope::getNextEventTime()
+{
+	assert(count < period);
+	return (period - count + 1) / 2;
+}
+
+inline void AY8910::Envelope::advanceFast(unsigned duration)
+{
+	count += 2 * duration;
+	assert(count < period);
+}
+
 
 
 // AY8910 main class:
@@ -628,9 +660,19 @@ void AY8910::setOutputRate(unsigned sampleRate)
 	setResampleRatio(NATIVE_FREQ_DOUBLE, sampleRate);
 }
 
+static void fill(int*& buf, int val, unsigned num)
+{
+	assert(num > 0);
+	do {
+		*buf++ = val;
+	} while (--num);
+}
 
 void AY8910::generateChannels(int** bufs, unsigned length)
 {
+	bool doDetune = (vibratoPercent->getValue() != 0) ||
+	                (detunePercent->getValue()  != 0);
+
 	// Disable channels with volume 0: since the sample value doesn't matter,
 	// we can use the fastest path.
 	unsigned chanEnable = regs[AY_ENABLE];
@@ -666,44 +708,150 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 	for (unsigned chan = 0; chan < 3; ++chan, chanEnable >>= 1) {
 		int* buf = bufs[chan];
 		if (!buf) continue;
+		ToneGenerator& t = tone[chan];
 		if (envelope.isChanging() && amplitude.followsEnvelope(chan)) {
 			envelopeUpdated = true;
 			envelope = initialEnvelope;
-			ToneGenerator& t = tone[chan];
 			if ((chanEnable & 0x09) == 0x08) {
 				// no noise, square wave: alternating between 0 and 1.
-				for (unsigned i = 0; i < length; ++i) {
-					buf[i] = t.getOutput() * envelope.getVolume();
-					t.advance();
-					envelope.advance(1);
+				unsigned val = t.getOutput() * envelope.getVolume();
+				unsigned remaining = length;
+				unsigned nextE = envelope.getNextEventTime();
+				unsigned nextT = t.getNextEventTime();
+				while ((nextT <= remaining) || (nextE <= remaining)) {
+					if (nextT < nextE) {
+						fill(buf, val, nextT);
+						remaining -= nextT;
+						nextE -= nextT;
+						envelope.advanceFast(nextT);
+						t.doNextEvent(doDetune);
+						nextT = t.getNextEventTime();
+					} else if (nextE < nextT) {
+						fill(buf, val, nextE);
+						remaining -= nextE;
+						nextT -= nextE;
+						t.advanceFast(nextE);
+						envelope.doNextEvent();
+						nextE = envelope.getNextEventTime();
+					} else {
+						assert(nextT == nextE);
+						fill(buf, val, nextT);
+						remaining -= nextT;
+						t.doNextEvent(doDetune);
+						nextT = t.getNextEventTime();
+						envelope.doNextEvent();
+						nextE = envelope.getNextEventTime();
+					}
+					val = t.getOutput() * envelope.getVolume();
 				}
+				if (remaining) {
+					// last interval (without events)
+					fill(buf, val, remaining);
+					t.advanceFast(remaining);
+					envelope.advanceFast(remaining);
+				}
+
 			} else if ((chanEnable & 0x09) == 0x09) {
 				// no noise, channel disabled: always 1.
-				for (unsigned i = 0; i < length; ++i) {
-					buf[i] = envelope.getVolume();
-					envelope.advance(1);
+				unsigned val = envelope.getVolume();
+				unsigned remaining = length;
+				unsigned next = envelope.getNextEventTime();
+				while (next <= remaining) {
+					fill(buf, val, next);
+					remaining -= next;
+					envelope.doNextEvent();
+					val = envelope.getVolume();
+					next = envelope.getNextEventTime();
+				}
+				if (remaining) {
+					// last interval (without events)
+					fill(buf, val, remaining);
+					envelope.advanceFast(remaining);
 				}
 				t.advance(length);
+
 			} else if ((chanEnable & 0x09) == 0x00) {
 				// noise enabled, tone enabled
 				noise = initialNoise;
-				for (unsigned i = 0; i < length; ++i) {
-					buf[i] = noise.getOutput()
-					       ? t.getOutput() * envelope.getVolume()
-					       : 0;
-					t.advance();
-					noise.advance();
-					envelope.advance(1);
+				unsigned val = noise.getOutput() * t.getOutput() * envelope.getVolume();
+				unsigned remaining = length;
+				unsigned nextT = t.getNextEventTime();
+				unsigned nextN = noise.getNextEventTime();
+				unsigned nextE = envelope.getNextEventTime();
+				unsigned next = std::min(std::min(nextT, nextN), nextE);
+				while (next <= remaining) {
+					fill(buf, val, next);
+					remaining -= next;
+					nextT -= next;
+					nextN -= next;
+					nextE -= next;
+					if (nextT) {
+						t.advanceFast(next);
+					} else {
+						t.doNextEvent(doDetune);
+						nextT = t.getNextEventTime();
+					}
+					if (nextN) {
+						noise.advanceFast(next);
+					} else {
+						noise.doNextEvent();
+						nextN = noise.getNextEventTime();
+					}
+					if (nextE) {
+						envelope.advanceFast(next);
+					} else {
+						envelope.doNextEvent();
+						nextE = envelope.getNextEventTime();
+					}
+					next = std::min(std::min(nextT, nextN), nextE);
+					val = noise.getOutput() * t.getOutput() * envelope.getVolume();
 				}
+				if (remaining) {
+					// last interval (without events)
+					fill(buf, val, remaining);
+					t.advanceFast(remaining);
+					noise.advanceFast(remaining);
+					envelope.advanceFast(remaining);
+				}
+
 			} else {
 				// noise enabled, tone disabled
 				noise = initialNoise;
-				for (unsigned i = 0; i < length; ++i) {
-					buf[i] = noise.getOutput()
-					       ? envelope.getVolume()
-					       : 0;
-					noise.advance();
-					envelope.advance(1);
+				unsigned val = noise.getOutput() * envelope.getVolume();
+				unsigned remaining = length;
+				unsigned nextE = envelope.getNextEventTime();
+				unsigned nextN = noise.getNextEventTime();
+				while ((nextN <= remaining) || (nextE <= remaining)) {
+					if (nextN < nextE) {
+						fill(buf, val, nextN);
+						remaining -= nextN;
+						nextE -= nextN;
+						envelope.advanceFast(nextN);
+						noise.doNextEvent();
+						nextN = noise.getNextEventTime();
+					} else if (nextE < nextN) {
+						fill(buf, val, nextE);
+						remaining -= nextE;
+						nextN -= nextE;
+						noise.advanceFast(nextE);
+						envelope.doNextEvent();
+						nextE = envelope.getNextEventTime();
+					} else {
+						assert(nextN == nextE);
+						fill(buf, val, nextN);
+						remaining -= nextN;
+						noise.doNextEvent();
+						nextN = noise.getNextEventTime();
+						envelope.doNextEvent();
+						nextE = envelope.getNextEventTime();
+					}
+					val = noise.getOutput() * envelope.getVolume();
+				}
+				if (remaining) {
+					// last interval (without events)
+					fill(buf, val, remaining);
+					noise.advanceFast(remaining);
+					envelope.advanceFast(remaining);
 				}
 				t.advance(length);
 			}
@@ -712,43 +860,91 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 			unsigned volume = amplitude.followsEnvelope(chan)
 			                ? envelope.getVolume()
 			                : amplitude.getVolume(chan);
-			ToneGenerator& t = tone[chan];
 			if ((chanEnable & 0x09) == 0x08) {
 				// no noise, square wave: alternating between 0 and 1.
 				unsigned val = t.getOutput() * volume;
-				for (unsigned i = 0; i < length; ++i) {
-					buf[i] = val;
-					if (unlikely(t.advance())) {
-						val ^= volume;
-					}
+				unsigned remaining = length;
+				unsigned next = t.getNextEventTime();
+				while (next <= remaining) {
+					fill(buf, val, next);
+					val ^= volume;
+					remaining -= next;
+					t.doNextEvent(doDetune);
+					next = t.getNextEventTime();
 				}
+				if (remaining) {
+					// last interval (without events)
+					fill(buf, val, remaining);
+					t.advanceFast(remaining);
+				}
+
 			} else if ((chanEnable & 0x09) == 0x09) {
 				// no noise, channel disabled: always 1.
-				for (unsigned i = 0; i < length; ++i) {
-					buf[i] = volume;
-				}
+				fill(buf, volume, length);
 				t.advance(length);
+
 			} else if ((chanEnable & 0x09) == 0x00) {
 				// noise enabled, tone enabled
 				noise = initialNoise;
-				unsigned val = t.getOutput() * volume;
-				for (unsigned i = 0; i < length; ++i) {
-					buf[i] = noise.getOutput()
-					       ? val
-					       : 0;
-					if (unlikely(t.advance())) {
-						val ^= volume;
+				unsigned val1 = t.getOutput() * volume;
+				unsigned val2 = val1 * noise.getOutput();
+				unsigned remaining = length;
+				unsigned nextN = noise.getNextEventTime();
+				unsigned nextT = t.getNextEventTime();
+				while ((nextN <= remaining) || (nextT <= remaining)) {
+					if (nextT < nextN) {
+						fill(buf, val2, nextT);
+						remaining -= nextT;
+						nextN -= nextT;
+						noise.advanceFast(nextT);
+						t.doNextEvent(doDetune);
+						nextT = t.getNextEventTime();
+						val1 ^= volume;
+						val2 = val1 * noise.getOutput();
+					} else if (nextN < nextT) {
+						fill(buf, val2, nextN);
+						remaining -= nextN;
+						nextT -= nextN;
+						t.advanceFast(nextN);
+						noise.doNextEvent();
+						nextN = noise.getNextEventTime();
+						val2 = val1 * noise.getOutput();
+					} else {
+						assert(nextT == nextN);
+						fill(buf, val2, nextT);
+						remaining -= nextT;
+						t.doNextEvent(doDetune);
+						nextT = t.getNextEventTime();
+						noise.doNextEvent();
+						nextN = noise.getNextEventTime();
+						val1 ^= volume;
+						val2 = val1 * noise.getOutput();
 					}
-					noise.advance();
 				}
+				if (remaining) {
+					// last interval (without events)
+					fill(buf, val2, remaining);
+					t.advanceFast(remaining);
+					noise.advanceFast(remaining);
+				}
+
 			} else {
 				// noise enabled, tone disabled
 				noise = initialNoise;
-				for (unsigned i = 0; i < length; ++i) {
-					buf[i] = noise.getOutput()
-					       ? volume
-					       : 0;
-					noise.advance();
+				unsigned remaining = length;
+				unsigned val = noise.getOutput() * volume;
+				unsigned next = noise.getNextEventTime();
+				while (next <= remaining) {
+					fill(buf, val, next);
+					remaining -= next;
+					noise.doNextEvent();
+					val = noise.getOutput() * volume;
+					next = noise.getNextEventTime();
+				}
+				if (remaining) {
+					// last interval (without events)
+					fill(buf, val, remaining);
+					noise.advanceFast(remaining);
 				}
 				t.advance(length);
 			}
