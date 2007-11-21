@@ -8,6 +8,7 @@
 #include "MSXMotherBoard.hh"
 #include "MSXCliComm.hh"
 #include "Alarm.hh"
+#include <string.h>
 
 using std::string;
 

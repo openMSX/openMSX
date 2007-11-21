@@ -3,6 +3,7 @@
 #include "Scanline.hh"
 #include "HostCPU.hh"
 #include <cassert>
+#include <string.h>
 
 namespace openmsx {
 

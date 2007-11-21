@@ -18,6 +18,7 @@
 #include <iomanip>
 #include <iostream>
 #include <cassert>
+#include <string.h>
 
 #if __GNUC__ > 2
 #define ALWAYS_INLINE inline __attribute__((always_inline))

@@ -4,9 +4,10 @@
 #include "CassetteJack.hh"
 #include "Semaphore.hh"
 #include "StringOp.hh"
-#include <cmath>
-#include <unistd.h> // for getpid()
 #include <jack/jack.h>
+#include <cmath>
+#include <string.h>
+#include <unistd.h> // for getpid()
 
 typedef jack_default_audio_sample_t sample_t;
 static const int BUF_FAC = 4;

@@ -3,6 +3,7 @@
 #include "SDLSnow.hh"
 #include "openmsx.hh"
 #include <SDL.h>
+#include <string.h>
 
 namespace openmsx {
 

@@ -7,6 +7,7 @@
 #include "FilenameSetting.hh"
 #include <cstdio>
 #include <cerrno>
+#include <string.h>
 
 using std::string;
 

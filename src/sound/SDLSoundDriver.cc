@@ -4,9 +4,10 @@
 #include "MSXException.hh"
 #include "Math.hh"
 #include "build-info.hh"
+#include <SDL.h>
 #include <algorithm>
 #include <cassert>
-#include <SDL.h>
+#include <string.h>
 
 namespace openmsx {
 
