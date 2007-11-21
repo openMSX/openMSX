@@ -1,5 +1,10 @@
 $Id$
 
+2007-11-21 Alex Wulms
+	* Added docs/keyboard.readme:
+	   This document explains which new parameters have been
+	   introduced in hardwareconfig.xml and in settings.xml
+
 2007-11-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimized MSXMixer::generate():
 	   see comments in that method for more details
