@@ -200,12 +200,25 @@ void MSXMixer::updateStream2(const EmuTime& time)
 void MSXMixer::generate(short* output, unsigned samples,
 	const EmuTime& start, const EmuDuration& sampDur)
 {
+	// The code below is specialized for a lot of cases (before this
+	// routine was _much_ shorter). This is done because this routine
+	// ends up relatively high (top 5) in a profile run.
+	// After these specialization this routine runs about two times
+	// faster for the common cases (mono output or no sound at all).
+	// In total emulation time this gave a speedup of about 2%.
+
 	assert((!muteCount && fragmentSize) || synchronousCounter);
 	assert(samples <= 8192);
 
-	int mixBuf[2 * samples + 3];
+	if (samples == 0) return;
+
+	int stereoBuf[2 * samples];
+	int monoBuf[samples];
 	int tmpBuf[2 * samples + 3];
-	memset(mixBuf, 0, 2 * samples * sizeof(int));
+
+	static const unsigned HAS_MONO_FLAG = 1;
+	static const unsigned HAS_STEREO_FLAG = 2;
+	unsigned usedBuffers = 0;
 
 	for (Infos::const_iterator it = infos.begin();
 	     it != infos.end(); ++it) {
@@ -215,42 +228,171 @@ void MSXMixer::generate(short* output, unsigned samples,
 			if (!device.isStereo()) {
 				int l1 = it->second.left1;
 				int r1 = it->second.right1;
-				for (unsigned i = 0; i < samples; ++i) {
-					mixBuf[2 * i + 0] += (l1 * tmpBuf[i]) >> 8;
-					mixBuf[2 * i + 1] += (r1 * tmpBuf[i]) >> 8;
+				if (l1 == r1) {
+					if (!(usedBuffers & HAS_MONO_FLAG)) {
+						usedBuffers |= HAS_MONO_FLAG;
+						for (unsigned i = 0; i < samples; ++i) {
+							int tmp = (l1 * tmpBuf[i]) >> 8;
+							monoBuf[i] = tmp;
+						}
+					} else {
+						for (unsigned i = 0; i < samples; ++i) {
+							int tmp = (l1 * tmpBuf[i]) >> 8;
+							monoBuf[i] += tmp;
+						}
+					}
+				} else {
+					if (!(usedBuffers & HAS_STEREO_FLAG)) {
+						usedBuffers |= HAS_STEREO_FLAG;
+						for (unsigned i = 0; i < samples; ++i) {
+							int l = (l1 * tmpBuf[i]) >> 8;
+							int r = (r1 * tmpBuf[i]) >> 8;
+							stereoBuf[2 * i + 0] = l;
+							stereoBuf[2 * i + 1] = r;
+						}
+					} else {
+						for (unsigned i = 0; i < samples; ++i) {
+							int l = (l1 * tmpBuf[i]) >> 8;
+							int r = (r1 * tmpBuf[i]) >> 8;
+							stereoBuf[2 * i + 0] += l;
+							stereoBuf[2 * i + 1] += r;
+						}
+					}
 				}
 			} else {
 				int l1 = it->second.left1;
 				int r1 = it->second.right1;
 				int l2 = it->second.left2;
 				int r2 = it->second.right2;
-				for (unsigned i = 0; i < samples; ++i) {
-					int in1 = tmpBuf[2 * i + 0];
-					int in2 = tmpBuf[2 * i + 1];
-					mixBuf[2 * i + 0] += (l1 * in1 + l2 * in2) >> 8;
-					mixBuf[2 * i + 1] += (r1 * in1 + r2 * in2) >> 8;
+				if (!(usedBuffers & HAS_STEREO_FLAG)) {
+					usedBuffers |= HAS_STEREO_FLAG;
+					for (unsigned i = 0; i < samples; ++i) {
+						int in1 = tmpBuf[2 * i + 0];
+						int in2 = tmpBuf[2 * i + 1];
+						int l = (l1 * in1 + l2 * in2) >> 8;
+						int r = (r1 * in1 + r2 * in2) >> 8;
+						stereoBuf[2 * i + 0] = l;
+						stereoBuf[2 * i + 1] = r;
+					}
+				} else {
+					for (unsigned i = 0; i < samples; ++i) {
+						int in1 = tmpBuf[2 * i + 0];
+						int in2 = tmpBuf[2 * i + 1];
+						int l = (l1 * in1 + l2 * in2) >> 8;
+						int r = (r1 * in1 + r2 * in2) >> 8;
+						stereoBuf[2 * i + 0] += l;
+						stereoBuf[2 * i + 1] += r;
+					}
 				}
 			}
 		}
 	}
 
-	for (unsigned j = 0; j < samples; ++j) {
-		int left  = mixBuf[2 * j + 0];
-		int right = mixBuf[2 * j + 1];
+	// DC removal filter
+	//   y(n) = x(n) - x(n-1) + R * y(n-1)
+	//   R = 1 - (pi*2 * cut-off-frequency / samplerate)
+	// take R = 511/512
+	//   44100Hz --> cutt-off freq = 14Hz
+	//   22050Hz                     7Hz
+	// Note: we divide by 512 iso shift-right by 9 because we want
+	//       to round towards zero.
+	switch (usedBuffers) {
+	case 0:
+		// no new input
+		if ((outLeft == outRight) && (prevLeft == prevRight)) {
+			if ((outLeft == 0) && (prevLeft == 0)) {
+				// output was already zero, after DC-filter
+				// it will still be zero
+				memset(output, 0, 2 * samples * sizeof(short));
+			} else {
+				// output was not zero, but it was the same
+				// left and right
+				assert(samples > 0);
+				outLeft  = -prevLeft + ((511 * outLeft) / 512);
+				prevLeft = 0;
+				short out = Math::clipIntToShort(outLeft);
+				output[0] = out;
+				output[1] = out;
+				for (unsigned j = 1; j < samples; ++j) {
+					outLeft = ((511 * outLeft) / 512);
+					out = Math::clipIntToShort(outLeft);
+					output[2 * j + 0] = out;
+					output[2 * j + 1] = out;
+				}
+			}
+			outRight = outLeft;
+			prevRight = prevLeft;
+		} else {
+			assert(samples > 0);
+			outLeft   = -prevLeft  + ((511 * outLeft ) / 512);
+			outRight  = -prevRight + ((511 * outRight) / 512);
+			prevLeft  = 0;
+			prevRight = 0;
+			output[0] = Math::clipIntToShort(outLeft);
+			output[1] = Math::clipIntToShort(outRight);
+			for (unsigned j = 1; j < samples; ++j) {
+				outLeft   = ((511 *  outLeft) / 512);
+				outRight  = ((511 * outRight) / 512);
+				output[2 * j + 0] = Math::clipIntToShort(outLeft);
+				output[2 * j + 1] = Math::clipIntToShort(outRight);
+			}
+		}
+		break;
 
-		// DC removal filter
-		//   y(n) = x(n) - x(n-1) + R * y(n-1)
-		//   R = 1 - (pi*2 * cut-off-frequency / samplerate)
-		// take R = 1022/1024
-		//   44100Hz --> cutt-off freq = 14Hz
-		//   22050Hz                     7Hz
-		outLeft   =  left -  prevLeft + ((1022 *  outLeft) >> 10);
-		prevLeft  =  left;
-		outRight  = right - prevRight + ((1022 * outRight) >> 10);
-		prevRight = right;
+	case HAS_MONO_FLAG:
+		// only mono
+		if ((outLeft == outRight) && (prevLeft == prevRight)) {
+			// previous output was also mono
+			for (unsigned j = 0; j < samples; ++j) {
+				int mono = monoBuf[j];
+				outLeft   = mono -  prevLeft + ((511 *  outLeft) / 512);
+				prevLeft  = mono;
+				short out = Math::clipIntToShort(outLeft);
+				output[2 * j + 0] = out;
+				output[2 * j + 1] = out;
+			}
+			outRight = outLeft;
+			prevRight = prevLeft;
+		} else {
+			for (unsigned j = 0; j < samples; ++j) {
+				int mono = monoBuf[j];
+				outLeft   = mono -  prevLeft + ((511 *  outLeft) / 512);
+				prevLeft  = mono;
+				outRight  = mono - prevRight + ((511 * outRight) / 512);
+				prevRight = mono;
+				output[2 * j + 0] = Math::clipIntToShort(outLeft);
+				output[2 * j + 1] = Math::clipIntToShort(outRight);
+			}
+		}
+		break;
 
-		output[2 * j + 0] = Math::clipIntToShort(outLeft);
-		output[2 * j + 1] = Math::clipIntToShort(outRight);
+	case HAS_STEREO_FLAG:
+		// only stereo
+		for (unsigned j = 0; j < samples; ++j) {
+			int left  = stereoBuf[2 * j + 0];
+			int right = stereoBuf[2 * j + 1];
+			outLeft   =  left -  prevLeft + ((511 *  outLeft) / 512);
+			prevLeft  =  left;
+			outRight  = right - prevRight + ((511 * outRight) / 512);
+			prevRight = right;
+			output[2 * j + 0] = Math::clipIntToShort(outLeft);
+			output[2 * j + 1] = Math::clipIntToShort(outRight);
+		}
+		break;
+
+	default:
+		// mono + stereo
+		for (unsigned j = 0; j < samples; ++j) {
+			int mono = monoBuf[j];
+			int left  = stereoBuf[2 * j + 0] + mono;
+			int right = stereoBuf[2 * j + 1] + mono;
+			outLeft   =  left -  prevLeft + ((511 *  outLeft) / 512);
+			prevLeft  =  left;
+			outRight  = right - prevRight + ((511 * outRight) / 512);
+			prevRight = right;
+			output[2 * j + 0] = Math::clipIntToShort(outLeft);
+			output[2 * j + 1] = Math::clipIntToShort(outRight);
+		}
 	}
 }
 

@@ -1,5 +1,9 @@
 $Id$
 
+2007-11-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Optimized MSXMixer::generate():
+	   see comments in that method for more details
+
 2007-11-20 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Big optimization in AY8910::generateChannels():
 	   Because the PSG generates mostly square waves and because we
