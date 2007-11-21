@@ -111,6 +111,27 @@ public:
 		}
 	}
 
+	/** Calculate the position of the rightmost 1-bit in a SpritePattern,
+	  * this can be used to calculate the effective width of a SpritePattern.
+	  * @param pattern The SpritePattern
+	  * @return The position of the rightmost 1-bit in the pattern.
+	  *   Positions are numbered from left to right.
+	  */
+	static inline int patternWidth(SpriteChecker::SpritePattern pattern)
+	{
+		// following code is functionally equivalent with
+		//     int width = 0;
+		//     while (pattern) { ++width; pattern <<= 1; }
+		//     return width;
+
+		if (pattern == 0) return 0;
+		unsigned c = 32;
+		if ((pattern & 0xFFFF) == 0) { pattern >>= 16; c -= 16; }
+		if ((pattern & 0x00FF) == 0) { pattern >>=  8; c -=  8; }
+		if ((pattern & 0x000F) == 0) { pattern >>=  4; c -=  4; }
+		return c - ((0x12131210 >> (pattern << 1)) & 0x3);
+	}
+
 	/** Draw sprites in sprite mode 2.
 	  * Make sure the pixel pointers point to a large enough memory area:
 	  * 256 pixels for ZOOM_256 and ZOOM_REAL in 256-pixel wide modes;
@@ -136,7 +157,7 @@ public:
 		for (int i = 0; i < visibleIndex; i++) {
 			combined |= visibleSprites[i].pattern;
 		}
-		int maxSize = SpriteChecker::patternWidth(combined);
+		int maxSize = patternWidth(combined);
 		// Left-to-right scan.
 		for (int pixelDone = minX; pixelDone < maxX; pixelDone++) {
 			// Skip pixels if possible.

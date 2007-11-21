@@ -481,12 +481,16 @@ void SDLRasterizer<Pixel>::drawSprites(
 	int screenX = translateX(
 		vdp.getLeftSprites(),
 		vdp.getDisplayMode().getLineWidth() == 512);
-	for (int y = fromY; y < limitY; y++, screenY++) {
-		Pixel* dummy = 0;
-		Pixel* pixelPtr = workFrame->getLinePtrDirect(screenY, dummy) + screenX;
-		if (spriteMode == 1) {
+	if (spriteMode == 1) {
+		for (int y = fromY; y < limitY; y++, screenY++) {
+			Pixel* dummy = 0;
+			Pixel* pixelPtr = workFrame->getLinePtrDirect(screenY, dummy) + screenX;
 			spriteConverter->drawMode1(y, displayX, displayLimitX, pixelPtr);
-		} else {
+		}
+	} else {
+		for (int y = fromY; y < limitY; y++, screenY++) {
+			Pixel* dummy = 0;
+			Pixel* pixelPtr = workFrame->getLinePtrDirect(screenY, dummy) + screenX;
 			spriteConverter->drawMode2(y, displayX, displayLimitX, pixelPtr);
 		}
 	}

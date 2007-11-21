@@ -82,7 +82,7 @@ inline SpriteChecker::SpritePattern SpriteChecker::calculatePatternPlanar(
 }
 
 inline int SpriteChecker::checkSprites1(
-	int line, SpriteChecker::SpriteInfo *visibleSprites)
+	int line, SpriteChecker::SpriteInfo* visibleSprites)
 {
 	if (!vdp.needSpriteChecks(line)) {
 		return 0;
@@ -102,7 +102,7 @@ inline int SpriteChecker::checkSprites1(
 	const byte* attributePtr = vram.spriteAttribTable.getReadArea(0, 32 * 4);
 	byte patternIndexMask = size == 16 ? 0xFC : 0xFF;
 	for (sprite = 0; sprite < 32; sprite++, attributePtr += 4) {
-		int y = *attributePtr;
+		int y = attributePtr[0];
 		if (y == 208) break;
 		// Calculate line number within the sprite.
 		int spriteLine = (line - y) & 0xFF;
@@ -152,7 +152,7 @@ inline int SpriteChecker::checkSprites1(
 	but there are max 4 sprites and therefore max 6 pairs.
 	If any collision is found, method returns at once.
 	*/
-	for (int i = (visibleIndex < 4 ? visibleIndex : 4); --i >= 1; ) {
+	for (int i = std::min(4, visibleIndex); --i >= 1; /**/) {
 		int x_i = visibleSprites[i].x;
 		SpritePattern pattern_i = visibleSprites[i].pattern;
 		for (int j = i; --j >= 0; ) {
@@ -181,7 +181,7 @@ inline int SpriteChecker::checkSprites1(
 }
 
 inline int SpriteChecker::checkSprites2(
-	int line, SpriteChecker::SpriteInfo *visibleSprites)
+	int line, SpriteChecker::SpriteInfo* visibleSprites)
 {
 	if (!vdp.needSpriteChecks(line)) {
 		return 0;
@@ -307,7 +307,7 @@ inline int SpriteChecker::checkSprites2(
 	        Probably new approach is needed anyway for OR-ing.
 	If any collision is found, method returns at once.
 	*/
-	for (int i = (visibleIndex < 8 ? visibleIndex : 8); --i >= 1; ) {
+	for (int i = std::min(8, visibleIndex); --i >= 1; /**/) {
 		// If CC or IC is set, this sprite cannot collide.
 		if (visibleSprites[i].colourAttrib & 0x60) continue;
 

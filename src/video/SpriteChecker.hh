@@ -25,7 +25,7 @@ public:
 
 	/** Contains all the information to draw a line of a sprite.
 	  */
-	typedef struct {
+	struct SpriteInfo {
 		/** Pattern of this sprite line, corrected for magnification.
 		  */
 		SpritePattern pattern;
@@ -38,7 +38,7 @@ public:
 		  * Other bits are undefined.
 		  */
 		byte colourAttrib;
-	} SpriteInfo;
+	};
 
 	/** Create a sprite checker.
 	  * @param vdp The VDP this sprite checker is part of.
@@ -230,7 +230,7 @@ public:
 	  *   is scheduled.
 	  * @return The number of sprites stored in the visibleSprites array.
 	  */
-	inline int getSprites(int line, const SpriteInfo *&visibleSprites) const {
+	inline int getSprites(int line, const SpriteInfo*& visibleSprites) const {
 		// Compensate for the fact sprites are checked one line earlier
 		// than they are displayed.
 		line--;
@@ -262,27 +262,6 @@ public:
 
 		assert(spriteCount[line] != -1);
 		return spriteCount[line] != 0;
-	}
-
-	/** Calculate the position of the rightmost 1-bit in a SpritePattern,
-	  * this can be used to calculate the effective width of a SpritePattern.
-	  * @param pattern The SpritePattern
-	  * @return The position of the rightmost 1-bit in the pattern.
-	  *   Positions are numbered from left to right.
-	  */
-	static inline int patternWidth(SpritePattern pattern) {
-		// following code is functionally equivalent with
-		//     int width = 0;
-		//     while(pattern) { width++; pattern<<=1; }
-		//     return width;
-
-		int c = 0;
-		if ((pattern & 0xFFFF) == 0) { pattern >>= 16; c += 16; }
-		if ((pattern & 0x00FF) == 0) { pattern >>=  8; c +=  8; }
-		if ((pattern & 0x000F) == 0) { pattern >>=  4; c +=  4; }
-		if ((pattern & 0x0003) == 0) { pattern >>=  2; c +=  2; }
-		if ((pattern & 0x0001) == 0) { c += 1 + !(pattern & 2); }
-		return 32 - c;
 	}
 
 	// VRAMObserver implementation:
@@ -330,7 +309,7 @@ private:
 	  *   in which the sprites to be displayed are returned.
 	  * @return The number of sprites stored in the visibleSprites array.
 	  */
-	inline int checkSprites1(int line, SpriteInfo *visibleSprites);
+	inline int checkSprites1(int line, SpriteInfo* visibleSprites);
 
 	/** Check sprite collision and number of sprites per line.
 	  * This routine implements sprite mode 2 (MSX2).
@@ -341,7 +320,7 @@ private:
 	  *   in which the sprites to be displayed are returned.
 	  * @return The number of sprites stored in the visibleSprites array.
 	  */
-	inline int checkSprites2(int line, SpriteInfo *visibleSprites);
+	inline int checkSprites2(int line, SpriteInfo* visibleSprites);
 
 	typedef void (SpriteChecker::*UpdateSpritesMethod)(int limit);
 	UpdateSpritesMethod updateSpritesMethod;
