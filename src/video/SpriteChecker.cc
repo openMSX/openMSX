@@ -81,13 +81,40 @@ inline SpriteChecker::SpritePattern SpriteChecker::calculatePatternPlanar(
 	return !vdp.isSpriteMag() ? pattern : doublePattern(pattern);
 }
 
+void SpriteChecker::updateSprites1(int limit)
+{
+	// TODO spritesEnabled() doesn't need to check display mode
+	if (vdp.spritesEnabled()) {
+		if (vdp.isDisplayEnabled()) {
+			// in display area
+			checkSprites1(currentLine, limit);
+		} else {
+			// in border, only check last line of top border
+			for (int i = currentLine; i < limit; ++i) {
+				spriteCount[i] = 0;
+			}
+			int l0 = vdp.getLineZero() - 1;
+			if ((currentLine <= l0) && (l0 < limit)) {
+				checkSprites1(l0, l0 + 1);
+			}
+		}
+	} else {
+		// TODO do we care about spriteCount when sprites are disabled?
+		for (int i = currentLine; i < limit; ++i) {
+			spriteCount[i] = 0;
+		}
+	}
+	currentLine = limit;
+}
+inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
+{
+	for (int line = minLine; line < maxLine; ++line) {
+		spriteCount[line] = checkSprites1(line, spriteBuffer[line]);
+	}
+}
 inline int SpriteChecker::checkSprites1(
 	int line, SpriteChecker::SpriteInfo* visibleSprites)
 {
-	if (!vdp.needSpriteChecks(line)) {
-		return 0;
-	}
-
 	// Calculate display line.
 	// This is the line sprites are checked at; the line they are displayed
 	// at is one lower.
@@ -353,15 +380,6 @@ void SpriteChecker::updateSprites0(int /*limit*/)
 	// The updateSpritesN methods are called by checkUntil, which is
 	// documented as not allowed to be called in sprite mode 0.
 	assert(false);
-}
-
-void SpriteChecker::updateSprites1(int limit)
-{
-	while (currentLine < limit) {
-		spriteCount[currentLine] =
-			checkSprites1(currentLine, spriteBuffer[currentLine]);
-		currentLine++;
-	}
 }
 
 void SpriteChecker::updateSprites2(int limit)

@@ -86,7 +86,7 @@ public:
 	  */
 	inline void updateDisplayMode(DisplayMode mode, const EmuTime& time) {
 		sync(time);
-		switch(mode.getSpriteMode()) {
+		switch (mode.getSpriteMode()) {
 		case 0:
 			updateSpritesMethod = &SpriteChecker::updateSprites0;
 			mode0 = true;
@@ -310,6 +310,7 @@ private:
 	  * @return The number of sprites stored in the visibleSprites array.
 	  */
 	inline int checkSprites1(int line, SpriteInfo* visibleSprites);
+	inline void checkSprites1(int minLine, int maxLine);
 
 	/** Check sprite collision and number of sprites per line.
 	  * This routine implements sprite mode 2 (MSX2).
