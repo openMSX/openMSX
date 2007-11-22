@@ -120,34 +120,36 @@ inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
 	for (/**/; sprite < 32; sprite++, attributePtr += 4) {
 		int y = attributePtr[0];
 		if (y == 208) break;
-		// TODO can be optimized
 		for (int line = minLine; line < maxLine; ++line) {
-			if (limitSprites && (spriteCount[line] > 4)) continue;
 			// Calculate line number within the sprite.
 			int displayLine = line + displayDelta;
 			int spriteLine = (displayLine - y) & 0xFF;
-			if (spriteLine < magSize) {
-				if (mag) spriteLine /= 2;
-				if (spriteCount[line] == 4) {
-					// Five sprites on a line.
-					// According to TMS9918.pdf 5th sprite detection is only
-					// active when F flag is zero.
-					byte status = vdp.getStatusReg0();
-					if ((status & 0xC0) == 0) {
-						vdp.setSpriteStatus(
-						     0x40 | (status & 0x20) | sprite);
-					}
-					if (limitSprites) continue;
-				}
-				int visibleIndex = spriteCount[line];
-				++spriteCount[line];
-				SpriteInfo *sip = &spriteBuffer[line][visibleIndex];
-				int patternIndex = attributePtr[2] & patternIndexMask;
-				sip->pattern = calculatePatternNP(patternIndex, spriteLine);
-				sip->x = attributePtr[1];
-				if (attributePtr[3] & 0x80) sip->x -= 32;
-				sip->colourAttrib = attributePtr[3];
+			if (spriteLine >= magSize) {
+				// skip ahead till sprite becomes visible
+				line += 256 - spriteLine - 1; // -1 because of for-loop
+				continue;
 			}
+			if (limitSprites && (spriteCount[line] > 4)) continue;
+			if (spriteCount[line] == 4) {
+				// Five sprites on a line.
+				// According to TMS9918.pdf 5th sprite detection is only
+				// active when F flag is zero.
+				byte status = vdp.getStatusReg0();
+				if ((status & 0xC0) == 0) {
+					vdp.setSpriteStatus(
+					     0x40 | (status & 0x20) | sprite);
+				}
+				if (limitSprites) continue;
+			}
+			int visibleIndex = spriteCount[line];
+			++spriteCount[line];
+			SpriteInfo& sip = spriteBuffer[line][visibleIndex];
+			int patternIndex = attributePtr[2] & patternIndexMask;
+			if (mag) spriteLine /= 2;
+			sip.pattern = calculatePatternNP(patternIndex, spriteLine);
+			sip.x = attributePtr[1];
+			if (attributePtr[3] & 0x80) sip.x -= 32;
+			sip.colourAttrib = attributePtr[3];
 		}
 	}
 	byte status = vdp.getStatusReg0();
