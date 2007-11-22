@@ -304,10 +304,12 @@ private:
 	  * This routine implements sprite mode 1 (MSX1).
 	  * Separated from display code to make MSX behaviour consistent
 	  * no matter how displaying is handled.
-	  * @param line The line number for which sprites should be checked.
+	  * @param minLine The first line number (inclusive) for which sprites
+	  *                should be checked.
+	  * @param maxLine The last line number (exclusive) for which sprites
+	  *                should be checked.
 	  * @effect Fills in the spriteBuffer and spriteCount arrays.
 	  */
-	inline void checkSprites1(int line);
 	inline void checkSprites1(int minLine, int maxLine);
 
 	/** Check sprite collision and number of sprites per line.

@@ -84,44 +84,33 @@ inline SpriteChecker::SpritePattern SpriteChecker::calculatePatternPlanar(
 void SpriteChecker::updateSprites1(int limit)
 {
 	// TODO spritesEnabled() doesn't need to check display mode
+	// TODO do we care about spriteCount when sprites are disabled?
+	for (int i = currentLine; i < limit; ++i) {
+		spriteCount[i] = 0;
+	}
 	if (vdp.spritesEnabled()) {
 		if (vdp.isDisplayEnabled()) {
 			// in display area
 			checkSprites1(currentLine, limit);
 		} else {
 			// in border, only check last line of top border
-			for (int i = currentLine; i < limit; ++i) {
-				spriteCount[i] = 0;
-			}
 			int l0 = vdp.getLineZero() - 1;
 			if ((currentLine <= l0) && (l0 < limit)) {
 				checkSprites1(l0, l0 + 1);
 			}
-		}
-	} else {
-		// TODO do we care about spriteCount when sprites are disabled?
-		for (int i = currentLine; i < limit; ++i) {
-			spriteCount[i] = 0;
 		}
 	}
 	currentLine = limit;
 }
 inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
 {
-	for (int line = minLine; line < maxLine; ++line) {
-		checkSprites1(line);
-	}
-}
-inline void SpriteChecker::checkSprites1(int line)
-{
 	// Calculate display line.
 	// This is the line sprites are checked at; the line they are displayed
 	// at is one lower.
-	int displayLine = line - vdp.getLineZero() + vdp.getVerticalScroll();
+	int displayDelta = vdp.getVerticalScroll() - vdp.getLineZero();
 
 	// Get sprites for this line and detect 5th sprite if any.
 	bool limitSprites = limitSpritesSetting.getValue();
-	int visibleIndex = 0;
 	int size = vdp.getSpriteSize();
 	bool mag = vdp.isSpriteMag();
 	int magSize = (mag + 1) * size;
@@ -131,27 +120,34 @@ inline void SpriteChecker::checkSprites1(int line)
 	for (/**/; sprite < 32; sprite++, attributePtr += 4) {
 		int y = attributePtr[0];
 		if (y == 208) break;
-		// Calculate line number within the sprite.
-		int spriteLine = (displayLine - y) & 0xFF;
-		if (spriteLine < magSize) {
-			if (mag) spriteLine /= 2;
-			if (visibleIndex == 4) {
-				// Five sprites on a line.
-				// According to TMS9918.pdf 5th sprite detection is only
-				// active when F flag is zero.
-				byte status = vdp.getStatusReg0();
-				if ((status & 0xC0) == 0) {
-					vdp.setSpriteStatus(
-					     0x40 | (status & 0x20) | sprite);
+		// TODO can be optimized
+		for (int line = minLine; line < maxLine; ++line) {
+			if (limitSprites && (spriteCount[line] > 4)) continue;
+			// Calculate line number within the sprite.
+			int displayLine = line + displayDelta;
+			int spriteLine = (displayLine - y) & 0xFF;
+			if (spriteLine < magSize) {
+				if (mag) spriteLine /= 2;
+				if (spriteCount[line] == 4) {
+					// Five sprites on a line.
+					// According to TMS9918.pdf 5th sprite detection is only
+					// active when F flag is zero.
+					byte status = vdp.getStatusReg0();
+					if ((status & 0xC0) == 0) {
+						vdp.setSpriteStatus(
+						     0x40 | (status & 0x20) | sprite);
+					}
+					if (limitSprites) continue;
 				}
-				if (limitSprites) break;
+				int visibleIndex = spriteCount[line];
+				++spriteCount[line];
+				SpriteInfo *sip = &spriteBuffer[line][visibleIndex];
+				int patternIndex = attributePtr[2] & patternIndexMask;
+				sip->pattern = calculatePatternNP(patternIndex, spriteLine);
+				sip->x = attributePtr[1];
+				if (attributePtr[3] & 0x80) sip->x -= 32;
+				sip->colourAttrib = attributePtr[3];
 			}
-			SpriteInfo *sip = &spriteBuffer[line][visibleIndex++];
-			int patternIndex = attributePtr[2] & patternIndexMask;
-			sip->pattern = calculatePatternNP(patternIndex, spriteLine);
-			sip->x = attributePtr[1];
-			if (attributePtr[3] & 0x80) sip->x -= 32;
-			sip->colourAttrib = attributePtr[3];
 		}
 	}
 	byte status = vdp.getStatusReg0();
@@ -159,7 +155,6 @@ inline void SpriteChecker::checkSprites1(int line)
 		// No 5th sprite detected, store number of latest sprite processed.
 		vdp.setSpriteStatus((status & 0x60) | (std::min(sprite, 31)));
 	}
-	spriteCount[line] = visibleIndex;
 
 	// Optimisation:
 	// If collision already occurred,
@@ -180,26 +175,28 @@ inline void SpriteChecker::checkSprites1(int line)
 	but there are max 4 sprites and therefore max 6 pairs.
 	If any collision is found, method returns at once.
 	*/
-	for (int i = std::min(4, visibleIndex); --i >= 1; /**/) {
-		int x_i = spriteBuffer[line][i].x;
-		SpritePattern pattern_i = spriteBuffer[line][i].pattern;
-		for (int j = i; --j >= 0; ) {
-			// Do sprite i and sprite j collide?
-			int x_j = spriteBuffer[line][j].x;
-			int dist = x_j - x_i;
-			if ((-magSize < dist) && (dist < magSize)) {
-				SpritePattern pattern_j = spriteBuffer[line][j].pattern;
-				if (dist < 0) {
-					pattern_j <<= -dist;
-				} else {
-					pattern_j >>= dist;
-				}
-				if (pattern_i & pattern_j) {
-					// Collision!
-					vdp.setSpriteStatus(vdp.getStatusReg0() | 0x20);
-					// TODO: Fill in collision coordinates in S#3..S#6.
-					// ...Unless this feature only works in sprite mode 2.
-					return;
+	for (int line = minLine; line < maxLine; ++line) {
+		for (int i = std::min(4, spriteCount[line]); --i >= 1; /**/) {
+			int x_i = spriteBuffer[line][i].x;
+			SpritePattern pattern_i = spriteBuffer[line][i].pattern;
+			for (int j = i; --j >= 0; ) {
+				// Do sprite i and sprite j collide?
+				int x_j = spriteBuffer[line][j].x;
+				int dist = x_j - x_i;
+				if ((-magSize < dist) && (dist < magSize)) {
+					SpritePattern pattern_j = spriteBuffer[line][j].pattern;
+					if (dist < 0) {
+						pattern_j <<= -dist;
+					} else {
+						pattern_j >>= dist;
+					}
+					if (pattern_i & pattern_j) {
+						// Collision!
+						vdp.setSpriteStatus(vdp.getStatusReg0() | 0x20);
+						// TODO: Fill in collision coordinates in S#3..S#6.
+						// ...Unless this feature only works in sprite mode 2.
+						return;
+					}
 				}
 			}
 		}
