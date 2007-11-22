@@ -154,7 +154,7 @@ void GlobalCliComm::update(UpdateType type, const string& machine,
 			str += " machine=\"" + machine + '\"';
 		}
 		if (!name.empty()) {
-			str += " name=\"" + name + '\"';
+			str += " name=\"" + XMLElement::XMLEscape(name) + '\"';
 		}
 		str += '>' + XMLElement::XMLEscape(value) + "</update>\n";
 		for (Connections::const_iterator it = connections.begin();
