@@ -22,7 +22,7 @@ AudioInputConnector::~AudioInputConnector()
 
 const std::string& AudioInputConnector::getDescription() const
 {
-	static const std::string desc("Auddio input connector.");
+	static const std::string desc("Audio input connector.");
 	return desc;
 }
 
