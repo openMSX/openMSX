@@ -1,5 +1,11 @@
 $Id$
 
+2007-11-22 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Optimization in SpriteChecker::checkSprites1() and
+	  SpriteChecker::checkSprites2():
+	   Before we checked line-by-line which sprites are visible for that
+	   line. Now we check it for lines in a whole range at the same time.
+
 2007-11-21 Alex Wulms
 	* Added docs/keyboard.readme:
 	   This document explains which new parameters have been

@@ -102,6 +102,7 @@ void SpriteChecker::updateSprites1(int limit)
 	}
 	currentLine = limit;
 }
+
 inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
 {
 	// Calculate display line.
@@ -129,8 +130,8 @@ inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
 				line += 256 - spriteLine - 1; // -1 because of for-loop
 				continue;
 			}
-			if (limitSprites && (spriteCount[line] > 4)) continue;
-			if (spriteCount[line] == 4) {
+			int visibleIndex = spriteCount[line];
+			if (visibleIndex == 4) {
 				// Five sprites on a line.
 				// According to TMS9918.pdf 5th sprite detection is only
 				// active when F flag is zero.
@@ -141,7 +142,6 @@ inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
 				}
 				if (limitSprites) continue;
 			}
-			int visibleIndex = spriteCount[line];
 			++spriteCount[line];
 			SpriteInfo& sip = spriteBuffer[line][visibleIndex];
 			int patternIndex = attributePtr[2] & patternIndexMask;
@@ -205,21 +205,36 @@ inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
 	}
 }
 
-inline int SpriteChecker::checkSprites2(
-	int line, SpriteChecker::SpriteInfo* visibleSprites)
+void SpriteChecker::updateSprites2(int limit)
 {
-	if (!vdp.needSpriteChecks(line)) {
-		return 0;
+	// TODO merge this with updateSprites1()?
+	for (int i = currentLine; i < limit; ++i) {
+		spriteCount[i] = 0;
 	}
+	if (vdp.spritesEnabled()) {
+		if (vdp.isDisplayEnabled()) {
+			// in display area
+			checkSprites2(currentLine, limit);
+		} else {
+			// in border, only check last line of top border
+			int l0 = vdp.getLineZero() - 1;
+			if ((currentLine <= l0) && (l0 < limit)) {
+				checkSprites2(l0, l0 + 1);
+			}
+		}
+	}
+	currentLine = limit;
+}
 
+inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
+{
 	// Calculate display line.
 	// This is the line sprites are checked at; the line they are displayed
 	// at is one lower.
-	line = line - vdp.getLineZero() + vdp.getVerticalScroll();
+	int displayDelta = vdp.getVerticalScroll() - vdp.getLineZero();
 
 	// Get sprites for this line and detect 5th sprite if any.
 	bool limitSprites = limitSpritesSetting.getValue();
-	int sprite, visibleIndex = 0;
 	int size = vdp.getSpriteSize();
 	bool mag = vdp.isSpriteMag();
 	int magSize = (mag + 1) * size;
@@ -227,19 +242,26 @@ inline int SpriteChecker::checkSprites2(
 
 	// because it gave a measurable performance boost, we duplicated the
 	// code for planar and non-planar modes
+	int sprite = 0;
 	if (planar) {
 		const byte* attributePtr0;
 		const byte* attributePtr1;
 		vram.spriteAttribTable.getReadAreaPlanar(
 			512, 32 * 4, attributePtr0, attributePtr1);
 		// TODO: Verify CC implementation.
-		for (sprite = 0; sprite < 32; ++sprite) {
+		for (/**/; sprite < 32; ++sprite) {
 			int y = attributePtr0[2 * sprite + 0];
 			if (y == 216) break;
-			// Calculate line number within the sprite.
-			int spriteLine = (line - y) & 0xFF;
-			if (spriteLine < magSize) {
-				if (mag) spriteLine /= 2;
+			for (int line = minLine; line < maxLine; ++line) {
+				// Calculate line number within the sprite.
+				int displayLine = line + displayDelta;
+				int spriteLine = (displayLine - y) & 0xFF;
+				if (spriteLine >= magSize) {
+					// skip ahead till sprite is visible
+					line += 256 - spriteLine - 1;
+					continue;
+				}
+				int visibleIndex = spriteCount[line];
 				if (visibleIndex == 8) {
 					// Nine sprites on a line.
 					// According to TMS9918.pdf 5th sprite detection is only
@@ -250,33 +272,41 @@ inline int SpriteChecker::checkSprites2(
 						vdp.setSpriteStatus(
 						     0x40 | (status & 0x20) | sprite);
 					}
-					if (limitSprites) break;
+					if (limitSprites) continue;
 				}
+				++spriteCount[line];
+				if (mag) spriteLine /= 2;
 				int colorIndex = (-1 << 10) | (sprite * 16 + spriteLine);
 				byte colorAttrib =
 					vram.spriteAttribTable.readPlanar(colorIndex);
 				// Sprites with CC=1 are only visible if preceded by
 				// a sprite with CC=0.
 				if ((colorAttrib & 0x40) && visibleIndex == 0) continue;
-				SpriteInfo* sip = &visibleSprites[visibleIndex++];
+				SpriteInfo& sip = spriteBuffer[line][visibleIndex];
 				int patternIndex = attributePtr0[2 * sprite + 1] & patternIndexMask;
-				sip->pattern = calculatePatternPlanar(patternIndex, spriteLine);
-				sip->x = attributePtr1[2 * sprite + 0];
-				if (colorAttrib & 0x80) sip->x -= 32;
-				sip->colourAttrib = colorAttrib;
+				sip.pattern = calculatePatternPlanar(patternIndex, spriteLine);
+				sip.x = attributePtr1[2 * sprite + 0];
+				if (colorAttrib & 0x80) sip.x -= 32;
+				sip.colourAttrib = colorAttrib;
 			}
 		}
 	} else {
 		const byte* attributePtr0 =
 			vram.spriteAttribTable.getReadArea(512, 32 * 4);
 		// TODO: Verify CC implementation.
-		for (sprite = 0; sprite < 32; ++sprite) {
+		for (/**/; sprite < 32; ++sprite) {
 			int y = attributePtr0[4 * sprite + 0];
 			if (y == 216) break;
-			// Calculate line number within the sprite.
-			int spriteLine = (line - y) & 0xFF;
-			if (spriteLine < magSize) {
-				if (mag) spriteLine /= 2;
+			for (int line = minLine; line < maxLine; ++line) {
+				// Calculate line number within the sprite.
+				int displayLine = line + displayDelta;
+				int spriteLine = (displayLine - y) & 0xFF;
+				if (spriteLine >= magSize) {
+					// skip ahead till sprite is visible
+					line += 256 - spriteLine - 1;
+					continue;
+				}
+				int visibleIndex = spriteCount[line];
 				if (visibleIndex == 8) {
 					// Nine sprites on a line.
 					// According to TMS9918.pdf 5th sprite detection is only
@@ -287,20 +317,22 @@ inline int SpriteChecker::checkSprites2(
 						vdp.setSpriteStatus(
 						     0x40 | (status & 0x20) | sprite);
 					}
-					if (limitSprites) break;
+					if (limitSprites) continue;
 				}
+				++spriteCount[line];
+				if (mag) spriteLine /= 2;
 				int colorIndex = (-1 << 10) | (sprite * 16 + spriteLine);
 				byte colorAttrib =
 					vram.spriteAttribTable.readNP(colorIndex);
 				// Sprites with CC=1 are only visible if preceded by
 				// a sprite with CC=0.
 				if ((colorAttrib & 0x40) && visibleIndex == 0) continue;
-				SpriteInfo* sip = &visibleSprites[visibleIndex++];
+				SpriteInfo& sip = spriteBuffer[line][visibleIndex];
 				int patternIndex = attributePtr0[4 * sprite + 2] & patternIndexMask;
-				sip->pattern = calculatePatternNP(patternIndex, spriteLine);
-				sip->x = attributePtr0[4 * sprite + 1];
-				if (colorAttrib & 0x80) sip->x -= 32;
-				sip->colourAttrib = colorAttrib;
+				sip.pattern = calculatePatternNP(patternIndex, spriteLine);
+				sip.x = attributePtr0[4 * sprite + 1];
+				if (colorAttrib & 0x80) sip.x -= 32;
+				sip.colourAttrib = colorAttrib;
 			}
 		}
 	}
@@ -315,7 +347,7 @@ inline int SpriteChecker::checkSprites2(
 	// that state is stable until it is reset by a status reg read,
 	// so no need to execute the checks.
 	// The visibleSprites array is filled now, so we can bail out.
-	if (vdp.getStatusReg0() & 0x20) return visibleIndex;
+	if (vdp.getStatusReg0() & 0x20) return;
 
 	/*
 	Model for sprite collision: (or "coincidence" in TMS9918 data sheet)
@@ -332,43 +364,44 @@ inline int SpriteChecker::checkSprites2(
 	        Probably new approach is needed anyway for OR-ing.
 	If any collision is found, method returns at once.
 	*/
-	for (int i = std::min(8, visibleIndex); --i >= 1; /**/) {
-		// If CC or IC is set, this sprite cannot collide.
-		if (visibleSprites[i].colourAttrib & 0x60) continue;
-
-		int x_i = visibleSprites[i].x;
-		SpritePattern pattern_i = visibleSprites[i].pattern;
-		for (int j = i; --j >= 0; ) {
+	for (int line = minLine; line < maxLine; ++line) {
+		SpriteInfo* visibleSprites = spriteBuffer[line];
+		for (int i = std::min(8, spriteCount[line]); --i >= 1; /**/) {
 			// If CC or IC is set, this sprite cannot collide.
-			if (visibleSprites[j].colourAttrib & 0x60) continue;
+			if (visibleSprites[i].colourAttrib & 0x60) continue;
 
-			// Do sprite i and sprite j collide?
-			int x_j = visibleSprites[j].x;
-			int dist = x_j - x_i;
-			if ((-magSize < dist) && (dist < magSize)) {
-				SpritePattern pattern_j = visibleSprites[j].pattern;
-				if (dist < 0) {
-					pattern_j <<= -dist;
-				} else {
-					pattern_j >>= dist;
-				}
-				if (pattern_i & pattern_j) {
-					// Collision!
-					vdp.setSpriteStatus(vdp.getStatusReg0() | 0x20);
-					// TODO: Fill in collision coordinates in S#3..S#6.
-					//       See page 97 for info.
-					// TODO: I guess the VDP checks for collisions while
-					//       scanning, if so the top-leftmost collision
-					//       should be remembered. Currently the topmost
-					//       line is guaranteed, but within that line
-					//       the highest sprite numbers are selected.
-					return visibleIndex;
+			int x_i = visibleSprites[i].x;
+			SpritePattern pattern_i = visibleSprites[i].pattern;
+			for (int j = i; --j >= 0; ) {
+				// If CC or IC is set, this sprite cannot collide.
+				if (visibleSprites[j].colourAttrib & 0x60) continue;
+
+				// Do sprite i and sprite j collide?
+				int x_j = visibleSprites[j].x;
+				int dist = x_j - x_i;
+				if ((-magSize < dist) && (dist < magSize)) {
+					SpritePattern pattern_j = visibleSprites[j].pattern;
+					if (dist < 0) {
+						pattern_j <<= -dist;
+					} else {
+						pattern_j >>= dist;
+					}
+					if (pattern_i & pattern_j) {
+						// Collision!
+						vdp.setSpriteStatus(vdp.getStatusReg0() | 0x20);
+						// TODO: Fill in collision coordinates in S#3..S#6.
+						//       See page 97 for info.
+						// TODO: I guess the VDP checks for collisions while
+						//       scanning, if so the top-leftmost collision
+						//       should be remembered. Currently the topmost
+						//       line is guaranteed, but within that line
+						//       the highest sprite numbers are selected.
+						return;
+					}
 				}
 			}
 		}
 	}
-
-	return visibleIndex;
 }
 
 void SpriteChecker::updateSprites0(int /*limit*/)
@@ -378,19 +411,6 @@ void SpriteChecker::updateSprites0(int /*limit*/)
 	// The updateSpritesN methods are called by checkUntil, which is
 	// documented as not allowed to be called in sprite mode 0.
 	assert(false);
-}
-
-void SpriteChecker::updateSprites2(int limit)
-{
-	/*
-	cout << "updateSprites2: until = " << until
-		<< ", frameStart = " << frameStartTime << "\n";
-	*/
-	while (currentLine < limit) {
-		spriteCount[currentLine] =
-			checkSprites2(currentLine, spriteBuffer[currentLine]);
-		currentLine++;
-	}
 }
 
 } // namespace openmsx

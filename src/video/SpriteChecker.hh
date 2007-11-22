@@ -316,12 +316,13 @@ private:
 	  * This routine implements sprite mode 2 (MSX2).
 	  * Separated from display code to make MSX behaviour consistent
 	  * no matter how displaying is handled.
-	  * @param line The line number for which sprites should be checked.
-	  * @param visibleSprites Pointer to a 32-entry SpriteInfo array
-	  *   in which the sprites to be displayed are returned.
-	  * @return The number of sprites stored in the visibleSprites array.
+	  * @param minLine The first line number (inclusive) for which sprites
+	  *                should be checked.
+	  * @param maxLine The last line number (exclusive) for which sprites
+	  *                should be checked.
+	  * @effect Fills in the spriteBuffer and spriteCount arrays.
 	  */
-	inline int checkSprites2(int line, SpriteInfo* visibleSprites);
+	inline void checkSprites2(int minLine, int maxLine);
 
 	typedef void (SpriteChecker::*UpdateSpritesMethod)(int limit);
 	UpdateSpritesMethod updateSpritesMethod;
