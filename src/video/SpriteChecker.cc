@@ -109,30 +109,30 @@ void SpriteChecker::updateSprites1(int limit)
 inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
 {
 	for (int line = minLine; line < maxLine; ++line) {
-		spriteCount[line] = checkSprites1(line, spriteBuffer[line]);
+		checkSprites1(line);
 	}
 }
-inline int SpriteChecker::checkSprites1(
-	int line, SpriteChecker::SpriteInfo* visibleSprites)
+inline void SpriteChecker::checkSprites1(int line)
 {
 	// Calculate display line.
 	// This is the line sprites are checked at; the line they are displayed
 	// at is one lower.
-	line = line - vdp.getLineZero() + vdp.getVerticalScroll();
+	int displayLine = line - vdp.getLineZero() + vdp.getVerticalScroll();
 
 	// Get sprites for this line and detect 5th sprite if any.
 	bool limitSprites = limitSpritesSetting.getValue();
-	int sprite, visibleIndex = 0;
+	int visibleIndex = 0;
 	int size = vdp.getSpriteSize();
 	bool mag = vdp.isSpriteMag();
 	int magSize = (mag + 1) * size;
 	const byte* attributePtr = vram.spriteAttribTable.getReadArea(0, 32 * 4);
 	byte patternIndexMask = size == 16 ? 0xFC : 0xFF;
-	for (sprite = 0; sprite < 32; sprite++, attributePtr += 4) {
+	int sprite = 0;
+	for (/**/; sprite < 32; sprite++, attributePtr += 4) {
 		int y = attributePtr[0];
 		if (y == 208) break;
 		// Calculate line number within the sprite.
-		int spriteLine = (line - y) & 0xFF;
+		int spriteLine = (displayLine - y) & 0xFF;
 		if (spriteLine < magSize) {
 			if (mag) spriteLine /= 2;
 			if (visibleIndex == 4) {
@@ -146,7 +146,7 @@ inline int SpriteChecker::checkSprites1(
 				}
 				if (limitSprites) break;
 			}
-			SpriteInfo *sip = &visibleSprites[visibleIndex++];
+			SpriteInfo *sip = &spriteBuffer[line][visibleIndex++];
 			int patternIndex = attributePtr[2] & patternIndexMask;
 			sip->pattern = calculatePatternNP(patternIndex, spriteLine);
 			sip->x = attributePtr[1];
@@ -159,13 +159,14 @@ inline int SpriteChecker::checkSprites1(
 		// No 5th sprite detected, store number of latest sprite processed.
 		vdp.setSpriteStatus((status & 0x60) | (std::min(sprite, 31)));
 	}
+	spriteCount[line] = visibleIndex;
 
 	// Optimisation:
 	// If collision already occurred,
 	// that state is stable until it is reset by a status reg read,
 	// so no need to execute the checks.
-	// The visibleSprites array is filled now, so we can bail out.
-	if (vdp.getStatusReg0() & 0x20) return visibleIndex;
+	// The spriteBuffer array is filled now, so we can bail out.
+	if (vdp.getStatusReg0() & 0x20) return;
 
 	/*
 	Model for sprite collision: (or "coincidence" in TMS9918 data sheet)
@@ -180,14 +181,14 @@ inline int SpriteChecker::checkSprites1(
 	If any collision is found, method returns at once.
 	*/
 	for (int i = std::min(4, visibleIndex); --i >= 1; /**/) {
-		int x_i = visibleSprites[i].x;
-		SpritePattern pattern_i = visibleSprites[i].pattern;
+		int x_i = spriteBuffer[line][i].x;
+		SpritePattern pattern_i = spriteBuffer[line][i].pattern;
 		for (int j = i; --j >= 0; ) {
 			// Do sprite i and sprite j collide?
-			int x_j = visibleSprites[j].x;
+			int x_j = spriteBuffer[line][j].x;
 			int dist = x_j - x_i;
 			if ((-magSize < dist) && (dist < magSize)) {
-				SpritePattern pattern_j = visibleSprites[j].pattern;
+				SpritePattern pattern_j = spriteBuffer[line][j].pattern;
 				if (dist < 0) {
 					pattern_j <<= -dist;
 				} else {
@@ -198,13 +199,11 @@ inline int SpriteChecker::checkSprites1(
 					vdp.setSpriteStatus(vdp.getStatusReg0() | 0x20);
 					// TODO: Fill in collision coordinates in S#3..S#6.
 					// ...Unless this feature only works in sprite mode 2.
-					return visibleIndex;
+					return;
 				}
 			}
 		}
 	}
-
-	return visibleIndex;
 }
 
 inline int SpriteChecker::checkSprites2(

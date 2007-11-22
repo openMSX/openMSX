@@ -65,7 +65,7 @@ public:
 		// has become stable.
 		static bool syncInProgress = false;
 		assert(!syncInProgress);
-		syncInProgress += 0; // avoid warning in none assert build (icc)
+		(void)syncInProgress; // avoid warning in none assert build
 		syncInProgress = true;
 		vram.sync(time);
 		checkUntil(time);
@@ -305,11 +305,9 @@ private:
 	  * Separated from display code to make MSX behaviour consistent
 	  * no matter how displaying is handled.
 	  * @param line The line number for which sprites should be checked.
-	  * @param visibleSprites Pointer to a 32-entry SpriteInfo array
-	  *   in which the sprites to be displayed are returned.
-	  * @return The number of sprites stored in the visibleSprites array.
+	  * @effect Fills in the spriteBuffer and spriteCount arrays.
 	  */
-	inline int checkSprites1(int line, SpriteInfo* visibleSprites);
+	inline void checkSprites1(int line);
 	inline void checkSprites1(int minLine, int maxLine);
 
 	/** Check sprite collision and number of sprites per line.
