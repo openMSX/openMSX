@@ -204,6 +204,14 @@ public:
 		       ((controlRegs[8] & 0x02) == 0x00);
 	}
 
+	/** Same as spritesEnabled(), but may only be called in sprite
+	  * mode 1 or 2. Is a tiny bit faster.
+	  */
+	inline bool spritesEnabledFast() const {
+		assert(!displayMode.isTextMode());
+		return displayEnabled && ((controlRegs[8] & 0x02) == 0x00);
+	}
+
 	/** Is spritechecking done on this line?
 	  * This method is alomost equivalent to
 	  *     spritesEnabled() && isDisplayEnabled()

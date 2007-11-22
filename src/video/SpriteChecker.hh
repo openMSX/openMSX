@@ -63,13 +63,16 @@ public:
 		// This method is not re-entrant, so check explicitly that it is not
 		// re-entered. This can disappear once the VDP-internal scheduling
 		// has become stable.
+		#ifdef DEBUG
 		static bool syncInProgress = false;
 		assert(!syncInProgress);
-		(void)syncInProgress; // avoid warning in none assert build
 		syncInProgress = true;
+		#endif
 		vram.sync(time);
 		checkUntil(time);
+		#ifdef DEBUG
 		syncInProgress = false;
+		#endif
 	}
 
 	/** Clear status bits triggered by reading of S#0.
@@ -101,16 +104,16 @@ public:
 			assert(false);
 		}
 		if (mode0) {
+			// switch from mode0 to some other mode
+			mode0 = false;
 			currentLine = frameStartTime.getTicksTill_fast(time)
 			                 / VDP::TICKS_PER_LINE;
-			if (currentLine > 0) {
-				// Every line in mode0 has 0 sprites, but none of the lines
-				// are ever requested by the renderer, except for the last
-				// line, because sprites are checked one line before they
-				// are displayed.
-				spriteCount[currentLine - 1] = 0;
-			}
-			mode0 = false;
+			// Every line in mode0 has 0 sprites, but none of the lines
+			// are ever requested by the renderer, except for the last
+			// line, because sprites are checked one line before they
+			// are displayed.
+			//   already done in frameStart()
+			//   spriteCount[currentLine - 1] = 0;
 		}
 		planar = mode.isPlanar();
 	}
@@ -204,9 +207,7 @@ public:
 	inline void frameStart(const EmuTime& time) {
 		frameStartTime.advance_fast(time);
 		currentLine = 0;
-		linesPerFrame = vdp.isPalTiming() ? 313 : 262;
-		// Debug: -1 means uninitialised.
-		for (int i = 0; i < 313; i++) spriteCount[i] = -1;
+		for (int i = 0; i < 313; i++) spriteCount[i] = 0;
 		// TODO: Reset anything else? Does the real VDP?
 	}
 
@@ -240,7 +241,6 @@ public:
 		if (line < 0) return 0;
 
 		visibleSprites = spriteBuffer[line];
-		assert(spriteCount[line] != -1);
 		return spriteCount[line];
 	}
 
@@ -260,7 +260,6 @@ public:
 		//       Maybe there is, but it is never displayed.
 		if (line < 0) return 0;
 
-		assert(spriteCount[line] != -1);
 		return spriteCount[line] != 0;
 	}
 
@@ -297,8 +296,8 @@ private:
 	  *   Bit 31 is the leftmost bit of the sprite.
 	  *   Unused bits are zero.
 	  */
-	inline SpritePattern calculatePatternNP(int patternNr, int y);
-	inline SpritePattern calculatePatternPlanar(int patternNr, int y);
+	inline SpritePattern calculatePatternNP(unsigned patternNr, unsigned y);
+	inline SpritePattern calculatePatternPlanar(unsigned patternNr, unsigned y);
 
 	/** Check sprite collision and number of sprites per line.
 	  * This routine implements sprite mode 1 (MSX1).
@@ -346,10 +345,6 @@ private:
 	/** The emulation time when this frame was started (vsync).
 	  */
 	Clock<VDP::TICKS_PER_SECOND> frameStartTime;
-
-	/** Number of lines (262/313) in the current frame.
-	  */
-	int linesPerFrame;
 
 	/** Sprites are checked up to and excluding this display line.
 	  */

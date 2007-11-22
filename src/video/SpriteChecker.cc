@@ -2,11 +2,6 @@
 
 /*
 TODO:
-- Speed up checkSpritesN by administrating which lines contain which
-  sprites in a bit vector.
-  This avoids cycling through all 32 possible sprites on every line.
-  Keeping administration up-to-date is not that hard and happens
-  at a low frequency (typically once per frame).
 - Verify model for 5th sprite number calculation.
   For example, does it have the right value in text mode?
 */
@@ -55,10 +50,10 @@ static inline SpriteChecker::SpritePattern doublePattern(SpriteChecker::SpritePa
 }
 
 inline SpriteChecker::SpritePattern SpriteChecker::calculatePatternNP(
-	int patternNr, int y)
+	unsigned patternNr, unsigned y)
 {
 	const byte* patternPtr = vram.spritePatternTable.getReadArea(0, 256 * 8);
-	int index = patternNr * 8 + y;
+	unsigned index = patternNr * 8 + y;
 	SpritePattern pattern = patternPtr[index] << 24;
 	if (vdp.getSpriteSize() == 16) {
 		pattern |= patternPtr[index + 16] << 16;
@@ -66,12 +61,12 @@ inline SpriteChecker::SpritePattern SpriteChecker::calculatePatternNP(
 	return !vdp.isSpriteMag() ? pattern : doublePattern(pattern);
 }
 inline SpriteChecker::SpritePattern SpriteChecker::calculatePatternPlanar(
-	int patternNr, int y)
+	unsigned patternNr, unsigned y)
 {
 	const byte* ptr0;
 	const byte* ptr1;
 	vram.spritePatternTable.getReadAreaPlanar(0, 256 * 8, ptr0, ptr1);
-	int index = patternNr * 8 + y;
+	unsigned index = patternNr * 8 + y;
 	const byte* patternPtr = (index & 1) ? ptr1 : ptr0;
 	index /= 2;
 	SpritePattern pattern = patternPtr[index] << 24;
@@ -83,12 +78,7 @@ inline SpriteChecker::SpritePattern SpriteChecker::calculatePatternPlanar(
 
 void SpriteChecker::updateSprites1(int limit)
 {
-	// TODO spritesEnabled() doesn't need to check display mode
-	// TODO do we care about spriteCount when sprites are disabled?
-	for (int i = currentLine; i < limit; ++i) {
-		spriteCount[i] = 0;
-	}
-	if (vdp.spritesEnabled()) {
+	if (vdp.spritesEnabledFast()) {
 		if (vdp.isDisplayEnabled()) {
 			// in display area
 			checkSprites1(currentLine, limit);
@@ -208,10 +198,7 @@ inline void SpriteChecker::checkSprites1(int minLine, int maxLine)
 void SpriteChecker::updateSprites2(int limit)
 {
 	// TODO merge this with updateSprites1()?
-	for (int i = currentLine; i < limit; ++i) {
-		spriteCount[i] = 0;
-	}
-	if (vdp.spritesEnabled()) {
+	if (vdp.spritesEnabledFast()) {
 		if (vdp.isDisplayEnabled()) {
 			// in display area
 			checkSprites2(currentLine, limit);
