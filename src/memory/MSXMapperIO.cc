@@ -27,7 +27,7 @@ private:
 
 MSXMapperIO::MSXMapperIO(MSXMotherBoard& motherBoard, const XMLElement& config,
                          const EmuTime& time)
-	: MSXDevice(motherBoard, config, time)
+	: MSXDevice(motherBoard, config)
 	, debuggable(new MapperIODebuggable(motherBoard, *this))
 {
 	string type = motherBoard.getMachineConfig().getConfig().getChildData(

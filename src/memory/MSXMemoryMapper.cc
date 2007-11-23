@@ -21,8 +21,8 @@ unsigned MSXMemoryMapper::calcAddress(word address) const
 }
 
 MSXMemoryMapper::MSXMemoryMapper(MSXMotherBoard& motherBoard,
-                                 const XMLElement& config, const EmuTime& time)
-	: MSXDevice(motherBoard, config, time)
+                                 const XMLElement& config)
+	: MSXDevice(motherBoard, config)
 {
 	int kSize = deviceConfig.getChildDataAsInt("size");
 	if ((kSize % 16) != 0) {

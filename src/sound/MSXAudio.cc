@@ -45,7 +45,7 @@ public:
 
 MSXAudio::MSXAudio(MSXMotherBoard& motherBoard, const XMLElement& config,
                    const EmuTime& time)
-	: MSXDevice(motherBoard, config, time)
+	: MSXDevice(motherBoard, config)
 	, dacValue(0x80), dacEnabled(false)
 {
 	string type = StringOp::toLower(config.getChildData("type", "philips"));

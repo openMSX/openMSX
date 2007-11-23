@@ -79,7 +79,7 @@ static void releaseSRAM(MSXMotherBoard& motherBoard)
 
 RomFSA1FM1::RomFSA1FM1(MSXMotherBoard& motherBoard, const XMLElement& config,
                        const EmuTime& time, std::auto_ptr<Rom> rom)
-	: MSXRom(motherBoard, config, time, rom)
+	: MSXRom(motherBoard, config, rom)
 	, firmwareSwitch(
 	      new FirmwareSwitch(motherBoard.getCommandController(), config))
 {
@@ -175,7 +175,7 @@ byte* RomFSA1FM1::getWriteCacheLine(word address) const
 
 RomFSA1FM2::RomFSA1FM2(MSXMotherBoard& motherBoard, const XMLElement& config,
                        const EmuTime& time, std::auto_ptr<Rom> rom)
-	: Rom8kBBlocks(motherBoard, config, time, rom)
+	: Rom8kBBlocks(motherBoard, config, rom)
 {
 	sram = allocSRAM(motherBoard, config);
 	reset(time);

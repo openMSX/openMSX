@@ -57,9 +57,8 @@ namespace openmsx {
 
 static const byte SPC = 0x7F;
 
-MegaSCSI::MegaSCSI(MSXMotherBoard& motherBoard, const XMLElement& config,
-                   const EmuTime& time)
-	: MSXDevice(motherBoard, config, time)
+MegaSCSI::MegaSCSI(MSXMotherBoard& motherBoard, const XMLElement& config)
+	: MSXDevice(motherBoard, config)
 	, mb89352(new MB89352(motherBoard, config))
 	, cpu(motherBoard.getCPU())
 {

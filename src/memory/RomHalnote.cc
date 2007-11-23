@@ -35,7 +35,7 @@ namespace openmsx {
 
 RomHalnote::RomHalnote(MSXMotherBoard& motherBoard, const XMLElement& config,
                        const EmuTime& time, std::auto_ptr<Rom> rom)
-	: Rom8kBBlocks(motherBoard, config, time, rom)
+	: Rom8kBBlocks(motherBoard, config, rom)
 	, sram(new SRAM(motherBoard, getName() + " SRAM", 0x4000, config))
 {
 	reset(time);

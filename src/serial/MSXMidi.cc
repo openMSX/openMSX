@@ -10,7 +10,7 @@ namespace openmsx {
 
 MSXMidi::MSXMidi(MSXMotherBoard& motherBoard, const XMLElement& config,
                  const EmuTime& time)
-	: MSXDevice(motherBoard, config, time)
+	: MSXDevice(motherBoard, config)
 	, MidiInConnector(motherBoard.getPluggingController(), "msx-midi-in")
 	, cntr0(*this), cntr2(*this)
 	, interf(*this)

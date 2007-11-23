@@ -9,7 +9,7 @@ namespace openmsx {
 
 MSXYamahaSFG::MSXYamahaSFG(MSXMotherBoard& motherBoard, const XMLElement& config,
                    const EmuTime& time)
-	: MSXDevice(motherBoard, config, time)
+	: MSXDevice(motherBoard, config)
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
 	, ym2151(new YM2151(motherBoard, getName(),
 	                    "Yamaha SFG-01/05", config, time))

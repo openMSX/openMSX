@@ -10,7 +10,7 @@ namespace openmsx {
 
 MSXTurboRPCM::MSXTurboRPCM(MSXMotherBoard& motherBoard,
                            const XMLElement& config, const EmuTime& time)
-	: MSXDevice(motherBoard, config, time)
+	: MSXDevice(motherBoard, config)
 	, mixer(motherBoard.getMSXMixer())
 	, connector(new AudioInputConnector(
               motherBoard.getPluggingController(), "pcminput"))

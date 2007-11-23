@@ -10,7 +10,7 @@ const byte ID = 0xF7;
 
 MSXKanji12::MSXKanji12(MSXMotherBoard& motherBoard, const XMLElement& config,
                        const EmuTime& time)
-	: MSXDevice(motherBoard, config, time)
+	: MSXDevice(motherBoard, config)
 	, MSXSwitchedDevice(motherBoard, ID)
 	, rom(new Rom(motherBoard, getName(), "Kanji-12 ROM", config))
 {

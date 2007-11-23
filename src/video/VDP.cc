@@ -69,7 +69,7 @@ private:
 
 VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
          const EmuTime& time)
-	: MSXDevice(motherBoard, config, time)
+	: MSXDevice(motherBoard, config)
 	, Schedulable(motherBoard.getScheduler())
 	, cliComm(motherBoard.getMSXCliComm())
 	, vdpRegDebug      (new VDPRegDebug      (*this))

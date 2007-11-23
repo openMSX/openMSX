@@ -7,7 +7,7 @@ namespace openmsx {
 
 MSXF4Device::MSXF4Device(MSXMotherBoard& motherBoard, const XMLElement& config,
                          const EmuTime& time)
-	: MSXDevice(motherBoard, config, time)
+	: MSXDevice(motherBoard, config)
 {
 	inverted = config.getChildDataAsBool("inverted", false);
 	reset(time);

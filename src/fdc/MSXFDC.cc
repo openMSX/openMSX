@@ -11,7 +11,7 @@ namespace openmsx {
 
 MSXFDC::MSXFDC(MSXMotherBoard& motherBoard, const XMLElement& config,
                const EmuTime& time)
-	: MSXDevice(motherBoard, config, time)
+	: MSXDevice(motherBoard, config)
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
 {
 	bool singleSided = config.findChild("singlesided");

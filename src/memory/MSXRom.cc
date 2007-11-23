@@ -9,8 +9,9 @@
 namespace openmsx {
 
 MSXRom::MSXRom(MSXMotherBoard& motherBoard, const XMLElement& config,
-               const EmuTime& time, std::auto_ptr<Rom> rom_)
-	: MSXDevice(motherBoard, config, time, rom_->getName()), rom(rom_)
+               std::auto_ptr<Rom> rom_)
+	: MSXDevice(motherBoard, config, rom_->getName())
+	, rom(rom_)
 	, cpu(motherBoard.getCPU())
 {
 }

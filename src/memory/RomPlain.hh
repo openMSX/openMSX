@@ -15,8 +15,7 @@ public:
 	enum MirrorType { MIRRORED, NOT_MIRRORED };
 
 	RomPlain(MSXMotherBoard& motherBoard, const XMLElement& config,
-	         const EmuTime& time, std::auto_ptr<Rom> rom,
-	         MirrorType mirrored, int start = -1);
+	         std::auto_ptr<Rom> rom, MirrorType mirrored, int start = -1);
 
 private:
 	void guessHelper(unsigned offset, int* pages);

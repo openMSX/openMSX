@@ -14,8 +14,7 @@ class MSXCPU;
 class ESE_RAM : public MSXDevice
 {
 public:
-	ESE_RAM(MSXMotherBoard& motherBoard, const XMLElement& config,
-	         const EmuTime& time);
+	ESE_RAM(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~ESE_RAM();
 
 	virtual void reset(const EmuTime& time);

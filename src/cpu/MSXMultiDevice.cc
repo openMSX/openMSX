@@ -1,7 +1,6 @@
 // $Id$
 
 #include "MSXMultiDevice.hh"
-#include "EmuTime.hh"
 #include "FileContext.hh"
 #include "XMLElement.hh"
 #include <cassert>
@@ -21,7 +20,7 @@ static const XMLElement& getMultiConfig()
 }
 
 MSXMultiDevice::MSXMultiDevice(MSXMotherBoard& motherboard)
-	: MSXDevice(motherboard, getMultiConfig(), EmuTime::zero, "Multi")
+	: MSXDevice(motherboard, getMultiConfig(), "Multi")
 {
 }
 

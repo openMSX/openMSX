@@ -6,8 +6,8 @@
 namespace openmsx {
 
 RomPageNN::RomPageNN(MSXMotherBoard& motherBoard, const XMLElement& config,
-                     const EmuTime& time, std::auto_ptr<Rom> rom, byte pages)
-	: Rom8kBBlocks(motherBoard, config, time, rom)
+                     std::auto_ptr<Rom> rom, byte pages)
+	: Rom8kBBlocks(motherBoard, config, rom)
 {
 	int bank = 0;
 	for (int page = 0; page < 4; page++) {

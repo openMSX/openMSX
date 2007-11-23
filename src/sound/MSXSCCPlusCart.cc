@@ -18,7 +18,7 @@ namespace openmsx {
 
 MSXSCCPlusCart::MSXSCCPlusCart(MSXMotherBoard& motherBoard,
                                const XMLElement& config, const EmuTime& time)
-	: MSXDevice(motherBoard, config, time)
+	: MSXDevice(motherBoard, config)
 	, ram(new Ram(motherBoard, getName() + " RAM", "SCC+ RAM", 0x20000))
 {
 	const XMLElement* fileElem = config.findChild("filename");

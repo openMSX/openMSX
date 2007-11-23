@@ -66,7 +66,7 @@ std::auto_ptr<MSXDevice> DeviceFactory::create(
 	if (type == "PPI") {
 		result.reset(new MSXPPI(motherBoard, conf, time));
 	} else if (type == "RAM") {
-		result.reset(new MSXRam(motherBoard, conf, time));
+		result.reset(new MSXRam(motherBoard, conf));
 	} else if (type == "VDP") {
 		result.reset(new VDP(motherBoard, conf, time));
 	} else if (type == "E6Timer") {
@@ -80,7 +80,7 @@ std::auto_ptr<MSXDevice> DeviceFactory::create(
 	} else if (type == "TurboRPCM") {
 		result.reset(new MSXTurboRPCM(motherBoard, conf, time));
 	} else if (type == "S1985") {
-		result.reset(new MSXS1985(motherBoard, conf, time));
+		result.reset(new MSXS1985(motherBoard, conf));
 	} else if (type == "S1990") {
 		result.reset(new MSXS1990(motherBoard, conf, time));
 	} else if (type == "PSG") {
@@ -102,9 +102,9 @@ std::auto_ptr<MSXDevice> DeviceFactory::create(
 	} else if (type == "Bunsetsu") {
 		result.reset(new MSXBunsetsu(motherBoard, conf, time));
 	} else if (type == "MemoryMapper") {
-		result.reset(new MSXMemoryMapper(motherBoard, conf, time));
+		result.reset(new MSXMemoryMapper(motherBoard, conf));
 	} else if (type == "PanasonicRAM") {
-		result.reset(new PanasonicRam(motherBoard, conf, time));
+		result.reset(new PanasonicRam(motherBoard, conf));
 	} else if (type == "RTC") {
 		result.reset(new MSXRTC(motherBoard, conf, time));
 	} else if (type == "PasswordCart") {
@@ -128,9 +128,9 @@ std::auto_ptr<MSXDevice> DeviceFactory::create(
 	} else if (type == "GoudaSCSI") {
 		result.reset(new GoudaSCSI(motherBoard, conf, time));
 	} else if (type == "MegaSCSI") {
-		result.reset(new MegaSCSI(motherBoard, conf, time));
+		result.reset(new MegaSCSI(motherBoard, conf));
 	} else if (type == "ESERAM") {
-		result.reset(new ESE_RAM(motherBoard, conf, time));
+		result.reset(new ESE_RAM(motherBoard, conf));
 	} else if (type == "WaveSCSI") {
 		result.reset(new ESE_SCC(motherBoard, conf, time, true));
 	} else if (type == "ESESCC") {
@@ -150,7 +150,7 @@ std::auto_ptr<MSXDevice> DeviceFactory::create(
 	} else if (type == "HBI55") {
 		result.reset(new MSXHBI55(motherBoard, conf, time));
 	} else if (type == "DebugDevice") {
-		result.reset(new DebugDevice(motherBoard, conf, time));
+		result.reset(new DebugDevice(motherBoard, conf));
 	} else if (type == "V9990") {
 		result.reset(new V9990(motherBoard, conf, time));
 	} else if (type == "ADVram") {
@@ -179,7 +179,7 @@ std::auto_ptr<DummyDevice> DeviceFactory::createDummyDevice(
 {
 	static XMLElement config(createConfig("Dummy", "empty"));
 	std::auto_ptr<DummyDevice> result(
-		new DummyDevice(motherBoard, config, EmuTime::zero));
+		new DummyDevice(motherBoard, config));
 	result->init(motherBoard.getMachineConfig());
 	return result;
 }
@@ -189,7 +189,7 @@ std::auto_ptr<MSXDeviceSwitch> DeviceFactory::createDeviceSwitch(
 {
 	static XMLElement config(createConfig("DeviceSwitch", "DeviceSwitch"));
 	std::auto_ptr<MSXDeviceSwitch> result(
-		new MSXDeviceSwitch(motherBoard, config, EmuTime::zero));
+		new MSXDeviceSwitch(motherBoard, config));
 	result->init(motherBoard.getMachineConfig());
 	return result;
 }

@@ -1,5 +1,8 @@
 $Id$
 
+2007-11-23 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Removed EmuTime parameter from MSXDevice constructor (was not used).
+
 2007-11-22 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimization in SpriteChecker::checkSprites1() and
 	  SpriteChecker::checkSprites2():

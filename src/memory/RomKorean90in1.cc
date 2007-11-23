@@ -21,9 +21,9 @@
 namespace openmsx {
 
 RomKorean90in1::RomKorean90in1(
-	MSXMotherBoard& motherBoard, const XMLElement& config,
-	const EmuTime& time, std::auto_ptr<Rom> rom)
-	: Rom8kBBlocks(motherBoard, config, time, rom)
+		MSXMotherBoard& motherBoard, const XMLElement& config,
+		const EmuTime& time, std::auto_ptr<Rom> rom)
+	: Rom8kBBlocks(motherBoard, config, rom)
 {
 	reset(time);
 	getMotherBoard().getCPUInterface().register_IO_Out(0x77, this);

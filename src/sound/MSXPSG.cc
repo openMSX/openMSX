@@ -15,7 +15,7 @@ namespace openmsx {
 // MSXDevice
 MSXPSG::MSXPSG(MSXMotherBoard& motherBoard, const XMLElement& config,
                const EmuTime& time)
-	: MSXDevice(motherBoard, config, time)
+	: MSXDevice(motherBoard, config)
 	, cassette(motherBoard.getCassettePort())
 	, renShaTurbo(motherBoard.getRenShaTurbo())
 	, prev(255)

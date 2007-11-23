@@ -7,9 +7,9 @@
 namespace openmsx {
 
 Rom8kBBlocks::Rom8kBBlocks(
-	MSXMotherBoard& motherBoard, const XMLElement& config,
-	const EmuTime& time, std::auto_ptr<Rom> rom)
-	: MSXRom(motherBoard, config, time, rom)
+		MSXMotherBoard& motherBoard, const XMLElement& config,
+		std::auto_ptr<Rom> rom)
+	: MSXRom(motherBoard, config, rom)
 {
 	// Note: Do not use the "rom" parameter, because an auto_ptr contains NULL
 	//       after it is copied.

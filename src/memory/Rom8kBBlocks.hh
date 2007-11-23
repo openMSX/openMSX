@@ -15,7 +15,7 @@ public:
 
 protected:
 	Rom8kBBlocks(MSXMotherBoard& motherBoard, const XMLElement& config,
-	             const EmuTime& time, std::auto_ptr<Rom> rom);
+	             std::auto_ptr<Rom> rom);
 
 	/** Sets the memory visible for reading in a certain region.
 	  * @param region number of 8kB region in Z80 address space

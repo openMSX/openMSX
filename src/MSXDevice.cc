@@ -24,15 +24,14 @@ byte MSXDevice::unmappedWrite[0x10000];
 
 
 MSXDevice::MSXDevice(MSXMotherBoard& motherBoard_, const XMLElement& config,
-                     const EmuTime& /*time*/, const string& name)
+                     const string& name)
 	: deviceConfig(config), motherBoard(motherBoard_)
 	, hardwareConfig(NULL), externalSlotID(-1)
 {
 	initName(name);
 }
 
-MSXDevice::MSXDevice(MSXMotherBoard& motherBoard_, const XMLElement& config,
-                     const EmuTime& /*time*/)
+MSXDevice::MSXDevice(MSXMotherBoard& motherBoard_, const XMLElement& config)
 	: deviceConfig(config), motherBoard(motherBoard_)
 	, hardwareConfig(NULL), externalSlotID(-1)
 {

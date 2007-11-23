@@ -33,9 +33,8 @@
 
 namespace openmsx {
 
-ESE_RAM::ESE_RAM(MSXMotherBoard& motherBoard, const XMLElement& config,
-                   const EmuTime& time)
-	: MSXDevice(motherBoard, config, time)
+ESE_RAM::ESE_RAM(MSXMotherBoard& motherBoard, const XMLElement& config)
+	: MSXDevice(motherBoard, config)
 	, cpu(motherBoard.getCPU())
 {
 	unsigned sramSize = config.getChildDataAsInt("sramsize", 256); // size in kb

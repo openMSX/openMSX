@@ -10,7 +10,7 @@ namespace openmsx {
 
 MSXRTC::MSXRTC(MSXMotherBoard& motherBoard, const XMLElement& config,
                const EmuTime& time)
-	: MSXDevice(motherBoard, config, time)
+	: MSXDevice(motherBoard, config)
 {
 	sram.reset(new SRAM(motherBoard, getName() + " SRAM", 4 * 13, config));
 	rp5c01.reset(new RP5C01(motherBoard.getCommandController(), *sram, time));

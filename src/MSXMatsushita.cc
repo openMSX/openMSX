@@ -12,7 +12,7 @@ const byte ID = 0x08;
 
 MSXMatsushita::MSXMatsushita(MSXMotherBoard& motherBoard,
                              const XMLElement& config, const EmuTime& time)
-	: MSXDevice(motherBoard, config, time)
+	: MSXDevice(motherBoard, config)
 	, MSXSwitchedDevice(motherBoard, ID)
 	, firmwareSwitch(
 	     new FirmwareSwitch(motherBoard.getCommandController(), config))

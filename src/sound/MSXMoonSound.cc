@@ -10,7 +10,7 @@ namespace openmsx {
 
 MSXMoonSound::MSXMoonSound(MSXMotherBoard& motherBoard,
                            const XMLElement& config, const EmuTime& time)
-	: MSXDevice(motherBoard, config, time)
+	: MSXDevice(motherBoard, config)
 {
 	int ramSize = config.getChildDataAsInt("sampleram", 512); // size in kb
 	ymf262.reset(new YMF262(motherBoard, getName() + " FM", config, time));

@@ -10,7 +10,7 @@ namespace openmsx {
 
 MSXMusic::MSXMusic(MSXMotherBoard& motherBoard, const XMLElement& config,
                    const EmuTime& time)
-	: MSXDevice(motherBoard, config, time)
+	: MSXDevice(motherBoard, config)
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
 {
 	if (config.getChildDataAsBool("alternative", false)) {

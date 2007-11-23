@@ -11,7 +11,7 @@ namespace openmsx {
 
 ADVram::ADVram(MSXMotherBoard& motherBoard, const XMLElement& config,
                const EmuTime& time)
-	: MSXDevice(motherBoard, config, time)
+	: MSXDevice(motherBoard, config)
 	, vdp(NULL)
 	, vram(NULL)
 {

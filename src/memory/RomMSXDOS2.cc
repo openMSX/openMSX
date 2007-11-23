@@ -9,9 +9,9 @@
 namespace openmsx {
 
 RomMSXDOS2::RomMSXDOS2(
-	MSXMotherBoard& motherBoard, const XMLElement& config,
-	const EmuTime& time, std::auto_ptr<Rom> rom_)
-	: Rom16kBBlocks(motherBoard, config, time, rom_)
+		MSXMotherBoard& motherBoard, const XMLElement& config,
+		const EmuTime& time, std::auto_ptr<Rom> rom_)
+	: Rom16kBBlocks(motherBoard, config, rom_)
 {
 	range = (*rom)[0x94];
 	if ((range != 0x00) && (range != 0x60) && (range != 0x7f)) {

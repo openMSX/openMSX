@@ -7,7 +7,7 @@ namespace openmsx {
 
 MC6850::MC6850(MSXMotherBoard& motherBoard, const XMLElement& config,
                const EmuTime& time)
-	: MSXDevice(motherBoard, config, time)
+	: MSXDevice(motherBoard, config)
 {
 	reset(time);
 }

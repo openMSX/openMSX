@@ -15,8 +15,7 @@ class MSXCPU;
 class MegaSCSI : public MSXDevice
 {
 public:
-	MegaSCSI(MSXMotherBoard& motherBoard, const XMLElement& config,
-	         const EmuTime& time);
+	MegaSCSI(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~MegaSCSI();
 
 	virtual void reset(const EmuTime& time);

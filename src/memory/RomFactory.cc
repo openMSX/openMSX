@@ -161,11 +161,11 @@ auto_ptr<MSXDevice> RomFactory::create(
 	auto_ptr<MSXRom> result;
 	switch (type) {
 	case ROM_MIRRORED:
-		result.reset(new RomPlain(motherBoard, config, time, rom,
+		result.reset(new RomPlain(motherBoard, config, rom,
 		                          RomPlain::MIRRORED));
 		break;
 	case ROM_NORMAL:
-		result.reset(new RomPlain(motherBoard, config, time, rom,
+		result.reset(new RomPlain(motherBoard, config, rom,
 		                          RomPlain::NOT_MIRRORED));
 		break;
 	case ROM_MIRRORED0000:
@@ -176,7 +176,7 @@ auto_ptr<MSXDevice> RomFactory::create(
 	case ROM_MIRROREDA000:
 	case ROM_MIRROREDC000:
 	case ROM_MIRROREDE000:
-		result.reset(new RomPlain(motherBoard, config, time, rom,
+		result.reset(new RomPlain(motherBoard, config, rom,
 		                     RomPlain::MIRRORED, (type & 7) * 0x2000));
 		break;
 	case ROM_NORMAL0000:
@@ -187,7 +187,7 @@ auto_ptr<MSXDevice> RomFactory::create(
 	case ROM_NORMALA000:
 	case ROM_NORMALC000:
 	case ROM_NORMALE000:
-		result.reset(new RomPlain(motherBoard, config, time, rom,
+		result.reset(new RomPlain(motherBoard, config, rom,
 		                 RomPlain::NOT_MIRRORED, (type & 7) * 0x2000));
 		break;
 	case ROM_PAGE0:
@@ -205,11 +205,10 @@ auto_ptr<MSXDevice> RomFactory::create(
 	case ROM_PAGE023:
 	case ROM_PAGE123:
 	case ROM_PAGE0123:
-		result.reset(new RomPageNN(
-		                   motherBoard, config, time, rom, type & 0xF));
+		result.reset(new RomPageNN(motherBoard, config, rom, type & 0xF));
 		break;
 	case ROM_DRAM:
-		result.reset(new RomDRAM(motherBoard, config, time, rom));
+		result.reset(new RomDRAM(motherBoard, config, rom));
 		break;
 	case ROM_GENERIC_8KB:
 		result.reset(new RomGeneric8kB(motherBoard, config, time, rom));
@@ -221,7 +220,7 @@ auto_ptr<MSXDevice> RomFactory::create(
 		result.reset(new RomKonami5(motherBoard, config, time, rom));
 		break;
 	case ROM_KONAMI:
-		result.reset(new RomKonami4(motherBoard, config, time, rom));
+		result.reset(new RomKonami4(motherBoard, config, rom));
 		break;
 	case ROM_KBDMASTER:
 		result.reset(new RomKonamiKeyboardMaster(

@@ -10,7 +10,7 @@ namespace openmsx {
 
 MSXTurboRPause::MSXTurboRPause(MSXMotherBoard& motherBoard,
                                const XMLElement& config, const EmuTime& time)
-	: MSXDevice(motherBoard, config, time)
+	: MSXDevice(motherBoard, config)
 	, pauseSetting(new BooleanSetting(motherBoard.getCommandController(),
 	               "turborpause", "status of the TurboR pause", false))
 	, status(255)

@@ -8,7 +8,7 @@ namespace openmsx {
 
 MSXKanji::MSXKanji(MSXMotherBoard& motherBoard, const XMLElement& config,
                    const EmuTime& time)
-	: MSXDevice(motherBoard, config, time)
+	: MSXDevice(motherBoard, config)
 	, rom(new Rom(motherBoard, getName(), "Kanji ROM", config))
 {
 	int size = rom->getSize();

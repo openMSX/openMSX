@@ -13,7 +13,7 @@ class RomDRAM : public MSXRom
 {
 public:
 	RomDRAM(MSXMotherBoard& motherBoard, const XMLElement& config,
-	        const EmuTime& time, std::auto_ptr<Rom> rom);
+	        std::auto_ptr<Rom> rom);
 
 	virtual byte readMem(word address, const EmuTime& time);
 	virtual const byte* getReadCacheLine(word start) const;

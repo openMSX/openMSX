@@ -10,7 +10,7 @@ namespace openmsx {
 
 VDPIODelay::VDPIODelay(MSXMotherBoard& motherboard, const XMLElement& config,
                        const EmuTime& time)
-	: MSXDevice(motherboard, config, time)
+	: MSXDevice(motherboard, config)
 	, cpu(motherBoard.getCPU())
 	, lastTime(time)
 {

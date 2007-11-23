@@ -7,9 +7,9 @@
 namespace openmsx {
 
 Rom4kBBlocks::Rom4kBBlocks(
-	MSXMotherBoard& motherBoard, const XMLElement& config,
-	const EmuTime& time, std::auto_ptr<Rom> rom)
-	: MSXRom(motherBoard, config, time, rom)
+		MSXMotherBoard& motherBoard, const XMLElement& config,
+		std::auto_ptr<Rom> rom)
+	: MSXRom(motherBoard, config, rom)
 {
 	for (int i = 0; i < 16; i++) {
 		setRom(i, 0);

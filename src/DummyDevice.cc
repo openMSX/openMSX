@@ -5,9 +5,8 @@
 
 namespace openmsx {
 
-DummyDevice::DummyDevice(MSXMotherBoard& motherBoard, const XMLElement& config,
-                         const EmuTime& time)
-	: MSXDevice(motherBoard, config, time)
+DummyDevice::DummyDevice(MSXMotherBoard& motherBoard, const XMLElement& config)
+	: MSXDevice(motherBoard, config)
 {
 }
 

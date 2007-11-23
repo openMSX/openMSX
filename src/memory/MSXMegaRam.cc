@@ -37,7 +37,7 @@ namespace openmsx {
 
 MSXMegaRam::MSXMegaRam(MSXMotherBoard& motherBoard, const XMLElement& config,
                        const EmuTime& time)
-	: MSXDevice(motherBoard, config, time)
+	: MSXDevice(motherBoard, config)
 {
 	unsigned size = config.getChildDataAsInt("size");
 	numBlocks = size / 8;	// 8kb blocks

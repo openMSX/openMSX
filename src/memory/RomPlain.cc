@@ -22,9 +22,8 @@ static std::string toString(unsigned start, unsigned len)
 }
 
 RomPlain::RomPlain(MSXMotherBoard& motherBoard, const XMLElement& config,
-                   const EmuTime& time, std::auto_ptr<Rom> rom_,
-                   MirrorType mirrored, int start)
-	: Rom8kBBlocks(motherBoard, config, time, rom_)
+                   std::auto_ptr<Rom> rom_, MirrorType mirrored, int start)
+	: Rom8kBBlocks(motherBoard, config, rom_)
 {
 	unsigned windowBase =  0x0000;
 	unsigned windowSize = 0x10000;

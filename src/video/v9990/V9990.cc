@@ -70,7 +70,7 @@ static const RegisterAccess regAccess[64] = {
 
 V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config,
              const EmuTime& time)
-	: MSXDevice(motherBoard, config, time)
+	: MSXDevice(motherBoard, config)
 	, Schedulable(motherBoard.getScheduler())
 	, v9990RegDebug(new V9990RegDebug(*this))
 	, v9990PalDebug(new V9990PalDebug(*this))

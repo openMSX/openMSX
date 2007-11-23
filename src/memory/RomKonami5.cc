@@ -23,7 +23,7 @@ namespace openmsx {
 
 RomKonami5::RomKonami5(MSXMotherBoard& motherBoard, const XMLElement& config,
                        const EmuTime& time, std::auto_ptr<Rom> rom)
-	: Rom8kBBlocks(motherBoard, config, time, rom)
+	: Rom8kBBlocks(motherBoard, config, rom)
 {
 	scc.reset(new SCC(motherBoard, "SCC", config, time));
 	reset(time);

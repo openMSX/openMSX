@@ -17,7 +17,7 @@ namespace openmsx {
 
 PasswordCart::PasswordCart(MSXMotherBoard& motherBoard,
                            const XMLElement& config, const EmuTime& time)
-	: MSXDevice(motherBoard, config, time)
+	: MSXDevice(motherBoard, config)
 {
 	password = config.getChildDataAsInt("password", 0);
 	reset(time);

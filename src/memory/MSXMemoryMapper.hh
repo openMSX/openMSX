@@ -15,8 +15,7 @@ class CheckedRam;
 class MSXMemoryMapper : public MSXDevice
 {
 public:
-	MSXMemoryMapper(MSXMotherBoard& motherBoard, const XMLElement& config,
-	                const EmuTime& time);
+	MSXMemoryMapper(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~MSXMemoryMapper();
 
 	virtual void powerUp(const EmuTime& time);

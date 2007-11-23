@@ -62,7 +62,7 @@ namespace openmsx {
 
 ESE_SCC::ESE_SCC(MSXMotherBoard& motherBoard, const XMLElement& config,
                  const EmuTime& time, bool withSCSI)
-	: MSXDevice(motherBoard, config, time)
+	: MSXDevice(motherBoard, config)
 	, cpu(motherBoard.getCPU())
 {
 	unsigned sramSize = config.getChildDataAsInt("sramsize", 256); // size in kb

@@ -73,8 +73,7 @@ private:
 class MSXDeviceSwitch : public MSXDevice
 {
 public:
-	MSXDeviceSwitch(MSXMotherBoard& motherBoard, const XMLElement& config,
-	                const EmuTime& time);
+	MSXDeviceSwitch(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~MSXDeviceSwitch();
 
 	// (un)register methods for devices

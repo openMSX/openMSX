@@ -8,9 +8,8 @@
 
 namespace openmsx {
 
-MSXRam::MSXRam(MSXMotherBoard& motherBoard, const XMLElement& config,
-               const EmuTime& time)
-	: MSXDevice(motherBoard, config, time)
+MSXRam::MSXRam(MSXMotherBoard& motherBoard, const XMLElement& config)
+	: MSXDevice(motherBoard, config)
 {
 	base = config.getChildDataAsInt("base", 0);
 	size = config.getChildDataAsInt("size", 0x10000);

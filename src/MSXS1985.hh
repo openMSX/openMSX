@@ -23,8 +23,7 @@ class Ram;
 class MSXS1985 : public MSXDevice, public MSXSwitchedDevice
 {
 public:
-	MSXS1985(MSXMotherBoard& motherBoard, const XMLElement& config,
-	         const EmuTime& time);
+	MSXS1985(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~MSXS1985();
 
 	virtual void reset(const EmuTime& time);
