@@ -1,5 +1,9 @@
 $Id$
 
+2007-11-24 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added connector update events, to keep track of which connectors
+	  are available.
+
 2007-11-23 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Removed EmuTime parameter from MSXDevice constructor (was not used).
 

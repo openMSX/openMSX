@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef CONNECTOR
-#define CONNECTOR
+#ifndef CONNECTOR_HH
+#define CONNECTOR_HH
 
 #include "noncopyable.hh"
 #include <string>
