@@ -178,7 +178,7 @@ string PlugCmd::execute(const vector<string>& tokens, const EmuTime& time)
 		     it != pluggingController.connectors.end();
 		     ++it) {
 			result += ((*it)->getName() + ": " +
-				   (*it)->getPlugged().getName()) + '\n';
+				   (*it)->getPlugged().getName());
 		}
 		break;
 	}
@@ -188,7 +188,7 @@ string PlugCmd::execute(const vector<string>& tokens, const EmuTime& time)
 			throw CommandException("plug: " + tokens[1] + ": no such connector");
 		}
 		result += (connector->getName() + ": " +
-			   connector->getPlugged().getName()) + '\n';
+			   connector->getPlugged().getName());
 		break;
 	}
 	case 3: {
@@ -225,7 +225,7 @@ string PlugCmd::execute(const vector<string>& tokens, const EmuTime& time)
 string PlugCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "Plugs a plug into a connector\n"
-	       " plug [connector] [plug]\n";
+	       " plug [connector] [plug]";
 }
 
 void PlugCmd::tabCompletion(vector<string>& tokens) const
@@ -286,7 +286,7 @@ string UnplugCmd::execute(const vector<string>& tokens, const EmuTime& time)
 string UnplugCmd::help(const vector<string>& /*tokens*/) const
 {
 	return "Unplugs a plug from a connector\n"
-	       " unplug [connector]\n";
+	       " unplug [connector]";
 }
 
 void UnplugCmd::tabCompletion(vector<string>& tokens) const
@@ -366,7 +366,7 @@ void PluggableInfo::execute(const vector<TclObject*>& tokens,
 string PluggableInfo::help(const vector<string>& /*tokens*/) const
 {
 	return "Shows a list of available pluggables. "
-	       "Or show info on a specific pluggable.\n";
+	       "Or show info on a specific pluggable.";
 }
 
 void PluggableInfo::tabCompletion(vector<string>& tokens) const
@@ -417,7 +417,7 @@ void ConnectorInfo::execute(const vector<TclObject*>& tokens,
 
 string ConnectorInfo::help(const vector<string>& /*tokens*/) const
 {
-	return "Shows a list of available connectors.\n";
+	return "Shows a list of available connectors.";
 }
 
 void ConnectorInfo::tabCompletion(vector<string>& tokens) const
