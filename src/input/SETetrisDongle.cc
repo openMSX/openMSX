@@ -13,14 +13,14 @@ SETetrisDongle::SETetrisDongle()
 //Pluggable
 const std::string& SETetrisDongle::getName() const
 {
-	static const std::string NAME = "tetris2-protection";
-	return NAME;
+	static const std::string name = "tetris2-protection";
+	return name;
 }
 
 const std::string& SETetrisDongle::getDescription() const
 {
-	static const std::string DESC = "SETetrisDongledongle";
-	return DESC;
+	static const std::string desc = "Tetris II Special Edition dongle";
+	return desc;
 }
 
 void SETetrisDongle::plugHelper(
