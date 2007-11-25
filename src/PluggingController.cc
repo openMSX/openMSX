@@ -127,6 +127,7 @@ PluggingController::~PluggingController()
 void PluggingController::registerConnector(Connector& connector)
 {
 	connectors.push_back(&connector);
+	cliComm.update(CliComm::CONNECTOR, connector.getName(), "add");
 }
 
 void PluggingController::unregisterConnector(Connector& connector)
@@ -135,6 +136,8 @@ void PluggingController::unregisterConnector(Connector& connector)
 	                               &connector);
 	assert(it != connectors.end());
 	connectors.erase(it);
+
+	cliComm.update(CliComm::CONNECTOR, connector.getName(), "remove");
 }
 
 
@@ -155,7 +158,7 @@ void PluggingController::unregisterPluggable(Pluggable* pluggable)
 }
 
 
-// === Commands ===
+// --- Commands ---
 //  plug command
 
 PlugCmd::PlugCmd(MSXCommandController& msxCommandController,

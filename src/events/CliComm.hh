@@ -24,6 +24,7 @@ public:
 		STATUS,
 		EXTENSION,
 		SOUNDDEVICE,
+		CONNECTOR,
 		NUM_UPDATES // must be last
 	};
 
