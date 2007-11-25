@@ -24,6 +24,7 @@
         <volume>16000</volume>
       </sound>
       <io base="0xA8" num="4"/>
+      <keyboard_type>int</keyboard_type>
     </PPI>
 
     <VDP id="VDP">

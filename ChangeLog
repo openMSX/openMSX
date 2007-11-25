@@ -1,5 +1,14 @@
 $Id$
 
+2007-11-25 Alex Wulms
+	* Initialized keyboard_type and has_keypad parameter in all
+	  hardwareconfig.xml file:
+	    Initial value of keyboard_type is derived from keyboad 
+	    code at ROM BIOS address 0x2c.
+	    Initial value of has_keypad is guessed from MSX version via a
+	    simple heuristical rule; it is set to false for MSX1 and to
+	    true for MSX2 and higher.
+
 2007-11-24 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added connector update events, to keep track of which connectors
 	  are available.

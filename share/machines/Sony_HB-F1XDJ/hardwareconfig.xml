@@ -39,6 +39,8 @@
         <volume>16000</volume>
       </sound>
       <io base="0xA8" num="4"/>
+      <keyboard_type>jp_jis</keyboard_type>
+      <has_keypad>true</has_keypad>
     </PPI>
 
     <VDP id="VDP">
