@@ -125,6 +125,8 @@
 
       <ol class="inlinetoc">
         <li><a class="internal" href="#accuracy">accuracy</a></li>
+        
+	<li><a class="internal" href="#always_enable_keypad">always_enable_keypad</a></li>
 
         <li><a class="internal" href="#audio-inputfilename">audio-inputfilename</a></li>
 
@@ -135,6 +137,8 @@
         <li><a class="internal" href="#bootsector">bootsector</a></li>
 
         <li><a class="internal" href="#brightness">brightness</a></li>
+        
+	<li><a class="internal" href="#code_kana_host_key">code_kana_host_key</a></li>
 
         <li><a class="internal" href="#cmdtiming">cmdtiming</a></li>
 
@@ -185,8 +189,12 @@
         <li><a class="internal" href="#icon.name.setting">icon.&lt;name&gt;.&lt;setting&gt;</a></li>
 
         <li><a class="internal" href="#inputdelay">inputdelay</a></li>
-
+        
         <li><a class="internal" href="#keyjoystick_n_button">keyjoystick&lt;n&gt;.&lt;button&gt;</a></li>
+
+	<li><a class="internal" href="#keymap-filename">keymap-filename</a></li>
+
+	<li><a class="internal" href="#keypad_enter_key">keypad_enter_key</a></li>
 
         <li><a class="internal" href="#limitsprites">limitsprites</a></li>
 
@@ -257,6 +265,8 @@
         <li><a class="internal" href="#soundchip_volume">&lt;soundchip&gt;_volume</a></li>
 
         <li><a class="internal" href="#throttle">throttle</a></li>
+
+        <li><a class="internal" href="#trace_key_presses">trace_key_presses</a></li>
 
         <li><a class="internal" href="#umr_callback">umr_callback</a></li>
 
@@ -1878,6 +1888,33 @@
     </tr>
   </table>
 
+  <h3><a id="always_enable_keypad">always_enable_keypad</a></h3>
+
+  <p>Some real MSX computers do not have a numeric keypad. OpenMSX will ignore
+  key presses on the host numeric keypad when emulating such an MSX model.
+  With this parameter, you can indicate that even on such MSX models, presses
+  on the host numeric keypad must be mapped to the MSX numeric keypad. So, you
+  can override accurate behavour with it, which is the reason that by default,
+  this setting is set to 'off'.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set always_enable_keypad</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set always_enable_keypad on</code></td>
+
+      <td>Enables numeric keypad, even if the emulated MSX does not have one</td>
+    </tr>
+  </table>
+
   <h3><a id="audio-inputfilename">audio-inputfilename</a></h3>
 
   <p>Sets the audio file from which the wave input is read for the sampler.</p>
@@ -1985,6 +2022,32 @@
       <td><code>set bootsector DOS1</code></td>
 
       <td>Use a DOS1 boot sector</td>
+    </tr>
+  </table>
+
+  <h3><a id="code_kana_host_key">code_kana_host_key</a></h3>
+
+  <p>Host key that maps to the MSX CODE/KANA key. It is especially useful for
+  people with AZERTY host keyboard, on which the right-ALT key (RALT, which is
+  the default value of this setting) has a special function. It is called the
+  ALT-GR key and it's used to enter some special characters (some keys are
+  tagged with 3 characters; normal, key+SHIFT, key+ALT-GR).</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set code_kana_host_key</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set code_kana_host_key RSUPER</code></td>
+
+      <td>Binds the RSUPER key on the host keyboard to the MSX CODE/KANA key</td>
     </tr>
   </table>
 
@@ -2353,19 +2416,19 @@
     <tr>
       <td><code>read_only</code></td>
 
-      <td>The MSX can not write to the virtual disk.<br>Changes on the host-OS are stilled transfered to the virtual disk</td>
+      <td>The MSX can not write to the virtual disk.<br/>Changes on the host-OS are stilled transfered to the virtual disk</td>
     </tr>
 
     <tr>
       <td><code>cached_write</code></td>
 
-      <td>The MSX can write to the virtual disk, all changes are however only cached in memory, no changes are passed onto the host-OS.<br>Changes on the host-OS are stilled transfered to the virtual disk, and will overide any changes that to MSX has made</td>
+      <td>The MSX can write to the virtual disk, all changes are however only cached in memory, no changes are passed onto the host-OS.<br/>Changes on the host-OS are stilled transfered to the virtual disk, and will overide any changes that to MSX has made</td>
     </tr>
 
     <tr>
       <td><code>nodelete</code></td>
 
-      <td>Changes are two ways, from Host-OS to MSX and vice versa.<BR>However deleting a file on the MSX will not erase the file from the HOST-OS. This can lead to unexpected behavior however if the MSX later recreates a file with the same name, since this will be reflected towards the HOST-OS.
+      <td>Changes are two ways, from Host-OS to MSX and vice versa.<br/>However deleting a file on the MSX will not erase the file from the HOST-OS. This can lead to unexpected behavior however if the MSX later recreates a file with the same name, since this will be reflected towards the HOST-OS</td>
     </tr>
 
     <tr>
@@ -2817,6 +2880,68 @@
 
     <tr>
       <td><code>set keyjoystick1.triga SPACE</code></td>
+    </tr>
+  </table>
+
+  <h3><a id="keymap-filename">keymap-filename</a></h3>
+
+  <p>Sets the filename of the file that contains a mapping from host keys to
+  MSX keys. It is only used for special keys for which no unicode character
+  exists, like the SHIFT key, the ALT key and so on. On the longer term, this
+  file should become obsolete as most of the special keys are very standardized
+  and there are now new settings (like <code><a class="internal"
+  href="#keypad_enter_key">keypad_enter_key</a></code>) to handle the few
+  exceptional cases.  However, we keep it for the time being, just in case that
+  there is some special situation that is not yet covered by user setting
+  parameters. By default, this setting is not set.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set keymap-filename</code></td>
+
+      <td>Shows the current value</td>
+    </tr>
+
+    <tr>
+      <td><code>set keymap-filename keymap.jp2eng</code></td>
+
+      <td>Use the mapping from the file keymap.jp2eng</td>
+    </tr>
+  </table>
+
+  <h3><a id="keypad_enter_key">keypad_enter_key</a></h3>
+
+  <p>There is a subtle difference between numeric keypad of MSX computers and
+  of most host computers; the MSX computers have a '.' and a ',' on the numeric
+  keypad. On the other hand, the host computers have a '.' and an 'ENTER' key
+  on the keypad.</p>
+
+  <p>In some respect it is logical that the 'ENTER' key on the host numeric
+  keypad is mapped to the 'normal' MSX 'ENTER' key. On the other hand, that
+  would make it impossible to enter the ',' on the MSX nummeric keypad.
+  Therefore, the user can choose whether the host numeric keypad ENTER key
+  should be mapped to the MSX numeric keypad ',' (which is the default) or to
+  the main 'ENTER' key.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set keypad_enter_key</code></td>
+
+      <td>Shows the current value</td>
+    </tr>
+
+    <tr>
+      <td><code>set keypad_enter_key ENTER</code></td>
+
+      <td>Maps the keypad enter key to the main 'ENTER' key, instead of the comma key on the MSX keypad</td>
     </tr>
   </table>
 
@@ -3813,6 +3938,35 @@
 
       <td>Turn throttle mode off (fast forward)</td>
     </tr>
+  </table>
+
+  <h3><a id="trace_key_presses">trace_key_presses</a></h3>
+
+  <p>Log SDL key code, SDL modifiers and Unicode value for each key that gets
+  pressed on the host keyboard on stdout.  Also show Unicode value and
+  corresponding MSX key-presses for characters that get 'pasted' into the MSX
+  by the console <code><a class="internal" href="#type">type</a></code>
+  command. This setting is especially useful when defining unicode keymap
+  files, so that you can find out the unicode values belonging to certain
+  keys/characters.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set trace_key_presses</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set trace_key_presses on</code></td>
+
+      <td>Turn logging of key presses on</td>
+    </tr>
+
   </table>
 
   <h3><a id="umr_callback">umr_callback</a></h3>
