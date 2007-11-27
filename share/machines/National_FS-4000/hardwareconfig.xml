@@ -31,7 +31,7 @@
       </sound>
       <io base="0xA8" num="4"/>
       <keyboard_type>jp_ansi</keyboard_type>
-      <has_keypad>false</has_keypad>
+      <has_keypad>true</has_keypad>
     </PPI>
 
     <VDP id="VDP">
