@@ -16,6 +16,14 @@
 # - Make XRenderer into a component.
 
 
+# Delete on Error
+# ===============
+
+# Delete output if rule fails.
+# This is a flag that applies to all rules.
+.DELETE_ON_ERROR:
+
+
 # Logical Targets
 # ===============
 
