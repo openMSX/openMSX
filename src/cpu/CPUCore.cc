@@ -992,9 +992,9 @@ template <class T> void CPUCore<T>::ld_a_xiy(S& s)
 // LD A,(nn)
 template <class T> void CPUCore<T>::ld_a_xbyte(S& s)
 {
-	s.memptr = s.RD_WORD_PC();
-	s.RD_A_X(s.memptr);
-	++s.memptr;
+	unsigned addr = s.RD_WORD_PC();
+	s.memptr = addr + 1;
+	s.RD_A_X(addr);
 }
 
 // LD r,n
