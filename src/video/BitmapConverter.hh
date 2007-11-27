@@ -61,37 +61,8 @@ public:
 
 	/** Select the display mode to use for scanline conversion.
 	  * @param mode The new display mode.
-	  * TODO: Should this be inlined? It's not used that frequently.
 	  */
-	inline void setDisplayMode(DisplayMode mode)
-	{
-		// TODO: Support YJK on modes other than Graphic 6/7.
-		switch (mode.getByte() & ~DisplayMode::YAE) {
-		case DisplayMode::GRAPHIC4:
-			renderMethod = &BitmapConverter::renderGraphic4;
-			break;
-		case DisplayMode::GRAPHIC5:
-			renderMethod = &BitmapConverter::renderGraphic5;
-			break;
-		case DisplayMode::GRAPHIC6:
-			renderMethod = &BitmapConverter::renderGraphic6;
-			break;
-		case DisplayMode::GRAPHIC7:
-			renderMethod = &BitmapConverter::renderGraphic7;
-			break;
-		case DisplayMode::GRAPHIC6 | DisplayMode::YJK:
-		case DisplayMode::GRAPHIC7 | DisplayMode::YJK:
-			if (mode.getByte() & DisplayMode::YAE) {
-				renderMethod = &BitmapConverter::renderYAE;
-			} else {
-				renderMethod = &BitmapConverter::renderYJK;
-			}
-			break;
-		default:
-			renderMethod = &BitmapConverter::renderBogus;
-			break;
-		}
-	}
+	void setDisplayMode(DisplayMode mode);
 
 private:
 	typedef void (BitmapConverter::*RenderMethod)
