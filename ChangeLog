@@ -1,5 +1,11 @@
 $Id$
 
+2007-12-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed problem in BliBuffer:
+	   In some cases our mute-optimization kicked in too soon,
+	   (low frequency, low volume, short audio sync intervals triggers it
+	   more often). This was audible as low frequency, low volume noise.
+
 2007-11-25 Alex Wulms
 	* Initialized keyboard_type and has_keypad parameter in all
 	  hardwareconfig.xml file:
