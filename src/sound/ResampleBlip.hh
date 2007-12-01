@@ -20,7 +20,7 @@ public:
 
 private:
 	BlipBuffer blip[CHANNELS];
-        Resample& input;
+	Resample& input;
 	const double ratio;
 	const double invRatio;
 	double lastPos;
