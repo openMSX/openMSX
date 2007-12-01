@@ -20,7 +20,7 @@ public:
 
 private:
 	BlipBuffer blip[CHANNELS];
-        Resample& input;
+	Resample& input;
 	const double ratio;
 	const double invRatio;
 	typedef FixedPoint<16> FP;

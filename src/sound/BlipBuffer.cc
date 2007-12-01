@@ -20,27 +20,23 @@ static void initImpulse()
 	if (alreadyInit) return;
 	alreadyInit = true;
 
-	double fimpulse[BLIP_RES / 2 * (IMPULSE_WIDTH - 1) + BLIP_RES * 2];
+	static const int HALF_SIZE = BLIP_RES / 2 * (IMPULSE_WIDTH - 1);
+	double fimpulse[HALF_SIZE + 2 * BLIP_RES];
+	double* out = &fimpulse[BLIP_RES];
 
-	// generate sinc
-	int halfSize = BLIP_RES / 2 * (IMPULSE_WIDTH - 1);
-	double oversample = 1.15;
+	// generate sinc, apply hamming window
+	double oversample = ((4.5 / (IMPULSE_WIDTH - 1)) + 0.85);
 	double to_angle = M_PI / (2.0 * oversample * BLIP_RES);
-	for (int i = 0; i < halfSize; ++i) {
-		double angle = ((i - halfSize) * 2 + 1) * to_angle;
-		fimpulse[BLIP_RES + i] = sin(angle) / angle;
-	}
-
-	// apply (half of) hamming window
-	double to_fraction = M_PI / (halfSize - 1);
-	for (int i = halfSize; i--; /* */) {
-		fimpulse[BLIP_RES + i] *= 0.54 - 0.46 * cos(i * to_fraction);
+	double to_fraction = M_PI / (2 * (HALF_SIZE - 1));
+	for (int i = 0; i < HALF_SIZE; ++i) {
+		double angle = ((i - HALF_SIZE) * 2 + 1) * to_angle;
+		out[i] = sin(angle) / angle;
+		out[i] *= 0.54 - 0.46 * cos((2 * i + 1) * to_fraction);
 	}
 
 	// need mirror slightly past center for calculation
-	for (int i = BLIP_RES; i--; /* */) {
-		fimpulse[BLIP_RES + halfSize + i] =
-			fimpulse[BLIP_RES + halfSize - 1 - i];
+	for (int i = 0; i < BLIP_RES; ++i) {
+		out[HALF_SIZE + i] = out[HALF_SIZE - 1 - i];
 	}
 
 	// starts at 0
@@ -50,8 +46,8 @@ static void initImpulse()
 
 	// find rescale factor
 	double total = 0.0;
-	for (int i = 0; i < halfSize; ++i) {
-		total += fimpulse[BLIP_RES + i];
+	for (int i = 0; i < HALF_SIZE; ++i) {
+		total += out[i];
 	}
 	int kernelUnit = 1 << (BLIP_SAMPLE_BITS - 16);
 	double rescale = kernelUnit / (2.0 * total);
@@ -132,7 +128,7 @@ bool BlipBuffer::readSamples(int* out, unsigned samples, unsigned pitch)
 	int acc = accum;
 	for (unsigned i = 0; i < samples; ++i) {
 		out[i * pitch] = acc >> SAMPLE_SHIFT;
-		acc -= acc >> BASS_SHIFT;
+		acc -= acc / (1 << BASS_SHIFT);
 		acc += buffer[offset];
 		buffer[offset] = 0;
 		offset = (offset + 1) & BUFFER_MASK;
