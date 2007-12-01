@@ -115,25 +115,47 @@ void BlipBuffer::update(TimeIndex time, int amp)
 	}
 }
 
+// returns -1, 0, 1 for x negative, zero, positive
+static inline int sign(int x)
+{
+	return (x != 0) | (x >> 31);
+}
+
 bool BlipBuffer::readSamples(int* out, unsigned samples, unsigned pitch)
 {
 	static const int SAMPLE_SHIFT = BLIP_SAMPLE_BITS - 16;
 	static const int BASS_SHIFT = 9;
 
-	if ((availSamp <= 0) && (accum < (1 << BASS_SHIFT))) {
-		return false; // muted
+	if (availSamp <= 0) {
+		#ifdef DEBUG
+		// buffer contains all zeros (only check this in debug mode)
+		for (unsigned i = 0; i < BUFFER_SIZE; ++i) {
+			assert(buffer[i] == 0);
+		}
+		#endif
+		if (accum == 0) {
+			// muted
+			return false;
+		}
+		int acc = accum;
+		for (unsigned i = 0; i < samples; ++i) {
+			out[i * pitch] = acc >> SAMPLE_SHIFT;
+			acc -= acc / (1 << BASS_SHIFT);
+			acc -= sign(acc); // make sure acc eventually goes to zero
+		}
+		accum = acc;
+	} else {
+		availSamp -= samples;
+		int acc = accum;
+		for (unsigned i = 0; i < samples; ++i) {
+			out[i * pitch] = acc >> SAMPLE_SHIFT;
+			acc -= acc / (1 << BASS_SHIFT);
+			acc += buffer[offset];
+			buffer[offset] = 0;
+			offset = (offset + 1) & BUFFER_MASK;
+		}
+		accum = acc;
 	}
-	availSamp -= samples;
-
-	int acc = accum;
-	for (unsigned i = 0; i < samples; ++i) {
-		out[i * pitch] = acc >> SAMPLE_SHIFT;
-		acc -= acc / (1 << BASS_SHIFT);
-		acc += buffer[offset];
-		buffer[offset] = 0;
-		offset = (offset + 1) & BUFFER_MASK;
-	}
-	accum = acc;
 	return true;
 }
 
