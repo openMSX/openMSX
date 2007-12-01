@@ -1,14 +1,10 @@
 // $Id$
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <iostream>
-#include <cassert>
-#include <SDL.h>
 #include "Keyboard.hh"
 #include "Observer.hh"
 #include "Clock.hh"
+#include "EventListener.hh"
+#include "EventDistributor.hh"
 #include "MSXEventDistributor.hh"
 #include "SettingsConfig.hh"
 #include "MSXException.hh"
@@ -23,6 +19,12 @@
 #include "Scheduler.hh"
 #include "Unicode.hh"
 #include "checked_cast.hh"
+#include <SDL.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <iostream>
+#include <cassert>
 
 using std::string;
 using std::vector;
@@ -78,24 +80,27 @@ private:
 	Unicode::unicode1_char last;
 };
 
-class BootCapsLockAligner : private MSXEventListener, private Schedulable
+class CapsLockAligner : private EventListener, private Schedulable
 {
 public:
-	BootCapsLockAligner(MSXEventDistributor& msxEventDistributor,
-			    Scheduler& scheduler, Keyboard& keyboard);
-	virtual ~BootCapsLockAligner();
+	CapsLockAligner(EventDistributor& eventDistributor,
+	                MSXEventDistributor& msxEventDistributor,
+	                Scheduler& scheduler, Keyboard& keyboard);
+	virtual ~CapsLockAligner();
 
 private:
-        // MSXEventListener
-        virtual void signalEvent(shared_ptr<const Event> event,
-                                 const EmuTime& time);
+	// EventListener
+	virtual bool signalEvent(shared_ptr<const Event> event);
 
 	// Schedulable
 	virtual void executeUntil(const EmuTime& time, int userData);
 	virtual const string& schedName() const;
 
+	void alignCapsLock(const EmuTime& time);
+
 	Keyboard& keyboard;
-	MSXEventDistributor& eventDistributor;
+	EventDistributor& eventDistributor;
+	MSXEventDistributor& msxEventDistributor;
 };
 
 
@@ -194,7 +199,7 @@ void Keyboard::parseUnicodeKeymapfile(const byte* buf, unsigned size)
 			modifiers[0] = 0;
 			rdnum = 3;
 		}
-		if ( rdnum == 3) {
+		if (rdnum == 3) {
 			if (unicode < 0 || unicode > 65535) {
 				throw MSXException("Wrong unicode value in keymap file");
 			}
@@ -227,8 +232,8 @@ void Keyboard::parseUnicodeKeymapfile(const byte* buf, unsigned size)
 //				modmask != 64;
 //			}
 // TODO: use constants for unicodeTab addressing or use a small structure
-			unicodeTab[unicode][0] = (rowcol>>4)&0x0f; // 0 = row
-			unicodeTab[unicode][1] = 1<<(rowcol&7); // 1 = keymask
+			unicodeTab[unicode][0] = (rowcol >> 4) & 0x0f; // 0 = row
+			unicodeTab[unicode][1] = 1 << (rowcol & 7); // 1 = keymask
 			unicodeTab[unicode][2] = modmask; // 2 = modmask
 		}
 	}
@@ -247,18 +252,19 @@ void Keyboard::loadUnicodeKeymapfile(const string& filename)
 
 Keyboard::Keyboard(Scheduler& scheduler,
                    MSXCommandController& msxCommandController,
-                   MSXEventDistributor& eventDistributor_,
+                   EventDistributor& eventDistributor,
+                   MSXEventDistributor& msxEventDistributor_,
 		   string& keyboardType, bool hasKP, bool keyG)
 	: Schedulable(scheduler)
-	, eventDistributor(eventDistributor_)
+	, msxEventDistributor(msxEventDistributor_)
 	, keyMatrixUpCmd  (new KeyMatrixUpCmd  (
-		msxCommandController, eventDistributor, scheduler, *this))
+		msxCommandController, msxEventDistributor, scheduler, *this))
 	, keyMatrixDownCmd(new KeyMatrixDownCmd(
-		msxCommandController, eventDistributor, scheduler, *this))
+		msxCommandController, msxEventDistributor, scheduler, *this))
 	, keyTypeCmd(new KeyInserter(
-		msxCommandController, eventDistributor, scheduler, *this))
-        , bootCapsLockAligner(new BootCapsLockAligner(
-		eventDistributor, scheduler, *this))
+		msxCommandController, msxEventDistributor, scheduler, *this))
+        , capsLockAligner(new CapsLockAligner(
+		eventDistributor, msxEventDistributor, scheduler, *this))
 	, keyboardSettings(new KeyboardSettings(msxCommandController))
 {
 	keyGhosting = keyG;
@@ -273,11 +279,10 @@ Keyboard::Keyboard(Scheduler& scheduler,
 	memset(unicodeTab, 0, sizeof(unicodeTab));
 
 
-	SystemFileContext context(false);
+	SystemFileContext context;
 
 	string keymapFile = keyboardSettings->getKeymapFile().getValueString();
-	if (!keymapFile.empty())
-	{
+	if (!keymapFile.empty()) {
 		loadKeymapfile(context.resolve(keymapFile));
 	}
 
@@ -285,17 +290,14 @@ Keyboard::Keyboard(Scheduler& scheduler,
 	loadUnicodeKeymapfile(context.resolve(unicodemapFilename));
 
 	keyboardSettings->getKeymapFile().attach(*this);
-	eventDistributor.registerEventListener(*this);
+	msxEventDistributor.registerEventListener(*this);
 	// We do not listen for CONSOLE_OFF_EVENTS because rescanning the
 	// keyboard can have unwanted side effects
-
-	// We listen for FOCUS change events, to align CAPS-lock status of MSX
-	// with host environment
 }
 
 Keyboard::~Keyboard()
 {
-	eventDistributor.unregisterEventListener(*this);
+	msxEventDistributor.unregisterEventListener(*this);
 	keyboardSettings->getKeymapFile().detach(*this);
 }
 
@@ -314,32 +316,8 @@ const byte* Keyboard::getKeys()
 	return keyMatrix;
 }
 
-/*
- * Align MSX caps lock state with host caps lock state
- * WARNING: This function assumes that the MSX will see and
- *          process the caps lock key press.
- *          If MSX misses the key press for whatever reason (e.g.
- *          interrupts are disabled), the caps lock state in this
- *          module will mismatch with the real MSX caps lock state
- * TODO: Find a solution for the above problem. For example by monitoring
- *       the MSX caps-lock LED state.
- */
-void Keyboard::alignCapsLock(const EmuTime& time)
-{
-	bool hostCapsLockOn = ((SDL_GetModState() & KMOD_CAPS) != 0);
-
-	if (msxCapsLockOn != hostCapsLockOn) {
-		msxCapsLockOn = hostCapsLockOn;
-		updateKeyMatrix(true, 6, 0x08);
-		Clock<1000> now(time);
-		setSyncPoint(now + 100);
-	}
-}
-
-/*
- * Received an event (through EventTranslator class)
+/* Received an MSX event (through EventTranslator class)
  * Following events get processed:
- *  OPENMSX_FOCUS_EVENT
  *  OPENMSX_KEY_DOWN_EVENT
  *  OPENMSX_KEY_UP_EVENT
  */
@@ -347,14 +325,7 @@ void Keyboard::signalEvent(shared_ptr<const Event> event,
                            const EmuTime& time)
 {
 	EventType type = event->getType();
-	if (type == OPENMSX_FOCUS_EVENT) {
-		const FocusEvent& focusEvent = checked_cast<const FocusEvent&>(*event);
-		if (focusEvent.getGain() == true)
-		{
-			alignCapsLock(time);
-		}
-	}
-	else if ((type == OPENMSX_KEY_DOWN_EVENT) ||
+	if ((type == OPENMSX_KEY_DOWN_EVENT) ||
 	    (type == OPENMSX_KEY_UP_EVENT)) {
 		// Ignore possible console on/off events:
 		// we do not rescan the keyboard since this may lead to
@@ -363,26 +334,20 @@ void Keyboard::signalEvent(shared_ptr<const Event> event,
 		const KeyEvent& keyEvent = checked_cast<const KeyEvent&>(*event);
 		Keys::KeyCode key = static_cast<Keys::KeyCode>
 			(int(keyEvent.getKeyCode()) & int(Keys::K_MASK));
-		if (
-			type == OPENMSX_KEY_DOWN_EVENT &&
-			keyboardSettings->getTraceKeyPresses().getValue()
-		) {
+		if (type == OPENMSX_KEY_DOWN_EVENT &&
+		    keyboardSettings->getTraceKeyPresses().getValue()) {
 			fprintf(stderr,
 				"Key pressed, unicode codepoint: 0x%04x, SDL info: %s\n",
 				keyEvent.getUnicode(),
-				Keys::getName(keyEvent.getKeyCode()).c_str()
-				);
+				Keys::getName(keyEvent.getKeyCode()).c_str());
 		}
 		if (key == Keys::K_CAPSLOCK) {
 			processCapslockEvent(time);
-		}
-		else if (key == keyboardSettings->getCodeKanaHostKey().getValue()) {
+		} else if (key == keyboardSettings->getCodeKanaHostKey().getValue()) {
 			processCodeKanaChange(type == OPENMSX_KEY_DOWN_EVENT);
-		}
-		else if (key == Keys::K_KP_ENTER) {
+		} else if (key == Keys::K_KP_ENTER) {
 			processKeypadEnterKey(type == OPENMSX_KEY_DOWN_EVENT);
-		}
-		else {
+		} else {
                         processKeyEvent(type == OPENMSX_KEY_DOWN_EVENT, keyEvent);
 		}
 	}
@@ -449,13 +414,10 @@ void Keyboard::processKeypadEnterKey(bool down)
 	}
 	int row;
 	byte mask;
-	if (keyboardSettings->getKpEnterMode().getValue() == KeyboardSettings::MSX_KP_COMMA)
-	{
+	if (keyboardSettings->getKpEnterMode().getValue() == KeyboardSettings::MSX_KP_COMMA) {
 		row = 10;
 		mask = 0x40;
-	} 
-	else
-	{
+	} else {
 		row = 7;
 		mask = 0x80;
 	}
@@ -527,15 +489,14 @@ void Keyboard::processKeyEvent(bool down, const KeyEvent& keyEvent)
 		(key == Keys::K_KP_PLUS)
 	);
 
-
-	if (isOnKeypad && !hasKeypad && !keyboardSettings->getAlwaysEnableKeypad().getValue()) {
+	if (isOnKeypad && !hasKeypad &&
+	    !keyboardSettings->getAlwaysEnableKeypad().getValue()) {
 		// User entered on host keypad but this MSX model does not have one
 		// Ignore the keypress/release
 		return; 
 	}
 	
-	if (down)
-	{
+	if (down) {
 		if ((userKeyMatrix[6] & 2) == 0 || isOnKeypad) {
 			// CTRL-key is active or user entered a key on numeric
 			// keypad. This maps to same unicode as some other
@@ -544,8 +505,7 @@ void Keyboard::processKeyEvent(bool down, const KeyEvent& keyEvent)
 			// and use direct matrix to matrix mapping for the exceptional
 			// cases (CTRL+character or numeric keypad usage)
 			unicode = 0;
-		}
-		else {
+		} else {
 			unicode = keyEvent.getUnicode();
 		}
 		if (key < MAX_KEYSYM) {
@@ -573,8 +533,7 @@ void Keyboard::processKeyEvent(bool down, const KeyEvent& keyEvent)
 			if ((keyCode & Keys::KM_MODE) == 0) {
 				processSdlKey(down, key); 
 			}
-		}
-		else {
+		} else {
 			// It is a unicode character; map it to the right key-combination
 			pressUnicodeByUser(unicode, key, true);
 		}
@@ -582,8 +541,7 @@ void Keyboard::processKeyEvent(bool down, const KeyEvent& keyEvent)
 		// key was released
 		if (key < MAX_KEYSYM) {
 			unicode=dynKeymap[key]; // Get the unicode that was derived from this key
-		}
-		else {
+		} else {
 			unicode=0;
 		}
 		if (unicode == 0) {
@@ -593,8 +551,7 @@ void Keyboard::processKeyEvent(bool down, const KeyEvent& keyEvent)
 			if ((keyCode & Keys::KM_MODE) == 0) {
 				processSdlKey(down, key); 
 			}
-		}
-		else {
+		} else {
 			// It was a unicode character; map it to the right key-combination
 			pressUnicodeByUser(unicode, key, false);
 		}
@@ -614,7 +571,8 @@ void Keyboard::doKeyGhosting()
 	//           that are established  by
 	// the closed switches
 	bool changedSomething;
-	do {	changedSomething = false;
+	do {
+		changedSomething = false;
 		for (unsigned i = 0; i < NR_KEYROWS - 1; i++) {
 			byte row1 = keyMatrix[i];
 			for (unsigned j = i + 1; j < NR_KEYROWS; j++) {
@@ -704,8 +662,7 @@ void Keyboard::pressUnicodeByUser(Unicode::unicode1_char unicode, int key, bool 
 		userKeyMatrix[row] &= ~mask;
                 userKeyMatrix[6] |= shiftkeymask;
 		userKeyMatrix[6] &= ~(modmask & (0xfe | shiftkeymask));
-	}
-	else {
+	} else {
 		userKeyMatrix[row] |= mask;
 		// Do not simply unpress code, graph, ctrl (and shift)
 		// but restore them to the values currently pressed
@@ -735,8 +692,7 @@ void Keyboard::pressAscii(Unicode::unicode1_char unicode, bool down)
 		}
 		cmdKeyMatrix[row] &= ~mask;
 		cmdKeyMatrix[6] &= ~modmask;
-	}
-	else {
+	} else {
 		cmdKeyMatrix[row] |= mask;
 		cmdKeyMatrix[6] |= modmask;
 	}
@@ -765,18 +721,14 @@ bool Keyboard::commonKeys(Unicode::unicode1_char unicode1, Unicode::unicode1_cha
 
 void Keyboard::update(const Setting& setting)
 {
-	if (&setting == &keyboardSettings->getKeymapFile()) {
-		SystemFileContext context(false);
+	assert(&setting == &keyboardSettings->getKeymapFile());
+	(void)setting;
 
-		string keymapFile = keyboardSettings->getKeymapFile().getValueString();
-		if (!keymapFile.empty())
-		{
-			loadKeymapfile(context.resolve(keymapFile));
-		}
-	} else {
-		assert(false);
+	string keymapFile = keyboardSettings->getKeymapFile().getValueString();
+	if (!keymapFile.empty()) {
+		SystemFileContext context;
+		loadKeymapfile(context.resolve(keymapFile));
 	}
-
 }
 
 // class KeyMatrixUpCmd
@@ -905,46 +857,80 @@ const string& KeyInserter::schedName() const
 }
 
 /*
- * class BootCapsLockAligner
+ * class CapsLockAligner
  *
  * It is used to align MSX CAPS lock status with the host CAPS lock status
- * during the reset of the MSX.
+ * during the reset of the MSX or after the openMSX window regains focus.
+ *
  * It listens to the 'BOOT' event and schedules the real alignment
  * 2 seconds later. Reason is that it takes a while before the MSX
  * reset routine starts monitoring the MSX keyboard.
+ *
+ * For focus regain, the alignment is done immediately.
  */
-BootCapsLockAligner::BootCapsLockAligner(MSXEventDistributor& eventDistributor_,
-			    Scheduler& scheduler, Keyboard& keyboard_)
+CapsLockAligner::CapsLockAligner(EventDistributor& eventDistributor_,
+                                 MSXEventDistributor& msxEventDistributor_,
+                                 Scheduler& scheduler, Keyboard& keyboard_)
 	: Schedulable(scheduler) 
 	, keyboard(keyboard_)
 	, eventDistributor(eventDistributor_)
+	, msxEventDistributor(msxEventDistributor_)
 {
-	eventDistributor.registerEventListener(*this);
+	eventDistributor.registerEventListener(OPENMSX_BOOT_EVENT,  *this);
+	eventDistributor.registerEventListener(OPENMSX_FOCUS_EVENT, *this);
 }
 
-BootCapsLockAligner::~BootCapsLockAligner()
+CapsLockAligner::~CapsLockAligner()
 {
-	eventDistributor.unregisterEventListener(*this);
+	eventDistributor.unregisterEventListener(OPENMSX_FOCUS_EVENT, *this);
+	eventDistributor.unregisterEventListener(OPENMSX_BOOT_EVENT,  *this);
 }
 
-void BootCapsLockAligner::signalEvent(shared_ptr<const Event> event,
-                                 const EmuTime& time)
+bool CapsLockAligner::signalEvent(shared_ptr<const Event> event)
 {
+	const EmuTime& time = getScheduler().getCurrentTime();
 	EventType type = event->getType();
-	if (type == OPENMSX_BOOT_EVENT) {
+	if (type == OPENMSX_FOCUS_EVENT) {
+		const FocusEvent& focusEvent = checked_cast<const FocusEvent&>(*event);
+		if (focusEvent.getGain() == true) {
+			alignCapsLock(time);
+		}
+	} else if (type == OPENMSX_BOOT_EVENT) {
 		Clock<100> now(time);
 		setSyncPoint(now + 200);
 	}
+	return true;
 }
 
-void BootCapsLockAligner::executeUntil(const EmuTime& time, int /*userData*/)
+void CapsLockAligner::executeUntil(const EmuTime& time, int /*userData*/)
 {
-	keyboard.alignCapsLock(time);
+	alignCapsLock(time);
 }
 
-const string& BootCapsLockAligner::schedName() const
+/*
+ * Align MSX caps lock state with host caps lock state
+ * WARNING: This function assumes that the MSX will see and
+ *          process the caps lock key press.
+ *          If MSX misses the key press for whatever reason (e.g.
+ *          interrupts are disabled), the caps lock state in this
+ *          module will mismatch with the real MSX caps lock state
+ * TODO: Find a solution for the above problem. For example by monitoring
+ *       the MSX caps-lock LED state.
+ */
+void CapsLockAligner::alignCapsLock(const EmuTime& time)
 {
-	static const string schedName = "BootCapsLockAligner";
+	bool hostCapsLockOn = ((SDL_GetModState() & KMOD_CAPS) != 0);
+	if (keyboard.msxCapsLockOn != hostCapsLockOn) {
+		// note: send out another event iso directly calling
+		// processCapslockEvent() because we want this to be recorded
+		shared_ptr<const Event> event(new KeyDownEvent(Keys::K_CAPSLOCK));
+		msxEventDistributor.distributeEvent(event, time);
+	}
+}
+
+const string& CapsLockAligner::schedName() const
+{
+	static const string schedName = "CapsLockAligner";
 	return schedName;
 }
 

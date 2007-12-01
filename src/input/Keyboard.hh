@@ -18,13 +18,14 @@ namespace openmsx {
 
 class Scheduler;
 class MSXCommandController;
+class EventDistributor;
 class MSXEventDistributor;
 class EmuTime;
 class KeyMatrixUpCmd;
 class KeyMatrixDownCmd;
 class KeyInserter;
 class KeyEvent;
-class BootCapsLockAligner;
+class CapsLockAligner;
 class Setting;
 template <typename T> class EnumSetting;
 
@@ -35,14 +36,16 @@ public:
 	 * Constructs a new Keyboard object.
 	 * @param scheduler ref to the scheduler
 	 * @param msxCommandController ref to the command controller
-	 * @param eventDistributor ref to the user input event distributor
+	 * @param eventDistributor ref to the emu event distributor
+	 * @param msxEventDistributor ref to the user input event distributor
 	 * @param keyboardType contains filename extension of unicode keymap file
 	 * @param hasKeypad turn MSX keypad on/off
 	 * @param keyGhosting turn keyGhosting on/off
 	 */
 	Keyboard(Scheduler& scheduler, MSXCommandController& msxCommandController,
-	         MSXEventDistributor& eventDistributor, 
-		 std::string& keyboardType, bool hasKeypad, bool keyGhosting);
+	         EventDistributor& eventDistributor,
+	         MSXEventDistributor& msxEventDistributor, 
+	         std::string& keyboardType, bool hasKeypad, bool keyGhosting);
 
 	virtual ~Keyboard();
 
@@ -67,7 +70,6 @@ private:
 	virtual void executeUntil(const EmuTime& time, int userData);
 	virtual const std::string& schedName() const;
 
-	void alignCapsLock(const EmuTime& time);
 	void processCodeKanaChange(bool down);
 	void processCapslockEvent(const EmuTime& time);
 	void processKeypadEnterKey(bool down);
@@ -84,17 +86,17 @@ private:
 	void pressAscii(Unicode::unicode1_char unicode, bool down);
 	bool commonKeys(Unicode::unicode1_char unicode1, Unicode::unicode1_char unicode2);
 
-	MSXEventDistributor& eventDistributor;
+	MSXEventDistributor& msxEventDistributor;
 
 	friend class KeyMatrixUpCmd;
 	friend class KeyMatrixDownCmd;
 	friend class KeyInserter;
-	friend class BootCapsLockAligner;
+	friend class CapsLockAligner;
 
 	const std::auto_ptr<KeyMatrixUpCmd>   keyMatrixUpCmd;
 	const std::auto_ptr<KeyMatrixDownCmd> keyMatrixDownCmd;
 	const std::auto_ptr<KeyInserter>      keyTypeCmd;
-	const std::auto_ptr<BootCapsLockAligner> bootCapsLockAligner;
+	const std::auto_ptr<CapsLockAligner>  capsLockAligner;
 	const std::auto_ptr<KeyboardSettings> keyboardSettings;
 
 	byte cmdKeyMatrix[NR_KEYROWS];

@@ -29,8 +29,9 @@ MSXPPI::MSXPPI(MSXMotherBoard& motherBoard, const XMLElement& config,
 	bool hasKeypad = deviceConfig.getChildDataAsBool("has_keypad", true);
 	keyboard.reset(new Keyboard(motherBoard.getScheduler(),
 	                            motherBoard.getMSXCommandController(),
+	                            motherBoard.getEventDistributor(),
 	                            motherBoard.getMSXEventDistributor(),
-				    keyboardType, hasKeypad, keyGhosting));
+	                            keyboardType, hasKeypad, keyGhosting));
 	i8255.reset(new I8255(*this, time, motherBoard.getMSXCliComm()));
 	click.reset(new KeyClick(motherBoard.getMSXMixer(), config, time));
 

@@ -5,6 +5,11 @@ $Id$
 	   In some cases our mute-optimization kicked in too soon,
 	   (low frequency, low volume, short audio sync intervals triggers it
 	   more often). This was audible as low frequency, low volume noise.
+	* Previous changes in keyboard handling turned OPENMSX_FOCUS_EVENT and
+	  OPENMSX_BOOT_EVENT (also) into msx events, this is wrong.
+	  Event recording/replaying is still wrong because the logs don't
+	  contain unicode information. Need to discuss this with Alex. Maybe
+	  we need to log msx keyboard matrix info instead?
 
 2007-11-25 Alex Wulms
 	* Initialized keyboard_type and has_keypad parameter in all
