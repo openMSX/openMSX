@@ -1,5 +1,11 @@
 $Id$
 
+2007-12-01 Maarten ter Huurne <maarten@treewalker.org>
+	* Dropped support for GCC 3.3.
+	  This was triggered by link errors when using std::basic_string<unsigned>
+	  in the new keyboard mapping code. Working around this would require a
+	  large amount of extra code to be written, which is not worth it.
+
 2007-12-01 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed problem in BliBuffer:
 	   In some cases our mute-optimization kicked in too soon,
@@ -14,7 +20,7 @@ $Id$
 2007-11-25 Alex Wulms
 	* Initialized keyboard_type and has_keypad parameter in all
 	  hardwareconfig.xml file:
-	    Initial value of keyboard_type is derived from keyboad 
+	    Initial value of keyboard_type is derived from keyboard
 	    code at ROM BIOS address 0x2c.
 	    Initial value of has_keypad is guessed from MSX version via a
 	    simple heuristical rule; it is set to false for MSX1 and to
@@ -181,7 +187,7 @@ $Id$
 	  that's wrong).
 
 2007-10-28 David Heremans <david.heremans@gnu-linux.net>
-	* DirAsDisk now only saves 'CACHED' type sectors and the 
+	* DirAsDisk now only saves 'CACHED' type sectors and the
 	  final sector of 'MIXED' file caches in the '.sector.cache'
 	  when the disk is ejected.
 
@@ -196,7 +202,7 @@ $Id$
 	   Due to popular demand....
 	   Got sync from MSX disk to Host OS correct for create,
 	   delete, rename, grow and shrinking of files.
-	   Tested with Philips NMS 8250 and FS A1-GT who both have a 
+	   Tested with Philips NMS 8250 and FS A1-GT who both have a
 	   completely different approach/sequence to handling these actions.
 	   Still a lot to do and test but we are getting somewhere at least.
 
@@ -281,7 +287,7 @@ $Id$
 
 2007-09-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* SpriteChecker improvements:
-	   - get rid of expensive division in SpriteChecker fast-path 
+	   - get rid of expensive division in SpriteChecker fast-path
 	   - duplicate SpriteChecker::checkSprites2() for planar and
 	     non-planar modes
 

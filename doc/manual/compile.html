@@ -137,7 +137,7 @@ Version 3.79 or higher should suffice.</dd>
 
 <dt><code>g++</code></dt>
 <dd>The GNU C++ compiler.
-Version 4.1 or later is recommended; 3.3 and 3.4 won't be able to build the debug flavour (see below), any lower version will not be able to build openMSX at all.
+Version 4.1 or later is recommended; 3.4 won't be able to build the debug flavour, any lower version will not be able to build openMSX at all.
 </dd>
 
 </dl>
@@ -145,10 +145,11 @@ Version 4.1 or later is recommended; 3.3 and 3.4 won't be able to build the debu
 <h5>Mac OS X</h5>
 
 <p>
-Install the Xcode Tools from Apple, which you can download from the
-<a class="external" href="http://connect.apple.com/">Apple Developer Connection</a>
-(free registration required).
-This package contains up-to-date versions of Make, GCC and SVN. If you are running Mac OS X 10.4 (Tiger), Xcode should be installable from the installation CD.
+Install the Xcode Tools from Apple, which you can find on the Mac OS X installation DVD. Alternatively, you can download it from the <a class="external" href="http://connect.apple.com/">Apple Developer Connection</a> (free registration required).
+The Xcode Tools package contains up-to-date versions of Make, GCC and SVN. If you are running Mac OS X 10.5 (Leopard), make sure you also install support for compiling for Mac OS X 10.3 (Panther), which is an optional component.
+</p>
+<p>
+Note that Mac OS X 10.3 uses GCC 3.3 as the system compiler, which is not able to compile openMSX. The easy solution for this is to use a Mac with OS X 10.4 or 10.5 and compile a stand-alone binary (see next section), which will run on 10.3 as well. An alternative would be to get a more recent GCC running on OS X 10.3, but that <a href="http://www.figuiere.net/hub/blog/?2006/09/14/452-gcc-40-on-macos-x-103">seems to be problematic</a>.
 </p>
 
 <h5>Microsoft Windows</h5>
