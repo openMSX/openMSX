@@ -33,8 +33,6 @@ SYSTEM_LIBS:=ZLIB TCL XML
 #       already is.
 ifeq ($(OPENMSX_TARGET_CPU),ppc)
 SDK_PATH:=$(firstword $(sort $(wildcard /Developer/SDKs/MacOSX10.3.?.sdk)))
-OPENMSX_CXX:=g++-3.3
-LINK_FLAGS+=-Wl,-syslibroot,$(SDK_PATH)
 OSX_VER:=10.3
 OSX_MIN_REQ:=1030
 else
@@ -45,6 +43,8 @@ endif
 COMPILE_ENV+=NEXT_ROOT=$(SDK_PATH) MACOSX_DEPLOYMENT_TARGET=$(OSX_VER)
 LINK_ENV+=NEXT_ROOT=$(SDK_PATH) MACOSX_DEPLOYMENT_TARGET=$(OSX_VER)
 TARGET_FLAGS+=-D__ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__=$(OSX_MIN_REQ)
+TARGET_FLAGS+=-isysroot $(SDK_PATH)
+LINK_FLAGS+=-Wl,-syslibroot,$(SDK_PATH)
 
 ifeq ($(filter 3RD_%,$(LINK_MODE)),)
 # Compile against local libs. We assume the binary is intended to be run on
@@ -84,9 +84,9 @@ SYS_SOCKET_PREHEADER:=<sys/types.h>
 # TODO:
 # GL_HEADER:=<OpenGL/gl.h> iso GL_CFLAGS is cleaner,
 # but we have to modify the build before we can use it.
-GL_CFLAGS:=-I$(SDK_PATH)/System/Library/Frameworks/OpenGL.framework/Headers
+GL_CFLAGS:=-I/System/Library/Frameworks/OpenGL.framework/Headers
 GL_LDFLAGS:=-framework OpenGL -lGL \
-	-L$(SDK_PATH)/System/Library/Frameworks/OpenGL.framework/Libraries
+	-L/System/Library/Frameworks/OpenGL.framework/Libraries
 
 GLEW_CFLAGS_SYS_DYN+=$(MACPORTS_CFLAGS) $(FINK_CFLAGS)
 GLEW_LDFLAGS_SYS_DYN+=$(MACPORTS_LDFLAGS) $(FINK_LDFLAGS)
@@ -94,16 +94,16 @@ GLEW_LDFLAGS_SYS_DYN+=$(MACPORTS_LDFLAGS) $(FINK_LDFLAGS)
 SDL_LDFLAGS_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/sdl-config --static-libs 2>> $(LOG)`
 
 ifneq ($(filter 3RD_%,$(LINK_MODE)),)
-# Use tclConfig.sh from /usr and patch the output to point to the SDK dir
-# instead of /usr. Ideally we would use tclConfig.sh from the SDK, but the SDK
-# doesn't contain that file.
-TCL_CFLAGS_SYS_DYN:=`build/tcl-search.sh --cflags 2>> $(LOG) | sed -e 's%-I/%-I$(SDK_PATH)/%'`
-TCL_LDFLAGS_SYS_DYN:=`build/tcl-search.sh --ldflags 2>> $(LOG) | sed -e 's%-L/%-L$(SDK_PATH)/%'`
+# Use tclConfig.sh from /usr: ideally we would use tclConfig.sh from the SDK,
+# but the SDK doesn't contain that file. The -isysroot compiler argument makes
+# sure the headers are taken from the SDK though.
+TCL_CFLAGS_SYS_DYN:=`build/tcl-search.sh --cflags 2>> $(LOG)`
+TCL_LDFLAGS_SYS_DYN:=`build/tcl-search.sh --ldflags 2>> $(LOG)`
 
-# Use libxml2 from /usr and patch the output of xml2-config to point to
-# the SDK dir instead of /usr. Ideally we would use xml2-config from the SDK,
-# but the SDK doesn't contain that file.
-XML_CFLAGS_SYS_DYN:=`/usr/bin/xml2-config --cflags 2>> $(LOG) | sed -e 's%-I/%-I$(SDK_PATH)/%'`
-XML_LDFLAGS_SYS_DYN:=`/usr/bin/xml2-config --libs 2>> $(LOG) | sed -e 's%-L/%-L$(SDK_PATH)/%'`
+# Use xml2-config from /usr: ideally we would use xml2-config from the SDK,
+# but the SDK doesn't contain that file. The -isysroot compiler argument makes
+# sure the headers are taken from the SDK though.
+XML_CFLAGS_SYS_DYN:=`/usr/bin/xml2-config --cflags 2>> $(LOG)`
+XML_LDFLAGS_SYS_DYN:=`/usr/bin/xml2-config --libs 2>> $(LOG)`
 XML_RESULT_SYS_DYN:=`/usr/bin/xml2-config --version`
 endif
