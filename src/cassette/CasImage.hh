@@ -35,7 +35,7 @@ private:
 	bool writeData(const byte* buf, unsigned size, unsigned& pos);
 	void convert(const std::string& fileName, CliComm& cliComm);
 
-	std::vector<char> output;
+	std::vector<signed char> output;
 };
 
 } // namespace openmsx

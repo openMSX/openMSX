@@ -302,7 +302,7 @@ static const byte lfo_am_table[LFO_AM_TAB_ELEMENTS] =
 };
 
 // LFO Phase Modulation table (verified on real YM2413)
-static const char lfo_pm_table[8][8] =
+static const signed char lfo_pm_table[8][8] =
 {
 	// FNUM2/FNUM = 0 00xxxxxx (0x0000)
 	{ 0, 0, 0, 0, 0, 0, 0, 0, },
