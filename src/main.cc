@@ -39,6 +39,10 @@ static void initializeSDL()
 	if (SDL_Init(flags) < 0) {
 		throw FatalError(string("Couldn't init SDL: ") + SDL_GetError());
 	}
+
+	// On Mac OS X, send key combos like Cmd+H and Cmd+M to Cocoa, so it can
+	// perform the corresponding actions.
+	SDL_putenv("SDL_ENABLEAPPEVENTS=1");
 }
 
 static void unexpectedExceptionHandler()
