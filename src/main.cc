@@ -42,7 +42,7 @@ static void initializeSDL()
 
 	// On Mac OS X, send key combos like Cmd+H and Cmd+M to Cocoa, so it can
 	// perform the corresponding actions.
-	SDL_putenv("SDL_ENABLEAPPEVENTS=1");
+	SDL_putenv(const_cast<char*>("SDL_ENABLEAPPEVENTS=1"));
 }
 
 static void unexpectedExceptionHandler()
