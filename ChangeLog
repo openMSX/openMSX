@@ -7,6 +7,9 @@ $Id$
 	   measure a difference (positive nor negative). It also helps on
 	   32-bit machines in 16bpp mode, as is the case for GP2X. There I
 	   could measure a clear speed gain.
+	* Greatly simplified ResampleLQ:
+	   New implementation can only do downsampling, but that's good
+	   enough, even when output freq is 48kHz.
 
 2007-12-01 Maarten ter Huurne <maarten@treewalker.org>
 	* Dropped support for GCC 3.3.
