@@ -1,5 +1,13 @@
 $Id$
 
+2007-12-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Optimized BitmapConverter::renderGraphic4() and renderGraphic6():
+	   Created a 16x16 table to lookup two pixels at once. This helps
+	   a little on 64-bit machines in 32bpp mode. On 32-bit I couldn't
+	   measure a difference (positive nor negative). It also helps on
+	   32-bit machines in 16bpp mode, as is the case for GP2X. There I
+	   could measure a clear speed gain.
+
 2007-12-01 Maarten ter Huurne <maarten@treewalker.org>
 	* Dropped support for GCC 3.3.
 	  This was triggered by link errors when using std::basic_string<unsigned>

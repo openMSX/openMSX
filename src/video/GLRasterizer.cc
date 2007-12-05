@@ -577,6 +577,7 @@ void GLRasterizer::setPalette(int index, int grb)
 		// so we have to repaint them all.
 		dirtyColour.flush();
 		memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
+		bitmapConverter->palette16Changed();
 	}
 
 	precalcColourIndex0(vdp.getDisplayMode(), vdp.getTransparency(),
@@ -670,6 +671,7 @@ void GLRasterizer::precalcColourIndex0(
 			// so we have to repaint them all.
 			dirtyColour.flush();
 			memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
+			bitmapConverter->palette16Changed();
 		}
 	} else {
 		if ((palFg[ 0] != palBg[tpIndex >> 2]) ||
@@ -682,6 +684,7 @@ void GLRasterizer::precalcColourIndex0(
 			// so we have to repaint them all.
 			dirtyColour.flush();
 			memset(lineValidInMode, 0xFF, sizeof(lineValidInMode));
+			bitmapConverter->palette16Changed();
 		}
 	}
 }

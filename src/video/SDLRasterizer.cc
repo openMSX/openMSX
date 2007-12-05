@@ -182,6 +182,7 @@ void SDLRasterizer<Pixel>::setPalette(int index, int grb)
 	palFg[index     ] = newColor;
 	palFg[index + 16] = newColor;
 	palBg[index     ] = newColor;
+	bitmapConverter->palette16Changed();
 
 	precalcColourIndex0(vdp.getDisplayMode(), vdp.getTransparency(),
 	                    vdp.getBackgroundColour());
@@ -270,10 +271,17 @@ void SDLRasterizer<Pixel>::precalcColourIndex0(
 
 	int tpIndex = transparency ? bgcolorIndex : 0;
 	if (mode.getBase() != DisplayMode::GRAPHIC5) {
-		palFg[0] = palBg[tpIndex];
+		if (palFg[0] != palBg[tpIndex]) {
+			palFg[0] = palBg[tpIndex];
+			bitmapConverter->palette16Changed();
+		}
 	} else {
-		palFg[ 0] = palBg[tpIndex >> 2];
-		palFg[16] = palBg[tpIndex &  3];
+		if ((palFg[ 0] != palBg[tpIndex >> 2]) ||
+		    (palFg[16] != palBg[tpIndex &  3])) {
+			palFg[ 0] = palBg[tpIndex >> 2];
+			palFg[16] = palBg[tpIndex &  3];
+			bitmapConverter->palette16Changed();
+		}
 	}
 }
 

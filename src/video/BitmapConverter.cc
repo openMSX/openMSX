@@ -3,30 +3,70 @@
 #include "BitmapConverter.hh"
 #include "GLUtil.hh"
 #include "Math.hh"
+#include "likely.hh"
 
 namespace openmsx {
 
 template <class Pixel>
 BitmapConverter<Pixel>::BitmapConverter(
-	const Pixel* palette16, const Pixel* palette256,
-	const Pixel* palette32768)
+	const Pixel* palette16_, const Pixel* palette256_,
+	const Pixel* palette32768_)
+	: palette16(palette16_)
+	, palette256(palette256_)
+	, palette32768(palette32768_)
+	, dPaletteValid(false)
 {
-	this->palette16 = palette16;
-	this->palette256 = palette256;
-	this->palette32768 = palette32768;
+}
+
+template <class Pixel>
+void BitmapConverter<Pixel>::calcDPalette()
+{
+	dPaletteValid = true;
+	unsigned bits = sizeof(Pixel) * 8;
+	for (unsigned i = 0; i < 16; ++i) {
+		DPixel p0 = palette16[i];
+		for (unsigned j = 0; j < 16; ++j) {
+			DPixel p1 = palette16[j];
+			DPixel dp = OPENMSX_BIGENDIAN
+				  ? (p0 << bits) | p1
+				  : (p1 << bits) | p0;
+			dPalette[16 * i + j] = dp;
+		}
+	}
 }
 
 template <class Pixel>
 void BitmapConverter<Pixel>::renderGraphic4(
 	Pixel* __restrict__ pixelPtr, const byte* vramPtr0, const byte* /*vramPtr1*/)
 {
-	for (unsigned i = 0; i < 128; i += 2) {
+	/*for (unsigned i = 0; i < 128; i += 2) {
 		unsigned data0 = vramPtr0[i + 0];
 		unsigned data1 = vramPtr0[i + 1];
 		pixelPtr[2 * i + 0] = palette16[data0 >> 4];
 		pixelPtr[2 * i + 1] = palette16[data0 & 15];
 		pixelPtr[2 * i + 2] = palette16[data1 >> 4];
 		pixelPtr[2 * i + 3] = palette16[data1 & 15];
+	}*/
+
+	if (unlikely(!dPaletteValid)) {
+		calcDPalette();
+	}
+	DPixel* out = reinterpret_cast<DPixel*>(pixelPtr);
+	const unsigned* in = reinterpret_cast<const unsigned*>(vramPtr0);
+	for (unsigned i = 0; i < 256 / 8; ++i) {
+		// 8 pixels per iteration
+		unsigned data = in[i];
+		if (OPENMSX_BIGENDIAN) {
+			out[4 * i + 0] = dPalette[(data >> 24) & 0xFF];
+			out[4 * i + 1] = dPalette[(data >> 16) & 0xFF];
+			out[4 * i + 2] = dPalette[(data >>  8) & 0xFF];
+			out[4 * i + 3] = dPalette[(data >>  0) & 0xFF];
+		} else {
+			out[4 * i + 0] = dPalette[(data >>  0) & 0xFF];
+			out[4 * i + 1] = dPalette[(data >>  8) & 0xFF];
+			out[4 * i + 2] = dPalette[(data >> 16) & 0xFF];
+			out[4 * i + 3] = dPalette[(data >> 24) & 0xFF];
+		}
 	}
 }
 
@@ -47,13 +87,43 @@ template <class Pixel>
 void BitmapConverter<Pixel>::renderGraphic6(
 	Pixel* __restrict__ pixelPtr, const byte* vramPtr0, const byte* vramPtr1)
 {
-	for (unsigned i = 0; i < 128; ++i) {
+	/*for (unsigned i = 0; i < 128; ++i) {
 		unsigned data0 = vramPtr0[i];
 		unsigned data1 = vramPtr1[i];
 		pixelPtr[4 * i + 0] = palette16[data0 >> 4];
 		pixelPtr[4 * i + 1] = palette16[data0 & 15];
 		pixelPtr[4 * i + 2] = palette16[data1 >> 4];
 		pixelPtr[4 * i + 3] = palette16[data1 & 15];
+	}*/
+	if (unlikely(!dPaletteValid)) {
+		calcDPalette();
+	}
+	DPixel* out = reinterpret_cast<DPixel*>(pixelPtr);
+	const unsigned* in0 = reinterpret_cast<const unsigned*>(vramPtr0);
+	const unsigned* in1 = reinterpret_cast<const unsigned*>(vramPtr1);
+	for (unsigned i = 0; i < 512 / 16; ++i) {
+		// 16 pixels per iteration
+		unsigned data0 = in0[i];
+		unsigned data1 = in1[i];
+		if (OPENMSX_BIGENDIAN) {
+			out[8 * i + 0] = dPalette[(data0 >> 24) & 0xFF];
+			out[8 * i + 1] = dPalette[(data1 >> 24) & 0xFF];
+			out[8 * i + 2] = dPalette[(data0 >> 16) & 0xFF];
+			out[8 * i + 3] = dPalette[(data1 >> 16) & 0xFF];
+			out[8 * i + 4] = dPalette[(data0 >>  8) & 0xFF];
+			out[8 * i + 5] = dPalette[(data1 >>  8) & 0xFF];
+			out[8 * i + 6] = dPalette[(data0 >>  0) & 0xFF];
+			out[8 * i + 7] = dPalette[(data1 >>  0) & 0xFF];
+		} else {
+			out[8 * i + 0] = dPalette[(data0 >>  0) & 0xFF];
+			out[8 * i + 1] = dPalette[(data1 >>  0) & 0xFF];
+			out[8 * i + 2] = dPalette[(data0 >>  8) & 0xFF];
+			out[8 * i + 3] = dPalette[(data1 >>  8) & 0xFF];
+			out[8 * i + 4] = dPalette[(data0 >> 16) & 0xFF];
+			out[8 * i + 5] = dPalette[(data1 >> 16) & 0xFF];
+			out[8 * i + 6] = dPalette[(data0 >> 24) & 0xFF];
+			out[8 * i + 7] = dPalette[(data1 >> 24) & 0xFF];
+		}
 	}
 }
 

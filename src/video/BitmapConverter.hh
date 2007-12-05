@@ -8,6 +8,10 @@
 
 namespace openmsx {
 
+template<int N> struct DoublePixel;
+template<> struct DoublePixel<2> { typedef unsigned           type; };
+template<> struct DoublePixel<4> { typedef unsigned long long type; };
+
 /** Utility class for converting VRAM contents to host pixels.
   */
 template <class Pixel>
@@ -18,7 +22,10 @@ public:
 	  * @param palette16 Pointer to 2*16-entries array that specifies
 	  *   VDP colour index to host pixel mapping.
 	  *   This is kept as a pointer, so any changes to the palette
-	  *   are immediately picked up by convertLine.
+	  *   are immediately picked up by convertLine. Though to allow
+	  *   some internal optimizations, this class should be informed about
+	  *   changes in this array (not needed for the next two), see
+	  *   palette16Changed().
 	  *   Used for display modes Graphic4, Graphic5 and Graphic6.
 	  *   First 16 entries are for even pixels, next 16 are for odd pixels
 	  * @param palette256 Pointer to 256-entries array that specifies
@@ -64,7 +71,16 @@ public:
 	  */
 	void setDisplayMode(DisplayMode mode);
 
+	/** Inform this class about changes in the palette16 array.
+	  */
+	inline void palette16Changed()
+	{
+		dPaletteValid = false;
+	}
+
 private:
+	void calcDPalette();
+
 	typedef void (BitmapConverter::*RenderMethod)
 		(Pixel* pixelPtr, const byte* vramPtr0, const byte* vramPtr1);
 
@@ -90,6 +106,10 @@ private:
 	const Pixel* __restrict__ palette16;
 	const Pixel* __restrict__ palette256;
 	const Pixel* __restrict__ palette32768;
+
+	typedef typename DoublePixel<sizeof(Pixel)>::type DPixel;
+	DPixel dPalette[16 * 16];
+	bool dPaletteValid;
 };
 
 } // namespace openmsx
