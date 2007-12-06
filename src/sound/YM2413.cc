@@ -69,8 +69,8 @@ public:
 	inline int calc_slot_mod();
 	inline int calc_slot_tom();
 	inline int calc_slot_snare(bool noise);
-	inline int calc_slot_cym(unsigned pgout_hh);
-	inline int calc_slot_hat(int pgout_cym, bool noise);
+	inline int calc_slot_cym(unsigned cphase_hh);
+	inline int calc_slot_hat(unsigned cphase_cym, bool noise);
 	inline void updatePG();
 	inline void updateTLL();
 	inline void updateRKS();
@@ -86,9 +86,8 @@ public:
 	int output[2];		// Output value of slot
 
 	// for Phase Generator (PG)
-	unsigned phase;		// Phase
-	unsigned dphase;	// Phase increment amount
-	unsigned pgout;		// output
+	unsigned cphase;	// Phase counter
+	unsigned dphase;	// Phase increment
 
 	// for Envelope Generator (EG)
 	int fnum;		// F-Number
@@ -221,10 +220,10 @@ static const double AM_DEPTH = 4.875;
 // Size of Sintable ( 8 -- 18 can be used, but 9 recommended.)
 static const int PG_BITS = 9;
 static const int PG_WIDTH = 1 << PG_BITS;
+static const int PG_MASK = PG_WIDTH - 1;
 
 // Phase increment counter
 static const int DP_BITS = 18;
-static const int DP_WIDTH = 1 << DP_BITS;
 static const int DP_BASE_BITS = DP_BITS - PG_BITS;
 
 // Dynamic range of envelope
@@ -582,7 +581,7 @@ void Slot::reset(bool type_)
 {
 	type = type_;
 	sintbl = waveform[0];
-	phase = 0;
+	cphase = 0;
 	dphase = 0;
 	output[0] = 0;
 	output[1] = 0;
@@ -596,7 +595,6 @@ void Slot::reset(bool type_)
 	fnum = 0;
 	block = 0;
 	volume = 0;
-	pgout = 0;
 	egout = 0;
 	patch = &Global::nullPatch;
 	slot_on_flag = false;
@@ -678,7 +676,7 @@ void Slot::slotOn()
 {
 	setEnvelopeState(ATTACK);
 	eg_phase = EnvPhaseIndex(0);
-	phase = 0;
+	cphase = 0;
 	updateEG();
 }
 
@@ -1008,12 +1006,10 @@ static inline int wave2_8pi(int e)
 void Slot::calc_phase(PhaseModulation lfo_pm)
 {
 	if (patch->PM) {
-		phase += (lfo_pm * dphase).toInt();
+		cphase += (lfo_pm * dphase).toInt();
 	} else {
-		phase += dphase;
+		cphase += dphase;
 	}
-	phase &= (DP_WIDTH - 1);
-	pgout = HIGHBITS(phase, DP_BASE_BITS);
 }
 
 #define S2E(x) EnvPhaseIndex(int(x / EG_STEP))
@@ -1089,8 +1085,8 @@ void Slot::calc_envelope(int lfo_am)
 // CARRIER
 int Slot::calc_slot_car(int fm)
 {
-	int phase = (pgout + wave2_8pi(fm)) & (PG_WIDTH - 1);
-	output[0] = dB2LinTab[sintbl[phase] + egout];
+	int phase = (cphase >> DP_BASE_BITS) + wave2_8pi(fm);
+	output[0] = dB2LinTab[sintbl[phase & PG_MASK] + egout];
 	output[1] = (output[1] + output[0]) >> 1;
 	return output[1];
 }
@@ -1099,12 +1095,11 @@ int Slot::calc_slot_car(int fm)
 int Slot::calc_slot_mod()
 {
 	output[1] = output[0];
-	int phase = pgout;
+	int phase = cphase >> DP_BASE_BITS;
 	if (patch->FB != 0) {
 		phase += wave2_4pi(feedback) >> (7 - patch->FB);
-		phase &= PG_WIDTH - 1;
 	}
-	output[0] = dB2LinTab[sintbl[phase] + egout];
+	output[0] = dB2LinTab[sintbl[phase & PG_MASK] + egout];
 	feedback = (output[1] + output[0]) >> 1;
 	return feedback;
 }
@@ -1112,13 +1107,14 @@ int Slot::calc_slot_mod()
 // TOM
 int Slot::calc_slot_tom()
 {
-	return dB2LinTab[sintbl[pgout] + egout];
+	int phase = cphase >> DP_BASE_BITS;
+	return dB2LinTab[sintbl[phase & PG_MASK] + egout];
 }
 
 // SNARE
 int Slot::calc_slot_snare(bool noise)
 {
-	if (BIT(pgout, 7)) {
+	if (BIT(cphase, 7 + DP_BASE_BITS)) {
 		return dB2LinTab[(noise ? DB_POS(0.0) : DB_POS(15.0)) + egout];
 	} else {
 		return dB2LinTab[(noise ? DB_NEG(0.0) : DB_NEG(15.0)) + egout];
@@ -1126,24 +1122,28 @@ int Slot::calc_slot_snare(bool noise)
 }
 
 // TOP-CYM
-int Slot::calc_slot_cym(unsigned pgout_hh)
+int Slot::calc_slot_cym(unsigned cphase_hh)
 {
 	unsigned dbout
-	    = (((BIT(pgout_hh, PG_BITS - 8) ^ BIT(pgout_hh, PG_BITS - 1)) |
-	        BIT(pgout_hh, PG_BITS - 7)) ^
-	       (BIT(pgout, PG_BITS - 7) & !BIT(pgout, PG_BITS - 5)))
+	    = (((BIT(cphase_hh, PG_BITS - 8 + DP_BASE_BITS) ^
+	         BIT(cphase_hh, PG_BITS - 1 + DP_BASE_BITS)) |
+	        BIT(cphase_hh, PG_BITS - 7 + DP_BASE_BITS)) ^
+	       ( BIT(cphase, PG_BITS - 7 + DP_BASE_BITS) &
+	        !BIT(cphase, PG_BITS - 5 + DP_BASE_BITS)))
 	    ? DB_NEG(3.0)
 	    : DB_POS(3.0);
 	return dB2LinTab[dbout + egout];
 }
 
 // HI-HAT
-int Slot::calc_slot_hat(int pgout_cym, bool noise)
+int Slot::calc_slot_hat(unsigned cphase_cym, bool noise)
 {
 	unsigned dbout;
-	if (((BIT(pgout, PG_BITS - 8) ^ BIT(pgout, PG_BITS - 1)) |
-	     BIT(pgout, PG_BITS - 7)) ^
-	    (BIT(pgout_cym, PG_BITS - 7) & !BIT(pgout_cym, PG_BITS - 5))) {
+	if (((BIT(cphase, PG_BITS - 8 + DP_BASE_BITS) ^
+	      BIT(cphase, PG_BITS - 1 + DP_BASE_BITS)) |
+	     BIT(cphase, PG_BITS - 7 + DP_BASE_BITS)) ^
+	    ( BIT(cphase_cym, PG_BITS - 7 + DP_BASE_BITS) &
+	     !BIT(cphase_cym, PG_BITS - 5 + DP_BASE_BITS))) {
 		dbout = noise ? DB_NEG(12.0) : DB_NEG(24.0);
 	} else {
 		dbout = noise ? DB_POS(12.0) : DB_POS(24.0);
@@ -1211,11 +1211,11 @@ inline void Global::calcSample(
 		}
 		if (channelActiveBits & (1 << 8)) {
 			bufs[ 8][sample] =
-				adjust(-2 * ch8.car.calc_slot_cym(ch7.mod.pgout));
+				adjust(-2 * ch8.car.calc_slot_cym(ch7.mod.cphase));
 		}
 		if (channelActiveBits & (1 << (7 + 9))) {
 			bufs[ 9][sample] =
-				adjust(2 * ch7.mod.calc_slot_hat(ch8.car.pgout,
+				adjust(2 * ch7.mod.calc_slot_hat(ch8.car.cphase,
 				                                 noise_seed & 1));
 		}
 		if (channelActiveBits & (1 << (8 + 9))) {
