@@ -1586,25 +1586,24 @@ void Global::writeReg(byte r, byte v, const EmuTime& time)
 		}
 		break;
 	}
-	case 0x10:
-	case 0x20: { // block, fnum, sus, keyon
+	case 0x10: {
+		// 10-18: FNUM 0-7
 		Channel& ch = getChannelForReg(r);
-		if (r & 0x10) {
-			// 10-18: FNUM 0-7
-			ch.setFrequencyLow(v);
-		} else {
-			// 20-28: suson, keyon, block, FNUM 8
-			ch.slots[SLOT1].setKeyOnOff(KEY_MAIN, v & 0x10);
-			ch.slots[SLOT2].setKeyOnOff(KEY_MAIN, v & 0x10);
-			ch.setSustain(v & 0x20);
-			// Note: When changing the frequency, a new value for RS is
-			//       computed using the sustain value, so make sure the new
-			//       sustain value is committed first.
-			ch.setFrequencyHigh(v & 0x0F);
-		}
+		ch.setFrequencyLow(v);
 		break;
 	}
-
+	case 0x20: {
+		// 20-28: suson, keyon, block, FNUM 8
+		Channel& ch = getChannelForReg(r);
+		ch.slots[SLOT1].setKeyOnOff(KEY_MAIN, v & 0x10);
+		ch.slots[SLOT2].setKeyOnOff(KEY_MAIN, v & 0x10);
+		ch.setSustain(v & 0x20);
+		// Note: When changing the frequency, a new value for RS is
+		//       computed using the sustain value, so make sure the new
+		//       sustain value is committed first.
+		ch.setFrequencyHigh(v & 0x0F);
+		break;
+	}
 	case 0x30: { // inst 4 MSBs, VOL 4 LSBs
 		Channel& ch = getChannelForReg(r);
 
@@ -1631,7 +1630,6 @@ void Global::writeReg(byte r, byte v, const EmuTime& time)
 		}
 		break;
 	}
-
 	default:
 		break;
 	}
