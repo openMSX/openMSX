@@ -1441,9 +1441,12 @@ void Global::generateChannels(int** bufs, unsigned num)
 {
 	// TODO make channelActiveBits a member and
 	//      keep it up-to-date all the time
-	const int numMelodicChannels = getNumMelodicChannels();
+
+	// bits 0-8  -> ch[0-8][slot2]
+	// bits 9-17 -> ch[0-8][slot1] (only ch7 and ch8 used)
 	unsigned channelActiveBits = 0;
-	for (int ch = 0; ch < numMelodicChannels; ++ch) {
+
+	for (int ch = 0; ch < 9; ++ch) {
 		if (channels[ch].slots[SLOT2].isActive()) {
 			channelActiveBits |= 1 << ch;
 		} else {
@@ -1451,40 +1454,17 @@ void Global::generateChannels(int** bufs, unsigned num)
 		}
 	}
 	if (rhythm) {
-		// Envelope generation based on:
-		//   BD  channel 6->slot2 (slot1 for phase modulation)
-		//   HH  channel 7->slot1
-		//   SD  channel 7->slot2
-		//   TOM channel 8->slot1
-		//   TOP channel 8->slot2
-
-		if (channels[6].slots[SLOT2].isActive()) {
-			channelActiveBits |= 1 << 6;
-		} else {
-			bufs[6] = 0;
-		}
 		if (channels[7].slots[SLOT1].isActive()) {
-			channelActiveBits |= 1 << 7;
-		} else {
-			bufs[7] = 0;
-		}
-		if (channels[7].slots[SLOT2].isActive()) {
-			channelActiveBits |= 1 << 8;
-		} else {
-			bufs[8] = 0;
-		}
-		if (channels[8].slots[SLOT1].isActive()) {
-			channelActiveBits |= 1 << 9;
+			channelActiveBits |= 1 << (7 + 9);
 		} else {
 			bufs[9] = 0;
 		}
-		if (channels[8].slots[SLOT2].isActive()) {
-			channelActiveBits |= 1 << 10;
+		if (channels[8].slots[SLOT1].isActive()) {
+			channelActiveBits |= 1 << (8 + 9);
 		} else {
 			bufs[10] = 0;
 		}
 	} else {
-		// channel [6..8] are used for melody
 		bufs[ 9] = 0;
 		bufs[10] = 0;
 	}
@@ -1502,6 +1482,8 @@ void Global::generateChannels(int** bufs, unsigned num)
 		}
 		idleSamples += num;
 	}
+
+	const int numMelodicChannels = getNumMelodicChannels();
 	for (unsigned i = 0; i < num; ++i) {
 		advanceLFO();
 		for (int ch = 0; ch < numMelodicChannels; ++ch) {
@@ -1529,28 +1511,28 @@ void Global::generateChannels(int** bufs, unsigned num)
 			//       Possible by passing phase generator as a template parameter to
 			//       calcOutput.
 
-			// High Hat (verified on real YM3812)
-			if (channelActiveBits & (1 << 7)) {
-				Slot& SLOT7_1 = channels[7].slots[SLOT1];
-				bufs[7][i] = adjust(2 * SLOT7_1.calcOutput(genPhaseHighHat()));
-			}
-
 			// Snare Drum (verified on real YM3812)
-			if (channelActiveBits & (1 << 8)) {
+			if (channelActiveBits & (1 << 7)) {
 				Slot& SLOT7_2 = channels[7].slots[SLOT2];
-				bufs[8][i] = adjust(2 * SLOT7_2.calcOutput(genPhaseSnare()));
-			}
-
-			// Tom Tom (verified on real YM3812)
-			if (channelActiveBits & (1 << 9)) {
-				Slot& SLOT8_1 = channels[8].slots[SLOT1];
-				bufs[9][i] = adjust(2 * SLOT8_1.calcOutput(SLOT8_1.getPhase()));
+				bufs[7][i] = adjust(2 * SLOT7_2.calcOutput(genPhaseSnare()));
 			}
 
 			// Top Cymbal (verified on real YM2413)
-			if (channelActiveBits & (1 << 10)) {
+			if (channelActiveBits & (1 << 8)) {
 				Slot& SLOT8_2 = channels[8].slots[SLOT2];
-				bufs[10][i] = adjust(2 * SLOT8_2.calcOutput(genPhaseCymbal()));
+				bufs[8][i] = adjust(2 * SLOT8_2.calcOutput(genPhaseCymbal()));
+			}
+
+			// High Hat (verified on real YM3812)
+			if (channelActiveBits & (1 << (7 + 9))) {
+				Slot& SLOT7_1 = channels[7].slots[SLOT1];
+				bufs[9][i] = adjust(2 * SLOT7_1.calcOutput(genPhaseHighHat()));
+			}
+
+			// Tom Tom (verified on real YM3812)
+			if (channelActiveBits & (1 << (8 + 9))) {
+				Slot& SLOT8_1 = channels[8].slots[SLOT1];
+				bufs[10][i] = adjust(2 * SLOT8_1.calcOutput(SLOT8_1.getPhase()));
 			}
 		}
 		advance();

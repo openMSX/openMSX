@@ -1180,7 +1180,7 @@ inline void Global::calcSample(
 	//           (in other words, if the bypass is only for speed)
 	int m = isRhythm() ? 6 : 9;
 	for (int i = 0; i < m; ++i) {
-		if ((channelActiveBits >> i) & 1) {
+		if (channelActiveBits & (1 << i)) {
 			Channel& ch = channels[i];
 			bufs[i][sample] = (ch.car.eg_mode != FINISH)
 				? adjust(ch.car.calc_slot_car(ch.mod.calc_slot_mod()))
@@ -1188,35 +1188,33 @@ inline void Global::calcSample(
 		}
 	}
 	if (isRhythm()) {
-		if (channelActiveBits & (1 << 6)) {
-			Channel& ch6 = channels[6];
-			bufs[ 6][sample] = (ch6.car.eg_mode != FINISH)
-				?  adjust(2 * ch6.car.calc_slot_car(ch6.mod.calc_slot_mod()))
-				: 0;
-		}
-
+		Channel& ch6 = channels[6];
 		Channel& ch7 = channels[7];
 		Channel& ch8 = channels[8];
+		if (channelActiveBits & (1 << 6)) {
+			bufs[ 6][sample] = (ch6.car.eg_mode != FINISH)
+				? adjust(2 * ch6.car.calc_slot_car(ch6.mod.calc_slot_mod()))
+				: 0;
+		}
 		if (channelActiveBits & (1 << 7)) {
-			bufs[ 7][sample] = (ch7.mod.eg_mode != FINISH)
+			bufs[ 7][sample] = (ch7.car.eg_mode != FINISH)
+				? adjust(-2 * ch7.car.calc_slot_snare(noise_seed & 1))
+				: 0;
+		}
+		if (channelActiveBits & (1 << 8)) {
+			bufs[ 8][sample] = (ch8.car.eg_mode != FINISH)
+				? adjust(-2 * ch8.car.calc_slot_cym(ch7.mod.pgout))
+				: 0;
+		}
+		if (channelActiveBits & (1 << (7 + 9))) {
+			bufs[ 9][sample] = (ch7.mod.eg_mode != FINISH)
 				? adjust(2 * ch7.mod.calc_slot_hat(ch8.car.pgout,
 					noise_seed & 1))
 				: 0;
 		}
-		if (channelActiveBits & (1 << 8)) {
-			bufs[ 8][sample] = (ch7.car.eg_mode != FINISH)
-				? adjust(-2 * ch7.car.calc_slot_snare(noise_seed & 1))
-				: 0;
-		}
-
-		if (channelActiveBits & (1 << 9)) {
-			bufs[ 9][sample] = (ch8.mod.eg_mode != FINISH)
+		if (channelActiveBits & (1 << (8 + 9))) {
+			bufs[10][sample] = (ch8.mod.eg_mode != FINISH)
 				? adjust( 2 * ch8.mod.calc_slot_tom())
-				: 0;
-		}
-		if (channelActiveBits & (1 << 10)) {
-			bufs[10][sample] = (ch8.car.eg_mode != FINISH)
-				? adjust(-2 * ch8.car.calc_slot_cym(ch7.mod.pgout))
 				: 0;
 		}
 	}
@@ -1226,9 +1224,12 @@ void Global::generateChannels(int** bufs, unsigned num)
 {
 	// TODO make channelActiveBits a member and
 	//      keep it up-to-date all the time
-	const int numMelodicChannels = isRhythm() ? 6 : 9;
+
+	// bits 0-8  -> ch[0-8].car
+	// bits 9-17 -> ch[0-8].mod (only ch7 and ch8 are used)
 	unsigned channelActiveBits = 0;
-	for (int ch = 0; ch < numMelodicChannels; ch++) {
+
+	for (int ch = 0; ch < 9; ++ch) {
 		if (channels[ch].car.eg_mode != FINISH) {
 			channelActiveBits |= 1 << ch;
 		} else {
@@ -1236,33 +1237,17 @@ void Global::generateChannels(int** bufs, unsigned num)
 		}
 	}
 	if (isRhythm()) {
-		if (channels[6].car.eg_mode != FINISH) {
-			channelActiveBits |= 1 << 6;
-		} else {
-			bufs[6] = 0;
-		}
 		if (channels[7].mod.eg_mode != FINISH) {
-			channelActiveBits |= 1 << 7;
-		} else {
-			bufs[7] = 0;
-		}
-		if (channels[7].car.eg_mode != FINISH) {
-			channelActiveBits |= 1 << 8;
-		} else {
-			bufs[8] = 0;
-		}
-		if (channels[8].mod.eg_mode != FINISH) {
-			channelActiveBits |= 1 << 9;
+			channelActiveBits |= 1 << (7 + 9);
 		} else {
 			bufs[9] = 0;
 		}
-		if (channels[8].car.eg_mode != FINISH) {
-			channelActiveBits |= 1 << 10;
+		if (channels[8].mod.eg_mode != FINISH) {
+			channelActiveBits |= 1 << (8 + 9);
 		} else {
 			bufs[10] = 0;
 		}
 	} else {
-		// channel [6..8] are used for melody
 		bufs[ 9] = 0;
 		bufs[10] = 0;
 	}
