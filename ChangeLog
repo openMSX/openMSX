@@ -1,5 +1,9 @@
 $Id$
 
+2007-12-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Various optimizations in YM2413:
+	   Combined I could measure upto 10% speedup.
+
 2007-12-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimized BitmapConverter::renderGraphic4() and renderGraphic6():
 	   Created a 16x16 table to lookup two pixels at once. This helps
