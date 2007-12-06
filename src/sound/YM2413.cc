@@ -1076,8 +1076,8 @@ void Slot::calc_envelope(int lfo_am)
 		break;
 	case FINISH:
 	default:
-		out = (1 << EG_BITS) - 1;
-		break;
+		egout = DB_MUTE - 1;
+		return;
 	}
 	out = EG2DB(out + tll);
 	if (patch->AM) {
