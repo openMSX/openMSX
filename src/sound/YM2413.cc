@@ -37,6 +37,13 @@ public:
 	void initModulator(const byte* data);
 	void initCarrier(const byte* data);
 
+	/**
+	 * Sets the amount of feedback [0..7].
+	 */
+	void setFeedbackShift(byte value) {
+		FB = value ? 8 - value : 0;
+	}
+
 	bool AM, PM, EG;
 	byte KR; // 0-1
 	byte ML; // 0-15
@@ -528,9 +535,10 @@ static void makeRksTable()
 
 Patch::Patch()
 	: AM(false), PM(false), EG(false)
-	, KR(0), ML(0), KL(0), TL(0), FB(0)
+	, KR(0), ML(0), KL(0), TL(0)
 	, WF(0), AR(0), DR(0), SL(0), RR(0)
 {
+	setFeedbackShift(0);
 }
 
 void Patch::initModulator(const byte* data)
@@ -542,12 +550,12 @@ void Patch::initModulator(const byte* data)
 	ML = (data[0] >> 0) & 15;
 	KL = (data[2] >> 6) & 3;
 	TL = (data[2] >> 0) & 63;
-	FB = (data[3] >> 0) & 7;
 	WF = (data[3] >> 3) & 1;
 	AR = (data[4] >> 4) & 15;
 	DR = (data[4] >> 0) & 15;
 	SL = (data[6] >> 4) & 15;
 	RR = (data[6] >> 0) & 15;
+	setFeedbackShift((data[3] >> 0) & 7);
 }
 
 void Patch::initCarrier(const byte* data)
@@ -559,12 +567,12 @@ void Patch::initCarrier(const byte* data)
 	ML = (data[1] >> 0) & 15;
 	KL = (data[3] >> 6) & 3;
 	TL = 0;
-	FB = 0;
 	WF = (data[3] >> 4) & 1;
 	AR = (data[5] >> 4) & 15;
 	DR = (data[5] >> 0) & 15;
 	SL = (data[7] >> 4) & 15;
 	RR = (data[7] >> 0) & 15;
+	setFeedbackShift(0);
 }
 
 //************************************************************//
@@ -1096,8 +1104,8 @@ int Slot::calc_slot_mod()
 {
 	output[1] = output[0];
 	int phase = cphase >> DP_BASE_BITS;
-	if (patch->FB != 0) {
-		phase += wave2_4pi(feedback) >> (7 - patch->FB);
+	if (patch->FB) {
+		phase += wave2_8pi(feedback) >> patch->FB;
 	}
 	output[0] = dB2LinTab[sintbl[phase & PG_MASK] + egout];
 	feedback = (output[1] + output[0]) >> 1;
@@ -1331,7 +1339,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 		patches[0][1].KL = (data >> 6) & 3;
 		patches[0][1].WF = (data >> 4) & 1;
 		patches[0][0].WF = (data >> 3) & 1;
-		patches[0][0].FB = (data >> 0) & 7;
+		patches[0][0].setFeedbackShift((data >> 0) & 7);
 		for (int i = 0; i < 9; ++i) {
 			Channel& ch = channels[i];
 			if (ch.patch_number == 0) {
