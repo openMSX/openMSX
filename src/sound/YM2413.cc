@@ -1182,21 +1182,19 @@ inline void Global::advance()
 inline void Global::calcSample(
 	int** bufs, unsigned sample, unsigned channelActiveBits)
 {
-	// TODO: What to do with channels that enter FINISH state during
-	//       one generateChannels() call?
-	//        1. check both channelActiveBits and state
-	//           currently implemented; safe but maybe slow
-	//        2. update channelActiveBits
-	//        3. ignore state
-	//           only correct if the computed sample is 0
-	//           (in other words, if the bypass is only for speed)
+	// In the past we had a check to avoid calling the various
+	// calc_slot_xx() methods in case Slot::isActive() returned false. In
+	// that case the output will always be zero. However we already do
+	// mostly the same optimization with the channelActiveBits (it's still
+	// possible the channel becomes inactive during the loop in
+	// generateChannels()). So this additional check was a pessimization.
+
 	int m = isRhythm() ? 6 : 9;
 	for (int i = 0; i < m; ++i) {
 		if (channelActiveBits & (1 << i)) {
 			Channel& ch = channels[i];
-			bufs[i][sample] = ch.car.isActive()
-				? adjust(ch.car.calc_slot_car(ch.mod.calc_slot_mod()))
-				: 0;
+			bufs[i][sample] =
+				adjust(ch.car.calc_slot_car(ch.mod.calc_slot_mod()));
 		}
 	}
 	if (isRhythm()) {
@@ -1204,30 +1202,25 @@ inline void Global::calcSample(
 		Channel& ch7 = channels[7];
 		Channel& ch8 = channels[8];
 		if (channelActiveBits & (1 << 6)) {
-			bufs[ 6][sample] = ch6.car.isActive()
-				? adjust(2 * ch6.car.calc_slot_car(ch6.mod.calc_slot_mod()))
-				: 0;
+			bufs[ 6][sample] =
+				adjust(2 * ch6.car.calc_slot_car(ch6.mod.calc_slot_mod()));
 		}
 		if (channelActiveBits & (1 << 7)) {
-			bufs[ 7][sample] = ch7.car.isActive()
-				? adjust(-2 * ch7.car.calc_slot_snare(noise_seed & 1))
-				: 0;
+			bufs[ 7][sample] =
+				adjust(-2 * ch7.car.calc_slot_snare(noise_seed & 1));
 		}
 		if (channelActiveBits & (1 << 8)) {
-			bufs[ 8][sample] = ch8.car.isActive()
-				? adjust(-2 * ch8.car.calc_slot_cym(ch7.mod.pgout))
-				: 0;
+			bufs[ 8][sample] =
+				adjust(-2 * ch8.car.calc_slot_cym(ch7.mod.pgout));
 		}
 		if (channelActiveBits & (1 << (7 + 9))) {
-			bufs[ 9][sample] = ch7.mod.isActive()
-				? adjust(2 * ch7.mod.calc_slot_hat(ch8.car.pgout,
-					noise_seed & 1))
-				: 0;
+			bufs[ 9][sample] =
+				adjust(2 * ch7.mod.calc_slot_hat(ch8.car.pgout,
+				                                 noise_seed & 1));
 		}
 		if (channelActiveBits & (1 << (8 + 9))) {
-			bufs[10][sample] = ch8.mod.isActive()
-				? adjust( 2 * ch8.mod.calc_slot_tom())
-				: 0;
+			bufs[10][sample] =
+				adjust(2 * ch8.mod.calc_slot_tom());
 		}
 	}
 }
