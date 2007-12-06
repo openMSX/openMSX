@@ -22,7 +22,7 @@ typedef FixedPoint<8> PhaseModulation;
 typedef FixedPoint<15> EnvPhaseIndex;
 static const EnvPhaseIndex EG_DP_MAX = EnvPhaseIndex(1 << 7);
 
-enum EnvelopeMode {
+enum EnvelopeState {
 	ATTACK, DECAY, SUSHOLD, SUSTAIN, RELEASE, SETTLE, FINISH
 	};
 
@@ -54,6 +54,9 @@ class Slot {
 public:
 	explicit Slot(bool type);
 	void reset(bool type);
+
+	inline void setEnvelopeState(EnvelopeState state);
+	inline bool isActive() const;
 
 	inline void slotOn();
 	inline void slotOn2();
@@ -93,7 +96,7 @@ public:
 	int volume;		// Current volume
 	int tll;		// Total Level + Key scale level
 	int rks;		// Key scale offset (Rks)
-	EnvelopeMode eg_mode;	// Current state
+	EnvelopeState state;	// Current state
 	EnvPhaseIndex eg_phase;	// Phase
 	EnvPhaseIndex eg_dphase;	// Phase increment amount
 	unsigned egout;		// output
@@ -584,7 +587,7 @@ void Slot::reset(bool type_)
 	output[0] = 0;
 	output[1] = 0;
 	feedback = 0;
-	eg_mode = FINISH;
+	setEnvelopeState(FINISH);
 	eg_phase = EG_DP_MAX;
 	eg_dphase = EnvPhaseIndex(0);
 	rks = 0;
@@ -622,7 +625,7 @@ void Slot::updateWF()
 
 void Slot::updateEG()
 {
-	switch (eg_mode) {
+	switch (state) {
 	case ATTACK:
 		eg_dphase = dphaseARTable[patch->AR][rks];
 		break;
@@ -660,11 +663,20 @@ void Slot::updateAll()
 	updateEG(); // EG should be updated last
 }
 
+void Slot::setEnvelopeState(EnvelopeState state_)
+{
+	state = state_;
+}
+
+bool Slot::isActive() const
+{
+	return state != FINISH;
+}
 
 // Slot key on
 void Slot::slotOn()
 {
-	eg_mode = ATTACK;
+	setEnvelopeState(ATTACK);
 	eg_phase = EnvPhaseIndex(0);
 	phase = 0;
 	updateEG();
@@ -673,7 +685,7 @@ void Slot::slotOn()
 // Slot key on, without resetting the phase
 void Slot::slotOn2()
 {
-	eg_mode = ATTACK;
+	setEnvelopeState(ATTACK);
 	eg_phase = EnvPhaseIndex(0);
 	updateEG();
 }
@@ -681,10 +693,10 @@ void Slot::slotOn2()
 // Slot key off
 void Slot::slotOff()
 {
-	if (eg_mode == ATTACK) {
+	if (state == ATTACK) {
 		eg_phase = EnvPhaseIndex(AR_ADJUST_TABLE[eg_phase.toInt()]);
 	}
-	eg_mode = RELEASE;
+	setEnvelopeState(RELEASE);
 	updateEG();
 }
 
@@ -906,13 +918,13 @@ void Global::update_rhythm_mode()
 	Channel& ch6 = channels[6];
 	if (ch6.patch_number & 0x10) {
 		if (!(ch6.car.slot_on_flag || isRhythm())) {
-			ch6.mod.eg_mode = FINISH;
-			ch6.car.eg_mode = FINISH;
+			ch6.mod.setEnvelopeState(FINISH);
+			ch6.car.setEnvelopeState(FINISH);
 			ch6.setPatch(reg[0x36] >> 4);
 		}
 	} else if (isRhythm()) {
-		ch6.mod.eg_mode = FINISH;
-		ch6.car.eg_mode = FINISH;
+		ch6.mod.setEnvelopeState(FINISH);
+		ch6.car.setEnvelopeState(FINISH);
 		ch6.setPatch(16);
 	}
 
@@ -921,14 +933,14 @@ void Global::update_rhythm_mode()
 		if (!((ch7.mod.slot_on_flag && ch7.car.slot_on_flag) ||
 		      isRhythm())) {
 			ch7.mod.type = false;
-			ch7.mod.eg_mode = FINISH;
-			ch7.car.eg_mode = FINISH;
+			ch7.mod.setEnvelopeState(FINISH);
+			ch7.car.setEnvelopeState(FINISH);
 			ch7.setPatch(reg[0x37] >> 4);
 		}
 	} else if (isRhythm()) {
 		ch7.mod.type = true;
-		ch7.mod.eg_mode = FINISH;
-		ch7.car.eg_mode = FINISH;
+		ch7.mod.setEnvelopeState(FINISH);
+		ch7.car.setEnvelopeState(FINISH);
 		ch7.setPatch(17);
 	}
 
@@ -937,14 +949,14 @@ void Global::update_rhythm_mode()
 		if (!((ch8.mod.slot_on_flag && ch8.car.slot_on_flag) ||
 		      isRhythm())) {
 			ch8.mod.type = false;
-			ch8.mod.eg_mode = FINISH;
-			ch8.car.eg_mode = FINISH;
+			ch8.mod.setEnvelopeState(FINISH);
+			ch8.car.setEnvelopeState(FINISH);
 			ch8.setPatch(reg[0x38] >> 4);
 		}
 	} else if (isRhythm()) {
 		ch8.mod.type = true;
-		ch8.mod.eg_mode = FINISH;
-		ch8.car.eg_mode = FINISH;
+		ch8.mod.setEnvelopeState(FINISH);
+		ch8.car.setEnvelopeState(FINISH);
 		ch8.setPatch(18);
 	}
 }
@@ -1017,14 +1029,14 @@ static const EnvPhaseIndex SL[16] = {
 void Slot::calc_envelope(int lfo_am)
 {
 	unsigned out;
-	switch (eg_mode) {
+	switch (state) {
 	case ATTACK:
 		out = AR_ADJUST_TABLE[eg_phase.toInt()];
 		eg_phase += eg_dphase;
 		if ((eg_phase >= EG_DP_MAX) || (patch->AR == 15)) {
 			out = 0;
 			eg_phase = EnvPhaseIndex(0);
-			eg_mode = DECAY;
+			setEnvelopeState(DECAY);
 			updateEG();
 		}
 		break;
@@ -1033,14 +1045,14 @@ void Slot::calc_envelope(int lfo_am)
 		eg_phase += eg_dphase;
 		if (eg_phase >= SL[patch->SL]) {
 			eg_phase = SL[patch->SL];
-			eg_mode = patch->EG ? SUSHOLD : SUSTAIN;
+			setEnvelopeState(patch->EG ? SUSHOLD : SUSTAIN);
 			updateEG();
 		}
 		break;
 	case SUSHOLD:
 		out = eg_phase.toInt();
 		if (patch->EG == 0) {
-			eg_mode = SUSTAIN;
+			setEnvelopeState(SUSTAIN);
 			updateEG();
 		}
 		break;
@@ -1049,7 +1061,7 @@ void Slot::calc_envelope(int lfo_am)
 		out = eg_phase.toInt();
 		eg_phase += eg_dphase;
 		if (out >= (1 << EG_BITS)) {
-			eg_mode = FINISH;
+			setEnvelopeState(FINISH);
 			out = (1 << EG_BITS) - 1;
 		}
 		break;
@@ -1057,7 +1069,7 @@ void Slot::calc_envelope(int lfo_am)
 		out = eg_phase.toInt();
 		eg_phase += eg_dphase;
 		if (out >= (1 << EG_BITS)) {
-			eg_mode = ATTACK;
+			setEnvelopeState(ATTACK);
 			out = (1 << EG_BITS) - 1;
 			updateEG();
 		}
@@ -1172,17 +1184,17 @@ inline void Global::calcSample(
 {
 	// TODO: What to do with channels that enter FINISH state during
 	//       one generateChannels() call?
-	//        1. check both channelActiveBits and eg_mode
+	//        1. check both channelActiveBits and state
 	//           currently implemented; safe but maybe slow
 	//        2. update channelActiveBits
-	//        3. ignore eg_mode
+	//        3. ignore state
 	//           only correct if the computed sample is 0
 	//           (in other words, if the bypass is only for speed)
 	int m = isRhythm() ? 6 : 9;
 	for (int i = 0; i < m; ++i) {
 		if (channelActiveBits & (1 << i)) {
 			Channel& ch = channels[i];
-			bufs[i][sample] = (ch.car.eg_mode != FINISH)
+			bufs[i][sample] = ch.car.isActive()
 				? adjust(ch.car.calc_slot_car(ch.mod.calc_slot_mod()))
 				: 0;
 		}
@@ -1192,28 +1204,28 @@ inline void Global::calcSample(
 		Channel& ch7 = channels[7];
 		Channel& ch8 = channels[8];
 		if (channelActiveBits & (1 << 6)) {
-			bufs[ 6][sample] = (ch6.car.eg_mode != FINISH)
+			bufs[ 6][sample] = ch6.car.isActive()
 				? adjust(2 * ch6.car.calc_slot_car(ch6.mod.calc_slot_mod()))
 				: 0;
 		}
 		if (channelActiveBits & (1 << 7)) {
-			bufs[ 7][sample] = (ch7.car.eg_mode != FINISH)
+			bufs[ 7][sample] = ch7.car.isActive()
 				? adjust(-2 * ch7.car.calc_slot_snare(noise_seed & 1))
 				: 0;
 		}
 		if (channelActiveBits & (1 << 8)) {
-			bufs[ 8][sample] = (ch8.car.eg_mode != FINISH)
+			bufs[ 8][sample] = ch8.car.isActive()
 				? adjust(-2 * ch8.car.calc_slot_cym(ch7.mod.pgout))
 				: 0;
 		}
 		if (channelActiveBits & (1 << (7 + 9))) {
-			bufs[ 9][sample] = (ch7.mod.eg_mode != FINISH)
+			bufs[ 9][sample] = ch7.mod.isActive()
 				? adjust(2 * ch7.mod.calc_slot_hat(ch8.car.pgout,
 					noise_seed & 1))
 				: 0;
 		}
 		if (channelActiveBits & (1 << (8 + 9))) {
-			bufs[10][sample] = (ch8.mod.eg_mode != FINISH)
+			bufs[10][sample] = ch8.mod.isActive()
 				? adjust( 2 * ch8.mod.calc_slot_tom())
 				: 0;
 		}
@@ -1230,19 +1242,19 @@ void Global::generateChannels(int** bufs, unsigned num)
 	unsigned channelActiveBits = 0;
 
 	for (int ch = 0; ch < 9; ++ch) {
-		if (channels[ch].car.eg_mode != FINISH) {
+		if (channels[ch].car.isActive()) {
 			channelActiveBits |= 1 << ch;
 		} else {
 			bufs[ch] = 0;
 		}
 	}
 	if (isRhythm()) {
-		if (channels[7].mod.eg_mode != FINISH) {
+		if (channels[7].mod.isActive()) {
 			channelActiveBits |= 1 << (7 + 9);
 		} else {
 			bufs[9] = 0;
 		}
-		if (channels[8].mod.eg_mode != FINISH) {
+		if (channels[8].mod.isActive()) {
 			channelActiveBits |= 1 << (8 + 9);
 		} else {
 			bufs[10] = 0;

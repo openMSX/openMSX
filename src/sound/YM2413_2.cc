@@ -423,6 +423,12 @@ public:
 		return state != EG_OFF;
 	}
 
+	/** Change envelope state
+	 */
+	void setEnvelopeState(EnvelopeState state_) {
+		state = state_;
+	}
+
 	/**
 	 * Returns the integer part of the frequency counter of this slot.
 	 */
@@ -821,7 +827,7 @@ inline void Slot::advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier)
 			volume += eg_inc[eg_sel_dp][(eg_cnt >> eg_sh_dp) & 7];
 			if (volume >= MAX_ATT_INDEX) {
 				volume = MAX_ATT_INDEX;
-				state = EG_ATTACK;
+				setEnvelopeState(EG_ATTACK);
 				phase = FreqIndex(0); // restart Phase Generator
 			}
 		}
@@ -833,7 +839,7 @@ inline void Slot::advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier)
 				(~volume * eg_inc[eg_sel_ar][(eg_cnt >> eg_sh_ar) & 7]) >> 2;
 			if (volume <= MIN_ATT_INDEX) {
 				volume = MIN_ATT_INDEX;
-				state = EG_DECAY;
+				setEnvelopeState(EG_DECAY);
 			}
 		}
 		break;
@@ -842,7 +848,7 @@ inline void Slot::advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier)
 		if (!(eg_cnt & ((1 << eg_sh_dr) - 1))) {
 			volume += eg_inc[eg_sel_dr][(eg_cnt >> eg_sh_dr) & 7];
 			if (volume >= sl) {
-				state = EG_SUSTAIN;
+				setEnvelopeState(EG_SUSTAIN);
 			}
 		}
 		break;
@@ -880,7 +886,7 @@ inline void Slot::advanceEnvelopeGenerator(unsigned eg_cnt, bool carrier)
 				volume += eg_inc[sel][(eg_cnt >> shift) & 7];
 				if (volume >= MAX_ATT_INDEX) {
 					volume = MAX_ATT_INDEX;
-					state = EG_OFF;
+					setEnvelopeState(EG_OFF);
 				}
 			}
 		}
@@ -1157,7 +1163,7 @@ void Slot::setKeyOn(KeyPart part)
 {
 	if (!key) {
 		// do NOT restart Phase Generator (verified on real YM2413)
-		state = EG_DUMP;
+		setEnvelopeState(EG_DUMP);
 	}
 	key |= part;
 }
@@ -1167,8 +1173,8 @@ void Slot::setKeyOff(KeyPart part)
 	if (key) {
 		key &= ~part;
 		if (!key) {
-			if (state != EG_OFF) {
-				state = EG_RELEASE;
+			if (isActive()) {
+				setEnvelopeState(EG_RELEASE);
 			}
 		}
 	}
@@ -1183,7 +1189,7 @@ Slot::Slot()
 	eg_sh_dp = eg_sel_dp = eg_sh_ar = eg_sel_ar = eg_sh_dr = 0;
 	eg_sel_dr = eg_sh_rr = eg_sel_rr = eg_sh_rs = eg_sel_rs = 0;
 	eg_sustain = false;
-	state = EG_OFF;
+	setEnvelopeState(EG_OFF);
 	key = AMmask = vib = 0;
 	wavetable = &sin_tab[0 * SIN_LEN];
 }
@@ -1197,7 +1203,7 @@ void Slot::init(Global& global, Channel& channel)
 void Slot::resetOperators()
 {
 	wavetable = &sin_tab[0 * SIN_LEN];
-	state     = EG_OFF;
+	setEnvelopeState(EG_OFF);
 	volume    = MAX_ATT_INDEX;
 }
 
