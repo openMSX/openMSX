@@ -29,22 +29,22 @@
 namespace openmsx {
 
 // envelope output entries
-const int ENV_BITS = 10;
-const double ENV_STEP = 128.0 / (1 << ENV_BITS);
+static const int ENV_BITS = 10;
+static const double ENV_STEP = 128.0 / (1 << ENV_BITS);
 
-const int MAX_ATT_INDEX = (1 << (ENV_BITS - 2)) - 1;	// 255
-const int MIN_ATT_INDEX = 0;
+static const int MAX_ATT_INDEX = (1 << (ENV_BITS - 2)) - 1;	// 255
+static const int MIN_ATT_INDEX = 0;
 
 // sinwave entries
-const int SIN_BITS = 10;
-const int SIN_LEN  = 1 << SIN_BITS;
-const int SIN_MASK = SIN_LEN - 1;
+static const int SIN_BITS = 10;
+static const int SIN_LEN  = 1 << SIN_BITS;
+static const int SIN_MASK = SIN_LEN - 1;
 
-const int TL_RES_LEN = 256;	// 8 bits addressing (real chip)
+static const int TL_RES_LEN = 256;	// 8 bits addressing (real chip)
 
 // Slot offsets
-const byte SLOT1 = 0;
-const byte SLOT2 = 1;
+static const byte MOD = 0;
+static const byte CAR = 1;
 
 // Envelope Generator phases
 // Note: These are ordered: phase constants are compared in the code.
@@ -569,7 +569,7 @@ private:
 	int sl;		// sustain level: sl_tab[SL]
 	EnvelopeState state;
 
-	int op1_out[2];	// slot1 output for feedback
+	int op1_out[2];	// MOD output for feedback
 	bool eg_sustain;// percussive/nonpercussive mode
 	byte fb_shift;	// feedback shift value
 
@@ -1024,9 +1024,8 @@ inline void Slot::updateModulator()
 
 inline int Channel::calcOutput() const
 {
-	return slots[SLOT2].calcOutput(
-		slots[SLOT2].getPhase() + slots[SLOT1].getPhaseModulation()
-		);
+	return slots[CAR].calcOutput(
+		slots[CAR].getPhase() + slots[MOD].getPhaseModulation());
 }
 
 
@@ -1073,11 +1072,11 @@ inline int Global::genPhaseHighHat()
 	// hi == phase >= 0x200
 	bool hi;
 	// enable gate based on frequency of operator 2 in channel 8
-	if (channels[8].slots[SLOT2].getPhase() & 0x28) {
+	if (channels[8].slots[CAR].getPhase() & 0x28) {
 		hi = true;
 	} else {
 		// base frequency derived from operator 1 in channel 7
-		const int op71phase = channels[7].slots[SLOT1].getPhase();
+		const int op71phase = channels[7].slots[MOD].getPhase();
 		const bool bit7 = op71phase & 0x80;
 		const bool bit3 = op71phase & 0x08;
 		const bool bit2 = op71phase & 0x04;
@@ -1094,18 +1093,18 @@ inline int Global::genPhaseSnare()
 {
 	// base frequency derived from operator 1 in channel 7
 	// noise bit XOR'es phase by 0x100
-	return ((channels[7].slots[SLOT1].getPhase() & 0x100) + 0x100)
+	return ((channels[7].slots[MOD].getPhase() & 0x100) + 0x100)
 	     ^ ((noise_rng & 1) << 8);
 }
 
 inline int Global::genPhaseCymbal()
 {
 	// enable gate based on frequency of operator 2 in channel 8
-	if (channels[8].slots[SLOT2].getPhase() & 0x28) {
+	if (channels[8].slots[CAR].getPhase() & 0x28) {
 		return 0x300;
 	} else {
 		// base frequency derived from operator 1 in channel 7
-		const int op71Phase = channels[7].slots[SLOT1].getPhase();
+		const int op71Phase = channels[7].slots[MOD].getPhase();
 		const bool bit7 = op71Phase & 0x80;
 		const bool bit3 = op71Phase & 0x08;
 		const bool bit2 = op71Phase & 0x04;
@@ -1241,8 +1240,8 @@ Channel::Channel()
 void Channel::init(Global& global)
 {
 	this->global = &global;
-	slots[SLOT1].init(global, *this);
-	slots[SLOT2].init(global, *this);
+	slots[MOD].init(global, *this);
+	slots[CAR].init(global, *this);
 }
 
 void Channel::setFrequency(int block_fnum)
@@ -1258,15 +1257,15 @@ void Channel::setFrequency(int block_fnum)
 	fc       = fnumToIncrement(block_fnum * 2);
 
 	// Refresh Total Level and frequency counter in both SLOTs of this channel.
-	slots[SLOT1].updateFrequency();
-	slots[SLOT2].updateFrequency();
+	slots[MOD].updateFrequency();
+	slots[CAR].updateFrequency();
 }
 
 void Channel::updateInstrumentPart(int instrument, int part)
 {
 	const byte* inst = global->getInstrument(instrument);
-	Slot& slot1 = slots[SLOT1];
-	Slot& slot2 = slots[SLOT2];
+	Slot& mod = slots[MOD];
+	Slot& car = slots[CAR];
 	switch (part) {
 	case 0:
 	case 1: {
@@ -1281,30 +1280,30 @@ void Channel::updateInstrumentPart(int instrument, int part)
 		break;
 	}
 	case 2:
-		slot1.setKeyScaleLevel(inst[2] >> 6);
-		slot1.setTotalLevel(inst[2] & 0x3F);
+		mod.setKeyScaleLevel(inst[2] >> 6);
+		mod.setTotalLevel(inst[2] & 0x3F);
 		break;
 	case 3:
-		slot1.setWaveform((inst[3] & 0x08) >> 3);
-		slot1.setFeedbackShift(inst[3] & 0x07);
-		slot2.setKeyScaleLevel(inst[3] >> 6);
-		slot2.setWaveform((inst[3] & 0x10) >> 4);
+		mod.setWaveform((inst[3] & 0x08) >> 3);
+		mod.setFeedbackShift(inst[3] & 0x07);
+		car.setKeyScaleLevel(inst[3] >> 6);
+		car.setWaveform((inst[3] & 0x10) >> 4);
 		break;
 	case 4:
-		slot1.setAttackRate(inst[4] >> 4);
-		slot1.setDecayRate(inst[4] & 0x0F);
+		mod.setAttackRate(inst[4] >> 4);
+		mod.setDecayRate(inst[4] & 0x0F);
 		break;
 	case 5:
-		slot2.setAttackRate(inst[5] >> 4);
-		slot2.setDecayRate(inst[5] & 0x0F);
+		car.setAttackRate(inst[5] >> 4);
+		car.setDecayRate(inst[5] & 0x0F);
 		break;
 	case 6:
-		slot1.setSustainLevel(inst[6] >> 4);
-		slot1.setReleaseRate(inst[6] & 0x0F);
+		mod.setSustainLevel(inst[6] >> 4);
+		mod.setReleaseRate(inst[6] & 0x0F);
 		break;
 	case 7:
-		slot2.setSustainLevel(inst[7] >> 4);
-		slot2.setReleaseRate(inst[7] & 0x0F);
+		car.setSustainLevel(inst[7] >> 4);
+		car.setReleaseRate(inst[7] & 0x0F);
 		break;
 	}
 }
@@ -1368,26 +1367,26 @@ void Global::setRhythmMode(bool rhythm)
 		// High hat and snare drum.
 		Channel& ch7 = channels[7];
 		ch7.updateInstrument(17);
-		ch7.slots[SLOT1].setTotalLevel((ch7.instvol_r >> 4) << 2); // High hat
+		ch7.slots[MOD].setTotalLevel((ch7.instvol_r >> 4) << 2); // High hat
 		// Tom-tom and top cymbal.
 		Channel& ch8 = channels[8];
 		ch8.updateInstrument(18);
-		ch8.slots[SLOT1].setTotalLevel((ch8.instvol_r >> 4) << 2); // Tom-tom
+		ch8.slots[MOD].setTotalLevel((ch8.instvol_r >> 4) << 2); // Tom-tom
 	} else { // ON -> OFF
 		channels[6].updateInstrument();
 		channels[7].updateInstrument();
 		channels[8].updateInstrument();
 		// BD key off
-		channels[6].slots[SLOT1].setKeyOff(KEY_RHYTHM);
-		channels[6].slots[SLOT2].setKeyOff(KEY_RHYTHM);
+		channels[6].slots[MOD].setKeyOff(KEY_RHYTHM);
+		channels[6].slots[CAR].setKeyOff(KEY_RHYTHM);
 		// HH key off
-		channels[7].slots[SLOT1].setKeyOff(KEY_RHYTHM);
+		channels[7].slots[MOD].setKeyOff(KEY_RHYTHM);
 		// SD key off
-		channels[7].slots[SLOT2].setKeyOff(KEY_RHYTHM);
+		channels[7].slots[CAR].setKeyOff(KEY_RHYTHM);
 		// TOM key off
-		channels[8].slots[SLOT1].setKeyOff(KEY_RHYTHM);
+		channels[8].slots[MOD].setKeyOff(KEY_RHYTHM);
 		// TOP-CY off
-		channels[8].slots[SLOT2].setKeyOff(KEY_RHYTHM);
+		channels[8].slots[CAR].setKeyOff(KEY_RHYTHM);
 	}
 }
 
@@ -1397,16 +1396,16 @@ void Global::setRhythmFlags(byte flags)
 	setRhythmMode(flags & 0x20);
 	if (rhythm) {
 		// BD key on/off
-		channels[6].slots[SLOT1].setKeyOnOff(KEY_RHYTHM, flags & 0x10);
-		channels[6].slots[SLOT2].setKeyOnOff(KEY_RHYTHM, flags & 0x10);
+		channels[6].slots[MOD].setKeyOnOff(KEY_RHYTHM, flags & 0x10);
+		channels[6].slots[CAR].setKeyOnOff(KEY_RHYTHM, flags & 0x10);
 		// HH key on/off
-		channels[7].slots[SLOT1].setKeyOnOff(KEY_RHYTHM, flags & 0x01);
+		channels[7].slots[MOD].setKeyOnOff(KEY_RHYTHM, flags & 0x01);
 		// SD key on/off
-		channels[7].slots[SLOT2].setKeyOnOff(KEY_RHYTHM, flags & 0x08);
+		channels[7].slots[CAR].setKeyOnOff(KEY_RHYTHM, flags & 0x08);
 		// TOM key on/off
-		channels[8].slots[SLOT1].setKeyOnOff(KEY_RHYTHM, flags & 0x04);
+		channels[8].slots[MOD].setKeyOnOff(KEY_RHYTHM, flags & 0x04);
 		// TOP-CY key on/off
-		channels[8].slots[SLOT2].setKeyOnOff(KEY_RHYTHM, flags & 0x02);
+		channels[8].slots[CAR].setKeyOnOff(KEY_RHYTHM, flags & 0x02);
 	}
 }
 
@@ -1448,24 +1447,24 @@ void Global::generateChannels(int** bufs, unsigned num)
 	// TODO make channelActiveBits a member and
 	//      keep it up-to-date all the time
 
-	// bits 0-8  -> ch[0-8][slot2]
-	// bits 9-17 -> ch[0-8][slot1] (only ch7 and ch8 used)
+	// bits 0-8  -> ch[0-8][CAR]
+	// bits 9-17 -> ch[0-8][MOD] (only ch7 and ch8 used)
 	unsigned channelActiveBits = 0;
 
 	for (int ch = 0; ch < 9; ++ch) {
-		if (channels[ch].slots[SLOT2].isActive()) {
+		if (channels[ch].slots[CAR].isActive()) {
 			channelActiveBits |= 1 << ch;
 		} else {
 			bufs[ch] = 0;
 		}
 	}
 	if (rhythm) {
-		if (channels[7].slots[SLOT1].isActive()) {
+		if (channels[7].slots[MOD].isActive()) {
 			channelActiveBits |= 1 << (7 + 9);
 		} else {
 			bufs[9] = 0;
 		}
-		if (channels[8].slots[SLOT1].isActive()) {
+		if (channels[8].slots[MOD].isActive()) {
 			channelActiveBits |= 1 << (8 + 9);
 		} else {
 			bufs[10] = 0;
@@ -1494,7 +1493,7 @@ void Global::generateChannels(int** bufs, unsigned num)
 		advanceLFO();
 		for (int ch = 0; ch < numMelodicChannels; ++ch) {
 			Channel& channel = channels[ch];
-			channel.slots[SLOT1].updateModulator();
+			channel.slots[MOD].updateModulator();
 			if ((channelActiveBits >> ch) & 1) {
 				bufs[ch][i] = adjust(channel.calcOutput());
 			}
@@ -1508,7 +1507,7 @@ void Global::generateChannels(int** bufs, unsigned num)
 			//                     operator 1 is ignored
 			//  - output sample always is multiplied by 2
 			Channel& channel6 = channels[6];
-			channel6.slots[SLOT1].updateModulator();
+			channel6.slots[MOD].updateModulator();
 			if (channelActiveBits & (1 << 6)) {
 				bufs[6][i] = adjust(2 * channel6.calcOutput());
 			}
@@ -1519,25 +1518,25 @@ void Global::generateChannels(int** bufs, unsigned num)
 
 			// Snare Drum (verified on real YM3812)
 			if (channelActiveBits & (1 << 7)) {
-				Slot& SLOT7_2 = channels[7].slots[SLOT2];
+				Slot& SLOT7_2 = channels[7].slots[CAR];
 				bufs[7][i] = adjust(2 * SLOT7_2.calcOutput(genPhaseSnare()));
 			}
 
 			// Top Cymbal (verified on real YM2413)
 			if (channelActiveBits & (1 << 8)) {
-				Slot& SLOT8_2 = channels[8].slots[SLOT2];
+				Slot& SLOT8_2 = channels[8].slots[CAR];
 				bufs[8][i] = adjust(2 * SLOT8_2.calcOutput(genPhaseCymbal()));
 			}
 
 			// High Hat (verified on real YM3812)
 			if (channelActiveBits & (1 << (7 + 9))) {
-				Slot& SLOT7_1 = channels[7].slots[SLOT1];
+				Slot& SLOT7_1 = channels[7].slots[MOD];
 				bufs[9][i] = adjust(2 * SLOT7_1.calcOutput(genPhaseHighHat()));
 			}
 
 			// Tom Tom (verified on real YM3812)
 			if (channelActiveBits & (1 << (8 + 9))) {
-				Slot& SLOT8_1 = channels[8].slots[SLOT1];
+				Slot& SLOT8_1 = channels[8].slots[MOD];
 				bufs[10][i] = adjust(2 * SLOT8_1.calcOutput(SLOT8_1.getPhase()));
 			}
 		}
@@ -1566,7 +1565,7 @@ void Global::writeReg(byte r, byte v, const EmuTime& time)
 		case 0x05:  // Attack, Decay (carrier)
 		case 0x06:  // Sustain, Release (modulator)
 		case 0x07:  // Sustain, Release (carrier)
-			updateCustomInstrument(r & 0x07, v);
+			updateCustomInstrument(r, v);
 			break;
 		case 0x0E:
 			setRhythmFlags(v);
@@ -1583,8 +1582,8 @@ void Global::writeReg(byte r, byte v, const EmuTime& time)
 	case 0x20: {
 		// 20-28: suson, keyon, block, FNUM 8
 		Channel& ch = getChannelForReg(r);
-		ch.slots[SLOT1].setKeyOnOff(KEY_MAIN, v & 0x10);
-		ch.slots[SLOT2].setKeyOnOff(KEY_MAIN, v & 0x10);
+		ch.slots[MOD].setKeyOnOff(KEY_MAIN, v & 0x10);
+		ch.slots[CAR].setKeyOnOff(KEY_MAIN, v & 0x10);
 		ch.setSustain(v & 0x20);
 		// Note: When changing the frequency, a new value for RS is
 		//       computed using the sustain value, so make sure the new
@@ -1598,7 +1597,7 @@ void Global::writeReg(byte r, byte v, const EmuTime& time)
 		byte old_instvol = ch.instvol_r;
 		ch.instvol_r = v;  // store for later use
 
-		ch.slots[SLOT2].setTotalLevel((v & 0x0F) << 2);
+		ch.slots[CAR].setTotalLevel((v & 0x0F) << 2);
 
 		// Check wether we are in rhythm mode and handle instrument/volume
 		// register accordingly.
@@ -1609,7 +1608,7 @@ void Global::writeReg(byte r, byte v, const EmuTime& time)
 			if (chan >= 7) {
 				// Only for channel 7 and 8 (channel 6 is handled in usual way)
 				// modulator envelope is HH(chan=7) or TOM(chan=8).
-				ch.slots[SLOT1].setTotalLevel((ch.instvol_r >> 4) << 2);
+				ch.slots[MOD].setTotalLevel((ch.instvol_r >> 4) << 2);
 			}
 		} else {
 			if ((old_instvol & 0xF0) != (v & 0xF0)) {
