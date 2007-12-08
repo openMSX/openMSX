@@ -43,7 +43,7 @@ public:
 	 */
 	virtual void reset(const EmuTime& time);
 
-	/** 
+	/**
 	 * Gets IRQ vector used in IM2. This method only exists to support
 	 * YamahaSfg05. There is no way for several devices to coordinate which
 	 * vector is actually send to the CPU. But this IM is anyway not really
@@ -244,7 +244,7 @@ private:
 
 	Devices references;
 	Devices referencedBy;
-	
+
 	int ps;
 	int ss;
 	int externalSlotID;

@@ -34,9 +34,9 @@
 //#undef PRT_DEBUG
 /*
 #define  PRT_DEBUG(mes)                          \
-        do {                                    \
-                std::cout << mes << std::endl;  \
-        } while (0)
+	do {                                    \
+	        std::cout << mes << std::endl;  \
+	} while (0)
 */
 using std::string;
 
@@ -56,20 +56,20 @@ static const byte MT_DOOR_OPEN = 0x71;
 static const byte MT_FMT_ERROR = 0x72;
 
 static const byte inqdata[36] = {
-       0,   // bit5-0 device type code.
-       0,   // bit7 = 1 removable device
-       2,   // bit7,6 ISO version. bit5,4,3 ECMA version.
-            // bit2,1,0 ANSI Version (001=SCSI1, 010=SCSI2)
-       2,   // bit7 AENC. bit6 TrmIOP.
-            // bit3-0 Response Data Format. (0000=SCSI1, 0001=CCS, 0010=SCSI2)
-      51,   // addtional length
-       0, 0,// reserved
-       0,   // bit7 RelAdr, bit6 WBus32, bit5 Wbus16, bit4 Sync, bit3 Linked,
-            // bit2 reseved bit1 CmdQue, bit0 SftRe
-     'o', 'p', 'e', 'n', 'M', 'S', 'X', ' ',    // vendor ID (8bytes)
-     'S', 'C', 'S', 'I', '2', ' ', 'H', 'a',    // product ID (16bytes)
-     'r', 'd', 'd', 'i', 's', 'k', ' ', ' ',
-     '0', '1', '0', 'a'                         // product version (ASCII 4bytes)
+	  0,   // bit5-0 device type code.
+	  0,   // bit7 = 1 removable device
+	  2,   // bit7,6 ISO version. bit5,4,3 ECMA version.
+	       // bit2,1,0 ANSI Version (001=SCSI1, 010=SCSI2)
+	  2,   // bit7 AENC. bit6 TrmIOP.
+	       // bit3-0 Response Data Format. (0000=SCSI1, 0001=CCS, 0010=SCSI2)
+	 51,   // addtional length
+	  0, 0,// reserved
+	  0,   // bit7 RelAdr, bit6 WBus32, bit5 Wbus16, bit4 Sync, bit3 Linked,
+	       // bit2 reseved bit1 CmdQue, bit0 SftRe
+	'o', 'p', 'e', 'n', 'M', 'S', 'X', ' ',    // vendor ID (8bytes)
+	'S', 'C', 'S', 'I', '2', ' ', 'H', 'a',    // product ID (16bytes)
+	'r', 'd', 'd', 'i', 's', 'k', ' ', ' ',
+	'0', '1', '0', 'a'                         // product version (ASCII 4bytes)
 };
 
 static const unsigned SECTOR_SIZE = 512; // Always true for harddisk
@@ -580,10 +580,10 @@ byte SCSIHD::msgIn()
 scsiDeviceMsgOut()
 Notes:
     [out]
-          -1: Busfree demand. (Please process it in the call origin.)
-        bit2: Status phase demand. Error happend.
-        bit1: Make it to a busfree if ATN has not been released.
-        bit0: There is a message(MsgIn).
+	  -1: Busfree demand. (Please process it in the call origin.)
+	bit2: Status phase demand. Error happend.
+	bit1: Make it to a busfree if ATN has not been released.
+	bit0: There is a message(MsgIn).
 */
 int SCSIHD::msgOut(byte value)
 {

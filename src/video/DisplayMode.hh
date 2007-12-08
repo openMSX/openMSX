@@ -64,7 +64,7 @@ public:
 	  * @param reg0 The contents of VDP register 0.
 	  * @param reg1 The contents of VDP register 1.
 	  * @param reg25 The contents of VDP register 25;
-	  * 	on non-V9958 chips, pass 0.
+	  *     on non-V9958 chips, pass 0.
 	  */
 	DisplayMode(byte reg0, byte reg1, byte reg25) {
 		if ((reg25 & 0x08) == 0) reg25 = 0; // If YJK is off, ignore YAE.
@@ -106,7 +106,7 @@ public:
 
 	/** Get the dispay mode as a byte: YAE YJK M5..M1 combined.
 	  * @return The byte representation of this display mode,
-	  * 	in the range [0..0x7F].
+	  *     in the range [0..0x7F].
 	  */
 	inline byte getByte() const {
 		return mode;
@@ -115,7 +115,7 @@ public:
 	/** Get the base dispay mode as an integer: M5..M1 combined.
 	  * If YJK is active, the base mode is the underlying display mode.
 	  * @return The integer representation of the base of this display mode,
-	  * 	in the range [0..0x1F].
+	  *     in the range [0..0x1F].
 	  */
 	inline byte getBase() const {
 		return mode & 0x1F;
@@ -166,9 +166,9 @@ public:
 
 	/** Get the sprite mode of this display mode.
 	  * @return The current sprite mode:
-	  * 	0 means no sprites,
-	  * 	1 means sprite mode 1 (MSX1 display modes),
-	  * 	2 means sprite mode 2 (MSX2 display modes).
+	  *     0 means no sprites,
+	  *     1 means sprite mode 1 (MSX1 display modes),
+	  *     2 means sprite mode 2 (MSX2 display modes).
 	  */
 	inline int getSpriteMode() const {
 		return isTextMode() ? 0 : (isV9938Mode() ? 2 : 1);

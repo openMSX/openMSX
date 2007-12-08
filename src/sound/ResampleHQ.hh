@@ -24,7 +24,7 @@ private:
 	void calcOutput(float lastPos, int* output);
 	void prepareData(unsigned request);
 
-        Resample& input;
+	Resample& input;
 	float ratio;
 	float lastPos;
 	unsigned bufStart;

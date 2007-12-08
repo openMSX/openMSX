@@ -264,7 +264,7 @@ static void initialize()
 	keymap["UNDO"]		= K_UNDO;
 
 	// Modifiers
-	keymap["SHIFT"] 	= KM_SHIFT;
+	keymap["SHIFT"]		= KM_SHIFT;
 	keymap["CTRL"]		= KM_CTRL;
 	keymap["ALT"]		= KM_ALT;
 	keymap["META"]		= KM_META;

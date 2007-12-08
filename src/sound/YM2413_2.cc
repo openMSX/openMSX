@@ -1421,7 +1421,7 @@ void Global::reset(const EmuTime& time)
 			inst_tab[instrument][part] = table[instrument][part];
 		}
 	}
-	
+
 	// reset with register write
 	writeReg(0x0F, 0, time); //test reg
 	for (int i = 0x3F; i >= 0x10; i--) {
@@ -1547,7 +1547,7 @@ void Global::generateChannels(int** bufs, unsigned num)
 void Global::writeReg(byte r, byte v, const EmuTime& time)
 {
 	PRT_DEBUG("YM2413: write reg " << int(r) << " " << int(v));
-	
+
 	// update the output buffer before changing the register
 	updateStream(time);
 

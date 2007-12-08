@@ -16,7 +16,7 @@ Next 3 columns based on formula :
 I assumed the "zero" for R-Y and B-Y was 0.47V.
 Last 3 coeffs are the 8-bit values.
 
-Color            Y  	R-Y 	B-Y 	R   	G   	B   	R	G	B
+Color            Y	R-Y	B-Y	R	G	B	R	G	B
 0 Transparent
 1 Black         0.00	0.47	0.47	0.00	0.00	0.00	  0	  0	  0
 2 Medium green  0.53	0.07	0.20	0.13	0.79	0.26	 33	200	 66

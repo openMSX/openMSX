@@ -129,7 +129,7 @@ class Y8950Impl : private SoundDevice, private EmuTimerCallback, private Resampl
 public:
 	Y8950Impl(Y8950& self, MSXMotherBoard& motherBoard,
 	          const std::string& name, const XMLElement& config,
-	          unsigned sampleRam, const EmuTime& time, 
+	          unsigned sampleRam, const EmuTime& time,
 	          Y8950Periphery& perihery);
 	void init(const XMLElement& config, const EmuTime& time);
 	virtual ~Y8950Impl();

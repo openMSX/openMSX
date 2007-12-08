@@ -123,9 +123,9 @@ ImagePrinter::ImagePrinter(MSXMotherBoard& motherBoard_)
 	if (info.counter == 0) {
 		assert(info.stuff == NULL);
 		info.stuff = new FloatSetting(
-	        	motherBoard.getCommandController(), "print-resolution",
-	        	"resolution of the ouput image of emulated dot matrix printer in DPI",
-	        	300, 150, 1200);
+		    motherBoard.getCommandController(), "print-resolution",
+		    "resolution of the ouput image of emulated dot matrix printer in DPI",
+		    300, 150, 1200);
 	}
 	++info.counter;
 	dpiSetting = reinterpret_cast<FloatSetting*>(info.stuff);

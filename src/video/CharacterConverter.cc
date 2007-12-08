@@ -116,7 +116,7 @@ void CharacterConverter<Pixel>::renderText2(
 	Pixel plainFg = palFg[vdp.getForegroundColour()];
 	Pixel plainBg = palBg[vdp.getBackgroundColour()];
 	Pixel blinkFg, blinkBg;
- 	if (vdp.getBlinkState()) {
+	if (vdp.getBlinkState()) {
 		int fg = vdp.getBlinkForegroundColour();
 		blinkFg = palBg[fg ? fg : vdp.getBlinkBackgroundColour()];
 		blinkBg = palBg[vdp.getBlinkBackgroundColour()];

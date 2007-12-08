@@ -164,7 +164,7 @@ public:
 	 * with its own SRAM file, we need to generate unique filenames. We
 	 * also want to reuse existing filenames as much as possible.
 	 * ATM the usernames always have the format 'untitled[N]'. In the future
-	 * we might allow really user specified names. 
+	 * we might allow really user specified names.
 	 */
 	std::string getUserName(const std::string& hwName);
 	void freeUserName(const std::string& hwName,

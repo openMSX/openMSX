@@ -91,7 +91,7 @@ private:
 
 	unsigned height;
 	unsigned frameCounter;
-	
+
 	/** Currently active scale algorithm, used to detect scaler changes.
 	  */
 	RenderSettings::ScaleAlgorithm scaleAlgorithm;

@@ -167,7 +167,7 @@ void SimpleScaler<Pixel>::blur1on2(const Pixel* pIn, Pixel* pOut, unsigned alpha
 			"movq	%%mm0, (%1);"		// pOut[2*x+0] = ..  pOut[2*x+1] = ..
 
 			"movq	%%mm1, %%mm4;"
-			"pmullw	%%mm6, %%mm1;" 		// tmp = multiply(p1, c2)
+			"pmullw	%%mm6, %%mm1;"		// tmp = multiply(p1, c2)
 			"paddw	%%mm2, %%mm1;"
 			"psrlw	$8, %%mm1;"		// f0 + tmp
 

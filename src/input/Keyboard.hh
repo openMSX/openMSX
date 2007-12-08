@@ -44,7 +44,7 @@ public:
 	 */
 	Keyboard(Scheduler& scheduler, MSXCommandController& msxCommandController,
 	         EventDistributor& eventDistributor,
-	         MSXEventDistributor& msxEventDistributor, 
+	         MSXEventDistributor& msxEventDistributor,
 	         std::string& keyboardType, bool hasKeypad, bool keyGhosting);
 
 	virtual ~Keyboard();
@@ -74,7 +74,7 @@ private:
 	void processCapslockEvent(const EmuTime& time);
 	void processKeypadEnterKey(bool down);
 	void processSdlKey(bool down, int key);
-        void processKeyEvent(bool down, const KeyEvent& keyEvent);
+	void processKeyEvent(bool down, const KeyEvent& keyEvent);
 	void updateKeyMatrix(bool down, int row, byte mask);
 	void doKeyGhosting();
 	void parseKeymapfile(const byte* buf, unsigned size);

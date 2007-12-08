@@ -59,8 +59,8 @@ namespace FileOperations {
 	 * Returns the path in conventional path-delimiter.
 	 * @param path The pathname.
 	 * @result The path in conventional path-delimiter.
-	 * 	On UNI*Y systems, it will have no effect indeed.
-	 * 	Just for portability issue. (Especially for Win32)
+	 *    On UNI*Y systems, it will have no effect indeed.
+	 *    Just for portability issue. (Especially for Win32)
 	 */
 	std::string getConventionalPath(const std::string& path);
 
@@ -68,8 +68,8 @@ namespace FileOperations {
 	 * Returns the path in native path-delimiter.
 	 * @param path The pathname.
 	 * @result The path in native path-delimiter.
-	 * 	On UNI*Y systems, it will have no effect indeed.
-	 * 	Just for portability issue. (Especially for Win32)
+	 *    On UNI*Y systems, it will have no effect indeed.
+	 *    Just for portability issue. (Especially for Win32)
 	 */
 	std::string getNativePath(const std::string& path);
 

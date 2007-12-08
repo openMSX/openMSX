@@ -34,7 +34,7 @@ void Connector::unplug(const EmuTime& time)
 
 Pluggable& Connector::getPlugged() const
 {
-        return *plugged;
+	return *plugged;
 }
 
 } // namespace openmsx

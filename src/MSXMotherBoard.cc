@@ -299,11 +299,11 @@ void MSXMotherBoardImpl::deleteMachine()
 {
 	while (!extensions.empty()) {
 		try {
-	 		removeExtension(*extensions.back());
+			removeExtension(*extensions.back());
 		} catch (MSXException& e) {
 			std::cerr << "Internal error: failed to remove "
 			             "extension while deleting a machine: "
-			          << e.getMessage() << std::endl;   
+			          << e.getMessage() << std::endl;
 			assert(false);
 		}
 	}

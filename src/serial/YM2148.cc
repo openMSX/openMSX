@@ -40,7 +40,7 @@ void YM2148::onRecv()
 			reset();
 			return;
 		}
-	} 
+	}
 
 	if (rxPending != 0) {
 		// TODO: archSemaphoreWait(semaphore, -1);
@@ -91,7 +91,6 @@ void YM2148::reset()
 	timeTrans = 0;
 	// TODO: charTime = 10 * boardFrequency() / 31250;
 
-	
 	// TODO: boardTimerRemove(timerRecv);
 	// TODO: boardTimerRemove(timerTrans);
 

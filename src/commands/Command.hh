@@ -31,7 +31,7 @@ class Command : public CommandCompleter
 public:
 	/** Execute this command.
 	  * @param tokens Tokenized command line;
-	  * 	tokens[0] is the command itself.
+	  *     tokens[0] is the command itself.
 	  * @param result The result of the command must be assigned to this
 	  *               parameter.
 	  * @throws CommandException Thrown when there was an error while
@@ -43,8 +43,8 @@ public:
 	/** Attempt tab completion for this command.
 	  * Default implementation does nothing.
 	  * @param tokens Tokenized command line;
-	  * 	tokens[0] is the command itself.
-	  * 	The last token is incomplete, this method tries to complete it.
+	  *     tokens[0] is the command itself.
+	  *     The last token is incomplete, this method tries to complete it.
 	  */
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
 

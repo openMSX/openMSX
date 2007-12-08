@@ -40,7 +40,7 @@ private:
 	IconStatus& iconStatus;
 	SDL_Surface* outputScreen;
 	double scaleFactor;
-        const std::auto_ptr<IconSettingChecker<IMAGE> > iconSettingChecker;
+	const std::auto_ptr<IconSettingChecker<IMAGE> > iconSettingChecker;
 
 	struct LedInfo {
 		std::auto_ptr<IntegerSetting> xcoord;
@@ -52,7 +52,7 @@ private:
 	};
 	LedInfo ledInfo[LedEvent::NUM_LEDS];
 
-        friend class IconSettingChecker<IMAGE>;
+	friend class IconSettingChecker<IMAGE>;
 };
 
 class SDLImage;

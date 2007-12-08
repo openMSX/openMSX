@@ -17,7 +17,7 @@ public:
 	  * so the subcomponent can update itself to the given time
 	  * based on the old contents.
 	  * @param offset Offset of byte that will change,
-	  * 	relative to window base address.
+	  *               relative to window base address.
 	  * @param time The moment in emulated time this change occurs.
 	  */
 	virtual void updateVRAM(unsigned offset, const EmuTime& time) = 0;
@@ -30,9 +30,9 @@ public:
 	  * or if the window becomes disabled.
 	  * TODO: Separate enable/disable from window move?
 	  * @param enabled Will the window be enabled after the change?
-	  * 	If the observer keeps a cache which is based on VRAM contents,
-	  * 	it is only necessary to flush the cache if the new window
-	  * 	is enabled, because no reads are allowed from disabled windows.
+	  *     If the observer keeps a cache which is based on VRAM contents,
+	  *     it is only necessary to flush the cache if the new window
+	  *     is enabled, because no reads are allowed from disabled windows.
 	  * @param time The moment in emulated time this change occurs.
 	  */
 	virtual void updateWindow(bool enabled, const EmuTime& time) = 0;

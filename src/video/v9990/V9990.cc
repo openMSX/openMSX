@@ -79,8 +79,8 @@ V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, hScanSyncTime(time)
 	, pendingIRQs(0)
 {
-        // clear regs TODO find realistic init values
-        memset(regs, 0, sizeof(regs));
+	// clear regs TODO find realistic init values
+	memset(regs, 0, sizeof(regs));
 	calcDisplayMode();
 
 	// initialize palette

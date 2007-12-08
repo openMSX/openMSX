@@ -263,7 +263,7 @@ Keyboard::Keyboard(Scheduler& scheduler,
 		msxCommandController, msxEventDistributor, scheduler, *this))
 	, keyTypeCmd(new KeyInserter(
 		msxCommandController, msxEventDistributor, scheduler, *this))
-        , capsLockAligner(new CapsLockAligner(
+	, capsLockAligner(new CapsLockAligner(
 		eventDistributor, msxEventDistributor, scheduler, *this))
 	, keyboardSettings(new KeyboardSettings(msxCommandController))
 {
@@ -348,7 +348,7 @@ void Keyboard::signalEvent(shared_ptr<const Event> event,
 		} else if (key == Keys::K_KP_ENTER) {
 			processKeypadEnterKey(type == OPENMSX_KEY_DOWN_EVENT);
 		} else {
-                        processKeyEvent(type == OPENMSX_KEY_DOWN_EVENT, keyEvent);
+			processKeyEvent(type == OPENMSX_KEY_DOWN_EVENT, keyEvent);
 		}
 	}
 }
@@ -410,7 +410,7 @@ void Keyboard::processKeypadEnterKey(bool down)
 	if (!hasKeypad && !keyboardSettings->getAlwaysEnableKeypad().getValue()) {
 		// User entered on host keypad but this MSX model does not have one
 		// Ignore the keypress/release
-		return; 
+		return;
 	}
 	int row;
 	byte mask;
@@ -479,7 +479,7 @@ void Keyboard::processKeyEvent(bool down, const KeyEvent& keyEvent)
 	Keys::KeyCode key = static_cast<Keys::KeyCode>
 		(int(keyCode) & int(Keys::K_MASK));
 	Unicode::unicode1_char unicode;
-	
+
 	bool isOnKeypad = (
 		(key >= Keys::K_KP0 && key <= Keys::K_KP9) ||
 		(key == Keys::K_KP_PERIOD) ||
@@ -493,9 +493,9 @@ void Keyboard::processKeyEvent(bool down, const KeyEvent& keyEvent)
 	    !keyboardSettings->getAlwaysEnableKeypad().getValue()) {
 		// User entered on host keypad but this MSX model does not have one
 		// Ignore the keypress/release
-		return; 
+		return;
 	}
-	
+
 	if (down) {
 		if ((userKeyMatrix[6] & 2) == 0 || isOnKeypad) {
 			// CTRL-key is active or user entered a key on numeric
@@ -509,7 +509,7 @@ void Keyboard::processKeyEvent(bool down, const KeyEvent& keyEvent)
 			unicode = keyEvent.getUnicode();
 		}
 		if (key < MAX_KEYSYM) {
- 			// Remember which unicode character is currently derived
+			// Remember which unicode character is currently derived
 			// from this SDL key. It must be stored here (during key-press)
 			// because during key-release SDL never returns the unicode
 			// value (it always returns the value 0). But we must know
@@ -525,13 +525,13 @@ void Keyboard::processKeyEvent(bool down, const KeyEvent& keyEvent)
 		if (unicode == 0) {
 			// It was an ambiguous key (numeric key-pad, CTRL+character)
 			// or a special key according to SDL (like HOME, INSERT, etc)
-			// or a first keystroke of a composed key 
+			// or a first keystroke of a composed key
 			// (e.g. altr-gr + = on azerty keyboard)
 			// Perform direct SDL matrix to MSX matrix mapping
 			// But only when it is not a first keystroke of a
 			// composed key
 			if ((keyCode & Keys::KM_MODE) == 0) {
-				processSdlKey(down, key); 
+				processSdlKey(down, key);
 			}
 		} else {
 			// It is a unicode character; map it to the right key-combination
@@ -549,7 +549,7 @@ void Keyboard::processKeyEvent(bool down, const KeyEvent& keyEvent)
 			// But only when it is not a first keystroke of a
 			// composed key
 			if ((keyCode & Keys::KM_MODE) == 0) {
-				processSdlKey(down, key); 
+				processSdlKey(down, key);
 			}
 		} else {
 			// It was a unicode character; map it to the right key-combination
@@ -636,7 +636,7 @@ string Keyboard::processCmd(const vector<string>& tokens, bool up)
  *
  * On the other hand, for A-Z, this routine must not touch the SHIFT key at all.
  * Otherwise it might give strange behaviour when CAPS lock is on (which also
- * acts as a key-modifier for A-Z). The routine can rely on the fact that 
+ * acts as a key-modifier for A-Z). The routine can rely on the fact that
  * SHIFT+A-Z behaviour is the same on all host and MSX keyboards. It is
  * approximately the only part of keyboards that is de-facto standardized :-)
  *
@@ -660,7 +660,7 @@ void Keyboard::pressUnicodeByUser(Unicode::unicode1_char unicode, int key, bool 
 	byte modmask = unicodeTab[unicode][2];
 	if (down) {
 		userKeyMatrix[row] &= ~mask;
-                userKeyMatrix[6] |= shiftkeymask;
+		userKeyMatrix[6] |= shiftkeymask;
 		userKeyMatrix[6] &= ~(modmask & (0xfe | shiftkeymask));
 	} else {
 		userKeyMatrix[row] |= mask;
@@ -871,7 +871,7 @@ const string& KeyInserter::schedName() const
 CapsLockAligner::CapsLockAligner(EventDistributor& eventDistributor_,
                                  MSXEventDistributor& msxEventDistributor_,
                                  Scheduler& scheduler, Keyboard& keyboard_)
-	: Schedulable(scheduler) 
+	: Schedulable(scheduler)
 	, keyboard(keyboard_)
 	, eventDistributor(eventDistributor_)
 	, msxEventDistributor(msxEventDistributor_)

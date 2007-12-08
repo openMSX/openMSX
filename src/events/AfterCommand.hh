@@ -20,7 +20,7 @@ class AfterCommand : public SimpleCommand, private EventListener
 public:
 	typedef std::map<std::string, AfterCmd*> AfterCmdMap;
 
-        AfterCommand(Reactor& reactor,
+	AfterCommand(Reactor& reactor,
 	             EventDistributor& eventDistributor,
 	             CommandController& commandController);
 	virtual ~AfterCommand();

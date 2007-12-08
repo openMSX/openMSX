@@ -10,10 +10,10 @@
  * can also be mapped as 256 pages of 2kB. There is 16kB SRAM.
  *
  * Main bankswitch registers:
- *   bank 0,  region: [0x4000-0x5FFF],  switch addr: 0x4FFF 
- *   bank 1,  region: [0x6000-0x7FFF],  switch addr: 0x6FFF 
- *   bank 2,  region: [0x8000-0x9FFF],  switch addr: 0x8FFF 
- *   bank 3,  region: [0xA000-0xBFFF],  switch addr: 0xAFFF 
+ *   bank 0,  region: [0x4000-0x5FFF],  switch addr: 0x4FFF
+ *   bank 1,  region: [0x6000-0x7FFF],  switch addr: 0x6FFF
+ *   bank 2,  region: [0x8000-0x9FFF],  switch addr: 0x8FFF
+ *   bank 3,  region: [0xA000-0xBFFF],  switch addr: 0xAFFF
  * Sub-bankswitch registers:
  *   bank 0,  region: [0x7000-0x77FF],  switch addr: 0x77FF
  *   bank 1,  region: [0x7800-0x7FFF],  switch addr: 0x7FFF

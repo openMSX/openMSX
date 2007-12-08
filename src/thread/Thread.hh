@@ -22,7 +22,7 @@ class Thread : private noncopyable
 public:
 	/** Create a new thread.
 	  * @param runnable Object those run() method will be invoked by
-	  * 	the created thread when it starts running.
+	  *                 the created thread when it starts running.
 	  */
 	explicit Thread(Runnable* runnable);
 

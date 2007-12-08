@@ -818,7 +818,7 @@ void YMF278Impl::writeReg(byte reg, byte data, const EmuTime& time)
 	} else {
 		// All non-slot registers
 		switch (reg) {
-		case 0x00:    	// TEST
+		case 0x00: // TEST
 		case 0x01:
 			break;
 

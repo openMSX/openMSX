@@ -24,7 +24,7 @@ public:
 	virtual bool generateInput(int* buffer, unsigned num) = 0;
 
 protected:
-        Resample(GlobalSettings& globalSettings, unsigned channels);
+	Resample(GlobalSettings& globalSettings, unsigned channels);
 	virtual ~Resample();
 	void setResampleRatio(double inFreq, double outFreq);
 	bool generateOutput(int* dataOut, unsigned num);

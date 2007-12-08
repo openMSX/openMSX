@@ -28,9 +28,9 @@
 /*
 #include <iostream>
 #define  PRT_DEBUG(mes)                          \
-        do {                                    \
-                std::cout << mes << std::endl;  \
-        } while (0)
+	do {                                    \
+	        std::cout << mes << std::endl;  \
+	} while (0)
 */
 
 namespace openmsx {
@@ -475,34 +475,34 @@ void WD33C93::reset(bool scsireset)
 static SCSIDevice* wd33c93ScsiDevCreate(WD33C93* wd33c93, int id)
 {
 #if 1
-    // CD_UPDATE: Use dynamic parameters instead of hard coded ones
-    int diskId, mode, type;
+	// CD_UPDATE: Use dynamic parameters instead of hard coded ones
+	int diskId, mode, type;
 
-    diskId = diskGetHdDriveId(hdId, id);
-    if (diskIsCdrom(diskId)) {
-        mode = MODE_SCSI1 | MODE_UNITATTENTION | MODE_REMOVABLE | MODE_NOVAXIS;
-        type = SDT_CDROM;
-    } else {
-        mode = MODE_SCSI1 | MODE_UNITATTENTION | MODE_FDS120 | MODE_REMOVABLE | MODE_NOVAXIS;
-        type = SDT_DirectAccess;
-    }
-    return scsiDeviceCreate(id, diskId, buffer, NULL, type, mode,
-                           (CdromXferCompCb)wd33c93XferCb, wd33c93);
+	diskId = diskGetHdDriveId(hdId, id);
+	if (diskIsCdrom(diskId)) {
+		mode = MODE_SCSI1 | MODE_UNITATTENTION | MODE_REMOVABLE | MODE_NOVAXIS;
+		type = SDT_CDROM;
+	} else {
+		mode = MODE_SCSI1 | MODE_UNITATTENTION | MODE_FDS120 | MODE_REMOVABLE | MODE_NOVAXIS;
+		type = SDT_DirectAccess;
+	}
+	return scsiDeviceCreate(id, diskId, buffer, NULL, type, mode,
+	                       (CdromXferCompCb)wd33c93XferCb, wd33c93);
 #else
-    SCSIDEVICE* dev;
-    int mode;
-    int type;
+	SCSIDEVICE* dev;
+	int mode;
+	int type;
 
-    if (id != 2) {
-        mode = MODE_SCSI1 | MODE_UNITATTENTION | MODE_FDS120 | MODE_REMOVABLE | MODE_NOVAXIS;
-        type = SDT_DirectAccess;
-    } else {
-        mode = MODE_SCSI1 | MODE_UNITATTENTION | MODE_REMOVABLE | MODE_NOVAXIS;
-        type = SDT_CDROM;
-    }
-    dev = scsiDeviceCreate(id, diskGetHdDriveId(hdId, id),
-            buffer, NULL, type, mode, (CdromXferCompCb)wd33c93XferCb, wd33c93);
-    return dev;
+	if (id != 2) {
+		mode = MODE_SCSI1 | MODE_UNITATTENTION | MODE_FDS120 | MODE_REMOVABLE | MODE_NOVAXIS;
+		type = SDT_DirectAccess;
+	} else {
+		mode = MODE_SCSI1 | MODE_UNITATTENTION | MODE_REMOVABLE | MODE_NOVAXIS;
+		type = SDT_CDROM;
+	}
+	dev = scsiDeviceCreate(id, diskGetHdDriveId(hdId, id),
+	        buffer, NULL, type, mode, (CdromXferCompCb)wd33c93XferCb, wd33c93);
+	return dev;
 #endif
 }
 */

@@ -16,25 +16,25 @@
  *
  * template<typename T> struct remove_reference
  * {
- * 	typedef T type;
+ *     typedef T type;
  * };
  * template<typename T> struct remove_reference<T&>
  * {
- * 	typedef T type;
+ *     typedef T type;
  * };
  *
  * template<typename TO, typename FROM>
  * static TO checked_cast(FROM* from)
  * {
- * 	assert(dynamic_cast<TO>(from) == static_cast<TO>(from));
- * 	return static_cast<TO>(from);
+ *     assert(dynamic_cast<TO>(from) == static_cast<TO>(from));
+ *     return static_cast<TO>(from);
  * }
  * template<typename TO, typename FROM>
  * static TO checked_cast(FROM& from)
  * {
- * 	typedef typename remove_reference<TO>::type* TO_PTR;
- * 	assert(dynamic_cast<TO_PTR>(&from) == static_cast<TO_PTR>(&from));
- * 	return static_cast<TO>(from);
+ *     typedef typename remove_reference<TO>::type* TO_PTR;
+ *     assert(dynamic_cast<TO_PTR>(&from) == static_cast<TO_PTR>(&from));
+ *     return static_cast<TO>(from);
  * }
  *
  * Implementation below can only handle const references, need to find a way

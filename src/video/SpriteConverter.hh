@@ -60,7 +60,7 @@ public:
 
 	/** Draw sprites in sprite mode 1.
 	  * @param absLine Absolute line number.
-	  * 	Range is [0..262) for NTSC and [0..313) for PAL.
+	  *     Range is [0..262) for NTSC and [0..313) for PAL.
 	  * @param minX Minimum X coordinate to draw (inclusive).
 	  * @param maxX Maximum X coordinate to draw (exclusive).
 	  * @param pixelPtr Pointer to memory to draw to.
@@ -137,7 +137,7 @@ public:
 	  * 256 pixels for ZOOM_256 and ZOOM_REAL in 256-pixel wide modes;
 	  * 512 pixels for ZOOM_REAL in 512-pixel wide modes.
 	  * @param absLine Absolute line number.
-	  * 	Range is [0..262) for NTSC and [0..313) for PAL.
+	  *     Range is [0..262) for NTSC and [0..313) for PAL.
 	  * @param minX Minimum X coordinate to draw (inclusive).
 	  * @param maxX Maximum X coordinate to draw (exclusive).
 	  * @param pixelPtr Pointer to memory to draw to.

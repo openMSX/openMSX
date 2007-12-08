@@ -114,7 +114,7 @@ private:
 	void flushOutput();
 	void autoRun();
 
-        // EventListener
+	// EventListener
 	virtual bool signalEvent(shared_ptr<const Event> event);
 
 	// Schedulable

@@ -7,11 +7,11 @@
 namespace openmsx {
 
 KeyboardSettings::KeyboardSettings(MSXCommandController& msxCommandController)
-	: keymapFile(new FilenameSetting(msxCommandController, 
+	: keymapFile(new FilenameSetting(msxCommandController,
 		"keymap-filename",
 		"File with mapping from Host key codes to MSX key codes",
 		""))
-	, alwaysEnableKeypad(new BooleanSetting(msxCommandController, 
+	, alwaysEnableKeypad(new BooleanSetting(msxCommandController,
 		"always_enable_keypad",
 		"Always enable keypad, even on an MSX that does not have one",
 		false))
@@ -22,14 +22,14 @@ KeyboardSettings::KeyboardSettings(MSXCommandController& msxCommandController)
 {
 	EnumSetting<Keys::KeyCode>::Map allowedKeys;
 	allowedKeys["RALT"]   = Keys::K_RALT;
-        allowedKeys["RSHIFT"] = Keys::K_RSHIFT;
-       	allowedKeys["RMETA"]  = Keys::K_RMETA;
-       	allowedKeys["LMETA"]  = Keys::K_LMETA;
-       	allowedKeys["LSUPER"] = Keys::K_LSUPER;
-       	allowedKeys["RSUPER"] = Keys::K_RSUPER;
-       	allowedKeys["HELP"]   = Keys::K_HELP;
-       	allowedKeys["MENU"]   = Keys::K_MENU;
-       	allowedKeys["UNDO"]   = Keys::K_UNDO;
+	allowedKeys["RSHIFT"] = Keys::K_RSHIFT;
+	allowedKeys["RMETA"]  = Keys::K_RMETA;
+	allowedKeys["LMETA"]  = Keys::K_LMETA;
+	allowedKeys["LSUPER"] = Keys::K_LSUPER;
+	allowedKeys["RSUPER"] = Keys::K_RSUPER;
+	allowedKeys["HELP"]   = Keys::K_HELP;
+	allowedKeys["MENU"]   = Keys::K_MENU;
+	allowedKeys["UNDO"]   = Keys::K_UNDO;
 	codeKanaHostKey.reset(new EnumSetting<Keys::KeyCode>(
 		msxCommandController, "code_kana_host_key",
 		"Host key that maps to the MSX CODE/KANA key",
@@ -46,9 +46,7 @@ KeyboardSettings::KeyboardSettings(MSXCommandController& msxCommandController)
 
 KeyboardSettings::~KeyboardSettings()
 {
-/* nothing to-do */
 }
-
 
 EnumSetting<Keys::KeyCode>& KeyboardSettings::getCodeKanaHostKey()
 {
@@ -75,5 +73,4 @@ BooleanSetting& KeyboardSettings::getTraceKeyPresses()
 	return *traceKeyPresses.get();
 }
 
-}
-
+} // namespace openmsx

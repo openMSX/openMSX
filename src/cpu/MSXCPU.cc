@@ -354,7 +354,7 @@ void MSXCPUDebuggable::write(unsigned address, byte value)
 	case 23: regs.setSPl(value); break;
 	case 24: regs.setI(value); break;
 	case 25: regs.setR(value); break;
-	case 26: 
+	case 26:
 		if (value < 3) regs.setIM(value);
 		break;
 	case 27:

@@ -26,8 +26,8 @@ MSXEventReplayer::MSXEventReplayer(Scheduler& scheduler,
 
 const std::string& MSXEventReplayer::schedName() const
 {
-        static const string schedName = "MSXEventReplayer";
-        return schedName;
+	static const string schedName = "MSXEventReplayer";
+	return schedName;
 }
 
 void MSXEventReplayer::processLogEntry()
@@ -38,7 +38,7 @@ void MSXEventReplayer::processLogEntry()
 	if (logFileStream.good()) {
 		string emutimeStr;
 		StringOp::splitOnFirst(temp, " ", emutimeStr, eventString);
-	 	EmuTime nextEventTime = EmuTime::makeEmuTime(
+		EmuTime nextEventTime = EmuTime::makeEmuTime(
 		              StringOp::stringToUint64(emutimeStr));
 		setSyncPoint(nextEventTime);
 	} else {
@@ -50,7 +50,7 @@ void MSXEventReplayer::processLogEntry()
 void MSXEventReplayer::executeUntil(const EmuTime& time, int /*userData*/)
 {
 	try {
-	        InputEventFactory::EventPtr eventPtr =
+		InputEventFactory::EventPtr eventPtr =
 			InputEventFactory::createInputEvent(eventString);
 		try {
 			eventDistributor.distributeEvent(eventPtr, time);

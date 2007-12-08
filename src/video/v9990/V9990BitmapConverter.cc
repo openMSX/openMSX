@@ -13,7 +13,7 @@ template <class Pixel>
 V9990BitmapConverter<Pixel>::V9990BitmapConverter(
 	V9990& vdp_, Pixel* palette64_, Pixel* palette256_, Pixel* palette32768_)
 	: vdp(vdp_), vram(vdp.getVRAM())
-        , palette64(palette64_), palette256(palette256_), palette32768(palette32768_)
+	, palette64(palette64_), palette256(palette256_), palette32768(palette32768_)
 {
 	// make sure function pointers have valid values
 	setColorMode(PP);

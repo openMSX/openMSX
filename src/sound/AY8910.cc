@@ -61,7 +61,7 @@ static float n[256 + 3];
 static void initDetune()
 {
 	for (int i = 0; i < 256; ++i) {
-		n[i] = float(rand()) / (RAND_MAX / 2) - 1.0f; 
+		n[i] = float(rand()) / (RAND_MAX / 2) - 1.0f;
 	}
 	n[256] = n[0];
 	n[257] = n[1];

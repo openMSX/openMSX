@@ -1,6 +1,6 @@
 // $Id$
 /* Ported from:
-** Source: /cvsroot/bluemsx/blueMSX/Src/Memory/romMapperSfg05.c,v 
+** Source: /cvsroot/bluemsx/blueMSX/Src/Memory/romMapperSfg05.c,v
 ** Revision: 1.12
 ** Date: 2007/04/28 05:06:29
 **

@@ -31,7 +31,7 @@ HDR_ONLY:= \
 	SoundDriver \
 	ResampleAlgo \
 	Y8950Periphery \
-	YM2413Interface 
+	YM2413Interface
 
 DIST:= \
 	ResampleCoeffs.ii

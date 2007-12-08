@@ -88,7 +88,7 @@ private:
 	/** Update renderer state to specified moment in time.
 	  * @param time Moment in emulated time to update to.
 	  * @param force When screen accuracy is used,
-	  * 	rendering is only performed if this parameter is true.
+	  *     rendering is only performed if this parameter is true.
 	  */
 	void sync(const EmuTime& time, bool force = false);
 

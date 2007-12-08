@@ -20,8 +20,8 @@ public:
 	VLM5030(MSXMotherBoard& motherBoard, const std::string& name,
 	        const std::string& desc, const XMLElement& config,
 	        const EmuTime& time);
-        ~VLM5030();
-        void reset(const EmuTime& time);
+	~VLM5030();
+	void reset(const EmuTime& time);
 
 	// latch control data
 	void writeData(byte data); // latch control data

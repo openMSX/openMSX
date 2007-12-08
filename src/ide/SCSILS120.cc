@@ -42,9 +42,9 @@
 //#undef PRT_DEBUG
 /*
 #define  PRT_DEBUG(mes)                          \
-        do {                                    \
-                std::cout << mes << std::endl;  \
-        } while (0)
+	do {                                    \
+	        std::cout << mes << std::endl;  \
+	} while (0)
 */
 using std::string;
 using std::vector;
@@ -66,20 +66,20 @@ static const byte MT_DOOR_OPEN = 0x71;
 static const byte MT_FMT_ERROR = 0x72;
 
 static const byte inqdata[36] = {
-       0,   // bit5-0 device type code.
-       0,   // bit7 = 1 removable device
-       2,   // bit7,6 ISO version. bit5,4,3 ECMA version.
-            // bit2,1,0 ANSI Version (001=SCSI1, 010=SCSI2)
-       2,   // bit7 AENC. bit6 TrmIOP.
-            // bit3-0 Response Data Format. (0000=SCSI1, 0001=CCS, 0010=SCSI2)
-      51,   // addtional length
-       0, 0,// reserved
-       0,   // bit7 RelAdr, bit6 WBus32, bit5 Wbus16, bit4 Sync, bit3 Linked,
-            // bit2 reseved bit1 CmdQue, bit0 SftRe
-     'o', 'p', 'e', 'n', 'M', 'S', 'X', ' ',    // vendor ID (8bytes)
-     'S', 'C', 'S', 'I', '2', ' ', 'L', 'S',    // product ID (16bytes)
-     '-', '1', '2', '0', 'd', 'i', 's', 'k',
-     '0', '1', '0', 'a'                         // product version (ASCII 4bytes)
+	  0,   // bit5-0 device type code.
+	  0,   // bit7 = 1 removable device
+	  2,   // bit7,6 ISO version. bit5,4,3 ECMA version.
+	       // bit2,1,0 ANSI Version (001=SCSI1, 010=SCSI2)
+	  2,   // bit7 AENC. bit6 TrmIOP.
+	       // bit3-0 Response Data Format. (0000=SCSI1, 0001=CCS, 0010=SCSI2)
+	 51,   // addtional length
+	  0, 0,// reserved
+	  0,   // bit7 RelAdr, bit6 WBus32, bit5 Wbus16, bit4 Sync, bit3 Linked,
+	       // bit2 reseved bit1 CmdQue, bit0 SftRe
+	'o', 'p', 'e', 'n', 'M', 'S', 'X', ' ',    // vendor ID (8bytes)
+	'S', 'C', 'S', 'I', '2', ' ', 'L', 'S',    // product ID (16bytes)
+	'-', '1', '2', '0', 'd', 'i', 's', 'k',
+	'0', '1', '0', 'a'                         // product version (ASCII 4bytes)
 };
 
 // for FDSFORM.COM
@@ -91,15 +91,15 @@ static const unsigned BUFFER_BLOCK_SIZE = SCSIDevice::BUFFER_SIZE / SECTOR_SIZE;
 class LSXCommand : public RecordedCommand
 {
 public:
-        LSXCommand(MSXCommandController& msxCommandController,
-                   MSXEventDistributor& msxEventDistributor,
-                   Scheduler& scheduler, SCSILS120& ls);
-        virtual void execute(const std::vector<TclObject*>& tokens,
-                TclObject& result, const EmuTime& time);
-        virtual string help(const vector<string>& tokens) const;
-        virtual void tabCompletion(vector<string>& tokens) const;
+	LSXCommand(MSXCommandController& msxCommandController,
+	           MSXEventDistributor& msxEventDistributor,
+	           Scheduler& scheduler, SCSILS120& ls);
+	virtual void execute(const std::vector<TclObject*>& tokens,
+	                     TclObject& result, const EmuTime& time);
+	virtual string help(const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
 private:
-        SCSILS120& ls;
+	SCSILS120& ls;
 };
 
 static const unsigned MAX_LS = 26;
@@ -113,26 +113,26 @@ SCSILS120::SCSILS120(MSXMotherBoard& motherBoard_, const XMLElement& targetconfi
 	, scsiId(targetconfig.getAttributeAsInt("id"))
 {
 	MSXMotherBoard::SharedStuff& info =
-                motherBoard.getSharedStuff("lsInUse");
-        if (info.counter == 0) {
-                assert(info.stuff == NULL);
-                info.stuff = new LSInUse();
-        }
-        ++info.counter;
-        LSInUse& lsInUse = *reinterpret_cast<LSInUse*>(info.stuff);
+		motherBoard.getSharedStuff("lsInUse");
+	if (info.counter == 0) {
+		assert(info.stuff == NULL);
+		info.stuff = new LSInUse();
+	}
+	++info.counter;
+	LSInUse& lsInUse = *reinterpret_cast<LSInUse*>(info.stuff);
 
-        unsigned id = 0;
-        while (lsInUse[id]) {
-                ++id;
-                if (id == MAX_LS) {
-                        throw MSXException("Too many LSs");
-                }
-        }
-        name = string("ls") + char('a' + id);
-        lsInUse[id] = true;
-        lsxCommand.reset(new LSXCommand(motherBoard.getMSXCommandController(),
-                                        motherBoard.getMSXEventDistributor(),
-                                        motherBoard.getScheduler(), *this));
+	unsigned id = 0;
+	while (lsInUse[id]) {
+		++id;
+		if (id == MAX_LS) {
+			throw MSXException("Too many LSs");
+		}
+	}
+	name = string("ls") + char('a' + id);
+	lsInUse[id] = true;
+	lsxCommand.reset(new LSXCommand(motherBoard.getMSXCommandController(),
+	                                motherBoard.getMSXEventDistributor(),
+	                                motherBoard.getScheduler(), *this));
 
 	reset();
 }
@@ -141,22 +141,22 @@ SCSILS120::~SCSILS120()
 {
 	PRT_DEBUG("ls120 close for ls120 " << int(scsiId));
 	MSXMotherBoard::SharedStuff& info =
-                motherBoard.getSharedStuff("lsInUse");
-        assert(info.counter);
-        assert(info.stuff);
-        LSInUse& lsInUse = *reinterpret_cast<LSInUse*>(info.stuff);
+	        motherBoard.getSharedStuff("lsInUse");
+	assert(info.counter);
+	assert(info.stuff);
+	LSInUse& lsInUse = *reinterpret_cast<LSInUse*>(info.stuff);
 
-        motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "remove");
-        unsigned id = name[2] - 'a';
-        assert(lsInUse[id]);
-        lsInUse[id] = false;
+	motherBoard.getMSXCliComm().update(CliComm::HARDWARE, name, "remove");
+	unsigned id = name[2] - 'a';
+	assert(lsInUse[id]);
+	lsInUse[id] = false;
 
-        --info.counter;
-        if (info.counter == 0) {
-                assert(lsInUse.none());
-                delete &lsInUse;
-                info.stuff = NULL;
-        }
+	--info.counter;
+	if (info.counter == 0) {
+		assert(lsInUse.none());
+		delete &lsInUse;
+		info.stuff = NULL;
+	}
 }
 
 void SCSILS120::reset()
@@ -215,12 +215,12 @@ void SCSILS120::startStopUnit()
 		PRT_DEBUG("eject disk " << int(scsiId));
 		break;
 	case 3: // Insert  TODO: how can this happen?
-	//      if (!diskPresent(diskId)) {
-	//      	*disk = disk;
-	//      	updateExtendedDiskName(diskId, disk->fileName, disk->fileNameInZip);
-	//      	boardChangeDiskette(diskId, disk->fileName, disk->fileNameInZip);
+		//if (!diskPresent(diskId)) {
+		//	*disk = disk;
+		//	updateExtendedDiskName(diskId, disk->fileName, disk->fileNameInZip);
+		//	boardChangeDiskette(diskId, disk->fileName, disk->fileNameInZip);
 			PRT_DEBUG("insert ls120 " << int(scsiId));
-	//      }
+		//}
 		break;
 	}
 }
@@ -519,23 +519,23 @@ byte SCSILS120::getStatusCode()
 
 void SCSILS120::eject()
 {
-        file.reset();
-        mediaChanged = true;
+	file.reset();
+	mediaChanged = true;
 	if (mode & MODE_UNITATTENTION) {
 		unitAttention = true;
 	}
-        motherBoard.getMSXCliComm().update(CliComm::MEDIA, name, "");
+	motherBoard.getMSXCliComm().update(CliComm::MEDIA, name, "");
 }
 
 void SCSILS120::insert(const string& filename)
 {
-        std::auto_ptr<File> newFile(new File(filename));
-        file = newFile;
-        mediaChanged = true;
+	std::auto_ptr<File> newFile(new File(filename));
+	file = newFile;
+	mediaChanged = true;
 	if (mode & MODE_UNITATTENTION) {
 		unitAttention = true;
 	}
-        motherBoard.getMSXCliComm().update(CliComm::MEDIA, name, filename);
+	motherBoard.getMSXCliComm().update(CliComm::MEDIA, name, filename);
 }
 
 unsigned SCSILS120::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& blocks)
@@ -735,10 +735,10 @@ byte SCSILS120::msgIn()
 scsiDeviceMsgOut()
 Notes:
     [out]
-          -1: Busfree demand. (Please process it in the call origin.)
-        bit2: Status phase demand. Error happend.
-        bit1: Make it to a busfree if ATN has not been released.
-        bit0: There is a message(MsgIn).
+	  -1: Busfree demand. (Please process it in the call origin.)
+	bit2: Status phase demand. Error happend.
+	bit1: Make it to a busfree if ATN has not been released.
+	bit0: There is a message(MsgIn).
 */
 int SCSILS120::msgOut(byte value)
 {

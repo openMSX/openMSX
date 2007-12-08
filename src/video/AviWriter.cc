@@ -172,10 +172,10 @@ AviWriter::~AviWriter()
 		+ (4 + 4 + ((strlen(dateStr   ) + 1 + 1) & ~1)) // 2nd chunk
 		); // size of the list
 	AVIOUT4("INFO");
-        AVIOUT4("ISFT");
+	AVIOUT4("ISFT");
 	AVIOUTd(strlen(versionStr) + 1); // # of bytes to follow
 	AVIOUTs(versionStr);
-        AVIOUT4("ICRD");
+	AVIOUT4("ICRD");
 	AVIOUTd(strlen(dateStr) + 1); // # of bytes to follow
 	AVIOUTs(dateStr);
 	// TODO: add artist (IART), comments (ICMT), name (INAM), etc.
@@ -192,7 +192,7 @@ AviWriter::~AviWriter()
 	header_pos = main_list;
 	AVIOUTd(nmain);
 	header_pos = AVI_HEADER_SIZE - 12;
-	
+
 	AVIOUT4("LIST");
 	AVIOUTd(written + 4);               // Length of list in bytes
 	AVIOUT4("movi");

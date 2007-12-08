@@ -2092,7 +2092,7 @@ void YMF262Debuggable::write(unsigned address, byte value, const EmuTime& time)
 
 
 // class YMF262
- 
+
 YMF262::YMF262(MSXMotherBoard& motherBoard, const std::string& name,
        const XMLElement& config, const EmuTime& time)
 	: pimple(new YMF262Impl(motherBoard, name, config, time))

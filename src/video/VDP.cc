@@ -592,7 +592,7 @@ void VDP::writeIO(word port, byte value, const EmuTime& time)
 			// Thanks to hap for finding this out. :)
 			if (isMSX1VDP()) {
 				vramPointer = (vramPointer & 0x3F00) | value;
-			} 
+			}
 			dataLatch = value;
 			registerDataStored = true;
 		}

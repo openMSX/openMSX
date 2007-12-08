@@ -418,8 +418,8 @@ void YM2151::keyOn(YM2151Operator* op, unsigned keySet) {
 		op->phase = 0; /* clear phase */
 		op->state = EG_ATT; /* KEY ON = attack */
 		op->volume += (~op->volume *
-                          (eg_inc[op->eg_sel_ar + ((eg_cnt >> op->eg_sh_ar)&7)])
-                         ) >>4;
+		          (eg_inc[op->eg_sel_ar + ((eg_cnt >> op->eg_sh_ar)&7)])
+		         ) >>4;
 		if (op->volume <= MIN_ATT_INDEX) {
 			op->volume = MIN_ATT_INDEX;
 			op->state = EG_DEC;
@@ -1383,7 +1383,7 @@ void YM2151::advance()
 	// so, when it contains 29, noise should change every 14.5 cycles (2 out of 29).
 	// if you read this code well, you'll see that is what happens here :)
 	noise_p -= 2;
-        if (noise_p < 0) {
+	if (noise_p < 0) {
 		noise_p += noise_f;
 		unsigned j = ((noise_rng ^ (noise_rng >> 3)) & 1) ^ 1;
 		noise_rng = (j << 16) | (noise_rng >> 1);

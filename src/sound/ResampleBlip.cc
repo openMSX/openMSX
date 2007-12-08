@@ -38,7 +38,7 @@ bool ResampleBlip<CHANNELS>::generateOutput(int* dataOut, unsigned num)
 				// at the end of the buffer and move the end-of-loop test
 				// into the 'samples differ' branch.
 				assert(required > 0);
-				buf[CHANNELS * required + ch] = 
+				buf[CHANNELS * required + ch] =
 					buf[CHANNELS * (required - 1) + ch] + 1;
 				FP pos(lastPos * invRatio);
 				int last = lastInput[ch]; // local var is slightly faster

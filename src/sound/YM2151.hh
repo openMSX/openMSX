@@ -118,7 +118,7 @@ private:
 	                          const EmuTime& start, const EmuDuration& sampDur);
 
 	 // Resample
-        virtual bool generateInput(int* buffer, unsigned num);
+	virtual bool generateInput(int* buffer, unsigned num);
 
 	void callback(byte flag);
 	void setStatus(byte flags);

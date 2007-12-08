@@ -80,10 +80,10 @@ private:
 	unsigned long long time;
 	Reactor& reactor;
 	BooleanSetting& consoleSetting;
-        const std::auto_ptr<OSDSettingChecker> settingChecker;
+	const std::auto_ptr<OSDSettingChecker> settingChecker;
 	bool active;
 
-        friend class OSDSettingChecker;
+	friend class OSDSettingChecker;
 };
 
 } // namespace openmsx

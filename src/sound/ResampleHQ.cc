@@ -176,7 +176,7 @@ ResampleHQ<CHANNELS>::ResampleHQ(Resample& input_, double ratio_)
 template <unsigned CHANNELS>
 ResampleHQ<CHANNELS>::~ResampleHQ()
 {
-        ResampleCoeffs::instance().releaseCoeffs(ratio);
+	ResampleCoeffs::instance().releaseCoeffs(ratio);
 }
 
 template <unsigned CHANNELS>
