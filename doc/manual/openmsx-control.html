@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <link title="Purple" rel="stylesheet" href="manual-purple.css"
+  type="text/css" />
+  <link title="Minty" rel="alternate stylesheet" href=
+  "manual-minty.css" type="text/css" />
+  <link title="Plain" rel="alternate stylesheet" href="manual.css"
+  type="text/css" />
+
+  <title>Controlling openMSX from External Applications</title>
+</head>
+
+<body>
+  <h1>Controlling openMSX from External Applications</h1>
+
+  <h2>Introduction</h2>
+
+  <p>The architecture of openMSX is that the main emulation code is all in a
+  separate program, the main openMSX executable. Debugger GUI's, launcher
+  GUI's, etc., can be external programs that control openMSX. This document
+  explains you how you can control openMSX from your own application.</p>
+
+  <div class="note">
+    Note: This document was not written for normal end users, but only for
+    developers who are interested in writing their own application that
+    controls openMSX.
+  </div>
+
+  <div class="note">
+  Disclaimer: it is possible that some update events are still missing and it
+  is also possible that the structure of the replies and commands change. We
+  will do our best to be backwards compatible, though.
+  </div>
+
+  <h2>Connecting</h2>
+
+  <p>There are multiple ways to connect to openMSX. The first (and oldest) way
+  is using a pipe. On Windows you can use a named pipe, on other systems you
+  use <code>stdio</code>. To enable this, start openMSX like this:</p>
+
+  <div class="commandline">
+  openmsx -control stdio
+  </div>
+
+  <p>or for Windows:</p>
+
+  <div class="commandline">
+  openmsx -control pipe
+  </div>
+
+  <p>The second method is using a socket. Connecting on non-Windows systems
+  goes with a UNIX domain socket. openMSX puts the socket in
+  <code>/tmp/openmsx-&lt;username&gt;/socket.&lt;pid&gt;</code>. The
+  <code>/tmp/</code> dir can be overridden by environment variables
+  <code>TMPDIR</code>, <code>TMP</code> or <code>TEMP</code> (in that order).
+  </p>
+
+  <p>On Windows (which does not support UNIX domain sockets), the socket is a
+  normal TCP socket. The port number is random between 9938 and 9958. This is done
+  to enforce applications to deal with multiple running openMSX processes. The
+  port number will be put in the following text file:</p>
+
+  <div class="commandline">
+  %USERPROFILE%\Documents and Settings\&lt;username&gt;\Local Settings\Temp\openmsx-default\socket.&lt;pid&gt;
+  </div>
+
+  <p>or, when <code>%USERPROFILE%</code> does not exist:</p>
+
+  <p>
+  <code>%TMPDIR%\openmsx-default</code> or<br/>
+  <code>%TMP%\openmsx-default</code> or<br/>
+  <code>%TEMP%\openmsx-default</code> or as a last resort:<br/>
+  <code>C:\WINDOWS\TEMP</code>
+  </p>
+
+  <p>After connecting, openMSX expects XML input on the channel and it will
+  also give you output. This is explained in the next section.</p>
+
+  <h2>Communication</h2>
+
+  <p>
+  After connecting, openMSX expects XML input on the channel (pipe or socket)
+  and it will also give you output in XML format. The first output it gives is this:
+  </p>
+
+<pre>
+&lt;openmsx-output&gt;
+&lt;log level="info"&gt;Using default machine: Boosted_MSX2_EN&lt;/log&gt;
+</pre>
+
+  <p>On non Windows systems you can easily try it out by just starting openMSX
+  via the <code>stdio</code> method, like explained above. You give XML
+  commands via the keyboard in the terminal and openMSX will print its
+  responses on the terminal as well.
+  </p>
+
+  <p>This first output is the opening tag (<code>&lt;openmsx-output&gt;</code>)
+  and a log message. All messages that are normally printed on stdout in the
+  terminal from which you start openMSX are in a <code>&lt;log&gt;</code> tag.
+  The level can be "info" or "warning" and the message is in the text node
+  itself.
+  </p>
+
+  <p>
+  When you want to start communicating back, you <em>always</em> have to start
+  with the opening tag first:
+  </p>
+
+  <div class="commandline">
+  &lt;openmsx-control&gt;
+  </div>
+
+  <p> When starting openMSX with the <code>-control</code> option, it will not show a
+  window: it starts with the 'none' renderer. So, a nice example (if you're
+  still experimenting on the command line) would be to type this:</p>
+
+  <div class="commandline">
+  &lt;command&gt;set renderer SDL&lt;/command&gt;
+  </div>
+
+  <p>
+  With the <code>&lt;command&gt;</code> tag you can give any openMSX console
+  command to openMSX. The commands are documented in the <a class="external"
+  href="commands.html">Console Commands Reference</a>.
+  </p>
+
+  <p>
+  Every <code>&lt;command&gt;</code> will result in a reply from openMSX. In
+  the above case it will be:
+  </p>
+
+<pre>
+&lt;reply result="ok"&gt;SDL&lt;/reply&gt;
+</pre>
+
+  <p>
+  The order is guaranteed, i.e. the replies will follow in the same order as in
+  which you gave the commands to openMSX. In this reply example, you see that
+  the command succeeded (result=ok) and it also gives you the actual result
+  text that would also be printed on the console. In this case, the value of
+  the renderer setting. When a command fails, you get something like this:
+  </p>
+
+<pre>
+&lt;command&gt;biep&lt;/command&gt;
+&lt;reply result="nok"&gt;invalid command name "biep"
+&lt;/reply&gt;
+</pre>
+
+  <p>
+  "biep" is not a valid command, and openMSX tells you this via a "nok" reply
+  with the error message in the text node.
+  </p>
+
+  <p>
+  The next important thing is events. When you use this interface to control
+  openMSX, you want to know when things change. For this, you can enable events
+  for certain event classes.
+  </p>
+
+  <p>An example:</p>
+
+
+  <div class="commandline">
+  &lt;command&gt;update enable led&lt;/command&gt;
+  </div>
+
+  <p>
+  This command will enable updates about LED events. So, when a LED changes, you
+get messages like this:
+  </p>
+
+<pre>
+&lt;update type="led" machine="machine1" name="power"&gt;on&lt;/update&gt;
+</pre>
+
+  <p>
+  So, when you get &lt;update&gt; tags, openMSX tells you that something
+  changed. In this case, it is a LED update, for the machine with ID
+  "machine1". The name of the LED is "power" and the value is in the text node:
+  on.
+  </p>
+
+  <p>Here is a list of the currently available event types and when they are sent:</p>
+
+  <table>
+    <tr>
+      <td><code>hardware</code></td>
+      <td>hardware changes occurred, like a change of machine</td>
+    </tr>
+    <tr>
+      <td><code>led</code></td>
+      <td>LED status changed</td>
+    </tr>
+    <tr>
+      <td><code>media</code></td>
+      <td>media (disk images, cartridges, etc.) changed</td>
+    </tr>
+    <tr>
+      <td><code>plug</code></td>
+      <td>a pluggable got plugged</td>
+    </tr>
+    <tr>
+      <td><code>unplug</code></td>
+      <td>a pluggable got unplugged</td>
+    </tr>
+    <tr>
+      <td><code>setting</code></td>
+      <td>the value of a setting changed</td>
+    </tr>
+    <tr>
+      <td><code>status</code></td>
+      <td>status changed, currently this is pause and debug break status</td>
+    </tr>
+    <tr>
+      <td><code>extension</code></td>
+      <td>extensions changed (add/remove)</td>
+    </tr>
+    <tr>
+      <td><code>sounddevice</code></td>
+      <td>sounddevices changed (add/remove)</td>
+    </tr>
+    <tr>
+      <td><code>connector</code></td>
+      <td>connectors changed (add/remove)</td>
+    </tr>
+  </table>
+
+  <h3>Update Examples</h3>
+
+  <p>Someone changed machines from Boosted MSX2 to Toshiba HX-10 at run time:</p>
+
+<pre>
+&lt;update type="hardware" name="machine2"&gt;add&lt;/update&gt;
+&lt;update type="hardware" machine="machine2" name="carta"&gt;add&lt;/update&gt;
+&lt;update type="hardware" machine="machine2" name="cartb"&gt;add&lt;/update&gt;
+&lt;update type="hardware" machine="machine2" name="cassetteplayer"&gt;add&lt;/update&gt;
+&lt;update type="hardware" machine="machine1" name="diskb"&gt;remove&lt;/update&gt;
+&lt;update type="hardware" machine="machine1" name="diska"&gt;remove&lt;/update&gt;
+&lt;update type="hardware" machine="machine1" name="carta"&gt;remove&lt;/update&gt;
+&lt;update type="hardware" machine="machine1" name="cartb"&gt;remove&lt;/update&gt;
+&lt;update type="hardware" machine="machine1" name="cartc"&gt;remove&lt;/update&gt;
+&lt;update type="hardware" machine="machine1" name="cassetteplayer"&gt;remove&lt;/update&gt;
+&lt;update type="hardware" name="machine1"&gt;remove&lt;/update&gt;
+&lt;update type="hardware" name="machine2"&gt;select&lt;/update&gt;
+</pre>
+
+  <p>CAPS LED went to OFF:</p>
+
+<pre>
+&lt;update type="led" machine="machine2" name="caps"&gt;off&lt;/update&gt;
+</pre>
+
+  <p>A tape was inserted in the cassetteplayer:</p>
+
+<pre>
+&lt;update type="media" machine="machine2" name="cassetteplayer"&gt;/home/manuel/msx-soft/tapes/Zoids.zip&lt;/update&gt;
+</pre>
+
+  <p>The cassetteplayer got into play mode:</p>
+
+<pre>
+&lt;update type="status" machine="machine2" name="cassetteplayer"&gt;play&lt;/update&gt;
+</pre>
+
+  <p>Someone plugged in a joystick:</p>
+
+<pre>
+&lt;update type="plug" machine="machine2" name="joyporta"&gt;joystick1&lt;/update&gt;
+</pre>
+  <p>And unplugs it again:</p>
+
+<pre>
+&lt;update type="unplug" machine="machine2" name="joyporta"&gt;&lt;/update&gt;
+</pre>
+
+  <p>Someone set the maxframeskip setting to 12:</p>
+
+<pre>
+&lt;update type="setting" name="maxframeskip"&gt;12&lt;/update&gt;
+</pre>
+
+  <p>openMSX got paused:</p>
+
+
+<pre>
+&lt;update type="status" name="paused"&gt;true&lt;/update&gt;
+</pre>
+  <p>openMSX got into a debug break state:</p>
+<pre>
+&lt;update type="status" machine="machine1" name="cpu"&gt;suspended&lt;/update&gt;
+</pre>
+  <p>openMSX got out of debug break state:</p>
+<pre>
+&lt;update type="status" machine="machine1" name="cpu"&gt;running&lt;/update&gt;
+</pre>
+
+  <p>Someone inserted a Philips NMS-1205 Music Module:</p>
+
+<pre>
+&lt;update type="sounddevice" machine="machine2" name="Philips NMS 1205 Music Module MSX-Audio 8-bit DAC"&gt;add&lt;/update&gt;
+&lt;update type="connector" machine="machine2" name="audiokeyboardport"&gt;add&lt;/update&gt;
+&lt;update type="sounddevice" machine="machine2" name="Philips NMS 1205 Music Module MSX-Audio DAC"&gt;add&lt;/update&gt;
+&lt;update type="sounddevice" machine="machine2" name="Philips NMS 1205 Music Module MSX-Audio"&gt;add&lt;/update&gt;
+&lt;update type="extension" machine="machine2" name="Philips_NMS_1205"&gt;add&lt;/update&gt;
+</pre>
+
+  <p>And with this, you should have all info that you need to make any external
+application that can control openMSX.</p>
+
+  <p>More real world examples can be found here:</p>
+
+  <ul>
+    <li>in the Contrib directory of openMSX (openmsx-control*)</li>
+    <li>in the code of the old openMSX Catapult (C++ via pipe)</li>
+    <li>in the code of the new openMSX Catapult (Python, still via pipe)</li>
+    <li>in the code of the openMSX GUI Debugger (C++ via socket)</li>
+  </ul>
+
+  <p class="version">$Id$</p>
+</body>
+</html>
