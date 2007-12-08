@@ -26,7 +26,7 @@ enum EnvelopeState {
 	ATTACK, DECAY, SUSHOLD, SUSTAIN, RELEASE, SETTLE, FINISH
 	};
 
-class Patch : private noncopyable {
+class Patch {
 public:
 	/**
 	 * Creates an uninitialized Patch object; call init() before use.
@@ -59,7 +59,6 @@ public:
 
 class Slot {
 public:
-	explicit Slot(bool type);
 	void reset(bool type);
 
 	inline void setEnvelopeState(EnvelopeState state);
@@ -85,7 +84,7 @@ public:
 	inline void updateEG();
 	inline void updateAll();
 
-	Patch* patch;
+	Patch patch;
 	unsigned* sintbl;	// Wavetable (for PG)
 
 	// OUTPUT
@@ -113,8 +112,6 @@ public:
 
 class Channel {
 public:
-	Channel();
-
 	/**
 	 * Initializes those parts that cannot be initialized in the constructor,
 	 * because the constructor cannot have arguments since we want to create
@@ -180,12 +177,11 @@ public:
 	}
 
 private:
-	// Channel & Slot
-	Slot* slot[18];
-	Channel channels[9];
-	
 	// Voice Data
 	Patch patches[19][2];
+
+	// Channel & Slot
+	Channel channels[9];
 
 	// Pitch Modulator
 	unsigned pm_phase;
@@ -200,10 +196,6 @@ private:
 
 	// Number of samples the output was completely silent
 	unsigned idleSamples;
-
-public:
-	// Empty voice data
-	static Patch nullPatch;
 };
 
 
@@ -287,9 +279,6 @@ static int rksTable[2][8][2];
 
 // Phase incr table for PG
 static unsigned dphaseTable[512][8][16];
-
-// Empty voice data
-Patch Global::nullPatch;
 
 
 //***************************************************//
@@ -580,11 +569,6 @@ void Patch::initCarrier(const byte* data)
 //                      Slot                                  //
 //                                                            //
 //************************************************************//
-Slot::Slot(bool type)
-{
-	reset(type);
-}
-
 void Slot::reset(bool type_)
 {
 	type = type_;
@@ -604,48 +588,46 @@ void Slot::reset(bool type_)
 	block = 0;
 	volume = 0;
 	egout = 0;
-	patch = &Global::nullPatch;
 	slot_on_flag = false;
 }
 
-
 void Slot::updatePG()
 {
-	dphase = dphaseTable[fnum][block][patch->ML];
+	dphase = dphaseTable[fnum][block][patch.ML];
 }
 
 void Slot::updateTLL()
 {
-	tll = tllTable[fnum >> 5][block][type ? volume : patch->TL][patch->KL];
+	tll = tllTable[fnum >> 5][block][type ? volume : patch.TL][patch.KL];
 }
 
 void Slot::updateRKS()
 {
-	rks = rksTable[fnum >> 8][block][patch->KR];
+	rks = rksTable[fnum >> 8][block][patch.KR];
 }
 
 void Slot::updateWF()
 {
-	sintbl = waveform[patch->WF];
+	sintbl = waveform[patch.WF];
 }
 
 void Slot::updateEG()
 {
 	switch (state) {
 	case ATTACK:
-		eg_dphase = dphaseARTable[patch->AR][rks];
+		eg_dphase = dphaseARTable[patch.AR][rks];
 		break;
 	case DECAY:
-		eg_dphase = dphaseDRTable[patch->DR][rks];
+		eg_dphase = dphaseDRTable[patch.DR][rks];
 		break;
 	case SUSTAIN:
-		eg_dphase = dphaseDRTable[patch->RR][rks];
+		eg_dphase = dphaseDRTable[patch.RR][rks];
 		break;
 	case RELEASE:
 		if (sustain) {
 			eg_dphase = dphaseDRTable[5][rks];
-		} else if (patch->EG) {
-			eg_dphase = dphaseDRTable[patch->RR][rks];
+		} else if (patch.EG) {
+			eg_dphase = dphaseDRTable[patch.RR][rks];
 		} else {
 			eg_dphase = dphaseDRTable[7][rks];
 		}
@@ -710,7 +692,7 @@ void Slot::slotOff()
 // Change a rhythm voice
 void Slot::setPatch(Patch& patch)
 {
-	this->patch = &patch;
+	this->patch = patch; // copy data
 }
 
 void Slot::setVolume(int newVolume)
@@ -726,16 +708,10 @@ void Slot::setVolume(int newVolume)
 //                                                           //
 //***********************************************************//
 
-
-Channel::Channel()
-	: mod(false), car(true)
-{
-	reset();
-}
-
 void Channel::init(Global& global)
 {
 	this->global = &global;
+	reset();
 }
 
 void Channel::reset()
@@ -1013,7 +989,7 @@ static inline int wave2_8pi(int e)
 // PG
 void Slot::calc_phase(PhaseModulation lfo_pm)
 {
-	if (patch->PM) {
+	if (patch.PM) {
 		cphase += (lfo_pm * dphase).toInt();
 	} else {
 		cphase += dphase;
@@ -1037,7 +1013,7 @@ void Slot::calc_envelope(int lfo_am)
 	case ATTACK:
 		out = AR_ADJUST_TABLE[eg_phase.toInt()];
 		eg_phase += eg_dphase;
-		if ((eg_phase >= EG_DP_MAX) || (patch->AR == 15)) {
+		if ((eg_phase >= EG_DP_MAX) || (patch.AR == 15)) {
 			out = 0;
 			eg_phase = EnvPhaseIndex(0);
 			setEnvelopeState(DECAY);
@@ -1047,15 +1023,15 @@ void Slot::calc_envelope(int lfo_am)
 	case DECAY:
 		out = eg_phase.toInt();
 		eg_phase += eg_dphase;
-		if (eg_phase >= SL[patch->SL]) {
-			eg_phase = SL[patch->SL];
-			setEnvelopeState(patch->EG ? SUSHOLD : SUSTAIN);
+		if (eg_phase >= SL[patch.SL]) {
+			eg_phase = SL[patch.SL];
+			setEnvelopeState(patch.EG ? SUSHOLD : SUSTAIN);
 			updateEG();
 		}
 		break;
 	case SUSHOLD:
 		out = eg_phase.toInt();
-		if (patch->EG == 0) {
+		if (patch.EG == 0) {
 			setEnvelopeState(SUSTAIN);
 			updateEG();
 		}
@@ -1084,7 +1060,7 @@ void Slot::calc_envelope(int lfo_am)
 		return;
 	}
 	out = EG2DB(out + tll);
-	if (patch->AM) {
+	if (patch.AM) {
 		out += lfo_am;
 	}
 	egout = std::min<unsigned>(out, DB_MUTE - 1) | 3;
@@ -1104,8 +1080,8 @@ int Slot::calc_slot_mod()
 {
 	output[1] = output[0];
 	int phase = cphase >> DP_BASE_BITS;
-	if (patch->FB) {
-		phase += wave2_8pi(feedback) >> patch->FB;
+	if (patch.FB) {
+		phase += wave2_8pi(feedback) >> patch.FB;
 	}
 	output[0] = dB2LinTab[sintbl[phase & PG_MASK] + egout];
 	feedback = (output[1] + output[0]) >> 1;
@@ -1304,6 +1280,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 		for (int i = 0; i < 9; ++i) {
 			Channel& ch = channels[i];
 			if (ch.patch_number == 0) {
+				ch.setPatch(0); // TODO optimize
 				ch.mod.updatePG();
 				ch.mod.updateRKS();
 				ch.mod.updateEG();
@@ -1319,6 +1296,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 		for (int i = 0; i < 9; ++i) {
 			Channel& ch = channels[i];
 			if(ch.patch_number == 0) {
+				ch.setPatch(0); // TODO optimize
 				ch.car.updatePG();
 				ch.car.updateRKS();
 				ch.car.updateEG();
@@ -1331,6 +1309,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 		for (int i = 0; i < 9; ++i) {
 			Channel& ch = channels[i];
 			if (ch.patch_number == 0) {
+				ch.setPatch(0); // TODO optimize
 				ch.mod.updateTLL();
 			}
 		}
@@ -1343,6 +1322,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 		for (int i = 0; i < 9; ++i) {
 			Channel& ch = channels[i];
 			if (ch.patch_number == 0) {
+				ch.setPatch(0); // TODO optimize
 				ch.mod.updateWF();
 				ch.car.updateWF();
 			}
@@ -1354,6 +1334,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 		for (int i = 0; i < 9; ++i) {
 			Channel& ch = channels[i];
 			if (ch.patch_number == 0) {
+				ch.setPatch(0); // TODO optimize
 				ch.mod.updateEG();
 			}
 		}
@@ -1364,6 +1345,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 		for (int i = 0; i < 9; ++i) {
 			Channel& ch = channels[i];
 			if (ch.patch_number == 0) {
+				ch.setPatch(0); // TODO optimize
 				ch.car.updateEG();
 			}
 		}
@@ -1374,6 +1356,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 		for (int i = 0; i < 9; ++i) {
 			Channel& ch = channels[i];
 			if (ch.patch_number == 0) {
+				ch.setPatch(0); // TODO optimize
 				ch.mod.updateEG();
 			}
 		}
@@ -1384,6 +1367,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 		for (int i = 0; i < 9; i++) {
 			Channel& ch = channels[i];
 			if (ch.patch_number == 0) {
+				ch.setPatch(0); // TODO optimize
 				ch.car.updateEG();
 			}
 		}
