@@ -85,9 +85,9 @@ plug		when pluggables get plugged
 setting		when settings change
 status		when status changes (currently pause and debug break status)
 unplug		when pluggables get unplugged
-
-(Note: there is no update yet for extensions that get added or removed at run
-time.)
+extension	when extensions change (add/remove)
+sounddevice	when sounddevices change (add/remove)
+connector	when connectors change (add/remove)
 
 Some examples:
 
@@ -128,6 +128,13 @@ openMSX got into a debug break state:
 <update type="status" machine="machine1" name="cpu">suspended</update>
 openMSX got out of debug break state:
 <update type="status" machine="machine1" name="cpu">running</update>
+
+Someone inserted a Philips NMS-1205 Music Module:
+<update type="sounddevice" machine="machine2" name="Philips NMS 1205 Music Module MSX-Audio 8-bit DAC">add</update>
+<update type="connector" machine="machine2" name="audiokeyboardport">add</update>
+<update type="sounddevice" machine="machine2" name="Philips NMS 1205 Music Module MSX-Audio DAC">add</update>
+<update type="sounddevice" machine="machine2" name="Philips NMS 1205 Music Module MSX-Audio">add</update>
+<update type="extension" machine="machine2" name="Philips_NMS_1205">add</update>
 
 And with this, you should have all info that you need to make any external
 application that can control openMSX via pipes. When using a socket, everything
