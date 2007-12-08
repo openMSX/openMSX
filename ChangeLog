@@ -1,5 +1,17 @@
 $Id$
 
+2007-12-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Another YM2413 optimization:
+	   Before the Slot objects kept a pointer to a Patch object, possibly
+	   they can share the same Patch. One of the patches is used for the
+	   custom instrument, so this one can change.
+	   After this patch we keep the Patch object by value in Slot. A
+	   disadvantage is that if the custom instrument changes, we have to
+	   update it in every Slot that has this instrument selected (though
+	   we already had to check this for other reasons).
+	   This change removes one pointer indirection from frequently used
+	   code, in total I measured about 2% speedup.
+
 2007-12-06 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Various optimizations in YM2413:
 	   Combined I could measure upto 10% speedup.
