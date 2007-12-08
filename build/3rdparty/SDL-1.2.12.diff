@@ -1,26 +1,7 @@
---- SDL-1.2.12/src/video/quartz/SDL_QuartzEvents.m	2007/07/15 17:22:39	3295
-+++ SDL-1.2.12/src/video/quartz/SDL_QuartzEvents.m	2007/08/21 06:52:33	3445
-@@ -270,6 +270,8 @@
-         [field_edit interpretKeyEvents:[NSArray arrayWithObject:event]];
-         chars = [ event characters ];
-         numChars = [ chars length ];
-+        if (numChars > 0)
-+            [field_edit setString:@""];
-     } else {
-         numChars = 0;
-     }
---- SDL-1.2.12/src/cdrom/macosx/AudioFilePlayer.h.orig	2007-07-05 12:27:56.000000000 -0700
-+++ SDL-1.2.12/src/cdrom/macosx/AudioFilePlayer.h	2007-07-05 12:29:36.000000000 -0700
-@@ -33,6 +33,7 @@
- #include <CoreServices/CoreServices.h>
- 
- #include <AudioUnit/AudioUnit.h>
-+#include <AudioUnit/AUNTComponent.h>
- 
- #include "SDL_error.h"
- 
---- SDL-1.2.12/src/audio/macosx/SDL_coreaudio.c.orig	2007-07-05 12:34:39.000000000 -0700
-+++ SDL-1.2.12/src/audio/macosx/SDL_coreaudio.c	2007-07-05 12:35:25.000000000 -0700
+Only in SDL-1.2.12.org/include: SDL_config.h
+diff -ru SDL-1.2.12.org/src/audio/macosx/SDL_coreaudio.c SDL-1.2.12/src/audio/macosx/SDL_coreaudio.c
+--- SDL-1.2.12.org/src/audio/macosx/SDL_coreaudio.c	2007-07-20 07:52:10.000000000 +0200
++++ SDL-1.2.12/src/audio/macosx/SDL_coreaudio.c	2007-12-05 03:31:41.000000000 +0100
 @@ -22,6 +22,7 @@
  #include "SDL_config.h"
  
@@ -29,3 +10,64 @@
  
  #include "SDL_audio.h"
  #include "../SDL_audio_c.h"
+diff -ru SDL-1.2.12.org/src/cdrom/macosx/AudioFilePlayer.h SDL-1.2.12/src/cdrom/macosx/AudioFilePlayer.h
+--- SDL-1.2.12.org/src/cdrom/macosx/AudioFilePlayer.h	2007-07-20 07:52:11.000000000 +0200
++++ SDL-1.2.12/src/cdrom/macosx/AudioFilePlayer.h	2007-12-05 03:31:41.000000000 +0100
+@@ -33,6 +33,7 @@
+ #include <CoreServices/CoreServices.h>
+ 
+ #include <AudioUnit/AudioUnit.h>
++#include <AudioUnit/AUNTComponent.h>
+ 
+ #include "SDL_error.h"
+ 
+diff -ru SDL-1.2.12.org/src/video/quartz/SDL_QuartzEvents.m SDL-1.2.12/src/video/quartz/SDL_QuartzEvents.m
+--- SDL-1.2.12.org/src/video/quartz/SDL_QuartzEvents.m	2007-07-20 07:52:17.000000000 +0200
++++ SDL-1.2.12/src/video/quartz/SDL_QuartzEvents.m	2007-12-08 05:23:07.000000000 +0100
+@@ -267,7 +267,7 @@
+         the scancode/keysym.
+     */
+     if (SDL_TranslateUNICODE && state == SDL_PRESSED) {
+-        [field_edit interpretKeyEvents:[NSArray arrayWithObject:event]];
++        /*[field_edit interpretKeyEvents:[NSArray arrayWithObject:event]];*/
+         chars = [ event characters ];
+         numChars = [ chars length ];
+     } else {
+@@ -303,7 +303,7 @@
+         }
+     }
+     
+-    if (SDL_getenv ("SDL_ENABLEAPPEVENTS"))
++    if (SDL_getenv ("SDL_ENABLEAPPEVENTS") && !(mode_flags & SDL_FULLSCREEN))
+         [ NSApp sendEvent:event ];
+ }
+ 
+diff -ru SDL-1.2.12.org/src/video/quartz/SDL_QuartzWindow.h SDL-1.2.12/src/video/quartz/SDL_QuartzWindow.h
+--- SDL-1.2.12.org/src/video/quartz/SDL_QuartzWindow.h	2007-07-20 07:52:17.000000000 +0200
++++ SDL-1.2.12/src/video/quartz/SDL_QuartzWindow.h	2007-12-08 05:38:32.000000000 +0100
+@@ -30,6 +30,7 @@
+ - (void)appWillUnhide:(NSNotification*)note;
+ - (void)appDidUnhide:(NSNotification*)note;
+ - (id)initWithContentRect:(NSRect)contentRect styleMask:(unsigned int)styleMask backing:(NSBackingStoreType)backingType defer:(BOOL)flag;
++- (BOOL)performKeyEquivalent:(NSEvent*)event;
+ @end
+ 
+ /* Delegate for our NSWindow to send SDLQuit() on close */
+diff -ru SDL-1.2.12.org/src/video/quartz/SDL_QuartzWindow.m SDL-1.2.12/src/video/quartz/SDL_QuartzWindow.m
+--- SDL-1.2.12.org/src/video/quartz/SDL_QuartzWindow.m	2007-07-20 07:52:17.000000000 +0200
++++ SDL-1.2.12/src/video/quartz/SDL_QuartzWindow.m	2007-12-08 05:42:52.000000000 +0100
+@@ -198,6 +198,14 @@
+     return [ super initWithContentRect:contentRect styleMask:styleMask backing:backingType defer:flag ];
+ }
+ 
++- (BOOL)performKeyEquivalent:(NSEvent*)event
++{
++	/* give the menu a chance to handle the key equivalent */
++	[[NSApp mainMenu] performKeyEquivalent:event];
++	/* avoid beep by pretending we handled it */
++	return YES;	
++}
++
+ @end
+ 
+ @implementation SDL_QuartzWindowDelegate
