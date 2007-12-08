@@ -1,7 +1,7 @@
 Only in SDL-1.2.12.org/include: SDL_config.h
 diff -ru SDL-1.2.12.org/src/audio/macosx/SDL_coreaudio.c SDL-1.2.12/src/audio/macosx/SDL_coreaudio.c
 --- SDL-1.2.12.org/src/audio/macosx/SDL_coreaudio.c	2007-07-20 07:52:10.000000000 +0200
-+++ SDL-1.2.12/src/audio/macosx/SDL_coreaudio.c	2007-12-05 03:31:41.000000000 +0100
++++ SDL-1.2.12/src/audio/macosx/SDL_coreaudio.c	2007-12-08 20:57:26.000000000 +0100
 @@ -22,6 +22,7 @@
  #include "SDL_config.h"
  
@@ -12,7 +12,7 @@ diff -ru SDL-1.2.12.org/src/audio/macosx/SDL_coreaudio.c SDL-1.2.12/src/audio/ma
  #include "../SDL_audio_c.h"
 diff -ru SDL-1.2.12.org/src/cdrom/macosx/AudioFilePlayer.h SDL-1.2.12/src/cdrom/macosx/AudioFilePlayer.h
 --- SDL-1.2.12.org/src/cdrom/macosx/AudioFilePlayer.h	2007-07-20 07:52:11.000000000 +0200
-+++ SDL-1.2.12/src/cdrom/macosx/AudioFilePlayer.h	2007-12-05 03:31:41.000000000 +0100
++++ SDL-1.2.12/src/cdrom/macosx/AudioFilePlayer.h	2007-12-08 20:57:26.000000000 +0100
 @@ -33,6 +33,7 @@
  #include <CoreServices/CoreServices.h>
  
@@ -23,17 +23,19 @@ diff -ru SDL-1.2.12.org/src/cdrom/macosx/AudioFilePlayer.h SDL-1.2.12/src/cdrom/
  
 diff -ru SDL-1.2.12.org/src/video/quartz/SDL_QuartzEvents.m SDL-1.2.12/src/video/quartz/SDL_QuartzEvents.m
 --- SDL-1.2.12.org/src/video/quartz/SDL_QuartzEvents.m	2007-07-20 07:52:17.000000000 +0200
-+++ SDL-1.2.12/src/video/quartz/SDL_QuartzEvents.m	2007-12-08 05:23:07.000000000 +0100
-@@ -267,7 +267,7 @@
++++ SDL-1.2.12/src/video/quartz/SDL_QuartzEvents.m	2007-12-08 21:00:16.000000000 +0100
+@@ -267,7 +267,9 @@
          the scancode/keysym.
      */
      if (SDL_TranslateUNICODE && state == SDL_PRESSED) {
 -        [field_edit interpretKeyEvents:[NSArray arrayWithObject:event]];
-+        /*[field_edit interpretKeyEvents:[NSArray arrayWithObject:event]];*/
++        if (!([event modifierFlags] & NSCommandKeyMask)) {
++            [field_edit interpretKeyEvents:[NSArray arrayWithObject:event]];
++        }
          chars = [ event characters ];
          numChars = [ chars length ];
      } else {
-@@ -303,7 +303,7 @@
+@@ -303,7 +305,7 @@
          }
      }
      
@@ -44,7 +46,7 @@ diff -ru SDL-1.2.12.org/src/video/quartz/SDL_QuartzEvents.m SDL-1.2.12/src/video
  
 diff -ru SDL-1.2.12.org/src/video/quartz/SDL_QuartzWindow.h SDL-1.2.12/src/video/quartz/SDL_QuartzWindow.h
 --- SDL-1.2.12.org/src/video/quartz/SDL_QuartzWindow.h	2007-07-20 07:52:17.000000000 +0200
-+++ SDL-1.2.12/src/video/quartz/SDL_QuartzWindow.h	2007-12-08 05:38:32.000000000 +0100
++++ SDL-1.2.12/src/video/quartz/SDL_QuartzWindow.h	2007-12-08 20:57:26.000000000 +0100
 @@ -30,6 +30,7 @@
  - (void)appWillUnhide:(NSNotification*)note;
  - (void)appDidUnhide:(NSNotification*)note;
@@ -55,7 +57,7 @@ diff -ru SDL-1.2.12.org/src/video/quartz/SDL_QuartzWindow.h SDL-1.2.12/src/video
  /* Delegate for our NSWindow to send SDLQuit() on close */
 diff -ru SDL-1.2.12.org/src/video/quartz/SDL_QuartzWindow.m SDL-1.2.12/src/video/quartz/SDL_QuartzWindow.m
 --- SDL-1.2.12.org/src/video/quartz/SDL_QuartzWindow.m	2007-07-20 07:52:17.000000000 +0200
-+++ SDL-1.2.12/src/video/quartz/SDL_QuartzWindow.m	2007-12-08 05:42:52.000000000 +0100
++++ SDL-1.2.12/src/video/quartz/SDL_QuartzWindow.m	2007-12-08 20:57:26.000000000 +0100
 @@ -198,6 +198,14 @@
      return [ super initWithContentRect:contentRect styleMask:styleMask backing:backingType defer:flag ];
  }
