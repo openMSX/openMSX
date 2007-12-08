@@ -9,8 +9,7 @@ SUBDIRS:=manual
 # Below is the list of docs that should be included in installation.
 INSTALL_DOCS:= \
 	release-notes.txt release-history.txt \
-	exampleconfigs.xml \
-	openmsx-control-xml.txt
+	exampleconfigs.xml
 
 DIST:=$(INSTALL_DOCS) \
 	msxinfo-article.html schema1.png schema2.png \
