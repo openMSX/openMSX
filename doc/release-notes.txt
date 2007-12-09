@@ -26,10 +26,10 @@ emulation of the VLM5030, the sample chip used in the unreleased Konami game
 Keyboard Master and emulation of the synthesis part of the Yamaha SFG-05 sound
 module (keyboard and MIDI support is still missing).
 
-Also on the non-sound department the code of the blueMSX Team enabled to create
-some new features: Gouda SCSI, MEGA-SCSI, ESE RAM, ESE SCC and WAVE SCSI. Note
-that the SCSI emulation is still experimental, so make sure you don't use it
-to store data of which you don't have recent backups.
+Also on the non-sound department, the code of the blueMSX Team enabled us to
+add some new features: Gouda SCSI, MEGA-SCSI, ESE RAM, ESE SCC and WAVE SCSI.
+Note that the SCSI emulation is still experimental, so make sure you don't use
+it to store data of which you don't have recent backups.
 
 Last but not least: a lock-up bug was removed from the Windows version, which
 could occur on dual core and hyperthreading CPU's.
@@ -51,13 +51,13 @@ New or improved emulator features:
 
 MSX device support:
 - Partial support for Yamaha SFG-05 (only the YM2151, no keyboard and MIDI).
-- Support for the VLM5030 in Konami Keyboard Master.
+- Support for the VLM5030 in Konami's Keyboard Master.
 - Improved accuracy in SCC emulation.
 - Support for ESE devices: MEGA SCSI, ESE RAM, ESE SCC, WAVE-SCSI.
 - Support for Gouda/Novaxis SCSI.
 - Support for password cartridge.
 - Support for the Super Lode Runner mapper.
-- Real support for the Halnote mapper. Thanks to blueMSX team.
+- Real support for the Halnote mapper. Thanks to the blueMSX team.
 
 Build system, packaging, documentation:
 - Added support for building a statically linked executable on Windows.
