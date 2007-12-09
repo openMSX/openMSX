@@ -1,5 +1,9 @@
 $Id$
 
+2007-12-09 David Heremans <david.heremans@gnu-linux.net>
+	* Fixed small bug in diskmanipulator:
+	   Extracted files timestamp had an offset of one month.
+
 2007-12-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Another YM2413 optimization:
 	   Before the Slot objects kept a pointer to a Patch object, possibly

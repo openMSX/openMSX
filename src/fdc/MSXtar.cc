@@ -830,7 +830,7 @@ void MSXtar::changeTime(string resultFile, MSXDirEntry& direntry)
 	mtim.tm_min   =  (t & 0x03e0) >> 5;
 	mtim.tm_hour  =  (t & 0xf800) >> 11;
 	mtim.tm_mday  =  (d & 0x001f);
-	mtim.tm_mon   =  (d & 0x01e0) >> 5;
+	mtim.tm_mon   = ((d & 0x01e0) >> 5) - 1;
 	mtim.tm_year  = ((d & 0xfe00) >> 9) + 80;
 	mtim.tm_isdst = -1;
 	utim.actime  = mktime(&mtim);
