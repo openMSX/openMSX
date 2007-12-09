@@ -239,7 +239,7 @@ void SetCompleter::tabCompletion(vector<string>& tokens) const
 			// complete setting name
 			set<string> settings;
 			manager.getSettingNames(settings);
-			completeString(tokens, settings);
+			completeString(tokens, settings, false); // case insensitive
 			break;
 		}
 		case 3: {
