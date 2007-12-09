@@ -1,5 +1,10 @@
 $Id$
 
+2007-12-09 Aernold Metselaar <arnold.metselaar@planet.nl>
+	* Fixed small bug in diskmanipulator:
+	  Extracted files timestamp had most signifiocant bit of minutes set
+	  to zero.
+
 2007-12-09 David Heremans <david.heremans@gnu-linux.net>
 	* Fixed small bug in diskmanipulator:
 	   Extracted files timestamp had an offset of one month.

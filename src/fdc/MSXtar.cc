@@ -827,7 +827,7 @@ void MSXtar::changeTime(string resultFile, MSXDirEntry& direntry)
 	struct tm mtim;
 	struct utimbuf utim;
 	mtim.tm_sec   =  (t & 0x001f) << 1;
-	mtim.tm_min   =  (t & 0x03e0) >> 5;
+	mtim.tm_min   =  (t & 0x07e0) >> 5;
 	mtim.tm_hour  =  (t & 0xf800) >> 11;
 	mtim.tm_mday  =  (d & 0x001f);
 	mtim.tm_mon   = ((d & 0x01e0) >> 5) - 1;
