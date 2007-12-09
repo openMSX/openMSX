@@ -45,11 +45,11 @@ DOWNLOAD_DIRECTX:=http://alleg.sourceforge.net/files
 # These were the most recent versions at the moment of writing this Makefile.
 # You can use other versions if you like; adjust the names accordingly.
 PACKAGE_ZLIB:=zlib-1.2.3
-PACKAGE_PNG:=libpng-1.2.22
+PACKAGE_PNG:=libpng-1.2.23
 PACKAGE_SDL:=SDL-1.2.12
 PACKAGE_SDL_IMAGE:=SDL_image-1.2.6
 PACKAGE_GLEW:=glew-1.4.0
-PACKAGE_TCL:=tcl8.4.15
+PACKAGE_TCL:=tcl8.4.16
 PACKAGE_XML:=libxml2-2.6.30
 PACKAGE_DIRECTX:=dx70
 
