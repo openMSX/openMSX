@@ -507,6 +507,16 @@ void Keyboard::processKeyEvent(bool down, const KeyEvent& keyEvent)
 			unicode = 0;
 		} else {
 			unicode = keyEvent.getUnicode();
+			if ((unicode < 0x20) || ((0x7F <= unicode) && (unicode < 0xA0))) {
+				// Control character in C0 or C1 range.
+				// Use SDL's interpretation instead.
+				unicode = 0;
+			} else if ((0xE000 <= unicode) && (unicode < 0xF900)) {
+				// Code point in Private Use Area: undefined by Unicode,
+				// so we rely on SDL's interpretation instead.
+				// For example the Mac's cursor keys are in this range.
+				unicode = 0;
+			}
 		}
 		if (key < MAX_KEYSYM) {
 			// Remember which unicode character is currently derived
