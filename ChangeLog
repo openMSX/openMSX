@@ -1,5 +1,8 @@
 $Id$
 
+2007-12-10 Alex Wulms
+	* Added unicode support to event recorder/replayer logic
+
 2007-12-09 Aernold Metselaar <arnold.metselaar@planet.nl>
 	* Fixed small bug in diskmanipulator:
 	  Extracted files timestamp had most signifiocant bit of minutes set

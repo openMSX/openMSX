@@ -50,6 +50,10 @@ void KeyEvent::toStringImpl(TclObject& result) const
 {
 	result.addListElement("keyb");
 	result.addListElement(Keys::getName(getKeyCode()));
+	if (getUnicode() != 0)
+	{
+		result.addListElement("unicode" + StringOp::toString(getUnicode()));
+	}
 }
 
 bool KeyEvent::lessImpl(const InputEvent& other) const
@@ -63,7 +67,7 @@ bool KeyEvent::lessImpl(const InputEvent& other) const
 // class KeyUpEvent
 
 KeyUpEvent::KeyUpEvent(Keys::KeyCode keyCode)
-	: KeyEvent(OPENMSX_KEY_UP_EVENT, keyCode, word(-1))
+	: KeyEvent(OPENMSX_KEY_UP_EVENT, keyCode, word(0))
 {
 }
 
@@ -76,7 +80,7 @@ KeyUpEvent::KeyUpEvent(Keys::KeyCode keyCode, word unicode)
 // class KeyDownEvent
 
 KeyDownEvent::KeyDownEvent(Keys::KeyCode keyCode)
-	: KeyEvent(OPENMSX_KEY_DOWN_EVENT, keyCode, word(-1))
+	: KeyEvent(OPENMSX_KEY_DOWN_EVENT, keyCode, word(0))
 {
 }
 

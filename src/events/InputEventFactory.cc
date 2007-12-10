@@ -13,26 +13,32 @@ namespace openmsx {
 
 namespace InputEventFactory {
 
-static EventPtr parseKeyEvent(const string& str)
+static EventPtr parseKeyEvent(const string& str, const int unicode)
 {
 	Keys::KeyCode keyCode = Keys::getCode(str);
 	if (keyCode == Keys::K_NONE) {
 		throw CommandException("Invalid keycode: " + str);
 	}
 	if (keyCode & Keys::KD_RELEASE) {
-		return EventPtr(new KeyUpEvent(keyCode));
+		return EventPtr(new KeyUpEvent(keyCode, unicode));
 	} else {
-		return EventPtr(new KeyDownEvent(keyCode));
+		return EventPtr(new KeyDownEvent(keyCode, unicode));
 	}
 }
 
 static EventPtr parseKeyEvent(
 		const string& str, const vector<string>& components)
 {
-	if (components.size() != 2) {
+	if (components.size() == 2) {
+		return parseKeyEvent(components[1], 0);
+	}
+	else if (components.size() == 3)
+	{
+		return parseKeyEvent(components[1], StringOp::stringToInt(components[2].substr(7)));
+	}
+	else {
 		throw CommandException("Invalid keyboard event: " + str);
 	}
-	return parseKeyEvent(components[1]);
 }
 
 static bool upDown(const string& str)
@@ -160,7 +166,7 @@ EventPtr createInputEvent(const string& str)
 		return parseCommandEvent(str, components);
 	} else {
 		// fall back
-		return parseKeyEvent(components[0]);
+		return parseKeyEvent(components[0], 0);
 	}
 }
 
