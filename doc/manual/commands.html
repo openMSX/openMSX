@@ -2409,32 +2409,32 @@
 
   <p>Determine the behavior of the DirAsDSK when inserting a directory to be used as diskimage.</p>
 
-  <p>The posible values are <code>read_only</code>, <code>cached_write</code>, <code>nodelete</code> and <code>full</code>.</p>
-  <p>Altough it is the most riscfull method the default is set to be <code>full</code> since this is wat most users expect from using DirAsDisk.</p>
-  
+  <p>The possible values are <code>read_only</code>, <code>cached_write</code>, <code>nodelete</code> and <code>full</code>.</p>
+  <p>Although it is the most risky mode, the default is set to <code>full</code>, since this is what most users expect from using DirAsDSK.</p>
+
   <table>
     <tr>
       <td><code>read_only</code></td>
 
-      <td>The MSX can not write to the virtual disk.<br/>Changes on the host-OS are stilled transfered to the virtual disk</td>
+      <td>The MSX can not write to the virtual disk.<br/>Changes on the host-OS are still reflected on the virtual disk, however.</td>
     </tr>
 
     <tr>
       <td><code>cached_write</code></td>
 
-      <td>The MSX can write to the virtual disk, all changes are however only cached in memory, no changes are passed onto the host-OS.<br/>Changes on the host-OS are stilled transfered to the virtual disk, and will overide any changes that to MSX has made</td>
+      <td>The MSX can write to the virtual disk, however, all changes are only cached in memory, no changes are passed onto the host-OS.<br/>Changes on the host-OS are still reflected on the virtual disk and will override any changes that the MSX has made.</td>
     </tr>
 
     <tr>
       <td><code>nodelete</code></td>
 
-      <td>Changes are two ways, from Host-OS to MSX and vice versa.<br/>However deleting a file on the MSX will not erase the file from the HOST-OS. This can lead to unexpected behavior however if the MSX later recreates a file with the same name, since this will be reflected towards the HOST-OS</td>
+      <td>Changes are two ways, from host-OS to MSX and vice versa.<br/>However, deleting a file on the MSX will not delete the file on the host-OS. This can lead to unexpected behavior when the MSX later recreates a file with the same name, since this will be reflected towards the host-OS.</td>
     </tr>
 
     <tr>
       <td><code>full</code></td>
 
-      <td>All changes are performed both ways, no restrictions apply</td>
+      <td>All changes are performed both ways, no restrictions apply.</td>
     </tr>
   </table>
 
@@ -2460,13 +2460,13 @@
     Note: this setting is only used when the directory is inserted, it is not possible to change the behaviour of the current virtual disk by altering the setting. The new setting will become effective after the current virtual disk has been ejected.
   </div>
   <div class="note">
-    Note: On turbo-R machine the MSX keeps a cache of the directory sectors in memory, thus changes made on the host OS are detected by the DirAsDSK routine but will not show up in those machines while the data sectors will be changed when reading however. This can cause unexpected data to be used in the MSX environment. To rectify this situation perform a disk eject and reinsert the de directory again. This will cause the hardware switch that the turbo-R has to be toggled, and it's internal cache to be invalidated. Since the turbo-R machines do not use a write cache the changes on the MSX side are correctly written to the host OS though.
+    Note: On turboR machines, the MSX keeps a cache of the directory sectors in memory. This means that changes made on the host OS are detected by the DirAsDSK routine, but will not show up in those machines. The data sectors will have been changed when reading, however. This can cause unexpected data to be read in the MSX environment. To rectify this situation, perform a disk eject and reinsert the de directory again. This will cause the hardware switch that the turboR has to be toggled, and its internal cache to be invalidated. Since the turboR machines do not use a write cache, the changes on the MSX side are correctly written to the host OS.
   </div>
 
 
   <h3><a id="DirAsDSKpersistent">DirAsDSKpersistent</a></h3>
 
-  <p>When DirAsDSK is used all saved data is internally stored in a cache. When the floppy is ejected from the emulated MSX, all this cached data will be lost. It is possible to store the cached sectors into a special file in the directory called '.sector.cache'. This way, when the directory is used again, all cached sectors can be loaded again and sector writes can co-exist with the file based approach offered by the DirAsDSK feature. Some file based games use arbitrary chosen sectors on a disk to store save states without linking them to a file. By saving the cached sector writes this data is persistent between sequential DirAsDisk usages.</p>
+  <p>When DirAsDSK is used, all saved data is internally stored in a cache. When the floppy is ejected from the emulated MSX, all this cached data will be lost. It is possible to store the cached sectors into a special file in the current directory called '<code>.sector.cache</code>'. This way, when the directory is used again, all cached sectors can be loaded again and sector writes can co-exist with the file based approach offered by the DirAsDSK feature. Some file based games use arbitrary chosen sectors on a disk to store save states without linking them to a file. By saving the cached sector writes this data is persistent between sequential DirAsDisk usages.</p>
 
   <div class="subsectiontitle">
     usage:
