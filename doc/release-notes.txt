@@ -1,52 +1,69 @@
-Release Notes for openMSX 0.6.3 (2007-08-xx)
+Release Notes for openMSX 0.6.3 (2007-12-09)
 ============================================
 
-This release contains mostly several new features and improvements related to
-sound. All sound chips are emulated at their native frequency and resampled
-using advanced resampling techniques to the desired output frequency (mostly
-44.1 kHz). This improves the sound quality a lot, because all aliasing
-distortions are gone, now!
+This release contains several new features and improvements related to sound.
+All sound chips are emulated at their native frequency and resampled using
+advanced resampling techniques to the desired output frequency (typically
+44.1 kHz). The advanced resamplers improve the sound quality a lot, because
+they are free of aliasing distortions.
 
-More sound related improvements involve better control (stereo balance setting
-for each sound chip) and recording of sound chips (individual channels of sound
-chips can be recorded). For PSG we even introduced some sound effects: vibrato
-and detune can be enabled to get a fatter sound. Try this in Penguin Adventure!
+There are three resamplers you can choose from: "fast", which produces
+approximately the same results as previous openMSX releases, "blip", which
+produces better sound and is still quite fast and "hq", which produces the best
+sound but takes a lot of CPU power. Since the quality difference between "blip"
+and "hq" is very small and the speed difference quite large, "blip" is the
+recommended resampler and the new default. Many thanks to Blargg, the author of
+Blip_Buffer, not only for the code but also for explaining the principles
+behind it.
 
-Thanks to the blueMSX Team, we were able to bring some quick and easy new
-features: emulation of the VLM5030, the sample chip used in the unreleased
-Konami game Keyboard Master and a partial emulation of the Yamaha SFG-05 sound
-module. (Still missing is the keyboard and MIDI support.)
+More sound related improvements include stereo balance settings for each sound
+chip and the ability to record individual channels of sound chips. For PSG we
+even introduced some sound effects: vibrato and detune can be enabled to get a
+fatter sound. Try this in Penguin Adventure!
 
-Also on the non-sound department the blueMSX Team enabled to create some new
-features: Gouda SCSI, MEGA-SCSI, ESE RAM, ESE SCC and WAVE SCSI. Note that the
-SCSI emulation is still experimental!
+Thanks to the blueMSX Team, we were able to quickly bring some new features:
+emulation of the VLM5030, the sample chip used in the unreleased Konami game
+Keyboard Master and emulation of the synthesis part of the Yamaha SFG-05 sound
+module (keyboard and MIDI support is still missing).
+
+Also on the non-sound department, the code of the blueMSX Team enabled us to
+add some new features: Gouda SCSI, MEGA-SCSI, ESE RAM, ESE SCC and WAVE SCSI.
+Note that the SCSI emulation is still experimental, so make sure you don't use
+it to store data of which you don't have recent backups.
 
 Last but not least: a lock-up bug was removed from the Windows version, which
-could occur on dual core or hyperthreading CPU's.
+could occur on dual core and hyperthreading CPU's.
 
 New or improved emulator features:
-- SDLGL-PP renderer (OpenGL 2.0) can do RGBTriplet scaling in hardware.
-- Several resampling algorithms now available: hq, blip and fast, the first two
-  greatly reducing aliasing related sound distortions.
+- SDLGL-PP renderer (OpenGL 2.0) can now do RGBTriplet scaling in hardware.
+- Several resampling algorithms now available: hq, blip and fast; the first two
+  eliminate aliasing.
 - Channels of sound chips can be individually recorded and muted.
 - Sound chips now have a stereo balance setting instead of a mode (left, right,
-  mono).
+  mono). Because of this, the <sounddevice>_mode settings have been replaced by
+  <sounddevice>_balance settings.
 - PSG sound effects: vibrato and detune.
+  You can use the new "psg_profile" command to select known good combinations,
+  or experiment wiht the PSG_vibrato_percent, PSG_vibrato_frequency,
+  PSG_detune_percent and PSG_detune_frequency settings directly.
+  Thanks to Wolf for the idea and his feedback on experiments.
+- Several small optimizations, mostly in SDLGL-PP renderer and CPU emulation.
 
 MSX device support:
 - Partial support for Yamaha SFG-05 (only the YM2151, no keyboard and MIDI).
-- Support for the VLM5030 in Keyboard Master.
-- Support for ESE devices: MEGA SCSI, ESE RAM, ESE SCC, WAVE-SCSI (SCSI
-  experimental).
-- Support for Gouda/Novaxis SCSI (experimental).
+- Support for the VLM5030 in Konami's Keyboard Master.
+- Improved accuracy in SCC emulation.
+- Support for ESE devices: MEGA SCSI, ESE RAM, ESE SCC, WAVE-SCSI.
+- Support for Gouda/Novaxis SCSI.
 - Support for password cartridge.
-- Support for the Super Lode Runner mapper, which violates the MSX spec.
-- Real support for the Halnote mapper (thanks to blueMSX team).
-- Several small optimizations, mostly in SDLGL-PP renderer and CPU emulation.
+- Support for the Super Lode Runner mapper.
+- Real support for the Halnote mapper. Thanks to the blueMSX team.
 
-Backwards-compatibility issues:
-- <sounddevice>_mode setting (possible values left, right, mono, stereo) has
-  been replaced with <sounddevice>_balance (possible values [-100, 100])
+Build system, packaging, documentation:
+- Added support for building a statically linked executable on Windows.
+- Added support for building a backwards compatible executable on Mac OS X
+  10.5 (Leopard). Thanks to BouKiCHi.
+- Added support for DESTDIR, which should help packagers.
 
 And of course the usual various bug fixes.
 
@@ -63,10 +80,10 @@ Known issues / caveats:
   entries etc. We do try to be backwards compatible for at least one release,
   though. Keep in mind that openMSX is still evolving at a considerable speed.
 - openMSX is confirmed to run on the following operating systems: Linux, Win32,
-  Mac OS X, FreeBSD, OpenBSD and NetBSD; on x86, x86-64, Sparc and PPC CPU's.
-  Running on other operating systems (wherever SDL runs) or CPU's should be
-  possible, but may require some modifications to the build system. If you are
-  compiling on a new platform, please share your experiences (see below for
+  Mac OS X, FreeBSD, OpenBSD and NetBSD; on x86, x86-64, PPC, ARM and Sparc
+  CPU's. Running on other operating systems (wherever SDL runs) or CPU's should
+  be possible, but may require some modifications to the build system. If you
+  are compiling on a new platform, please share your experiences (see below for
   contact info), so we can make openMSX more portable.
 - CPU and graphics performance varies a lot, depending on the openMSX settings
   and the MSX hardware and software you're emulating. Some things run fine on a
