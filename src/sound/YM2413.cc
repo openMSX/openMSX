@@ -964,17 +964,6 @@ void Global::update_key_status()
 	}
 }
 
-// Convert Amp(0 to EG_HEIGHT) to Phase(0 to 4PI)
-static inline int wave2_4pi(int e)
-{
-	int shift =  SLOT_AMP_BITS - PG_BITS - 1;
-	if (shift > 0) {
-		return e >> shift;
-	} else {
-		return e << -shift;
-	}
-}
-
 // Convert Amp(0 to EG_HEIGHT) to Phase(0 to 8PI)
 static inline int wave2_8pi(int e)
 {
@@ -1056,8 +1045,9 @@ void Slot::calc_envelope(int lfo_am)
 		break;
 	case FINISH:
 	default:
-		egout = DB_MUTE - 1;
-		return;
+		// always results in 'egout = DB_MUTE - 1', but
+		// writing it like this is faster for some reason
+		out = (1 << EG_BITS) - 1;
 	}
 	out = EG2DB(out + tll);
 	if (patch.AM) {
@@ -1435,14 +1425,10 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 		Channel& ch = channels[cha];
 		int j = (data >> 4) & 15;
 		int v = data & 15;
-		if (isRhythm() && (regis >= 0x36)) {
-			switch(regis) {
-			case 0x37:
-				channels[7].mod.setVolume(j << 2);
-				break;
-			case 0x38:
-				channels[8].mod.setVolume(j << 2);
-				break;
+		if (isRhythm() && (cha >= 6)) {
+			if (cha > 6) {
+				// channel 7 or 8 in ryhthm mode
+				channels[cha].mod.setVolume(j << 2);
 			}
 		} else {
 			ch.setPatch(j);
