@@ -185,11 +185,9 @@ private:
 
 	// Pitch Modulator
 	unsigned pm_phase;
-	PhaseModulation lfo_pm;
 
 	// Amp Modulator
 	unsigned am_phase;
-	int lfo_am;
 
 	// Noise Generator
 	int noise_seed;
@@ -1132,15 +1130,17 @@ static inline int adjust(int x)
 
 inline void Global::advance()
 {
-	// update AM, PM unit
-	pm_phase = (pm_phase + PM_DPHASE) & (PM_DP_WIDTH - 1);
-	am_phase = (am_phase + AM_DPHASE) & (AM_DP_WIDTH - 1);
-	lfo_am = amtable[HIGHBITS(am_phase, AM_DP_BITS - AM_PG_BITS)];
-	lfo_pm = pmtable[HIGHBITS(pm_phase, PM_DP_BITS - PM_PG_BITS)];
-
 	// update Noise unit
 	if (noise_seed & 1) noise_seed ^= 0x8003020;
 	noise_seed >>= 1;
+
+	// update AM, PM unit
+	pm_phase = (pm_phase + PM_DPHASE) & (PM_DP_WIDTH - 1);
+	am_phase = (am_phase + AM_DPHASE) & (AM_DP_WIDTH - 1);
+	int lfo_am =
+		amtable[HIGHBITS(am_phase, AM_DP_BITS - AM_PG_BITS)];
+	PhaseModulation lfo_pm =
+		pmtable[HIGHBITS(pm_phase, PM_DP_BITS - PM_PG_BITS)];
 
 	// TODO: Is there a point in updating the carrier when envelope is
 	//       in FINISH state? And what about the modulator?
