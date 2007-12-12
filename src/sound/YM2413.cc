@@ -89,7 +89,7 @@ public:
 
 	// OUTPUT
 	int feedback;
-	int output[2];		// Output value of slot
+	int output;		// Output value of slot
 
 	// for Phase Generator (PG)
 	unsigned cphase;	// Phase counter
@@ -573,8 +573,7 @@ void Slot::reset(bool type_)
 	sintbl = waveform[0];
 	cphase = 0;
 	dphase = 0;
-	output[0] = 0;
-	output[1] = 0;
+	output = 0;
 	feedback = 0;
 	setEnvelopeState(FINISH);
 	eg_phase = EG_DP_MAX;
@@ -1058,21 +1057,21 @@ void Slot::calc_envelope(int lfo_am)
 int Slot::calc_slot_car(int fm)
 {
 	int phase = (cphase >> DP_BASE_BITS) + wave2_8pi(fm);
-	output[0] = dB2LinTab[sintbl[phase & PG_MASK] + egout];
-	output[1] = (output[1] + output[0]) >> 1;
-	return output[1];
+	int newOutput = dB2LinTab[sintbl[phase & PG_MASK] + egout];
+	output = (output + newOutput) >> 1;
+	return output;
 }
 
 // MODULATOR
 int Slot::calc_slot_mod()
 {
-	output[1] = output[0];
 	int phase = cphase >> DP_BASE_BITS;
 	if (patch.FB) {
 		phase += wave2_8pi(feedback) >> patch.FB;
 	}
-	output[0] = dB2LinTab[sintbl[phase & PG_MASK] + egout];
-	feedback = (output[1] + output[0]) >> 1;
+	int newOutput = dB2LinTab[sintbl[phase & PG_MASK] + egout];
+	feedback = (output + newOutput) >> 1;
+	output = newOutput;
 	return feedback;
 }
 
