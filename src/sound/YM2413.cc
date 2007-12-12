@@ -70,8 +70,13 @@ public:
 	inline void setPatch(Patch& patch);
 	inline void setVolume(int volume);
 	inline void calc_phase(PhaseModulation lfo_pm);
-	inline void calc_envelope(int lfo_am);
+	inline void calc_phase();
+	inline unsigned calc_envelope_helper();
+	inline unsigned calc_envelope(int lfo_am);
+	inline unsigned calc_envelope();
+	inline int calc_slot_car(PhaseModulation lfo_pm, int lfo_am, int fm);
 	inline int calc_slot_car(int fm);
+	inline int calc_slot_mod(PhaseModulation lfo_pm, int lfo_am);
 	inline int calc_slot_mod();
 	inline int calc_slot_tom();
 	inline int calc_slot_snare(bool noise);
@@ -104,7 +109,6 @@ public:
 	EnvelopeState state;	// Current state
 	EnvPhaseIndex eg_phase;	// Phase
 	EnvPhaseIndex eg_dphase;	// Phase increment amount
-	unsigned egout;		// output
 	bool sustain;	// Sustain
 	bool type;		// 0 : modulator 1 : carrier
 	bool slot_on_flag;
@@ -580,7 +584,6 @@ void Slot::reset(bool type_)
 	fnum = 0;
 	block = 0;
 	volume = 0;
-	egout = 0;
 	slot_on_flag = false;
 }
 
@@ -977,6 +980,12 @@ void Slot::calc_phase(PhaseModulation lfo_pm)
 		cphase += dphase;
 	}
 }
+void Slot::calc_phase()
+{
+	// for rhythm we know for sure PM is not used
+	assert(!patch.PM);
+	cphase += dphase;
+}
 
 #define S2E(x) EnvPhaseIndex(int(x / EG_STEP))
 static const EnvPhaseIndex SL[16] = {
@@ -988,7 +997,7 @@ static const EnvPhaseIndex SL[16] = {
 #undef S2E
 
 // EG
-void Slot::calc_envelope(int lfo_am)
+unsigned Slot::calc_envelope_helper()
 {
 	unsigned out;
 	switch (state) {
@@ -1038,20 +1047,42 @@ void Slot::calc_envelope(int lfo_am)
 		break;
 	case FINISH:
 	default:
-		// always results in 'egout = DB_MUTE - 1', but
+		// always results in 'DB_MUTE - 1', but
 		// writing it like this is faster for some reason
 		out = (1 << EG_BITS) - 1;
 	}
-	out = EG2DB(out + tll);
+	return EG2DB(out + tll);
+}
+unsigned Slot::calc_envelope(int lfo_am)
+{
+	unsigned out = calc_envelope_helper();
 	if (patch.AM) {
 		out += lfo_am;
 	}
-	egout = std::min<unsigned>(out, DB_MUTE - 1) | 3;
+	return std::min<unsigned>(out, DB_MUTE - 1) | 3;
+}
+unsigned Slot::calc_envelope()
+{
+	// for rhythm we know for sure AM is not used
+	unsigned out = calc_envelope_helper();
+	assert(!patch.AM);
+	return std::min<unsigned>(out, DB_MUTE - 1) | 3;
 }
 
 // CARRIER
+int Slot::calc_slot_car(PhaseModulation lfo_pm, int lfo_am, int fm)
+{
+	calc_phase(lfo_pm);
+	unsigned egout = calc_envelope(lfo_am);
+	int phase = (cphase >> DP_BASE_BITS) + wave2_8pi(fm);
+	int newOutput = dB2LinTab[sintbl[phase & PG_MASK] + egout];
+	output = (output + newOutput) >> 1;
+	return output;
+}
 int Slot::calc_slot_car(int fm)
 {
+	calc_phase();
+	unsigned egout = calc_envelope();
 	int phase = (cphase >> DP_BASE_BITS) + wave2_8pi(fm);
 	int newOutput = dB2LinTab[sintbl[phase & PG_MASK] + egout];
 	output = (output + newOutput) >> 1;
@@ -1059,8 +1090,10 @@ int Slot::calc_slot_car(int fm)
 }
 
 // MODULATOR
-int Slot::calc_slot_mod()
+int Slot::calc_slot_mod(PhaseModulation lfo_pm, int lfo_am)
 {
+	calc_phase(lfo_pm);
+	unsigned egout = calc_envelope(lfo_am);
 	int phase = cphase >> DP_BASE_BITS;
 	if (patch.FB) {
 		phase += wave2_8pi(feedback) >> patch.FB;
@@ -1070,17 +1103,32 @@ int Slot::calc_slot_mod()
 	output = newOutput;
 	return feedback;
 }
+int Slot::calc_slot_mod()
+{
+	calc_phase();
+	unsigned egout = calc_envelope();
+	int phase = cphase >> DP_BASE_BITS;
+	assert(!patch.FB); // for ryhthm
+	int newOutput = dB2LinTab[sintbl[phase & PG_MASK] + egout];
+	feedback = (output + newOutput) >> 1;
+	output = newOutput;
+	return feedback;
+}
 
-// TOM
+// TOM (ch8 mod)
 int Slot::calc_slot_tom()
 {
+	calc_phase();
+	unsigned egout = calc_envelope();
 	int phase = cphase >> DP_BASE_BITS;
 	return dB2LinTab[sintbl[phase & PG_MASK] + egout];
 }
 
-// SNARE
+// SNARE (ch7 car)
 int Slot::calc_slot_snare(bool noise)
 {
+	calc_phase();
+	unsigned egout = calc_envelope();
 	if (BIT(cphase, 7 + DP_BASE_BITS)) {
 		return dB2LinTab[(noise ? DB_POS(0.0) : DB_POS(15.0)) + egout];
 	} else {
@@ -1088,9 +1136,10 @@ int Slot::calc_slot_snare(bool noise)
 	}
 }
 
-// TOP-CYM
+// TOP-CYM (ch8 car)
 int Slot::calc_slot_cym(unsigned cphase_hh)
 {
+	unsigned egout = calc_envelope();
 	unsigned dbout
 	    = (((BIT(cphase_hh, PG_BITS - 8 + DP_BASE_BITS) ^
 	         BIT(cphase_hh, PG_BITS - 1 + DP_BASE_BITS)) |
@@ -1102,9 +1151,10 @@ int Slot::calc_slot_cym(unsigned cphase_hh)
 	return dB2LinTab[dbout + egout];
 }
 
-// HI-HAT
+// HI-HAT (ch7 mod)
 int Slot::calc_slot_hat(unsigned cphase_cym, bool noise)
 {
+	unsigned egout = calc_envelope();
 	unsigned dbout;
 	if (((BIT(cphase, PG_BITS - 8 + DP_BASE_BITS) ^
 	      BIT(cphase, PG_BITS - 1 + DP_BASE_BITS)) |
@@ -1183,51 +1233,29 @@ void Global::generateChannels(int** bufs, unsigned num)
 		PhaseModulation lfo_pm =
 			pmtable[HIGHBITS(pm_phase, PM_DP_BITS - PM_PG_BITS)];
 
-		// TODO: Is there a point in updating the carrier when envelope is
-		//       in FINISH state? And what about the modulator?
-		/*for (int i = 0; i < 9; ++i) {
-			Channel& ch = channels[i];
-			ch.mod.calc_phase(lfo_pm);
-			ch.mod.calc_envelope(lfo_am);
-			ch.car.calc_phase(lfo_pm);
-			ch.car.calc_envelope(lfo_am);
-		}*/
-
 		for (int i = 0; i < m; ++i) {
 			if (channelActiveBits & (1 << i)) {
 				Channel& ch = channels[i];
-				ch.mod.calc_phase(lfo_pm);
-				ch.mod.calc_envelope(lfo_am);
-				ch.car.calc_phase(lfo_pm);
-				ch.car.calc_envelope(lfo_am);
 				bufs[i][sample] =
-					adjust(ch.car.calc_slot_car(ch.mod.calc_slot_mod()));
+					adjust(ch.car.calc_slot_car(lfo_pm, lfo_am, ch.mod.calc_slot_mod(lfo_pm, lfo_am)));
 			}
 		}
 		if (isRhythm()) {
 			if (channelActiveBits & (1 << 6)) {
-				Channel& ch6 = channels[6];
-				ch6.mod.calc_phase(lfo_pm);
-				ch6.mod.calc_envelope(lfo_am);
-				ch6.car.calc_phase(lfo_pm);
-				ch6.car.calc_envelope(lfo_am);
+				Channel& ch = channels[6];
 				bufs[ 6][sample] =
-					adjust(2 * ch6.car.calc_slot_car(ch6.mod.calc_slot_mod()));
+					adjust(2 * ch.car.calc_slot_car(ch.mod.calc_slot_mod()));
 			}
 
 			Channel& ch7 = channels[7];
 			if (channelActiveBits & (1 << 7)) {
-				ch7.car.calc_phase(lfo_pm);
-				ch7.car.calc_envelope(lfo_am);
 				bufs[ 7][sample] =
 					adjust(-2 * ch7.car.calc_slot_snare(noise_seed & 1));
 			}
 
 			Channel& ch8 = channels[8];
-			ch8.car.calc_phase(lfo_pm);
-			ch8.car.calc_envelope(lfo_am);
-			ch7.mod.calc_phase(lfo_pm);
-			ch7.mod.calc_envelope(lfo_am);
+			ch8.car.calc_phase();
+			ch7.mod.calc_phase();
 			if (channelActiveBits & (1 << 8)) {
 				bufs[ 8][sample] =
 					adjust(-2 * ch8.car.calc_slot_cym(ch7.mod.cphase));
@@ -1235,12 +1263,10 @@ void Global::generateChannels(int** bufs, unsigned num)
 			if (channelActiveBits & (1 << (7 + 9))) {
 				bufs[ 9][sample] =
 					adjust(2 * ch7.mod.calc_slot_hat(ch8.car.cphase,
-									 noise_seed & 1));
+					                                 noise_seed & 1));
 			}
 
 			if (channelActiveBits & (1 << (8 + 9))) {
-				ch8.mod.calc_phase(lfo_pm);
-				ch8.mod.calc_envelope(lfo_am);
 				bufs[10][sample] =
 					adjust(2 * ch8.mod.calc_slot_tom());
 			}
