@@ -163,10 +163,6 @@ public:
 	inline void update_rhythm_mode();
 	inline void update_key_status();
 
-	inline void advance();
-	inline void calcSample(
-		int** bufs, unsigned sample, unsigned channelActiveBits);
-
 	/**
 	 * Generate output samples for each channel.
 	 */
@@ -1127,77 +1123,6 @@ static inline int adjust(int x)
 	return x << (15 - DB2LIN_AMP_BITS);
 }
 
-inline void Global::advance()
-{
-	// update Noise unit
-	if (noise_seed & 1) noise_seed ^= 0x8003020;
-	noise_seed >>= 1;
-
-	// update AM, PM unit
-	pm_phase = (pm_phase + PM_DPHASE) & (PM_DP_WIDTH - 1);
-	am_phase = (am_phase + AM_DPHASE) & (AM_DP_WIDTH - 1);
-	int lfo_am =
-		amtable[HIGHBITS(am_phase, AM_DP_BITS - AM_PG_BITS)];
-	PhaseModulation lfo_pm =
-		pmtable[HIGHBITS(pm_phase, PM_DP_BITS - PM_PG_BITS)];
-
-	// TODO: Is there a point in updating the carrier when envelope is
-	//       in FINISH state? And what about the modulator?
-	for (int i = 0; i < 9; ++i) {
-		Channel& ch = channels[i];
-		ch.mod.calc_phase(lfo_pm);
-		ch.mod.calc_envelope(lfo_am);
-		ch.car.calc_phase(lfo_pm);
-		ch.car.calc_envelope(lfo_am);
-	}
-}
-
-inline void Global::calcSample(
-	int** bufs, unsigned sample, unsigned channelActiveBits)
-{
-	// In the past we had a check to avoid calling the various
-	// calc_slot_xx() methods in case Slot::isActive() returned false. In
-	// that case the output will always be zero. However we already do
-	// mostly the same optimization with the channelActiveBits (it's still
-	// possible the channel becomes inactive during the loop in
-	// generateChannels()). So this additional check was a pessimization.
-
-	int m = isRhythm() ? 6 : 9;
-	for (int i = 0; i < m; ++i) {
-		if (channelActiveBits & (1 << i)) {
-			Channel& ch = channels[i];
-			bufs[i][sample] =
-				adjust(ch.car.calc_slot_car(ch.mod.calc_slot_mod()));
-		}
-	}
-	if (isRhythm()) {
-		Channel& ch6 = channels[6];
-		Channel& ch7 = channels[7];
-		Channel& ch8 = channels[8];
-		if (channelActiveBits & (1 << 6)) {
-			bufs[ 6][sample] =
-				adjust(2 * ch6.car.calc_slot_car(ch6.mod.calc_slot_mod()));
-		}
-		if (channelActiveBits & (1 << 7)) {
-			bufs[ 7][sample] =
-				adjust(-2 * ch7.car.calc_slot_snare(noise_seed & 1));
-		}
-		if (channelActiveBits & (1 << 8)) {
-			bufs[ 8][sample] =
-				adjust(-2 * ch8.car.calc_slot_cym(ch7.mod.cphase));
-		}
-		if (channelActiveBits & (1 << (7 + 9))) {
-			bufs[ 9][sample] =
-				adjust(2 * ch7.mod.calc_slot_hat(ch8.car.cphase,
-				                                 noise_seed & 1));
-		}
-		if (channelActiveBits & (1 << (8 + 9))) {
-			bufs[10][sample] =
-				adjust(2 * ch8.mod.calc_slot_tom());
-		}
-	}
-}
-
 void Global::generateChannels(int** bufs, unsigned num)
 {
 	// TODO make channelActiveBits a member and
@@ -1243,9 +1168,83 @@ void Global::generateChannels(int** bufs, unsigned num)
 		}
 		idleSamples += num;
 	}
-	for (unsigned i = 0; i < num; ++i) {
-		advance();
-		calcSample(bufs, i, channelActiveBits);
+
+	int m = isRhythm() ? 6 : 9;
+	for (unsigned sample = 0; sample < num; ++sample) {
+		// update Noise unit
+		if (noise_seed & 1) noise_seed ^= 0x8003020;
+		noise_seed >>= 1;
+
+		// update AM, PM unit
+		pm_phase = (pm_phase + PM_DPHASE) & (PM_DP_WIDTH - 1);
+		am_phase = (am_phase + AM_DPHASE) & (AM_DP_WIDTH - 1);
+		int lfo_am =
+			amtable[HIGHBITS(am_phase, AM_DP_BITS - AM_PG_BITS)];
+		PhaseModulation lfo_pm =
+			pmtable[HIGHBITS(pm_phase, PM_DP_BITS - PM_PG_BITS)];
+
+		// TODO: Is there a point in updating the carrier when envelope is
+		//       in FINISH state? And what about the modulator?
+		/*for (int i = 0; i < 9; ++i) {
+			Channel& ch = channels[i];
+			ch.mod.calc_phase(lfo_pm);
+			ch.mod.calc_envelope(lfo_am);
+			ch.car.calc_phase(lfo_pm);
+			ch.car.calc_envelope(lfo_am);
+		}*/
+
+		for (int i = 0; i < m; ++i) {
+			Channel& ch = channels[i];
+			ch.mod.calc_phase(lfo_pm);
+			ch.mod.calc_envelope(lfo_am);
+			ch.car.calc_phase(lfo_pm);
+			ch.car.calc_envelope(lfo_am);
+			if (channelActiveBits & (1 << i)) {
+				bufs[i][sample] =
+					adjust(ch.car.calc_slot_car(ch.mod.calc_slot_mod()));
+			}
+		}
+		if (isRhythm()) {
+			Channel& ch6 = channels[6];
+			ch6.mod.calc_phase(lfo_pm);
+			ch6.mod.calc_envelope(lfo_am);
+			ch6.car.calc_phase(lfo_pm);
+			ch6.car.calc_envelope(lfo_am);
+			if (channelActiveBits & (1 << 6)) {
+				bufs[ 6][sample] =
+					adjust(2 * ch6.car.calc_slot_car(ch6.mod.calc_slot_mod()));
+			}
+
+			Channel& ch7 = channels[7];
+			ch7.car.calc_phase(lfo_pm);
+			ch7.car.calc_envelope(lfo_am);
+			if (channelActiveBits & (1 << 7)) {
+				bufs[ 7][sample] =
+					adjust(-2 * ch7.car.calc_slot_snare(noise_seed & 1));
+			}
+
+			Channel& ch8 = channels[8];
+			ch8.car.calc_phase(lfo_pm);
+			ch8.car.calc_envelope(lfo_am);
+			ch7.mod.calc_phase(lfo_pm);
+			ch7.mod.calc_envelope(lfo_am);
+			if (channelActiveBits & (1 << 8)) {
+				bufs[ 8][sample] =
+					adjust(-2 * ch8.car.calc_slot_cym(ch7.mod.cphase));
+			}
+			if (channelActiveBits & (1 << (7 + 9))) {
+				bufs[ 9][sample] =
+					adjust(2 * ch7.mod.calc_slot_hat(ch8.car.cphase,
+									 noise_seed & 1));
+			}
+
+			ch8.mod.calc_phase(lfo_pm);
+			ch8.mod.calc_envelope(lfo_am);
+			if (channelActiveBits & (1 << (8 + 9))) {
+				bufs[10][sample] =
+					adjust(2 * ch8.mod.calc_slot_tom());
+			}
+		}
 	}
 }
 
