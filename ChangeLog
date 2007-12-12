@@ -1,5 +1,23 @@
 $Id$
 
+2007-12-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Various YM2413 optimizations:
+	   - made lfo_pm and lfo_am local variables iso member variables
+	   - we used to store the last two Slot output values, but actually
+	     one the last one was needed
+	   - inlined advance() and calcSample() methods, this allows the next
+	     two items:
+	   - calc_phase() and calc_envelope() are not required when channel is
+	     inactive (there is an exception for two rhythm channels)
+	   - moved calc_phase() and calc_envelope() into the different
+	     calc_slot_xxx() methods, this in turn enables the next two items
+	   - the egout member variable can become a local variable
+	   - rhythm channels don't use FM or AM, so we can use simpler
+	     calc_phase() and calc_envelope() variants 
+	   - small simplifications, removed dead code
+	* Made keyboard event parsing (for event recorder/replayer) slightly
+	  more robust
+
 2007-12-10 Alex Wulms
 	* Added unicode support to event recorder/replayer logic
 
