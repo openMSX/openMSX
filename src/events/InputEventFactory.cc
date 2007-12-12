@@ -31,12 +31,11 @@ static EventPtr parseKeyEvent(
 {
 	if (components.size() == 2) {
 		return parseKeyEvent(components[1], 0);
-	}
-	else if (components.size() == 3)
-	{
-		return parseKeyEvent(components[1], StringOp::stringToInt(components[2].substr(7)));
-	}
-	else {
+	} else if ((components.size() == 3) &&
+	           (StringOp::startsWith(components[2], "unicode"))) {
+		return parseKeyEvent(components[1],
+		                     StringOp::stringToInt(components[2].substr(7)));
+	} else {
 		throw CommandException("Invalid keyboard event: " + str);
 	}
 }

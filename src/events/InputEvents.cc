@@ -50,8 +50,7 @@ void KeyEvent::toStringImpl(TclObject& result) const
 {
 	result.addListElement("keyb");
 	result.addListElement(Keys::getName(getKeyCode()));
-	if (getUnicode() != 0)
-	{
+	if (getUnicode() != 0) {
 		result.addListElement("unicode" + StringOp::toString(getUnicode()));
 	}
 }
