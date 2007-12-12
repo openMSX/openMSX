@@ -1194,31 +1194,31 @@ void Global::generateChannels(int** bufs, unsigned num)
 		}*/
 
 		for (int i = 0; i < m; ++i) {
-			Channel& ch = channels[i];
-			ch.mod.calc_phase(lfo_pm);
-			ch.mod.calc_envelope(lfo_am);
-			ch.car.calc_phase(lfo_pm);
-			ch.car.calc_envelope(lfo_am);
 			if (channelActiveBits & (1 << i)) {
+				Channel& ch = channels[i];
+				ch.mod.calc_phase(lfo_pm);
+				ch.mod.calc_envelope(lfo_am);
+				ch.car.calc_phase(lfo_pm);
+				ch.car.calc_envelope(lfo_am);
 				bufs[i][sample] =
 					adjust(ch.car.calc_slot_car(ch.mod.calc_slot_mod()));
 			}
 		}
 		if (isRhythm()) {
-			Channel& ch6 = channels[6];
-			ch6.mod.calc_phase(lfo_pm);
-			ch6.mod.calc_envelope(lfo_am);
-			ch6.car.calc_phase(lfo_pm);
-			ch6.car.calc_envelope(lfo_am);
 			if (channelActiveBits & (1 << 6)) {
+				Channel& ch6 = channels[6];
+				ch6.mod.calc_phase(lfo_pm);
+				ch6.mod.calc_envelope(lfo_am);
+				ch6.car.calc_phase(lfo_pm);
+				ch6.car.calc_envelope(lfo_am);
 				bufs[ 6][sample] =
 					adjust(2 * ch6.car.calc_slot_car(ch6.mod.calc_slot_mod()));
 			}
 
 			Channel& ch7 = channels[7];
-			ch7.car.calc_phase(lfo_pm);
-			ch7.car.calc_envelope(lfo_am);
 			if (channelActiveBits & (1 << 7)) {
+				ch7.car.calc_phase(lfo_pm);
+				ch7.car.calc_envelope(lfo_am);
 				bufs[ 7][sample] =
 					adjust(-2 * ch7.car.calc_slot_snare(noise_seed & 1));
 			}
@@ -1238,9 +1238,9 @@ void Global::generateChannels(int** bufs, unsigned num)
 									 noise_seed & 1));
 			}
 
-			ch8.mod.calc_phase(lfo_pm);
-			ch8.mod.calc_envelope(lfo_am);
 			if (channelActiveBits & (1 << (8 + 9))) {
+				ch8.mod.calc_phase(lfo_pm);
+				ch8.mod.calc_envelope(lfo_am);
 				bufs[10][sample] =
 					adjust(2 * ch8.mod.calc_slot_tom());
 			}
