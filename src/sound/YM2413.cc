@@ -116,17 +116,8 @@ public:
 
 class Channel {
 public:
-	/**
-	 * Initializes those parts that cannot be initialized in the constructor,
-	 * because the constructor cannot have arguments since we want to create
-	 * an array of Channels.
-	 * This method should be called once, as soon as possible after
-	 * construction.
-	 */
-	void init(Global& global);
-
-	void reset();
-	inline void setPatch(int num);
+	void reset(Global& global);
+	inline void setPatch(int num, Global& global);
 	inline void setSustain(bool sustain);
 	inline void setVol(int volume);
 	inline void setFnumber(int fnum);
@@ -136,9 +127,6 @@ public:
 
 	Slot mod, car;
 	int patch_number;
-
-private:
-	Global* global;
 };
 
 class Global : public YM2413Core {
@@ -204,7 +192,6 @@ static const int DB_MUTE = 1 << DB_BITS;
 static const double DB_STEP = 48.0 / DB_MUTE;
 static const double EG_STEP = 0.375;
 static const double TL_STEP = 0.75;
-static const double SL_STEP = 3.0;
 
 // PM speed(Hz) and depth(cent)
 static const double PM_SPEED = 6.4;
@@ -704,25 +691,19 @@ void Slot::setVolume(int newVolume)
 //                                                           //
 //***********************************************************//
 
-void Channel::init(Global& global)
-{
-	this->global = &global;
-	reset();
-}
-
-void Channel::reset()
+void Channel::reset(Global& global)
 {
 	mod.reset(false);
 	car.reset(true);
-	setPatch(0);
+	setPatch(0, global);
 }
 
 // Change a voice
-void Channel::setPatch(int num)
+void Channel::setPatch(int num, Global& global)
 {
 	patch_number = num;
-	mod.setPatch(global->getPatch(num, false));
-	car.setPatch(global->getPatch(num, true));
+	mod.setPatch(global.getPatch(num, false));
+	car.setPatch(global.getPatch(num, true));
 }
 
 // Set sustain parameter
@@ -805,9 +786,6 @@ Global::Global(MSXMotherBoard& motherBoard, const std::string& name,
 		patches[i][0].initModulator(inst_data[i]);
 		patches[i][1].initCarrier(inst_data[i]);
 	}
-	for (int i = 0; i < 9; ++i) {
-		channels[i].init(*this);
-	}
 	makePmTable();
 	makeAmTable();
 	makeDB2LinTable();
@@ -840,7 +818,7 @@ void Global::reset(const EmuTime& time)
 	idleSamples = 0;
 
 	for(int i = 0; i < 9; i++) {
-		channels[i].reset();
+		channels[i].reset(*this);
 	}
 	for (int i = 0; i < 0x40; i++) {
 		writeReg(i, 0, time);
@@ -898,12 +876,12 @@ void Global::update_rhythm_mode()
 		if (!(ch6.car.slot_on_flag || isRhythm())) {
 			ch6.mod.setEnvelopeState(FINISH);
 			ch6.car.setEnvelopeState(FINISH);
-			ch6.setPatch(reg[0x36] >> 4);
+			ch6.setPatch(reg[0x36] >> 4, *this);
 		}
 	} else if (isRhythm()) {
 		ch6.mod.setEnvelopeState(FINISH);
 		ch6.car.setEnvelopeState(FINISH);
-		ch6.setPatch(16);
+		ch6.setPatch(16, *this);
 	}
 
 	Channel& ch7 = channels[7];
@@ -913,13 +891,13 @@ void Global::update_rhythm_mode()
 			ch7.mod.type = false;
 			ch7.mod.setEnvelopeState(FINISH);
 			ch7.car.setEnvelopeState(FINISH);
-			ch7.setPatch(reg[0x37] >> 4);
+			ch7.setPatch(reg[0x37] >> 4, *this);
 		}
 	} else if (isRhythm()) {
 		ch7.mod.type = true;
 		ch7.mod.setEnvelopeState(FINISH);
 		ch7.car.setEnvelopeState(FINISH);
-		ch7.setPatch(17);
+		ch7.setPatch(17, *this);
 	}
 
 	Channel& ch8 = channels[8];
@@ -929,13 +907,13 @@ void Global::update_rhythm_mode()
 			ch8.mod.type = false;
 			ch8.mod.setEnvelopeState(FINISH);
 			ch8.car.setEnvelopeState(FINISH);
-			ch8.setPatch(reg[0x38] >> 4);
+			ch8.setPatch(reg[0x38] >> 4, *this);
 		}
 	} else if (isRhythm()) {
 		ch8.mod.type = true;
 		ch8.mod.setEnvelopeState(FINISH);
 		ch8.car.setEnvelopeState(FINISH);
-		ch8.setPatch(18);
+		ch8.setPatch(18, *this);
 	}
 }
 
@@ -1295,7 +1273,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 		for (int i = 0; i < 9; ++i) {
 			Channel& ch = channels[i];
 			if (ch.patch_number == 0) {
-				ch.setPatch(0); // TODO optimize
+				ch.setPatch(0, *this); // TODO optimize
 				ch.mod.updatePG();
 				ch.mod.updateRKS();
 				ch.mod.updateEG();
@@ -1311,7 +1289,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 		for (int i = 0; i < 9; ++i) {
 			Channel& ch = channels[i];
 			if(ch.patch_number == 0) {
-				ch.setPatch(0); // TODO optimize
+				ch.setPatch(0, *this); // TODO optimize
 				ch.car.updatePG();
 				ch.car.updateRKS();
 				ch.car.updateEG();
@@ -1324,7 +1302,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 		for (int i = 0; i < 9; ++i) {
 			Channel& ch = channels[i];
 			if (ch.patch_number == 0) {
-				ch.setPatch(0); // TODO optimize
+				ch.setPatch(0, *this); // TODO optimize
 				ch.mod.updateTLL();
 			}
 		}
@@ -1337,7 +1315,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 		for (int i = 0; i < 9; ++i) {
 			Channel& ch = channels[i];
 			if (ch.patch_number == 0) {
-				ch.setPatch(0); // TODO optimize
+				ch.setPatch(0, *this); // TODO optimize
 				ch.mod.updateWF();
 				ch.car.updateWF();
 			}
@@ -1349,7 +1327,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 		for (int i = 0; i < 9; ++i) {
 			Channel& ch = channels[i];
 			if (ch.patch_number == 0) {
-				ch.setPatch(0); // TODO optimize
+				ch.setPatch(0, *this); // TODO optimize
 				ch.mod.updateEG();
 			}
 		}
@@ -1360,7 +1338,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 		for (int i = 0; i < 9; ++i) {
 			Channel& ch = channels[i];
 			if (ch.patch_number == 0) {
-				ch.setPatch(0); // TODO optimize
+				ch.setPatch(0, *this); // TODO optimize
 				ch.car.updateEG();
 			}
 		}
@@ -1371,7 +1349,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 		for (int i = 0; i < 9; ++i) {
 			Channel& ch = channels[i];
 			if (ch.patch_number == 0) {
-				ch.setPatch(0); // TODO optimize
+				ch.setPatch(0, *this); // TODO optimize
 				ch.mod.updateEG();
 			}
 		}
@@ -1382,7 +1360,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 		for (int i = 0; i < 9; i++) {
 			Channel& ch = channels[i];
 			if (ch.patch_number == 0) {
-				ch.setPatch(0); // TODO optimize
+				ch.setPatch(0, *this); // TODO optimize
 				ch.car.updateEG();
 			}
 		}
@@ -1456,7 +1434,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 				channels[cha].mod.setVolume(j << 2);
 			}
 		} else {
-			ch.setPatch(j);
+			ch.setPatch(j, *this);
 		}
 		ch.setVol(v << 2);
 		ch.mod.updateAll();
