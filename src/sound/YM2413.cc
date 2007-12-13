@@ -62,8 +62,6 @@ public:
 	byte RR; // 0-15
 };
 
-class Channel;
-
 class Slot {
 public:
 	void reset(bool type);
@@ -89,12 +87,12 @@ public:
 	inline int calc_slot_snare(bool noise);
 	inline int calc_slot_cym(unsigned cphase_hh);
 	inline int calc_slot_hat(unsigned cphase_cym, bool noise);
-	inline void updatePG(Channel& ch);
-	inline void updateTLL(Channel& ch);
-	inline void updateRKS(Channel& ch);
+	inline void updatePG(int freq);
+	inline void updateTLL(int freq);
+	inline void updateRKS(int freq);
 	inline void updateWF();
 	inline void updateEG();
-	inline void updateAll(Channel& ch);
+	inline void updateAll(int freq);
 
 	Patch patch;
 	unsigned* sintbl;	// Wavetable (for PG)
@@ -564,19 +562,19 @@ void Slot::reset(bool type_)
 	slot_on_flag = false;
 }
 
-void Slot::updatePG(Channel& ch)
+void Slot::updatePG(int freq)
 {
-	dphase = dphaseTable[ch.freq][patch.ML];
+	dphase = dphaseTable[freq][patch.ML];
 }
 
-void Slot::updateTLL(Channel& ch)
+void Slot::updateTLL(int freq)
 {
-	tll = tllTable[ch.freq >> 5][type ? volume : patch.TL][patch.KL];
+	tll = tllTable[freq >> 5][type ? volume : patch.TL][patch.KL];
 }
 
-void Slot::updateRKS(Channel& ch)
+void Slot::updateRKS(int freq)
 {
-	rks = ch.freq >> patch.KR;
+	rks = freq >> patch.KR;
 }
 
 void Slot::updateWF()
@@ -615,11 +613,11 @@ void Slot::updateEG()
 	}
 }
 
-void Slot::updateAll(Channel& ch)
+void Slot::updateAll(int freq)
 {
-	updatePG(ch);
-	updateTLL(ch);
-	updateRKS(ch);
+	updatePG(freq);
+	updateTLL(freq);
+	updateRKS(freq);
 	updateWF();
 	updateEG(); // EG should be updated last
 }
@@ -1256,8 +1254,8 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 			Channel& ch = channels[i];
 			if (ch.patch_number == 0) {
 				ch.setPatch(0, *this); // TODO optimize
-				ch.mod.updatePG(ch);
-				ch.mod.updateRKS(ch);
+				ch.mod.updatePG(ch.freq);
+				ch.mod.updateRKS(ch.freq);
 				ch.mod.updateEG();
 			}
 		}
@@ -1272,8 +1270,8 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 			Channel& ch = channels[i];
 			if(ch.patch_number == 0) {
 				ch.setPatch(0, *this); // TODO optimize
-				ch.car.updatePG(ch);
-				ch.car.updateRKS(ch);
+				ch.car.updatePG(ch.freq);
+				ch.car.updateRKS(ch.freq);
 				ch.car.updateEG();
 			}
 		}
@@ -1285,7 +1283,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 			Channel& ch = channels[i];
 			if (ch.patch_number == 0) {
 				ch.setPatch(0, *this); // TODO optimize
-				ch.mod.updateTLL(ch);
+				ch.mod.updateTLL(ch.freq);
 			}
 		}
 		break;
@@ -1360,14 +1358,14 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 		update_key_status();
 
 		Channel& ch6 = channels[6];
-		ch6.mod.updateAll(ch6);
-		ch6.car.updateAll(ch6);
+		ch6.mod.updateAll(ch6.freq);
+		ch6.car.updateAll(ch6.freq);
 		Channel& ch7 = channels[7];
-		ch7.mod.updateAll(ch7);
-		ch7.car.updateAll(ch7);
+		ch7.mod.updateAll(ch7.freq);
+		ch7.car.updateAll(ch7.freq);
 		Channel& ch8 = channels[8];
-		ch8.mod.updateAll(ch8);
-		ch8.car.updateAll(ch8);
+		ch8.mod.updateAll(ch8.freq);
+		ch8.car.updateAll(ch8.freq);
 		break;
 	}
 	case 0x10:  case 0x11:  case 0x12:  case 0x13:
@@ -1377,8 +1375,8 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 		int cha = regis & 0x0F;
 		Channel& ch = channels[cha];
 		ch.setFreq((reg[0x20 + cha] & 0xF) << 8 | data);
-		ch.mod.updateAll(ch);
-		ch.car.updateAll(ch);
+		ch.mod.updateAll(ch.freq);
+		ch.car.updateAll(ch.freq);
 		break;
 	}
 	case 0x20:  case 0x21:  case 0x22:  case 0x23:
@@ -1394,8 +1392,8 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 		} else {
 			ch.keyOff();
 		}
-		ch.mod.updateAll(ch);
-		ch.car.updateAll(ch);
+		ch.mod.updateAll(ch.freq);
+		ch.car.updateAll(ch.freq);
 		update_key_status();
 		update_rhythm_mode();
 		break;
@@ -1416,8 +1414,8 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 			ch.setPatch(j, *this);
 		}
 		ch.setVol(v << 2);
-		ch.mod.updateAll(ch);
-		ch.car.updateAll(ch);
+		ch.mod.updateAll(ch.freq);
+		ch.car.updateAll(ch.freq);
 		break;
 	}
 	default:
