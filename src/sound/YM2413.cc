@@ -1221,10 +1221,6 @@ void Global::generateChannels(int** bufs, unsigned num)
 
 	int m = isRhythm() ? 6 : 9;
 	for (unsigned sample = 0; sample < num; ++sample) {
-		// update Noise unit
-		if (noise_seed & 1) noise_seed ^= 0x8003020;
-		noise_seed >>= 1;
-
 		// update AM, PM unit
 		pm_phase = (pm_phase + PM_DPHASE) & (PM_DP_WIDTH - 1);
 		am_phase = (am_phase + AM_DPHASE) & (AM_DP_WIDTH - 1);
@@ -1247,10 +1243,15 @@ void Global::generateChannels(int** bufs, unsigned num)
 					adjust(2 * ch.car.calc_slot_car(ch.mod.calc_slot_mod()));
 			}
 
+			// update Noise unit
+			noise_seed >>= 1;
+			bool noise_bit = noise_seed & 1;
+			if (noise_bit) noise_seed ^= 0x8003020;
+
 			Channel& ch7 = channels[7];
 			if (channelActiveBits & (1 << 7)) {
 				bufs[ 7][sample] =
-					adjust(-2 * ch7.car.calc_slot_snare(noise_seed & 1));
+					adjust(-2 * ch7.car.calc_slot_snare(noise_bit));
 			}
 
 			Channel& ch8 = channels[8];
@@ -1263,7 +1264,7 @@ void Global::generateChannels(int** bufs, unsigned num)
 			if (channelActiveBits & (1 << (7 + 9))) {
 				bufs[ 9][sample] =
 					adjust(2 * ch7.mod.calc_slot_hat(ch8.car.cphase,
-					                                 noise_seed & 1));
+					                                 noise_bit));
 			}
 
 			if (channelActiveBits & (1 << (8 + 9))) {
