@@ -232,12 +232,12 @@ void MSXMixer::generate(short* output, unsigned samples,
 					if (!(usedBuffers & HAS_MONO_FLAG)) {
 						usedBuffers |= HAS_MONO_FLAG;
 						for (unsigned i = 0; i < samples; ++i) {
-							int tmp = (l1 * tmpBuf[i]) >> 8;
+							int tmp = l1 * tmpBuf[i];
 							monoBuf[i] = tmp;
 						}
 					} else {
 						for (unsigned i = 0; i < samples; ++i) {
-							int tmp = (l1 * tmpBuf[i]) >> 8;
+							int tmp = l1 * tmpBuf[i];
 							monoBuf[i] += tmp;
 						}
 					}
@@ -245,15 +245,15 @@ void MSXMixer::generate(short* output, unsigned samples,
 					if (!(usedBuffers & HAS_STEREO_FLAG)) {
 						usedBuffers |= HAS_STEREO_FLAG;
 						for (unsigned i = 0; i < samples; ++i) {
-							int l = (l1 * tmpBuf[i]) >> 8;
-							int r = (r1 * tmpBuf[i]) >> 8;
+							int l = l1 * tmpBuf[i];
+							int r = r1 * tmpBuf[i];
 							stereoBuf[2 * i + 0] = l;
 							stereoBuf[2 * i + 1] = r;
 						}
 					} else {
 						for (unsigned i = 0; i < samples; ++i) {
-							int l = (l1 * tmpBuf[i]) >> 8;
-							int r = (r1 * tmpBuf[i]) >> 8;
+							int l = l1 * tmpBuf[i];
+							int r = r1 * tmpBuf[i];
 							stereoBuf[2 * i + 0] += l;
 							stereoBuf[2 * i + 1] += r;
 						}
@@ -269,8 +269,8 @@ void MSXMixer::generate(short* output, unsigned samples,
 					for (unsigned i = 0; i < samples; ++i) {
 						int in1 = tmpBuf[2 * i + 0];
 						int in2 = tmpBuf[2 * i + 1];
-						int l = (l1 * in1 + l2 * in2) >> 8;
-						int r = (r1 * in1 + r2 * in2) >> 8;
+						int l = l1 * in1 + l2 * in2;
+						int r = r1 * in1 + r2 * in2;
 						stereoBuf[2 * i + 0] = l;
 						stereoBuf[2 * i + 1] = r;
 					}
@@ -278,8 +278,8 @@ void MSXMixer::generate(short* output, unsigned samples,
 					for (unsigned i = 0; i < samples; ++i) {
 						int in1 = tmpBuf[2 * i + 0];
 						int in2 = tmpBuf[2 * i + 1];
-						int l = (l1 * in1 + l2 * in2) >> 8;
-						int r = (r1 * in1 + r2 * in2) >> 8;
+						int l = l1 * in1 + l2 * in2;
+						int r = r1 * in1 + r2 * in2;
 						stereoBuf[2 * i + 0] += l;
 						stereoBuf[2 * i + 1] += r;
 					}
@@ -344,7 +344,7 @@ void MSXMixer::generate(short* output, unsigned samples,
 		if ((outLeft == outRight) && (prevLeft == prevRight)) {
 			// previous output was also mono
 			for (unsigned j = 0; j < samples; ++j) {
-				int mono = monoBuf[j];
+				int mono = monoBuf[j] >> 8;
 				outLeft   = mono -  prevLeft + ((511 *  outLeft) / 512);
 				prevLeft  = mono;
 				short out = Math::clipIntToShort(outLeft);
@@ -355,7 +355,7 @@ void MSXMixer::generate(short* output, unsigned samples,
 			prevRight = prevLeft;
 		} else {
 			for (unsigned j = 0; j < samples; ++j) {
-				int mono = monoBuf[j];
+				int mono = monoBuf[j] >> 8;
 				outLeft   = mono -  prevLeft + ((511 *  outLeft) / 512);
 				prevLeft  = mono;
 				outRight  = mono - prevRight + ((511 * outRight) / 512);
@@ -369,8 +369,8 @@ void MSXMixer::generate(short* output, unsigned samples,
 	case HAS_STEREO_FLAG:
 		// only stereo
 		for (unsigned j = 0; j < samples; ++j) {
-			int left  = stereoBuf[2 * j + 0];
-			int right = stereoBuf[2 * j + 1];
+			int left  = stereoBuf[2 * j + 0] >> 8;
+			int right = stereoBuf[2 * j + 1] >> 8;
 			outLeft   =  left -  prevLeft + ((511 *  outLeft) / 512);
 			prevLeft  =  left;
 			outRight  = right - prevRight + ((511 * outRight) / 512);
@@ -383,9 +383,9 @@ void MSXMixer::generate(short* output, unsigned samples,
 	default:
 		// mono + stereo
 		for (unsigned j = 0; j < samples; ++j) {
-			int mono = monoBuf[j];
-			int left  = stereoBuf[2 * j + 0] + mono;
-			int right = stereoBuf[2 * j + 1] + mono;
+			int mono = monoBuf[j] >> 8;
+			int left  = (stereoBuf[2 * j + 0] >> 8) + mono;
+			int right = (stereoBuf[2 * j + 1] >> 8) + mono;
 			outLeft   =  left -  prevLeft + ((511 *  outLeft) / 512);
 			prevLeft  =  left;
 			outRight  = right - prevRight + ((511 * outRight) / 512);
