@@ -147,6 +147,7 @@ public:
 
 private:
 	// SoundDevice
+	virtual int getAmplificationFactor() const;
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
 	virtual bool updateBuffer(unsigned length, int* buffer,
@@ -994,9 +995,9 @@ int Y8950Slot::calc_slot_hat(int a, int b, int whitenoise)
 	        dB2LinTab[egout + b]) >> 2;
 }
 
-static inline int adjust(int x)
+int Y8950Impl::getAmplificationFactor() const
 {
-	return x << (15 - DB2LIN_AMP_BITS);
+	return 1 << (15 - DB2LIN_AMP_BITS);
 }
 
 inline void Y8950Impl::calcSample(int** bufs, unsigned sample)
@@ -1008,11 +1009,11 @@ inline void Y8950Impl::calcSample(int** bufs, unsigned sample)
 	int m = rythm_mode ? 6 : 9;
 	for (int i = 0; i < m; ++i) {
 		if (ch[i].car.eg_mode != FINISH) {
-			bufs[i][sample] = adjust(ch[i].alg
+			bufs[i][sample] = ch[i].alg
 				? ch[i].car.calc_slot_car(0) +
 				       ch[i].mod.calc_slot_mod()
 				: ch[i].car.calc_slot_car(
-				       ch[i].mod.calc_slot_mod()));
+				       ch[i].mod.calc_slot_mod());
 		} else {
 			bufs[i][sample] = 0;
 		}
@@ -1023,26 +1024,26 @@ inline void Y8950Impl::calcSample(int** bufs, unsigned sample)
 		ch[8].car.calc_phase();
 
 		bufs[ 6][sample] = (ch[6].car.eg_mode != FINISH)
-			? adjust(2 * ch[6].car.calc_slot_car(ch[6].mod.calc_slot_mod()))
+			? 2 * ch[6].car.calc_slot_car(ch[6].mod.calc_slot_mod())
 			: 0;
 		bufs[ 7][sample] = (ch[7].mod.eg_mode != FINISH)
-			? adjust(2 * ch[7].mod.calc_slot_hat(noiseA, noiseB, whitenoise))
+			? 2 * ch[7].mod.calc_slot_hat(noiseA, noiseB, whitenoise)
 			: 0;
 		bufs[ 8][sample] = (ch[7].car.eg_mode != FINISH)
-			? adjust(2 * ch[7].car.calc_slot_snare(whitenoise))
+			? 2 * ch[7].car.calc_slot_snare(whitenoise)
 			: 0;
 		bufs[ 9][sample] = (ch[8].mod.eg_mode != FINISH)
-			? adjust(2 * ch[8].mod.calc_slot_tom())
+			? 2 * ch[8].mod.calc_slot_tom()
 			: 0;
 		bufs[10][sample] = (ch[8].car.eg_mode != FINISH)
-			? adjust(2 * ch[8].car.calc_slot_cym(noiseA, noiseB))
+			? 2 * ch[8].car.calc_slot_cym(noiseA, noiseB)
 			: 0;
 	} else {
 		bufs[ 9] = 0;
 		bufs[10] = 0;
 	}
 
-	bufs[11][sample] = adjust(adpcm->calcSample());
+	bufs[11][sample] = adpcm->calcSample();
 }
 
 void Y8950Impl::setEnabled(bool enabled_, const EmuTime& time)

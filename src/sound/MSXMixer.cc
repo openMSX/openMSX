@@ -570,10 +570,11 @@ void MSXMixer::updateVolumeParams(Infos::iterator it)
 		r1 = volume * sqrt(std::max(0.0,       b));
 		l2 = r2 = 0.0; // dummy
 	}
-	info.left1  = int(l1 * 256);
-	info.right1 = int(r1 * 256);
-	info.left2  = int(l2 * 256);
-	info.right2 = int(r2 * 256);
+	int amp = 256 * it->first->getAmplificationFactor();
+	info.left1  = int(l1 * amp);
+	info.right1 = int(r1 * amp);
+	info.left2  = int(l2 * amp);
+	info.right2 = int(r2 * amp);
 }
 
 void MSXMixer::updateMasterVolume()

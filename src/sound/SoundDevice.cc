@@ -70,6 +70,11 @@ bool SoundDevice::isStereo() const
 	return stereo == 2;
 }
 
+int SoundDevice::getAmplificationFactor() const
+{
+	return 1;
+}
+
 void SoundDevice::registerSound(const XMLElement& config)
 {
 	const XMLElement& soundConfig = config.getChild("sound");
@@ -155,11 +160,11 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 			if (stereo == 1) {
 				writer[i]->write16mono(
 					bufs[i] ? bufs[i] : silence,
-					samples);
+					samples, getAmplificationFactor());
 			} else {
 				writer[i]->write16stereo(
 					bufs[i] ? bufs[i] : silence,
-					samples);
+					samples, getAmplificationFactor());
 			}
 		}
 	}

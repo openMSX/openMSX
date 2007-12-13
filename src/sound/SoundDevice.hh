@@ -35,6 +35,16 @@ public:
 	  */
 	bool isStereo() const;
 
+	/** Get extra amplification factor for this device.
+	  * Normally the outputBuffer() method should scale the output to
+	  * the range [-32768,32768]. Some devices can be emulated slightly
+	  * faster to produce another output range. In later stages the output
+	  * is anyway still multiplied by some factor. This method tells which
+	  * factor should be used to scale the output to the correct range.
+	  * The default implementation returns 1.
+	  */
+	virtual int getAmplificationFactor() const;
+
 	void recordChannel(unsigned channel, const std::string& filename);
 	void muteChannel  (unsigned channel, bool muted);
 

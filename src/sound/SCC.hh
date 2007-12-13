@@ -33,6 +33,7 @@ public:
 
 private:
 	// SoundDevice
+	virtual int getAmplificationFactor() const;
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
 	virtual bool updateBuffer(unsigned length, int* buffer,

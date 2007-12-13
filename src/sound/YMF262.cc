@@ -185,6 +185,7 @@ public:
 
 private:
 	// SoundDevice
+	virtual int getAmplificationFactor() const;
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
 	virtual bool updateBuffer(unsigned length, int* buffer,
@@ -214,7 +215,6 @@ private:
 	void set_sl_rr(unsigned sl, byte v);
 	void update_channels(YMF262Channel& ch);
 	bool checkMuteHelper();
-	int adjust(int x);
 
 	friend class YMF262Debuggable;
 	const std::auto_ptr<YMF262Debuggable> debuggable;
@@ -1958,9 +1958,9 @@ bool YMF262Impl::checkMuteHelper()
 	return true;
 }
 
-int YMF262Impl::adjust(int x)
+int YMF262Impl::getAmplificationFactor() const
 {
-	return x << 2;
+	return 1 << 2;
 }
 
 void YMF262Impl::generateChannels(int** bufs, unsigned num)
@@ -2049,10 +2049,10 @@ void YMF262Impl::generateChannels(int** bufs, unsigned num)
 		channels[17].chan_calc(LFO_AM);
 
 		for (int i = 0; i < 18; ++i) {
-			bufs[i][2 * j + 0] = adjust(chanout[i] & pan[4 * i + 0]);
-			bufs[i][2 * j + 1] = adjust(chanout[i] & pan[4 * i + 1]);
-			//c += adjust(chanout[i] & pan[4 * i + 2]);  // unused
-			//d += adjust(chanout[i] & pan[4 * i + 3]);  // unused
+			bufs[i][2 * j + 0] = chanout[i] & pan[4 * i + 0];
+			bufs[i][2 * j + 1] = chanout[i] & pan[4 * i + 1];
+			// unused c        = chanout[i] & pan[4 * i + 2];
+			// unused d        = chanout[i] & pan[4 * i + 3];
 		}
 
 		advance();

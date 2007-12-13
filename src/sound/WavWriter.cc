@@ -100,20 +100,20 @@ void WavWriter::write16stereo(short* buffer, unsigned samples)
 	bytes += size;
 }
 
-void WavWriter::write16mono(int* buffer, unsigned samples)
+void WavWriter::write16mono(int* buffer, unsigned samples, int amp)
 {
 	short buf[samples];
 	for (unsigned i = 0; i < samples; ++i) {
-		buf[i] = litEnd_16(Math::clipIntToShort(buffer[i]));
+		buf[i] = litEnd_16(Math::clipIntToShort(buffer[i] * amp));
 	}
 	unsigned size = sizeof(short) * samples;
 	fwrite(buf, 1, size, wavfp);
 	bytes += size;
 }
 
-void WavWriter::write16stereo(int* buffer, unsigned samples)
+void WavWriter::write16stereo(int* buffer, unsigned samples, int amp)
 {
-	write16mono(buffer, 2 * samples);
+	write16mono(buffer, 2 * samples, amp);
 }
 
 void WavWriter::flush()

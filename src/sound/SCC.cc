@@ -338,10 +338,14 @@ void SCC::writeMem(byte address, byte value, const EmuTime& time)
 	}
 }
 
+int SCC::getAmplificationFactor() const
+{
+	return 256;
+}
+
 inline int SCC::adjust(signed char wav, byte vol)
 {
-	int tmp = (int(wav) * vol) >> 4;
-	return tmp * 256;
+	return (int(wav) * vol) >> 4;
 }
 
 void SCC::writeWave(unsigned channel, unsigned address, byte value)

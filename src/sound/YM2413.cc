@@ -159,9 +159,7 @@ public:
 	inline void update_rhythm_mode();
 	inline void update_key_status();
 
-	/**
-	 * Generate output samples for each channel.
-	 */
+	virtual int getAmplificationFactor() const;
 	virtual void generateChannels(int** bufs, unsigned num);
 
 	Patch& getPatch(unsigned instrument, bool carrier) {
@@ -1119,9 +1117,9 @@ int Slot::calc_slot_hat(unsigned cphase_cym, bool noise)
 	return dB2LinTab[dbout + egout];
 }
 
-static inline int adjust(int x)
+int Global::getAmplificationFactor() const
 {
-	return x << (15 - DB2LIN_AMP_BITS);
+	return 1 << (15 - DB2LIN_AMP_BITS);
 }
 
 void Global::generateChannels(int** bufs, unsigned num)
@@ -1184,14 +1182,14 @@ void Global::generateChannels(int** bufs, unsigned num)
 			if (channelActiveBits & (1 << i)) {
 				Channel& ch = channels[i];
 				bufs[i][sample] =
-					adjust(ch.car.calc_slot_car(lfo_pm, lfo_am, ch.mod.calc_slot_mod(lfo_pm, lfo_am)));
+					ch.car.calc_slot_car(lfo_pm, lfo_am, ch.mod.calc_slot_mod(lfo_pm, lfo_am));
 			}
 		}
 		if (isRhythm()) {
 			if (channelActiveBits & (1 << 6)) {
 				Channel& ch = channels[6];
 				bufs[ 6][sample] =
-					adjust(2 * ch.car.calc_slot_car(ch.mod.calc_slot_mod()));
+					2 * ch.car.calc_slot_car(ch.mod.calc_slot_mod());
 			}
 
 			// update Noise unit
@@ -1202,7 +1200,7 @@ void Global::generateChannels(int** bufs, unsigned num)
 			Channel& ch7 = channels[7];
 			if (channelActiveBits & (1 << 7)) {
 				bufs[ 7][sample] =
-					adjust(-2 * ch7.car.calc_slot_snare(noise_bit));
+					-2 * ch7.car.calc_slot_snare(noise_bit);
 			}
 
 			Channel& ch8 = channels[8];
@@ -1210,17 +1208,17 @@ void Global::generateChannels(int** bufs, unsigned num)
 			ch7.mod.calc_phase();
 			if (channelActiveBits & (1 << 8)) {
 				bufs[ 8][sample] =
-					adjust(-2 * ch8.car.calc_slot_cym(ch7.mod.cphase));
+					-2 * ch8.car.calc_slot_cym(ch7.mod.cphase);
 			}
 			if (channelActiveBits & (1 << (7 + 9))) {
 				bufs[ 9][sample] =
-					adjust(2 * ch7.mod.calc_slot_hat(ch8.car.cphase,
-					                                 noise_bit));
+					2 * ch7.mod.calc_slot_hat(ch8.car.cphase,
+					                          noise_bit);
 			}
 
 			if (channelActiveBits & (1 << (8 + 9))) {
 				bufs[10][sample] =
-					adjust(2 * ch8.mod.calc_slot_tom());
+					2 * ch8.mod.calc_slot_tom();
 			}
 		}
 	}
