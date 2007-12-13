@@ -37,19 +37,24 @@ public:
 	void initModulator(const byte* data);
 	void initCarrier(const byte* data);
 
-	/**
-	 * Sets the amount of feedback [0..7].
+	/** Sets the amount of feedback [0..7].
 	 */
 	void setFeedbackShift(byte value) {
 		FB = value ? 8 - value : 0;
 	}
 
+	/** Sets the Key Scale of Rate (0 or 1).
+	 */
+	void setKeyScaleRate(bool value) {
+		KR = value ? 8 : 10;
+	}
+
 	bool AM, PM, EG;
-	byte KR; // 0-1
+	byte KR; // 0,1  transformed to  10,8
 	byte ML; // 0-15
 	byte KL; // 0-3
 	byte TL; // 0-63
-	byte FB; // 0-7
+	byte FB; // 0,1-7  transformed to  0,7-1
 	byte WF; // 0-1
 	byte AR; // 0-15
 	byte DR; // 0-15
@@ -120,16 +125,14 @@ public:
 	inline void setPatch(int num, Global& global);
 	inline void setSustain(bool sustain);
 	inline void setVol(int volume);
-	inline void setFnumber(int fnum);
-	inline void setBlock(int block);
+	inline void setFreq(int freq);
 	inline void keyOn();
 	inline void keyOff();
 
 	Slot mod, car;
 	int patch_number;
 
-	int fnum;		// F-Number
-	int block;		// Block
+	int freq; // combined fnum and block
 };
 
 class Global : public YM2413Core {
@@ -262,11 +265,10 @@ static EnvPhaseIndex dphaseARTable[16][16];
 static EnvPhaseIndex dphaseDRTable[16][16];
 
 // KSL + TL Table
-static unsigned tllTable[16][8][1 << TL_BITS][4];
-static int rksTable[2][8][2];
+static unsigned tllTable[16 * 8][1 << TL_BITS][4];
 
 // Phase incr table for PG
-static unsigned dphaseTable[512][8][16];
+static unsigned dphaseTable[512 * 8][16];
 
 
 //***************************************************//
@@ -411,12 +413,12 @@ static void makeDphaseTable()
 		8*2, 9*2, 10*2, 10*2, 12*2, 12*2, 15*2, 15*2
 	};
 
-	for (unsigned fnum = 0; fnum < 512; ++fnum) {
-		for (unsigned block = 0; block < 8; ++block) {
-			for (unsigned ML = 0; ML < 16; ++ML) {
-				dphaseTable[fnum][block][ML] =
-					((fnum * mltable[ML]) << block) >> (20 - DP_BITS);
-			}
+	for (unsigned freq = 0; freq < 8 * 512; ++freq) {
+		unsigned fnum = freq & 511;
+		unsigned block = freq / 512;
+		for (unsigned ML = 0; ML < 16; ++ML) {
+			dphaseTable[freq][ML] =
+				((fnum * mltable[ML]) << block) >> (20 - DP_BITS);
 		}
 	}
 }
@@ -430,18 +432,18 @@ static void makeTllTable()
 		(19.875 * 2), (20.250 * 2), (20.625 * 2), (21.000 * 2)
 	};
 
-	for (int fnum = 0; fnum < 16; ++fnum) {
-		for (int block = 0; block < 8; ++block) {
-			for (int TL = 0; TL < 64; ++TL) {
-				tllTable[fnum][block][TL][0] = TL2EG(TL);
-				for (int KL = 1; KL < 4; ++KL) {
-					int tmp = int(
-						kltable[fnum] - (3.000 * 2) * (7 - block));
-					tllTable[fnum][block][TL][KL] =
-						(tmp <= 0) ?
-						TL2EG(TL) :
-						unsigned((tmp >> (3 - KL)) / EG_STEP) + TL2EG(TL);
-				}
+	for (unsigned freq = 0; freq < 16 * 8; ++freq) {
+		unsigned fnum = freq & 15;
+		unsigned block = freq / 16;
+		for (int TL = 0; TL < 64; ++TL) {
+			tllTable[freq][TL][0] = TL2EG(TL);
+			for (int KL = 1; KL < 4; ++KL) {
+				int tmp = int(
+					kltable[fnum] - (3.000 * 2) * (7 - block));
+				tllTable[freq][TL][KL] =
+					(tmp <= 0) ?
+					TL2EG(TL) :
+					unsigned((tmp >> (3 - KL)) / EG_STEP) + TL2EG(TL);
 			}
 		}
 	}
@@ -491,19 +493,6 @@ static void makeDphaseDRTable()
 	}
 }
 
-static void makeRksTable()
-{
-	for (int fnum8 = 0; fnum8 < 2; ++fnum8) {
-		for (int block = 0; block < 8; ++block) {
-			for (int KR = 0; KR < 2; ++KR) {
-				rksTable[fnum8][block][KR] = (KR != 0)
-					? (block << 1) + fnum8
-					:  block >> 1;
-			}
-		}
-	}
-}
-
 //************************************************************//
 //                                                            //
 //                      Patch                                 //
@@ -512,10 +501,10 @@ static void makeRksTable()
 
 Patch::Patch()
 	: AM(false), PM(false), EG(false)
-	, KR(0), ML(0), KL(0), TL(0)
-	, WF(0), AR(0), DR(0), SL(0), RR(0)
+	, ML(0), KL(0), TL(0), WF(0), AR(0), DR(0), SL(0), RR(0)
 {
 	setFeedbackShift(0);
+	setKeyScaleRate(0);
 }
 
 void Patch::initModulator(const byte* data)
@@ -523,7 +512,6 @@ void Patch::initModulator(const byte* data)
 	AM = (data[0] >> 7) & 1;
 	PM = (data[0] >> 6) & 1;
 	EG = (data[0] >> 5) & 1;
-	KR = (data[0] >> 4) & 1;
 	ML = (data[0] >> 0) & 15;
 	KL = (data[2] >> 6) & 3;
 	TL = (data[2] >> 0) & 63;
@@ -533,6 +521,7 @@ void Patch::initModulator(const byte* data)
 	SL = (data[6] >> 4) & 15;
 	RR = (data[6] >> 0) & 15;
 	setFeedbackShift((data[3] >> 0) & 7);
+	setKeyScaleRate((data[0] >> 4) & 1);
 }
 
 void Patch::initCarrier(const byte* data)
@@ -540,7 +529,6 @@ void Patch::initCarrier(const byte* data)
 	AM = (data[1] >> 7) & 1;
 	PM = (data[1] >> 6) & 1;
 	EG = (data[1] >> 5) & 1;
-	KR = (data[1] >> 4) & 1;
 	ML = (data[1] >> 0) & 15;
 	KL = (data[3] >> 6) & 3;
 	TL = 0;
@@ -550,6 +538,7 @@ void Patch::initCarrier(const byte* data)
 	SL = (data[7] >> 4) & 15;
 	RR = (data[7] >> 0) & 15;
 	setFeedbackShift(0);
+	setKeyScaleRate((data[1] >> 4) & 1);
 }
 
 //************************************************************//
@@ -577,17 +566,17 @@ void Slot::reset(bool type_)
 
 void Slot::updatePG(Channel& ch)
 {
-	dphase = dphaseTable[ch.fnum][ch.block][patch.ML];
+	dphase = dphaseTable[ch.freq][patch.ML];
 }
 
 void Slot::updateTLL(Channel& ch)
 {
-	tll = tllTable[ch.fnum >> 5][ch.block][type ? volume : patch.TL][patch.KL];
+	tll = tllTable[ch.freq >> 5][type ? volume : patch.TL][patch.KL];
 }
 
 void Slot::updateRKS(Channel& ch)
 {
-	rks = rksTable[ch.fnum >> 8][ch.block][patch.KR];
+	rks = ch.freq >> patch.KR;
 }
 
 void Slot::updateWF()
@@ -694,9 +683,7 @@ void Slot::setVolume(int newVolume)
 
 void Channel::reset(Global& global)
 {
-	fnum = 0;
-	block = 0;
-
+	freq = 0;
 	mod.reset(false);
 	car.reset(true);
 	setPatch(0, global);
@@ -725,16 +712,10 @@ void Channel::setVol(int volume)
 	car.volume = volume;
 }
 
-// Set F-Number (fnum : 9bit)
-void Channel::setFnumber(int fnum_)
+// set Frequency (combined fnum (=9bit) and block (=3bit))
+void Channel::setFreq(int freq_)
 {
-	fnum = fnum_;
-}
-
-// Set Block data (block : 3bit)
-void Channel::setBlock(int block_)
-{
-	block = block_;
+	freq = freq_;
 }
 
 // Channel key on
@@ -793,7 +774,6 @@ Global::Global(MSXMotherBoard& motherBoard, const std::string& name,
 	makeDB2LinTable();
 	makeAdjustTable();
 	makeTllTable();
-	makeRksTable();
 	makeSinTable();
 	makeDphaseTable();
 	makeDphaseARTable();
@@ -1270,7 +1250,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 		patches[0][0].AM = (data >> 7) & 1;
 		patches[0][0].PM = (data >> 6) & 1;
 		patches[0][0].EG = (data >> 5) & 1;
-		patches[0][0].KR = (data >> 4) & 1;
+		patches[0][0].setKeyScaleRate((data >> 4) & 1);
 		patches[0][0].ML = (data >> 0) & 15;
 		for (int i = 0; i < 9; ++i) {
 			Channel& ch = channels[i];
@@ -1286,7 +1266,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 		patches[0][1].AM = (data >> 7) & 1;
 		patches[0][1].PM = (data >> 6) & 1;
 		patches[0][1].EG = (data >> 5) & 1;
-		patches[0][1].KR = (data >> 4) & 1;
+		patches[0][1].setKeyScaleRate((data >> 4) & 1);
 		patches[0][1].ML = (data >> 0) & 15;
 		for (int i = 0; i < 9; ++i) {
 			Channel& ch = channels[i];
@@ -1396,7 +1376,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 	{
 		int cha = regis & 0x0F;
 		Channel& ch = channels[cha];
-		ch.setFnumber(data + ((reg[0x20 + cha] & 1) << 8));
+		ch.setFreq((reg[0x20 + cha] & 0xF) << 8 | data);
 		ch.mod.updateAll(ch);
 		ch.car.updateAll(ch);
 		break;
@@ -1407,10 +1387,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 	{
 		int cha = regis & 0x0F;
 		Channel& ch = channels[cha];
-		int fNum = ((data & 1) << 8) + reg[0x10 + cha];
-		int block = (data >> 1) & 7;
-		ch.setFnumber(fNum);
-		ch.setBlock(block);
+		ch.setFreq((data & 0xF) << 8 | reg[0x10 + cha]);
 		ch.setSustain((data >> 5) & 1);
 		if (data & 0x10) {
 			ch.keyOn();
