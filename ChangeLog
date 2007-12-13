@@ -1,5 +1,17 @@
 $Id$
 
+2007-12-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* More YM2413 optimizations:
+	   - only update noise value in rhythm mode
+	   - made Channel::global a function parameter iso a member variable
+	   - moved 'fnum' and 'block' from Slot to Channel, merge them into one
+	     new 'freq' variable
+	* General SoundDevice/MSXMixer optimization:
+	   - added SoundDevice::getAmplificationFactor(), this allows to move
+	     a multiplication (or shift) from the sounddevice to the mixer. In
+	     the mixer there already was a multiplication (for per device
+	     volume setting) so those two can be merged.
+
 2007-12-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Various YM2413 optimizations:
 	   - made lfo_pm and lfo_am local variables iso member variables
