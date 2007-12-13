@@ -73,7 +73,7 @@ public:
 	inline void slotOn2();
 	inline void slotOff();
 	inline void setPatch(Patch& patch);
-	inline void setVolume(int volume);
+	inline void setVolume(unsigned volume);
 	inline void calc_phase(PhaseModulation lfo_pm);
 	inline void calc_phase();
 	inline unsigned calc_envelope_helper();
@@ -87,12 +87,12 @@ public:
 	inline int calc_slot_snare(bool noise);
 	inline int calc_slot_cym(unsigned cphase_hh);
 	inline int calc_slot_hat(unsigned cphase_cym, bool noise);
-	inline void updatePG(int freq);
-	inline void updateTLL(int freq);
-	inline void updateRKS(int freq);
+	inline void updatePG(unsigned freq);
+	inline void updateTLL(unsigned freq);
+	inline void updateRKS(unsigned freq);
 	inline void updateWF();
 	inline void updateEG();
-	inline void updateAll(int freq);
+	inline void updateAll(unsigned freq);
 
 	Patch patch;
 	unsigned* sintbl;	// Wavetable (for PG)
@@ -106,13 +106,13 @@ public:
 	unsigned dphase;	// Phase increment
 
 	// for Envelope Generator (EG)
-	int volume;		// Current volume
-	int tll;		// Total Level + Key scale level
-	int rks;		// Key scale offset (Rks)
+	unsigned volume;	// Current volume
+	unsigned tll;		// Total Level + Key scale level
+	unsigned rks;		// Key scale offset (Rks)
 	EnvelopeState state;	// Current state
 	EnvPhaseIndex eg_phase;	// Phase
-	EnvPhaseIndex eg_dphase;	// Phase increment amount
-	bool sustain;	// Sustain
+	EnvPhaseIndex eg_dphase;// Phase increment amount
+	bool sustain;		// Sustain
 	bool type;		// 0 : modulator 1 : carrier
 	bool slot_on_flag;
 };
@@ -120,17 +120,17 @@ public:
 class Channel {
 public:
 	void reset(Global& global);
-	inline void setPatch(int num, Global& global);
+	inline void setPatch(unsigned num, Global& global);
 	inline void setSustain(bool sustain);
-	inline void setVol(int volume);
-	inline void setFreq(int freq);
+	inline void setVol(unsigned volume);
+	inline void setFreq(unsigned freq);
 	inline void keyOn();
 	inline void keyOff();
 
 	Slot mod, car;
-	int patch_number;
+	unsigned patch_number;
 
-	int freq; // combined fnum and block
+	unsigned freq; // combined fnum and block
 };
 
 class Global : public YM2413Core {
@@ -164,7 +164,7 @@ public:
 	 */
 	virtual void generateChannels(int** bufs, unsigned num);
 
-	Patch& getPatch(int instrument, bool carrier) {
+	Patch& getPatch(unsigned instrument, bool carrier) {
 		return patches[instrument][carrier];
 	}
 
@@ -182,7 +182,7 @@ private:
 	unsigned am_phase;
 
 	// Noise Generator
-	int noise_seed;
+	unsigned noise_seed;
 
 	// Number of samples the output was completely silent
 	unsigned idleSamples;
@@ -296,14 +296,7 @@ static inline unsigned DB_NEG(double x)
 	return 2 * DB_MUTE + DB_POS(x);
 }
 
-// Cut the lower b bit off
-template <typename T>
-static inline T HIGHBITS(T c, int b)
-{
-	return c >> b;
-}
-
-static inline bool BIT(int s, int b)
+static inline bool BIT(unsigned s, unsigned b)
 {
 	return (s >> b) & 1;
 }
@@ -433,9 +426,9 @@ static void makeTllTable()
 	for (unsigned freq = 0; freq < 16 * 8; ++freq) {
 		unsigned fnum = freq & 15;
 		unsigned block = freq / 16;
-		for (int TL = 0; TL < 64; ++TL) {
+		for (unsigned TL = 0; TL < 64; ++TL) {
 			tllTable[freq][TL][0] = TL2EG(TL);
-			for (int KL = 1; KL < 4; ++KL) {
+			for (unsigned KL = 1; KL < 4; ++KL) {
 				int tmp = int(
 					kltable[fnum] - (3.000 * 2) * (7 - block));
 				tllTable[freq][TL][KL] =
@@ -450,8 +443,8 @@ static void makeTllTable()
 // Rate Table for Attack
 static void makeDphaseARTable()
 {
-	for (int AR = 0; AR < 16; ++AR) {
-		for (int Rks = 0; Rks < 16; ++Rks) {
+	for (unsigned AR = 0; AR < 16; ++AR) {
+		for (unsigned Rks = 0; Rks < 16; ++Rks) {
 			switch (AR) {
 			case 0:
 				dphaseARTable[AR][Rks] = EnvPhaseIndex(0);
@@ -460,8 +453,8 @@ static void makeDphaseARTable()
 				dphaseARTable[AR][Rks] = EnvPhaseIndex(0); // EG_DP_MAX
 				break;
 			default: {
-				int RM = std::min(AR + (Rks >> 2), 15);
-				int RL = Rks & 3;
+				unsigned RM = std::min(AR + (Rks >> 2), 15u);
+				unsigned RL = Rks & 3;
 				dphaseARTable[AR][Rks] =
 					EnvPhaseIndex(6 * (RL + 4)) >> (15 - RM);
 				break;
@@ -474,15 +467,15 @@ static void makeDphaseARTable()
 // Rate Table for Decay
 static void makeDphaseDRTable()
 {
-	for (int DR = 0; DR < 16; ++DR) {
-		for (int Rks = 0; Rks < 16; ++Rks) {
+	for (unsigned DR = 0; DR < 16; ++DR) {
+		for (unsigned Rks = 0; Rks < 16; ++Rks) {
 			switch(DR) {
 			case 0:
 				dphaseDRTable[DR][Rks] = EnvPhaseIndex(0);
 				break;
 			default:
-				int RM = std::min(DR + (Rks >> 2), 15);
-				int RL = Rks & 3;
+				unsigned RM = std::min(DR + (Rks >> 2), 15u);
+				unsigned RL = Rks & 3;
 				dphaseDRTable[DR][Rks] =
 					EnvPhaseIndex(RL + 4) >> (16 - RM);
 				break;
@@ -562,17 +555,17 @@ void Slot::reset(bool type_)
 	slot_on_flag = false;
 }
 
-void Slot::updatePG(int freq)
+void Slot::updatePG(unsigned freq)
 {
 	dphase = dphaseTable[freq][patch.ML];
 }
 
-void Slot::updateTLL(int freq)
+void Slot::updateTLL(unsigned freq)
 {
 	tll = tllTable[freq >> 5][type ? volume : patch.TL][patch.KL];
 }
 
-void Slot::updateRKS(int freq)
+void Slot::updateRKS(unsigned freq)
 {
 	rks = freq >> patch.KR;
 }
@@ -613,7 +606,7 @@ void Slot::updateEG()
 	}
 }
 
-void Slot::updateAll(int freq)
+void Slot::updateAll(unsigned freq)
 {
 	updatePG(freq);
 	updateTLL(freq);
@@ -666,7 +659,7 @@ void Slot::setPatch(Patch& patch)
 	this->patch = patch; // copy data
 }
 
-void Slot::setVolume(int newVolume)
+void Slot::setVolume(unsigned newVolume)
 {
 	volume = newVolume;
 }
@@ -688,7 +681,7 @@ void Channel::reset(Global& global)
 }
 
 // Change a voice
-void Channel::setPatch(int num, Global& global)
+void Channel::setPatch(unsigned num, Global& global)
 {
 	patch_number = num;
 	mod.setPatch(global.getPatch(num, false));
@@ -705,13 +698,13 @@ void Channel::setSustain(bool sustain)
 }
 
 // Volume : 6bit ( Volume register << 2 )
-void Channel::setVol(int volume)
+void Channel::setVol(unsigned volume)
 {
 	car.volume = volume;
 }
 
 // set Frequency (combined fnum (=9bit) and block (=3bit))
-void Channel::setFreq(int freq_)
+void Channel::setFreq(unsigned freq_)
 {
 	freq = freq_;
 }
@@ -763,7 +756,7 @@ Global::Global(MSXMotherBoard& motherBoard, const std::string& name,
                const XMLElement& config, const EmuTime& time)
 	: YM2413Core(motherBoard, name)
 {
-	for (int i = 0; i < 16 + 3; ++i) {
+	for (unsigned i = 0; i < 16 + 3; ++i) {
 		patches[i][0].initModulator(inst_data[i]);
 		patches[i][1].initCarrier(inst_data[i]);
 	}
@@ -797,10 +790,10 @@ void Global::reset(const EmuTime& time)
 	noise_seed = 0xFFFF;
 	idleSamples = 0;
 
-	for(int i = 0; i < 9; i++) {
+	for (unsigned i = 0; i < 9; i++) {
 		channels[i].reset(*this);
 	}
-	for (int i = 0; i < 0x40; i++) {
+	for (unsigned i = 0; i < 0x40; i++) {
 		writeReg(i, 0, time);
 	}
 }
@@ -899,7 +892,7 @@ void Global::update_rhythm_mode()
 
 void Global::update_key_status()
 {
-	for (int i = 0; i < 9; ++i) {
+	for (unsigned i = 0; i < 9; ++i) {
 		bool slot_on = reg[0x20 + i] & 0x10;
 		Channel& ch = channels[i];
 		ch.mod.slot_on_flag = slot_on;
@@ -1140,7 +1133,7 @@ void Global::generateChannels(int** bufs, unsigned num)
 	// bits 9-17 -> ch[0-8].mod (only ch7 and ch8 are used)
 	unsigned channelActiveBits = 0;
 
-	for (int ch = 0; ch < 9; ++ch) {
+	for (unsigned ch = 0; ch < 9; ++ch) {
 		if (channels[ch].car.isActive()) {
 			channelActiveBits |= 1 << ch;
 		} else {
@@ -1177,17 +1170,17 @@ void Global::generateChannels(int** bufs, unsigned num)
 		idleSamples += num;
 	}
 
-	int m = isRhythm() ? 6 : 9;
+	unsigned m = isRhythm() ? 6 : 9;
 	for (unsigned sample = 0; sample < num; ++sample) {
 		// update AM, PM unit
 		pm_phase = (pm_phase + PM_DPHASE) & (PM_DP_WIDTH - 1);
 		am_phase = (am_phase + AM_DPHASE) & (AM_DP_WIDTH - 1);
 		int lfo_am =
-			amtable[HIGHBITS(am_phase, AM_DP_BITS - AM_PG_BITS)];
+			amtable[am_phase >> (AM_DP_BITS - AM_PG_BITS)];
 		PhaseModulation lfo_pm =
-			pmtable[HIGHBITS(pm_phase, PM_DP_BITS - PM_PG_BITS)];
+			pmtable[pm_phase >> (PM_DP_BITS - PM_PG_BITS)];
 
-		for (int i = 0; i < m; ++i) {
+		for (unsigned i = 0; i < m; ++i) {
 			if (channelActiveBits & (1 << i)) {
 				Channel& ch = channels[i];
 				bufs[i][sample] =
@@ -1250,7 +1243,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 		patches[0][0].EG = (data >> 5) & 1;
 		patches[0][0].setKeyScaleRate((data >> 4) & 1);
 		patches[0][0].ML = (data >> 0) & 15;
-		for (int i = 0; i < 9; ++i) {
+		for (unsigned i = 0; i < 9; ++i) {
 			Channel& ch = channels[i];
 			if (ch.patch_number == 0) {
 				ch.setPatch(0, *this); // TODO optimize
@@ -1266,7 +1259,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 		patches[0][1].EG = (data >> 5) & 1;
 		patches[0][1].setKeyScaleRate((data >> 4) & 1);
 		patches[0][1].ML = (data >> 0) & 15;
-		for (int i = 0; i < 9; ++i) {
+		for (unsigned i = 0; i < 9; ++i) {
 			Channel& ch = channels[i];
 			if(ch.patch_number == 0) {
 				ch.setPatch(0, *this); // TODO optimize
@@ -1279,7 +1272,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 	case 0x02:
 		patches[0][0].KL = (data >> 6) & 3;
 		patches[0][0].TL = (data >> 0) & 63;
-		for (int i = 0; i < 9; ++i) {
+		for (unsigned i = 0; i < 9; ++i) {
 			Channel& ch = channels[i];
 			if (ch.patch_number == 0) {
 				ch.setPatch(0, *this); // TODO optimize
@@ -1292,7 +1285,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 		patches[0][1].WF = (data >> 4) & 1;
 		patches[0][0].WF = (data >> 3) & 1;
 		patches[0][0].setFeedbackShift((data >> 0) & 7);
-		for (int i = 0; i < 9; ++i) {
+		for (unsigned i = 0; i < 9; ++i) {
 			Channel& ch = channels[i];
 			if (ch.patch_number == 0) {
 				ch.setPatch(0, *this); // TODO optimize
@@ -1304,7 +1297,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 	case 0x04:
 		patches[0][0].AR = (data >> 4) & 15;
 		patches[0][0].DR = (data >> 0) & 15;
-		for (int i = 0; i < 9; ++i) {
+		for (unsigned i = 0; i < 9; ++i) {
 			Channel& ch = channels[i];
 			if (ch.patch_number == 0) {
 				ch.setPatch(0, *this); // TODO optimize
@@ -1315,7 +1308,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 	case 0x05:
 		patches[0][1].AR = (data >> 4) & 15;
 		patches[0][1].DR = (data >> 0) & 15;
-		for (int i = 0; i < 9; ++i) {
+		for (unsigned i = 0; i < 9; ++i) {
 			Channel& ch = channels[i];
 			if (ch.patch_number == 0) {
 				ch.setPatch(0, *this); // TODO optimize
@@ -1326,7 +1319,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 	case 0x06:
 		patches[0][0].SL = (data >> 4) & 15;
 		patches[0][0].RR = (data >> 0) & 15;
-		for (int i = 0; i < 9; ++i) {
+		for (unsigned i = 0; i < 9; ++i) {
 			Channel& ch = channels[i];
 			if (ch.patch_number == 0) {
 				ch.setPatch(0, *this); // TODO optimize
@@ -1337,7 +1330,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 	case 0x07:
 		patches[0][1].SL = (data >> 4) & 15;
 		patches[0][1].RR = (data >> 0) & 15;
-		for (int i = 0; i < 9; i++) {
+		for (unsigned i = 0; i < 9; i++) {
 			Channel& ch = channels[i];
 			if (ch.patch_number == 0) {
 				ch.setPatch(0, *this); // TODO optimize
@@ -1372,7 +1365,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 	case 0x14:  case 0x15:  case 0x16:  case 0x17:
 	case 0x18:
 	{
-		int cha = regis & 0x0F;
+		unsigned cha = regis & 0x0F;
 		Channel& ch = channels[cha];
 		ch.setFreq((reg[0x20 + cha] & 0xF) << 8 | data);
 		ch.mod.updateAll(ch.freq);
@@ -1383,7 +1376,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 	case 0x24:  case 0x25:  case 0x26:  case 0x27:
 	case 0x28:
 	{
-		int cha = regis & 0x0F;
+		unsigned cha = regis & 0x0F;
 		Channel& ch = channels[cha];
 		ch.setFreq((data & 0xF) << 8 | reg[0x10 + cha]);
 		ch.setSustain((data >> 5) & 1);
@@ -1401,10 +1394,10 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 	case 0x30: case 0x31: case 0x32: case 0x33: case 0x34:
 	case 0x35: case 0x36: case 0x37: case 0x38:
 	{
-		int cha = regis & 0x0F;
+		unsigned cha = regis & 0x0F;
 		Channel& ch = channels[cha];
-		int j = (data >> 4) & 15;
-		int v = data & 15;
+		unsigned j = (data >> 4) & 15;
+		unsigned v = data & 15;
 		if (isRhythm() && (cha >= 6)) {
 			if (cha > 6) {
 				// channel 7 or 8 in ryhthm mode
