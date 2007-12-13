@@ -24,7 +24,7 @@ static const EnvPhaseIndex EG_DP_MAX = EnvPhaseIndex(1 << 7);
 
 enum EnvelopeState {
 	ATTACK, DECAY, SUSHOLD, SUSTAIN, RELEASE, SETTLE, FINISH
-	};
+};
 
 class Patch {
 public:
@@ -57,6 +57,8 @@ public:
 	byte RR; // 0-15
 };
 
+class Channel;
+
 class Slot {
 public:
 	void reset(bool type);
@@ -82,12 +84,12 @@ public:
 	inline int calc_slot_snare(bool noise);
 	inline int calc_slot_cym(unsigned cphase_hh);
 	inline int calc_slot_hat(unsigned cphase_cym, bool noise);
-	inline void updatePG();
-	inline void updateTLL();
-	inline void updateRKS();
+	inline void updatePG(Channel& ch);
+	inline void updateTLL(Channel& ch);
+	inline void updateRKS(Channel& ch);
 	inline void updateWF();
 	inline void updateEG();
-	inline void updateAll();
+	inline void updateAll(Channel& ch);
 
 	Patch patch;
 	unsigned* sintbl;	// Wavetable (for PG)
@@ -101,8 +103,6 @@ public:
 	unsigned dphase;	// Phase increment
 
 	// for Envelope Generator (EG)
-	int fnum;		// F-Number
-	int block;		// Block
 	int volume;		// Current volume
 	int tll;		// Total Level + Key scale level
 	int rks;		// Key scale offset (Rks)
@@ -127,6 +127,9 @@ public:
 
 	Slot mod, car;
 	int patch_number;
+
+	int fnum;		// F-Number
+	int block;		// Block
 };
 
 class Global : public YM2413Core {
@@ -568,25 +571,23 @@ void Slot::reset(bool type_)
 	rks = 0;
 	tll = 0;
 	sustain = false;
-	fnum = 0;
-	block = 0;
 	volume = 0;
 	slot_on_flag = false;
 }
 
-void Slot::updatePG()
+void Slot::updatePG(Channel& ch)
 {
-	dphase = dphaseTable[fnum][block][patch.ML];
+	dphase = dphaseTable[ch.fnum][ch.block][patch.ML];
 }
 
-void Slot::updateTLL()
+void Slot::updateTLL(Channel& ch)
 {
-	tll = tllTable[fnum >> 5][block][type ? volume : patch.TL][patch.KL];
+	tll = tllTable[ch.fnum >> 5][ch.block][type ? volume : patch.TL][patch.KL];
 }
 
-void Slot::updateRKS()
+void Slot::updateRKS(Channel& ch)
 {
-	rks = rksTable[fnum >> 8][block][patch.KR];
+	rks = rksTable[ch.fnum >> 8][ch.block][patch.KR];
 }
 
 void Slot::updateWF()
@@ -625,11 +626,11 @@ void Slot::updateEG()
 	}
 }
 
-void Slot::updateAll()
+void Slot::updateAll(Channel& ch)
 {
-	updatePG();
-	updateTLL();
-	updateRKS();
+	updatePG(ch);
+	updateTLL(ch);
+	updateRKS(ch);
 	updateWF();
 	updateEG(); // EG should be updated last
 }
@@ -693,6 +694,9 @@ void Slot::setVolume(int newVolume)
 
 void Channel::reset(Global& global)
 {
+	fnum = 0;
+	block = 0;
+
 	mod.reset(false);
 	car.reset(true);
 	setPatch(0, global);
@@ -722,17 +726,15 @@ void Channel::setVol(int volume)
 }
 
 // Set F-Number (fnum : 9bit)
-void Channel::setFnumber(int fnum)
+void Channel::setFnumber(int fnum_)
 {
-	car.fnum = fnum;
-	mod.fnum = fnum;
+	fnum = fnum_;
 }
 
 // Set Block data (block : 3bit)
-void Channel::setBlock(int block)
+void Channel::setBlock(int block_)
 {
-	car.block = block;
-	mod.block = block;
+	block = block_;
 }
 
 // Channel key on
@@ -1274,8 +1276,8 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 			Channel& ch = channels[i];
 			if (ch.patch_number == 0) {
 				ch.setPatch(0, *this); // TODO optimize
-				ch.mod.updatePG();
-				ch.mod.updateRKS();
+				ch.mod.updatePG(ch);
+				ch.mod.updateRKS(ch);
 				ch.mod.updateEG();
 			}
 		}
@@ -1290,8 +1292,8 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 			Channel& ch = channels[i];
 			if(ch.patch_number == 0) {
 				ch.setPatch(0, *this); // TODO optimize
-				ch.car.updatePG();
-				ch.car.updateRKS();
+				ch.car.updatePG(ch);
+				ch.car.updateRKS(ch);
 				ch.car.updateEG();
 			}
 		}
@@ -1303,7 +1305,7 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 			Channel& ch = channels[i];
 			if (ch.patch_number == 0) {
 				ch.setPatch(0, *this); // TODO optimize
-				ch.mod.updateTLL();
+				ch.mod.updateTLL(ch);
 			}
 		}
 		break;
@@ -1378,14 +1380,14 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 		update_key_status();
 
 		Channel& ch6 = channels[6];
-		ch6.mod.updateAll();
-		ch6.car.updateAll();
+		ch6.mod.updateAll(ch6);
+		ch6.car.updateAll(ch6);
 		Channel& ch7 = channels[7];
-		ch7.mod.updateAll();
-		ch7.car.updateAll();
+		ch7.mod.updateAll(ch7);
+		ch7.car.updateAll(ch7);
 		Channel& ch8 = channels[8];
-		ch8.mod.updateAll();
-		ch8.car.updateAll();
+		ch8.mod.updateAll(ch8);
+		ch8.car.updateAll(ch8);
 		break;
 	}
 	case 0x10:  case 0x11:  case 0x12:  case 0x13:
@@ -1395,8 +1397,8 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 		int cha = regis & 0x0F;
 		Channel& ch = channels[cha];
 		ch.setFnumber(data + ((reg[0x20 + cha] & 1) << 8));
-		ch.mod.updateAll();
-		ch.car.updateAll();
+		ch.mod.updateAll(ch);
+		ch.car.updateAll(ch);
 		break;
 	}
 	case 0x20:  case 0x21:  case 0x22:  case 0x23:
@@ -1415,8 +1417,8 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 		} else {
 			ch.keyOff();
 		}
-		ch.mod.updateAll();
-		ch.car.updateAll();
+		ch.mod.updateAll(ch);
+		ch.car.updateAll(ch);
 		update_key_status();
 		update_rhythm_mode();
 		break;
@@ -1437,8 +1439,8 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 			ch.setPatch(j, *this);
 		}
 		ch.setVol(v << 2);
-		ch.mod.updateAll();
-		ch.car.updateAll();
+		ch.mod.updateAll(ch);
+		ch.car.updateAll(ch);
 		break;
 	}
 	default:
