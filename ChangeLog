@@ -1,5 +1,11 @@
 $Id$
 
+2007-12-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* More YM2413 optimizations:
+	   - swapped inner/outer loop, now generate all samples for a channel
+	     before moving on the next channel.
+	   - made a special case for channels without AM or FM modulation
+
 2007-12-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* More YM2413 optimizations:
 	   - only update noise value in rhythm mode
