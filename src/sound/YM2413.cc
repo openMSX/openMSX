@@ -1211,33 +1211,45 @@ void Global::generateChannels(int** bufs, unsigned num)
 					2 * ch6.car.calc_slot_car(ch6.mod.calc_slot_mod());
 			}
 		}
-		for (unsigned sample = 0; sample < num; ++sample) {
-			// update Noise unit
-			noise_seed >>= 1;
-			bool noise_bit = noise_seed & 1;
-			if (noise_bit) noise_seed ^= 0x8003020;
-
-			Channel& ch7 = channels[7];
-			if (channelActiveBits & (1 << 7)) {
+		Channel& ch7 = channels[7];
+		Channel& ch8 = channels[8];
+		unsigned old_noise = noise_seed;
+		if (channelActiveBits & (1 << 7)) {
+			for (unsigned sample = 0; sample < num; ++sample) {
+				noise_seed >>= 1;
+				bool noise_bit = noise_seed & 1;
+				if (noise_bit) noise_seed ^= 0x8003020;
 				bufs[7][sample] =
 					-2 * ch7.car.calc_slot_snare(noise_bit);
 			}
-
-			Channel& ch8 = channels[8];
-			ch8.car.calc_phase();
-			ch7.mod.calc_phase();
-			if (channelActiveBits & (1 << 8)) {
+		}
+		unsigned old_cphase7 = ch7.mod.cphase;
+		unsigned old_cphase8 = ch8.car.cphase;
+		if (channelActiveBits & (1 << 8)) {
+			for (unsigned sample = 0; sample < num; ++sample) {
+				ch8.car.calc_phase();
+				ch7.mod.calc_phase();
 				bufs[8][sample] =
 					-2 * ch8.car.calc_slot_cym(ch7.mod.cphase);
 			}
-			if (channelActiveBits & (1 << (7 + 9))) {
+		}
+		if (channelActiveBits & (1 << (7 + 9))) {
+			// restore noise, ch7/8 cphase
+			noise_seed = old_noise;
+			ch7.mod.cphase = old_cphase7;
+			ch8.car.cphase = old_cphase8;
+			for (unsigned sample = 0; sample < num; ++sample) {
+				noise_seed >>= 1;
+				bool noise_bit = noise_seed & 1;
+				if (noise_bit) noise_seed ^= 0x8003020;
+				ch8.car.calc_phase();
+				ch7.mod.calc_phase();
 				bufs[9][sample] =
 					2 * ch7.mod.calc_slot_hat(ch8.car.cphase,
 					                          noise_bit);
 			}
 		}
 		if (channelActiveBits & (1 << (8 + 9))) {
-			Channel& ch8 = channels[8];
 			for (unsigned sample = 0; sample < num; ++sample) {
 				bufs[10][sample] = 2 * ch8.mod.calc_slot_tom();
 			}
