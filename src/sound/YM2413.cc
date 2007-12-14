@@ -1173,18 +1173,29 @@ void Global::generateChannels(int** bufs, unsigned num)
 	unsigned m = isRhythm() ? 6 : 9;
 	for (unsigned i = 0; i < m; ++i) {
 		if (channelActiveBits & (1 << i)) {
-			unsigned tmp_pm_phase = pm_phase;
-			unsigned tmp_am_phase = am_phase;
 			Channel& ch = channels[i];
-			for (unsigned sample = 0; sample < num; ++sample) {
-				tmp_pm_phase = (tmp_pm_phase + PM_DPHASE) & PM_DP_MASK;
-				tmp_am_phase = (tmp_am_phase + AM_DPHASE) & AM_DP_MASK;
-				int lfo_am =
-					amtable[tmp_am_phase >> (AM_DP_BITS - AM_PG_BITS)];
-				PhaseModulation lfo_pm =
-					pmtable[tmp_pm_phase >> (PM_DP_BITS - PM_PG_BITS)];
-				bufs[i][sample] =
-					ch.car.calc_slot_car(lfo_pm, lfo_am, ch.mod.calc_slot_mod(lfo_pm, lfo_am));
+			if (ch.mod.patch.AM | ch.mod.patch.PM |
+			    ch.car.patch.AM | ch.car.patch.PM) {
+				unsigned tmp_pm_phase = pm_phase;
+				unsigned tmp_am_phase = am_phase;
+				for (unsigned sample = 0; sample < num; ++sample) {
+					tmp_pm_phase = (tmp_pm_phase + PM_DPHASE) & PM_DP_MASK;
+					tmp_am_phase = (tmp_am_phase + AM_DPHASE) & AM_DP_MASK;
+					int lfo_am =
+						amtable[tmp_am_phase >> (AM_DP_BITS - AM_PG_BITS)];
+					PhaseModulation lfo_pm =
+						pmtable[tmp_pm_phase >> (PM_DP_BITS - PM_PG_BITS)];
+					bufs[i][sample] =
+						ch.car.calc_slot_car(lfo_pm, lfo_am, ch.mod.calc_slot_mod(lfo_pm, lfo_am));
+				}
+			} else {
+				// no AM or PM used in mod or car
+				// this happens relatively often, so it helped quite
+				// a bit to make a specialized routine for this case
+				for (unsigned sample = 0; sample < num; ++sample) {
+					bufs[i][sample] =
+						ch.car.calc_slot_car(ch.mod.calc_slot_mod());
+				}
 			}
 		}
 	}
