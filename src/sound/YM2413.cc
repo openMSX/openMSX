@@ -227,10 +227,12 @@ static const int PM_PG_BITS = 8;
 static const int PM_PG_WIDTH = 1 << PM_PG_BITS;
 static const int PM_DP_BITS = 16;
 static const int PM_DP_WIDTH = 1 << PM_DP_BITS;
+static const int PM_DP_MASK = PM_DP_WIDTH - 1;
 static const int AM_PG_BITS = 8;
 static const int AM_PG_WIDTH = 1 << AM_PG_BITS;
 static const int AM_DP_BITS = 16;
 static const int AM_DP_WIDTH = 1 << AM_DP_BITS;
+static const int AM_DP_MASK = AM_DP_WIDTH - 1;
 
 // dB to linear table (used by Slot)
 static int dB2LinTab[(DB_MUTE + DB_MUTE) * 2];
@@ -1169,29 +1171,36 @@ void Global::generateChannels(int** bufs, unsigned num)
 	}
 
 	unsigned m = isRhythm() ? 6 : 9;
-	for (unsigned sample = 0; sample < num; ++sample) {
-		// update AM, PM unit
-		pm_phase = (pm_phase + PM_DPHASE) & (PM_DP_WIDTH - 1);
-		am_phase = (am_phase + AM_DPHASE) & (AM_DP_WIDTH - 1);
-		int lfo_am =
-			amtable[am_phase >> (AM_DP_BITS - AM_PG_BITS)];
-		PhaseModulation lfo_pm =
-			pmtable[pm_phase >> (PM_DP_BITS - PM_PG_BITS)];
-
-		for (unsigned i = 0; i < m; ++i) {
-			if (channelActiveBits & (1 << i)) {
-				Channel& ch = channels[i];
+	for (unsigned i = 0; i < m; ++i) {
+		if (channelActiveBits & (1 << i)) {
+			unsigned tmp_pm_phase = pm_phase;
+			unsigned tmp_am_phase = am_phase;
+			Channel& ch = channels[i];
+			for (unsigned sample = 0; sample < num; ++sample) {
+				tmp_pm_phase = (tmp_pm_phase + PM_DPHASE) & PM_DP_MASK;
+				tmp_am_phase = (tmp_am_phase + AM_DPHASE) & AM_DP_MASK;
+				int lfo_am =
+					amtable[tmp_am_phase >> (AM_DP_BITS - AM_PG_BITS)];
+				PhaseModulation lfo_pm =
+					pmtable[tmp_pm_phase >> (PM_DP_BITS - PM_PG_BITS)];
 				bufs[i][sample] =
 					ch.car.calc_slot_car(lfo_pm, lfo_am, ch.mod.calc_slot_mod(lfo_pm, lfo_am));
 			}
 		}
-		if (isRhythm()) {
-			if (channelActiveBits & (1 << 6)) {
-				Channel& ch = channels[6];
-				bufs[ 6][sample] =
-					2 * ch.car.calc_slot_car(ch.mod.calc_slot_mod());
-			}
+	}
+	// update AM, PM unit
+	pm_phase += num * PM_DPHASE;
+	am_phase += num * AM_DPHASE;
 
+	if (isRhythm()) {
+		if (channelActiveBits & (1 << 6)) {
+			Channel& ch6 = channels[6];
+			for (unsigned sample = 0; sample < num; ++sample) {
+				bufs[6][sample] =
+					2 * ch6.car.calc_slot_car(ch6.mod.calc_slot_mod());
+			}
+		}
+		for (unsigned sample = 0; sample < num; ++sample) {
 			// update Noise unit
 			noise_seed >>= 1;
 			bool noise_bit = noise_seed & 1;
@@ -1199,7 +1208,7 @@ void Global::generateChannels(int** bufs, unsigned num)
 
 			Channel& ch7 = channels[7];
 			if (channelActiveBits & (1 << 7)) {
-				bufs[ 7][sample] =
+				bufs[7][sample] =
 					-2 * ch7.car.calc_slot_snare(noise_bit);
 			}
 
@@ -1207,18 +1216,19 @@ void Global::generateChannels(int** bufs, unsigned num)
 			ch8.car.calc_phase();
 			ch7.mod.calc_phase();
 			if (channelActiveBits & (1 << 8)) {
-				bufs[ 8][sample] =
+				bufs[8][sample] =
 					-2 * ch8.car.calc_slot_cym(ch7.mod.cphase);
 			}
 			if (channelActiveBits & (1 << (7 + 9))) {
-				bufs[ 9][sample] =
+				bufs[9][sample] =
 					2 * ch7.mod.calc_slot_hat(ch8.car.cphase,
 					                          noise_bit);
 			}
-
-			if (channelActiveBits & (1 << (8 + 9))) {
-				bufs[10][sample] =
-					2 * ch8.mod.calc_slot_tom();
+		}
+		if (channelActiveBits & (1 << (8 + 9))) {
+			Channel& ch8 = channels[8];
+			for (unsigned sample = 0; sample < num; ++sample) {
+				bufs[10][sample] = 2 * ch8.mod.calc_slot_tom();
 			}
 		}
 	}
