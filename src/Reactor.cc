@@ -19,6 +19,7 @@
 #include "Alarm.hh"
 #include "GlobalSettings.hh"
 #include "BooleanSetting.hh"
+#include "EnumSetting.hh"
 #include "HardwareConfig.hh"
 #include "FileContext.hh"
 #include "FileException.hh"

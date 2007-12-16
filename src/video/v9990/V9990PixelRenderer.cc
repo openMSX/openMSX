@@ -16,6 +16,7 @@
 #include "RenderSettings.hh"
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
+#include "EnumSetting.hh"
 
 namespace openmsx {
 

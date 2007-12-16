@@ -1,5 +1,13 @@
 $Id$
 
+2007-12-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Refactored BooleanSetting:
+	   Don't inherit from EnumSetting<bool> anymore. This requires
+	   slightly more code but allows to better tune the code:
+	    - openmsx_info setting now returns 'boolean' (was 'enumeration')
+	    - querying the value now returns true/false (was on/false)
+	    - as a bonus the new implementation has less #include dependencies
+
 2007-12-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* More YM2413 optimizations:
 	   - swapped inner/outer loop, now generate all samples for a channel

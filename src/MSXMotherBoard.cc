@@ -30,10 +30,13 @@
 #include "BooleanSetting.hh"
 #include "GlobalSettings.hh"
 #include "Command.hh"
+#include "CommandException.hh"
 #include "RecordedCommand.hh"
 #include "InfoTopic.hh"
 #include "FileException.hh"
+#include "TclObject.hh"
 #include "Observer.hh"
+#include "StringOp.hh"
 #include <cassert>
 #include <map>
 #include <iostream>

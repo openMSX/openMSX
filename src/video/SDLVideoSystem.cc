@@ -9,6 +9,7 @@
 #include "Display.hh"
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
+#include "EnumSetting.hh"
 #include "IntegerSetting.hh"
 #include "EventDistributor.hh"
 #include "InputEventGenerator.hh"

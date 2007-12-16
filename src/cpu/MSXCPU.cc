@@ -12,6 +12,7 @@
 #include "R800.hh"
 #include "BreakPoint.hh"
 #include "InfoTopic.hh"
+#include "TclObject.hh"
 #include <cassert>
 
 using std::string;

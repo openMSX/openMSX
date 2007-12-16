@@ -39,6 +39,7 @@ TODO:
 #include "EmuTime.hh"
 #include "VDPVRAM.hh"
 #include "BooleanSetting.hh"
+#include "EnumSetting.hh"
 #include "RenderSettings.hh"
 #include <iostream>
 #include <cassert>

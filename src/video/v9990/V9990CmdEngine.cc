@@ -6,6 +6,7 @@
 #include "MSXMotherBoard.hh"
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
+#include "EnumSetting.hh"
 #include <iostream>
 
 namespace openmsx {

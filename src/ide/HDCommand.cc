@@ -9,6 +9,7 @@
 #include "GlobalSettings.hh"
 #include "BooleanSetting.hh"
 #include "MSXCliComm.hh"
+#include "TclObject.hh"
 #include <set>
 
 namespace openmsx {

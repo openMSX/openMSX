@@ -12,6 +12,7 @@ TODO:
 #include "RenderSettings.hh"
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
+#include "EnumSetting.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
 #include "SpriteChecker.hh"

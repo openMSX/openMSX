@@ -12,9 +12,11 @@
 #include "IntegerSetting.hh"
 #include "StringSetting.hh"
 #include "BooleanSetting.hh"
+#include "CommandException.hh"
 #include "AviRecorder.hh"
-#include "Math.hh"
 #include "CliComm.hh"
+#include "Math.hh"
+#include "StringOp.hh"
 #include <algorithm>
 #include <cmath>
 #include <cstring>
