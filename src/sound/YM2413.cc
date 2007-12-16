@@ -83,6 +83,7 @@ public:
 	inline int calc_slot_car(int fm);
 	inline int calc_slot_mod(PhaseModulation lfo_pm, int lfo_am);
 	inline int calc_slot_mod();
+	inline int calc_slot_mod_noFB();
 	inline int calc_slot_tom();
 	inline int calc_slot_snare(bool noise);
 	inline int calc_slot_cym(unsigned cphase_hh);
@@ -1059,6 +1060,19 @@ int Slot::calc_slot_mod()
 	calc_phase();
 	unsigned egout = calc_envelope();
 	int phase = cphase >> DP_BASE_BITS;
+	if (patch.FB) {
+		phase += wave2_8pi(feedback) >> patch.FB;
+	}
+	int newOutput = dB2LinTab[sintbl[phase & PG_MASK] + egout];
+	feedback = (output + newOutput) >> 1;
+	output = newOutput;
+	return feedback;
+}
+int Slot::calc_slot_mod_noFB()
+{
+	calc_phase();
+	unsigned egout = calc_envelope();
+	int phase = cphase >> DP_BASE_BITS;
 	assert(!patch.FB); // for ryhthm
 	int newOutput = dB2LinTab[sintbl[phase & PG_MASK] + egout];
 	feedback = (output + newOutput) >> 1;
@@ -1208,7 +1222,7 @@ void Global::generateChannels(int** bufs, unsigned num)
 			Channel& ch6 = channels[6];
 			for (unsigned sample = 0; sample < num; ++sample) {
 				bufs[6][sample] =
-					2 * ch6.car.calc_slot_car(ch6.mod.calc_slot_mod());
+					2 * ch6.car.calc_slot_car(ch6.mod.calc_slot_mod_noFB());
 			}
 		}
 		Channel& ch7 = channels[7];
