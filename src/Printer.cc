@@ -3,7 +3,7 @@
 #include "Printer.hh"
 #include "ScreenShotSaver.hh"
 #include "FileOperations.hh"
-#include "FloatSetting.hh"
+#include "IntegerSetting.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCliComm.hh"
 #include "Math.hh"
@@ -122,13 +122,13 @@ ImagePrinter::ImagePrinter(MSXMotherBoard& motherBoard_)
 		motherBoard.getSharedStuff("print-resolution");
 	if (info.counter == 0) {
 		assert(info.stuff == NULL);
-		info.stuff = new FloatSetting(
+		info.stuff = new IntegerSetting(
 		    motherBoard.getCommandController(), "print-resolution",
 		    "resolution of the ouput image of emulated dot matrix printer in DPI",
-		    300, 150, 1200);
+		    300, 72, 1200);
 	}
 	++info.counter;
-	dpiSetting = reinterpret_cast<FloatSetting*>(info.stuff);
+	dpiSetting = reinterpret_cast<IntegerSetting*>(info.stuff);
 
 	letterQuality = false;
 	bold = false;

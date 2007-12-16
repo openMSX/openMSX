@@ -19,7 +19,7 @@
 namespace openmsx {
 
 class MSXMotherBoard;
-class FloatSetting;
+class IntegerSetting;
 class Paper;
 
 
@@ -165,7 +165,7 @@ private:
 	MSXMotherBoard& motherBoard;
 	std::auto_ptr<Paper> paper;
 
-	FloatSetting* dpiSetting;
+	IntegerSetting* dpiSetting;
 };
 
 // emulated MSX printer
