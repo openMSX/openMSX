@@ -13,7 +13,8 @@ set_tabcompletion_proc cycle tab_cycle
 proc tab_cycle { args } {
 	set result [list]
 	foreach setting [openmsx_info setting] {
-		if {[lindex [openmsx_info setting $setting] 0] == "enumeration" } {
+		set type [lindex [openmsx_info setting $setting] 0]
+		if {($type == "enumeration") || ($type == "boolean")} {
 			lappend result $setting
 		}
 	}
@@ -21,13 +22,17 @@ proc tab_cycle { args } {
 }
 
 proc cycle { setting { cycle_list {}}} {
-        if { [llength $cycle_list] == 0 } {
-	        set setting_info [openmsx_info setting $setting]
-		if ![string equal [lindex $setting_info 0] "enumeration"] {
-			error "Not an enumeration setting: $setting"
+	set setting_info [openmsx_info setting $setting]
+	set type [lindex $setting_info 0]
+	if {$type == "enumeration"} {
+		if {[llength $cycle_list] == 0} {
+			set cycle_list [lindex $setting_info 2]
 		}
-		set cycle_list [lindex $setting_info 2]
-        }
+	} elseif {$type == "boolean"} {
+		set cycle_list [list "true" "false"]
+	} else {
+		error "Not an enumeration setting: $setting"
+	}
 	set cur [lsearch -exact $cycle_list [set ::$setting]]
 	set new [expr ($cur + 1) % [llength $cycle_list]]
 	set ::$setting [lindex $cycle_list $new]
