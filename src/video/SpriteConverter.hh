@@ -154,30 +154,34 @@ public:
 
 		// Determine width of sprites.
 		SpriteChecker::SpritePattern combined = 0;
-		for (int i = 0; i < visibleIndex; i++) {
+		for (int i = 0; i < visibleIndex; ++i) {
 			combined |= visibleSprites[i].pattern;
 		}
-		int maxSize = patternWidth(combined);
+		unsigned maxSize = patternWidth(combined);
 		// Left-to-right scan.
-		for (int pixelDone = minX; pixelDone < maxX; pixelDone++) {
+		int leftMost = -32;
+		for (int pixelDone = minX; pixelDone < maxX; ++pixelDone) {
 			// Skip pixels if possible.
-			int minStart = pixelDone - maxSize;
-			int leftMost = 0xFFFF;
-			for (int i = 0; i < visibleIndex; i++) {
-				int x = visibleSprites[i].x;
-				if (minStart < x && x < leftMost) leftMost = x;
-			}
-			if (leftMost > pixelDone) {
-				pixelDone = leftMost;
-				if (pixelDone >= maxX) break;
+			int minStart = pixelDone - maxSize + 1;
+			if (leftMost < minStart) {
+				unsigned d = 0xFFFF;
+				for (int i = 0; i < visibleIndex; ++i) {
+					int x = visibleSprites[i].x;
+					d = std::min<unsigned>(x - minStart, d);
+				}
+				leftMost = d + minStart;
+				if (leftMost > pixelDone) {
+					pixelDone = leftMost;
+					if (pixelDone >= maxX) break;
+				}
 			}
 			// Calculate colour of pixel to be plotted.
 			byte colour = 0xFF;
-			for (int i = 0; i < visibleIndex; i++) {
+			for (int i = 0; i < visibleIndex; ++i) {
 				const SpriteChecker::SpriteInfo& info = visibleSprites[i];
-				int shift = pixelDone - info.x;
-				if ((0 <= shift && shift < maxSize)
-				&& ((info.pattern << shift) & 0x80000000)) {
+				unsigned shift = pixelDone - info.x;
+				if ((shift < maxSize) &&
+				    ((info.pattern << shift) & 0x80000000)) {
 					byte c = info.colourAttrib & 0x0F;
 					if (c == 0 && transparency) continue;
 					colour = c;
@@ -186,9 +190,9 @@ public:
 						const SpriteChecker::SpriteInfo& info2 =
 							visibleSprites[j];
 						if (!(info2.colourAttrib & 0x40)) break;
-						int shift2 = pixelDone - info2.x;
-						if ((0 <= shift2 && shift2 < maxSize)
-						&& ((info2.pattern << shift2) & 0x80000000)) {
+						unsigned shift2 = pixelDone - info2.x;
+						if ((shift2 < maxSize) &&
+						   ((info2.pattern << shift2) & 0x80000000)) {
 							colour |= info2.colourAttrib & 0x0F;
 						}
 					}
