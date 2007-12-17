@@ -63,6 +63,10 @@ public:
 	virtual SettingsConfig& getSettingsConfig() = 0;
 	virtual CliConnection* getConnection() const = 0;
 
+	// like getCliComm(), but can return a NULL pointer early in the
+	// boot process
+	virtual CliComm* getCliCommIfAvailable() = 0;
+
 	// needed to implement backwards compatibility, will be removed later
 	// don't use it in new code
 	virtual GlobalCommandController& getGlobalCommandController() = 0;

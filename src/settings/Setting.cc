@@ -37,8 +37,9 @@ string Setting::getDescription() const
 void Setting::notify() const
 {
 	Subject<Setting>::notify();
-	commandController.getCliComm().update(
-		CliComm::SETTING, getName(), getValueString());
+	if (CliComm* cliComm = commandController.getCliCommIfAvailable()) {
+		cliComm->update(CliComm::SETTING, getName(), getValueString());
+	}
 }
 
 bool Setting::needLoadSave() const

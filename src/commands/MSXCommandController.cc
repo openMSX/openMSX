@@ -155,6 +155,11 @@ CliComm& MSXCommandController::getCliComm()
 	return motherboard.getMSXCliComm();
 }
 
+CliComm* MSXCommandController::getCliCommIfAvailable()
+{
+	return motherboard.getMSXCliCommIfAvailable();
+}
+
 GlobalSettings& MSXCommandController::getGlobalSettings()
 {
 	return globalCommandController.getGlobalSettings();

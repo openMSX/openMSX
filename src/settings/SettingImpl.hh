@@ -140,6 +140,11 @@ void SettingImpl<POLICY>::init()
 		}
 	}
 	commandController.registerSetting(*this);
+
+	// This is needed to for example inform catapult of the new setting
+	// value when a setting was destroyed/recreated (by a machine switch
+	// for example).
+	notify();
 }
 
 template<typename POLICY>

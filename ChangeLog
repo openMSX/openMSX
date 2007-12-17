@@ -1,5 +1,11 @@
 $Id$
 
+2007-12-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Send out an update event for newly created settings:
+	   - This way catapult is informed of value changes for
+	     destroyed/recreated setting (happens for some settings during a
+	     machine switch).
+
 2007-12-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Refactored BooleanSetting:
 	   Don't inherit from EnumSetting<bool> anymore. This requires

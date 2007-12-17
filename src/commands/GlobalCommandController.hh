@@ -79,6 +79,7 @@ public:
 	virtual void unregisterSetting(Setting& setting);
 	virtual std::string makeUniqueSettingName(const std::string& name);
 	virtual CliComm& getCliComm();
+	virtual CliComm* getCliCommIfAvailable();
 	virtual GlobalSettings& getGlobalSettings();
 	virtual Interpreter& getInterpreter();
 	virtual SettingsConfig& getSettingsConfig();

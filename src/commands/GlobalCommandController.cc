@@ -169,6 +169,11 @@ CliComm& GlobalCommandController::getCliComm()
 	return *cliComm;
 }
 
+CliComm* GlobalCommandController::getCliCommIfAvailable()
+{
+	return cliComm;
+}
+
 CliConnection* GlobalCommandController::getConnection() const
 {
 	return connection;

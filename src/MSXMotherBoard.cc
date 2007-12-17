@@ -91,6 +91,7 @@ public:
 	void removeExtension(const ExtensionConfig& extension);
 
 	MSXCliComm& getMSXCliComm();
+	MSXCliComm* getMSXCliCommIfAvailable();
 	MSXCommandController& getMSXCommandController();
 	Scheduler& getScheduler();
 	MSXEventDistributor& getMSXEventDistributor();
@@ -440,6 +441,11 @@ MSXCliComm& MSXMotherBoardImpl::getMSXCliComm()
 			self, reactor.getGlobalCliComm()));
 	}
 	return *msxCliComm;
+}
+
+MSXCliComm* MSXMotherBoardImpl::getMSXCliCommIfAvailable()
+{
+	return msxCliComm.get();
 }
 
 MSXCommandController& MSXMotherBoardImpl::getMSXCommandController()
@@ -1159,6 +1165,10 @@ void MSXMotherBoard::removeExtension(const ExtensionConfig& extension)
 MSXCliComm& MSXMotherBoard::getMSXCliComm()
 {
 	return pimple->getMSXCliComm();
+}
+MSXCliComm* MSXMotherBoard::getMSXCliCommIfAvailable()
+{
+	return pimple->getMSXCliCommIfAvailable();
 }
 MSXCommandController& MSXMotherBoard::getMSXCommandController()
 {
