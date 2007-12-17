@@ -41,30 +41,36 @@ create_trainer "Bubble Bobble" {time 1} {
 	"warp to last stage (activate once in game, then deactivate)" {poke 0xd069 98}
 }
 
-create_trainer "The Castle Excellent" {time 1} {
-	"blue keys" {poke 0xe337 5}
+create_trainer "Castle Excellent" {time 1} {
+	"map" {poke 0xe321 9}
+	"x-pos (0-28)" {poke 0xe334 0}
+	"y-pos (0-18)" {poke 0xe335 0}
+	"lives" {poke 0xe336 255}
+	"dark blue keys" {poke 0xe337 5}
 	"red keys" {poke 0xe338 5}
 	"purple keys" {poke 0xe339 5}
 	"green keys" {poke 0xe33a 5}
-	"blue keys" {poke 0xe33b 5}
+	"light blue keys" {poke 0xe33b 5}
 	"yellow keys" {poke 0xe33c 5}
-	"have map" {poke 0xe321 9}
-	"have air" {poke 0xe344 255}
-	"invincible" {poke 0xe343 255}
-	"lives" {poke 0xe336 255}
+	"invulnerable" {poke 0xe343 255}
+	"air" {poke 0xe344 255}
+	"open all doors" {for {set i 0xe00d} {$i < 0xe0de} {incr i } {poke $i 0}}
 }
 
 create_trainer "The Castle" {time 1} {
-	"blue keys" {poke 0xe337 5}
+	"map" {poke 0xe321 9}
+	"x-pos (0-28)" {poke 0xe334 0}
+	"y-pos (0-18)" {poke 0xe335 0}
+	"lives" {poke 0xe336 255}
+	"dark blue keys" {poke 0xe337 5}
 	"red keys" {poke 0xe338 5}
 	"purple keys" {poke 0xe339 5}
 	"green keys" {poke 0xe33a 5}
-	"blue keys" {poke 0xe33b 5}
+	"light blue keys" {poke 0xe33b 5}
 	"yellow keys" {poke 0xe33c 5}
-	"have map" {poke 0xe321 9}
-	"have air" {poke 0xe344 255}
-	"invincible" {poke 0xe343 255}
-	"lives" {poke 0xe336 255}
+	"invulnerable" {poke 0xe343 255}
+	"air" {poke 0xe344 255}
+	"open all doors" {for {set i 0xe00d} {$i < 0xe0de} {incr i } {poke $i 0}}
 }
 
 create_trainer "Antarctic Adventure" {time 60} {
@@ -861,12 +867,20 @@ create_trainer "Aleste" {time 1} {
 	"invincible" {poke 0xc810 255}
 	"maxed up normal shot" {poke 0xc012 8}
 	"maxed up special shot" {poke 0xc019 3}
-	"scroll speed slow" {poke 0xc4ad 16}
-	"scroll speed normal" {poke 0xc4ad 32}
-	"scroll speed fast" {poke 0xc4ad 64}
-	"scroll speed insane" {poke 0xc4ad 128}
-	"scroll speed turbo" {poke 0xc4ad 255}
-	"always keep weapon on 99" {poke 0xc01b 99}
+	"scroll speed slow" {poke 0xc4ad 0}
+	"scroll speed normal" {poke 0xc4ad 5}
+	"scroll speed fast" {poke 0xc4ad 10}
+	"scroll speed insane" {poke 0xc4ad 20}
+	"scroll speed turbo" {poke 0xc4ad 29}
+	"Weapon 1" {poke 0xc018 0}
+	"Weapon 2" {poke 0xc018 1}
+	"Weapon 3" {poke 0xc018 2}
+	"Weapon 4" {poke 0xc018 3}
+	"Weapon 5" {poke 0xc018 4}
+	"Weapon 6" {poke 0xc018 5}
+	"Weapon 7" {poke 0xc018 6}
+	"Weapon 8" {poke 0xc018 7}
+	"always keep weapon on 99%" {poke 0xc01b 99}
 }
 
 create_trainer "Aleste 2" {time 1} {
@@ -893,12 +907,38 @@ create_trainer "Testament" {time 1} {
 }
 
 create_trainer "Ashguine 3" {time 1} {
+	"stage (0-4;4=end demo)" {poke 0xc0d4 0}
+	"power" {poke 0xc0d9 210}
 	"life" {poke 0xc0da 210}
+	"experience level up after killing one enemy" {poke 0xc0dd 206}
+	"money" {poke 0xc0df 255}
+	"talisman" {poke 0xc598 1}
+	"bag" {poke 0xc599 1}
+	"knife" {poke 0xc59a 1}
+	"mirror" {poke 0xc59b 1}
+	"key" {poke 0xc598c 1}
+	"ring" {poke 0xc59d 1}
+	"collar" {poke 0xc59e 1}
+	"vase" {poke 0xc59f 1}
+	"brown boots" {poke 0xc5a0 1}
+	"white boots" {poke 0xc5a1 1}
+	"jewel 1" {poke 0xc5a2 1}
+	"jewel 2" {poke 0xc5a3 1}
+	"jewel 3" {poke 0xc5a4 1}
+	"jewel 4" {poke 0xc5a5 1}
+	"jewel 5" {poke 0xc5a6 1}
+	"weapon (0-4)" {poke 0xc63f 4}
 }
 
 create_trainer "Ashguine 2" {time 2} {
+	"stage (1-6)" {poke 0xc000 1}
+	"weapon (0-2)" {poke 0xc001 2}
+	"rotating shield" {poke 0xc003 10}
 	"life" {poke 0xc016 255}
-	"keys" {poke 0xc022 99}
+	"shoes" {poke 0xc019 2}
+	"keys" {poke 0xc020 9;poke 0xc021 9;poke 0xc022 8}
+	"experience level" {poke 0xc023 9;poke 0xc024 9;poke 0xc025 9}
+	"time" {poke 0xc039 255}
 	"enemy power" {poke 0xc052 1;poke 0xc062 1;poke 0xc072 1;poke 0xc082 1;poke 0xc092 1}
 }
 
@@ -1188,17 +1228,93 @@ create_trainer "Outrun" {time 2} {
 }
 
 create_trainer "Ys 1" {time 2} {
-	"life" {poke 0xcfc3 255}
-	"money" {poke 0xcfc9 255;poke 0xcfca 255}
-	"exp" {poke 0xcfc7 255;poke 0xcfc8 255}
-	"all swords" {poke 0xcfd9 31}
-	"all shields" {poke 0xcfdb 31}
-	"all armor" {poke 0xcfdd 31}
-	"all items" {poke 0xcfdf 31}
-	"all rings" {poke 0xcfe1 31}
-	"all books" {poke 0xcfe3 255}
-	"all special items" {poke 0xcfe4 255;poke 0xcfe5 255}
+	"enemy power inside Tower (de-select on final boss)" {poke 0xcb1a 1}
+	"life" {poke ccb1 255;poke 0xcfc3 255}
+	"all swords inside Tower" {poke 0xccc7 31}
+	"all shields inside Tower" {poke 0xccc9 31}
+	"all armors inside Tower" {poke 0xcccb 31}
+	"all items inside Tower" {poke 0xcccd 31}
+	"all rings inside Tower" {poke 0xcccf 31}
+	"all books inside Tower" {poke 0xcccd1 63}
+	"all keys inside Tower" {poke 0xccd2 63}
+	"all special items 1 inside Tower" {poke 0xccd3 255}
+	"all special items 2 inside Tower" {poke 0xccd5 15}
+	"enemy power outside Tower" {poke 0xcdba 1}
+	"money" {poke 0xcfc7 255;poke 0xcfc8 255}
+	"experience" {poke 0xcfc9 255;poke 0xcfca 255}
+	"all swords outside Tower" {poke 0xcfd9 31}
+	"all shields outside Tower" {poke 0xcfdb 31}
+	"all armors outside Tower" {poke 0xcfdd 31}
+	"all items outside Tower" {poke 0xcfdf 31}
+	"all rings outside Tower" {poke 0xcfe1 31}
+	"all books outside Tower" {poke 0xcfe3 63}
+	"all keys outside Tower" {poke 0xcfe4 63}
+	"all special items 1 outside Tower" {poke 0xcfe5 255}
+	"all special items 2 outside Tower" {poke 0xcfe7 15}
 }
+
+	# enable the cheats only in the game itself
+	# enable only the cheats related to the part you are playing
+	# for 2 or more items : the value must be the sum
+	# of the values required for the concerned items
+	# swords
+	# 1 = short sword
+	# 2 = long sword
+	# 4 = talwarl
+	# 8 = silver sword
+	# 16 = flame sword
+	# shields
+	# 1 = small shield
+	# 2 = middle shield
+	# 4 = large shield
+	# 8 = silver shield
+	# 16 = battle shield
+	# armors
+	# 1 = chain-mail armor
+	# 2 = plate-mail armor
+	# 4 = reflex armor
+	# 8 = silver armor
+	# 16 = battle armor
+	# items
+	# 1 = heal potion
+	# 2 = wing (outside Tower) or hammer (inside Tower)
+	# 4 = mirror
+	# 8 = mask of eyes
+	# 16 = blue necklace
+	# rings
+	# 1 = power ring
+	# 2 = mail ring
+	# 4 = time ring
+	# 8 = heal ring
+	# 16 = evil ring
+	# books
+	# 1 = Hadal book
+	# 2 = Tovah book
+	# 4 = Daby book
+	# 8 = Gemma book
+	# 16 = Messa book
+	# 32 = Facto book
+	# keys
+	# 1 = treasure key
+	# 2 = cell key
+	# 4 = temple key
+	# 8 = ivory key
+	# 16 = marble key
+	# 32 = Darm key
+	# special items 1
+	# 1 = Sarah crystal
+	# 2 = sapphire ring
+	# 4 = silver bells
+	# 8 = silver harmonica
+	# 16 = glasses
+	# 32 = Roda tree seed
+	# 64 = eagle idol
+	# 128 = magical rod
+	# special items 2
+	# 1 = ruby
+	# 2 = golden necklace
+	# 4 = golden vase
+	# 8 = blue amulet
 
 create_trainer "Ys 2" {time 2} {
 	"exp max" {poke 0x0102 255;poke 0x0103 255}
@@ -1833,7 +1949,20 @@ create_trainer "Yie Ar Kung-Fu 2" {time 5} {
 }
 
 create_trainer "Ashguine" {time 2} {
-	"energy" {poke 0xe030 255}
+	"vitality" {poke 0xe022 153;poke 0xe030 153}
+	"power" {poke 0xe023 153;poke 0xe031 153}
+	"magic" {poke 0xe024 153;poke 0xe032 153}
+	"experience" {poke 0xe025 153;poke 0xe033 153}
+	"knives" {poke 0xe026 9;poke 0xe034 153}
+	"herb" {poke 0xe027 1}
+	"jewel 1" {poke 0xe028 1}
+	"sword (this cheat does not allow to get the knives)" {poke 0xe029 1}
+	"jewel 2" {poke 0xe02a 1}
+	"jewel 3" {poke 0xe02b 1}
+	"jewel 4" {poke 0xe02c 1}
+	"jewel 5" {poke 0xe02d 1}
+	"access to jewel 1" {poke 0xe03c 1}
+	"more power points" {poke 0xe0a2 255;poke 0xe0a3 255;poke 0xe0a4 255;poke 0xe0a5 255;poke 0xe0a6 255;poke 0xe0a7 255;poke 0xe0a8 255;poke 0xe0a9 255;poke 0xe0aa 255;poke 0xe0ab 255;poke 0xe0ac 255;poke 0xe0ad 255;poke 0xe0ae 255;poke 0xe0af 255;poke 0xe0b0 255;poke 0xe0b1 255}
 }
 
 create_trainer "Pine Applin" {time 0.1} {
@@ -2394,8 +2523,12 @@ create_trainer "Exoide Z" {time 1} {
 }
 
 create_trainer "Theseus" {time 1} {
-	"power" {poke 0xede3 0x9;poke 0xede2 0x99}
-	"time" {poke 0xeddc 0x02}
+	"time (de-select to get bonus)" {poke 0xeddc 255;poke 0xeddd 10}
+	"power" {poke 0xede2 0x99;poke 0xede3 0x9}
+	"level (0-12)" {poke 0xede7 0}
+	"enemies are frozen" {poke 0xedf2 255}
+	"key" {poke 0xedf4 255}
+	"ring" {poke 0xedf5 255}
 }
 
 create_trainer "Monster's Fair" {time 1} {
@@ -2691,58 +2824,154 @@ create_trainer "Eidolon" {time 1} {
 create_trainer "Hard Boiled" {time 1} {
 	"lives" {poke 0xd047 5}
 	"fuel" {poke 0xd047 32}
-	"item in labyrinth (0-47)" {poke 0xd04b 0}
-	"first item (0-47)" {poke 0xd04d 0}
-	"second item (0-47)" {poke 0xd04f 0}
+
+	"item in labyrint :lot of fuel" {poke 0xd04b 0}
+	"item in labyrint :red telephone" {poke 0xd04b 1}
+	"item in labyrint :egg" {poke 0xd04b 2}
+	"item in labyrint :portable radio" {poke 0xd04b 3}
+	"item in labyrint :vertical bullets" {poke 0xd04b 4}
+	"item in labyrint :lowhit bullets" {poke 0xd04b 5}
+	"item in labyrint :salt" {poke 0xd04b 6}
+	"item in labyrint :pepper" {poke 0xd04b 7}
+	"item in labyrint :blue diamond" {poke 0xd04b 8}
+	"item in labyrint :joystick" {poke 0xd04b 9}
+	"item in labyrint :hammer" {poke 0xd04b 10}
+	"item in labyrint :candle" {poke 0xd04b 11}
+	"item in labyrint :coffee" {poke 0xd04b 12}
+	"item in labyrint :tea" {poke 0xd04b 13}
+	"item in labyrint :cold beer" {poke 0xd04b 14}
+	"item in labyrint :knife and fork" {poke 0xd04b 15}
+	"item in labyrint :alarm clock" {poke 0xd04b 16}
+	"item in labyrint :tv with antenna" {poke 0xd04b 17}
+	"item in labyrint :clothe's peg" {poke 0xd04b 18}
+	"item in labyrint :alpha key" {poke 0xd04b 19}
+	"item in labyrint :beta key" {poke 0xd04b 20}
+	"item in labyrint :gamma key" {poke 0xd04b 21}
+	"item in labyrint :delta key" {poke 0xd04b 22}
+	"item in labyrint :light bulb" {poke 0xd04b 23}
+	"item in labyrint :yellow banana" {poke 0xd04b 24}
+	"item in labyrint :safety pin" {poke 0xd04b 25}
+	"item in labyrint :green dice" {poke 0xd04b 26}
+	"item in labyrint :nothing" {poke 0xd04b 27}
+	"item in labyrint :bottle of wine" {poke 0xd04b 28}
+	"item in labyrint :cork screw" {poke 0xd04b 29}
+	"item in labyrint :wooden shoe" {poke 0xd04b 30}
+	"item in labyrint :screw" {poke 0xd04b 31}
+	"item in labyrint :nice apple" {poke 0xd04b 32}
+	"item in labyrint :cup and saucer" {poke 0xd04b 33}
+	"item in labyrint :bunch of grapes" {poke 0xd04b 34}
+	"item in labyrint :pear" {poke 0xd04b 35}
+	"item in labyrint :bad guy" {poke 0xd04b 36}
+	"item in labyrint :glass of wine" {poke 0xd04b 37}
+	"item in labyrint :question mark" {poke 0xd04b 38}
+	"item in labyrint :keycard next sector" {poke 0xd04b 39}
+	"item in labyrint :one half" {poke 0xd04b 40}
+	"item in labyrint :another half" {poke 0xd04b 41}
+	"item in labyrint :coin" {poke 0xd04b 42}
+	"item in labyrint :money" {poke 0xd04b 43}
+	"item in labyrint :petrol pump" {poke 0xd04b 44}
+	"item in labyrint :cup" {poke 0xd04b 45}
+	"item in labyrint :no saucer" {poke 0xd04b 46}
+	"item in labyrint :good guy" {poke 0xd04b 47}
+
+	"1st item:lot of fuel" {poke 0xd04d 0}
+	"1st item:red telephone" {poke 0xd04d 1}
+	"1st item:egg" {poke 0xd04d 2}
+	"1st item:portable radio" {poke 0xd04d 3}
+	"1st item:vertical bullets" {poke 0xd04d 4}
+	"1st item:lowhit bullets" {poke 0xd04d 5}
+	"1st item:salt" {poke 0xd04d 6}
+	"1st item:pepper" {poke 0xd04d 7}
+	"1st item:blue diamond" {poke 0xd04d 8}
+	"1st item:joystick" {poke 0xd04d 9}
+	"1st item:hammer" {poke 0xd04d 10}
+	"1st item:candle" {poke 0xd04d 11}
+	"1st item:coffee" {poke 0xd04d 12}
+	"1st item:tea" {poke 0xd04d 13}
+	"1st item:cold beer" {poke 0xd04d 14}
+	"1st item:knife and fork" {poke 0xd04d 15}
+	"1st item:alarm clock" {poke 0xd04d 16}
+	"1st item:tv with antenna" {poke 0xd04d 17}
+	"1st item:clothe's peg" {poke 0xd04d 18}
+	"1st item:alpha key" {poke 0xd04d 19}
+	"1st item:beta key" {poke 0xd04d 20}
+	"1st item:gamma key" {poke 0xd04d 21}
+	"1st item:delta key" {poke 0xd04d 22}
+	"1st item:light bulb" {poke 0xd04d 23}
+	"1st item:yellow banana" {poke 0xd04d 24}
+	"1st item:safety pin" {poke 0xd04d 25}
+	"1st item:green dice" {poke 0xd04d 26}
+	"1st item:nothing" {poke 0xd04d 27}
+	"1st item:bottle of wine" {poke 0xd04d 28}
+	"1st item:cork screw" {poke 0xd04d 29}
+	"1st item:wooden shoe" {poke 0xd04d 30}
+	"1st item:screw" {poke 0xd04d 31}
+	"1st item:nice apple" {poke 0xd04d 32}
+	"1st item:cup and saucer" {poke 0xd04d 33}
+	"1st item:bunch of grapes" {poke 0xd04d 34}
+	"1st item:pear" {poke 0xd04d 35}
+	"1st item:bad guy" {poke 0xd04d 36}
+	"1st item:glass of wine" {poke 0xd04d 37}
+	"1st item:question mark" {poke 0xd04d 38}
+	"1st item:keycard next sector" {poke 0xd04d 39}
+	"1st item:one half" {poke 0xd04d 40}
+	"1st item:another half" {poke 0xd04d 41}
+	"1st item:coin" {poke 0xd04d 42}
+	"1st item:money" {poke 0xd04d 43}
+	"1st item:petrol pump" {poke 0xd04d 44}
+	"1st item:cup" {poke 0xd04d 45}
+	"1st item:no saucer" {poke 0xd04d 46}
+	"1st item:good guy" {poke 0xd04d 47}
+
+	"2nd item:lot of fuel" {poke 0xd04f 0}
+	"2nd item:red telephone" {poke 0xd04f 1}
+	"2nd item:egg" {poke 0xd04f 2}
+	"2nd item:portable radio" {poke 0xd04f 3}
+	"2nd item:vertical bullets" {poke 0xd04f 4}
+	"2nd item:lowhit bullets" {poke 0xd04f 5}
+	"2nd item:salt" {poke 0xd04f 6}
+	"2nd item:pepper" {poke 0xd04f 7}
+	"2nd item:blue diamond" {poke 0xd04f 8}
+	"2nd item:joystick" {poke 0xd04f 9}
+	"2nd item:hammer" {poke 0xd04f 10}
+	"2nd item:candle" {poke 0xd04f 11}
+	"2nd item:coffee" {poke 0xd04f 12}
+	"2nd item:tea" {poke 0xd04f 13}
+	"2nd item:cold beer" {poke 0xd04f 14}
+	"2nd item:knife and fork" {poke 0xd04f 15}
+	"2nd item:alarm clock" {poke 0xd04f 16}
+	"2nd item:tv with antenna" {poke 0xd04f 17}
+	"2nd item:clothe's peg" {poke 0xd04f 18}
+	"2nd item:alpha key" {poke 0xd04f 19}
+	"2nd item:beta key" {poke 0xd04f 20}
+	"2nd item:gamma key" {poke 0xd04f 21}
+	"2nd item:delta key" {poke 0xd04f 22}
+	"2nd item:light bulb" {poke 0xd04f 23}
+	"2nd item:yellow banana" {poke 0xd04f 24}
+	"2nd item:safety pin" {poke 0xd04f 25}
+	"2nd item:green dice" {poke 0xd04f 26}
+	"2nd item:nothing" {poke 0xd04f 27}
+	"2nd item:bottle of wine" {poke 0xd04f 28}
+	"2nd item:cork screw" {poke 0xd04f 29}
+	"2nd item:wooden shoe" {poke 0xd04f 30}
+	"2nd item:screw" {poke 0xd04f 31}
+	"2nd item:nice apple" {poke 0xd04f 32}
+	"2nd item:cup and saucer" {poke 0xd04f 33}
+	"2nd item:bunch of grapes" {poke 0xd04f 34}
+	"2nd item:pear" {poke 0xd04f 35}
+	"2nd item:bad guy" {poke 0xd04f 36}
+	"2nd item:glass of wine" {poke 0xd04f 37}
+	"2nd item:question mark" {poke 0xd04f 38}
+	"2nd item:keycard next sector" {poke 0xd04f 39}
+	"2nd item:one half" {poke 0xd04f 40}
+	"2nd item:another half" {poke 0xd04f 41}
+	"2nd item:coin" {poke 0xd04f 42}
+	"2nd item:money" {poke 0xd04f 43}
+	"2nd item:petrol pump" {poke 0xd04f 44}
+	"2nd item:cup" {poke 0xd04f 45}
+	"2nd item:no saucer" {poke 0xd04f 46}
+	"2nd item:good guy" {poke 0xd04f 47}
 }
-	# 0 = lot of fuel
-	# 1 = red telephone
-	# 2 = egg
-	# 3 = portable radio
-	# 4 = vertical bullets
-	# 5 = lowhit bullets
-	# 6 = salt
-	# 7 = pepper
-	# 8 = blue diamond
-	# 9 = joystick
-	# 10 = hammer
-	# 11 = candle
-	# 12 = coffee
-	# 13 = tea
-	# 14 = cold beer
-	# 15 = knife and fork
-	# 16 = alarm clock
-	# 17 = tv with antenna
-	# 18 = clothe's peg
-	# 19 = alpha key
-	# 20 = beta key
-	# 21 = gamma key
-	# 22 = delta key
-	# 23 = light bulb
-	# 24 = yellow banana
-	# 25 = safety pin
-	# 26 = green dice
-	# 27 = nothing
-	# 28 = bottle of wine
-	# 29 = cork screw
-	# 30 = wooden shoe
-	# 31 = screw
-	# 32 = nice apple
-	# 33 = cup and saucer
-	# 34 = bunch of grapes
-	# 35 = pear
-	# 36 = bad guy
-	# 37 = glass of wine
-	# 38 = question mark
-	# 39 = keycard next sector
-	# 40 = one half
-	# 41 = another half
-	# 42 = coin
-	# 43 = money
-	# 44 = petrol pump
-	# 45 = cup
-	# 46 = no saucer
-	# 47 = good guy
 
 create_trainer "Battle Chopper" {time 1} {
 	"power" {poke 0x8335 0}
@@ -3149,7 +3378,7 @@ create_trainer "Cure" {time 1} {
 	"sand of time" {poke 0xdae4 1}
 }
 
-create_trainer "Universe Unknown" {frame} {
+create_trainer "Universe Unknown" {time 0.1} {
 	"power" {poke 0xee55 128;poke 0xee54 255}
 	"lives" {poke 0xf2c4 233}
 }
@@ -3255,7 +3484,9 @@ create_trainer "Cosmo Explorer" {time 1} {
 }
 
 create_trainer "Funky Mouse" {time 1} {
-	"lives" {poke 0xe211 1}
+	"eat only one cheese" {poke 0xe088 1}
+	"infinite bonus time (de-select at end of scene)" {poke 0xe20d 99}
+	"lives" {poke 0xe211 9}
 }
 
 create_trainer "Knither Special" {time 1} {
@@ -3659,10 +3890,13 @@ create_trainer "Boggy 84" {time 5} {
 	"lives" {poke 0xe693 4}
 }
 
-create_trainer "Riseout" {time 5} {
-	"lives" {poke 0xec06 255}
-	"red man x-position" {poke 0xed11 255}
-	"red man y-position" {poke 0xed12 191}
+create_trainer "Rise Out" {time 5} {
+	"lives" {poke 0xec06 152}
+	"can open exit door without key" {poke 0xec11 255}
+	"first red man x-position" {poke 0xed11 255}
+	"first red man y-position" {poke 0xed12 191}
+	"second red man x-position" {poke 0xed31 255}
+	"second red man y-position" {poke 0xed32 191}
 }
 
 create_trainer "Danger x4" {time 1} {
@@ -5226,4 +5460,42 @@ create_trainer "Pairs" {time 1} {
 	"lives" {poke 0xc081 5}
 	"time" {poke 0xe804 154;poke 0xe805 4}
 }
+
+create_trainer "Red Zone" {time 1} {
+	"shield" {poke 0xe0af 33}
+}
+
+create_trainer "Rotors" {time 1} {
+	"level (1-99)" {poke 0xc081 1}
+	"lives player 1" {poke 0xc086 5}
+	"lives player 2" {poke 0xc090 5}
+	"time" {poke 0xe804 154;poke 0xe805 4}
+}
+
+create_trainer "Scope On" {time 1} {
+	"lives" {poke 0xea19 5}
+}
+
+create_trainer "Pyramid Warp" {time 1} {
+	"death is frozen" {poke 0xc023 0}
+	"first red monster is frozen" {poke 0xc02b 0}
+	"first black monster is frozen" {poke 0xc033 0}
+	"second red monster is frozen" {poke 0xc043 0}
+	"second black monster is frozen" {poke 0xc04b 0}
+	"gun" {poke 0xc05e 1}
+	"air (de-select to see teleport when room is clear" {poke 0xc077 255}
+	"lives" {poke 0xc07c 99}
+}
+
+create_trainer "Pyramid Warp CAS" {time 1} {
+	"death is frozen" {poke 0xbf9f 0}
+	"first red monster is frozen" {poke 0xbfa7 0}
+	"first black monster is frozen" {poke 0xbfaf 0}
+	"second red monster is frozen" {poke 0xbfbf 0}
+	"second black monster is frozen" {poke 0xbfc7 0}
+	"gun" {poke 0xbfda 1}
+	"air (de-select to see teleport when room is clear" {poke 0xbff3 255}
+	"lives" {poke 0xbff8 99}
+}
+
 ### EOF ###
