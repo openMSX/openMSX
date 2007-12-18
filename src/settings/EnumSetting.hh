@@ -24,7 +24,7 @@ public:
 
 protected:
 	EnumSettingPolicy(CommandController& commandController,
-	                  const std::string& name, const Map& map_);
+	                  const Map& map_);
 	virtual ~EnumSettingPolicy();
 
 	std::string toString(T value) const;
@@ -35,7 +35,6 @@ protected:
 	void additionalInfo(TclObject& result) const;
 
 private:
-	std::string name;
 	Map enumMap;
 };
 
@@ -53,10 +52,9 @@ public:
 
 template <typename T>
 EnumSettingPolicy<T>::EnumSettingPolicy(
-		CommandController& commandController,
-		const std::string& name_, const Map& map_)
+		CommandController& commandController, const Map& map_)
 	: SettingPolicy<T>(commandController)
-	, name(name_), enumMap(map_)
+	, enumMap(map_)
 {
 }
 
@@ -140,8 +138,7 @@ EnumSetting<T>::EnumSetting(
 		const typename EnumSettingPolicy<T>::Map& map_,
 		Setting::SaveSetting save)
 	: SettingImpl<EnumSettingPolicy<T> >(
-		commandController, name, description, initialValue, save,
-		name, map_)
+		commandController, name, description, initialValue, save, map_)
 {
 }
 

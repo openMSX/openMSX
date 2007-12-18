@@ -24,6 +24,12 @@ public:
 	            const std::string& name, const std::string& description,
 	            const Type& initialValue, SaveSetting save);
 
+	template <typename T1>
+	SettingImpl(CommandController& commandController,
+	            const std::string& name, const std::string& description,
+	            const Type& initialValue, SaveSetting save,
+	            T1 extra1);
+
 	template <typename T1, typename T2>
 	SettingImpl(CommandController& commandController,
 	            const std::string& name, const std::string& description,
@@ -97,6 +103,21 @@ SettingImpl<POLICY>::SettingImpl(
 	const Type& initialValue, SaveSetting save)
 	: Setting(commandController, name, description, save)
 	, POLICY(commandController)
+	, checker(NULL)
+	, value(initialValue), defaultValue(initialValue)
+	, restoreValue(initialValue)
+{
+	init();
+}
+
+template<typename POLICY>
+template<typename T1>
+SettingImpl<POLICY>::SettingImpl(
+	CommandController& commandController,
+	const std::string& name, const std::string& description,
+	const Type& initialValue, SaveSetting save, T1 extra1)
+	: Setting(commandController, name, description, save)
+	, POLICY(commandController, extra1)
 	, checker(NULL)
 	, value(initialValue), defaultValue(initialValue)
 	, restoreValue(initialValue)
