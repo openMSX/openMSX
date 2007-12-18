@@ -261,7 +261,6 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 					}
 					if (limitSprites) continue;
 				}
-				++spriteCount[line];
 				if (mag) spriteLine /= 2;
 				int colorIndex = (-1 << 10) | (sprite * 16 + spriteLine);
 				byte colorAttrib =
@@ -269,6 +268,7 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 				// Sprites with CC=1 are only visible if preceded by
 				// a sprite with CC=0.
 				if ((colorAttrib & 0x40) && visibleIndex == 0) continue;
+				++spriteCount[line];
 				SpriteInfo& sip = spriteBuffer[line][visibleIndex];
 				int patternIndex = attributePtr0[2 * sprite + 1] & patternIndexMask;
 				sip.pattern = calculatePatternPlanar(patternIndex, spriteLine);
