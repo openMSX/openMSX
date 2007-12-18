@@ -5,8 +5,7 @@
 namespace openmsx {
 
 VideoSourceSettingPolicy::VideoSourceSettingPolicy(
-		CommandController& commandController,
-		const std::string& name, const Map& map)
+		CommandController& commandController, const Map& map)
 	: EnumSettingPolicy<VideoSource>(commandController, map)
 {
 }
@@ -45,7 +44,7 @@ const char* const VIDEOSOURCE = "videosource";
 VideoSourceSetting::VideoSourceSetting(CommandController& commandController)
 	: SettingImpl<VideoSourceSettingPolicy>(commandController,
 		VIDEOSOURCE, "selects the video source to display on the screen",
-		VIDEO_MSX, Setting::DONT_SAVE, VIDEOSOURCE, getVideoSourceMap())
+		VIDEO_MSX, Setting::DONT_SAVE, getVideoSourceMap())
 {
 }
 

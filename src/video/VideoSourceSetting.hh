@@ -13,7 +13,7 @@ class VideoSourceSettingPolicy : public EnumSettingPolicy<VideoSource>
 {
 protected:
 	VideoSourceSettingPolicy(CommandController& commandController,
-	                         const std::string& name, const Map& map);
+	                         const Map& map);
 	virtual void checkSetValue(VideoSource& value) const;
 	VideoSource checkGetValue(VideoSource value) const;
 
