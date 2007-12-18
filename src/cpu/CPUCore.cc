@@ -185,6 +185,9 @@ template <class T> void CPUCore<T>::lowerIRQ()
 
 template <class T> void CPUCore<T>::raiseNMI()
 {
+	// NMIs are currently disabled, they are anyway not used in MSX and
+	// not having to check for them allows to emulate slightly faster
+	assert(false);
 	assert(NMIStatus >= 0);
 	if (NMIStatus == 0) {
 		nmiEdge = true;
@@ -652,9 +655,10 @@ template <class T> inline void CPUCore<T>::executeFast()
 
 template <class T> void CPUCore<T>::executeSlow()
 {
-	if (unlikely(nmiEdge)) {
+	if (unlikely(false && nmiEdge)) {
+		// Note: NMIs are disabled, see also raiseNMI()
 		nmiEdge = false;
-		nmi();	// NMI occured
+		nmi(); // NMI occured
 	} else if (unlikely(R.getIFF1() && IRQStatus)) {
 		// normal interrupt
 		switch (R.getIM()) {
