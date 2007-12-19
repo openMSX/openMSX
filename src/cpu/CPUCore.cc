@@ -14,17 +14,12 @@
 #include "R800.hh"
 #include "Thread.hh"
 #include "likely.hh"
+#include "inline.hh"
 #include "build-info.hh"
 #include <iomanip>
 #include <iostream>
 #include <cassert>
 #include <string.h>
-
-#if __GNUC__ > 2
-#define ALWAYS_INLINE inline __attribute__((always_inline))
-#else
-#define ALWAYS_INLINE inline
-#endif
 
 using std::string;
 

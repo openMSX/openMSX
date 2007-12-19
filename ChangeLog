@@ -5,6 +5,9 @@ $Id$
 	   One of the previous optimizations triggered an assert, so I had
 	   to revert (part of) it. Now I reimplemented it in a correct way,
 	   it's even slightly faster than the previous implementation.
+	* Made some YM2413 methods ALWAYS_INLINE:
+	   Gcc already did this for x86, but not for ARM. And it is measurably
+	   faster (also on ARM) if they are inlined.
 
 2007-12-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Send out an update event for newly created settings:

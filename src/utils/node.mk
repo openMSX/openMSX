@@ -19,6 +19,7 @@ HDR_ONLY:= \
 	ScopedAssign \
 	checked_cast \
 	likely \
+	inline \
 	noncopyable \
 	shared_ptr \
 	static_assert

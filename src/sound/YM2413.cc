@@ -9,7 +9,7 @@
 #include "YM2413.hh"
 #include "YM2413Core.hh"
 #include "FixedPoint.hh"
-#include "noncopyable.hh"
+#include "inline.hh"
 #include <cmath>
 #include <cassert>
 #include <algorithm>
@@ -932,7 +932,7 @@ static inline int wave2_8pi(int e)
 
 // PG
 template <bool HAS_PM>
-void Slot::calc_phase(PhaseModulation lfo_pm)
+ALWAYS_INLINE void Slot::calc_phase(PhaseModulation lfo_pm)
 {
 	assert(patch.PM == HAS_PM);
 	if (HAS_PM) {
@@ -953,7 +953,7 @@ static const EnvPhaseIndex SL[16] = {
 
 // EG
 template <bool HAS_AM>
-unsigned Slot::calc_envelope(int lfo_am)
+ALWAYS_INLINE unsigned Slot::calc_envelope(int lfo_am)
 {
 	assert(patch.AM == HAS_AM);
 	unsigned out;
@@ -1018,7 +1018,7 @@ unsigned Slot::calc_envelope(int lfo_am)
 
 // CARRIER
 template <bool HAS_PM, bool HAS_AM>
-int Slot::calc_slot_car(PhaseModulation lfo_pm, int lfo_am, int fm)
+ALWAYS_INLINE int Slot::calc_slot_car(PhaseModulation lfo_pm, int lfo_am, int fm)
 {
 	calc_phase<HAS_PM>(lfo_pm);
 	unsigned egout = calc_envelope<HAS_AM>(lfo_am);
@@ -1030,7 +1030,7 @@ int Slot::calc_slot_car(PhaseModulation lfo_pm, int lfo_am, int fm)
 
 // MODULATOR
 template <bool HAS_PM, bool HAS_AM, bool HAS_FB>
-int Slot::calc_slot_mod(PhaseModulation lfo_pm, int lfo_am)
+ALWAYS_INLINE int Slot::calc_slot_mod(PhaseModulation lfo_pm, int lfo_am)
 {
 	assert((patch.FB != 0) == HAS_FB);
 	calc_phase<HAS_PM>(lfo_pm);
@@ -1046,7 +1046,7 @@ int Slot::calc_slot_mod(PhaseModulation lfo_pm, int lfo_am)
 }
 
 // TOM (ch8 mod)
-int Slot::calc_slot_tom()
+ALWAYS_INLINE int Slot::calc_slot_tom()
 {
 	calc_phase<false>(PhaseModulation());
 	unsigned egout = calc_envelope<false>(0);
@@ -1055,7 +1055,7 @@ int Slot::calc_slot_tom()
 }
 
 // SNARE (ch7 car)
-int Slot::calc_slot_snare(bool noise)
+ALWAYS_INLINE int Slot::calc_slot_snare(bool noise)
 {
 	calc_phase<false>(PhaseModulation());
 	unsigned egout = calc_envelope<false>(0);
@@ -1067,7 +1067,7 @@ int Slot::calc_slot_snare(bool noise)
 }
 
 // TOP-CYM (ch8 car)
-int Slot::calc_slot_cym(unsigned cphase_hh)
+ALWAYS_INLINE int Slot::calc_slot_cym(unsigned cphase_hh)
 {
 	unsigned egout = calc_envelope<false>(0);
 	unsigned dbout
@@ -1082,7 +1082,7 @@ int Slot::calc_slot_cym(unsigned cphase_hh)
 }
 
 // HI-HAT (ch7 mod)
-int Slot::calc_slot_hat(unsigned cphase_cym, bool noise)
+ALWAYS_INLINE int Slot::calc_slot_hat(unsigned cphase_cym, bool noise)
 {
 	unsigned egout = calc_envelope<false>(0);
 	unsigned dbout;
@@ -1104,7 +1104,7 @@ int Global::getAmplificationFactor() const
 }
 
 template <unsigned FLAGS>
-void Global::calcChannel(Channel& ch, int* buf, unsigned num)
+ALWAYS_INLINE void Global::calcChannel(Channel& ch, int* buf, unsigned num)
 {
 	const bool HAS_CAR_AM = FLAGS &  1;
 	const bool HAS_CAR_PM = FLAGS &  2;
