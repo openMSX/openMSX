@@ -1,5 +1,11 @@
 $Id$
 
+2007-12-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* More YM2413 stuff:
+	   One of the previous optimizations triggered an assert, so I had
+	   to revert (part of) it. Now I reimplemented it in a correct way,
+	   it's even slightly faster than the previous implementation.
+
 2007-12-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Send out an update event for newly created settings:
 	   - This way catapult is informed of value changes for
