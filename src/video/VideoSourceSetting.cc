@@ -52,12 +52,14 @@ void VideoSourceSetting::registerVideoSource(VideoSource source)
 {
 	activeSources.insert(source);
 	notify();
+	notifyPropertyChange();
 }
 
 void VideoSourceSetting::unregisterVideoSource(VideoSource source)
 {
 	activeSources.erase(source);
 	notify();
+	notifyPropertyChange();
 }
 
 

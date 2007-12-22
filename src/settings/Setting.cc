@@ -42,6 +42,15 @@ void Setting::notify() const
 	}
 }
 
+void Setting::notifyPropertyChange() const
+{
+	if (CliComm* cliComm = commandController.getCliCommIfAvailable()) {
+		TclObject result;
+		info(result);
+		cliComm->update(CliComm::SETTINGINFO, getName(), result.getString());
+	}
+}
+
 bool Setting::needLoadSave() const
 {
 	return save;

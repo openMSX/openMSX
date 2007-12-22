@@ -17,6 +17,7 @@ public:
 	enum UpdateType {
 		LED,
 		SETTING,
+		SETTINGINFO,
 		HARDWARE,
 		PLUG,
 		UNPLUG,

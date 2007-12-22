@@ -103,6 +103,8 @@ protected:
 	  */
 	void notify() const;
 
+	void notifyPropertyChange() const;
+
 private:
 	CommandController& commandController;
 
