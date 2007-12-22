@@ -550,7 +550,6 @@ void Slot::reset(bool type_)
 	feedback = 0;
 	setEnvelopeState(FINISH);
 	eg_phase = EG_DP_MAX;
-	eg_dphase = EnvPhaseIndex(0);
 	rks = 0;
 	tll = 0;
 	sustain = false;
@@ -604,7 +603,7 @@ void Slot::updateEG()
 		break;
 	case SUSHOLD:
 	case FINISH:
-		eg_dphase = EnvPhaseIndex(0);
+		// nothing
 		break;
 	}
 }
