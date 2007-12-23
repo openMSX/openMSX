@@ -107,7 +107,8 @@ public:
 	// for Envelope Generator (EG)
 	unsigned volume;	// Current volume
 	unsigned tll;		// Total Level + Key scale level
-	unsigned rks;		// Key scale offset (Rks)
+	EnvPhaseIndex* dphaseARTableRks;
+	EnvPhaseIndex* dphaseDRTableRks;
 	EnvelopeState state;	// Current state
 	EnvPhaseIndex eg_phase;	// Phase
 	EnvPhaseIndex eg_dphase;// Phase increment amount
@@ -260,9 +261,9 @@ static unsigned AM_DPHASE =
 // Liner to Log curve conversion table (for Attack rate).
 static unsigned AR_ADJUST_TABLE[1 << EG_BITS];
 
-// Phase incr table for Attack
+// Phase incr table for Attack (note: indices swapped compared to original code)
 static EnvPhaseIndex dphaseARTable[16][16];
-// Phase incr table for Decay and Release
+// Phase incr table for Decay and Release (note: indices swapped)
 static EnvPhaseIndex dphaseDRTable[16][16];
 
 // KSL + TL Table
@@ -450,15 +451,15 @@ static void makeDphaseARTable()
 		for (unsigned Rks = 0; Rks < 16; ++Rks) {
 			switch (AR) {
 			case 0:
-				dphaseARTable[AR][Rks] = EnvPhaseIndex(0);
+				dphaseARTable[Rks][AR] = EnvPhaseIndex(0);
 				break;
 			case 15:
-				dphaseARTable[AR][Rks] = EnvPhaseIndex(0); // EG_DP_MAX
+				dphaseARTable[Rks][AR] = EnvPhaseIndex(0); // EG_DP_MAX
 				break;
 			default: {
 				unsigned RM = std::min(AR + (Rks >> 2), 15u);
 				unsigned RL = Rks & 3;
-				dphaseARTable[AR][Rks] =
+				dphaseARTable[Rks][AR] =
 					EnvPhaseIndex(6 * (RL + 4)) >> (15 - RM);
 				break;
 			}
@@ -472,14 +473,14 @@ static void makeDphaseDRTable()
 {
 	for (unsigned DR = 0; DR < 16; ++DR) {
 		for (unsigned Rks = 0; Rks < 16; ++Rks) {
-			switch(DR) {
+			switch (DR) {
 			case 0:
-				dphaseDRTable[DR][Rks] = EnvPhaseIndex(0);
+				dphaseDRTable[Rks][DR] = EnvPhaseIndex(0);
 				break;
 			default:
 				unsigned RM = std::min(DR + (Rks >> 2), 15u);
 				unsigned RL = Rks & 3;
-				dphaseDRTable[DR][Rks] =
+				dphaseDRTable[Rks][DR] =
 					EnvPhaseIndex(RL + 4) >> (16 - RM);
 				break;
 			}
@@ -550,7 +551,8 @@ void Slot::reset(bool type_)
 	feedback = 0;
 	setEnvelopeState(FINISH);
 	eg_phase = EG_DP_MAX;
-	rks = 0;
+	dphaseARTableRks = dphaseARTable[0];
+	dphaseDRTableRks = dphaseDRTable[0];
 	tll = 0;
 	sustain = false;
 	volume = 0;
@@ -569,7 +571,9 @@ void Slot::updateTLL(unsigned freq)
 
 void Slot::updateRKS(unsigned freq)
 {
-	rks = freq >> patch.KR;
+	unsigned rks = freq >> patch.KR;
+	dphaseARTableRks = dphaseARTable[rks];
+	dphaseDRTableRks = dphaseDRTable[rks];
 }
 
 void Slot::updateWF()
@@ -581,25 +585,23 @@ void Slot::updateEG()
 {
 	switch (state) {
 	case ATTACK:
-		eg_dphase = dphaseARTable[patch.AR][rks];
+		eg_dphase = dphaseARTableRks[patch.AR];
 		break;
 	case DECAY:
-		eg_dphase = dphaseDRTable[patch.DR][rks];
+		eg_dphase = dphaseDRTableRks[patch.DR];
 		break;
 	case SUSTAIN:
-		eg_dphase = dphaseDRTable[patch.RR][rks];
+		eg_dphase = dphaseDRTableRks[patch.RR];
 		break;
-	case RELEASE:
-		if (sustain) {
-			eg_dphase = dphaseDRTable[5][rks];
-		} else if (patch.EG) {
-			eg_dphase = dphaseDRTable[patch.RR][rks];
-		} else {
-			eg_dphase = dphaseDRTable[7][rks];
-		}
+	case RELEASE: {
+		unsigned idx = sustain ? 5
+		                       : (patch.EG ? patch.AR
+		                                   : 7);
+		eg_dphase = dphaseDRTableRks[idx];
 		break;
+	}
 	case SETTLE:
-		eg_dphase = dphaseDRTable[15][0];
+		eg_dphase = dphaseDRTable[0][15];
 		break;
 	case SUSHOLD:
 	case FINISH:
