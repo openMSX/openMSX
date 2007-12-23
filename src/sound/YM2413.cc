@@ -980,10 +980,6 @@ ALWAYS_INLINE unsigned Slot::calc_envelope(int lfo_am)
 		break;
 	case SUSHOLD:
 		out = eg_phase.toInt();
-		if (patch.EG == 0) {
-			setEnvelopeState(SUSTAIN);
-			updateEG();
-		}
 		break;
 	case SUSTAIN:
 	case RELEASE:
@@ -1304,6 +1300,10 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 			Channel& ch = channels[i];
 			if (ch.patch_number == 0) {
 				ch.setPatch(0, *this); // TODO optimize
+				if ((ch.mod.state == SUSHOLD) &&
+				    (ch.mod.patch.EG == 0)) {
+					ch.mod.setEnvelopeState(SUSTAIN);
+				}
 				ch.mod.updatePG(ch.freq);
 				ch.mod.updateRKS(ch.freq);
 				ch.mod.updateEG();
@@ -1320,6 +1320,10 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 			Channel& ch = channels[i];
 			if(ch.patch_number == 0) {
 				ch.setPatch(0, *this); // TODO optimize
+				if ((ch.car.state == SUSHOLD) &&
+				    (ch.car.patch.EG == 0)) {
+					ch.car.setEnvelopeState(SUSTAIN);
+				}
 				ch.car.updatePG(ch.freq);
 				ch.car.updateRKS(ch.freq);
 				ch.car.updateEG();
