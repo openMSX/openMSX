@@ -365,7 +365,7 @@ private:
 	/** Buffer containing the sprites that are visible on each
 	  * display line.
 	  */
-	SpriteInfo spriteBuffer[313][32];
+	SpriteInfo spriteBuffer[313][32 + 1]; // +1 for sentinel
 
 	/** Buffer containing the number of sprites that are visible
 	  * on each display line.

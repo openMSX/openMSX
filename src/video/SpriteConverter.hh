@@ -121,6 +121,7 @@ public:
 	  * @param maxX Maximum X coordinate to draw (exclusive).
 	  * @param pixelPtr Pointer to memory to draw to.
 	  */
+	template <unsigned MODE>
 	void drawMode2(int absLine, int minX, int maxX, Pixel* pixelPtr)
 	{
 		// Determine sprites visible on this line.
@@ -153,7 +154,7 @@ public:
 				if (pattern & 0x80000000) {
 					byte color = c;
 					// Merge in any following CC=1 sprites.
-					for (int j = i + 1; j < visibleIndex; ++j) {
+					for (int j = i + 1; /*sentinel*/; ++j) {
 						const SpriteChecker::SpriteInfo& info2 =
 							visibleSprites[j];
 						if (!(info2.colourAttrib & 0x40)) break;
@@ -163,14 +164,14 @@ public:
 							color |= info2.colourAttrib & 0x0F;
 						}
 					}
-					if (mode.getByte() == DisplayMode::GRAPHIC5) {
+					if (MODE == DisplayMode::GRAPHIC5) {
 						Pixel pixL = palette[color >> 2];
 						Pixel pixR = palette[color & 3];
 						pixelPtr[x * 2 + 0] = pixL;
 						pixelPtr[x * 2 + 1] = pixR;
 					} else {
 						Pixel pix = palette[color];
-						if (mode.getByte() == DisplayMode::GRAPHIC6) {
+						if (MODE == DisplayMode::GRAPHIC6) {
 							pixelPtr[x * 2 + 0] = pix;
 							pixelPtr[x * 2 + 1] = pix;
 						} else {

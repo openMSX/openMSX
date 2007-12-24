@@ -323,6 +323,11 @@ inline void SpriteChecker::checkSprites2(int minLine, int maxLine)
 			}
 		}
 	}
+	for (int line = minLine; line < maxLine; ++line) {
+		int visibleIndex = spriteCount[line];
+		spriteBuffer[line][visibleIndex].colourAttrib = 0; // sentinel
+	}
+
 	byte status = vdp.getStatusReg0();
 	if (~status & 0x40) {
 		// No 9th sprite detected, store number of latest sprite processed.

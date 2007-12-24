@@ -1280,7 +1280,16 @@ void GLRasterizer::drawSprites(
 		if (spriteMode == 1) {
 			spriteConverter->drawMode1(y, displayX, displayLimitX, lineBuffer);
 		} else {
-			spriteConverter->drawMode2(y, displayX, displayLimitX, lineBuffer);
+			if (mode == DisplayMode::GRAPHIC5) {
+				spriteConverter->drawMode2<DisplayMode::GRAPHIC5>(
+					y, displayX, displayLimitX, lineBuffer);
+			} else if (mode == DisplayMode::GRAPHIC6) {
+				spriteConverter->drawMode2<DisplayMode::GRAPHIC6>(
+					y, displayX, displayLimitX, lineBuffer);
+			} else {
+				spriteConverter->drawMode2<DisplayMode::GRAPHIC4>(
+					y, displayX, displayLimitX, lineBuffer);
+			}
 		}
 
 		// Make line buffer into a texture and draw it.

@@ -496,10 +496,28 @@ void SDLRasterizer<Pixel>::drawSprites(
 			spriteConverter->drawMode1(y, displayX, displayLimitX, pixelPtr);
 		}
 	} else {
-		for (int y = fromY; y < limitY; y++, screenY++) {
-			Pixel* dummy = 0;
-			Pixel* pixelPtr = workFrame->getLinePtrDirect(screenY, dummy) + screenX;
-			spriteConverter->drawMode2(y, displayX, displayLimitX, pixelPtr);
+		byte mode = vdp.getDisplayMode().getByte();
+		if (mode == DisplayMode::GRAPHIC5) {
+			for (int y = fromY; y < limitY; y++, screenY++) {
+				Pixel* dummy = 0;
+				Pixel* pixelPtr = workFrame->getLinePtrDirect(screenY, dummy) + screenX;
+				spriteConverter->template drawMode2<DisplayMode::GRAPHIC5>(
+					y, displayX, displayLimitX, pixelPtr);
+			}
+		} else if (mode == DisplayMode::GRAPHIC6) {
+			for (int y = fromY; y < limitY; y++, screenY++) {
+				Pixel* dummy = 0;
+				Pixel* pixelPtr = workFrame->getLinePtrDirect(screenY, dummy) + screenX;
+				spriteConverter->template drawMode2<DisplayMode::GRAPHIC6>(
+					y, displayX, displayLimitX, pixelPtr);
+			}
+		} else {
+			for (int y = fromY; y < limitY; y++, screenY++) {
+				Pixel* dummy = 0;
+				Pixel* pixelPtr = workFrame->getLinePtrDirect(screenY, dummy) + screenX;
+				spriteConverter->template drawMode2<DisplayMode::GRAPHIC4>(
+					y, displayX, displayLimitX, pixelPtr);
+			}
 		}
 	}
 }
