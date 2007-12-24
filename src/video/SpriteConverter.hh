@@ -111,27 +111,6 @@ public:
 		}
 	}
 
-	/** Calculate the position of the rightmost 1-bit in a SpritePattern,
-	  * this can be used to calculate the effective width of a SpritePattern.
-	  * @param pattern The SpritePattern
-	  * @return The position of the rightmost 1-bit in the pattern.
-	  *   Positions are numbered from left to right.
-	  */
-	static inline int patternWidth(SpriteChecker::SpritePattern pattern)
-	{
-		// following code is functionally equivalent with
-		//     int width = 0;
-		//     while (pattern) { ++width; pattern <<= 1; }
-		//     return width;
-
-		if (pattern == 0) return 0;
-		unsigned c = 32;
-		if ((pattern & 0xFFFF) == 0) { pattern >>= 16; c -= 16; }
-		if ((pattern & 0x00FF) == 0) { pattern >>=  8; c -=  8; }
-		if ((pattern & 0x000F) == 0) { pattern >>=  4; c -=  4; }
-		return c - ((0x12131210 >> (pattern << 1)) & 0x3);
-	}
-
 	/** Draw sprites in sprite mode 2.
 	  * Make sure the pixel pointers point to a large enough memory area:
 	  * 256 pixels for ZOOM_256 and ZOOM_REAL in 256-pixel wide modes;
@@ -152,69 +131,55 @@ public:
 		// Lines without any sprites are very common in most programs.
 		if (visibleIndex == 0) return;
 
-		// Determine width of sprites.
-		SpriteChecker::SpritePattern combined = 0;
-		for (int i = 0; i < visibleIndex; ++i) {
-			combined |= visibleSprites[i].pattern;
-		}
-		unsigned maxSize = patternWidth(combined);
-		// Left-to-right scan.
-		int leftMost = -32;
-		for (int pixelDone = minX; pixelDone < maxX; ++pixelDone) {
-			// Skip pixels if possible.
-			int minStart = pixelDone - maxSize + 1;
-			if (leftMost < minStart) {
-				unsigned d = 0xFFFF;
-				for (int i = 0; i < visibleIndex; ++i) {
-					int x = visibleSprites[i].x;
-					d = std::min<unsigned>(x - minStart, d);
-				}
-				leftMost = d + minStart;
-				if (leftMost > pixelDone) {
-					pixelDone = leftMost;
-					if (pixelDone >= maxX) break;
-				}
+		for (int i = visibleIndex - 1; i >= 0; --i) {
+			const SpriteChecker::SpriteInfo& info = visibleSprites[i];
+			int x = info.x;
+			SpriteChecker::SpritePattern pattern = info.pattern;
+			int d = minX - x;
+			if (d > 0) {
+				if (d >= 32) continue;
+				pattern <<= d;
+				x = minX;
 			}
-			// Calculate colour of pixel to be plotted.
-			byte colour = 0xFF;
-			for (int i = 0; i < visibleIndex; ++i) {
-				const SpriteChecker::SpriteInfo& info = visibleSprites[i];
-				unsigned shift = pixelDone - info.x;
-				if ((shift < maxSize) &&
-				    ((info.pattern << shift) & 0x80000000)) {
-					byte c = info.colourAttrib & 0x0F;
-					if (c == 0 && transparency) continue;
-					colour = c;
+			d = maxX - x;
+			if (d < 32) {
+				if (d <= 0) continue;
+				int mask = 0x80000000;
+				pattern &= (mask >> (d - 1));
+			}
+			byte c = info.colourAttrib & 0x0F;
+			if (c == 0 && transparency) continue;
+			while (pattern) {
+				if (pattern & 0x80000000) {
+					byte color = c;
 					// Merge in any following CC=1 sprites.
-					for (int j = i + 1; j < visibleIndex; j++) {
+					for (int j = i + 1; j < visibleIndex; ++j) {
 						const SpriteChecker::SpriteInfo& info2 =
 							visibleSprites[j];
 						if (!(info2.colourAttrib & 0x40)) break;
-						unsigned shift2 = pixelDone - info2.x;
-						if ((shift2 < maxSize) &&
+						unsigned shift2 = x - info2.x;
+						if ((shift2 < 32) &&
 						   ((info2.pattern << shift2) & 0x80000000)) {
-							colour |= info2.colourAttrib & 0x0F;
+							color |= info2.colourAttrib & 0x0F;
 						}
 					}
-					break;
-				}
-			}
-			// Plot it.
-			if (colour != 0xFF) {
-				if (mode.getByte() == DisplayMode::GRAPHIC5) {
-					Pixel pixL = palette[colour >> 2];
-					Pixel pixR = palette[colour & 3];
-					pixelPtr[pixelDone * 2 + 0] = pixL;
-					pixelPtr[pixelDone * 2 + 1] = pixR;
-				} else {
-					Pixel pix = palette[colour];
-					if (mode.getByte() == DisplayMode::GRAPHIC6) {
-						pixelPtr[pixelDone * 2 + 0] = pix;
-						pixelPtr[pixelDone * 2 + 1] = pix;
+					if (mode.getByte() == DisplayMode::GRAPHIC5) {
+						Pixel pixL = palette[color >> 2];
+						Pixel pixR = palette[color & 3];
+						pixelPtr[x * 2 + 0] = pixL;
+						pixelPtr[x * 2 + 1] = pixR;
 					} else {
-						pixelPtr[pixelDone] = pix;
+						Pixel pix = palette[color];
+						if (mode.getByte() == DisplayMode::GRAPHIC6) {
+							pixelPtr[x * 2 + 0] = pix;
+							pixelPtr[x * 2 + 1] = pix;
+						} else {
+							pixelPtr[x] = pix;
+						}
 					}
 				}
+				++x;
+				pattern <<= 1;
 			}
 		}
 	}
