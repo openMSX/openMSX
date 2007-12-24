@@ -72,20 +72,21 @@ SettingsConfig::~SettingsConfig()
 
 void SettingsConfig::loadSetting(FileContext& context, const string& filename)
 {
-	try {
-		saveName = context.resolveCreate(filename);
-		File file(context.resolve(filename));
-		xmlElement = XMLLoader::loadXML(
-			file.getLocalName(), "settings.dtd");
-		xmlElement->setFileContext(
-			auto_ptr<FileContext>(new SystemFileContext()));
-		getSettingsManager().loadSettings(*xmlElement);
-		hotKey.loadBindings(*xmlElement);
-	} catch (XMLException& e) {
-		commandController.getCliComm().printWarning(
-			"Loading of settings failed: " + e.getMessage() + "\n"
-			"Reverting to default settings.");
-	}
+	File file(context.resolve(filename));
+	xmlElement = XMLLoader::loadXML(
+		file.getLocalName(), "settings.dtd");
+	xmlElement->setFileContext(
+		auto_ptr<FileContext>(new SystemFileContext()));
+	getSettingsManager().loadSettings(*xmlElement);
+	hotKey.loadBindings(*xmlElement);
+
+	// only set saveName after file was successfully parsed
+	setSaveFilename(context, filename);
+}
+
+void SettingsConfig::setSaveFilename(FileContext& context, const string& filename)
+{
+	saveName = context.resolveCreate(filename);
 }
 
 void SettingsConfig::saveSetting(const string& filename)

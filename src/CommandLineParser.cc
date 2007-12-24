@@ -19,6 +19,7 @@
 #include "ConfigException.hh"
 #include "FileException.hh"
 #include "EnumSetting.hh"
+#include "XMLLoader.hh"
 #include "HostCPU.hh"
 #include "GLUtil.hh"
 #include "Reactor.hh"
@@ -306,11 +307,17 @@ void CommandLineParser::parse(int argc, char** argv)
 		switch (priority) {
 		case 3:
 			if (!haveSettings) {
-				// Load default settings file in case the user didn't specify
-				// one.
+				// Load default settings file in case the user
+				// didn't specify one.
+				SystemFileContext context;
+				string filename = "settings.xml";
 				try {
-					SystemFileContext context;
-					settingsConfig.loadSetting(context, "settings.xml");
+					settingsConfig.loadSetting(context, filename);
+				} catch (XMLException& e) {
+					output.printWarning(
+						"Loading of settings failed: " +
+						e.getMessage() + "\n"
+						"Reverting to default settings.");
 				} catch (FileException& e) {
 					// settings.xml not found
 				} catch (ConfigException& e) {
@@ -319,6 +326,9 @@ void CommandLineParser::parse(int argc, char** argv)
 				}
 				// Consider an attempt to load the settings good enough.
 				haveSettings = true;
+				// Even if parsing failed, use this file for saving,
+				// this forces overwriting a non-setting file.
+				settingsConfig.setSaveFilename(context, filename);
 			}
 			break;
 		case 5: {

@@ -1,5 +1,11 @@
 $Id$
 
+2007-12-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Optimized sprite drawing in mode 2:
+	   I still like this code to be reviewed. I believe it's correct,
+	   but sprite mode 2 is tricky sometimes.
+	* Fixed error handling while parsing setting files
+
 2007-12-19 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* More YM2413 stuff:
 	   One of the previous optimizations triggered an assert, so I had
