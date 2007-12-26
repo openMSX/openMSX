@@ -1,5 +1,9 @@
 $Id$
 
+2007-12-26 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Restructured MemoryOps::memset implementation:
+	   should make it easier to also add non-x86 asm routines
+
 2007-12-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimized sprite drawing in mode 2:
 	   I still like this code to be reviewed. I believe it's correct,

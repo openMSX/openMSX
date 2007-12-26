@@ -1,4 +1,4 @@
-// $Id$
+// $Id: MemoryOps.cc 7147 2007-10-16 09:24:15Z m9710797 $
 
 #include "MemoryOps.hh"
 #include "HostCPU.hh"
@@ -16,260 +16,286 @@ namespace openmsx {
 
 namespace MemoryOps {
 
-static inline void memset4_2_CPP(
-	unsigned* p, unsigned n, unsigned val0, unsigned val1)
+#ifdef ASM_X86
+// note: xmm0 must already be filled in
+//       bit0 of num is ignored
+static inline void memset_128_SSE_streaming(
+	unsigned long long* out, unsigned num)
 {
-	if (unlikely(long(p) & 4)) {
-		p[0] = val1; // start at odd pixel
-		++p; --n;
+	assert((long(out) & 15) == 0); // must be 16-byte aligned
+	unsigned long long* e = out + num - 3;
+	for (/**/; out < e; out += 4) {
+		asm volatile (
+			"movntps %%xmm0,   (%0);"
+			"movntps %%xmm0, 16(%0);"
+			: // no output
+			: "r" (out)
+		);
 	}
-	unsigned* e = p + n - 15;
-	for (/**/; p < e; p += 16) {
-		p[ 0] = val0;
-		p[ 1] = val1;
-		p[ 2] = val0;
-		p[ 3] = val1;
-		p[ 4] = val0;
-		p[ 5] = val1;
-		p[ 6] = val0;
-		p[ 7] = val1;
-		p[ 8] = val0;
-		p[ 9] = val1;
-		p[10] = val0;
-		p[11] = val1;
-		p[12] = val0;
-		p[13] = val1;
-		p[14] = val0;
-		p[15] = val1;
-	}
-	if (unlikely(n & 8)) {
-		p[0] = val0;
-		p[1] = val1;
-		p[2] = val0;
-		p[3] = val1;
-		p[4] = val0;
-		p[5] = val1;
-		p[6] = val0;
-		p[7] = val1;
-		p += 8;
-	}
-	if (unlikely(n & 4)) {
-		p[0] = val0;
-		p[1] = val1;
-		p[2] = val0;
-		p[3] = val1;
-		p += 4;
-	}
-	if (unlikely(n & 2)) {
-		p[0] = val0;
-		p[1] = val1;
-		p += 2;
-	}
-	if (unlikely(n & 1)) {
-		p[0] = val0;
+	if (unlikely(num & 2)) {
+		asm volatile (
+			"movntps %%xmm0, (%0);"
+			: // no output
+			: "r" (out)
+		);
 	}
 }
 
-static inline void memset4_2_MMX(
-	unsigned* p, unsigned n, unsigned val0, unsigned val1)
+static inline void memset_128_SSE(
+	unsigned long long* out, unsigned num)
 {
-	if (unlikely(long(p) & 4)) {
-		p[0] = val1; // start at odd pixel
-		++p; --n;
+	assert((long(out) & 15) == 0); // must be 16-byte aligned
+	unsigned long long* e = out + num - 3;
+	for (/**/; out < e; out += 4) {
+		asm volatile (
+			"movaps %%xmm0,   (%0);"
+			"movaps %%xmm0, 16(%0);"
+			: // no output
+			: "r" (out)
+		);
 	}
+	if (unlikely(num & 2)) {
+		asm volatile (
+			"movaps %%xmm0, (%0);"
+			: // no output
+			: "r" (out)
+		);
+	}
+}
+
+template<bool STREAMING>
+static inline void memset_64_SSE(
+	unsigned long long* out, unsigned num, unsigned long long val)
+{
+	assert((long(out) & 7) == 0); // must be 8-byte aligned
+
+	if (unlikely(num == 0)) return;
+	if (unlikely(long(out) & 8)) {
+		// SSE *must* have 16-byte aligned data
+		out[0] = val;
+		++out; --num;
+	}
+#ifdef ASM_X86_64
+	asm volatile (
+		"movq         %0, %%xmm0;"
+		"unpcklps %%xmm0, %%xmm0;"
+		: // no output
+		: "r" (val)
+		#ifdef __SSE__
+		: "xmm0"
+		#endif
+	);
+#else
+	unsigned low  = unsigned(val >>  0);
+	unsigned high = unsigned(val >> 32);
+	asm volatile (
+		"movss        %0, %%xmm0;"
+		"movss        %1, %%xmm1;"
+		"unpcklps %%xmm0, %%xmm0;"
+		"unpcklps %%xmm1, %%xmm1;"
+		"unpcklps %%xmm1, %%xmm0;"
+		: // no output
+		: "m" (low)
+		, "m" (high)
+		#ifdef __SSE__
+		: "xmm0", "xmm1"
+		#endif
+	);
+#endif
+	if (STREAMING) {
+		memset_128_SSE_streaming(out, num);
+	} else {
+		memset_128_SSE(out, num);
+	}
+	if (unlikely(num & 1)) {
+		out[num - 1] = val;
+	}
+}
+
+static inline void memset_64_MMX(
+	unsigned long long* out, unsigned num, unsigned long long val)
+{
+        assert((long(out) & 7) == 0); // must be 8-byte aligned
+
+	// note can be better on X86_64, but there we anyway use SSE
 	asm volatile (
 		"movd      %0,%%mm0;"
 		"movd      %1,%%mm1;"
 		"punpckldq %%mm1,%%mm0;"
 		: // no output
-		: "rm" (val0), "rm" (val1)
+		: "r" (unsigned(val >>  0))
+		, "r" (unsigned(val >> 32))
 		#ifdef __MMX__
 		: "mm0", "mm1"
 		#endif
 	);
-	unsigned* e = p + n - 7;
-	for (/**/; p < e; p += 8) {
+	unsigned long long* e = out + num - 3;
+	for (/**/; out < e; out += 4) {
 		asm volatile (
 			"movq %%mm0,   (%0);"
 			"movq %%mm0,  8(%0);"
 			"movq %%mm0, 16(%0);"
 			"movq %%mm0, 24(%0);"
 			: // no output
-			: "r" (p)
+			: "r" (out)
 		);
 	}
-	if (unlikely(n & 4)) {
+	if (unlikely(num & 2)) {
 		asm volatile (
 			"movq %%mm0,  (%0);"
 			"movq %%mm0, 8(%0);"
 			: // no output
-			: "r" (p)
+			: "r" (out)
 		);
-		p += 4;
+		out += 2;
 	}
-	if (unlikely(n & 2)) {
+	if (unlikely(num & 1)) {
 		asm volatile (
 			"movq %%mm0, (%0);"
 			: // no output
-			: "r" (p)
+			: "r" (out)
 		);
-		p += 2;
 	}
-	if (unlikely(n & 1)) {
-		p[0] = val0;
-	}
-	asm volatile ( "emms" );
+	asm volatile ("emms");
 }
+#endif
 
-static inline void memset4_2_SSE(
-	unsigned* p, unsigned n, unsigned val0, unsigned val1)
+template<bool STREAMING>
+static inline void memset_64(
+        unsigned long long* out, unsigned num, unsigned long long val)
 {
-	if (unlikely(long(p) & 4)) {
-		p[0] = val1; // start at odd pixel
-		++p; --n;
+	assert((long(out) & 7) == 0); // must be 8-byte aligned
+
+#ifdef ASM_X86
+	HostCPU& cpu = HostCPU::getInstance();
+	if (cpu.hasSSE()) {
+		memset_64_SSE<STREAMING>(out, num, val);
+		return;
 	}
-	if (likely(n >= 4)) {
-		if (unlikely(long(p) & 8)) {
-			// SSE *must* have 16-byte aligned data
-			p[0] = val0;
-			p[1] = val1;
-			p += 2; n -= 2;
-		}
-		asm volatile (
-			// TODO check this
-			"movss        %0, %%xmm0;"
-			"movss        %1, %%xmm1;"
-			"unpcklps %%xmm0, %%xmm0;"
-			"unpcklps %%xmm1, %%xmm1;"
-			"unpcklps %%xmm1, %%xmm0;"
-			: // no output
-			: "m" (val0), "m" (val1)
-			#ifdef __SSE__
-			: "xmm0", "xmm1"
-			#endif
-		);
-		unsigned* e = p + n - 7;
-		for (/**/; p < e; p += 8) {
-			asm volatile (
-				"movaps %%xmm0,   (%0);"
-				"movaps %%xmm0, 16(%0);"
-				: // no output
-				: "r" (p)
-			);
-		}
-		if (unlikely(n & 4)) {
-			asm volatile (
-				"movaps %%xmm0, (%0);"
-				: // no output
-				: "r" (p)
-			);
-			p += 4;
-		}
+	if (cpu.hasMMX()) {
+		memset_64_MMX(out, num, val);
+		return;
 	}
-	if (unlikely(n & 2)) {
-		p[0] = val0;
-		p[1] = val1;
-		p += 2;
+#endif
+
+	unsigned long long* e = out + num - 3;
+	for (/**/; out < e; out += 4) {
+		out[0] = val;
+		out[1] = val;
+		out[2] = val;
+		out[3] = val;
 	}
-	if (unlikely(n & 1)) {
-		p[0] = val0;
+	if (unlikely(num & 2)) {
+		out[0] = val;
+		out[1] = val;
+		out += 2;
+	}
+	if (unlikely(num & 1)) {
+		out[0] = val;
 	}
 }
 
-static inline void memset4_2_SSE_s(
-	unsigned* p, unsigned n, unsigned val0, unsigned val1)
-{
-	if (unlikely(long(p) & 4)) {
-		p[0] = val1; // start at odd pixel
-		++p; --n;
-	}
-	if (likely(n >= 4)) {
-		if (unlikely(long(p) & 8)) {
-			// SSE *must* have 16-byte aligned data
-			p[0] = val0;
-			p[1] = val1;
-			p += 2; n -= 2;
-		}
-		asm volatile (
-			// TODO check this
-			"movss        %0, %%xmm0;"
-			"movss        %1, %%xmm1;"
-			"unpcklps %%xmm0, %%xmm0;"
-			"unpcklps %%xmm1, %%xmm1;"
-			"unpcklps %%xmm1, %%xmm0;"
-			: // no output
-			: "m" (val0), "m" (val1)
-			#ifdef __SSE__
-			: "xmm0", "xmm1"
-			#endif
-		);
-		unsigned* e = p + n - 7;
-		for (/**/; p < e; p += 8) {
-			asm volatile (
-				"movntps %%xmm0,   (%0);"
-				"movntps %%xmm0, 16(%0);"
-				: // no output
-				: "r" (p)
-			);
-		}
-		if (unlikely(n & 4)) {
-			asm volatile (
-				"movntps %%xmm0, (%0);"
-				: // no output
-				: "r" (p)
-			);
-			p += 4;
-		}
-	}
-	if (unlikely(n & 2)) {
-		p[0] = val0;
-		p[1] = val1;
-		p += 2;
-	}
-	if (unlikely(n & 1)) {
-		p[0] = val0;
-	}
-}
-
-
-template<bool STREAMING> static inline void memset_2_helper(
+template<bool STREAMING>
+static inline void memset_32_2(
 	unsigned* out, unsigned num, unsigned val0, unsigned val1)
 {
 	assert((long(out) & 3) == 0); // must be 4-byte aligned
 
-	#ifdef ASM_X86
-	const HostCPU& cpu = HostCPU::getInstance();
-	if (cpu.hasSSE()) {
-		if (STREAMING) {
-			memset4_2_SSE_s(out, num, val0, val1);
-		} else {
-			memset4_2_SSE(out, num, val0, val1);
-		}
-		return;
+	if (unlikely(num == 0)) return;
+	if (unlikely(long(out) & 4)) {
+		out[0] = val1; // start at odd pixel
+		++out; --num;
 	}
-	if (cpu.hasMMX()) {
-		memset4_2_MMX(out, num, val0, val1);
-		return;
-	}
-	#endif
 
-	memset4_2_CPP(out, num, val0, val1);
+	unsigned long long val = OPENMSX_BIGENDIAN
+		? (static_cast<unsigned long long>(val0) << 32) | val1
+		: val0 | (static_cast<unsigned long long>(val1) << 32);
+	memset_64<STREAMING>(
+		reinterpret_cast<unsigned long long*>(out), num / 2, val);
+
+	if (unlikely(num & 1)) {
+		out[num - 1] = val0;
+	}
 }
 
-template<bool STREAMING> static inline void memset_2_helper(
+template<bool STREAMING>
+static inline void memset_32(unsigned* out, unsigned num, unsigned val)
+{
+	assert((long(out) & 3) == 0); // must be 4-byte aligned
+
+#ifdef ASM_X86
+	memset_32_2<STREAMING>(out, num, val, val);
+	return;
+#endif
+
+	unsigned* e = out + num - 7;
+	for (/**/; out < e; out += 8) {
+		out[0] = val;
+		out[1] = val;
+		out[2] = val;
+		out[3] = val;
+		out[4] = val;
+		out[5] = val;
+		out[6] = val;
+		out[7] = val;
+	}
+	if (unlikely(num & 4)) {
+		out[0] = val;
+		out[1] = val;
+		out[2] = val;
+		out[3] = val;
+		out += 4;
+	}
+	if (unlikely(num & 2)) {
+		out[0] = val;
+		out[1] = val;
+		out += 2;
+	}
+	if (unlikely(num & 1)) {
+		out[0] = val;
+	}
+}
+
+template<bool STREAMING>
+static inline void memset_16_2(
 	word* out, unsigned num, word val0, word val1)
 {
+	assert((long(out) & 1) == 0); // must be 2-byte aligned
+
+	if (unlikely(num == 0)) return;
 	if (unlikely(long(out) & 2)) {
-		out[0] = val1;
+		out[0] = val1; // start at odd pixel
 		++out; --num;
 	}
 
 	unsigned val = OPENMSX_BIGENDIAN
 	             ? (val0 << 16) | val1
 	             : val0 | (val1 << 16);
-	memset_2_helper<STREAMING>(reinterpret_cast<unsigned*>(out), num / 2, val, val);
-	if (num & 1) {
+	memset_32<STREAMING>(reinterpret_cast<unsigned*>(out), num / 2, val);
+
+	if (unlikely(num & 1)) {
 		out[num - 1] = val0;
+	}
+}
+
+template<bool STREAMING>
+static inline void memset_16(word* out, unsigned num, word val)
+{
+        memset_16_2<STREAMING>(out, num, val, val);
+}
+
+template <typename Pixel, bool STREAMING>
+void MemSet<Pixel, STREAMING>::operator()(
+	Pixel* out, unsigned num, Pixel val) const
+{
+	if (sizeof(Pixel) == 2) {
+		memset_16<STREAMING>(
+			reinterpret_cast<word*    >(out), num, val);
+	} else if (sizeof(Pixel) == 4) {
+		memset_32<STREAMING>(
+			reinterpret_cast<unsigned*>(out), num, val);
+	} else {
+		assert(false);
 	}
 }
 
@@ -277,26 +303,15 @@ template <typename Pixel, bool STREAMING>
 void MemSet2<Pixel, STREAMING>::operator()(
 	Pixel* out, unsigned num, Pixel val0, Pixel val1) const
 {
-	if (!num) return;
 	if (sizeof(Pixel) == 2) {
-		memset_2_helper<STREAMING>(
-			reinterpret_cast<word*>(out), num, val0, val1
-			);
+		memset_16_2<STREAMING>(
+			reinterpret_cast<word*    >(out), num, val0, val1);
 	} else if (sizeof(Pixel) == 4) {
-		memset_2_helper<STREAMING>(
-			reinterpret_cast<unsigned*>(out), num, val0, val1
-			);
+		memset_32_2<STREAMING>(
+			reinterpret_cast<unsigned*>(out), num, val0, val1);
 	} else {
 		assert(false);
 	}
-}
-
-template <typename Pixel, bool STREAMING>
-void MemSet<Pixel, STREAMING>::operator()(
-	Pixel* out, unsigned num, Pixel val) const
-{
-	MemSet2<Pixel, STREAMING> memset2;
-	memset2(out, num, val, val);
 }
 
 // Force template instantiation
