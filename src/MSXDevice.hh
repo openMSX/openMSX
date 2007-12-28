@@ -122,7 +122,7 @@ public:
 	virtual void writeMem(word address, byte value, const EmuTime& time);
 
 	/**
-	 * Test that the memory in the interval [start, start+CACHE_LINE_SIZE)
+	 * Test that the memory in the interval [start, start+CacheLine::SIZE)
 	 * is cacheable for reading. If it is, a pointer to a buffer
 	 * containing this interval must be returned. If not, a null
 	 * pointer must be returned.
@@ -130,12 +130,12 @@ public:
 	 * from the buffer, thus bypassing the readMem() method, and
 	 * thus also ignoring EmuTime.
 	 * The default implementation always returns a null pointer.
-	 * The start of the interval is CACHE_LINE_SIZE aligned.
+	 * The start of the interval is CacheLine::SIZE aligned.
 	 */
 	virtual const byte* getReadCacheLine(word start) const;
 
 	/**
-	 * Test that the memory in the interval [start, start+CACHE_LINE_SIZE)
+	 * Test that the memory in the interval [start, start+CacheLine::SIZE)
 	 * is cacheable for writing. If it is, a pointer to a buffer
 	 * containing this interval must be returned. If not, a null
 	 * pointer must be returned.
@@ -143,7 +143,7 @@ public:
 	 * to the buffer, thus bypassing the writeMem() method, and
 	 * thus also ignoring EmuTime.
 	 * The default implementation always returns a null pointer.
-	 * The start of the interval is CACHE_LINE_SIZE aligned.
+	 * The start of the interval is CacheLine::SIZE aligned.
 	 */
 	virtual byte* getWriteCacheLine(word start) const;
 

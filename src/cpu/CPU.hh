@@ -311,7 +311,7 @@ public:
 
 	/**
 	 * Invalidate the CPU its cache for the interval
-	 * [start, start+num*CACHE_LINE_SIZE).
+	 * [start, start+num*CacheLine::SIZE).
 	 */
 	virtual void invalidateMemCache(word start, unsigned num) = 0;
 
