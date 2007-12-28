@@ -117,6 +117,13 @@ can decide for itself how many bytes to read.
 
 */
 
+class DummyVRAMOBserver : public VRAMObserver
+{
+public:
+	virtual void updateVRAM(unsigned /*offset*/, const EmuTime& /*time*/) {}
+	virtual void updateWindow(bool /*enabled*/, const EmuTime& /*time*/) {}
+};
+
 /** Specifies an address range in the VRAM.
   * A VDP subsystem can use this to put a claim on a certain area.
   * For example, the owner of a read window will be notified before
@@ -164,9 +171,7 @@ public:
 		    (newIndexMask == indexMask)) {
 			return;
 		}
-		if (observer) {
-			observer->updateWindow(true, time);
-		}
+		observer->updateWindow(true, time);
 		baseMask  = newBaseMask;
 		indexMask = newIndexMask;
 		baseAddr  =  baseMask & indexMask; // this enables window
@@ -177,9 +182,7 @@ public:
 	  * @param time The moment in emulated time this change occurs.
 	  */
 	inline void disable(const EmuTime& time) {
-		if (observer) {
-			observer->updateWindow(false, time);
-		}
+		observer->updateWindow(false, time);
 		baseAddr = -1;
 	}
 
@@ -245,7 +248,7 @@ public:
 	/** Is there an observer registered for this window?
 	  */
 	inline bool hasObserver() const {
-		return observer;
+		return observer != &dummyObserver;
 	}
 
 	/** Register an observer on this VRAM window.
@@ -260,7 +263,7 @@ public:
 	/** Unregister the observer of this VRAM window.
 	  */
 	inline void resetObserver() {
-		this->observer = NULL;
+		observer = &dummyObserver;
 	}
 
 	/** Test whether an address is inside this window.
@@ -280,7 +283,7 @@ public:
 	  * @param time The moment in emulated time the change occurs.
 	  */
 	inline void notify(unsigned address, const EmuTime& time) {
-		if (observer && isInside(address)) {
+		if (isInside(address)) {
 			observer->updateVRAM(address - baseAddr, time);
 		}
 	}
@@ -326,6 +329,8 @@ private:
 	  *       mirroring of extended VRAM is handled in a different way
 	  */
 	const int sizeMask;
+
+	static DummyVRAMOBserver dummyObserver;
 };
 
 /** Manages VRAM contents and synchronises the various users of the VRAM.

@@ -10,11 +10,13 @@ namespace openmsx {
 
 // class VRAMWindow:
 
+DummyVRAMOBserver VRAMWindow::dummyObserver;
+
 VRAMWindow::VRAMWindow(Ram& vram)
 	: data(&vram[0])
 	, sizeMask(Math::powerOfTwo(vram.getSize()) - 1)
 {
-	observer = NULL;
+	observer = &dummyObserver;
 	baseAddr  = -1; // disable window
 	baseMask = 0;
 	indexMask = 0; // these 3 don't matter but it makes valgrind happy
