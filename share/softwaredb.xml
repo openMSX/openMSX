@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
 <!--
  The romdb.xml file contains information about rom mapper types
@@ -8,7 +8,7 @@
 	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
-<softwaredb xml:lang="en" timestamp="1184514547">
+<softwaredb xml:lang="en" timestamp="1198965122">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -947,6 +947,22 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Bag Man</title>
+		<system>MSX</system>
+		<company>AG Software </company>
+		<year>2007</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">e984bfb4251e7b9f9b6b95d5e1005e67c223ae67</hash>
+				<remark>
+					<text>MSX-DEV07</text>
+				</remark>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Balance</title>
 		<system>MSX</system>
 		<company>Hal</company>
@@ -986,6 +1002,22 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">cd452442338366411f6b24739fe59e20f3ac24dc</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Balloon City</title>
+		<system>MSX</system>
+		<company>AG Software </company>
+		<year>2007</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">c46f85f21f780f126a0d61848071fcdcf84f15b9</hash>
+				<remark>
+					<text>MSX-DEV07</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -1284,6 +1316,31 @@
 				<hash algo="sha1">65961a1926b24c8efa71f2ab68cbafa2d0122acf</hash>
 				<remark>
 					<text>MSXDEV06</text>
+				</remark>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">BeTiled!</title>
+		<system>MSX</system>
+		<company>CEZ GS (ComputerEmuzone Game Studio)</company>
+		<year>2007</year>
+		<country>EU</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">afe11b840b7bf0243b1c4f98309e274a3ddde35f</hash>
+				<remark>
+					<text>MSX-DEV07</text>
+				</remark>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">8a3749af3d6ff88404df59da9d9ac7990bbc318d</hash>
+				<remark>
+					<text>MSX-DEV07</text>
 				</remark>
 			</rom>
 		</dump>
@@ -2134,6 +2191,22 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">e997d8f02e413d2df5aed2bf7e79986c4c851d34</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Caos Begins</title>
+		<system>MSX</system>
+		<company>Hikaru Games</company>
+		<year>2007</year>
+		<country>EU</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">317a7cc0ab90882d25d1185eeb9aca6b884c8879 TYPE</hash>
+				<remark>
+					<text>MSX-DEV07</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -3278,6 +3351,22 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">70a8afee598dd2e2095353e5086b9f737cf89be3</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Crazy MSX Frenchies</title>
+		<system>MSX</system>
+		<company>Jipe of the MSX Caf&#233;</company>
+		<year>2007</year>
+		<country>EU</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">484a21c62bde3eab537f394bc270ac7c1c557f7c</hash>
+				<remark>
+					<text>MSX-DEV07</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -6029,6 +6118,13 @@
 				</remark>
 			</rom>
 		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Griel\&#39;s Quest for the Sangraal</title>
+		<system>MSX</system>
+		<company>Karoshi Corporation</company>
+		<year>2005</year>
+		<country>ES</country>
 		<dump>
 			<original value="false"/>
 			<rom>
@@ -8928,6 +9024,22 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Lotus F3</title>
+		<system>MSX</system>
+		<company>dvik &#38; joyrex productions</company>
+		<year>2007</year>
+		<country>EU</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">0f2c5a7c6cc9ff591c911e4f3f204e425bd3cf50</hash>
+				<remark>
+					<text>MSX-DEV07</text>
+				</remark>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Lunar Ball</title>
 		<system>MSX</system>
 		<company>Pony Canyon</company>
@@ -9185,6 +9297,57 @@
 				<boot>scc+</boot>
 				<hash algo="sha1">f795668afe66c7d88e51f5a22471e2c0a42c7ffb</hash>
 			</sccpluscart>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Malaika</title>
+		<system>MSX</system>
+		<company>Karoshi Corporation</company>
+		<year>2007</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">480fe052ff41f6f6aaa745c413012d1610f02c90</hash>
+				<remark>
+					<text>MSX-DEV06</text>
+				</remark>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">e94d34d164f5379ea85464b51743461e3f6c92ab</hash>
+				<remark>
+					<text>MSX-DEV06</text>
+				</remark>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">e6a0d6c40419647e6b17d30a000331a904c8f5df</hash>
+				<remark>
+					<text>MSX-DEV06</text>
+				</remark>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Manbow 2</title>
+		<system>MSX</system>
+		<company>Mabow 2 team</company>
+		<year>2007</year>
+		<country>EU</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>manbow2</type>
+				<hash algo="sha1">e3b9241291b5f19ab239726360258a31e02565a3</hash>
+				<remark>
+					<text>SCC flash cart</text>
+				</remark>
+			</megarom>
 		</dump>
 	</software>
 	<software>
@@ -10039,6 +10202,33 @@
 			<rom>
 				<hash algo="sha1">660db5d4b39de8308aac13be817a408fe3b52477</hash>
 			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Mr. Mole</title>
+		<system>MSX</system>
+		<company>Nerlaska Studio</company>
+		<year>2007</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">72783ba5a0b9f33b4573952a1c721fc5d5025fd5</hash>
+				<remark>
+					<text>MSX-DEV07</text>
+				</remark>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<sccpluscart>
+				<boot>scc</boot>
+				<hash algo="sha1">168d59fca3170f56858f39d0b53067c0c0d414a8</hash>
+				<remark>
+					<text>MSX-DEV07</text>
+				</remark>
+			</sccpluscart>
 		</dump>
 	</software>
 	<software>
@@ -10939,6 +11129,24 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Operation Wolf (v2)</title>
+		<system>MSX</system>
+		<company>Toybox</company>
+		<year>2007</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Normal</type>
+				<start>0x4000</start>
+				<hash algo="sha1">016c63161d5112ef637d48920a85001c9eb6a10f</hash>
+				<remark>
+					<text>MSX-DEV06</text>
+				</remark>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Othello</title>
 		<system>MSX</system>
 		<company>Sony</company>
@@ -11332,6 +11540,23 @@
 					<text>MSXDEV06</text>
 				</remark>
 			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Penguin Mind</title>
+		<system>MSX</system>
+		<company>The MSX Caf&#233;</company>
+		<year>2007</year>
+		<country>EU</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">8c218c317e1e213e1c5e9439870929009d645a47</hash>
+				<remark>
+					<text>MSX-DEV07</text>
+				</remark>
+			</megarom>
 		</dump>
 	</software>
 	<software>
@@ -14945,6 +15170,22 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Tiles of Shalom</title>
+		<system>MSX</system>
+		<company>Jipe of the MSX Caf&#233;</company>
+		<year>2007</year>
+		<country>EU</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">43c6a757ce5ec5a221e6c0e922638f688de8fd8b</hash>
+				<remark>
+					<text>MSX-DEV07</text>
+				</remark>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Time Pilot</title>
 		<system>MSX</system>
 		<company>Konami</company>
@@ -15286,6 +15527,22 @@
 				<boot>scc+</boot>
 				<hash algo="sha1">39a91558bba92b7310455cd7513276d487de0f9d</hash>
 			</sccpluscart>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Txupinazo!</title>
+		<system>MSX</system>
+		<company>Imanok</company>
+		<year>2007</year>
+		<country>ES</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">73ec25854aae297c9c3da0a2d4b4f1eae14fe8c6</hash>
+				<remark>
+					<text>MSX-DEV07</text>
+				</remark>
+			</rom>
 		</dump>
 	</software>
 	<software>
@@ -15689,6 +15946,22 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Yahtzee</title>
+		<system>MSX</system>
+		<company>Daniel Vik (dvik &#38; joyrex productions)</company>
+		<year>2007</year>
+		<country>US</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">720054d7ab4da46db8c9fb47d17fb7e0aa79d25b</hash>
+				<remark>
+					<text>MSX-DEV07</text>
+				</remark>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Yakyukyo - Baseball Crazy</title>
 		<system>MSX</system>
 		<company>Hudson</company>
@@ -15995,7 +16268,7 @@
 			<rom>
 				<hash algo="sha1">46e9ed7b7f6dfda8eee266476c9ebc4dd9d8fcc2</hash>
 				<remark>
-					<text>Doesn&#39;t work correctly in open MSX yet with 16 kB RAM.</text>
+					<text>Doesn\&#39;t work correctly in open MSX yet with 16 kB RAM.</text>
 				</remark>
 			</rom>
 		</dump>
@@ -17801,6 +18074,20 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Hydlide 3 - The Space Memories MSX1 Version</title>
+		<system>MSX</system>
+		<company>Zemina</company>
+		<year>1987</year>
+		<country>KR</country>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>GenericKonami</type>
+				<hash algo="sha1">5d2062ecc7176ca2b100724c2a17f877878d721d</hash>
+			</megarom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Hydlide 3 - The Space Memories MSX2 Version</title>
 		<system>MSX</system>
 		<company>T&#38;E Soft</company>
@@ -17811,13 +18098,6 @@
 			<megarom>
 				<type>ASCII8</type>
 				<hash algo="sha1">f182d4785e3eed00292f7ff4795c9dcc6c990a0a</hash>
-			</megarom>
-		</dump>
-		<dump>
-			<original value="false"/>
-			<megarom>
-				<type>GenericKonami</type>
-				<hash algo="sha1">5d2062ecc7176ca2b100724c2a17f877878d721d</hash>
 			</megarom>
 		</dump>
 	</software>
@@ -23972,9 +24252,9 @@
 	</software>
 </softwaredb>
 <!--
-Roms in this database : 2242
+Roms in this database : 2260
 Good MSX entries 		: 755
-SHA1 values 			: 2242
+SHA1 values 			: 2260
 CRC32 values 			: 0
-Parse time 7.077 seconds on Sun Jul 15 17:49:15 CEST 2007
+Parse time 16.991 seconds on Sat Dec 29 22:52:19 CET 2007
  -->
