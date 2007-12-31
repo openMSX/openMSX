@@ -17,7 +17,10 @@ protected:
 	virtual void checkSetValue(VideoSource& value) const;
 	VideoSource checkGetValue(VideoSource value) const;
 
-	std::set<VideoSource> activeSources;
+	// TODO should this be a multiset or should we have this setting
+	//      per machine?
+	typedef std::multiset<VideoSource> ActiveSources;
+	ActiveSources activeSources;
 };
 
 

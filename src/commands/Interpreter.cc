@@ -280,7 +280,14 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 			}
 		}
 		if (flags & TCL_TRACE_UNSETS) {
-			variable->restoreDefault();
+			try {
+				variable->restoreDefault();
+			} catch (CommandException& e) {
+				// for some reason default value is not valid ATM,
+				// keep current value (happened for videosource
+				// setting before turning on (set power on) the
+				// MSX machine)
+			}
 			Tcl_SetVar(interp, part1,
 			           variable->getValueString().c_str(), 0);
 			Tcl_TraceVar(interp, part1, TCL_TRACE_READS |

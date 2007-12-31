@@ -57,7 +57,9 @@ void VideoSourceSetting::registerVideoSource(VideoSource source)
 
 void VideoSourceSetting::unregisterVideoSource(VideoSource source)
 {
-	activeSources.erase(source);
+	ActiveSources::iterator it = activeSources.find(source);
+	assert(it != activeSources.end());
+	activeSources.erase(it);
 	notify();
 	notifyPropertyChange();
 }
