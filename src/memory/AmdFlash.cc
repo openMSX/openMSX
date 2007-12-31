@@ -16,6 +16,7 @@ AmdFlash::AmdFlash(const Rom& rom_, unsigned logSectorSize_,
 	: rom(rom_)
 	, logSectorSize(logSectorSize_)
 	, sectorMask((1 << logSectorSize) -1)
+	, state(ST_IDLE)
 {
 	unsigned totalSectors = rom.getSize() >> logSectorSize;
 	unsigned numWritable = 0;
@@ -75,7 +76,14 @@ AmdFlash::~AmdFlash()
 void AmdFlash::reset()
 {
 	cmdIdx = 0;
-	state = ST_IDLE;
+	setState(ST_IDLE);
+}
+
+void AmdFlash::setState(State newState)
+{
+	if (state == newState) return;
+	state = newState;
+	rom.getMotherBoard().getCPU().invalidateMemCache(0x0000, 0x10000);
 }
 
 unsigned AmdFlash::getSize() const
@@ -198,9 +206,7 @@ bool AmdFlash::checkCommandManifacturer()
 	static const byte cmdSeq[] = { 0xaa, 0x55, 0x90 };
 	if (partialMatch(3, cmdSeq)) {
 		if (cmdIdx == 3) {
-			state = ST_IDENT;
-			rom.getMotherBoard().getCPU().invalidateMemCache(
-				0x0000, 0x10000);
+			setState(ST_IDENT);
 		}
 		if (cmdIdx < 4) return true;
 	}

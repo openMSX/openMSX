@@ -30,6 +30,9 @@ public:
 	const byte* getReadCacheLine(unsigned address) const;
 
 private:
+	enum State { ST_IDLE, ST_IDENT };
+
+	void setState(State newState);
 	bool checkCommandEraseSector();
 	bool checkCommandEraseChip();
 	bool checkCommandProgram();
@@ -50,7 +53,7 @@ private:
 		byte value;
 	} cmd[MAX_CMD_SIZE];
 	unsigned cmdIdx;
-	enum { ST_IDLE, ST_IDENT } state;
+	State state;
 };
 
 } // namespace openmsx
