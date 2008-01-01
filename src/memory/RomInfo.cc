@@ -188,7 +188,11 @@ void RomInfo::print(CliComm& cliComm) const
 	string status;
 	if (getOriginal()) {
 		// this is an unmodified original dump
-		status = "Unmodified dump (confirmed by " + getOrigType() + ")";
+		if (getOrigType() == "GoodMSX" ) {
+			status = "Unmodified dump (confirmed by GoodMSX)";
+		} else if (getOrigType() == "Original" ) {
+			status = "Unmodified dump (original ROM relase)";
+		}
 	} else {
 		// not original or unknown
 		if (getOrigType() == "broken" ) {
