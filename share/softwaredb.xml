@@ -8,7 +8,7 @@
 	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
-<softwaredb xml:lang="en" timestamp="1199168083">
+<softwaredb xml:lang="en" timestamp="1199171943">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -1014,6 +1014,8 @@
 		<dump>
 			<original value="true">Original</original>
 			<rom>
+				<type>Normal</type>
+				<start>0x8000</start>
 				<hash algo="sha1">c46f85f21f780f126a0d61848071fcdcf84f15b9</hash>
 				<remark>
 					<text>MSX-DEV07</text>
@@ -1339,6 +1341,15 @@
 			<original value="true">Original</original>
 			<rom>
 				<hash algo="sha1">8a3749af3d6ff88404df59da9d9ac7990bbc318d</hash>
+				<remark>
+					<text>MSX-DEV07</text>
+				</remark>
+			</rom>
+		</dump>
+		<dump>
+			<original value="true">Original</original>
+			<rom>
+				<hash algo="sha1">9267ea63e1d32095868eec1347a4eafbdfb5ef7e</hash>
 				<remark>
 					<text>MSX-DEV07</text>
 				</remark>
@@ -2205,6 +2216,15 @@
 			<original value="true">Original</original>
 			<rom>
 				<hash algo="sha1">317a7cc0ab90882d25d1185eeb9aca6b884c8879</hash>
+				<remark>
+					<text>MSX-DEV07</text>
+				</remark>
+			</rom>
+		</dump>
+		<dump>
+			<original value="true">Original</original>
+			<rom>
+				<hash algo="sha1">37f302291c75847f4b87a82e3acbbf62eab625f8</hash>
 				<remark>
 					<text>MSX-DEV07</text>
 				</remark>
@@ -7402,6 +7422,22 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Italian Stallion</title>
+		<system>MSX</system>
+		<company>Impulse9</company>
+		<year>2007</year>
+		<country>EU</country>
+		<dump>
+			<original value="true">Original</original>
+			<rom>
+				<hash algo="sha1">64f921c9c57aedb47663a269046d4c51388f41fb</hash>
+				<remark>
+					<text>MSX-DEV07</text>
+				</remark>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">J.P. Winkle</title>
 		<system>MSX</system>
 		<company>Ascii</company>
@@ -9036,6 +9072,16 @@
 			<megarom>
 				<type>MegaFlashROMSCC</type>
 				<hash algo="sha1">0f2c5a7c6cc9ff591c911e4f3f204e425bd3cf50</hash>
+				<remark>
+					<text>MSX-DEV07</text>
+				</remark>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="true">Original</original>
+			<megarom>
+				<type>MegaFlashROMSCC</type>
+				<hash algo="sha1">079bacc9708f711af90310f3e08f2abafa8fc919</hash>
 				<remark>
 					<text>MSX-DEV07</text>
 				</remark>
@@ -10811,6 +10857,22 @@
 					<text>MSXDEV06</text>
 				</remark>
 			</megarom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Night Driver</title>
+		<system>MSX</system>
+		<company>Karoshi Corporation</company>
+		<year>2007</year>
+		<country>EU</country>
+		<dump>
+			<original value="true">Original</original>
+			<rom>
+				<hash algo="sha1">fcc1cf816657e90bb1e0a93898fd17a8325c2cd3</hash>
+				<remark>
+					<text>MSX-DEV07</text>
+				</remark>
+			</rom>
 		</dump>
 	</software>
 	<software>
@@ -24246,9 +24308,7 @@
 	</software>
 </softwaredb>
 <!--
-Roms in this database : 2260
-Good MSX entries 		: 819
-SHA1 values 			: 2260
-CRC32 values 			: 0
-Parse time 7.811 seconds on Tue Jan 1 7:14:50 CET 2008
+Roms in this database 			: 2265
+Good MSX entries 				: 755
+Parse time 7.027 seconds on Tue Jan 1 8:19:10 CET 2008
  -->
