@@ -8,7 +8,7 @@
 	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
-<softwaredb xml:lang="en" timestamp="1199171943">
+<softwaredb xml:lang="en" timestamp="1199173415">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -955,6 +955,8 @@
 		<dump>
 			<original value="false"/>
 			<rom>
+				<type>Normal</type>
+				<start>0x8000</start>
 				<hash algo="sha1">e984bfb4251e7b9f9b6b95d5e1005e67c223ae67</hash>
 				<remark>
 					<text>MSX-DEV07</text>
@@ -3385,6 +3387,8 @@
 		<dump>
 			<original value="true">Original</original>
 			<rom>
+				<type>Normal</type>
+				<start>0x8000</start>
 				<hash algo="sha1">484a21c62bde3eab537f394bc270ac7c1c557f7c</hash>
 				<remark>
 					<text>MSX-DEV07</text>
@@ -15234,6 +15238,8 @@
 		<dump>
 			<original value="true">Original</original>
 			<rom>
+				<type>Normal</type>
+				<start>0x8000</start>
 				<hash algo="sha1">43c6a757ce5ec5a221e6c0e922638f688de8fd8b</hash>
 				<remark>
 					<text>MSX-DEV07</text>
@@ -16010,6 +16016,8 @@
 		<dump>
 			<original value="true">Original</original>
 			<rom>
+				<type>Normal</type>
+				<start>0x8000</start>
 				<hash algo="sha1">720054d7ab4da46db8c9fb47d17fb7e0aa79d25b</hash>
 				<remark>
 					<text>MSX-DEV07</text>
@@ -24308,7 +24316,7 @@
 	</software>
 </softwaredb>
 <!--
-Roms in this database 			: 2265
+Roms in this database 		: 2265
 Good MSX entries 				: 755
-Parse time 7.027 seconds on Tue Jan 1 8:19:10 CET 2008
+Parse time 8.524 seconds on Tue Jan 1 8:43:44 CET 2008
  -->
