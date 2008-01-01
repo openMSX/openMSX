@@ -8,7 +8,7 @@
 	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
-<softwaredb xml:lang="en" timestamp="1198965122">
+<softwaredb xml:lang="en" timestamp="1199151344">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -733,7 +733,7 @@
 	<software>
 		<title xml:lang="en">ASMSX Demo 1 - Fixed Point Arithmetic</title>
 		<system>MSX</system>
-		<company>Karoshi Corp.</company>
+		<company>Karoshi Corporation</company>
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
@@ -746,7 +746,7 @@
 	<software>
 		<title xml:lang="en">ASMSX Demo 2 - TV</title>
 		<system>MSX</system>
-		<company>Karoshi Corp.</company>
+		<company>Karoshi Corporation</company>
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
@@ -949,7 +949,7 @@
 	<software>
 		<title xml:lang="en">Bag Man</title>
 		<system>MSX</system>
-		<company>AG Software </company>
+		<company>AG Software</company>
 		<year>2007</year>
 		<country>ES</country>
 		<dump>
@@ -965,7 +965,7 @@
 	<software>
 		<title xml:lang="en">Balance</title>
 		<system>MSX</system>
-		<company>Hal</company>
+		<company>HAL Laboratory</company>
 		<year>1984</year>
 		<country>JP</country>
 		<dump>
@@ -1575,11 +1575,12 @@
 		<system>MSX</system>
 		<company>AG Software</company>
 		<year>2005</year>
+		<country>EU</country>
 		<dump>
 			<original value="false"/>
 			<megarom>
 				<type>Normal</type>
-				<hash algo="sha1">46ecaf85f1ff1b4821670bf44ff1249fe1b13a35	</hash>
+				<hash algo="sha1">46ecaf85f1ff1b4821670bf44ff1249fe1b13a35</hash>
 				<remark>
 					<text>MSXDev05</text>
 				</remark>
@@ -1665,7 +1666,7 @@
 	<software>
 		<title xml:lang="en">Bomber Man Special - Deluxe Edition</title>
 		<system>MSX</system>
-		<company>1986-2004</company>
+		<company>Hudson - EVA</company>
 		<year>19xx</year>
 		<country>JP</country>
 		<dump>
@@ -2003,7 +2004,7 @@
 	<software>
 		<title xml:lang="en">Buru To Marty Kikiippatsu - Inspecteur Z</title>
 		<system>MSX</system>
-		<company>Hal</company>
+		<company>HAL Laboratory</company>
 		<year>1986</year>
 		<country>JP</country>
 		<dump>
@@ -2022,7 +2023,7 @@
 	<software>
 		<title xml:lang="en">Butamaru Pants</title>
 		<system>MSX</system>
-		<company>Hal</company>
+		<company>HAL Laboratory</company>
 		<year>1983</year>
 		<country>JP</country>
 		<dump>
@@ -2203,7 +2204,7 @@
 		<dump>
 			<original value="false"/>
 			<rom>
-				<hash algo="sha1">317a7cc0ab90882d25d1185eeb9aca6b884c8879 TYPE</hash>
+				<hash algo="sha1">317a7cc0ab90882d25d1185eeb9aca6b884c8879</hash>
 				<remark>
 					<text>MSX-DEV07</text>
 				</remark>
@@ -2638,8 +2639,9 @@
 	<software>
 		<title xml:lang="en">Cheating Wifes</title>
 		<system>MSX</system>
-		<company>Crappy Soft</company>
+		<company>Crappysoft</company>
 		<year>2005</year>
+		<country>EU</country>
 		<dump>
 			<original value="false"/>
 			<megarom>
@@ -2853,7 +2855,7 @@
 	<software>
 		<title xml:lang="en">Classic Minesweeper</title>
 		<system>MSX</system>
-		<company>Karoshi Corp.</company>
+		<company>Karoshi Corporation</company>
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
@@ -2866,7 +2868,7 @@
 	<software>
 		<title xml:lang="en">Classic Pong 1st Version</title>
 		<system>MSX</system>
-		<company>Karoshi Corp.</company>
+		<company>Karoshi Corporation</company>
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
@@ -2879,7 +2881,7 @@
 	<software>
 		<title xml:lang="en">Classic Pong 2nd Version</title>
 		<system>MSX</system>
-		<company>Karoshi Corp.</company>
+		<company>Karoshi Corporation</company>
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
@@ -3219,7 +3221,7 @@
 	<software>
 		<title xml:lang="en">Confused ?</title>
 		<system>MSX</system>
-		<company>Byte Busters</company>
+		<company>Bytebusters</company>
 		<year>1986</year>
 		<country>NL</country>
 		<dump>
@@ -3471,7 +3473,7 @@
 	<software>
 		<title xml:lang="en">Custar</title>
 		<system>MSX</system>
-		<company>Hal</company>
+		<company>HAL Laboratory</company>
 		<year>1984</year>
 		<country>JP</country>
 		<dump>
@@ -3775,7 +3777,7 @@
 	<software>
 		<title xml:lang="en">Digital Devil Story - Monogatari Megami Tensei</title>
 		<system>MSX</system>
-		<company>Telenet Japan</company>
+		<company>Telenet</company>
 		<year>1987</year>
 		<country>JP</country>
 		<dump>
@@ -3930,7 +3932,7 @@
 	<software>
 		<title xml:lang="en">Dragon Attack</title>
 		<system>MSX</system>
-		<company>Takara - Hal</company>
+		<company>Takara - HAL Laboratory</company>
 		<year>1983</year>
 		<country>JP</country>
 		<dump>
@@ -4105,7 +4107,7 @@
 	<software>
 		<title xml:lang="en">Duck Hunt</title>
 		<system>MSX</system>
-		<company>Karoshi Corp.</company>
+		<company>Karoshi Corporation</company>
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
@@ -4145,7 +4147,7 @@
 	<software>
 		<title xml:lang="en">Dunk Shot</title>
 		<system>MSX</system>
-		<company>Hal</company>
+		<company>HAL Laboratory</company>
 		<year>1986</year>
 		<country>JP</country>
 		<dump>
@@ -4282,7 +4284,7 @@
 	<software>
 		<title xml:lang="en">Eddy 2</title>
 		<system>MSX</system>
-		<company>Hal</company>
+		<company>HAL Laboratory</company>
 		<year>1984</year>
 		<country>JP</country>
 		<dump>
@@ -4301,7 +4303,7 @@
 	<software>
 		<title xml:lang="en">Eggerland Mystery</title>
 		<system>MSX</system>
-		<company>Hal</company>
+		<company>HAL Laboratory</company>
 		<year>1985</year>
 		<country>JP</country>
 		<dump>
@@ -4418,7 +4420,7 @@
 	<software>
 		<title xml:lang="en">Exerion 1</title>
 		<system>MSX</system>
-		<company>1983-1984</company>
+		<company>Jaleco</company>
 		<year>19xx</year>
 		<country>JP</country>
 		<dump>
@@ -4636,7 +4638,7 @@
 	<software>
 		<title xml:lang="en">Factory Infection</title>
 		<system>MSX</system>
-		<company>Karoshi Corp.</company>
+		<company>Karoshi Corporation</company>
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
@@ -5100,7 +5102,7 @@
 	<software>
 		<title xml:lang="en">FM Music Macro</title>
 		<system>MSX</system>
-		<company>Yamaja</company>
+		<company>Yamaha</company>
 		<year>1984</year>
 		<country>JP</country>
 		<dump>
@@ -5222,7 +5224,7 @@
 	<software>
 		<title xml:lang="en">Fruit Search</title>
 		<system>MSX</system>
-		<company>Takara - Hal</company>
+		<company>Takara - HAL Laboratory</company>
 		<year>1983</year>
 		<country>JP</country>
 		<dump>
@@ -5344,7 +5346,7 @@
 	<software>
 		<title xml:lang="en">Gall Force - Defence Of Chaos</title>
 		<system>MSX</system>
-		<company>Sony - Hal</company>
+		<company>Sony - Hal Laboratory</company>
 		<year>1986</year>
 		<country>JP</country>
 		<dump>
@@ -6118,13 +6120,6 @@
 				</remark>
 			</rom>
 		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Griel\&#39;s Quest for the Sangraal</title>
-		<system>MSX</system>
-		<company>Karoshi Corporation</company>
-		<year>2005</year>
-		<country>ES</country>
 		<dump>
 			<original value="false"/>
 			<rom>
@@ -6298,7 +6293,7 @@
 	<software>
 		<title xml:lang="en">Guru Logic 1st version</title>
 		<system>MSX</system>
-		<company>Karoshi Corp.</company>
+		<company>Karoshi Corporation</company>
 		<year>2003</year>
 		<country>ES</country>
 		<dump>
@@ -6311,7 +6306,7 @@
 	<software>
 		<title xml:lang="en">Guru Logic 2nd version</title>
 		<system>MSX</system>
-		<company>Karoshi Corp.</company>
+		<company>Karoshi Corporation</company>
 		<year>2003</year>
 		<country>ES</country>
 		<dump>
@@ -6415,7 +6410,7 @@
 	<software>
 		<title xml:lang="en">Hal Music</title>
 		<system>MSX</system>
-		<company>Hal</company>
+		<company>HAL Laboratory</company>
 		<year>19xx</year>
 		<country>JP</country>
 		<dump>
@@ -6556,7 +6551,7 @@
 	<software>
 		<title xml:lang="en">Heavy Boxing</title>
 		<system>MSX</system>
-		<company>Takara - Hal</company>
+		<company>Takara - HAL Laboratory</company>
 		<year>1983</year>
 		<country>JP</country>
 		<dump>
@@ -6705,7 +6700,7 @@
 	<software>
 		<title xml:lang="en">Hole In One</title>
 		<system>MSX</system>
-		<company>Hal</company>
+		<company>HAL Laboratory</company>
 		<year>1984</year>
 		<country>JP</country>
 		<dump>
@@ -6742,7 +6737,7 @@
 	<software>
 		<title xml:lang="en">Hole In One Professional</title>
 		<system>MSX</system>
-		<company>Hal</company>
+		<company>HAL Laboratory</company>
 		<year>1985</year>
 		<country>JP</country>
 		<dump>
@@ -7787,7 +7782,7 @@
 	<software>
 		<title xml:lang="en">Kanji Rom - JIS 1st Class</title>
 		<system>MSX</system>
-		<company>ASCII</company>
+		<company>Ascii</company>
 		<year>1986</year>
 		<country>JP</country>
 		<dump>
@@ -7803,7 +7798,7 @@
 	<software>
 		<title xml:lang="en">Karamaru</title>
 		<system>MSX</system>
-		<company>Hal</company>
+		<company>HAL Laboratory</company>
 		<year>1984</year>
 		<country>JP</country>
 		<dump>
@@ -7818,7 +7813,7 @@
 	<software>
 		<title xml:lang="en">Karoshi Game Collection</title>
 		<system>MSX</system>
-		<company>Karoshi Corp.</company>
+		<company>Karoshi Corporation</company>
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
@@ -8643,6 +8638,13 @@
 				<hash algo="sha1">6a7faa122454ba34cbdb9f1a75a111a1a4763a56</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<type>Synthesizer</type>
+				<hash algo="sha1">73a40e7d6da2bc8489297fd57b7b93b2aa5a6440</hash>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Konami&#39;s Synthesizer Sample Version</title>
@@ -9031,12 +9033,13 @@
 		<country>EU</country>
 		<dump>
 			<original value="false"/>
-			<rom>
+			<megarom>
+				<type>MegaFlashROMSCC</type>
 				<hash algo="sha1">0f2c5a7c6cc9ff591c911e4f3f204e425bd3cf50</hash>
 				<remark>
 					<text>MSX-DEV07</text>
 				</remark>
-			</rom>
+			</megarom>
 		</dump>
 	</software>
 	<software>
@@ -9143,17 +9146,7 @@
 		<system>MSX</system>
 		<company>Dioniso</company>
 		<year>2005</year>
-		<country>ES</country>
-		<dump>
-			<original value="false"/>
-			<megarom>
-				<type>Normal</type>
-				<hash algo="sha1">38a3c6659080b38d9a2655e869e9fc0ce3e26c5e	</hash>
-				<remark>
-					<text>MSXDev05</text>
-				</remark>
-			</megarom>
-		</dump>
+		<country>JP</country>
 		<dump>
 			<original value="false"/>
 			<megarom>
@@ -9490,7 +9483,7 @@
 	<software>
 		<title xml:lang="en">Maze Attack</title>
 		<system>MSX</system>
-		<company>Hal</company>
+		<company>HAL Laboratory</company>
 		<year>1983</year>
 		<country>JP</country>
 		<dump>
@@ -9601,7 +9594,7 @@
 	<software>
 		<title xml:lang="en">Meikyushinwa - Eggerland Mystery 2</title>
 		<system>MSX</system>
-		<company>Hal</company>
+		<company>HAL Laboratory</company>
 		<year>1986</year>
 		<country>JP</country>
 		<dump>
@@ -9782,7 +9775,7 @@
 	<software>
 		<title xml:lang="en">Mobile Planet Suthirus</title>
 		<system>MSX</system>
-		<company>Hal</company>
+		<company>HAL Laboratory</company>
 		<year>1986</year>
 		<country>JP</country>
 		<dump>
@@ -9911,7 +9904,7 @@
 	<software>
 		<title xml:lang="en">Monster Hunter (English)</title>
 		<system>MSX</system>
-		<company>Nerlaska</company>
+		<company>Nerlaska Studio</company>
 		<year>2006</year>
 		<country>ES</country>
 		<dump>
@@ -9928,7 +9921,7 @@
 	<software>
 		<title xml:lang="en">Monster Hunter (Espaniol)</title>
 		<system>MSX</system>
-		<company>Nerlaska</company>
+		<company>Nerlaska Studio</company>
 		<year>2006</year>
 		<country>ES</country>
 		<dump>
@@ -10101,7 +10094,7 @@
 	<software>
 		<title xml:lang="en">Mr. Chin</title>
 		<system>MSX</system>
-		<company>Hal</company>
+		<company>HAL Laboratory</company>
 		<year>1984</year>
 		<country>JP</country>
 		<dump>
@@ -10570,7 +10563,7 @@
 	<software>
 		<title xml:lang="en">Music Editor</title>
 		<system>MSX</system>
-		<company>Hal</company>
+		<company>HAL Laboratory</company>
 		<year>1984</year>
 		<country>JP</country>
 		<dump>
@@ -11131,7 +11124,7 @@
 	<software>
 		<title xml:lang="en">Operation Wolf (v2)</title>
 		<system>MSX</system>
-		<company>Toybox</company>
+		<company>TOYBOX</company>
 		<year>2007</year>
 		<country>ES</country>
 		<dump>
@@ -11168,7 +11161,7 @@
 	<software>
 		<title xml:lang="en">Oyoide Tango</title>
 		<system>MSX</system>
-		<company>Hal</company>
+		<company>HAL Laboratory</company>
 		<year>1984</year>
 		<country>JP</country>
 		<dump>
@@ -11470,7 +11463,7 @@
 	<software>
 		<title xml:lang="en">Payload</title>
 		<system>MSX</system>
-		<company>Sony Corp - Zap Corp</company>
+		<company>Sony - Zap</company>
 		<year>1985</year>
 		<country>JP</country>
 		<dump>
@@ -11628,7 +11621,7 @@
 	<software>
 		<title xml:lang="en">Picture Puzzle</title>
 		<system>MSX</system>
-		<company>Hal</company>
+		<company>HAL Laboratory</company>
 		<year>1983</year>
 		<country>JP</country>
 		<dump>
@@ -11647,7 +11640,7 @@
 	<software>
 		<title xml:lang="en">Picture Puzzle 1st version</title>
 		<system>MSX</system>
-		<company>Karoshi Corp.</company>
+		<company>Karoshi Corporation</company>
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
@@ -11660,7 +11653,7 @@
 	<software>
 		<title xml:lang="en">Picture Puzzle 2nd version</title>
 		<system>MSX</system>
-		<company>Karoshi Corp.</company>
+		<company>Karoshi Corporation</company>
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
@@ -12075,7 +12068,7 @@
 	<software>
 		<title xml:lang="en">PSG Sampler 1st version</title>
 		<system>MSX</system>
-		<company>Karoshi Corp.</company>
+		<company>Karoshi Corporation</company>
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
@@ -12088,7 +12081,7 @@
 	<software>
 		<title xml:lang="en">PSG Sampler 2nd version</title>
 		<system>MSX</system>
-		<company>Karoshi Corp.</company>
+		<company>Karoshi Corporation</company>
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
@@ -12101,8 +12094,8 @@
 	<software>
 		<title xml:lang="en">PSG Sampler 3rd version</title>
 		<system>MSX</system>
-		<company>2005</company>
-		<year>19xx</year>
+		<company>Karoshi Corporation</company>
+		<year>2005</year>
 		<country>ES</country>
 		<dump>
 			<original value="false"/>
@@ -12665,7 +12658,7 @@
 	<software>
 		<title xml:lang="en">Roller Ball</title>
 		<system>MSX</system>
-		<company>Hal</company>
+		<company>HAL Laboratory</company>
 		<year>1984</year>
 		<country>JP</country>
 		<dump>
@@ -13320,7 +13313,7 @@
 	<software>
 		<title xml:lang="en">Skooter</title>
 		<system>MSX</system>
-		<company>Byte Busters</company>
+		<company>Bytebusters</company>
 		<year>1987</year>
 		<country>NL</country>
 		<dump>
@@ -13436,7 +13429,7 @@
 	<software>
 		<title xml:lang="en">Snail Maze Beta 1 Version</title>
 		<system>MSX</system>
-		<company>Karoshi Corp.</company>
+		<company>Karoshi Corporation</company>
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
@@ -13449,7 +13442,7 @@
 	<software>
 		<title xml:lang="en">Snail Maze Beta 2 Version</title>
 		<system>MSX</system>
-		<company>Karoshi Corp.</company>
+		<company>Karoshi Corporation</company>
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
@@ -13462,7 +13455,7 @@
 	<software>
 		<title xml:lang="en">Snail Maze Final Version</title>
 		<system>MSX</system>
-		<company>Karoshi Corp.</company>
+		<company>Karoshi Corporation</company>
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
@@ -13475,7 +13468,7 @@
 	<software>
 		<title xml:lang="en">Snake-It</title>
 		<system>MSX</system>
-		<company>Hal</company>
+		<company>HAL Laboratory</company>
 		<year>1986</year>
 		<country>JP</country>
 		<dump>
@@ -13495,7 +13488,7 @@
 			<original value="false"/>
 			<megarom>
 				<type>Normal</type>
-				<hash algo="sha1">e168d460c2acc0f25523e2b99861d187d1aaac00	</hash>
+				<hash algo="sha1">e168d460c2acc0f25523e2b99861d187d1aaac00</hash>
 				<remark>
 					<text>MSXDev05</text>
 				</remark>
@@ -13570,7 +13563,7 @@
 	<software>
 		<title xml:lang="en">Soukoban Pocket Edition</title>
 		<system>MSX</system>
-		<company>Karoshi Corp.</company>
+		<company>Karoshi Corporation</company>
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
@@ -13583,7 +13576,7 @@
 	<software>
 		<title xml:lang="en">Space Buster</title>
 		<system>MSX</system>
-		<company>Byte Busters</company>
+		<company>Bytebusters</company>
 		<year>1985</year>
 		<country>NL</country>
 		<dump>
@@ -13658,7 +13651,7 @@
 	<software>
 		<title xml:lang="en">Space Maze Attack</title>
 		<system>MSX</system>
-		<company>Hal</company>
+		<company>HAL Laboratory</company>
 		<year>1983</year>
 		<country>JP</country>
 		<dump>
@@ -13683,7 +13676,7 @@
 	<software>
 		<title xml:lang="en">Space Trouble</title>
 		<system>MSX</system>
-		<company>Hal</company>
+		<company>HAL Laboratory</company>
 		<year>1984</year>
 		<country>JP</country>
 		<dump>
@@ -13955,7 +13948,7 @@
 	<software>
 		<title xml:lang="en">Step Up</title>
 		<system>MSX</system>
-		<company>Hal</company>
+		<company>HAL Laboratory</company>
 		<year>1983</year>
 		<country>JP</country>
 		<dump>
@@ -14031,7 +14024,7 @@
 	<software>
 		<title xml:lang="en">Stratos 1st version</title>
 		<system>MSX</system>
-		<company>CEZ Games Studio</company>
+		<company>CEZ GS (ComputerEmuzone Game Studio)</company>
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
@@ -14044,7 +14037,7 @@
 	<software>
 		<title xml:lang="en">Stratos 2nd version</title>
 		<system>MSX</system>
-		<company>CEZ Games Studio</company>
+		<company>CEZ GS (ComputerEmuzone Game Studio)</company>
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
@@ -14057,7 +14050,7 @@
 	<software>
 		<title xml:lang="en">Stratos 3rd version</title>
 		<system>MSX</system>
-		<company>CEZ Games Studio</company>
+		<company>CEZ GS (ComputerEmuzone Game Studio)</company>
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
@@ -14070,7 +14063,7 @@
 	<software>
 		<title xml:lang="en">Street Master</title>
 		<system>MSX</system>
-		<company>1991-1992</company>
+		<company>Zemina</company>
 		<year>19xx</year>
 		<country>KR</country>
 		<dump>
@@ -14087,6 +14080,7 @@
 	<software>
 		<title xml:lang="en">Sudoku</title>
 		<system>MSX</system>
+		<company>dvik &#38; joyrex</company>
 		<year>2006</year>
 		<country>NL</country>
 		<dump>
@@ -14133,7 +14127,7 @@
 	<software>
 		<title xml:lang="en">Super Billiards</title>
 		<system>MSX</system>
-		<company>Hal</company>
+		<company>HAL Laboratory</company>
 		<year>1984</year>
 		<country>JP</country>
 		<dump>
@@ -14494,7 +14488,7 @@
 	<software>
 		<title xml:lang="en">Super Snake</title>
 		<system>MSX</system>
-		<company>Hal</company>
+		<company>HAL Laboratory</company>
 		<year>1983</year>
 		<country>JP</country>
 		<dump>
@@ -15002,7 +14996,7 @@
 	<software>
 		<title xml:lang="en">Tetsuman</title>
 		<system>MSX</system>
-		<company>Hal</company>
+		<company>HAL Laboratory</company>
 		<year>1985</year>
 		<country>JP</country>
 		<dump>
@@ -15948,7 +15942,7 @@
 	<software>
 		<title xml:lang="en">Yahtzee</title>
 		<system>MSX</system>
-		<company>Daniel Vik (dvik &#38; joyrex productions)</company>
+		<company>dvik &#38; joyrex productions</company>
 		<year>2007</year>
 		<country>US</country>
 		<dump>
@@ -16268,7 +16262,7 @@
 			<rom>
 				<hash algo="sha1">46e9ed7b7f6dfda8eee266476c9ebc4dd9d8fcc2</hash>
 				<remark>
-					<text>Doesn\&#39;t work correctly in open MSX yet with 16 kB RAM.</text>
+					<text>Doesn&#39;t work correctly in open MSX yet with 16 kB RAM.</text>
 				</remark>
 			</rom>
 		</dump>
@@ -17896,7 +17890,7 @@
 	<software>
 		<title xml:lang="en">Halnote</title>
 		<system>MSX</system>
-		<company>Hal</company>
+		<company>HAL Laboratory</company>
 		<year>1987</year>
 		<country>JP</country>
 		<dump>
@@ -18031,7 +18025,7 @@
 	<software>
 		<title xml:lang="en">Hole In One Special</title>
 		<system>MSX</system>
-		<company>Hal</company>
+		<company>HAL Laboratory</company>
 		<year>1987</year>
 		<country>JP</country>
 		<dump>
@@ -18869,7 +18863,7 @@
 	<software>
 		<title xml:lang="en">Ninja Kun - Ashura no Sho</title>
 		<system>MSX</system>
-		<company>Hal</company>
+		<company>HAL Laboratory</company>
 		<year>1987</year>
 		<country>JP</country>
 		<dump>
@@ -18974,7 +18968,7 @@
 	<software>
 		<title xml:lang="en">Pachipro Densetsu</title>
 		<system>MSX</system>
-		<company>Hal</company>
+		<company>HAL Laboratory</company>
 		<year>1988</year>
 		<country>JP</country>
 		<dump>
@@ -19189,7 +19183,7 @@
 				<type>KonamiSCC</type>
 				<hash algo="sha1">2312bff70c83e60d1ca0fb9ca78a50637d02771c</hash>
 				<remark>
-					<text>Jp-Kr</text>
+					<text>JP-KR</text>
 				</remark>
 			</megarom>
 		</dump>
@@ -19871,7 +19865,7 @@
 	<software>
 		<title xml:lang="en">Tetris</title>
 		<system>MSX</system>
-		<company>Bps</company>
+		<company>Bps - ELORG</company>
 		<year>1988</year>
 		<country>JP</country>
 		<dump>
@@ -20230,7 +20224,7 @@
 	<software>
 		<title xml:lang="en">Zukkoke Yajikita Onmitsudoutyuu</title>
 		<system>MSX</system>
-		<company>Hal</company>
+		<company>HAL Laboratory</company>
 		<year>1987</year>
 		<country>JP</country>
 		<dump>
@@ -24256,5 +24250,5 @@ Roms in this database : 2260
 Good MSX entries 		: 755
 SHA1 values 			: 2260
 CRC32 values 			: 0
-Parse time 16.991 seconds on Sat Dec 29 22:52:19 CET 2007
+Parse time 7.716 seconds on Tue Jan 1 2:35:51 CET 2008
  -->
