@@ -5,7 +5,7 @@
 
 #include "EmuDuration.hh"
 #include "EmuTime.hh"
-#include "Math.hh"
+#include "DivModByConst.hh"
 #include "static_assert.hh"
 #include <cassert>
 
@@ -72,7 +72,8 @@ public:
 	  */
 	unsigned getTicksTill_fast(const EmuTime& e) const {
 		assert(e.time >= lastTick.time);
-		return Math::div_64_32(e.time - lastTick.time, MASTER_TICKS32);
+		DivModByConst<MASTER_TICKS32> dm;
+		return dm.div(e.time - lastTick.time);
 	}
 
 	/** Calculate the time at which this clock will have ticked the given
@@ -101,8 +102,8 @@ public:
 	  */
 	void advance_fast(const EmuTime& e) {
 		assert(lastTick.time <= e.time);
-		lastTick.time = e.time -
-			Math::mod_64_32(e.time - lastTick.time, MASTER_TICKS32);
+		DivModByConst<MASTER_TICKS32> dm;
+		lastTick.time = e.time - dm.mod(e.time - lastTick.time);
 	}
 
 	/** Advance this clock by the given number of ticks.

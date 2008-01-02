@@ -4,7 +4,7 @@
 #define DYNAMICCLOCK_HH
 
 #include "EmuTime.hh"
-#include "Math.hh"
+#include "DivModBySame.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -43,7 +43,7 @@ public:
 	  */
 	unsigned getTicksTill(const EmuTime& e) const {
 		assert(e.time >= lastTick.time);
-		return Math::div_64_32(e.time - lastTick.time, step);
+		return divmod.div(e.time - lastTick.time);
 	}
 
 	/** Calculate the number of ticks this clock has to tick to reach
@@ -52,7 +52,7 @@ public:
 	  */
 	unsigned getTicksTillUp(const EmuTime& e) const {
 		assert(e.time >= lastTick.time);
-		return Math::div_64_32(e.time - lastTick.time + (step - 1), step);
+		return divmod.div(e.time - lastTick.time + (step - 1));
 	}
 
 	/** Change the frequency at which this clock ticks.
@@ -61,6 +61,7 @@ public:
 	void setFreq(unsigned freq) {
 		step = MAIN_FREQ32 / freq;
 		assert(step);
+		divmod.setDivisor(step);
 	}
 
 	/** Returns the frequency (in Hz) at which this clock ticks.
@@ -83,7 +84,7 @@ public:
 	  */
 	void advance(const EmuTime& e) {
 		assert(lastTick.time <= e.time);
-		lastTick.time = e.time - Math::mod_64_32(e.time - lastTick.time, step);
+		lastTick.time = e.time - divmod.mod(e.time - lastTick.time);
 	}
 
 	/** Advance this clock by the given number of ticks.
@@ -121,6 +122,8 @@ private:
 	  */
 	unsigned step; // changed uint64 -> unsigned for performance reasons
 	               // this is _heavily_ used in the CPU code
+
+	DivModBySame divmod;
 };
 
 } // namespace openmsx

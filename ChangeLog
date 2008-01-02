@@ -1,5 +1,12 @@
 $Id$
 
+2008-01-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added DivModByConst and DivModBySame utility classes:
+	   - these allow to replace a 64-bit by 32-bit division or modulo
+	     operation by a multiplication/addition/shift. This helps if
+	     the divider is a constant, especially on CPUs without division
+	     instructions (like ARM)
+
 2008-01-01 Patrick van Arkel (vampiermsx@gmail.com)
 	* Added Original ROM tag to database and added tag handeling to
 	  RomInfo.cc.

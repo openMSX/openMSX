@@ -11,7 +11,9 @@ SRC_HDR:= \
 	MemoryOps \
 	StringOp \
 	Unicode \
-	sha1
+	sha1 \
+	uint128 \
+	DivModBySame
 
 HDR_ONLY:= \
 	FixedPoint \
@@ -22,6 +24,7 @@ HDR_ONLY:= \
 	inline \
 	noncopyable \
 	shared_ptr \
-	static_assert
+	static_assert \
+	DivModByConst
 
 include build/node-end.mk
