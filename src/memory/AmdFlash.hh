@@ -17,7 +17,7 @@ class XMLElement;
 class AmdFlash : private noncopyable
 {
 public:
-	AmdFlash(const Rom& rom, unsigned logSectorSize,
+	AmdFlash(const Rom& rom, unsigned logSectorSize, unsigned totalSectors,
 	         unsigned writeProtectedFlags, const XMLElement& config);
 	~AmdFlash();
 
@@ -43,6 +43,7 @@ private:
 	std::auto_ptr<SRAM> ram;
 	const unsigned logSectorSize;
 	const unsigned sectorMask;
+	const unsigned size;
 	std::vector<int> writeAddress;
 	std::vector<const byte*> readAddress;
 	unsigned cmdAddr[2];

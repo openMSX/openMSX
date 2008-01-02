@@ -5,20 +5,21 @@
 #include "SRAM.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"
+#include "MSXDevice.hh"
 #include <cstring>
 #include <cassert>
 
 namespace openmsx {
 
 // writeProtectedFlags:  i-th bit=1 -> i-th sector write-protected
-AmdFlash::AmdFlash(const Rom& rom_, unsigned logSectorSize_,
+AmdFlash::AmdFlash(const Rom& rom_, unsigned logSectorSize_, unsigned totalSectors,
                    unsigned writeProtectedFlags, const XMLElement& config)
 	: rom(rom_)
 	, logSectorSize(logSectorSize_)
 	, sectorMask((1 << logSectorSize) -1)
+	, size(totalSectors << logSectorSize)
 	, state(ST_IDLE)
 {
-	unsigned totalSectors = rom.getSize() >> logSectorSize;
 	unsigned numWritable = 0;
 	writeAddress.resize(totalSectors);
 	for (unsigned i = 0; i < totalSectors; ++i) {
@@ -40,16 +41,26 @@ AmdFlash::AmdFlash(const Rom& rom_, unsigned logSectorSize_,
 	}
 
 	readAddress.resize(totalSectors);
+	unsigned numRomSectors = rom.getSize() >> logSectorSize;
 	for (unsigned i = 0; i < totalSectors; ++i) {
-		const byte* romPtr = &rom[i << logSectorSize];
 		if (writeAddress[i] != -1) {
 			readAddress[i] = &(*ram)[writeAddress[i]];
 			if (!loaded) {
-				memcpy(const_cast<byte*>(&(*ram)[writeAddress[i]]),
-				       romPtr, 1 << logSectorSize);
+				byte* ramPtr =
+					const_cast<byte*>(&(*ram)[writeAddress[i]]);
+				if (i < numRomSectors) {
+					const byte* romPtr = &rom[i << logSectorSize];
+					memcpy(ramPtr, romPtr, 1 << logSectorSize);
+				} else {
+					memset(ramPtr, 0xFF, 1 << logSectorSize);
+				}
 			}
 		} else {
-			readAddress[i] = romPtr;
+			if (i < numRomSectors) {
+				readAddress[i] = &rom[i << logSectorSize];
+			} else {
+				readAddress[i] = NULL;
+			}
 		}
 	}
 
@@ -88,7 +99,7 @@ void AmdFlash::setState(State newState)
 
 unsigned AmdFlash::getSize() const
 {
-	return rom.getSize();
+	return size;
 }
 
 byte AmdFlash::peek(unsigned address) const
@@ -97,7 +108,12 @@ byte AmdFlash::peek(unsigned address) const
 	unsigned sector = address >> logSectorSize;
 	if (state == ST_IDLE) {
 		unsigned offset = address & sectorMask;
-		return readAddress[sector][offset];
+		const byte* addr = readAddress[sector];
+		if (addr) {
+			return addr[offset];
+		} else {
+			return 0xFF;
+		}
 	} else {
 		switch (address & 0xff) {
 		case 0:
@@ -125,7 +141,8 @@ const byte* AmdFlash::getReadCacheLine(unsigned address) const
 		address &= getSize() - 1;
 		unsigned sector = address >> logSectorSize;
 		unsigned offset = address & sectorMask;
-		return &readAddress[sector][offset];
+		const byte* addr = readAddress[sector];
+		return addr ? &addr[offset] : MSXDevice::unmappedRead;
 	} else {
 		return NULL;
 	}

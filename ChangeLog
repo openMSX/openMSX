@@ -6,6 +6,8 @@ $Id$
 	     operation by a multiplication/addition/shift. This helps if
 	     the divider is a constant, especially on CPUs without division
 	     instructions (like ARM)
+	* Always use 512kb flash for Manbow2 and MegaFlashRomScc mapper types:
+	   Flash RAM saving now works in 'Lotus F3'.
 
 2008-01-01 Patrick van Arkel (vampiermsx@gmail.com)
 	* Added Original ROM tag to database and added tag handeling to

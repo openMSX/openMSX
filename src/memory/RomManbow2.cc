@@ -22,7 +22,7 @@ RomManbow2::RomManbow2(MSXMotherBoard& motherBoard, const XMLElement& config,
                        RomType type)
 	: MSXRom(motherBoard, config, rom_)
 	, scc(new SCC(motherBoard, "SCC", config, time))
-	, flash(new AmdFlash(*rom, 16, getWriteProtected(type), config))
+	, flash(new AmdFlash(*rom, 16, 512 / 64, getWriteProtected(type), config))
 	, cpu(motherBoard.getCPU())
 {
 	reset(time);
