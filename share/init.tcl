@@ -58,7 +58,3 @@ foreach script [lsort -unique [concat $user_scripts $system_scripts]] {
 		puts stderr "Error while executing $script\n$errorInfo"
 	}
 }
-
-# Execute the init.tcl file in the user's directory (if it exists)
-set user_init_tcl $env(OPENMSX_USER_DATA)/init.tcl
-if [file exists $user_init_tcl] { source $user_init_tcl }

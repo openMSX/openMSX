@@ -1,5 +1,11 @@
 $Id$
 
+2008-01-03 Maarten ter Huurne <maarten@treewalker.org>
+	* Removed execution of ~/.openMSX/share/init.tcl on openMSX startup.
+	  We have a "scripts" dir which can be used instead.
+	  This avoids an infinite loop if the user copies the openMSX internal
+	  version of "init.tcl" into the user dir.
+
 2008-01-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Created 5 new commands:
 	     - create_machine   (returns machine ID)
@@ -99,7 +105,7 @@ $Id$
 	     calc_slot_xxx() methods, this in turn enables the next two items
 	   - the egout member variable can become a local variable
 	   - rhythm channels don't use FM or AM, so we can use simpler
-	     calc_phase() and calc_envelope() variants 
+	     calc_phase() and calc_envelope() variants
 	   - small simplifications, removed dead code
 	* Made keyboard event parsing (for event recorder/replayer) slightly
 	  more robust
