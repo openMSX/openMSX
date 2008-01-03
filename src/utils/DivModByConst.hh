@@ -194,10 +194,10 @@ template<uint64 M, unsigned S> struct DBCAlgo2
 			"add	%[TH],%[CL]\n\t"
 			"adc	$0,%[CH]\n\t"
 
-			: [CH] "=&r"  (ch)
-			, [CL] "=r"   (cl)
-			, [TH] "=&r"  (th)
-			, [TL] "=&r"  (tl)
+			: [CH] "=&rm" (ch)
+			, [CL] "=rm"  (cl)
+			, [TH] "=&rm" (th)
+			, [TL] "=&rm" (tl)
 			: [AH] "i"    (ah)
 			, [AL] "i"    (al)
 			, [BH] "rm"   (bh)
@@ -284,10 +284,10 @@ template<unsigned DIVISOR, unsigned N> struct DBCAlgo3
 			"add	%[TH],%[CL]\n\t"
 			"adc	$0,%[CH]\n\t"
 
-			: [CH] "=&r"  (ch)
-			, [CL] "=r"   (cl)
-			, [TH] "=&r"  (th)
-			, [TL] "=&r"  (tl)
+			: [CH] "=&rm" (ch)
+			, [CL] "=rm"  (cl)
+			, [TH] "=&rm" (th)
+			, [TL] "=&rm" (tl)
 			: [AH] "i"    (ah)
 			, [AL] "i"    (al)
 			, [BH] "rm"   (bh)

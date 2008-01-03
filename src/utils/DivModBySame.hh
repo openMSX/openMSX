@@ -64,10 +64,10 @@ public:
 			"add	%[TH],%[CL]\n\t"
 			"adc	$0,%[CH]\n\t"
 
-			: [CH] "=r"   (ch)
-			, [CL] "=r"   (cl)
-			, [TH] "=&r"  (th)
-			, [TL] "=&r"  (tl)
+			: [CH] "=rm"  (ch)
+			, [CL] "=rm"  (cl)
+			, [TH] "=&rm" (th)
+			, [TL] "=&rm" (tl)
 			:      "[CH]" (ch)
 			,      "[CL]" (cl)
 			, [AH] "m"    (ah)
