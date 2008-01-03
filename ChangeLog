@@ -1,5 +1,19 @@
 $Id$
 
+2008-01-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Created 5 new commands:
+	     - create_machine   (returns machine ID)
+	     - delete_machine <machine-ID>
+	     - list_machines    (return list of machine IDs)
+	     - activate_machine <machine-ID>
+	     - <machine-ID>::load_machine <config-name>
+	  - These commands allow to implement the existing commands 'machine'
+	    and 'test_machine' as Tcl procs (not yet done).
+	  - This also allows to test extensions with the existing 'ext'
+	    command.
+	  - It also allows to have multiple running msx machine in memory,
+	    though ATM we always show the video/sound of the oldest machine.
+
 2008-01-02 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added DivModByConst and DivModBySame utility classes:
 	   - these allow to replace a 64-bit by 32-bit division or modulo

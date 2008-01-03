@@ -13,7 +13,7 @@ namespace openmsx {
 
 static const XMLElement& getRomConfig(MSXMotherBoard& motherBoard)
 {
-	return motherBoard.getMachineConfig().getConfig().getChild("PanasonicRom");
+	return motherBoard.getMachineConfig()->getConfig().getChild("PanasonicRom");
 }
 
 PanasonicMemory::PanasonicMemory(MSXMotherBoard& motherBoard)

@@ -7,9 +7,11 @@
 #include "EventListener.hh"
 #include "Semaphore.hh"
 #include "noncopyable.hh"
+#include "shared_ptr.hh"
 #include <string>
 #include <memory>
 #include <set>
+#include <vector>
 
 namespace openmsx {
 
@@ -31,6 +33,10 @@ class CommandLineParser;
 class QuitCommand;
 class MachineCommand;
 class TestMachineCommand;
+class CreateMachineCommand;
+class DeleteMachineCommand;
+class ListMachinesCommand;
+class ActivateMachineCommand;
 class AviRecorder;
 class ConfigInfo;
 class GlobalSettings;
@@ -83,7 +89,8 @@ public:
 private:
 	void createMachineSetting();
 	MSXMotherBoard& prepareMotherBoard(const std::string& machine);
-	void switchMotherBoard(std::auto_ptr<MSXMotherBoard> mb);
+	void prepareSwitch(shared_ptr<MSXMotherBoard> board);
+	void switchMotherBoard();
 	void deleteMotherBoard();
 
 	// Observer<Setting>
@@ -118,12 +125,19 @@ private:
 	const std::auto_ptr<QuitCommand> quitCommand;
 	const std::auto_ptr<MachineCommand> machineCommand;
 	const std::auto_ptr<TestMachineCommand> testMachineCommand;
+	const std::auto_ptr<CreateMachineCommand> createMachineCommand;
+	const std::auto_ptr<DeleteMachineCommand> deleteMachineCommand;
+	const std::auto_ptr<ListMachinesCommand> listMachinesCommand;
+	const std::auto_ptr<ActivateMachineCommand> activateMachineCommand;
 	const std::auto_ptr<AviRecorder> aviRecordCommand;
 	const std::auto_ptr<ConfigInfo> extensionInfo;
 	const std::auto_ptr<ConfigInfo> machineInfo;
 
-	std::auto_ptr<MSXMotherBoard> motherBoard;
-	std::auto_ptr<MSXMotherBoard> newMotherBoard;
+	shared_ptr<MSXMotherBoard> activeBoard;
+	shared_ptr<MSXMotherBoard> switchBoard;
+	bool needSwitch;
+	typedef std::vector<shared_ptr<MSXMotherBoard> > Boards;
+	Boards boards;
 
 	int blockedCounter;
 	bool paused;
@@ -137,6 +151,10 @@ private:
 
 	friend class QuitCommand;
 	friend class MachineCommand;
+	friend class CreateMachineCommand;
+	friend class DeleteMachineCommand;
+	friend class ListMachinesCommand;
+	friend class ActivateMachineCommand;
 };
 
 } // namespace openmsx

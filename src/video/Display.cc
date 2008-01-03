@@ -223,10 +223,12 @@ void Display::setWindowTitle()
 		title += " [" + BUILD_FLAVOUR + "]";
 	}
 	if (MSXMotherBoard* motherboard = reactor.getMotherBoard()) {
-		const XMLElement& config = motherboard->getMachineConfig().getConfig();
-		title += " - " +
-		    config.getChild("info").getChildData("manufacturer") + " " +
-		    config.getChild("info").getChildData("code");
+		if (const MachineConfig* machine = motherboard->getMachineConfig()) {
+			const XMLElement& config = machine->getConfig();
+			title += " - " +
+			    config.getChild("info").getChildData("manufacturer") + " " +
+			    config.getChild("info").getChildData("code");
+		}
 	}
 	videoSystem->setWindowTitle(title);
 }

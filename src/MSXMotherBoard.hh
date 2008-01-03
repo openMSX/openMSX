@@ -90,7 +90,7 @@ public:
 
 	byte readIRQVector();
 
-	const MachineConfig& getMachineConfig() const;
+	const MachineConfig* getMachineConfig() const;
 	void loadMachine(const std::string& machine);
 
 	typedef std::vector<ExtensionConfig*> Extensions;

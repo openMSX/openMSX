@@ -30,7 +30,7 @@ MSXMapperIO::MSXMapperIO(MSXMotherBoard& motherBoard, const XMLElement& config,
 	: MSXDevice(motherBoard, config)
 	, debuggable(new MapperIODebuggable(motherBoard, *this))
 {
-	string type = motherBoard.getMachineConfig().getConfig().getChildData(
+	string type = motherBoard.getMachineConfig()->getConfig().getChildData(
 	                               "MapperReadBackBits", "largest");
 	if (type == "5") {
 		mapperMask.reset(new MSXMapperIOTurboR());

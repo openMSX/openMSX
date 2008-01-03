@@ -67,6 +67,49 @@ private:
 	Reactor& reactor;
 };
 
+class CreateMachineCommand : public SimpleCommand
+{
+public:
+	CreateMachineCommand(CommandController& commandController, Reactor& reactor);
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
+private:
+	Reactor& reactor;
+};
+
+class DeleteMachineCommand : public SimpleCommand
+{
+public:
+	DeleteMachineCommand(CommandController& commandController, Reactor& reactor);
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
+private:
+	Reactor& reactor;
+};
+
+class ListMachinesCommand : public Command
+{
+public:
+	ListMachinesCommand(CommandController& commandController, Reactor& reactor);
+	virtual void execute(const vector<TclObject*>& tokens,
+	                     TclObject& result);
+	virtual string help(const vector<string>& tokens) const;
+private:
+	Reactor& reactor;
+};
+
+class ActivateMachineCommand : public SimpleCommand
+{
+public:
+	ActivateMachineCommand(CommandController& commandController, Reactor& reactor);
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
+private:
+	Reactor& reactor;
+};
+
 class PollEventGenerator : private Alarm
 {
 public:
@@ -96,6 +139,10 @@ Reactor::Reactor()
 	, quitCommand(new QuitCommand(getCommandController(), *this))
 	, machineCommand(new MachineCommand(getCommandController(), *this))
 	, testMachineCommand(new TestMachineCommand(getCommandController(), *this))
+	, createMachineCommand(new CreateMachineCommand(getCommandController(), *this))
+	, deleteMachineCommand(new DeleteMachineCommand(getCommandController(), *this))
+	, listMachinesCommand(new ListMachinesCommand(getCommandController(), *this))
+	, activateMachineCommand(new ActivateMachineCommand(getCommandController(), *this))
 	, aviRecordCommand(new AviRecorder(*this))
 	, extensionInfo(new ConfigInfo(
 	       getGlobalCommandController().getOpenMSXInfoCommand(),
@@ -103,6 +150,7 @@ Reactor::Reactor()
 	, machineInfo(new ConfigInfo(
 	       getGlobalCommandController().getOpenMSXInfoCommand(),
 	       "machines"))
+	, needSwitch(false)
 	, blockedCounter(0)
 	, paused(false)
 	, running(true)
@@ -266,11 +314,12 @@ void Reactor::createMachineSetting()
 		0, machines));
 }
 
+// used by CommandLineParser
 void Reactor::createMotherBoard(const string& machine)
 {
-	assert(!motherBoard.get());
+	assert(!activeBoard.get());
 	prepareMotherBoard(machine);
-	switchMotherBoard(newMotherBoard);
+	switchMotherBoard();
 }
 
 MSXMotherBoard& Reactor::prepareMotherBoard(const string& machine)
@@ -287,35 +336,63 @@ MSXMotherBoard& Reactor::prepareMotherBoard(const string& machine)
 	ScopedLock lock(mbSem);
 	// Note: loadMachine can throw an exception and in that case the
 	//       motherboard must be considered as not created at all.
-	std::auto_ptr<MSXMotherBoard> tmp(new MSXMotherBoard(*this));
+	shared_ptr<MSXMotherBoard> tmp(new MSXMotherBoard(*this));
 	tmp->loadMachine(machine);
-	newMotherBoard = tmp;
-	enterMainLoop();
-	return *newMotherBoard;
+	boards.push_back(tmp);
+
+	if (activeBoard.get()) {
+		Boards::iterator it = find(boards.begin(), boards.end(),
+		                           activeBoard);
+		assert(it != boards.end());
+		boards.erase(it); // only gets deleted after switch
+	}
+
+	prepareSwitch(tmp);
+	return *tmp;
 }
 
-void Reactor::switchMotherBoard(std::auto_ptr<MSXMotherBoard> mb)
+void Reactor::prepareSwitch(shared_ptr<MSXMotherBoard> board)
 {
 	assert(Thread::isMainThread());
+	switchBoard = board;
+	needSwitch = true;
+	enterMainLoop();
+}
+
+void Reactor::switchMotherBoard()
+{
+	assert(Thread::isMainThread());
+	assert(needSwitch);
+	assert(!switchBoard.get() ||
+	       find(boards.begin(), boards.end(), switchBoard) != boards.end());
 	ScopedLock lock(mbSem);
-	motherBoard = mb;
+	activeBoard = switchBoard;
+	switchBoard.reset();
+	needSwitch = false;
 	getEventDistributor().distributeEvent(
 		new SimpleEvent<OPENMSX_MACHINE_LOADED_EVENT>());
-	getGlobalCliComm().update(
-		CliComm::HARDWARE, motherBoard->getMachineID(), "select");
+	string machineID = activeBoard.get() ? activeBoard->getMachineID()
+	                                     : "";
+	getGlobalCliComm().update(CliComm::HARDWARE, machineID, "select");
 }
 
 MSXMotherBoard* Reactor::getMotherBoard() const
 {
 	assert(Thread::isMainThread());
-	return motherBoard.get();
+	return activeBoard.get();
 }
 
 void Reactor::deleteMotherBoard()
 {
 	assert(Thread::isMainThread());
 	ScopedLock lock(mbSem);
-	motherBoard.reset();
+	if (activeBoard.get()) {
+		Boards::iterator it = find(boards.begin(), boards.end(),
+		                           activeBoard);
+		assert(it != boards.end());
+		boards.erase(it);
+		activeBoard.reset(); // also deletes board
+	}
 }
 
 void Reactor::enterMainLoop()
@@ -327,8 +404,8 @@ void Reactor::enterMainLoop()
 		// This method gets called from within createMotherBoard().
 		lock.take(mbSem);
 	}
-	if (motherBoard.get()) {
-		motherBoard->exitCPULoopAsync();
+	if (activeBoard.get()) {
+		activeBoard->exitCPULoopAsync();
 	}
 }
 
@@ -340,8 +417,8 @@ void Reactor::run(CommandLineParser& parser)
 	                      // (also on machines without disk drive)
 
 	// select initial machine before executing scripts
-	if (newMotherBoard.get()) {
-		switchMotherBoard(newMotherBoard);
+	if (needSwitch) {
+		switchMotherBoard();
 	}
 
 	// execute init.tcl
@@ -382,10 +459,9 @@ void Reactor::run(CommandLineParser& parser)
 	PollEventGenerator pollEventGenerator(getEventDistributor());
 
 	while (running) {
-		if (newMotherBoard.get()) {
-			switchMotherBoard(newMotherBoard);
-			assert(motherBoard.get());
-			assert(!newMotherBoard.get());
+		if (needSwitch) {
+			switchMotherBoard();
+			assert(!needSwitch);
 		}
 		getEventDistributor().deliverEvents();
 		MSXMotherBoard* motherboard = getMotherBoard();
@@ -556,6 +632,158 @@ void TestMachineCommand::tabCompletion(vector<string>& tokens) const
 	set<string> machines;
 	Reactor::getHwConfigs("machines", machines);
 	completeString(tokens, machines);
+}
+
+
+// class CreateMachineCommand
+
+CreateMachineCommand::CreateMachineCommand(
+	CommandController& commandController, Reactor& reactor_)
+	: SimpleCommand(commandController, "create_machine")
+	, reactor(reactor_)
+{
+}
+
+string CreateMachineCommand::execute(const vector<string>& tokens)
+{
+	shared_ptr<MSXMotherBoard> mb(new MSXMotherBoard(reactor));
+	reactor.boards.push_back(mb);
+	return mb->getMachineID();
+}
+
+string CreateMachineCommand::help(const vector<string>& tokens) const
+{
+	// TODO
+	return "Creates a new (empty) MSX machine. Returns the ID for the new "
+	       "machine.\n"
+	       "Use 'load_machine' to actually load a machine configuration "
+	       "into this new machine.\n"
+	       "The main reason create_machine and load_machine are two "
+	       "seperate commands is that sometimes you already want to know "
+	       "the ID of the machine before load_machine starts emitting "
+	       "events for this machine.";
+}
+
+
+// class DeleteMachineCommand
+
+DeleteMachineCommand::DeleteMachineCommand(
+	CommandController& commandController, Reactor& reactor_)
+	: SimpleCommand(commandController, "delete_machine")
+	, reactor(reactor_)
+{
+}
+
+string DeleteMachineCommand::execute(const vector<string>& tokens)
+{
+	if (tokens.size() != 2) {
+		throw SyntaxError();
+	}
+	for (Reactor::Boards::iterator it = reactor.boards.begin();
+	     it != reactor.boards.end(); ++it) {
+		if ((*it)->getMachineID() == tokens[1]) {
+			shared_ptr<MSXMotherBoard> mb = *it;
+			if (mb == reactor.activeBoard) {
+				// if this was the active board, the actual
+				// delete happens after switch ...
+				reactor.prepareSwitch(
+					shared_ptr<MSXMotherBoard>(NULL));
+			}
+			// ... otherwise the delete already happens here
+			reactor.boards.erase(it);
+			return "";
+		}
+	}
+	throw CommandException("No machine with ID: " + tokens[1]);
+}
+
+string DeleteMachineCommand::help(const vector<string>& tokens) const
+{
+	// TODO
+	return "Deletes the given MSX machine.";
+}
+
+void DeleteMachineCommand::tabCompletion(vector<string>& tokens) const
+{
+	set<string> ids;
+	for (Reactor::Boards::const_iterator it = reactor.boards.begin();
+	     it != reactor.boards.end(); ++it) {
+		ids.insert((*it)->getMachineID());
+	}
+	completeString(tokens, ids);
+}
+
+
+// class ListMachinesCommand
+
+ListMachinesCommand::ListMachinesCommand(
+	CommandController& commandController, Reactor& reactor_)
+	: Command(commandController, "list_machines")
+	, reactor(reactor_)
+{
+}
+
+void ListMachinesCommand::execute(const vector<TclObject*>& tokens,
+                                  TclObject& result)
+{
+	for (Reactor::Boards::const_iterator it = reactor.boards.begin();
+	     it != reactor.boards.end(); ++it) {
+		result.addListElement((*it)->getMachineID());
+	}
+}
+
+string ListMachinesCommand::help(const vector<string>& tokens) const
+{
+	return "Returns a list of all machine IDs.";
+}
+
+
+// class ActivateMachineCommand
+
+ActivateMachineCommand::ActivateMachineCommand(
+	CommandController& commandController, Reactor& reactor_)
+	: SimpleCommand(commandController, "activate_machine")
+	, reactor(reactor_)
+{
+}
+
+string ActivateMachineCommand::execute(const vector<string>& tokens)
+{
+	switch (tokens.size()) {
+	case 1:
+		return reactor.activeBoard.get()
+		     ? reactor.activeBoard->getMachineID()
+		     : "";
+	case 2:
+		for (Reactor::Boards::iterator it = reactor.boards.begin();
+		     it != reactor.boards.end(); ++it) {
+			if ((*it)->getMachineID() == tokens[1]) {
+				reactor.prepareSwitch(*it);
+				return tokens[1];
+			}
+		}
+		throw CommandException("No machine with ID: " + tokens[1]);
+	default:
+		throw SyntaxError();
+	}
+}
+
+string ActivateMachineCommand::help(const vector<string>& tokens) const
+{
+	return "Make another machine the active msx machine.\n"
+	       "Or when invoked without arguments, query the ID of the "
+	       "active msx machine.";
+}
+
+void ActivateMachineCommand::tabCompletion(vector<string>& tokens) const
+{
+	// TODO same as DeleteMachineCommand
+	set<string> ids;
+	for (Reactor::Boards::const_iterator it = reactor.boards.begin();
+	     it != reactor.boards.end(); ++it) {
+		ids.insert((*it)->getMachineID());
+	}
+	completeString(tokens, ids);
 }
 
 

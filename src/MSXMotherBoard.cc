@@ -51,6 +51,7 @@ namespace openmsx {
 
 class AddRemoveUpdate;
 class ResetCmd;
+class LoadMachineCmd;
 class ListExtCmd;
 class ExtCmd;
 class RemoveExtCmd;
@@ -80,7 +81,7 @@ public:
 	void doReset(const EmuTime& time);
 	byte readIRQVector();
 
-	const MachineConfig& getMachineConfig() const;
+	const MachineConfig* getMachineConfig() const;
 	void loadMachine(const string& machine);
 	const MSXMotherBoard::Extensions& getExtensions() const;
 	ExtensionConfig* findExtension(const string& extensionName);
@@ -170,6 +171,7 @@ private:
 	auto_ptr<RenShaTurbo> renShaTurbo;
 
 	auto_ptr<ResetCmd>     resetCommand;
+	auto_ptr<LoadMachineCmd> loadMachineCommand;
 	auto_ptr<ListExtCmd>   listExtCommand;
 	auto_ptr<ExtCmd>       extCommand;
 	auto_ptr<RemoveExtCmd> removeExtCommand;
@@ -202,6 +204,17 @@ public:
 	virtual string execute(const vector<string>& tokens,
 	                       const EmuTime& time);
 	virtual string help(const vector<string>& tokens) const;
+private:
+	MSXMotherBoardImpl& motherBoard;
+};
+
+class LoadMachineCmd : public SimpleCommand
+{
+public:
+	LoadMachineCmd(MSXMotherBoardImpl& motherBoard);
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
 private:
 	MSXMotherBoardImpl& motherBoard;
 };
@@ -277,6 +290,7 @@ MSXMotherBoardImpl::MSXMotherBoardImpl(MSXMotherBoard& self_, Reactor& reactor_)
 	self.pimple.reset(this);
 
 	resetCommand.reset(new ResetCmd(*this));
+	loadMachineCommand.reset(new LoadMachineCmd(*this));
 	listExtCommand.reset(new ListExtCmd(*this));
 	extCommand.reset(new ExtCmd(*this));
 	removeExtCommand.reset(new RemoveExtCmd(*this));
@@ -329,10 +343,9 @@ const string& MSXMotherBoardImpl::getMachineName() const
 	return machineName;
 }
 
-const MachineConfig& MSXMotherBoardImpl::getMachineConfig() const
+const MachineConfig* MSXMotherBoardImpl::getMachineConfig() const
 {
-	assert(machineConfig.get());
-	return *machineConfig;
+	return machineConfig.get();
 }
 
 void MSXMotherBoardImpl::loadMachine(const string& machine)
@@ -340,7 +353,6 @@ void MSXMotherBoardImpl::loadMachine(const string& machine)
 	assert(machineName.empty());
 	assert(extensions.empty());
 	assert(!machineConfig.get());
-	machineName = machine;
 
 	try {
 		machineConfig.reset(new MachineConfig(self, machine));
@@ -362,6 +374,7 @@ void MSXMotherBoardImpl::loadMachine(const string& machine)
 	if (powerSetting.getValue()) {
 		powerUp();
 	}
+	machineName = machine;
 }
 
 ExtensionConfig& MSXMotherBoardImpl::loadExtension(const string& name)
@@ -554,9 +567,9 @@ MSXCPU& MSXMotherBoardImpl::getCPU()
 MSXCPUInterface& MSXMotherBoardImpl::getCPUInterface()
 {
 	if (!msxCpuInterface.get()) {
-		// TODO assert hw config already loaded
+		assert(getMachineConfig());
 		msxCpuInterface = MSXCPUInterface::create(
-			self, getMachineConfig().getConfig());
+			self, getMachineConfig()->getConfig());
 	}
 	return *msxCpuInterface;
 }
@@ -580,7 +593,8 @@ MSXDeviceSwitch& MSXMotherBoardImpl::getDeviceSwitch()
 CassettePortInterface& MSXMotherBoardImpl::getCassettePort()
 {
 	if (!cassettePort.get()) {
-		if (getMachineConfig().getConfig().findChild("CassettePort")) {
+		assert(getMachineConfig());
+		if (getMachineConfig()->getConfig().findChild("CassettePort")) {
 			cassettePort.reset(new CassettePort(self));
 		} else {
 			cassettePort.reset(new DummyCassettePort());
@@ -592,8 +606,9 @@ CassettePortInterface& MSXMotherBoardImpl::getCassettePort()
 RenShaTurbo& MSXMotherBoardImpl::getRenShaTurbo()
 {
 	if (!renShaTurbo.get()) {
+		assert(getMachineConfig());
 		renShaTurbo.reset(new RenShaTurbo(
-			getCommandController(), getMachineConfig().getConfig()));
+			getCommandController(), getMachineConfig()->getConfig()));
 	}
 	return *renShaTurbo;
 }
@@ -876,7 +891,39 @@ string ResetCmd::execute(const vector<string>& /*tokens*/,
 
 string ResetCmd::help(const vector<string>& /*tokens*/) const
 {
-	return "Resets the MSX.\n";
+	return "Resets the MSX.";
+}
+
+
+// LoadMachineCmd
+LoadMachineCmd::LoadMachineCmd(MSXMotherBoardImpl& motherBoard_)
+	: SimpleCommand(motherBoard_.getMSXCommandController(), "load_machine")
+	, motherBoard(motherBoard_)
+{
+}
+
+string LoadMachineCmd::execute(const vector<string>& tokens)
+{
+	if (tokens.size() != 2) {
+		throw SyntaxError();
+	}
+	if (motherBoard.getMachineConfig()) {
+		throw CommandException("Already loaded a config in this machine.");
+	}
+	motherBoard.loadMachine(tokens[1]);
+	return motherBoard.getMachineName();
+}
+
+string LoadMachineCmd::help(const vector<string>& /*tokens*/) const
+{
+	return "Load a msx machine configuration into an empty machine.";
+}
+
+void LoadMachineCmd::tabCompletion(vector<string>& tokens) const
+{
+	set<string> machines;
+	Reactor::getHwConfigs("machines", machines);
+	completeString(tokens, machines);
 }
 
 
@@ -1132,7 +1179,7 @@ byte MSXMotherBoard::readIRQVector()
 {
 	return pimple->readIRQVector();
 }
-const MachineConfig& MSXMotherBoard::getMachineConfig() const
+const MachineConfig* MSXMotherBoard::getMachineConfig() const
 {
 	return pimple->getMachineConfig();
 }

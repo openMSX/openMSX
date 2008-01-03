@@ -180,7 +180,7 @@ std::auto_ptr<DummyDevice> DeviceFactory::createDummyDevice(
 	static XMLElement config(createConfig("Dummy", "empty"));
 	std::auto_ptr<DummyDevice> result(
 		new DummyDevice(motherBoard, config));
-	result->init(motherBoard.getMachineConfig());
+	result->init(*motherBoard.getMachineConfig());
 	return result;
 }
 
@@ -190,7 +190,7 @@ std::auto_ptr<MSXDeviceSwitch> DeviceFactory::createDeviceSwitch(
 	static XMLElement config(createConfig("DeviceSwitch", "DeviceSwitch"));
 	std::auto_ptr<MSXDeviceSwitch> result(
 		new MSXDeviceSwitch(motherBoard, config));
-	result->init(motherBoard.getMachineConfig());
+	result->init(*motherBoard.getMachineConfig());
 	return result;
 }
 
@@ -200,7 +200,7 @@ std::auto_ptr<MSXMapperIO> DeviceFactory::createMapperIO(
 	static XMLElement config(createConfig("MapperIO", "MapperIO"));
 	std::auto_ptr<MSXMapperIO> result(
 		new MSXMapperIO(motherBoard, config, EmuTime::zero));
-	result->init(motherBoard.getMachineConfig());
+	result->init(*motherBoard.getMachineConfig());
 	return result;
 }
 
@@ -210,7 +210,7 @@ std::auto_ptr<VDPIODelay> DeviceFactory::createVDPIODelay(
 	static XMLElement config(createConfig("VDPIODelay", "VDPIODelay"));
 	std::auto_ptr<VDPIODelay> result(
 		new VDPIODelay(motherBoard, config, EmuTime::zero));
-	result->init(motherBoard.getMachineConfig());
+	result->init(*motherBoard.getMachineConfig());
 	return result;
 }
 
