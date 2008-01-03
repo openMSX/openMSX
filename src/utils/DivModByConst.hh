@@ -164,10 +164,12 @@ template<uint64 M, unsigned S> struct DBCAlgo2
 	unsigned operator()(uint64 dividend) const
 	{
 		typedef DBCReduce<M, S> R;
+	#if defined(ASM_X86_32) || defined(__arm__)
 		unsigned ah = R::M2 >> 32;
 		unsigned al = unsigned(R::M2);
 		unsigned bh = dividend >> 32;
 		unsigned bl = unsigned(dividend);
+	#endif
 	#ifdef ASM_X86_32
 		unsigned th, tl, ch, cl;
 		asm volatile (
@@ -249,10 +251,12 @@ template<unsigned DIVISOR, unsigned N> struct DBCAlgo3
 	unsigned operator()(uint64 dividend) const
 	{
 		typedef DBCReduce<M, S + N> R;
+	#if defined(ASM_X86_32) || defined(__arm__)
 		unsigned ah = R::M2 >> 32;
 		unsigned al = unsigned(R::M2);
 		unsigned bh = dividend >> 32;
 		unsigned bl = dividend;
+	#endif
 	#ifdef ASM_X86_32
 		unsigned th, tl, ch, cl;
 		asm volatile (
