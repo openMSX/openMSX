@@ -1014,7 +1014,7 @@
 		<year>2007</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x8000</start>
@@ -1315,7 +1315,7 @@
 		<year>2006</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">65961a1926b24c8efa71f2ab68cbafa2d0122acf</hash>
 				<remark>
@@ -1331,7 +1331,7 @@
 		<year>2007</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">afe11b840b7bf0243b1c4f98309e274a3ddde35f</hash>
 				<remark>
@@ -1340,7 +1340,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">8a3749af3d6ff88404df59da9d9ac7990bbc318d</hash>
 				<remark>
@@ -1349,7 +1349,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">9267ea63e1d32095868eec1347a4eafbdfb5ef7e</hash>
 				<remark>
@@ -1504,7 +1504,7 @@
 		<year>2005</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">3e44a4e5608e01793877e62f82c12c2b82908461</hash>
@@ -1590,7 +1590,7 @@
 		<year>2005</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">46ecaf85f1ff1b4821670bf44ff1249fe1b13a35</hash>
@@ -2215,7 +2215,7 @@
 		<year>2007</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">317a7cc0ab90882d25d1185eeb9aca6b884c8879</hash>
 				<remark>
@@ -2224,7 +2224,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">37f302291c75847f4b87a82e3acbbf62eab625f8</hash>
 				<remark>
@@ -2477,7 +2477,7 @@
 		<year>2005</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -2488,7 +2488,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -2665,7 +2665,7 @@
 		<year>2005</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">ca770384382bd487dd7330552403f85d7edbb8ce</hash>
@@ -3260,7 +3260,7 @@
 		<year>2005</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -3385,7 +3385,7 @@
 		<year>2007</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x8000</start>
@@ -6134,7 +6134,7 @@
 		<year>2005</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -6145,7 +6145,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -6156,7 +6156,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -7217,7 +7217,7 @@
 		<year>2006</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -7432,7 +7432,7 @@
 		<year>2007</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">64f921c9c57aedb47663a269046d4c51388f41fb</hash>
 				<remark>
@@ -8971,7 +8971,7 @@
 		<year>2005</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">ea774f43f9c02064fcc07d5131691f5bd4e9c4f5</hash>
@@ -9041,7 +9041,7 @@
 		<year>2006</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -9072,7 +9072,7 @@
 		<year>2007</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>MegaFlashROMSCC</type>
 				<hash algo="sha1">0f2c5a7c6cc9ff591c911e4f3f204e425bd3cf50</hash>
@@ -9082,7 +9082,7 @@
 			</megarom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>MegaFlashROMSCC</type>
 				<hash algo="sha1">079bacc9708f711af90310f3e08f2abafa8fc919</hash>
@@ -9198,7 +9198,7 @@
 		<year>2005</year>
 		<country>JP</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">cb0d355627b8c036931a67666e425d8f9225a180</hash>
@@ -9208,7 +9208,7 @@
 			</megarom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">38a3c6659080b38d9a2655e869e9fc0ce3e26c5e</hash>
@@ -9349,7 +9349,7 @@
 		<year>2007</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">480fe052ff41f6f6aaa745c413012d1610f02c90</hash>
 				<remark>
@@ -9358,7 +9358,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">e94d34d164f5379ea85464b51743461e3f6c92ab</hash>
 				<remark>
@@ -9367,7 +9367,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">e6a0d6c40419647e6b17d30a000331a904c8f5df</hash>
 				<remark>
@@ -9383,7 +9383,7 @@
 		<year>2007</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>manbow2</type>
 				<hash algo="sha1">e3b9241291b5f19ab239726360258a31e02565a3</hash>
@@ -9958,7 +9958,7 @@
 		<year>2006</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>KonamiSCC</type>
 				<hash algo="sha1">aa6055ba0e433aa9c93df4444783cacb9628a7e2</hash>
@@ -9975,7 +9975,7 @@
 		<year>2006</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>KonamiSCC</type>
 				<hash algo="sha1">7b8015f919c8dd95db683f3f3d0799cf7ef1bc22</hash>
@@ -10254,7 +10254,7 @@
 		<year>2007</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>ASCII8</type>
 				<hash algo="sha1">72783ba5a0b9f33b4573952a1c721fc5d5025fd5</hash>
@@ -10264,7 +10264,7 @@
 			</megarom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<sccpluscart>
 				<boot>scc</boot>
 				<hash algo="sha1">168d59fca3170f56858f39d0b53067c0c0d414a8</hash>
@@ -10666,7 +10666,7 @@
 		<year>2005</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -10677,7 +10677,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -10836,7 +10836,7 @@
 		<year>2005</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>ASCII8</type>
 				<hash algo="sha1">22f9b0238ff48840fb7d45ac93a7f15495393920</hash>
@@ -10853,7 +10853,7 @@
 		<year>2006</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>ASCII8</type>
 				<hash algo="sha1">4b138e041947990309c228890914689908d46685</hash>
@@ -10870,7 +10870,7 @@
 		<year>2007</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">fcc1cf816657e90bb1e0a93898fd17a8325c2cd3</hash>
 				<remark>
@@ -11176,7 +11176,7 @@
 		<year>2006</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -11194,7 +11194,7 @@
 		<year>2007</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -11320,7 +11320,7 @@
 		<year>2005</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">9ab584be0a054e76d345ca937917f1ea195f7967</hash>
@@ -11368,7 +11368,7 @@
 		<year>2005</year>
 		<country>NL</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -11379,7 +11379,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -11410,7 +11410,7 @@
 		<year>2005</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -11421,7 +11421,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -11590,7 +11590,7 @@
 		<year>2006</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -11608,7 +11608,7 @@
 		<year>2007</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>ASCII8</type>
 				<hash algo="sha1">8c218c317e1e213e1c5e9439870929009d645a47</hash>
@@ -12788,7 +12788,7 @@
 		<year>2005</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -12799,7 +12799,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -13330,7 +13330,7 @@
 		<year>2006</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>ASCII8</type>
 				<hash algo="sha1">7a0a1c5570a3361ad75406eea07c93fdad9fde02</hash>
@@ -13347,7 +13347,7 @@
 		<year>2006</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>ASCII8</type>
 				<hash algo="sha1">e6ba7a6ecda80a1c844542be0b2a44a4a33dc113</hash>
@@ -13551,7 +13551,7 @@
 		<year>2005</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">e168d460c2acc0f25523e2b99861d187d1aaac00</hash>
@@ -13679,7 +13679,7 @@
 		<year>2005</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -13690,7 +13690,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -14150,7 +14150,7 @@
 		<year>2006</year>
 		<country>NL</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -15085,7 +15085,7 @@
 		<year>2005</year>
 		<country>NL</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">882a63a9655e53fddb1cd48761a1a09b28f7e5a3</hash>
@@ -15095,7 +15095,7 @@
 			</megarom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">e82bbd2d9dbbb30a2b4a259954c5484fa236733a</hash>
@@ -15112,7 +15112,7 @@
 		<year>2005</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">b433357683fb1154d75c677ba01893665880f483</hash>
@@ -15122,7 +15122,7 @@
 			</megarom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">6600fab90ca395517d0845f8f380b0e67541b392</hash>
@@ -15236,7 +15236,7 @@
 		<year>2007</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x8000</start>
@@ -15386,7 +15386,7 @@
 		<year>2006</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -15404,7 +15404,7 @@
 		<year>2005</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">1074acd37ee42661d86b75a8491365ed8ceaa6e0</hash>
@@ -15598,7 +15598,7 @@
 		<year>2007</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">73ec25854aae297c9c3da0a2d4b4f1eae14fe8c6</hash>
 				<remark>
@@ -15658,7 +15658,7 @@
 		<year>2005</year>
 		<country>NL</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">8ab1b72ce852a778a645f566a70fa18ee32fd021</hash>
@@ -15668,7 +15668,7 @@
 			</megarom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">83dee5f1fd4bdad33b095ed15870c52c96becc63</hash>
@@ -15821,7 +15821,7 @@
 		<year>2005</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">91186f361c8323605c79dc4551a768a4b9c5a320</hash>
@@ -16014,7 +16014,7 @@
 		<year>2007</year>
 		<country>US</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x8000</start>
@@ -19056,7 +19056,7 @@
 		<year>2005</year>
 		<country>NL</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -19074,7 +19074,7 @@
 		<year>2005</year>
 		<country>NL</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
