@@ -196,8 +196,8 @@ template<uint64 M, unsigned S> struct DBCAlgo2
 
 			: [CH] "=&rm" (ch)
 			, [CL] "=rm"  (cl)
-			, [TH] "=&rm" (th)
-			, [TL] "=&rm" (tl)
+			, [TH] "=&r"  (th)
+			, [TL] "=&r"  (tl)
 			: [AH] "i"    (ah)
 			, [AL] "i"    (al)
 			, [BH] "rm"   (bh)
@@ -286,8 +286,8 @@ template<unsigned DIVISOR, unsigned N> struct DBCAlgo3
 
 			: [CH] "=&rm" (ch)
 			, [CL] "=rm"  (cl)
-			, [TH] "=&rm" (th)
-			, [TL] "=&rm" (tl)
+			, [TH] "=&r"  (th)
+			, [TL] "=&r"  (tl)
 			: [AH] "i"    (ah)
 			, [AL] "i"    (al)
 			, [BH] "rm"   (bh)
