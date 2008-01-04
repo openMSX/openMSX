@@ -491,6 +491,7 @@ config:
 	@echo "Build configuration:"
 	@echo "  Platform: $(PLATFORM)"
 	@echo "  Flavour:  $(OPENMSX_FLAVOUR)"
+	@echo "  Compiler: $(CXX)"
 	@echo "  Profile:  $(OPENMSX_PROFILE)"
 	@echo "  Subset:   $(if $(OPENMSX_SUBSET),$(OPENMSX_SUBSET)*,full build)"
 
