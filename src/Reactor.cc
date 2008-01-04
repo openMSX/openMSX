@@ -644,16 +644,15 @@ CreateMachineCommand::CreateMachineCommand(
 {
 }
 
-string CreateMachineCommand::execute(const vector<string>& tokens)
+string CreateMachineCommand::execute(const vector<string>& /*tokens*/)
 {
 	shared_ptr<MSXMotherBoard> mb(new MSXMotherBoard(reactor));
 	reactor.boards.push_back(mb);
 	return mb->getMachineID();
 }
 
-string CreateMachineCommand::help(const vector<string>& tokens) const
+string CreateMachineCommand::help(const vector<string>& /*tokens*/) const
 {
-	// TODO
 	return "Creates a new (empty) MSX machine. Returns the ID for the new "
 	       "machine.\n"
 	       "Use 'load_machine' to actually load a machine configuration "
@@ -697,9 +696,8 @@ string DeleteMachineCommand::execute(const vector<string>& tokens)
 	throw CommandException("No machine with ID: " + tokens[1]);
 }
 
-string DeleteMachineCommand::help(const vector<string>& tokens) const
+string DeleteMachineCommand::help(const vector<string>& /*tokens*/) const
 {
-	// TODO
 	return "Deletes the given MSX machine.";
 }
 
@@ -723,7 +721,7 @@ ListMachinesCommand::ListMachinesCommand(
 {
 }
 
-void ListMachinesCommand::execute(const vector<TclObject*>& tokens,
+void ListMachinesCommand::execute(const vector<TclObject*>& /*tokens*/,
                                   TclObject& result)
 {
 	for (Reactor::Boards::const_iterator it = reactor.boards.begin();
@@ -732,7 +730,7 @@ void ListMachinesCommand::execute(const vector<TclObject*>& tokens,
 	}
 }
 
-string ListMachinesCommand::help(const vector<string>& tokens) const
+string ListMachinesCommand::help(const vector<string>& /*tokens*/) const
 {
 	return "Returns a list of all machine IDs.";
 }
@@ -768,7 +766,7 @@ string ActivateMachineCommand::execute(const vector<string>& tokens)
 	}
 }
 
-string ActivateMachineCommand::help(const vector<string>& tokens) const
+string ActivateMachineCommand::help(const vector<string>& /*tokens*/) const
 {
 	return "Make another machine the active msx machine.\n"
 	       "Or when invoked without arguments, query the ID of the "
