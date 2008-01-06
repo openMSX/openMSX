@@ -8,7 +8,7 @@
 namespace openmsx {
 
 static const int BUFSIZE = 16384;
-static int buffer[BUFSIZE];
+static int bufferInt[BUFSIZE + 4] __attribute__((aligned(16)));
 
 template <unsigned CHANNELS>
 ResampleLQ<CHANNELS>::ResampleLQ(Resample& input_, double ratio)
@@ -26,6 +26,9 @@ bool ResampleLQ<CHANNELS>::generateOutput(int* dataOut, unsigned num)
 	Pos end = pos + step * num;
 	int numInput = end.toInt();
 	assert((numInput + 1) <= BUFSIZE);
+	int* buffer = &bufferInt[4 - CHANNELS];
+	assert((long(&buffer[1 * CHANNELS]) & 15) == 0);
+
 	if (!input.generateInput(&buffer[1 * CHANNELS], numInput)) {
 		int last = 0;
 		for (unsigned j = 0; j < CHANNELS; ++j) {

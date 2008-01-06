@@ -75,10 +75,11 @@ void SamplePlayer::generateChannels(int** bufs, unsigned num)
 	for (unsigned i = 0; i < num; ++i) {
 		if (index < bufferSize) {
 			int samp = getSample(index++);
-			bufs[0][i] = 3 * samp;
+			bufs[0][i] += 3 * samp;
 		} else {
+			//bufs[0][i] += 0;
 			playing = false;
-			bufs[0][i] = 0;
+			break;
 		}
 	}
 }

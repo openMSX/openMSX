@@ -2049,10 +2049,10 @@ void YMF262Impl::generateChannels(int** bufs, unsigned num)
 		channels[17].chan_calc(LFO_AM);
 
 		for (int i = 0; i < 18; ++i) {
-			bufs[i][2 * j + 0] = chanout[i] & pan[4 * i + 0];
-			bufs[i][2 * j + 1] = chanout[i] & pan[4 * i + 1];
-			// unused c        = chanout[i] & pan[4 * i + 2];
-			// unused d        = chanout[i] & pan[4 * i + 3];
+			bufs[i][2 * j + 0] += chanout[i] & pan[4 * i + 0];
+			bufs[i][2 * j + 1] += chanout[i] & pan[4 * i + 1];
+			// unused c        += chanout[i] & pan[4 * i + 2];
+			// unused d        += chanout[i] & pan[4 * i + 3];
 		}
 
 		advance();

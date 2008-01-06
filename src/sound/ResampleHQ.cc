@@ -375,7 +375,7 @@ void ResampleHQ<CHANNELS>::prepareData(unsigned request)
 		bufEnd = available;
 		missing = std::min(missing, BUF_LEN - bufEnd);
 	}
-	int tmpBuf[missing * CHANNELS + 3];
+	int tmpBuf[missing * CHANNELS + 3] __attribute__((aligned(16)));
 	if (input.generateInput(tmpBuf, missing)) {
 		for (unsigned i = 0; i < missing * CHANNELS; ++i) {
 			buffer[bufEnd * CHANNELS + i] = tmpBuf[i];

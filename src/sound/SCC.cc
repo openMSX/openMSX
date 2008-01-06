@@ -461,7 +461,7 @@ void SCC::generateChannels(int** bufs, unsigned num)
 	for (unsigned i = 0; i < 5; ++i, enable >>= 1) {
 		if ((enable & 1) && (volume[i] || out[i])) {
 			for (unsigned j = 0; j < num; ++j) {
-				bufs[i][j] = out[i];
+				bufs[i][j] += out[i];
 				count[i] += incr[i];
 				// Note: Only for very small periods this loop will take
 				//       more than a single iteration.

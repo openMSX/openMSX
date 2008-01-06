@@ -216,7 +216,7 @@ void MSXMixer::generate(short* output, unsigned samples,
 
 	int stereoBuf[2 * samples];
 	int monoBuf[samples];
-	int tmpBuf[2 * samples + 3];
+	int tmpBuf[2 * samples + 3] __attribute__((aligned(16)));
 
 	static const unsigned HAS_MONO_FLAG = 1;
 	static const unsigned HAS_STEREO_FLAG = 2;

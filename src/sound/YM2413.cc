@@ -1132,7 +1132,7 @@ ALWAYS_INLINE void Global::calcChannel(Channel& ch, int* buf, unsigned num)
 		}
 		int fm = ch.mod.calc_slot_mod<HAS_MOD_PM, HAS_MOD_AM, HAS_MOD_FB>(
 		                      lfo_pm, lfo_am);
-		buf[sample] = ch.car.calc_slot_car<HAS_CAR_PM, HAS_CAR_AM>(
+		buf[sample] += ch.car.calc_slot_car<HAS_CAR_PM, HAS_CAR_AM>(
 		                      lfo_pm, lfo_am, fm);
 	}
 }
@@ -1235,7 +1235,7 @@ void Global::generateChannels(int** bufs, unsigned num)
 		if (channelActiveBits & (1 << 6)) {
 			Channel& ch6 = channels[6];
 			for (unsigned sample = 0; sample < num; ++sample) {
-				bufs[6][sample] = 2 *
+				bufs[6][sample] += 2 *
 				    ch6.car.calc_slot_car<false, false>(
 				        PhaseModulation(), 0, ch6.mod.calc_slot_mod<
 				                false, false, false>(PhaseModulation(), 0));
@@ -1249,7 +1249,7 @@ void Global::generateChannels(int** bufs, unsigned num)
 				noise_seed >>= 1;
 				bool noise_bit = noise_seed & 1;
 				if (noise_bit) noise_seed ^= 0x8003020;
-				bufs[7][sample] =
+				bufs[7][sample] +=
 					-2 * ch7.car.calc_slot_snare(noise_bit);
 			}
 		}
@@ -1259,7 +1259,7 @@ void Global::generateChannels(int** bufs, unsigned num)
 			for (unsigned sample = 0; sample < num; ++sample) {
 				ch8.car.calc_phase<false>(PhaseModulation());
 				ch7.mod.calc_phase<false>(PhaseModulation());
-				bufs[8][sample] =
+				bufs[8][sample] +=
 					-2 * ch8.car.calc_slot_cym(ch7.mod.cphase);
 			}
 		}
@@ -1274,14 +1274,14 @@ void Global::generateChannels(int** bufs, unsigned num)
 				if (noise_bit) noise_seed ^= 0x8003020;
 				ch8.car.calc_phase<false>(PhaseModulation());
 				ch7.mod.calc_phase<false>(PhaseModulation());
-				bufs[9][sample] =
+				bufs[9][sample] +=
 					2 * ch7.mod.calc_slot_hat(ch8.car.cphase,
 					                          noise_bit);
 			}
 		}
 		if (channelActiveBits & (1 << (8 + 9))) {
 			for (unsigned sample = 0; sample < num; ++sample) {
-				bufs[10][sample] = 2 * ch8.mod.calc_slot_tom();
+				bufs[10][sample] += 2 * ch8.mod.calc_slot_tom();
 			}
 		}
 	}

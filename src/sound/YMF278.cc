@@ -595,8 +595,8 @@ void YMF278Impl::generateChannels(int** bufs, unsigned num)
 		for (int i = 0; i < 24; i++) {
 			YMF278Slot& sl = slots[i];
 			if (!sl.active) {
-				bufs[i][2 * j + 0] = 0;
-				bufs[i][2 * j + 1] = 0;
+				//bufs[i][2 * j + 0] += 0;
+				//bufs[i][2 * j + 1] += 0;
 				continue;
 			}
 
@@ -610,8 +610,8 @@ void YMF278Impl::generateChannels(int** bufs, unsigned num)
 			volLeft  = std::max(0, volLeft);
 			volRight = std::max(0, volRight);
 
-			bufs[i][2 * j + 0] = (sample * volume[volLeft] ) >> 14;
-			bufs[i][2 * j + 1] = (sample * volume[volRight]) >> 14;
+			bufs[i][2 * j + 0] += (sample * volume[volLeft] ) >> 14;
+			bufs[i][2 * j + 1] += (sample * volume[volRight]) >> 14;
 
 			if (sl.lfo_active && sl.vib) {
 				int oct = sl.OCT;

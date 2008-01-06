@@ -144,19 +144,43 @@ void SoundDevice::muteChannel(unsigned channel, bool muted)
 
 bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 {
+	assert((long(dataOut) & 15) == 0); // must be 16-byte aligned
 	if (samples == 0) return true;
 
 	assert(samples <= MAX_SAMPLES);
+	memset(dataOut, 0, sizeof(int) * stereo * samples);
 	int* bufs[numChannels];
+	unsigned separateChannels = 0;
 	unsigned pitch = (samples * stereo + 3) & ~3; // align for SSE access
 	for (unsigned i = 0; i < numChannels; ++i) {
-		bufs[i] = &mixBuffer[pitch * i];
+		if (!channelMuted[i] && !writer[i].get()) {
+			// no need to keep this channel separate
+			bufs[i] = dataOut;
+		} else {
+			// muted or recorded channels must go separate
+			bufs[i] = &mixBuffer[pitch * separateChannels];
+			++separateChannels;
+		}
 	}
+	memset(mixBuffer, 0, sizeof(int) * stereo * samples * separateChannels);
+	// note: some SoundDevices (DACSound16S and CassettePlayer) replace the
+	//       (single) channel data instead of adding to the exiting data.
+	//       ATM that's ok because the existing data is anyway zero.
 	generateChannels(bufs, samples);
+
+	if (separateChannels == 0) {
+		for (unsigned i = 0; i < numChannels; ++i) {
+			if (bufs[i]) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	// record channels
 	for (unsigned i = 0; i < numChannels; ++i) {
 		if (writer[i].get()) {
+			assert(bufs[i] != dataOut);
 			if (stereo == 1) {
 				writer[i]->write16mono(
 					bufs[i] ? bufs[i] : silence,
@@ -170,25 +194,31 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 	}
 
 	// remove muted channels (explictly by user or by device itself)
-	unsigned unmuted = 0;
+	bool anyUnmuted = false;
+	unsigned numMix = 0;
 	for (unsigned i = 0; i < numChannels; ++i) {
 		if ((bufs[i] != 0) && !channelMuted[i]) {
-			bufs[unmuted] = bufs[i];
-			++unmuted;
+			anyUnmuted = true;
+			if (bufs[i] != dataOut) {
+				bufs[numMix] = bufs[i];
+				++numMix;
+			}
 		}
 	}
+	// also add output buffer
+	bufs[numMix] = dataOut;
+	++numMix;
 
 	// actually mix channels
-	switch (unmuted) {
+	switch (numMix) {
 	case 0:
-		// all channels muted
-		return false;
+		assert(false);
 	case 1:
-		memcpy(dataOut, bufs[0], samples * stereo * sizeof(int));
-		return true;
+		// all extra channels muted
+		return anyUnmuted;
 	default: {
 		unsigned num = samples * stereo;
-		if (unmuted & 1) {
+		if (numMix & 1) {
 			#ifdef ASM_X86
 			const HostCPU& cpu = HostCPU::getInstance();
 			if (cpu.hasSSE2()) {
@@ -197,7 +227,7 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 				long zero = 0;
 				asm volatile (
 				"1:"
-					"mov	%6,%0;"          // j = -unmuted * sizeof(int*)
+					"mov	%6,%0;"          // j = -numMix * sizeof(int*)
 					"mov	(%3,%0),%1;"     // p = buf[0]
 					"add	%4,%0;"          // j += sizeof(int*)
 					"movdqa	(%1,%2),%%xmm0;" // acc = buf[0][i]
@@ -214,7 +244,7 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 					"paddd	(%1,%2),%%xmm0;" // acc += buf[j + 1][i]
 					"jnz	0b;"             // while j negative
 
-					"movdqu	%%xmm0,(%5,%2);"
+					"movdqa	%%xmm0,(%5,%2);"
 					"add	$16,%2;"         // i += 4 * sizeof(int)
 					"cmp    %7,%2;"          //
 					"jb	1b;"             // while i < num
@@ -222,10 +252,10 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 					: "=&r" (dummy1)                  // %0 = j
 					, "=&r" (dummy2)                  // %1 = p
 					: "r"   (zero)                    // %2 = i
-					, "r"   (bufs + unmuted)          // %3
+					, "r"   (bufs + numMix)           // %3
 					, "i"   (sizeof(int*))            // %4
 					, "r"   (dataOut)                 // %5
-					, "rm"  (-long(unmuted) * sizeof(int*)) // %6
+					, "rm"  (-long(numMix) * sizeof(int*)) // %6
 					, "rm"  (num * sizeof(int))       // %7
 					, "i"   (2 * sizeof(int*))        // %8
 					#ifdef __SSE__
@@ -253,7 +283,7 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 					out2 += bufs[j + 1][i + 2];
 					out3 += bufs[j + 1][i + 3];
 					j += 2;
-				} while (j < unmuted);
+				} while (j < numMix);
 				dataOut[i + 0] = out0;
 				dataOut[i + 1] = out1;
 				dataOut[i + 2] = out2;
@@ -269,7 +299,7 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 				long zero = 0;
 				asm volatile (
 				"1:"
-					"mov	%6,%0;"          // j = -unmuted * sizeof(int*)
+					"mov	%6,%0;"          // j = -numMix * sizeof(int*)
 					"pxor	%%xmm0,%%xmm0;"  // acc = buf[0][i]
 					".p2align 4,,15;"
 				"0:"
@@ -284,7 +314,7 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 					"paddd	(%1,%2),%%xmm0;" // acc += buf[j + 1][i]
 					"jnz	0b;"             // while j negative
 
-					"movdqu	%%xmm0,(%5,%2);"
+					"movdqa	%%xmm0,(%5,%2);"
 					"add	$16,%2;"         // i += 4 * sizeof(int)
 					"cmp    %7,%2;"          //
 					"jb	1b;"             // while i < num
@@ -292,10 +322,10 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 					: "=&r" (dummy1)                  // %0 = j
 					, "=&r" (dummy2)                  // %1 = p
 					: "r"   (zero)                    // %2 = i
-					, "r"   (bufs + unmuted)          // %3
+					, "r"   (bufs + numMix)           // %3
 					, "i"   (sizeof(int*))            // %4
 					, "r"   (dataOut)                 // %5
-					, "rm"  (-long(unmuted) * sizeof(int*)) // %6
+					, "rm"  (-long(numMix) * sizeof(int*)) // %6
 					, "rm"  (num * sizeof(int))       // %7
 					, "i"   (2 * sizeof(int*))        // %8
 					#ifdef __SSE__
@@ -323,7 +353,7 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 					out2 += bufs[j + 1][i + 2];
 					out3 += bufs[j + 1][i + 3];
 					j += 2;
-				} while (j < unmuted);
+				} while (j < numMix);
 				dataOut[i + 0] = out0;
 				dataOut[i + 1] = out1;
 				dataOut[i + 2] = out2;

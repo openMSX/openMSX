@@ -660,11 +660,11 @@ void AY8910::setOutputRate(unsigned sampleRate)
 	setResampleRatio(NATIVE_FREQ_DOUBLE, sampleRate);
 }
 
-static void fill(int*& buf, int val, unsigned num)
+static void addFill(int*& buf, int val, unsigned num)
 {
 	assert(num > 0);
 	do {
-		*buf++ = val;
+		*buf++ += val;
 	} while (--num);
 }
 
@@ -720,14 +720,14 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 				unsigned nextT = t.getNextEventTime();
 				while ((nextT <= remaining) || (nextE <= remaining)) {
 					if (nextT < nextE) {
-						fill(buf, val, nextT);
+						addFill(buf, val, nextT);
 						remaining -= nextT;
 						nextE -= nextT;
 						envelope.advanceFast(nextT);
 						t.doNextEvent(doDetune);
 						nextT = t.getNextEventTime();
 					} else if (nextE < nextT) {
-						fill(buf, val, nextE);
+						addFill(buf, val, nextE);
 						remaining -= nextE;
 						nextT -= nextE;
 						t.advanceFast(nextE);
@@ -735,7 +735,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 						nextE = envelope.getNextEventTime();
 					} else {
 						assert(nextT == nextE);
-						fill(buf, val, nextT);
+						addFill(buf, val, nextT);
 						remaining -= nextT;
 						t.doNextEvent(doDetune);
 						nextT = t.getNextEventTime();
@@ -746,7 +746,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 				}
 				if (remaining) {
 					// last interval (without events)
-					fill(buf, val, remaining);
+					addFill(buf, val, remaining);
 					t.advanceFast(remaining);
 					envelope.advanceFast(remaining);
 				}
@@ -757,7 +757,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 				unsigned remaining = length;
 				unsigned next = envelope.getNextEventTime();
 				while (next <= remaining) {
-					fill(buf, val, next);
+					addFill(buf, val, next);
 					remaining -= next;
 					envelope.doNextEvent();
 					val = envelope.getVolume();
@@ -765,7 +765,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 				}
 				if (remaining) {
 					// last interval (without events)
-					fill(buf, val, remaining);
+					addFill(buf, val, remaining);
 					envelope.advanceFast(remaining);
 				}
 				t.advance(length);
@@ -780,7 +780,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 				unsigned nextE = envelope.getNextEventTime();
 				unsigned next = std::min(std::min(nextT, nextN), nextE);
 				while (next <= remaining) {
-					fill(buf, val, next);
+					addFill(buf, val, next);
 					remaining -= next;
 					nextT -= next;
 					nextN -= next;
@@ -808,7 +808,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 				}
 				if (remaining) {
 					// last interval (without events)
-					fill(buf, val, remaining);
+					addFill(buf, val, remaining);
 					t.advanceFast(remaining);
 					noise.advanceFast(remaining);
 					envelope.advanceFast(remaining);
@@ -823,14 +823,14 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 				unsigned nextN = noise.getNextEventTime();
 				while ((nextN <= remaining) || (nextE <= remaining)) {
 					if (nextN < nextE) {
-						fill(buf, val, nextN);
+						addFill(buf, val, nextN);
 						remaining -= nextN;
 						nextE -= nextN;
 						envelope.advanceFast(nextN);
 						noise.doNextEvent();
 						nextN = noise.getNextEventTime();
 					} else if (nextE < nextN) {
-						fill(buf, val, nextE);
+						addFill(buf, val, nextE);
 						remaining -= nextE;
 						nextN -= nextE;
 						noise.advanceFast(nextE);
@@ -838,7 +838,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 						nextE = envelope.getNextEventTime();
 					} else {
 						assert(nextN == nextE);
-						fill(buf, val, nextN);
+						addFill(buf, val, nextN);
 						remaining -= nextN;
 						noise.doNextEvent();
 						nextN = noise.getNextEventTime();
@@ -849,7 +849,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 				}
 				if (remaining) {
 					// last interval (without events)
-					fill(buf, val, remaining);
+					addFill(buf, val, remaining);
 					noise.advanceFast(remaining);
 					envelope.advanceFast(remaining);
 				}
@@ -866,7 +866,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 				unsigned remaining = length;
 				unsigned next = t.getNextEventTime();
 				while (next <= remaining) {
-					fill(buf, val, next);
+					addFill(buf, val, next);
 					val ^= volume;
 					remaining -= next;
 					t.doNextEvent(doDetune);
@@ -874,13 +874,13 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 				}
 				if (remaining) {
 					// last interval (without events)
-					fill(buf, val, remaining);
+					addFill(buf, val, remaining);
 					t.advanceFast(remaining);
 				}
 
 			} else if ((chanEnable & 0x09) == 0x09) {
 				// no noise, channel disabled: always 1.
-				fill(buf, volume, length);
+				addFill(buf, volume, length);
 				t.advance(length);
 
 			} else if ((chanEnable & 0x09) == 0x00) {
@@ -893,7 +893,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 				unsigned nextT = t.getNextEventTime();
 				while ((nextN <= remaining) || (nextT <= remaining)) {
 					if (nextT < nextN) {
-						fill(buf, val2, nextT);
+						addFill(buf, val2, nextT);
 						remaining -= nextT;
 						nextN -= nextT;
 						noise.advanceFast(nextT);
@@ -902,7 +902,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 						val1 ^= volume;
 						val2 = val1 * noise.getOutput();
 					} else if (nextN < nextT) {
-						fill(buf, val2, nextN);
+						addFill(buf, val2, nextN);
 						remaining -= nextN;
 						nextT -= nextN;
 						t.advanceFast(nextN);
@@ -911,7 +911,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 						val2 = val1 * noise.getOutput();
 					} else {
 						assert(nextT == nextN);
-						fill(buf, val2, nextT);
+						addFill(buf, val2, nextT);
 						remaining -= nextT;
 						t.doNextEvent(doDetune);
 						nextT = t.getNextEventTime();
@@ -923,7 +923,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 				}
 				if (remaining) {
 					// last interval (without events)
-					fill(buf, val2, remaining);
+					addFill(buf, val2, remaining);
 					t.advanceFast(remaining);
 					noise.advanceFast(remaining);
 				}
@@ -935,7 +935,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 				unsigned val = noise.getOutput() * volume;
 				unsigned next = noise.getNextEventTime();
 				while (next <= remaining) {
-					fill(buf, val, next);
+					addFill(buf, val, next);
 					remaining -= next;
 					noise.doNextEvent();
 					val = noise.getOutput() * volume;
@@ -943,7 +943,7 @@ void AY8910::generateChannels(int** bufs, unsigned length)
 				}
 				if (remaining) {
 					// last interval (without events)
-					fill(buf, val, remaining);
+					addFill(buf, val, remaining);
 					noise.advanceFast(remaining);
 				}
 				t.advance(length);

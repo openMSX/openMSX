@@ -1494,7 +1494,7 @@ void Global::generateChannels(int** bufs, unsigned num)
 			Channel& channel = channels[ch];
 			channel.slots[MOD].updateModulator();
 			if ((channelActiveBits >> ch) & 1) {
-				bufs[ch][i] = channel.calcOutput();
+				bufs[ch][i] += channel.calcOutput();
 			}
 		}
 		if (rhythm) {
@@ -1508,7 +1508,7 @@ void Global::generateChannels(int** bufs, unsigned num)
 			Channel& channel6 = channels[6];
 			channel6.slots[MOD].updateModulator();
 			if (channelActiveBits & (1 << 6)) {
-				bufs[6][i] = 2 * channel6.calcOutput();
+				bufs[6][i] += 2 * channel6.calcOutput();
 			}
 
 			// TODO: Skip phase generation if output will 0 anyway.
@@ -1518,25 +1518,25 @@ void Global::generateChannels(int** bufs, unsigned num)
 			// Snare Drum (verified on real YM3812)
 			if (channelActiveBits & (1 << 7)) {
 				Slot& SLOT7_2 = channels[7].slots[CAR];
-				bufs[7][i] = 2 * SLOT7_2.calcOutput(genPhaseSnare());
+				bufs[7][i] += 2 * SLOT7_2.calcOutput(genPhaseSnare());
 			}
 
 			// Top Cymbal (verified on real YM2413)
 			if (channelActiveBits & (1 << 8)) {
 				Slot& SLOT8_2 = channels[8].slots[CAR];
-				bufs[8][i] = 2 * SLOT8_2.calcOutput(genPhaseCymbal());
+				bufs[8][i] += 2 * SLOT8_2.calcOutput(genPhaseCymbal());
 			}
 
 			// High Hat (verified on real YM3812)
 			if (channelActiveBits & (1 << (7 + 9))) {
 				Slot& SLOT7_1 = channels[7].slots[MOD];
-				bufs[9][i] = 2 * SLOT7_1.calcOutput(genPhaseHighHat());
+				bufs[9][i] += 2 * SLOT7_1.calcOutput(genPhaseHighHat());
 			}
 
 			// Tom Tom (verified on real YM3812)
 			if (channelActiveBits & (1 << (8 + 9))) {
 				Slot& SLOT8_1 = channels[8].slots[MOD];
-				bufs[10][i] = 2 * SLOT8_1.calcOutput(SLOT8_1.getPhase());
+				bufs[10][i] += 2 * SLOT8_1.calcOutput(SLOT8_1.getPhase());
 			}
 		}
 		advance();

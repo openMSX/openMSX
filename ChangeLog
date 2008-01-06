@@ -1,5 +1,23 @@
 $Id$
 
+2008-01-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* changed SoundDevice::updateBuffer() method:
+	   As parameters this method (still) receives a number of buffers,
+	   each buffer should be filled with the audio-output of one channel.
+	   Before this change the existing data in the buffer should simply be
+	   overwritten. Now the new data should be added to the existing data
+	   in the buffer.
+	   This new approach allows to let several channel buffers actually
+	   point to the same underlying buffer (in fact only a muted or
+	   recorded channel will still get it's own private buffer). This
+	   allows to (mostly) skip the mix-channels step.
+	   I measured on my core2duo CPU and this new approach is slightly
+	   slower (a few percent) than the old one. If I disable SSE2
+	   optimizations in mixChannels, it's about the same speed. However on
+	   older CPUs without SSE2 and with smaller caches (like ARM) it's
+	   definitely faster. I guess because this new approach is more
+	   cache-friendly.
+
 2008-01-03 Maarten ter Huurne <maarten@treewalker.org>
 	* Removed execution of ~/.openMSX/share/init.tcl on openMSX startup.
 	  We have a "scripts" dir which can be used instead.

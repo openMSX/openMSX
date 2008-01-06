@@ -1475,8 +1475,8 @@ void YM2151::generateChannels(int** bufs, unsigned num)
 		chan7Calc(); // special case for channel 7
 
 		for (int j = 0; j < 8; ++j) {
-			bufs[j][2 * i + 0] = chanout[j] & pan[2 * j + 0];
-			bufs[j][2 * i + 1] = chanout[j] & pan[2 * j + 1];
+			bufs[j][2 * i + 0] += chanout[j] & pan[2 * j + 0];
+			bufs[j][2 * i + 1] += chanout[j] & pan[2 * j + 1];
 		}
 		advance();
 	}

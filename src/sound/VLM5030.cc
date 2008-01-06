@@ -324,11 +324,11 @@ void VLM5030::generateChannels(int** bufs, unsigned length)
 
 			// clipping, buffering
 			if (u[0] > 511) {
-				bufs[0][buf_count] = 511 << 6;
+				bufs[0][buf_count] += 511 << 6;
 			} else if (u[0] < -511) {
-				bufs[0][buf_count] = -511 << 6;
+				bufs[0][buf_count] += -511 << 6;
 			} else {
-				bufs[0][buf_count] = (u[0] << 6);
+				bufs[0][buf_count] += (u[0] << 6);
 			}
 			++buf_count;
 			--sample_count;
@@ -361,10 +361,10 @@ phase_stop:
 		}
 	}
 	// silent buffering
-	while (length > 0) {
-		bufs[0][buf_count++] = 0;
-		--length;
-	}
+	//while (length > 0) {
+	//	bufs[0][buf_count++] += 0;
+	//	--length;
+	//}
 }
 
 // setup parameteroption when RST=H

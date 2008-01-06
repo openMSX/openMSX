@@ -488,6 +488,9 @@ void CassettePlayer::generateChannels(int** buffers, unsigned num)
 		buffers[0] = 0;
 		return;
 	}
+	// Note: fillBuffer() replaces the values in the buffer. It should add
+	//       to the existing values in the buffer. But because there is only
+	//       one channel this doesn't matter (buffer contains all zeros).
 	playImage->fillBuffer(playPos, buffers, num);
 	playPos += num;
 }
