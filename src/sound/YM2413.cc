@@ -21,6 +21,7 @@ namespace YM2413Okazaki {
 typedef FixedPoint<8> PhaseModulation;
 typedef FixedPoint<15> EnvPhaseIndex;
 static const EnvPhaseIndex EG_DP_MAX = EnvPhaseIndex(1 << 7);
+static const EnvPhaseIndex EG_DP_INF = EnvPhaseIndex(1 << 8); // as long as it's bigger
 
 enum EnvelopeState {
 	ATTACK, DECAY, SUSHOLD, SUSTAIN, RELEASE, SETTLE, FINISH
@@ -77,6 +78,7 @@ public:
 
 	template <bool HAS_PM> inline void calc_phase(PhaseModulation lfo_pm);
 	template <bool HAS_AM> inline unsigned calc_envelope(int lfo_am);
+	void calc_envelope_outline(unsigned& out);
 	template <bool HAS_PM, bool HAS_AM>
 	inline int calc_slot_car(PhaseModulation lfo_pm, int lfo_am, int fm);
 	template <bool HAS_PM, bool HAS_AM, bool HAS_FB>
@@ -112,6 +114,7 @@ public:
 	EnvelopeState state;	// Current state
 	EnvPhaseIndex eg_phase;	// Phase
 	EnvPhaseIndex eg_dphase;// Phase increment amount
+	EnvPhaseIndex eg_phase_max;
 	bool sustain;		// Sustain
 	bool type;		// 0 : modulator 1 : carrier
 	bool slot_on_flag;
@@ -550,7 +553,6 @@ void Slot::reset(bool type_)
 	output = 0;
 	feedback = 0;
 	setEnvelopeState(FINISH);
-	eg_phase = EG_DP_MAX;
 	dphaseARTableRks = dphaseARTable[0];
 	dphaseDRTableRks = dphaseDRTable[0];
 	tll = 0;
@@ -605,7 +607,7 @@ void Slot::updateEG()
 		break;
 	case SUSHOLD:
 	case FINISH:
-		// nothing
+		eg_dphase = EnvPhaseIndex(0);
 		break;
 	}
 }
@@ -619,9 +621,41 @@ void Slot::updateAll(unsigned freq)
 	updateEG(); // EG should be updated last
 }
 
+#define S2E(x) EnvPhaseIndex(int(x / EG_STEP))
+static const EnvPhaseIndex SL[16] = {
+	S2E( 0.0), S2E( 3.0), S2E( 6.0), S2E( 9.0),
+	S2E(12.0), S2E(15.0), S2E(18.0), S2E(21.0),
+	S2E(24.0), S2E(27.0), S2E(30.0), S2E(33.0),
+	S2E(36.0), S2E(39.0), S2E(42.0), S2E(48.0)
+};
+#undef S2E
+
 void Slot::setEnvelopeState(EnvelopeState state_)
 {
 	state = state_;
+	switch (state) {
+	case ATTACK:
+		eg_phase_max = (patch.AR == 15) ? EnvPhaseIndex(0) : EG_DP_MAX;
+		break;
+	case DECAY:
+		eg_phase_max = SL[patch.SL];
+		break;
+	case SUSHOLD:
+		eg_phase_max = EG_DP_INF;
+		break;
+	case SUSTAIN:
+	case RELEASE:
+		eg_phase_max = EG_DP_MAX;
+		break;
+	case SETTLE:
+		eg_phase_max = EG_DP_MAX;
+		break;
+	case FINISH:
+		eg_phase = EG_DP_MAX;
+		eg_phase_max = EG_DP_INF;
+		break;
+	}
+	updateEG();
 }
 
 bool Slot::isActive() const
@@ -635,7 +669,6 @@ void Slot::slotOn()
 	setEnvelopeState(ATTACK);
 	eg_phase = EnvPhaseIndex(0);
 	cphase = 0;
-	updateEG();
 }
 
 // Slot key on, without resetting the phase
@@ -643,7 +676,6 @@ void Slot::slotOn2()
 {
 	setEnvelopeState(ATTACK);
 	eg_phase = EnvPhaseIndex(0);
-	updateEG();
 }
 
 // Slot key off
@@ -653,7 +685,6 @@ void Slot::slotOff()
 		eg_phase = EnvPhaseIndex(AR_ADJUST_TABLE[eg_phase.toInt()]);
 	}
 	setEnvelopeState(RELEASE);
-	updateEG();
 }
 
 
@@ -943,67 +974,44 @@ ALWAYS_INLINE void Slot::calc_phase(PhaseModulation lfo_pm)
 	}
 }
 
-#define S2E(x) EnvPhaseIndex(int(x / EG_STEP))
-static const EnvPhaseIndex SL[16] = {
-	S2E( 0.0), S2E( 3.0), S2E( 6.0), S2E( 9.0),
-	S2E(12.0), S2E(15.0), S2E(18.0), S2E(21.0),
-	S2E(24.0), S2E(27.0), S2E(30.0), S2E(33.0),
-	S2E(36.0), S2E(39.0), S2E(42.0), S2E(48.0)
-};
-#undef S2E
-
 // EG
+void Slot::calc_envelope_outline(unsigned& out)
+{
+	switch (state) {
+	case ATTACK:
+		out = 0;
+		eg_phase = EnvPhaseIndex(0);
+		setEnvelopeState(DECAY);
+		break;
+	case DECAY:
+		eg_phase = eg_phase_max;
+		setEnvelopeState(patch.EG ? SUSHOLD : SUSTAIN);
+		break;
+	case SUSTAIN:
+	case RELEASE:
+		setEnvelopeState(FINISH);
+		break;
+	case SETTLE:
+		setEnvelopeState(ATTACK);
+		break;
+	case SUSHOLD:
+	case FINISH:
+	default:
+		assert(false);
+		break;
+	}
+}
 template <bool HAS_AM>
 ALWAYS_INLINE unsigned Slot::calc_envelope(int lfo_am)
 {
 	assert(patch.AM == HAS_AM);
-	unsigned out;
-	switch (state) {
-	case ATTACK:
-		out = AR_ADJUST_TABLE[eg_phase.toInt()];
-		eg_phase += eg_dphase;
-		if ((eg_phase >= EG_DP_MAX) || (patch.AR == 15)) {
-			out = 0;
-			eg_phase = EnvPhaseIndex(0);
-			setEnvelopeState(DECAY);
-			updateEG();
-		}
-		break;
-	case DECAY:
-		out = eg_phase.toInt();
-		eg_phase += eg_dphase;
-		if (eg_phase >= SL[patch.SL]) {
-			eg_phase = SL[patch.SL];
-			setEnvelopeState(patch.EG ? SUSHOLD : SUSTAIN);
-			updateEG();
-		}
-		break;
-	case SUSHOLD:
-		out = eg_phase.toInt();
-		break;
-	case SUSTAIN:
-	case RELEASE:
-		out = eg_phase.toInt();
-		eg_phase += eg_dphase;
-		if (out >= (1 << EG_BITS)) {
-			setEnvelopeState(FINISH);
-			out = (1 << EG_BITS) - 1;
-		}
-		break;
-	case SETTLE:
-		out = eg_phase.toInt();
-		eg_phase += eg_dphase;
-		if (out >= (1 << EG_BITS)) {
-			setEnvelopeState(ATTACK);
-			out = (1 << EG_BITS) - 1;
-			updateEG();
-		}
-		break;
-	case FINISH:
-	default:
-		// always results in 'DB_MUTE - 1', but
-		// writing it like this is faster for some reason
-		out = (1 << EG_BITS) - 1;
+	unsigned out = eg_phase.toInt();
+	if (state == ATTACK) {
+		out = AR_ADJUST_TABLE[out];
+	}
+	eg_phase += eg_dphase;
+	if (eg_phase >= eg_phase_max) {
+		calc_envelope_outline(out);
 	}
 	out = EG2DB(out + tll);
 
@@ -1363,6 +1371,9 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 			if (ch.patch_number == 0) {
 				ch.setPatch(0, *this); // TODO optimize
 				ch.mod.updateEG();
+				if (ch.mod.state == ATTACK) {
+					ch.mod.setEnvelopeState(ATTACK);
+				}
 			}
 		}
 		break;
@@ -1374,6 +1385,9 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 			if (ch.patch_number == 0) {
 				ch.setPatch(0, *this); // TODO optimize
 				ch.car.updateEG();
+				if (ch.car.state == ATTACK) {
+					ch.car.setEnvelopeState(ATTACK);
+				}
 			}
 		}
 		break;
@@ -1385,6 +1399,9 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 			if (ch.patch_number == 0) {
 				ch.setPatch(0, *this); // TODO optimize
 				ch.mod.updateEG();
+				if (ch.mod.state == DECAY) {
+					ch.mod.setEnvelopeState(DECAY);
+				}
 			}
 		}
 		break;
@@ -1396,6 +1413,9 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 			if (ch.patch_number == 0) {
 				ch.setPatch(0, *this); // TODO optimize
 				ch.car.updateEG();
+				if (ch.car.state == DECAY) {
+					ch.car.setEnvelopeState(DECAY);
+				}
 			}
 		}
 		break;
