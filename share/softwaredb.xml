@@ -8,7 +8,7 @@
 	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
-<softwaredb xml:lang="en" timestamp="1199609497">
+<softwaredb xml:lang="en" timestamp="1199612558">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -737,7 +737,7 @@
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">66acd2f8ef08dd4cb0dc7ef5176650fbf5828acf</hash>
 			</rom>
@@ -750,7 +750,7 @@
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">87eb1620474039740bfe0e7e3bea09085d85f247</hash>
 			</rom>
@@ -953,7 +953,7 @@
 		<year>2007</year>
 		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x8000</start>
@@ -1010,11 +1010,11 @@
 	<software>
 		<title xml:lang="en">Balloon City</title>
 		<system>MSX</system>
-		<company>AG Software </company>
+		<company>AG Software</company>
 		<year>2007</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x8000</start>
@@ -1315,7 +1315,7 @@
 		<year>2006</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">65961a1926b24c8efa71f2ab68cbafa2d0122acf</hash>
 				<remark>
@@ -1331,7 +1331,7 @@
 		<year>2006</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">bd44cc152851d9f3827fb304f3e4780ee607f896</hash>
 				<remark>
@@ -1347,7 +1347,7 @@
 		<year>2007</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">afe11b840b7bf0243b1c4f98309e274a3ddde35f</hash>
 				<remark>
@@ -1356,7 +1356,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">8a3749af3d6ff88404df59da9d9ac7990bbc318d</hash>
 				<remark>
@@ -1365,7 +1365,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">9267ea63e1d32095868eec1347a4eafbdfb5ef7e</hash>
 				<remark>
@@ -1520,7 +1520,7 @@
 		<year>2005</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">3e44a4e5608e01793877e62f82c12c2b82908461</hash>
@@ -1606,7 +1606,7 @@
 		<year>2005</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">46ecaf85f1ff1b4821670bf44ff1249fe1b13a35</hash>
@@ -2231,7 +2231,7 @@
 		<year>2007</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">317a7cc0ab90882d25d1185eeb9aca6b884c8879</hash>
 				<remark>
@@ -2240,7 +2240,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">37f302291c75847f4b87a82e3acbbf62eab625f8</hash>
 				<remark>
@@ -2493,7 +2493,7 @@
 		<year>2005</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -2504,7 +2504,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -2515,7 +2515,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">c5568fc07bfb193b43ad7c840787f274d9c1e42f</hash>
 				<remark>
@@ -2690,7 +2690,7 @@
 		<year>2005</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">ca770384382bd487dd7330552403f85d7edbb8ce</hash>
@@ -2906,35 +2906,34 @@
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">d632a1f06a8018422fc9bc83ab26c501d34d447d</hash>
 			</rom>
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Classic Pong 1st Version</title>
+		<title xml:lang="en">Classic Pong</title>
 		<system>MSX</system>
 		<company>Karoshi Corporation</company>
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">92727e6ecc52dfeca071673f0d58e964746899d2</hash>
+				<remark>
+					<text>1st Version</text>
+				</remark>
 			</rom>
 		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Classic Pong 2nd Version</title>
-		<system>MSX</system>
-		<company>Karoshi Corporation</company>
-		<year>2004</year>
-		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">59a124ed38869892496fc12f14af404a422e162a</hash>
+				<remark>
+					<text>2nd Version</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -3232,7 +3231,7 @@
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x8000</start>
@@ -3285,7 +3284,7 @@
 		<year>2005</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -3368,7 +3367,7 @@
 		<year>2005</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">5586085d3be79378f9623e52fd04cad25febc34b</hash>
 				<remark>
@@ -3426,7 +3425,7 @@
 		<year>2007</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x8000</start>
@@ -3580,13 +3579,13 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">DAEDALIAN OPUS</title>
+		<title xml:lang="en">Daedalian Opus</title>
 		<system>MSX</system>
 		<company>Karoshi Corporation</company>
 		<year>2006</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">3574a6dc954579341934452feb141859b7cfa3bc</hash>
 				<remark>
@@ -4192,7 +4191,7 @@
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">a6145a658ac51d8f455ac60629ed2d118d50f1ad</hash>
 			</rom>
@@ -4723,7 +4722,7 @@
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">1C90A57CC1237BDADD70D90D74E69C33D7A89293</hash>
 			</rom>
@@ -6187,11 +6186,11 @@
 	<software>
 		<title xml:lang="en">Grid Wars</title>
 		<system>MSX</system>
-		<company>Emma Six </company>
+		<company>Emma Six</company>
 		<year>2006</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">0e6b6644021dbfad3c486c378818ea5e432bb9fd</hash>
 				<remark>
@@ -6207,7 +6206,7 @@
 		<year>2005</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -6218,7 +6217,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -6229,7 +6228,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -6240,7 +6239,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">5a9364271ddca5208b625c891f01a89fd2367a8d</hash>
 				<remark>
@@ -6397,28 +6396,27 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Guru Logic 1st version</title>
+		<title xml:lang="en">Guru Logic</title>
 		<system>MSX</system>
 		<company>Karoshi Corporation</company>
 		<year>2003</year>
 		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">be6087399419e2539751faf3aa079c45fcd590c7</hash>
+				<remark>
+					<text>1st version</text>
+				</remark>
 			</rom>
 		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Guru Logic 2nd version</title>
-		<system>MSX</system>
-		<company>Karoshi Corporation</company>
-		<year>2003</year>
-		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">a355e49523edce5f15ebf92b8320ffa6523c1382</hash>
+				<remark>
+					<text>2nd version</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -7299,7 +7297,7 @@
 		<year>2006</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -7514,7 +7512,7 @@
 		<year>2007</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">64f921c9c57aedb47663a269046d4c51388f41fb</hash>
 				<remark>
@@ -7939,7 +7937,7 @@
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">5c61a12d490d5e1d97da5e74ac40311e9725ca20</hash>
 			</rom>
@@ -9053,7 +9051,7 @@
 		<year>2005</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">ea774f43f9c02064fcc07d5131691f5bd4e9c4f5</hash>
@@ -9123,7 +9121,7 @@
 		<year>2006</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -9134,7 +9132,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<sccpluscart>
 				<boot>scc</boot>
 				<hash algo="sha1">46611b1ab3b8ed272d989fe3b209ebe29a866718</hash>
@@ -9164,7 +9162,7 @@
 		<year>2007</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>manbow2</type>
 				<hash algo="sha1">0f2c5a7c6cc9ff591c911e4f3f204e425bd3cf50</hash>
@@ -9174,7 +9172,7 @@
 			</megarom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>manbow2</type>
 				<hash algo="sha1">079bacc9708f711af90310f3e08f2abafa8fc919</hash>
@@ -9184,7 +9182,7 @@
 			</megarom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>manbow2</type>
 				<hash algo="sha1">e348e62e3c4c02d87ff2aa4d55ddebb60c3ea507</hash>
@@ -9300,7 +9298,7 @@
 		<year>2005</year>
 		<country>JP</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">cb0d355627b8c036931a67666e425d8f9225a180</hash>
@@ -9310,7 +9308,7 @@
 			</megarom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">38a3c6659080b38d9a2655e869e9fc0ce3e26c5e</hash>
@@ -9451,7 +9449,7 @@
 		<year>2007</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">480fe052ff41f6f6aaa745c413012d1610f02c90</hash>
 				<remark>
@@ -9460,7 +9458,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">e94d34d164f5379ea85464b51743461e3f6c92ab</hash>
 				<remark>
@@ -9469,7 +9467,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">e6a0d6c40419647e6b17d30a000331a904c8f5df</hash>
 				<remark>
@@ -9478,7 +9476,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">d7bd6e84edcaf6d99abaf6597813501926bda398</hash>
 				<remark>
@@ -9494,7 +9492,7 @@
 		<year>2007</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>manbow2</type>
 				<hash algo="sha1">e3b9241291b5f19ab239726360258a31e02565a3</hash>
@@ -9536,7 +9534,7 @@
 		<year>2005</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">386cf567b7b73105d7f603463e1fe2bd919c3d0d</hash>
 				<remark>
@@ -9686,11 +9684,11 @@
 	<software>
 		<title xml:lang="en">MECHA TAISEN ON PLANET OLDSKOOL</title>
 		<system>MSX</system>
-		<company>Damage X </company>
+		<company>Damage X</company>
 		<year>2006</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">d8e34fabf8584bb566c5056f8b42b50b6f497f48</hash>
 				<remark>
@@ -10101,7 +10099,7 @@
 		<year>2006</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>KonamiSCC</type>
 				<hash algo="sha1">aa6055ba0e433aa9c93df4444783cacb9628a7e2</hash>
@@ -10111,7 +10109,7 @@
 			</megarom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>KonamiSCC</type>
 				<hash algo="sha1">1c238009e77c5536d0059631954c2c4a52527283</hash>
@@ -10128,7 +10126,7 @@
 		<year>2006</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>KonamiSCC</type>
 				<hash algo="sha1">7b8015f919c8dd95db683f3f3d0799cf7ef1bc22</hash>
@@ -10138,7 +10136,7 @@
 			</megarom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>KonamiSCC</type>
 				<hash algo="sha1">ca45da2f9cd8edf4ab04ffd542b9c60ef6a9a254</hash>
@@ -10417,7 +10415,7 @@
 		<year>2007</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>ASCII8</type>
 				<hash algo="sha1">72783ba5a0b9f33b4573952a1c721fc5d5025fd5</hash>
@@ -10427,7 +10425,7 @@
 			</megarom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<sccpluscart>
 				<boot>scc</boot>
 				<hash algo="sha1">168d59fca3170f56858f39d0b53067c0c0d414a8</hash>
@@ -10829,7 +10827,7 @@
 		<year>2005</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -10840,7 +10838,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -10995,11 +10993,11 @@
 	<software>
 		<title xml:lang="en">NIGHT CITY</title>
 		<system>MSX</system>
-		<company>German G&#243;mez Herrera</company>
+		<company>Germ&#225;n G&#243;mez Herrera</company>
 		<year>2006</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">ce3f9356eaa5fd6c1b5ff1ade244ebd9130f1ceb</hash>
 				<remark>
@@ -11008,7 +11006,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">76b7a5e75d5091f0482746e5a0c0a71de07ddf83</hash>
 				<remark>
@@ -11020,11 +11018,11 @@
 	<software>
 		<title xml:lang="en">Night City (English)</title>
 		<system>MSX</system>
-		<company>German G&#243;mez Herrera</company>
+		<company>Germ&#225;n G&#243;mez Herrera</company>
 		<year>2005</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>ASCII8</type>
 				<hash algo="sha1">22f9b0238ff48840fb7d45ac93a7f15495393920</hash>
@@ -11037,11 +11035,11 @@
 	<software>
 		<title xml:lang="en">Night City (Espaniol)</title>
 		<system>MSX</system>
-		<company>German G&#243;mez Herrera</company>
+		<company>Germ&#225;n G&#243;mez Herrera</company>
 		<year>2006</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>ASCII8</type>
 				<hash algo="sha1">4b138e041947990309c228890914689908d46685</hash>
@@ -11058,7 +11056,7 @@
 		<year>2007</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">fcc1cf816657e90bb1e0a93898fd17a8325c2cd3</hash>
 				<remark>
@@ -11364,7 +11362,7 @@
 		<year>2006</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -11382,7 +11380,7 @@
 		<year>2007</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -11508,7 +11506,7 @@
 		<year>2005</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">9ab584be0a054e76d345ca937917f1ea195f7967</hash>
@@ -11556,7 +11554,7 @@
 		<year>2005</year>
 		<country>NL</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -11567,7 +11565,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -11598,7 +11596,7 @@
 		<year>2005</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -11609,7 +11607,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -11774,11 +11772,11 @@
 	<software>
 		<title xml:lang="en">Penguin Cafe</title>
 		<system>MSX</system>
-		<company>The exMSXcaf&#233; Team </company>
+		<company>The exMSXcaf&#233; Team</company>
 		<year>2006</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -11796,7 +11794,7 @@
 		<year>2007</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>ASCII8</type>
 				<hash algo="sha1">8c218c317e1e213e1c5e9439870929009d645a47</hash>
@@ -11866,7 +11864,7 @@
 		<year>2006</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">e59d739ecd56a11ecf4020430585ea4cc61b02a6</hash>
 			</rom>
@@ -11911,7 +11909,7 @@
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">9c9da64f7b0ad20b0d699bbb254ae20666867176</hash>
 			</rom>
@@ -11924,7 +11922,7 @@
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">27E56FBEC7FA39CE19D045B0DBC4217D290F92E2</hash>
 			</rom>
@@ -12180,11 +12178,11 @@
 	<software>
 		<title xml:lang="en">POINTLESS PLATFORM</title>
 		<system>MSX</system>
-		<company>The New Image </company>
+		<company>The New Image</company>
 		<year>2006</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">08d5a55b80726fb9c793be20e36f6d88beb643a6</hash>
 				<remark>
@@ -12196,11 +12194,11 @@
 	<software>
 		<title xml:lang="en">Pointless Shooting</title>
 		<system>MSX</system>
-		<company>The New Image </company>
+		<company>The New Image</company>
 		<year>2006</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">85d305e3e5d065427b8eda986736b19f930abfd8</hash>
 				<remark>
@@ -12365,43 +12363,35 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">PSG Sampler 1st version</title>
+		<title xml:lang="en">PSG Sampler</title>
 		<system>MSX</system>
 		<company>Karoshi Corporation</company>
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">9c26a5a89f543050db2d614f8405c659f5baae08</hash>
+				<remark>
+					<text>1st version</text>
+				</remark>
 			</rom>
 		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">PSG Sampler 2nd version</title>
-		<system>MSX</system>
-		<company>Karoshi Corporation</company>
-		<year>2004</year>
-		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">c80228bd14f149dbccf57bf9c00f34a4df953d85</hash>
+				<remark>
+					<text>2nd version</text>
+				</remark>
 			</rom>
 		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">PSG Sampler 3rd version</title>
-		<system>MSX</system>
-		<company>Karoshi Corporation</company>
-		<year>2005</year>
-		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">f6eb344408fbf69332fdf865a8c213455f0a024c</hash>
 				<remark>
-					<text>Karoshi Corp.</text>
+					<text>3rd version</text>
 				</remark>
 			</rom>
 		</dump>
@@ -13021,7 +13011,7 @@
 		<year>2006</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">cb325fafed4b6604a7146bca14109a29443b0c7f</hash>
 				<remark>
@@ -13037,7 +13027,7 @@
 		<year>2005</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -13048,7 +13038,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -13355,7 +13345,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">1eea2cae2bb3401d6734b2001f6b551628a99101</hash>
 				<remark>
@@ -13584,11 +13574,11 @@
 	<software>
 		<title xml:lang="en">SKATE AIR</title>
 		<system>MSX</system>
-		<company>Yermani Soft </company>
+		<company>Yermani Soft</company>
 		<year>2006</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">e7351ef9606bd6d5f38acb7c17aed8a00170b85d</hash>
 				<remark>
@@ -13597,7 +13587,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">6715aea31525869220d7acb638b6a432875e85a1</hash>
 				<remark>
@@ -13609,11 +13599,11 @@
 	<software>
 		<title xml:lang="en">Skate Air (English)</title>
 		<system>MSX</system>
-		<company>German G&#243;mez Herrera</company>
+		<company>Germ&#225;n G&#243;mez Herrera</company>
 		<year>2006</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>ASCII8</type>
 				<hash algo="sha1">7a0a1c5570a3361ad75406eea07c93fdad9fde02</hash>
@@ -13626,11 +13616,11 @@
 	<software>
 		<title xml:lang="en">Skate Air (Espaniol)</title>
 		<system>MSX</system>
-		<company>German G&#243;mez Herrera</company>
+		<company>Germ&#225;n G&#243;mez Herrera</company>
 		<year>2006</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>ASCII8</type>
 				<hash algo="sha1">e6ba7a6ecda80a1c844542be0b2a44a4a33dc113</hash>
@@ -13776,41 +13766,36 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Snail Maze Beta 1 Version</title>
+		<title xml:lang="en">Snail Maze</title>
 		<system>MSX</system>
 		<company>Karoshi Corporation</company>
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">d81a4fee5bff14eda613fb72bc78429874bbb18f</hash>
+				<remark>
+					<text>Beta 1 Version</text>
+				</remark>
 			</rom>
 		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Snail Maze Beta 2 Version</title>
-		<system>MSX</system>
-		<company>Karoshi Corporation</company>
-		<year>2004</year>
-		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">cf93e1f790c4bdf50b41ec0537dfb97ed0d11b21</hash>
+				<remark>
+					<text>Beta 2 Version</text>
+				</remark>
 			</rom>
 		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Snail Maze Final Version</title>
-		<system>MSX</system>
-		<company>Karoshi Corporation</company>
-		<year>2004</year>
-		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">5db0acc008672f298d01686da4d56428b690b77f</hash>
+				<remark>
+					<text>Final Version</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -13834,7 +13819,7 @@
 		<year>2005</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">e168d460c2acc0f25523e2b99861d187d1aaac00</hash>
@@ -13844,7 +13829,7 @@
 			</megarom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x8000</start>
@@ -13927,7 +13912,7 @@
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">0306181BB8BABBC215E8C5066C1F490719541665</hash>
 			</rom>
@@ -13973,7 +13958,7 @@
 		<year>2005</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -13984,7 +13969,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -14388,7 +14373,7 @@
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">9613d00d89ce90334d9776db32b984ceeefdeeff</hash>
 			</rom>
@@ -14401,7 +14386,7 @@
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">F0BACC798B381E6F7C6B27E0FCBE3065A2C80D65</hash>
 			</rom>
@@ -14414,7 +14399,7 @@
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">de505f32041800ecae382772a8f5adf2e397124b</hash>
 			</rom>
@@ -14444,7 +14429,7 @@
 		<year>2006</year>
 		<country>NL</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -14455,7 +14440,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">120d477cd28b48b8a63efb34920ac331b54e66e5</hash>
 				<remark>
@@ -15388,7 +15373,7 @@
 		<year>2005</year>
 		<country>NL</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">882a63a9655e53fddb1cd48761a1a09b28f7e5a3</hash>
@@ -15398,7 +15383,7 @@
 			</megarom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">e82bbd2d9dbbb30a2b4a259954c5484fa236733a</hash>
@@ -15415,7 +15400,7 @@
 		<year>2005</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">b433357683fb1154d75c677ba01893665880f483</hash>
@@ -15425,7 +15410,7 @@
 			</megarom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">6600fab90ca395517d0845f8f380b0e67541b392</hash>
@@ -15539,7 +15524,7 @@
 		<year>2007</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x8000</start>
@@ -15689,7 +15674,7 @@
 		<year>2006</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -15707,7 +15692,7 @@
 		<year>2005</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">1074acd37ee42661d86b75a8491365ed8ceaa6e0</hash>
@@ -15901,7 +15886,7 @@
 		<year>2007</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">73ec25854aae297c9c3da0a2d4b4f1eae14fe8c6</hash>
 				<remark>
@@ -15961,7 +15946,7 @@
 		<year>2005</year>
 		<country>NL</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">8ab1b72ce852a778a645f566a70fa18ee32fd021</hash>
@@ -15971,7 +15956,7 @@
 			</megarom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">83dee5f1fd4bdad33b095ed15870c52c96becc63</hash>
@@ -15988,7 +15973,7 @@
 		<year>2005</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">059ab9b167c0e71bda811145a6ea04f0a41a0bdf</hash>
 				<remark>
@@ -16140,7 +16125,7 @@
 		<year>2005</year>
 		<country>ES</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<megarom>
 				<type>Normal</type>
 				<hash algo="sha1">91186f361c8323605c79dc4551a768a4b9c5a320</hash>
@@ -16150,7 +16135,7 @@
 			</megarom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">4db63ea453df9d17cf84a0f977f4768438ec9c45</hash>
 				<remark>
@@ -16159,7 +16144,7 @@
 			</rom>
 		</dump>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">17315e6b40f89c2cd0d8929eefcb9394b04e4cc6</hash>
 				<remark>
@@ -16283,11 +16268,11 @@
 	<software>
 		<title xml:lang="en">Word Invaders</title>
 		<system>MSX</system>
-		<company>SapphiRe Soft </company>
+		<company>SapphiRe Soft</company>
 		<year>2006</year>
 		<country>EU</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">da1f207466a88b347e995a6ed7d960c7cec5aa8d</hash>
 				<remark>
@@ -16367,7 +16352,7 @@
 		<year>2007</year>
 		<country>US</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x8000</start>
@@ -19078,7 +19063,7 @@
 				<type>Konami</type>
 				<hash algo="sha1">65040fb1e9bc4b2d027d7d81e44be30e7620e368</hash>
 				<remark>
-					<text>Ulver crack / Does not work on Non Japanese systems </text>
+					<text>Ulver crack / Does not work on Non Japanese systems</text>
 				</remark>
 			</megarom>
 		</dump>
@@ -19409,7 +19394,7 @@
 		<year>2005</year>
 		<country>NL</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -19427,7 +19412,7 @@
 		<year>2005</year>
 		<country>NL</country>
 		<dump>
-			<original value="true">Original</original>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x4000</start>
@@ -24672,5 +24657,5 @@
 Roms in this database 		: 2293
 Good MSX entries 				: 755
 SHA1 values 					: 2293
-Parse time 7.871 seconds on Sun Jan 6 9:51:45 CET 2008
+Parse time 9.219 seconds on Sun Jan 6 10:42:47 CET 2008
  -->
