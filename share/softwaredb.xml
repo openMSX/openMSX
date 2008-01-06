@@ -8,7 +8,7 @@
 	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
-<softwaredb xml:lang="en" timestamp="1199646156">
+<softwaredb xml:lang="en" timestamp="1199646839">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -1350,9 +1350,9 @@
 	<software>
 		<title xml:lang="en">BeTiled!</title>
 		<system>MSX</system>
-		<company>ES</company>
+		<company>CEZ GS (ComputerEmuzone Game Studio)</company>
 		<year>2007</year>
-		<country>EU</country>
+		<country>ES</country>
 		<dump>
 			<original value="true">author</original>
 			<rom>
@@ -24488,5 +24488,5 @@
 Roms in this database 		: 2293
 Good MSX entries 				: 755
 SHA1 values 					: 2293
-Parse time 11.843 seconds on Sun Jan 6 20:02:48 CET 2008
+Parse time 12.516 seconds on Sun Jan 6 20:14:11 CET 2008
  -->
