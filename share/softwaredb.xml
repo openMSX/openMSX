@@ -8,7 +8,7 @@
 	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
-<softwaredb xml:lang="en" timestamp="1199612558">
+<softwaredb xml:lang="en" timestamp="1199646156">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -539,6 +539,69 @@
 		<country>JP</country>
 		<dump>
 			<original value="false"/>
+			<rom>
+				<hash algo="sha1">2185be579cb51729f66bf02bdf3a7b6a3cbd7b40</hash>
+				<remark>
+					<text>European version</text>
+				</remark>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">44deaef747c572a4550681fcccc1bbbdc46a1ffc</hash>
+				<remark>
+					<text>European version</text>
+				</remark>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">292215c95c82948823eb0fbe1b081f14d6b6290d</hash>
+				<remark>
+					<text>Japanese version</text>
+				</remark>
+			</rom>
+		</dump>
+		<dump>
+			<original value="true">GoodMSX</original>
+			<rom>
+				<hash algo="sha1">e894a38f3e2ad435cc5d17a66600e6016b5e47fb</hash>
+				<remark>
+					<text>Japanese version</text>
+				</remark>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">8999a51c94460c8db1ca033b64b568bf919300c2</hash>
+				<remark>
+					<text>Japanese version</text>
+				</remark>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">e8af1da8478ebfd796b1f04a2429073259761ebb</hash>
+				<remark>
+					<text>Japanese version</text>
+				</remark>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">63d3755c81b2c294ff3bd96cfb9f5a2f3d83b86c</hash>
+				<remark>
+					<text>Japanese version</text>
+				</remark>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
 			<sccpluscart>
 				<boot>scc</boot>
 				<hash algo="sha1">6bd5b97baceb3bc8da3571590e2a6a761bb90b48</hash>
@@ -550,62 +613,6 @@
 				<boot>scc+</boot>
 				<hash algo="sha1">e1c7169bd44a3c67f2941a14699b954d7e337d29</hash>
 			</sccpluscart>
-		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Antartic Adventure European version</title>
-		<system>MSX</system>
-		<company>Konami</company>
-		<year>1984</year>
-		<country>JP</country>
-		<dump>
-			<original value="false"/>
-			<rom>
-				<hash algo="sha1">2185be579cb51729f66bf02bdf3a7b6a3cbd7b40</hash>
-			</rom>
-		</dump>
-		<dump>
-			<original value="false"/>
-			<rom>
-				<hash algo="sha1">44deaef747c572a4550681fcccc1bbbdc46a1ffc</hash>
-			</rom>
-		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Antartic Adventure Japanese version</title>
-		<system>MSX</system>
-		<company>Konami</company>
-		<year>1984</year>
-		<country>JP</country>
-		<dump>
-			<original value="false"/>
-			<rom>
-				<hash algo="sha1">292215c95c82948823eb0fbe1b081f14d6b6290d</hash>
-			</rom>
-		</dump>
-		<dump>
-			<original value="true">GoodMSX</original>
-			<rom>
-				<hash algo="sha1">e894a38f3e2ad435cc5d17a66600e6016b5e47fb</hash>
-			</rom>
-		</dump>
-		<dump>
-			<original value="false"/>
-			<rom>
-				<hash algo="sha1">8999a51c94460c8db1ca033b64b568bf919300c2</hash>
-			</rom>
-		</dump>
-		<dump>
-			<original value="false"/>
-			<rom>
-				<hash algo="sha1">e8af1da8478ebfd796b1f04a2429073259761ebb</hash>
-			</rom>
-		</dump>
-		<dump>
-			<original value="false"/>
-			<rom>
-				<hash algo="sha1">63d3755c81b2c294ff3bd96cfb9f5a2f3d83b86c</hash>
-			</rom>
 		</dump>
 	</software>
 	<software>
@@ -951,7 +958,7 @@
 		<system>MSX</system>
 		<company>AG Software</company>
 		<year>2007</year>
-		<country>ES</country>
+		<country>IT</country>
 		<dump>
 			<original value="true">author</original>
 			<rom>
@@ -1012,7 +1019,7 @@
 		<system>MSX</system>
 		<company>AG Software</company>
 		<year>2007</year>
-		<country>ES</country>
+		<country>IT</country>
 		<dump>
 			<original value="true">author</original>
 			<rom>
@@ -1099,7 +1106,7 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">BASIC Nyuumon - Basic Lessons</title>
+		<title xml:lang="en">BASIC Nyuumon 1 - Basic Lessons</title>
 		<system>MSX</system>
 		<company>Casio</company>
 		<year>1984</year>
@@ -1112,7 +1119,7 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">BASIC Nyuumon 2 - Basic Lessons 2</title>
+		<title xml:lang="en">BASIC Nyuumon 2 - Basic Lessons</title>
 		<system>MSX</system>
 		<company>Casio</company>
 		<year>1985</year>
@@ -1329,7 +1336,7 @@
 		<system>MSX</system>
 		<company>Darkstone</company>
 		<year>2006</year>
-		<country>EU</country>
+		<country>NL</country>
 		<dump>
 			<original value="true">author</original>
 			<rom>
@@ -1343,7 +1350,7 @@
 	<software>
 		<title xml:lang="en">BeTiled!</title>
 		<system>MSX</system>
-		<company>CEZ GS (ComputerEmuzone Game Studio)</company>
+		<company>ES</company>
 		<year>2007</year>
 		<country>EU</country>
 		<dump>
@@ -1604,7 +1611,7 @@
 		<system>MSX</system>
 		<company>AG Software</company>
 		<year>2005</year>
-		<country>ES</country>
+		<country>IT</country>
 		<dump>
 			<original value="true">author</original>
 			<megarom>
@@ -1817,7 +1824,7 @@
 				<start>0x4000</start>
 				<hash algo="sha1">b15e73a5ff1ae17ac67f2cebb5862d5e5bd80bc0</hash>
 				<remark>
-					<text>This game has a bug. Because of this bug it won&#39;t work on all MSX machines.To solve this bug change in the ROM image the byte at address 0x003A from 0x03 to 0x0C,or try it in slot 3.</text>
+					<text>A bug in this game will prevent is from running an several MSX computers.To solve this bug change the byte in the ROM images at address 0x003A from 0x03 to 0x0C,or try it in slot 3</text>
 				</remark>
 			</rom>
 		</dump>
@@ -2767,7 +2774,7 @@
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">2544DE44386CF49DAD2EB1035EA0E8553DD7598B</hash>
 			</rom>
@@ -4332,32 +4339,31 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Eat Blue! 2004 1st version</title>
+		<title xml:lang="en">Eat Blue! 2004</title>
 		<system>MSX</system>
 		<company>Paxanga Soft</company>
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">D31EB4FF4D6E4B3AF645F24388C734A1D00A0C47</hash>
+				<remark>
+					<text>1st version</text>
+				</remark>
 			</rom>
 		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Eat Blue! 2004 2nd version</title>
-		<system>MSX</system>
-		<company>Paxanga Soft</company>
-		<year>2004</year>
-		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x8000</start>
 				<hash algo="sha1">373319d9dbadc959dd953894be16663788918655</hash>
+				<remark>
+					<text>2nd version</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -4817,20 +4823,6 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Fantasy Zone</title>
-		<system>MSX</system>
-		<company>Zemina</company>
-		<year>1987</year>
-		<country>KR</country>
-		<dump>
-			<original value="false"/>
-			<megarom>
-				<type>Konami</type>
-				<hash algo="sha1">442a39b196f19a22fc7fb8f14bf17386a292b60e</hash>
-			</megarom>
-		</dump>
-	</software>
-	<software>
 		<title xml:lang="en">Fantasy Zone 1</title>
 		<system>MSX</system>
 		<company>Pony Canyon</company>
@@ -4851,6 +4843,13 @@
 				<remark>
 					<text>Ulver crack</text>
 				</remark>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Konami</type>
+				<hash algo="sha1">442a39b196f19a22fc7fb8f14bf17386a292b60e</hash>
 			</megarom>
 		</dump>
 	</software>
@@ -5656,26 +5655,19 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Gniffel 1st version</title>
+		<title xml:lang="en">Gniffel</title>
 		<system>MSX</system>
 		<company>Dioniso</company>
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">B987A7858C9FBF2A996CC200F52FB2A840766EB2</hash>
 			</rom>
 		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Gniffel 2nd version</title>
-		<system>MSX</system>
-		<company>Dioniso</company>
-		<year>2004</year>
-		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">071e07f110bf1b2574c63f81042fc80c894e3f73</hash>
 			</rom>
@@ -6037,6 +6029,13 @@
 		<dump>
 			<original value="false"/>
 			<sccpluscart>
+				<boot>scc</boot>
+				<hash algo="sha1">f2854b7198f325691a5ad3129bd05b44d6120771</hash>
+			</sccpluscart>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<sccpluscart>
 				<boot>scc+</boot>
 				<hash algo="sha1">1434386454c776800cba3805c4041b0105c2f71f</hash>
 			</sccpluscart>
@@ -6102,13 +6101,6 @@
 				</remark>
 			</megarom>
 		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Gradius 2 - Nemesis 2 Beta</title>
-		<system>MSX</system>
-		<company>Konami</company>
-		<year>1987</year>
-		<country>JP</country>
 		<dump>
 			<original value="false"/>
 			<megarom>
@@ -6255,6 +6247,12 @@
 		<year>1985</year>
 		<country>JP</country>
 		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">3b7a7cdc05b45518d2757ab82ed6415da1309486</hash>
+			</rom>
+		</dump>
+		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">32615267e8497db3f5e6f5348ee309e73c80a1a7</hash>
@@ -6276,19 +6274,6 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">ea151b443c27b77ac43fdae99db3adb0abf43fbb</hash>
-			</rom>
-		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Grog&#39;s Revenge - Ruote E Cavernicoli</title>
-		<system>MSX</system>
-		<company>Comptiq</company>
-		<year>1985</year>
-		<country>JP</country>
-		<dump>
-			<original value="false"/>
-			<rom>
-				<hash algo="sha1">3b7a7cdc05b45518d2757ab82ed6415da1309486</hash>
 			</rom>
 		</dump>
 	</software>
@@ -7224,6 +7209,27 @@
 				<hash algo="sha1">1c6b2b81552590e82d3205afbde93653fa449429</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<sccpluscart>
+				<boot>scc</boot>
+				<hash algo="sha1">d394e2f71cdb955d03cbf8173950e82fc69646bd</hash>
+			</sccpluscart>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<sccpluscart>
+				<boot>scc+</boot>
+				<hash algo="sha1">1e92d20a5815ad0dffd50d8324fce389ca033e05</hash>
+			</sccpluscart>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<sccpluscart>
+				<boot>scc+</boot>
+				<hash algo="sha1">fcd563fe7ccb293be1f1adb0da7d6f0da8fc7e2e</hash>
+			</sccpluscart>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Hyper Sports 3</title>
@@ -7260,34 +7266,6 @@
 			<rom>
 				<hash algo="sha1">3d45014accbee7c0df798a7c77771666f863dfd5</hash>
 			</rom>
-		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Hyper Sports II</title>
-		<system>MSX</system>
-		<company>Konami</company>
-		<year>1984</year>
-		<country>JP</country>
-		<dump>
-			<original value="false"/>
-			<sccpluscart>
-				<boot>scc</boot>
-				<hash algo="sha1">d394e2f71cdb955d03cbf8173950e82fc69646bd</hash>
-			</sccpluscart>
-		</dump>
-		<dump>
-			<original value="false"/>
-			<sccpluscart>
-				<boot>scc+</boot>
-				<hash algo="sha1">1e92d20a5815ad0dffd50d8324fce389ca033e05</hash>
-			</sccpluscart>
-		</dump>
-		<dump>
-			<original value="false"/>
-			<sccpluscart>
-				<boot>scc+</boot>
-				<hash algo="sha1">fcd563fe7ccb293be1f1adb0da7d6f0da8fc7e2e</hash>
-			</sccpluscart>
 		</dump>
 	</software>
 	<software>
@@ -7900,7 +7878,7 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Kanji Rom - JIS 1st Class</title>
+		<title xml:lang="en">Kanji ROM - JIS 1st Class</title>
 		<system>MSX</system>
 		<company>Ascii</company>
 		<year>1986</year>
@@ -8539,6 +8517,49 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Konami&#39;s Game Master</title>
+		<system>MSX</system>
+		<company>Konami</company>
+		<year>1985</year>
+		<country>JP</country>
+		<dump>
+			<original value="true">GoodMSX</original>
+			<rom>
+				<hash algo="sha1">9648d43f3c25d67b9e4972f777d7b02470080d1c</hash>
+				<remark>
+					<text>[RC-735]</text>
+				</remark>
+			</rom>
+		</dump>
+		<dump>
+			<original value="true">GoodMSX</original>
+			<rom>
+				<hash algo="sha1">abce0b855d67ac10bc667e0f23ceab4a12ffeee6</hash>
+				<remark>
+					<text>[a1][RC-735]</text>
+				</remark>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">70ba2331844bd5c14906e9f2284eba119b3e41bf</hash>
+				<remark>
+					<text>[a][RC-735]</text>
+				</remark>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">4fe90868376704336fbf45619a47ce18736ff1b2</hash>
+				<remark>
+					<text>[RC-735]</text>
+				</remark>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Konami&#39;s Game Master 2</title>
 		<system>MSX</system>
 		<company>Konami</company>
@@ -8574,44 +8595,6 @@
 				<type>GameMaster2</type>
 				<hash algo="sha1">0099492bd11dfa3ddf87af3aeb4c92b29f78bd82</hash>
 			</megarom>
-		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Konami&#39;s Game Master European version</title>
-		<system>MSX</system>
-		<company>Konami</company>
-		<year>1986</year>
-		<country>JP</country>
-		<dump>
-			<original value="false"/>
-			<rom>
-				<hash algo="sha1">70ba2331844bd5c14906e9f2284eba119b3e41bf</hash>
-			</rom>
-		</dump>
-		<dump>
-			<original value="false"/>
-			<rom>
-				<hash algo="sha1">4fe90868376704336fbf45619a47ce18736ff1b2</hash>
-			</rom>
-		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Konami&#39;s Game Master Japanese version</title>
-		<system>MSX</system>
-		<company>Konami</company>
-		<year>1985</year>
-		<country>JP</country>
-		<dump>
-			<original value="true">GoodMSX</original>
-			<rom>
-				<hash algo="sha1">9648d43f3c25d67b9e4972f777d7b02470080d1c</hash>
-			</rom>
-		</dump>
-		<dump>
-			<original value="true">GoodMSX</original>
-			<rom>
-				<hash algo="sha1">abce0b855d67ac10bc667e0f23ceab4a12ffeee6</hash>
-			</rom>
 		</dump>
 	</software>
 	<software>
@@ -8846,7 +8829,7 @@
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">9776DA8B475D81400E027E37D949CCFFBB33FE30</hash>
 			</rom>
@@ -8859,7 +8842,7 @@
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">7056a2bea5013894930279f8c09cc77633964778</hash>
 			</rom>
@@ -9049,7 +9032,7 @@
 		<system>MSX</system>
 		<company>AG Software</company>
 		<year>2005</year>
-		<country>ES</country>
+		<country>IT</country>
 		<dump>
 			<original value="true">author</original>
 			<megarom>
@@ -9158,7 +9141,7 @@
 	<software>
 		<title xml:lang="en">Lotus F3</title>
 		<system>MSX</system>
-		<company>dvik &#38; joyrex productions</company>
+		<company>DVIK &#38; joyrex productions</company>
 		<year>2007</year>
 		<country>EU</country>
 		<dump>
@@ -9682,7 +9665,7 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">MECHA TAISEN ON PLANET OLDSKOOL</title>
+		<title xml:lang="en">Mecha Taisen on planet Oldskool</title>
 		<system>MSX</system>
 		<company>Damage X</company>
 		<year>2006</year>
@@ -9698,7 +9681,7 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Mega Assembler 1.0</title>
+		<title xml:lang="en">Mega Assembler</title>
 		<system>MSX</system>
 		<company>Cibertron</company>
 		<year>1987</year>
@@ -9715,13 +9698,6 @@
 				<hash algo="sha1">778472f9113eb6a80144cc717151eb48474b9d34</hash>
 			</rom>
 		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Mega Assembler 1.1</title>
-		<system>MSX</system>
-		<company>Orion</company>
-		<year>1989</year>
-		<country>BR</country>
 		<dump>
 			<original value="false"/>
 			<rom>
@@ -10093,7 +10069,7 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Monster Hunter (English)</title>
+		<title xml:lang="en">Monster Hunter</title>
 		<system>MSX</system>
 		<company>Nerlaska Studio</company>
 		<year>2006</year>
@@ -10112,26 +10088,19 @@
 			<original value="true">author</original>
 			<megarom>
 				<type>KonamiSCC</type>
-				<hash algo="sha1">1c238009e77c5536d0059631954c2c4a52527283</hash>
+				<hash algo="sha1">7b8015f919c8dd95db683f3f3d0799cf7ef1bc22</hash>
 				<remark>
-					<text>MSX-DEV06</text>
+					<text>MSXDEV06</text>
 				</remark>
 			</megarom>
 		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Monster Hunter (Espaniol)</title>
-		<system>MSX</system>
-		<company>Nerlaska Studio</company>
-		<year>2006</year>
-		<country>ES</country>
 		<dump>
 			<original value="true">author</original>
 			<megarom>
 				<type>KonamiSCC</type>
-				<hash algo="sha1">7b8015f919c8dd95db683f3f3d0799cf7ef1bc22</hash>
+				<hash algo="sha1">1c238009e77c5536d0059631954c2c4a52527283</hash>
 				<remark>
-					<text>MSXDEV06</text>
+					<text>MSX-DEV06</text>
 				</remark>
 			</megarom>
 		</dump>
@@ -10294,7 +10263,7 @@
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<type>Normal</type>
 				<start>0x8000</start>
@@ -10868,20 +10837,6 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Nemesis - Gradius</title>
-		<system>MSX</system>
-		<company>Konami</company>
-		<year>1986</year>
-		<country>JP</country>
-		<dump>
-			<original value="false"/>
-			<sccpluscart>
-				<boot>scc</boot>
-				<hash algo="sha1">f2854b7198f325691a5ad3129bd05b44d6120771</hash>
-			</sccpluscart>
-		</dump>
-	</software>
-	<software>
 		<title xml:lang="en">Nessen Koushiyen - Casio Baseball</title>
 		<system>MSX</system>
 		<company>Casio</company>
@@ -10991,11 +10946,31 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">NIGHT CITY</title>
+		<title xml:lang="en">Night City</title>
 		<system>MSX</system>
 		<company>Germ&#225;n G&#243;mez Herrera</company>
 		<year>2006</year>
-		<country>EU</country>
+		<country>ES</country>
+		<dump>
+			<original value="true">author</original>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">4b138e041947990309c228890914689908d46685</hash>
+				<remark>
+					<text>MSXDEV06</text>
+				</remark>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="true">author</original>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">22f9b0238ff48840fb7d45ac93a7f15495393920</hash>
+				<remark>
+					<text>MSXDEV06</text>
+				</remark>
+			</megarom>
+		</dump>
 		<dump>
 			<original value="true">author</original>
 			<rom>
@@ -11013,40 +10988,6 @@
 					<text>MSX-DEV06</text>
 				</remark>
 			</rom>
-		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Night City (English)</title>
-		<system>MSX</system>
-		<company>Germ&#225;n G&#243;mez Herrera</company>
-		<year>2005</year>
-		<country>ES</country>
-		<dump>
-			<original value="true">author</original>
-			<megarom>
-				<type>ASCII8</type>
-				<hash algo="sha1">22f9b0238ff48840fb7d45ac93a7f15495393920</hash>
-				<remark>
-					<text>MSXDEV06</text>
-				</remark>
-			</megarom>
-		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Night City (Espaniol)</title>
-		<system>MSX</system>
-		<company>Germ&#225;n G&#243;mez Herrera</company>
-		<year>2006</year>
-		<country>ES</country>
-		<dump>
-			<original value="true">author</original>
-			<megarom>
-				<type>ASCII8</type>
-				<hash algo="sha1">4b138e041947990309c228890914689908d46685</hash>
-				<remark>
-					<text>MSXDEV06</text>
-				</remark>
-			</megarom>
 		</dump>
 	</software>
 	<software>
@@ -11356,9 +11297,9 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Operation Wolf (MSXdev Version)</title>
+		<title xml:lang="en">Operation Wolf</title>
 		<system>MSX</system>
-		<company>TOYBOX</company>
+		<company>Toybox</company>
 		<year>2006</year>
 		<country>ES</country>
 		<dump>
@@ -11372,13 +11313,6 @@
 				</remark>
 			</rom>
 		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Operation Wolf (v2)</title>
-		<system>MSX</system>
-		<company>TOYBOX</company>
-		<year>2007</year>
-		<country>ES</country>
 		<dump>
 			<original value="true">author</original>
 			<rom>
@@ -11504,7 +11438,7 @@
 		<system>MSX</system>
 		<company>AG Software</company>
 		<year>2005</year>
-		<country>ES</country>
+		<country>IT</country>
 		<dump>
 			<original value="true">author</original>
 			<megarom>
@@ -11548,7 +11482,7 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Palette Editor 1.2</title>
+		<title xml:lang="en">Palette Editor</title>
 		<system>MSX</system>
 		<company>BiFi Productions</company>
 		<year>2005</year>
@@ -11811,7 +11745,7 @@
 		<year>2003</year>
 		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">a2d2e98f68042b32f3225b58c9989529d5efacdc</hash>
 			</rom>
@@ -11860,7 +11794,7 @@
 	<software>
 		<title xml:lang="en">Phantomas Saga Infinity</title>
 		<system>MSX</system>
-		<company>CEZ Team &#38; Karoshi Corporation</company>
+		<company>ES</company>
 		<year>2006</year>
 		<country>EU</country>
 		<dump>
@@ -11901,26 +11835,12 @@
 				<hash algo="sha1">336a7c451a03c9a55726d171603b54628ad832c8</hash>
 			</rom>
 		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Picture Puzzle 1st version</title>
-		<system>MSX</system>
-		<company>Karoshi Corporation</company>
-		<year>2004</year>
-		<country>ES</country>
 		<dump>
 			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">9c9da64f7b0ad20b0d699bbb254ae20666867176</hash>
 			</rom>
 		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Picture Puzzle 2nd version</title>
-		<system>MSX</system>
-		<company>Karoshi Corporation</company>
-		<year>2004</year>
-		<country>ES</country>
 		<dump>
 			<original value="true">author</original>
 			<rom>
@@ -12176,7 +12096,7 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">POINTLESS PLATFORM</title>
+		<title xml:lang="en">Pointless Platform</title>
 		<system>MSX</system>
 		<company>The New Image</company>
 		<year>2006</year>
@@ -12312,7 +12232,7 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Professional Mahjong</title>
+		<title xml:lang="en">Professional Mahjong Gokuh</title>
 		<system>MSX</system>
 		<company>Chatnoir</company>
 		<year>1985</year>
@@ -12573,13 +12493,6 @@
 				<hash algo="sha1">9b6cb224f2a7a4af69221f1280d3344a5c88450e</hash>
 			</megarom>
 		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">R-Type v2</title>
-		<system>MSX</system>
-		<company>Irem</company>
-		<year>1988</year>
-		<country>JP</country>
 		<dump>
 			<original value="false"/>
 			<megarom>
@@ -12592,6 +12505,9 @@
 			<megarom>
 				<type>R-Type</type>
 				<hash algo="sha1">0b379610cb7085005a56b24a0890b79dd5a7e817</hash>
+				<remark>
+					<text>[a]</text>
+				</remark>
 			</megarom>
 		</dump>
 	</software>
@@ -12671,7 +12587,7 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Rambo Plus - 1st version</title>
+		<title xml:lang="en">Rambo Plus</title>
 		<system>MSX</system>
 		<company>Pack In Video</company>
 		<year>1985</year>
@@ -12685,13 +12601,6 @@
 				</remark>
 			</rom>
 		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Rambo Plus - 2nd version</title>
-		<system>MSX</system>
-		<company>Pack In Video</company>
-		<year>1985</year>
-		<country>JP</country>
 		<dump>
 			<original value="false"/>
 			<rom>
@@ -13005,7 +12914,7 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">RUNNING NAKED IN A FIELD OF FLOWERS</title>
+		<title xml:lang="en">Running Naked in a field of flowers</title>
 		<system>MSX</system>
 		<company>Infinite</company>
 		<year>2006</year>
@@ -13572,7 +13481,7 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">SKATE AIR</title>
+		<title xml:lang="en">Skate Air</title>
 		<system>MSX</system>
 		<company>Yermani Soft</company>
 		<year>2006</year>
@@ -13817,7 +13726,7 @@
 		<system>MSX</system>
 		<company>AG Software</company>
 		<year>2005</year>
-		<country>ES</country>
+		<country>IT</country>
 		<dump>
 			<original value="true">author</original>
 			<megarom>
@@ -14367,9 +14276,9 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Stratos 1st version</title>
+		<title xml:lang="en">Stratos</title>
 		<system>MSX</system>
-		<company>CEZ GS (ComputerEmuzone Game Studio)</company>
+		<company>ES</company>
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
@@ -14378,26 +14287,12 @@
 				<hash algo="sha1">9613d00d89ce90334d9776db32b984ceeefdeeff</hash>
 			</rom>
 		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Stratos 2nd version</title>
-		<system>MSX</system>
-		<company>CEZ GS (ComputerEmuzone Game Studio)</company>
-		<year>2004</year>
-		<country>ES</country>
 		<dump>
 			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">F0BACC798B381E6F7C6B27E0FCBE3065A2C80D65</hash>
 			</rom>
 		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Stratos 3rd version</title>
-		<system>MSX</system>
-		<company>CEZ GS (ComputerEmuzone Game Studio)</company>
-		<year>2004</year>
-		<country>ES</country>
 		<dump>
 			<original value="true">author</original>
 			<rom>
@@ -14425,7 +14320,7 @@
 	<software>
 		<title xml:lang="en">Sudoku</title>
 		<system>MSX</system>
-		<company>dvik &#38; joyrex</company>
+		<company>DVIK &#38; joyrex</company>
 		<year>2006</year>
 		<country>NL</country>
 		<dump>
@@ -14734,9 +14629,16 @@
 	<software>
 		<title xml:lang="en">Super Laydock - Mission Striker</title>
 		<system>MSX</system>
-		<company>Zemina</company>
-		<year>1988</year>
-		<country>KR</country>
+		<company>T&#38;E Soft</company>
+		<year>1987</year>
+		<country>JP</country>
+		<dump>
+			<original value="true">GoodMSX</original>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">2dfbca8f5cc3a9e9d151382ebe0da410f5393eaf</hash>
+			</megarom>
+		</dump>
 		<dump>
 			<original value="false"/>
 			<megarom>
@@ -14770,21 +14672,7 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Super Laydock Mission Striker</title>
-		<system>MSX</system>
-		<company>T&#38;E Soft</company>
-		<year>1987</year>
-		<country>JP</country>
-		<dump>
-			<original value="true">GoodMSX</original>
-			<megarom>
-				<type>ASCII8</type>
-				<hash algo="sha1">2dfbca8f5cc3a9e9d151382ebe0da410f5393eaf</hash>
-			</megarom>
-		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Super Monitor 1.1</title>
+		<title xml:lang="en">Super Monitor</title>
 		<system>MSX</system>
 		<company>Emiiru</company>
 		<year>1985</year>
@@ -14795,13 +14683,6 @@
 				<hash algo="sha1">55f30c8b7118870802d00db860bc1945f18a42c0</hash>
 			</rom>
 		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Super Monitor 1.2</title>
-		<system>MSX</system>
-		<company>Emiiru</company>
-		<year>1985</year>
-		<country>JP</country>
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
@@ -15008,28 +14889,27 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">T-Virus:Brain Dead! 1st version</title>
+		<title xml:lang="en">T-Virus:Brain Dead!</title>
 		<system>MSX</system>
 		<company>Dioniso</company>
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">b98242b08c8779d86b516cca6d5d6e35ec3600e0</hash>
+				<remark>
+					<text>1st version</text>
+				</remark>
 			</rom>
 		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">T-Virus:Brain Dead! 2nd version</title>
-		<system>MSX</system>
-		<company>Dioniso</company>
-		<year>2004</year>
-		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">ff999ca3e78c347bdbd23cb4c7adbfc02c20a397</hash>
+				<remark>
+					<text>2nd version</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -15092,7 +14972,7 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Tank Batallion</title>
+		<title xml:lang="en">Tank Battalion</title>
 		<system>MSX</system>
 		<company>Namcot</company>
 		<year>1984</year>
@@ -15109,13 +14989,6 @@
 				<hash algo="sha1">e679da4af05aa32843d2f4518b9ceb0df63df990</hash>
 			</rom>
 		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Tank Battalion</title>
-		<system>MSX</system>
-		<company>Namcot</company>
-		<year>1984</year>
-		<country>JP</country>
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
@@ -15223,7 +15096,7 @@
 		<year>2003</year>
 		<country>ES</country>
 		<dump>
-			<original value="false"/>
+			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">f373723b18cb7534ba1e8de61d484800478ee604</hash>
 			</rom>
@@ -15555,7 +15428,7 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Toobin C575]</title>
+		<title xml:lang="en">Toobin</title>
 		<system>MSX</system>
 		<company>Domark</company>
 		<year>1989</year>
@@ -15965,13 +15838,6 @@
 				</remark>
 			</megarom>
 		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Universe: Unknown</title>
-		<system>MSX</system>
-		<company>Infinite</company>
-		<year>2005</year>
-		<country>EU</country>
 		<dump>
 			<original value="true">author</original>
 			<rom>
@@ -16348,7 +16214,7 @@
 	<software>
 		<title xml:lang="en">Yahtzee</title>
 		<system>MSX</system>
-		<company>dvik &#38; joyrex productions</company>
+		<company>DVIK &#38; joyrex productions</company>
 		<year>2007</year>
 		<country>US</country>
 		<dump>
@@ -16570,7 +16436,7 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Yume Tairiku Adventure - Penguin Adventure</title>
+		<title xml:lang="en">Yumetairiku Adventure - Penguin Adventure</title>
 		<system>MSX</system>
 		<company>Konami</company>
 		<year>1986</year>
@@ -16582,13 +16448,6 @@
 				<hash algo="sha1">fa6c059e14092d023b1f9f2df28e482f966287db</hash>
 			</megarom>
 		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Yumetairiku Adventure - Penguin Adventure</title>
-		<system>MSX</system>
-		<company>Konami</company>
-		<year>1986</year>
-		<country>JP</country>
 		<dump>
 			<original value="true">GoodMSX</original>
 			<megarom>
@@ -18168,7 +18027,7 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Genghis Khan MSX2 Version</title>
+		<title xml:lang="en">Genghis Khan - MSX2 Version</title>
 		<system>MSX</system>
 		<company>Koei</company>
 		<year>1988</year>
@@ -18476,20 +18335,6 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Hydlide 3 - The Space Memories MSX1 Version</title>
-		<system>MSX</system>
-		<company>Zemina</company>
-		<year>1987</year>
-		<country>KR</country>
-		<dump>
-			<original value="false"/>
-			<megarom>
-				<type>GenericKonami</type>
-				<hash algo="sha1">5d2062ecc7176ca2b100724c2a17f877878d721d</hash>
-			</megarom>
-		</dump>
-	</software>
-	<software>
 		<title xml:lang="en">Hydlide 3 - The Space Memories MSX2 Version</title>
 		<system>MSX</system>
 		<company>T&#38;E Soft</company>
@@ -18500,6 +18345,13 @@
 			<megarom>
 				<type>ASCII8</type>
 				<hash algo="sha1">f182d4785e3eed00292f7ff4795c9dcc6c990a0a</hash>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>GenericKonami</type>
+				<hash algo="sha1">5d2062ecc7176ca2b100724c2a17f877878d721d</hash>
 			</megarom>
 		</dump>
 	</software>
@@ -19388,7 +19240,7 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Palette Editor 1.0</title>
+		<title xml:lang="en">Palette Editor</title>
 		<system>MSX</system>
 		<company>BiFi Productions</company>
 		<year>2005</year>
@@ -19404,13 +19256,6 @@
 				</remark>
 			</rom>
 		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Palette Editor 1.1</title>
-		<system>MSX</system>
-		<company>BiFi Productions</company>
-		<year>2005</year>
-		<country>NL</country>
 		<dump>
 			<original value="true">author</original>
 			<rom>
@@ -20226,7 +20071,7 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Tengoku Yoitoko</title>
+		<title xml:lang="en">Tengoku Yoitoko - Heaven</title>
 		<system>MSX</system>
 		<company>Taito</company>
 		<year>1987</year>
@@ -20238,13 +20083,6 @@
 				<hash algo="sha1">00c70cf37c71cb8f99567ae407ff6dd52c4774c2</hash>
 			</megarom>
 		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Tengoku Yoitoko - Heaven</title>
-		<system>MSX</system>
-		<company>Zemina</company>
-		<year>1988</year>
-		<country>KR</country>
 		<dump>
 			<original value="false"/>
 			<megarom>
@@ -20822,7 +20660,7 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Double Face 2 - v1.7</title>
+		<title xml:lang="en">Double Face 2</title>
 		<system>MSX</system>
 		<company>al Alamiah</company>
 		<year>1987</year>
@@ -20833,13 +20671,6 @@
 				<hash algo="sha1">08cb8d0a42e1c2a0961aff3ab70262525964b434</hash>
 			</rom>
 		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Double Face 2 - v1.8</title>
-		<system>MSX</system>
-		<company>al Alamiah</company>
-		<year>1987</year>
-		<country>MA</country>
 		<dump>
 			<original value="false"/>
 			<rom>
@@ -24657,5 +24488,5 @@
 Roms in this database 		: 2293
 Good MSX entries 				: 755
 SHA1 values 					: 2293
-Parse time 9.219 seconds on Sun Jan 6 10:42:47 CET 2008
+Parse time 11.843 seconds on Sun Jan 6 20:02:48 CET 2008
  -->
