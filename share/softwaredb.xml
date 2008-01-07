@@ -8,7 +8,7 @@
 	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
-<softwaredb xml:lang="en" timestamp="1199646839">
+<softwaredb xml:lang="en" timestamp="1199668497">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -1119,7 +1119,7 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">BASIC Nyuumon 2 - Basic Lessons</title>
+		<title xml:lang="en">BASIC Nyuumon 2 - Basic Lessons 2</title>
 		<system>MSX</system>
 		<company>Casio</company>
 		<year>1985</year>
@@ -5664,12 +5664,18 @@
 			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">B987A7858C9FBF2A996CC200F52FB2A840766EB2</hash>
+				<remark>
+					<text>1st version</text>
+				</remark>
 			</rom>
 		</dump>
 		<dump>
 			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">071e07f110bf1b2574c63f81042fc80c894e3f73</hash>
+				<remark>
+					<text>2nd version</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -6101,6 +6107,13 @@
 				</remark>
 			</megarom>
 		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Gradius 2 - Nemesis 2 - Beta Release</title>
+		<system>MSX</system>
+		<company>Konami</company>
+		<year>1987</year>
+		<country>JP</country>
 		<dump>
 			<original value="false"/>
 			<megarom>
@@ -8527,7 +8540,7 @@
 			<rom>
 				<hash algo="sha1">9648d43f3c25d67b9e4972f777d7b02470080d1c</hash>
 				<remark>
-					<text>[RC-735]</text>
+					<text>Japanese version</text>
 				</remark>
 			</rom>
 		</dump>
@@ -8536,7 +8549,7 @@
 			<rom>
 				<hash algo="sha1">abce0b855d67ac10bc667e0f23ceab4a12ffeee6</hash>
 				<remark>
-					<text>[a1][RC-735]</text>
+					<text>Japanese version</text>
 				</remark>
 			</rom>
 		</dump>
@@ -8545,7 +8558,7 @@
 			<rom>
 				<hash algo="sha1">70ba2331844bd5c14906e9f2284eba119b3e41bf</hash>
 				<remark>
-					<text>[a][RC-735]</text>
+					<text>European version</text>
 				</remark>
 			</rom>
 		</dump>
@@ -8554,7 +8567,7 @@
 			<rom>
 				<hash algo="sha1">4fe90868376704336fbf45619a47ce18736ff1b2</hash>
 				<remark>
-					<text>[RC-735]</text>
+					<text>European version</text>
 				</remark>
 			</rom>
 		</dump>
@@ -9286,7 +9299,7 @@
 				<type>Normal</type>
 				<hash algo="sha1">cb0d355627b8c036931a67666e425d8f9225a180</hash>
 				<remark>
-					<text>MSXDev05</text>
+					<text>MSX-DEV05</text>
 				</remark>
 			</megarom>
 		</dump>
@@ -9296,7 +9309,7 @@
 				<type>Normal</type>
 				<hash algo="sha1">38a3c6659080b38d9a2655e869e9fc0ce3e26c5e</hash>
 				<remark>
-					<text>MSXDev05</text>
+					<text>MSX-DEV05</text>
 				</remark>
 			</megarom>
 		</dump>
@@ -9690,18 +9703,27 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">5628514e2488ccb15ae464e7f210dcabbb782b91</hash>
+				<remark>
+					<text>Version 1.0</text>
+				</remark>
 			</rom>
 		</dump>
 		<dump>
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">778472f9113eb6a80144cc717151eb48474b9d34</hash>
+				<remark>
+					<text>Version 1.0</text>
+				</remark>
 			</rom>
 		</dump>
 		<dump>
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">ab29429f7d2df7ce4bab46d1d0f2b782df7f908e</hash>
+				<remark>
+					<text>Version  1.1</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -10080,7 +10102,7 @@
 				<type>KonamiSCC</type>
 				<hash algo="sha1">aa6055ba0e433aa9c93df4444783cacb9628a7e2</hash>
 				<remark>
-					<text>MSXDEV06</text>
+					<text>MSX-DEV06</text>
 				</remark>
 			</megarom>
 		</dump>
@@ -10090,7 +10112,7 @@
 				<type>KonamiSCC</type>
 				<hash algo="sha1">7b8015f919c8dd95db683f3f3d0799cf7ef1bc22</hash>
 				<remark>
-					<text>MSXDEV06</text>
+					<text>MSX-DEV06</text>
 				</remark>
 			</megarom>
 		</dump>
@@ -10957,7 +10979,7 @@
 				<type>ASCII8</type>
 				<hash algo="sha1">4b138e041947990309c228890914689908d46685</hash>
 				<remark>
-					<text>MSXDEV06</text>
+					<text>MSX-DEV06</text>
 				</remark>
 			</megarom>
 		</dump>
@@ -10967,7 +10989,7 @@
 				<type>ASCII8</type>
 				<hash algo="sha1">22f9b0238ff48840fb7d45ac93a7f15495393920</hash>
 				<remark>
-					<text>MSXDEV06</text>
+					<text>MSX-DEV06</text>
 				</remark>
 			</megarom>
 		</dump>
@@ -11494,7 +11516,7 @@
 				<start>0x4000</start>
 				<hash algo="sha1">58747cf76b7c2785dd70409be5d912eafa328616</hash>
 				<remark>
-					<text>http://bifi.msxnet.org/paledit/</text>
+					<text>Version 1.1</text>
 				</remark>
 			</rom>
 		</dump>
@@ -11505,7 +11527,7 @@
 				<start>0x4000</start>
 				<hash algo="sha1">98df3e94d3bbef5d18095b62e65274ebfa8d527c</hash>
 				<remark>
-					<text>http://bifi.msxnet.org/paledit/</text>
+					<text>Version 1.2 updated</text>
 				</remark>
 			</rom>
 		</dump>
@@ -11794,7 +11816,7 @@
 	<software>
 		<title xml:lang="en">Phantomas Saga Infinity</title>
 		<system>MSX</system>
-		<company>ES</company>
+		<company>CEZ GS &#38; Karoshi Corporation</company>
 		<year>2006</year>
 		<country>EU</country>
 		<dump>
@@ -11839,12 +11861,18 @@
 			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">9c9da64f7b0ad20b0d699bbb254ae20666867176</hash>
+				<remark>
+					<text>1st version</text>
+				</remark>
 			</rom>
 		</dump>
 		<dump>
 			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">27E56FBEC7FA39CE19D045B0DBC4217D290F92E2</hash>
+				<remark>
+					<text>2nd version</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -12498,6 +12526,9 @@
 			<megarom>
 				<type>R-Type</type>
 				<hash algo="sha1">9c886fff02779267041efe45dadefc5fd7f4b9a2</hash>
+				<remark>
+					<text>Version 2</text>
+				</remark>
 			</megarom>
 		</dump>
 		<dump>
@@ -12506,7 +12537,7 @@
 				<type>R-Type</type>
 				<hash algo="sha1">0b379610cb7085005a56b24a0890b79dd5a7e817</hash>
 				<remark>
-					<text>[a]</text>
+					<text>Version 2</text>
 				</remark>
 			</megarom>
 		</dump>
@@ -12597,7 +12628,7 @@
 			<rom>
 				<hash algo="sha1">1efcf9e9a8ea38bad319a70a5f7319e2589d4a8b</hash>
 				<remark>
-					<text>h RicBit</text>
+					<text>hacked by RicBit</text>
 				</remark>
 			</rom>
 		</dump>
@@ -14278,25 +14309,34 @@
 	<software>
 		<title xml:lang="en">Stratos</title>
 		<system>MSX</system>
-		<company>ES</company>
+		<company>CEZ GS (ComputerEmuzone Game Studio)</company>
 		<year>2004</year>
 		<country>ES</country>
 		<dump>
 			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">9613d00d89ce90334d9776db32b984ceeefdeeff</hash>
+				<remark>
+					<text>1st version</text>
+				</remark>
 			</rom>
 		</dump>
 		<dump>
 			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">F0BACC798B381E6F7C6B27E0FCBE3065A2C80D65</hash>
+				<remark>
+					<text>2nd version</text>
+				</remark>
 			</rom>
 		</dump>
 		<dump>
 			<original value="true">author</original>
 			<rom>
 				<hash algo="sha1">de505f32041800ecae382772a8f5adf2e397124b</hash>
+				<remark>
+					<text>3rd version</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -14681,12 +14721,18 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">55f30c8b7118870802d00db860bc1945f18a42c0</hash>
+				<remark>
+					<text>Version 1.1</text>
+				</remark>
 			</rom>
 		</dump>
 		<dump>
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">35f13b5a32c64b21517f0c4009f264067338912e</hash>
+				<remark>
+					<text>Version 1.2</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -19252,7 +19298,7 @@
 				<start>0x4000</start>
 				<hash algo="sha1">dc6437a5d52f77f524198b9d539b34dec6122854</hash>
 				<remark>
-					<text>http://bifi.msxnet.org/paledit/</text>
+					<text>Version 1.0</text>
 				</remark>
 			</rom>
 		</dump>
@@ -19263,7 +19309,7 @@
 				<start>0x4000</start>
 				<hash algo="sha1">b5414e11b227c3c828ee1de206bf2d8f14486bd4</hash>
 				<remark>
-					<text>http://bifi.msxnet.org/paledit/</text>
+					<text>Version 1.1</text>
 				</remark>
 			</rom>
 		</dump>
@@ -24485,8 +24531,8 @@
 	</software>
 </softwaredb>
 <!--
-Roms in this database 		: 2293
+Roms in this database 			: 2293
 Good MSX entries 				: 755
 SHA1 values 					: 2293
-Parse time 12.516 seconds on Sun Jan 6 20:14:11 CET 2008
+Parse time 13.676 seconds on Mon Jan 7 2:15:11 CET 2008
  -->
