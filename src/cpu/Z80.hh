@@ -49,8 +49,8 @@ protected:
 	inline void PRE_WRMEM       (unsigned /*address*/) { add(1); }
 	inline void POST_MEM        (unsigned /*address*/) { add(2); }
 
-	inline void PRE_IO (word /*port*/) { add(1); }
-	inline void POST_IO(word /*port*/) { add(3); }
+	inline void PRE_IO (unsigned /*port*/) { add(1); }
+	inline void POST_IO(unsigned /*port*/) { add(3); }
 
 	inline void R800Refresh()
 	{

@@ -138,8 +138,8 @@ private:
 	inline void cpuTracePost();
 	void cpuTracePost_slow();
 
-	inline byte READ_PORT(word port);
-	inline void WRITE_PORT(word port, byte value);
+	inline byte READ_PORT(unsigned port);
+	inline void WRITE_PORT(unsigned port, byte value);
 	byte RDMEMslow(unsigned address);
 	byte RDMEM_OPCODEslow(unsigned address);
 	void WRMEMslow(unsigned address, byte value);
@@ -275,7 +275,7 @@ private:
 	static void ld_sp_ix(S& s);
 	static void ld_sp_iy(S& s);
 
-	inline void WR_X_A(word x);
+	inline void WR_X_A(unsigned x);
 	static void ld_xbc_a(S& s);
 	static void ld_xde_a(S& s);
 	static void ld_xhl_a(S& s);
@@ -321,7 +321,7 @@ private:
 	static void ld_xword_iy(S& s);
 	static void ld_xword_sp(S& s);
 
-	inline void RD_A_X(word x);
+	inline void RD_A_X(unsigned x);
 	static void ld_a_xbc(S& s);
 	static void ld_a_xde(S& s);
 	static void ld_a_xhl(S& s);
@@ -394,7 +394,7 @@ private:
 	static void adc_a_iyl(S& s);
 	static void adc_a_iyh(S& s);
 	static void adc_a_byte(S& s);
-	inline void adc_a_x(word x);
+	inline void adc_a_x(unsigned x);
 	static void adc_a_xhl(S& s);
 	static void adc_a_xix(S& s);
 	static void adc_a_xiy(S& s);
@@ -412,7 +412,7 @@ private:
 	static void add_a_iyl(S& s);
 	static void add_a_iyh(S& s);
 	static void add_a_byte(S& s);
-	inline void add_a_x(word x);
+	inline void add_a_x(unsigned x);
 	static void add_a_xhl(S& s);
 	static void add_a_xix(S& s);
 	static void add_a_xiy(S& s);
@@ -430,7 +430,7 @@ private:
 	static void and_iyh(S& s);
 	static void and_iyl(S& s);
 	static void and_byte(S& s);
-	inline void and_x(word x);
+	inline void and_x(unsigned x);
 	static void and_xhl(S& s);
 	static void and_xix(S& s);
 	static void and_xiy(S& s);
@@ -448,7 +448,7 @@ private:
 	static void cp_iyh(S& s);
 	static void cp_iyl(S& s);
 	static void cp_byte(S& s);
-	inline void cp_x(word x);
+	inline void cp_x(unsigned x);
 	static void cp_xhl(S& s);
 	static void cp_xix(S& s);
 	static void cp_xiy(S& s);
@@ -466,7 +466,7 @@ private:
 	static void or_iyh(S& s);
 	static void or_iyl(S& s);
 	static void or_byte(S& s);
-	inline void or_x(word x);
+	inline void or_x(unsigned x);
 	static void or_xhl(S& s);
 	static void or_xix(S& s);
 	static void or_xiy(S& s);
@@ -484,7 +484,7 @@ private:
 	static void sbc_a_iyh(S& s);
 	static void sbc_a_iyl(S& s);
 	static void sbc_a_byte(S& s);
-	inline void sbc_a_x(word x);
+	inline void sbc_a_x(unsigned x);
 	static void sbc_a_xhl(S& s);
 	static void sbc_a_xix(S& s);
 	static void sbc_a_xiy(S& s);
@@ -502,7 +502,7 @@ private:
 	static void sub_iyh(S& s);
 	static void sub_iyl(S& s);
 	static void sub_byte(S& s);
-	inline void sub_x(word x);
+	inline void sub_x(unsigned x);
 	static void sub_xhl(S& s);
 	static void sub_xix(S& s);
 	static void sub_xiy(S& s);
@@ -520,7 +520,7 @@ private:
 	static void xor_iyh(S& s);
 	static void xor_iyl(S& s);
 	static void xor_byte(S& s);
-	inline void xor_x(word x);
+	inline void xor_x(unsigned x);
 	static void xor_xhl(S& s);
 	static void xor_xix(S& s);
 	static void xor_xiy(S& s);
@@ -537,7 +537,7 @@ private:
 	static void dec_ixl(S& s);
 	static void dec_iyh(S& s);
 	static void dec_iyl(S& s);
-	inline void DEC_X(word x);
+	inline void DEC_X(unsigned x);
 	static void dec_xhl(S& s);
 	static void dec_xix(S& s);
 	static void dec_xiy(S& s);
@@ -554,7 +554,7 @@ private:
 	static void inc_ixl(S& s);
 	static void inc_iyh(S& s);
 	static void inc_iyl(S& s);
-	inline void INC_X(word x);
+	inline void INC_X(unsigned x);
 	static void inc_xhl(S& s);
 	static void inc_xix(S& s);
 	static void inc_xiy(S& s);
@@ -688,7 +688,7 @@ private:
 	static void bit_6_xiy(S& s);
 	static void bit_7_xiy(S& s);
 
-	inline byte RES(byte bit, byte reg);
+	inline byte RES(unsigned bit, byte reg);
 	static void res_0_a(S& s);
 	static void res_0_b(S& s);
 	static void res_0_c(S& s);
@@ -746,10 +746,10 @@ private:
 	static void res_7_h(S& s);
 	static void res_7_l(S& s);
 
-	inline byte RES_X(byte bit, word x);
-	inline byte RES_X_(byte bit, word x);
-	inline byte RES_X_X(byte bit);
-	inline byte RES_X_Y(byte bit);
+	inline byte RES_X(unsigned bit, unsigned x);
+	inline byte RES_X_(unsigned bit, unsigned x);
+	inline byte RES_X_X(unsigned bit);
+	inline byte RES_X_Y(unsigned bit);
 	static void res_0_xhl(S& s);
 	static void res_1_xhl(S& s);
 	static void res_2_xhl(S& s);
@@ -887,7 +887,7 @@ private:
 	static void res_7_xiy_h(S& s);
 	static void res_7_xiy_l(S& s);
 
-	inline byte SET(byte bit, byte reg);
+	inline byte SET(unsigned bit, byte reg);
 	static void set_0_a(S& s);
 	static void set_0_b(S& s);
 	static void set_0_c(S& s);
@@ -945,10 +945,10 @@ private:
 	static void set_7_h(S& s);
 	static void set_7_l(S& s);
 
-	inline byte SET_X(byte bit, word x);
-	inline byte SET_X_(byte bit, word x);
-	inline byte SET_X_X(byte bit);
-	inline byte SET_X_Y(byte bit);
+	inline byte SET_X(unsigned bit, unsigned x);
+	inline byte SET_X_(unsigned bit, unsigned x);
+	inline byte SET_X_X(unsigned bit);
+	inline byte SET_X_Y(unsigned bit);
 	static void set_0_xhl(S& s);
 	static void set_1_xhl(S& s);
 	static void set_2_xhl(S& s);
@@ -1087,8 +1087,8 @@ private:
 	static void set_7_xiy_l(S& s);
 
 	inline byte RL(byte reg);
-	inline byte RL_X(word x);
-	inline byte RL_X_(word x);
+	inline byte RL_X(unsigned x);
+	inline byte RL_X_(unsigned x);
 	inline byte RL_X_X();
 	inline byte RL_X_Y();
 	static void rl_a(S& s);
@@ -1117,8 +1117,8 @@ private:
 	static void rl_xiy_l(S& s);
 
 	inline byte RLC(byte reg);
-	inline byte RLC_X(word x);
-	inline byte RLC_X_(word x);
+	inline byte RLC_X(unsigned x);
+	inline byte RLC_X_(unsigned x);
 	inline byte RLC_X_X();
 	inline byte RLC_X_Y();
 	static void rlc_a(S& s);
@@ -1147,8 +1147,8 @@ private:
 	static void rlc_xiy_l(S& s);
 
 	inline byte RR(byte reg);
-	inline byte RR_X(word x);
-	inline byte RR_X_(word x);
+	inline byte RR_X(unsigned x);
+	inline byte RR_X_(unsigned x);
 	inline byte RR_X_X();
 	inline byte RR_X_Y();
 	static void rr_a(S& s);
@@ -1177,8 +1177,8 @@ private:
 	static void rr_xiy_l(S& s);
 
 	inline byte RRC(byte reg);
-	inline byte RRC_X(word x);
-	inline byte RRC_X_(word x);
+	inline byte RRC_X(unsigned x);
+	inline byte RRC_X_(unsigned x);
 	inline byte RRC_X_X();
 	inline byte RRC_X_Y();
 	static void rrc_a(S& s);
@@ -1207,8 +1207,8 @@ private:
 	static void rrc_xiy_l(S& s);
 
 	inline byte SLA(byte reg);
-	inline byte SLA_X(word x);
-	inline byte SLA_X_(word x);
+	inline byte SLA_X(unsigned x);
+	inline byte SLA_X_(unsigned x);
 	inline byte SLA_X_X();
 	inline byte SLA_X_Y();
 	static void sla_a(S& s);
@@ -1237,8 +1237,8 @@ private:
 	static void sla_xiy_l(S& s);
 
 	inline byte SLL(byte reg);
-	inline byte SLL_X(word x);
-	inline byte SLL_X_(word x);
+	inline byte SLL_X(unsigned x);
+	inline byte SLL_X_(unsigned x);
 	inline byte SLL_X_X();
 	inline byte SLL_X_Y();
 	static void sll_a(S& s);
@@ -1267,8 +1267,8 @@ private:
 	static void sll_xiy_l(S& s);
 
 	inline byte SRA(byte reg);
-	inline byte SRA_X(word x);
-	inline byte SRA_X_(word x);
+	inline byte SRA_X(unsigned x);
+	inline byte SRA_X_(unsigned x);
 	inline byte SRA_X_X();
 	inline byte SRA_X_Y();
 	static void sra_a(S& s);
@@ -1297,8 +1297,8 @@ private:
 	static void sra_xiy_l(S& s);
 
 	inline byte SRL(byte reg);
-	inline byte SRL_X(word x);
-	inline byte SRL_X_(word x);
+	inline byte SRL_X(unsigned x);
+	inline byte SRL_X_(unsigned x);
 	inline byte SRL_X_X();
 	inline byte SRL_X_Y();
 	static void srl_a(S& s);

@@ -120,8 +120,8 @@ protected:
 		add(memoryDelay[address >> 14] + OFFSET);
 	}
 
-	inline void PRE_IO (word /*port*/) { }
-	inline void POST_IO(word /*port*/) {
+	inline void PRE_IO (unsigned /*port*/) { }
+	inline void POST_IO(unsigned /*port*/) {
 		// TODO is this correct or does it just take 4 clock cycles
 		lastPage = -1;
 		add(3);
