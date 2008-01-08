@@ -431,7 +431,7 @@ template <class T> byte CPUCore<T>::RDMEMslow(unsigned address)
 	T::POST_MEM(address);
 	return result;
 }
-template <class T> ALWAYS_INLINE byte CPUCore<T>::RDMEM(word address)
+template <class T> ALWAYS_INLINE byte CPUCore<T>::RDMEM(unsigned address)
 {
 	const byte* line = readCacheLine[address >> CacheLine::BITS];
 	if (likely(line != NULL)) {
@@ -444,7 +444,7 @@ template <class T> ALWAYS_INLINE byte CPUCore<T>::RDMEM(word address)
 	}
 }
 
-template <class T> ALWAYS_INLINE word CPUCore<T>::RD_WORD(word address)
+template <class T> ALWAYS_INLINE word CPUCore<T>::RD_WORD(unsigned address)
 {
 	const byte* line = readCacheLine[address >> CacheLine::BITS];
 	if (likely(((address & CacheLine::LOW) != CacheLine::LOW) &&
@@ -463,8 +463,8 @@ template <class T> ALWAYS_INLINE word CPUCore<T>::RD_WORD(word address)
 
 template <class T> word CPUCore<T>::RD_WORD_slow(unsigned address)
 {
-	word res = RDMEM(address + 0);
-	res     += RDMEM(address + 1) << 8;
+	word res = RDMEM(address);
+	res     += RDMEM((address + 1) & 0xFFFF) << 8;
 	return res;
 }
 
@@ -492,7 +492,7 @@ template <class T> void CPUCore<T>::WRMEMslow(unsigned address, byte value)
 	interface->writeMem(address, value, time);
 	T::POST_MEM(address);
 }
-template <class T> ALWAYS_INLINE void CPUCore<T>::WRMEM(word address, byte value)
+template <class T> ALWAYS_INLINE void CPUCore<T>::WRMEM(unsigned address, byte value)
 {
 	byte* line = writeCacheLine[address >> CacheLine::BITS];
 	if (likely(line != NULL)) {
@@ -505,7 +505,7 @@ template <class T> ALWAYS_INLINE void CPUCore<T>::WRMEM(word address, byte value
 	}
 }
 
-template <class T> ALWAYS_INLINE void CPUCore<T>::WR_WORD(word address, word value)
+template <class T> ALWAYS_INLINE void CPUCore<T>::WR_WORD(unsigned address, word value)
 {
 	byte* line = writeCacheLine[address >> CacheLine::BITS];
 	if (likely(((address & CacheLine::LOW) != CacheLine::LOW) &&
@@ -524,11 +524,12 @@ template <class T> ALWAYS_INLINE void CPUCore<T>::WR_WORD(word address, word val
 
 template <class T> void CPUCore<T>::WR_WORD_slow(unsigned address, word value)
 {
-	WRMEM(address + 0, value & 255);
-	WRMEM(address + 1, value >> 8);
+	WRMEM( address,               value & 255);
+	WRMEM((address + 1) & 0xFFFF, value >> 8);
 }
 
-template <class T> ALWAYS_INLINE void CPUCore<T>::WR_WORD_rev(word address, word value)
+template <class T> ALWAYS_INLINE void CPUCore<T>::WR_WORD_rev(
+	unsigned address, word value)
 {
 	byte* line = writeCacheLine[address >> CacheLine::BITS];
 	if (likely(((address & CacheLine::LOW) != CacheLine::LOW) &&
@@ -549,8 +550,8 @@ template <class T> ALWAYS_INLINE void CPUCore<T>::WR_WORD_rev(word address, word
 template <class T> void CPUCore<T>::WR_WORD_rev_slow(
 	unsigned address, word value)
 {
-	WRMEM(address + 1, value >> 8);
-	WRMEM(address + 0, value & 255);
+	WRMEM((address + 1) & 0xFFFF, value >> 8);
+	WRMEM( address,               value & 255);
 }
 
 template <class T> inline void CPUCore<T>::M1Cycle()
@@ -597,7 +598,7 @@ template <class T> inline void CPUCore<T>::irq2()
 	R.setHALT(false);
 	R.di();
 	PUSH(R.getPC());
-	word x = interface->readIRQVector() | (R.getI() << 8);
+	unsigned x = interface->readIRQVector() | (R.getI() << 8);
 	R.setPC(RD_WORD(x));
 	T::IM2_DELAY();
 	M1Cycle();

@@ -146,13 +146,13 @@ private:
 	inline byte RDMEM_OPCODE();
 	inline word RD_WORD_PC();
 	word RD_WORD_PC_slow();
-	inline word RD_WORD(word address);
+	inline word RD_WORD(unsigned address);
 	word RD_WORD_slow(unsigned address);
-	inline byte RDMEM(word address);
-	inline void WRMEM(word address, byte value);
-	inline void WR_WORD(word address, word value);
+	inline byte RDMEM(unsigned address);
+	inline void WRMEM(unsigned address, byte value);
+	inline void WR_WORD(unsigned address, word value);
 	void WR_WORD_slow(unsigned address, word value);
-	inline void WR_WORD_rev(word address, word value);
+	inline void WR_WORD_rev(unsigned address, word value);
 	void WR_WORD_rev_slow(unsigned address, word value);
 
 	inline void M1Cycle();
