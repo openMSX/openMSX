@@ -3,7 +3,7 @@
 #include "WavImage.hh"
 #include "WavData.hh"
 #include "MSXException.hh"
-#include "File.hh"
+#include "LocalFileReference.hh"
 #include "Math.hh"
 
 using std::string;
@@ -14,8 +14,8 @@ namespace openmsx {
 WavImage::WavImage(const string& fileName)
 	: clock(EmuTime::zero)
 {
-	File file(fileName);
-	wav.reset(new WavData(file.getLocalName(), 16, 0));
+	LocalFileReference file(fileName);
+	wav.reset(new WavData(file.getFilename(), 16, 0));
 	clock.setFreq(wav->getFreq());
 
 	// calculate the average to subtract it later (simple DC filter)

@@ -4,6 +4,7 @@
 #include "XMLLoader.hh"
 #include "XMLElement.hh"
 #include "File.hh"
+#include "LocalFileReference.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "MSXMotherBoard.hh"
@@ -113,10 +114,11 @@ std::auto_ptr<XMLElement> HardwareConfig::loadConfig(
 	string filename = context.resolve(
 		path + '/' + hwName + "/hardwareconfig.xml");
 	try {
-		File file(filename);
+		LocalFileReference fileRef(filename);
 		std::auto_ptr<XMLElement> result = XMLLoader::loadXML(
-			file.getLocalName(), "msxconfig2.dtd");
+			fileRef.getFilename(), "msxconfig2.dtd");
 
+		File file(filename);
 		string baseName = FileOperations::getBaseName(file.getURL());
 
 		result->setFileContext(std::auto_ptr<FileContext>(

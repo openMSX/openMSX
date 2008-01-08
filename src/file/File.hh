@@ -114,15 +114,6 @@ public:
 	const std::string getURL() const;
 
 	/**
-	 * Get a local filename for this object. Useful if this object
-	 * refers to a HTTP or FTP file.
-	 * @result Filename of a local file that is identical to the
-	 *         file that this object refers to.
-	 * @throws FileException
-	 */
-	const std::string getLocalName() const;
-
-	/**
 	 * Get Original filename for this object. This will usually just
 	 * return the filename portion of the URL. However for compressed
 	 * files this will be different.
@@ -145,6 +136,13 @@ public:
 	time_t getModificationDate();
 
 private:
+	friend class LocalFileReference;
+	/** This is an internal method used by LocalFileReference.
+	 * Returns the path to the (uncompressed) file on the local,
+	 * filesystem. Or an empty string in case there is no such path.
+	 */
+	const std::string getLocalReference() const;
+
 	std::auto_ptr<FileBase> file;
 };
 

@@ -32,7 +32,7 @@ public:
 #endif
 	virtual void flush();
 	virtual const std::string getURL() const;
-	virtual const std::string getLocalName();
+	virtual const std::string getLocalReference();
 	virtual bool isReadOnly() const;
 	virtual time_t getModificationDate();
 

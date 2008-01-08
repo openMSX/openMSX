@@ -6,7 +6,7 @@
 #include "ProxyCommand.hh"
 #include "ProxySetting.hh"
 #include "InfoTopic.hh"
-#include "File.hh"
+#include "LocalFileReference.hh"
 #include "openmsx.hh"
 #include "CliComm.hh"
 #include "HotKey.hh"
@@ -444,8 +444,8 @@ void GlobalCommandController::splitList(
 void GlobalCommandController::source(const string& script)
 {
 	try {
-		File file(script);
-		getInterpreter().executeFile(file.getLocalName());
+		LocalFileReference file(script);
+		getInterpreter().executeFile(file.getFilename());
 	} catch (CommandException& e) {
 		getCliComm().printWarning(
 			 "While executing init.tcl: " + e.getMessage());

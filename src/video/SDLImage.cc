@@ -1,7 +1,7 @@
 // $Id$
 
 #include "SDLImage.hh"
-#include "File.hh"
+#include "LocalFileReference.hh"
 #include "MSXException.hh"
 #include <SDL_image.h>
 #include <SDL.h>
@@ -138,17 +138,10 @@ SDL_Surface* SDLImage::loadImage(const string& filename,
 
 SDL_Surface* SDLImage::readImage(const string& filename)
 {
-	string filePath;
-	// Note: It is essential the File object is destroyed before the IMG_Load
-	//       function is called, because if the file is open in read/write
-	//       mode, the image loading will fail.
-	{
-		File file(filename);
-		filePath = file.getLocalName();
-	}
-	SDL_Surface* result = IMG_Load(filePath.c_str());
+	LocalFileReference file(filename);
+	SDL_Surface* result = IMG_Load(file.getFilename().c_str());
 	if (!result) {
-		throw MSXException("File \"" + filePath + "\" is not a valid image");
+		throw MSXException("File \"" + filename + "\" is not a valid image");
 	}
 	return result;
 }

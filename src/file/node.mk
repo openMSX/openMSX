@@ -13,7 +13,8 @@ SRC_HDR:= \
 	ZipFileAdapter \
 	ReadDir \
 	FilePool \
-	PreCacheFile
+	PreCacheFile \
+	LocalFileReference
 
 HDR_ONLY:= \
 	FileException

@@ -1,5 +1,21 @@
 $Id$
 
+2008-01-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed reading of wav cassette images on Windows:
+	   Some versions of(?) windows can't open the same file multiple
+	   times in read-write mode. But this is exactly what happened by
+	   using the (now removed) File::getLocalFile() method combined with
+	   SDL_LoadWav(). In the past (2007-08-29) we already solved a similar
+	   problem with IMG_Load(). We solved this by deleting the File object
+	   before using the path returned by getLocalFile(). This works for
+	   regular files, but not for compressed files. I like to gzip my wav
+	   images so we need a different solution.
+	   To solve this I removed the old getLocalFile() method and created a
+	   new class LocalFileReference. This class makes sure there is no
+	   open file reference anymore after its constructor finishes and that
+	   there is a local uncompressed version of the file for at least as
+	   long as the lifetime of the corresponding objects this class.
+
 2008-01-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* in CPUCore prefer to use 'unsigned int' over 'word' datatype:
 	   Results in smaller and faster code. On x86, instructions that work

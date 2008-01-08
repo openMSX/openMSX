@@ -30,7 +30,7 @@ public:
 	virtual void flush() = 0;
 
 	virtual const std::string getURL() const = 0;
-	virtual const std::string getLocalName() = 0;
+	virtual const std::string getLocalReference();
 	virtual const std::string getOriginalName();
 	virtual bool isReadOnly() const = 0;
 	virtual time_t getModificationDate() = 0;

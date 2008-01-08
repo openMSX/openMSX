@@ -113,15 +113,7 @@ void SDLConsole::loadBackground(const string& filename)
 
 void SDLConsole::loadFont(const string& filename)
 {
-	string filePath;
-	// Note: It is essential the File object is destroyed before the SDLFont
-	//       constructor is called, because if the file is open in read/write
-	//       mode, the image loading will fail.
-	{
-		File file(filename);
-		filePath = file.getLocalName();
-	}
-	font.reset(new SDLFont(filePath, outputScreen));
+	font.reset(new SDLFont(filename, outputScreen));
 }
 
 unsigned SDLConsole::getScreenW() const

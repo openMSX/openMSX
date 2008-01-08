@@ -5,7 +5,7 @@
 #include "Rom.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
-#include "File.hh"
+#include "LocalFileReference.hh"
 #include "GlobalCliComm.hh"
 #include "StringOp.hh"
 #include "XMLLoader.hh"
@@ -189,8 +189,8 @@ static auto_ptr<XMLElement> openDB(GlobalCliComm& cliComm, const string& filenam
 {
 	auto_ptr<XMLElement> doc;
 	try {
-		File file(filename);
-		doc = XMLLoader::loadXML(file.getLocalName(), type);
+		LocalFileReference file(filename);
+		doc = XMLLoader::loadXML(file.getFilename(), type);
 	} catch (FileException& e) {
 		// couldn't read file
 	} catch (XMLException& e) {

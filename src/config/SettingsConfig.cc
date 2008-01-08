@@ -4,6 +4,7 @@
 #include "SettingsManager.hh"
 #include "XMLElement.hh"
 #include "XMLLoader.hh"
+#include "LocalFileReference.hh"
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
@@ -72,9 +73,9 @@ SettingsConfig::~SettingsConfig()
 
 void SettingsConfig::loadSetting(FileContext& context, const string& filename)
 {
-	File file(context.resolve(filename));
+	LocalFileReference file(context.resolve(filename));
 	xmlElement = XMLLoader::loadXML(
-		file.getLocalName(), "settings.dtd");
+		file.getFilename(), "settings.dtd");
 	xmlElement->setFileContext(
 		auto_ptr<FileContext>(new SystemFileContext()));
 	getSettingsManager().loadSettings(*xmlElement);

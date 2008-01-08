@@ -103,9 +103,9 @@ const string File::getURL() const
 	return file->getURL();
 }
 
-const string File::getLocalName() const
+const string File::getLocalReference() const
 {
-	return file->getLocalName();
+	return file->getLocalReference();
 }
 
 const string File::getOriginalName()

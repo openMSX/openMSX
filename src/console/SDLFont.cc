@@ -6,12 +6,11 @@
  */
 
 #include "SDLFont.hh"
-#include "openmsx.hh"
+#include "LocalFileReference.hh"
 #include "MSXException.hh"
-#include "File.hh"
+#include "openmsx.hh"
 #include <SDL.h>
 #include <SDL_image.h>
-
 
 namespace openmsx {
 
@@ -20,15 +19,15 @@ const int CHARS_PER_ROW = 16;
 const int CHARS_PER_COL = NUM_CHRS / CHARS_PER_ROW;
 
 
-SDLFont::SDLFont(const std::string& filePath, SDL_Surface* surface)
+SDLFont::SDLFont(const std::string& filename, SDL_Surface* surface)
 	: outputScreen(surface)
 {
 	// load the font bitmap
+	LocalFileReference file(filename);
 	SDL_Surface* image1;
-	if (!(image1 = IMG_Load(filePath.c_str()))) {
+	if (!(image1 = IMG_Load(file.getFilename().c_str()))) {
 		throw MSXException(
-			"Can't load font " + filePath + ": " + IMG_GetError()
-			);
+			"Can't load font " + filename + ": " + IMG_GetError());
 	}
 	fontSurface = SDL_DisplayFormatAlpha(image1);
 	SDL_FreeSurface(image1);
@@ -42,7 +41,7 @@ SDLFont::SDLFont(const std::string& filePath, SDL_Surface* surface)
 		format->Rmask, format->Gmask, format->Bmask, 0);
 	if (!workImage) {
 		SDL_FreeSurface(fontSurface);
-		throw MSXException("Can't create surface for font " + filePath);
+		throw MSXException("Can't create surface for font " + filename);
 	}
 }
 

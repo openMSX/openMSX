@@ -19,7 +19,6 @@ public:
 	virtual void truncate(unsigned size);
 	virtual void flush();
 	virtual const std::string getURL() const;
-	virtual const std::string getLocalName();
 	virtual const std::string getOriginalName();
 	virtual bool isReadOnly() const;
 	virtual time_t getModificationDate();
@@ -37,9 +36,6 @@ protected:
 private:
 	void fillBuffer();
 
-	static int tmpCount;	   // nb of files in tmp dir
-	static std::string tmpDir; // name of tmp dir (when tmpCount > 0)
-	char* localName;	   // name of tmp file (when != 0)
 	unsigned pos;
 };
 

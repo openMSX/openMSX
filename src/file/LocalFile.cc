@@ -161,7 +161,7 @@ const string LocalFile::getURL() const
 	return /*prefix + */filename;
 }
 
-const string LocalFile::getLocalName()
+const string LocalFile::getLocalReference()
 {
 	return filename;
 }
