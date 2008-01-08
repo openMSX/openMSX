@@ -150,10 +150,10 @@ private:
 	unsigned RD_WORD_slow(unsigned address);
 	inline byte RDMEM(unsigned address);
 	inline void WRMEM(unsigned address, byte value);
-	inline void WR_WORD(unsigned address, word value);
-	void WR_WORD_slow(unsigned address, word value);
-	inline void WR_WORD_rev(unsigned address, word value);
-	void WR_WORD_rev_slow(unsigned address, word value);
+	inline void WR_WORD(unsigned address, unsigned value);
+	void WR_WORD_slow(unsigned address, unsigned value);
+	inline void WR_WORD_rev(unsigned address, unsigned value);
+	void WR_WORD_rev_slow(unsigned address, unsigned value);
 
 	inline void M1Cycle();
 	inline void executeInternal();
@@ -313,7 +313,7 @@ private:
 
 	static void ld_xbyte_a(S& s);
 
-	inline void WR_NN_Y(word reg);
+	inline void WR_NN_Y(unsigned reg);
 	static void ld_xword_bc(S& s);
 	static void ld_xword_de(S& s);
 	static void ld_xword_hl(S& s);
@@ -1334,7 +1334,7 @@ private:
 	static void rld(S& s);
 	static void rrd(S& s);
 
-	inline void PUSH(word reg);
+	inline void PUSH(unsigned reg);
 	static void push_af(S& s);
 	static void push_bc(S& s);
 	static void push_de(S& s);
@@ -1409,7 +1409,7 @@ private:
 	static void jr_z(S& s);
 	static void djnz(S& s);
 
-	inline unsigned EX_SP(word reg);
+	inline unsigned EX_SP(unsigned reg);
 	static void ex_xsp_hl(S& s);
 	static void ex_xsp_ix(S& s);
 	static void ex_xsp_iy(S& s);
