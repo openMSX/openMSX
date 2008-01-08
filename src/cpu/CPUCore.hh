@@ -121,7 +121,7 @@ private:
 	int IRQStatus;
 	CPURegs R;
 
-	word memptr;
+	unsigned memptr;
 	offset ofst;
 
 	/**
