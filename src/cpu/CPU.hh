@@ -186,18 +186,18 @@ public:
 		inline byte getPCl() const { return PC.b.l; }
 		inline byte getSPh() const { return SP.b.h; }
 		inline byte getSPl() const { return SP.b.l; }
-		inline word getAF()  const { return AF.w; }
-		inline word getBC()  const { return BC.w; }
-		inline word getDE()  const { return DE.w; }
-		inline word getHL()  const { return HL.w; }
-		inline word getAF2() const { return AF2.w; }
-		inline word getBC2() const { return BC2.w; }
-		inline word getDE2() const { return DE2.w; }
-		inline word getHL2() const { return HL2.w; }
-		inline word getIX()  const { return IX.w; }
-		inline word getIY()  const { return IY.w; }
-		inline word getPC()  const { return PC.w; }
-		inline word getSP()  const { return SP.w; }
+		inline unsigned getAF()  const { return AF.w; }
+		inline unsigned getBC()  const { return BC.w; }
+		inline unsigned getDE()  const { return DE.w; }
+		inline unsigned getHL()  const { return HL.w; }
+		inline unsigned getAF2() const { return AF2.w; }
+		inline unsigned getBC2() const { return BC2.w; }
+		inline unsigned getDE2() const { return DE2.w; }
+		inline unsigned getHL2() const { return HL2.w; }
+		inline unsigned getIX()  const { return IX.w; }
+		inline unsigned getIY()  const { return IY.w; }
+		inline unsigned getPC()  const { return PC.w; }
+		inline unsigned getSP()  const { return SP.w; }
 		inline byte getIM()  const { return IM; }
 		inline byte getI()   const { return I; }
 		inline byte getR()   const { return (R & 0x7F) | (R2 & 0x80); }
@@ -230,18 +230,18 @@ public:
 		inline void setPCl(byte x) { PC.b.l = x; }
 		inline void setSPh(byte x) { SP.b.h = x; }
 		inline void setSPl(byte x) { SP.b.l = x; }
-		inline void setAF(word x)  { AF.w = x; }
-		inline void setBC(word x)  { BC.w = x; }
-		inline void setDE(word x)  { DE.w = x; }
-		inline void setHL(word x)  { HL.w = x; }
-		inline void setAF2(word x) { AF2.w = x; }
-		inline void setBC2(word x) { BC2.w = x; }
-		inline void setDE2(word x) { DE2.w = x; }
-		inline void setHL2(word x) { HL2.w = x; }
-		inline void setIX(word x)  { IX.w = x; }
-		inline void setIY(word x)  { IY.w = x; }
-		inline void setPC(word x)  { PC.w = x; }
-		inline void setSP(word x)  { SP.w = x; }
+		inline void setAF(unsigned x)  { AF.w = x; }
+		inline void setBC(unsigned x)  { BC.w = x; }
+		inline void setDE(unsigned x)  { DE.w = x; }
+		inline void setHL(unsigned x)  { HL.w = x; }
+		inline void setAF2(unsigned x) { AF2.w = x; }
+		inline void setBC2(unsigned x) { BC2.w = x; }
+		inline void setDE2(unsigned x) { DE2.w = x; }
+		inline void setHL2(unsigned x) { HL2.w = x; }
+		inline void setIX(unsigned x)  { IX.w = x; }
+		inline void setIY(unsigned x)  { IY.w = x; }
+		inline void setPC(unsigned x)  { PC.w = x; }
+		inline void setSP(unsigned x)  { SP.w = x; }
 		inline void setIM(byte x)  { IM = x; }
 		inline void setI(byte x)   { I = x; }
 		inline void setR(byte x)   { R = x; R2 = x; }
