@@ -52,7 +52,7 @@ public:
 	virtual const EmuTime& getCurrentTime() const;
 	virtual void wait(const EmuTime& time);
 	virtual void setNextSyncPoint(const EmuTime& time);
-	virtual void invalidateMemCache(word start, unsigned size);
+	virtual void invalidateMemCache(unsigned start, unsigned size);
 	virtual CPURegs& getRegisters();
 	virtual void doStep();
 	virtual void doContinue();
@@ -559,14 +559,14 @@ private:
 	static void inc_xix(S& s);
 	static void inc_xiy(S& s);
 
-	inline void ADCW(word reg);
+	inline void ADCW(unsigned reg);
 	static void adc_hl_bc(S& s);
 	static void adc_hl_de(S& s);
 	static void adc_hl_hl(S& s);
 	static void adc_hl_sp(S& s);
 
-	inline word ADDW(word reg1, word reg2);
-	inline word ADDW2(word reg);
+	inline unsigned ADDW(unsigned reg1, unsigned reg2);
+	inline unsigned ADDW2(unsigned reg);
 	static void add_hl_bc(S& s);
 	static void add_hl_de(S& s);
 	static void add_hl_hl(S& s);
@@ -580,7 +580,7 @@ private:
 	static void add_iy_iy(S& s);
 	static void add_iy_sp(S& s);
 
-	inline void SBCW(word reg);
+	inline void SBCW(unsigned reg);
 	static void sbc_hl_bc(S& s);
 	static void sbc_hl_de(S& s);
 	static void sbc_hl_hl(S& s);
@@ -1489,7 +1489,7 @@ private:
 	static void mulub_a_d(S& s);
 	static void mulub_a_e(S& s);
 
-	inline void MULUW(word reg);
+	inline void MULUW(unsigned reg);
 	static void muluw_hl_bc(S& s);
 	static void muluw_hl_sp(S& s);
 

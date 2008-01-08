@@ -82,7 +82,7 @@ template <class T> const EmuTime& CPUCore<T>::getCurrentTime() const
 	return T::getTime();
 }
 
-template <class T> void CPUCore<T>::invalidateMemCache(word start, unsigned size)
+template <class T> void CPUCore<T>::invalidateMemCache(unsigned start, unsigned size)
 {
 	unsigned first = start / CacheLine::SIZE;
 	unsigned num = (size + CacheLine::SIZE - 1) / CacheLine::SIZE;
@@ -1504,7 +1504,7 @@ template <class T> void CPUCore<T>::inc_xiy(S& s)
 
 
 // ADC HL,ss
-template <class T> inline void CPUCore<T>::ADCW(word reg)
+template <class T> inline void CPUCore<T>::ADCW(unsigned reg)
 {
 	memptr = R.getHL() + 1; // not 16-bit
 	unsigned res = R.getHL() + reg + ((R.getF() & C_FLAG) ? 1 : 0);
@@ -1547,7 +1547,7 @@ template <class T> void CPUCore<T>::adc_hl_de(S& s) { s.ADCW(s.R.getDE()); }
 template <class T> void CPUCore<T>::adc_hl_sp(S& s) { s.ADCW(s.R.getSP()); }
 
 // ADD HL/IX/IY,ss
-template <class T> inline word CPUCore<T>::ADDW(word reg1, word reg2)
+template <class T> inline unsigned CPUCore<T>::ADDW(unsigned reg1, unsigned reg2)
 {
 	memptr = reg1 + 1; // not 16-bit
 	unsigned res = reg1 + reg2;
@@ -1556,9 +1556,9 @@ template <class T> inline word CPUCore<T>::ADDW(word reg1, word reg2)
 	       ((res & 0x10000) ? C_FLAG : 0) |
 	       ((res >> 8) & (X_FLAG | Y_FLAG)));
 	T::OP_16_16_DELAY();
-	return res;
+	return res & 0xFFFF;
 }
-template <class T> inline word CPUCore<T>::ADDW2(word reg)
+template <class T> inline unsigned CPUCore<T>::ADDW2(unsigned reg)
 {
 	memptr = reg + 1; // not 16-bit
 	unsigned res = 2 * reg;
@@ -1566,7 +1566,7 @@ template <class T> inline word CPUCore<T>::ADDW2(word reg)
 	       ((res & 0x10000) ? C_FLAG : 0) |
 	       ((res >> 8) & (H_FLAG | X_FLAG | Y_FLAG)));
 	T::OP_16_16_DELAY();
-	return res;
+	return res & 0xFFFF;
 }
 template <class T> void CPUCore<T>::add_hl_bc(S& s) {
 	s.R.setHL(s.ADDW(s.R.getHL(), s.R.getBC()));
@@ -1606,7 +1606,7 @@ template <class T> void CPUCore<T>::add_iy_sp(S& s) {
 }
 
 // SBC HL,ss
-template <class T> inline void CPUCore<T>::SBCW(word reg)
+template <class T> inline void CPUCore<T>::SBCW(unsigned reg)
 {
 	memptr = R.getHL() + 1; // not 16-bit
 	unsigned res = R.getHL() - reg - ((R.getF() & C_FLAG) ? 1 : 0);
@@ -3109,17 +3109,17 @@ template <class T> void CPUCore<T>::scf(S& s)
 
 template <class T> void CPUCore<T>::ex_af_af(S& s)
 {
-	word t = s.R.getAF2(); s.R.setAF2(s.R.getAF()); s.R.setAF(t);
+	unsigned t = s.R.getAF2(); s.R.setAF2(s.R.getAF()); s.R.setAF(t);
 }
 template <class T> void CPUCore<T>::ex_de_hl(S& s)
 {
-	word t = s.R.getDE(); s.R.setDE(s.R.getHL()); s.R.setHL(t);
+	unsigned t = s.R.getDE(); s.R.setDE(s.R.getHL()); s.R.setHL(t);
 }
 template <class T> void CPUCore<T>::exx(S& s)
 {
-	word t1 = s.R.getBC2(); s.R.setBC2(s.R.getBC()); s.R.setBC(t1);
-	word t2 = s.R.getDE2(); s.R.setDE2(s.R.getDE()); s.R.setDE(t2);
-	word t3 = s.R.getHL2(); s.R.setHL2(s.R.getHL()); s.R.setHL(t3);
+	unsigned t1 = s.R.getBC2(); s.R.setBC2(s.R.getBC()); s.R.setBC(t1);
+	unsigned t2 = s.R.getDE2(); s.R.setDE2(s.R.getDE()); s.R.setDE(t2);
+	unsigned t3 = s.R.getHL2(); s.R.setHL2(s.R.getHL()); s.R.setHL(t3);
 }
 
 template <class T> void CPUCore<T>::di(S& s)
@@ -3184,7 +3184,7 @@ template <class T> inline void CPUCore<T>::MULUB(byte reg)
 {
 	// TODO check flags
 	T::MULUB_DELAY();
-	R.setHL(word(R.getA()) * reg);
+	R.setHL(unsigned(R.getA()) * reg);
 	R.setF((R.getF() & (N_FLAG | H_FLAG)) |
 	       (R.getHL() ? 0 : Z_FLAG) |
 	       ((R.getHL() & 0x8000) ? C_FLAG : 0));
@@ -3199,7 +3199,7 @@ template <class T> void CPUCore<T>::mulub_a_e(S& s)   { s.MULUB(s.R.getE()); }
 //template <class T> void CPUCore<T>::mulub_a_l(S&)     { } // TODO
 
 // MULUW HL,ss
-template <class T> inline void CPUCore<T>::MULUW(word reg)
+template <class T> inline void CPUCore<T>::MULUW(unsigned reg)
 {
 	// TODO check flags
 	T::MULUW_DELAY();
