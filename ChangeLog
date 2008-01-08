@@ -1,5 +1,14 @@
 $Id$
 
+2008-01-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* in CPUCore prefer to use 'unsigned int' over 'word' datatype:
+	   Results in smaller and faster code. On x86, instructions that work
+	   on 32-bit are shorter than those for 16-bit. Code size reduced
+	   about 10kB, code is slighter faster (depends a lot on compiler
+	   version and optimization options). ARM CPUs don't even have 16-bit
+	   operations, only (limited) 16-bit load/store instructions. Here code
+	   size reduced about 20kB and is about 4% faster.
+
 2008-01-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* changed SoundDevice::updateBuffer() method:
 	   As parameters this method (still) receives a number of buffers,
