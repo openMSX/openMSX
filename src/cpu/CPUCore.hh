@@ -144,10 +144,10 @@ private:
 	byte RDMEM_OPCODEslow(unsigned address);
 	void WRMEMslow(unsigned address, byte value);
 	inline byte RDMEM_OPCODE();
-	inline word RD_WORD_PC();
-	word RD_WORD_PC_slow();
-	inline word RD_WORD(unsigned address);
-	word RD_WORD_slow(unsigned address);
+	inline unsigned RD_WORD_PC();
+	unsigned RD_WORD_PC_slow();
+	inline unsigned RD_WORD(unsigned address);
+	unsigned RD_WORD_slow(unsigned address);
 	inline byte RDMEM(unsigned address);
 	inline void WRMEM(unsigned address, byte value);
 	inline void WR_WORD(unsigned address, word value);
@@ -366,7 +366,7 @@ private:
 	static void ld_h_xiy(S& s);
 	static void ld_l_xiy(S& s);
 
-	inline word RD_P_XX();
+	inline unsigned RD_P_XX();
 	static void ld_bc_xword(S& s);
 	static void ld_de_xword(S& s);
 	static void ld_hl_xword(S& s);
@@ -1342,7 +1342,7 @@ private:
 	static void push_ix(S& s);
 	static void push_iy(S& s);
 
-	inline word POP();
+	inline unsigned POP();
 	static void pop_af(S& s);
 	static void pop_bc(S& s);
 	static void pop_de(S& s);
@@ -1363,7 +1363,7 @@ private:
 	static void call_po(S& s);
 	static void call_z(S& s);
 
-	inline void RST(word x);
+	inline void RST(unsigned x);
 	static void rst_00(S& s);
 	static void rst_08(S& s);
 	static void rst_10(S& s);
@@ -1409,7 +1409,7 @@ private:
 	static void jr_z(S& s);
 	static void djnz(S& s);
 
-	inline word EX_SP(word reg);
+	inline unsigned EX_SP(word reg);
 	static void ex_xsp_hl(S& s);
 	static void ex_xsp_ix(S& s);
 	static void ex_xsp_iy(S& s);

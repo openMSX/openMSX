@@ -381,7 +381,7 @@ static ALWAYS_INLINE void write16LE(byte* p, word value)
 	}
 }
 
-template <class T> ALWAYS_INLINE word CPUCore<T>::RD_WORD_PC()
+template <class T> ALWAYS_INLINE unsigned CPUCore<T>::RD_WORD_PC()
 {
 	unsigned addr = R.getPC();
 	const byte* line = readCacheLine[addr >> CacheLine::BITS];
@@ -400,10 +400,10 @@ template <class T> ALWAYS_INLINE word CPUCore<T>::RD_WORD_PC()
 	}
 }
 
-template <class T> word CPUCore<T>::RD_WORD_PC_slow()
+template <class T> unsigned CPUCore<T>::RD_WORD_PC_slow()
 {
-	word res = RDMEM_OPCODE();
-	res     += RDMEM_OPCODE() << 8;
+	unsigned res = RDMEM_OPCODE();
+	res         += RDMEM_OPCODE() << 8;
 	return res;
 }
 
@@ -444,7 +444,7 @@ template <class T> ALWAYS_INLINE byte CPUCore<T>::RDMEM(unsigned address)
 	}
 }
 
-template <class T> ALWAYS_INLINE word CPUCore<T>::RD_WORD(unsigned address)
+template <class T> ALWAYS_INLINE unsigned CPUCore<T>::RD_WORD(unsigned address)
 {
 	const byte* line = readCacheLine[address >> CacheLine::BITS];
 	if (likely(((address & CacheLine::LOW) != CacheLine::LOW) &&
@@ -461,10 +461,10 @@ template <class T> ALWAYS_INLINE word CPUCore<T>::RD_WORD(unsigned address)
 	}
 }
 
-template <class T> word CPUCore<T>::RD_WORD_slow(unsigned address)
+template <class T> unsigned CPUCore<T>::RD_WORD_slow(unsigned address)
 {
-	word res = RDMEM(address);
-	res     += RDMEM((address + 1) & 0xFFFF) << 8;
+	unsigned res = RDMEM(address);
+	res         += RDMEM((address + 1) & 0xFFFF) << 8;
 	return res;
 }
 
@@ -1057,10 +1057,10 @@ template <class T> void CPUCore<T>::ld_h_xiy(S& s) { s.R.setH(s.RD_R_XIY()); }
 template <class T> void CPUCore<T>::ld_l_xiy(S& s) { s.R.setL(s.RD_R_XIY()); }
 
 // LD ss,(nn)
-template <class T> inline word CPUCore<T>::RD_P_XX()
+template <class T> inline unsigned CPUCore<T>::RD_P_XX()
 {
 	unsigned addr = RD_WORD_PC();
-	memptr = addr + 1;
+	memptr = addr + 1; // not 16-bit
 	return RD_WORD(addr);
 }
 template <class T> void CPUCore<T>::ld_bc_xword(S& s) { s.R.setBC(s.RD_P_XX()); }
@@ -2773,7 +2773,7 @@ template <class T> void CPUCore<T>::push_iy(S& s) { s.PUSH(s.R.getIY()); }
 
 
 // POP ss
-template <class T> inline word CPUCore<T>::POP()
+template <class T> inline unsigned CPUCore<T>::POP()
 {
 	unsigned addr = R.getSP();
 	R.setSP(addr + 2);
@@ -2810,7 +2810,7 @@ template <class T> void CPUCore<T>::call_z(S& s)  { if (s.Z())  s.CALL(); else s
 
 
 // RST n
-template <class T> inline void CPUCore<T>::RST(word x)
+template <class T> inline void CPUCore<T>::RST(unsigned x)
 {
 	PUSH(R.getPC());
 	memptr = x;
@@ -2910,7 +2910,7 @@ template <class T> void CPUCore<T>::djnz(S& s)
 }
 
 // EX (SP),ss
-template <class T> inline word CPUCore<T>::EX_SP(word reg)
+template <class T> inline unsigned CPUCore<T>::EX_SP(word reg)
 {
 	memptr = RD_WORD(R.getSP());
 	T::SMALL_DELAY();
@@ -3218,18 +3218,18 @@ template <class T> void CPUCore<T>::muluw_hl_sp(S& s) { s.MULUW(s.R.getSP()); }
 // prefixes
 template <class T> void CPUCore<T>::dd_cb(S& s)
 {
-	word tmp = s.RD_WORD_PC();
+	unsigned tmp = s.RD_WORD_PC();
 	s.ofst = tmp & 0xFF;
-	byte opcode = tmp >> 8;
+	unsigned opcode = tmp >> 8;
 	s.DD_CB_DELAY();
 	(*opcode_dd_cb[opcode])(s);
 }
 
 template <class T> void CPUCore<T>::fd_cb(S& s)
 {
-	word tmp = s.RD_WORD_PC();
+	unsigned tmp = s.RD_WORD_PC();
 	s.ofst = tmp & 0xFF;
-	byte opcode = tmp >> 8;
+	unsigned opcode = tmp >> 8;
 	s.DD_CB_DELAY();
 	(*opcode_fd_cb[opcode])(s);
 }
