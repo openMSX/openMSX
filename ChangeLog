@@ -1,5 +1,8 @@
 $Id$
 
+2008-01-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Optimized SCC::generateChannels()
+
 2008-01-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimized CheckedRam for the case there is no umrcallback set:
 	   In some cases (e.g. in manbow2) it still caused some overhead:

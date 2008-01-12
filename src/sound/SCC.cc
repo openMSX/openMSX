@@ -101,6 +101,7 @@
 #include "SCC.hh"
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
+#include "likely.hh"
 
 using std::string;
 
@@ -460,17 +461,25 @@ void SCC::generateChannels(int** bufs, unsigned num)
 	unsigned enable = ch_enable;
 	for (unsigned i = 0; i < 5; ++i, enable >>= 1) {
 		if ((enable & 1) && (volume[i] || out[i])) {
+			int out2 = out[i];
+			unsigned count2 = count[i];
+			unsigned pos2 = pos[i];
+			unsigned incr2 = incr[i];
+			unsigned period2 = period[i] + 1;
 			for (unsigned j = 0; j < num; ++j) {
-				bufs[i][j] += out[i];
-				count[i] += incr[i];
-				// Note: Only for very small periods this loop will take
-				//       more than a single iteration.
-				while (count[i] > period[i]) {
-					pos[i] = (pos[i] + 1) % 32;
-					count[i] -= period[i] + 1;
-					out[i] = volAdjustedWave[i][pos[i]];
+				bufs[i][j] += out2;
+				count2 += incr2;
+				// Note: only for very small periods
+				//       this will take more than 1 iteration
+				while (unlikely(count2 >= period2)) {
+					count2 -= period2;
+					pos2 = (pos2 + 1) % 32;
+					out2 = volAdjustedWave[i][pos2];
 				}
 			}
+			out[i] = out2;
+			count[i] = count2;
+			pos[i] = pos2;
 		} else {
 			bufs[i] = 0; // channel muted
 			// Update phase counter.
