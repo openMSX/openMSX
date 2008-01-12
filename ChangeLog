@@ -1,5 +1,17 @@
 $Id$
 
+2008-01-11 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Optimized CheckedRam for the case there is no umrcallback set:
+	   In some cases (e.g. in manbow2) it still caused some overhead:
+	   Internally openMSX divides memory in 256 byte chunks (see
+	   ChacheLine.hh) as soon as all 256 bytes in a chunk have been
+	   written to, read/writes to this chunk happen without overhead.
+	   Usually this happens early in the MSX boot process or startup code
+	   of a game. However manbow2 has 2 or 3 chunks that are read very
+	   frequently but only partly initialized.
+	   Solved by treating the memory completely initialized in case the
+	   'umrcallback' settings is empty (no callback function registered).
+
 2008-01-08 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed reading of wav cassette images on Windows:
 	   Some versions of(?) windows can't open the same file multiple

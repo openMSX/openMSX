@@ -4,6 +4,7 @@
 #define CHECKEDRAM_HH
 
 #include "CacheLine.hh"
+#include "Observer.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
 #include <vector>
@@ -16,6 +17,7 @@ class MSXMotherBoard;
 class Ram;
 class MSXCPU;
 class CommandController;
+class Setting;
 
 /**
  * This class keeps track of which bytes in the Ram have been written to. It
@@ -26,7 +28,7 @@ class CommandController;
  * accessed in DRAM mode or via the ROM mapper are unchecked! Note that there
  * is basically no overhead for using CheckedRam over Ram, thanks to Wouter.
  */
-class CheckedRam : private noncopyable
+class CheckedRam : private Observer<Setting>, private noncopyable
 {
 public:
 	CheckedRam(MSXMotherBoard& motherBoard, const std::string& name,
@@ -52,7 +54,11 @@ public:
 	Ram& getUncheckedRam() const;
 
 private:
+	void init();
 	void callUMRCallBack(unsigned addr);
+
+	// Observer<Setting>
+	virtual void update(const Setting& setting);
 
 	std::vector<bool> completely_initialized_cacheline;
 	std::vector<std::bitset<CacheLine::SIZE> > uninitialized;

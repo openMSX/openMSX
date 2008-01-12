@@ -12,6 +12,7 @@
 #include "TclObject.hh"
 #include "likely.hh"
 #include <algorithm>
+#include <cassert>
 
 namespace openmsx {
 
@@ -30,10 +31,13 @@ CheckedRam::CheckedRam(MSXMotherBoard& motherBoard, const std::string& name,
 	, msxcpu(motherBoard.getCPU())
 	, commandController(motherBoard.getCommandController())
 {
+	commandController.getGlobalSettings().getUMRCallBackSetting().attach(*this);
+	init();
 }
 
 CheckedRam::~CheckedRam()
 {
+	commandController.getGlobalSettings().getUMRCallBackSetting().detach(*this);
 }
 
 byte CheckedRam::read(unsigned addr)
@@ -77,9 +81,28 @@ void CheckedRam::write(unsigned addr, const byte value)
 void CheckedRam::clear()
 {
 	ram->clear();
-	fill(uninitialized.begin(), uninitialized.end(), getBitSetAllTrue());
-	fill(completely_initialized_cacheline.begin(),
-	     completely_initialized_cacheline.end(), false);
+	init();
+}
+
+void CheckedRam::init()
+{
+	StringSetting& umrSetting = commandController.getGlobalSettings().
+	                                     getUMRCallBackSetting();
+	if (umrSetting.getValue().empty()) {
+		// there is no callback function,
+		// do as if everything is initialized
+		completely_initialized_cacheline.assign(
+			completely_initialized_cacheline.size(), true);
+		uninitialized.assign(
+			uninitialized.size(), std::bitset<CacheLine::SIZE>());
+	} else {
+		// new callback function, forget about initialized areas
+		completely_initialized_cacheline.assign(
+			completely_initialized_cacheline.size(), false);
+		uninitialized.assign(
+			uninitialized.size(), getBitSetAllTrue());
+	}
+	msxcpu.invalidateMemCache(0, 0x10000);
 }
 
 unsigned CheckedRam::getSize() const
@@ -111,6 +134,14 @@ void CheckedRam::callUMRCallBack(unsigned addr)
 				"callback function in the umr_callback setting.");
 		}
 	}
+}
+
+void CheckedRam::update(const Setting& setting)
+{
+	assert(&setting ==
+	       &commandController.getGlobalSettings().getUMRCallBackSetting());
+	(void)setting;
+	init();
 }
 
 } // namespace openmsx
