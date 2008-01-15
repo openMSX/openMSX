@@ -1,5 +1,16 @@
 $Id$
 
+2008-01-16 Alex Wulms
+	* Added German keyboard map (unicodemap.de):
+	    It is needed for Sony HB-F700D. Please note that currently it gives
+	    a key-ghosting effect when entering { character; on german MSX this
+	    character must be entered by pressing SHIFT, CODE and ( keys
+	    SHIFT and CODE are on same ROW
+	    SHIFT and ( are on same COLUMN
+	    Hence the < character gets 'ghost pressed' (in same column as CODE)
+	    Need to figure out how this works on the real machine. Does it contain
+	    hardware to prevent key ghosting?
+
 2008-01-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimized SCC::generateChannels()
 
