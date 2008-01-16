@@ -2728,7 +2728,8 @@ create_trainer "Police Academy 2" {time 1} {
 }
 
 create_trainer "TT Racer" {time 1} {
-	"temp" {poke 0x5ad9 255}
+	"temp" {poke 0x5ad9 0}
+	"fuel" {poke 0x70e4 252}
 }
 
 create_trainer "Humphrey" {time 10} {
@@ -3336,10 +3337,6 @@ create_trainer "Borfesu" {time 0.25} {
 	"exp" {poke 0xe045 200;poke 0xe046 255}
 	"containers" {poke 0xe01a 250}
 	"invincible" {poke 0xe37d 201}
-}
-
-create_trainer "Alcazar" {frame} {
-	"power" {poke 0xf082 127;poke 0xf209 1}
 }
 
 create_trainer "Saimazoom" {time 1} {
@@ -4021,10 +4018,6 @@ create_trainer "Donkey Kong" {time 1} {
 	"lives" {poke 0x94ed 9}
 }
 
-create_trainer "Exterminator" {time 1} {
-	"lives" {poke 0x4505 58}
-}
-
 create_trainer "Untouchables" {time 1} {
 	"power" {poke 0x70de 255}
 }
@@ -4049,10 +4042,6 @@ create_trainer "Double Dragon 2" {time 1} {
 
 create_trainer "Cannonball" {time 1} {
 	"lives" {poke 0xe331 9}
-}
-
-create_trainer "Zenji" {time 1} {
-	"lives" {poke 0xe1b1 0x99}
 }
 
 create_trainer "Legendly Nine Gems" {time 1} {
@@ -4653,11 +4642,6 @@ create_trainer "Starbite" {time 1} {
 	"time" {poke 0x4092 0}
 }
 
-create_trainer "TT Racer" {time 1} {
-	"temp" {poke 0x5ad9 0}
-	"fuel" {poke 0x70e4 252}
-}
-
 create_trainer "Winterhawk" {time 1} {
 	"lives" {poke 0x402c 6}
 	"cosmic cheat" {poke 0x4038 1}
@@ -4788,14 +4772,6 @@ create_trainer "HERO Cas version" {time 5} {
 	"power/time" {poke 0xe17b 100}
 }
 
-create_trainer "Howard The Duck" {time 1} {
-	"lives" {poke 0xb6a2 255}
-	"time" {poke 0xb6a5 89}
-	"backpack" {poke 0xb6be 255}
-	"no mutants" {poke 0xb949 1}
-	"protected from stones" {poke 0xba48 255}
-}
-
 create_trainer "Pastfinder" {time 10} {
 	"lives" {poke 0xe004 10}
 	"keep radiation low (de-select between sectors)" {poke 0xe126 1}
@@ -4849,6 +4825,7 @@ create_trainer "Legend of Kage" {time 1} {
 }
 
 create_trainer "Zenji" {time 1} {
+	"lives" {poke 0xe1b1 0x99}
 	"time (deactivate @ round end)" {poke 0xe192 0x30}
 }
 
@@ -4892,14 +4869,13 @@ create_trainer "Howard The Duck" {time 1} {
 	"lives" {poke 0xb6a2 255}
 	"time" {poke 0xb6a5 89}
 	"backpack" {poke 0xb6be 255}
-	"walk on water (1,2,4,10)" {poke 0xb6cb 1}
+	"walk on water" {poke 0xb6cb 1}
+	"move to the top" {poke 0xb6cb 2}
+	"move to the right" {poke 0xb6cb 4}
+	"flyer move" {poke 0xb6cb 10}
 	"no mutants" {poke 0xb949 1}
 	"protected from stones" {poke 0xba48 255}
 }
-# 1 = walk on water
-# 2 = move to the top
-# 4 = move to the right
-# 10 = flyer move
 
 create_trainer "Rocket Roger" {time 1} {
 	"fuel" {poke 0xf300 0;poke 0xf301 0;poke 0xf302 0}
@@ -5166,15 +5142,6 @@ create_trainer "Freddy Hardest In South Manhattan" {time 1} {
 	"lives" {poke 0xdfc1 9}
 }
 
-create_trainer "Game Over part 1" {time 1} {
-	"lives" {poke 0xd9bb 10}
-	"bombs" {poke 0xd9bf 100}
-	"protected from mines (de-select after 3 robots)" {poke 0xd9c7 0}
-	"protected from enemies (de-select after 3 robots)" {poke 0xd9cb 1}
-	"shoot (2=normal 4=super)" {poke 0xd9cd 4}
-	"power" {poke 0xda1b 255}
-}
-
 create_trainer "Phantis 1" {time 1} {
 	"invulnerable" {poke 0xb7d6 33}
 	"lives" {poke 0xc413 57;poke 0xc414 57}
@@ -5432,11 +5399,6 @@ create_trainer "Tennis - MSX Magazine 2003" {time 1} {
 
 create_trainer "Uoo-Kuns Kakurenbo - MSX Magazine 2003" {time 1} {
 	"time" {poke 0x960e 60}
-}
-
-create_trainer "Koma - MSX Magazine 2003" {time 1} {
-	"black item" {poke 0x869c 30}
-	"red item" {poke 0x86a1 30}
 }
 
 create_trainer "Koma - MSX Magazine 2003" {time 1} {
