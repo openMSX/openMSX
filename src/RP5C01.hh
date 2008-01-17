@@ -47,7 +47,8 @@ private:
 	Clock<FREQ> reference;
 	unsigned fraction;
 	unsigned seconds, minutes, hours;
-	unsigned dayWeek, days, months, years, leapYear;
+	unsigned dayWeek, years, leapYear;
+	int days, months; // these two can be -1
 
 	nibble modeReg, testReg, resetReg;
 };

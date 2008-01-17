@@ -173,7 +173,7 @@ void RP5C01::time2Regs()
 	regs.write(ALARM_BLOCK * 13 + 11,  leapYear);
 }
 
-static unsigned daysInMonth(unsigned month, unsigned leapYear)
+static int daysInMonth(int month, unsigned leapYear)
 {
 	const unsigned daysInMonths[12] = {
 		31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
