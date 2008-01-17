@@ -25,13 +25,14 @@ MSXPPI::MSXPPI(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, prevBits(15)
 {
 	bool keyGhosting = deviceConfig.getChildDataAsBool("key_ghosting", true);
+	bool keyGhostingSGCprotected = deviceConfig.getChildDataAsBool("key_ghosting_sgc_protected", true);
 	std::string keyboardType = deviceConfig.getChildData("keyboard_type", "int");
 	bool hasKeypad = deviceConfig.getChildDataAsBool("has_keypad", true);
 	keyboard.reset(new Keyboard(motherBoard.getScheduler(),
 	                            motherBoard.getMSXCommandController(),
 	                            motherBoard.getEventDistributor(),
 	                            motherBoard.getMSXEventDistributor(),
-	                            keyboardType, hasKeypad, keyGhosting));
+	                            keyboardType, hasKeypad, keyGhosting, keyGhostingSGCprotected));
 	i8255.reset(new I8255(*this, time, motherBoard.getMSXCliComm()));
 	click.reset(new KeyClick(motherBoard.getMSXMixer(), config, time));
 

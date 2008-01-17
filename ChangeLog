@@ -1,5 +1,12 @@
 $Id$
 
+2008-01-18 Alex Wulms
+	* Added key-ghost protection for SHIFT, GRAPH and CODE keys:
+	    This exists on several real models; these three keys are connected
+	    to row 6 via a diode (one diode per key)
+	    Have made it configurable through hardware.xml. Default is that
+	    the protection is on
+
 2008-01-16 Alex Wulms
 	* Added German keyboard map (unicodemap.de):
 	    It is needed for Sony HB-F700D. Please note that currently it gives

@@ -254,7 +254,7 @@ Keyboard::Keyboard(Scheduler& scheduler,
                    MSXCommandController& msxCommandController,
                    EventDistributor& eventDistributor,
                    MSXEventDistributor& msxEventDistributor_,
-		   string& keyboardType, bool hasKP, bool keyG)
+		   string& keyboardType, bool hasKP, bool keyG, bool keyGhostSGCprotected)
 	: Schedulable(scheduler)
 	, msxEventDistributor(msxEventDistributor_)
 	, keyMatrixUpCmd  (new KeyMatrixUpCmd  (
@@ -268,6 +268,7 @@ Keyboard::Keyboard(Scheduler& scheduler,
 	, keyboardSettings(new KeyboardSettings(msxCommandController))
 {
 	keyGhosting = keyG;
+	keyGhostingSGCprotected = keyGhostSGCprotected;
 	hasKeypad = hasKP;
 	keysChanged = false;
 	msxCapsLockOn = false;
@@ -580,6 +581,12 @@ void Keyboard::doKeyGhosting()
 	// 10111101  electrical connections  10110101
 	//           that are established  by
 	// the closed switches
+	// However, some MSX models have protection against
+	// key-ghosting for SHIFT, GRAPH and CODE keys
+	// On those models, SHIFT, GRAPH and CODE are
+	// connected to row 6 via a diode. It prevents that
+	// SHIFT, GRAPH and CODE get ghosted to another
+	// row.
 	bool changedSomething;
 	do {
 		changedSomething = false;
@@ -588,13 +595,29 @@ void Keyboard::doKeyGhosting()
 			for (unsigned j = i + 1; j < NR_KEYROWS; j++) {
 				byte row2 = keyMatrix[j];
 				if ((row1 != row2) && ((row1 | row2) != 0xff)) {
-					// not same and some common zero's
-					//  --> inherit other zero's
-					byte newRow = row1 & row2;
-					keyMatrix[i] = newRow;
-					keyMatrix[j] = newRow;
-					row1 = newRow;
-					changedSomething = true;
+					byte rowIold = keyMatrix[i];
+					byte rowJold = keyMatrix[j];
+					if (keyGhostingSGCprotected && i==6) {
+						keyMatrix[i] = row1 & row2;
+						keyMatrix[j] = (row1 | 0x15) & row2;
+						row1 &= row2;
+					}
+					else if (keyGhostingSGCprotected && j==6) {
+						keyMatrix[i] = row1 & (row2 | 0x15);
+						keyMatrix[j] = row1 & row2;
+						row1 &= (row2 | 0x15);
+					}
+					else {
+						// not same and some common zero's
+						//  --> inherit other zero's
+						byte newRow = row1 & row2;
+						keyMatrix[i] = newRow;
+						keyMatrix[j] = newRow;
+						row1 = newRow;
+					}
+					if (rowIold != keyMatrix[i] || rowJold != keyMatrix[j]) {
+						changedSomething = true;
+					}
 				}
 			}
 		}

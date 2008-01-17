@@ -45,7 +45,8 @@ public:
 	Keyboard(Scheduler& scheduler, MSXCommandController& msxCommandController,
 	         EventDistributor& eventDistributor,
 	         MSXEventDistributor& msxEventDistributor,
-	         std::string& keyboardType, bool hasKeypad, bool keyGhosting);
+	         std::string& keyboardType, bool hasKeypad,
+		 bool keyGhosting, bool keyGhostingSGCprotected);
 
 	virtual ~Keyboard();
 
@@ -104,6 +105,7 @@ private:
 	byte keyMatrix[NR_KEYROWS];
 	byte msxmodifiers;
 	bool keyGhosting;
+	bool keyGhostingSGCprotected;
 	bool keysChanged;
 	bool msxCapsLockOn;
 	bool hasKeypad;
