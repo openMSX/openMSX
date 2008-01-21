@@ -92,7 +92,6 @@ void SDLFont::drawText(const std::string& str, int x, int y, byte alpha)
 		}
 		destRect.x += charWidth;
 	}
-	output.lock();
 }
 
 } // namespace openmsx

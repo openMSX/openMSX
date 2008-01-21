@@ -21,6 +21,7 @@ void Scaler2<Pixel>::scaleBlank1to2(
 		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
+	dst.lock();
 	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 1, dstY += 2) {
@@ -37,6 +38,7 @@ void Scaler2<Pixel>::scaleBlank1to1(
 		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
+	dst.lock();
 	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 1, dstY += 1) {
@@ -52,6 +54,7 @@ static void doScale1(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
 	ScaleOp scale)
 {
+	dst.lock();
 	Scale_1on1<Pixel> copy;
 	for (unsigned y = dstStartY; y < dstEndY; y += 2, ++srcStartY) {
 		const Pixel* srcLine = src.getLinePtr<Pixel>(srcStartY, srcWidth);
@@ -72,6 +75,7 @@ static void doScale2(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
 	ScaleOp scale)
 {
+	dst.lock();
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; ++dstY, ++srcY) {
 		const Pixel* srcLine = src.getLinePtr<Pixel>(srcY, srcWidth);

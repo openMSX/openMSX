@@ -88,7 +88,6 @@ void SDLImage::draw(unsigned x, unsigned y, byte alpha)
 		SDL_SetAlpha(workImage, SDL_SRCALPHA, alpha);
 		SDL_BlitSurface(workImage,    NULL,  outputSurface, &rect);
 	}
-	output.lock();
 }
 
 

@@ -32,6 +32,7 @@ void SimpleScaler<Pixel>::scaleBlank1to2(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
+	dst.lock();
 	int scanlineFactor = settings.getScanlineFactor();
 
 	unsigned stopDstY = (dstEndY == dst.getHeight())
@@ -399,6 +400,7 @@ void SimpleScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
+	dst.lock();
 	int blur = settings.getBlurFactor();
 	int scanlineFactor = settings.getScanlineFactor();
 
@@ -433,6 +435,7 @@ void SimpleScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
+	dst.lock();
 	int blur = settings.getBlurFactor();
 	int scanlineFactor = settings.getScanlineFactor();
 

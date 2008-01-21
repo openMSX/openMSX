@@ -27,6 +27,7 @@ void SaI2xScaler<Pixel>::scaleBlank1to2(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
+	dst.lock();
 	unsigned stopDstY = (dstEndY == dst.getHeight())
 	                  ? dstEndY : dstEndY - 2;
 	unsigned srcY = srcStartY, dstY = dstStartY;
@@ -275,6 +276,7 @@ void SaI2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 {
 	assert(dst.getWidth() == srcWidth * 2);
 
+	dst.lock();
 	int srcY = srcStartY;
 	const Pixel* srcLine0 = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
 	const Pixel* srcLine1 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
@@ -298,6 +300,7 @@ void SaI2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 {
 	assert(dst.getWidth() == srcWidth);
 
+	dst.lock();
 	int srcY = srcStartY;
 	const Pixel* srcLine0 = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
 	const Pixel* srcLine1 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);

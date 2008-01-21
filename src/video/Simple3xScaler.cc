@@ -45,6 +45,7 @@ void Simple3xScaler<Pixel>::doScale1(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
 	ScaleOp& scale)
 {
+	dst.lock();
 	int scanlineFactor = settings.getScanlineFactor();
 	unsigned y = dstStartY;
 	const Pixel* srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
@@ -85,6 +86,7 @@ void Simple3xScaler<Pixel>::doScale2(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
 	ScaleOp& scale)
 {
+	dst.lock();
 	int scanlineFactor = settings.getScanlineFactor();
 	for (unsigned srcY = srcStartY, dstY = dstStartY; dstY < dstEndY;
 	     srcY += 2, dstY += 3) {
@@ -221,6 +223,7 @@ void Simple3xScaler<Pixel>::scaleBlank1to3(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
+	dst.lock();
 	int scanlineFactor = settings.getScanlineFactor();
 
 	unsigned stopDstY = (dstEndY == dst.getHeight())
@@ -251,6 +254,7 @@ void Simple3xScaler<Pixel>::scaleBlank2to3(
 		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
+	dst.lock();
 	int scanlineFactor = settings.getScanlineFactor();
 	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
 	for (unsigned srcY = srcStartY, dstY = dstStartY;

@@ -152,6 +152,7 @@ void Scale3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
+	dst.lock();
 	int srcY = srcStartY;
 	const Pixel* srcPrev = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
 	const Pixel* srcCurr = src.getLinePtr<Pixel>(srcY + 0, srcWidth);

@@ -33,6 +33,7 @@ void LowScaler<Pixel>::scaleBlank1to1(
 		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
+	dst.lock();
 	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 1, dstY += 1) {
@@ -47,6 +48,7 @@ void LowScaler<Pixel>::scaleBlank2to1(
 		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
+	dst.lock();
 	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 2, dstY += 1) {
@@ -64,6 +66,7 @@ static void doScale1(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
 	ScaleOp scale)
 {
+	dst.lock();
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; ++srcY, ++dstY) {
 		const Pixel* srcLine = src.getLinePtr<Pixel>(srcY, srcWidth);
@@ -78,6 +81,7 @@ static void doScaleDV(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
 	PixelOperations<Pixel> ops, ScaleOp scale)
 {
+	dst.lock();
 	BlendLines<Pixel> blend(ops);
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 2, dstY += 1) {
@@ -127,6 +131,7 @@ void LowScaler<Pixel>::scale1x2to1x1(FrameSource& src,
 	// No need to scale to local buffer first, like doScaleDV does.
 	// TODO: Even so, this scale mode is so rare, is it really worth having
 	//       optimized code for?
+	dst.lock();
 	BlendLines<Pixel> blend(pixelOps);
 	while (dstStartY < dstEndY) {
 		const Pixel* srcLine0 = src.getLinePtr<Pixel>(srcStartY++, srcWidth);

@@ -24,7 +24,7 @@ SDLVisibleSurface::SDLVisibleSurface(
 
 void SDLVisibleSurface::init()
 {
-	lock();
+	// nothing
 }
 
 void SDLVisibleSurface::drawFrameBuffer()
@@ -43,9 +43,7 @@ void SDLVisibleSurface::takeScreenShot(const std::string& filename)
 	lock();
 	try {
 		ScreenShotSaver::save(getSDLSurface(), filename);
-		unlock();
 	} catch (CommandException& e) {
-		unlock();
 		throw;
 	}
 }

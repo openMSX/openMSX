@@ -21,9 +21,15 @@ $Id$
 	     SDL_LockSurface() and SDL_UnlockSurface() functions. It for
 	     example allows to check that getLinePtrDirect() is only called on
 	     a locked surface.
-	  The first two changes allow for easier refactorings. The last change
-	  is a step towards enabling the use of HW accelerated SDL-blit
-	  functions on the GP2X port.
+	   The first two changes allow for easier refactorings. The last change
+	   is a step towards enabling the use of HW accelerated SDL-blit
+	   functions on the GP2X port.
+	* Move calls to OutputSurface::lock() / unlock() to a lower level:
+	   Every function that wants to access pixels directly should now make
+	   sure the surface is locked. Similarly a function that wants to use
+	   blit operations must unlock the surface. This allows for the
+	   minimal amount of locked<->unlocked transitions. (Locking while
+	   already locked or unlocking while already unlocked is very fast.)
 
 2008-01-16 Alex Wulms
 	* Added German keyboard map (unicodemap.de):

@@ -234,6 +234,7 @@ static void doHQScale2(HQScale hqScale, PostScale postScale, FrameSource& src,
 	typename HQScale::EdgeOp edgeOp;
 	calcInitialEdges(srcPrev, srcCurr, srcWidth, edgeBuf, edgeOp);
 
+	dst.lock();
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
 		Pixel buf0[2 * 1024], buf1[2 * 1024];
 		const Pixel* srcNext = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
@@ -268,6 +269,7 @@ static void doHQScale3(HQScale hqScale, PostScale postScale, FrameSource& src,
 	typename HQScale::EdgeOp edgeOp;
 	calcInitialEdges(srcPrev, srcCurr, srcWidth, edgeBuf, edgeOp);
 
+	dst.lock();
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 3) {
 		Pixel buf0[3 * 1024], buf1[3 * 1024], buf2[3 * 1024];
 		const Pixel* srcNext = src.getLinePtr<Pixel>(srcY + 1, srcWidth);

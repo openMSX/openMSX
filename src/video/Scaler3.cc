@@ -20,6 +20,7 @@ void Scaler3<Pixel>::scaleBlank1to3(
 		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
+	dst.lock();
 	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 1, dstY += 3) {
@@ -38,6 +39,7 @@ void Scaler3<Pixel>::scaleBlank2to3(
 		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
+	dst.lock();
 	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 2, dstY += 3) {
@@ -59,6 +61,7 @@ static void doScale1(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
 	ScaleOp scale)
 {
+	dst.lock();
 	Scale_1on1<Pixel> copy;
 	for (unsigned dstY = dstStartY; dstY < dstEndY; dstY += 3, ++srcStartY) {
 		const Pixel* srcLine = src.getLinePtr<Pixel>(srcStartY, srcWidth);
@@ -87,6 +90,7 @@ static void doScaleDV(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
 	PixelOperations<Pixel> ops, ScaleOp scale)
 {
+	dst.lock();
 	BlendLines<Pixel> blend(ops);
 	for (unsigned srcY = srcStartY, dstY = dstStartY; dstY < dstEndY;
 	     srcY += 2, dstY += 3) {

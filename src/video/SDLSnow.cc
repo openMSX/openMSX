@@ -41,9 +41,8 @@ void SDLSnow<Pixel>::paint()
 	const unsigned width = output.getWidth();
 	const unsigned height = output.getHeight();
 	for (unsigned y = 0; y < height; y += 2) {
-		Pixel* dummy = 0;
-		Pixel* p0 = output.getLinePtrDirect(y + 0, dummy);
-		Pixel* p1 = output.getLinePtrDirect(y + 1, dummy);
+		Pixel* p0 = output.getLinePtrDirect<Pixel>(y + 0);
+		Pixel* p1 = output.getLinePtrDirect<Pixel>(y + 1);
 		for (unsigned x = 0; x < width; x += 2) {
 			byte a = byte(random());
 			p0[x + 0] = p0[x + 1] = gray[a];

@@ -93,6 +93,7 @@ void RGBTriplet3xScaler<Pixel>::doScale1(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
 	ScaleOp scale)
 {
+	dst.lock();
 	recalcBlur();
 
 	unsigned tmpWidth = dst.getWidth() / 3;
@@ -136,6 +137,7 @@ void RGBTriplet3xScaler<Pixel>::doScale2(FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
 	ScaleOp scale)
 {
+	dst.lock();
 	recalcBlur();
 
 	unsigned tmpWidth = dst.getWidth() / 3;
@@ -285,6 +287,7 @@ void RGBTriplet3xScaler<Pixel>::scaleBlank1to3(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
+	dst.lock();
 	recalcBlur();
 	int scanlineFactor = settings.getScanlineFactor();
 
@@ -325,6 +328,7 @@ void RGBTriplet3xScaler<Pixel>::scaleBlank2to3(
 		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
+	dst.lock();
 	recalcBlur();
 	int scanlineFactor = settings.getScanlineFactor();
 	for (unsigned srcY = srcStartY, dstY = dstStartY;

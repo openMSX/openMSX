@@ -27,6 +27,7 @@ void SaI3xScaler<Pixel>::scaleBlank1to3(
 		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
+	dst.lock();
 	unsigned stopDstY = (dstEndY == dst.getHeight())
 	                  ? dstEndY : dstEndY - 3;
 	unsigned srcY = srcStartY, dstY = dstStartY;
@@ -393,6 +394,7 @@ void SaI3xScaler<Pixel>::scaleFixed(FrameSource& src,
 	assert(dst.getWidth() == srcWidth * NX);
 	assert(dst.getHeight() == src.getHeight() * NY);
 
+	dst.lock();
 	int srcY = srcStartY;
 	const Pixel* src0 = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
 	const Pixel* src1 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
@@ -412,6 +414,8 @@ void SaI3xScaler<Pixel>::scaleAny(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
+	dst.lock();
+
 	// Calculate fixed point end coordinates and deltas.
 	const unsigned wfinish = (srcWidth - 1) << 16;
 	const unsigned dw = wfinish / (dst.getWidth() - 1);
