@@ -143,7 +143,7 @@ public:
 	void freeLineBuffers();
 
 protected:
-	explicit FrameSource(const SDL_PixelFormat* format);
+	explicit FrameSource(const SDL_PixelFormat& format);
 
 	void setHeight(unsigned height);
 
@@ -173,7 +173,7 @@ private:
 
 	/** Pixel format. Needed for getLinePtr scaling
 	  */
-	const SDL_PixelFormat* pixelFormat;
+	const SDL_PixelFormat& pixelFormat;
 
 	/** Number of lines in this frame.
 	  */

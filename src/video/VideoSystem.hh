@@ -48,11 +48,9 @@ public:
 	virtual bool checkSettings();
 
 	/** Prepare video system for drawing operations.
-	  * The default implementation does nothing, successfully.
-	  * @return true iff successful.
-	  * TODO: What should be done if preparation is not successful?
+	  * The default implementation does nothing.
 	  */
-	virtual bool prepare();
+	virtual void prepare();
 
 	/** Finish pending drawing operations and make them visible to the user.
 	  */

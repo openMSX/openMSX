@@ -4,7 +4,7 @@
 
 namespace openmsx {
 
-DoubledFrame::DoubledFrame(const SDL_PixelFormat* format)
+DoubledFrame::DoubledFrame(const SDL_PixelFormat& format)
 	: FrameSource(format)
 {
 }

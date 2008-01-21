@@ -8,11 +8,10 @@
 #include "noncopyable.hh"
 #include <memory>
 
-class SDL_Surface;
-
 namespace openmsx {
 
 class CommandController;
+class OutputSurface;
 class Display;
 class IconStatus;
 class IntegerSetting;
@@ -25,7 +24,7 @@ class IconLayer : public Layer, private noncopyable
 public:
 	IconLayer(CommandController& commandController,
 	          Display& display, IconStatus& iconStatus,
-	          SDL_Surface* screen);
+	          OutputSurface& output);
 	virtual ~IconLayer();
 
 	// Layer interface:
@@ -38,7 +37,7 @@ private:
 
 	Display& display;
 	IconStatus& iconStatus;
-	SDL_Surface* outputScreen;
+	OutputSurface& output;
 	double scaleFactor;
 	const std::auto_ptr<IconSettingChecker<IMAGE> > iconSettingChecker;
 

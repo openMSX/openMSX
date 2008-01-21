@@ -16,7 +16,8 @@ namespace openmsx {
 SDLGLVisibleSurface::SDLGLVisibleSurface(
 		unsigned width, unsigned height, bool fullscreen,
 		FrameBuffer frameBuffer_)
-	: frameBuffer(frameBuffer_)
+	: buffer(0)
+	, frameBuffer(frameBuffer_)
 {
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 0);
@@ -56,6 +57,7 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	glOrtho(0, width, height, 0, -1, 1);
 	glMatrixMode(GL_MODELVIEW);
 
+	SDL_PixelFormat& format = getSDLFormat();
 	format.palette = 0;
 	format.colorkey = 0;
 	format.alpha = 0;
@@ -103,14 +105,14 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 	}
 
 	if (frameBuffer == FB_NONE) {
-		pitch = 0;
-		data = 0;
+		setBufferPtr(0, 0); // direct access not allowed
 	} else {
 		// TODO 64 byte aligned (see RawFrame)
 		unsigned texW = Math::powerOfTwo(width);
 		unsigned texH = Math::powerOfTwo(height);
-		data = static_cast<char*>(malloc(format.BytesPerPixel * texW * texH));
-		pitch = width * format.BytesPerPixel;
+		buffer = static_cast<char*>(malloc(format.BytesPerPixel * texW * texH));
+		unsigned pitch = width * format.BytesPerPixel;
+		setBufferPtr(buffer, pitch);
 
 		texCoordX = double(width)  / texW;
 		texCoordY = double(height) / texH;
@@ -120,22 +122,22 @@ SDLGLVisibleSurface::SDLGLVisibleSurface(
 		if (frameBuffer == FB_16BPP) {
 			// TODO: Why use RGB texture instead of RGBA?
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texW, texH, 0,
-			             GL_RGB, GL_UNSIGNED_SHORT_5_6_5, data);
+			             GL_RGB, GL_UNSIGNED_SHORT_5_6_5, buffer);
 		} else {
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texW, texH, 0,
-			             GL_RGBA, GL_UNSIGNED_BYTE, data);
+			             GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 		}
 	}
 }
 
 SDLGLVisibleSurface::~SDLGLVisibleSurface()
 {
-	free(data);
+	free(buffer);
 }
 
-bool SDLGLVisibleSurface::init()
+void SDLGLVisibleSurface::init()
 {
-	return true;
+	// nothing
 }
 
 unsigned SDLGLVisibleSurface::mapRGB(double dr, double dg, double db)
@@ -157,16 +159,17 @@ unsigned SDLGLVisibleSurface::mapRGB(double dr, double dg, double db)
 
 void SDLGLVisibleSurface::drawFrameBuffer()
 {
+	assert((frameBuffer == FB_16BPP) || (frameBuffer == FB_32BPP));
 	unsigned width  = getWidth();
 	unsigned height = getHeight();
 
 	texture->bind();
 	if (frameBuffer == FB_16BPP) {
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height,
-		                GL_RGB, GL_UNSIGNED_SHORT_5_6_5, data);
+		                GL_RGB, GL_UNSIGNED_SHORT_5_6_5, buffer);
 	} else {
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height,
-		                GL_RGBA, GL_UNSIGNED_BYTE, data);
+		                GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 	}
 
 	glEnable(GL_TEXTURE_2D);
@@ -200,7 +203,7 @@ void SDLGLVisibleSurface::takeScreenShot(const std::string& filename)
 
 std::auto_ptr<Layer> SDLGLVisibleSurface::createSnowLayer()
 {
-	return std::auto_ptr<Layer>(new GLSnow(surface->w, surface->h));
+	return std::auto_ptr<Layer>(new GLSnow(getWidth(), getHeight()));
 }
 
 std::auto_ptr<Layer> SDLGLVisibleSurface::createConsoleLayer(
@@ -214,7 +217,7 @@ std::auto_ptr<Layer> SDLGLVisibleSurface::createIconLayer(
 		Display& display, IconStatus& iconStatus)
 {
 	return std::auto_ptr<Layer>(new GLIconLayer(
-			commandController, display, iconStatus, surface));
+			commandController, display, iconStatus, *this));
 }
 
 } // namespace openmsx

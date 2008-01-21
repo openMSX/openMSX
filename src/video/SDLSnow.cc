@@ -1,20 +1,21 @@
 // $Id$
 
 #include "SDLSnow.hh"
+#include "OutputSurface.hh"
 #include "openmsx.hh"
-#include <SDL.h>
 #include <string.h>
 
 namespace openmsx {
 
 template <class Pixel>
-SDLSnow<Pixel>::SDLSnow(SDL_Surface* screen)
+SDLSnow<Pixel>::SDLSnow(OutputSurface& output_)
 	: Layer(COVER_FULL, Z_BACKGROUND)
-	, screen(screen)
+	, output(output_)
 {
 	// Precalc gray values for noise
 	for (unsigned i = 0; i < 256; i++) {
-		gray[i] = SDL_MapRGB(screen->format, i, i, i);
+		double t = i / 255.0;
+		gray[i] = output.mapRGB(t, t, t);
 	}
 }
 
@@ -36,16 +37,18 @@ static int random() {
 template <class Pixel>
 void SDLSnow<Pixel>::paint()
 {
-	const unsigned WIDTH = screen->w;
-	const unsigned HEIGHT = screen->h;
-	Pixel* pixels = static_cast<Pixel*>(screen->pixels);
-	for (unsigned y = 0; y < HEIGHT; y += 2) {
-		Pixel* p = &pixels[WIDTH * y];
-		for (unsigned x = 0; x < WIDTH; x += 2) {
+	output.lock();
+	const unsigned width = output.getWidth();
+	const unsigned height = output.getHeight();
+	for (unsigned y = 0; y < height; y += 2) {
+		Pixel* dummy = 0;
+		Pixel* p0 = output.getLinePtrDirect(y + 0, dummy);
+		Pixel* p1 = output.getLinePtrDirect(y + 1, dummy);
+		for (unsigned x = 0; x < width; x += 2) {
 			byte a = byte(random());
-			p[x + 0] = p[x + 1] = gray[a];
+			p0[x + 0] = p0[x + 1] = gray[a];
 		}
-		memcpy(p + WIDTH, p, WIDTH * sizeof(Pixel));
+		memcpy(p1, p0, width * sizeof(Pixel));
 	}
 
 	// TODO: Mark dirty in 100ms.

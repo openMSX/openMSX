@@ -11,15 +11,17 @@ class SDL_Surface;
 
 namespace openmsx {
 
+class OutputSurface;
+
 class SDLImage : private noncopyable
 {
 public:
-	SDLImage(SDL_Surface* output, const std::string& filename);
-	SDLImage(SDL_Surface* output, const std::string& filename,
+	SDLImage(OutputSurface& output, const std::string& filename);
+	SDLImage(OutputSurface& output, const std::string& filename,
 	         double scaleFactor);
-	SDLImage(SDL_Surface* output, const std::string& filename,
+	SDLImage(OutputSurface& output, const std::string& filename,
 	         unsigned width, unsigned height);
-	SDLImage(SDL_Surface* output,
+	SDLImage(OutputSurface& output,
 	         unsigned width, unsigned height, byte alpha);
 	~SDLImage();
 
@@ -28,7 +30,7 @@ public:
 private:
 	void init(const std::string& filename);
 
-	SDL_Surface* outputScreen;
+	OutputSurface& output;
 	SDL_Surface* image;
 	SDL_Surface* workImage;
 

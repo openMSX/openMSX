@@ -16,18 +16,15 @@ SDLVisibleSurface::SDLVisibleSurface(
 {
 	int flags = SDL_SWSURFACE | (fullscreen ? SDL_FULLSCREEN : 0);
 	createSurface(width, height, flags);
-	memcpy(&format, surface->format, sizeof(SDL_PixelFormat));
+	SDL_Surface* surface = getSDLSurface();
+	memcpy(&getSDLFormat(), surface->format, sizeof(SDL_PixelFormat));
 
-	data = static_cast<char*>(surface->pixels);
-	pitch = surface->pitch;
+	setBufferPtr(static_cast<char*>(surface->pixels), surface->pitch);
 }
 
-bool SDLVisibleSurface::init()
+void SDLVisibleSurface::init()
 {
-	if (SDL_MUSTLOCK(surface) && SDL_LockSurface(surface) < 0) {
-		return false;
-	}
-	return true;
+	lock();
 }
 
 void SDLVisibleSurface::drawFrameBuffer()
@@ -37,31 +34,29 @@ void SDLVisibleSurface::drawFrameBuffer()
 
 void SDLVisibleSurface::finish()
 {
-	if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
-	SDL_Flip(surface);
+	unlock();
+	SDL_Flip(getSDLSurface());
 }
 
 void SDLVisibleSurface::takeScreenShot(const std::string& filename)
 {
-	if (SDL_MUSTLOCK(surface) && SDL_LockSurface(surface) < 0) {
-		throw CommandException("Failed to lock surface.");
-	}
+	lock();
 	try {
-		ScreenShotSaver::save(surface, filename);
-		if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
+		ScreenShotSaver::save(getSDLSurface(), filename);
+		unlock();
 	} catch (CommandException& e) {
-		if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
+		unlock();
 		throw;
 	}
 }
 
 std::auto_ptr<Layer> SDLVisibleSurface::createSnowLayer()
 {
-	switch (getFormat()->BytesPerPixel) {
+	switch (getSDLFormat().BytesPerPixel) {
 	case 2:
-		return std::auto_ptr<Layer>(new SDLSnow<Uint16>(surface));
+		return std::auto_ptr<Layer>(new SDLSnow<Uint16>(*this));
 	case 4:
-		return std::auto_ptr<Layer>(new SDLSnow<Uint32>(surface));
+		return std::auto_ptr<Layer>(new SDLSnow<Uint32>(*this));
 	default:
 		assert(false);
 		return std::auto_ptr<Layer>(); // avoid warning
@@ -71,7 +66,7 @@ std::auto_ptr<Layer> SDLVisibleSurface::createSnowLayer()
 std::auto_ptr<Layer> SDLVisibleSurface::createConsoleLayer(
 		Reactor& reactor)
 {
-	return std::auto_ptr<Layer>(new SDLConsole(reactor, surface));
+	return std::auto_ptr<Layer>(new SDLConsole(reactor, *this));
 }
 
 std::auto_ptr<Layer> SDLVisibleSurface::createIconLayer(
@@ -79,7 +74,7 @@ std::auto_ptr<Layer> SDLVisibleSurface::createIconLayer(
 		Display& display, IconStatus& iconStatus)
 {
 	return std::auto_ptr<Layer>(new SDLIconLayer(
-			commandController, display, iconStatus, surface));
+			commandController, display, iconStatus, *this));
 }
 
 } // namespace openmsx

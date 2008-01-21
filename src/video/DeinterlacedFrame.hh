@@ -14,7 +14,7 @@ namespace openmsx {
 class DeinterlacedFrame : public FrameSource
 {
 public:
-	explicit DeinterlacedFrame(const SDL_PixelFormat* format);
+	explicit DeinterlacedFrame(const SDL_PixelFormat& format);
 
 	void init(FrameSource* evenField, FrameSource* oddField);
 

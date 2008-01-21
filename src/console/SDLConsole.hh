@@ -6,16 +6,16 @@
 #include "OSDConsoleRenderer.hh"
 #include <memory>
 
-class SDL_Surface;
 
 namespace openmsx {
 
+class OutputSurface;
 class SDLImage;
 
 class SDLConsole : public OSDConsoleRenderer
 {
 public:
-	SDLConsole(Reactor& reactor, SDL_Surface* screen);
+	SDLConsole(Reactor& reactor, OutputSurface& output);
 
 	virtual void loadFont(const std::string& filename);
 	virtual void loadBackground(const std::string& filename);
@@ -28,7 +28,7 @@ public:
 private:
 	void updateConsoleRect();
 
-	SDL_Surface* outputScreen;
+	OutputSurface& output;
 	std::auto_ptr<SDLImage> backgroundImage;
 	std::string backgroundName;
 };

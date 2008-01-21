@@ -26,10 +26,10 @@ PostProcessor::PostProcessor(CommandController& commandController_,
 	, prevTime(EmuTime::zero)
 	, commandController(commandController_)
 {
-	currFrame = new RawFrame(screen.getFormat(), maxWidth, height);
-	prevFrame = new RawFrame(screen.getFormat(), maxWidth, height);
-	deinterlacedFrame = new DeinterlacedFrame(screen.getFormat());
-	interlacedFrame   = new DoubledFrame     (screen.getFormat());
+	currFrame = new RawFrame(screen.getSDLFormat(), maxWidth, height);
+	prevFrame = new RawFrame(screen.getSDLFormat(), maxWidth, height);
+	deinterlacedFrame = new DeinterlacedFrame(screen.getSDLFormat());
+	interlacedFrame   = new DoubledFrame     (screen.getSDLFormat());
 }
 
 PostProcessor::~PostProcessor()
@@ -130,7 +130,7 @@ bool PostProcessor::isRecording() const
 
 unsigned PostProcessor::getBpp() const
 {
-	return screen.getFormat()->BitsPerPixel;
+	return screen.getSDLFormat().BitsPerPixel;
 }
 
 } // namespace openmsx

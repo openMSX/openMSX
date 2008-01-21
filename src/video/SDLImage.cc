@@ -1,6 +1,7 @@
 // $Id$
 
 #include "SDLImage.hh"
+#include "OutputSurface.hh"
 #include "LocalFileReference.hh"
 #include "MSXException.hh"
 #include <SDL_image.h>
@@ -11,37 +12,37 @@ using std::string;
 
 namespace openmsx {
 
-SDLImage::SDLImage(SDL_Surface* output, const string& filename)
-	: outputScreen(output)
+SDLImage::SDLImage(OutputSurface& output_, const string& filename)
+	: output(output_)
 {
 	image = loadImage(filename);
 	init(filename);
 }
 
-SDLImage::SDLImage(SDL_Surface* output, const std::string& filename,
+SDLImage::SDLImage(OutputSurface& output_, const std::string& filename,
                    double scaleFactor)
-	: outputScreen(output)
+	: output(output_)
 {
 	image = loadImage(filename, scaleFactor);
 	init(filename);
 }
 
-SDLImage::SDLImage(SDL_Surface* output, const string& filename,
+SDLImage::SDLImage(OutputSurface& output_, const string& filename,
 	           unsigned width, unsigned height)
-	: outputScreen(output)
+	: output(output_)
 {
 	image = loadImage(filename, width, height);
 	init(filename);
 }
 
-SDLImage::SDLImage(SDL_Surface* output, unsigned width, unsigned height,
+SDLImage::SDLImage(OutputSurface& output_, unsigned width, unsigned height,
                    byte alpha)
-	: outputScreen(output)
+	: output(output_)
 {
-	SDL_PixelFormat* format = outputScreen->format;
+	const SDL_PixelFormat& format = output.getSDLFormat();
 	image = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA,
-		width, height, format->BitsPerPixel,
-		format->Rmask, format->Gmask, format->Bmask, 0);
+		width, height, format.BitsPerPixel,
+		format.Rmask, format.Gmask, format.Bmask, 0);
 	if (image) {
 		SDL_SetAlpha(image, SDL_SRCALPHA, alpha);
 	}
@@ -51,7 +52,7 @@ SDLImage::SDLImage(SDL_Surface* output, unsigned width, unsigned height,
 void SDLImage::init(const string& filename)
 {
 	assert(image);
-	SDL_PixelFormat* format = image->format;
+	const SDL_PixelFormat* format = image->format;
 	workImage = SDL_CreateRGBSurface(SDL_SWSURFACE,
 		image->w, image->h, format->BitsPerPixel,
 		format->Rmask, format->Gmask, format->Bmask, 0);
@@ -69,24 +70,25 @@ SDLImage::~SDLImage()
 
 void SDLImage::draw(unsigned x, unsigned y, byte alpha)
 {
-	if (SDL_MUSTLOCK(outputScreen)) SDL_UnlockSurface(outputScreen);
+	output.unlock();
+	SDL_Surface* outputSurface = output.getSDLSurface();
 	if (alpha == 255) {
 		SDL_Rect rect;
 		rect.x = x;
 		rect.y = y;
-		SDL_BlitSurface(image, NULL, outputScreen, &rect);
+		SDL_BlitSurface(image, NULL, outputSurface, &rect);
 	} else {
 		SDL_Rect rect;
 		rect.x = x;
 		rect.y = y;
 		rect.w = image->w;
 		rect.h = image->h;
-		SDL_BlitSurface(outputScreen, &rect, workImage, NULL);
-		SDL_BlitSurface(image,        NULL,  workImage, NULL);
+		SDL_BlitSurface(outputSurface, &rect, workImage, NULL);
+		SDL_BlitSurface(image,         NULL,  workImage, NULL);
 		SDL_SetAlpha(workImage, SDL_SRCALPHA, alpha);
-		SDL_BlitSurface(workImage,    NULL,  outputScreen, &rect);
+		SDL_BlitSurface(workImage,    NULL,  outputSurface, &rect);
 	}
-	if (SDL_MUSTLOCK(outputScreen)) SDL_LockSurface(outputScreen);
+	output.lock();
 }
 
 

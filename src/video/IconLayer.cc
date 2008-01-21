@@ -8,12 +8,12 @@
 #include "FilenameSetting.hh"
 #include "CliComm.hh"
 #include "Display.hh"
+#include "OutputSurface.hh"
 #include "IconStatus.hh"
 #include "components.hh"
 #ifdef COMPONENT_GL
 #include "GLImage.hh"
 #endif
-#include <SDL.h>
 
 using std::string;
 
@@ -34,13 +34,13 @@ private:
 template <class IMAGE>
 IconLayer<IMAGE>::IconLayer(CommandController& commandController,
                             Display& display_, IconStatus& iconStatus_,
-                            SDL_Surface* screen)
+                            OutputSurface& output_)
 	// Just assume partial coverage and let paint() sort it out.
 	: Layer(COVER_PARTIAL, Z_ICONS)
 	, display(display_)
 	, iconStatus(iconStatus_)
-	, outputScreen(screen)
-	, scaleFactor(outputScreen->w / 640.0)
+	, output(output_)
+	, scaleFactor(output.getWidth() / 640.0)
 	, iconSettingChecker(new IconSettingChecker<IMAGE>(*this))
 {
 	createSettings(commandController, LedEvent::POWER, "power");
@@ -157,7 +157,7 @@ void IconSettingChecker<IMAGE>::check(SettingImpl<FilenameSetting::Policy>& sett
 					iconLayer.ledInfo[i].icon[j].reset();
 				} else {
 					iconLayer.ledInfo[i].icon[j].reset(
-					    new IMAGE(iconLayer.outputScreen,
+					    new IMAGE(iconLayer.output,
 					              context.resolve(value),
 					              iconLayer.scaleFactor));
 				}

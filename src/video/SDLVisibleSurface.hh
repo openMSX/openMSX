@@ -12,7 +12,7 @@ class SDLVisibleSurface : public VisibleSurface
 public:
 	SDLVisibleSurface(unsigned width, unsigned height, bool fullscreen);
 
-	virtual bool init();
+	virtual void init();
 	virtual void drawFrameBuffer();
 	virtual void finish();
 

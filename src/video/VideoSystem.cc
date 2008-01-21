@@ -21,9 +21,9 @@ bool VideoSystem::checkSettings()
 	return true;
 }
 
-bool VideoSystem::prepare()
+void VideoSystem::prepare()
 {
-	return true;
+	// nothing
 }
 
 void VideoSystem::takeScreenShot(const std::string& /*filename*/)

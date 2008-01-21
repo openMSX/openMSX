@@ -254,7 +254,7 @@ FBPostProcessor<Pixel>::FBPostProcessor(CommandController& commandController,
 	: PostProcessor(
 		commandController, display, screen_, videoSource, maxWidth, height)
 	, noiseShift(screen.getHeight())
-	, pixelOps(screen.getFormat())
+	, pixelOps(screen.getSDLFormat())
 {
 	scaleAlgorithm = static_cast<RenderSettings::ScaleAlgorithm>(-1); // not a valid scaler
 	scaleFactor = unsigned(-1);
@@ -285,7 +285,7 @@ void FBPostProcessor<Pixel>::paint()
 		scaleAlgorithm = algo;
 		scaleFactor = factor;
 		currScaler = ScalerFactory<Pixel>::createScaler(
-			PixelOperations<Pixel>(screen.getFormat()), renderSettings);
+			PixelOperations<Pixel>(screen.getSDLFormat()), renderSettings);
 	}
 
 	// Scale image.

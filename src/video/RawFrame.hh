@@ -14,7 +14,7 @@ namespace openmsx {
 class RawFrame : public FrameSource
 {
 public:
-	RawFrame(const SDL_PixelFormat* format, unsigned maxWidth, unsigned height);
+	RawFrame(const SDL_PixelFormat& format, unsigned maxWidth, unsigned height);
 	virtual ~RawFrame();
 
 	template<typename Pixel>

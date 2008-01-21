@@ -79,7 +79,7 @@ SDLRasterizer<Pixel>::SDLRasterizer(
 	                                    palFg, PALETTE256, V9958_COLOURS))
 	, spriteConverter(new SpriteConverter<Pixel>(vdp.getSpriteChecker()))
 {
-	workFrame = new RawFrame(screen.getFormat(), 640, 240);
+	workFrame = new RawFrame(screen.getSDLFormat(), 640, 240);
 
 	// Init the palette.
 	precalcPalette();

@@ -10,6 +10,21 @@ $Id$
 	    Have made it configurable through hardware.xml. Default is that
 	    the protection is on
 
+2008-01-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Refactored OutputSurface class:
+	   - Made all members private (was protected) and added protected
+	     getter/setters. This makes the interface between base and sub
+	     classes explicit.
+	   - Renamed getFormat() to getSDLFormat() to make it clear that this
+	     method still works dircetly on SDL data structures.
+	   - Added lock(), unlock() and isLocked() methods. These wrap the
+	     SDL_LockSurface() and SDL_UnlockSurface() functions. It for
+	     example allows to check that getLinePtrDirect() is only called on
+	     a locked surface.
+	  The first two changes allow for easier refactorings. The last change
+	  is a step towards enabling the use of HW accelerated SDL-blit
+	  functions on the GP2X port.
+
 2008-01-16 Alex Wulms
 	* Added German keyboard map (unicodemap.de):
 	    It is needed for Sony HB-F700D. Please note that currently it gives

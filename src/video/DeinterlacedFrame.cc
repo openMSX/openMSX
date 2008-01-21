@@ -5,7 +5,7 @@
 
 namespace openmsx {
 
-DeinterlacedFrame::DeinterlacedFrame(const SDL_PixelFormat* format)
+DeinterlacedFrame::DeinterlacedFrame(const SDL_PixelFormat& format)
 	: FrameSource(format)
 {
 }

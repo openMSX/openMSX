@@ -326,11 +326,7 @@ void Display::repaint()
 	alarm->cancel(); // cancel delayed repaint
 
 	assert(videoSystem.get());
-	// TODO: Is this the proper way to react?
-	//       Behind this abstraction is SDL_LockSurface,
-	//       which is severely underdocumented:
-	//       it is unknown whether a failure is transient or permanent.
-	if (!videoSystem->prepare()) return;
+	videoSystem->prepare();
 
 	for (Layers::iterator it = baseLayer(); it != layers.end(); ++it) {
 		if ((*it)->coverage != Layer::COVER_NONE) {

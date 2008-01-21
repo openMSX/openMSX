@@ -28,7 +28,7 @@ public:
 
 	void setWindowTitle(const std::string& title);
 	bool setFullScreen(bool fullscreen);
-	virtual bool init() = 0;
+	virtual void init() = 0;
 	virtual void drawFrameBuffer() = 0;
 	virtual void finish() = 0;
 	virtual void takeScreenShot(const std::string& filename) = 0;

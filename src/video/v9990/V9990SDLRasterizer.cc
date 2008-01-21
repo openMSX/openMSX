@@ -34,7 +34,7 @@ V9990SDLRasterizer<Pixel>::V9990SDLRasterizer(
 	, p1Converter(new V9990P1Converter<Pixel>(vdp, palette64))
 	, p2Converter(new V9990P2Converter<Pixel>(vdp, palette64))
 {
-	workFrame = new RawFrame(screen.getFormat(), 1280, 240);
+	workFrame = new RawFrame(screen.getSDLFormat(), 1280, 240);
 
 	// Fill palettes
 	preCalcPalettes();

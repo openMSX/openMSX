@@ -83,7 +83,7 @@ const unsigned* Multiply<unsigned>::getTable() const
 template <class Pixel>
 Scanline<Pixel>::Scanline(const PixelOperations<Pixel>& pixelOps)
 	: darkener(pixelOps.format)
-	, pixelOps(pixelOps.format)
+	, pixelOps(*pixelOps.format)
 {
 }
 

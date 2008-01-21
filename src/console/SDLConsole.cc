@@ -10,18 +10,18 @@
 #include "SDLImage.hh"
 #include "SDLFont.hh"
 #include "Console.hh"
+#include "OutputSurface.hh"
 #include "File.hh"
 #include "Timer.hh"
 #include "MSXException.hh"
-#include <SDL.h>
 
 using std::string;
 
 namespace openmsx {
 
-SDLConsole::SDLConsole(Reactor& reactor, SDL_Surface* screen)
+SDLConsole::SDLConsole(Reactor& reactor, OutputSurface& output_)
 	: OSDConsoleRenderer(reactor)
-	, outputScreen(screen)
+	, output(output_)
 {
 	initConsole();
 }
@@ -48,7 +48,7 @@ void SDLConsole::paint()
 	if (!backgroundImage.get()) {
 		// no background image, try to create an empty one
 		try {
-			backgroundImage.reset(new SDLImage(outputScreen,
+			backgroundImage.reset(new SDLImage(output,
 				destW, destH, CONSOLE_ALPHA));
 		} catch (MSXException& e) {
 			// nothing
@@ -107,23 +107,23 @@ void SDLConsole::loadBackground(const string& filename)
 		return;
 	}
 	backgroundImage.reset(
-		new SDLImage(outputScreen, filename, destW, destH));
+		new SDLImage(output, filename, destW, destH));
 	backgroundName = filename;
 }
 
 void SDLConsole::loadFont(const string& filename)
 {
-	font.reset(new SDLFont(filename, outputScreen));
+	font.reset(new SDLFont(filename, output));
 }
 
 unsigned SDLConsole::getScreenW() const
 {
-	return outputScreen->w;
+	return output.getWidth();
 }
 
 unsigned SDLConsole::getScreenH() const
 {
-	return outputScreen->h;
+	return output.getHeight();
 }
 
 } // namespace openmsx

@@ -16,7 +16,7 @@ template <typename Pixel>
 class PixelOperations
 {
 public:
-	explicit PixelOperations(const SDL_PixelFormat* format);
+	explicit PixelOperations(const SDL_PixelFormat& format);
 
 	/** Extract RGB componts
 	  */
@@ -88,8 +88,8 @@ private:
 
 
 template <typename Pixel>
-PixelOperations<Pixel>::PixelOperations(const SDL_PixelFormat* format_)
-	: format(format_)
+PixelOperations<Pixel>::PixelOperations(const SDL_PixelFormat& format_)
+	: format(&format_)
 {
 	int rBit = ~(format->Rmask << 1) & format->Rmask;
 	int gBit = ~(format->Gmask << 1) & format->Gmask;

@@ -5,6 +5,7 @@
 
 #include "noncopyable.hh"
 #include <SDL.h>
+#include <cassert>
 
 namespace openmsx {
 
@@ -19,22 +20,44 @@ public:
 
 	unsigned getWidth() const  { return surface->w; }
 	unsigned getHeight() const { return surface->h; }
-	SDL_PixelFormat* getFormat() { return &format; }
+	SDL_PixelFormat& getSDLFormat() { return format; }
+
+	/** Lock this OutputSurface.
+	  * Direct pixel access is only allowed on a locked surface.
+	  * Locking an already locked surface has no effect.
+	  */
+	void lock();
+
+	/** Unlock this OutputSurface.
+	  * @see lock().
+	  */
+	void unlock();
+
+	/** Is this OutputSurface currently locked?
+	  */
+	bool isLocked() const { return locked; }
 
 	template <typename Pixel>
 	Pixel* getLinePtrDirect(unsigned y) {
+		assert(isLocked());
 		return reinterpret_cast<Pixel*>(data + y * pitch);
 	}
 
 	virtual unsigned mapRGB(double dr, double dg, double db);
 
+	SDL_Surface* getSDLSurface() const { return surface; }
+
 protected:
 	OutputSurface();
+	void setSDLSurface(SDL_Surface* surface);
+	void setBufferPtr(char* data, unsigned pitch);
 
+private:
 	SDL_Surface* surface;
 	SDL_PixelFormat format;
 	char* data;
 	unsigned pitch;
+	bool locked;
 };
 
 } // namespace openmsx

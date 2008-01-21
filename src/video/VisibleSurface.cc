@@ -45,7 +45,7 @@ VisibleSurface::VisibleSurface()
 void VisibleSurface::createSurface(unsigned width, unsigned height, int flags)
 {
 	// try default bpp
-	surface = SDL_SetVideoMode(width, height, 0, flags);
+	SDL_Surface* surface = SDL_SetVideoMode(width, height, 0, flags);
 	int bytepp = (surface ? surface->format->BytesPerPixel : 0);
 	if (bytepp != 2 && bytepp != 4) {
 		surface = NULL;
@@ -60,6 +60,7 @@ void VisibleSurface::createSurface(unsigned width, unsigned height, int flags)
 		SDL_QuitSubSystem(SDL_INIT_VIDEO);
 		throw InitException("Could not open any screen: " + err);
 	}
+	setSDLSurface(surface);
 
 #ifdef _WIN32
 	// find our current location...
@@ -98,6 +99,7 @@ void VisibleSurface::setWindowTitle(const std::string& title)
 
 bool VisibleSurface::setFullScreen(bool wantedState)
 {
+	SDL_Surface* surface = getSDLSurface();
 	bool currentState = (surface->flags & SDL_FULLSCREEN) != 0;
 	if (currentState == wantedState) {
 		// already wanted stated

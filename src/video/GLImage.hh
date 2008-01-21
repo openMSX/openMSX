@@ -7,15 +7,15 @@
 #include "noncopyable.hh"
 #include <string>
 
-class SDL_Surface;
-
 namespace openmsx {
+
+class OutputSurface;
 
 class GLImage : private noncopyable
 {
 public:
-	GLImage(SDL_Surface* output, const std::string& filename);
-	GLImage(SDL_Surface* output, const std::string& filename,
+	GLImage(OutputSurface& output, const std::string& filename);
+	GLImage(OutputSurface& output, const std::string& filename,
 	        double scaleFactor);
 	~GLImage();
 

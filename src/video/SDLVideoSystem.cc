@@ -64,7 +64,7 @@ Rasterizer* SDLVideoSystem::createRasterizer(VDP& vdp)
 	case RendererFactory::SDL:
 	case RendererFactory::SDLGL_FB16:
 	case RendererFactory::SDLGL_FB32:
-		switch (screen->getFormat()->BytesPerPixel) {
+		switch (screen->getSDLFormat().BytesPerPixel) {
 		case 2:
 			return new SDLRasterizer<Uint16>(
 				vdp, display, *screen,
@@ -104,7 +104,7 @@ V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990& vdp)
 	case RendererFactory::SDL:
 	case RendererFactory::SDLGL_FB16:
 	case RendererFactory::SDLGL_FB32:
-		switch (screen->getFormat()->BytesPerPixel) {
+		switch (screen->getSDLFormat().BytesPerPixel) {
 		case 2:
 			return new V9990SDLRasterizer<Uint16>(
 				vdp, display, *screen,
@@ -180,9 +180,9 @@ bool SDLVideoSystem::checkSettings()
 	return screen->setFullScreen(fullScreenTarget);
 }
 
-bool SDLVideoSystem::prepare()
+void SDLVideoSystem::prepare()
 {
-	return screen->init();
+	screen->init();
 }
 
 void SDLVideoSystem::flush()

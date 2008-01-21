@@ -18,7 +18,7 @@ public:
 	                   FrameBuffer frameBuffer = FB_NONE);
 	virtual ~SDLGLVisibleSurface();
 
-	virtual bool init();
+	virtual void init();
 	virtual unsigned mapRGB(double dr, double dg, double db);
 	virtual void drawFrameBuffer();
 	virtual void finish();
@@ -33,6 +33,7 @@ public:
 		Display& display, IconStatus& iconStatus);
 
 private:
+	char* buffer;
 	FrameBuffer frameBuffer;
 	// Note: This must be a pointer because the texture should not be allocated
 	//       before the createSurface call.

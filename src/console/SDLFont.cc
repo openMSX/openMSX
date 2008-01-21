@@ -6,6 +6,7 @@
  */
 
 #include "SDLFont.hh"
+#include "OutputSurface.hh"
 #include "LocalFileReference.hh"
 #include "MSXException.hh"
 #include "openmsx.hh"
@@ -19,8 +20,8 @@ const int CHARS_PER_ROW = 16;
 const int CHARS_PER_COL = NUM_CHRS / CHARS_PER_ROW;
 
 
-SDLFont::SDLFont(const std::string& filename, SDL_Surface* surface)
-	: outputScreen(surface)
+SDLFont::SDLFont(const std::string& filename, OutputSurface& output_)
+	: output(output_)
 {
 	// load the font bitmap
 	LocalFileReference file(filename);
@@ -54,12 +55,12 @@ SDLFont::~SDLFont()
 void SDLFont::drawText(const std::string& str, int x, int y, byte alpha)
 {
 	// see how many characters can fit on the screen
-	if ((outputScreen->w <= x) || (outputScreen->h <= y)) {
+	if ((int(output.getWidth()) <= x) || (int(output.getHeight()) <= y)) {
 		return;
 	}
 	unsigned characters = str.length();
-	if (characters > ((outputScreen->w - x) / charWidth)) {
-		characters = (outputScreen->w - x) / charWidth;
+	if (characters > ((output.getWidth() - x) / charWidth)) {
+		characters = (output.getWidth() - x) / charWidth;
 	}
 	SDL_Rect destRect;
 	destRect.x = x;
@@ -72,25 +73,26 @@ void SDLFont::drawText(const std::string& str, int x, int y, byte alpha)
 	sourceRect.h = charHeight;
 
 	// Now draw it
-	if (SDL_MUSTLOCK(outputScreen)) SDL_UnlockSurface(outputScreen);
+	output.unlock();
 	for (unsigned loop = 0; loop < characters; loop++) {
 		sourceRect.x = (str[loop] % CHARS_PER_ROW) * charWidth;
 		sourceRect.y = (str[loop] / CHARS_PER_ROW) * charHeight;
+		SDL_Surface* outputSurface = output.getSDLSurface();
 		if (alpha == 255) {
 			SDL_BlitSurface(fontSurface, &sourceRect,
-			                outputScreen, &destRect);
+			                outputSurface, &destRect);
 		} else {
-			SDL_BlitSurface(outputScreen, &destRect,
+			SDL_BlitSurface(outputSurface, &destRect,
 			                workImage, NULL);
 			SDL_BlitSurface(fontSurface, &sourceRect,
 			                workImage, NULL);
 			SDL_SetAlpha(workImage, SDL_SRCALPHA, alpha);
 			SDL_BlitSurface(workImage, NULL,
-			                outputScreen, &destRect);
+			                outputSurface, &destRect);
 		}
 		destRect.x += charWidth;
 	}
-	if (SDL_MUSTLOCK(outputScreen)) SDL_LockSurface(outputScreen);
+	output.lock();
 }
 
 } // namespace openmsx
