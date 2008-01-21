@@ -1,5 +1,8 @@
 $Id$
 
+2008-01-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Removed workaround for pre gcc-3.4 compilers
+
 2008-01-18 Alex Wulms
 	* Added key-ghost protection for SHIFT, GRAPH and CODE keys:
 	    This exists on several real models; these three keys are connected

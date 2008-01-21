@@ -24,11 +24,10 @@ void Scaler2<Pixel>::scaleBlank1to2(
 	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 1, dstY += 2) {
-		Pixel* dummy = 0;
-		Pixel color = src.getLinePtr(srcY, dummy)[0];
-		Pixel* dstLine0 = dst.getLinePtrDirect(dstY + 0, dummy);
+		Pixel color = src.getLinePtr<Pixel>(srcY)[0];
+		Pixel* dstLine0 = dst.getLinePtrDirect<Pixel>(dstY + 0);
 		memset(dstLine0, dst.getWidth(), color);
-		Pixel* dstLine1 = dst.getLinePtrDirect(dstY + 1, dummy);
+		Pixel* dstLine1 = dst.getLinePtrDirect<Pixel>(dstY + 1);
 		memset(dstLine1, dst.getWidth(), color);
 	}
 }
@@ -41,9 +40,8 @@ void Scaler2<Pixel>::scaleBlank1to1(
 	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 1, dstY += 1) {
-		Pixel* dummy = 0;
-		Pixel color = src.getLinePtr(srcY, dummy)[0];
-		Pixel* dstLine = dst.getLinePtrDirect(dstY, dummy);
+		Pixel color = src.getLinePtr<Pixel>(srcY)[0];
+		Pixel* dstLine = dst.getLinePtrDirect<Pixel>(dstY);
 		memset(dstLine, dst.getWidth(), color);
 	}
 }
@@ -56,11 +54,10 @@ static void doScale1(FrameSource& src,
 {
 	Scale_1on1<Pixel> copy;
 	for (unsigned y = dstStartY; y < dstEndY; y += 2, ++srcStartY) {
-		Pixel* dummy = 0;
-		const Pixel* srcLine = src.getLinePtr(srcStartY, srcWidth, dummy);
-		Pixel* dstLine1 = dst.getLinePtrDirect(y + 0, dummy);
+		const Pixel* srcLine = src.getLinePtr<Pixel>(srcStartY, srcWidth);
+		Pixel* dstLine1 = dst.getLinePtrDirect<Pixel>(y + 0);
 		scale(srcLine, dstLine1, dst.getWidth());
-		Pixel* dstLine2 = dst.getLinePtrDirect(y + 1, dummy);
+		Pixel* dstLine2 = dst.getLinePtrDirect<Pixel>(y + 1);
 		if (IsTagged<ScaleOp, Streaming>::result) {
 			scale(srcLine, dstLine2, dst.getWidth());
 		} else {
@@ -77,9 +74,8 @@ static void doScale2(FrameSource& src,
 {
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; ++dstY, ++srcY) {
-		Pixel* dummy = 0;
-		const Pixel* srcLine = src.getLinePtr(srcY, srcWidth, dummy);
-		Pixel*       dstLine = dst.getLinePtrDirect(dstY, dummy);
+		const Pixel* srcLine = src.getLinePtr<Pixel>(srcY, srcWidth);
+		Pixel*       dstLine = dst.getLinePtrDirect<Pixel>(dstY);
 		scale(srcLine, dstLine, dst.getWidth());
 	}
 }

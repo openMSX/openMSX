@@ -152,17 +152,16 @@ void Scale3xScaler<Pixel>::scale1x1to3x3(FrameSource& src,
 	unsigned srcStartY, unsigned /*srcEndY*/, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	Pixel* const dummy = 0;
 	int srcY = srcStartY;
-	const Pixel* srcPrev = src.getLinePtr(srcY - 1, srcWidth, dummy);
-	const Pixel* srcCurr = src.getLinePtr(srcY + 0, srcWidth, dummy);
+	const Pixel* srcPrev = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
+	const Pixel* srcCurr = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 3) {
-		const Pixel* srcNext = src.getLinePtr(srcY + 1, srcWidth, dummy);
-		Pixel* dstUpper = dst.getLinePtrDirect(dstY + 0, dummy);
+		const Pixel* srcNext = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
+		Pixel* dstUpper  = dst.getLinePtrDirect<Pixel>(dstY + 0);
 		scaleLine1on3Half(dstUpper, srcPrev, srcCurr, srcNext, srcWidth);
-		Pixel* dstMiddle = dst.getLinePtrDirect(dstY + 1, dummy);
+		Pixel* dstMiddle = dst.getLinePtrDirect<Pixel>(dstY + 1);
 		scaleLine1on3Mid(dstMiddle, srcPrev, srcCurr, srcNext, srcWidth);
-		Pixel* dstLower = dst.getLinePtrDirect(dstY + 2, dummy);
+		Pixel* dstLower  = dst.getLinePtrDirect<Pixel>(dstY + 2);
 		scaleLine1on3Half(dstLower, srcNext, srcCurr, srcPrev, srcWidth);
 		srcPrev = srcCurr;
 		srcCurr = srcNext;

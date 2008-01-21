@@ -36,9 +36,8 @@ void LowScaler<Pixel>::scaleBlank1to1(
 	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 1, dstY += 1) {
-		Pixel* dummy = 0;
-		Pixel color = src.getLinePtr(srcY, dummy)[0];
-		Pixel* dstLine = dst.getLinePtrDirect(dstY, dummy);
+		Pixel color = src.getLinePtr<Pixel>(srcY)[0];
+		Pixel* dstLine = dst.getLinePtrDirect<Pixel>(dstY);
 		memset(dstLine, dst.getWidth(), color);
 	}
 }
@@ -51,11 +50,10 @@ void LowScaler<Pixel>::scaleBlank2to1(
 	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 2, dstY += 1) {
-		Pixel* dummy = 0;
-		Pixel color0 = src.getLinePtr(srcY + 0, dummy)[0];
-		Pixel color1 = src.getLinePtr(srcY + 1, dummy)[0];
+		Pixel color0 = src.getLinePtr<Pixel>(srcY + 0)[0];
+		Pixel color1 = src.getLinePtr<Pixel>(srcY + 1)[0];
 		Pixel color01 = pixelOps.template blend<1, 1>(color0, color1);
-		Pixel* dstLine = dst.getLinePtrDirect(dstY, dummy);
+		Pixel* dstLine = dst.getLinePtrDirect<Pixel>(dstY);
 		memset(dstLine, dst.getWidth(), color01);
 	}
 }
@@ -68,9 +66,8 @@ static void doScale1(FrameSource& src,
 {
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; ++srcY, ++dstY) {
-		Pixel* dummy = 0;
-		const Pixel* srcLine = src.getLinePtr(srcY, srcWidth, dummy);
-		Pixel* dstLine = dst.getLinePtrDirect(dstY, dummy);
+		const Pixel* srcLine = src.getLinePtr<Pixel>(srcY, srcWidth);
+		Pixel* dstLine = dst.getLinePtrDirect<Pixel>(dstY);
 		scale(srcLine, dstLine, dst.getWidth());
 	}
 }
@@ -84,13 +81,12 @@ static void doScaleDV(FrameSource& src,
 	BlendLines<Pixel> blend(ops);
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 2, dstY += 1) {
-		Pixel* dummy = 0;
-		const Pixel* srcLine0 = src.getLinePtr(srcY + 0, srcWidth, dummy);
-		const Pixel* srcLine1 = src.getLinePtr(srcY + 1, srcWidth, dummy);
+		const Pixel* srcLine0 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
+		const Pixel* srcLine1 = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
 		Pixel buf0[dst.getWidth()], buf1[dst.getWidth()];
 		scale(srcLine0, buf0, dst.getWidth());
 		scale(srcLine1, buf1, dst.getWidth());
-		Pixel* dstLine = dst.getLinePtrDirect(dstY, dummy);
+		Pixel* dstLine = dst.getLinePtrDirect<Pixel>(dstY);
 		blend(buf0, buf1, dstLine, dst.getWidth());
 	}
 }
@@ -133,10 +129,9 @@ void LowScaler<Pixel>::scale1x2to1x1(FrameSource& src,
 	//       optimized code for?
 	BlendLines<Pixel> blend(pixelOps);
 	while (dstStartY < dstEndY) {
-		Pixel* dummy = 0;
-		const Pixel* srcLine0 = src.getLinePtr(srcStartY++, srcWidth, dummy);
-		const Pixel* srcLine1 = src.getLinePtr(srcStartY++, srcWidth, dummy);
-		Pixel* dstLine = dst.getLinePtrDirect(dstStartY++, dummy);
+		const Pixel* srcLine0 = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
+		const Pixel* srcLine1 = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
+		Pixel* dstLine = dst.getLinePtrDirect<Pixel>(dstStartY++);
 		blend(srcLine0, srcLine1, dstLine, dst.getWidth());
 	}
 }

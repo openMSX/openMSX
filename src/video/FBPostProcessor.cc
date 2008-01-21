@@ -231,8 +231,7 @@ void FBPostProcessor<Pixel>::drawNoise()
 	unsigned height = screen.getHeight();
 	unsigned width = screen.getWidth();
 	for (unsigned y = 0; y < height; ++y) {
-		Pixel* dummy = 0;
-		Pixel* buf = screen.getLinePtrDirect(y, dummy);
+		Pixel* buf = screen.getLinePtrDirect<Pixel>(y);
 		drawNoiseLine(buf, buf, &noiseBuf[noiseShift[y]], width);
 	}
 }

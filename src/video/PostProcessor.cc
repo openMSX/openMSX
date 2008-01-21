@@ -106,11 +106,9 @@ RawFrame* PostProcessor::rotateFrames(
 		const void* lines[240];
 		for (int i = 0; i < 240; ++i) {
 			if (getBpp() == 32) {
-				unsigned* dummy = 0;
-				lines[i] = paintFrame->getLinePtr320_240(i, dummy);
+				lines[i] = paintFrame->getLinePtr320_240<unsigned>(i);
 			} else {
-				word* dummy = 0;
-				lines[i] = paintFrame->getLinePtr320_240(i, dummy);
+				lines[i] = paintFrame->getLinePtr320_240<word>(i);
 			}
 		}
 		recorder->addImage(lines, time);

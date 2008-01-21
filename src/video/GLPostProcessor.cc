@@ -345,9 +345,8 @@ void GLPostProcessor::uploadBlock(
 		pbo->bind();
 		unsigned* mapped = pbo->mapWrite();
 		for (unsigned y = srcStartY; y < srcEndY; ++y) {
-			unsigned* dummy = 0;
 			const unsigned* data =
-				paintFrame->getLinePtr(y, lineWidth, dummy);
+				paintFrame->getLinePtr<unsigned>(y, lineWidth);
 			MemoryOps::stream_memcpy(mapped + y * lineWidth, data, lineWidth);
 			paintFrame->freeLineBuffers(); // ASAP to keep cache warm
 		}
@@ -369,9 +368,8 @@ void GLPostProcessor::uploadBlock(
 		unsigned remainingLines = srcEndY - srcStartY;
 		while (remainingLines) {
 			unsigned lines;
-			unsigned* dummy = 0;
-			const unsigned* data = paintFrame->getMultiLinePtr(
-				y, remainingLines, lines, lineWidth, dummy);
+			const unsigned* data = paintFrame->getMultiLinePtr<unsigned>(
+				y, remainingLines, lines, lineWidth);
 			glTexSubImage2D(
 				GL_TEXTURE_2D,     // target
 				0,                 // level

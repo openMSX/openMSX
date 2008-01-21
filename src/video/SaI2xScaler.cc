@@ -32,11 +32,10 @@ void SaI2xScaler<Pixel>::scaleBlank1to2(
 	unsigned srcY = srcStartY, dstY = dstStartY;
 	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
 	for (/* */; dstY < stopDstY; srcY += 1, dstY += 2) {
-		Pixel* dummy = 0;
-		Pixel color = src.getLinePtr(srcY, dummy)[0];
-		Pixel* dstLine0 = dst.getLinePtrDirect(dstY + 0, dummy);
+		Pixel color = src.getLinePtr<Pixel>(srcY)[0];
+		Pixel* dstLine0 = dst.getLinePtrDirect<Pixel>(dstY + 0);
 		memset(dstLine0, dst.getWidth(), color);
-		Pixel* dstLine1 = dst.getLinePtrDirect(dstY + 1, dummy);
+		Pixel* dstLine1 = dst.getLinePtrDirect<Pixel>(dstY + 1);
 		memset(dstLine1, dst.getWidth(), color);
 	}
 	if (dstY != dst.getHeight()) {
@@ -276,15 +275,14 @@ void SaI2xScaler<Pixel>::scale1x1to2x2(FrameSource& src,
 {
 	assert(dst.getWidth() == srcWidth * 2);
 
-	Pixel* const dummy = 0;
 	int srcY = srcStartY;
-	const Pixel* srcLine0 = src.getLinePtr(srcY - 1, srcWidth, dummy);
-	const Pixel* srcLine1 = src.getLinePtr(srcY + 0, srcWidth, dummy);
-	const Pixel* srcLine2 = src.getLinePtr(srcY + 1, srcWidth, dummy);
+	const Pixel* srcLine0 = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
+	const Pixel* srcLine1 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
+	const Pixel* srcLine2 = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
-		const Pixel* srcLine3 = src.getLinePtr(srcY + 2, srcWidth, dummy);
-		Pixel* dstUpper = dst.getLinePtrDirect(dstY + 0, dummy);
-		Pixel* dstLower = dst.getLinePtrDirect(dstY + 1, dummy);
+		const Pixel* srcLine3 = src.getLinePtr<Pixel>(srcY + 2, srcWidth);
+		Pixel* dstUpper = dst.getLinePtrDirect<Pixel>(dstY + 0);
+		Pixel* dstLower = dst.getLinePtrDirect<Pixel>(dstY + 1);
 		scaleLine1on2(srcLine0, srcLine1, srcLine2, srcLine3,
 		              dstUpper, dstLower, srcWidth);
 		srcLine0 = srcLine1;
@@ -300,15 +298,14 @@ void SaI2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 {
 	assert(dst.getWidth() == srcWidth);
 
-	Pixel* const dummy = 0;
 	int srcY = srcStartY;
-	const Pixel* srcLine0 = src.getLinePtr(srcY - 1, srcWidth, dummy);
-	const Pixel* srcLine1 = src.getLinePtr(srcY + 0, srcWidth, dummy);
-	const Pixel* srcLine2 = src.getLinePtr(srcY + 1, srcWidth, dummy);
+	const Pixel* srcLine0 = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
+	const Pixel* srcLine1 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
+	const Pixel* srcLine2 = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
-		const Pixel* srcLine3 = src.getLinePtr(srcY + 2, srcWidth, dummy);
-		Pixel* dstUpper = dst.getLinePtrDirect(dstY + 0, dummy);
-		Pixel* dstLower = dst.getLinePtrDirect(dstY + 1, dummy);
+		const Pixel* srcLine3 = src.getLinePtr<Pixel>(srcY + 2, srcWidth);
+		Pixel* dstUpper = dst.getLinePtrDirect<Pixel>(dstY + 0);
+		Pixel* dstLower = dst.getLinePtrDirect<Pixel>(dstY + 1);
 		scaleLine1on1(srcLine0, srcLine1, srcLine2, srcLine3,
 		              dstUpper, dstLower, srcWidth);
 		srcLine0 = srcLine1;

@@ -33,14 +33,14 @@ void FrameSource::setHeight(unsigned height_)
 }
 
 template <typename Pixel>
-const Pixel* FrameSource::getLinePtr320_240(unsigned line, Pixel* dummy)
+const Pixel* FrameSource::getLinePtr320_240(unsigned line)
 {
 	if (getHeight() == 240) {
-		return getLinePtr(line, 320, dummy);
+		return getLinePtr<Pixel>(line, 320);
 	} else {
 		assert(getHeight() == 480);
-		const Pixel* line1 = getLinePtr(2 * line + 0, 320, dummy);
-		const Pixel* line2 = getLinePtr(2 * line + 1, 320, dummy);
+		const Pixel* line1 = getLinePtr<Pixel>(2 * line + 0, 320);
+		const Pixel* line2 = getLinePtr<Pixel>(2 * line + 1, 320);
 		PixelOperations<Pixel> pixelOps(pixelFormat);
 		BlendLines<Pixel> blend(pixelOps);
 		Pixel* out = reinterpret_cast<Pixel*>(getTempBuffer());
@@ -333,7 +333,7 @@ const Pixel* FrameSource::scaleLine(
 // Force template method instantiation
 template const word* FrameSource::scaleLine(const word*, unsigned, unsigned);
 template const unsigned* FrameSource::scaleLine(const unsigned*, unsigned, unsigned);
-template const word* FrameSource::getLinePtr320_240(unsigned, word*);
-template const unsigned* FrameSource::getLinePtr320_240(unsigned, unsigned*);
+template const word* FrameSource::getLinePtr320_240<word>(unsigned);
+template const unsigned* FrameSource::getLinePtr320_240<unsigned>(unsigned);
 
 } // namespace openmsx

@@ -22,7 +22,7 @@ public:
 	SDL_PixelFormat* getFormat() { return &format; }
 
 	template <typename Pixel>
-	Pixel* getLinePtrDirect(unsigned y, Pixel* /*dummy*/) {
+	Pixel* getLinePtrDirect(unsigned y) {
 		return reinterpret_cast<Pixel*>(data + y * pitch);
 	}
 

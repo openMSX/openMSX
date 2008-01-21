@@ -98,34 +98,33 @@ void RGBTriplet3xScaler<Pixel>::doScale1(FrameSource& src,
 	unsigned tmpWidth = dst.getWidth() / 3;
 	int scanlineFactor = settings.getScanlineFactor();
 	unsigned y = dstStartY;
-	Pixel* dummy = 0;
-	const Pixel* srcLine = src.getLinePtr(srcStartY++, srcWidth, dummy);
-	Pixel* prevDstLine0 = dst.getLinePtrDirect(y + 0, dummy);
+	const Pixel* srcLine = src.getLinePtr<Pixel>(srcStartY++, srcWidth);
+	Pixel* prevDstLine0 = dst.getLinePtrDirect<Pixel>(y + 0);
 	scaleLine(srcLine, prevDstLine0, scale, tmpWidth);
 
 	Scale_1on1<Pixel> copy;
-	Pixel* dstLine1 = dst.getLinePtrDirect(y + 1, dummy);
+	Pixel* dstLine1 = dst.getLinePtrDirect<Pixel>(y + 1);
 	copy(prevDstLine0, dstLine1, dst.getWidth());
 
 	for (/* */; (y + 4) < dstEndY; y += 3, srcStartY += 1) {
-		srcLine = src.getLinePtr(srcStartY, srcWidth, dummy);
-		Pixel* dstLine0 = dst.getLinePtrDirect(y + 3, dummy);
+		srcLine = src.getLinePtr<Pixel>(srcStartY, srcWidth);
+		Pixel* dstLine0 = dst.getLinePtrDirect<Pixel>(y + 3);
 		scaleLine(srcLine, dstLine0, scale, tmpWidth);
 
-		dstLine1 = dst.getLinePtrDirect(y + 4, dummy);
+		dstLine1 = dst.getLinePtrDirect<Pixel>(y + 4);
 		copy(dstLine0, dstLine1, dst.getWidth());
 
-		Pixel* dstLine2 = dst.getLinePtrDirect(y + 2, dummy);
+		Pixel* dstLine2 = dst.getLinePtrDirect<Pixel>(y + 2);
 		scanline.draw(prevDstLine0, dstLine0, dstLine2,
 		              scanlineFactor, dst.getWidth());
 
 		prevDstLine0 = dstLine0;
 	}
 
-	srcLine = src.getLinePtr(srcStartY, srcWidth, dummy);
+	srcLine = src.getLinePtr<Pixel>(srcStartY, srcWidth);
 	Pixel buf[dst.getWidth()];
 	scaleLine(srcLine, buf, scale, tmpWidth);
-	Pixel* dstLine2 = dst.getLinePtrDirect(y + 2, dummy);
+	Pixel* dstLine2 = dst.getLinePtrDirect<Pixel>(y + 2);
 	scanline.draw(prevDstLine0, buf, dstLine2,
 	              scanlineFactor, dst.getWidth());
 }
@@ -140,19 +139,18 @@ void RGBTriplet3xScaler<Pixel>::doScale2(FrameSource& src,
 	recalcBlur();
 
 	unsigned tmpWidth = dst.getWidth() / 3;
-	Pixel* dummy = 0;
 	int scanlineFactor = settings.getScanlineFactor();
 	for (unsigned srcY = srcStartY, dstY = dstStartY; dstY < dstEndY;
 	     srcY += 2, dstY += 3) {
-		const Pixel* srcLine0 = src.getLinePtr(srcY + 0, srcWidth, dummy);
-		Pixel* dstLine0 = dst.getLinePtrDirect(dstY + 0, dummy);
+		const Pixel* srcLine0 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
+		Pixel* dstLine0 = dst.getLinePtrDirect<Pixel>(dstY + 0);
 		scaleLine(srcLine0, dstLine0, scale, tmpWidth);
 
-		const Pixel* srcLine1 = src.getLinePtr(srcY + 1, srcWidth, dummy);
-		Pixel* dstLine2 = dst.getLinePtrDirect(dstY + 2, dummy);
+		const Pixel* srcLine1 = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
+		Pixel* dstLine2 = dst.getLinePtrDirect<Pixel>(dstY + 2);
 		scaleLine(srcLine1, dstLine2, scale, tmpWidth);
 
-		Pixel* dstLine1 = dst.getLinePtrDirect(dstY + 1, dummy);
+		Pixel* dstLine1 = dst.getLinePtrDirect<Pixel>(dstY + 1);
 		scanline.draw(dstLine0, dstLine2, dstLine1,
 		              scanlineFactor, dst.getWidth());
 	}
@@ -294,8 +292,7 @@ void RGBTriplet3xScaler<Pixel>::scaleBlank1to3(
 	                  ? dstEndY : dstEndY - 3;
 	unsigned srcY = srcStartY, dstY = dstStartY;
 	for (/* */; dstY < stopDstY; srcY += 1, dstY += 3) {
-		Pixel* dummy = 0;
-		Pixel color = src.getLinePtr(srcY, dummy)[0];
+		Pixel color = src.getLinePtr<Pixel>(srcY)[0];
 
 		Pixel inNormal [3];
 		Pixel outNormal[3 * 3];
@@ -307,11 +304,11 @@ void RGBTriplet3xScaler<Pixel>::scaleBlank1to3(
 					outNormal[i], scanlineFactor);
 		}
 
-		fillLoop(outNormal,   dst.getLinePtrDirect(dstY + 0, dummy),
+		fillLoop(outNormal,   dst.getLinePtrDirect<Pixel>(dstY + 0),
 		         dst.getWidth());
-		fillLoop(outNormal,   dst.getLinePtrDirect(dstY + 1, dummy),
+		fillLoop(outNormal,   dst.getLinePtrDirect<Pixel>(dstY + 1),
 		         dst.getWidth());
-		fillLoop(outScanline, dst.getLinePtrDirect(dstY + 2, dummy),
+		fillLoop(outScanline, dst.getLinePtrDirect<Pixel>(dstY + 2),
 		         dst.getWidth());
 	}
 	if (dstY != dst.getHeight()) {
@@ -332,9 +329,8 @@ void RGBTriplet3xScaler<Pixel>::scaleBlank2to3(
 	int scanlineFactor = settings.getScanlineFactor();
 	for (unsigned srcY = srcStartY, dstY = dstStartY;
 	     dstY < dstEndY; srcY += 2, dstY += 3) {
-		Pixel* dummy = 0;
-		Pixel color0 = src.getLinePtr(srcY + 0, dummy)[0];
-		Pixel color1 = src.getLinePtr(srcY + 1, dummy)[0];
+		Pixel color0 = src.getLinePtr<Pixel>(srcY + 0)[0];
+		Pixel color1 = src.getLinePtr<Pixel>(srcY + 1)[0];
 
 		Pixel inNormal [3];
 		Pixel out0Normal[3 * 3];
@@ -352,11 +348,11 @@ void RGBTriplet3xScaler<Pixel>::scaleBlank2to3(
 				scanlineFactor);
 		}
 
-		fillLoop(out0Normal,  dst.getLinePtrDirect(dstY + 0, dummy),
+		fillLoop(out0Normal,  dst.getLinePtrDirect<Pixel>(dstY + 0),
 		         dst.getWidth());
-		fillLoop(outScanline, dst.getLinePtrDirect(dstY + 1, dummy),
+		fillLoop(outScanline, dst.getLinePtrDirect<Pixel>(dstY + 1),
 		         dst.getWidth());
-		fillLoop(out1Normal,  dst.getLinePtrDirect(dstY + 2, dummy),
+		fillLoop(out1Normal,  dst.getLinePtrDirect<Pixel>(dstY + 2),
 		         dst.getWidth());
 	}
 }

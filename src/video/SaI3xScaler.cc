@@ -32,13 +32,12 @@ void SaI3xScaler<Pixel>::scaleBlank1to3(
 	unsigned srcY = srcStartY, dstY = dstStartY;
 	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
 	for (/* */; dstY < stopDstY; srcY += 1, dstY += 3) {
-		Pixel* dummy = 0;
-		Pixel color = src.getLinePtr(srcY, dummy)[0];
-		Pixel* dstLine0 = dst.getLinePtrDirect(dstY + 0, dummy);
+		Pixel color = src.getLinePtr<Pixel>(srcY)[0];
+		Pixel* dstLine0 = dst.getLinePtrDirect<Pixel>(dstY + 0);
 		memset(dstLine0, dst.getWidth(), color);
-		Pixel* dstLine1 = dst.getLinePtrDirect(dstY + 1, dummy);
+		Pixel* dstLine1 = dst.getLinePtrDirect<Pixel>(dstY + 1);
 		memset(dstLine1, dst.getWidth(), color);
-		Pixel* dstLine2 = dst.getLinePtrDirect(dstY + 2, dummy);
+		Pixel* dstLine2 = dst.getLinePtrDirect<Pixel>(dstY + 2);
 		memset(dstLine2, dst.getWidth(), color);
 	}
 	if (dstY != dst.getHeight()) {
@@ -327,8 +326,7 @@ public:
 		const Pixel* src3, unsigned srcWidth,
 		OutputSurface& dst, unsigned& dstY)
 	{
-		Pixel* dummy = 0;
-		Pixel* dp = dst.getLinePtrDirect(dstY++, dummy);
+		Pixel* dp = dst.getLinePtrDirect<Pixel>(dstY++);
 		// Calculate fixed point coordinate.
 		const unsigned y1 = ((NY - i) << 16) / NY;
 
@@ -395,13 +393,12 @@ void SaI3xScaler<Pixel>::scaleFixed(FrameSource& src,
 	assert(dst.getWidth() == srcWidth * NX);
 	assert(dst.getHeight() == src.getHeight() * NY);
 
-	Pixel* const dummy = 0;
 	int srcY = srcStartY;
-	const Pixel* src0 = src.getLinePtr(srcY - 1, srcWidth, dummy);
-	const Pixel* src1 = src.getLinePtr(srcY + 0, srcWidth, dummy);
-	const Pixel* src2 = src.getLinePtr(srcY + 1, srcWidth, dummy);
+	const Pixel* src0 = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
+	const Pixel* src1 = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
+	const Pixel* src2 = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY++) {
-		const Pixel* src3 = src.getLinePtr(srcY + 2, srcWidth, dummy);
+		const Pixel* src3 = src.getLinePtr<Pixel>(srcY + 2, srcWidth);
 		LineRepeater<NY>::template scaleFixedLine<NX, NY, Pixel>(
 			src0, src1, src2, src3, srcWidth, dst, dstY);
 		src0 = src1;
@@ -425,15 +422,14 @@ void SaI3xScaler<Pixel>::scaleAny(FrameSource& src,
 	for (unsigned dstY = dstStartY; dstY < dstEndY; dstY++) {
 		// Get source line pointers.
 		int line = srcStartY + (h >> 16);
-		Pixel* const dummy = 0;
 		// TODO possible optimization: reuse srcN from previous step
-		const Pixel* src0 = src.getLinePtr(line - 1, srcWidth, dummy);
-		const Pixel* src1 = src.getLinePtr(line + 0, srcWidth, dummy);
-		const Pixel* src2 = src.getLinePtr(line + 1, srcWidth, dummy);
-		const Pixel* src3 = src.getLinePtr(line + 2, srcWidth, dummy);
+		const Pixel* src0 = src.getLinePtr<Pixel>(line - 1, srcWidth);
+		const Pixel* src1 = src.getLinePtr<Pixel>(line + 0, srcWidth);
+		const Pixel* src2 = src.getLinePtr<Pixel>(line + 1, srcWidth);
+		const Pixel* src3 = src.getLinePtr<Pixel>(line + 2, srcWidth);
 
 		// Get destination line pointer.
-		Pixel* dp = dst.getLinePtrDirect(dstY, dummy);
+		Pixel* dp = dst.getLinePtrDirect<Pixel>(dstY);
 
 		// Fractional parts of the fixed point Y coordinates.
 		const unsigned y1 = h & 0xffff;

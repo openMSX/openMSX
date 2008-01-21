@@ -225,10 +225,9 @@ static void doHQScale2(HQScale hqScale, PostScale postScale, FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
 	unsigned dstWidth)
 {
-	Pixel* const dummy = 0;
 	int srcY = srcStartY;
-	const Pixel* srcPrev = src.getLinePtr(srcY - 1, srcWidth, dummy);
-	const Pixel* srcCurr = src.getLinePtr(srcY + 0, srcWidth, dummy);
+	const Pixel* srcPrev = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
+	const Pixel* srcCurr = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
 
 	assert(srcWidth <= 1024);
 	unsigned edgeBuf[1024];
@@ -237,9 +236,9 @@ static void doHQScale2(HQScale hqScale, PostScale postScale, FrameSource& src,
 
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 2) {
 		Pixel buf0[2 * 1024], buf1[2 * 1024];
-		const Pixel* srcNext = src.getLinePtr(srcY + 1, srcWidth, dummy);
-		Pixel* dst0 = dst.getLinePtrDirect(dstY + 0, dummy);
-		Pixel* dst1 = dst.getLinePtrDirect(dstY + 1, dummy);
+		const Pixel* srcNext = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
+		Pixel* dst0 = dst.getLinePtrDirect<Pixel>(dstY + 0);
+		Pixel* dst1 = dst.getLinePtrDirect<Pixel>(dstY + 1);
 		if (IsTagged<PostScale, Copy>::result) {
 			hqScale(srcPrev, srcCurr, srcNext, dst0, dst1,
 			      srcWidth, edgeBuf);
@@ -260,10 +259,9 @@ static void doHQScale3(HQScale hqScale, PostScale postScale, FrameSource& src,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY,
 	unsigned dstWidth)
 {
-	Pixel* const dummy = 0;
 	int srcY = srcStartY;
-	const Pixel* srcPrev = src.getLinePtr(srcY - 1, srcWidth, dummy);
-	const Pixel* srcCurr = src.getLinePtr(srcY + 0, srcWidth, dummy);
+	const Pixel* srcPrev = src.getLinePtr<Pixel>(srcY - 1, srcWidth);
+	const Pixel* srcCurr = src.getLinePtr<Pixel>(srcY + 0, srcWidth);
 
 	assert(srcWidth <= 1024);
 	unsigned edgeBuf[1024];
@@ -272,10 +270,10 @@ static void doHQScale3(HQScale hqScale, PostScale postScale, FrameSource& src,
 
 	for (unsigned dstY = dstStartY; dstY < dstEndY; srcY += 1, dstY += 3) {
 		Pixel buf0[3 * 1024], buf1[3 * 1024], buf2[3 * 1024];
-		const Pixel* srcNext = src.getLinePtr(srcY + 1, srcWidth, dummy);
-		Pixel* dst0 = dst.getLinePtrDirect(dstY + 0, dummy);
-		Pixel* dst1 = dst.getLinePtrDirect(dstY + 1, dummy);
-		Pixel* dst2 = dst.getLinePtrDirect(dstY + 2, dummy);
+		const Pixel* srcNext = src.getLinePtr<Pixel>(srcY + 1, srcWidth);
+		Pixel* dst0 = dst.getLinePtrDirect<Pixel>(dstY + 0);
+		Pixel* dst1 = dst.getLinePtrDirect<Pixel>(dstY + 1);
+		Pixel* dst2 = dst.getLinePtrDirect<Pixel>(dstY + 2);
 		if (IsTagged<PostScale, Copy>::result) {
 			hqScale(srcPrev, srcCurr, srcNext, dst0, dst1, dst2,
 			        srcWidth, edgeBuf);

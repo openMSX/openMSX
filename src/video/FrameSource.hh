@@ -60,11 +60,9 @@ public:
 	virtual unsigned getLineWidth(unsigned line) = 0;
 
 	/** Gets a pointer to the pixels of the given line number.
-	  * The dummy parameter is a workaround for bug in GCC versions
-	  * prior to 3.4, see http://gcc.gnu.org/bugzilla/show_bug.cgi?id=795
 	  */
 	template <typename Pixel>
-	inline Pixel* getLinePtr(unsigned line, Pixel* /*dummy*/) {
+	inline Pixel* getLinePtr(unsigned line) {
 		return reinterpret_cast<Pixel*>(getLinePtrImpl(line));
 	}
 
@@ -73,13 +71,11 @@ public:
 	  * original line had a different width it will be scaled in a temporary
 	  * buffer. You should call freeLineBuffers regularly so the allocated
 	  * buffers can be recycled.
-	  * The dummy parameter is a workaround for bug in GCC versions
-	  * prior to 3.4, see http://gcc.gnu.org/bugzilla/show_bug.cgi?id=795
 	  */
 	template <typename Pixel>
-	inline const Pixel* getLinePtr(int line, unsigned width, Pixel* dummy) {
+	inline const Pixel* getLinePtr(int line, unsigned width) {
 		line = std::min<unsigned>(std::max(0, line), getHeight() - 1);
-		const Pixel* internalData = getLinePtr(line, dummy);
+		const Pixel* internalData = getLinePtr<Pixel>(line);
 		unsigned internalWidth = getLineWidth(line);
 		if (internalWidth == width) {
 			return internalData;
@@ -97,14 +93,14 @@ public:
 	template <typename Pixel>
 	inline const Pixel* getMultiLinePtr(
 		int line, unsigned numLines, unsigned& actualLines,
-		unsigned width, Pixel* dummy)
+		unsigned width)
 	{
 		actualLines = 1;
 		int height = getHeight();
 		if ((line < 0) || (height <= line)) {
-			return getLinePtr(line, width, dummy);
+			return getLinePtr<Pixel>(line, width);
 		}
-		const Pixel* internalData = getLinePtr(line, dummy);
+		const Pixel* internalData = getLinePtr<Pixel>(line);
 		unsigned internalWidth = getLineWidth(line);
 		if (internalWidth != width) {
 			return scaleLine(internalData, internalWidth, width);
@@ -130,7 +126,7 @@ public:
 	  * This is used for video recording.
 	  */
 	template <typename Pixel>
-	const Pixel* getLinePtr320_240(unsigned line, Pixel* dummy);
+	const Pixel* getLinePtr320_240(unsigned line);
 
 	/** Returns the distance (in pixels) between two consecutive lines.
 	  * Is meant to be used in combination with getMultiLinePtr(). The

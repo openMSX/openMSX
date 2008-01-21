@@ -325,8 +325,7 @@ void SDLRasterizer<Pixel>::drawBorder(
 		unsigned width = (lineWidth == 512) ? 640 : 320;
 		MemoryOps::MemSet2<Pixel, MemoryOps::NO_STREAMING> memset;
 		for (int y = startY; y < endY; ++y) {
-			Pixel* dummy = 0;
-			memset(workFrame->getLinePtrDirect(y, dummy) + x,
+			memset(workFrame->getLinePtrDirect<Pixel>(y) + x,
 			       num, border0, border1);
 			workFrame->setLineWidth(y, width);
 		}
@@ -406,8 +405,7 @@ void SDLRasterizer<Pixel>::drawDisplay(
 
 			Pixel buf[512];
 			int lineInBuf = -1; // buffer data not valid
-			Pixel* dummy = 0;
-			Pixel* dst = workFrame->getLinePtrDirect(y, dummy)
+			Pixel* dst = workFrame->getLinePtrDirect<Pixel>(y)
 			           + leftBackground + displayX;
 			int firstPageWidth = pageBorder - displayX;
 			if (firstPageWidth > 0) {
@@ -442,8 +440,7 @@ void SDLRasterizer<Pixel>::drawDisplay(
 		for (int y = screenY; y < screenLimitY; y++) {
 			assert(!vdp.isMSX1VDP() || displayY < 192);
 
-			Pixel* dummy = 0;
-			Pixel* dst = workFrame->getLinePtrDirect(y, dummy)
+			Pixel* dst = workFrame->getLinePtrDirect<Pixel>(y)
 			           + leftBackground + displayX;
 			if (displayX == 0) {
 				characterConverter->convertLine(dst, displayY);
@@ -491,30 +488,26 @@ void SDLRasterizer<Pixel>::drawSprites(
 		vdp.getDisplayMode().getLineWidth() == 512);
 	if (spriteMode == 1) {
 		for (int y = fromY; y < limitY; y++, screenY++) {
-			Pixel* dummy = 0;
-			Pixel* pixelPtr = workFrame->getLinePtrDirect(screenY, dummy) + screenX;
+			Pixel* pixelPtr = workFrame->getLinePtrDirect<Pixel>(screenY) + screenX;
 			spriteConverter->drawMode1(y, displayX, displayLimitX, pixelPtr);
 		}
 	} else {
 		byte mode = vdp.getDisplayMode().getByte();
 		if (mode == DisplayMode::GRAPHIC5) {
 			for (int y = fromY; y < limitY; y++, screenY++) {
-				Pixel* dummy = 0;
-				Pixel* pixelPtr = workFrame->getLinePtrDirect(screenY, dummy) + screenX;
+				Pixel* pixelPtr = workFrame->getLinePtrDirect<Pixel>(screenY) + screenX;
 				spriteConverter->template drawMode2<DisplayMode::GRAPHIC5>(
 					y, displayX, displayLimitX, pixelPtr);
 			}
 		} else if (mode == DisplayMode::GRAPHIC6) {
 			for (int y = fromY; y < limitY; y++, screenY++) {
-				Pixel* dummy = 0;
-				Pixel* pixelPtr = workFrame->getLinePtrDirect(screenY, dummy) + screenX;
+				Pixel* pixelPtr = workFrame->getLinePtrDirect<Pixel>(screenY) + screenX;
 				spriteConverter->template drawMode2<DisplayMode::GRAPHIC6>(
 					y, displayX, displayLimitX, pixelPtr);
 			}
 		} else {
 			for (int y = fromY; y < limitY; y++, screenY++) {
-				Pixel* dummy = 0;
-				Pixel* pixelPtr = workFrame->getLinePtrDirect(screenY, dummy) + screenX;
+				Pixel* pixelPtr = workFrame->getLinePtrDirect<Pixel>(screenY) + screenX;
 				spriteConverter->template drawMode2<DisplayMode::GRAPHIC4>(
 					y, displayX, displayLimitX, pixelPtr);
 			}

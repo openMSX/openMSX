@@ -18,7 +18,7 @@ public:
 	virtual ~RawFrame();
 
 	template<typename Pixel>
-	Pixel* getLinePtrDirect(unsigned y, Pixel* /*dummy*/) {
+	Pixel* getLinePtrDirect(unsigned y) {
 		return reinterpret_cast<Pixel*>(data + y * pitch);
 	}
 
@@ -34,8 +34,7 @@ public:
 	template <class Pixel>
 	inline void setBlank(unsigned line, Pixel color) {
 		assert(line < getHeight());
-		Pixel* dummy = 0;
-		Pixel* pixels = getLinePtrDirect(line, dummy);
+		Pixel* pixels = getLinePtrDirect<Pixel>(line);
 		pixels[0] = color;
 		lineWidth[line] = 1;
 	}

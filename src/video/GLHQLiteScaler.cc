@@ -136,16 +136,15 @@ void GLHQLiteScaler::uploadBlock(
 	memset(tmpBuf2, 0, (320 / 2) * sizeof(unsigned));
 	#endif
 
-	Pixel* dummy = 0;
-	const Pixel* curr = paintFrame.getLinePtr(srcStartY - 1, lineWidth, dummy);
-	const Pixel* next = paintFrame.getLinePtr(srcStartY + 0, lineWidth, dummy);
+	const Pixel* curr = paintFrame.getLinePtr<Pixel>(srcStartY - 1, lineWidth);
+	const Pixel* next = paintFrame.getLinePtr<Pixel>(srcStartY + 0, lineWidth);
 	calcEdgesGL(curr, next, tmpBuf2, EdgeHQLite());
 
 	edgeBuffer->bind();
 	unsigned short* mapped = edgeBuffer->mapWrite();
 	for (unsigned y = srcStartY; y < srcEndY; ++y) {
 		curr = next;
-		next = paintFrame.getLinePtr(y + 1, lineWidth, dummy);
+		next = paintFrame.getLinePtr<Pixel>(y + 1, lineWidth);
 		calcEdgesGL(curr, next, tmpBuf2, EdgeHQLite());
 		memcpy(mapped + 320 * y, tmpBuf2, 320 * sizeof(unsigned short));
 	}
