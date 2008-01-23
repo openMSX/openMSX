@@ -49,12 +49,11 @@ public:
 
 protected:
 	OutputSurface();
-	SDL_Surface* surface; // Cannot be private since Windows-specific code
-	                      // in VisibleSurface accesses this field.
 	void setSDLSurface(SDL_Surface* surface);
 	void setBufferPtr(char* data, unsigned pitch);
 
 private:
+	SDL_Surface* surface;
 	SDL_PixelFormat format;
 	char* data;
 	unsigned pitch;
