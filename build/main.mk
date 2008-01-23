@@ -163,6 +163,12 @@ ifneq ($(PLATFORM),)
 # Defaults are set here, the included Makefiles can override if needed.
 # - should openMSX set a window icon?
 SET_WINDOW_ICON:=true
+# need both 16bpp and 32bpp render mode?
+HAVE_16BPP:=1
+HAVE_32BPP:=1
+# - min/max scale factor, on embedded systems only some factors make sense
+MIN_SCALE_FACTOR:=1
+MAX_SCALE_FACTOR:=4
 
 # List of CPUs to compile for.
 ifeq ($(OPENMSX_TARGET_CPU),univ)

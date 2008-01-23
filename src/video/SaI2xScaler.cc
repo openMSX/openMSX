@@ -11,6 +11,7 @@
 #include "OutputSurface.hh"
 #include "MemoryOps.hh"
 #include "openmsx.hh"
+#include "build-info.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -319,8 +320,12 @@ void SaI2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 
 
 // Force template instantiation.
+#if HAVE_16BPP
 template class SaI2xScaler<word>;
-template class SaI2xScaler<unsigned int>;
+#endif
+#if HAVE_32BPP
+template class SaI2xScaler<unsigned>;
+#endif
 
 } // namespace openmsx
 

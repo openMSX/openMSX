@@ -12,15 +12,6 @@ SRC_HDR:= \
 	SDLVideoSystem SDLRasterizer FBPostProcessor SDLSnow \
 	DummyRenderer \
 	BitmapConverter CharacterConverter \
-	Scanline \
-	ScalerFactory \
-	LowScaler Scaler2 Scaler3 \
-	SimpleScaler SaI2xScaler SaI3xScaler Scale2xScaler Scale3xScaler \
-	HQ2xScaler HQ2xLiteScaler \
-	HQ3xScaler HQ3xLiteScaler \
-	RGBTriplet3xScaler \
-	Simple3xScaler \
-	Multiply32 \
 	ScreenShotSaver \
 	VideoSystem Display VideoLayer \
 	Layer \
@@ -30,7 +21,21 @@ SRC_HDR:= \
 	FrameSource RawFrame DeinterlacedFrame DoubledFrame PostProcessor \
 	OutputSurface VisibleSurface SDLVisibleSurface \
 	Icon \
-	AviRecorder AviWriter ZMBVEncoder
+	AviRecorder AviWriter ZMBVEncoder \
+	ScalerFactory \
+	LowScaler
+
+ifneq ($(MAX_SCALE_FACTOR), 1)
+SRC_HDR += \
+	Scanline \
+	Scaler2 Scaler3 \
+	SimpleScaler SaI2xScaler SaI3xScaler Scale2xScaler Scale3xScaler \
+	HQ2xScaler HQ2xLiteScaler \
+	HQ3xScaler HQ3xLiteScaler \
+	RGBTriplet3xScaler \
+	Simple3xScaler \
+	Multiply32
+endif
 
 HDR_ONLY:= \
 	DirtyChecker \

@@ -5,6 +5,7 @@
 #include "V9990.hh"
 #include "MemoryOps.hh"
 #include "GLUtil.hh"
+#include "build-info.hh"
 #include <algorithm>
 
 namespace openmsx {
@@ -212,8 +213,12 @@ void V9990P2Converter<Pixel>::renderSprites(
 }
 
 // Force template instantiation
+#if HAVE_16BPP
 template class V9990P2Converter<word>;
+#endif
+#if HAVE_32BPP
 template class V9990P2Converter<unsigned>;
+#endif
 #ifdef COMPONENT_GL
 template <> class V9990P2Converter<GLUtil::NoExpansion> {};
 template class V9990P2Converter<GLUtil::ExpandGL>;

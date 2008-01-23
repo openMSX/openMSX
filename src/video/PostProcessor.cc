@@ -10,6 +10,7 @@
 #include "RawFrame.hh"
 #include "AviRecorder.hh"
 #include "CliComm.hh"
+#include "build-info.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -106,9 +107,15 @@ RawFrame* PostProcessor::rotateFrames(
 		const void* lines[240];
 		for (int i = 0; i < 240; ++i) {
 			if (getBpp() == 32) {
+#if HAVE_32BPP
+				// 32bpp
 				lines[i] = paintFrame->getLinePtr320_240<unsigned>(i);
+#endif
 			} else {
+#if HAVE_16BPP
+				// 15bpp or 16bpp
 				lines[i] = paintFrame->getLinePtr320_240<word>(i);
+#endif
 			}
 		}
 		recorder->addImage(lines, time);

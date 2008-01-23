@@ -15,6 +15,7 @@
 #include "StringSetting.hh"
 #include "MemoryOps.hh"
 #include "VisibleSurface.hh"
+#include "build-info.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -535,7 +536,11 @@ void SDLRasterizer<Pixel>::update(const Setting& setting)
 
 
 // Force template instantiation.
+#if HAVE_16BPP
 template class SDLRasterizer<word>;
+#endif
+#if HAVE_32BPP
 template class SDLRasterizer<unsigned>;
+#endif
 
 } // namespace openmsx

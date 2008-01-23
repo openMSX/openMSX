@@ -8,6 +8,7 @@
 #include "MemoryOps.hh"
 #include "Multiply32.hh"
 #include "HostCPU.hh"
+#include "build-info.hh"
 
 namespace openmsx {
 
@@ -491,7 +492,11 @@ void Blur_1on3<Pixel>::operator()(const Pixel* in, Pixel* out, unsigned long dst
 }
 
 // Force template instantiation.
+#if HAVE_16BPP
 template class Simple3xScaler<word>;
+#endif
+#if HAVE_32BPP
 template class Simple3xScaler<unsigned>;
+#endif
 
 } // namespace openmsx

@@ -10,6 +10,7 @@
 #include "VisibleSurface.hh"
 #include "HostCPU.hh"
 #include "Math.hh"
+#include "build-info.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -350,7 +351,11 @@ RawFrame* FBPostProcessor<Pixel>::rotateFrames(
 
 
 // Force template instantiation.
+#if HAVE_16BPP
 template class FBPostProcessor<word>;
+#endif
+#if HAVE_32BPP
 template class FBPostProcessor<unsigned>;
+#endif
 
 } // namespace openmsx

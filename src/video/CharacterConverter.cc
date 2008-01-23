@@ -14,6 +14,7 @@ TODO:
 #include "GLUtil.hh"
 #include "VDP.hh"
 #include "VDPVRAM.hh"
+#include "build-info.hh"
 
 namespace openmsx {
 
@@ -345,8 +346,12 @@ void CharacterConverter<Pixel>::renderBogus(
 }
 
 // Force template instantiation.
+#if HAVE_16BPP
 template class CharacterConverter<word>;
+#endif
+#if HAVE_32BPP
 template class CharacterConverter<unsigned>;
+#endif
 #ifdef COMPONENT_GL
 template<> class CharacterConverter<GLUtil::NoExpansion> {};
 template class CharacterConverter<GLUtil::ExpandGL>;

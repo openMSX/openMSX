@@ -6,6 +6,7 @@
 #include "SDLSnow.hh"
 #include "SDLConsole.hh"
 #include "IconLayer.hh"
+#include "build-info.hh"
 #include <cstring>
 #include <cassert>
 
@@ -51,10 +52,14 @@ void SDLVisibleSurface::takeScreenShot(const std::string& filename)
 std::auto_ptr<Layer> SDLVisibleSurface::createSnowLayer()
 {
 	switch (getSDLFormat().BytesPerPixel) {
+#if HAVE_16BPP
 	case 2:
-		return std::auto_ptr<Layer>(new SDLSnow<Uint16>(*this));
+		return std::auto_ptr<Layer>(new SDLSnow<word>(*this));
+#endif
+#if HAVE_32BPP
 	case 4:
-		return std::auto_ptr<Layer>(new SDLSnow<Uint32>(*this));
+		return std::auto_ptr<Layer>(new SDLSnow<unsigned>(*this));
+#endif
 	default:
 		assert(false);
 		return std::auto_ptr<Layer>(); // avoid warning

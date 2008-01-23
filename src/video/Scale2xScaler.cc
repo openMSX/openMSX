@@ -17,6 +17,7 @@ Visit the Scale2x site for info:
 #include "OutputSurface.hh"
 #include "HostCPU.hh"
 #include "openmsx.hh"
+#include "build-info.hh"
 
 namespace openmsx {
 
@@ -1116,7 +1117,11 @@ void Scale2xScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 
 
 // Force template instantiation.
+#if HAVE_16BPP
 template class Scale2xScaler<word>;
-template class Scale2xScaler<unsigned int>;
+#endif
+#if HAVE_32BPP
+template class Scale2xScaler<unsigned>;
+#endif
 
 } // namespace openmsx

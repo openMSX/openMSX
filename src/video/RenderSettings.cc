@@ -6,6 +6,7 @@
 #include "BooleanSetting.hh"
 #include "StringSetting.hh"
 #include "VideoSourceSetting.hh"
+#include "build-info.hh"
 #include <cmath>
 
 namespace openmsx {
@@ -82,18 +83,21 @@ RenderSettings::RenderSettings(CommandController& commandController_)
 
 	EnumSetting<ScaleAlgorithm>::Map scalerMap;
 	scalerMap["simple"] = SCALER_SIMPLE;
-	scalerMap["SaI"] = SCALER_SAI;
-	scalerMap["ScaleNx"] = SCALER_SCALE;
-	scalerMap["hq"] = SCALER_HQ;
-	scalerMap["hqlite"] = SCALER_HQLITE;
-	scalerMap["RGBtriplet"] = SCALER_RGBTRIPLET;
-	scalerMap["TV"] = SCALER_TV;
+	if (MAX_SCALE_FACTOR > 1) {
+		scalerMap["SaI"] = SCALER_SAI;
+		scalerMap["ScaleNx"] = SCALER_SCALE;
+		scalerMap["hq"] = SCALER_HQ;
+		scalerMap["hqlite"] = SCALER_HQLITE;
+		scalerMap["RGBtriplet"] = SCALER_RGBTRIPLET;
+		scalerMap["TV"] = SCALER_TV;
+	}
 	scaleAlgorithm.reset(new EnumSetting<ScaleAlgorithm>(commandController,
 		"scale_algorithm", "scale algorithm",
 		SCALER_SIMPLE, scalerMap));
 
 	scaleFactor.reset(new IntegerSetting(commandController,
-		"scale_factor", "scale factor", 2, 1, 4));
+		"scale_factor", "scale factor", 2,
+		MIN_SCALE_FACTOR, MAX_SCALE_FACTOR));
 
 	scanlineAlpha.reset(new IntegerSetting(commandController,
 		"scanline", "amount of scanline effect: 0 = none, 100 = full",

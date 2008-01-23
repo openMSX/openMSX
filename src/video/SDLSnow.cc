@@ -3,6 +3,7 @@
 #include "SDLSnow.hh"
 #include "OutputSurface.hh"
 #include "openmsx.hh"
+#include "build-info.hh"
 #include <string.h>
 
 namespace openmsx {
@@ -62,8 +63,12 @@ const std::string& SDLSnow<Pixel>::getName()
 
 
 // Force template instantiation.
-template class SDLSnow<Uint16>;
-template class SDLSnow<Uint32>;
+#if HAVE_16BPP
+template class SDLSnow<word>;
+#endif
+#if HAVE_32BPP
+template class SDLSnow<unsigned>;
+#endif
 
 } // namespace openmsx
 

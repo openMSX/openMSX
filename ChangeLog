@@ -1,6 +1,10 @@
 $Id$
 
 2008-01-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Conditionally compile 16/32bpp and scaler code:
+	   GP2X port only needs 16bpp and scale factor 1
+
+2008-01-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Removed workaround for pre gcc-3.4 compilers
 
 2008-01-18 Alex Wulms

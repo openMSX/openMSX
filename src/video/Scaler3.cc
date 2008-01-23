@@ -6,6 +6,7 @@
 #include "OutputSurface.hh"
 #include "MemoryOps.hh"
 #include "openmsx.hh"
+#include "build-info.hh"
 
 namespace openmsx {
 
@@ -297,7 +298,11 @@ void Scaler3<Pixel>::scaleImage(FrameSource& src,
 
 
 // Force template instantiation.
+#if HAVE_16BPP
 template class Scaler3<word>;
+#endif
+#if HAVE_32BPP
 template class Scaler3<unsigned>;
+#endif
 
 } // namespace openmsx

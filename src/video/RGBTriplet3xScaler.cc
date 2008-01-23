@@ -5,6 +5,7 @@
 #include "FrameSource.hh"
 #include "OutputSurface.hh"
 #include "RenderSettings.hh"
+#include "build-info.hh"
 
 namespace openmsx {
 
@@ -362,7 +363,11 @@ void RGBTriplet3xScaler<Pixel>::scaleBlank2to3(
 }
 
 // Force template instantiation.
+#if HAVE_16BPP
 template class RGBTriplet3xScaler<word>;
+#endif
+#if HAVE_32BPP
 template class RGBTriplet3xScaler<unsigned>;
+#endif
 
 } // namespace openmsx

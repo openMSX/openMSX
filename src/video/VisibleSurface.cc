@@ -50,10 +50,24 @@ void VisibleSurface::createSurface(unsigned width, unsigned height, int flags)
 	if (bytepp != 2 && bytepp != 4) {
 		surface = NULL;
 	}
+#if !HAVE_16BPP
+	if (bytepp == 2) {
+		surface = NULL;
+	}
+#endif
+#if !HAVE_32BPP
+	if (bytepp == 4) {
+		surface = NULL;
+	}
+#endif
 	// try supported bpp in order of preference
+#if HAVE_16BPP
 	if (!surface) surface = SDL_SetVideoMode(width, height, 15, flags);
 	if (!surface) surface = SDL_SetVideoMode(width, height, 16, flags);
+#endif
+#if HAVE_32BPP
 	if (!surface) surface = SDL_SetVideoMode(width, height, 32, flags);
+#endif
 
 	if (!surface) {
 		std::string err = SDL_GetError();

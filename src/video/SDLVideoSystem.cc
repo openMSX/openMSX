@@ -13,6 +13,7 @@
 #include "IntegerSetting.hh"
 #include "EventDistributor.hh"
 #include "InputEventGenerator.hh"
+#include "build-info.hh"
 #include <cassert>
 
 #include "components.hh"
@@ -65,18 +66,22 @@ Rasterizer* SDLVideoSystem::createRasterizer(VDP& vdp)
 	case RendererFactory::SDLGL_FB16:
 	case RendererFactory::SDLGL_FB32:
 		switch (screen->getSDLFormat().BytesPerPixel) {
+#if HAVE_16BPP
 		case 2:
-			return new SDLRasterizer<Uint16>(
+			return new SDLRasterizer<word>(
 				vdp, display, *screen,
-				std::auto_ptr<PostProcessor>(new FBPostProcessor<Uint16>(
+				std::auto_ptr<PostProcessor>(new FBPostProcessor<word>(
 					reactor.getCommandController(),
 					display, *screen, VIDEO_MSX, 640, 240)));
+#endif
+#if HAVE_32BPP
 		case 4:
-			return new SDLRasterizer<Uint32>(
+			return new SDLRasterizer<unsigned>(
 				vdp, display, *screen,
-				std::auto_ptr<PostProcessor>(new FBPostProcessor<Uint32>(
+				std::auto_ptr<PostProcessor>(new FBPostProcessor<unsigned>(
 					reactor.getCommandController(),
 					display, *screen, VIDEO_MSX, 640, 240)));
+#endif
 		default:
 			assert(false);
 			return NULL;
@@ -86,7 +91,7 @@ Rasterizer* SDLVideoSystem::createRasterizer(VDP& vdp)
 		return new GLRasterizer(
 			reactor.getCommandController(), vdp, display, *screen);
 	case RendererFactory::SDLGL_PP:
-		return new SDLRasterizer<Uint32>(
+		return new SDLRasterizer<unsigned>(
 			vdp, display, *screen,
 			std::auto_ptr<PostProcessor>(new GLPostProcessor(
 				reactor.getCommandController(),
@@ -105,18 +110,22 @@ V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990& vdp)
 	case RendererFactory::SDLGL_FB16:
 	case RendererFactory::SDLGL_FB32:
 		switch (screen->getSDLFormat().BytesPerPixel) {
+#if HAVE_16BPP
 		case 2:
-			return new V9990SDLRasterizer<Uint16>(
+			return new V9990SDLRasterizer<word>(
 				vdp, display, *screen,
-				std::auto_ptr<PostProcessor>(new FBPostProcessor<Uint16>(
+				std::auto_ptr<PostProcessor>(new FBPostProcessor<word>(
 					reactor.getCommandController(),
 					display, *screen, VIDEO_GFX9000, 1280, 240)));
+#endif
+#if HAVE_32BPP
 		case 4:
-			return new V9990SDLRasterizer<Uint32>(
+			return new V9990SDLRasterizer<unsigned>(
 				vdp, display, *screen,
-				std::auto_ptr<PostProcessor>(new FBPostProcessor<Uint32>(
+				std::auto_ptr<PostProcessor>(new FBPostProcessor<unsigned>(
 					reactor.getCommandController(),
 					display, *screen, VIDEO_GFX9000, 1280, 240)));
+#endif
 		default:
 			assert(false);
 			return NULL;

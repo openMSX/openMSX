@@ -2,6 +2,7 @@
 
 #include "Scanline.hh"
 #include "HostCPU.hh"
+#include "build-info.hh"
 #include <cassert>
 #include <string.h>
 
@@ -387,7 +388,11 @@ Pixel Scanline<Pixel>::darken(Pixel p1, Pixel p2, unsigned factor)
 }
 
 // Force template instantiation.
+#if HAVE_16BPP
 template class Scanline<word>;
+#endif
+#if HAVE_32BPP
 template class Scanline<unsigned>;
+#endif
 
 } // namespace openmsx

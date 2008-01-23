@@ -13,6 +13,7 @@
 #include "VisibleSurface.hh"
 #include "RenderSettings.hh"
 #include "MemoryOps.hh"
+#include "build-info.hh"
 #include <algorithm>
 
 using std::min;
@@ -334,8 +335,12 @@ void V9990SDLRasterizer<Pixel>::update(const Setting& setting)
 }
 
 // Force template instantiation.
-template class V9990SDLRasterizer<Uint16>;
-template class V9990SDLRasterizer<Uint32>;
+#if HAVE_16BPP
+template class V9990SDLRasterizer<word>;
+#endif
+#if HAVE_32BPP
+template class V9990SDLRasterizer<unsigned>;
+#endif
 
 } // namespace openmsx
 

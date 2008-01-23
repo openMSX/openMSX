@@ -5,6 +5,7 @@
 #include "V9990.hh"
 #include "GLUtil.hh"
 #include "Math.hh"
+#include "build-info.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -259,8 +260,12 @@ void V9990BitmapConverter<Pixel>::convertLine(
 }
 
 // Force template instantiation
+#if HAVE_16BPP
 template class V9990BitmapConverter<word>;
+#endif
+#if HAVE_32BPP
 template class V9990BitmapConverter<unsigned>;
+#endif
 #ifdef COMPONENT_GL
 template <> class V9990BitmapConverter<GLUtil::NoExpansion> {};
 template class V9990BitmapConverter<GLUtil::ExpandGL>;

@@ -1,6 +1,7 @@
 // $Id$
 
 #include "Multiply32.hh"
+#include "build-info.hh"
 #include <cstring>
 #include <SDL.h> // TODO
 
@@ -76,7 +77,11 @@ void Multiply32<word>::setFactor32(unsigned f)
 
 
 // Force template instantiation
+#if HAVE_16BPP
 template class Multiply32<word>;
+#endif
+#if HAVE_32BPP
 template class Multiply32<unsigned>;
+#endif
 
 } // namespace openmsx

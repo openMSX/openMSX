@@ -5,6 +5,7 @@
 #include "MemoryOps.hh"
 #include "LineScalers.hh"
 #include "openmsx.hh"
+#include "build-info.hh"
 
 namespace openmsx {
 
@@ -331,9 +332,13 @@ const Pixel* FrameSource::scaleLine(
 
 
 // Force template method instantiation
+#if HAVE_16BPP
 template const word* FrameSource::scaleLine(const word*, unsigned, unsigned);
-template const unsigned* FrameSource::scaleLine(const unsigned*, unsigned, unsigned);
 template const word* FrameSource::getLinePtr320_240<word>(unsigned);
+#endif
+#if HAVE_32BPP
+template const unsigned* FrameSource::scaleLine(const unsigned*, unsigned, unsigned);
 template const unsigned* FrameSource::getLinePtr320_240<unsigned>(unsigned);
+#endif
 
 } // namespace openmsx

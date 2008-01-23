@@ -5,7 +5,7 @@
 #include "IntegerSetting.hh"
 #include "ScalerFactory.hh"
 #include "SimpleScaler.hh"
-#include "SaI2xScaler.hh"
+#include "SaI2xScaler.hh"     // note: included even if MAX_SCALE_FACTOR == 1
 #include "SaI3xScaler.hh"
 #include "Scale2xScaler.hh"
 #include "Scale3xScaler.hh"
@@ -16,6 +16,7 @@
 #include "RGBTriplet3xScaler.hh"
 #include "Simple3xScaler.hh"
 #include "LowScaler.hh"
+#include "build-info.hh"
 #include <cassert>
 
 using std::auto_ptr;
@@ -27,8 +28,11 @@ auto_ptr<Scaler> ScalerFactory<Pixel>::createScaler(
 	const PixelOperations<Pixel>& pixelOps, RenderSettings& renderSettings)
 {
 	switch (renderSettings.getScaleFactor().getValue()) {
+#if (MIN_SCALE_FACTOR <= 1) && (MAX_SCALE_FACTOR >= 1)
 	case 1:
 		return auto_ptr<Scaler>(new LowScaler<Pixel>(pixelOps));
+#endif
+#if (MIN_SCALE_FACTOR <= 2) && (MAX_SCALE_FACTOR >= 2)
 	case 2:
 		switch (renderSettings.getScaleAlgorithm().getValue()) {
 		case RenderSettings::SCALER_SIMPLE:
@@ -51,6 +55,8 @@ auto_ptr<Scaler> ScalerFactory<Pixel>::createScaler(
 		default:
 			assert(false);
 		}
+#endif
+#if (MIN_SCALE_FACTOR <= 4) && (MAX_SCALE_FACTOR >= 3)
 	case 3:
 	case 4: // fallback
 		switch (renderSettings.getScaleAlgorithm().getValue()) {
@@ -74,6 +80,7 @@ auto_ptr<Scaler> ScalerFactory<Pixel>::createScaler(
 		default:
 			assert(false);
 		}
+#endif
 	default:
 		assert(false);
 	}
@@ -81,8 +88,12 @@ auto_ptr<Scaler> ScalerFactory<Pixel>::createScaler(
 }
 
 // Force template instantiation.
+#if HAVE_16BPP
 template class ScalerFactory<word>;
+#endif
+#if HAVE_32BPP
 template class ScalerFactory<unsigned>;
+#endif
 
 } // namespace openmsx
 

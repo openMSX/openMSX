@@ -8,6 +8,7 @@
 #include "MemoryOps.hh"
 #include "HostCPU.hh"
 #include "openmsx.hh"
+#include "build-info.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -467,7 +468,11 @@ void SimpleScaler<Pixel>::scale1x1to1x2(FrameSource& src,
 
 
 // Force template instantiation.
+#if HAVE_16BPP
 template class SimpleScaler<word>;
-template class SimpleScaler<unsigned int>;
+#endif
+#if HAVE_32BPP
+template class SimpleScaler<unsigned>;
+#endif
 
 } // namespace openmsx

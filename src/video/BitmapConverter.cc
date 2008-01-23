@@ -4,6 +4,7 @@
 #include "GLUtil.hh"
 #include "Math.hh"
 #include "likely.hh"
+#include "build-info.hh"
 
 namespace openmsx {
 
@@ -237,8 +238,12 @@ void BitmapConverter<Pixel>::setDisplayMode(DisplayMode mode)
 }
 
 // Force template instantiation.
+#if HAVE_16BPP
 template class BitmapConverter<word>;
+#endif
+#if HAVE_32BPP
 template class BitmapConverter<unsigned>;
+#endif
 #ifdef COMPONENT_GL
 template<> class BitmapConverter<GLUtil::NoExpansion> {};
 template class BitmapConverter<GLUtil::ExpandGL>;
