@@ -41,6 +41,7 @@ public:
 	 * @param keyboardType contains filename extension of unicode keymap file
 	 * @param hasKeypad turn MSX keypad on/off
 	 * @param keyGhosting turn keyGhosting on/off
+	 * @param keyGhostingSGCprotected Shift, Graph and Code are keyGhosting protected
 	 */
 	Keyboard(Scheduler& scheduler, MSXCommandController& msxCommandController,
 	         EventDistributor& eventDistributor,
