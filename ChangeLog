@@ -1,6 +1,10 @@
 $Id$
 
-2008-01-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2008-01-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Introduced PLATFORM_GP2X #define,
+	  don't call getpwuid() if this #define is set
+
+2008-01-23 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Conditionally compile 16/32bpp and scaler code:
 	   GP2X port only needs 16bpp and scale factor 1
 

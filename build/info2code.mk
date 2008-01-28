@@ -36,6 +36,7 @@ $(CONFIG_HEADER): $(MAKE_PATH)/info2code.mk $(MAKE_PATH)/custom.mk
 		echo "#define ASM_X86" >> $@ ; \
 	fi
 # Macro iso integer because we really need to exclude code sections based on this
+	@echo "#define PLATFORM_GP2X $(PLATFORM_GP2X)" >> $@
 	@echo "#define HAVE_16BPP $(HAVE_16BPP)" >> $@
 	@echo "#define HAVE_32BPP $(HAVE_32BPP)" >> $@
 	@echo "#define MIN_SCALE_FACTOR $(MIN_SCALE_FACTOR)" >> $@

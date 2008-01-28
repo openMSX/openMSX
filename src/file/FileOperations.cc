@@ -23,10 +23,10 @@
 #endif
 
 #include "ReadDir.hh"
-#include "build-info.hh"
 #include "FileOperations.hh"
 #include "FileException.hh"
 #include "StringOp.hh"
+#include "build-info.hh"
 #include <sstream>
 #include <cerrno>
 #include <cstdlib>
@@ -238,7 +238,7 @@ string getBaseName(const string& path)
 
 string getNativePath(const string &path)
 {
-#if	defined(_WIN32)
+#ifdef _WIN32
 	string result(path);
 	replace(result.begin(), result.end(), '/', '\\');
 	return result;
@@ -249,7 +249,7 @@ string getNativePath(const string &path)
 
 string getConventionalPath(const string &path)
 {
-#if	defined(_WIN32)
+#ifdef _WIN32
 	string result(path);
 	replace(result.begin(), result.end(), '\\', '/');
 	return result;
@@ -260,7 +260,7 @@ string getConventionalPath(const string &path)
 
 bool isAbsolutePath(const string& path)
 {
-#if	defined(_WIN32)
+#ifdef _WIN32
 	if ((path.size() >= 3) && (path[1] == ':') && (path[2] == '/')) {
 		char drive = tolower(path[0]);
 		if (('a' <= drive) && (drive <= 'z')) {
@@ -273,7 +273,7 @@ bool isAbsolutePath(const string& path)
 
 string getUserHomeDir(const string& username)
 {
-#if	defined(_WIN32)
+#ifdef _WIN32
 	if (username.empty()); // ignore parameter, avoid warning
 	static string userDir;
 	if (userDir.empty()) {
@@ -302,6 +302,16 @@ string getUserHomeDir(const string& username)
 		}
 	}
 	return userDir;
+#elif PLATFORM_GP2X
+	return ""; // TODO figure out why stuff below doesn't work
+	// We cannot use generic implementation below, because for some
+	// reason getpwuid() and getpwnam() cannot be used in statically
+	// linked applications.
+	const char* dir = getenv("HOME");
+	if (!dir) {
+		dir = "/root";
+	}
+	return dir;
 #else
 	const char* dir = NULL;
 	struct passwd* pw = NULL;
@@ -322,7 +332,7 @@ string getUserHomeDir(const string& username)
 
 const string& getUserOpenMSXDir()
 {
-#if defined(_WIN32)
+#ifdef _WIN32
 	static const string OPENMSX_DIR = expandTilde("~/openMSX");
 #else
 	static const string OPENMSX_DIR = expandTilde("~/.openMSX");
@@ -346,7 +356,7 @@ string getSystemDataDir()
 	}
 
 	string newValue;
-#if defined(_WIN32)
+#ifdef _WIN32
 	char p[MAX_PATH + 1];
 	int res = GetModuleFileNameA(NULL, p, MAX_PATH);
 	if ((res == 0) || (res == MAX_PATH)) {
