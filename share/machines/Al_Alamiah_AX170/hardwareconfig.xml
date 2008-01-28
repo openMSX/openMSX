@@ -1,7 +1,4 @@
-<?xml version="1.0" ?>
-<!-- $Id: hardwareconfig.xml 5410 2006-05-26 13:47:44Z manuelbi $ -->
-<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
-<msxconfig>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!-- $Id: hardwareconfig.xml 5410 2006-05-26 13:47:44Z manuelbi $ --><msxconfig>
 
   <info>
     <manufacturer>Al-Alamiah</manufacturer>
@@ -23,6 +20,7 @@
       <io base="0xA8" num="4"/>
       <keyboard_type>int</keyboard_type> <!-- Is actually Arabic... -->
       <has_keypad>false</has_keypad>
+      <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
     </PPI>
 
     <VDP id="VDP">

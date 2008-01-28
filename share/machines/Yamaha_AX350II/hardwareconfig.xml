@@ -1,7 +1,4 @@
-<?xml version="1.0" ?>
-<!-- $Id: hardwareconfig.xml,v 1.1 2003/03/24 22:27:44 m9710797 Exp $ -->
-<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
-<msxconfig>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!-- $Id: hardwareconfig.xml,v 1.1 2003/03/24 22:27:44 m9710797 Exp $ --><msxconfig>
 
   <info>
     <manufacturer>Yamaha</manufacturer>
@@ -103,6 +100,7 @@
       <key_ghosting>true</key_ghosting>
       <keyboard_type>int</keyboard_type> <!-- Should be Arabic -->
       <has_keypad>false</has_keypad>
+      <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
     </PPI>
 
     <VDP id="VDP">

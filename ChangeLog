@@ -1,5 +1,13 @@
 $Id$
 
+2008-01-28 Alex Wulms
+	* Initialized key_ghosting_sgc_protected parameter in all
+	  hardwareconfig.xml file:
+	    Initial value of the parameter is derived from keyboard
+	    code at ROM BIOS address 0x2c; for Japanese machines,
+	    it is set to false and for all others to true (this is based
+	    on tests with some real machines)
+
 2008-01-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Introduced PLATFORM_GP2X #define,
 	  don't call getpwuid() if this #define is set

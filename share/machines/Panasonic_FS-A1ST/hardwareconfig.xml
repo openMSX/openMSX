@@ -51,6 +51,7 @@
       <io base="0xA8" num="4"/>
       <keyboard_type>jp_jis</keyboard_type>
       <has_keypad>true</has_keypad>
+      <key_ghosting_sgc_protected>false</key_ghosting_sgc_protected>
     </PPI>
 
     <VDP id="VDP">

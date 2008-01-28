@@ -9,6 +9,18 @@ If true, the emulator will press 'ghost' keys when user presses multiple keys
 at once on crossing rows/columns of the keyboard matrix.
 It must be set to true for all MSX models that suffer from this hardware problem
 
+Setting name: key_ghosting_sgc_protected
+Default value: true
+Description:
+If true, the key ghosting routine in the emulator will protect Shift, Graph
+and Code keys from key-ghosting. According to schematics and tests, several
+European machines have such a protection but some Japanese machines don't have it.
+In the protected machines, those three keys are connected to the keyboard matrix
+via a Diode, which prevents that pressing those two or more of those three
+keys together would ghost to other rows/columns via the 'character key' that you press
+in combination with them.
+
+
 Setting name: keyboard_type
 Default value: int
 Description:

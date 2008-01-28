@@ -1,7 +1,4 @@
-<?xml version="1.0" ?>
-<!-- $Id$ -->
-<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
-<msxconfig>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!-- $Id$ --><msxconfig>
 
   <info>
     <manufacturer>Sony</manufacturer>
@@ -25,6 +22,7 @@
       <io base="0xA8" num="4"/>
       <keyboard_type>gb</keyboard_type>
       <has_keypad>true</has_keypad>
+      <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
     </PPI>
 
     <VDP id="VDP">
