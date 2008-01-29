@@ -551,6 +551,30 @@ void Scale_1on1<Pixel, streaming>::operator()(
 	}
 	#endif
 
+#ifdef __arm__
+	assert(nBytes > 0);
+	assert((nBytes % 64) == 0);
+	assert((long(in)  & 3) == 0);
+	assert((long(out) & 3) == 0);
+
+	asm volatile (
+	"0:\n\t"
+		"ldmia	%1!,{r0,r1,r2,r3,r4,r5,r6,r7};\n\t"
+		"stmia	%2!,{r0,r1,r2,r3,r4,r5,r6,r7};\n\t"
+		"ldmia	%1!,{r0,r1,r2,r3,r4,r5,r6,r7};\n\t"
+		"stmia	%2!,{r0,r1,r2,r3,r4,r5,r6,r7};\n\t"
+		"subs	%0,%0,#64;\n\t"
+		"bne	0b;\n\t"
+
+		: // no output
+		: "r" (nBytes)
+		, "r" (in)
+		, "r" (out)
+		: "r0","r1","r2","r3","r4","r5","r6","r7"
+	);
+	return;
+#endif
+
 	memcpy(out, in, nBytes);
 }
 

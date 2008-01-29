@@ -52,6 +52,45 @@ void BitmapConverter<Pixel>::renderGraphic4(
 	if (unlikely(!dPaletteValid)) {
 		calcDPalette();
 	}
+
+#ifdef __arm__
+	if (sizeof(Pixel) == 2) {
+		// only 16bpp
+		asm volatile (
+		"0:\n\t"
+			"ldmia	%[vram]!, {r3,r4}\n\t"
+			"and	r5,  r3, #0x00FF0000\n\t"
+			"and	r6,  r3, #0xFF000000\n\t"
+			"and	r7,  r4, #0x000000FF\n\t"
+			"and	r8,  r4, #0x0000FF00\n\t"
+			"and	r9,  r4, #0x00FF0000\n\t"
+			"and	r10, r4, #0xFF000000\n\t"
+			"and	r4,  r3, #0x0000FF00\n\t"
+			"and	r3,  r3, #0x000000FF\n\t"
+			"ldr	r3,  [%[pal], r3, lsl  #2]\n\t"
+			"ldr	r4,  [%[pal], r4, lsr  #6]\n\t"
+			"ldr	r5,  [%[pal], r5, lsr #14]\n\t"
+			"ldr	r6,  [%[pal], r6, lsr #22]\n\t"
+			"ldr	r7,  [%[pal], r7, lsl  #2]\n\t"
+			"ldr	r8,  [%[pal], r8, lsr  #6]\n\t"
+			"ldr	r9,  [%[pal], r9, lsr #14]\n\t"
+			"ldr	r10, [%[pal], r10,lsr #22]\n\t"
+			"subs	%[count], %[count], #1\n\t"
+			"stmia	%[out]!, {r3-r10}\n\t"
+			"bne	0b\n\t"
+
+			: [vram]  "=r"     (vramPtr0)
+			, [out]   "=r"     (pixelPtr)
+			:         "[vram]" (vramPtr0)
+			,         "[out]"  (pixelPtr)
+			, [pal]   "r"      (dPalette)
+			, [count] "r"      (16)
+			: "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10"
+		);
+		return;
+	}
+#endif
+
 	DPixel* out = reinterpret_cast<DPixel*>(pixelPtr);
 	const unsigned* in = reinterpret_cast<const unsigned*>(vramPtr0);
 	for (unsigned i = 0; i < 256 / 8; ++i) {

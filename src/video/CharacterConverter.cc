@@ -281,15 +281,56 @@ void CharacterConverter<Pixel>::renderGraphic2(
 		unsigned color = vram.colourTable.readNP(index);
 		Pixel fg = palFg[color >> 4];
 		Pixel bg = palFg[color & 0x0F];
-		pixelPtr[0] = (pattern & 0x80) ? fg : bg;
-		pixelPtr[1] = (pattern & 0x40) ? fg : bg;
-		pixelPtr[2] = (pattern & 0x20) ? fg : bg;
-		pixelPtr[3] = (pattern & 0x10) ? fg : bg;
-		pixelPtr[4] = (pattern & 0x08) ? fg : bg;
-		pixelPtr[5] = (pattern & 0x04) ? fg : bg;
-		pixelPtr[6] = (pattern & 0x02) ? fg : bg;
-		pixelPtr[7] = (pattern & 0x01) ? fg : bg;
-		pixelPtr += 8;
+#ifdef __arm__
+		if (sizeof(Pixel) == 2) {
+			asm volatile (
+				"tst	%[PAT],#128\n\t"
+				"moveq	r0,%[BG]\n\t"
+				"movne	r0,%[FG]\n\t"
+				"tst	%[PAT],#64\n\t"
+				"orreq	r0,r0,%[BG], lsl #16\n\t"
+				"orrne	r0,r0,%[FG], lsl #16\n\t"
+				"tst	%[PAT],#32\n\t"
+				"moveq	r1,%[BG]\n\t"
+				"movne	r1,%[FG]\n\t"
+				"tst	%[PAT],#16\n\t"
+				"orreq	r1,r1,%[BG], lsl #16\n\t"
+				"orrne	r1,r1,%[FG], lsl #16\n\t"
+				"tst	%[PAT],#8\n\t"
+				"moveq	r2,%[BG]\n\t"
+				"movne	r2,%[FG]\n\t"
+				"tst	%[PAT],#4\n\t"
+				"orreq	r2,r2,%[BG], lsl #16\n\t"
+				"orrne	r2,r2,%[FG], lsl #16\n\t"
+				"tst	%[PAT],#2\n\t"
+				"moveq	r3,%[BG]\n\t"
+				"movne	r3,%[FG]\n\t"
+				"tst	%[PAT],#1\n\t"
+				"orreq	r3,r3,%[BG], lsl #16\n\t"
+				"orrne	r3,r3,%[FG], lsl #16\n\t"
+				"stmia	%[OUT]!,{r0-r3}\n\t"
+
+				: [OUT] "=r"    (pixelPtr)
+				:       "[OUT]" (pixelPtr)
+				, [PAT] "r"     (pattern)
+				, [FG]  "r"     (unsigned(fg))
+				, [BG]  "r"     (unsigned(bg))
+				: "r0","r1","r2","r3","memory"
+			);
+		} else {
+#endif
+			pixelPtr[0] = (pattern & 0x80) ? fg : bg;
+			pixelPtr[1] = (pattern & 0x40) ? fg : bg;
+			pixelPtr[2] = (pattern & 0x20) ? fg : bg;
+			pixelPtr[3] = (pattern & 0x10) ? fg : bg;
+			pixelPtr[4] = (pattern & 0x08) ? fg : bg;
+			pixelPtr[5] = (pattern & 0x04) ? fg : bg;
+			pixelPtr[6] = (pattern & 0x02) ? fg : bg;
+			pixelPtr[7] = (pattern & 0x01) ? fg : bg;
+			pixelPtr += 8;
+#ifdef __arm__
+		}
+#endif
 		if (!(++scroll & 0x1F)) namePtr = getNamePtr(line, scroll);
 	}
 }
