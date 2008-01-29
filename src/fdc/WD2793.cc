@@ -253,7 +253,7 @@ void WD2793::setDataReg(byte value, const EmuTime& time)
 	// TODO Is this also true in case of sector write?
 	//      Not so according to ASM of brMSX
 	dataReg = value;
-	if ((commandReg & 0xE0) == 0xA0) {
+	if (((commandReg & 0xE0) == 0xA0) && (statusReg & BUSY)) {
 		// WRITE SECTOR
 		dataBuffer[dataCurrent] = value;
 		dataCurrent++;
@@ -295,7 +295,7 @@ void WD2793::setDataReg(byte value, const EmuTime& time)
 				return;
 			}
 		}
-	} else if ((commandReg & 0xF0) == 0xF0) {
+	} else if (((commandReg & 0xF0) == 0xF0) && (statusReg & BUSY)) {
 		// WRITE TRACK
 		if (!formatting) {
 			return;
@@ -305,7 +305,14 @@ void WD2793::setDataReg(byte value, const EmuTime& time)
 			// the correct drive is not yet selected
 			PRT_DEBUG("WD2793: initWriteTrack()");
 			needInitWriteTrack = false;
-			drive.initWriteTrack();
+			try {
+				drive.initWriteTrack();
+			} catch (MSXException& e) {
+				// Ignore. Should rarely happen, because
+				// write-protected is already checked at the
+				// beginning of write-track command (maybe
+				// when disk is swapped during format)
+			}
 		}
 		setDRQ(false, time);
 
