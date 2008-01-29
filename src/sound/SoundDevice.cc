@@ -218,6 +218,39 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 		return anyUnmuted;
 	default: {
 		unsigned num = samples * stereo;
+
+#ifdef __arm__
+		unsigned dummy;
+		asm volatile (
+		"1:\n\t"
+			"mov	%[j],%[unmuted1]\n\t"          // j = unmuted - 1
+			"ldr	r10,[%[bufs],%[j],LSL #2]\n\t" // t = bufs[j* sizeof(int*)]
+			"add	r10,r10,%[i],LSL #2\n\t"       // t += i * sizeof(int)
+			"ldmdb	r10,{r3,r4,r5,r6}\n"           // a0..3 = *t
+		"0:\n\t"
+			"subs	%[j],%[j],#1\n\t"              // --j
+			"ldr	r10,[%[bufs],%[j],LSL #2]\n\t" // t = bufs[j * sizeof(int*)]
+			"add	r10,r10,%[i],LSL #2\n\t"       // t += i * sizeof(int)
+			"ldmdb	r10,{r7,r8,r9,r10}\n\t"        // b0..3 = *t
+			"add	r3,r3,r7\n\t"                  // a0 += b0
+			"add	r4,r4,r8\n\t"                  // a1 += b1
+			"add	r5,r5,r9\n\t"                  // a2 += b2
+			"add	r6,r6,r10\n\t"                 // a3 += b3
+			"bne	0b\n\t"                        // while (j != 0)
+			"stmdb	%[out]!,{r3,r4,r5,r6}\n\t"     // out -= 4 * sizeof(int) ; *out = a0..a3
+			"subs	%[i],%[i],#4\n\t"              // i -= 4
+			"bne	1b\n\t"                        // while (i >= 0)
+
+			: [j]        "=&r" (dummy)
+			: [unmuted1] "r"   (numMix - 1)
+			, [bufs]     "r"   (bufs)
+			, [i]        "r"   ((num + 3) & ~3)
+			, [out]      "r"   (&dataOut[(num + 3) & ~3])
+			: "r3","r4","r5","r6","r7","r8","r9","r10"
+		);
+		return true;
+#endif
+
 		if (numMix & 1) {
 			#ifdef ASM_X86
 			const HostCPU& cpu = HostCPU::getInstance();
