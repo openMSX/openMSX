@@ -228,6 +228,39 @@ static inline void memset_32(unsigned* out, unsigned num, unsigned val)
 	return;
 #endif
 
+#ifdef __arm__
+	asm volatile (
+		"mov     r3, %[val]\n\t"
+		"mov     r4, %[val]\n\t"
+		"mov     r5, %[val]\n\t"
+		"mov     r6, %[val]\n\t"
+		"subs    %[num],%[num],#8\n\t"
+		"bmi     1f\n"
+		"mov     r7, %[val]\n\t"
+		"mov     r8, %[val]\n\t"
+		"mov     r9, %[val]\n\t"
+		"mov     r10,%[val]\n\t"
+	"0:\n\t"
+		"stmia   %[out]!,{r3-r10}\n\t"
+		"subs    %[num],%[num],#8\n\t"
+		"bpl     0b\n\t"
+	"1:\n\t"
+		"tst     %[num],#4\n\t"
+		"stmneia %[out]!,{r3-r6}\n\t"
+		"tst     %[num],#2\n\t"
+		"stmneia %[out]!,{r3-r4}\n\t"
+		"tst     %[num],#1\n\t"
+		"strne   r3,[%[out]]\n\t"
+
+		: // no output
+		: [out] "r" (out)
+		, [val] "r" (val)
+		, [num] "r" (num)
+		: "r3","r4","r5","r6","r7","r8","r9","r10"
+	);
+	return;
+#endif
+
 	unsigned* e = out + num - 7;
 	for (/**/; out < e; out += 8) {
 		out[0] = val;
