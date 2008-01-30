@@ -6,6 +6,7 @@
 #include "WavWriter.hh"
 #include "StringOp.hh"
 #include "HostCPU.hh"
+#include "MemoryOps.hh"
 #include <cstring>
 #include <cassert>
 
@@ -145,10 +146,12 @@ void SoundDevice::muteChannel(unsigned channel, bool muted)
 bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 {
 	assert((long(dataOut) & 15) == 0); // must be 16-byte aligned
+	assert(samples <= MAX_SAMPLES);
 	if (samples == 0) return true;
 
-	assert(samples <= MAX_SAMPLES);
-	memset(dataOut, 0, sizeof(int) * stereo * samples);
+	MemoryOps::MemSet<unsigned, false> mset;
+	mset(reinterpret_cast<unsigned*>(dataOut), stereo * samples, 0);
+
 	int* bufs[numChannels];
 	unsigned separateChannels = 0;
 	unsigned pitch = (samples * stereo + 3) & ~3; // align for SSE access
@@ -162,7 +165,9 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 			++separateChannels;
 		}
 	}
-	memset(mixBuffer, 0, sizeof(int) * stereo * samples * separateChannels);
+	mset(reinterpret_cast<unsigned*>(mixBuffer),
+	     stereo * samples * separateChannels, 0);
+
 	// note: some SoundDevices (DACSound16S and CassettePlayer) replace the
 	//       (single) channel data instead of adding to the exiting data.
 	//       ATM that's ok because the existing data is anyway zero.
