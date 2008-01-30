@@ -76,6 +76,9 @@ void VisibleSurface::createSurface(unsigned width, unsigned height, int flags)
 	}
 	setSDLSurface(surface);
 
+	// on SDL-GP2X we need to re-hide the mouse after SDL_SetVideoMode()
+	SDL_ShowCursor(SDL_DISABLE);
+
 #ifdef _WIN32
 	// find our current location...
 	HWND handle = GetActiveWindow();

@@ -15,7 +15,13 @@ namespace openmsx {
 SDLVisibleSurface::SDLVisibleSurface(
 		unsigned width, unsigned height, bool fullscreen)
 {
-	int flags = SDL_SWSURFACE | (fullscreen ? SDL_FULLSCREEN : 0);
+#if PLATFORM_GP2X
+	int flags = SDL_HWSURFACE;
+#else
+	int flags = SDL_SWSURFACE; // Why did we use a SW surface again?
+#endif
+	if (fullscreen) flags |= SDL_FULLSCREEN;
+
 	createSurface(width, height, flags);
 	SDL_Surface* surface = getSDLSurface();
 	memcpy(&getSDLFormat(), surface->format, sizeof(SDL_PixelFormat));
