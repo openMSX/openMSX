@@ -6,6 +6,7 @@
 #include "Observer.hh"
 #include "EventListener.hh"
 #include "noncopyable.hh"
+#include "build-info.hh"
 #include <SDL.h>
 #include <memory>
 
@@ -65,6 +66,9 @@ private:
 		ESCAPE_GRAB_WAIT_GAIN
 	} escapeGrabState;
 
+#if PLATFORM_GP2X
+	int stat8; // last joystick status (8 input switches)
+#endif
 	bool keyRepeat;
 };
 

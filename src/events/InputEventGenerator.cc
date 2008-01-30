@@ -5,6 +5,7 @@
 #include "EventDistributor.hh"
 #include "InputEvents.hh"
 #include "BooleanSetting.hh"
+#include "Keys.hh" // GP2X
 #include "openmsx.hh"
 #include "checked_cast.hh"
 #include <cassert>
@@ -34,6 +35,9 @@ InputEventGenerator::InputEventGenerator(CommandController& commandController,
 		false, Setting::DONT_SAVE))
 	, escapeGrabCmd(new EscapeGrabCmd(commandController, *this))
 	, escapeGrabState(ESCAPE_GRAB_WAIT_CMD)
+#if PLATFORM_GP2X
+	, stat8(0)
+#endif
 	, keyRepeat(false)
 {
 	setGrabInput(grabInput->getValue());
@@ -96,6 +100,89 @@ void InputEventGenerator::setKeyRepeat(bool enable)
 	}
 }
 
+#if PLATFORM_GP2X
+static const int GP2X_UP        = 0;
+static const int GP2X_UPLEFT    = 1;
+static const int GP2X_LEFT      = 2;
+static const int GP2X_DOWNLEFT  = 3;
+static const int GP2X_DOWN      = 4;
+static const int GP2X_DOWNRIGHT = 5;
+static const int GP2X_RIGHT     = 6;
+static const int GP2X_UPRIGHT   = 7;
+static const int GP2X_DIRECTION = 8; // directions are smaller than this
+
+static const int GP2X_START     = 8;
+static const int GP2X_SELECT    = 9;
+static const int GP2X_L         = 10;
+static const int GP2X_R         = 11;
+static const int GP2X_A         = 12;
+static const int GP2X_B         = 13;
+static const int GP2X_X         = 14;
+static const int GP2X_Y         = 15;
+static const int GP2X_VOLUP     = 16;
+static const int GP2X_VOLDOWN   = 17;
+static const int GP2X_FIRE      = 18;
+
+static Event* createKeyEvent(Keys::KeyCode key, bool up)
+{
+	if (up) {
+		return new KeyUpEvent  (Keys::combine(key, Keys::KD_RELEASE), 0);
+	} else {
+		return new KeyDownEvent(Keys::combine(key, Keys::KD_PRESS),   0);
+	}
+}
+
+static Event* translateGP2Xbutton(int button, bool up)
+{
+	// TODO mapping is hardcoded ATM, should be configurable at run-time
+	Keys::KeyCode key;
+	switch (button) {
+		case GP2X_A:         key = Keys::K_LSHIFT; break;
+		case GP2X_B:         key = Keys::K_SPACE;  break;
+		case GP2X_X:         key = Keys::K_M;      break;
+		case GP2X_Y:         key = Keys::K_ESCAPE; break;
+		case GP2X_L:         key = Keys::K_L;      break;
+		case GP2X_R:         key = Keys::K_R;      break;
+		case GP2X_FIRE:      key = Keys::K_F;      break;
+		case GP2X_START:     key = Keys::K_S;      break;
+		case GP2X_SELECT:    key = Keys::K_E;      break;
+		case GP2X_VOLUP:     key = Keys::K_U;      break;
+		case GP2X_VOLDOWN:   key = Keys::K_D;      break;
+		default:             key = Keys::K_NONE;   break;
+	}
+	return createKeyEvent(key, up);
+}
+
+static int calcStat4(int stat8)
+{
+	// This function converts the 8-input GP2X joystick to 4-input MSX
+	// joystick. It uses configuration '2' (hor/vert bias) from the
+	// following page:
+	//   http://wiki.gp2x.org/wiki/Suggested_Joystick_Configurations
+	static const int UP4    = 1 << 0;
+	static const int LEFT4  = 1 << 1;
+	static const int DOWN4  = 1 << 2;
+	static const int RIGHT4 = 1 << 3;
+	if (stat8 & (1 << GP2X_UP))        return UP4;
+	if (stat8 & (1 << GP2X_LEFT))      return LEFT4;
+	if (stat8 & (1 << GP2X_DOWN))      return DOWN4;
+	if (stat8 & (1 << GP2X_RIGHT))     return RIGHT4;
+	if (stat8 & (1 << GP2X_UPLEFT))    return UP4   | LEFT4;
+	if (stat8 & (1 << GP2X_DOWNLEFT))  return DOWN4 | LEFT4;
+	if (stat8 & (1 << GP2X_DOWNRIGHT)) return DOWN4 | RIGHT4;
+	if (stat8 & (1 << GP2X_UPRIGHT))   return UP4   | RIGHT4;
+	return 0;
+
+	// code below implements configuration '3' (diagonal bias)
+	//int result = 0;
+	//if (stat8 & 0x83) result |= 1;
+	//if (stat8 & 0x0E) result |= 2;
+	//if (stat8 & 0x38) result |= 4;
+	//if (stat8 & 0xE0) result |= 8;
+	//return result;
+}
+#endif
+
 void InputEventGenerator::handle(const SDL_Event& evt)
 {
 	Event* event;
@@ -125,6 +212,39 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		event = new MouseMotionEvent(evt.motion.xrel, evt.motion.yrel);
 		break;
 
+#if PLATFORM_GP2X
+	// SDL sees GP2X keys/joystick as a joystick events, for openMSX its
+	// easier to handle this as keyboard events (regular keys + cursors).
+	// Code below remaps the events. This will probably have to be rewritten
+	// to allow more dynamic mappings.
+	case SDL_JOYBUTTONUP:
+	case SDL_JOYBUTTONDOWN: {
+		int button = evt.jbutton.button;
+		bool up = evt.type == SDL_JOYBUTTONUP;
+		if (button < GP2X_DIRECTION) {
+			static const Keys::KeyCode dirKeys[4] = {
+				Keys::K_UP, Keys::K_LEFT, Keys::K_DOWN, Keys::K_RIGHT
+			};
+			int o4 = calcStat4(stat8);
+			if (up) {
+				stat8 &= ~(1 << button);
+			} else {
+				stat8 |=  (1 << button);
+			}
+			int n4 = calcStat4(stat8);
+			for (int i = 0; i < 4; ++i) {
+				if ((o4 ^ n4) & (1 << i)) {
+					event = createKeyEvent(dirKeys[i], up);
+					eventDistributor.distributeEvent(event);
+				}
+			}
+			event = 0;
+		} else {
+			event = translateGP2Xbutton(button, up);
+		}
+		break;
+	}
+#else
 	case SDL_JOYBUTTONUP:
 		event = new JoystickButtonUpEvent(evt.jbutton.which,
 		                                  evt.jbutton.button);
@@ -133,6 +253,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		event = new JoystickButtonDownEvent(evt.jbutton.which,
 		                                    evt.jbutton.button);
 		break;
+#endif
 	case SDL_JOYAXISMOTION:
 		event = new JoystickAxisMotionEvent(evt.jaxis.which,
 		                                    evt.jaxis.axis,
