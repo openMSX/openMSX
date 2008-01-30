@@ -234,7 +234,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 			int n4 = calcStat4(stat8);
 			for (int i = 0; i < 4; ++i) {
 				if ((o4 ^ n4) & (1 << i)) {
-					event = createKeyEvent(dirKeys[i], up);
+					event = createKeyEvent(dirKeys[i], o4 & (1 << i));
 					eventDistributor.distributeEvent(event);
 				}
 			}
