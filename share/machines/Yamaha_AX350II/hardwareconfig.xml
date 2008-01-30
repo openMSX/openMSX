@@ -1,4 +1,7 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><!-- $Id: hardwareconfig.xml,v 1.1 2003/03/24 22:27:44 m9710797 Exp $ --><msxconfig>
+<?xml version="1.0" ?>
+<!-- $Id: hardwareconfig.xml,v 1.1 2003/03/24 22:27:44 m9710797 Exp $ -->
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
 
   <info>
     <manufacturer>Yamaha</manufacturer>

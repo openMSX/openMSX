@@ -1,4 +1,8 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><!-- $Id$ --><!-- TODO: Dump ROMs from a 8255 and verify that they are the same as 8250. --><msxconfig>
+<?xml version="1.0" ?>
+<!-- $Id$ -->
+<!-- TODO: Dump ROMs from a 8255 and verify that they are the same as 8250. -->
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
 
   <info>
     <manufacturer>Philips</manufacturer>
