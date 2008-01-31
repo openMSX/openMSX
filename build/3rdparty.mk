@@ -261,7 +261,9 @@ $(BUILD_DIR)/$(PACKAGE_TCL)/Makefile: \
 	cd $(@D) && $(PWD)/$</$(TCL_OS)/configure \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
-		--disable-shared
+		--disable-shared \
+		--disable-threads \
+		--disable-load
 # Tcl's configure ignores CFLAGS passed to it.
 MAKEVAR_OVERRIDE_TCL:=CFLAGS_OPTIMIZE="$(_CFLAGS)"
 
