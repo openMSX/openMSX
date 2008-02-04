@@ -156,30 +156,51 @@ static Event* translateGP2Xbutton(int button, bool up)
 static int calcStat4(int stat8)
 {
 	// This function converts the 8-input GP2X joystick to 4-input MSX
-	// joystick. It uses configuration '2' (hor/vert bias) from the
-	// following page:
+	// joystick. See the following page for an explanation on the
+	// different configurations.
 	//   http://wiki.gp2x.org/wiki/Suggested_Joystick_Configurations
 	static const int UP4    = 1 << 0;
 	static const int LEFT4  = 1 << 1;
 	static const int DOWN4  = 1 << 2;
 	static const int RIGHT4 = 1 << 3;
-	if (stat8 & (1 << GP2X_UP))        return UP4;
-	if (stat8 & (1 << GP2X_LEFT))      return LEFT4;
-	if (stat8 & (1 << GP2X_DOWN))      return DOWN4;
-	if (stat8 & (1 << GP2X_RIGHT))     return RIGHT4;
-	if (stat8 & (1 << GP2X_UPLEFT))    return UP4   | LEFT4;
-	if (stat8 & (1 << GP2X_DOWNLEFT))  return DOWN4 | LEFT4;
-	if (stat8 & (1 << GP2X_DOWNRIGHT)) return DOWN4 | RIGHT4;
-	if (stat8 & (1 << GP2X_UPRIGHT))   return UP4   | RIGHT4;
-	return 0;
+	static const int UP8        = 1 << GP2X_UP;
+	static const int UPLEFT8    = 1 << GP2X_UPLEFT;
+	static const int LEFT8      = 1 << GP2X_LEFT;
+	static const int DOWNLEFT8  = 1 << GP2X_DOWNLEFT;
+	static const int DOWN8      = 1 << GP2X_DOWN;
+	static const int DOWNRIGHT8 = 1 << GP2X_DOWNRIGHT;
+	static const int RIGHT8     = 1 << GP2X_RIGHT;
+	static const int UPRIGHT8   = 1 << GP2X_UPRIGHT;
 
-	// code below implements configuration '3' (diagonal bias)
-	//int result = 0;
-	//if (stat8 & 0x83) result |= 1;
-	//if (stat8 & 0x0E) result |= 2;
-	//if (stat8 & 0x38) result |= 4;
-	//if (stat8 & 0xE0) result |= 8;
-	//return result;
+	/*// Configuration '2' (hor/vert bias)
+	if (stat8 & UP8       ) return UP4;
+	if (stat8 & LEFT8     ) return LEFT4;
+	if (stat8 & DOWN8     ) return DOWN4;
+	if (stat8 & RIGHT8    ) return RIGHT4;
+	if (stat8 & UPLEFT8   ) return UP4   | LEFT4;
+	if (stat8 & DOWNLEFT8 ) return DOWN4 | LEFT4;
+	if (stat8 & DOWNRIGHT8) return DOWN4 | RIGHT4;
+	if (stat8 & UPRIGHT8  ) return UP4   | RIGHT4;
+	return 0;*/
+
+	/*// Configuration '3' (diagonal bias)
+	int result = 0;
+	if (stat8 & (UPRIGHT8   | UP8    | UPLEFT8   )) result |= UP4;
+	if (stat8 & (UPLEFT8    | LEFT8  | DOWNLEFT8 )) result |= LEFT4;
+	if (stat8 & (DOWNLEFT8  | DOWN8  | DOWNRIGHT8)) result |= DOWN4;
+	if (stat8 & (DOWNRIGHT8 | RIGHT8 | UPRIGHT8  )) result |= RIGHT4;
+	return result;*/
+
+	// Configuration 'not-listed' (no bias but slightly rotated clock-wise)
+	if ((stat8 & (UP8    | UPLEFT8   )) == UP8       ) return UP4;
+	if ((stat8 & (LEFT8  | UPLEFT8   )) == UPLEFT8   ) return UP4   | LEFT4;
+	if ((stat8 & (LEFT8  | DOWNLEFT8 )) == LEFT8     ) return         LEFT4;
+	if ((stat8 & (DOWN8  | DOWNLEFT8 )) == DOWNLEFT8 ) return DOWN4 | LEFT4;
+	if ((stat8 & (DOWN8  | DOWNRIGHT8)) == DOWN8     ) return DOWN4;
+	if ((stat8 & (RIGHT8 | DOWNRIGHT8)) == DOWNRIGHT8) return DOWN4 | RIGHT4;
+	if ((stat8 & (RIGHT8 | UPRIGHT8  )) == RIGHT8    ) return         RIGHT4;
+	if ((stat8 & (UP8    | UPRIGHT8  )) == UPRIGHT8  ) return UP4   | RIGHT4;
+	return 0;
 }
 #endif
 
