@@ -8,7 +8,7 @@
 	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
-<softwaredb xml:lang="en" timestamp="1199668497">
+<softwaredb xml:lang="en" timestamp="1202363743">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -11591,6 +11591,16 @@
 			</megarom>
 		</dump>
 		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>ASCII8</type>
+				<hash algo="sha1">55adf3b4576b370dd2680d80c333ebde</hash>
+				<remark>
+					<text>tr En (Needs SCC in slot 2)</text>
+				</remark>
+			</megarom>
+		</dump>
+		<dump>
 			<original value="true">GoodMSX</original>
 			<megarom>
 				<type>KonamiSCC</type>
@@ -11611,6 +11621,16 @@
 				<hash algo="sha1">2111cec4b5ea698d772bb80664f6be690b47391c</hash>
 				<remark>
 					<text>cheat version</text>
+				</remark>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>KonamiSCC</type>
+				<hash algo="sha1">9ce36aeaa93f969b6c2ea91598b0b014</hash>
+				<remark>
+					<text>tr En</text>
 				</remark>
 			</megarom>
 		</dump>
@@ -18633,6 +18653,13 @@
 			<original value="false"/>
 			<megarom>
 				<type>Konami</type>
+				<hash algo="sha1">206b2a47f437ba9dfc85f6d01c9e2c18</hash>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Konami</type>
 				<hash algo="sha1">502d7cf7bc2595af6f83bb2b95baa4db5b0f6a4d</hash>
 				<remark>
 					<text>cheat version</text>
@@ -24531,8 +24558,8 @@
 	</software>
 </softwaredb>
 <!--
-Roms in this database 			: 2293
+Roms in this database 		: 2296
 Good MSX entries 				: 755
-SHA1 values 					: 2293
-Parse time 13.676 seconds on Mon Jan 7 2:15:11 CET 2008
+SHA1 values 					: 2296
+Parse time 7.377 seconds on Thu Feb 7 6:55:50 CET 2008
  -->
