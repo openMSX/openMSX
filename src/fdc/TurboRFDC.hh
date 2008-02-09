@@ -26,6 +26,8 @@ public:
 	virtual byte* getWriteCacheLine(word address) const;
 
 private:
+	void setBank(byte value);
+
 	const std::auto_ptr<TC8566AF> controller;
 	const byte* memory;
 	byte blockMask;

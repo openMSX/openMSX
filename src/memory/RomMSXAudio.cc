@@ -24,8 +24,7 @@ RomMSXAudio::~RomMSXAudio()
 void RomMSXAudio::reset(const EmuTime& /*time*/)
 {
 	ram->clear();	// TODO check
-	bankSelect = 0;
-	cpu.invalidateMemCache(0x0000, 0x10000);
+	setBank(0);
 }
 
 byte RomMSXAudio::readMem(word address, const EmuTime& /*time*/)
@@ -50,8 +49,7 @@ void RomMSXAudio::writeMem(word address, byte value, const EmuTime& /*time*/)
 {
 	address &= 0x7FFF;
 	if (address == 0x7FFE) {
-		bankSelect = value & 3;
-		cpu.invalidateMemCache(0x0000, 0x10000);
+		setBank(value);
 	}
 	address &= 0x3FFF;
 	if ((bankSelect == 0) && (address >= 0x3000)) {
@@ -71,6 +69,12 @@ byte* RomMSXAudio::getWriteCacheLine(word address) const
 	} else {
 		return unmappedWrite;
 	}
+}
+
+void RomMSXAudio::setBank(byte value)
+{
+	bankSelect = value & 3;
+	cpu.invalidateMemCache(0x0000, 0x10000);
 }
 
 } // namespace openmsx

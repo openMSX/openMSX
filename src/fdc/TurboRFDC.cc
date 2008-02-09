@@ -28,8 +28,7 @@ TurboRFDC::~TurboRFDC()
 
 void TurboRFDC::reset(const EmuTime& time)
 {
-	memory = &(*rom)[0];
-	getMotherBoard().getCPU().invalidateMemCache(0x4000, 0x4000);
+	setBank(0);
 	controller->reset(time);
 }
 
@@ -112,9 +111,7 @@ const byte* TurboRFDC::getReadCacheLine(word start) const
 void TurboRFDC::writeMem(word address, byte value, const EmuTime& time)
 {
 	if ((address == 0x6000) || (address == 0x7FF0) || (address == 0x7FFE)) {
-		getMotherBoard().getCPU().invalidateMemCache(0x4000, 0x4000);
-		memory = &(*rom)[0x4000 * (value & blockMask)];
-		return;
+		setBank(value);
 	} else {
 		//std::cout << "TurboRFDC write 0x" << std::hex << (int)address <<
 		//                            " 0x" << (int)value << std::dec << std::endl;
@@ -145,6 +142,12 @@ void TurboRFDC::writeMem(word address, byte value, const EmuTime& time)
 			break;
 		}
 	}
+}
+
+void TurboRFDC::setBank(byte value)
+{
+	getMotherBoard().getCPU().invalidateMemCache(0x4000, 0x4000);
+	memory = &(*rom)[0x4000 * (value & blockMask)];
 }
 
 byte* TurboRFDC::getWriteCacheLine(word address) const

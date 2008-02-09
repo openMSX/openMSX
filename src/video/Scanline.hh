@@ -67,7 +67,7 @@ public:
 	 */
 	Pixel darken(Pixel p1, Pixel p2, unsigned factor);
 
-protected:
+private:
 	Multiply<Pixel> darkener;
 	PixelOperations<Pixel> pixelOps;
 };

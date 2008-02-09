@@ -20,6 +20,7 @@ protected:
 	void setBank(byte region, const byte* adr);
 	void setRom(byte region, int block);
 
+private:
 	const byte* bank[4];
 };
 

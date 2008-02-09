@@ -22,7 +22,9 @@ public:
 	virtual void writeMem(word address, byte value, const EmuTime& time);
 	virtual byte* getWriteCacheLine(word address) const;
 
-protected:
+private:
+	void setBank(byte value);
+
 	const std::auto_ptr<Ram> ram;
 	byte bankSelect;
 };
