@@ -53,7 +53,6 @@ public:
 	virtual void wait(const EmuTime& time);
 	virtual void setNextSyncPoint(const EmuTime& time);
 	virtual void invalidateMemCache(unsigned start, unsigned size);
-	virtual CPURegs& getRegisters();
 	virtual void doStep();
 	virtual void doContinue();
 	virtual void doBreak();
@@ -98,17 +97,17 @@ private:
 	// Observer<Setting>
 	virtual void update(const Setting& setting);
 
-	MSXMotherBoard& motherboard;
-	Scheduler& scheduler;
-	MSXCPUInterface* interface;
-
-	const BooleanSetting& traceSetting;
-
 	// memory cache
 	const byte* readCacheLine[CacheLine::NUM];
 	byte* writeCacheLine[CacheLine::NUM];
 	bool readCacheTried [CacheLine::NUM];
 	bool writeCacheTried[CacheLine::NUM];
+
+	MSXMotherBoard& motherboard;
+	Scheduler& scheduler;
+	MSXCPUInterface* interface;
+
+	const BooleanSetting& traceSetting;
 
 	// dynamic freq
 	std::auto_ptr<BooleanSetting> freqLocked;
@@ -119,7 +118,6 @@ private:
 	int slowInstructions;
 	int NMIStatus;
 	int IRQStatus;
-	CPURegs R;
 
 	unsigned memptr;
 	offset ofst;

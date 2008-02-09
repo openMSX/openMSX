@@ -92,11 +92,6 @@ template <class T> void CPUCore<T>::invalidateMemCache(unsigned start, unsigned 
 	memset(&writeCacheTried[first], 0, num * sizeof(bool));  //
 }
 
-template <class T> CPU::CPURegs& CPUCore<T>::getRegisters()
-{
-	return R;
-}
-
 template <class T> void CPUCore<T>::doReset(const EmuTime& time)
 {
 	// AF and SP are 0xFFFF

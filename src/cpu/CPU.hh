@@ -317,10 +317,6 @@ public:
 
 	/**
 	 */
-	virtual CPURegs& getRegisters() = 0;
-
-	/**
-	 */
 	virtual void doStep() = 0;
 
 	/**
@@ -335,6 +331,10 @@ public:
 	/**
 	 */
 	virtual void doBreak() = 0;
+
+	/**
+	 */
+	CPURegs& getRegisters() { return R; }
 
 	/**
 	 */
@@ -402,6 +402,8 @@ protected:
 
 	// CPU is paused, used for turbor hw pause
 	static bool paused;
+
+	CPURegs R;
 
 private:
 	void checkBreakPoints(std::pair<BreakPoints::const_iterator,
