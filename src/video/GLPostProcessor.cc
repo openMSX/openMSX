@@ -65,6 +65,7 @@ GLPostProcessor::GLPostProcessor(
 		fbo[i].reset(new FrameBufferObject(*colorTex[i]));
 	}
 
+	monitor3DList = glGenLists(1);
 	preCalc3DDisplayList(renderSettings.getHorizontalStretch().getValue());
 
 	renderSettings.getNoise().attach(*this);
@@ -462,7 +463,6 @@ void GLPostProcessor::preCalc3DDisplayList(double width)
 	glEnable(GL_LIGHT0);
 	glEnable(GL_NORMALIZE);
 
-	monitor3DList = glGenLists(1);
 	glNewList(monitor3DList, GL_COMPILE);
 	glEnable(GL_LIGHTING);
 	glMatrixMode(GL_PROJECTION);
