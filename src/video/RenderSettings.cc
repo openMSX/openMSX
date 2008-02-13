@@ -117,10 +117,19 @@ RenderSettings::RenderSettings(CommandController& commandController_)
 	EnumSetting<DisplayDeform>::Map deformMap;
 	deformMap["normal"] = DEFORM_NORMAL;
 	deformMap["3d"] = DEFORM_3D;
-	deformMap["horizontal_stretch"] = DEFORM_HOR_STRETCH;
 	displayDeform.reset(new EnumSetting<DisplayDeform>(commandController,
 		"display_deform", "Display deform (for the moment this only "
 		"works with the SDLGL-PP renderer", DEFORM_NORMAL, deformMap));
+
+	horizontalStretch.reset(new FloatSetting(commandController,
+		"horizontal_stretch",
+		"Amount of horizontal stretch: this many MSX pixels will be "
+		"stretched over the complete width of the output screen.\n"
+		"  320 = no stretch\n"
+		"  256 = max stretch (no border visible anymore)\n"
+		"  good values are 272 or 284\n"
+		"This setting has only effect when using the SDLGL-PP renderer.",
+		284.0, 256.0, 320.0));
 }
 
 RenderSettings::~RenderSettings()

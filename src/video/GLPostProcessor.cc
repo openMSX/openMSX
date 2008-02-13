@@ -65,81 +65,15 @@ GLPostProcessor::GLPostProcessor(
 		fbo[i].reset(new FrameBufferObject(*colorTex[i]));
 	}
 
-	// generate display list for 3d deform
-	static const int GRID_SIZE = 16;
-	struct Point {
-		GLfloat vx, vy, vz;
-		GLfloat nx, ny, nz;
-		GLfloat tx, ty;
-	} points[GRID_SIZE + 1][GRID_SIZE + 1];
-	const int GRID_SIZE2 = GRID_SIZE / 2;
-	GLfloat s = 284.0f / 320.0f;
-	GLfloat b = (320.0f - 284.0f) / (2.0f * 320.0f);
-
-	for (int sx = 0; sx <= GRID_SIZE; ++sx) {
-		for (int sy = 0; sy <= GRID_SIZE; ++sy) {
-			Point& p = points[sx][sy];
-			GLfloat x = GLfloat(sx - GRID_SIZE2) / GRID_SIZE2;
-			GLfloat y = GLfloat(sy - GRID_SIZE2) / GRID_SIZE2;
-
-			p.vx = x;
-			p.vy = y;
-			p.vz = (x * x + y * y) / -12.0f;
-
-			p.nx = x / 6.0f;
-			p.ny = y / 6.0f;
-			p.nz = 1.0f;      // note: not normalized
-
-			p.tx = (GLfloat(sx) / GRID_SIZE) * s + b;
-			p.ty = GLfloat(sy) / GRID_SIZE;
-		}
-	}
-
-	GLfloat LightDiffuse[]= { 1.2f, 1.2f, 1.2f, 1.2f };
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, LightDiffuse);
-	glEnable(GL_LIGHT0);
-	glEnable(GL_NORMALIZE);
-
-	monitor3DList = glGenLists(1);
-	glNewList(monitor3DList, GL_COMPILE);
-	glEnable(GL_LIGHTING);
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	glFrustum(-1, 1, -1, 1, 1, 10);
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
-	glTranslatef(0.0f, 0.4f, -2.0f);
-	glRotatef(-10.0f, 1.0f, 0.0f, 0.0f);
-	glScalef(2.2f, 2.2f, 2.2f);
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	for (int y = 0; y < GRID_SIZE; ++y) {
-		glBegin(GL_TRIANGLE_STRIP);
-		for (int x = 0; x < (GRID_SIZE + 1); ++x) {
-			Point& p1 = points[x][y + 0];
-			Point& p2 = points[x][y + 1];
-			glTexCoord2f(p1.tx, p1.ty);
-			glNormal3f  (p1.nx, p1.ny, p1.nz);
-			glVertex3f  (p1.vx, p1.vy, p1.vz);
-			glTexCoord2f(p2.tx, p2.ty);
-			glNormal3f  (p2.nx, p2.ny, p2.nz);
-			glVertex3f  (p2.vx, p2.vy, p2.vz);
-		}
-		glEnd();
-	}
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
-	glDisable(GL_LIGHTING);
-	glEndList();
+	preCalc3DDisplayList(renderSettings.getHorizontalStretch().getValue());
 
 	renderSettings.getNoise().attach(*this);
+	renderSettings.getHorizontalStretch().attach(*this);
 }
 
 GLPostProcessor::~GLPostProcessor()
 {
+	renderSettings.getHorizontalStretch().detach(*this);
 	renderSettings.getNoise().detach(*this);
 
 	glDeleteLists(monitor3DList, 1);
@@ -196,8 +130,10 @@ void GLPostProcessor::paint()
 {
 	RenderSettings::DisplayDeform deform =
 		renderSettings.getDisplayDeform().getValue();
+	double horStretch = renderSettings.getHorizontalStretch().getValue();
 	int glow = renderSettings.getGlow().getValue();
 	bool renderToTexture = (deform != RenderSettings::DEFORM_NORMAL) ||
+	                       (horStretch != 320.0) ||
 	                       (glow != 0);
 
 	if ((deform == RenderSettings::DEFORM_3D) || !paintFrame) {
@@ -252,9 +188,7 @@ void GLPostProcessor::paint()
 			glBegin(GL_QUADS);
 			int w = screen.getWidth();
 			int h = screen.getHeight();
-			GLfloat x1 = (deform == RenderSettings::DEFORM_HOR_STRETCH)
-			           ? (320.0f - 284.0f) / (2.0f * 320.0f)
-				   : 0.0f;
+			GLfloat x1 = (320.0f - horStretch) / (2.0f * 320.0f);
 			GLfloat x2 = 1.0f - x1;
 			glTexCoord2f(x1, 0.0f); glVertex2i(0, h);
 			glTexCoord2f(x1, 1.0f); glVertex2i(0, 0);
@@ -286,8 +220,11 @@ void GLPostProcessor::update(const Setting& setting)
 {
 	VideoLayer::update(setting);
 	FloatSetting& noiseSetting = renderSettings.getNoise();
+	FloatSetting& horizontalStretch = renderSettings.getHorizontalStretch();
 	if (&setting == &noiseSetting) {
 		preCalcNoise(noiseSetting.getValue());
+	} else if (&setting == &horizontalStretch) {
+		preCalc3DDisplayList(horizontalStretch.getValue());
 	}
 }
 
@@ -487,5 +424,79 @@ void GLPostProcessor::drawNoise()
 	glPopAttrib();
 	if (glBlendEquation) glBlendEquation(GL_FUNC_ADD);
 }
+
+void GLPostProcessor::preCalc3DDisplayList(double width)
+{
+	// generate display list for 3d deform
+	static const int GRID_SIZE = 16;
+	struct Point {
+		GLfloat vx, vy, vz;
+		GLfloat nx, ny, nz;
+		GLfloat tx, ty;
+	} points[GRID_SIZE + 1][GRID_SIZE + 1];
+	const int GRID_SIZE2 = GRID_SIZE / 2;
+	GLfloat s = width / 320.0f;
+	GLfloat b = (320.0f - width) / (2.0f * 320.0f);
+
+	for (int sx = 0; sx <= GRID_SIZE; ++sx) {
+		for (int sy = 0; sy <= GRID_SIZE; ++sy) {
+			Point& p = points[sx][sy];
+			GLfloat x = GLfloat(sx - GRID_SIZE2) / GRID_SIZE2;
+			GLfloat y = GLfloat(sy - GRID_SIZE2) / GRID_SIZE2;
+
+			p.vx = x;
+			p.vy = y;
+			p.vz = (x * x + y * y) / -12.0f;
+
+			p.nx = x / 6.0f;
+			p.ny = y / 6.0f;
+			p.nz = 1.0f;      // note: not normalized
+
+			p.tx = (GLfloat(sx) / GRID_SIZE) * s + b;
+			p.ty = GLfloat(sy) / GRID_SIZE;
+		}
+	}
+
+	GLfloat LightDiffuse[]= { 1.2f, 1.2f, 1.2f, 1.2f };
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, LightDiffuse);
+	glEnable(GL_LIGHT0);
+	glEnable(GL_NORMALIZE);
+
+	monitor3DList = glGenLists(1);
+	glNewList(monitor3DList, GL_COMPILE);
+	glEnable(GL_LIGHTING);
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	glFrustum(-1, 1, -1, 1, 1, 10);
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	glLoadIdentity();
+	glTranslatef(0.0f, 0.4f, -2.0f);
+	glRotatef(-10.0f, 1.0f, 0.0f, 0.0f);
+	glScalef(2.2f, 2.2f, 2.2f);
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	for (int y = 0; y < GRID_SIZE; ++y) {
+		glBegin(GL_TRIANGLE_STRIP);
+		for (int x = 0; x < (GRID_SIZE + 1); ++x) {
+			Point& p1 = points[x][y + 0];
+			Point& p2 = points[x][y + 1];
+			glTexCoord2f(p1.tx, p1.ty);
+			glNormal3f  (p1.nx, p1.ny, p1.nz);
+			glVertex3f  (p1.vx, p1.vy, p1.vz);
+			glTexCoord2f(p2.tx, p2.ty);
+			glNormal3f  (p2.nx, p2.ny, p2.nz);
+			glVertex3f  (p2.vx, p2.vy, p2.vz);
+		}
+		glEnd();
+	}
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+	glDisable(GL_LIGHTING);
+	glEndList();
+}
+
 
 } // namespace openmsx

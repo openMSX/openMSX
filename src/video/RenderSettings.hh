@@ -37,7 +37,7 @@ public:
 	};
 
 	enum DisplayDeform {
-		DEFORM_NORMAL, DEFORM_3D, DEFORM_HOR_STRETCH
+		DEFORM_NORMAL, DEFORM_3D
 	};
 
 	explicit RenderSettings(CommandController& commandController);
@@ -108,8 +108,15 @@ public:
 	  * This setting is intended for debugging only, not for users. */
 	EnumSetting<bool>& getCmdTiming() { return *cmdTiming; }
 
-	/**  */
+	/** Display deformation (normal, 3d)
+	  * ATM this only works when using the SDLGL-PP renderer. */
 	EnumSetting<DisplayDeform>& getDisplayDeform() const { return *displayDeform; }
+
+	/** Amount of horizontal stretch.
+	  * This number represents the amount of MSX pixels (normal width) that
+	  * will be stretched to the complete width of the host window.
+	  * ATM this setting only has effect when using the SDLGL-PP renderer. */
+	FloatSetting& getHorizontalStretch() const { return *horizontalStretch; }
 
 	/** Apply brightness, contrast and gamma transformation on the input
 	  * color. The R, G and B component are expected to be in the range
@@ -122,7 +129,6 @@ public:
 private:
 	void parseColorMatrix(const std::string& value);
 
-	// Please keep the settings ordered alphabetically.
 	std::auto_ptr<EnumSetting<Accuracy> > accuracy;
 	std::auto_ptr<EnumSetting<bool> > cmdTiming;
 	std::auto_ptr<BooleanSetting> deinterlace;
@@ -144,6 +150,7 @@ private:
 	std::auto_ptr<IntegerSetting> scanlineAlpha;
 	std::auto_ptr<VideoSourceSetting> videoSource;
 	std::auto_ptr<EnumSetting<DisplayDeform> > displayDeform;
+	std::auto_ptr<FloatSetting> horizontalStretch;
 
 	CommandController& commandController;
 	double cm[3][3]; // parsed color matrix, should always be in sync with

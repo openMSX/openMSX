@@ -1,5 +1,13 @@
 $Id$
 
+2008-02-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added 'horizontal_stretch' setting:
+	   - amount of horizontal stretch can now be configured (some
+	     users repeatedly asked for this ;-)
+	   - removed horizontal_stretch enum from display_deform setting
+	   - as a bonus horizontal stretch can now also be used in
+	     combination with the 3D deform mode
+
 2008-01-28 Alex Wulms
 	* Initialized key_ghosting_sgc_protected parameter in all
 	  hardwareconfig.xml file:

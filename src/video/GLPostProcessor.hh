@@ -51,6 +51,8 @@ private:
 	void drawNoise();
 	void drawGlow(int glow);
 
+	void preCalc3DDisplayList(double width);
+
 	/** The currently active scaler.
 	  */
 	std::auto_ptr<GLScaler> currScaler;
