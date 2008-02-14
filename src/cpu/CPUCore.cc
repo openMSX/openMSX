@@ -25,6 +25,8 @@ using std::string;
 
 namespace openmsx {
 
+typedef signed char offset;
+
 template <class T> CPUCore<T>::CPUCore(
 		MSXMotherBoard& motherboard_, const string& name,
 		const BooleanSetting& traceSetting_, const EmuTime& time)
@@ -1763,7 +1765,7 @@ template <class T> void CPUCore<T>::bit_5_xhl(S& s) { s.BIT_HL(5); }
 template <class T> void CPUCore<T>::bit_6_xhl(S& s) { s.BIT_HL(6); }
 template <class T> void CPUCore<T>::bit_7_xhl(S& s) { s.BIT_HL(7); }
 
-template <class T> inline void CPUCore<T>::BIT_IX(byte bit)
+template <class T> inline void CPUCore<T>::BIT_IX(byte bit, int ofst)
 {
 	memptr = (R.getIX() + ofst) & 0xFFFF;
 	R.setF((R.getF() & C_FLAG) |
@@ -1772,16 +1774,16 @@ template <class T> inline void CPUCore<T>::BIT_IX(byte bit)
 	       ((memptr >> 8) & (X_FLAG | Y_FLAG)));
 	T::SMALL_DELAY();
 }
-template <class T> void CPUCore<T>::bit_0_xix(S& s) { s.BIT_IX(0); }
-template <class T> void CPUCore<T>::bit_1_xix(S& s) { s.BIT_IX(1); }
-template <class T> void CPUCore<T>::bit_2_xix(S& s) { s.BIT_IX(2); }
-template <class T> void CPUCore<T>::bit_3_xix(S& s) { s.BIT_IX(3); }
-template <class T> void CPUCore<T>::bit_4_xix(S& s) { s.BIT_IX(4); }
-template <class T> void CPUCore<T>::bit_5_xix(S& s) { s.BIT_IX(5); }
-template <class T> void CPUCore<T>::bit_6_xix(S& s) { s.BIT_IX(6); }
-template <class T> void CPUCore<T>::bit_7_xix(S& s) { s.BIT_IX(7); }
+template <class T> void CPUCore<T>::bit_0_xix(S& s, int o) { s.BIT_IX(0, o); }
+template <class T> void CPUCore<T>::bit_1_xix(S& s, int o) { s.BIT_IX(1, o); }
+template <class T> void CPUCore<T>::bit_2_xix(S& s, int o) { s.BIT_IX(2, o); }
+template <class T> void CPUCore<T>::bit_3_xix(S& s, int o) { s.BIT_IX(3, o); }
+template <class T> void CPUCore<T>::bit_4_xix(S& s, int o) { s.BIT_IX(4, o); }
+template <class T> void CPUCore<T>::bit_5_xix(S& s, int o) { s.BIT_IX(5, o); }
+template <class T> void CPUCore<T>::bit_6_xix(S& s, int o) { s.BIT_IX(6, o); }
+template <class T> void CPUCore<T>::bit_7_xix(S& s, int o) { s.BIT_IX(7, o); }
 
-template <class T> inline void CPUCore<T>::BIT_IY(byte bit)
+template <class T> inline void CPUCore<T>::BIT_IY(byte bit, int ofst)
 {
 	memptr = (R.getIY() + ofst) & 0xFFFF;
 	R.setF((R.getF() & C_FLAG) |
@@ -1790,14 +1792,14 @@ template <class T> inline void CPUCore<T>::BIT_IY(byte bit)
 	       ((memptr >> 8) & (X_FLAG | Y_FLAG)));
 	T::SMALL_DELAY();
 }
-template <class T> void CPUCore<T>::bit_0_xiy(S& s) { s.BIT_IY(0); }
-template <class T> void CPUCore<T>::bit_1_xiy(S& s) { s.BIT_IY(1); }
-template <class T> void CPUCore<T>::bit_2_xiy(S& s) { s.BIT_IY(2); }
-template <class T> void CPUCore<T>::bit_3_xiy(S& s) { s.BIT_IY(3); }
-template <class T> void CPUCore<T>::bit_4_xiy(S& s) { s.BIT_IY(4); }
-template <class T> void CPUCore<T>::bit_5_xiy(S& s) { s.BIT_IY(5); }
-template <class T> void CPUCore<T>::bit_6_xiy(S& s) { s.BIT_IY(6); }
-template <class T> void CPUCore<T>::bit_7_xiy(S& s) { s.BIT_IY(7); }
+template <class T> void CPUCore<T>::bit_0_xiy(S& s, int o) { s.BIT_IY(0, o); }
+template <class T> void CPUCore<T>::bit_1_xiy(S& s, int o) { s.BIT_IY(1, o); }
+template <class T> void CPUCore<T>::bit_2_xiy(S& s, int o) { s.BIT_IY(2, o); }
+template <class T> void CPUCore<T>::bit_3_xiy(S& s, int o) { s.BIT_IY(3, o); }
+template <class T> void CPUCore<T>::bit_4_xiy(S& s, int o) { s.BIT_IY(4, o); }
+template <class T> void CPUCore<T>::bit_5_xiy(S& s, int o) { s.BIT_IY(5, o); }
+template <class T> void CPUCore<T>::bit_6_xiy(S& s, int o) { s.BIT_IY(6, o); }
+template <class T> void CPUCore<T>::bit_7_xiy(S& s, int o) { s.BIT_IY(7, o); }
 
 
 // RES n,r
@@ -1874,11 +1876,11 @@ template <class T> inline byte CPUCore<T>::RES_X_(unsigned bit, unsigned x)
 	memptr = x;
 	return RES_X(bit, x);
 }
-template <class T> inline byte CPUCore<T>::RES_X_X(unsigned bit)
+template <class T> inline byte CPUCore<T>::RES_X_X(unsigned bit, int ofst)
 {
 	return RES_X_(bit, (R.getIX() + ofst) & 0xFFFF);
 }
-template <class T> inline byte CPUCore<T>::RES_X_Y(unsigned bit)
+template <class T> inline byte CPUCore<T>::RES_X_Y(unsigned bit, int ofst)
 {
 	return RES_X_(bit, (R.getIY() + ofst) & 0xFFFF);
 }
@@ -1892,137 +1894,137 @@ template <class T> void CPUCore<T>::res_5_xhl(S& s)   { s.RES_X(5, s.R.getHL());
 template <class T> void CPUCore<T>::res_6_xhl(S& s)   { s.RES_X(6, s.R.getHL()); }
 template <class T> void CPUCore<T>::res_7_xhl(S& s)   { s.RES_X(7, s.R.getHL()); }
 
-template <class T> void CPUCore<T>::res_0_xix(S& s)   { s.RES_X_X(0); }
-template <class T> void CPUCore<T>::res_1_xix(S& s)   { s.RES_X_X(1); }
-template <class T> void CPUCore<T>::res_2_xix(S& s)   { s.RES_X_X(2); }
-template <class T> void CPUCore<T>::res_3_xix(S& s)   { s.RES_X_X(3); }
-template <class T> void CPUCore<T>::res_4_xix(S& s)   { s.RES_X_X(4); }
-template <class T> void CPUCore<T>::res_5_xix(S& s)   { s.RES_X_X(5); }
-template <class T> void CPUCore<T>::res_6_xix(S& s)   { s.RES_X_X(6); }
-template <class T> void CPUCore<T>::res_7_xix(S& s)   { s.RES_X_X(7); }
+template <class T> void CPUCore<T>::res_0_xix(S& s, int o)   { s.RES_X_X(0, o); }
+template <class T> void CPUCore<T>::res_1_xix(S& s, int o)   { s.RES_X_X(1, o); }
+template <class T> void CPUCore<T>::res_2_xix(S& s, int o)   { s.RES_X_X(2, o); }
+template <class T> void CPUCore<T>::res_3_xix(S& s, int o)   { s.RES_X_X(3, o); }
+template <class T> void CPUCore<T>::res_4_xix(S& s, int o)   { s.RES_X_X(4, o); }
+template <class T> void CPUCore<T>::res_5_xix(S& s, int o)   { s.RES_X_X(5, o); }
+template <class T> void CPUCore<T>::res_6_xix(S& s, int o)   { s.RES_X_X(6, o); }
+template <class T> void CPUCore<T>::res_7_xix(S& s, int o)   { s.RES_X_X(7, o); }
 
-template <class T> void CPUCore<T>::res_0_xiy(S& s)   { s.RES_X_Y(0); }
-template <class T> void CPUCore<T>::res_1_xiy(S& s)   { s.RES_X_Y(1); }
-template <class T> void CPUCore<T>::res_2_xiy(S& s)   { s.RES_X_Y(2); }
-template <class T> void CPUCore<T>::res_3_xiy(S& s)   { s.RES_X_Y(3); }
-template <class T> void CPUCore<T>::res_4_xiy(S& s)   { s.RES_X_Y(4); }
-template <class T> void CPUCore<T>::res_5_xiy(S& s)   { s.RES_X_Y(5); }
-template <class T> void CPUCore<T>::res_6_xiy(S& s)   { s.RES_X_Y(6); }
-template <class T> void CPUCore<T>::res_7_xiy(S& s)   { s.RES_X_Y(7); }
+template <class T> void CPUCore<T>::res_0_xiy(S& s, int o)   { s.RES_X_Y(0, o); }
+template <class T> void CPUCore<T>::res_1_xiy(S& s, int o)   { s.RES_X_Y(1, o); }
+template <class T> void CPUCore<T>::res_2_xiy(S& s, int o)   { s.RES_X_Y(2, o); }
+template <class T> void CPUCore<T>::res_3_xiy(S& s, int o)   { s.RES_X_Y(3, o); }
+template <class T> void CPUCore<T>::res_4_xiy(S& s, int o)   { s.RES_X_Y(4, o); }
+template <class T> void CPUCore<T>::res_5_xiy(S& s, int o)   { s.RES_X_Y(5, o); }
+template <class T> void CPUCore<T>::res_6_xiy(S& s, int o)   { s.RES_X_Y(6, o); }
+template <class T> void CPUCore<T>::res_7_xiy(S& s, int o)   { s.RES_X_Y(7, o); }
 
-template <class T> void CPUCore<T>::res_0_xix_a(S& s) { s.R.setA(s.RES_X_X(0)); }
-template <class T> void CPUCore<T>::res_0_xix_b(S& s) { s.R.setB(s.RES_X_X(0)); }
-template <class T> void CPUCore<T>::res_0_xix_c(S& s) { s.R.setC(s.RES_X_X(0)); }
-template <class T> void CPUCore<T>::res_0_xix_d(S& s) { s.R.setD(s.RES_X_X(0)); }
-template <class T> void CPUCore<T>::res_0_xix_e(S& s) { s.R.setE(s.RES_X_X(0)); }
-template <class T> void CPUCore<T>::res_0_xix_h(S& s) { s.R.setH(s.RES_X_X(0)); }
-template <class T> void CPUCore<T>::res_0_xix_l(S& s) { s.R.setL(s.RES_X_X(0)); }
-template <class T> void CPUCore<T>::res_1_xix_a(S& s) { s.R.setA(s.RES_X_X(1)); }
-template <class T> void CPUCore<T>::res_1_xix_b(S& s) { s.R.setB(s.RES_X_X(1)); }
-template <class T> void CPUCore<T>::res_1_xix_c(S& s) { s.R.setC(s.RES_X_X(1)); }
-template <class T> void CPUCore<T>::res_1_xix_d(S& s) { s.R.setD(s.RES_X_X(1)); }
-template <class T> void CPUCore<T>::res_1_xix_e(S& s) { s.R.setE(s.RES_X_X(1)); }
-template <class T> void CPUCore<T>::res_1_xix_h(S& s) { s.R.setH(s.RES_X_X(1)); }
-template <class T> void CPUCore<T>::res_1_xix_l(S& s) { s.R.setL(s.RES_X_X(1)); }
-template <class T> void CPUCore<T>::res_2_xix_a(S& s) { s.R.setA(s.RES_X_X(2)); }
-template <class T> void CPUCore<T>::res_2_xix_b(S& s) { s.R.setB(s.RES_X_X(2)); }
-template <class T> void CPUCore<T>::res_2_xix_c(S& s) { s.R.setC(s.RES_X_X(2)); }
-template <class T> void CPUCore<T>::res_2_xix_d(S& s) { s.R.setD(s.RES_X_X(2)); }
-template <class T> void CPUCore<T>::res_2_xix_e(S& s) { s.R.setE(s.RES_X_X(2)); }
-template <class T> void CPUCore<T>::res_2_xix_h(S& s) { s.R.setH(s.RES_X_X(2)); }
-template <class T> void CPUCore<T>::res_2_xix_l(S& s) { s.R.setL(s.RES_X_X(2)); }
-template <class T> void CPUCore<T>::res_3_xix_a(S& s) { s.R.setA(s.RES_X_X(3)); }
-template <class T> void CPUCore<T>::res_3_xix_b(S& s) { s.R.setB(s.RES_X_X(3)); }
-template <class T> void CPUCore<T>::res_3_xix_c(S& s) { s.R.setC(s.RES_X_X(3)); }
-template <class T> void CPUCore<T>::res_3_xix_d(S& s) { s.R.setD(s.RES_X_X(3)); }
-template <class T> void CPUCore<T>::res_3_xix_e(S& s) { s.R.setE(s.RES_X_X(3)); }
-template <class T> void CPUCore<T>::res_3_xix_h(S& s) { s.R.setH(s.RES_X_X(3)); }
-template <class T> void CPUCore<T>::res_3_xix_l(S& s) { s.R.setL(s.RES_X_X(3)); }
-template <class T> void CPUCore<T>::res_4_xix_a(S& s) { s.R.setA(s.RES_X_X(4)); }
-template <class T> void CPUCore<T>::res_4_xix_b(S& s) { s.R.setB(s.RES_X_X(4)); }
-template <class T> void CPUCore<T>::res_4_xix_c(S& s) { s.R.setC(s.RES_X_X(4)); }
-template <class T> void CPUCore<T>::res_4_xix_d(S& s) { s.R.setD(s.RES_X_X(4)); }
-template <class T> void CPUCore<T>::res_4_xix_e(S& s) { s.R.setE(s.RES_X_X(4)); }
-template <class T> void CPUCore<T>::res_4_xix_h(S& s) { s.R.setH(s.RES_X_X(4)); }
-template <class T> void CPUCore<T>::res_4_xix_l(S& s) { s.R.setL(s.RES_X_X(4)); }
-template <class T> void CPUCore<T>::res_5_xix_a(S& s) { s.R.setA(s.RES_X_X(5)); }
-template <class T> void CPUCore<T>::res_5_xix_b(S& s) { s.R.setB(s.RES_X_X(5)); }
-template <class T> void CPUCore<T>::res_5_xix_c(S& s) { s.R.setC(s.RES_X_X(5)); }
-template <class T> void CPUCore<T>::res_5_xix_d(S& s) { s.R.setD(s.RES_X_X(5)); }
-template <class T> void CPUCore<T>::res_5_xix_e(S& s) { s.R.setE(s.RES_X_X(5)); }
-template <class T> void CPUCore<T>::res_5_xix_h(S& s) { s.R.setH(s.RES_X_X(5)); }
-template <class T> void CPUCore<T>::res_5_xix_l(S& s) { s.R.setL(s.RES_X_X(5)); }
-template <class T> void CPUCore<T>::res_6_xix_a(S& s) { s.R.setA(s.RES_X_X(6)); }
-template <class T> void CPUCore<T>::res_6_xix_b(S& s) { s.R.setB(s.RES_X_X(6)); }
-template <class T> void CPUCore<T>::res_6_xix_c(S& s) { s.R.setC(s.RES_X_X(6)); }
-template <class T> void CPUCore<T>::res_6_xix_d(S& s) { s.R.setD(s.RES_X_X(6)); }
-template <class T> void CPUCore<T>::res_6_xix_e(S& s) { s.R.setE(s.RES_X_X(6)); }
-template <class T> void CPUCore<T>::res_6_xix_h(S& s) { s.R.setH(s.RES_X_X(6)); }
-template <class T> void CPUCore<T>::res_6_xix_l(S& s) { s.R.setL(s.RES_X_X(6)); }
-template <class T> void CPUCore<T>::res_7_xix_a(S& s) { s.R.setA(s.RES_X_X(7)); }
-template <class T> void CPUCore<T>::res_7_xix_b(S& s) { s.R.setB(s.RES_X_X(7)); }
-template <class T> void CPUCore<T>::res_7_xix_c(S& s) { s.R.setC(s.RES_X_X(7)); }
-template <class T> void CPUCore<T>::res_7_xix_d(S& s) { s.R.setD(s.RES_X_X(7)); }
-template <class T> void CPUCore<T>::res_7_xix_e(S& s) { s.R.setE(s.RES_X_X(7)); }
-template <class T> void CPUCore<T>::res_7_xix_h(S& s) { s.R.setH(s.RES_X_X(7)); }
-template <class T> void CPUCore<T>::res_7_xix_l(S& s) { s.R.setL(s.RES_X_X(7)); }
+template <class T> void CPUCore<T>::res_0_xix_a(S& s, int o) { s.R.setA(s.RES_X_X(0, o)); }
+template <class T> void CPUCore<T>::res_0_xix_b(S& s, int o) { s.R.setB(s.RES_X_X(0, o)); }
+template <class T> void CPUCore<T>::res_0_xix_c(S& s, int o) { s.R.setC(s.RES_X_X(0, o)); }
+template <class T> void CPUCore<T>::res_0_xix_d(S& s, int o) { s.R.setD(s.RES_X_X(0, o)); }
+template <class T> void CPUCore<T>::res_0_xix_e(S& s, int o) { s.R.setE(s.RES_X_X(0, o)); }
+template <class T> void CPUCore<T>::res_0_xix_h(S& s, int o) { s.R.setH(s.RES_X_X(0, o)); }
+template <class T> void CPUCore<T>::res_0_xix_l(S& s, int o) { s.R.setL(s.RES_X_X(0, o)); }
+template <class T> void CPUCore<T>::res_1_xix_a(S& s, int o) { s.R.setA(s.RES_X_X(1, o)); }
+template <class T> void CPUCore<T>::res_1_xix_b(S& s, int o) { s.R.setB(s.RES_X_X(1, o)); }
+template <class T> void CPUCore<T>::res_1_xix_c(S& s, int o) { s.R.setC(s.RES_X_X(1, o)); }
+template <class T> void CPUCore<T>::res_1_xix_d(S& s, int o) { s.R.setD(s.RES_X_X(1, o)); }
+template <class T> void CPUCore<T>::res_1_xix_e(S& s, int o) { s.R.setE(s.RES_X_X(1, o)); }
+template <class T> void CPUCore<T>::res_1_xix_h(S& s, int o) { s.R.setH(s.RES_X_X(1, o)); }
+template <class T> void CPUCore<T>::res_1_xix_l(S& s, int o) { s.R.setL(s.RES_X_X(1, o)); }
+template <class T> void CPUCore<T>::res_2_xix_a(S& s, int o) { s.R.setA(s.RES_X_X(2, o)); }
+template <class T> void CPUCore<T>::res_2_xix_b(S& s, int o) { s.R.setB(s.RES_X_X(2, o)); }
+template <class T> void CPUCore<T>::res_2_xix_c(S& s, int o) { s.R.setC(s.RES_X_X(2, o)); }
+template <class T> void CPUCore<T>::res_2_xix_d(S& s, int o) { s.R.setD(s.RES_X_X(2, o)); }
+template <class T> void CPUCore<T>::res_2_xix_e(S& s, int o) { s.R.setE(s.RES_X_X(2, o)); }
+template <class T> void CPUCore<T>::res_2_xix_h(S& s, int o) { s.R.setH(s.RES_X_X(2, o)); }
+template <class T> void CPUCore<T>::res_2_xix_l(S& s, int o) { s.R.setL(s.RES_X_X(2, o)); }
+template <class T> void CPUCore<T>::res_3_xix_a(S& s, int o) { s.R.setA(s.RES_X_X(3, o)); }
+template <class T> void CPUCore<T>::res_3_xix_b(S& s, int o) { s.R.setB(s.RES_X_X(3, o)); }
+template <class T> void CPUCore<T>::res_3_xix_c(S& s, int o) { s.R.setC(s.RES_X_X(3, o)); }
+template <class T> void CPUCore<T>::res_3_xix_d(S& s, int o) { s.R.setD(s.RES_X_X(3, o)); }
+template <class T> void CPUCore<T>::res_3_xix_e(S& s, int o) { s.R.setE(s.RES_X_X(3, o)); }
+template <class T> void CPUCore<T>::res_3_xix_h(S& s, int o) { s.R.setH(s.RES_X_X(3, o)); }
+template <class T> void CPUCore<T>::res_3_xix_l(S& s, int o) { s.R.setL(s.RES_X_X(3, o)); }
+template <class T> void CPUCore<T>::res_4_xix_a(S& s, int o) { s.R.setA(s.RES_X_X(4, o)); }
+template <class T> void CPUCore<T>::res_4_xix_b(S& s, int o) { s.R.setB(s.RES_X_X(4, o)); }
+template <class T> void CPUCore<T>::res_4_xix_c(S& s, int o) { s.R.setC(s.RES_X_X(4, o)); }
+template <class T> void CPUCore<T>::res_4_xix_d(S& s, int o) { s.R.setD(s.RES_X_X(4, o)); }
+template <class T> void CPUCore<T>::res_4_xix_e(S& s, int o) { s.R.setE(s.RES_X_X(4, o)); }
+template <class T> void CPUCore<T>::res_4_xix_h(S& s, int o) { s.R.setH(s.RES_X_X(4, o)); }
+template <class T> void CPUCore<T>::res_4_xix_l(S& s, int o) { s.R.setL(s.RES_X_X(4, o)); }
+template <class T> void CPUCore<T>::res_5_xix_a(S& s, int o) { s.R.setA(s.RES_X_X(5, o)); }
+template <class T> void CPUCore<T>::res_5_xix_b(S& s, int o) { s.R.setB(s.RES_X_X(5, o)); }
+template <class T> void CPUCore<T>::res_5_xix_c(S& s, int o) { s.R.setC(s.RES_X_X(5, o)); }
+template <class T> void CPUCore<T>::res_5_xix_d(S& s, int o) { s.R.setD(s.RES_X_X(5, o)); }
+template <class T> void CPUCore<T>::res_5_xix_e(S& s, int o) { s.R.setE(s.RES_X_X(5, o)); }
+template <class T> void CPUCore<T>::res_5_xix_h(S& s, int o) { s.R.setH(s.RES_X_X(5, o)); }
+template <class T> void CPUCore<T>::res_5_xix_l(S& s, int o) { s.R.setL(s.RES_X_X(5, o)); }
+template <class T> void CPUCore<T>::res_6_xix_a(S& s, int o) { s.R.setA(s.RES_X_X(6, o)); }
+template <class T> void CPUCore<T>::res_6_xix_b(S& s, int o) { s.R.setB(s.RES_X_X(6, o)); }
+template <class T> void CPUCore<T>::res_6_xix_c(S& s, int o) { s.R.setC(s.RES_X_X(6, o)); }
+template <class T> void CPUCore<T>::res_6_xix_d(S& s, int o) { s.R.setD(s.RES_X_X(6, o)); }
+template <class T> void CPUCore<T>::res_6_xix_e(S& s, int o) { s.R.setE(s.RES_X_X(6, o)); }
+template <class T> void CPUCore<T>::res_6_xix_h(S& s, int o) { s.R.setH(s.RES_X_X(6, o)); }
+template <class T> void CPUCore<T>::res_6_xix_l(S& s, int o) { s.R.setL(s.RES_X_X(6, o)); }
+template <class T> void CPUCore<T>::res_7_xix_a(S& s, int o) { s.R.setA(s.RES_X_X(7, o)); }
+template <class T> void CPUCore<T>::res_7_xix_b(S& s, int o) { s.R.setB(s.RES_X_X(7, o)); }
+template <class T> void CPUCore<T>::res_7_xix_c(S& s, int o) { s.R.setC(s.RES_X_X(7, o)); }
+template <class T> void CPUCore<T>::res_7_xix_d(S& s, int o) { s.R.setD(s.RES_X_X(7, o)); }
+template <class T> void CPUCore<T>::res_7_xix_e(S& s, int o) { s.R.setE(s.RES_X_X(7, o)); }
+template <class T> void CPUCore<T>::res_7_xix_h(S& s, int o) { s.R.setH(s.RES_X_X(7, o)); }
+template <class T> void CPUCore<T>::res_7_xix_l(S& s, int o) { s.R.setL(s.RES_X_X(7, o)); }
 
-template <class T> void CPUCore<T>::res_0_xiy_a(S& s) { s.R.setA(s.RES_X_Y(0)); }
-template <class T> void CPUCore<T>::res_0_xiy_b(S& s) { s.R.setB(s.RES_X_Y(0)); }
-template <class T> void CPUCore<T>::res_0_xiy_c(S& s) { s.R.setC(s.RES_X_Y(0)); }
-template <class T> void CPUCore<T>::res_0_xiy_d(S& s) { s.R.setD(s.RES_X_Y(0)); }
-template <class T> void CPUCore<T>::res_0_xiy_e(S& s) { s.R.setE(s.RES_X_Y(0)); }
-template <class T> void CPUCore<T>::res_0_xiy_h(S& s) { s.R.setH(s.RES_X_Y(0)); }
-template <class T> void CPUCore<T>::res_0_xiy_l(S& s) { s.R.setL(s.RES_X_Y(0)); }
-template <class T> void CPUCore<T>::res_1_xiy_a(S& s) { s.R.setA(s.RES_X_Y(1)); }
-template <class T> void CPUCore<T>::res_1_xiy_b(S& s) { s.R.setB(s.RES_X_Y(1)); }
-template <class T> void CPUCore<T>::res_1_xiy_c(S& s) { s.R.setC(s.RES_X_Y(1)); }
-template <class T> void CPUCore<T>::res_1_xiy_d(S& s) { s.R.setD(s.RES_X_Y(1)); }
-template <class T> void CPUCore<T>::res_1_xiy_e(S& s) { s.R.setE(s.RES_X_Y(1)); }
-template <class T> void CPUCore<T>::res_1_xiy_h(S& s) { s.R.setH(s.RES_X_Y(1)); }
-template <class T> void CPUCore<T>::res_1_xiy_l(S& s) { s.R.setL(s.RES_X_Y(1)); }
-template <class T> void CPUCore<T>::res_2_xiy_a(S& s) { s.R.setA(s.RES_X_Y(2)); }
-template <class T> void CPUCore<T>::res_2_xiy_b(S& s) { s.R.setB(s.RES_X_Y(2)); }
-template <class T> void CPUCore<T>::res_2_xiy_c(S& s) { s.R.setC(s.RES_X_Y(2)); }
-template <class T> void CPUCore<T>::res_2_xiy_d(S& s) { s.R.setD(s.RES_X_Y(2)); }
-template <class T> void CPUCore<T>::res_2_xiy_e(S& s) { s.R.setE(s.RES_X_Y(2)); }
-template <class T> void CPUCore<T>::res_2_xiy_h(S& s) { s.R.setH(s.RES_X_Y(2)); }
-template <class T> void CPUCore<T>::res_2_xiy_l(S& s) { s.R.setL(s.RES_X_Y(2)); }
-template <class T> void CPUCore<T>::res_3_xiy_a(S& s) { s.R.setA(s.RES_X_Y(3)); }
-template <class T> void CPUCore<T>::res_3_xiy_b(S& s) { s.R.setB(s.RES_X_Y(3)); }
-template <class T> void CPUCore<T>::res_3_xiy_c(S& s) { s.R.setC(s.RES_X_Y(3)); }
-template <class T> void CPUCore<T>::res_3_xiy_d(S& s) { s.R.setD(s.RES_X_Y(3)); }
-template <class T> void CPUCore<T>::res_3_xiy_e(S& s) { s.R.setE(s.RES_X_Y(3)); }
-template <class T> void CPUCore<T>::res_3_xiy_h(S& s) { s.R.setH(s.RES_X_Y(3)); }
-template <class T> void CPUCore<T>::res_3_xiy_l(S& s) { s.R.setL(s.RES_X_Y(3)); }
-template <class T> void CPUCore<T>::res_4_xiy_a(S& s) { s.R.setA(s.RES_X_Y(4)); }
-template <class T> void CPUCore<T>::res_4_xiy_b(S& s) { s.R.setB(s.RES_X_Y(4)); }
-template <class T> void CPUCore<T>::res_4_xiy_c(S& s) { s.R.setC(s.RES_X_Y(4)); }
-template <class T> void CPUCore<T>::res_4_xiy_d(S& s) { s.R.setD(s.RES_X_Y(4)); }
-template <class T> void CPUCore<T>::res_4_xiy_e(S& s) { s.R.setE(s.RES_X_Y(4)); }
-template <class T> void CPUCore<T>::res_4_xiy_h(S& s) { s.R.setH(s.RES_X_Y(4)); }
-template <class T> void CPUCore<T>::res_4_xiy_l(S& s) { s.R.setL(s.RES_X_Y(4)); }
-template <class T> void CPUCore<T>::res_5_xiy_a(S& s) { s.R.setA(s.RES_X_Y(5)); }
-template <class T> void CPUCore<T>::res_5_xiy_b(S& s) { s.R.setB(s.RES_X_Y(5)); }
-template <class T> void CPUCore<T>::res_5_xiy_c(S& s) { s.R.setC(s.RES_X_Y(5)); }
-template <class T> void CPUCore<T>::res_5_xiy_d(S& s) { s.R.setD(s.RES_X_Y(5)); }
-template <class T> void CPUCore<T>::res_5_xiy_e(S& s) { s.R.setE(s.RES_X_Y(5)); }
-template <class T> void CPUCore<T>::res_5_xiy_h(S& s) { s.R.setH(s.RES_X_Y(5)); }
-template <class T> void CPUCore<T>::res_5_xiy_l(S& s) { s.R.setL(s.RES_X_Y(5)); }
-template <class T> void CPUCore<T>::res_6_xiy_a(S& s) { s.R.setA(s.RES_X_Y(6)); }
-template <class T> void CPUCore<T>::res_6_xiy_b(S& s) { s.R.setB(s.RES_X_Y(6)); }
-template <class T> void CPUCore<T>::res_6_xiy_c(S& s) { s.R.setC(s.RES_X_Y(6)); }
-template <class T> void CPUCore<T>::res_6_xiy_d(S& s) { s.R.setD(s.RES_X_Y(6)); }
-template <class T> void CPUCore<T>::res_6_xiy_e(S& s) { s.R.setE(s.RES_X_Y(6)); }
-template <class T> void CPUCore<T>::res_6_xiy_h(S& s) { s.R.setH(s.RES_X_Y(6)); }
-template <class T> void CPUCore<T>::res_6_xiy_l(S& s) { s.R.setL(s.RES_X_Y(6)); }
-template <class T> void CPUCore<T>::res_7_xiy_a(S& s) { s.R.setA(s.RES_X_Y(7)); }
-template <class T> void CPUCore<T>::res_7_xiy_b(S& s) { s.R.setB(s.RES_X_Y(7)); }
-template <class T> void CPUCore<T>::res_7_xiy_c(S& s) { s.R.setC(s.RES_X_Y(7)); }
-template <class T> void CPUCore<T>::res_7_xiy_d(S& s) { s.R.setD(s.RES_X_Y(7)); }
-template <class T> void CPUCore<T>::res_7_xiy_e(S& s) { s.R.setE(s.RES_X_Y(7)); }
-template <class T> void CPUCore<T>::res_7_xiy_h(S& s) { s.R.setH(s.RES_X_Y(7)); }
-template <class T> void CPUCore<T>::res_7_xiy_l(S& s) { s.R.setL(s.RES_X_Y(7)); }
+template <class T> void CPUCore<T>::res_0_xiy_a(S& s, int o) { s.R.setA(s.RES_X_Y(0, o)); }
+template <class T> void CPUCore<T>::res_0_xiy_b(S& s, int o) { s.R.setB(s.RES_X_Y(0, o)); }
+template <class T> void CPUCore<T>::res_0_xiy_c(S& s, int o) { s.R.setC(s.RES_X_Y(0, o)); }
+template <class T> void CPUCore<T>::res_0_xiy_d(S& s, int o) { s.R.setD(s.RES_X_Y(0, o)); }
+template <class T> void CPUCore<T>::res_0_xiy_e(S& s, int o) { s.R.setE(s.RES_X_Y(0, o)); }
+template <class T> void CPUCore<T>::res_0_xiy_h(S& s, int o) { s.R.setH(s.RES_X_Y(0, o)); }
+template <class T> void CPUCore<T>::res_0_xiy_l(S& s, int o) { s.R.setL(s.RES_X_Y(0, o)); }
+template <class T> void CPUCore<T>::res_1_xiy_a(S& s, int o) { s.R.setA(s.RES_X_Y(1, o)); }
+template <class T> void CPUCore<T>::res_1_xiy_b(S& s, int o) { s.R.setB(s.RES_X_Y(1, o)); }
+template <class T> void CPUCore<T>::res_1_xiy_c(S& s, int o) { s.R.setC(s.RES_X_Y(1, o)); }
+template <class T> void CPUCore<T>::res_1_xiy_d(S& s, int o) { s.R.setD(s.RES_X_Y(1, o)); }
+template <class T> void CPUCore<T>::res_1_xiy_e(S& s, int o) { s.R.setE(s.RES_X_Y(1, o)); }
+template <class T> void CPUCore<T>::res_1_xiy_h(S& s, int o) { s.R.setH(s.RES_X_Y(1, o)); }
+template <class T> void CPUCore<T>::res_1_xiy_l(S& s, int o) { s.R.setL(s.RES_X_Y(1, o)); }
+template <class T> void CPUCore<T>::res_2_xiy_a(S& s, int o) { s.R.setA(s.RES_X_Y(2, o)); }
+template <class T> void CPUCore<T>::res_2_xiy_b(S& s, int o) { s.R.setB(s.RES_X_Y(2, o)); }
+template <class T> void CPUCore<T>::res_2_xiy_c(S& s, int o) { s.R.setC(s.RES_X_Y(2, o)); }
+template <class T> void CPUCore<T>::res_2_xiy_d(S& s, int o) { s.R.setD(s.RES_X_Y(2, o)); }
+template <class T> void CPUCore<T>::res_2_xiy_e(S& s, int o) { s.R.setE(s.RES_X_Y(2, o)); }
+template <class T> void CPUCore<T>::res_2_xiy_h(S& s, int o) { s.R.setH(s.RES_X_Y(2, o)); }
+template <class T> void CPUCore<T>::res_2_xiy_l(S& s, int o) { s.R.setL(s.RES_X_Y(2, o)); }
+template <class T> void CPUCore<T>::res_3_xiy_a(S& s, int o) { s.R.setA(s.RES_X_Y(3, o)); }
+template <class T> void CPUCore<T>::res_3_xiy_b(S& s, int o) { s.R.setB(s.RES_X_Y(3, o)); }
+template <class T> void CPUCore<T>::res_3_xiy_c(S& s, int o) { s.R.setC(s.RES_X_Y(3, o)); }
+template <class T> void CPUCore<T>::res_3_xiy_d(S& s, int o) { s.R.setD(s.RES_X_Y(3, o)); }
+template <class T> void CPUCore<T>::res_3_xiy_e(S& s, int o) { s.R.setE(s.RES_X_Y(3, o)); }
+template <class T> void CPUCore<T>::res_3_xiy_h(S& s, int o) { s.R.setH(s.RES_X_Y(3, o)); }
+template <class T> void CPUCore<T>::res_3_xiy_l(S& s, int o) { s.R.setL(s.RES_X_Y(3, o)); }
+template <class T> void CPUCore<T>::res_4_xiy_a(S& s, int o) { s.R.setA(s.RES_X_Y(4, o)); }
+template <class T> void CPUCore<T>::res_4_xiy_b(S& s, int o) { s.R.setB(s.RES_X_Y(4, o)); }
+template <class T> void CPUCore<T>::res_4_xiy_c(S& s, int o) { s.R.setC(s.RES_X_Y(4, o)); }
+template <class T> void CPUCore<T>::res_4_xiy_d(S& s, int o) { s.R.setD(s.RES_X_Y(4, o)); }
+template <class T> void CPUCore<T>::res_4_xiy_e(S& s, int o) { s.R.setE(s.RES_X_Y(4, o)); }
+template <class T> void CPUCore<T>::res_4_xiy_h(S& s, int o) { s.R.setH(s.RES_X_Y(4, o)); }
+template <class T> void CPUCore<T>::res_4_xiy_l(S& s, int o) { s.R.setL(s.RES_X_Y(4, o)); }
+template <class T> void CPUCore<T>::res_5_xiy_a(S& s, int o) { s.R.setA(s.RES_X_Y(5, o)); }
+template <class T> void CPUCore<T>::res_5_xiy_b(S& s, int o) { s.R.setB(s.RES_X_Y(5, o)); }
+template <class T> void CPUCore<T>::res_5_xiy_c(S& s, int o) { s.R.setC(s.RES_X_Y(5, o)); }
+template <class T> void CPUCore<T>::res_5_xiy_d(S& s, int o) { s.R.setD(s.RES_X_Y(5, o)); }
+template <class T> void CPUCore<T>::res_5_xiy_e(S& s, int o) { s.R.setE(s.RES_X_Y(5, o)); }
+template <class T> void CPUCore<T>::res_5_xiy_h(S& s, int o) { s.R.setH(s.RES_X_Y(5, o)); }
+template <class T> void CPUCore<T>::res_5_xiy_l(S& s, int o) { s.R.setL(s.RES_X_Y(5, o)); }
+template <class T> void CPUCore<T>::res_6_xiy_a(S& s, int o) { s.R.setA(s.RES_X_Y(6, o)); }
+template <class T> void CPUCore<T>::res_6_xiy_b(S& s, int o) { s.R.setB(s.RES_X_Y(6, o)); }
+template <class T> void CPUCore<T>::res_6_xiy_c(S& s, int o) { s.R.setC(s.RES_X_Y(6, o)); }
+template <class T> void CPUCore<T>::res_6_xiy_d(S& s, int o) { s.R.setD(s.RES_X_Y(6, o)); }
+template <class T> void CPUCore<T>::res_6_xiy_e(S& s, int o) { s.R.setE(s.RES_X_Y(6, o)); }
+template <class T> void CPUCore<T>::res_6_xiy_h(S& s, int o) { s.R.setH(s.RES_X_Y(6, o)); }
+template <class T> void CPUCore<T>::res_6_xiy_l(S& s, int o) { s.R.setL(s.RES_X_Y(6, o)); }
+template <class T> void CPUCore<T>::res_7_xiy_a(S& s, int o) { s.R.setA(s.RES_X_Y(7, o)); }
+template <class T> void CPUCore<T>::res_7_xiy_b(S& s, int o) { s.R.setB(s.RES_X_Y(7, o)); }
+template <class T> void CPUCore<T>::res_7_xiy_c(S& s, int o) { s.R.setC(s.RES_X_Y(7, o)); }
+template <class T> void CPUCore<T>::res_7_xiy_d(S& s, int o) { s.R.setD(s.RES_X_Y(7, o)); }
+template <class T> void CPUCore<T>::res_7_xiy_e(S& s, int o) { s.R.setE(s.RES_X_Y(7, o)); }
+template <class T> void CPUCore<T>::res_7_xiy_h(S& s, int o) { s.R.setH(s.RES_X_Y(7, o)); }
+template <class T> void CPUCore<T>::res_7_xiy_l(S& s, int o) { s.R.setL(s.RES_X_Y(7, o)); }
 
 
 // SET n,r
@@ -2099,11 +2101,11 @@ template <class T> inline byte CPUCore<T>::SET_X_(unsigned bit, unsigned x)
 	memptr = x;
 	return SET_X(bit, x);
 }
-template <class T> inline byte CPUCore<T>::SET_X_X(unsigned bit)
+template <class T> inline byte CPUCore<T>::SET_X_X(unsigned bit, int ofst)
 {
 	return SET_X_(bit, (R.getIX() + ofst) & 0xFFFF);
 }
-template <class T> inline byte CPUCore<T>::SET_X_Y(unsigned bit)
+template <class T> inline byte CPUCore<T>::SET_X_Y(unsigned bit, int ofst)
 {
 	return SET_X_(bit, (R.getIY() + ofst) & 0xFFFF);
 }
@@ -2117,137 +2119,137 @@ template <class T> void CPUCore<T>::set_5_xhl(S& s)   { s.SET_X(5, s.R.getHL());
 template <class T> void CPUCore<T>::set_6_xhl(S& s)   { s.SET_X(6, s.R.getHL()); }
 template <class T> void CPUCore<T>::set_7_xhl(S& s)   { s.SET_X(7, s.R.getHL()); }
 
-template <class T> void CPUCore<T>::set_0_xix(S& s)   { s.SET_X_X(0); }
-template <class T> void CPUCore<T>::set_1_xix(S& s)   { s.SET_X_X(1); }
-template <class T> void CPUCore<T>::set_2_xix(S& s)   { s.SET_X_X(2); }
-template <class T> void CPUCore<T>::set_3_xix(S& s)   { s.SET_X_X(3); }
-template <class T> void CPUCore<T>::set_4_xix(S& s)   { s.SET_X_X(4); }
-template <class T> void CPUCore<T>::set_5_xix(S& s)   { s.SET_X_X(5); }
-template <class T> void CPUCore<T>::set_6_xix(S& s)   { s.SET_X_X(6); }
-template <class T> void CPUCore<T>::set_7_xix(S& s)   { s.SET_X_X(7); }
+template <class T> void CPUCore<T>::set_0_xix(S& s, int o)   { s.SET_X_X(0, o); }
+template <class T> void CPUCore<T>::set_1_xix(S& s, int o)   { s.SET_X_X(1, o); }
+template <class T> void CPUCore<T>::set_2_xix(S& s, int o)   { s.SET_X_X(2, o); }
+template <class T> void CPUCore<T>::set_3_xix(S& s, int o)   { s.SET_X_X(3, o); }
+template <class T> void CPUCore<T>::set_4_xix(S& s, int o)   { s.SET_X_X(4, o); }
+template <class T> void CPUCore<T>::set_5_xix(S& s, int o)   { s.SET_X_X(5, o); }
+template <class T> void CPUCore<T>::set_6_xix(S& s, int o)   { s.SET_X_X(6, o); }
+template <class T> void CPUCore<T>::set_7_xix(S& s, int o)   { s.SET_X_X(7, o); }
 
-template <class T> void CPUCore<T>::set_0_xiy(S& s)   { s.SET_X_Y(0); }
-template <class T> void CPUCore<T>::set_1_xiy(S& s)   { s.SET_X_Y(1); }
-template <class T> void CPUCore<T>::set_2_xiy(S& s)   { s.SET_X_Y(2); }
-template <class T> void CPUCore<T>::set_3_xiy(S& s)   { s.SET_X_Y(3); }
-template <class T> void CPUCore<T>::set_4_xiy(S& s)   { s.SET_X_Y(4); }
-template <class T> void CPUCore<T>::set_5_xiy(S& s)   { s.SET_X_Y(5); }
-template <class T> void CPUCore<T>::set_6_xiy(S& s)   { s.SET_X_Y(6); }
-template <class T> void CPUCore<T>::set_7_xiy(S& s)   { s.SET_X_Y(7); }
+template <class T> void CPUCore<T>::set_0_xiy(S& s, int o)   { s.SET_X_Y(0, o); }
+template <class T> void CPUCore<T>::set_1_xiy(S& s, int o)   { s.SET_X_Y(1, o); }
+template <class T> void CPUCore<T>::set_2_xiy(S& s, int o)   { s.SET_X_Y(2, o); }
+template <class T> void CPUCore<T>::set_3_xiy(S& s, int o)   { s.SET_X_Y(3, o); }
+template <class T> void CPUCore<T>::set_4_xiy(S& s, int o)   { s.SET_X_Y(4, o); }
+template <class T> void CPUCore<T>::set_5_xiy(S& s, int o)   { s.SET_X_Y(5, o); }
+template <class T> void CPUCore<T>::set_6_xiy(S& s, int o)   { s.SET_X_Y(6, o); }
+template <class T> void CPUCore<T>::set_7_xiy(S& s, int o)   { s.SET_X_Y(7, o); }
 
-template <class T> void CPUCore<T>::set_0_xix_a(S& s) { s.R.setA(s.SET_X_X(0)); }
-template <class T> void CPUCore<T>::set_0_xix_b(S& s) { s.R.setB(s.SET_X_X(0)); }
-template <class T> void CPUCore<T>::set_0_xix_c(S& s) { s.R.setC(s.SET_X_X(0)); }
-template <class T> void CPUCore<T>::set_0_xix_d(S& s) { s.R.setD(s.SET_X_X(0)); }
-template <class T> void CPUCore<T>::set_0_xix_e(S& s) { s.R.setE(s.SET_X_X(0)); }
-template <class T> void CPUCore<T>::set_0_xix_h(S& s) { s.R.setH(s.SET_X_X(0)); }
-template <class T> void CPUCore<T>::set_0_xix_l(S& s) { s.R.setL(s.SET_X_X(0)); }
-template <class T> void CPUCore<T>::set_1_xix_a(S& s) { s.R.setA(s.SET_X_X(1)); }
-template <class T> void CPUCore<T>::set_1_xix_b(S& s) { s.R.setB(s.SET_X_X(1)); }
-template <class T> void CPUCore<T>::set_1_xix_c(S& s) { s.R.setC(s.SET_X_X(1)); }
-template <class T> void CPUCore<T>::set_1_xix_d(S& s) { s.R.setD(s.SET_X_X(1)); }
-template <class T> void CPUCore<T>::set_1_xix_e(S& s) { s.R.setE(s.SET_X_X(1)); }
-template <class T> void CPUCore<T>::set_1_xix_h(S& s) { s.R.setH(s.SET_X_X(1)); }
-template <class T> void CPUCore<T>::set_1_xix_l(S& s) { s.R.setL(s.SET_X_X(1)); }
-template <class T> void CPUCore<T>::set_2_xix_a(S& s) { s.R.setA(s.SET_X_X(2)); }
-template <class T> void CPUCore<T>::set_2_xix_b(S& s) { s.R.setB(s.SET_X_X(2)); }
-template <class T> void CPUCore<T>::set_2_xix_c(S& s) { s.R.setC(s.SET_X_X(2)); }
-template <class T> void CPUCore<T>::set_2_xix_d(S& s) { s.R.setD(s.SET_X_X(2)); }
-template <class T> void CPUCore<T>::set_2_xix_e(S& s) { s.R.setE(s.SET_X_X(2)); }
-template <class T> void CPUCore<T>::set_2_xix_h(S& s) { s.R.setH(s.SET_X_X(2)); }
-template <class T> void CPUCore<T>::set_2_xix_l(S& s) { s.R.setL(s.SET_X_X(2)); }
-template <class T> void CPUCore<T>::set_3_xix_a(S& s) { s.R.setA(s.SET_X_X(3)); }
-template <class T> void CPUCore<T>::set_3_xix_b(S& s) { s.R.setB(s.SET_X_X(3)); }
-template <class T> void CPUCore<T>::set_3_xix_c(S& s) { s.R.setC(s.SET_X_X(3)); }
-template <class T> void CPUCore<T>::set_3_xix_d(S& s) { s.R.setD(s.SET_X_X(3)); }
-template <class T> void CPUCore<T>::set_3_xix_e(S& s) { s.R.setE(s.SET_X_X(3)); }
-template <class T> void CPUCore<T>::set_3_xix_h(S& s) { s.R.setH(s.SET_X_X(3)); }
-template <class T> void CPUCore<T>::set_3_xix_l(S& s) { s.R.setL(s.SET_X_X(3)); }
-template <class T> void CPUCore<T>::set_4_xix_a(S& s) { s.R.setA(s.SET_X_X(4)); }
-template <class T> void CPUCore<T>::set_4_xix_b(S& s) { s.R.setB(s.SET_X_X(4)); }
-template <class T> void CPUCore<T>::set_4_xix_c(S& s) { s.R.setC(s.SET_X_X(4)); }
-template <class T> void CPUCore<T>::set_4_xix_d(S& s) { s.R.setD(s.SET_X_X(4)); }
-template <class T> void CPUCore<T>::set_4_xix_e(S& s) { s.R.setE(s.SET_X_X(4)); }
-template <class T> void CPUCore<T>::set_4_xix_h(S& s) { s.R.setH(s.SET_X_X(4)); }
-template <class T> void CPUCore<T>::set_4_xix_l(S& s) { s.R.setL(s.SET_X_X(4)); }
-template <class T> void CPUCore<T>::set_5_xix_a(S& s) { s.R.setA(s.SET_X_X(5)); }
-template <class T> void CPUCore<T>::set_5_xix_b(S& s) { s.R.setB(s.SET_X_X(5)); }
-template <class T> void CPUCore<T>::set_5_xix_c(S& s) { s.R.setC(s.SET_X_X(5)); }
-template <class T> void CPUCore<T>::set_5_xix_d(S& s) { s.R.setD(s.SET_X_X(5)); }
-template <class T> void CPUCore<T>::set_5_xix_e(S& s) { s.R.setE(s.SET_X_X(5)); }
-template <class T> void CPUCore<T>::set_5_xix_h(S& s) { s.R.setH(s.SET_X_X(5)); }
-template <class T> void CPUCore<T>::set_5_xix_l(S& s) { s.R.setL(s.SET_X_X(5)); }
-template <class T> void CPUCore<T>::set_6_xix_a(S& s) { s.R.setA(s.SET_X_X(6)); }
-template <class T> void CPUCore<T>::set_6_xix_b(S& s) { s.R.setB(s.SET_X_X(6)); }
-template <class T> void CPUCore<T>::set_6_xix_c(S& s) { s.R.setC(s.SET_X_X(6)); }
-template <class T> void CPUCore<T>::set_6_xix_d(S& s) { s.R.setD(s.SET_X_X(6)); }
-template <class T> void CPUCore<T>::set_6_xix_e(S& s) { s.R.setE(s.SET_X_X(6)); }
-template <class T> void CPUCore<T>::set_6_xix_h(S& s) { s.R.setH(s.SET_X_X(6)); }
-template <class T> void CPUCore<T>::set_6_xix_l(S& s) { s.R.setL(s.SET_X_X(6)); }
-template <class T> void CPUCore<T>::set_7_xix_a(S& s) { s.R.setA(s.SET_X_X(7)); }
-template <class T> void CPUCore<T>::set_7_xix_b(S& s) { s.R.setB(s.SET_X_X(7)); }
-template <class T> void CPUCore<T>::set_7_xix_c(S& s) { s.R.setC(s.SET_X_X(7)); }
-template <class T> void CPUCore<T>::set_7_xix_d(S& s) { s.R.setD(s.SET_X_X(7)); }
-template <class T> void CPUCore<T>::set_7_xix_e(S& s) { s.R.setE(s.SET_X_X(7)); }
-template <class T> void CPUCore<T>::set_7_xix_h(S& s) { s.R.setH(s.SET_X_X(7)); }
-template <class T> void CPUCore<T>::set_7_xix_l(S& s) { s.R.setL(s.SET_X_X(7)); }
+template <class T> void CPUCore<T>::set_0_xix_a(S& s, int o) { s.R.setA(s.SET_X_X(0, o)); }
+template <class T> void CPUCore<T>::set_0_xix_b(S& s, int o) { s.R.setB(s.SET_X_X(0, o)); }
+template <class T> void CPUCore<T>::set_0_xix_c(S& s, int o) { s.R.setC(s.SET_X_X(0, o)); }
+template <class T> void CPUCore<T>::set_0_xix_d(S& s, int o) { s.R.setD(s.SET_X_X(0, o)); }
+template <class T> void CPUCore<T>::set_0_xix_e(S& s, int o) { s.R.setE(s.SET_X_X(0, o)); }
+template <class T> void CPUCore<T>::set_0_xix_h(S& s, int o) { s.R.setH(s.SET_X_X(0, o)); }
+template <class T> void CPUCore<T>::set_0_xix_l(S& s, int o) { s.R.setL(s.SET_X_X(0, o)); }
+template <class T> void CPUCore<T>::set_1_xix_a(S& s, int o) { s.R.setA(s.SET_X_X(1, o)); }
+template <class T> void CPUCore<T>::set_1_xix_b(S& s, int o) { s.R.setB(s.SET_X_X(1, o)); }
+template <class T> void CPUCore<T>::set_1_xix_c(S& s, int o) { s.R.setC(s.SET_X_X(1, o)); }
+template <class T> void CPUCore<T>::set_1_xix_d(S& s, int o) { s.R.setD(s.SET_X_X(1, o)); }
+template <class T> void CPUCore<T>::set_1_xix_e(S& s, int o) { s.R.setE(s.SET_X_X(1, o)); }
+template <class T> void CPUCore<T>::set_1_xix_h(S& s, int o) { s.R.setH(s.SET_X_X(1, o)); }
+template <class T> void CPUCore<T>::set_1_xix_l(S& s, int o) { s.R.setL(s.SET_X_X(1, o)); }
+template <class T> void CPUCore<T>::set_2_xix_a(S& s, int o) { s.R.setA(s.SET_X_X(2, o)); }
+template <class T> void CPUCore<T>::set_2_xix_b(S& s, int o) { s.R.setB(s.SET_X_X(2, o)); }
+template <class T> void CPUCore<T>::set_2_xix_c(S& s, int o) { s.R.setC(s.SET_X_X(2, o)); }
+template <class T> void CPUCore<T>::set_2_xix_d(S& s, int o) { s.R.setD(s.SET_X_X(2, o)); }
+template <class T> void CPUCore<T>::set_2_xix_e(S& s, int o) { s.R.setE(s.SET_X_X(2, o)); }
+template <class T> void CPUCore<T>::set_2_xix_h(S& s, int o) { s.R.setH(s.SET_X_X(2, o)); }
+template <class T> void CPUCore<T>::set_2_xix_l(S& s, int o) { s.R.setL(s.SET_X_X(2, o)); }
+template <class T> void CPUCore<T>::set_3_xix_a(S& s, int o) { s.R.setA(s.SET_X_X(3, o)); }
+template <class T> void CPUCore<T>::set_3_xix_b(S& s, int o) { s.R.setB(s.SET_X_X(3, o)); }
+template <class T> void CPUCore<T>::set_3_xix_c(S& s, int o) { s.R.setC(s.SET_X_X(3, o)); }
+template <class T> void CPUCore<T>::set_3_xix_d(S& s, int o) { s.R.setD(s.SET_X_X(3, o)); }
+template <class T> void CPUCore<T>::set_3_xix_e(S& s, int o) { s.R.setE(s.SET_X_X(3, o)); }
+template <class T> void CPUCore<T>::set_3_xix_h(S& s, int o) { s.R.setH(s.SET_X_X(3, o)); }
+template <class T> void CPUCore<T>::set_3_xix_l(S& s, int o) { s.R.setL(s.SET_X_X(3, o)); }
+template <class T> void CPUCore<T>::set_4_xix_a(S& s, int o) { s.R.setA(s.SET_X_X(4, o)); }
+template <class T> void CPUCore<T>::set_4_xix_b(S& s, int o) { s.R.setB(s.SET_X_X(4, o)); }
+template <class T> void CPUCore<T>::set_4_xix_c(S& s, int o) { s.R.setC(s.SET_X_X(4, o)); }
+template <class T> void CPUCore<T>::set_4_xix_d(S& s, int o) { s.R.setD(s.SET_X_X(4, o)); }
+template <class T> void CPUCore<T>::set_4_xix_e(S& s, int o) { s.R.setE(s.SET_X_X(4, o)); }
+template <class T> void CPUCore<T>::set_4_xix_h(S& s, int o) { s.R.setH(s.SET_X_X(4, o)); }
+template <class T> void CPUCore<T>::set_4_xix_l(S& s, int o) { s.R.setL(s.SET_X_X(4, o)); }
+template <class T> void CPUCore<T>::set_5_xix_a(S& s, int o) { s.R.setA(s.SET_X_X(5, o)); }
+template <class T> void CPUCore<T>::set_5_xix_b(S& s, int o) { s.R.setB(s.SET_X_X(5, o)); }
+template <class T> void CPUCore<T>::set_5_xix_c(S& s, int o) { s.R.setC(s.SET_X_X(5, o)); }
+template <class T> void CPUCore<T>::set_5_xix_d(S& s, int o) { s.R.setD(s.SET_X_X(5, o)); }
+template <class T> void CPUCore<T>::set_5_xix_e(S& s, int o) { s.R.setE(s.SET_X_X(5, o)); }
+template <class T> void CPUCore<T>::set_5_xix_h(S& s, int o) { s.R.setH(s.SET_X_X(5, o)); }
+template <class T> void CPUCore<T>::set_5_xix_l(S& s, int o) { s.R.setL(s.SET_X_X(5, o)); }
+template <class T> void CPUCore<T>::set_6_xix_a(S& s, int o) { s.R.setA(s.SET_X_X(6, o)); }
+template <class T> void CPUCore<T>::set_6_xix_b(S& s, int o) { s.R.setB(s.SET_X_X(6, o)); }
+template <class T> void CPUCore<T>::set_6_xix_c(S& s, int o) { s.R.setC(s.SET_X_X(6, o)); }
+template <class T> void CPUCore<T>::set_6_xix_d(S& s, int o) { s.R.setD(s.SET_X_X(6, o)); }
+template <class T> void CPUCore<T>::set_6_xix_e(S& s, int o) { s.R.setE(s.SET_X_X(6, o)); }
+template <class T> void CPUCore<T>::set_6_xix_h(S& s, int o) { s.R.setH(s.SET_X_X(6, o)); }
+template <class T> void CPUCore<T>::set_6_xix_l(S& s, int o) { s.R.setL(s.SET_X_X(6, o)); }
+template <class T> void CPUCore<T>::set_7_xix_a(S& s, int o) { s.R.setA(s.SET_X_X(7, o)); }
+template <class T> void CPUCore<T>::set_7_xix_b(S& s, int o) { s.R.setB(s.SET_X_X(7, o)); }
+template <class T> void CPUCore<T>::set_7_xix_c(S& s, int o) { s.R.setC(s.SET_X_X(7, o)); }
+template <class T> void CPUCore<T>::set_7_xix_d(S& s, int o) { s.R.setD(s.SET_X_X(7, o)); }
+template <class T> void CPUCore<T>::set_7_xix_e(S& s, int o) { s.R.setE(s.SET_X_X(7, o)); }
+template <class T> void CPUCore<T>::set_7_xix_h(S& s, int o) { s.R.setH(s.SET_X_X(7, o)); }
+template <class T> void CPUCore<T>::set_7_xix_l(S& s, int o) { s.R.setL(s.SET_X_X(7, o)); }
 
-template <class T> void CPUCore<T>::set_0_xiy_a(S& s) { s.R.setA(s.SET_X_Y(0)); }
-template <class T> void CPUCore<T>::set_0_xiy_b(S& s) { s.R.setB(s.SET_X_Y(0)); }
-template <class T> void CPUCore<T>::set_0_xiy_c(S& s) { s.R.setC(s.SET_X_Y(0)); }
-template <class T> void CPUCore<T>::set_0_xiy_d(S& s) { s.R.setD(s.SET_X_Y(0)); }
-template <class T> void CPUCore<T>::set_0_xiy_e(S& s) { s.R.setE(s.SET_X_Y(0)); }
-template <class T> void CPUCore<T>::set_0_xiy_h(S& s) { s.R.setH(s.SET_X_Y(0)); }
-template <class T> void CPUCore<T>::set_0_xiy_l(S& s) { s.R.setL(s.SET_X_Y(0)); }
-template <class T> void CPUCore<T>::set_1_xiy_a(S& s) { s.R.setA(s.SET_X_Y(1)); }
-template <class T> void CPUCore<T>::set_1_xiy_b(S& s) { s.R.setB(s.SET_X_Y(1)); }
-template <class T> void CPUCore<T>::set_1_xiy_c(S& s) { s.R.setC(s.SET_X_Y(1)); }
-template <class T> void CPUCore<T>::set_1_xiy_d(S& s) { s.R.setD(s.SET_X_Y(1)); }
-template <class T> void CPUCore<T>::set_1_xiy_e(S& s) { s.R.setE(s.SET_X_Y(1)); }
-template <class T> void CPUCore<T>::set_1_xiy_h(S& s) { s.R.setH(s.SET_X_Y(1)); }
-template <class T> void CPUCore<T>::set_1_xiy_l(S& s) { s.R.setL(s.SET_X_Y(1)); }
-template <class T> void CPUCore<T>::set_2_xiy_a(S& s) { s.R.setA(s.SET_X_Y(2)); }
-template <class T> void CPUCore<T>::set_2_xiy_b(S& s) { s.R.setB(s.SET_X_Y(2)); }
-template <class T> void CPUCore<T>::set_2_xiy_c(S& s) { s.R.setC(s.SET_X_Y(2)); }
-template <class T> void CPUCore<T>::set_2_xiy_d(S& s) { s.R.setD(s.SET_X_Y(2)); }
-template <class T> void CPUCore<T>::set_2_xiy_e(S& s) { s.R.setE(s.SET_X_Y(2)); }
-template <class T> void CPUCore<T>::set_2_xiy_h(S& s) { s.R.setH(s.SET_X_Y(2)); }
-template <class T> void CPUCore<T>::set_2_xiy_l(S& s) { s.R.setL(s.SET_X_Y(2)); }
-template <class T> void CPUCore<T>::set_3_xiy_a(S& s) { s.R.setA(s.SET_X_Y(3)); }
-template <class T> void CPUCore<T>::set_3_xiy_b(S& s) { s.R.setB(s.SET_X_Y(3)); }
-template <class T> void CPUCore<T>::set_3_xiy_c(S& s) { s.R.setC(s.SET_X_Y(3)); }
-template <class T> void CPUCore<T>::set_3_xiy_d(S& s) { s.R.setD(s.SET_X_Y(3)); }
-template <class T> void CPUCore<T>::set_3_xiy_e(S& s) { s.R.setE(s.SET_X_Y(3)); }
-template <class T> void CPUCore<T>::set_3_xiy_h(S& s) { s.R.setH(s.SET_X_Y(3)); }
-template <class T> void CPUCore<T>::set_3_xiy_l(S& s) { s.R.setL(s.SET_X_Y(3)); }
-template <class T> void CPUCore<T>::set_4_xiy_a(S& s) { s.R.setA(s.SET_X_Y(4)); }
-template <class T> void CPUCore<T>::set_4_xiy_b(S& s) { s.R.setB(s.SET_X_Y(4)); }
-template <class T> void CPUCore<T>::set_4_xiy_c(S& s) { s.R.setC(s.SET_X_Y(4)); }
-template <class T> void CPUCore<T>::set_4_xiy_d(S& s) { s.R.setD(s.SET_X_Y(4)); }
-template <class T> void CPUCore<T>::set_4_xiy_e(S& s) { s.R.setE(s.SET_X_Y(4)); }
-template <class T> void CPUCore<T>::set_4_xiy_h(S& s) { s.R.setH(s.SET_X_Y(4)); }
-template <class T> void CPUCore<T>::set_4_xiy_l(S& s) { s.R.setL(s.SET_X_Y(4)); }
-template <class T> void CPUCore<T>::set_5_xiy_a(S& s) { s.R.setA(s.SET_X_Y(5)); }
-template <class T> void CPUCore<T>::set_5_xiy_b(S& s) { s.R.setB(s.SET_X_Y(5)); }
-template <class T> void CPUCore<T>::set_5_xiy_c(S& s) { s.R.setC(s.SET_X_Y(5)); }
-template <class T> void CPUCore<T>::set_5_xiy_d(S& s) { s.R.setD(s.SET_X_Y(5)); }
-template <class T> void CPUCore<T>::set_5_xiy_e(S& s) { s.R.setE(s.SET_X_Y(5)); }
-template <class T> void CPUCore<T>::set_5_xiy_h(S& s) { s.R.setH(s.SET_X_Y(5)); }
-template <class T> void CPUCore<T>::set_5_xiy_l(S& s) { s.R.setL(s.SET_X_Y(5)); }
-template <class T> void CPUCore<T>::set_6_xiy_a(S& s) { s.R.setA(s.SET_X_Y(6)); }
-template <class T> void CPUCore<T>::set_6_xiy_b(S& s) { s.R.setB(s.SET_X_Y(6)); }
-template <class T> void CPUCore<T>::set_6_xiy_c(S& s) { s.R.setC(s.SET_X_Y(6)); }
-template <class T> void CPUCore<T>::set_6_xiy_d(S& s) { s.R.setD(s.SET_X_Y(6)); }
-template <class T> void CPUCore<T>::set_6_xiy_e(S& s) { s.R.setE(s.SET_X_Y(6)); }
-template <class T> void CPUCore<T>::set_6_xiy_h(S& s) { s.R.setH(s.SET_X_Y(6)); }
-template <class T> void CPUCore<T>::set_6_xiy_l(S& s) { s.R.setL(s.SET_X_Y(6)); }
-template <class T> void CPUCore<T>::set_7_xiy_a(S& s) { s.R.setA(s.SET_X_Y(7)); }
-template <class T> void CPUCore<T>::set_7_xiy_b(S& s) { s.R.setB(s.SET_X_Y(7)); }
-template <class T> void CPUCore<T>::set_7_xiy_c(S& s) { s.R.setC(s.SET_X_Y(7)); }
-template <class T> void CPUCore<T>::set_7_xiy_d(S& s) { s.R.setD(s.SET_X_Y(7)); }
-template <class T> void CPUCore<T>::set_7_xiy_e(S& s) { s.R.setE(s.SET_X_Y(7)); }
-template <class T> void CPUCore<T>::set_7_xiy_h(S& s) { s.R.setH(s.SET_X_Y(7)); }
-template <class T> void CPUCore<T>::set_7_xiy_l(S& s) { s.R.setL(s.SET_X_Y(7)); }
+template <class T> void CPUCore<T>::set_0_xiy_a(S& s, int o) { s.R.setA(s.SET_X_Y(0, o)); }
+template <class T> void CPUCore<T>::set_0_xiy_b(S& s, int o) { s.R.setB(s.SET_X_Y(0, o)); }
+template <class T> void CPUCore<T>::set_0_xiy_c(S& s, int o) { s.R.setC(s.SET_X_Y(0, o)); }
+template <class T> void CPUCore<T>::set_0_xiy_d(S& s, int o) { s.R.setD(s.SET_X_Y(0, o)); }
+template <class T> void CPUCore<T>::set_0_xiy_e(S& s, int o) { s.R.setE(s.SET_X_Y(0, o)); }
+template <class T> void CPUCore<T>::set_0_xiy_h(S& s, int o) { s.R.setH(s.SET_X_Y(0, o)); }
+template <class T> void CPUCore<T>::set_0_xiy_l(S& s, int o) { s.R.setL(s.SET_X_Y(0, o)); }
+template <class T> void CPUCore<T>::set_1_xiy_a(S& s, int o) { s.R.setA(s.SET_X_Y(1, o)); }
+template <class T> void CPUCore<T>::set_1_xiy_b(S& s, int o) { s.R.setB(s.SET_X_Y(1, o)); }
+template <class T> void CPUCore<T>::set_1_xiy_c(S& s, int o) { s.R.setC(s.SET_X_Y(1, o)); }
+template <class T> void CPUCore<T>::set_1_xiy_d(S& s, int o) { s.R.setD(s.SET_X_Y(1, o)); }
+template <class T> void CPUCore<T>::set_1_xiy_e(S& s, int o) { s.R.setE(s.SET_X_Y(1, o)); }
+template <class T> void CPUCore<T>::set_1_xiy_h(S& s, int o) { s.R.setH(s.SET_X_Y(1, o)); }
+template <class T> void CPUCore<T>::set_1_xiy_l(S& s, int o) { s.R.setL(s.SET_X_Y(1, o)); }
+template <class T> void CPUCore<T>::set_2_xiy_a(S& s, int o) { s.R.setA(s.SET_X_Y(2, o)); }
+template <class T> void CPUCore<T>::set_2_xiy_b(S& s, int o) { s.R.setB(s.SET_X_Y(2, o)); }
+template <class T> void CPUCore<T>::set_2_xiy_c(S& s, int o) { s.R.setC(s.SET_X_Y(2, o)); }
+template <class T> void CPUCore<T>::set_2_xiy_d(S& s, int o) { s.R.setD(s.SET_X_Y(2, o)); }
+template <class T> void CPUCore<T>::set_2_xiy_e(S& s, int o) { s.R.setE(s.SET_X_Y(2, o)); }
+template <class T> void CPUCore<T>::set_2_xiy_h(S& s, int o) { s.R.setH(s.SET_X_Y(2, o)); }
+template <class T> void CPUCore<T>::set_2_xiy_l(S& s, int o) { s.R.setL(s.SET_X_Y(2, o)); }
+template <class T> void CPUCore<T>::set_3_xiy_a(S& s, int o) { s.R.setA(s.SET_X_Y(3, o)); }
+template <class T> void CPUCore<T>::set_3_xiy_b(S& s, int o) { s.R.setB(s.SET_X_Y(3, o)); }
+template <class T> void CPUCore<T>::set_3_xiy_c(S& s, int o) { s.R.setC(s.SET_X_Y(3, o)); }
+template <class T> void CPUCore<T>::set_3_xiy_d(S& s, int o) { s.R.setD(s.SET_X_Y(3, o)); }
+template <class T> void CPUCore<T>::set_3_xiy_e(S& s, int o) { s.R.setE(s.SET_X_Y(3, o)); }
+template <class T> void CPUCore<T>::set_3_xiy_h(S& s, int o) { s.R.setH(s.SET_X_Y(3, o)); }
+template <class T> void CPUCore<T>::set_3_xiy_l(S& s, int o) { s.R.setL(s.SET_X_Y(3, o)); }
+template <class T> void CPUCore<T>::set_4_xiy_a(S& s, int o) { s.R.setA(s.SET_X_Y(4, o)); }
+template <class T> void CPUCore<T>::set_4_xiy_b(S& s, int o) { s.R.setB(s.SET_X_Y(4, o)); }
+template <class T> void CPUCore<T>::set_4_xiy_c(S& s, int o) { s.R.setC(s.SET_X_Y(4, o)); }
+template <class T> void CPUCore<T>::set_4_xiy_d(S& s, int o) { s.R.setD(s.SET_X_Y(4, o)); }
+template <class T> void CPUCore<T>::set_4_xiy_e(S& s, int o) { s.R.setE(s.SET_X_Y(4, o)); }
+template <class T> void CPUCore<T>::set_4_xiy_h(S& s, int o) { s.R.setH(s.SET_X_Y(4, o)); }
+template <class T> void CPUCore<T>::set_4_xiy_l(S& s, int o) { s.R.setL(s.SET_X_Y(4, o)); }
+template <class T> void CPUCore<T>::set_5_xiy_a(S& s, int o) { s.R.setA(s.SET_X_Y(5, o)); }
+template <class T> void CPUCore<T>::set_5_xiy_b(S& s, int o) { s.R.setB(s.SET_X_Y(5, o)); }
+template <class T> void CPUCore<T>::set_5_xiy_c(S& s, int o) { s.R.setC(s.SET_X_Y(5, o)); }
+template <class T> void CPUCore<T>::set_5_xiy_d(S& s, int o) { s.R.setD(s.SET_X_Y(5, o)); }
+template <class T> void CPUCore<T>::set_5_xiy_e(S& s, int o) { s.R.setE(s.SET_X_Y(5, o)); }
+template <class T> void CPUCore<T>::set_5_xiy_h(S& s, int o) { s.R.setH(s.SET_X_Y(5, o)); }
+template <class T> void CPUCore<T>::set_5_xiy_l(S& s, int o) { s.R.setL(s.SET_X_Y(5, o)); }
+template <class T> void CPUCore<T>::set_6_xiy_a(S& s, int o) { s.R.setA(s.SET_X_Y(6, o)); }
+template <class T> void CPUCore<T>::set_6_xiy_b(S& s, int o) { s.R.setB(s.SET_X_Y(6, o)); }
+template <class T> void CPUCore<T>::set_6_xiy_c(S& s, int o) { s.R.setC(s.SET_X_Y(6, o)); }
+template <class T> void CPUCore<T>::set_6_xiy_d(S& s, int o) { s.R.setD(s.SET_X_Y(6, o)); }
+template <class T> void CPUCore<T>::set_6_xiy_e(S& s, int o) { s.R.setE(s.SET_X_Y(6, o)); }
+template <class T> void CPUCore<T>::set_6_xiy_h(S& s, int o) { s.R.setH(s.SET_X_Y(6, o)); }
+template <class T> void CPUCore<T>::set_6_xiy_l(S& s, int o) { s.R.setL(s.SET_X_Y(6, o)); }
+template <class T> void CPUCore<T>::set_7_xiy_a(S& s, int o) { s.R.setA(s.SET_X_Y(7, o)); }
+template <class T> void CPUCore<T>::set_7_xiy_b(S& s, int o) { s.R.setB(s.SET_X_Y(7, o)); }
+template <class T> void CPUCore<T>::set_7_xiy_c(S& s, int o) { s.R.setC(s.SET_X_Y(7, o)); }
+template <class T> void CPUCore<T>::set_7_xiy_d(S& s, int o) { s.R.setD(s.SET_X_Y(7, o)); }
+template <class T> void CPUCore<T>::set_7_xiy_e(S& s, int o) { s.R.setE(s.SET_X_Y(7, o)); }
+template <class T> void CPUCore<T>::set_7_xiy_h(S& s, int o) { s.R.setH(s.SET_X_Y(7, o)); }
+template <class T> void CPUCore<T>::set_7_xiy_l(S& s, int o) { s.R.setL(s.SET_X_Y(7, o)); }
 
 
 // RL r
@@ -2268,11 +2270,11 @@ template <class T> inline byte CPUCore<T>::RL_X_(unsigned x)
 {
 	memptr = x; return RL_X(x);
 }
-template <class T> inline byte CPUCore<T>::RL_X_X()
+template <class T> inline byte CPUCore<T>::RL_X_X(int ofst)
 {
 	return RL_X_((R.getIX() + ofst) & 0xFFFF);
 }
-template <class T> inline byte CPUCore<T>::RL_X_Y()
+template <class T> inline byte CPUCore<T>::RL_X_Y(int ofst)
 {
 	return RL_X_((R.getIY() + ofst) & 0xFFFF);
 }
@@ -2286,24 +2288,24 @@ template <class T> void CPUCore<T>::rl_h(S& s) { s.R.setH(s.RL(s.R.getH())); }
 template <class T> void CPUCore<T>::rl_l(S& s) { s.R.setL(s.RL(s.R.getL())); }
 
 template <class T> void CPUCore<T>::rl_xhl(S& s)   { s.RL_X(s.R.getHL()); }
-template <class T> void CPUCore<T>::rl_xix(S& s)   { s.RL_X_X(); }
-template <class T> void CPUCore<T>::rl_xiy(S& s)   { s.RL_X_Y(); }
+template <class T> void CPUCore<T>::rl_xix(S& s, int o)   { s.RL_X_X(o); }
+template <class T> void CPUCore<T>::rl_xiy(S& s, int o)   { s.RL_X_Y(o); }
 
-template <class T> void CPUCore<T>::rl_xix_a(S& s) { s.R.setA(s.RL_X_X()); }
-template <class T> void CPUCore<T>::rl_xix_b(S& s) { s.R.setB(s.RL_X_X()); }
-template <class T> void CPUCore<T>::rl_xix_c(S& s) { s.R.setC(s.RL_X_X()); }
-template <class T> void CPUCore<T>::rl_xix_d(S& s) { s.R.setD(s.RL_X_X()); }
-template <class T> void CPUCore<T>::rl_xix_e(S& s) { s.R.setE(s.RL_X_X()); }
-template <class T> void CPUCore<T>::rl_xix_h(S& s) { s.R.setH(s.RL_X_X()); }
-template <class T> void CPUCore<T>::rl_xix_l(S& s) { s.R.setL(s.RL_X_X()); }
+template <class T> void CPUCore<T>::rl_xix_a(S& s, int o) { s.R.setA(s.RL_X_X(o)); }
+template <class T> void CPUCore<T>::rl_xix_b(S& s, int o) { s.R.setB(s.RL_X_X(o)); }
+template <class T> void CPUCore<T>::rl_xix_c(S& s, int o) { s.R.setC(s.RL_X_X(o)); }
+template <class T> void CPUCore<T>::rl_xix_d(S& s, int o) { s.R.setD(s.RL_X_X(o)); }
+template <class T> void CPUCore<T>::rl_xix_e(S& s, int o) { s.R.setE(s.RL_X_X(o)); }
+template <class T> void CPUCore<T>::rl_xix_h(S& s, int o) { s.R.setH(s.RL_X_X(o)); }
+template <class T> void CPUCore<T>::rl_xix_l(S& s, int o) { s.R.setL(s.RL_X_X(o)); }
 
-template <class T> void CPUCore<T>::rl_xiy_a(S& s) { s.R.setA(s.RL_X_Y()); }
-template <class T> void CPUCore<T>::rl_xiy_b(S& s) { s.R.setB(s.RL_X_Y()); }
-template <class T> void CPUCore<T>::rl_xiy_c(S& s) { s.R.setC(s.RL_X_Y()); }
-template <class T> void CPUCore<T>::rl_xiy_d(S& s) { s.R.setD(s.RL_X_Y()); }
-template <class T> void CPUCore<T>::rl_xiy_e(S& s) { s.R.setE(s.RL_X_Y()); }
-template <class T> void CPUCore<T>::rl_xiy_h(S& s) { s.R.setH(s.RL_X_Y()); }
-template <class T> void CPUCore<T>::rl_xiy_l(S& s) { s.R.setL(s.RL_X_Y()); }
+template <class T> void CPUCore<T>::rl_xiy_a(S& s, int o) { s.R.setA(s.RL_X_Y(o)); }
+template <class T> void CPUCore<T>::rl_xiy_b(S& s, int o) { s.R.setB(s.RL_X_Y(o)); }
+template <class T> void CPUCore<T>::rl_xiy_c(S& s, int o) { s.R.setC(s.RL_X_Y(o)); }
+template <class T> void CPUCore<T>::rl_xiy_d(S& s, int o) { s.R.setD(s.RL_X_Y(o)); }
+template <class T> void CPUCore<T>::rl_xiy_e(S& s, int o) { s.R.setE(s.RL_X_Y(o)); }
+template <class T> void CPUCore<T>::rl_xiy_h(S& s, int o) { s.R.setH(s.RL_X_Y(o)); }
+template <class T> void CPUCore<T>::rl_xiy_l(S& s, int o) { s.R.setL(s.RL_X_Y(o)); }
 
 
 // RLC r
@@ -2322,13 +2324,13 @@ template <class T> inline byte CPUCore<T>::RLC_X(unsigned x)
 }
 template <class T> inline byte CPUCore<T>::RLC_X_(unsigned x)
 {
-	memptr = x; return RLC_X(x); 
+	memptr = x; return RLC_X(x);
 }
-template <class T> inline byte CPUCore<T>::RLC_X_X()
+template <class T> inline byte CPUCore<T>::RLC_X_X(int ofst)
 {
 	return RLC_X_((R.getIX() + ofst) & 0xFFFF);
 }
-template <class T> inline byte CPUCore<T>::RLC_X_Y()
+template <class T> inline byte CPUCore<T>::RLC_X_Y(int ofst)
 {
 	return RLC_X_((R.getIY() + ofst) & 0xFFFF);
 }
@@ -2341,25 +2343,25 @@ template <class T> void CPUCore<T>::rlc_e(S& s) { s.R.setE(s.RLC(s.R.getE())); }
 template <class T> void CPUCore<T>::rlc_h(S& s) { s.R.setH(s.RLC(s.R.getH())); }
 template <class T> void CPUCore<T>::rlc_l(S& s) { s.R.setL(s.RLC(s.R.getL())); }
 
-template <class T> void CPUCore<T>::rlc_xhl(S& s)   { s.RLC_X(s.R.getHL()); }
-template <class T> void CPUCore<T>::rlc_xix(S& s)   { s.RLC_X_X(); }
-template <class T> void CPUCore<T>::rlc_xiy(S& s)   { s.RLC_X_Y(); }
+template <class T> void CPUCore<T>::rlc_xhl(S& s)          { s.RLC_X(s.R.getHL()); }
+template <class T> void CPUCore<T>::rlc_xix(S& s, int o)   { s.RLC_X_X(o); }
+template <class T> void CPUCore<T>::rlc_xiy(S& s, int o)   { s.RLC_X_Y(o); }
 
-template <class T> void CPUCore<T>::rlc_xix_a(S& s) { s.R.setA(s.RLC_X_X()); }
-template <class T> void CPUCore<T>::rlc_xix_b(S& s) { s.R.setB(s.RLC_X_X()); }
-template <class T> void CPUCore<T>::rlc_xix_c(S& s) { s.R.setC(s.RLC_X_X()); }
-template <class T> void CPUCore<T>::rlc_xix_d(S& s) { s.R.setD(s.RLC_X_X()); }
-template <class T> void CPUCore<T>::rlc_xix_e(S& s) { s.R.setE(s.RLC_X_X()); }
-template <class T> void CPUCore<T>::rlc_xix_h(S& s) { s.R.setH(s.RLC_X_X()); }
-template <class T> void CPUCore<T>::rlc_xix_l(S& s) { s.R.setL(s.RLC_X_X()); }
+template <class T> void CPUCore<T>::rlc_xix_a(S& s, int o) { s.R.setA(s.RLC_X_X(o)); }
+template <class T> void CPUCore<T>::rlc_xix_b(S& s, int o) { s.R.setB(s.RLC_X_X(o)); }
+template <class T> void CPUCore<T>::rlc_xix_c(S& s, int o) { s.R.setC(s.RLC_X_X(o)); }
+template <class T> void CPUCore<T>::rlc_xix_d(S& s, int o) { s.R.setD(s.RLC_X_X(o)); }
+template <class T> void CPUCore<T>::rlc_xix_e(S& s, int o) { s.R.setE(s.RLC_X_X(o)); }
+template <class T> void CPUCore<T>::rlc_xix_h(S& s, int o) { s.R.setH(s.RLC_X_X(o)); }
+template <class T> void CPUCore<T>::rlc_xix_l(S& s, int o) { s.R.setL(s.RLC_X_X(o)); }
 
-template <class T> void CPUCore<T>::rlc_xiy_a(S& s) { s.R.setA(s.RLC_X_Y()); }
-template <class T> void CPUCore<T>::rlc_xiy_b(S& s) { s.R.setB(s.RLC_X_Y()); }
-template <class T> void CPUCore<T>::rlc_xiy_c(S& s) { s.R.setC(s.RLC_X_Y()); }
-template <class T> void CPUCore<T>::rlc_xiy_d(S& s) { s.R.setD(s.RLC_X_Y()); }
-template <class T> void CPUCore<T>::rlc_xiy_e(S& s) { s.R.setE(s.RLC_X_Y()); }
-template <class T> void CPUCore<T>::rlc_xiy_h(S& s) { s.R.setH(s.RLC_X_Y()); }
-template <class T> void CPUCore<T>::rlc_xiy_l(S& s) { s.R.setL(s.RLC_X_Y()); }
+template <class T> void CPUCore<T>::rlc_xiy_a(S& s, int o) { s.R.setA(s.RLC_X_Y(o)); }
+template <class T> void CPUCore<T>::rlc_xiy_b(S& s, int o) { s.R.setB(s.RLC_X_Y(o)); }
+template <class T> void CPUCore<T>::rlc_xiy_c(S& s, int o) { s.R.setC(s.RLC_X_Y(o)); }
+template <class T> void CPUCore<T>::rlc_xiy_d(S& s, int o) { s.R.setD(s.RLC_X_Y(o)); }
+template <class T> void CPUCore<T>::rlc_xiy_e(S& s, int o) { s.R.setE(s.RLC_X_Y(o)); }
+template <class T> void CPUCore<T>::rlc_xiy_h(S& s, int o) { s.R.setH(s.RLC_X_Y(o)); }
+template <class T> void CPUCore<T>::rlc_xiy_l(S& s, int o) { s.R.setL(s.RLC_X_Y(o)); }
 
 
 // RR r
@@ -2380,11 +2382,11 @@ template <class T> inline byte CPUCore<T>::RR_X_(unsigned x)
 {
 	memptr = x; return RR_X(x);
 }
-template <class T> inline byte CPUCore<T>::RR_X_X()
+template <class T> inline byte CPUCore<T>::RR_X_X(int ofst)
 {
 	return RR_X_((R.getIX() + ofst) & 0xFFFF);
 }
-template <class T> inline byte CPUCore<T>::RR_X_Y()
+template <class T> inline byte CPUCore<T>::RR_X_Y(int ofst)
 {
 	return RR_X_((R.getIY() + ofst) & 0xFFFF);
 }
@@ -2397,25 +2399,25 @@ template <class T> void CPUCore<T>::rr_e(S& s) { s.R.setE(s.RR(s.R.getE())); }
 template <class T> void CPUCore<T>::rr_h(S& s) { s.R.setH(s.RR(s.R.getH())); }
 template <class T> void CPUCore<T>::rr_l(S& s) { s.R.setL(s.RR(s.R.getL())); }
 
-template <class T> void CPUCore<T>::rr_xhl(S& s)   { s.RR_X(s.R.getHL()); }
-template <class T> void CPUCore<T>::rr_xix(S& s)   { s.RR_X_X(); }
-template <class T> void CPUCore<T>::rr_xiy(S& s)   { s.RR_X_Y(); }
+template <class T> void CPUCore<T>::rr_xhl(S& s) { s.RR_X(s.R.getHL()); }
+template <class T> void CPUCore<T>::rr_xix(S& s, int o)   { s.RR_X_X(o); }
+template <class T> void CPUCore<T>::rr_xiy(S& s, int o)   { s.RR_X_Y(o); }
 
-template <class T> void CPUCore<T>::rr_xix_a(S& s) { s.R.setA(s.RR_X_X()); }
-template <class T> void CPUCore<T>::rr_xix_b(S& s) { s.R.setB(s.RR_X_X()); }
-template <class T> void CPUCore<T>::rr_xix_c(S& s) { s.R.setC(s.RR_X_X()); }
-template <class T> void CPUCore<T>::rr_xix_d(S& s) { s.R.setD(s.RR_X_X()); }
-template <class T> void CPUCore<T>::rr_xix_e(S& s) { s.R.setE(s.RR_X_X()); }
-template <class T> void CPUCore<T>::rr_xix_h(S& s) { s.R.setH(s.RR_X_X()); }
-template <class T> void CPUCore<T>::rr_xix_l(S& s) { s.R.setL(s.RR_X_X()); }
+template <class T> void CPUCore<T>::rr_xix_a(S& s, int o) { s.R.setA(s.RR_X_X(o)); }
+template <class T> void CPUCore<T>::rr_xix_b(S& s, int o) { s.R.setB(s.RR_X_X(o)); }
+template <class T> void CPUCore<T>::rr_xix_c(S& s, int o) { s.R.setC(s.RR_X_X(o)); }
+template <class T> void CPUCore<T>::rr_xix_d(S& s, int o) { s.R.setD(s.RR_X_X(o)); }
+template <class T> void CPUCore<T>::rr_xix_e(S& s, int o) { s.R.setE(s.RR_X_X(o)); }
+template <class T> void CPUCore<T>::rr_xix_h(S& s, int o) { s.R.setH(s.RR_X_X(o)); }
+template <class T> void CPUCore<T>::rr_xix_l(S& s, int o) { s.R.setL(s.RR_X_X(o)); }
 
-template <class T> void CPUCore<T>::rr_xiy_a(S& s) { s.R.setA(s.RR_X_Y()); }
-template <class T> void CPUCore<T>::rr_xiy_b(S& s) { s.R.setB(s.RR_X_Y()); }
-template <class T> void CPUCore<T>::rr_xiy_c(S& s) { s.R.setC(s.RR_X_Y()); }
-template <class T> void CPUCore<T>::rr_xiy_d(S& s) { s.R.setD(s.RR_X_Y()); }
-template <class T> void CPUCore<T>::rr_xiy_e(S& s) { s.R.setE(s.RR_X_Y()); }
-template <class T> void CPUCore<T>::rr_xiy_h(S& s) { s.R.setH(s.RR_X_Y()); }
-template <class T> void CPUCore<T>::rr_xiy_l(S& s) { s.R.setL(s.RR_X_Y()); }
+template <class T> void CPUCore<T>::rr_xiy_a(S& s, int o) { s.R.setA(s.RR_X_Y(o)); }
+template <class T> void CPUCore<T>::rr_xiy_b(S& s, int o) { s.R.setB(s.RR_X_Y(o)); }
+template <class T> void CPUCore<T>::rr_xiy_c(S& s, int o) { s.R.setC(s.RR_X_Y(o)); }
+template <class T> void CPUCore<T>::rr_xiy_d(S& s, int o) { s.R.setD(s.RR_X_Y(o)); }
+template <class T> void CPUCore<T>::rr_xiy_e(S& s, int o) { s.R.setE(s.RR_X_Y(o)); }
+template <class T> void CPUCore<T>::rr_xiy_h(S& s, int o) { s.R.setH(s.RR_X_Y(o)); }
+template <class T> void CPUCore<T>::rr_xiy_l(S& s, int o) { s.R.setL(s.RR_X_Y(o)); }
 
 
 // RRC r
@@ -2436,11 +2438,11 @@ template <class T> inline byte CPUCore<T>::RRC_X_(unsigned x)
 {
 	memptr = x; return RRC_X(x);
 }
-template <class T> inline byte CPUCore<T>::RRC_X_X()
+template <class T> inline byte CPUCore<T>::RRC_X_X(int ofst)
 {
 	return RRC_X_((R.getIX() + ofst) & 0xFFFF);
 }
-template <class T> inline byte CPUCore<T>::RRC_X_Y()
+template <class T> inline byte CPUCore<T>::RRC_X_Y(int ofst)
 {
 	return RRC_X_((R.getIY() + ofst) & 0xFFFF);
 }
@@ -2453,25 +2455,25 @@ template <class T> void CPUCore<T>::rrc_e(S& s) { s.R.setE(s.RRC(s.R.getE())); }
 template <class T> void CPUCore<T>::rrc_h(S& s) { s.R.setH(s.RRC(s.R.getH())); }
 template <class T> void CPUCore<T>::rrc_l(S& s) { s.R.setL(s.RRC(s.R.getL())); }
 
-template <class T> void CPUCore<T>::rrc_xhl(S& s)   { s.RRC_X(s.R.getHL()); }
-template <class T> void CPUCore<T>::rrc_xix(S& s)   { s.RRC_X_X(); }
-template <class T> void CPUCore<T>::rrc_xiy(S& s)   { s.RRC_X_Y(); }
+template <class T> void CPUCore<T>::rrc_xhl(S& s) { s.RRC_X(s.R.getHL()); }
+template <class T> void CPUCore<T>::rrc_xix(S& s, int o)   { s.RRC_X_X(o); }
+template <class T> void CPUCore<T>::rrc_xiy(S& s, int o)   { s.RRC_X_Y(o); }
 
-template <class T> void CPUCore<T>::rrc_xix_a(S& s) { s.R.setA(s.RRC_X_X()); }
-template <class T> void CPUCore<T>::rrc_xix_b(S& s) { s.R.setB(s.RRC_X_X()); }
-template <class T> void CPUCore<T>::rrc_xix_c(S& s) { s.R.setC(s.RRC_X_X()); }
-template <class T> void CPUCore<T>::rrc_xix_d(S& s) { s.R.setD(s.RRC_X_X()); }
-template <class T> void CPUCore<T>::rrc_xix_e(S& s) { s.R.setE(s.RRC_X_X()); }
-template <class T> void CPUCore<T>::rrc_xix_h(S& s) { s.R.setH(s.RRC_X_X()); }
-template <class T> void CPUCore<T>::rrc_xix_l(S& s) { s.R.setL(s.RRC_X_X()); }
+template <class T> void CPUCore<T>::rrc_xix_a(S& s, int o) { s.R.setA(s.RRC_X_X(o)); }
+template <class T> void CPUCore<T>::rrc_xix_b(S& s, int o) { s.R.setB(s.RRC_X_X(o)); }
+template <class T> void CPUCore<T>::rrc_xix_c(S& s, int o) { s.R.setC(s.RRC_X_X(o)); }
+template <class T> void CPUCore<T>::rrc_xix_d(S& s, int o) { s.R.setD(s.RRC_X_X(o)); }
+template <class T> void CPUCore<T>::rrc_xix_e(S& s, int o) { s.R.setE(s.RRC_X_X(o)); }
+template <class T> void CPUCore<T>::rrc_xix_h(S& s, int o) { s.R.setH(s.RRC_X_X(o)); }
+template <class T> void CPUCore<T>::rrc_xix_l(S& s, int o) { s.R.setL(s.RRC_X_X(o)); }
 
-template <class T> void CPUCore<T>::rrc_xiy_a(S& s) { s.R.setA(s.RRC_X_Y()); }
-template <class T> void CPUCore<T>::rrc_xiy_b(S& s) { s.R.setB(s.RRC_X_Y()); }
-template <class T> void CPUCore<T>::rrc_xiy_c(S& s) { s.R.setC(s.RRC_X_Y()); }
-template <class T> void CPUCore<T>::rrc_xiy_d(S& s) { s.R.setD(s.RRC_X_Y()); }
-template <class T> void CPUCore<T>::rrc_xiy_e(S& s) { s.R.setE(s.RRC_X_Y()); }
-template <class T> void CPUCore<T>::rrc_xiy_h(S& s) { s.R.setH(s.RRC_X_Y()); }
-template <class T> void CPUCore<T>::rrc_xiy_l(S& s) { s.R.setL(s.RRC_X_Y()); }
+template <class T> void CPUCore<T>::rrc_xiy_a(S& s, int o) { s.R.setA(s.RRC_X_Y(o)); }
+template <class T> void CPUCore<T>::rrc_xiy_b(S& s, int o) { s.R.setB(s.RRC_X_Y(o)); }
+template <class T> void CPUCore<T>::rrc_xiy_c(S& s, int o) { s.R.setC(s.RRC_X_Y(o)); }
+template <class T> void CPUCore<T>::rrc_xiy_d(S& s, int o) { s.R.setD(s.RRC_X_Y(o)); }
+template <class T> void CPUCore<T>::rrc_xiy_e(S& s, int o) { s.R.setE(s.RRC_X_Y(o)); }
+template <class T> void CPUCore<T>::rrc_xiy_h(S& s, int o) { s.R.setH(s.RRC_X_Y(o)); }
+template <class T> void CPUCore<T>::rrc_xiy_l(S& s, int o) { s.R.setL(s.RRC_X_Y(o)); }
 
 
 // SLA r
@@ -2492,11 +2494,11 @@ template <class T> inline byte CPUCore<T>::SLA_X_(unsigned x)
 {
 	memptr = x; return SLA_X(x);
 }
-template <class T> inline byte CPUCore<T>::SLA_X_X()
+template <class T> inline byte CPUCore<T>::SLA_X_X(int ofst)
 {
 	return SLA_X_((R.getIX() + ofst) & 0xFFFF);
 }
-template <class T> inline byte CPUCore<T>::SLA_X_Y()
+template <class T> inline byte CPUCore<T>::SLA_X_Y(int ofst)
 {
 	return SLA_X_((R.getIY() + ofst) & 0xFFFF);
 }
@@ -2509,25 +2511,25 @@ template <class T> void CPUCore<T>::sla_e(S& s) { s.R.setE(s.SLA(s.R.getE())); }
 template <class T> void CPUCore<T>::sla_h(S& s) { s.R.setH(s.SLA(s.R.getH())); }
 template <class T> void CPUCore<T>::sla_l(S& s) { s.R.setL(s.SLA(s.R.getL())); }
 
-template <class T> void CPUCore<T>::sla_xhl(S& s)   { s.SLA_X(s.R.getHL()); }
-template <class T> void CPUCore<T>::sla_xix(S& s)   { s.SLA_X_X(); }
-template <class T> void CPUCore<T>::sla_xiy(S& s)   { s.SLA_X_Y(); }
+template <class T> void CPUCore<T>::sla_xhl(S& s) { s.SLA_X(s.R.getHL()); }
+template <class T> void CPUCore<T>::sla_xix(S& s, int o)   { s.SLA_X_X(o); }
+template <class T> void CPUCore<T>::sla_xiy(S& s, int o)   { s.SLA_X_Y(o); }
 
-template <class T> void CPUCore<T>::sla_xix_a(S& s) { s.R.setA(s.SLA_X_X()); }
-template <class T> void CPUCore<T>::sla_xix_b(S& s) { s.R.setB(s.SLA_X_X()); }
-template <class T> void CPUCore<T>::sla_xix_c(S& s) { s.R.setC(s.SLA_X_X()); }
-template <class T> void CPUCore<T>::sla_xix_d(S& s) { s.R.setD(s.SLA_X_X()); }
-template <class T> void CPUCore<T>::sla_xix_e(S& s) { s.R.setE(s.SLA_X_X()); }
-template <class T> void CPUCore<T>::sla_xix_h(S& s) { s.R.setH(s.SLA_X_X()); }
-template <class T> void CPUCore<T>::sla_xix_l(S& s) { s.R.setL(s.SLA_X_X()); }
+template <class T> void CPUCore<T>::sla_xix_a(S& s, int o) { s.R.setA(s.SLA_X_X(o)); }
+template <class T> void CPUCore<T>::sla_xix_b(S& s, int o) { s.R.setB(s.SLA_X_X(o)); }
+template <class T> void CPUCore<T>::sla_xix_c(S& s, int o) { s.R.setC(s.SLA_X_X(o)); }
+template <class T> void CPUCore<T>::sla_xix_d(S& s, int o) { s.R.setD(s.SLA_X_X(o)); }
+template <class T> void CPUCore<T>::sla_xix_e(S& s, int o) { s.R.setE(s.SLA_X_X(o)); }
+template <class T> void CPUCore<T>::sla_xix_h(S& s, int o) { s.R.setH(s.SLA_X_X(o)); }
+template <class T> void CPUCore<T>::sla_xix_l(S& s, int o) { s.R.setL(s.SLA_X_X(o)); }
 
-template <class T> void CPUCore<T>::sla_xiy_a(S& s) { s.R.setA(s.SLA_X_Y()); }
-template <class T> void CPUCore<T>::sla_xiy_b(S& s) { s.R.setB(s.SLA_X_Y()); }
-template <class T> void CPUCore<T>::sla_xiy_c(S& s) { s.R.setC(s.SLA_X_Y()); }
-template <class T> void CPUCore<T>::sla_xiy_d(S& s) { s.R.setD(s.SLA_X_Y()); }
-template <class T> void CPUCore<T>::sla_xiy_e(S& s) { s.R.setE(s.SLA_X_Y()); }
-template <class T> void CPUCore<T>::sla_xiy_h(S& s) { s.R.setH(s.SLA_X_Y()); }
-template <class T> void CPUCore<T>::sla_xiy_l(S& s) { s.R.setL(s.SLA_X_Y()); }
+template <class T> void CPUCore<T>::sla_xiy_a(S& s, int o) { s.R.setA(s.SLA_X_Y(o)); }
+template <class T> void CPUCore<T>::sla_xiy_b(S& s, int o) { s.R.setB(s.SLA_X_Y(o)); }
+template <class T> void CPUCore<T>::sla_xiy_c(S& s, int o) { s.R.setC(s.SLA_X_Y(o)); }
+template <class T> void CPUCore<T>::sla_xiy_d(S& s, int o) { s.R.setD(s.SLA_X_Y(o)); }
+template <class T> void CPUCore<T>::sla_xiy_e(S& s, int o) { s.R.setE(s.SLA_X_Y(o)); }
+template <class T> void CPUCore<T>::sla_xiy_h(S& s, int o) { s.R.setH(s.SLA_X_Y(o)); }
+template <class T> void CPUCore<T>::sla_xiy_l(S& s, int o) { s.R.setL(s.SLA_X_Y(o)); }
 
 
 // SLL r
@@ -2548,11 +2550,11 @@ template <class T> inline byte CPUCore<T>::SLL_X_(unsigned x)
 {
 	memptr = x; return SLL_X(x);
 }
-template <class T> inline byte CPUCore<T>::SLL_X_X()
+template <class T> inline byte CPUCore<T>::SLL_X_X(int ofst)
 {
 	return SLL_X_((R.getIX() + ofst) & 0xFFFF);
 }
-template <class T> inline byte CPUCore<T>::SLL_X_Y()
+template <class T> inline byte CPUCore<T>::SLL_X_Y(int ofst)
 {
 	return SLL_X_((R.getIY() + ofst) & 0xFFFF);
 }
@@ -2565,25 +2567,25 @@ template <class T> void CPUCore<T>::sll_e(S& s) { s.R.setE(s.SLL(s.R.getE())); }
 template <class T> void CPUCore<T>::sll_h(S& s) { s.R.setH(s.SLL(s.R.getH())); }
 template <class T> void CPUCore<T>::sll_l(S& s) { s.R.setL(s.SLL(s.R.getL())); }
 
-template <class T> void CPUCore<T>::sll_xhl(S& s)   { s.SLL_X(s.R.getHL()); }
-template <class T> void CPUCore<T>::sll_xix(S& s)   { s.SLL_X_X(); }
-template <class T> void CPUCore<T>::sll_xiy(S& s)   { s.SLL_X_Y(); }
+template <class T> void CPUCore<T>::sll_xhl(S& s) { s.SLL_X(s.R.getHL()); }
+template <class T> void CPUCore<T>::sll_xix(S& s, int o)   { s.SLL_X_X(o); }
+template <class T> void CPUCore<T>::sll_xiy(S& s, int o)   { s.SLL_X_Y(o); }
 
-template <class T> void CPUCore<T>::sll_xix_a(S& s) { s.R.setA(s.SLL_X_X()); }
-template <class T> void CPUCore<T>::sll_xix_b(S& s) { s.R.setB(s.SLL_X_X()); }
-template <class T> void CPUCore<T>::sll_xix_c(S& s) { s.R.setC(s.SLL_X_X()); }
-template <class T> void CPUCore<T>::sll_xix_d(S& s) { s.R.setD(s.SLL_X_X()); }
-template <class T> void CPUCore<T>::sll_xix_e(S& s) { s.R.setE(s.SLL_X_X()); }
-template <class T> void CPUCore<T>::sll_xix_h(S& s) { s.R.setH(s.SLL_X_X()); }
-template <class T> void CPUCore<T>::sll_xix_l(S& s) { s.R.setL(s.SLL_X_X()); }
+template <class T> void CPUCore<T>::sll_xix_a(S& s, int o) { s.R.setA(s.SLL_X_X(o)); }
+template <class T> void CPUCore<T>::sll_xix_b(S& s, int o) { s.R.setB(s.SLL_X_X(o)); }
+template <class T> void CPUCore<T>::sll_xix_c(S& s, int o) { s.R.setC(s.SLL_X_X(o)); }
+template <class T> void CPUCore<T>::sll_xix_d(S& s, int o) { s.R.setD(s.SLL_X_X(o)); }
+template <class T> void CPUCore<T>::sll_xix_e(S& s, int o) { s.R.setE(s.SLL_X_X(o)); }
+template <class T> void CPUCore<T>::sll_xix_h(S& s, int o) { s.R.setH(s.SLL_X_X(o)); }
+template <class T> void CPUCore<T>::sll_xix_l(S& s, int o) { s.R.setL(s.SLL_X_X(o)); }
 
-template <class T> void CPUCore<T>::sll_xiy_a(S& s) { s.R.setA(s.SLL_X_Y()); }
-template <class T> void CPUCore<T>::sll_xiy_b(S& s) { s.R.setB(s.SLL_X_Y()); }
-template <class T> void CPUCore<T>::sll_xiy_c(S& s) { s.R.setC(s.SLL_X_Y()); }
-template <class T> void CPUCore<T>::sll_xiy_d(S& s) { s.R.setD(s.SLL_X_Y()); }
-template <class T> void CPUCore<T>::sll_xiy_e(S& s) { s.R.setE(s.SLL_X_Y()); }
-template <class T> void CPUCore<T>::sll_xiy_h(S& s) { s.R.setH(s.SLL_X_Y()); }
-template <class T> void CPUCore<T>::sll_xiy_l(S& s) { s.R.setL(s.SLL_X_Y()); }
+template <class T> void CPUCore<T>::sll_xiy_a(S& s, int o) { s.R.setA(s.SLL_X_Y(o)); }
+template <class T> void CPUCore<T>::sll_xiy_b(S& s, int o) { s.R.setB(s.SLL_X_Y(o)); }
+template <class T> void CPUCore<T>::sll_xiy_c(S& s, int o) { s.R.setC(s.SLL_X_Y(o)); }
+template <class T> void CPUCore<T>::sll_xiy_d(S& s, int o) { s.R.setD(s.SLL_X_Y(o)); }
+template <class T> void CPUCore<T>::sll_xiy_e(S& s, int o) { s.R.setE(s.SLL_X_Y(o)); }
+template <class T> void CPUCore<T>::sll_xiy_h(S& s, int o) { s.R.setH(s.SLL_X_Y(o)); }
+template <class T> void CPUCore<T>::sll_xiy_l(S& s, int o) { s.R.setL(s.SLL_X_Y(o)); }
 
 
 // SRA r
@@ -2604,11 +2606,11 @@ template <class T> inline byte CPUCore<T>::SRA_X_(unsigned x)
 {
 	memptr = x; return SRA_X(x);
 }
-template <class T> inline byte CPUCore<T>::SRA_X_X()
+template <class T> inline byte CPUCore<T>::SRA_X_X(int ofst)
 {
 	return SRA_X_((R.getIX() + ofst) & 0xFFFF);
 }
-template <class T> inline byte CPUCore<T>::SRA_X_Y()
+template <class T> inline byte CPUCore<T>::SRA_X_Y(int ofst)
 {
 	return SRA_X_((R.getIY() + ofst) & 0xFFFF);
 }
@@ -2621,25 +2623,25 @@ template <class T> void CPUCore<T>::sra_e(S& s) { s.R.setE(s.SRA(s.R.getE())); }
 template <class T> void CPUCore<T>::sra_h(S& s) { s.R.setH(s.SRA(s.R.getH())); }
 template <class T> void CPUCore<T>::sra_l(S& s) { s.R.setL(s.SRA(s.R.getL())); }
 
-template <class T> void CPUCore<T>::sra_xhl(S& s)   { s.SRA_X(s.R.getHL()); }
-template <class T> void CPUCore<T>::sra_xix(S& s)   { s.SRA_X_X(); }
-template <class T> void CPUCore<T>::sra_xiy(S& s)   { s.SRA_X_Y(); }
+template <class T> void CPUCore<T>::sra_xhl(S& s) { s.SRA_X(s.R.getHL()); }
+template <class T> void CPUCore<T>::sra_xix(S& s, int o)   { s.SRA_X_X(o); }
+template <class T> void CPUCore<T>::sra_xiy(S& s, int o)   { s.SRA_X_Y(o); }
 
-template <class T> void CPUCore<T>::sra_xix_a(S& s) { s.R.setA(s.SRA_X_X()); }
-template <class T> void CPUCore<T>::sra_xix_b(S& s) { s.R.setB(s.SRA_X_X()); }
-template <class T> void CPUCore<T>::sra_xix_c(S& s) { s.R.setC(s.SRA_X_X()); }
-template <class T> void CPUCore<T>::sra_xix_d(S& s) { s.R.setD(s.SRA_X_X()); }
-template <class T> void CPUCore<T>::sra_xix_e(S& s) { s.R.setE(s.SRA_X_X()); }
-template <class T> void CPUCore<T>::sra_xix_h(S& s) { s.R.setH(s.SRA_X_X()); }
-template <class T> void CPUCore<T>::sra_xix_l(S& s) { s.R.setL(s.SRA_X_X()); }
+template <class T> void CPUCore<T>::sra_xix_a(S& s, int o) { s.R.setA(s.SRA_X_X(o)); }
+template <class T> void CPUCore<T>::sra_xix_b(S& s, int o) { s.R.setB(s.SRA_X_X(o)); }
+template <class T> void CPUCore<T>::sra_xix_c(S& s, int o) { s.R.setC(s.SRA_X_X(o)); }
+template <class T> void CPUCore<T>::sra_xix_d(S& s, int o) { s.R.setD(s.SRA_X_X(o)); }
+template <class T> void CPUCore<T>::sra_xix_e(S& s, int o) { s.R.setE(s.SRA_X_X(o)); }
+template <class T> void CPUCore<T>::sra_xix_h(S& s, int o) { s.R.setH(s.SRA_X_X(o)); }
+template <class T> void CPUCore<T>::sra_xix_l(S& s, int o) { s.R.setL(s.SRA_X_X(o)); }
 
-template <class T> void CPUCore<T>::sra_xiy_a(S& s) { s.R.setA(s.SRA_X_Y()); }
-template <class T> void CPUCore<T>::sra_xiy_b(S& s) { s.R.setB(s.SRA_X_Y()); }
-template <class T> void CPUCore<T>::sra_xiy_c(S& s) { s.R.setC(s.SRA_X_Y()); }
-template <class T> void CPUCore<T>::sra_xiy_d(S& s) { s.R.setD(s.SRA_X_Y()); }
-template <class T> void CPUCore<T>::sra_xiy_e(S& s) { s.R.setE(s.SRA_X_Y()); }
-template <class T> void CPUCore<T>::sra_xiy_h(S& s) { s.R.setH(s.SRA_X_Y()); }
-template <class T> void CPUCore<T>::sra_xiy_l(S& s) { s.R.setL(s.SRA_X_Y()); }
+template <class T> void CPUCore<T>::sra_xiy_a(S& s, int o) { s.R.setA(s.SRA_X_Y(o)); }
+template <class T> void CPUCore<T>::sra_xiy_b(S& s, int o) { s.R.setB(s.SRA_X_Y(o)); }
+template <class T> void CPUCore<T>::sra_xiy_c(S& s, int o) { s.R.setC(s.SRA_X_Y(o)); }
+template <class T> void CPUCore<T>::sra_xiy_d(S& s, int o) { s.R.setD(s.SRA_X_Y(o)); }
+template <class T> void CPUCore<T>::sra_xiy_e(S& s, int o) { s.R.setE(s.SRA_X_Y(o)); }
+template <class T> void CPUCore<T>::sra_xiy_h(S& s, int o) { s.R.setH(s.SRA_X_Y(o)); }
+template <class T> void CPUCore<T>::sra_xiy_l(S& s, int o) { s.R.setL(s.SRA_X_Y(o)); }
 
 
 // SRL R
@@ -2660,11 +2662,11 @@ template <class T> inline byte CPUCore<T>::SRL_X_(unsigned x)
 {
 	memptr = x; return SRL_X(x);
 }
-template <class T> inline byte CPUCore<T>::SRL_X_X()
+template <class T> inline byte CPUCore<T>::SRL_X_X(int ofst)
 {
 	return SRL_X_((R.getIX() + ofst) & 0xFFFF);
 }
-template <class T> inline byte CPUCore<T>::SRL_X_Y()
+template <class T> inline byte CPUCore<T>::SRL_X_Y(int ofst)
 {
 	return SRL_X_((R.getIY() + ofst) & 0xFFFF);
 }
@@ -2677,25 +2679,25 @@ template <class T> void CPUCore<T>::srl_e(S& s) { s.R.setE(s.SRL(s.R.getE())); }
 template <class T> void CPUCore<T>::srl_h(S& s) { s.R.setH(s.SRL(s.R.getH())); }
 template <class T> void CPUCore<T>::srl_l(S& s) { s.R.setL(s.SRL(s.R.getL())); }
 
-template <class T> void CPUCore<T>::srl_xhl(S& s)   { s.SRL_X(s.R.getHL()); }
-template <class T> void CPUCore<T>::srl_xix(S& s)   { s.SRL_X_X(); }
-template <class T> void CPUCore<T>::srl_xiy(S& s)   { s.SRL_X_Y(); }
+template <class T> void CPUCore<T>::srl_xhl(S& s) { s.SRL_X(s.R.getHL()); }
+template <class T> void CPUCore<T>::srl_xix(S& s, int o)   { s.SRL_X_X(o); }
+template <class T> void CPUCore<T>::srl_xiy(S& s, int o)   { s.SRL_X_Y(o); }
 
-template <class T> void CPUCore<T>::srl_xix_a(S& s) { s.R.setA(s.SRL_X_X()); }
-template <class T> void CPUCore<T>::srl_xix_b(S& s) { s.R.setB(s.SRL_X_X()); }
-template <class T> void CPUCore<T>::srl_xix_c(S& s) { s.R.setC(s.SRL_X_X()); }
-template <class T> void CPUCore<T>::srl_xix_d(S& s) { s.R.setD(s.SRL_X_X()); }
-template <class T> void CPUCore<T>::srl_xix_e(S& s) { s.R.setE(s.SRL_X_X()); }
-template <class T> void CPUCore<T>::srl_xix_h(S& s) { s.R.setH(s.SRL_X_X()); }
-template <class T> void CPUCore<T>::srl_xix_l(S& s) { s.R.setL(s.SRL_X_X()); }
+template <class T> void CPUCore<T>::srl_xix_a(S& s, int o) { s.R.setA(s.SRL_X_X(o)); }
+template <class T> void CPUCore<T>::srl_xix_b(S& s, int o) { s.R.setB(s.SRL_X_X(o)); }
+template <class T> void CPUCore<T>::srl_xix_c(S& s, int o) { s.R.setC(s.SRL_X_X(o)); }
+template <class T> void CPUCore<T>::srl_xix_d(S& s, int o) { s.R.setD(s.SRL_X_X(o)); }
+template <class T> void CPUCore<T>::srl_xix_e(S& s, int o) { s.R.setE(s.SRL_X_X(o)); }
+template <class T> void CPUCore<T>::srl_xix_h(S& s, int o) { s.R.setH(s.SRL_X_X(o)); }
+template <class T> void CPUCore<T>::srl_xix_l(S& s, int o) { s.R.setL(s.SRL_X_X(o)); }
 
-template <class T> void CPUCore<T>::srl_xiy_a(S& s) { s.R.setA(s.SRL_X_Y()); }
-template <class T> void CPUCore<T>::srl_xiy_b(S& s) { s.R.setB(s.SRL_X_Y()); }
-template <class T> void CPUCore<T>::srl_xiy_c(S& s) { s.R.setC(s.SRL_X_Y()); }
-template <class T> void CPUCore<T>::srl_xiy_d(S& s) { s.R.setD(s.SRL_X_Y()); }
-template <class T> void CPUCore<T>::srl_xiy_e(S& s) { s.R.setE(s.SRL_X_Y()); }
-template <class T> void CPUCore<T>::srl_xiy_h(S& s) { s.R.setH(s.SRL_X_Y()); }
-template <class T> void CPUCore<T>::srl_xiy_l(S& s) { s.R.setL(s.SRL_X_Y()); }
+template <class T> void CPUCore<T>::srl_xiy_a(S& s, int o) { s.R.setA(s.SRL_X_Y(o)); }
+template <class T> void CPUCore<T>::srl_xiy_b(S& s, int o) { s.R.setB(s.SRL_X_Y(o)); }
+template <class T> void CPUCore<T>::srl_xiy_c(S& s, int o) { s.R.setC(s.SRL_X_Y(o)); }
+template <class T> void CPUCore<T>::srl_xiy_d(S& s, int o) { s.R.setD(s.SRL_X_Y(o)); }
+template <class T> void CPUCore<T>::srl_xiy_e(S& s, int o) { s.R.setE(s.SRL_X_Y(o)); }
+template <class T> void CPUCore<T>::srl_xiy_h(S& s, int o) { s.R.setH(s.SRL_X_Y(o)); }
+template <class T> void CPUCore<T>::srl_xiy_l(S& s, int o) { s.R.setL(s.SRL_X_Y(o)); }
 
 
 // RLA RLCA RRA RRCA
@@ -3215,19 +3217,19 @@ template <class T> void CPUCore<T>::muluw_hl_sp(S& s) { s.MULUW(s.R.getSP()); }
 template <class T> void CPUCore<T>::dd_cb(S& s)
 {
 	unsigned tmp = s.RD_WORD_PC();
-	s.ofst = tmp & 0xFF;
+	offset ofst = tmp & 0xFF;
 	unsigned opcode = tmp >> 8;
 	s.DD_CB_DELAY();
-	(*opcode_dd_cb[opcode])(s);
+	(*opcode_dd_cb[opcode])(s, ofst);
 }
 
 template <class T> void CPUCore<T>::fd_cb(S& s)
 {
 	unsigned tmp = s.RD_WORD_PC();
-	s.ofst = tmp & 0xFF;
+	offset ofst = tmp & 0xFF;
 	unsigned opcode = tmp >> 8;
 	s.DD_CB_DELAY();
-	(*opcode_fd_cb[opcode])(s);
+	(*opcode_fd_cb[opcode])(s, ofst);
 }
 
 template <class T> void CPUCore<T>::cb(S& s)

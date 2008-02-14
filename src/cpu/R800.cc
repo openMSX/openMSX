@@ -7,7 +7,7 @@ namespace openmsx {
 
 typedef CPUCore<R800TYPE> C;
 
-template<> const C::FuncPtr C::opcode_dd_cb[256] = {
+template<> const C::FuncPtrN C::opcode_dd_cb[256] = {
  &C::rlc_xix_b  ,&C::rlc_xix_c  ,&C::rlc_xix_d  ,&C::rlc_xix_e  ,
  &C::rlc_xix_h  ,&C::rlc_xix_l  ,&C::rlc_xix    ,&C::rlc_xix_a  ,
  &C::rrc_xix_b  ,&C::rrc_xix_c  ,&C::rrc_xix_d  ,&C::rrc_xix_e  ,
@@ -77,7 +77,7 @@ template<> const C::FuncPtr C::opcode_dd_cb[256] = {
  &C::set_7_xix_h,&C::set_7_xix_l,&C::set_7_xix  ,&C::set_7_xix_a,
 };
 
-template<> const C::FuncPtr C::opcode_fd_cb[256] = {
+template<> const C::FuncPtrN C::opcode_fd_cb[256] = {
  &C::rlc_xiy_b  ,&C::rlc_xiy_c  ,&C::rlc_xiy_d  ,&C::rlc_xiy_e  ,
  &C::rlc_xiy_h  ,&C::rlc_xiy_l  ,&C::rlc_xiy    ,&C::rlc_xiy_a  ,
  &C::rrc_xiy_b  ,&C::rrc_xiy_c  ,&C::rrc_xiy_d  ,&C::rrc_xiy_e  ,
