@@ -4,7 +4,10 @@
 #define RAWFRAME_HH
 
 #include "FrameSource.hh"
+#include "build-info.hh"
 #include <cassert>
+
+struct SDL_Surface;
 
 namespace openmsx {
 
@@ -19,6 +22,9 @@ public:
 
 	template<typename Pixel>
 	Pixel* getLinePtrDirect(unsigned y) {
+		if (PLATFORM_GP2X) {
+			if (!isLocked()) lock();
+		}
 		return reinterpret_cast<Pixel*>(data + y * pitch);
 	}
 
@@ -41,15 +47,34 @@ public:
 
 	virtual unsigned getRowLength() const;
 
+	/** Lock this OutputSurface.
+	  * Direct pixel access is only allowed on a locked surface.
+	  * Locking an already locked surface has no effect.
+	  */
+	void lock();
+
+	/** Unlock this OutputSurface.
+	  * @see lock().
+	  */
+	void unlock();
+
+	/** Is this OutputSurface currently locked?
+	  */
+	bool isLocked() const { return locked; }
+
+	SDL_Surface* getSDLSurface() const { return surface; }
+
 protected:
 	virtual void* getLinePtrImpl(unsigned line);
 	virtual bool hasContiguousStorage() const;
 
 private:
+	SDL_Surface* surface; // only for GP2X
 	char* data;
 	unsigned* lineWidth;
 	unsigned maxWidth;
 	unsigned pitch;
+	bool locked;
 };
 
 } // namespace openmsx

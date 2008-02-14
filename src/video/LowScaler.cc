@@ -3,6 +3,7 @@
 #include "LowScaler.hh"
 #include "LineScalers.hh"
 #include "FrameSource.hh"
+#include "RawFrame.hh"
 #include "OutputSurface.hh"
 #include "MemoryOps.hh"
 #include "openmsx.hh"
@@ -31,16 +32,43 @@ void LowScaler<Pixel>::averageHalve(const Pixel* pIn0, const Pixel* pIn1, Pixel*
 
 template <class Pixel>
 void LowScaler<Pixel>::scaleBlank1to1(
-		FrameSource& src, unsigned srcStartY, unsigned /*srcEndY*/,
+		FrameSource& src, unsigned srcStartY, unsigned srcEndY,
 		OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
-	dst.lock();
-	MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
-	for (unsigned srcY = srcStartY, dstY = dstStartY;
-	     dstY < dstEndY; srcY += 1, dstY += 1) {
-		Pixel color = src.getLinePtr<Pixel>(srcY)[0];
-		Pixel* dstLine = dst.getLinePtrDirect<Pixel>(dstY);
-		memset(dstLine, dst.getWidth(), color);
+	if (PLATFORM_GP2X) {
+		// note: src.getLinePtr() internally does a src.lock(). In a
+		//       profile the Lock function is relatively high. Though
+		//       if we put the blank line color info in some other
+		//       data structure (no need to lock()), the FillRect
+		//       function takes the place of Lock. So it seems we are
+		//       simply waiting for the previous blit command to
+		//       finish.
+		dst.unlock();
+		SDL_Rect dstRect;
+		dstRect.x = 0;
+		dstRect.w = dst.getWidth();
+		for (unsigned srcY = srcStartY, dstY = dstStartY; dstY < dstEndY; /**/) {
+			dstRect.y = dstY;
+			Pixel color = src.getLinePtr<Pixel>(srcY)[0];
+			unsigned start = srcY;
+			do {
+				srcY += 1;
+			} while ((src.getLinePtr<Pixel>(srcY)[0] == color) &&
+				 (srcY < srcEndY));
+			unsigned height = srcY - start;
+			dstY += height;
+			dstRect.h = height;
+			SDL_FillRect(dst.getSDLSurface(), &dstRect, color);
+		}
+	} else {
+		dst.lock();
+		MemoryOps::MemSet<Pixel, MemoryOps::STREAMING> memset;
+		for (unsigned srcY = srcStartY, dstY = dstStartY;
+		     dstY < dstEndY; srcY += 1, dstY += 1) {
+			Pixel color = src.getLinePtr<Pixel>(srcY)[0];
+			Pixel* dstLine = dst.getLinePtrDirect<Pixel>(dstY);
+			memset(dstLine, dst.getWidth(), color);
+		}
 	}
 }
 
@@ -120,6 +148,20 @@ void LowScaler<Pixel>::scale1x1to1x1(FrameSource& src,
 	unsigned srcStartY, unsigned srcEndY, unsigned srcWidth,
 	OutputSurface& dst, unsigned dstStartY, unsigned dstEndY)
 {
+	if (PLATFORM_GP2X) {
+		if (RawFrame* raw = dynamic_cast<RawFrame*>(&src)) {
+			raw->unlock();
+			dst.unlock();
+			unsigned height = dstEndY - dstStartY;
+			SDL_Rect srcRect, dstRect;
+			srcRect.x = 0;        srcRect.y = srcStartY;
+			srcRect.w = srcWidth; srcRect.h = height;
+			dstRect.x = 0;        dstRect.y = dstStartY;
+			SDL_BlitSurface(raw->getSDLSurface(), &srcRect,
+			               dst.getSDLSurface(),  &dstRect);
+			return;
+		}
+	}
 	doScale1<Pixel>(src, srcStartY, srcEndY, srcWidth, dst, dstStartY, dstEndY,
 	                Scale_1on1<Pixel>());
 }
