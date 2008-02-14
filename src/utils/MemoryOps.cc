@@ -252,10 +252,11 @@ static inline void memset_32(unsigned* out, unsigned num, unsigned val)
 		"tst     %[num],#1\n\t"
 		"strne   r3,[%[out]]\n\t"
 
-		: // no output
-		: [out] "r" (out)
-		, [val] "r" (val)
-		, [num] "r" (num)
+		: [out] "=r"    (out)
+		, [num] "=r"    (num)
+		:       "[out]" (out)
+		,       "[num]" (num)
+		, [val] "r"     (val)
 		: "r3","r4","r5","r6","r7","r8","r9","r10"
 	);
 	return;
