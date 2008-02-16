@@ -37,6 +37,11 @@ SRC_HDR += \
 	Multiply32
 endif
 
+ifeq ($(PLATFORM_GP2X), 1)
+SRC_HDR += \
+	GP2XMMUHack
+endif
+
 HDR_ONLY:= \
 	DirtyChecker \
 	DisplayMode \

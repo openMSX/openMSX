@@ -6,6 +6,10 @@
 #include "openmsx.hh"
 #include <SDL.h>
 
+#if PLATFORM_GP2X
+#include "GP2XMMUHack.hh"
+#endif
+
 namespace openmsx {
 
 RawFrame::RawFrame(
@@ -54,6 +58,10 @@ RawFrame::RawFrame(
 			setBlank(line, static_cast<unsigned>(0));
 		}
 	}
+
+#if PLATFORM_GP2X
+	GP2XMMUHack::instance().patchPageTables();
+#endif
 }
 
 RawFrame::~RawFrame()
