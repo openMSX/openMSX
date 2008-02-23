@@ -1,10 +1,9 @@
 // $Id$
 
-#ifndef SDLTEXTURE_HH
-#define SDLTEXTURE_HH
+#ifndef SDLIMAGE_HH
+#define SDLIMAGE_HH
 
-#include "openmsx.hh"
-#include "noncopyable.hh"
+#include "BaseImage.hh"
 #include <string>
 
 class SDL_Surface;
@@ -13,7 +12,7 @@ namespace openmsx {
 
 class OutputSurface;
 
-class SDLImage : private noncopyable
+class SDLImage : public BaseImage
 {
 public:
 	SDLImage(OutputSurface& output, const std::string& filename);
@@ -22,10 +21,12 @@ public:
 	SDLImage(OutputSurface& output, const std::string& filename,
 	         unsigned width, unsigned height);
 	SDLImage(OutputSurface& output,
-	         unsigned width, unsigned height, byte alpha);
-	~SDLImage();
+	         unsigned width, unsigned height, byte alpha,
+	         byte r = 0, byte g = 0, byte b = 0);
+	SDLImage(OutputSurface& output, SDL_Surface* image);
+	virtual ~SDLImage();
 
-	void draw(unsigned x, unsigned y, byte alpha = 255);
+	virtual void draw(unsigned x, unsigned y, byte alpha = 255);
 
 private:
 	void init(const std::string& filename);

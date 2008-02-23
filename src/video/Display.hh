@@ -24,6 +24,7 @@ class Setting;
 class RepaintAlarm;
 class ScreenShotCmd;
 class FpsInfoTopic;
+class OSDGUI;
 
 /** Represents the output window/screen of openMSX.
   * A display contains several layers.
@@ -39,6 +40,7 @@ public:
 	VideoSystem& getVideoSystem();
 
 	RenderSettings& getRenderSettings();
+	OSDGUI& getOSDGUI();
 
 	/** Redraw the display.
 	  */
@@ -92,6 +94,7 @@ private:
 	const std::auto_ptr<RepaintAlarm> alarm; // delayed repaint
 	const std::auto_ptr<ScreenShotCmd> screenShotCmd;
 	const std::auto_ptr<FpsInfoTopic> fpsInfo;
+	const std::auto_ptr<OSDGUI> osdGui;
 
 	Reactor& reactor;
 	std::auto_ptr<RenderSettings> renderSettings;

@@ -11,6 +11,7 @@ class Rasterizer;
 class VDP;
 class V9990Rasterizer;
 class V9990;
+class OutputSurface;
 
 /** Video back-end system.
   */
@@ -66,6 +67,9 @@ public:
 	/** Change the window title.
 	  */
 	virtual void setWindowTitle(const std::string& title);
+
+	/** TODO */
+	virtual OutputSurface* getOutputSurface() = 0;
 };
 
 } // namespace openmsx

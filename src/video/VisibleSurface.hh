@@ -15,6 +15,7 @@ class CommandController;
 class EventDistributor;
 class Display;
 class IconStatus;
+class OSDGUI;
 
 /** An OutputSurface which is visible to the user, such as a window or a
   * full screen display.
@@ -39,6 +40,8 @@ public:
 	virtual std::auto_ptr<Layer> createIconLayer(
 		CommandController& commandController,
 		Display& display, IconStatus& iconStatus) = 0;
+	virtual std::auto_ptr<Layer> createOSDGUILayer(
+		OSDGUI& gui) = 0;
 
 protected:
 	VisibleSurface();

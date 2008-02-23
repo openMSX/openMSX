@@ -23,6 +23,7 @@ public:
 	virtual std::auto_ptr<Layer> createIconLayer(
 		CommandController& commandController,
 		Display& display, IconStatus& iconStatus);
+	virtual std::auto_ptr<Layer> createOSDGUILayer(OSDGUI& gui);
 };
 
 } // namespace openmsx

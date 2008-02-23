@@ -5,6 +5,7 @@
 #include "CommandException.hh"
 #include "SDLSnow.hh"
 #include "SDLConsole.hh"
+#include "OSDGUILayer.hh"
 #include "IconLayer.hh"
 #include "build-info.hh"
 #include <cstring>
@@ -84,6 +85,11 @@ std::auto_ptr<Layer> SDLVisibleSurface::createIconLayer(
 {
 	return std::auto_ptr<Layer>(new SDLIconLayer(
 			commandController, display, iconStatus, *this));
+}
+
+std::auto_ptr<Layer> SDLVisibleSurface::createOSDGUILayer(OSDGUI& gui)
+{
+	return std::auto_ptr<Layer>(new SDLOSDGUILayer(gui));
 }
 
 } // namespace openmsx

@@ -36,7 +36,7 @@ SDLImage::SDLImage(OutputSurface& output_, const string& filename,
 }
 
 SDLImage::SDLImage(OutputSurface& output_, unsigned width, unsigned height,
-                   byte alpha)
+                   byte alpha, byte r, byte g, byte b)
 	: output(output_)
 {
 	const SDL_PixelFormat& format = output.getSDLFormat();
@@ -44,8 +44,19 @@ SDLImage::SDLImage(OutputSurface& output_, unsigned width, unsigned height,
 		width, height, format.BitsPerPixel,
 		format.Rmask, format.Gmask, format.Bmask, 0);
 	if (image) {
+		if (r || g || b) {
+			SDL_FillRect(image, NULL,
+			             SDL_MapRGB(&output.getSDLFormat(), r, g, b));
+		}
 		SDL_SetAlpha(image, SDL_SRCALPHA, alpha);
 	}
+	init("");
+}
+
+SDLImage::SDLImage(OutputSurface& output_, SDL_Surface* image_)
+	: output(output_)
+	, image(image_)
+{
 	init("");
 }
 

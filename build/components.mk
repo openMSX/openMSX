@@ -8,7 +8,7 @@ endif
 # For static linking, it's important that if lib A depends on B, A is in the
 # list before B.
 # TODO: Would it be better to use different LDFLAGS instead?
-CORE_LIBS:=SDL_IMAGE SDL PNG TCL XML ZLIB
+CORE_LIBS:=SDL_IMAGE SDL_TTF SDL PNG TCL XML ZLIB
 ifneq ($(filter x,$(foreach LIB,$(CORE_LIBS),x$(HAVE_$(LIB)_LIB))),)
 COMPONENT_CORE:=false
 endif

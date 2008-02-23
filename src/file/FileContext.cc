@@ -52,6 +52,7 @@ string FileContext::resolve(const vector<string>& pathList,
 	// TODO handle url-protocols better
 	PRT_DEBUG("Context: " << filename);
 	string filepath = FileOperations::expandCurrentDirFromDrive(filename);
+	filepath = FileOperations::expandTilde(filepath);
 	if ((filepath.find("://") != string::npos) ||
 	    FileOperations::isAbsolutePath(filepath)) {
 		// protocol specified or absolute path, don't resolve

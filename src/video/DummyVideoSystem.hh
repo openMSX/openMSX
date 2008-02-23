@@ -13,6 +13,7 @@ public:
 	// VideoSystem interface:
 	virtual V9990Rasterizer* createV9990Rasterizer(V9990& vdp);
 	virtual void flush();
+	virtual OutputSurface* getOutputSurface();
 };
 
 } // namespace openmsx

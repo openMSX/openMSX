@@ -4,6 +4,7 @@
 #include "ScreenShotSaver.hh"
 #include "GLSnow.hh"
 #include "GLConsole.hh"
+#include "OSDGUILayer.hh"
 #include "InitException.hh"
 #include "IconLayer.hh"
 #include "build-info.hh"
@@ -218,6 +219,11 @@ std::auto_ptr<Layer> SDLGLVisibleSurface::createIconLayer(
 {
 	return std::auto_ptr<Layer>(new GLIconLayer(
 			commandController, display, iconStatus, *this));
+}
+
+std::auto_ptr<Layer> SDLGLVisibleSurface::createOSDGUILayer(OSDGUI& gui)
+{
+	return std::auto_ptr<Layer>(new GLOSDGUILayer(gui));
 }
 
 } // namespace openmsx

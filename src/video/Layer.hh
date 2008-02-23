@@ -3,6 +3,7 @@
 #ifndef LAYER_HH
 #define LAYER_HH
 
+#include "noncopyable.hh"
 #include <string>
 
 namespace openmsx {
@@ -22,6 +23,7 @@ public:
 		Z_BACKGROUND = 0,
 		Z_MSX_PASSIVE = 30,
 		Z_MSX_ACTIVE = 40,
+		Z_OSDGUI = 50,
 		Z_ICONS = 90,
 		Z_CONSOLE = 100
 	};

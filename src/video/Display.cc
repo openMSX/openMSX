@@ -10,6 +10,7 @@
 #include "Command.hh"
 #include "GlobalCommandController.hh"
 #include "InfoTopic.hh"
+#include "OSDGUI.hh"
 #include "GlobalCliComm.hh"
 #include "Timer.hh"
 #include "RenderSettings.hh"
@@ -69,6 +70,7 @@ Display::Display(Reactor& reactor_)
 		reactor_.getCommandController(), *this))
 	, fpsInfo(new FpsInfoTopic(
 	      reactor_.getGlobalCommandController().getOpenMSXInfoCommand(), *this))
+	, osdGui(new OSDGUI(reactor_.getGlobalCommandController(), *this))
 	, reactor(reactor_)
 	, renderSettings(new RenderSettings(reactor.getCommandController()))
 	, currentRenderer(RendererFactory::UNINITIALIZED)
@@ -149,6 +151,11 @@ void Display::resetVideoSystem()
 RenderSettings& Display::getRenderSettings()
 {
 	return *renderSettings;
+}
+
+OSDGUI& Display::getOSDGUI()
+{
+	return *osdGui;
 }
 
 void Display::attach(VideoSystemChangeListener& listener)

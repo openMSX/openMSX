@@ -14,5 +14,10 @@ void DummyVideoSystem::flush()
 {
 }
 
+OutputSurface* DummyVideoSystem::getOutputSurface()
+{
+	return NULL;
+}
+
 } // namespace openmsx
 

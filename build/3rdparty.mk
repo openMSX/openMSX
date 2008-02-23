@@ -37,6 +37,7 @@ DOWNLOAD_ZLIB:=http://downloads.sourceforge.net/libpng
 DOWNLOAD_PNG:=http://downloads.sourceforge.net/libpng
 DOWNLOAD_SDL:=http://www.libsdl.org/release
 DOWNLOAD_SDL_IMAGE:=http://www.libsdl.org/projects/SDL_image/release
+DOWNLOAD_SDL_TTF:=http://www.libsdl.org/projects/SDL_ttf/release
 DOWNLOAD_GLEW:=http://downloads.sourceforge.net/glew
 DOWNLOAD_TCL:=http://downloads.sourceforge.net/tcl
 DOWNLOAD_XML:=http://xmlsoft.org/sources
@@ -48,6 +49,7 @@ PACKAGE_ZLIB:=zlib-1.2.3
 PACKAGE_PNG:=libpng-1.2.23
 PACKAGE_SDL:=SDL-1.2.12
 PACKAGE_SDL_IMAGE:=SDL_image-1.2.6
+PACKAGE_SDL_TTF:=SDL_ttf-2.0.9
 PACKAGE_GLEW:=glew-1.4.0
 PACKAGE_TCL:=tcl8.4.16
 PACKAGE_XML:=libxml2-2.6.30
@@ -87,7 +89,7 @@ endif
 
 # Unfortunately not all packages stick to naming conventions such as putting
 # the sources in a dir that includes the version number.
-PACKAGES_STD:=ZLIB PNG SDL SDL_IMAGE XML
+PACKAGES_STD:=ZLIB PNG SDL SDL_IMAGE SDL_TTF XML
 PACKAGES_NONSTD:=GLEW TCL
 PACKAGES_NOBUILD:=
 ifeq ($(OPENMSX_TARGET_OS),mingw32)
@@ -105,6 +107,7 @@ TARBALL_ZLIB:=$(PACKAGE_ZLIB).tar.gz
 TARBALL_PNG:=$(PACKAGE_PNG).tar.gz
 TARBALL_SDL:=$(PACKAGE_SDL).tar.gz
 TARBALL_SDL_IMAGE:=$(PACKAGE_SDL_IMAGE).tar.gz
+TARBALL_SDL_TTF:=$(PACKAGE_SDL_TTF).tar.gz
 TARBALL_XML:=$(PACKAGE_XML).tar.gz
 
 BUILD_TARGETS:=$(foreach PACKAGE,$(PACKAGES_BUILD),$(TIMESTAMP_DIR)/build-$(PACKAGE_$(PACKAGE)))
@@ -197,6 +200,20 @@ $(BUILD_DIR)/$(PACKAGE_SDL_IMAGE)/Makefile: \
 		CFLAGS="$(_CFLAGS) $(shell $(PWD)/$(INSTALL_DIR)/bin/libpng12-config --cflags)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
 		LDFLAGS="$(shell $(PWD)/$(INSTALL_DIR)/bin/libpng12-config --static --ldflags)"
+
+# Configure SDL_ttf.
+SDL_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/sdl-config
+$(SDL_CONFIG_SCRIPT): $(TIMESTAMP_DIR)/install-$(PACKAGE_SDL)
+$(BUILD_DIR)/$(PACKAGE_SDL_TTF)/Makefile: \
+  $(SOURCE_DIR)/$(PACKAGE_SDL_TTF) $(SDL_CONFIG_SCRIPT)
+	mkdir -p $(@D)
+	cd $(@D) && $(PWD)/$</configure \
+		--disable-sdltest \
+		--host=$(TARGET_TRIPLE) \
+		--prefix=$(PWD)/$(INSTALL_DIR) \
+		CFLAGS="$(_CFLAGS)" \
+		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
+		LDFLAGS=""
 
 # Configure libpng.
 $(BUILD_DIR)/$(PACKAGE_PNG)/Makefile: \

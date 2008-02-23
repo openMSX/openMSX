@@ -39,6 +39,7 @@ public:
 	virtual void flush();
 	virtual void takeScreenShot(const std::string& filename);
 	virtual void setWindowTitle(const std::string& title);
+	virtual OutputSurface* getOutputSurface();
 
 private:
 	// EventListener
@@ -56,6 +57,7 @@ private:
 	std::auto_ptr<Layer> console;
 	std::auto_ptr<Layer> snowLayer;
 	std::auto_ptr<Layer> iconLayer;
+	std::auto_ptr<Layer> osdGuiLayer;
 };
 
 } // namespace openmsx

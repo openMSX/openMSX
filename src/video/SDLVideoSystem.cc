@@ -37,9 +37,11 @@ SDLVideoSystem::SDLVideoSystem(Reactor& reactor)
 	snowLayer = screen->createSnowLayer();
 	iconLayer = screen->createIconLayer(
 		reactor.getCommandController(), display, reactor.getIconStatus());
+	osdGuiLayer = screen->createOSDGUILayer(display.getOSDGUI());
 	display.addLayer(*console);
 	display.addLayer(*snowLayer);
 	display.addLayer(*iconLayer);
+	display.addLayer(*osdGuiLayer);
 
 	renderSettings.getScaleFactor().attach(*this);
 
@@ -54,6 +56,7 @@ SDLVideoSystem::~SDLVideoSystem()
 
 	renderSettings.getScaleFactor().detach(*this);
 
+	display.removeLayer(*osdGuiLayer);
 	display.removeLayer(*iconLayer);
 	display.removeLayer(*snowLayer);
 	display.removeLayer(*console);
@@ -207,6 +210,11 @@ void SDLVideoSystem::takeScreenShot(const std::string& filename)
 void SDLVideoSystem::setWindowTitle(const std::string& title)
 {
 	screen->setWindowTitle(title);
+}
+
+OutputSurface* SDLVideoSystem::getOutputSurface()
+{
+	return screen.get();
 }
 
 void SDLVideoSystem::resize()

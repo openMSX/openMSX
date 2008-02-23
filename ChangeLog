@@ -1,5 +1,13 @@
 $Id$
 
+2008-02-23 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added low level OSD Tcl commands:
+	   - It's now possible to draw OnScreen filled-rectangles, images
+	     and text. See 'help osd' for more details.
+	   - Font rendering is done with SDL_ttf. This is a new library
+	     dependency.
+	   - This is still very much work in progress.
+
 2008-02-13 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added 'horizontal_stretch' setting:
 	   - amount of horizontal stretch can now be configured (some
