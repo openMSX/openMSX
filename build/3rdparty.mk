@@ -156,6 +156,13 @@ $(BUILD_TARGETS): $(TIMESTAMP_DIR)/build-%: $(BUILD_DIR)/%/Makefile
 	mkdir -p $(@D)
 	touch $@
 
+# Configuration of a lib can depend on the lib-config script of another lib.
+# For example SDL_image depends on SDL and libpng.
+PNG_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/libpng12-config
+SDL_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/sdl-config
+$(PNG_CONFIG_SCRIPT): $(TIMESTAMP_DIR)/install-$(PACKAGE_PNG)
+$(SDL_CONFIG_SCRIPT): $(TIMESTAMP_DIR)/install-$(PACKAGE_SDL)
+
 # Configure SDL.
 $(BUILD_DIR)/$(PACKAGE_SDL)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_SDL) $(INSTALL_DIRECTX)
@@ -174,10 +181,6 @@ $(BUILD_DIR)/$(PACKAGE_SDL)/Makefile: \
 # modules do and if we disable them, SDL will not link.
 
 # Configure SDL_image.
-PNG_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/libpng12-config
-SDL_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/sdl-config
-$(PNG_CONFIG_SCRIPT): $(TIMESTAMP_DIR)/install-$(PACKAGE_PNG)
-$(SDL_CONFIG_SCRIPT): $(TIMESTAMP_DIR)/install-$(PACKAGE_SDL)
 $(BUILD_DIR)/$(PACKAGE_SDL_IMAGE)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_SDL_IMAGE) $(PNG_CONFIG_SCRIPT) $(SDL_CONFIG_SCRIPT)
 	mkdir -p $(@D)
@@ -202,8 +205,6 @@ $(BUILD_DIR)/$(PACKAGE_SDL_IMAGE)/Makefile: \
 		LDFLAGS="$(shell $(PWD)/$(INSTALL_DIR)/bin/libpng12-config --static --ldflags)"
 
 # Configure SDL_ttf.
-SDL_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/sdl-config
-$(SDL_CONFIG_SCRIPT): $(TIMESTAMP_DIR)/install-$(PACKAGE_SDL)
 $(BUILD_DIR)/$(PACKAGE_SDL_TTF)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_SDL_TTF) $(SDL_CONFIG_SCRIPT)
 	mkdir -p $(@D)
