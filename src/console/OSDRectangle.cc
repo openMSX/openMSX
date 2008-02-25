@@ -3,8 +3,9 @@
 #include "OSDRectangle.hh"
 #include "OutputSurface.hh"
 #include "SDLImage.hh"
+#include "CommandException.hh"
 #include "FileContext.hh"
-#include "MSXException.hh"
+#include "FileOperations.hh"
 #include "StringOp.hh"
 #include "components.hh"
 #ifdef COMPONENT_GL
@@ -51,6 +52,9 @@ void OSDRectangle::setProperty(const string& name, const string& value)
 			invalidate();
 		}
 	} else if (name == "-image") {
+		if (!value.empty() && !FileOperations::isRegularFile(value)) {
+			throw CommandException("Not a valid image file: " + value);
+		}
 		imageName = value;
 		invalidate();
 	} else {

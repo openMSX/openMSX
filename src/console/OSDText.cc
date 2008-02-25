@@ -2,8 +2,9 @@
 
 #include "OSDText.hh"
 #include "SDLImage.hh"
+#include "CommandException.hh"
 #include "FileContext.hh"
-#include "MSXException.hh"
+#include "FileOperations.hh"
 #include "StringOp.hh"
 #include <SDL_ttf.h>
 #include "components.hh"
@@ -60,6 +61,9 @@ void OSDText::setProperty(const std::string& name, const std::string& value)
 		text = value;
 		invalidate();
 	} else if (name == "-font") {
+		if (!FileOperations::isRegularFile(value)) {
+			throw CommandException("Not a valid font file: " + value);
+		}
 		fontfile = value;
 		invalidate();
 		font.reset();

@@ -405,21 +405,21 @@ string expandCurrentDirFromDrive(const string& path)
 bool isRegularFile(const string& filename)
 {
 	struct stat st;
-	int ret = stat(filename.c_str(), &st);
+	int ret = stat(expandTilde(filename).c_str(), &st);
 	return (ret == 0) && S_ISREG(st.st_mode);
 }
 
 bool isDirectory(const string& directory)
 {
 	struct stat st;
-	int ret = stat(directory.c_str(), &st);
+	int ret = stat(expandTilde(directory).c_str(), &st);
 	return (ret == 0) && S_ISDIR(st.st_mode);
 }
 
 bool exists(const string& filename)
 {
 	struct stat st;
-	return stat(filename.c_str(), &st) == 0;
+	return stat(expandTilde(filename).c_str(), &st) == 0;
 }
 
 static int getNextNum(dirent* d, const string& prefix, const string& extension,
