@@ -24,6 +24,7 @@
       <keyboard_type>int</keyboard_type> <!-- It has a Brazillian/Portuguese layout, with special composing capabilities in the ROM -->
       <has_keypad>true</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
+      <code_kana_locks>false</code_kana_locks>
     </PPI>
 
     <VDP id="VDP">

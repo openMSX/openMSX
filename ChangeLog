@@ -1,5 +1,29 @@
 $Id$
 
+
+2008-02-25 Alex Wulms
+	* Several updates to keyboard driver:
+	   - Implemented auto-toggle of KANA-lock (and CODE-lock on VG8010)
+	     based on the character that the user enters. This is only done on
+	     MSX models on which CODE/KANA has a locking behaviour. Though, 
+	     user can switch it off via auto_toggle_code_kana_lock setting.
+	   - Implemented auto-toggle of CODE/KANA-lock when pasting characters
+	     (either through catapult or via the type command in the console).
+	     This is always done on MSX models on which the CODE/KANA locks.
+	   - Implemented auto-toggle of CAPSLOCK when pasting characters. This
+	     is especially required for japanese models, which use CAPSLOCK to
+	     differentiate between hiragana and katakana entry mode when
+	     CANALOCK is on.
+	   - Added a mnemomic DEADKEY to the unicode maps, to indicate the
+	     position of the dead key in the MSX matrix (it is different on
+	     german MSX models)
+	   - Added setting keyboard_mapping_mode, so that user can select 
+	     between KEY to key mapping mode and CHARACTER to key-combination
+	     mapping mode.
+	   - Refactored keyboard driver; unicode mapping data is now in its own
+	     class and it uses a std::map to store the mapping data in stead of
+	     a (sparse) 64k entries matrix.
+
 2008-02-23 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added low level OSD Tcl commands:
 	   - It's now possible to draw OnScreen filled-rectangles, images

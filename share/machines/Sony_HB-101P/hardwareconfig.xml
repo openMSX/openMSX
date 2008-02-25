@@ -22,6 +22,7 @@
         <volume>16000</volume>
       </sound>
       <io base="0xA8" num="4"/>
+      <code_kana_locks>false</code_kana_locks>
     </PPI>
 
     <VDP id="VDP">

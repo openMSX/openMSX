@@ -10,6 +10,7 @@
 #include "openmsx.hh"
 #include "Keys.hh"
 #include "KeyboardSettings.hh"
+#include "UnicodeKeymap.hh"
 #include <string>
 #include <vector>
 #include <memory>
@@ -27,6 +28,7 @@ class KeyInserter;
 class KeyEvent;
 class CapsLockAligner;
 class Setting;
+class MsxKeyEventQueue;
 template <typename T> class EnumSetting;
 
 class Keyboard : private MSXEventListener, private Schedulable, private Observer<Setting>
@@ -42,12 +44,13 @@ public:
 	 * @param hasKeypad turn MSX keypad on/off
 	 * @param keyGhosting turn keyGhosting on/off
 	 * @param keyGhostingSGCprotected Shift, Graph and Code are keyGhosting protected
+	 * @param codeKanaLocks CodeKana key behave as a lock key on this machine
 	 */
 	Keyboard(Scheduler& scheduler, MSXCommandController& msxCommandController,
 	         EventDistributor& eventDistributor,
 	         MSXEventDistributor& msxEventDistributor,
 	         std::string& keyboardType, bool hasKeypad,
-		 bool keyGhosting, bool keyGhostingSGCprotected);
+		 bool keyGhosting, bool keyGhostingSGCprotected, bool codeKanaLocks);
 
 	virtual ~Keyboard();
 
@@ -72,20 +75,21 @@ private:
 	virtual void executeUntil(const EmuTime& time, int userData);
 	virtual const std::string& schedName() const;
 
-	void processCodeKanaChange(bool down);
+	void processRightControlEvent(bool down);
 	void processCapslockEvent(const EmuTime& time);
+	void processCodeKanaChange(bool down);
 	void processKeypadEnterKey(bool down);
 	void processSdlKey(bool down, int key);
-	void processKeyEvent(bool down, const KeyEvent& keyEvent);
+	bool processQueuedEvent(shared_ptr<const Event> event, const EmuTime& time);
+	bool processKeyEvent(bool down, const KeyEvent& keyEvent);
 	void updateKeyMatrix(bool down, int row, byte mask);
 	void doKeyGhosting();
 	void parseKeymapfile(const byte* buf, unsigned size);
 	void loadKeymapfile(const std::string& filename);
-	void parseUnicodeKeymapfile(const byte* buf, unsigned size);
-	void loadUnicodeKeymapfile(const std::string& filename);
 	std::string processCmd(const std::vector<std::string>& tokens, bool up);
-	void pressUnicodeByUser(Unicode::unicode1_char unicode, int key, bool down);
-	void pressAscii(Unicode::unicode1_char unicode, bool down);
+	bool pressUnicodeByUser(Unicode::unicode1_char unicode, int key, bool down);
+	int pressAscii(Unicode::unicode1_char unicode, bool down);
+	void pressLockKeys(int lockKeysMask, bool down);
 	bool commonKeys(Unicode::unicode1_char unicode1, Unicode::unicode1_char unicode2);
 
 	MSXEventDistributor& msxEventDistributor;
@@ -94,12 +98,14 @@ private:
 	friend class KeyMatrixDownCmd;
 	friend class KeyInserter;
 	friend class CapsLockAligner;
+	friend class MsxKeyEventQueue;
 
 	const std::auto_ptr<KeyMatrixUpCmd>   keyMatrixUpCmd;
 	const std::auto_ptr<KeyMatrixDownCmd> keyMatrixDownCmd;
 	const std::auto_ptr<KeyInserter>      keyTypeCmd;
 	const std::auto_ptr<CapsLockAligner>  capsLockAligner;
 	const std::auto_ptr<KeyboardSettings> keyboardSettings;
+	const std::auto_ptr<MsxKeyEventQueue>    msxKeyEventQueue;
 
 	byte cmdKeyMatrix[NR_KEYROWS];
 	byte userKeyMatrix[NR_KEYROWS];
@@ -110,11 +116,13 @@ private:
 	bool keysChanged;
 	bool msxCapsLockOn;
 	bool hasKeypad;
+	bool msxCodeKanaLockOn;
+	bool codeKanaLocks;
 	static const int MAX_KEYSYM = 0x150;
 	static byte keyTab[MAX_KEYSYM][2];
 //	static short asciiTab[256][2];
 	Unicode::unicode1_char dynKeymap[MAX_KEYSYM];
-	byte unicodeTab[65536][3];
+	const std::auto_ptr<UnicodeKeymap> unicodeKeymap;
 };
 
 } // namespace openmsx

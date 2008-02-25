@@ -37,6 +37,14 @@ the MSX's numeric keypad.
 If false, key-presses on the host numeric keypad will be ignored. User can
 overrule this with a setting in the settings.xml file.
 
+Setting name: code_kana_locks
+Default value: false
+Description:
+When true, the the CODE/KANA key locks on the emulated machine. Is in practice the
+behaviour of all Japanese MSX models and of the VG8010.
+If false, CODE/KANA key does not lock (e.g. it is only active as long as the key is
+pressed)
+
 In section <PSG>...</PSG>:
 Setting name: keyboardlayout
 Default value: <empty>

@@ -19,6 +19,10 @@ KeyboardSettings::KeyboardSettings(MSXCommandController& msxCommandController)
 		"trace_key_presses",
 		"Trace key presses (show SDL key code, SDL modifiers and Unicode code-point value)",
 		false, Setting::DONT_SAVE))
+	, autoToggleCodeKanaLock(new BooleanSetting(msxCommandController,
+		"auto_toggle_code_kana_lock",
+		"Automatically toggle the CODE/KANA lock, based on the characters entered on the host keyboard",
+		false))
 {
 	EnumSetting<Keys::KeyCode>::Map allowedKeys;
 	allowedKeys["RALT"]   = Keys::K_RALT;
@@ -42,6 +46,14 @@ KeyboardSettings::KeyboardSettings(MSXCommandController& msxCommandController)
 		msxCommandController, "keypad_enter_key",
 		"MSX key that the enter key on the host key pad must map to",
 		MSX_KP_COMMA, kpEnterModeMap));
+
+	EnumSetting<MappingMode>::Map mappingModeMap;
+	mappingModeMap["KEY"] = KEY_MAPPING;
+	mappingModeMap["CHARACTER"] = CHARACTER_MAPPING;
+	mappingMode.reset(new EnumSetting<MappingMode>(
+		msxCommandController, "keyboard_mapping_mode",
+		"Keyboard mapping mode",
+		CHARACTER_MAPPING, mappingModeMap));
 }
 
 KeyboardSettings::~KeyboardSettings()
@@ -58,6 +70,11 @@ EnumSetting<KeyboardSettings::KpEnterMode>& KeyboardSettings::getKpEnterMode()
 	return *kpEnterMode.get();
 }
 
+EnumSetting<KeyboardSettings::MappingMode>& KeyboardSettings::getMappingMode()
+{
+	return *mappingMode.get();
+}
+
 FilenameSetting& KeyboardSettings::getKeymapFile()
 {
 	return *keymapFile.get();
@@ -71,6 +88,11 @@ BooleanSetting& KeyboardSettings::getAlwaysEnableKeypad()
 BooleanSetting& KeyboardSettings::getTraceKeyPresses()
 {
 	return *traceKeyPresses.get();
+}
+
+BooleanSetting& KeyboardSettings::getAutoToggleCodeKanaLock()
+{
+	return *autoToggleCodeKanaLock.get();
 }
 
 } // namespace openmsx

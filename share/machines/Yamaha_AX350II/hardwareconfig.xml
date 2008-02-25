@@ -104,6 +104,7 @@
       <keyboard_type>int</keyboard_type> <!-- Should be Arabic -->
       <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
+      <code_kana_locks>false</code_kana_locks>
     </PPI>
 
     <VDP id="VDP">

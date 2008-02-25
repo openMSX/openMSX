@@ -132,6 +132,8 @@
 
         <li><a class="internal" href="#autoruncassettes">autoruncassettes</a></li>
 
+        <li><a class="internal" href="#auto_toggle_code_kana_lock">auto_toggle_code_kana_lock</a></li>
+
         <li><a class="internal" href="#blur">blur</a></li>
 
         <li><a class="internal" href="#bootsector">bootsector</a></li>
@@ -191,6 +193,8 @@
         <li><a class="internal" href="#icon.name.setting">icon.&lt;name&gt;.&lt;setting&gt;</a></li>
 
         <li><a class="internal" href="#inputdelay">inputdelay</a></li>
+
+	<li><a class="internal" href="#keyboard_mapping_mode">keyboard_mapping_mode</a></li>
 
         <li><a class="internal" href="#keyjoystick_n_button">keyjoystick&lt;n&gt;.&lt;button&gt;</a></li>
 
@@ -1978,6 +1982,40 @@
     Note: This only works with CAS images for now and it is still an experimental feature.
   </div>
 
+  <h3><a id="auto_toggle_code_kana_lock">auto_toggle_code_kana_lock</a></h3>
+
+  <p>Switches the "Automatically toggle the CODE/KANA lock" feature on or off. When it's on, openMSX will
+  automatically toggle the CODE/KANA lock when a user enters a character for which the CODE/KANA lock
+  state must be changed.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set auto_toggle_code_kana_lock</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set&nbsp;auto_toggle_code_kana_lock&nbsp;on</code></td>
+
+      <td>Automatically toggle the CODE/KANA lock when required</td>
+    </tr>
+
+    <tr>
+      <td><code>set&nbsp;auto_toggle_code_kana_lock&nbsp;off</code></td>
+
+      <td>Only toggle CODE/KANA lock status when user presses the CODE/KANA lock key</td>
+    </tr>
+  </table>
+
+  <div class="note">
+    Note: This only works on MSX models for which the CODE/KANA key locks (e.g. Japanese MSX models and the Philips VG8010). On other models, this setting is ignored.
+  </div>
+
   <h3><a id="blur">blur</a></h3>
 
   <p>Sets the amount of horizontal blur effect. A value of 0 turns off blur, while 100 selects maximum blur.</p>
@@ -2886,6 +2924,45 @@
     Note: The default value of 0.03 seconds should almost always be OK, this small delay is practically not noticeable and still allows the MSX machine to get accurate timing on the input events. Please <b>do not change</b> the value of this setting unless you know what you are doing.
   </div>
 
+  <h3><a id="keyboard_mapping_mode">keyboard_mapping_mode</a></h3>
+
+  <p>The keyboard driver can work in two mapping modes; KEY mapping and CHARACTER mapping.</p>
+  <p><b>KEY mapping:</b> A key pressed on the host keyboard maps to one specific key on the MSX keyboard. This mode
+  is convenient when the host keyboard and the MSX keyboard have the same layout or when working with a program
+  that directly reads the keyboard matrix and forces the user to enter a certain key combination that can not
+  be auto-generated in the CHARACTER mapping mode.
+  <p><b>CHARACTER mapping:</b> A character entered by the user is mapped to the correct key combination on the MSX to
+  enter that character. For example, when the user enters an ! character and openMSX is emulating an 'international'
+  MSX model, the keyboard driver will press SHIFT and 1 on the MSX keyboard. This will be done regardless of the key
+  or keys that the user pressed on the host keyboard to enter the ! character.<br>
+  This is especially usefull when the user has an azerty host keyboard and is working on a qwerty style MSX or
+  when he has a US-qwerty keyboard and is working on a Japanese MSX.<br>
+  Note that special keys (like CAPSLOCK) are mapped directly, just like in the KEY mode.
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set&nbsp;keyboard_mapping_mode</code></td>
+
+      <td>Shows the current mode</td>
+    </tr>
+      
+    <tr>
+      <td><code>set&nbsp;keyboard_mapping_mode&nbsp;CHARACTER</code></td>
+
+      <td>Set the CHARACTER mapping mode</td>
+    </tr>
+      
+    <tr>
+      <td><code>set&nbsp;keyboard_mapping_mode&nbsp;KEY</code></td>
+
+      <td>Set the KEY mapping mode</td>
+    </tr>
+
+  </table>
+
   <h3><a id="keyjoystick_n_button">keyjoystick&lt;n&gt;.&lt;button&gt;</a></h3>
 
   <p>Configure the keys of the keyjoysticks. It's likely this will change in the future.</p>
@@ -2923,14 +3000,13 @@
   <h3><a id="keymap-filename">keymap-filename</a></h3>
 
   <p>Sets the filename of the file that contains a mapping from host keys to
-  MSX keys. It is only used for special keys for which no unicode character
-  exists, like the SHIFT key, the ALT key and so on. On the longer term, this
-  file should become obsolete as most of the special keys are very standardized
-  and there are now new settings (like <code><a class="internal"
-  href="#keypad_enter_key">keypad_enter_key</a></code>) to handle the few
-  exceptional cases.  However, we keep it for the time being, just in case that
-  there is some special situation that is not yet covered by user setting
-  parameters. By default, this setting is not set.</p>
+  MSX keys. In CHARACTER mapping mode, it is only used for special keys for
+  which no unicode character exists, like the SHIFT key, the ALT key and so on.
+  In KEY mapping mode, it is used for all keys but the ones for which a special
+  setting exists (like <code><a class="internal"
+  href="#keypad_enter_key">keypad_enter_key</a></code>)
+  By default, this setting is not set but a built-in mapping is used. The built-in
+  mapping maps from a US-qwerty host keyboard to an 'international'-qwerty MSX keyboard</p>
 
   <div class="subsectiontitle">
     usage:
@@ -2970,13 +3046,13 @@
 
   <table>
     <tr>
-      <td><code>set keypad_enter_key</code></td>
+      <td><code>set&nbsp;keypad_enter_key</code></td>
 
       <td>Shows the current value</td>
     </tr>
 
     <tr>
-      <td><code>set keypad_enter_key ENTER</code></td>
+      <td><code>set&nbsp;keypad_enter_key&nbsp;ENTER</code></td>
 
       <td>Maps the keypad enter key to the main 'ENTER' key, instead of the comma key on the MSX keypad</td>
     </tr>

@@ -18,20 +18,27 @@ class KeyboardSettings
 {
 public:
 	enum KpEnterMode { MSX_KP_COMMA, MSX_ENTER };
+	enum MappingMode { KEY_MAPPING, CHARACTER_MAPPING };
+
 	KeyboardSettings(MSXCommandController& msxCommandController);
 	virtual ~KeyboardSettings();
 
 	EnumSetting<Keys::KeyCode>& getCodeKanaHostKey();
 	EnumSetting<KpEnterMode>& getKpEnterMode();
+	EnumSetting<MappingMode>& getMappingMode();
 	FilenameSetting& getKeymapFile();
 	BooleanSetting& getAlwaysEnableKeypad();
 	BooleanSetting& getTraceKeyPresses();
+	BooleanSetting& getAutoToggleCodeKanaLock();
+
 private:
 	std::auto_ptr<EnumSetting<Keys::KeyCode> > codeKanaHostKey;
 	std::auto_ptr<EnumSetting<KpEnterMode> > kpEnterMode;
+	std::auto_ptr<EnumSetting<MappingMode> > mappingMode;
 	std::auto_ptr<FilenameSetting> keymapFile;
 	std::auto_ptr<BooleanSetting> alwaysEnableKeypad;
 	std::auto_ptr<BooleanSetting> traceKeyPresses;
+	std::auto_ptr<BooleanSetting> autoToggleCodeKanaLock;
 };
 
 } // namespace openmsx
