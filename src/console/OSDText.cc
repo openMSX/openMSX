@@ -105,20 +105,24 @@ std::string OSDText::getType() const
 
 template <typename IMAGE> void OSDText::paint(OutputSurface& output)
 {
-	if (!image.get()) {
+	if (!image.get() && !hasError()) {
 		if (!font.get()) {
 			try {
 				SystemFileContext context;
 				string file = context.resolve(fontfile);
 				font.reset(new TTFFont(file, size));
 			} catch (MSXException& e) {
-				// TODO print warning?
+				setError("Couldn't open font: " + e.getMessage());
 			}
 		}
 		if (font.get()) {
-			SDL_Surface* surface = font->render(
-				text, getRed(), getGreen(), getBlue());
-			image.reset(new IMAGE(output, surface));
+			try {
+				SDL_Surface* surface = font->render(
+					text, getRed(), getGreen(), getBlue());
+				image.reset(new IMAGE(output, surface));
+			} catch (MSXException& e) {
+				setError("Couldn't render text: " + e.getMessage());
+			}
 		}
 	}
 	if (image.get()) {
@@ -138,7 +142,7 @@ void OSDText::paintGL(OutputSurface& output)
 #endif
 }
 
-void OSDText::invalidate()
+void OSDText::invalidateInternal()
 {
 	image.reset();
 }
@@ -174,8 +178,7 @@ TTFFont::TTFFont(std::string& filename, int ptsize)
 
 	font = TTF_OpenFont(filename.c_str(), ptsize);
 	if (!font) {
-		throw MSXException(string("Couldn't open font: ") +
-		                   TTF_GetError());
+		throw MSXException(TTF_GetError());
 	}
 }
 
@@ -189,8 +192,7 @@ SDL_Surface* TTFFont::render(const string& text, byte r, byte g, byte b)
 	SDL_Color color = { r, g, b, 0 };
 	SDL_Surface* surface = TTF_RenderUTF8_Blended(font, text.c_str(), color);
 	if (!surface) {
-		throw MSXException(string("Couldn't render text: ") +
-		                   TTF_GetError());
+		throw MSXException(TTF_GetError());
 	}
 	return surface;
 

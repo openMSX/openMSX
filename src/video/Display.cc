@@ -148,6 +148,11 @@ void Display::resetVideoSystem()
 	assert(layers.empty());
 }
 
+Reactor& Display::getReactor()
+{
+	return reactor;
+}
+
 RenderSettings& Display::getRenderSettings()
 {
 	return *renderSettings;

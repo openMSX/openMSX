@@ -33,10 +33,11 @@ public:
 
 	virtual void paintSDL(OutputSurface& output) = 0;
 	virtual void paintGL (OutputSurface& output) = 0;
-	virtual void invalidate() = 0;
+	void invalidate();
 
 protected:
 	OSDWidget(OSDGUI& gui);
+	virtual void invalidateInternal() = 0;
 
 	/** Returns true if RGBA changed.
 	 * Separate RGB- and Alpha-changed info is stored in the optional
@@ -48,12 +49,16 @@ protected:
 	/** Returns true if alpha changed. */
 	bool setAlpha(const std::string& value);
 
+	void setError(const std::string& message);
+	bool hasError() const { return error; }
+
 private:
 	OSDGUI& gui;
 	unsigned id;
 	int x, y, z;
 	byte r, g, b, a; // note: when there are widgets without color, move
 	                 //       this to an abstact colored-widget class
+	bool error;
 };
 
 } // namespace openmsx

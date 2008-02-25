@@ -78,7 +78,7 @@ std::string OSDRectangle::getType() const
 
 template <typename IMAGE> void OSDRectangle::paint(OutputSurface& output)
 {
-	if (!image.get()) {
+	if (!image.get() && !hasError()) {
 		try {
 			if (imageName.empty()) {
 				image.reset(new IMAGE(
@@ -94,7 +94,7 @@ template <typename IMAGE> void OSDRectangle::paint(OutputSurface& output)
 				}
 			}
 		} catch (MSXException& e) {
-			// TODO print warning?
+			setError(e.getMessage());
 		}
 	}
 	if (image.get()) {
@@ -115,7 +115,7 @@ void OSDRectangle::paintGL(OutputSurface& output)
 #endif
 }
 
-void OSDRectangle::invalidate()
+void OSDRectangle::invalidateInternal()
 {
 	image.reset();
 }

@@ -2,6 +2,9 @@
 
 #include "OSDWidget.hh"
 #include "OSDGUI.hh"
+#include "Display.hh"
+#include "Reactor.hh"
+#include "GlobalCliComm.hh"
 #include "CommandException.hh"
 #include "StringOp.hh"
 #include <cassert>
@@ -15,6 +18,7 @@ OSDWidget::OSDWidget(OSDGUI& gui_)
 	: gui(gui_)
 	, x(0), y(0), z(0)
 	, r(0), g(0), b(0), a(255)
+	, error(false)
 {
 	static unsigned count = 0;
 	id = ++count;
@@ -112,6 +116,18 @@ string OSDWidget::getProperty(const string& name) const
 	} else {
 		throw CommandException("No such property: " + name);
 	}
+}
+
+void OSDWidget::invalidate()
+{
+	error = false;
+	invalidateInternal();
+}
+
+void OSDWidget::setError(const string& message)
+{
+	error = true;
+	gui.getDisplay().getReactor().getGlobalCliComm().printWarning(message);
 }
 
 } // namespace openmsx

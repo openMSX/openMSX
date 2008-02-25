@@ -23,7 +23,7 @@ public:
 
 	virtual void paintSDL(OutputSurface& output);
 	virtual void paintGL (OutputSurface& output);
-	virtual void invalidate();
+	virtual void invalidateInternal();
 
 private:
 	template <typename IMAGE> void paint(OutputSurface& output);

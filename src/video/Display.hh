@@ -39,6 +39,7 @@ public:
 	void createVideoSystem();
 	VideoSystem& getVideoSystem();
 
+	Reactor& getReactor();
 	RenderSettings& getRenderSettings();
 	OSDGUI& getOSDGUI();
 
