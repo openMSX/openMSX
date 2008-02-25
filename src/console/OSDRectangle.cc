@@ -19,7 +19,6 @@ namespace openmsx {
 OSDRectangle::OSDRectangle(OSDGUI& gui)
 	: OSDWidget(gui)
 	, x(0), y(0), w(0), h(0)
-	, r(0), g(0), b(0), a(255)
 {
 }
 
@@ -29,7 +28,6 @@ void OSDRectangle::getProperties(set<string>& result) const
 	result.insert("-y");
 	result.insert("-w");
 	result.insert("-h");
-	result.insert("-rgba");
 	result.insert("-image");
 	OSDWidget::getProperties(result);
 }
@@ -47,12 +45,15 @@ void OSDRectangle::setProperty(const string& name, const string& value)
 		h = StringOp::stringToInt(value);
 		invalidate();
 	} else if (name == "-rgba") {
-		unsigned color = StringOp::stringToInt(value);
-		r = (color >> 24) & 255;
-		g = (color >> 16) & 255;
-		b = (color >>  8) & 255;
-		a = (color >>  0) & 255;
-		if (imageName.empty()) {
+		if (setRGBA(value) && imageName.empty()) {
+			invalidate();
+		}
+	} else if (name == "-rgb") {
+		if (setRGB(value) && imageName.empty()) {
+			invalidate();
+		}
+	} else if (name == "-alpha") {
+		if (setAlpha(value) && imageName.empty()) {
 			invalidate();
 		}
 	} else if (name == "-image") {
@@ -73,9 +74,6 @@ std::string OSDRectangle::getProperty(const string& name) const
 		return StringOp::toString(w);
 	} else if (name == "-h") {
 		return StringOp::toString(h);
-	} else if (name == "-rgba") {
-		unsigned color = (r << 24) | (g << 16) | (b << 8) | (a << 0);
-		return StringOp::toString(color);
 	} else if (name == "-image") {
 		return imageName;
 	} else {
@@ -93,7 +91,9 @@ template <typename IMAGE> void OSDRectangle::paint(OutputSurface& output)
 	if (!image.get()) {
 		try {
 			if (imageName.empty()) {
-				image.reset(new IMAGE(output, w, h, a, r, g, b));
+				image.reset(new IMAGE(
+					output, w, h, getAlpha(),
+					getRed(), getGreen(), getBlue()));
 			} else {
 				SystemFileContext context;
 				string file = context.resolve(imageName);
@@ -108,7 +108,7 @@ template <typename IMAGE> void OSDRectangle::paint(OutputSurface& output)
 		}
 	}
 	if (image.get()) {
-		byte alpha = imageName.empty() ? 255 : a;
+		byte alpha = imageName.empty() ? 255 : getAlpha();
 		image->draw(x, y, alpha);
 	}
 }

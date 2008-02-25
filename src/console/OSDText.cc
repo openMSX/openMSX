@@ -43,7 +43,6 @@ OSDText::OSDText(OSDGUI& gui)
 	: OSDWidget(gui)
 	, fontfile("notepad.ttf")
 	, x(0), y(0), size(12)
-	, r(0), g(0), b(0), a(255)
 {
 }
 
@@ -54,7 +53,6 @@ void OSDText::getProperties(std::set<std::string>& result) const
 	result.insert("-text");
 	result.insert("-font");
 	result.insert("-size");
-	result.insert("-rgba");
 	OSDWidget::getProperties(result);
 }
 
@@ -76,12 +74,18 @@ void OSDText::setProperty(const std::string& name, const std::string& value)
 		invalidate();
 		font.reset();
 	} else if (name == "-rgba") {
-		unsigned color = StringOp::stringToInt(value);
-		r = (color >> 24) & 255;
-		g = (color >> 16) & 255;
-		b = (color >>  8) & 255;
-		a = (color >>  0) & 255;
-		invalidate();
+		bool rgbChanged;
+		setRGBA(value, &rgbChanged);
+		if (rgbChanged) {
+			invalidate();
+		}
+	} else if (name == "-rgb") {
+		if (setRGB(value)) {
+			invalidate();
+		}
+	} else if (name == "-alpha") {
+		setAlpha(value);
+		// don't invalidate
 	} else {
 		OSDWidget::setProperty(name, value);
 	}
@@ -99,9 +103,6 @@ std::string OSDText::getProperty(const std::string& name) const
 		return fontfile;
 	} else if (name == "-size") {
 		return StringOp::toString(size);
-	} else if (name == "-rgba") {
-		unsigned color = (r << 24) | (g << 16) | (b << 8) | (a << 0);
-		return StringOp::toString(color);
 	} else {
 		return OSDWidget::getProperty(name);
 	}
@@ -125,12 +126,13 @@ template <typename IMAGE> void OSDText::paint(OutputSurface& output)
 			}
 		}
 		if (font.get()) {
-			SDL_Surface* surface = font->render(text, r, g, b);
+			SDL_Surface* surface = font->render(
+				text, getRed(), getGreen(), getBlue());
 			image.reset(new IMAGE(output, surface));
 		}
 	}
 	if (image.get()) {
-		image->draw(x, y, a);
+		image->draw(x, y, getAlpha());
 	}
 }
 

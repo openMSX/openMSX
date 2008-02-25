@@ -30,7 +30,6 @@ private:
 
 	std::string imageName;
 	int x, y, w, h;
-	byte r, g, b, a;
 	std::auto_ptr<BaseImage> image;
 };
 
