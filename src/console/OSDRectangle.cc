@@ -114,6 +114,7 @@ void OSDRectangle::paintSDL(OutputSurface& output)
 
 void OSDRectangle::paintGL(OutputSurface& output)
 {
+	(void)output;
 #ifdef COMPONENT_GL
 	paint<GLImage>(output);
 #endif

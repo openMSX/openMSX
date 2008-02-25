@@ -141,6 +141,7 @@ void OSDText::paintSDL(OutputSurface& output)
 
 void OSDText::paintGL(OutputSurface& output)
 {
+	(void)output;
 #ifdef COMPONENT_GL
 	paint<GLImage>(output);
 #endif
