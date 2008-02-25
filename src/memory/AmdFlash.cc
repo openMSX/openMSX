@@ -64,19 +64,6 @@ AmdFlash::AmdFlash(const Rom& rom_, unsigned logSectorSize_, unsigned totalSecto
 		}
 	}
 
-	//switch (type) {
-	//case AMD_TYPE_1:
-	//	cmdAddr[0] = 0xaaa;
-	//	cmdAddr[1] = 0x555;
-	//	break;
-	//case AMD_TYPE_2:
-		cmdAddr[0] = 0x555;
-		cmdAddr[1] = 0x2aa;
-	//	break;
-	//default:
-	//	assert(false);
-	//}
-
 	reset();
 }
 
@@ -115,7 +102,7 @@ byte AmdFlash::peek(unsigned address) const
 			return 0xFF;
 		}
 	} else {
-		switch (address & 0xff) {
+		switch (address & 3) {
 		case 0:
 			return 0x01;
 		case 1:
@@ -123,8 +110,11 @@ byte AmdFlash::peek(unsigned address) const
 		case 2:
 			// 1 -> write protected
 			return (writeAddress[sector] == -1) ? 1 : 0;
+		case 3:
 		default:
-			return 0xFF;
+			// TODO what is this? According to this it reads as '1'
+			//  http://www.msx.org/forumtopicl8329.html
+			return 1;
 		}
 	}
 }
@@ -233,11 +223,12 @@ bool AmdFlash::checkCommandManifacturer()
 bool AmdFlash::partialMatch(unsigned len, const byte* dataSeq) const
 {
 	static const unsigned addrSeq[] = { 0, 1, 0, 0, 1 };
+	unsigned cmdAddr[2] = { 0x555, 0x2aa };
 
 	assert(len <= 5);
 	unsigned n = std::min(len, cmdIdx);
 	for (unsigned i = 0; i < n; ++i) {
-		if (((cmd[i].addr & 0xfff) != cmdAddr[addrSeq[i]]) ||
+		if (((cmd[i].addr & 0x7ff) != cmdAddr[addrSeq[i]]) ||
 		    (cmd[i].value != dataSeq[i])) {
 			return false;
 		}

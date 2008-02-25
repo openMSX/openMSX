@@ -46,7 +46,6 @@ private:
 	const unsigned size;
 	std::vector<int> writeAddress;
 	std::vector<const byte*> readAddress;
-	unsigned cmdAddr[2];
 
 	static const unsigned MAX_CMD_SIZE = 8;
 	struct AmdCmd {
