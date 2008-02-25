@@ -26,6 +26,8 @@ public:
 	virtual void invalidate();
 
 private:
+	template <typename IMAGE> void paint(OutputSurface& output);
+
 	std::string text;
 	std::string fontfile;
 	int x, y, size;

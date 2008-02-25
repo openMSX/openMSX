@@ -110,7 +110,7 @@ std::string OSDText::getType() const
 	return "text";
 }
 
-void OSDText::paintSDL(OutputSurface& output)
+template <typename IMAGE> void OSDText::paint(OutputSurface& output)
 {
 	if (!image.get()) {
 		// TODO keep TTFFont (optimization if only text changes)
@@ -119,7 +119,7 @@ void OSDText::paintSDL(OutputSurface& output)
 			string file = context.resolve(fontfile);
 			TTFFont font(file, size);
 			SDL_Surface* surface = font.render(text, r, g, b);
-			image.reset(new SDLImage(output, surface));
+			image.reset(new IMAGE(output, surface));
 		} catch (MSXException& e) {
 			// TODO print warning?
 		}
@@ -129,26 +129,15 @@ void OSDText::paintSDL(OutputSurface& output)
 	}
 }
 
+void OSDText::paintSDL(OutputSurface& output)
+{
+	paint<SDLImage>(output);
+}
+
 void OSDText::paintGL(OutputSurface& output)
 {
-	// TODO reduce code duplication between this and previous method,
-	//      possibly by using an abstract factory
 #ifdef COMPONENT_GL
-	if (!image.get()) {
-		// TODO keep TTFFont (optimization if only text changes)
-		try {
-			SystemFileContext context;
-			string file = context.resolve(fontfile);
-			TTFFont font(file, size);
-			SDL_Surface* surface = font.render(text, r, g, b);
-			image.reset(new GLImage(output, surface));
-		} catch (MSXException& e) {
-			// TODO print warning?
-		}
-	}
-	if (image.get()) {
-		image->draw(x, y, a);
-	}
+	paint<GLImage>(output);
 #endif
 }
 

@@ -26,6 +26,8 @@ public:
 	virtual void invalidate();
 
 private:
+	template <typename IMAGE> void paint(OutputSurface& output);
+
 	std::string imageName;
 	int x, y, w, h;
 	byte r, g, b, a;

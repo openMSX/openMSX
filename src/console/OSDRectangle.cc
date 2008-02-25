@@ -88,19 +88,19 @@ std::string OSDRectangle::getType() const
 	return "rectangle";
 }
 
-void OSDRectangle::paintSDL(OutputSurface& output)
+template <typename IMAGE> void OSDRectangle::paint(OutputSurface& output)
 {
 	if (!image.get()) {
 		try {
 			if (imageName.empty()) {
-				image.reset(new SDLImage(output, w, h, a, r, g, b));
+				image.reset(new IMAGE(output, w, h, a, r, g, b));
 			} else {
 				SystemFileContext context;
 				string file = context.resolve(imageName);
 				if (w && h) {
-					image.reset(new SDLImage(output, file, w, h));
+					image.reset(new IMAGE(output, file, w, h));
 				} else {
-					image.reset(new SDLImage(output, file));
+					image.reset(new IMAGE(output, file));
 				}
 			}
 		} catch (MSXException& e) {
@@ -113,32 +113,15 @@ void OSDRectangle::paintSDL(OutputSurface& output)
 	}
 }
 
+void OSDRectangle::paintSDL(OutputSurface& output)
+{
+	paint<SDLImage>(output);
+}
+
 void OSDRectangle::paintGL(OutputSurface& output)
 {
-	// TODO reduce code duplication between this and previous method,
-	//      possibly by using an abstract factory
 #ifdef COMPONENT_GL
-	if (!image.get()) {
-		try {
-			if (imageName.empty()) {
-				image.reset(new GLImage(output, w, h, a, r, g, b));
-			} else {
-				SystemFileContext context;
-				string file = context.resolve(imageName);
-				if (w && h) {
-					image.reset(new GLImage(output, file, w, h));
-				} else {
-					image.reset(new GLImage(output, file));
-				}
-			}
-		} catch (MSXException& e) {
-			// TODO print warning?
-		}
-	}
-	if (image.get()) {
-		byte alpha = imageName.empty() ? 255 : a;
-		image->draw(x, y, alpha);
-	}
+	paint<GLImage>(output);
 #endif
 }
 
