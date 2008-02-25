@@ -1,5 +1,12 @@
 $Id$
 
+2008-02-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added new mapper type: plainflash
+	   It's plain mapper type (no bankswitching), but implemented
+	   with a Flash Rom, so it reacts to certain write-sequences.
+	   According to this forum topic
+	      http://www.msx.org/forumtopicl8329.html
+	   the Matra INK game uses this as a sort of copy protection.
 
 2008-02-25 Alex Wulms
 	* Several updates to keyboard driver:

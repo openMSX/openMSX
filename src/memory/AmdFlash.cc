@@ -41,14 +41,22 @@ AmdFlash::AmdFlash(const Rom& rom_, unsigned logSectorSize_, unsigned totalSecto
 	}
 
 	readAddress.resize(totalSectors);
-	unsigned numRomSectors = rom.getSize() >> logSectorSize;
+	unsigned numRomSectors =
+		(rom.getSize() + (1 << logSectorSize) - 1) >> logSectorSize; // round up
 	for (unsigned i = 0; i < totalSectors; ++i) {
 		if (writeAddress[i] != -1) {
 			readAddress[i] = &(*ram)[writeAddress[i]];
 			if (!loaded) {
 				byte* ramPtr =
 					const_cast<byte*>(&(*ram)[writeAddress[i]]);
-				if (i < numRomSectors) {
+				if (i == (numRomSectors - 1)) {
+					// last rom sector, possibly incomplete
+					unsigned last = rom.getSize() - (i << logSectorSize);
+					unsigned missing = (1 << logSectorSize) - last;
+					const byte* romPtr = &rom[i << logSectorSize];
+					memcpy(ramPtr, romPtr, last);
+					memset(ramPtr + last, 0xFF, missing);
+				} else if (i < numRomSectors) {
 					const byte* romPtr = &rom[i << logSectorSize];
 					memcpy(ramPtr, romPtr, 1 << logSectorSize);
 				} else {
