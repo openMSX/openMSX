@@ -3,7 +3,6 @@
 #include "RomPlainFlash.hh"
 #include "AmdFlash.hh"
 #include "Rom.hh"
-#include <iostream>
 
 namespace openmsx {
 
@@ -37,7 +36,6 @@ byte RomPlainFlash::readMem(word address, const EmuTime& time)
 
 void RomPlainFlash::writeMem(word address, byte value, const EmuTime& time)
 {
-	std::cout << std::hex << "DEBUG: " << address << " " << unsigned(value) << std::endl;
 	flash->write(address, value);
 }
 
