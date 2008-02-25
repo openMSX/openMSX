@@ -10,6 +10,7 @@
 namespace openmsx {
 
 class BaseImage;
+class TTFFont;
 
 class OSDText : public OSDWidget
 {
@@ -33,6 +34,7 @@ private:
 	int x, y, size;
 	byte r, g, b, a;
 	std::auto_ptr<BaseImage> image;
+	std::auto_ptr<TTFFont> font;
 };
 
 } // namespace openmsx

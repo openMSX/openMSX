@@ -66,13 +66,15 @@ void OSDText::setProperty(const std::string& name, const std::string& value)
 		y = StringOp::stringToInt(value);
 	} else if (name == "-text") {
 		text = value;
-		invalidate(); // TODO only re-render text, not re-open font
+		invalidate();
 	} else if (name == "-font") {
 		fontfile = value;
 		invalidate();
+		font.reset();
 	} else if (name == "-size") {
 		size = StringOp::stringToInt(value);
 		invalidate();
+		font.reset();
 	} else if (name == "-rgba") {
 		unsigned color = StringOp::stringToInt(value);
 		r = (color >> 24) & 255;
@@ -113,15 +115,18 @@ std::string OSDText::getType() const
 template <typename IMAGE> void OSDText::paint(OutputSurface& output)
 {
 	if (!image.get()) {
-		// TODO keep TTFFont (optimization if only text changes)
-		try {
-			SystemFileContext context;
-			string file = context.resolve(fontfile);
-			TTFFont font(file, size);
-			SDL_Surface* surface = font.render(text, r, g, b);
+		if (!font.get()) {
+			try {
+				SystemFileContext context;
+				string file = context.resolve(fontfile);
+				font.reset(new TTFFont(file, size));
+			} catch (MSXException& e) {
+				// TODO print warning?
+			}
+		}
+		if (font.get()) {
+			SDL_Surface* surface = font->render(text, r, g, b);
 			image.reset(new IMAGE(output, surface));
-		} catch (MSXException& e) {
-			// TODO print warning?
 		}
 	}
 	if (image.get()) {
