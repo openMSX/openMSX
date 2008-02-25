@@ -31,7 +31,7 @@ GLImage::GLImage(OutputSurface& /*output*/, const string& filename,
 	height = height_;
 }
 
-GLImage::GLImage(OutputSurface& output,
+GLImage::GLImage(OutputSurface& /*output*/,
         unsigned width_, unsigned height_, byte alpha,
 	byte r_, byte g_, byte b_)
 {
@@ -44,7 +44,7 @@ GLImage::GLImage(OutputSurface& output,
 	a = (alpha == 255) ? 256 : alpha;
 }
 
-GLImage::GLImage(OutputSurface& output, SDL_Surface* image)
+GLImage::GLImage(OutputSurface& /*output*/, SDL_Surface* image)
 {
 	texture = loadTexture(image, width, height, texCoord);
 }
