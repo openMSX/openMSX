@@ -42,14 +42,12 @@ private:
 OSDText::OSDText(OSDGUI& gui)
 	: OSDWidget(gui)
 	, fontfile("notepad.ttf")
-	, x(0), y(0), size(12)
+	, size(12)
 {
 }
 
 void OSDText::getProperties(std::set<std::string>& result) const
 {
-	result.insert("-x");
-	result.insert("-y");
 	result.insert("-text");
 	result.insert("-font");
 	result.insert("-size");
@@ -58,11 +56,7 @@ void OSDText::getProperties(std::set<std::string>& result) const
 
 void OSDText::setProperty(const std::string& name, const std::string& value)
 {
-	if (name == "-x") {
-		x = StringOp::stringToInt(value);
-	} else if (name == "-y") {
-		y = StringOp::stringToInt(value);
-	} else if (name == "-text") {
+	if (name == "-text") {
 		text = value;
 		invalidate();
 	} else if (name == "-font") {
@@ -93,11 +87,7 @@ void OSDText::setProperty(const std::string& name, const std::string& value)
 
 std::string OSDText::getProperty(const std::string& name) const
 {
-	if (name == "-x") {
-		return StringOp::toString(x);
-	} else if (name == "-y") {
-		return StringOp::toString(y);
-	} else if (name == "-text") {
+	if (name == "-text") {
 		return text;
 	} else if (name == "-font") {
 		return fontfile;
@@ -132,7 +122,7 @@ template <typename IMAGE> void OSDText::paint(OutputSurface& output)
 		}
 	}
 	if (image.get()) {
-		image->draw(x, y, getAlpha());
+		image->draw(getX(), getY(), getAlpha());
 	}
 }
 

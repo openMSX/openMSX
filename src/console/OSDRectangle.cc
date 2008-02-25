@@ -18,14 +18,12 @@ namespace openmsx {
 
 OSDRectangle::OSDRectangle(OSDGUI& gui)
 	: OSDWidget(gui)
-	, x(0), y(0), w(0), h(0)
+	, w(0), h(0)
 {
 }
 
 void OSDRectangle::getProperties(set<string>& result) const
 {
-	result.insert("-x");
-	result.insert("-y");
 	result.insert("-w");
 	result.insert("-h");
 	result.insert("-image");
@@ -34,11 +32,7 @@ void OSDRectangle::getProperties(set<string>& result) const
 
 void OSDRectangle::setProperty(const string& name, const string& value)
 {
-	if (name == "-x") {
-		x = StringOp::stringToInt(value);
-	} else if (name == "-y") {
-		y = StringOp::stringToInt(value);
-	} else if (name == "-w") {
+	if (name == "-w") {
 		w = StringOp::stringToInt(value);
 		invalidate();
 	} else if (name == "-h") {
@@ -66,11 +60,7 @@ void OSDRectangle::setProperty(const string& name, const string& value)
 
 std::string OSDRectangle::getProperty(const string& name) const
 {
-	if (name == "-x") {
-		return StringOp::toString(x);
-	} else if (name == "-y") {
-		return StringOp::toString(y);
-	} else if (name == "-w") {
+	if (name == "-w") {
 		return StringOp::toString(w);
 	} else if (name == "-h") {
 		return StringOp::toString(h);
@@ -109,7 +99,7 @@ template <typename IMAGE> void OSDRectangle::paint(OutputSurface& output)
 	}
 	if (image.get()) {
 		byte alpha = imageName.empty() ? 255 : getAlpha();
-		image->draw(x, y, alpha);
+		image->draw(getX(), getY(), alpha);
 	}
 }
 

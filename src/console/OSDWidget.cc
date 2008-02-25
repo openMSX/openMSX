@@ -13,7 +13,7 @@ namespace openmsx {
 
 OSDWidget::OSDWidget(OSDGUI& gui_)
 	: gui(gui_)
-	, z(0)
+	, x(0), y(0), z(0)
 	, r(0), g(0), b(0), a(255)
 {
 	static unsigned count = 0;
@@ -32,6 +32,8 @@ string OSDWidget::getName() const
 void OSDWidget::getProperties(set<string>& result) const
 {
 	result.insert("-type");
+	result.insert("-x");
+	result.insert("-y");
 	result.insert("-z");
 	result.insert("-rgba");
 	result.insert("-rgb");
@@ -40,7 +42,11 @@ void OSDWidget::getProperties(set<string>& result) const
 
 void OSDWidget::setProperty(const string& name, const string& value)
 {
-	if (name == "-type") {
+	if (name == "-x") {
+		x = StringOp::stringToInt(value);
+	} else if (name == "-y") {
+		y = StringOp::stringToInt(value);
+	} else if (name == "-type") {
 		throw CommandException("-type property is readonly");
 	} else if (name == "-z") {
 		z = StringOp::stringToInt(value);

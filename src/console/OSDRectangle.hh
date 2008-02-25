@@ -29,7 +29,7 @@ private:
 	template <typename IMAGE> void paint(OutputSurface& output);
 
 	std::string imageName;
-	int x, y, w, h;
+	int w, h;
 	std::auto_ptr<BaseImage> image;
 };
 

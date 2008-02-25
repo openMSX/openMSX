@@ -18,6 +18,8 @@ public:
 	virtual ~OSDWidget();
 
 	std::string getName() const;
+	int  getX()     const { return x; }
+	int  getY()     const { return y; }
 	int  getZ()     const { return z; }
 	byte getRed()   const { return r; }
 	byte getGreen() const { return g; }
@@ -49,7 +51,7 @@ protected:
 private:
 	OSDGUI& gui;
 	unsigned id;
-	int z;
+	int x, y, z;
 	byte r, g, b, a; // note: when there are widgets without color, move
 	                 //       this to an abstact colored-widget class
 };

@@ -31,7 +31,7 @@ private:
 
 	std::string text;
 	std::string fontfile;
-	int x, y, size;
+	int size;
 	std::auto_ptr<BaseImage> image;
 	std::auto_ptr<TTFFont> font;
 };
