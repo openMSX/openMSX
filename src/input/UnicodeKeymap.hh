@@ -12,23 +12,25 @@ namespace openmsx {
 class UnicodeKeymap
 {
 public:
-	UnicodeKeymap(std::string& keyboardType);
 	struct KeyInfo {
 		KeyInfo(byte row_, byte keymask_, byte modmask_)
-			:row(row_),keymask(keymask_),modmask(modmask_) {}
-		KeyInfo() {}
-		byte row; byte keymask; byte modmask;
+			: row(row_), keymask(keymask_), modmask(modmask_) {}
+		byte row, keymask, modmask;
 	};
-	KeyInfo get(int unicode);
-	KeyInfo getDeadkey();
+
+	UnicodeKeymap(const std::string& keyboardType);
+
+	KeyInfo get(int unicode) const;
+	KeyInfo getDeadkey() const;
 
 private:
-	void parseUnicodeKeymapfile(const openmsx::byte*, unsigned int);
-	std::map<int, KeyInfo> mapdata;
+	void parseUnicodeKeymapfile(const byte* buf, unsigned size);
+
+	typedef std::map<int, KeyInfo> Mapdata;
+	Mapdata mapdata;
 	KeyInfo emptyInfo;
 	KeyInfo deadKey;
 };
-
 
 } // namespace openmsx
 

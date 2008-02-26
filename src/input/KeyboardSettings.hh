@@ -6,13 +6,12 @@
 #include "Keys.hh"
 #include <memory>
 
-#include "EnumSetting.hh"
-#include "FilenameSetting.hh"
-#include "BooleanSetting.hh"
-
 namespace openmsx {
 
 class MSXCommandController;
+class BooleanSetting;
+class FilenameSetting;
+template <typename T> class EnumSetting;
 
 class KeyboardSettings
 {
@@ -21,7 +20,7 @@ public:
 	enum MappingMode { KEY_MAPPING, CHARACTER_MAPPING };
 
 	KeyboardSettings(MSXCommandController& msxCommandController);
-	virtual ~KeyboardSettings();
+	~KeyboardSettings();
 
 	EnumSetting<Keys::KeyCode>& getCodeKanaHostKey();
 	EnumSetting<KpEnterMode>& getKpEnterMode();

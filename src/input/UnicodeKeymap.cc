@@ -1,31 +1,38 @@
 // $Id: Keyboard.cc 7559 2008-01-17 23:37:36Z awulms $
 
-#include <string.h>
+#include "UnicodeKeymap.hh"
 #include "MSXException.hh"
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
-#include "UnicodeKeymap.hh"
+#include <string.h>
 
 using std::string;
-//using std::vector;
 
 namespace openmsx {
 
-UnicodeKeymap::KeyInfo UnicodeKeymap::get(int unicode)
+UnicodeKeymap::UnicodeKeymap(const string& keyboardType)
+	: emptyInfo(KeyInfo(0, 0, 0))
+	, deadKey(KeyInfo(0, 0, 0))
 {
-	std::map<int, KeyInfo>::const_iterator it = mapdata.find(unicode);
-	if (it == mapdata.end())
-	{
-		return emptyInfo;
-	}
-	else
-	{
-		return it->second;
+	SystemFileContext context;
+	string filename = context.resolve("unicodemaps/unicodemap." + keyboardType);
+	try {
+		File file(filename);
+		byte* buf = file.mmap();
+		parseUnicodeKeymapfile(buf, file.getSize());
+	} catch (FileException& e) {
+		throw MSXException("Couldn't load unicode keymap file: " + filename);
 	}
 }
 
-UnicodeKeymap::KeyInfo UnicodeKeymap::getDeadkey()
+UnicodeKeymap::KeyInfo UnicodeKeymap::get(int unicode) const
+{
+	Mapdata::const_iterator it = mapdata.find(unicode);
+	return (it == mapdata.end()) ? emptyInfo : it->second;
+}
+
+UnicodeKeymap::KeyInfo UnicodeKeymap::getDeadkey() const
 {
 	return deadKey;
 }
@@ -33,7 +40,7 @@ UnicodeKeymap::KeyInfo UnicodeKeymap::getDeadkey()
 void UnicodeKeymap::parseUnicodeKeymapfile(const byte* buf, unsigned size)
 {
 	unsigned i = 0;
-	while  (i < size) {
+	while (i < size) {
 		string line;
 		bool done = false;
 		// Read one line from buffer
@@ -69,8 +76,7 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const byte* buf, unsigned size)
 		charbuf[sizeof(charbuf)-1]=0;
 
 		char *token = strtok(charbuf, ",");
-		if (token != NULL)
-		{
+		if (token != NULL) {
 			// Parse first token
 			// It is either a unicode value or the keyword DEADKEY
 			int unicode;
@@ -117,34 +123,17 @@ void UnicodeKeymap::parseUnicodeKeymapfile(const byte* buf, unsigned size)
 				}
 			}
 
-			if (isDeadKey)
-			{
+			if (isDeadKey) {
 				deadKey.row = (rowcol >> 4) & 0x0f;
 				deadKey.keymask = 1 << (rowcol & 7);
 				deadKey.modmask = 0;
-			}
-			else
-			{
-				mapdata[unicode].row = (rowcol >> 4) & 0x0f;
-				mapdata[unicode].keymask = 1 << (rowcol & 7);
-				mapdata[unicode].modmask = modmask;
+			} else {
+				KeyInfo info((rowcol >> 4) & 0x0f, // row
+				             1 << (rowcol & 7),    // keymask
+				             modmask);             // modmask
+				mapdata.insert(std::make_pair(unicode, info));
 			}
 		}
-	}
-}
-
-UnicodeKeymap::UnicodeKeymap(string& keyboardType)
-	: emptyInfo(KeyInfo(0,0,0))
-	, deadKey(KeyInfo(0,0,0))
-{
-	SystemFileContext context;
-	string filename = context.resolve("unicodemaps/unicodemap." + keyboardType);
-	try {
-		File file(filename);
-		byte* buf = file.mmap();
-		parseUnicodeKeymapfile(buf, file.getSize());
-	} catch (FileException &e) {
-		throw MSXException("Couldn't load unicode keymap file: " + filename);
 	}
 }
 

@@ -10,7 +10,6 @@
 #include "openmsx.hh"
 #include "Keys.hh"
 #include "KeyboardSettings.hh"
-#include "UnicodeKeymap.hh"
 #include <string>
 #include <vector>
 #include <memory>
@@ -29,6 +28,7 @@ class KeyEvent;
 class CapsLockAligner;
 class Setting;
 class MsxKeyEventQueue;
+class UnicodeKeymap;
 template <typename T> class EnumSetting;
 
 class Keyboard : private MSXEventListener, private Schedulable, private Observer<Setting>
@@ -105,7 +105,7 @@ private:
 	const std::auto_ptr<KeyInserter>      keyTypeCmd;
 	const std::auto_ptr<CapsLockAligner>  capsLockAligner;
 	const std::auto_ptr<KeyboardSettings> keyboardSettings;
-	const std::auto_ptr<MsxKeyEventQueue>    msxKeyEventQueue;
+	const std::auto_ptr<MsxKeyEventQueue> msxKeyEventQueue;
 
 	byte cmdKeyMatrix[NR_KEYROWS];
 	byte userKeyMatrix[NR_KEYROWS];

@@ -2,6 +2,9 @@
 
 #include "KeyboardSettings.hh"
 #include "Setting.hh"
+#include "EnumSetting.hh"
+#include "FilenameSetting.hh"
+#include "BooleanSetting.hh"
 #include "MSXCommandController.hh"
 
 namespace openmsx {
@@ -62,37 +65,37 @@ KeyboardSettings::~KeyboardSettings()
 
 EnumSetting<Keys::KeyCode>& KeyboardSettings::getCodeKanaHostKey()
 {
-	return *codeKanaHostKey.get();
+	return *codeKanaHostKey;
 }
 
 EnumSetting<KeyboardSettings::KpEnterMode>& KeyboardSettings::getKpEnterMode()
 {
-	return *kpEnterMode.get();
+	return *kpEnterMode;
 }
 
 EnumSetting<KeyboardSettings::MappingMode>& KeyboardSettings::getMappingMode()
 {
-	return *mappingMode.get();
+	return *mappingMode;
 }
 
 FilenameSetting& KeyboardSettings::getKeymapFile()
 {
-	return *keymapFile.get();
+	return *keymapFile;
 }
 
 BooleanSetting& KeyboardSettings::getAlwaysEnableKeypad()
 {
-	return *alwaysEnableKeypad.get();
+	return *alwaysEnableKeypad;
 }
 
 BooleanSetting& KeyboardSettings::getTraceKeyPresses()
 {
-	return *traceKeyPresses.get();
+	return *traceKeyPresses;
 }
 
 BooleanSetting& KeyboardSettings::getAutoToggleCodeKanaLock()
 {
-	return *autoToggleCodeKanaLock.get();
+	return *autoToggleCodeKanaLock;
 }
 
 } // namespace openmsx
