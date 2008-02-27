@@ -19,24 +19,24 @@ RomPlainFlash::~RomPlainFlash()
 {
 }
 
-void RomPlainFlash::reset(const EmuTime& time)
+void RomPlainFlash::reset(const EmuTime& /*time*/)
 {
 	flash->reset();
 }
 
-byte RomPlainFlash::peek(word address, const EmuTime& time) const
+byte RomPlainFlash::peek(word address, const EmuTime& /*time*/) const
 {
 	return flash->peek(address);
 }
 
-byte RomPlainFlash::readMem(word address, const EmuTime& time)
+byte RomPlainFlash::readMem(word address, const EmuTime& /*time*/)
 {
 	return flash->read(address);
 }
 
-void RomPlainFlash::writeMem(word address, byte value, const EmuTime& time)
+void RomPlainFlash::writeMem(word address, byte value, const EmuTime& /*time*/)
 {
-	flash->write(address, value);
+	flash->write(address + 0x10000, value);
 }
 
 const byte* RomPlainFlash::getReadCacheLine(word address) const
