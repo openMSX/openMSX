@@ -20,6 +20,23 @@ AmdFlash::AmdFlash(const Rom& rom_, unsigned logSectorSize_, unsigned totalSecto
 	, size(totalSectors << logSectorSize)
 	, state(ST_IDLE)
 {
+	init(totalSectors, writeProtectedFlags, &config);
+}
+
+AmdFlash::AmdFlash(const Rom& rom_, unsigned logSectorSize_, unsigned totalSectors,
+                   unsigned writeProtectedFlags)
+	: rom(rom_)
+	, logSectorSize(logSectorSize_)
+	, sectorMask((1 << logSectorSize) -1)
+	, size(totalSectors << logSectorSize)
+	, state(ST_IDLE)
+{
+	init(totalSectors, writeProtectedFlags, NULL); // don't load/save
+}
+
+void AmdFlash::init(unsigned totalSectors, unsigned writeProtectedFlags,
+                    const XMLElement* config)
+{
 	unsigned numWritable = 0;
 	writeAddress.resize(totalSectors);
 	for (unsigned i = 0; i < totalSectors; ++i) {
@@ -34,10 +51,20 @@ AmdFlash::AmdFlash(const Rom& rom_, unsigned logSectorSize_, unsigned totalSecto
 	unsigned writableSize = numWritable << logSectorSize;
 	bool loaded = false;
 	if (writableSize) {
-		ram.reset(new SRAM(rom.getMotherBoard(),
-		                   rom.getName() + "_flash",
-		                   "flash rom", writableSize, config,
-		                   0, &loaded));
+		if (config) {
+			ram.reset(new SRAM(rom.getMotherBoard(),
+			                   rom.getName() + "_flash",
+			                   "flash rom", writableSize, *config,
+			                   0, &loaded));
+		} else {
+			// Hack for 'Matra INK', flash chip is wired-up so that
+			// writes are never visible to the MSX (but the flash
+			// is not made write-protected). In this case it doesn't
+			// make sense to load/save the SRAM file.
+			ram.reset(new SRAM(rom.getMotherBoard(),
+			                   rom.getName() + "_flash",
+			                   "flash rom", writableSize));
+		}
 	}
 
 	readAddress.resize(totalSectors);

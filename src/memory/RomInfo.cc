@@ -55,7 +55,7 @@ static const RomTypeMap& getRomTypeMap()
 		romTypeMap["MSXDOS2"]        = ROM_MSXDOS2;
 		romTypeMap["Manbow2"]        = ROM_MANBOW2;
 		romTypeMap["MegaFlashRomScc"]= ROM_MEGAFLASHROMSCC;
-		romTypeMap["PlainFlash"]     = ROM_PLAINFLASH;
+		romTypeMap["ShockWare"]      = ROM_MATRASHOCKWARE;
 
 		// ROM mapper types used for system ROMs in machines
 		romTypeMap["Panasonic"]      = ROM_PANASONIC;

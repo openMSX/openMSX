@@ -1,6 +1,18 @@
 $Id$
 
 2008-02-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added 'MatraShockware' mapper type:
+	   This is a non-bankswitched mapper that uses a AMD flash ROM. The
+	   flash is wired-up in such a way that writes end up in a different
+	   region as reads. The effect is that the flash' autoselect function
+	   tells you that a region is not write-protected, but when you
+	   actually try to reprogram that region it has no effect. The game
+	   'INK' actually uses this as a sort of copy protection (if this
+	   check fails, stage 2 goes back to stage 1).
+	   See also this forum thread:
+	     http://www.msx.org/forumtopic8329.html
+
+2008-02-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added new mapper type: plainflash
 	   It's plain mapper type (no bankswitching), but implemented
 	   with a Flash Rom, so it reacts to certain write-sequences.

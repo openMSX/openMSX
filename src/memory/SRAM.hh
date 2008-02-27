@@ -17,6 +17,8 @@ class SRAMSync;
 class SRAM : private noncopyable
 {
 public:
+	SRAM(MSXMotherBoard& motherBoard, const std::string& name,
+	     const std::string& description, int size);
 	SRAM(MSXMotherBoard& motherBoard, const std::string& name, int size,
 	     const XMLElement& config, const char* header = NULL,
 	     bool* loaded = NULL);
@@ -42,7 +44,7 @@ private:
 	void save();
 
 	Ram ram;
-	const XMLElement& config;
+	const XMLElement* config;
 	const char* header;
 	MSXCliComm& cliComm;
 

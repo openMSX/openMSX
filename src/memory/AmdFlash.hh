@@ -19,6 +19,8 @@ class AmdFlash : private noncopyable
 public:
 	AmdFlash(const Rom& rom, unsigned logSectorSize, unsigned totalSectors,
 	         unsigned writeProtectedFlags, const XMLElement& config);
+	AmdFlash(const Rom& rom, unsigned logSectorSize, unsigned totalSectors,
+	         unsigned writeProtectedFlags);
 	~AmdFlash();
 
 	void reset();
@@ -31,6 +33,9 @@ public:
 
 private:
 	enum State { ST_IDLE, ST_IDENT };
+
+	void init(unsigned totalSectors, unsigned writeProtectedFlags,
+	          const XMLElement* config);
 
 	void setState(State newState);
 	bool checkCommandEraseSector();
