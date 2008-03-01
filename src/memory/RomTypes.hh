@@ -32,7 +32,7 @@ enum RomType {
 	ROM_MSXDOS2      = 23,
 	ROM_MANBOW2      = 24,
 	ROM_MEGAFLASHROMSCC = 25,
-	ROM_MATRASHOCKWARE  = 26,
+	ROM_MATRAINK     = 26,
 
 	ROM_PAGE0        = 32 + 1,
 	ROM_PAGE1        = 32 + 2,

@@ -36,7 +36,7 @@
 #include "RomHolyQuran.hh"
 #include "RomFSA1FM.hh"
 #include "RomManbow2.hh"
-#include "RomMatraShockware.hh"
+#include "RomMatraInk.hh"
 #include "Rom.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
@@ -321,8 +321,8 @@ auto_ptr<MSXDevice> RomFactory::create(
 		result.reset(new RomManbow2(
 		                   motherBoard, config, time, rom, type));
 		break;
-	case ROM_MATRASHOCKWARE:
-		result.reset(new RomMatraShockware(motherBoard, config, time, rom));
+	case ROM_MATRAINK:
+		result.reset(new RomMatraInk(motherBoard, config, time, rom));
 		break;
 	default:
 		throw MSXException("Unknown ROM type");

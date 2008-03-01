@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef ROMMATRASHOCKWARE_HH
-#define ROMMATRASHOCKWARE_HH
+#ifndef ROMMATRAINK_HH
+#define ROMMATRAINK_HH
 
 #include "MSXRom.hh"
 #include <memory>
@@ -11,12 +11,12 @@ namespace openmsx {
 class Rom;
 class AmdFlash;
 
-class RomMatraShockware : public MSXRom
+class RomMatraInk : public MSXRom
 {
 public:
-	RomMatraShockware(MSXMotherBoard& motherBoard, const XMLElement& config,
+	RomMatraInk(MSXMotherBoard& motherBoard, const XMLElement& config,
 	                  const EmuTime& time, std::auto_ptr<Rom> rom);
-	virtual ~RomMatraShockware();
+	virtual ~RomMatraInk();
 
 	virtual void reset(const EmuTime& time);
 	virtual byte peek(word address, const EmuTime& time) const;
