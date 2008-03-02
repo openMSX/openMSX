@@ -1,5 +1,14 @@
 $Id$
 
+2008-03-02 Alex Wulms
+	* Several updates to keyboard driver:
+	  - Rename all keyboard settings to start with kbd_ so that they
+	    are grouped together when listed in alphabetic order, like in
+	    the documents.html file and in the tab expansion of the
+	    various commands in the console
+	  - Add support for a few keys that are specific to the jp106
+	    keyboard model (the most used keyboard in Japan)
+
 2008-02-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added 'MatraShockware' mapper type:
 	   This is a non-bankswitched mapper that uses a AMD flash ROM. The

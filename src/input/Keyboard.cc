@@ -277,7 +277,7 @@ bool Keyboard::processQueuedEvent(shared_ptr<const Event> event, const EmuTime& 
 		(int(keyEvent.getKeyCode()) & int(Keys::K_MASK));
 	if (down && keyboardSettings->getTraceKeyPresses().getValue()) {
 		fprintf(stderr,
-			"Key pressed, unicode: 0x%04x, keyCode: 0x%04x, keyName: %s\n",
+			"Key pressed, unicode: 0x%04x, keyCode: 0x%05x, keyName: %s\n",
 			keyEvent.getUnicode(),
 			keyEvent.getKeyCode(),
 			Keys::getName(keyEvent.getKeyCode()).c_str());

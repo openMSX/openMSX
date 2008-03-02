@@ -3,6 +3,7 @@
 #ifndef KEYS_HH
 #define KEYS_HH
 
+#include <SDL_stdinc.h>
 #include <SDL_keysym.h> // TODO
 #include <string>
 
@@ -271,18 +272,31 @@ enum KeyCode {
 	K_EURO		= SDLK_EURO,	// Some european keyboards
 	K_UNDO		= SDLK_UNDO,
 
-	K_MASK		= 0xFFFF,
+	// Some japanese keyboard keys are unknown to SDL.
+	// That is; they are all mapped to SDLKey=0
+	// However, they can recognized on their scancode
+	// These keys are usefull for Japanese users who want to map
+	// their host keyboard to the Japanese MSX keyboard
+	// (e.g. the MSX turbo R keyboard)
+	// Define some codes above suspected SDLKey value range, to
+	// avoid clash with SDLKey values
+	K_ZENKAKU_HENKAKU   = 0x10000, // Enables EMI mode (MSX does this with CTRL+SPACE)
+	K_MUHENKAN          = 0x10001, // ???
+	K_HENKAN_MODE       = 0x10002, // Similar to kanalock on MSX
+	K_HIRAGANA_KATAKANA = 0x10003, // MSX switches between the two sets based on capslock state
+
+	K_MASK		= 0x1FFFF,
 
 	// Modifiers
-	KM_SHIFT	= 0x010000,
-	KM_CTRL		= 0x020000,
-	KM_ALT		= 0x040000,
-	KM_META		= 0x080000,
-	KM_MODE		= 0x100000,
+	KM_SHIFT	= 0x020000,
+	KM_CTRL		= 0x040000,
+	KM_ALT		= 0x080000,
+	KM_META		= 0x100000,
+	KM_MODE		= 0x200000,
 
 	// Direction modifiers
 	KD_PRESS	= 0,		// key press
-	KD_RELEASE	= 0x200000	// key release
+	KD_RELEASE	= 0x400000	// key release
 };
 
 /**
@@ -291,7 +305,7 @@ enum KeyCode {
  */
 KeyCode getCode(const std::string& name);
 
-KeyCode getCode(SDLKey key, SDLMod mod = KMOD_NONE, bool release = false);
+KeyCode getCode(SDLKey key, SDLMod mod = KMOD_NONE, Uint8 scancode = 0, bool release = false);
 
 /**
  * Translate key code to key name.

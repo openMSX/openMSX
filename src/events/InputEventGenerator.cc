@@ -212,6 +212,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		event = new KeyUpEvent(
 		        Keys::getCode(evt.key.keysym.sym,
 		                      evt.key.keysym.mod,
+				      evt.key.keysym.scancode,
 		                      true),
 		        evt.key.keysym.unicode);
 		break;
@@ -219,6 +220,7 @@ void InputEventGenerator::handle(const SDL_Event& evt)
 		event = new KeyDownEvent(
 		        Keys::getCode(evt.key.keysym.sym,
 		                      evt.key.keysym.mod,
+				      evt.key.keysym.scancode,
 		                      false),
 		        evt.key.keysym.unicode);
 		break;

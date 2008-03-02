@@ -126,13 +126,9 @@
       <ol class="inlinetoc">
         <li><a class="internal" href="#accuracy">accuracy</a></li>
         
-	<li><a class="internal" href="#always_enable_keypad">always_enable_keypad</a></li>
-
         <li><a class="internal" href="#audio-inputfilename">audio-inputfilename</a></li>
 
         <li><a class="internal" href="#autoruncassettes">autoruncassettes</a></li>
-
-        <li><a class="internal" href="#auto_toggle_code_kana_lock">auto_toggle_code_kana_lock</a></li>
 
         <li><a class="internal" href="#blur">blur</a></li>
 
@@ -140,8 +136,6 @@
 
         <li><a class="internal" href="#brightness">brightness</a></li>
         
-	<li><a class="internal" href="#code_kana_host_key">code_kana_host_key</a></li>
-
         <li><a class="internal" href="#cmdtiming">cmdtiming</a></li>
 
         <li><a class="internal" href="#color_matrix">color_matrix</a></li>
@@ -194,13 +188,21 @@
 
         <li><a class="internal" href="#inputdelay">inputdelay</a></li>
 
-	<li><a class="internal" href="#keyboard_mapping_mode">keyboard_mapping_mode</a></li>
+        <li><a class="internal" href="#kbd_auto_toggle_codekana_lock">kbd_auto_toggle_codekana_lock</a></li>
+
+	<li><a class="internal" href="#kbd_codekana_host_key">kbd_codekana_host_key</a></li>
+
+	<li><a class="internal" href="#kbd_keymap_filename">kbd_keymap_filename</a></li>
+
+	<li><a class="internal" href="#kbd_mapping_mode">kbd_mapping_mode</a></li>
+
+	<li><a class="internal" href="#kbd_numkeypad_always_enabled">kbd_numkeypad_always_enabled</a></li>
+
+	<li><a class="internal" href="#kbd_numkeypad_enter_key">kbd_numkeypad_enter_key</a></li>
+
+        <li><a class="internal" href="#kbd_trace_key_presses">kbd_trace_key_presses</a></li>
 
         <li><a class="internal" href="#keyjoystick_n_button">keyjoystick&lt;n&gt;.&lt;button&gt;</a></li>
-
-	<li><a class="internal" href="#keymap-filename">keymap-filename</a></li>
-
-	<li><a class="internal" href="#keypad_enter_key">keypad_enter_key</a></li>
 
         <li><a class="internal" href="#limitsprites">limitsprites</a></li>
 
@@ -271,8 +273,6 @@
         <li><a class="internal" href="#soundchip_volume">&lt;soundchip&gt;_volume</a></li>
 
         <li><a class="internal" href="#throttle">throttle</a></li>
-
-        <li><a class="internal" href="#trace_key_presses">trace_key_presses</a></li>
 
         <li><a class="internal" href="#umr_callback">umr_callback</a></li>
 
@@ -1894,33 +1894,6 @@
     </tr>
   </table>
 
-  <h3><a id="always_enable_keypad">always_enable_keypad</a></h3>
-
-  <p>Some real MSX computers do not have a numeric keypad. OpenMSX will ignore
-  key presses on the host numeric keypad when emulating such an MSX model.
-  With this parameter, you can indicate that even on such MSX models, presses
-  on the host numeric keypad must be mapped to the MSX numeric keypad. So, you
-  can override accurate behavour with it, which is the reason that by default,
-  this setting is set to 'off'.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>set always_enable_keypad</code></td>
-
-      <td>Shows the current setting</td>
-    </tr>
-
-    <tr>
-      <td><code>set always_enable_keypad on</code></td>
-
-      <td>Enables numeric keypad, even if the emulated MSX does not have one</td>
-    </tr>
-  </table>
-
   <h3><a id="audio-inputfilename">audio-inputfilename</a></h3>
 
   <p>Sets the audio file from which the wave input is read for the sampler.</p>
@@ -1982,40 +1955,6 @@
     Note: This only works with CAS images for now and it is still an experimental feature.
   </div>
 
-  <h3><a id="auto_toggle_code_kana_lock">auto_toggle_code_kana_lock</a></h3>
-
-  <p>Switches the "Automatically toggle the CODE/KANA lock" feature on or off. When it's on, openMSX will
-  automatically toggle the CODE/KANA lock when a user enters a character for which the CODE/KANA lock
-  state must be changed.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>set auto_toggle_code_kana_lock</code></td>
-
-      <td>Shows the current setting</td>
-    </tr>
-
-    <tr>
-      <td><code>set&nbsp;auto_toggle_code_kana_lock&nbsp;on</code></td>
-
-      <td>Automatically toggle the CODE/KANA lock when required</td>
-    </tr>
-
-    <tr>
-      <td><code>set&nbsp;auto_toggle_code_kana_lock&nbsp;off</code></td>
-
-      <td>Only toggle CODE/KANA lock status when user presses the CODE/KANA lock key</td>
-    </tr>
-  </table>
-
-  <div class="note">
-    Note: This only works on MSX models for which the CODE/KANA key locks (e.g. Japanese MSX models and the Philips VG8010). On other models, this setting is ignored.
-  </div>
-
   <h3><a id="blur">blur</a></h3>
 
   <p>Sets the amount of horizontal blur effect. A value of 0 turns off blur, while 100 selects maximum blur.</p>
@@ -2062,32 +2001,6 @@
       <td><code>set bootsector DOS1</code></td>
 
       <td>Use a DOS1 boot sector</td>
-    </tr>
-  </table>
-
-  <h3><a id="code_kana_host_key">code_kana_host_key</a></h3>
-
-  <p>Host key that maps to the MSX CODE/KANA key. It is especially useful for
-  people with AZERTY host keyboard, on which the right-ALT key (RALT, which is
-  the default value of this setting) has a special function. It is called the
-  ALT-GR key and it's used to enter some special characters (some keys are
-  tagged with 3 characters; normal, key+SHIFT, key+ALT-GR).</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>set code_kana_host_key</code></td>
-
-      <td>Shows the current setting</td>
-    </tr>
-
-    <tr>
-      <td><code>set code_kana_host_key RSUPER</code></td>
-
-      <td>Binds the RSUPER key on the host keyboard to the MSX CODE/KANA key</td>
     </tr>
   </table>
 
@@ -2924,7 +2837,105 @@
     Note: The default value of 0.03 seconds should almost always be OK, this small delay is practically not noticeable and still allows the MSX machine to get accurate timing on the input events. Please <b>do not change</b> the value of this setting unless you know what you are doing.
   </div>
 
-  <h3><a id="keyboard_mapping_mode">keyboard_mapping_mode</a></h3>
+  <h3><a id="kbd_auto_toggle_codekana_lock">kbd_auto_toggle_codekana_lock</a></h3>
+
+  <p>Switches the "Automatically toggle the CODE/KANA lock" feature on or off. When it's on, openMSX will
+  automatically toggle the CODE/KANA lock when a user enters a character for which the CODE/KANA lock
+  state must be changed.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set kbd_auto_toggle_codekana_lock</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set&nbsp;kbd_auto_toggle_codekana_lock&nbsp;on</code></td>
+
+      <td>Automatically toggle the CODE/KANA lock when required</td>
+    </tr>
+
+    <tr>
+      <td><code>set&nbsp;kbd_auto_toggle_codekana_lock&nbsp;off</code></td>
+
+      <td>Only toggle CODE/KANA lock status when user presses the CODE/KANA lock key</td>
+    </tr>
+  </table>
+
+  <div class="note">
+    Note: This only works on MSX models for which the CODE/KANA key locks (e.g. Japanese MSX models and the Philips VG8010). On other models, this setting is ignored.
+  </div>
+
+  <h3><a id="kbd_codekana_host_key">kbd_codekana_host_key</a></h3>
+
+  <p>Host key that maps to the MSX CODE/KANA key.</p>
+  <p>It is especially usefull for
+  people with AZERTY host keyboard, on which the right-ALT key (RALT, which is
+  the default value of this setting) has a special function; it is called the
+  ALT-GR key and it's used to enter some special characters (some keys are
+  tagged with 3 characters; normal, key+SHIFT, key+ALT-GR).</p>
+  <p>It is also usefull for people with a Japanese (jp106) keyboard; they can map the HENKAN_MODE key (which is similar to the KANA Lock on Japanese MSX models) to the CODE/KANA key.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set&nbsp;kbd_codekana_host_key</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set&nbsp;kbd_codekana_host_key&nbsp;MENU</code></td>
+
+      <td>Binds the MENU key on the host keyboard to the MSX CODE/KANA key</td>
+    </tr>
+
+    <tr>
+      <td><code>set&nbsp;kbd_codekana_host_key&nbsp;HENKAN_MODE</code></td>
+
+      <td>Binds the HENKAN_MODE key on the host keyboard to the MSX CODE/KANA key</td>
+    </tr>
+  </table>
+
+  <h3><a id="kbd_keymap_filename">kbd_keymap_filename</a></h3>
+
+  <p>Sets the filename of the file that contains a mapping from host keys to
+  MSX keys.</p>
+  <p>In CHARACTER <a class="internal" href="#kbd_mapping_mode">mapping mode</A>, it is only used for special keys for
+  which no unicode character exists, like the SHIFT key, the ALT key and so on.</p>
+  <p>In KEY <a class="internal" href="#kbd_mapping_mode">mapping mode</A>, it is used for all keys but the ones for which a special
+  setting exists (like <code><a class="internal"
+  href="#kbd_numkeypad_enter_key">kbd_numkeypad_enter_key</a></code>).</p>
+  <p>By default, this setting is not set but a built-in mapping is used. The built-in
+  mapping maps from a US-qwerty host keyboard to an 'international'-qwerty MSX keyboard</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set kbd_keymap_filename</code></td>
+
+      <td>Shows the current value</td>
+    </tr>
+
+    <tr>
+      <td><code>set kbd_keymap_filename keymap.jp2eng</code></td>
+
+      <td>Use the mapping from the file keymap.jp2eng</td>
+    </tr>
+  </table>
+
+  <h3><a id="kbd_mapping_mode">kbd_mapping_mode</a></h3>
 
   <p>The keyboard driver can work in two mapping modes; KEY mapping and CHARACTER mapping.</p>
   <p><b>KEY mapping:</b> A key pressed on the host keyboard maps to one specific key on the MSX keyboard. This mode
@@ -2937,28 +2948,116 @@
   or keys that the user pressed on the host keyboard to enter the ! character.<br>
   This is especially usefull when the user has an azerty host keyboard and is working on a qwerty style MSX or
   when he has a US-qwerty keyboard and is working on a Japanese MSX.<br>
-  Note that special keys (like CAPSLOCK) are mapped directly, just like in the KEY mode.
+  Note that special keys (like CAPSLOCK) are mapped directly, just like in the KEY mapping mode.
   <div class="subsectiontitle">
     usage:
   </div>
 
   <table>
     <tr>
-      <td><code>set&nbsp;keyboard_mapping_mode</code></td>
+      <td><code>set&nbsp;kbd_mapping_mode</code></td>
 
       <td>Shows the current mode</td>
     </tr>
       
     <tr>
-      <td><code>set&nbsp;keyboard_mapping_mode&nbsp;CHARACTER</code></td>
+      <td><code>set&nbsp;kbd_mapping_mode&nbsp;CHARACTER</code></td>
 
       <td>Set the CHARACTER mapping mode</td>
     </tr>
       
     <tr>
-      <td><code>set&nbsp;keyboard_mapping_mode&nbsp;KEY</code></td>
+      <td><code>set&nbsp;kbd_mapping_mode&nbsp;KEY</code></td>
 
       <td>Set the KEY mapping mode</td>
+    </tr>
+
+  </table>
+
+  <h3><a id="kbd_numkeypad_always_enabled">kbd_numkeypad_always_enabled</a></h3>
+
+  <p>Some real MSX computers do not have a numeric keypad. OpenMSX will ignore
+  key presses on the host numeric keypad when emulating such an MSX model.
+  With this parameter, you can indicate that even on such MSX models, presses
+  on the host numeric keypad must be mapped to the MSX numeric keypad. So, you
+  can override accurate behavour with it, which is the reason that by default,
+  this setting is set to 'off'.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set kbd_numkeypad_always_enabled</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set kbd_numkeypad_always_enabled on</code></td>
+
+      <td>Enables numeric keypad, even if the emulated MSX does not have one</td>
+    </tr>
+  </table>
+
+  <h3><a id="kbd_numkeypad_enter_key">kbd_numkeypad_enter_key</a></h3>
+
+  <p>There is a subtle difference between numeric keypad of MSX computers and
+  of most host computers; the MSX computers have a '.' and a ',' on the numeric
+  keypad. On the other hand, the host computers have a '.' and an 'ENTER' key
+  on the keypad.</p>
+
+  <p>In some respect it is logical that the 'ENTER' key on the host numeric
+  keypad is mapped to the 'normal' MSX 'ENTER' key. On the other hand, that
+  would make it impossible to enter the ',' on the MSX nummeric keypad.
+  Therefore, the user can choose whether the host numeric keypad ENTER key
+  should be mapped to the MSX numeric keypad ',' (which is the default) or to
+  the main 'ENTER' key.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set&nbsp;kbd_numkeypad_enter_key</code></td>
+
+      <td>Shows the current value</td>
+    </tr>
+
+    <tr>
+      <td><code>set&nbsp;kbd_numkeypad_enter_key&nbsp;ENTER</code></td>
+
+      <td>Maps the keypad enter key to the main 'ENTER' key, instead of the comma key on the MSX keypad</td>
+    </tr>
+  </table>
+
+  <h3><a id="kbd_trace_key_presses">kbd_trace_key_presses</a></h3>
+
+  <p>Log SDL key code, SDL modifiers and Unicode value for each key that gets
+  pressed on the host keyboard on stderr.  Also show Unicode value and
+  corresponding MSX key-presses for characters that get 'pasted' into the MSX
+  by the console <code><a class="internal" href="#type">type</a></code>
+  command. This setting is especially useful when defining unicode keymap
+  files, so that you can find out the unicode values belonging to certain
+  keys/characters.</p>
+
+  <div class="subsectiontitle">
+    usage:
+  </div>
+
+  <table>
+    <tr>
+      <td><code>set kbd_trace_key_presses</code></td>
+
+      <td>Shows the current setting</td>
+    </tr>
+
+    <tr>
+      <td><code>set kbd_trace_key_presses on</code></td>
+
+      <td>Turn logging of key presses on</td>
     </tr>
 
   </table>
@@ -2994,67 +3093,6 @@
 
     <tr>
       <td><code>set keyjoystick1.triga SPACE</code></td>
-    </tr>
-  </table>
-
-  <h3><a id="keymap-filename">keymap-filename</a></h3>
-
-  <p>Sets the filename of the file that contains a mapping from host keys to
-  MSX keys. In CHARACTER mapping mode, it is only used for special keys for
-  which no unicode character exists, like the SHIFT key, the ALT key and so on.
-  In KEY mapping mode, it is used for all keys but the ones for which a special
-  setting exists (like <code><a class="internal"
-  href="#keypad_enter_key">keypad_enter_key</a></code>)
-  By default, this setting is not set but a built-in mapping is used. The built-in
-  mapping maps from a US-qwerty host keyboard to an 'international'-qwerty MSX keyboard</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>set keymap-filename</code></td>
-
-      <td>Shows the current value</td>
-    </tr>
-
-    <tr>
-      <td><code>set keymap-filename keymap.jp2eng</code></td>
-
-      <td>Use the mapping from the file keymap.jp2eng</td>
-    </tr>
-  </table>
-
-  <h3><a id="keypad_enter_key">keypad_enter_key</a></h3>
-
-  <p>There is a subtle difference between numeric keypad of MSX computers and
-  of most host computers; the MSX computers have a '.' and a ',' on the numeric
-  keypad. On the other hand, the host computers have a '.' and an 'ENTER' key
-  on the keypad.</p>
-
-  <p>In some respect it is logical that the 'ENTER' key on the host numeric
-  keypad is mapped to the 'normal' MSX 'ENTER' key. On the other hand, that
-  would make it impossible to enter the ',' on the MSX nummeric keypad.
-  Therefore, the user can choose whether the host numeric keypad ENTER key
-  should be mapped to the MSX numeric keypad ',' (which is the default) or to
-  the main 'ENTER' key.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>set&nbsp;keypad_enter_key</code></td>
-
-      <td>Shows the current value</td>
-    </tr>
-
-    <tr>
-      <td><code>set&nbsp;keypad_enter_key&nbsp;ENTER</code></td>
-
-      <td>Maps the keypad enter key to the main 'ENTER' key, instead of the comma key on the MSX keypad</td>
     </tr>
   </table>
 
@@ -4051,35 +4089,6 @@
 
       <td>Turn throttle mode off (fast forward)</td>
     </tr>
-  </table>
-
-  <h3><a id="trace_key_presses">trace_key_presses</a></h3>
-
-  <p>Log SDL key code, SDL modifiers and Unicode value for each key that gets
-  pressed on the host keyboard on stdout.  Also show Unicode value and
-  corresponding MSX key-presses for characters that get 'pasted' into the MSX
-  by the console <code><a class="internal" href="#type">type</a></code>
-  command. This setting is especially useful when defining unicode keymap
-  files, so that you can find out the unicode values belonging to certain
-  keys/characters.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>set trace_key_presses</code></td>
-
-      <td>Shows the current setting</td>
-    </tr>
-
-    <tr>
-      <td><code>set trace_key_presses on</code></td>
-
-      <td>Turn logging of key presses on</td>
-    </tr>
-
   </table>
 
   <h3><a id="umr_callback">umr_callback</a></h3>

@@ -263,6 +263,12 @@ static void initialize()
 	keymap["EURO"]		= K_EURO;	// Some european keyboards
 	keymap["UNDO"]		= K_UNDO;
 
+	// Japanese keyboard special keys
+	keymap["ZENKAKU_HENKAKU"]	= K_ZENKAKU_HENKAKU;
+	keymap["MUHENKAN"]		= K_MUHENKAN;
+	keymap["HENKAN_MODE"]		= K_HENKAN_MODE;
+	keymap["HIRAGANA_KATAKANA"]	= K_HIRAGANA_KATAKANA;
+
 	// Modifiers
 	keymap["SHIFT"]		= KM_SHIFT;
 	keymap["CTRL"]		= KM_CTRL;
@@ -305,9 +311,30 @@ KeyCode getCode(const string& name)
 	return result;
 }
 
-KeyCode getCode(SDLKey key, SDLMod mod, bool release)
+KeyCode getCode(SDLKey key, SDLMod mod, Uint8 scancode, bool release)
 {
 	KeyCode result = static_cast<KeyCode>(key);
+	if (result == 0) {
+		// Assume it is a japanese keyboard and check
+		// scancode to recognize a few japanese
+		// specific keys for which SDL does not have an
+		// SDLKey keysym definition.
+		switch (scancode) {
+		case 49:
+			result = static_cast<KeyCode>(K_ZENKAKU_HENKAKU);
+			break;
+		case 129:
+			result = static_cast<KeyCode>(K_HENKAN_MODE);
+			break;
+		case 131:
+			result = static_cast<KeyCode>(K_MUHENKAN);
+			break;
+		case 208:
+			result = static_cast<KeyCode>(K_HIRAGANA_KATAKANA);
+			break;
+
+		}
+	}
 	if (mod & KMOD_CTRL) {
 		result = static_cast<KeyCode>(result | KM_CTRL);
 	}
