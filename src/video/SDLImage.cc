@@ -43,14 +43,15 @@ SDLImage::SDLImage(OutputSurface& output_, unsigned width, unsigned height,
 	image = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA,
 		width, height, format.BitsPerPixel,
 		format.Rmask, format.Gmask, format.Bmask, 0);
-	if (image) {
-		if (r || g || b) {
-			SDL_FillRect(image, NULL,
-			             SDL_MapRGB(&output.getSDLFormat(), r, g, b));
-		}
-		SDL_SetAlpha(image, SDL_SRCALPHA, alpha);
+	if (!image) {
+		throw MSXException("Couldn't allocate surface.");
 	}
-	init("");
+	if (r || g || b) {
+		SDL_FillRect(image, NULL,
+			     SDL_MapRGB(&output.getSDLFormat(), r, g, b));
+	}
+	a = (alpha == 255) ? 256 : alpha;
+	workImage = NULL;
 }
 
 SDLImage::SDLImage(OutputSurface& output_, SDL_Surface* image_)
@@ -76,30 +77,43 @@ void SDLImage::init(const string& filename)
 SDLImage::~SDLImage()
 {
 	SDL_FreeSurface(image);
-	SDL_FreeSurface(workImage);
+	if (workImage) SDL_FreeSurface(workImage);
 }
 
 void SDLImage::draw(unsigned x, unsigned y, byte alpha)
 {
 	output.unlock();
 	SDL_Surface* outputSurface = output.getSDLSurface();
+	SDL_Rect rect;
+	rect.x = x;
+	rect.y = y;
 	if (alpha == 255) {
-		SDL_Rect rect;
-		rect.x = x;
-		rect.y = y;
 		SDL_BlitSurface(image, NULL, outputSurface, &rect);
 	} else {
-		SDL_Rect rect;
-		rect.x = x;
-		rect.y = y;
-		rect.w = image->w;
-		rect.h = image->h;
-		SDL_BlitSurface(outputSurface, &rect, workImage, NULL);
-		SDL_BlitSurface(image,         NULL,  workImage, NULL);
-		SDL_SetAlpha(workImage, SDL_SRCALPHA, alpha);
-		SDL_BlitSurface(workImage,    NULL,  outputSurface, &rect);
+		if (workImage) {
+			rect.w = image->w;
+			rect.h = image->h;
+			SDL_BlitSurface(outputSurface, &rect, workImage, NULL);
+			SDL_BlitSurface(image,         NULL,  workImage, NULL);
+			SDL_SetAlpha(workImage, SDL_SRCALPHA, alpha);
+			SDL_BlitSurface(workImage,    NULL,  outputSurface, &rect);
+		} else {
+			SDL_SetAlpha(image, SDL_SRCALPHA, (a * alpha) / 256);
+			SDL_BlitSurface(image, NULL, outputSurface, &rect);
+		}
 	}
 }
+
+unsigned SDLImage::getWidth() const
+{
+	return image->w;
+}
+
+unsigned SDLImage::getHeight() const
+{
+	return image->h;
+}
+
 
 
 SDL_Surface* SDLImage::loadImage(const string& filename)

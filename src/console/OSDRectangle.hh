@@ -3,7 +3,7 @@
 #ifndef OSDRECTANGLE_HH
 #define OSDRECTANGLE_HH
 
-#include "OSDWidget.hh"
+#include "OSDImageBasedWidget.hh"
 #include "openmsx.hh"
 #include <memory>
 
@@ -11,26 +11,23 @@ namespace openmsx {
 
 class BaseImage;
 
-class OSDRectangle : public OSDWidget
+class OSDRectangle : public OSDImageBasedWidget
 {
 public:
-	OSDRectangle(OSDGUI& gui);
+	OSDRectangle(const OSDGUI& gui, const std::string& name);
 
 	virtual void getProperties(std::set<std::string>& result) const;
 	virtual void setProperty(const std::string& name, const std::string& value);
 	virtual std::string getProperty(const std::string& name) const;
 	virtual std::string getType() const;
 
-	virtual void paintSDL(OutputSurface& output);
-	virtual void paintGL (OutputSurface& output);
-	virtual void invalidateInternal();
-
 private:
-	template <typename IMAGE> void paint(OutputSurface& output);
+	virtual BaseImage* createSDL(OutputSurface& output);
+	virtual BaseImage* createGL (OutputSurface& output);
+	template <typename IMAGE> BaseImage* create(OutputSurface& output);
 
 	std::string imageName;
 	int w, h;
-	std::auto_ptr<BaseImage> image;
 };
 
 } // namespace openmsx

@@ -27,6 +27,8 @@ public:
 	virtual ~SDLImage();
 
 	virtual void draw(unsigned x, unsigned y, byte alpha = 255);
+	virtual unsigned getWidth() const;
+	virtual unsigned getHeight() const;
 
 private:
 	void init(const std::string& filename);
@@ -34,6 +36,7 @@ private:
 	OutputSurface& output;
 	SDL_Surface* image;
 	SDL_Surface* workImage;
+	unsigned a;
 
 public:
 	static SDL_Surface* loadImage(const std::string& filename);

@@ -20,11 +20,7 @@ OSDGUILayer::OSDGUILayer(OSDGUI& gui_)
 
 OSDGUILayer::~OSDGUILayer()
 {
-	const OSDGUI::Widgets& widgets = getGUI().getWidgets();
-	for (OSDGUI::Widgets::const_iterator it = widgets.begin();
-	     it != widgets.end(); ++it) {
-		(*it)->invalidate();
-	}
+	getGUI().getTopWidget().invalidate();
 }
 
 OSDGUI& OSDGUILayer::getGUI()
@@ -51,12 +47,7 @@ void SDLOSDGUILayer::paint()
 	OutputSurface* output =
 		getGUI().getDisplay().getVideoSystem().getOutputSurface();
 	if (!output) return;
-
-	const OSDGUI::Widgets& widgets = getGUI().getWidgets();
-	for (OSDGUI::Widgets::const_iterator it = widgets.begin();
-	     it != widgets.end(); ++it) {
-		(*it)->paintSDL(*output);
-	}
+	getGUI().getTopWidget().paintSDLRecursive(*output);
 }
 
 
@@ -72,12 +63,7 @@ void GLOSDGUILayer::paint()
 	OutputSurface* output =
 		getGUI().getDisplay().getVideoSystem().getOutputSurface();
 	if (!output) return;
-
-	const OSDGUI::Widgets& widgets = getGUI().getWidgets();
-	for (OSDGUI::Widgets::const_iterator it = widgets.begin();
-	     it != widgets.end(); ++it) {
-		(*it)->paintGL(*output);
-	}
+	getGUI().getTopWidget().paintGLRecursive(*output);
 }
 
 } // namespace openmsx

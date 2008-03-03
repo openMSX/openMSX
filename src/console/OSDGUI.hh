@@ -4,7 +4,6 @@
 #define OSDGUI_HH
 
 #include "noncopyable.hh"
-#include <vector>
 #include <memory>
 
 namespace openmsx {
@@ -20,19 +19,13 @@ public:
 	OSDGUI(CommandController& commandController, Display& display);
 	~OSDGUI();
 
-	typedef std::vector<OSDWidget*> Widgets;
-	const Widgets& getWidgets() const;
-	void addWidget(std::auto_ptr<OSDWidget> widget);
-	void deleteWidget(OSDWidget& widget);
-	void resort();
-
 	Display& getDisplay() const;
+	OSDWidget& getTopWidget() const;
 
 private:
 	Display& display;
 	const std::auto_ptr<OSDCommand> osdCommand;
-
-	Widgets widgets;
+	const std::auto_ptr<OSDWidget> topWidget;
 };
 
 } // namespace openmsx

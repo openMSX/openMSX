@@ -17,8 +17,8 @@ proc toggle_fps {} {
 		osd destroy $::__osd_fps_txt
 		unset ::__osd_fps_after ::__osd_fps_bg ::__osd_fps_txt
 	} else {
-		set ::__osd_fps_bg  [osd create rectangle -x 5 -y 5 -z 0 -w 63 -h 20 -rgba 0x00000080]
-		set ::__osd_fps_txt [osd create text -x 10 -y 8 -z 1 -font ~/Vera.ttf -rgba 0xffffffff]
+		set ::__osd_fps_bg  [osd create rectangle fps -x 5 -y 5 -z 0 -w 63 -h 20 -rgba 0x00000080]
+		set ::__osd_fps_txt [osd create text fps.text -x 5 -y 3 -z 1 -font ~/Vera.ttf -rgba 0xffffffff]
 		proc __osd_fps_refresh {} {
 			set fps [format "%2.1f" [openmsx_info fps]]
 			osd configure $::__osd_fps_txt -text "${fps}FPS"

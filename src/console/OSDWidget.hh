@@ -5,11 +5,12 @@
 
 #include "openmsx.hh"
 #include <string>
+#include <vector>
+#include <memory>
 #include <set>
 
 namespace openmsx {
 
-class OSDGUI;
 class OutputSurface;
 
 class OSDWidget
@@ -17,48 +18,49 @@ class OSDWidget
 public:
 	virtual ~OSDWidget();
 
-	std::string getName() const;
-	int  getX()     const { return x; }
-	int  getY()     const { return y; }
-	int  getZ()     const { return z; }
-	byte getRed()   const { return r; }
-	byte getGreen() const { return g; }
-	byte getBlue()  const { return b; }
-	byte getAlpha() const { return a; }
+	const std::string& getName() const;
+	int getZ() const { return z; }
+
+	OSDWidget* getParent();
+	const OSDWidget* getParent() const;
+	OSDWidget* findSubWidget(const std::string& name);
+	const OSDWidget* findSubWidget(const std::string& name) const;
+	void addWidget(std::auto_ptr<OSDWidget> widget);
+	void deleteWidget(OSDWidget& widget);
 
 	virtual void getProperties(std::set<std::string>& result) const;
 	virtual void setProperty(const std::string& name, const std::string& value);
 	virtual std::string getProperty(const std::string& name) const;
 	virtual std::string getType() const = 0;
 
-	virtual void paintSDL(OutputSurface& output) = 0;
-	virtual void paintGL (OutputSurface& output) = 0;
 	void invalidate();
+	void paintSDLRecursive(OutputSurface& output);
+	void paintGLRecursive (OutputSurface& output);
+
+	virtual void transformXY(const OutputSurface& output,
+	                         int x, int y, double relx, double rely,
+	                         int& outx, int& outy) const = 0;
 
 protected:
-	OSDWidget(OSDGUI& gui);
+	OSDWidget(const std::string& name);
 	virtual void invalidateInternal() = 0;
-
-	/** Returns true if RGBA changed.
-	 * Separate RGB- and Alpha-changed info is stored in the optional
-	 * bool* parameters. */
-	bool setRGBA(const std::string& value,
-	             bool* rgbChanged = NULL, bool* alphaChanged = NULL);
-	/** Returns true if RGB changed. */
-	bool setRGB(const std::string& value);
-	/** Returns true if alpha changed. */
-	bool setAlpha(const std::string& value);
-
-	void setError(const std::string& message);
-	bool hasError() const { return error; }
+	virtual void paintSDL(OutputSurface& output) = 0;
+	virtual void paintGL (OutputSurface& output) = 0;
 
 private:
-	OSDGUI& gui;
-	unsigned id;
-	int x, y, z;
-	byte r, g, b, a; // note: when there are widgets without color, move
-	                 //       this to an abstact colored-widget class
-	bool error;
+	void setParent(OSDWidget* parent);
+	void resort();
+
+	void listWidgetNames(const std::string& parentName,
+	                     std::set<std::string>& result) const;
+	friend class OSDCommand;
+
+	typedef std::vector<OSDWidget*> SubWidgets;
+	SubWidgets subWidgets;
+	OSDWidget* parent;
+
+	const std::string name;
+	int z;
 };
 
 } // namespace openmsx

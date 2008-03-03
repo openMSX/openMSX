@@ -1,5 +1,15 @@
 $Id$
 
+2008-03-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Extended OSD stuff:
+	   - widgets are now hierarchically structured (the 'osd create'
+	     subcommand has been changed to allow this)
+	   - child widgets are placed relative to their parent widget
+	   - there can be an offset relative to parent in pixels (in the
+	     future probably also in 'scaled' pixels)
+	   - or offset can be as a percentage of the bounding box of the
+	     parent widget
+
 2008-03-02 Alex Wulms
 	* Several updates to keyboard driver:
 	  - Rename all keyboard settings to start with kbd_ so that they

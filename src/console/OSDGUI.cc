@@ -2,11 +2,13 @@
 
 #include "OSDGUI.hh"
 #include "OSDWidget.hh"
+#include "OSDTopWidget.hh"
 #include "OSDRectangle.hh"
 #include "OSDText.hh"
 #include "Command.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
+#include "StringOp.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -30,8 +32,9 @@ private:
 	void destroy  (const vector<TclObject*>& tokens, TclObject& result);
 	void info     (const vector<TclObject*>& tokens, TclObject& result);
 	void configure(const vector<TclObject*>& tokens, TclObject& result);
-	auto_ptr<OSDWidget> create(const string& type) const;
-	void configure(OSDWidget& widget, const vector<TclObject*>& tokens);
+	auto_ptr<OSDWidget> create(const string& type, const string& name) const;
+	void configure(OSDWidget& widget, const vector<TclObject*>& tokens,
+	               unsigned skip);
 
 	OSDWidget& getWidget(const string& name) const;
 
@@ -44,54 +47,22 @@ private:
 OSDGUI::OSDGUI(CommandController& commandController, Display& display_)
 	: display(display_)
 	, osdCommand(new OSDCommand(*this, commandController))
+	, topWidget(new OSDTopWidget())
 {
 }
 
 OSDGUI::~OSDGUI()
 {
-	for (Widgets::const_iterator it = widgets.begin();
-	     it != widgets.end(); ++it) {
-		delete *it;
-	}
-}
-
-const OSDGUI::Widgets& OSDGUI::getWidgets() const
-{
-	return widgets;
-}
-
-void OSDGUI::addWidget(auto_ptr<OSDWidget> widget)
-{
-	widgets.push_back(widget.release());
-	resort();
-}
-
-void OSDGUI::deleteWidget(OSDWidget& widget)
-{
-	for (Widgets::iterator it = widgets.begin();
-	     it != widgets.end(); ++it) {
-		if (*it == &widget) {
-			delete *it;
-			widgets.erase(it);
-			return;
-		}
-	}
-	assert(false);
-}
-
-struct AscendingZ {
-	bool operator()(const OSDWidget* lhs, const OSDWidget* rhs) const {
-		return lhs->getZ() < rhs->getZ();
-	}
-};
-void OSDGUI::resort()
-{
-	std::stable_sort(widgets.begin(), widgets.end(), AscendingZ());
 }
 
 Display& OSDGUI::getDisplay() const
 {
 	return display;
+}
+
+OSDWidget& OSDGUI::getTopWidget() const
+{
+	return *topWidget;
 }
 
 
@@ -126,22 +97,40 @@ void OSDCommand::execute(const vector<TclObject*>& tokens, TclObject& result)
 
 void OSDCommand::create(const vector<TclObject*>& tokens, TclObject& result)
 {
-	if (tokens.size() < 3) {
+	if (tokens.size() < 4) {
 		throw SyntaxError();
 	}
-	auto_ptr<OSDWidget> widget = create(tokens[2]->getString());
-	configure(*widget, tokens);
+	string type = tokens[2]->getString();
+	string fullname = tokens[3]->getString();
+	string parentname, name;
+	StringOp::splitOnLast(fullname, ".", parentname, name);
+	if (name.empty()) std::swap(parentname, name);
 
-	result.setString(widget->getName());
-	gui.addWidget(widget);
+	OSDWidget* parent = gui.getTopWidget().findSubWidget(parentname);
+	if (!parent) {
+		throw CommandException(
+			"Parent widget doesn't exist yet:" + parentname);
+	}
+	if (parent->findSubWidget(name)) {
+		throw CommandException(
+			"There already exists a widget with this name: " +
+			fullname);
+	}
+
+	auto_ptr<OSDWidget> widget = create(type, name);
+	configure(*widget, tokens, 4);
+	parent->addWidget(widget);
+
+	result.setString(fullname);
 }
 
-auto_ptr<OSDWidget> OSDCommand::create(const string& type) const
+auto_ptr<OSDWidget> OSDCommand::create(
+		const string& type, const string& name) const
 {
 	if (type == "rectangle") {
-		return auto_ptr<OSDWidget>(new OSDRectangle(gui));
+		return auto_ptr<OSDWidget>(new OSDRectangle(gui, name));
 	} else if (type == "text") {
-		return auto_ptr<OSDWidget>(new OSDText(gui));
+		return auto_ptr<OSDWidget>(new OSDText(gui, name));
 	} else {
 		throw CommandException(
 			"Invalid widget type '" + type + "', expected "
@@ -154,8 +143,12 @@ void OSDCommand::destroy(const vector<TclObject*>& tokens, TclObject& /*result*/
 	if (tokens.size() != 3) {
 		throw SyntaxError();
 	}
-	// note: iterates twice over list, but we don't care for now
-	gui.deleteWidget(getWidget(tokens[2]->getString()));
+	OSDWidget& widget = getWidget(tokens[2]->getString());
+	OSDWidget* parent = widget.getParent();
+	if (!parent) {
+		throw CommandException("Can't destroy the top widget.");
+	}
+	parent->deleteWidget(widget);
 }
 
 void OSDCommand::info(const vector<TclObject*>& tokens, TclObject& result)
@@ -163,11 +156,9 @@ void OSDCommand::info(const vector<TclObject*>& tokens, TclObject& result)
 	switch (tokens.size()) {
 	case 2: {
 		// list widget names
-		const OSDGUI::Widgets& widgets = gui.getWidgets();
-		for (OSDGUI::Widgets::const_iterator it = widgets.begin();
-		     it != widgets.end(); ++it) {
-			result.addListElement((*it)->getName());
-		}
+		set<string> names;
+		gui.getTopWidget().listWidgetNames("", names);
+		result.addListElements(names.begin(), names.end());
 		break;
 	}
 	case 3: {
@@ -194,19 +185,20 @@ void OSDCommand::configure(const vector<TclObject*>& tokens, TclObject& /*result
 	if (tokens.size() < 3) {
 		throw SyntaxError();
 	}
-	configure(getWidget(tokens[2]->getString()), tokens);
+	configure(getWidget(tokens[2]->getString()), tokens, 3);
 }
 
-void OSDCommand::configure(OSDWidget& widget, const vector<TclObject*>& tokens)
+void OSDCommand::configure(OSDWidget& widget, const vector<TclObject*>& tokens,
+                           unsigned skip)
 {
-	assert(tokens.size() >= 3);
-	if ((tokens.size() - 3) & 1) {
+	assert(tokens.size() >= skip);
+	if ((tokens.size() - skip) & 1) {
 		// odd number of extra arguments
 		throw CommandException(
 			"Missing value for '" + tokens.back()->getString() + "'.");
 	}
 
-	for (unsigned i = 3; i < tokens.size(); i += 2) {
+	for (unsigned i = skip; i < tokens.size(); i += 2) {
 		string name  = tokens[i + 0]->getString();
 		string value = tokens[i + 1]->getString();
 		widget.setProperty(name, value);
@@ -218,34 +210,39 @@ string OSDCommand::help(const vector<string>& tokens) const
 	if (tokens.size() >= 2) {
 		if (tokens[1] == "create") {
 			return
-			  "osd create <type> [<property-name> <property-value>]...\n"
+			  "osd create <type> <widget-path> [<property-name> <property-value>]...\n"
 			  "\n"
-			  "Creates a new OSD widget of given type. Optionally "
-			  "you can set initial values for one or more properties.\n"
-			  "This command returns an ID for the newly created widget "
-			  "this ID is needed to manipulate the widget with the "
-			  "other osd subcommand.";
+			  "Creates a new OSD widget of given type. Path is a "
+			  "hierarchical name for the wiget (separated by '.')."
+			  "The parent widget for this new widget must already "
+			  "exist.\n"
+			  "Optionally you can set initial values for one or "
+			  "more properties.\n"
+			  "This command returns the path of the newly created "
+			  "widget. This is path is again needed to configure "
+			  "or to remove the widget. It may be useful to assign "
+			  "this path to a variable.";
 		} else if (tokens[1] == "destroy") {
 			return
-			  "osd destroy <widget-id>\n"
+			  "osd destroy <widget-path>\n"
 			  "\n"
 			  "Remove the specified OSD widget.";
 		} else if (tokens[1] == "info") {
 			return
-			  "osd info [<widget-id> [<property-name>]]\n"
+			  "osd info [<widget-path> [<property-name>]]\n"
 			  "\n"
 			  "Query various information about the OSD status. "
 			  "You can call this command with 0, 1 or 2 arguments.\n"
 			  "Without any arguments, this command returns a list "
 			  "of all existing widget IDs.\n"
-			  "When a widget ID is given as argument, this command "
+			  "When a path is given as argument, this command "
 			  "returns a list of available properties for that widget.\n"
-			  "When both widget ID and property name arguments are "
+			  "When both path and property name arguments are "
 			  "given, this command returns the current value of "
 			  "that property.";
 		} else if (tokens[1] == "configure") {
 			return
-			  "osd configure <widget-id> [<property-name> <property-value>]...\n"
+			  "osd configure <widget-path> [<property-name> <property-value>]...\n"
 			  "\n"
 			  "Modify one or more properties on the given widget.";
 		} else {
@@ -254,46 +251,38 @@ string OSDCommand::help(const vector<string>& tokens) const
 	} else {
 		return
 		  "Low level OSD GUI commands\n"
-		  "  osd create <type> [<property-name> <property-value>]...\n"
-		  "  osd destroy <widget-id>\n"
-		  "  osd info [<widget-id> [<property-name>]]\n"
-		  "  osd configure <widget-id> [<property-name> <property-value>]...\n"
+		  "  osd create <type> <widget-path> [<property-name> <property-value>]...\n"
+		  "  osd destroy <widget-path>\n"
+		  "  osd info [<widget-path> [<property-name>]]\n"
+		  "  osd configure <widget-path> [<property-name> <property-value>]...\n"
 		  "Use 'help osd <subcommand>' to see more info on a specific subcommand";
 	}
 }
 
 void OSDCommand::tabCompletion(vector<string>& tokens) const
 {
-	switch (tokens.size()) {
-	case 2: {
+	if (tokens.size() == 2) {
 		set<string> cmds;
 		cmds.insert("create");
 		cmds.insert("destroy");
 		cmds.insert("info");
 		cmds.insert("configure");
 		completeString(tokens, cmds);
-		break;
-	}
-	case 3: {
-		set<string> s;
-		if (tokens[1] == "create") {
-			s.insert("rectangle");
-			s.insert("text");
-		} else {
-			const OSDGUI::Widgets& widgets = gui.getWidgets();
-			for (OSDGUI::Widgets::const_iterator it = widgets.begin();
-			     it != widgets.end(); ++it) {
-				s.insert((*it)->getName());
-			}
-		}
-		completeString(tokens, s);
-		break;
-	}
-	default: {
+	} else if ((tokens.size() == 3) && (tokens[1] == "create")) {
+		set<string> types;
+		types.insert("rectangle");
+		types.insert("text");
+		completeString(tokens, types);
+	} else if ((tokens.size() == 3) ||
+	           ((tokens.size() == 4) && (tokens[1] == "create"))) {
+		set<string> names;
+		gui.getTopWidget().listWidgetNames("", names);
+		completeString(tokens, names);
+	} else {
 		try {
 			set<string> properties;
 			if (tokens[1] == "create") {
-				auto_ptr<OSDWidget> widget = create(tokens[2]);
+				auto_ptr<OSDWidget> widget = create(tokens[2], "");
 				widget->getProperties(properties);
 			} else if (tokens[1] == "configure") {
 				const OSDWidget& widget = getWidget(tokens[2]);
@@ -304,19 +293,15 @@ void OSDCommand::tabCompletion(vector<string>& tokens) const
 			// ignore
 		}
 	}
-	}
 }
 
 OSDWidget& OSDCommand::getWidget(const string& name) const
 {
-	const OSDGUI::Widgets& widgets = gui.getWidgets();
-	for (OSDGUI::Widgets::const_iterator it = widgets.begin();
-	     it != widgets.end(); ++it) {
-		if ((*it)->getName() == name) {
-			return **it;
-		}
+	OSDWidget* widget = gui.getTopWidget().findSubWidget(name);
+	if (!widget) {
+		throw CommandException("No widget with name " + name);
 	}
-	throw CommandException("No widget with name " + name);
+	return *widget;
 }
 
 } // namespace openmsx

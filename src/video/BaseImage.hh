@@ -13,6 +13,8 @@ class BaseImage : private noncopyable
 public:
 	virtual ~BaseImage() {}
 	virtual void draw(unsigned x, unsigned y, byte alpha = 255) = 0;
+	virtual unsigned getWidth() const = 0;
+	virtual unsigned getHeight() const = 0;
 };
 
 } // namespace openmsx

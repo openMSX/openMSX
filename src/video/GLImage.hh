@@ -29,6 +29,8 @@ public:
 	virtual ~GLImage();
 
 	virtual void draw(unsigned x, unsigned y, unsigned char alpha = 255);
+	virtual unsigned getWidth() const;
+	virtual unsigned getHeight() const;
 
 private:
 	GLuint texture;

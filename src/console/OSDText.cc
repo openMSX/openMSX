@@ -40,8 +40,8 @@ private:
 
 // class OSDText
 
-OSDText::OSDText(OSDGUI& gui)
-	: OSDWidget(gui)
+OSDText::OSDText(const OSDGUI& gui, const string& name)
+	: OSDImageBasedWidget(gui, name)
 	, fontfile("notepad.ttf")
 	, size(12)
 {
@@ -52,7 +52,7 @@ void OSDText::getProperties(std::set<std::string>& result) const
 	result.insert("-text");
 	result.insert("-font");
 	result.insert("-size");
-	OSDWidget::getProperties(result);
+	OSDImageBasedWidget::getProperties(result);
 }
 
 void OSDText::setProperty(const std::string& name, const std::string& value)
@@ -85,7 +85,7 @@ void OSDText::setProperty(const std::string& name, const std::string& value)
 		setAlpha(value);
 		// don't invalidate
 	} else {
-		OSDWidget::setProperty(name, value);
+		OSDImageBasedWidget::setProperty(name, value);
 	}
 }
 
@@ -98,7 +98,7 @@ std::string OSDText::getProperty(const std::string& name) const
 	} else if (name == "-size") {
 		return StringOp::toString(size);
 	} else {
-		return OSDWidget::getProperty(name);
+		return OSDImageBasedWidget::getProperty(name);
 	}
 }
 
@@ -107,49 +107,37 @@ std::string OSDText::getType() const
 	return "text";
 }
 
-template <typename IMAGE> void OSDText::paint(OutputSurface& output)
+template <typename IMAGE> BaseImage* OSDText::create(OutputSurface& output)
 {
-	if (!image.get() && !hasError()) {
-		if (!font.get()) {
-			try {
-				SystemFileContext context;
-				string file = context.resolve(fontfile);
-				font.reset(new TTFFont(file, size));
-			} catch (MSXException& e) {
-				setError("Couldn't open font: " + e.getMessage());
-			}
-		}
-		if (font.get()) {
-			try {
-				SDL_Surface* surface = font->render(
-					text, getRed(), getGreen(), getBlue());
-				image.reset(new IMAGE(output, surface));
-			} catch (MSXException& e) {
-				setError("Couldn't render text: " + e.getMessage());
-			}
+	if (!font.get()) {
+		try {
+			SystemFileContext context;
+			string file = context.resolve(fontfile);
+			font.reset(new TTFFont(file, size));
+		} catch (MSXException& e) {
+			throw MSXException("Couldn't open font: " + e.getMessage());
 		}
 	}
-	if (image.get()) {
-		image->draw(getX(), getY(), getAlpha());
+	try {
+		SDL_Surface* surface = font->render(
+			text, getRed(), getGreen(), getBlue());
+		return new IMAGE(output, surface);
+	} catch (MSXException& e) {
+		throw MSXException("Couldn't render text: " + e.getMessage());
 	}
 }
 
-void OSDText::paintSDL(OutputSurface& output)
+BaseImage* OSDText::createSDL(OutputSurface& output)
 {
-	paint<SDLImage>(output);
+	return create<SDLImage>(output);
 }
 
-void OSDText::paintGL(OutputSurface& output)
+BaseImage* OSDText::createGL(OutputSurface& output)
 {
 	(void)output;
 #ifdef COMPONENT_GL
-	paint<GLImage>(output);
+	return create<GLImage>(output);
 #endif
-}
-
-void OSDText::invalidateInternal()
-{
-	image.reset();
 }
 
 

@@ -83,6 +83,16 @@ void GLImage::draw(unsigned x, unsigned y, unsigned char alpha)
 	glPopAttrib();
 }
 
+unsigned GLImage::getWidth() const
+{
+	return width;
+}
+
+unsigned GLImage::getHeight() const
+{
+	return height;
+}
+
 GLuint GLImage::loadTexture(const string& filename,
 	unsigned& width, unsigned& height, GLfloat* texCoord)
 {

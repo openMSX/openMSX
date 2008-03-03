@@ -7,7 +7,9 @@ SRC_HDR:= \
 	OSDConsoleRenderer \
 	Font DummyFont \
 	SDLConsole SDLFont \
-	OSDGUILayer OSDGUI OSDWidget OSDRectangle OSDText
+	OSDGUILayer OSDGUI \
+	OSDWidget OSDImageBasedWidget \
+	OSDTopWidget OSDRectangle OSDText
 
 SRC_HDR_$(COMPONENT_GL)+= \
 	GLConsole GLFont
