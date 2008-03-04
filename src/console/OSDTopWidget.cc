@@ -23,7 +23,7 @@ void OSDTopWidget::transformXY(const OutputSurface& output,
 	outy = y + rely * output.getHeight();
 }
 
-void OSDTopWidget::invalidateInternal()
+void OSDTopWidget::invalidateLocal()
 {
 	// nothing
 }

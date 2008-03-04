@@ -128,12 +128,17 @@ string OSDWidget::getProperty(const string& name) const
 	}
 }
 
-void OSDWidget::invalidate()
+void OSDWidget::invalidateRecursive()
 {
-	invalidateInternal();
+	invalidateLocal();
+	invalidateChildren();
+}
+
+void OSDWidget::invalidateChildren()
+{
 	for (SubWidgets::const_iterator it = subWidgets.begin();
 	     it != subWidgets.end(); ++it) {
-		(*it)->invalidate();
+		(*it)->invalidateRecursive();
 	}
 }
 

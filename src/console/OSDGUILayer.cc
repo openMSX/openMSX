@@ -20,7 +20,7 @@ OSDGUILayer::OSDGUILayer(OSDGUI& gui_)
 
 OSDGUILayer::~OSDGUILayer()
 {
-	getGUI().getTopWidget().invalidate();
+	getGUI().getTopWidget().invalidateRecursive();
 }
 
 OSDGUI& OSDGUILayer::getGUI()

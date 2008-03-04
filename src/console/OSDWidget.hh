@@ -33,7 +33,7 @@ public:
 	virtual std::string getProperty(const std::string& name) const;
 	virtual std::string getType() const = 0;
 
-	void invalidate();
+	void invalidateRecursive();
 	void paintSDLRecursive(OutputSurface& output);
 	void paintGLRecursive (OutputSurface& output);
 
@@ -43,7 +43,9 @@ public:
 
 protected:
 	OSDWidget(const std::string& name);
-	virtual void invalidateInternal() = 0;
+	void invalidateChildren();
+
+	virtual void invalidateLocal() = 0;
 	virtual void paintSDL(OutputSurface& output) = 0;
 	virtual void paintGL (OutputSurface& output) = 0;
 

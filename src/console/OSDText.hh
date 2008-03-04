@@ -22,6 +22,7 @@ public:
 	virtual std::string getType() const;
 
 private:
+	virtual void invalidateLocal();
 	virtual BaseImage* createSDL(OutputSurface& output);
 	virtual BaseImage* createGL (OutputSurface& output);
 	template <typename IMAGE> BaseImage* create(OutputSurface& output);

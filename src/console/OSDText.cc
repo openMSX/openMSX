@@ -59,31 +59,18 @@ void OSDText::setProperty(const std::string& name, const std::string& value)
 {
 	if (name == "-text") {
 		text = value;
-		invalidate();
+		// note: don't invalidate font (don't reopen font file)
+		OSDImageBasedWidget::invalidateLocal();
+		invalidateChildren();
 	} else if (name == "-font") {
 		if (!FileOperations::isRegularFile(value)) {
 			throw CommandException("Not a valid font file: " + value);
 		}
 		fontfile = value;
-		invalidate();
-		font.reset();
+		invalidateRecursive();
 	} else if (name == "-size") {
 		size = StringOp::stringToInt(value);
-		invalidate();
-		font.reset();
-	} else if (name == "-rgba") {
-		bool rgbChanged;
-		setRGBA(value, &rgbChanged);
-		if (rgbChanged) {
-			invalidate();
-		}
-	} else if (name == "-rgb") {
-		if (setRGB(value)) {
-			invalidate();
-		}
-	} else if (name == "-alpha") {
-		setAlpha(value);
-		// don't invalidate
+		invalidateRecursive();
 	} else {
 		OSDImageBasedWidget::setProperty(name, value);
 	}
@@ -101,6 +88,13 @@ std::string OSDText::getProperty(const std::string& name) const
 		return OSDImageBasedWidget::getProperty(name);
 	}
 }
+
+void OSDText::invalidateLocal()
+{
+	font.reset();
+	OSDImageBasedWidget::invalidateLocal();
+}
+
 
 std::string OSDText::getType() const
 {

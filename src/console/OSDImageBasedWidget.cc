@@ -43,10 +43,22 @@ void OSDImageBasedWidget::getProperties(set<string>& result) const
 
 void OSDImageBasedWidget::setProperty(const string& name, const string& value)
 {
-	if ((name == "-rgba") || (name == "-rgb") || (name == "-alpha")) {
-		// must be handled by sub-class because here we don't know
-		// when to call invalidate()
-		assert(false);
+	if (name == "-rgba") {
+		unsigned color = StringOp::stringToInt(value);
+		r = (color >> 24) & 255;
+		g = (color >> 16) & 255;
+		b = (color >>  8) & 255;
+		a = (color >>  0) & 255;
+		invalidateLocal();
+	} else if (name == "-rgb") {
+		unsigned color = StringOp::stringToInt(value);
+		r = (color >> 16) & 255;
+		g = (color >>  8) & 255;
+		b = (color >>  0) & 255;
+		invalidateLocal();
+	} else if (name == "-alpha") {
+		// don't invalidate
+		a = StringOp::stringToInt(value);
 	} else if (name == "-x") {
 		x = StringOp::stringToInt(value);
 	} else if (name == "-y") {
@@ -59,42 +71,6 @@ void OSDImageBasedWidget::setProperty(const string& name, const string& value)
 		OSDWidget::setProperty(name, value);
 	}
 }
-
-bool OSDImageBasedWidget::setRGBA(
-	const string& value, bool* rgbChanged, bool* alphaChanged)
-{
-	unsigned color = StringOp::stringToInt(value);
-	byte r2 = (color >> 24) & 255;
-	byte g2 = (color >> 16) & 255;
-	byte b2 = (color >>  8) & 255;
-	byte a2 = (color >>  0) & 255;
-	bool rgbChanged2   = (r != r2) || (g != g2) || (b != b2);
-	bool alphaChanged2 = (a != a2);
-	if (rgbChanged)   *rgbChanged   = rgbChanged2;
-	if (alphaChanged) *alphaChanged = alphaChanged2;
-	r = r2; g = g2; b = b2; a = a2;
-	return rgbChanged2 || alphaChanged2;
-}
-
-bool OSDImageBasedWidget::setRGB(const string& value)
-{
-	unsigned color = StringOp::stringToInt(value);
-	byte r2 = (color >> 16) & 255;
-	byte g2 = (color >>  8) & 255;
-	byte b2 = (color >>  0) & 255;
-	bool colorChanged = (r != r2) || (g != g2) || (b != b2);
-	r = r2; g = g2; b = b2;
-	return colorChanged;
-}
-
-bool OSDImageBasedWidget::setAlpha(const string& value)
-{
-	byte a2 = StringOp::stringToInt(value);
-	bool alphaChanged = (a != a2);
-	a = a2;
-	return alphaChanged;
-}
-
 
 string OSDImageBasedWidget::getProperty(const string& name) const
 {
@@ -119,7 +95,7 @@ string OSDImageBasedWidget::getProperty(const string& name) const
 	}
 }
 
-void OSDImageBasedWidget::invalidateInternal()
+void OSDImageBasedWidget::invalidateLocal()
 {
 	error = false;
 	image.reset();

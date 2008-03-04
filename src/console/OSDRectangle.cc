@@ -35,27 +35,16 @@ void OSDRectangle::setProperty(const string& name, const string& value)
 {
 	if (name == "-w") {
 		w = StringOp::stringToInt(value);
-		invalidate();
+		invalidateRecursive();
 	} else if (name == "-h") {
 		h = StringOp::stringToInt(value);
-		invalidate();
-	} else if (name == "-rgba") {
-		if (setRGBA(value) && imageName.empty()) {
-			invalidate();
-		}
-	} else if (name == "-rgb") {
-		if (setRGB(value) && imageName.empty()) {
-			invalidate();
-		}
-	} else if (name == "-alpha") {
-		setAlpha(value);
-		// don't invalidate
+		invalidateRecursive();
 	} else if (name == "-image") {
 		if (!value.empty() && !FileOperations::isRegularFile(value)) {
 			throw CommandException("Not a valid image file: " + value);
 		}
 		imageName = value;
-		invalidate();
+		invalidateRecursive();
 	} else {
 		OSDImageBasedWidget::setProperty(name, value);
 	}

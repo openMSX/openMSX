@@ -17,7 +17,7 @@ public:
 	                         int& outx, int& outy) const;
 
 protected:
-	virtual void invalidateInternal();
+	virtual void invalidateLocal();
 	virtual void paintSDL(OutputSurface& output);
 	virtual void paintGL (OutputSurface& output);
 };

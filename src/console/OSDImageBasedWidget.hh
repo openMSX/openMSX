@@ -34,21 +34,11 @@ public:
 
 protected:
 	OSDImageBasedWidget(const OSDGUI& gui, const std::string& name);
-	virtual void invalidateInternal();
+	virtual void invalidateLocal();
 	virtual void paintSDL(OutputSurface& output);
 	virtual void paintGL (OutputSurface& output);
 	virtual BaseImage* createSDL(OutputSurface& output) = 0;
 	virtual BaseImage* createGL (OutputSurface& output) = 0;
-
-	/** Returns true if RGBA changed.
-	 * Separate RGB- and Alpha-changed info is stored in the optional
-	 * bool* parameters. */
-	bool setRGBA(const std::string& value,
-	             bool* rgbChanged = NULL, bool* alphaChanged = NULL);
-	/** Returns true if RGB changed. */
-	bool setRGB(const std::string& value);
-	/** Returns true if alpha changed. */
-	bool setAlpha(const std::string& value);
 
 	void getTransformedXY(const OutputSurface& output,
 	                      int& outx, int& outy) const;
