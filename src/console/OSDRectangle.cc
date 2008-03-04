@@ -92,10 +92,11 @@ BaseImage* OSDRectangle::createSDL(OutputSurface& output)
 
 BaseImage* OSDRectangle::createGL(OutputSurface& output)
 {
-	(void)output;
 #ifdef COMPONENT_GL
 	return create<GLImage>(output);
 #endif
+	(void)output;
+	return NULL;
 }
 
 } // namespace openmsx

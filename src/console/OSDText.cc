@@ -128,10 +128,11 @@ BaseImage* OSDText::createSDL(OutputSurface& output)
 
 BaseImage* OSDText::createGL(OutputSurface& output)
 {
-	(void)output;
 #ifdef COMPONENT_GL
 	return create<GLImage>(output);
 #endif
+	(void)output;
+	return NULL;
 }
 
 

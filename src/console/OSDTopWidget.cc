@@ -19,8 +19,8 @@ void OSDTopWidget::transformXY(const OutputSurface& output,
                                int x, int y, double relx, double rely,
                                int& outx, int& outy) const
 {
-	outx = x + relx * output.getWidth();
-	outy = y + rely * output.getHeight();
+	outx = x + int(relx * output.getWidth());
+	outy = y + int(rely * output.getHeight());
 }
 
 void OSDTopWidget::invalidateLocal()

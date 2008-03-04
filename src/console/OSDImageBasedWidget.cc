@@ -114,8 +114,8 @@ void OSDImageBasedWidget::transformXY(const OutputSurface& output,
 		width  = 0;
 		height = 0;
 	}
-	outx = x + getX() + relx * width;
-	outy = y + getY() + rely * height;
+	outx = x + getX() + int(relx * width);
+	outy = y + getY() + int(rely * height);
 	getParent()->transformXY(output, outx, outy, getRelX(), getRelY(),
 	                         outx, outy);
 }
