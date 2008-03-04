@@ -28,12 +28,12 @@ void OSDTopWidget::invalidateInternal()
 	// nothing
 }
 
-void OSDTopWidget::paintSDL(OutputSurface& output)
+void OSDTopWidget::paintSDL(OutputSurface& /*output*/)
 {
 	// nothing
 }
 
-void OSDTopWidget::paintGL (OutputSurface& output)
+void OSDTopWidget::paintGL (OutputSurface& /*output*/)
 {
 	// nothing
 }

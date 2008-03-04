@@ -3,6 +3,7 @@
 #include "OSDWidget.hh"
 #include "CommandException.hh"
 #include "StringOp.hh"
+#include <algorithm>
 #include <cassert>
 
 using std::string;
