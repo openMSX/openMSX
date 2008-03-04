@@ -35,6 +35,7 @@ INSTALL_DIR:=$(BUILD_PATH)/install
 # Download locations for package sources.
 DOWNLOAD_ZLIB:=http://downloads.sourceforge.net/libpng
 DOWNLOAD_PNG:=http://downloads.sourceforge.net/libpng
+DOWNLOAD_FREETYPE:=http://downloads.sourceforge.net/freetype
 DOWNLOAD_SDL:=http://www.libsdl.org/release
 DOWNLOAD_SDL_IMAGE:=http://www.libsdl.org/projects/SDL_image/release
 DOWNLOAD_SDL_TTF:=http://www.libsdl.org/projects/SDL_ttf/release
@@ -47,6 +48,7 @@ DOWNLOAD_DIRECTX:=http://alleg.sourceforge.net/files
 # You can use other versions if you like; adjust the names accordingly.
 PACKAGE_ZLIB:=zlib-1.2.3
 PACKAGE_PNG:=libpng-1.2.23
+PACKAGE_FREETYPE:=freetype-2.3.5
 PACKAGE_SDL:=SDL-1.2.12
 PACKAGE_SDL_IMAGE:=SDL_image-1.2.6
 PACKAGE_SDL_TTF:=SDL_ttf-2.0.9
@@ -89,7 +91,7 @@ endif
 
 # Unfortunately not all packages stick to naming conventions such as putting
 # the sources in a dir that includes the version number.
-PACKAGES_STD:=ZLIB PNG SDL SDL_IMAGE SDL_TTF XML
+PACKAGES_STD:=ZLIB PNG FREETYPE SDL SDL_IMAGE SDL_TTF XML
 PACKAGES_NONSTD:=GLEW TCL
 PACKAGES_NOBUILD:=
 ifeq ($(OPENMSX_TARGET_OS),mingw32)
@@ -105,6 +107,7 @@ TARBALL_DIRECTX:=$(PACKAGE_DIRECTX)_mgw.tar.gz
 # Source tar file names for standard packages.
 TARBALL_ZLIB:=$(PACKAGE_ZLIB).tar.gz
 TARBALL_PNG:=$(PACKAGE_PNG).tar.gz
+TARBALL_FREETYPE:=$(PACKAGE_FREETYPE).tar.gz
 TARBALL_SDL:=$(PACKAGE_SDL).tar.gz
 TARBALL_SDL_IMAGE:=$(PACKAGE_SDL_IMAGE).tar.gz
 TARBALL_SDL_TTF:=$(PACKAGE_SDL_TTF).tar.gz
@@ -159,8 +162,10 @@ $(BUILD_TARGETS): $(TIMESTAMP_DIR)/build-%: $(BUILD_DIR)/%/Makefile
 # Configuration of a lib can depend on the lib-config script of another lib.
 # For example SDL_image depends on SDL and libpng.
 PNG_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/libpng12-config
+FREETYPE_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/freetype-config
 SDL_CONFIG_SCRIPT:=$(INSTALL_DIR)/bin/sdl-config
 $(PNG_CONFIG_SCRIPT): $(TIMESTAMP_DIR)/install-$(PACKAGE_PNG)
+$(FREETYPE_CONFIG_SCRIPT): $(TIMESTAMP_DIR)/install-$(PACKAGE_FREETYPE)
 $(SDL_CONFIG_SCRIPT): $(TIMESTAMP_DIR)/install-$(PACKAGE_SDL)
 
 # Configure SDL.
@@ -206,7 +211,8 @@ $(BUILD_DIR)/$(PACKAGE_SDL_IMAGE)/Makefile: \
 
 # Configure SDL_ttf.
 $(BUILD_DIR)/$(PACKAGE_SDL_TTF)/Makefile: \
-  $(SOURCE_DIR)/$(PACKAGE_SDL_TTF) $(SDL_CONFIG_SCRIPT)
+  $(SOURCE_DIR)/$(PACKAGE_SDL_TTF) \
+  $(FREETYPE_CONFIG_SCRIPT) $(SDL_CONFIG_SCRIPT)
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$</configure \
 		--disable-sdltest \
@@ -220,6 +226,17 @@ $(BUILD_DIR)/$(PACKAGE_SDL_TTF)/Makefile: \
 $(BUILD_DIR)/$(PACKAGE_PNG)/Makefile: \
   $(SOURCE_DIR)/$(PACKAGE_PNG) \
   $(foreach PACKAGE,$(filter-out $(SYSTEM_LIBS),ZLIB),$(TIMESTAMP_DIR)/install-$(PACKAGE_$(PACKAGE)))
+	mkdir -p $(@D)
+	cd $(@D) && $(PWD)/$</configure \
+		--host=$(TARGET_TRIPLE) \
+		--prefix=$(PWD)/$(INSTALL_DIR) \
+		CFLAGS="$(_CFLAGS)" \
+		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
+		LDFLAGS=-L$(PWD)/$(INSTALL_DIR)/lib
+
+# Configure FreeType.
+$(BUILD_DIR)/$(PACKAGE_FREETYPE)/Makefile: \
+  $(SOURCE_DIR)/$(PACKAGE_FREETYPE)
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$</configure \
 		--host=$(TARGET_TRIPLE) \
