@@ -40,6 +40,7 @@ public:
 	virtual void transformXY(const OutputSurface& output,
 	                         int x, int y, double relx, double rely,
 	                         int& outx, int& outy) const = 0;
+	int getScaleFactor(const OutputSurface& surface) const;
 
 protected:
 	OSDWidget(const std::string& name);
@@ -63,6 +64,7 @@ private:
 
 	const std::string name;
 	int z;
+	bool scaled;
 };
 
 } // namespace openmsx

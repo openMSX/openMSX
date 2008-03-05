@@ -1,8 +1,8 @@
 // $Id$
 
 #include "OSDImageBasedWidget.hh"
-#include "BaseImage.hh"
 #include "OSDGUI.hh"
+#include "BaseImage.hh"
 #include "Display.hh"
 #include "Reactor.hh"
 #include "GlobalCliComm.hh"
@@ -114,8 +114,9 @@ void OSDImageBasedWidget::transformXY(const OutputSurface& output,
 		width  = 0;
 		height = 0;
 	}
-	outx = x + getX() + int(relx * width);
-	outy = y + getY() + int(rely * height);
+	int factor = getScaleFactor(output);
+	outx = x + factor * getX() + int(relx * width);
+	outy = y + factor * getY() + int(rely * height);
 	getParent()->transformXY(output, outx, outy, getRelX(), getRelY(),
 	                         outx, outy);
 }
@@ -126,8 +127,10 @@ void OSDImageBasedWidget::getTransformedXY(const OutputSurface& output,
 {
 	const OSDWidget* parent = getParent();
 	assert(parent);
-	parent->transformXY(output, getX(), getY(), getRelX(), getRelY(),
-	                    outx, outy);
+	int factor = getScaleFactor(output);
+	int x = factor * getX();
+	int y = factor * getY();
+	parent->transformXY(output, x, y, getRelX(), getRelY(), outx, outy);
 }
 
 void OSDImageBasedWidget::setError(const string& message)

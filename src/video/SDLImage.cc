@@ -126,6 +126,9 @@ SDL_Surface* SDLImage::loadImage(const string& filename)
 
 SDL_Surface* SDLImage::loadImage(const string& filename, double scaleFactor)
 {
+	if (scaleFactor == 1.0) {
+		return loadImage(filename);
+	}
 	SDL_Surface* picture = readImage(filename);
 	SDL_Surface* scaled = scaleImage32(picture,
 		unsigned(picture->w * scaleFactor),

@@ -107,7 +107,8 @@ template <typename IMAGE> BaseImage* OSDText::create(OutputSurface& output)
 		try {
 			SystemFileContext context;
 			string file = context.resolve(fontfile);
-			font.reset(new TTFFont(file, size));
+			int factor = getScaleFactor(output);
+			font.reset(new TTFFont(file, size * factor));
 		} catch (MSXException& e) {
 			throw MSXException("Couldn't open font: " + e.getMessage());
 		}

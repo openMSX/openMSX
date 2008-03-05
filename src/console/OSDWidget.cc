@@ -1,6 +1,7 @@
 // $Id$
 
 #include "OSDWidget.hh"
+#include "OutputSurface.hh"
 #include "CommandException.hh"
 #include "StringOp.hh"
 #include <algorithm>
@@ -15,6 +16,7 @@ OSDWidget::OSDWidget(const string& name_)
 	: parent(NULL)
 	, name(name_)
 	, z(0)
+	, scaled(false)
 {
 }
 
@@ -101,6 +103,7 @@ void OSDWidget::getProperties(set<string>& result) const
 {
 	result.insert("-type");
 	result.insert("-z");
+	result.insert("-scaled");
 }
 
 void OSDWidget::setProperty(const string& name, const string& value)
@@ -112,6 +115,9 @@ void OSDWidget::setProperty(const string& name, const string& value)
 		if (OSDWidget* parent = getParent()) {
 			parent->resort();
 		}
+	} else if (name == "-scaled") {
+		scaled = StringOp::stringToBool(value);
+		invalidateRecursive();
 	} else {
 		throw CommandException("No such property: " + name);
 	}
@@ -123,6 +129,8 @@ string OSDWidget::getProperty(const string& name) const
 		return getType();
 	} else if (name == "-z") {
 		return StringOp::toString(z);
+	} else if (name == "-scaled") {
+		return scaled ? "true" : "false";
 	} else {
 		throw CommandException("No such property: " + name);
 	}
@@ -157,6 +165,17 @@ void OSDWidget::paintGLRecursive (OutputSurface& output)
 	for (SubWidgets::const_iterator it = subWidgets.begin();
 	     it != subWidgets.end(); ++it) {
 		(*it)->paintGLRecursive(output);
+	}
+}
+
+int OSDWidget::getScaleFactor(const OutputSurface& output) const
+{
+	if (scaled) {
+		return output.getWidth() / 320;;
+	} else if (getParent()) {
+		return getParent()->getScaleFactor(output);
+	} else {
+		return 1;
 	}
 }
 

@@ -1,7 +1,6 @@
 // $Id$
 
 #include "OSDRectangle.hh"
-#include "OutputSurface.hh"
 #include "SDLImage.hh"
 #include "CommandException.hh"
 #include "FileContext.hh"
@@ -71,16 +70,19 @@ std::string OSDRectangle::getType() const
 template <typename IMAGE> BaseImage* OSDRectangle::create(
 	OutputSurface& output)
 {
+	int factor = getScaleFactor(output);
+	int sw = factor * w;
+	int sh = factor * h;
 	if (imageName.empty()) {
-		return new IMAGE(output, w, h, 255,
+		return new IMAGE(output, sw, sh, 255,
 		                 getRed(), getGreen(), getBlue());
 	} else {
 		SystemFileContext context;
 		string file = context.resolve(imageName);
-		if (w && h) {
-			return new IMAGE(output, file, w, h);
+		if (sw && sh) {
+			return new IMAGE(output, file, sw, sh);
 		} else {
-			return new IMAGE(output, file);
+			return new IMAGE(output, file, factor);
 		}
 	}
 }

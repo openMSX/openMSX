@@ -4,6 +4,11 @@ $Id$
 	* Added 'openmsx_info realtime':
 	   It was already possible to query the emutime of a machine in
 	   Tcl, now it's also possible to query the realtime.
+	* Added '-scaled' OSD property:
+	   OSD widgets with this property (or child widgets whose parent has
+	   this property) are automatically scaled according to the
+	   'scale_factor' setting. This makes it possible to design a GUI
+	   independent of the host window resolution. 
 
 2008-03-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Extended OSD stuff:
