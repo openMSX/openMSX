@@ -26,6 +26,7 @@
 #include "FileOperations.hh"
 #include "ReadDir.hh"
 #include "Thread.hh"
+#include "Timer.hh"
 #include <cassert>
 #include <memory>
 
@@ -126,10 +127,21 @@ public:
 	ConfigInfo(InfoCommand& openMSXInfoCommand, const string& configName);
 	virtual void execute(const vector<TclObject*>& tokens,
 	                     TclObject& result) const;
-	virtual string help   (const vector<string>& tokens) const;
+	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
 	const string configName;
+};
+
+class RealTimeInfo : public InfoTopic
+{
+public:
+	RealTimeInfo(InfoCommand& openMSXInfoCommand);
+	virtual void execute(const vector<TclObject*>& tokens,
+	                     TclObject& result) const;
+	virtual string help(const vector<string>& tokens) const;
+private:
+	const unsigned long long reference;
 };
 
 
@@ -150,6 +162,8 @@ Reactor::Reactor()
 	, machineInfo(new ConfigInfo(
 	       getGlobalCommandController().getOpenMSXInfoCommand(),
 	       "machines"))
+	, realTimeInfo(new RealTimeInfo(
+	       getGlobalCommandController().getOpenMSXInfoCommand()))
 	, needSwitch(false)
 	, blockedCounter(0)
 	, paused(false)
@@ -806,7 +820,7 @@ bool PollEventGenerator::alarm()
 
 
 // class ConfigInfo
-//
+
 ConfigInfo::ConfigInfo(InfoCommand& openMSXInfoCommand,
 	               const string& configName_)
 	: InfoTopic(openMSXInfoCommand, configName_)
@@ -861,6 +875,27 @@ void ConfigInfo::tabCompletion(vector<string>& tokens) const
 	set<string> configs;
 	Reactor::getHwConfigs(configName, configs);
 	completeString(tokens, configs);
+}
+
+
+// class RealTimeInfo
+
+RealTimeInfo::RealTimeInfo(InfoCommand& openMSXInfoCommand)
+	: InfoTopic(openMSXInfoCommand, "realtime")
+	, reference(Timer::getTime())
+{
+}
+
+void RealTimeInfo::execute(const vector<TclObject*>& tokens,
+                           TclObject& result) const
+{
+	unsigned long long delta = Timer::getTime() - reference;
+	result.setDouble(delta / 1000000.0);
+}
+
+string RealTimeInfo::help(const vector<string>& tokens) const
+{
+	return "Returns the time in seconds since openMSX was started.";
 }
 
 } // namespace openmsx

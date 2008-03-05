@@ -39,6 +39,7 @@ class ListMachinesCommand;
 class ActivateMachineCommand;
 class AviRecorder;
 class ConfigInfo;
+class RealTimeInfo;
 class GlobalSettings;
 template <typename T> class EnumSetting;
 
@@ -132,6 +133,7 @@ private:
 	const std::auto_ptr<AviRecorder> aviRecordCommand;
 	const std::auto_ptr<ConfigInfo> extensionInfo;
 	const std::auto_ptr<ConfigInfo> machineInfo;
+	const std::auto_ptr<RealTimeInfo> realTimeInfo;
 
 	shared_ptr<MSXMotherBoard> activeBoard;
 	shared_ptr<MSXMotherBoard> switchBoard;
