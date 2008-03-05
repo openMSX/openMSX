@@ -5,6 +5,7 @@
 #include "OSDTopWidget.hh"
 #include "OSDRectangle.hh"
 #include "OSDText.hh"
+#include "Display.hh"
 #include "Command.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
@@ -28,6 +29,7 @@ public:
 	virtual void tabCompletion(vector<string>& tokens) const;
 
 private:
+	void refresh();
 	void create   (const vector<TclObject*>& tokens, TclObject& result);
 	void destroy  (const vector<TclObject*>& tokens, TclObject& result);
 	void info     (const vector<TclObject*>& tokens, TclObject& result);
@@ -82,17 +84,25 @@ void OSDCommand::execute(const vector<TclObject*>& tokens, TclObject& result)
 	string subCommand = tokens[1]->getString();
 	if (subCommand == "create") {
 		create(tokens, result);
+		refresh();
 	} else if (subCommand == "destroy") {
 		destroy(tokens, result);
+		refresh();
 	} else if (subCommand == "info") {
 		info(tokens, result);
 	} else if (subCommand == "configure") {
 		configure(tokens, result);
+		refresh();
 	} else {
 		throw CommandException(
 			"Invalid subcommand '" + subCommand + "', expected "
 			"'create', 'destroy', 'info' or 'configure'.");
 	}
+}
+
+void OSDCommand::refresh()
+{
+	gui.getDisplay().repaintDelayed(40000); // 25 fps
 }
 
 void OSDCommand::create(const vector<TclObject*>& tokens, TclObject& result)
