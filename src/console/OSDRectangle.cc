@@ -7,6 +7,7 @@
 #include "FileOperations.hh"
 #include "StringOp.hh"
 #include "components.hh"
+#include <cassert>
 #ifdef COMPONENT_GL
 #include "GLImage.hh"
 #endif
@@ -67,6 +68,23 @@ std::string OSDRectangle::getType() const
 	return "rectangle";
 }
 
+void OSDRectangle::getWidthHeight(const OutputSurface& output,
+                                  int& width, int& height) const
+{
+	if (image.get()) {
+		OSDImageBasedWidget::getWidthHeight(output, width, height);
+	} else {
+		// No image allocated, must be either because of
+		//  - an error: in this case we can still do better than the
+		//              implementation in the base class
+		//  - the alpha=0 optimization
+		assert((getAlpha() == 0) || hasError());
+		int factor = getScaleFactor(output);
+		width  = factor * w;
+		height = factor * h;
+	}
+}
+
 template <typename IMAGE> BaseImage* OSDRectangle::create(
 	OutputSurface& output)
 {
@@ -74,8 +92,21 @@ template <typename IMAGE> BaseImage* OSDRectangle::create(
 	int sw = factor * w;
 	int sh = factor * h;
 	if (imageName.empty()) {
-		return new IMAGE(output, sw, sh, 255,
-		                 getRed(), getGreen(), getBlue());
+		if (getAlpha()) {
+			// note: Image is create with alpha = 255. Actual
+			//  alpha is applied during drawing. This way we
+			//  can also reuse the same image if only alpha
+			//  changes.
+			return new IMAGE(output, sw, sh, 255,
+			                 getRed(), getGreen(), getBlue());
+		} else {
+			// optimization: Sometimes it's useful to have a
+			//   rectangle that will never be drawn, it only exists
+			//   as a parent for sub-widgets. For those cases
+			//   creating an IMAGE only wastes memory. So postpone
+			//   creating it till alpha changes.
+			return NULL;
+		}
 	} else {
 		SystemFileContext context;
 		string file = context.resolve(imageName);

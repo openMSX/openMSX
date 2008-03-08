@@ -19,7 +19,11 @@ public:
 	virtual ~OSDWidget();
 
 	const std::string& getName() const;
-	int getZ() const { return z; }
+	int    getX()    const { return x; }
+	int    getY()    const { return y; }
+	int    getZ()    const { return z; }
+	double getRelX() const { return relx; }
+	double getRelY() const { return rely; }
 
 	OSDWidget* getParent();
 	const OSDWidget* getParent() const;
@@ -37,16 +41,18 @@ public:
 	void paintSDLRecursive(OutputSurface& output);
 	void paintGLRecursive (OutputSurface& output);
 
-	virtual void transformXY(const OutputSurface& output,
-	                         int x, int y, double relx, double rely,
-	                         int& outx, int& outy) const = 0;
 	int getScaleFactor(const OutputSurface& surface) const;
+	void transformXY(const OutputSurface& output,
+	                 int x, int y, double relx, double rely,
+	                 int& outx, int& outy) const;
 
 protected:
 	OSDWidget(const std::string& name);
 	void invalidateChildren();
 
 	virtual void invalidateLocal() = 0;
+	virtual void getWidthHeight(const OutputSurface& output,
+	                            int& width, int& height) const = 0;
 	virtual void paintSDL(OutputSurface& output) = 0;
 	virtual void paintGL (OutputSurface& output) = 0;
 
@@ -63,7 +69,8 @@ private:
 	OSDWidget* parent;
 
 	const std::string name;
-	int z;
+	double relx, rely;
+	int x, y, z;
 	bool scaled;
 };
 

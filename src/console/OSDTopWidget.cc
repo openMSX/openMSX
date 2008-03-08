@@ -15,12 +15,11 @@ std::string OSDTopWidget::getType() const
 	return "top";
 }
 
-void OSDTopWidget::transformXY(const OutputSurface& output,
-                               int x, int y, double relx, double rely,
-                               int& outx, int& outy) const
+void OSDTopWidget::getWidthHeight(const OutputSurface& output,
+                                  int& width, int& height) const
 {
-	outx = x + int(relx * output.getWidth());
-	outy = y + int(rely * output.getHeight());
+	width  = output.getWidth();
+	height = output.getHeight();
 }
 
 void OSDTopWidget::invalidateLocal()

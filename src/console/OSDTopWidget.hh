@@ -12,9 +12,8 @@ class OSDTopWidget : public OSDWidget
 public:
 	OSDTopWidget();
 	virtual std::string getType() const;
-	virtual void transformXY(const OutputSurface& output,
-	                         int x, int y, double relx, double rely,
-	                         int& outx, int& outy) const;
+	virtual void getWidthHeight(const OutputSurface& output,
+	                            int& width, int& height) const;
 
 protected:
 	virtual void invalidateLocal();

@@ -1,5 +1,13 @@
 $Id$
 
+2008-03-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed bug in OSD rectangle drawing:
+	   As an optimization rectangles with alpha=0 (completely
+	   transparent), were not allocated in memory. This caused problems
+	   when we needed the dimensions of this rectangle to calculate the
+	   position of child widgets. Fixed by refactoring the transformation
+	   code.
+
 2008-03-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added 'openmsx_info realtime':
 	   It was already possible to query the emutime of a machine in
