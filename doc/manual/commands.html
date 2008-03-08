@@ -1279,7 +1279,7 @@
       <td>Selects a new sound profile</td>
     </tr>
   </table>
-  
+
   <div class="note">
     Note: This command is a convenience wrapper around the <code><a class="internal" href="#soundchip_vibrato_frequency">PSG_vibrato_frequency</a></code>, <code><a class="internal" href="#soundchip_vibrato_percent">PSG_vibrato_percent</a></code>, <code><a class="internal" href="#soundchip_detune_frequency">PSG_detune_frequency</a></code> and <code><a class="internal" href="#soundchip_detune_percent">PSG_detune_percent</a></code> settings.
   </div>
@@ -1324,7 +1324,7 @@
     </tr>
   </table>
 
-  <p>The <code>start</code> subcommand also accepts an optional <code>-audioonly</code> or <code>-videoonly</code> flag.
+  <p>The <code>start</code> subcommand also accepts an optional <code>-audioonly</code>, <code>-videoonly</code> and a <code>-doublesize</code> flag. Videos are recorded in a 320&times;240 size by default and at 640&times;480 when the <code>-doublesize</code> flag is used.
   If only audio is recorded, the created file will be a WAV file instead of an AVI file.
   The <code><a class="internal" href="#soundlog">soundlog</a></code> command is a shorthand for <code>record -audioonly</code>.</p>
 

@@ -50,6 +50,17 @@ const Pixel* FrameSource::getLinePtr320_240(unsigned line)
 	}
 }
 
+template <typename Pixel>
+const Pixel* FrameSource::getLinePtr640_480(unsigned line)
+{
+	if (getHeight() == 480) {
+		return getLinePtr<Pixel>(line, 640);
+	} else {
+		assert(getHeight() == 240);
+		return getLinePtr<Pixel>(line / 2, 640);
+	}
+}
+
 void* FrameSource::getTempBuffer()
 {
 	if (tempCounter == tempBuffers.size()) {
@@ -335,10 +346,12 @@ const Pixel* FrameSource::scaleLine(
 #if HAVE_16BPP
 template const word* FrameSource::scaleLine(const word*, unsigned, unsigned);
 template const word* FrameSource::getLinePtr320_240<word>(unsigned);
+template const word* FrameSource::getLinePtr640_480<word>(unsigned);
 #endif
 #if HAVE_32BPP
 template const unsigned* FrameSource::scaleLine(const unsigned*, unsigned, unsigned);
 template const unsigned* FrameSource::getLinePtr320_240<unsigned>(unsigned);
+template const unsigned* FrameSource::getLinePtr640_480<unsigned>(unsigned);
 #endif
 
 } // namespace openmsx

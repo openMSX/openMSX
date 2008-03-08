@@ -28,6 +28,7 @@ public:
 	void addWave(unsigned num, short* data);
 	void addImage(const void** lines, const EmuTime& time);
 	void stop();
+	unsigned getFrameHeight() const;
 
 private:
 	void start(bool recordAudio, bool recordVideo,
@@ -52,6 +53,8 @@ private:
 	unsigned sampleRate;
 	bool warnedFps;
 	bool warnedSampleRate;
+	unsigned frameWidth;
+	unsigned frameHeight;
 
 	friend class RecordCommand;
 };

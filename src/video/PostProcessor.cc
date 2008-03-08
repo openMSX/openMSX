@@ -104,17 +104,28 @@ RawFrame* PostProcessor::rotateFrames(
 	}
 
 	if (recorder) {
-		const void* lines[240];
-		for (int i = 0; i < 240; ++i) {
+		const unsigned height = recorder->getFrameHeight();
+		const void* lines[height];
+		for (unsigned i = 0; i < height; ++i) {
 			if (getBpp() == 32) {
 #if HAVE_32BPP
 				// 32bpp
-				lines[i] = paintFrame->getLinePtr320_240<unsigned>(i);
+				if (height == 240) {
+					lines[i] = paintFrame->getLinePtr320_240<unsigned>(i);
+				} else {
+					assert (height == 480);
+					lines[i] = paintFrame->getLinePtr640_480<unsigned>(i);
+				}
 #endif
 			} else {
 #if HAVE_16BPP
 				// 15bpp or 16bpp
-				lines[i] = paintFrame->getLinePtr320_240<word>(i);
+				if (height == 240) {
+					lines[i] = paintFrame->getLinePtr320_240<word>(i);
+				} else {
+					assert (height == 480);
+					lines[i] = paintFrame->getLinePtr640_480<word>(i);
+				}
 #endif
 			}
 		}

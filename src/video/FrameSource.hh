@@ -128,6 +128,13 @@ public:
 	template <typename Pixel>
 	const Pixel* getLinePtr320_240(unsigned line);
 
+	/** Get a pointer to a given line in this frame, the frame is scaled
+	  * to 640x480 pixels. Same as getLinePtr320_240, but then for a 
+	  * higher resolution output.
+	  */
+	template <typename Pixel>
+	const Pixel* getLinePtr640_480(unsigned line);
+
 	/** Returns the distance (in pixels) between two consecutive lines.
 	  * Is meant to be used in combination with getMultiLinePtr(). The
 	  * result is only meaningful when hasContiguousStorage() returns

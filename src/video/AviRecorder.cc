@@ -44,6 +44,7 @@ AviRecorder::AviRecorder(Reactor& reactor_)
 	, scheduler(0)
 	, duration(EmuDuration::infinity)
 	, prevTime(EmuTime::infinity)
+	, frameHeight(0)
 {
 }
 
@@ -86,8 +87,8 @@ void AviRecorder::start(bool recordAudio, bool recordVideo,
 		duration = EmuDuration::infinity;
 		prevTime = EmuTime::infinity;
 
-		aviWriter.reset(new AviWriter(filename, 320, 240, bpp,
-		                              sampleRate));
+		aviWriter.reset(new AviWriter(filename, frameWidth, frameHeight,
+		                              bpp, sampleRate));
 	} else {
 		assert(recordAudio);
 		wavWriter.reset(new WavWriter(filename, 2, 16, sampleRate));
@@ -165,6 +166,10 @@ void AviRecorder::addImage(const void** lines, const EmuTime& time)
 	audioBuf.clear();
 }
 
+unsigned AviRecorder::getFrameHeight() const {
+	assert (frameHeight != 0); // someone uses the getter too early?
+	return frameHeight;
+}
 
 string AviRecorder::processStart(const vector<string>& tokens)
 {
@@ -172,6 +177,8 @@ string AviRecorder::processStart(const vector<string>& tokens)
 	string prefix = "openmsx";
 	bool recordAudio = true;
 	bool recordVideo = true;
+	frameWidth = 320;
+	frameHeight = 240;
 
 	vector<string> arguments;
 	for (unsigned i = 2; i < tokens.size(); ++i) {
@@ -190,6 +197,9 @@ string AviRecorder::processStart(const vector<string>& tokens)
 				recordVideo = false;
 			} else if (tokens[i] == "-videoonly") {
 				recordAudio = false;
+			} else if (tokens[i] == "-doublesize") {
+				frameWidth = 640;
+				frameHeight = 480;
 			} else {
 				throw CommandException("Invalid option");
 			}
@@ -279,7 +289,10 @@ string RecordCommand::help(const vector<string>& /*tokens*/) const
 	       "record stop               Stop recording\n"
 	       "record toggle             Toggle recording (useful as keybinding)\n"
 	       "\n"
-	       "The start subcommand also accepts an optional -audioonly or -videoonly flag.\n";
+	       "The start subcommand also accepts an optional -audioonly, -videoonly and "
+	       "a -doublesize flag.\n"
+	       "Videos are recorded in a 320x240 size by default and at 640x480 when the "
+		   "-doublesize flag is used.";
 }
 
 void RecordCommand::tabCompletion(vector<string>& tokens) const
@@ -289,8 +302,9 @@ void RecordCommand::tabCompletion(vector<string>& tokens) const
 		std::set<string> cmds(str, str + 3);
 		completeString(tokens, cmds);
 	} else if ((tokens.size() >= 3) && (tokens[1] == "start")) {
-		const char* const str[3] = { "-prefix", "-videoonly", "-audioonly" };
-		std::set<string> cmds(str, str + 3);
+		const char* const str[4] = { "-prefix", "-videoonly", "-audioonly",
+						"-doublesize"};
+		std::set<string> cmds(str, str + 4);
 		completeString(tokens, cmds);
 	}
 }

@@ -1,5 +1,9 @@
 $Id$
 
+2008-03-08 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added -doublesize switch to the 'record start' command, to record at a
+	  size of 640x480. Note: this is usually a lot slower...
+
 2008-03-07 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed bug in OSD rectangle drawing:
 	   As an optimization rectangles with alpha=0 (completely
