@@ -163,11 +163,11 @@ SDL_RESULT_3RD_STA:=`$(3RDPARTY_INSTALL_DIR)/bin/sdl-config --version`
 
 # Note: "=" instead of ":=", so overriden value of SDL_LDFLAGS will be used.
 SDL_IMAGE_LDFLAGS_SYS_DYN=-lSDL_image $(SDL_LDFLAGS_SYS_DYN)
-SDL_IMAGE_LDFLAGS_3RD_STA=$(3RDPARTY_INSTALL_DIR)/lib/libSDL_image.a
+SDL_IMAGE_LDFLAGS_3RD_STA:=$(3RDPARTY_INSTALL_DIR)/lib/libSDL_image.a
 SDL_IMAGE_RESULT:=yes
 
 SDL_TTF_LDFLAGS_SYS_DYN=-lSDL_ttf $(SDL_LDFLAGS_SYS_DYN)
-SDL_TTF_LDFLAGS_3RD_STA=$(3RDPARTY_INSTALL_DIR)/lib/libSDL_ttf.a
+SDL_TTF_LDFLAGS_3RD_STA:=$(3RDPARTY_INSTALL_DIR)/lib/libSDL_ttf.a $(3RDPARTY_INSTALL_DIR)/lib/libfreetype.a
 SDL_TTF_RESULT:=yes
 
 TCL_LDFLAGS_SYS_DYN:=`build/tcl-search.sh --ldflags 2>> $(LOG)`
