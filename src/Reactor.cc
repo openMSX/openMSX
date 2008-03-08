@@ -886,14 +886,14 @@ RealTimeInfo::RealTimeInfo(InfoCommand& openMSXInfoCommand)
 {
 }
 
-void RealTimeInfo::execute(const vector<TclObject*>& tokens,
+void RealTimeInfo::execute(const vector<TclObject*>& /*tokens*/,
                            TclObject& result) const
 {
 	unsigned long long delta = Timer::getTime() - reference;
 	result.setDouble(delta / 1000000.0);
 }
 
-string RealTimeInfo::help(const vector<string>& tokens) const
+string RealTimeInfo::help(const vector<string>& /*tokens*/) const
 {
 	return "Returns the time in seconds since openMSX was started.";
 }

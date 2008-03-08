@@ -361,7 +361,7 @@ static void makeAdjustTable()
 		AR_ADJUST_TABLE[i] = int(double(EG_MUTE) - 1 -
 		         EG_MUTE * ::log(i) / ::log(1 << EG_BITS)) >> 1;
 		assert(AR_ADJUST_TABLE[i] <= EG_MUTE);
-		assert(AR_ADJUST_TABLE[i] >= 0);
+		assert(int(AR_ADJUST_TABLE[i]) >= 0);
 	}
 }
 
