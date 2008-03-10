@@ -632,8 +632,10 @@ string TapeCommand::execute(const vector<string>& tokens, const EmuTime& time)
 			} catch (MSXException& e) {
 				throw CommandException(e.getMessage());
 			}
+		} else if (cassettePlayer.getState() == CassettePlayer::STOP) {
+			throw CommandException("No tape inserted or tape at end!");
 		} else {
-			// both PLAY and STOP
+			// PLAY mode
 			result += "Already in play mode.";
 		}
 
