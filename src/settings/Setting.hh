@@ -34,6 +34,12 @@ public:
 	  */
 	virtual std::string getDescription() const;
 
+	/** Change the value of this setting by parsing the given string.
+	  * @param valueString The new value for this setting, in string format.
+	  * @throw CommandException If the valueString is invalid.
+	  */
+	void changeValueString(const std::string& valueString);
+
 	/** Get the current value of this setting in a string format that can be
 	  * presented to the user.
 	  */
@@ -47,11 +53,10 @@ public:
 	  */
 	virtual std::string getRestoreValueString() const = 0;
 
-	/** Change the value of this setting by parsing the given string.
-	  * @param valueString The new value for this setting, in string format.
-	  * @throw CommandException If the valueString is invalid.
+	/** Similar to changeValueString(), but doesn't trigger Tcl traces.
+	  * Should only be used by Interpreter class.
 	  */
-	virtual void setValueString(const std::string& valueString) = 0;
+	virtual void setValueStringDirect(const std::string& valueString) = 0;
 
 	/** Restore the default value.
 	 */

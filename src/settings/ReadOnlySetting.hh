@@ -46,7 +46,7 @@ template <typename Setting>
 void ReadOnlySetting<Setting>::setReadOnlyValue(Type value)
 {
 	newValue = value;
-	setting.setValue(value);
+	setting.changeValue(value);
 }
 
 template <typename Setting>

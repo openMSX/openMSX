@@ -34,6 +34,11 @@ string Setting::getDescription() const
 	return description;
 }
 
+void Setting::changeValueString(const std::string& valueString)
+{
+	getCommandController().changeSetting(*this, valueString);
+}
+
 void Setting::notify() const
 {
 	Subject<Setting>::notify();

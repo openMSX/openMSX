@@ -270,6 +270,17 @@ void GlobalCommandController::unregisterSetting(Setting& setting)
 	getSettingsConfig().getSettingsManager().unregisterSetting(setting, name);
 }
 
+void GlobalCommandController::changeSetting(
+	const std::string& name, const string& value)
+{
+	getInterpreter().setVariable(name, value);
+}
+
+void GlobalCommandController::changeSetting(Setting& setting, const string& value)
+{
+	changeSetting(setting.getName(), value);
+}
+
 string GlobalCommandController::makeUniqueSettingName(const string& name)
 {
 	return getSettingsConfig().getSettingsManager().makeUnique(name);

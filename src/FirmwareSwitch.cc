@@ -27,7 +27,7 @@ FirmwareSwitch::FirmwareSwitch(CommandController& commandController,
 		          File::LOAD_PERSISTENT);
 		byte bytebuf;
 		file.read(&bytebuf, 1);
-		setting->setValue(bytebuf != 0);
+		setting->changeValue(bytebuf != 0);
 	} catch (FileException& e) {
 		cliComm.printWarning("Couldn't load firmwareswitch status: " +
 		                     e.getMessage());

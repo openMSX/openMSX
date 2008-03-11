@@ -388,6 +388,9 @@ void Reactor::switchMotherBoard()
 	string machineID = activeBoard.get() ? activeBoard->getMachineID()
 	                                     : "";
 	getGlobalCliComm().update(CliComm::HARDWARE, machineID, "select");
+	if (activeBoard.get()) {
+		activeBoard->getMSXCommandController().activated();
+	}
 }
 
 MSXMotherBoard* Reactor::getMotherBoard() const

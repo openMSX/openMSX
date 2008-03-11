@@ -758,7 +758,7 @@ void MSXMotherBoardImpl::powerUp()
 	// TODO: assert disabled see note in Reactor::run() where this method
 	//       is called
 	//assert(powerSetting.getValue() == powered);
-	powerSetting.setValue(true);
+	powerSetting.changeValue(true);
 	// TODO: We could make the power LED a device, so we don't have to handle
 	//       it separately here.
 	getLedStatus().setLed(LedEvent::POWER, true);
@@ -792,7 +792,7 @@ void MSXMotherBoardImpl::doPowerDown(const EmuTime& time)
 	//       How do we want the Reactor to shutdown: immediately or after
 	//       handling all pending commands/events/updates?
 	//assert(powerSetting.getValue() == powered);
-	powerSetting.setValue(false);
+	powerSetting.changeValue(false);
 	getLedStatus().setLed(LedEvent::POWER, false);
 
 	getMSXMixer().mute();

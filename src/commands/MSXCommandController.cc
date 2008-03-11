@@ -115,6 +115,12 @@ void MSXCommandController::unregisterSetting(Setting& setting)
 	getSettingsConfig().getSettingsManager().unregisterSetting(setting, fullname);
 }
 
+void MSXCommandController::changeSetting(Setting& setting, const string& value)
+{
+	string fullname = motherboard.getMachineID() + "::" + setting.getName();
+	globalCommandController.changeSetting(fullname, value);
+}
+
 string MSXCommandController::makeUniqueSettingName(const string& name)
 {
 	//return getSettingsConfig().getSettingsManager().makeUnique(name);
@@ -178,6 +184,15 @@ SettingsConfig& MSXCommandController::getSettingsConfig()
 CliConnection* MSXCommandController::getConnection() const
 {
 	return globalCommandController.getConnection();
+}
+
+void MSXCommandController::activated()
+{
+	// simple way to synchronize proxy settings
+	for (SettingMap::const_iterator it = settingMap.begin();
+	     it != settingMap.end(); ++it) {
+		changeSetting(*it->second, it->second->getValueString());
+	}
 }
 
 } // namespace openmsx

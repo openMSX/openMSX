@@ -112,12 +112,12 @@ auto_ptr<RendererFactory::RendererSetting>
 	// then change it to 'SDL'
 	setting->setDontSaveValue("none");
 	if (setting->getValue() == DUMMY) {
-		setting->setValue(SDL);
+		setting->changeValue(SDL);
 	}
 	// set saved value as default
 	setting->setRestoreValue(setting->getValue());
 
-	setting->setValue(DUMMY); // always start hidden
+	setting->changeValue(DUMMY); // always start hidden
 
 	return setting;
 }

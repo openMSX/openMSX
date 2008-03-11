@@ -297,7 +297,7 @@ void Display::doRendererSwitch()
 			"Couldn't activate renderer " +
 			renderSettings->getRenderer().getValueString() +
 			": " + e.getMessage());
-		renderSettings->getRenderer().setValue(RendererFactory::SDL);
+		renderSettings->getRenderer().changeValue(RendererFactory::SDL);
 		currentRenderer = RendererFactory::SDL;
 		doRendererSwitch2();
 	}

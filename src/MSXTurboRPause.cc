@@ -29,7 +29,7 @@ MSXTurboRPause::~MSXTurboRPause()
 
 void MSXTurboRPause::reset(const EmuTime& time)
 {
-	pauseSetting->setValue(false);
+	pauseSetting->changeValue(false);
 	writeIO(0, 0, time);
 }
 

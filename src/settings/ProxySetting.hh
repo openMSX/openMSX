@@ -20,7 +20,7 @@ public:
 	virtual std::string getValueString() const;
 	virtual std::string getDefaultValueString() const;
 	virtual std::string getRestoreValueString() const;
-	virtual void setValueString(const std::string& valueString);
+	virtual void setValueStringDirect(const std::string& valueString);
 	virtual void restoreDefault();
 	virtual bool hasDefaultValue() const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;

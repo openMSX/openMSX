@@ -233,7 +233,7 @@ void Interpreter::registerSetting(Setting& variable, const string& name)
 	const char* tclVarValue = getVariable(name);
 	if (tclVarValue) {
 		// TCL var already existed, use this value
-		variable.setValueString(tclVarValue);
+		variable.setValueStringDirect(tclVarValue);
 	} else {
 		// define TCL var
 		setVariable(name, variable.getValueString());
@@ -266,7 +266,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 		if (flags & TCL_TRACE_WRITES) {
 			try {
 				string newValue = Tcl_GetVar(interp, part1, 0);
-				variable->setValueString(newValue);
+				variable->setValueStringDirect(newValue);
 				string newValue2 = variable->getValueString();
 				if (newValue != newValue2) {
 					Tcl_SetVar(interp, part1,

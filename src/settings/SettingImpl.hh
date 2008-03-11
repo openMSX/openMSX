@@ -8,6 +8,10 @@
 #include "XMLElement.hh"
 #include "MSXException.hh"
 #include "CommandController.hh"
+#include "MSXCommandController.hh"
+#include "GlobalCommandController.hh"
+#include "MSXMotherBoard.hh"
+#include "Reactor.hh"
 
 namespace openmsx {
 
@@ -49,7 +53,7 @@ public:
 	  * the value of this setting will not change.
 	  * @param newValue The new value.
 	  */
-	void setValue(Type newValue);
+	void changeValue(Type newValue);
 
 	/** Get the default value of this setting
 	  */
@@ -68,7 +72,7 @@ public:
 	virtual std::string getValueString() const;
 	virtual std::string getDefaultValueString() const;
 	virtual std::string getRestoreValueString() const;
-	virtual void setValueString(const std::string& valueString);
+	virtual void setValueStringDirect(const std::string& valueString);
 	virtual void restoreDefault();
 	virtual bool hasDefaultValue() const;
 	virtual void tabCompletion(std::vector<std::string>& tokens) const;
@@ -78,6 +82,7 @@ private:
 	void init();
 	void setValue2(Type newValue, bool check);
 	void setValueString2(const std::string& valueString, bool check);
+	void syncProxy();
 
 	SettingChecker<POLICY>* checker;
 	Type value;
@@ -183,9 +188,9 @@ typename SettingImpl<POLICY>::Type SettingImpl<POLICY>::getValue() const
 }
 
 template<typename POLICY>
-void SettingImpl<POLICY>::setValue(Type newValue)
+void SettingImpl<POLICY>::changeValue(Type newValue)
 {
-	setValue2(newValue, true);
+	changeValueString(POLICY::toString(newValue));
 }
 
 template<typename POLICY>
@@ -201,7 +206,34 @@ void SettingImpl<POLICY>::setValue2(Type newValue, bool check)
 		value = newValue;
 		notify();
 	}
+	syncProxy();
 }
+
+template<typename POLICY>
+void SettingImpl<POLICY>::syncProxy()
+{
+	MSXCommandController* controller =
+	    dynamic_cast<MSXCommandController*>(&Setting::getCommandController());
+	if (!controller) {
+		// not a machine specific setting
+		return;
+	}
+	GlobalCommandController& globalController =
+		controller->getGlobalCommandController();
+	MSXMotherBoard* mb = globalController.getReactor().getMotherBoard();
+	if (!mb) {
+		// no active MSXMotherBoard
+		return;
+	}
+	if (&mb->getMSXCommandController() != controller) {
+		// this setting does not belong to active MSXMotherBoard
+		return;
+	}
+
+	// Tcl already makes sure this doesn't result in an endless loop
+	globalController.changeSetting(getName(), POLICY::toString(value));
+}
+
 
 template<typename POLICY>
 const typename SettingImpl<POLICY>::Type& SettingImpl<POLICY>::getDefaultValue() const
@@ -220,7 +252,7 @@ void SettingImpl<POLICY>::setChecker(SettingChecker<POLICY>* checker_)
 {
 	checker = checker_;
 	if (checker) {
-		setValue(getValue());
+		setValue2(getValue(), true);
 	}
 }
 
@@ -249,7 +281,7 @@ std::string SettingImpl<POLICY>::getRestoreValueString() const
 }
 
 template<typename POLICY>
-void SettingImpl<POLICY>::setValueString(const std::string& valueString)
+void SettingImpl<POLICY>::setValueStringDirect(const std::string& valueString)
 {
 	setValueString2(valueString, true);
 }
@@ -263,7 +295,7 @@ void SettingImpl<POLICY>::setValueString2(const std::string& valueString, bool c
 template<typename POLICY>
 void SettingImpl<POLICY>::restoreDefault()
 {
-	setValue(restoreValue);
+	changeValue(restoreValue);
 }
 
 template<typename POLICY>

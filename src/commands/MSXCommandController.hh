@@ -26,6 +26,8 @@ public:
 	Command* findCommand(const std::string& name) const;
 	Setting* findSetting(const std::string& name) const;
 
+	void activated();
+
 	// CommandController
 	virtual void   registerCompleter(CommandCompleter& completer,
 	                                 const std::string& str);
@@ -42,6 +44,7 @@ public:
 	                       std::vector<std::string>& result);
 	virtual void registerSetting(Setting& setting);
 	virtual void unregisterSetting(Setting& setting);
+	virtual void changeSetting(Setting& setting, const std::string& value);
 	virtual std::string makeUniqueSettingName(const std::string& name);
 	virtual CliComm& getCliComm();
 	virtual CliComm* getCliCommIfAvailable();

@@ -140,7 +140,7 @@ void SettingsManager::loadSettings(const XMLElement& config)
 			"setting", "id", name);
 		if (elem) {
 			try {
-				setting.setValueString(elem->getData());
+				setting.changeValueString(elem->getData());
 			} catch (MSXException& e) {
 				// ignore, keep default value
 			}

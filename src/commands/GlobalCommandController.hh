@@ -61,6 +61,8 @@ public:
 	void registerProxySetting(Setting& setting);
 	void unregisterProxySetting(Setting& setting);
 
+	void changeSetting(const std::string& name, const std::string& value);
+
 	// CommandController
 	virtual void   registerCompleter(CommandCompleter& completer,
 	                                 const std::string& str);
@@ -77,6 +79,7 @@ public:
 	                       std::vector<std::string>& result);
 	virtual void registerSetting(Setting& setting);
 	virtual void unregisterSetting(Setting& setting);
+	virtual void changeSetting(Setting& setting, const std::string& value);
 	virtual std::string makeUniqueSettingName(const std::string& name);
 	virtual CliComm& getCliComm();
 	virtual CliComm* getCliCommIfAvailable();

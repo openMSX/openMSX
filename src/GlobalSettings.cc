@@ -132,7 +132,7 @@ void GlobalSettings::update(const Setting& setting)
 		// automatically unpause after a power off/on cycle
 		// this solved a bug, but apart from that this behaviour also
 		// makes more sense
-		getPauseSetting().setValue(false);
+		getPauseSetting().changeValue(false);
 	}
 }
 

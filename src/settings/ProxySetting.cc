@@ -76,10 +76,11 @@ string ProxySetting::getRestoreValueString() const
 	}
 }
 
-void ProxySetting::setValueString(const string& valueString)
+void ProxySetting::setValueStringDirect(const string& valueString)
 {
 	if (Setting* setting = getSetting()) {
-		setting->setValueString(valueString);
+		// note: not setValueStringDirect()
+		setting->changeValueString(valueString);
 	}
 }
 
