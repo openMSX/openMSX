@@ -3,7 +3,7 @@
 #include "MSXPSG.hh"
 #include "AY8910.hh"
 #include "LedEvent.hh"
-#include "EventDistributor.hh"
+#include "LedStatus.hh"
 #include "CassettePort.hh"
 #include "MSXMotherBoard.hh"
 #include "JoystickPort.hh"
@@ -42,8 +42,7 @@ void MSXPSG::reset(const EmuTime& time)
 
 void MSXPSG::powerDown(const EmuTime& /*time*/)
 {
-	getMotherBoard().getEventDistributor().distributeEvent(
-		new LedEvent(LedEvent::KANA, false, getMotherBoard()));
+	getMotherBoard().getLedStatus().setLed(LedEvent::KANA, false);
 }
 
 byte MSXPSG::readIO(word /*port*/, const EmuTime& time)
@@ -91,9 +90,7 @@ void MSXPSG::writeB(byte value, const EmuTime& time)
 	selectedPort = (value & 0x40) >> 6;
 
 	if ((prev ^ value) & 0x80) {
-		getMotherBoard().getEventDistributor().distributeEvent(
-			new LedEvent(LedEvent::KANA, !(value & 0x80),
-			             getMotherBoard()));
+		getMotherBoard().getLedStatus().setLed(LedEvent::KANA, !(value & 0x80));
 	}
 	prev = value;
 }

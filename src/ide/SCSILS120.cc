@@ -25,8 +25,8 @@
 #include "FileOperations.hh"
 #include "FileException.hh"
 #include "LedEvent.hh"
+#include "LedStatus.hh"
 #include "MSXMotherBoard.hh"
-#include "EventDistributor.hh"
 #include "XMLElement.hh"
 #include "RecordedCommand.hh"
 #include "MSXCliComm.hh"
@@ -176,8 +176,7 @@ void SCSILS120::busReset()
 
 void SCSILS120::disconnect()
 {
-	motherBoard.getEventDistributor().distributeEvent(
-			new LedEvent(LedEvent::FDD, false, motherBoard));
+	motherBoard.getLedStatus().setLed(LedEvent::FDD, false);
 }
 
 // Check the initiator in the call origin.
@@ -422,8 +421,7 @@ bool SCSILS120::checkAddress()
 // Execute scsiDeviceCheckAddress previously.
 unsigned SCSILS120::readSector(unsigned& blocks)
 {
-	motherBoard.getEventDistributor().distributeEvent(
-		new LedEvent(LedEvent::FDD, true, motherBoard));
+	motherBoard.getLedStatus().setLed(LedEvent::FDD, true);
 
 	unsigned numSectors = std::min(currentLength, BUFFER_BLOCK_SIZE);
 	unsigned counter = currentLength * SECTOR_SIZE;
@@ -460,8 +458,7 @@ unsigned SCSILS120::dataIn(unsigned& blocks)
 // Execute scsiDeviceCheckAddress and scsiDeviceCheckReadOnly previously.
 unsigned SCSILS120::writeSector(unsigned& blocks)
 {
-	motherBoard.getEventDistributor().distributeEvent(
-		new LedEvent(LedEvent::FDD, true, motherBoard));
+	motherBoard.getLedStatus().setLed(LedEvent::FDD, true);
 
 	unsigned numSectors = std::min(currentLength, BUFFER_BLOCK_SIZE);
 
@@ -617,9 +614,7 @@ unsigned SCSILS120::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& b
 				currentLength = SECTOR_SIZE >> 1;
 			}
 			if (checkAddress() && !checkReadOnly()) {
-				motherBoard.getEventDistributor().distributeEvent(
-					new LedEvent(LedEvent::FDD, true,
-						motherBoard));
+				motherBoard.getLedStatus().setLed(LedEvent::FDD, true);
 				unsigned tmp = std::min(currentLength, BUFFER_BLOCK_SIZE);
 				blocks = currentLength - tmp;
 				unsigned counter = tmp * SECTOR_SIZE;
@@ -631,8 +626,7 @@ unsigned SCSILS120::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& b
 
 		case SCSI::OP_SEEK6:
 			PRT_DEBUG("Seek6: " << currentSector);
-			motherBoard.getEventDistributor().distributeEvent(
-				new LedEvent(LedEvent::FDD, true, motherBoard));
+			motherBoard.getLedStatus().setLed(LedEvent::FDD, true);
 			currentLength = 1;
 			checkAddress();
 			return 0;
@@ -703,8 +697,7 @@ unsigned SCSILS120::executeCmd(const byte* cdb_, SCSI::Phase& phase, unsigned& b
 		}
 		case SCSI::OP_SEEK10:
 			PRT_DEBUG("Seek10: " << currentSector);
-			motherBoard.getEventDistributor().distributeEvent(
-				new LedEvent(LedEvent::FDD, true, motherBoard));
+			motherBoard.getLedStatus().setLed(LedEvent::FDD, true);
 			currentLength = 1;
 			checkAddress();
 			return 0;

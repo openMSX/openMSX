@@ -37,7 +37,8 @@ SRC_HDR:= \
 	DebugDevice \
 	Autofire RenShaTurbo \
 	EmptyPatch IPSPatch \
-	Version
+	Version \
+	LedStatus
 
 SRC_ONLY:= \
 	main

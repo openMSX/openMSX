@@ -22,6 +22,7 @@
 #include "CassettePort.hh"
 #include "RenShaTurbo.hh"
 #include "LedEvent.hh"
+#include "LedStatus.hh"
 #include "MSXEventDistributor.hh"
 #include "EventDelay.hh"
 #include "EventTranslator.hh"
@@ -110,6 +111,7 @@ public:
 	MSXDeviceSwitch& getDeviceSwitch();
 	CassettePortInterface& getCassettePort();
 	RenShaTurbo& getRenShaTurbo();
+	LedStatus& getLedStatus();
 	EventDistributor& getEventDistributor();
 	Display& getDisplay();
 	DiskManipulator& getDiskManipulator();
@@ -169,6 +171,7 @@ private:
 	auto_ptr<MSXDeviceSwitch> deviceSwitch;
 	auto_ptr<CassettePortInterface> cassettePort;
 	auto_ptr<RenShaTurbo> renShaTurbo;
+	auto_ptr<LedStatus> ledStatus;
 
 	auto_ptr<ResetCmd>     resetCommand;
 	auto_ptr<LoadMachineCmd> loadMachineCommand;
@@ -613,6 +616,14 @@ RenShaTurbo& MSXMotherBoardImpl::getRenShaTurbo()
 	return *renShaTurbo;
 }
 
+LedStatus& MSXMotherBoardImpl::getLedStatus()
+{
+	if (!ledStatus.get()) {
+		ledStatus.reset(new LedStatus(self));
+	}
+	return *ledStatus;
+}
+
 EventDistributor& MSXMotherBoardImpl::getEventDistributor()
 {
 	return reactor.getEventDistributor();
@@ -750,8 +761,7 @@ void MSXMotherBoardImpl::powerUp()
 	powerSetting.setValue(true);
 	// TODO: We could make the power LED a device, so we don't have to handle
 	//       it separately here.
-	getEventDistributor().distributeEvent(
-		new LedEvent(LedEvent::POWER, true, self));
+	getLedStatus().setLed(LedEvent::POWER, true);
 
 	const EmuTime& time = getScheduler().getCurrentTime();
 	getCPUInterface().reset();
@@ -783,8 +793,7 @@ void MSXMotherBoardImpl::doPowerDown(const EmuTime& time)
 	//       handling all pending commands/events/updates?
 	//assert(powerSetting.getValue() == powered);
 	powerSetting.setValue(false);
-	getEventDistributor().distributeEvent(
-		new LedEvent(LedEvent::POWER, false, self));
+	getLedStatus().setLed(LedEvent::POWER, false);
 
 	getMSXMixer().mute();
 
@@ -1284,6 +1293,10 @@ CassettePortInterface& MSXMotherBoard::getCassettePort()
 RenShaTurbo& MSXMotherBoard::getRenShaTurbo()
 {
 	return pimple->getRenShaTurbo();
+}
+LedStatus& MSXMotherBoard::getLedStatus()
+{
+	return pimple->getLedStatus();
 }
 EventDistributor& MSXMotherBoard::getEventDistributor()
 {

@@ -34,6 +34,7 @@ class PanasonicMemory;
 class MSXDeviceSwitch;
 class CassettePortInterface;
 class RenShaTurbo;
+class LedStatus;
 class Display;
 class DiskManipulator;
 class FilePool;
@@ -122,6 +123,7 @@ public:
 	MSXDeviceSwitch& getDeviceSwitch();
 	CassettePortInterface& getCassettePort();
 	RenShaTurbo& getRenShaTurbo();
+	LedStatus& getLedStatus();
 
 	// These are only convenience methods, Reactor keeps these objects
 	EventDistributor& getEventDistributor();

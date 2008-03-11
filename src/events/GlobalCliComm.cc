@@ -171,21 +171,11 @@ bool GlobalCliComm::signalEvent(shared_ptr<const Event> event)
 {
 	static const string ON = "on";
 	static const string OFF = "off";
-	static map<LedEvent::Led, string> ledName;
-	static bool init = false;
-	if (!init) {
-		init = true;
-		ledName[LedEvent::POWER] = "power";
-		ledName[LedEvent::CAPS]  = "caps";
-		ledName[LedEvent::KANA]  = "kana";
-		ledName[LedEvent::PAUSE] = "pause";
-		ledName[LedEvent::TURBO] = "turbo";
-		ledName[LedEvent::FDD]   = "FDD";
-	}
 
 	assert(event->getType() == OPENMSX_LED_EVENT);
 	const LedEvent& ledEvent = static_cast<const LedEvent&>(*event);
-	update(LED, ledEvent.getMachine(), ledName[ledEvent.getLed()],
+	update(LED, ledEvent.getMachine(),
+	       LedEvent::getLedName(ledEvent.getLed()),
 	       ledEvent.getStatus() ? ON : OFF);
 	return true;
 }

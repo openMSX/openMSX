@@ -3,7 +3,7 @@
 #include "MSXPPI.hh"
 #include "Keyboard.hh"
 #include "LedEvent.hh"
-#include "EventDistributor.hh"
+#include "LedStatus.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXMotherBoard.hh"
 #include "KeyClick.hh"
@@ -33,9 +33,9 @@ MSXPPI::MSXPPI(MSXMotherBoard& motherBoard, const XMLElement& config,
 	                            motherBoard.getMSXCommandController(),
 	                            motherBoard.getEventDistributor(),
 	                            motherBoard.getMSXEventDistributor(),
-	                            keyboardType, hasKeypad, 
-				    keyGhosting, keyGhostingSGCprotected,
-				    codeKanaLocks));
+	                            keyboardType, hasKeypad,
+	                            keyGhosting, keyGhostingSGCprotected,
+	                            codeKanaLocks));
 	i8255.reset(new I8255(*this, time, motherBoard.getMSXCliComm()));
 	click.reset(new KeyClick(motherBoard.getMSXMixer(), config, time));
 
@@ -54,8 +54,7 @@ void MSXPPI::reset(const EmuTime& time)
 
 void MSXPPI::powerDown(const EmuTime& /*time*/)
 {
-	getMotherBoard().getEventDistributor().distributeEvent(
-		new LedEvent(LedEvent::CAPS, false, getMotherBoard()));
+	getMotherBoard().getLedStatus().setLed(LedEvent::CAPS, false);
 }
 
 byte MSXPPI::readIO(word port, const EmuTime& time)
@@ -176,9 +175,7 @@ void MSXPPI::writeC1(nibble value, const EmuTime& time)
 		cassettePort.cassetteOut(value & 2, time);
 	}
 	if ((prevBits ^ value) & 4) {
-		getMotherBoard().getEventDistributor().distributeEvent(
-			new LedEvent(LedEvent::CAPS, !(value & 4),
-			             getMotherBoard()));
+		getMotherBoard().getLedStatus().setLed(LedEvent::CAPS, !(value & 4));
 	}
 	if ((prevBits ^ value) & 8) {
 		click->setClick(value & 8, time);

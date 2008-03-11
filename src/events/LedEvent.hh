@@ -29,6 +29,8 @@ public:
 	bool getStatus() const;
 	const std::string& getMachine() const;
 
+	static std::string getLedName(Led led);
+
 private:
 	std::string machine;
 	Led led;

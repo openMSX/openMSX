@@ -17,7 +17,8 @@ HDR_ONLY:= \
 	SettingImpl \
 	EnumSetting \
 	SettingPolicy \
-	SettingRangePolicy
+	SettingRangePolicy \
+	ReadOnlySetting
 
 include build/node-end.mk
 

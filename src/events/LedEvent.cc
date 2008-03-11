@@ -28,4 +28,12 @@ const std::string& LedEvent::getMachine() const
 	return machine;
 }
 
+std::string LedEvent::getLedName(Led led)
+{
+	static const char* const names[NUM_LEDS] = {
+		"power", "caps", "kana", "pause", "turbo", "FDD"
+	};
+	return names[led];
+}
+
 } // namespace openmsx
