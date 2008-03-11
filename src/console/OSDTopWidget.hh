@@ -13,7 +13,7 @@ public:
 	OSDTopWidget();
 	virtual std::string getType() const;
 	virtual void getWidthHeight(const OutputSurface& output,
-	                            int& width, int& height) const;
+	                            double& width, double& height) const;
 
 protected:
 	virtual void invalidateLocal();

@@ -19,7 +19,7 @@ namespace openmsx {
 
 OSDRectangle::OSDRectangle(const OSDGUI& gui, const string& name)
 	: OSDImageBasedWidget(gui, name)
-	, w(0), h(0)
+	, w(0.0), h(0.0), scale(1.0)
 {
 }
 
@@ -27,6 +27,7 @@ void OSDRectangle::getProperties(set<string>& result) const
 {
 	result.insert("-w");
 	result.insert("-h");
+	result.insert("-scale");
 	result.insert("-image");
 	OSDImageBasedWidget::getProperties(result);
 }
@@ -34,10 +35,13 @@ void OSDRectangle::getProperties(set<string>& result) const
 void OSDRectangle::setProperty(const string& name, const string& value)
 {
 	if (name == "-w") {
-		w = StringOp::stringToInt(value);
+		w = StringOp::stringToDouble(value);
 		invalidateRecursive();
 	} else if (name == "-h") {
-		h = StringOp::stringToInt(value);
+		h = StringOp::stringToDouble(value);
+		invalidateRecursive();
+	} else if (name == "-scale") {
+		scale = StringOp::stringToDouble(value);
 		invalidateRecursive();
 	} else if (name == "-image") {
 		if (!value.empty() && !FileOperations::isRegularFile(value)) {
@@ -56,6 +60,8 @@ std::string OSDRectangle::getProperty(const string& name) const
 		return StringOp::toString(w);
 	} else if (name == "-h") {
 		return StringOp::toString(h);
+	} else if (name == "-scale") {
+		return StringOp::toString(scale);
 	} else if (name == "-image") {
 		return imageName;
 	} else {
@@ -69,7 +75,7 @@ std::string OSDRectangle::getType() const
 }
 
 void OSDRectangle::getWidthHeight(const OutputSurface& output,
-                                  int& width, int& height) const
+                                  double& width, double& height) const
 {
 	if (image.get()) {
 		OSDImageBasedWidget::getWidthHeight(output, width, height);
@@ -79,7 +85,7 @@ void OSDRectangle::getWidthHeight(const OutputSurface& output,
 		//              implementation in the base class
 		//  - the alpha=0 optimization
 		assert((getAlpha() == 0) || hasError());
-		int factor = getScaleFactor(output);
+		double factor = getScaleFactor(output) * scale;
 		width  = factor * w;
 		height = factor * h;
 	}
@@ -88,9 +94,9 @@ void OSDRectangle::getWidthHeight(const OutputSurface& output,
 template <typename IMAGE> BaseImage* OSDRectangle::create(
 	OutputSurface& output)
 {
-	int factor = getScaleFactor(output);
-	int sw = factor * w;
-	int sh = factor * h;
+	double factor = getScaleFactor(output) * scale;
+	int sw = int(factor * w);
+	int sh = int(factor * h);
 	if (imageName.empty()) {
 		if (getAlpha()) {
 			// note: Image is create with alpha = 255. Actual

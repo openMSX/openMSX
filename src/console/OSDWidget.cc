@@ -15,8 +15,8 @@ namespace openmsx {
 OSDWidget::OSDWidget(const string& name_)
 	: parent(NULL)
 	, name(name_)
+	, x(0.0), y(0.0), z(0.0)
 	, relx(0.0), rely(0.0)
-	, x(0), y(0), z(0)
 	, scaled(false)
 {
 }
@@ -116,11 +116,11 @@ void OSDWidget::setProperty(const string& name, const string& value)
 	if (name == "-type") {
 		throw CommandException("-type property is readonly");
 	} else if (name == "-x") {
-		x = StringOp::stringToInt(value);
+		x = StringOp::stringToDouble(value);
 	} else if (name == "-y") {
-		y = StringOp::stringToInt(value);
+		y = StringOp::stringToDouble(value);
 	} else if (name == "-z") {
-		z = StringOp::stringToInt(value);
+		z = StringOp::stringToDouble(value);
 		if (OSDWidget* parent = getParent()) {
 			parent->resort();
 		}
@@ -201,14 +201,14 @@ int OSDWidget::getScaleFactor(const OutputSurface& output) const
 }
 
 void OSDWidget::transformXY(const OutputSurface& output,
-                            int x, int y, double relx, double rely,
-                            int& outx, int& outy) const
+                            double x, double y, double relx, double rely,
+                            double& outx, double& outy) const
 {
-	int width, height;
+	double width, height;
 	getWidthHeight(output, width, height);
 	int factor = getScaleFactor(output);
-	outx = x + factor * getX() + int(relx * width);
-	outy = y + factor * getY() + int(rely * height);
+	outx = x + factor * getX() + relx * width;
+	outy = y + factor * getY() + rely * height;
 	if (const OSDWidget* parent = getParent()) {
 		parent->transformXY(output, outx, outy, getRelX(), getRelY(),
 		                    outx, outy);

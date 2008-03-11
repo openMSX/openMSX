@@ -16,7 +16,7 @@ std::string OSDTopWidget::getType() const
 }
 
 void OSDTopWidget::getWidthHeight(const OutputSurface& output,
-                                  int& width, int& height) const
+                                  double& width, double& height) const
 {
 	width  = output.getWidth();
 	height = output.getHeight();

@@ -19,9 +19,9 @@ public:
 	virtual ~OSDWidget();
 
 	const std::string& getName() const;
-	int    getX()    const { return x; }
-	int    getY()    const { return y; }
-	int    getZ()    const { return z; }
+	double getX()    const { return x; }
+	double getY()    const { return y; }
+	double getZ()    const { return z; }
 	double getRelX() const { return relx; }
 	double getRelY() const { return rely; }
 
@@ -43,8 +43,8 @@ public:
 
 	int getScaleFactor(const OutputSurface& surface) const;
 	void transformXY(const OutputSurface& output,
-	                 int x, int y, double relx, double rely,
-	                 int& outx, int& outy) const;
+	                 double x, double y, double relx, double rely,
+	                 double& outx, double& outy) const;
 
 protected:
 	OSDWidget(const std::string& name);
@@ -52,7 +52,7 @@ protected:
 
 	virtual void invalidateLocal() = 0;
 	virtual void getWidthHeight(const OutputSurface& output,
-	                            int& width, int& height) const = 0;
+	                            double& width, double& height) const = 0;
 	virtual void paintSDL(OutputSurface& output) = 0;
 	virtual void paintGL (OutputSurface& output) = 0;
 
@@ -69,8 +69,8 @@ private:
 	OSDWidget* parent;
 
 	const std::string name;
+	double x, y, z;
 	double relx, rely;
-	int x, y, z;
 	bool scaled;
 };
 

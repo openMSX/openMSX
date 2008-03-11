@@ -80,7 +80,7 @@ void OSDImageBasedWidget::invalidateLocal()
 }
 
 void OSDImageBasedWidget::getWidthHeight(const OutputSurface& /*output*/,
-                                         int& width, int& height) const
+                                         double& width, double& height) const
 {
 	if (image.get()) {
 		width  = image->getWidth();
@@ -94,13 +94,13 @@ void OSDImageBasedWidget::getWidthHeight(const OutputSurface& /*output*/,
 }
 
 void OSDImageBasedWidget::getTransformedXY(const OutputSurface& output,
-                                           int& outx, int& outy) const
+                                           double& outx, double& outy) const
 {
 	const OSDWidget* parent = getParent();
 	assert(parent);
 	int factor = getScaleFactor(output);
-	int x = factor * getX();
-	int y = factor * getY();
+	double x = factor * getX();
+	double y = factor * getY();
 	parent->transformXY(output, x, y, getRelX(), getRelY(), outx, outy);
 }
 
@@ -137,9 +137,9 @@ void OSDImageBasedWidget::paint(OutputSurface& output, bool openGL)
 		}
 	}
 	if ((getAlpha() != 0) && image.get()) {
-		int x, y;
+		double x, y;
 		getTransformedXY(output, x, y);
-		image->draw(x, y, getAlpha());
+		image->draw(int(x), int(y), getAlpha());
 	}
 }
 

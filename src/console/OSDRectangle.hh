@@ -23,13 +23,13 @@ public:
 
 private:
 	virtual void getWidthHeight(const OutputSurface& output,
-	                            int& width, int& height) const;
+	                            double& width, double& height) const;
 	virtual BaseImage* createSDL(OutputSurface& output);
 	virtual BaseImage* createGL (OutputSurface& output);
 	template <typename IMAGE> BaseImage* create(OutputSurface& output);
 
 	std::string imageName;
-	int w, h;
+	double w, h, scale;
 };
 
 } // namespace openmsx

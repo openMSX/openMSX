@@ -28,23 +28,21 @@ protected:
 	OSDImageBasedWidget(const OSDGUI& gui, const std::string& name);
 	virtual void invalidateLocal();
 	virtual void getWidthHeight(const OutputSurface& output,
-	                            int& width, int& height) const;
+	                            double& width, double& height) const;
 	virtual void paintSDL(OutputSurface& output);
 	virtual void paintGL (OutputSurface& output);
 	virtual BaseImage* createSDL(OutputSurface& output) = 0;
 	virtual BaseImage* createGL (OutputSurface& output) = 0;
 
-	void getTransformedXY(const OutputSurface& output,
-	                      int& outx, int& outy) const;
-
 	void setError(const std::string& message);
 	bool hasError() const { return error; }
 
-protected:
 	std::auto_ptr<BaseImage> image;
 
 private:
 	void paint(OutputSurface& output, bool openGL);
+	void getTransformedXY(const OutputSurface& output,
+	                      double& outx, double& outy) const;
 
 	const OSDGUI& gui;
 	byte r, g, b, a;
