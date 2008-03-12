@@ -133,7 +133,7 @@ Command* MSXCommandController::findCommand(const std::string& name) const
 	return (it != commandMap.end()) ? it->second : NULL;
 }
 
-Setting* MSXCommandController::findSetting(const std::string& name) const
+Setting* MSXCommandController::findSetting(const std::string& name)
 {
 	SettingMap::const_iterator it = settingMap.find(name);
 	return (it != settingMap.end()) ? it->second : NULL;

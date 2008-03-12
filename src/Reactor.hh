@@ -26,6 +26,7 @@ class IconStatus;
 class InputEventGenerator;
 class DiskManipulator;
 class FilePool;
+class UserSettings;
 class BooleanSetting;
 class MSXMotherBoard;
 class Setting;
@@ -123,6 +124,7 @@ private:
 	BooleanSetting& pauseSetting;
 	std::auto_ptr<EnumSetting<int> > machineSetting;
 
+	const std::auto_ptr<UserSettings> userSettings;
 	const std::auto_ptr<QuitCommand> quitCommand;
 	const std::auto_ptr<MachineCommand> machineCommand;
 	const std::auto_ptr<TestMachineCommand> testMachineCommand;

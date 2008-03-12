@@ -22,6 +22,8 @@ public:
 		DONT_SAVE
 	};
 
+	virtual ~Setting();
+
 	/** Returns a string describing the setting type (integer, string, ..)
 	  */
 	virtual std::string getTypeString() const = 0;
@@ -99,7 +101,6 @@ public:
 protected:
 	Setting(CommandController& commandController, const std::string& name,
 	        const std::string& description, SaveSetting save);
-	virtual ~Setting();
 
 	/** Notify all listeners of a change to this setting's value.
 	  * Still needed, because it also informs the CliComm stuff that there

@@ -11,7 +11,8 @@ SRC_HDR:= \
 	StringSetting \
 	BooleanSetting \
 	FilenameSetting \
-	KeyCodeSetting
+	KeyCodeSetting \
+	UserSettings
 
 HDR_ONLY:= \
 	SettingImpl \

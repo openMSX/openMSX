@@ -101,6 +101,12 @@ void TclObject::setInt(int value)
 	Tcl_SetIntObj(obj, value);
 }
 
+void TclObject::setBoolean(bool value)
+{
+	unshare();
+	Tcl_SetBooleanObj(obj, value);
+}
+
 void TclObject::setDouble(double value)
 {
 	unshare();
@@ -145,6 +151,15 @@ int TclObject::getInt() const
 {
 	int result;
 	if (Tcl_GetIntFromObj(interp, obj, &result) != TCL_OK) {
+		throwException();
+	}
+	return result;
+}
+
+bool TclObject::getBoolean() const
+{
+	int result;
+	if (Tcl_GetBooleanFromObj(interp, obj, &result) != TCL_OK) {
 		throwException();
 	}
 	return result;

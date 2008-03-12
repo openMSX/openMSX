@@ -8,6 +8,7 @@
 #include "InputEventGenerator.hh"
 #include "DiskManipulator.hh"
 #include "FilePool.hh"
+#include "UserSettings.hh"
 #include "MSXMotherBoard.hh"
 #include "Command.hh"
 #include "GlobalCliComm.hh"
@@ -148,6 +149,7 @@ private:
 Reactor::Reactor()
 	: mbSem(1)
 	, pauseSetting(getGlobalSettings().getPauseSetting())
+	, userSettings(new UserSettings(getCommandController()))
 	, quitCommand(new QuitCommand(getCommandController(), *this))
 	, machineCommand(new MachineCommand(getCommandController(), *this))
 	, testMachineCommand(new TestMachineCommand(getCommandController(), *this))

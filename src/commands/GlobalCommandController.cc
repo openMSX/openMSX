@@ -270,6 +270,11 @@ void GlobalCommandController::unregisterSetting(Setting& setting)
 	getSettingsConfig().getSettingsManager().unregisterSetting(setting, name);
 }
 
+Setting* GlobalCommandController::findSetting(const std::string& name)
+{
+	return getSettingsConfig().getSettingsManager().findSetting(name);
+}
+
 void GlobalCommandController::changeSetting(
 	const std::string& name, const string& value)
 {

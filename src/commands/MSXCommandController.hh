@@ -24,7 +24,6 @@ public:
 	InfoCommand& getMachineInfoCommand();
 
 	Command* findCommand(const std::string& name) const;
-	Setting* findSetting(const std::string& name) const;
 
 	void activated();
 
@@ -44,6 +43,7 @@ public:
 	                       std::vector<std::string>& result);
 	virtual void registerSetting(Setting& setting);
 	virtual void unregisterSetting(Setting& setting);
+	virtual Setting* findSetting(const std::string& name);
 	virtual void changeSetting(Setting& setting, const std::string& value);
 	virtual std::string makeUniqueSettingName(const std::string& name);
 	virtual CliComm& getCliComm();

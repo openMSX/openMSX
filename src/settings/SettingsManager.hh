@@ -43,6 +43,7 @@ public:
 
 	void registerSetting(Setting& setting, const std::string& name);
 	void unregisterSetting(Setting& setting, const std::string& name);
+	Setting* findSetting(const std::string& name) const;
 
 private:
 	void getSettingNames(std::set<std::string>& result) const;

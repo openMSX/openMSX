@@ -55,6 +55,7 @@ public:
 	 */
 	virtual void   registerSetting(Setting& setting) = 0;
 	virtual void unregisterSetting(Setting& setting) = 0;
+	virtual Setting* findSetting(const std::string& name) = 0;
 	virtual void changeSetting(Setting& setting, const std::string& value) = 0;
 	virtual std::string makeUniqueSettingName(const std::string& name) = 0;
 

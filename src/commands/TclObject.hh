@@ -32,6 +32,7 @@ public:
 	// value setters
 	void setString(const std::string& value);
 	void setInt(int value);
+	void setBoolean(bool value);
 	void setDouble(double value);
 	void setBinary(byte* buf, unsigned length);
 	void addListElement(const std::string& element);
@@ -43,6 +44,7 @@ public:
 	// value getters
 	std::string getString() const;
 	int getInt() const;
+	bool getBoolean() const;
 	double getDouble() const;
 	const byte* getBinary(unsigned& length) const;
 	unsigned getListLength() const;

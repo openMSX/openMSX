@@ -1,5 +1,12 @@
 $Id$
 
+2008-03-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added 'user_setting' command:
+	   This allows to create openMSX settings from Tcl scripts. The main
+	   advantage of settings over regular Tcl variables is that their
+	   value is preserved over different openMSX sessions.
+	   See 'help user_setting' for more details.
+
 2008-03-08 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added -doublesize switch to the 'record start' command, to record at a
 	  size of 640x480. Note: this is usually a lot slower...

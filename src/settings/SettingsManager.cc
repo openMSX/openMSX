@@ -81,6 +81,12 @@ void SettingsManager::unregisterSetting(Setting& /*setting*/, const string& name
 	settingsMap.erase(name);
 }
 
+Setting* SettingsManager::findSetting(const std::string& name) const
+{
+	SettingsMap::const_iterator it = settingsMap.find(name);
+	return (it != settingsMap.end()) ? it->second : NULL;
+}
+
 // Helper functions for setting commands
 
 void SettingsManager::getSettingNames(set<string>& result) const
