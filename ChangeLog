@@ -1,6 +1,9 @@
 $Id$
 
 2008-03-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Replaced C++ IconLayer with a Tcl script
+
+2008-03-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added 'user_setting' command:
 	   This allows to create openMSX settings from Tcl scripts. The main
 	   advantage of settings over regular Tcl variables is that their

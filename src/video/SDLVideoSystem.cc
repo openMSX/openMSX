@@ -35,12 +35,12 @@ SDLVideoSystem::SDLVideoSystem(Reactor& reactor)
 
 	console = screen->createConsoleLayer(reactor);
 	snowLayer = screen->createSnowLayer();
-	iconLayer = screen->createIconLayer(
-		reactor.getCommandController(), display, reactor.getIconStatus());
+	//iconLayer = screen->createIconLayer(
+	//	reactor.getCommandController(), display, reactor.getIconStatus());
 	osdGuiLayer = screen->createOSDGUILayer(display.getOSDGUI());
 	display.addLayer(*console);
 	display.addLayer(*snowLayer);
-	display.addLayer(*iconLayer);
+	//display.addLayer(*iconLayer);
 	display.addLayer(*osdGuiLayer);
 
 	renderSettings.getScaleFactor().attach(*this);
@@ -57,7 +57,7 @@ SDLVideoSystem::~SDLVideoSystem()
 	renderSettings.getScaleFactor().detach(*this);
 
 	display.removeLayer(*osdGuiLayer);
-	display.removeLayer(*iconLayer);
+	//display.removeLayer(*iconLayer);
 	display.removeLayer(*snowLayer);
 	display.removeLayer(*console);
 }
