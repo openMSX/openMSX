@@ -96,6 +96,7 @@ proc load_icons { set_name { set_position "" } } {
 	set scale 2
 
 	# but allow to override these values by the skin script
+	set leds $::__leds  ;# the 'none' skin needs this
 	set script $directory/skin.tcl
 	if [file exists $script] { source $script }
 
@@ -169,7 +170,7 @@ proc __trace_osd_led_vars {name1 name2 op} {
 	    ($::osd_leds_pos == $::__osd_leds_pos)} {
 		return
 	}
-	osd_load_icons $::osd_leds_set $::osd_leds_pos
+	load_icons $::osd_leds_set $::osd_leds_pos
 }
 
 # Available LEDs. LEDs are also drawn in this order (by default)
@@ -192,4 +193,4 @@ set __osd_leds_pos $osd_leds_pos
 trace add variable osd_leds_set write __trace_osd_led_vars
 trace add variable osd_leds_pos write __trace_osd_led_vars
 
-osd_load_icons $osd_leds_set $osd_leds_pos
+load_icons $osd_leds_set $osd_leds_pos
