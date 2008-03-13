@@ -281,7 +281,11 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 		}
 		if (flags & TCL_TRACE_UNSETS) {
 			try {
-				variable->restoreDefault();
+				// note we cannot use restoreDefault(), because
+				// that goes via Tcl and the Tcl variable
+				// doesn't exist at this point
+				variable->setValueStringDirect(
+					variable->getRestoreValueString());
 			} catch (CommandException& e) {
 				// for some reason default value is not valid ATM,
 				// keep current value (happened for videosource
