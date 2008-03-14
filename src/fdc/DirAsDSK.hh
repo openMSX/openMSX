@@ -94,7 +94,6 @@ private:
 
 	GlobalSettings::SyncMode syncMode;
 	bool bootSectorWritten;
-	bool readBootBlockFromFile;
 
 	typedef std::map<std::string, bool> DiscoveredFiles;
 	DiscoveredFiles discoveredFiles;

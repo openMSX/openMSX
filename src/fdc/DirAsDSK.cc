@@ -162,7 +162,7 @@ static string makeSimpleMSXFileName(string filename)
 
 void DirAsDSK::saveCache()
 {
-	//safe  bootsector file if needed
+	// safe bootsector file if needed
 	if (bootSectorWritten) {
 		try {
 			File file(hostDir + '/' + bootBlockFileName,
@@ -262,8 +262,7 @@ void DirAsDSK::saveCache()
 			file.write(tmpbuf, 1);
 		}
 	} catch (FileException& e) {
-		cliComm.printWarning(
-			"Couldn't create cached sector file.");
+		cliComm.printWarning("Couldn't create cached sector file.");
 	}
 }
 
@@ -421,8 +420,7 @@ void DirAsDSK::scanHostDir()
 		DiscoveredFiles::iterator it = discoveredFiles.find(name);
 		//check if file is added to diskimage
 		if (it == discoveredFiles.end()) {
-			//TODO: if bootsector read from file we should skip this file
-			if (!(readBootBlockFromFile && (name == bootBlockFileName)) &&
+			if ((name != bootBlockFileName) &&
 			    (name != cachedSectorsFileName)) {
 				// add file into fake dsk
 				debug("found new file %s\n", d->d_name);
@@ -493,12 +491,10 @@ DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings_,
 	sectorsPerTrack = 9;
 	nbSides = 2;
 
-	readBootBlockFromFile = false;
 	try {
 		// try to read boot block from file
 		File file(hostDir + '/' + bootBlockFileName);
 		file.read(bootBlock, SECTOR_SIZE);
-		readBootBlockFromFile = true;
 	} catch (FileException& e) {
 		// or use default when that fails
 		const byte* bootSector
@@ -511,13 +507,12 @@ DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings_,
 	cleandisk();
 	if (!readCache()) {
 		cleandisk(); //make possible reads undone
-		//read directory and fill the fake disk
+		// read directory and fill the fake disk
 		while (struct dirent* d = dir.getEntry()) {
 			string name(d->d_name);
-			//TODO: if bootsector read from file we should skip this file
-			if (!(readBootBlockFromFile && (name == bootBlockFileName)) &&
+			if ((name != bootBlockFileName) &&
 			    (name != cachedSectorsFileName)) {
-				//and rememeber that we used this one!
+				// and rememeber that we used this one!
 				discoveredFiles[name] = true;
 				// add file into fake dsk
 				updateFileInDSK(name);
@@ -606,7 +601,7 @@ void DirAsDSK::readLogicalSector(unsigned sector, byte* buf)
 	}
 
 	if (sector == 0) {
-		//copy our fake bootsector into the buffer
+		// copy our fake bootsector into the buffer
 		memcpy(buf, bootBlock, SECTOR_SIZE);
 
 	} else if (sector < (1 + 2 * SECTORS_PER_FAT)) {
@@ -1002,7 +997,7 @@ void DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 	//Special sectors
 	//
 	if (sector == 0) {
-		//copy buffer into our fake bootsector
+		// copy buffer into our fake bootsector
 		memcpy(bootBlock, buf, SECTOR_SIZE);
 		bootSectorWritten = true;
 
