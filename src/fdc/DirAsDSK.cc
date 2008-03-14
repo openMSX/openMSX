@@ -21,6 +21,19 @@ using std::string;
 
 namespace openmsx {
 
+// Wrapper function to easily enable/disable debug prints
+// Don't check-in this code with printing enabled:
+//   printing stuff to stdout breaks stdio CliComm connections!
+static void debug(const char* format, ...)
+{
+#if 0
+	va_list args;
+	va_start(args, format);
+	vprintf(format, args);
+	va_end(args);
+#endif
+}
+
 static const int EOF_FAT = 0xFFF;
 static const int MAX_CLUSTER = 720;
 static const string bootBlockFileName = ".sector.boot";
@@ -240,8 +253,8 @@ void DirAsDSK::saveCache()
 				setLE16(&tmpbuf[1], it->first);
 				file.write(tmpbuf, 3);
 
-				printf("writing to .sector.cache\n");
-				printf("        sector %i \n", it->first);
+				debug("writing to .sector.cache\n");
+				debug("        sector %i\n", it->first);
 				file.write(&(it->second[0]), SECTOR_SIZE);
 			}
 			//end of file marker
@@ -394,7 +407,7 @@ bool DirAsDSK::readCache()
 
 void DirAsDSK::scanHostDir()
 {
-	printf("Scanning HostDir for new files\n");
+	debug("Scanning HostDir for new files\n");
 	ReadDir dir(hostDir);
 	if (!dir.isValid()) {
 		//The entire directory might have been moved/erased
@@ -412,7 +425,7 @@ void DirAsDSK::scanHostDir()
 			if (!(readBootBlockFromFile && (name == bootBlockFileName)) &&
 			    (name != cachedSectorsFileName)) {
 				// add file into fake dsk
-				printf("found new file %s \n", d->d_name);
+				debug("found new file %s\n", d->d_name);
 				//and rememeber that we used this one!
 				discoveredFiles[name] = true;
 				addFileToDSK(name);
@@ -564,19 +577,19 @@ DirAsDSK::~DirAsDSK()
 
 void DirAsDSK::readLogicalSector(unsigned sector, byte* buf)
 {
-	printf("DirAsDSK::readLogicalSector: %i ", sector);
+	debug("DirAsDSK::readLogicalSector: %i ", sector);
 	switch (sector) {
-		case 0: printf("boot sector");
+		case 0: debug("boot sector\n");
 			break;
 		case 1:
 		case 2:
 		case 3:
-			printf("FAT 1 sector %i", (sector - 0));
+			debug("FAT 1 sector %i\n", (sector - 0));
 			break;
 		case 4:
 		case 5:
 		case 6:
-			printf("FAT 2 sector %i", (sector - 3));
+			debug("FAT 2 sector %i\n", (sector - 3));
 			break;
 		case 7:
 		case 8:
@@ -585,13 +598,12 @@ void DirAsDSK::readLogicalSector(unsigned sector, byte* buf)
 		case 11:
 		case 12:
 		case 13:
-			printf("DIR sector %i", (sector - 6));
+			debug("DIR sector %i\n", (sector - 6));
 			break;
 		default:
-			printf("data sector");
+			debug("data sector\n");
 			break;
 	}
-	printf("\n");
 
 	if (sector == 0) {
 		//copy our fake bootsector into the buffer
@@ -689,7 +701,7 @@ void DirAsDSK::checkAlterFileInDisk(int dirindex)
 		//file can not be stat'ed => assume it has been deleted
 		//and thus delete it from the MSX DIR sectors by marking
 		//the first filename char as 0xE5
-		printf(" host os file deleted ? %s  \n", mapdir[dirindex].filename.c_str());
+		debug(" host os file deleted ? %s\n", mapdir[dirindex].filename.c_str());
 		mapdir[dirindex].msxinfo.filename[0] = 0xE5;
 		mapdir[dirindex].filename.clear();
 	}
@@ -834,9 +846,9 @@ void DirAsDSK::truncateCorrespondingFile(const int dirindex)
 		mapdir[dirindex].shortname = shname;
 		//remember we 'saw' this file already
 		discoveredFiles[shname] = true;
-		printf("      truncateCorrespondingFile of new Host OS file\n");
+		debug("      truncateCorrespondingFile of new Host OS file\n");
 	}
-	printf("      truncateCorrespondingFile %s\n", fullfilename.c_str());
+	debug("      truncateCorrespondingFile %s\n", fullfilename.c_str());
 	File file(fullfilename,File::CREATE);
 	int cursize = getLE32(mapdir[dirindex].msxinfo.size);
 	file.truncate(cursize);
@@ -902,20 +914,19 @@ void DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 	// is this actually needed ?
 	if (syncMode == GlobalSettings::SYNC_READONLY) return;
 
-	//debug info
-	printf("DirAsDSK::writeLogicalSector: %i ", sector);
+	debug("DirAsDSK::writeLogicalSector: %i ", sector);
 	switch (sector) {
-		case 0: printf("boot sector");
+		case 0: debug("boot sector\n");
 			break;
 		case 1:
 		case 2:
 		case 3:
-			printf("FAT 1 sector %i", (sector - 0));
+			debug("FAT 1 sector %i\n", (sector - 0));
 			break;
 		case 4:
 		case 5:
 		case 6:
-			printf("FAT 2 sector %i", (sector - 3));
+			debug("FAT 2 sector %i\n", (sector - 3));
 			break;
 		case 7:
 		case 8:
@@ -924,30 +935,29 @@ void DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 		case 11:
 		case 12:
 		case 13:
-			printf("DIR sector %i", (sector - 6));
+			debug("DIR sector %i\n", (sector - 6));
 			break;
 		default:
-			printf("data sector");
+			debug("data sector\n");
 			break;
 	}
 	if (sector >= 14) {
-		printf("\n  Mode: ");
+		debug("  Mode: ");
 		switch (sectormap[sector].usage) {
 		case CLEAN:
-			printf("CLEAN");
+			debug("CLEAN\n");
 			break;
 		case CACHED:
-			printf("CACHED");
+			debug("CACHED\n");
 			break;
 		case MIXED:
-			printf("MIXED ");
-			printf("  direntry : %i \n", sectormap[sector].dirEntryNr);
-			printf("    => %s \n", mapdir[sectormap[sector].dirEntryNr].filename.c_str());
-			printf("  fileOffset : %li ", sectormap[sector].fileOffset);
+			debug("MIXED ");
+			debug("  direntry : %i \n", sectormap[sector].dirEntryNr);
+			debug("    => %s \n", mapdir[sectormap[sector].dirEntryNr].filename.c_str());
+			debug("  fileOffset : %li\n", sectormap[sector].fileOffset);
 			break;
 		}
 	}
-	printf("\n");
 
 	//
 	//Regular sectors
@@ -1066,10 +1076,10 @@ void DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 
 
 
-				printf("  dircount %i filename: %s \n", dirCount, mapdir[dirCount].filename.c_str());
-				printf("  chgName: %i chgClus: %i chgSize: %i  \n", chgName, chgClus, chgSize);
-				printf("  Old start %i   New start %i\n", getLE16(mapdir[dirCount].msxinfo.startcluster), getLE16(&buf[26]));
-				printf("  Old size %i  New size %i \n\n", getLE32(mapdir[dirCount].msxinfo.size), getLE32(&buf[28]));
+				debug("  dircount %i filename: %s\n", dirCount, mapdir[dirCount].filename.c_str());
+				debug("  chgName: %i chgClus: %i chgSize: %i\n", chgName, chgClus, chgSize);
+				debug("  Old start %i   New start %i\n", getLE16(mapdir[dirCount].msxinfo.startcluster), getLE16(&buf[26]));
+				debug("  Old size %i  New size %i\n\n", getLE32(mapdir[dirCount].msxinfo.size), getLE32(&buf[28]));
 
 				if (chgName && !chgClus && !chgSize) {
 					if (buf[0] == 0xE5 && syncMode == GlobalSettings::SYNC_FULL) {
