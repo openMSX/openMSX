@@ -11,13 +11,12 @@
 namespace openmsx {
 
 class CliComm;
-//class GlobalSettings;
 
 class DirAsDSK : public SectorBasedDisk
 {
 public:
 	DirAsDSK(CliComm& cliComm, GlobalSettings& globalSettings,
-	             const std::string& fileName);
+	         const std::string& fileName);
 	virtual ~DirAsDSK();
 
 private:
@@ -32,17 +31,25 @@ private:
 	bool checkMSXFileExists(const std::string& msxfilename);
 	void addFileToDSK(const std::string& fullfilename);
 	void checkAlterFileInDisk(const std::string& fullfilename);
-	void checkAlterFileInDisk(const int dirindex);
-	void updateFileInDisk(const int dirindex);
+	void checkAlterFileInDisk(int dirindex);
+	void updateFileInDisk(int dirindex);
 	void updateFileInDSK(const std::string& fullfilename);
-	void transferFileToCache(const int dirindex);
-	void extractCacheToFile(const int dirindex);
-	void truncateCorrespondingFile(const int dirindex);
+	void transferFileToCache(int dirindex);
+	void extractCacheToFile(int dirindex);
+	void truncateCorrespondingFile(int dirindex);
 	int findFirstFreeCluster();
 	unsigned readFAT(unsigned clnr);
 	unsigned readFAT2(unsigned clnr);
 	void writeFAT(unsigned clnr, unsigned val);
 	void writeFAT2(unsigned clnr, unsigned val);
+
+	bool readCache();
+	void saveCache();
+
+	std::string condenseName(const byte* buf);
+	void updateFileFromAlteredFatOnly(int somecluster);
+	void cleandisk();
+	void scanHostDir();
 
 	struct MSXDirEntry {
 		char filename[8];
@@ -60,14 +67,14 @@ private:
 		std::string filename;
 		std::string shortname;
 		int filesize; // used to dedect changes that need to be updated in the
-			      // emulated disk, content changes are automatically
-			      // handled :-)
+		              // emulated disk, content changes are automatically
+		              // handled :-)
 	};
 
-	typedef enum Usage {CLEAN,CACHED,MIXED} Usage_t;
+	enum Usage {CLEAN, CACHED,MIXED};
 	struct ReverseSector {
 		unsigned long fileOffset;
-		Usage_t usage;
+		Usage usage;
 		int dirEntryNr;
 	};
 
@@ -76,27 +83,20 @@ private:
 	MappedDirEntry mapdir[112]; // max nr of entries in root directory:
 	                            // 7 sectors, each 16 entries
 	ReverseSector sectormap[1440]; // was 1440, quick hack to fix formatting
-	byte fat[SECTOR_SIZE * SECTORS_PER_FAT];
+	byte fat [SECTOR_SIZE * SECTORS_PER_FAT];
 	byte fat2[SECTOR_SIZE * SECTORS_PER_FAT];
 
 	byte bootBlock[SECTOR_SIZE];
 	std::string hostDir;
 	typedef std::map<unsigned, std::vector<byte> > CachedSectors;
 	CachedSectors cachedSectors;
-	GlobalSettings* globalSettings;
+	GlobalSettings& globalSettings;
 
-	GlobalSettings::SyncMode_t syncMode;
+	GlobalSettings::SyncMode syncMode;
 	bool bootSectorWritten;
 	bool readBootBlockFromFile;
-	bool readCache();
-	void saveCache();
 
-	std::string condenseName(const byte* buf);
-	void updateFileFromAlteredFatOnly(int somecluster);
-	void cleandisk();
-	void scanHostDir();
-
-	typedef std::map<std::string,bool> DiscoveredFiles;
+	typedef std::map<std::string, bool> DiscoveredFiles;
 	DiscoveredFiles discoveredFiles;
 };
 

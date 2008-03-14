@@ -153,7 +153,7 @@ void DirAsDSK::saveCache()
 	if (bootSectorWritten) {
 		try {
 			File file(hostDir + '/' + bootBlockFileName,
-				  File::TRUNCATE);
+			          File::TRUNCATE);
 			file.write(bootBlock, SECTOR_SIZE);
 		} catch (FileException& e) {
 			cliComm.printWarning(
@@ -281,7 +281,7 @@ bool DirAsDSK::readCache()
 
 				// read long filename
 				unsigned i = 0;
-				file.read(tmpbuf,1);
+				file.read(tmpbuf, 1);
 				while ((tmpbuf[i] != 0) && (i < SECTOR_SIZE)) {
 					++i;
 					file.read(&tmpbuf[i], 1);
@@ -458,14 +458,14 @@ void DirAsDSK::cleandisk()
 }
 
 DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings_,
-                           const string& fileName)
+                   const string& fileName)
 	: SectorBasedDisk(fileName)
 	, cliComm(cliComm_)
 	, hostDir(fileName)
+	, globalSettings(globalSettings_)
 {
 	//TODO: make these settings, for now as test purpose we define them here...
-	globalSettings = &globalSettings_;
-	syncMode = globalSettings->getSyncDirAsDSKSetting().getValue();
+	syncMode = globalSettings.getSyncDirAsDSKSetting().getValue();
 	bootSectorWritten = false;
 
 	// create the diskimage based upon the files that can be
@@ -489,7 +489,7 @@ DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings_,
 	} catch (FileException& e) {
 		// or use default when that fails
 		const byte* bootSector
-			= globalSettings->getBootSectorSetting().getValue()
+			= globalSettings.getBootSectorSetting().getValue()
 			? BootBlocks::dos2BootBlock
 			: BootBlocks::dos1BootBlock;
 		memcpy(bootBlock, bootSector, SECTOR_SIZE);
@@ -557,7 +557,7 @@ DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings_,
 DirAsDSK::~DirAsDSK()
 {
 	// write cached sectors to a file
-	if (globalSettings->getPersistentDirAsDSKSetting().getValue()) {
+	if (globalSettings.getPersistentDirAsDSKSetting().getValue()) {
 		saveCache();
 	}
 }
@@ -699,7 +699,9 @@ void DirAsDSK::updateFileInDisk(int dirindex)
 {
 	// compute time/date stamps
 	struct stat fst;
-	stat(mapdir[dirindex].filename.c_str(), &fst);
+	if (stat(mapdir[dirindex].filename.c_str(), &fst)) {
+		// TODO
+	}
 	struct tm* mtim = localtime(&(fst.st_mtime));
 	int t1 = mtim
 	       ? (mtim->tm_sec >> 1) + (mtim->tm_min << 5) +
@@ -725,7 +727,7 @@ void DirAsDSK::updateFileInDisk(int dirindex)
 
 	unsigned size = fsize;
 	int prevcl = 0;
-	File file(mapdir[dirindex].filename,File::CREATE);
+	File file(mapdir[dirindex].filename, File::CREATE);
 
 	while (size && (curcl <= MAX_CLUSTER)) {
 		int logicalSector = 14 + 2 * (curcl - 2);
@@ -735,7 +737,7 @@ void DirAsDSK::updateFileInDisk(int dirindex)
 		sectormap[logicalSector].fileOffset = fsize - size;
 		cachedSectors[logicalSector].resize(SECTOR_SIZE);
 		byte* buf = reinterpret_cast<byte*>(
-						&cachedSectors[logicalSector][0]);
+		                        &cachedSectors[logicalSector][0]);
 		memset(buf, 0, SECTOR_SIZE); // in case (end of) file only fills partial sector
 		file.seek(sectormap[logicalSector].fileOffset);
 		file.read(buf, std::min<int>(size, SECTOR_SIZE));
@@ -1146,8 +1148,9 @@ void DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 						memcpy(&(mapdir[dirCount].msxinfo), buf, 32);
 						truncateCorrespondingFile(dirCount);
 
-						if (getLE32(&buf[28]) != 0)
+						if (getLE32(&buf[28]) != 0) {
 							extractCacheToFile(dirCount); // see copy remark above
+						}
 					}
 				}
 				if (!chgName && chgClus && !chgSize) {
