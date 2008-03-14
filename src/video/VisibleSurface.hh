@@ -14,7 +14,6 @@ class Reactor;
 class CommandController;
 class EventDistributor;
 class Display;
-class IconStatus;
 class OSDGUI;
 
 /** An OutputSurface which is visible to the user, such as a window or a
@@ -37,9 +36,6 @@ public:
 	virtual std::auto_ptr<Layer> createSnowLayer() = 0;
 	virtual std::auto_ptr<Layer> createConsoleLayer(
 		Reactor& reactor) = 0;
-	virtual std::auto_ptr<Layer> createIconLayer(
-		CommandController& commandController,
-		Display& display, IconStatus& iconStatus) = 0;
 	virtual std::auto_ptr<Layer> createOSDGUILayer(
 		OSDGUI& gui) = 0;
 

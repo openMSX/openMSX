@@ -6,7 +6,6 @@
 #include "GLConsole.hh"
 #include "OSDGUILayer.hh"
 #include "InitException.hh"
-#include "IconLayer.hh"
 #include "build-info.hh"
 #include "Math.hh"
 #include <vector>
@@ -211,14 +210,6 @@ std::auto_ptr<Layer> SDLGLVisibleSurface::createConsoleLayer(
 		Reactor& reactor)
 {
 	return std::auto_ptr<Layer>(new GLConsole(reactor));
-}
-
-std::auto_ptr<Layer> SDLGLVisibleSurface::createIconLayer(
-		CommandController& commandController,
-		Display& display, IconStatus& iconStatus)
-{
-	return std::auto_ptr<Layer>(new GLIconLayer(
-			commandController, display, iconStatus, *this));
 }
 
 std::auto_ptr<Layer> SDLGLVisibleSurface::createOSDGUILayer(OSDGUI& gui)

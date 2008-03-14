@@ -61,7 +61,7 @@
         <li><a class="internal" href="#machine">machine</a></li>
 
         <li><a class="internal" href="#machine_info">machine_info</a></li>
-        
+
 	<li><a class="internal" href="#monitor_type">monitor_type</a></li>
 
 	<li><a class="internal" href="#mute_channels">mute_channels / unmute_channels / solo</a></li>
@@ -75,11 +75,11 @@
 	<li><a class="internal" href="#psg_profile">psg_profile</a></li>
 
         <li><a class="internal" href="#record">record</a></li>
-        
+
 	<li><a class="internal" href="#record_channels">record_channels</a></li>
 
         <li><a class="internal" href="#remove_extension">remove_extension</a></li>
-        
+
         <li><a class="internal" href="#reset">reset</a></li>
 
         <li><a class="internal" href="#save_settings">save_settings</a></li>
@@ -125,7 +125,7 @@
 
       <ol class="inlinetoc">
         <li><a class="internal" href="#accuracy">accuracy</a></li>
-        
+
         <li><a class="internal" href="#audio-inputfilename">audio-inputfilename</a></li>
 
         <li><a class="internal" href="#autoruncassettes">autoruncassettes</a></li>
@@ -135,7 +135,7 @@
         <li><a class="internal" href="#bootsector">bootsector</a></li>
 
         <li><a class="internal" href="#brightness">brightness</a></li>
-        
+
         <li><a class="internal" href="#cmdtiming">cmdtiming</a></li>
 
         <li><a class="internal" href="#color_matrix">color_matrix</a></li>
@@ -183,8 +183,6 @@
         <li><a class="internal" href="#grabinput">grabinput</a></li>
 
         <li><a class="internal" href="#horizontal_stretch">horizontal_stretch</a></li>
-
-        <li><a class="internal" href="#icon.name.setting">icon.&lt;name&gt;.&lt;setting&gt;</a></li>
 
         <li><a class="internal" href="#inputdelay">inputdelay</a></li>
 
@@ -259,9 +257,9 @@
 	<li><a class="internal" href="#soundchip_balance">&lt;soundchip&gt;_balance</a></li>
 
         <li><a class="internal" href="#soundchip_channel_record">&lt;soundchip&gt;_ch&lt;channel&gt;_record</a></li>
-        
+
 	<li><a class="internal" href="#soundchip_channel_mute">&lt;soundchip&gt;_ch&lt;channel&gt;_mute</a></li>
-        
+
         <li><a class="internal" href="#soundchip_detune_frequency">&lt;soundchip&gt;_detune_frequency</a></li>
 
         <li><a class="internal" href="#soundchip_detune_percent">&lt;soundchip&gt;_detune_percent</a></li>
@@ -1018,7 +1016,7 @@
     <tr>
       <td><code>load_icons &lt;name&gt;</code></td>
 
-      <td>Load the given icon set and place them at the top of the screen.</td>
+      <td>Load the given icon set, but don't change the position on the screen.</td>
     </tr>
 
     <tr>
@@ -1027,10 +1025,6 @@
       <td>Load the given icon set and place them at the requested position. Position can be <code>bottom</code>, <code>top</code>, <code>left</code> or <code>right</code>.</td>
     </tr>
   </table>
-  
-  <div class="note">
-    Note: This command is a convenience wrapper around the different <code><a class="internal" href="#icon.name.setting">icon.&lt;name&gt;.&lt;setting&gt;</a></code> settings.
-  </div>
 
   <h3><a id="load_settings">load_settings</a></h3>
 
@@ -1124,7 +1118,7 @@
       <td>Selects a new color profile</td>
     </tr>
   </table>
-  
+
   <div class="note">
     Note: This command is a convenience wrapper around the <code><a class="internal" href="#color_matrix">color_matrix</a></code> setting.
   </div>
@@ -2735,82 +2729,6 @@
     Note: Not all renderers support this: currently only the SDLGL-PP renderer.
   </div>
 
-  <h3><a id="icon.name.setting">icon.&lt;name&gt;.&lt;setting&gt;</a></h3>
-
-  <p>
-  <code>icon.&lt;name&gt;.xcoord</code><br />
-  <code>icon.&lt;name&gt;.ycoord</code><br />
-  <code>icon.&lt;name&gt;.active.image</code><br />
-  <code>icon.&lt;name&gt;.non-active.image</code><br />
-  <code>icon.&lt;name&gt;.active.fade-delay</code><br />
-  <code>icon.&lt;name&gt;.active.fade-duration</code><br />
-  <code>icon.&lt;name&gt;.non-active.fade-delay</code><br />
-  <code>icon.&lt;name&gt;.non-active.fade-duration</code>
-  </p>
-
-  <p>Controls the appearance of the OSD LED icons.</p>
-
-  <p>&lt;name&gt; can be <code>caps</code>, <code>fdd</code>, <code>kana</code>, <code>pause</code>, <code>power</code> or <code>turbo</code>.</p>
-
-  <p>The position is set with the <code>xcoord</code> and <code>ycoord</code> settings. The active and non-active version have the same position. The value is in pixels and (0,0) corresponds to the top-left corner of the screen.</p>
-
-  <p>The image for the LED can be specified with the <code>(non-)active.image</code> setting. This can be an image of any size and the image can have an alpha (transparency) channel. Typically this will be a PNG file.</p>
-
-  <p>Fade duration and delay control how (and if) the icon will fade away. When the LED changes status (on-&gt;off or off-&gt;on) the image is always shown, after the <code>fade-delay</code> time it will start to fade out. The time from completely  visible to completely transparent is controlled with the <code>fade-duration</code> setting. Both <code>fade-delay</code> and <code>fade-duration</code> are specified in milliseconds. A <code>fade-delay</code> of 0 turns off fading. Delay and duration can be set independently for the active and non-active image.</p>
-
-  <div class="subsectiontitle">
-    usage:
-  </div>
-
-  <table>
-    <tr>
-      <td><code>set icon.fdd.xcoord 250</code></td>
-      <td></td>
-    </tr>
-
-    <tr>
-      <td><code>set icon.fdd.ycoord 0</code></td>
-      <td></td>
-    </tr>
-
-    <tr>
-      <td><code>set icon.fdd.active.image fdd-on.png</code></td>
-      <td></td>
-    </tr>
-
-    <tr>
-      <td><code>set icon.fdd.active.image fdd-off.png</code></td>
-      <td></td>
-    </tr>
-
-    <tr>
-      <td><code>set icon.fdd.active.fade-delay 0</code></td>
-      <td>don't fade out active fdd LED</td>
-    </tr>
-
-    <tr>
-      <td><code>set icon.fdd.active.fade-duration 5000</code></td>
-      <td></td>
-    </tr>
-
-    <tr>
-      <td><code>set icon.fdd.non-active.fade-delay 5000</code></td>
-      <td></td>
-    </tr>
-
-    <tr>
-      <td><code>set icon.fdd.non-active.fade-duration 5000</code></td>
-      <td></td>
-    </tr>
-  </table>
-
-  <div class="note">
-    Note: In the future the position <code>xcoord</code> and <code>ycoord</code> settings will most likely change so that it is resolution independent (see <code><a class="internal" href="#scale_factor">scale_factor</a></code> setting)
-  </div>
-  <div class="note">
-    Note: It is often more convenient to use the <code><a class="internal" href="#load_icons">load_icons</a></code> command.
-  </div>
-
   <h3><a id="inputdelay">inputdelay</a></h3>
 
   <p>Input events for the MSX machine are delayed by this amount. Increase this value when the MSX machine misses keyboard presses when you type very fast. Decrease this value to reduce the latency between pressing a key on the host machine and seeing it being typed in the MSX machine.</p>
@@ -2959,13 +2877,13 @@
 
       <td>Shows the current mode</td>
     </tr>
-      
+
     <tr>
       <td><code>set&nbsp;kbd_mapping_mode&nbsp;CHARACTER</code></td>
 
       <td>Set the CHARACTER mapping mode</td>
     </tr>
-      
+
     <tr>
       <td><code>set&nbsp;kbd_mapping_mode&nbsp;KEY</code></td>
 
@@ -3483,7 +3401,7 @@
 
       <td>Sets the <a href="http://slack.net/~ant/libs/audio.html#Blip_Buffer">Blip_Buffer</a> based resampler, which has the best quality per CPU usage ratio (this is the default value).</td>
     </tr>
-    
+
     <tr>
       <td><code>set resampler hq</code></td>
 

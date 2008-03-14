@@ -15,7 +15,6 @@
 #include "InfoTopic.hh"
 #include "Display.hh"
 #include "Mixer.hh"
-#include "IconStatus.hh"
 #include "AviRecorder.hh"
 #include "Alarm.hh"
 #include "GlobalSettings.hh"
@@ -249,14 +248,6 @@ CommandConsole& Reactor::getCommandConsole()
 			getDisplay()));
 	}
 	return *commandConsole;
-}
-
-IconStatus& Reactor::getIconStatus()
-{
-	if (!iconStatus.get()) {
-		iconStatus.reset(new IconStatus(getEventDistributor()));
-	}
-	return *iconStatus;
 }
 
 DiskManipulator& Reactor::getDiskManipulator()

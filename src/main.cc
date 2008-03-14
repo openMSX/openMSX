@@ -74,7 +74,6 @@ static int main(int argc, char **argv)
 
 		if (parseStatus != CommandLineParser::EXIT) {
 			initializeSDL();
-			reactor.getIconStatus();
 			if (!parser.isHiddenStartup()) {
 				reactor.getDisplay().getRenderSettings().
 					getRenderer().restoreDefault();

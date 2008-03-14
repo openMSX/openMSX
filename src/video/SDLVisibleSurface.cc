@@ -6,7 +6,6 @@
 #include "SDLSnow.hh"
 #include "SDLConsole.hh"
 #include "OSDGUILayer.hh"
-#include "IconLayer.hh"
 #include "build-info.hh"
 #include <cstring>
 #include <cassert>
@@ -77,14 +76,6 @@ std::auto_ptr<Layer> SDLVisibleSurface::createConsoleLayer(
 		Reactor& reactor)
 {
 	return std::auto_ptr<Layer>(new SDLConsole(reactor, *this));
-}
-
-std::auto_ptr<Layer> SDLVisibleSurface::createIconLayer(
-		CommandController& commandController,
-		Display& display, IconStatus& iconStatus)
-{
-	return std::auto_ptr<Layer>(new SDLIconLayer(
-			commandController, display, iconStatus, *this));
 }
 
 std::auto_ptr<Layer> SDLVisibleSurface::createOSDGUILayer(OSDGUI& gui)

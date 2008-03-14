@@ -16,7 +16,6 @@ SRC_HDR:= \
 	VideoSystem Display VideoLayer \
 	Layer \
 	DummyVideoSystem \
-	IconLayer IconStatus \
 	SDLImage \
 	FrameSource RawFrame DeinterlacedFrame DoubledFrame PostProcessor \
 	OutputSurface VisibleSurface SDLVisibleSurface \

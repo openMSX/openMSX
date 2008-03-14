@@ -22,7 +22,6 @@ class GlobalCliComm;
 class Display;
 class Mixer;
 class CommandConsole;
-class IconStatus;
 class InputEventGenerator;
 class DiskManipulator;
 class FilePool;
@@ -73,7 +72,6 @@ public:
 	Display& getDisplay();
 	Mixer& getMixer();
 	CommandConsole& getCommandConsole();
-	IconStatus& getIconStatus();
 	DiskManipulator& getDiskManipulator();
 	FilePool& getFilePool();
 	EnumSetting<int>& getMachineSetting();
@@ -117,7 +115,6 @@ private:
 	std::auto_ptr<Display> display;
 	std::auto_ptr<Mixer> mixer;
 	std::auto_ptr<CommandConsole> commandConsole;
-	std::auto_ptr<IconStatus> iconStatus;
 	std::auto_ptr<DiskManipulator> diskManipulator;
 	std::auto_ptr<FilePool> filePool;
 
