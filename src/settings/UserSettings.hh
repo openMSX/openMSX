@@ -4,6 +4,7 @@
 #define USERSETTINGS_HH
 
 #include "noncopyable.hh"
+#include <string>
 #include <vector>
 #include <memory>
 

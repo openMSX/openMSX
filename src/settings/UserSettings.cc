@@ -207,7 +207,8 @@ auto_ptr<Setting> UserSettingCommand::createFloat(const vector<TclObject*>& toke
 	                                 name, desc, initVal, minVal, maxVal));
 }
 
-void UserSettingCommand::destroy(const vector<TclObject*>& tokens, TclObject& result)
+void UserSettingCommand::destroy(const vector<TclObject*>& tokens,
+                                 TclObject& /*result*/)
 {
 	if (tokens.size() != 3) {
 		throw SyntaxError();
@@ -222,7 +223,8 @@ void UserSettingCommand::destroy(const vector<TclObject*>& tokens, TclObject& re
 	userSettings.deleteSetting(*setting);
 }
 
-void UserSettingCommand::info(const vector<TclObject*>& tokens, TclObject& result)
+void UserSettingCommand::info(const vector<TclObject*>& /*tokens*/,
+                              TclObject& result)
 {
 	set<string> names;
 	getSettingNames(names);
