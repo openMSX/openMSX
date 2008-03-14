@@ -28,13 +28,13 @@ private:
 	virtual void writeLogicalSector(unsigned sector, const byte* buf);
 	virtual bool writeProtected();
 
-	bool checkFileUsedInDSK(const std::string& fullfilename);
+	bool checkFileUsedInDSK(const std::string& filename);
 	bool checkMSXFileExists(const std::string& msxfilename);
-	void addFileToDSK(const std::string& fullfilename);
-	void checkAlterFileInDisk(const std::string& fullfilename);
+	void addFileToDSK(const std::string& filename);
+	void checkAlterFileInDisk(const std::string& filename);
 	void checkAlterFileInDisk(int dirindex);
 	void updateFileInDisk(int dirindex);
-	void updateFileInDSK(const std::string& fullfilename);
+	void updateFileInDSK(const std::string& filename);
 	void transferFileToCache(int dirindex);
 	void extractCacheToFile(int dirindex);
 	void truncateCorrespondingFile(int dirindex);
@@ -64,8 +64,9 @@ private:
 	};
 
 	struct MappedDirEntry {
+		bool inUse() const { return !shortname.empty(); }
+
 		MSXDirEntry msxinfo;
-		std::string filename;
 		std::string shortname;
 		int filesize; // used to dedect changes that need to be updated in the
 		              // emulated disk, content changes are automatically
@@ -88,7 +89,7 @@ private:
 	byte fat2[SECTOR_SIZE * SECTORS_PER_FAT];
 
 	byte bootBlock[SECTOR_SIZE];
-	std::string hostDir;
+	const std::string hostDir;
 	typedef std::map<unsigned, std::vector<byte> > CachedSectors;
 	CachedSectors cachedSectors;
 	GlobalSettings& globalSettings;

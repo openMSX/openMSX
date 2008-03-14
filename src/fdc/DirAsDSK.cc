@@ -132,10 +132,10 @@ bool DirAsDSK::checkMSXFileExists(const string& msxfilename)
 }
 
 // check if a file is already mapped into the fake DSK
-bool DirAsDSK::checkFileUsedInDSK(const string& fullfilename)
+bool DirAsDSK::checkFileUsedInDSK(const string& filename)
 {
 	for (int i = 0; i < 112; ++i) {
-		if (mapdir[i].filename == fullfilename) {
+		if (mapdir[i].shortname == filename) {
 			return true;
 		}
 	}
@@ -196,15 +196,17 @@ void DirAsDSK::saveCache()
 
 		// now save all the files that are in this disk at this moment
 		for (unsigned i = 0; i < 112; ++i) {
-			if (mapdir[i].filename.empty()) continue;
+			if (!mapdir[i].inUse()) continue;
 
 			// first save CACHE-ID=1,
 			// then filename, shortname and filessize in LE32 form
 			// and finally the dirindex and the MSXDirEntry for this entry
 			unsigned p = 0;
 			tmpbuf[p++] = CACHE_ID_DIR;
-			unsigned fs = mapdir[i].filename.size();
-			memcpy(&tmpbuf[p], mapdir[i].filename.c_str(), fs + 1);
+			// TODO [wouter]: there's no need to store fullfilename
+			string fullfilename = hostDir + '/' + mapdir[i].shortname;
+			unsigned fs = fullfilename.size();
+			memcpy(&tmpbuf[p], fullfilename.c_str(), fs + 1);
 			p += fs + 1;
 			unsigned ss = mapdir[i].shortname.size();
 			memcpy(&tmpbuf[p], mapdir[i].shortname.c_str(), ss + 1);
@@ -305,12 +307,10 @@ bool DirAsDSK::readCache()
 			case CACHE_ID_DIR: {
 				// file info stored in cache
 
-				// read long filename
+				// read long filename   !! NOT USED !!
 				char c;
-				string filename;
 				do {
 					file.read(&c, 1);
-					if (c) filename += c;
 				} while (c);
 
 				// read short filename
@@ -328,16 +328,16 @@ bool DirAsDSK::readCache()
 				// TODO [wouter]: Check dirindex < 112
 
 				// fill mapdir with correct info
-				mapdir[dirindex].filename = filename;
 				mapdir[dirindex].shortname = shortname;
 				mapdir[dirindex].filesize = filesize;
 				memcpy(&(mapdir[dirindex].msxinfo), &tmpbuf[5], 32);
 
 				// fail if size has changed!!
+				string fullfilename = hostDir + '/' + shortname;
 				struct stat fst;
-				if (stat(filename.c_str(), &fst)) {
+				if (stat(fullfilename.c_str(), &fst)) {
 					// Couldn't stat the file ??
-					cliComm.printWarning("Cached file doesn't exist anymore: " + filename);
+					cliComm.printWarning("Cached file doesn't exist anymore: " + shortname);
 					return false;
 				}
 				if (filesize != unsigned(fst.st_size)) {
@@ -350,7 +350,7 @@ bool DirAsDSK::readCache()
 
 				// read file into memory and fix metadata
 				// TODO [wouter]: Shouldn't this prepend hostDir?
-				File hostOsFile(filename);
+				File hostOsFile(fullfilename);
 				int offset = 0;
 				while (filesize) {
 					file.read(tmpbuf, 2);
@@ -444,7 +444,6 @@ void DirAsDSK::cleandisk()
 	// assign empty directory entries
 	for (int i = 0; i < 112; ++i) {
 		memset(&mapdir[i].msxinfo, 0, sizeof(MSXDirEntry));
-		mapdir[i].filename.clear();
 		mapdir[i].shortname.clear();
 		mapdir[i].filesize = 0;
 	}
@@ -616,9 +615,9 @@ void DirAsDSK::readLogicalSector(unsigned sector, byte* buf)
 		// quick-and-dirty:
 		// we check all files in the faked disk for altered filesize
 		// remapping each fat entry to its direntry and do some bookkeeping
-		// to avoid multiple checks will probably be slower then this
+		// to avoid multiple checks will probably be slower than this
 		for (int i = 0; i < 112; ++i) {
-			if (!mapdir[i].filename.empty()) {
+			if (mapdir[i].inUse()) {
 				checkAlterFileInDisk(i);
 			}
 		}
@@ -634,8 +633,10 @@ void DirAsDSK::readLogicalSector(unsigned sector, byte* buf)
 		if (dirCount == 0) {
 			scanHostDir();
 		}
+		// TODO [wouter]: This loop seems wrong to me:
+		//   I think mapdir[i] should be mapdir[dirCount]
 		for (int i = 0; i < 16; ++i) {
-			if (!mapdir[i].filename.empty()) {
+			if (mapdir[i].inUse()) {
 				checkAlterFileInDisk(dirCount);
 			}
 			memcpy(buf, &(mapdir[dirCount++].msxinfo), 32);
@@ -657,11 +658,12 @@ void DirAsDSK::readLogicalSector(unsigned sector, byte* buf)
 			memcpy(buf, &cachedSectors[sector][0], SECTOR_SIZE);
 			// read data from host file
 			int offset = sectormap[sector].fileOffset;
-			string tmp = mapdir[sectormap[sector].dirEntryNr].filename;
-			checkAlterFileInDisk(tmp);
+			string shortname = mapdir[sectormap[sector].dirEntryNr].shortname;
+			checkAlterFileInDisk(shortname);
 			// now try to read from file if possible
 			try {
-				File file(tmp);
+				string fullfilename = hostDir + '/' + shortname;
+				File file(fullfilename);
 				unsigned size = file.getSize();
 				file.seek(offset);
 				file.read(buf, std::min<int>(size - offset, SECTOR_SIZE));
@@ -677,10 +679,10 @@ void DirAsDSK::readLogicalSector(unsigned sector, byte* buf)
 	}
 }
 
-void DirAsDSK::checkAlterFileInDisk(const string& fullfilename)
+void DirAsDSK::checkAlterFileInDisk(const string& filename)
 {
 	for (int i = 0; i < 112; ++i) {
-		if (mapdir[i].filename == fullfilename) {
+		if (mapdir[i].shortname == filename) {
 			checkAlterFileInDisk(i);
 		}
 	}
@@ -688,12 +690,13 @@ void DirAsDSK::checkAlterFileInDisk(const string& fullfilename)
 
 void DirAsDSK::checkAlterFileInDisk(int dirindex)
 {
-	if (mapdir[dirindex].filename.empty()) {
+	if (!mapdir[dirindex].inUse()) {
 		return;
 	}
 
+	string fullfilename = hostDir + '/' + mapdir[dirindex].shortname;
 	struct stat fst;
-	if (stat(mapdir[dirindex].filename.c_str(), &fst) == 0) {
+	if (stat(fullfilename.c_str(), &fst) == 0) {
 		if (mapdir[dirindex].filesize != fst.st_size) {
 			// changed filesize
 			updateFileInDisk(dirindex);
@@ -702,17 +705,19 @@ void DirAsDSK::checkAlterFileInDisk(int dirindex)
 		//file can not be stat'ed => assume it has been deleted
 		//and thus delete it from the MSX DIR sectors by marking
 		//the first filename char as 0xE5
-		debug(" host os file deleted ? %s\n", mapdir[dirindex].filename.c_str());
+		debug(" host os file deleted ? %s\n", mapdir[dirindex].shortname.c_str());
 		mapdir[dirindex].msxinfo.filename[0] = 0xE5;
-		mapdir[dirindex].filename.clear();
+		mapdir[dirindex].shortname.clear();
+		// TODO [wouter]: Shouldn't we also clean the FAT?
 	}
 }
 
 void DirAsDSK::updateFileInDisk(int dirindex)
 {
 	// compute time/date stamps
+	string fullfilename = hostDir + '/' + mapdir[dirindex].shortname;
 	struct stat fst;
-	if (stat(mapdir[dirindex].filename.c_str(), &fst)) {
+	if (stat(fullfilename.c_str(), &fst)) {
 		// TODO
 	}
 	struct tm* mtim = localtime(&(fst.st_mtime));
@@ -740,7 +745,7 @@ void DirAsDSK::updateFileInDisk(int dirindex)
 
 	unsigned size = fsize;
 	int prevcl = 0;
-	File file(mapdir[dirindex].filename, File::CREATE);
+	File file(fullfilename, File::CREATE);
 
 	while (size && (curcl <= MAX_CLUSTER)) {
 		unsigned logicalSector = clusterToSector(curcl);
@@ -823,7 +828,7 @@ void DirAsDSK::updateFileInDisk(int dirindex)
 		//TODO: don't we need a EOF_FAT in this case as well ?
 		// find out and adjust code here
 		cliComm.printWarning("Fake Diskimage full: " +
-		                     mapdir[dirindex].filename + " truncated.");
+		                     mapdir[dirindex].shortname + " truncated.");
 	}
 	//write (possibly truncated) file size
 	setLE32(mapdir[dirindex].msxinfo.size, fsize - size);
@@ -831,25 +836,22 @@ void DirAsDSK::updateFileInDisk(int dirindex)
 
 void DirAsDSK::truncateCorrespondingFile(const int dirindex)
 {
-	string fullfilename = mapdir[dirindex].filename;
-	if (fullfilename.empty()) {
+	if (!mapdir[dirindex].inUse()) {
 		//a total new file so we create the new name from the msx name
-		fullfilename = hostDir + '/';
 		byte* buf = reinterpret_cast<byte*>(
 			mapdir[dirindex].msxinfo.filename);
 		//special case file is deleted but becuase rest of dirEntry changed
 		//while file is still deleted...
 		if (buf[0] == 0xE5) return;
 		string shname = condenseName(buf);
-		fullfilename += shname;
-		mapdir[dirindex].filename = fullfilename;
 		mapdir[dirindex].shortname = shname;
 		//remember we 'saw' this file already
 		discoveredFiles.insert(shname);
 		debug("      truncateCorrespondingFile of new Host OS file\n");
 	}
+	string fullfilename = hostDir + '/' + mapdir[dirindex].shortname;
 	debug("      truncateCorrespondingFile %s\n", fullfilename.c_str());
-	File file(fullfilename,File::CREATE);
+	File file(fullfilename, File::CREATE);
 	int cursize = getLE32(mapdir[dirindex].msxinfo.size);
 	file.truncate(cursize);
 	mapdir[dirindex].filesize = cursize;
@@ -857,19 +859,18 @@ void DirAsDSK::truncateCorrespondingFile(const int dirindex)
 
 void DirAsDSK::extractCacheToFile(const int dirindex)
 {
-	string fullfilename = mapdir[dirindex].filename;
-	if (fullfilename.empty()) {
+	if (!mapdir[dirindex].inUse()) {
 		//a total new file so we create the new name from the msx name
-		fullfilename = hostDir + '/';
 		byte* buf = reinterpret_cast<byte*>(
 			mapdir[dirindex].msxinfo.filename);
 		//special case: the file is deleted and we get here because the
 		//startcluster is still intact
 		if (buf[0] == 0xE5) return;
-		fullfilename += condenseName(buf);
-		mapdir[dirindex].filename = fullfilename;
+		string shname = condenseName(buf);
+		mapdir[dirindex].shortname = shname;
+		// TODO wouter: shouldn't discoveredFiles be updated?
 	}
-
+	string fullfilename = hostDir + '/' + mapdir[dirindex].shortname;
 	File file(fullfilename,File::CREATE);
 	int curcl = getLE16(mapdir[dirindex].msxinfo.startcluster);
 	//if we start a new file the currentcluster can be set to zero
@@ -952,7 +953,7 @@ void DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 		case MIXED:
 			debug("MIXED ");
 			debug("  direntry : %i \n", sectormap[sector].dirEntryNr);
-			debug("    => %s \n", mapdir[sectormap[sector].dirEntryNr].filename.c_str());
+			debug("    => %s \n", mapdir[sectormap[sector].dirEntryNr].shortname.c_str());
 			debug("  fileOffset : %li\n", sectormap[sector].fileOffset);
 			break;
 		}
@@ -978,11 +979,11 @@ void DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 
 		if (sectormap[sector].usage == MIXED) {
 			// save data to host file
-			int offset = sectormap[sector].fileOffset;
-			int dirent = sectormap[sector].dirEntryNr;
-			string tmp = mapdir[dirent].filename;
 			try {
-				File file(tmp);
+				int offset = sectormap[sector].fileOffset;
+				int dirent = sectormap[sector].dirEntryNr;
+				string fullfilename = hostDir + '/' + mapdir[dirent].shortname;
+				File file(fullfilename);
 				file.seek(offset);
 				int cursize = getLE32(mapdir[dirent].msxinfo.size);
 				unsigned writesize = std::min<int>(cursize - offset, SECTOR_SIZE);
@@ -1075,7 +1076,7 @@ void DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 
 
 
-				debug("  dircount %i filename: %s\n", dirCount, mapdir[dirCount].filename.c_str());
+				debug("  dircount %i filename: %s\n", dirCount, mapdir[dirCount].shortname.c_str());
 				debug("  chgName: %i chgClus: %i chgSize: %i\n", chgName, chgClus, chgSize);
 				debug("  Old start %i   New start %i\n", getLE16(mapdir[dirCount].msxinfo.startcluster), getLE16(&buf[26]));
 				debug("  Old size %i  New size %i\n\n", getLE32(mapdir[dirCount].msxinfo.size), getLE32(&buf[28]));
@@ -1084,7 +1085,8 @@ void DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 					if (buf[0] == 0xE5 && syncMode == GlobalSettings::SYNC_FULL) {
 						// dir entry has been deleted
 						// delete file from host OS and 'clear' all sector data pointing to this HOST OS file
-						unlink(mapdir[dirCount].filename.c_str());
+						string fullfilename = hostDir + '/' + mapdir[dirCount].shortname;
+						unlink(fullfilename.c_str());
 						for (int i = 14; i < 1440; ++i) {
 							if (sectormap[i].dirEntryNr == dirCount) {
 								 sectormap[i].usage = CACHED;
@@ -1097,16 +1099,13 @@ void DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 						assert(it != discoveredFiles.end());
 						discoveredFiles.erase(it);
 						mapdir[dirCount].shortname.clear();
-						mapdir[dirCount].filename.clear();
 					} else if (buf[0] != 0xE5 && (syncMode == GlobalSettings::SYNC_FULL || syncMode == GlobalSettings::SYNC_NODELETE)) {
 						int newClus = getLE16(&buf[26]);
 						int newSize = getLE32(&buf[28]);
-						string newfilename = hostDir + '/';
 						string shname = condenseName(buf);
-						newfilename += shname;
+						string newfilename = hostDir + '/' + shname;
 						if (newClus == 0 && newSize == 0) {
 							//creating a new file
-							mapdir[dirCount].filename = newfilename;
 							mapdir[dirCount].shortname = shname;
 							// we do not need to write anything since the MSX will update this later when the size is altered
 							try {
@@ -1114,26 +1113,26 @@ void DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 								//remember we 'saw' this file already
 								discoveredFiles.insert(shname);
 							} catch (FileException& e) {
-							  cliComm.printWarning(
-							      "Couldn't create new file.");
+								cliComm.printWarning(
+									"Couldn't create new file.");
 							}
 
 						} else {
 							//rename file on host OS
-							if (rename(mapdir[dirCount].filename.c_str(), newfilename.c_str()) == 0) {
-								//renaming on host Os succeeeded
-								 mapdir[dirCount].filename = newfilename;
-								 //forget about the old name
-								 discoveredFiles.erase(mapdir[dirCount].shortname);
-								 //remember we 'saw' this new file already
-								 discoveredFiles.insert(shname);
-								 mapdir[dirCount].shortname = shname;
+							string oldfilename = hostDir + '/' + mapdir[dirCount].shortname;
+							if (rename(oldfilename.c_str(), newfilename.c_str()) == 0) {
+								//renaming on host OS succeeeded
+								//forget about the old name
+								discoveredFiles.erase(mapdir[dirCount].shortname);
+								//remember we 'saw' this new file already
+								discoveredFiles.insert(shname);
+								mapdir[dirCount].shortname = shname;
 							}
 						}
 					} else {
 						cliComm.printWarning(
 							"File has been renamed in emulated disk, Host OS file (" +
-							mapdir[dirCount].filename + ") remains untouched!");
+							mapdir[dirCount].shortname + ") remains untouched!");
 					}
 				}
 
@@ -1249,7 +1248,7 @@ void DirAsDSK::updateFileInDSK(const string& filename)
 		}
 		return;
 	}
-	if (!checkFileUsedInDSK(fullfilename)) {
+	if (!checkFileUsedInDSK(filename)) {
 		// add file to fakedisk
 		addFileToDSK(filename);
 	} else {
@@ -1260,13 +1259,12 @@ void DirAsDSK::updateFileInDSK(const string& filename)
 
 void DirAsDSK::addFileToDSK(const string& filename)
 {
-	string fullfilename = hostDir + '/' + filename;
 	//get emtpy dir entry
 	int dirindex = 0;
-	while (!mapdir[dirindex].filename.empty()) {
+	while (mapdir[dirindex].inUse()) {
 		if (++dirindex == 112) {
 			cliComm.printWarning(
-				"Couldn't add " + fullfilename +
+				"Couldn't add " + filename +
 				": root dir full");
 			return;
 		}
@@ -1277,13 +1275,12 @@ void DirAsDSK::addFileToDSK(const string& filename)
 	if (checkMSXFileExists(MSXfilename)) {
 		//TODO: actually should increase vfat abrev if possible!!
 		cliComm.printWarning(
-			"Couldn't add " + fullfilename + ": MSX name " +
+			"Couldn't add " + filename + ": MSX name " +
 			MSXfilename + " existed already");
 		return;
 	}
 
 	// fill in native file name
-	mapdir[dirindex].filename = fullfilename;
 	mapdir[dirindex].shortname = filename;
 	discoveredFiles.insert(filename);
 	// fill in MSX file name
