@@ -6,6 +6,7 @@
 #include "SectorBasedDisk.hh"
 #include "GlobalSettings.hh"
 #include <map>
+#include <set>
 #include <vector>
 
 namespace openmsx {
@@ -95,7 +96,7 @@ private:
 	GlobalSettings::SyncMode syncMode;
 	bool bootSectorWritten;
 
-	typedef std::map<std::string, bool> DiscoveredFiles;
+	typedef std::set<std::string> DiscoveredFiles;
 	DiscoveredFiles discoveredFiles;
 };
 
