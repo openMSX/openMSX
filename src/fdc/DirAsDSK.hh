@@ -49,7 +49,7 @@ private:
 	std::string condenseName(const byte* buf);
 	void updateFileFromAlteredFatOnly(int somecluster);
 	void cleandisk();
-	void scanHostDir();
+	void scanHostDir(bool onlyNewFiles);
 
 	struct MSXDirEntry {
 		char filename[8];
@@ -67,12 +67,12 @@ private:
 
 		MSXDirEntry msxinfo;
 		std::string shortname;
-		int filesize; // used to dedect changes that need to be updated in the
+		int filesize; // used to detect changes that need to be updated in the
 		              // emulated disk, content changes are automatically
 		              // handled :-)
 	};
 
-	enum Usage {CLEAN, CACHED,MIXED};
+	enum Usage { CLEAN, CACHED, MIXED };
 	struct ReverseSector {
 		unsigned long fileOffset;
 		Usage usage;

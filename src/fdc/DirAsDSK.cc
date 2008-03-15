@@ -405,24 +405,17 @@ bool DirAsDSK::readCache()
 	return false;
 }
 
-
-void DirAsDSK::scanHostDir()
+void DirAsDSK::scanHostDir(bool onlyNewFiles)
 {
 	debug("Scanning HostDir for new files\n");
-	ReadDir dir(hostDir);
-	if (!dir.isValid()) {
-		// The entire directory might have been moved/erased
-		// but this should not stop the emulated disk from working
-		// since all data is already cached by us.
-		return;
-	}
 	// read directory and fill the fake disk
+	ReadDir dir(hostDir);
 	while (struct dirent* d = dir.getEntry()) {
 		string name(d->d_name);
-		// check if file is added to diskimage
-		if (!checkFileUsedInDSK(name)) {
-			if ((name != bootBlockFileName) &&
-			    (name != cachedSectorsFileName)) {
+		if ((name != bootBlockFileName) &&
+		    (name != cachedSectorsFileName)) {
+			// check if file is added to diskimage
+			if (!onlyNewFiles || !checkFileUsedInDSK(name)) {
 				debug("found new file %s\n", d->d_name);
 				updateFileInDisk(name);
 			}
@@ -441,7 +434,7 @@ void DirAsDSK::cleandisk()
 	}
 
 	// Make a full clear FAT
-	memset(fat, 0, SECTOR_SIZE * SECTORS_PER_FAT);
+	memset(fat,  0, SECTOR_SIZE * SECTORS_PER_FAT);
 	memset(fat2, 0, SECTOR_SIZE * SECTORS_PER_FAT);
 	// for some reason the first 3bytes are used to indicate the end of a
 	// cluster, making the first available cluster nr 2. Some sources say
@@ -470,7 +463,6 @@ DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings_,
 	, hostDir(fileName)
 	, globalSettings(globalSettings_)
 {
-	//TODO: make these settings, for now as test purpose we define them here...
 	syncMode = globalSettings.getSyncDirAsDSKSetting().getValue();
 	bootSectorWritten = false;
 
@@ -498,61 +490,20 @@ DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings_,
 			: BootBlocks::dos1BootBlock;
 		memcpy(bootBlock, bootSector, SECTOR_SIZE);
 	}
+
 	// make a clean initial disk
 	cleandisk();
 	if (!readCache()) {
-		cleandisk(); //make possible reads undone
+		// reading cache failed (!! ATM this is always the case !!)
+		cleandisk(); // clear partial result of readCache
 		// read directory and fill the fake disk
-		while (struct dirent* d = dir.getEntry()) {
-			string name(d->d_name);
-			if ((name != bootBlockFileName) &&
-			    (name != cachedSectorsFileName)) {
-				// add file into fake dsk
-				updateFileInDisk(name);
-			}
-		}
+		scanHostDir(false);
 	} else {
 		// Cache file was valid and loaded so add possible new files
 		// we can ofcourse skip this since a 'files' in the MSX will do
 		// this in any case, but I like it more here :-)
-		scanHostDir();
+		scanHostDir(true);
 	}
-
-	// OLD CODE: read the cached sectors
-	//TODO: we should check if the other files have changed since we
-	//      wrote the cached sectors, this could invalided the cache!
-	/*
-	try {
-		File file(hostDir + '/' + cachedSectorsFileName);
-		unsigned num = file.getSize() / (SECTOR_SIZE + sizeof(unsigned));
-		for (unsigned i = 0; i < num; ++i) {
-			unsigned sector;
-			file.read(reinterpret_cast<byte*>(&sector), sizeof(unsigned));
-			if (sector == 0) {
-				// cached sector is 0, this should be impossible!
-			} else if (sector < (1 + 2 * SECTORS_PER_FAT)) {
-				// cached sector is FAT sector read from fat1
-				unsigned f = (sector - 1) % SECTORS_PER_FAT;
-				file.read(fat + f * SECTOR_SIZE, SECTOR_SIZE);
-			} else if (sector < 14) {
-				// cached sector is DIR sector
-				unsigned d = sector - (1 + 2 * SECTORS_PER_FAT);
-				for (int j = 0; j < 16; ++j) {
-					byte* buf = reinterpret_cast<byte*>(
-						&mapdir[d * 16 + j].msxinfo);
-					file.read(buf, SECTOR_SIZE / 16);
-				}
-			} else {
-				//regular cached sector
-				cachedSectors[sector].resize(SECTOR_SIZE);
-				file.read(&cachedSectors[sector][0], SECTOR_SIZE);
-				sectormap[sector].usage = CACHED;
-			}
-		}
-	} catch (FileException& e) {
-		// couldn't open/read cached sector file
-	}
-	*/
 }
 
 DirAsDSK::~DirAsDSK()
@@ -605,9 +556,7 @@ void DirAsDSK::readLogicalSector(unsigned sector, byte* buf)
 		// remapping each fat entry to its direntry and do some bookkeeping
 		// to avoid multiple checks will probably be slower than this
 		for (int i = 0; i < 112; ++i) {
-			if (mapdir[i].inUse()) {
-				checkAlterFileInDisk(i);
-			}
+			checkAlterFileInDisk(i);
 		}
 
 		sector = (sector - 1) % SECTORS_PER_FAT;
@@ -617,25 +566,21 @@ void DirAsDSK::readLogicalSector(unsigned sector, byte* buf)
 		// create correct DIR sector
 		sector -= (1 + 2 * SECTORS_PER_FAT);
 		int dirCount = sector * 16;
-		//check if there are new files on the HOST OS when we read this sector
+		// check if there are new files on the host when we read the
+		// first directory sector
 		if (dirCount == 0) {
-			scanHostDir();
+			scanHostDir(true);
 		}
-		// TODO [wouter]: This loop seems wrong to me:
-		//   I think mapdir[i] should be mapdir[dirCount]
-		for (int i = 0; i < 16; ++i) {
-			if (mapdir[i].inUse()) {
-				checkAlterFileInDisk(dirCount);
-			}
-			memcpy(buf, &(mapdir[dirCount++].msxinfo), 32);
-			buf += 32;
+		for (int i = 0; i < 16; ++i, ++dirCount) {
+			checkAlterFileInDisk(dirCount);
+			memcpy(&buf[32 * i], &(mapdir[dirCount].msxinfo), 32);
 		}
 
 	} else {
 		// else get map from sector to file and read correct block
 		// folowing same numbering as FAT eg. first data block is cluster 2
 		if (sectormap[sector].usage == CLEAN) {
-			//return an 'empty' sector
+			// return an 'empty' sector
 			// 0xE5 is the value used on the Philips VG8250
 			memset(buf, 0xE5, SECTOR_SIZE);
 		} else if (sectormap[sector].usage == CACHED) {
@@ -690,9 +635,9 @@ void DirAsDSK::checkAlterFileInDisk(int dirindex)
 			updateFileInDisk(dirindex);
 		}
 	} else {
-		//file can not be stat'ed => assume it has been deleted
-		//and thus delete it from the MSX DIR sectors by marking
-		//the first filename char as 0xE5
+		// file can not be stat'ed => assume it has been deleted
+		// and thus delete it from the MSX DIR sectors by marking
+		// the first filename char as 0xE5
 		debug(" host os file deleted ? %s\n", mapdir[dirindex].shortname.c_str());
 		mapdir[dirindex].msxinfo.filename[0] = 0xE5;
 		mapdir[dirindex].shortname.clear();
@@ -1227,7 +1172,7 @@ void DirAsDSK::updateFileInDisk(const string& filename)
 		addFileToDSK(filename);
 	} else {
 		//really update file
-		checkAlterFileInDisk(fullfilename);
+		checkAlterFileInDisk(filename);
 	}
 }
 
