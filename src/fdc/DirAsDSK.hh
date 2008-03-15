@@ -6,7 +6,6 @@
 #include "SectorBasedDisk.hh"
 #include "GlobalSettings.hh"
 #include <map>
-#include <set>
 #include <vector>
 
 namespace openmsx {
@@ -34,7 +33,7 @@ private:
 	void checkAlterFileInDisk(const std::string& filename);
 	void checkAlterFileInDisk(int dirindex);
 	void updateFileInDisk(int dirindex);
-	void updateFileInDSK(const std::string& filename);
+	void updateFileInDisk(const std::string& filename);
 	void transferFileToCache(int dirindex);
 	void extractCacheToFile(int dirindex);
 	void truncateCorrespondingFile(int dirindex);
@@ -96,9 +95,6 @@ private:
 
 	GlobalSettings::SyncMode syncMode;
 	bool bootSectorWritten;
-
-	typedef std::set<std::string> DiscoveredFiles;
-	DiscoveredFiles discoveredFiles;
 };
 
 } // namespace openmsx

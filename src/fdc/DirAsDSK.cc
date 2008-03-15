@@ -345,11 +345,7 @@ bool DirAsDSK::readCache()
 					return false;
 				}
 
-				// and rememeber that we used this one!
-				discoveredFiles.insert(shortname);
-
 				// read file into memory and fix metadata
-				// TODO [wouter]: Shouldn't this prepend hostDir?
 				File hostOsFile(fullfilename);
 				int offset = 0;
 				while (filesize) {
@@ -424,15 +420,11 @@ void DirAsDSK::scanHostDir()
 	while (struct dirent* d = dir.getEntry()) {
 		string name(d->d_name);
 		// check if file is added to diskimage
-		DiscoveredFiles::iterator it = discoveredFiles.find(name);
-		if (it == discoveredFiles.end()) {
+		if (!checkFileUsedInDSK(name)) {
 			if ((name != bootBlockFileName) &&
 			    (name != cachedSectorsFileName)) {
 				debug("found new file %s\n", d->d_name);
-				// add file into fake dsk
-				// and rememeber that we used this one!
-				discoveredFiles.insert(name);
-				addFileToDSK(name);
+				updateFileInDisk(name);
 			}
 		}
 	}
@@ -463,14 +455,12 @@ void DirAsDSK::cleandisk()
 	fat2[1] = 0xFF;
 	fat2[2] = 0xFF;
 
-	//clear the sectormap so that they all point to 'clean' sectors
+	// clear the sectormap so that they all point to 'clean' sectors
 	for (int i = 0; i < 1440; ++i) {
 		sectormap[i].usage = CLEAN;
 		sectormap[i].dirEntryNr = 0;
 		sectormap[i].fileOffset = 0;
 	}
-	//forget that we used any files :-)
-	discoveredFiles.clear();
 }
 
 DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings_,
@@ -517,10 +507,8 @@ DirAsDSK::DirAsDSK(CliComm& cliComm_, GlobalSettings& globalSettings_,
 			string name(d->d_name);
 			if ((name != bootBlockFileName) &&
 			    (name != cachedSectorsFileName)) {
-				// and rememeber that we used this one!
-				discoveredFiles.insert(name);
 				// add file into fake dsk
-				updateFileInDSK(name);
+				updateFileInDisk(name);
 			}
 		}
 	} else {
@@ -845,8 +833,6 @@ void DirAsDSK::truncateCorrespondingFile(const int dirindex)
 		if (buf[0] == 0xE5) return;
 		string shname = condenseName(buf);
 		mapdir[dirindex].shortname = shname;
-		//remember we 'saw' this file already
-		discoveredFiles.insert(shname);
 		debug("      truncateCorrespondingFile of new Host OS file\n");
 	}
 	string fullfilename = hostDir + '/' + mapdir[dirindex].shortname;
@@ -868,7 +854,6 @@ void DirAsDSK::extractCacheToFile(const int dirindex)
 		if (buf[0] == 0xE5) return;
 		string shname = condenseName(buf);
 		mapdir[dirindex].shortname = shname;
-		// TODO wouter: shouldn't discoveredFiles be updated?
 	}
 	string fullfilename = hostDir + '/' + mapdir[dirindex].shortname;
 	File file(fullfilename,File::CREATE);
@@ -1092,12 +1077,7 @@ void DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 								 sectormap[i].usage = CACHED;
 							}
 						}
-						//then forget that we ever saw the file
-						//just in case one is recreated with the same name later on
 
-						DiscoveredFiles::iterator it = discoveredFiles.find(mapdir[dirCount].shortname);
-						assert(it != discoveredFiles.end());
-						discoveredFiles.erase(it);
 						mapdir[dirCount].shortname.clear();
 					} else if (buf[0] != 0xE5 && (syncMode == GlobalSettings::SYNC_FULL || syncMode == GlobalSettings::SYNC_NODELETE)) {
 						int newClus = getLE16(&buf[26]);
@@ -1110,8 +1090,6 @@ void DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 							// we do not need to write anything since the MSX will update this later when the size is altered
 							try {
 								File file(newfilename, File::TRUNCATE);
-								//remember we 'saw' this file already
-								discoveredFiles.insert(shname);
 							} catch (FileException& e) {
 								cliComm.printWarning(
 									"Couldn't create new file.");
@@ -1122,10 +1100,6 @@ void DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 							string oldfilename = hostDir + '/' + mapdir[dirCount].shortname;
 							if (rename(oldfilename.c_str(), newfilename.c_str()) == 0) {
 								//renaming on host OS succeeeded
-								//forget about the old name
-								discoveredFiles.erase(mapdir[dirCount].shortname);
-								//remember we 'saw' this new file already
-								discoveredFiles.insert(shname);
 								mapdir[dirCount].shortname = shname;
 							}
 						}
@@ -1232,7 +1206,7 @@ bool DirAsDSK::writeProtected()
 	return (syncMode != GlobalSettings::SYNC_READONLY ? false : true);
 }
 
-void DirAsDSK::updateFileInDSK(const string& filename)
+void DirAsDSK::updateFileInDisk(const string& filename)
 {
 	string fullfilename = hostDir + '/' + filename;
 	struct stat fst;
@@ -1282,7 +1256,6 @@ void DirAsDSK::addFileToDSK(const string& filename)
 
 	// fill in native file name
 	mapdir[dirindex].shortname = filename;
-	discoveredFiles.insert(filename);
 	// fill in MSX file name
 	memcpy(&(mapdir[dirindex].msxinfo.filename), MSXfilename.c_str(), 11);
 
