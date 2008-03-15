@@ -757,10 +757,10 @@ void DirAsDSK::updateFileInDisk(unsigned dirindex, struct stat& fst)
 void DirAsDSK::truncateCorrespondingFile(unsigned dirindex)
 {
 	if (!mapdir[dirindex].inUse()) {
-		//a total new file so we create the new name from the msx name
+		// a total new file so we create the new name from the msx name
 		const char* buf = mapdir[dirindex].msxinfo.filename;
-		//special case file is deleted but becuase rest of dirEntry changed
-		//while file is still deleted...
+		// special case file is deleted but becuase rest of dirEntry changed
+		// while file is still deleted...
 		if (buf[0] == char(0xE5)) return;
 		string shname = condenseName(buf);
 		mapdir[dirindex].shortname = shname;
@@ -777,22 +777,22 @@ void DirAsDSK::truncateCorrespondingFile(unsigned dirindex)
 void DirAsDSK::extractCacheToFile(unsigned dirindex)
 {
 	if (!mapdir[dirindex].inUse()) {
-		//a total new file so we create the new name from the msx name
+		// a total new file so we create the new name from the msx name
 		const char* buf = mapdir[dirindex].msxinfo.filename;
-		//special case: the file is deleted and we get here because the
-		//startcluster is still intact
+		// special case: the file is deleted and we get here because the
+		// startcluster is still intact
 		if (buf[0] == char(0xE5)) return;
 		string shname = condenseName(buf);
 		mapdir[dirindex].shortname = shname;
 	}
 	string fullfilename = hostDir + '/' + mapdir[dirindex].shortname;
-	File file(fullfilename,File::CREATE);
+	File file(fullfilename, File::CREATE);
 	unsigned curcl = getLE16(mapdir[dirindex].msxinfo.startcluster);
-	//if we start a new file the currentcluster can be set to zero
+	// if we start a new file the current cluster can be set to zero
 
 	unsigned cursize = getLE32(mapdir[dirindex].msxinfo.size);
 	unsigned offset = 0;
-	//if the size is set to zero then we truncate to zero and leave
+	// if the size is zero then we truncate to zero and leave
 	if (curcl == 0 || cursize == 0) {
 		file.truncate(0);
 		return;
@@ -804,10 +804,9 @@ void DirAsDSK::extractCacheToFile(unsigned dirindex)
 			if ((sectormap[logicalSector].usage == CACHED ||
 			     sectormap[logicalSector].usage == MIXED) &&
 			    (cursize >= offset)) {
-				//transfer data
+				// transfer data
 				byte* buf = &cachedSectors[logicalSector][0];
 				file.seek(offset);
-				//OLD: int writesize = ((cursize - offset) > SECTOR_SIZE) ? SECTOR_SIZE : (cursize - offset);
 				unsigned writesize = std::min<int>(cursize - offset, SECTOR_SIZE);
 				file.write(buf, writesize);
 
@@ -917,7 +916,7 @@ void DirAsDSK::writeFATSector(unsigned sector, const byte* buf)
 
 void DirAsDSK::writeDIRSector(unsigned sector, const byte* buf)
 {
-	// We assume that the dir entry is updated lastr, so the
+	// We assume that the dir entry is updated last, so the
 	// fat and actual sectordata should already contain the correct
 	// data. Most MSX disk roms honour this behaviour for normal
 	// fileactions. Of course some diskcaching programs and disk
@@ -925,117 +924,127 @@ void DirAsDSK::writeDIRSector(unsigned sector, const byte* buf)
 	// logic used here goes haywire!!
 	sector -= (1 + 2 * SECTORS_PER_FAT);
 	for (int i = 0; i < 16; ++i) {
-		int dirindex = sector * 16 + i;
+		unsigned dirindex = sector * 16 + i;
 		const MSXDirEntry& entry = *reinterpret_cast<const MSXDirEntry*>(&buf[32 * i]);
-		if (memcmp(mapdir[dirindex].msxinfo.filename, &entry, 32) == 0) {
-			// not changed
-			continue;
+		if (memcmp(mapdir[dirindex].msxinfo.filename, &entry, 32) != 0) {
+			writeDIREntry(dirindex, entry);
 		}
-
-		// The 3 vital informations needed
-		bool chgName = memcmp(mapdir[dirindex].msxinfo.filename, entry.filename, 11) != 0;
-		bool chgClus = getLE16(mapdir[dirindex].msxinfo.startcluster) != getLE16(entry.startcluster);
-		bool chgSize = getLE32(mapdir[dirindex].msxinfo.size) != getLE32(entry.size);
-		/*
-		here are the possible combinations encountered in normal usage so far,
-		the bool order is  chgName chgClus chgSize
-		0 0 0 : nothing changed for this direntry... :-)
-		0 0 1 : File has grown or shrunk
-		0 1 1 : name remains but size and cluster changed => second step in new file creation (checked on NMS8250)
-		1 0 0 : a) Only create a name and size+cluster still zero => first step in new file creation (cheked on NMS8250)
-			   if we start a new file the currentcluster can be set to zero
-			   FI: on a Philips NMS8250 in Basic try : copy"con"to:"a.txt"
-			   it will first write the first 7 sectors, then the data, then
-			   update the 7 first sectors with correct data
-			b) name changed, others remained unchanged => file renamed
-			c) first char of name changed to 0xE5, others remained unchanged => file deleted
-		1 1 1 : a new file has been created (as done by a Panasonic FS A1GT)
-		*/
-
-
-
-		debug("  dirindex %i filename: %s\n", dirindex, mapdir[dirindex].shortname.c_str());
-		debug("  chgName: %i chgClus: %i chgSize: %i\n", chgName, chgClus, chgSize);
-		debug("  Old start %i   New start %i\n", getLE16(mapdir[dirindex].msxinfo.startcluster), getLE16(entry.startcluster));
-		debug("  Old size %i  New size %i\n\n", getLE32(mapdir[dirindex].msxinfo.size), getLE32(entry.size));
-
-		if (chgName && !chgClus && !chgSize) {
-			if ((entry.filename[0] == char(0xE5)) &&
-			    (syncMode == GlobalSettings::SYNC_FULL)) {
-				// dir entry has been deleted
-				// delete file from host OS and 'clear' all sector data pointing to this HOST OS file
-				string fullfilename = hostDir + '/' + mapdir[dirindex].shortname;
-				unlink(fullfilename.c_str());
-				for (int i = 14; i < 1440; ++i) {
-					if (sectormap[i].dirEntryNr == dirindex) {
-						 sectormap[i].usage = CACHED;
-					}
-				}
-
-				mapdir[dirindex].shortname.clear();
-			} else if ((entry.filename[0] != char(0xE5)) &&
-			           (syncMode == GlobalSettings::SYNC_FULL || syncMode == GlobalSettings::SYNC_NODELETE)) {
-				int newClus = getLE16(entry.startcluster);
-				int newSize = getLE32(entry.size);
-				string shname = condenseName(entry.filename);
-				string newfilename = hostDir + '/' + shname;
-				if (newClus == 0 && newSize == 0) {
-					//creating a new file
-					mapdir[dirindex].shortname = shname;
-					// we do not need to write anything since the MSX will update this later when the size is altered
-					try {
-						File file(newfilename, File::TRUNCATE);
-					} catch (FileException& e) {
-						cliComm.printWarning(
-							"Couldn't create new file.");
-					}
-
-				} else {
-					//rename file on host OS
-					string oldfilename = hostDir + '/' + mapdir[dirindex].shortname;
-					if (rename(oldfilename.c_str(), newfilename.c_str()) == 0) {
-						//renaming on host OS succeeeded
-						mapdir[dirindex].shortname = shname;
-					}
-				}
-			} else {
-				cliComm.printWarning(
-					"File has been renamed in emulated disk, Host OS file (" +
-					mapdir[dirindex].shortname + ") remains untouched!");
-			}
-		}
-
-		if (chgSize) {
-			// Cluster might have changed is this is a new file so chgClu is ignored
-			// content changed, extract the file
-			// Als name might have been changed (on a turbo R the single shot Dir update when creating new files)
-			if (getLE32(mapdir[dirindex].msxinfo.size) < getLE32(entry.size)) {
-				// new size is bigger, file has grown
-				memcpy(&(mapdir[dirindex].msxinfo), &entry, 32);
-				extractCacheToFile(dirindex);
-			} else {
-				// new size is smaller, file has been reduced
-				// luckily the entire file is in cache, we need this since onm some
-				// MSX models during a copy from file to overwrite an existing file
-				// the sequence is that first the actual data is written and then
-				// the size is set to zero before it is set to the new value. If we
-				// didn't cache this, then all the 'mapped' sectors would lose their
-				// value
-
-				memcpy(&(mapdir[dirindex].msxinfo), &entry, 32);
-				truncateCorrespondingFile(dirindex);
-
-				if (getLE32(entry.size) != 0) {
-					extractCacheToFile(dirindex); // see copy remark above
-				}
-			}
-		}
-		if (!chgName && chgClus && !chgSize) {
-			cliComm.printWarning("this case of writing to DIR is  not yet implemented since we haven't encountered it in real life yet.");
-		}
-		//for now simply blindly take over info
-		memcpy(&(mapdir[dirindex].msxinfo), &entry, 32);
 	}
+}
+
+void DirAsDSK::writeDIREntry(unsigned dirindex, const MSXDirEntry& entry)
+{
+	int oldClus = getLE16(mapdir[dirindex].msxinfo.startcluster);
+	int oldSize = getLE32(mapdir[dirindex].msxinfo.size);
+	int newClus = getLE16(entry.startcluster);
+	int newSize = getLE32(entry.size);
+
+	// The 3 vital informations needed
+	bool chgName = memcmp(mapdir[dirindex].msxinfo.filename, entry.filename, 11) != 0;
+	bool chgClus = oldClus != newClus;
+	bool chgSize = oldSize != newSize;
+
+	// Here are the possible combinations encountered in normal usage so far,
+	// the bool order is chgName chgClus chgSize
+	// 0 0 0 : nothing changed for this direntry... :-)
+	// 0 0 1 : File has grown or shrunk
+	// 0 1 1 : name remains but size and cluster changed
+	//         => second step in new file creation (checked on NMS8250)
+	// 1 0 0 : a) Only create a name and size+cluster still zero
+	//          => first step in new file creation (cheked on NMS8250)
+	//             if we start a new file the currentcluster can be set to zero
+	//             FI: on a Philips NMS8250 in Basic try : copy"con"to:"a.txt"
+	//             it will first write the first 7 sectors, then the data, then
+	//             update the 7 first sectors with correct data
+	//         b) name changed, others remained unchanged
+	//          => file renamed
+	//         c) first char of name changed to 0xE5, others remained unchanged
+	//          => file deleted
+	// 1 1 1 : a new file has been created (as done by a Panasonic FS A1GT)
+	debug("  dirindex %i filename: %s\n",
+	      dirindex, mapdir[dirindex].shortname.c_str());
+	debug("  chgName: %i chgClus: %i chgSize: %i\n", chgName, chgClus, chgSize);
+	debug("  Old start %i   New start %i\n", oldClus, newClus);
+	debug("  Old size %i  New size %i\n\n", oldSize, newSize);
+
+	if (chgName && !chgClus && !chgSize) {
+		if ((entry.filename[0] == char(0xE5)) &&
+		    (syncMode == GlobalSettings::SYNC_FULL)) {
+			// dir entry has been deleted
+			// delete file from host OS and 'clear' all sector
+			// data pointing to this HOST OS file
+			string fullfilename = hostDir + '/' + mapdir[dirindex].shortname;
+			unlink(fullfilename.c_str());
+			for (int i = 14; i < 1440; ++i) {
+				if (sectormap[i].dirEntryNr == dirindex) {
+					 sectormap[i].usage = CACHED;
+				}
+			}
+			mapdir[dirindex].shortname.clear();
+
+		} else if ((entry.filename[0] != char(0xE5)) &&
+			   ((syncMode == GlobalSettings::SYNC_FULL) ||
+			    (syncMode == GlobalSettings::SYNC_NODELETE))) {
+			string shname = condenseName(entry.filename);
+			string newfilename = hostDir + '/' + shname;
+			if (newClus == 0 && newSize == 0) {
+				// creating a new file
+				mapdir[dirindex].shortname = shname;
+				// we do not need to write anything since the MSX
+				// will update this later when the size is altered
+				try {
+					File file(newfilename, File::TRUNCATE);
+				} catch (FileException& e) {
+					cliComm.printWarning("Couldn't create new file.");
+				}
+			} else {
+				//rename file on host OS
+				string oldfilename = hostDir + '/' + mapdir[dirindex].shortname;
+				if (rename(oldfilename.c_str(), newfilename.c_str()) == 0) {
+					//renaming on host OS succeeeded
+					mapdir[dirindex].shortname = shname;
+				}
+			}
+		} else {
+			cliComm.printWarning(
+				"File has been renamed in emulated disk. Host OS file (" +
+				mapdir[dirindex].shortname + ") remains untouched!");
+		}
+	}
+
+	if (chgSize) {
+		// content changed, extract the file
+		// Cluster might have changed is this is a new file so chgClus
+		// is ignored. Also name might have been changed (on a turbo R
+		// the single shot Dir update when creating new files)
+		if (oldSize < newSize) {
+			// new size is bigger, file has grown
+			memcpy(&(mapdir[dirindex].msxinfo), &entry, 32);
+			extractCacheToFile(dirindex);
+		} else {
+			// new size is smaller, file has been reduced
+			// luckily the entire file is in cache, we need this since on some
+			// MSX models during a copy from file to overwrite an existing file
+			// the sequence is that first the actual data is written and then
+			// the size is set to zero before it is set to the new value. If we
+			// didn't cache this, then all the 'mapped' sectors would lose their
+			// value
+			memcpy(&(mapdir[dirindex].msxinfo), &entry, 32);
+			truncateCorrespondingFile(dirindex);
+			if (newSize != 0) {
+				extractCacheToFile(dirindex); // see copy remark above
+			}
+		}
+	}
+
+	if (!chgName && chgClus && !chgSize) {
+		cliComm.printWarning(
+			"This case of writing to DIR is not yet implemented "
+			"since we haven't encountered it in real life yet.");
+	}
+
+	// for now blindly take over info
+	memcpy(&(mapdir[dirindex].msxinfo), &entry, 32);
 }
 
 void DirAsDSK::writeDataSector(unsigned sector, const byte* buf)
@@ -1043,7 +1052,7 @@ void DirAsDSK::writeDataSector(unsigned sector, const byte* buf)
 	assert(sector >= 14);
 
 	// first and before all else buffer everything !!!!
-	//check if cachedSectors exists, if not assign memory.
+	// check if cachedSectors exists, if not assign memory.
 	cachedSectors[sector].resize(SECTOR_SIZE);
 	memcpy(&cachedSectors[sector][0], buf, SECTOR_SIZE);
 

@@ -32,32 +32,6 @@ private:
 	virtual void writeLogicalSector(unsigned sector, const byte* buf);
 	virtual bool writeProtected();
 
-	void writeFATSector (unsigned sector, const byte* buf);
-	void writeDIRSector (unsigned sector, const byte* buf);
-	void writeDataSector(unsigned sector, const byte* buf);
-	bool checkFileUsedInDSK(const std::string& filename);
-	bool checkMSXFileExists(const std::string& msxfilename);
-	void addFileToDSK(const std::string& filename, struct stat& fst);
-	void checkAlterFileInDisk(const std::string& filename);
-	void checkAlterFileInDisk(unsigned dirindex);
-	void updateFileInDisk(unsigned dirindex, struct stat& fst);
-	void updateFileInDisk(const std::string& filename);
-	void transferFileToCache(unsigned dirindex);
-	void extractCacheToFile(unsigned dirindex);
-	void truncateCorrespondingFile(unsigned dirindex);
-	unsigned findNextFreeCluster(unsigned curcl);
-	unsigned findFirstFreeCluster();
-	unsigned readFAT(unsigned clnr);
-	unsigned readFAT2(unsigned clnr);
-	void writeFAT(unsigned clnr, unsigned val);
-	void writeFAT2(unsigned clnr, unsigned val);
-	bool readCache();
-	void saveCache();
-	std::string condenseName(const char* buf);
-	void updateFileFromAlteredFatOnly(unsigned somecluster);
-	void cleandisk();
-	void scanHostDir(bool onlyNewFiles);
-
 	struct MSXDirEntry {
 		char filename[8];
 		byte ext[3];
@@ -83,8 +57,35 @@ private:
 	struct ReverseSector {
 		unsigned long fileOffset;
 		Usage usage;
-		int dirEntryNr;
+		unsigned dirEntryNr;
 	};
+
+	void writeFATSector (unsigned sector, const byte* buf);
+	void writeDIRSector (unsigned sector, const byte* buf);
+	void writeDataSector(unsigned sector, const byte* buf);
+	void writeDIREntry(unsigned dirindex, const MSXDirEntry& entry);
+	bool checkFileUsedInDSK(const std::string& filename);
+	bool checkMSXFileExists(const std::string& msxfilename);
+	void addFileToDSK(const std::string& filename, struct stat& fst);
+	void checkAlterFileInDisk(const std::string& filename);
+	void checkAlterFileInDisk(unsigned dirindex);
+	void updateFileInDisk(unsigned dirindex, struct stat& fst);
+	void updateFileInDisk(const std::string& filename);
+	void transferFileToCache(unsigned dirindex);
+	void extractCacheToFile(unsigned dirindex);
+	void truncateCorrespondingFile(unsigned dirindex);
+	unsigned findNextFreeCluster(unsigned curcl);
+	unsigned findFirstFreeCluster();
+	unsigned readFAT(unsigned clnr);
+	unsigned readFAT2(unsigned clnr);
+	void writeFAT(unsigned clnr, unsigned val);
+	void writeFAT2(unsigned clnr, unsigned val);
+	bool readCache();
+	void saveCache();
+	std::string condenseName(const char* buf);
+	void updateFileFromAlteredFatOnly(unsigned somecluster);
+	void cleandisk();
+	void scanHostDir(bool onlyNewFiles);
 
 	CliComm& cliComm; // TODO don't use CliComm to report errors/warnings
 
