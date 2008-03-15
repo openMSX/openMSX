@@ -39,7 +39,8 @@ private:
 	void transferFileToCache(int dirindex);
 	void extractCacheToFile(int dirindex);
 	void truncateCorrespondingFile(int dirindex);
-	int findFirstFreeCluster();
+	unsigned findNextFreeCluster(unsigned curcl);
+	unsigned findFirstFreeCluster();
 	unsigned readFAT(unsigned clnr);
 	unsigned readFAT2(unsigned clnr);
 	void writeFAT(unsigned clnr, unsigned val);

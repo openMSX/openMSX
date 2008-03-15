@@ -34,8 +34,8 @@ static void debug(const char* format, ...)
 #endif
 }
 
-static const int EOF_FAT = 0xFFF;
-static const int MAX_CLUSTER = 720;
+static const unsigned EOF_FAT = 0xFFF;
+static const unsigned MAX_CLUSTER = 720;
 static const string bootBlockFileName = ".sector.boot";
 static const string cachedSectorsFileName = ".sector.cache";
 
@@ -110,13 +110,16 @@ void DirAsDSK::writeFAT2(unsigned cluster, unsigned val)
 	writeFATHelper(fat2, cluster, val);
 }
 
-int DirAsDSK::findFirstFreeCluster()
+unsigned DirAsDSK::findNextFreeCluster(unsigned curcl)
 {
-	int cluster = 2;
-	while ((cluster <= MAX_CLUSTER) && readFAT(cluster)) {
-		++cluster;
-	}
-	return cluster;
+	do {
+		++curcl;
+	} while ((curcl <= MAX_CLUSTER) && readFAT(curcl));
+	return curcl;
+}
+unsigned DirAsDSK::findFirstFreeCluster()
+{
+	return findNextFreeCluster(1);
 }
 
 // check if a filename is used in the emulated MSX disk
@@ -660,7 +663,7 @@ void DirAsDSK::updateFileInDisk(int dirindex, struct stat& fst)
 
 	int fsize = fst.st_size;
 	mapdir[dirindex].filesize = fsize;
-	int curcl = getLE16(mapdir[dirindex].msxinfo.startcluster);
+	unsigned curcl = getLE16(mapdir[dirindex].msxinfo.startcluster);
 	// if there is no cluster assigned yet to this file, then find a free cluster
 	bool followFATClusters = true;
 	if (curcl == 0) {
@@ -670,7 +673,7 @@ void DirAsDSK::updateFileInDisk(int dirindex, struct stat& fst)
 	}
 
 	unsigned size = fsize;
-	int prevcl = 0;
+	unsigned prevcl = 0;
 	string fullfilename = hostDir + '/' + mapdir[dirindex].shortname;
 	File file(fullfilename, File::CREATE);
 
@@ -708,9 +711,7 @@ void DirAsDSK::updateFileInDisk(int dirindex, struct stat& fst)
 				curcl = findFirstFreeCluster();
 			}
 		} else {
-			do {
-				++curcl;
-			} while ((curcl <= MAX_CLUSTER) && readFAT(curcl));
+			curcl = findNextFreeCluster(curcl);
 		}
 		// Continuing at cluster 'curcl'
 	}
@@ -726,15 +727,15 @@ void DirAsDSK::updateFileInDisk(int dirindex, struct stat& fst)
 		if (followFATClusters) {
 			while ((curcl <= MAX_CLUSTER) && (curcl != 0) &&
 			       (curcl != EOF_FAT)) {
-				prevcl = curcl;
-				curcl = readFAT(curcl);
-				writeFAT(prevcl, 0);
-				unsigned logicalSector = clusterToSector(prevcl);
+				writeFAT(curcl, 0);
+				unsigned logicalSector = clusterToSector(curcl);
 				for (int i = 0; i < 2; ++i) {
 					sectormap[logicalSector + i].usage = CLEAN;
 					sectormap[logicalSector + i].dirEntryNr = 0;
 					sectormap[logicalSector + i].fileOffset = 0;
 				}
+				prevcl = curcl;
+				curcl = readFAT(curcl);
 			}
 			writeFAT(prevcl, 0);
 			unsigned logicalSector = clusterToSector(prevcl);
@@ -789,7 +790,7 @@ void DirAsDSK::extractCacheToFile(const int dirindex)
 	}
 	string fullfilename = hostDir + '/' + mapdir[dirindex].shortname;
 	File file(fullfilename,File::CREATE);
-	int curcl = getLE16(mapdir[dirindex].msxinfo.startcluster);
+	unsigned curcl = getLE16(mapdir[dirindex].msxinfo.startcluster);
 	//if we start a new file the currentcluster can be set to zero
 
 	unsigned cursize = getLE32(mapdir[dirindex].msxinfo.size);
@@ -1102,17 +1103,17 @@ void DirAsDSK:: updateFileFromAlteredFatOnly(int somecluster)
 
 	// from startcluster and somecluster on, update fat2 so that the check
 	// in writeLogicalSecor doesn't call this routine again for the same
-	// file-clusterfchain
-	int curcl = startcluster;
+	// file-cluster chain
+	unsigned curcl = startcluster;
 	while ((curcl <= MAX_CLUSTER) && (curcl != EOF_FAT) && (curcl > 1)) {
-		int next = readFAT(curcl);
-		writeFAT2(curcl,next);
+		unsigned next = readFAT(curcl);
+		writeFAT2(curcl, next);
 		curcl = next;
 	}
 	curcl = somecluster;
 	while ((curcl <= MAX_CLUSTER) && (curcl != EOF_FAT) && (curcl > 1)) {
-		int next = readFAT(curcl);
-		writeFAT2(curcl,next);
+		unsigned next = readFAT(curcl);
+		writeFAT2(curcl, next);
 		curcl = next;
 	}
 }
