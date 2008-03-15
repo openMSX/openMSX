@@ -64,6 +64,7 @@ static unsigned getLE32(const byte* p)
 
 static unsigned readFATHelper(const byte* buf, unsigned cluster)
 {
+	assert(cluster < DirAsDSK::NUM_FAT_ENTRIES);
 	const byte* p = buf + (cluster * 3) / 2;
 	return (cluster & 1)
 	     ? (p[0] >> 4) + (p[1] << 4)
@@ -72,6 +73,7 @@ static unsigned readFATHelper(const byte* buf, unsigned cluster)
 
 static void writeFATHelper(byte* buf, unsigned cluster, unsigned val)
 {
+	assert(cluster < DirAsDSK::NUM_FAT_ENTRIES);
 	byte* p = buf + (cluster * 3) / 2;
 	if (cluster & 1) {
 		p[0] = (p[0] & 0x0F) + (val << 4);
@@ -125,7 +127,7 @@ unsigned DirAsDSK::findFirstFreeCluster()
 // check if a filename is used in the emulated MSX disk
 bool DirAsDSK::checkMSXFileExists(const string& msxfilename)
 {
-	for (int i = 0; i < 112; ++i) {
+	for (unsigned i = 0; i < NUM_DIR_ENTRIES; ++i) {
 		if (strncmp(mapdir[i].msxinfo.filename,
 			    msxfilename.c_str(), 11) == 0) {
 			return true;
@@ -137,7 +139,7 @@ bool DirAsDSK::checkMSXFileExists(const string& msxfilename)
 // check if a file is already mapped into the fake DSK
 bool DirAsDSK::checkFileUsedInDSK(const string& filename)
 {
-	for (int i = 0; i < 112; ++i) {
+	for (unsigned i = 0; i < NUM_DIR_ENTRIES; ++i) {
 		if (mapdir[i].shortname == filename) {
 			return true;
 		}
@@ -198,7 +200,7 @@ void DirAsDSK::saveCache()
 		file.write(header.c_str(), header.size() + 1);
 
 		// now save all the files that are in this disk at this moment
-		for (unsigned i = 0; i < 112; ++i) {
+		for (unsigned i = 0; i < NUM_DIR_ENTRIES; ++i) {
 			if (!mapdir[i].inUse()) continue;
 
 			// first save CACHE-ID=1,
@@ -328,7 +330,7 @@ bool DirAsDSK::readCache()
 				file.read(tmpbuf, 6 + 32);
 				unsigned filesize = getLE32(tmpbuf);
 				unsigned dirindex = tmpbuf[4];
-				// TODO [wouter]: Check dirindex < 112
+				// TODO [wouter]: Check dirindex < NUM_DIR_ENTRIES
 
 				// fill mapdir with correct info
 				mapdir[dirindex].shortname = shortname;
@@ -430,7 +432,7 @@ void DirAsDSK::scanHostDir(bool onlyNewFiles)
 void DirAsDSK::cleandisk()
 {
 	// assign empty directory entries
-	for (int i = 0; i < 112; ++i) {
+	for (unsigned i = 0; i < NUM_DIR_ENTRIES; ++i) {
 		memset(&mapdir[i].msxinfo, 0, sizeof(MSXDirEntry));
 		mapdir[i].shortname.clear();
 		mapdir[i].filesize = 0;
@@ -558,12 +560,12 @@ void DirAsDSK::readLogicalSector(unsigned sector, byte* buf)
 		// we check all files in the faked disk for altered filesize
 		// remapping each fat entry to its direntry and do some bookkeeping
 		// to avoid multiple checks will probably be slower than this
-		for (int i = 0; i < 112; ++i) {
+		for (unsigned i = 0; i < NUM_DIR_ENTRIES; ++i) {
 			checkAlterFileInDisk(i);
 		}
 
-		sector = (sector - 1) % SECTORS_PER_FAT;
-		memcpy(buf, fat + sector * SECTOR_SIZE, SECTOR_SIZE);
+		unsigned fatSector = (sector - 1) % SECTORS_PER_FAT;
+		memcpy(buf, fat + fatSector * SECTOR_SIZE, SECTOR_SIZE);
 
 	} else if (sector < 14) {
 		// create correct DIR sector
@@ -617,14 +619,14 @@ void DirAsDSK::readLogicalSector(unsigned sector, byte* buf)
 
 void DirAsDSK::checkAlterFileInDisk(const string& filename)
 {
-	for (int i = 0; i < 112; ++i) {
+	for (unsigned i = 0; i < NUM_DIR_ENTRIES; ++i) {
 		if (mapdir[i].shortname == filename) {
 			checkAlterFileInDisk(i);
 		}
 	}
 }
 
-void DirAsDSK::checkAlterFileInDisk(int dirindex)
+void DirAsDSK::checkAlterFileInDisk(unsigned dirindex)
 {
 	if (!mapdir[dirindex].inUse()) {
 		return;
@@ -648,7 +650,7 @@ void DirAsDSK::checkAlterFileInDisk(int dirindex)
 	}
 }
 
-void DirAsDSK::updateFileInDisk(int dirindex, struct stat& fst)
+void DirAsDSK::updateFileInDisk(unsigned dirindex, struct stat& fst)
 {
 	// compute time/date stamps
 	struct tm* mtim = localtime(&(fst.st_mtime));
@@ -755,7 +757,7 @@ void DirAsDSK::updateFileInDisk(int dirindex, struct stat& fst)
 	setLE32(mapdir[dirindex].msxinfo.size, fsize - size);
 }
 
-void DirAsDSK::truncateCorrespondingFile(const int dirindex)
+void DirAsDSK::truncateCorrespondingFile(unsigned dirindex)
 {
 	if (!mapdir[dirindex].inUse()) {
 		//a total new file so we create the new name from the msx name
@@ -776,7 +778,7 @@ void DirAsDSK::truncateCorrespondingFile(const int dirindex)
 	mapdir[dirindex].filesize = cursize;
 }
 
-void DirAsDSK::extractCacheToFile(const int dirindex)
+void DirAsDSK::extractCacheToFile(unsigned dirindex)
 {
 	if (!mapdir[dirindex].inUse()) {
 		//a total new file so we create the new name from the msx name
@@ -907,9 +909,9 @@ void DirAsDSK::writeFATSector(unsigned sector, const byte* buf)
 	// writes to the second FAT so we check for changes
 	// but we fully ignore the sectors afterwards (see remark
 	// about identifier bytes above)
-	int startcluster = std::max<int>(2, ((sector - 1 - SECTORS_PER_FAT) * 2) / 3);
-	int endcluster = std::min<int>(startcluster + 342, (SECTOR_SIZE * SECTORS_PER_FAT * 2) / 3);
-	for (int i = startcluster; i < endcluster; ++i) {
+	unsigned startcluster = std::max<int>(2, ((sector - 1 - SECTORS_PER_FAT) * 2) / 3);
+	unsigned endcluster = std::min<int>(startcluster + 342, NUM_FAT_ENTRIES);
+	for (unsigned i = startcluster; i < endcluster; ++i) {
 		if (readFAT(i) != readFAT2(i)) {
 			updateFileFromAlteredFatOnly(i);
 		}
@@ -1081,21 +1083,21 @@ void DirAsDSK::writeDataSector(unsigned sector, const byte* buf)
 	}
 }
 
-void DirAsDSK:: updateFileFromAlteredFatOnly(int somecluster)
+void DirAsDSK:: updateFileFromAlteredFatOnly(unsigned somecluster)
 {
 	// First look for the first cluster in this chain
 	unsigned startcluster = somecluster;
-	int i = 2;
-	while (i < int((SECTOR_SIZE * SECTORS_PER_FAT * 2) / 3)) {
+	for (unsigned i = 2; i < NUM_FAT_ENTRIES; ++i) {
 		if (readFAT(i) == startcluster) {
+			// found a predecessor
 			startcluster = i;
-			i = 1;
+			i = 1; // restart search
 		}
-		++i;
 	}
+
 	// Find the corresponding direntry if any
 	// and extract file based on new clusterchain
-	for (i = 0; i < 112; ++i) {
+	for (unsigned i = 0; i < NUM_DIR_ENTRIES; ++i) {
 		if (startcluster == getLE16(mapdir[i].msxinfo.startcluster)) {
 			extractCacheToFile(i);
 			break;
@@ -1103,14 +1105,15 @@ void DirAsDSK:: updateFileFromAlteredFatOnly(int somecluster)
 	}
 
 	// from startcluster and somecluster on, update fat2 so that the check
-	// in writeLogicalSecor doesn't call this routine again for the same
-	// file-cluster chain
+	// in writeFATSector() don't call this routine again for the same file
 	unsigned curcl = startcluster;
 	while ((curcl <= MAX_CLUSTER) && (curcl != EOF_FAT) && (curcl > 1)) {
 		unsigned next = readFAT(curcl);
 		writeFAT2(curcl, next);
 		curcl = next;
 	}
+	// TODO [wouter]: why also start from 'somecluster',
+	//                doesn't the loop above already take care of this?
 	curcl = somecluster;
 	while ((curcl <= MAX_CLUSTER) && (curcl != EOF_FAT) && (curcl > 1)) {
 		unsigned next = readFAT(curcl);
@@ -1168,9 +1171,9 @@ void DirAsDSK::updateFileInDisk(const string& filename)
 void DirAsDSK::addFileToDSK(const string& filename, struct stat& fst)
 {
 	//get emtpy dir entry
-	int dirindex = 0;
+	unsigned dirindex = 0;
 	while (mapdir[dirindex].inUse()) {
-		if (++dirindex == 112) {
+		if (++dirindex == NUM_DIR_ENTRIES) {
 			cliComm.printWarning(
 				"Couldn't add " + filename +
 				": root dir full");

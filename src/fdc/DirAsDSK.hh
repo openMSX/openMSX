@@ -17,13 +17,16 @@ class CliComm;
 class DirAsDSK : public SectorBasedDisk
 {
 public:
+	static const unsigned SECTORS_PER_FAT = 3;
+	static const unsigned NUM_FAT_ENTRIES = (SECTOR_SIZE * SECTORS_PER_FAT * 2) / 3;
+	static const unsigned SECTORS_PER_DIR = 7;
+	static const unsigned NUM_DIR_ENTRIES = SECTORS_PER_DIR * (SECTOR_SIZE / 32);
+
 	DirAsDSK(CliComm& cliComm, GlobalSettings& globalSettings,
 	         const std::string& fileName);
 	virtual ~DirAsDSK();
 
 private:
-	static const int SECTORS_PER_FAT = 3;
-
 	// SectorBasedDisk
 	virtual void readLogicalSector(unsigned sector, byte* buf);
 	virtual void writeLogicalSector(unsigned sector, const byte* buf);
@@ -36,12 +39,12 @@ private:
 	bool checkMSXFileExists(const std::string& msxfilename);
 	void addFileToDSK(const std::string& filename, struct stat& fst);
 	void checkAlterFileInDisk(const std::string& filename);
-	void checkAlterFileInDisk(int dirindex);
-	void updateFileInDisk(int dirindex, struct stat& fst);
+	void checkAlterFileInDisk(unsigned dirindex);
+	void updateFileInDisk(unsigned dirindex, struct stat& fst);
 	void updateFileInDisk(const std::string& filename);
-	void transferFileToCache(int dirindex);
-	void extractCacheToFile(int dirindex);
-	void truncateCorrespondingFile(int dirindex);
+	void transferFileToCache(unsigned dirindex);
+	void extractCacheToFile(unsigned dirindex);
+	void truncateCorrespondingFile(unsigned dirindex);
 	unsigned findNextFreeCluster(unsigned curcl);
 	unsigned findFirstFreeCluster();
 	unsigned readFAT(unsigned clnr);
@@ -53,7 +56,7 @@ private:
 	void saveCache();
 
 	std::string condenseName(const byte* buf);
-	void updateFileFromAlteredFatOnly(int somecluster);
+	void updateFileFromAlteredFatOnly(unsigned somecluster);
 	void cleandisk();
 	void scanHostDir(bool onlyNewFiles);
 
