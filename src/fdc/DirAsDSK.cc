@@ -649,15 +649,13 @@ void DirAsDSK::updateFileInDisk(int dirindex, struct stat& fst)
 {
 	// compute time/date stamps
 	struct tm* mtim = localtime(&(fst.st_mtime));
-	int t1 = mtim
-	       ? (mtim->tm_sec >> 1) + (mtim->tm_min << 5) +
-	         (mtim->tm_hour << 11)
-	       : 0;
+	int t1 = mtim ? (mtim->tm_sec >> 1) + (mtim->tm_min << 5) +
+	                (mtim->tm_hour << 11)
+	              : 0;
 	setLE16(mapdir[dirindex].msxinfo.time, t1);
-	int t2 = mtim
-	       ? mtim->tm_mday + ((mtim->tm_mon + 1) << 5) +
-	         ((mtim->tm_year + 1900 - 1980) << 9)
-	       : 0;
+	int t2 = mtim ? mtim->tm_mday + ((mtim->tm_mon + 1) << 5) +
+	                ((mtim->tm_year + 1900 - 1980) << 9)
+	              : 0;
 	setLE16(mapdir[dirindex].msxinfo.date, t2);
 
 	int fsize = fst.st_size;
@@ -678,30 +676,22 @@ void DirAsDSK::updateFileInDisk(int dirindex, struct stat& fst)
 
 	while (size && (curcl <= MAX_CLUSTER)) {
 		unsigned logicalSector = clusterToSector(curcl);
-		sectormap[logicalSector].usage = MIXED;
-		sectormap[logicalSector].dirEntryNr = dirindex;
-		sectormap[logicalSector].fileOffset = fsize - size;
-		cachedSectors[logicalSector].resize(SECTOR_SIZE);
-		byte* buf = reinterpret_cast<byte*>(
-		                        &cachedSectors[logicalSector][0]);
-		memset(buf, 0, SECTOR_SIZE); // in case (end of) file only fills partial sector
-		file.seek(sectormap[logicalSector].fileOffset);
-		file.read(buf, std::min<int>(size, SECTOR_SIZE));
-
-		size -= (size > SECTOR_SIZE) ? SECTOR_SIZE : size;
-
-		if (size) {
-			//fill next sector if there is data left
-			sectormap[++logicalSector].dirEntryNr = dirindex;
-			sectormap[logicalSector].usage = MIXED;
-			sectormap[logicalSector].fileOffset = fsize - size;
-			cachedSectors[logicalSector].resize(SECTOR_SIZE);
+		for (int i = 0; i < 2; ++i) {
+			sectormap[logicalSector + i].usage = MIXED;
+			sectormap[logicalSector + i].dirEntryNr = dirindex;
+			sectormap[logicalSector + i].fileOffset = fsize - size;
+			cachedSectors[logicalSector + i].resize(SECTOR_SIZE);
 			byte* buf = reinterpret_cast<byte*>(
-						&cachedSectors[logicalSector][0]);
+						&cachedSectors[logicalSector + i][0]);
 			memset(buf, 0, SECTOR_SIZE); // in case (end of) file only fills partial sector
-			file.seek(sectormap[logicalSector].fileOffset);
+			file.seek(sectormap[logicalSector + i].fileOffset);
 			file.read(buf, std::min<int>(size, SECTOR_SIZE));
-			size -= (size > SECTOR_SIZE) ? SECTOR_SIZE : size;
+			size -= std::min<int>(size, SECTOR_SIZE);
+			if (size == 0) {
+				// don't fill next sectors in this cluster
+				// if there is no data left
+				break;
+			}
 		}
 
 		if (prevcl) {
@@ -709,8 +699,8 @@ void DirAsDSK::updateFileInDisk(int dirindex, struct stat& fst)
 		}
 		prevcl = curcl;
 
-		//now we check if we continue in the current clusterstring
-		//or need to allocate extra unused blocks
+		// now we check if we continue in the current cluster chain
+		// or need to allocate extra unused blocks
 		if (followFATClusters) {
 			curcl = readFAT(curcl);
 			if (curcl == EOF_FAT) {
@@ -732,7 +722,7 @@ void DirAsDSK::updateFileInDisk(int dirindex, struct stat& fst)
 			writeFAT(prevcl, EOF_FAT);
 		}
 
-		//clear remains of FAT if needed
+		// clear remains of FAT if needed
 		if (followFATClusters) {
 			while ((curcl <= MAX_CLUSTER) && (curcl != 0) &&
 			       (curcl != EOF_FAT)) {
@@ -740,26 +730,27 @@ void DirAsDSK::updateFileInDisk(int dirindex, struct stat& fst)
 				curcl = readFAT(curcl);
 				writeFAT(prevcl, 0);
 				unsigned logicalSector = clusterToSector(prevcl);
-				sectormap[logicalSector].usage = CLEAN;
-				sectormap[logicalSector].dirEntryNr = 0;
-				sectormap[logicalSector++].fileOffset = 0;
-				sectormap[logicalSector].usage = CLEAN;
-				sectormap[logicalSector].dirEntryNr = 0;
-				sectormap[logicalSector].fileOffset = 0;
+				for (int i = 0; i < 2; ++i) {
+					sectormap[logicalSector + i].usage = CLEAN;
+					sectormap[logicalSector + i].dirEntryNr = 0;
+					sectormap[logicalSector + i].fileOffset = 0;
+				}
 			}
 			writeFAT(prevcl, 0);
 			unsigned logicalSector = clusterToSector(prevcl);
-			sectormap[logicalSector].usage = CLEAN;
-			sectormap[logicalSector].dirEntryNr = 0;
-			sectormap[logicalSector].fileOffset = 0;
+			for (int i = 0; i < 2; ++i) {
+				sectormap[logicalSector + i].usage = CLEAN;
+				sectormap[logicalSector + i].dirEntryNr = 0;
+				sectormap[logicalSector + i].fileOffset = 0;
+			}
 		}
 	} else {
-		//TODO: don't we need a EOF_FAT in this case as well ?
+		// TODO: don't we need a EOF_FAT in this case as well ?
 		// find out and adjust code here
 		cliComm.printWarning("Fake Diskimage full: " +
 		                     mapdir[dirindex].shortname + " truncated.");
 	}
-	//write (possibly truncated) file size
+	// write (possibly truncated) file size
 	setLE32(mapdir[dirindex].msxinfo.size, fsize - size);
 }
 
@@ -951,8 +942,8 @@ void DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
 		//but we fully ignore the sectors aftwerwards (see remark
 		//about identifier bytes above)
 
-		int startcluster = std::max<int>(2, int(((sector - 1 - SECTORS_PER_FAT) * 2) / 3));
-		int endcluster = std::min<int>(startcluster + 342, int((SECTOR_SIZE * SECTORS_PER_FAT * 2) / 3));
+		int startcluster = std::max<int>(2, ((sector - 1 - SECTORS_PER_FAT) * 2) / 3);
+		int endcluster = std::min<int>(startcluster + 342, (SECTOR_SIZE * SECTORS_PER_FAT * 2) / 3);
 		for (int i = startcluster; i < endcluster; ++i) {
 			if (readFAT(i) != readFAT2(i)) {
 				updateFileFromAlteredFatOnly(i);
