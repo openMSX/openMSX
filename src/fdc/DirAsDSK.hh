@@ -29,6 +29,9 @@ private:
 	virtual void writeLogicalSector(unsigned sector, const byte* buf);
 	virtual bool writeProtected();
 
+	void writeFATSector (unsigned sector, const byte* buf);
+	void writeDIRSector (unsigned sector, const byte* buf);
+	void writeDataSector(unsigned sector, const byte* buf);
 	bool checkFileUsedInDSK(const std::string& filename);
 	bool checkMSXFileExists(const std::string& msxfilename);
 	void addFileToDSK(const std::string& filename, struct stat& fst);
