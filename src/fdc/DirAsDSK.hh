@@ -51,11 +51,9 @@ private:
 	unsigned readFAT2(unsigned clnr);
 	void writeFAT(unsigned clnr, unsigned val);
 	void writeFAT2(unsigned clnr, unsigned val);
-
 	bool readCache();
 	void saveCache();
-
-	std::string condenseName(const byte* buf);
+	std::string condenseName(const char* buf);
 	void updateFileFromAlteredFatOnly(unsigned somecluster);
 	void cleandisk();
 	void scanHostDir(bool onlyNewFiles);
