@@ -8,6 +8,8 @@
 #include <map>
 #include <vector>
 
+struct stat;
+
 namespace openmsx {
 
 class CliComm;
@@ -29,10 +31,10 @@ private:
 
 	bool checkFileUsedInDSK(const std::string& filename);
 	bool checkMSXFileExists(const std::string& msxfilename);
-	void addFileToDSK(const std::string& filename);
+	void addFileToDSK(const std::string& filename, struct stat& fst);
 	void checkAlterFileInDisk(const std::string& filename);
 	void checkAlterFileInDisk(int dirindex);
-	void updateFileInDisk(int dirindex);
+	void updateFileInDisk(int dirindex, struct stat& fst);
 	void updateFileInDisk(const std::string& filename);
 	void transferFileToCache(int dirindex);
 	void extractCacheToFile(int dirindex);

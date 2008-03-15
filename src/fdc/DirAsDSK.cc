@@ -632,7 +632,7 @@ void DirAsDSK::checkAlterFileInDisk(int dirindex)
 	if (stat(fullfilename.c_str(), &fst) == 0) {
 		if (mapdir[dirindex].filesize != fst.st_size) {
 			// changed filesize
-			updateFileInDisk(dirindex);
+			updateFileInDisk(dirindex, fst);
 		}
 	} else {
 		// file can not be stat'ed => assume it has been deleted
@@ -645,14 +645,9 @@ void DirAsDSK::checkAlterFileInDisk(int dirindex)
 	}
 }
 
-void DirAsDSK::updateFileInDisk(int dirindex)
+void DirAsDSK::updateFileInDisk(int dirindex, struct stat& fst)
 {
 	// compute time/date stamps
-	string fullfilename = hostDir + '/' + mapdir[dirindex].shortname;
-	struct stat fst;
-	if (stat(fullfilename.c_str(), &fst)) {
-		// TODO
-	}
 	struct tm* mtim = localtime(&(fst.st_mtime));
 	int t1 = mtim
 	       ? (mtim->tm_sec >> 1) + (mtim->tm_min << 5) +
@@ -678,6 +673,7 @@ void DirAsDSK::updateFileInDisk(int dirindex)
 
 	unsigned size = fsize;
 	int prevcl = 0;
+	string fullfilename = hostDir + '/' + mapdir[dirindex].shortname;
 	File file(fullfilename, File::CREATE);
 
 	while (size && (curcl <= MAX_CLUSTER)) {
@@ -1169,14 +1165,14 @@ void DirAsDSK::updateFileInDisk(const string& filename)
 	}
 	if (!checkFileUsedInDSK(filename)) {
 		// add file to fakedisk
-		addFileToDSK(filename);
+		addFileToDSK(filename, fst);
 	} else {
 		//really update file
 		checkAlterFileInDisk(filename);
 	}
 }
 
-void DirAsDSK::addFileToDSK(const string& filename)
+void DirAsDSK::addFileToDSK(const string& filename, struct stat& fst)
 {
 	//get emtpy dir entry
 	int dirindex = 0;
@@ -1204,7 +1200,7 @@ void DirAsDSK::addFileToDSK(const string& filename)
 	// fill in MSX file name
 	memcpy(&(mapdir[dirindex].msxinfo.filename), MSXfilename.c_str(), 11);
 
-	updateFileInDisk(dirindex);
+	updateFileInDisk(dirindex, fst);
 }
 
 } // namespace openmsx
