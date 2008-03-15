@@ -248,7 +248,7 @@ void DirAsDSK::saveCache()
 				setLE16(&tmpbuf[0], logicalSector);
 				file.write(tmpbuf, 2);
 				// save padding bytes
-				byte* buf = &cachedSectors[logicalSector][0];
+				byte* buf = cachedSectors[logicalSector].data;
 				file.write(&buf[size], SECTOR_SIZE - size);
 			}
 		}
@@ -274,7 +274,7 @@ void DirAsDSK::saveCache()
 
 				debug("writing to .sector.cache\n");
 				debug("        sector %i\n", it->first);
-				file.write(&(it->second[0]), SECTOR_SIZE);
+				file.write(it->second.data, SECTOR_SIZE);
 			}
 		}
 
@@ -366,8 +366,7 @@ bool DirAsDSK::readCache()
 					sectormap[sector].dirEntryNr = dirindex;
 					sectormap[sector].fileOffset = offset;
 
-					cachedSectors[sector].resize(SECTOR_SIZE);
-					byte* buf = &cachedSectors[sector][0];
+					byte* buf = cachedSectors[sector].data;
 					hostOsFile.read(buf, std::min<int>(SECTOR_SIZE, filesize));
 					// read padding data if needed
 					if (filesize < SECTOR_SIZE) {
@@ -389,8 +388,7 @@ bool DirAsDSK::readCache()
 				sectormap[sector].fileOffset = 0;
 				// sector data
 				file.read(tmpbuf, SECTOR_SIZE);
-				cachedSectors[sector].resize(SECTOR_SIZE);
-				memcpy(&cachedSectors[sector][0], tmpbuf, SECTOR_SIZE);
+				memcpy(cachedSectors[sector].data, tmpbuf, SECTOR_SIZE);
 			}
 			case CACHE_ID_END:
 				// end of cache marker
@@ -587,11 +585,11 @@ void DirAsDSK::readLogicalSector(unsigned sector, byte* buf)
 			// 0xE5 is the value used on the Philips VG8250
 			memset(buf, 0xE5, SECTOR_SIZE);
 		} else if (sectormap[sector].usage == CACHED) {
-			memcpy(buf, &cachedSectors[sector][0], SECTOR_SIZE);
+			memcpy(buf, cachedSectors[sector].data, SECTOR_SIZE);
 		} else {
 			// first copy cached data
 			// in case (end of) file only fills partial sector
-			memcpy(buf, &cachedSectors[sector][0], SECTOR_SIZE);
+			memcpy(buf, cachedSectors[sector].data, SECTOR_SIZE);
 			// read data from host file
 			int offset = sectormap[sector].fileOffset;
 			string shortname = mapdir[sectormap[sector].dirEntryNr].shortname;
@@ -607,7 +605,7 @@ void DirAsDSK::readLogicalSector(unsigned sector, byte* buf)
 				// since checkAlterFileInDisk => updateFileInDisk only reads
 				// altered data if filesize has been changed and not if only
 				// content in file has changed
-				memcpy(&cachedSectors[sector][0], buf, SECTOR_SIZE);
+				memcpy(cachedSectors[sector].data, buf, SECTOR_SIZE);
 			} catch (FileException& e) {
 				// couldn't open/read cached sector file
 			}
@@ -683,8 +681,7 @@ void DirAsDSK::updateFileInDisk(unsigned dirindex, struct stat& fst)
 			sectormap[logicalSector + i].usage = MIXED;
 			sectormap[logicalSector + i].dirEntryNr = dirindex;
 			sectormap[logicalSector + i].fileOffset = fsize - size;
-			cachedSectors[logicalSector + i].resize(SECTOR_SIZE);
-			byte* buf = &cachedSectors[logicalSector + i][0];
+			byte* buf = cachedSectors[logicalSector + i].data;
 			memset(buf, 0, SECTOR_SIZE); // in case (end of) file only fills partial sector
 			file.seek(sectormap[logicalSector + i].fileOffset);
 			file.read(buf, std::min<int>(size, SECTOR_SIZE));
@@ -805,7 +802,7 @@ void DirAsDSK::extractCacheToFile(unsigned dirindex)
 			     sectormap[logicalSector].usage == MIXED) &&
 			    (cursize >= offset)) {
 				// transfer data
-				byte* buf = &cachedSectors[logicalSector][0];
+				byte* buf = cachedSectors[logicalSector].data;
 				file.seek(offset);
 				unsigned writesize = std::min<int>(cursize - offset, SECTOR_SIZE);
 				file.write(buf, writesize);
@@ -998,10 +995,10 @@ void DirAsDSK::writeDIREntry(unsigned dirindex, const MSXDirEntry& entry)
 					cliComm.printWarning("Couldn't create new file.");
 				}
 			} else {
-				//rename file on host OS
+				// rename file on host OS
 				string oldfilename = hostDir + '/' + mapdir[dirindex].shortname;
 				if (rename(oldfilename.c_str(), newfilename.c_str()) == 0) {
-					//renaming on host OS succeeeded
+					// renaming on host OS succeeeded
 					mapdir[dirindex].shortname = shname;
 				}
 			}
@@ -1053,8 +1050,7 @@ void DirAsDSK::writeDataSector(unsigned sector, const byte* buf)
 
 	// first and before all else buffer everything !!!!
 	// check if cachedSectors exists, if not assign memory.
-	cachedSectors[sector].resize(SECTOR_SIZE);
-	memcpy(&cachedSectors[sector][0], buf, SECTOR_SIZE);
+	memcpy(cachedSectors[sector].data, buf, SECTOR_SIZE);
 
 	// if in SYNC_CACHEDWRITE then simply mark sector as cached and be done with it
 	if (syncMode == GlobalSettings::SYNC_CACHEDWRITE) {

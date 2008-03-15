@@ -6,7 +6,6 @@
 #include "SectorBasedDisk.hh"
 #include "GlobalSettings.hh"
 #include <map>
-#include <vector>
 
 struct stat;
 
@@ -60,6 +59,10 @@ private:
 		unsigned dirEntryNr;
 	};
 
+	struct SectorData {
+		byte data[SECTOR_SIZE];
+	};
+
 	void writeFATSector (unsigned sector, const byte* buf);
 	void writeDIRSector (unsigned sector, const byte* buf);
 	void writeDataSector(unsigned sector, const byte* buf);
@@ -97,7 +100,7 @@ private:
 
 	byte bootBlock[SECTOR_SIZE];
 	const std::string hostDir;
-	typedef std::map<unsigned, std::vector<byte> > CachedSectors;
+	typedef std::map<unsigned, SectorData> CachedSectors;
 	CachedSectors cachedSectors;
 	GlobalSettings& globalSettings;
 
