@@ -279,18 +279,25 @@ const string& CassettePlayer::getImageName() const
 
 void CassettePlayer::playTape(const string& filename, const EmuTime& time)
 {
-	// make a local copy of the filename, because it might get overwritten in removeTape
-	const string localfilename = string(filename);
-	if (getState() == RECORD) removeTape(time); // flush recorded tape
+	// make a local copy of the filename, because it might get
+	// overwritten in removeTape
+	const string localfilename = filename;
+	if (getState() == RECORD) {
+		// flush recorded tape
+		removeTape(time);
+	}
 	try {
 		// first try WAV
 		playImage.reset(new WavImage(localfilename));
 	} catch (MSXException& e) {
-		try {	
-		// if that fails use CAS
-		playImage.reset(new CasImage(localfilename, cliComm));
+		try {
+			// if that fails use CAS
+			playImage.reset(new CasImage(localfilename, cliComm));
 		} catch (MSXException& e2) {
-			throw MSXException("Failed to insert WAV image: \"" + e.getMessage() + "\" and also failed to insert CAS image: \"" + e2.getMessage() + "\"");
+			throw MSXException(
+				"Failed to insert WAV image: \"" + e.getMessage() +
+				"\" and also failed to insert CAS image: \"" +
+				e2.getMessage() + "\"");
 		}
 	}
 	setImageName(localfilename);
