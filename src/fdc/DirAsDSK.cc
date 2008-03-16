@@ -672,44 +672,52 @@ void DirAsDSK::updateFileInDisk(unsigned dirindex, struct stat& fst)
 
 	unsigned size = fsize;
 	unsigned prevcl = 0;
-	string fullfilename = hostDir + '/' + mapdir[dirindex].shortname;
-	File file(fullfilename, File::CREATE);
+	try {
+		string fullfilename = hostDir + '/' + mapdir[dirindex].shortname;
+		File file(fullfilename, File::CREATE);
 
-	while (size && (curcl <= MAX_CLUSTER)) {
-		unsigned logicalSector = clusterToSector(curcl);
-		for (int i = 0; i < 2; ++i) {
-			sectormap[logicalSector + i].usage = MIXED;
-			sectormap[logicalSector + i].dirEntryNr = dirindex;
-			sectormap[logicalSector + i].fileOffset = fsize - size;
-			byte* buf = cachedSectors[logicalSector + i].data;
-			memset(buf, 0, SECTOR_SIZE); // in case (end of) file only fills partial sector
-			file.seek(sectormap[logicalSector + i].fileOffset);
-			file.read(buf, std::min<int>(size, SECTOR_SIZE));
-			size -= std::min<int>(size, SECTOR_SIZE);
-			if (size == 0) {
-				// don't fill next sectors in this cluster
-				// if there is no data left
-				break;
+		while (size && (curcl <= MAX_CLUSTER)) {
+			unsigned logicalSector = clusterToSector(curcl);
+			for (int i = 0; i < 2; ++i) {
+				sectormap[logicalSector + i].usage = MIXED;
+				sectormap[logicalSector + i].dirEntryNr = dirindex;
+				sectormap[logicalSector + i].fileOffset = fsize - size;
+				byte* buf = cachedSectors[logicalSector + i].data;
+				memset(buf, 0, SECTOR_SIZE); // in case (end of) file only fills partial sector
+				file.seek(sectormap[logicalSector + i].fileOffset);
+				file.read(buf, std::min<int>(size, SECTOR_SIZE));
+				size -= std::min<int>(size, SECTOR_SIZE);
+				if (size == 0) {
+					// don't fill next sectors in this cluster
+					// if there is no data left
+					break;
+				}
 			}
-		}
 
-		if (prevcl) {
-			writeFAT(prevcl, curcl);
-		}
-		prevcl = curcl;
-
-		// now we check if we continue in the current cluster chain
-		// or need to allocate extra unused blocks
-		if (followFATClusters) {
-			curcl = readFAT(curcl);
-			if (curcl == EOF_FAT) {
-				followFATClusters = false;
-				curcl = findFirstFreeCluster();
+			if (prevcl) {
+				writeFAT(prevcl, curcl);
 			}
-		} else {
-			curcl = findNextFreeCluster(curcl);
+			prevcl = curcl;
+
+			// now we check if we continue in the current cluster chain
+			// or need to allocate extra unused blocks
+			if (followFATClusters) {
+				curcl = readFAT(curcl);
+				if (curcl == EOF_FAT) {
+					followFATClusters = false;
+					curcl = findFirstFreeCluster();
+				}
+			} else {
+				curcl = findNextFreeCluster(curcl);
+			}
+			// Continuing at cluster 'curcl'
 		}
-		// Continuing at cluster 'curcl'
+	} catch (FileException& e) {
+		// Error opening or reading host file
+		cliComm.printWarning("Error reading host file: " +
+		                     mapdir[dirindex].shortname +
+		                     ". Truncated file on MSX disk.");
+		size = 0; // truncate MSX file
 	}
 	if ((size == 0) && (curcl <= MAX_CLUSTER)) {
 		// TODO: check what an MSX does with filesize zero and fat allocation
@@ -763,12 +771,19 @@ void DirAsDSK::truncateCorrespondingFile(unsigned dirindex)
 		mapdir[dirindex].shortname = shname;
 		debug("      truncateCorrespondingFile of new Host OS file\n");
 	}
-	string fullfilename = hostDir + '/' + mapdir[dirindex].shortname;
-	debug("      truncateCorrespondingFile %s\n", fullfilename.c_str());
-	File file(fullfilename, File::CREATE);
+	debug("      truncateCorrespondingFile %s\n", mapdir[dirindex].shortname.c_str());
 	int cursize = getLE32(mapdir[dirindex].msxinfo.size);
-	file.truncate(cursize);
 	mapdir[dirindex].filesize = cursize;
+
+	// stuff below can fail, so do it as the last thing in this method
+	try {
+		string fullfilename = hostDir + '/' + mapdir[dirindex].shortname;
+		File file(fullfilename, File::CREATE);
+		file.truncate(cursize);
+	} catch (FileException& e) {
+		cliComm.printWarning("Error while truncating host file: " +
+		                     mapdir[dirindex].shortname);
+	}
 }
 
 void DirAsDSK::extractCacheToFile(unsigned dirindex)
@@ -782,39 +797,44 @@ void DirAsDSK::extractCacheToFile(unsigned dirindex)
 		string shname = condenseName(buf);
 		mapdir[dirindex].shortname = shname;
 	}
-	string fullfilename = hostDir + '/' + mapdir[dirindex].shortname;
-	File file(fullfilename, File::CREATE);
-	unsigned curcl = getLE16(mapdir[dirindex].msxinfo.startcluster);
-	// if we start a new file the current cluster can be set to zero
+	try {
+		string fullfilename = hostDir + '/' + mapdir[dirindex].shortname;
+		File file(fullfilename, File::CREATE);
+		unsigned curcl = getLE16(mapdir[dirindex].msxinfo.startcluster);
+		// if we start a new file the current cluster can be set to zero
 
-	unsigned cursize = getLE32(mapdir[dirindex].msxinfo.size);
-	unsigned offset = 0;
-	// if the size is zero then we truncate to zero and leave
-	if (curcl == 0 || cursize == 0) {
-		file.truncate(0);
-		return;
-	}
-
-	while ((curcl <= MAX_CLUSTER) && (curcl != EOF_FAT) && (curcl != 0)) {
-		unsigned logicalSector = clusterToSector(curcl);
-		for (int i = 0; i < 2; ++i) {
-			if ((sectormap[logicalSector].usage == CACHED ||
-			     sectormap[logicalSector].usage == MIXED) &&
-			    (cursize >= offset)) {
-				// transfer data
-				byte* buf = cachedSectors[logicalSector].data;
-				file.seek(offset);
-				unsigned writesize = std::min<int>(cursize - offset, SECTOR_SIZE);
-				file.write(buf, writesize);
-
-				sectormap[logicalSector].usage = MIXED;
-				sectormap[logicalSector].dirEntryNr = dirindex;
-				sectormap[logicalSector].fileOffset = offset;
-			}
-			++logicalSector;
-			offset += SECTOR_SIZE;
+		unsigned cursize = getLE32(mapdir[dirindex].msxinfo.size);
+		unsigned offset = 0;
+		// if the size is zero then we truncate to zero and leave
+		if (curcl == 0 || cursize == 0) {
+			file.truncate(0);
+			return;
 		}
-		curcl = readFAT(curcl);
+
+		while ((curcl <= MAX_CLUSTER) && (curcl != EOF_FAT) && (curcl != 0)) {
+			unsigned logicalSector = clusterToSector(curcl);
+			for (int i = 0; i < 2; ++i) {
+				if ((sectormap[logicalSector].usage == CACHED ||
+				     sectormap[logicalSector].usage == MIXED) &&
+				    (cursize >= offset)) {
+					// transfer data
+					byte* buf = cachedSectors[logicalSector].data;
+					file.seek(offset);
+					unsigned writesize = std::min<int>(cursize - offset, SECTOR_SIZE);
+					file.write(buf, writesize);
+
+					sectormap[logicalSector].usage = MIXED;
+					sectormap[logicalSector].dirEntryNr = dirindex;
+					sectormap[logicalSector].fileOffset = offset;
+				}
+				++logicalSector;
+				offset += SECTOR_SIZE;
+			}
+			curcl = readFAT(curcl);
+		}
+	} catch (FileException& e) {
+		cliComm.printWarning("Error while syncing host file: " +
+		                     mapdir[dirindex].shortname);
 	}
 }
 
