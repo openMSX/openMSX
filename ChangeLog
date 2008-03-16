@@ -1,5 +1,12 @@
 $Id$
 
+2008-03-16 Manuel Bilderbeek <manuel@msxnet.org>
+	* Some small improvements in the cassette player:
+	  - clearer errors when both a wav and a cas image fail to work
+	  - properly flush the recording when switching to play mode
+	  Still needs more work to properly handle 'zero-recordings' after
+	  switching to play mode, see comments in the class.
+
 2008-03-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Replaced C++ IconLayer with a Tcl script
 

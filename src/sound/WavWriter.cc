@@ -116,6 +116,11 @@ void WavWriter::write16stereo(int* buffer, unsigned samples, int amp)
 	write16mono(buffer, 2 * samples, amp);
 }
 
+bool WavWriter::isEmpty() const
+{
+	return bytes == 0;
+}
+
 void WavWriter::flush()
 {
 	// round totalsize up to next even number

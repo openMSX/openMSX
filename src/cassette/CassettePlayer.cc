@@ -1,6 +1,9 @@
 // $Id$
 
 //TODO:
+// - better handle the case where the user created a new tape image, but did not
+//   record anything to it and then selects PLAY mode. This currently gives an
+//   error, because the WavData class can't handle an empty (valid) WAV file 
 // - specify prefix for auto file name generation when recording (setting?)
 // - append to existing wav files when recording (record command), but this is
 //   basically a special case (pointer at the end) of:
@@ -170,7 +173,6 @@ CassettePlayer::State CassettePlayer::getState() const
 
 bool CassettePlayer::isRolling() const
 {
-	// TODO implement end-of-tape
 	// Is the tape 'rolling'?
 	// is true when:
 	//  not in stop mode (there is a tape inserted and not at end-of-tape)
@@ -227,6 +229,11 @@ void CassettePlayer::setState(State newState, const EmuTime& time)
 	if (oldState == RECORD) {
 		setSignal(lastOutput, time);
 		flushOutput();
+		if (recordImage.get()->isEmpty()) {
+			// TODO: delete the created WAV file, as it is useless
+			newState = STOP;
+			state = newState;
+		}
 		recordImage.reset();
 	}
 
@@ -272,14 +279,21 @@ const string& CassettePlayer::getImageName() const
 
 void CassettePlayer::playTape(const string& filename, const EmuTime& time)
 {
+	// make a local copy of the filename, because it might get overwritten in removeTape
+	const string localfilename = string(filename);
+	if (getState() == RECORD) removeTape(time); // flush recorded tape
 	try {
 		// first try WAV
-		playImage.reset(new WavImage(filename));
+		playImage.reset(new WavImage(localfilename));
 	} catch (MSXException& e) {
+		try {	
 		// if that fails use CAS
-		playImage.reset(new CasImage(filename, cliComm));
+		playImage.reset(new CasImage(localfilename, cliComm));
+		} catch (MSXException& e2) {
+			throw MSXException("Failed to insert WAV image: \"" + e.getMessage() + "\" and also failed to insert CAS image: \"" + e2.getMessage() + "\"");
+		}
 	}
-	setImageName(filename);
+	setImageName(localfilename);
 	rewind(time); // sets PLAY mode
 	autoRun();
 	setOutputRate(outputRate);

@@ -22,6 +22,10 @@ public:
 	void write16mono  (int* buffer, unsigned samples, int amp = 1);
 	void write16stereo(int* buffer, unsigned samples, int amp = 1);
 
+	/** Returns false if there has been data written to the wav image.
+	 */
+	bool isEmpty() const;
+
 	/** Flush data to file and update header. Try to make (possibly)
 	  * incomplete file already usable for external programs.
 	  */
