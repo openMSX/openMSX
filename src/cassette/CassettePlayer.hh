@@ -102,7 +102,7 @@ private:
 	void updateLoadingState(const EmuTime& time);
 
 	void sync(const EmuTime& time);
-	void updatePlayPosition(const EmuDuration& duration, const EmuTime& time);
+	void updateTapePosition(const EmuDuration& duration, const EmuTime& time);
 	void generateRecordOutput(const EmuDuration& duration);
 
 	void fillBuf(size_t length, double x);

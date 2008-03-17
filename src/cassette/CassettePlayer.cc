@@ -321,6 +321,7 @@ void CassettePlayer::recordTape(const string& filename, const EmuTime& time)
 	removeTape(time); // flush (possible) previous recording
 	recordImage.reset(new WavWriter(filename, 1, 8, RECORD_FREQ));
 	setImageName(filename);
+	tapePos = EmuTime::zero;
 	setState(RECORD, time);
 }
 
@@ -367,38 +368,29 @@ void CassettePlayer::setSignal(bool output, const EmuTime& time)
 	lastOutput = output;
 }
 
-void CassettePlayer::updatePlayPosition(
-	const EmuDuration& duration, const EmuTime& time)
-{
-	assert(getState() == PLAY);
-	if (isRolling()) {
-		tapePos += duration;
-
-		if (!syncScheduled) {
-			// don't sync too often, this improves sound quality
-			syncScheduled = true;
-			Clock<1> next(time);
-			next += 1;
-			setSyncPoint(next.getTime(), SYNC_AUDIO_EMU);
-		}
-	}
-}
-
 void CassettePlayer::sync(const EmuTime& time)
 {
 	EmuDuration duration = time - prevSyncTime;
 	prevSyncTime = time;
 
-	switch (getState()) {
-	case PLAY:
-		updatePlayPosition(duration, time);
-		break;
-	case RECORD:
-		generateRecordOutput(duration);
-		break;
-	default:
-		// nothing
-		break;
+	updateTapePosition(duration, time);
+	generateRecordOutput(duration);
+}
+
+void CassettePlayer::updateTapePosition(
+	const EmuDuration& duration, const EmuTime& time)
+{
+	if (!isRolling()) return;
+
+	tapePos += duration;
+
+	// synchronize audio with actual tape position
+	if ((getState() == PLAY) && !syncScheduled) {
+		// don't sync too often, this improves sound quality
+		syncScheduled = true;
+		Clock<1> next(time);
+		next += 1;
+		setSyncPoint(next.getTime(), SYNC_AUDIO_EMU);
 	}
 }
 
