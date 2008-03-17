@@ -220,6 +220,8 @@ void CassettePlayer::checkInvariants() const
 
 void CassettePlayer::setState(State newState, const EmuTime& time)
 {
+	sync(time);
+
 	if (getImageName().empty()) {
 		// no image, always STOP state
 		newState = STOP;
@@ -230,16 +232,19 @@ void CassettePlayer::setState(State newState, const EmuTime& time)
 	if (oldState == newState) return;
 	state = newState;
 
+	// cannot directly switch from PLAY to RECORD or vice-versa,
+	// (should always go via STOP)
+	assert(!((oldState == PLAY)   && (newState == RECORD)));
+	assert(!((oldState == RECORD) && (newState == PLAY)));
+
 	// stuff for leaving the old state
 	if (oldState == RECORD) {
-		sync(time);
-		if (recordImage.get()->isEmpty()) {
-			// TODO: delete the created WAV file, as it is useless
-			newState = STOP;
-			state = newState;
-		}
 		flushOutput();
+		bool empty = recordImage.get()->isEmpty();
 		recordImage.reset();
+		if (empty) {
+			// TODO: delete the created WAV file, as it is useless
+		}
 	}
 
 	// stuff for entering the new state
@@ -249,7 +254,6 @@ void CassettePlayer::setState(State newState, const EmuTime& time)
 		lastX = lastOutput ? OUTPUT_AMP : -OUTPUT_AMP;
 		lastY = 0.0;
 	}
-	prevSyncTime = time; // TODO call sync() instead
 	cliComm.update(CliComm::STATUS, "cassetteplayer",
 	               getStateString(newState));
 
@@ -472,8 +476,8 @@ const string& CassettePlayer::getDescription() const
 
 void CassettePlayer::plugHelper(Connector& connector, const EmuTime& time)
 {
-	lastOutput = static_cast<CassettePortInterface&>(connector).lastOut();
 	sync(time);
+	lastOutput = static_cast<CassettePortInterface&>(connector).lastOut();
 }
 
 void CassettePlayer::unplugHelper(const EmuTime& time)
