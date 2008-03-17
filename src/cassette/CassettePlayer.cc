@@ -44,6 +44,7 @@
 #include "TclObject.hh"
 #include "DynamicClock.hh"
 #include "Clock.hh"
+#include "StringOp.hh"
 #include <algorithm>
 #include <cassert>
 #include <unistd.h>
@@ -192,6 +193,23 @@ bool CassettePlayer::isRolling() const
 	//  AND [ user forced playing (motorcontrol=off) OR motor enabled by
 	//        software (motor=on) ]
 	return (getState() != STOP) && (motor || !motorControl);
+}
+
+double CassettePlayer::getTapePos(const EmuTime& time)
+{
+	sync(time);
+	return (tapePos - EmuTime::zero).toDouble();
+}
+
+double CassettePlayer::getTapeLength(const EmuTime& time)
+{
+	if (playImage.get()) {
+		return (playImage->getEndTime() - EmuTime::zero).toDouble();
+	} else if (getState() == RECORD) {
+		return getTapePos(time);
+	} else {
+		return 0.0;
+	}
 }
 
 void CassettePlayer::checkInvariants() const
@@ -688,6 +706,12 @@ string TapeCommand::execute(const vector<string>& tokens, const EmuTime& time)
 		cassettePlayer.rewind(time);
 		result += "Tape rewound";
 
+	} else if (tokens[1] == "getpos") {
+		result += StringOp::toString(cassettePlayer.getTapePos(time));
+
+	} else if (tokens[1] == "getlength") {
+		result += StringOp::toString(cassettePlayer.getTapeLength(time));
+
 	} else {
 		try {
 			result += "Changing tape";
@@ -747,6 +771,13 @@ string TapeCommand::help(const vector<string>& tokens) const
 			    "used to be able to resume recording to an "
 			    "existing cassette image, previously inserted with "
 			    "the insert command.";
+		} else if (tokens[1] == "getpos") {
+			helptext =
+			    "Return the position of the tape, in seconds from "
+			    "the beginning of the tape.";
+		} else if (tokens[1] == "getlength") {
+			helptext =
+			    "Return the length of the tape in seconds.";
 		}
 	} else {
 		helptext =
@@ -764,6 +795,10 @@ string TapeCommand::help(const vector<string>& tokens) const
 		    ": create and insert new tape image file and go to record mode\n"
 		    "cassetteplayer insert <filename> "
 		    ": insert (a different) tape file\n"
+		    "cassetteplayer getpos            "
+		    ": query the position of the tape\n"
+		    "cassetteplayer getlength         "
+		    ": query the total length of the tape\n"
 		    "cassetteplayer <filename>        "
 		    ": insert (a different) tape file\n";
 	}
@@ -781,6 +816,8 @@ void TapeCommand::tabCompletion(vector<string>& tokens) const
 		extra.insert("new");
 		extra.insert("play");
 	//	extra.insert("record");
+		extra.insert("getpos");
+		extra.insert("getlength");
 		UserFileContext context(getCommandController());
 		completeFileName(tokens, context, extra);
 	} else if ((tokens.size() == 3) && (tokens[1] == "insert")) {

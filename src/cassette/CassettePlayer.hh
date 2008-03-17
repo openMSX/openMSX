@@ -102,6 +102,16 @@ private:
 	  */
 	void updateLoadingState(const EmuTime& time);
 
+	/** Returns the position of the tape, in seconds from the
+	  * beginning of the tape. */
+	double getTapePos(const EmuTime& time);
+
+	/** Returns the length of the tape in seconds.
+	  * When no tape is inserted, this returns 0. While recording this
+	  * returns the current position (so while recording, tape length grows
+	  * continuously). */
+	double getTapeLength(const EmuTime& time);
+
 	void sync(const EmuTime& time);
 	void updateTapePosition(const EmuDuration& duration, const EmuTime& time);
 	void generateRecordOutput(const EmuDuration& duration);
