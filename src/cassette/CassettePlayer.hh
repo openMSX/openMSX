@@ -101,14 +101,9 @@ private:
 	  */
 	void updateLoadingState(const EmuTime& time);
 
-	void updateAll(const EmuTime& time);
+	void sync(const EmuTime& time);
 
 	void updatePlayPosition(const EmuTime& time);
-
-	/** Returns a random access sample from the inserted tape image,
-	  * indexed by tape time.
-	  */
-	short getSample(const EmuTime& time);
 
 	void fillBuf(size_t length, double x);
 	void flushOutput();

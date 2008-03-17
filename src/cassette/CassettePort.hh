@@ -5,7 +5,6 @@
 
 #include "Connector.hh"
 #include "CassetteDevice.hh"
-#include "EmuTime.hh"
 #include "components.hh"
 #include <memory>
 
@@ -16,7 +15,6 @@ class CassettePlayer;
 #ifdef COMPONENT_JACK
 class CassetteJack;
 #endif
-class PluggingController;
 
 class CassettePortInterface : public Connector
 {
@@ -71,14 +69,13 @@ public:
 	virtual bool cassetteIn(const EmuTime& time);
 	virtual bool lastOut() const;
 private:
-	PluggingController& pluggingController;
+	MSXMotherBoard& motherBoard;
 
 	std::auto_ptr<CassettePlayer> cassettePlayer;
 #ifdef COMPONENT_JACK
 	std::auto_ptr<CassetteJack> cassetteJack;
 #endif
 
-	EmuTime prevTime;
 	short nextSample;
 	bool lastOutput;
 };

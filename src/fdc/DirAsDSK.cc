@@ -26,6 +26,7 @@ namespace openmsx {
 //   printing stuff to stdout breaks stdio CliComm connections!
 static void debug(const char* format, ...)
 {
+	(void)format;
 #if 0
 	va_list args;
 	va_start(args, format);

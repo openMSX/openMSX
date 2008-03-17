@@ -9,6 +9,7 @@
 #include "DummyCassetteDevice.hh"
 #include "MSXMotherBoard.hh"
 #include "PluggingController.hh"
+#include "Scheduler.hh"
 #include <memory>
 
 using std::auto_ptr;
@@ -68,10 +69,9 @@ bool DummyCassettePort::lastOut() const
 
 // CassettePort //
 
-CassettePort::CassettePort(MSXMotherBoard& motherBoard)
+CassettePort::CassettePort(MSXMotherBoard& motherBoard_)
 	: CassettePortInterface()
-	, pluggingController(motherBoard.getPluggingController())
-	, prevTime(EmuTime::zero)
+	, motherBoard(motherBoard_)
 	, nextSample(0)
 {
 	cassettePlayer.reset(new CassettePlayer(
@@ -81,6 +81,7 @@ CassettePort::CassettePort(MSXMotherBoard& motherBoard)
 		motherBoard.getMSXEventDistributor(),
 		motherBoard.getEventDistributor(),
 		motherBoard.getMSXCliComm()));
+	PluggingController& pluggingController = motherBoard.getPluggingController();
 	pluggingController.registerConnector(*this);
 	pluggingController.registerPluggable(cassettePlayer.get());
 #ifdef COMPONENT_JACK
@@ -91,7 +92,8 @@ CassettePort::CassettePort(MSXMotherBoard& motherBoard)
 
 CassettePort::~CassettePort()
 {
-	unplug(prevTime);
+	unplug(motherBoard.getScheduler().getCurrentTime());
+	PluggingController& pluggingController = motherBoard.getPluggingController();
 	pluggingController.unregisterPluggable(cassettePlayer.get());
 #ifdef COMPONENT_JACK
 	pluggingController.unregisterPluggable(cassetteJack.get());
@@ -105,7 +107,6 @@ void CassettePort::setMotor(bool status, const EmuTime& time)
 	//TODO make 'click' sound
 	//PRT_DEBUG("CassettePort: motor " << status);
 	getPlugged().setMotor(status, time);
-	prevTime = time;
 }
 
 void CassettePort::cassetteOut(bool output, const EmuTime& time)
@@ -113,7 +114,6 @@ void CassettePort::cassetteOut(bool output, const EmuTime& time)
 	lastOutput = output;
 	// leave everything to the pluggable
 	getPlugged().setSignal(output, time);
-	prevTime = time;
 }
 
 bool CassettePort::lastOut() const

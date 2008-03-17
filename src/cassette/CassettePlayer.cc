@@ -227,8 +227,7 @@ void CassettePlayer::setState(State newState, const EmuTime& time)
 
 	// stuff for leaving the old state
 	if (oldState == RECORD) {
-		setSignal(lastOutput, time);
-		flushOutput();
+		sync(time);
 		if (recordImage.get()->isEmpty()) {
 			// TODO: delete the created WAV file, as it is useless
 			newState = STOP;
@@ -261,7 +260,7 @@ void CassettePlayer::updateLoadingState(const EmuTime& time)
 	loadingIndicator->update(motor && (getState() == PLAY));
 
 	removeSyncPoint(END_OF_TAPE);
-	if ((motor || !motorControl) && (getState() == PLAY)) {
+	if (isRolling() && (getState() == PLAY)) {
 		setSyncPoint(time + (playImage->getEndTime() - tapeTime), END_OF_TAPE);
 	}
 }
@@ -303,7 +302,7 @@ void CassettePlayer::playTape(const string& filename, const EmuTime& time)
 	setImageName(localfilename);
 	rewind(time); // sets PLAY mode
 	autoRun();
-	setOutputRate(outputRate);
+	setOutputRate(outputRate); // recalculate resample stuff
 }
 
 void CassettePlayer::rewind(const EmuTime& time)
@@ -332,7 +331,7 @@ void CassettePlayer::removeTape(const EmuTime& time)
 void CassettePlayer::setMotor(bool status, const EmuTime& time)
 {
 	if (status != motor) {
-		updateAll(time);
+		sync(time);
 		motor = status;
 		updateLoadingState(time);
 	}
@@ -341,16 +340,10 @@ void CassettePlayer::setMotor(bool status, const EmuTime& time)
 void CassettePlayer::setMotorControl(bool status, const EmuTime& time)
 {
 	if (status != motorControl) {
-		updateAll(time);
+		sync(time);
 		motorControl = status;
 		updateLoadingState(time);
 	}
-}
-
-short CassettePlayer::getSample(const EmuTime& time)
-{
-	assert(getState() == PLAY);
-	return isRolling() ? playImage->getSampleAt(time) : 0;
 }
 
 short CassettePlayer::readSample(const EmuTime& time)
@@ -358,7 +351,7 @@ short CassettePlayer::readSample(const EmuTime& time)
 	if (getState() == PLAY) {
 		// playing
 		updatePlayPosition(time);
-		return getSample(tapeTime);
+		return isRolling() ? playImage->getSampleAt(tapeTime) : 0;
 	} else {
 		// record or stop
 		return 0;
@@ -382,20 +375,14 @@ void CassettePlayer::updatePlayPosition(const EmuTime& time)
 	prevTime = time;
 }
 
-void CassettePlayer::updateAll(const EmuTime& time)
+void CassettePlayer::sync(const EmuTime& time)
 {
 	switch (getState()) {
 	case PLAY:
 		updatePlayPosition(time);
 		break;
 	case RECORD:
-		if (isRolling()) {
-			// was already recording, update output
-			setSignal(lastOutput, time);
-		} else {
-			// (possibly) restart recording, reset parameters
-			recTime = time;
-		}
+		setSignal(lastOutput, time);
 		flushOutput();
 		break;
 	default:
@@ -485,7 +472,7 @@ const string& CassettePlayer::getDescription() const
 void CassettePlayer::plugHelper(Connector& connector, const EmuTime& time)
 {
 	lastOutput = static_cast<CassettePortInterface&>(connector).lastOut();
-	updateAll(time);
+	sync(time);
 }
 
 void CassettePlayer::unplugHelper(const EmuTime& time)
