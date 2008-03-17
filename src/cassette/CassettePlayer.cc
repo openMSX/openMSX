@@ -46,6 +46,7 @@
 #include "Clock.hh"
 #include <algorithm>
 #include <cassert>
+#include <unistd.h>
 
 using std::auto_ptr;
 using std::string;
@@ -131,6 +132,8 @@ CassettePlayer::~CassettePlayer()
 
 void CassettePlayer::autoRun()
 {
+	if (!playImage.get()) return;
+
 	// try to automatically run the tape, if that's set
 	CassetteImage::FileType type = playImage->getFirstFileType();
 	if (!autoRunSetting->getValue() || type == CassetteImage::UNKNOWN) {
@@ -218,14 +221,14 @@ void CassettePlayer::checkInvariants() const
 	}
 }
 
-void CassettePlayer::setState(State newState, const EmuTime& time)
+void CassettePlayer::setState(State newState, const std::string& newImage,
+                              const EmuTime& time)
 {
 	sync(time);
 
 	// set new state if different from old state
 	State oldState = getState();
 	if (oldState == newState) return;
-	state = newState;
 
 	// cannot directly switch from PLAY to RECORD or vice-versa,
 	// (should always go via STOP)
@@ -238,9 +241,15 @@ void CassettePlayer::setState(State newState, const EmuTime& time)
 		bool empty = recordImage.get()->isEmpty();
 		recordImage.reset();
 		if (empty) {
-			// TODO: delete the created WAV file, as it is useless
+			// delete the created WAV file, as it is useless
+			unlink(getImageName().c_str());
+			setImageName("");
 		}
 	}
+
+	// actually switch state
+	state = newState;
+	setImageName(newImage);
 
 	// stuff for entering the new state
 	if (newState == RECORD) {
@@ -279,27 +288,37 @@ const string& CassettePlayer::getImageName() const
 	return casImage;
 }
 
-// note: filename passed by value
-void CassettePlayer::playTape(string filename, const EmuTime& time)
+void CassettePlayer::playTape(const string& filename, const EmuTime& time)
 {
 	if (getState() == RECORD) {
 		// First close the recorded image. Otherwise it goes wrong
 		// if you switch from RECORD->PLAY on the same image.
-		removeTape(time);
+		setState(STOP, getImageName(), time); // keep current image
 	}
-	try {
-		// first try WAV
-		playImage.reset(new WavImage(filename));
-	} catch (MSXException& e) {
+	if (!filename.empty()) {
 		try {
-			// if that fails use CAS
-			playImage.reset(new CasImage(filename, cliComm));
-		} catch (MSXException& e2) {
-			throw MSXException(
-				"Failed to insert WAV image: \"" + e.getMessage() +
-				"\" and also failed to insert CAS image: \"" +
-				e2.getMessage() + "\"");
+			// first try WAV
+			playImage.reset(new WavImage(filename));
+		} catch (MSXException& e) {
+			try {
+				// if that fails use CAS
+				playImage.reset(new CasImage(filename, cliComm));
+			} catch (MSXException& e2) {
+				throw MSXException(
+					"Failed to insert WAV image: \"" +
+					e.getMessage() +
+					"\" and also failed to insert CAS image: \"" +
+					e2.getMessage() + "\"");
+			}
 		}
+	} else {
+		// This is a bit tricky, consider this scenario: we switch from
+		// RECORD->PLAY, but we didn't actually record anything: The
+		// removeTape() call above (indirectly) deletes the empty
+		// recorded wav image and also clears imageName. Now because
+		// the 'filename' parameter is passed by reference, and because
+		// getImageName() returns a reference, this 'filename'
+		// parameter now also is an empty string.
 	}
 	setImageName(filename);
 	rewind(time); // sets PLAY mode
@@ -317,7 +336,8 @@ void CassettePlayer::rewind(const EmuTime& time)
 		// no image inserted, do nothing
 		assert(getState() == STOP);
 	} else {
-		setState(PLAY, time);
+		// keep current image
+		setState(PLAY, getImageName(), time);
 	}
 }
 
@@ -325,17 +345,15 @@ void CassettePlayer::recordTape(const string& filename, const EmuTime& time)
 {
 	removeTape(time); // flush (possible) previous recording
 	recordImage.reset(new WavWriter(filename, 1, 8, RECORD_FREQ));
-	setImageName(filename);
 	tapePos = EmuTime::zero;
-	setState(RECORD, time);
+	setState(RECORD, filename, time);
 }
 
 void CassettePlayer::removeTape(const EmuTime& time)
 {
 	playImage.reset();
-	setImageName("");
 	tapePos = EmuTime::zero;
-	setState(STOP, time);
+	setState(STOP, "", time);
 }
 
 void CassettePlayer::setMotor(bool status, const EmuTime& time)
@@ -484,7 +502,7 @@ void CassettePlayer::plugHelper(Connector& connector, const EmuTime& time)
 
 void CassettePlayer::unplugHelper(const EmuTime& time)
 {
-	setState(STOP, time);
+	setState(STOP, getImageName(), time); // keep current image
 }
 
 
@@ -555,7 +573,7 @@ void CassettePlayer::executeUntil(const EmuTime& time, int userData)
 			"You may need to insert another tape image "
 			"that contains side B. (Or you used the wrong "
 			"loading command.)");
-		setState(STOP, time);
+		setState(STOP, getImageName(), time); // keep current image
 		break;
 	case SYNC_AUDIO_EMU:
 		if (getState() == PLAY) {

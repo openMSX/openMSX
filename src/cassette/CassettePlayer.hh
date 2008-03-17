@@ -62,14 +62,15 @@ private:
 	enum State { PLAY, RECORD, STOP };
 	State getState() const;
 	std::string getStateString() const;
-	void setState(State newState, const EmuTime& time);
+	void setState(State newState, const std::string& newImage,
+	              const EmuTime& time);
 	void setImageName(const std::string& newImage);
 	const std::string& getImageName() const;
 	void checkInvariants() const;
 
 	/** Insert a tape for use in PLAY mode.
 	 */
-	void playTape(std::string filename, const EmuTime& time);
+	void playTape(const std::string& filename, const EmuTime& time);
 
 	/** Removes tape (possibly stops recording). And go to STOP mode.
 	 */
