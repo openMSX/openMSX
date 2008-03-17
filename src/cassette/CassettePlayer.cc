@@ -170,6 +170,17 @@ CassettePlayer::State CassettePlayer::getState() const
 	return state;
 }
 
+string CassettePlayer::getStateString() const
+{
+	switch (getState()) {
+		case PLAY:   return "play";
+		case RECORD: return "record";
+		case STOP:   return "stop";
+	}
+	assert(false);
+	return "";
+}
+
 bool CassettePlayer::isRolling() const
 {
 	// Is the tape 'rolling'?
@@ -178,17 +189,6 @@ bool CassettePlayer::isRolling() const
 	//  AND [ user forced playing (motorcontrol=off) OR motor enabled by
 	//        software (motor=on) ]
 	return (getState() != STOP) && (motor || !motorControl);
-}
-
-string CassettePlayer::getStateString(State state)
-{
-	switch (state) {
-		case PLAY:   return "play";
-		case RECORD: return "record";
-		case STOP:   return "stop";
-	}
-	assert(false);
-	return "";
 }
 
 void CassettePlayer::checkInvariants() const
@@ -222,11 +222,6 @@ void CassettePlayer::setState(State newState, const EmuTime& time)
 {
 	sync(time);
 
-	if (getImageName().empty()) {
-		// no image, always STOP state
-		newState = STOP;
-	}
-
 	// set new state if different from old state
 	State oldState = getState();
 	if (oldState == newState) return;
@@ -254,8 +249,7 @@ void CassettePlayer::setState(State newState, const EmuTime& time)
 		lastX = lastOutput ? OUTPUT_AMP : -OUTPUT_AMP;
 		lastY = 0.0;
 	}
-	cliComm.update(CliComm::STATUS, "cassetteplayer",
-	               getStateString(newState));
+	cliComm.update(CliComm::STATUS, "cassetteplayer", getStateString());
 
 	updateLoadingState(time); // sets SP for tape-end detection
 
@@ -285,12 +279,13 @@ const string& CassettePlayer::getImageName() const
 	return casImage;
 }
 
-void CassettePlayer::playTape(const string& filename, const EmuTime& time)
+// note: filename passed by value
+void CassettePlayer::playTape(string filename, const EmuTime& time)
 {
 	if (getState() == RECORD) {
 		// First close the recorded image. Otherwise it goes wrong
 		// if you switch from RECORD->PLAY on the same image.
-		setState(STOP, time);
+		removeTape(time);
 	}
 	try {
 		// first try WAV
@@ -317,7 +312,13 @@ void CassettePlayer::rewind(const EmuTime& time)
 	assert(getState() != RECORD);
 	tapePos = EmuTime::zero;
 	audioPos = 0;
-	setState(PLAY, time);
+
+	if (getImageName().empty()) {
+		// no image inserted, do nothing
+		assert(getState() == STOP);
+	} else {
+		setState(PLAY, time);
+	}
 }
 
 void CassettePlayer::recordTape(const string& filename, const EmuTime& time)
@@ -333,6 +334,7 @@ void CassettePlayer::removeTape(const EmuTime& time)
 {
 	playImage.reset();
 	setImageName("");
+	tapePos = EmuTime::zero;
 	setState(STOP, time);
 }
 
@@ -592,8 +594,7 @@ string TapeCommand::execute(const vector<string>& tokens, const EmuTime& time)
 		tmp.addListElement(cassettePlayer.getImageName());
 
 		TclObject options(getCommandController().getInterpreter());
-		options.addListElement(cassettePlayer.getStateString(
-		                           cassettePlayer.getState()));
+		options.addListElement(cassettePlayer.getStateString());
 		tmp.addListElement(options);
 		result += tmp.getString();
 
