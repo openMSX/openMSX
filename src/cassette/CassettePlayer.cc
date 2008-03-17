@@ -87,8 +87,7 @@ CassettePlayer::CassettePlayer(
 	, Resample(msxCommandController_.getGlobalSettings(), 1)
 	, Schedulable(scheduler)
 	, tapePos(EmuTime::zero)
-	, lastRecSyncTime(EmuTime::zero)
-	, lastPosSyncTime(EmuTime::zero)
+	, prevSyncTime(EmuTime::zero)
 	, audioPos(0)
 	, msxCommandController(msxCommandController_)
 	, cliComm(cliComm_)
@@ -239,6 +238,7 @@ void CassettePlayer::setState(State newState, const EmuTime& time)
 			newState = STOP;
 			state = newState;
 		}
+		flushOutput();
 		recordImage.reset();
 	}
 
@@ -248,10 +248,8 @@ void CassettePlayer::setState(State newState, const EmuTime& time)
 		partialInterval = 0.0;
 		lastX = lastOutput ? OUTPUT_AMP : -OUTPUT_AMP;
 		lastY = 0.0;
-		lastRecSyncTime = time;
-	} else if (newState == PLAY) {
-		lastPosSyncTime = time;
 	}
+	prevSyncTime = time; // TODO call sync() instead
 	cliComm.update(CliComm::STATUS, "cassetteplayer",
 	               getStateString(newState));
 
@@ -355,19 +353,26 @@ short CassettePlayer::readSample(const EmuTime& time)
 {
 	if (getState() == PLAY) {
 		// playing
-		updatePlayPosition(time);
-		return isRolling() ? playImage->getSampleAt(tapeTime) : 0;
+		sync(time);
+		return isRolling() ? playImage->getSampleAt(tapePos) : 0;
 	} else {
 		// record or stop
 		return 0;
 	}
 }
 
-void CassettePlayer::updatePlayPosition(const EmuTime& time)
+void CassettePlayer::setSignal(bool output, const EmuTime& time)
+{
+	sync(time);
+	lastOutput = output;
+}
+
+void CassettePlayer::updatePlayPosition(
+	const EmuDuration& duration, const EmuTime& time)
 {
 	assert(getState() == PLAY);
 	if (isRolling()) {
-		tapePos += (time - lastPosSyncTime);
+		tapePos += duration;
 
 		if (!syncScheduled) {
 			// don't sync too often, this improves sound quality
@@ -377,18 +382,19 @@ void CassettePlayer::updatePlayPosition(const EmuTime& time)
 			setSyncPoint(next.getTime(), SYNC_AUDIO_EMU);
 		}
 	}
-	lastPosSyncTime = time;
 }
 
 void CassettePlayer::sync(const EmuTime& time)
 {
+	EmuDuration duration = time - prevSyncTime;
+	prevSyncTime = time;
+
 	switch (getState()) {
 	case PLAY:
-		updatePlayPosition(time);
+		updatePlayPosition(duration, time);
 		break;
 	case RECORD:
-		setSignal(lastOutput, time);
-		flushOutput();
+		generateRecordOutput(duration);
 		break;
 	default:
 		// nothing
@@ -396,35 +402,33 @@ void CassettePlayer::sync(const EmuTime& time)
 	}
 }
 
-void CassettePlayer::setSignal(bool output, const EmuTime& time)
+void CassettePlayer::generateRecordOutput(const EmuDuration& duration)
 {
-	if (recordImage.get() && isRolling()) {
-		double out = output ? OUTPUT_AMP : -OUTPUT_AMP;
-		double samples = (time - lastRecSyncTime).toDouble() * RECORD_FREQ;
-		double rest = 1.0 - partialInterval;
-		if (rest <= samples) {
-			// enough to fill next interval
-			partialOut += out * rest;
-			fillBuf(1, int(partialOut));
-			samples -= rest;
+	if (!recordImage.get() || !isRolling()) return;
 
-			// fill complete intervals
-			int count = int(samples);
-			if (count > 0) {
-				fillBuf(count, int(out));
-			}
-			samples -= count;
+	double out = lastOutput ? OUTPUT_AMP : -OUTPUT_AMP;
+	double samples = duration.toDouble() * RECORD_FREQ;
+	double rest = 1.0 - partialInterval;
+	if (rest <= samples) {
+		// enough to fill next interval
+		partialOut += out * rest;
+		fillBuf(1, int(partialOut));
+		samples -= rest;
 
-			// partial last interval
-			partialOut = samples * out;
-			partialInterval = 0.0;
-		} else {
-			partialOut += samples * out;
-			partialInterval += samples;
+		// fill complete intervals
+		int count = int(samples);
+		if (count > 0) {
+			fillBuf(count, int(out));
 		}
+		samples -= count;
+
+		// partial last interval
+		partialOut = samples * out;
+		partialInterval = 0.0;
+	} else {
+		partialOut += samples * out;
+		partialInterval += samples;
 	}
-	lastRecSyncTime = time;
-	lastOutput = output;
 }
 
 void CassettePlayer::fillBuf(size_t length, double x)
@@ -558,7 +562,7 @@ void CassettePlayer::executeUntil(const EmuTime& time, int userData)
 	case SYNC_AUDIO_EMU:
 		if (getState() == PLAY) {
 			updateStream(time);
-			updatePlayPosition(time);
+			sync(time);
 			DynamicClock clk(EmuTime::zero);
 			clk.setFreq(playImage->getFrequency());
 			audioPos = clk.getTicksTill(tapePos);

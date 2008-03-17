@@ -102,8 +102,8 @@ private:
 	void updateLoadingState(const EmuTime& time);
 
 	void sync(const EmuTime& time);
-
-	void updatePlayPosition(const EmuTime& time);
+	void updatePlayPosition(const EmuDuration& duration, const EmuTime& time);
+	void generateRecordOutput(const EmuDuration& duration);
 
 	void fillBuf(size_t length, double x);
 	void flushOutput();
@@ -127,10 +127,9 @@ private:
 	/** The time in the world of the tape. Zero at the start of the tape. */
 	EmuTime tapePos;
 
-	EmuTime lastRecSyncTime;
-
-	/** Last time that tape time was synced with machine time. */
-	EmuTime lastPosSyncTime;
+	/** Last time the sync() method was called.
+	  * Used to calculate EmuDuration since last sync. */
+	EmuTime prevSyncTime;
 
 	// SoundDevice
 	unsigned audioPos;
