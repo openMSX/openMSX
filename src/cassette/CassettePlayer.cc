@@ -86,10 +86,10 @@ CassettePlayer::CassettePlayer(
 	: SoundDevice(mixer, getName(), getDescription(), 1)
 	, Resample(msxCommandController_.getGlobalSettings(), 1)
 	, Schedulable(scheduler)
-	, tapeTime(EmuTime::zero)
-	, recTime(EmuTime::zero)
-	, prevTime(EmuTime::zero)
-	, playPos(0)
+	, tapePos(EmuTime::zero)
+	, lastRecSyncTime(EmuTime::zero)
+	, lastPosSyncTime(EmuTime::zero)
+	, audioPos(0)
 	, msxCommandController(msxCommandController_)
 	, cliComm(cliComm_)
 	, eventDistributor(eventDistributor_)
@@ -197,6 +197,12 @@ void CassettePlayer::checkInvariants() const
 	switch (getState()) {
 	case STOP:
 		assert(!recordImage.get());
+		if (playImage.get()) {
+			// we're at end-of tape
+			assert(!getImageName().empty());
+		} else {
+			// no tape inserted, imageName may or may not be empty
+		}
 		break;
 	case PLAY:
 		assert(!getImageName().empty());
@@ -242,8 +248,9 @@ void CassettePlayer::setState(State newState, const EmuTime& time)
 		partialInterval = 0.0;
 		lastX = lastOutput ? OUTPUT_AMP : -OUTPUT_AMP;
 		lastY = 0.0;
+		lastRecSyncTime = time;
 	} else if (newState == PLAY) {
-		prevTime = time;
+		lastPosSyncTime = time;
 	}
 	cliComm.update(CliComm::STATUS, "cassetteplayer",
 	               getStateString(newState));
@@ -261,7 +268,7 @@ void CassettePlayer::updateLoadingState(const EmuTime& time)
 
 	removeSyncPoint(END_OF_TAPE);
 	if (isRolling() && (getState() == PLAY)) {
-		setSyncPoint(time + (playImage->getEndTime() - tapeTime), END_OF_TAPE);
+		setSyncPoint(time + (playImage->getEndTime() - tapePos), END_OF_TAPE);
 	}
 }
 
@@ -278,20 +285,18 @@ const string& CassettePlayer::getImageName() const
 
 void CassettePlayer::playTape(const string& filename, const EmuTime& time)
 {
-	// make a local copy of the filename, because it might get
-	// overwritten in removeTape
-	const string localfilename = filename;
 	if (getState() == RECORD) {
-		// flush recorded tape
-		removeTape(time);
+		// First close the recorded image. Otherwise it goes wrong
+		// if you switch from RECORD->PLAY on the same image.
+		setState(STOP, time);
 	}
 	try {
 		// first try WAV
-		playImage.reset(new WavImage(localfilename));
+		playImage.reset(new WavImage(filename));
 	} catch (MSXException& e) {
 		try {
 			// if that fails use CAS
-			playImage.reset(new CasImage(localfilename, cliComm));
+			playImage.reset(new CasImage(filename, cliComm));
 		} catch (MSXException& e2) {
 			throw MSXException(
 				"Failed to insert WAV image: \"" + e.getMessage() +
@@ -299,7 +304,7 @@ void CassettePlayer::playTape(const string& filename, const EmuTime& time)
 				e2.getMessage() + "\"");
 		}
 	}
-	setImageName(localfilename);
+	setImageName(filename);
 	rewind(time); // sets PLAY mode
 	autoRun();
 	setOutputRate(outputRate); // recalculate resample stuff
@@ -307,8 +312,9 @@ void CassettePlayer::playTape(const string& filename, const EmuTime& time)
 
 void CassettePlayer::rewind(const EmuTime& time)
 {
-	tapeTime = EmuTime::zero;
-	playPos = 0;
+	assert(getState() != RECORD);
+	tapePos = EmuTime::zero;
+	audioPos = 0;
 	setState(PLAY, time);
 }
 
@@ -318,7 +324,6 @@ void CassettePlayer::recordTape(const string& filename, const EmuTime& time)
 	recordImage.reset(new WavWriter(filename, 1, 8, RECORD_FREQ));
 	setImageName(filename);
 	setState(RECORD, time);
-	recTime = time;
 }
 
 void CassettePlayer::removeTape(const EmuTime& time)
@@ -362,7 +367,7 @@ void CassettePlayer::updatePlayPosition(const EmuTime& time)
 {
 	assert(getState() == PLAY);
 	if (isRolling()) {
-		tapeTime += (time - prevTime);
+		tapePos += (time - lastPosSyncTime);
 
 		if (!syncScheduled) {
 			// don't sync too often, this improves sound quality
@@ -372,7 +377,7 @@ void CassettePlayer::updatePlayPosition(const EmuTime& time)
 			setSyncPoint(next.getTime(), SYNC_AUDIO_EMU);
 		}
 	}
-	prevTime = time;
+	lastPosSyncTime = time;
 }
 
 void CassettePlayer::sync(const EmuTime& time)
@@ -395,7 +400,7 @@ void CassettePlayer::setSignal(bool output, const EmuTime& time)
 {
 	if (recordImage.get() && isRolling()) {
 		double out = output ? OUTPUT_AMP : -OUTPUT_AMP;
-		double samples = (time - recTime).toDouble() * RECORD_FREQ;
+		double samples = (time - lastRecSyncTime).toDouble() * RECORD_FREQ;
 		double rest = 1.0 - partialInterval;
 		if (rest <= samples) {
 			// enough to fill next interval
@@ -418,7 +423,7 @@ void CassettePlayer::setSignal(bool output, const EmuTime& time)
 			partialInterval += samples;
 		}
 	}
-	recTime = time;
+	lastRecSyncTime = time;
 	lastOutput = output;
 }
 
@@ -499,8 +504,8 @@ void CassettePlayer::generateChannels(int** buffers, unsigned num)
 	// Note: fillBuffer() replaces the values in the buffer. It should add
 	//       to the existing values in the buffer. But because there is only
 	//       one channel this doesn't matter (buffer contains all zeros).
-	playImage->fillBuffer(playPos, buffers, num);
-	playPos += num;
+	playImage->fillBuffer(audioPos, buffers, num);
+	audioPos += num;
 }
 
 bool CassettePlayer::generateInput(int* buffer, unsigned num)
@@ -556,7 +561,7 @@ void CassettePlayer::executeUntil(const EmuTime& time, int userData)
 			updatePlayPosition(time);
 			DynamicClock clk(EmuTime::zero);
 			clk.setFreq(playImage->getFrequency());
-			playPos = clk.getTicksTill(tapeTime);
+			audioPos = clk.getTicksTill(tapePos);
 		}
 		syncScheduled = false;
 		break;

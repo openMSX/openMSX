@@ -125,15 +125,15 @@ private:
 	double partialInterval;
 
 	/** The time in the world of the tape. Zero at the start of the tape. */
-	EmuTime tapeTime;
+	EmuTime tapePos;
 
-	EmuTime recTime;
+	EmuTime lastRecSyncTime;
 
 	/** Last time that tape time was synced with machine time. */
-	EmuTime prevTime;
+	EmuTime lastPosSyncTime;
 
 	// SoundDevice
-	unsigned playPos;
+	unsigned audioPos;
 	unsigned outputRate;
 	std::string casImage;
 
