@@ -105,7 +105,13 @@ else
 				echo "$BEST_LDFLAGS"
 				;;
 			--static-libs)
-				echo "$BEST_STATIC_LIBS"
+				if [ $TCL_SHARED_BUILD -eq 0 ]
+				then
+					echo "$BEST_STATIC_LIBS"
+				else
+					echo "This TCL was not built for static linking" 1>&2
+					EXIT=1
+				fi
 				;;
 			--version)
 				echo "$BEST_MAJOR_VERSION.$BEST_MINOR_VERSION"
