@@ -1,9 +1,8 @@
 // $Id$
 
 //TODO:
-// - better handle the case where the user created a new tape image, but did not
-//   record anything to it and then selects PLAY mode. This currently gives an
-//   error, because the WavData class can't handle an empty (valid) WAV file 
+// - improve consistency when a reset occurs: tape is removed when you were
+//   recording, but it is not removed when you were playing
 // - specify prefix for auto file name generation when recording (setting?)
 // - append to existing wav files when recording (record command), but this is
 //   basically a special case (pointer at the end) of:
