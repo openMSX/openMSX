@@ -77,6 +77,8 @@ chirp 12-..: vokume   0   : silent
 */
 
 #include "VLM5030.hh"
+#include "SoundDevice.hh"
+#include "Resample.hh"
 #include "Rom.hh"
 #include "MSXMotherBoard.hh"
 #include "XMLElement.hh"
@@ -85,6 +87,77 @@ chirp 12-..: vokume   0   : silent
 #include <cstdlib>
 
 namespace openmsx {
+
+class VLM5030Impl : public SoundDevice, private Resample
+{
+public:
+	VLM5030Impl(MSXMotherBoard& motherBoard, const std::string& name,
+	            const std::string& desc, const XMLElement& config,
+	            const EmuTime& time);
+	~VLM5030Impl();
+
+	void reset(const EmuTime& time);
+	void writeData(byte data);
+	bool getBSY(const EmuTime& time);
+	void setRST(bool pin, const EmuTime& time);
+	void setVCU(bool pin, const EmuTime& time);
+	void setST(bool pin, const EmuTime& time);
+
+private:
+	// SoundDevice
+	virtual void setOutputRate(unsigned sampleRate);
+	virtual void generateChannels(int** bufs, unsigned num);
+	virtual bool updateBuffer(
+		unsigned length, int* buffer, const EmuTime& start,
+		const EmuDuration& sampDur);
+
+	// Resample
+	virtual bool generateInput(int* buffer, unsigned num);
+
+	void setupParameter(byte param);
+	int getBits(unsigned sbit, unsigned bits);
+	int parseFrame();
+
+	std::auto_ptr<Rom> rom;
+	int address_mask;
+
+	// state of option paramter
+	int frame_size;
+	int pitch_offset;
+
+	// these contain data describing the current and previous voice frames
+	// these are all used to contain the current state of the sound generation
+	unsigned current_energy;
+	unsigned current_pitch;
+	int current_k[10];
+	int x[10];
+
+	word address;
+	word vcu_addr_h;
+
+	signed_word old_k[10];
+	signed_word new_k[10];
+	signed_word target_k[10];
+	word old_energy;
+	word new_energy;
+	word target_energy;
+	byte old_pitch;
+	byte new_pitch;
+	byte target_pitch;
+
+	byte interp_step;
+	byte interp_count; // number of interp periods
+	byte sample_count; // sample number within interp
+	byte pitch_count;
+
+	byte latch_data;
+	byte parameter;
+	byte phase;
+	bool pin_BSY;
+	bool pin_ST;
+	bool pin_VCU;
+	bool pin_RST;
+};
 
 // interpolator per frame
 static const int FR_SIZE = 4;
@@ -173,7 +246,7 @@ static const signed_word K5_table[] = {
        0,   -8127,  -16384,  -24511,   32638,   24511,   16254,    8127
 };
 
-int VLM5030::getBits(unsigned sbit, unsigned bits)
+int VLM5030Impl::getBits(unsigned sbit, unsigned bits)
 {
 	unsigned offset = address + (sbit / 8);
 	unsigned data = (*rom)[(offset + 0) & address_mask] +
@@ -184,7 +257,7 @@ int VLM5030::getBits(unsigned sbit, unsigned bits)
 }
 
 // get next frame
-int VLM5030::parseFrame()
+int VLM5030Impl::parseFrame()
 {
 	// remember previous frame
 	old_energy = new_energy;
@@ -232,7 +305,7 @@ int VLM5030::parseFrame()
 }
 
 // decode and buffering data
-void VLM5030::generateChannels(int** bufs, unsigned length)
+void VLM5030Impl::generateChannels(int** bufs, unsigned length)
 {
 	if (phase == PH_IDLE) {
 		bufs[0] = 0;
@@ -368,7 +441,7 @@ phase_stop:
 }
 
 // setup parameteroption when RST=H
-void VLM5030::setupParameter(byte param)
+void VLM5030Impl::setupParameter(byte param)
 {
 	// latch parameter value
 	parameter = param;
@@ -395,7 +468,7 @@ void VLM5030::setupParameter(byte param)
 	}
 }
 
-void VLM5030::reset(const EmuTime& /*time*/)
+void VLM5030Impl::reset(const EmuTime& /*time*/)
 {
 	phase = PH_RESET;
 	address = 0;
@@ -417,20 +490,20 @@ void VLM5030::reset(const EmuTime& /*time*/)
 }
 
 // get BSY pin level
-bool VLM5030::getBSY(const EmuTime& time)
+bool VLM5030Impl::getBSY(const EmuTime& time)
 {
 	updateStream(time);
 	return pin_BSY;
 }
 
 // latch control data
-void VLM5030::writeData(byte data)
+void VLM5030Impl::writeData(byte data)
 {
 	latch_data = data;
 }
 
 // set RST pin level : reset / set table address A8-A15
-void VLM5030::setRST (bool pin, const EmuTime& time)
+void VLM5030Impl::setRST (bool pin, const EmuTime& time)
 {
 	if (pin_RST) {
 		if (!pin) { // H -> L : latch parameters
@@ -448,14 +521,14 @@ void VLM5030::setRST (bool pin, const EmuTime& time)
 }
 
 // set VCU pin level : ?? unknown
-void VLM5030::setVCU(bool pin, const EmuTime& /*time*/)
+void VLM5030Impl::setVCU(bool pin, const EmuTime& /*time*/)
 {
 	// direct mode / indirect mode
 	pin_VCU = pin;
 }
 
 // set ST pin level  : set table address A0-A7 / start speech
-void VLM5030::setST(bool pin, const EmuTime& time)
+void VLM5030Impl::setST(bool pin, const EmuTime& time)
 {
 	if (pin_ST == pin) {
 		// pin level unchanged
@@ -497,7 +570,7 @@ void VLM5030::setST(bool pin, const EmuTime& time)
 	}
 }
 
-VLM5030::VLM5030(MSXMotherBoard& motherBoard, const std::string& name,
+VLM5030Impl::VLM5030Impl(MSXMotherBoard& motherBoard, const std::string& name,
                  const std::string& desc, const XMLElement& config,
                  const EmuTime& time)
 	: SoundDevice(motherBoard.getMSXMixer(), name, desc, 1)
@@ -528,12 +601,12 @@ VLM5030::VLM5030(MSXMotherBoard& motherBoard, const std::string& name,
 	registerSound(config);
 }
 
-VLM5030::~VLM5030()
+VLM5030Impl::~VLM5030Impl()
 {
 	unregisterSound();
 }
 
-void VLM5030::setOutputRate(unsigned sampleRate)
+void VLM5030Impl::setOutputRate(unsigned sampleRate)
 {
        const int CLOCK_FREQ = 3579545;
        double input = CLOCK_FREQ / 440.0;
@@ -541,15 +614,59 @@ void VLM5030::setOutputRate(unsigned sampleRate)
        setResampleRatio(input, sampleRate);
 }
 
-bool VLM5030::generateInput(int* buffer, unsigned length)
+bool VLM5030Impl::generateInput(int* buffer, unsigned length)
 {
 	return mixChannels(buffer, length);
 }
 
-bool VLM5030::updateBuffer(unsigned length, int* buffer,
+bool VLM5030Impl::updateBuffer(unsigned length, int* buffer,
                            const EmuTime& /*start*/, const EmuDuration& /*sampDur*/)
 {
 	return generateOutput(buffer, length);
+}
+
+
+// class VLM5030
+
+VLM5030::VLM5030(MSXMotherBoard& motherBoard, const std::string& name,
+                 const std::string& desc, const XMLElement& config,
+                 const EmuTime& time)
+	: pimple(new VLM5030Impl(motherBoard, name, desc, config, time))
+{
+}
+
+VLM5030::~VLM5030()
+{
+}
+
+void VLM5030::reset(const EmuTime& time)
+{
+	pimple->reset(time);
+}
+
+void VLM5030::writeData(byte data)
+{
+	pimple->writeData(data);
+}
+
+bool VLM5030::getBSY(const EmuTime& time)
+{
+	return pimple->getBSY(time);
+}
+
+void VLM5030::setRST(bool pin, const EmuTime& time)
+{
+	pimple->setRST(pin, time);
+}
+
+void VLM5030::setVCU(bool pin, const EmuTime& time)
+{
+	pimple->setVCU(pin, time);
+}
+
+void VLM5030::setST(bool pin, const EmuTime& time)
+{
+	pimple->setST(pin, time);
 }
 
 } // namespace openmsx
