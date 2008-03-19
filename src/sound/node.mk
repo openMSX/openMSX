@@ -13,7 +13,8 @@ SRC_HDR:= \
 	VLM5030 \
 	MSXAudio \
 	EmuTimer \
-	Y8950 Y8950Adpcm Y8950KeyboardConnector Y8950KeyboardDevice \
+	Y8950 Y8950Adpcm Y8950KeyboardConnector \
+	Y8950KeyboardDevice DummyY8950KeyboardDevice \
 	MSXFmPac MSXMusic \
 	YM2413Core YM2413 YM2413_2 \
 	MSXTurboRPCM \
