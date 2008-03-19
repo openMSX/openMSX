@@ -2,6 +2,7 @@
 
 #include "DiskDrive.hh"
 #include "Disk.hh"
+#include "DiskExceptions.hh"
 
 namespace openmsx {
 

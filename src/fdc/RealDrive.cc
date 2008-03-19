@@ -10,6 +10,7 @@
 #include "ThrottleManager.hh"
 #include "MSXCliComm.hh"
 #include "GlobalSettings.hh"
+#include "MSXException.hh"
 #include <bitset>
 
 using std::string;

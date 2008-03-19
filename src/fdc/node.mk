@@ -30,5 +30,8 @@ SRC_HDR:= \
 	DiskManipulator \
 	BootBlocks \
 
+HDR_ONLY:= \
+	DiskExceptions \
+
 include build/node-end.mk
 

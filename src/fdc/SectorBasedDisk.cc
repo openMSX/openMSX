@@ -1,6 +1,7 @@
 // $Id$
 
 #include "SectorBasedDisk.hh"
+#include "DiskExceptions.hh"
 #include "EmptyDiskPatch.hh"
 #include "IPSPatch.hh"
 #include <cassert>

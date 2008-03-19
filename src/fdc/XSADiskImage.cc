@@ -1,6 +1,7 @@
 // $Id$
 
 #include "XSADiskImage.hh"
+#include "DiskExceptions.hh"
 #include "File.hh"
 #include <string.h>
 

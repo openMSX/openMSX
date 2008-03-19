@@ -1,6 +1,7 @@
 // $Id$
 
 #include "DummyDisk.hh"
+#include "DiskExceptions.hh"
 
 namespace openmsx {
 
