@@ -8,7 +8,8 @@ SRC_HDR:= \
 	SettingsConfig
 
 HDR_ONLY:= \
-	ConfigException
+	ConfigException \
+	XMLException
 
 include build/node-end.mk
 

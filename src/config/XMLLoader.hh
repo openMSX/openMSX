@@ -3,19 +3,13 @@
 #ifndef XMLLOADER_HH
 #define XMLLOADER_HH
 
-#include "MSXException.hh"
-#include <libxml/parser.h>
+#include <string>
 #include <memory>
+#include <libxml/parser.h>
 
 namespace openmsx {
 
 class XMLElement;
-
-class XMLException: public MSXException
-{
-public:
-	explicit XMLException(const std::string& msg);
-};
 
 class XMLLoader
 {

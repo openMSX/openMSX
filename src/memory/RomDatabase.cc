@@ -10,6 +10,7 @@
 #include "StringOp.hh"
 #include "XMLLoader.hh"
 #include "XMLElement.hh"
+#include "XMLException.hh"
 #include <map>
 #include <cassert>
 

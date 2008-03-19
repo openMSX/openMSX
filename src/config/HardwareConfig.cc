@@ -3,6 +3,7 @@
 #include "HardwareConfig.hh"
 #include "XMLLoader.hh"
 #include "XMLElement.hh"
+#include "XMLException.hh"
 #include "File.hh"
 #include "LocalFileReference.hh"
 #include "FileContext.hh"

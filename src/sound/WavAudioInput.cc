@@ -72,7 +72,7 @@ void WavAudioInput::update(const Setting& setting)
 	if (plugged) {
 		try {
 			loadWave();
-		} catch (MSXException &e) {
+		} catch (MSXException& e) {
 			// TODO proper error handling, message should go to console
 			setting.getCommandController().getCliComm().printWarning(
 				"Load of wave file failed: " + e.getMessage());

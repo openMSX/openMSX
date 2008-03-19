@@ -20,6 +20,7 @@
 #include "FileException.hh"
 #include "EnumSetting.hh"
 #include "XMLLoader.hh"
+#include "XMLException.hh"
 #include "HostCPU.hh"
 #include "GLUtil.hh"
 #include "Reactor.hh"

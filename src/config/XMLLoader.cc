@@ -2,21 +2,13 @@
 
 #include "XMLLoader.hh"
 #include "XMLElement.hh"
+#include "XMLException.hh"
 #include <libxml/xmlversion.h>
 
 using std::auto_ptr;
 using std::string;
 
 namespace openmsx {
-
-// class XMLException
-
-XMLException::XMLException(const string& msg)
-	: MSXException(msg)
-{
-}
-
-// class XMLLoader
 
 auto_ptr<XMLElement> XMLLoader::loadXML(const string& filename,
                                         const string& systemID)
