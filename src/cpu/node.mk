@@ -9,10 +9,10 @@ SRC_HDR:= \
 	MSXCPUInterface MSXCPU \
 	MSXMultiDevice MSXMultiIODevice MSXMultiMemDevice \
 	MSXWatchIODevice \
-	VDPIODelay
+	VDPIODelay \
+	IRQHelper
 
 HDR_ONLY:= \
-	IRQHelper \
 	CacheLine
 
 include build/node-end.mk

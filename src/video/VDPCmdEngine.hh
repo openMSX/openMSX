@@ -16,6 +16,7 @@ namespace openmsx {
 class VDPVRAM;
 class CommandController;
 class RenderSettings;
+class Setting;
 class BooleanSetting;
 
 /** VDP command engine by Alex Wulms.

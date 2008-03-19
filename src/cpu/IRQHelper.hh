@@ -3,10 +3,11 @@
 #ifndef IRQHELPER_HH
 #define IRQHELPER_HH
 
-#include "MSXCPU.hh"
 #include "noncopyable.hh"
 
 namespace openmsx {
+
+class MSXCPU;
 
 /** Helper class for doing interrupt request (IRQ) administration.
   * IRQ is either enabled or disabled; when enabled it contributes
@@ -16,38 +17,37 @@ namespace openmsx {
   */
 
 // policy class for IRQ source
-class IRQSource {
+class IRQSource
+{
 protected:
 	explicit IRQSource(MSXCPU& cpu_) : cpu(cpu_) {}
-	inline void raise() { cpu.raiseIRQ(); }
-	inline void lower() { cpu.lowerIRQ(); }
+	void raise();
+	void lower();
 private:
 	MSXCPU& cpu;
 };
 
 // policy class for NMI source
-class NMISource {
+class NMISource
+{
 protected:
 	explicit NMISource(MSXCPU& cpu_) : cpu(cpu_) {}
-	inline void raise() { cpu.raiseNMI(); }
-	inline void lower() { cpu.lowerNMI(); }
+	void raise();
+	void lower();
 private:
 	MSXCPU& cpu;
 };
 
 // policy class that can dynamically switch between IRQ and NMI
-class DynamicSource {
+class DynamicSource
+{
 public:
 	enum IntType { IRQ, NMI };
 	void setIntType(IntType type_) { type = type_; }
 protected:
 	explicit DynamicSource(MSXCPU& cpu_) : cpu(cpu_), type(IRQ) {}
-	inline void raise() {
-		if (type == IRQ) cpu.raiseIRQ(); else cpu.raiseNMI();
-	}
-	inline void lower() {
-		if (type == NMI) cpu.lowerIRQ(); else cpu.lowerNMI();
-	}
+	void raise();
+	void lower();
 private:
 	MSXCPU& cpu;
 	IntType type;
