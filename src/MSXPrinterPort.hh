@@ -30,6 +30,8 @@ public:
 	               const EmuTime& time);
 	virtual ~MSXPrinterPort();
 
+	PrinterPortDevice& getPluggedPrintDev() const;
+
 	// MSXDevice
 	virtual void reset(const EmuTime& time);
 	virtual byte readIO(word port, const EmuTime& time);
@@ -40,7 +42,6 @@ public:
 	virtual const std::string& getDescription() const;
 	virtual const std::string& getClass() const;
 	virtual void plug(Pluggable& dev, const EmuTime& time);
-	virtual PrinterPortDevice& getPlugged() const;
 
 private:
 	void setStrobe(bool newStrobe, const EmuTime& time);

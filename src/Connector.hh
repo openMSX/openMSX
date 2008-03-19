@@ -54,7 +54,7 @@ public:
 	/**
 	 * Returns the Pluggable currently plugged in.
 	 */
-	virtual Pluggable& getPlugged() const;
+	Pluggable& getPlugged() const;
 
 protected:
 	/**
@@ -66,11 +66,10 @@ protected:
 
 	virtual ~Connector();
 
-	Pluggable* plugged;
-
 private:
 	const std::string name;
 	const std::auto_ptr<Pluggable> dummy;
+	Pluggable* plugged;
 };
 
 } // namespace openmsx

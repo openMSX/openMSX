@@ -3,6 +3,7 @@
 #include "MSXPrinterPort.hh"
 #include "PluggingController.hh"
 #include "MSXMotherBoard.hh"
+#include "checked_cast.hh"
 #include <cassert>
 
 using std::string;
@@ -42,7 +43,7 @@ byte MSXPrinterPort::readIO(word port, const EmuTime& time)
 byte MSXPrinterPort::peekIO(word /*port*/, const EmuTime& time) const
 {
 	// bit 1 = status / other bits always 1
-	return getPlugged().getStatus(time)
+	return getPluggedPrintDev().getStatus(time)
 	       ? 0xFF : 0xFD;
 }
 
@@ -64,14 +65,14 @@ void MSXPrinterPort::setStrobe(bool newStrobe, const EmuTime& time)
 {
 	if (newStrobe != strobe) {
 		strobe = newStrobe;
-		getPlugged().setStrobe(strobe, time);
+		getPluggedPrintDev().setStrobe(strobe, time);
 	}
 }
 void MSXPrinterPort::writeData(byte newData, const EmuTime& time)
 {
 	if (newData != data) {
 		data = newData;
-		getPlugged().writeData(data, time);
+		getPluggedPrintDev().writeData(data, time);
 	}
 }
 
@@ -90,13 +91,13 @@ const string& MSXPrinterPort::getClass() const
 void MSXPrinterPort::plug(Pluggable& dev, const EmuTime& time)
 {
 	Connector::plug(dev, time);
-	getPlugged().writeData(data, time);
-	getPlugged().setStrobe(strobe, time);
+	getPluggedPrintDev().writeData(data, time);
+	getPluggedPrintDev().setStrobe(strobe, time);
 }
 
-PrinterPortDevice& MSXPrinterPort::getPlugged() const
+PrinterPortDevice& MSXPrinterPort::getPluggedPrintDev() const
 {
-	return static_cast<PrinterPortDevice&>(*plugged);
+	return *checked_cast<PrinterPortDevice*>(&getPlugged());
 }
 
 

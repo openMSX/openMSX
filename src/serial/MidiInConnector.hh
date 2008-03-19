@@ -5,10 +5,10 @@
 
 #include "Connector.hh"
 #include "SerialDataInterface.hh"
-#include "MidiInDevice.hh"
 
 namespace openmsx {
 
+class MidiInDevice;
 class PluggingController;
 
 class MidiInConnector : public Connector, public SerialDataInterface
@@ -18,10 +18,11 @@ public:
 	                const std::string &name);
 	virtual ~MidiInConnector();
 
+	MidiInDevice& getPluggedMidiInDev() const;
+
 	// Connector
 	virtual const std::string& getDescription() const;
 	virtual const std::string& getClass() const;
-	virtual MidiInDevice& getPlugged() const;
 
 	virtual bool ready() = 0;
 	virtual bool acceptsData() = 0;

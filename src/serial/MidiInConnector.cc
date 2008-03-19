@@ -1,8 +1,10 @@
 // $Id$
 
 #include "MidiInConnector.hh"
+#include "MidiInDevice.hh"
 #include "DummyMidiInDevice.hh"
 #include "PluggingController.hh"
+#include "checked_cast.hh"
 
 namespace openmsx {
 
@@ -31,9 +33,9 @@ const std::string& MidiInConnector::getClass() const
 	return className;
 }
 
-MidiInDevice& MidiInConnector::getPlugged() const
+MidiInDevice& MidiInConnector::getPluggedMidiInDev() const
 {
-	return static_cast<MidiInDevice&>(*plugged);
+	return *checked_cast<MidiInDevice*>(&getPlugged());
 }
 
 } // namespace openmsx

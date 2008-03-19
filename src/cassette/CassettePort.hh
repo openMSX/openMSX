@@ -4,13 +4,13 @@
 #define CASSETTEPORT_HH
 
 #include "Connector.hh"
-#include "CassetteDevice.hh"
 #include "components.hh"
 #include <memory>
 
 namespace openmsx {
 
 class MSXMotherBoard;
+class CassetteDevice;
 class CassettePlayer;
 #ifdef COMPONENT_JACK
 class CassetteJack;
@@ -20,6 +20,8 @@ class CassettePortInterface : public Connector
 {
 public:
 	CassettePortInterface();
+
+	CassetteDevice& getPluggedCasDev() const;
 
 	/**
 	* Sets the cassette motor relay
@@ -56,7 +58,6 @@ public:
 	virtual const std::string& getDescription() const;
 	virtual const std::string& getClass() const;
 	virtual void unplug(const EmuTime& time);
-	virtual CassetteDevice& getPlugged() const;
 };
 
 class CassettePort : public CassettePortInterface

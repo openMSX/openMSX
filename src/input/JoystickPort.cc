@@ -1,8 +1,10 @@
 // $Id$
 
 #include "JoystickPort.hh"
+#include "JoystickDevice.hh"
 #include "DummyJoystick.hh"
 #include "PluggingController.hh"
+#include "checked_cast.hh"
 
 using std::string;
 
@@ -34,27 +36,27 @@ const string& JoystickPort::getClass() const
 	return className;
 }
 
-JoystickDevice& JoystickPort::getPlugged() const
+JoystickDevice& JoystickPort::getPluggedJoyDev() const
 {
-	return static_cast<JoystickDevice&>(*plugged);
+	return *checked_cast<JoystickDevice*>(&getPlugged());
 }
 
 void JoystickPort::plug(Pluggable& device, const EmuTime& time)
 {
 	Connector::plug(device, time);
-	getPlugged().write(lastValue, time);
+	getPluggedJoyDev().write(lastValue, time);
 }
 
 byte JoystickPort::read(const EmuTime& time)
 {
-	return getPlugged().read(time);
+	return getPluggedJoyDev().read(time);
 }
 
 void JoystickPort::write(byte value, const EmuTime& time)
 {
 	if (lastValue != value) {
 		lastValue = value;
-		getPlugged().write(value, time);
+		getPluggedJoyDev().write(value, time);
 	}
 }
 

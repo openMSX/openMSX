@@ -1,6 +1,7 @@
 // $Id$
 
 #include "CassettePort.hh"
+#include "CassetteDevice.hh"
 #include "CassettePlayer.hh"
 #include "components.hh"
 #ifdef COMPONENT_JACK
@@ -10,6 +11,7 @@
 #include "MSXMotherBoard.hh"
 #include "PluggingController.hh"
 #include "Scheduler.hh"
+#include "checked_cast.hh"
 #include <memory>
 
 using std::auto_ptr;
@@ -41,9 +43,9 @@ const string& CassettePortInterface::getClass() const
 	return className;
 }
 
-CassetteDevice& CassettePortInterface::getPlugged() const
+CassetteDevice& CassettePortInterface::getPluggedCasDev() const
 {
-	return static_cast<CassetteDevice&>(*plugged);
+	return *checked_cast<CassetteDevice*>(&getPlugged());
 }
 
 
@@ -106,14 +108,14 @@ void CassettePort::setMotor(bool status, const EmuTime& time)
 {
 	//TODO make 'click' sound
 	//PRT_DEBUG("CassettePort: motor " << status);
-	getPlugged().setMotor(status, time);
+	getPluggedCasDev().setMotor(status, time);
 }
 
 void CassettePort::cassetteOut(bool output, const EmuTime& time)
 {
 	lastOutput = output;
 	// leave everything to the pluggable
-	getPlugged().setSignal(output, time);
+	getPluggedCasDev().setSignal(output, time);
 }
 
 bool CassettePort::lastOut() const
@@ -126,7 +128,7 @@ bool CassettePort::cassetteIn(const EmuTime& time)
 	// All analog filtering is ignored for now
 	//   only important component is DC-removal
 	//   we just assume sample has no DC component
-	short sample = getPlugged().readSample(time); // read 1 sample
+	short sample = getPluggedCasDev().readSample(time); // read 1 sample
 	bool result = (sample >= 0); // comparator
 	//PRT_DEBUG("CassettePort:: read " << result);
 	return result;

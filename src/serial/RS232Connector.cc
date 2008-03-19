@@ -1,8 +1,10 @@
 // $Id$
 
 #include "RS232Connector.hh"
+#include "RS232Device.hh"
 #include "DummyRS232Device.hh"
 #include "PluggingController.hh"
+#include "checked_cast.hh"
 
 namespace openmsx {
 
@@ -31,9 +33,9 @@ const std::string& RS232Connector::getClass() const
 	return className;
 }
 
-RS232Device& RS232Connector::getPlugged() const
+RS232Device& RS232Connector::getPluggedRS232Dev() const
 {
-	return static_cast<RS232Device&>(*plugged);
+	return *checked_cast<RS232Device*>(&getPlugged());
 }
 
 } // namespace openmsx

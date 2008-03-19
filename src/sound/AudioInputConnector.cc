@@ -4,6 +4,7 @@
 #include "DummyAudioInputDevice.hh"
 #include "PluggingController.hh"
 #include "AudioInputDevice.hh"
+#include "checked_cast.hh"
 
 namespace openmsx {
 
@@ -34,7 +35,12 @@ const std::string& AudioInputConnector::getClass() const
 
 short AudioInputConnector::readSample(const EmuTime& time) const
 {
-	return static_cast<AudioInputDevice&>(getPlugged()).readSample(time);
+	return getPluggedAudioDev().readSample(time);
+}
+
+AudioInputDevice& AudioInputConnector::getPluggedAudioDev() const
+{
+	return *checked_cast<AudioInputDevice*>(&getPlugged());
 }
 
 } // namespace openmsx

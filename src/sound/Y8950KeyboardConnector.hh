@@ -29,12 +29,12 @@ public:
 
 	void write(byte data, const EmuTime& time);
 	byte read(const EmuTime& time);
+	Y8950KeyboardDevice& getPluggedKeyb() const;
 
 	// Connector
 	virtual const std::string& getDescription() const;
 	virtual const std::string& getClass() const;
 	virtual void plug(Pluggable& dev, const EmuTime& time);
-	virtual Y8950KeyboardDevice& getPlugged() const;
 
 private:
 	PluggingController& pluggingController;

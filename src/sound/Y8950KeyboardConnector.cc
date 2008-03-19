@@ -1,7 +1,9 @@
 // $Id$
 
 #include "Y8950KeyboardConnector.hh"
+#include "Y8950KeyboardDevice.hh"
 #include "PluggingController.hh"
+#include "checked_cast.hh"
 
 namespace openmsx {
 
@@ -24,13 +26,13 @@ void Y8950KeyboardConnector::write(byte newData, const EmuTime& time)
 {
 	if (newData != data) {
 		data = newData;
-		getPlugged().write(data, time);
+		getPluggedKeyb().write(data, time);
 	}
 }
 
 byte Y8950KeyboardConnector::read(const EmuTime& time)
 {
-	return getPlugged().read(time);
+	return getPluggedKeyb().read(time);
 }
 
 const std::string& Y8950KeyboardConnector::getDescription() const
@@ -48,12 +50,12 @@ const std::string& Y8950KeyboardConnector::getClass() const
 void Y8950KeyboardConnector::plug(Pluggable& dev, const EmuTime& time)
 {
 	Connector::plug(dev, time);
-	getPlugged().write(data, time);
+	getPluggedKeyb().write(data, time);
 }
 
-Y8950KeyboardDevice& Y8950KeyboardConnector::getPlugged() const
+Y8950KeyboardDevice& Y8950KeyboardConnector::getPluggedKeyb() const
 {
-	return static_cast<Y8950KeyboardDevice&>(*plugged);
+	return *checked_cast<Y8950KeyboardDevice*>(&getPlugged());
 }
 
 

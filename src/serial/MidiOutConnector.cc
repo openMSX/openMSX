@@ -1,8 +1,10 @@
 // $Id$
 
 #include "MidiOutConnector.hh"
+#include "MidiOutDevice.hh"
 #include "DummyMidiOutDevice.hh"
 #include "PluggingController.hh"
+#include "checked_cast.hh"
 
 using std::string;
 
@@ -33,29 +35,29 @@ const string& MidiOutConnector::getClass() const
 	return className;
 }
 
-MidiOutDevice& MidiOutConnector::getPlugged() const
+MidiOutDevice& MidiOutConnector::getPluggedMidiOutDev() const
 {
-	return static_cast<MidiOutDevice&>(*plugged);
+	return *checked_cast<MidiOutDevice*>(&getPlugged());
 }
 
 void MidiOutConnector::setDataBits(DataBits bits)
 {
-	getPlugged().setDataBits(bits);
+	getPluggedMidiOutDev().setDataBits(bits);
 }
 
 void MidiOutConnector::setStopBits(StopBits bits)
 {
-	getPlugged().setStopBits(bits);
+	getPluggedMidiOutDev().setStopBits(bits);
 }
 
 void MidiOutConnector::setParityBit(bool enable, ParityBit parity)
 {
-	getPlugged().setParityBit(enable, parity);
+	getPluggedMidiOutDev().setParityBit(enable, parity);
 }
 
 void MidiOutConnector::recvByte(byte value, const EmuTime& time)
 {
-	getPlugged().recvByte(value, time);
+	getPluggedMidiOutDev().recvByte(value, time);
 }
 
 } // namespace openmsx

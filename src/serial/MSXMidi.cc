@@ -1,6 +1,7 @@
 // $Id$
 
 #include "MSXMidi.hh"
+#include "MidiInDevice.hh"
 #include "I8254.hh"
 #include "MidiOutConnector.hh"
 #include "MSXMotherBoard.hh"
@@ -241,7 +242,7 @@ void MSXMidi::I8251Interf::recvByte(byte value, const EmuTime& time)
 
 void MSXMidi::I8251Interf::signal(const EmuTime& time)
 {
-	midi.getPlugged().signal(time);
+	midi.getPluggedMidiInDev().signal(time);
 }
 
 
