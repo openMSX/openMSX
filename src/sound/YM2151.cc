@@ -7,12 +7,188 @@
 ******************************************************************************/
 
 #include "YM2151.hh"
+#include "SoundDevice.hh"
+#include "EmuTimer.hh"
+#include "Resample.hh"
+#include "IRQHelper.hh"
 #include "MSXMotherBoard.hh"
 #include <cmath>
 #include <cstring>
 
 namespace openmsx {
 
+class YM2151Impl : public SoundDevice, private EmuTimerCallback, private Resample
+{
+public:
+	YM2151Impl(MSXMotherBoard& motherBoard, const std::string& name,
+	           const std::string& desc, const XMLElement& config,
+	           const EmuTime& time);
+	~YM2151Impl();
+	void reset(const EmuTime& time);
+	void writeReg(byte r, byte v, const EmuTime& time);
+	byte readStatus();
+
+private:
+	// a single operator
+	struct YM2151Operator {
+		int* connect;      // operator output 'direction'
+		int* mem_connect;  // where to put the delayed sample (MEM)
+
+		unsigned phase;    // accumulated operator phase
+		unsigned freq;     // operator frequency count
+		int dt1;           // current DT1 (detune 1 phase inc/decrement) value
+		unsigned mul;      // frequency count multiply
+		unsigned dt1_i;    // DT1 index * 32
+		unsigned dt2;      // current DT2 (detune 2) value
+
+		int mem_value;     // delayed sample (MEM) value
+
+		// channel specific data
+		// note: each operator number 0 contains channel specific data
+		unsigned fb_shift; // feedback shift value for operators 0 in each channel
+		int fb_out_curr;   // operator feedback value (used only by operators 0)
+		int fb_out_prev;   // previous feedback value (used only by operators 0)
+		unsigned kc;       // channel KC (copied to all operators)
+		unsigned kc_i;     // just for speedup
+		unsigned pms;      // channel PMS
+		unsigned ams;      // channel AMS
+
+		unsigned AMmask;   // LFO Amplitude Modulation enable mask
+		unsigned state;    // Envelope state: 4-attack(AR)
+		                   //                 3-decay(D1R)
+		                   //                 2-sustain(D2R)
+		                   //                 1-release(RR)
+		                   //                 0-off
+		unsigned tl;       // Total attenuation Level
+		int volume;        // current envelope attenuation level
+		unsigned d1l;      // envelope switches to sustain state after
+
+		unsigned key;      // 0=last key was KEY OFF, 1=last key was KEY ON
+
+		unsigned ks;       // key scale
+		unsigned ar;       // attack rate
+		unsigned d1r;      // decay rate
+		unsigned d2r;      // sustain rate
+		unsigned rr;       // release rate
+
+		byte eg_sh_ar;     //  (attack state)
+		byte eg_sel_ar;    //  (attack state)
+		byte eg_sh_d1r;    //  (decay state)
+		byte eg_sel_d1r;   //  (decay state)
+		                   // reaching this level
+		byte eg_sh_d2r;    //  (sustain state)
+		byte eg_sel_d2r;   //  (sustain state)
+		byte eg_sh_rr;     //  (release state)
+		byte eg_sel_rr;    //  (release state)
+	};
+
+	void setConnect(YM2151Operator* om1, int cha, int v);
+
+	// SoundDevice
+	virtual void setOutputRate(unsigned sampleRate);
+	virtual void generateChannels(int** bufs, unsigned num);
+	virtual bool updateBuffer(unsigned length, int* buffer,
+	                          const EmuTime& start, const EmuDuration& sampDur);
+
+	 // Resample
+	virtual bool generateInput(int* buffer, unsigned num);
+
+	void callback(byte flag);
+	void setStatus(byte flags);
+	void resetStatus(byte flags);
+
+	void initTables();
+	void initChipTables();
+
+	// operator methods
+	void envelopeKONKOFF(YM2151Operator* op, int v);
+	static void refreshEG(YM2151Operator* op);
+	int opCalc(YM2151Operator* op, unsigned env, int pm);
+	int opCalc1(YM2151Operator* op, unsigned env, int pm);
+	inline unsigned volumeCalc(YM2151Operator* op, unsigned AM);
+	inline void keyOn(YM2151Operator* op, unsigned keySet);
+	inline void keyOff(YM2151Operator* op, unsigned keyClear);
+
+	// general chip mehods
+	void chanCalc(unsigned chan);
+	void chan7Calc();
+
+	void advanceEG();
+	void advance();
+
+	bool checkMuteHelper();
+
+	IRQHelper irq;
+
+	// Timers (see EmuTimer class for details about timing)
+	EmuTimerOPM_1 timer1;
+	EmuTimerOPM_2 timer2;
+
+	YM2151Operator oper[32]; // the 32 operators
+
+	unsigned pan[16];        // channels output masks (0xffffffff = enable)
+
+	unsigned eg_cnt;         // global envelope generator counter
+	unsigned eg_timer;       // global envelope generator counter
+	                         //   works at frequency = chipclock/64/3
+	unsigned lfo_phase;      // accumulated LFO phase (0 to 255)
+	unsigned lfo_timer;      // LFO timer
+	unsigned lfo_overflow;   // LFO generates new output when lfo_timer
+	                         // reaches this value
+	unsigned lfo_counter;    // LFO phase increment counter
+	unsigned lfo_counter_add;// step of lfo_counter
+	unsigned lfa;            // LFO current AM output
+	int lfp;                 // LFO current PM output
+
+	unsigned noise;          // noise enable/period register
+	                         // bit 7 - noise enable, bits 4-0 - noise period
+	unsigned noise_rng;      // 17 bit noise shift register
+	int noise_p;             // current noise 'phase'
+	unsigned noise_f;        // current noise period
+
+	unsigned csm_req;        // CSM  KEY ON / KEY OFF sequence request
+
+	unsigned irq_enable;     // IRQ enable for timer B (bit 3) and timer A
+	                         // (bit 2); bit 7 - CSM mode (keyon to all
+	                         // slots, everytime timer A overflows)
+	unsigned status;         // chip status (BUSY, IRQ Flags)
+
+	// Frequency-deltas to get the closest frequency possible.
+	// There are 11 octaves because of DT2 (max 950 cents over base frequency)
+	// and LFO phase modulation (max 800 cents below AND over base frequency)
+	// Summary:   octave  explanation
+	//             0       note code - LFO PM
+	//             1       note code
+	//             2       note code
+	//             3       note code
+	//             4       note code
+	//             5       note code
+	//             6       note code
+	//             7       note code
+	//             8       note code
+	//             9       note code + DT2 + LFO PM
+	//            10       note code + DT2 + LFO PM
+	unsigned freq[11 * 768]; // 11 octaves, 768 'cents' per octave   // No Save
+
+	// Frequency deltas for DT1. These deltas alter operator frequency
+	// after it has been taken from frequency-deltas table.
+	int dt1_freq[8 * 32];    // 8 DT1 levels, 32 KC values         // No Save
+	unsigned noise_tab[32];  // 17bit Noise Generator periods      // No Save
+
+	int chanout[8];
+	int m2, c1, c2;          // Phase Modulation input for operators 2,3,4
+	int mem;                 // one sample delay memory
+
+	word timer_A_val;
+
+	byte lfo_wsel;           // LFO waveform (0-saw, 1-square, 2-triangle,
+	                         //               3-random noise)
+	byte amd;                // LFO Amplitude Modulation Depth
+	signed char pmd;         // LFO Phase Modulation Depth
+
+	byte test;               // TEST register
+	byte ct;                 // output control pins (bit1-CT2, bit0-CT1)
+};
 // TODO void ym2151WritePortCallback(void* ref, unsigned port, byte value);
 
 static const int FREQ_SH  = 16; // 16.16 fixed point (frequency calculations)
@@ -294,7 +470,7 @@ static byte lfo_noise_waveform[256] = {
 0xE2,0x4D,0x8A,0xA6,0x46,0x95,0x0F,0x8F,0xF5,0x15,0x97,0x32,0xD4,0x28,0x1E,0x55
 };
 
-void YM2151::initTables()
+void YM2151Impl::initTables()
 {
 	for (int x = 0; x < TL_RES_LEN; ++x) {
 		double m = (1 << 16) / pow(2, (x + 1) * (ENV_STEP / 4.0) / 8.0);
@@ -351,7 +527,7 @@ void YM2151::initTables()
 	}
 }
 
-void YM2151::initChipTables()
+void YM2151Impl::initChipTables()
 {
 	// this loop calculates Hertz values for notes from c-0 to b-7
 	// including 64 'cents' (100/64 that is 1.5625 of real cent) per note
@@ -413,7 +589,7 @@ void YM2151::initChipTables()
 	}
 }
 
-void YM2151::keyOn(YM2151Operator* op, unsigned keySet) {
+void YM2151Impl::keyOn(YM2151Operator* op, unsigned keySet) {
 	if (!op->key) {
 		op->phase = 0; /* clear phase */
 		op->state = EG_ATT; /* KEY ON = attack */
@@ -428,7 +604,7 @@ void YM2151::keyOn(YM2151Operator* op, unsigned keySet) {
 	op->key |= keySet;
 }
 
-void YM2151::keyOff(YM2151Operator* op, unsigned keyClear) {
+void YM2151Impl::keyOff(YM2151Operator* op, unsigned keyClear) {
 	if (op->key) {
 		op->key &= keyClear;
 		if (!op->key) {
@@ -439,7 +615,7 @@ void YM2151::keyOff(YM2151Operator* op, unsigned keyClear) {
 	}
 }
 
-void YM2151::envelopeKONKOFF(YM2151Operator * op, int v)
+void YM2151Impl::envelopeKONKOFF(YM2151Operator* op, int v)
 {
 	if (v & 0x08) { // M1
 		keyOn (op + 0, 1);
@@ -463,7 +639,7 @@ void YM2151::envelopeKONKOFF(YM2151Operator * op, int v)
 	}
 }
 
-void YM2151::setConnect(YM2151Operator* om1, int cha, int v)
+void YM2151Impl::setConnect(YM2151Operator* om1, int cha, int v)
 {
 	YM2151Operator* om2 = om1 + 1;
 	YM2151Operator* oc1 = om1 + 2;
@@ -551,7 +727,7 @@ void YM2151::setConnect(YM2151Operator* om1, int cha, int v)
 	}
 }
 
-void YM2151::refreshEG(YM2151Operator* op)
+void YM2151Impl::refreshEG(YM2151Operator* op)
 {
 	unsigned kc = op->kc;
 
@@ -620,7 +796,7 @@ void YM2151::refreshEG(YM2151Operator* op)
 	op->eg_sel_rr  = eg_rate_select[op->rr  + v];
 }
 
-void YM2151::writeReg(byte r, byte v, const EmuTime& time)
+void YM2151Impl::writeReg(byte r, byte v, const EmuTime& time)
 {
 	updateStream(time);
 
@@ -835,7 +1011,7 @@ void YM2151::writeReg(byte r, byte v, const EmuTime& time)
 	}
 }
 
-YM2151::YM2151(MSXMotherBoard& motherBoard, const std::string& name,
+YM2151Impl::YM2151Impl(MSXMotherBoard& motherBoard, const std::string& name,
                const std::string& desc, const XMLElement& config,
                const EmuTime& time)
 	: SoundDevice(motherBoard.getMSXMixer(), name, desc, 8, true)
@@ -852,12 +1028,12 @@ YM2151::YM2151(MSXMotherBoard& motherBoard, const std::string& name,
 	registerSound(config);
 }
 
-YM2151::~YM2151()
+YM2151Impl::~YM2151Impl()
 {
 	unregisterSound();
 }
 
-bool YM2151::checkMuteHelper()
+bool YM2151Impl::checkMuteHelper()
 {
 	for (int i = 0; i < 32; ++i) {
 		if (oper[i].state != EG_OFF) {
@@ -867,7 +1043,7 @@ bool YM2151::checkMuteHelper()
 	return true;
 }
 
-void YM2151::reset(const EmuTime &time)
+void YM2151Impl::reset(const EmuTime &time)
 {
 	// initialize hardware registers
 	for (int i = 0; i < 32; ++i) {
@@ -910,7 +1086,7 @@ void YM2151::reset(const EmuTime &time)
 	irq.reset();
 }
 
-int YM2151::opCalc(YM2151Operator* OP, unsigned env, int pm)
+int YM2151Impl::opCalc(YM2151Operator* OP, unsigned env, int pm)
 {
 	unsigned p = (env << 3) + sin_tab[(int((OP->phase & ~FREQ_MASK) + (pm << 15)) >> FREQ_SH) & SIN_MASK];
 	if (p >= TL_TAB_LEN) {
@@ -919,7 +1095,7 @@ int YM2151::opCalc(YM2151Operator* OP, unsigned env, int pm)
 	return tl_tab[p];
 }
 
-int YM2151::opCalc1(YM2151Operator* OP, unsigned env, int pm)
+int YM2151Impl::opCalc1(YM2151Operator* OP, unsigned env, int pm)
 {
 	int i = (OP->phase & ~FREQ_MASK) + pm;
 	unsigned p = (env << 3) + sin_tab[(i >> FREQ_SH) & SIN_MASK];
@@ -929,11 +1105,12 @@ int YM2151::opCalc1(YM2151Operator* OP, unsigned env, int pm)
 	return tl_tab[p];
 }
 
-unsigned YM2151::volumeCalc(YM2151Operator* OP, unsigned AM) {
+unsigned YM2151Impl::volumeCalc(YM2151Operator* OP, unsigned AM)
+{
 	return OP->tl + unsigned(OP->volume) + (AM & OP->AMmask);
 }
 
-void YM2151::chanCalc(unsigned chan)
+void YM2151Impl::chanCalc(unsigned chan)
 {
 	m2 = c1 = c2 = mem = 0;
 	YM2151Operator* op = &oper[chan*4]; // M1
@@ -979,7 +1156,7 @@ void YM2151::chanCalc(unsigned chan)
 	op->mem_value = mem;
 }
 
-void YM2151::chan7Calc()
+void YM2151Impl::chan7Calc()
 {
 	m2 = c1 = c2 = mem = 0;
 	YM2151Operator* op = &oper[7 * 4]; // M1
@@ -1239,7 +1416,7 @@ rate 11 1         |
                                  --
 */
 
-void YM2151::advanceEG()
+void YM2151Impl::advanceEG()
 {
 	if (eg_timer++ != 3) {
 		// envelope generator timer overlfows every 3 samples (on real chip)
@@ -1296,7 +1473,7 @@ void YM2151::advanceEG()
 	}
 }
 
-void YM2151::advance()
+void YM2151Impl::advance()
 {
 	// LFO
 	if (test & 2) {
@@ -1454,7 +1631,7 @@ void YM2151::advance()
 	}
 }
 
-void YM2151::generateChannels(int** bufs, unsigned num)
+void YM2151Impl::generateChannels(int** bufs, unsigned num)
 {
 	if (checkMuteHelper()) {
 		// TODO update internal state, even if muted
@@ -1482,18 +1659,18 @@ void YM2151::generateChannels(int** bufs, unsigned num)
 	}
 }
 
-bool YM2151::generateInput(int* buffer, unsigned length)
+bool YM2151Impl::generateInput(int* buffer, unsigned length)
 {
 	return mixChannels(buffer, length);
 }
 
-bool YM2151::updateBuffer(unsigned length, int* buffer,
+bool YM2151Impl::updateBuffer(unsigned length, int* buffer,
 		const EmuTime& /*time*/, const EmuDuration& /*sampDur*/)
 {
 	return generateOutput(buffer, length);
 }
 
-void YM2151::setOutputRate(unsigned sampleRate)
+void YM2151Impl::setOutputRate(unsigned sampleRate)
 {
 	static const int CLCK_FREQ = 3579545;
 	double input = CLCK_FREQ / 64.0;
@@ -1501,7 +1678,7 @@ void YM2151::setOutputRate(unsigned sampleRate)
 	setResampleRatio(input, sampleRate);
 }
 
-void YM2151::callback(byte flag)
+void YM2151Impl::callback(byte flag)
 {
 	if (flag & 0x20) { // Timer 1
 		if (irq_enable & 0x04) {
@@ -1518,12 +1695,12 @@ void YM2151::callback(byte flag)
 	}
 }
 
-int YM2151::readStatus()
+byte YM2151Impl::readStatus()
 {
 	return status;
 }
 
-void YM2151::setStatus(byte flags)
+void YM2151Impl::setStatus(byte flags)
 {
 	status |= flags;
 	if (status) {
@@ -1531,7 +1708,7 @@ void YM2151::setStatus(byte flags)
 	}
 }
 
-void YM2151::resetStatus(byte flags)
+void YM2151Impl::resetStatus(byte flags)
 {
 	status &= ~flags;
 	if (!status) {
@@ -1539,5 +1716,33 @@ void YM2151::resetStatus(byte flags)
 	}
 }
 
+
+// YM2151
+
+YM2151::YM2151(MSXMotherBoard& motherBoard, const std::string& name,
+               const std::string& desc, const XMLElement& config,
+               const EmuTime& time)
+	: pimple(new YM2151Impl(motherBoard, name, desc, config, time))
+{
+}
+
+YM2151::~YM2151()
+{
+}
+
+void YM2151::reset(const EmuTime& time)
+{
+	pimple->reset(time);
+}
+
+void YM2151::writeReg(byte r, byte v, const EmuTime& time)
+{
+	pimple->writeReg(r, v, time);
+}
+
+byte YM2151::readStatus()
+{
+	return pimple->readStatus();
+}
 
 } // namespace openmsx
