@@ -4,7 +4,6 @@
 #include "VLM5030.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXMotherBoard.hh"
-#include "MSXMixer.hh"
 #include "Rom.hh"
 #include <cassert>
 
@@ -50,10 +49,7 @@ void RomKonamiKeyboardMaster::writeIO(word port, byte value, const EmuTime& time
 			vlm5030->writeData(value);
 			break;
 		case 0x20:
-			getMotherBoard().getMSXMixer().updateStream(time);
-			vlm5030->setRST((value & 0x01), time);
-			vlm5030->setVCU((value & 0x04), time);
-			vlm5030->setST ((value & 0x02), time);
+			vlm5030->writeControl(value, time);
 			break;
 		default:
 			assert(false);
@@ -67,11 +63,12 @@ byte RomKonamiKeyboardMaster::readIO(word port, const EmuTime& time)
 			return vlm5030->getBSY(time) ? 0x10 : 0x00;
 			break;
 		case 0x20:
+			return 0xFF;
 			break;
 		default:
 			assert(false);
+			return 0xFF;
 	}
-	return 0xFF;
 }
 
 } // namespace openmsx

@@ -23,16 +23,14 @@ public:
 	~VLM5030();
 	void reset(const EmuTime& time);
 
-	// latch control data
+	/** latch control data */
 	void writeData(byte data);
-	// get BSY pin level
+
+	/** set RST / VCU / ST pins */
+	void writeControl(byte data, const EmuTime& time);
+
+	/** get BSY pin level */
 	bool getBSY(const EmuTime& time);
-	// set RST pin level : reset / set table address A8-A15
-	void setRST(bool pin, const EmuTime& time);
-	// set VCU pin level : ?? unknown
-	void setVCU(bool pin, const EmuTime& time);
-	// set ST pin level  : set table address A0-A7 / start speech
-	void setST(bool pin, const EmuTime& time);
 
 private:
 	const std::auto_ptr<VLM5030Impl> pimple;

@@ -98,12 +98,14 @@ public:
 
 	void reset(const EmuTime& time);
 	void writeData(byte data);
+	void writeControl(byte data, const EmuTime& time);
 	bool getBSY(const EmuTime& time);
-	void setRST(bool pin, const EmuTime& time);
-	void setVCU(bool pin, const EmuTime& time);
-	void setST(bool pin, const EmuTime& time);
 
 private:
+	void setRST(bool pin, const EmuTime& time);
+	void setVCU(bool pin, const EmuTime& time);
+	void setST (bool pin, const EmuTime& time);
+
 	// SoundDevice
 	virtual void setOutputRate(unsigned sampleRate);
 	virtual void generateChannels(int** bufs, unsigned num);
@@ -502,8 +504,16 @@ void VLM5030Impl::writeData(byte data)
 	latch_data = data;
 }
 
+void VLM5030Impl::writeControl(byte data, const EmuTime& time)
+{
+	updateStream(time);
+	setRST(data & 0x01, time);
+	setVCU(data & 0x04, time);
+	setST (data & 0x02, time);
+}
+
 // set RST pin level : reset / set table address A8-A15
-void VLM5030Impl::setRST (bool pin, const EmuTime& time)
+void VLM5030Impl::setRST(bool pin, const EmuTime& time)
 {
 	if (pin_RST) {
 		if (!pin) { // H -> L : latch parameters
@@ -552,7 +562,6 @@ void VLM5030Impl::setST(bool pin, const EmuTime& time)
 				address = (((*rom)[(table + 0) & address_mask]) << 8) |
 				            (*rom)[(table + 1) & address_mask];
 			}
-			updateStream(time);
 			// reset process status
 			sample_count = frame_size;
 			interp_count = FR_SIZE;
@@ -649,24 +658,14 @@ void VLM5030::writeData(byte data)
 	pimple->writeData(data);
 }
 
+void VLM5030::writeControl(byte data, const EmuTime& time)
+{
+	pimple->writeControl(data, time);
+}
+
 bool VLM5030::getBSY(const EmuTime& time)
 {
 	return pimple->getBSY(time);
-}
-
-void VLM5030::setRST(bool pin, const EmuTime& time)
-{
-	pimple->setRST(pin, time);
-}
-
-void VLM5030::setVCU(bool pin, const EmuTime& time)
-{
-	pimple->setVCU(pin, time);
-}
-
-void VLM5030::setST(bool pin, const EmuTime& time)
-{
-	pimple->setST(pin, time);
 }
 
 } // namespace openmsx
