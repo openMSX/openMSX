@@ -1,14 +1,10 @@
 // $Id$
 
 #include "V9990GLRasterizer.hh"
-#include "V9990.hh"
-
-using std::string;
 
 namespace openmsx {
 
-V9990GLRasterizer::V9990GLRasterizer(V9990& vdp_)
-	: vdp(vdp_), vram(vdp.getVRAM())
+V9990GLRasterizer::V9990GLRasterizer(V9990& /*vdp*/)
 {
 }
 

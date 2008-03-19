@@ -8,7 +8,6 @@
 namespace openmsx {
 
 class V9990;
-class V9990VRAM;
 
 /** Rasterizer using SDL-GL
   */
@@ -31,15 +30,6 @@ public:
 	                         int displayX, int displayY,
 	                         int displayWidth, int displayHeight);
 	virtual bool isRecording() const;
-
-private:
-	/** The VDP of which the video output is rendered
-	  */
-	V9990& vdp;
-
-	/** The VRAM connected to the V9990 VDP
-	  */
-	V9990VRAM& vram;
 };
 
 } // namespace openmsx
