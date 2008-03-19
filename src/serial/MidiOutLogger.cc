@@ -1,6 +1,7 @@
 // $Id$
 
 #include "MidiOutLogger.hh"
+#include "PlugException.hh"
 #include "FilenameSetting.hh"
 
 namespace openmsx {

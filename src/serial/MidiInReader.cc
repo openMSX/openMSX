@@ -2,6 +2,7 @@
 
 #include "MidiInReader.hh"
 #include "MidiInConnector.hh"
+#include "PlugException.hh"
 #include "EventDistributor.hh"
 #include "Scheduler.hh"
 #include "FilenameSetting.hh"

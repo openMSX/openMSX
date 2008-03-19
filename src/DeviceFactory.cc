@@ -54,6 +54,7 @@
 #include "MachineConfig.hh"
 #include "EmuTime.hh"
 #include "FileContext.hh"
+#include "MSXException.hh"
 
 namespace openmsx {
 

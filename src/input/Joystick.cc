@@ -2,6 +2,7 @@
 
 #include "Joystick.hh"
 #include "PluggingController.hh"
+#include "PlugException.hh"
 #include "MSXEventDistributor.hh"
 #include "InputEvents.hh"
 #include "checked_cast.hh"

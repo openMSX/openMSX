@@ -2,6 +2,7 @@
 
 #include "RS232Tester.hh"
 #include "RS232Connector.hh"
+#include "PlugException.hh"
 #include "EventDistributor.hh"
 #include "Scheduler.hh"
 #include "FilenameSetting.hh"

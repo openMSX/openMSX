@@ -2,6 +2,7 @@
 
 #include "CassettePort.hh"
 #include "CassetteJack.hh"
+#include "PlugException.hh"
 #include "Semaphore.hh"
 #include "StringOp.hh"
 #include <jack/jack.h>

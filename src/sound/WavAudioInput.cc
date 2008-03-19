@@ -1,7 +1,7 @@
 // $Id$
 
 #include "WavAudioInput.hh"
-#include "MSXException.hh"
+#include "PlugException.hh"
 #include "FilenameSetting.hh"
 #include "CliComm.hh"
 #include "WavData.hh"

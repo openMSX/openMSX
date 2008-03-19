@@ -3,7 +3,6 @@
 #ifndef PLUGGABLE_HH
 #define PLUGGABLE_HH
 
-#include "MSXException.hh"
 #include "noncopyable.hh"
 #include <string>
 
@@ -11,15 +10,6 @@ namespace openmsx {
 
 class EmuTime;
 class Connector;
-
-/** Thrown when a plug action fails.
-  */
-class PlugException: public MSXException
-{
-public:
-	explicit PlugException(const std::string& message)
-		: MSXException(message) {}
-};
 
 class Pluggable : private noncopyable
 {

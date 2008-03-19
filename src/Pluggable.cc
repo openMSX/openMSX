@@ -1,6 +1,7 @@
 // $Id$
 
 #include "Pluggable.hh"
+#include "PlugException.hh"
 #include "Connector.hh"
 #include <cassert>
 

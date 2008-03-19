@@ -1,6 +1,7 @@
 // $Id$
 
 #include "PluggingController.hh"
+#include "PlugException.hh"
 #include "RecordedCommand.hh"
 #include "InfoTopic.hh"
 #include "Connector.hh"

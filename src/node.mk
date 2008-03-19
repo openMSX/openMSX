@@ -46,7 +46,7 @@ SRC_ONLY:= \
 HDR_ONLY:= \
 	openmsx \
 	Clock DynamicClock \
-	MSXException InitException \
+	MSXException InitException PlugException \
 	PatchInterface
 
 DIST:= \
