@@ -14,7 +14,7 @@ RomKonamiKeyboardMaster::RomKonamiKeyboardMaster(
 		const EmuTime& time, std::auto_ptr<Rom> rom)
 	: Rom16kBBlocks(motherBoard, config, rom)
 	, vlm5030(new VLM5030(motherBoard, "VLM5030",
-	                      "Konami Keyboard Master's VLM5030", config, time))
+	                      "Konami Keyboard Master's VLM5030", config))
 {
 	setBank(0, unmappedRead);
 	setRom (1, 0);
@@ -37,9 +37,9 @@ RomKonamiKeyboardMaster::~RomKonamiKeyboardMaster()
 	getMotherBoard().getCPUInterface().unregister_IO_In(0x20, this);
 }
 
-void RomKonamiKeyboardMaster::reset(const EmuTime& time)
+void RomKonamiKeyboardMaster::reset(const EmuTime& /*time*/)
 {
-	vlm5030->reset(time);
+	vlm5030->reset();
 }
 
 void RomKonamiKeyboardMaster::writeIO(word port, byte value, const EmuTime& time)

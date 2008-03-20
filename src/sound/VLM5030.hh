@@ -18,10 +18,9 @@ class VLM5030
 {
 public:
 	VLM5030(MSXMotherBoard& motherBoard, const std::string& name,
-	        const std::string& desc, const XMLElement& config,
-	        const EmuTime& time);
+	        const std::string& desc, const XMLElement& config);
 	~VLM5030();
-	void reset(const EmuTime& time);
+	void reset();
 
 	/** latch control data */
 	void writeData(byte data);

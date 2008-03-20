@@ -92,19 +92,18 @@ class VLM5030Impl : public SoundDevice, private Resample
 {
 public:
 	VLM5030Impl(MSXMotherBoard& motherBoard, const std::string& name,
-	            const std::string& desc, const XMLElement& config,
-	            const EmuTime& time);
+	            const std::string& desc, const XMLElement& config);
 	~VLM5030Impl();
 
-	void reset(const EmuTime& time);
+	void reset();
 	void writeData(byte data);
 	void writeControl(byte data, const EmuTime& time);
 	bool getBSY(const EmuTime& time);
 
 private:
-	void setRST(bool pin, const EmuTime& time);
-	void setVCU(bool pin, const EmuTime& time);
-	void setST (bool pin, const EmuTime& time);
+	void setRST(bool pin);
+	void setVCU(bool pin);
+	void setST (bool pin);
 
 	// SoundDevice
 	virtual void setOutputRate(unsigned sampleRate);
@@ -470,7 +469,7 @@ void VLM5030Impl::setupParameter(byte param)
 	}
 }
 
-void VLM5030Impl::reset(const EmuTime& /*time*/)
+void VLM5030Impl::reset()
 {
 	phase = PH_RESET;
 	address = 0;
@@ -507,13 +506,13 @@ void VLM5030Impl::writeData(byte data)
 void VLM5030Impl::writeControl(byte data, const EmuTime& time)
 {
 	updateStream(time);
-	setRST(data & 0x01, time);
-	setVCU(data & 0x04, time);
-	setST (data & 0x02, time);
+	setRST(data & 0x01);
+	setVCU(data & 0x04);
+	setST (data & 0x02);
 }
 
 // set RST pin level : reset / set table address A8-A15
-void VLM5030Impl::setRST(bool pin, const EmuTime& time)
+void VLM5030Impl::setRST(bool pin)
 {
 	if (pin_RST) {
 		if (!pin) { // H -> L : latch parameters
@@ -524,21 +523,21 @@ void VLM5030Impl::setRST(bool pin, const EmuTime& time)
 		if (pin) { // L -> H : reset chip
 			pin_RST = true;
 			if (pin_BSY) {
-				reset(time);
+				reset();
 			}
 		}
 	}
 }
 
 // set VCU pin level : ?? unknown
-void VLM5030Impl::setVCU(bool pin, const EmuTime& /*time*/)
+void VLM5030Impl::setVCU(bool pin)
 {
 	// direct mode / indirect mode
 	pin_VCU = pin;
 }
 
 // set ST pin level  : set table address A0-A7 / start speech
-void VLM5030Impl::setST(bool pin, const EmuTime& time)
+void VLM5030Impl::setST(bool pin)
 {
 	if (pin_ST == pin) {
 		// pin level unchanged
@@ -580,8 +579,7 @@ void VLM5030Impl::setST(bool pin, const EmuTime& time)
 }
 
 VLM5030Impl::VLM5030Impl(MSXMotherBoard& motherBoard, const std::string& name,
-                 const std::string& desc, const XMLElement& config,
-                 const EmuTime& time)
+                 const std::string& desc, const XMLElement& config)
 	: SoundDevice(motherBoard.getMSXMixer(), name, desc, 1)
 	, Resample(motherBoard.getGlobalSettings(), 1)
 {
@@ -602,7 +600,7 @@ VLM5030Impl::VLM5030Impl(MSXMotherBoard& motherBoard, const std::string& name,
 	pin_RST = pin_ST = pin_VCU = false;
 	latch_data = 0;
 
-	reset(time);
+	reset();
 	phase = PH_IDLE;
 
 	address_mask = rom->getSize() - 1;
@@ -638,9 +636,8 @@ bool VLM5030Impl::updateBuffer(unsigned length, int* buffer,
 // class VLM5030
 
 VLM5030::VLM5030(MSXMotherBoard& motherBoard, const std::string& name,
-                 const std::string& desc, const XMLElement& config,
-                 const EmuTime& time)
-	: pimple(new VLM5030Impl(motherBoard, name, desc, config, time))
+                 const std::string& desc, const XMLElement& config)
+	: pimple(new VLM5030Impl(motherBoard, name, desc, config))
 {
 }
 
@@ -648,9 +645,9 @@ VLM5030::~VLM5030()
 {
 }
 
-void VLM5030::reset(const EmuTime& time)
+void VLM5030::reset()
 {
-	pimple->reset(time);
+	pimple->reset();
 }
 
 void VLM5030::writeData(byte data)
