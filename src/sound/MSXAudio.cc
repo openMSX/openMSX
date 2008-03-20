@@ -6,8 +6,10 @@
 #include "DACSound8U.hh"
 #include "MSXMotherBoard.hh"
 #include "BooleanSetting.hh"
+#include "CommandController.hh"
 #include "StringOp.hh"
 #include "XMLElement.hh"
+#include "MSXException.hh"
 
 using std::string;
 

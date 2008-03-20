@@ -6,6 +6,7 @@
 #include "IntegerSetting.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXCliComm.hh"
+#include "MSXException.hh"
 #include "Math.hh"
 #include <algorithm>
 #include <vector>

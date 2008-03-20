@@ -6,6 +6,7 @@
 #include "BooleanSetting.hh"
 #include "StringSetting.hh"
 #include "VideoSourceSetting.hh"
+#include "CommandController.hh"
 #include "build-info.hh"
 #include <cmath>
 

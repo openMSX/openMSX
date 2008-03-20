@@ -11,6 +11,7 @@
 #include "FileException.hh"
 #include "CliComm.hh"
 #include "SettingsConfig.hh"
+#include "XMLElement.hh"
 #include "InputEvents.hh"
 #include "Display.hh"
 #include "EventDistributor.hh"

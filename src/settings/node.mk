@@ -5,6 +5,7 @@ include build/node-start.mk
 SRC_HDR:= \
 	SettingsManager \
 	Setting \
+	SettingImpl \
 	ProxySetting \
 	IntegerSetting \
 	FloatSetting \
@@ -15,7 +16,6 @@ SRC_HDR:= \
 	UserSettings
 
 HDR_ONLY:= \
-	SettingImpl \
 	EnumSetting \
 	SettingPolicy \
 	SettingRangePolicy \

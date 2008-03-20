@@ -5,6 +5,7 @@
 #include "FloatSetting.hh"
 #include "MSXEventDistributor.hh"
 #include "Timer.hh"
+#include "MSXException.hh"
 #include <algorithm>
 #include <cassert>
 

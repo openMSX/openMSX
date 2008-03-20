@@ -2,10 +2,12 @@
 
 #include "FirmwareSwitch.hh"
 #include "BooleanSetting.hh"
-#include "FileContext.hh"
-#include "FileException.hh"
 #include "CliComm.hh"
+#include "CommandController.hh"
+#include "XMLElement.hh"
+#include "FileContext.hh"
 #include "File.hh"
+#include "FileException.hh"
 
 using std::string;
 

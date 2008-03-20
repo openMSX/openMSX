@@ -4,21 +4,27 @@
 #define SETTING_HH
 
 #include "Setting.hh"
-#include "SettingsConfig.hh"
-#include "XMLElement.hh"
-#include "MSXException.hh"
-#include "CommandController.hh"
-#include "MSXCommandController.hh"
-#include "GlobalCommandController.hh"
-#include "MSXMotherBoard.hh"
-#include "Reactor.hh"
 
 namespace openmsx {
 
 template<typename T> class SettingChecker;
 
+// non-templatized base class for SettingImpl
+class SettingImplBase : public Setting
+{
+protected:
+	SettingImplBase(CommandController& commandController,
+	                const std::string& name, const std::string& description,
+	                SaveSetting save);
+	void init();
+	void destroy();
+	void syncProxy();
+
+	virtual void setValueString2(const std::string& valueString, bool check) = 0;
+};
+
 template <typename POLICY>
-class SettingImpl : public Setting, public POLICY
+class SettingImpl : public SettingImplBase, public POLICY
 {
 public:
 	typedef POLICY Policy;
@@ -79,10 +85,8 @@ public:
 	virtual void additionalInfo(TclObject& result) const;
 
 private:
-	void init();
 	void setValue2(Type newValue, bool check);
-	void setValueString2(const std::string& valueString, bool check);
-	void syncProxy();
+	virtual void setValueString2(const std::string& valueString, bool check);
 
 	SettingChecker<POLICY>* checker;
 	Type value;
@@ -100,13 +104,12 @@ protected:
 };
 
 
-
 template<typename POLICY>
 SettingImpl<POLICY>::SettingImpl(
 	CommandController& commandController,
 	const std::string& name, const std::string& description,
 	const Type& initialValue, SaveSetting save)
-	: Setting(commandController, name, description, save)
+	: SettingImplBase(commandController, name, description, save)
 	, POLICY(commandController)
 	, checker(NULL)
 	, value(initialValue), defaultValue(initialValue)
@@ -121,7 +124,7 @@ SettingImpl<POLICY>::SettingImpl(
 	CommandController& commandController,
 	const std::string& name, const std::string& description,
 	const Type& initialValue, SaveSetting save, T1 extra1)
-	: Setting(commandController, name, description, save)
+	: SettingImplBase(commandController, name, description, save)
 	, POLICY(commandController, extra1)
 	, checker(NULL)
 	, value(initialValue), defaultValue(initialValue)
@@ -136,7 +139,7 @@ SettingImpl<POLICY>::SettingImpl(
 	CommandController& commandController,
 	const std::string& name, const std::string& description,
 	const Type& initialValue, SaveSetting save, T1 extra1, T2 extra2)
-	: Setting(commandController, name, description, save)
+	: SettingImplBase(commandController, name, description, save)
 	, POLICY(commandController, extra1, extra2)
 	, checker(NULL)
 	, value(initialValue), defaultValue(initialValue)
@@ -146,39 +149,9 @@ SettingImpl<POLICY>::SettingImpl(
 }
 
 template<typename POLICY>
-void SettingImpl<POLICY>::init()
-{
-	CommandController& commandController = Setting::getCommandController();
-	XMLElement& settingsConfig =
-		commandController.getSettingsConfig().getXMLElement();
-	if (needLoadSave()) {
-		const XMLElement* config = settingsConfig.findChild("settings");
-		if (config) {
-			const XMLElement* elem = config->findChildWithAttribute(
-				"setting", "id", getName());
-			if (elem) {
-				try {
-					setValueString2(elem->getData(), false);
-				} catch (MSXException& e) {
-					// saved value no longer valid, just keep default
-				}
-			}
-		}
-	}
-	commandController.registerSetting(*this);
-
-	// This is needed to for example inform catapult of the new setting
-	// value when a setting was destroyed/recreated (by a machine switch
-	// for example).
-	notify();
-}
-
-template<typename POLICY>
 SettingImpl<POLICY>::~SettingImpl()
 {
-	CommandController& commandController = Setting::getCommandController();
-	sync(commandController.getSettingsConfig().getXMLElement());
-	commandController.unregisterSetting(*this);
+	destroy();
 }
 
 template<typename POLICY>
@@ -208,32 +181,6 @@ void SettingImpl<POLICY>::setValue2(Type newValue, bool check)
 	}
 	syncProxy();
 }
-
-template<typename POLICY>
-void SettingImpl<POLICY>::syncProxy()
-{
-	MSXCommandController* controller =
-	    dynamic_cast<MSXCommandController*>(&Setting::getCommandController());
-	if (!controller) {
-		// not a machine specific setting
-		return;
-	}
-	GlobalCommandController& globalController =
-		controller->getGlobalCommandController();
-	MSXMotherBoard* mb = globalController.getReactor().getMotherBoard();
-	if (!mb) {
-		// no active MSXMotherBoard
-		return;
-	}
-	if (&mb->getMSXCommandController() != controller) {
-		// this setting does not belong to active MSXMotherBoard
-		return;
-	}
-
-	// Tcl already makes sure this doesn't result in an endless loop
-	globalController.changeSetting(getName(), POLICY::toString(value));
-}
-
 
 template<typename POLICY>
 const typename SettingImpl<POLICY>::Type& SettingImpl<POLICY>::getDefaultValue() const

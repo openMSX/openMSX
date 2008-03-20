@@ -27,6 +27,18 @@ namespace openmsx {
 
 typedef signed char offset;
 
+// This function only exists as a workaround for a bug in g++-4.2.x, see
+//   http://gcc.gnu.org/bugzilla/show_bug.cgi?id=34336
+// This can be removed once g++-4.2.4 is released.
+static BooleanSetting* createFreqLockedSetting(
+	CommandController& commandController, const string& name)
+{
+	return new BooleanSetting(commandController,
+	        name + "_freq_locked",
+	        "real (locked) or custom (unlocked) " + name + " frequency",
+	        true);
+}
+
 template <class T> CPUCore<T>::CPUCore(
 		MSXMotherBoard& motherboard_, const string& name,
 		const BooleanSetting& traceSetting_, const EmuTime& time)
@@ -35,10 +47,8 @@ template <class T> CPUCore<T>::CPUCore(
 	, scheduler(motherboard.getScheduler())
 	, interface(NULL)
 	, traceSetting(traceSetting_)
-	, freqLocked(new BooleanSetting(motherboard.getCommandController(),
-	        name + "_freq_locked",
-	        "real (locked) or custom (unlocked) " + name + " frequency",
-	        true))
+	, freqLocked(createFreqLockedSetting(
+		motherboard.getCommandController(), name))
 	, freqValue(new IntegerSetting(motherboard.getCommandController(),
 	        name + "_freq",
 	        "custom " + name + " frequency (only valid when unlocked)",

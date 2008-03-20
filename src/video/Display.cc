@@ -20,6 +20,7 @@
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
 #include "MachineConfig.hh"
+#include "XMLElement.hh"
 #include "VideoSystemChangeListener.hh"
 #include "Version.hh"
 #include "build-info.hh"

@@ -5,6 +5,7 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
+#include "CommandController.hh"
 #include "CommandException.hh"
 #include "GlobalSettings.hh"
 #include "BooleanSetting.hh"

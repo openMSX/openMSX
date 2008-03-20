@@ -2,6 +2,7 @@
 
 #include "UserSettings.hh"
 #include "Command.hh"
+#include "CommandController.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "StringSetting.hh"

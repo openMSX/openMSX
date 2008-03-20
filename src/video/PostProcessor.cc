@@ -7,6 +7,7 @@
 #include "DoubledFrame.hh"
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
+#include "CommandController.hh"
 #include "RawFrame.hh"
 #include "AviRecorder.hh"
 #include "CliComm.hh"

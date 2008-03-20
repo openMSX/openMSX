@@ -5,6 +5,7 @@
 #include "MSXDevice.hh"
 #include "MachineConfig.hh"
 #include "ExtensionConfig.hh"
+#include "XMLElement.hh"
 #include "MSXCliComm.hh"
 #include "GlobalCliComm.hh"
 #include "MSXCommandController.hh"

@@ -5,6 +5,7 @@
 #include "BooleanSetting.hh"
 #include "StringSetting.hh"
 #include "SettingsConfig.hh"
+#include "CommandController.hh"
 #include "ThrottleManager.hh"
 #include "EnumSetting.hh"
 
