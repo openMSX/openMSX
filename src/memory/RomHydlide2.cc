@@ -14,7 +14,6 @@
 //  second 16kb: 0x7000 - 0x77FF (0x7000 and 0x77FF used)
 
 #include "RomHydlide2.hh"
-#include "MSXCPU.hh"
 #include "Rom.hh"
 #include "SRAM.hh"
 
@@ -64,7 +63,7 @@ void RomHydlide2::writeMem(word address, byte value, const EmuTime& /*time*/)
 		if (value == 0x10) {
 			// SRAM block
 			sramEnabled |= (1 << region);
-			cpu.invalidateMemCache(0x4000 * region, 0x4000);
+			invalidateMemCache(0x4000 * region, 0x4000);
 		} else {
 			// ROM block
 			setRom(region, value);

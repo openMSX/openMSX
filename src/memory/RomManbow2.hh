@@ -12,7 +12,6 @@ namespace openmsx {
 class Rom;
 class SCC;
 class AmdFlash;
-class MSXCPU;
 
 class RomManbow2 : public MSXRom
 {
@@ -33,7 +32,6 @@ private:
 
 	const std::auto_ptr<SCC> scc;
 	const std::auto_ptr<AmdFlash> flash;
-	MSXCPU& cpu;
 	byte bank[4];
 	bool sccEnabled;
 };

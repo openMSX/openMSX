@@ -1,7 +1,6 @@
 // $Id$
 
 #include "Rom4kBBlocks.hh"
-#include "MSXCPU.hh"
 #include "Rom.hh"
 
 namespace openmsx {
@@ -29,7 +28,7 @@ const byte* Rom4kBBlocks::getReadCacheLine(word address) const
 void Rom4kBBlocks::setBank(byte region, const byte* adr)
 {
 	bank[region] = adr;
-	cpu.invalidateMemCache(region * 0x1000, 0x1000);
+	invalidateMemCache(region * 0x1000, 0x1000);
 }
 
 void Rom4kBBlocks::setRom(byte region, int block)

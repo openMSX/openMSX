@@ -2,8 +2,6 @@
 
 #include "MSXPac.hh"
 #include "SRAM.hh"
-#include "MSXCPU.hh"
-#include "MSXMotherBoard.hh"
 #include "CacheLine.hh"
 
 namespace openmsx {
@@ -104,7 +102,7 @@ void MSXPac::checkSramEnable()
 	bool newEnabled = (r1ffe == 0x4D) && (r1fff == 0x69);
 	if (sramEnabled != newEnabled) {
 		sramEnabled = newEnabled;
-		getMotherBoard().getCPU().invalidateMemCache(0x0000, 0x10000);
+		invalidateMemCache(0x0000, 0x10000);
 	}
 }
 

@@ -3,8 +3,6 @@
 #include "MSXFmPac.hh"
 #include "SRAM.hh"
 #include "Rom.hh"
-#include "MSXCPU.hh"
-#include "MSXMotherBoard.hh"
 #include "CacheLine.hh"
 
 namespace openmsx {
@@ -120,8 +118,7 @@ void MSXFmPac::writeMem(word address, byte value, const EmuTime& time)
 			byte newBank = value & 0x03;
 			if (bank != newBank) {
 				bank = newBank;
-				getMotherBoard().getCPU().invalidateMemCache(
-					0x0000, 0x10000);
+				invalidateMemCache(0x0000, 0x10000);
 			}
 			break;
 		}
@@ -153,7 +150,7 @@ void MSXFmPac::checkSramEnable()
 	bool newEnabled = (r1ffe == 0x4D) && (r1fff == 0x69);
 	if (sramEnabled != newEnabled) {
 		sramEnabled = newEnabled;
-		getMotherBoard().getCPU().invalidateMemCache(0x0000, 0x10000);
+		invalidateMemCache(0x0000, 0x10000);
 	}
 }
 

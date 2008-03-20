@@ -1,7 +1,6 @@
 // $Id$
 
 #include "RomMSXAudio.hh"
-#include "MSXCPU.hh"
 #include "CacheLine.hh"
 #include "Rom.hh"
 #include "Ram.hh"
@@ -74,7 +73,7 @@ byte* RomMSXAudio::getWriteCacheLine(word address) const
 void RomMSXAudio::setBank(byte value)
 {
 	bankSelect = value & 3;
-	cpu.invalidateMemCache(0x0000, 0x10000);
+	invalidateMemCache(0x0000, 0x10000);
 }
 
 } // namespace openmsx

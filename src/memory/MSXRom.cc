@@ -1,7 +1,6 @@
 // $Id$
 
 #include "MSXRom.hh"
-#include "MSXMotherBoard.hh"
 #include "Rom.hh"
 #include "RomInfo.hh"
 #include "TclObject.hh"
@@ -12,7 +11,6 @@ MSXRom::MSXRom(MSXMotherBoard& motherBoard, const XMLElement& config,
                std::auto_ptr<Rom> rom_)
 	: MSXDevice(motherBoard, config, rom_->getName())
 	, rom(rom_)
-	, cpu(motherBoard.getCPU())
 {
 }
 

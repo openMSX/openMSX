@@ -10,7 +10,6 @@
 namespace openmsx {
 
 class Rom;
-class MSXCPU;
 
 class MSXRom : public MSXDevice
 {
@@ -28,7 +27,6 @@ protected:
 	       std::auto_ptr<Rom> rom);
 
 	const std::auto_ptr<Rom> rom;
-	MSXCPU& cpu;
 
 private:
 	RomType type;

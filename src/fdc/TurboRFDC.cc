@@ -7,7 +7,6 @@
 #include "TurboRFDC.hh"
 #include "TC8566AF.hh"
 #include "Rom.hh"
-#include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
 #include "CacheLine.hh"
 
@@ -146,7 +145,7 @@ void TurboRFDC::writeMem(word address, byte value, const EmuTime& time)
 
 void TurboRFDC::setBank(byte value)
 {
-	getMotherBoard().getCPU().invalidateMemCache(0x4000, 0x4000);
+	invalidateMemCache(0x4000, 0x4000);
 	memory = &(*rom)[0x4000 * (value & blockMask)];
 }
 

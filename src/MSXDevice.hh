@@ -171,6 +171,11 @@ public:
 	  */
 	virtual void globalWrite(word address, byte value, const EmuTime& time);
 
+	/** Invalidate CPU memory-mapping cache.
+	  * This is a shortcut to the MSXCPU::invalidateMemCache() method,
+	  * see that method for more details.
+	  */
+	void invalidateMemCache(word start, unsigned size);
 
 	/** Get the mother board this device belongs to
 	  */

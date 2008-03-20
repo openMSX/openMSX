@@ -9,7 +9,6 @@
 namespace openmsx {
 
 class SRAM;
-class MSXCPU;
 
 class ESE_RAM : public MSXDevice
 {
@@ -28,7 +27,6 @@ private:
 	void setSRAM(unsigned region, byte block);
 
 	std::auto_ptr<SRAM> sram;
-	MSXCPU& cpu;
 
 	bool isWriteable[4]; // which region is readonly?
 	byte mapped[4]; // which block is mapped in this region?

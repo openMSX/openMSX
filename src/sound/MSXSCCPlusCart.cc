@@ -9,8 +9,6 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
-#include "MSXCPU.hh"
-#include "MSXMotherBoard.hh"
 #include "CacheLine.hh"
 #include "XMLElement.hh"
 
@@ -221,8 +219,7 @@ void MSXSCCPlusCart::setMapper(int regio, byte value)
 
 	checkEnable();
 	internalMemoryBank[regio] = block;
-	getMotherBoard().getCPU().invalidateMemCache(
-		0x4000 + regio * 0x2000, 0x2000);
+	invalidateMemCache(0x4000 + regio * 0x2000, 0x2000);
 }
 
 void MSXSCCPlusCart::setModeRegister(byte value)
@@ -242,12 +239,11 @@ void MSXSCCPlusCart::setModeRegister(byte value)
 		isRamSegment[2] = true;
 		isRamSegment[3] = true;
 	} else {
-		MSXCPU& cpu = getMotherBoard().getCPU();
 		if (modeRegister & 0x01) {
 			isRamSegment[0] = true;
 		} else {
 			if (isRamSegment[0]) {
-				cpu.invalidateMemCache(0x4000, 0x2000);
+				invalidateMemCache(0x4000, 0x2000);
 				isRamSegment[0] = false;
 			}
 		}
@@ -255,7 +251,7 @@ void MSXSCCPlusCart::setModeRegister(byte value)
 			isRamSegment[1] = true;
 		} else {
 			if (isRamSegment[1]) {
-				cpu.invalidateMemCache(0x6000, 0x2000);
+				invalidateMemCache(0x6000, 0x2000);
 				isRamSegment[1] = false;
 			}
 		}
@@ -264,12 +260,12 @@ void MSXSCCPlusCart::setModeRegister(byte value)
 			isRamSegment[2] = true;
 		} else {
 			if (isRamSegment[2]) {
-				cpu.invalidateMemCache(0x8000, 0x2000);
+				invalidateMemCache(0x8000, 0x2000);
 				isRamSegment[2] = false;
 			}
 		}
 		if (isRamSegment[3]) {
-			cpu.invalidateMemCache(0xA000, 0x2000);
+			invalidateMemCache(0xA000, 0x2000);
 			isRamSegment[3] = false;
 		}
 	}

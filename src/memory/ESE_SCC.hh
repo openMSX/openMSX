@@ -11,7 +11,6 @@ namespace openmsx {
 class SRAM;
 class SCC;
 class MB89352;
-class MSXCPU;
 
 class ESE_SCC : public MSXDevice
 {
@@ -35,7 +34,6 @@ private:
 	std::auto_ptr<SRAM> sram;
 	std::auto_ptr<SCC> scc;
 	std::auto_ptr<MB89352> spc;
-	MSXCPU& cpu;
 
 	byte mapper[4];
 	byte mapperMask;

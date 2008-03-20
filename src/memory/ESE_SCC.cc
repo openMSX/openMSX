@@ -51,8 +51,6 @@
 #include "SRAM.hh"
 #include "SCC.hh"
 #include "MB89352.hh"
-#include "MSXMotherBoard.hh"
-#include "MSXCPU.hh"
 #include "StringOp.hh"
 #include "MSXException.hh"
 #include "XMLElement.hh"
@@ -63,7 +61,6 @@ namespace openmsx {
 ESE_SCC::ESE_SCC(MSXMotherBoard& motherBoard, const XMLElement& config,
                  const EmuTime& time, bool withSCSI)
 	: MSXDevice(motherBoard, config)
-	, cpu(motherBoard.getCPU())
 {
 	unsigned sramSize = config.getChildDataAsInt("sramsize", 256); // size in kb
 	if (sramSize != 1024 && sramSize != 512 && sramSize != 256 && sramSize != 128) {
@@ -130,7 +127,7 @@ void ESE_SCC::setMapperLow(unsigned page, byte value)
 		flush = true;
 	}
 	if (flush) {
-		cpu.invalidateMemCache(0x4000 + 0x2000 * page, 0x2000);
+		invalidateMemCache(0x4000 + 0x2000 * page, 0x2000);
 	}
 }
 
@@ -155,7 +152,7 @@ void ESE_SCC::setMapperHigh(byte value)
 		flush = true;
 	}
 	if (flush) {
-		cpu.invalidateMemCache(0x4000, 0x2000);
+		invalidateMemCache(0x4000, 0x2000);
 	}
 }
 

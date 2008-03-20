@@ -5,6 +5,7 @@
 #include "MSXMotherBoard.hh"
 #include "CartridgeSlotManager.hh"
 #include "MSXCPUInterface.hh"
+#include "MSXCPU.hh"
 #include "CacheLine.hh"
 #include "TclObject.hh"
 #include "StringOp.hh"
@@ -377,6 +378,11 @@ void MSXDevice::globalWrite(word /*address*/, byte /*value*/,
 byte* MSXDevice::getWriteCacheLine(word /*start*/) const
 {
 	return NULL;	// uncacheable
+}
+
+void MSXDevice::invalidateMemCache(word start, unsigned size)
+{
+	getMotherBoard().getCPU().invalidateMemCache(start, size);
 }
 
 } // namespace openmsx

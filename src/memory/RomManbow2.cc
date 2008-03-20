@@ -4,8 +4,6 @@
 #include "Rom.hh"
 #include "SCC.hh"
 #include "AmdFlash.hh"
-#include "MSXMotherBoard.hh"
-#include "MSXCPU.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -23,7 +21,6 @@ RomManbow2::RomManbow2(MSXMotherBoard& motherBoard, const XMLElement& config,
 	: MSXRom(motherBoard, config, rom_)
 	, scc(new SCC(motherBoard, "SCC", config, time))
 	, flash(new AmdFlash(*rom, 16, 512 / 64, getWriteProtected(type), config))
-	, cpu(motherBoard.getCPU())
 {
 	reset(time);
 }
@@ -49,7 +46,7 @@ void RomManbow2::setRom(unsigned region, unsigned block)
 	assert(region < 4);
 	unsigned nrBlocks = flash->getSize() / 0x2000;
 	bank[region] = block & (nrBlocks - 1);
-	cpu.invalidateMemCache(0x4000 + region * 0x2000, 0x2000);
+	invalidateMemCache(0x4000 + region * 0x2000, 0x2000);
 }
 
 byte RomManbow2::peek(word address, const EmuTime& time) const
@@ -105,7 +102,7 @@ void RomManbow2::writeMem(word address, byte value, const EmuTime& time)
 		if ((address & 0xF800) == 0x9000) {
 			// SCC enable/disable
 			sccEnabled = ((value & 0x3F) == 0x3F);
-			cpu.invalidateMemCache(0x9800, 0x0800);
+			invalidateMemCache(0x9800, 0x0800);
 		}
 		if ((address & 0x1800) == 0x1000) {
 			// page selection

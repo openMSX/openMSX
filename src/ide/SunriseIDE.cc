@@ -3,8 +3,6 @@
 #include "SunriseIDE.hh"
 #include "DummyIDEDevice.hh"
 #include "IDEDeviceFactory.hh"
-#include "MSXMotherBoard.hh"
-#include "MSXCPU.hh"
 #include "Rom.hh"
 #include "XMLElement.hh"
 #include "Math.hh"
@@ -111,13 +109,12 @@ void SunriseIDE::writeMem(word address, byte value, const EmuTime& time)
 
 void SunriseIDE::writeControl(byte value)
 {
-	MSXCPU& cpu = getMotherBoard().getCPU();
 	if (ideRegsEnabled != (value & 1)) {
 		ideRegsEnabled = value & 1;
-		cpu.invalidateMemCache(0x3C00, 0x0300);
-		cpu.invalidateMemCache(0x7C00, 0x0300);
-		cpu.invalidateMemCache(0xBC00, 0x0300);
-		cpu.invalidateMemCache(0xFC00, 0x0300);
+		invalidateMemCache(0x3C00, 0x0300);
+		invalidateMemCache(0x7C00, 0x0300);
+		invalidateMemCache(0xBC00, 0x0300);
+		invalidateMemCache(0xFC00, 0x0300);
 	}
 
 	byte bank = Math::reverseByte(value & 0xF8);
@@ -126,7 +123,7 @@ void SunriseIDE::writeControl(byte value)
 	}
 	if (internalBank != &(*rom)[0x4000 * bank]) {
 		internalBank = &(*rom)[0x4000 * bank];
-		cpu.invalidateMemCache(0x4000, 0x4000);
+		invalidateMemCache(0x4000, 0x4000);
 	}
 }
 

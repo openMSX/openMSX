@@ -35,7 +35,6 @@
 //                0x84-0x87 0x8C-0x8F  contain (same) 8kB RAM
 
 #include "RomFSA1FM.hh"
-#include "MSXCPU.hh"
 #include "CacheLine.hh"
 #include "Rom.hh"
 #include "SRAM.hh"
@@ -151,7 +150,7 @@ void RomFSA1FM1::writeMem(word address, byte value, const EmuTime& /*time*/)
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		if (address == 0x7FC4) {
 			// switch rom bank
-			cpu.invalidateMemCache(0x4000, 0x2000);
+			invalidateMemCache(0x4000, 0x2000);
 		}
 		sram->write(address & 0x1FFF, value);
 	}
@@ -298,7 +297,7 @@ void RomFSA1FM2::changeBank(byte region, byte bank)
 			isRam[region]   = false;
 			isEmpty[region] = true;
 		}
-		cpu.invalidateMemCache(0x2000 * region, 0x2000);
+		invalidateMemCache(0x2000 * region, 0x2000);
 	} else {
 		isRam[region]   = false;
 		isEmpty[region] = false;

@@ -27,7 +27,6 @@
 
 #include "RomHalnote.hh"
 #include "CacheLine.hh"
-#include "MSXCPU.hh"
 #include "Rom.hh"
 #include "SRAM.hh"
 
@@ -91,7 +90,7 @@ void RomHalnote::writeMem(word address, byte value, const EmuTime& /*time*/)
 			if (subBanks[subBank] != value) {
 				subBanks[subBank] = value;
 				if (subMapperEnabled) {
-					cpu.invalidateMemCache(
+					invalidateMemCache(
 						0x7000 + subBank * 0x800, 0x800);
 				}
 			}
@@ -117,7 +116,7 @@ void RomHalnote::writeMem(word address, byte value, const EmuTime& /*time*/)
 				bool newSubMapperEnabled = value & 0x80;
 				if (newSubMapperEnabled != subMapperEnabled) {
 					subMapperEnabled = newSubMapperEnabled;
-					cpu.invalidateMemCache(0x7000, 0x1000);
+					invalidateMemCache(0x7000, 0x1000);
 				}
 			}
 		}

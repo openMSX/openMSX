@@ -3,7 +3,6 @@
 #include "MSXMapperIO.hh"
 #include "MSXMapperIOTurboR.hh"
 #include "MSXMapperIOPhilips.hh"
-#include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
 #include "SimpleDebuggable.hh"
 #include "MachineConfig.hh"
@@ -94,7 +93,7 @@ byte MSXMapperIO::getSelectedPage(byte bank) const
 void MSXMapperIO::write(unsigned address, byte value)
 {
 	registers[address] = value;
-	getMotherBoard().getCPU().invalidateMemCache(0x4000 * address, 0x4000);
+	invalidateMemCache(0x4000 * address, 0x4000);
 }
 
 

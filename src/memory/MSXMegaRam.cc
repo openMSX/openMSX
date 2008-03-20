@@ -26,8 +26,6 @@
 
 #include "MSXMegaRam.hh"
 #include "XMLElement.hh"
-#include "MSXCPU.hh"
-#include "MSXMotherBoard.hh"
 #include "Ram.hh"
 #include "Rom.hh"
 #include "Math.hh"
@@ -124,8 +122,8 @@ byte MSXMegaRam::readIO(word port, const EmuTime& /*time*/)
 			if (rom.get()) romMode = true;
 			break;
 	}
-	getMotherBoard().getCPU().invalidateMemCache(0x0000, 0x10000);
-	return 0xFF;	// return value doesn't matter
+	invalidateMemCache(0x0000, 0x10000);
+	return 0xFF; // return value doesn't matter
 }
 
 byte MSXMegaRam::peekIO(word /*port*/, const EmuTime& /*time*/) const
@@ -145,16 +143,15 @@ void MSXMegaRam::writeIO(word port, byte /*value*/, const EmuTime& /*time*/)
 			if (rom.get()) romMode = true;
 			break;
 	}
-	getMotherBoard().getCPU().invalidateMemCache(0x0000, 0x10000);
+	invalidateMemCache(0x0000, 0x10000);
 }
 
 void MSXMegaRam::setBank(byte page, byte block)
 {
 	bank[page] = block & maskBlocks;
 	word adr = page * 0x2000;
-	MSXCPU& cpu = getMotherBoard().getCPU();
-	cpu.invalidateMemCache(adr + 0x0000, 0x2000);
-	cpu.invalidateMemCache(adr + 0x8000, 0x2000);
+	invalidateMemCache(adr + 0x0000, 0x2000);
+	invalidateMemCache(adr + 0x8000, 0x2000);
 }
 
 } // namespace openmsx
