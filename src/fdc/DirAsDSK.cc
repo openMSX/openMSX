@@ -10,6 +10,7 @@
 #include "FileException.hh"
 #include "FileOperations.hh"
 #include "ReadDir.hh"
+#include "StringOp.hh"
 #include <algorithm>
 #include <cstring>
 #include <sys/types.h>

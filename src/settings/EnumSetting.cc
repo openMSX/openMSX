@@ -5,16 +5,25 @@
 #include "Completer.hh"
 #include "CommandException.hh"
 #include <cassert>
+#include <strings.h>
 
 namespace openmsx {
 
 int EnumSettingPolicyBase::fromStringBase(const std::string& str) const
 {
-	BaseMap::const_iterator it = baseMap.find(str);
-	if (it == baseMap.end()) {
-		throw CommandException("not a valid value: " + str);
+	// An alternative we used in the past is to use StringOp::caseless
+	// as the map comparator functor. This requires to #include StringOp.hh
+	// in the header file. Because this header is included in many other
+	// files, we prefer not to do that.
+	// These maps are usually very small, so there is no disadvantage on
+	// using a O(n) search here (instead of O(log n)).
+	for (BaseMap::const_iterator it = baseMap.begin();
+	     it != baseMap.end() ; ++it) {
+		if (strcasecmp(str.c_str(), it->first.c_str()) == 0) {
+			return it->second;
+		}
 	}
-	return it->second;
+	throw CommandException("not a valid value: " + str);
 }
 
 std::string EnumSettingPolicyBase::toStringBase(int value) const

@@ -5,7 +5,6 @@
 
 #include "SettingPolicy.hh"
 #include "SettingImpl.hh"
-#include "StringOp.hh"
 #include <map>
 #include <set>
 
@@ -26,7 +25,7 @@ protected:
 	std::string toStringBase(int value) const;
 	virtual void checkSetValueBase(int& value) const = 0;
 
-	typedef std::map<std::string, int, StringOp::caseless> BaseMap;
+	typedef std::map<std::string, int> BaseMap;
 	BaseMap baseMap;
 };
 
@@ -34,7 +33,7 @@ template <typename T> class EnumSettingPolicy
 	: public EnumSettingPolicyBase, public SettingPolicy<T>
 {
 public:
-	typedef std::map<std::string, T, StringOp::caseless> Map;
+	typedef std::map<std::string, T> Map;
 
 protected:
 	EnumSettingPolicy(CommandController& commandController,
