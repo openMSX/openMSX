@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef SETTING_HH
-#define SETTING_HH
+#ifndef SETTINGIMPL_HH
+#define SETTINGIMPL_HH
 
 #include "Setting.hh"
 

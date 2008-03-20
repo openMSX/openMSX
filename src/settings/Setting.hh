@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef SETTINGNODE_HH
-#define SETTINGNODE_HH
+#ifndef SETTING_HH
+#define SETTING_HH
 
 #include "Subject.hh"
 #include "noncopyable.hh"
