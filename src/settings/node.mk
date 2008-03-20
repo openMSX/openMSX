@@ -11,12 +11,12 @@ SRC_HDR:= \
 	FloatSetting \
 	StringSetting \
 	BooleanSetting \
+	EnumSetting \
 	FilenameSetting \
 	KeyCodeSetting \
 	UserSettings
 
 HDR_ONLY:= \
-	EnumSetting \
 	SettingPolicy \
 	SettingRangePolicy \
 	ReadOnlySetting

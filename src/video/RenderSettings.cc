@@ -7,6 +7,7 @@
 #include "StringSetting.hh"
 #include "VideoSourceSetting.hh"
 #include "CommandController.hh"
+#include "CommandException.hh"
 #include "build-info.hh"
 #include <cmath>
 

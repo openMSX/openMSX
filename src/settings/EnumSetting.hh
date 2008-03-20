@@ -5,22 +5,36 @@
 
 #include "SettingPolicy.hh"
 #include "SettingImpl.hh"
-#include "TclObject.hh"
-#include "CommandException.hh"
-#include "Completer.hh"
 #include "StringOp.hh"
 #include <map>
 #include <set>
-#include <cassert>
 
 namespace openmsx {
 
-template <typename T> class EnumSettingPolicy : public SettingPolicy<T>
+class TclObject;
+
+// non-templatized base class for EnumSettingPolicy<T>
+class EnumSettingPolicyBase
+{
+public:
+	void getPossibleValues(std::set<std::string>& result) const;
+
+protected:
+	void additionalInfoBase(TclObject& result) const;
+	void tabCompletionBase(std::vector<std::string>& tokens) const;
+	int fromStringBase(const std::string& str) const;
+	std::string toStringBase(int value) const;
+	virtual void checkSetValueBase(int& value) const = 0;
+
+	typedef std::map<std::string, int, StringOp::caseless> BaseMap;
+	BaseMap baseMap;
+};
+
+template <typename T> class EnumSettingPolicy
+	: public EnumSettingPolicyBase, public SettingPolicy<T>
 {
 public:
 	typedef std::map<std::string, T, StringOp::caseless> Map;
-
-	void getPossibleValues(std::set<std::string>& result) const;
 
 protected:
 	EnumSettingPolicy(CommandController& commandController,
@@ -35,8 +49,9 @@ protected:
 	void additionalInfo(TclObject& result) const;
 
 private:
-	Map enumMap;
+	virtual void checkSetValueBase(int& value) const;
 };
+
 
 template <typename T> class EnumSetting : public SettingImpl<EnumSettingPolicy<T> >
 {
@@ -54,8 +69,10 @@ template <typename T>
 EnumSettingPolicy<T>::EnumSettingPolicy(
 		CommandController& commandController, const Map& map_)
 	: SettingPolicy<T>(commandController)
-	, enumMap(map_)
 {
+	for (typename Map::const_iterator it = map_.begin(); it != map_.end(); ++it) {
+		baseMap[it->first] = it->second;
+	}
 }
 
 template <typename T>
@@ -64,41 +81,15 @@ EnumSettingPolicy<T>::~EnumSettingPolicy()
 }
 
 template<typename T>
-void EnumSettingPolicy<T>::getPossibleValues(std::set<std::string>& result) const
-{
-	for (typename Map::const_iterator it = enumMap.begin();
-	     it != enumMap.end(); ++it) {
-		try {
-			T val = it->second;
-			checkSetValue(val);
-			result.insert(it->first);
-		} catch (MSXException& e) {
-			// ignore
-		}
-	}
-}
-
-template<typename T>
 std::string EnumSettingPolicy<T>::toString(T value) const
 {
-	for (typename Map::const_iterator it = enumMap.begin();
-	     it != enumMap.end() ; ++it) {
-		if (it->second == value) {
-			return it->first;
-		}
-	}
-	assert(false);
-	return "";	// avoid warning
+	return toStringBase(static_cast<int>(value));
 }
 
 template<typename T>
 T EnumSettingPolicy<T>::fromString(const std::string& str) const
 {
-	typename Map::const_iterator it = enumMap.find(str);
-	if (it == enumMap.end()) {
-		throw CommandException("not a valid value: " + str);
-	}
-	return it->second;
+	return static_cast<T>(fromStringBase(str));
 }
 
 template<typename T>
@@ -107,11 +98,17 @@ void EnumSettingPolicy<T>::checkSetValue(T& /*value*/) const
 }
 
 template<typename T>
+void EnumSettingPolicy<T>::checkSetValueBase(int& value) const
+{
+	T t = static_cast<T>(value);
+	checkSetValue(t);
+	value = static_cast<int>(t);
+}
+
+template<typename T>
 void EnumSettingPolicy<T>::tabCompletion(std::vector<std::string>& tokens) const
 {
-	std::set<std::string> stringSet;
-	getPossibleValues(stringSet);
-	Completer::completeString(tokens, stringSet, false); // case insensitive
+	tabCompletionBase(tokens);
 }
 
 template<typename T>
@@ -120,14 +117,10 @@ std::string EnumSettingPolicy<T>::getTypeString() const
 	return "enumeration";
 }
 
-template <typename T>
+template<typename T>
 void EnumSettingPolicy<T>::additionalInfo(TclObject& result) const
 {
-	TclObject valueList(result.getInterpreter());
-	std::set<std::string> values;
-	this->getPossibleValues(values);
-	valueList.addListElements(values.begin(), values.end());
-	result.addListElement(valueList);
+	additionalInfoBase(result);
 }
 
 

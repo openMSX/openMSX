@@ -17,6 +17,7 @@
 #include "FileContext.hh"
 #include "GlobalCliComm.hh"
 #include "Reactor.hh"
+#include "MSXException.hh"
 #include <algorithm>
 
 using std::string;

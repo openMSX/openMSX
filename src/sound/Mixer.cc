@@ -11,6 +11,7 @@
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
+#include "MSXException.hh"
 #include <cassert>
 
 namespace openmsx {

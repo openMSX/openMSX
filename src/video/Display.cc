@@ -22,6 +22,7 @@
 #include "MachineConfig.hh"
 #include "XMLElement.hh"
 #include "VideoSystemChangeListener.hh"
+#include "CommandException.hh"
 #include "Version.hh"
 #include "build-info.hh"
 #include "checked_cast.hh"
