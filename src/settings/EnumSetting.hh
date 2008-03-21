@@ -19,6 +19,7 @@ public:
 	void getPossibleValues(std::set<std::string>& result) const;
 
 protected:
+	virtual ~EnumSettingPolicyBase() {}
 	void additionalInfoBase(TclObject& result) const;
 	void tabCompletionBase(std::vector<std::string>& tokens) const;
 	int fromStringBase(const std::string& str) const;
