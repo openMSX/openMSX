@@ -4,6 +4,7 @@
 #include "MidiInNative.hh"
 #include "MidiInConnector.hh"
 #include "PluggingController.hh"
+#include "PlugException.hh"
 #include "EventDistributor.hh"
 #include "Scheduler.hh"
 #include <cstring>
