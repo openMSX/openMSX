@@ -5,6 +5,7 @@
 #include "Midi_w32.hh"
 #include "MidiOutNative.hh"
 #include "PluggingController.hh"
+#include "PlugException.hh"
 
 using std::string;
 
