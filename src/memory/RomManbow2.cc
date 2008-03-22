@@ -93,8 +93,10 @@ void RomManbow2::writeMem(word address, byte value, const EmuTime& time)
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
 		// write to SCC
 		scc->writeMem(address & 0xff, value, time);
-		return;
-	} else if ((0x4000 <= address) && (address < 0xC000)) {
+		// note: writes to SCC also go to flash
+		//    thanks to 'enen' for testing this
+	}
+	if ((0x4000 <= address) && (address < 0xC000)) {
 		unsigned page = (address - 0x4000) / 0x2000;
 		unsigned addr = (address & 0x1FFF) + 0x2000 * bank[page];
 		flash->write(addr, value);
