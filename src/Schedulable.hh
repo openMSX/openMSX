@@ -49,8 +49,6 @@ protected:
 	explicit Schedulable(Scheduler& scheduler);
 	virtual ~Schedulable();
 
-	// Scheduler needs special permissions to declare these methods friends.
-	friend class Scheduler;
 	void setSyncPoint(const EmuTime& timestamp, int userData = 0);
 	void removeSyncPoint(int userData = 0);
 	void removeSyncPoints();

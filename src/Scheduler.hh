@@ -4,13 +4,13 @@
 #define SCHEDULER_HH
 
 #include "EmuTime.hh"
-#include "Schedulable.hh"
 #include "likely.hh"
 #include "noncopyable.hh"
 #include <vector>
 
 namespace openmsx {
 
+class Schedulable;
 class MSXCPU;
 
 class Scheduler : private noncopyable
@@ -77,10 +77,7 @@ public:
 	}
 
 private: // -> intended for Schedulable
-	friend void Schedulable::setSyncPoint(const EmuTime&, int);
-	friend void Schedulable::removeSyncPoint(int);
-	friend void Schedulable::removeSyncPoints();
-	friend bool Schedulable::pendingSyncPoint(int);
+	friend class Schedulable;
 
 	/**
 	 * Register a syncPoint. When the emulation reaches "timestamp",
