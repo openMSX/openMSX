@@ -662,12 +662,16 @@ void AY8910::setOutputRate(unsigned sampleRate)
 
 static void addFill(int*& buf, int val, unsigned num)
 {
-	// Note: This always fills to buffer with a multiple of 4 units.
-	//       So up-to 3 units more than requested. This is ok.
+	// Note: in the past we tried to optimize this by always producing
+	// a multiple of 4 output values. In the general case a sounddevice is
+	// allowed to do this, but only at the of the soundbuffer. This method
+	// cab be called multiple times per buffer, in such case it does go
+	// wrong.
 	assert(num > 0);
 #ifdef __arm__
-	int* end = &buf[num];
 	asm volatile (
+		"subs	%[num],%[num],#4\n\t"
+		"bmi	1f\n"
 	"0:\n\t"
 		"ldmia	%[buf],{r3-r6}\n\t"
 		"add	r3,r3,%[val]\n\t"
@@ -675,26 +679,34 @@ static void addFill(int*& buf, int val, unsigned num)
 		"add	r5,r5,%[val]\n\t"
 		"add	r6,r6,%[val]\n\t"
 		"stmia	%[buf]!,{r3-r6}\n\t"
-		"cmp	%[buf],%[end]\n\t"
-		"bcc	0b\n"
+		"subs	%[num],%[num],#4\n\t"
+		"bpl	0b\n"
+	"1:\n\t"
+		"tst	%[num],#2\n\t"
+		"beq	2f\n\t"
+		"ldmia	%[buf],{r3-r4}\n\t"
+		"add	r3,r3,%[val]\n\t"
+		"add	r4,r4,%[val]\n\t"
+		"stmia	%[buf]!,{r3-r4}\n"
+	"2:\n\t"
+		"tst	%[num],#1\n\t"
+		"beq	3f\n\t"
+		"ldr	r3,[%[buf]]\n\t"
+		"add	r3,r3,%[val]\n\t"
+		"str	r3,[%[buf]],#4\n"
+	"3:\n\t"
 		: [buf] "=r"    (buf)
+		, [num] "=r"    (num)
 		:       "[buf]" (buf)
 		, [val] "r"     (val)
-		, [end] "r"     (end)
+		,       "[num]" (num)
 		: "r3","r4","r5","r6"
 	);
-	buf = end;
 	return;
 #endif
-	unsigned i = 0;
 	do {
-		buf[i + 0] += val;
-		buf[i + 1] += val;
-		buf[i + 2] += val;
-		buf[i + 3] += val;
-		i += 4;
-	} while (i < num);
-	buf += num;
+		*buf++ += val;
+	} while (--num);
 }
 
 void AY8910::generateChannels(int** bufs, unsigned length)
