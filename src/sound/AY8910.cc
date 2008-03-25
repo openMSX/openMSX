@@ -664,9 +664,9 @@ static void addFill(int*& buf, int val, unsigned num)
 {
 	// Note: in the past we tried to optimize this by always producing
 	// a multiple of 4 output values. In the general case a sounddevice is
-	// allowed to do this, but only at the of the soundbuffer. This method
-	// cab be called multiple times per buffer, in such case it does go
-	// wrong.
+	// allowed to do this, but only at the end of the soundbuffer. This
+	// method can also be called in the middle of a buffer (so multiple
+	// times per buffer), in such case it does go wrong.
 	assert(num > 0);
 #ifdef __arm__
 	asm volatile (
