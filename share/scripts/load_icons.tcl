@@ -26,44 +26,30 @@ proc __trace_led_status { name1 name2 op } {
 	set __last_change($led) [openmsx_info realtime]
 	if [set $name1] {
 		# off -> on
-		osd configure osd_leds.${led}_off -alpha 0
+		osd configure osd_leds.${led}_off -alpha 0 -fadeTarget 0
 	} else {
 		# on -> off
-		osd configure osd_leds.${led}_on  -alpha 0
+		osd configure osd_leds.${led}_on  -alpha 0 -fadeTarget 0
 	}
-	__redraw_osd_leds
+	__redraw_osd_leds $led
 }
 
-proc __redraw_osd_leds {} {
-	# TODO split this for individual leds? -> make led induction var a parameter
-	set fade_time 5.0
-	set fade_duration 5.0
-
-	set retrigger false
-	foreach led $::__leds {
-		set diff [expr [openmsx_info realtime] - $::__last_change(led_${led})]
-		if {$fade_time == 0} {
-			# no fading, draw completely opaque
-			set alpha 255
-		} elseif {$diff > ($fade_time + $fade_duration)} {
-			# completely fade out
-			set alpha 0
-		} elseif {$diff < $fade_time} {
-			# no fading yet
-			set alpha 255
-			set retrigger true
-		} else {
-			# fading out
-			set alpha [expr 255 - (255 * ($diff - $fade_time) / $fade_duration)]
-			set retrigger true
-		}
-		if [set ::led_${led}] {
-			osd configure osd_leds.led_${led}_on  -alpha $alpha
-		} else {
-			osd configure osd_leds.led_${led}_off -alpha $alpha
-		}
+proc __redraw_osd_leds { led } {
+	if [set ::${led}] {
+		set widget osd_leds.${led}_on
+	} else {
+		set widget osd_leds.${led}_off
 	}
-	if $retrigger { after frame __redraw_osd_leds }
+
+	set diff [expr [openmsx_info realtime] - $::__last_change($led)]
+	if {$diff < 5.0} {
+		# no fading yet
+		osd configure $widget -alpha 255 -fadeTarget 255
+		after time [expr 5.0 - $diff] "__redraw_osd_leds $led"
+	} else {
+		# fading out
+		osd configure $widget -fadeTarget 0
+	}
 }
 
 proc load_icons { set_name { set_position "" } } {
@@ -179,8 +165,8 @@ set __leds "power caps kana pause turbo FDD"
 # create OSD widgets
 osd create rectangle osd_leds -scaled true -alpha 0
 foreach led $__leds {
-	osd create rectangle osd_leds.led_${led}_on  -alpha 0
-	osd create rectangle osd_leds.led_${led}_off -alpha 0
+	osd create rectangle osd_leds.led_${led}_on  -alpha 0 -fadeTarget 0 -fadePeriod 5.0
+	osd create rectangle osd_leds.led_${led}_off -alpha 0 -fadeTarget 0 -fadePeriod 5.0
 	trace add variable ::led_${led} write __trace_led_status
 	set ::__last_change(led_${led}) [openmsx_info realtime]
 }

@@ -18,7 +18,7 @@ public:
 	byte getRed()   const { return r; }
 	byte getGreen() const { return g; }
 	byte getBlue()  const { return b; }
-	byte getAlpha() const { return a; }
+	byte getAlpha() const; // returns faded value
 
 	virtual void getProperties(std::set<std::string>& result) const;
 	virtual void setProperty(const std::string& name, const std::string& value);
@@ -40,12 +40,19 @@ protected:
 	std::auto_ptr<BaseImage> image;
 
 private:
+	void setAlpha(byte alpha);
+	void setAlpha(byte alpha, unsigned long long now);
+	byte getAlpha(unsigned long long now) const;
 	void paint(OutputSurface& output, bool openGL);
 	void getTransformedXY(const OutputSurface& output,
 	                      double& outx, double& outy) const;
 
 	const OSDGUI& gui;
-	byte r, g, b, a;
+	unsigned long long setFadeTime;
+	double fadePeriod;
+	byte fadeTarget;
+	byte r, g, b;
+	mutable byte a;
 	bool error;
 };
 

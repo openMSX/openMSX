@@ -1,5 +1,13 @@
 $Id$
 
+2008-03-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added -fadeTarget and -fadePeriod properties for OSD widgets:
+	   - This allows to smoothly fade the alpha value of a widget without
+	     further interaction with this widget. (I mean you don't have to
+	     manually change the alpha value in small steps.)
+	   - Allows to greatly speedup the OSD icons Tcl script. (In the GP2X
+	     port, it took a lot a time)
+
 2008-03-16 Manuel Bilderbeek <manuel@msxnet.org>
 	* Some small improvements in the cassette player:
 	  - clearer errors when both a wav and a cas image fail to work

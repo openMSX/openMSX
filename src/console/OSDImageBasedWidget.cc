@@ -8,6 +8,7 @@
 #include "GlobalCliComm.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
+#include "Timer.hh"
 #include <cassert>
 
 using std::string;
@@ -18,6 +19,9 @@ namespace openmsx {
 OSDImageBasedWidget::OSDImageBasedWidget(const OSDGUI& gui_, const string& name)
 	: OSDWidget(name)
 	, gui(gui_)
+	, setFadeTime(0)
+	, fadePeriod(0.0)
+	, fadeTarget(255)
 	, r(0), g(0), b(0), a(255)
 	, error(false)
 {
@@ -32,6 +36,8 @@ void OSDImageBasedWidget::getProperties(set<string>& result) const
 	result.insert("-rgba");
 	result.insert("-rgb");
 	result.insert("-alpha");
+	result.insert("-fadePeriod");
+	result.insert("-fadeTarget");
 	OSDWidget::getProperties(result);
 }
 
@@ -42,7 +48,7 @@ void OSDImageBasedWidget::setProperty(const string& name, const string& value)
 		r = (color >> 24) & 255;
 		g = (color >> 16) & 255;
 		b = (color >>  8) & 255;
-		a = (color >>  0) & 255;
+		setAlpha((color >>  0) & 255);
 		invalidateLocal();
 	} else if (name == "-rgb") {
 		unsigned color = StringOp::stringToInt(value);
@@ -52,7 +58,15 @@ void OSDImageBasedWidget::setProperty(const string& name, const string& value)
 		invalidateLocal();
 	} else if (name == "-alpha") {
 		// don't invalidate
-		a = StringOp::stringToInt(value);
+		setAlpha(StringOp::stringToInt(value));
+	} else if (name == "-fadePeriod") {
+		unsigned long long now = Timer::getTime();
+		setAlpha(getAlpha(now), now); // recalculate current (faded) alpha
+		fadePeriod = StringOp::stringToDouble(value);
+	} else if (name == "-fadeTarget") {
+		unsigned long long now = Timer::getTime();
+		setAlpha(getAlpha(now), now); // recalculate current (faded) alpha
+		fadeTarget = StringOp::stringToInt(value);
 	} else {
 		OSDWidget::setProperty(name, value);
 	}
@@ -67,10 +81,59 @@ string OSDImageBasedWidget::getProperty(const string& name) const
 		unsigned color = (r << 16) | (g << 8) | (b << 0);
 		return StringOp::toString(color);
 	} else if (name == "-alpha") {
-		return StringOp::toString(unsigned(a));
+		return StringOp::toString(unsigned(getAlpha()));
+	} else if (name == "-fadePeriod") {
+		return StringOp::toString(fadePeriod);
+	} else if (name == "-fadeTarget") {
+		return StringOp::toString(unsigned(fadeTarget));
 	} else {
 		return OSDWidget::getProperty(name);
 	}
+}
+
+byte OSDImageBasedWidget::getAlpha() const
+{
+	if (a == fadeTarget) {
+		// optimization
+		return a;
+	}
+	return getAlpha(Timer::getTime());
+}
+
+byte OSDImageBasedWidget::getAlpha(unsigned long long now) const
+{
+	assert(now >= setFadeTime);
+	if (fadePeriod == 0.0) {
+		return a;
+	} else {
+		int diff = now - setFadeTime; // int should be big enough
+		double ratio = diff / (1000000.0 * fadePeriod);
+		int dAlpha = int(256.0 * ratio);
+		if (a < fadeTarget) {
+			int tmpAlpha = a + dAlpha;
+			if (tmpAlpha >= fadeTarget) {
+				a = tmpAlpha = fadeTarget;
+			}
+			return tmpAlpha;
+		} else {
+			int tmpAlpha = a - dAlpha;
+			if (tmpAlpha <= fadeTarget) {
+				a = tmpAlpha = fadeTarget;
+			}
+			return tmpAlpha;
+		}
+	}
+}
+
+void OSDImageBasedWidget::setAlpha(byte alpha)
+{
+	setAlpha(alpha, Timer::getTime());
+}
+
+void OSDImageBasedWidget::setAlpha(byte alpha, unsigned long long now)
+{
+	a = alpha;
+	setFadeTime = now;
 }
 
 void OSDImageBasedWidget::invalidateLocal()
