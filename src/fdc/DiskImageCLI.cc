@@ -1,7 +1,6 @@
 // $Id$
 
 #include "DiskImageCLI.hh"
-#include "Reactor.hh"
 #include "CommandController.hh"
 #include "CommandLineParser.hh"
 #include "TclObject.hh"
@@ -13,7 +12,7 @@ using std::string;
 namespace openmsx {
 
 DiskImageCLI::DiskImageCLI(CommandLineParser& commandLineParser)
-	: commandController(commandLineParser.getReactor().getCommandController())
+	: commandController(commandLineParser.getCommandController())
 {
 	commandLineParser.registerOption("-diska", *this);
 	commandLineParser.registerOption("-diskb", *this);

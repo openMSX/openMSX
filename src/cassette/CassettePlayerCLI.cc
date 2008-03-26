@@ -3,7 +3,6 @@
 #include "CassettePlayerCLI.hh"
 #include "CommandLineParser.hh"
 #include "CommandController.hh"
-#include "Reactor.hh"
 #include "MSXException.hh"
 #include "TclObject.hh"
 
@@ -13,7 +12,7 @@ using std::string;
 namespace openmsx {
 
 CassettePlayerCLI::CassettePlayerCLI(CommandLineParser& commandLineParser)
-	: commandController(commandLineParser.getReactor().getCommandController())
+	: commandController(commandLineParser.getCommandController())
 {
 	commandLineParser.registerOption("-cassetteplayer", *this);
 	commandLineParser.registerFileClass("cassetteimage", *this);

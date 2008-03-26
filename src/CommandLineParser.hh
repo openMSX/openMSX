@@ -36,6 +36,7 @@ class HDImageCLI;
 class CDImageCLI;
 class Reactor;
 class MSXMotherBoard;
+class CommandController;
 class MSXEventRecorderReplayerCLI;
 
 class CommandLineParser : private noncopyable
@@ -55,8 +56,8 @@ public:
 	typedef std::vector<std::string> Scripts;
 	const Scripts& getStartupScripts() const;
 
-	Reactor& getReactor() const;
 	MSXMotherBoard* getMotherBoard() const;
+	CommandController& getCommandController() const;
 
 	/** Need to suppress renderer window on startup?
 	  */

@@ -270,7 +270,7 @@ bool CommandLineParser::parseFileName(const string& arg, list<string>& cmdLine)
 {
 	string originalName(arg);
 	try {
-		UserFileContext context(getReactor().getCommandController());
+		UserFileContext context(getCommandController());
 		File file(context.resolve(arg));
 		originalName = file.getOriginalName();
 	} catch (FileException& e) {
@@ -415,15 +415,16 @@ const CommandLineParser::Scripts& CommandLineParser::getStartupScripts() const
 	return scriptOption->getScripts();
 }
 
-Reactor& CommandLineParser::getReactor() const
-{
-	return reactor;
-}
-
 MSXMotherBoard* CommandLineParser::getMotherBoard() const
 {
-	return getReactor().getMotherBoard();
+	return reactor.getMotherBoard();
 }
+
+CommandController& CommandLineParser::getCommandController() const
+{
+	return reactor.getCommandController();
+}
+
 
 // Control option
 
@@ -434,7 +435,7 @@ ControlOption::ControlOption(CommandLineParser& parser_)
 
 bool ControlOption::parseOption(const string& option, list<string>& cmdLine)
 {
-	parser.getReactor().getGlobalCliComm().startInput(
+	parser.reactor.getGlobalCliComm().startInput(
 		getArgument(option, cmdLine));
 	parser.parseStatus = CommandLineParser::CONTROL;
 	return true;
@@ -620,7 +621,7 @@ bool MachineOption::parseOption(const string& option, list<string>& cmdLine)
 	string machine(getArgument(option, cmdLine));
 	parser.output.printInfo("Using specified machine: " + machine);
 	try {
-		parser.getReactor().createMotherBoard(machine);
+		parser.reactor.createMotherBoard(machine);
 	} catch (MSXException& e) {
 		throw FatalError(e.getMessage());
 	}
@@ -648,7 +649,7 @@ bool SettingOption::parseOption(const string &option, list<string> &cmdLine)
 	}
 	try {
 		UserFileContext context(
-		        parser.getReactor().getCommandController(),
+		        parser.getCommandController(),
 		        "", true); // skip user directories
 		parser.settingsConfig.loadSetting(
 			context, getArgument(option, cmdLine));
