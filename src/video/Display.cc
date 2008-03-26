@@ -150,17 +150,17 @@ void Display::resetVideoSystem()
 	assert(layers.empty());
 }
 
-Reactor& Display::getReactor()
+GlobalCliComm& Display::getGlobalCliComm() const
 {
-	return reactor;
+	return reactor.getGlobalCliComm();
 }
 
-RenderSettings& Display::getRenderSettings()
+RenderSettings& Display::getRenderSettings() const
 {
 	return *renderSettings;
 }
 
-OSDGUI& Display::getOSDGUI()
+OSDGUI& Display::getOSDGUI() const
 {
 	return *osdGui;
 }

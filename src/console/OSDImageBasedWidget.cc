@@ -4,7 +4,6 @@
 #include "OSDGUI.hh"
 #include "BaseImage.hh"
 #include "Display.hh"
-#include "Reactor.hh"
 #include "GlobalCliComm.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
@@ -170,7 +169,7 @@ void OSDImageBasedWidget::getTransformedXY(const OutputSurface& output,
 void OSDImageBasedWidget::setError(const string& message)
 {
 	error = true;
-	gui.getDisplay().getReactor().getGlobalCliComm().printWarning(message);
+	gui.getDisplay().getGlobalCliComm().printWarning(message);
 }
 
 void OSDImageBasedWidget::paintSDL(OutputSurface& output)
