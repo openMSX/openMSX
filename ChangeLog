@@ -1,5 +1,12 @@
 $Id$
 
+2008-03-26 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed Z80 timing of accepting a IRQ:
+	   - Accepting a IRQ in IM0 or IM1 should take 13 cycles, there is no
+	     extra wait cycle. For IM2 it takes 19 cycles (also no extra wait
+	     cycle).
+	   - Thanks to enen for testing this
+
 2008-03-25 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added -fadeTarget and -fadePeriod properties for OSD widgets:
 	   - This allows to smoothly fade the alpha value of a widget without

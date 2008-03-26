@@ -31,9 +31,9 @@ protected:
 	inline void DD_CB_DELAY()    { add(2); }
 	inline void PARALLEL_DELAY() { add(2); }
 	inline void NMI_DELAY()      { add(11); }
-	inline void IM0_DELAY()      { add(2); }
-	inline void IM1_DELAY()      { add(2); }
-	inline void IM2_DELAY()      { add(19); }
+	inline void IM0_DELAY()      { add(4); } // should take 13 cycles in total,
+	inline void IM1_DELAY()      { add(4); } //   verified on real MSX (thnx to enen)
+	inline void IM2_DELAY()      { add(4); } // should take 19 cycles in total
 	inline void PUSH_DELAY()     { add(1); }
 	inline void INC_DELAY()      { add(1); }
 	inline void SMALL_DELAY()    { add(1); }  // TODO more detailed?
