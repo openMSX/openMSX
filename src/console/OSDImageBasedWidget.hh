@@ -40,6 +40,7 @@ protected:
 	std::auto_ptr<BaseImage> image;
 
 private:
+	bool isFading() const;
 	void setAlpha(byte alpha);
 	void setAlpha(byte alpha, unsigned long long now);
 	byte getAlpha(unsigned long long now) const;

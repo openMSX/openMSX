@@ -90,9 +90,14 @@ string OSDImageBasedWidget::getProperty(const string& name) const
 	}
 }
 
+bool OSDImageBasedWidget::isFading() const
+{
+	return (a != fadeTarget) && (fadePeriod != 0.0);
+}
+
 byte OSDImageBasedWidget::getAlpha() const
 {
-	if (a == fadeTarget) {
+	if (!isFading()) {
 		// optimization
 		return a;
 	}
@@ -104,23 +109,25 @@ byte OSDImageBasedWidget::getAlpha(unsigned long long now) const
 	assert(now >= setFadeTime);
 	if (fadePeriod == 0.0) {
 		return a;
-	} else {
-		int diff = now - setFadeTime; // int should be big enough
-		double ratio = diff / (1000000.0 * fadePeriod);
-		int dAlpha = int(256.0 * ratio);
-		if (a < fadeTarget) {
-			int tmpAlpha = a + dAlpha;
-			if (tmpAlpha >= fadeTarget) {
-				a = tmpAlpha = fadeTarget;
-			}
-			return tmpAlpha;
-		} else {
-			int tmpAlpha = a - dAlpha;
-			if (tmpAlpha <= fadeTarget) {
-				a = tmpAlpha = fadeTarget;
-			}
-			return tmpAlpha;
+	}
+
+	int diff = now - setFadeTime; // int should be big enough
+	double ratio = diff / (1000000.0 * fadePeriod);
+	int dAlpha = int(256.0 * ratio);
+	if (a < fadeTarget) {
+		int tmpAlpha = a + dAlpha;
+		if (tmpAlpha >= fadeTarget) {
+			a = fadeTarget;
+			return a;
 		}
+		return tmpAlpha;
+	} else {
+		int tmpAlpha = a - dAlpha;
+		if (tmpAlpha <= fadeTarget) {
+			a = fadeTarget;
+			return a;
+		}
+		return tmpAlpha;
 	}
 }
 
@@ -202,6 +209,9 @@ void OSDImageBasedWidget::paint(OutputSurface& output, bool openGL)
 		double x, y;
 		getTransformedXY(output, x, y);
 		image->draw(int(x), int(y), getAlpha());
+	}
+	if (isFading()) {
+		gui.refresh();
 	}
 }
 

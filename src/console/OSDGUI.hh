@@ -21,6 +21,7 @@ public:
 
 	Display& getDisplay() const;
 	OSDWidget& getTopWidget() const;
+	void refresh() const;
 
 private:
 	Display& display;
