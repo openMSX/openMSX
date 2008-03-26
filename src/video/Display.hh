@@ -18,7 +18,7 @@ namespace openmsx {
 class Layer;
 class Reactor;
 class VideoSystem;
-class GlobalCliComm;
+class CliComm;
 class RenderSettings;
 class VideoSystemChangeListener;
 class Setting;
@@ -40,7 +40,7 @@ public:
 	void createVideoSystem();
 	VideoSystem& getVideoSystem();
 
-	GlobalCliComm& getGlobalCliComm() const;
+	CliComm& getCliComm() const;
 	RenderSettings& getRenderSettings() const;
 	OSDGUI& getOSDGUI() const;
 

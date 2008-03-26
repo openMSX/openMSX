@@ -15,7 +15,7 @@
 #include "Timer.hh"
 #include "DummyFont.hh"
 #include "FileContext.hh"
-#include "GlobalCliComm.hh"
+#include "CliComm.hh"
 #include "Reactor.hh"
 #include "MSXException.hh"
 #include <algorithm>
@@ -111,7 +111,7 @@ void OSDConsoleRenderer::initConsole()
 	try {
 		backgroundSetting->setChecker(settingChecker.get());
 	} catch (MSXException& e) {
-		reactor.getGlobalCliComm().printWarning(e.getMessage());
+		reactor.getCliComm().printWarning(e.getMessage());
 	}
 }
 

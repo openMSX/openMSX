@@ -104,7 +104,7 @@ protected:
 	AviRecorder* recorder;
 
 private:
-	CommandController& commandController;
+	Display& display;
 };
 
 } // namespace openmsx

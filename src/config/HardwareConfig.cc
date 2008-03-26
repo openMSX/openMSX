@@ -13,7 +13,7 @@
 #include "MSXCPUInterface.hh"
 #include "DeviceFactory.hh"
 #include "Scheduler.hh"
-#include "MSXCliComm.hh"
+#include "CliComm.hh"
 #include <cassert>
 
 #include <iostream>

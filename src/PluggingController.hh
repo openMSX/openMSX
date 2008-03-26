@@ -13,7 +13,7 @@ namespace openmsx {
 class MSXMotherBoard;
 class Connector;
 class Pluggable;
-class MSXCliComm;
+class CliComm;
 class PlugCmd;
 class UnplugCmd;
 class PluggableInfo;
@@ -67,7 +67,7 @@ private:
 	const std::auto_ptr<ConnectorInfo> connectorInfo;
 	const std::auto_ptr<ConnectionClassInfo> connectionClassInfo;
 
-	MSXCliComm& cliComm;
+	CliComm& cliComm;
 };
 
 } // namespace openmsx

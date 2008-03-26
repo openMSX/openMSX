@@ -8,7 +8,7 @@
 #include "InfoCommand.hh"
 #include "Interpreter.hh"
 #include "Setting.hh"
-#include "MSXCliComm.hh"
+#include "CliComm.hh"
 #include <iostream>
 
 using std::string;

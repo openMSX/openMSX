@@ -15,7 +15,7 @@
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "CommandException.hh"
-#include "MSXCliComm.hh"
+#include "CliComm.hh"
 #include "TclObject.hh"
 #include "EmuTime.hh"
 #include "checked_cast.hh"

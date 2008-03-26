@@ -11,7 +11,7 @@
 #include "MSXException.hh"
 #include "StringOp.hh"
 #include "openmsx.hh"
-#include "MSXCliComm.hh"
+#include "CliComm.hh"
 #include <cassert>
 
 using std::string;
@@ -31,7 +31,7 @@ public:
 private:
 	const ExtensionConfig* getExtensionConfig(const string& cartname);
 	CartridgeSlotManager& manager;
-	MSXCliComm& cliComm;
+	CliComm& cliComm;
 };
 
 

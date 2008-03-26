@@ -11,7 +11,7 @@
 #include "MSXCommandController.hh"
 #include "CommandException.hh"
 #include "MSXMotherBoard.hh"
-#include "MSXCliComm.hh"
+#include "CliComm.hh"
 #include "openmsx.hh"
 #include <cassert>
 #include <iostream>

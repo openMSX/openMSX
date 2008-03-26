@@ -151,7 +151,7 @@ private:
 CommandLineParser::CommandLineParser(Reactor& reactor_)
 	: reactor(reactor_)
 	, settingsConfig(reactor.getCommandController().getSettingsConfig())
-	, output(reactor.getGlobalCliComm())
+	, output(reactor.getCliComm())
 	, helpOption(new HelpOption(*this))
 	, versionOption(new VersionOption(*this))
 	, controlOption(new ControlOption(*this))
@@ -435,8 +435,7 @@ ControlOption::ControlOption(CommandLineParser& parser_)
 
 bool ControlOption::parseOption(const string& option, list<string>& cmdLine)
 {
-	parser.reactor.getGlobalCliComm().startInput(
-		getArgument(option, cmdLine));
+	parser.reactor.getGlobalCliComm().startInput(getArgument(option, cmdLine));
 	parser.parseStatus = CommandLineParser::CONTROL;
 	return true;
 }

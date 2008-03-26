@@ -15,7 +15,7 @@ class MSXMotherBoard;
 class XMLElement;
 class File;
 class RomInfo;
-class GlobalCliComm;
+class CliComm;
 class RomDebuggable;
 
 class Rom : private noncopyable
@@ -42,7 +42,7 @@ public:
 	MSXMotherBoard& getMotherBoard() const;
 
 private:
-	void init(GlobalCliComm& cliComm, const XMLElement& config);
+	void init(CliComm& cliComm, const XMLElement& config);
 	void read(const XMLElement& config);
 	bool checkSHA1(const XMLElement& config);
 

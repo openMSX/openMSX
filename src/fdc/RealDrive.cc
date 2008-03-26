@@ -8,7 +8,7 @@
 #include "LedEvent.hh"
 #include "CommandController.hh"
 #include "ThrottleManager.hh"
-#include "MSXCliComm.hh"
+#include "CliComm.hh"
 #include "GlobalSettings.hh"
 #include "MSXException.hh"
 #include <bitset>

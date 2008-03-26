@@ -6,7 +6,7 @@
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "MSXMotherBoard.hh"
-#include "MSXCliComm.hh"
+#include "CliComm.hh"
 #include "Alarm.hh"
 #include <string.h>
 

@@ -30,7 +30,7 @@ TODO:
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
-#include "MSXCliComm.hh"
+#include "CliComm.hh"
 #include <sstream>
 #include <cstring>
 #include <cassert>

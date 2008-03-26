@@ -8,7 +8,7 @@
 #include "RecordedCommand.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
-#include "MSXCliComm.hh"
+#include "CliComm.hh"
 #include <algorithm>
 #include <bitset>
 #include <cassert>

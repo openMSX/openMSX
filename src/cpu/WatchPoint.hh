@@ -18,7 +18,7 @@ public:
 
 	/** Begin and end address are inclusive (IOW range = [begin, end])
 	 */
-	WatchPoint(MSXCliComm& CliComm,
+	WatchPoint(CliComm& CliComm,
 	           std::auto_ptr<TclObject> command,
 	           std::auto_ptr<TclObject> condition,
 	           Type type, unsigned beginAddr, unsigned endAddr);

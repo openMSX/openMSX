@@ -9,7 +9,7 @@
 #include "CommandException.hh"
 #include "GlobalSettings.hh"
 #include "BooleanSetting.hh"
-#include "MSXCliComm.hh"
+#include "CliComm.hh"
 #include "TclObject.hh"
 #include <set>
 
@@ -23,7 +23,7 @@ using std::set;
 
 HDCommand::HDCommand(MSXCommandController& msxCommandController,
                      MSXEventDistributor& msxEventDistributor,
-                     Scheduler& scheduler, MSXCliComm& cliComm_, HD& hd_)
+                     Scheduler& scheduler, CliComm& cliComm_, HD& hd_)
 	: RecordedCommand(msxCommandController, msxEventDistributor,
 	                  scheduler, hd_.getName())
 	, hd(hd_)
@@ -32,7 +32,7 @@ HDCommand::HDCommand(MSXCommandController& msxCommandController,
 }
 
 void HDCommand::execute(const std::vector<TclObject*>& tokens, TclObject& result,
-				const EmuTime& /*time*/)
+                        const EmuTime& /*time*/)
 {
 	if (tokens.size() == 1) {
 		result.addListElement(hd.getName() + ':');

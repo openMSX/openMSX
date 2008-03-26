@@ -21,7 +21,7 @@ class SpriteChecker;
 class VDPRegDebug;
 class VDPStatusRegDebug;
 class VDPPaletteDebug;
-class MSXCliComm;
+class CliComm;
 
 /** Unified implementation of MSX Video Display Processors (VDPs).
   * MSX1 VDP is Texas Instruments TMS9918A or TMS9928A.
@@ -630,7 +630,7 @@ private:
 	  * Used to print a warning if the software being emulated would
 	  * cause a normal MSX to freeze.
 	  */
-	MSXCliComm& cliComm;
+	CliComm& cliComm;
 
 	friend class VDPRegDebug;
 	friend class VDPStatusRegDebug;

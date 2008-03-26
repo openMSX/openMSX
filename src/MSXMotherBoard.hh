@@ -15,7 +15,7 @@ class Reactor;
 class MSXDevice;
 class MachineConfig;
 class ExtensionConfig;
-class MSXCliComm;
+class CliComm;
 class MSXCommandController;
 class Scheduler;
 class CartridgeSlotManager;
@@ -39,7 +39,6 @@ class Display;
 class DiskManipulator;
 class FilePool;
 class GlobalSettings;
-class GlobalCliComm;
 class CommandController;
 class EmuTime;
 class MSXMotherBoardImpl;
@@ -104,8 +103,8 @@ public:
 	void removeExtension(const ExtensionConfig& extension);
 
 	// The following classes are unique per MSX machine
-	MSXCliComm& getMSXCliComm();
-	MSXCliComm* getMSXCliCommIfAvailable();
+	CliComm& getMSXCliComm();
+	CliComm* getMSXCliCommIfAvailable();
 	MSXCommandController& getMSXCommandController();
 	Scheduler& getScheduler();
 	MSXEventDistributor& getMSXEventDistributor();
@@ -131,7 +130,7 @@ public:
 	DiskManipulator& getDiskManipulator();
 	FilePool& getFilePool();
 	GlobalSettings& getGlobalSettings();
-	GlobalCliComm& getGlobalCliComm();
+	CliComm& getGlobalCliComm();
 
 	// convenience methods
 	CommandController& getCommandController();

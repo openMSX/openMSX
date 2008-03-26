@@ -33,7 +33,7 @@
 #include "FileContext.hh"
 #include "WavImage.hh"
 #include "CasImage.hh"
-#include "MSXCliComm.hh"
+#include "CliComm.hh"
 #include "CommandException.hh"
 #include "Scheduler.hh"
 #include "EventDistributor.hh"
@@ -83,7 +83,7 @@ CassettePlayer::CassettePlayer(
 		MSXMixer& mixer, Scheduler& scheduler,
 		MSXEventDistributor& msxEventDistributor,
 		EventDistributor& eventDistributor_,
-		MSXCliComm& cliComm_)
+		CliComm& cliComm_)
 	: SoundDevice(mixer, getName(), getDescription(), 1)
 	, Resample(msxCommandController_.getGlobalSettings(), 1)
 	, Schedulable(scheduler)

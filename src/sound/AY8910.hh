@@ -11,7 +11,7 @@
 namespace openmsx {
 
 class MSXMotherBoard;
-class MSXCliComm;
+class CliComm;
 class AY8910Periphery;
 class XMLElement;
 class EmuTime;
@@ -156,7 +156,7 @@ private:
 
 	void wrtReg(unsigned reg, byte value, const EmuTime& time);
 
-	MSXCliComm& cliComm;
+	CliComm& cliComm;
 	AY8910Periphery& periphery;
 	const std::auto_ptr<AY8910Debuggable> debuggable;
 	std::auto_ptr<FloatSetting> vibratoPercent;

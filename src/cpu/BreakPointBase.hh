@@ -9,7 +9,7 @@
 
 namespace openmsx {
 
-class MSXCliComm;
+class CliComm;
 class TclObject;
 
 /** Base class for CPU break and watch points.
@@ -22,7 +22,7 @@ public:
 	void checkAndExecute();
 
 protected:
-	BreakPointBase(MSXCliComm& CliComm,
+	BreakPointBase(CliComm& cliComm,
 	               std::auto_ptr<TclObject> command,
 	               std::auto_ptr<TclObject> condition);
 	~BreakPointBase();
@@ -30,7 +30,7 @@ protected:
 private:
 	bool isTrue() const;
 
-	MSXCliComm& cliComm;
+	CliComm& cliComm;
 	std::auto_ptr<TclObject> command;
 	std::auto_ptr<TclObject> condition;
 	bool executing;

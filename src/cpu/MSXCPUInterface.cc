@@ -11,7 +11,7 @@
 #include "MSXCPU.hh"
 #include "XMLElement.hh"
 #include "VDPIODelay.hh"
-#include "MSXCliComm.hh"
+#include "CliComm.hh"
 #include "MSXMultiIODevice.hh"
 #include "MSXMultiMemDevice.hh"
 #include "MSXWatchIODevice.hh"
@@ -157,7 +157,7 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 	        motherBoard_.getMSXCommandController().getMachineInfoCommand(), *this, false))
 	, dummyDevice(motherBoard_.getDummyDevice())
 	, msxcpu(motherBoard_.getCPU())
-	, cliCommOutput(motherBoard_.getMSXCliComm())
+	, cliComm(motherBoard_.getMSXCliComm())
 	, motherBoard(motherBoard_)
 {
 	for (int port = 0; port < 256; ++port) {
@@ -374,7 +374,7 @@ void MSXCPUInterface::register_IO(int port, bool isIn,
 			devicePtr = multi;
 		}
 		if (isIn) {
-			cliCommOutput.printWarning(
+			cliComm.printWarning(
 				"Conflicting input port 0x" +
 				StringOp::toHexString(port, 2) +
 				" for devices " + devicePtr->getName());

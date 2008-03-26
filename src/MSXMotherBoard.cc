@@ -93,8 +93,8 @@ public:
 		const vector<string>& options);
 	void removeExtension(const ExtensionConfig& extension);
 
-	MSXCliComm& getMSXCliComm();
-	MSXCliComm* getMSXCliCommIfAvailable();
+	CliComm& getMSXCliComm();
+	CliComm* getMSXCliCommIfAvailable();
 	MSXCommandController& getMSXCommandController();
 	Scheduler& getScheduler();
 	MSXEventDistributor& getMSXEventDistributor();
@@ -451,16 +451,15 @@ void MSXMotherBoardImpl::removeExtension(const ExtensionConfig& extension)
 	extensions.erase(it);
 }
 
-MSXCliComm& MSXMotherBoardImpl::getMSXCliComm()
+CliComm& MSXMotherBoardImpl::getMSXCliComm()
 {
 	if (!msxCliComm.get()) {
-		msxCliComm.reset(new MSXCliComm(
-			self, reactor.getGlobalCliComm()));
+		msxCliComm.reset(new MSXCliComm(self, getGlobalCliComm()));
 	}
 	return *msxCliComm;
 }
 
-MSXCliComm* MSXMotherBoardImpl::getMSXCliCommIfAvailable()
+CliComm* MSXMotherBoardImpl::getMSXCliCommIfAvailable()
 {
 	return msxCliComm.get();
 }
@@ -1219,11 +1218,12 @@ void MSXMotherBoard::removeExtension(const ExtensionConfig& extension)
 {
 	pimple->removeExtension(extension);
 }
-MSXCliComm& MSXMotherBoard::getMSXCliComm()
+CliComm& MSXMotherBoard::getMSXCliComm()
 {
+	// note: return-type is CliComm instead of MSXCliComm
 	return pimple->getMSXCliComm();
 }
-MSXCliComm* MSXMotherBoard::getMSXCliCommIfAvailable()
+CliComm* MSXMotherBoard::getMSXCliCommIfAvailable()
 {
 	return pimple->getMSXCliCommIfAvailable();
 }
@@ -1319,8 +1319,9 @@ GlobalSettings& MSXMotherBoard::getGlobalSettings()
 {
 	return pimple->getGlobalSettings();
 }
-GlobalCliComm& MSXMotherBoard::getGlobalCliComm()
+CliComm& MSXMotherBoard::getGlobalCliComm()
 {
+	// note: return-type is CliComm instead of GlobalCliComm
 	return pimple->getGlobalCliComm();
 }
 CommandController& MSXMotherBoard::getCommandController()

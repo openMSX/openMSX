@@ -3,7 +3,7 @@
 #include "MSXCPUInterface.hh"
 #include "Scheduler.hh"
 #include "MSXMotherBoard.hh"
-#include "MSXCliComm.hh"
+#include "CliComm.hh"
 #include "Event.hh"
 #include "EventDistributor.hh"
 #include "BooleanSetting.hh"

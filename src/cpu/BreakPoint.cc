@@ -7,7 +7,7 @@ namespace openmsx {
 
 unsigned BreakPoint::lastId = 0;
 
-BreakPoint::BreakPoint(MSXCliComm& cliComm, word address_,
+BreakPoint::BreakPoint(CliComm& cliComm, word address_,
                        std::auto_ptr<TclObject> command,
                        std::auto_ptr<TclObject> condition)
 	: BreakPointBase(cliComm, command, condition)

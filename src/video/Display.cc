@@ -11,7 +11,7 @@
 #include "GlobalCommandController.hh"
 #include "InfoTopic.hh"
 #include "OSDGUI.hh"
-#include "GlobalCliComm.hh"
+#include "CliComm.hh"
 #include "Timer.hh"
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
@@ -150,9 +150,9 @@ void Display::resetVideoSystem()
 	assert(layers.empty());
 }
 
-GlobalCliComm& Display::getGlobalCliComm() const
+CliComm& Display::getCliComm() const
 {
-	return reactor.getGlobalCliComm();
+	return reactor.getCliComm();
 }
 
 RenderSettings& Display::getRenderSettings() const
@@ -295,7 +295,7 @@ void Display::doRendererSwitch()
 	try {
 		doRendererSwitch2();
 	} catch (MSXException& e) {
-		reactor.getGlobalCliComm().printWarning(
+		getCliComm().printWarning(
 			"Couldn't activate renderer " +
 			renderSettings->getRenderer().getValueString() +
 			": " + e.getMessage());
@@ -446,7 +446,7 @@ string ScreenShotCmd::execute(const vector<string>& tokens)
 	}
 
 	display.getVideoSystem().takeScreenShot(filename);
-	getCommandController().getCliComm().printInfo("Screen saved to " + filename);
+	display.getCliComm().printInfo("Screen saved to " + filename);
 	return filename;
 }
 

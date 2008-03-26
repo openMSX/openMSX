@@ -29,7 +29,7 @@
 #include "MSXMotherBoard.hh"
 #include "XMLElement.hh"
 #include "RecordedCommand.hh"
-#include "MSXCliComm.hh"
+#include "CliComm.hh"
 #include "TclObject.hh"
 #include "CommandException.hh"
 #include "FileContext.hh"

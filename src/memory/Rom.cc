@@ -11,7 +11,7 @@
 #include "MSXMotherBoard.hh"
 #include "Debugger.hh"
 #include "Debuggable.hh"
-#include "MSXCliComm.hh"
+#include "CliComm.hh"
 #include "FilePool.hh"
 #include "ConfigException.hh"
 #include "EmptyPatch.hh"
@@ -65,7 +65,7 @@ Rom::Rom(MSXMotherBoard& motherBoard_, const string& name_,
 	throw ConfigException("ROM tag \"" + id + "\" missing.");
 }
 
-void Rom::init(GlobalCliComm& cliComm, const XMLElement& config)
+void Rom::init(CliComm& cliComm, const XMLElement& config)
 {
 	extendedRom = NULL;
 	XMLElement::Children sums;

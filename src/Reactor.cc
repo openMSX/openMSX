@@ -218,6 +218,11 @@ GlobalCliComm& Reactor::getGlobalCliComm()
 	return *globalCliComm;
 }
 
+CliComm& Reactor::getCliComm()
+{
+	return getGlobalCliComm();
+}
+
 InputEventGenerator& Reactor::getInputEventGenerator()
 {
 	if (!inputEventGenerator.get()) {

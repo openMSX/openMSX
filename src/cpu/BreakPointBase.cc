@@ -3,12 +3,12 @@
 #include "BreakPointBase.hh"
 #include "TclObject.hh"
 #include "CommandException.hh"
-#include "MSXCliComm.hh"
+#include "CliComm.hh"
 #include "ScopedAssign.hh"
 
 namespace openmsx {
 
-BreakPointBase::BreakPointBase(MSXCliComm& cliComm_,
+BreakPointBase::BreakPointBase(CliComm& cliComm_,
                                std::auto_ptr<TclObject> command_,
                                std::auto_ptr<TclObject> condition_)
 	: cliComm(cliComm_), command(command_), condition(condition_)

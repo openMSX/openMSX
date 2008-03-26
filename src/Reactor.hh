@@ -19,6 +19,7 @@ class EventDistributor;
 class CommandController;
 class GlobalCommandController;
 class GlobalCliComm;
+class CliComm;
 class Display;
 class Mixer;
 class CommandConsole;
@@ -85,6 +86,7 @@ public:
 	// convenience methods
 	GlobalSettings& getGlobalSettings();
 	CommandController& getCommandController();
+	CliComm& getCliComm();
 
 private:
 	void createMachineSetting();

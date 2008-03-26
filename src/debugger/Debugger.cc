@@ -27,7 +27,7 @@ class DebugCmd : public RecordedCommand
 public:
 	DebugCmd(MSXCommandController& msxCommandController,
 	         MSXEventDistributor& msxEventDistributor,
-	         Scheduler& scheduler, MSXCliComm& cliComm,
+	         Scheduler& scheduler, CliComm& cliComm,
 	         Debugger& debugger);
 	virtual bool needRecord(const vector<TclObject*>& tokens) const;
 	virtual void execute(const vector<TclObject*>& tokens,
@@ -64,7 +64,7 @@ private:
 	void listWatchPoints(const vector<TclObject*>& tokens,
 	                     TclObject& result);
 
-	MSXCliComm& cliComm;
+	CliComm& cliComm;
 	Debugger& debugger;
 };
 
@@ -144,7 +144,7 @@ static word getAddress(const vector<TclObject*>& tokens)
 
 DebugCmd::DebugCmd(MSXCommandController& msxCommandController,
                    MSXEventDistributor& msxEventDistributor,
-                   Scheduler& scheduler, MSXCliComm& cliComm_,
+                   Scheduler& scheduler, CliComm& cliComm_,
                    Debugger& debugger_)
 	: RecordedCommand(msxCommandController, msxEventDistributor,
 	                  scheduler, "debug")

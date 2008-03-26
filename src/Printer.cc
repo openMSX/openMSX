@@ -5,7 +5,7 @@
 #include "FileOperations.hh"
 #include "IntegerSetting.hh"
 #include "MSXMotherBoard.hh"
-#include "MSXCliComm.hh"
+#include "CliComm.hh"
 #include "MSXException.hh"
 #include "Math.hh"
 #include <algorithm>

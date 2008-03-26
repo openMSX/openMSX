@@ -17,7 +17,7 @@ namespace openmsx {
 class CassetteImage;
 class MSXMixer;
 class Scheduler;
-class MSXCliComm;
+class CliComm;
 class WavWriter;
 class LoadingIndicator;
 class BooleanSetting;
@@ -35,7 +35,7 @@ public:
 	               MSXMixer& mixer, Scheduler& Scheduler,
 	               MSXEventDistributor& msxEventDistributor,
 	               EventDistributor& eventDistributor,
-	               MSXCliComm& cliComm);
+	               CliComm& cliComm);
 	virtual ~CassettePlayer();
 
 	// CassetteDevice
@@ -148,7 +148,7 @@ private:
 	std::string casImage;
 
 	MSXCommandController& msxCommandController;
-	MSXCliComm& cliComm;
+	CliComm& cliComm;
 	EventDistributor& eventDistributor;
 
 	const std::auto_ptr<TapeCommand> tapeCommand;

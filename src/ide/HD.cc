@@ -5,7 +5,7 @@
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "XMLElement.hh"
-#include "MSXCliComm.hh"
+#include "CliComm.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
 #include "HDCommand.hh"

@@ -13,7 +13,7 @@
 #include "PostProcessor.hh"
 #include "MSXMixer.hh"
 #include "Scheduler.hh"
-#include "GlobalCliComm.hh"
+#include "CliComm.hh"
 #include "FileOperations.hh"
 #include "StringOp.hh"
 #include <cassert>
@@ -129,7 +129,7 @@ void AviRecorder::addWave(unsigned num, short* data)
 {
 	if (!warnedSampleRate && (mixer->getSampleRate() != sampleRate)) {
 		warnedSampleRate = true;
-		reactor.getGlobalCliComm().printWarning(
+		reactor.getCliComm().printWarning(
 			"Detected audio sample frequency change during "
 			"avi recording. Audio/video might get out of sync "
 			"because of this.");
@@ -148,7 +148,7 @@ void AviRecorder::addImage(const void** lines, const EmuTime& time)
 	if (duration != EmuDuration::infinity) {
 		if (!warnedFps && ((time - prevTime) != duration)) {
 			warnedFps = true;
-			reactor.getGlobalCliComm().printWarning(
+			reactor.getCliComm().printWarning(
 				"Detected frame rate change (PAL/NTSC or frameskip) "
 				"during avi recording. Audio/video might get out of "
 				"sync because of this.");

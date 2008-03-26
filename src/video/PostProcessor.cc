@@ -7,7 +7,6 @@
 #include "DoubledFrame.hh"
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
-#include "CommandController.hh"
 #include "RawFrame.hh"
 #include "AviRecorder.hh"
 #include "CliComm.hh"
@@ -17,15 +16,15 @@
 
 namespace openmsx {
 
-PostProcessor::PostProcessor(CommandController& commandController_,
-	Display& display, VisibleSurface& screen_, VideoSource videoSource,
+PostProcessor::PostProcessor(CommandController& commandController,
+	Display& display_, VisibleSurface& screen_, VideoSource videoSource,
 	unsigned maxWidth, unsigned height)
-	: VideoLayer(videoSource, commandController_, display)
-	, renderSettings(display.getRenderSettings())
+	: VideoLayer(videoSource, commandController, display_)
+	, renderSettings(display_.getRenderSettings())
 	, screen(screen_)
 	, paintFrame(0)
 	, recorder(0)
-	, commandController(commandController_)
+	, display(display_)
 {
 	currFrame = new RawFrame(screen.getSDLFormat(), maxWidth, height);
 	prevFrame = new RawFrame(screen.getSDLFormat(), maxWidth, height);
@@ -36,7 +35,7 @@ PostProcessor::PostProcessor(CommandController& commandController_,
 PostProcessor::~PostProcessor()
 {
 	if (recorder) {
-		commandController.getCliComm().printWarning(
+		display.getCliComm().printWarning(
 			"Videorecording stopped, because you quit openMSX, "
 			"changed machine, or changed a video setting "
 			"during recording.");

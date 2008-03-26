@@ -1,7 +1,7 @@
 // $Id$
 
 #include "I8255.hh"
-#include "MSXCliComm.hh"
+#include "CliComm.hh"
 
 namespace openmsx {
 
@@ -22,8 +22,7 @@ const int BIT_NR       = 0x0E;
 const int SET_RESET    = 0x01;
 
 
-I8255::I8255(I8255Interface& interf, const EmuTime& time,
-		MSXCliComm& cliComm_)
+I8255::I8255(I8255Interface& interf, const EmuTime& time, CliComm& cliComm_)
 	: interface(interf)
 	, cliComm(cliComm_)
 	, warningPrinted(false)

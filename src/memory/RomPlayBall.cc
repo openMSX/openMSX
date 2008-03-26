@@ -7,7 +7,7 @@
 #include "WavData.hh"
 #include "CacheLine.hh"
 #include "Rom.hh"
-#include "MSXCliComm.hh"
+#include "CliComm.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
 

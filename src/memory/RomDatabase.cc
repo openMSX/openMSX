@@ -6,7 +6,7 @@
 #include "FileContext.hh"
 #include "FileException.hh"
 #include "LocalFileReference.hh"
-#include "GlobalCliComm.hh"
+#include "CliComm.hh"
 #include "StringOp.hh"
 #include "XMLLoader.hh"
 #include "XMLElement.hh"
@@ -68,7 +68,7 @@ static string parseRemarks(const XMLElement& elem)
 	return result;
 }
 
-static void addEntry(GlobalCliComm& cliComm, auto_ptr<RomInfo> romInfo,
+static void addEntry(CliComm& cliComm, auto_ptr<RomInfo> romInfo,
                      const string& sha1, DBMap& result)
 {
 	assert(romInfo.get());
@@ -80,7 +80,7 @@ static void addEntry(GlobalCliComm& cliComm, auto_ptr<RomInfo> romInfo,
 	}
 }
 
-static void parseEntry(GlobalCliComm& cliComm,
+static void parseEntry(CliComm& cliComm,
 	const XMLElement& rom, DBMap& result,
 	const string& title,   const string& year,
 	const string& company, const string& country,
@@ -116,7 +116,7 @@ static string parseStart(const XMLElement& rom)
 	else return "";
 }
 
-static void parseDump(GlobalCliComm& cliComm,
+static void parseDump(CliComm& cliComm,
 	const XMLElement& dump, DBMap& result,
 	const string& title,   const string& year,
 	const string& company, const string& country,
@@ -143,7 +143,7 @@ static void parseDump(GlobalCliComm& cliComm,
 	}
 }
 
-static void parseSoftware(GlobalCliComm& cliComm, const string& filename,
+static void parseSoftware(CliComm& cliComm, const string& filename,
                           const XMLElement& soft, DBMap& result)
 {
 	try {
@@ -174,7 +174,7 @@ static void parseSoftware(GlobalCliComm& cliComm, const string& filename,
 	}
 }
 
-static void parseDB(GlobalCliComm& cliComm, const string& filename,
+static void parseDB(CliComm& cliComm, const string& filename,
                     const XMLElement& doc, DBMap& result)
 {
 	const XMLElement::Children& children = doc.getChildren();
@@ -185,7 +185,7 @@ static void parseDB(GlobalCliComm& cliComm, const string& filename,
 	}
 }
 
-static auto_ptr<XMLElement> openDB(GlobalCliComm& cliComm, const string& filename,
+static auto_ptr<XMLElement> openDB(CliComm& cliComm, const string& filename,
                                    const string& type)
 {
 	auto_ptr<XMLElement> doc;
@@ -202,7 +202,7 @@ static auto_ptr<XMLElement> openDB(GlobalCliComm& cliComm, const string& filenam
 	return doc;
 }
 
-static void initDatabase(GlobalCliComm& cliComm)
+static void initDatabase(CliComm& cliComm)
 {
 	static bool init = false;
 	if (init) return;
@@ -246,7 +246,7 @@ static void initDatabase(GlobalCliComm& cliComm)
 	}
 }
 
-auto_ptr<RomInfo> RomDatabase::fetchRomInfo(GlobalCliComm& cliComm, const Rom& rom)
+auto_ptr<RomInfo> RomDatabase::fetchRomInfo(CliComm& cliComm, const Rom& rom)
 {
 	// Note: RomInfo is copied only to make ownership managment easier
 

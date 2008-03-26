@@ -15,7 +15,7 @@
 namespace openmsx {
 
 class EmuTime;
-class MSXCliComm;
+class CliComm;
 
 class I8255Interface
 {
@@ -39,7 +39,7 @@ class I8255 : private noncopyable
 {
 public:
 	I8255(I8255Interface& interf, const EmuTime& time,
-		MSXCliComm& cliComm);
+	      CliComm& cliComm);
 	~I8255();
 
 	void reset(const EmuTime& time);
@@ -72,7 +72,7 @@ private:
 
 	I8255Interface& interface;
 
-	MSXCliComm& cliComm;
+	CliComm& cliComm;
 
 	bool warningPrinted;
 };
