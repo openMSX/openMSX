@@ -12,7 +12,7 @@ using std::vector;
 
 namespace openmsx {
 
-ProxySetting::ProxySetting(GlobalCommandController& commandController, const string& name)
+ProxySetting::ProxySetting(CommandController& commandController, const string& name)
 	: Setting(commandController, name, "proxy", DONT_SAVE)
 {
 }

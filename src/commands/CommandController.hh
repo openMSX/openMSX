@@ -16,7 +16,6 @@ class CliComm;
 class GlobalSettings;
 class Interpreter;
 class SettingsConfig;
-class GlobalCommandController;
 
 class CommandController
 {
@@ -48,6 +47,17 @@ public:
 	virtual std::string executeCommand(const std::string& command,
 	                                   CliConnection* connection = 0) = 0;
 
+	/**
+	 * Complete a given command
+	 */
+	virtual void tabCompletion(std::string& command) = 0;
+
+	/**
+	 * Returns true iff the command is complete
+	 * (all braces, quotes, .. are balanced)
+	 */
+	virtual bool isComplete(const std::string& command) = 0;
+
 	virtual void splitList(const std::string& list,
 	                       std::vector<std::string>& result) = 0;
 
@@ -68,10 +78,6 @@ public:
 	// like getCliComm(), but can return a NULL pointer early in the
 	// boot process
 	virtual CliComm* getCliCommIfAvailable() = 0;
-
-	// needed to implement backwards compatibility, will be removed later
-	// don't use it in new code
-	virtual GlobalCommandController& getGlobalCommandController() = 0;
 
 protected:
 	CommandController() {}

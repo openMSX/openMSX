@@ -8,7 +8,6 @@
 #include "FileOperations.hh"
 #include "Alarm.hh"
 #include "Command.hh"
-#include "GlobalCommandController.hh"
 #include "InfoTopic.hh"
 #include "OSDGUI.hh"
 #include "CliComm.hh"
@@ -70,9 +69,8 @@ Display::Display(Reactor& reactor_)
 	: alarm(new RepaintAlarm(reactor_.getEventDistributor()))
 	, screenShotCmd(new ScreenShotCmd(
 		reactor_.getCommandController(), *this))
-	, fpsInfo(new FpsInfoTopic(
-	      reactor_.getGlobalCommandController().getOpenMSXInfoCommand(), *this))
-	, osdGui(new OSDGUI(reactor_.getGlobalCommandController(), *this))
+	, fpsInfo(new FpsInfoTopic(reactor_.getOpenMSXInfoCommand(), *this))
+	, osdGui(new OSDGUI(reactor_.getCommandController(), *this))
 	, reactor(reactor_)
 	, renderSettings(new RenderSettings(reactor.getCommandController()))
 	, currentRenderer(RendererFactory::UNINITIALIZED)

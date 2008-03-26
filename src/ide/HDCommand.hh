@@ -9,7 +9,7 @@
 
 namespace openmsx {
 
-class MSXCommandController;
+class CommandController;
 class MSXEventDistributor;
 class Scheduler;
 class TclObject;
@@ -19,7 +19,7 @@ class CliComm;
 class HDCommand : public RecordedCommand
 {
 public:
-	HDCommand(MSXCommandController& msxCommandController,
+	HDCommand(CommandController& commandController,
 	          MSXEventDistributor& msxEventDistributor,
 	          Scheduler& scheduler, CliComm& cliComm, HD& hd);
 	virtual void execute(const std::vector<TclObject*>& tokens,

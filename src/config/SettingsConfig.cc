@@ -47,16 +47,17 @@ private:
 };
 
 
-SettingsConfig::SettingsConfig(GlobalCommandController& commandController_,
-                               HotKey& hotKey_)
-	: commandController(commandController_)
+SettingsConfig::SettingsConfig(
+		GlobalCommandController& globalCommandController,
+		HotKey& hotKey_)
+	: commandController(globalCommandController)
 	, saveSettingsCommand(new SaveSettingsCommand(commandController, *this))
 	, loadSettingsCommand(new LoadSettingsCommand(commandController, *this))
 	, xmlElement(new XMLElement("settings"))
 	, hotKey(hotKey_)
 	, mustSaveSettings(false)
 {
-	settingsManager.reset(new SettingsManager(commandController));
+	settingsManager.reset(new SettingsManager(globalCommandController));
 }
 
 SettingsConfig::~SettingsConfig()

@@ -14,13 +14,15 @@ class XMLElement;
 class FileContext;
 class HotKey;
 class GlobalCommandController;
+class CommandController;
 class SaveSettingsCommand;
 class LoadSettingsCommand;
 
 class SettingsConfig : private noncopyable
 {
 public:
-	SettingsConfig(GlobalCommandController& commandController, HotKey& hotKey);
+	SettingsConfig(GlobalCommandController& globalCommandController,
+	               HotKey& hotKey);
 	~SettingsConfig();
 
 	void loadSetting(FileContext& context, const std::string& filename);
@@ -32,7 +34,7 @@ public:
 	XMLElement& getXMLElement();
 
 private:
-	GlobalCommandController& commandController;
+	CommandController& commandController;
 
 	const std::auto_ptr<SaveSettingsCommand> saveSettingsCommand;
 	const std::auto_ptr<LoadSettingsCommand> loadSettingsCommand;

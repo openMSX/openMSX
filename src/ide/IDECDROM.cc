@@ -22,7 +22,7 @@ namespace openmsx {
 class CDXCommand : public RecordedCommand
 {
 public:
-	CDXCommand(MSXCommandController& msxCommandController,
+	CDXCommand(CommandController& commandController,
 	           MSXEventDistributor& msxEventDistributor,
 	           Scheduler& scheduler, IDECDROM& cd);
 	virtual void execute(const std::vector<TclObject*>& tokens,
@@ -60,7 +60,7 @@ IDECDROM::IDECDROM(MSXMotherBoard& motherBoard_, const XMLElement& /*config*/,
 	}
 	name = string("cd") + char('a' + id);
 	cdInUse[id] = true;
-	cdxCommand.reset(new CDXCommand(motherBoard.getMSXCommandController(),
+	cdxCommand.reset(new CDXCommand(motherBoard.getCommandController(),
 	                                motherBoard.getMSXEventDistributor(),
 	                                motherBoard.getScheduler(), *this));
 
@@ -347,10 +347,10 @@ void IDECDROM::insert(const string& filename)
 
 // class CDXCommand
 
-CDXCommand::CDXCommand(MSXCommandController& msxCommandController,
+CDXCommand::CDXCommand(CommandController& commandController,
                        MSXEventDistributor& msxEventDistributor,
                        Scheduler& scheduler, IDECDROM& cd_)
-	: RecordedCommand(msxCommandController, msxEventDistributor,
+	: RecordedCommand(commandController, msxEventDistributor,
 	                  scheduler, cd_.name)
 	, cd(cd_)
 {

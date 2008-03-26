@@ -26,7 +26,7 @@
 #include "BooleanSetting.hh"
 #include "Connector.hh"
 #include "CassettePort.hh"
-#include "MSXCommandController.hh"
+#include "CommandController.hh"
 #include "RecordedCommand.hh"
 #include "GlobalSettings.hh"
 #include "XMLElement.hh"
@@ -66,7 +66,7 @@ enum SyncType {
 class TapeCommand : public RecordedCommand
 {
 public:
-	TapeCommand(MSXCommandController& msxCommandController,
+	TapeCommand(CommandController& commandController,
 	            MSXEventDistributor& msxEventDistributor,
 	            Scheduler& scheduler,
 	            CassettePlayer& cassettePlayer);
@@ -79,31 +79,31 @@ private:
 
 
 CassettePlayer::CassettePlayer(
-		MSXCommandController& msxCommandController_,
+		CommandController& commandController_,
 		MSXMixer& mixer, Scheduler& scheduler,
 		MSXEventDistributor& msxEventDistributor,
 		EventDistributor& eventDistributor_,
 		CliComm& cliComm_)
 	: SoundDevice(mixer, getName(), getDescription(), 1)
-	, Resample(msxCommandController_.getGlobalSettings(), 1)
+	, Resample(commandController_.getGlobalSettings(), 1)
 	, Schedulable(scheduler)
 	, tapePos(EmuTime::zero)
 	, prevSyncTime(EmuTime::zero)
 	, audioPos(0)
-	, msxCommandController(msxCommandController_)
+	, commandController(commandController_)
 	, cliComm(cliComm_)
 	, eventDistributor(eventDistributor_)
-	, tapeCommand(new TapeCommand(msxCommandController, msxEventDistributor,
+	, tapeCommand(new TapeCommand(commandController, msxEventDistributor,
 	                              scheduler, *this))
 	, loadingIndicator(new LoadingIndicator(
-	       msxCommandController.getGlobalSettings().getThrottleManager()))
+	       commandController.getGlobalSettings().getThrottleManager()))
 	, sampcnt(0)
 	, state(STOP)
 	, lastOutput(false)
 	, motor(false), motorControl(true)
 	, syncScheduled(false)
 {
-	autoRunSetting.reset(new BooleanSetting(msxCommandController,
+	autoRunSetting.reset(new BooleanSetting(commandController,
 		"autoruncassettes", "automatically try to run cassettes", false));
 	removeTape(EmuTime::zero);
 
@@ -160,7 +160,7 @@ void CassettePlayer::autoRun()
 		"after time 2 \"if $" + var + "==\\$" + var + " { "
 		"type " + loadingInstruction + "\\\\r }\"";
 	try {
-		msxCommandController.executeCommand(command);
+		commandController.executeCommand(command);
 	} catch (CommandException& e) {
 		cliComm.printWarning(
 			"Error executing loading instruction for AutoRun: " +
@@ -608,11 +608,11 @@ void CassettePlayer::executeUntil(const EmuTime& time, int userData)
 
 // class TapeCommand
 
-TapeCommand::TapeCommand(MSXCommandController& msxCommandController,
+TapeCommand::TapeCommand(CommandController& commandController,
                          MSXEventDistributor& msxEventDistributor,
                          Scheduler& scheduler,
                          CassettePlayer& cassettePlayer_)
-	: RecordedCommand(msxCommandController, msxEventDistributor,
+	: RecordedCommand(commandController, msxEventDistributor,
 	                  scheduler, "cassetteplayer")
 	, cassettePlayer(cassettePlayer_)
 {

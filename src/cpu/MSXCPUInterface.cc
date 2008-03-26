@@ -3,7 +3,6 @@
 #include "MSXCPUInterface.hh"
 #include "DummyDevice.hh"
 #include "SimpleDebuggable.hh"
-#include "MSXCommandController.hh"
 #include "InfoTopic.hh"
 #include "CommandException.hh"
 #include "TclObject.hh"
@@ -145,16 +144,16 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 	, slottedMemoryDebug(new SlottedMemoryDebug(*this, motherBoard_))
 	, ioDebug           (new IODebug           (*this, motherBoard_))
 	, slotInfo        (new SlotInfo(
-		motherBoard_.getMSXCommandController().getMachineInfoCommand(), *this))
+		motherBoard_.getMachineInfoCommand(), *this))
 	, subSlottedInfo  (new SubSlottedInfo(
-		motherBoard_.getMSXCommandController().getMachineInfoCommand(), *this))
+		motherBoard_.getMachineInfoCommand(), *this))
 	, externalSlotInfo(new ExternalSlotInfo(
-		motherBoard_.getMSXCommandController().getMachineInfoCommand(),
+		motherBoard_.getMachineInfoCommand(),
 		motherBoard_.getSlotManager()))
 	, inputPortInfo (new IOInfo(
-	        motherBoard_.getMSXCommandController().getMachineInfoCommand(), *this, true))
+	        motherBoard_.getMachineInfoCommand(), *this, true))
 	, outputPortInfo(new IOInfo(
-	        motherBoard_.getMSXCommandController().getMachineInfoCommand(), *this, false))
+	        motherBoard_.getMachineInfoCommand(), *this, false))
 	, dummyDevice(motherBoard_.getDummyDevice())
 	, msxcpu(motherBoard_.getCPU())
 	, cliComm(motherBoard_.getMSXCliComm())

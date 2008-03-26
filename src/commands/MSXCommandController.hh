@@ -21,6 +21,7 @@ public:
 	                     MSXMotherBoard& motherboard);
 	~MSXCommandController();
 
+	GlobalCommandController& getGlobalCommandController();
 	InfoCommand& getMachineInfoCommand();
 
 	Command* findCommand(const std::string& name) const;
@@ -39,6 +40,8 @@ public:
 	virtual bool hasCommand(const std::string& command) const;
 	virtual std::string executeCommand(const std::string& command,
 	                                   CliConnection* connection = 0);
+	virtual void tabCompletion(std::string& command);
+	virtual bool isComplete(const std::string& command);
 	virtual void splitList(const std::string& list,
 	                       std::vector<std::string>& result);
 	virtual void registerSetting(Setting& setting);
@@ -52,7 +55,6 @@ public:
 	virtual Interpreter& getInterpreter();
 	virtual SettingsConfig& getSettingsConfig();
 	virtual CliConnection* getConnection() const;
-	virtual GlobalCommandController& getGlobalCommandController();
 
 private:
 	GlobalCommandController& globalCommandController;

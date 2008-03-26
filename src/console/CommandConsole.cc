@@ -2,7 +2,7 @@
 
 #include "CommandConsole.hh"
 #include "CommandException.hh"
-#include "GlobalCommandController.hh"
+#include "CommandController.hh"
 #include "Completer.hh"
 #include "Interpreter.hh"
 #include "Keys.hh"
@@ -36,7 +36,7 @@ const char* const PROMPT1 = "> ";
 const char* const PROMPT2 = "| ";
 
 CommandConsole::CommandConsole(
-		GlobalCommandController& commandController_,
+		CommandController& commandController_,
 		EventDistributor& eventDistributor_,
 		Display& display_)
 	: commandController(commandController_)

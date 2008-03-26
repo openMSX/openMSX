@@ -17,6 +17,7 @@ namespace openmsx {
 
 class EventDistributor;
 class CommandController;
+class InfoCommand;
 class GlobalCommandController;
 class GlobalCliComm;
 class CliComm;
@@ -85,6 +86,7 @@ public:
 
 	// convenience methods
 	GlobalSettings& getGlobalSettings();
+	InfoCommand& getOpenMSXInfoCommand();
 	CommandController& getCommandController();
 	CliComm& getCliComm();
 

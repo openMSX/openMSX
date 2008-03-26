@@ -22,7 +22,7 @@ class WavWriter;
 class LoadingIndicator;
 class BooleanSetting;
 class TapeCommand;
-class MSXCommandController;
+class CommandController;
 class MSXEventDistributor;
 class EventDistributor;
 
@@ -31,7 +31,7 @@ class CassettePlayer : public CassetteDevice, public SoundDevice
                      , private Schedulable
 {
 public:
-	CassettePlayer(MSXCommandController& msxCommandController,
+	CassettePlayer(CommandController& commandController,
 	               MSXMixer& mixer, Scheduler& Scheduler,
 	               MSXEventDistributor& msxEventDistributor,
 	               EventDistributor& eventDistributor,
@@ -147,7 +147,7 @@ private:
 	unsigned outputRate;
 	std::string casImage;
 
-	MSXCommandController& msxCommandController;
+	CommandController& commandController;
 	CliComm& cliComm;
 	EventDistributor& eventDistributor;
 

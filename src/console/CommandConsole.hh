@@ -14,7 +14,7 @@
 
 namespace openmsx {
 
-class GlobalCommandController;
+class CommandController;
 class EventDistributor;
 class KeyEvent;
 class BooleanSetting;
@@ -24,7 +24,7 @@ class CommandConsole : public Console, private EventListener,
                        private InterpreterOutput, private noncopyable
 {
 public:
-	CommandConsole(GlobalCommandController& commandController,
+	CommandConsole(CommandController& commandController,
 	               EventDistributor& eventDistributor,
 	               Display& display);
 	virtual ~CommandConsole();
@@ -63,7 +63,7 @@ private:
 	void loadHistory();
 	void saveHistory();
 
-	GlobalCommandController& commandController;
+	CommandController& commandController;
 	EventDistributor& eventDistributor;
 	Display& display;
 	BooleanSetting& consoleSetting;

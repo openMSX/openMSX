@@ -161,14 +161,9 @@ Reactor::Reactor()
 	, listMachinesCommand(new ListMachinesCommand(getCommandController(), *this))
 	, activateMachineCommand(new ActivateMachineCommand(getCommandController(), *this))
 	, aviRecordCommand(new AviRecorder(*this))
-	, extensionInfo(new ConfigInfo(
-	       getGlobalCommandController().getOpenMSXInfoCommand(),
-	       "extensions"))
-	, machineInfo(new ConfigInfo(
-	       getGlobalCommandController().getOpenMSXInfoCommand(),
-	       "machines"))
-	, realTimeInfo(new RealTimeInfo(
-	       getGlobalCommandController().getOpenMSXInfoCommand()))
+	, extensionInfo(new ConfigInfo(getOpenMSXInfoCommand(), "extensions"))
+	, machineInfo  (new ConfigInfo(getOpenMSXInfoCommand(), "machines"))
+	, realTimeInfo(new RealTimeInfo(getOpenMSXInfoCommand()))
 	, needSwitch(false)
 	, blockedCounter(0)
 	, paused(false)
@@ -253,7 +248,7 @@ CommandConsole& Reactor::getCommandConsole()
 {
 	if (!commandConsole.get()) {
 		commandConsole.reset(new CommandConsole(
-			getGlobalCommandController(), getEventDistributor(),
+			getCommandController(), getEventDistributor(),
 			getDisplay()));
 	}
 	return *commandConsole;
@@ -272,7 +267,7 @@ FilePool& Reactor::getFilePool()
 {
 	if (!filePool.get()) {
 		filePool.reset(new FilePool(
-			getGlobalCommandController().getSettingsConfig()));
+			getCommandController().getSettingsConfig()));
 	}
 	return *filePool;
 }
@@ -284,12 +279,17 @@ EnumSetting<int>& Reactor::getMachineSetting()
 
 GlobalSettings& Reactor::getGlobalSettings()
 {
-	return getGlobalCommandController().getGlobalSettings();
+	return getCommandController().getGlobalSettings();
 }
 
 CommandController& Reactor::getCommandController()
 {
 	return getGlobalCommandController();
+}
+
+InfoCommand& Reactor::getOpenMSXInfoCommand()
+{
+	return getGlobalCommandController().getOpenMSXInfoCommand();
 }
 
 void Reactor::getHwConfigs(const string& type, set<string>& result)
@@ -468,7 +468,7 @@ void Reactor::run(CommandLineParser& parser)
 		// powerUp() method. Solution is to implement dependencies
 		// between devices so ADVRAM can check the error condition
 		// in its constructor
-		//getGlobalCommandController().executeCommand("set power on");
+		//commandController.executeCommand("set power on");
 		MSXMotherBoard* motherboard = getMotherBoard();
 		if (motherboard) {
 			motherboard->powerUp();
@@ -540,7 +540,7 @@ void Reactor::update(const Setting& setting)
 bool Reactor::signalEvent(shared_ptr<const Event> event)
 {
 	if (event->getType() == OPENMSX_QUIT_EVENT) {
-		getGlobalCommandController().executeCommand("exit");
+		getCommandController().executeCommand("exit");
 	} else {
 		assert(false);
 	}

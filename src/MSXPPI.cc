@@ -30,7 +30,7 @@ MSXPPI::MSXPPI(MSXMotherBoard& motherBoard, const XMLElement& config,
 	bool hasKeypad = deviceConfig.getChildDataAsBool("has_keypad", true);
 	bool codeKanaLocks = deviceConfig.getChildDataAsBool("code_kana_locks", false);
 	keyboard.reset(new Keyboard(motherBoard.getScheduler(),
-	                            motherBoard.getMSXCommandController(),
+	                            motherBoard.getCommandController(),
 	                            motherBoard.getEventDistributor(),
 	                            motherBoard.getMSXEventDistributor(),
 	                            keyboardType, hasKeypad,

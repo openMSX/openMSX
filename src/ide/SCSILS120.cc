@@ -91,7 +91,7 @@ static const unsigned BUFFER_BLOCK_SIZE = SCSIDevice::BUFFER_SIZE / SECTOR_SIZE;
 class LSXCommand : public RecordedCommand
 {
 public:
-	LSXCommand(MSXCommandController& msxCommandController,
+	LSXCommand(CommandController& commandController,
 	           MSXEventDistributor& msxEventDistributor,
 	           Scheduler& scheduler, SCSILS120& ls);
 	virtual void execute(const std::vector<TclObject*>& tokens,
@@ -130,7 +130,7 @@ SCSILS120::SCSILS120(MSXMotherBoard& motherBoard_, const XMLElement& targetconfi
 	}
 	name = string("ls") + char('a' + id);
 	lsInUse[id] = true;
-	lsxCommand.reset(new LSXCommand(motherBoard.getMSXCommandController(),
+	lsxCommand.reset(new LSXCommand(motherBoard.getCommandController(),
 	                                motherBoard.getMSXEventDistributor(),
 	                                motherBoard.getScheduler(), *this));
 
@@ -796,10 +796,10 @@ const std::string& SCSILS120::getContainerName() const
 
 // class LSXCommand
 
-LSXCommand::LSXCommand(MSXCommandController& msxCommandController,
+LSXCommand::LSXCommand(CommandController& commandController,
                        MSXEventDistributor& msxEventDistributor,
                        Scheduler& scheduler, SCSILS120& ls_)
-	: RecordedCommand(msxCommandController, msxEventDistributor,
+	: RecordedCommand(commandController, msxEventDistributor,
 	                  scheduler, ls_.name)
 	, ls(ls_)
 {

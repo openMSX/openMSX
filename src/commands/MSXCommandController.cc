@@ -47,14 +47,14 @@ MSXCommandController::~MSXCommandController()
 	getInterpreter().deleteNamespace(motherboard.getMachineID());
 }
 
-InfoCommand& MSXCommandController::getMachineInfoCommand()
-{
-	return *machineInfoCommand;
-}
-
 GlobalCommandController& MSXCommandController::getGlobalCommandController()
 {
 	return globalCommandController;
+}
+
+InfoCommand& MSXCommandController::getMachineInfoCommand()
+{
+	return *machineInfoCommand;
 }
 
 void MSXCommandController::registerCommand(Command& command, const string& str)
@@ -148,6 +148,16 @@ string MSXCommandController::executeCommand(const string& command,
                                             CliConnection* connection)
 {
 	return globalCommandController.executeCommand(command, connection);
+}
+
+void MSXCommandController::tabCompletion(std::string& command)
+{
+	globalCommandController.tabCompletion(command);
+}
+
+bool MSXCommandController::isComplete(const std::string& command)
+{
+	return globalCommandController.isComplete(command);
 }
 
 void MSXCommandController::splitList(const string& list,

@@ -291,11 +291,6 @@ string GlobalCommandController::makeUniqueSettingName(const string& name)
 	return getSettingsConfig().getSettingsManager().makeUnique(name);
 }
 
-GlobalCommandController& GlobalCommandController::getGlobalCommandController()
-{
-	return *this;
-}
-
 bool GlobalCommandController::hasCommand(const string& command) const
 {
 	return commands.find(command) != commands.end();

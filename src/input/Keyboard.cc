@@ -12,7 +12,7 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
-#include "MSXCommandController.hh"
+#include "CommandController.hh"
 #include "RecordedCommand.hh"
 #include "CommandException.hh"
 #include "InputEvents.hh"
@@ -43,7 +43,7 @@ static const byte CODE_MASK  = 0x10;
 class KeyMatrixUpCmd : public RecordedCommand
 {
 public:
-	KeyMatrixUpCmd(MSXCommandController& msxCommandController,
+	KeyMatrixUpCmd(CommandController& commandController,
 	               MSXEventDistributor& msxEventDistributor,
 	               Scheduler& scheduler, Keyboard& keyboard);
 	virtual string execute(const vector<string>& tokens, const EmuTime& time);
@@ -55,7 +55,7 @@ private:
 class KeyMatrixDownCmd : public RecordedCommand
 {
 public:
-	KeyMatrixDownCmd(MSXCommandController& msxCommandController,
+	KeyMatrixDownCmd(CommandController& commandController,
 	                 MSXEventDistributor& msxEventDistributor,
 	                 Scheduler& scheduler, Keyboard& keyboard);
 	virtual string execute(const vector<string>& tokens, const EmuTime& time);
@@ -81,7 +81,7 @@ private:
 class KeyInserter : public RecordedCommand, private Schedulable
 {
 public:
-	KeyInserter(MSXCommandController& msxCommandController,
+	KeyInserter(CommandController& commandController,
 	            MSXEventDistributor& msxEventDistributor,
 	            Scheduler& scheduler, Keyboard& keyboard);
 
@@ -183,7 +183,7 @@ void Keyboard::loadKeymapfile(const string& filename)
 }
 
 Keyboard::Keyboard(Scheduler& scheduler,
-                   MSXCommandController& msxCommandController,
+                   CommandController& commandController,
                    EventDistributor& eventDistributor,
                    MSXEventDistributor& msxEventDistributor_,
 		   string& keyboardType, bool hasKP, bool keyGhosting_, bool keyGhostSGCprotected,
@@ -191,14 +191,14 @@ Keyboard::Keyboard(Scheduler& scheduler,
 	: Schedulable(scheduler)
 	, msxEventDistributor(msxEventDistributor_)
 	, keyMatrixUpCmd  (new KeyMatrixUpCmd  (
-		msxCommandController, msxEventDistributor, scheduler, *this))
+		commandController, msxEventDistributor, scheduler, *this))
 	, keyMatrixDownCmd(new KeyMatrixDownCmd(
-		msxCommandController, msxEventDistributor, scheduler, *this))
+		commandController, msxEventDistributor, scheduler, *this))
 	, keyTypeCmd(new KeyInserter(
-		msxCommandController, msxEventDistributor, scheduler, *this))
+		commandController, msxEventDistributor, scheduler, *this))
 	, capsLockAligner(new CapsLockAligner(
 		eventDistributor, msxEventDistributor, scheduler, *this))
-	, keyboardSettings(new KeyboardSettings(msxCommandController))
+	, keyboardSettings(new KeyboardSettings(commandController))
 	, msxKeyEventQueue(new MsxKeyEventQueue(scheduler, *this))
 	, unicodeKeymap(new UnicodeKeymap(keyboardType))
 {
@@ -784,10 +784,10 @@ void Keyboard::update(const Setting& setting)
 
 // class KeyMatrixUpCmd
 
-KeyMatrixUpCmd::KeyMatrixUpCmd(MSXCommandController& msxCommandController,
+KeyMatrixUpCmd::KeyMatrixUpCmd(CommandController& commandController,
 		MSXEventDistributor& msxEventDistributor,
 		Scheduler& scheduler, Keyboard& keyboard_)
-	: RecordedCommand(msxCommandController, msxEventDistributor,
+	: RecordedCommand(commandController, msxEventDistributor,
 		scheduler, "keymatrixup")
 	, keyboard(keyboard_)
 {
@@ -808,10 +808,10 @@ string KeyMatrixUpCmd::help(const vector<string>& /*tokens*/) const
 
 // class KeyMatrixDownCmd
 
-KeyMatrixDownCmd::KeyMatrixDownCmd(MSXCommandController& msxCommandController,
+KeyMatrixDownCmd::KeyMatrixDownCmd(CommandController& commandController,
 		MSXEventDistributor& msxEventDistributor,
 		Scheduler& scheduler, Keyboard& keyboard_)
-	: RecordedCommand(msxCommandController, msxEventDistributor,
+	: RecordedCommand(commandController, msxEventDistributor,
 		scheduler, "keymatrixdown")
 	, keyboard(keyboard_)
 {
@@ -880,10 +880,10 @@ const string& MsxKeyEventQueue::schedName() const
 
 // class KeyInserter
 
-KeyInserter::KeyInserter(MSXCommandController& msxCommandController,
+KeyInserter::KeyInserter(CommandController& commandController,
 		MSXEventDistributor& msxEventDistributor,
 		Scheduler& scheduler, Keyboard& keyboard_)
-	: RecordedCommand(msxCommandController, msxEventDistributor,
+	: RecordedCommand(commandController, msxEventDistributor,
 		scheduler, "type")
 	, Schedulable(scheduler)
 	, keyboard(keyboard_)

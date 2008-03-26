@@ -120,6 +120,7 @@ public:
 	GlobalSettings& getGlobalSettings();
 	GlobalCliComm& getGlobalCliComm();
 	CommandController& getCommandController();
+	InfoCommand& getMachineInfoCommand();
 
 	void addDevice(MSXDevice& device);
 	void removeDevice(MSXDevice& device);
@@ -611,7 +612,8 @@ RenShaTurbo& MSXMotherBoardImpl::getRenShaTurbo()
 	if (!renShaTurbo.get()) {
 		assert(getMachineConfig());
 		renShaTurbo.reset(new RenShaTurbo(
-			getCommandController(), getMachineConfig()->getConfig()));
+			getCommandController(),
+			getMachineConfig()->getConfig()));
 	}
 	return *renShaTurbo;
 }
@@ -657,6 +659,11 @@ FilePool& MSXMotherBoardImpl::getFilePool()
 CommandController& MSXMotherBoardImpl::getCommandController()
 {
 	return getMSXCommandController();
+}
+
+InfoCommand& MSXMotherBoardImpl::getMachineInfoCommand()
+{
+	return getMSXCommandController().getMachineInfoCommand();
 }
 
 bool MSXMotherBoardImpl::execute()
@@ -883,7 +890,7 @@ AddRemoveUpdate::~AddRemoveUpdate()
 
 // ResetCmd
 ResetCmd::ResetCmd(MSXMotherBoardImpl& motherBoard_)
-	: RecordedCommand(motherBoard_.getMSXCommandController(),
+	: RecordedCommand(motherBoard_.getCommandController(),
 	                  motherBoard_.getMSXEventDistributor(),
 	                  motherBoard_.getScheduler(),
 	                  "reset")
@@ -906,7 +913,7 @@ string ResetCmd::help(const vector<string>& /*tokens*/) const
 
 // LoadMachineCmd
 LoadMachineCmd::LoadMachineCmd(MSXMotherBoardImpl& motherBoard_)
-	: SimpleCommand(motherBoard_.getMSXCommandController(), "load_machine")
+	: SimpleCommand(motherBoard_.getCommandController(), "load_machine")
 	, motherBoard(motherBoard_)
 {
 }
@@ -938,7 +945,7 @@ void LoadMachineCmd::tabCompletion(vector<string>& tokens) const
 
 // ListExtCmd
 ListExtCmd::ListExtCmd(MSXMotherBoardImpl& motherBoard_)
-	: Command(motherBoard_.getMSXCommandController(), "list_extensions")
+	: Command(motherBoard_.getCommandController(), "list_extensions")
 	, motherBoard(motherBoard_)
 {
 }
@@ -961,7 +968,7 @@ string ListExtCmd::help(const vector<string>& /*tokens*/) const
 
 // ExtCmd
 ExtCmd::ExtCmd(MSXMotherBoardImpl& motherBoard_)
-	: RecordedCommand(motherBoard_.getMSXCommandController(),
+	: RecordedCommand(motherBoard_.getCommandController(),
 	                  motherBoard_.getMSXEventDistributor(),
 	                  motherBoard_.getScheduler(),
 	                  "ext")
@@ -998,7 +1005,7 @@ void ExtCmd::tabCompletion(vector<string>& tokens) const
 
 // RemoveExtCmd
 RemoveExtCmd::RemoveExtCmd(MSXMotherBoardImpl& motherBoard_)
-	: RecordedCommand(motherBoard_.getMSXCommandController(),
+	: RecordedCommand(motherBoard_.getCommandController(),
 	                  motherBoard_.getMSXEventDistributor(),
 	                  motherBoard_.getScheduler(),
 	                  "remove_extension")
@@ -1046,8 +1053,7 @@ void RemoveExtCmd::tabCompletion(vector<string>& tokens) const
 // MachineNameInfo
 
 MachineNameInfo::MachineNameInfo(MSXMotherBoardImpl& motherBoard_)
-	: InfoTopic(motherBoard_.getMSXCommandController().getMachineInfoCommand(),
-	            "config_name")
+	: InfoTopic(motherBoard_.getMachineInfoCommand(), "config_name")
 	, motherBoard(motherBoard_)
 {
 }
@@ -1067,8 +1073,7 @@ string MachineNameInfo::help(const vector<string>& /*tokens*/) const
 // DeviceInfo
 
 DeviceInfo::DeviceInfo(MSXMotherBoardImpl& motherBoard_)
-	: InfoTopic(motherBoard_.getMSXCommandController().getMachineInfoCommand(),
-	            "device")
+	: InfoTopic(motherBoard_.getMachineInfoCommand(), "device")
 	, motherBoard(motherBoard_)
 {
 }
@@ -1327,6 +1332,10 @@ CliComm& MSXMotherBoard::getGlobalCliComm()
 CommandController& MSXMotherBoard::getCommandController()
 {
 	return pimple->getCommandController();
+}
+InfoCommand& MSXMotherBoard::getMachineInfoCommand()
+{
+	return pimple->getMachineInfoCommand();
 }
 void MSXMotherBoard::addDevice(MSXDevice& device)
 {

@@ -5,24 +5,24 @@
 #include "EnumSetting.hh"
 #include "FilenameSetting.hh"
 #include "BooleanSetting.hh"
-#include "MSXCommandController.hh"
+#include "CommandController.hh"
 
 namespace openmsx {
 
-KeyboardSettings::KeyboardSettings(MSXCommandController& msxCommandController)
-	: keymapFile(new FilenameSetting(msxCommandController,
+KeyboardSettings::KeyboardSettings(CommandController& commandController)
+	: keymapFile(new FilenameSetting(commandController,
 		"kbd_keymap_filename",
 		"File with mapping from Host key codes to MSX key codes",
 		""))
-	, alwaysEnableKeypad(new BooleanSetting(msxCommandController,
+	, alwaysEnableKeypad(new BooleanSetting(commandController,
 		"kbd_numkeypad_always_enabled",
 		"Numeric keypad is always enabled, even on an MSX that does not have one",
 		false))
-	, traceKeyPresses(new BooleanSetting(msxCommandController,
+	, traceKeyPresses(new BooleanSetting(commandController,
 		"kbd_trace_key_presses",
 		"Trace key presses (show SDL key code, SDL modifiers and Unicode code-point value)",
 		false, Setting::DONT_SAVE))
-	, autoToggleCodeKanaLock(new BooleanSetting(msxCommandController,
+	, autoToggleCodeKanaLock(new BooleanSetting(commandController,
 		"kbd_auto_toggle_code_kana_lock",
 		"Automatically toggle the CODE/KANA lock, based on the characters entered on the host keyboard",
 		true))
@@ -39,7 +39,7 @@ KeyboardSettings::KeyboardSettings(MSXCommandController& msxCommandController)
 	allowedKeys["HELP"]        = Keys::K_HELP;
 	allowedKeys["UNDO"]        = Keys::K_UNDO;
 	codeKanaHostKey.reset(new EnumSetting<Keys::KeyCode>(
-		msxCommandController, "kbd_code_kana_host_key",
+		commandController, "kbd_code_kana_host_key",
 		"Host key that maps to the MSX CODE/KANA key. Please note that the HENKAN_MODE key only exists on Japanese host keyboards)",
 		Keys::K_RALT, allowedKeys));
 
@@ -47,7 +47,7 @@ KeyboardSettings::KeyboardSettings(MSXCommandController& msxCommandController)
 	kpEnterModeMap["KEYPAD_COMMA"] = MSX_KP_COMMA;
 	kpEnterModeMap["ENTER"] = MSX_ENTER;
 	kpEnterMode.reset(new EnumSetting<KpEnterMode>(
-		msxCommandController, "kbd_numkeypad_enter_key",
+		commandController, "kbd_numkeypad_enter_key",
 		"MSX key that the enter key on the host numeric keypad must map to",
 		MSX_KP_COMMA, kpEnterModeMap));
 
@@ -55,7 +55,7 @@ KeyboardSettings::KeyboardSettings(MSXCommandController& msxCommandController)
 	mappingModeMap["KEY"] = KEY_MAPPING;
 	mappingModeMap["CHARACTER"] = CHARACTER_MAPPING;
 	mappingMode.reset(new EnumSetting<MappingMode>(
-		msxCommandController, "kbd_mapping_mode",
+		commandController, "kbd_mapping_mode",
 		"Keyboard mapping mode",
 		CHARACTER_MAPPING, mappingModeMap));
 }

@@ -55,7 +55,7 @@ HD::HD(MSXMotherBoard& motherBoard_, const XMLElement& config)
 	alreadyTried = false;
 
 	hdInUse[id] = true;
-	hdCommand.reset(new HDCommand(motherBoard.getMSXCommandController(),
+	hdCommand.reset(new HDCommand(motherBoard.getCommandController(),
 	                              motherBoard.getMSXEventDistributor(),
 	                              motherBoard.getScheduler(),
 	                              motherBoard.getMSXCliComm(), *this));

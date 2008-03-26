@@ -25,7 +25,7 @@ namespace openmsx {
 class DebugCmd : public RecordedCommand
 {
 public:
-	DebugCmd(MSXCommandController& msxCommandController,
+	DebugCmd(CommandController& commandController,
 	         MSXEventDistributor& msxEventDistributor,
 	         Scheduler& scheduler, CliComm& cliComm,
 	         Debugger& debugger);
@@ -71,7 +71,7 @@ private:
 
 Debugger::Debugger(MSXMotherBoard& motherBoard_)
 	: motherBoard(motherBoard_)
-	, debugCmd(new DebugCmd(motherBoard.getMSXCommandController(),
+	, debugCmd(new DebugCmd(motherBoard.getCommandController(),
 	                        motherBoard.getMSXEventDistributor(),
 	                        motherBoard.getScheduler(),
 	                        motherBoard.getMSXCliComm(), *this))
@@ -142,11 +142,11 @@ static word getAddress(const vector<TclObject*>& tokens)
 	return addr;
 }
 
-DebugCmd::DebugCmd(MSXCommandController& msxCommandController,
+DebugCmd::DebugCmd(CommandController& commandController,
                    MSXEventDistributor& msxEventDistributor,
                    Scheduler& scheduler, CliComm& cliComm_,
                    Debugger& debugger_)
-	: RecordedCommand(msxCommandController, msxEventDistributor,
+	: RecordedCommand(commandController, msxEventDistributor,
 	                  scheduler, "debug")
 	, cliComm(cliComm_)
 	, debugger(debugger_)

@@ -77,7 +77,7 @@ CassettePort::CassettePort(MSXMotherBoard& motherBoard_)
 	, nextSample(0)
 {
 	cassettePlayer.reset(new CassettePlayer(
-		motherBoard.getMSXCommandController(),
+		motherBoard.getCommandController(),
 		motherBoard.getMSXMixer(),
 		motherBoard.getScheduler(),
 		motherBoard.getMSXEventDistributor(),

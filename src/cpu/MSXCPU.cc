@@ -5,7 +5,6 @@
 #include "Debugger.hh"
 #include "Scheduler.hh"
 #include "SimpleDebuggable.hh"
-#include "MSXCommandController.hh"
 #include "BooleanSetting.hh"
 #include "CPUCore.hh"
 #include "Z80.hh"
@@ -54,7 +53,7 @@ MSXCPU::MSXCPU(MSXMotherBoard& motherboard_)
 	                             EmuTime::zero))
 	, reference(EmuTime::zero)
 	, timeInfo(new TimeInfoTopic(
-	     motherboard.getMSXCommandController().getMachineInfoCommand(), *this))
+		motherboard.getMachineInfoCommand(), *this))
 	, debuggable(new MSXCPUDebuggable(motherboard_, *this))
 {
 	activeCPU = z80.get();	// setActiveCPU(CPU_Z80);

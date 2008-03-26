@@ -7,12 +7,12 @@
 
 namespace openmsx {
 
-class GlobalCommandController;
+class CommandController;
 
 class ProxySetting : public Setting
 {
 public:
-	ProxySetting(GlobalCommandController& commandController,
+	ProxySetting(CommandController& commandController,
 	             const std::string& name);
 
 	virtual std::string getTypeString() const;

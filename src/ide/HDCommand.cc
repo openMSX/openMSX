@@ -21,10 +21,10 @@ using std::set;
 
 // class HDCommand
 
-HDCommand::HDCommand(MSXCommandController& msxCommandController,
+HDCommand::HDCommand(CommandController& commandController,
                      MSXEventDistributor& msxEventDistributor,
                      Scheduler& scheduler, CliComm& cliComm_, HD& hd_)
-	: RecordedCommand(msxCommandController, msxEventDistributor,
+	: RecordedCommand(commandController, msxEventDistributor,
 	                  scheduler, hd_.getName())
 	, hd(hd_)
 	, cliComm(cliComm_)

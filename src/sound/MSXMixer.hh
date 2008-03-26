@@ -17,6 +17,7 @@ class SoundDevice;
 class Mixer;
 class Scheduler;
 class MSXCommandController;
+class CommandController;
 class ThrottleManager;
 class IntegerSetting;
 class StringSetting;
@@ -119,7 +120,7 @@ private:
 	Infos infos;
 
 	Mixer& mixer;
-	MSXCommandController& msxCommandController;
+	CommandController& commandController;
 
 	IntegerSetting& masterVolume;
 	IntegerSetting& speedSetting;
@@ -139,7 +140,6 @@ private:
 	unsigned muteCount;
 	int prevLeft, prevRight;
 	int outLeft, outRight;
-
 };
 
 } // namespace openmsx

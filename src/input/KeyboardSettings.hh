@@ -8,7 +8,7 @@
 
 namespace openmsx {
 
-class MSXCommandController;
+class CommandController;
 class BooleanSetting;
 class FilenameSetting;
 template <typename T> class EnumSetting;
@@ -19,7 +19,7 @@ public:
 	enum KpEnterMode { MSX_KP_COMMA, MSX_ENTER };
 	enum MappingMode { KEY_MAPPING, CHARACTER_MAPPING };
 
-	KeyboardSettings(MSXCommandController& msxCommandController);
+	explicit KeyboardSettings(CommandController& commandController);
 	~KeyboardSettings();
 
 	EnumSetting<Keys::KeyCode>& getCodeKanaHostKey();

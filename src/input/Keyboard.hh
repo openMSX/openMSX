@@ -17,7 +17,7 @@
 namespace openmsx {
 
 class Scheduler;
-class MSXCommandController;
+class CommandController;
 class EventDistributor;
 class MSXEventDistributor;
 class EmuTime;
@@ -37,7 +37,7 @@ public:
 	/**
 	 * Constructs a new Keyboard object.
 	 * @param scheduler ref to the scheduler
-	 * @param msxCommandController ref to the command controller
+	 * @param commandController ref to the command controller
 	 * @param eventDistributor ref to the emu event distributor
 	 * @param msxEventDistributor ref to the user input event distributor
 	 * @param keyboardType contains filename extension of unicode keymap file
@@ -46,7 +46,7 @@ public:
 	 * @param keyGhostingSGCprotected Shift, Graph and Code are keyGhosting protected
 	 * @param codeKanaLocks CodeKana key behave as a lock key on this machine
 	 */
-	Keyboard(Scheduler& scheduler, MSXCommandController& msxCommandController,
+	Keyboard(Scheduler& scheduler, CommandController& commandController,
 	         EventDistributor& eventDistributor,
 	         MSXEventDistributor& msxEventDistributor,
 	         std::string& keyboardType, bool hasKeypad,

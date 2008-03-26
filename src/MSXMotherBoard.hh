@@ -40,6 +40,7 @@ class DiskManipulator;
 class FilePool;
 class GlobalSettings;
 class CommandController;
+class InfoCommand;
 class EmuTime;
 class MSXMotherBoardImpl;
 
@@ -134,6 +135,7 @@ public:
 
 	// convenience methods
 	CommandController& getCommandController();
+	InfoCommand& getMachineInfoCommand();
 
 	/**
 	 * All MSXDevices should be registered by the MotherBoard.

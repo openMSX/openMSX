@@ -46,15 +46,15 @@ MSXMixer::MSXMixer(Mixer& mixer_, Scheduler& scheduler,
                    MSXCommandController& msxCommandController_)
 	: Schedulable(scheduler)
 	, mixer(mixer_)
-	, msxCommandController(msxCommandController_)
+	, commandController(msxCommandController_)
 	, masterVolume(mixer.getMasterVolume())
 	, speedSetting(
-		msxCommandController.getGlobalSettings().getSpeedSetting())
+		commandController.getGlobalSettings().getSpeedSetting())
 	, throttleManager(
-		msxCommandController.getGlobalSettings().getThrottleManager())
+		commandController.getGlobalSettings().getThrottleManager())
 	, prevTime(EmuTime::zero)
 	, soundDeviceInfo(new SoundDeviceInfoTopic(
-	              msxCommandController.getMachineInfoCommand(), *this))
+	              msxCommandController_.getMachineInfoCommand(), *this))
 	, recorder(0)
 	, synchronousCounter(0)
 {
@@ -92,9 +92,9 @@ void MSXMixer::registerSound(SoundDevice& device, double volume,
 	const string& name = device.getName();
 	SoundDeviceInfo info;
 	info.defaultVolume = volume;
-	info.volumeSetting = new IntegerSetting(msxCommandController,
+	info.volumeSetting = new IntegerSetting(commandController,
 		name + "_volume", "the volume of this sound chip", 75, 0, 100);
-	info.balanceSetting = new IntegerSetting(msxCommandController,
+	info.balanceSetting = new IntegerSetting(commandController,
 		name + "_balance", "the balance of this sound chip",
 		balance, -100, 100);
 
@@ -106,13 +106,13 @@ void MSXMixer::registerSound(SoundDevice& device, double volume,
 		string ch_name = name + "_ch" + StringOp::toString(i + 1);
 
 		channelSettings.recordSetting = new StringSetting(
-			msxCommandController, ch_name + "_record",
+			commandController, ch_name + "_record",
 			"filename to record this channel to",
 			"", Setting::DONT_SAVE);
 		channelSettings.recordSetting->attach(*this);
 
 		channelSettings.muteSetting = new BooleanSetting(
-			msxCommandController, ch_name + "_mute",
+			commandController, ch_name + "_mute",
 			"sets mute-status of individual sound channels",
 			false, Setting::DONT_SAVE);
 		channelSettings.muteSetting->attach(*this);
@@ -127,7 +127,7 @@ void MSXMixer::registerSound(SoundDevice& device, double volume,
 	assert(it != infos.end());
 	updateVolumeParams(it);
 
-	msxCommandController.getCliComm().update(CliComm::SOUNDDEVICE, device.getName(), "add");
+	commandController.getCliComm().update(CliComm::SOUNDDEVICE, device.getName(), "add");
 }
 
 void MSXMixer::unregisterSound(SoundDevice& device)
@@ -147,7 +147,7 @@ void MSXMixer::unregisterSound(SoundDevice& device)
 		delete it2->muteSetting;
 	}
 	infos.erase(it);
-	msxCommandController.getCliComm().update(CliComm::SOUNDDEVICE, device.getName(), "remove");
+	commandController.getCliComm().update(CliComm::SOUNDDEVICE, device.getName(), "remove");
 }
 
 void MSXMixer::setSynchronousMode(bool synchronous)
