@@ -25,7 +25,6 @@ PostProcessor::PostProcessor(CommandController& commandController_,
 	, screen(screen_)
 	, paintFrame(0)
 	, recorder(0)
-	, prevTime(EmuTime::zero)
 	, commandController(commandController_)
 {
 	currFrame = new RawFrame(screen.getSDLFormat(), maxWidth, height);
@@ -71,8 +70,6 @@ RawFrame* PostProcessor::rotateFrames(
 	RawFrame* finishedFrame, FrameSource::FieldType field,
 	const EmuTime& time)
 {
-	prevTime = time;
-
 	RawFrame* reuseFrame = prevFrame;
 	prevFrame = currFrame;
 	currFrame = finishedFrame;

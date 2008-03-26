@@ -5,10 +5,10 @@
 
 #include "FrameSource.hh"
 #include "VideoLayer.hh"
-#include "EmuTime.hh"
 
 namespace openmsx {
 
+class EmuTime;
 class CommandController;
 class Display;
 class RenderSettings;
@@ -102,9 +102,6 @@ protected:
 
 	/** Video recorder, NULL when not recording. */
 	AviRecorder* recorder;
-
-	/** Time when rotateFrames() was last called. */
-	EmuTime prevTime;
 
 private:
 	CommandController& commandController;
