@@ -66,6 +66,16 @@ private:
 	VDP& vdp;
 };
 
+class VRAMPointerDebug : public SimpleDebuggable
+{
+public:
+	explicit VRAMPointerDebug(VDP& vdp);
+	virtual byte read(unsigned address);
+	virtual void write(unsigned address, byte value, const EmuTime& time);
+private:
+	VDP& vdp;
+};
+
 
 VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
          const EmuTime& time)
@@ -75,6 +85,7 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, vdpRegDebug      (new VDPRegDebug      (*this))
 	, vdpStatusRegDebug(new VDPStatusRegDebug(*this))
 	, vdpPaletteDebug  (new VDPPaletteDebug  (*this))
+	, vramPointerDebug (new VRAMPointerDebug (*this))
 	, frameStartTime(time)
 	, irqVertical(motherBoard.getCPU())
 	, irqHorizontal(motherBoard.getCPU())
@@ -1170,6 +1181,7 @@ byte VDPStatusRegDebug::read(unsigned address, const EmuTime& time)
 	return vdp.peekStatusReg(address, time);
 }
 
+
 // VDPPaletteDebug
 
 VDPPaletteDebug::VDPPaletteDebug(VDP& vdp_)
@@ -1193,6 +1205,35 @@ void VDPPaletteDebug::write(unsigned address, byte value, const EmuTime& time)
 	    ? (grb & 0x0077) | ((value & 0x07) << 8)
 	    : (grb & 0x0700) |  (value & 0x77);
 	vdp.setPalette(index, grb, time);
+}
+
+
+// class VRAMPointerDebug
+
+VRAMPointerDebug::VRAMPointerDebug(VDP& vdp_)
+	: SimpleDebuggable(vdp_.getMotherBoard(), "VRAM pointer",
+	                   "VDP VRAM pointer (14 lower bits)", 2)
+	, vdp(vdp_)
+{
+}
+
+byte VRAMPointerDebug::read(unsigned address)
+{
+	if (address & 1) {
+		return vdp.vramPointer >> 8;  // TODO add read/write mode?
+	} else {
+		return vdp.vramPointer & 0xFF;
+	}
+}
+
+void VRAMPointerDebug::write(unsigned address, byte value, const EmuTime& /*time*/)
+{
+	int& ptr = vdp.vramPointer;
+	if (address & 1) {
+		ptr = (ptr & 0x00FF) | ((value & 0x3F) << 8);
+	} else {
+		ptr = (ptr & 0xFF00) | value;
+	}
 }
 
 } // namespace openmsx

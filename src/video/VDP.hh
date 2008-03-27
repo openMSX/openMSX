@@ -21,6 +21,7 @@ class SpriteChecker;
 class VDPRegDebug;
 class VDPStatusRegDebug;
 class VDPPaletteDebug;
+class VRAMPointerDebug;
 class CliComm;
 
 /** Unified implementation of MSX Video Display Processors (VDPs).
@@ -635,9 +636,11 @@ private:
 	friend class VDPRegDebug;
 	friend class VDPStatusRegDebug;
 	friend class VDPPaletteDebug;
+	friend class VRAMPointerDebug;
 	const std::auto_ptr<VDPRegDebug>       vdpRegDebug;
 	const std::auto_ptr<VDPStatusRegDebug> vdpStatusRegDebug;
 	const std::auto_ptr<VDPPaletteDebug>   vdpPaletteDebug;
+	const std::auto_ptr<VRAMPointerDebug>  vramPointerDebug;
 
 	/** Renderer that converts this VDP's state into an image.
 	  */
