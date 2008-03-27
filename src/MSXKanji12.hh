@@ -18,10 +18,13 @@ public:
 	           const EmuTime& time);
 	virtual ~MSXKanji12();
 
+	// MSXDevice
 	virtual void reset(const EmuTime& time);
-	virtual byte readIO(word port, const EmuTime& time);
-	virtual byte peekIO(word port, const EmuTime& time) const;
-	virtual void writeIO(word port, byte value, const EmuTime& time);
+
+	// MSXSwitchedDevice
+	virtual byte readSwitchedIO(word port, const EmuTime& time);
+	virtual byte peekSwitchedIO(word port, const EmuTime& time) const;
+	virtual void writeSwitchedIO(word port, byte value, const EmuTime& time);
 
 private:
 	const std::auto_ptr<Rom> rom;

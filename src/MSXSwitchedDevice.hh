@@ -14,9 +14,9 @@ class EmuTime;
 class MSXSwitchedDevice : private noncopyable
 {
 public:
-	virtual byte readIO(word port, const EmuTime& time) = 0;
-	virtual byte peekIO(word port, const EmuTime& time) const = 0;
-	virtual void writeIO(word port, byte value, const EmuTime& time) = 0;
+	virtual byte readSwitchedIO(word port, const EmuTime& time) = 0;
+	virtual byte peekSwitchedIO(word port, const EmuTime& time) const = 0;
+	virtual void writeSwitchedIO(word port, byte value, const EmuTime& time) = 0;
 
 protected:
 	MSXSwitchedDevice(MSXMotherBoard& motherBoard, byte id);

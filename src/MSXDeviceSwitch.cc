@@ -23,17 +23,15 @@ MSXDeviceSwitch::MSXDeviceSwitch(MSXMotherBoard& motherBoard,
 
 MSXDeviceSwitch::~MSXDeviceSwitch()
 {
-	for (int i = 0; i < 256; i++) {
+	for (int i = 0; i < 256; ++i) {
 		// all devices must be unregistered
 		assert(devices[i] == NULL);
 	}
 	assert(count == 0);
 }
 
-
 void MSXDeviceSwitch::registerDevice(byte id, MSXSwitchedDevice* device)
 {
-	//PRT_DEBUG("Switch: register device with id " << (int)id);
 	if (devices[id]) {
 		// TODO implement multiplexing
 		throw MSXException("Already have a switched device with id " +
@@ -73,10 +71,8 @@ void MSXDeviceSwitch::reset(const EmuTime& time)
 byte MSXDeviceSwitch::readIO(word port, const EmuTime& time)
 {
 	if (devices[selected]) {
-		//PRT_DEBUG("Switch read device " << (int)selected << " port " << (int)port);
-		return devices[selected]->readIO(port, time);
+		return devices[selected]->readSwitchedIO(port, time);
 	} else {
-		//PRT_DEBUG("Switch read no device");
 		return 0xFF;
 	}
 }
@@ -84,7 +80,7 @@ byte MSXDeviceSwitch::readIO(word port, const EmuTime& time)
 byte MSXDeviceSwitch::peekIO(word port, const EmuTime& time) const
 {
 	if (devices[selected]) {
-		return devices[selected]->peekIO(port, time);
+		return devices[selected]->peekSwitchedIO(port, time);
 	} else {
 		return 0xFF;
 	}
@@ -92,13 +88,10 @@ byte MSXDeviceSwitch::peekIO(word port, const EmuTime& time) const
 
 void MSXDeviceSwitch::writeIO(word port, byte value, const EmuTime& time)
 {
-	port &= 0x0F;
-	if (port == 0x00) {
+	if ((port & 0x0F) == 0x00) {
 		selected = value;
-		PRT_DEBUG("Switch " << int(selected));
 	} else if (devices[selected]) {
-		//PRT_DEBUG("Switch write device " << (int)selected << " port " << (int)port);
-		devices[selected]->writeIO(port, value, time);
+		devices[selected]->writeSwitchedIO(port, value, time);
 	} else {
 		//ignore
 	}
