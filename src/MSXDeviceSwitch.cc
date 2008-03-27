@@ -1,6 +1,7 @@
 // $Id$
 
 #include "MSXDeviceSwitch.hh"
+#include "MSXSwitchedDevice.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
@@ -8,26 +9,6 @@
 #include <cassert>
 
 namespace openmsx {
-
-/// class MSXSwitchedDevice ///
-
-MSXSwitchedDevice::MSXSwitchedDevice(MSXMotherBoard& motherBoard_, byte id_)
-	: motherBoard(motherBoard_), id(id_)
-{
-	motherBoard.getDeviceSwitch().registerDevice(id, this);
-}
-
-MSXSwitchedDevice::~MSXSwitchedDevice()
-{
-	motherBoard.getDeviceSwitch().unregisterDevice(id);
-}
-
-void MSXSwitchedDevice::reset(const EmuTime& /*time*/)
-{
-}
-
-
-/// class MSXDeviceSwitch ///
 
 MSXDeviceSwitch::MSXDeviceSwitch(MSXMotherBoard& motherBoard,
                                  const XMLElement& config)
@@ -86,12 +67,6 @@ void MSXDeviceSwitch::unregisterDevice(byte id)
 
 void MSXDeviceSwitch::reset(const EmuTime& time)
 {
-	for (int i = 0; i < 256; i++) {
-		if (devices[i]) {
-			devices[i]->reset(time);
-		}
-	}
-
 	selected = 0;
 }
 

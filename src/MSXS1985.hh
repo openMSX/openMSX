@@ -13,7 +13,7 @@
 #define S1985_HH
 
 #include "MSXDevice.hh"
-#include "MSXDeviceSwitch.hh"
+#include "MSXSwitchedDevice.hh"
 #include <memory>
 
 namespace openmsx {

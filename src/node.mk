@@ -28,7 +28,7 @@ SRC_HDR:= \
 	MSXRTC RP5C01 PasswordCart \
 	RealTime \
 	CartridgeSlotManager \
-	MSXDeviceSwitch \
+	MSXDeviceSwitch MSXSwitchedDevice \
 	MSXMatsushita \
 	FirmwareSwitch \
 	CommandLineParser CLIOption \
