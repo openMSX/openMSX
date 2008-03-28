@@ -4,14 +4,17 @@
 #define MSXRS232_HH
 
 #include "MSXDevice.hh"
-#include "I8251.hh"
 #include "IRQHelper.hh"
 #include "RS232Connector.hh"
 #include <memory>
 
 namespace openmsx {
 
+class Counter0;
+class Counter1;
 class I8254;
+class I8251;
+class I8251Interf;
 class Ram;
 class Rom;
 class ClockPin;
@@ -46,53 +49,10 @@ private:
 	void setRxRDYIRQ(bool status);
 	void enableRxRDYIRQ(bool enabled);
 
-	// counter 0 rx clock pin
-	class Counter0 : public ClockPinListener {
-	public:
-		explicit Counter0(MSXRS232& rs232);
-		virtual ~Counter0();
-		virtual void signal(ClockPin& pin,
-					const EmuTime& time);
-		virtual void signalPosEdge(ClockPin& pin,
-					const EmuTime& time);
-	private:
-		MSXRS232& rs232;
-	} cntr0;
-
-	// counter 1 tx clock pin
-	class Counter1 : public ClockPinListener {
-	public:
-		explicit Counter1(MSXRS232& rs232);
-		virtual ~Counter1();
-		virtual void signal(ClockPin& pin,
-					const EmuTime& time);
-		virtual void signalPosEdge(ClockPin& pin,
-					const EmuTime& time);
-	private:
-		MSXRS232& rs232;
-	} cntr1;
-
+	const std::auto_ptr<Counter0> cntr0; // counter 0 rx clock pin
+	const std::auto_ptr<Counter1> cntr1; // counter 1 tx clock pin
 	const std::auto_ptr<I8254> i8254;
-
-	// I8251Interface
-	class I8251Interf : public I8251Interface {
-	public:
-		explicit I8251Interf(MSXRS232& rs232);
-		virtual ~I8251Interf();
-		virtual void setRxRDY(bool status, const EmuTime& time);
-		virtual void setDTR(bool status, const EmuTime& time);
-		virtual void setRTS(bool status, const EmuTime& time);
-		virtual bool getDSR(const EmuTime& time);
-		virtual bool getCTS(const EmuTime& time);
-		virtual void setDataBits(DataBits bits);
-		virtual void setStopBits(StopBits bits);
-		virtual void setParityBit(bool enable, ParityBit parity);
-		virtual void recvByte(byte value, const EmuTime& time);
-		virtual void signal(const EmuTime& time);
-	private:
-		MSXRS232& rs232;
-	} interf;
-
+	const std::auto_ptr<I8251Interf> interf;
 	const std::auto_ptr<I8251> i8251;
 	const std::auto_ptr<Rom> rom;
 	std::auto_ptr<Ram> ram;
@@ -101,6 +61,9 @@ private:
 	bool rxrdyIRQlatch;
 	bool rxrdyIRQenabled;
 
+	friend class Counter0;
+	friend class Counter1;
+	friend class I8251Interf;
 };
 
 } // namespace openmsx
