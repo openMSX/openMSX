@@ -63,7 +63,7 @@ void MSXDeviceSwitch::unregisterDevice(byte id)
 }
 
 
-void MSXDeviceSwitch::reset(const EmuTime& time)
+void MSXDeviceSwitch::reset(const EmuTime& /*time*/)
 {
 	selected = 0;
 }
