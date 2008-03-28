@@ -28,11 +28,12 @@
 #define MSXPPI_HH
 
 #include "MSXDevice.hh"
-#include "I8255.hh"
+#include "I8255Interface.hh"
 #include <memory>
 
 namespace openmsx {
 
+class I8255;
 class KeyClick;
 class CassettePortInterface;
 class RenShaTurbo;

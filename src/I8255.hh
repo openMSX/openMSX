@@ -14,26 +14,9 @@
 
 namespace openmsx {
 
+class I8255Interface;
 class EmuTime;
 class CliComm;
-
-class I8255Interface
-{
-public:
-	virtual ~I8255Interface() {}
-	virtual byte readA(const EmuTime& time) = 0;
-	virtual byte readB(const EmuTime& time) = 0;
-	virtual nibble readC0(const EmuTime& time) = 0;
-	virtual nibble readC1(const EmuTime& time) = 0;
-	virtual byte peekA(const EmuTime& time) const = 0;
-	virtual byte peekB(const EmuTime& time) const = 0;
-	virtual nibble peekC0(const EmuTime& time) const = 0;
-	virtual nibble peekC1(const EmuTime& time) const = 0;
-	virtual void writeA(byte value, const EmuTime& time) = 0;
-	virtual void writeB(byte value, const EmuTime& time) = 0;
-	virtual void writeC0(nibble value, const EmuTime& time) = 0;
-	virtual void writeC1(nibble value, const EmuTime& time) = 0;
-};
 
 class I8255 : private noncopyable
 {
@@ -71,7 +54,6 @@ private:
 	int latchPortC;
 
 	I8255Interface& interface;
-
 	CliComm& cliComm;
 
 	bool warningPrinted;

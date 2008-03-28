@@ -33,6 +33,7 @@
  */
 
 #include "MSXHBI55.hh"
+#include "I8255.hh"
 #include "SRAM.hh"
 #include "MSXMotherBoard.hh"
 #include <cassert>

@@ -47,7 +47,7 @@ HDR_ONLY:= \
 	openmsx \
 	Clock DynamicClock \
 	MSXException InitException PlugException \
-	PatchInterface
+	PatchInterface I8255Interface
 
 DIST:= \
 	Doxyfile

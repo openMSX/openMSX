@@ -1,6 +1,7 @@
 // $Id$
 
 #include "MSXPPI.hh"
+#include "I8255.hh"
 #include "Keyboard.hh"
 #include "LedEvent.hh"
 #include "LedStatus.hh"

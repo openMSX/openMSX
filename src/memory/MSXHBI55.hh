@@ -4,11 +4,12 @@
 #define MSXHBI55_HH
 
 #include "MSXDevice.hh"
-#include "I8255.hh"
+#include "I8255Interface.hh"
 #include <memory>
 
 namespace openmsx {
 
+class I8255;
 class SRAM;
 
 class MSXHBI55 : public MSXDevice, public I8255Interface

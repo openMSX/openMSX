@@ -1,6 +1,7 @@
 // $Id$
 
 #include "I8255.hh"
+#include "I8255Interface.hh"
 #include "CliComm.hh"
 
 namespace openmsx {
