@@ -1,6 +1,7 @@
 // $Id$
 
 #include "MSXPrinterPort.hh"
+#include "DummyPrinterPortDevice.hh"
 #include "PluggingController.hh"
 #include "MSXMotherBoard.hh"
 #include "checked_cast.hh"
@@ -33,7 +34,6 @@ void MSXPrinterPort::reset(const EmuTime& time)
 	writeData(0, time);	// TODO check this
 	setStrobe(true, time);	// TODO check this
 }
-
 
 byte MSXPrinterPort::readIO(word port, const EmuTime& time)
 {
@@ -98,39 +98,6 @@ void MSXPrinterPort::plug(Pluggable& dev, const EmuTime& time)
 PrinterPortDevice& MSXPrinterPort::getPluggedPrintDev() const
 {
 	return *checked_cast<PrinterPortDevice*>(&getPlugged());
-}
-
-
-// --- DummyPrinterPortDevice ---
-
-bool DummyPrinterPortDevice::getStatus(const EmuTime& /*time*/)
-{
-	return true;	// true = high = not ready
-}
-
-void DummyPrinterPortDevice::setStrobe(bool /*strobe*/, const EmuTime& /*time*/)
-{
-	// ignore strobe
-}
-
-void DummyPrinterPortDevice::writeData(byte /*data*/, const EmuTime& /*time*/)
-{
-	// ignore data
-}
-
-const string& DummyPrinterPortDevice::getDescription() const
-{
-	static const string EMPTY;
-	return EMPTY;
-}
-
-void DummyPrinterPortDevice::plugHelper(
-	Connector& /*connector*/, const EmuTime& /*time*/)
-{
-}
-
-void DummyPrinterPortDevice::unplugHelper(const EmuTime& /*time*/)
-{
 }
 
 } // namespace openmsx

@@ -22,8 +22,8 @@ SRC_HDR:= \
 	MSXS1990 \
 	DummyDevice \
 	MSXPrinterPort \
-	PrinterPortDevice PrinterPortSimpl PrinterPortLogger \
-	Printer \
+	PrinterPortDevice DummyPrinterPortDevice \
+	PrinterPortSimpl PrinterPortLogger Printer \
 	MSXKanji MSXKanji12 MSXBunsetsu \
 	MSXRTC RP5C01 PasswordCart \
 	RealTime \
