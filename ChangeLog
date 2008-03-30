@@ -1,5 +1,21 @@
 $Id$
 
+2008-03-30 Alex Wulms
+	* Add support for Philips VG8010:
+	   - Add new unicodemap unicode.proto_int; the VG8010 has a keyboard
+	     matrix that differs completely from all other MSX models. It seems
+	     to be some kind of prototype of the keyboard matrix
+	   - Add 'GRAPH locks' processing logic to the copy&paste routine in
+	     the keyboard driver (GRAPH has a locking behaviour on VG8010)
+	* Fix DEAD key behaviour in keyboard driver in KEY mapping mode:
+	   - In KEY mapping mode, RCTRL key must be mapped to row 5 col 2 in the
+	     keyboard matrix (DEAD key on 'international' MSX keyboard) or to
+	     whatever other position if user has loaded another KeyToKey mapping
+	     file. Either way, it has to follow the 'Key to Key' mapping logic
+	   - In CHARACTER mapping mode, RCTRL key must be mapped according to
+	     the DEADKEY position in the unicode map files (for the MSX models
+	     that do have a DEAD key)
+
 2008-03-26 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed Z80 timing of accepting a IRQ:
 	   - Accepting a IRQ in IM0 or IM1 should take 13 cycles, there is no
