@@ -5,7 +5,7 @@
 
   <info>
     <manufacturer>Philips</manufacturer>
-    <code>VG 8010/00</code>
+    <code>VG 8000/00</code>
     <release_year>1984</release_year>
     <description/>
     <type>MSX</type>
@@ -45,7 +45,7 @@
 
     <primary slot="0">
       <RAM id="Main RAM">
-        <mem base="0x8000" size="0x8000"/>
+        <mem base="0xC000" size="0x4000"/>
       </RAM>
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
