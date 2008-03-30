@@ -37,6 +37,8 @@ using std::vector;
 namespace openmsx {
 
 static const byte SHIFT_MASK = 0x01;
+static const byte CTRL_MASK  = 0x02;
+static const byte GRAPH_MASK = 0x04;
 static const byte CAPS_MASK  = 0x08;
 static const byte CODE_MASK  = 0x10;
 
@@ -103,6 +105,7 @@ private:
 	Unicode::unicode1_char last;
 	int lockKeysMask;
 	bool oldCodeKanaLockOn;
+	bool oldGraphLockOn;
 	bool oldCapsLockOn;
 };
 
@@ -187,7 +190,7 @@ Keyboard::Keyboard(Scheduler& scheduler,
                    EventDistributor& eventDistributor,
                    MSXEventDistributor& msxEventDistributor_,
 		   string& keyboardType, bool hasKP, bool keyGhosting_, bool keyGhostSGCprotected,
-		   bool codeKanaLocks_)
+		   bool codeKanaLocks_, bool graphLocks_)
 	: Schedulable(scheduler)
 	, msxEventDistributor(msxEventDistributor_)
 	, keyMatrixUpCmd  (new KeyMatrixUpCmd  (
@@ -209,6 +212,8 @@ Keyboard::Keyboard(Scheduler& scheduler,
 	msxCapsLockOn = false;
 	codeKanaLocks = codeKanaLocks_;
 	msxCodeKanaLockOn = false;
+	graphLocks = graphLocks_;
+	msxGraphLockOn = false;
 	msxmodifiers = 0xff;
 	memset(keyMatrix,     255, sizeof(keyMatrix));
 	memset(cmdKeyMatrix,  255, sizeof(cmdKeyMatrix));
@@ -282,12 +287,17 @@ bool Keyboard::processQueuedEvent(shared_ptr<const Event> event, const EmuTime& 
 			keyEvent.getKeyCode(),
 			Keys::getName(keyEvent.getKeyCode()).c_str());
 	}
-	if (key == Keys::K_RCTRL) {
+	if (
+		key == Keys::K_RCTRL &&
+		keyboardSettings->getMappingMode().getValue() == KeyboardSettings::CHARACTER_MAPPING
+	) {
 		processRightControlEvent(down);
 	} else if (key == Keys::K_CAPSLOCK) {
 		processCapslockEvent(time);
 	} else if (key == keyboardSettings->getCodeKanaHostKey().getValue()) {
 		processCodeKanaChange(down);
+	} else if (key == Keys::K_LALT) {
+		processGraphChange(down);
 	} else if (key == Keys::K_KP_ENTER) {
 		processKeypadEnterKey(down);
 	} else {
@@ -307,6 +317,19 @@ void Keyboard::processCodeKanaChange(bool down)
 		msxCodeKanaLockOn = !msxCodeKanaLockOn;
 	}
 	updateKeyMatrix(down, 6, CODE_MASK);
+}
+
+/*
+ * Process a change (up or down event) of the GRAPH key
+ * It presses or releases the key in the MSX keyboard matrix
+ * and changes the graphlock state in case of a press
+ */
+void Keyboard::processGraphChange(bool down)
+{
+	if (down) {
+		msxGraphLockOn = !msxGraphLockOn;
+	}
+	updateKeyMatrix(down, 6, GRAPH_MASK);
 }
 
 /*
@@ -662,23 +685,34 @@ bool Keyboard::pressUnicodeByUser(Unicode::unicode1_char unicode, int key, bool 
 		} else {
 			// Press the character key and related modifiers
 			// Ignore the CODE key in case that Code Kana locks
-			// (e.g. do not press it). Always ignore CAPSLOCK mask
-			// (assume that user will use real CAPS lock to switch
-			// between hiragana and katanana on japanese model)
-			byte modmask = codeKanaLocks
-			             ? keyInfo.modmask & (~CODE_MASK)
-			             : keyInfo.modmask;
-			modmask &= (~CAPS_MASK); // ignore CAPSLOCK mask
+			// (e.g. do not press it). 
+			// Ignore the GRAPH key in case that Graph locks
+			// Always ignore CAPSLOCK mask (assume that user will
+			// use real CAPS lock to switch/ between hiragana and 
+			// katanana on japanese model)
+			byte modmask = keyInfo.modmask & (~CAPS_MASK);
+			if (codeKanaLocks) {
+				modmask &= (~CODE_MASK);
+			}
+			if (graphLocks) {
+				modmask &= (~GRAPH_MASK);
+			}
 			userKeyMatrix[keyInfo.row] &= ~keyInfo.keymask;
 			userKeyMatrix[6] |= shiftkeymask;
 			userKeyMatrix[6] &= ~(modmask & ((~SHIFT_MASK) | shiftkeymask));
 		}
 	} else {
 		userKeyMatrix[keyInfo.row] |= keyInfo.keymask;
-		// Do not simply unpress graph, ctrl (code and shift)
+		// Do not simply unpress graph, ctrl, code and shift
 		// but restore them to the values currently pressed
 		// by the user
-		byte mask = codeKanaLocks ? 0x07 : (0x07 | CODE_MASK);
+		byte mask = SHIFT_MASK | CTRL_MASK;
+		if (!codeKanaLocks) {
+			mask |= CODE_MASK;
+		}
+		if (!graphLocks) {
+			mask |= GRAPH_MASK;
+		}
 		userKeyMatrix[6] &= (msxmodifiers | ~mask);
 		userKeyMatrix[6] |= (msxmodifiers & mask);
 	}
@@ -696,8 +730,13 @@ int Keyboard::pressAscii(Unicode::unicode1_char unicode, bool down)
 {
 	int releaseMask = 0;
 	UnicodeKeymap::KeyInfo keyInfo = unicodeKeymap->get(unicode);
-	byte modmask = codeKanaLocks ? keyInfo.modmask & (~CODE_MASK) : keyInfo.modmask;
-	modmask &= (~CAPS_MASK); // ignore CAPSLOCK mask
+	byte modmask = keyInfo.modmask & (~CAPS_MASK); // ignore CAPSLOCK mask;
+	if (codeKanaLocks) {
+		modmask &= (~CODE_MASK); // ignore CODE mask if CODE locks
+	}
+	if (graphLocks) {
+		modmask &= (~GRAPH_MASK); // ignore GRAPH mask if GRAPH locks
+	}
 	if (down) {
 		if (codeKanaLocks &&
 		    msxCodeKanaLockOn != ((keyInfo.modmask & CODE_MASK) == CODE_MASK) &&
@@ -708,6 +747,16 @@ int Keyboard::pressAscii(Unicode::unicode1_char unicode, bool down)
 			msxCodeKanaLockOn = !msxCodeKanaLockOn;
 			cmdKeyMatrix[6] &= (~CODE_MASK);
 			releaseMask = CODE_MASK;
+		}
+		if (graphLocks &&
+		    msxGraphLockOn != ((keyInfo.modmask & GRAPH_MASK) == GRAPH_MASK) &&
+		    keyInfo.row < 6) { // only toggle GRAPH lock for 'normal' characters
+			if (keyboardSettings->getTraceKeyPresses().getValue()) {
+				fprintf(stderr, "Toggling GRAPH lock\n");
+			}
+			msxGraphLockOn = !msxGraphLockOn;
+			cmdKeyMatrix[6] &= (~GRAPH_MASK);
+			releaseMask |= GRAPH_MASK;
 		}
 		if (msxCapsLockOn != ((keyInfo.modmask & CAPS_MASK) == CAPS_MASK) &&
 		    keyInfo.row < 6) { // only toggle CAPS lock for 'normal' characters
@@ -913,6 +962,7 @@ void KeyInserter::type(const string& str)
 		return;
 	}
 	oldCodeKanaLockOn = keyboard.msxCodeKanaLockOn;
+	oldGraphLockOn = keyboard.msxGraphLockOn;
 	oldCapsLockOn = keyboard.msxCapsLockOn;
 	if (text.empty()) {
 		reschedule(getScheduler().getCurrentTime());
@@ -939,6 +989,13 @@ void KeyInserter::executeUntil(const EmuTime& time, int /*userData*/)
 			lockKeysMask = CODE_MASK;
 			keyboard.msxCodeKanaLockOn = !keyboard.msxCodeKanaLockOn;
 		}
+		if (oldGraphLockOn != keyboard.msxGraphLockOn) {
+			if (keyboard.keyboardSettings->getTraceKeyPresses().getValue()) {
+				fprintf(stderr, "Restoring GRAPH lock\n");
+			}
+			lockKeysMask |= GRAPH_MASK;
+			keyboard.msxGraphLockOn = !keyboard.msxGraphLockOn;
+		}
 		if (oldCapsLockOn != keyboard.msxCapsLockOn) {
 			if (keyboard.keyboardSettings->getTraceKeyPresses().getValue()) {
 				fprintf(stderr, "Restoring CAPS lock\n");
@@ -947,7 +1004,7 @@ void KeyInserter::executeUntil(const EmuTime& time, int /*userData*/)
 			keyboard.msxCapsLockOn = !keyboard.msxCapsLockOn;
 		}
 		if (lockKeysMask != 0) {
-			// press CAPS and/or Code/Kana Lock keys
+			// press CAPS, GRAPH and/or Code/Kana Lock keys
 			keyboard.pressLockKeys(lockKeysMask, true);
 			reschedule(time);
 		}

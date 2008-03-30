@@ -45,12 +45,13 @@ public:
 	 * @param keyGhosting turn keyGhosting on/off
 	 * @param keyGhostingSGCprotected Shift, Graph and Code are keyGhosting protected
 	 * @param codeKanaLocks CodeKana key behave as a lock key on this machine
+	 * @param graphLocks Graph key behave as a lock key on this machine
 	 */
 	Keyboard(Scheduler& scheduler, CommandController& commandController,
 	         EventDistributor& eventDistributor,
 	         MSXEventDistributor& msxEventDistributor,
 	         std::string& keyboardType, bool hasKeypad,
-		 bool keyGhosting, bool keyGhostingSGCprotected, bool codeKanaLocks);
+		 bool keyGhosting, bool keyGhostingSGCprotected, bool codeKanaLocks, bool graphLocks);
 
 	virtual ~Keyboard();
 
@@ -78,6 +79,7 @@ private:
 	void processRightControlEvent(bool down);
 	void processCapslockEvent(const EmuTime& time);
 	void processCodeKanaChange(bool down);
+	void processGraphChange(bool down);
 	void processKeypadEnterKey(bool down);
 	void processSdlKey(bool down, int key);
 	bool processQueuedEvent(shared_ptr<const Event> event, const EmuTime& time);
@@ -118,6 +120,8 @@ private:
 	bool hasKeypad;
 	bool msxCodeKanaLockOn;
 	bool codeKanaLocks;
+	bool msxGraphLockOn;
+	bool graphLocks;
 	static const int MAX_KEYSYM = 0x150;
 	static byte keyTab[MAX_KEYSYM][2];
 //	static short asciiTab[256][2];

@@ -1,12 +1,12 @@
 <?xml version="1.0" ?>
-<!-- $Id$ -->
+<!-- $Id: hardwareconfig.xml 7615 2008-02-25 21:16:30Z awulms $ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
 
   <info>
-    <manufacturer>Toshiba</manufacturer>
-    <code>HX-10</code>
-    <release_year>1984?</release_year>
+    <manufacturer>Philips</manufacturer>
+    <code>VG 8010/00</code>
+    <release_year>1984</release_year>
     <description/>
     <type>MSX</type>
   </info>
@@ -21,11 +21,11 @@
         <volume>16000</volume>
       </sound>
       <io base="0xA8" num="4"/>
-      <keyboard_type>gb</keyboard_type>
+      <keyboard_type>proto_int</keyboard_type>
       <has_keypad>false</has_keypad>
       <key_ghosting_sgc_protected>true</key_ghosting_sgc_protected>
-      <code_kana_locks>false</code_kana_locks>
-      <graph_locks>false</graph_locks>
+      <code_kana_locks>true</code_kana_locks>
+      <graph_locks>true</graph_locks>
     </PPI>
 
     <VDP id="VDP">
@@ -34,6 +34,7 @@
     </VDP>
 
     <PSG id="PSG">
+      <keyboardlayout>50on</keyboardlayout>
       <sound>
         <volume>21000</volume>
       </sound>
@@ -41,15 +42,16 @@
       <io base="0xA2" num="1" type="I"/>
     </PSG>
 
-    <PrinterPort id="Printer Port">
-      <io base="0x90" num="2"/>
-    </PrinterPort>
+<!-- Note: no printerport! -->
 
     <primary slot="0">
+      <RAM id="Main RAM">
+        <mem base="0x8000" size="0x8000"/>
+      </RAM>
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-          <filename>roms/hx-10_basic-bios1.rom</filename>
-          <sha1>4dad9de7c28b452351cc12910849b51bd9a37ab3</sha1>
+          <filename>roms/vg8010_basic-bios1.rom</filename>
+          <sha1>42252cf87deeb58181a7bfec7c874190a1351779</sha1>
         </rom>
         <mem base="0x0000" size="0x8000"/>
       </ROM>
@@ -57,13 +59,9 @@
 
     <primary external="true" slot="1"/>
 
-    <primary slot="2">
-      <RAM id="Main RAM">
-        <mem base="0x0000" size="0x10000"/>
-      </RAM>
-    </primary>
+    <primary external="true" slot="2"/>
 
-    <primary external="true" slot="3"/>
+    <primary slot="3"/>
 
   </devices>
 

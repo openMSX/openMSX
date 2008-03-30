@@ -30,13 +30,14 @@ MSXPPI::MSXPPI(MSXMotherBoard& motherBoard, const XMLElement& config,
 	std::string keyboardType = deviceConfig.getChildData("keyboard_type", "int");
 	bool hasKeypad = deviceConfig.getChildDataAsBool("has_keypad", true);
 	bool codeKanaLocks = deviceConfig.getChildDataAsBool("code_kana_locks", false);
+	bool graphLocks = deviceConfig.getChildDataAsBool("graph_locks", false);
 	keyboard.reset(new Keyboard(motherBoard.getScheduler(),
 	                            motherBoard.getCommandController(),
 	                            motherBoard.getEventDistributor(),
 	                            motherBoard.getMSXEventDistributor(),
-	                            keyboardType, hasKeypad,
-	                            keyGhosting, keyGhostingSGCprotected,
-	                            codeKanaLocks));
+	                            keyboardType, hasKeypad, 
+				    keyGhosting, keyGhostingSGCprotected,
+				    codeKanaLocks, graphLocks));
 	i8255.reset(new I8255(*this, time, motherBoard.getMSXCliComm()));
 	click.reset(new KeyClick(motherBoard.getMSXMixer(), config, time));
 
