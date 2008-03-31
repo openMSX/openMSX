@@ -90,7 +90,9 @@ private:
 	bool pressUnicodeByUser(Unicode::unicode1_char unicode, int key, bool down);
 	int pressAscii(Unicode::unicode1_char unicode, bool down);
 	void pressLockKeys(int lockKeysMask, bool down);
-	bool commonKeys(Unicode::unicode1_char unicode1, Unicode::unicode1_char unicode2);
+	bool commonKeys(Unicode::unicode1_char unicode1,
+	                Unicode::unicode1_char unicode2);
+	void debug(const char* format, ...);
 
 	MSXEventDistributor& msxEventDistributor;
 

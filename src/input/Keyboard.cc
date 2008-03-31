@@ -24,6 +24,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cassert>
+#include <cstdarg>
 #include <deque>
 
 using std::string;
@@ -276,12 +277,11 @@ bool Keyboard::processQueuedEvent(shared_ptr<const Event> event, const EmuTime& 
 	bool down = event->getType() == OPENMSX_KEY_DOWN_EVENT;
 	Keys::KeyCode key = static_cast<Keys::KeyCode>
 		(int(keyEvent.getKeyCode()) & int(Keys::K_MASK));
-	if (down && keyboardSettings->getTraceKeyPresses().getValue()) {
-		fprintf(stderr,
-			"Key pressed, unicode: 0x%04x, keyCode: 0x%05x, keyName: %s\n",
-			keyEvent.getUnicode(),
-			keyEvent.getKeyCode(),
-			Keys::getName(keyEvent.getKeyCode()).c_str());
+	if (down) {
+		debug("Key pressed, unicode: 0x%04x, keyCode: 0x%05x, keyName: %s\n",
+		      keyEvent.getUnicode(),
+		      keyEvent.getKeyCode(),
+		      Keys::getName(keyEvent.getKeyCode()).c_str());
 	}
 	if (key == Keys::K_RCTRL &&
 	    keyboardSettings->getMappingMode().getValue() ==
@@ -736,9 +736,7 @@ int Keyboard::pressAscii(Unicode::unicode1_char unicode, bool down)
 		if (codeKanaLocks &&
 		    msxCodeKanaLockOn != ((keyInfo.modmask & CODE_MASK) == CODE_MASK) &&
 		    keyInfo.row < 6) { // only toggle CODE lock for 'normal' characters
-			if (keyboardSettings->getTraceKeyPresses().getValue()) {
-				fprintf(stderr, "Toggling CODE/KANA lock\n");
-			}
+			debug("Toggling CODE/KANA lock\n");
 			msxCodeKanaLockOn = !msxCodeKanaLockOn;
 			cmdKeyMatrix[6] &= (~CODE_MASK);
 			releaseMask = CODE_MASK;
@@ -746,28 +744,21 @@ int Keyboard::pressAscii(Unicode::unicode1_char unicode, bool down)
 		if (graphLocks &&
 		    msxGraphLockOn != ((keyInfo.modmask & GRAPH_MASK) == GRAPH_MASK) &&
 		    keyInfo.row < 6) { // only toggle GRAPH lock for 'normal' characters
-			if (keyboardSettings->getTraceKeyPresses().getValue()) {
-				fprintf(stderr, "Toggling GRAPH lock\n");
-			}
+			debug("Toggling GRAPH lock\n");
 			msxGraphLockOn = !msxGraphLockOn;
 			cmdKeyMatrix[6] &= (~GRAPH_MASK);
 			releaseMask |= GRAPH_MASK;
 		}
 		if (msxCapsLockOn != ((keyInfo.modmask & CAPS_MASK) == CAPS_MASK) &&
 		    keyInfo.row < 6) { // only toggle CAPS lock for 'normal' characters
-			if (keyboardSettings->getTraceKeyPresses().getValue()) {
-				fprintf(stderr, "Toggling CAPS lock\n");
-			}
+			debug("Toggling CAPS lock\n");
 			msxCapsLockOn = !msxCapsLockOn;
 			cmdKeyMatrix[6] &= (~CAPS_MASK);
 			releaseMask |= CAPS_MASK;
 		}
 		if (releaseMask == 0) {
-			if (keyboardSettings->getTraceKeyPresses().getValue()) {
-				fprintf(stderr,
-					"Key pasted, unicode: 0x%04x, row: %02d, mask: %02x, modmask: %02x\n",
-					unicode, keyInfo.row, keyInfo.keymask, modmask);
-			}
+			debug("Key pasted, unicode: 0x%04x, row: %02d, mask: %02x, modmask: %02x\n",
+			      unicode, keyInfo.row, keyInfo.keymask, modmask);
 			cmdKeyMatrix[keyInfo.row] &= ~keyInfo.keymask;
 			cmdKeyMatrix[6] &= ~modmask;
 		}
@@ -826,6 +817,17 @@ void Keyboard::update(const Setting& setting)
 		loadKeymapfile(context.resolve(keymapFile));
 	}
 }
+
+void Keyboard::debug(const char* format, ...)
+{
+	if (keyboardSettings->getTraceKeyPresses().getValue()) {
+		va_list args;
+		va_start(args, format);
+		vfprintf(stderr, format, args);
+		va_end(args);
+	}
+}
+
 
 // class KeyMatrixUpCmd
 
@@ -979,23 +981,17 @@ void KeyInserter::executeUntil(const EmuTime& time, int /*userData*/)
 		releaseLast = false;
 		lockKeysMask = 0;
 		if (oldCodeKanaLockOn != keyboard.msxCodeKanaLockOn) {
-			if (keyboard.keyboardSettings->getTraceKeyPresses().getValue()) {
-				fprintf(stderr, "Restoring CODE/KANA lock\n");
-			}
+			keyboard.debug("Restoring CODE/KANA lock\n");
 			lockKeysMask = CODE_MASK;
 			keyboard.msxCodeKanaLockOn = !keyboard.msxCodeKanaLockOn;
 		}
 		if (oldGraphLockOn != keyboard.msxGraphLockOn) {
-			if (keyboard.keyboardSettings->getTraceKeyPresses().getValue()) {
-				fprintf(stderr, "Restoring GRAPH lock\n");
-			}
+			keyboard.debug("Restoring GRAPH lock\n");
 			lockKeysMask |= GRAPH_MASK;
 			keyboard.msxGraphLockOn = !keyboard.msxGraphLockOn;
 		}
 		if (oldCapsLockOn != keyboard.msxCapsLockOn) {
-			if (keyboard.keyboardSettings->getTraceKeyPresses().getValue()) {
-				fprintf(stderr, "Restoring CAPS lock\n");
-			}
+			keyboard.debug("Restoring CAPS lock\n");
 			lockKeysMask |= CAPS_MASK;
 			keyboard.msxCapsLockOn = !keyboard.msxCapsLockOn;
 		}
