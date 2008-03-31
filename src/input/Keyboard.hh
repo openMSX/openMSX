@@ -9,7 +9,6 @@
 #include "Schedulable.hh"
 #include "openmsx.hh"
 #include "Keys.hh"
-#include "KeyboardSettings.hh"
 #include <string>
 #include <vector>
 #include <memory>
@@ -27,9 +26,9 @@ class KeyInserter;
 class KeyEvent;
 class CapsLockAligner;
 class Setting;
+class KeyboardSettings;
 class MsxKeyEventQueue;
 class UnicodeKeymap;
-template <typename T> class EnumSetting;
 
 class Keyboard : private MSXEventListener, private Schedulable, private Observer<Setting>
 {
@@ -51,7 +50,8 @@ public:
 	         EventDistributor& eventDistributor,
 	         MSXEventDistributor& msxEventDistributor,
 	         std::string& keyboardType, bool hasKeypad,
-		 bool keyGhosting, bool keyGhostingSGCprotected, bool codeKanaLocks, bool graphLocks);
+	         bool keyGhosting, bool keyGhostingSGCprotected,
+	         bool codeKanaLocks, bool graphLocks);
 
 	virtual ~Keyboard();
 
@@ -59,8 +59,6 @@ public:
 	 * Returns a pointer to the current KeyBoard matrix
 	 */
 	const byte* getKeys();
-
-	EnumSetting<Keys::KeyCode>& getCodeKanaHostKey();
 
 	static const unsigned NR_KEYROWS = 16;
 

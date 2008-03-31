@@ -1,18 +1,15 @@
 // $Id$
 
 #include "Keyboard.hh"
-#include "Observer.hh"
+#include "KeyboardSettings.hh"
 #include "Clock.hh"
 #include "EventListener.hh"
 #include "EventDistributor.hh"
 #include "MSXEventDistributor.hh"
-#include "SettingsConfig.hh"
 #include "MSXException.hh"
-#include "XMLElement.hh"
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
-#include "CommandController.hh"
 #include "RecordedCommand.hh"
 #include "CommandException.hh"
 #include "InputEvents.hh"
@@ -20,14 +17,12 @@
 #include "FilenameSetting.hh"
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
-#include "Unicode.hh"
 #include "UnicodeKeymap.hh"
 #include "checked_cast.hh"
 #include <SDL.h>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <iostream>
 #include <cassert>
 #include <deque>
 
@@ -180,7 +175,7 @@ void Keyboard::loadKeymapfile(const string& filename)
 		File file(filename);
 		byte* buf = file.mmap();
 		parseKeymapfile(buf, file.getSize());
-	} catch (FileException &e) {
+	} catch (FileException& e) {
 		throw MSXException("Couldn't load keymap file: " + filename);
 	}
 }
@@ -189,8 +184,9 @@ Keyboard::Keyboard(Scheduler& scheduler,
                    CommandController& commandController,
                    EventDistributor& eventDistributor,
                    MSXEventDistributor& msxEventDistributor_,
-		   string& keyboardType, bool hasKP, bool keyGhosting_, bool keyGhostSGCprotected,
-		   bool codeKanaLocks_, bool graphLocks_)
+                   string& keyboardType, bool hasKP, bool keyGhosting_,
+                   bool keyGhostSGCprotected, bool codeKanaLocks_,
+                   bool graphLocks_)
 	: Schedulable(scheduler)
 	, msxEventDistributor(msxEventDistributor_)
 	, keyMatrixUpCmd  (new KeyMatrixUpCmd  (
@@ -287,10 +283,9 @@ bool Keyboard::processQueuedEvent(shared_ptr<const Event> event, const EmuTime& 
 			keyEvent.getKeyCode(),
 			Keys::getName(keyEvent.getKeyCode()).c_str());
 	}
-	if (
-		key == Keys::K_RCTRL &&
-		keyboardSettings->getMappingMode().getValue() == KeyboardSettings::CHARACTER_MAPPING
-	) {
+	if (key == Keys::K_RCTRL &&
+	    keyboardSettings->getMappingMode().getValue() ==
+	            KeyboardSettings::CHARACTER_MAPPING) {
 		processRightControlEvent(down);
 	} else if (key == Keys::K_CAPSLOCK) {
 		processCapslockEvent(time);
@@ -408,8 +403,8 @@ void Keyboard::processKeypadEnterKey(bool down)
 void Keyboard::processSdlKey(bool down, int key)
 {
 	if (key < MAX_KEYSYM) {
-		int row=keyTab[key][0];
-		byte mask=keyTab[key][1];
+		int row   = keyTab[key][0];
+		byte mask = keyTab[key][1];
 		updateKeyMatrix(down, row, mask);
 	}
 }
@@ -685,10 +680,10 @@ bool Keyboard::pressUnicodeByUser(Unicode::unicode1_char unicode, int key, bool 
 		} else {
 			// Press the character key and related modifiers
 			// Ignore the CODE key in case that Code Kana locks
-			// (e.g. do not press it). 
+			// (e.g. do not press it).
 			// Ignore the GRAPH key in case that Graph locks
 			// Always ignore CAPSLOCK mask (assume that user will
-			// use real CAPS lock to switch/ between hiragana and 
+			// use real CAPS lock to switch/ between hiragana and
 			// katanana on japanese model)
 			byte modmask = keyInfo.modmask & (~CAPS_MASK);
 			if (codeKanaLocks) {
@@ -809,7 +804,8 @@ void Keyboard::pressLockKeys(int lockKeysMask, bool down)
  * a short while after releasing a key (to enter a certain character) before
  * pressing the next key (to enter the next character)
  */
-bool Keyboard::commonKeys(Unicode::unicode1_char unicode1, Unicode::unicode1_char unicode2)
+bool Keyboard::commonKeys(Unicode::unicode1_char unicode1,
+                          Unicode::unicode1_char unicode2)
 {
 	// get row / mask of key (note: ignore modifier mask)
 	UnicodeKeymap::KeyInfo keyInfo1 = unicodeKeymap->get(unicode1);
