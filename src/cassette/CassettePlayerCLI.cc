@@ -6,7 +6,7 @@
 #include "MSXException.hh"
 #include "TclObject.hh"
 
-using std::list;
+using std::deque;
 using std::string;
 
 namespace openmsx {
@@ -18,7 +18,7 @@ CassettePlayerCLI::CassettePlayerCLI(CommandLineParser& commandLineParser)
 	commandLineParser.registerFileClass("cassetteimage", *this);
 }
 
-bool CassettePlayerCLI::parseOption(const string& option, list<string>& cmdLine)
+bool CassettePlayerCLI::parseOption(const string& option, deque<string>& cmdLine)
 {
 	parseFileType(getArgument(option, cmdLine), cmdLine);
 	return true;
@@ -32,7 +32,7 @@ const string& CassettePlayerCLI::optionHelp() const
 }
 
 void CassettePlayerCLI::parseFileType(const string& filename,
-                                      list<string>& /*cmdLine*/)
+                                      deque<string>& /*cmdLine*/)
 {
 	if (!commandController.hasCommand("cassetteplayer")) {
 		throw MSXException("No cassetteplayer.");

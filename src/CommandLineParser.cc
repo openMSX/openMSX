@@ -31,7 +31,7 @@
 
 using std::cout;
 using std::endl;
-using std::list;
+using std::deque;
 using std::map;
 using std::set;
 using std::string;
@@ -43,9 +43,8 @@ class HelpOption : public CLIOption
 {
 public:
 	explicit HelpOption(CommandLineParser& parser);
-	virtual bool parseOption(const std::string& option,
-		std::list<std::string>& cmdLine);
-	virtual const std::string& optionHelp() const;
+	virtual bool parseOption(const string& option, deque<string>& cmdLine);
+	virtual const string& optionHelp() const;
 private:
 	CommandLineParser& parser;
 };
@@ -54,9 +53,8 @@ class VersionOption : public CLIOption
 {
 public:
 	explicit VersionOption(CommandLineParser& parser);
-	virtual bool parseOption(const std::string& option,
-		std::list<std::string>& cmdLine);
-	virtual const std::string& optionHelp() const;
+	virtual bool parseOption(const string& option, deque<string>& cmdLine);
+	virtual const string& optionHelp() const;
 private:
 	CommandLineParser& parser;
 };
@@ -65,9 +63,8 @@ class ControlOption : public CLIOption
 {
 public:
 	explicit ControlOption(CommandLineParser& parser);
-	virtual bool parseOption(const std::string& option,
-		std::list<std::string>& cmdLine);
-	virtual const std::string& optionHelp() const;
+	virtual bool parseOption(const string& option, deque<string>& cmdLine);
+	virtual const string& optionHelp() const;
 private:
 	CommandLineParser& parser;
 };
@@ -76,9 +73,8 @@ class ScriptOption : public CLIOption
 {
 public:
 	const CommandLineParser::Scripts& getScripts() const;
-	virtual bool parseOption(const std::string& option,
-		std::list<std::string>& cmdLine);
-	virtual const std::string& optionHelp() const;
+	virtual bool parseOption(const string& option, deque<string>& cmdLine);
+	virtual const string& optionHelp() const;
 private:
 	CommandLineParser::Scripts scripts;
 };
@@ -87,9 +83,8 @@ class MachineOption : public CLIOption
 {
 public:
 	explicit MachineOption(CommandLineParser& parser);
-	virtual bool parseOption(const std::string& option,
-		std::list<std::string>& cmdLine);
-	virtual const std::string& optionHelp() const;
+	virtual bool parseOption(const string& option, deque<string>& cmdLine);
+	virtual const string& optionHelp() const;
 private:
 	CommandLineParser& parser;
 };
@@ -98,9 +93,8 @@ class SettingOption : public CLIOption
 {
 public:
 	explicit SettingOption(CommandLineParser& parser);
-	virtual bool parseOption(const std::string& option,
-		std::list<std::string>& cmdLine);
-	virtual const std::string& optionHelp() const;
+	virtual bool parseOption(const string& option, deque<string>& cmdLine);
+	virtual const string& optionHelp() const;
 private:
 	CommandLineParser& parser;
 };
@@ -108,39 +102,34 @@ private:
 class NoMMXOption : public CLIOption
 {
 public:
-	virtual bool parseOption(const std::string& option,
-		std::list<std::string>& cmdLine);
-	virtual const std::string& optionHelp() const;
+	virtual bool parseOption(const string& option, deque<string>& cmdLine);
+	virtual const string& optionHelp() const;
 };
 
 class NoSSEOption : public CLIOption {
 public:
-	virtual bool parseOption(const std::string& option,
-		std::list<std::string>& cmdLine);
-	virtual const std::string& optionHelp() const;
+	virtual bool parseOption(const string& option, deque<string>& cmdLine);
+	virtual const string& optionHelp() const;
 };
 
 class NoSSE2Option : public CLIOption {
 public:
-	virtual bool parseOption(const std::string& option,
-		std::list<std::string>& cmdLine);
-	virtual const std::string& optionHelp() const;
+	virtual bool parseOption(const string& option, deque<string>& cmdLine);
+	virtual const string& optionHelp() const;
 };
 
 class NoPBOOption : public CLIOption {
 public:
-	virtual bool parseOption(const std::string& option,
-		std::list<std::string>& cmdLine);
-	virtual const std::string& optionHelp() const;
+	virtual bool parseOption(const string& option, deque<string>& cmdLine);
+	virtual const string& optionHelp() const;
 };
 
 class TestConfigOption : public CLIOption
 {
 public:
 	explicit TestConfigOption(CommandLineParser& parser);
-	virtual bool parseOption(const std::string& option,
-		std::list<std::string>& cmdLine);
-	virtual const std::string& optionHelp() const;
+	virtual bool parseOption(const string& option, deque<string>& cmdLine);
+	virtual const string& optionHelp() const;
 private:
 	CommandLineParser& parser;
 };
@@ -249,7 +238,7 @@ void CommandLineParser::registerFileTypes()
 }
 
 bool CommandLineParser::parseOption(
-	const string& arg, list<string>& cmdLine, unsigned priority)
+	const string& arg, deque<string>& cmdLine, unsigned priority)
 {
 	map<string, OptionData>::const_iterator it1 = optionMap.find(arg);
 	if (it1 != optionMap.end()) {
@@ -266,7 +255,7 @@ bool CommandLineParser::parseOption(
 	return false; // unknown
 }
 
-bool CommandLineParser::parseFileName(const string& arg, list<string>& cmdLine)
+bool CommandLineParser::parseFileName(const string& arg, deque<string>& cmdLine)
 {
 	string originalName(arg);
 	try {
@@ -299,8 +288,8 @@ void CommandLineParser::parse(int argc, char** argv)
 {
 	parseStatus = RUN;
 
-	list<string> cmdLine;
-	list<string> backupCmdLine;
+	deque<string> cmdLine;
+	deque<string> backupCmdLine;
 	for (int i = 1; i < argc; i++) {
 		cmdLine.push_back(FileOperations::getConventionalPath(argv[i]));
 	}
@@ -433,7 +422,7 @@ ControlOption::ControlOption(CommandLineParser& parser_)
 {
 }
 
-bool ControlOption::parseOption(const string& option, list<string>& cmdLine)
+bool ControlOption::parseOption(const string& option, deque<string>& cmdLine)
 {
 	parser.reactor.getGlobalCliComm().startInput(getArgument(option, cmdLine));
 	parser.parseStatus = CommandLineParser::CONTROL;
@@ -454,8 +443,7 @@ const CommandLineParser::Scripts& ScriptOption::getScripts() const
 	return scripts;
 }
 
-bool ScriptOption::parseOption(const string& option,
-		list<string>& cmdLine)
+bool ScriptOption::parseOption(const string& option, deque<string>& cmdLine)
 {
 	scripts.push_back(getArgument(option, cmdLine));
 	return true;
@@ -539,7 +527,7 @@ HelpOption::HelpOption(CommandLineParser& parser_)
 }
 
 bool HelpOption::parseOption(const string& /*option*/,
-		list<string>& /*cmdLine*/)
+                             deque<string>& /*cmdLine*/)
 {
 	if (!parser.haveSettings) {
 		return false; // not parsed yet, load settings first
@@ -589,7 +577,7 @@ VersionOption::VersionOption(CommandLineParser& parser_)
 }
 
 bool VersionOption::parseOption(const string& /*option*/,
-		list<string>& /*cmdLine*/)
+                                deque<string>& /*cmdLine*/)
 {
 	cout << Version::FULL_VERSION << endl;
 	cout << "flavour: " << BUILD_FLAVOUR << endl;
@@ -612,7 +600,7 @@ MachineOption::MachineOption(CommandLineParser& parser_)
 {
 }
 
-bool MachineOption::parseOption(const string& option, list<string>& cmdLine)
+bool MachineOption::parseOption(const string& option, deque<string>& cmdLine)
 {
 	if (parser.haveConfig) {
 		throw FatalError("Only one machine option allowed");
@@ -641,7 +629,7 @@ SettingOption::SettingOption(CommandLineParser& parser_)
 {
 }
 
-bool SettingOption::parseOption(const string &option, list<string> &cmdLine)
+bool SettingOption::parseOption(const string &option, deque<string> &cmdLine)
 {
 	if (parser.haveSettings) {
 		throw FatalError("Only one setting option allowed");
@@ -671,7 +659,7 @@ const string& SettingOption::optionHelp() const
 // class NoMMXOption
 
 bool NoMMXOption::parseOption(const string& /*option*/,
-		list<string>& /*cmdLine*/)
+                              deque<string>& /*cmdLine*/)
 {
 	cout << "Disabling MMX" << endl;
 	HostCPU::getInstance().forceDisableMMX();
@@ -689,7 +677,7 @@ const string& NoMMXOption::optionHelp() const
 // class NoSSEOption
 
 bool NoSSEOption::parseOption(const string& /*option*/,
-		list<string>& /*cmdLine*/)
+                              deque<string>& /*cmdLine*/)
 {
 	cout << "Disabling SSE" << endl;
 	HostCPU::getInstance().forceDisableSSE();
@@ -707,7 +695,7 @@ const string& NoSSEOption::optionHelp() const
 // class NoSSE2Option
 
 bool NoSSE2Option::parseOption(const string& /*option*/,
-		list<string>& /*cmdLine*/)
+                               deque<string>& /*cmdLine*/)
 {
 	cout << "Disabling SSE2" << endl;
 	HostCPU::getInstance().forceDisableSSE2();
@@ -725,7 +713,7 @@ const string& NoSSE2Option::optionHelp() const
 // class NoPBOOption
 
 bool NoPBOOption::parseOption(const string& /*option*/,
-		list<string>& /*cmdLine*/)
+                              deque<string>& /*cmdLine*/)
 {
 	#ifdef COMPONENT_GL
 	cout << "Disabling PBO" << endl;
@@ -750,7 +738,7 @@ TestConfigOption::TestConfigOption(CommandLineParser& parser_)
 }
 
 bool TestConfigOption::parseOption(const string& /*option*/,
-		list<string>& /*cmdLine*/)
+                                   deque<string>& /*cmdLine*/)
 {
 	parser.parseStatus = CommandLineParser::TEST;
 	return true;

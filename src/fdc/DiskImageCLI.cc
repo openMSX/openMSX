@@ -6,7 +6,7 @@
 #include "TclObject.hh"
 #include "MSXException.hh"
 
-using std::list;
+using std::deque;
 using std::string;
 
 namespace openmsx {
@@ -21,8 +21,7 @@ DiskImageCLI::DiskImageCLI(CommandLineParser& commandLineParser)
 	driveLetter = 'a';
 }
 
-bool DiskImageCLI::parseOption(const string& option,
-                               list<string>& cmdLine)
+bool DiskImageCLI::parseOption(const string& option, deque<string>& cmdLine)
 {
 	string filename = getArgument(option, cmdLine);
 	parse(option.substr(1), filename, cmdLine);
@@ -34,8 +33,7 @@ const string& DiskImageCLI::optionHelp() const
 	return text;
 }
 
-void DiskImageCLI::parseFileType(const string& filename,
-                                 list<string>& cmdLine)
+void DiskImageCLI::parseFileType(const string& filename, deque<string>& cmdLine)
 {
 	parse(string("disk") + driveLetter, filename, cmdLine);
 	++driveLetter;
@@ -48,7 +46,7 @@ const string& DiskImageCLI::fileTypeHelp() const
 }
 
 void DiskImageCLI::parse(const string& drive, const string& image,
-                         list<string>& cmdLine)
+                         deque<string>& cmdLine)
 {
 	if (!commandController.hasCommand(drive)) { // TODO WIP
 		throw MSXException("No drive named '" + drive + "'.");

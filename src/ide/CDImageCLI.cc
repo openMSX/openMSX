@@ -6,7 +6,7 @@
 #include "TclObject.hh"
 #include "MSXException.hh"
 
-using std::list;
+using std::deque;
 using std::string;
 
 namespace openmsx {
@@ -18,7 +18,7 @@ CDImageCLI::CDImageCLI(CommandLineParser& commandLineParser)
 	// TODO: offer more options in case you want to specify 2 hard disk images?
 }
 
-bool CDImageCLI::parseOption(const string& option, list<string>& cmdLine)
+bool CDImageCLI::parseOption(const string& option, deque<string>& cmdLine)
 {
 	string cd = option.substr(1); // cda
 	string filename = getArgument(option, cmdLine);

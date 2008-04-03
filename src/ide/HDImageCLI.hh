@@ -15,7 +15,7 @@ class HDImageCLI : public CLIOption
 public:
 	explicit HDImageCLI(CommandLineParser& cmdLineParser);
 	virtual bool parseOption(const std::string& option,
-	                         std::list<std::string>& cmdLine);
+	                         std::deque<std::string>& cmdLine);
 	virtual const std::string& optionHelp() const;
 
 private:

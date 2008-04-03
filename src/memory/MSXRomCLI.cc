@@ -6,7 +6,7 @@
 #include "MSXException.hh"
 #include <cassert>
 
-using std::list;
+using std::deque;
 using std::string;
 
 namespace openmsx {
@@ -24,7 +24,7 @@ MSXRomCLI::MSXRomCLI(CommandLineParser& cmdLineParser_)
 	cmdLineParser.registerFileClass("romimage", *this);
 }
 
-bool MSXRomCLI::parseOption(const string& option, list<string>& cmdLine)
+bool MSXRomCLI::parseOption(const string& option, deque<string>& cmdLine)
 {
 	string arg = getArgument(option, cmdLine);
 	string slotname;
@@ -43,7 +43,7 @@ const string& MSXRomCLI::optionHelp() const
 	return text;
 }
 
-void MSXRomCLI::parseFileType(const string& arg, list<string>& cmdLine)
+void MSXRomCLI::parseFileType(const string& arg, deque<string>& cmdLine)
 {
 	parse(arg, "any", cmdLine);
 }
@@ -55,7 +55,7 @@ const string& MSXRomCLI::fileTypeHelp() const
 }
 
 void MSXRomCLI::parse(const string& arg, const string& slotname,
-                      list<string>& cmdLine)
+                      deque<string>& cmdLine)
 {
 	// parse extra options  -ips  and  -romtype
 	std::vector<string> options;
@@ -75,7 +75,7 @@ void MSXRomCLI::parse(const string& arg, const string& slotname,
 }
 
 bool MSXRomCLI::IpsOption::parseOption(const string& /*option*/,
-                                       list<string>& /*cmdLine*/)
+                                       deque<string>& /*cmdLine*/)
 {
 	throw FatalError(
 		"-ips options should immediately follow a ROM or disk image.");
@@ -89,7 +89,7 @@ const string& MSXRomCLI::IpsOption::optionHelp() const
 }
 
 bool MSXRomCLI::RomTypeOption::parseOption(const string& /*option*/,
-                                           list<string>& /*cmdLine*/)
+                                           deque<string>& /*cmdLine*/)
 {
 	throw FatalError("-romtype options should immediately follow a ROM.");
 }

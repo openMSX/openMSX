@@ -15,10 +15,10 @@ class CassettePlayerCLI : public CLIOption, public CLIFileType
 public:
 	explicit CassettePlayerCLI(CommandLineParser& commandLineParser);
 	virtual bool parseOption(const std::string& option,
-	                         std::list<std::string>& cmdLine);
+	                         std::deque<std::string>& cmdLine);
 	virtual const std::string& optionHelp() const;
 	virtual void parseFileType(const std::string& filename,
-	                           std::list<std::string>& cmdLine);
+	                           std::deque<std::string>& cmdLine);
 	virtual const std::string& fileTypeHelp() const;
 
 private:

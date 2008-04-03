@@ -7,7 +7,7 @@
 #include "noncopyable.hh"
 #include <string>
 #include <vector>
-#include <list>
+#include <deque>
 #include <map>
 #include <memory>
 
@@ -72,9 +72,9 @@ private:
 	};
 
 	bool parseFileName(const std::string& arg,
-	                   std::list<std::string>& cmdLine);
+	                   std::deque<std::string>& cmdLine);
 	bool parseOption(const std::string& arg,
-	                 std::list<std::string>& cmdLine, unsigned prio);
+	                 std::deque<std::string>& cmdLine, unsigned prio);
 	void registerFileTypes();
 	void createMachineSetting();
 

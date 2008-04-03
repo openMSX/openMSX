@@ -25,7 +25,6 @@
 
 using std::min;
 using std::max;
-using std::list;
 using std::string;
 
 namespace openmsx {
@@ -94,7 +93,7 @@ void CommandConsole::saveHistory()
 			throw FileException(
 				"Error while saving the console history.");
 		}
-		for (list<string>::iterator it = history.begin();
+		for (History::const_iterator it = history.begin();
 		     it != history.end(); ++it) {
 			outputfile << it->substr(prompt.length()) << std::endl;
 		}
@@ -330,7 +329,7 @@ void CommandConsole::prevCommand()
 		return; // no elements
 	}
 	bool match = false;
-	list<string>::iterator tempScrollBack = commandScrollBack;
+	History::const_iterator tempScrollBack = commandScrollBack;
 	while ((tempScrollBack != history.begin()) && !match) {
 		tempScrollBack--;
 		match = ((tempScrollBack->length() >= currentLine.length()) &&
@@ -350,7 +349,7 @@ void CommandConsole::nextCommand()
 		return; // don't loop !
 	}
 	bool match = false;
-	list<string>::iterator tempScrollBack = commandScrollBack;
+	History::const_iterator tempScrollBack = commandScrollBack;
 	while ((++tempScrollBack != history.end()) && !match) {
 		match = ((tempScrollBack->length() >= currentLine.length()) &&
 		         (tempScrollBack->substr(0, currentLine.length()) == currentLine));

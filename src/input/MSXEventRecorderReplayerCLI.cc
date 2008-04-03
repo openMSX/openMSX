@@ -8,7 +8,7 @@
 #include "MSXMotherBoard.hh"
 
 using std::string;
-using std::list;
+using std::deque;
 
 namespace openmsx {
 
@@ -16,8 +16,7 @@ class RecordOption : public CLIOption
 {
 public:
 	explicit RecordOption(CommandLineParser& parser);
-	virtual bool parseOption(const string& option,
-	                         list<string>& cmdLine);
+	virtual bool parseOption(const string& option, deque<string>& cmdLine);
 	virtual const string& optionHelp() const;
 private:
 	CommandLineParser& parser;
@@ -29,8 +28,7 @@ class ReplayOption : public CLIOption
 {
 public:
 	explicit ReplayOption(CommandLineParser& parser);
-	virtual bool parseOption(const string& option,
-	                         list<string>& cmdLine);
+	virtual bool parseOption(const string& option, deque<string>& cmdLine);
 	virtual const string& optionHelp() const;
 private:
 	CommandLineParser& parser;
@@ -61,7 +59,7 @@ RecordOption::RecordOption(CommandLineParser& parser_)
 {
 }
 
-bool RecordOption::parseOption(const string &option, list<string> &cmdLine)
+bool RecordOption::parseOption(const string &option, deque<string> &cmdLine)
 {
 	const string logFileName = getArgument(option, cmdLine);
 	eventRecorder.reset(new MSXEventRecorder(
@@ -83,7 +81,7 @@ ReplayOption::ReplayOption(CommandLineParser& parser_)
 {
 }
 
-bool ReplayOption::parseOption(const string &option, list<string> &cmdLine)
+bool ReplayOption::parseOption(const string &option, deque<string> &cmdLine)
 {
 	const string logFileName = getArgument(option, cmdLine);
 	eventReplayer.reset(new MSXEventReplayer(
