@@ -7,7 +7,6 @@
 #include "Interpreter.hh"
 #include "Keys.hh"
 #include "FileContext.hh"
-#include "FileOperations.hh"
 #include "FileException.hh"
 #include "CliComm.hh"
 #include "SettingsConfig.hh"
@@ -87,8 +86,8 @@ void CommandConsole::saveHistory()
 {
 	try {
 		UserFileContext context(commandController, "console");
-		std::ofstream outputfile(FileOperations::expandTilde(
-		        context.resolveCreate("history.txt")).c_str());
+		std::ofstream outputfile(
+		        context.resolveCreate("history.txt").c_str());
 		if (!outputfile) {
 			throw FileException(
 				"Error while saving the console history.");
@@ -106,8 +105,8 @@ void CommandConsole::loadHistory()
 {
 	try {
 		UserFileContext context(commandController, "console");
-		std::ifstream inputfile(FileOperations::expandTilde(
-		        context.resolveCreate("history.txt")).c_str());
+		std::ifstream inputfile(
+		        context.resolveCreate("history.txt").c_str());
 		if (!inputfile) {
 			throw FileException(
 				"Error while loading the console history.");

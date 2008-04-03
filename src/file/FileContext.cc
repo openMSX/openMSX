@@ -28,13 +28,16 @@ FileContext::~FileContext()
 
 const string FileContext::resolve(const string& filename)
 {
-	return resolve(paths, filename);
+	string result = resolve(paths, filename);
+	assert(FileOperations::expandTilde(result) == result);
+	return result;
 }
 
 const string FileContext::resolveCreate(const string& filename)
 {
+	string result;
 	try {
-		return resolve(savePaths, filename);
+		result = resolve(savePaths, filename);
 	} catch (FileException& e) {
 		string path = savePaths.front();
 		try {
@@ -42,8 +45,10 @@ const string FileContext::resolveCreate(const string& filename)
 		} catch (FileException& e) {
 			PRT_DEBUG(e.getMessage());
 		}
-		return path + filename;
+		result = path + filename;
 	}
+	assert(FileOperations::expandTilde(result) == result);
+	return result;
 }
 
 string FileContext::resolve(const vector<string>& pathList,
@@ -60,8 +65,7 @@ string FileContext::resolve(const vector<string>& pathList,
 	}
 
 	for (vector<string>::const_iterator it = pathList.begin();
-	     it != pathList.end();
-	     ++it) {
+	     it != pathList.end(); ++it) {
 		string name = FileOperations::expandTilde(*it + filename);
 		string::size_type pos = name.find("://");
 		if (pos != string::npos) {
