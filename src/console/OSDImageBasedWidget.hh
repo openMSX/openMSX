@@ -4,6 +4,7 @@
 #define OSDIMAGEBASEDWIDGET_HH
 
 #include "OSDWidget.hh"
+#include "openmsx.hh"
 
 namespace openmsx {
 

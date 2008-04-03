@@ -2,7 +2,6 @@
 
 #include "WavImage.hh"
 #include "WavData.hh"
-#include "MSXException.hh"
 #include "LocalFileReference.hh"
 #include "Math.hh"
 

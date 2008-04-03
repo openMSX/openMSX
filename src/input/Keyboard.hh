@@ -8,7 +8,6 @@
 #include "Observer.hh"
 #include "Schedulable.hh"
 #include "openmsx.hh"
-#include "Keys.hh"
 #include <string>
 #include <vector>
 #include <memory>

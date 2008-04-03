@@ -3,7 +3,6 @@
 #ifndef OSDWIDGET_HH
 #define OSDWIDGET_HH
 
-#include "openmsx.hh"
 #include <string>
 #include <vector>
 #include <memory>

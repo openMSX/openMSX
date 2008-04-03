@@ -5,7 +5,6 @@
 #include "EnumSetting.hh"
 #include "FilenameSetting.hh"
 #include "BooleanSetting.hh"
-#include "CommandController.hh"
 
 namespace openmsx {
 

@@ -9,7 +9,6 @@
 #include "CommandController.hh"
 #include "CommandLineParser.hh"
 #include "AfterCommand.hh"
-#include "SettingsConfig.hh"
 #include "CliServer.hh"
 #include "Interpreter.hh"
 #include "Display.hh"

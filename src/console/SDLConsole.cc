@@ -11,7 +11,6 @@
 #include "SDLFont.hh"
 #include "Console.hh"
 #include "OutputSurface.hh"
-#include "File.hh"
 #include "Timer.hh"
 #include "MSXException.hh"
 

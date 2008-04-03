@@ -2,6 +2,7 @@
 
 #include "Keyboard.hh"
 #include "KeyboardSettings.hh"
+#include "Keys.hh"
 #include "Clock.hh"
 #include "EventListener.hh"
 #include "EventDistributor.hh"

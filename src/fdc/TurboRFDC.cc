@@ -7,7 +7,6 @@
 #include "TurboRFDC.hh"
 #include "TC8566AF.hh"
 #include "Rom.hh"
-#include "MSXMotherBoard.hh"
 #include "CacheLine.hh"
 
 namespace openmsx {

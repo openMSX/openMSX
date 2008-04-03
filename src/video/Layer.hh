@@ -3,7 +3,6 @@
 #ifndef LAYER_HH
 #define LAYER_HH
 
-#include "noncopyable.hh"
 #include <string>
 
 namespace openmsx {

@@ -1,7 +1,6 @@
 // $Id$
 
 #include "CompressedFileAdapter.hh"
-#include "FileOperations.hh"
 #include "FileException.hh"
 #include <cstdlib>
 #include <cstring>

@@ -8,7 +8,6 @@
 #include "EnumSetting.hh"
 #include "File.hh"
 #include "FileException.hh"
-#include "FileOperations.hh"
 #include "ReadDir.hh"
 #include "StringOp.hh"
 #include <algorithm>
