@@ -45,6 +45,10 @@ public:
 
 	Scheduler& getScheduler() const;
 
+	/** Convenience method:
+	  * This is the same as getScheduler().getCurrentTime(). */
+	const EmuTime& getCurrentTime() const;
+
 protected:
 	explicit Schedulable(Scheduler& scheduler);
 	virtual ~Schedulable();

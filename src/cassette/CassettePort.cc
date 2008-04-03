@@ -10,7 +10,6 @@
 #include "DummyCassetteDevice.hh"
 #include "MSXMotherBoard.hh"
 #include "PluggingController.hh"
-#include "Scheduler.hh"
 #include "checked_cast.hh"
 #include <memory>
 
@@ -94,7 +93,7 @@ CassettePort::CassettePort(MSXMotherBoard& motherBoard_)
 
 CassettePort::~CassettePort()
 {
-	unplug(motherBoard.getScheduler().getCurrentTime());
+	unplug(motherBoard.getCurrentTime());
 	PluggingController& pluggingController = motherBoard.getPluggingController();
 	pluggingController.unregisterPluggable(cassettePlayer.get());
 #ifdef COMPONENT_JACK

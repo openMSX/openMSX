@@ -47,4 +47,9 @@ Scheduler& Schedulable::getScheduler() const
 	return scheduler;
 }
 
+const EmuTime& Schedulable::getCurrentTime() const
+{
+	return scheduler.getCurrentTime();
+}
+
 } // namespace openmsx

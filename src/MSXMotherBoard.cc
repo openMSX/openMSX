@@ -121,6 +121,7 @@ public:
 	GlobalCliComm& getGlobalCliComm();
 	CommandController& getCommandController();
 	InfoCommand& getMachineInfoCommand();
+	const EmuTime& getCurrentTime();
 
 	void addDevice(MSXDevice& device);
 	void removeDevice(MSXDevice& device);
@@ -666,15 +667,20 @@ InfoCommand& MSXMotherBoardImpl::getMachineInfoCommand()
 	return getMSXCommandController().getMachineInfoCommand();
 }
 
+const EmuTime& MSXMotherBoardImpl::getCurrentTime()
+{
+	return getScheduler().getCurrentTime();
+}
+
 bool MSXMotherBoardImpl::execute()
 {
 	if (needReset) {
 		needReset = false;
-		doReset(getScheduler().getCurrentTime());
+		doReset(getCurrentTime());
 	}
 	if (needPowerDown) {
 		needPowerDown = false;
-		doPowerDown(getScheduler().getCurrentTime());
+		doPowerDown(getCurrentTime());
 	}
 
 	if (!powered || blockedCounter) {
@@ -770,7 +776,7 @@ void MSXMotherBoardImpl::powerUp()
 	//       it separately here.
 	getLedStatus().setLed(LedEvent::POWER, true);
 
-	const EmuTime& time = getScheduler().getCurrentTime();
+	const EmuTime& time = getCurrentTime();
 	getCPUInterface().reset();
 	for (Devices::iterator it = availableDevices.begin();
 	     it != availableDevices.end(); ++it) {
@@ -1336,6 +1342,10 @@ CommandController& MSXMotherBoard::getCommandController()
 InfoCommand& MSXMotherBoard::getMachineInfoCommand()
 {
 	return pimple->getMachineInfoCommand();
+}
+const EmuTime& MSXMotherBoard::getCurrentTime()
+{
+	return pimple->getCurrentTime();
 }
 void MSXMotherBoard::addDevice(MSXDevice& device)
 {

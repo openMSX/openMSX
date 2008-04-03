@@ -3,12 +3,12 @@
 #include "AfterCommand.hh"
 #include "CommandController.hh"
 #include "CliComm.hh"
-#include "Scheduler.hh"
 #include "Schedulable.hh"
 #include "EventDistributor.hh"
 #include "Event.hh"
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
+#include "EmuTime.hh"
 #include "CommandException.hh"
 #include <cstdlib>
 #include <sstream>
@@ -394,12 +394,11 @@ double AfterTimedCmd::getTime() const
 void AfterTimedCmd::reschedule()
 {
 	removeSyncPoint();
-	EmuTime t = getScheduler().getCurrentTime() + EmuDuration(time);
-	setSyncPoint(t);
+	setSyncPoint(getCurrentTime() + EmuDuration(time));
 }
 
 void AfterTimedCmd::executeUntil(const EmuTime& /*time*/,
-                                               int /*userData*/)
+                                 int /*userData*/)
 {
 	execute();
 }

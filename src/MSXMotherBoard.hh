@@ -137,6 +137,10 @@ public:
 	CommandController& getCommandController();
 	InfoCommand& getMachineInfoCommand();
 
+	/** Convenience method:
+	  * This is the same as getScheduler().getCurrentTime(). */
+	const EmuTime& getCurrentTime();
+
 	/**
 	 * All MSXDevices should be registered by the MotherBoard.
 	 */

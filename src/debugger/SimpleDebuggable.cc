@@ -3,9 +3,7 @@
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
 #include "Debugger.hh"
-#include "Scheduler.hh"
 #include <cassert>
-
 
 namespace openmsx {
 
@@ -42,7 +40,7 @@ const std::string& SimpleDebuggable::getDescription() const
 
 byte SimpleDebuggable::read(unsigned address)
 {
-	return read(address, motherBoard.getScheduler().getCurrentTime());
+	return read(address, motherBoard.getCurrentTime());
 }
 
 byte SimpleDebuggable::read(unsigned /*address*/, const EmuTime& /*time*/)
@@ -53,7 +51,7 @@ byte SimpleDebuggable::read(unsigned /*address*/, const EmuTime& /*time*/)
 
 void SimpleDebuggable::write(unsigned address, byte value)
 {
-	write(address, value, motherBoard.getScheduler().getCurrentTime());
+	write(address, value, motherBoard.getCurrentTime());
 }
 
 void SimpleDebuggable::write(unsigned /*address*/, byte /*value*/,

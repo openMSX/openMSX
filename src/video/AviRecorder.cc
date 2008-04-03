@@ -12,7 +12,6 @@
 #include "VideoSourceSetting.hh"
 #include "PostProcessor.hh"
 #include "MSXMixer.hh"
-#include "Scheduler.hh"
 #include "CliComm.hh"
 #include "FileOperations.hh"
 #include "StringOp.hh"
@@ -41,7 +40,6 @@ AviRecorder::AviRecorder(Reactor& reactor_)
 	, postProcessor1(0)
 	, postProcessor2(0)
 	, mixer(0)
-	, scheduler(0)
 	, duration(EmuDuration::infinity)
 	, prevTime(EmuTime::infinity)
 	, frameHeight(0)
@@ -69,7 +67,6 @@ void AviRecorder::start(bool recordAudio, bool recordVideo,
 	}
 	if (recordVideo) {
 		Display& display = reactor.getDisplay();
-		scheduler = &motherBoard->getScheduler();
 		VideoSourceSetting* videoSource =
 			&display.getRenderSettings().getVideoSource();
 		Layer* layer1 = display.findLayer("V99x8 PostProcessor");
@@ -119,7 +116,6 @@ void AviRecorder::stop()
 		mixer->setRecorder(0);
 		mixer = 0;
 	}
-	scheduler = 0;
 	sampleRate = 0;
 	aviWriter.reset();
 	wavWriter.reset();
@@ -160,7 +156,9 @@ void AviRecorder::addImage(const void** lines, const EmuTime& time)
 	prevTime = time;
 
 	if (mixer) {
-		mixer->updateStream(scheduler->getCurrentTime());
+		MSXMotherBoard* motherBoard = reactor.getMotherBoard();
+		assert(motherBoard);
+		mixer->updateStream(motherBoard->getCurrentTime());
 	}
 	aviWriter->addFrame(lines, audioBuf.size() / 2, &audioBuf[0]);
 	audioBuf.clear();

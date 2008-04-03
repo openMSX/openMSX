@@ -5,7 +5,6 @@
 #include "V9990VRAM.hh"
 #include "V9990DisplayTiming.hh"
 #include "V9990Rasterizer.hh"
-#include "Scheduler.hh"
 #include "Display.hh"
 #include "VideoSystem.hh"
 #include "FinishFrameEvent.hh"
@@ -33,7 +32,7 @@ V9990PixelRenderer::V9990PixelRenderer(V9990& vdp_)
 	drawFrame = false; // don't draw before frameStart is called
 	prevDrawFrame = false;
 
-	reset(vdp.getMotherBoard().getScheduler().getCurrentTime());
+	reset(vdp.getMotherBoard().getCurrentTime());
 
 	renderSettings.getMaxFrameSkip().attach(*this);
 	renderSettings.getMinFrameSkip().attach(*this);

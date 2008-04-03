@@ -4,7 +4,6 @@
 #include "Mixer.hh"
 #include "SoundDevice.hh"
 #include "MSXCommandController.hh"
-#include "Scheduler.hh"
 #include "InfoTopic.hh"
 #include "TclObject.hh"
 #include "ThrottleManager.hh"
@@ -509,11 +508,11 @@ void MSXMixer::reInit()
 
 	removeSyncPoints();
 	if (fragmentSize || !muteCount) {
-		prevTime = getScheduler().getCurrentTime();
+		prevTime = getCurrentTime();
 		EmuDuration interval2 = interval1 * fragmentSize;
 		setSyncPoint(prevTime + interval2);
 	} else if (synchronousCounter) {
-		prevTime = getScheduler().getCurrentTime();
+		prevTime = getCurrentTime();
 		EmuDuration interval2 = interval1 * 512;
 		setSyncPoint(prevTime + interval2);
 	}

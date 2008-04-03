@@ -1,7 +1,6 @@
 // $Id$
 
 #include "V9990.hh"
-#include "Scheduler.hh"
 #include "Display.hh"
 #include "RendererFactory.hh"
 #include "V9990VRAM.hh"
@@ -399,7 +398,7 @@ void V9990::preVideoSystemChange()
 
 void V9990::postVideoSystemChange()
 {
-	const EmuTime& time = getMotherBoard().getScheduler().getCurrentTime();
+	const EmuTime& time = getMotherBoard().getCurrentTime();
 	createRenderer(time);
 	renderer->frameStart(time);
 }

@@ -12,7 +12,6 @@
 #include "CartridgeSlotManager.hh"
 #include "MSXCPUInterface.hh"
 #include "DeviceFactory.hh"
-#include "Scheduler.hh"
 #include "CliComm.hh"
 #include <cassert>
 
@@ -202,7 +201,7 @@ void HardwareConfig::createDevices(const XMLElement& elem)
 		} else {
 			std::auto_ptr<MSXDevice> device(DeviceFactory::create(
 				motherBoard, *this, sub,
-				motherBoard.getScheduler().getCurrentTime()));
+				motherBoard.getCurrentTime()));
 			if (device.get()) {
 				addDevice(device.release());
 			} else {

@@ -35,7 +35,6 @@
 #include "CasImage.hh"
 #include "CliComm.hh"
 #include "CommandException.hh"
-#include "Scheduler.hh"
 #include "EventDistributor.hh"
 #include "FileOperations.hh"
 #include "WavWriter.hh"
@@ -124,7 +123,7 @@ CassettePlayer::~CassettePlayer()
 {
 	unregisterSound();
 	if (Connector* connector = getConnector()) {
-		connector->unplug(getScheduler().getCurrentTime());
+		connector->unplug(getCurrentTime());
 	}
 	eventDistributor.unregisterEventListener(OPENMSX_BOOT_EVENT, *this);
 	cliComm.update(CliComm::HARDWARE, getName(), "remove");
@@ -563,8 +562,7 @@ bool CassettePlayer::signalEvent(shared_ptr<const Event> event)
 		if (!getImageName().empty()) {
 			// Reinsert tape to make sure everything is reset.
 			try {
-				playTape(getImageName(),
-				         getScheduler().getCurrentTime());
+				playTape(getImageName(), getCurrentTime());
 			} catch (MSXException& e) {
 				cliComm.printWarning(
 					"Failed to insert tape: " + e.getMessage());

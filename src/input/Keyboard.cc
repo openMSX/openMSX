@@ -13,7 +13,6 @@
 #include "RecordedCommand.hh"
 #include "CommandException.hh"
 #include "InputEvents.hh"
-#include "Scheduler.hh"
 #include "FilenameSetting.hh"
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
@@ -963,7 +962,7 @@ void KeyInserter::type(const string& str)
 	oldGraphLockOn = keyboard.msxGraphLockOn;
 	oldCapsLockOn = keyboard.msxCapsLockOn;
 	if (text.empty()) {
-		reschedule(getScheduler().getCurrentTime());
+		reschedule(getCurrentTime());
 	}
 	text += Unicode::utf8ToUnicode1(str);
 }
@@ -1065,7 +1064,7 @@ CapsLockAligner::~CapsLockAligner()
 
 bool CapsLockAligner::signalEvent(shared_ptr<const Event> event)
 {
-	const EmuTime& time = getScheduler().getCurrentTime();
+	const EmuTime& time = getCurrentTime();
 	EventType type = event->getType();
 	if (type == OPENMSX_FOCUS_EVENT) {
 		const FocusEvent& focusEvent = checked_cast<const FocusEvent&>(*event);

@@ -16,7 +16,6 @@ class AviWriter;
 class WavWriter;
 class PostProcessor;
 class MSXMixer;
-class Scheduler;
 class RecordCommand;
 
 class AviRecorder
@@ -46,7 +45,6 @@ private:
 	PostProcessor* postProcessor1;
 	PostProcessor* postProcessor2;
 	MSXMixer* mixer;
-	Scheduler* scheduler;
 	double frameDuration;
 	EmuDuration duration;
 	EmuTime prevTime;

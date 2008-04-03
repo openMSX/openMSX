@@ -1,7 +1,6 @@
 // $Id$
 
 #include "RealTime.hh"
-#include "Scheduler.hh"
 #include "Timer.hh"
 #include "EventDistributor.hh"
 #include "EventDelay.hh"
@@ -38,7 +37,7 @@ RealTime::RealTime(Scheduler& scheduler,
 	pauseSetting.attach(*this);
 	powerSetting.attach(*this);
 
-	setSyncPoint(scheduler.getCurrentTime());
+	setSyncPoint(getCurrentTime());
 
 	resync();
 
@@ -141,11 +140,11 @@ bool RealTime::signalEvent(shared_ptr<const Event> event)
 			checked_cast<const FinishFrameEvent&>(*event);
 		if (ffe.isSkipped()) {
 			// sync but don't sleep
-			sync(getScheduler().getCurrentTime(), false);
+			sync(getCurrentTime(), false);
 		}
 	} else if (event->getType() == OPENMSX_FRAME_DRAWN_EVENT) {
 		// sync and possibly sleep
-		sync(getScheduler().getCurrentTime(), true);
+		sync(getCurrentTime(), true);
 	}
 	return true;
 }
@@ -165,7 +164,7 @@ void RealTime::resync()
 	idealRealTime = Timer::getTime();
 	sleepAdjust = 0.0;
 	removeSyncPoint();
-	setSyncPoint(getScheduler().getCurrentTime());
+	setSyncPoint(getCurrentTime());
 }
 
 } // namespace openmsx
