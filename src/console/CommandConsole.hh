@@ -9,7 +9,7 @@
 #include "CircularBuffer.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
-#include <deque>
+#include <list>
 #include <string>
 
 namespace openmsx {
@@ -73,7 +73,7 @@ private:
 	std::string prompt;
 	/** Saves Current Command to enable command recall. */
 	std::string currentLine;
-	typedef std::deque<std::string> History;
+	typedef std::list<std::string> History;
 	History history;
 	History::const_iterator commandScrollBack;
 	unsigned maxHistory;
