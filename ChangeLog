@@ -1,5 +1,9 @@
 $Id$
 
+2008-04-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added share/skins/Vera.ttf.gz:
+	   - also added support for compressed font files
+
 2008-03-30 Alex Wulms
 	* Add support for Philips VG8010:
 	   - Add new unicodemap unicode.proto_int; the VG8010 has a keyboard

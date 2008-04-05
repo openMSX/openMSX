@@ -3,6 +3,7 @@
 #include "OSDText.hh"
 #include "SDLImage.hh"
 #include "CommandException.hh"
+#include "LocalFileReference.hh"
 #include "FileContext.hh"
 #include "FileOperations.hh"
 #include "StringOp.hh"
@@ -42,7 +43,7 @@ private:
 
 OSDText::OSDText(const OSDGUI& gui, const string& name)
 	: OSDImageBasedWidget(gui, name)
-	, fontfile("notepad.ttf")
+	, fontfile("skins/Vera.ttf.gz")
 	, size(12)
 {
 }
@@ -63,7 +64,9 @@ void OSDText::setProperty(const std::string& name, const std::string& value)
 		OSDImageBasedWidget::invalidateLocal();
 		invalidateChildren();
 	} else if (name == "-font") {
-		if (!FileOperations::isRegularFile(value)) {
+		SystemFileContext context;
+		string file = context.resolve(value);
+		if (!FileOperations::isRegularFile(file)) {
 			throw CommandException("Not a valid font file: " + value);
 		}
 		fontfile = value;
@@ -165,7 +168,8 @@ TTFFont::TTFFont(std::string& filename, int ptsize)
 {
 	SDLTTF::instance(); // init library
 
-	font = TTF_OpenFont(filename.c_str(), ptsize);
+	LocalFileReference file(filename);
+	font = TTF_OpenFont(file.getFilename().c_str(), ptsize);
 	if (!font) {
 		throw MSXException(TTF_GetError());
 	}
