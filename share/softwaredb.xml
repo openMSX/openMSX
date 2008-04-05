@@ -8,7 +8,7 @@
 	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
-<softwaredb xml:lang="en" timestamp="1202363743">
+<softwaredb xml:lang="en" timestamp="1207412816">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -7436,6 +7436,20 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">INK - Exxon Surfing</title>
+		<system>MSX</system>
+		<company>Matra</company>
+		<year>2005</year>
+		<country>ES</country>
+		<dump>
+			<original value="true">author</original>
+			<megarom>
+				<type>MatraInk</type>
+				<hash algo="sha1">df505aecddb20171cafd06351e0b7d208365e708</hash>
+			</megarom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Iriegas - Illegus</title>
 		<system>MSX</system>
 		<company>Ascii</company>
@@ -9484,7 +9498,7 @@
 	<software>
 		<title xml:lang="en">Manbow 2</title>
 		<system>MSX</system>
-		<company>Mabow 2 team</company>
+		<company>Manbow 2 team</company>
 		<year>2007</year>
 		<country>EU</country>
 		<dump>
@@ -10154,6 +10168,23 @@
 			<rom>
 				<hash algo="sha1">1f7b822b47430a3d817a21af2ab95c3414b328a6</hash>
 			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Montana John and the Templar&#39;s Treasure</title>
+		<system>MSX</system>
+		<company>Infinite</company>
+		<year>2008</year>
+		<country>NL</country>
+		<dump>
+			<original value="true">author</original>
+			<megarom>
+				<type>KonamiSCC</type>
+				<hash algo="sha1">9f2fb5f31c2bcff949e08449f197b0c31bdebe50</hash>
+				<remark>
+					<text>MRC MEGA-Challenge entry</text>
+				</remark>
+			</megarom>
 		</dump>
 	</software>
 	<software>
@@ -24558,8 +24589,8 @@
 	</software>
 </softwaredb>
 <!--
-Roms in this database 		: 2296
+Roms in this database 			: 2298
 Good MSX entries 				: 755
-SHA1 values 					: 2296
-Parse time 7.377 seconds on Thu Feb 7 6:55:50 CET 2008
+SHA1 values 					: 2298
+Parse time 7.456 seconds on Sat Apr 5 18:27:03 CEST 2008
  -->
