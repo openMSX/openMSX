@@ -381,10 +381,15 @@ void Reactor::switchMotherBoard()
 	assert(needSwitch);
 	assert(!switchBoard.get() ||
 	       find(boards.begin(), boards.end(), switchBoard) != boards.end());
-	ScopedLock lock(mbSem);
-	activeBoard = switchBoard;
-	switchBoard.reset();
-	needSwitch = false;
+	{
+		// Don't hold the lock for longer than the actual switch.
+		// In the past we had a potential for deadlocks here, because
+		// (indirectly) the code below still acquires other locks.
+		ScopedLock lock(mbSem);
+		activeBoard = switchBoard;
+		switchBoard.reset();
+		needSwitch = false;
+	}
 	getEventDistributor().distributeEvent(
 		new SimpleEvent<OPENMSX_MACHINE_LOADED_EVENT>());
 	string machineID = activeBoard.get() ? activeBoard->getMachineID()
