@@ -41,14 +41,20 @@ proc __redraw_osd_leds { led } {
 		set widget osd_leds.${led}_off
 	}
 
-	set diff [expr [openmsx_info realtime] - $::__last_change($led)]
-	if {$diff < 5.0} {
+	set ledtime $::__ledtime 
+	if {$ledtime == 0} {
 		# no fading yet
 		osd configure $widget -alpha 255 -fadeTarget 255
-		after time [expr 5.0 - $diff] "__redraw_osd_leds $led"
 	} else {
-		# fading out
-		osd configure $widget -fadeTarget 0
+		set diff [expr [openmsx_info realtime] - $::__last_change($led)]
+		if {$diff < $ledtime} {
+			# no fading yet
+			osd configure $widget -alpha 255 -fadeTarget 255
+			after time [expr $ledtime - $diff] "__redraw_osd_leds $led"
+		} else {
+			# fading out
+			osd configure $widget -fadeTarget 0
+		}
 	}
 }
 
@@ -79,6 +85,7 @@ proc load_icons { set_name { set_position "" } } {
 	set xspacing 60
 	set yspacing 35
 	set horizontal 1
+	set ::__ledtime 5
 	set scale 2
 
 	# but allow to override these values by the skin script
@@ -112,8 +119,15 @@ proc load_icons { set_name { set_position "" } } {
 
 		set xcoord($led) [expr $i * $xspacing * $horizontal]
 		set ycoord($led) [expr $i * $yspacing * $vertical]
-		set active_image($led) ${led_lower}-on.png
-		set non_active_image($led) ${led_lower}-off.png
+
+		set active_image($led) led-on.png
+		if [file exists $directory/${led_lower}-on.png] {
+			set active_image($led) ${led_lower}-on.png
+		}
+		set non_active_image($led) led-off.png
+		if [file exists $directory/${led_lower}-off.png] {
+			set non_active_image($led) ${led_lower}-off.png
+		}
 	}
 
 	# ... but allow to override these calculated values (again) by the skin script
@@ -139,6 +153,12 @@ proc load_icons { set_name { set_position "" } } {
 		       -image [get_image $directory $non_active_image($led)] \
 		       -scale $invscale
 	}
+	
+	# Also try to load "frame.png"
+	set framefile [get_image $directory "frame.png"]
+	if [file exists $framefile] {
+		osd configure osd_frame -image $framefile
+	}
 
 	# If successful, store in settings (order of assignments is important!)
 	set ::__osd_leds_set $set_name
@@ -163,7 +183,8 @@ proc __trace_osd_led_vars {name1 name2 op} {
 set __leds "power caps kana pause turbo FDD"
 
 # create OSD widgets
-osd create rectangle osd_leds -scaled true -alpha 0
+osd create rectangle osd_frame -z 0 -x 0 -y 0 -w 320 -h 240 -scaled true
+osd create rectangle osd_leds -scaled true -alpha 0 -z 1
 foreach led $__leds {
 	osd create rectangle osd_leds.led_${led}_on  -alpha 0 -fadeTarget 0 -fadePeriod 5.0
 	osd create rectangle osd_leds.led_${led}_off -alpha 0 -fadeTarget 0 -fadePeriod 5.0
@@ -176,6 +197,7 @@ user_setting create string osd_leds_set "Name of the OSD LED icon set" set1
 user_setting create string osd_leds_pos "Position of the OSD LEDs" bottom
 set __osd_leds_set $osd_leds_set
 set __osd_leds_pos $osd_leds_pos
+set __ledtime 5
 trace add variable osd_leds_set write __trace_osd_led_vars
 trace add variable osd_leds_pos write __trace_osd_led_vars
 

@@ -205,24 +205,20 @@ void DirAsDSK::saveCache()
 			if (!mapdir[i].inUse()) continue;
 
 			// first save CACHE-ID=1,
-			// then filename, shortname and filessize in LE32 form
+			// then shortname and filessize in LE32 form
 			// and finally the dirindex and the MSXDirEntry for this entry
 			unsigned p = 0;
 			tmpbuf[p++] = CACHE_ID_DIR;
-			// TODO [wouter]: there's no need to store fullfilename
-			string fullfilename = hostDir + '/' + mapdir[i].shortname;
-			unsigned fs = fullfilename.size();
-			memcpy(&tmpbuf[p], fullfilename.c_str(), fs + 1);
-			p += fs + 1;
 			unsigned ss = mapdir[i].shortname.size();
 			memcpy(&tmpbuf[p], mapdir[i].shortname.c_str(), ss + 1);
 			p += ss + 1;
 			setLE32(&tmpbuf[p], mapdir[i].filesize);
 			p += 4;
-			// TODO [wouter]: Only one byte for direntry, this makes
-			//                it impossible to in the future extend
-			//                this to hard disk images
-			tmpbuf[p++] = i;
+			// Direntry as 32 bits number, this makes
+			// it possible to in the future extend
+			// this to reasonably big hard disk images
+			setLE32(&tmpbuf[p], i);
+			p += 4;
 			memcpy(&tmpbuf[p], &(mapdir[i].msxinfo), 32);
 			p += 32;
 			file.write(tmpbuf, p);
@@ -256,8 +252,7 @@ void DirAsDSK::saveCache()
 
 		// Now save sectors that are not directly related to a given file.
 		// always save fat and dir sectors
-		// TODO [wouter]: Shouldn't this be 'i < 14'?
-		for (unsigned i = 1; i <= 14; ++i) {
+		for (unsigned i = 1; i < 14; ++i) {
 			tmpbuf[0] = CACHE_ID_SECTOR;
 			setLE16(&tmpbuf[1], i);
 			file.write(tmpbuf, 3);
@@ -265,6 +260,7 @@ void DirAsDSK::saveCache()
 			file.write(tmpbuf, SECTOR_SIZE);
 		}
 
+		// And now the CACHED only sectors
 		for (CachedSectors::const_iterator it = cachedSectors.begin();
 		     it != cachedSectors.end(); ++it) {
 			// avoid MIXED sectors
@@ -643,7 +639,13 @@ void DirAsDSK::checkAlterFileInDisk(unsigned dirindex)
 		debug(" host os file deleted ? %s\n", mapdir[dirindex].shortname.c_str());
 		mapdir[dirindex].msxinfo.filename[0] = 0xE5;
 		mapdir[dirindex].shortname.clear();
-		// TODO [wouter]: Shouldn't we also clean the FAT?
+		// Since we do not clear the FAT (a real MSX doesn't either)
+		// and all data is cached in memmory you now can use MSX-DOS
+		// undelete tools to restore the file on your host-OS, using
+		// the 8.3 msx name of course :-)
+		//
+		// TODO: It might be a good idea to mark all the sectors as
+		// CACHED instead of MIXED since the original file is gone...
 	}
 }
 
@@ -1131,8 +1133,11 @@ void DirAsDSK:: updateFileFromAlteredFatOnly(unsigned somecluster)
 		writeFAT2(curcl, next);
 		curcl = next;
 	}
-	// TODO [wouter]: why also start from 'somecluster',
-	//                doesn't the loop above already take care of this?
+
+	// since the new FAT chain can be shorter (file size shrunk)
+	// we also start from 'somecluster', in such case
+	// the loop above doesn't take care of this, since it will 
+	// stop at the new EOF_FAT||curcl==0 condition
 	curcl = somecluster;
 	while ((curcl <= MAX_CLUSTER) && (curcl != EOF_FAT) && (curcl > 1)) {
 		unsigned next = readFAT(curcl);

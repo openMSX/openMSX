@@ -1,5 +1,11 @@
 $Id$
 
+2008-04-06 David Heremans <david.heremans@gnu-linux.net>
+	* New load_icons script:
+	   - Added suport for frame.png
+	   - Added time-before-fade-starts
+	* Some extra comments in the DirAsDisk
+
 2008-04-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added share/skins/Vera.ttf.gz:
 	   - also added support for compressed font files
