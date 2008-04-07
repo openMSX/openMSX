@@ -1,5 +1,8 @@
 $Id$
 
+2008-04-07 David Heremans <david.heremans@gnu-linux.net>
+	* Added a new 'fancy' skin
+
 2008-04-06 Alex Wulms
 	* Review unicodemaps for MSX models with 'international' font:
 	   - There were some errors in the maps. Especially for
