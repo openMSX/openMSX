@@ -35,36 +35,28 @@ proc __trace_led_status { name1 name2 op } {
 }
 
 proc __redraw_osd_leds { led } {
-	if [set ::${led}] {
+	global __ledtime __last_change $led
+
+	if [set ${led}] {
 		set widget osd_leds.${led}_on
 	} else {
 		set widget osd_leds.${led}_off
 	}
 
-	set ledtime $::__ledtime 
-	if {$ledtime == 0} {
+	if {$__ledtime == 0} {
 		# no fading yet
 		osd configure $widget -alpha 255 -fadeTarget 255
 	} else {
-		set diff [expr [openmsx_info realtime] - $::__last_change($led)]
-		if {$diff < $ledtime} {
+		set diff [expr [openmsx_info realtime] - $__last_change($led)]
+		if {$diff < $__ledtime} {
 			# no fading yet
 			osd configure $widget -alpha 255 -fadeTarget 255
-			after time [expr $ledtime - $diff] "__redraw_osd_leds $led"
+			after time [expr $__ledtime - $diff] "__redraw_osd_leds $led"
 		} else {
 			# fading out
 			osd configure $widget -fadeTarget 0
 		}
 	}
-}
-
-proc osd_object_created { osdobject } {
-        foreach i [ osd info ] {
-		if [ string equal "$i" "$osdobject"  ] {
-			return true
-		}
-	}
-	return false
 }
 
 proc load_icons { set_name { set_position "" } } {
@@ -94,7 +86,7 @@ proc load_icons { set_name { set_position "" } } {
 	set xspacing 60
 	set yspacing 35
 	set horizontal 1
-	set ::__ledtime 5
+	set ledtime 5
 	set scale 2
 
 	# but allow to override these values by the skin script
@@ -164,17 +156,11 @@ proc load_icons { set_name { set_position "" } } {
 	}
 	
 	# Also try to load "frame.png"
+	catch { osd destroy osd_frame }
 	set framefile [get_image $directory "frame.png"]
-	set created [ osd_object_created osd_frame ]
 	if [file exists $framefile] {
-		if { ! $created } {
-			osd create rectangle osd_frame -z 0 -x 0 -y 0 -w 320 -h 240 -scaled true
-		}
-		osd configure osd_frame -image $framefile
-	} else {
-		if { $created } {
-			osd destroy osd_frame
-		}
+		osd create rectangle osd_frame -z 0 -x 0 -y 0 -w 320 -h 240 \
+		                               -scaled true -image $framefile
 	}
 
 	# If successful, store in settings (order of assignments is important!)
@@ -182,6 +168,7 @@ proc load_icons { set_name { set_position "" } } {
 	set ::osd_leds_set $set_name
 	set ::__osd_leds_pos $set_position
 	set ::osd_leds_pos $set_position
+	set ::__ledtime $ledtime
 
 	return ""
 }
@@ -213,7 +200,6 @@ user_setting create string osd_leds_set "Name of the OSD LED icon set" set1
 user_setting create string osd_leds_pos "Position of the OSD LEDs" bottom
 set __osd_leds_set $osd_leds_set
 set __osd_leds_pos $osd_leds_pos
-set ::__ledtime 5
 trace add variable osd_leds_set write __trace_osd_led_vars
 trace add variable osd_leds_pos write __trace_osd_led_vars
 
