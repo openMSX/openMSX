@@ -58,6 +58,15 @@ proc __redraw_osd_leds { led } {
 	}
 }
 
+proc osd_object_created { osdobject } {
+        foreach i [ osd info ] {
+		if [ string equal "$i" "$osdobject"  ] {
+			return true
+		}
+	}
+	return false
+}
+
 proc load_icons { set_name { set_position "" } } {
 	# Check skin directory
 	set directory [data_file "skins/$set_name"]
@@ -156,8 +165,16 @@ proc load_icons { set_name { set_position "" } } {
 	
 	# Also try to load "frame.png"
 	set framefile [get_image $directory "frame.png"]
+	set created [ osd_object_created osd_frame ]
 	if [file exists $framefile] {
+		if { ! $created } {
+			osd create rectangle osd_frame -z 0 -x 0 -y 0 -w 320 -h 240 -scaled true
+		}
 		osd configure osd_frame -image $framefile
+	} else {
+		if { $created } {
+			osd destroy osd_frame
+		}
 	}
 
 	# If successful, store in settings (order of assignments is important!)
@@ -183,7 +200,6 @@ proc __trace_osd_led_vars {name1 name2 op} {
 set __leds "power caps kana pause turbo FDD"
 
 # create OSD widgets
-osd create rectangle osd_frame -z 0 -x 0 -y 0 -w 320 -h 240 -scaled true
 osd create rectangle osd_leds -scaled true -alpha 0 -z 1
 foreach led $__leds {
 	osd create rectangle osd_leds.led_${led}_on  -alpha 0 -fadeTarget 0 -fadePeriod 5.0
@@ -197,7 +213,7 @@ user_setting create string osd_leds_set "Name of the OSD LED icon set" set1
 user_setting create string osd_leds_pos "Position of the OSD LEDs" bottom
 set __osd_leds_set $osd_leds_set
 set __osd_leds_pos $osd_leds_pos
-set __ledtime 5
+set ::__ledtime 5
 trace add variable osd_leds_set write __trace_osd_led_vars
 trace add variable osd_leds_pos write __trace_osd_led_vars
 

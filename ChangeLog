@@ -1,5 +1,8 @@
 $Id$
 
+2008-04-08 David Heremans <david.heremans@gnu-linux.net>
+	* Fixed a bug in the load_icons script
+
 2008-04-07 David Heremans <david.heremans@gnu-linux.net>
 	* Added a new 'fancy' skin
 
