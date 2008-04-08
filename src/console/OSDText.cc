@@ -12,8 +12,12 @@
 #ifdef COMPONENT_GL
 #include "GLImage.hh"
 #endif
+#include <map>
 
 using std::string;
+using std::pair;
+using std::map;
+using std::make_pair;
 
 namespace openmsx {
 
@@ -30,12 +34,27 @@ private:
 class TTFFont
 {
 public:
-	TTFFont(std::string& font, int ptsize);
+	TTFFont(const std::string& font, int ptSize);
 	~TTFFont();
 	SDL_Surface* render(const string& text, byte r, byte g, byte b);
 
 private:
 	TTF_Font* font;
+};
+
+class TTFFontPool
+{
+public:
+	static TTFFontPool& instance();
+	TTFFont* get(const string& filename, int ptSize);
+	void release(TTFFont* font);
+
+private:
+	TTFFontPool();
+	~TTFFontPool();
+
+	typedef map<pair<string, int>, pair<TTFFont*, int> > Pool;
+	Pool pool;
 };
 
 
@@ -45,7 +64,13 @@ OSDText::OSDText(const OSDGUI& gui, const string& name)
 	: OSDImageBasedWidget(gui, name)
 	, fontfile("skins/Vera.ttf.gz")
 	, size(12)
+	, font(NULL)
 {
+}
+
+OSDText::~OSDText()
+{
+	invalidateLocal(); // release font
 }
 
 void OSDText::getProperties(std::set<std::string>& result) const
@@ -94,7 +119,10 @@ std::string OSDText::getProperty(const std::string& name) const
 
 void OSDText::invalidateLocal()
 {
-	font.reset();
+	if (font) {
+		TTFFontPool::instance().release(font);
+		font = NULL;
+	}
 	OSDImageBasedWidget::invalidateLocal();
 }
 
@@ -106,12 +134,12 @@ std::string OSDText::getType() const
 
 template <typename IMAGE> BaseImage* OSDText::create(OutputSurface& output)
 {
-	if (!font.get()) {
+	if (!font) {
 		try {
 			SystemFileContext context;
 			string file = context.resolve(fontfile);
-			int factor = getScaleFactor(output);
-			font.reset(new TTFFont(file, size * factor));
+			int ptSize = size * getScaleFactor(output);
+			font = TTFFontPool::instance().get(file, ptSize);
 		} catch (MSXException& e) {
 			throw MSXException("Couldn't open font: " + e.getMessage());
 		}
@@ -164,12 +192,12 @@ SDLTTF& SDLTTF::instance()
 
 // class TTFFont
 
-TTFFont::TTFFont(std::string& filename, int ptsize)
+TTFFont::TTFFont(const std::string& filename, int ptSize)
 {
 	SDLTTF::instance(); // init library
 
 	LocalFileReference file(filename);
-	font = TTF_OpenFont(file.getFilename().c_str(), ptsize);
+	font = TTF_OpenFont(file.getFilename().c_str(), ptSize);
 	if (!font) {
 		throw MSXException(TTF_GetError());
 	}
@@ -190,6 +218,52 @@ SDL_Surface* TTFFont::render(const string& text, byte r, byte g, byte b)
 	return surface;
 
 	// TODO for GP2X copy to a HW_Surface?
+}
+
+
+// class TTFFontPool
+
+TTFFontPool::TTFFontPool()
+{
+}
+
+TTFFontPool::~TTFFontPool()
+{
+	assert(pool.empty());
+}
+
+TTFFontPool& TTFFontPool::instance()
+{
+	static TTFFontPool oneInstance;
+	return oneInstance;
+}
+
+TTFFont* TTFFontPool::get(const string& filename, int ptSize)
+{
+	Pool::key_type key = make_pair(filename, ptSize);
+	Pool::iterator it = pool.find(key);
+	if (it != pool.end()) {
+		++(it->second.second);
+		return it->second.first;
+	}
+	TTFFont* font = new TTFFont(filename, ptSize);
+	pool.insert(make_pair(key, make_pair(font, 1)));
+	return font;
+}
+
+void TTFFontPool::release(TTFFont* font)
+{
+	for (Pool::iterator it = pool.begin(); it != pool.end(); ++it) {
+		if (it->second.first == font) {
+			--(it->second.second);
+			if (it->second.second == 0) {
+				delete it->second.first;
+				pool.erase(it);
+			}
+			return;
+		}
+	}
+	assert(false);
 }
 
 } // namespace openmsx

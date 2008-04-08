@@ -5,7 +5,6 @@
 
 #include "OSDImageBasedWidget.hh"
 #include "openmsx.hh"
-#include <memory>
 
 namespace openmsx {
 
@@ -15,6 +14,7 @@ class OSDText : public OSDImageBasedWidget
 {
 public:
 	OSDText(const OSDGUI& gui, const std::string& name);
+	~OSDText();
 
 	virtual void getProperties(std::set<std::string>& result) const;
 	virtual void setProperty(const std::string& name, const std::string& value);
@@ -30,7 +30,7 @@ private:
 	std::string text;
 	std::string fontfile;
 	int size;
-	std::auto_ptr<TTFFont> font;
+	TTFFont* font;
 };
 
 } // namespace openmsx
