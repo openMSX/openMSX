@@ -50,6 +50,8 @@ public:
 	                      std::vector<std::string>& result,
 	                      Tcl_Interp* interp);
 
+	Setting* getTraceSetting(std::string name);
+
 private:
 	// EventListener
 	virtual bool signalEvent(shared_ptr<const Event> event);
@@ -70,6 +72,8 @@ private:
 	typedef std::map<std::string, Tcl_Command> CommandTokenMap;
 	CommandTokenMap commandTokenMap;
 	InterpreterOutput* output;
+	typedef std::map<std::string, Setting*> TraceMap;
+	TraceMap traceMap;
 
 	friend class TclObject;
 };

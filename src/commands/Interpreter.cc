@@ -9,6 +9,7 @@
 #include "InterpreterOutput.hh"
 #include "openmsx.hh"
 #include "FileOperations.hh"
+#include "StringOp.hh"
 //#include <tk.h>
 
 using std::set;
@@ -238,26 +239,66 @@ void Interpreter::registerSetting(Setting& variable, const string& name)
 		// define TCL var
 		setVariable(name, variable.getValueString());
 	}
+	traceMap[name] = &variable;
 	Tcl_TraceVar(interp, name.c_str(),
 	             TCL_TRACE_READS | TCL_TRACE_WRITES | TCL_TRACE_UNSETS,
-	             traceProc, static_cast<ClientData>(&variable));
+	             traceProc, static_cast<ClientData>(this));
 }
 
 void Interpreter::unregisterSetting(Setting& variable, const string& name)
 {
 	Tcl_UntraceVar(interp, name.c_str(),
 	               TCL_TRACE_READS | TCL_TRACE_WRITES | TCL_TRACE_UNSETS,
-	               traceProc, static_cast<ClientData>(&variable));
+	               traceProc, static_cast<ClientData>(this));
+	traceMap.erase(name);
 	unsetVariable(name);
+}
+
+Setting* Interpreter::getTraceSetting(string name)
+{
+	StringOp::trimLeft(name, ":");
+	TraceMap::const_iterator it = traceMap.find(name);
+	return (it != traceMap.end()) ? it->second : NULL;
 }
 
 char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
                            const char* part1, const char* /*part2*/, int flags)
 {
 	try {
-		static string static_string;
+		// Lookup Setting object that belongs to this Tcl variable.
+		//
+		// In a previous implementation we passed this object directly
+		// as the clientData. However this went wrong in the following
+		// scenario:
+		//
+		//    proc foo {} { carta eject ; carta spmanbow.rom }
+		//    bind Q foo
+		//    [press Q twice]
+		//
+		// The problem is that when a SCC cartridge is removed, we
+		// delete several settings (e.g. SCC_ch1_mute). While deleting
+		// a setting we unset the corresponsing Tcl variable (see
+		// unregisterSetting() above), this in turn triggers a
+		// TCL_TRACE_UNSET callback (this function). To prevent this
+		// callback from triggering we first remove the trace before
+		// unsetting the variable. However it seems when a setting is
+		// deleted from within an active Tcl proc (like in the example
+		// above), the callback is anyway triggered, but only at the
+		// end of the proc (so in the foo proc above, the settings
+		// are deleted after the first statement, but the callbacks
+		// only happen after the second statement). By that time the
+		// Setting object is already deleted and the callback function
+		// works on a deleted object.
+		//
+		// To prevent this we don't anymore pass a pointer to the
+		// Setting object as clientData, but we lookup the Setting in
+		// a map. If the Setting was deleted, we won't find it anymore
+		// in the map and return.
 
-		Setting* variable = static_cast<Setting*>(clientData);
+		static string static_string;
+		Interpreter* interpreter = static_cast<Interpreter*>(clientData);
+		Setting* variable = interpreter->getTraceSetting(part1);
+		if (!variable) return NULL;
 
 		if (flags & TCL_TRACE_READS) {
 			Tcl_SetVar(interp, part1,
@@ -297,7 +338,7 @@ char* Interpreter::traceProc(ClientData clientData, Tcl_Interp* interp,
 			Tcl_TraceVar(interp, part1, TCL_TRACE_READS |
 			                TCL_TRACE_WRITES | TCL_TRACE_UNSETS,
 			             traceProc,
-			             static_cast<ClientData>(variable));
+			             static_cast<ClientData>(interpreter));
 		}
 	} catch (...) {
 		assert(false); // we cannot let exceptions pass through TCL
