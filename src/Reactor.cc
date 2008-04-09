@@ -359,8 +359,19 @@ MSXMotherBoard& Reactor::prepareMotherBoard(const string& machine)
 	if (activeBoard.get()) {
 		Boards::iterator it = find(boards.begin(), boards.end(),
 		                           activeBoard);
-		assert(it != boards.end());
-		boards.erase(it); // only gets deleted after switch
+		if (it != boards.end()) {
+			boards.erase(it); // only gets deleted after switch
+		} else {
+			// Possible when we already switch to a new machine
+			// before the previous switch was complete (switching
+			// machines requires the mainloop to run). It's easy
+			// to trigger like this:
+			//    machine msx1 ; machine msx2
+			assert(needSwitch);
+			it = find(boards.begin(), boards.end(), switchBoard);
+			assert(it != boards.end());
+			boards.erase(it);
+		}
 	}
 
 	prepareSwitch(tmp);
