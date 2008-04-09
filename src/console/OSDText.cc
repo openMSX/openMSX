@@ -12,6 +12,7 @@
 #ifdef COMPONENT_GL
 #include "GLImage.hh"
 #endif
+#include <cassert>
 #include <map>
 
 using std::string;
