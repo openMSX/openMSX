@@ -304,6 +304,11 @@ string CartCmd::execute(const vector<string>& tokens, const EmuTime& /*time*/)
 			options.push_back(tokens[i]);
 		}
 		try {
+			if (const ExtensionConfig* extConf =
+			               getExtensionConfig(cartname)) {
+				// still a cartridge inserted, (try to) remove it now
+				manager.motherBoard.removeExtension(*extConf);
+			}
 			ExtensionConfig& extension =
 				manager.motherBoard.loadRom(
 					tokens[extensionNameToken], slotname, options);
