@@ -247,8 +247,18 @@ void DiskCommand::execute(const vector<TclObject*>& tokens, TclObject& result)
 			vector<string> args;
 			args.push_back(diskChanger.getDriveName());
 			for (unsigned i = firstFileToken; i < tokens.size(); ++i) {
-				args.push_back(context.resolve(
-					tokens[i]->getString()));
+				string option = tokens[i]->getString();
+				if (option == "-ips") {
+					if (++i == tokens.size()) {
+						throw MSXException(
+							"Missing argument for option \"" + option + "\"");
+					}
+					args.push_back(context.resolve(
+						tokens[i]->getString()));
+				} else {
+					// backwards compatibility
+					args.push_back(context.resolve(option));
+				}
 			}
 			diskChanger.sendChangeDiskEvent(args);
 		} catch (FileException& e) {
