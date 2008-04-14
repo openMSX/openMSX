@@ -618,12 +618,6 @@ template <class T> inline void CPUCore<T>::executeInstruction1(byte opcode)
 	(*opcode_main[opcode])(*this);
 }
 
-template <class T> inline void CPUCore<T>::executeInstruction()
-{
-	byte opcode = RDMEM_OPCODE();
-	executeInstruction1(opcode);
-}
-
 template <class T> inline void CPUCore<T>::cpuTracePre()
 {
 	start_pc = R.getPC();
@@ -654,7 +648,10 @@ template <class T> void CPUCore<T>::cpuTracePost_slow()
 template <class T> inline void CPUCore<T>::executeFast()
 {
 	T::R800Refresh();
-	executeInstruction();
+	byte opcode = RDMEM_OPCODE();
+	//executeInstruction1(opcode);
+	M1Cycle();
+	(*opcode_main[opcode])(*this);
 }
 
 template <class T> void CPUCore<T>::executeSlow()
@@ -688,11 +685,6 @@ template <class T> void CPUCore<T>::executeSlow()
 }
 
 template <class T> void CPUCore<T>::execute()
-{
-	executeInternal();
-}
-
-template <class T> void CPUCore<T>::executeInternal()
 {
 	assert(!breaked);
 

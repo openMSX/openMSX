@@ -152,8 +152,6 @@ private:
 	void WR_WORD_rev_slow(unsigned address, unsigned value);
 
 	inline void M1Cycle();
-	inline void executeInternal();
-	inline void executeInstruction();
 	inline void executeInstruction1(byte opcode);
 	inline void nmi();
 	inline void irq0();
