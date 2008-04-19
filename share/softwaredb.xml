@@ -8,7 +8,7 @@
 	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
-<softwaredb xml:lang="en" timestamp="1208624755">
+<softwaredb xml:lang="en" timestamp="1208628493">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -8289,22 +8289,6 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Knightmare</title>
-		<system>MSX</system>
-		<company>Konami</company>
-		<year>1998</year>
-		<country>JP</country>
-		<dump>
-			<original value="false"/>
-			<rom>
-				<hash algo="sha1">6448AA090D95AB42E8A63F52CD12E40C39521AA0</hash>
-				<remark>
-					<text>Konami Antiques MSX Collection 2</text>
-				</remark>
-			</rom>
-		</dump>
-	</software>
-	<software>
 		<title xml:lang="en">Knightmare II - The Maze of Galious</title>
 		<system>MSX</system>
 		<company>Konami</company>
@@ -8523,13 +8507,6 @@
 				<hash algo="sha1">f9c85b434839f844072dc73abc8d16c930013f3f</hash>
 			</rom>
 		</dump>
-	</software>
-	<software>
-		<title xml:lang="en">Konami&#39;s Billiards</title>
-		<system>MSX</system>
-		<company>Konami</company>
-		<year>1998</year>
-		<country>JP</country>
 		<dump>
 			<original value="false"/>
 			<rom>
@@ -9579,6 +9556,15 @@
 				<hash algo="sha1">f795668afe66c7d88e51f5a22471e2c0a42c7ffb</hash>
 			</sccpluscart>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">6448AA090D95AB42E8A63F52CD12E40C39521AA0</hash>
+				<remark>
+					<text>Konami Antiques MSX Collection 2</text>
+				</remark>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Malaika</title>
@@ -10356,22 +10342,6 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Mopi Ranger</title>
-		<system>MSX</system>
-		<company>Konami</company>
-		<year>1997</year>
-		<country>JP</country>
-		<dump>
-			<original value="false"/>
-			<rom>
-				<hash algo="sha1">9D8029AAFC4125AF7F151F377978389963432D49</hash>
-				<remark>
-					<text>Konami Antiques MSX Collection 1</text>
-				</remark>
-			</rom>
-		</dump>
-	</software>
-	<software>
 		<title xml:lang="en">Mopiranger</title>
 		<system>MSX</system>
 		<company>Konami</company>
@@ -10411,6 +10381,15 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">1b3059c7873765a476fb7791a4d6fc846ab05ade</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">9D8029AAFC4125AF7F151F377978389963432D49</hash>
+				<remark>
+					<text>Konami Antiques MSX Collection 1</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -16572,22 +16551,6 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Yie Ar Kung-Fu 2</title>
-		<system>MSX</system>
-		<company>Konami</company>
-		<year>1998</year>
-		<country>JP</country>
-		<dump>
-			<original value="false"/>
-			<rom>
-				<hash algo="sha1">3136BEE4C7D4D20C1A5BA49516FC9499F405A5BF</hash>
-				<remark>
-					<text>Konami Antiques MSX Collection 2</text>
-				</remark>
-			</rom>
-		</dump>
-	</software>
-	<software>
 		<title xml:lang="en">Yie Ar Kung-Fu II - The Emperor Yie-Gah</title>
 		<system>MSX</system>
 		<company>Konami</company>
@@ -16639,6 +16602,15 @@
 				<boot>scc+</boot>
 				<hash algo="sha1">b27a3e67215aadc9bafd80f184c6be0b26731076</hash>
 			</sccpluscart>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">3136BEE4C7D4D20C1A5BA49516FC9499F405A5BF</hash>
+				<remark>
+					<text>Konami Antiques MSX Collection 2</text>
+				</remark>
+			</rom>
 		</dump>
 	</software>
 	<software>
@@ -24786,8 +24758,8 @@
 	</software>
 </softwaredb>
 <!--
-Roms in this database 			: 2316
+Roms in this database 		: 2316
 Good MSX entries 				: 755
 SHA1 values 					: 2316
-Parse time 6.858 seconds on Sat Apr 19 19:06:01 CEST 2008
+Parse time 6.922 seconds on Sat Apr 19 20:08:20 CEST 2008
  -->
