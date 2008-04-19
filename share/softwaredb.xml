@@ -8,7 +8,7 @@
 	© 2005 Patrick van Arkel	(Webscripting and adding values)		 		
   A special thanks to both the blueMSX and openMSX team for their support		
 -->
-<softwaredb xml:lang="en" timestamp="1207412816">
+<softwaredb xml:lang="en" timestamp="1208624755">
 <!-- MSX1 roms -->
 	<software>
 		<title xml:lang="en">10 Yard Fight</title>
@@ -532,7 +532,7 @@
 		</dump>
 	</software>
 	<software>
-		<title xml:lang="en">Antartic Adventure</title>
+		<title xml:lang="en">Antarctic Adventure</title>
 		<system>MSX</system>
 		<company>Konami</company>
 		<year>1984</year>
@@ -613,6 +613,15 @@
 				<boot>scc+</boot>
 				<hash algo="sha1">e1c7169bd44a3c67f2941a14699b954d7e337d29</hash>
 			</sccpluscart>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">C7AF3306DBAE898FCC077492CC4574298951DF34</hash>
+				<remark>
+					<text>Konami Antiques MSX Collection 1</text>
+				</remark>
+			</rom>
 		</dump>
 	</software>
 	<software>
@@ -3158,12 +3167,6 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">76461e053178371aeb457588233cbfccd0d6c02a</hash>
-			</rom>
-		</dump>
-		<dump>
-			<original value="false"/>
-			<rom>
-				<hash algo="sha1">fc6660a202dbd228c9e0d7c404340d1dcc1e2844</hash>
 			</rom>
 		</dump>
 	</software>
@@ -5749,6 +5752,16 @@
 				</remark>
 			</megarom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>KonamiSCC</type>
+				<hash algo="sha1">EDC238C1EB254CBF90F1DFDC276FF7CCC93A940E</hash>
+				<remark>
+					<text>Konami Antiques MSX Collection 1</text>
+				</remark>
+			</megarom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Gokiburi Daisakusen - Bug Bomb</title>
@@ -6046,6 +6059,25 @@
 				<hash algo="sha1">1434386454c776800cba3805c4041b0105c2f71f</hash>
 			</sccpluscart>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Konami</type>
+				<hash algo="sha1">F4A1E82C533677ED9923B11A0B970264D9ECF8CA</hash>
+				<remark>
+					<text>Konami Antiques MSX Collection 1</text>
+				</remark>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">30A7F3EA1612F20C0F62B1A121BC7D79AE515E89</hash>
+				<remark>
+					<text>Konami Antiques MSX Collection 1</text>
+				</remark>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Gradius 2 - Nemesis 2</title>
@@ -6104,6 +6136,16 @@
 				<hash algo="sha1">4c15375910461a7a34a2fd54c7f51e712f06bc69</hash>
 				<remark>
 					<text>Ulver crack</text>
+				</remark>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>KonamiSCC</type>
+				<hash algo="sha1">76666DA5870D1901026E3DDED3F22CE7A706689D</hash>
+				<remark>
+					<text>Konami Antiques MSX Collection 2</text>
 				</remark>
 			</megarom>
 		</dump>
@@ -7243,6 +7285,15 @@
 				<hash algo="sha1">fcd563fe7ccb293be1f1adb0da7d6f0da8fc7e2e</hash>
 			</sccpluscart>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">CF7260443F814C57619A862F82162FE3E12369E1</hash>
+				<remark>
+					<text>Konami Antiques MSX Collection 1</text>
+				</remark>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Hyper Sports 3</title>
@@ -7278,6 +7329,15 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">3d45014accbee7c0df798a7c77771666f863dfd5</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">00F6E7EFBB5A50B66723A3130009A96D8A588363</hash>
+				<remark>
+					<text>Konami Antiques MSX Collection 2</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -8229,6 +8289,22 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Knightmare</title>
+		<system>MSX</system>
+		<company>Konami</company>
+		<year>1998</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">6448AA090D95AB42E8A63F52CD12E40C39521AA0</hash>
+				<remark>
+					<text>Konami Antiques MSX Collection 2</text>
+				</remark>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Knightmare II - The Maze of Galious</title>
 		<system>MSX</system>
 		<company>Konami</company>
@@ -8449,6 +8525,22 @@
 		</dump>
 	</software>
 	<software>
+		<title xml:lang="en">Konami&#39;s Billiards</title>
+		<system>MSX</system>
+		<company>Konami</company>
+		<year>1998</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">FC6660A202DBD228C9E0D7C404340D1DCC1E2844</hash>
+				<remark>
+					<text>Konami Antiques MSX Collection 2</text>
+				</remark>
+			</rom>
+		</dump>
+	</software>
+	<software>
 		<title xml:lang="en">Konami&#39;s Boxing</title>
 		<system>MSX</system>
 		<company>Konami</company>
@@ -8516,6 +8608,15 @@
 				<boot>scc+</boot>
 				<hash algo="sha1">ae24f03a969bfc7394b9620c8f227ae97627a7ce</hash>
 			</sccpluscart>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">4569C02E59FB9D7A42D6A0296D821BC7AE7E338D</hash>
+				<remark>
+					<text>Konami Antiques MSX Collection 1</text>
+				</remark>
+			</rom>
 		</dump>
 	</software>
 	<software>
@@ -8660,6 +8761,15 @@
 				<hash algo="sha1">d9634296511c599852aff0c6b9993509bcbc3bef</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">1FB821D2007B28FD6A05974454F5BF8767B106AC</hash>
+				<remark>
+					<text>Konami Antiques MSX Collection 2</text>
+				</remark>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Konami&#39;s Mahjong Dojo</title>
@@ -8716,6 +8826,15 @@
 				<hash algo="sha1">5e1a50affe1fa973f69e423a8827751b93fc53ee</hash>
 			</rom>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">0FF688433D7AD075FB22AC92AC8F1B883C7A9AE4</hash>
+				<remark>
+					<text>Konami Antiques MSX Collection 1</text>
+				</remark>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Konami&#39;s Soccer</title>
@@ -8745,6 +8864,15 @@
 			<original value="false"/>
 			<rom>
 				<hash algo="sha1">79c1bf77c08b733ae04e069deaf25fd24b28beb7</hash>
+			</rom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">34019D5BC3687EC1255FD7AD7571830A67241DDD</hash>
+				<remark>
+					<text>Konami Antiques MSX Collection 3</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -10224,6 +10352,22 @@
 			<original value="true">GoodMSX</original>
 			<rom>
 				<hash algo="sha1">d1cf5410ed71f77670f65eb08ee944436bc0eb10</hash>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Mopi Ranger</title>
+		<system>MSX</system>
+		<company>Konami</company>
+		<year>1997</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">9D8029AAFC4125AF7F151F377978389963432D49</hash>
+				<remark>
+					<text>Konami Antiques MSX Collection 1</text>
+				</remark>
 			</rom>
 		</dump>
 	</software>
@@ -12869,6 +13013,15 @@
 				<hash algo="sha1">cc15f65d607a573e0bcd23abe9d0d825e05deb10</hash>
 			</sccpluscart>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">5C947B82CF81A03674671B663697C9B79546C1EE</hash>
+				<remark>
+					<text>Konami Antiques MSX Collection 1</text>
+				</remark>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Robofrog</title>
@@ -13735,6 +13888,15 @@
 				<boot>scc+</boot>
 				<hash algo="sha1">ac4facb517e2383b4cb22504cda961b15af0a83e</hash>
 			</sccpluscart>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">C55B0DAF698D93B8278A9D89F38272064D1594BD</hash>
+				<remark>
+					<text>Konami Antiques MSX Collection 1</text>
+				</remark>
+			</rom>
 		</dump>
 	</software>
 	<software>
@@ -16399,6 +16561,31 @@
 				<hash algo="sha1">0f81ebbd3d02796500b3f862fe1a8d584fb228d3</hash>
 			</sccpluscart>
 		</dump>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">176C82D969A8BEF171BDC2B7915201957F43B260</hash>
+				<remark>
+					<text>Konami Antiques MSX Collection 1</text>
+				</remark>
+			</rom>
+		</dump>
+	</software>
+	<software>
+		<title xml:lang="en">Yie Ar Kung-Fu 2</title>
+		<system>MSX</system>
+		<company>Konami</company>
+		<year>1998</year>
+		<country>JP</country>
+		<dump>
+			<original value="false"/>
+			<rom>
+				<hash algo="sha1">3136BEE4C7D4D20C1A5BA49516FC9499F405A5BF</hash>
+				<remark>
+					<text>Konami Antiques MSX Collection 2</text>
+				</remark>
+			</rom>
+		</dump>
 	</software>
 	<software>
 		<title xml:lang="en">Yie Ar Kung-Fu II - The Emperor Yie-Gah</title>
@@ -16580,6 +16767,16 @@
 				<hash algo="sha1">4f35f676d2f382078078343921374c2889d06e11</hash>
 				<remark>
 					<text>Ulver full crack</text>
+				</remark>
+			</megarom>
+		</dump>
+		<dump>
+			<original value="false"/>
+			<megarom>
+				<type>Konami</type>
+				<hash algo="sha1">05A531043D13BA261B0DB37E4EF8B257986CE05F</hash>
+				<remark>
+					<text>Konami Antiques MSX Collection 3</text>
 				</remark>
 			</megarom>
 		</dump>
@@ -24589,8 +24786,8 @@
 	</software>
 </softwaredb>
 <!--
-Roms in this database 			: 2298
+Roms in this database 			: 2316
 Good MSX entries 				: 755
-SHA1 values 					: 2298
-Parse time 7.456 seconds on Sat Apr 5 18:27:03 CEST 2008
+SHA1 values 					: 2316
+Parse time 6.858 seconds on Sat Apr 19 19:06:01 CEST 2008
  -->
