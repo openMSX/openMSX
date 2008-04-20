@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE softwaredb SYSTEM "softwaredb1.dtd">
 <!--
-The romdb.xml file contains information about rom mapper types
+The softwaredb.xml file contains information about rom mapper types
 Copyright 2004-2008 Benoit Delvaux		(Database Administrator)
 Copyright 2003 Nicolas Beyaert			(Initial Database)
 Copyright 2005-2008 Patrick van Arkel 	(Database Administrator)
 A special thanks to both the blueMSX and openMSX team for their support
 -->
-<softwaredb xml:lang="en" timestamp="1208655524">
+<softwaredb xml:lang="en" timestamp="1208676746">
 <!-- MSX Rom Info -->
 <software>
 	<title xml:lang="en">1 2 3</title>
@@ -415,23 +415,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1985</year>
 	<country>MA</country>
 		<dump><original value="false"/><rom><hash algo="sha1">6b4b099fa7a87c5059ebb40da3089d0d61967644</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Arabic MSX2 Basic + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1987</year>
-	<country>MA</country>
-		<dump><original value="false"/><System><hash algo="sha1">35195ab67c289a0b470883464df66bc6ea5b00d3</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Arabic MSX2 Firmware</title>
-	<system>MSX</system>
-	<company>al Alamiah</company>
-	<year>1987</year>
-	<country>MA</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">2c9600c6e0025fee10d249e97448ecaa37e38c42</hash></rom></dump>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">f8cd4c05083decfc098cff077e055a4ae1e91a73</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Aramo</title>
@@ -1099,38 +1082,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">208ce6cbff7402bfe52b1062e6b10ae09c0a3179</hash></rom></dump>
 </software>
 <software>
-	<title xml:lang="en">Brazilian MSX2 Basic + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1989</year>
-	<country>BR</country>
-		<dump><original value="false"/><System><hash algo="sha1">9c43106dba3ae2829e9a11dffa9d000ed6d6454c</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Brazilian MSX2 Bios Extension</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1989</year>
-	<country>BR</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">4f2a7e0172f0214f025f23845f6e053d0ffd28e8</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">Brazilian MSX2+ Basic + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1990</year>
-	<country>BR</country>
-		<dump><original value="false"/><System><hash algo="sha1">1fc2306911ab6e1ebdf7cb8c3c34a7f116414e88</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Brazilian MSX2+ Bios Extension</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1990</year>
-	<country>BR</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">d5528825c7eea2cfeadd64db1dbdbe1344478fc6</hash></systemrom></dump>
-</software>
-<software>
 	<title xml:lang="en">Break In</title>
 	<system>MSX</system>
 	<company>Jaleco</company>
@@ -1267,14 +1218,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1987</year>
 	<country>JP</country>
 		<dump><original value="false"/><rom><hash algo="sha1">e997d8f02e413d2df5aed2bf7e79986c4c851d34</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Canon V-20/JVC HC-7GB/Mitsubishi ML-F80/Sanyo MPC-100/Sony HB-75P MSX1 Basic + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1983</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">8963fc041975f31dc2ab1019cfdd4967999de53e</hash></System></dump>
 </software>
 <software>
 	<title xml:lang="en">Caos Begins</title>
@@ -1572,14 +1515,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">20ce189d670c0fe5f2a945d73107df7d83070ff7</hash></rom></dump>
 </software>
 <software>
-	<title xml:lang="en">CIEL Disk-Basic</title>
-	<system>MSX</system>
-	<company>CIEL</company>
-	<year>19xx</year>
-	<country>BR</country>
-		<dump><original value="false"/><System><hash algo="sha1">0274dd9b5096065a7f4ed019101124c9bd1d56b8</hash></System></dump>
-</software>
-<software>
 	<title xml:lang="en">Circus Charlie</title>
 	<system>MSX</system>
 	<company>Konami</company>
@@ -1768,14 +1703,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">09cc29b413dc7b8747420615bf798169ae68ad14</hash></rom></dump>
 </software>
 <software>
-	<title xml:lang="en">Conector Inform&#225;tica DMX 1.2 Disk-Basic</title>
-	<system>MSX</system>
-	<company>Conector Inform&#225;tica</company>
-	<year>19xx</year>
-	<country>BR</country>
-		<dump><original value="false"/><System><hash algo="sha1">a3028515ed829e900cc8deb403e17b09a38bf9b0</hash></System></dump>
-</software>
-<software>
 	<title xml:lang="en">Confused ?</title>
 	<system>MSX</system>
 	<company>Bytebusters</company>
@@ -1938,95 +1865,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2006</year>
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">3574a6dc954579341934452feb141859b7cfa3bc</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Daewoo CPC-300 MSX2 Bios Extension</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1986</year>
-	<country>KR</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">fb51c505adfbc174df94289fa894ef969f5357bc</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">Daewoo CPC-300 MSX2 Hangul/MSX-Tutor</title>
-	<system>MSX</system>
-	<company>Qnix</company>
-	<year>1986</year>
-	<country>KR</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">47a9d9a24e4fc6f9467c6e7d61a02d45f5a753ef</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Daewoo CPC-300/400/400S MSX2 Basic + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1986</year>
-	<country>KR</country>
-		<dump><original value="false"/><System><hash algo="sha1">affa3c5cd8db79a1450ad8a7f405a425b251653d</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Daewoo CPC-400 Hangul Font</title>
-	<system>MSX</system>
-	<company>Qnix</company>
-	<year>1987</year>
-	<country>KR</country>
-		<dump><original value="false"/><System><hash algo="sha1">965f4982790f1817bcbabbb38c8777183b231a55</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Daewoo CPC-400 MSX2 Hangul-Basic</title>
-	<system>MSX</system>
-	<company>Qnix</company>
-	<year>1987</year>
-	<country>KR</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">87936f808423dddfd00629056d6807b4be1dc63e</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Daewoo CPC-400/400S Disk-Basic</title>
-	<system>MSX</system>
-	<company>Daewoo</company>
-	<year>1987</year>
-	<country>KR</country>
-		<dump><original value="false"/><System><hash algo="sha1">914f6ccb25d78621186001f2f5e2aaa2d628cd0c</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Daewoo CPC-400/400S MSX2 Bios Extension</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1987</year>
-	<country>KR</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">b6d3649a6647fa9f6bd61efc317485a20901128f</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">Daewoo CPC-400S Hangul Font</title>
-	<system>MSX</system>
-	<company>Qnix</company>
-	<year>1987</year>
-	<country>KR</country>
-		<dump><original value="false"/><System><hash algo="sha1">30fff22e3e3d464993707488442721a5e56a9707</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Daewoo CPC-400S MSX2 Hangul-Basic</title>
-	<system>MSX</system>
-	<company>Qnix</company>
-	<year>1987</year>
-	<country>KR</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">6a50295ea35e720ba6f4ba5616c3441128b384ed</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Daewoo DPC-100/180/200 MSX1 Basic + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1983</year>
-	<country>KR</country>
-		<dump><original value="false"/><System><hash algo="sha1">171b587bd5a947a13f3114120b6e7baca3b57d78</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Daewoo DPC-100/180/200 MSX1 Hangul</title>
-	<system>MSX</system>
-	<company>Qnix</company>
-	<year>1984</year>
-	<country>KR</country>
-		<dump><original value="false"/><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">d41676fde0a3047792f93c4a41509b8749e55e74</hash></rom></dump>
-		<dump><original value="false"/><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">4421fa2504cbce18f7c84b5ea97f04e017007f07</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Daidasso - Great Escape</title>
@@ -2192,54 +2030,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><rom><hash algo="sha1">e3391daab17710b3f34c70f60ac6c8bfea15b6cc</hash></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">6e2e5cff4ee4dd935fbe6684f2c54b39eca06092</hash></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">c1376facb3db0124f0557a95684d3059a3043fec</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Digital Design Electr&#244;nica DDX 1.0 Disk-Basic</title>
-	<system>MSX</system>
-	<company>Digital Design</company>
-	<year>19xx</year>
-	<country>BR</country>
-		<dump><original value="false"/><System><hash algo="sha1">85463e6fd7e51d48fb123cbabfcd4fd2c6bcf28d</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Digital Design Electr&#244;nica DDX 3.0 Disk-Basic</title>
-	<system>MSX</system>
-	<company>Digital Design</company>
-	<year>19xx</year>
-	<country>BR</country>
-		<dump><original value="false"/><System><hash algo="sha1">124126cee840e43c7668c11c2bec2f34b3d00c68</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Digital Design Electr&#244;nica DDX 3.0c Disk-Basic</title>
-	<system>MSX</system>
-	<company>Digital Design</company>
-	<year>19xx</year>
-	<country>BR</country>
-		<dump><original value="false"/><System><hash algo="sha1">aace4ef0766ec75297cf1945fe81de4e9c0a2b0f</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Digital Design Electr&#244;nica DDX 3.0d Disk-Basic</title>
-	<system>MSX</system>
-	<company>Digital Design</company>
-	<year>19xx</year>
-	<country>BR</country>
-		<dump><original value="false"/><System><hash algo="sha1">a363015286341ffabcdc38ef0d890897ed51e322</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Digital Design Electr&#244;nica DDX 3.0e Disk-Basic</title>
-	<system>MSX</system>
-	<company>Digital Design</company>
-	<year>19xx</year>
-	<country>BR</country>
-		<dump><original value="false"/><System><hash algo="sha1">57f099e453a1e02ea474afa0d733f2c41cdbcad8</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Digital Design Electr&#244;nica DDX 3.0f Disk-Basic</title>
-	<system>MSX</system>
-	<company>Digital Design</company>
-	<year>19xx</year>
-	<country>BR</country>
-		<dump><original value="false"/><System><hash algo="sha1">c518232e8e59ab433243ab2af546afd22cc7bf26</hash></System></dump>
 </software>
 <software>
 	<title xml:lang="en">Digital Devil Story - Monogatari Megami Tensei</title>
@@ -2694,14 +2484,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><megarom><type>KoeiSRAM32</type><hash algo="sha1">475c3af7495922759a5f424d2e22d7e4073d5992</hash></megarom></dump>
 </software>
 <software>
-	<title xml:lang="en">European MSX Basic + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1983</year>
-	<country>GB</country>
-		<dump><original value="false"/><System><hash algo="sha1">409e82adac40f6bdd18eb6c84e8b2fbdc7fb5498</hash></System></dump>
-</software>
-<software>
 	<title xml:lang="en">Exchanger</title>
 	<system>MSX</system>
 	<company>Ascii</company>
@@ -3092,36 +2874,12 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">7c2743df543c0d8a4ba7e42bf7db580b996d102e</hash></rom></dump>
 </software>
 <software>
-	<title xml:lang="en">FM Pana Amusement Cartridge</title>
-	<system>MSX</system>
-	<company>PanaSoft</company>
-	<year>1988</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><System><hash algo="sha1">9d789166e3caf28e4742fe933d962e99618c633d</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">FM Stereo PAK</title>
-	<system>MSX</system>
-	<company>Checkmark</company>
-	<year>1989</year>
-	<country>NL</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">19BF90B8D2E695FFAD61FFF6F47F7FCDA2F24A1D</hash></systemrom></dump>
-</software>
-<software>
 	<title xml:lang="en">FM Voicing Program</title>
 	<system>MSX</system>
 	<company>Yamaha</company>
 	<year>1985</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">e4c8f3b87d755c21572040c51cec1431ae59a0be</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">FMPAC</title>
-	<system>MSX</system>
-	<company>-</company>
-	<year>19xx</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">7b11f3332c053f1975b16c70a70cd6a42cc57959</hash></System></dump>
 </software>
 <software>
 	<title xml:lang="en">Formation Z</title>
@@ -3473,14 +3231,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">30e3681be376a76cf9e0f89e54555a7631759e15</hash></rom></dump>
 </software>
 <software>
-	<title xml:lang="en">Goldstar FC-200/Philips VG-8020/Toshiba HX-20 MSX1 Basic + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1983</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">829c00c3114f25b3dae5157c0a238b52a3ac37db</hash></System></dump>
-</software>
-<software>
 	<title xml:lang="en">Golf Game</title>
 	<system>MSX</system>
 	<company>Ascii</company>
@@ -3566,31 +3316,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">eadf124b91b996b890b1ae84b75b21ee6568d1f3</hash></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">dc49e2ac9985a417078412cc09fe7270033ffb17</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Gradiente Expert 1.0 MSX1 Basic + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1985</year>
-	<country>BR</country>
-		<dump><original value="false"/><System><hash algo="sha1">ef3e010eb57e4476700a3bbff9d2119ab3acdf62</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Gradiente Expert 1.1/Plus/DDPlus MSX1 Basic + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1985</year>
-	<country>BR</country>
-		<dump><original value="false"/><System><hash algo="sha1">d6720845928ee848cfa88a86accb067397685f02</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Gradiente Expert Plus Demo</title>
-	<system>MSX</system>
-	<company>Gradiente</company>
-	<year>1989</year>
-	<country>BR</country>
-		<dump><original value="false"/><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">d4cea8c815f3eeabe0c6a1c845f902ec4318bf6b</hash></rom></dump>
-		<dump><original value="false"/><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">91e22b727002ceeb0cf5fb1019a0c907c3cd24a5</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Gradius - Nemesis</title>
@@ -5199,14 +4924,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><rom><hash algo="sha1">73938f51fcb26349aa17e1ae1f1bd43b20ef227b</hash></rom></dump>
 </software>
 <software>
-	<title xml:lang="en">Liftrom Inform&#225;tica 2.7 Disk-Basic</title>
-	<system>MSX</system>
-	<company>Liftrom Inform&#225;tica</company>
-	<year>1989</year>
-	<country>BR</country>
-		<dump><original value="false"/><System><hash algo="sha1">3c86f9aa84febfe49c1b2cd35442a46a172b5493</hash></System></dump>
-</software>
-<software>
 	<title xml:lang="en">Light Corridor, The</title>
 	<system>MSX</system>
 	<company>unkown</company>
@@ -5655,28 +5372,12 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>KonamiSCC</type><hash algo="sha1">3a0b0bdd77a1f3a11533f5ef030370bcc90c6334</hash></megarom></dump>
 </software>
 <software>
-	<title xml:lang="en">Microsol Tecnologia CDX-2 Disk-Basic</title>
-	<system>MSX</system>
-	<company>Microsol</company>
-	<year>19xx</year>
-	<country>BR</country>
-		<dump><original value="false"/><System><hash algo="sha1">ffc1bafca38d20ed6e9a27c90c6ab089a8482d89</hash></System></dump>
-</software>
-<software>
 	<title xml:lang="en">MIDI Macro and Monitor</title>
 	<system>MSX</system>
 	<company>Yamaha</company>
 	<year>1986</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">e7c800fa576b3a9554836aa9c5eaa3ae893805d4</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">MidiSaurus chip</title>
-	<system>MSX</system>
-	<company>Bit2</company>
-	<year>1990</year>
-	<country>JP</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">4f41f85124a682b0243e9d64a5f7f6a99258ea20</hash></systemrom></dump>
 </software>
 <software>
 	<title xml:lang="en">Midnight Brothers</title>
@@ -5736,14 +5437,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1987</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash algo="sha1">d53a8efefe3714269538a91e5256c2938fe13239</hash></megarom></dump>
-</software>
-<software>
-	<title xml:lang="en">Mitsubishi ML-FX1 MSX1 Basic + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1983</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">0cbe0df4af45e8f531e9c761403ac9e71808f20c</hash></System></dump>
 </software>
 <software>
 	<title xml:lang="en">Mitsumega Toohru - The Three-Eyed One Comes Here</title>
@@ -5892,14 +5585,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">d1cf5410ed71f77670f65eb08ee944436bc0eb10</hash></rom></dump>
 </software>
 <software>
-	<title xml:lang="en">MoonSound firmware</title>
-	<system>MSX</system>
-	<company>Yamaha - Sunrise</company>
-	<year>1995</year>
-	<country>GB</country>
-		<dump><original value="false"/><System><hash algo="sha1">32760893ce06dbe3930627755ba065cc3d8ec6ca</hash></System></dump>
-</software>
-<software>
 	<title xml:lang="en">Mopiranger</title>
 	<system>MSX</system>
 	<company>Konami</company>
@@ -6022,32 +5707,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">ac150939558ec4e56446be9502177f28a29881eb</hash></rom></dump>
 </software>
 <software>
-	<title xml:lang="en">MSX Basic-Kun</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">181bf58da7184e128cd419da3109b93344a543cf</hash></rom></dump>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">b25b7fda37ba2a02362a45b2acdb2103f9a6e323</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">MSX Basic-Kun Plus 2.0</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1988</year>
-	<country>JP</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">47370bec7ca1f0615a54eda548b07fbc0c7ef398</hash></rom></dump>
-		<dump><original value="true">GoodMSX</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">c279c3f41d5368761f9088157b80214d835a548c</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">MSX Basic-Kun Plus 2.1</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1992</year>
-	<country>JP</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">ebd1f02fa4e5f165d756ab78864f882022ede844</hash></rom></dump>
-</software>
-<software>
 	<title xml:lang="en">MSX Derby</title>
 	<system>MSX</system>
 	<company>Ascii</company>
@@ -6114,38 +5773,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">d4edb2af4170fd4069960ad61d3f664462bef568</hash></rom></dump>
 </software>
 <software>
-	<title xml:lang="en">MSX-DOS 2.2 European version</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1988</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">c36c9e0f96738a340381e23b4f97245388801a46</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">MSX-DOS 2.2 Japanese version 1st version</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1988</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">ac26be7fc8386d12ed6a3de4f05fd462967599a8</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">MSX-DOS 2.2 Japanese version 2nd version</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1988</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">9155145d3e8522daf33f821f1ab68ce165960c1a</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">MSX-DOS 2.2 Japanese version 3rd version</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1988</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">6dcf76a0076f8c7f025979d7d060367fb5ed56bc</hash></System></dump>
-</software>
-<software>
 	<title xml:lang="en">MSX-FAN Fandom Library 1</title>
 	<system>MSX</system>
 	<company>Tecnopolis Soft</company>
@@ -6186,28 +5813,12 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><rom><hash algo="sha1">2b80f46d1c40aede85a60e53ddcfcc0cbb6d6d5b</hash></rom></dump>
 </software>
 <software>
-	<title xml:lang="en">MSX-MUSIC</title>
-	<system>MSX</system>
-	<company>Panasoft</company>
-	<year>1988</year>
-	<country>JP</country>
-		<dump><original value="false"/><rom><hash algo="sha1">2dc4517ebd5a061f9b5aa6b449cc4d4a2073540c</hash></rom></dump>
-</software>
-<software>
 	<title xml:lang="en">MSX-VTX Datagame</title>
 	<system>MSX</system>
 	<company>-</company>
 	<year>19xx</year>
 	<country>BR</country>
 		<dump><original value="false"/><rom><hash algo="sha1">08524fbea56885120124fbeeb6e47bc07aea4c30</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">MSX2/2+/Turbo-R Clockchip</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">5f2ab7f9c4e8218b956dd76f3706e9e7de3361f3</hash></systemrom></dump>
 </software>
 <software>
 	<title xml:lang="en">MSX21</title>
@@ -6284,14 +5895,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">8c06d9e1e188431c13721af965faa7391140af2e</hash></rom></dump>
 </software>
 <software>
-	<title xml:lang="en">Musicbox - Korean MSX-MUSIC</title>
-	<system>MSX</system>
-	<company>Zemina</company>
-	<year>1989</year>
-	<country>KR</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">b9ee4f30a36e283a2b1b9a28a70ab9b9831570c6</hash></systemrom></dump>
-</software>
-<software>
 	<title xml:lang="en">My Small Dictionary</title>
 	<system>MSX</system>
 	<company>al Alamiah</company>
@@ -6315,286 +5918,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<country>ES</country>
 		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">a39568be17b6ee5d10a61d82d8480cc859be778a</hash></rom></dump>
 		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">05b8109f4f0a4d9c1bcb837982abb573236be936</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">National CF-1200/CF-2700/CF-3000/CF-3300/FS-1300 MSX1 Basic + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1984</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">c7a2c5baee6a9f0e1c6ee7d76944c0ab1886796c</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">National CF-2000/Sony HB-201 MSX1 Basic + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1983</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">302afb5d8be26c758309ca3df611ae69cced2821</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">National CF-3300 - Gradiente Expert DDPlus Disk-Basic</title>
-	<system>MSX</system>
-	<company>National</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">f1525de4e0b60a6687156c2a96f8a8b2044b6c56</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">National FS-4000 Kanji-Basic</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">77bd67d5d10d459d343e79eafcd8e17eb0f209dd</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">National FS-4000 MSX-Word</title>
-	<system>MSX</system>
-	<company>Matsushita</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">931d6318774bd495a32ec3dabf8d0edfc9913324</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">National FS-4000 MSX1 Basic + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">df48902f5f12af8867ae1a87f255145f0e5e0774</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">National FS-4000/4500/4700/5500 Kanji Font - JIS 1st Class</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">9ed3ab6d893632b9246e91b412cd5db519e7586b</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">National FS-4500 MSX-Word 1</title>
-	<system>MSX</system>
-	<company>Matsushita</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">3f047469b62d93904005a0ea29092e892724ce0b</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">National FS-4500/4600/4700/Panasonic FS-A1/A1 MK2/A1F/A1FM MSX2/Sony HB-F1/F1II/F500/F900 Basic + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">0081ea0d25bc5cd8d70b60ad8cfdc7307812c0fd</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">National FS-4500/4700 Kanji-Basic 1</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><type>Normal</type><hash algo="sha1">df07e89fa0b1c7874f9cdf184c136f964fea4ff4</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">National FS-4500/4700 Kanji-Basic 2</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><type>Normal</type><hash algo="sha1">c63db26660da96af56f8a7d3ea18544b9ae5a37c</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">National FS-4500/4700 MSX Bunsetsu Henkan Jisho - Dictionary Conversion Tool</title>
-	<system>MSX</system>
-	<company>Matsushita</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">e89ea1e8e583392e2dd9debb8a4b6a162f58ba91</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">National FS-4500/4700 MSX-Jisho - MSX-Dictionary</title>
-	<system>MSX</system>
-	<company>Matsushita</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">1ebb06062428fcdc66808a03761818db2bba3c73</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">National FS-4500/4700 MSX-Jusho - MSX-Address</title>
-	<system>MSX</system>
-	<company>Matsushita</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">6442c1c5cece64c6dae90cc6ae3675f070d93e06</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">National FS-4500/4700 MSX-Word 2</title>
-	<system>MSX</system>
-	<company>Matsushita</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">4c8ea05c09b40c41888fa18db065575a317fda16</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">National FS-4500/4700 Word Font</title>
-	<system>MSX</system>
-	<company>Matsushita</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">3ce8e35790eb4689b21e14c7ecdd4b63943ee158</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">National FS-4500/4700/Sony HB-F1/F500 MSX2 Bios Extension</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">b8e30d604d319d511cbfbc61e5d8c38fbb9c5a33</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">National FS-4600 Disk-Basic</title>
-	<system>MSX</system>
-	<company>National</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">073feb8bb645d935e099afaf61e6f04f52adee42</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">National FS-4600 MSX-Word 3</title>
-	<system>MSX</system>
-	<company>Matsushita</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">005794c10a4237de3907ba4a44d436078d3c06c2</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">National FS-4600 Word Font 1</title>
-	<system>MSX</system>
-	<company>Matsushita</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">31292b9ca9fe7d1d8833530f44c0a5671bfefe4e</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">National FS-4600 Word Font 2</title>
-	<system>MSX</system>
-	<company>Matsushita</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">02155fc25c9bd23e1654fe81c74486351e1ecc28</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">National FS-4600/5000/5500 Kanji-Basic</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">3a9a942ed888dd641cddf8deada1879c454df3c6</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">National FS-4600/5000/Panasonic FS-A1/A1 MK2/A1F/Sony HB-F1II/F1XD/F1XDMK2/F900 MSX2 Bios Extension</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">0fbd45ef3dd7bb82d4c31f1947884f411f1ca344</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">National FS-4600/5000/Panasonic FS-A1F/FM/PW1 Kanji Font - JIS 1st Class</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">5e872d5853698731a0ed22fb72dbcdfd59cd19c3</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">National FS-4600/Panasonic FS-A1FM Kanji 12 Font</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">a7a23dc01314e88381eee88b4878b39931ab4818</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">National FS-4700 MSX-Word 1</title>
-	<system>MSX</system>
-	<company>Matsushita</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">f5af1d2a8bcf247f78847e1a9d995e581df87e8e</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">National FS-4700/5500 Disk-Basic</title>
-	<system>MSX</system>
-	<company>National</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">78cd7f847e77fd8cd51a647efb2725ba93f4c471</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">National FS-5000 MSX2 BASIC + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">59967765d6e9328909dee4dac1cbe4cf9d47d315</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">National FS-5000 Set-Up RTC</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">98bbfa3ab07b7a5cad55d7ddf7cbd9440caa2a86</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">National FS-5500 MSX-Superimpose</title>
-	<system>MSX</system>
-	<company>Matsushita</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">b677a861b67e8763a11d5dcf52416b42493ade57</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">National FS-5500 MSX2 Basic + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">44e0dd215b2a9f0770dd76fb49187c05b083eed9</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">National FS-5500 MSX2 Bios Extension</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">4be8371f3b03e70ddaca495958345f3c4f8e2d36</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">National FS-FD351 Disk-Basic</title>
-	<system>MSX</system>
-	<company>National</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><System><hash algo="sha1">c1fb0fa01fadf82d86ed02daff46e7bd4ad7a59d</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">National FS-SR022 MSX Bunsetsu Henkan Jisho - Dictionary Conversion Tool</title>
-	<system>MSX</system>
-	<company>Matsushita</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><System><hash algo="sha1">8c7ae1a1720b1dae9af9904e638b868f56d905c2</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">National FS-SR022 MSX-Jisho - MSX-Dictionary</title>
-	<system>MSX</system>
-	<company>Matsushita</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><System><hash algo="sha1">765413bb6b03bc3bb888ee8fe00b99ef69c1317a</hash></System></dump>
 </software>
 <software>
 	<title xml:lang="en">Nausicaa</title>
@@ -6808,14 +6131,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><rom><hash algo="sha1">be7cfd5ca5d78b99c05dbda1e26f4afbddb50c48</hash></rom></dump>
 </software>
 <software>
-	<title xml:lang="en">Novaxis SCSI Bios</title>
-	<system>MSX</system>
-	<company>unkown</company>
-	<year>1996</year>
-	<country>NL</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">352ec8c99fe1397a88ecb3aee6dbb4d121c818e9</hash></systemrom></dump>
-</software>
-<software>
 	<title xml:lang="en">Number and Target</title>
 	<system>MSX</system>
 	<company>al Alamiah</company>
@@ -6987,23 +6302,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">5558ba634018b22dcc687a01f9422fe60ea57adc</hash></rom></dump>
 </software>
 <software>
-	<title xml:lang="en">Painter, The</title>
-	<system>MSX</system>
-	<company>Yamaha</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="false"/><rom><hash algo="sha1">7fd2a28c4fdaeb140f3c8c8fb90271b1472c97b9</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Painter, The - Arabic Version</title>
-	<system>MSX</system>
-	<company>Yamaha</company>
-	<year>1986</year>
-	<country>MA</country>
-		<dump><original value="false"/><rom><hash algo="sha1">ace202e87337fbc54fea21e22c0b3af0abe6f4ae</hash></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">f7441675e606fe153972c00c88f5a8148c42438f</hash></rom></dump>
-</software>
-<software>
 	<title xml:lang="en">Pair Logic</title>
 	<system>MSX</system>
 	<company>AG Software</company>
@@ -7031,369 +6329,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">b5414e11b227c3c828ee1de206bf2d8f14486bd4</hash></rom></dump>
 		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">58747cf76b7c2785dd70409be5d912eafa328616</hash></rom></dump>
 		<dump><original value="true">Author</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">98df3e94d3bbef5d18095b62e65274ebfa8d527c</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1 Desk Pac 1</title>
-	<system>MSX</system>
-	<company>Matsushita</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">63098f27beac9eca6b39d837d2a552395df33fe1</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1 Desk Pac 2</title>
-	<system>MSX</system>
-	<company>Matsushita</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">7f5b76605e3d898cc4b5aacf1d7682b82fe84353</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1 MK2 Cockpit 1</title>
-	<system>MSX</system>
-	<company>Matsushita</company>
-	<year>1987</year>
-	<country>JP</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">2752cd89754c05abdf7c23cba132d38e3ef0f27d</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1 MK2 Cockpit 2</title>
-	<system>MSX</system>
-	<company>Matsushita</company>
-	<year>1987</year>
-	<country>JP</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">e194d290ebfa4595ce0349ea2fc15442508485b0</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1 MK2 Cockpit 3</title>
-	<system>MSX</system>
-	<company>Matsushita</company>
-	<year>1987</year>
-	<country>JP</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">a3f4e2e4934074925d775afe30ac72f150ede543</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1F Cockpit</title>
-	<system>MSX</system>
-	<company>Matsushita</company>
-	<year>1987</year>
-	<country>JP</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">4a99f2444f29c2b642efd6f084081d6fd96bfa9b</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1F Kanji-Basic</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1987</year>
-	<country>JP</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">ea35cc2cad9cfdf56cae224d8ee41579de37f000</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1F/FM Disk-Basic</title>
-	<system>MSX</system>
-	<company>Panasonic</company>
-	<year>1987</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">141e61cc8e0e51382e508fbd77a34b778a4f8444</hash></System></dump>
-		<dump><original value="false"/><System><hash algo="sha1">607cfca605eaf82e3efa33459d6583efb7ecc13b</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1FM Firmware</title>
-	<system>MSX</system>
-	<company>Matsushita</company>
-	<year>1987</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">716952eab41077f18e6835d11caad6761b17d400</hash></System></dump>
-		<dump><original value="false"/><System><hash algo="sha1">f89e3d8f3b6855c29d71d3149cc762e0f6918ad5</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1FM Kanji-Basic</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1987</year>
-	<country>JP</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">a11949a2072d5a2f58cb63e934877bac46809285</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1FM MSX-Modem</title>
-	<system>MSX</system>
-	<company>Matsushita</company>
-	<year>1987</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">304bb59b8fcc19fd76b6879331243f42f53fc47d</hash></System></dump>
-		<dump><original value="false"/><System><hash algo="sha1">2367ad17bc6bfaaf7b94a009ae26d508bdcf5565</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1FM MSX2 Bios Extension</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1987</year>
-	<country>JP</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">d552319a19814494e3016de4b8f010e8f7b97e02</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1FX Cockpit</title>
-	<system>MSX</system>
-	<company>Matsushita</company>
-	<year>1988</year>
-	<country>JP</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">9d67fab55b85f4ac4f5924323a70020eb8589057</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1FX Kanji Font - JIS 1st Class</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1988</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">e0e99cd91e88ce2676445663f832c835d74d6fd4</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1FX/WSX/WX/Sanyo Wavy PHC-35J/70FD1/2/Sony HB-F1XDJ/XV MSX2+ Bios Extension</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1988</year>
-	<country>JP</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">fe0254cbfc11405b79e7c86c7769bd6322b04995</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1FX/WX Disk-Basic</title>
-	<system>MSX</system>
-	<company>Panasonic</company>
-	<year>1988</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">2a0d228afde36ac7c5d3c2aac9c7c664dd071a8c</hash></System></dump>
-		<dump><original value="false"/><System><hash algo="sha1">bb59c849898d46a23fdbd0cc04ab35088e74a18d</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1FX/WX/Sanyo Wavy PHC-70FD1/2 MSX2+ Basic + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1988</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">e90f80a61d94c617850c415e12ad70ac41e66bb7</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1FX/WX/Sanyo Wavy PHC-70FD1/2/Sony HB-F1XDJ Kanji-Basic</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1988</year>
-	<country>JP</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">1ef3956f7f918873fb9b031339bba45d1e5e5878</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1GT Disk-Basic + MSX-DOS 2.3</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1991</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">6e89f19179ccfeb824bb12a6f512b9d07d0b8534</hash></System></dump>
-		<dump><original value="false"/><System><hash algo="sha1">0527fb75775caa76c7eca8d449938ace83d36e96</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1GT Firmware</title>
-	<system>MSX</system>
-	<company>Matsushita</company>
-	<year>1991</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">e779c338eb91a7dea3ff75f3fde76b8af22c4a3a</hash></System></dump>
-		<dump><original value="false"/><System><hash algo="sha1">6306ca2bc9fdd3becf13e51a921ea6d393f571ae</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1GT FM-Music</title>
-	<system>MSX</system>
-	<company>Panasonic</company>
-	<year>1991</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">6aea1aef5ec31c1826c22edf580525f93baad425</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1GT Introduction</title>
-	<system>MSX</system>
-	<company>Panasonic</company>
-	<year>1991</year>
-	<country>JP</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">b4433a3975c57dd440d6bf12dbd28b2ac1b90ef4</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1GT Turbo-R Basic + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1990</year>
-	<country>JP</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">242e73d8284a012b275c0a266844ebbc4269d787</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1GT Turbo-R Bios Extension</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1990</year>
-	<country>JP</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">018d7a5222f28514908fb1b1513286a6558a6d05</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1GT/ST Kanji-Basic</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1990</year>
-	<country>JP</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">5b39c1ccd3a213b78e02927f56a9abc72cd8c28d</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1GT/ST/WSX/WX/SR021 Kanji Font - JIS 1st and 2nd Class</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1988</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">5aff2d9b6efc723bc395b0f96f0adfa83cc54a49</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1ST Disk-Basic + MSX-DOS 2.3</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1990</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">d38ecfde66880643262c0dd90093f4f9f69e9e1b</hash></System></dump>
-		<dump><original value="false"/><System><hash algo="sha1">733175d648f84f43224b2012311b23c3d7404d7d</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1ST Firmware</title>
-	<system>MSX</system>
-	<company>Matsushita</company>
-	<year>1990</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">c212b11fda13f83dafed688c54d098e7e47ab225</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1ST FM-Music</title>
-	<system>MSX</system>
-	<company>Panasonic</company>
-	<year>1990</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">e002a9b426732e6c2d31e548c40cf7c122348ce3</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1ST Turbo-R Basic + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1990</year>
-	<country>JP</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">f078b5ec56884bfb81481d45c7151418770bff5a</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1ST Turbo-R Bios Extension</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1990</year>
-	<country>JP</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">373412f9c32762de1c3a7e27fc3d80614e0a0c8e</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1WSX Disk-Basic</title>
-	<system>MSX</system>
-	<company>Panasonic</company>
-	<year>1989</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">7ed7c55e0359737ac5e68d38cb6903f9e5d7c2b6</hash></System></dump>
-		<dump><original value="false"/><System><hash algo="sha1">b7068e2aab02072852ca249596b7550ac632c4c2</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1WSX Firmware</title>
-	<system>MSX</system>
-	<company>Matsushita</company>
-	<year>1989</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">3330d9b6b76e3c4ccb7cf252496ed15d08b95d3f</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1WSX/Sanyo Wavy PHC-35J MSX2+ Basic + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1989</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">f4433752d3bf876bfefb363c749d4d2e08a218b6</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1WSX/Sanyo Wavy PHC-35J/Sony HB-F1XV Kanji-Basic</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1989</year>
-	<country>JP</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">dcc3a67732aa01c4f2ee8d1ad886444a4dbafe06</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1WSX/WX FM-Basic</title>
-	<system>MSX</system>
-	<company>Panasonic</company>
-	<year>1988</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">6354ccc5c100b1c558c9395fa8c00784d2e9b0a3</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1WSX/WX/Sanyo Wavy PHC-70FD1/2/Sony HB-F1XDJ/XV FM-Basic</title>
-	<system>MSX</system>
-	<company>Panasonic</company>
-	<year>1988</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">aad42ba4289b33d8eed225d42cea930b7fc5c228</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-A1WX Firmware</title>
-	<system>MSX</system>
-	<company>Matsushita</company>
-	<year>1988</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">d37ab4bd2bfddd8c97476cbe7347ae581a6f2972</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-CA1 MSX-Audio + BASIC</title>
-	<system>MSX</system>
-	<company>Panasonic</company>
-	<year>1988</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><System><hash algo="sha1">930eae7057af1652abae794072b296a59decd61b</hash></System></dump>
-		<dump><original value="false"/><System><hash algo="sha1">4061c461fa9ff21a6c0e46b3a71607e332d80ba3</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-FD1 Disk-Basic</title>
-	<system>MSX</system>
-	<company>Panasonic</company>
-	<year>1987</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><System><hash algo="sha1">8e3f6f08309f082a82be8298a66c9b90f2d34ad4</hash></System></dump>
-		<dump><original value="false"/><System><hash algo="sha1">24f36e4d879f6492fbf0cb5a3b141a18dc4938ad</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-FD1A Disk-Basic</title>
-	<system>MSX</system>
-	<company>Panasonic</company>
-	<year>1987</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><System><hash algo="sha1">74ead27eec8d876144c2a015c0260d6db2117d72</hash></System></dump>
-		<dump><original value="false"/><System><hash algo="sha1">22fab4459e8afc4f8860550650e8ff083f3ad92a</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-PW1 Word Processor</title>
-	<system>MSX</system>
-	<company>Matsushita</company>
-	<year>1987</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">06fb8b9a0304037ae0e4196ca88cddf5affd4c5f</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-SR021 Word Processor</title>
-	<system>MSX</system>
-	<company>Matsushita</company>
-	<year>1988</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">13007f9340670deda42c4b53c06c19d3d3c09704</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Panasonic FS-SR023 48 dots Mouhitsu Shotai</title>
-	<system>MSX</system>
-	<company>Panasonic</company>
-	<year>1987</year>
-	<country>JP</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">7cc524ba5002b92fb285ac86eaae8fde16ee027e</hash></systemrom></dump>
 </software>
 <software>
 	<title xml:lang="en">Panther</title>
@@ -7447,14 +6382,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1984</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">8117ec66c0645a54422841a632cfd6602f35c4f9</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Patched Disk-Basic</title>
-	<system>MSX</system>
-	<company>-</company>
-	<year>19xx</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">032cb1c1c75b9a191fa1230978971698d9d2a17f</hash></System></dump>
 </software>
 <software>
 	<title xml:lang="en">Payload</title>
@@ -7546,111 +6473,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>2006</year>
 	<country>EU</country>
 		<dump><original value="true">Author</original><rom><hash algo="sha1">e59d739ecd56a11ecf4020430585ea4cc61b02a6</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Philips NMS-1205 MSX-Audio Music Module</title>
-	<system>MSX</system>
-	<company>Philips</company>
-	<year>1988</year>
-	<country>NL</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">f081a884505af9a1080b2b57e86b6da93b784301</hash></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">c7463e1fd0433c5d41b70670d6c10fd781b66426</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Philips NMS-8220 MSX Designer - Version 1</title>
-	<system>MSX</system>
-	<company>Philips</company>
-	<year>1986</year>
-	<country>NL</country>
-		<dump><original value="false"/><rom><hash algo="sha1">cb754aed85b3e97a7d3c5894310df7ca18f89f41</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Philips NMS-8220 MSX Designer - Version 2</title>
-	<system>MSX</system>
-	<company>Philips</company>
-	<year>1986</year>
-	<country>NL</country>
-		<dump><original value="false"/><rom><hash algo="sha1">5df95d033ae70b107697b69470126ce1b7ae9eb5</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Philips NMS-8220 MSX2 Bios Extension</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1986</year>
-	<country>NL</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">f5eb0a396097572589f2a6efeed045044e9425e4</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">Philips NMS-8220/8245/8250/8255/8280 MSX2 Basic-Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1986</year>
-	<country>NL</country>
-		<dump><original value="false"/><System><hash algo="sha1">6103b39f1e38d1aa2d84b1c3219c44f1abb5436e</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Philips NMS-8245 Disk-Basic</title>
-	<system>MSX</system>
-	<company>Philips</company>
-	<year>1986</year>
-	<country>NL</country>
-		<dump><original value="false"/><System><hash algo="sha1">c3f3ca454d66a0bc791f1d4b60e6857b44eb8755</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Philips NMS-8245 MSX2 Bios Extension</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1986</year>
-	<country>NL</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">e7905d16d2ccd57a013c122dc432106cd59ef52c</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">Philips NMS-8250/8255/8280/VG-8235 MSX2 Bios Extension</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1986</year>
-	<country>NL</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">5c1f9c7fb655e43d38e5dd1fcc6b942b2ff68b02</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">Philips NMS-8280D MSX2 Basic-Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1986</year>
-	<country>NL</country>
-		<dump><original value="false"/><System><hash algo="sha1">b17d9bea0eb16a1aa2d0ccbd7c9488da9f57698e</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Philips NMS-8280D MSX2 Bios Extension</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1986</year>
-	<country>NL</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">4ab7b2030d022f5486abaab22aaeaf8aa23e05f3</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">Philips NMS-8280G Disk-Basic</title>
-	<system>MSX</system>
-	<company>Philips</company>
-	<year>1986</year>
-	<country>NL</country>
-		<dump><original value="false"/><System><hash algo="sha1">d1001f93c87ff7fb389e418e33bf7bc81bdbb65f</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Philips VG-8240/NMS-8250/8255/8280 Disk-Basic</title>
-	<system>MSX</system>
-	<company>Philips</company>
-	<year>1986</year>
-	<country>NL</country>
-		<dump><original value="false"/><System><hash algo="sha1">c3efedda7ab947a06d9345f7b8261076fa7ceeef</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Philips VY-0010 Disk-Basic</title>
-	<system>MSX</system>
-	<company>Philips</company>
-	<year>1985</year>
-	<country>NL</country>
-		<dump><original value="false"/><System><hash algo="sha1">8924e3e11eb1c8c1edcb7efa63c26d2bdc142473</hash></System></dump>
 </software>
 <software>
 	<title xml:lang="en">Pico Pico</title>
@@ -8331,55 +7153,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><megarom><type>KoeiSRAM32</type><hash algo="sha1">522a53034cf40448d441683f3308fcb4b65e6d7c</hash></megarom></dump>
 </software>
 <software>
-	<title xml:lang="en">RS1114 Modem Cartridge</title>
-	<system>MSX</system>
-	<company>-</company>
-	<year>19xx</year>
-	<country>KR</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">dc50f2c9db233e505b0981c244ff3de553ac9d68</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">RS232 Modem Cartridge</title>
-	<system>MSX</system>
-	<company>-</company>
-	<year>19xx</year>
-	<country>KR</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">92a433e877626461a6481ca75c252e643752f0c4</hash></rom></dump>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">7aec0134ad6a5177f4056fcb6047083e8e00529b</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">RS232 Modem Cartridge 80 Column</title>
-	<system>MSX</system>
-	<company>Gradiente</company>
-	<year>19xx</year>
-	<country>BR</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">5d387d26b36347ff68a07d6ae98a95d71efc0727</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">RS232 Modem Cartridge 80 Column + Astex Word Processor</title>
-	<system>MSX</system>
-	<company>Gradiente</company>
-	<year>19xx</year>
-	<country>BR</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">db07b3da69674e36356bc78caa2ac524dee26477</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">RS232 Modem Cartridge for Cibertron Terminal</title>
-	<system>MSX</system>
-	<company>-</company>
-	<year>19xx</year>
-	<country>BR</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">868dd14480f716e02453d0afac6a09d6a7f10853</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">RS232 Profisoft Network Card</title>
-	<system>MSX</system>
-	<company>Profisoft</company>
-	<year>19xx</year>
-	<country>GB</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">d74885c9739159805bc9fa66163c56c6a0daa5fb</hash></rom></dump>
-</software>
-<software>
 	<title xml:lang="en">RSC Ensemblador</title>
 	<system>MSX</system>
 	<company>Manhattan Transfer</company>
@@ -8421,15 +7194,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><rom><hash algo="sha1">f2b5b9029575b85f0730914a44e57f94c9313df5</hash></rom></dump>
 </software>
 <software>
-	<title xml:lang="en">Sakhr Word Processor</title>
-	<system>MSX</system>
-	<company>al Alamiah</company>
-	<year>1987</year>
-	<country>MA</country>
-		<dump><original value="false"/><rom><hash algo="sha1">4b4508131dca6d811694ae6379f41364c477de58</hash></rom></dump>
-		<dump><original value="false"/><rom><hash algo="sha1">3a74e73b94d066b0187feb743c5eceddf0c61c2b</hash></rom></dump>
-</software>
-<software>
 	<title xml:lang="en">Salamander - Operation X</title>
 	<system>MSX</system>
 	<company>Zemina</company>
@@ -8467,55 +7231,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1991</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>KoeiSRAM32</type><hash algo="sha1">25ffc7e8ca90274566c31e10b5998cca6522673a</hash></megarom></dump>
-</software>
-<software>
-	<title xml:lang="en">Sanyo MLP-001 Light Pen</title>
-	<system>MSX</system>
-	<company>Sanyo</company>
-	<year>1984</year>
-	<country>JP</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">40348c56add3cf5a4b40b8cbc94a39e0ec94ff0a</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">Sanyo Wavy PHC-23/Sony HB-F1XD/F1XDMK2 MSX2 Basic + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1987</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">4ce41fcc1a603411ec4e99556409c442078f0ecf</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Sanyo Wavy PHC-35J/70FD1 Kanji Font - JIS 1st Class</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1989</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">84a645becec0a25d3ab7a909cde1b242699a8662</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Sanyo Wavy PHC-35J/70FD2 Kanji Font - JIS 1st and 2nd Class</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1989</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">bcdb4dae303dfe5234f372d70a5e0271d3202c36</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Sanyo Wavy PHC-70FD1/2 Disk-Basic</title>
-	<system>MSX</system>
-	<company>Sanyo</company>
-	<year>1988</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">95de8809d2758fc0a743390ea5085b602e59e101</hash></System></dump>
-		<dump><original value="false"/><System><hash algo="sha1">9efa744be8355675e7bfdd3976bbbfaf85d62e1d</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Sanyo Wavy PHC-70FD1/2 MSX Basic-Kun Plus 2.0</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1988</year>
-	<country>JP</country>
-		<dump><original value="false"/><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">22b3191d865010264001b9d896186a9818478a6b</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Sasa</title>
@@ -8711,30 +7426,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>1987</year>
 	<country>JP</country>
 		<dump><original value="true">GoodMSX</original><megarom><type>ASCII16</type><hash algo="sha1">77d95640c80bc4868d04a913f9dbf4b5f6d877d2</hash></megarom></dump>
-</software>
-<software>
-	<title xml:lang="en">Sharp Epcom HB-3600 Disk-Basic</title>
-	<system>MSX</system>
-	<company>Sharp</company>
-	<year>1987</year>
-	<country>BR</country>
-		<dump><original value="false"/><System><hash algo="sha1">608e8e9ab91c67f7015a67ea12f52ea3b0d609cd</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Sharp Epcom HotBit 1.1 MSX1 Basic + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1985</year>
-	<country>BR</country>
-		<dump><original value="false"/><System><hash algo="sha1">663f8c512d04d213fa616b0db5eefe3774012a4b</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Sharp Epcom HotBit 1.2 MSX1 Basic + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1986</year>
-	<country>BR</country>
-		<dump><original value="false"/><System><hash algo="sha1">9425815446d468058705bae545ffa13646744a87</hash></System></dump>
 </software>
 <software>
 	<title xml:lang="en">Shater Hassan</title>
@@ -8961,254 +7652,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><megarom><type>ASCII8</type><hash algo="sha1">3caeec19423a960d98e4719b301a3d276339e5ae</hash></megarom></dump>
 </software>
 <software>
-	<title xml:lang="en">Sony HB-201P Data Bank</title>
-	<system>MSX</system>
-	<company>Sony</company>
-	<year>1985</year>
-	<country>GB</country>
-		<dump><original value="false"/><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">e84d3ec7a595ee36b50e979683c84105c1871857</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Sony HB-201P/501P MSX1 Basic + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1985</year>
-	<country>GB</country>
-		<dump><original value="false"/><System><hash algo="sha1">5e7c8eab238712d1e18b0219c0f4d4dae180420d</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Sony HB-75D Data Bank</title>
-	<system>MSX</system>
-	<company>Sony</company>
-	<year>1984</year>
-	<country>JP</country>
-		<dump><original value="false"/><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">97ce59892573cac3c440efff6d74c8a1c29a5ad3</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Sony HB-75D MSX1 Basic + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1984</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">38a645febd0e0fe86d594f27c2d14be995acc730</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Sony HB-75P Data Bank</title>
-	<system>MSX</system>
-	<company>Sony</company>
-	<year>1984</year>
-	<country>GB</country>
-		<dump><original value="false"/><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">b262aedc71b445303f84efe5e865cbb71fd7d952</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Sony HB-F1 Firmware 1</title>
-	<system>MSX</system>
-	<company>Sony</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">9db72bb78792595a12499c821048504dc96ef848</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Sony HB-F1 Firmware 2</title>
-	<system>MSX</system>
-	<company>Sony</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">aa78fc9bcd2343f84cf790310a768ee47f90c841</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Sony HB-F1 Firmware 3</title>
-	<system>MSX</system>
-	<company>Sony</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">58accf41a90693874b86ce98d8d43c27beb8b6dc</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Sony HB-F1XD Disk-Basic</title>
-	<system>MSX</system>
-	<company>Sony</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><System><hash algo="sha1">e8a9c605e4be1e07efc89a19d9a80f676abdaa2f</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Sony HB-F1XD/F1XDMK2/F700D/F900/G900P Disk-Basic</title>
-	<system>MSX</system>
-	<company>Sony</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">12f2cc79b3d09723840bae774be48c0d721ec1c6</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Sony HB-F1XDJ Disk-Basic</title>
-	<system>MSX</system>
-	<company>Sony</company>
-	<year>1988</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><System><hash algo="sha1">c1bb307a570ab833e3bfcc4a58a4f4e12dc1df0f</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Sony HB-F1XDJ MSX2+ Basic + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1989</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">e2fbd56e42da637609d23ae9df9efd1b4241b18a</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Sony HB-F1XDJ/XV Kanji Font - JIS 1st and 2nd Class</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1989</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">218d91eb6df2823c924d3774a9f455492a10aecb</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Sony HB-F1XV Disk-Basic</title>
-	<system>MSX</system>
-	<company>Sony</company>
-	<year>1989</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><System><hash algo="sha1">5a4e7dbbfb759109c7d2a3b38bda9c60bf6ffef5</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Sony HB-F500/F900 Kanji Font - JIS 1st Class</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">6acaf2eeb57f65f7408235d5e07b7563229de799</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Sony HB-F500P Disk-Basic</title>
-	<system>MSX</system>
-	<company>Sony</company>
-	<year>1985</year>
-	<country>GB</country>
-		<dump><original value="false"/><System><hash algo="sha1">1566532146fcfc28c707753777c66585dc12418a</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Sony HB-F500P/F700P/F9P/G900P MSX2 Basic + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">0de3c802057560560a03d7965fcc4cff69f8575c</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Sony HB-F500P/F700P/G900P MSX2 Bios Extension</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1985</year>
-	<country>GB</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">3288894e1be6af705871499b23c85732dbc40993</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">Sony HB-F700F MSX2 Basic + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1986</year>
-	<country>FR</country>
-		<dump><original value="false"/><System><hash algo="sha1">3926cdd91fa89657a811463e48cfbdb350676e51</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Sony HB-F700F MSX2 Bios Extension</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1986</year>
-	<country>FR</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">792e6b2814ab783d06c7576c1e3ccd6a9bbac34a</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">Sony HB-F700S MSX2 Basic + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1986</year>
-	<country>ES</country>
-		<dump><original value="false"/><System><hash algo="sha1">4811956f878c3e03da46317f787cdc4bebc86f47</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Sony HB-F700S MSX2 Bios Extension</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1986</year>
-	<country>ES</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">1e9a955943aeea9b1807ddf1250ba6436d8dd276</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">Sony HB-F900 Disk-Basic</title>
-	<system>MSX</system>
-	<company>Sony</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">fc760d1d7b16370abc7eea39955f230b95b37df6</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Sony HB-F900 Video Utility</title>
-	<system>MSX</system>
-	<company>Sony</company>
-	<year>1986</year>
-	<country>JP</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">558b7383544542cf7333700ff90c3efbf93ba2a3</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Sony HB-F9P Memovision 1</title>
-	<system>MSX</system>
-	<company>Sony</company>
-	<year>1985</year>
-	<country>GB</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">2d1880d1f5a6944fcb1b198b997a3d90ecd1903d</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Sony HB-F9P Memovision 2</title>
-	<system>MSX</system>
-	<company>Sony</company>
-	<year>1985</year>
-	<country>GB</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">8cc1f7ceeef745bb34e80253971e137213671486</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Sony HB-F9P MSX2 Bios Extension</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1985</year>
-	<country>GB</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">7b4a96402847decfc110ff9eda713bdcd218bd83</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">Sony HBD-50 Disk-Basic</title>
-	<system>MSX</system>
-	<company>Sony</company>
-	<year>1984</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">2144036d6573d666143e890e5413956bfe8f66c5</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Sony HBD-F1 Disk Basic</title>
-	<system>MSX</system>
-	<company>Sony</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">e067ce2b444ec7a3dd45d9e2df4b34c1ba732872</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Sony HBI-V1 Video Digitizer</title>
-	<system>MSX</system>
-	<company>Sony</company>
-	<year>1989</year>
-	<country>JP</country>
-		<dump><original value="false"/><rom><hash algo="sha1">dbafa0f6ffa6dbfadbf631d209c5c9837ad0e100</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Sony HBK-30 Disk-Basic</title>
-	<system>MSX</system>
-	<company>Sony</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">ba83a80a0041e3a8fb5c075a9b4a29ee92255d62</hash></System></dump>
-</software>
-<software>
 	<title xml:lang="en">Sony Test Cartridge</title>
 	<system>MSX</system>
 	<company>Sony</company>
@@ -9327,31 +7770,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><rom><hash algo="sha1">e0e8ed637f5d220f881cc9b52bc52e9dd3373489</hash></rom></dump>
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">b9c98b80216983f97e28293b576ca9be3602c1a1</hash></rom></dump>
 		<dump><original value="false"/><rom><hash algo="sha1">5cc22b5cea25b1b00f6e32bcb58fbd49e7aeb641</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Spectravideo SVI-738 Disk-Basic</title>
-	<system>MSX</system>
-	<company>Spectravideo</company>
-	<year>1985</year>
-	<country>GB</country>
-		<dump><original value="false"/><System><hash algo="sha1">99a40266bc296cef1d432cb0caa8df1a7e570be4</hash></System></dump>
-		<dump><original value="false"/><System><hash algo="sha1">6d3a530ae822ec91f6444c681c9b08b9efadc7e7</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Spectravideo SVI-738 RS-232 Modem-Basic</title>
-	<system>MSX</system>
-	<company>Ascii</company>
-	<year>1985</year>
-	<country>GB</country>
-		<dump><original value="false"/><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">9de525e042d7345f6b725a696bd1b6fef69ecbf1</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Spectravideo SVI-738 Sweden MSX1 Basic + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1985</year>
-	<country>GB</country>
-		<dump><original value="false"/><System><hash algo="sha1">87f4d0fa58cfe9cef818a3185df2735e6da6168c</hash></System></dump>
 </software>
 <software>
 	<title xml:lang="en">Spelunker</title>
@@ -9908,14 +8326,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">a8eff8c532da894c86198b04b0a5d7707feb28c5</hash></rom></dump>
 </software>
 <software>
-	<title xml:lang="en">Technoahead Disk-Basic</title>
-	<system>MSX</system>
-	<company>Technoahead</company>
-	<year>1986</year>
-	<country>BR</country>
-		<dump><original value="false"/><System><hash algo="sha1">ca5c5f3872057a6aa65fe4936791850de302d501</hash></System></dump>
-</software>
-<software>
 	<title xml:lang="en">Teenage Mutant Hero Turtles</title>
 	<system>MSX</system>
 	<company>Konami - Mirrorsoft</company>
@@ -10184,22 +8594,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<year>19xx</year>
 	<country>BR</country>
 		<dump><original value="false"/><rom><start>0x8000</start><type>Normal</type><hash algo="sha1">b1a154ed8f52c2a74457e1c03c99608181dfb8ee</hash></rom></dump>
-</software>
-<software>
-	<title xml:lang="en">Toshiba HX-10 MSX1 Basic + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1984</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">4dad9de7c28b452351cc12910849b51bd9a37ab3</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Toshiba HX-MU900 MSX-Audio</title>
-	<system>MSX</system>
-	<company>Toshiba</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><start>0x4000</start><type>Normal</type><hash algo="sha1">0d246b0e3edc63803fcce861ea07eadf29dc488c</hash></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Tower of Druaga</title>
@@ -10669,30 +9063,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">f27721cf9ec316ea3b18233f699febf739b25678</hash></rom></dump>
 </software>
 <software>
-	<title xml:lang="en">Yamaha SFG05 Synthesizer</title>
-	<system>MSX</system>
-	<company>Yamaha</company>
-	<year>1985</year>
-	<country>JP</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">df2ef80e9cfabde8b630c1802fd697576102feb7</hash></systemrom></dump>
-</software>
-<software>
-	<title xml:lang="en">Yamaha YIS-503IIIR/805R3 MSX2 Basic + Bios</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1987</year>
-	<country>JP</country>
-		<dump><original value="false"/><System><hash algo="sha1">0f851ee7a1cf79819f61cc89e9948ee72a413802</hash></System></dump>
-</software>
-<software>
-	<title xml:lang="en">Yamaha YIS-503IIIR/805R3 MSX2 Bios Extension</title>
-	<system>MSX</system>
-	<company>Microsoft</company>
-	<year>1987</year>
-	<country>JP</country>
-		<dump><original value="false"/><systemrom><hash algo="sha1">03bf6d2ac86f5c9ab618e155442787c700f99fed</hash></systemrom></dump>
-</software>
-<software>
 	<title xml:lang="en">Yellow Submarine</title>
 	<system>MSX</system>
 	<company>Takeru</company>
@@ -10920,6 +9290,6 @@ A special thanks to both the blueMSX and openMSX team for their support
 </software>
 </softwaredb>
 <!--
-Roms in this database:2313
-Parse time 4.036 seconds on Sun Apr 20 3:38:48 CEST 2008
+Roms in this database:2090
+Parse time 3.440 seconds on Sun Apr 20 9:32:29 CEST 2008
  -->
