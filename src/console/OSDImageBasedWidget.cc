@@ -43,21 +43,21 @@ void OSDImageBasedWidget::getProperties(set<string>& result) const
 void OSDImageBasedWidget::setProperty(const string& name, const string& value)
 {
 	if (name == "-rgba") {
-		unsigned color = StringOp::stringToInt(value);
+		unsigned color = StringOp::stringToUint(value);
 		r = (color >> 24) & 255;
 		g = (color >> 16) & 255;
 		b = (color >>  8) & 255;
 		setAlpha((color >>  0) & 255);
 		invalidateLocal();
 	} else if (name == "-rgb") {
-		unsigned color = StringOp::stringToInt(value);
+		unsigned color = StringOp::stringToUint(value);
 		r = (color >> 16) & 255;
 		g = (color >>  8) & 255;
 		b = (color >>  0) & 255;
 		invalidateLocal();
 	} else if (name == "-alpha") {
 		// don't invalidate
-		setAlpha(StringOp::stringToInt(value));
+		setAlpha(StringOp::stringToUint(value));
 	} else if (name == "-fadePeriod") {
 		unsigned long long now = Timer::getTime();
 		setAlpha(getAlpha(now), now); // recalculate current (faded) alpha
@@ -65,7 +65,7 @@ void OSDImageBasedWidget::setProperty(const string& name, const string& value)
 	} else if (name == "-fadeTarget") {
 		unsigned long long now = Timer::getTime();
 		setAlpha(getAlpha(now), now); // recalculate current (faded) alpha
-		fadeTarget = StringOp::stringToInt(value);
+		fadeTarget = StringOp::stringToUint(value);
 	} else {
 		OSDWidget::setProperty(name, value);
 	}

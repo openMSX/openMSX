@@ -19,6 +19,11 @@ int stringToInt(const string& str)
 	return strtol(str.c_str(), NULL, 0);
 }
 
+unsigned stringToUint(const string& str)
+{
+	return strtoul(str.c_str(), NULL, 0);
+}
+
 uint64 stringToUint64(const string& str)
 {
        return strtoull(str.c_str(), NULL, 0);
