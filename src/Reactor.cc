@@ -397,8 +397,7 @@ void Reactor::switchMotherBoard()
 		// In the past we had a potential for deadlocks here, because
 		// (indirectly) the code below still acquires other locks.
 		ScopedLock lock(mbSem);
-		activeBoard = switchBoard;
-		switchBoard.reset();
+		std::swap(activeBoard, switchBoard);
 		needSwitch = false;
 	}
 	getEventDistributor().distributeEvent(
@@ -409,6 +408,7 @@ void Reactor::switchMotherBoard()
 	if (activeBoard.get()) {
 		activeBoard->getMSXCommandController().activated();
 	}
+	switchBoard.reset();
 }
 
 MSXMotherBoard* Reactor::getMotherBoard() const
