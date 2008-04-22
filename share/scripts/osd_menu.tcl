@@ -215,11 +215,14 @@ set setting_menu { actions { B menu_close_top }
                             post-spacing 6
                             selectable false }
                           { text "speed: $speed"
-                            actions { LEFT  { incr speed -1 }
-                                      RIGHT { incr speed  1 }}}
+                            actions { LEFT  { incr speed -5 }
+                                      RIGHT { incr speed  5 }}}
                           { text "scanline: $scanline"
-                            actions { LEFT  { incr scanline -1 }
-                                      RIGHT { incr scanline  1 }}}}}
+                            actions { LEFT  { incr scanline -5 }
+                                      RIGHT { incr scanline  5 }}}
+			  { text "scaler: $scale_algorithm"
+                            actions { LEFT  { cycle scale_algorithm }
+                                      RIGHT { cycle scale_algorithm }}}}}
 
 bind_default $menuevent main_menu_open
 
