@@ -1,5 +1,4 @@
-# TODO find a better key for this (conflicts with MSX STOP key)
-set menuevent "keyb F8"
+set menuevent "keyb MENU"
 
 proc get_optional { array_name key default } {
 	upvar $array_name arr
