@@ -21,7 +21,7 @@ proc tab_cycle { args } {
 	return $result
 }
 
-proc cycle { setting { cycle_list {}}} {
+proc cycle { setting {cycle_list {}} {step 1} } {
 	set setting_info [openmsx_info setting $setting]
 	set type [lindex $setting_info 0]
 	if {$type == "enumeration"} {
@@ -34,10 +34,13 @@ proc cycle { setting { cycle_list {}}} {
 		error "Not an enumeration setting: $setting"
 	}
 	set cur [lsearch -exact $cycle_list [set ::$setting]]
-	set new [expr ($cur + 1) % [llength $cycle_list]]
+	set new [expr ($cur + $step) % [llength $cycle_list]]
 	set ::$setting [lindex $cycle_list $new]
 }
 
+proc cycle_back { setting } {
+	cycle $setting {} -1
+}
 
 set_help_text toggle \
 {Toggles a boolean setting
