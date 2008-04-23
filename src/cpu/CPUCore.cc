@@ -1552,7 +1552,7 @@ template <class T> inline unsigned CPUCore<T>::ADDW(unsigned reg1, unsigned reg2
 	unsigned res = reg1 + reg2;
 	R.setF((R.getF() & (S_FLAG | Z_FLAG | V_FLAG)) |
 	       (((reg1 ^ res ^ reg2) >> 8) & H_FLAG) |
-	       ((res & 0x10000) ? C_FLAG : 0) |
+	       (res >> 16) | // C_FLAG
 	       ((res >> 8) & (X_FLAG | Y_FLAG)));
 	T::OP_16_16_DELAY();
 	return res & 0xFFFF;
@@ -1562,7 +1562,7 @@ template <class T> inline unsigned CPUCore<T>::ADDW2(unsigned reg)
 	memptr = reg + 1; // not 16-bit
 	unsigned res = 2 * reg;
 	R.setF((R.getF() & (S_FLAG | Z_FLAG | V_FLAG)) |
-	       ((res & 0x10000) ? C_FLAG : 0) |
+	       (res >> 16) | // C_FLAG
 	       ((res >> 8) & (H_FLAG | X_FLAG | Y_FLAG)));
 	T::OP_16_16_DELAY();
 	return res & 0xFFFF;
