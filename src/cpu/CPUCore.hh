@@ -1444,6 +1444,7 @@ private:
 	static void lddr(S& s);
 	static void ldir(S& s);
 
+	inline void BLOCK_IO(unsigned k, byte val, bool repeat);
 	inline void BLOCK_IN(int increase, bool repeat);
 	static void ind(S& s);
 	static void ini(S& s);

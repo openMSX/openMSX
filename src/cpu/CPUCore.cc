@@ -2981,12 +2981,12 @@ template <class T> inline void CPUCore<T>::BLOCK_CP(int increase, bool repeat)
 	         ((R.getA() ^ val ^ res) & H_FLAG) |
 	         ZSTable[res] |
 	         N_FLAG;
-	res -= ((f & H_FLAG) >> 4);
-	if (res & 0x02) f |= Y_FLAG; // bit 1 -> flag 5
-	if (res & 0x08) f |= X_FLAG; // bit 3 -> flag 3
-	if (R.getBC())  f |= V_FLAG;
-	R.setF(f);
-	if (repeat && R.getBC() && !(f & Z_FLAG)) {
+	unsigned k = res - ((f & H_FLAG) >> 4);
+	R.setF(f |
+	       ((k << 4) & Y_FLAG) | // bit 1 -> flag 5
+	       (k & X_FLAG) |        // bit 3 -> flag 3
+	       (R.getBC() ? V_FLAG : 0));
+	if (repeat && R.getBC() && res) {
 		T::BLOCK_DELAY();
 		R.setPC(R.getPC() - 2);
 	}
@@ -3006,11 +3006,10 @@ template <class T> inline void CPUCore<T>::BLOCK_LD(int increase, bool repeat)
 	R.setHL(R.getHL() + increase);
 	R.setDE(R.getDE() + increase);
 	R.setBC(R.getBC() - 1);
-	byte f = R.getF() & (S_FLAG | Z_FLAG | C_FLAG);
-	if ((R.getA() + val) & 0x02) f |= Y_FLAG;	// bit 1 -> flag 5
-	if ((R.getA() + val) & 0x08) f |= X_FLAG;	// bit 3 -> flag 3
-	if (R.getBC())               f |= V_FLAG;
-	R.setF(f);
+	R.setF((R.getF() & (S_FLAG | Z_FLAG | C_FLAG)) |
+	       (((R.getA() + val) << 4) & Y_FLAG) | // bit 1 -> flag 5
+	       ((R.getA() + val) & X_FLAG) |        // bit 3 -> flag 3
+	       (R.getBC() ? V_FLAG : 0));
 	if (repeat && R.getBC()) {
 		T::BLOCK_DELAY();
 		R.setPC(R.getPC() - 2);
@@ -3022,23 +3021,29 @@ template <class T> void CPUCore<T>::lddr(S& s) { s.BLOCK_LD(-1, true ); }
 template <class T> void CPUCore<T>::ldir(S& s) { s.BLOCK_LD( 1, true ); }
 
 
-// block IN
-template <class T> inline void CPUCore<T>::BLOCK_IN(int increase, bool repeat)
+template <class T> inline void CPUCore<T>::BLOCK_IO(unsigned k, byte val, bool repeat)
 {
-	T::SMALL_DELAY();
-	byte b = R.getB() - 1; R.setB(b); // decr before use
-	byte val = READ_PORT(R.getBC());
-	WRMEM(R.getHL(), val);
-	R.setHL(R.getHL() + increase);
-	byte f = ZSXYTable[b];
-	if (val & S_FLAG) f |= N_FLAG;
-	unsigned k = val + ((R.getC() + increase) & 0xFF);
-	if (k & 0x100)    f |= H_FLAG | C_FLAG;
-	R.setF(f | (ZSPXYTable[(k & 0x07) ^ b] & P_FLAG));
+	byte b = R.getB();
+	R.setF(((val & S_FLAG) >> 6) | // N_FLAG
+	       ((k & 0x100) ? (H_FLAG | C_FLAG) : 0) |
+	       ZSXYTable[b] |
+	       (ZSPXYTable[(k & 0x07) ^ b] & P_FLAG));
 	if (repeat && b) {
 		T::BLOCK_DELAY();
 		R.setPC(R.getPC() - 2);
 	}
+}
+
+// block IN
+template <class T> inline void CPUCore<T>::BLOCK_IN(int increase, bool repeat)
+{
+	T::SMALL_DELAY();
+	R.setBC(R.getBC() - 0x100); // decr before use
+	byte val = READ_PORT(R.getBC());
+	WRMEM(R.getHL(), val);
+	R.setHL(R.getHL() + increase);
+	unsigned k = val + ((R.getC() + increase) & 0xFF);
+	BLOCK_IO(k, val, repeat);
 }
 template <class T> void CPUCore<T>::ind(S& s)  { s.BLOCK_IN(-1, false); }
 template <class T> void CPUCore<T>::ini(S& s)  { s.BLOCK_IN( 1, false); }
@@ -3051,18 +3056,11 @@ template <class T> inline void CPUCore<T>::BLOCK_OUT(int increase, bool repeat)
 {
 	T::SMALL_DELAY();
 	byte val = RDMEM(R.getHL());
-	WRITE_PORT(R.getBC(), val);
-	byte b = R.getB() - 1; R.setB(b); // decr after use
 	R.setHL(R.getHL() + increase);
-	byte f = ZSXYTable[b];
-	if (val & S_FLAG) f |= N_FLAG;
+	WRITE_PORT(R.getBC(), val);
+	R.setB(R.getB() - 1); // decr after use
 	unsigned k = val + R.getL();
-	if (k & 0x100)    f |= H_FLAG | C_FLAG;
-	R.setF(f | (ZSPXYTable[(k & 0x07) ^ b] & P_FLAG));
-	if (repeat && b) {
-		T::BLOCK_DELAY();
-		R.setPC(R.getPC() - 2);
-	}
+	BLOCK_IO(k, val, repeat);
 }
 template <class T> void CPUCore<T>::outd(S& s) { s.BLOCK_OUT(-1, false); }
 template <class T> void CPUCore<T>::outi(S& s) { s.BLOCK_OUT( 1, false); }
