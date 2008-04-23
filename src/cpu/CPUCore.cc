@@ -3030,7 +3030,7 @@ template <class T> inline void CPUCore<T>::BLOCK_IN(int increase, bool repeat)
 	byte val = READ_PORT(R.getBC());
 	WRMEM(R.getHL(), val);
 	R.setHL(R.getHL() + increase);
-	byte f = ZSTable[b];
+	byte f = ZSXYTable[b];
 	if (val & S_FLAG) f |= N_FLAG;
 	unsigned k = val + ((R.getC() + increase) & 0xFF);
 	if (k & 0x100)    f |= H_FLAG | C_FLAG;
