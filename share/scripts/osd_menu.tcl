@@ -43,7 +43,7 @@ proc menu_create { menu_def_list } {
 		set text $itemarr(text)
 		lappend menutexts $textid $text
 		osd create text $textid -font $font -size $fontsize \
-		                        -rgba $textcolor -x $bordersize -y $y
+					-rgba $textcolor -x $bordersize -y $y
 		set selectable [get_optional itemarr "selectable" true]
 		if $selectable {
 			set allactions [join [list $defactions $actions]]
@@ -147,7 +147,6 @@ proc menu_action { button } {
 	menu_refresh_all
 }
 
-
 proc main_menu_open {} {
 	menu_create $::main_menu
 
@@ -171,58 +170,59 @@ proc menu_last_closed {} {
 	unbind_default "keyb RIGHT"
 	unbind_default "keyb SPACE"
 	unbind_default "keyb ESCAPE"
-        bind_default   $::menuevent main_menu_open
+	bind_default   $::menuevent main_menu_open
 }
 
 set main_menu { actions { B menu_close_top }
-                bg-color 0x00000080
-                text-color 0xffffffff
-                select-color 0x8080ffc0
-                font-size 12
-                border-size 2
-                width 150
-                items {{ text "My Cool Menu"
-                         text-color 0x00ffffff
-                         font-size 20
-                         post-spacing 6
-                         selectable false }
-                       { text "menu item 1"
-                         actions { A execute-A }
-                         post-spacing 3 }
-                       { text "settings..."
-                         actions { A { menu_create $::setting_menu }}}
-                       { pre-spacing 6
-                         text "sub title"
-                         text-color 0xc0ffffff
-                         font-size 15
-                         post-spacing 3
-                         selectable false }
-                       { text "exit"
-                         actions { A exit }}}}
+		bg-color 0x00000080
+		text-color 0xffffffff
+		select-color 0x8080ffc0
+		font-size 12
+		border-size 2
+		width 150
+		items {
+			{ text "My Cool Menu"
+			  text-color 0x00ffffff
+			  font-size 20
+			  post-spacing 6
+			  selectable false }
+			{ text "menu item 1"
+			  actions { A execute-A }
+			  post-spacing 3 }
+			{ text "settings..."
+			  actions { A { menu_create $::setting_menu }}}
+			{ pre-spacing 6
+			  text "sub title"
+			  text-color 0xc0ffffff
+			  font-size 15
+			  post-spacing 3
+			  selectable false }
+			{ text "exit"
+			actions { A exit }}}}
 
 set setting_menu { actions { B menu_close_top }
-                   bg-color 0x00000080
-                   text-color 0xffffffff
-                   select-color 0x8080ffc0
-                   font-size 12
-                   border-size 2
-                   width 150
-                   xpos 100
-                   ypos 120
-                   items {{ text "Settings"
-                            text-color 0xffff40ff
-                            font-size 20
-                            post-spacing 6
-                            selectable false }
-                          { text "speed: $speed"
-                            actions { LEFT  { incr speed -5 }
-                                      RIGHT { incr speed  5 }}}
-                          { text "scanline: $scanline"
-                            actions { LEFT  { incr scanline -5 }
-                                      RIGHT { incr scanline  5 }}}
-			  { text "scaler: $scale_algorithm"
-                            actions { LEFT  { cycle scale_algorithm }
-                                      RIGHT { cycle scale_algorithm }}}}}
+		bg-color 0x00000080
+		text-color 0xffffffff
+		select-color 0x8080ffc0
+		font-size 12
+		border-size 2
+		width 150
+		xpos 100
+		ypos 120
+		items {{ text "Settings"
+			text-color 0xffff40ff
+			font-size 20
+			post-spacing 6
+			selectable false }
+			{ text "speed: $speed"
+			actions { LEFT  { incr speed -5 }
+			RIGHT { incr speed  5 }}}
+			{ text "scanline: $scanline"
+			  actions { LEFT  { incr scanline -5 }
+				    RIGHT { incr scanline  5 }}}
+			{ text "scaler: $scale_algorithm"
+			  actions { LEFT  { cycle_back scale_algorithm }
+				    RIGHT { cycle scale_algorithm }}}}}
 
 bind_default $menuevent main_menu_open
 
