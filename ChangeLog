@@ -1,5 +1,24 @@
 $Id$
 
+2008-04-29 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Use switch statement instead of jump table in CPUCore:
+	  - Is about 10%(!) faster when using gcc-4.2, more when using 
+	    recent gcc snapshot. With gcc-4.1 it's performance neutral,
+	    gcc-3.4 was a big slowdown (but we care less about such old
+	    compilers).
+	  - Some history:
+	     I had already tried this before, but at that time it wasn't a
+	     win. Recent gcc versions are able to eliminate the check for the
+	     'default' case when it can prove all cases are enumerated in the
+	     switch statement (here we switch on a byte type and provide all
+	     256 cases). With this optimization the switch approach gave a
+	     small speed gain. Then I tried some additional tweaking (force
+	     inlining some core functions). And this gave a much bigger gain,
+	     even on older compilers.
+	  - Because we no longer use a jumptable there is no advantage anymore
+	    in using static functions (with an explicit 'this' argument) over
+	    regular member functions. This makes the code more readable again.
+
 2008-04-08 David Heremans <david.heremans@gnu-linux.net>
 	* Fixed a bug in the load_icons script
 

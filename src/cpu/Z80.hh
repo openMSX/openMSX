@@ -43,6 +43,7 @@ protected:
 	inline void MULUB_DELAY()    { assert(false); }
 	inline void MULUW_DELAY()    { assert(false); }
 	inline unsigned haltStates() { return 4 + WAIT_CYCLES; } // HALT + M1
+	inline bool hasMul() const   { return false; }
 
 	inline void PRE_RDMEM_OPCODE(unsigned /*address*/) { add(1); }
 	inline void PRE_RDMEM       (unsigned /*address*/) { add(1); }

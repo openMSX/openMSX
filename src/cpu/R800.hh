@@ -54,6 +54,7 @@ protected:
 	inline void MULUB_DELAY()    { add(12); }
 	inline void MULUW_DELAY()    { add(34); }
 	inline unsigned haltStates() { return 1; } // HALT + M1 // TODO check this
+	inline bool hasMul() const   { return true; }
 
 	R800TYPE(const EmuTime& time, Scheduler& scheduler)
 		: CPUClock(time, scheduler)
