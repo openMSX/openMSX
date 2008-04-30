@@ -1,5 +1,8 @@
 $Id$
 
+2008-04-30 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Optimized check for pause in CPU code
+
 2008-04-29 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Use switch statement instead of jump table in CPUCore:
 	  - Is about 10%(!) faster when using gcc-4.2, more when using 

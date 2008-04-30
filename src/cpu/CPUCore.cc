@@ -125,6 +125,7 @@ template <class T> void CPUCore<T>::doReset(const EmuTime& time)
 	R.setIFF1(false);
 	R.setIFF2(false);
 	R.setHALT(false);
+	R.setExtHALT(false);
 	R.setIM(0);
 	R.setI(0x00);
 	R.setR(0x00);
@@ -941,7 +942,7 @@ template <class T> void CPUCore<T>::executeSlow()
 			default:
 				assert(false);
 		}
-	} else if (unlikely(R.getHALT() || paused)) {
+	} else if (unlikely(R.getHALT())) {
 		// in halt mode
 		R.incR(T::advanceHalt(T::haltStates(), scheduler.getNext()));
 		setSlowInstructions();

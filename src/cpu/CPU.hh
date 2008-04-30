@@ -162,6 +162,7 @@ public:
 #else
 	class CPURegs {
 	public:
+		CPURegs() { HALT = 0; }
 		inline byte getA()   const { return AF.b.h; }
 		inline byte getF()   const { return AF.b.l; }
 		inline byte getB()   const { return BC.b.h; }
@@ -203,7 +204,7 @@ public:
 		inline byte getR()   const { return (R & 0x7F) | (R2 & 0x80); }
 		inline bool getIFF1()     const { return IFF1; }
 		inline bool getIFF2()     const { return IFF2; }
-		inline bool getHALT()     const { return HALT; }
+		inline byte getHALT()     const { return HALT; }
 		inline bool getNextIFF1() const { return nextIFF1; }
 
 		inline void setA(byte x)   { AF.b.h = x; }
@@ -247,7 +248,8 @@ public:
 		inline void setR(byte x)   { R = x; R2 = x; }
 		inline void setIFF1(bool x)     { IFF1 = x; }
 		inline void setIFF2(bool x)     { IFF2 = x; }
-		inline void setHALT(bool x)     { HALT = x; }
+		inline void setHALT(bool x)     { HALT = (HALT & ~1) | (x ? 1 : 0); }
+		inline void setExtHALT(bool x)  { HALT = (HALT & ~2) | (x ? 2 : 0); }
 		inline void setNextIFF1(bool x) { nextIFF1 = x; }
 
 		inline void incR(byte x) { R += x; }
@@ -266,7 +268,8 @@ public:
 		z80regpair AF, BC, DE, HL;
 		z80regpair AF2, BC2, DE2, HL2;
 		z80regpair IX, IY, PC, SP;
-		bool nextIFF1, IFF1, IFF2, HALT;
+		bool nextIFF1, IFF1, IFF2;
+		byte HALT;
 		byte IM, I;
 		byte R, R2; // refresh = R&127 | R2&128
 	};
@@ -399,9 +402,6 @@ protected:
 
 	// CPU tracing
 	static word start_pc;
-
-	// CPU is paused, used for turbor hw pause
-	static bool paused;
 
 	CPURegs R;
 

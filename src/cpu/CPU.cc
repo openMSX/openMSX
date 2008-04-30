@@ -16,7 +16,6 @@ CPU::BreakPoints CPU::breakPoints;
 bool CPU::breaked = false;
 bool CPU::continued = false;
 bool CPU::step = false;
-bool CPU::paused = false;
 
 word CPU::start_pc;
 
@@ -122,9 +121,9 @@ const CPU::BreakPoints& CPU::getBreakPoints() const
 	return breakPoints;
 }
 
-void CPU::setPaused(bool paused_)
+void CPU::setPaused(bool paused)
 {
-	paused = paused_;
+	getRegisters().setExtHALT(paused);
 	exitCPULoopSync();
 }
 
