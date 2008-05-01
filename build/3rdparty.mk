@@ -218,7 +218,7 @@ $(BUILD_DIR)/$(PACKAGE_SDL_TTF)/Makefile: \
 		--disable-sdltest \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
-		--with-freetype-prefix=$(INSTALL_DIR) \
+		--with-freetype-prefix=$(PWD)/$(INSTALL_DIR) \
 		CFLAGS="$(_CFLAGS)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
 		LDFLAGS=""
