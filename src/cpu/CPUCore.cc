@@ -314,7 +314,7 @@ template <class T> inline byte CPUCore<T>::READ_PORT(unsigned port, unsigned cc)
 {
 	memptr = port + 1; // not 16-bit
 	T::PRE_IO(port);
-	EmuTime time = T::getTimeFast();
+	EmuTime time = T::getTimeFast(cc);
 	scheduler.schedule(time);
 	byte result = interface->readIO(port, time);
 	T::POST_IO(port);
@@ -325,7 +325,7 @@ template <class T> inline void CPUCore<T>::WRITE_PORT(unsigned port, byte value,
 {
 	memptr = port + 1; // not 16-bit
 	T::PRE_IO(port);
-	EmuTime time = T::getTimeFast();
+	EmuTime time = T::getTimeFast(cc);
 	scheduler.schedule(time);
 	interface->writeIO(port, value, time);
 	T::POST_IO(port);
@@ -349,7 +349,7 @@ template <class T> byte CPUCore<T>::RDMEM_OPCODEslow(unsigned address, unsigned 
 	// uncacheable
 	readCacheTried[high] = true;
 	T::PRE_RDMEM_OPCODE(address);
-	EmuTime time = T::getTimeFast();
+	EmuTime time = T::getTimeFast(cc);
 	scheduler.schedule(time);
 	byte result = interface->readMem(address, time);
 	T::POST_MEM(address);
@@ -433,7 +433,7 @@ template <class T> byte CPUCore<T>::RDMEMslow(unsigned address, unsigned cc)
 	// uncacheable
 	readCacheTried[high] = true;
 	T::PRE_RDMEM(address);
-	EmuTime time = T::getTimeFast();
+	EmuTime time = T::getTimeFast(cc);
 	scheduler.schedule(time);
 	byte result = interface->readMem(address, time);
 	T::POST_MEM(address);
@@ -495,7 +495,7 @@ template <class T> void CPUCore<T>::WRMEMslow(unsigned address, byte value, unsi
 	// uncacheable
 	writeCacheTried[high] = true;
 	T::PRE_WRMEM(address);
-	EmuTime time = T::getTimeFast();
+	EmuTime time = T::getTimeFast(cc);
 	scheduler.schedule(time);
 	interface->writeMem(address, value, time);
 	T::POST_MEM(address);
