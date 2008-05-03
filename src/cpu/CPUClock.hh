@@ -8,6 +8,8 @@
 #include <algorithm>
 #include <cassert>
 
+#include <iostream>
+
 namespace openmsx {
 
 class Scheduler;
@@ -30,6 +32,25 @@ protected:
 	inline void sync() const {
 		clock.fastAdd(limit - remaining);
 		limit = remaining;
+	}
+	void setLast(byte opcode) { lastOpcode = opcode; }
+	void setLast2(byte opcode) { lastOpcode2 = opcode; }
+	void setLast3(byte opcode) { lastOpcode3 = opcode; }
+	inline void startInstr() {
+		if (started != false) {
+			std::cout << "Instr " << std::hex << int(lastOpcode) << " " << int(lastOpcode2) << " " << int(lastOpcode3) << " not stopped" << std::endl;
+			assert(false);
+		}
+		started = true;
+		ccCount = 0;
+	}
+	inline void end(unsigned ticks) {
+		assert(started == true);
+		if (ticks != ccCount) {
+			std::cout << "Instr " << std::hex << int(lastOpcode) << " " << int(lastOpcode2) << " has wrong length: expected " << std::dec << ccCount << " got " << ticks << std::endl;
+			assert(false);
+		}
+		started = false;
 	}
 #endif
 
@@ -87,6 +108,10 @@ private:
 
 public:
 	unsigned ccCount;
+	bool started;
+	byte lastOpcode;
+	byte lastOpcode2;
+	byte lastOpcode3;
 };
 
 } // namespace openmsx

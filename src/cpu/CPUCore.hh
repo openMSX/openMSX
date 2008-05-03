@@ -1341,7 +1341,7 @@ private:
 	inline void rst_30();
 	inline void rst_38();
 
-	inline void RET(int ee);
+	inline void RET(bool cond, int ee);
 	inline void ret();
 	inline void ret_c();
 	inline void ret_m();
@@ -1420,7 +1420,6 @@ private:
 	inline void lddr();
 	inline void ldir();
 
-	inline void BLOCK_IO(unsigned k, byte val, bool repeat);
 	inline void BLOCK_IN(int increase, bool repeat);
 	inline void ind();
 	inline void ini();
