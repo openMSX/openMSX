@@ -33,7 +33,6 @@ protected:
 		clock.fastAdd(limit - remaining);
 		limit = remaining;
 	}
-	inline void end(unsigned ticks) { add(ticks); }
 #endif
 
 	// These are similar to the corresponding methods in DynamicClock.
