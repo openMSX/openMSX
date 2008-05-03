@@ -140,6 +140,70 @@ protected:
 		}
 	}
 
+	static const unsigned
+		CC_LD_A_SS  = 2, CC_LD_A_SS_1  = 1,
+		CC_LD_A_NN  = 4, CC_LD_A_NN_1  = 1, CC_LD_A_NN_2  = 3,
+		CC_LD_R_N   = 2, CC_LD_R_N_1   = 2,
+		CC_LD_R_HL  = 2, CC_LD_R_HL_1  = 1,
+		CC_LD_R_XIX = 4, CC_LD_R_XIX_1 = 1, CC_LD_R_XIX_2 = 3, // +1
+		CC_LD_HL_R  = 2, CC_LD_HL_R_1  = 1,
+		CC_LD_HL_N  = 3, CC_LD_HL_N_1  = 1, CC_LD_HL_N_2  = 2,
+		CC_LD_SS_A  = 2, CC_LD_SS_A_1  = 1,
+		CC_LD_NN_A  = 4, CC_LD_NN_A_1  = 1, CC_LD_NN_A_2  = 3,
+		CC_LD_XIX_R = 4, CC_LD_XIX_R_1 = 1, CC_LD_XIX_R_2 = 3, // +1
+		CC_LD_XIX_N = 4, CC_LD_XIX_N_1 = 1, CC_LD_XIX_N_2 = 3, // +1
+		CC_LD_HL_XX = 5, CC_LD_HL_XX_1 = 1, CC_LD_HL_XX_2 = 3,
+		CC_LD_SS_NN = 3, CC_LD_SS_NN_1 = 1,
+		CC_LD_XX_HL = 5, CC_LD_XX_HL_1 = 1, CC_LD_XX_HL_2 = 3,
+
+		CC_CP_N     = 2, CC_CP_N_1     = 1,
+		CC_CP_XHL   = 2, CC_CP_XHL_1   = 1,
+		CC_CP_XIX   = 4, CC_CP_XIX_1   = 1, CC_CP_XIX_2   = 3, // +1
+		CC_INC_XHL  = 4, CC_INC_XHL_1  = 1, CC_INC_XHL_2  = 3,
+		CC_INC_XIX  = 6, CC_INC_XIX_1  = 1, EE_INC_XIX    = 3, // +1
+
+		CC_LDI      = 4, CC_LDI_1      = 2, CC_LDI_2      = 3,
+		CC_CPI      = 4, CC_CPI_1      = 2,
+
+		CC_PUSH     = 4, CC_PUSH_1     = 2,
+		CC_POP      = 3, CC_POP_1      = 1,
+		CC_CALL     = 5, CC_CALL_1     = 1, EE_CALL       = 1,
+		CC_CALL_A   = 5, CC_CALL_B     = 3,
+		CC_RST      = 4,
+		CC_RET      = 3,
+		CC_RET_C_A  = 3, CC_RET_C_B    = 1, EE_RET_C      = 0,
+	        CC_RETN     = 5, EE_RETN       = 2,
+		CC_JP       = 3, CC_JP_1       = 1,
+		CC_JR       = 3, CC_JR_1       = 1,
+		CC_DJNZ     = 3, EE_DJNZ       = 0,
+	
+		CC_EX_SP_HL = 5, CC_EX_SP_HL_1 = 1, CC_EX_SP_HL_2 = 3,
+
+		CC_BIT_XHL  = 3, CC_BIT_XHL_1  = 2,
+		CC_BIT_XIX  = 4, CC_BIT_XIX_1  = 3,                    // +1
+		CC_SET_XHL  = 5, CC_SET_XHL_1  = 2, CC_SET_XHL_2  = 4,
+		CC_SET_XIX  = 6, EE_SET_XIX    = 2,                    // +1
+
+		CC_RLD      = 5, CC_RLD_1      = 2, CC_RLD_2      = 4,
+
+		CC_IN_A_N   = 3, CC_IN_A_N_1   = 1, CC_IN_A_N_2   = 2,
+		CC_IN_R_C   = 3, CC_IN_R_C_1   = 2,
+		CC_INI      = 4, CC_INI_1      = 2, CC_INI_2      = 3,
+		CC_OUT_N_A  = 3, CC_OUT_N_A_1  = 1, CC_OUT_N_A_2  = 2,
+		CC_OUT_C_R  = 3, CC_OUT_C_R_1  = 2,
+		CC_OUTI     = 4, CC_OUTI_1     = 2, CC_OUTI_2     = 3,
+
+		CC_NMI      = 4, EE_NMI_1      = 0,                    // TODO check
+		CC_IRQ0     = 4, EE_IRQ0_1     = 0,                    // TODO check
+		CC_IRQ1     = 4, EE_IRQ1_1     = 0,                    // TODO check
+		CC_IRQ2     = 6, EE_IRQ2_1     = 0, CC_IRQ2_2     = 4, // TODO check
+
+		CC_MAIN     = 0,
+		CC_PREFIX   = 1,
+		CC_DD_CB    = 1, // +1
+		EE_ED       = 1,
+		CC_MEM      = 1;
+
 private:
 	Clock<CLOCK_FREQ> lastRefreshTime;
 	int lastPage;

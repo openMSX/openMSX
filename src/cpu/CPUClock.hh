@@ -26,7 +26,7 @@ protected:
 #else
 	// 64-bit addition is expensive
 	// (if executed several million times per second)
-	inline void add(unsigned ticks) { remaining -= ticks; }
+	inline void add(unsigned ticks) { remaining -= ticks; ccCount += ticks; }
 	inline void sync() const {
 		clock.fastAdd(limit - remaining);
 		limit = remaining;
@@ -84,6 +84,9 @@ private:
 	mutable int remaining;
 	mutable int limit;
 	bool limitEnabled;
+
+public:
+	unsigned ccCount;
 };
 
 } // namespace openmsx
