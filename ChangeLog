@@ -1,5 +1,30 @@
 $Id$
 
+2008-05-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* CPU time keeping speedup:
+	  - We want to have cycle-accurate bus transactions (memory or IO-port
+	    read/writes). So for example if in one instruction there are
+	    multiple transactions, they should happen at slightly different
+	    moments in time. Also the time of the first transaction is not
+	    necessarily the same time as the start of the instruction.
+
+	    Initially we implemented this by incrementing the 'current time' by
+	    very small steps at each sub-instruction.
+
+	    We actually only need this time for very few transactions. The vast
+	    majority of the transactions goes to ROM or RAM (IOW to 'cachable'
+	    memory regions), and there the exact time is not important at all.
+
+	    To speedup this time keeping, we now only increment the 'current
+	    time' with the whole instruction cycle count. In case we do
+	    perform a transaction to non-cachable memory we still first have
+	    to calculate the current time. To be able to do this all
+	    transactions have been annotated with 'cycles since start of the
+	    instruction' information.
+
+	    I measured between 5% and 10% speedup on the ZEXALL benchmark with
+	    this change.
+
 2008-04-30 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Optimized check for pause in CPU code
 
