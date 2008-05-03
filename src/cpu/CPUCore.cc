@@ -411,7 +411,7 @@ template <class T> ALWAYS_INLINE unsigned CPUCore<T>::RD_WORD_PC(unsigned cc)
 template <class T> unsigned CPUCore<T>::RD_WORD_PC_slow(unsigned cc)
 {
 	unsigned res = RDMEM_OPCODE(cc);
-	res         += RDMEM_OPCODE(cc + T::CC_MEM) << 8;
+	res         += RDMEM_OPCODE(cc + T::CC_RDMEM) << 8;
 	return res;
 }
 
@@ -472,7 +472,7 @@ template <class T> ALWAYS_INLINE unsigned CPUCore<T>::RD_WORD(unsigned address, 
 template <class T> unsigned CPUCore<T>::RD_WORD_slow(unsigned address, unsigned cc)
 {
 	unsigned res = RDMEM(address, cc);
-	res         += RDMEM((address + 1) & 0xFFFF, cc + T::CC_MEM) << 8;
+	res         += RDMEM((address + 1) & 0xFFFF, cc + T::CC_RDMEM) << 8;
 	return res;
 }
 
@@ -536,7 +536,7 @@ template <class T> void CPUCore<T>::WR_WORD_slow(
 	unsigned address, unsigned value, unsigned cc)
 {
 	WRMEM( address,               value & 255, cc);
-	WRMEM((address + 1) & 0xFFFF, value >> 8,  cc + T::CC_MEM);
+	WRMEM((address + 1) & 0xFFFF, value >> 8,  cc + T::CC_WRMEM);
 }
 
 template <class T> ALWAYS_INLINE void CPUCore<T>::WR_WORD_rev(
@@ -562,7 +562,7 @@ template <class T> void CPUCore<T>::WR_WORD_rev_slow(
 	unsigned address, unsigned value, unsigned cc)
 {
 	WRMEM((address + 1) & 0xFFFF, value >> 8,  cc);
-	WRMEM( address,               value & 255, cc + T::CC_MEM);
+	WRMEM( address,               value & 255, cc + T::CC_WRMEM);
 }
 
 template <class T> inline void CPUCore<T>::M1Cycle()

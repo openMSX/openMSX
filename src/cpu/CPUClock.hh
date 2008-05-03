@@ -8,8 +8,6 @@
 #include <algorithm>
 #include <cassert>
 
-#include <iostream>
-
 namespace openmsx {
 
 class Scheduler;

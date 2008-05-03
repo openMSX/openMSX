@@ -128,7 +128,8 @@ protected:
 	CC_PREFIX    = 5+1,
 	CC_DD_CB     = 5+1, // +5
 	EE_ED        = 5,
-	CC_MEM       = 3;
+	CC_RDMEM     = 3,
+	CC_WRMEM     = 3;
 };
 
 } // namespace openmsx
