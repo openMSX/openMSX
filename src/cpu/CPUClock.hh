@@ -28,30 +28,12 @@ protected:
 #else
 	// 64-bit addition is expensive
 	// (if executed several million times per second)
-	inline void add(unsigned ticks) { remaining -= ticks; ccCount += ticks; }
+	inline void add(unsigned ticks) { remaining -= ticks; }
 	inline void sync() const {
 		clock.fastAdd(limit - remaining);
 		limit = remaining;
 	}
-	void setLast(byte opcode) { lastOpcode = opcode; }
-	void setLast2(byte opcode) { lastOpcode2 = opcode; }
-	void setLast3(byte opcode) { lastOpcode3 = opcode; }
-	inline void startInstr() {
-		if (started != false) {
-			std::cout << "Instr " << std::hex << int(lastOpcode) << " " << int(lastOpcode2) << " " << int(lastOpcode3) << " not stopped" << std::endl;
-			assert(false);
-		}
-		started = true;
-		ccCount = 0;
-	}
-	inline void end(unsigned ticks) {
-		assert(started == true);
-		if (ticks != ccCount) {
-			std::cout << "Instr " << std::hex << int(lastOpcode) << " " << int(lastOpcode2) << " has wrong length: expected " << std::dec << ccCount << " got " << ticks << std::endl;
-			assert(false);
-		}
-		started = false;
-	}
+	inline void end(unsigned ticks) { add(ticks); }
 #endif
 
 	// These are similar to the corresponding methods in DynamicClock.
@@ -105,13 +87,6 @@ private:
 	mutable int remaining;
 	mutable int limit;
 	bool limitEnabled;
-
-public:
-	unsigned ccCount;
-	bool started;
-	byte lastOpcode;
-	byte lastOpcode2;
-	byte lastOpcode3;
 };
 
 } // namespace openmsx

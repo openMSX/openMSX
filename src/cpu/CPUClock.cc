@@ -10,7 +10,6 @@ CPUClock::CPUClock(const EmuTime& time, Scheduler& scheduler_)
 	, scheduler(scheduler_)
 	, remaining(-1), limit(-1), limitEnabled(false)
 {
-	started = false;
 }
 
 void CPUClock::setLimit(const EmuTime& time)

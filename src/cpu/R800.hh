@@ -30,29 +30,6 @@ public:
 protected:
 	static const int CLOCK_FREQ = 7159090;
 
-	inline void M1_DELAY()       { }
-	inline void ADD_16_8_DELAY() { add(1); }
-	inline void OP_16_16_DELAY() { }
-	inline void INC_16_DELAY()   { }
-	inline void BLOCK_DELAY()    { add(1); }
-	inline void RLD_DELAY()      { add(1); }
-	inline void EX_SP_HL_DELAY() { }
-	inline void LD_SP_HL_DELAY() { }
-	inline void LDI_DELAY()      { }
-	inline void DD_CB_DELAY()    { }
-	inline void PARALLEL_DELAY() { }
-	inline void NMI_DELAY()      { } // TODO check this
-	inline void IM0_DELAY()      { } // TODO check this
-	inline void IM1_DELAY()      { } // TODO check this
-	inline void IM2_DELAY()      { add(3); } // TODO check this
-	inline void PUSH_DELAY()     { add(1); }
-	inline void INC_DELAY()      { add(1); }
-	inline void SMALL_DELAY()    { }
-	inline void SET_IM_DELAY()   { add(1); }
-	inline void DI_DELAY()       { add(1); }
-	inline void RETN_DELAY()     { add(1); }
-	inline void MULUB_DELAY()    { add(12); }
-	inline void MULUW_DELAY()    { add(34); }
 	inline unsigned haltStates() { return 1; } // HALT + M1 // TODO check this
 	inline bool hasMul() const   { return true; }
 
@@ -229,6 +206,7 @@ protected:
 		CC_IRQ2      = 6, EE_IRQ2_1     = 0, CC_IRQ2_2     = 4, // TODO check
 
 		CC_MAIN      = 0,
+		CC_DD        = 1,
 		CC_PREFIX    = 1,
 		CC_DD_CB     = 1, // +1
 		EE_ED        = 1,
