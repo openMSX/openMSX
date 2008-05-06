@@ -632,7 +632,7 @@ template <class T> ALWAYS_INLINE int CPUCore<T>::executeInstruction1(byte opcode
 	M1Cycle();
 	switch (opcode) {
 		case 0x00: // nop
-		case 0x40: // ld b,c
+		case 0x40: // ld b,b
 		case 0x49: // ld c,c
 		case 0x52: // ld d,d
 		case 0x5b: // ld e,e
