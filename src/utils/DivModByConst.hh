@@ -345,8 +345,8 @@ template<unsigned DIVISOR, unsigned N> struct DBCHelper2
 	static const uint64 J = 0xffffffffffffffffull % DIVISOR;
 	typedef Div128<1 << L, 0, 0, 0xffffffffffffffffull - J> K;
 
-	typedef Div128<1 << L,                   0,              0, DIVISOR> M_LOW;
-	typedef Div128<1 << L + K::quotientHigh, K::quotientLow, 0, DIVISOR> M_HIGH;
+	typedef Div128< 1 << L,                    0,              0, DIVISOR> M_LOW;
+	typedef Div128<(1 << L) + K::quotientHigh, K::quotientLow, 0, DIVISOR> M_HIGH;
 	typedef DBCReduce2<M_LOW ::quotientHigh, M_LOW ::quotientLow,
 	                   M_HIGH::quotientHigh, M_HIGH::quotientLow, L> R;
 
