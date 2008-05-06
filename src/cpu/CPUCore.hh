@@ -143,6 +143,7 @@ private:
 	void WR_WORD_rev_slow(unsigned address, unsigned value, unsigned cc);
 
 	inline void M1Cycle();
+	int executeInstruction1_slow(byte opcode);
 	inline int executeInstruction1(byte opcode);
 	inline void nmi();
 	inline void irq0();
@@ -1351,7 +1352,6 @@ private:
 	inline int ret_pe();
 	inline int ret_po();
 	inline int ret_z();
-	inline int reti();
 	inline int retn();
 
 	inline int jp_hl();

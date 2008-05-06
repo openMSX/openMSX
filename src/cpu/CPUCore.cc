@@ -622,11 +622,24 @@ template <class T> inline void CPUCore<T>::irq2()
 	T::add(T::CC_IRQ2);
 }
 
+template <class T> NEVER_INLINE int CPUCore<T>::executeInstruction1_slow(byte opcode)
+{
+	return executeInstruction1(opcode);
+}
+
 template <class T> ALWAYS_INLINE int CPUCore<T>::executeInstruction1(byte opcode)
 {
 	M1Cycle();
 	switch (opcode) {
-		case 0x00: return nop();
+		case 0x00: // nop
+		case 0x40: // ld b,c
+		case 0x49: // ld c,c
+		case 0x52: // ld d,d
+		case 0x5b: // ld e,e
+		case 0x64: // ld h,h
+		case 0x6d: // ld l,l
+		case 0x7f: // ld a,a
+			return nop();
 		case 0x01: return ld_bc_word();
 		case 0x02: return ld_xbc_a();
 		case 0x03: return inc_bc();
@@ -691,7 +704,6 @@ template <class T> ALWAYS_INLINE int CPUCore<T>::executeInstruction1(byte opcode
 		case 0x3e: return ld_a_byte();
 		case 0x3f: return ccf();
 
-		case 0x40: return nop();
 		case 0x41: return ld_b_c();
 		case 0x42: return ld_b_d();
 		case 0x43: return ld_b_e();
@@ -700,7 +712,6 @@ template <class T> ALWAYS_INLINE int CPUCore<T>::executeInstruction1(byte opcode
 		case 0x46: return ld_b_xhl();
 		case 0x47: return ld_b_a();
 		case 0x48: return ld_c_b();
-		case 0x49: return nop();
 		case 0x4a: return ld_c_d();
 		case 0x4b: return ld_c_e();
 		case 0x4c: return ld_c_h();
@@ -709,7 +720,6 @@ template <class T> ALWAYS_INLINE int CPUCore<T>::executeInstruction1(byte opcode
 		case 0x4f: return ld_c_a();
 		case 0x50: return ld_d_b();
 		case 0x51: return ld_d_c();
-		case 0x52: return nop();
 		case 0x53: return ld_d_e();
 		case 0x54: return ld_d_h();
 		case 0x55: return ld_d_l();
@@ -718,7 +728,6 @@ template <class T> ALWAYS_INLINE int CPUCore<T>::executeInstruction1(byte opcode
 		case 0x58: return ld_e_b();
 		case 0x59: return ld_e_c();
 		case 0x5a: return ld_e_d();
-		case 0x5b: return nop();
 		case 0x5c: return ld_e_h();
 		case 0x5d: return ld_e_l();
 		case 0x5e: return ld_e_xhl();
@@ -727,7 +736,6 @@ template <class T> ALWAYS_INLINE int CPUCore<T>::executeInstruction1(byte opcode
 		case 0x61: return ld_h_c();
 		case 0x62: return ld_h_d();
 		case 0x63: return ld_h_e();
-		case 0x64: return nop();
 		case 0x65: return ld_h_l();
 		case 0x66: return ld_h_xhl();
 		case 0x67: return ld_h_a();
@@ -736,7 +744,6 @@ template <class T> ALWAYS_INLINE int CPUCore<T>::executeInstruction1(byte opcode
 		case 0x6a: return ld_l_d();
 		case 0x6b: return ld_l_e();
 		case 0x6c: return ld_l_h();
-		case 0x6d: return nop();
 		case 0x6e: return ld_l_xhl();
 		case 0x6f: return ld_l_a();
 		case 0x70: return ld_xhl_b();
@@ -754,7 +761,6 @@ template <class T> ALWAYS_INLINE int CPUCore<T>::executeInstruction1(byte opcode
 		case 0x7c: return ld_a_h();
 		case 0x7d: return ld_a_l();
 		case 0x7e: return ld_a_xhl();
-		case 0x7f: return nop();
 
 		case 0x80: return add_a_b();
 		case 0x81: return add_a_c();
@@ -920,7 +926,7 @@ template <class T> void CPUCore<T>::executeFast()
 {
 	T::R800Refresh();
 	byte opcode = RDMEM_OPCODE(T::CC_MAIN);
-	int cycles = executeInstruction1(opcode);
+	int cycles = executeInstruction1_slow(opcode);
 	T::add(cycles);
 }
 
@@ -3118,15 +3124,7 @@ template <class T> int CPUCore<T>::ret_pe() { return RET(PE(), T::EE_RET_C); }
 template <class T> int CPUCore<T>::ret_po() { return RET(PO(), T::EE_RET_C); }
 template <class T> int CPUCore<T>::ret_z()  { return RET(Z(),  T::EE_RET_C); }
 
-template <class T> int CPUCore<T>::reti()
-{
-	// same as retn
-	R.setIFF1(R.getIFF2());
-	R.setNextIFF1(R.getIFF2());
-	setSlowInstructions();
-	return RET(true, T::EE_RETN);
-}
-template <class T> int CPUCore<T>::retn()
+template <class T> int CPUCore<T>::retn() // also reti
 {
 	R.setIFF1(R.getIFF2());
 	R.setNextIFF1(R.getIFF2());
@@ -3583,70 +3581,30 @@ template <class T> int CPUCore<T>::dd_cb()
 		case 0x3e: return srl_xix(ofst);
 		case 0x3f: return srl_xix_a(ofst);
 
-		case 0x40: return bit_0_xix(ofst);
-		case 0x41: return bit_0_xix(ofst);
-		case 0x42: return bit_0_xix(ofst);
-		case 0x43: return bit_0_xix(ofst);
-		case 0x44: return bit_0_xix(ofst);
-		case 0x45: return bit_0_xix(ofst);
-		case 0x46: return bit_0_xix(ofst);
-		case 0x47: return bit_0_xix(ofst);
-		case 0x48: return bit_1_xix(ofst);
-		case 0x49: return bit_1_xix(ofst);
-		case 0x4a: return bit_1_xix(ofst);
-		case 0x4b: return bit_1_xix(ofst);
-		case 0x4c: return bit_1_xix(ofst);
-		case 0x4d: return bit_1_xix(ofst);
-		case 0x4e: return bit_1_xix(ofst);
-		case 0x4f: return bit_1_xix(ofst);
-		case 0x50: return bit_2_xix(ofst);
-		case 0x51: return bit_2_xix(ofst);
-		case 0x52: return bit_2_xix(ofst);
-		case 0x53: return bit_2_xix(ofst);
-		case 0x54: return bit_2_xix(ofst);
-		case 0x55: return bit_2_xix(ofst);
-		case 0x56: return bit_2_xix(ofst);
-		case 0x57: return bit_2_xix(ofst);
-		case 0x58: return bit_3_xix(ofst);
-		case 0x59: return bit_3_xix(ofst);
-		case 0x5a: return bit_3_xix(ofst);
-		case 0x5b: return bit_3_xix(ofst);
-		case 0x5c: return bit_3_xix(ofst);
-		case 0x5d: return bit_3_xix(ofst);
-		case 0x5e: return bit_3_xix(ofst);
-		case 0x5f: return bit_3_xix(ofst);
-		case 0x60: return bit_4_xix(ofst);
-		case 0x61: return bit_4_xix(ofst);
-		case 0x62: return bit_4_xix(ofst);
-		case 0x63: return bit_4_xix(ofst);
-		case 0x64: return bit_4_xix(ofst);
-		case 0x65: return bit_4_xix(ofst);
-		case 0x66: return bit_4_xix(ofst);
-		case 0x67: return bit_4_xix(ofst);
-		case 0x68: return bit_5_xix(ofst);
-		case 0x69: return bit_5_xix(ofst);
-		case 0x6a: return bit_5_xix(ofst);
-		case 0x6b: return bit_5_xix(ofst);
-		case 0x6c: return bit_5_xix(ofst);
-		case 0x6d: return bit_5_xix(ofst);
-		case 0x6e: return bit_5_xix(ofst);
-		case 0x6f: return bit_5_xix(ofst);
-		case 0x70: return bit_6_xix(ofst);
-		case 0x71: return bit_6_xix(ofst);
-		case 0x72: return bit_6_xix(ofst);
-		case 0x73: return bit_6_xix(ofst);
-		case 0x74: return bit_6_xix(ofst);
-		case 0x75: return bit_6_xix(ofst);
-		case 0x76: return bit_6_xix(ofst);
-		case 0x77: return bit_6_xix(ofst);
-		case 0x78: return bit_7_xix(ofst);
-		case 0x79: return bit_7_xix(ofst);
-		case 0x7a: return bit_7_xix(ofst);
-		case 0x7b: return bit_7_xix(ofst);
-		case 0x7c: return bit_7_xix(ofst);
-		case 0x7d: return bit_7_xix(ofst);
-		case 0x7e: return bit_7_xix(ofst);
-		case 0x7f: return bit_7_xix(ofst);
+		case 0x40: case 0x41: case 0x42: case 0x43:
+		case 0x44: case 0x45: case 0x46: case 0x47:
+			return bit_0_xix(ofst);
+		case 0x48: case 0x49: case 0x4a: case 0x4b:
+		case 0x4c: case 0x4d: case 0x4e: case 0x4f:
+			return bit_1_xix(ofst);
+		case 0x50: case 0x51: case 0x52: case 0x53:
+		case 0x54: case 0x55: case 0x56: case 0x57:
+			return bit_2_xix(ofst);
+		case 0x58: case 0x59: case 0x5a: case 0x5b:
+		case 0x5c: case 0x5d: case 0x5e: case 0x5f:
+			return bit_3_xix(ofst);
+		case 0x60: case 0x61: case 0x62: case 0x63:
+		case 0x64: case 0x65: case 0x66: case 0x67:
+			return bit_4_xix(ofst);
+		case 0x68: case 0x69: case 0x6a: case 0x6b:
+		case 0x6c: case 0x6d: case 0x6e: case 0x6f:
+			return bit_5_xix(ofst);
+		case 0x70: case 0x71: case 0x72: case 0x73:
+		case 0x74: case 0x75: case 0x76: case 0x77:
+			return bit_6_xix(ofst);
+		case 0x78: case 0x79: case 0x7a: case 0x7b:
+		case 0x7c: case 0x7d: case 0x7e: case 0x7f:
+			return bit_7_xix(ofst);
 
 		case 0x80: return res_0_xix_b(ofst);
 		case 0x81: return res_0_xix_c(ofst);
@@ -3852,70 +3810,30 @@ template <class T> int CPUCore<T>::fd_cb()
 		case 0x3e: return srl_xiy(ofst);
 		case 0x3f: return srl_xiy_a(ofst);
 
-		case 0x40: return bit_0_xiy(ofst);
-		case 0x41: return bit_0_xiy(ofst);
-		case 0x42: return bit_0_xiy(ofst);
-		case 0x43: return bit_0_xiy(ofst);
-		case 0x44: return bit_0_xiy(ofst);
-		case 0x45: return bit_0_xiy(ofst);
-		case 0x46: return bit_0_xiy(ofst);
-		case 0x47: return bit_0_xiy(ofst);
-		case 0x48: return bit_1_xiy(ofst);
-		case 0x49: return bit_1_xiy(ofst);
-		case 0x4a: return bit_1_xiy(ofst);
-		case 0x4b: return bit_1_xiy(ofst);
-		case 0x4c: return bit_1_xiy(ofst);
-		case 0x4d: return bit_1_xiy(ofst);
-		case 0x4e: return bit_1_xiy(ofst);
-		case 0x4f: return bit_1_xiy(ofst);
-		case 0x50: return bit_2_xiy(ofst);
-		case 0x51: return bit_2_xiy(ofst);
-		case 0x52: return bit_2_xiy(ofst);
-		case 0x53: return bit_2_xiy(ofst);
-		case 0x54: return bit_2_xiy(ofst);
-		case 0x55: return bit_2_xiy(ofst);
-		case 0x56: return bit_2_xiy(ofst);
-		case 0x57: return bit_2_xiy(ofst);
-		case 0x58: return bit_3_xiy(ofst);
-		case 0x59: return bit_3_xiy(ofst);
-		case 0x5a: return bit_3_xiy(ofst);
-		case 0x5b: return bit_3_xiy(ofst);
-		case 0x5c: return bit_3_xiy(ofst);
-		case 0x5d: return bit_3_xiy(ofst);
-		case 0x5e: return bit_3_xiy(ofst);
-		case 0x5f: return bit_3_xiy(ofst);
-		case 0x60: return bit_4_xiy(ofst);
-		case 0x61: return bit_4_xiy(ofst);
-		case 0x62: return bit_4_xiy(ofst);
-		case 0x63: return bit_4_xiy(ofst);
-		case 0x64: return bit_4_xiy(ofst);
-		case 0x65: return bit_4_xiy(ofst);
-		case 0x66: return bit_4_xiy(ofst);
-		case 0x67: return bit_4_xiy(ofst);
-		case 0x68: return bit_5_xiy(ofst);
-		case 0x69: return bit_5_xiy(ofst);
-		case 0x6a: return bit_5_xiy(ofst);
-		case 0x6b: return bit_5_xiy(ofst);
-		case 0x6c: return bit_5_xiy(ofst);
-		case 0x6d: return bit_5_xiy(ofst);
-		case 0x6e: return bit_5_xiy(ofst);
-		case 0x6f: return bit_5_xiy(ofst);
-		case 0x70: return bit_6_xiy(ofst);
-		case 0x71: return bit_6_xiy(ofst);
-		case 0x72: return bit_6_xiy(ofst);
-		case 0x73: return bit_6_xiy(ofst);
-		case 0x74: return bit_6_xiy(ofst);
-		case 0x75: return bit_6_xiy(ofst);
-		case 0x76: return bit_6_xiy(ofst);
-		case 0x77: return bit_6_xiy(ofst);
-		case 0x78: return bit_7_xiy(ofst);
-		case 0x79: return bit_7_xiy(ofst);
-		case 0x7a: return bit_7_xiy(ofst);
-		case 0x7b: return bit_7_xiy(ofst);
-		case 0x7c: return bit_7_xiy(ofst);
-		case 0x7d: return bit_7_xiy(ofst);
-		case 0x7e: return bit_7_xiy(ofst);
-		case 0x7f: return bit_7_xiy(ofst);
+		case 0x40: case 0x41: case 0x42: case 0x43:
+		case 0x44: case 0x45: case 0x46: case 0x47:
+			return bit_0_xiy(ofst);
+		case 0x48: case 0x49: case 0x4a: case 0x4b:
+		case 0x4c: case 0x4d: case 0x4e: case 0x4f:
+			return bit_1_xiy(ofst);
+		case 0x50: case 0x51: case 0x52: case 0x53:
+		case 0x54: case 0x55: case 0x56: case 0x57:
+			return bit_2_xiy(ofst);
+		case 0x58: case 0x59: case 0x5a: case 0x5b:
+		case 0x5c: case 0x5d: case 0x5e: case 0x5f:
+			return bit_3_xiy(ofst);
+		case 0x60: case 0x61: case 0x62: case 0x63:
+		case 0x64: case 0x65: case 0x66: case 0x67:
+			return bit_4_xiy(ofst);
+		case 0x68: case 0x69: case 0x6a: case 0x6b:
+		case 0x6c: case 0x6d: case 0x6e: case 0x6f:
+			return bit_5_xiy(ofst);
+		case 0x70: case 0x71: case 0x72: case 0x73:
+		case 0x74: case 0x75: case 0x76: case 0x77:
+			return bit_6_xiy(ofst);
+		case 0x78: case 0x79: case 0x7a: case 0x7b:
+		case 0x7c: case 0x7d: case 0x7e: case 0x7f:
+			return bit_7_xiy(ofst);
 
 		case 0x80: return res_0_xiy_b(ofst);
 		case 0x81: return res_0_xiy_c(ofst);
@@ -4323,265 +4241,138 @@ template <class T> int CPUCore<T>::ed()
 	byte opcode = RDMEM_OPCODE(T::CC_PREFIX);
 	M1Cycle();
 	switch (opcode) {
-		case 0x00: return nop();
-		case 0x01: return nop();
-		case 0x02: return nop();
-		case 0x03: return nop();
-		case 0x04: return nop();
-		case 0x05: return nop();
-		case 0x06: return nop();
-		case 0x07: return nop();
-		case 0x08: return nop();
-		case 0x09: return nop();
-		case 0x0a: return nop();
-		case 0x0b: return nop();
-		case 0x0c: return nop();
-		case 0x0d: return nop();
-		case 0x0e: return nop();
-		case 0x0f: return nop();
-		case 0x10: return nop();
-		case 0x11: return nop();
-		case 0x12: return nop();
-		case 0x13: return nop();
-		case 0x14: return nop();
-		case 0x15: return nop();
-		case 0x16: return nop();
-		case 0x17: return nop();
-		case 0x18: return nop();
-		case 0x19: return nop();
-		case 0x1a: return nop();
-		case 0x1b: return nop();
-		case 0x1c: return nop();
-		case 0x1d: return nop();
-		case 0x1e: return nop();
-		case 0x1f: return nop();
-		case 0x20: return nop();
-		case 0x21: return nop();
-		case 0x22: return nop();
-		case 0x23: return nop();
-		case 0x24: return nop();
-		case 0x25: return nop();
-		case 0x26: return nop();
-		case 0x27: return nop();
-		case 0x28: return nop();
-		case 0x29: return nop();
-		case 0x2a: return nop();
-		case 0x2b: return nop();
-		case 0x2c: return nop();
-		case 0x2d: return nop();
-		case 0x2e: return nop();
-		case 0x2f: return nop();
-		case 0x30: return nop();
-		case 0x31: return nop();
-		case 0x32: return nop();
-		case 0x33: return nop();
-		case 0x34: return nop();
-		case 0x35: return nop();
-		case 0x36: return nop();
-		case 0x37: return nop();
-		case 0x38: return nop();
-		case 0x39: return nop();
-		case 0x3a: return nop();
-		case 0x3b: return nop();
-		case 0x3c: return nop();
-		case 0x3d: return nop();
-		case 0x3e: return nop();
-		case 0x3f: return nop();
+		case 0x00: case 0x01: case 0x02: case 0x03:
+		case 0x04: case 0x05: case 0x06: case 0x07:
+		case 0x08: case 0x09: case 0x0a: case 0x0b:
+		case 0x0c: case 0x0d: case 0x0e: case 0x0f:
+		case 0x10: case 0x11: case 0x12: case 0x13:
+		case 0x14: case 0x15: case 0x16: case 0x17:
+		case 0x18: case 0x19: case 0x1a: case 0x1b:
+		case 0x1c: case 0x1d: case 0x1e: case 0x1f:
+		case 0x20: case 0x21: case 0x22: case 0x23:
+		case 0x24: case 0x25: case 0x26: case 0x27:
+		case 0x28: case 0x29: case 0x2a: case 0x2b:
+		case 0x2c: case 0x2d: case 0x2e: case 0x2f:
+		case 0x30: case 0x31: case 0x32: case 0x33:
+		case 0x34: case 0x35: case 0x36: case 0x37:
+		case 0x38: case 0x39: case 0x3a: case 0x3b:
+		case 0x3c: case 0x3d: case 0x3e: case 0x3f:
+
+		case 0x77: case 0x7f:
+
+		case 0x80: case 0x81: case 0x82: case 0x83:
+		case 0x84: case 0x85: case 0x86: case 0x87:
+		case 0x88: case 0x89: case 0x8a: case 0x8b:
+		case 0x8c: case 0x8d: case 0x8e: case 0x8f:
+		case 0x90: case 0x91: case 0x92: case 0x93:
+		case 0x94: case 0x95: case 0x96: case 0x97:
+		case 0x98: case 0x99: case 0x9a: case 0x9b:
+		case 0x9c: case 0x9d: case 0x9e: case 0x9f:
+		case 0xa4: case 0xa5: case 0xa6: case 0xa7:
+		case 0xac: case 0xad: case 0xae: case 0xaf:
+		case 0xb4: case 0xb5: case 0xb6: case 0xb7:
+		case 0xbc: case 0xbd: case 0xbe: case 0xbf:
+
+		case 0xc0:            case 0xc2:
+		case 0xc4: case 0xc5: case 0xc6: case 0xc7:
+		case 0xc8: case 0xca: case 0xcb:
+		case 0xcc: case 0xcd: case 0xce: case 0xcf:
+		case 0xd0:            case 0xd2: case 0xd3:
+		case 0xd4: case 0xd5: case 0xd6: case 0xd7:
+		case 0xd8:            case 0xda: case 0xdb:
+		case 0xdc: case 0xdd: case 0xde: case 0xdf:
+		case 0xe0: case 0xe1: case 0xe2: case 0xe3:
+		case 0xe4: case 0xe5: case 0xe6: case 0xe7:
+		case 0xe8: case 0xe9: case 0xea: case 0xeb:
+		case 0xec: case 0xed: case 0xee: case 0xef:
+		case 0xf0: case 0xf1: case 0xf2:
+		case 0xf4: case 0xf5: case 0xf6: case 0xf7:
+		case 0xf8: case 0xf9: case 0xfa: case 0xfb:
+		case 0xfc: case 0xfd: case 0xfe: case 0xff:
+			return nop();
 
 		case 0x40: return in_b_c();
-		case 0x41: return out_c_b();
-		case 0x42: return sbc_hl_bc();
-		case 0x43: return ld_xword_bc2();
-		case 0x44: return neg();
-		case 0x45: return retn();
-		case 0x46: return im_0();
-		case 0x47: return ld_i_a();
 		case 0x48: return in_c_c();
-		case 0x49: return out_c_c();
-		case 0x4a: return adc_hl_bc();
-		case 0x4b: return ld_bc_xword2();
-		case 0x4c: return neg();
-		case 0x4d: return reti();
-		case 0x4e: return im_0();
-		case 0x4f: return ld_r_a();
 		case 0x50: return in_d_c();
-		case 0x51: return out_c_d();
-		case 0x52: return sbc_hl_de();
-		case 0x53: return ld_xword_de2();
-		case 0x54: return neg();
-		case 0x55: return retn();
-		case 0x56: return im_1();
-		case 0x57: return ld_a_i();
 		case 0x58: return in_e_c();
-		case 0x59: return out_c_e();
-		case 0x5a: return adc_hl_de();
-		case 0x5b: return ld_de_xword2();
-		case 0x5c: return neg();
-		case 0x5d: return retn();
-		case 0x5e: return im_2();
-		case 0x5f: return ld_a_r();
 		case 0x60: return in_h_c();
-		case 0x61: return out_c_h();
-		case 0x62: return sbc_hl_hl();
-		case 0x63: return ld_xword_hl2();
-		case 0x64: return neg();
-		case 0x65: return retn();
-		case 0x66: return im_0();
-		case 0x67: return rrd();
 		case 0x68: return in_l_c();
-		case 0x69: return out_c_l();
-		case 0x6a: return adc_hl_hl();
-		case 0x6b: return ld_hl_xword2();
-		case 0x6c: return neg();
-		case 0x6d: return retn();
-		case 0x6e: return im_0();
-		case 0x6f: return rld();
 		case 0x70: return in_0_c();
-		case 0x71: return out_c_0();
-		case 0x72: return sbc_hl_sp();
-		case 0x73: return ld_xword_sp2();
-		case 0x74: return neg();
-		case 0x75: return retn();
-		case 0x76: return im_1();
-		case 0x77: return nop();
 		case 0x78: return in_a_c();
-		case 0x79: return out_c_a();
-		case 0x7a: return adc_hl_sp();
-		case 0x7b: return ld_sp_xword2();
-		case 0x7c: return neg();
-		case 0x7d: return retn();
-		case 0x7e: return im_2();
-		case 0x7f: return nop();
 
-		case 0x80: return nop();
-		case 0x81: return nop();
-		case 0x82: return nop();
-		case 0x83: return nop();
-		case 0x84: return nop();
-		case 0x85: return nop();
-		case 0x86: return nop();
-		case 0x87: return nop();
-		case 0x88: return nop();
-		case 0x89: return nop();
-		case 0x8a: return nop();
-		case 0x8b: return nop();
-		case 0x8c: return nop();
-		case 0x8d: return nop();
-		case 0x8e: return nop();
-		case 0x8f: return nop();
-		case 0x90: return nop();
-		case 0x91: return nop();
-		case 0x92: return nop();
-		case 0x93: return nop();
-		case 0x94: return nop();
-		case 0x95: return nop();
-		case 0x96: return nop();
-		case 0x97: return nop();
-		case 0x98: return nop();
-		case 0x99: return nop();
-		case 0x9a: return nop();
-		case 0x9b: return nop();
-		case 0x9c: return nop();
-		case 0x9d: return nop();
-		case 0x9e: return nop();
-		case 0x9f: return nop();
+		case 0x41: return out_c_b();
+		case 0x49: return out_c_c();
+		case 0x51: return out_c_d();
+		case 0x59: return out_c_e();
+		case 0x61: return out_c_h();
+		case 0x69: return out_c_l();
+		case 0x71: return out_c_0();
+		case 0x79: return out_c_a();
+
+		case 0x42: return sbc_hl_bc();
+		case 0x52: return sbc_hl_de();
+		case 0x62: return sbc_hl_hl();
+		case 0x72: return sbc_hl_sp();
+
+		case 0x4a: return adc_hl_bc();
+		case 0x5a: return adc_hl_de();
+		case 0x6a: return adc_hl_hl();
+		case 0x7a: return adc_hl_sp();
+
+		case 0x43: return ld_xword_bc2();
+		case 0x53: return ld_xword_de2();
+		case 0x63: return ld_xword_hl2();
+		case 0x73: return ld_xword_sp2();
+
+		case 0x4b: return ld_bc_xword2();
+		case 0x5b: return ld_de_xword2();
+		case 0x6b: return ld_hl_xword2();
+		case 0x7b: return ld_sp_xword2();
+
+		case 0x47: return ld_i_a();
+		case 0x4f: return ld_r_a();
+		case 0x57: return ld_a_i();
+		case 0x5f: return ld_a_r();
+
+		case 0x67: return rrd();
+		case 0x6f: return rld();
+
+		case 0x45: case 0x4d: case 0x55: case 0x5d:
+		case 0x65: case 0x6d: case 0x75: case 0x7d:
+			return retn();
+		case 0x46: case 0x4e: case 0x66: case 0x6e:
+			return im_0();
+		case 0x56: case 0x76:
+			return im_1();
+		case 0x5e: case 0x7e:
+			return im_2();
+		case 0x44: case 0x4c: case 0x54: case 0x5c:
+		case 0x64: case 0x6c: case 0x74: case 0x7c:
+			return neg();
+
 		case 0xa0: return ldi();
 		case 0xa1: return cpi();
 		case 0xa2: return ini();
 		case 0xa3: return outi();
-		case 0xa4: return nop();
-		case 0xa5: return nop();
-		case 0xa6: return nop();
-		case 0xa7: return nop();
 		case 0xa8: return ldd();
 		case 0xa9: return cpd();
 		case 0xaa: return ind();
 		case 0xab: return outd();
-		case 0xac: return nop();
-		case 0xad: return nop();
-		case 0xae: return nop();
-		case 0xaf: return nop();
 		case 0xb0: return ldir();
 		case 0xb1: return cpir();
 		case 0xb2: return inir();
 		case 0xb3: return otir();
-		case 0xb4: return nop();
-		case 0xb5: return nop();
-		case 0xb6: return nop();
-		case 0xb7: return nop();
 		case 0xb8: return lddr();
 		case 0xb9: return cpdr();
 		case 0xba: return indr();
 		case 0xbb: return otdr();
-		case 0xbc: return nop();
-		case 0xbd: return nop();
-		case 0xbe: return nop();
-		case 0xbf: return nop();
 
-		case 0xc0: return nop();
-		case 0xc1: return T::hasMul() ? mulub_a_b() : nop();
-		case 0xc2: return nop();
+		case 0xc1: return T::hasMul() ? mulub_a_b()   : nop();
 		case 0xc3: return T::hasMul() ? muluw_hl_bc() : nop();
-		case 0xc4: return nop();
-		case 0xc5: return nop();
-		case 0xc6: return nop();
-		case 0xc7: return nop();
-		case 0xc8: return nop();
-		case 0xc9: return T::hasMul() ? mulub_a_c() : nop();
-		case 0xca: return nop();
-		case 0xcb: return nop();
-		case 0xcc: return nop();
-		case 0xcd: return nop();
-		case 0xce: return nop();
-		case 0xcf: return nop();
-		case 0xd0: return nop();
-		case 0xd1: return T::hasMul() ? mulub_a_d() : nop();
-		case 0xd2: return nop();
-		case 0xd3: return nop();
-		case 0xd4: return nop();
-		case 0xd5: return nop();
-		case 0xd6: return nop();
-		case 0xd7: return nop();
-		case 0xd8: return nop();
-		case 0xd9: return T::hasMul() ? mulub_a_e() : nop();
-		case 0xda: return nop();
-		case 0xdb: return nop();
-		case 0xdc: return nop();
-		case 0xdd: return nop();
-		case 0xde: return nop();
-		case 0xdf: return nop();
-		case 0xe0: return nop();
-		case 0xe1: return nop();
-		case 0xe2: return nop();
-		case 0xe3: return nop();
-		case 0xe4: return nop();
-		case 0xe5: return nop();
-		case 0xe6: return nop();
-		case 0xe7: return nop();
-		case 0xe8: return nop();
-		case 0xe9: return nop();
-		case 0xea: return nop();
-		case 0xeb: return nop();
-		case 0xec: return nop();
-		case 0xed: return nop();
-		case 0xee: return nop();
-		case 0xef: return nop();
-		case 0xf0: return nop();
-		case 0xf1: return nop();
-		case 0xf2: return nop();
+		case 0xc9: return T::hasMul() ? mulub_a_c()   : nop();
+		case 0xd1: return T::hasMul() ? mulub_a_d()   : nop();
+		case 0xd9: return T::hasMul() ? mulub_a_e()   : nop();
 		case 0xf3: return T::hasMul() ? muluw_hl_sp() : nop();
-		case 0xf4: return nop();
-		case 0xf5: return nop();
-		case 0xf6: return nop();
-		case 0xf7: return nop();
-		case 0xf8: return nop();
-		case 0xf9: return nop();
-		case 0xfa: return nop();
-		case 0xfb: return nop();
-		case 0xfc: return nop();
-		case 0xfd: return nop();
-		case 0xfe: return nop();
-		case 0xff: return nop();
 	}
 	assert(false); return 0;
 }
@@ -4593,108 +4384,216 @@ template <class T> int CPUCore<T>::dd()
 	byte opcode = RDMEM_OPCODE(T::CC_MAIN);
 	M1Cycle();
 	switch (opcode) {
-		case 0x00: return nop();
-		case 0x01: return ld_bc_word();
-		case 0x02: return ld_xbc_a();
-		case 0x03: return inc_bc();
-		case 0x04: return inc_b();
-		case 0x05: return dec_b();
-		case 0x06: return ld_b_byte();
-		case 0x07: return rlca();
-		case 0x08: return ex_af_af();
+		case 0x00: // nop();
+		case 0x01: // ld_bc_word();
+		case 0x02: // ld_xbc_a();
+		case 0x03: // inc_bc();
+		case 0x04: // inc_b();
+		case 0x05: // dec_b();
+		case 0x06: // ld_b_byte();
+		case 0x07: // rlca();
+		case 0x08: // ex_af_af();
+		case 0x0a: // ld_a_xbc();
+		case 0x0b: // dec_bc();
+		case 0x0c: // inc_c();
+		case 0x0d: // dec_c();
+		case 0x0e: // ld_c_byte();
+		case 0x0f: // rrca();
+		case 0x10: // djnz();
+		case 0x11: // ld_de_word();
+		case 0x12: // ld_xde_a();
+		case 0x13: // inc_de();
+		case 0x14: // inc_d();
+		case 0x15: // dec_d();
+		case 0x16: // ld_d_byte();
+		case 0x17: // rla();
+		case 0x18: // jr();
+		case 0x1a: // ld_a_xde();
+		case 0x1b: // dec_de();
+		case 0x1c: // inc_e();
+		case 0x1d: // dec_e();
+		case 0x1e: // ld_e_byte();
+		case 0x1f: // rra();
+		case 0x20: // jr_nz();
+		case 0x27: // daa();
+		case 0x28: // jr_z();
+		case 0x2f: // cpl();
+		case 0x30: // jr_nc();
+		case 0x31: // ld_sp_word();
+		case 0x32: // ld_xbyte_a();
+		case 0x33: // inc_sp();
+		case 0x37: // scf();
+		case 0x38: // jr_c();
+		case 0x3a: // ld_a_xbyte();
+		case 0x3b: // dec_sp();
+		case 0x3c: // inc_a();
+		case 0x3d: // dec_a();
+		case 0x3e: // ld_a_byte();
+		case 0x3f: // ccf();
+
+		case 0x40: // ld_b_b();
+		case 0x41: // ld_b_c();
+		case 0x42: // ld_b_d();
+		case 0x43: // ld_b_e();
+		case 0x47: // ld_b_a();
+		case 0x48: // ld_c_b();
+		case 0x49: // ld_c_c();
+		case 0x4a: // ld_c_d();
+		case 0x4b: // ld_c_e();
+		case 0x4f: // ld_c_a();
+		case 0x50: // ld_d_b();
+		case 0x51: // ld_d_c();
+		case 0x52: // ld_d_d();
+		case 0x53: // ld_d_e();
+		case 0x57: // ld_d_a();
+		case 0x58: // ld_e_b();
+		case 0x59: // ld_e_c();
+		case 0x5a: // ld_e_d();
+		case 0x5b: // ld_e_e();
+		case 0x5f: // ld_e_a();
+		case 0x64: // ld_ixh_ixh(); == nop
+		case 0x6d: // ld_ixl_ixl(); == nop
+		case 0x76: // halt();
+		case 0x78: // ld_a_b();
+		case 0x79: // ld_a_c();
+		case 0x7a: // ld_a_d();
+		case 0x7b: // ld_a_e();
+		case 0x7f: // ld_a_a();
+
+		case 0x80: // add_a_b();
+		case 0x81: // add_a_c();
+		case 0x82: // add_a_d();
+		case 0x83: // add_a_e();
+		case 0x87: // add_a_a();
+		case 0x88: // adc_a_b();
+		case 0x89: // adc_a_c();
+		case 0x8a: // adc_a_d();
+		case 0x8b: // adc_a_e();
+		case 0x8f: // adc_a_a();
+		case 0x90: // sub_b();
+		case 0x91: // sub_c();
+		case 0x92: // sub_d();
+		case 0x93: // sub_e();
+		case 0x97: // sub_a();
+		case 0x98: // sbc_a_b();
+		case 0x99: // sbc_a_c();
+		case 0x9a: // sbc_a_d();
+		case 0x9b: // sbc_a_e();
+		case 0x9f: // sbc_a_a();
+		case 0xa0: // and_b();
+		case 0xa1: // and_c();
+		case 0xa2: // and_d();
+		case 0xa3: // and_e();
+		case 0xa7: // and_a();
+		case 0xa8: // xor_b();
+		case 0xa9: // xor_c();
+		case 0xaa: // xor_d();
+		case 0xab: // xor_e();
+		case 0xaf: // xor_a();
+		case 0xb0: // or_b();
+		case 0xb1: // or_c();
+		case 0xb2: // or_d();
+		case 0xb3: // or_e();
+		case 0xb7: // or_a();
+		case 0xb8: // cp_b();
+		case 0xb9: // cp_c();
+		case 0xba: // cp_d();
+		case 0xbb: // cp_e();
+		case 0xbf: // cp_a();
+
+		case 0xc0: // ret_nz();
+		case 0xc1: // pop_bc();
+		case 0xc2: // jp_nz();
+		case 0xc3: // jp();
+		case 0xc4: // call_nz();
+		case 0xc5: // push_bc();
+		case 0xc6: // add_a_byte();
+		case 0xc7: // rst_00();
+		case 0xc8: // ret_z();
+		case 0xc9: // ret();
+		case 0xca: // jp_z();
+		case 0xcc: // call_z();
+		case 0xcd: // call();
+		case 0xce: // adc_a_byte();
+		case 0xcf: // rst_08();
+		case 0xd0: // ret_nc();
+		case 0xd1: // pop_de();
+		case 0xd2: // jp_nc();
+		case 0xd3: // out_byte_a();
+		case 0xd4: // call_nc();
+		case 0xd5: // push_de();
+		case 0xd6: // sub_byte();
+		case 0xd7: // rst_10();
+		case 0xd8: // ret_c();
+		case 0xd9: // exx();
+		case 0xda: // jp_c();
+		case 0xdb: // in_a_byte();
+		case 0xdc: // call_c();
+		case 0xde: // sbc_a_byte();
+		case 0xdf: // rst_18();
+		case 0xe0: // ret_po();
+		case 0xe2: // jp_po();
+		case 0xe4: // call_po();
+		case 0xe6: // and_byte();
+		case 0xe7: // rst_20();
+		case 0xe8: // ret_pe();
+		case 0xea: // jp_pe();
+		case 0xeb: // ex_de_hl();
+		case 0xec: // call_pe();
+		case 0xed: // ed();
+		case 0xee: // xor_byte();
+		case 0xef: // rst_28();
+		case 0xf0: // ret_p();
+		case 0xf1: // pop_af();
+		case 0xf2: // jp_p();
+		case 0xf3: // di();
+		case 0xf4: // call_p();
+		case 0xf5: // push_af();
+		case 0xf6: // or_byte();
+		case 0xf7: // rst_30();
+		case 0xf8: // ret_m();
+		case 0xfa: // jp_m();
+		case 0xfb: // ei();
+		case 0xfc: // call_m();
+		case 0xfe: // cp_byte();
+		case 0xff: // rst_38();
+			return executeInstruction1_slow(opcode);
+
 		case 0x09: return add_ix_bc();
-		case 0x0a: return ld_a_xbc();
-		case 0x0b: return dec_bc();
-		case 0x0c: return inc_c();
-		case 0x0d: return dec_c();
-		case 0x0e: return ld_c_byte();
-		case 0x0f: return rrca();
-		case 0x10: return djnz();
-		case 0x11: return ld_de_word();
-		case 0x12: return ld_xde_a();
-		case 0x13: return inc_de();
-		case 0x14: return inc_d();
-		case 0x15: return dec_d();
-		case 0x16: return ld_d_byte();
-		case 0x17: return rla();
-		case 0x18: return jr();
 		case 0x19: return add_ix_de();
-		case 0x1a: return ld_a_xde();
-		case 0x1b: return dec_de();
-		case 0x1c: return inc_e();
-		case 0x1d: return dec_e();
-		case 0x1e: return ld_e_byte();
-		case 0x1f: return rra();
-		case 0x20: return jr_nz();
 		case 0x21: return ld_ix_word();
 		case 0x22: return ld_xword_ix();
 		case 0x23: return inc_ix();
 		case 0x24: return inc_ixh();
 		case 0x25: return dec_ixh();
 		case 0x26: return ld_ixh_byte();
-		case 0x27: return daa();
-		case 0x28: return jr_z();
 		case 0x29: return add_ix_ix();
 		case 0x2a: return ld_ix_xword();
 		case 0x2b: return dec_ix();
 		case 0x2c: return inc_ixl();
 		case 0x2d: return dec_ixl();
 		case 0x2e: return ld_ixl_byte();
-		case 0x2f: return cpl();
-		case 0x30: return jr_nc();
-		case 0x31: return ld_sp_word();
-		case 0x32: return ld_xbyte_a();
-		case 0x33: return inc_sp();
 		case 0x34: return inc_xix();
 		case 0x35: return dec_xix();
 		case 0x36: return ld_xix_byte();
-		case 0x37: return scf();
-		case 0x38: return jr_c();
 		case 0x39: return add_ix_sp();
-		case 0x3a: return ld_a_xbyte();
-		case 0x3b: return dec_sp();
-		case 0x3c: return inc_a();
-		case 0x3d: return dec_a();
-		case 0x3e: return ld_a_byte();
-		case 0x3f: return ccf();
 
-		case 0x40: return nop();
-		case 0x41: return ld_b_c();
-		case 0x42: return ld_b_d();
-		case 0x43: return ld_b_e();
 		case 0x44: return ld_b_ixh();
 		case 0x45: return ld_b_ixl();
 		case 0x46: return ld_b_xix();
-		case 0x47: return ld_b_a();
-		case 0x48: return ld_c_b();
-		case 0x49: return nop();
-		case 0x4a: return ld_c_d();
-		case 0x4b: return ld_c_e();
 		case 0x4c: return ld_c_ixh();
 		case 0x4d: return ld_c_ixl();
 		case 0x4e: return ld_c_xix();
-		case 0x4f: return ld_c_a();
-		case 0x50: return ld_d_b();
-		case 0x51: return ld_d_c();
-		case 0x52: return nop();
-		case 0x53: return ld_d_e();
 		case 0x54: return ld_d_ixh();
 		case 0x55: return ld_d_ixl();
 		case 0x56: return ld_d_xix();
-		case 0x57: return ld_d_a();
-		case 0x58: return ld_e_b();
-		case 0x59: return ld_e_c();
-		case 0x5a: return ld_e_d();
-		case 0x5b: return nop();
 		case 0x5c: return ld_e_ixh();
 		case 0x5d: return ld_e_ixl();
 		case 0x5e: return ld_e_xix();
-		case 0x5f: return ld_e_a();
 		case 0x60: return ld_ixh_b();
 		case 0x61: return ld_ixh_c();
 		case 0x62: return ld_ixh_d();
 		case 0x63: return ld_ixh_e();
-		case 0x64: return nop();
 		case 0x65: return ld_ixh_ixl();
 		case 0x66: return ld_h_xix();
 		case 0x67: return ld_ixh_a();
@@ -4703,7 +4602,6 @@ template <class T> int CPUCore<T>::dd()
 		case 0x6a: return ld_ixl_d();
 		case 0x6b: return ld_ixl_e();
 		case 0x6c: return ld_ixl_ixh();
-		case 0x6d: return nop();
 		case 0x6e: return ld_l_xix();
 		case 0x6f: return ld_ixl_a();
 		case 0x70: return ld_xix_b();
@@ -4712,146 +4610,44 @@ template <class T> int CPUCore<T>::dd()
 		case 0x73: return ld_xix_e();
 		case 0x74: return ld_xix_h();
 		case 0x75: return ld_xix_l();
-		case 0x76: return halt();
 		case 0x77: return ld_xix_a();
-		case 0x78: return ld_a_b();
-		case 0x79: return ld_a_c();
-		case 0x7a: return ld_a_d();
-		case 0x7b: return ld_a_e();
 		case 0x7c: return ld_a_ixh();
 		case 0x7d: return ld_a_ixl();
 		case 0x7e: return ld_a_xix();
-		case 0x7f: return nop();
 
-		case 0x80: return add_a_b();
-		case 0x81: return add_a_c();
-		case 0x82: return add_a_d();
-		case 0x83: return add_a_e();
 		case 0x84: return add_a_ixh();
 		case 0x85: return add_a_ixl();
 		case 0x86: return add_a_xix();
-		case 0x87: return add_a_a();
-		case 0x88: return adc_a_b();
-		case 0x89: return adc_a_c();
-		case 0x8a: return adc_a_d();
-		case 0x8b: return adc_a_e();
 		case 0x8c: return adc_a_ixh();
 		case 0x8d: return adc_a_ixl();
 		case 0x8e: return adc_a_xix();
-		case 0x8f: return adc_a_a();
-		case 0x90: return sub_b();
-		case 0x91: return sub_c();
-		case 0x92: return sub_d();
-		case 0x93: return sub_e();
 		case 0x94: return sub_ixh();
 		case 0x95: return sub_ixl();
 		case 0x96: return sub_xix();
-		case 0x97: return sub_a();
-		case 0x98: return sbc_a_b();
-		case 0x99: return sbc_a_c();
-		case 0x9a: return sbc_a_d();
-		case 0x9b: return sbc_a_e();
 		case 0x9c: return sbc_a_ixh();
 		case 0x9d: return sbc_a_ixl();
 		case 0x9e: return sbc_a_xix();
-		case 0x9f: return sbc_a_a();
-		case 0xa0: return and_b();
-		case 0xa1: return and_c();
-		case 0xa2: return and_d();
-		case 0xa3: return and_e();
 		case 0xa4: return and_ixh();
 		case 0xa5: return and_ixl();
 		case 0xa6: return and_xix();
-		case 0xa7: return and_a();
-		case 0xa8: return xor_b();
-		case 0xa9: return xor_c();
-		case 0xaa: return xor_d();
-		case 0xab: return xor_e();
 		case 0xac: return xor_ixh();
 		case 0xad: return xor_ixl();
 		case 0xae: return xor_xix();
-		case 0xaf: return xor_a();
-		case 0xb0: return or_b();
-		case 0xb1: return or_c();
-		case 0xb2: return or_d();
-		case 0xb3: return or_e();
 		case 0xb4: return or_ixh();
 		case 0xb5: return or_ixl();
 		case 0xb6: return or_xix();
-		case 0xb7: return or_a();
-		case 0xb8: return cp_b();
-		case 0xb9: return cp_c();
-		case 0xba: return cp_d();
-		case 0xbb: return cp_e();
 		case 0xbc: return cp_ixh();
 		case 0xbd: return cp_ixl();
 		case 0xbe: return cp_xix();
-		case 0xbf: return cp_a();
 
-		case 0xc0: return ret_nz();
-		case 0xc1: return pop_bc();
-		case 0xc2: return jp_nz();
-		case 0xc3: return jp();
-		case 0xc4: return call_nz();
-		case 0xc5: return push_bc();
-		case 0xc6: return add_a_byte();
-		case 0xc7: return rst_00();
-		case 0xc8: return ret_z();
-		case 0xc9: return ret();
-		case 0xca: return jp_z();
 		case 0xcb: return dd_cb();
-		case 0xcc: return call_z();
-		case 0xcd: return call();
-		case 0xce: return adc_a_byte();
-		case 0xcf: return rst_08();
-		case 0xd0: return ret_nc();
-		case 0xd1: return pop_de();
-		case 0xd2: return jp_nc();
-		case 0xd3: return out_byte_a();
-		case 0xd4: return call_nc();
-		case 0xd5: return push_de();
-		case 0xd6: return sub_byte();
-		case 0xd7: return rst_10();
-		case 0xd8: return ret_c();
-		case 0xd9: return exx();
-		case 0xda: return jp_c();
-		case 0xdb: return in_a_byte();
-		case 0xdc: return call_c();
 		case 0xdd: return dd();
-		case 0xde: return sbc_a_byte();
-		case 0xdf: return rst_18();
-		case 0xe0: return ret_po();
 		case 0xe1: return pop_ix();
-		case 0xe2: return jp_po();
 		case 0xe3: return ex_xsp_ix();
-		case 0xe4: return call_po();
 		case 0xe5: return push_ix();
-		case 0xe6: return and_byte();
-		case 0xe7: return rst_20();
-		case 0xe8: return ret_pe();
 		case 0xe9: return jp_ix();
-		case 0xea: return jp_pe();
-		case 0xeb: return ex_de_hl();
-		case 0xec: return call_pe();
-		case 0xed: return ed();
-		case 0xee: return xor_byte();
-		case 0xef: return rst_28();
-		case 0xf0: return ret_p();
-		case 0xf1: return pop_af();
-		case 0xf2: return jp_p();
-		case 0xf3: return di();
-		case 0xf4: return call_p();
-		case 0xf5: return push_af();
-		case 0xf6: return or_byte();
-		case 0xf7: return rst_30();
-		case 0xf8: return ret_m();
 		case 0xf9: return ld_sp_ix();
-		case 0xfa: return jp_m();
-		case 0xfb: return ei();
-		case 0xfc: return call_m();
 		case 0xfd: return fd();
-		case 0xfe: return cp_byte();
-		case 0xff: return rst_38();
 	}
 	assert(false); return 0;
 }
@@ -4863,108 +4659,216 @@ template <class T> int CPUCore<T>::fd()
 	byte opcode = RDMEM_OPCODE(T::CC_MAIN);
 	M1Cycle();
 	switch (opcode) {
-		case 0x00: return nop();
-		case 0x01: return ld_bc_word();
-		case 0x02: return ld_xbc_a();
-		case 0x03: return inc_bc();
-		case 0x04: return inc_b();
-		case 0x05: return dec_b();
-		case 0x06: return ld_b_byte();
-		case 0x07: return rlca();
-		case 0x08: return ex_af_af();
+		case 0x00: // nop
+		case 0x01: // ld_bc_word();
+		case 0x02: // ld_xbc_a();
+		case 0x03: // inc_bc();
+		case 0x04: // inc_b();
+		case 0x05: // dec_b();
+		case 0x06: // ld_b_byte();
+		case 0x07: // rlca();
+		case 0x08: // ex_af_af();
+		case 0x0a: // ld_a_xbc();
+		case 0x0b: // dec_bc();
+		case 0x0c: // inc_c();
+		case 0x0d: // dec_c();
+		case 0x0e: // ld_c_byte();
+		case 0x0f: // rrca();
+		case 0x10: // djnz();
+		case 0x11: // ld_de_word();
+		case 0x12: // ld_xde_a();
+		case 0x13: // inc_de();
+		case 0x14: // inc_d();
+		case 0x15: // dec_d();
+		case 0x16: // ld_d_byte();
+		case 0x17: // rla();
+		case 0x18: // jr();
+		case 0x1a: // ld_a_xde();
+		case 0x1b: // dec_de();
+		case 0x1c: // inc_e();
+		case 0x1d: // dec_e();
+		case 0x1e: // ld_e_byte();
+		case 0x1f: // rra();
+		case 0x20: // jr_nz();
+		case 0x27: // daa();
+		case 0x28: // jr_z();
+		case 0x2f: // cpl();
+		case 0x30: // jr_nc();
+		case 0x31: // ld_sp_word();
+		case 0x32: // ld_xbyte_a();
+		case 0x33: // inc_sp();
+		case 0x37: // scf();
+		case 0x38: // jr_c();
+		case 0x3a: // ld_a_xbyte();
+		case 0x3b: // dec_sp();
+		case 0x3c: // inc_a();
+		case 0x3d: // dec_a();
+		case 0x3e: // ld_a_byte();
+		case 0x3f: // ccf();
+
+		case 0x40: // ld_b_b();
+		case 0x41: // ld_b_c();
+		case 0x42: // ld_b_d();
+		case 0x43: // ld_b_e();
+		case 0x47: // ld_b_a();
+		case 0x48: // ld_c_b();
+		case 0x49: // ld_c_c();
+		case 0x4a: // ld_c_d();
+		case 0x4b: // ld_c_e();
+		case 0x4f: // ld_c_a();
+		case 0x50: // ld_d_b();
+		case 0x51: // ld_d_c();
+		case 0x52: // ld_d_d();
+		case 0x53: // ld_d_e();
+		case 0x57: // ld_d_a();
+		case 0x58: // ld_e_b();
+		case 0x59: // ld_e_c();
+		case 0x5a: // ld_e_d();
+		case 0x5b: // ld_e_e();
+		case 0x5f: // ld_e_a();
+		case 0x64: // ld_iyh_iyh(); == nop
+		case 0x6d: // ld_iyl_iyl(); == nop
+		case 0x76: // halt();
+		case 0x78: // ld_a_b();
+		case 0x79: // ld_a_c();
+		case 0x7a: // ld_a_d();
+		case 0x7b: // ld_a_e();
+		case 0x7f: // ld_a_a();
+
+		case 0x80: // add_a_b();
+		case 0x81: // add_a_c();
+		case 0x82: // add_a_d();
+		case 0x83: // add_a_e();
+		case 0x87: // add_a_a();
+		case 0x88: // adc_a_b();
+		case 0x89: // adc_a_c();
+		case 0x8a: // adc_a_d();
+		case 0x8b: // adc_a_e();
+		case 0x8f: // adc_a_a();
+		case 0x90: // sub_b();
+		case 0x91: // sub_c();
+		case 0x92: // sub_d();
+		case 0x93: // sub_e();
+		case 0x97: // sub_a();
+		case 0x98: // sbc_a_b();
+		case 0x99: // sbc_a_c();
+		case 0x9a: // sbc_a_d();
+		case 0x9b: // sbc_a_e();
+		case 0x9f: // sbc_a_a();
+		case 0xa0: // and_b();
+		case 0xa1: // and_c();
+		case 0xa2: // and_d();
+		case 0xa3: // and_e();
+		case 0xa7: // and_a();
+		case 0xa8: // xor_b();
+		case 0xa9: // xor_c();
+		case 0xaa: // xor_d();
+		case 0xab: // xor_e();
+		case 0xaf: // xor_a();
+		case 0xb0: // or_b();
+		case 0xb1: // or_c();
+		case 0xb2: // or_d();
+		case 0xb3: // or_e();
+		case 0xb7: // or_a();
+		case 0xb8: // cp_b();
+		case 0xb9: // cp_c();
+		case 0xba: // cp_d();
+		case 0xbb: // cp_e();
+		case 0xbf: // cp_a();
+
+		case 0xc0: // ret_nz();
+		case 0xc1: // pop_bc();
+		case 0xc2: // jp_nz();
+		case 0xc3: // jp();
+		case 0xc4: // call_nz();
+		case 0xc5: // push_bc();
+		case 0xc6: // add_a_byte();
+		case 0xc7: // rst_00();
+		case 0xc8: // ret_z();
+		case 0xc9: // ret();
+		case 0xca: // jp_z();
+		case 0xcc: // call_z();
+		case 0xcd: // call();
+		case 0xce: // adc_a_byte();
+		case 0xcf: // rst_08();
+		case 0xd0: // ret_nc();
+		case 0xd1: // pop_de();
+		case 0xd2: // jp_nc();
+		case 0xd3: // out_byte_a();
+		case 0xd4: // call_nc();
+		case 0xd5: // push_de();
+		case 0xd6: // sub_byte();
+		case 0xd7: // rst_10();
+		case 0xd8: // ret_c();
+		case 0xd9: // exx();
+		case 0xda: // jp_c();
+		case 0xdb: // in_a_byte();
+		case 0xdc: // call_c();
+		case 0xde: // sbc_a_byte();
+		case 0xdf: // rst_18();
+		case 0xe0: // ret_po();
+		case 0xe2: // jp_po();
+		case 0xe4: // call_po();
+		case 0xe6: // and_byte();
+		case 0xe7: // rst_20();
+		case 0xe8: // ret_pe();
+		case 0xea: // jp_pe();
+		case 0xeb: // ex_de_hl();
+		case 0xec: // call_pe();
+		case 0xed: // ed();
+		case 0xee: // xor_byte();
+		case 0xef: // rst_28();
+		case 0xf0: // ret_p();
+		case 0xf1: // pop_af();
+		case 0xf2: // jp_p();
+		case 0xf3: // di();
+		case 0xf4: // call_p();
+		case 0xf5: // push_af();
+		case 0xf6: // or_byte();
+		case 0xf7: // rst_30();
+		case 0xf8: // ret_m();
+		case 0xfa: // jp_m();
+		case 0xfb: // ei();
+		case 0xfc: // call_m();
+		case 0xfe: // cp_byte();
+		case 0xff: // rst_38();
+			return executeInstruction1_slow(opcode);
+
 		case 0x09: return add_iy_bc();
-		case 0x0a: return ld_a_xbc();
-		case 0x0b: return dec_bc();
-		case 0x0c: return inc_c();
-		case 0x0d: return dec_c();
-		case 0x0e: return ld_c_byte();
-		case 0x0f: return rrca();
-		case 0x10: return djnz();
-		case 0x11: return ld_de_word();
-		case 0x12: return ld_xde_a();
-		case 0x13: return inc_de();
-		case 0x14: return inc_d();
-		case 0x15: return dec_d();
-		case 0x16: return ld_d_byte();
-		case 0x17: return rla();
-		case 0x18: return jr();
 		case 0x19: return add_iy_de();
-		case 0x1a: return ld_a_xde();
-		case 0x1b: return dec_de();
-		case 0x1c: return inc_e();
-		case 0x1d: return dec_e();
-		case 0x1e: return ld_e_byte();
-		case 0x1f: return rra();
-		case 0x20: return jr_nz();
 		case 0x21: return ld_iy_word();
 		case 0x22: return ld_xword_iy();
 		case 0x23: return inc_iy();
 		case 0x24: return inc_iyh();
 		case 0x25: return dec_iyh();
 		case 0x26: return ld_iyh_byte();
-		case 0x27: return daa();
-		case 0x28: return jr_z();
 		case 0x29: return add_iy_iy();
 		case 0x2a: return ld_iy_xword();
 		case 0x2b: return dec_iy();
 		case 0x2c: return inc_iyl();
 		case 0x2d: return dec_iyl();
 		case 0x2e: return ld_iyl_byte();
-		case 0x2f: return cpl();
-		case 0x30: return jr_nc();
-		case 0x31: return ld_sp_word();
-		case 0x32: return ld_xbyte_a();
-		case 0x33: return inc_sp();
 		case 0x34: return inc_xiy();
 		case 0x35: return dec_xiy();
 		case 0x36: return ld_xiy_byte();
-		case 0x37: return scf();
-		case 0x38: return jr_c();
 		case 0x39: return add_iy_sp();
-		case 0x3a: return ld_a_xbyte();
-		case 0x3b: return dec_sp();
-		case 0x3c: return inc_a();
-		case 0x3d: return dec_a();
-		case 0x3e: return ld_a_byte();
-		case 0x3f: return ccf();
 
-		case 0x40: return nop();
-		case 0x41: return ld_b_c();
-		case 0x42: return ld_b_d();
-		case 0x43: return ld_b_e();
 		case 0x44: return ld_b_iyh();
 		case 0x45: return ld_b_iyl();
 		case 0x46: return ld_b_xiy();
-		case 0x47: return ld_b_a();
-		case 0x48: return ld_c_b();
-		case 0x49: return nop();
-		case 0x4a: return ld_c_d();
-		case 0x4b: return ld_c_e();
 		case 0x4c: return ld_c_iyh();
 		case 0x4d: return ld_c_iyl();
 		case 0x4e: return ld_c_xiy();
-		case 0x4f: return ld_c_a();
-		case 0x50: return ld_d_b();
-		case 0x51: return ld_d_c();
-		case 0x52: return nop();
-		case 0x53: return ld_d_e();
 		case 0x54: return ld_d_iyh();
 		case 0x55: return ld_d_iyl();
 		case 0x56: return ld_d_xiy();
-		case 0x57: return ld_d_a();
-		case 0x58: return ld_e_b();
-		case 0x59: return ld_e_c();
-		case 0x5a: return ld_e_d();
-		case 0x5b: return nop();
 		case 0x5c: return ld_e_iyh();
 		case 0x5d: return ld_e_iyl();
 		case 0x5e: return ld_e_xiy();
-		case 0x5f: return ld_e_a();
 		case 0x60: return ld_iyh_b();
 		case 0x61: return ld_iyh_c();
 		case 0x62: return ld_iyh_d();
 		case 0x63: return ld_iyh_e();
-		case 0x64: return nop();
 		case 0x65: return ld_iyh_iyl();
 		case 0x66: return ld_h_xiy();
 		case 0x67: return ld_iyh_a();
@@ -4973,7 +4877,6 @@ template <class T> int CPUCore<T>::fd()
 		case 0x6a: return ld_iyl_d();
 		case 0x6b: return ld_iyl_e();
 		case 0x6c: return ld_iyl_iyh();
-		case 0x6d: return nop();
 		case 0x6e: return ld_l_xiy();
 		case 0x6f: return ld_iyl_a();
 		case 0x70: return ld_xiy_b();
@@ -4982,146 +4885,44 @@ template <class T> int CPUCore<T>::fd()
 		case 0x73: return ld_xiy_e();
 		case 0x74: return ld_xiy_h();
 		case 0x75: return ld_xiy_l();
-		case 0x76: return halt();
 		case 0x77: return ld_xiy_a();
-		case 0x78: return ld_a_b();
-		case 0x79: return ld_a_c();
-		case 0x7a: return ld_a_d();
-		case 0x7b: return ld_a_e();
 		case 0x7c: return ld_a_iyh();
 		case 0x7d: return ld_a_iyl();
 		case 0x7e: return ld_a_xiy();
-		case 0x7f: return nop();
 
-		case 0x80: return add_a_b();
-		case 0x81: return add_a_c();
-		case 0x82: return add_a_d();
-		case 0x83: return add_a_e();
 		case 0x84: return add_a_iyh();
 		case 0x85: return add_a_iyl();
 		case 0x86: return add_a_xiy();
-		case 0x87: return add_a_a();
-		case 0x88: return adc_a_b();
-		case 0x89: return adc_a_c();
-		case 0x8a: return adc_a_d();
-		case 0x8b: return adc_a_e();
 		case 0x8c: return adc_a_iyh();
 		case 0x8d: return adc_a_iyl();
 		case 0x8e: return adc_a_xiy();
-		case 0x8f: return adc_a_a();
-		case 0x90: return sub_b();
-		case 0x91: return sub_c();
-		case 0x92: return sub_d();
-		case 0x93: return sub_e();
 		case 0x94: return sub_iyh();
 		case 0x95: return sub_iyl();
 		case 0x96: return sub_xiy();
-		case 0x97: return sub_a();
-		case 0x98: return sbc_a_b();
-		case 0x99: return sbc_a_c();
-		case 0x9a: return sbc_a_d();
-		case 0x9b: return sbc_a_e();
 		case 0x9c: return sbc_a_iyh();
 		case 0x9d: return sbc_a_iyl();
 		case 0x9e: return sbc_a_xiy();
-		case 0x9f: return sbc_a_a();
-		case 0xa0: return and_b();
-		case 0xa1: return and_c();
-		case 0xa2: return and_d();
-		case 0xa3: return and_e();
 		case 0xa4: return and_iyh();
 		case 0xa5: return and_iyl();
 		case 0xa6: return and_xiy();
-		case 0xa7: return and_a();
-		case 0xa8: return xor_b();
-		case 0xa9: return xor_c();
-		case 0xaa: return xor_d();
-		case 0xab: return xor_e();
 		case 0xac: return xor_iyh();
 		case 0xad: return xor_iyl();
 		case 0xae: return xor_xiy();
-		case 0xaf: return xor_a();
-		case 0xb0: return or_b();
-		case 0xb1: return or_c();
-		case 0xb2: return or_d();
-		case 0xb3: return or_e();
 		case 0xb4: return or_iyh();
 		case 0xb5: return or_iyl();
 		case 0xb6: return or_xiy();
-		case 0xb7: return or_a();
-		case 0xb8: return cp_b();
-		case 0xb9: return cp_c();
-		case 0xba: return cp_d();
-		case 0xbb: return cp_e();
 		case 0xbc: return cp_iyh();
 		case 0xbd: return cp_iyl();
 		case 0xbe: return cp_xiy();
-		case 0xbf: return cp_a();
 
-		case 0xc0: return ret_nz();
-		case 0xc1: return pop_bc();
-		case 0xc2: return jp_nz();
-		case 0xc3: return jp();
-		case 0xc4: return call_nz();
-		case 0xc5: return push_bc();
-		case 0xc6: return add_a_byte();
-		case 0xc7: return rst_00();
-		case 0xc8: return ret_z();
-		case 0xc9: return ret();
-		case 0xca: return jp_z();
 		case 0xcb: return fd_cb();
-		case 0xcc: return call_z();
-		case 0xcd: return call();
-		case 0xce: return adc_a_byte();
-		case 0xcf: return rst_08();
-		case 0xd0: return ret_nc();
-		case 0xd1: return pop_de();
-		case 0xd2: return jp_nc();
-		case 0xd3: return out_byte_a();
-		case 0xd4: return call_nc();
-		case 0xd5: return push_de();
-		case 0xd6: return sub_byte();
-		case 0xd7: return rst_10();
-		case 0xd8: return ret_c();
-		case 0xd9: return exx();
-		case 0xda: return jp_c();
-		case 0xdb: return in_a_byte();
-		case 0xdc: return call_c();
 		case 0xdd: return dd();
-		case 0xde: return sbc_a_byte();
-		case 0xdf: return rst_18();
-		case 0xe0: return ret_po();
 		case 0xe1: return pop_iy();
-		case 0xe2: return jp_po();
 		case 0xe3: return ex_xsp_iy();
-		case 0xe4: return call_po();
 		case 0xe5: return push_iy();
-		case 0xe6: return and_byte();
-		case 0xe7: return rst_20();
-		case 0xe8: return ret_pe();
 		case 0xe9: return jp_iy();
-		case 0xea: return jp_pe();
-		case 0xeb: return ex_de_hl();
-		case 0xec: return call_pe();
-		case 0xed: return ed();
-		case 0xee: return xor_byte();
-		case 0xef: return rst_28();
-		case 0xf0: return ret_p();
-		case 0xf1: return pop_af();
-		case 0xf2: return jp_p();
-		case 0xf3: return di();
-		case 0xf4: return call_p();
-		case 0xf5: return push_af();
-		case 0xf6: return or_byte();
-		case 0xf7: return rst_30();
-		case 0xf8: return ret_m();
 		case 0xf9: return ld_sp_iy();
-		case 0xfa: return jp_m();
-		case 0xfb: return ei();
-		case 0xfc: return call_m();
 		case 0xfd: return fd();
-		case 0xfe: return cp_byte();
-		case 0xff: return rst_38();
 	}
 	assert(false); return 0;
 }
