@@ -1241,6 +1241,7 @@ private:
 	inline int muluw_hl_bc();
 	inline int muluw_hl_sp();
 
+	inline int nn_cb(unsigned reg);
 	inline int dd_cb();
 	inline int fd_cb();
 	inline int cb();
