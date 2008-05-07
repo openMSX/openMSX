@@ -2032,41 +2032,23 @@ template <class T> int CPUCore<T>::bit_5_xhl() { return BIT_HL(5); }
 template <class T> int CPUCore<T>::bit_6_xhl() { return BIT_HL(6); }
 template <class T> int CPUCore<T>::bit_7_xhl() { return BIT_HL(7); }
 
-template <class T> inline int CPUCore<T>::BIT_IX(byte bit, int ofst)
+template <class T> inline int CPUCore<T>::BIT_IX(byte bit, unsigned addr)
 {
-	memptr = (R.getIX() + ofst) & 0xFFFF;
+	memptr = addr;
 	R.setF((R.getF() & C_FLAG) |
 	       ZSPTable[RDMEM(memptr, T::CC_BIT_XIX_1) & (1 << bit)] |
 	       H_FLAG |
 	       ((memptr >> 8) & (X_FLAG | Y_FLAG)));
 	return T::CC_BIT_XIX;
 }
-template <class T> int CPUCore<T>::bit_0_xix(int o) { return BIT_IX(0, o); }
-template <class T> int CPUCore<T>::bit_1_xix(int o) { return BIT_IX(1, o); }
-template <class T> int CPUCore<T>::bit_2_xix(int o) { return BIT_IX(2, o); }
-template <class T> int CPUCore<T>::bit_3_xix(int o) { return BIT_IX(3, o); }
-template <class T> int CPUCore<T>::bit_4_xix(int o) { return BIT_IX(4, o); }
-template <class T> int CPUCore<T>::bit_5_xix(int o) { return BIT_IX(5, o); }
-template <class T> int CPUCore<T>::bit_6_xix(int o) { return BIT_IX(6, o); }
-template <class T> int CPUCore<T>::bit_7_xix(int o) { return BIT_IX(7, o); }
-
-template <class T> inline int CPUCore<T>::BIT_IY(byte bit, int ofst)
-{
-	memptr = (R.getIY() + ofst) & 0xFFFF;
-	R.setF((R.getF() & C_FLAG) |
-	       ZSPTable[RDMEM(memptr, T::CC_BIT_XIX_1) & (1 << bit)] |
-	       H_FLAG |
-	       ((memptr >> 8) & (X_FLAG | Y_FLAG)));
-	return T::CC_BIT_XIX;
-}
-template <class T> int CPUCore<T>::bit_0_xiy(int o) { return BIT_IY(0, o); }
-template <class T> int CPUCore<T>::bit_1_xiy(int o) { return BIT_IY(1, o); }
-template <class T> int CPUCore<T>::bit_2_xiy(int o) { return BIT_IY(2, o); }
-template <class T> int CPUCore<T>::bit_3_xiy(int o) { return BIT_IY(3, o); }
-template <class T> int CPUCore<T>::bit_4_xiy(int o) { return BIT_IY(4, o); }
-template <class T> int CPUCore<T>::bit_5_xiy(int o) { return BIT_IY(5, o); }
-template <class T> int CPUCore<T>::bit_6_xiy(int o) { return BIT_IY(6, o); }
-template <class T> int CPUCore<T>::bit_7_xiy(int o) { return BIT_IY(7, o); }
+template <class T> int CPUCore<T>::bit_0_xix(unsigned a) { return BIT_IX(0, a); }
+template <class T> int CPUCore<T>::bit_1_xix(unsigned a) { return BIT_IX(1, a); }
+template <class T> int CPUCore<T>::bit_2_xix(unsigned a) { return BIT_IX(2, a); }
+template <class T> int CPUCore<T>::bit_3_xix(unsigned a) { return BIT_IX(3, a); }
+template <class T> int CPUCore<T>::bit_4_xix(unsigned a) { return BIT_IX(4, a); }
+template <class T> int CPUCore<T>::bit_5_xix(unsigned a) { return BIT_IX(5, a); }
+template <class T> int CPUCore<T>::bit_6_xix(unsigned a) { return BIT_IX(6, a); }
+template <class T> int CPUCore<T>::bit_7_xix(unsigned a) { return BIT_IX(7, a); }
 
 
 // RES n,r
@@ -2131,24 +2113,16 @@ template <class T> int CPUCore<T>::res_7_e() { R.setE(RES(7, R.getE())); return 
 template <class T> int CPUCore<T>::res_7_h() { R.setH(RES(7, R.getH())); return T::CC_SET_R; }
 template <class T> int CPUCore<T>::res_7_l() { R.setL(RES(7, R.getL())); return T::CC_SET_R; }
 
-template <class T> inline byte CPUCore<T>::RES_X(unsigned bit, unsigned x, int ee)
+template <class T> inline byte CPUCore<T>::RES_X(unsigned bit, unsigned addr, int ee)
 {
-	byte res = RES(bit, RDMEM(x, T::CC_SET_XHL_1 + ee));
-	WRMEM(x, res, T::CC_SET_XHL_2 + ee);
+	byte res = RES(bit, RDMEM(addr, T::CC_SET_XHL_1 + ee));
+	WRMEM(addr, res, T::CC_SET_XHL_2 + ee);
 	return res;
 }
-template <class T> inline byte CPUCore<T>::RES_X_(unsigned bit, unsigned x)
+template <class T> inline byte CPUCore<T>::RES_X_(unsigned bit, unsigned addr)
 {
-	memptr = x;
-	return RES_X(bit, x, T::EE_SET_XIX);
-}
-template <class T> inline byte CPUCore<T>::RES_X_X(unsigned bit, int ofst)
-{
-	return RES_X_(bit, (R.getIX() + ofst) & 0xFFFF);
-}
-template <class T> inline byte CPUCore<T>::RES_X_Y(unsigned bit, int ofst)
-{
-	return RES_X_(bit, (R.getIY() + ofst) & 0xFFFF);
+	memptr = addr;
+	return RES_X(bit, addr, T::EE_SET_XIX);
 }
 
 template <class T> int CPUCore<T>::res_0_xhl()   { RES_X(0, R.getHL(), 0); return T::CC_SET_XHL; }
@@ -2160,137 +2134,71 @@ template <class T> int CPUCore<T>::res_5_xhl()   { RES_X(5, R.getHL(), 0); retur
 template <class T> int CPUCore<T>::res_6_xhl()   { RES_X(6, R.getHL(), 0); return T::CC_SET_XHL; }
 template <class T> int CPUCore<T>::res_7_xhl()   { RES_X(7, R.getHL(), 0); return T::CC_SET_XHL; }
 
-template <class T> int CPUCore<T>::res_0_xix(int o)   { RES_X_X(0, o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_1_xix(int o)   { RES_X_X(1, o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_2_xix(int o)   { RES_X_X(2, o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_3_xix(int o)   { RES_X_X(3, o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_4_xix(int o)   { RES_X_X(4, o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_5_xix(int o)   { RES_X_X(5, o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_6_xix(int o)   { RES_X_X(6, o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_7_xix(int o)   { RES_X_X(7, o); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_0_xix(unsigned a)   { RES_X_(0, a); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_1_xix(unsigned a)   { RES_X_(1, a); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_2_xix(unsigned a)   { RES_X_(2, a); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_3_xix(unsigned a)   { RES_X_(3, a); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_4_xix(unsigned a)   { RES_X_(4, a); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_5_xix(unsigned a)   { RES_X_(5, a); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_6_xix(unsigned a)   { RES_X_(6, a); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_7_xix(unsigned a)   { RES_X_(7, a); return T::CC_SET_XIX; }
 
-template <class T> int CPUCore<T>::res_0_xiy(int o)   { RES_X_Y(0, o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_1_xiy(int o)   { RES_X_Y(1, o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_2_xiy(int o)   { RES_X_Y(2, o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_3_xiy(int o)   { RES_X_Y(3, o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_4_xiy(int o)   { RES_X_Y(4, o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_5_xiy(int o)   { RES_X_Y(5, o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_6_xiy(int o)   { RES_X_Y(6, o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_7_xiy(int o)   { RES_X_Y(7, o); return T::CC_SET_XIX; }
-
-template <class T> int CPUCore<T>::res_0_xix_a(int o) { R.setA(RES_X_X(0, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_0_xix_b(int o) { R.setB(RES_X_X(0, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_0_xix_c(int o) { R.setC(RES_X_X(0, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_0_xix_d(int o) { R.setD(RES_X_X(0, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_0_xix_e(int o) { R.setE(RES_X_X(0, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_0_xix_h(int o) { R.setH(RES_X_X(0, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_0_xix_l(int o) { R.setL(RES_X_X(0, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_1_xix_a(int o) { R.setA(RES_X_X(1, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_1_xix_b(int o) { R.setB(RES_X_X(1, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_1_xix_c(int o) { R.setC(RES_X_X(1, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_1_xix_d(int o) { R.setD(RES_X_X(1, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_1_xix_e(int o) { R.setE(RES_X_X(1, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_1_xix_h(int o) { R.setH(RES_X_X(1, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_1_xix_l(int o) { R.setL(RES_X_X(1, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_2_xix_a(int o) { R.setA(RES_X_X(2, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_2_xix_b(int o) { R.setB(RES_X_X(2, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_2_xix_c(int o) { R.setC(RES_X_X(2, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_2_xix_d(int o) { R.setD(RES_X_X(2, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_2_xix_e(int o) { R.setE(RES_X_X(2, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_2_xix_h(int o) { R.setH(RES_X_X(2, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_2_xix_l(int o) { R.setL(RES_X_X(2, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_3_xix_a(int o) { R.setA(RES_X_X(3, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_3_xix_b(int o) { R.setB(RES_X_X(3, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_3_xix_c(int o) { R.setC(RES_X_X(3, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_3_xix_d(int o) { R.setD(RES_X_X(3, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_3_xix_e(int o) { R.setE(RES_X_X(3, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_3_xix_h(int o) { R.setH(RES_X_X(3, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_3_xix_l(int o) { R.setL(RES_X_X(3, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_4_xix_a(int o) { R.setA(RES_X_X(4, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_4_xix_b(int o) { R.setB(RES_X_X(4, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_4_xix_c(int o) { R.setC(RES_X_X(4, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_4_xix_d(int o) { R.setD(RES_X_X(4, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_4_xix_e(int o) { R.setE(RES_X_X(4, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_4_xix_h(int o) { R.setH(RES_X_X(4, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_4_xix_l(int o) { R.setL(RES_X_X(4, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_5_xix_a(int o) { R.setA(RES_X_X(5, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_5_xix_b(int o) { R.setB(RES_X_X(5, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_5_xix_c(int o) { R.setC(RES_X_X(5, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_5_xix_d(int o) { R.setD(RES_X_X(5, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_5_xix_e(int o) { R.setE(RES_X_X(5, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_5_xix_h(int o) { R.setH(RES_X_X(5, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_5_xix_l(int o) { R.setL(RES_X_X(5, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_6_xix_a(int o) { R.setA(RES_X_X(6, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_6_xix_b(int o) { R.setB(RES_X_X(6, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_6_xix_c(int o) { R.setC(RES_X_X(6, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_6_xix_d(int o) { R.setD(RES_X_X(6, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_6_xix_e(int o) { R.setE(RES_X_X(6, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_6_xix_h(int o) { R.setH(RES_X_X(6, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_6_xix_l(int o) { R.setL(RES_X_X(6, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_7_xix_a(int o) { R.setA(RES_X_X(7, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_7_xix_b(int o) { R.setB(RES_X_X(7, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_7_xix_c(int o) { R.setC(RES_X_X(7, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_7_xix_d(int o) { R.setD(RES_X_X(7, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_7_xix_e(int o) { R.setE(RES_X_X(7, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_7_xix_h(int o) { R.setH(RES_X_X(7, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_7_xix_l(int o) { R.setL(RES_X_X(7, o)); return T::CC_SET_XIX; }
-
-template <class T> int CPUCore<T>::res_0_xiy_a(int o) { R.setA(RES_X_Y(0, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_0_xiy_b(int o) { R.setB(RES_X_Y(0, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_0_xiy_c(int o) { R.setC(RES_X_Y(0, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_0_xiy_d(int o) { R.setD(RES_X_Y(0, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_0_xiy_e(int o) { R.setE(RES_X_Y(0, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_0_xiy_h(int o) { R.setH(RES_X_Y(0, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_0_xiy_l(int o) { R.setL(RES_X_Y(0, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_1_xiy_a(int o) { R.setA(RES_X_Y(1, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_1_xiy_b(int o) { R.setB(RES_X_Y(1, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_1_xiy_c(int o) { R.setC(RES_X_Y(1, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_1_xiy_d(int o) { R.setD(RES_X_Y(1, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_1_xiy_e(int o) { R.setE(RES_X_Y(1, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_1_xiy_h(int o) { R.setH(RES_X_Y(1, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_1_xiy_l(int o) { R.setL(RES_X_Y(1, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_2_xiy_a(int o) { R.setA(RES_X_Y(2, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_2_xiy_b(int o) { R.setB(RES_X_Y(2, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_2_xiy_c(int o) { R.setC(RES_X_Y(2, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_2_xiy_d(int o) { R.setD(RES_X_Y(2, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_2_xiy_e(int o) { R.setE(RES_X_Y(2, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_2_xiy_h(int o) { R.setH(RES_X_Y(2, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_2_xiy_l(int o) { R.setL(RES_X_Y(2, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_3_xiy_a(int o) { R.setA(RES_X_Y(3, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_3_xiy_b(int o) { R.setB(RES_X_Y(3, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_3_xiy_c(int o) { R.setC(RES_X_Y(3, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_3_xiy_d(int o) { R.setD(RES_X_Y(3, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_3_xiy_e(int o) { R.setE(RES_X_Y(3, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_3_xiy_h(int o) { R.setH(RES_X_Y(3, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_3_xiy_l(int o) { R.setL(RES_X_Y(3, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_4_xiy_a(int o) { R.setA(RES_X_Y(4, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_4_xiy_b(int o) { R.setB(RES_X_Y(4, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_4_xiy_c(int o) { R.setC(RES_X_Y(4, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_4_xiy_d(int o) { R.setD(RES_X_Y(4, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_4_xiy_e(int o) { R.setE(RES_X_Y(4, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_4_xiy_h(int o) { R.setH(RES_X_Y(4, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_4_xiy_l(int o) { R.setL(RES_X_Y(4, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_5_xiy_a(int o) { R.setA(RES_X_Y(5, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_5_xiy_b(int o) { R.setB(RES_X_Y(5, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_5_xiy_c(int o) { R.setC(RES_X_Y(5, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_5_xiy_d(int o) { R.setD(RES_X_Y(5, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_5_xiy_e(int o) { R.setE(RES_X_Y(5, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_5_xiy_h(int o) { R.setH(RES_X_Y(5, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_5_xiy_l(int o) { R.setL(RES_X_Y(5, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_6_xiy_a(int o) { R.setA(RES_X_Y(6, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_6_xiy_b(int o) { R.setB(RES_X_Y(6, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_6_xiy_c(int o) { R.setC(RES_X_Y(6, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_6_xiy_d(int o) { R.setD(RES_X_Y(6, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_6_xiy_e(int o) { R.setE(RES_X_Y(6, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_6_xiy_h(int o) { R.setH(RES_X_Y(6, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_6_xiy_l(int o) { R.setL(RES_X_Y(6, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_7_xiy_a(int o) { R.setA(RES_X_Y(7, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_7_xiy_b(int o) { R.setB(RES_X_Y(7, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_7_xiy_c(int o) { R.setC(RES_X_Y(7, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_7_xiy_d(int o) { R.setD(RES_X_Y(7, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_7_xiy_e(int o) { R.setE(RES_X_Y(7, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_7_xiy_h(int o) { R.setH(RES_X_Y(7, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::res_7_xiy_l(int o) { R.setL(RES_X_Y(7, o)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_0_xix_a(unsigned a) { R.setA(RES_X_(0, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_0_xix_b(unsigned a) { R.setB(RES_X_(0, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_0_xix_c(unsigned a) { R.setC(RES_X_(0, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_0_xix_d(unsigned a) { R.setD(RES_X_(0, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_0_xix_e(unsigned a) { R.setE(RES_X_(0, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_0_xix_h(unsigned a) { R.setH(RES_X_(0, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_0_xix_l(unsigned a) { R.setL(RES_X_(0, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_1_xix_a(unsigned a) { R.setA(RES_X_(1, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_1_xix_b(unsigned a) { R.setB(RES_X_(1, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_1_xix_c(unsigned a) { R.setC(RES_X_(1, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_1_xix_d(unsigned a) { R.setD(RES_X_(1, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_1_xix_e(unsigned a) { R.setE(RES_X_(1, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_1_xix_h(unsigned a) { R.setH(RES_X_(1, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_1_xix_l(unsigned a) { R.setL(RES_X_(1, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_2_xix_a(unsigned a) { R.setA(RES_X_(2, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_2_xix_b(unsigned a) { R.setB(RES_X_(2, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_2_xix_c(unsigned a) { R.setC(RES_X_(2, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_2_xix_d(unsigned a) { R.setD(RES_X_(2, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_2_xix_e(unsigned a) { R.setE(RES_X_(2, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_2_xix_h(unsigned a) { R.setH(RES_X_(2, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_2_xix_l(unsigned a) { R.setL(RES_X_(2, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_3_xix_a(unsigned a) { R.setA(RES_X_(3, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_3_xix_b(unsigned a) { R.setB(RES_X_(3, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_3_xix_c(unsigned a) { R.setC(RES_X_(3, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_3_xix_d(unsigned a) { R.setD(RES_X_(3, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_3_xix_e(unsigned a) { R.setE(RES_X_(3, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_3_xix_h(unsigned a) { R.setH(RES_X_(3, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_3_xix_l(unsigned a) { R.setL(RES_X_(3, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_4_xix_a(unsigned a) { R.setA(RES_X_(4, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_4_xix_b(unsigned a) { R.setB(RES_X_(4, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_4_xix_c(unsigned a) { R.setC(RES_X_(4, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_4_xix_d(unsigned a) { R.setD(RES_X_(4, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_4_xix_e(unsigned a) { R.setE(RES_X_(4, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_4_xix_h(unsigned a) { R.setH(RES_X_(4, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_4_xix_l(unsigned a) { R.setL(RES_X_(4, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_5_xix_a(unsigned a) { R.setA(RES_X_(5, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_5_xix_b(unsigned a) { R.setB(RES_X_(5, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_5_xix_c(unsigned a) { R.setC(RES_X_(5, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_5_xix_d(unsigned a) { R.setD(RES_X_(5, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_5_xix_e(unsigned a) { R.setE(RES_X_(5, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_5_xix_h(unsigned a) { R.setH(RES_X_(5, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_5_xix_l(unsigned a) { R.setL(RES_X_(5, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_6_xix_a(unsigned a) { R.setA(RES_X_(6, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_6_xix_b(unsigned a) { R.setB(RES_X_(6, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_6_xix_c(unsigned a) { R.setC(RES_X_(6, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_6_xix_d(unsigned a) { R.setD(RES_X_(6, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_6_xix_e(unsigned a) { R.setE(RES_X_(6, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_6_xix_h(unsigned a) { R.setH(RES_X_(6, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_6_xix_l(unsigned a) { R.setL(RES_X_(6, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_7_xix_a(unsigned a) { R.setA(RES_X_(7, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_7_xix_b(unsigned a) { R.setB(RES_X_(7, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_7_xix_c(unsigned a) { R.setC(RES_X_(7, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_7_xix_d(unsigned a) { R.setD(RES_X_(7, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_7_xix_e(unsigned a) { R.setE(RES_X_(7, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_7_xix_h(unsigned a) { R.setH(RES_X_(7, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::res_7_xix_l(unsigned a) { R.setL(RES_X_(7, a)); return T::CC_SET_XIX; }
 
 
 // SET n,r
@@ -2355,24 +2263,16 @@ template <class T> int CPUCore<T>::set_7_e() { R.setE(SET(7, R.getE())); return 
 template <class T> int CPUCore<T>::set_7_h() { R.setH(SET(7, R.getH())); return T::CC_SET_R; }
 template <class T> int CPUCore<T>::set_7_l() { R.setL(SET(7, R.getL())); return T::CC_SET_R; }
 
-template <class T> inline byte CPUCore<T>::SET_X(unsigned bit, unsigned x, int ee)
+template <class T> inline byte CPUCore<T>::SET_X(unsigned bit, unsigned addr, int ee)
 {
-	byte res = SET(bit, RDMEM(x, T::CC_SET_XHL_1 + ee));
-	WRMEM(x, res, T::CC_SET_XHL_2 + ee);
+	byte res = SET(bit, RDMEM(addr, T::CC_SET_XHL_1 + ee));
+	WRMEM(addr, res, T::CC_SET_XHL_2 + ee);
 	return res;
 }
-template <class T> inline byte CPUCore<T>::SET_X_(unsigned bit, unsigned x)
+template <class T> inline byte CPUCore<T>::SET_X_(unsigned bit, unsigned addr)
 {
-	memptr = x;
-	return SET_X(bit, x, T::EE_SET_XIX);
-}
-template <class T> inline byte CPUCore<T>::SET_X_X(unsigned bit, int ofst)
-{
-	return SET_X_(bit, (R.getIX() + ofst) & 0xFFFF);
-}
-template <class T> inline byte CPUCore<T>::SET_X_Y(unsigned bit, int ofst)
-{
-	return SET_X_(bit, (R.getIY() + ofst) & 0xFFFF);
+	memptr = addr;
+	return SET_X(bit, addr, T::EE_SET_XIX);
 }
 
 template <class T> int CPUCore<T>::set_0_xhl()   { SET_X(0, R.getHL(), 0); return T::CC_SET_XHL; }
@@ -2384,137 +2284,71 @@ template <class T> int CPUCore<T>::set_5_xhl()   { SET_X(5, R.getHL(), 0); retur
 template <class T> int CPUCore<T>::set_6_xhl()   { SET_X(6, R.getHL(), 0); return T::CC_SET_XHL; }
 template <class T> int CPUCore<T>::set_7_xhl()   { SET_X(7, R.getHL(), 0); return T::CC_SET_XHL; }
 
-template <class T> int CPUCore<T>::set_0_xix(int o)   { SET_X_X(0, o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_1_xix(int o)   { SET_X_X(1, o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_2_xix(int o)   { SET_X_X(2, o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_3_xix(int o)   { SET_X_X(3, o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_4_xix(int o)   { SET_X_X(4, o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_5_xix(int o)   { SET_X_X(5, o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_6_xix(int o)   { SET_X_X(6, o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_7_xix(int o)   { SET_X_X(7, o); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_0_xix(unsigned a)   { SET_X_(0, a); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_1_xix(unsigned a)   { SET_X_(1, a); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_2_xix(unsigned a)   { SET_X_(2, a); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_3_xix(unsigned a)   { SET_X_(3, a); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_4_xix(unsigned a)   { SET_X_(4, a); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_5_xix(unsigned a)   { SET_X_(5, a); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_6_xix(unsigned a)   { SET_X_(6, a); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_7_xix(unsigned a)   { SET_X_(7, a); return T::CC_SET_XIX; }
 
-template <class T> int CPUCore<T>::set_0_xiy(int o)   { SET_X_Y(0, o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_1_xiy(int o)   { SET_X_Y(1, o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_2_xiy(int o)   { SET_X_Y(2, o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_3_xiy(int o)   { SET_X_Y(3, o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_4_xiy(int o)   { SET_X_Y(4, o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_5_xiy(int o)   { SET_X_Y(5, o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_6_xiy(int o)   { SET_X_Y(6, o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_7_xiy(int o)   { SET_X_Y(7, o); return T::CC_SET_XIX; }
-
-template <class T> int CPUCore<T>::set_0_xix_a(int o) { R.setA(SET_X_X(0, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_0_xix_b(int o) { R.setB(SET_X_X(0, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_0_xix_c(int o) { R.setC(SET_X_X(0, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_0_xix_d(int o) { R.setD(SET_X_X(0, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_0_xix_e(int o) { R.setE(SET_X_X(0, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_0_xix_h(int o) { R.setH(SET_X_X(0, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_0_xix_l(int o) { R.setL(SET_X_X(0, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_1_xix_a(int o) { R.setA(SET_X_X(1, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_1_xix_b(int o) { R.setB(SET_X_X(1, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_1_xix_c(int o) { R.setC(SET_X_X(1, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_1_xix_d(int o) { R.setD(SET_X_X(1, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_1_xix_e(int o) { R.setE(SET_X_X(1, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_1_xix_h(int o) { R.setH(SET_X_X(1, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_1_xix_l(int o) { R.setL(SET_X_X(1, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_2_xix_a(int o) { R.setA(SET_X_X(2, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_2_xix_b(int o) { R.setB(SET_X_X(2, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_2_xix_c(int o) { R.setC(SET_X_X(2, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_2_xix_d(int o) { R.setD(SET_X_X(2, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_2_xix_e(int o) { R.setE(SET_X_X(2, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_2_xix_h(int o) { R.setH(SET_X_X(2, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_2_xix_l(int o) { R.setL(SET_X_X(2, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_3_xix_a(int o) { R.setA(SET_X_X(3, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_3_xix_b(int o) { R.setB(SET_X_X(3, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_3_xix_c(int o) { R.setC(SET_X_X(3, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_3_xix_d(int o) { R.setD(SET_X_X(3, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_3_xix_e(int o) { R.setE(SET_X_X(3, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_3_xix_h(int o) { R.setH(SET_X_X(3, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_3_xix_l(int o) { R.setL(SET_X_X(3, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_4_xix_a(int o) { R.setA(SET_X_X(4, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_4_xix_b(int o) { R.setB(SET_X_X(4, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_4_xix_c(int o) { R.setC(SET_X_X(4, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_4_xix_d(int o) { R.setD(SET_X_X(4, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_4_xix_e(int o) { R.setE(SET_X_X(4, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_4_xix_h(int o) { R.setH(SET_X_X(4, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_4_xix_l(int o) { R.setL(SET_X_X(4, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_5_xix_a(int o) { R.setA(SET_X_X(5, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_5_xix_b(int o) { R.setB(SET_X_X(5, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_5_xix_c(int o) { R.setC(SET_X_X(5, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_5_xix_d(int o) { R.setD(SET_X_X(5, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_5_xix_e(int o) { R.setE(SET_X_X(5, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_5_xix_h(int o) { R.setH(SET_X_X(5, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_5_xix_l(int o) { R.setL(SET_X_X(5, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_6_xix_a(int o) { R.setA(SET_X_X(6, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_6_xix_b(int o) { R.setB(SET_X_X(6, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_6_xix_c(int o) { R.setC(SET_X_X(6, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_6_xix_d(int o) { R.setD(SET_X_X(6, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_6_xix_e(int o) { R.setE(SET_X_X(6, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_6_xix_h(int o) { R.setH(SET_X_X(6, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_6_xix_l(int o) { R.setL(SET_X_X(6, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_7_xix_a(int o) { R.setA(SET_X_X(7, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_7_xix_b(int o) { R.setB(SET_X_X(7, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_7_xix_c(int o) { R.setC(SET_X_X(7, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_7_xix_d(int o) { R.setD(SET_X_X(7, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_7_xix_e(int o) { R.setE(SET_X_X(7, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_7_xix_h(int o) { R.setH(SET_X_X(7, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_7_xix_l(int o) { R.setL(SET_X_X(7, o)); return T::CC_SET_XIX; }
-
-template <class T> int CPUCore<T>::set_0_xiy_a(int o) { R.setA(SET_X_Y(0, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_0_xiy_b(int o) { R.setB(SET_X_Y(0, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_0_xiy_c(int o) { R.setC(SET_X_Y(0, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_0_xiy_d(int o) { R.setD(SET_X_Y(0, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_0_xiy_e(int o) { R.setE(SET_X_Y(0, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_0_xiy_h(int o) { R.setH(SET_X_Y(0, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_0_xiy_l(int o) { R.setL(SET_X_Y(0, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_1_xiy_a(int o) { R.setA(SET_X_Y(1, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_1_xiy_b(int o) { R.setB(SET_X_Y(1, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_1_xiy_c(int o) { R.setC(SET_X_Y(1, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_1_xiy_d(int o) { R.setD(SET_X_Y(1, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_1_xiy_e(int o) { R.setE(SET_X_Y(1, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_1_xiy_h(int o) { R.setH(SET_X_Y(1, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_1_xiy_l(int o) { R.setL(SET_X_Y(1, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_2_xiy_a(int o) { R.setA(SET_X_Y(2, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_2_xiy_b(int o) { R.setB(SET_X_Y(2, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_2_xiy_c(int o) { R.setC(SET_X_Y(2, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_2_xiy_d(int o) { R.setD(SET_X_Y(2, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_2_xiy_e(int o) { R.setE(SET_X_Y(2, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_2_xiy_h(int o) { R.setH(SET_X_Y(2, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_2_xiy_l(int o) { R.setL(SET_X_Y(2, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_3_xiy_a(int o) { R.setA(SET_X_Y(3, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_3_xiy_b(int o) { R.setB(SET_X_Y(3, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_3_xiy_c(int o) { R.setC(SET_X_Y(3, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_3_xiy_d(int o) { R.setD(SET_X_Y(3, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_3_xiy_e(int o) { R.setE(SET_X_Y(3, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_3_xiy_h(int o) { R.setH(SET_X_Y(3, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_3_xiy_l(int o) { R.setL(SET_X_Y(3, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_4_xiy_a(int o) { R.setA(SET_X_Y(4, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_4_xiy_b(int o) { R.setB(SET_X_Y(4, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_4_xiy_c(int o) { R.setC(SET_X_Y(4, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_4_xiy_d(int o) { R.setD(SET_X_Y(4, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_4_xiy_e(int o) { R.setE(SET_X_Y(4, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_4_xiy_h(int o) { R.setH(SET_X_Y(4, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_4_xiy_l(int o) { R.setL(SET_X_Y(4, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_5_xiy_a(int o) { R.setA(SET_X_Y(5, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_5_xiy_b(int o) { R.setB(SET_X_Y(5, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_5_xiy_c(int o) { R.setC(SET_X_Y(5, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_5_xiy_d(int o) { R.setD(SET_X_Y(5, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_5_xiy_e(int o) { R.setE(SET_X_Y(5, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_5_xiy_h(int o) { R.setH(SET_X_Y(5, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_5_xiy_l(int o) { R.setL(SET_X_Y(5, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_6_xiy_a(int o) { R.setA(SET_X_Y(6, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_6_xiy_b(int o) { R.setB(SET_X_Y(6, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_6_xiy_c(int o) { R.setC(SET_X_Y(6, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_6_xiy_d(int o) { R.setD(SET_X_Y(6, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_6_xiy_e(int o) { R.setE(SET_X_Y(6, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_6_xiy_h(int o) { R.setH(SET_X_Y(6, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_6_xiy_l(int o) { R.setL(SET_X_Y(6, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_7_xiy_a(int o) { R.setA(SET_X_Y(7, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_7_xiy_b(int o) { R.setB(SET_X_Y(7, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_7_xiy_c(int o) { R.setC(SET_X_Y(7, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_7_xiy_d(int o) { R.setD(SET_X_Y(7, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_7_xiy_e(int o) { R.setE(SET_X_Y(7, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_7_xiy_h(int o) { R.setH(SET_X_Y(7, o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::set_7_xiy_l(int o) { R.setL(SET_X_Y(7, o)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_0_xix_a(unsigned a) { R.setA(SET_X_(0, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_0_xix_b(unsigned a) { R.setB(SET_X_(0, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_0_xix_c(unsigned a) { R.setC(SET_X_(0, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_0_xix_d(unsigned a) { R.setD(SET_X_(0, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_0_xix_e(unsigned a) { R.setE(SET_X_(0, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_0_xix_h(unsigned a) { R.setH(SET_X_(0, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_0_xix_l(unsigned a) { R.setL(SET_X_(0, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_1_xix_a(unsigned a) { R.setA(SET_X_(1, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_1_xix_b(unsigned a) { R.setB(SET_X_(1, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_1_xix_c(unsigned a) { R.setC(SET_X_(1, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_1_xix_d(unsigned a) { R.setD(SET_X_(1, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_1_xix_e(unsigned a) { R.setE(SET_X_(1, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_1_xix_h(unsigned a) { R.setH(SET_X_(1, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_1_xix_l(unsigned a) { R.setL(SET_X_(1, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_2_xix_a(unsigned a) { R.setA(SET_X_(2, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_2_xix_b(unsigned a) { R.setB(SET_X_(2, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_2_xix_c(unsigned a) { R.setC(SET_X_(2, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_2_xix_d(unsigned a) { R.setD(SET_X_(2, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_2_xix_e(unsigned a) { R.setE(SET_X_(2, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_2_xix_h(unsigned a) { R.setH(SET_X_(2, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_2_xix_l(unsigned a) { R.setL(SET_X_(2, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_3_xix_a(unsigned a) { R.setA(SET_X_(3, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_3_xix_b(unsigned a) { R.setB(SET_X_(3, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_3_xix_c(unsigned a) { R.setC(SET_X_(3, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_3_xix_d(unsigned a) { R.setD(SET_X_(3, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_3_xix_e(unsigned a) { R.setE(SET_X_(3, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_3_xix_h(unsigned a) { R.setH(SET_X_(3, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_3_xix_l(unsigned a) { R.setL(SET_X_(3, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_4_xix_a(unsigned a) { R.setA(SET_X_(4, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_4_xix_b(unsigned a) { R.setB(SET_X_(4, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_4_xix_c(unsigned a) { R.setC(SET_X_(4, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_4_xix_d(unsigned a) { R.setD(SET_X_(4, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_4_xix_e(unsigned a) { R.setE(SET_X_(4, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_4_xix_h(unsigned a) { R.setH(SET_X_(4, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_4_xix_l(unsigned a) { R.setL(SET_X_(4, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_5_xix_a(unsigned a) { R.setA(SET_X_(5, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_5_xix_b(unsigned a) { R.setB(SET_X_(5, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_5_xix_c(unsigned a) { R.setC(SET_X_(5, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_5_xix_d(unsigned a) { R.setD(SET_X_(5, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_5_xix_e(unsigned a) { R.setE(SET_X_(5, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_5_xix_h(unsigned a) { R.setH(SET_X_(5, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_5_xix_l(unsigned a) { R.setL(SET_X_(5, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_6_xix_a(unsigned a) { R.setA(SET_X_(6, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_6_xix_b(unsigned a) { R.setB(SET_X_(6, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_6_xix_c(unsigned a) { R.setC(SET_X_(6, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_6_xix_d(unsigned a) { R.setD(SET_X_(6, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_6_xix_e(unsigned a) { R.setE(SET_X_(6, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_6_xix_h(unsigned a) { R.setH(SET_X_(6, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_6_xix_l(unsigned a) { R.setL(SET_X_(6, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_7_xix_a(unsigned a) { R.setA(SET_X_(7, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_7_xix_b(unsigned a) { R.setB(SET_X_(7, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_7_xix_c(unsigned a) { R.setC(SET_X_(7, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_7_xix_d(unsigned a) { R.setD(SET_X_(7, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_7_xix_e(unsigned a) { R.setE(SET_X_(7, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_7_xix_h(unsigned a) { R.setH(SET_X_(7, a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::set_7_xix_l(unsigned a) { R.setL(SET_X_(7, a)); return T::CC_SET_XIX; }
 
 
 // RL r
@@ -2536,14 +2370,6 @@ template <class T> inline byte CPUCore<T>::RL_X_(unsigned x)
 {
 	memptr = x; return RL_X(x, T::EE_SET_XIX);
 }
-template <class T> inline byte CPUCore<T>::RL_X_X(int ofst)
-{
-	return RL_X_((R.getIX() + ofst) & 0xFFFF);
-}
-template <class T> inline byte CPUCore<T>::RL_X_Y(int ofst)
-{
-	return RL_X_((R.getIY() + ofst) & 0xFFFF);
-}
 
 template <class T> int CPUCore<T>::rl_a() { R.setA(RL(R.getA())); return T::CC_SET_R; }
 template <class T> int CPUCore<T>::rl_b() { R.setB(RL(R.getB())); return T::CC_SET_R; }
@@ -2554,24 +2380,15 @@ template <class T> int CPUCore<T>::rl_h() { R.setH(RL(R.getH())); return T::CC_S
 template <class T> int CPUCore<T>::rl_l() { R.setL(RL(R.getL())); return T::CC_SET_R; }
 
 template <class T> int CPUCore<T>::rl_xhl()      { RL_X(R.getHL(), 0); return T::CC_SET_XHL; }
-template <class T> int CPUCore<T>::rl_xix(int o) { RL_X_X(o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rl_xiy(int o) { RL_X_Y(o); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::rl_xix(unsigned a) { RL_X_(a); return T::CC_SET_XIX; }
 
-template <class T> int CPUCore<T>::rl_xix_a(int o) { R.setA(RL_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rl_xix_b(int o) { R.setB(RL_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rl_xix_c(int o) { R.setC(RL_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rl_xix_d(int o) { R.setD(RL_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rl_xix_e(int o) { R.setE(RL_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rl_xix_h(int o) { R.setH(RL_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rl_xix_l(int o) { R.setL(RL_X_X(o)); return T::CC_SET_XIX; }
-
-template <class T> int CPUCore<T>::rl_xiy_a(int o) { R.setA(RL_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rl_xiy_b(int o) { R.setB(RL_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rl_xiy_c(int o) { R.setC(RL_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rl_xiy_d(int o) { R.setD(RL_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rl_xiy_e(int o) { R.setE(RL_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rl_xiy_h(int o) { R.setH(RL_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rl_xiy_l(int o) { R.setL(RL_X_Y(o)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::rl_xix_a(unsigned a) { R.setA(RL_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::rl_xix_b(unsigned a) { R.setB(RL_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::rl_xix_c(unsigned a) { R.setC(RL_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::rl_xix_d(unsigned a) { R.setD(RL_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::rl_xix_e(unsigned a) { R.setE(RL_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::rl_xix_h(unsigned a) { R.setH(RL_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::rl_xix_l(unsigned a) { R.setL(RL_X_(a)); return T::CC_SET_XIX; }
 
 
 // RLC r
@@ -2593,14 +2410,6 @@ template <class T> inline byte CPUCore<T>::RLC_X_(unsigned x)
 {
 	memptr = x; return RLC_X(x, T::EE_SET_XIX);
 }
-template <class T> inline byte CPUCore<T>::RLC_X_X(int ofst)
-{
-	return RLC_X_((R.getIX() + ofst) & 0xFFFF);
-}
-template <class T> inline byte CPUCore<T>::RLC_X_Y(int ofst)
-{
-	return RLC_X_((R.getIY() + ofst) & 0xFFFF);
-}
 
 template <class T> int CPUCore<T>::rlc_a() { R.setA(RLC(R.getA())); return T::CC_SET_R; }
 template <class T> int CPUCore<T>::rlc_b() { R.setB(RLC(R.getB())); return T::CC_SET_R; }
@@ -2611,24 +2420,15 @@ template <class T> int CPUCore<T>::rlc_h() { R.setH(RLC(R.getH())); return T::CC
 template <class T> int CPUCore<T>::rlc_l() { R.setL(RLC(R.getL())); return T::CC_SET_R; }
 
 template <class T> int CPUCore<T>::rlc_xhl()      { RLC_X(R.getHL(), 0); return T::CC_SET_XHL; }
-template <class T> int CPUCore<T>::rlc_xix(int o) { RLC_X_X(o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rlc_xiy(int o) { RLC_X_Y(o); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::rlc_xix(unsigned a) { RLC_X_(a); return T::CC_SET_XIX; }
 
-template <class T> int CPUCore<T>::rlc_xix_a(int o) { R.setA(RLC_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rlc_xix_b(int o) { R.setB(RLC_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rlc_xix_c(int o) { R.setC(RLC_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rlc_xix_d(int o) { R.setD(RLC_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rlc_xix_e(int o) { R.setE(RLC_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rlc_xix_h(int o) { R.setH(RLC_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rlc_xix_l(int o) { R.setL(RLC_X_X(o)); return T::CC_SET_XIX; }
-
-template <class T> int CPUCore<T>::rlc_xiy_a(int o) { R.setA(RLC_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rlc_xiy_b(int o) { R.setB(RLC_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rlc_xiy_c(int o) { R.setC(RLC_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rlc_xiy_d(int o) { R.setD(RLC_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rlc_xiy_e(int o) { R.setE(RLC_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rlc_xiy_h(int o) { R.setH(RLC_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rlc_xiy_l(int o) { R.setL(RLC_X_Y(o)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::rlc_xix_a(unsigned a) { R.setA(RLC_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::rlc_xix_b(unsigned a) { R.setB(RLC_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::rlc_xix_c(unsigned a) { R.setC(RLC_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::rlc_xix_d(unsigned a) { R.setD(RLC_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::rlc_xix_e(unsigned a) { R.setE(RLC_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::rlc_xix_h(unsigned a) { R.setH(RLC_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::rlc_xix_l(unsigned a) { R.setL(RLC_X_(a)); return T::CC_SET_XIX; }
 
 
 // RR r
@@ -2650,14 +2450,6 @@ template <class T> inline byte CPUCore<T>::RR_X_(unsigned x)
 {
 	memptr = x; return RR_X(x, T::EE_SET_XIX);
 }
-template <class T> inline byte CPUCore<T>::RR_X_X(int ofst)
-{
-	return RR_X_((R.getIX() + ofst) & 0xFFFF);
-}
-template <class T> inline byte CPUCore<T>::RR_X_Y(int ofst)
-{
-	return RR_X_((R.getIY() + ofst) & 0xFFFF);
-}
 
 template <class T> int CPUCore<T>::rr_a() { R.setA(RR(R.getA())); return T::CC_SET_R; }
 template <class T> int CPUCore<T>::rr_b() { R.setB(RR(R.getB())); return T::CC_SET_R; }
@@ -2668,24 +2460,15 @@ template <class T> int CPUCore<T>::rr_h() { R.setH(RR(R.getH())); return T::CC_S
 template <class T> int CPUCore<T>::rr_l() { R.setL(RR(R.getL())); return T::CC_SET_R; }
 
 template <class T> int CPUCore<T>::rr_xhl()      { RR_X(R.getHL(), 0); return T::CC_SET_XHL; }
-template <class T> int CPUCore<T>::rr_xix(int o) { RR_X_X(o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rr_xiy(int o) { RR_X_Y(o); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::rr_xix(unsigned a) { RR_X_(a); return T::CC_SET_XIX; }
 
-template <class T> int CPUCore<T>::rr_xix_a(int o) { R.setA(RR_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rr_xix_b(int o) { R.setB(RR_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rr_xix_c(int o) { R.setC(RR_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rr_xix_d(int o) { R.setD(RR_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rr_xix_e(int o) { R.setE(RR_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rr_xix_h(int o) { R.setH(RR_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rr_xix_l(int o) { R.setL(RR_X_X(o)); return T::CC_SET_XIX; }
-
-template <class T> int CPUCore<T>::rr_xiy_a(int o) { R.setA(RR_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rr_xiy_b(int o) { R.setB(RR_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rr_xiy_c(int o) { R.setC(RR_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rr_xiy_d(int o) { R.setD(RR_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rr_xiy_e(int o) { R.setE(RR_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rr_xiy_h(int o) { R.setH(RR_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rr_xiy_l(int o) { R.setL(RR_X_Y(o)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::rr_xix_a(unsigned a) { R.setA(RR_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::rr_xix_b(unsigned a) { R.setB(RR_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::rr_xix_c(unsigned a) { R.setC(RR_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::rr_xix_d(unsigned a) { R.setD(RR_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::rr_xix_e(unsigned a) { R.setE(RR_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::rr_xix_h(unsigned a) { R.setH(RR_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::rr_xix_l(unsigned a) { R.setL(RR_X_(a)); return T::CC_SET_XIX; }
 
 
 // RRC r
@@ -2707,14 +2490,6 @@ template <class T> inline byte CPUCore<T>::RRC_X_(unsigned x)
 {
 	memptr = x; return RRC_X(x, T::EE_SET_XIX);
 }
-template <class T> inline byte CPUCore<T>::RRC_X_X(int ofst)
-{
-	return RRC_X_((R.getIX() + ofst) & 0xFFFF);
-}
-template <class T> inline byte CPUCore<T>::RRC_X_Y(int ofst)
-{
-	return RRC_X_((R.getIY() + ofst) & 0xFFFF);
-}
 
 template <class T> int CPUCore<T>::rrc_a() { R.setA(RRC(R.getA())); return T::CC_SET_R; }
 template <class T> int CPUCore<T>::rrc_b() { R.setB(RRC(R.getB())); return T::CC_SET_R; }
@@ -2725,24 +2500,15 @@ template <class T> int CPUCore<T>::rrc_h() { R.setH(RRC(R.getH())); return T::CC
 template <class T> int CPUCore<T>::rrc_l() { R.setL(RRC(R.getL())); return T::CC_SET_R; }
 
 template <class T> int CPUCore<T>::rrc_xhl()      { RRC_X(R.getHL(), 0); return T::CC_SET_XHL; }
-template <class T> int CPUCore<T>::rrc_xix(int o) { RRC_X_X(o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rrc_xiy(int o) { RRC_X_Y(o); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::rrc_xix(unsigned a) { RRC_X_(a); return T::CC_SET_XIX; }
 
-template <class T> int CPUCore<T>::rrc_xix_a(int o) { R.setA(RRC_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rrc_xix_b(int o) { R.setB(RRC_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rrc_xix_c(int o) { R.setC(RRC_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rrc_xix_d(int o) { R.setD(RRC_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rrc_xix_e(int o) { R.setE(RRC_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rrc_xix_h(int o) { R.setH(RRC_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rrc_xix_l(int o) { R.setL(RRC_X_X(o)); return T::CC_SET_XIX; }
-
-template <class T> int CPUCore<T>::rrc_xiy_a(int o) { R.setA(RRC_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rrc_xiy_b(int o) { R.setB(RRC_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rrc_xiy_c(int o) { R.setC(RRC_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rrc_xiy_d(int o) { R.setD(RRC_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rrc_xiy_e(int o) { R.setE(RRC_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rrc_xiy_h(int o) { R.setH(RRC_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::rrc_xiy_l(int o) { R.setL(RRC_X_Y(o)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::rrc_xix_a(unsigned a) { R.setA(RRC_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::rrc_xix_b(unsigned a) { R.setB(RRC_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::rrc_xix_c(unsigned a) { R.setC(RRC_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::rrc_xix_d(unsigned a) { R.setD(RRC_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::rrc_xix_e(unsigned a) { R.setE(RRC_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::rrc_xix_h(unsigned a) { R.setH(RRC_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::rrc_xix_l(unsigned a) { R.setL(RRC_X_(a)); return T::CC_SET_XIX; }
 
 
 // SLA r
@@ -2764,14 +2530,6 @@ template <class T> inline byte CPUCore<T>::SLA_X_(unsigned x)
 {
 	memptr = x; return SLA_X(x, T::EE_SET_XIX);
 }
-template <class T> inline byte CPUCore<T>::SLA_X_X(int ofst)
-{
-	return SLA_X_((R.getIX() + ofst) & 0xFFFF);
-}
-template <class T> inline byte CPUCore<T>::SLA_X_Y(int ofst)
-{
-	return SLA_X_((R.getIY() + ofst) & 0xFFFF);
-}
 
 template <class T> int CPUCore<T>::sla_a() { R.setA(SLA(R.getA())); return T::CC_SET_R; }
 template <class T> int CPUCore<T>::sla_b() { R.setB(SLA(R.getB())); return T::CC_SET_R; }
@@ -2782,24 +2540,15 @@ template <class T> int CPUCore<T>::sla_h() { R.setH(SLA(R.getH())); return T::CC
 template <class T> int CPUCore<T>::sla_l() { R.setL(SLA(R.getL())); return T::CC_SET_R; }
 
 template <class T> int CPUCore<T>::sla_xhl()      { SLA_X(R.getHL(), 0); return T::CC_SET_XHL; }
-template <class T> int CPUCore<T>::sla_xix(int o) { SLA_X_X(o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sla_xiy(int o) { SLA_X_Y(o); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::sla_xix(unsigned a) { SLA_X_(a); return T::CC_SET_XIX; }
 
-template <class T> int CPUCore<T>::sla_xix_a(int o) { R.setA(SLA_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sla_xix_b(int o) { R.setB(SLA_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sla_xix_c(int o) { R.setC(SLA_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sla_xix_d(int o) { R.setD(SLA_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sla_xix_e(int o) { R.setE(SLA_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sla_xix_h(int o) { R.setH(SLA_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sla_xix_l(int o) { R.setL(SLA_X_X(o)); return T::CC_SET_XIX; }
-
-template <class T> int CPUCore<T>::sla_xiy_a(int o) { R.setA(SLA_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sla_xiy_b(int o) { R.setB(SLA_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sla_xiy_c(int o) { R.setC(SLA_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sla_xiy_d(int o) { R.setD(SLA_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sla_xiy_e(int o) { R.setE(SLA_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sla_xiy_h(int o) { R.setH(SLA_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sla_xiy_l(int o) { R.setL(SLA_X_Y(o)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::sla_xix_a(unsigned a) { R.setA(SLA_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::sla_xix_b(unsigned a) { R.setB(SLA_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::sla_xix_c(unsigned a) { R.setC(SLA_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::sla_xix_d(unsigned a) { R.setD(SLA_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::sla_xix_e(unsigned a) { R.setE(SLA_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::sla_xix_h(unsigned a) { R.setH(SLA_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::sla_xix_l(unsigned a) { R.setL(SLA_X_(a)); return T::CC_SET_XIX; }
 
 
 // SLL r
@@ -2821,14 +2570,6 @@ template <class T> inline byte CPUCore<T>::SLL_X_(unsigned x)
 {
 	memptr = x; return SLL_X(x, T::EE_SET_XIX);
 }
-template <class T> inline byte CPUCore<T>::SLL_X_X(int ofst)
-{
-	return SLL_X_((R.getIX() + ofst) & 0xFFFF);
-}
-template <class T> inline byte CPUCore<T>::SLL_X_Y(int ofst)
-{
-	return SLL_X_((R.getIY() + ofst) & 0xFFFF);
-}
 
 template <class T> int CPUCore<T>::sll_a() { R.setA(SLL(R.getA())); return T::CC_SET_R; }
 template <class T> int CPUCore<T>::sll_b() { R.setB(SLL(R.getB())); return T::CC_SET_R; }
@@ -2839,24 +2580,15 @@ template <class T> int CPUCore<T>::sll_h() { R.setH(SLL(R.getH())); return T::CC
 template <class T> int CPUCore<T>::sll_l() { R.setL(SLL(R.getL())); return T::CC_SET_R; }
 
 template <class T> int CPUCore<T>::sll_xhl()      { SLL_X(R.getHL(), 0); return T::CC_SET_XHL; }
-template <class T> int CPUCore<T>::sll_xix(int o) { SLL_X_X(o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sll_xiy(int o) { SLL_X_Y(o); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::sll_xix(unsigned a) { SLL_X_(a); return T::CC_SET_XIX; }
 
-template <class T> int CPUCore<T>::sll_xix_a(int o) { R.setA(SLL_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sll_xix_b(int o) { R.setB(SLL_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sll_xix_c(int o) { R.setC(SLL_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sll_xix_d(int o) { R.setD(SLL_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sll_xix_e(int o) { R.setE(SLL_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sll_xix_h(int o) { R.setH(SLL_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sll_xix_l(int o) { R.setL(SLL_X_X(o)); return T::CC_SET_XIX; }
-
-template <class T> int CPUCore<T>::sll_xiy_a(int o) { R.setA(SLL_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sll_xiy_b(int o) { R.setB(SLL_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sll_xiy_c(int o) { R.setC(SLL_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sll_xiy_d(int o) { R.setD(SLL_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sll_xiy_e(int o) { R.setE(SLL_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sll_xiy_h(int o) { R.setH(SLL_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sll_xiy_l(int o) { R.setL(SLL_X_Y(o)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::sll_xix_a(unsigned a) { R.setA(SLL_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::sll_xix_b(unsigned a) { R.setB(SLL_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::sll_xix_c(unsigned a) { R.setC(SLL_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::sll_xix_d(unsigned a) { R.setD(SLL_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::sll_xix_e(unsigned a) { R.setE(SLL_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::sll_xix_h(unsigned a) { R.setH(SLL_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::sll_xix_l(unsigned a) { R.setL(SLL_X_(a)); return T::CC_SET_XIX; }
 
 
 // SRA r
@@ -2878,14 +2610,6 @@ template <class T> inline byte CPUCore<T>::SRA_X_(unsigned x)
 {
 	memptr = x; return SRA_X(x, T::EE_SET_XIX);
 }
-template <class T> inline byte CPUCore<T>::SRA_X_X(int ofst)
-{
-	return SRA_X_((R.getIX() + ofst) & 0xFFFF);
-}
-template <class T> inline byte CPUCore<T>::SRA_X_Y(int ofst)
-{
-	return SRA_X_((R.getIY() + ofst) & 0xFFFF);
-}
 
 template <class T> int CPUCore<T>::sra_a() { R.setA(SRA(R.getA())); return T::CC_SET_R; }
 template <class T> int CPUCore<T>::sra_b() { R.setB(SRA(R.getB())); return T::CC_SET_R; }
@@ -2896,24 +2620,15 @@ template <class T> int CPUCore<T>::sra_h() { R.setH(SRA(R.getH())); return T::CC
 template <class T> int CPUCore<T>::sra_l() { R.setL(SRA(R.getL())); return T::CC_SET_R; }
 
 template <class T> int CPUCore<T>::sra_xhl()      { SRA_X(R.getHL(), 0); return T::CC_SET_XHL; }
-template <class T> int CPUCore<T>::sra_xix(int o) { SRA_X_X(o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sra_xiy(int o) { SRA_X_Y(o); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::sra_xix(unsigned a) { SRA_X_(a); return T::CC_SET_XIX; }
 
-template <class T> int CPUCore<T>::sra_xix_a(int o) { R.setA(SRA_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sra_xix_b(int o) { R.setB(SRA_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sra_xix_c(int o) { R.setC(SRA_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sra_xix_d(int o) { R.setD(SRA_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sra_xix_e(int o) { R.setE(SRA_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sra_xix_h(int o) { R.setH(SRA_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sra_xix_l(int o) { R.setL(SRA_X_X(o)); return T::CC_SET_XIX; }
-
-template <class T> int CPUCore<T>::sra_xiy_a(int o) { R.setA(SRA_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sra_xiy_b(int o) { R.setB(SRA_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sra_xiy_c(int o) { R.setC(SRA_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sra_xiy_d(int o) { R.setD(SRA_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sra_xiy_e(int o) { R.setE(SRA_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sra_xiy_h(int o) { R.setH(SRA_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::sra_xiy_l(int o) { R.setL(SRA_X_Y(o)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::sra_xix_a(unsigned a) { R.setA(SRA_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::sra_xix_b(unsigned a) { R.setB(SRA_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::sra_xix_c(unsigned a) { R.setC(SRA_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::sra_xix_d(unsigned a) { R.setD(SRA_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::sra_xix_e(unsigned a) { R.setE(SRA_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::sra_xix_h(unsigned a) { R.setH(SRA_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::sra_xix_l(unsigned a) { R.setL(SRA_X_(a)); return T::CC_SET_XIX; }
 
 
 // SRL R
@@ -2935,14 +2650,6 @@ template <class T> inline byte CPUCore<T>::SRL_X_(unsigned x)
 {
 	memptr = x; return SRL_X(x, T::EE_SET_XIX);
 }
-template <class T> inline byte CPUCore<T>::SRL_X_X(int ofst)
-{
-	return SRL_X_((R.getIX() + ofst) & 0xFFFF);
-}
-template <class T> inline byte CPUCore<T>::SRL_X_Y(int ofst)
-{
-	return SRL_X_((R.getIY() + ofst) & 0xFFFF);
-}
 
 template <class T> int CPUCore<T>::srl_a() { R.setA(SRL(R.getA())); return T::CC_SET_R; }
 template <class T> int CPUCore<T>::srl_b() { R.setB(SRL(R.getB())); return T::CC_SET_R; }
@@ -2953,24 +2660,15 @@ template <class T> int CPUCore<T>::srl_h() { R.setH(SRL(R.getH())); return T::CC
 template <class T> int CPUCore<T>::srl_l() { R.setL(SRL(R.getL())); return T::CC_SET_R; }
 
 template <class T> int CPUCore<T>::srl_xhl()      { SRL_X(R.getHL(), 0); return T::CC_SET_XHL; }
-template <class T> int CPUCore<T>::srl_xix(int o) { SRL_X_X(o); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::srl_xiy(int o) { SRL_X_Y(o); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::srl_xix(unsigned a) { SRL_X_(a); return T::CC_SET_XIX; }
 
-template <class T> int CPUCore<T>::srl_xix_a(int o) { R.setA(SRL_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::srl_xix_b(int o) { R.setB(SRL_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::srl_xix_c(int o) { R.setC(SRL_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::srl_xix_d(int o) { R.setD(SRL_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::srl_xix_e(int o) { R.setE(SRL_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::srl_xix_h(int o) { R.setH(SRL_X_X(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::srl_xix_l(int o) { R.setL(SRL_X_X(o)); return T::CC_SET_XIX; }
-
-template <class T> int CPUCore<T>::srl_xiy_a(int o) { R.setA(SRL_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::srl_xiy_b(int o) { R.setB(SRL_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::srl_xiy_c(int o) { R.setC(SRL_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::srl_xiy_d(int o) { R.setD(SRL_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::srl_xiy_e(int o) { R.setE(SRL_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::srl_xiy_h(int o) { R.setH(SRL_X_Y(o)); return T::CC_SET_XIX; }
-template <class T> int CPUCore<T>::srl_xiy_l(int o) { R.setL(SRL_X_Y(o)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::srl_xix_a(unsigned a) { R.setA(SRL_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::srl_xix_b(unsigned a) { R.setB(SRL_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::srl_xix_c(unsigned a) { R.setC(SRL_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::srl_xix_d(unsigned a) { R.setD(SRL_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::srl_xix_e(unsigned a) { R.setE(SRL_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::srl_xix_h(unsigned a) { R.setH(SRL_X_(a)); return T::CC_SET_XIX; }
+template <class T> int CPUCore<T>::srl_xix_l(unsigned a) { R.setL(SRL_X_(a)); return T::CC_SET_XIX; }
 
 
 // RLA RLCA RRA RRCA
@@ -3514,227 +3212,228 @@ template <class T> int CPUCore<T>::dd_cb()
 {
 	unsigned tmp = RD_WORD_PC(T::CC_DD_CB);
 	offset ofst = tmp & 0xFF;
+	unsigned addr = (R.getIX() + ofst) & 0xFFFF;
 	unsigned opcode = tmp >> 8;
 	switch (opcode) {
-		case 0x00: return rlc_xix_b(ofst);
-		case 0x01: return rlc_xix_c(ofst);
-		case 0x02: return rlc_xix_d(ofst);
-		case 0x03: return rlc_xix_e(ofst);
-		case 0x04: return rlc_xix_h(ofst);
-		case 0x05: return rlc_xix_l(ofst);
-		case 0x06: return rlc_xix(ofst);
-		case 0x07: return rlc_xix_a(ofst);
-		case 0x08: return rrc_xix_b(ofst);
-		case 0x09: return rrc_xix_c(ofst);
-		case 0x0a: return rrc_xix_d(ofst);
-		case 0x0b: return rrc_xix_e(ofst);
-		case 0x0c: return rrc_xix_h(ofst);
-		case 0x0d: return rrc_xix_l(ofst);
-		case 0x0e: return rrc_xix(ofst);
-		case 0x0f: return rrc_xix_a(ofst);
-		case 0x10: return rl_xix_b(ofst);
-		case 0x11: return rl_xix_c(ofst);
-		case 0x12: return rl_xix_d(ofst);
-		case 0x13: return rl_xix_e(ofst);
-		case 0x14: return rl_xix_h(ofst);
-		case 0x15: return rl_xix_l(ofst);
-		case 0x16: return rl_xix(ofst);
-		case 0x17: return rl_xix_a(ofst);
-		case 0x18: return rr_xix_b(ofst);
-		case 0x19: return rr_xix_c(ofst);
-		case 0x1a: return rr_xix_d(ofst);
-		case 0x1b: return rr_xix_e(ofst);
-		case 0x1c: return rr_xix_h(ofst);
-		case 0x1d: return rr_xix_l(ofst);
-		case 0x1e: return rr_xix(ofst);
-		case 0x1f: return rr_xix_a(ofst);
-		case 0x20: return sla_xix_b(ofst);
-		case 0x21: return sla_xix_c(ofst);
-		case 0x22: return sla_xix_d(ofst);
-		case 0x23: return sla_xix_e(ofst);
-		case 0x24: return sla_xix_h(ofst);
-		case 0x25: return sla_xix_l(ofst);
-		case 0x26: return sla_xix(ofst);
-		case 0x27: return sla_xix_a(ofst);
-		case 0x28: return sra_xix_b(ofst);
-		case 0x29: return sra_xix_c(ofst);
-		case 0x2a: return sra_xix_d(ofst);
-		case 0x2b: return sra_xix_e(ofst);
-		case 0x2c: return sra_xix_h(ofst);
-		case 0x2d: return sra_xix_l(ofst);
-		case 0x2e: return sra_xix(ofst);
-		case 0x2f: return sra_xix_a(ofst);
-		case 0x30: return sll_xix_b(ofst);
-		case 0x31: return sll_xix_c(ofst);
-		case 0x32: return sll_xix_d(ofst);
-		case 0x33: return sll_xix_e(ofst);
-		case 0x34: return sll_xix_h(ofst);
-		case 0x35: return sll_xix_l(ofst);
-		case 0x36: return sll_xix(ofst);
-		case 0x37: return sll_xix_a(ofst);
-		case 0x38: return srl_xix_b(ofst);
-		case 0x39: return srl_xix_c(ofst);
-		case 0x3a: return srl_xix_d(ofst);
-		case 0x3b: return srl_xix_e(ofst);
-		case 0x3c: return srl_xix_h(ofst);
-		case 0x3d: return srl_xix_l(ofst);
-		case 0x3e: return srl_xix(ofst);
-		case 0x3f: return srl_xix_a(ofst);
+		case 0x00: return rlc_xix_b(addr);
+		case 0x01: return rlc_xix_c(addr);
+		case 0x02: return rlc_xix_d(addr);
+		case 0x03: return rlc_xix_e(addr);
+		case 0x04: return rlc_xix_h(addr);
+		case 0x05: return rlc_xix_l(addr);
+		case 0x06: return rlc_xix(addr);
+		case 0x07: return rlc_xix_a(addr);
+		case 0x08: return rrc_xix_b(addr);
+		case 0x09: return rrc_xix_c(addr);
+		case 0x0a: return rrc_xix_d(addr);
+		case 0x0b: return rrc_xix_e(addr);
+		case 0x0c: return rrc_xix_h(addr);
+		case 0x0d: return rrc_xix_l(addr);
+		case 0x0e: return rrc_xix(addr);
+		case 0x0f: return rrc_xix_a(addr);
+		case 0x10: return rl_xix_b(addr);
+		case 0x11: return rl_xix_c(addr);
+		case 0x12: return rl_xix_d(addr);
+		case 0x13: return rl_xix_e(addr);
+		case 0x14: return rl_xix_h(addr);
+		case 0x15: return rl_xix_l(addr);
+		case 0x16: return rl_xix(addr);
+		case 0x17: return rl_xix_a(addr);
+		case 0x18: return rr_xix_b(addr);
+		case 0x19: return rr_xix_c(addr);
+		case 0x1a: return rr_xix_d(addr);
+		case 0x1b: return rr_xix_e(addr);
+		case 0x1c: return rr_xix_h(addr);
+		case 0x1d: return rr_xix_l(addr);
+		case 0x1e: return rr_xix(addr);
+		case 0x1f: return rr_xix_a(addr);
+		case 0x20: return sla_xix_b(addr);
+		case 0x21: return sla_xix_c(addr);
+		case 0x22: return sla_xix_d(addr);
+		case 0x23: return sla_xix_e(addr);
+		case 0x24: return sla_xix_h(addr);
+		case 0x25: return sla_xix_l(addr);
+		case 0x26: return sla_xix(addr);
+		case 0x27: return sla_xix_a(addr);
+		case 0x28: return sra_xix_b(addr);
+		case 0x29: return sra_xix_c(addr);
+		case 0x2a: return sra_xix_d(addr);
+		case 0x2b: return sra_xix_e(addr);
+		case 0x2c: return sra_xix_h(addr);
+		case 0x2d: return sra_xix_l(addr);
+		case 0x2e: return sra_xix(addr);
+		case 0x2f: return sra_xix_a(addr);
+		case 0x30: return sll_xix_b(addr);
+		case 0x31: return sll_xix_c(addr);
+		case 0x32: return sll_xix_d(addr);
+		case 0x33: return sll_xix_e(addr);
+		case 0x34: return sll_xix_h(addr);
+		case 0x35: return sll_xix_l(addr);
+		case 0x36: return sll_xix(addr);
+		case 0x37: return sll_xix_a(addr);
+		case 0x38: return srl_xix_b(addr);
+		case 0x39: return srl_xix_c(addr);
+		case 0x3a: return srl_xix_d(addr);
+		case 0x3b: return srl_xix_e(addr);
+		case 0x3c: return srl_xix_h(addr);
+		case 0x3d: return srl_xix_l(addr);
+		case 0x3e: return srl_xix(addr);
+		case 0x3f: return srl_xix_a(addr);
 
 		case 0x40: case 0x41: case 0x42: case 0x43:
 		case 0x44: case 0x45: case 0x46: case 0x47:
-			return bit_0_xix(ofst);
+			return bit_0_xix(addr);
 		case 0x48: case 0x49: case 0x4a: case 0x4b:
 		case 0x4c: case 0x4d: case 0x4e: case 0x4f:
-			return bit_1_xix(ofst);
+			return bit_1_xix(addr);
 		case 0x50: case 0x51: case 0x52: case 0x53:
 		case 0x54: case 0x55: case 0x56: case 0x57:
-			return bit_2_xix(ofst);
+			return bit_2_xix(addr);
 		case 0x58: case 0x59: case 0x5a: case 0x5b:
 		case 0x5c: case 0x5d: case 0x5e: case 0x5f:
-			return bit_3_xix(ofst);
+			return bit_3_xix(addr);
 		case 0x60: case 0x61: case 0x62: case 0x63:
 		case 0x64: case 0x65: case 0x66: case 0x67:
-			return bit_4_xix(ofst);
+			return bit_4_xix(addr);
 		case 0x68: case 0x69: case 0x6a: case 0x6b:
 		case 0x6c: case 0x6d: case 0x6e: case 0x6f:
-			return bit_5_xix(ofst);
+			return bit_5_xix(addr);
 		case 0x70: case 0x71: case 0x72: case 0x73:
 		case 0x74: case 0x75: case 0x76: case 0x77:
-			return bit_6_xix(ofst);
+			return bit_6_xix(addr);
 		case 0x78: case 0x79: case 0x7a: case 0x7b:
 		case 0x7c: case 0x7d: case 0x7e: case 0x7f:
-			return bit_7_xix(ofst);
+			return bit_7_xix(addr);
 
-		case 0x80: return res_0_xix_b(ofst);
-		case 0x81: return res_0_xix_c(ofst);
-		case 0x82: return res_0_xix_d(ofst);
-		case 0x83: return res_0_xix_e(ofst);
-		case 0x84: return res_0_xix_h(ofst);
-		case 0x85: return res_0_xix_l(ofst);
-		case 0x86: return res_0_xix(ofst);
-		case 0x87: return res_0_xix_a(ofst);
-		case 0x88: return res_1_xix_b(ofst);
-		case 0x89: return res_1_xix_c(ofst);
-		case 0x8a: return res_1_xix_d(ofst);
-		case 0x8b: return res_1_xix_e(ofst);
-		case 0x8c: return res_1_xix_h(ofst);
-		case 0x8d: return res_1_xix_l(ofst);
-		case 0x8e: return res_1_xix(ofst);
-		case 0x8f: return res_1_xix_a(ofst);
-		case 0x90: return res_2_xix_b(ofst);
-		case 0x91: return res_2_xix_c(ofst);
-		case 0x92: return res_2_xix_d(ofst);
-		case 0x93: return res_2_xix_e(ofst);
-		case 0x94: return res_2_xix_h(ofst);
-		case 0x95: return res_2_xix_l(ofst);
-		case 0x96: return res_2_xix(ofst);
-		case 0x97: return res_2_xix_a(ofst);
-		case 0x98: return res_3_xix_b(ofst);
-		case 0x99: return res_3_xix_c(ofst);
-		case 0x9a: return res_3_xix_d(ofst);
-		case 0x9b: return res_3_xix_e(ofst);
-		case 0x9c: return res_3_xix_h(ofst);
-		case 0x9d: return res_3_xix_l(ofst);
-		case 0x9e: return res_3_xix(ofst);
-		case 0x9f: return res_3_xix_a(ofst);
-		case 0xa0: return res_4_xix_b(ofst);
-		case 0xa1: return res_4_xix_c(ofst);
-		case 0xa2: return res_4_xix_d(ofst);
-		case 0xa3: return res_4_xix_e(ofst);
-		case 0xa4: return res_4_xix_h(ofst);
-		case 0xa5: return res_4_xix_l(ofst);
-		case 0xa6: return res_4_xix(ofst);
-		case 0xa7: return res_4_xix_a(ofst);
-		case 0xa8: return res_5_xix_b(ofst);
-		case 0xa9: return res_5_xix_c(ofst);
-		case 0xaa: return res_5_xix_d(ofst);
-		case 0xab: return res_5_xix_e(ofst);
-		case 0xac: return res_5_xix_h(ofst);
-		case 0xad: return res_5_xix_l(ofst);
-		case 0xae: return res_5_xix(ofst);
-		case 0xaf: return res_5_xix_a(ofst);
-		case 0xb0: return res_6_xix_b(ofst);
-		case 0xb1: return res_6_xix_c(ofst);
-		case 0xb2: return res_6_xix_d(ofst);
-		case 0xb3: return res_6_xix_e(ofst);
-		case 0xb4: return res_6_xix_h(ofst);
-		case 0xb5: return res_6_xix_l(ofst);
-		case 0xb6: return res_6_xix(ofst);
-		case 0xb7: return res_6_xix_a(ofst);
-		case 0xb8: return res_7_xix_b(ofst);
-		case 0xb9: return res_7_xix_c(ofst);
-		case 0xba: return res_7_xix_d(ofst);
-		case 0xbb: return res_7_xix_e(ofst);
-		case 0xbc: return res_7_xix_h(ofst);
-		case 0xbd: return res_7_xix_l(ofst);
-		case 0xbe: return res_7_xix(ofst);
-		case 0xbf: return res_7_xix_a(ofst);
+		case 0x80: return res_0_xix_b(addr);
+		case 0x81: return res_0_xix_c(addr);
+		case 0x82: return res_0_xix_d(addr);
+		case 0x83: return res_0_xix_e(addr);
+		case 0x84: return res_0_xix_h(addr);
+		case 0x85: return res_0_xix_l(addr);
+		case 0x86: return res_0_xix(addr);
+		case 0x87: return res_0_xix_a(addr);
+		case 0x88: return res_1_xix_b(addr);
+		case 0x89: return res_1_xix_c(addr);
+		case 0x8a: return res_1_xix_d(addr);
+		case 0x8b: return res_1_xix_e(addr);
+		case 0x8c: return res_1_xix_h(addr);
+		case 0x8d: return res_1_xix_l(addr);
+		case 0x8e: return res_1_xix(addr);
+		case 0x8f: return res_1_xix_a(addr);
+		case 0x90: return res_2_xix_b(addr);
+		case 0x91: return res_2_xix_c(addr);
+		case 0x92: return res_2_xix_d(addr);
+		case 0x93: return res_2_xix_e(addr);
+		case 0x94: return res_2_xix_h(addr);
+		case 0x95: return res_2_xix_l(addr);
+		case 0x96: return res_2_xix(addr);
+		case 0x97: return res_2_xix_a(addr);
+		case 0x98: return res_3_xix_b(addr);
+		case 0x99: return res_3_xix_c(addr);
+		case 0x9a: return res_3_xix_d(addr);
+		case 0x9b: return res_3_xix_e(addr);
+		case 0x9c: return res_3_xix_h(addr);
+		case 0x9d: return res_3_xix_l(addr);
+		case 0x9e: return res_3_xix(addr);
+		case 0x9f: return res_3_xix_a(addr);
+		case 0xa0: return res_4_xix_b(addr);
+		case 0xa1: return res_4_xix_c(addr);
+		case 0xa2: return res_4_xix_d(addr);
+		case 0xa3: return res_4_xix_e(addr);
+		case 0xa4: return res_4_xix_h(addr);
+		case 0xa5: return res_4_xix_l(addr);
+		case 0xa6: return res_4_xix(addr);
+		case 0xa7: return res_4_xix_a(addr);
+		case 0xa8: return res_5_xix_b(addr);
+		case 0xa9: return res_5_xix_c(addr);
+		case 0xaa: return res_5_xix_d(addr);
+		case 0xab: return res_5_xix_e(addr);
+		case 0xac: return res_5_xix_h(addr);
+		case 0xad: return res_5_xix_l(addr);
+		case 0xae: return res_5_xix(addr);
+		case 0xaf: return res_5_xix_a(addr);
+		case 0xb0: return res_6_xix_b(addr);
+		case 0xb1: return res_6_xix_c(addr);
+		case 0xb2: return res_6_xix_d(addr);
+		case 0xb3: return res_6_xix_e(addr);
+		case 0xb4: return res_6_xix_h(addr);
+		case 0xb5: return res_6_xix_l(addr);
+		case 0xb6: return res_6_xix(addr);
+		case 0xb7: return res_6_xix_a(addr);
+		case 0xb8: return res_7_xix_b(addr);
+		case 0xb9: return res_7_xix_c(addr);
+		case 0xba: return res_7_xix_d(addr);
+		case 0xbb: return res_7_xix_e(addr);
+		case 0xbc: return res_7_xix_h(addr);
+		case 0xbd: return res_7_xix_l(addr);
+		case 0xbe: return res_7_xix(addr);
+		case 0xbf: return res_7_xix_a(addr);
 
-		case 0xc0: return set_0_xix_b(ofst);
-		case 0xc1: return set_0_xix_c(ofst);
-		case 0xc2: return set_0_xix_d(ofst);
-		case 0xc3: return set_0_xix_e(ofst);
-		case 0xc4: return set_0_xix_h(ofst);
-		case 0xc5: return set_0_xix_l(ofst);
-		case 0xc6: return set_0_xix(ofst);
-		case 0xc7: return set_0_xix_a(ofst);
-		case 0xc8: return set_1_xix_b(ofst);
-		case 0xc9: return set_1_xix_c(ofst);
-		case 0xca: return set_1_xix_d(ofst);
-		case 0xcb: return set_1_xix_e(ofst);
-		case 0xcc: return set_1_xix_h(ofst);
-		case 0xcd: return set_1_xix_l(ofst);
-		case 0xce: return set_1_xix(ofst);
-		case 0xcf: return set_1_xix_a(ofst);
-		case 0xd0: return set_2_xix_b(ofst);
-		case 0xd1: return set_2_xix_c(ofst);
-		case 0xd2: return set_2_xix_d(ofst);
-		case 0xd3: return set_2_xix_e(ofst);
-		case 0xd4: return set_2_xix_h(ofst);
-		case 0xd5: return set_2_xix_l(ofst);
-		case 0xd6: return set_2_xix(ofst);
-		case 0xd7: return set_2_xix_a(ofst);
-		case 0xd8: return set_3_xix_b(ofst);
-		case 0xd9: return set_3_xix_c(ofst);
-		case 0xda: return set_3_xix_d(ofst);
-		case 0xdb: return set_3_xix_e(ofst);
-		case 0xdc: return set_3_xix_h(ofst);
-		case 0xdd: return set_3_xix_l(ofst);
-		case 0xde: return set_3_xix(ofst);
-		case 0xdf: return set_3_xix_a(ofst);
-		case 0xe0: return set_4_xix_b(ofst);
-		case 0xe1: return set_4_xix_c(ofst);
-		case 0xe2: return set_4_xix_d(ofst);
-		case 0xe3: return set_4_xix_e(ofst);
-		case 0xe4: return set_4_xix_h(ofst);
-		case 0xe5: return set_4_xix_l(ofst);
-		case 0xe6: return set_4_xix(ofst);
-		case 0xe7: return set_4_xix_a(ofst);
-		case 0xe8: return set_5_xix_b(ofst);
-		case 0xe9: return set_5_xix_c(ofst);
-		case 0xea: return set_5_xix_d(ofst);
-		case 0xeb: return set_5_xix_e(ofst);
-		case 0xec: return set_5_xix_h(ofst);
-		case 0xed: return set_5_xix_l(ofst);
-		case 0xee: return set_5_xix(ofst);
-		case 0xef: return set_5_xix_a(ofst);
-		case 0xf0: return set_6_xix_b(ofst);
-		case 0xf1: return set_6_xix_c(ofst);
-		case 0xf2: return set_6_xix_d(ofst);
-		case 0xf3: return set_6_xix_e(ofst);
-		case 0xf4: return set_6_xix_h(ofst);
-		case 0xf5: return set_6_xix_l(ofst);
-		case 0xf6: return set_6_xix(ofst);
-		case 0xf7: return set_6_xix_a(ofst);
-		case 0xf8: return set_7_xix_b(ofst);
-		case 0xf9: return set_7_xix_c(ofst);
-		case 0xfa: return set_7_xix_d(ofst);
-		case 0xfb: return set_7_xix_e(ofst);
-		case 0xfc: return set_7_xix_h(ofst);
-		case 0xfd: return set_7_xix_l(ofst);
-		case 0xfe: return set_7_xix(ofst);
-		case 0xff: return set_7_xix_a(ofst);
+		case 0xc0: return set_0_xix_b(addr);
+		case 0xc1: return set_0_xix_c(addr);
+		case 0xc2: return set_0_xix_d(addr);
+		case 0xc3: return set_0_xix_e(addr);
+		case 0xc4: return set_0_xix_h(addr);
+		case 0xc5: return set_0_xix_l(addr);
+		case 0xc6: return set_0_xix(addr);
+		case 0xc7: return set_0_xix_a(addr);
+		case 0xc8: return set_1_xix_b(addr);
+		case 0xc9: return set_1_xix_c(addr);
+		case 0xca: return set_1_xix_d(addr);
+		case 0xcb: return set_1_xix_e(addr);
+		case 0xcc: return set_1_xix_h(addr);
+		case 0xcd: return set_1_xix_l(addr);
+		case 0xce: return set_1_xix(addr);
+		case 0xcf: return set_1_xix_a(addr);
+		case 0xd0: return set_2_xix_b(addr);
+		case 0xd1: return set_2_xix_c(addr);
+		case 0xd2: return set_2_xix_d(addr);
+		case 0xd3: return set_2_xix_e(addr);
+		case 0xd4: return set_2_xix_h(addr);
+		case 0xd5: return set_2_xix_l(addr);
+		case 0xd6: return set_2_xix(addr);
+		case 0xd7: return set_2_xix_a(addr);
+		case 0xd8: return set_3_xix_b(addr);
+		case 0xd9: return set_3_xix_c(addr);
+		case 0xda: return set_3_xix_d(addr);
+		case 0xdb: return set_3_xix_e(addr);
+		case 0xdc: return set_3_xix_h(addr);
+		case 0xdd: return set_3_xix_l(addr);
+		case 0xde: return set_3_xix(addr);
+		case 0xdf: return set_3_xix_a(addr);
+		case 0xe0: return set_4_xix_b(addr);
+		case 0xe1: return set_4_xix_c(addr);
+		case 0xe2: return set_4_xix_d(addr);
+		case 0xe3: return set_4_xix_e(addr);
+		case 0xe4: return set_4_xix_h(addr);
+		case 0xe5: return set_4_xix_l(addr);
+		case 0xe6: return set_4_xix(addr);
+		case 0xe7: return set_4_xix_a(addr);
+		case 0xe8: return set_5_xix_b(addr);
+		case 0xe9: return set_5_xix_c(addr);
+		case 0xea: return set_5_xix_d(addr);
+		case 0xeb: return set_5_xix_e(addr);
+		case 0xec: return set_5_xix_h(addr);
+		case 0xed: return set_5_xix_l(addr);
+		case 0xee: return set_5_xix(addr);
+		case 0xef: return set_5_xix_a(addr);
+		case 0xf0: return set_6_xix_b(addr);
+		case 0xf1: return set_6_xix_c(addr);
+		case 0xf2: return set_6_xix_d(addr);
+		case 0xf3: return set_6_xix_e(addr);
+		case 0xf4: return set_6_xix_h(addr);
+		case 0xf5: return set_6_xix_l(addr);
+		case 0xf6: return set_6_xix(addr);
+		case 0xf7: return set_6_xix_a(addr);
+		case 0xf8: return set_7_xix_b(addr);
+		case 0xf9: return set_7_xix_c(addr);
+		case 0xfa: return set_7_xix_d(addr);
+		case 0xfb: return set_7_xix_e(addr);
+		case 0xfc: return set_7_xix_h(addr);
+		case 0xfd: return set_7_xix_l(addr);
+		case 0xfe: return set_7_xix(addr);
+		case 0xff: return set_7_xix_a(addr);
 	}
 	assert(false); return 0;
 }
@@ -3743,227 +3442,228 @@ template <class T> int CPUCore<T>::fd_cb()
 {
 	unsigned tmp = RD_WORD_PC(T::CC_DD_CB);
 	offset ofst = tmp & 0xFF;
+	unsigned addr = (R.getIX() + ofst) & 0xFFFF;
 	unsigned opcode = tmp >> 8;
 	switch (opcode) {
-		case 0x00: return rlc_xiy_b(ofst);
-		case 0x01: return rlc_xiy_c(ofst);
-		case 0x02: return rlc_xiy_d(ofst);
-		case 0x03: return rlc_xiy_e(ofst);
-		case 0x04: return rlc_xiy_h(ofst);
-		case 0x05: return rlc_xiy_l(ofst);
-		case 0x06: return rlc_xiy(ofst);
-		case 0x07: return rlc_xiy_a(ofst);
-		case 0x08: return rrc_xiy_b(ofst);
-		case 0x09: return rrc_xiy_c(ofst);
-		case 0x0a: return rrc_xiy_d(ofst);
-		case 0x0b: return rrc_xiy_e(ofst);
-		case 0x0c: return rrc_xiy_h(ofst);
-		case 0x0d: return rrc_xiy_l(ofst);
-		case 0x0e: return rrc_xiy(ofst);
-		case 0x0f: return rrc_xiy_a(ofst);
-		case 0x10: return rl_xiy_b(ofst);
-		case 0x11: return rl_xiy_c(ofst);
-		case 0x12: return rl_xiy_d(ofst);
-		case 0x13: return rl_xiy_e(ofst);
-		case 0x14: return rl_xiy_h(ofst);
-		case 0x15: return rl_xiy_l(ofst);
-		case 0x16: return rl_xiy(ofst);
-		case 0x17: return rl_xiy_a(ofst);
-		case 0x18: return rr_xiy_b(ofst);
-		case 0x19: return rr_xiy_c(ofst);
-		case 0x1a: return rr_xiy_d(ofst);
-		case 0x1b: return rr_xiy_e(ofst);
-		case 0x1c: return rr_xiy_h(ofst);
-		case 0x1d: return rr_xiy_l(ofst);
-		case 0x1e: return rr_xiy(ofst);
-		case 0x1f: return rr_xiy_a(ofst);
-		case 0x20: return sla_xiy_b(ofst);
-		case 0x21: return sla_xiy_c(ofst);
-		case 0x22: return sla_xiy_d(ofst);
-		case 0x23: return sla_xiy_e(ofst);
-		case 0x24: return sla_xiy_h(ofst);
-		case 0x25: return sla_xiy_l(ofst);
-		case 0x26: return sla_xiy(ofst);
-		case 0x27: return sla_xiy_a(ofst);
-		case 0x28: return sra_xiy_b(ofst);
-		case 0x29: return sra_xiy_c(ofst);
-		case 0x2a: return sra_xiy_d(ofst);
-		case 0x2b: return sra_xiy_e(ofst);
-		case 0x2c: return sra_xiy_h(ofst);
-		case 0x2d: return sra_xiy_l(ofst);
-		case 0x2e: return sra_xiy(ofst);
-		case 0x2f: return sra_xiy_a(ofst);
-		case 0x30: return sll_xiy_b(ofst);
-		case 0x31: return sll_xiy_c(ofst);
-		case 0x32: return sll_xiy_d(ofst);
-		case 0x33: return sll_xiy_e(ofst);
-		case 0x34: return sll_xiy_h(ofst);
-		case 0x35: return sll_xiy_l(ofst);
-		case 0x36: return sll_xiy(ofst);
-		case 0x37: return sll_xiy_a(ofst);
-		case 0x38: return srl_xiy_b(ofst);
-		case 0x39: return srl_xiy_c(ofst);
-		case 0x3a: return srl_xiy_d(ofst);
-		case 0x3b: return srl_xiy_e(ofst);
-		case 0x3c: return srl_xiy_h(ofst);
-		case 0x3d: return srl_xiy_l(ofst);
-		case 0x3e: return srl_xiy(ofst);
-		case 0x3f: return srl_xiy_a(ofst);
+		case 0x00: return rlc_xix_b(addr);
+		case 0x01: return rlc_xix_c(addr);
+		case 0x02: return rlc_xix_d(addr);
+		case 0x03: return rlc_xix_e(addr);
+		case 0x04: return rlc_xix_h(addr);
+		case 0x05: return rlc_xix_l(addr);
+		case 0x06: return rlc_xix(addr);
+		case 0x07: return rlc_xix_a(addr);
+		case 0x08: return rrc_xix_b(addr);
+		case 0x09: return rrc_xix_c(addr);
+		case 0x0a: return rrc_xix_d(addr);
+		case 0x0b: return rrc_xix_e(addr);
+		case 0x0c: return rrc_xix_h(addr);
+		case 0x0d: return rrc_xix_l(addr);
+		case 0x0e: return rrc_xix(addr);
+		case 0x0f: return rrc_xix_a(addr);
+		case 0x10: return rl_xix_b(addr);
+		case 0x11: return rl_xix_c(addr);
+		case 0x12: return rl_xix_d(addr);
+		case 0x13: return rl_xix_e(addr);
+		case 0x14: return rl_xix_h(addr);
+		case 0x15: return rl_xix_l(addr);
+		case 0x16: return rl_xix(addr);
+		case 0x17: return rl_xix_a(addr);
+		case 0x18: return rr_xix_b(addr);
+		case 0x19: return rr_xix_c(addr);
+		case 0x1a: return rr_xix_d(addr);
+		case 0x1b: return rr_xix_e(addr);
+		case 0x1c: return rr_xix_h(addr);
+		case 0x1d: return rr_xix_l(addr);
+		case 0x1e: return rr_xix(addr);
+		case 0x1f: return rr_xix_a(addr);
+		case 0x20: return sla_xix_b(addr);
+		case 0x21: return sla_xix_c(addr);
+		case 0x22: return sla_xix_d(addr);
+		case 0x23: return sla_xix_e(addr);
+		case 0x24: return sla_xix_h(addr);
+		case 0x25: return sla_xix_l(addr);
+		case 0x26: return sla_xix(addr);
+		case 0x27: return sla_xix_a(addr);
+		case 0x28: return sra_xix_b(addr);
+		case 0x29: return sra_xix_c(addr);
+		case 0x2a: return sra_xix_d(addr);
+		case 0x2b: return sra_xix_e(addr);
+		case 0x2c: return sra_xix_h(addr);
+		case 0x2d: return sra_xix_l(addr);
+		case 0x2e: return sra_xix(addr);
+		case 0x2f: return sra_xix_a(addr);
+		case 0x30: return sll_xix_b(addr);
+		case 0x31: return sll_xix_c(addr);
+		case 0x32: return sll_xix_d(addr);
+		case 0x33: return sll_xix_e(addr);
+		case 0x34: return sll_xix_h(addr);
+		case 0x35: return sll_xix_l(addr);
+		case 0x36: return sll_xix(addr);
+		case 0x37: return sll_xix_a(addr);
+		case 0x38: return srl_xix_b(addr);
+		case 0x39: return srl_xix_c(addr);
+		case 0x3a: return srl_xix_d(addr);
+		case 0x3b: return srl_xix_e(addr);
+		case 0x3c: return srl_xix_h(addr);
+		case 0x3d: return srl_xix_l(addr);
+		case 0x3e: return srl_xix(addr);
+		case 0x3f: return srl_xix_a(addr);
 
 		case 0x40: case 0x41: case 0x42: case 0x43:
 		case 0x44: case 0x45: case 0x46: case 0x47:
-			return bit_0_xiy(ofst);
+			return bit_0_xix(addr);
 		case 0x48: case 0x49: case 0x4a: case 0x4b:
 		case 0x4c: case 0x4d: case 0x4e: case 0x4f:
-			return bit_1_xiy(ofst);
+			return bit_1_xix(addr);
 		case 0x50: case 0x51: case 0x52: case 0x53:
 		case 0x54: case 0x55: case 0x56: case 0x57:
-			return bit_2_xiy(ofst);
+			return bit_2_xix(addr);
 		case 0x58: case 0x59: case 0x5a: case 0x5b:
 		case 0x5c: case 0x5d: case 0x5e: case 0x5f:
-			return bit_3_xiy(ofst);
+			return bit_3_xix(addr);
 		case 0x60: case 0x61: case 0x62: case 0x63:
 		case 0x64: case 0x65: case 0x66: case 0x67:
-			return bit_4_xiy(ofst);
+			return bit_4_xix(addr);
 		case 0x68: case 0x69: case 0x6a: case 0x6b:
 		case 0x6c: case 0x6d: case 0x6e: case 0x6f:
-			return bit_5_xiy(ofst);
+			return bit_5_xix(addr);
 		case 0x70: case 0x71: case 0x72: case 0x73:
 		case 0x74: case 0x75: case 0x76: case 0x77:
-			return bit_6_xiy(ofst);
+			return bit_6_xix(addr);
 		case 0x78: case 0x79: case 0x7a: case 0x7b:
 		case 0x7c: case 0x7d: case 0x7e: case 0x7f:
-			return bit_7_xiy(ofst);
+			return bit_7_xix(addr);
 
-		case 0x80: return res_0_xiy_b(ofst);
-		case 0x81: return res_0_xiy_c(ofst);
-		case 0x82: return res_0_xiy_d(ofst);
-		case 0x83: return res_0_xiy_e(ofst);
-		case 0x84: return res_0_xiy_h(ofst);
-		case 0x85: return res_0_xiy_l(ofst);
-		case 0x86: return res_0_xiy(ofst);
-		case 0x87: return res_0_xiy_a(ofst);
-		case 0x88: return res_1_xiy_b(ofst);
-		case 0x89: return res_1_xiy_c(ofst);
-		case 0x8a: return res_1_xiy_d(ofst);
-		case 0x8b: return res_1_xiy_e(ofst);
-		case 0x8c: return res_1_xiy_h(ofst);
-		case 0x8d: return res_1_xiy_l(ofst);
-		case 0x8e: return res_1_xiy(ofst);
-		case 0x8f: return res_1_xiy_a(ofst);
-		case 0x90: return res_2_xiy_b(ofst);
-		case 0x91: return res_2_xiy_c(ofst);
-		case 0x92: return res_2_xiy_d(ofst);
-		case 0x93: return res_2_xiy_e(ofst);
-		case 0x94: return res_2_xiy_h(ofst);
-		case 0x95: return res_2_xiy_l(ofst);
-		case 0x96: return res_2_xiy(ofst);
-		case 0x97: return res_2_xiy_a(ofst);
-		case 0x98: return res_3_xiy_b(ofst);
-		case 0x99: return res_3_xiy_c(ofst);
-		case 0x9a: return res_3_xiy_d(ofst);
-		case 0x9b: return res_3_xiy_e(ofst);
-		case 0x9c: return res_3_xiy_h(ofst);
-		case 0x9d: return res_3_xiy_l(ofst);
-		case 0x9e: return res_3_xiy(ofst);
-		case 0x9f: return res_3_xiy_a(ofst);
-		case 0xa0: return res_4_xiy_b(ofst);
-		case 0xa1: return res_4_xiy_c(ofst);
-		case 0xa2: return res_4_xiy_d(ofst);
-		case 0xa3: return res_4_xiy_e(ofst);
-		case 0xa4: return res_4_xiy_h(ofst);
-		case 0xa5: return res_4_xiy_l(ofst);
-		case 0xa6: return res_4_xiy(ofst);
-		case 0xa7: return res_4_xiy_a(ofst);
-		case 0xa8: return res_5_xiy_b(ofst);
-		case 0xa9: return res_5_xiy_c(ofst);
-		case 0xaa: return res_5_xiy_d(ofst);
-		case 0xab: return res_5_xiy_e(ofst);
-		case 0xac: return res_5_xiy_h(ofst);
-		case 0xad: return res_5_xiy_l(ofst);
-		case 0xae: return res_5_xiy(ofst);
-		case 0xaf: return res_5_xiy_a(ofst);
-		case 0xb0: return res_6_xiy_b(ofst);
-		case 0xb1: return res_6_xiy_c(ofst);
-		case 0xb2: return res_6_xiy_d(ofst);
-		case 0xb3: return res_6_xiy_e(ofst);
-		case 0xb4: return res_6_xiy_h(ofst);
-		case 0xb5: return res_6_xiy_l(ofst);
-		case 0xb6: return res_6_xiy(ofst);
-		case 0xb7: return res_6_xiy_a(ofst);
-		case 0xb8: return res_7_xiy_b(ofst);
-		case 0xb9: return res_7_xiy_c(ofst);
-		case 0xba: return res_7_xiy_d(ofst);
-		case 0xbb: return res_7_xiy_e(ofst);
-		case 0xbc: return res_7_xiy_h(ofst);
-		case 0xbd: return res_7_xiy_l(ofst);
-		case 0xbe: return res_7_xiy(ofst);
-		case 0xbf: return res_7_xiy_a(ofst);
+		case 0x80: return res_0_xix_b(addr);
+		case 0x81: return res_0_xix_c(addr);
+		case 0x82: return res_0_xix_d(addr);
+		case 0x83: return res_0_xix_e(addr);
+		case 0x84: return res_0_xix_h(addr);
+		case 0x85: return res_0_xix_l(addr);
+		case 0x86: return res_0_xix(addr);
+		case 0x87: return res_0_xix_a(addr);
+		case 0x88: return res_1_xix_b(addr);
+		case 0x89: return res_1_xix_c(addr);
+		case 0x8a: return res_1_xix_d(addr);
+		case 0x8b: return res_1_xix_e(addr);
+		case 0x8c: return res_1_xix_h(addr);
+		case 0x8d: return res_1_xix_l(addr);
+		case 0x8e: return res_1_xix(addr);
+		case 0x8f: return res_1_xix_a(addr);
+		case 0x90: return res_2_xix_b(addr);
+		case 0x91: return res_2_xix_c(addr);
+		case 0x92: return res_2_xix_d(addr);
+		case 0x93: return res_2_xix_e(addr);
+		case 0x94: return res_2_xix_h(addr);
+		case 0x95: return res_2_xix_l(addr);
+		case 0x96: return res_2_xix(addr);
+		case 0x97: return res_2_xix_a(addr);
+		case 0x98: return res_3_xix_b(addr);
+		case 0x99: return res_3_xix_c(addr);
+		case 0x9a: return res_3_xix_d(addr);
+		case 0x9b: return res_3_xix_e(addr);
+		case 0x9c: return res_3_xix_h(addr);
+		case 0x9d: return res_3_xix_l(addr);
+		case 0x9e: return res_3_xix(addr);
+		case 0x9f: return res_3_xix_a(addr);
+		case 0xa0: return res_4_xix_b(addr);
+		case 0xa1: return res_4_xix_c(addr);
+		case 0xa2: return res_4_xix_d(addr);
+		case 0xa3: return res_4_xix_e(addr);
+		case 0xa4: return res_4_xix_h(addr);
+		case 0xa5: return res_4_xix_l(addr);
+		case 0xa6: return res_4_xix(addr);
+		case 0xa7: return res_4_xix_a(addr);
+		case 0xa8: return res_5_xix_b(addr);
+		case 0xa9: return res_5_xix_c(addr);
+		case 0xaa: return res_5_xix_d(addr);
+		case 0xab: return res_5_xix_e(addr);
+		case 0xac: return res_5_xix_h(addr);
+		case 0xad: return res_5_xix_l(addr);
+		case 0xae: return res_5_xix(addr);
+		case 0xaf: return res_5_xix_a(addr);
+		case 0xb0: return res_6_xix_b(addr);
+		case 0xb1: return res_6_xix_c(addr);
+		case 0xb2: return res_6_xix_d(addr);
+		case 0xb3: return res_6_xix_e(addr);
+		case 0xb4: return res_6_xix_h(addr);
+		case 0xb5: return res_6_xix_l(addr);
+		case 0xb6: return res_6_xix(addr);
+		case 0xb7: return res_6_xix_a(addr);
+		case 0xb8: return res_7_xix_b(addr);
+		case 0xb9: return res_7_xix_c(addr);
+		case 0xba: return res_7_xix_d(addr);
+		case 0xbb: return res_7_xix_e(addr);
+		case 0xbc: return res_7_xix_h(addr);
+		case 0xbd: return res_7_xix_l(addr);
+		case 0xbe: return res_7_xix(addr);
+		case 0xbf: return res_7_xix_a(addr);
 
-		case 0xc0: return set_0_xiy_b(ofst);
-		case 0xc1: return set_0_xiy_c(ofst);
-		case 0xc2: return set_0_xiy_d(ofst);
-		case 0xc3: return set_0_xiy_e(ofst);
-		case 0xc4: return set_0_xiy_h(ofst);
-		case 0xc5: return set_0_xiy_l(ofst);
-		case 0xc6: return set_0_xiy(ofst);
-		case 0xc7: return set_0_xiy_a(ofst);
-		case 0xc8: return set_1_xiy_b(ofst);
-		case 0xc9: return set_1_xiy_c(ofst);
-		case 0xca: return set_1_xiy_d(ofst);
-		case 0xcb: return set_1_xiy_e(ofst);
-		case 0xcc: return set_1_xiy_h(ofst);
-		case 0xcd: return set_1_xiy_l(ofst);
-		case 0xce: return set_1_xiy(ofst);
-		case 0xcf: return set_1_xiy_a(ofst);
-		case 0xd0: return set_2_xiy_b(ofst);
-		case 0xd1: return set_2_xiy_c(ofst);
-		case 0xd2: return set_2_xiy_d(ofst);
-		case 0xd3: return set_2_xiy_e(ofst);
-		case 0xd4: return set_2_xiy_h(ofst);
-		case 0xd5: return set_2_xiy_l(ofst);
-		case 0xd6: return set_2_xiy(ofst);
-		case 0xd7: return set_2_xiy_a(ofst);
-		case 0xd8: return set_3_xiy_b(ofst);
-		case 0xd9: return set_3_xiy_c(ofst);
-		case 0xda: return set_3_xiy_d(ofst);
-		case 0xdb: return set_3_xiy_e(ofst);
-		case 0xdc: return set_3_xiy_h(ofst);
-		case 0xdd: return set_3_xiy_l(ofst);
-		case 0xde: return set_3_xiy(ofst);
-		case 0xdf: return set_3_xiy_a(ofst);
-		case 0xe0: return set_4_xiy_b(ofst);
-		case 0xe1: return set_4_xiy_c(ofst);
-		case 0xe2: return set_4_xiy_d(ofst);
-		case 0xe3: return set_4_xiy_e(ofst);
-		case 0xe4: return set_4_xiy_h(ofst);
-		case 0xe5: return set_4_xiy_l(ofst);
-		case 0xe6: return set_4_xiy(ofst);
-		case 0xe7: return set_4_xiy_a(ofst);
-		case 0xe8: return set_5_xiy_b(ofst);
-		case 0xe9: return set_5_xiy_c(ofst);
-		case 0xea: return set_5_xiy_d(ofst);
-		case 0xeb: return set_5_xiy_e(ofst);
-		case 0xec: return set_5_xiy_h(ofst);
-		case 0xed: return set_5_xiy_l(ofst);
-		case 0xee: return set_5_xiy(ofst);
-		case 0xef: return set_5_xiy_a(ofst);
-		case 0xf0: return set_6_xiy_b(ofst);
-		case 0xf1: return set_6_xiy_c(ofst);
-		case 0xf2: return set_6_xiy_d(ofst);
-		case 0xf3: return set_6_xiy_e(ofst);
-		case 0xf4: return set_6_xiy_h(ofst);
-		case 0xf5: return set_6_xiy_l(ofst);
-		case 0xf6: return set_6_xiy(ofst);
-		case 0xf7: return set_6_xiy_a(ofst);
-		case 0xf8: return set_7_xiy_b(ofst);
-		case 0xf9: return set_7_xiy_c(ofst);
-		case 0xfa: return set_7_xiy_d(ofst);
-		case 0xfb: return set_7_xiy_e(ofst);
-		case 0xfc: return set_7_xiy_h(ofst);
-		case 0xfd: return set_7_xiy_l(ofst);
-		case 0xfe: return set_7_xiy(ofst);
-		case 0xff: return set_7_xiy_a(ofst);
+		case 0xc0: return set_0_xix_b(addr);
+		case 0xc1: return set_0_xix_c(addr);
+		case 0xc2: return set_0_xix_d(addr);
+		case 0xc3: return set_0_xix_e(addr);
+		case 0xc4: return set_0_xix_h(addr);
+		case 0xc5: return set_0_xix_l(addr);
+		case 0xc6: return set_0_xix(addr);
+		case 0xc7: return set_0_xix_a(addr);
+		case 0xc8: return set_1_xix_b(addr);
+		case 0xc9: return set_1_xix_c(addr);
+		case 0xca: return set_1_xix_d(addr);
+		case 0xcb: return set_1_xix_e(addr);
+		case 0xcc: return set_1_xix_h(addr);
+		case 0xcd: return set_1_xix_l(addr);
+		case 0xce: return set_1_xix(addr);
+		case 0xcf: return set_1_xix_a(addr);
+		case 0xd0: return set_2_xix_b(addr);
+		case 0xd1: return set_2_xix_c(addr);
+		case 0xd2: return set_2_xix_d(addr);
+		case 0xd3: return set_2_xix_e(addr);
+		case 0xd4: return set_2_xix_h(addr);
+		case 0xd5: return set_2_xix_l(addr);
+		case 0xd6: return set_2_xix(addr);
+		case 0xd7: return set_2_xix_a(addr);
+		case 0xd8: return set_3_xix_b(addr);
+		case 0xd9: return set_3_xix_c(addr);
+		case 0xda: return set_3_xix_d(addr);
+		case 0xdb: return set_3_xix_e(addr);
+		case 0xdc: return set_3_xix_h(addr);
+		case 0xdd: return set_3_xix_l(addr);
+		case 0xde: return set_3_xix(addr);
+		case 0xdf: return set_3_xix_a(addr);
+		case 0xe0: return set_4_xix_b(addr);
+		case 0xe1: return set_4_xix_c(addr);
+		case 0xe2: return set_4_xix_d(addr);
+		case 0xe3: return set_4_xix_e(addr);
+		case 0xe4: return set_4_xix_h(addr);
+		case 0xe5: return set_4_xix_l(addr);
+		case 0xe6: return set_4_xix(addr);
+		case 0xe7: return set_4_xix_a(addr);
+		case 0xe8: return set_5_xix_b(addr);
+		case 0xe9: return set_5_xix_c(addr);
+		case 0xea: return set_5_xix_d(addr);
+		case 0xeb: return set_5_xix_e(addr);
+		case 0xec: return set_5_xix_h(addr);
+		case 0xed: return set_5_xix_l(addr);
+		case 0xee: return set_5_xix(addr);
+		case 0xef: return set_5_xix_a(addr);
+		case 0xf0: return set_6_xix_b(addr);
+		case 0xf1: return set_6_xix_c(addr);
+		case 0xf2: return set_6_xix_d(addr);
+		case 0xf3: return set_6_xix_e(addr);
+		case 0xf4: return set_6_xix_h(addr);
+		case 0xf5: return set_6_xix_l(addr);
+		case 0xf6: return set_6_xix(addr);
+		case 0xf7: return set_6_xix_a(addr);
+		case 0xf8: return set_7_xix_b(addr);
+		case 0xf9: return set_7_xix_c(addr);
+		case 0xfa: return set_7_xix_d(addr);
+		case 0xfb: return set_7_xix_e(addr);
+		case 0xfc: return set_7_xix_h(addr);
+		case 0xfd: return set_7_xix_l(addr);
+		case 0xfe: return set_7_xix(addr);
+		case 0xff: return set_7_xix_a(addr);
 	}
 	assert(false); return 0;
 }
