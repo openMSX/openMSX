@@ -9,7 +9,7 @@ namespace openmsx {
 byte CPU::ZSTable[256];
 byte CPU::ZSXYTable[256];
 byte CPU::ZSPXYTable[256];
-byte CPU::ZSPTable[256];
+byte CPU::ZSPHTable[256];
 word CPU::DAATable[0x800];
 
 CPU::BreakPoints CPU::breakPoints;
@@ -39,7 +39,7 @@ CPU::CPU()
 		ZSTable[i]    = zFlag | sFlag;
 		ZSXYTable[i]  = zFlag | sFlag | xFlag | yFlag;
 		ZSPXYTable[i] = zFlag | sFlag | xFlag | yFlag | vFlag;
-		ZSPTable[i]   = zFlag | sFlag |                 vFlag;
+		ZSPHTable[i]  = zFlag | sFlag |                 vFlag | H_FLAG;
 	}
 	assert(ZSTable[0]     == ZS0);
 	assert(ZSXYTable[0]   == ZSXY0);

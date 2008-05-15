@@ -394,7 +394,7 @@ protected:
 	static byte ZSTable[256];
 	static byte ZSXYTable[256];
 	static byte ZSPXYTable[256];
-	static byte ZSPTable[256];
+	static byte ZSPHTable[256];
 	static word DAATable[0x800];
 	static const byte ZS0     = Z_FLAG;
 	static const byte ZSXY0   = Z_FLAG;

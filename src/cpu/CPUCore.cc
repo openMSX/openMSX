@@ -1959,9 +1959,8 @@ template <class T> int CPUCore<T>::inc_sp() {
 template <class T> inline void CPUCore<T>::BIT(byte b, byte reg)
 {
 	R.setF((R.getF() & C_FLAG) |
-	       ZSPTable[reg & (1 << b)] |
-	       (reg & (X_FLAG | Y_FLAG)) |
-	       H_FLAG);
+	       ZSPHTable[reg & (1 << b)] |
+	       (reg & (X_FLAG | Y_FLAG)));
 }
 template <class T> int CPUCore<T>::bit_0_a() { BIT(0, R.getA()); return T::CC_BIT_R; }
 template <class T> int CPUCore<T>::bit_0_b() { BIT(0, R.getB()); return T::CC_BIT_R; }
@@ -2023,8 +2022,7 @@ template <class T> int CPUCore<T>::bit_7_l() { BIT(7, R.getL()); return T::CC_BI
 template <class T> inline int CPUCore<T>::BIT_HL(byte bit)
 {
 	R.setF((R.getF() & C_FLAG) |
-	       ZSPTable[RDMEM(R.getHL(), T::CC_BIT_XHL_1) & (1 << bit)] |
-	       H_FLAG |
+	       ZSPHTable[RDMEM(R.getHL(), T::CC_BIT_XHL_1) & (1 << bit)] |
 	       ((memptr >> 8) & (X_FLAG | Y_FLAG)));
 	return T::CC_BIT_XHL;
 }
@@ -2041,8 +2039,7 @@ template <class T> inline int CPUCore<T>::BIT_IX(byte bit, unsigned addr)
 {
 	memptr = addr;
 	R.setF((R.getF() & C_FLAG) |
-	       ZSPTable[RDMEM(memptr, T::CC_BIT_XIX_1) & (1 << bit)] |
-	       H_FLAG |
+	       ZSPHTable[RDMEM(memptr, T::CC_BIT_XIX_1) & (1 << bit)] |
 	       ((memptr >> 8) & (X_FLAG | Y_FLAG)));
 	return T::CC_BIT_XIX;
 }
