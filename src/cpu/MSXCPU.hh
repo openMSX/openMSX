@@ -132,6 +132,7 @@ private:
 	friend class MSXMotherBoardImpl;
 
 	void wait(const EmuTime& time);
+	void waitCycles(unsigned cycles);
 	friend class VDPIODelay;
 
 	/**

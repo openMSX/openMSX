@@ -57,6 +57,7 @@ void VDPIODelay::writeIO(word port, byte value, const EmuTime& time)
 
 void VDPIODelay::delay(const EmuTime& time)
 {
+	cpu.waitCycles(1);
 	if (cpu.isR800Active()) {
 		lastTime += 57;	// 8us
 		if (time < lastTime.getTime()) {

@@ -212,6 +212,11 @@ template <class T> void CPUCore<T>::wait(const EmuTime& time)
 	T::advanceTime(time);
 }
 
+template <class T> void CPUCore<T>::waitCycles(unsigned cycles)
+{
+	T::add(cycles);
+}
+
 template <class T> void CPUCore<T>::setNextSyncPoint(const EmuTime& time)
 {
 	T::setLimit(time);

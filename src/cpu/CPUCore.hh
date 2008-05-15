@@ -41,6 +41,7 @@ public:
 	virtual void warp(const EmuTime& time);
 	virtual const EmuTime& getCurrentTime() const;
 	virtual void wait(const EmuTime& time);
+	virtual void waitCycles(unsigned cycles);
 	virtual void setNextSyncPoint(const EmuTime& time);
 	virtual void invalidateMemCache(unsigned start, unsigned size);
 	virtual void doStep();

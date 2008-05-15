@@ -191,6 +191,11 @@ void MSXCPU::wait(const EmuTime& time)
 	activeCPU->wait(time);
 }
 
+void MSXCPU::waitCycles(unsigned cycles)
+{
+	activeCPU->waitCycles(cycles);
+}
+
 void MSXCPU::update(const Setting& setting)
 {
 	(void)setting;
