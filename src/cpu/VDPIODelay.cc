@@ -11,12 +11,12 @@ namespace openmsx {
 VDPIODelay::VDPIODelay(MSXMotherBoard& motherboard, const XMLElement& config,
                        const EmuTime& time)
 	: MSXDevice(motherboard, config)
-	, cpu(motherBoard.getCPU())
+	, cpu(motherboard.getCPU())
 	, lastTime(time)
 {
 	for (int port = 0x098; port <= 0x9B; ++port) {
-		getInDevicePtr (port) = &motherBoard.getDummyDevice();
-		getOutDevicePtr(port) = &motherBoard.getDummyDevice();
+		getInDevicePtr (port) = &motherboard.getDummyDevice();
+		getOutDevicePtr(port) = &motherboard.getDummyDevice();
 	}
 }
 

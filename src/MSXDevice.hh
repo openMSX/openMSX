@@ -219,7 +219,6 @@ protected:
 	virtual void getExtraDeviceInfo(TclObject& result) const;
 
 	const XMLElement& deviceConfig;
-	friend class VDPIODelay;
 
 public:
 	// public to allow non-MSXDevices to use these same arrays
