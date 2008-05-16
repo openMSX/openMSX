@@ -20,7 +20,8 @@ using std::string;
 
 namespace openmsx {
 
-static const unsigned EOF_FAT = 0x0FFF; // signals EOF in FAT12
+static const unsigned BAD_FAT = 0xFF7;
+static const unsigned EOF_FAT = 0xFFF; // actually 0xFF8-0xFFF, signals EOF in FAT12
 static const unsigned SECTOR_SIZE = 512;
 
 static const byte T_MSX_REG  = 0x00; // Normal file
@@ -336,14 +337,22 @@ void MSXtar::format()
 	}
 }
 
+// transform BAD_FAT (0xFF7) and EOF_FAT-range (0xFF8-0xFFF)
+// to a single value: EOF_FAT (0xFFF)
+static unsigned normalizeFAT(unsigned cluster)
+{
+	return (cluster < BAD_FAT) ? cluster : EOF_FAT;
+}
+
 // Get the next clusternumber from the FAT chain
 unsigned MSXtar::readFAT(unsigned clnr) const
 {
 	assert(!fatBuffer.empty()); // FAT must already be cached
 	const byte* p = &fatBuffer[(clnr * 3) / 2];
-	return (clnr & 1)
-	       ? (p[0] >> 4) + (p[1] << 4)
-	       : p[0] + ((p[1] & 0x0F) << 8);
+	unsigned result = (clnr & 1)
+	                ? (p[0] >> 4) + (p[1] << 4)
+	                : p[0] + ((p[1] & 0x0F) << 8);
+	return normalizeFAT(result);
 }
 
 // Write an entry to the FAT
@@ -391,6 +400,13 @@ unsigned MSXtar::getNextSector(unsigned sector)
 		unsigned nextcl = readFAT(currCluster);
 		return (nextcl == EOF_FAT) ? 0 : clusterToSector(nextcl);
 	}
+}
+
+// get start cluster from a directory entry,
+// also takes care of BAD_FAT and EOF_FAT-range.
+unsigned MSXtar::getStartCluster(const MSXDirEntry& entry)
+{
+	return normalizeFAT(rdsh(entry.startcluster));
 }
 
 // If there are no more free entries in a subdirectory, the subdir is
@@ -634,7 +650,7 @@ void MSXtar::alterFileInDSK(MSXDirEntry& msxdirentry, const string& hostName)
 
 	// copy host file to image
 	unsigned prevcl = 0;
-	unsigned curcl = rdsh(msxdirentry.startcluster);
+	unsigned curcl = getStartCluster(msxdirentry);
 	while (remaining) {
 		// allocate new cluster if needed
 		try {
@@ -785,7 +801,7 @@ string MSXtar::recurseDirFill(const string& dirName, unsigned sector)
 				if (msxdirentry.attrib & T_MSX_DIR) {
 					// .. and is a directory
 					unsigned nextSector = clusterToSector(
-						rdsh(msxdirentry.startcluster));
+						getStartCluster(msxdirentry));
 					messages += recurseDirFill(fullName, nextSector);
 				} else {
 					// .. but is NOT a directory
@@ -916,7 +932,7 @@ void MSXtar::chroot(const string& newRootDir, bool createDir)
 			if (!(direntry.attrib & T_MSX_DIR)) {
 				throw MSXException(firstpart + " is not a directory.");
 			}
-			chrootSector = clusterToSector(rdsh(direntry.startcluster));
+			chrootSector = clusterToSector(getStartCluster(direntry));
 		}
 	}
 }
@@ -924,7 +940,7 @@ void MSXtar::chroot(const string& newRootDir, bool createDir)
 void MSXtar::fileExtract(string resultFile, MSXDirEntry& direntry)
 {
 	unsigned size = rdlg(direntry.size);
-	unsigned sector = clusterToSector(rdsh(direntry.startcluster));
+	unsigned sector = clusterToSector(getStartCluster(direntry));
 
 	FILE* file = fopen(resultFile.c_str(), "wb");
 	if (!file) {
@@ -965,7 +981,7 @@ string MSXtar::singleItemExtract(const string& dirName, const string& itemName, 
 		FileOperations::mkdirp(fullname);
 		recurseDirExtract(
 		    fullname,
-		    clusterToSector(rdsh(msxdirentry.startcluster)));
+		    clusterToSector(getStartCluster(msxdirentry)));
 	} else {
 		// it is a file
 		fileExtract(fullname, msxdirentry);
@@ -999,7 +1015,7 @@ void MSXtar::recurseDirExtract(const string& dirName, unsigned sector)
 					changeTime(fullname, direntry[i]);
 					recurseDirExtract(
 					    fullname,
-					    clusterToSector(rdsh(direntry[i].startcluster)));
+					    clusterToSector(getStartCluster(direntry[i])));
 				}
 			}
 		}

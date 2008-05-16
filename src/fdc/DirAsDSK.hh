@@ -83,6 +83,7 @@ private:
 	unsigned readFAT2(unsigned clnr);
 	void writeFAT(unsigned clnr, unsigned val);
 	void writeFAT2(unsigned clnr, unsigned val);
+	unsigned getStartCluster(const MSXDirEntry& entry);
 	bool readCache();
 	void saveCache();
 	std::string condenseName(const char* buf);

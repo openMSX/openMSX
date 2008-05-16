@@ -35,7 +35,8 @@ static void debug(const char* format, ...)
 #endif
 }
 
-static const unsigned EOF_FAT = 0xFFF;
+static const unsigned BAD_FAT = 0xFF7;
+static const unsigned EOF_FAT = 0xFFF; // actually 0xFF8-0xFFF
 static const unsigned MAX_CLUSTER = 720;
 static const string bootBlockFileName = ".sector.boot";
 static const string cachedSectorsFileName = ".sector.cache";
@@ -63,13 +64,21 @@ static unsigned getLE32(const byte* p)
 	return p[0] + (p[1] << 8) + (p[2] << 16) + (p[3] << 24);
 }
 
+// transform BAD_FAT (0xFF7) and EOF_FAT-range (0xFF8-0xFFF)
+// to a single value: EOF_FAT (0xFFF)
+static unsigned normalizeFAT(unsigned cluster)
+{
+	return (cluster < BAD_FAT) ? cluster : EOF_FAT;
+}
+
 static unsigned readFATHelper(const byte* buf, unsigned cluster)
 {
 	assert(cluster < DirAsDSK::NUM_FAT_ENTRIES);
 	const byte* p = buf + (cluster * 3) / 2;
-	return (cluster & 1)
-	     ? (p[0] >> 4) + (p[1] << 4)
-	     : p[0] + ((p[1] & 0x0F) << 8);
+	unsigned result = (cluster & 1)
+	                ? (p[0] >> 4) + (p[1] << 4)
+	                : p[0] + ((p[1] & 0x0F) << 8);
+	return normalizeFAT(result);
 }
 
 static void writeFATHelper(byte* buf, unsigned cluster, unsigned val)
@@ -123,6 +132,13 @@ unsigned DirAsDSK::findNextFreeCluster(unsigned curcl)
 unsigned DirAsDSK::findFirstFreeCluster()
 {
 	return findNextFreeCluster(1);
+}
+
+// get start cluster from a directory entry,
+// also takes care of BAD_FAT and EOF_FAT-range.
+unsigned DirAsDSK::getStartCluster(const MSXDirEntry& entry)
+{
+	return normalizeFAT(getLE16(entry.startcluster));
 }
 
 // check if a filename is used in the emulated MSX disk
@@ -224,7 +240,7 @@ void DirAsDSK::saveCache()
 			file.write(tmpbuf, p);
 
 			// then a list of sectors in which the data of the file is stored
-			unsigned curcl = getLE16(mapdir[i].msxinfo.startcluster);
+			unsigned curcl = getStartCluster(mapdir[i].msxinfo);
 			unsigned size = getLE32(mapdir[i].msxinfo.size);
 			unsigned logicalSector = clusterToSector(curcl);
 			while (size >= SECTOR_SIZE) {
@@ -664,7 +680,7 @@ void DirAsDSK::updateFileInDisk(unsigned dirindex, struct stat& fst)
 
 	int fsize = fst.st_size;
 	mapdir[dirindex].filesize = fsize;
-	unsigned curcl = getLE16(mapdir[dirindex].msxinfo.startcluster);
+	unsigned curcl = getStartCluster(mapdir[dirindex].msxinfo);
 	// if there is no cluster assigned yet to this file, then find a free cluster
 	bool followFATClusters = true;
 	if (curcl == 0) {
@@ -803,7 +819,7 @@ void DirAsDSK::extractCacheToFile(unsigned dirindex)
 	try {
 		string fullfilename = hostDir + '/' + mapdir[dirindex].shortname;
 		File file(fullfilename, File::CREATE);
-		unsigned curcl = getLE16(mapdir[dirindex].msxinfo.startcluster);
+		unsigned curcl = getStartCluster(mapdir[dirindex].msxinfo);
 		// if we start a new file the current cluster can be set to zero
 
 		unsigned cursize = getLE32(mapdir[dirindex].msxinfo.size);
@@ -954,9 +970,9 @@ void DirAsDSK::writeDIRSector(unsigned sector, const byte* buf)
 
 void DirAsDSK::writeDIREntry(unsigned dirindex, const MSXDirEntry& entry)
 {
-	int oldClus = getLE16(mapdir[dirindex].msxinfo.startcluster);
+	int oldClus = getStartCluster(mapdir[dirindex].msxinfo);
+	int newClus = getStartCluster(entry);
 	int oldSize = getLE32(mapdir[dirindex].msxinfo.size);
-	int newClus = getLE16(entry.startcluster);
 	int newSize = getLE32(entry.size);
 
 	// The 3 vital informations needed
@@ -1104,7 +1120,7 @@ void DirAsDSK::writeDataSector(unsigned sector, const byte* buf)
 	}
 }
 
-void DirAsDSK:: updateFileFromAlteredFatOnly(unsigned somecluster)
+void DirAsDSK::updateFileFromAlteredFatOnly(unsigned somecluster)
 {
 	// First look for the first cluster in this chain
 	unsigned startcluster = somecluster;
@@ -1119,7 +1135,7 @@ void DirAsDSK:: updateFileFromAlteredFatOnly(unsigned somecluster)
 	// Find the corresponding direntry if any
 	// and extract file based on new clusterchain
 	for (unsigned i = 0; i < NUM_DIR_ENTRIES; ++i) {
-		if (startcluster == getLE16(mapdir[i].msxinfo.startcluster)) {
+		if (startcluster == getStartCluster(mapdir[i].msxinfo)) {
 			extractCacheToFile(i);
 			break;
 		}

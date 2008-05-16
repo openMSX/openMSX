@@ -1,5 +1,12 @@
 $Id$
 
+2008-05-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed crash in DirAsDsk / DiskManipulator:
+	   Occured when a diskimage used a different end-of-fat marker than
+	   0xFFF. In fact the whole range 0xFF8-0xFFF should be interpreted
+	   as EOF. See:
+	      http://en.wikipedia.org/wiki/File_Allocation_Table#File_Allocation_Table
+
 2008-05-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* CPU time keeping speedup:
 	  - We want to have cycle-accurate bus transactions (memory or IO-port

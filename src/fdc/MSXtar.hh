@@ -103,6 +103,7 @@ private:
 	unsigned findFirstFreeCluster();
 	unsigned findUsableIndexInSector(unsigned sector);
 	unsigned getNextSector(unsigned sector);
+	unsigned getStartCluster(const MSXDirEntry& entry);
 	unsigned appendClusterToSubdir(unsigned sector);
 	DirEntry addEntryToDir(unsigned sector);
 	std::string makeSimpleMSXFileName(const std::string& fullfilename);
