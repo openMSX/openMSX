@@ -28,6 +28,7 @@
 #include "RomMajutsushi.hh"
 #include "RomSynthesizer.hh"
 #include "RomPlayBall.hh"
+#include "RomNettouYakyuu.hh"
 #include "RomGameMaster2.hh"
 #include "RomHalnote.hh"
 #include "RomKorean80in1.hh"
@@ -294,6 +295,9 @@ auto_ptr<MSXDevice> RomFactory::create(
 		break;
 	case ROM_PLAYBALL:
 		result.reset(new RomPlayBall(motherBoard, config, time, rom));
+		break;
+	case ROM_NETTOU_YAKYUU:
+		result.reset(new RomNettouYakyuu(motherBoard, config, time, rom));
 		break;
 	case ROM_HALNOTE:
 		result.reset(new RomHalnote(motherBoard, config, time, rom));

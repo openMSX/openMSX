@@ -83,6 +83,7 @@ enum RomType {
 	ROM_SYNTHESIZER  = 128 + 1,
 	ROM_PLAYBALL     = 128 + 2,
 	ROM_KBDMASTER    = 128 + 3,
+	ROM_NETTOU_YAKYUU= 128 + 4,
 
 	ROM_UNKNOWN      = 256
 };

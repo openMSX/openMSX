@@ -1,5 +1,10 @@
 $Id$
 
+2008-05-17 Manuel Bilderbeek <manuel@msxnet.org>
+	* Added WIP version of Nettou Yakyuu mapper, used by the game "Moero!!
+	  Nettou Yakyuu '88". Thanks to hap/enen for the research and blueMSX
+	  implementation and Wouter for teaching me about this stuff.
+
 2008-05-16 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed crash in DirAsDsk / DiskManipulator:
 	   Occured when a diskimage used a different end-of-fat marker than

@@ -48,6 +48,7 @@ static const RomTypeMap& getRomTypeMap()
 		romTypeMap["Majutsushi"]     = ROM_MAJUTSUSHI;
 		romTypeMap["Synthesizer"]    = ROM_SYNTHESIZER;
 		romTypeMap["PlayBall"]       = ROM_PLAYBALL;
+		romTypeMap["NettouYakyuu"]   = ROM_NETTOU_YAKYUU;
 		romTypeMap["HolyQuran"]      = ROM_HOLY_QURAN;
 		romTypeMap["Padial8"]        = ROM_PADIAL8;
 		romTypeMap["Padial16"]       = ROM_PADIAL16;
