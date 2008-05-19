@@ -1,5 +1,9 @@
 $Id$
 
+2008-05-19 Manuel Bilderbeek <manuel@msxnet.org>
+	* Final fixes on Nettou Yakyuu mapper, including enhanced sample
+	  player.
+
 2008-05-17 Manuel Bilderbeek <manuel@msxnet.org>
 	* Added WIP version of Nettou Yakyuu mapper, used by the game "Moero!!
 	  Nettou Yakyuu '88". Thanks to hap/enen for the research and blueMSX

@@ -11,6 +11,8 @@ SamplePlayer::SamplePlayer(MSXMotherBoard& motherBoard, const std::string& name,
 	: SoundDevice(motherBoard.getMSXMixer(), name, desc, 1)
 	, Resample(motherBoard.getGlobalSettings(), 1)
 	, inFreq(44100)
+	, repeat(false)
+	, nextBuffer(NULL)
 {
 	registerSound(config);
 	reset();
@@ -24,6 +26,12 @@ SamplePlayer::~SamplePlayer()
 void SamplePlayer::reset()
 {
 	playing = false;
+	repeat = false;
+}
+
+void SamplePlayer::setRepeat(bool enabled)
+{
+	repeat = enabled;
 }
 
 void SamplePlayer::setOutputRate(unsigned outFreq_)
@@ -54,6 +62,19 @@ void SamplePlayer::play(const void* buffer, unsigned bufferSize_,
 	}
 }
 
+void SamplePlayer::setRepeatDataOrPlay(const void* buffer, unsigned bufferSize_,
+                        unsigned bits, unsigned freq)
+{
+	if (isPlaying()) {
+		nextBuffer = buffer;
+		nextBufferSize = bufferSize_;
+		nextBits = bits;
+		nextFreq = freq;
+	} else {
+		play(buffer, bufferSize_, bits, freq);
+	}
+}
+
 bool SamplePlayer::isPlaying() const
 {
 	return playing;
@@ -78,7 +99,16 @@ void SamplePlayer::generateChannels(int** bufs, unsigned num)
 			bufs[0][i] += 3 * samp;
 		} else {
 			//bufs[0][i] += 0;
-			playing = false;
+			if (repeat) {
+				if (nextBuffer) {
+					play(nextBuffer, nextBufferSize, nextBits, nextFreq);
+					nextBuffer = NULL;
+				} else {
+					index = 0;
+				}
+			} else {
+				playing = false;
+			}
 			break;
 		}
 	}
