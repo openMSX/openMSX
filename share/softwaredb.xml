@@ -7,7 +7,7 @@ Copyright 2003 Nicolas Beyaert			(Initial Database)
 Copyright 2005-2008 Patrick van Arkel 	(Database Administrator)
 A special thanks to both the blueMSX and openMSX team for their support
 -->
-<softwaredb xml:lang="en" timestamp="1208716416">
+<softwaredb xml:lang="en" timestamp="1211227642">
 <!-- MSX Rom Info -->
 <software>
 	<title xml:lang="en">1 2 3</title>
@@ -1872,7 +1872,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><rom><hash algo="sha1">9865F0BC4D54137809F0D8B48D5461DDF0C5BF4C</hash></rom></dump>
 </software>
 <software>
-	<title xml:lang="en">Contra - Gryzor</title>
+	<title xml:lang="en">Contra</title>
 	<system>MSX</system>
 	<company>Konami</company>
 	<year>1989</year>
@@ -5889,12 +5889,12 @@ A special thanks to both the blueMSX and openMSX team for their support
 		<dump><original value="false"/><rom><hash algo="sha1">C0717A9831D66E29EB907BE598BA6606E17EA044</hash><remark>[a]</remark></rom></dump>
 </software>
 <software>
-	<title xml:lang="en">Moero! Netto Yakyu&#39;88</title>
+	<title xml:lang="en">Moero!! Nettou Yakyuu &#39;88</title>
 	<system>MSX</system>
 	<company>Jaleco</company>
 	<year>1988</year>
 	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><megarom><type>ASCII8</type><hash algo="sha1">1CBD5C7849F97DEA1E3375A842F784FF9283310C</hash></megarom></dump>
+		<dump><original value="true">GoodMSX</original><megarom><type>NettouYakyuu</type><hash algo="sha1">1CBD5C7849F97DEA1E3375A842F784FF9283310C</hash><remark>Uses a sample player chip with built-in ROM</remark></megarom></dump>
 </software>
 <software>
 	<title xml:lang="en">Mokarimakka</title>
@@ -7129,7 +7129,7 @@ A special thanks to both the blueMSX and openMSX team for their support
 	<company>Sony</company>
 	<year>1986</year>
 	<country>JP</country>
-		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">E6FBFB4B10DC393953211DDA4B114080A08302A1</hash></rom></dump>
+		<dump><original value="true">GoodMSX</original><rom><hash algo="sha1">E6FBFB4B10DC393953211DDA4B114080A08302A1</hash><remark>Uses a sample player chip with built-in ROM</remark></rom></dump>
 </software>
 <software>
 	<title xml:lang="en">Poetry</title>
@@ -10005,5 +10005,5 @@ A special thanks to both the blueMSX and openMSX team for their support
 </softwaredb>
 <!--
 Roms in this database:2090
-Parse time 3.873 seconds on Sun Apr 20 20:33:40 CEST 2008
+Parse time 3.821 seconds on Mon May 19 22:07:26 CEST 2008
  -->
