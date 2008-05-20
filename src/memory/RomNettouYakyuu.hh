@@ -14,7 +14,7 @@ class RomNettouYakyuu : public Rom8kBBlocks
 {
 public:
 	RomNettouYakyuu(MSXMotherBoard& motherBoard, const XMLElement& config,
-	            const EmuTime& time, std::auto_ptr<Rom> rom);
+	                const EmuTime& time, std::auto_ptr<Rom> rom);
 
 	virtual void reset(const EmuTime& time);
 	virtual void writeMem(word address, byte value, const EmuTime& time);
@@ -24,9 +24,9 @@ private:
 	std::auto_ptr<SamplePlayer> samplePlayer;
 	std::auto_ptr<WavData> sample[16];
 
-	// this bit remembers per 8kB region if writes are for the sample
-	// player or not
-	bool redirectToSamplePlayerEnabled[8];
+	// remember per region if writes are for the sample player or not
+	// there are 4 x 8kB regions in [0x4000-0xBFFF]
+	bool redirectToSamplePlayer[4];
 };
 
 } // namespace openmsx

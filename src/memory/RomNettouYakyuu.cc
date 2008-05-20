@@ -1,7 +1,7 @@
 // $Id$
 
-#include "MSXMotherBoard.hh"
 #include "RomNettouYakyuu.hh"
+#include "MSXMotherBoard.hh"
 #include "Rom.hh"
 #include "SamplePlayer.hh"
 #include "FileContext.hh"
@@ -52,11 +52,11 @@
 
 namespace openmsx {
 
-RomNettouYakyuu::RomNettouYakyuu(MSXMotherBoard& motherBoard, const XMLElement& config,
-                         const EmuTime& time, std::auto_ptr<Rom> rom)
+RomNettouYakyuu::RomNettouYakyuu(
+		MSXMotherBoard& motherBoard, const XMLElement& config,
+		const EmuTime& time, std::auto_ptr<Rom> rom)
 	: Rom8kBBlocks(motherBoard, config, rom)
 {
-
 	samplePlayer.reset(new SamplePlayer(motherBoard, "Nettou Yakyuu-DAC",
 	                         "Jaleco Moero!! Nettou Yakuu '88 DAC", config));
 
@@ -88,41 +88,36 @@ void RomNettouYakyuu::reset(const EmuTime& time)
 	setBank(1, unmappedRead);
 	for (int i = 2; i < 6; i++) {
 		setRom(i, 0);
+		redirectToSamplePlayer[i - 2] = false;
 	}
 	setBank(6, unmappedRead);
 	setBank(7, unmappedRead);
-
-	for (int i = 0; i < 8; i++) {
-		redirectToSamplePlayerEnabled[i] = false;
-	}
 
 	samplePlayer->reset();
 }
 
 void RomNettouYakyuu::writeMem(word address, byte value, const EmuTime& time)
 {
-	if ((address < 0x4000) || (address >= 0xC000)) return;
+	if ((address < 0x4000) || (0xC000 <= address)) return;
 
 	// mapper stuff, like ASCII8
 	if ((0x6000 <= address) && (address < 0x8000)) {
 		// calculate region in switch zone
-		byte region = ((address >> 11) & 3) + 2;
-		redirectToSamplePlayerEnabled[region] = value & 0x80;
-		if (redirectToSamplePlayerEnabled[region]) {
-			setBank(region, unmappedRead);
+		byte region = (address >> 11) & 3;
+		redirectToSamplePlayer[region] = value & 0x80;
+		if (redirectToSamplePlayer[region]) {
+			setBank(region + 2, unmappedRead);
 		} else {
-			setRom(region, value);
+			setRom(region + 2, value);
 		}
 		return;
 	}
 
 	// sample player stuff
-	
-	// calculate region in the full address space
-	byte region = address >> 13;
-	
-	// page not redirected to sample player:
-	if (!redirectToSamplePlayerEnabled[region]) return;
+	if (!redirectToSamplePlayer[(address >> 13) - 2]) {
+		// region not redirected to sample player
+		return;
+	}
 	
 	// bit 7==0: reset
 	if (!(value & 0x80)) {
@@ -130,20 +125,17 @@ void RomNettouYakyuu::writeMem(word address, byte value, const EmuTime& time)
 		return;
 	}
 
-	// bit 6==1: no retrigger, no playing at all
+	// bit 6==1: set no retrigger, don't alter playing sample
 	if (value & 0x40) {
 		samplePlayer->setRepeat(false);
 		return;
-	} else {
-		samplePlayer->setRepeat(true);
 	}
 
-	int sampleNr = value & 0xF;
-	if (sample[sampleNr].get()) {
-		samplePlayer->setRepeatDataOrPlay(sample[sampleNr]->getData(),
-				sample[sampleNr]->getSize(),
-				sample[sampleNr]->getBits(),
-				sample[sampleNr]->getFreq());
+	samplePlayer->setRepeat(true);
+	if (WavData* wav = sample[value & 0xF].get()) {
+		samplePlayer->setRepeatDataOrPlay(
+			wav->getData(), wav->getSize(),
+			wav->getBits(), wav->getFreq());
 	}
 }
 
