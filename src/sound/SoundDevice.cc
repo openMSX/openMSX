@@ -166,7 +166,7 @@ bool SoundDevice::mixChannels(int* dataOut, unsigned samples)
 		}
 	}
 	mset(reinterpret_cast<unsigned*>(mixBuffer),
-	     stereo * samples * separateChannels, 0);
+	     pitch * separateChannels, 0);
 
 	// note: some SoundDevices (DACSound16S and CassettePlayer) replace the
 	//       (single) channel data instead of adding to the exiting data.
