@@ -33,32 +33,29 @@ public:
 	void play(const void* buffer, unsigned bufferSize,
 	          unsigned bits, unsigned freq);
 
-	/** Plays the given data if there's no sample playing, otherwise sets
-	 * the data to play when the current sample is finished playing (if
-	 * repeat is enabled).
-	 * @param buffer The sample data
-	 * @param bufferSize Size of the buffer in samples
-	 * @param bits Bits per sample, must be either 8 or 16.
-	 *              8 bit format is unsigned
-	 *             16 bit format is signed
-	 * @param freq The sample frequency. Preferably all samples should
-	 *             have the sample frequency, because when switching
-	 *             playback frequency some of the old samples can be
-	 *             dropped.
+	/** Keep on repeating the given sample data.
+	 * If there is already a sample playing, that sample is still
+	 * finished. If there was no sample playing, the given sample
+	 * immediatly starts playing.
+	 * Parameters are the same as for the play() method.
+	 * @see stopRepeat()
 	 */
-	void setRepeatDataOrPlay(const void* buffer, unsigned bufferSize,
-	          unsigned bits, unsigned freq);
+	void repeat(const void* buffer, unsigned bufferSize,
+	            unsigned bits, unsigned freq);
+
+	/** Stop repeat mode.
+	 * The currently playing sample will still be finished, but won't
+	 * be started.
+	 * @see repeat()
+	 */
+	void stopRepeat();
 
 	/** Is there currently playing a sample. */
 	bool isPlaying() const;
 
-	/** Set repeat mode
-	 * @param enabled true to repeat after playing, false to stop
-	 */
-	void setRepeat(bool enabled);
-
 private:
 	inline int getSample(unsigned index);
+	void doRepeat();
 
 	// SoundDevice
 	virtual void setOutputRate(unsigned sampleRate);
@@ -76,8 +73,6 @@ private:
 	unsigned bufferSize;
 	bool playing;
 	bool bits8;
-
-	bool repeat;
 
 	const void* nextBuffer;
 	unsigned nextBufferSize;

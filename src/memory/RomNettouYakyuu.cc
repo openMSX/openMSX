@@ -127,15 +127,13 @@ void RomNettouYakyuu::writeMem(word address, byte value, const EmuTime& time)
 
 	// bit 6==1: set no retrigger, don't alter playing sample
 	if (value & 0x40) {
-		samplePlayer->setRepeat(false);
+		samplePlayer->stopRepeat();
 		return;
 	}
 
-	samplePlayer->setRepeat(true);
 	if (WavData* wav = sample[value & 0xF].get()) {
-		samplePlayer->setRepeatDataOrPlay(
-			wav->getData(), wav->getSize(),
-			wav->getBits(), wav->getFreq());
+		samplePlayer->repeat(wav->getData(), wav->getSize(),
+		                     wav->getBits(), wav->getFreq());
 	}
 }
 

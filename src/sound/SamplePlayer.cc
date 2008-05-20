@@ -11,8 +11,6 @@ SamplePlayer::SamplePlayer(MSXMotherBoard& motherBoard, const std::string& name,
 	: SoundDevice(motherBoard.getMSXMixer(), name, desc, 1)
 	, Resample(motherBoard.getGlobalSettings(), 1)
 	, inFreq(44100)
-	, repeat(false)
-	, nextBuffer(NULL)
 {
 	registerSound(config);
 	reset();
@@ -26,12 +24,12 @@ SamplePlayer::~SamplePlayer()
 void SamplePlayer::reset()
 {
 	playing = false;
-	repeat = false;
+	stopRepeat();
 }
 
-void SamplePlayer::setRepeat(bool enabled)
+void SamplePlayer::stopRepeat()
 {
-	repeat = enabled;
+	nextBuffer = NULL;
 }
 
 void SamplePlayer::setOutputRate(unsigned outFreq_)
@@ -62,16 +60,15 @@ void SamplePlayer::play(const void* buffer, unsigned bufferSize_,
 	}
 }
 
-void SamplePlayer::setRepeatDataOrPlay(const void* buffer, unsigned bufferSize_,
-                        unsigned bits, unsigned freq)
+void SamplePlayer::repeat(const void* buffer, unsigned bufferSize_,
+                          unsigned bits, unsigned freq)
 {
-	if (isPlaying()) {
-		nextBuffer = buffer;
-		nextBufferSize = bufferSize_;
-		nextBits = bits;
-		nextFreq = freq;
-	} else {
-		play(buffer, bufferSize_, bits, freq);
+	nextBuffer = buffer;
+	nextBufferSize = bufferSize_;
+	nextBits = bits;
+	nextFreq = freq;
+	if (!isPlaying()) {
+		doRepeat();
 	}
 }
 
@@ -94,24 +91,24 @@ void SamplePlayer::generateChannels(int** bufs, unsigned num)
 		return;
 	}
 	for (unsigned i = 0; i < num; ++i) {
-		if (index < bufferSize) {
-			int samp = getSample(index++);
-			bufs[0][i] += 3 * samp;
-		} else {
-			//bufs[0][i] += 0;
-			if (repeat) {
-				if (nextBuffer) {
-					play(nextBuffer, nextBufferSize, nextBits, nextFreq);
-					nextBuffer = NULL;
-				} else {
-					index = 0;
-				}
+		if (index >= bufferSize) {
+			if (nextBuffer) {
+				doRepeat();
 			} else {
+				// no need to add 0 to the remainder of bufs[0]
+				//  bufs[0][i] += 0;
 				playing = false;
+				break;
 			}
-			break;
 		}
+		int samp = getSample(index++);
+		bufs[0][i] += 3 * samp;
 	}
+}
+
+void SamplePlayer::doRepeat()
+{
+	play(nextBuffer, nextBufferSize, nextBits, nextFreq);
 }
 
 bool SamplePlayer::generateInput(int* buffer, unsigned num)
