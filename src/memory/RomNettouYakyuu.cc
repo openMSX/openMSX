@@ -81,7 +81,7 @@ RomNettouYakyuu::RomNettouYakyuu(
 	reset(time);
 }
 
-void RomNettouYakyuu::reset(const EmuTime& time)
+void RomNettouYakyuu::reset(const EmuTime& /*time*/)
 {
 	// ASCII8 behaviour
 	setBank(0, unmappedRead);
@@ -96,7 +96,7 @@ void RomNettouYakyuu::reset(const EmuTime& time)
 	samplePlayer->reset();
 }
 
-void RomNettouYakyuu::writeMem(word address, byte value, const EmuTime& time)
+void RomNettouYakyuu::writeMem(word address, byte value, const EmuTime& /*time*/)
 {
 	if ((address < 0x4000) || (0xC000 <= address)) return;
 
@@ -137,7 +137,7 @@ void RomNettouYakyuu::writeMem(word address, byte value, const EmuTime& time)
 	}
 }
 
-byte* RomNettouYakyuu::getWriteCacheLine(word address) const
+byte* RomNettouYakyuu::getWriteCacheLine(word /*address*/) const
 {
 	return NULL;
 }
