@@ -31,6 +31,8 @@ ExtensionConfig::ExtensionConfig(
 	vector<string> ipsfiles;
 	string mapper;
 
+	bool romTypeOptionFound = false;
+
 	// parse options
 	for (vector<string>::const_iterator it = options.begin();
 	     it != options.end(); ++it) {
@@ -42,7 +44,12 @@ ExtensionConfig::ExtensionConfig(
 		if (option == "-ips") {
 			ipsfiles.push_back(*it);
 		} else if (option == "-romtype") {
-			mapper = *it;
+			if (!romTypeOptionFound) {
+				mapper = *it;
+				romTypeOptionFound = true;
+			} else {
+				throw MSXException("Only one -romtype option is allowed");
+			}
 		} else {
 			throw MSXException("Invalid option \"" + option + "\"");
 		}
