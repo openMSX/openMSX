@@ -428,7 +428,7 @@ unsigned SCSILS120::readSector(unsigned& blocks)
 
 	PRT_DEBUG("ls120#" << int(scsiId) << " read sector: " << currentSector << " " << numSectors);
 	try {
-		//TODO: somehow map this to SectorAccessibleDisk::readLogicalSector?
+		//TODO: somehow map this to SectorAccessibleDisk::readSector?
 		file->seek(SECTOR_SIZE * currentSector);
 		file->read(buffer, SECTOR_SIZE * numSectors);
 		currentSector += numSectors;
@@ -463,7 +463,7 @@ unsigned SCSILS120::writeSector(unsigned& blocks)
 	unsigned numSectors = std::min(currentLength, BUFFER_BLOCK_SIZE);
 
 	PRT_DEBUG("ls120#" << int(scsiId) << " write sector: " << currentSector << " " << numSectors);
-	//TODO: somehow map this to SectorAccessibleDisk::writeLogicalSector?
+	//TODO: somehow map this to SectorAccessibleDisk::writeSector?
 	try {
 		file->seek(SECTOR_SIZE * currentSector);
 		file->write(buffer, SECTOR_SIZE * numSectors);
@@ -771,14 +771,14 @@ unsigned SCSILS120::getNbSectors() const
 }
 
 // NOTE: UNUSED FOR NOW!
-void SCSILS120::readLogicalSector(unsigned sector, byte* buf)
+void SCSILS120::readSector(unsigned sector, byte* buf)
 {
 	file->seek(512 * sector);
 	file->read(buf, 512);
 }
 
 // NOTE: UNUSED FOR NOW!
-void SCSILS120::writeLogicalSector(unsigned sector, const byte* buf)
+void SCSILS120::writeSector(unsigned sector, const byte* buf)
 {
 	file->seek(512 * sector);
 	file->write(buf, 512);

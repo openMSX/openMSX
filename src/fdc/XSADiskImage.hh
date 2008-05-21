@@ -29,8 +29,9 @@ private:
 	static const int TBLSIZE = 16;
 	static const int MAXHUFCNT = 127;
 
-	virtual void readLogicalSector(unsigned sector, byte* buf);
-	virtual void writeLogicalSector(unsigned sector, const byte* buf);
+	// SectorBasedDisk
+	virtual void readSectorImpl(unsigned sector, byte* buf);
+	virtual void writeSectorImpl(unsigned sector, const byte* buf);
 
 	bool isXSAImage(File& file);
 	inline byte charin();

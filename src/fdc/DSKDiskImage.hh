@@ -19,8 +19,8 @@ public:
 	virtual bool writeProtected();
 
 private:
-	virtual void readLogicalSector(unsigned sector, byte* buf);
-	virtual void writeLogicalSector(unsigned sector, const byte* buf);
+	virtual void readSectorImpl(unsigned sector, byte* buf);
+	virtual void writeSectorImpl(unsigned sector, const byte* buf);
 
 	std::auto_ptr<File> file;
 };

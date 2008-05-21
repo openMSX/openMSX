@@ -18,13 +18,13 @@ DSKDiskImage::~DSKDiskImage()
 {
 }
 
-void DSKDiskImage::readLogicalSector(unsigned sector, byte* buf)
+void DSKDiskImage::readSectorImpl(unsigned sector, byte* buf)
 {
 	file->seek(sector * SECTOR_SIZE);
 	file->read(buf, SECTOR_SIZE);
 }
 
-void DSKDiskImage::writeLogicalSector(unsigned sector, const byte* buf)
+void DSKDiskImage::writeSectorImpl(unsigned sector, const byte* buf)
 {
 	file->seek(sector * SECTOR_SIZE);
 	file->write(buf, SECTOR_SIZE);

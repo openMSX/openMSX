@@ -64,7 +64,7 @@ unsigned IDEHD::readBlockStart(byte* buffer, unsigned count)
 	try {
 		assert(count >= 512);
 		(void)count; // avoid warning
-		readLogicalSector(transferSectorNumber, buffer);
+		readSector(transferSectorNumber, buffer);
 		++transferSectorNumber;
 		return 512;
 	} catch (FileException& e) {
@@ -77,7 +77,7 @@ void IDEHD::writeBlockComplete(byte* buffer, unsigned count)
 {
 	try {
 		while (count != 0) {
-			writeLogicalSector(transferSectorNumber, buffer);
+			writeSector(transferSectorNumber, buffer);
 			++transferSectorNumber;
 			assert(count >= 512);
 			count -= 512;
@@ -120,12 +120,12 @@ void IDEHD::executeCommand(byte cmd)
 	}
 }
 
-void IDEHD::readLogicalSector(unsigned sector, byte* buf)
+void IDEHD::readSector(unsigned sector, byte* buf)
 {
 	readFromImage(512 * sector, 512, buf);
 }
 
-void IDEHD::writeLogicalSector(unsigned sector, const byte* buf)
+void IDEHD::writeSector(unsigned sector, const byte* buf)
 {
 	writeToImage(512 * sector, 512, buf);
 }

@@ -272,7 +272,7 @@ void DirAsDSK::saveCache()
 			tmpbuf[0] = CACHE_ID_SECTOR;
 			setLE16(&tmpbuf[1], i);
 			file.write(tmpbuf, 3);
-			readLogicalSector(i, tmpbuf);
+			readSectorImpl(i, tmpbuf);
 			file.write(tmpbuf, SECTOR_SIZE);
 		}
 
@@ -528,9 +528,9 @@ DirAsDSK::~DirAsDSK()
 	}
 }
 
-void DirAsDSK::readLogicalSector(unsigned sector, byte* buf)
+void DirAsDSK::readSectorImpl(unsigned sector, byte* buf)
 {
-	debug("DirAsDSK::readLogicalSector: %i ", sector);
+	debug("DirAsDSK::readSectorImpl: %i ", sector);
 	switch (sector) {
 		case 0: debug("boot sector\n");
 			break;
@@ -858,12 +858,12 @@ void DirAsDSK::extractCacheToFile(unsigned dirindex)
 }
 
 
-void DirAsDSK::writeLogicalSector(unsigned sector, const byte* buf)
+void DirAsDSK::writeSectorImpl(unsigned sector, const byte* buf)
 {
 	// is this actually needed ?
 	if (syncMode == GlobalSettings::SYNC_READONLY) return;
 
-	debug("DirAsDSK::writeLogicalSector: %i ", sector);
+	debug("DirAsDSK::writeSectorImpl: %i ", sector);
 	switch (sector) {
 		case 0: debug("boot sector\n");
 			break;

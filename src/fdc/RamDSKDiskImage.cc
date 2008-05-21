@@ -21,12 +21,12 @@ RamDSKDiskImage::~RamDSKDiskImage()
 	delete[] diskdata;
 }
 
-void RamDSKDiskImage::readLogicalSector(unsigned sector, byte* buf)
+void RamDSKDiskImage::readSectorImpl(unsigned sector, byte* buf)
 {
 	memcpy(buf, &diskdata[sector * SECTOR_SIZE], SECTOR_SIZE);
 }
 
-void RamDSKDiskImage::writeLogicalSector(unsigned sector, const byte* buf)
+void RamDSKDiskImage::writeSectorImpl(unsigned sector, const byte* buf)
 {
 	memcpy(&diskdata[sector * SECTOR_SIZE], buf, SECTOR_SIZE);
 }

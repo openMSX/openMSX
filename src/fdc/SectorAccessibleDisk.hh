@@ -10,8 +10,8 @@ namespace openmsx {
 class SectorAccessibleDisk
 {
 public:
-	virtual void readLogicalSector(unsigned sector, byte* buf) = 0;
-	virtual void writeLogicalSector(unsigned sector, const byte* buf) = 0;
+	virtual void readSector(unsigned sector, byte* buf) = 0;
+	virtual void writeSector(unsigned sector, const byte* buf) = 0;
 	virtual unsigned getNbSectors() const = 0;
 
 protected:

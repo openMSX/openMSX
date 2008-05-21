@@ -27,8 +27,10 @@ public:
 
 private:
 	// SectorBasedDisk
-	virtual void readLogicalSector(unsigned sector, byte* buf);
-	virtual void writeLogicalSector(unsigned sector, const byte* buf);
+	virtual void readSectorImpl(unsigned sector, byte* buf);
+	virtual void writeSectorImpl(unsigned sector, const byte* buf);
+
+	// Disk
 	virtual bool writeProtected();
 
 	struct MSXDirEntry {

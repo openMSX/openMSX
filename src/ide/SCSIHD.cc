@@ -367,7 +367,7 @@ void SCSIHD::formatUnit()
 	if (!checkReadOnly()) {
 		memset(buffer, 0, SECTOR_SIZE);
 		try {
-			writeLogicalSector(0, buffer);
+			writeSector(0, buffer);
 			unitAttention = true;
 		} catch (FileException& e) {
 			keycode = SCSI::SENSE_WRITE_FAULT;
@@ -612,13 +612,13 @@ unsigned SCSIHD::getNbSectors() const
 }
 
 // NOTE: UNUSED FOR NOW!
-void SCSIHD::readLogicalSector(unsigned sector, byte* buf)
+void SCSIHD::readSector(unsigned sector, byte* buf)
 {
 	readFromImage(SECTOR_SIZE * sector, SECTOR_SIZE, buf);
 }
 
 // NOTE: UNUSED FOR NOW!
-void SCSIHD::writeLogicalSector(unsigned sector, const byte* buf)
+void SCSIHD::writeSector(unsigned sector, const byte* buf)
 {
 	writeToImage(SECTOR_SIZE * sector, SECTOR_SIZE, buf);
 }

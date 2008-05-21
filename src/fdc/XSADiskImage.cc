@@ -45,12 +45,12 @@ XSADiskImage::~XSADiskImage()
 	delete[] outbuf;
 }
 
-void XSADiskImage::readLogicalSector(unsigned sector, byte* buf)
+void XSADiskImage::readSectorImpl(unsigned sector, byte* buf)
 {
 	memcpy(buf, outbuf + sector * SECTOR_SIZE, SECTOR_SIZE);
 }
 
-void XSADiskImage::writeLogicalSector(unsigned /*sector*/, const byte* /*buf*/)
+void XSADiskImage::writeSectorImpl(unsigned /*sector*/, const byte* /*buf*/)
 {
 	throw WriteProtectedException("Write protected");
 }

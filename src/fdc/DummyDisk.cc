@@ -26,12 +26,12 @@ bool DummyDisk::doubleSided()
 	return false;	// TODO check
 }
 
-void DummyDisk::readLogicalSector(unsigned /*sector*/, byte* /*buf*/)
+void DummyDisk::readSectorImpl(unsigned /*sector*/, byte* /*buf*/)
 {
 	throw DriveEmptyException("No disk in drive");
 }
 
-void DummyDisk::writeLogicalSector(unsigned /*sector*/, const byte* /*buf*/)
+void DummyDisk::writeSectorImpl(unsigned /*sector*/, const byte* /*buf*/)
 {
 	throw DriveEmptyException("No disk in drive");
 }

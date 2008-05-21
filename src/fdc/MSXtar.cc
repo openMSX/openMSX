@@ -134,8 +134,8 @@ void MSXtar::parseBootSectorFAT(const byte* buf)
 	fatCacheDirty = false;
 	fatBuffer.resize(SECTOR_SIZE * sectorsPerFat);
 	for (unsigned i = 0; i < sectorsPerFat; ++i) {
-		disk.readLogicalSector(i + 1 + partitionOffset,
-		                       &fatBuffer[SECTOR_SIZE * i]);
+		disk.readSector(i + 1 + partitionOffset,
+		                &fatBuffer[SECTOR_SIZE * i]);
 	}
 }
 
@@ -149,7 +149,7 @@ void MSXtar::writeLogicalSector(unsigned sector, const byte* buf)
 		memcpy(&fatBuffer[SECTOR_SIZE * fatSector], buf, SECTOR_SIZE);
 		fatCacheDirty = true;
 	} else {
-		disk.writeLogicalSector(sector + partitionOffset, buf);
+		disk.writeSector(sector + partitionOffset, buf);
 	}
 }
 
@@ -162,7 +162,7 @@ void MSXtar::readLogicalSector(unsigned sector, byte* buf)
 		//   --> read from cache
 		memcpy(buf, &fatBuffer[SECTOR_SIZE * fatSector], SECTOR_SIZE);
 	} else {
-		disk.readLogicalSector(sector + partitionOffset, buf);
+		disk.readSector(sector + partitionOffset, buf);
 	}
 }
 
@@ -197,8 +197,8 @@ void MSXtar::writeCachedFAT()
 {
 	if (fatCacheDirty) {
 		for (unsigned i = 0; i < fatBuffer.size() / SECTOR_SIZE; ++i) {
-			disk.writeLogicalSector(i + 1 + partitionOffset,
-			                        &fatBuffer[SECTOR_SIZE * i]);
+			disk.writeSector(i + 1 + partitionOffset,
+			                 &fatBuffer[SECTOR_SIZE * i]);
 		}
 		fatCacheDirty = false;
 	}
@@ -1034,14 +1034,14 @@ static bool isPartitionTableSector(byte* buf)
 bool MSXtar::hasPartitionTable()
 {
 	byte buf[SECTOR_SIZE];
-	disk.readLogicalSector(0, buf);
+	disk.readSector(0, buf);
 	return isPartitionTableSector(buf);
 }
 
 bool MSXtar::hasPartition(unsigned partition)
 {
 	byte buf[SECTOR_SIZE];
-	disk.readLogicalSector(0, buf);
+	disk.readSector(0, buf);
 	if (!isPartitionTableSector(buf)) {
 		return false;
 	}
@@ -1059,7 +1059,7 @@ bool MSXtar::usePartition(unsigned partition)
 	byte partitionTable[SECTOR_SIZE];
 	partitionOffset = 0;
 	partitionNbSectors = disk.getNbSectors();
-	disk.readLogicalSector(0, partitionTable);
+	disk.readSector(0, partitionTable);
 	bool hasPartitionTable = isPartitionTableSector(partitionTable);
 	if (hasPartitionTable) {
 		Partition* p = reinterpret_cast<Partition*>
@@ -1076,7 +1076,7 @@ bool MSXtar::usePartition(unsigned partition)
 	}
 
 	byte bootSector[SECTOR_SIZE];
-	disk.readLogicalSector(partitionOffset, bootSector);
+	disk.readSector(partitionOffset, bootSector);
 	parseBootSectorFAT(bootSector);
 	return hasPartitionTable;
 }

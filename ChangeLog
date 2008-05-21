@@ -1,5 +1,12 @@
 $Id$
 
+2008-05-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Reading sectors from a disk image via the SectorAccessibleDisk
+	  interface didn't apply the IPS patches:
+	    This had as effect that accessing the disk in the emulated
+	    machine did show the effect of the IPS patches, but using
+	    the diskmanipulator on the same disk ignored the IPS patches.
+
 2008-05-19 Manuel Bilderbeek <manuel@msxnet.org>
 	* Final fixes on Nettou Yakyuu mapper, including enhanced sample
 	  player.

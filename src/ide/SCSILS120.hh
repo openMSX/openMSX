@@ -33,8 +33,8 @@ public:
 	virtual ~SCSILS120();
 
 	// SectorAccessibleDisk:
-	virtual void readLogicalSector(unsigned sector, byte* buf);
-	virtual void writeLogicalSector(unsigned sector, const byte* buf);
+	virtual void readSector(unsigned sector, byte* buf);
+	virtual void writeSector(unsigned sector, const byte* buf);
 	virtual unsigned getNbSectors() const;
 
 	// Diskcontainer:

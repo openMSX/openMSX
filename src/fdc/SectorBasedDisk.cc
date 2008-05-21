@@ -24,14 +24,7 @@ void SectorBasedDisk::read(byte track, byte sector, byte side,
 	(void)size;
 	assert(size == SECTOR_SIZE);
 	unsigned logicalSector = physToLog(track, side, sector);
-	if (logicalSector >= nbSectors) {
-		throw NoSuchSectorException("No such sector");
-	}
-	try {
-		patch->copyBlock(logicalSector * SECTOR_SIZE, buf, SECTOR_SIZE);
-	} catch (MSXException& e) {
-		throw DiskIOErrorException("Disk I/O error");
-	}
+	readSector(logicalSector, buf);
 }
 
 void SectorBasedDisk::write(byte track, byte sector, byte side,
@@ -39,18 +32,8 @@ void SectorBasedDisk::write(byte track, byte sector, byte side,
 {
 	(void)size;
 	assert(size == SECTOR_SIZE);
-	if (writeProtected()) {
-		throw WriteProtectedException("");
-	}
 	unsigned logicalSector = physToLog(track, side, sector);
-	if (logicalSector >= nbSectors) {
-		throw NoSuchSectorException("No such sector");
-	}
-	try {
-		writeLogicalSector(logicalSector, buf);
-	} catch (MSXException &e) {
-		throw DiskIOErrorException("Disk I/O error");
-	}
+	writeSector(logicalSector, buf);
 }
 
 void SectorBasedDisk::applyPatch(const std::string& patchFile)
@@ -169,6 +152,33 @@ bool SectorBasedDisk::ready()
 bool SectorBasedDisk::doubleSided()
 {
 	return nbSides == 2;
+}
+
+void SectorBasedDisk::readSector(unsigned sector, byte* buf)
+{
+	if (sector >= nbSectors) {
+		throw NoSuchSectorException("No such sector");
+	}
+	try {
+		patch->copyBlock(sector * SECTOR_SIZE, buf, SECTOR_SIZE);
+	} catch (MSXException& e) {
+		throw DiskIOErrorException("Disk I/O error");
+	}
+}
+
+void SectorBasedDisk::writeSector(unsigned sector, const byte* buf)
+{
+	if (writeProtected()) {
+		throw WriteProtectedException("");
+	}
+	if (sector >= nbSectors) {
+		throw NoSuchSectorException("No such sector");
+	}
+	try {
+		writeSectorImpl(sector, buf);
+	} catch (MSXException& e) {
+		throw DiskIOErrorException("Disk I/O error");
+	}
 }
 
 unsigned SectorBasedDisk::getNbSectors() const

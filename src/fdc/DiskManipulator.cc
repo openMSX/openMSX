@@ -322,7 +322,7 @@ void DiskManipulator::savedsk(const DriveSettings& driveData,
 	byte buf[SectorBasedDisk::SECTOR_SIZE];
 	File file(filename, File::CREATE);
 	for (unsigned i = 0; i < nrsectors; ++i) {
-		disk.readLogicalSector(i, buf);
+		disk.readSector(i, buf);
 		file.write(buf, SectorBasedDisk::SECTOR_SIZE);
 	}
 }
