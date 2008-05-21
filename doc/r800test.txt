@@ -1,0 +1,522 @@
+
+
+The test program, in short:
+  Execute the same instruction (or short instruction sequence) number of
+  times and use the E6 timer to measure how long it took.
+
+The E6 timer has a resolution of 255682Hz (3579545Hz / 14). R800 runs at
+7159090Hz (2 * 3579545Hz). So the timer ticks once every 28 R800 ticks.
+
+
+-----------------------------------------------
+
+	org	#c000
+
+start	equ	#0100
+
+	ld	de,start
+	ld	hl,begin
+	ld	bc,begin1-begin
+	ldir
+	push	de
+	ld	hl,loop
+	ld	bc,loop1-loop
+	ldir
+	pop	hl
+	ld	bc,(20000-1)*(loop1-loop) ; number varies depending on
+	ldir                              ; length of the test-sequence
+	ld	hl,end
+	ld	bc,end1-end
+	ldir
+	jp	start
+
+begin	di
+	out	(#e6),a
+begin1
+
+loop	muluw   hl,bc                     ; test sequence
+loop1
+
+end	in	a,(#e6)
+	ld	l,a
+	in	a,(#e7)
+	ld	h,a
+	ei
+	ret
+end1
+
+-----------------------------------------------
+
+
+Below are the results, it's formatted like this
+
+  ----------------------------------------------
+  [ prologue ]
+  instruction-sequence  [ repeat-count ]
+    result: <raw-result>
+    cycles: <cycles>  [ instruction break-down ]
+    notes:
+  ----------------------------------------------
+
+Prologue are extra setup instructions, they are only executed once, only a few
+test have them
+
+Instruction-sequence is the actual instruction that's been tested. Mostly this
+is a single instruction, but sometimes there is a pair of instructions.
+
+repeat-count indicates how many times the instruction-sequence is repeated.
+I tried to repeat the instruction as much as possible. But to fit longer
+instruction sequences (longer in number of opcode bytes) in memory, the
+repeat count is sometimes reduced.
+
+raw-result: this is the value of the E6 timer at the end of the test. Note
+that you cannot directly compare this number to other test because other
+test might have a different repeat-count.
+
+cycles: here i calculated the number of cycles required per
+'instruction-sequence'-iteration. I calculated this by comparing the result
+to the 'nop' instruction (a nop takes 1 cycle). Note that the duration
+of most instructions in almost never exactly an integer multiple of the
+duration of the nop instruction. A possible explanation might be the
+refresh (only happens at the end of an instruction, so for longer instructions
+the chance of a refresh is relatively less). But we need additional test to
+fully explain the refresh behaviour.
+
+Instruction break-down: Here I tried to split the instruction into micro-ops.
+I used the following notation:
+  f  opcode fetch, no page-break, takes 1 cycle
+  r  data read,    no page-break, takes 1 cycle
+  w  data write,   no page-break, takes 1 cycle
+  F  opcode fetch,    page-break, takes 2 cycles
+  R  data read,       page-break, takes 2 cycles
+  W  data write,      page-break, takes 2 cycles
+  x  extra cycle (for various stuff) 
+  i  IO
+
+
+---------------------------------------------------------------
+
+
+
+* Instructions that don't do additional bus transactions (read, write, IO).
+
+nop  [x 40000]
+  result: 1645
+  cycles: 1  [f]
+
+add hl,bc  [x 40000]
+  result: 1645
+  cycles: 1  [f]
+
+neg  [x 20000]
+  result: 1637
+  cycles: 2  [ff]
+
+di  [x 40000]
+  result: 3267
+  cycles: 2  [fx]
+
+ld a,ixh  [x 20000]
+  result: 1637
+  cycles: 2  [ff]
+
+muluw hl,bc  [x 20000]
+  result: 29354
+  cycles: 36  [ffx34]
+
+mulub a,b  [x 20000]
+  result: 11419
+  cycles: 14  [ffx12]
+
+im 1  [x 20000]
+  result: 2447-2455
+  cycles: 3  [ffx]
+  note: For some reason the measured time for this instruction varies
+        more than for the other instructions.
+
+
+
+* Instructions that do a single read/write operation
+
+ld (#d000),a  [x 10000]
+  result: 2449
+  cycles: 6  [FffW]
+  note: page-break when switching from opcode fetching to data writes
+        and again when switching from data write to opcode fetching
+
+ld a,(#d000)  [x 10000]
+  result: 2449
+  cycles: 6  [FffR]
+  note: same as above but for read
+
+ld a,(#0100) [x 80(!)]
+  result: 20
+  cycles: 6  [FffR]
+  note: opcode fetch and read are in the same 256-byte page,
+        but still there is a page-break when switching from 
+        opcode reading to data reading
+
+[ ld hl,#d000 ]
+ld a,(hl)  [x 40000]
+  result: 6522
+  cycles: 4  [FR]
+
+[ ld hl,#d000 ; ld bc,0 ]
+ld a,(hl) ; add hl,bc  [x 20000]
+  result: 4054
+  cycles: 3 + 2  [fR F]
+
+[ ld hl,start+XX ; ld bc,2 ]
+ld a,(hl) ; add hl,bc  [x 20000]
+  result: 4055
+  cycles: 3 + 2  [fR F]
+  note: same test as above, but now the data is in the same page as
+        the instructions. There is still a page-break.
+
+[ ld hl,start+XX ; ld bc,2 ]
+ld (hl),a ; add hl,bc  [x 20000]
+  result: 4054
+  cycles: 3 + 2  [fW F]
+  note: same as above but for writes
+
+ld r,(ix+o)  [x 10000]
+  result: 2854
+  cycles: 7  [FffxR]
+  note: between opcode fetching (3 bytes) and read there is one additional
+        cycle to calculate the result of IX+o
+
+ld (ix+o),r  [x 10000]
+  result: 2854
+  cycles: 7  [FffxW]
+  note: same as above, but for write
+
+ld (ix+o),n  [x 10000]
+  result: 2861
+  cycles: 7  [FfffW]
+  note: Has the same number of cycles as 'ld (ix+o),r' even though this
+        instruction is one byte longer. The IX+o calculation is done
+        in parallel with fetching the last opcode byte.
+        Z80 shows the same parallelism.
+  note: Even though it has the same number of cycles as 'ld (ix+o),r', it
+        is consistently slighty slower. A possible explanation is that there
+        are page-breaks on opcode fetches in this test, since this instruction
+        has length 4 instead of 3.
+
+bit 0,a  [x 20000]
+  result: 1637
+  cycles: 2  [ff] 
+
+bit 0,(hl)  [x 20000]
+  result: 4055
+  cycles: 5  [FfR]
+
+bit 0,(ix+o)  [x 10000]
+  result: 2861
+  cycles: 7  [FfffR]
+  note: I always found it strange that the format of these instructions is
+           <0xDD> <0xCB> <offset> <function>     (offset before function)
+        But this allows to hide the latency of calculating IX+o. The same
+        happens on a Z80.
+
+
+
+Instructions that read/write 2 bytes
+
+ld (#d000),hl  [x 10000]
+  result: 2854
+  cycles: 7  [FffWw]
+  note: no page-break for the second data write
+        openmsx does this wrong ATM!
+
+ld (#d0ff),hl  [x 10000]
+  result: 3264
+  cycles: 8  [FffWW]
+  note: of course here there must be a page-break
+
+ld hl,(#d000)  [x 10000]
+  result: 2854
+  cycles: 7  [FffRr]
+  note: similar for read
+
+ld hl,(#d0ff)  [x 10000]
+  result: 3264
+  cycles: 8  [FffRR]
+
+push hl ; pop hl  [x 20000]
+  result: 8956
+  cycles: 6 + 5  [FxWw FRr]
+  note: push is once cycle slower than pop, probably because push first has
+        to decrease SP, while pop can directly put the value of SP on the bus
+
+
+
+Read-modify-write instructions (single byte)
+
+inc a  [x 40000]
+  result: 1628-1642
+  cycles: 1  [f]
+  note: result varied more than for other instructions (see also 'im 1'
+        instruction)
+
+inc (hl)  [x 40000]
+  result: 11393
+  cycles: 7  [FRxW]
+  note: This instructions is slower than I expected, but it can be explained
+        like this:
+         - there is one cycle between data read and data write to get the
+           time to actually increase the value
+         - when switching from data-read to data-write there is a page-break
+           (even though the address is identical)
+        But see also the 'ex (sp),hl' instruction below
+
+inc (ix+o)  [x 10000]
+  result: 4080
+  cycles: 10  [FffxRxW]
+  note: similar as above, but 3 cycles longer:
+          - need to fetch 2 more opcode bytes
+          - need to calculate IX+o before data read can be executed
+
+res 0,a  [x 20000]
+  result: 1637
+  cycles: 2  [ff]
+
+res 0,(hl)  [x 20000]
+  result: 6523
+  cycles: 8  [FfRxW]
+  note: similar to 'inc (hl)' but opcode is one byte longer
+
+res 0,(ix+o)  [x 10000]
+  result: 4083
+  cycles: 10  [FfffRxW]
+  note: similar to 'inc (ix+o)'. Opcode is one byte longer, but cost
+        of IX+o can be hidden
+
+rld  [x 20000]
+  result: 6529
+  cycles: 8 cycles  [FfRxW]
+  note: similar to 'res 0,(hl)'
+
+ld hl,#0000 ; ld de,#0100 ; ld bc,40000 ; ldir  [no repeat]   (src != dst)
+  result: 11393
+  cycles: 7  [FfRW]
+  note: as expected, 3 page-breaks are needed
+
+ld hl,#0100 ; ld de,#0100 ; ld bc,40000 ; ldir  [no repeat]   (src == dst)
+  result: 11393
+  cycles: 7  [FfRW]
+  note: same timing as above, even though the read and write addresses are
+        the same, there is a page-break inbetween
+
+
+Read-modify-write 2 bytes
+
+ex (sp),hl  [x 40000]
+  result: 11393
+  cycles: 7  [FRrww]
+  note: - This result was unexpected to me: based on the results in the previous
+          section, I expected a page-break between the read and writes.
+        - 7 cycles is really the minimum. There are 5 bus transactions (1 opcode
+          fetch, 2 data reads and 2 data writes). Stack and instructions are in
+          different pages so there must be at least 2 page-breaks.
+        - I've confirmed the [frrww] order, see exsphl.txt for details.
+
+[ ld sp,#xxFF ]
+ex (sp),hl  [x 40000]
+  result: 14660
+  cycles: 9  [FRRwW]
+  note: - Now we forced a page-break between reading/writing of the word. So two
+          additional cycles.
+        - This confirms that first two bytes are read and only then two byte are
+          written: the order [FRwRw] would only require 8 cycles
+
+[ ld sp,#01F0 ]
+ex (sp),hl  [x 200(!)]
+  result: 58
+  cycles: 7  [FRrww]
+  note: Stack pointer in same page as instructions. But there still seems to be
+        a pagebreak between instructions and data.
+
+ex (sp),ix  [x 20000]
+  result: 6529
+  cycles: 8  [FfRrww]
+
+[ ld sp,#xxFF ]
+ex (sp),ix  [x 20000]
+  result: 8153
+  cycles: 10  [FfRRwW]
+
+
+
+Jump instructions
+
+jr $+2   [x 20000]
+  result: 2455
+  cycles: 3  [ffx]
+  note: one additional cycle to calculate PC+offset
+
+jr $+3 ; nop  [x 10000]    <- nop is skipped
+  result: 1229
+  cycles: 3  [ffx]
+  note: - even if opcode fetching is not contiguous there is no extra
+          page-break
+        - slightly slower than test above, because code is less dense
+          and thus overall there are more opcode-fetch page-breaks
+
+jr $+2 ; nop  [x 10000] 
+  result: 1636
+  cycles: 3 + 1  [ffx f]
+
+[ ld a,0 ; or a ]
+jr z,$+2  [x 20000] 
+  result: 2454
+  cycles: 3  [ffx]
+  note: condition is true, jump is taken
+
+[ ld a,1 ; or a ]
+jr z,$+2  [x 20000] 
+  result: 1637
+  cycles: 2  [ff]
+  note: condition is false, jump not taken
+        PC+offset does not need to be calculated, so no extra cycle
+
+djnz $+2  [x 20000]
+  result: 2454
+  cycles: 3  [ffx]
+  note: - whether the jump is taken or not does not matter for the program flow
+        - 1/256 of the times the jump is not taken, this can explain why this
+          test is slightly faster than 'jr $+2' (but it's well within measure
+          error margin)
+
+[ ld b,0 ]
+djnz $+0  [x 2000(!)]
+  result: 63014
+  cycles: 3  [ffx]
+  note: only repeated instruction 2000 times (iso 20000) because otherwise
+        timer would overflow
+
+[ ld b,1 ]
+djnz $ ; inc b  [x 10000]
+  result: 1228
+  cycles: 3  [ff f]
+  note: djnz only takes 2 cycles when it doesn't jump, same result as for jr
+
+jp $+3  [x 10000]
+  result: 2028
+  cycles: 5  [Fffx]    (alternative: [fffxx])
+  note: Two additional cycles are unexpected. It can either be explained as
+        two 'x' cycles or as one 'x' cycles plus a forced page-break.
+        See also tests below.
+
+[ ld a,0 ; or a ] 
+jp z,$+3  [x 10000]
+  result: 2029
+  cycles: 5  [Fffx]
+  note: condition is true, jump is taken
+
+[ ld a,1 ; or a ] 
+jp z,$+3  [x 10000]
+  result: 1229
+  cycles: 3  [fff]
+  note: condition is false, jump not taken
+        extra 2 cycles are gone 
+
+[ ld hl,start+XX ; ld bc,2 ]
+add hl,bc ; jp (hl)  [x 20000]
+  result: 3260
+  cycles: 4  [F fx]
+  note: Similar as above, 2 extra cycles
+
+[ ld hl,start+XX ; ld bc,#0102 ; ld de,#FF02 ]
+add hl,bc ; jp (hl) ; add hl,de ; jp (hl)  [x 10000]
+  result: 3241
+  cycles: 8 cycles [F fx F fx]
+  note: In this test every jump has a destination in a different 256-byte page.
+        A single 'jp (hl)' instruction is still responsible for 3 cycles
+        (though the cost of the forced page-break is pushed to the next
+        instruction). This confirms that the two extra cycles in a jump are
+        one 'x' cycle plus one forced page-break (in case of two 'x' cycles,
+        this test would show yet an additional cost for the page-break).
+  note: The 64 backward jumps in the first 256-byte page and the 64 forward
+        jumps in the last page in this test are not executed.
+
+call $+3 ; pop hl  [x 10000]
+  result: 4880
+  cycles: 7 + 5  [FffWw FRr]
+  note: This is again as expected, though the two extra cycles can be hidden
+        by the data-writes.
+
+[ ld a,0 ; or a ]
+call z,$+3 ; pop hl  [x 10000]
+  result: 4880
+  cycles: 7 + 5  [FffWw FRr]
+  note: condition is true, call is executed
+        as expected, same result as unconditional call
+
+[ ld a,1 ; or a ]
+call z,$+3  [x 10000]
+  result: 1229
+  cycles: 3  [fff]
+  note: condition is false, call not executed
+
+[ ld hl,start+XX ; ld bc,3 ]
+add hl,bc ; push hl ; ret  [x 10000]
+  result: 4884-4887
+  cycles: 12 [F fxWw FRr]
+  note: 'RET' probably behaves as a 'JP (HL)' (two extra cycles), but these
+        cycles can be hidden by the two data reads
+
+[ ld hl,start+XX ; ld bc,3 ; ld a,0 ; or a ]
+add hl,bc ; push hl ; ret z  [x 10000]
+  result: 4884-4887
+  cycles: 12 [F fxWw FRr]
+  note: Same test as above, but with a conditional ret that is always executed.
+        As expected same result as above.
+
+[ ld a,1 ; or a ]
+ret z  [x 40000]
+  result: 1644
+  cycles: 1  [f]
+
+
+IO instructions
+
+in a,(0)  [x 20000]
+  result: 8066
+  cycles: 10  [FfI7]
+  note: - 7 cycles for IO seems a lot, but this makes it approx the same
+          speed as Z80:
+             Z80:  4 cycles @ 3.5MHz
+             R800: 7 cycles @ 7MHz
+          This is needed to keep the timing on the external cartridge slots
+          the same.
+        - Besides IO port 0, i checked a lot of other ports, but not all.
+          I did check some random unused port numbers and at least one input
+          port from each IO-device in the turbor. Only the VDP ports are
+          different (see below)
+
+in a,(#98)  [x 20000]
+  result: 44286
+  cycles: +/- 54
+  note: - Can be explained by the 'intelligent' VDP-delay added by the S1990 
+          Need additional tests to accuratly measure this.
+        - Only IO ports 0x98-0x9B show this behaviour
+
+out (0),a  [x 20000]
+  result: 8065
+  cycles: 10  [FfI7]
+  note: similar to 'in a,(0)'
+
+out (#98),a  [x 20000]
+  result: 44285
+  cycles: +/- 54
+  note: similar to 'in a,(#98)'
+
+
+
+
+
+TODO 
+
+external mapper / internal rom
+ -> how many penalty cycles?
+ -> still page break penalty?

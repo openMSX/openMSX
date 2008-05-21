@@ -1,0 +1,131 @@
+
+EX (SP),HL
+==========
+
+This instruction does 5 memory transactions
+
+ - 1 byte instruction fetch
+ - 2 bytes data reads
+ - 2 bytes data writes
+
+The goal of this test is to find out the order of these 5 transactions.
+Obviously the instruction fetch (F) is the first transaction.
+
+There is one read from location SP+0, I'll call this R0. One read from
+location SP+1 (R0). A write to SP+0 (W0) and a write to SP+1 (W1).
+
+R0 must come before WO and R1 must come before W1. This leaves the
+following possible orders (please check that I didn't miss some):
+
+  a) F R0 W0 R1 W1
+  b) F R0 R1 W0 W1
+  c) F R0 R1 W1 W0
+  d) F R1 W1 R0 W0
+  e) F R1 R0 W1 W0
+  f) F R1 R0 W0 W1
+
+
+* Z80
+
+In the document z80cpu_um.pdf you can find the number of cycles per M-cycle.
+For the EX (SP),HL instruction it lists:
+
+  5 M-cycles, 19 T-states, 4+3+4+3+5
+
+  note: this doesn't include the extra wait-state introduced on MSX.
+
+This can be explained like this (note, I'm guessing here, but it seems
+to fit well on the number of T-states).
+
+  M1:  fetch/decode opcode              4     cycles
+  M2:  tmpL = read(SP)                  3     cycles
+  M3:  ++SP ; tmpH = read(SP)           1+3   cycles
+  M4:  write(SP, H)                     3     cycles
+  M5:  --SP ; write(SP, L) ; HL = tmp   1+3+1 cycles
+
+  fetching opcode (or prefix) takes 4 cycles in all Z80 instructions
+  reading/writing memory takes 3 cycles on Z80
+
+This corresponds with order c) [F R0 R1 W1 W0]
+
+
+* R800
+
+On R800, the instruction takes 7 cycles if SP+0 and SP+1 are in the same
+256-byte page, 9 cycles if not (see r800test.txt for more details on this).
+So it seems there are two extra page-breaks in the latter case, order a)
+and d) need only 1 extra page-break (of course it's not impossible there
+still are 2 page-breaks, or one page-break and some other extra cost).
+In any case the timing doesn't give us enough information.
+
+We need another test to be sure about the order. We'll do this by setting
+the stack pointer to a memory-mapped IO region:
+
+In the MSXTurboR, in slot 3-3, there's a ROM mapper. Writes to the region
+0x6C00-0x6FFF will switch the ROM in region 0x6000-0x7FFF. The content
+of the ROM is like this:
+
+  page 0, address 0x6C80/0x6C81: F6 50
+       1                         C3 3E
+       2                         08 07
+
+Now execute the following program, with slot 3-3 selected in page 1
+(0x4000-0x7FFF).
+
+-------------------------------
+
+	org	#C000
+
+	di
+	ld	(save),sp
+	ld	sp,#6C80
+
+	xor	a
+	ld	(#6C80),a
+
+	ld	hl,#0201
+	ex	(sp),hl
+	ld	de,(#6C80)
+
+	ld	sp,(save)
+	ret
+
+save	dw	0
+
+------------------------------
+
+After running this program the registers HL/DE contain these values
+
+  HL = 50F6
+  DE = 3EC3
+
+Register DE contains the ROM content after both writes (W0,W1) are done.
+The value of DE comes from ROM page 1, so writing of L=1 (=W0) must come
+after wrting of H=2 (=W1).
+
+Both register H and L contain the content of the initial ROM page
+(page 0), this means both reads are executed before either of the writes.
+
+This leaves two possibilities:
+  
+  c) F R0 R1 W1 W0     [FRrww] [FRRwW]
+  e) F R1 R0 W1 W0     [FRrww] [FRRWW]
+
+I've also indicated the page-breaks when SP+0 and SP+1 are in the same or
+in a different page (again see r800test.txt for details). Possibility e)
+would require 10 cycles, possibility c) matches the measurement of 9
+cycles.
+
+
+* conclusion
+
+Both Z80 and R800 use the same order [F R0 R1 W1 W0]. The result on R800
+is based on measurements, for Z80 it's based on extrapolating T-state
+documentation. It would be nice to also actually measure it on Z80.
+
+
+The order [F R0 WO R1 W1] would have been better on R800: it would only
+require 8 cycles in case of a SP+0 SP+1 page break. Though that would be
+incompatible with Z80. Also most of the time it doesn't matter because
+the top-stack-word doesn't cross a page boundary too often (even never
+when the stack is two-bytes aligned).
