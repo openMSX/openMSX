@@ -220,7 +220,7 @@ bit 0,(ix+o)  [x 10000]
 
 
 
-Instructions that read/write 2 bytes
+* Instructions that read/write 2 bytes
 
 ld (#d000),hl  [x 10000]
   result: 2854
@@ -250,7 +250,7 @@ push hl ; pop hl  [x 20000]
 
 
 
-Read-modify-write instructions (single byte)
+* Read-modify-write instructions (single byte)
 
 inc a  [x 40000]
   result: 1628-1642
@@ -308,7 +308,7 @@ ld hl,#0100 ; ld de,#0100 ; ld bc,40000 ; ldir  [no repeat]   (src == dst)
         the same, there is a page-break inbetween
 
 
-Read-modify-write 2 bytes
+* Read-modify-write 2 bytes
 
 ex (sp),hl  [x 40000]
   result: 11393
@@ -347,7 +347,7 @@ ex (sp),ix  [x 20000]
 
 
 
-Jump instructions
+* Jump instructions
 
 jr $+2   [x 20000]
   result: 2455
@@ -478,15 +478,14 @@ ret z  [x 40000]
   cycles: 1  [f]
 
 
-IO instructions
+* IO instructions
 
 in a,(0)  [x 20000]
   result: 8066
-  cycles: 10  [FfI7]
-  note: - 7 cycles for IO seems a lot, but this makes it approx the same
-          speed as Z80:
+  cycles: 10  [ffI8]
+  note: - 8 cycles for IO seems a lot, but this makes it the same speed as Z80
              Z80:  4 cycles @ 3.5MHz
-             R800: 7 cycles @ 7MHz
+             R800: 8 cycles @ 7MHz
           This is needed to keep the timing on the external cartridge slots
           the same.
         - Besides IO port 0, i checked a lot of other ports, but not all.
@@ -501,9 +500,23 @@ in a,(#98)  [x 20000]
           Need additional tests to accuratly measure this.
         - Only IO ports 0x98-0x9B show this behaviour
 
+[ ld b,0 ]
+in a,(0) ; djnz $-2  [x 1]   [no page-break between in/djnz]
+  result: 126
+  cycles: 13  [ffI8 ffx]
+
+[ ld b,0 ]
+in a,(0) ; djnz $-2  [x 1]   [page-break between in/djnz]
+  result: 145
+  cycles: 15  [FfI8 Ffx]
+  note: - we forced a page-break between the in and the djnz instruction by
+          properly aligning the start address
+        - 2 extra cycles compared to test above, this confirms the decomposition
+          of the in instruction is [ffI8] (as opposed to [ffI7 + page-break])
+
 out (0),a  [x 20000]
   result: 8065
-  cycles: 10  [FfI7]
+  cycles: 10  [ffI8]
   note: similar to 'in a,(0)'
 
 out (#98),a  [x 20000]
@@ -513,10 +526,52 @@ out (#98),a  [x 20000]
 
 
 
+* Internal-ROM
 
+ld hl,(#xxyy)  [x 10000]
+  with yy=#00 -> no page break
+    with xx in normal RAM
+      result: 2855
+      cycles: 7  [FffRr]
+    with xx in ROM, DRAM mode
+      result: 2855
+      cycles: 7  [FffRr]
+    with xx in ROM
+      result: 4080
+      cycles: 10  [FffRmRm]     (m -> memory wait cycle)
+  with yy=#ff -> page break during read
+    with xx in normal RAM
+      result: 3265
+      cycles: 8  [FffRR]
+    with xx in ROM, DRAM mode
+      result: 3264
+      cycles: 8  [FffRR]
+    with xx in ROM
+      result: 4080
+      cycles: 10  [FffRmRm]
+  notes: - RAM or ROM in DRAM mode seems to have the same speed, including 
+           page break optimization
+         - reads from ROM take 3 cycles, they don't become slower in case
+           of a page break. So it seem there are always 2 cycles to set the
+           address plus one wait cycle.
+         - I did the same test with the 'ld (#xxyy),hl' instruction (even
+           though writing to ROM doesn't make sense). I got the same results.
+       
+[ ld a,128 ; or a ]
+[ BIOS ROM contains    nop (x 11) ; ret m    at address #1EB2 ]
+call #1EB2  [x 10000]
+  result: [(D)RAM]  9763-9770
+          [ROM]    18757
+  cycles: [(D)RAM] 24  [FffWw F  f  f  f  f  f  f  f  f  f  f  fRr ]   (<- 23 !!)
+          [ROM]    46  [FffWw Fm Fm Fm Fm Fm Fm Fm Fm Fm Fm Fm FmRr ]
+  notes: - this confirm 3 cycles per memory read from ROM
+         - we measured 24 cycles for (D)RAM while there should only be 23,
+           this might be a measurement error though: to calculate the number
+           of cycles (in long code sequences) I compare it with the duration
+           of a NOP instruction, for long durations differences this may be
+           inaccurate
+
+
+* External-slot
 
 TODO 
-
-external mapper / internal rom
- -> how many penalty cycles?
- -> still page break penalty?
