@@ -607,3 +607,9 @@ ld (hl),a  [x 15000]
 inc (hl)  [x 15000]
   result: 7337
   cycles: 12  [FRmmxWmmm] ??
+
+
+
+
+
+TODO: RETN, RST
