@@ -30,10 +30,8 @@ protected:
 	inline void PRE_IO (unsigned /*port*/) { }
 	inline void POST_IO(unsigned /*port*/) { }
 
-	inline void R800Refresh()
-	{
-		// nothing
-	}
+	inline void R800Refresh() { }
+	inline void R800ForcePageBreak() { }
 
 	static const int
 	CC_LD_A_SS   = 5+3,       CC_LD_A_SS_1  = 5+1,

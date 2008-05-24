@@ -2834,15 +2834,22 @@ template <class T> int CPUCore<T>::retn() // also reti
 
 
 // JP ss
-template <class T> int CPUCore<T>::jp_hl() { R.setPC(R.getHL()); return T::CC_JP_HL; }
-template <class T> int CPUCore<T>::jp_ix() { R.setPC(R.getIX()); return T::CC_JP_HL; }
-template <class T> int CPUCore<T>::jp_iy() { R.setPC(R.getIY()); return T::CC_JP_HL; }
+template <class T> int CPUCore<T>::jp_hl() {
+	R.setPC(R.getHL()); T::R800ForcePageBreak(); return T::CC_JP_HL;
+}
+template <class T> int CPUCore<T>::jp_ix() {
+	R.setPC(R.getIX()); T::R800ForcePageBreak(); return T::CC_JP_HL;
+}
+template <class T> int CPUCore<T>::jp_iy() {
+	R.setPC(R.getIY()); T::R800ForcePageBreak(); return T::CC_JP_HL;
+}
 
 // JP nn / JP cc,nn
 template <class T> inline int CPUCore<T>::JP()
 {
 	memptr = RD_WORD_PC(T::CC_JP_1);
 	R.setPC(memptr);
+	T::R800ForcePageBreak();
 	return T::CC_JP;
 }
 template <class T> inline int CPUCore<T>::SKIP_JP()

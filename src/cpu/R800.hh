@@ -28,7 +28,7 @@ public:
 	}
 
 protected:
-	static const int I  = 3; // cycles for an I/O operation
+	static const int I  = 8; // cycles for an I/O operation
 	static const int PW = 1; // cycles for a write operation (pre)
 	static const int W  = 2; // cycles for a write operation (total)
 
@@ -68,33 +68,37 @@ protected:
 
 	inline void PRE_RDMEM_OPCODE(unsigned address)
 	{
-		if (likely(extraMemoryDelay[address >> 14] == 0)) {
-			int newPage = address >> 8;
-			if (unlikely(newPage != lastPage)) {
-				lastPage = newPage;
-				add(1);
-			}
-		} else {
-			lastPage = -1;
+		int newPage = address >> 8;
+		if (unlikely(newPage != lastPage) ||
+		    unlikely(extraMemoryDelay[address >> 14])) {
+			// page break, either because high address byte really
+			// changed or because the region doesn't support the
+			// CAS/RAS optimization
 			add(1);
 		}
+		lastPage = newPage;
 	}
+	// TODO Not correct for 'ex (sp),hl' instruction.
+	// TODO Can be optimized: in most of the cases we know when there
+	//      will be a page break (because of switching between opcode
+	//      fetching, data read, data write).
 	inline void PRE_RDMEM(unsigned address)
 	{
-		if (likely(extraMemoryDelay[address >> 14] == 0)) {
-			int newPage = (address >> 8) + 256;
-			if (unlikely(newPage != lastPage)) {
-				lastPage = newPage;
-				add(1);
-			}
-		} else {
-			lastPage = -1;
+		int newPage = (address >> 8) + 256;
+		if (unlikely(newPage != lastPage) ||
+		    unlikely(extraMemoryDelay[address >> 14])) {
 			add(1);
 		}
+		lastPage = newPage;
 	}
-	inline void PRE_WRMEM(unsigned /*address*/)
+	inline void PRE_WRMEM(unsigned address)
 	{
-		lastPage = -1;
+		int newPage = (address >> 8) + 512;
+		if (unlikely(newPage != lastPage) ||
+		    unlikely(extraMemoryDelay[address >> 14])) {
+			add(1);
+		}
+		lastPage = newPage;
 	}
 	inline void POST_MEM(unsigned address)
 	{
@@ -103,8 +107,7 @@ protected:
 
 	inline void PRE_IO (unsigned /*port*/) { }
 	inline void POST_IO(unsigned /*port*/) {
-		// TODO is this correct or does it just take 4 clock cycles
-		lastPage = -1;
+		// no page-break after IO operation
 	}
 
 	inline void R800Refresh()
@@ -117,6 +120,11 @@ protected:
 			lastRefreshTime.advance_fast(time);
 			add(22);
 		}
+	}
+
+	inline void R800ForcePageBreak()
+	{
+		lastPage = -1;
 	}
 
 	static const unsigned
@@ -161,8 +169,8 @@ protected:
 		CC_RST       = 2+W+W,
 		CC_RET_A     = 3,     CC_RET_B      = 1, EE_RET_C      = 0,
 		CC_RETN      = 5,     EE_RETN       = 2,
-		CC_JP        = 3,     CC_JP_1       = 1,
-		CC_JP_HL     = 1,
+		CC_JP        = 4,     CC_JP_1       = 1,
+		CC_JP_HL     = 2,
 		CC_JR_A      = 3,     CC_JR_B       = 2, CC_JR_1       = 1,
 		CC_DJNZ      = 3,     EE_DJNZ       = 0,
 
