@@ -1,4 +1,4 @@
-// $Id: $
+// $Id$
 
 // Code based on DOSBox-0.65
 
@@ -216,7 +216,8 @@ void ZMBVEncoder::compressFrame(bool keyFrame, const void** lineData,
 	output[0] = 0; // first byte contains info about this frame
 	if (keyFrame) {
 		output[0] |= FLAG_KEYFRAME;
-		KeyframeHeader* header = reinterpret_cast<KeyframeHeader*>(writeBuf + writeDone);
+		KeyframeHeader* header =
+			reinterpret_cast<KeyframeHeader*>(writeBuf + writeDone);
 		header->high_version = DBZV_VERSION_HIGH;
 		header->low_version = DBZV_VERSION_LOW;
 		header->compression = COMPRESSION_ZLIB;

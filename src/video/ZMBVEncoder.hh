@@ -1,4 +1,4 @@
-// $Id: $
+// $Id$
 
 // Code based on DOSBox-0.65
 
