@@ -549,13 +549,13 @@ ld hl,(#xxyy)  [x 10000]
     with xx in ROM
       result: 4080
       cycles: 10  [FffRmRm]
-  notes: - RAM or ROM in DRAM mode seems to have the same speed, including 
-           page break optimization
-         - reads from ROM take 3 cycles, they don't become slower in case
-           of a page break. So it seem there are always 2 cycles to set the
-           address plus one wait cycle.
-         - I did the same test with the 'ld (#xxyy),hl' instruction (even
-           though writing to ROM doesn't make sense). I got the same results.
+  note: - RAM or ROM in DRAM mode seems to have the same speed, including 
+          page break optimization
+        - reads from ROM take 3 cycles, they don't become slower in case
+          of a page break. So it seem there are always 2 cycles to set the
+          address plus one wait cycle.
+        - I did the same test with the 'ld (#xxyy),hl' instruction (even
+          though writing to ROM doesn't make sense). I got the same results.
        
 [ ld a,128 ; or a ]
 [ BIOS ROM contains    nop (x 11) ; ret m    at address #1EB2 ]
@@ -564,14 +564,46 @@ call #1EB2  [x 10000]
           [ROM]    18757
   cycles: [(D)RAM] 24  [FffWw F  f  f  f  f  f  f  f  f  f  f  fRr ]   (<- 23 !!)
           [ROM]    46  [FffWw Fm Fm Fm Fm Fm Fm Fm Fm Fm Fm Fm FmRr ]
-  notes: - this confirm 3 cycles per memory read from ROM
-         - we measured 24 cycles for (D)RAM while there should only be 23,
-           this might be a measurement error though: to calculate the number
-           of cycles (in long code sequences) I compare it with the duration
-           of a NOP instruction, for long durations differences this may be
-           inaccurate
+  note: - this confirm 3 cycles per memory read from ROM
+        - we measured 24 cycles for (D)RAM while there should only be 23,
+          this might be a measurement error though: to calculate the number
+          of cycles (in long code sequences) I compare it with the duration
+          of a NOP instruction, for long durations differences this may be
+          inaccurate
 
 
 * External-slot
 
-TODO 
+ld hl,(#4000)  [x 5000]
+  result: 2857
+  cycles: 14  [FffRmmmRmmm] ??
+  note: 5 cycles per memory access, close to 3 cycles (@ 3.5MHz) on Z80
+        but I'd expected it to match exactly. It's strange to have halve
+        cycles on the external 3.5MHz cartridge slots.
+
+ld (#4000),hl  [x 5000]
+  result: 2857
+  cycles: 14  [FffRmmmRmmm] ??
+
+ld a,(#4000)  [x 5000]
+  result: 1634
+  cycles: 8  [FffRmm] ??
+
+ld (#4000),a  [x 5000]
+  result: 1634
+  cycles: 8  [FffWmm] ??
+
+[ ld hl,#4000 ]
+ld a,(hl)  [x 15000]
+  result: 3669
+  cycles: 6  [FRmm] ??
+
+[ ld hl,#4000 ]
+ld (hl),a  [x 15000]
+  result: 3669
+  cycles: 6  [FWmm] ??
+
+[ ld hl,#4000 ]
+inc (hl)  [x 15000]
+  result: 7337
+  cycles: 12  [FRmmxWmmm] ??
