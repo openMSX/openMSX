@@ -354,7 +354,7 @@ static ALWAYS_INLINE void write16LE(byte* p, unsigned value)
 }
 
 template <class T> template <bool PRE_PB, bool POST_PB>
-byte CPUCore<T>::RDMEMslow(unsigned address, unsigned cc)
+NEVER_INLINE byte CPUCore<T>::RDMEMslow(unsigned address, unsigned cc)
 {
 	// not cached
 	unsigned high = address >> CacheLine::BITS;
@@ -403,7 +403,7 @@ template <class T> ALWAYS_INLINE byte CPUCore<T>::RDMEM(unsigned address, unsign
 }
 
 template <class T> template <bool PRE_PB, bool POST_PB>
-unsigned CPUCore<T>::RD_WORD_slow(unsigned address, unsigned cc)
+NEVER_INLINE unsigned CPUCore<T>::RD_WORD_slow(unsigned address, unsigned cc)
 {
 	unsigned res = RDMEM_impl<PRE_PB,  false>(address, cc);
 	res         += RDMEM_impl<false, POST_PB>((address + 1) & 0xFFFF, cc + T::CC_RDMEM) << 8;
@@ -437,7 +437,7 @@ template <class T> ALWAYS_INLINE unsigned CPUCore<T>::RD_WORD(
 }
 
 template <class T> template <bool PRE_PB, bool POST_PB>
-void CPUCore<T>::WRMEMslow(unsigned address, byte value, unsigned cc)
+NEVER_INLINE void CPUCore<T>::WRMEMslow(unsigned address, byte value, unsigned cc)
 {
 	// not cached
 	unsigned high = address >> CacheLine::BITS;
@@ -481,7 +481,7 @@ template <class T> ALWAYS_INLINE void CPUCore<T>::WRMEM(
 	WRMEM_impl<true, true>(address, value, cc);
 }
 
-template <class T> void CPUCore<T>::WR_WORD_slow(
+template <class T> NEVER_INLINE void CPUCore<T>::WR_WORD_slow(
 	unsigned address, unsigned value, unsigned cc)
 {
 	WRMEM_impl<true, false>( address,               value & 255, cc);
@@ -505,7 +505,8 @@ template <class T> ALWAYS_INLINE void CPUCore<T>::WR_WORD(
 
 // same as WR_WORD, but writes high byte first
 template <class T> template <bool PRE_PB, bool POST_PB>
-void CPUCore<T>::WR_WORD_rev_slow(unsigned address, unsigned value, unsigned cc)
+NEVER_INLINE void CPUCore<T>::WR_WORD_rev_slow(
+	unsigned address, unsigned value, unsigned cc)
 {
 	WRMEM_impl<PRE_PB,  false>((address + 1) & 0xFFFF, value >> 8,  cc);
 	WRMEM_impl<false, POST_PB>( address,               value & 255, cc + T::CC_WRMEM);
