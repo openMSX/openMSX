@@ -72,7 +72,7 @@ protected:
 	CC_RST       = 6+3+3,
 	CC_RET_A     = 5+3+3,     CC_RET_B      = 5,     EE_RET_C      = 1,
 	CC_RETN      = 5+5+3+3,   EE_RETN       = 5,
-	CC_JP        = 5+3+3,     CC_JP_1       = 5+1,
+	CC_JP_A      = 5+3+3,     CC_JP_B       = 5+3+3, CC_JP_1       = 5+1,
 	CC_JP_HL     = 5,
 	CC_JR_A      = 5+3+5,     CC_JR_B       = 5+3,   CC_JR_1       = 5+1,
 	CC_DJNZ      = 6+3+5,     EE_DJNZ       = 1,

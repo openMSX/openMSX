@@ -2809,12 +2809,12 @@ template <class T> inline int CPUCore<T>::JP()
 	memptr = RD_WORD_PC(T::CC_JP_1);
 	R.setPC(memptr);
 	T::R800ForcePageBreak();
-	return T::CC_JP;
+	return T::CC_JP_A;
 }
 template <class T> inline int CPUCore<T>::SKIP_JP()
 {
 	memptr = RD_WORD_PC(T::CC_JP_1);
-	return T::CC_JP;
+	return T::CC_JP_B;
 }
 template <class T> int CPUCore<T>::jp()    { return        JP();             }
 template <class T> int CPUCore<T>::jp_c()  { return C()  ? JP() : SKIP_JP(); }

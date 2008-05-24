@@ -169,9 +169,9 @@ protected:
 		CC_ADC_HL_SS = 2,
 
 		CC_LDI       = 2+P+1+P+1, CC_LDI_1  = 2+P, CC_LDI_2    = 2+P+1+P,
-		CC_LDIR      = 2+P+1+P+2,
+		CC_LDIR      = 2+P+1+P+1,
 		CC_CPI       = 2+P+2, CC_CPI_1      = 2+P,
-		CC_CPIR      = 2+P+3,
+		CC_CPIR      = 2+P+3, // TODO check
 
 		CC_PUSH      = 2+P+2, CC_PUSH_1     = 2+P,
 		CC_POP       = 1+P+2, CC_POP_1      = 1+P,
@@ -180,7 +180,7 @@ protected:
 		CC_RST       = 2+P+2, // TODO check
 		CC_RET_A     = 1+P+2, CC_RET_B      = 1, EE_RET_C      = 0,
 		CC_RETN      = 2+P+2, EE_RETN       = 1, // TODO check
-		CC_JP        = 4,     CC_JP_1       = 1,
+		CC_JP_A      = 4,     CC_JP_B       = 3, CC_JP_1       = 1,
 		CC_JP_HL     = 2,
 		CC_JR_A      = 3,     CC_JR_B       = 2, CC_JR_1       = 1,
 		CC_DJNZ      = 3,     EE_DJNZ       = 0,
@@ -200,11 +200,11 @@ protected:
 		CC_IN_A_N    = 2+I,   CC_IN_A_N_1   = 1, CC_IN_A_N_2   = 2,
 		CC_IN_R_C    = 2+I,   CC_IN_R_C_1   = 2,
 		CC_INI       = 2+I+P+1, CC_INI_1    = 2, CC_INI_2      = 2+I+P,
-		CC_INIR      = 2+I+P+2,
+		CC_INIR      = 2+I+P+1, // TODO check
 		CC_OUT_N_A   = 2+I,   CC_OUT_N_A_1  = 1, CC_OUT_N_A_2  = 2,
 		CC_OUT_C_R   = 2+I,   CC_OUT_C_R_1  = 2,
 		CC_OUTI      = 2+P+1+I, CC_OUTI_1   = 2+P, CC_OUTI_2   = 2+P+1,
-		CC_OTIR      = 3+I+1,
+		CC_OTIR      = 2+P+1+I, // TODO check
 
 		CC_EX        = 1,
 		CC_NOP       = 1,
