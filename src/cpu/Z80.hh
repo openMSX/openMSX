@@ -22,16 +22,10 @@ protected:
 	inline unsigned haltStates() { return 4 + WAIT_CYCLES; } // HALT + M1
 	inline bool hasMul() const   { return false; }
 
-	inline void PRE_RDMEM_OPCODE(unsigned /*address*/) { }
-	inline void PRE_RDMEM       (unsigned /*address*/) { }
-	inline void PRE_RDMEM_PB    (unsigned /*address*/) { }
-	inline void PRE_RDMEM_PB2   ()                     { }
-	inline void PRE_RDWORD      (unsigned /*address*/) { }
-	inline void PRE_WRMEM       (unsigned /*address*/) { }
-	inline void PRE_WRMEM_PB    (unsigned /*address*/) { }
-	inline void PRE_WRMEM_PB2   ()                     { }
-	inline void PRE_WRWORD      (unsigned /*address*/) { }
-	inline void POST_MEM        (unsigned /*address*/) { }
+	template <bool, bool> inline void PRE_MEM  (unsigned /*address*/) { }
+	template <      bool> inline void POST_MEM (unsigned /*address*/) { }
+	template <bool, bool> inline void PRE_WORD (unsigned /*address*/) { }
+	template <      bool> inline void POST_WORD(unsigned /*address*/) { }
 
 	inline void R800Refresh() { }
 	inline void R800ForcePageBreak() { }

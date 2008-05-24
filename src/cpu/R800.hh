@@ -40,8 +40,9 @@ protected:
 	R800TYPE(const EmuTime& time, Scheduler& scheduler)
 		: CPUClock(time, scheduler)
 		, lastRefreshTime(time)
-		, lastPage(-1)
 	{
+		R800ForcePageBreak();
+
 		// TODO currently hardcoded, move to config file?
 		for (int page = 0; page < 4; ++page) {
 			for (int prim = 0; prim < 4; ++prim) {
@@ -66,79 +67,62 @@ protected:
 		}
 	}
 
-	inline void PRE_RDMEM_OPCODE(unsigned address)
+	inline void R800ForcePageBreak()
+	{
+		lastPage = -1;
+	}
+
+	template <bool PRE_PB, bool POST_PB>
+	inline void PRE_MEM(unsigned address)
 	{
 		int newPage = address >> 8;
-		if (unlikely(newPage != lastPage) ||
-		    unlikely(extraMemoryDelay[address >> 14])) {
-			// page break, either because high address byte really
-			// changed or because the region doesn't support the
-			// CAS/RAS optimization
-			add(1);
+		if (PRE_PB) {
+			add(1); // TODO move to static cost table
+		} else {
+			if (unlikely(newPage != lastPage) ||
+			    unlikely(extraMemoryDelay[address >> 14])) {
+				add(1);
+			}
 		}
-		lastPage = newPage;
-	}
-	// TODO Not correct for 'ex (sp),hl' instruction.
-	// TODO Can be optimized: in most of the cases we know when there
-	//      will be a page break (because of switching between opcode
-	//      fetching, data read, data write).
-	inline void PRE_RDMEM(unsigned address)
-	{
-		int newPage = (address >> 8) + 256;
-		if (unlikely(newPage != lastPage) ||
-		    unlikely(extraMemoryDelay[address >> 14])) {
-			add(1);
+		if (!POST_PB) {
+			lastPage = newPage;
 		}
-		lastPage = newPage;
 	}
-	inline void PRE_RDMEM_PB(unsigned address)
-	{
-		add(1);
-		lastPage = (address >> 8) + 256;
-	}
-	inline void PRE_RDMEM_PB2()
-	{
-		add(1);
-	}
-	inline void PRE_RDWORD(unsigned address)
-	{
-		// word cannot cross page boundary
-		add(1);
-		if (unlikely(extraMemoryDelay[address >> 14])) {
-			add(1);
-		}
-		lastPage = -1;
-	}
-	inline void PRE_WRMEM(unsigned address)
-	{
-		int newPage = (address >> 8) + 512;
-		if (unlikely(newPage != lastPage) ||
-		    unlikely(extraMemoryDelay[address >> 14])) {
-			add(1);
-		}
-		lastPage = newPage;
-	}
-	inline void PRE_WRMEM_PB(unsigned address)
-	{
-		add(1);
-		lastPage = (address >> 8) + 256;
-	}
-	inline void PRE_WRMEM_PB2()
-	{
-		add(1);
-	}
-	inline void PRE_WRWORD(unsigned address)
-	{
-		// word cannot cross page boundary
-		add(1);
-		if (unlikely(extraMemoryDelay[address >> 14])) {
-			add(1);
-		}
-		lastPage = -1;
-	}
+	template <bool POST_PB>
 	inline void POST_MEM(unsigned address)
 	{
 		add(extraMemoryDelay[address >> 14]);
+		if (POST_PB) {
+			R800ForcePageBreak();
+		}
+	}
+	template <bool PRE_PB, bool POST_PB>
+	inline void PRE_WORD(unsigned address)
+	{
+		int newPage = address >> 8;
+		if (PRE_PB) {
+			add(1); // TODO move to static cost table
+			if (unlikely(extraMemoryDelay[address >> 14])) {
+				add(1);
+			}
+		} else {
+			if (unlikely(extraMemoryDelay[address >> 14])) {
+				add(2);
+			} else if (unlikely(newPage != lastPage)) {
+				add(1);
+			}
+		}
+		if (!POST_PB) {
+			lastPage = newPage;
+		}
+	}
+	template <bool POST_PB>
+	inline void POST_WORD(unsigned address)
+	{
+		add(2 * extraMemoryDelay[address >> 14]);
+		if (POST_PB) {
+			R800ForcePageBreak();
+		}
 	}
 
 	inline void R800Refresh()
@@ -151,11 +135,6 @@ protected:
 			lastRefreshTime.advance_fast(time);
 			add(22);
 		}
-	}
-
-	inline void R800ForcePageBreak()
-	{
-		lastPage = -1;
 	}
 
 	static const unsigned

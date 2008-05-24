@@ -128,27 +128,34 @@ private:
 
 	inline byte READ_PORT(unsigned port, unsigned cc);
 	inline void WRITE_PORT(unsigned port, byte value, unsigned cc);
+
 	template <bool PRE_PB, bool POST_PB>
 	byte RDMEMslow(unsigned address, unsigned cc);
-	byte RDMEM_OPCODEslow(unsigned address, unsigned cc);
-	template <bool PRE_PB, bool POST_PB>
-	void WRMEMslow(unsigned address, byte value, unsigned cc);
-	void WRMEMslow_PB(unsigned address, byte value, unsigned cc);
-	inline byte RDMEM_OPCODE(unsigned cc);
-	inline unsigned RD_WORD_PC(unsigned cc);
-	unsigned RD_WORD_PC_slow(unsigned cc);
-	inline unsigned RD_WORD(unsigned address, unsigned cc);
-	unsigned RD_WORD_slow(unsigned address, unsigned cc);
 	template <bool PRE_PB, bool POST_PB>
 	inline byte RDMEM_impl(unsigned address, unsigned cc);
+	inline byte RDMEM_OPCODE(unsigned cc);
 	inline byte RDMEM(unsigned address, unsigned cc);
+
+	template <bool PRE_PB, bool POST_PB>
+	unsigned RD_WORD_slow(unsigned address, unsigned cc);
+	template <bool PRE_PB, bool POST_PB>
+	inline unsigned RD_WORD_impl(unsigned address, unsigned cc);
+	inline unsigned RD_WORD_PC(unsigned cc);
+	inline unsigned RD_WORD(unsigned address, unsigned cc);
+
+	template <bool PRE_PB, bool POST_PB>
+	void WRMEMslow(unsigned address, byte value, unsigned cc);
 	template <bool PRE_PB, bool POST_PB>
 	inline void WRMEM_impl(unsigned address, byte value, unsigned cc);
 	inline void WRMEM(unsigned address, byte value, unsigned cc);
-	inline void WR_WORD(unsigned address, unsigned value, unsigned cc);
+
 	void WR_WORD_slow(unsigned address, unsigned value, unsigned cc);
-	inline void WR_WORD_rev(unsigned address, unsigned value, unsigned cc);
+	inline void WR_WORD(unsigned address, unsigned value, unsigned cc);
+
+	template <bool PRE_PB, bool POST_PB>
 	void WR_WORD_rev_slow(unsigned address, unsigned value, unsigned cc);
+	template <bool PRE_PB, bool POST_PB>
+	inline void WR_WORD_rev(unsigned address, unsigned value, unsigned cc);
 
 	inline void M1Cycle();
 	int executeInstruction1_slow(byte opcode);

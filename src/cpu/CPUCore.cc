@@ -334,45 +334,6 @@ template <class T> inline void CPUCore<T>::WRITE_PORT(unsigned port, byte value,
 	// note: no forced page-break after IO
 }
 
-template <class T> byte CPUCore<T>::RDMEM_OPCODEslow(unsigned address, unsigned cc)
-{
-	// not cached
-	unsigned high = address >> CacheLine::BITS;
-	if (!readCacheTried[high]) {
-		// try to cache now
-		unsigned addrBase = address & CacheLine::HIGH;
-		if (const byte* line = interface->getReadCacheLine(addrBase)) {
-			// cached ok
-			T::PRE_RDMEM_OPCODE(address);
-			T::POST_MEM(address);
-			readCacheLine[high] = line - addrBase;
-			return readCacheLine[high][address];
-		}
-	}
-	// uncacheable
-	readCacheTried[high] = true;
-	T::PRE_RDMEM_OPCODE(address);
-	EmuTime time = T::getTimeFast(cc);
-	scheduler.schedule(time);
-	byte result = interface->readMem(address, time);
-	T::POST_MEM(address);
-	return result;
-}
-template <class T> ALWAYS_INLINE byte CPUCore<T>::RDMEM_OPCODE(unsigned cc)
-{
-	unsigned address = R.getPC();
-	R.setPC(address + 1);
-	const byte* line = readCacheLine[address >> CacheLine::BITS];
-	if (likely(line != NULL)) {
-		// cached, fast path
-		T::PRE_RDMEM_OPCODE(address);
-		T::POST_MEM(address);
-		return line[address];
-	} else {
-		return RDMEM_OPCODEslow(address, cc); // not inlined
-	}
-}
-
 static ALWAYS_INLINE unsigned read16LE(const byte* p)
 {
 	if (OPENMSX_BIGENDIAN || !OPENMSX_UNALIGNED_MEMORY_ACCESS) {
@@ -392,32 +353,6 @@ static ALWAYS_INLINE void write16LE(byte* p, unsigned value)
 	}
 }
 
-template <class T> ALWAYS_INLINE unsigned CPUCore<T>::RD_WORD_PC(unsigned cc)
-{
-	unsigned addr = R.getPC();
-	const byte* line = readCacheLine[addr >> CacheLine::BITS];
-	if (likely(((addr & CacheLine::LOW) != CacheLine::LOW) &&
-		   (line != NULL))) {
-		// fast path: cached and two bytes in same cache line
-		T::PRE_RDMEM_OPCODE(addr);
-		T::PRE_RDMEM_OPCODE(addr); // same addr twice, ok
-		T::POST_MEM(addr);
-		T::POST_MEM(addr);
-		R.setPC(addr + 2);
-		return read16LE(&line[addr]);
-	} else {
-		// slow path, not inline
-		return RD_WORD_PC_slow(cc);
-	}
-}
-
-template <class T> unsigned CPUCore<T>::RD_WORD_PC_slow(unsigned cc)
-{
-	unsigned res = RDMEM_OPCODE(cc);
-	res         += RDMEM_OPCODE(cc + T::CC_RDMEM) << 8;
-	return res;
-}
-
 template <class T> template <bool PRE_PB, bool POST_PB>
 byte CPUCore<T>::RDMEMslow(unsigned address, unsigned cc)
 {
@@ -428,37 +363,19 @@ byte CPUCore<T>::RDMEMslow(unsigned address, unsigned cc)
 		unsigned addrBase = address & CacheLine::HIGH;
 		if (const byte* line = interface->getReadCacheLine(addrBase)) {
 			// cached ok
-			if (PRE_PB && POST_PB) {
-				T::PRE_RDMEM_PB2();
-			} else if (PRE_PB) {
-				T::PRE_RDMEM_PB(address);
-			} else {
-				T::PRE_RDMEM(address);
-			}
-			T::POST_MEM(address);
-			if (POST_PB) {
-				T::R800ForcePageBreak();
-			}
+			T::template PRE_MEM<PRE_PB, POST_PB>(address);
+			T::template POST_MEM<       POST_PB>(address);
 			readCacheLine[high] = line - addrBase;
 			return readCacheLine[high][address];
 		}
 	}
 	// uncacheable
 	readCacheTried[high] = true;
-	if (PRE_PB && POST_PB) {
-		T::PRE_RDMEM_PB2();
-	} else if (PRE_PB) {
-		T::PRE_RDMEM_PB(address);
-	} else {
-		T::PRE_RDMEM(address);
-	}
+	T::template PRE_MEM<PRE_PB, POST_PB>(address);
 	EmuTime time = T::getTimeFast(cc);
 	scheduler.schedule(time);
 	byte result = interface->readMem(address, time);
-	T::POST_MEM(address);
-	if (POST_PB) {
-		T::R800ForcePageBreak();
-	}
+	T::template POST_MEM<POST_PB>(address);
 	return result;
 }
 template <class T> template <bool PRE_PB, bool POST_PB>
@@ -467,49 +384,56 @@ ALWAYS_INLINE byte CPUCore<T>::RDMEM_impl(unsigned address, unsigned cc)
 	const byte* line = readCacheLine[address >> CacheLine::BITS];
 	if (likely(line != NULL)) {
 		// cached, fast path
-		if (PRE_PB && POST_PB) {
-			T::PRE_RDMEM_PB2();
-		} else if (PRE_PB) {
-			T::PRE_RDMEM_PB(address);
-		} else {
-			T::PRE_RDMEM(address);
-		}
-		T::POST_MEM(address);
-		if (POST_PB) {
-			T::R800ForcePageBreak();
-		}
+		T::template PRE_MEM<PRE_PB, POST_PB>(address);
+		T::template POST_MEM<       POST_PB>(address);
 		return line[address];
 	} else {
 		return RDMEMslow<PRE_PB, POST_PB>(address, cc); // not inlined
 	}
 }
-
+template <class T> ALWAYS_INLINE byte CPUCore<T>::RDMEM_OPCODE(unsigned cc)
+{
+	unsigned address = R.getPC();
+	R.setPC(address + 1);
+	return RDMEM_impl<false, false>(address, cc);
+}
 template <class T> ALWAYS_INLINE byte CPUCore<T>::RDMEM(unsigned address, unsigned cc)
 {
 	return RDMEM_impl<true, true>(address, cc);
 }
 
-template <class T> ALWAYS_INLINE unsigned CPUCore<T>::RD_WORD(unsigned address, unsigned cc)
+template <class T> template <bool PRE_PB, bool POST_PB>
+unsigned CPUCore<T>::RD_WORD_slow(unsigned address, unsigned cc)
+{
+	unsigned res = RDMEM_impl<PRE_PB,  false>(address, cc);
+	res         += RDMEM_impl<false, POST_PB>((address + 1) & 0xFFFF, cc + T::CC_RDMEM) << 8;
+	return res;
+}
+template <class T> template <bool PRE_PB, bool POST_PB>
+ALWAYS_INLINE unsigned CPUCore<T>::RD_WORD_impl(unsigned address, unsigned cc)
 {
 	const byte* line = readCacheLine[address >> CacheLine::BITS];
 	if (likely(((address & CacheLine::LOW) != CacheLine::LOW) &&
 		   (line != NULL))) {
 		// fast path: cached and two bytes in same cache line
-		T::PRE_RDWORD(address);
-		T::POST_MEM(address); // same addr twice, ok
-		T::POST_MEM(address);
+		T::template PRE_WORD<PRE_PB, POST_PB>(address);
+		T::template POST_WORD<       POST_PB>(address);
 		return read16LE(&line[address]);
 	} else {
 		// slow path, not inline
-		return RD_WORD_slow(address, cc);
+		return RD_WORD_slow<PRE_PB, POST_PB>(address, cc);
 	}
 }
-
-template <class T> unsigned CPUCore<T>::RD_WORD_slow(unsigned address, unsigned cc)
+template <class T> ALWAYS_INLINE unsigned CPUCore<T>::RD_WORD_PC(unsigned cc)
 {
-	unsigned res = RDMEM_impl<true, false>(address, cc);
-	res         += RDMEM_impl<false, true>((address + 1) & 0xFFFF, cc + T::CC_RDMEM) << 8;
-	return res;
+	unsigned addr = R.getPC();
+	R.setPC(addr + 2);
+	return RD_WORD_impl<false, false>(addr, cc);
+}
+template <class T> ALWAYS_INLINE unsigned CPUCore<T>::RD_WORD(
+	unsigned address, unsigned cc)
+{
+	return RD_WORD_impl<true, true>(address, cc);
 }
 
 template <class T> template <bool PRE_PB, bool POST_PB>
@@ -522,17 +446,8 @@ void CPUCore<T>::WRMEMslow(unsigned address, byte value, unsigned cc)
 		unsigned addrBase = address & CacheLine::HIGH;
 		if (byte* line = interface->getWriteCacheLine(addrBase)) {
 			// cached ok
-			if (PRE_PB && POST_PB) {
-				T::PRE_WRMEM_PB2();
-			} else if (PRE_PB) {
-				T::PRE_WRMEM_PB(address);
-			} else {
-				T::PRE_WRMEM(address);
-			}
-			T::POST_MEM(address);
-			if (POST_PB) {
-				T::R800ForcePageBreak();
-			}
+			T::template PRE_MEM<PRE_PB, POST_PB>(address);
+			T::template POST_MEM<       POST_PB>(address);
 			writeCacheLine[high] = line - addrBase;
 			writeCacheLine[high][address] = value;
 			return;
@@ -540,20 +455,11 @@ void CPUCore<T>::WRMEMslow(unsigned address, byte value, unsigned cc)
 	}
 	// uncacheable
 	writeCacheTried[high] = true;
-	if (PRE_PB && POST_PB) {
-		T::PRE_WRMEM_PB2();
-	} else if (PRE_PB) {
-		T::PRE_WRMEM_PB(address);
-	} else {
-		T::PRE_WRMEM(address);
-	}
+	T::template PRE_MEM<PRE_PB, POST_PB>(address);
 	EmuTime time = T::getTimeFast(cc);
 	scheduler.schedule(time);
 	interface->writeMem(address, value, time);
-	T::POST_MEM(address);
-	if (POST_PB) {
-		T::R800ForcePageBreak();
-	}
+	T::template POST_MEM<POST_PB>(address);
 }
 template <class T> template <bool PRE_PB, bool POST_PB>
 ALWAYS_INLINE void CPUCore<T>::WRMEM_impl(
@@ -562,44 +468,17 @@ ALWAYS_INLINE void CPUCore<T>::WRMEM_impl(
 	byte* line = writeCacheLine[address >> CacheLine::BITS];
 	if (likely(line != NULL)) {
 		// cached, fast path
-		if (PRE_PB && POST_PB) {
-			T::PRE_WRMEM_PB2();
-		} else if (PRE_PB) {
-			T::PRE_WRMEM_PB(address);
-		} else {
-			T::PRE_WRMEM(address);
-		}
-		T::POST_MEM(address);
-		if (POST_PB) {
-			T::R800ForcePageBreak();
-		}
+		T::template PRE_MEM<PRE_PB, POST_PB>(address);
+		T::template POST_MEM<       POST_PB>(address);
 		line[address] = value;
 	} else {
 		WRMEMslow<PRE_PB, POST_PB>(address, value, cc);	// not inlined
 	}
 }
-
 template <class T> ALWAYS_INLINE void CPUCore<T>::WRMEM(
 	unsigned address, byte value, unsigned cc)
 {
 	WRMEM_impl<true, true>(address, value, cc);
-}
-
-template <class T> ALWAYS_INLINE void CPUCore<T>::WR_WORD(
-	unsigned address, unsigned value, unsigned cc)
-{
-	byte* line = writeCacheLine[address >> CacheLine::BITS];
-	if (likely(((address & CacheLine::LOW) != CacheLine::LOW) &&
-		   (line != NULL))) {
-		// fast path: cached and two bytes in same cache line
-		T::PRE_WRWORD(address);
-		T::POST_MEM(address); // same addr twice, ok
-		T::POST_MEM(address);
-		write16LE(&line[address], value);
-	} else {
-		// slow path, not inline
-		WR_WORD_slow(address, value, cc);
-	}
 }
 
 template <class T> void CPUCore<T>::WR_WORD_slow(
@@ -608,31 +487,46 @@ template <class T> void CPUCore<T>::WR_WORD_slow(
 	WRMEM_impl<true, false>( address,               value & 255, cc);
 	WRMEM_impl<false, true>((address + 1) & 0xFFFF, value >> 8,  cc + T::CC_WRMEM);
 }
-
-template <class T> ALWAYS_INLINE void CPUCore<T>::WR_WORD_rev(
+template <class T> ALWAYS_INLINE void CPUCore<T>::WR_WORD(
 	unsigned address, unsigned value, unsigned cc)
 {
 	byte* line = writeCacheLine[address >> CacheLine::BITS];
 	if (likely(((address & CacheLine::LOW) != CacheLine::LOW) &&
 		   (line != NULL))) {
 		// fast path: cached and two bytes in same cache line
-		T::PRE_WRWORD(address);
-		T::POST_MEM(address); // same addr twice, ok
-		T::POST_MEM(address);
+		T::template PRE_WORD<true, true>(address);
+		T::template POST_WORD<     true>(address);
 		write16LE(&line[address], value);
 	} else {
 		// slow path, not inline
-		WR_WORD_rev_slow(address, value, cc);
+		WR_WORD_slow(address, value, cc);
 	}
 }
 
 // same as WR_WORD, but writes high byte first
-template <class T> void CPUCore<T>::WR_WORD_rev_slow(
+template <class T> template <bool PRE_PB, bool POST_PB>
+void CPUCore<T>::WR_WORD_rev_slow(unsigned address, unsigned value, unsigned cc)
+{
+	WRMEM_impl<PRE_PB,  false>((address + 1) & 0xFFFF, value >> 8,  cc);
+	WRMEM_impl<false, POST_PB>( address,               value & 255, cc + T::CC_WRMEM);
+}
+template <class T> template <bool PRE_PB, bool POST_PB>
+ALWAYS_INLINE void CPUCore<T>::WR_WORD_rev(
 	unsigned address, unsigned value, unsigned cc)
 {
-	WRMEM_impl<true, false>((address + 1) & 0xFFFF, value >> 8,  cc);
-	WRMEM_impl<false, true>( address,               value & 255, cc + T::CC_WRMEM);
+	byte* line = writeCacheLine[address >> CacheLine::BITS];
+	if (likely(((address & CacheLine::LOW) != CacheLine::LOW) &&
+		   (line != NULL))) {
+		// fast path: cached and two bytes in same cache line
+		T::template PRE_WORD<PRE_PB, POST_PB>(address);
+		T::template POST_WORD<       POST_PB>(address);
+		write16LE(&line[address], value);
+	} else {
+		// slow path, not inline
+		WR_WORD_rev_slow<PRE_PB, POST_PB>(address, value, cc);
+	}
 }
+
 
 template <class T> inline void CPUCore<T>::M1Cycle()
 {
@@ -2800,7 +2694,7 @@ template <class T> int CPUCore<T>::rrd()
 template <class T> inline void CPUCore<T>::PUSH(unsigned reg, int ee)
 {
 	R.setSP(R.getSP() - 2);
-	WR_WORD_rev(R.getSP(), reg, T::CC_PUSH_1 + ee);
+	WR_WORD_rev<true, true>(R.getSP(), reg, T::CC_PUSH_1 + ee);
 }
 template <class T> int CPUCore<T>::push_af() { PUSH(R.getAF(), 0); return T::CC_PUSH; }
 template <class T> int CPUCore<T>::push_bc() { PUSH(R.getBC(), 0); return T::CC_PUSH; }
@@ -2961,8 +2855,8 @@ template <class T> int CPUCore<T>::djnz()
 // EX (SP),ss
 template <class T> inline unsigned CPUCore<T>::EX_SP(unsigned reg)
 {
-	memptr = RD_WORD(R.getSP(), T::CC_EX_SP_HL_1);
-	WR_WORD_rev(R.getSP(), reg, T::CC_EX_SP_HL_2);
+	memptr = RD_WORD_impl<true, false>(R.getSP(), T::CC_EX_SP_HL_1);
+	WR_WORD_rev<false, true>(R.getSP(), reg, T::CC_EX_SP_HL_2);
 	return memptr;
 }
 template <class T> int CPUCore<T>::ex_xsp_hl() { R.setHL(EX_SP(R.getHL())); return T::CC_EX_SP_HL; }
