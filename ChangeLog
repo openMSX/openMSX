@@ -1,5 +1,11 @@
 $Id$
 
+2008-05-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed R800 page-break behaviour:
+	   - did a lot of measurements on a real turbor, see
+	       doc/r800test.txt
+	   - refactored CPU code to match this (WIP)
+
 2008-05-21 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Reading sectors from a disk image via the SectorAccessibleDisk
 	  interface didn't apply the IPS patches:
