@@ -28,10 +28,6 @@ public:
 	}
 
 protected:
-	static const int I  = 8; // cycles for an I/O operation
-	static const int PW = 1; // cycles for a write operation (pre)
-	static const int W  = 2; // cycles for a write operation (total)
-
 	static const int CLOCK_FREQ = 7159090;
 
 	inline unsigned haltStates() { return 1; } // HALT + M1 // TODO check this
@@ -101,7 +97,8 @@ protected:
 	{
 		int newPage = address >> 8;
 		if (PRE_PB) {
-			add(1); // TODO move to static cost table
+			// there is a statically predictable page break at this
+			// point -> 'add(1)' moved to static cost table
 			if (unlikely(extraMemoryDelay[address >> 14])) {
 				add(1);
 			}
@@ -137,6 +134,11 @@ protected:
 		}
 	}
 
+	static const int I  = 8; // cycles for an I/O operation
+	static const int PW = 1; // cycles for a write operation (pre)   // TODO remove
+	static const int W  = 2; // cycles for a write operation (total) // TODO remove
+	static const int P  = 1; // cycles for a (statically known) page-break
+
 	static const unsigned
 		CC_LD_A_SS   = 2,     CC_LD_A_SS_1  = 1,
 		CC_LD_A_NN   = 4,     CC_LD_A_NN_1  = 1, CC_LD_A_NN_2  = 3,
@@ -151,10 +153,10 @@ protected:
 		CC_LD_NN_A   = 3+W,   CC_LD_NN_A_1  = 1, CC_LD_NN_A_2  = 3+PW,
 		CC_LD_XIX_R  = 3+W,   CC_LD_XIX_R_1 = 1, CC_LD_XIX_R_2 = 3+PW, // +1
 		CC_LD_XIX_N  = 3+W,   CC_LD_XIX_N_1 = 1, CC_LD_XIX_N_2 = 3+PW, // +1
-		CC_LD_HL_XX  = 5,     CC_LD_HL_XX_1 = 1, CC_LD_HL_XX_2 = 3,
+		CC_LD_HL_XX  = 3+P+2, CC_LD_HL_XX_1 = 1, CC_LD_HL_XX_2 = 3+P,
 		CC_LD_SP_HL  = 1,
 		CC_LD_SS_NN  = 3,     CC_LD_SS_NN_1 = 1,
-		CC_LD_XX_HL  = 3+W+W, CC_LD_XX_HL_1 = 1, CC_LD_XX_HL_2 = 3+PW,
+		CC_LD_XX_HL  = 3+P+2, CC_LD_XX_HL_1 = 1, CC_LD_XX_HL_2 = 3+P,
 
 		CC_CP_R      = 1,
 		CC_CP_N      = 2,     CC_CP_N_1     = 1,
@@ -172,8 +174,8 @@ protected:
 		CC_CPI       = 4,     CC_CPI_1      = 2,
 		CC_CPIR      = 5,
 
-		CC_PUSH      = 2+W+W, CC_PUSH_1     = 2+PW,
-		CC_POP       = 3,     CC_POP_1      = 1,
+		CC_PUSH      = 2+P+2, CC_PUSH_1     = 2+P,
+		CC_POP       = 1+P+2, CC_POP_1      = 1+P,
 		CC_CALL      = 4+W+W, CC_CALL_1     = 1, EE_CALL       = 2,
 		CC_CALL_A    = 4+W+W, CC_CALL_B     = 3,
 		CC_RST       = 2+W+W,
@@ -184,7 +186,7 @@ protected:
 		CC_JR_A      = 3,     CC_JR_B       = 2, CC_JR_1       = 1,
 		CC_DJNZ      = 3,     EE_DJNZ       = 0,
 
-		CC_EX_SP_HL  = 3+W+W, CC_EX_SP_HL_1 = 1, CC_EX_SP_HL_2 = 3+PW,
+		CC_EX_SP_HL  = 1+P+4, CC_EX_SP_HL_1 = 1+P, CC_EX_SP_HL_2 = 1+P+2,
 
 		CC_BIT_R     = 2,
 		CC_BIT_XHL   = 3,     CC_BIT_XHL_1  = 2,
@@ -223,7 +225,7 @@ protected:
 		CC_NMI       = 1+W+W,   EE_NMI_1      = -1,                    // TODO check
 		CC_IRQ0      = 1+W+W,   EE_IRQ0_1     = -1,                    // TODO check
 		CC_IRQ1      = 1+W+W,   EE_IRQ1_1     = -1,                    // TODO check
-		CC_IRQ2      = 1+W+W+2, EE_IRQ2_1     = -1, CC_IRQ2_2     = 4, // TODO check
+		CC_IRQ2      = 1+P+2+P+2, EE_IRQ2_1   = -1, CC_IRQ2_2 = 1+P+2+P, // TODO check
 
 		CC_MAIN      = 0,
 		CC_DD        = 1,
