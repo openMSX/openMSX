@@ -24,11 +24,14 @@ protected:
 
 	inline void PRE_RDMEM_OPCODE(unsigned /*address*/) { }
 	inline void PRE_RDMEM       (unsigned /*address*/) { }
+	inline void PRE_RDMEM_PB    (unsigned /*address*/) { }
+	inline void PRE_RDMEM_PB2   ()                     { }
+	inline void PRE_RDWORD      (unsigned /*address*/) { }
 	inline void PRE_WRMEM       (unsigned /*address*/) { }
+	inline void PRE_WRMEM_PB    (unsigned /*address*/) { }
+	inline void PRE_WRMEM_PB2   ()                     { }
+	inline void PRE_WRWORD      (unsigned /*address*/) { }
 	inline void POST_MEM        (unsigned /*address*/) { }
-
-	inline void PRE_IO (unsigned /*port*/) { }
-	inline void POST_IO(unsigned /*port*/) { }
 
 	inline void R800Refresh() { }
 	inline void R800ForcePageBreak() { }

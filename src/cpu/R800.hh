@@ -91,6 +91,24 @@ protected:
 		}
 		lastPage = newPage;
 	}
+	inline void PRE_RDMEM_PB(unsigned address)
+	{
+		add(1);
+		lastPage = (address >> 8) + 256;
+	}
+	inline void PRE_RDMEM_PB2()
+	{
+		add(1);
+	}
+	inline void PRE_RDWORD(unsigned address)
+	{
+		// word cannot cross page boundary
+		add(1);
+		if (unlikely(extraMemoryDelay[address >> 14])) {
+			add(1);
+		}
+		lastPage = -1;
+	}
 	inline void PRE_WRMEM(unsigned address)
 	{
 		int newPage = (address >> 8) + 512;
@@ -100,14 +118,27 @@ protected:
 		}
 		lastPage = newPage;
 	}
+	inline void PRE_WRMEM_PB(unsigned address)
+	{
+		add(1);
+		lastPage = (address >> 8) + 256;
+	}
+	inline void PRE_WRMEM_PB2()
+	{
+		add(1);
+	}
+	inline void PRE_WRWORD(unsigned address)
+	{
+		// word cannot cross page boundary
+		add(1);
+		if (unlikely(extraMemoryDelay[address >> 14])) {
+			add(1);
+		}
+		lastPage = -1;
+	}
 	inline void POST_MEM(unsigned address)
 	{
 		add(extraMemoryDelay[address >> 14]);
-	}
-
-	inline void PRE_IO (unsigned /*port*/) { }
-	inline void POST_IO(unsigned /*port*/) {
-		// no page-break after IO operation
 	}
 
 	inline void R800Refresh()
