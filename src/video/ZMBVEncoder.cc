@@ -3,6 +3,7 @@
 // Code based on DOSBox-0.65
 
 #include "ZMBVEncoder.hh"
+#include "build-info.hh"
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
@@ -18,6 +19,17 @@ static const unsigned BLOCK_HEIGHT = MAX_VECTOR;
 static const unsigned FLAG_KEYFRAME = 0x01;
 
 const char* ZMBVEncoder::CODEC_4CC = "ZMBV";
+
+static inline short pixelBEtoLE(short pixel)
+{
+	return (pixel >> 8) | (pixel << 8);
+}
+
+static inline unsigned pixelBEtoLE(unsigned pixel)
+{
+	return ((pixel << 24)             ) | ((pixel <<  8) & 0x00FF0000)
+	     | ((pixel >>  8) & 0x0000FF00) | ((pixel >> 24)             );
+}
 
 ZMBVEncoder::ZMBVEncoder(unsigned width_, unsigned height_, unsigned bpp)
 	: width(width_)
@@ -157,7 +169,11 @@ void ZMBVEncoder::addXorBlock(int vx, int vy, unsigned offset)
 	P* pnew = &(reinterpret_cast<P*>(newframe))[offset];
 	for (unsigned y = 0; y < BLOCK_HEIGHT; ++y) {
 		for (unsigned x = 0; x < BLOCK_WIDTH; ++x) {
-			*reinterpret_cast<P*>(&work[workUsed]) = pnew[x] ^ pold[x];
+			P pxor = pnew[x] ^ pold[x];
+			if (OPENMSX_BIGENDIAN) {
+				pxor = pixelBEtoLE(pxor);
+			}
+			*reinterpret_cast<P*>(&work[workUsed]) = pxor;
 			workUsed += sizeof(P);
 		}
 		pold += pitch;
@@ -203,6 +219,16 @@ void ZMBVEncoder::addXorFrame()
 	}
 }
 
+template<class P>
+void ZMBVEncoder::lineBEtoLE(unsigned char* input, unsigned width)
+{
+	P* pixelsIn = reinterpret_cast<P*>(input);
+	P* pixelsOut = reinterpret_cast<P*>(&work[workUsed]);
+	for (unsigned i = 0; i < width; i++) {
+		pixelsOut[i] = pixelBEtoLE(pixelsIn[i]);
+	}
+}
+
 void ZMBVEncoder::compressFrame(bool keyFrame, const void** lineData,
                                void*& buffer, unsigned& written)
 {
@@ -244,7 +270,18 @@ void ZMBVEncoder::compressFrame(bool keyFrame, const void** lineData,
 		unsigned char* readFrame =
 			newframe + pixelsize * (MAX_VECTOR + MAX_VECTOR * pitch);
 		for (unsigned i = 0; i < height; ++i) {
-			memcpy(&work[workUsed], readFrame, lineWidth);
+			if (OPENMSX_BIGENDIAN) {
+				switch (pixelsize) {
+				case 2:
+					lineBEtoLE<short>(readFrame, width);
+					break;
+				case 4:
+					lineBEtoLE<unsigned>(readFrame, width);
+					break;
+				}
+			} else {
+				memcpy(&work[workUsed], readFrame, lineWidth);
+			}
 			readFrame += linePitch;
 			workUsed += lineWidth;
 		}

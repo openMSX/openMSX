@@ -1,5 +1,8 @@
 $Id$
 
+2008-05-24 Maarten ter Huurne <maarten@treewalker.org>
+	* Fixed AVI recording (ZMBV encoding, to be exact) on big endian CPUs.
+
 2008-05-24 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed R800 page-break behaviour:
 	   - did a lot of measurements on a real turbor, see

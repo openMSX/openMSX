@@ -35,6 +35,7 @@ private:
 	template<class P> unsigned possibleBlock(int vx, int vy, unsigned offset);
 	template<class P> unsigned compareBlock(int vx, int vy, unsigned offset);
 	template<class P> void addXorBlock(int vx, int vy, unsigned offset);
+	template<class P> void lineBEtoLE(unsigned char* input, unsigned width);
 
 	struct CodecVector {
 		CodecVector(int x_, int y_) : x(x_), y(y_) {}
