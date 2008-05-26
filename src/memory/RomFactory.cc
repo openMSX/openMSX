@@ -21,7 +21,6 @@
 #include "RomHydlide2.hh"
 #include "RomRType.hh"
 #include "RomCrossBlaim.hh"
-#include "RomMSXAudio.hh"
 #include "RomHarryFox.hh"
 #include "RomPanasonic.hh"
 #include "RomNational.hh"
@@ -252,9 +251,6 @@ auto_ptr<MSXDevice> RomFactory::create(
 		break;
 	case ROM_CROSS_BLAIM:
 		result.reset(new RomCrossBlaim(motherBoard, config, time, rom));
-		break;
-	case ROM_MSX_AUDIO:
-		result.reset(new RomMSXAudio(motherBoard, config, time, rom));
 		break;
 	case ROM_HARRY_FOX:
 		result.reset(new RomHarryFox(motherBoard, config, time, rom));

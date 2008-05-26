@@ -65,9 +65,6 @@ static const RomTypeMap& getRomTypeMap()
 		romTypeMap["FSA1FM2"]        = ROM_FSA1FM2;
 		romTypeMap["DRAM"]           = ROM_DRAM;
 
-		// ROM mapper types used for system ROMs in extensions
-		romTypeMap["MSX-AUDIO"]      = ROM_MSX_AUDIO;
-
 		// non-mapper ROM types
 		romTypeMap["Mirrored"]       = ROM_MIRRORED;
 		romTypeMap["Mirrored0000"]   = ROM_MIRRORED0000;

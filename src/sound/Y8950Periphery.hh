@@ -15,7 +15,9 @@ class EmuTime;
 class Y8950Periphery
 {
 public:
-	virtual ~Y8950Periphery() {}
+	virtual ~Y8950Periphery();
+
+	virtual void reset();
 
 	/** Write to (some of) the pins
 	  * @param outputs A '1' bit indicates the corresponding bit is
@@ -34,6 +36,11 @@ public:
 	  * @param time The moment in time the read occurs
 	  */
 	virtual nibble read(const EmuTime& time) = 0;
+
+	virtual byte readMem(word address, const EmuTime& time);
+	virtual void writeMem(word address, byte value, const EmuTime& time);
+	virtual const byte* getReadCacheLine(word start) const;
+	virtual byte* getWriteCacheLine(word start) const;
 };
 
 } // namespace openmsx

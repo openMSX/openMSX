@@ -11,27 +11,23 @@
     <type>sound expansion</type>
   </info>
   <devices>
-    <MSX-AUDIO id="Panasonic FS-CA1 MSX-Audio">
-      <io base="0xC0" num="2"/>
-      <type>Panasonic</type>
-      <sound>
-        <volume>12000</volume>
-      </sound>
-      <!-- I'm not sure if this device actually has sampleRAM! -->
-      <sampleram>32</sampleram>
-    </MSX-AUDIO>
-
     <primary slot="any">
       <secondary slot="any">
-        <ROM id="Panasonic FS-CA1 MSX-Audio ROM">
+        <MSX-AUDIO id="Panasonic FS-CA1 MSX-Audio">
+          <io base="0xC0" num="2"/>
           <mem base="0x0000" size="0x10000"/>
+          <type>Panasonic</type>
+          <sound>
+            <volume>12000</volume>
+          </sound>
+          <!-- I'm not sure if this device actually has sampleRAM! -->
+          <sampleram>32</sampleram>
           <rom>
-	    <sha1>36d47cf70618fdb460f97a8ceb75013ec4529063</sha1> <!-- clean dump with EPROM reader from FRS -->
+            <sha1>36d47cf70618fdb460f97a8ceb75013ec4529063</sha1> <!-- clean dump with EPROM reader from FRS -->
             <sha1>930eae7057af1652abae794072b296a59decd61b</sha1> <!-- contains dirty RAM area -->
             <filename>roms/fs-ca1.rom</filename>
           </rom>
-          <mappertype>MSX-AUDIO</mappertype>
-        </ROM>
+        </MSX-AUDIO>
       </secondary>
     </primary>
   </devices>

@@ -32,7 +32,6 @@ RomInfoTopic::RomInfoTopic(InfoCommand& openMSXInfoCommand)
 	description[ROM_R_TYPE] = "R-Type";
 	description[ROM_CROSS_BLAIM] = "Cross Blaim";
 	description[ROM_MSXDOS2] = "MSX-DOS2";
-	description[ROM_MSX_AUDIO] = "Panasonic MSX-AUDIO";
 	description[ROM_HARRY_FOX] = "Harry Fox";
 	description[ROM_HALNOTE] = "Halnote";
 	description[ROM_ZEMINA80IN1] = "Zemina 80 in 1";

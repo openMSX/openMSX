@@ -21,7 +21,7 @@ SRC_HDR:= \
 	RomGameMaster2 RomMajutsushi RomSynthesizer \
 	RomKorean80in1 RomKorean90in1 RomKorean126in1 \
 	RomPanasonic RomNational RomSuperLodeRunner \
-	RomMSXAudio RomHalnote RomHolyQuran \
+	RomHalnote RomHolyQuran \
 	RomFSA1FM RomPlayBall RomNettouYakyuu \
 	PanasonicMemory PanasonicRam \
 	MSXMegaRam \

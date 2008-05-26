@@ -4,6 +4,10 @@
 #include "Y8950.hh"
 #include "Y8950Periphery.hh"
 #include "DACSound8U.hh"
+#include "Ram.hh"
+#include "Rom.hh"
+#include "MSXCPU.hh"
+#include "CacheLine.hh"
 #include "MSXMotherBoard.hh"
 #include "BooleanSetting.hh"
 #include "CommandController.hh"
@@ -28,11 +32,27 @@ private:
 class PanasonicAudioPeriphery : public Y8950Periphery
 {
 public:
-	explicit PanasonicAudioPeriphery(CommandController& commandController);
+	PanasonicAudioPeriphery(MSXMotherBoard& motherBoard,
+	                        const string& name, const XMLElement& config);
+
+	virtual void reset();
+
 	virtual void write(nibble outputs, nibble values, const EmuTime& time);
 	virtual nibble read(const EmuTime& time);
+
+	virtual byte readMem(word address, const EmuTime& time);
+	virtual void writeMem(word address, byte value, const EmuTime& time);
+	virtual const byte* getReadCacheLine(word start) const;
+	virtual byte* getWriteCacheLine(word start) const;
+
 private:
+	void setBank(byte value);
+
+	MSXCPU& cpu;
 	BooleanSetting swSwitch;
+	const std::auto_ptr<Ram> ram;
+	const std::auto_ptr<Rom> rom;
+	byte bankSelect;
 };
 
 class ToshibaAudioPeriphery : public Y8950Periphery
@@ -58,7 +78,7 @@ MSXAudio::MSXAudio(MSXMotherBoard& motherBoard, const XMLElement& config,
 		               config, time));
 	} else if (type == "panasonic") {
 		periphery.reset(new PanasonicAudioPeriphery(
-		                         motherBoard.getCommandController()));
+			motherBoard, getName(), config));
 	} else if (type == "toshiba") {
 		periphery.reset(new ToshibaAudioPeriphery());
 	} else {
@@ -77,6 +97,7 @@ MSXAudio::~MSXAudio()
 void MSXAudio::reset(const EmuTime& time)
 {
 	y8950->reset(time);
+	periphery->reset();
 	registerLatch = 0;	// TODO check
 }
 
@@ -120,6 +141,23 @@ void MSXAudio::writeIO(word port, byte value, const EmuTime& time)
 		// 0xC1 or 0xC3
 		y8950->writeReg(registerLatch, value, time);
 	}
+}
+
+byte MSXAudio::readMem(word address, const EmuTime& time)
+{
+	return periphery->readMem(address, time);
+}
+void MSXAudio::writeMem(word address, byte value, const EmuTime& time)
+{
+	periphery->writeMem(address, value, time);
+}
+const byte* MSXAudio::getReadCacheLine(word start) const
+{
+	return periphery->getReadCacheLine(start);
+}
+byte* MSXAudio::getWriteCacheLine(word start) const
+{
+	return periphery->getWriteCacheLine(start);
 }
 
 void MSXAudio::enableDAC(bool enable, const EmuTime& time)
@@ -168,24 +206,88 @@ static string generateName(CommandController& controller)
 }
 
 PanasonicAudioPeriphery::PanasonicAudioPeriphery(
-		CommandController& commandController)
-	: swSwitch(commandController, generateName(commandController),
+		MSXMotherBoard& motherBoard, const string& name,
+		const XMLElement& config)
+	: cpu(motherBoard.getCPU())
+	, swSwitch(motherBoard.getCommandController(),
+	           generateName(motherBoard.getCommandController()),
 	           "This setting controls the switch on the Panasonic "
 	           "MSX-AUDIO module. The switch controls whether the internal "
 	           "software of this module must be started or not.",
 	           false)
+	, ram(new Ram(motherBoard, name + " mapped RAM", "MSX-AUDIO mapped RAM",
+	              0x1000)) // note  name + " RAM"  already taken for sample RAM
+	, rom(new Rom(motherBoard, name + " ROM", "MSX-AUDIO ROM", config))
 {
+	reset();
+}
+
+void PanasonicAudioPeriphery::reset()
+{
+	ram->clear(); // TODO check
+	setBank(0);
 }
 
 void PanasonicAudioPeriphery::write(nibble /*outputs*/, nibble /*values*/,
                                     const EmuTime& /*time*/)
 {
+	// TODO mute switch
 	// nothing
 }
 
 nibble PanasonicAudioPeriphery::read(const EmuTime& /*time*/)
 {
 	return swSwitch.getValue() ? 0xF : 0xB;
+}
+
+byte PanasonicAudioPeriphery::readMem(word address, const EmuTime& time)
+{
+	if ((bankSelect == 0) && ((address & 0x3FFF) >= 0x3000)) {
+		return (*ram)[(address & 0x3FFF) - 0x3000];
+	} else {
+		return (*rom)[0x8000 * bankSelect + (address & 0x7FFF)];
+	}
+}
+
+const byte* PanasonicAudioPeriphery::getReadCacheLine(word address) const
+{
+	if ((bankSelect == 0) && ((address & 0x3FFF) >= 0x3000)) {
+		return &(*ram)[(address & 0x3FFF) - 0x3000];
+	} else {
+		return &(*rom)[0x8000 * bankSelect + (address & 0x7FFF)];
+	}
+}
+
+void PanasonicAudioPeriphery::writeMem(word address, byte value, const EmuTime& time)
+{
+	address &= 0x7FFF;
+	if (address == 0x7FFE) {
+		setBank(value);
+	}
+	address &= 0x3FFF;
+	if ((bankSelect == 0) && (address >= 0x3000)) {
+		(*ram)[address - 0x3000] = value;
+	}
+}
+
+byte* PanasonicAudioPeriphery::getWriteCacheLine(word address) const
+{
+	address &= 0x7FFF;
+	if (address == (0x7FFE & CacheLine::HIGH)) {
+		return NULL;
+	}
+	address &= 0x3FFF;
+	if ((bankSelect == 0) && (address >= 0x3000)) {
+		return const_cast<byte*>(&(*ram)[address - 0x3000]);
+	} else {
+		return MSXDevice::unmappedWrite;
+	}
+}
+
+void PanasonicAudioPeriphery::setBank(byte value)
+{
+	bankSelect = value & 3;
+	cpu.invalidateMemCache(0x0000, 0x10000);
 }
 
 

@@ -23,6 +23,10 @@ public:
 	virtual byte readIO(word port, const EmuTime& time);
 	virtual byte peekIO(word port, const EmuTime& time) const;
 	virtual void writeIO(word port, byte value, const EmuTime& time);
+	virtual byte readMem(word address, const EmuTime& time);
+	virtual void writeMem(word address, byte value, const EmuTime& time);
+	virtual const byte* getReadCacheLine(word start) const;
+	virtual byte* getWriteCacheLine(word start) const;
 
 private:
 	void enableDAC(bool enable, const EmuTime& time);

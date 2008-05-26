@@ -14,6 +14,7 @@ SRC_HDR:= \
 	MSXAudio \
 	EmuTimer \
 	Y8950 Y8950Adpcm Y8950KeyboardConnector \
+	Y8950Periphery \
 	Y8950KeyboardDevice DummyY8950KeyboardDevice \
 	MSXFmPac MSXMusic \
 	YM2413Core YM2413 YM2413_2 \
@@ -31,7 +32,6 @@ SRC_HDR:= \
 HDR_ONLY:= \
 	SoundDriver \
 	ResampleAlgo \
-	Y8950Periphery \
 	YM2413Interface
 
 DIST:= \
