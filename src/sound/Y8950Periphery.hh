@@ -37,6 +37,9 @@ public:
 	  */
 	virtual nibble read(const EmuTime& time) = 0;
 
+	/** SP-OFF bit (bit 3 in Y8950 register 7) */
+	virtual void setSPOFF(bool value, const EmuTime& time);
+
 	virtual byte readMem(word address, const EmuTime& time);
 	virtual void writeMem(word address, byte value, const EmuTime& time);
 	virtual const byte* getReadCacheLine(word start) const;

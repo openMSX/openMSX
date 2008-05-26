@@ -62,8 +62,12 @@ private:
 class ToshibaAudioPeriphery : public Y8950Periphery
 {
 public:
+	explicit ToshibaAudioPeriphery(MSXAudio& audio);
 	virtual void write(nibble outputs, nibble values, const EmuTime& time);
 	virtual nibble read(const EmuTime& time);
+	virtual void setSPOFF(bool value, const EmuTime& time);
+private:
+	MSXAudio& audio;
 };
 
 
@@ -83,7 +87,7 @@ MSXAudio::MSXAudio(MSXMotherBoard& motherBoard, const XMLElement& config,
 	} else if (type == "panasonic") {
 		periphery.reset(new PanasonicAudioPeriphery(*this, config));
 	} else if (type == "toshiba") {
-		periphery.reset(new ToshibaAudioPeriphery());
+		periphery.reset(new ToshibaAudioPeriphery(*this));
 	} else {
 		throw MSXException("Unknown MSX-AUDIO type: " + type);
 	}
@@ -242,11 +246,11 @@ void PanasonicAudioPeriphery::reset()
 	setIOPorts(0); // TODO check: neither IO port ranges active
 }
 
-void PanasonicAudioPeriphery::write(nibble /*outputs*/, nibble /*values*/,
-                                    const EmuTime& /*time*/)
+void PanasonicAudioPeriphery::write(nibble outputs, nibble values,
+                                    const EmuTime& time)
 {
-	// TODO mute switch
-	// nothing
+	nibble actual = (outputs & values) | (~outputs & read(time));
+	audio.y8950->setEnabled(!(actual & 8), time);
 }
 
 nibble PanasonicAudioPeriphery::read(const EmuTime& /*time*/)
@@ -336,6 +340,11 @@ void PanasonicAudioPeriphery::setIOPortsHelper(unsigned base, bool enable)
 
 // ToshibaAudioPeriphery
 
+ToshibaAudioPeriphery::ToshibaAudioPeriphery(MSXAudio& audio_)
+	: audio(audio_)
+{
+}
+
 void ToshibaAudioPeriphery::write(nibble /*outputs*/, nibble /*values*/,
                                     const EmuTime& /*time*/)
 {
@@ -349,6 +358,11 @@ nibble ToshibaAudioPeriphery::read(const EmuTime& /*time*/)
 	// IO3-IO2 are unconnected (see also comment in MusicModulePeriphery)
 	// IO1-IO0 are output pins, but reading them returns '1'
 	return 0x3;
+}
+
+void ToshibaAudioPeriphery::setSPOFF(bool value, const EmuTime& time)
+{
+	audio.y8950->setEnabled(!value, time);
 }
 
 } // namespace openmsx

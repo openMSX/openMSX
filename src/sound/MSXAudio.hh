@@ -39,6 +39,8 @@ private:
 	bool dacEnabled;
 
 	friend class MusicModulePeriphery;
+	friend class PanasonicAudioPeriphery;
+	friend class ToshibaAudioPeriphery;
 };
 
 } // namespace openmsx

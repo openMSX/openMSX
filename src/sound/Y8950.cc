@@ -1183,6 +1183,9 @@ void Y8950Impl::writeReg(byte rg, byte data, const EmuTime& time)
 			break;
 
 		case 0x07: // START/REC/MEM DATA/REPEAT/SP-OFF/-/-/RESET
+			perihery.setSPOFF(data & 8, time); // bit 3
+			// fall-through
+
 		case 0x08: // CSM/KEY BOARD SPLIT/-/-/SAMPLE/DA AD/64K/ROM
 		case 0x09: // START ADDRESS (L)
 		case 0x0A: // START ADDRESS (H)
