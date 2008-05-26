@@ -7,6 +7,7 @@
 #include "Ram.hh"
 #include "Rom.hh"
 #include "MSXCPU.hh"
+#include "MSXCPUInterface.hh"
 #include "CacheLine.hh"
 #include "MSXMotherBoard.hh"
 #include "BooleanSetting.hh"
@@ -32,8 +33,8 @@ private:
 class PanasonicAudioPeriphery : public Y8950Periphery
 {
 public:
-	PanasonicAudioPeriphery(MSXMotherBoard& motherBoard,
-	                        const string& name, const XMLElement& config);
+	PanasonicAudioPeriphery(MSXAudio& audio, const XMLElement& config);
+	~PanasonicAudioPeriphery();
 
 	virtual void reset();
 
@@ -47,12 +48,15 @@ public:
 
 private:
 	void setBank(byte value);
+	void setIOPorts(byte value);
+	void setIOPortsHelper(unsigned base, bool enable);
 
-	MSXCPU& cpu;
+	MSXAudio& audio;
 	BooleanSetting swSwitch;
 	const std::auto_ptr<Ram> ram;
 	const std::auto_ptr<Rom> rom;
 	byte bankSelect;
+	byte ioPorts;
 };
 
 class ToshibaAudioPeriphery : public Y8950Periphery
@@ -77,8 +81,7 @@ MSXAudio::MSXAudio(MSXMotherBoard& motherBoard, const XMLElement& config,
 		               getName() + " 8-bit DAC", "MSX-AUDIO 8-bit DAC",
 		               config, time));
 	} else if (type == "panasonic") {
-		periphery.reset(new PanasonicAudioPeriphery(
-			motherBoard, getName(), config));
+		periphery.reset(new PanasonicAudioPeriphery(*this, config));
 	} else if (type == "toshiba") {
 		periphery.reset(new ToshibaAudioPeriphery());
 	} else {
@@ -92,6 +95,9 @@ MSXAudio::MSXAudio(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 MSXAudio::~MSXAudio()
 {
+	// delete soon, because PanasonicAudioPeriphery still uses
+	// this object in its destructor
+	periphery.reset();
 }
 
 void MSXAudio::reset(const EmuTime& time)
@@ -206,26 +212,34 @@ static string generateName(CommandController& controller)
 }
 
 PanasonicAudioPeriphery::PanasonicAudioPeriphery(
-		MSXMotherBoard& motherBoard, const string& name,
-		const XMLElement& config)
-	: cpu(motherBoard.getCPU())
-	, swSwitch(motherBoard.getCommandController(),
-	           generateName(motherBoard.getCommandController()),
+		MSXAudio& audio_, const XMLElement& config)
+	: audio(audio_)
+	, swSwitch(audio.getMotherBoard().getCommandController(),
+	           generateName(audio.getMotherBoard().getCommandController()),
 	           "This setting controls the switch on the Panasonic "
 	           "MSX-AUDIO module. The switch controls whether the internal "
 	           "software of this module must be started or not.",
 	           false)
-	, ram(new Ram(motherBoard, name + " mapped RAM", "MSX-AUDIO mapped RAM",
-	              0x1000)) // note  name + " RAM"  already taken for sample RAM
-	, rom(new Rom(motherBoard, name + " ROM", "MSX-AUDIO ROM", config))
+	// note: name + " RAM"  already taken by sample RAM
+	, ram(new Ram(audio.getMotherBoard(), audio.getName() + " mapped RAM",
+	              "MSX-AUDIO mapped RAM", 0x1000)) 
+	, rom(new Rom(audio.getMotherBoard(), audio.getName() + " ROM",
+	              "MSX-AUDIO ROM", config))
+	, ioPorts(0)
 {
 	reset();
+}
+
+PanasonicAudioPeriphery::~PanasonicAudioPeriphery()
+{
+	setIOPorts(0); // unregister IO ports
 }
 
 void PanasonicAudioPeriphery::reset()
 {
 	ram->clear(); // TODO check
 	setBank(0);
+	setIOPorts(0); // TODO check: neither IO port ranges active
 }
 
 void PanasonicAudioPeriphery::write(nibble /*outputs*/, nibble /*values*/,
@@ -237,7 +251,7 @@ void PanasonicAudioPeriphery::write(nibble /*outputs*/, nibble /*values*/,
 
 nibble PanasonicAudioPeriphery::read(const EmuTime& /*time*/)
 {
-	return swSwitch.getValue() ? 0xF : 0xB;
+	return swSwitch.getValue() ? 0xF : 0xB; // bit2
 }
 
 byte PanasonicAudioPeriphery::readMem(word address, const EmuTime& time)
@@ -263,6 +277,8 @@ void PanasonicAudioPeriphery::writeMem(word address, byte value, const EmuTime& 
 	address &= 0x7FFF;
 	if (address == 0x7FFE) {
 		setBank(value);
+	} else if (address == 0x7FFF) {
+		setIOPorts(value);
 	}
 	address &= 0x3FFF;
 	if ((bankSelect == 0) && (address >= 0x3000)) {
@@ -287,7 +303,34 @@ byte* PanasonicAudioPeriphery::getWriteCacheLine(word address) const
 void PanasonicAudioPeriphery::setBank(byte value)
 {
 	bankSelect = value & 3;
-	cpu.invalidateMemCache(0x0000, 0x10000);
+	audio.getMotherBoard().getCPU().invalidateMemCache(0x0000, 0x10000);
+}
+
+void PanasonicAudioPeriphery::setIOPorts(byte value)
+{
+	byte diff = ioPorts ^ value;
+	if (diff & 1) {
+		setIOPortsHelper(0xC0, value & 1);
+	}
+	if (diff & 2) {
+		setIOPortsHelper(0xC2, value & 2);
+	}
+	ioPorts = value;
+}
+void PanasonicAudioPeriphery::setIOPortsHelper(unsigned base, bool enable)
+{
+	MSXCPUInterface& cpu = audio.getMotherBoard().getCPUInterface();
+	if (enable) {
+		cpu.register_IO_In (base + 0, &audio);
+		cpu.register_IO_In (base + 1, &audio);
+		cpu.register_IO_Out(base + 0, &audio);
+		cpu.register_IO_Out(base + 1, &audio);
+	} else {
+		cpu.unregister_IO_In (base + 0, &audio);
+		cpu.unregister_IO_In (base + 1, &audio);
+		cpu.unregister_IO_Out(base + 0, &audio);
+		cpu.unregister_IO_Out(base + 1, &audio);
+	}
 }
 
 

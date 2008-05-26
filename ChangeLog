@@ -1,5 +1,9 @@
 $Id$
 
+2008-05-26 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented dynamic IO port allocation for Panasonic MSX-AUDIO:
+	   fixes: [1231256] Panasonic MSX-AUDIO not detected for games
+
 2008-05-24 Maarten ter Huurne <maarten@treewalker.org>
 	* Fixed AVI recording (ZMBV encoding, to be exact) on big endian CPUs.
 

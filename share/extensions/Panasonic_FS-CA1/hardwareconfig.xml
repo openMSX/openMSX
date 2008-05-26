@@ -14,7 +14,9 @@
     <primary slot="any">
       <secondary slot="any">
         <MSX-AUDIO id="Panasonic FS-CA1 MSX-Audio">
-          <io base="0xC0" num="2"/>
+          <!-- Don't specify IO ports, the device will dynamically
+               activate range 0xC0-0xC1 and/or 0xC2-0xC3.
+            <io base="0xC0" num="2"/>-->
           <mem base="0x0000" size="0x10000"/>
           <type>Panasonic</type>
           <sound>
