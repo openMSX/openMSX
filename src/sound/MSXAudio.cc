@@ -258,7 +258,7 @@ nibble PanasonicAudioPeriphery::read(const EmuTime& /*time*/)
 	return swSwitch.getValue() ? 0xF : 0xB; // bit2
 }
 
-byte PanasonicAudioPeriphery::readMem(word address, const EmuTime& time)
+byte PanasonicAudioPeriphery::readMem(word address, const EmuTime& /*time*/)
 {
 	if ((bankSelect == 0) && ((address & 0x3FFF) >= 0x3000)) {
 		return (*ram)[(address & 0x3FFF) - 0x3000];
@@ -276,7 +276,7 @@ const byte* PanasonicAudioPeriphery::getReadCacheLine(word address) const
 	}
 }
 
-void PanasonicAudioPeriphery::writeMem(word address, byte value, const EmuTime& time)
+void PanasonicAudioPeriphery::writeMem(word address, byte value, const EmuTime& /*time*/)
 {
 	address &= 0x7FFF;
 	if (address == 0x7FFE) {
