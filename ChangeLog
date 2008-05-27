@@ -1,5 +1,8 @@
 $Id$
 
+2008-05-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Tuned R800 refresh (still WIP)
+
 2008-05-26 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented dynamic IO port allocation for Panasonic MSX-AUDIO:
 	   fixes: [1231256] Panasonic MSX-AUDIO not detected for games

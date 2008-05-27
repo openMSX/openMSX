@@ -125,13 +125,15 @@ protected:
 
 	inline void R800Refresh()
 	{
-		// documentation says refresh every 222 clocks
+		// atoc documentation says refresh every 222 clocks
 		//  duration:  256/1024KB  13.5 clocks
 		//             512KB       21.5 clocks
+		// But 26/210 matches measurements much better
+		//   (loosly based on old measurements by Jon on his analogue scope)
 		EmuTime time = getTimeFast();
-		if (unlikely(lastRefreshTime.getTicksTill_fast(time) >= 222)) {
+		if (unlikely(lastRefreshTime.getTicksTill_fast(time) >= 210)) {
 			lastRefreshTime.advance_fast(time);
-			add(22);
+			add(26);
 		}
 	}
 

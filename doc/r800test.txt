@@ -102,42 +102,42 @@ I used the following notation:
 
 nop  [x 40000]
   result:  1645
-  openmsx: 1592
+  openmsx: 1592 1637
   cycles: 1  [f]
 
 add hl,bc  [x 40000]
   result:  1645
-  openmsx: 1592
+  openmsx: 1592 1637
   cycles: 1  [f]
 
 neg  [x 20000]
   result:  1637
-  openmsx: 1592
+  openmsx: 1592 1636
   cycles: 2  [ff]
 
 di  [x 40000]
   result:  3267
-  openmsx: 3177
+  openmsx: 3177 3267
   cycles: 2  [fx]
 
 ld a,ixh  [x 20000]
   result: 1637
-  openmsx: 1592
+  openmsx: 1592 1636
   cycles: 2  [ff]
 
 muluw hl,bc  [x 20000]
   result:  29354
-  openmsx: 28339
+  openmsx: 28339 28816
   cycles: 36  [ffx34]
 
 mulub a,b  [x 20000]
   result:  11419
-  openmsx: 11054
+  openmsx: 11054 11332
   cycles: 14  [ffx12]
 
 im 1  [x 20000]
   result:  2447-2455
-  openmsx: 2384
+  openmsx: 2384 2451
   cycles: 3  [ffx]
   note: For some reason the measured time for this instruction varies
         more than for the other instructions.
@@ -148,20 +148,20 @@ im 1  [x 20000]
 
 ld (#d000),a  [x 10000]
   result:  2449
-  openmsx: 2377
+  openmsx: 2377 2446
   cycles: 6  [FffW]
   note: page-break when switching from opcode fetching to data writes
         and again when switching from data write to opcode fetching
 
 ld a,(#d000)  [x 10000]
   result:  2449
-  openmsx: 2377
+  openmsx: 2377 2445
   cycles: 6  [FffR]
   note: same as above but for read
 
 ld a,(#0100) [x 80(!)]
   result:  20
-  openmsx: 19
+  openmsx: 19 20
   cycles: 6  [FffR]
   note: opcode fetch and read are in the same 256-byte page,
         but still there is a page-break when switching from 
@@ -170,19 +170,19 @@ ld a,(#0100) [x 80(!)]
 [ ld hl,#d000 ]
 ld a,(hl)  [x 40000]
   result:  6522
-  openmsx: 6343
+  openmsx: 6343 6522
   cycles: 4  [FR]
 
 [ ld hl,#d000 ; ld bc,0 ]
 ld a,(hl) ; add hl,bc  [x 20000]
   result:  4054
-  openmsx: 3965
+  openmsx: 3965 4074
   cycles: 3 + 2  [fR F]
 
 [ ld hl,start+XX ; ld bc,2 ]
 ld a,(hl) ; add hl,bc  [x 20000]
   result:  4055
-  openmsx: 3964
+  openmsx: 3964 4073
   cycles: 3 + 2  [fR F]
   note: same test as above, but now the data is in the same page as
         the instructions. There is still a page-break.
@@ -190,26 +190,26 @@ ld a,(hl) ; add hl,bc  [x 20000]
 [ ld hl,start+XX ; ld bc,2 ]
 ld (hl),a ; add hl,bc  [x 20000]
   result:  4054
-  openmsx: 3965
+  openmsx: 3965 4075
   cycles: 3 + 2  [fW F]
   note: same as above but for writes
 
 ld r,(ix+o)  [x 10000]
   result:  2854
-  openmsx: 2774
+  openmsx: 2774 2847
   cycles: 7  [FffxR]
   note: between opcode fetching (3 bytes) and read there is one additional
         cycle to calculate the result of IX+o
 
 ld (ix+o),r  [x 10000]
   result:  2854
-  openmsx: 2774
+  openmsx: 2774 2846
   cycles: 7  [FffxW]
   note: same as above, but for write
 
 ld (ix+o),n  [x 10000]
   result:  2861
-  openmsx: 2777
+  openmsx: 2777 2850
   cycles: 7  [FfffW]
   note: Has the same number of cycles as 'ld (ix+o),r' even though this
         instruction is one byte longer. The IX+o calculation is done
@@ -222,17 +222,17 @@ ld (ix+o),n  [x 10000]
 
 bit 0,a  [x 20000]
   result:  1637
-  openmsx: 1592
+  openmsx: 1592 1636
   cycles: 2  [ff] 
 
 bit 0,(hl)  [x 20000]
   result:  4055
-  openmsx: 3970
+  openmsx: 3970 4080
   cycles: 5  [FfR]
 
 bit 0,(ix+o)  [x 10000]
   result:  2861
-  openmsx: 2777
+  openmsx: 2777 2849
   cycles: 7  [FfffR]
   note: I always found it strange that the format of these instructions is
            <0xDD> <0xCB> <offset> <function>     (offset before function)
@@ -245,31 +245,31 @@ bit 0,(ix+o)  [x 10000]
 
 ld (#d000),hl  [x 10000]
   result:  2854
-  openmsx: 2774
+  openmsx: 2774 2847
   cycles: 7  [FffWw]
   note: no page-break for the second data write
         openmsx does this wrong ATM!
 
 ld (#d0ff),hl  [x 10000]
   result:  3264
-  openmsx: 3175
+  openmsx: 3175 3264
   cycles: 8  [FffWW]
   note: of course here there must be a page-break
 
 ld hl,(#d000)  [x 10000]
   result:  2854
-  openmsx: 2775
+  openmsx: 2775 2847
   cycles: 7  [FffRr]
   note: similar for read
 
 ld hl,(#d0ff)  [x 10000]
   result:  3264
-  openmsx: 3175
+  openmsx: 3175 3264
   cycles: 8  [FffRR]
 
 push hl ; pop hl  [x 20000]
   result:  8956
-  openmsx: 8707
+  openmsx: 8707 8950
   cycles: 6 + 5  [FxWw FRr]
   note: push is once cycle slower than pop, probably because push first has
         to decrease SP, while pop can directly put the value of SP on the bus
@@ -280,14 +280,14 @@ push hl ; pop hl  [x 20000]
 
 inc a  [x 40000]
   result:  1628-1642
-  openmsx: 1592
+  openmsx: 1592 1637
   cycles: 1  [f]
   note: result varied more than for other instructions (see also 'im 1'
         instruction)
 
 inc (hl)  [x 40000]
   result:  11393
-  openmsx: 11084
+  openmsx: 11084 11376
   cycles: 7  [FRxW]
   note: This instructions is slower than I expected, but it can be explained
         like this:
@@ -299,7 +299,7 @@ inc (hl)  [x 40000]
 
 inc (ix+o)  [x 10000]
   result:  4080
-  openmsx: 3967
+  openmsx: 3967 4063
   cycles: 10  [FffxRxW]
   note: similar as above, but 3 cycles longer:
           - need to fetch 2 more opcode bytes
@@ -307,31 +307,31 @@ inc (ix+o)  [x 10000]
 
 res 0,a  [x 20000]
   result:  1637
-  openmsx: 1592
+  openmsx: 1592 1637
   cycles: 2  [ff]
 
 res 0,(hl)  [x 20000]
   result:  6523
-  openmsx: 6349
+  openmsx: 6349 6528
   cycles: 8  [FfRxW]
   note: similar to 'inc (hl)' but opcode is one byte longer
 
 res 0,(ix+o)  [x 10000]
   result:  4083
-  openmsx: 3971
+  openmsx: 3971 4066
   cycles: 10  [FfffRxW]
   note: similar to 'inc (ix+o)'. Opcode is one byte longer, but cost
         of IX+o can be hidden
 
 rld  [x 20000]
   result:  6529
-  openmsx: 6349
+  openmsx: 6349 6528
   cycles: 8 cycles  [FfRxW]
   note: similar to 'res 0,(hl)'
 
 ld hl,#0000 ; ld de,#0100 ; ld bc,40000 ; ldir  [no repeat]   (src != dst)
   result:  11393
-  openmsx: 11084
+  openmsx: 11084 11376
   cycles: 7  [FfRW]
   note: - as expected, 3 page-breaks are needed
         - there's no extra cycle needed to repeat the instruction
@@ -339,7 +339,7 @@ ld hl,#0000 ; ld de,#0100 ; ld bc,40000 ; ldir  [no repeat]   (src != dst)
 
 ld hl,#0100 ; ld de,#0100 ; ld bc,40000 ; ldir  [no repeat]   (src == dst)
   result:  11393
-  openmsx: 11084
+  openmsx: 11084 11377
   cycles: 7  [FfRW]
   note: same timing as above, even though the read and write addresses are
         the same, there is a page-break inbetween
@@ -349,7 +349,7 @@ ld hl,#0100 ; ld de,#0100 ; ld bc,40000 ; ldir  [no repeat]   (src == dst)
 
 ex (sp),hl  [x 40000]
   result:  11393
-  openmsx: 11084
+  openmsx: 11084 11376
   cycles: 7  [FRrww]
   note: - This result was unexpected to me: based on the results in the previous
           section, I expected a page-break between the read and writes.
@@ -361,7 +361,7 @@ ex (sp),hl  [x 40000]
 [ ld sp,#xxFF ]
 ex (sp),hl  [x 40000]
   result:  14660
-  openmsx: 14224
+  openmsx: 14224 14626
   cycles: 9  [FRRwW]
   note: - Now we forced a page-break between reading/writing of the word. So two
           additional cycles.
@@ -371,20 +371,20 @@ ex (sp),hl  [x 40000]
 [ ld sp,#01F0 ]
 ex (sp),hl  [x 200(!)]
   result:  58
-  openmsx: 56
+  openmsx: 56 58
   cycles: 7  [FRrww]
   note: Stack pointer in same page as instructions. But there still seems to be
         a pagebreak between instructions and data.
 
 ex (sp),ix  [x 20000]
   result:  6529
-  openmsx: 6343
+  openmsx: 6343 6522
   cycles: 8  [FfRrww]
 
 [ ld sp,#xxFF ]
 ex (sp),ix  [x 20000]
   result:  8153
-  openmsx: 7935
+  openmsx: 7935 8120
   cycles: 10  [FfRRwW]
 
 
@@ -393,13 +393,13 @@ ex (sp),ix  [x 20000]
 
 jr $+2   [x 20000]
   result:  2455
-  openmsx: 2383
+  openmsx: 2383 2451
   cycles: 3  [ffx]
   note: one additional cycle to calculate PC+offset
 
 jr $+3 ; nop  [x 10000]    <- nop is skipped
   result:  1229
-  openmsx: 1193
+  openmsx: 1193 1228
   cycles: 3  [ffx]
   note: - even if opcode fetching is not contiguous there is no extra
           page-break
@@ -408,27 +408,27 @@ jr $+3 ; nop  [x 10000]    <- nop is skipped
 
 jr $+2 ; nop  [x 10000] 
   result:  1636
-  openmsx: 1590
+  openmsx: 1590 1635
   cycles: 3 + 1  [ffx f]
 
 [ ld a,0 ; or a ]
 jr z,$+2  [x 20000] 
   result:  2454
-  openmsx: 2384
+  openmsx: 2384 2451
   cycles: 3  [ffx]
   note: condition is true, jump is taken
 
 [ ld a,1 ; or a ]
 jr z,$+2  [x 20000] 
   result:  1637
-  openmsx: 1591
+  openmsx: 1591 1636
   cycles: 2  [ff]
   note: condition is false, jump not taken
         PC+offset does not need to be calculated, so no extra cycle
 
 djnz $+2  [x 20000]
   result:  2454
-  openmsx: 2381
+  openmsx: 2381 2447
   cycles: 3  [ffx]
   note: - whether the jump is taken or not does not matter for the program flow
         - 1/256 of the times the jump is not taken, this can explain why this
@@ -438,7 +438,7 @@ djnz $+2  [x 20000]
 [ ld b,0 ]
 djnz $+0  [x 2000(!)]
   result:  63014
-  openmsx: 60791
+  openmsx: 60791 62767
   cycles: 3  [ffx]
   note: only repeated instruction 2000 times (iso 20000) because otherwise
         timer would overflow
@@ -446,13 +446,13 @@ djnz $+0  [x 2000(!)]
 [ ld b,1 ]
 djnz $ ; inc b  [x 10000]
   result:  1228
-  openmsx: 1194
+  openmsx: 1194 1228
   cycles: 3  [ff f]
   note: djnz only takes 2 cycles when it doesn't jump, same result as for jr
 
 jp $+3  [x 10000]
   result:  2028
-  openmsx: 1985
+  openmsx: 1985 2040
   cycles: 5  [Fffx]
   note: Two additional cycles are unexpected. It can either be explained as
         two 'x' cycles or as one 'x' cycles plus a forced page-break.
@@ -461,14 +461,14 @@ jp $+3  [x 10000]
 [ ld a,0 ; or a ] 
 jp z,$+3  [x 10000]
   result: 2029
-  openmsx: 1985
+  openmsx: 1985 2041
   cycles: 5  [Fffx]
   note: condition is true, jump is taken
 
 [ ld a,1 ; or a ] 
 jp z,$+3  [x 10000]
   result:  1229
-  openmsx: 1193
+  openmsx: 1193 1227
   cycles: 3  [fff]
   note: condition is false, jump not taken
         extra 2 cycles are gone 
@@ -476,14 +476,14 @@ jp z,$+3  [x 10000]
 [ ld hl,start+XX ; ld bc,2 ]
 add hl,bc ; jp (hl)  [x 20000]
   result:  3260
-  openmsx: 3177
+  openmsx: 3177 3267
   cycles: 4  [F fx]
   note: Similar as above, 2 extra cycles
 
 [ ld hl,start+XX ; ld bc,#0102 ; ld de,#FF02 ]
 add hl,bc ; jp (hl) ; add hl,de ; jp (hl)  [x 10000]
   result:  3241
-  openmsx: 3152
+  openmsx: 3152 3240
   cycles: 8 cycles [F fx F fx]
   note: In this test every jump has a destination in a different 256-byte page.
         A single 'jp (hl)' instruction is still responsible for 3 cycles
@@ -496,7 +496,7 @@ add hl,bc ; jp (hl) ; add hl,de ; jp (hl)  [x 10000]
 
 call $+3 ; pop hl  [x 10000]
   result:  4880
-  openmsx: 4753
+  openmsx: 4753 4891
   cycles: 7 + 5  [FffWw FRr]
   note: This is again as expected, though the two extra cycles can be hidden
         by the data-writes.
@@ -504,7 +504,7 @@ call $+3 ; pop hl  [x 10000]
 [ ld a,0 ; or a ]
 call z,$+3 ; pop hl  [x 10000]
   result:  4880
-  openmsx: 4754
+  openmsx: 4754 4891
   cycles: 7 + 5  [FffWw FRr]
   note: condition is true, call is executed
         as expected, same result as unconditional call
@@ -512,14 +512,14 @@ call z,$+3 ; pop hl  [x 10000]
 [ ld a,1 ; or a ]
 call z,$+3  [x 10000]
   result:  1229
-  openmsx: 1194
+  openmsx: 1194 1228
   cycles: 3  [fff]
   note: condition is false, call not executed
 
 [ ld hl,start+XX ; ld bc,3 ]
 add hl,bc ; push hl ; ret  [x 10000]
   result:  4884-4887
-  openmsx: 4751
+  openmsx: 4751 4887
   cycles: 12 [F fxWw FRr]
   note: 'RET' probably behaves as a 'JP (HL)' (two extra cycles), but these
         cycles can be hidden by the two data reads
@@ -527,7 +527,7 @@ add hl,bc ; push hl ; ret  [x 10000]
 [ ld hl,start+XX ; ld bc,3 ; ld a,0 ; or a ]
 add hl,bc ; push hl ; ret z  [x 10000]
   result:  4884-4887
-  openmsx: 4751
+  openmsx: 4751 4887
   cycles: 12 [F fxWw FRr]
   note: Same test as above, but with a conditional ret that is always executed.
         As expected same result as above.
@@ -535,7 +535,7 @@ add hl,bc ; push hl ; ret z  [x 10000]
 [ ld a,1 ; or a ]
 ret z  [x 40000]
   result:  1644
-  openmsx: 1592
+  openmsx: 1592 1637
   cycles: 1  [f]
 
 
@@ -543,7 +543,7 @@ ret z  [x 40000]
 
 in a,(0)  [x 20000]
   result:  8066
-  openmsx: 7935
+  openmsx: 7935 8126
   cycles: 10  [ffI8]
   note: - 8 cycles for IO seems a lot, but this makes it the same speed as Z80
              Z80:  4 cycles @ 3.5MHz
@@ -557,7 +557,7 @@ in a,(0)  [x 20000]
 
 in a,(#98)  [x 20000]
   result:  44286
-  openmsx: 40713
+  openmsx: 40713 40713
   cycles: +/- 54
   note: - Can be explained by the 'intelligent' VDP-delay added by the S1990 
           Need additional tests to accuratly measure this.
@@ -566,13 +566,13 @@ in a,(#98)  [x 20000]
 [ ld b,0 ]
 in a,(0) ; djnz $-2  [x 1]   [no page-break between in/djnz]
   result: 126
-  openmsx: 132 ** WRONG **
+  openmsx: 132 136
   cycles: 13  [ffI8 ffx]
 
 [ ld b,0 ]
 in a,(0) ; djnz $-2  [x 1]   [page-break between in/djnz]
   result: 145
-  openmsx: 153 ** WRONG **
+  openmsx: 153 156
   cycles: 15  [FfI8 Ffx]
   note: - we forced a page-break between the in and the djnz instruction by
           properly aligning the start address
@@ -581,13 +581,13 @@ in a,(0) ; djnz $-2  [x 1]   [page-break between in/djnz]
 
 out (0),a  [x 20000]
   result:  8065
-  openmsx: 7934
+  openmsx: 7934 8125
   cycles: 10  [ffI8]
   note: similar to 'in a,(0)'
 
 out (#98),a  [x 20000]
   result:  44285
-  openmsx: 40713
+  openmsx: 40713 40713
   cycles: +/- 54
   note: similar to 'in a,(#98)'
 
@@ -680,3 +680,44 @@ inc (hl)  [x 15000]
 
 
 TODO: RETN, RST
+
+
+
+
+
+
+
+
+
+
+
+* refresh
+
+
+	org #c000
+
+	di
+	ld	b,0
+	ld	c,0
+	out	(#e6),a
+loop	nop		; variable number of nops
+	djnz	loop
+	dec	c
+	jr	nz,loop
+	in	a,(#e6)
+	ld	l,a
+	in	a,(#e7)
+	ld	h,a
+	ret
+
+
+nops | real  | openmsx
+-----+-------+---------
+   0 |  8088 |  7821  8036
+   1 | 10717 | 10422 10716
+   2 | 13336 | 13021 13382
+   3 | 16079 | 15613 16042
+   4 | 18740 | 18212 18726
+  10 | 34778 | 33801 34753
+
+cycles (without refresh) = 65536 * nops + 197375
