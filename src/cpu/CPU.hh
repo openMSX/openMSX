@@ -9,6 +9,7 @@
 #include <vector>
 #include <map>
 #include <memory>
+#include <cassert>
 
 namespace openmsx {
 
@@ -160,118 +161,154 @@ public:
 		byte R, R2; // refresh = R&127 | R2&128
 	};
 #else
+	enum Reg8 { A, F, B, C, D, E, H, L, IXH, IXL, IYH, IYL, DUMMY };
 	class CPURegs {
 	public:
-		CPURegs() { HALT = 0; }
-		inline byte getA()   const { return AF.b.h; }
-		inline byte getF()   const { return AF.b.l; }
-		inline byte getB()   const { return BC.b.h; }
-		inline byte getC()   const { return BC.b.l; }
-		inline byte getD()   const { return DE.b.h; }
-		inline byte getE()   const { return DE.b.l; }
-		inline byte getH()   const { return HL.b.h; }
-		inline byte getL()   const { return HL.b.l; }
-		inline byte getA2()  const { return AF2.b.h; }
-		inline byte getF2()  const { return AF2.b.l; }
-		inline byte getB2()  const { return BC2.b.h; }
-		inline byte getC2()  const { return BC2.b.l; }
-		inline byte getD2()  const { return DE2.b.h; }
-		inline byte getE2()  const { return DE2.b.l; }
-		inline byte getH2()  const { return HL2.b.h; }
-		inline byte getL2()  const { return HL2.b.l; }
-		inline byte getIXh() const { return IX.b.h; }
-		inline byte getIXl() const { return IX.b.l; }
-		inline byte getIYh() const { return IY.b.h; }
-		inline byte getIYl() const { return IY.b.l; }
-		inline byte getPCh() const { return PC.b.h; }
-		inline byte getPCl() const { return PC.b.l; }
-		inline byte getSPh() const { return SP.b.h; }
-		inline byte getSPl() const { return SP.b.l; }
-		inline unsigned getAF()  const { return AF.w; }
-		inline unsigned getBC()  const { return BC.w; }
-		inline unsigned getDE()  const { return DE.w; }
-		inline unsigned getHL()  const { return HL.w; }
-		inline unsigned getAF2() const { return AF2.w; }
-		inline unsigned getBC2() const { return BC2.w; }
-		inline unsigned getDE2() const { return DE2.w; }
-		inline unsigned getHL2() const { return HL2.w; }
-		inline unsigned getIX()  const { return IX.w; }
-		inline unsigned getIY()  const { return IY.w; }
-		inline unsigned getPC()  const { return PC.w; }
-		inline unsigned getSP()  const { return SP.w; }
-		inline byte getIM()  const { return IM; }
-		inline byte getI()   const { return I; }
-		inline byte getR()   const { return (R & 0x7F) | (R2 & 0x80); }
-		inline bool getIFF1()     const { return IFF1; }
-		inline bool getIFF2()     const { return IFF2; }
-		inline byte getHALT()     const { return HALT; }
-		inline bool getNextIFF1() const { return nextIFF1; }
 
-		inline void setA(byte x)   { AF.b.h = x; }
-		inline void setF(byte x)   { AF.b.l = x; }
-		inline void setB(byte x)   { BC.b.h = x; }
-		inline void setC(byte x)   { BC.b.l = x; }
-		inline void setD(byte x)   { DE.b.h = x; }
-		inline void setE(byte x)   { DE.b.l = x; }
-		inline void setH(byte x)   { HL.b.h = x; }
-		inline void setL(byte x)   { HL.b.l = x; }
-		inline void setA2(byte x)  { AF2.b.h = x; }
-		inline void setF2(byte x)  { AF2.b.l = x; }
-		inline void setB2(byte x)  { BC2.b.h = x; }
-		inline void setC2(byte x)  { BC2.b.l = x; }
-		inline void setD2(byte x)  { DE2.b.h = x; }
-		inline void setE2(byte x)  { DE2.b.l = x; }
-		inline void setH2(byte x)  { HL2.b.h = x; }
-		inline void setL2(byte x)  { HL2.b.l = x; }
-		inline void setIXh(byte x) { IX.b.h = x; }
-		inline void setIXl(byte x) { IX.b.l = x; }
-		inline void setIYh(byte x) { IY.b.h = x; }
-		inline void setIYl(byte x) { IY.b.l = x; }
-		inline void setPCh(byte x) { PC.b.h = x; }
-		inline void setPCl(byte x) { PC.b.l = x; }
-		inline void setSPh(byte x) { SP.b.h = x; }
-		inline void setSPl(byte x) { SP.b.l = x; }
-		inline void setAF(unsigned x)  { AF.w = x; }
-		inline void setBC(unsigned x)  { BC.w = x; }
-		inline void setDE(unsigned x)  { DE.w = x; }
-		inline void setHL(unsigned x)  { HL.w = x; }
-		inline void setAF2(unsigned x) { AF2.w = x; }
-		inline void setBC2(unsigned x) { BC2.w = x; }
-		inline void setDE2(unsigned x) { DE2.w = x; }
-		inline void setHL2(unsigned x) { HL2.w = x; }
-		inline void setIX(unsigned x)  { IX.w = x; }
-		inline void setIY(unsigned x)  { IY.w = x; }
-		inline void setPC(unsigned x)  { PC.w = x; }
-		inline void setSP(unsigned x)  { SP.w = x; }
-		inline void setIM(byte x)  { IM = x; }
-		inline void setI(byte x)   { I = x; }
-		inline void setR(byte x)   { R = x; R2 = x; }
-		inline void setIFF1(bool x)     { IFF1 = x; }
-		inline void setIFF2(bool x)     { IFF2 = x; }
-		inline void setHALT(bool x)     { HALT = (HALT & ~1) | (x ? 1 : 0); }
-		inline void setExtHALT(bool x)  { HALT = (HALT & ~2) | (x ? 2 : 0); }
-		inline void setNextIFF1(bool x) { nextIFF1 = x; }
+		CPURegs() { HALT_ = 0; }
+		inline byte getA()   const { return AF_.b.h; }
+		inline byte getF()   const { return AF_.b.l; }
+		inline byte getB()   const { return BC_.b.h; }
+		inline byte getC()   const { return BC_.b.l; }
+		inline byte getD()   const { return DE_.b.h; }
+		inline byte getE()   const { return DE_.b.l; }
+		inline byte getH()   const { return HL_.b.h; }
+		inline byte getL()   const { return HL_.b.l; }
+		inline byte getA2()  const { return AF2_.b.h; }
+		inline byte getF2()  const { return AF2_.b.l; }
+		inline byte getB2()  const { return BC2_.b.h; }
+		inline byte getC2()  const { return BC2_.b.l; }
+		inline byte getD2()  const { return DE2_.b.h; }
+		inline byte getE2()  const { return DE2_.b.l; }
+		inline byte getH2()  const { return HL2_.b.h; }
+		inline byte getL2()  const { return HL2_.b.l; }
+		inline byte getIXh() const { return IX_.b.h; }
+		inline byte getIXl() const { return IX_.b.l; }
+		inline byte getIYh() const { return IY_.b.h; }
+		inline byte getIYl() const { return IY_.b.l; }
+		inline byte getPCh() const { return PC_.b.h; }
+		inline byte getPCl() const { return PC_.b.l; }
+		inline byte getSPh() const { return SP_.b.h; }
+		inline byte getSPl() const { return SP_.b.l; }
+		template <Reg8 R8> inline byte get() const {
+			if      (R8 == A)   { return getA(); }
+			else if (R8 == F)   { return getF(); }
+			else if (R8 == B)   { return getB(); }
+			else if (R8 == C)   { return getC(); }
+			else if (R8 == D)   { return getD(); }
+			else if (R8 == E)   { return getE(); }
+			else if (R8 == H)   { return getH(); }
+			else if (R8 == L)   { return getL(); }
+			else if (R8 == IXH) { return getIXh(); }
+			else if (R8 == IXL) { return getIXl(); }
+			else if (R8 == IYH) { return getIYh(); }
+			else if (R8 == IYL) { return getIYl(); }
+			else if (R8 == DUMMY) { return 0; }
+			else { assert(false); return 0; }
+		}
 
-		inline void incR(byte x) { R += x; }
+		inline unsigned getAF()  const { return AF_.w; }
+		inline unsigned getBC()  const { return BC_.w; }
+		inline unsigned getDE()  const { return DE_.w; }
+		inline unsigned getHL()  const { return HL_.w; }
+		inline unsigned getAF2() const { return AF2_.w; }
+		inline unsigned getBC2() const { return BC2_.w; }
+		inline unsigned getDE2() const { return DE2_.w; }
+		inline unsigned getHL2() const { return HL2_.w; }
+		inline unsigned getIX()  const { return IX_.w; }
+		inline unsigned getIY()  const { return IY_.w; }
+		inline unsigned getPC()  const { return PC_.w; }
+		inline unsigned getSP()  const { return SP_.w; }
+		inline byte getIM()  const { return IM_; }
+		inline byte getI()   const { return I_; }
+		inline byte getR()   const { return (R_ & 0x7F) | (R2_ & 0x80); }
+		inline bool getIFF1()     const { return IFF1_; }
+		inline bool getIFF2()     const { return IFF2_; }
+		inline byte getHALT()     const { return HALT_; }
+		inline bool getNextIFF1() const { return nextIFF1_; }
+
+		inline void setA(byte x)   { AF_.b.h = x; }
+		inline void setF(byte x)   { AF_.b.l = x; }
+		inline void setB(byte x)   { BC_.b.h = x; }
+		inline void setC(byte x)   { BC_.b.l = x; }
+		inline void setD(byte x)   { DE_.b.h = x; }
+		inline void setE(byte x)   { DE_.b.l = x; }
+		inline void setH(byte x)   { HL_.b.h = x; }
+		inline void setL(byte x)   { HL_.b.l = x; }
+		inline void setA2(byte x)  { AF2_.b.h = x; }
+		inline void setF2(byte x)  { AF2_.b.l = x; }
+		inline void setB2(byte x)  { BC2_.b.h = x; }
+		inline void setC2(byte x)  { BC2_.b.l = x; }
+		inline void setD2(byte x)  { DE2_.b.h = x; }
+		inline void setE2(byte x)  { DE2_.b.l = x; }
+		inline void setH2(byte x)  { HL2_.b.h = x; }
+		inline void setL2(byte x)  { HL2_.b.l = x; }
+		inline void setIXh(byte x) { IX_.b.h = x; }
+		inline void setIXl(byte x) { IX_.b.l = x; }
+		inline void setIYh(byte x) { IY_.b.h = x; }
+		inline void setIYl(byte x) { IY_.b.l = x; }
+		inline void setPCh(byte x) { PC_.b.h = x; }
+		inline void setPCl(byte x) { PC_.b.l = x; }
+		inline void setSPh(byte x) { SP_.b.h = x; }
+		inline void setSPl(byte x) { SP_.b.l = x; }
+		template <Reg8 R8> inline void set(byte x) {
+			if      (R8 == A)   { setA(x); }
+			else if (R8 == F)   { setF(x); }
+			else if (R8 == B)   { setB(x); }
+			else if (R8 == C)   { setC(x); }
+			else if (R8 == D)   { setD(x); }
+			else if (R8 == E)   { setE(x); }
+			else if (R8 == H)   { setH(x); }
+			else if (R8 == L)   { setL(x); }
+			else if (R8 == IXH) { setIXh(x); }
+			else if (R8 == IXL) { setIXl(x); }
+			else if (R8 == IYH) { setIYh(x); }
+			else if (R8 == IYL) { setIYl(x); }
+			else if (R8 == DUMMY) { /* nothing */ }
+			else { assert(false); }
+		}
+
+		inline void setAF(unsigned x)  { AF_.w = x; }
+		inline void setBC(unsigned x)  { BC_.w = x; }
+		inline void setDE(unsigned x)  { DE_.w = x; }
+		inline void setHL(unsigned x)  { HL_.w = x; }
+		inline void setAF2(unsigned x) { AF2_.w = x; }
+		inline void setBC2(unsigned x) { BC2_.w = x; }
+		inline void setDE2(unsigned x) { DE2_.w = x; }
+		inline void setHL2(unsigned x) { HL2_.w = x; }
+		inline void setIX(unsigned x)  { IX_.w = x; }
+		inline void setIY(unsigned x)  { IY_.w = x; }
+		inline void setPC(unsigned x)  { PC_.w = x; }
+		inline void setSP(unsigned x)  { SP_.w = x; }
+		inline void setIM(byte x)  { IM_ = x; }
+		inline void setI(byte x)   { I_ = x; }
+		inline void setR(byte x)   { R_ = x; R2_ = x; }
+		inline void setIFF1(bool x)     { IFF1_ = x; }
+		inline void setIFF2(bool x)     { IFF2_ = x; }
+		inline void setHALT(bool x)     { HALT_ = (HALT_ & ~1) | (x ? 1 : 0); }
+		inline void setExtHALT(bool x)  { HALT_ = (HALT_ & ~2) | (x ? 2 : 0); }
+		inline void setNextIFF1(bool x) { nextIFF1_ = x; }
+
+		inline void incR(byte x) { R_ += x; }
 
 		inline void ei() {
-			IFF1     = true;
-			IFF2     = true;
-			nextIFF1 = true;
+			IFF1_     = true;
+			IFF2_     = true;
+			nextIFF1_ = true;
 		}
 		inline void di() {
-			IFF1     = false;
-			IFF2     = false;
-			nextIFF1 = false;
+			IFF1_     = false;
+			IFF2_     = false;
+			nextIFF1_ = false;
 		}
 	private:
-		z80regpair AF, BC, DE, HL;
-		z80regpair AF2, BC2, DE2, HL2;
-		z80regpair IX, IY, PC, SP;
-		bool nextIFF1, IFF1, IFF2;
-		byte HALT;
-		byte IM, I;
-		byte R, R2; // refresh = R&127 | R2&128
+		z80regpair AF_, BC_, DE_, HL_;
+		z80regpair AF2_, BC2_, DE2_, HL2_;
+		z80regpair IX_, IY_, PC_, SP_;
+		bool nextIFF1_, IFF1_, IFF2_;
+		byte HALT_;
+		byte IM_, I_;
+		byte R_, R2_; // refresh = R&127 | R2&128
 	};
 #endif
 
