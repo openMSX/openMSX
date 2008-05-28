@@ -1,5 +1,19 @@
 $Id$
 
+2008-05-28 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Reduced code duplication in CPUCore by templatizing various stuff:
+	  - For example, a lot of instruction methods only differ in the
+	    registers they act upon (e.g. inc_hl() vs inc_de). By making
+	    templatized helper functions to read/write registers, a lot of
+	    these instruction methods can be combined into a single
+	    templatized instruction method.
+	  - This reduced code size by almost 2000(!) lines.
+	  - The generated code is also about 100kB smaller. I'm not sure
+	    why exactly, but I think because it doesn't need to keep a
+	    non-inlined version of the templatized instruction methods in
+	    the final executable.
+	  - Speed of the CPU code has not changed.
+
 2008-05-27 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Tuned R800 refresh (still WIP)
 

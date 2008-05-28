@@ -181,12 +181,10 @@ private:
 	template <CPU::Reg16 REG> inline int ld_sp_SS();
 	template <CPU::Reg16 REG> inline int ld_SS_a();
 	template <CPU::Reg8 SRC> inline int ld_xhl_R();
-	template <CPU::Reg8 SRC> inline int ld_xix_R();
-	template <CPU::Reg8 SRC> inline int ld_xiy_R();
+	template <CPU::Reg16 IXY, CPU::Reg8 SRC> inline int ld_xix_R();
 
 	inline int ld_xhl_byte();
-	inline int ld_xix_byte();
-	inline int ld_xiy_byte();
+	template <CPU::Reg16 IXY> inline int ld_xix_byte();
 
 	inline int WR_NN_Y(unsigned reg, int ee);
 	template <CPU::Reg16 REG> inline int ld_xword_SS();
@@ -198,8 +196,7 @@ private:
 
 	template <CPU::Reg8 DST> inline int ld_R_byte();
 	template <CPU::Reg8 DST> inline int ld_R_xhl();
-	template <CPU::Reg8 DST> inline int ld_R_xix();
-	template <CPU::Reg8 DST> inline int ld_R_xiy();
+	template <CPU::Reg8 DST, CPU::Reg16 IXY> inline int ld_R_xix();
 
 	inline unsigned RD_P_XX(int ee);
 	template <CPU::Reg16 REG> inline int ld_SS_xword();
@@ -212,78 +209,68 @@ private:
 	template <CPU::Reg8 SRC> inline int adc_a_R();
 	inline int adc_a_byte();
 	inline int adc_a_xhl();
-	inline int adc_a_xix();
-	inline int adc_a_xiy();
+	template <CPU::Reg16 IXY> inline int adc_a_xix();
 
 	inline void ADD(byte reg);
 	inline int add_a_a();
 	template <CPU::Reg8 SRC> inline int add_a_R();
 	inline int add_a_byte();
 	inline int add_a_xhl();
-	inline int add_a_xix();
-	inline int add_a_xiy();
+	template <CPU::Reg16 IXY> inline int add_a_xix();
 
 	inline void AND(byte reg);
 	inline int and_a();
 	template <CPU::Reg8 SRC> inline int and_R();
 	inline int and_byte();
 	inline int and_xhl();
-	inline int and_xix();
-	inline int and_xiy();
+	template <CPU::Reg16 IXY> inline int and_xix();
 
 	inline void CP(byte reg);
 	inline int cp_a();
 	template <CPU::Reg8 SRC> inline int cp_R();
 	inline int cp_byte();
 	inline int cp_xhl();
-	inline int cp_xix();
-	inline int cp_xiy();
+	template <CPU::Reg16 IXY> inline int cp_xix();
 
 	inline void OR(byte reg);
 	inline int or_a();
 	template <CPU::Reg8 SRC> inline int or_R();
 	inline int or_byte();
 	inline int or_xhl();
-	inline int or_xix();
-	inline int or_xiy();
+	template <CPU::Reg16 IXY> inline int or_xix();
 
 	inline void SBC(byte reg);
 	inline int sbc_a_a();
 	template <CPU::Reg8 SRC> inline int sbc_a_R();
 	inline int sbc_a_byte();
 	inline int sbc_a_xhl();
-	inline int sbc_a_xix();
-	inline int sbc_a_xiy();
+	template <CPU::Reg16 IXY> inline int sbc_a_xix();
 
 	inline void SUB(byte reg);
 	inline int sub_a();
 	template <CPU::Reg8 SRC> inline int sub_R();
 	inline int sub_byte();
 	inline int sub_xhl();
-	inline int sub_xix();
-	inline int sub_xiy();
+	template <CPU::Reg16 IXY> inline int sub_xix();
 
 	inline void XOR(byte reg);
 	inline int xor_a();
 	template <CPU::Reg8 SRC> inline int xor_R();
 	inline int xor_byte();
 	inline int xor_xhl();
-	inline int xor_xix();
-	inline int xor_xiy();
+	template <CPU::Reg16 IXY> inline int xor_xix();
 
 	inline byte DEC(byte reg);
 	template <CPU::Reg8 REG> inline int dec_R();
 	inline int DEC_X(unsigned x, int ee);
 	inline int dec_xhl();
-	inline int dec_xix();
-	inline int dec_xiy();
+	template <CPU::Reg16 IXY> inline int dec_xix();
 
 	inline byte INC(byte reg);
 	template <CPU::Reg8 REG> inline int inc_R();
 	inline int INC_X(unsigned x, int ee);
 	inline int inc_xhl();
-	inline int inc_xix();
-	inline int inc_xiy();
+	template <CPU::Reg16 IXY> inline int inc_xix();
 
 	template <CPU::Reg16 REG> inline int adc_hl_SS();
 	inline int adc_hl_hl();
@@ -470,13 +457,10 @@ private:
 	template <CPU::Reg8 REG> int mulub_a_R();
 	template <CPU::Reg16 REG> int muluw_hl_SS();
 
-	inline int nn_cb(unsigned reg);
-	inline int dd_cb();
-	inline int fd_cb();
 	inline int cb();
 	inline int ed();
-	inline int dd();
-	inline int fd();
+	template <CPU::Reg16 IXY> inline int xy_cb();
+	template <CPU::Reg16 IXY, CPU::Reg8 IXYH, CPU::Reg8 IXYL> inline int xy();
 
 	friend class MSXCPU;
 	friend class Z80TYPE;

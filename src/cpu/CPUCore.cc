@@ -802,8 +802,8 @@ template <class T> ALWAYS_INLINE int CPUCore<T>::executeInstruction1(byte opcode
 		case 0xfb: return ei();
 		case 0xcb: return cb();
 		case 0xed: return ed();
-		case 0xdd: return dd();
-		case 0xfd: return fd();
+		case 0xdd: return xy<IX, IXH, IXL>();
+		case 0xfd: return xy<IY, IYH, IYL>();
 		case 0xc6: return add_a_byte();
 		case 0xce: return adc_a_byte();
 		case 0xd6: return sub_byte();
@@ -1036,18 +1036,10 @@ template <class T> template<CPU::Reg8 SRC> int CPUCore<T>::ld_xhl_R() {
 	return T::CC_LD_HL_R;
 }
 
-// LD (IX+e),r
-template <class T> template<CPU::Reg8 SRC> int CPUCore<T>::ld_xix_R() {
+// LD (IXY+e),r
+template <class T> template<CPU::Reg16 IXY, CPU::Reg8 SRC> int CPUCore<T>::ld_xix_R() {
 	offset ofst = RDMEM_OPCODE(T::CC_LD_XIX_R_1);
-	memptr = (R.getIX() + ofst) & 0xFFFF;
-	WRMEM(memptr, R.get<SRC>(), T::CC_LD_XIX_R_2);
-	return T::CC_LD_XIX_R;
-}
-
-// LD (IY+e),r
-template <class T> template<CPU::Reg8 SRC> int CPUCore<T>::ld_xiy_R() {
-	offset ofst = RDMEM_OPCODE(T::CC_LD_XIX_R_1);
-	memptr = (R.getIY() + ofst) & 0xFFFF;
+	memptr = (R.get<IXY>() + ofst) & 0xFFFF;
 	WRMEM(memptr, R.get<SRC>(), T::CC_LD_XIX_R_2);
 	return T::CC_LD_XIX_R;
 }
@@ -1059,22 +1051,12 @@ template <class T> int CPUCore<T>::ld_xhl_byte() {
 	return T::CC_LD_HL_N;
 }
 
-// LD (IX+e),n
-template <class T> int CPUCore<T>::ld_xix_byte() {
+// LD (IXY+e),n
+template <class T> template<CPU::Reg16 IXY> int CPUCore<T>::ld_xix_byte() {
 	unsigned tmp = RD_WORD_PC(T::CC_LD_XIX_N_1);
 	offset ofst = tmp & 0xFF;
 	byte val = tmp >> 8;
-	memptr = (R.getIX() + ofst) & 0xFFFF;
-	WRMEM(memptr, val, T::CC_LD_XIX_N_2);
-	return T::CC_LD_XIX_N;
-}
-
-// LD (IY+e),n
-template <class T> int CPUCore<T>::ld_xiy_byte() {
-	unsigned tmp = RD_WORD_PC(T::CC_LD_XIX_N_1);
-	offset ofst = tmp & 0xFF;
-	byte val = tmp >> 8;
-	memptr = (R.getIY() + ofst) & 0xFFFF;
+	memptr = (R.get<IXY>() + ofst) & 0xFFFF;
 	WRMEM(memptr, val, T::CC_LD_XIX_N_2);
 	return T::CC_LD_XIX_N;
 }
@@ -1123,25 +1105,16 @@ template <class T> template<CPU::Reg8 DST> int CPUCore<T>::ld_R_xhl() {
 	R.set<DST>(RDMEM(R.getHL(), T::CC_LD_R_HL_1)); return T::CC_LD_R_HL;
 }
 
-// LD r,(IX+e)
-template <class T> template<CPU::Reg8 DST> int CPUCore<T>::ld_R_xix() {
+// LD r,(IXY+e)
+template <class T> template<CPU::Reg8 DST, CPU::Reg16 IXY> int CPUCore<T>::ld_R_xix() {
 	offset ofst = RDMEM_OPCODE(T::CC_LD_R_XIX_1);
-	memptr = (R.getIX() + ofst) & 0xFFFF;
-	R.set<DST>(RDMEM(memptr, T::CC_LD_R_XIX_2));
-	return T::CC_LD_R_XIX;
-}
-
-// LD r,(IY+e)
-template <class T> template<CPU::Reg8 DST> int CPUCore<T>::ld_R_xiy() {
-	offset ofst = RDMEM_OPCODE(T::CC_LD_R_XIX_1);
-	memptr = (R.getIY() + ofst) & 0xFFFF;
+	memptr = (R.get<IXY>() + ofst) & 0xFFFF;
 	R.set<DST>(RDMEM(memptr, T::CC_LD_R_XIX_2));
 	return T::CC_LD_R_XIX;
 }
 
 // LD ss,(nn)
-template <class T> inline unsigned CPUCore<T>::RD_P_XX(int ee)
-{
+template <class T> inline unsigned CPUCore<T>::RD_P_XX(int ee) {
 	unsigned addr = RD_WORD_PC(T::CC_LD_HL_XX_1 + ee);
 	memptr = addr + 1; // not 16-bit
 	unsigned result = RD_WORD(addr, T::CC_LD_HL_XX_2 + ee);
@@ -1161,8 +1134,7 @@ template <class T> template<CPU::Reg16 REG> int CPUCore<T>::ld_SS_word() {
 
 
 // ADC A,r
-template <class T> inline void CPUCore<T>::ADC(byte reg)
-{
+template <class T> inline void CPUCore<T>::ADC(byte reg) {
 	unsigned res = R.getA() + reg + ((R.getF() & C_FLAG) ? 1 : 0);
 	R.setF(ZSXYTable[res & 0xFF] |
 	       ((res & 0x100) ? C_FLAG : 0) |
@@ -1170,8 +1142,7 @@ template <class T> inline void CPUCore<T>::ADC(byte reg)
 	       (((R.getA() ^ res) & (reg ^ res) & 0x80) >> 5)); // V_FLAG
 	R.setA(res);
 }
-template <class T> inline int CPUCore<T>::adc_a_a()
-{
+template <class T> inline int CPUCore<T>::adc_a_a() {
 	unsigned res = 2 * R.getA() + ((R.getF() & C_FLAG) ? 1 : 0);
 	R.setF(ZSXYTable[res & 0xFF] |
 	       ((res & 0x100) ? C_FLAG : 0) |
@@ -1183,26 +1154,21 @@ template <class T> inline int CPUCore<T>::adc_a_a()
 template <class T> template<CPU::Reg8 SRC> int CPUCore<T>::adc_a_R() {
 	ADC(R.get<SRC>()); return T::CC_CP_R;
 }
-template <class T> int CPUCore<T>::adc_a_byte(){ ADC(RDMEM_OPCODE(T::CC_CP_N_1)); return T::CC_CP_N; }
-template <class T> int CPUCore<T>::adc_a_xhl() { ADC(RDMEM(R.getHL(), T::CC_CP_XHL_1)); return T::CC_CP_XHL; }
-template <class T> int CPUCore<T>::adc_a_xix()
-{
-	offset ofst = RDMEM_OPCODE(T::CC_CP_XIX_1);
-	memptr = (R.getIX() + ofst) & 0xFFFF;
-	ADC(RDMEM(memptr, T::CC_CP_XIX_2));
-	return T::CC_CP_XIX;
+template <class T> int CPUCore<T>::adc_a_byte() {
+	ADC(RDMEM_OPCODE(T::CC_CP_N_1)); return T::CC_CP_N;
 }
-template <class T> int CPUCore<T>::adc_a_xiy()
-{
+template <class T> int CPUCore<T>::adc_a_xhl() {
+	ADC(RDMEM(R.getHL(), T::CC_CP_XHL_1)); return T::CC_CP_XHL;
+}
+template <class T> template<CPU::Reg16 IXY> int CPUCore<T>::adc_a_xix() {
 	offset ofst = RDMEM_OPCODE(T::CC_CP_XIX_1);
-	memptr = (R.getIY() + ofst) & 0xFFFF;
+	memptr = (R.get<IXY>() + ofst) & 0xFFFF;
 	ADC(RDMEM(memptr, T::CC_CP_XIX_2));
 	return T::CC_CP_XIX;
 }
 
 // ADD A,r
-template <class T> inline void CPUCore<T>::ADD(byte reg)
-{
+template <class T> inline void CPUCore<T>::ADD(byte reg) {
 	unsigned res = R.getA() + reg;
 	R.setF(ZSXYTable[res & 0xFF] |
 	       ((res & 0x100) ? C_FLAG : 0) |
@@ -1210,8 +1176,7 @@ template <class T> inline void CPUCore<T>::ADD(byte reg)
 	       (((R.getA() ^ res) & (reg ^ res) & 0x80) >> 5)); // V_FLAG
 	R.setA(res);
 }
-template <class T> inline int CPUCore<T>::add_a_a()
-{
+template <class T> inline int CPUCore<T>::add_a_a() {
 	unsigned res = 2 * R.getA();
 	R.setF(ZSXYTable[res & 0xFF] |
 	       ((res & 0x100) ? C_FLAG : 0) |
@@ -1223,57 +1188,46 @@ template <class T> inline int CPUCore<T>::add_a_a()
 template <class T> template<CPU::Reg8 SRC> int CPUCore<T>::add_a_R() {
 	ADD(R.get<SRC>()); return T::CC_CP_R;
 }
-template <class T> int CPUCore<T>::add_a_byte(){ ADD(RDMEM_OPCODE(T::CC_CP_N_1)); return T::CC_CP_N; }
-template <class T> int CPUCore<T>::add_a_xhl() { ADD(RDMEM(R.getHL(), T::CC_CP_XHL_1)); return T::CC_CP_XHL; }
-template <class T> int CPUCore<T>::add_a_xix()
-{
-	offset ofst = RDMEM_OPCODE(T::CC_CP_XIX_1);
-	memptr = (R.getIX() + ofst) & 0xFFFF;
-	ADD(RDMEM(memptr, T::CC_CP_XIX_2));
-	return T::CC_CP_XIX;
+template <class T> int CPUCore<T>::add_a_byte() {
+	ADD(RDMEM_OPCODE(T::CC_CP_N_1)); return T::CC_CP_N;
 }
-template <class T> int CPUCore<T>::add_a_xiy()
-{
+template <class T> int CPUCore<T>::add_a_xhl() {
+	ADD(RDMEM(R.getHL(), T::CC_CP_XHL_1)); return T::CC_CP_XHL;
+}
+template <class T> template<CPU::Reg16 IXY> int CPUCore<T>::add_a_xix() {
 	offset ofst = RDMEM_OPCODE(T::CC_CP_XIX_1);
-	memptr = (R.getIY() + ofst) & 0xFFFF;
+	memptr = (R.get<IXY>() + ofst) & 0xFFFF;
 	ADD(RDMEM(memptr, T::CC_CP_XIX_2));
 	return T::CC_CP_XIX;
 }
 
 // AND r
-template <class T> inline void CPUCore<T>::AND(byte reg)
-{
+template <class T> inline void CPUCore<T>::AND(byte reg) {
 	R.setA(R.getA() & reg);
 	R.setF(ZSPXYTable[R.getA()] | H_FLAG);
 }
-template <class T> int CPUCore<T>::and_a()
-{
+template <class T> int CPUCore<T>::and_a() {
 	R.setF(ZSPXYTable[R.getA()] | H_FLAG);
 	return T::CC_CP_R;
 }
 template <class T> template<CPU::Reg8 SRC> int CPUCore<T>::and_R() {
 	AND(R.get<SRC>()); return T::CC_CP_R;
 }
-template <class T> int CPUCore<T>::and_byte(){ AND(RDMEM_OPCODE(T::CC_CP_N_1)); return T::CC_CP_N; }
-template <class T> int CPUCore<T>::and_xhl() { AND(RDMEM(R.getHL(), T::CC_CP_XHL_1)); return T::CC_CP_XHL; }
-template <class T> int CPUCore<T>::and_xix()
-{
-	offset ofst = RDMEM_OPCODE(T::CC_CP_XIX_1);
-	memptr = (R.getIX() + ofst) & 0xFFFF;
-	AND(RDMEM(memptr, T::CC_CP_XIX_2));
-	return T::CC_CP_XIX;
+template <class T> int CPUCore<T>::and_byte() {
+	AND(RDMEM_OPCODE(T::CC_CP_N_1)); return T::CC_CP_N;
 }
-template <class T> int CPUCore<T>::and_xiy()
-{
+template <class T> int CPUCore<T>::and_xhl() {
+	AND(RDMEM(R.getHL(), T::CC_CP_XHL_1)); return T::CC_CP_XHL;
+}
+template <class T> template<CPU::Reg16 IXY> int CPUCore<T>::and_xix() {
 	offset ofst = RDMEM_OPCODE(T::CC_CP_XIX_1);
-	memptr = (R.getIY() + ofst) & 0xFFFF;
+	memptr = (R.get<IXY>() + ofst) & 0xFFFF;
 	AND(RDMEM(memptr, T::CC_CP_XIX_2));
 	return T::CC_CP_XIX;
 }
 
 // CP r
-template <class T> inline void CPUCore<T>::CP(byte reg)
-{
+template <class T> inline void CPUCore<T>::CP(byte reg) {
 	unsigned q = R.getA() - reg;
 	R.setF(ZSTable[q & 0xFF] |
 	       (reg & (X_FLAG | Y_FLAG)) |	// XY from operand, not from result
@@ -1282,8 +1236,7 @@ template <class T> inline void CPUCore<T>::CP(byte reg)
 	       ((R.getA() ^ q ^ reg) & H_FLAG) |
 	       (((reg ^ R.getA()) & (R.getA() ^ q) & 0x80) >> 5)); // V_FLAG
 }
-template <class T> int CPUCore<T>::cp_a()
-{
+template <class T> int CPUCore<T>::cp_a() {
 	R.setF(ZS0 | N_FLAG |
 	       (R.getA() & (X_FLAG | Y_FLAG))); // XY from operand, not from result
 	return T::CC_CP_R;
@@ -1291,53 +1244,45 @@ template <class T> int CPUCore<T>::cp_a()
 template <class T> template<CPU::Reg8 SRC> int CPUCore<T>::cp_R() {
 	CP(R.get<SRC>()); return T::CC_CP_R;
 }
-template <class T> int CPUCore<T>::cp_byte(){ CP(RDMEM_OPCODE(T::CC_CP_N_1)); return T::CC_CP_N; }
-template <class T> int CPUCore<T>::cp_xhl() { CP(RDMEM(R.getHL(), T::CC_CP_XHL_1)); return T::CC_CP_XHL; }
-template <class T> int CPUCore<T>::cp_xix()
-{
-	offset ofst = RDMEM_OPCODE(T::CC_CP_XIX_1);
-	memptr = (R.getIX() + ofst) & 0xFFFF;
-	CP(RDMEM(memptr, T::CC_CP_XIX_2));
-	return T::CC_CP_XIX;
+template <class T> int CPUCore<T>::cp_byte() {
+	CP(RDMEM_OPCODE(T::CC_CP_N_1)); return T::CC_CP_N;
 }
-template <class T> int CPUCore<T>::cp_xiy()
-{
+template <class T> int CPUCore<T>::cp_xhl() {
+	CP(RDMEM(R.getHL(), T::CC_CP_XHL_1)); return T::CC_CP_XHL;
+}
+template <class T> template<CPU::Reg16 IXY> int CPUCore<T>::cp_xix() {
 	offset ofst = RDMEM_OPCODE(T::CC_CP_XIX_1);
-	memptr = (R.getIY() + ofst) & 0xFFFF;
+	memptr = (R.get<IXY>() + ofst) & 0xFFFF;
 	CP(RDMEM(memptr, T::CC_CP_XIX_2));
 	return T::CC_CP_XIX;
 }
 
 // OR r
-template <class T> inline void CPUCore<T>::OR(byte reg)
-{
+template <class T> inline void CPUCore<T>::OR(byte reg) {
 	R.setA(R.getA() | reg);
 	R.setF(ZSPXYTable[R.getA()]);
 }
-template <class T> int CPUCore<T>::or_a()   { R.setF(ZSPXYTable[R.getA()]); return T::CC_CP_R; }
+template <class T> int CPUCore<T>::or_a() {
+	R.setF(ZSPXYTable[R.getA()]); return T::CC_CP_R;
+}
 template <class T> template<CPU::Reg8 SRC> int CPUCore<T>::or_R() {
 	OR(R.get<SRC>()); return T::CC_CP_R;
 }
-template <class T> int CPUCore<T>::or_byte(){ OR(RDMEM_OPCODE(T::CC_CP_N_1)); return T::CC_CP_N; }
-template <class T> int CPUCore<T>::or_xhl() { OR(RDMEM(R.getHL(), T::CC_CP_XHL_1)); return T::CC_CP_XHL; }
-template <class T> int CPUCore<T>::or_xix()
-{
-	offset ofst = RDMEM_OPCODE(T::CC_CP_XIX_1);
-	memptr = (R.getIX() + ofst) & 0xFFFF;
-	OR(RDMEM(memptr, T::CC_CP_XIX_2));
-	return T::CC_CP_XIX;
+template <class T> int CPUCore<T>::or_byte() {
+	OR(RDMEM_OPCODE(T::CC_CP_N_1)); return T::CC_CP_N;
 }
-template <class T> int CPUCore<T>::or_xiy()
-{
+template <class T> int CPUCore<T>::or_xhl() {
+	OR(RDMEM(R.getHL(), T::CC_CP_XHL_1)); return T::CC_CP_XHL;
+}
+template <class T> template<CPU::Reg16 IXY> int CPUCore<T>::or_xix() {
 	offset ofst = RDMEM_OPCODE(T::CC_CP_XIX_1);
-	memptr = (R.getIY() + ofst) & 0xFFFF;
+	memptr = (R.get<IXY>() + ofst) & 0xFFFF;
 	OR(RDMEM(memptr, T::CC_CP_XIX_2));
 	return T::CC_CP_XIX;
 }
 
 // SBC A,r
-template <class T> inline void CPUCore<T>::SBC(byte reg)
-{
+template <class T> inline void CPUCore<T>::SBC(byte reg) {
 	unsigned res = R.getA() - reg - ((R.getF() & C_FLAG) ? 1 : 0);
 	R.setF(ZSXYTable[res & 0xFF] |
 	       ((res & 0x100) ? C_FLAG : 0) |
@@ -1346,8 +1291,7 @@ template <class T> inline void CPUCore<T>::SBC(byte reg)
 	       (((reg ^ R.getA()) & (R.getA() ^ res) & 0x80) >> 5)); // V_FLAG
 	R.setA(res);
 }
-template <class T> int CPUCore<T>::sbc_a_a()
-{
+template <class T> int CPUCore<T>::sbc_a_a() {
 	R.setAF((R.getF() & C_FLAG) ?
 	        (255 * 256 | ZSXY255 | C_FLAG | H_FLAG | N_FLAG) :
 	        (  0 * 256 | ZSXY0   |                   N_FLAG));
@@ -1356,26 +1300,21 @@ template <class T> int CPUCore<T>::sbc_a_a()
 template <class T> template<CPU::Reg8 SRC> int CPUCore<T>::sbc_a_R() {
 	SBC(R.get<SRC>()); return T::CC_CP_R;
 }
-template <class T> int CPUCore<T>::sbc_a_byte(){ SBC(RDMEM_OPCODE(T::CC_CP_N_1)); return T::CC_CP_N; }
-template <class T> int CPUCore<T>::sbc_a_xhl() { SBC(RDMEM(R.getHL(), T::CC_CP_XHL_1)); return T::CC_CP_XHL; }
-template <class T> int CPUCore<T>::sbc_a_xix()
-{
-	offset ofst = RDMEM_OPCODE(T::CC_CP_XIX_1);
-	memptr = (R.getIX() + ofst) & 0xFFFF;
-	SBC(RDMEM(memptr, T::CC_CP_XIX_2));
-	return T::CC_CP_XIX;
+template <class T> int CPUCore<T>::sbc_a_byte() {
+	SBC(RDMEM_OPCODE(T::CC_CP_N_1)); return T::CC_CP_N;
 }
-template <class T> int CPUCore<T>::sbc_a_xiy()
-{
+template <class T> int CPUCore<T>::sbc_a_xhl() {
+	SBC(RDMEM(R.getHL(), T::CC_CP_XHL_1)); return T::CC_CP_XHL;
+}
+template <class T> template<CPU::Reg16 IXY> int CPUCore<T>::sbc_a_xix() {
 	offset ofst = RDMEM_OPCODE(T::CC_CP_XIX_1);
-	memptr = (R.getIY() + ofst) & 0xFFFF;
+	memptr = (R.get<IXY>() + ofst) & 0xFFFF;
 	SBC(RDMEM(memptr, T::CC_CP_XIX_2));
 	return T::CC_CP_XIX;
 }
 
 // SUB r
-template <class T> inline void CPUCore<T>::SUB(byte reg)
-{
+template <class T> inline void CPUCore<T>::SUB(byte reg) {
 	unsigned res = R.getA() - reg;
 	R.setF(ZSXYTable[res & 0xFF] |
 	       ((res & 0x100) ? C_FLAG : 0) |
@@ -1384,62 +1323,53 @@ template <class T> inline void CPUCore<T>::SUB(byte reg)
 	       (((reg ^ R.getA()) & (R.getA() ^ res) & 0x80) >> 5)); // V_FLAG
 	R.setA(res);
 }
-template <class T> int CPUCore<T>::sub_a()
-{
+template <class T> int CPUCore<T>::sub_a() {
 	R.setAF(0 * 256 | ZSXY0 | N_FLAG);
 	return T::CC_CP_R;
 }
 template <class T> template<CPU::Reg8 SRC> int CPUCore<T>::sub_R() {
 	SUB(R.get<SRC>()); return T::CC_CP_R;
 }
-template <class T> int CPUCore<T>::sub_byte(){ SUB(RDMEM_OPCODE(T::CC_CP_N_1)); return T::CC_CP_N; }
-template <class T> int CPUCore<T>::sub_xhl() { SUB(RDMEM(R.getHL(), T::CC_CP_XHL_1)); return T::CC_CP_XHL; }
-template <class T> int CPUCore<T>::sub_xix()
-{
-	offset ofst = RDMEM_OPCODE(T::CC_CP_XIX_1);
-	memptr = (R.getIX() + ofst) & 0xFFFF;
-	SUB(RDMEM(memptr, T::CC_CP_XIX_2));
-	return T::CC_CP_XIX;
+template <class T> int CPUCore<T>::sub_byte() {
+	SUB(RDMEM_OPCODE(T::CC_CP_N_1)); return T::CC_CP_N;
 }
-template <class T> int CPUCore<T>::sub_xiy()
-{
+template <class T> int CPUCore<T>::sub_xhl() {
+	SUB(RDMEM(R.getHL(), T::CC_CP_XHL_1)); return T::CC_CP_XHL;
+}
+template <class T> template<CPU::Reg16 IXY> int CPUCore<T>::sub_xix() {
 	offset ofst = RDMEM_OPCODE(T::CC_CP_XIX_1);
-	memptr = (R.getIY() + ofst) & 0xFFFF;
+	memptr = (R.get<IXY>() + ofst) & 0xFFFF;
 	SUB(RDMEM(memptr, T::CC_CP_XIX_2));
 	return T::CC_CP_XIX;
 }
 
 // XOR r
-template <class T> inline void CPUCore<T>::XOR(byte reg)
-{
+template <class T> inline void CPUCore<T>::XOR(byte reg) {
 	R.setA(R.getA() ^ reg);
 	R.setF(ZSPXYTable[R.getA()]);
 }
-template <class T> int CPUCore<T>::xor_a()   { R.setAF(0 * 256 + ZSPXY0); return T::CC_CP_R; }
+template <class T> int CPUCore<T>::xor_a() {
+	R.setAF(0 * 256 + ZSPXY0); return T::CC_CP_R;
+}
 template <class T> template<CPU::Reg8 SRC> int CPUCore<T>::xor_R() {
 	XOR(R.get<SRC>()); return T::CC_CP_R;
 }
-template <class T> int CPUCore<T>::xor_byte(){ XOR(RDMEM_OPCODE(T::CC_CP_N_1)); return T::CC_CP_N; }
-template <class T> int CPUCore<T>::xor_xhl() { XOR(RDMEM(R.getHL(), T::CC_CP_XHL_1)); return T::CC_CP_XHL; }
-template <class T> int CPUCore<T>::xor_xix()
-{
-	offset ofst = RDMEM_OPCODE(T::CC_CP_XIX_1);
-	memptr = (R.getIX() + ofst) & 0xFFFF;
-	XOR(RDMEM(memptr, T::CC_CP_XIX_2));
-	return T::CC_CP_XIX;
+template <class T> int CPUCore<T>::xor_byte() {
+	XOR(RDMEM_OPCODE(T::CC_CP_N_1)); return T::CC_CP_N;
 }
-template <class T> int CPUCore<T>::xor_xiy()
-{
+template <class T> int CPUCore<T>::xor_xhl() {
+	XOR(RDMEM(R.getHL(), T::CC_CP_XHL_1)); return T::CC_CP_XHL;
+}
+template <class T> template<CPU::Reg16 IXY> int CPUCore<T>::xor_xix() {
 	offset ofst = RDMEM_OPCODE(T::CC_CP_XIX_1);
-	memptr = (R.getIY() + ofst) & 0xFFFF;
+	memptr = (R.get<IXY>() + ofst) & 0xFFFF;
 	XOR(RDMEM(memptr, T::CC_CP_XIX_2));
 	return T::CC_CP_XIX;
 }
 
 
 // DEC r
-template <class T> inline byte CPUCore<T>::DEC(byte reg)
-{
+template <class T> inline byte CPUCore<T>::DEC(byte reg) {
 	byte res = reg - 1;
 	R.setF((R.getF() & C_FLAG) |
 	       ((reg & ~res & 0x80) >> 5) | // V_FLAG
@@ -1451,29 +1381,22 @@ template <class T> inline byte CPUCore<T>::DEC(byte reg)
 template <class T> template<CPU::Reg8 REG> int CPUCore<T>::dec_R() {
 	R.set<REG>(DEC(R.get<REG>())); return T::CC_INC_R;
 }
-template <class T> inline int CPUCore<T>::DEC_X(unsigned x, int ee)
-{
+template <class T> inline int CPUCore<T>::DEC_X(unsigned x, int ee) {
 	byte val = DEC(RDMEM(x, T::CC_INC_XHL_1 + ee));
 	WRMEM(x, val, T::CC_INC_XHL_2 + ee);
 	return T::CC_INC_XHL + ee;
 }
-template <class T> int CPUCore<T>::dec_xhl() { return DEC_X(R.getHL(), 0); }
-template <class T> int CPUCore<T>::dec_xix()
-{
-	offset ofst = RDMEM_OPCODE(T::CC_INC_XIX_1);
-	memptr = (R.getIX() + ofst) & 0xFFFF;
-	return DEC_X(memptr, T::EE_INC_XIX);
+template <class T> int CPUCore<T>::dec_xhl() {
+	return DEC_X(R.getHL(), 0);
 }
-template <class T> int CPUCore<T>::dec_xiy()
-{
+template <class T> template<CPU::Reg16 IXY> int CPUCore<T>::dec_xix() {
 	offset ofst = RDMEM_OPCODE(T::CC_INC_XIX_1);
-	memptr = (R.getIY() + ofst) & 0xFFFF;
+	memptr = (R.get<IXY>() + ofst) & 0xFFFF;
 	return DEC_X(memptr, T::EE_INC_XIX);
 }
 
 // INC r
-template <class T> inline byte CPUCore<T>::INC(byte reg)
-{
+template <class T> inline byte CPUCore<T>::INC(byte reg) {
 	reg++;
 	R.setF((R.getF() & C_FLAG) |
 	       ((reg & -reg & 0x80) >> 5) | // V_FLAG
@@ -1484,30 +1407,23 @@ template <class T> inline byte CPUCore<T>::INC(byte reg)
 template <class T> template<CPU::Reg8 REG> int CPUCore<T>::inc_R() {
 	R.set<REG>(INC(R.get<REG>())); return T::CC_INC_R;
 }
-template <class T> inline int CPUCore<T>::INC_X(unsigned x, int ee)
-{
+template <class T> inline int CPUCore<T>::INC_X(unsigned x, int ee) {
 	byte val = INC(RDMEM(x, T::CC_INC_XHL_1 + ee));
 	WRMEM(x, val, T::CC_INC_XHL_2 + ee);
 	return T::CC_INC_XHL + ee;
 }
-template <class T> int CPUCore<T>::inc_xhl() { return INC_X(R.getHL(), 0); }
-template <class T> int CPUCore<T>::inc_xix()
-{
-	offset ofst = RDMEM_OPCODE(T::CC_INC_XIX_1);
-	memptr = (R.getIX() + ofst) & 0xFFFF;
-	return INC_X(memptr, T::EE_INC_XIX);
+template <class T> int CPUCore<T>::inc_xhl() {
+	return INC_X(R.getHL(), 0);
 }
-template <class T> int CPUCore<T>::inc_xiy()
-{
+template <class T> template<CPU::Reg16 IXY> int CPUCore<T>::inc_xix() {
 	offset ofst = RDMEM_OPCODE(T::CC_INC_XIX_1);
-	memptr = (R.getIY() + ofst) & 0xFFFF;
+	memptr = (R.get<IXY>() + ofst) & 0xFFFF;
 	return INC_X(memptr, T::EE_INC_XIX);
 }
 
 
 // ADC HL,ss
-template <class T> template<CPU::Reg16 REG> inline int CPUCore<T>::adc_hl_SS()
-{
+template <class T> template<CPU::Reg16 REG> inline int CPUCore<T>::adc_hl_SS() {
 	unsigned reg = R.get<REG>();
 	memptr = R.getHL() + 1; // not 16-bit
 	unsigned res = R.getHL() + reg + ((R.getF() & C_FLAG) ? 1 : 0);
@@ -1527,8 +1443,7 @@ template <class T> template<CPU::Reg16 REG> inline int CPUCore<T>::adc_hl_SS()
 	R.setHL(res);
 	return T::CC_ADC_HL_SS;
 }
-template <class T> int CPUCore<T>::adc_hl_hl()
-{
+template <class T> int CPUCore<T>::adc_hl_hl() {
 	memptr = R.getHL() + 1; // not 16-bit
 	unsigned res = 2 * R.getHL() + ((R.getF() & C_FLAG) ? 1 : 0);
 	if (res & 0xFFFF) {
@@ -1571,8 +1486,7 @@ template <class T> template<CPU::Reg16 REG> int CPUCore<T>::add_SS_SS() {
 }
 
 // SBC HL,ss
-template <class T> template<CPU::Reg16 REG> inline int CPUCore<T>::sbc_hl_SS()
-{
+template <class T> template<CPU::Reg16 REG> inline int CPUCore<T>::sbc_hl_SS() {
 	unsigned reg = R.get<REG>();
 	memptr = R.getHL() + 1; // not 16-bit
 	unsigned res = R.getHL() - reg - ((R.getF() & C_FLAG) ? 1 : 0);
@@ -1594,8 +1508,7 @@ template <class T> template<CPU::Reg16 REG> inline int CPUCore<T>::sbc_hl_SS()
 	R.setHL(res);
 	return T::CC_ADC_HL_SS;
 }
-template <class T> int CPUCore<T>::sbc_hl_hl()
-{
+template <class T> int CPUCore<T>::sbc_hl_hl() {
 	memptr = R.getHL() + 1; // not 16-bit
 	if (R.getF() & C_FLAG) {
 		R.setF(C_FLAG | H_FLAG | S_FLAG | X_FLAG | Y_FLAG | N_FLAG);
@@ -1928,15 +1841,13 @@ template <class T> template<CPU::Reg16 REG> int CPUCore<T>::pop_SS() {
 
 
 // CALL nn / CALL cc,nn
-template <class T> inline int CPUCore<T>::CALL()
-{
+template <class T> inline int CPUCore<T>::CALL() {
 	memptr = RD_WORD_PC(T::CC_CALL_1);
 	PUSH(R.getPC(), T::EE_CALL);
 	R.setPC(memptr);
 	return T::CC_CALL_A;
 }
-template <class T> inline int CPUCore<T>::SKIP_CALL()
-{
+template <class T> inline int CPUCore<T>::SKIP_CALL() {
 	memptr = RD_WORD_PC(T::CC_CALL_1);
 	return T::CC_CALL_B;
 }
@@ -2076,8 +1987,7 @@ template <class T> int CPUCore<T>::out_byte_a() {
 
 
 // block CP
-template <class T> inline int CPUCore<T>::BLOCK_CP(int increase, bool repeat)
-{
+template <class T> inline int CPUCore<T>::BLOCK_CP(int increase, bool repeat) {
 	byte val = RDMEM(R.getHL(), T::CC_CPI_1);
 	byte res = R.getA() - val;
 	R.setHL(R.getHL() + increase);
@@ -2105,8 +2015,7 @@ template <class T> int CPUCore<T>::cpir() { return BLOCK_CP( 1, true ); }
 
 
 // block LD
-template <class T> inline int CPUCore<T>::BLOCK_LD(int increase, bool repeat)
-{
+template <class T> inline int CPUCore<T>::BLOCK_LD(int increase, bool repeat) {
 	byte val = RDMEM(R.getHL(), T::CC_LDI_1);
 	WRMEM(R.getDE(), val, T::CC_LDI_2);
 	R.setHL(R.getHL() + increase);
@@ -2130,8 +2039,7 @@ template <class T> int CPUCore<T>::ldir() { return BLOCK_LD( 1, true ); }
 
 
 // block IN
-template <class T> inline int CPUCore<T>::BLOCK_IN(int increase, bool repeat)
-{
+template <class T> inline int CPUCore<T>::BLOCK_IN(int increase, bool repeat) {
 	R.setBC(R.getBC() - 0x100); // decr before use
 	byte val = READ_PORT(R.getBC(), T::CC_INI_1);
 	WRMEM(R.getHL(), val, T::CC_INI_2);
@@ -2156,8 +2064,7 @@ template <class T> int CPUCore<T>::inir() { return BLOCK_IN( 1, true ); }
 
 
 // block OUT
-template <class T> inline int CPUCore<T>::BLOCK_OUT(int increase, bool repeat)
-{
+template <class T> inline int CPUCore<T>::BLOCK_OUT(int increase, bool repeat) {
 	byte val = RDMEM(R.getHL(), T::CC_OUTI_1);
 	R.setHL(R.getHL() + increase);
 	WRITE_PORT(R.getBC(), val, T::CC_OUTI_2);
@@ -2297,11 +2204,10 @@ template <class T> template<CPU::Reg16 REG> int CPUCore<T>::muluw_hl_SS() {
 
 
 // prefixes
-template <class T> ALWAYS_INLINE int CPUCore<T>::nn_cb(unsigned reg)
-{
+template <class T> template<CPU::Reg16 IXY> int CPUCore<T>::xy_cb() {
 	unsigned tmp = RD_WORD_PC(T::CC_DD_CB);
 	offset ofst = tmp & 0xFF;
-	unsigned addr = (reg + ofst) & 0xFFFF;
+	unsigned addr = (R.get<IXY>() + ofst) & 0xFFFF;
 	unsigned opcode = tmp >> 8;
 	switch (opcode) {
 		case 0x00: return rlc_xix_R<B>(addr);
@@ -2526,11 +2432,8 @@ template <class T> ALWAYS_INLINE int CPUCore<T>::nn_cb(unsigned reg)
 	}
 	assert(false); return 0;
 }
-template <class T> int CPUCore<T>::dd_cb() { return nn_cb(R.getIX()); }
-template <class T> int CPUCore<T>::fd_cb() { return nn_cb(R.getIY()); }
 
-template <class T> int CPUCore<T>::cb()
-{
+template <class T> int CPUCore<T>::cb() {
 	byte opcode = RDMEM_OPCODE(T::CC_PREFIX);
 	M1Cycle();
 	switch (opcode) {
@@ -2797,8 +2700,7 @@ template <class T> int CPUCore<T>::cb()
 	assert(false); return 0;
 }
 
-template <class T> int CPUCore<T>::ed()
-{
+template <class T> int CPUCore<T>::ed() {
 	byte opcode = RDMEM_OPCODE(T::CC_PREFIX);
 	M1Cycle();
 	switch (opcode) {
@@ -2938,9 +2840,8 @@ template <class T> int CPUCore<T>::ed()
 	assert(false); return 0;
 }
 
-// TODO dd2
-template <class T> int CPUCore<T>::dd()
-{
+template <class T> template<CPU::Reg16 IXY, CPU::Reg8 IXYH, CPU::Reg8 IXYL>
+int CPUCore<T>::xy() {
 	T::add(T::CC_DD);
 	byte opcode = RDMEM_OPCODE(T::CC_MAIN);
 	M1Cycle();
@@ -3120,370 +3021,95 @@ template <class T> int CPUCore<T>::dd()
 		case 0xff: // rst_38();
 			return executeInstruction1_slow(opcode);
 
-		case 0x09: return add_SS_TT<IX,BC>();
-		case 0x19: return add_SS_TT<IX,DE>();
-		case 0x21: return ld_SS_word<IX>();
-		case 0x22: return ld_xword_SS<IX>();
-		case 0x23: return inc_SS<IX>();
-		case 0x24: return inc_R<IXH>();
-		case 0x25: return dec_R<IXH>();
-		case 0x26: return ld_R_byte<IXH>();
-		case 0x29: return add_SS_SS<IX>();
-		case 0x2a: return ld_SS_xword<IX>();
-		case 0x2b: return dec_SS<IX>();
-		case 0x2c: return inc_R<IXL>();
-		case 0x2d: return dec_R<IXL>();
-		case 0x2e: return ld_R_byte<IXL>();
-		case 0x34: return inc_xix();
-		case 0x35: return dec_xix();
-		case 0x36: return ld_xix_byte();
-		case 0x39: return add_SS_TT<IX,SP>();
+		case 0x09: return add_SS_TT<IXY,BC>();
+		case 0x19: return add_SS_TT<IXY,DE>();
+		case 0x21: return ld_SS_word<IXY>();
+		case 0x22: return ld_xword_SS<IXY>();
+		case 0x23: return inc_SS<IXY>();
+		case 0x24: return inc_R<IXYH>();
+		case 0x25: return dec_R<IXYH>();
+		case 0x26: return ld_R_byte<IXYH>();
+		case 0x29: return add_SS_SS<IXY>();
+		case 0x2a: return ld_SS_xword<IXY>();
+		case 0x2b: return dec_SS<IXY>();
+		case 0x2c: return inc_R<IXYL>();
+		case 0x2d: return dec_R<IXYL>();
+		case 0x2e: return ld_R_byte<IXYL>();
+		case 0x34: return inc_xix<IXY>();
+		case 0x35: return dec_xix<IXY>();
+		case 0x36: return ld_xix_byte<IXY>();
+		case 0x39: return add_SS_TT<IXY,SP>();
 
-		case 0x44: return ld_R_R<B,IXH>();
-		case 0x45: return ld_R_R<B,IXL>();
-		case 0x4c: return ld_R_R<C,IXH>();
-		case 0x4d: return ld_R_R<C,IXL>();
-		case 0x54: return ld_R_R<D,IXH>();
-		case 0x55: return ld_R_R<D,IXL>();
-		case 0x5c: return ld_R_R<E,IXH>();
-		case 0x5d: return ld_R_R<E,IXL>();
-		case 0x7c: return ld_R_R<A,IXH>();
-		case 0x7d: return ld_R_R<A,IXL>();
-		case 0x60: return ld_R_R<IXH,B>();
-		case 0x61: return ld_R_R<IXH,C>();
-		case 0x62: return ld_R_R<IXH,D>();
-		case 0x63: return ld_R_R<IXH,E>();
-		case 0x65: return ld_R_R<IXH,IXL>();
-		case 0x67: return ld_R_R<IXH,A>();
-		case 0x68: return ld_R_R<IXL,B>();
-		case 0x69: return ld_R_R<IXL,C>();
-		case 0x6a: return ld_R_R<IXL,D>();
-		case 0x6b: return ld_R_R<IXL,E>();
-		case 0x6c: return ld_R_R<IXL,IXH>();
-		case 0x6f: return ld_R_R<IXL,A>();
-		case 0x70: return ld_xix_R<B>();
-		case 0x71: return ld_xix_R<C>();
-		case 0x72: return ld_xix_R<D>();
-		case 0x73: return ld_xix_R<E>();
-		case 0x74: return ld_xix_R<H>();
-		case 0x75: return ld_xix_R<L>();
-		case 0x77: return ld_xix_R<A>();
-		case 0x46: return ld_R_xix<B>();
-		case 0x4e: return ld_R_xix<C>();
-		case 0x56: return ld_R_xix<D>();
-		case 0x5e: return ld_R_xix<E>();
-		case 0x66: return ld_R_xix<H>();
-		case 0x6e: return ld_R_xix<L>();
-		case 0x7e: return ld_R_xix<A>();
+		case 0x44: return ld_R_R<B,IXYH>();
+		case 0x45: return ld_R_R<B,IXYL>();
+		case 0x4c: return ld_R_R<C,IXYH>();
+		case 0x4d: return ld_R_R<C,IXYL>();
+		case 0x54: return ld_R_R<D,IXYH>();
+		case 0x55: return ld_R_R<D,IXYL>();
+		case 0x5c: return ld_R_R<E,IXYH>();
+		case 0x5d: return ld_R_R<E,IXYL>();
+		case 0x7c: return ld_R_R<A,IXYH>();
+		case 0x7d: return ld_R_R<A,IXYL>();
+		case 0x60: return ld_R_R<IXYH,B>();
+		case 0x61: return ld_R_R<IXYH,C>();
+		case 0x62: return ld_R_R<IXYH,D>();
+		case 0x63: return ld_R_R<IXYH,E>();
+		case 0x65: return ld_R_R<IXYH,IXL>();
+		case 0x67: return ld_R_R<IXYH,A>();
+		case 0x68: return ld_R_R<IXYL,B>();
+		case 0x69: return ld_R_R<IXYL,C>();
+		case 0x6a: return ld_R_R<IXYL,D>();
+		case 0x6b: return ld_R_R<IXYL,E>();
+		case 0x6c: return ld_R_R<IXYL,IXH>();
+		case 0x6f: return ld_R_R<IXYL,A>();
+		case 0x70: return ld_xix_R<IXY,B>();
+		case 0x71: return ld_xix_R<IXY,C>();
+		case 0x72: return ld_xix_R<IXY,D>();
+		case 0x73: return ld_xix_R<IXY,E>();
+		case 0x74: return ld_xix_R<IXY,H>();
+		case 0x75: return ld_xix_R<IXY,L>();
+		case 0x77: return ld_xix_R<IXY,A>();
+		case 0x46: return ld_R_xix<B,IXY>();
+		case 0x4e: return ld_R_xix<C,IXY>();
+		case 0x56: return ld_R_xix<D,IXY>();
+		case 0x5e: return ld_R_xix<E,IXY>();
+		case 0x66: return ld_R_xix<H,IXY>();
+		case 0x6e: return ld_R_xix<L,IXY>();
+		case 0x7e: return ld_R_xix<A,IXY>();
 
-		case 0x84: return add_a_R<IXH>();
-		case 0x85: return add_a_R<IXL>();
-		case 0x86: return add_a_xix();
-		case 0x8c: return adc_a_R<IXH>();
-		case 0x8d: return adc_a_R<IXL>();
-		case 0x8e: return adc_a_xix();
-		case 0x94: return sub_R<IXH>();
-		case 0x95: return sub_R<IXL>();
-		case 0x96: return sub_xix();
-		case 0x9c: return sbc_a_R<IXH>();
-		case 0x9d: return sbc_a_R<IXL>();
-		case 0x9e: return sbc_a_xix();
-		case 0xa4: return and_R<IXH>();
-		case 0xa5: return and_R<IXL>();
-		case 0xa6: return and_xix();
-		case 0xac: return xor_R<IXH>();
-		case 0xad: return xor_R<IXL>();
-		case 0xae: return xor_xix();
-		case 0xb4: return or_R<IXH>();
-		case 0xb5: return or_R<IXL>();
-		case 0xb6: return or_xix();
-		case 0xbc: return cp_R<IXH>();
-		case 0xbd: return cp_R<IXL>();
-		case 0xbe: return cp_xix();
+		case 0x84: return add_a_R<IXYH>();
+		case 0x85: return add_a_R<IXYL>();
+		case 0x86: return add_a_xix<IXY>();
+		case 0x8c: return adc_a_R<IXYH>();
+		case 0x8d: return adc_a_R<IXYL>();
+		case 0x8e: return adc_a_xix<IXY>();
+		case 0x94: return sub_R<IXYH>();
+		case 0x95: return sub_R<IXYL>();
+		case 0x96: return sub_xix<IXY>();
+		case 0x9c: return sbc_a_R<IXYH>();
+		case 0x9d: return sbc_a_R<IXYL>();
+		case 0x9e: return sbc_a_xix<IXY>();
+		case 0xa4: return and_R<IXYH>();
+		case 0xa5: return and_R<IXYL>();
+		case 0xa6: return and_xix<IXY>();
+		case 0xac: return xor_R<IXYH>();
+		case 0xad: return xor_R<IXYL>();
+		case 0xae: return xor_xix<IXY>();
+		case 0xb4: return or_R<IXYH>();
+		case 0xb5: return or_R<IXYL>();
+		case 0xb6: return or_xix<IXY>();
+		case 0xbc: return cp_R<IXYH>();
+		case 0xbd: return cp_R<IXYL>();
+		case 0xbe: return cp_xix<IXY>();
 
-		case 0xcb: return dd_cb();
-		case 0xdd: return dd();
-		case 0xe1: return pop_SS<IX>();
-		case 0xe3: return ex_xsp_SS<IX>();
-		case 0xe5: return push_SS<IX>();
-		case 0xe9: return jp_SS<IX>();
-		case 0xf9: return ld_sp_SS<IX>();
-		case 0xfd: return fd();
-	}
-	assert(false); return 0;
-}
-
-// TODO fd2
-template <class T> int CPUCore<T>::fd()
-{
-	T::add(T::CC_DD);
-	byte opcode = RDMEM_OPCODE(T::CC_MAIN);
-	M1Cycle();
-	switch (opcode) {
-		case 0x00: // nop
-		case 0x01: // ld_bc_word();
-		case 0x02: // ld_xbc_a();
-		case 0x03: // inc_bc();
-		case 0x04: // inc_b();
-		case 0x05: // dec_b();
-		case 0x06: // ld_b_byte();
-		case 0x07: // rlca();
-		case 0x08: // ex_af_af();
-		case 0x0a: // ld_a_xbc();
-		case 0x0b: // dec_bc();
-		case 0x0c: // inc_c();
-		case 0x0d: // dec_c();
-		case 0x0e: // ld_c_byte();
-		case 0x0f: // rrca();
-		case 0x10: // djnz();
-		case 0x11: // ld_de_word();
-		case 0x12: // ld_xde_a();
-		case 0x13: // inc_de();
-		case 0x14: // inc_d();
-		case 0x15: // dec_d();
-		case 0x16: // ld_d_byte();
-		case 0x17: // rla();
-		case 0x18: // jr();
-		case 0x1a: // ld_a_xde();
-		case 0x1b: // dec_de();
-		case 0x1c: // inc_e();
-		case 0x1d: // dec_e();
-		case 0x1e: // ld_e_byte();
-		case 0x1f: // rra();
-		case 0x20: // jr_nz();
-		case 0x27: // daa();
-		case 0x28: // jr_z();
-		case 0x2f: // cpl();
-		case 0x30: // jr_nc();
-		case 0x31: // ld_sp_word();
-		case 0x32: // ld_xbyte_a();
-		case 0x33: // inc_sp();
-		case 0x37: // scf();
-		case 0x38: // jr_c();
-		case 0x3a: // ld_a_xbyte();
-		case 0x3b: // dec_sp();
-		case 0x3c: // inc_a();
-		case 0x3d: // dec_a();
-		case 0x3e: // ld_a_byte();
-		case 0x3f: // ccf();
-
-		case 0x40: // ld_b_b();
-		case 0x41: // ld_b_c();
-		case 0x42: // ld_b_d();
-		case 0x43: // ld_b_e();
-		case 0x47: // ld_b_a();
-		case 0x48: // ld_c_b();
-		case 0x49: // ld_c_c();
-		case 0x4a: // ld_c_d();
-		case 0x4b: // ld_c_e();
-		case 0x4f: // ld_c_a();
-		case 0x50: // ld_d_b();
-		case 0x51: // ld_d_c();
-		case 0x52: // ld_d_d();
-		case 0x53: // ld_d_e();
-		case 0x57: // ld_d_a();
-		case 0x58: // ld_e_b();
-		case 0x59: // ld_e_c();
-		case 0x5a: // ld_e_d();
-		case 0x5b: // ld_e_e();
-		case 0x5f: // ld_e_a();
-		case 0x64: // ld_iyh_iyh(); == nop
-		case 0x6d: // ld_iyl_iyl(); == nop
-		case 0x76: // halt();
-		case 0x78: // ld_a_b();
-		case 0x79: // ld_a_c();
-		case 0x7a: // ld_a_d();
-		case 0x7b: // ld_a_e();
-		case 0x7f: // ld_a_a();
-
-		case 0x80: // add_a_b();
-		case 0x81: // add_a_c();
-		case 0x82: // add_a_d();
-		case 0x83: // add_a_e();
-		case 0x87: // add_a_a();
-		case 0x88: // adc_a_b();
-		case 0x89: // adc_a_c();
-		case 0x8a: // adc_a_d();
-		case 0x8b: // adc_a_e();
-		case 0x8f: // adc_a_a();
-		case 0x90: // sub_b();
-		case 0x91: // sub_c();
-		case 0x92: // sub_d();
-		case 0x93: // sub_e();
-		case 0x97: // sub_a();
-		case 0x98: // sbc_a_b();
-		case 0x99: // sbc_a_c();
-		case 0x9a: // sbc_a_d();
-		case 0x9b: // sbc_a_e();
-		case 0x9f: // sbc_a_a();
-		case 0xa0: // and_b();
-		case 0xa1: // and_c();
-		case 0xa2: // and_d();
-		case 0xa3: // and_e();
-		case 0xa7: // and_a();
-		case 0xa8: // xor_b();
-		case 0xa9: // xor_c();
-		case 0xaa: // xor_d();
-		case 0xab: // xor_e();
-		case 0xaf: // xor_a();
-		case 0xb0: // or_b();
-		case 0xb1: // or_c();
-		case 0xb2: // or_d();
-		case 0xb3: // or_e();
-		case 0xb7: // or_a();
-		case 0xb8: // cp_b();
-		case 0xb9: // cp_c();
-		case 0xba: // cp_d();
-		case 0xbb: // cp_e();
-		case 0xbf: // cp_a();
-
-		case 0xc0: // ret_nz();
-		case 0xc1: // pop_bc();
-		case 0xc2: // jp_nz();
-		case 0xc3: // jp();
-		case 0xc4: // call_nz();
-		case 0xc5: // push_bc();
-		case 0xc6: // add_a_byte();
-		case 0xc7: // rst_00();
-		case 0xc8: // ret_z();
-		case 0xc9: // ret();
-		case 0xca: // jp_z();
-		case 0xcc: // call_z();
-		case 0xcd: // call();
-		case 0xce: // adc_a_byte();
-		case 0xcf: // rst_08();
-		case 0xd0: // ret_nc();
-		case 0xd1: // pop_de();
-		case 0xd2: // jp_nc();
-		case 0xd3: // out_byte_a();
-		case 0xd4: // call_nc();
-		case 0xd5: // push_de();
-		case 0xd6: // sub_byte();
-		case 0xd7: // rst_10();
-		case 0xd8: // ret_c();
-		case 0xd9: // exx();
-		case 0xda: // jp_c();
-		case 0xdb: // in_a_byte();
-		case 0xdc: // call_c();
-		case 0xde: // sbc_a_byte();
-		case 0xdf: // rst_18();
-		case 0xe0: // ret_po();
-		case 0xe2: // jp_po();
-		case 0xe4: // call_po();
-		case 0xe6: // and_byte();
-		case 0xe7: // rst_20();
-		case 0xe8: // ret_pe();
-		case 0xea: // jp_pe();
-		case 0xeb: // ex_de_hl();
-		case 0xec: // call_pe();
-		case 0xed: // ed();
-		case 0xee: // xor_byte();
-		case 0xef: // rst_28();
-		case 0xf0: // ret_p();
-		case 0xf1: // pop_af();
-		case 0xf2: // jp_p();
-		case 0xf3: // di();
-		case 0xf4: // call_p();
-		case 0xf5: // push_af();
-		case 0xf6: // or_byte();
-		case 0xf7: // rst_30();
-		case 0xf8: // ret_m();
-		case 0xfa: // jp_m();
-		case 0xfb: // ei();
-		case 0xfc: // call_m();
-		case 0xfe: // cp_byte();
-		case 0xff: // rst_38();
-			return executeInstruction1_slow(opcode);
-
-		case 0x09: return add_SS_TT<IY,BC>();
-		case 0x19: return add_SS_TT<IY,DE>();
-		case 0x21: return ld_SS_word<IY>();
-		case 0x22: return ld_xword_SS<IY>();
-		case 0x23: return inc_SS<IY>();
-		case 0x24: return inc_R<IYH>();
-		case 0x25: return dec_R<IYH>();
-		case 0x26: return ld_R_byte<IYH>();
-		case 0x29: return add_SS_SS<IY>();
-		case 0x2a: return ld_SS_xword<IY>();
-		case 0x2b: return dec_SS<IY>();
-		case 0x2c: return inc_R<IYL>();
-		case 0x2d: return dec_R<IYL>();
-		case 0x2e: return ld_R_byte<IYL>();
-		case 0x34: return inc_xiy();
-		case 0x35: return dec_xiy();
-		case 0x36: return ld_xiy_byte();
-		case 0x39: return add_SS_TT<IY,SP>();
-
-		case 0x44: return ld_R_R<B,IYH>();
-		case 0x45: return ld_R_R<B,IYL>();
-		case 0x4c: return ld_R_R<C,IYH>();
-		case 0x4d: return ld_R_R<C,IYL>();
-		case 0x54: return ld_R_R<D,IYH>();
-		case 0x55: return ld_R_R<D,IYL>();
-		case 0x5c: return ld_R_R<E,IYH>();
-		case 0x5d: return ld_R_R<E,IYL>();
-		case 0x7c: return ld_R_R<A,IYH>();
-		case 0x7d: return ld_R_R<A,IYL>();
-		case 0x60: return ld_R_R<IYH,B>();
-		case 0x61: return ld_R_R<IYH,C>();
-		case 0x62: return ld_R_R<IYH,D>();
-		case 0x63: return ld_R_R<IYH,E>();
-		case 0x65: return ld_R_R<IYH,IYL>();
-		case 0x67: return ld_R_R<IYH,A>();
-		case 0x68: return ld_R_R<IYL,B>();
-		case 0x69: return ld_R_R<IYL,C>();
-		case 0x6a: return ld_R_R<IYL,D>();
-		case 0x6b: return ld_R_R<IYL,E>();
-		case 0x6c: return ld_R_R<IYL,IYH>();
-		case 0x6f: return ld_R_R<IYL,A>();
-		case 0x70: return ld_xiy_R<B>();
-		case 0x71: return ld_xiy_R<C>();
-		case 0x72: return ld_xiy_R<D>();
-		case 0x73: return ld_xiy_R<E>();
-		case 0x74: return ld_xiy_R<H>();
-		case 0x75: return ld_xiy_R<L>();
-		case 0x77: return ld_xiy_R<A>();
-		case 0x46: return ld_R_xiy<B>();
-		case 0x4e: return ld_R_xiy<C>();
-		case 0x56: return ld_R_xiy<D>();
-		case 0x5e: return ld_R_xiy<E>();
-		case 0x66: return ld_R_xiy<H>();
-		case 0x6e: return ld_R_xiy<L>();
-		case 0x7e: return ld_R_xiy<A>();
-
-		case 0x84: return add_a_R<IYH>();
-		case 0x85: return add_a_R<IYL>();
-		case 0x86: return add_a_xiy();
-		case 0x8c: return adc_a_R<IYH>();
-		case 0x8d: return adc_a_R<IYL>();
-		case 0x8e: return adc_a_xiy();
-		case 0x94: return sub_R<IYH>();
-		case 0x95: return sub_R<IYL>();
-		case 0x96: return sub_xiy();
-		case 0x9c: return sbc_a_R<IYH>();
-		case 0x9d: return sbc_a_R<IYL>();
-		case 0x9e: return sbc_a_xiy();
-		case 0xa4: return and_R<IYH>();
-		case 0xa5: return and_R<IYL>();
-		case 0xa6: return and_xiy();
-		case 0xac: return xor_R<IYH>();
-		case 0xad: return xor_R<IYL>();
-		case 0xae: return xor_xiy();
-		case 0xb4: return or_R<IYH>();
-		case 0xb5: return or_R<IYL>();
-		case 0xb6: return or_xiy();
-		case 0xbc: return cp_R<IYH>();
-		case 0xbd: return cp_R<IYL>();
-		case 0xbe: return cp_xiy();
-
-		case 0xcb: return fd_cb();
-		case 0xdd: return dd();
-		case 0xe1: return pop_SS<IY>();
-		case 0xe3: return ex_xsp_SS<IY>();
-		case 0xe5: return push_SS<IY>();
-		case 0xe9: return jp_SS<IY>();
-		case 0xf9: return ld_sp_SS<IY>();
-		case 0xfd: return fd();
+		case 0xe1: return pop_SS<IXY>();
+		case 0xe3: return ex_xsp_SS<IXY>();
+		case 0xe5: return push_SS<IXY>();
+		case 0xe9: return jp_SS<IXY>();
+		case 0xf9: return ld_sp_SS<IXY>();
+		case 0xcb: return xy_cb<IXY>();
+		case 0xdd: return xy<IX, IXH, IXL>();
+		case 0xfd: return xy<IY, IYH, IYL>();
 	}
 	assert(false); return 0;
 }
