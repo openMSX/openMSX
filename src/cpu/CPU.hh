@@ -161,7 +161,8 @@ public:
 		byte R, R2; // refresh = R&127 | R2&128
 	};
 #else
-	enum Reg8 { A, F, B, C, D, E, H, L, IXH, IXL, IYH, IYL, DUMMY };
+	enum Reg8 { A, F, B, C, D, E, H, L, IXH, IXL, IYH, IYL, REG_I, REG_R, DUMMY };
+	enum Reg16 { AF, BC, DE, HL, IX, IY, SP };
 	class CPURegs {
 	public:
 
@@ -191,18 +192,20 @@ public:
 		inline byte getSPh() const { return SP_.b.h; }
 		inline byte getSPl() const { return SP_.b.l; }
 		template <Reg8 R8> inline byte get() const {
-			if      (R8 == A)   { return getA(); }
-			else if (R8 == F)   { return getF(); }
-			else if (R8 == B)   { return getB(); }
-			else if (R8 == C)   { return getC(); }
-			else if (R8 == D)   { return getD(); }
-			else if (R8 == E)   { return getE(); }
-			else if (R8 == H)   { return getH(); }
-			else if (R8 == L)   { return getL(); }
-			else if (R8 == IXH) { return getIXh(); }
-			else if (R8 == IXL) { return getIXl(); }
-			else if (R8 == IYH) { return getIYh(); }
-			else if (R8 == IYL) { return getIYl(); }
+			if      (R8 == A)     { return getA(); }
+			else if (R8 == F)     { return getF(); }
+			else if (R8 == B)     { return getB(); }
+			else if (R8 == C)     { return getC(); }
+			else if (R8 == D)     { return getD(); }
+			else if (R8 == E)     { return getE(); }
+			else if (R8 == H)     { return getH(); }
+			else if (R8 == L)     { return getL(); }
+			else if (R8 == IXH)   { return getIXh(); }
+			else if (R8 == IXL)   { return getIXl(); }
+			else if (R8 == IYH)   { return getIYh(); }
+			else if (R8 == IYL)   { return getIYl(); }
+			else if (R8 == REG_I) { return getI(); }
+			else if (R8 == REG_R) { return getR(); }
 			else if (R8 == DUMMY) { return 0; }
 			else { assert(false); return 0; }
 		}
@@ -219,6 +222,17 @@ public:
 		inline unsigned getIY()  const { return IY_.w; }
 		inline unsigned getPC()  const { return PC_.w; }
 		inline unsigned getSP()  const { return SP_.w; }
+		template <Reg16 R16> inline unsigned get() const {
+			if      (R16 == AF) { return getAF(); }
+			else if (R16 == BC) { return getBC(); }
+			else if (R16 == DE) { return getDE(); }
+			else if (R16 == HL) { return getHL(); }
+			else if (R16 == IX) { return getIX(); }
+			else if (R16 == IY) { return getIY(); }
+			else if (R16 == SP) { return getSP(); }
+			else { assert(false); return 0; }
+		}
+
 		inline byte getIM()  const { return IM_; }
 		inline byte getI()   const { return I_; }
 		inline byte getR()   const { return (R_ & 0x7F) | (R2_ & 0x80); }
@@ -252,18 +266,20 @@ public:
 		inline void setSPh(byte x) { SP_.b.h = x; }
 		inline void setSPl(byte x) { SP_.b.l = x; }
 		template <Reg8 R8> inline void set(byte x) {
-			if      (R8 == A)   { setA(x); }
-			else if (R8 == F)   { setF(x); }
-			else if (R8 == B)   { setB(x); }
-			else if (R8 == C)   { setC(x); }
-			else if (R8 == D)   { setD(x); }
-			else if (R8 == E)   { setE(x); }
-			else if (R8 == H)   { setH(x); }
-			else if (R8 == L)   { setL(x); }
-			else if (R8 == IXH) { setIXh(x); }
-			else if (R8 == IXL) { setIXl(x); }
-			else if (R8 == IYH) { setIYh(x); }
-			else if (R8 == IYL) { setIYl(x); }
+			if      (R8 == A)     { setA(x); }
+			else if (R8 == F)     { setF(x); }
+			else if (R8 == B)     { setB(x); }
+			else if (R8 == C)     { setC(x); }
+			else if (R8 == D)     { setD(x); }
+			else if (R8 == E)     { setE(x); }
+			else if (R8 == H)     { setH(x); }
+			else if (R8 == L)     { setL(x); }
+			else if (R8 == IXH)   { setIXh(x); }
+			else if (R8 == IXL)   { setIXl(x); }
+			else if (R8 == IYH)   { setIYh(x); }
+			else if (R8 == IYL)   { setIYl(x); }
+			else if (R8 == REG_I) { setI(x); }
+			else if (R8 == REG_R) { setR(x); }
 			else if (R8 == DUMMY) { /* nothing */ }
 			else { assert(false); }
 		}
@@ -280,6 +296,17 @@ public:
 		inline void setIY(unsigned x)  { IY_.w = x; }
 		inline void setPC(unsigned x)  { PC_.w = x; }
 		inline void setSP(unsigned x)  { SP_.w = x; }
+		template <Reg16 R16> inline void set(unsigned x) {
+			if      (R16 == AF) { setAF(x); }
+			else if (R16 == BC) { setBC(x); }
+			else if (R16 == DE) { setDE(x); }
+			else if (R16 == HL) { setHL(x); }
+			else if (R16 == IX) { setIX(x); }
+			else if (R16 == IY) { setIY(x); }
+			else if (R16 == SP) { setSP(x); }
+			else { assert(false); }
+		}
+
 		inline void setIM(byte x)  { IM_ = x; }
 		inline void setI(byte x)   { I_ = x; }
 		inline void setR(byte x)   { R_ = x; R2_ = x; }

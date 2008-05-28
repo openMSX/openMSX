@@ -167,7 +167,6 @@ private:
 	void executeFast();
 	inline void executeFastInline();
 	void executeSlow();
-	inline void next();
 
 	inline bool cond_C();
 	inline bool cond_NC();
@@ -179,15 +178,8 @@ private:
 	inline bool cond_PO();
 
 	template <CPU::Reg8 DST, CPU::Reg8 SRC> inline int ld_R_R();
-
-	inline int ld_sp_hl();
-	inline int ld_sp_ix();
-	inline int ld_sp_iy();
-
-	inline int WR_X_A(unsigned x);
-	inline int ld_xbc_a();
-	inline int ld_xde_a();
-
+	template <CPU::Reg16 REG> inline int ld_sp_SS();
+	template <CPU::Reg16 REG> inline int ld_SS_a();
 	template <CPU::Reg8 SRC> inline int ld_xhl_R();
 	template <CPU::Reg8 SRC> inline int ld_xix_R();
 	template <CPU::Reg8 SRC> inline int ld_xiy_R();
@@ -196,20 +188,12 @@ private:
 	inline int ld_xix_byte();
 	inline int ld_xiy_byte();
 
-	inline int ld_xbyte_a();
-
 	inline int WR_NN_Y(unsigned reg, int ee);
-	inline int ld_xword_hl();
-	inline int ld_xword_ix();
-	inline int ld_xword_iy();
-	inline int ld_xword_bc2();
-	inline int ld_xword_de2();
-	inline int ld_xword_hl2();
-	inline int ld_xword_sp2();
+	template <CPU::Reg16 REG> inline int ld_xword_SS();
+	template <CPU::Reg16 REG> inline int ld_xword_SS_ED();
+	template <CPU::Reg16 REG> inline int ld_a_SS();
 
-	inline int ld_a_xbc();
-	inline int ld_a_xde();
-
+	inline int ld_xbyte_a();
 	inline int ld_a_xbyte();
 
 	template <CPU::Reg8 DST> inline int ld_R_byte();
@@ -218,20 +202,10 @@ private:
 	template <CPU::Reg8 DST> inline int ld_R_xiy();
 
 	inline unsigned RD_P_XX(int ee);
-	inline int ld_hl_xword();
-	inline int ld_ix_xword();
-	inline int ld_iy_xword();
-	inline int ld_bc_xword2();
-	inline int ld_de_xword2();
-	inline int ld_hl_xword2();
-	inline int ld_sp_xword2();
+	template <CPU::Reg16 REG> inline int ld_SS_xword();
+	template <CPU::Reg16 REG> inline int ld_SS_xword_ED();
 
-	inline int ld_bc_word();
-	inline int ld_de_word();
-	inline int ld_hl_word();
-	inline int ld_ix_word();
-	inline int ld_iy_word();
-	inline int ld_sp_word();
+	template <CPU::Reg16 REG> inline int ld_SS_word();
 
 	inline void ADC(byte reg);
 	inline int adc_a_a();
@@ -311,46 +285,15 @@ private:
 	inline int inc_xix();
 	inline int inc_xiy();
 
-	inline int ADCW(unsigned reg);
-	inline int adc_hl_bc();
-	inline int adc_hl_de();
+	template <CPU::Reg16 REG> inline int adc_hl_SS();
 	inline int adc_hl_hl();
-	inline int adc_hl_sp();
-
-	inline unsigned ADDW(unsigned reg1, unsigned reg2);
-	inline unsigned ADDW2(unsigned reg);
-	inline int add_hl_bc();
-	inline int add_hl_de();
-	inline int add_hl_hl();
-	inline int add_hl_sp();
-	inline int add_ix_bc();
-	inline int add_ix_de();
-	inline int add_ix_ix();
-	inline int add_ix_sp();
-	inline int add_iy_bc();
-	inline int add_iy_de();
-	inline int add_iy_iy();
-	inline int add_iy_sp();
-
-	inline int SBCW(unsigned reg);
-	inline int sbc_hl_bc();
-	inline int sbc_hl_de();
+	template <CPU::Reg16 REG1, CPU::Reg16 REG2> inline int add_SS_TT();
+	template <CPU::Reg16 REG> inline int add_SS_SS();
+	template <CPU::Reg16 REG> inline int sbc_hl_SS();
 	inline int sbc_hl_hl();
-	inline int sbc_hl_sp();
 
-	inline int dec_bc();
-	inline int dec_de();
-	inline int dec_hl();
-	inline int dec_ix();
-	inline int dec_iy();
-	inline int dec_sp();
-
-	inline int inc_bc();
-	inline int inc_de();
-	inline int inc_hl();
-	inline int inc_ix();
-	inline int inc_iy();
-	inline int inc_sp();
+	template <CPU::Reg16 REG> inline int dec_SS();
+	template <CPU::Reg16 REG> inline int inc_SS();
 
 	template <unsigned N, CPU::Reg8 REG> inline int bit_N_R();
 	template <unsigned N> inline int bit_N_xhl();
@@ -423,20 +366,9 @@ private:
 	inline int rrd();
 
 	inline void PUSH(unsigned reg, int ee);
-	inline int push_af();
-	inline int push_bc();
-	inline int push_de();
-	inline int push_hl();
-	inline int push_ix();
-	inline int push_iy();
-
+	template <CPU::Reg16 REG> inline int push_SS();
 	inline unsigned POP(int ee);
-	inline int pop_af();
-	inline int pop_bc();
-	inline int pop_de();
-	inline int pop_hl();
-	inline int pop_ix();
-	inline int pop_iy();
+	template <CPU::Reg16 REG> inline int pop_SS();
 
 	inline int CALL();
 	inline int SKIP_CALL();
@@ -464,9 +396,7 @@ private:
 	inline int ret_z();
 	inline int retn();
 
-	inline int jp_hl();
-	inline int jp_ix();
-	inline int jp_iy();
+	template <CPU::Reg16 REG> inline int jp_SS();
 
 	inline int JP();
 	inline int SKIP_JP();
@@ -489,10 +419,7 @@ private:
 	inline int jr_z();
 	inline int djnz();
 
-	inline unsigned EX_SP(unsigned reg);
-	inline int ex_xsp_hl();
-	inline int ex_xsp_ix();
-	inline int ex_xsp_iy();
+	template <CPU::Reg16 REG> inline int ex_xsp_SS();
 
 	template <CPU::Reg8 REG> inline int in_R_c();
 	inline int in_a_byte();
@@ -537,15 +464,11 @@ private:
 	inline int halt();
 	template <unsigned N> inline int im_N();
 
-	inline int ld_a_i();
-	inline int ld_a_r();
-	inline int ld_i_a();
-	inline int ld_r_a();
+	template <CPU::Reg8 REG> inline int ld_a_IR();
+	template <CPU::Reg8 REG> inline int ld_IR_a();
 
-	template <CPU::Reg8 REG> inline int mulub_a_R();
-	inline int MULUW(unsigned reg);
-	inline int muluw_hl_bc();
-	inline int muluw_hl_sp();
+	template <CPU::Reg8 REG> int mulub_a_R();
+	template <CPU::Reg16 REG> int muluw_hl_SS();
 
 	inline int nn_cb(unsigned reg);
 	inline int dd_cb();
