@@ -2,8 +2,6 @@
 #include "uint128.hh"
 #include <cassert>
 
-#define NEVER_INLINE __attribute__((noinline))
-
 typedef unsigned long long uint64;
 
 static unsigned log2(uint64 i)
@@ -17,9 +15,9 @@ static unsigned log2(uint64 i)
 	return t;
 }
 
-void DivModBySame::setDivisor(uint64 divisor_)
+void DivModBySame::setDivisor(unsigned divisor_)
 {
-	assert(divisor_ < 0x8000000000000000ull);
+	//assert(divisor_ < 0x8000000000000000ull); // when divisor is uint64
 	divisor = divisor_;
 
 	// reduce divisor until it becomes odd

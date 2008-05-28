@@ -23,7 +23,7 @@ public:
 	  * The initial frequency is infinite;
 	  * in other words, the clock stands still.
 	  */
-	explicit DynamicClock(const EmuTime& time) : lastTick(time), step(0) { }
+	explicit DynamicClock(const EmuTime& time) : lastTick(time) {}
 
 	/** Gets the time at which the last clock tick occurred.
 	  */
@@ -52,24 +52,23 @@ public:
 	  */
 	unsigned getTicksTillUp(const EmuTime& e) const {
 		assert(e.time >= lastTick.time);
-		return divmod.div(e.time - lastTick.time + (step - 1));
+		return divmod.div(e.time - lastTick.time + (getStep() - 1));
 	}
 
 	/** Change the frequency at which this clock ticks.
 	  * @param freq New frequency in Hertz.
 	  */
 	void setFreq(unsigned freq) {
-		step = MAIN_FREQ32 / freq;
-		assert(step);
-		divmod.setDivisor(step);
+		unsigned newStep = MAIN_FREQ32 / freq;
+		assert(newStep);
+		divmod.setDivisor(newStep);
 	}
 
 	/** Returns the frequency (in Hz) at which this clock ticks.
 	  * @see setFreq()
 	  */
 	unsigned getFreq() const {
-		assert(step);
-		return MAIN_FREQ32 / step;
+		return MAIN_FREQ32 / getStep();
 	}
 
 	/** Reset the clock to start ticking at the given time.
@@ -90,7 +89,7 @@ public:
 	/** Advance this clock by the given number of ticks.
 	  */
 	void operator+=(uint64 n) {
-		lastTick.time += n * step;
+		lastTick.time += n * getStep();
 	}
 
 	/** Advance this clock by the given number of ticks.
@@ -102,26 +101,29 @@ public:
 	void fastAdd(unsigned n) {
 		#ifdef DEBUG
 		// we don't even want this overhead in development versions
-		assert((uint64(n) * step) < (1ull << 32));
+		assert((uint64(n) * getStep()) < (1ull << 32));
 		#endif
-		lastTick.time += n * step;
+		lastTick.time += n * getStep();
 	}
 	EmuTime getFastAdd(unsigned n) const {
 		#ifdef DEBUG
-		assert((uint64(n) * step) < (1ull << 32));
+		assert((uint64(n) * getStep()) < (1ull << 32));
 		#endif
-		return EmuTime(lastTick.time + n * step);
+		return EmuTime(lastTick.time + n * getStep());
 	}
 
 private:
+	/** Length of a this clock's ticks, expressed in master clock ticks.
+	  *   changed uint64 -> unsigned for performance reasons
+	  *   this is _heavily_ used in the CPU code
+	  * We used to store this as a member, but DivModBySame also stores
+	  * it, so we can as well get it from there (getter is inlined).
+	  */
+	unsigned getStep() const { return divmod.getDivisor(); }
+
 	/** Time of this clock's last tick.
 	  */
 	EmuTime lastTick;
-
-	/** Length of a this clock's ticks, expressed in master clock ticks.
-	  */
-	unsigned step; // changed uint64 -> unsigned for performance reasons
-	               // this is _heavily_ used in the CPU code
 
 	DivModBySame divmod;
 };

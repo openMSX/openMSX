@@ -23,7 +23,8 @@ class DivModBySame
 public:
 	typedef unsigned long long uint64;
 
-	void setDivisor(uint64 divisor);
+	void setDivisor(unsigned divisor);
+	inline unsigned getDivisor() const { return divisor; }
 
 	unsigned div(uint64 dividend) const
 	{
@@ -177,7 +178,7 @@ private:
 	uint64 m;
 	uint64 a;
 	unsigned s;
-	uint64 divisor; // only used for mod()
+	unsigned divisor; // only used by mod() and getDivisor()
 };
 
 #endif // DIVISIONBYCONST_HH
