@@ -27,9 +27,19 @@ namespace openmsx {
 
 typedef signed char offset;
 
+// conditions
+struct CondC  { bool operator()(byte f) const { return  (f & CPU::C_FLAG); } };
+struct CondNC { bool operator()(byte f) const { return !(f & CPU::C_FLAG); } };
+struct CondZ  { bool operator()(byte f) const { return  (f & CPU::Z_FLAG); } };
+struct CondNZ { bool operator()(byte f) const { return !(f & CPU::Z_FLAG); } };
+struct CondM  { bool operator()(byte f) const { return  (f & CPU::S_FLAG); } };
+struct CondP  { bool operator()(byte f) const { return !(f & CPU::S_FLAG); } };
+struct CondPE { bool operator()(byte f) const { return  (f & CPU::V_FLAG); } };
+struct CondPO { bool operator()(byte f) const { return !(f & CPU::V_FLAG); } };
+struct CondTrue { bool operator()(byte) const { return true; } };
+
 // This function only exists as a workaround for a bug in g++-4.2.x, see
 //   http://gcc.gnu.org/bugzilla/show_bug.cgi?id=34336
-// This can be removed once g++-4.2.4 is released.
 static BooleanSetting* createFreqLockedSetting(
 	CommandController& commandController, const string& name)
 {
@@ -613,12 +623,12 @@ template <class T> ALWAYS_INLINE int CPUCore<T>::executeInstruction1(byte opcode
 		case 0x2f: return cpl();
 		case 0x37: return scf();
 		case 0x3f: return ccf();
+		case 0x20: return jr(CondNZ());
+		case 0x28: return jr(CondZ());
+		case 0x30: return jr(CondNC());
+		case 0x38: return jr(CondC());
+		case 0x18: return jr(CondTrue());
 		case 0x10: return djnz();
-		case 0x18: return jr();
-		case 0x20: return jr_nz();
-		case 0x28: return jr_z();
-		case 0x30: return jr_nc();
-		case 0x38: return jr_c();
 		case 0x32: return ld_xbyte_a();
 		case 0x3a: return ld_a_xbyte();
 		case 0x22: return ld_xword_SS<HL>();
@@ -812,33 +822,33 @@ template <class T> ALWAYS_INLINE int CPUCore<T>::executeInstruction1(byte opcode
 		case 0xee: return xor_byte();
 		case 0xf6: return or_byte();
 		case 0xfe: return cp_byte();
-		case 0xc0: return ret_nz();
-		case 0xc8: return ret_z();
-		case 0xd0: return ret_nc();
-		case 0xd8: return ret_c();
-		case 0xe0: return ret_po();
-		case 0xe8: return ret_pe();
-		case 0xf0: return ret_p();
-		case 0xf8: return ret_m();
+		case 0xc0: return ret(CondNZ());
+		case 0xc8: return ret(CondZ());
+		case 0xd0: return ret(CondNC());
+		case 0xd8: return ret(CondC());
+		case 0xe0: return ret(CondPO());
+		case 0xe8: return ret(CondPE());
+		case 0xf0: return ret(CondP());
+		case 0xf8: return ret(CondM());
 		case 0xc9: return ret();
-		case 0xc2: return jp_nz();
-		case 0xca: return jp_z();
-		case 0xd2: return jp_nc();
-		case 0xda: return jp_c();
-		case 0xe2: return jp_po();
-		case 0xea: return jp_pe();
-		case 0xf2: return jp_p();
-		case 0xfa: return jp_m();
-		case 0xc3: return jp();
-		case 0xc4: return call_nz();
-		case 0xcc: return call_z();
-		case 0xd4: return call_nc();
-		case 0xdc: return call_c();
-		case 0xe4: return call_po();
-		case 0xec: return call_pe();
-		case 0xf4: return call_p();
-		case 0xfc: return call_m();
-		case 0xcd: return call();
+		case 0xc2: return jp(CondNZ());
+		case 0xca: return jp(CondZ());
+		case 0xd2: return jp(CondNC());
+		case 0xda: return jp(CondC());
+		case 0xe2: return jp(CondPO());
+		case 0xea: return jp(CondPE());
+		case 0xf2: return jp(CondP());
+		case 0xfa: return jp(CondM());
+		case 0xc3: return jp(CondTrue());
+		case 0xc4: return call(CondNZ());
+		case 0xcc: return call(CondZ());
+		case 0xd4: return call(CondNC());
+		case 0xdc: return call(CondC());
+		case 0xe4: return call(CondPO());
+		case 0xec: return call(CondPE());
+		case 0xf4: return call(CondP());
+		case 0xfc: return call(CondM());
+		case 0xcd: return call(CondTrue());
 		case 0xc1: return pop_SS<BC>();
 		case 0xd1: return pop_SS<DE>();
 		case 0xe1: return pop_SS<HL>();
@@ -1001,17 +1011,6 @@ template <class T> void CPUCore<T>::execute()
 		}
 	}
 }
-
-
-// conditions
-template <class T> inline bool CPUCore<T>::cond_C()  { return R.getF() & C_FLAG; }
-template <class T> inline bool CPUCore<T>::cond_NC() { return !cond_C(); }
-template <class T> inline bool CPUCore<T>::cond_Z()  { return R.getF() & Z_FLAG; }
-template <class T> inline bool CPUCore<T>::cond_NZ() { return !cond_Z(); }
-template <class T> inline bool CPUCore<T>::cond_M()  { return R.getF() & S_FLAG; }
-template <class T> inline bool CPUCore<T>::cond_P()  { return !cond_M(); }
-template <class T> inline bool CPUCore<T>::cond_PE() { return R.getF() & V_FLAG; }
-template <class T> inline bool CPUCore<T>::cond_PO() { return !cond_PE(); }
 
 
 // LD r,r
@@ -1841,25 +1840,16 @@ template <class T> template<CPU::Reg16 REG> int CPUCore<T>::pop_SS() {
 
 
 // CALL nn / CALL cc,nn
-template <class T> inline int CPUCore<T>::CALL() {
+template <class T> template<typename COND> int CPUCore<T>::call(COND cond) {
 	memptr = RD_WORD_PC(T::CC_CALL_1);
-	PUSH(R.getPC(), T::EE_CALL);
-	R.setPC(memptr);
-	return T::CC_CALL_A;
+	if (cond(R.getF())) {
+		PUSH(R.getPC(), T::EE_CALL);
+		R.setPC(memptr);
+		return T::CC_CALL_A;
+	} else {
+		return T::CC_CALL_B;
+	}
 }
-template <class T> inline int CPUCore<T>::SKIP_CALL() {
-	memptr = RD_WORD_PC(T::CC_CALL_1);
-	return T::CC_CALL_B;
-}
-template <class T> int CPUCore<T>::call()    { return             CALL();               }
-template <class T> int CPUCore<T>::call_c()  { return cond_C()  ? CALL() : SKIP_CALL(); }
-template <class T> int CPUCore<T>::call_m()  { return cond_M()  ? CALL() : SKIP_CALL(); }
-template <class T> int CPUCore<T>::call_nc() { return cond_NC() ? CALL() : SKIP_CALL(); }
-template <class T> int CPUCore<T>::call_nz() { return cond_NZ() ? CALL() : SKIP_CALL(); }
-template <class T> int CPUCore<T>::call_p()  { return cond_P()  ? CALL() : SKIP_CALL(); }
-template <class T> int CPUCore<T>::call_pe() { return cond_PE() ? CALL() : SKIP_CALL(); }
-template <class T> int CPUCore<T>::call_po() { return cond_PO() ? CALL() : SKIP_CALL(); }
-template <class T> int CPUCore<T>::call_z()  { return cond_Z()  ? CALL() : SKIP_CALL(); }
 
 
 // RST n
@@ -1872,8 +1862,8 @@ template <class T> template<unsigned ADDR> int CPUCore<T>::rst() {
 
 
 // RET
-template <class T> inline int CPUCore<T>::RET(bool cond, int ee) {
-	if (cond) {
+template <class T> template<typename COND> inline int CPUCore<T>::RET(COND cond, int ee) {
+	if (cond(R.getF())) {
 		memptr = POP(ee);
 		R.setPC(memptr);
 		return T::CC_RET_A + ee;
@@ -1881,21 +1871,17 @@ template <class T> inline int CPUCore<T>::RET(bool cond, int ee) {
 		return T::CC_RET_B + ee;
 	}
 }
-template <class T> int CPUCore<T>::ret()    { return RET(true,      0);           }
-template <class T> int CPUCore<T>::ret_c()  { return RET(cond_C(),  T::EE_RET_C); }
-template <class T> int CPUCore<T>::ret_m()  { return RET(cond_M(),  T::EE_RET_C); }
-template <class T> int CPUCore<T>::ret_nc() { return RET(cond_NC(), T::EE_RET_C); }
-template <class T> int CPUCore<T>::ret_nz() { return RET(cond_NZ(), T::EE_RET_C); }
-template <class T> int CPUCore<T>::ret_p()  { return RET(cond_P(),  T::EE_RET_C); }
-template <class T> int CPUCore<T>::ret_pe() { return RET(cond_PE(), T::EE_RET_C); }
-template <class T> int CPUCore<T>::ret_po() { return RET(cond_PO(), T::EE_RET_C); }
-template <class T> int CPUCore<T>::ret_z()  { return RET(cond_Z(),  T::EE_RET_C); }
-
+template <class T> template<typename COND> int CPUCore<T>::ret(COND cond) {
+	return RET(cond, T::EE_RET_C);
+}
+template <class T> int CPUCore<T>::ret() {
+	return RET(CondTrue(), 0);
+}
 template <class T> int CPUCore<T>::retn() { // also reti
 	R.setIFF1(R.getIFF2());
 	R.setNextIFF1(R.getIFF2());
 	setSlowInstructions();
-	return RET(true, T::EE_RETN);
+	return RET(CondTrue(), T::EE_RETN);
 }
 
 
@@ -1905,48 +1891,41 @@ template <class T> template<CPU::Reg16 REG> int CPUCore<T>::jp_SS() {
 }
 
 // JP nn / JP cc,nn
-template <class T> inline int CPUCore<T>::JP() {
+template <class T> template<typename COND> int CPUCore<T>::jp(COND cond) {
 	memptr = RD_WORD_PC(T::CC_JP_1);
-	R.setPC(memptr);
-	T::R800ForcePageBreak();
-	return T::CC_JP_A;
+	if (cond(R.getF())) {
+		R.setPC(memptr);
+		T::R800ForcePageBreak();
+		return T::CC_JP_A;
+	} else {
+		return T::CC_JP_B;
+	}
 }
-template <class T> inline int CPUCore<T>::SKIP_JP() {
-	memptr = RD_WORD_PC(T::CC_JP_1);
-	return T::CC_JP_B;
-}
-template <class T> int CPUCore<T>::jp()    { return             JP();             }
-template <class T> int CPUCore<T>::jp_c()  { return cond_C()  ? JP() : SKIP_JP(); }
-template <class T> int CPUCore<T>::jp_m()  { return cond_M()  ? JP() : SKIP_JP(); }
-template <class T> int CPUCore<T>::jp_nc() { return cond_NC() ? JP() : SKIP_JP(); }
-template <class T> int CPUCore<T>::jp_nz() { return cond_NZ() ? JP() : SKIP_JP(); }
-template <class T> int CPUCore<T>::jp_p()  { return cond_P()  ? JP() : SKIP_JP(); }
-template <class T> int CPUCore<T>::jp_pe() { return cond_PE() ? JP() : SKIP_JP(); }
-template <class T> int CPUCore<T>::jp_po() { return cond_PO() ? JP() : SKIP_JP(); }
-template <class T> int CPUCore<T>::jp_z()  { return cond_Z()  ? JP() : SKIP_JP(); }
 
 // JR e
-template <class T> inline int CPUCore<T>::JR(int ee) {
-	offset ofst = RDMEM_OPCODE(T::CC_JR_1 + ee);
-	R.setPC((R.getPC() + ofst) & 0xFFFF);
-	memptr = R.getPC();
-	return T::CC_JR_A + ee;
+template <class T> template<typename COND> int CPUCore<T>::jr(COND cond) {
+	offset ofst = RDMEM_OPCODE(T::CC_JR_1);
+	if (cond(R.getF())) {
+		R.setPC((R.getPC() + ofst) & 0xFFFF);
+		memptr = R.getPC();
+		return T::CC_JR_A;
+	} else {
+		return T::CC_JR_B;
+	}
 }
-template <class T> inline int CPUCore<T>::SKIP_JR(int ee) {
-	RDMEM_OPCODE(T::CC_JR_1 + ee); // ignore return value
-	return T::CC_JR_B + ee;
-}
-template <class T> int CPUCore<T>::jr()    { return             JR(0);              }
-template <class T> int CPUCore<T>::jr_c()  { return cond_C()  ? JR(0) : SKIP_JR(0); }
-template <class T> int CPUCore<T>::jr_nc() { return cond_NC() ? JR(0) : SKIP_JR(0); }
-template <class T> int CPUCore<T>::jr_nz() { return cond_NZ() ? JR(0) : SKIP_JR(0); }
-template <class T> int CPUCore<T>::jr_z()  { return cond_Z()  ? JR(0) : SKIP_JR(0); }
 
 // DJNZ e
 template <class T> int CPUCore<T>::djnz() {
-	byte b = R.getB();
-	R.setB(--b);
-	return b ? JR(T::EE_DJNZ) : SKIP_JR(T::EE_DJNZ);
+	byte b = R.getB() - 1;
+	R.setB(b);
+	offset ofst = RDMEM_OPCODE(T::CC_JR_1 + T::EE_DJNZ);
+	if (b) {
+		R.setPC((R.getPC() + ofst) & 0xFFFF);
+		memptr = R.getPC();
+		return T::CC_JR_A + T::EE_DJNZ;
+	} else {
+		return T::CC_JR_B + T::EE_DJNZ;
+	}
 }
 
 // EX (SP),ss

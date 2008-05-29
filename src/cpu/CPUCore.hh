@@ -168,15 +168,6 @@ private:
 	inline void executeFastInline();
 	void executeSlow();
 
-	inline bool cond_C();
-	inline bool cond_NC();
-	inline bool cond_Z();
-	inline bool cond_NZ();
-	inline bool cond_M();
-	inline bool cond_P();
-	inline bool cond_PE();
-	inline bool cond_PO();
-
 	template <CPU::Reg8 DST, CPU::Reg8 SRC> inline int ld_R_R();
 	template <CPU::Reg16 REG> inline int ld_sp_SS();
 	template <CPU::Reg16 REG> inline int ld_SS_a();
@@ -357,53 +348,17 @@ private:
 	inline unsigned POP(int ee);
 	template <CPU::Reg16 REG> inline int pop_SS();
 
-	inline int CALL();
-	inline int SKIP_CALL();
-	inline int call();
-	inline int call_c();
-	inline int call_m();
-	inline int call_nc();
-	inline int call_nz();
-	inline int call_p();
-	inline int call_pe();
-	inline int call_po();
-	inline int call_z();
-
+	template <typename COND> inline int call(COND cond);
 	template <unsigned ADDR> inline int rst();
 
-	inline int RET(bool cond, int ee);
+	template <typename COND> inline int RET(COND cond, int ee);
+	template <typename COND> inline int ret(COND cond);
 	inline int ret();
-	inline int ret_c();
-	inline int ret_m();
-	inline int ret_nc();
-	inline int ret_nz();
-	inline int ret_p();
-	inline int ret_pe();
-	inline int ret_po();
-	inline int ret_z();
 	inline int retn();
 
 	template <CPU::Reg16 REG> inline int jp_SS();
-
-	inline int JP();
-	inline int SKIP_JP();
-	inline int jp();
-	inline int jp_c();
-	inline int jp_m();
-	inline int jp_nc();
-	inline int jp_nz();
-	inline int jp_p();
-	inline int jp_pe();
-	inline int jp_po();
-	inline int jp_z();
-
-	inline int JR(int ee);
-	inline int SKIP_JR(int ee);
-	inline int jr();
-	inline int jr_c();
-	inline int jr_nc();
-	inline int jr_nz();
-	inline int jr_z();
+	template <typename COND> inline int jp(COND cond);
+	template <typename COND> inline int jr(COND cond);
 	inline int djnz();
 
 	template <CPU::Reg16 REG> inline int ex_xsp_SS();
