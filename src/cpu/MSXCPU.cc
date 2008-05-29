@@ -364,7 +364,6 @@ void MSXCPUDebuggable::write(unsigned address, byte value)
 		break;
 	case 27:
 		regs.setIFF1(value & 0x01);
-		regs.setNextIFF1(value & 0x01);
 		regs.setIFF2(value & 0x02);
 		break;
 	default:

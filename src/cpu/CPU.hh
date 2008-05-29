@@ -94,7 +94,6 @@ public:
 		inline bool getIFF1()     const { return IFF1; }
 		inline bool getIFF2()     const { return IFF2; }
 		inline bool getHALT()     const { return HALT; }
-		inline bool getNextIFF1() const { return nextIFF1; }
 
 		inline void setA(byte x)   { AF = (AF & 0x00FF) | (x << 8); }
 		inline void setF(byte x)   { AF = (AF & 0xFF00) | x; }
@@ -138,25 +137,14 @@ public:
 		inline void setIFF1(bool x)     { IFF1 = x; }
 		inline void setIFF2(bool x)     { IFF2 = x; }
 		inline void setHALT(bool x)     { HALT = x; }
-		inline void setNextIFF1(bool x) { nextIFF1 = x; }
 
 		inline void incR(byte x) { R += x; }
 
-		inline void ei() {
-			IFF1     = true;
-			IFF2     = true;
-			nextIFF1 = true;
-		}
-		inline void di() {
-			IFF1     = false;
-			IFF2     = false;
-			nextIFF1 = false;
-		}
 	private:
 		word AF, BC, DE, HL;
 		word AF2, BC2, DE2, HL2;
 		word IX, IY, PC, SP;
-		bool nextIFF1, IFF1, IFF2, HALT;
+		bool IFF1, IFF2, HALT;
 		byte IM, I;
 		byte R, R2; // refresh = R&127 | R2&128
 	};
@@ -165,7 +153,6 @@ public:
 	enum Reg16 { AF, BC, DE, HL, IX, IY, SP };
 	class CPURegs {
 	public:
-
 		CPURegs() { HALT_ = 0; }
 		inline byte getA()   const { return AF_.b.h; }
 		inline byte getF()   const { return AF_.b.l; }
@@ -239,7 +226,6 @@ public:
 		inline bool getIFF1()     const { return IFF1_; }
 		inline bool getIFF2()     const { return IFF2_; }
 		inline byte getHALT()     const { return HALT_; }
-		inline bool getNextIFF1() const { return nextIFF1_; }
 
 		inline void setA(byte x)   { AF_.b.h = x; }
 		inline void setF(byte x)   { AF_.b.l = x; }
@@ -314,25 +300,17 @@ public:
 		inline void setIFF2(bool x)     { IFF2_ = x; }
 		inline void setHALT(bool x)     { HALT_ = (HALT_ & ~1) | (x ? 1 : 0); }
 		inline void setExtHALT(bool x)  { HALT_ = (HALT_ & ~2) | (x ? 2 : 0); }
-		inline void setNextIFF1(bool x) { nextIFF1_ = x; }
 
 		inline void incR(byte x) { R_ += x; }
 
-		inline void ei() {
-			IFF1_     = true;
-			IFF2_     = true;
-			nextIFF1_ = true;
-		}
-		inline void di() {
-			IFF1_     = false;
-			IFF2_     = false;
-			nextIFF1_ = false;
-		}
+		inline bool getAfterEI() const { return afterEI_; }
+		inline void setAfterEI(bool x) { afterEI_ = x; }
+
 	private:
 		z80regpair AF_, BC_, DE_, HL_;
 		z80regpair AF2_, BC2_, DE2_, HL2_;
 		z80regpair IX_, IY_, PC_, SP_;
-		bool nextIFF1_, IFF1_, IFF2_;
+		bool IFF1_, IFF2_, afterEI_;
 		byte HALT_;
 		byte IM_, I_;
 		byte R_, R2_; // refresh = R&127 | R2&128

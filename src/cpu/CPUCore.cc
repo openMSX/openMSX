@@ -131,7 +131,7 @@ template <class T> void CPUCore<T>::doReset(const EmuTime& time)
 	R.setBC2(0xFFFF);
 	R.setDE2(0xFFFF);
 	R.setHL2(0xFFFF);
-	R.setNextIFF1(false);
+	R.setAfterEI(false);
 	R.setIFF1(false);
 	R.setIFF2(false);
 	R.setHALT(false);
@@ -550,7 +550,6 @@ template <class T> inline void CPUCore<T>::nmi()
 	M1Cycle();
 	R.setHALT(false);
 	R.setIFF1(false);
-	R.setNextIFF1(false);
 	PUSH(R.getPC(), T::EE_NMI_1);
 	R.setPC(0x0066);
 	T::add(T::CC_NMI);
@@ -567,7 +566,8 @@ template <class T> inline void CPUCore<T>::irq0()
 	//       waits one cycle less.
 	M1Cycle();
 	R.setHALT(false);
-	R.di();
+	R.setIFF1(false);
+	R.setIFF2(false);
 	PUSH(R.getPC(), T::EE_IRQ0_1);
 	R.setPC(0x0038);
 	T::add(T::CC_IRQ0);
@@ -578,7 +578,8 @@ template <class T> inline void CPUCore<T>::irq1()
 {
 	M1Cycle(); // see note in irq0()
 	R.setHALT(false);
-	R.di();
+	R.setIFF1(false);
+	R.setIFF2(false);
 	PUSH(R.getPC(), T::EE_IRQ1_1);
 	R.setPC(0x0038);
 	T::add(T::CC_IRQ1);
@@ -589,7 +590,8 @@ template <class T> inline void CPUCore<T>::irq2()
 {
 	M1Cycle(); // see note in irq0()
 	R.setHALT(false);
-	R.di();
+	R.setIFF1(false);
+	R.setIFF2(false);
 	PUSH(R.getPC(), T::EE_IRQ2_1);
 	unsigned x = interface->readIRQVector() | (R.getI() << 8);
 	R.setPC(RD_WORD(x, T::CC_IRQ2_2));
@@ -918,7 +920,7 @@ template <class T> void CPUCore<T>::executeSlow()
 		// Note: NMIs are disabled, see also raiseNMI()
 		nmiEdge = false;
 		nmi(); // NMI occured
-	} else if (unlikely(R.getIFF1() && IRQStatus)) {
+	} else if (unlikely(IRQStatus && R.getIFF1() && !R.getAfterEI())) {
 		// normal interrupt
 		switch (R.getIM()) {
 			case 0: irq0();
@@ -935,7 +937,7 @@ template <class T> void CPUCore<T>::executeSlow()
 		R.incR(T::advanceHalt(T::haltStates(), scheduler.getNext()));
 		setSlowInstructions();
 	} else {
-		R.setIFF1(R.getNextIFF1());
+		R.setAfterEI(false);
 		cpuTracePre();
 		executeFast();
 		cpuTracePost();
@@ -1879,7 +1881,6 @@ template <class T> int CPUCore<T>::ret() {
 }
 template <class T> int CPUCore<T>::retn() { // also reti
 	R.setIFF1(R.getIFF2());
-	R.setNextIFF1(R.getIFF2());
 	setSlowInstructions();
 	return RET(CondTrue(), T::EE_RETN);
 }
@@ -2119,13 +2120,14 @@ template <class T> int CPUCore<T>::exx() {
 }
 
 template <class T> int CPUCore<T>::di() {
-	R.di();
+	R.setIFF1(false);
+	R.setIFF2(false);
 	return T::CC_DI;
 }
 template <class T> int CPUCore<T>::ei() {
-	R.setIFF1(false);	// no ints after this instruction
-	R.setNextIFF1(true);	// but allow them after next instruction
+	R.setIFF1(true);
 	R.setIFF2(true);
+	R.setAfterEI(true); // no ints directly after this instr
 	setSlowInstructions();
 	return T::CC_EI;
 }
@@ -2133,7 +2135,7 @@ template <class T> int CPUCore<T>::halt() {
 	R.setHALT(true);
 	setSlowInstructions();
 
-	if (!(R.getIFF1() || R.getNextIFF1() || R.getIFF2())) {
+	if (!(R.getIFF1() || R.getIFF2())) {
 		motherboard.getMSXCliComm().printWarning(
 			"DI; HALT detected, which means a hang. "
 			"You can just as well reset the MSX now...\n");
