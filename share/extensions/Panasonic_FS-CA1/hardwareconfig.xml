@@ -22,7 +22,6 @@
           <sound>
             <volume>12000</volume>
           </sound>
-          <!-- I'm not sure if this device actually has sampleRAM! -->
           <sampleram>32</sampleram>
           <rom>
             <sha1>36d47cf70618fdb460f97a8ceb75013ec4529063</sha1> <!-- clean dump with EPROM reader from FRS -->
