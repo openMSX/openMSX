@@ -8,6 +8,12 @@ proc get_optional { array_name key default } {
 		return $default
 	}
 }
+proc set_optional { array_name key value } {
+	upvar $array_name arr
+	if ![info exists arr($key)] {
+		set arr($key) $value
+	}
+}
 
 set menuinfos [list]
 
@@ -64,7 +70,8 @@ proc menu_create { menu_def_list } {
 		-x $bordersize -w $selw
 
 	set selectidx 0
-	set menuinfo [list $name $menutexts $selectinfo $selectidx]
+	set scrollidx 0
+	set menuinfo [list $name $menutexts $selectinfo $selectidx $scrollidx]
 	lappend menuinfos $menuinfo
 
 	menu_refresh_top
@@ -83,7 +90,7 @@ proc menu_refresh_all {} {
 }
 
 proc menu_refresh_helper { menuinfo } {
-	foreach {name menutexts selectinfo selectidx} $menuinfo {}
+	foreach {name menutexts selectinfo selectidx scrollidx} $menuinfo {}
 
 	foreach { osdid text } $menutexts {
 		set cmd [list subst $text]
@@ -97,7 +104,7 @@ proc menu_refresh_helper { menuinfo } {
 
 proc menu_close_top {} {
 	global menuinfos
-	foreach {name menutexts selectinfo selectidx} [lindex $menuinfos end] {}
+	foreach {name menutexts selectinfo selectidx scrollidx} [lindex $menuinfos end] {}
 	osd destroy $name
 	set menuinfos [lreplace $menuinfos end end]
 	if {[llength $menuinfos] == 0} {
@@ -114,33 +121,21 @@ proc menu_close_all {} {
 
 proc menu_up {} {
 	global menuinfos
-	foreach {name menutexts selectinfo selectidx} [lindex $menuinfos end] {}
+	foreach {name menutexts selectinfo selectidx scrollidx} [lindex $menuinfos end] {}
 	set newidx [expr ($selectidx - 1) % [llength $selectinfo]]
 	lset menuinfos {end 3} $newidx
 	menu_refresh_top
 }
 proc menu_down {} {
 	global menuinfos
-	foreach {name menutexts selectinfo selectidx} [lindex $menuinfos end] {}
+	foreach {name menutexts selectinfo selectidx scrollidx} [lindex $menuinfos end] {}
 	set newidx [expr ($selectidx + 1) % [llength $selectinfo]]
 	lset menuinfos {end 3} $newidx
 	menu_refresh_top
 }
-proc menu_left {} {
-	menu_action LEFT
-}
-proc menu_right {} {
-	menu_action RIGHT
-}
-proc menu_a {} {
-	menu_action A
-}
-proc menu_b {} {
-	menu_action B
-}
 proc menu_action { button } {
 	global menuinfos
-	foreach {name menutexts selectinfo selectidx} [lindex $menuinfos end] {}
+	foreach {name menutexts selectinfo selectidx scrollidx} [lindex $menuinfos end] {}
 	array set actions [lindex $selectinfo $selectidx 2]
 	set cmd [get_optional actions $button ""]
 	uplevel #0 $cmd
@@ -151,12 +146,12 @@ proc main_menu_open {} {
 	menu_create $::main_menu
 
 	set ::pause true
-	bind_default "keyb UP"     menu_up
-	bind_default "keyb DOWN"   menu_down
-	bind_default "keyb LEFT"   menu_left
-	bind_default "keyb RIGHT"  menu_right
-	bind_default "keyb SPACE"  menu_a
-	bind_default "keyb ESCAPE" menu_b
+	bind_default "keyb UP"     { menu_action UP    }
+	bind_default "keyb DOWN"   { menu_action DOWN  }
+	bind_default "keyb LEFT"   { menu_action LEFT  }
+	bind_default "keyb RIGHT"  { menu_action RIGHT }
+	bind_default "keyb SPACE"  { menu_action A     }
+	bind_default "keyb ESCAPE" { menu_action B     }
 	bind_default $::menuevent  main_menu_close
 }
 proc main_menu_close {} {
@@ -173,56 +168,132 @@ proc menu_last_closed {} {
 	bind_default   $::menuevent main_menu_open
 }
 
-set main_menu { actions { B menu_close_top }
-		bg-color 0x00000080
-		text-color 0xffffffff
-		select-color 0x8080ffc0
-		font-size 12
-		border-size 2
-		width 150
-		items {
-			{ text "My Cool Menu"
-			  text-color 0x00ffffff
-			  font-size 20
-			  post-spacing 6
-			  selectable false }
-			{ text "menu item 1"
-			  actions { A execute-A }
-			  post-spacing 3 }
-			{ text "settings..."
-			  actions { A { menu_create $::setting_menu }}}
-			{ pre-spacing 6
-			  text "sub title"
-			  text-color 0xc0ffffff
-			  font-size 15
-			  post-spacing 3
-			  selectable false }
-			{ text "exit"
-			actions { A exit }}}}
+proc prepare_menu { menu_def_list } {
+	array set menudef $menu_def_list
+	array set actions [get_optional menudef actions ""]
+	set_optional actions UP   menu_up
+	set_optional actions DOWN menu_down
+	set_optional actions B    menu_close_top
+	set menudef(actions) [array get actions]
+	return [array get menudef]
+}
 
-set setting_menu { actions { B menu_close_top }
-		bg-color 0x00000080
-		text-color 0xffffffff
-		select-color 0x8080ffc0
-		font-size 12
-		border-size 2
-		width 150
-		xpos 100
-		ypos 120
-		items {{ text "Settings"
-			text-color 0xffff40ff
-			font-size 20
-			post-spacing 6
-			selectable false }
-			{ text "speed: $speed"
-			actions { LEFT  { incr speed -5 }
-			RIGHT { incr speed  5 }}}
-			{ text "scanline: $scanline"
-			  actions { LEFT  { incr scanline -5 }
-				    RIGHT { incr scanline  5 }}}
-			{ text "scaler: $scale_algorithm"
-			  actions { LEFT  { cycle_back scale_algorithm }
-				    RIGHT { cycle scale_algorithm }}}}}
+proc prepare_menu_list { lst num menu_def_list } {
+	array set menudef $menu_def_list
+	set execute $menudef(execute)
+	set header $menudef(header)
+	lappend header "selectable" "false"
+	set items [list $header]
+	for {set i 0} {$i < $num} {incr i} {
+		set item [lindex $lst $i]
+		set actions [list "A" "list_menu_item_exec $execute \{$lst\} $i"]
+		if {$i == 0} {
+			lappend actions "UP" "list_menu_item_up"
+		}
+		if {$i == ($num - 1)} {
+			lappend actions "DOWN" "list_menu_item_down [llength $lst] $i"
+		}
+		lappend items [list "text" "\[list_menu_item_show \{$lst\} $i\]" \
+		                    "actions" $actions]
+	}
+	set menudef(items) $items
+	return [prepare_menu [array get menudef]]
+}
+proc list_menu_item_exec { execute lst pos } {
+	global menuinfos
+	foreach {name menutexts selectinfo selectidx scrollidx} [lindex $menuinfos end] {}
+	$execute [lindex $lst [expr $pos + $scrollidx]]
+}
+proc list_menu_item_show { lst pos } {
+	global menuinfos
+	foreach {name menutexts selectinfo selectidx scrollidx} [lindex $menuinfos end] {}
+	return [lindex $lst [expr $pos + $scrollidx]]
+}
+proc list_menu_item_up { } {
+	global menuinfos
+	foreach {name menutexts selectinfo selectidx scrollidx} [lindex $menuinfos end] {}
+	if {$scrollidx > 0} {incr scrollidx -1}
+	lset menuinfos {end 4} $scrollidx
+	menu_refresh_top
+}
+proc list_menu_item_down { size pos } {
+	global menuinfos
+	foreach {name menutexts selectinfo selectidx scrollidx} [lindex $menuinfos end] {}
+	if {($scrollidx + $pos + 1) < $size} {incr scrollidx}
+	lset menuinfos {end 4} $scrollidx
+	menu_refresh_top
+}
+
+set main_menu [prepare_menu {
+	bg-color 0x00000080
+	text-color 0xffffffff
+	select-color 0x8080ffc0
+	font-size 12
+	border-size 2
+	width 150
+	items {{ text "My Cool Menu"
+	         text-color 0x00ffffff
+	         font-size 20
+	         post-spacing 6
+	         selectable false }
+	       { text "selection..."
+	         actions { A { menu_create $::list_menu }}
+	         post-spacing 3 }
+	       { text "settings..."
+	         actions { A { menu_create $::setting_menu }}}
+	       { pre-spacing 6
+	         text "sub title"
+	         text-color 0xc0ffffff
+	         font-size 15
+	         post-spacing 3
+	         selectable false }
+	       { text "exit"
+	         actions { A exit }}}}]
+
+set setting_menu [prepare_menu {
+	bg-color 0x00000080
+	text-color 0xffffffff
+	select-color 0x8080ffc0
+	font-size 12
+	border-size 2
+	width 150
+	xpos 100
+	ypos 120
+	items {{ text "Settings"
+	         text-color 0xffff40ff
+	         font-size 20
+	         post-spacing 6
+	         selectable false }
+	       { text "speed: $speed"
+	         actions { LEFT  { incr speed -5 }
+	                   RIGHT { incr speed  5 }}}
+	       { text "scanline: $scanline"
+	         actions { LEFT  { incr scanline -5 }
+	                   RIGHT { incr scanline  5 }}}
+	       { text "scaler: $scale_algorithm"
+	         actions { LEFT  { cycle_back scale_algorithm }
+	                   RIGHT { cycle scale_algorithm }}}}}]
+
+set list_menu [prepare_menu_list \
+	[list a b c d e f g h i j k l m n o p] \
+	6 \
+	{ execute my_selection_list_exec
+	  bg-color 0x00000080
+	  text-color 0xffffffff
+	  select-color 0x8080ffc0
+	  font-size 12
+	  border-size 2
+	  width 150
+	  xpos 100
+	  ypos 120
+	  header { text "my-list"
+	           text-color 0xff0000ff
+	           font-size 20 }}]
+proc my_selection_list_exec { item } {
+	puts "Selected item: $item"
+	menu_close_top
+}
+
 
 bind_default $menuevent main_menu_open
 
