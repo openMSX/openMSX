@@ -6,6 +6,7 @@ $Id$
 	     bounding box of this widget.
 	   - Used in the OSD menu script to make sure (long) text lines don't
 	     gun over the end of the menu window.
+	* V9990 display enable only takes effect at the next frame
 
 2008-05-28 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Reduced code duplication in CPUCore by templatizing various stuff:

@@ -344,9 +344,6 @@ private:
 
 		/** Change screen mode */
 		V9990_SET_MODE,
-
-		/** Enable/disable screen */
-		V9990_SET_BLANK,
 	};
 
 	/** IRQ types
@@ -505,8 +502,8 @@ private:
 
 	/** Is display enabled. Note that this is not always the same as bit 7
 	  * of the CONTROL register because the display enable status change
-	  * only takes place at the start of the next line.
-	  * TODO this is how it works on V99x8, I didn't verify it on V9990
+	  * only takes place at the start of the next frame.
+	  * Note: on V99x8, display enable takes effect the next line
 	  */
 	bool displayEnabled;
 

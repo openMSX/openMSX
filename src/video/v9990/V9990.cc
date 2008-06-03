@@ -126,7 +126,6 @@ void V9990::reset(const EmuTime& time)
 	removeSyncPoint(V9990_VSCAN);
 	removeSyncPoint(V9990_HSCAN);
 	removeSyncPoint(V9990_SET_MODE);
-	removeSyncPoint(V9990_SET_BLANK);
 
 	// Clear registers / ports
 	memset(regs, 0, sizeof(regs));
@@ -368,14 +367,6 @@ void V9990::executeUntil(const EmuTime& time, int userData)
 		renderer->setColorMode(getColorMode(), time);
 		break;
 
-	case V9990_SET_BLANK: {
-		bool newDisplayEnabled = regs[CONTROL] & 0x80;
-		if (isDisplayArea) {
-			renderer->updateDisplayEnabled(newDisplayEnabled, time);
-		}
-		displayEnabled = newDisplayEnabled;
-		break;
-	}
 	default:
 		assert(false);
 	}
@@ -524,7 +515,6 @@ void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
 
 	val &= regWriteMask[reg];
 
-	byte change = regs[reg] ^ val;
 	// This optimization is not valid for the vertical scroll registers
 	// TODO is this optimization still useful for other registers?
 	//if (!change) return;
@@ -535,11 +525,6 @@ void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
 		case SCREEN_MODE_1:
 			// TODO verify this on real V9990
 			syncAtNextLine(V9990_SET_MODE, time);
-			break;
-		case CONTROL:
-			if (change & 0x80) {
-				syncAtNextLine(V9990_SET_BLANK, time);
-			}
 			break;
 		case PALETTE_CONTROL:
 			renderer->setColorMode(getColorMode(val), time);
@@ -622,8 +607,9 @@ void V9990::createRenderer(const EmuTime& time)
 void V9990::frameStart(const EmuTime& time)
 {
 	// Update setings that are fixed at the start of a frame
-	palTiming  = regs[SCREEN_MODE_1] & 0x08;
-	interlaced = regs[SCREEN_MODE_1] & 0x02;
+	displayEnabled = regs[CONTROL]       & 0x80;
+	palTiming      = regs[SCREEN_MODE_1] & 0x08;
+	interlaced     = regs[SCREEN_MODE_1] & 0x02;
 	setVerticalTiming();
 	status ^= 0x02; // flip EO bit
 
