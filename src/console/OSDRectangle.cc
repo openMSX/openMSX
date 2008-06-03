@@ -84,7 +84,8 @@ void OSDRectangle::getWidthHeight(const OutputSurface& output,
 		//  - an error: in this case we can still do better than the
 		//              implementation in the base class
 		//  - the alpha=0 optimization
-		assert((getAlpha() == 0) || hasError());
+		//  - calculation of clip rectangle when image was not yet
+		//    allocated (new widget or invalidated)
 		double factor = getScaleFactor(output) * scale;
 		width  = factor * w;
 		height = factor * h;

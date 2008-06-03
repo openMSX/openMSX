@@ -44,6 +44,8 @@ public:
 	void transformXY(const OutputSurface& output,
 	                 double x, double y, double relx, double rely,
 	                 double& outx, double& outy) const;
+	void getBoundingBox(const OutputSurface& output,
+	                    int& x, int& y, int& w, int& h);
 
 protected:
 	OSDWidget(const std::string& name);
@@ -71,6 +73,7 @@ private:
 	double x, y, z;
 	double relx, rely;
 	bool scaled;
+	bool clip;
 };
 
 } // namespace openmsx

@@ -32,7 +32,7 @@ proc menu_create { menu_def_list } {
 	set deffont      [get_optional menudef "font" "skins/Vera.ttf.gz"]
 	set bordersize   [get_optional menudef "border-size" 0]
 
-	osd create rectangle $name -scaled true -rgba $bgcolor
+	osd create rectangle $name -scaled true -rgba $bgcolor -clip true
 	set y $bordersize
 	set selectinfo [list]
 	set menutexts [list]
@@ -275,7 +275,7 @@ set setting_menu [prepare_menu {
 	                   RIGHT { cycle scale_algorithm }}}}}]
 
 set list_menu [prepare_menu_list \
-	[list a b c d e f g h i j k l m n o p] \
+	[list a b c d e f g h i j k l m n o "a very long item name that needs to be clipped"] \
 	6 \
 	{ execute my_selection_list_exec
 	  bg-color 0x00000080

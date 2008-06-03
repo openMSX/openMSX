@@ -1,5 +1,12 @@
 $Id$
 
+2008-06-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added -clip option to OSD widgets:
+	   - If this option is true, then child widgets are clipped to the
+	     bounding box of this widget.
+	   - Used in the OSD menu script to make sure (long) text lines don't
+	     gun over the end of the menu window.
+
 2008-05-28 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Reduced code duplication in CPUCore by templatizing various stuff:
 	  - For example, a lot of instruction methods only differ in the
