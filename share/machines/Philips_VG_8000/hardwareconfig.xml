@@ -50,7 +50,7 @@
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
           <filename>roms/vg8010_basic-bios1.rom</filename>
-          <sha1>42252cf87deeb58181a7bfec7c874190a1351779</sha1>
+          <sha1>42252cf87deeb58181a7bfec7c874190a1351779</sha1> <!-- same as VG 8010, confirmed by Bas Tilborgs -->
         </rom>
         <mem base="0x0000" size="0x8000"/>
       </ROM>
