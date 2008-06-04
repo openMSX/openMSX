@@ -75,10 +75,9 @@ public:
 	/** Set scroll register
 	 */
 	virtual void updateScrollAX(const EmuTime& time) = 0;
-	virtual void updateScrollAYLow(const EmuTime& time) = 0;
-	virtual void updateScrollAYHigh(const EmuTime& time) = 0;
 	virtual void updateScrollBX(const EmuTime& time) = 0;
-	virtual void updateScrollBY(const EmuTime& time) = 0;
+	virtual void updateScrollAYLow(const EmuTime& time) = 0;
+	virtual void updateScrollBYLow(const EmuTime& time) = 0;
 
 protected:
 	V9990Renderer();

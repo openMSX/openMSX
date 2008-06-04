@@ -16,8 +16,9 @@ class V9990P2Converter
 public:
 	V9990P2Converter(V9990& vdp_, Pixel* palette64);
 
-	void convertLine(Pixel* linePtr, unsigned displayX,
-	                 unsigned displayWidth, unsigned displayY);
+	void convertLine(
+		Pixel* linePtr, unsigned displayX, unsigned displayWidth,
+		unsigned displayY, unsigned displayYA);
 
 private:
 	void renderPattern(Pixel* buffer, unsigned width,

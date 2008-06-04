@@ -1,5 +1,17 @@
 $Id$
 
+2008-06-04 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed V9990 vertical scroll behaviour:
+	  Based on MRC forum post by GhostwriterP (page 3, post 12)
+	      http://www.msx.org/forumtopicl8574.html
+	  1) Writing to high byte of scroll register only takes effect at the
+	     start of the next frame. This is for both scroll A and B
+	     registers.
+	  2) Writing to low byte has effect the next line. The next line that
+	     will be displayed is the line number just written to the register
+	  3) point 2) has no effect on the sprite vertical sprite position
+	     (this was wrong in the initial openmsx implementation)
+
 2008-06-03 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added -clip option to OSD widgets:
 	   - If this option is true, then child widgets are clipped to the

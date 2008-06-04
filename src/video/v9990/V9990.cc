@@ -520,6 +520,7 @@ void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
 	//if (!change) return;
 
 	// Perform additional tasks before new value becomes active
+	// note: no update for SCROLL_CONTROL_AY1, SCROLL_CONTROL_BY1
 	switch (reg) {
 		case SCREEN_MODE_0:
 		case SCREEN_MODE_1:
@@ -535,16 +536,12 @@ void V9990::writeRegister(byte reg, byte val, const EmuTime& time)
 		case SCROLL_CONTROL_AY0:
 			renderer->updateScrollAYLow(time);
 			break;
-		case SCROLL_CONTROL_AY1:
-			renderer->updateScrollAYHigh(time);
+		case SCROLL_CONTROL_BY0:
+			renderer->updateScrollBYLow(time);
 			break;
 		case SCROLL_CONTROL_AX0:
 		case SCROLL_CONTROL_AX1:
 			renderer->updateScrollAX(time);
-			break;
-		case SCROLL_CONTROL_BY0:
-		case SCROLL_CONTROL_BY1:
-			renderer->updateScrollBY(time);
 			break;
 		case SCROLL_CONTROL_BX0:
 		case SCROLL_CONTROL_BX1:
@@ -610,6 +607,8 @@ void V9990::frameStart(const EmuTime& time)
 	displayEnabled = regs[CONTROL]       & 0x80;
 	palTiming      = regs[SCREEN_MODE_1] & 0x08;
 	interlaced     = regs[SCREEN_MODE_1] & 0x02;
+	scrollAYHigh   = regs[SCROLL_CONTROL_AY1];
+	scrollBYHigh   = regs[SCROLL_CONTROL_BY1];
 	setVerticalTiming();
 	status ^= 0x02; // flip EO bit
 

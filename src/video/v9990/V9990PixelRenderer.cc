@@ -93,7 +93,7 @@ void V9990PixelRenderer::frameStart(const EmuTime& time)
 	lastX = 0;
 	lastY = 0;
 	const V9990DisplayPeriod& verTiming = vdp.getVerticalTiming();
-	verticalOffset = verTiming.blank + verTiming.border1;
+	verticalOffsetA = verticalOffsetB = verTiming.blank + verTiming.border1;
 
 	// Make sure that the correct timing is used
 	setDisplayMode(vdp.getDisplayMode(), time);
@@ -230,12 +230,16 @@ void V9990PixelRenderer::draw(int fromX, int fromY, int toX, int toY,
 		assert(type == DRAW_DISPLAY);
 
 		const V9990DisplayPeriod& horTiming = vdp.getHorizontalTiming();
-		int displayX = fromX - horTiming.blank - horTiming.border1;
-		int displayY = fromY - verticalOffset;
+		const V9990DisplayPeriod& verTiming = vdp.getVerticalTiming();
+		int displayX  = fromX - horTiming.blank - horTiming.border1;
+		int displayY  = fromY - verTiming.blank - verTiming.border1;
+		int displayYA = fromY - verticalOffsetA;
+		int displayYB = fromY - verticalOffsetB;
 		int displayWidth = toX - fromX;
 		int displayHeight = toY - fromY;
 
-		rasterizer->drawDisplay(fromX, fromY, displayX, displayY,
+		rasterizer->drawDisplay(fromX, fromY, displayX,
+		                        displayY, displayYA, displayYB,
 		                        displayWidth, displayHeight);
 	}
 }
@@ -278,8 +282,9 @@ void V9990PixelRenderer::updateScrollAX(const EmuTime& time)
 {
 	if (displayEnabled) sync(time);
 }
-void V9990PixelRenderer::updateScrollAYHigh(const EmuTime& time)
+void V9990PixelRenderer::updateScrollBX(const EmuTime& time)
 {
+	// TODO only in P1 mode
 	if (displayEnabled) sync(time);
 }
 void V9990PixelRenderer::updateScrollAYLow(const EmuTime& time)
@@ -288,19 +293,18 @@ void V9990PixelRenderer::updateScrollAYLow(const EmuTime& time)
 		sync(time);
 		// happens in all display modes (verified)
 		// TODO high byte still seems to be wrong .. need to investigate
-		verticalOffset = lastY;
+		verticalOffsetA = lastY;
 	}
 }
-void V9990PixelRenderer::updateScrollBX(const EmuTime& time)
+void V9990PixelRenderer::updateScrollBYLow(const EmuTime& time)
 {
 	// TODO only in P1 mode
-	if (displayEnabled) sync(time);
-}
-void V9990PixelRenderer::updateScrollBY(const EmuTime& time)
-{
-	// TODO only in P1 mode
-	// TODO should probably be the same as scrollAY
-	if (displayEnabled) sync(time);
+	if (displayEnabled) {
+		sync(time);
+		// happens in all display modes (verified)
+		// TODO high byte still seems to be wrong .. need to investigate
+		verticalOffsetB = lastY;
+	}
 }
 
 void V9990PixelRenderer::update(const Setting& setting)

@@ -44,8 +44,8 @@ public:
 	virtual void setColorMode(V9990ColorMode colorMode);
 	virtual void setPalette(int index, byte r, byte g, byte b);
 	virtual void drawBorder(int fromX, int fromY, int limitX, int limitY);
-	virtual void drawDisplay(int fromX, int fromY,
-	                         int displayX, int displayY,
+	virtual void drawDisplay(int fromX, int fromY, int displayX,
+	                         int displayY, int displayYA, int displayYB,
 	                         int displayWidth, int displayHeight);
 	virtual bool isRecording() const;
 
@@ -131,17 +131,20 @@ private:
 
 	/** Draw P1 mode.
 	  */
-	void drawP1Mode(int fromX, int fromY, int displayX, int displayY,
+	void drawP1Mode(int fromX, int fromY, int displayX,
+	                int displayY, int displayYA, int displayYB,
 	                int displayWidth, int displayHeight);
 
 	/** Draw P2 mode.
 	  */
-	void drawP2Mode(int fromX, int fromY, int displayX, int displayY,
+	void drawP2Mode(int fromX, int fromY, int displayX,
+	                int displayY, int displayYA,
 	                int displayWidth, int displayHeight);
 
 	/** Draw Bx mode.
 	  */
-	void drawBxMode(int fromX, int fromY, int displayX, int displayY,
+	void drawBxMode(int fromX, int fromY, int displayX,
+	                int displayY, int displayYA,
 	                int displayWidth, int displayHeight);
 
 	// Observer<Setting>

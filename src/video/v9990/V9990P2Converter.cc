@@ -17,15 +17,16 @@ V9990P2Converter<Pixel>::V9990P2Converter(V9990& vdp_, Pixel* palette64_)
 }
 
 template <class Pixel>
-void V9990P2Converter<Pixel>::convertLine(Pixel* linePtr,
-	unsigned displayX, unsigned displayWidth, unsigned displayY)
+void V9990P2Converter<Pixel>::convertLine(
+	Pixel* linePtr, unsigned displayX, unsigned displayWidth,
+	unsigned displayY, unsigned displayYA)
 {
 	unsigned displayAX = (displayX + vdp.getScrollAX()) & 1023;
 
 	unsigned scrollY = vdp.getScrollAY();
 	unsigned rollMask = vdp.getRollMask(0x1FF);
 	unsigned scrollYBase = scrollY & ~rollMask & 0x1FF;
-	unsigned displayAY = scrollYBase + ((displayY + scrollY) & rollMask);
+	unsigned displayAY = scrollYBase + ((displayYA + scrollY) & rollMask);
 
 	unsigned displayEnd = displayX + displayWidth;
 

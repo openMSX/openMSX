@@ -153,8 +153,8 @@ void V9990SDLRasterizer<Pixel>::drawBorder(
 
 template <class Pixel>
 void V9990SDLRasterizer<Pixel>::drawDisplay(
-	int fromX, int fromY,
-	int displayX, int displayY, int displayWidth, int displayHeight)
+	int fromX, int fromY, int displayX, int displayY,
+	int displayYA, int displayYB, int displayWidth, int displayHeight)
 {
 	static int const screenW = SCREEN_WIDTH * 8;
 	static int const screenH = SCREEN_HEIGHT;
@@ -174,7 +174,9 @@ void V9990SDLRasterizer<Pixel>::drawDisplay(
 			displayWidth = screenW - fromX;
 		}
 		if (fromY < 0) {
-			displayY -= fromY;
+			displayY  -= fromY;
+			displayYA -= fromY;
+			displayYB -= fromY;
 			displayHeight += fromY;
 			fromY = 0;
 		}
@@ -188,13 +190,16 @@ void V9990SDLRasterizer<Pixel>::drawDisplay(
 			displayWidth = V9990::UCtoX(displayWidth, displayMode);
 
 			if (displayMode == P1) {
-				drawP1Mode(fromX, fromY, displayX, displayY,
+				drawP1Mode(fromX, fromY, displayX,
+				           displayY, displayYA, displayYB,
 				           displayWidth, displayHeight);
 			} else if (displayMode == P2) {
-				drawP2Mode(fromX, fromY, displayX, displayY,
+				drawP2Mode(fromX, fromY, displayX,
+				           displayY, displayYA,
 				           displayWidth, displayHeight);
 			} else {
-				drawBxMode(fromX, fromY, displayX, displayY,
+				drawBxMode(fromX, fromY, displayX,
+				           displayY, displayYA,
 				           displayWidth, displayHeight);
 			}
 		}
@@ -203,37 +208,41 @@ void V9990SDLRasterizer<Pixel>::drawDisplay(
 
 template <class Pixel>
 void V9990SDLRasterizer<Pixel>::drawP1Mode(
-	int fromX, int fromY, int displayX, int displayY,
+	int fromX, int fromY, int displayX,
+	int displayY, int displayYA, int displayYB,
 	int displayWidth, int displayHeight)
 {
 	while (displayHeight--) {
 		Pixel* pixelPtr = workFrame->getLinePtr<Pixel>(fromY) + fromX;
 		p1Converter->convertLine(pixelPtr, displayX, displayWidth,
-		                         displayY);
+		                         displayY, displayYA, displayYB);
 		workFrame->setLineWidth(fromY, 320);
 		++fromY;
 		++displayY;
+		++displayYA;
+		++displayYB;
 	}
 }
 
 template <class Pixel>
 void V9990SDLRasterizer<Pixel>::drawP2Mode(
-	int fromX, int fromY, int displayX, int displayY,
+	int fromX, int fromY, int displayX, int displayY, int displayYA,
 	int displayWidth, int displayHeight)
 {
 	while (displayHeight--) {
 		Pixel* pixelPtr = workFrame->getLinePtr<Pixel>(fromY) + fromX;
 		p2Converter->convertLine(pixelPtr, displayX, displayWidth,
-		                         displayY);
+		                         displayY, displayYA);
 		workFrame->setLineWidth(fromY, 640);
 		++fromY;
 		++displayY;
+		++displayYA;
 	}
 }
 
 template <class Pixel>
 void V9990SDLRasterizer<Pixel>::drawBxMode(
-	int fromX, int fromY, int displayX, int displayY,
+	int fromX, int fromY, int displayX, int displayY, int displayYA,
 	int displayWidth, int displayHeight)
 {
 	unsigned scrollX = vdp.getScrollAX();
@@ -243,6 +252,7 @@ void V9990SDLRasterizer<Pixel>::drawBxMode(
 	if (vdp.isEvenOddEnabled()) {
 		if (vdp.getEvenOdd()) {
 			++displayY;
+			++displayYA;
 		}
 		lineStep = 2;
 	}
@@ -251,14 +261,15 @@ void V9990SDLRasterizer<Pixel>::drawBxMode(
 	unsigned rollMask = vdp.getRollMask(0x1FFF);
 	unsigned scrollYBase = scrollY & ~rollMask & 0x1FFF;
 	while (displayHeight--) {
-		unsigned y = scrollYBase + ((displayY + scrollY) & rollMask);
+		unsigned y = scrollYBase + ((displayYA + scrollY) & rollMask);
 		unsigned address = vdp.XYtoVRAM(&x, y, colorMode);
 		Pixel* pixelPtr = workFrame->getLinePtr<Pixel>(fromY) + fromX;
 		bitmapConverter->convertLine(pixelPtr, address, displayWidth,
 		                             displayY);
 		workFrame->setLineWidth(fromY, vdp.getLineWidth());
 		++fromY;
-		displayY += lineStep;
+		displayY  += lineStep;
+		displayYA += lineStep;
 	}
 }
 

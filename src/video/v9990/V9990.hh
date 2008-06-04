@@ -212,7 +212,19 @@ public:
 	/** Returns the Y scroll offset for screen A of P1 and other modes
 	  */
 	inline unsigned getScrollAY() {
-		return regs[SCROLL_CONTROL_AY0] + 256 * regs[SCROLL_CONTROL_AY1];
+		return regs[SCROLL_CONTROL_AY0] + 256 * scrollAYHigh;
+	}
+
+	/** Returns the X scroll offset for screen B of P1 mode
+	  */
+	inline unsigned getScrollBX() {
+		return regs[SCROLL_CONTROL_BX0] + 8 * regs[SCROLL_CONTROL_BX1];
+	}
+
+	/** Returns the Y scroll offset for screen B of P1 mode
+	  */
+	inline unsigned getScrollBY() {
+		return regs[SCROLL_CONTROL_BY0] + 256 * scrollBYHigh;
 	}
 
 	/** Returns the vertical roll mask
@@ -226,18 +238,6 @@ public:
 		};
 		unsigned t = regs[SCROLL_CONTROL_AY1] >> 6;
 		return t ? rollMasks[t] : maxMask;
-	}
-
-	/** Returns the X scroll offset for screen B of P1 and other modes
-	  */
-	inline unsigned getScrollBX() {
-		return regs[SCROLL_CONTROL_BX0] + 8 * regs[SCROLL_CONTROL_BX1];
-	}
-
-	/** Returns the Y scroll offset for screen B of P1 and other modes
-	  */
-	inline unsigned getScrollBY() {
-		return regs[SCROLL_CONTROL_BY0] + 256 * regs[SCROLL_CONTROL_BY1];
 	}
 
 	/** Return the image width
@@ -506,6 +506,17 @@ private:
 	  * Note: on V99x8, display enable takes effect the next line
 	  */
 	bool displayEnabled;
+
+	/** Changing high byte of vertical scroll registers only takes effect
+	  * at the start of the next page. These members hold the current
+	  * value of the scroll value.
+	  * note: writing the low byte has effect immediatly (or at the next
+	  *       line, TODO investigate this). But the effect is not the same
+	  *       as on V99x8, see V9990PixelRenderer::updateScrollAYLow() for
+	  *       details.
+	  */
+	byte scrollAYHigh;
+	byte scrollBYHigh;
 
 	// --- methods ----------------------------------------------------
 

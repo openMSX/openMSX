@@ -40,10 +40,9 @@ public:
 	void updatePalette(int index, byte r, byte g, byte b, const EmuTime& time);
 	void updateBackgroundColor(int index, const EmuTime& time);
 	void updateScrollAX(const EmuTime& time);
-	void updateScrollAYHigh(const EmuTime& time);
-	void updateScrollAYLow(const EmuTime& time);
 	void updateScrollBX(const EmuTime& time);
-	void updateScrollBY(const EmuTime& time);
+	void updateScrollAYLow(const EmuTime& time);
+	void updateScrollBYLow(const EmuTime& time);
 
 private:
 	void sync(const EmuTime& time, bool force = false);
@@ -93,10 +92,9 @@ private:
 	  * TODO we don't actually store the counter but an offset (so that the
 	  *      V99x8 drawing algorithm can still be used. Code might become
 	  *      simpler if we do store the counter.
-	  * TODO this counter is for A plane, probably B plane has a similar
-	  *      counter
 	  */
-	int verticalOffset;
+	int verticalOffsetA;
+	int verticalOffsetB;
 
 	/** Frameskip
 	  */

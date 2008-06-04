@@ -39,9 +39,10 @@ void V9990DummyRasterizer::drawBorder(int /*fromX*/, int /*fromY*/,
 {
 }
 
-void V9990DummyRasterizer::drawDisplay(int /*fromX*/, int /*fromY*/,
-                                       int /*displayX*/, int /*displayY*/,
-                                       int /*displayWidth*/, int /*displayHeight*/)
+void V9990DummyRasterizer::drawDisplay(
+	int /*fromX*/, int /*fromY*/, int /*displayX*/,
+	int /*displayY*/, int /*displayYA*/, int /*displayYB*/,
+	int /*displayWidth*/, int /*displayHeight*/)
 {
 }
 

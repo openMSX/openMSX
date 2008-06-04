@@ -16,8 +16,9 @@ class V9990P1Converter
 public:
 	V9990P1Converter(V9990& vdp, Pixel* palette64);
 
-	void convertLine(Pixel* linePtr, unsigned displayX,
-	                 unsigned displayWidth, unsigned displayY);
+	void convertLine(
+		Pixel* linePtr, unsigned displayX, unsigned displayWidth,
+		unsigned displayY, unsigned displayYA, unsigned displayYB);
 
 private:
 	V9990& vdp;

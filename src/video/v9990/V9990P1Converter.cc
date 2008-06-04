@@ -19,8 +19,9 @@ V9990P1Converter<Pixel>::V9990P1Converter(V9990& vdp_, Pixel* palette64_)
 }
 
 template <class Pixel>
-void V9990P1Converter<Pixel>::convertLine(Pixel* linePtr,
-		unsigned displayX, unsigned displayWidth, unsigned displayY)
+void V9990P1Converter<Pixel>::convertLine(
+	Pixel* linePtr, unsigned displayX, unsigned displayWidth,
+	unsigned displayY, unsigned displayYA, unsigned displayYB)
 {
 	unsigned prioX = vdp.getPriorityControlX();
 	unsigned prioY = vdp.getPriorityControlY();
@@ -35,8 +36,8 @@ void V9990P1Converter<Pixel>::convertLine(Pixel* linePtr,
 	unsigned scrollBY = vdp.getScrollBY();
 	unsigned scrollAYBase = scrollAY & ~rollMask & 0x1FF;
 	unsigned scrollBYBase = scrollBY & ~rollMask & 0x1FF;
-	unsigned displayAY = scrollAYBase + ((displayY + scrollAY) & rollMask);
-	unsigned displayBY = scrollBYBase + ((displayY + scrollBY) & rollMask);
+	unsigned displayAY = scrollAYBase + ((displayYA + scrollAY) & rollMask);
+	unsigned displayBY = scrollBYBase + ((displayYB + scrollBY) & rollMask);
 
 	unsigned displayEnd = displayX + displayWidth;
 	unsigned end1 = std::max<int>(0, std::min<int>(prioX, displayEnd) - displayX);

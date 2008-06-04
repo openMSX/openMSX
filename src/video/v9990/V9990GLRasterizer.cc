@@ -46,7 +46,8 @@ void V9990GLRasterizer::drawBorder(int /*fromX*/, int /*fromY*/, int /*toX*/, in
 }
 
 void V9990GLRasterizer::drawDisplay(
-	int /*fromX*/, int /*fromY*/, int /*displayX*/, int /*displayY*/,
+	int /*fromX*/, int /*fromY*/, int /*displayX*/,
+	int /*displayY*/, int /*displayYA*/, int /*displayYB*/,
 	int /*displayWidth*/, int /*displayHeight*/)
 {
 }
