@@ -1,5 +1,11 @@
 $Id$
 
+2008-06-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Fixed compilation of CPU code with gcc-3.4:
+	   Compilation with gcc-3.4 was broken because of a compiler bug,
+	   gcc-4.x works just fine. Worked around it. Though I still like
+	   to demote gcc-3.4 support to second class.
+
 2008-06-04 Alex Wulms
 	* Added French version of VG8010/VG8020 and corresponding unicodemap files
 

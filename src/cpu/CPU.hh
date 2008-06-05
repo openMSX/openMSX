@@ -178,7 +178,7 @@ public:
 		inline byte getPCl() const { return PC_.b.l; }
 		inline byte getSPh() const { return SP_.b.h; }
 		inline byte getSPl() const { return SP_.b.l; }
-		template <Reg8 R8> inline byte get() const {
+		template <Reg8 R8> inline byte get8() const {
 			if      (R8 == A)     { return getA(); }
 			else if (R8 == F)     { return getF(); }
 			else if (R8 == B)     { return getB(); }
@@ -209,7 +209,7 @@ public:
 		inline unsigned getIY()  const { return IY_.w; }
 		inline unsigned getPC()  const { return PC_.w; }
 		inline unsigned getSP()  const { return SP_.w; }
-		template <Reg16 R16> inline unsigned get() const {
+		template <Reg16 R16> inline unsigned get16() const {
 			if      (R16 == AF) { return getAF(); }
 			else if (R16 == BC) { return getBC(); }
 			else if (R16 == DE) { return getDE(); }
@@ -251,7 +251,7 @@ public:
 		inline void setPCl(byte x) { PC_.b.l = x; }
 		inline void setSPh(byte x) { SP_.b.h = x; }
 		inline void setSPl(byte x) { SP_.b.l = x; }
-		template <Reg8 R8> inline void set(byte x) {
+		template <Reg8 R8> inline void set8(byte x) {
 			if      (R8 == A)     { setA(x); }
 			else if (R8 == F)     { setF(x); }
 			else if (R8 == B)     { setB(x); }
@@ -282,7 +282,7 @@ public:
 		inline void setIY(unsigned x)  { IY_.w = x; }
 		inline void setPC(unsigned x)  { PC_.w = x; }
 		inline void setSP(unsigned x)  { SP_.w = x; }
-		template <Reg16 R16> inline void set(unsigned x) {
+		template <Reg16 R16> inline void set16(unsigned x) {
 			if      (R16 == AF) { setAF(x); }
 			else if (R16 == BC) { setBC(x); }
 			else if (R16 == DE) { setDE(x); }
