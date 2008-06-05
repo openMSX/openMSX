@@ -259,7 +259,8 @@ void PanasonicAudioPeriphery::write(nibble outputs, nibble values,
 
 nibble PanasonicAudioPeriphery::read(const EmuTime& /*time*/)
 {
-	return swSwitch.getValue() ? 0xF : 0xB; // bit2
+	// verified bit 0,1,3 read as zero
+	return swSwitch.getValue() ? 0x4 : 0x0; // bit2
 }
 
 byte PanasonicAudioPeriphery::peekMem(word address, const EmuTime& /*time*/) const
