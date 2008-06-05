@@ -41,7 +41,7 @@ public:
 	virtual void write(nibble outputs, nibble values, const EmuTime& time);
 	virtual nibble read(const EmuTime& time);
 
-	virtual byte readMem(word address, const EmuTime& time);
+	virtual byte peekMem(word address, const EmuTime& time) const;
 	virtual void writeMem(word address, byte value, const EmuTime& time);
 	virtual const byte* getReadCacheLine(word start) const;
 	virtual byte* getWriteCacheLine(word start) const;
@@ -157,6 +157,10 @@ byte MSXAudio::readMem(word address, const EmuTime& time)
 {
 	return periphery->readMem(address, time);
 }
+byte MSXAudio::peekMem(word address, const EmuTime& time) const
+{
+	return periphery->peekMem(address, time);
+}
 void MSXAudio::writeMem(word address, byte value, const EmuTime& time)
 {
 	periphery->writeMem(address, value, time);
@@ -258,7 +262,7 @@ nibble PanasonicAudioPeriphery::read(const EmuTime& /*time*/)
 	return swSwitch.getValue() ? 0xF : 0xB; // bit2
 }
 
-byte PanasonicAudioPeriphery::readMem(word address, const EmuTime& /*time*/)
+byte PanasonicAudioPeriphery::peekMem(word address, const EmuTime& /*time*/) const
 {
 	if ((bankSelect == 0) && ((address & 0x3FFF) >= 0x3000)) {
 		return (*ram)[(address & 0x3FFF) - 0x3000];

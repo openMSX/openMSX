@@ -19,7 +19,12 @@ void Y8950Periphery::setSPOFF(bool /*value*/, const EmuTime& /*time*/)
 	// nothing
 }
 
-byte Y8950Periphery::readMem(word /*address*/, const EmuTime& /*time*/)
+byte Y8950Periphery::readMem(word address, const EmuTime& time)
+{
+	// by default do same as peekMem()
+	return peekMem(address, time);
+}
+byte Y8950Periphery::peekMem(word /*address*/, const EmuTime& /*time*/) const
 {
 	return 0xFF;
 }
