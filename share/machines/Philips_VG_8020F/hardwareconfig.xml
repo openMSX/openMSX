@@ -5,9 +5,9 @@
 
   <info>
     <manufacturer>Philips</manufacturer>
-    <code>VG 8020F/00</code>
+    <code>VG 8020/19</code>
     <release_year>?</release_year>
-    <description>French version of the VG 8020</description>
+    <description>French version of the VG 8020(/20)</description>
     <type>MSX</type>
   </info>
 
@@ -34,7 +34,7 @@
     </VDP>
 
     <PSG id="PSG">
-      <type>YM2149</type>
+      <type>YM2149</type> <!-- in S-3527 MSX-ENGINE -->
       <sound>
         <volume>21000</volume>
       </sound>
@@ -49,8 +49,8 @@
     <primary slot="0">
       <ROM id="MSX BIOS with BASIC ROM">
         <rom>
-          <filename>roms/vg8020F_basic-bios1.rom</filename>
-          <sha1>ae4a6632d4456ef44603e72f5acd5bbcd6c0d124</sha1>
+          <filename>roms/vg8020-19_basic-bios1.rom</filename>
+          <sha1>ae4a6632d4456ef44603e72f5acd5bbcd6c0d124</sha1> <!-- Confirmed by Bas Tilborghs -->
         </rom>
         <mem base="0x0000" size="0x8000"/>
       </ROM>
@@ -61,9 +61,19 @@
     <primary external="true" slot="2"/>
 
     <primary slot="3">
-       <RAM id="Main RAM">
-         <mem base="0x0000" size="0x10000"/>
-       </RAM>
+
+      <secondary slot="0"/>
+
+      <secondary slot="1"/>
+
+      <secondary slot="2">
+        <RAM id="Main RAM">
+          <mem base="0x0000" size="0x10000"/>
+        </RAM>
+      </secondary>
+
+      <secondary slot="3"/>
+
     </primary>
 
   </devices>
