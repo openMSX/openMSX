@@ -10,8 +10,6 @@ using std::string;
 using std::transform;
 using std::vector;
 
-namespace openmsx {
-
 namespace StringOp {
 
 int stringToInt(const string& str)
@@ -24,7 +22,7 @@ unsigned stringToUint(const string& str)
 	return strtoul(str.c_str(), NULL, 0);
 }
 
-uint64 stringToUint64(const string& str)
+unsigned long long stringToUint64(const string& str)
 {
        return strtoull(str.c_str(), NULL, 0);
 }
@@ -112,5 +110,3 @@ void split(const string& str, const string& chars, vector<string>& result)
 }
 
 } // namespace StringOp
-
-} // namespace openmsx

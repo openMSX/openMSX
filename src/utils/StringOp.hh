@@ -3,14 +3,11 @@
 #ifndef STRINGOP_HH
 #define STRINGOP_HH
 
-#include "openmsx.hh"
 #include <string>
 #include <vector>
 #include <sstream>
 #include <strings.h>
 #include <iomanip>
-
-namespace openmsx {
 
 namespace StringOp
 {
@@ -30,7 +27,7 @@ namespace StringOp
 
 	int stringToInt(const std::string& str);
 	unsigned stringToUint(const std::string& str);
-	uint64 stringToUint64(const std::string& str);
+	unsigned long long stringToUint64(const std::string& str);
 	bool stringToBool(const std::string& str);
 	double stringToDouble(const std::string& str);
 
@@ -56,7 +53,5 @@ namespace StringOp
 		}
 	};
 }
-
-} // namespace openmsx
 
 #endif
