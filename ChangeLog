@@ -1,5 +1,9 @@
 $Id$
 
+2008-06-12 David Heremans <david.heremans@gnu-linux.net>
+	* Fixed a small bug in DirAsDisk:
+	  Read-only host-OS files became truncated in the MSX dsk image.
+
 2008-06-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Fixed compilation of CPU code with gcc-3.4:
 	   Compilation with gcc-3.4 was broken because of a compiler bug,
