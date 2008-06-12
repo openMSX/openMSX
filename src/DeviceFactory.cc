@@ -53,7 +53,6 @@
 #include "MSXMotherBoard.hh"
 #include "MachineConfig.hh"
 #include "EmuTime.hh"
-#include "FileContext.hh"
 #include "MSXException.hh"
 
 namespace openmsx {
@@ -170,8 +169,6 @@ static XMLElement createConfig(const std::string& name, const std::string& id)
 {
 	XMLElement config(name);
 	config.addAttribute("id", id);
-	config.setFileContext(std::auto_ptr<FileContext>(
-		new SystemFileContext()));
 	return config;
 }
 
