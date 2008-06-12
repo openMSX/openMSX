@@ -78,7 +78,7 @@ public:
 	FilePool& getFilePool();
 	EnumSetting<int>& getMachineSetting();
 
-	void createMotherBoard(const std::string& machine);
+	void switchMachine(const std::string& machine);
 	MSXMotherBoard* getMotherBoard() const;
 
 	static void getHwConfigs(const std::string& type,
@@ -91,11 +91,15 @@ public:
 	CliComm& getCliComm();
 
 private:
+	typedef shared_ptr<MSXMotherBoard> Board;
+	typedef std::vector<Board> Boards;
+
 	void createMachineSetting();
-	MSXMotherBoard& prepareMotherBoard(const std::string& machine);
-	void prepareSwitch(shared_ptr<MSXMotherBoard> board);
-	void switchMotherBoard();
-	void deleteMotherBoard();
+	void switchBoard(Board newBoard);
+	void deleteBoard(Board board);
+	Board getMachine(const std::string& machineID) const;
+	std::string getMachineID() const;
+	void getMachineIDs(std::set<std::string>& result) const;
 
 	// Observer<Setting>
 	virtual void update(const Setting& setting);
@@ -108,8 +112,6 @@ private:
 
 	void unpause();
 	void pause();
-
-	Semaphore mbSem;
 
 	// note: order of auto_ptr's is important
 	std::auto_ptr<EventDistributor> eventDistributor;
@@ -138,11 +140,17 @@ private:
 	const std::auto_ptr<ConfigInfo> machineInfo;
 	const std::auto_ptr<RealTimeInfo> realTimeInfo;
 
-	shared_ptr<MSXMotherBoard> activeBoard;
-	shared_ptr<MSXMotherBoard> switchBoard;
-	bool needSwitch;
-	typedef std::vector<shared_ptr<MSXMotherBoard> > Boards;
+	// Locking rules for activeBoard access:
+	//  - main thread can always access activeBoard without taking a lock
+	//  - changing activeBoard handle can only be done in the main thread
+	//    and needs to take the mbSem lock
+	//  - non-main thread can only access activeBoard via specific
+	//    member functions (atm only via enterMainLoop()), it needs to take
+	//    the mbSem lock
+	Semaphore mbSem;
 	Boards boards;
+	Boards garbageBoards;
+	Board activeBoard; // either NULL or a board inside 'boards'
 
 	int blockedCounter;
 	bool paused;

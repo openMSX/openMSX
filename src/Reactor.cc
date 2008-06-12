@@ -150,8 +150,7 @@ private:
 
 
 Reactor::Reactor()
-	: mbSem(1)
-	, pauseSetting(getGlobalSettings().getPauseSetting())
+	: pauseSetting(getGlobalSettings().getPauseSetting())
 	, userSettings(new UserSettings(getCommandController()))
 	, quitCommand(new QuitCommand(getCommandController(), *this))
 	, machineCommand(new MachineCommand(getCommandController(), *this))
@@ -164,7 +163,7 @@ Reactor::Reactor()
 	, extensionInfo(new ConfigInfo(getOpenMSXInfoCommand(), "extensions"))
 	, machineInfo  (new ConfigInfo(getOpenMSXInfoCommand(), "machines"))
 	, realTimeInfo(new RealTimeInfo(getOpenMSXInfoCommand()))
-	, needSwitch(false)
+	, mbSem(1)
 	, blockedCounter(0)
 	, paused(false)
 	, running(true)
@@ -179,7 +178,7 @@ Reactor::Reactor()
 
 Reactor::~Reactor()
 {
-	deleteMotherBoard();
+	deleteBoard(activeBoard);
 
 	getEventDistributor().unregisterEventListener(
 		OPENMSX_QUIT_EVENT, *this);
@@ -330,104 +329,93 @@ void Reactor::createMachineSetting()
 		0, machines));
 }
 
-// used by CommandLineParser
-void Reactor::createMotherBoard(const string& machine)
-{
-	assert(!activeBoard.get());
-	prepareMotherBoard(machine);
-	switchMotherBoard();
-}
-
-MSXMotherBoard& Reactor::prepareMotherBoard(const string& machine)
-{
-	// Locking rules for MSXMotherBoard object access:
-	//  - main thread can always access motherBoard without taking a lock
-	//  - changing motherBoard handle can only be done in the main thread
-	//    and needs to take the mbSem lock
-	//  - non-main thread can only access motherBoard via specific
-	//    member functions (atm only via enterMainLoop()), it needs to take
-	//    the mbSem lock
-
-	assert(Thread::isMainThread());
-	ScopedLock lock(mbSem);
-	// Note: loadMachine can throw an exception and in that case the
-	//       motherboard must be considered as not created at all.
-	shared_ptr<MSXMotherBoard> tmp(new MSXMotherBoard(*this));
-	tmp->loadMachine(machine);
-	boards.push_back(tmp);
-
-	if (activeBoard.get()) {
-		Boards::iterator it = find(boards.begin(), boards.end(),
-		                           activeBoard);
-		if (it != boards.end()) {
-			boards.erase(it); // only gets deleted after switch
-		} else {
-			// Possible when we already switch to a new machine
-			// before the previous switch was complete (switching
-			// machines requires the mainloop to run). It's easy
-			// to trigger like this:
-			//    machine msx1 ; machine msx2
-			assert(needSwitch);
-			it = find(boards.begin(), boards.end(), switchBoard);
-			assert(it != boards.end());
-			boards.erase(it);
-		}
-	}
-
-	prepareSwitch(tmp);
-	return *tmp;
-}
-
-void Reactor::prepareSwitch(shared_ptr<MSXMotherBoard> board)
-{
-	assert(Thread::isMainThread());
-	switchBoard = board;
-	needSwitch = true;
-	enterMainLoop();
-}
-
-void Reactor::switchMotherBoard()
-{
-	assert(Thread::isMainThread());
-	assert(needSwitch);
-	assert(!switchBoard.get() ||
-	       find(boards.begin(), boards.end(), switchBoard) != boards.end());
-	{
-		// Don't hold the lock for longer than the actual switch.
-		// In the past we had a potential for deadlocks here, because
-		// (indirectly) the code below still acquires other locks.
-		ScopedLock lock(mbSem);
-		std::swap(activeBoard, switchBoard);
-		needSwitch = false;
-	}
-	getEventDistributor().distributeEvent(
-		new SimpleEvent<OPENMSX_MACHINE_LOADED_EVENT>());
-	string machineID = activeBoard.get() ? activeBoard->getMachineID()
-	                                     : "";
-	getGlobalCliComm().update(CliComm::HARDWARE, machineID, "select");
-	if (activeBoard.get()) {
-		activeBoard->getMSXCommandController().activated();
-	}
-	switchBoard.reset();
-}
-
 MSXMotherBoard* Reactor::getMotherBoard() const
 {
 	assert(Thread::isMainThread());
 	return activeBoard.get();
 }
 
-void Reactor::deleteMotherBoard()
+string Reactor::getMachineID() const
+{
+	return activeBoard.get() ? activeBoard->getMachineID() : "";
+}
+
+void Reactor::getMachineIDs(set<string>& result) const
+{
+	for (Reactor::Boards::const_iterator it = boards.begin();
+	     it != boards.end(); ++it) {
+		result.insert((*it)->getMachineID());
+	}
+}
+
+Reactor::Board Reactor::getMachine(const string& machineID) const
+{
+	for (Boards::const_iterator it = boards.begin();
+	     it != boards.end(); ++it) {
+		if ((*it)->getMachineID() == machineID) {
+			return *it;
+		}
+	}
+	throw CommandException("No machine with ID: " + machineID);
+}
+
+void Reactor::switchMachine(const string& machine)
+{
+	// create+load new machine
+	// switch to new machine
+	// delete old active machine
+
+	assert(Thread::isMainThread());
+	// Note: loadMachine can throw an exception and in that case the
+	//       motherboard must be considered as not created at all.
+	Board newBoard(new MSXMotherBoard(*this));
+	newBoard->loadMachine(machine);
+	boards.push_back(newBoard);
+
+	Board oldBoard = activeBoard;
+	switchBoard(newBoard);
+	deleteBoard(oldBoard);
+}
+
+void Reactor::switchBoard(Board newBoard)
 {
 	assert(Thread::isMainThread());
-	ScopedLock lock(mbSem);
-	if (activeBoard.get()) {
-		Boards::iterator it = find(boards.begin(), boards.end(),
-		                           activeBoard);
-		assert(it != boards.end());
-		boards.erase(it);
-		activeBoard.reset(); // also deletes board
+	assert(!newBoard.get() ||
+	       (find(boards.begin(), boards.end(), newBoard) != boards.end()));
+	assert(!activeBoard.get() ||
+	       (find(boards.begin(), boards.end(), activeBoard) != boards.end()));
+	{
+		// Don't hold the lock for longer than the actual switch.
+		// In the past we had a potential for deadlocks here, because
+		// (indirectly) the code below still acquires other locks.
+		ScopedLock lock(mbSem);
+		activeBoard = newBoard;
 	}
+	getEventDistributor().distributeEvent(
+		new SimpleEvent<OPENMSX_MACHINE_LOADED_EVENT>());
+	getGlobalCliComm().update(CliComm::HARDWARE, getMachineID(), "select");
+	if (activeBoard.get()) {
+		activeBoard->getMSXCommandController().activated();
+	}
+}
+
+void Reactor::deleteBoard(Board board)
+{
+	assert(Thread::isMainThread());
+	if (!board.get()) return;
+
+	if (board == activeBoard) {
+		// delete active board -> there is no active board anymore
+		switchBoard(Reactor::Board(NULL));
+	}
+	Boards::iterator it = find(boards.begin(), boards.end(), board);
+	assert(it != boards.end());
+	boards.erase(it);
+	// Don't immediately delete old boards because it's possible this
+	// routine is called via a code path that goes through the old
+	// board. Instead remember this board and delete it at a safe moment
+	// in time.
+	garbageBoards.push_back(board);
 }
 
 void Reactor::enterMainLoop()
@@ -436,7 +424,6 @@ void Reactor::enterMainLoop()
 	ScopedLock lock;
 	if (!Thread::isMainThread()) {
 		// Don't take lock in main thread to avoid recursive locking.
-		// This method gets called from within createMotherBoard().
 		lock.take(mbSem);
 	}
 	if (activeBoard.get()) {
@@ -450,11 +437,6 @@ void Reactor::run(CommandLineParser& parser)
 	GlobalCommandController& commandController = getGlobalCommandController();
 	getDiskManipulator(); // make sure it gets instantiated
 	                      // (also on machines without disk drive)
-
-	// select initial machine before executing scripts
-	if (needSwitch) {
-		switchMotherBoard();
-	}
 
 	// execute init.tcl
 	try {
@@ -485,21 +467,17 @@ void Reactor::run(CommandLineParser& parser)
 		// between devices so ADVRAM can check the error condition
 		// in its constructor
 		//commandController.executeCommand("set power on");
-		MSXMotherBoard* motherboard = getMotherBoard();
-		if (motherboard) {
-			motherboard->powerUp();
+		if (activeBoard.get()) {
+			activeBoard->powerUp();
 		}
 	}
 
 	PollEventGenerator pollEventGenerator(getEventDistributor());
 
 	while (running) {
-		if (needSwitch) {
-			switchMotherBoard();
-			assert(!needSwitch);
-		}
+		garbageBoards.clear(); // see deleteBoard()
 		getEventDistributor().deliverEvents();
-		MSXMotherBoard* motherboard = getMotherBoard();
+		MSXMotherBoard* motherboard = activeBoard.get();
 		bool blocked = (blockedCounter > 0) || !motherboard;
 		if (!blocked) blocked = !motherboard->execute();
 		if (blocked) {
@@ -600,20 +578,15 @@ string MachineCommand::execute(const vector<string>& tokens)
 {
 	switch (tokens.size()) {
 	case 1: // get current machine
-		if (MSXMotherBoard* motherBoard = reactor.getMotherBoard()) {
-			return motherBoard->getMachineID();
-		} else {
-			return "";
-		}
+		return reactor.getMachineID();
 	case 2:
 		try {
-			MSXMotherBoard& motherBoard =
-				reactor.prepareMotherBoard(tokens[1]);
-			return motherBoard.getMachineID();
+			reactor.switchMachine(tokens[1]);
 		} catch (MSXException& e) {
 			throw CommandException("Machine switching failed: " +
 			                       e.getMessage());
 		}
+		return reactor.getMachineID();
 	default:
 		throw SyntaxError();
 	}
@@ -679,11 +652,14 @@ CreateMachineCommand::CreateMachineCommand(
 {
 }
 
-string CreateMachineCommand::execute(const vector<string>& /*tokens*/)
+string CreateMachineCommand::execute(const vector<string>& tokens)
 {
-	shared_ptr<MSXMotherBoard> mb(new MSXMotherBoard(reactor));
-	reactor.boards.push_back(mb);
-	return mb->getMachineID();
+	if (tokens.size() != 1) {
+		throw SyntaxError();
+	}
+	Reactor::Board newBoard(new MSXMotherBoard(reactor));
+	reactor.boards.push_back(newBoard);
+	return newBoard->getMachineID();
 }
 
 string CreateMachineCommand::help(const vector<string>& /*tokens*/) const
@@ -713,22 +689,9 @@ string DeleteMachineCommand::execute(const vector<string>& tokens)
 	if (tokens.size() != 2) {
 		throw SyntaxError();
 	}
-	for (Reactor::Boards::iterator it = reactor.boards.begin();
-	     it != reactor.boards.end(); ++it) {
-		if ((*it)->getMachineID() == tokens[1]) {
-			shared_ptr<MSXMotherBoard> mb = *it;
-			if (mb == reactor.activeBoard) {
-				// if this was the active board, the actual
-				// delete happens after switch ...
-				reactor.prepareSwitch(
-					shared_ptr<MSXMotherBoard>(NULL));
-			}
-			// ... otherwise the delete already happens here
-			reactor.boards.erase(it);
-			return "";
-		}
-	}
-	throw CommandException("No machine with ID: " + tokens[1]);
+	Reactor::Board board = reactor.getMachine(tokens[1]);
+	reactor.deleteBoard(board);
+	return "";
 }
 
 string DeleteMachineCommand::help(const vector<string>& /*tokens*/) const
@@ -739,10 +702,7 @@ string DeleteMachineCommand::help(const vector<string>& /*tokens*/) const
 void DeleteMachineCommand::tabCompletion(vector<string>& tokens) const
 {
 	set<string> ids;
-	for (Reactor::Boards::const_iterator it = reactor.boards.begin();
-	     it != reactor.boards.end(); ++it) {
-		ids.insert((*it)->getMachineID());
-	}
+	reactor.getMachineIDs(ids);
 	completeString(tokens, ids);
 }
 
@@ -759,10 +719,9 @@ ListMachinesCommand::ListMachinesCommand(
 void ListMachinesCommand::execute(const vector<TclObject*>& /*tokens*/,
                                   TclObject& result)
 {
-	for (Reactor::Boards::const_iterator it = reactor.boards.begin();
-	     it != reactor.boards.end(); ++it) {
-		result.addListElement((*it)->getMachineID());
-	}
+	set<string> ids;
+	reactor.getMachineIDs(ids);
+	result.addListElements(ids.begin(), ids.end());
 }
 
 string ListMachinesCommand::help(const vector<string>& /*tokens*/) const
@@ -784,18 +743,12 @@ string ActivateMachineCommand::execute(const vector<string>& tokens)
 {
 	switch (tokens.size()) {
 	case 1:
-		return reactor.activeBoard.get()
-		     ? reactor.activeBoard->getMachineID()
-		     : "";
-	case 2:
-		for (Reactor::Boards::iterator it = reactor.boards.begin();
-		     it != reactor.boards.end(); ++it) {
-			if ((*it)->getMachineID() == tokens[1]) {
-				reactor.prepareSwitch(*it);
-				return tokens[1];
-			}
-		}
-		throw CommandException("No machine with ID: " + tokens[1]);
+		return reactor.getMachineID();
+	case 2: {
+		Reactor::Board board = reactor.getMachine(tokens[1]);
+		reactor.switchBoard(board);
+		return reactor.getMachineID();
+	}
 	default:
 		throw SyntaxError();
 	}
@@ -810,12 +763,8 @@ string ActivateMachineCommand::help(const vector<string>& /*tokens*/) const
 
 void ActivateMachineCommand::tabCompletion(vector<string>& tokens) const
 {
-	// TODO same as DeleteMachineCommand
 	set<string> ids;
-	for (Reactor::Boards::const_iterator it = reactor.boards.begin();
-	     it != reactor.boards.end(); ++it) {
-		ids.insert((*it)->getMachineID());
-	}
+	reactor.getMachineIDs(ids);
 	completeString(tokens, ids);
 }
 

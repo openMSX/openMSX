@@ -329,7 +329,7 @@ void CommandLineParser::parse(int argc, char** argv)
 					reactor.getMachineSetting().getValueString();
 				output.printInfo("Using default machine: " + machine);
 				try {
-					reactor.createMotherBoard(machine);
+					reactor.switchMachine(machine);
 				} catch (MSXException& e) {
 					output.printInfo(
 						"Failed to initialize default machine: " + e.getMessage()
@@ -339,7 +339,7 @@ void CommandLineParser::parse(int argc, char** argv)
 						reactor.getMachineSetting().getRestoreValueString();
 					output.printInfo("Using fallback machine: " + fallbackMachine);
 					try {
-						reactor.createMotherBoard(fallbackMachine);
+						reactor.switchMachine(fallbackMachine);
 					} catch (MSXException& e2) {
 						// Fallback machine failed as well; we're out of options.
 						throw FatalError(e2.getMessage());
@@ -608,7 +608,7 @@ bool MachineOption::parseOption(const string& option, deque<string>& cmdLine)
 	string machine(getArgument(option, cmdLine));
 	parser.output.printInfo("Using specified machine: " + machine);
 	try {
-		parser.reactor.createMotherBoard(machine);
+		parser.reactor.switchMachine(machine);
 	} catch (MSXException& e) {
 		throw FatalError(e.getMessage());
 	}

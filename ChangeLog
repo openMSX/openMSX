@@ -1,5 +1,29 @@
 $Id$
 
+2008-06-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Simplified machine handling stuff in Reactor:
+	  Before we had some (complicated) logic in the Reactor class to
+	  postpone the actually machine switch till the main reactor loop has
+	  had a chance to run. The reason for this was that the 'machine'
+	  command (or other related commands) can get executed via a code path
+	  that runs through the current machine, meaning there are stackframes
+	  active that refer to the current machine. Only in the main reactor
+	  loop we're sure there are no such stackframes. A consequence of this
+	  approach is that for example in this sequence of Tcl commands:
+	     machine turbor ; diska mydisk.dsk
+	  The 'diska' command is still executed in the old machine, because
+	  the reactor loop has not run yet. If there is 'some pause' inbetween
+	  the two commands, the 'diska' command is executed in the new
+	  machine. At the very least this is not very intuitive.
+
+	  Taking a step back, switching the active machine (which has active
+	  stackframes) was not the problem, but deletion of that machine is.
+	  So instead of postponing the whole switch, we now only postpone the
+	  deletion of the old machine. The Tcl commands now work as expected.
+
+	  Also did some other refactoring to make the code easier to
+	  understand.
+
 2008-06-12 David Heremans <david.heremans@gnu-linux.net>
 	* Fixed a small bug in DirAsDisk:
 	  Read-only host-OS files became truncated in the MSX dsk image.
