@@ -5460,4 +5460,13 @@ create_trainer "Pyramid Warp CAS" {time 1} {
 	"lives" {poke 0xbff8 99}
 }
 
+create_trainer "Stop The Train" {frame} {
+        "Time" {poke 0xe304 255}
+        "Lives" {poke 0xe308 3}
+        "Always have snake" {poke 0xE32C 1}
+        "No Bad Man" {poke 0xe342 128}
+        "No Bad Man" {poke 0xe34A 128}
+        "No Ghost" {poke 0xe362 128}
+}
+
 ### EOF ###
