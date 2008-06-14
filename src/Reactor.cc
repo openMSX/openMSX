@@ -10,7 +10,6 @@
 #include "FilePool.hh"
 #include "UserSettings.hh"
 #include "MSXMotherBoard.hh"
-#include "MSXCommandController.hh"
 #include "Command.hh"
 #include "CommandException.hh"
 #include "GlobalCliComm.hh"
@@ -384,6 +383,9 @@ void Reactor::switchBoard(Board newBoard)
 	       (find(boards.begin(), boards.end(), newBoard) != boards.end()));
 	assert(!activeBoard.get() ||
 	       (find(boards.begin(), boards.end(), activeBoard) != boards.end()));
+	if (activeBoard.get()) {
+		activeBoard->activate(false);
+	}
 	{
 		// Don't hold the lock for longer than the actual switch.
 		// In the past we had a potential for deadlocks here, because
@@ -395,7 +397,7 @@ void Reactor::switchBoard(Board newBoard)
 		new SimpleEvent<OPENMSX_MACHINE_LOADED_EVENT>());
 	getGlobalCliComm().update(CliComm::HARDWARE, getMachineID(), "select");
 	if (activeBoard.get()) {
-		activeBoard->getMSXCommandController().activated();
+		activeBoard->activate(true);
 	}
 }
 

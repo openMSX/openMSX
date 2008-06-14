@@ -2,12 +2,14 @@
 
 #include "MSXCommandController.hh"
 #include "GlobalCommandController.hh"
+#include "MSXEventDistributor.hh"
 #include "MSXMotherBoard.hh"
 #include "SettingsConfig.hh"
 #include "SettingsManager.hh"
 #include "InfoCommand.hh"
 #include "Interpreter.hh"
 #include "Setting.hh"
+#include "Event.hh"
 #include <iostream>
 
 using std::string;
@@ -24,10 +26,14 @@ MSXCommandController::MSXCommandController(
 	getInterpreter().createNamespace(motherboard.getMachineID());
 
 	machineInfoCommand.reset(new InfoCommand(*this, "machine_info"));
+
+	motherboard.getMSXEventDistributor().registerEventListener(*this);
 }
 
 MSXCommandController::~MSXCommandController()
 {
+	motherboard.getMSXEventDistributor().unregisterEventListener(*this);
+
 	machineInfoCommand.reset();
 
 	#ifndef NDEBUG
@@ -195,8 +201,11 @@ CliConnection* MSXCommandController::getConnection() const
 	return globalCommandController.getConnection();
 }
 
-void MSXCommandController::activated()
+void MSXCommandController::signalEvent(
+	shared_ptr<const Event> event, const EmuTime& time)
 {
+	if (event->getType() != OPENMSX_MACHINE_ACTIVATED) return;
+
 	// simple way to synchronize proxy settings
 	for (SettingMap::const_iterator it = settingMap.begin();
 	     it != settingMap.end(); ++it) {

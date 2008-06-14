@@ -9,7 +9,6 @@
 namespace openmsx {
 
 class EmuTime;
-class CommandController;
 class Display;
 class RenderSettings;
 class VisibleSurface;
@@ -72,7 +71,7 @@ protected:
 	static unsigned getLineWidth(FrameSource* frame, unsigned y, unsigned step);
 
 	PostProcessor(
-		CommandController& commandController, Display& display,
+		MSXMotherBoard& motherBoard, Display& display,
 		VisibleSurface& screen, VideoSource videoSource,
 		unsigned maxWidth, unsigned height);
 

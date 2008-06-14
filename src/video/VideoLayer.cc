@@ -7,31 +7,38 @@
 #include "GlobalSettings.hh"
 #include "BooleanSetting.hh"
 #include "VideoSourceSetting.hh"
+#include "MSXEventDistributor.hh"
+#include "MSXMotherBoard.hh"
+#include "Event.hh"
 #include <cassert>
 
 namespace openmsx {
 
-VideoLayer::VideoLayer(VideoSource videoSource_,
-                       CommandController& commandController,
+VideoLayer::VideoLayer(MSXMotherBoard& motherBoard_,
+                       VideoSource videoSource_,
                        Display& display_)
-	: display(display_)
+	: motherBoard(motherBoard_)
+	, display(display_)
 	, renderSettings(display.getRenderSettings())
 	, videoSourceSetting(renderSettings.getVideoSource())
 	, videoSourceActivator(new VideoSourceActivator(
               videoSourceSetting, videoSource_))
-	, powerSetting(commandController.getGlobalSettings().getPowerSetting())
+	, powerSetting(motherBoard.getCommandController().
+	                   getGlobalSettings().getPowerSetting())
 	, videoSource(videoSource_)
 {
-	setCoverage(getCoverage());
-	setZ(calcZ());
+	calcCoverage();
+	calcZ();
 	display.addLayer(*this);
 
 	videoSourceSetting.attach(*this);
 	powerSetting.attach(*this);
+	motherBoard.getMSXEventDistributor().registerEventListener(*this);
 }
 
 VideoLayer::~VideoLayer()
 {
+	motherBoard.getMSXEventDistributor().unregisterEventListener(*this);
 	powerSetting.detach(*this);
 	videoSourceSetting.detach(*this);
 
@@ -46,24 +53,32 @@ VideoSource VideoLayer::getVideoSource() const
 void VideoLayer::update(const Setting& setting)
 {
 	if (&setting == &videoSourceSetting) {
-		setZ(calcZ());
+		calcZ();
 	} else if (&setting == &powerSetting) {
-		setCoverage(getCoverage());
+		calcCoverage();
 	}
 }
 
-Layer::ZIndex VideoLayer::calcZ()
+void VideoLayer::calcZ()
 {
-	return renderSettings.getVideoSource().getValue() == videoSource
+	setZ((renderSettings.getVideoSource().getValue() == videoSource)
 		? Z_MSX_ACTIVE
-		: Z_MSX_PASSIVE;
+		: Z_MSX_PASSIVE);
 }
 
-Layer::Coverage VideoLayer::getCoverage()
+void VideoLayer::calcCoverage()
 {
-	return powerSetting.getValue()
+	setCoverage((powerSetting.getValue() && motherBoard.isActive())
 		? COVER_FULL
-		: COVER_NONE;
+		: COVER_NONE);
+}
+
+void VideoLayer::signalEvent(shared_ptr<const Event> event, const EmuTime& /*time*/)
+{
+	if ((event->getType() == OPENMSX_MACHINE_ACTIVATED) ||
+	    (event->getType() == OPENMSX_MACHINE_DEACTIVATED)) {
+		calcCoverage();
+	}
 }
 
 } // namespace openmsx

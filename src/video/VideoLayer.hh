@@ -6,12 +6,13 @@
 #include "Layer.hh"
 #include "VideoSource.hh"
 #include "Observer.hh"
+#include "MSXEventListener.hh"
 #include "noncopyable.hh"
 #include <memory>
 
 namespace openmsx {
 
-class CommandController;
+class MSXMotherBoard;
 class RenderSettings;
 class Display;
 class Setting;
@@ -19,15 +20,16 @@ class BooleanSetting;
 class VideoSourceSetting;
 class VideoSourceActivator;
 
-class VideoLayer: public Layer, protected Observer<Setting>, private noncopyable
+class VideoLayer: public Layer, protected Observer<Setting>,
+                  private MSXEventListener, private noncopyable
 {
 public:
 	virtual ~VideoLayer();
 	VideoSource getVideoSource() const;
 
 protected:
-	VideoLayer(VideoSource videoSource,
-	           CommandController& commandController,
+	VideoLayer(MSXMotherBoard& motherBoard,
+	           VideoSource videoSource,
 	           Display& display);
 
 	// Observer<Setting> interface:
@@ -35,10 +37,16 @@ protected:
 
 private:
 	/** Calculates the current Z coordinate of this layer. */
-	ZIndex calcZ();
+	void calcZ();
 	/** Calculates the current coverage of this layer. */
-	Coverage getCoverage();
+	void calcCoverage();
 
+	// MSXEventListener
+	virtual void signalEvent(shared_ptr<const Event> event,
+	                         const EmuTime& time);
+
+	/** This layer belongs to a specific machine. */
+	MSXMotherBoard& motherBoard;
 	/** Settings shared between all renderers. */
 	Display& display;
 	RenderSettings& renderSettings;

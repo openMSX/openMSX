@@ -16,10 +16,10 @@
 
 namespace openmsx {
 
-PostProcessor::PostProcessor(CommandController& commandController,
+PostProcessor::PostProcessor(MSXMotherBoard& motherBoard,
 	Display& display_, VisibleSurface& screen_, VideoSource videoSource,
 	unsigned maxWidth, unsigned height)
-	: VideoLayer(videoSource, commandController, display_)
+	: VideoLayer(motherBoard, videoSource, display_)
 	, renderSettings(display_.getRenderSettings())
 	, screen(screen_)
 	, paintFrame(0)

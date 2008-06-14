@@ -13,6 +13,8 @@
 #include "IntegerSetting.hh"
 #include "EventDistributor.hh"
 #include "InputEventGenerator.hh"
+#include "VDP.hh"
+#include "V9990.hh"
 #include "build-info.hh"
 #include <cassert>
 
@@ -60,6 +62,7 @@ SDLVideoSystem::~SDLVideoSystem()
 
 Rasterizer* SDLVideoSystem::createRasterizer(VDP& vdp)
 {
+	MSXMotherBoard& motherBoard = vdp.getMotherBoard();
 	switch (renderSettings.getRenderer().getValue()) {
 	case RendererFactory::SDL:
 	case RendererFactory::SDLGL_FB16:
@@ -70,16 +73,16 @@ Rasterizer* SDLVideoSystem::createRasterizer(VDP& vdp)
 			return new SDLRasterizer<word>(
 				vdp, display, *screen,
 				std::auto_ptr<PostProcessor>(new FBPostProcessor<word>(
-					reactor.getCommandController(),
-					display, *screen, VIDEO_MSX, 640, 240)));
+					motherBoard, display, *screen,
+					VIDEO_MSX, 640, 240)));
 #endif
 #if HAVE_32BPP
 		case 4:
 			return new SDLRasterizer<unsigned>(
 				vdp, display, *screen,
 				std::auto_ptr<PostProcessor>(new FBPostProcessor<unsigned>(
-					reactor.getCommandController(),
-					display, *screen, VIDEO_MSX, 640, 240)));
+					motherBoard, display, *screen,
+					VIDEO_MSX, 640, 240)));
 #endif
 		default:
 			assert(false);
@@ -87,14 +90,13 @@ Rasterizer* SDLVideoSystem::createRasterizer(VDP& vdp)
 		}
 #ifdef COMPONENT_GL
 	case RendererFactory::SDLGL:
-		return new GLRasterizer(
-			reactor.getCommandController(), vdp, display, *screen);
+		return new GLRasterizer(vdp, display, *screen);
 	case RendererFactory::SDLGL_PP:
 		return new SDLRasterizer<unsigned>(
 			vdp, display, *screen,
 			std::auto_ptr<PostProcessor>(new GLPostProcessor(
-				reactor.getCommandController(),
-				display, *screen, VIDEO_MSX, 640, 240)));
+				motherBoard, display, *screen,
+				VIDEO_MSX, 640, 240)));
 #endif
 	default:
 		assert(false);
@@ -104,6 +106,7 @@ Rasterizer* SDLVideoSystem::createRasterizer(VDP& vdp)
 
 V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990& vdp)
 {
+	MSXMotherBoard& motherBoard = vdp.getMotherBoard();
 	switch (renderSettings.getRenderer().getValue()) {
 	case RendererFactory::SDL:
 	case RendererFactory::SDLGL_FB16:
@@ -114,16 +117,16 @@ V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990& vdp)
 			return new V9990SDLRasterizer<word>(
 				vdp, display, *screen,
 				std::auto_ptr<PostProcessor>(new FBPostProcessor<word>(
-					reactor.getCommandController(),
-					display, *screen, VIDEO_GFX9000, 1280, 240)));
+					motherBoard, display, *screen,
+					VIDEO_GFX9000, 1280, 240)));
 #endif
 #if HAVE_32BPP
 		case 4:
 			return new V9990SDLRasterizer<unsigned>(
 				vdp, display, *screen,
 				std::auto_ptr<PostProcessor>(new FBPostProcessor<unsigned>(
-					reactor.getCommandController(),
-					display, *screen, VIDEO_GFX9000, 1280, 240)));
+					motherBoard, display, *screen,
+					VIDEO_GFX9000, 1280, 240)));
 #endif
 		default:
 			assert(false);
@@ -136,8 +139,8 @@ V9990Rasterizer* SDLVideoSystem::createV9990Rasterizer(V9990& vdp)
 		return new V9990SDLRasterizer<unsigned>(
 			vdp, display, *screen,
 			std::auto_ptr<PostProcessor>(new GLPostProcessor(
-				reactor.getCommandController(),
-				display, *screen, VIDEO_GFX9000, 1280, 240)));
+				motherBoard, display, *screen,
+				VIDEO_GFX9000, 1280, 240)));
 #endif
 	default:
 		assert(false);

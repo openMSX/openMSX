@@ -79,6 +79,8 @@ public:
 	void powerUp();
 	void schedulePowerDown();
 	void doPowerDown(const EmuTime& time);
+	void activate(bool active);
+	bool isActive() const;
 	void scheduleReset();
 	void doReset(const EmuTime& time);
 	byte readIRQVector();
@@ -95,9 +97,9 @@ public:
 
 	CliComm& getMSXCliComm();
 	CliComm* getMSXCliCommIfAvailable();
+	MSXEventDistributor& getMSXEventDistributor();
 	MSXCommandController& getMSXCommandController();
 	Scheduler& getScheduler();
-	MSXEventDistributor& getMSXEventDistributor();
 	CartridgeSlotManager& getSlotManager();
 	EventDelay& getEventDelay();
 	EventTranslator& getEventTranslator();
@@ -157,9 +159,9 @@ private:
 	// order of auto_ptr's is important!
 	auto_ptr<AddRemoveUpdate> addRemoveUpdate;
 	auto_ptr<MSXCliComm> msxCliComm;
+	auto_ptr<MSXEventDistributor> msxEventDistributor;
 	auto_ptr<MSXCommandController> msxCommandController;
 	auto_ptr<Scheduler> scheduler;
-	auto_ptr<MSXEventDistributor> msxEventDistributor;
 	auto_ptr<CartridgeSlotManager> slotManager;
 	auto_ptr<EventDelay> eventDelay;
 	auto_ptr<EventTranslator> eventTranslator;
@@ -191,6 +193,7 @@ private:
 	bool powered;
 	bool needReset;
 	bool needPowerDown;
+	bool active;
 };
 
 
@@ -292,6 +295,7 @@ MSXMotherBoardImpl::MSXMotherBoardImpl(MSXMotherBoard& self_, Reactor& reactor_)
 	, powered(false)
 	, needReset(false)
 	, needPowerDown(false)
+	, active(false)
 {
 	self.pimple.reset(this);
 
@@ -466,6 +470,14 @@ CliComm* MSXMotherBoardImpl::getMSXCliCommIfAvailable()
 	return msxCliComm.get();
 }
 
+MSXEventDistributor& MSXMotherBoardImpl::getMSXEventDistributor()
+{
+	if (!msxEventDistributor.get()) {
+		msxEventDistributor.reset(new MSXEventDistributor());
+	}
+	return *msxEventDistributor;
+}
+
 MSXCommandController& MSXMotherBoardImpl::getMSXCommandController()
 {
 	if (!msxCommandController.get()) {
@@ -481,14 +493,6 @@ Scheduler& MSXMotherBoardImpl::getScheduler()
 		scheduler.reset(new Scheduler());
 	}
 	return *scheduler;
-}
-
-MSXEventDistributor& MSXMotherBoardImpl::getMSXEventDistributor()
-{
-	if (!msxEventDistributor.get()) {
-		msxEventDistributor.reset(new MSXEventDistributor());
-	}
-	return *msxEventDistributor;
 }
 
 CartridgeSlotManager& MSXMotherBoardImpl::getSlotManager()
@@ -814,6 +818,19 @@ void MSXMotherBoardImpl::doPowerDown(const EmuTime& time)
 	     it != availableDevices.end(); ++it) {
 		(*it)->powerDown(time);
 	}
+}
+
+void MSXMotherBoardImpl::activate(bool active_)
+{
+	active = active_;
+	MSXEventDistributor::EventPtr event = active
+		? MSXEventDistributor::EventPtr(new SimpleEvent<OPENMSX_MACHINE_ACTIVATED>())
+		: MSXEventDistributor::EventPtr(new SimpleEvent<OPENMSX_MACHINE_DEACTIVATED>());
+	getMSXEventDistributor().distributeEvent(event, getScheduler().getCurrentTime());
+}
+bool MSXMotherBoardImpl::isActive() const
+{
+	return active;
 }
 
 void MSXMotherBoardImpl::exitCPULoopSync()
@@ -1186,6 +1203,14 @@ void MSXMotherBoard::schedulePowerDown()
 void MSXMotherBoard::doPowerDown(const EmuTime& time)
 {
 	pimple->doPowerDown(time);
+}
+void MSXMotherBoard::activate(bool active)
+{
+	pimple->activate(active);
+}
+bool MSXMotherBoard::isActive() const
+{
+	return pimple->isActive();
 }
 void MSXMotherBoard::scheduleReset()
 {

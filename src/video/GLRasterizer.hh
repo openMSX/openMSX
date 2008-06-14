@@ -12,7 +12,6 @@
 
 namespace openmsx {
 
-class CommandController;
 class VDP;
 class VDPVRAM;
 class RenderSettings;
@@ -32,9 +31,7 @@ public:
 	// are using this type.
 	typedef GLuint Pixel;
 
-	GLRasterizer(
-		CommandController& commandController,
-		VDP& vdp, Display& display, OutputSurface& screen);
+	GLRasterizer(VDP& vdp, Display& display, OutputSurface& screen);
 	virtual ~GLRasterizer();
 
 	// Layer interface:

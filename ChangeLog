@@ -1,5 +1,20 @@
 $Id$
 
+2008-06-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented 'tabbed' machines:
+	  It's now possible to have multiple msx machines in memory and freely
+	  switch between them. This is done with the already existing
+	  'activate_machine' command. Only the active machine is running, the
+	  other machines are paused.
+
+	  This may not be the most useful feature, but we already had the
+	  'activate_machine' command for other reasons (e.g. machine
+	  switching) and you could argue that it's a bug that it didn't
+	  already work like it does now. Basically we already had all the
+	  infrastructure in place. Actually enabling session support required
+	  relatively few changes (mostly mechanical). Also having this feature
+	  working gives more confidence that the design is right.
+
 2008-06-12 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Simplified machine handling stuff in Reactor:
 	  Before we had some (complicated) logic in the Reactor class to

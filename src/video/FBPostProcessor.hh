@@ -10,8 +10,8 @@
 
 namespace openmsx {
 
+class MSXMotherBoard;
 class Scaler;
-class CommandController;
 class Display;
 class VisibleSurface;
 
@@ -22,7 +22,7 @@ class FBPostProcessor : public PostProcessor
 {
 public:
 	FBPostProcessor(
-		CommandController& commandController, Display& display,
+		MSXMotherBoard& motherBoard, Display& display,
 		VisibleSurface& screen, VideoSource videoSource,
 		unsigned maxWidth, unsigned height);
 	virtual ~FBPostProcessor();

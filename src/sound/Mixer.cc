@@ -144,13 +144,11 @@ void Mixer::unmute()
 void Mixer::muteHelper()
 {
 	bool mute = muteCount || msxMixers.empty();
-	bool msxMute = mute;
 	for (MSXMixers::iterator it = msxMixers.begin();
 	     it != msxMixers.end(); ++it) {
-		unsigned samples = msxMute ? 0 : driver->getSamples();
+		unsigned samples = mute ? 0 : driver->getSamples();
 		unsigned frequency = driver->getFrequency();
 		(*it)->setMixerParams(samples, frequency);
-		msxMute = true; // mute all but the first MSXMixer
 	}
 
 	if (mute) {
@@ -165,12 +163,10 @@ IntegerSetting& Mixer::getMasterVolume() const
 	return *masterVolume;
 }
 
-double Mixer::uploadBuffer(MSXMixer& msxMixer, short* buffer, unsigned len)
+double Mixer::uploadBuffer(MSXMixer& /*msxMixer*/, short* buffer, unsigned len)
 {
 	// can only handle one MSXMixer ATM
 	assert(!msxMixers.empty());
-	assert(msxMixers.front() == &msxMixer);
-	(void)msxMixer;
 
 	return driver->uploadBuffer(buffer, len);
 }

@@ -60,6 +60,11 @@ enum EventType
 	/** Send when a (new) machine configuration is loaded */
 	OPENMSX_MACHINE_LOADED_EVENT,
 
+	/** Send when a machine is (de)activated.
+	  * This events is specific per machine. */
+	OPENMSX_MACHINE_ACTIVATED,
+	OPENMSX_MACHINE_DEACTIVATED,
+
 	OPENMSX_MIDI_IN_READER_EVENT,
 	OPENMSX_MIDI_IN_NATIVE_EVENT,
 	OPENMSX_RS232_TESTER_EVENT,

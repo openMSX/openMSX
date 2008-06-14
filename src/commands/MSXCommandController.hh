@@ -4,6 +4,7 @@
 #define MSXCOMMANDCONTROLLER_HH
 
 #include "CommandController.hh"
+#include "MSXEventListener.hh"
 #include "noncopyable.hh"
 #include <map>
 #include <memory>
@@ -14,7 +15,8 @@ class GlobalCommandController;
 class MSXMotherBoard;
 class InfoCommand;
 
-class MSXCommandController : public CommandController, private noncopyable
+class MSXCommandController : public CommandController, private MSXEventListener,
+                             private noncopyable
 {
 public:
 	MSXCommandController(GlobalCommandController& globalCommandController,
@@ -57,6 +59,10 @@ public:
 	virtual CliConnection* getConnection() const;
 
 private:
+	// MSXEventListener
+	virtual void signalEvent(shared_ptr<const Event> event,
+	                         const EmuTime& time);
+
 	GlobalCommandController& globalCommandController;
 	MSXMotherBoard& motherboard;
 	std::auto_ptr<InfoCommand> machineInfoCommand;

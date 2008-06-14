@@ -250,11 +250,11 @@ void FBPostProcessor<Pixel>::update(const Setting& setting)
 
 
 template <class Pixel>
-FBPostProcessor<Pixel>::FBPostProcessor(CommandController& commandController,
+FBPostProcessor<Pixel>::FBPostProcessor(MSXMotherBoard& motherBoard,
 	Display& display, VisibleSurface& screen_, VideoSource videoSource,
 	unsigned maxWidth, unsigned height)
 	: PostProcessor(
-		commandController, display, screen_, videoSource, maxWidth, height)
+		motherBoard, display, screen_, videoSource, maxWidth, height)
 	, noiseShift(screen.getHeight())
 	, pixelOps(screen.getSDLFormat())
 {

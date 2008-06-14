@@ -16,11 +16,11 @@
 namespace openmsx {
 
 GLPostProcessor::GLPostProcessor(
-	CommandController& commandController, Display& display,
+	MSXMotherBoard& motherBoard, Display& display,
 	VisibleSurface& screen, VideoSource videoSource,
 	unsigned maxWidth, unsigned height_)
-	: PostProcessor(commandController, display, screen, videoSource,
-	                maxWidth, height_)
+	: PostProcessor(motherBoard, display, screen,
+	                videoSource, maxWidth, height_)
 	, height(height_)
 {
 	if (!GLEW_VERSION_2_0) {

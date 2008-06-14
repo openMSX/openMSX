@@ -82,6 +82,9 @@ public:
 	void schedulePowerDown();
 	void doPowerDown(const EmuTime& time);
 
+	void activate(bool active);
+	bool isActive() const;
+
 	/**
 	 * This will reset all MSXDevices (the reset() method of
 	 * all registered MSXDevices is called)
