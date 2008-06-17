@@ -1,5 +1,11 @@
 $Id$
 
+2008-06-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Implemented TMS99x8 VRAM remapping (reg#1, bit 7):
+	   thanks to: - enen for providing the technical info
+	              - Quibus for testing it on both real and emulated
+	                machines
+
 2008-06-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented 'tabbed' machines:
 	  It's now possible to have multiple msx machines in memory and freely

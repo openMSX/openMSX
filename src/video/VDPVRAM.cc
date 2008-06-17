@@ -105,4 +105,74 @@ void VDPVRAM::setRenderer(Renderer* renderer, const EmuTime& time)
 	bitmapVisibleWindow.setObserver(renderer);
 }
 
+void VDPVRAM::change4k8kMapping(bool mapping8k)
+{
+	/* Sources:
+	 *  - http://www.msx.org/forumtopicl8624.html
+	 *  - Charles MacDonald's sc3000h.txt (http://cgfm2.emuviews.com)
+	 *
+	 * Bit 7 of register #1 affects how the VDP generates addresses when
+	 * accessing VRAM. Here's a table illustrating the differences:
+	 *
+	 * VDP address      VRAM address
+	 * (Column)         4K mode     8/16K mode
+	 * AD0              VA0         VA0
+	 * AD1              VA1         VA1
+	 * AD2              VA2         VA2
+	 * AD3              VA3         VA3
+	 * AD4              VA4         VA4
+	 * AD5              VA5         VA5
+	 * AD6              VA12        VA6
+	 * AD7              Not used    Not used
+	 * (Row)
+	 * AD0              VA6         VA7
+	 * AD1              VA7         VA8
+	 * AD2              VA8         VA9
+	 * AD3              VA9         VA10
+	 * AD4              VA10        VA11
+	 * AD5              VA11        VA12
+	 * AD6              VA13        VA13
+	 * AD7              Not used    Not used
+	 *
+	 * ADx - TMS9928 8-bit VRAM address/data bus
+	 * VAx - 14-bit VRAM address that the VDP wants to access
+	 *
+	 * How the address is formed has to do with the physical layout of
+	 * memory cells in a DRAM chip. A 4Kx1 chip has 64x64 cells, a 8Kx1 or
+	 * 16Kx1 chip has 128x64 or 128x128 cells. Because the DRAM address bus
+	 * is multiplexed, this means 6 bits are used for 4K DRAMs and 7 bits
+	 * are used for 8K or 16K DRAMs.
+	 *
+	 * In 4K mode the 6 bits of the row and column are output first, with
+	 * the remaining high-order bits mapped to AD6. In 8/16K mode the 7
+	 * bits of the row and column are output normally. This also means that
+	 * even in 4K mode, all 16K of VRAM can be accessed. The only
+	 * difference is in what addresses are used to store data.
+	 */
+	byte tmp[0x4000];
+	if (mapping8k) {
+		// from 8k/16k to 4k mapping
+		for (unsigned addr8 = 0; addr8 < 0x4000; addr8 += 64) {
+			unsigned addr4 =  (addr8 & 0x203F) |
+			                 ((addr8 & 0x1000) >> 6) |
+			                 ((addr8 & 0x0FC0) << 1);
+			const byte* src = &data[addr8];
+			byte* dst = &tmp[addr4];
+			memcpy(dst, src, 64);
+		}
+	} else {
+		// from 4k to 8k/16k mapping
+		for (unsigned addr4 = 0; addr4 < 0x4000; addr4 += 64) {
+			unsigned addr8 =  (addr4 & 0x203F) |
+			                 ((addr4 & 0x0040) << 6) |
+			                 ((addr4 & 0x1F80) >> 1);
+			const byte* src = &data[addr4];
+			byte* dst = &tmp[addr8];
+			memcpy(dst, src, 64);
+		}
+	}
+	memcpy(&data[0], tmp, 0x4000);
+}
+
+
 } // namespace openmsx

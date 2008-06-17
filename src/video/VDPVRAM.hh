@@ -480,6 +480,11 @@ public:
 		this->cmdEngine = cmdEngine;
 	}
 
+	/** TMS99x8 VRAM can be mapped in two ways.
+	  * See implementation for more details.
+	  */
+	void change4k8kMapping(bool mapping8k);
+
 private:
 	/* Common code of cmdWrite() and cpuWrite()
 	 */
