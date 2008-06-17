@@ -202,7 +202,7 @@ CliConnection* MSXCommandController::getConnection() const
 }
 
 void MSXCommandController::signalEvent(
-	shared_ptr<const Event> event, const EmuTime& time)
+	shared_ptr<const Event> event, const EmuTime& /*time*/)
 {
 	if (event->getType() != OPENMSX_MACHINE_ACTIVATED) return;
 
