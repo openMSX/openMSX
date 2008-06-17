@@ -3,7 +3,11 @@
 #ifndef KEYS_HH
 #define KEYS_HH
 
-#include <SDL_stdinc.h>
+// #include'ing SDL_stdinc.h here is enough, but that header doesn't exist
+// yet in SDL version 1.2.9 (used in GP2X port)
+//#include <SDL_stdinc.h>
+#include <SDL.h> // only for Uint8 typedef
+
 #include <SDL_keysym.h> // TODO
 #include <string>
 

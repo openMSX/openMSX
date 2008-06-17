@@ -77,7 +77,7 @@ void SDLFont::drawText(const std::string& str, int x, int y, byte alpha)
 	for (unsigned loop = 0; loop < characters; loop++) {
 		sourceRect.x = (str[loop] % CHARS_PER_ROW) * charWidth;
 		sourceRect.y = (str[loop] / CHARS_PER_ROW) * charHeight;
-		SDL_Surface* outputSurface = output.getSDLSurface();
+		SDL_Surface* outputSurface = output.getSDLWorkSurface();
 		if (alpha == 255) {
 			SDL_BlitSurface(fontSurface, &sourceRect,
 			                outputSurface, &destRect);

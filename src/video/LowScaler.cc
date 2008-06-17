@@ -58,7 +58,7 @@ void LowScaler<Pixel>::scaleBlank1to1(
 			unsigned height = srcY - start;
 			dstY += height;
 			dstRect.h = height;
-			SDL_FillRect(dst.getSDLSurface(), &dstRect, color);
+			SDL_FillRect(dst.getSDLWorkSurface(), &dstRect, color);
 		}
 	} else {
 		dst.lock();
@@ -158,7 +158,7 @@ void LowScaler<Pixel>::scale1x1to1x1(FrameSource& src,
 			srcRect.w = srcWidth; srcRect.h = height;
 			dstRect.x = 0;        dstRect.y = dstStartY;
 			SDL_BlitSurface(raw->getSDLSurface(), &srcRect,
-			               dst.getSDLSurface(),  &dstRect);
+			                dst.getSDLWorkSurface(),  &dstRect);
 			return;
 		}
 	}

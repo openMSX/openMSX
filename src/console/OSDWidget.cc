@@ -43,7 +43,7 @@ private:
 
 
 SDLScopedClip::SDLScopedClip(OutputSurface& output, int x, int y, int w, int h)
-	: surface(output.getSDLSurface())
+	: surface(output.getSDLWorkSurface())
 {
 	SDL_GetClipRect(surface, &origClip);
 

@@ -18,8 +18,8 @@ class OutputSurface : private noncopyable
 public:
 	virtual ~OutputSurface();
 
-	unsigned getWidth() const  { return surface->w; }
-	unsigned getHeight() const { return surface->h; }
+	unsigned getWidth() const  { return displaySurface->w; }
+	unsigned getHeight() const { return displaySurface->h; }
 	SDL_PixelFormat& getSDLFormat() { return format; }
 
 	/** Lock this OutputSurface.
@@ -45,15 +45,18 @@ public:
 
 	virtual unsigned mapRGB(double dr, double dg, double db);
 
-	SDL_Surface* getSDLSurface() const { return surface; }
+	SDL_Surface* getSDLDisplaySurface() const { return displaySurface; }
+	SDL_Surface* getSDLWorkSurface()    const { return workSurface; }
 
 protected:
 	OutputSurface();
-	void setSDLSurface(SDL_Surface* surface);
+	void setSDLDisplaySurface(SDL_Surface* surface);
+	void setSDLWorkSurface   (SDL_Surface* surface);
 	void setBufferPtr(char* data, unsigned pitch);
 
 private:
-	SDL_Surface* surface;
+	SDL_Surface* displaySurface;
+	SDL_Surface* workSurface;
 	SDL_PixelFormat format;
 	char* data;
 	unsigned pitch;

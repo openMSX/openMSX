@@ -4,6 +4,10 @@
 #include "OutputSurface.hh"
 #include "LocalFileReference.hh"
 #include "MSXException.hh"
+#include "build-info.hh"
+#if PLATFORM_GP2X
+#include "GP2XMMUHack.hh"
+#endif
 #include <SDL_image.h>
 #include <SDL.h>
 #include <cassert>
@@ -65,13 +69,20 @@ void SDLImage::init(const string& filename)
 {
 	assert(image);
 	const SDL_PixelFormat* format = image->format;
-	workImage = SDL_CreateRGBSurface(SDL_SWSURFACE,
+	int flags = SDL_SWSURFACE;
+	if (PLATFORM_GP2X) {
+		flags = SDL_HWSURFACE;
+	}
+	workImage = SDL_CreateRGBSurface(flags,
 		image->w, image->h, format->BitsPerPixel,
 		format->Rmask, format->Gmask, format->Bmask, 0);
 	if (!workImage) {
 		SDL_FreeSurface(image);
 		throw MSXException("Error loading image " + filename);
 	}
+#if PLATFORM_GP2X
+	GP2XMMUHack::instance().patchPageTables();
+#endif
 }
 
 SDLImage::~SDLImage()
@@ -83,7 +94,7 @@ SDLImage::~SDLImage()
 void SDLImage::draw(unsigned x, unsigned y, byte alpha)
 {
 	output.unlock();
-	SDL_Surface* outputSurface = output.getSDLSurface();
+	SDL_Surface* outputSurface = output.getSDLWorkSurface();
 	SDL_Rect rect;
 	rect.x = x;
 	rect.y = y;

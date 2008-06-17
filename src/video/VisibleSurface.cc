@@ -74,7 +74,7 @@ void VisibleSurface::createSurface(unsigned width, unsigned height, int flags)
 		SDL_QuitSubSystem(SDL_INIT_VIDEO);
 		throw InitException("Could not open any screen: " + err);
 	}
-	setSDLSurface(surface);
+	setSDLDisplaySurface(surface);
 
 	// on SDL-GP2X we need to re-hide the mouse after SDL_SetVideoMode()
 	SDL_ShowCursor(SDL_DISABLE);
@@ -117,7 +117,7 @@ void VisibleSurface::setWindowTitle(const std::string& title)
 
 bool VisibleSurface::setFullScreen(bool wantedState)
 {
-	SDL_Surface* surface = getSDLSurface();
+	SDL_Surface* surface = getSDLDisplaySurface();
 	bool currentState = (surface->flags & SDL_FULLSCREEN) != 0;
 	if (currentState == wantedState) {
 		// already wanted stated
