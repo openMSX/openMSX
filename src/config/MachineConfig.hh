@@ -12,8 +12,6 @@ class MachineConfig : public HardwareConfig
 public:
 	MachineConfig(MSXMotherBoard& motherBoard,
 	              const std::string& machineName);
-
-	virtual const XMLElement& getDevices() const;
 };
 
 } // namespace openmsx

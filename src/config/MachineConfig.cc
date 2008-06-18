@@ -12,9 +12,4 @@ MachineConfig::MachineConfig(MSXMotherBoard& motherBoard,
 	load("machines");
 }
 
-const XMLElement& MachineConfig::getDevices() const
-{
-	return getConfig().getChild("devices");
-}
-
 } // namespace openmsx

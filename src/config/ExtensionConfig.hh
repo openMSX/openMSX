@@ -18,8 +18,6 @@ public:
 
 	const std::string& getName() const;
 
-	virtual const XMLElement& getDevices() const;
-
 private:
 	void setName(const std::string& proposedName);
 

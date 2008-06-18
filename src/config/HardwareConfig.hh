@@ -40,8 +40,7 @@ protected:
 	MSXMotherBoard& getMotherBoard();
 
 private:
-	virtual const XMLElement& getDevices() const = 0;
-
+	const XMLElement& getDevices() const;
 	void createDevices(const XMLElement& elem);
 	void createExternalSlot(int ps);
 	void createExternalSlot(int ps, int ss);

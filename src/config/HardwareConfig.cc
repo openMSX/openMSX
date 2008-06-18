@@ -107,6 +107,11 @@ void HardwareConfig::setConfig(std::auto_ptr<XMLElement> newConfig)
 	config = newConfig;
 }
 
+const XMLElement& HardwareConfig::getDevices() const
+{
+	return getConfig().getChild("devices");
+}
+
 std::auto_ptr<XMLElement> HardwareConfig::loadConfig(
 	const string& path, const string& hwName, const string& userName)
 {

@@ -102,17 +102,6 @@ ExtensionConfig::ExtensionConfig(
 	setName(romfile);
 }
 
-const XMLElement& ExtensionConfig::getDevices() const
-{
-	const XMLElement& config = getConfig();
-	if (const XMLElement* devices = config.findChild("devices")) {
-		return *devices;
-	}
-	// TODO in the future make <devices> tag obligatory
-	//      (as it already is for MachineConfig)
-	return config;
-}
-
 const string& ExtensionConfig::getName() const
 {
 	return name;

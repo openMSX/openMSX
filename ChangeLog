@@ -1,5 +1,10 @@
 $Id$
 
+2008-06-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Require extension hardwareconfig.xml files to list devices inside a
+	  <devices> tag. We already updated all our device configs for this
+	  over two years ago.
+
 2008-06-17 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Implemented TMS99x8 VRAM remapping (reg#1, bit 7):
 	   thanks to: - enen for providing the technical info
