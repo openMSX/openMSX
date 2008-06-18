@@ -311,6 +311,8 @@ MSXMotherBoardImpl::MSXMotherBoardImpl(MSXMotherBoard& self_, Reactor& reactor_)
 	getRealTime(); // make sure it's instantiated
 	getEventTranslator();
 	powerSetting.attach(*this);
+
+	addRemoveUpdate.reset(new AddRemoveUpdate(*this));
 }
 
 MSXMotherBoardImpl::~MSXMotherBoardImpl()
@@ -373,7 +375,6 @@ void MSXMotherBoardImpl::loadMachine(const string& machine)
 		throw MSXException("Error in \"" + machine + "\" machine: " +
 		                   e.getMessage());
 	}
-	addRemoveUpdate.reset(new AddRemoveUpdate(*this));
 	try {
 		machineConfig->parseSlots();
 		machineConfig->createDevices();
