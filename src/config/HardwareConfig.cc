@@ -78,6 +78,7 @@ auto_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	}
 
 	auto_ptr<XMLElement> extension(new XMLElement("extension"));
+	auto_ptr<XMLElement> devices(new XMLElement("devices"));
 	auto_ptr<XMLElement> primary(new XMLElement("primary"));
 	primary->addAttribute("slot", slotname);
 	auto_ptr<XMLElement> secondary(new XMLElement("secondary"));
@@ -117,7 +118,8 @@ auto_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 
 	secondary->addChild(device);
 	primary->addChild(secondary);
-	extension->addChild(primary);
+	devices->addChild(primary);
+	extension->addChild(devices);
 
 	result->setConfig(extension);
 	result->setName(romfile);
