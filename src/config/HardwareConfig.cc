@@ -13,13 +13,117 @@
 #include "MSXCPUInterface.hh"
 #include "DeviceFactory.hh"
 #include "CliComm.hh"
+#include "StringOp.hh"
 #include <cassert>
 
 #include <iostream>
 
 using std::string;
+using std::vector;
+using std::auto_ptr;
 
 namespace openmsx {
+
+auto_ptr<HardwareConfig> HardwareConfig::createMachineConfig(
+	MSXMotherBoard& motherBoard, const string& machineName)
+{
+	auto_ptr<HardwareConfig> result(
+		new HardwareConfig(motherBoard, machineName));
+	result->load("machines");
+	return result;
+}
+
+auto_ptr<HardwareConfig> HardwareConfig::createExtensionConfig(
+	MSXMotherBoard& motherBoard, const string& extensionName)
+{
+	auto_ptr<HardwareConfig> result(
+		new HardwareConfig(motherBoard, extensionName));
+	result->load("extensions");
+	result->setName(extensionName);
+	return result;
+}
+
+auto_ptr<HardwareConfig> HardwareConfig::createRomConfig(
+	MSXMotherBoard& motherBoard, const string& romfile,
+	const string& slotname, const vector<string>& options)
+{
+	auto_ptr<HardwareConfig> result(
+		new HardwareConfig(motherBoard, "rom"));
+
+	vector<string> ipsfiles;
+	string mapper;
+
+	bool romTypeOptionFound = false;
+
+	// parse options
+	for (vector<string>::const_iterator it = options.begin();
+	     it != options.end(); ++it) {
+		const string& option = *it++;
+		if (it == options.end()) {
+			throw MSXException("Missing argument for option \"" +
+			                   option + "\"");
+		}
+		if (option == "-ips") {
+			ipsfiles.push_back(*it);
+		} else if (option == "-romtype") {
+			if (!romTypeOptionFound) {
+				mapper = *it;
+				romTypeOptionFound = true;
+			} else {
+				throw MSXException("Only one -romtype option is allowed");
+			}
+		} else {
+			throw MSXException("Invalid option \"" + option + "\"");
+		}
+	}
+
+	auto_ptr<XMLElement> extension(new XMLElement("extension"));
+	auto_ptr<XMLElement> primary(new XMLElement("primary"));
+	primary->addAttribute("slot", slotname);
+	auto_ptr<XMLElement> secondary(new XMLElement("secondary"));
+	secondary->addAttribute("slot", slotname);
+	auto_ptr<XMLElement> device(new XMLElement("ROM"));
+	device->addAttribute("id", "MSXRom");
+	auto_ptr<XMLElement> mem(new XMLElement("mem"));
+	mem->addAttribute("base", "0x0000");
+	mem->addAttribute("size", "0x10000");
+	device->addChild(mem);
+	auto_ptr<XMLElement> rom(new XMLElement("rom"));
+	rom->addChild(auto_ptr<XMLElement>(
+		new XMLElement("filename", romfile)));
+	if (!ipsfiles.empty()) {
+		auto_ptr<XMLElement> patches(new XMLElement("patches"));
+		for (vector<string>::const_iterator it = ipsfiles.begin();
+		     it != ipsfiles.end(); ++it) {
+			patches->addChild(auto_ptr<XMLElement>(
+				new XMLElement("ips", *it)));
+		}
+		rom->addChild(patches);
+	}
+	device->addChild(rom);
+	auto_ptr<XMLElement> sound(new XMLElement("sound"));
+	sound->addChild(auto_ptr<XMLElement>(
+		new XMLElement("volume", "9000")));
+	device->addChild(sound);
+	device->addChild(auto_ptr<XMLElement>(
+		new XMLElement("mappertype",
+		               mapper.empty() ? "auto" : mapper)));
+	string sramfile = FileOperations::getFilename(romfile);
+	device->addChild(auto_ptr<XMLElement>(
+		new XMLElement("sramname", sramfile + ".SRAM")));
+	device->setFileContext(auto_ptr<FileContext>(
+		new UserFileContext(motherBoard.getCommandController(),
+		                    "roms/" + sramfile)));
+
+	secondary->addChild(device);
+	primary->addChild(secondary);
+	extension->addChild(primary);
+
+	result->setConfig(extension);
+	result->setName(romfile);
+
+	return result;
+}
 
 HardwareConfig::HardwareConfig(MSXMotherBoard& motherBoard_, const string& hwName_)
 	: motherBoard(motherBoard_)
@@ -256,9 +360,21 @@ void HardwareConfig::addDevice(MSXDevice* device)
 	devices.push_back(device);
 }
 
-MSXMotherBoard& HardwareConfig::getMotherBoard()
+const string& HardwareConfig::getName() const
 {
-	return motherBoard;
+	return name;
+}
+
+void HardwareConfig::setName(const string& proposedName)
+{
+	if (!motherBoard.findExtension(proposedName)) {
+		name = proposedName;
+	} else {
+		unsigned n = 0;
+		do {
+			name = proposedName + " (" + StringOp::toString(++n) + ")";
+		} while (motherBoard.findExtension(name));
+	}
 }
 
 } // namespace openmsx

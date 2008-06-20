@@ -13,8 +13,7 @@ namespace openmsx {
 
 class Reactor;
 class MSXDevice;
-class MachineConfig;
-class ExtensionConfig;
+class HardwareConfig;
 class CliComm;
 class MSXCommandController;
 class Scheduler;
@@ -94,17 +93,17 @@ public:
 
 	byte readIRQVector();
 
-	const MachineConfig* getMachineConfig() const;
+	const HardwareConfig* getMachineConfig() const;
 	void loadMachine(const std::string& machine);
 
-	typedef std::vector<ExtensionConfig*> Extensions;
+	typedef std::vector<HardwareConfig*> Extensions;
 	const Extensions& getExtensions() const;
-	ExtensionConfig* findExtension(const std::string& extensionName);
-	ExtensionConfig& loadExtension(const std::string& extensionName);
-	ExtensionConfig& loadRom(
+	HardwareConfig* findExtension(const std::string& extensionName);
+	HardwareConfig& loadExtension(const std::string& extensionName);
+	HardwareConfig& loadRom(
 		const std::string& romname, const std::string& slotname,
 		const std::vector<std::string>& options);
-	void removeExtension(const ExtensionConfig& extension);
+	void removeExtension(const HardwareConfig& extension);
 
 	// The following classes are unique per MSX machine
 	CliComm& getMSXCliComm();

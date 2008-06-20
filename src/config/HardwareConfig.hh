@@ -17,10 +17,22 @@ class XMLElement;
 class HardwareConfig : private noncopyable
 {
 public:
-	HardwareConfig(MSXMotherBoard& motherBoard, const std::string& hwName);
-	virtual ~HardwareConfig();
+	static std::auto_ptr<XMLElement> loadConfig(
+		const std::string& path, const std::string& hwName,
+		const std::string& userName);
+
+	static std::auto_ptr<HardwareConfig> createMachineConfig(
+		MSXMotherBoard& motherBoard, const std::string& machineName);
+	static std::auto_ptr<HardwareConfig> createExtensionConfig(
+		MSXMotherBoard& motherBoard, const std::string& extensionName);
+	static std::auto_ptr<HardwareConfig> createRomConfig(
+		MSXMotherBoard& motherBoard, const std::string& romfile,
+		const std::string& slotname, const std::vector<std::string>& options);
+
+	~HardwareConfig();
 
 	const XMLElement& getConfig() const;
+	const std::string& getName() const;
 
 	void parseSlots();
 	void createDevices();
@@ -30,16 +42,12 @@ public:
 	  */
 	void testRemove() const;
 
-	static std::auto_ptr<XMLElement> loadConfig(
-		const std::string& path, const std::string& hwName,
-		const std::string& userName);
+private:
+	HardwareConfig(MSXMotherBoard& motherBoard, const std::string& hwName);
 
-protected:
 	void setConfig(std::auto_ptr<XMLElement> config);
 	void load(const std::string& path);
-	MSXMotherBoard& getMotherBoard();
 
-private:
 	const XMLElement& getDevices() const;
 	void createDevices(const XMLElement& elem);
 	void createExternalSlot(int ps);
@@ -47,6 +55,7 @@ private:
 	void createExpandedSlot(int ps);
 	int getFreePrimarySlot();
 	void addDevice(MSXDevice* device);
+	void setName(const std::string& proposedName);
 
 	MSXMotherBoard& motherBoard;
 	std::string hwName;
@@ -60,6 +69,8 @@ private:
 
 	typedef std::vector<MSXDevice*> Devices;
 	Devices devices;
+
+	std::string name;
 };
 
 } // namespace openmsx

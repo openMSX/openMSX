@@ -18,7 +18,7 @@
 #include "VideoSourceSetting.hh"
 #include "Reactor.hh"
 #include "MSXMotherBoard.hh"
-#include "MachineConfig.hh"
+#include "HardwareConfig.hh"
 #include "XMLElement.hh"
 #include "VideoSystemChangeListener.hh"
 #include "CommandException.hh"
@@ -235,7 +235,7 @@ void Display::setWindowTitle()
 		title += " [" + BUILD_FLAVOUR + "]";
 	}
 	if (MSXMotherBoard* motherboard = reactor.getMotherBoard()) {
-		if (const MachineConfig* machine = motherboard->getMachineConfig()) {
+		if (const HardwareConfig* machine = motherboard->getMachineConfig()) {
 			const XMLElement& config = machine->getConfig();
 			title += " - " +
 			    config.getChild("info").getChildData("manufacturer") + " " +

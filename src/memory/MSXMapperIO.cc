@@ -5,7 +5,7 @@
 #include "MSXMapperIOPhilips.hh"
 #include "MSXMotherBoard.hh"
 #include "SimpleDebuggable.hh"
-#include "MachineConfig.hh"
+#include "HardwareConfig.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
 

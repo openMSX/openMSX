@@ -2,7 +2,7 @@
 
 #include "CartridgeSlotManager.hh"
 #include "MSXMotherBoard.hh"
-#include "ExtensionConfig.hh"
+#include "HardwareConfig.hh"
 #include "RecordedCommand.hh"
 #include "CommandException.hh"
 #include "CommandController.hh"
@@ -29,7 +29,7 @@ public:
 	virtual string help(const vector<string>& tokens) const;
 	virtual void tabCompletion(vector<string>& tokens) const;
 private:
-	const ExtensionConfig* getExtensionConfig(const string& cartname);
+	const HardwareConfig* getExtensionConfig(const string& cartname);
 	CartridgeSlotManager& manager;
 	CliComm& cliComm;
 };
@@ -232,15 +232,13 @@ CartCmd::CartCmd(CartridgeSlotManager& manager_, MSXMotherBoard& motherBoard,
 {
 }
 
-const ExtensionConfig* CartCmd::getExtensionConfig(const string& cartname)
+const HardwareConfig* CartCmd::getExtensionConfig(const string& cartname)
 {
 	if (cartname.size() != 5) {
 		throw SyntaxError();
 	}
 	int slot = cartname[4] - 'a';
-	const HardwareConfig* conf = manager.slots[slot].config;
-	assert(!conf || dynamic_cast<const ExtensionConfig*>(conf));
-	return static_cast<const ExtensionConfig*>(conf);
+	return manager.slots[slot].config;
 }
 
 string CartCmd::execute(const vector<string>& tokens, const EmuTime& /*time*/)
@@ -258,7 +256,7 @@ string CartCmd::execute(const vector<string>& tokens, const EmuTime& /*time*/)
 	}
 	if (tokens.size() == 1) {
 		// query name of cartridge
-		const ExtensionConfig* extConf = getExtensionConfig(cartname);
+		const HardwareConfig* extConf = getExtensionConfig(cartname);
 		TclObject object(getCommandController().getInterpreter());
 		object.addListElement(cartname + ':');
 		object.addListElement(extConf ? extConf->getName() : "");
@@ -275,8 +273,7 @@ string CartCmd::execute(const vector<string>& tokens, const EmuTime& /*time*/)
 		if (tokens[1] == "-eject") {
 			result += "Warning: use of '-eject' is deprecated, instead use the 'eject' subcommand";
 		}
-		const ExtensionConfig* extConf = getExtensionConfig(cartname);
-		if (extConf) {
+		if (const HardwareConfig* extConf = getExtensionConfig(cartname)) {
 			try {
 				manager.motherBoard.removeExtension(*extConf);
 				cliComm.update(CliComm::MEDIA, cartname, "");
@@ -304,12 +301,12 @@ string CartCmd::execute(const vector<string>& tokens, const EmuTime& /*time*/)
 			options.push_back(tokens[i]);
 		}
 		try {
-			if (const ExtensionConfig* extConf =
+			if (const HardwareConfig* extConf =
 			               getExtensionConfig(cartname)) {
 				// still a cartridge inserted, (try to) remove it now
 				manager.motherBoard.removeExtension(*extConf);
 			}
-			ExtensionConfig& extension =
+			HardwareConfig& extension =
 				manager.motherBoard.loadRom(
 					tokens[extensionNameToken], slotname, options);
 			cliComm.update(CliComm::MEDIA, cartname, tokens[extensionNameToken]);

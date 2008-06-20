@@ -4,7 +4,7 @@ include build/node-start.mk
 
 SRC_HDR:= \
 	XMLLoader XMLElement \
-	HardwareConfig MachineConfig ExtensionConfig \
+	HardwareConfig \
 	SettingsConfig
 
 HDR_ONLY:= \

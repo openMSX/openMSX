@@ -3,8 +3,7 @@
 #include "MSXMotherBoard.hh"
 #include "Reactor.hh"
 #include "MSXDevice.hh"
-#include "MachineConfig.hh"
-#include "ExtensionConfig.hh"
+#include "HardwareConfig.hh"
 #include "XMLElement.hh"
 #include "MSXCliComm.hh"
 #include "GlobalCliComm.hh"
@@ -85,15 +84,15 @@ public:
 	void doReset(const EmuTime& time);
 	byte readIRQVector();
 
-	const MachineConfig* getMachineConfig() const;
+	const HardwareConfig* getMachineConfig() const;
 	void loadMachine(const string& machine);
 	const MSXMotherBoard::Extensions& getExtensions() const;
-	ExtensionConfig* findExtension(const string& extensionName);
-	ExtensionConfig& loadExtension(const string& extensionName);
-	ExtensionConfig& loadRom(
+	HardwareConfig* findExtension(const string& extensionName);
+	HardwareConfig& loadExtension(const string& extensionName);
+	HardwareConfig& loadRom(
 		const string& romname, const string& slotname,
 		const vector<string>& options);
-	void removeExtension(const ExtensionConfig& extension);
+	void removeExtension(const HardwareConfig& extension);
 
 	CliComm& getMSXCliComm();
 	CliComm* getMSXCliCommIfAvailable();
@@ -153,7 +152,7 @@ private:
 	SharedStuffMap sharedStuffMap;
 	map<string, set<string> > userNames;
 
-	auto_ptr<MachineConfig> machineConfig;
+	auto_ptr<HardwareConfig> machineConfig;
 	MSXMotherBoard::Extensions extensions;
 
 	// order of auto_ptr's is important!
@@ -355,7 +354,7 @@ const string& MSXMotherBoardImpl::getMachineName() const
 	return machineName;
 }
 
-const MachineConfig* MSXMotherBoardImpl::getMachineConfig() const
+const HardwareConfig* MSXMotherBoardImpl::getMachineConfig() const
 {
 	return machineConfig.get();
 }
@@ -367,7 +366,7 @@ void MSXMotherBoardImpl::loadMachine(const string& machine)
 	assert(!machineConfig.get());
 
 	try {
-		machineConfig.reset(new MachineConfig(self, machine));
+		machineConfig = HardwareConfig::createMachineConfig(self, machine);
 	} catch (FileException& e) {
 		throw MSXException("Machine \"" + machine + "\" not found: " +
 		                   e.getMessage());
@@ -388,50 +387,47 @@ void MSXMotherBoardImpl::loadMachine(const string& machine)
 	machineName = machine;
 }
 
-ExtensionConfig& MSXMotherBoardImpl::loadExtension(const string& name)
+HardwareConfig& MSXMotherBoardImpl::loadExtension(const string& name)
 {
-	auto_ptr<ExtensionConfig> extension;
+	auto_ptr<HardwareConfig> extension;
 	try {
-		extension.reset(new ExtensionConfig(self, name));
+		extension = HardwareConfig::createExtensionConfig(self, name);
 	} catch (FileException& e) {
 		throw MSXException(
-			"Extension \"" + name + "\" not found: " + e.getMessage()
-			);
+			"Extension \"" + name + "\" not found: " + e.getMessage());
 	} catch (MSXException& e) {
 		throw MSXException(
-			"Error in \"" + name + "\" extension: " + e.getMessage()
-			);
+			"Error in \"" + name + "\" extension: " + e.getMessage());
 	}
 	try {
 		extension->parseSlots();
 		extension->createDevices();
 	} catch (MSXException& e) {
 		throw MSXException(
-			"Error in \"" + name + "\" extension: " + e.getMessage()
-			);
+			"Error in \"" + name + "\" extension: " + e.getMessage());
 	}
-	ExtensionConfig& result = *extension;
+	HardwareConfig& result = *extension;
 	extensions.push_back(extension.release());
 	self.getMSXCliComm().update(CliComm::EXTENSION, result.getName(), "add");
 	return result;
 }
 
 // TODO: remove duplication with loadExtension
-ExtensionConfig& MSXMotherBoardImpl::loadRom(
+HardwareConfig& MSXMotherBoardImpl::loadRom(
 		const string& romname, const string& slotname,
 		const vector<string>& options)
 {
-	auto_ptr<ExtensionConfig> extension(
-		new ExtensionConfig(self, romname, slotname, options));
+	auto_ptr<HardwareConfig> extension(
+		HardwareConfig::createRomConfig(self, romname, slotname, options));
 	extension->parseSlots();
 	extension->createDevices();
-	ExtensionConfig& result = *extension;
+	HardwareConfig& result = *extension;
 	extensions.push_back(extension.release());
 	self.getMSXCliComm().update(CliComm::EXTENSION, result.getName(), "add");
 	return result;
 }
 
-ExtensionConfig* MSXMotherBoardImpl::findExtension(const string& extensionName)
+HardwareConfig* MSXMotherBoardImpl::findExtension(const string& extensionName)
 {
 	for (MSXMotherBoard::Extensions::const_iterator it = extensions.begin();
 	     it != extensions.end(); ++it) {
@@ -447,7 +443,7 @@ const MSXMotherBoard::Extensions& MSXMotherBoardImpl::getExtensions() const
 	return extensions;
 }
 
-void MSXMotherBoardImpl::removeExtension(const ExtensionConfig& extension)
+void MSXMotherBoardImpl::removeExtension(const HardwareConfig& extension)
 {
 	extension.testRemove();
 	MSXMotherBoard::Extensions::iterator it =
@@ -1006,7 +1002,7 @@ string ExtCmd::execute(const vector<string>& tokens, const EmuTime& /*time*/)
 		throw SyntaxError();
 	}
 	try {
-		ExtensionConfig& extension =
+		HardwareConfig& extension =
 			motherBoard.loadExtension(tokens[1]);
 		return extension.getName();
 	} catch (MSXException& e) {
@@ -1042,7 +1038,7 @@ string RemoveExtCmd::execute(const vector<string>& tokens, const EmuTime& /*time
 	if (tokens.size() != 2) {
 		throw SyntaxError();
 	}
-	ExtensionConfig* extension = motherBoard.findExtension(tokens[1]);
+	HardwareConfig* extension = motherBoard.findExtension(tokens[1]);
 	if (!extension) {
 		throw CommandException("No such extension: " + tokens[1]);
 	}
@@ -1225,7 +1221,7 @@ byte MSXMotherBoard::readIRQVector()
 {
 	return pimple->readIRQVector();
 }
-const MachineConfig* MSXMotherBoard::getMachineConfig() const
+const HardwareConfig* MSXMotherBoard::getMachineConfig() const
 {
 	return pimple->getMachineConfig();
 }
@@ -1237,21 +1233,21 @@ const MSXMotherBoard::Extensions& MSXMotherBoard::getExtensions() const
 {
 	return pimple->getExtensions();
 }
-ExtensionConfig* MSXMotherBoard::findExtension(const string& extensionName)
+HardwareConfig* MSXMotherBoard::findExtension(const string& extensionName)
 {
 	return pimple->findExtension(extensionName);
 }
-ExtensionConfig& MSXMotherBoard::loadExtension(const string& extensionName)
+HardwareConfig& MSXMotherBoard::loadExtension(const string& extensionName)
 {
 	return pimple->loadExtension(extensionName);
 }
-ExtensionConfig& MSXMotherBoard::loadRom(
+HardwareConfig& MSXMotherBoard::loadRom(
 	const string& romname, const string& slotname,
 	const vector<string>& options)
 {
 	return pimple->loadRom(romname, slotname, options);
 }
-void MSXMotherBoard::removeExtension(const ExtensionConfig& extension)
+void MSXMotherBoard::removeExtension(const HardwareConfig& extension)
 {
 	pimple->removeExtension(extension);
 }

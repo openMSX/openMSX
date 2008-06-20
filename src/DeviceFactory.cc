@@ -51,7 +51,6 @@
 #include "MSXMapperIO.hh"
 #include "VDPIODelay.hh"
 #include "MSXMotherBoard.hh"
-#include "MachineConfig.hh"
 #include "EmuTime.hh"
 #include "MSXException.hh"
 
