@@ -18,7 +18,7 @@ class YMF278
 {
 public:
 	YMF278(MSXMotherBoard& motherBoard, const std::string& name,
-	       int ramSize, const XMLElement& config, const EmuTime& time);
+	       int ramSize, const XMLElement& config);
 	~YMF278();
 	void reset(const EmuTime& time);
 	void writeRegOPL4(byte reg, byte data, const EmuTime& time);

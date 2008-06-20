@@ -13,8 +13,7 @@ class PrinterPortDevice;
 class MSXPrinterPort : public MSXDevice, public Connector
 {
 public:
-	MSXPrinterPort(MSXMotherBoard& motherBoard, const XMLElement& config,
-	               const EmuTime& time);
+	MSXPrinterPort(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~MSXPrinterPort();
 
 	PrinterPortDevice& getPluggedPrintDev() const;

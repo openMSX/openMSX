@@ -7,13 +7,12 @@
 
 namespace openmsx {
 
-GoudaSCSI::GoudaSCSI(MSXMotherBoard& motherBoard, const XMLElement& config,
-                     const EmuTime& time)
+GoudaSCSI::GoudaSCSI(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
 	, wd33c93(new WD33C93(motherBoard, config))
 {
-	reset(time);
+	reset(*static_cast<EmuTime*>(0));
 }
 
 GoudaSCSI::~GoudaSCSI()

@@ -13,8 +13,7 @@ class Rom;
 class MSXKanji : public MSXDevice
 {
 public:
-	MSXKanji(MSXMotherBoard& motherBoard, const XMLElement& config,
-	         const EmuTime& time);
+	MSXKanji(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~MSXKanji();
 
 	virtual byte readIO(word port, const EmuTime& time);

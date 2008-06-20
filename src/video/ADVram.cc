@@ -9,14 +9,13 @@
 
 namespace openmsx {
 
-ADVram::ADVram(MSXMotherBoard& motherBoard, const XMLElement& config,
-               const EmuTime& time)
+ADVram::ADVram(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, vdp(NULL)
 	, vram(NULL)
 {
 	hasEnable = config.getChildDataAsBool("hasEnable", true);
-	reset(time);
+	reset(*static_cast<EmuTime*>(0));
 }
 
 void ADVram::init(const HardwareConfig& hwConf)

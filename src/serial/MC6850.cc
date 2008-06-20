@@ -5,11 +5,9 @@
 
 namespace openmsx {
 
-MC6850::MC6850(MSXMotherBoard& motherBoard, const XMLElement& config,
-               const EmuTime& time)
+MC6850::MC6850(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 {
-	reset(time);
 }
 
 void MC6850::reset(const EmuTime& /*time*/)

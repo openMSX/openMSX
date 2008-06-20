@@ -17,11 +17,11 @@ static IDEDevice* create(const XMLElement* elem, MSXMotherBoard& motherBoard,
 	     : new DummyIDEDevice();
 }
 
-SunriseIDE::SunriseIDE(MSXMotherBoard& motherBoard, const XMLElement& config,
-                       const EmuTime& time)
+SunriseIDE::SunriseIDE(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
 {
+	const EmuTime& time = getCurrentTime();
 	device[0].reset(create(config.findChild("master"), motherBoard, time));
 	device[1].reset(create(config.findChild("slave" ), motherBoard, time));
 

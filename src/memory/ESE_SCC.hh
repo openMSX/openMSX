@@ -16,7 +16,7 @@ class ESE_SCC : public MSXDevice
 {
 public:
 	ESE_SCC(MSXMotherBoard& motherBoard, const XMLElement& config,
-	        const EmuTime& time, bool withSCSI);
+	        bool withSCSI);
 	virtual ~ESE_SCC();
 
 	virtual void reset(const EmuTime& time);

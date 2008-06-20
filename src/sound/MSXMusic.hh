@@ -14,8 +14,7 @@ class YM2413Interface;
 class MSXMusic : public MSXDevice
 {
 public:
-	MSXMusic(MSXMotherBoard& motherBoard, const XMLElement& config,
-	         const EmuTime& time);
+	MSXMusic(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~MSXMusic();
 
 	virtual void reset(const EmuTime& time);

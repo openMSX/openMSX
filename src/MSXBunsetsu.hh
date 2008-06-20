@@ -13,8 +13,7 @@ class Rom;
 class MSXBunsetsu : public MSXDevice
 {
 public:
-	MSXBunsetsu(MSXMotherBoard& motherBoard, const XMLElement& config,
-	            const EmuTime& time);
+	MSXBunsetsu(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~MSXBunsetsu();
 
 	virtual void reset(const EmuTime& time);

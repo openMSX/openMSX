@@ -8,12 +8,12 @@
 
 namespace openmsx {
 
-MSXRTC::MSXRTC(MSXMotherBoard& motherBoard, const XMLElement& config,
-               const EmuTime& time)
+MSXRTC::MSXRTC(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 {
 	sram.reset(new SRAM(motherBoard, getName() + " SRAM", 4 * 13, config));
-	rp5c01.reset(new RP5C01(motherBoard.getCommandController(), *sram, time));
+	rp5c01.reset(new RP5C01(motherBoard.getCommandController(), *sram,
+	                        getCurrentTime()));
 	registerLatch = 0; // TODO verify on real hardware
 }
 

@@ -33,8 +33,7 @@
 
 namespace openmsx {
 
-MSXMegaRam::MSXMegaRam(MSXMotherBoard& motherBoard, const XMLElement& config,
-                       const EmuTime& time)
+MSXMegaRam::MSXMegaRam(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 {
 	unsigned size = config.getChildDataAsInt("size");
@@ -52,7 +51,7 @@ MSXMegaRam::MSXMegaRam(MSXMotherBoard& motherBoard, const XMLElement& config,
 		setBank(i, 0);
 	}
 	writeMode = false;
-	reset(time);
+	reset(*static_cast<EmuTime*>(0));
 }
 
 MSXMegaRam::~MSXMegaRam()

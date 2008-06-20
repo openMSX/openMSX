@@ -13,8 +13,7 @@
 namespace openmsx {
 
 // MSXDevice
-MSXPSG::MSXPSG(MSXMotherBoard& motherBoard, const XMLElement& config,
-               const EmuTime& time)
+MSXPSG::MSXPSG(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, cassette(motherBoard.getCassettePort())
 	, renShaTurbo(motherBoard.getRenShaTurbo())
@@ -26,6 +25,7 @@ MSXPSG::MSXPSG(MSXMotherBoard& motherBoard, const XMLElement& config,
 	ports[0].reset(new JoystickPort(controller, "joyporta"));
 	ports[1].reset(new JoystickPort(controller, "joyportb"));
 
+	const EmuTime& time = getCurrentTime();
 	ay8910.reset(new AY8910(motherBoard, *this, config, time));
 	reset(time);
 }

@@ -8,11 +8,11 @@
 
 namespace openmsx {
 
-MSXMusic::MSXMusic(MSXMotherBoard& motherBoard, const XMLElement& config,
-                   const EmuTime& time)
+MSXMusic::MSXMusic(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
 {
+	const EmuTime& time = getCurrentTime();
 	if (config.getChildDataAsBool("alternative", false)) {
 		ym2413.reset(new YM2413_2(motherBoard, getName(),
 		                          config, time));

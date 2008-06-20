@@ -42,14 +42,12 @@ namespace openmsx {
 
 // MSXDevice
 
-MSXHBI55::MSXHBI55(MSXMotherBoard& motherBoard, const XMLElement& config,
-                   const EmuTime& time)
+MSXHBI55::MSXHBI55(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
-	, i8255(new I8255(*this, time, motherBoard.getMSXCliComm()))
+	, i8255(new I8255(*this, getCurrentTime(), motherBoard.getMSXCliComm()))
 	, sram(new SRAM(motherBoard, getName() + " SRAM", 0x1000, config))
 {
-
-	reset(time);
+	reset(getCurrentTime());
 }
 
 MSXHBI55::~MSXHBI55()

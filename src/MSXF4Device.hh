@@ -16,8 +16,7 @@ namespace openmsx {
 class MSXF4Device : public MSXDevice
 {
 public:
-	MSXF4Device(MSXMotherBoard& motherBoard, const XMLElement& config,
-	            const EmuTime& time);
+	MSXF4Device(MSXMotherBoard& motherBoard, const XMLElement& config);
 
 	virtual void reset(const EmuTime& time);
 	virtual byte readIO(word port, const EmuTime& time);

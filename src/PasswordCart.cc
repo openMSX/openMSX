@@ -15,12 +15,11 @@
 
 namespace openmsx {
 
-PasswordCart::PasswordCart(MSXMotherBoard& motherBoard,
-                           const XMLElement& config, const EmuTime& time)
+PasswordCart::PasswordCart(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 {
 	password = config.getChildDataAsInt("password", 0);
-	reset(time);
+	reset(*static_cast<EmuTime*>(0));
 }
 
 void PasswordCart::reset(const EmuTime& /*time*/)

@@ -48,7 +48,7 @@ protected:
 	static const int ROTATIONS_PER_SECOND = 5;
 	static const int INDEX_DURATION = TICKS_PER_ROTATION / 50;
 
-	RealDrive(MSXMotherBoard& motherBoard, const EmuTime& time);
+	RealDrive(MSXMotherBoard& motherBoard);
 	virtual ~RealDrive();
 
 	Clock<TICKS_PER_ROTATION * ROTATIONS_PER_SECOND> motorTimer;
@@ -75,7 +75,7 @@ private:
 class SingleSidedDrive : public RealDrive
 {
 public:
-	SingleSidedDrive(MSXMotherBoard& motherBoard, const EmuTime& time);
+	SingleSidedDrive(MSXMotherBoard& motherBoard);
 	virtual bool doubleSided();
 	virtual void setSide(bool side);
 	virtual void read (byte sector, byte* buf,
@@ -97,7 +97,7 @@ public:
 class DoubleSidedDrive : public RealDrive
 {
 public:
-	DoubleSidedDrive(MSXMotherBoard& motherBoard, const EmuTime& time);
+	DoubleSidedDrive(MSXMotherBoard& motherBoard);
 	virtual bool doubleSided();
 	virtual void setSide(bool side);
 	virtual void read (byte sector, byte* buf,

@@ -9,7 +9,7 @@
 namespace openmsx {
 
 MSXTurboRPause::MSXTurboRPause(MSXMotherBoard& motherBoard,
-                               const XMLElement& config, const EmuTime& time)
+                               const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, pauseSetting(new BooleanSetting(motherBoard.getCommandController(),
 	               "turborpause", "status of the TurboR pause", false))
@@ -19,7 +19,7 @@ MSXTurboRPause::MSXTurboRPause(MSXMotherBoard& motherBoard,
 	, hwPause(false)
 {
 	pauseSetting->attach(*this);
-	reset(time);
+	reset(*static_cast<EmuTime*>(0));
 }
 
 MSXTurboRPause::~MSXTurboRPause()
@@ -27,15 +27,15 @@ MSXTurboRPause::~MSXTurboRPause()
 	pauseSetting->detach(*this);
 }
 
-void MSXTurboRPause::reset(const EmuTime& time)
+void MSXTurboRPause::reset(const EmuTime& dummy)
 {
 	pauseSetting->changeValue(false);
-	writeIO(0, 0, time);
+	writeIO(0, 0, dummy);
 }
 
-void MSXTurboRPause::powerDown(const EmuTime& time)
+void MSXTurboRPause::powerDown(const EmuTime& dummy)
 {
-	writeIO(0, 0, time);
+	writeIO(0, 0, dummy);
 }
 
 byte MSXTurboRPause::readIO(word port, const EmuTime& time)

@@ -5,12 +5,11 @@
 
 namespace openmsx {
 
-MSXF4Device::MSXF4Device(MSXMotherBoard& motherBoard, const XMLElement& config,
-                         const EmuTime& time)
+MSXF4Device::MSXF4Device(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 {
 	inverted = config.getChildDataAsBool("inverted", false);
-	reset(time);
+	reset(*static_cast<EmuTime*>(0));
 }
 
 void MSXF4Device::reset(const EmuTime& /*time*/)

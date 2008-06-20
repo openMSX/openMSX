@@ -11,13 +11,13 @@
 
 namespace openmsx {
 
-TurboRFDC::TurboRFDC(MSXMotherBoard& motherBoard, const XMLElement& config,
-                     const EmuTime& time)
-	: MSXFDC(motherBoard, config, time)
-	, controller(new TC8566AF(reinterpret_cast<DiskDrive**>(drives), time))
+TurboRFDC::TurboRFDC(MSXMotherBoard& motherBoard, const XMLElement& config)
+	: MSXFDC(motherBoard, config)
+	, controller(new TC8566AF(reinterpret_cast<DiskDrive**>(drives),
+	                          getCurrentTime()))
 {
 	blockMask = (rom->getSize() / 0x4000) - 1;
-	reset(time);
+	reset(getCurrentTime());
 }
 
 TurboRFDC::~TurboRFDC()

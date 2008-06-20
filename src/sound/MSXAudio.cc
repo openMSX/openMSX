@@ -73,8 +73,7 @@ private:
 
 // MSXAudio
 
-MSXAudio::MSXAudio(MSXMotherBoard& motherBoard, const XMLElement& config,
-                   const EmuTime& time)
+MSXAudio::MSXAudio(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, dacValue(0x80), dacEnabled(false)
 {
@@ -92,6 +91,7 @@ MSXAudio::MSXAudio(MSXMotherBoard& motherBoard, const XMLElement& config,
 		throw MSXException("Unknown MSX-AUDIO type: " + type);
 	}
 	int ramSize = config.getChildDataAsInt("sampleram", 256); // size in kb
+	const EmuTime& time = getCurrentTime();
 	y8950.reset(new Y8950(motherBoard, getName(), config, ramSize * 1024,
 	                      time, *periphery));
 	reset(time);

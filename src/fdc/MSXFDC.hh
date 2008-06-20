@@ -20,8 +20,7 @@ public:
 	virtual const byte* getReadCacheLine(word start) const;
 
 protected:
-	MSXFDC(MSXMotherBoard& motherBoard, const XMLElement& config,
-	       const EmuTime& time);
+	MSXFDC(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~MSXFDC();
 
 	std::auto_ptr<Rom> rom;

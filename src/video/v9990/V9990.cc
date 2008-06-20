@@ -67,15 +67,14 @@ static const RegisterAccess regAccess[64] = {
 // Constructor & Destructor
 // -------------------------------------------------------------------------
 
-V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config,
-             const EmuTime& time)
+V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, Schedulable(motherBoard.getScheduler())
 	, v9990RegDebug(new V9990RegDebug(*this))
 	, v9990PalDebug(new V9990PalDebug(*this))
 	, irq(motherBoard.getCPU())
-	, frameStartTime(time)
-	, hScanSyncTime(time)
+	, frameStartTime(Schedulable::getCurrentTime())
+	, hScanSyncTime(Schedulable::getCurrentTime())
 	, pendingIRQs(0)
 {
 	// clear regs TODO find realistic init values
@@ -91,6 +90,7 @@ V9990::V9990(MSXMotherBoard& motherBoard, const XMLElement& config,
 	}
 
 	// create VRAM
+	const EmuTime& time = Schedulable::getCurrentTime();
 	vram.reset(new V9990VRAM(*this, time));
 
 	// create Command Engine
@@ -389,7 +389,7 @@ void V9990::preVideoSystemChange()
 
 void V9990::postVideoSystemChange()
 {
-	const EmuTime& time = getMotherBoard().getCurrentTime();
+	const EmuTime& time = Schedulable::getCurrentTime();
 	createRenderer(time);
 	renderer->frameStart(time);
 }

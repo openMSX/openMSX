@@ -18,8 +18,7 @@ namespace openmsx {
 
 // MSXDevice
 
-MSXPPI::MSXPPI(MSXMotherBoard& motherBoard, const XMLElement& config,
-               const EmuTime& time)
+MSXPPI::MSXPPI(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, cassettePort(motherBoard.getCassettePort())
 	, renshaTurbo(motherBoard.getRenShaTurbo())
@@ -38,6 +37,7 @@ MSXPPI::MSXPPI(MSXMotherBoard& motherBoard, const XMLElement& config,
 	                            keyboardType, hasKeypad,
 	                            keyGhosting, keyGhostingSGCprotected,
 	                            codeKanaLocks, graphLocks));
+	const EmuTime& time = getCurrentTime();
 	i8255.reset(new I8255(*this, time, motherBoard.getMSXCliComm()));
 	click.reset(new KeyClick(motherBoard.getMSXMixer(), config));
 

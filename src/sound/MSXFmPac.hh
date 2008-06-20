@@ -13,8 +13,7 @@ class SRAM;
 class MSXFmPac : public MSXMusic
 {
 public:
-	MSXFmPac(MSXMotherBoard& motherBoard, const XMLElement& config,
-	         const EmuTime& time);
+	MSXFmPac(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~MSXFmPac();
 
 	virtual void reset(const EmuTime& time);

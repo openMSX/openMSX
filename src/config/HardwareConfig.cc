@@ -309,8 +309,7 @@ void HardwareConfig::createDevices(const XMLElement& elem)
 			createDevices(sub);
 		} else {
 			std::auto_ptr<MSXDevice> device(DeviceFactory::create(
-				motherBoard, *this, sub,
-				motherBoard.getCurrentTime()));
+				motherBoard, *this, sub));
 			if (device.get()) {
 				addDevice(device.release());
 			} else {

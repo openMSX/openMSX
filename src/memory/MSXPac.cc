@@ -8,13 +8,12 @@ namespace openmsx {
 
 static const char* const PAC_Header = "PAC2 BACKUP DATA";
 
-MSXPac::MSXPac(MSXMotherBoard& motherBoard, const XMLElement& config,
-               const EmuTime& time)
+MSXPac::MSXPac(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, sram(new SRAM(motherBoard, getName() + " SRAM", 0x1FFE, config,
 	                PAC_Header))
 {
-	reset(time);
+	reset(*static_cast<EmuTime*>(0));
 }
 
 MSXPac::~MSXPac()

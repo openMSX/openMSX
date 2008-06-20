@@ -23,9 +23,10 @@ namespace openmsx {
 static const unsigned MAX_DRIVES = 26; // a-z
 typedef std::bitset<MAX_DRIVES> DrivesInUse;
 
-RealDrive::RealDrive(MSXMotherBoard& motherBoard_, const EmuTime& time)
+RealDrive::RealDrive(MSXMotherBoard& motherBoard_)
 	: Schedulable(motherBoard_.getScheduler())
-	, motorTimer(time), headLoadTimer(time)
+	, motorTimer(motherBoard_.getCurrentTime())
+	, headLoadTimer(motherBoard_.getCurrentTime())
 	, headPos(0), motorStatus(false), headLoadStatus(false)
 	, motherBoard(motherBoard_)
 	, loadingIndicator(new LoadingIndicator(
@@ -246,9 +247,8 @@ void RealDrive::resetTimeOut(const EmuTime& time)
 
 /// class SingleSidedDrive ///
 
-SingleSidedDrive::SingleSidedDrive(
-		MSXMotherBoard& motherBoard, const EmuTime& time)
-	: RealDrive(motherBoard, time)
+SingleSidedDrive::SingleSidedDrive(MSXMotherBoard& motherBoard)
+	: RealDrive(motherBoard)
 {
 }
 
@@ -307,9 +307,8 @@ void SingleSidedDrive::writeTrackData(byte data)
 
 /// class DoubleSidedDrive ///
 
-DoubleSidedDrive::DoubleSidedDrive(
-		MSXMotherBoard& motherBoard, const EmuTime& time)
-	: RealDrive(motherBoard, time)
+DoubleSidedDrive::DoubleSidedDrive(MSXMotherBoard& motherBoard)
+	: RealDrive(motherBoard)
 {
 	side = 0;
 }

@@ -52,8 +52,7 @@ private:
 };
 
 
-MSXMidi::MSXMidi(MSXMotherBoard& motherBoard, const XMLElement& config,
-                 const EmuTime& time)
+MSXMidi::MSXMidi(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, MidiInConnector(motherBoard.getPluggingController(), "msx-midi-in")
 	, cntr0(new MSXMidiCounter0(*this))
@@ -65,12 +64,14 @@ MSXMidi::MSXMidi(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, rxrdyIRQlatch(false), rxrdyIRQenabled(false)
 	, outConnector(new MidiOutConnector(motherBoard.getPluggingController(),
 	                                    "msx-midi-out"))
-	, i8251(new I8251(motherBoard.getScheduler(), interf.get(), time))
+	, i8251(new I8251(motherBoard.getScheduler(), interf.get(),
+	                  getCurrentTime()))
 	, i8254(new I8254(motherBoard.getScheduler(),
-	                  cntr0.get(), NULL, cntr2.get(), time))
+	                  cntr0.get(), NULL, cntr2.get(), getCurrentTime()))
 {
 	EmuDuration total(1.0 / 4e6); // 4MHz
 	EmuDuration hi   (1.0 / 8e6); // 8MHz half clock period
+	const EmuTime& time = getCurrentTime();
 	i8254->getClockPin(0).setPeriodicState(total, hi, time);
 	i8254->getClockPin(1).setState(false, time);
 	i8254->getClockPin(2).setPeriodicState(total, hi, time);

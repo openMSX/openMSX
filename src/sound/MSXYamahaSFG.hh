@@ -15,8 +15,7 @@ class YM2148;
 class MSXYamahaSFG : public MSXDevice
 {
 public:
-	MSXYamahaSFG(MSXMotherBoard& motherBoard, const XMLElement& config,
-	             const EmuTime& time);
+	MSXYamahaSFG(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~MSXYamahaSFG();
 
 	virtual void reset(const EmuTime& time);

@@ -8,8 +8,7 @@ namespace openmsx {
 
 static const byte ID = 0xF7;
 
-MSXKanji12::MSXKanji12(MSXMotherBoard& motherBoard, const XMLElement& config,
-                       const EmuTime& time)
+MSXKanji12::MSXKanji12(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, MSXSwitchedDevice(motherBoard, ID)
 	, rom(new Rom(motherBoard, getName(), "Kanji-12 ROM", config))
@@ -19,7 +18,7 @@ MSXKanji12::MSXKanji12(MSXMotherBoard& motherBoard, const XMLElement& config,
 		throw MSXException("MSXKanji12: wrong kanji rom");
 	}
 
-	reset(time);
+	reset(*static_cast<EmuTime*>(0));
 }
 
 MSXKanji12::~MSXKanji12()

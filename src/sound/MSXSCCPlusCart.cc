@@ -15,7 +15,7 @@
 namespace openmsx {
 
 MSXSCCPlusCart::MSXSCCPlusCart(MSXMotherBoard& motherBoard,
-                               const XMLElement& config, const EmuTime& time)
+                               const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, ram(new Ram(motherBoard, getName() + " RAM", "SCC+ RAM", 0x20000))
 {
@@ -57,6 +57,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(MSXMotherBoard& motherBoard,
 		mapper[i] = 0;
 	}
 
+	const EmuTime& time = getCurrentTime();
 	scc.reset(new SCC(motherBoard, getName(), config, time,
 	                  SCC::SCC_Compatible));
 

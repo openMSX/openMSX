@@ -11,7 +11,7 @@ namespace openmsx {
 static const byte ID = 0x08;
 
 MSXMatsushita::MSXMatsushita(MSXMotherBoard& motherBoard,
-                             const XMLElement& config, const EmuTime& time)
+                             const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, MSXSwitchedDevice(motherBoard, ID)
 	, firmwareSwitch(
@@ -20,7 +20,7 @@ MSXMatsushita::MSXMatsushita(MSXMotherBoard& motherBoard,
 {
 	// TODO find out what ports 0x41 0x45 0x46 are used for
 
-	reset(time);
+	reset(*static_cast<EmuTime*>(0));
 }
 
 MSXMatsushita::~MSXMatsushita()

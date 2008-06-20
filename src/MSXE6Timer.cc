@@ -4,12 +4,10 @@
 
 namespace openmsx {
 
-MSXE6Timer::MSXE6Timer(MSXMotherBoard& motherBoard, const XMLElement& config,
-                       const EmuTime& time)
+MSXE6Timer::MSXE6Timer(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
-	, reference(time)
+	, reference(getCurrentTime())
 {
-	reset(time);
 }
 
 void MSXE6Timer::reset(const EmuTime& time)

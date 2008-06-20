@@ -77,8 +77,7 @@ private:
 };
 
 
-VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
-         const EmuTime& time)
+VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, Schedulable(motherBoard.getScheduler())
 	, cliComm(motherBoard.getMSXCliComm())
@@ -86,12 +85,12 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, vdpStatusRegDebug(new VDPStatusRegDebug(*this))
 	, vdpPaletteDebug  (new VDPPaletteDebug  (*this))
 	, vramPointerDebug (new VRAMPointerDebug (*this))
-	, frameStartTime(time)
+	, frameStartTime(Schedulable::getCurrentTime())
 	, irqVertical(motherBoard.getCPU())
 	, irqHorizontal(motherBoard.getCPU())
-	, displayStartSyncTime(time)
-	, vScanSyncTime(time)
-	, hScanSyncTime(time)
+	, displayStartSyncTime(Schedulable::getCurrentTime())
+	, vScanSyncTime(Schedulable::getCurrentTime())
+	, hScanSyncTime(Schedulable::getCurrentTime())
 	, warningPrinted(false)
 {
 	interlaced = false;
@@ -124,6 +123,7 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
 	}
 
 	// Video RAM.
+	const EmuTime& time = Schedulable::getCurrentTime();
 	unsigned vramSize =
 		(isMSX1VDP() ? 16 : config.getChildDataAsInt("vram"));
 	if ((vramSize !=  16) && (vramSize !=  64) &&

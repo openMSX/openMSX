@@ -59,7 +59,7 @@
 namespace openmsx {
 
 ESE_SCC::ESE_SCC(MSXMotherBoard& motherBoard, const XMLElement& config,
-                 const EmuTime& time, bool withSCSI)
+                 bool withSCSI)
 	: MSXDevice(motherBoard, config)
 {
 	unsigned sramSize = config.getChildDataAsInt("sramsize", 256); // size in kb
@@ -84,7 +84,7 @@ ESE_SCC::ESE_SCC(MSXMotherBoard& motherBoard, const XMLElement& config,
 	}
 
 	// initialize SCC
-	scc.reset(new SCC(motherBoard, getName(), config, time));
+	scc.reset(new SCC(motherBoard, getName(), config, getCurrentTime()));
 
 	if (withSCSI) {
 		// initialize SPC

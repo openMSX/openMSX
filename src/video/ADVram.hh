@@ -18,8 +18,7 @@ class VDPVRAM;
 class ADVram : public MSXDevice
 {
 public:
-	ADVram(MSXMotherBoard& motherBoard, const XMLElement& config,
-	       const EmuTime& time);
+	ADVram(MSXMotherBoard& motherBoard, const XMLElement& config);
 
 	/** This method is called on reset.  Reset the mapper register and
 	 * the planar bit, if the device is configured with an enable bit

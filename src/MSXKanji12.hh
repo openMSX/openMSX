@@ -14,8 +14,7 @@ class Rom;
 class MSXKanji12 : public MSXDevice, public MSXSwitchedDevice
 {
 public:
-	MSXKanji12(MSXMotherBoard& motherBoard, const XMLElement& config,
-	           const EmuTime& time);
+	MSXKanji12(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~MSXKanji12();
 
 	// MSXDevice

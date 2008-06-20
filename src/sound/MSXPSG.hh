@@ -17,8 +17,7 @@ class JoystickPort;
 class MSXPSG : public MSXDevice, public AY8910Periphery
 {
 public:
-	MSXPSG(MSXMotherBoard& motherBoard, const XMLElement& config,
-	       const EmuTime& time);
+	MSXPSG(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~MSXPSG();
 
 	virtual void reset(const EmuTime& time);

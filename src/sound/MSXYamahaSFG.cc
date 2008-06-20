@@ -7,15 +7,14 @@
 
 namespace openmsx {
 
-MSXYamahaSFG::MSXYamahaSFG(MSXMotherBoard& motherBoard, const XMLElement& config,
-                   const EmuTime& time)
+MSXYamahaSFG::MSXYamahaSFG(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
 	, ym2151(new YM2151(motherBoard, getName(),
-	                    "Yamaha SFG-01/05", config, time))
+	                    "Yamaha SFG-01/05", config, getCurrentTime()))
 	, ym2148(new YM2148())
 {
-	reset(time);
+	reset(getCurrentTime());
 }
 
 MSXYamahaSFG::~MSXYamahaSFG()

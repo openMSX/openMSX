@@ -30,8 +30,7 @@ class Setting;
 class MSXTurboRPause : public MSXDevice, private Observer<Setting>
 {
 public:
-	MSXTurboRPause(MSXMotherBoard& motherBoard, const XMLElement& config,
-	               const EmuTime& time);
+	MSXTurboRPause(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~MSXTurboRPause();
 
 	virtual void reset(const EmuTime& time);

@@ -10,8 +10,7 @@ namespace openmsx {
 class PhilipsFDC : public WD2793BasedFDC
 {
 public:
-	PhilipsFDC(MSXMotherBoard& motherBoard, const XMLElement& config,
-	           const EmuTime& time);
+	PhilipsFDC(MSXMotherBoard& motherBoard, const XMLElement& config);
 
 	virtual void reset(const EmuTime& time);
 	virtual byte readMem(word address, const EmuTime& time);

@@ -29,8 +29,7 @@ class V9990 : public MSXDevice,
               private VideoSystemChangeListener
 {
 public:
-	V9990(MSXMotherBoard& motherBoard, const XMLElement& config,
-	      const EmuTime& time);
+	V9990(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~V9990();
 
 	// MSXDevice interface:

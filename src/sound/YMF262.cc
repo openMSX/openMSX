@@ -173,7 +173,7 @@ class YMF262Impl : private SoundDevice, private EmuTimerCallback, private Resamp
 {
 public:
 	YMF262Impl(MSXMotherBoard& motherBoard, const std::string& name,
-	       const XMLElement& config, const EmuTime& time);
+	           const XMLElement& config);
 	virtual ~YMF262Impl();
 
 	void reset(const EmuTime& time);
@@ -1901,7 +1901,7 @@ void YMF262Impl::reset(const EmuTime& time)
 }
 
 YMF262Impl::YMF262Impl(MSXMotherBoard& motherBoard, const std::string& name,
-               const XMLElement& config, const EmuTime& time)
+                       const XMLElement& config)
 	: SoundDevice(motherBoard.getMSXMixer(), name, "MoonSound FM-part",
 	              18, true)
 	, Resample(motherBoard.getGlobalSettings(), 2)
@@ -1920,7 +1920,7 @@ YMF262Impl::YMF262Impl(MSXMotherBoard& motherBoard, const std::string& name,
 
 	init_tables();
 
-	reset(time);
+	reset(motherBoard.getCurrentTime());
 	registerSound(config);
 }
 
@@ -2094,8 +2094,8 @@ void YMF262Debuggable::write(unsigned address, byte value, const EmuTime& time)
 // class YMF262
 
 YMF262::YMF262(MSXMotherBoard& motherBoard, const std::string& name,
-       const XMLElement& config, const EmuTime& time)
-	: pimple(new YMF262Impl(motherBoard, name, config, time))
+               const XMLElement& config)
+	: pimple(new YMF262Impl(motherBoard, name, config))
 {
 }
 

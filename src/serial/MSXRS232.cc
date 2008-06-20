@@ -58,16 +58,16 @@ private:
 };
 
 
-MSXRS232::MSXRS232(MSXMotherBoard& motherBoard, const XMLElement& config,
-                   const EmuTime& time)
+MSXRS232::MSXRS232(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, RS232Connector(motherBoard.getPluggingController(), "msx-rs232")
 	, cntr0(new Counter0(*this))
 	, cntr1(new Counter1(*this))
 	, i8254(new I8254(motherBoard.getScheduler(),
-	                  cntr0.get(), cntr1.get(), NULL, time))
+	                  cntr0.get(), cntr1.get(), NULL, getCurrentTime()))
 	, interf(new I8251Interf(*this))
-	, i8251(new I8251(motherBoard.getScheduler(), interf.get(), time))
+	, i8251(new I8251(motherBoard.getScheduler(), interf.get(),
+	                  getCurrentTime()))
 	, rom(new Rom(motherBoard, MSXDevice::getName() + " ROM", "rom", config))
 	, rxrdyIRQ(getMotherBoard().getCPU())
 	, rxrdyIRQlatch(false)
@@ -80,6 +80,7 @@ MSXRS232::MSXRS232(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 	EmuDuration total(1.0 / 1.8432e6); // 1.8432MHz
 	EmuDuration hi   (1.0 / 3.6864e6); //   half clock period
+	const EmuTime& time = getCurrentTime();
 	i8254->getClockPin(0).setPeriodicState(total, hi, time);
 	i8254->getClockPin(1).setPeriodicState(total, hi, time);
 	i8254->getClockPin(2).setPeriodicState(total, hi, time);

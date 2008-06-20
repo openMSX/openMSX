@@ -11,15 +11,14 @@ using std::string;
 
 namespace openmsx {
 
-MSXPrinterPort::MSXPrinterPort(MSXMotherBoard& motherBoard,
-                               const XMLElement& config, const EmuTime& time)
+MSXPrinterPort::MSXPrinterPort(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, Connector("printerport", std::auto_ptr<Pluggable>(
 	                                       new DummyPrinterPortDevice()))
 {
 	data = 255;	// != 0;
 	strobe = false;	// != true;
-	reset(time);
+	reset(getCurrentTime());
 
 	getMotherBoard().getPluggingController().registerConnector(*this);
 }

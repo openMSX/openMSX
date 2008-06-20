@@ -6,8 +6,7 @@
 
 namespace openmsx {
 
-MSXKanji::MSXKanji(MSXMotherBoard& motherBoard, const XMLElement& config,
-                   const EmuTime& time)
+MSXKanji::MSXKanji(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, rom(new Rom(motherBoard, getName(), "Kanji ROM", config))
 {
@@ -16,7 +15,7 @@ MSXKanji::MSXKanji(MSXMotherBoard& motherBoard, const XMLElement& config,
 		throw MSXException("MSXKanji: wrong kanji rom");
 	}
 
-	reset(time);
+	reset(*static_cast<EmuTime*>(0));
 }
 
 MSXKanji::~MSXKanji()

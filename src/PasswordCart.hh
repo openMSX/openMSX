@@ -10,8 +10,7 @@ namespace openmsx {
 class PasswordCart : public MSXDevice
 {
 public:
-	PasswordCart(MSXMotherBoard& motherBoard, const XMLElement& config,
-	             const EmuTime& time);
+	PasswordCart(MSXMotherBoard& motherBoard, const XMLElement& config);
 
 	virtual void reset(const EmuTime& time);
 	virtual void writeIO(word port, byte value, const EmuTime& time);

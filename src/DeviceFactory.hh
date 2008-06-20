@@ -11,7 +11,6 @@ class MSXDevice;
 class MSXMotherBoard;
 class HardwareConfig;
 class XMLElement;
-class EmuTime;
 class DummyDevice;
 class MSXDeviceSwitch;
 class MSXMapperIO;
@@ -22,7 +21,7 @@ class DeviceFactory
 public:
 	static std::auto_ptr<MSXDevice> create(
 		MSXMotherBoard& motherBoard, const HardwareConfig& hwConf,
-		const XMLElement& conf, const EmuTime& time);
+		const XMLElement& conf);
 	static std::auto_ptr<DummyDevice> createDummyDevice(
 		MSXMotherBoard& motherBoard);
 	static std::auto_ptr<MSXDeviceSwitch> createDeviceSwitch(

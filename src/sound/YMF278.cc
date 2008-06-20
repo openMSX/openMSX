@@ -90,7 +90,7 @@ class YMF278Impl : public SoundDevice, private Resample
 {
 public:
 	YMF278Impl(MSXMotherBoard& motherBoard, const std::string& name,
-	       int ramSize, const XMLElement& config, const EmuTime& time);
+	       int ramSize, const XMLElement& config);
 	virtual ~YMF278Impl();
 	void reset(const EmuTime& time);
 	void writeRegOPL4(byte reg, byte data, const EmuTime& time);
@@ -917,13 +917,14 @@ byte YMF278Impl::peekStatus(const EmuTime& time) const
 }
 
 YMF278Impl::YMF278Impl(MSXMotherBoard& motherBoard, const std::string& name,
-                       int ramSize, const XMLElement& config, const EmuTime& time)
+                       int ramSize, const XMLElement& config)
 	: SoundDevice(motherBoard.getMSXMixer(), name, "MoonSound wave-part",
 	              24, true)
 	, Resample(motherBoard.getGlobalSettings(), 2)
 	, debugRegisters(new DebugRegisters(*this, motherBoard))
 	, debugMemory   (new DebugMemory   (*this, motherBoard))
-	, loadTime(time), busyTime(time)
+	, loadTime(motherBoard.getCurrentTime())
+	, busyTime(motherBoard.getCurrentTime())
 	, rom(new Rom(motherBoard, name + " ROM", "rom", config))
 {
 	memadr = 0;	// avoid UMR
@@ -934,7 +935,7 @@ YMF278Impl::YMF278Impl(MSXMotherBoard& motherBoard, const std::string& name,
 	ram = new byte[ramSize];
 	endRam = endRom + ramSize;
 
-	reset(time);
+	reset(motherBoard.getCurrentTime());
 	registerSound(config);
 
 	// Volume table, 1 = -0.375dB, 8 = -3dB, 256 = -96dB
@@ -1041,8 +1042,8 @@ void DebugMemory::write(unsigned address, byte value)
 // class YMF278
 
 YMF278::YMF278(MSXMotherBoard& motherBoard, const std::string& name,
-       int ramSize, const XMLElement& config, const EmuTime& time)
-	: pimple(new YMF278Impl(motherBoard, name, ramSize, config, time))
+               int ramSize, const XMLElement& config)
+	: pimple(new YMF278Impl(motherBoard, name, ramSize, config))
 {
 }
 

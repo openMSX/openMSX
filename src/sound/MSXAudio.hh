@@ -15,8 +15,7 @@ class DACSound8U;
 class MSXAudio : public MSXDevice
 {
 public:
-	MSXAudio(MSXMotherBoard& motherBoard, const XMLElement& config,
-	         const EmuTime& time);
+	MSXAudio(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~MSXAudio();
 
 	virtual void reset(const EmuTime& time);

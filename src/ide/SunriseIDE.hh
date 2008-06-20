@@ -14,8 +14,7 @@ class Rom;
 class SunriseIDE : public MSXDevice
 {
 public:
-	SunriseIDE(MSXMotherBoard& motherBoard, const XMLElement& config,
-	           const EmuTime& time);
+	SunriseIDE(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~SunriseIDE();
 
 	virtual void reset(const EmuTime& time);

@@ -43,8 +43,7 @@ class MSXPPI: public MSXDevice, public I8255Interface
 {
 // MSXDevice
 public:
-	MSXPPI(MSXMotherBoard& motherBoard, const XMLElement& config,
-	       const EmuTime& time);
+	MSXPPI(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~MSXPPI();
 
 	virtual void reset(const EmuTime& time);

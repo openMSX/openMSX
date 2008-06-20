@@ -9,8 +9,7 @@
 
 namespace openmsx {
 
-MSXFDC::MSXFDC(MSXMotherBoard& motherBoard, const XMLElement& config,
-               const EmuTime& time)
+MSXFDC::MSXFDC(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, rom(new Rom(motherBoard, getName() + " ROM", "rom", config))
 {
@@ -23,11 +22,9 @@ MSXFDC::MSXFDC(MSXMotherBoard& motherBoard, const XMLElement& config,
 	int i = 0;
 	for ( ; i < numDrives; ++i) {
 		if (singleSided) {
-			drives[i].reset(new SingleSidedDrive(
-				getMotherBoard(), time));
+			drives[i].reset(new SingleSidedDrive(getMotherBoard()));
 		} else {
-			drives[i].reset(new DoubleSidedDrive(
-				getMotherBoard(), time));
+			drives[i].reset(new DoubleSidedDrive(getMotherBoard()));
 		}
 	}
 	for ( ; i < 4; ++i) {
