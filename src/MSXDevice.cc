@@ -26,17 +26,17 @@ byte MSXDevice::unmappedWrite[0x10000];
 
 MSXDevice::MSXDevice(MSXMotherBoard& motherBoard_, const XMLElement& config,
                      const string& name)
-	: deviceConfig(config), motherBoard(motherBoard_)
+	: motherBoard(motherBoard_), deviceConfig(config)
 	, hardwareConfig(NULL), externalSlotID(-1)
 {
 	initName(name);
 }
 
 MSXDevice::MSXDevice(MSXMotherBoard& motherBoard_, const XMLElement& config)
-	: deviceConfig(config), motherBoard(motherBoard_)
+	: motherBoard(motherBoard_), deviceConfig(config)
 	, hardwareConfig(NULL), externalSlotID(-1)
 {
-	initName(deviceConfig.getId());
+	initName(getDeviceConfig().getId());
 }
 
 void MSXDevice::initName(const string& name)
@@ -58,8 +58,8 @@ void MSXDevice::init(const HardwareConfig& hwConf)
 	staticInit();
 
 	lockDevices();
-	registerSlots(deviceConfig);
-	registerPorts(deviceConfig);
+	registerSlots();
+	registerPorts();
 }
 
 MSXDevice::~MSXDevice()
@@ -112,7 +112,7 @@ void MSXDevice::lockDevices()
 	// needed we can implement something more sophisticated later without
 	// changing the format of the config files.
 	XMLElement::Children refConfigs;
-	deviceConfig.getChildren("device", refConfigs);
+	getDeviceConfig().getChildren("device", refConfigs);
 	for (XMLElement::Children::const_iterator it = refConfigs.begin();
 	     it != refConfigs.end(); ++it) {
 		string name = (*it)->getAttribute("idref");
@@ -146,11 +146,11 @@ const MSXDevice::Devices& MSXDevice::getReferences() const
 	return references;
 }
 
-void MSXDevice::registerSlots(const XMLElement& config)
+void MSXDevice::registerSlots()
 {
 	MemRegions tmpMemRegions;
 	XMLElement::Children memConfigs;
-	config.getChildren("mem", memConfigs);
+	getDeviceConfig().getChildren("mem", memConfigs);
 	for (XMLElement::Children::const_iterator it = memConfigs.begin();
 	     it != memConfigs.end(); ++it) {
 		unsigned base = (*it)->getAttributeAsInt("base");
@@ -177,7 +177,7 @@ void MSXDevice::registerSlots(const XMLElement& config)
 	CartridgeSlotManager& slotManager = getMotherBoard().getSlotManager();
 	ps = 0;
 	ss = 0;
-	const XMLElement* parent = config.getParent();
+	const XMLElement* parent = getDeviceConfig().getParent();
 	while (true) {
 		const string& name = parent->getName();
 		if (name == "secondary") {
@@ -233,10 +233,10 @@ void MSXDevice::unregisterSlots()
 	}
 }
 
-void MSXDevice::registerPorts(const XMLElement& config)
+void MSXDevice::registerPorts()
 {
 	XMLElement::Children ios;
-	config.getChildren("io", ios);
+	getDeviceConfig().getChildren("io", ios);
 	for (XMLElement::Children::const_iterator it = ios.begin();
 	     it != ios.end(); ++it) {
 		unsigned base = StringOp::stringToInt((*it)->getAttribute("base"));
@@ -300,7 +300,7 @@ string MSXDevice::getName() const
 
 void MSXDevice::getDeviceInfo(TclObject& result) const
 {
-	result.addListElement(deviceConfig.getName());
+	result.addListElement(getDeviceConfig().getName());
 	getExtraDeviceInfo(result);
 }
 

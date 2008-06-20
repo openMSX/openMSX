@@ -96,7 +96,7 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
 {
 	interlaced = false;
 
-	std::string versionString = deviceConfig.getChildData("version");
+	std::string versionString = config.getChildData("version");
 	if (versionString == "TMS99X8A") version = TMS99X8A;
 	else if (versionString == "TMS9929A") version = TMS9929A;
 	else if (versionString == "V9938") version = V9938;
@@ -125,7 +125,7 @@ VDP::VDP(MSXMotherBoard& motherBoard, const XMLElement& config,
 
 	// Video RAM.
 	unsigned vramSize =
-		(isMSX1VDP() ? 16 : deviceConfig.getChildDataAsInt("vram"));
+		(isMSX1VDP() ? 16 : config.getChildDataAsInt("vram"));
 	if ((vramSize !=  16) && (vramSize !=  64) &&
 	    (vramSize != 128) && (vramSize != 192)) {
 		std::ostringstream out;

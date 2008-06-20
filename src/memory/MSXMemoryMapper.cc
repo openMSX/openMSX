@@ -24,7 +24,7 @@ MSXMemoryMapper::MSXMemoryMapper(MSXMotherBoard& motherBoard,
                                  const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 {
-	int kSize = deviceConfig.getChildDataAsInt("size");
+	int kSize = config.getChildDataAsInt("size");
 	if ((kSize % 16) != 0) {
 		throw MSXException("Mapper size is not a multiple of 16K: " +
 		                   StringOp::toString(kSize));

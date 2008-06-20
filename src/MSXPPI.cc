@@ -25,19 +25,19 @@ MSXPPI::MSXPPI(MSXMotherBoard& motherBoard, const XMLElement& config,
 	, renshaTurbo(motherBoard.getRenShaTurbo())
 	, prevBits(15)
 {
-	bool keyGhosting = deviceConfig.getChildDataAsBool("key_ghosting", true);
-	bool keyGhostingSGCprotected = deviceConfig.getChildDataAsBool("key_ghosting_sgc_protected", true);
-	std::string keyboardType = deviceConfig.getChildData("keyboard_type", "int");
-	bool hasKeypad = deviceConfig.getChildDataAsBool("has_keypad", true);
-	bool codeKanaLocks = deviceConfig.getChildDataAsBool("code_kana_locks", false);
-	bool graphLocks = deviceConfig.getChildDataAsBool("graph_locks", false);
+	bool keyGhosting = config.getChildDataAsBool("key_ghosting", true);
+	bool keyGhostingSGCprotected = config.getChildDataAsBool("key_ghosting_sgc_protected", true);
+	std::string keyboardType = config.getChildData("keyboard_type", "int");
+	bool hasKeypad = config.getChildDataAsBool("has_keypad", true);
+	bool codeKanaLocks = config.getChildDataAsBool("code_kana_locks", false);
+	bool graphLocks = config.getChildDataAsBool("graph_locks", false);
 	keyboard.reset(new Keyboard(motherBoard.getScheduler(),
 	                            motherBoard.getCommandController(),
 	                            motherBoard.getEventDistributor(),
 	                            motherBoard.getMSXEventDistributor(),
-	                            keyboardType, hasKeypad, 
-				    keyGhosting, keyGhostingSGCprotected,
-				    codeKanaLocks, graphLocks));
+	                            keyboardType, hasKeypad,
+	                            keyGhosting, keyGhostingSGCprotected,
+	                            codeKanaLocks, graphLocks));
 	i8255.reset(new I8255(*this, time, motherBoard.getMSXCliComm()));
 	click.reset(new KeyClick(motherBoard.getMSXMixer(), config, time));
 

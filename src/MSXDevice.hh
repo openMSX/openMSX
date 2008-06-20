@@ -181,6 +181,11 @@ public:
 	  */
 	MSXMotherBoard& getMotherBoard() const { return motherBoard; }
 
+	/** Get the configuration section for this device.
+	  * This was passed as a constructor argument.
+	  */
+	const XMLElement& getDeviceConfig() const { return deviceConfig; }
+
 	/** Get the device references that are specified for this device
 	 */
 	const Devices& getReferences() const;
@@ -218,25 +223,22 @@ protected:
 	 */
 	virtual void getExtraDeviceInfo(TclObject& result) const;
 
-	const XMLElement& deviceConfig;
-
 public:
 	// public to allow non-MSXDevices to use these same arrays
 	static byte unmappedRead[0x10000];	// Read only
 	static byte unmappedWrite[0x10000];	// Write only
 
 private:
-
 	void initName(const std::string& name);
 	void staticInit();
 
 	void lockDevices();
 	void unlockDevices();
 
-	void registerSlots(const XMLElement& config);
+	void registerSlots();
 	void unregisterSlots();
 
-	void registerPorts(const XMLElement& config);
+	void registerPorts();
 	void unregisterPorts();
 
 	typedef std::vector<std::pair<unsigned, unsigned> > MemRegions;
@@ -245,6 +247,7 @@ private:
 	std::vector<byte> outPorts;
 
 	MSXMotherBoard& motherBoard;
+	const XMLElement& deviceConfig;
 	const HardwareConfig* hardwareConfig;
 	std::string deviceName;
 
