@@ -77,13 +77,12 @@ static void releaseSRAM(MSXMotherBoard& motherBoard)
 // Mapper for slot 3-1 //
 
 RomFSA1FM1::RomFSA1FM1(MSXMotherBoard& motherBoard, const XMLElement& config,
-                       const EmuTime& time, std::auto_ptr<Rom> rom)
+                       std::auto_ptr<Rom> rom)
 	: MSXRom(motherBoard, config, rom)
 	, firmwareSwitch(
 	      new FirmwareSwitch(motherBoard.getCommandController(), config))
 {
 	sram = allocSRAM(motherBoard, config);
-	reset(time);
 }
 
 RomFSA1FM1::~RomFSA1FM1()
@@ -173,11 +172,11 @@ byte* RomFSA1FM1::getWriteCacheLine(word address) const
 // Mapper for slot 3-3 //
 
 RomFSA1FM2::RomFSA1FM2(MSXMotherBoard& motherBoard, const XMLElement& config,
-                       const EmuTime& time, std::auto_ptr<Rom> rom)
+                       std::auto_ptr<Rom> rom)
 	: Rom8kBBlocks(motherBoard, config, rom)
 {
 	sram = allocSRAM(motherBoard, config);
-	reset(time);
+	reset(*static_cast<EmuTime*>(0));
 }
 
 RomFSA1FM2::~RomFSA1FM2()

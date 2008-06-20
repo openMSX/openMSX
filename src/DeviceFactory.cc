@@ -109,7 +109,7 @@ std::auto_ptr<MSXDevice> DeviceFactory::create(
 	} else if (type == "PasswordCart") {
 		result.reset(new PasswordCart(motherBoard, conf, time));
 	} else if (type == "ROM") {
-		result = RomFactory::create(motherBoard, conf, time);
+		result = RomFactory::create(motherBoard, conf);
 	} else if (type == "PrinterPort") {
 		result.reset(new MSXPrinterPort(motherBoard, conf, time));
 	} else if (type == "SCCplus") { // Note: it's actually called SCC-I

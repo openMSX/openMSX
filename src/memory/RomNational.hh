@@ -13,7 +13,7 @@ class RomNational : public Rom16kBBlocks
 {
 public:
 	RomNational(MSXMotherBoard& motherBoard, const XMLElement& config,
-	            const EmuTime& time, std::auto_ptr<Rom> rom);
+	            std::auto_ptr<Rom> rom);
 	virtual ~RomNational();
 
 	virtual void reset(const EmuTime& time);

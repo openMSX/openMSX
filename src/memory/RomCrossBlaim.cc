@@ -23,16 +23,16 @@
 namespace openmsx {
 
 RomCrossBlaim::RomCrossBlaim(
-	MSXMotherBoard& motherBoard, const XMLElement& config,
-	const EmuTime& time, std::auto_ptr<Rom> rom)
+		MSXMotherBoard& motherBoard, const XMLElement& config,
+		std::auto_ptr<Rom> rom)
 	: Rom16kBBlocks(motherBoard, config, rom)
 {
-	reset(time);
+	reset(*static_cast<EmuTime*>(0));
 }
 
-void RomCrossBlaim::reset(const EmuTime& time)
+void RomCrossBlaim::reset(const EmuTime& dummy)
 {
-	writeMem(0, 0, time);
+	writeMem(0, 0, dummy);
 }
 
 void RomCrossBlaim::writeMem(word /*address*/, byte value, const EmuTime& /*time*/)

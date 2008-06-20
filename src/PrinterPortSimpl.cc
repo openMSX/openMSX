@@ -26,7 +26,7 @@ void PrinterPortSimpl::writeData(byte data, const EmuTime& time)
 	dac->writeDAC(data, time);
 }
 
-void PrinterPortSimpl::plugHelper(Connector& /*connector*/, const EmuTime& time)
+void PrinterPortSimpl::plugHelper(Connector& /*connector*/, const EmuTime& /*time*/)
 {
 	// TODO get from config file
 	static XMLElement simplConfig("simpl");
@@ -40,8 +40,7 @@ void PrinterPortSimpl::plugHelper(Connector& /*connector*/, const EmuTime& time)
 			new XMLElement("mode", "mono")));
 		simplConfig.addChild(soundElem);
 	}
-	dac.reset(new DACSound8U(mixer, "simpl", getDescription(),
-	          simplConfig, time));
+	dac.reset(new DACSound8U(mixer, "simpl", getDescription(), simplConfig));
 }
 
 void PrinterPortSimpl::unplugHelper(const EmuTime& /*time*/)

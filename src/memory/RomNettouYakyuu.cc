@@ -54,7 +54,7 @@ namespace openmsx {
 
 RomNettouYakyuu::RomNettouYakyuu(
 		MSXMotherBoard& motherBoard, const XMLElement& config,
-		const EmuTime& time, std::auto_ptr<Rom> rom)
+		std::auto_ptr<Rom> rom)
 	: Rom8kBBlocks(motherBoard, config, rom)
 {
 	samplePlayer.reset(new SamplePlayer(motherBoard, "Nettou Yakyuu-DAC",
@@ -78,7 +78,7 @@ RomNettouYakyuu::RomNettouYakyuu(
 		}
 	}
 
-	reset(time);
+	reset(*static_cast<EmuTime*>(0));
 }
 
 void RomNettouYakyuu::reset(const EmuTime& /*time*/)

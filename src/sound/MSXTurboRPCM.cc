@@ -14,7 +14,7 @@ MSXTurboRPCM::MSXTurboRPCM(MSXMotherBoard& motherBoard,
 	, mixer(motherBoard.getMSXMixer())
 	, connector(new AudioInputConnector(
               motherBoard.getPluggingController(), "pcminput"))
-	, dac(new DACSound8U(mixer, "PCM", "Turbo-R PCM", config, time))
+	, dac(new DACSound8U(mixer, "PCM", "Turbo-R PCM", config))
 	, reference(time)
 	, hwMute(false)
 {

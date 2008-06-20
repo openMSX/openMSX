@@ -12,11 +12,11 @@
 namespace openmsx {
 
 RomPadial16kB::RomPadial16kB(
-	MSXMotherBoard& motherBoard, const XMLElement& config,
-	const EmuTime& time, std::auto_ptr<Rom> rom)
-	: RomAscii16kB(motherBoard, config, time, rom)
+		MSXMotherBoard& motherBoard, const XMLElement& config,
+		std::auto_ptr<Rom> rom)
+	: RomAscii16kB(motherBoard, config, rom)
 {
-	reset(time);
+	reset(*static_cast<EmuTime*>(0));
 }
 
 void RomPadial16kB::reset(const EmuTime& /*time*/)

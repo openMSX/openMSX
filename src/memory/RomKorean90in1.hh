@@ -11,7 +11,7 @@ class RomKorean90in1 : public Rom8kBBlocks
 {
 public:
 	RomKorean90in1(MSXMotherBoard& motherBoard, const XMLElement& config,
-	               const EmuTime& time, std::auto_ptr<Rom> rom);
+	               std::auto_ptr<Rom> rom);
 	virtual ~RomKorean90in1();
 
 	virtual void reset(const EmuTime& time);

@@ -10,14 +10,14 @@ namespace openmsx {
 
 RomMSXDOS2::RomMSXDOS2(
 		MSXMotherBoard& motherBoard, const XMLElement& config,
-		const EmuTime& time, std::auto_ptr<Rom> rom_)
+		std::auto_ptr<Rom> rom_)
 	: Rom16kBBlocks(motherBoard, config, rom_)
 {
 	range = (*rom)[0x94];
 	if ((range != 0x00) && (range != 0x60) && (range != 0x7f)) {
 		throw MSXException("Invalid rom for MSXDOS2 mapper");
 	}
-	reset(time);
+	reset(*static_cast<EmuTime*>(0));
 }
 
 void RomMSXDOS2::reset(const EmuTime& /*time*/)

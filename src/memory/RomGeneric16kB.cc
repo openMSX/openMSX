@@ -6,11 +6,11 @@
 namespace openmsx {
 
 RomGeneric16kB::RomGeneric16kB(
-	MSXMotherBoard& motherBoard, const XMLElement& config,
-	const EmuTime& time, std::auto_ptr<Rom> rom)
+		MSXMotherBoard& motherBoard, const XMLElement& config,
+		std::auto_ptr<Rom> rom)
 	: Rom16kBBlocks(motherBoard, config, rom)
 {
-	reset(time);
+	reset(*static_cast<EmuTime*>(0));
 }
 
 void RomGeneric16kB::reset(const EmuTime& /*time*/)

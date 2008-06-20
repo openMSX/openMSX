@@ -11,7 +11,7 @@ class RomKorean126in1 : public Rom16kBBlocks
 {
 public:
 	RomKorean126in1(MSXMotherBoard& motherBoard, const XMLElement& config,
-	                const EmuTime& time, std::auto_ptr<Rom> rom);
+	                std::auto_ptr<Rom> rom);
 
 	virtual void reset(const EmuTime& time);
 	virtual void writeMem(word address, byte value, const EmuTime& time);

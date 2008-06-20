@@ -11,7 +11,7 @@ class RomPadial8kB : public RomAscii8kB
 {
 public:
 	RomPadial8kB(MSXMotherBoard& motherBoard, const XMLElement& config,
-	             const EmuTime& time, std::auto_ptr<Rom> rom);
+	             std::auto_ptr<Rom> rom);
 
 	virtual void reset(const EmuTime& time);
 };

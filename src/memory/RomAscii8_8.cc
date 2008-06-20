@@ -23,7 +23,7 @@ namespace openmsx {
 
 RomAscii8_8::RomAscii8_8(
 		MSXMotherBoard& motherBoard, const XMLElement& config,
-		const EmuTime& time, std::auto_ptr<Rom> rom_, SubType subType)
+		std::auto_ptr<Rom> rom_, SubType subType)
 	: Rom8kBBlocks(motherBoard, config, rom_)
 	, sram(new SRAM(motherBoard, getName() + " SRAM",
 	                (subType == KOEI_32) ? 0x8000 : 0x2000, config))
@@ -33,7 +33,7 @@ RomAscii8_8::RomAscii8_8(
 	sramPages = ((subType == KOEI_8) || (subType == KOEI_32))
 	          ? 0x34 : 0x30;
 
-	reset(time);
+	reset(*static_cast<EmuTime*>(0));
 }
 
 RomAscii8_8::~RomAscii8_8()

@@ -28,7 +28,7 @@ namespace openmsx {
 
 RomSynthesizer::RomSynthesizer(
 		MSXMotherBoard& motherBoard, const XMLElement& config,
-		const EmuTime& time, std::auto_ptr<Rom> rom)
+		std::auto_ptr<Rom> rom)
 	: Rom16kBBlocks(motherBoard, config, rom)
 {
 	setBank(0, unmappedRead);
@@ -37,9 +37,9 @@ RomSynthesizer::RomSynthesizer(
 	setBank(3, unmappedRead);
 
 	dac.reset(new DACSound8U(motherBoard.getMSXMixer(), "Synthesizer-DAC",
-	                         "Konami Synthesizer's DAC", config, time));
+	                         "Konami Synthesizer's DAC", config));
 
-	reset(time);
+	reset(getCurrentTime());
 }
 
 RomSynthesizer::~RomSynthesizer()

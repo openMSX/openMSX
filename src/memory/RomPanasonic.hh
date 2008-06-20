@@ -13,7 +13,7 @@ class RomPanasonic : public Rom8kBBlocks
 {
 public:
 	RomPanasonic(MSXMotherBoard& motherBoard, const XMLElement& config,
-	             const EmuTime& time, std::auto_ptr<Rom> rom);
+	             std::auto_ptr<Rom> rom);
 	virtual ~RomPanasonic();
 
 	virtual void reset(const EmuTime& time);

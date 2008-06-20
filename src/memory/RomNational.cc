@@ -8,11 +8,11 @@
 namespace openmsx {
 
 RomNational::RomNational(MSXMotherBoard& motherBoard, const XMLElement& config,
-                         const EmuTime& time, std::auto_ptr<Rom> rom)
+                         std::auto_ptr<Rom> rom)
 	: Rom16kBBlocks(motherBoard, config, rom)
 	, sram(new SRAM(motherBoard, getName() + " SRAM", 0x1000, config))
 {
-	reset(time);
+	reset(*static_cast<EmuTime*>(0));
 }
 
 RomNational::~RomNational()

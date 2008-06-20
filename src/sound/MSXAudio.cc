@@ -83,7 +83,7 @@ MSXAudio::MSXAudio(MSXMotherBoard& motherBoard, const XMLElement& config,
 		periphery.reset(new MusicModulePeriphery(*this));
 		dac.reset(new DACSound8U(motherBoard.getMSXMixer(),
 		               getName() + " 8-bit DAC", "MSX-AUDIO 8-bit DAC",
-		               config, time));
+		               config));
 	} else if (type == "panasonic") {
 		periphery.reset(new PanasonicAudioPeriphery(*this, config));
 	} else if (type == "toshiba") {

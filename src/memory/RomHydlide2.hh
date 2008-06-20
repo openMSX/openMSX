@@ -13,7 +13,7 @@ class RomHydlide2 : public RomAscii16kB
 {
 public:
 	RomHydlide2(MSXMotherBoard& motherBoard, const XMLElement& config,
-	            const EmuTime& time, std::auto_ptr<Rom> rom);
+	            std::auto_ptr<Rom> rom);
 	virtual ~RomHydlide2();
 
 	virtual void reset(const EmuTime& time);

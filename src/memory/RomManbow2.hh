@@ -17,7 +17,7 @@ class RomManbow2 : public MSXRom
 {
 public:
 	RomManbow2(MSXMotherBoard& motherBoard, const XMLElement& config,
-	           const EmuTime& time, std::auto_ptr<Rom> rom, RomType type);
+	           std::auto_ptr<Rom> rom, RomType type);
 	virtual ~RomManbow2();
 
 	virtual void reset(const EmuTime& time);

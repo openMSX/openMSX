@@ -13,7 +13,7 @@ class RomKonami5 : public Rom8kBBlocks
 {
 public:
 	RomKonami5(MSXMotherBoard& motherBoard, const XMLElement& config,
-	           const EmuTime& time, std::auto_ptr<Rom> rom);
+	           std::auto_ptr<Rom> rom);
 	virtual ~RomKonami5();
 
 	virtual void reset(const EmuTime& time);

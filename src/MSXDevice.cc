@@ -146,6 +146,11 @@ const MSXDevice::Devices& MSXDevice::getReferences() const
 	return references;
 }
 
+const EmuTime& MSXDevice::getCurrentTime() const
+{
+	return getMotherBoard().getCurrentTime();
+}
+
 void MSXDevice::registerSlots()
 {
 	MemRegions tmpMemRegions;

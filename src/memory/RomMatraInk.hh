@@ -15,7 +15,7 @@ class RomMatraInk : public MSXRom
 {
 public:
 	RomMatraInk(MSXMotherBoard& motherBoard, const XMLElement& config,
-	                  const EmuTime& time, std::auto_ptr<Rom> rom);
+	            std::auto_ptr<Rom> rom);
 	virtual ~RomMatraInk();
 
 	virtual void reset(const EmuTime& time);

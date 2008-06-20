@@ -13,7 +13,7 @@ class RomKonamiKeyboardMaster : public Rom16kBBlocks
 {
 public:
 	RomKonamiKeyboardMaster(MSXMotherBoard& motherBoard, const XMLElement& config,
-	               const EmuTime& time, std::auto_ptr<Rom> rom);
+	                        std::auto_ptr<Rom> rom);
 	virtual ~RomKonamiKeyboardMaster();
 
 	virtual void reset(const EmuTime& time);

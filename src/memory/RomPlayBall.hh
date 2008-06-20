@@ -14,7 +14,7 @@ class RomPlayBall : public Rom16kBBlocks
 {
 public:
 	RomPlayBall(MSXMotherBoard& motherBoard, const XMLElement& config,
-	            const EmuTime& time, std::auto_ptr<Rom> rom);
+	            std::auto_ptr<Rom> rom);
 	virtual ~RomPlayBall();
 
 	virtual void reset(const EmuTime& time);

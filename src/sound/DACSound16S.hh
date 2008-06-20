@@ -16,8 +16,7 @@ class DACSound16S : public SoundDevice
 {
 public:
 	DACSound16S(MSXMixer& mixer, const std::string& name,
-	            const std::string& desc, const XMLElement& config,
-	            const EmuTime& time);
+	            const std::string& desc, const XMLElement& config);
 	virtual ~DACSound16S();
 
 	void reset(const EmuTime& time);

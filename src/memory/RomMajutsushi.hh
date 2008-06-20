@@ -13,7 +13,7 @@ class RomMajutsushi : public RomKonami4
 {
 public:
 	RomMajutsushi(MSXMotherBoard& motherBoard, const XMLElement& config,
-	              const EmuTime& time, std::auto_ptr<Rom> rom);
+	              std::auto_ptr<Rom> rom);
 	virtual ~RomMajutsushi();
 
 	virtual void reset(const EmuTime& time);

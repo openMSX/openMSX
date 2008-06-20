@@ -16,13 +16,12 @@ static unsigned getWriteProtected(RomType type)
 }
 
 RomManbow2::RomManbow2(MSXMotherBoard& motherBoard, const XMLElement& config,
-                       const EmuTime& time, std::auto_ptr<Rom> rom_,
-                       RomType type)
+                       std::auto_ptr<Rom> rom_, RomType type)
 	: MSXRom(motherBoard, config, rom_)
-	, scc(new SCC(motherBoard, "SCC", config, time))
+	, scc(new SCC(motherBoard, "SCC", config, getCurrentTime()))
 	, flash(new AmdFlash(*rom, 16, 512 / 64, getWriteProtected(type), config))
 {
-	reset(time);
+	reset(getCurrentTime());
 }
 
 RomManbow2::~RomManbow2()

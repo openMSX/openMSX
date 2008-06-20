@@ -22,10 +22,10 @@ namespace openmsx {
 
 RomKorean90in1::RomKorean90in1(
 		MSXMotherBoard& motherBoard, const XMLElement& config,
-		const EmuTime& time, std::auto_ptr<Rom> rom)
+		std::auto_ptr<Rom> rom)
 	: Rom8kBBlocks(motherBoard, config, rom)
 {
-	reset(time);
+	reset(*static_cast<EmuTime*>(0));
 	getMotherBoard().getCPUInterface().register_IO_Out(0x77, this);
 }
 
@@ -34,13 +34,13 @@ RomKorean90in1::~RomKorean90in1()
 	getMotherBoard().getCPUInterface().unregister_IO_Out(0x77, this);
 }
 
-void RomKorean90in1::reset(const EmuTime& time)
+void RomKorean90in1::reset(const EmuTime& dummy)
 {
 	setBank(0, unmappedRead);
 	setBank(1, unmappedRead);
 	setBank(6, unmappedRead);
 	setBank(7, unmappedRead);
-	writeIO(0x77, 0, time);
+	writeIO(0x77, 0, dummy);
 }
 
 void RomKorean90in1::writeIO(word /*port*/, byte value, const EmuTime& /*time*/)

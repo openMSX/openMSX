@@ -16,7 +16,7 @@ class RomFSA1FM1 : public MSXRom
 {
 public:
 	RomFSA1FM1(MSXMotherBoard& motherBoard, const XMLElement& config,
-	           const EmuTime& time, std::auto_ptr<Rom> rom);
+	           std::auto_ptr<Rom> rom);
 	virtual ~RomFSA1FM1();
 
 	virtual void reset(const EmuTime& time);
@@ -36,7 +36,7 @@ class RomFSA1FM2 : public Rom8kBBlocks
 {
 public:
 	RomFSA1FM2(MSXMotherBoard& motherBoard, const XMLElement& config,
-	           const EmuTime& time, std::auto_ptr<Rom> rom);
+	           std::auto_ptr<Rom> rom);
 	virtual ~RomFSA1FM2();
 
 	virtual void reset(const EmuTime& time);

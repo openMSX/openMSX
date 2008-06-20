@@ -16,7 +16,7 @@ class DACSound8U;
 class KeyClick : private noncopyable
 {
 public:
-	KeyClick(MSXMixer& mixer, const XMLElement& config, const EmuTime& time);
+	KeyClick(MSXMixer& mixer, const XMLElement& config);
 	~KeyClick();
 
 	void reset(const EmuTime& time);

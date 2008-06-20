@@ -20,21 +20,21 @@
 namespace openmsx {
 
 RomHydlide2::RomHydlide2(MSXMotherBoard& motherBoard, const XMLElement& config,
-                         const EmuTime& time, std::auto_ptr<Rom> rom)
-	: RomAscii16kB(motherBoard, config, time, rom)
+                         std::auto_ptr<Rom> rom)
+	: RomAscii16kB(motherBoard, config, rom)
 	, sram(new SRAM(motherBoard, getName() + " SRAM", 0x0800, config))
 {
-	reset(time);
+	reset(*static_cast<EmuTime*>(0));
 }
 
 RomHydlide2::~RomHydlide2()
 {
 }
 
-void RomHydlide2::reset(const EmuTime& time)
+void RomHydlide2::reset(const EmuTime& dummy)
 {
 	sramEnabled = 0;
-	RomAscii16kB::reset(time);
+	RomAscii16kB::reset(dummy);
 }
 
 byte RomHydlide2::readMem(word address, const EmuTime& time)

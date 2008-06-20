@@ -16,7 +16,7 @@ const int RAM_BASE  = 0x180;
 
 RomPanasonic::RomPanasonic(
 		MSXMotherBoard& motherBoard, const XMLElement& config,
-		const EmuTime& time, std::auto_ptr<Rom> rom_)
+		std::auto_ptr<Rom> rom_)
 	: Rom8kBBlocks(motherBoard, config, rom_)
 {
 	unsigned sramSize = config.getChildDataAsInt("sramsize", 0);
@@ -31,7 +31,7 @@ RomPanasonic::RomPanasonic(
 		maxSRAMBank = SRAM_BASE + (sramSize / 8);
 	}
 
-	reset(time);
+	reset(*static_cast<EmuTime*>(0));
 }
 
 RomPanasonic::~RomPanasonic()

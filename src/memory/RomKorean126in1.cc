@@ -15,10 +15,10 @@ namespace openmsx {
 
 RomKorean126in1::RomKorean126in1(
 		MSXMotherBoard& motherBoard, const XMLElement& config,
-		const EmuTime& time, std::auto_ptr<Rom> rom)
+		std::auto_ptr<Rom> rom)
 	: Rom16kBBlocks(motherBoard, config, rom)
 {
-	reset(time);
+	reset(*static_cast<EmuTime*>(0));
 }
 
 void RomKorean126in1::reset(const EmuTime& /*time*/)

@@ -39,7 +39,7 @@ MSXPPI::MSXPPI(MSXMotherBoard& motherBoard, const XMLElement& config,
 	                            keyGhosting, keyGhostingSGCprotected,
 	                            codeKanaLocks, graphLocks));
 	i8255.reset(new I8255(*this, time, motherBoard.getMSXCliComm()));
-	click.reset(new KeyClick(motherBoard.getMSXMixer(), config, time));
+	click.reset(new KeyClick(motherBoard.getMSXMixer(), config));
 
 	reset(time);
 }

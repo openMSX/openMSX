@@ -14,7 +14,7 @@
 namespace openmsx {
 
 RomPlayBall::RomPlayBall(MSXMotherBoard& motherBoard, const XMLElement& config,
-                         const EmuTime& time, std::auto_ptr<Rom> rom)
+                         std::auto_ptr<Rom> rom)
 	: Rom16kBBlocks(motherBoard, config, rom)
 {
 	setBank(0, unmappedRead);
@@ -43,7 +43,7 @@ RomPlayBall::RomPlayBall(MSXMotherBoard& motherBoard, const XMLElement& config,
 		}
 	}
 
-	reset(time);
+	reset(*static_cast<EmuTime*>(0));
 }
 
 RomPlayBall::~RomPlayBall()

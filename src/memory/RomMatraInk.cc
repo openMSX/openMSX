@@ -8,11 +8,11 @@ namespace openmsx {
 
 RomMatraInk::RomMatraInk(
 		MSXMotherBoard& motherBoard, const XMLElement& config,
-		const EmuTime& time, std::auto_ptr<Rom> rom_)
+		std::auto_ptr<Rom> rom_)
 	: MSXRom(motherBoard, config, rom_)
 	, flash(new AmdFlash(*rom, 16, 2, 0)) // don't load/save
 {
-	reset(time);
+	reset(*static_cast<EmuTime*>(0));
 }
 
 RomMatraInk::~RomMatraInk()

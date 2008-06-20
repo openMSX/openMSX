@@ -11,7 +11,7 @@ namespace openmsx {
 
 RomKonamiKeyboardMaster::RomKonamiKeyboardMaster(
 		MSXMotherBoard& motherBoard, const XMLElement& config,
-		const EmuTime& time, std::auto_ptr<Rom> rom)
+		std::auto_ptr<Rom> rom)
 	: Rom16kBBlocks(motherBoard, config, rom)
 	, vlm5030(new VLM5030(motherBoard, "VLM5030",
 	                      "Konami Keyboard Master's VLM5030", config))
@@ -21,7 +21,7 @@ RomKonamiKeyboardMaster::RomKonamiKeyboardMaster(
 	setBank(2, unmappedRead);
 	setBank(3, unmappedRead);
 
-	reset(time);
+	reset(*static_cast<EmuTime*>(0));
 
 	getMotherBoard().getCPUInterface().register_IO_Out(0x00, this);
 	getMotherBoard().getCPUInterface().register_IO_Out(0x20, this);

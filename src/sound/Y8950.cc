@@ -696,7 +696,7 @@ Y8950Impl::Y8950Impl(Y8950& self, MSXMotherBoard& motherBoard,
 	, adpcm(new Y8950Adpcm(self, motherBoard, name, sampleRam))
 	, connector(new Y8950KeyboardConnector(motherBoard.getPluggingController()))
 	, dac13(new DACSound16S(motherBoard.getMSXMixer(), name + " DAC",
-	                        "MSX-AUDIO 13-bit DAC", config, time))
+	                        "MSX-AUDIO 13-bit DAC", config))
 	, debuggable(new Y8950Debuggable(motherBoard, *this))
 	, enabled(true)
 {

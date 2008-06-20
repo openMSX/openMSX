@@ -190,6 +190,10 @@ public:
 	 */
 	const Devices& getReferences() const;
 
+	/** Get the current emulation time.
+	 */
+	const EmuTime& getCurrentTime() const;
+
 protected:
 	/** Every MSXDevice has a config entry; this constructor gets
 	  * some device properties from that config entry.
