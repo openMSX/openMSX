@@ -146,7 +146,7 @@ private:
 	string machineName;
 
 	typedef vector<MSXDevice*> Devices;
-	Devices availableDevices;
+	Devices availableDevices; // no ownership
 
 	typedef map<string, MSXMotherBoard::SharedStuff> SharedStuffMap;
 	SharedStuffMap sharedStuffMap;

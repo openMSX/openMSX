@@ -25,7 +25,8 @@ MSXPPI::MSXPPI(MSXMotherBoard& motherBoard, const XMLElement& config)
 	, prevBits(15)
 {
 	bool keyGhosting = config.getChildDataAsBool("key_ghosting", true);
-	bool keyGhostingSGCprotected = config.getChildDataAsBool("key_ghosting_sgc_protected", true);
+	bool keyGhostingSGCprotected = config.getChildDataAsBool(
+				"key_ghosting_sgc_protected", true);
 	std::string keyboardType = config.getChildData("keyboard_type", "int");
 	bool hasKeypad = config.getChildDataAsBool("has_keypad", true);
 	bool codeKanaLocks = config.getChildDataAsBool("code_kana_locks", false);

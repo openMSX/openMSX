@@ -18,8 +18,8 @@ MSXPSG::MSXPSG(MSXMotherBoard& motherBoard, const XMLElement& config)
 	, cassette(motherBoard.getCassettePort())
 	, renShaTurbo(motherBoard.getRenShaTurbo())
 	, prev(255)
+	, keyLayoutBit(config.getChildData("keyboardlayout", "") == "JIS")
 {
-	keyLayoutBit = config.getChildData("keyboardlayout", "") == "JIS";
 	selectedPort = 0;
 	PluggingController& controller = motherBoard.getPluggingController();
 	ports[0].reset(new JoystickPort(controller, "joyporta"));

@@ -19,7 +19,7 @@ class Ram : private noncopyable
 public:
 	Ram(MSXMotherBoard& motherBoard, const std::string& name,
 	    const std::string& description, unsigned size);
-	virtual ~Ram();
+	~Ram();
 
 	const byte& operator[](unsigned addr) const {
 		assert(addr < size);

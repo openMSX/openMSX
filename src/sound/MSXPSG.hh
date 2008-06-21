@@ -39,7 +39,7 @@ private:
 	int registerLatch;
 	int selectedPort;
 	byte prev;
-	bool keyLayoutBit;
+	const bool keyLayoutBit;
 };
 
 } // namespace openmsx

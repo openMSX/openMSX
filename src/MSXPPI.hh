@@ -41,7 +41,6 @@ class Keyboard;
 
 class MSXPPI: public MSXDevice, public I8255Interface
 {
-// MSXDevice
 public:
 	MSXPPI(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~MSXPPI();
@@ -53,10 +52,7 @@ public:
 	virtual void writeIO(word port, byte value, const EmuTime& time);
 
 private:
-	std::auto_ptr<I8255> i8255;
-
-// I8255Interface
-public:
+	// I8255Interface
 	virtual byte readA(const EmuTime& time);
 	virtual byte readB(const EmuTime& time);
 	virtual nibble readC0(const EmuTime& time);
@@ -71,6 +67,7 @@ public:
 	virtual void writeC1(nibble value, const EmuTime& time);
 
 private:
+	std::auto_ptr<I8255> i8255;
 	CassettePortInterface& cassettePort;
 	RenShaTurbo& renshaTurbo;
 	std::auto_ptr<KeyClick> click;
