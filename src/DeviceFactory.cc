@@ -72,8 +72,6 @@ std::auto_ptr<MSXDevice> DeviceFactory::create(
 		result.reset(new MSXE6Timer(motherBoard, conf));
 	} else if (type == "F4Device") {
 		result.reset(new MSXF4Device(motherBoard, conf));
-	} else if (type == "TurboRLeds") {
-		// deprecated, remove in next version
 	} else if (type == "TurboRPause") {
 		result.reset(new MSXTurboRPause(motherBoard, conf));
 	} else if (type == "TurboRPCM") {
