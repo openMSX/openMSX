@@ -129,8 +129,7 @@ class Y8950Impl : private SoundDevice, private EmuTimerCallback, private Resampl
 public:
 	Y8950Impl(Y8950& self, MSXMotherBoard& motherBoard,
 	          const std::string& name, const XMLElement& config,
-	          unsigned sampleRam, const EmuTime& time,
-	          Y8950Periphery& perihery);
+	          unsigned sampleRam, Y8950Periphery& perihery);
 	void init(const XMLElement& config, const EmuTime& time);
 	virtual ~Y8950Impl();
 
@@ -685,8 +684,7 @@ void Y8950Channel::keyOff()
 
 Y8950Impl::Y8950Impl(Y8950& self, MSXMotherBoard& motherBoard,
                      const std::string& name, const XMLElement& config,
-                     unsigned sampleRam, const EmuTime& time,
-                     Y8950Periphery& perihery_)
+                     unsigned sampleRam, Y8950Periphery& perihery_)
 	: SoundDevice(motherBoard.getMSXMixer(), name, "MSX-AUDIO", 12)
 	, Resample(motherBoard.getGlobalSettings(), 1)
 	, irq(motherBoard.getCPU())
@@ -1469,7 +1467,7 @@ Y8950::Y8950(MSXMotherBoard& motherBoard, const std::string& name,
              const XMLElement& config, unsigned sampleRam, const EmuTime& time,
              Y8950Periphery& perihery)
 	: pimple(new Y8950Impl(*this, motherBoard, name, config, sampleRam,
-	                       time, perihery))
+	                       perihery))
 {
 	pimple->init(config, time);
 }
