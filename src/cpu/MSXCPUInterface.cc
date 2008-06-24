@@ -7,6 +7,7 @@
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "MSXMotherBoard.hh"
+#include "HardwareConfig.hh"
 #include "MSXCPU.hh"
 #include "XMLElement.hh"
 #include "VDPIODelay.hh"
@@ -127,17 +128,6 @@ static const byte SECUNDARY_SLOT_BIT = 0x01;
 static const byte MEMORY_WATCH_BIT   = 0x02;
 static const byte GLOBAL_WRITE_BIT   = 0x04;
 
-auto_ptr<MSXCPUInterface> MSXCPUInterface::create(
-		MSXMotherBoard& motherBoard, const XMLElement& machineConfig)
-{
-	if (machineConfig.getChild("devices").findChild("S1990")) {
-		return auto_ptr<MSXCPUInterface>(
-			new TurborCPUInterface(motherBoard));
-	} else {
-		return auto_ptr<MSXCPUInterface>(
-			new MSXCPUInterface(motherBoard));
-	}
-}
 
 MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 	: memoryDebug       (new MemoryDebug       (*this, motherBoard_))
@@ -185,11 +175,34 @@ MSXCPUInterface::MSXCPUInterface(MSXMotherBoard& motherBoard_)
 	// Note: SlotState is initialised at reset
 
 	msxcpu.setInterface(this);
+
+	const HardwareConfig* config = motherBoard.getMachineConfig();
+	assert(config);
+	if (config->getConfig().getChild("devices").findChild("S1990")) {
+		// TODO also MSX2+ needs (slightly different) VDPIODelay
+		delayDevice = DeviceFactory::createVDPIODelay(motherBoard);
+		for (int port = 0x98; port <= 0x9B; ++port) {
+			assert(IO_In [port] == &dummyDevice);
+			assert(IO_Out[port] == &dummyDevice);
+			IO_In [port] = delayDevice.get();
+			IO_Out[port] = delayDevice.get();
+		}
+	}
 }
 
 MSXCPUInterface::~MSXCPUInterface()
 {
 	removeAllWatchPoints();
+
+	if (delayDevice.get()) {
+		for (int port = 0x98; port <= 0x9B; ++port) {
+			assert(IO_In [port] == delayDevice.get());
+			assert(IO_Out[port] == delayDevice.get());
+			IO_In [port] = &dummyDevice;
+			IO_Out[port] = &dummyDevice;
+		}
+	}
+
 	msxcpu.setInterface(NULL);
 
 	#ifndef NDEBUG
@@ -956,33 +969,6 @@ void IOInfo::execute(const vector<TclObject*>& tokens,
 string IOInfo::help(const vector<string>& /*tokens*/) const
 {
 	return "Return the name of the device connected to the given IO port.";
-}
-
-
-// class TurborCPUInterface
-
-TurborCPUInterface::TurborCPUInterface(MSXMotherBoard& motherBoard)
-	: MSXCPUInterface(motherBoard)
-{
-	delayDevice = DeviceFactory::createVDPIODelay(motherBoard);
-
-	for (int port = 0x98; port <= 0x9B; ++port) {
-		assert(IO_In [port] == &dummyDevice);
-		assert(IO_Out[port] == &dummyDevice);
-		IO_In [port] = delayDevice.get();
-		IO_Out[port] = delayDevice.get();
-	}
-}
-
-TurborCPUInterface::~TurborCPUInterface()
-{
-	removeAllWatchPoints();
-	for (int port = 0x98; port <= 0x9B; ++port) {
-		assert(IO_In [port] == delayDevice.get());
-		assert(IO_Out[port] == delayDevice.get());
-		IO_In [port] = &dummyDevice;
-		IO_Out[port] = &dummyDevice;
-	}
 }
 
 } // namespace openmsx

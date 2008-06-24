@@ -574,8 +574,7 @@ MSXCPUInterface& MSXMotherBoardImpl::getCPUInterface()
 {
 	if (!msxCpuInterface.get()) {
 		assert(getMachineConfig());
-		msxCpuInterface = MSXCPUInterface::create(
-			self, getMachineConfig()->getConfig());
+		msxCpuInterface.reset(new MSXCPUInterface(self));
 	}
 	return *msxCpuInterface;
 }

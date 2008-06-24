@@ -16,7 +16,6 @@ namespace openmsx {
 
 class VDPIODelay;
 class DummyDevice;
-class XMLElement;
 class MSXMotherBoard;
 class MSXCPU;
 class CliComm;
@@ -31,27 +30,24 @@ class IOInfo;
 class MSXCPUInterface : private noncopyable
 {
 public:
-	/** Factory method for MSXCPUInterface. Depending om the machine
-	  * this method returns a MSXCPUInterface or a TurborCPUInterface
-	  */
-	static std::auto_ptr<MSXCPUInterface> create(
-		MSXMotherBoard& motherBoard, const XMLElement& machineConfig);
+	explicit MSXCPUInterface(MSXMotherBoard& motherBoard);
+	~MSXCPUInterface();
 
 	/**
 	 * Devices can register their In ports. This is normally done
 	 * in their constructor. Once device are registered, their
 	 * readIO() method can get called.
 	 */
-	virtual void register_IO_In(byte port, MSXDevice* device);
-	virtual void unregister_IO_In(byte port, MSXDevice* device);
+	void register_IO_In(byte port, MSXDevice* device);
+	void unregister_IO_In(byte port, MSXDevice* device);
 
 	/**
 	 * Devices can register their Out ports. This is normally done
 	 * in their constructor. Once device are registered, their
 	 * writeIO() method can get called.
 	 */
-	virtual void register_IO_Out(byte port, MSXDevice* device);
-	virtual void unregister_IO_Out(byte port, MSXDevice* device);
+	void register_IO_Out(byte port, MSXDevice* device);
+	void unregister_IO_Out(byte port, MSXDevice* device);
 
 	/**
 	 * Devices can register themself in the MSX slotstructure.
@@ -180,21 +176,15 @@ public:
 	typedef std::vector<WatchPoint*> WatchPoints;
 	const WatchPoints& getWatchPoints() const;
 
-protected:
-	explicit MSXCPUInterface(MSXMotherBoard& motherBoard);
-	virtual ~MSXCPUInterface();
-	friend class std::auto_ptr<MSXCPUInterface>;
-
-	void register_IO  (int port, bool isIn,
-	                   MSXDevice*& devicePtr, MSXDevice* device);
-	void unregister_IO(MSXDevice*& devicePtr, MSXDevice* device);
-
 private:
 	byte readMemSlow(word address, const EmuTime& time);
 	void writeMemSlow(word address, byte value, const EmuTime& time);
 
 	MSXDevice*& getDevicePtr(byte port, bool isIn);
 
+	void register_IO  (int port, bool isIn,
+	                   MSXDevice*& devicePtr, MSXDevice* device);
+	void unregister_IO(MSXDevice*& devicePtr, MSXDevice* device);
 	void registerSlot(MSXDevice& device,
 	                  int ps, int ss, int base, int size);
 	void unregisterSlot(MSXDevice& device,
@@ -260,14 +250,6 @@ private:
 	byte primarySlotState[4];
 	byte secondarySlotState[4];
 	unsigned expanded[4];
-};
-
-class TurborCPUInterface : public MSXCPUInterface
-{
-private:
-	explicit TurborCPUInterface(MSXMotherBoard& motherBoard);
-	virtual ~TurborCPUInterface();
-	friend class MSXCPUInterface;
 };
 
 } // namespace openmsx
