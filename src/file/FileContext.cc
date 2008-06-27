@@ -85,12 +85,6 @@ const vector<string>& FileContext::getPaths() const
 	return paths;
 }
 
-FileContext::FileContext(const FileContext& rhs)
-	: paths(rhs.paths), savePaths(rhs.savePaths)
-{
-}
-
-
 // class ConfigFileContext
 
 ConfigFileContext::ConfigFileContext(const string& path,
@@ -100,16 +94,6 @@ ConfigFileContext::ConfigFileContext(const string& path,
 	paths.push_back(path);
 	savePaths.push_back(FileOperations::getUserOpenMSXDir() +
 	                    "/persistent/" + hwDescr + '/' + userName + '/');
-}
-
-ConfigFileContext* ConfigFileContext::clone() const
-{
-	return new ConfigFileContext(*this);
-}
-
-ConfigFileContext::ConfigFileContext(const ConfigFileContext& rhs)
-	: FileContext(rhs)
-{
 }
 
 
@@ -131,16 +115,6 @@ SystemFileContext::SystemFileContext(bool preferSystemDir)
 	savePaths.push_back(userDir);
 }
 
-SystemFileContext* SystemFileContext::clone() const
-{
-	return new SystemFileContext(*this);
-}
-
-SystemFileContext::SystemFileContext(const SystemFileContext& rhs)
-	: FileContext(rhs)
-{
-}
-
 
 // class SettingFileContext
 
@@ -160,16 +134,6 @@ SettingFileContext::SettingFileContext(const string& url)
 	}
 
 	savePaths = paths;
-}
-
-SettingFileContext* SettingFileContext::clone() const
-{
-	return new SettingFileContext(*this);
-}
-
-SettingFileContext::SettingFileContext(const SettingFileContext& rhs)
-	: FileContext(rhs)
-{
 }
 
 
@@ -209,16 +173,6 @@ UserFileContext::UserFileContext(CommandController& commandController,
 	} else {
 		savePaths = paths;
 	}
-}
-
-UserFileContext* UserFileContext::clone() const
-{
-	return new UserFileContext(*this);
-}
-
-UserFileContext::UserFileContext(const UserFileContext& rhs)
-	: FileContext(rhs)
-{
 }
 
 } // namespace openmsx
