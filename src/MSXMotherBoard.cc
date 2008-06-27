@@ -764,6 +764,7 @@ byte MSXMotherBoardImpl::readIRQVector()
 void MSXMotherBoardImpl::powerUp()
 {
 	if (powered) return;
+	if (!getMachineConfig()) return;
 
 	powered = true;
 	// TODO: If our "powered" field is always equal to the power setting,
