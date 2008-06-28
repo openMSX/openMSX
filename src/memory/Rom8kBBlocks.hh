@@ -13,6 +13,9 @@ public:
 	virtual byte readMem(word address, const EmuTime& time);
 	virtual const byte* getReadCacheLine(word start) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 protected:
 	Rom8kBBlocks(MSXMotherBoard& motherBoard, const XMLElement& config,
 	             std::auto_ptr<Rom> rom);

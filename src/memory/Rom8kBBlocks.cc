@@ -53,4 +53,32 @@ void Rom8kBBlocks::setRom(byte region, int block)
 	}
 }
 
+
+template<typename Archive>
+void Rom8kBBlocks::serialize(Archive& ar, unsigned /*version*/)
+{
+	// skip MSXRom base class
+	ar.template serializeBase<MSXDevice>(*this);
+
+	int offsets[8];
+	if (ar.isLoader()) {
+		ar.serialize("banks", offsets);
+		for (int i = 0; i < 8; ++i) {
+			// TODO SRAM
+			bank[i] = (offsets[i] == -1)
+			        ? unmappedRead
+			        : &(*rom)[offsets[i]];
+		}
+	} else {
+		for (int i = 0; i < 8; ++i) {
+			// TODO SRAM
+			offsets[i] = (bank[i] == unmappedRead)
+			           ? -1
+			           : (bank[i] - &(*rom)[0]);
+		}
+		ar.serialize("banks", offsets);
+	}
+}
+INSTANTIATE_SERIALIZE_METHODS(Rom8kBBlocks);
+
 } // namespace openmsx

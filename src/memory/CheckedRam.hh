@@ -53,6 +53,10 @@ public:
 	 */
 	Ram& getUncheckedRam() const;
 
+	// TODO
+	//template<typename Archive>
+	//void serialize(Archive& ar, unsigned version);
+
 private:
 	void init();
 	void callUMRCallBack(unsigned addr);

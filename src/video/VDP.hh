@@ -823,6 +823,8 @@ private:
 	bool warningPrinted;
 };
 
+REGISTER_MSXDEVICE(VDP, "VDP");
+
 } // namespace openmsx
 
 #endif

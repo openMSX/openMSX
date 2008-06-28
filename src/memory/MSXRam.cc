@@ -6,6 +6,8 @@
 #include "XMLElement.hh"
 #include "MSXException.hh"
 
+#include "Ram.hh" //
+
 namespace openmsx {
 
 MSXRam::MSXRam(MSXMotherBoard& motherBoard, const XMLElement& config)
@@ -60,5 +62,15 @@ byte* MSXRam::getWriteCacheLine(word start) const
 {
 	return checkedRam->getWriteCacheLine(translate(start));
 }
+
+
+template<typename Archive>
+void MSXRam::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+	// TODO ar.serialize("checkedRam", checkedRam);
+	ar.serialize("ram", checkedRam->getUncheckedRam());
+}
+INSTANTIATE_SERIALIZE_METHODS(MSXRam);
 
 } // namespace openmsx

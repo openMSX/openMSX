@@ -22,12 +22,18 @@ public:
 	virtual byte* getWriteCacheLine(word start) const;
 	virtual byte peekMem(word address, const EmuTime& time) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	inline word translate(word address) const;
+
 	unsigned base;
 	unsigned size;
 	std::auto_ptr<CheckedRam> checkedRam;
 };
+
+REGISTER_MSXDEVICE(MSXRam, "Ram");
 
 } // namespace openmsx
 

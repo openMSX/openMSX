@@ -190,4 +190,28 @@ void MSXPPI::writeC0(nibble value, const EmuTime& /*time*/)
 	selectedRow = value;
 }
 
+
+template<typename Archive>
+void MSXPPI::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+	// i8255;
+	// cassettePort;
+	// renshaTurbo;
+	// click;
+	// keyboard;
+
+	// merge prevBits and selectedRow into one byte
+	byte portC = (prevBits << 4) | (selectedRow << 0);
+	ar.serialize("portC", portC);
+	if (ar.isLoader()) {
+		selectedRow = (portC >> 0) & 0xF;
+
+		nibble bits = (portC >> 4) & 0xF;
+		prevBits = ~bits; // force update
+		writeC1(bits, getCurrentTime());
+	}
+}
+INSTANTIATE_SERIALIZE_METHODS(MSXPPI);
+
 } // namespace openmsx

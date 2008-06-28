@@ -301,6 +301,14 @@ template<typename T> struct MSXDeviceCreator
 	}
 };
 
+#define REGISTER_MSXDEVICE(CLASS, NAME) \
+REGISTER_POLYMORPHIC_CLASS_2(MSXDevice, CLASS, NAME, \
+                             reference_wrapper<MSXMotherBoard>, \
+                             reference_wrapper<HardwareConfig>); \
+template<> struct Creator<CLASS> : MSXDeviceCreator<CLASS> {}; \
+template<> struct SerializeConstructorArgs<CLASS> \
+	: SerializeConstructorArgs<MSXDevice> {};
+
 } // namespace openmsx
 
 #endif

@@ -51,6 +51,9 @@ public:
 	virtual byte peekIO(word port, const EmuTime& time) const;
 	virtual void writeIO(word port, byte value, const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	// I8255Interface
 	virtual byte readA(const EmuTime& time);
@@ -66,7 +69,6 @@ private:
 	virtual void writeC0(nibble value, const EmuTime& time);
 	virtual void writeC1(nibble value, const EmuTime& time);
 
-private:
 	std::auto_ptr<I8255> i8255;
 	CassettePortInterface& cassettePort;
 	RenShaTurbo& renshaTurbo;
@@ -75,6 +77,8 @@ private:
 	nibble prevBits;
 	nibble selectedRow;
 };
+
+REGISTER_MSXDEVICE(MSXPPI, "PPI");
 
 } // namespace openmsx
 

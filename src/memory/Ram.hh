@@ -33,6 +33,9 @@ public:
 	const std::string& getName() const;
 	void clear();
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	byte* ram;
 	unsigned size; // must come before debuggable

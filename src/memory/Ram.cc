@@ -2,6 +2,7 @@
 
 #include "Ram.hh"
 #include "SimpleDebuggable.hh"
+#include "serialize.hh"
 #include <cstring>
 
 namespace openmsx {
@@ -61,5 +62,13 @@ void RamDebuggable::write(unsigned address, byte value)
 	assert(address < getSize());
 	ram[address] = value;
 }
+
+
+template<typename Archive>
+void Ram::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize_blob("ram", ram, size);
+}
+INSTANTIATE_SERIALIZE_METHODS(Ram);
 
 } // namespace openmsx

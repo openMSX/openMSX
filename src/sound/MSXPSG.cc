@@ -95,4 +95,26 @@ void MSXPSG::writeB(byte value, const EmuTime& time)
 	prev = value;
 }
 
+
+template<typename Archive>
+void MSXPSG::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+
+	// ay8910;
+	// ports[2];
+	// cassette;
+	// renShaTurbo;
+
+	ar.serialize("registerLatch", registerLatch);
+	ar.serialize("portB", prev);
+	if (ar.isLoader()) {
+		byte portB = prev;
+		prev = ~portB; // force update
+		writeB(portB, getCurrentTime());
+	}
+	// selectedPort is derived from portB
+}
+INSTANTIATE_SERIALIZE_METHODS(MSXPSG);
+
 } // namespace openmsx

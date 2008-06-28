@@ -26,6 +26,9 @@ public:
 	virtual byte peekIO(word port, const EmuTime& time) const;
 	virtual void writeIO(word port, byte value, const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	// AY8910Periphery: port A input, port B output
 	virtual byte readA(const EmuTime& time);
@@ -41,6 +44,8 @@ private:
 	byte prev;
 	const bool keyLayoutBit;
 };
+
+REGISTER_MSXDEVICE(MSXPSG, "PSG");
 
 } // namespace openmsx
 
