@@ -345,6 +345,10 @@ public:
 		return frameStartTime.getTicksTill_fast(time);
 	}
 
+	inline const EmuTime& getFrameStartTime() const {
+		return frameStartTime.getTime();
+	}
+
 	/** Get VRAM access timing info.
 	  * This is the internal format used by the command engine.
 	  * TODO: When improving the timing accuracy, think of a clearer

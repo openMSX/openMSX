@@ -89,6 +89,9 @@ public:
 	  */
 	inline void updateDisplayMode(DisplayMode mode, const EmuTime& time) {
 		sync(time);
+		setDisplayMode(mode, time);
+	}
+	inline void setDisplayMode(DisplayMode mode, const EmuTime& time) {
 		switch (mode.getSpriteMode()) {
 		case 0:
 			updateSpritesMethod = &SpriteChecker::updateSprites0;
@@ -274,6 +277,9 @@ public:
 		enabled = enabled; // avoid warning
 		sync(time);
 	}
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	/** Do not calculate sprite patterns, because this mode is spriteless.

@@ -9,6 +9,7 @@ TODO:
 #include "SpriteChecker.hh"
 #include "RenderSettings.hh"
 #include "BooleanSetting.hh"
+#include "serialize.hh"
 #include <algorithm>
 #include <cassert>
 
@@ -404,6 +405,23 @@ void SpriteChecker::updateSprites0(int /*limit*/)
 	// documented as not allowed to be called in sprite mode 0.
 	assert(false);
 }
+
+template<typename Archive>
+void SpriteChecker::serialize(Archive& ar, unsigned version)
+{
+	if (ar.isLoader()) {
+		// Recalculate from VDP state:
+		//   frameStartTime, updateSpritesMethod,
+		//   currentLine, mode0, planar
+		// Invalidate data in spriteBuffer and spriteCount, will
+		// be recalculated when needed.
+		frameStart(vdp.getFrameStartTime());
+		setDisplayMode(vdp.getDisplayMode(), frameStartTime.getTime());
+	}
+	ar.serialize("collisionX", collisionX);
+	ar.serialize("collisionY", collisionY);
+}
+INSTANTIATE_SERIALIZE_METHODS(SpriteChecker);
 
 } // namespace openmsx
 

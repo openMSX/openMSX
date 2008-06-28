@@ -1182,7 +1182,6 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 	//auto_ptr<CartridgeSlotManager> slotManager;
 	//auto_ptr<EventDelay> eventDelay;
 	//auto_ptr<EventTranslator> eventTranslator;
-	//auto_ptr<RealTime> realTime;
 	//auto_ptr<Debugger> debugger;
 	//auto_ptr<MSXMixer> msxMixer;
 	//auto_ptr<PluggingController> pluggingController;
@@ -1201,6 +1200,10 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 		powered = true;
 		getLedStatus().setLed(LedEvent::POWER, true);
 		getMSXMixer().unmute();
+	}
+
+	if (ar.isLoader()) {
+		getRealTime().resync();
 	}
 }
 

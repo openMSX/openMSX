@@ -1256,7 +1256,6 @@ void VDP::serialize(Archive& ar, unsigned /*version*/)
 	//    bool warningPrinted;
 
 	//std::auto_ptr<VDPCmdEngine> cmdEngine;
-	//std::auto_ptr<SpriteChecker> spriteChecker;
 	ar.serialize("vram", *vram);
 	
 	ar.serialize("irqVertical", irqVertical);
@@ -1290,6 +1289,8 @@ void VDP::serialize(Archive& ar, unsigned /*version*/)
 	byte mode = displayMode.getByte();
 	ar.serialize("displayMode", mode);
 	displayMode.setByte(mode);
+
+	ar.serialize("spriteChecker", *spriteChecker); // must come after displayMode
 }
 INSTANTIATE_SERIALIZE_METHODS(VDP);
 

@@ -43,6 +43,8 @@ public:
 	  */
 	bool timeLeft(unsigned long long us, const EmuTime& time);
 
+	void resync();
+
 private:
 	/** Synchronize EmuTime with RealTime.
 	  * @param time The current emulation time.
@@ -64,7 +66,6 @@ private:
 	void update(const ThrottleManager& throttleManager);
 
 	void internalSync(const EmuTime& time, bool allowSleep);
-	void resync();
 
 	EventDistributor& eventDistributor;
 	EventDelay& eventDelay;
