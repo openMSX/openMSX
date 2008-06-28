@@ -3100,7 +3100,6 @@ void CPUCore<T>::serialize(Archive& ar, unsigned /*version*/)
 {
 	// TODO CPU base class
 	ar.serialize("regs", R);
-	ar.serialize("IRQStatus", IRQStatus);
 	ar.serialize("memptr", memptr);
 
 	if (ar.isLoader()) {
@@ -3108,6 +3107,7 @@ void CPUCore<T>::serialize(Archive& ar, unsigned /*version*/)
 	}
 
 	// don't serialize
+	//    IRQStatus
 	//    NMIStatus, nmiEdge
 	//    slowInstructions
 	//    exitLoop

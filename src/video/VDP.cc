@@ -1257,9 +1257,9 @@ void VDP::serialize(Archive& ar, unsigned /*version*/)
 	//std::auto_ptr<VDPCmdEngine> cmdEngine;
 	//std::auto_ptr<SpriteChecker> spriteChecker;
 	//std::auto_ptr<VDPVRAM> vram;
-	//IRQHelper irqVertical;
-	//IRQHelper irqHorizontal;
 	
+	ar.serialize("irqVertical", irqVertical);
+	ar.serialize("irqHorizontal", irqHorizontal);
 	ar.serialize("frameStartTime", frameStartTime);
 	ar.serialize("displayStartSyncTime", displayStartSyncTime);
 	ar.serialize("vScanSyncTime", vScanSyncTime);

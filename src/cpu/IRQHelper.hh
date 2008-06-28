@@ -3,6 +3,7 @@
 #ifndef IRQHELPER_HH
 #define IRQHELPER_HH
 
+#include "serialize.hh"
 #include "noncopyable.hh"
 
 namespace openmsx {
@@ -94,6 +95,20 @@ public:
 	  */
 	inline bool getState() const {
 		return request;
+	}
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned /*version*/)
+	{
+		bool pending = request;
+		ar.serialize("pending", pending);
+		if (ar.isLoader()) {
+			if (pending) {
+				set();
+			} else {
+				reset();
+			}
+		}
 	}
 
 private:
