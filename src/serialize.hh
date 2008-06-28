@@ -344,14 +344,18 @@ template<> struct PolymorphicConstructorArgs<C> \
 template<> struct PolymorphicConstructorArgs<C> \
 { typedef Tuple<T1,T2,T3> type; };
 
-#define REGISTER_POLYMORPHIC_CLASS_HELPER(B,C,N) \
+/*#define REGISTER_POLYMORPHIC_CLASS_HELPER(B,C,N) \
 STATIC_ASSERT((is_base_and_derived<B,C>::value)); \
 static RegisterLoaderHelper<TextInputArchive,  C> registerHelper1##C(N); \
 static RegisterSaverHelper <TextOutputArchive, C> registerHelper2##C(N); \
 static RegisterLoaderHelper<XmlInputArchive,   C> registerHelper3##C(N); \
 static RegisterSaverHelper <XmlOutputArchive,  C> registerHelper4##C(N); \
 static RegisterLoaderHelper<MemInputArchive,   C> registerHelper5##C(N); \
-static RegisterSaverHelper <MemOutputArchive,  C> registerHelper6##C(N); \
+static RegisterSaverHelper <MemOutputArchive,  C> registerHelper6##C(N); \*/
+#define REGISTER_POLYMORPHIC_CLASS_HELPER(B,C,N) \
+STATIC_ASSERT((is_base_and_derived<B,C>::value)); \
+static RegisterLoaderHelper<XmlInputArchive,   C> registerHelper3##C(N); \
+static RegisterSaverHelper <XmlOutputArchive,  C> registerHelper4##C(N); \
 template<> struct PolymorphicBaseClass<C> { typedef B type; };
 
 #define REGISTER_BASE_NAME_HELPER(B,N) \
@@ -1567,7 +1571,7 @@ private:
 };
 
 ////
-
+/*
 class TextOutputArchive : public OutputArchiveBase<TextOutputArchive>
 {
 public:
@@ -1618,9 +1622,9 @@ public:
 private:
 	std::ifstream is;
 };
-
+*/
 ////
-
+/*
 class MemOutputArchive : public OutputArchiveBase<MemOutputArchive>
 {
 public:
@@ -1641,7 +1645,7 @@ public:
 		save(size);
 		put(s.data(), size);
 	}
-	void serialize_blob(const char* /*tag*/, const void* data, unsigned len)
+	void serialize_blob(const char*, const void* data, unsigned len)
 	{
 		put(data, len);
 	}
@@ -1683,7 +1687,7 @@ public:
 			get(&s[0], length);
 		}
 	}
-	void serialize_blob(const char* /*tag*/, void* data, unsigned len)
+	void serialize_blob(const char*, void* data, unsigned len)
 	{
 		get(data, len);
 	}
@@ -1701,7 +1705,7 @@ private:
 	const std::vector<char>& buffer;
 	unsigned pos;
 };
-
+*/
 ////
 
 using namespace openmsx; // ***
@@ -1864,11 +1868,14 @@ private:
 	unsigned pos;
 };
 
-#define INSTANTIATE_SERIALIZE_METHODS(CLASS) \
+/*#define INSTANTIATE_SERIALIZE_METHODS(CLASS) \
 template void CLASS::serialize(TextInputArchive&,  unsigned); \
 template void CLASS::serialize(TextOutputArchive&, unsigned); \
 template void CLASS::serialize(MemInputArchive&,   unsigned); \
 template void CLASS::serialize(MemOutputArchive&,  unsigned); \
+template void CLASS::serialize(XmlInputArchive&,   unsigned); \
+template void CLASS::serialize(XmlOutputArchive&,  unsigned); */
+#define INSTANTIATE_SERIALIZE_METHODS(CLASS) \
 template void CLASS::serialize(XmlInputArchive&,   unsigned); \
 template void CLASS::serialize(XmlOutputArchive&,  unsigned);
 
