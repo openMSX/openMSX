@@ -7,6 +7,7 @@
 #include "Event.hh"
 #include "FinishFrameEvent.hh"
 #include "GlobalSettings.hh"
+#include "MSXMotherBoard.hh"
 #include "IntegerSetting.hh"
 #include "BooleanSetting.hh"
 #include "ThrottleManager.hh"
@@ -19,17 +20,13 @@ const double             SYNC_INTERVAL = 0.08;  // s
 const long long          MAX_LAG       = 200000; // us
 const unsigned long long ALLOWED_LAG   =  20000; // us
 
-RealTime::RealTime(Scheduler& scheduler,
-                   EventDistributor& eventDistributor_,
-                   EventDelay& eventDelay_,
-                   GlobalSettings& globalSettings)
-	: Schedulable(scheduler)
-	, eventDistributor(eventDistributor_)
-	, eventDelay(eventDelay_)
-	, throttleManager(globalSettings.getThrottleManager())
-	, speedSetting   (globalSettings.getSpeedSetting())
-	, pauseSetting   (globalSettings.getPauseSetting())
-	, powerSetting   (globalSettings.getPowerSetting())
+RealTime::RealTime(MSXMotherBoard& motherBoard_)
+	: Schedulable(motherBoard_.getScheduler())
+	, motherBoard(motherBoard_)
+	, throttleManager(motherBoard.getGlobalSettings().getThrottleManager())
+	, speedSetting   (motherBoard.getGlobalSettings().getSpeedSetting())
+	, pauseSetting   (motherBoard.getGlobalSettings().getPauseSetting())
+	, powerSetting   (motherBoard.getGlobalSettings().getPowerSetting())
 	, emuTime(EmuTime::zero)
 {
 	speedSetting.attach(*this);
@@ -37,16 +34,16 @@ RealTime::RealTime(Scheduler& scheduler,
 	pauseSetting.attach(*this);
 	powerSetting.attach(*this);
 
-	setSyncPoint(getCurrentTime());
-
 	resync();
 
+	EventDistributor& eventDistributor = motherBoard.getEventDistributor();
 	eventDistributor.registerEventListener(OPENMSX_FINISH_FRAME_EVENT, *this);
 	eventDistributor.registerEventListener(OPENMSX_FRAME_DRAWN_EVENT,  *this);
 }
 
 RealTime::~RealTime()
 {
+	EventDistributor& eventDistributor = motherBoard.getEventDistributor();
 	eventDistributor.unregisterEventListener(OPENMSX_FRAME_DRAWN_EVENT,  *this);
 	eventDistributor.unregisterEventListener(OPENMSX_FINISH_FRAME_EVENT, *this);
 
@@ -115,7 +112,7 @@ void RealTime::internalSync(const EmuTime& time, bool allowSleep)
 		}
 	}
 	if (allowSleep) {
-		eventDelay.sync(time);
+		motherBoard.getEventDelay().sync(time);
 	}
 
 	emuTime = time;
@@ -135,6 +132,11 @@ const std::string& RealTime::schedName() const
 
 bool RealTime::signalEvent(shared_ptr<const Event> event)
 {
+	if (!motherBoard.isActive()) {
+		// these are global events, only the active machine should
+		// synchronize with real time
+		return true;
+	}
 	if (event->getType() == OPENMSX_FINISH_FRAME_EVENT) {
 		const FinishFrameEvent& ffe =
 			checked_cast<const FinishFrameEvent&>(*event);
@@ -164,7 +166,8 @@ void RealTime::resync()
 	idealRealTime = Timer::getTime();
 	sleepAdjust = 0.0;
 	removeSyncPoint();
-	setSyncPoint(getCurrentTime());
+	emuTime = getCurrentTime();
+	setSyncPoint(emuTime + getEmuDuration(SYNC_INTERVAL));
 }
 
 } // namespace openmsx

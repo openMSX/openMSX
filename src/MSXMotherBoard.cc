@@ -535,9 +535,7 @@ EventTranslator& MSXMotherBoardImpl::getEventTranslator()
 RealTime& MSXMotherBoardImpl::getRealTime()
 {
 	if (!realTime.get()) {
-		realTime.reset(new RealTime(
-			getScheduler(), getEventDistributor(),
-			getEventDelay(), getGlobalSettings()));
+		realTime.reset(new RealTime(self));
 	}
 	return *realTime;
 }
@@ -838,6 +836,9 @@ void MSXMotherBoardImpl::activate(bool active_)
 		? MSXEventDistributor::EventPtr(new SimpleEvent<OPENMSX_MACHINE_ACTIVATED>())
 		: MSXEventDistributor::EventPtr(new SimpleEvent<OPENMSX_MACHINE_DEACTIVATED>());
 	getMSXEventDistributor().distributeEvent(event, getScheduler().getCurrentTime());
+	if (active) {
+		getRealTime().resync();
+	}
 }
 bool MSXMotherBoardImpl::isActive() const
 {
@@ -1204,10 +1205,6 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 		powered = true;
 		getLedStatus().setLed(LedEvent::POWER, true);
 		getMSXMixer().unmute();
-	}
-
-	if (ar.isLoader()) {
-		getRealTime().resync();
 	}
 }
 
