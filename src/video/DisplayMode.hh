@@ -112,6 +112,11 @@ public:
 		return mode;
 	}
 
+	/** Used for de-serialization. */
+	inline void setByte(byte mode_) {
+		mode = mode_;
+	}
+
 	/** Get the base dispay mode as an integer: M5..M1 combined.
 	  * If YJK is active, the base mode is the underlying display mode.
 	  * @return The integer representation of the base of this display mode,

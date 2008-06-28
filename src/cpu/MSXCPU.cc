@@ -381,7 +381,7 @@ void MSXCPU::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("r800", *r800);
 	ar.serializePointerID("activeCPU", activeCPU);
 	ar.serializePointerID("newCPU",    newCPU);
-	//ar.serialize("resetTime", reference);
+	ar.serialize("resetTime", reference);
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXCPU);
 

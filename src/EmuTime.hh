@@ -48,6 +48,9 @@ public:
 	static const EmuTime zero;
 	static const EmuTime infinity;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	explicit EmuTime(uint64 n) : time(n) {}
 

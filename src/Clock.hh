@@ -6,6 +6,7 @@
 #include "EmuDuration.hh"
 #include "EmuTime.hh"
 #include "DivModByConst.hh"
+#include "serialize.hh"
 #include "static_assert.hh"
 #include <cassert>
 
@@ -124,6 +125,12 @@ public:
 		assert((n * MASTER_TICKS) < (1ull << 32));
 		#endif
 		lastTick.time += n * MASTER_TICKS32;
+	}
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned /*version*/)
+	{
+		ar.serialize("lastTick", lastTick);
 	}
 
 private:
