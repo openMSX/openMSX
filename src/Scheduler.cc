@@ -26,25 +26,36 @@ OutputIterator copy_if(InputIterator begin, InputIterator end,
 }
 
 
-bool Scheduler::LessSyncPoint::operator()(
+struct LessSyncPoint {
+	bool operator()(const EmuTime& time,
+	                const SynchronizationPoint& sp) const;
+	bool operator()(const SynchronizationPoint& sp,
+	                const EmuTime& time) const;
+};
+bool LessSyncPoint::operator()(
 	const EmuTime& time, const SynchronizationPoint& sp) const
 {
 	return time < sp.getTime();
 }
 
-bool Scheduler::LessSyncPoint::operator()(
+bool LessSyncPoint::operator()(
 	const SynchronizationPoint& sp, const EmuTime& time) const
 {
 	return sp.getTime() < time;
 }
 
 
-Scheduler::FindSchedulable::FindSchedulable(const Schedulable& schedulable_)
+struct FindSchedulable {
+	explicit FindSchedulable(const Schedulable& schedulable);
+	bool operator()(const SynchronizationPoint& sp) const;
+	const Schedulable& schedulable;
+};
+FindSchedulable::FindSchedulable(const Schedulable& schedulable_)
 	: schedulable(schedulable_)
 {
 }
 
-bool Scheduler::FindSchedulable::operator()(const SynchronizationPoint& sp) const
+bool FindSchedulable::operator()(const SynchronizationPoint& sp) const
 {
 	return sp.getDevice() == &schedulable;
 }
@@ -170,7 +181,7 @@ void Scheduler::scheduleHelper(const EmuTime& limit)
 
 
 template <typename Archive>
-void Scheduler::SynchronizationPoint::serialize(Archive& ar, unsigned /*version*/)
+void SynchronizationPoint::serialize(Archive& ar, unsigned /*version*/)
 {
 	// SynchronizationPoint is always serialized via Schedulable. A
 	// Schedulable has a collection of SynchronizationPoints, all with the
@@ -179,7 +190,7 @@ void Scheduler::SynchronizationPoint::serialize(Archive& ar, unsigned /*version*
 	ar.serialize("time", timeStamp);
 	ar.serialize("type", userData);
 }
-INSTANTIATE_SERIALIZE_METHODS(Scheduler::SynchronizationPoint);
+INSTANTIATE_SERIALIZE_METHODS(SynchronizationPoint);
 
 template <typename Archive>
 void Scheduler::serialize(Archive& ar, unsigned /*version*/)

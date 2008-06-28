@@ -2,6 +2,7 @@
 
 #include "Schedulable.hh"
 #include "Scheduler.hh"
+#include "serialize.hh"
 #include "serialize_stl.hh"
 #include <iostream>
 
@@ -26,11 +27,6 @@ void Schedulable::schedulerDeleted()
 void Schedulable::setSyncPoint(const EmuTime& timestamp, int userData)
 {
 	scheduler.setSyncPoint(timestamp, *this, userData);
-}
-
-void Schedulable::getSyncPoints(Scheduler::SyncPoints& result) const
-{
-	scheduler.getSyncPoints(result, *this);
 }
 
 void Schedulable::removeSyncPoint(int userData)
@@ -71,7 +67,7 @@ void Schedulable::serialize(Archive& ar, unsigned /*version*/)
 		}
 	} else {
 		Scheduler::SyncPoints syncPoints;
-		getSyncPoints(syncPoints);
+		scheduler.getSyncPoints(syncPoints, *this);
 		ar.serialize("syncPoints", syncPoints);
 	}
 }

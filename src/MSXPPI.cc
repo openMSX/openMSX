@@ -11,6 +11,7 @@
 #include "CassettePort.hh"
 #include "XMLElement.hh"
 #include "RenShaTurbo.hh"
+#include "serialize.hh"
 #include <string>
 #include <cassert>
 

@@ -3,8 +3,7 @@
 #ifndef SCHEDULABLE_HH
 #define SCHEDULABLE_HH
 
-#include "Scheduler.hh" // TODO split
-#include "serialize.hh"
+#include "serialize_meta.hh"
 #include "noncopyable.hh"
 #include <string>
 
@@ -64,8 +63,6 @@ protected:
 	bool pendingSyncPoint(int userData = 0);
 
 private:
-	void getSyncPoints(Scheduler::SyncPoints& result) const;
-
 	Scheduler& scheduler;
 };
 REGISTER_BASE_CLASS(Schedulable, "Schedulable");

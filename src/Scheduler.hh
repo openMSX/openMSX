@@ -13,45 +13,33 @@ namespace openmsx {
 class Schedulable;
 class MSXCPU;
 
+class SynchronizationPoint
+{
+public:
+	SynchronizationPoint(const EmuTime& time,
+			     Schedulable* dev, int usrdat)
+		: timeStamp(time), device(dev), userData(usrdat) {}
+	SynchronizationPoint()
+		: timeStamp(EmuTime::zero), device(0), userData(0) {}
+	const EmuTime& getTime() const { return timeStamp; }
+	Schedulable* getDevice() const { return device; }
+	int getUserData() const { return userData; }
+
+	template <typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
+private:
+	EmuTime timeStamp;
+	Schedulable* device;
+	int userData;
+};
+
+
 class Scheduler : private noncopyable
 {
 public:
-	class SynchronizationPoint
-	{
-	public:
-		SynchronizationPoint(const EmuTime& time,
-		                     Schedulable* dev, int usrdat)
-			: timeStamp(time), device(dev), userData(usrdat) {}
-		SynchronizationPoint()
-			: timeStamp(EmuTime::zero), device(0), userData(0) {}
-		const EmuTime& getTime() const { return timeStamp; }
-		Schedulable* getDevice() const { return device; }
-		int getUserData() const { return userData; }
-
-		template <typename Archive>
-		void serialize(Archive& ar, unsigned version);
-
-	private:
-		EmuTime timeStamp;
-		Schedulable* device;
-		int userData;
-	};
 	typedef std::vector<SynchronizationPoint> SyncPoints;
 
-private:
-	struct LessSyncPoint {
-		bool operator()(const EmuTime& time,
-		                const SynchronizationPoint& sp) const;
-		bool operator()(const SynchronizationPoint& sp,
-		                const EmuTime& time) const;
-	};
-	struct FindSchedulable {
-		explicit FindSchedulable(const Schedulable& schedulable);
-		bool operator()(const SynchronizationPoint& sp) const;
-		const Schedulable& schedulable;
-	};
-
-public:
 	Scheduler();
 	~Scheduler();
 
