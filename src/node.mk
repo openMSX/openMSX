@@ -38,7 +38,8 @@ SRC_HDR:= \
 	Autofire RenShaTurbo \
 	EmptyPatch IPSPatch \
 	Version \
-	LedStatus
+	LedStatus \
+	serialize_meta
 
 SRC_ONLY:= \
 	main
@@ -48,7 +49,7 @@ HDR_ONLY:= \
 	Clock \
 	MSXException InitException PlugException \
 	PatchInterface I8255Interface \
-	serialize serialize_constr serialize_meta
+	serialize serialize_core serialize_constr
 
 DIST:= \
 	Doxyfile

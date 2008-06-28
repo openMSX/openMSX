@@ -8,8 +8,6 @@
 #include "type_traits.hh"
 #include <string>
 #include <map>
-#include <cassert>
-#include <iostream>
 
 namespace openmsx {
 
@@ -183,11 +181,7 @@ template<typename Archive>
 class PolymorphicSaverRegistry : private noncopyable
 {
 public:
-	static PolymorphicSaverRegistry& instance()
-	{
-		static PolymorphicSaverRegistry oneInstance;
-		return oneInstance;
-	}
+	static PolymorphicSaverRegistry& instance();
 
 	template<typename T> void registerClass(const std::string& name)
 	{
@@ -198,25 +192,13 @@ public:
 
 	template<typename T> const PolymorphicSaverBase<Archive>& getSaver(T& t)
 	{
-		TypeInfo typeInfo(typeid(t));
-		typename SaverMap::const_iterator it = saverMap.find(typeInfo);
-		if (it == saverMap.end()) {
-			std::cerr << "Trying to save an unregistered polymorphic type: "
-			          << typeInfo.name() << std::endl;
-			assert(false);
-		}
-		return *it->second;
+		return getSaver(TypeInfo(typeid(t)));
 	}
 
 private:
-	PolymorphicSaverRegistry() {}
-	~PolymorphicSaverRegistry()
-	{
-		for (typename SaverMap::const_iterator it = saverMap.begin();
-		     it != saverMap.end(); ++it) {
-			delete it->second;
-		}
-	}
+	PolymorphicSaverRegistry();
+	~PolymorphicSaverRegistry();
+	const PolymorphicSaverBase<Archive>& getSaver(TypeInfo typeInfo);
 
 	typedef std::map<TypeInfo, PolymorphicSaverBase <Archive>*> SaverMap;
 	SaverMap saverMap;
@@ -226,11 +208,7 @@ template<typename Archive>
 class PolymorphicLoaderRegistry : private noncopyable
 {
 public:
-	static PolymorphicLoaderRegistry& instance()
-	{
-		static PolymorphicLoaderRegistry oneInstance;
-		return oneInstance;
-	}
+	static PolymorphicLoaderRegistry& instance();
 
 	template<typename T> void registerClass(const std::string& name)
 	{
@@ -239,22 +217,11 @@ public:
 		loaderMap[name] = new PolymorphicLoader<Archive, T>();
 	}
 
-	const PolymorphicLoaderBase<Archive>& getLoader(const std::string& type)
-	{
-		typename LoaderMap::const_iterator it = loaderMap.find(type);
-		assert(it != loaderMap.end());
-		return *it->second;
-	}
+	const PolymorphicLoaderBase<Archive>& getLoader(const std::string& type);
 
 private:
-	PolymorphicLoaderRegistry() {}
-	~PolymorphicLoaderRegistry()
-	{
-		for (typename LoaderMap::const_iterator it = loaderMap.begin();
-		     it != loaderMap.end(); ++it) {
-			delete it->second;
-		}
-	}
+	PolymorphicLoaderRegistry();
+	~PolymorphicLoaderRegistry();
 
 	typedef std::map<std::string, PolymorphicLoaderBase<Archive>*> LoaderMap;
 	LoaderMap loaderMap;
