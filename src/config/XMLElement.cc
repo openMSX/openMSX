@@ -42,6 +42,8 @@ const XMLElement* XMLElement::getParent() const
 
 void XMLElement::addChild(auto_ptr<XMLElement> child)
 {
+	data.clear(); // no mixed-content elements
+
 	assert(child.get());
 	assert(!child->getParent());
 	child->parent = this;
@@ -87,7 +89,9 @@ void XMLElement::setName(const string& name_)
 void XMLElement::setData(const string& data_)
 {
 	//assert(children.empty()); // no mixed-content elements
-	data = data_;
+	if (children.empty()) {
+		data = data_;
+	}
 }
 
 void XMLElement::getChildren(const string& name, Children& result) const
@@ -368,34 +372,11 @@ string XMLElement::XMLEscape(const string& str)
 	return result;
 }
 
-} // namespace openmsx
-
-// serialize
-
-template<> struct SerializeConstructorArgs<XMLElement>
-{
-	typedef Tuple<std::string, std::string> type;
-	template<typename Archive> void save(Archive& ar, const XMLElement& xml)
-	{
-		ar.serialize("name", xml.getName());
-		ar.serialize("data", xml.getData());
-	}
-	template<typename Archive> type load(Archive& ar, unsigned /*version*/)
-	{
-		std::string name, data;
-		ar.serialize("name", name);
-		ar.serialize("data", data);
-		return make_tuple(name, data);
-	}
-};
-
-namespace openmsx {
-
 template<typename Archive>
 void XMLElement::serialize(Archive& ar, unsigned /*version*/)
 {
 	// note: filecontext is not (yet?) serialized
-	if (Archive::type == Archive::SAVER) {
+	if (!ar.isLoader()) {
 		ar.serialize("attributes", getAttributes());
 		ar.serialize("children", getChildren());
 	} else {

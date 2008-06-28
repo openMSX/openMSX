@@ -180,6 +180,9 @@ public:
 	void freeUserName(const std::string& hwName,
 	                  const std::string& userName);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	std::auto_ptr<MSXMotherBoardImpl> pimple;
 	friend class MSXMotherBoardImpl;

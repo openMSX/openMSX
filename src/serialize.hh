@@ -1,5 +1,5 @@
-#ifndef SERIAL_HH
-#define SERIAL_HH
+#ifndef SERIALIZE_HH
+#define SERIALIZE_HH
 
 #include "TypeInfo.hh"
 #include "XMLElement.hh"
@@ -26,6 +26,8 @@
 #include <cstring>
 #include <memory>
 #include <algorithm>
+
+namespace openmsx {
 
 /** Utility to do     T* t = new T(...)
  *
@@ -1074,10 +1076,7 @@ template<typename Derived> class ArchiveBase
 {
 public:
 	/** Is this archive a loader or a saver.
-	 * All concrete archive classes will have a constant with the name
-	 * 'type' that's either set to LOADER or to SAVER.
-	 */
-	enum SerializerType { LOADER, SAVER };
+	bool isLoader() const;*/
 
 	/** Serialize the base class of this classtype.
 	 * Should preferably be called as the first statement in the
@@ -1110,7 +1109,7 @@ public:
 	template<typename Base, typename T>
 	void serializeInlinedBase(T& t, unsigned version)
 	{
-		::serialize(self(), static_cast<Base&>(t), version);
+		::openmsx::serialize(self(), static_cast<Base&>(t), version);
 	}
 
 	// Each concrete archive class also has the following methods:
@@ -1271,7 +1270,7 @@ class OutputArchiveBase : public ArchiveBase<Derived>
 {
 	typedef ArchiveBase<Derived> THIS;
 public:
-	static const typename THIS::SerializerType type = THIS::SAVER;
+	bool isLoader() const { return false; }
 
 	OutputArchiveBase()
 		: lastId(0)
@@ -1373,7 +1372,7 @@ class InputArchiveBase : public ArchiveBase<Derived>
 {
 	typedef ArchiveBase<Derived> THIS;
 public:
-	static const typename THIS::SerializerType type = THIS::LOADER;
+	bool isLoader() const { return true; }
 
 	template<typename T>
 	void serialize(const char* tag, T& t)
@@ -1753,5 +1752,7 @@ private:
 	std::vector<const XMLElement*> elems;
 	unsigned pos;
 };
+
+} // namespace openmsx
 
 #endif

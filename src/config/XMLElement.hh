@@ -3,6 +3,7 @@
 #ifndef XMLELEMENT_HH
 #define XMLELEMENT_HH
 
+#include "tuple.hh"
 #include <map>
 #include <string>
 #include <vector>
@@ -121,6 +122,24 @@ private:
 	Attributes attributes;
 	XMLElement* parent;
 	std::auto_ptr<FileContext> context;
+};
+
+template<typename> struct SerializeConstructorArgs;
+template<> struct SerializeConstructorArgs<XMLElement>
+{
+	typedef Tuple<std::string, std::string> type;
+	template<typename Archive> void save(Archive& ar, const XMLElement& xml)
+	{
+		ar.serialize("name", xml.getName());
+		ar.serialize("data", xml.getData());
+	}
+	template<typename Archive> type load(Archive& ar, unsigned /*version*/)
+	{
+		std::string name, data;
+		ar.serialize("name", name);
+		ar.serialize("data", data);
+		return make_tuple(name, data);
+	}
 };
 
 } // namespace openmsx

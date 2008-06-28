@@ -30,6 +30,7 @@
 #include "ReadDir.hh"
 #include "Thread.hh"
 #include "Timer.hh"
+#include "serialize.hh"
 #include <cassert>
 #include <memory>
 
@@ -114,6 +115,28 @@ private:
 	Reactor& reactor;
 };
 
+class SaveMachineCommand : public SimpleCommand
+{
+public:
+	SaveMachineCommand(CommandController& commandController, Reactor& reactor);
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
+private:
+	Reactor& reactor;
+};
+
+class LoadMachineCommand : public SimpleCommand
+{
+public:
+	LoadMachineCommand(CommandController& commandController, Reactor& reactor);
+	virtual string execute(const vector<string>& tokens);
+	virtual string help(const vector<string>& tokens) const;
+	virtual void tabCompletion(vector<string>& tokens) const;
+private:
+	Reactor& reactor;
+};
+
 class PollEventGenerator : private Alarm
 {
 public:
@@ -158,6 +181,8 @@ Reactor::Reactor()
 	, deleteMachineCommand(new DeleteMachineCommand(getCommandController(), *this))
 	, listMachinesCommand(new ListMachinesCommand(getCommandController(), *this))
 	, activateMachineCommand(new ActivateMachineCommand(getCommandController(), *this))
+	, saveMachineCommand(new SaveMachineCommand(getCommandController(), *this))
+	, loadMachineCommand(new LoadMachineCommand(getCommandController(), *this))
 	, aviRecordCommand(new AviRecorder(*this))
 	, extensionInfo(new ConfigInfo(getOpenMSXInfoCommand(), "extensions"))
 	, machineInfo  (new ConfigInfo(getOpenMSXInfoCommand(), "machines"))
@@ -771,6 +796,69 @@ void ActivateMachineCommand::tabCompletion(vector<string>& tokens) const
 	set<string> ids;
 	reactor.getMachineIDs(ids);
 	completeString(tokens, ids);
+}
+
+
+// class SaveMachineCommand
+
+SaveMachineCommand::SaveMachineCommand(
+	CommandController& commandController, Reactor& reactor_)
+	: SimpleCommand(commandController, "savestate")
+	, reactor(reactor_)
+{
+}
+
+string SaveMachineCommand::execute(const vector<string>& tokens)
+{
+	if (tokens.size() != 2) {
+		throw SyntaxError();
+	}
+	Reactor::Board board = reactor.getMachine(tokens[1]);
+
+	XmlOutputArchive out("openmsx.xml");
+	out.serialize("machine", *board);
+	return ""; //TODO
+}
+
+string SaveMachineCommand::help(const vector<string>& tokens) const
+{
+	return "TODO";
+}
+
+void SaveMachineCommand::tabCompletion(vector<string>& tokens) const
+{
+	set<string> ids;
+	reactor.getMachineIDs(ids);
+	completeString(tokens, ids);
+}
+
+
+// class LoadMachineCommand
+
+LoadMachineCommand::LoadMachineCommand(
+	CommandController& commandController, Reactor& reactor_)
+	: SimpleCommand(commandController, "loadstate")
+	, reactor(reactor_)
+{
+}
+
+string LoadMachineCommand::execute(const vector<string>& tokens)
+{
+	Reactor::Board newBoard(new MSXMotherBoard(reactor));
+	XmlInputArchive in("openmsx.xml");
+	in.serialize("machine", *newBoard);
+	reactor.boards.push_back(newBoard);
+	return newBoard->getMachineID();
+}
+
+string LoadMachineCommand::help(const vector<string>& tokens) const
+{
+	return "TODO";
+}
+
+void LoadMachineCommand::tabCompletion(vector<string>& tokens) const
+{
+	// TODO
 }
 
 

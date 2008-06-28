@@ -38,6 +38,8 @@
 #include "TclObject.hh"
 #include "Observer.hh"
 #include "StringOp.hh"
+#include "serialize.hh"
+#include "ref.hh"
 #include <cassert>
 #include <map>
 #include <iostream>
@@ -132,6 +134,9 @@ public:
 
 	string getUserName(const string& hwName);
 	void freeUserName(const string& hwName, const string& userName);
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	void deleteMachine();
@@ -1143,6 +1148,50 @@ void DeviceInfo::tabCompletion(vector<string>& tokens) const
 	}
 }
 
+// serialize
+template<typename Archive>
+void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("name", machineName);
+	ar.serialize("config", machineConfig, ref(self));
+
+	//Devices availableDevices;
+
+	//SharedStuffMap sharedStuffMap;
+
+	//MSXMotherBoard::Extensions extensions;
+
+	//auto_ptr<AddRemoveUpdate> addRemoveUpdate;
+	//auto_ptr<MSXCliComm> msxCliComm;
+	//auto_ptr<MSXEventDistributor> msxEventDistributor;
+	//auto_ptr<MSXCommandController> msxCommandController;
+	//auto_ptr<Scheduler> scheduler;
+	//auto_ptr<CartridgeSlotManager> slotManager;
+	//auto_ptr<EventDelay> eventDelay;
+	//auto_ptr<EventTranslator> eventTranslator;
+	//auto_ptr<RealTime> realTime;
+	//auto_ptr<Debugger> debugger;
+	//auto_ptr<MSXMixer> msxMixer;
+	//auto_ptr<PluggingController> pluggingController;
+	//auto_ptr<DummyDevice> dummyDevice;
+	//auto_ptr<MSXCPU> msxCpu;
+	//auto_ptr<MSXCPUInterface> msxCpuInterface;
+	//auto_ptr<PanasonicMemory> panasonicMemory;
+	//auto_ptr<MSXDeviceSwitch> deviceSwitch;
+	//auto_ptr<CassettePortInterface> cassettePort;
+	//auto_ptr<RenShaTurbo> renShaTurbo;
+	//auto_ptr<LedStatus> ledStatus;
+
+	//int blockedCounter;
+	//bool powered;
+	//bool needReset;
+	//bool needPowerDown;
+	//bool active;
+
+	// don't serialize:
+	//    userNames
+}
+
 
 // MSXMotherBoard
 
@@ -1394,5 +1443,17 @@ void MSXMotherBoard::freeUserName(const string& hwName,
 {
 	pimple->freeUserName(hwName, userName);
 }
+
+template<typename Archive>
+void MSXMotherBoard::serialize(Archive& ar, unsigned version)
+{
+	pimple->serialize(ar, version);
+}
+template void MSXMotherBoard::serialize(TextInputArchive&,  unsigned);
+template void MSXMotherBoard::serialize(TextOutputArchive&, unsigned);
+template void MSXMotherBoard::serialize(MemInputArchive&,   unsigned);
+template void MSXMotherBoard::serialize(MemOutputArchive&,  unsigned);
+template void MSXMotherBoard::serialize(XmlInputArchive&,   unsigned);
+template void MSXMotherBoard::serialize(XmlOutputArchive&,  unsigned);
 
 } // namespace openmsx

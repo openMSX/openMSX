@@ -3,6 +3,7 @@
 #ifndef HARDWARECONFIG_HH
 #define HARDWARECONFIG_HH
 
+#include "serialize.hh"
 #include "noncopyable.hh"
 #include <string>
 #include <vector>
@@ -29,6 +30,7 @@ public:
 		MSXMotherBoard& motherBoard, const std::string& romfile,
 		const std::string& slotname, const std::vector<std::string>& options);
 
+	HardwareConfig(MSXMotherBoard& motherBoard, const std::string& hwName);
 	~HardwareConfig();
 
 	const XMLElement& getConfig() const;
@@ -42,9 +44,10 @@ public:
 	  */
 	void testRemove() const;
 
-private:
-	HardwareConfig(MSXMotherBoard& motherBoard, const std::string& hwName);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
+private:
 	void setConfig(std::auto_ptr<XMLElement> config);
 	void load(const std::string& path);
 
@@ -71,6 +74,24 @@ private:
 	Devices devices;
 
 	std::string name;
+
+	friend class SerializeConstructorArgs<HardwareConfig>;
+};
+
+template<> struct SerializeConstructorArgs<HardwareConfig>
+{
+	typedef Tuple<std::string> type;
+	template<typename Archive> void save(
+		Archive& ar, const HardwareConfig& config)
+	{
+		ar.serialize("hwname", config.hwName);
+	}
+	template<typename Archive> type load(Archive& ar, unsigned /*version*/)
+	{
+		std::string name;
+		ar.serialize("hwname", name);
+		return make_tuple(name);
+	}
 };
 
 } // namespace openmsx

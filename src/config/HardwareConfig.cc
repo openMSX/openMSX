@@ -379,4 +379,26 @@ void HardwareConfig::setName(const string& proposedName)
 	}
 }
 
+
+// serialize
+template<typename Archive>
+void HardwareConfig::serialize(Archive& ar, unsigned /*version*/)
+{
+	// filled-in by constructor:
+	//   motherBoard, hwName, userName
+
+	ar.serialize("config", config);
+
+	// filled-in by parseSlots()
+	//   externalSlots, externalPrimSlots, expandedSlots, allocatedPrimarySlots
+	// filled-in by createDevices()
+	//   devices;
+}
+template void HardwareConfig::serialize(TextInputArchive&,  unsigned);
+template void HardwareConfig::serialize(TextOutputArchive&, unsigned);
+template void HardwareConfig::serialize(MemInputArchive&,   unsigned);
+template void HardwareConfig::serialize(MemOutputArchive&,  unsigned);
+template void HardwareConfig::serialize(XmlInputArchive&,   unsigned);
+template void HardwareConfig::serialize(XmlOutputArchive&,  unsigned);
+
 } // namespace openmsx
