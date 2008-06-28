@@ -1162,6 +1162,10 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 {
 	// don't serialize:
 	//    machineID, userNames
+
+	// Scheduler must come early so that devices can query current time
+	ar.serialize("scheduler", getScheduler());
+
 	ar.serialize("name", machineName);
 	ar.serialize("config", machineConfig, ref(self));
 
@@ -1178,7 +1182,6 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 	//auto_ptr<MSXCliComm> msxCliComm;
 	//auto_ptr<MSXEventDistributor> msxEventDistributor;
 	//auto_ptr<MSXCommandController> msxCommandController;
-	//auto_ptr<Scheduler> scheduler;
 	//auto_ptr<CartridgeSlotManager> slotManager;
 	//auto_ptr<EventDelay> eventDelay;
 	//auto_ptr<EventTranslator> eventTranslator;
@@ -1187,8 +1190,8 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 	//auto_ptr<PluggingController> pluggingController;
 	//auto_ptr<DummyDevice> dummyDevice;
 
-	ar.serialize("cpu", *msxCpu);
-	ar.serialize("cpuInterface", *msxCpuInterface);
+	ar.serialize("cpu", getCPU());
+	ar.serialize("cpuInterface", getCPUInterface());
 
 	//auto_ptr<PanasonicMemory> panasonicMemory;
 	//auto_ptr<MSXDeviceSwitch> deviceSwitch;

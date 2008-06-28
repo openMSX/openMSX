@@ -181,4 +181,13 @@ void Scheduler::SynchronizationPoint::serialize(Archive& ar, unsigned /*version*
 }
 INSTANTIATE_SERIALIZE_METHODS(Scheduler::SynchronizationPoint);
 
+template <typename Archive>
+void Scheduler::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("currentTime", scheduleTime);
+	// don't serialize syncPoints, each Schedulable serializes its own
+	// syncpoints
+}
+INSTANTIATE_SERIALIZE_METHODS(Scheduler);
+
 } // namespace openmsx

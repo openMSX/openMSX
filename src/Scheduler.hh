@@ -84,6 +84,9 @@ public:
 		scheduleTime = limit;
 	}
 
+	template <typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private: // -> intended for Schedulable
 	friend class Schedulable;
 
