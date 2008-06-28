@@ -2,6 +2,7 @@
 
 #include "IRQHelper.hh"
 #include "MSXCPU.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -50,5 +51,22 @@ void DynamicSource::lower()
 		cpu.lowerNMI();
 	}
 }
+
+
+template<typename SOURCE>
+template<typename Archive>
+void IntHelper<SOURCE>::serialize(Archive& ar, unsigned /*version*/)
+{
+	bool pending = request;
+	ar.serialize("pending", pending);
+	if (ar.isLoader()) {
+		if (pending) {
+			set();
+		} else {
+			reset();
+		}
+	}
+}
+INSTANTIATE_SERIALIZE_METHODS(IRQHelper);
 
 } // namespace openmsx

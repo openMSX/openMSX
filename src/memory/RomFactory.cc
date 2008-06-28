@@ -40,6 +40,7 @@
 #include "Rom.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
+#include "serialize.hh"
 
 using std::auto_ptr;
 using std::string;

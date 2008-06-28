@@ -13,6 +13,7 @@
 #include "MSXCPUInterface.hh"
 #include "DeviceFactory.hh"
 #include "CliComm.hh"
+#include "serialize.hh"
 #include "StringOp.hh"
 #include "ref.hh"
 #include <cassert>

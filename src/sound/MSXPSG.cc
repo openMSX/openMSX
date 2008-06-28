@@ -9,6 +9,7 @@
 #include "JoystickPort.hh"
 #include "XMLElement.hh"
 #include "RenShaTurbo.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 

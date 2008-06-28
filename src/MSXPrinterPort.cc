@@ -5,6 +5,7 @@
 #include "PluggingController.hh"
 #include "MSXMotherBoard.hh"
 #include "checked_cast.hh"
+#include "serialize.hh"
 #include <cassert>
 
 using std::string;

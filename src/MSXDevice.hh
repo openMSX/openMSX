@@ -5,7 +5,8 @@
 
 #include "DeviceFactory.hh"
 #include "openmsx.hh"
-#include "serialize.hh"
+#include "serialize_constr.hh"
+#include "serialize_meta.hh"
 #include "ref.hh"
 #include "checked_cast.hh"
 #include "noncopyable.hh"

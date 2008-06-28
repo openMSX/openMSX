@@ -10,6 +10,7 @@
 #include "TclObject.hh"
 #include "StringOp.hh"
 #include "MSXException.hh"
+#include "serialize.hh"
 #include <set>
 #include <algorithm>
 #include <cassert>

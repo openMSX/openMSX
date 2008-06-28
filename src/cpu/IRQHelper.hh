@@ -3,7 +3,6 @@
 #ifndef IRQHELPER_HH
 #define IRQHELPER_HH
 
-#include "serialize.hh"
 #include "noncopyable.hh"
 
 namespace openmsx {
@@ -98,18 +97,7 @@ public:
 	}
 
 	template<typename Archive>
-	void serialize(Archive& ar, unsigned /*version*/)
-	{
-		bool pending = request;
-		ar.serialize("pending", pending);
-		if (ar.isLoader()) {
-			if (pending) {
-				set();
-			} else {
-				reset();
-			}
-		}
-	}
+	void serialize(Archive& ar, unsigned /*version*/);
 
 private:
 	bool request;
@@ -117,8 +105,8 @@ private:
 
 // convenience types
 typedef IntHelper<IRQSource> IRQHelper;
-typedef IntHelper<NMISource> NMIHelper;
-typedef IntHelper<DynamicSource> IRQNMIHelper;
+//typedef IntHelper<NMISource> NMIHelper;
+//typedef IntHelper<DynamicSource> IRQNMIHelper;
 
 } // namespace openmsx
 

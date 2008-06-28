@@ -2,6 +2,7 @@
 
 #include "Rom8kBBlocks.hh"
 #include "Rom.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 

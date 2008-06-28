@@ -3,7 +3,7 @@
 #ifndef HARDWARECONFIG_HH
 #define HARDWARECONFIG_HH
 
-#include "serialize.hh"
+#include "serialize_constr.hh"
 #include "noncopyable.hh"
 #include <string>
 #include <vector>

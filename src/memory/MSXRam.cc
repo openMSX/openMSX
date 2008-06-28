@@ -5,6 +5,7 @@
 #include "CheckedRam.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
+#include "serialize.hh"
 
 #include "Ram.hh" //
 

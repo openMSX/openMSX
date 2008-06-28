@@ -7,7 +7,7 @@ SUBDIRS:= \
 	input memory resource serial settings sound thread utils video
 
 SRC_HDR:= \
-	EmuTime EmuDuration \
+	EmuTime EmuDuration DynamicClock \
 	MSXDevice \
 	GlobalSettings \
 	ThrottleManager \
@@ -45,10 +45,10 @@ SRC_ONLY:= \
 
 HDR_ONLY:= \
 	openmsx \
-	Clock DynamicClock \
+	Clock \
 	MSXException InitException PlugException \
 	PatchInterface I8255Interface \
-	serial
+	serialize serialize_constr serialize_meta
 
 DIST:= \
 	Doxyfile
