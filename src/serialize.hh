@@ -3,11 +3,7 @@
 
 #include "serialize_core.hh"
 #include "TypeInfo.hh"
-#include "XMLElement.hh"
-#include "XMLLoader.hh"
 #include "StringOp.hh"
-#include "Base64.hh"
-#include "HexDump.hh"
 #include "shared_ptr.hh"
 #include "type_traits.hh"
 #include <string>
@@ -16,10 +12,12 @@
 #include <sstream>
 #include <cassert>
 #include <memory>
-#include <cstring>
-#include <zlib.h>
+
+typedef void* gzFile;
 
 namespace openmsx {
+
+class XMLElement;
 
 // In this section, the archive classes are defined.
 //
@@ -266,12 +264,7 @@ class OutputArchiveBase : public ArchiveBase<Derived>
 {
 	typedef ArchiveBase<Derived> THIS;
 public:
-	bool isLoader() const { return false; }
-
-	OutputArchiveBase()
-		: lastId(0)
-	{
-	}
+	inline bool isLoader() const { return false; }
 
 	// Main saver method. Heavy lifting is done in the Saver class.
 	template<typename T> void serialize(const char* tag, const T& t)
@@ -303,23 +296,8 @@ public:
 
 	// Default implementation is to base64-encode the blob and serialize
 	// the resulting string. But memory archives will memcpy the blob.
-	void serialize_blob(const char* tag, const void* data, unsigned len)
-	{
-		std::string encoding;
-		std::string tmp;
-		if (true) {
-			encoding = "hex";
-			tmp = HexDump::encode(data, len);
-		} else {
-			encoding = "base64";
-			tmp = Base64::encode(data, len);
-		}
-		this->self().beginTag(tag);
-		this->self().attribute("encoding", encoding);
-		Saver<std::string> saver;
-		saver(this->self(), tmp);
-		this->self().endTag(tag);
-	}
+	void serialize_blob(const char* tag, const void* data, unsigned len);
+
 	template<typename T> void serializeNoID(const char* tag, const T& t)
 	{
 		this->self().beginTag(tag);
@@ -373,6 +351,9 @@ public:
 		}
 	}
 
+protected:
+	OutputArchiveBase();
+
 private:
 	typedef std::pair<const void*, TypeInfo> IdKey;
 	typedef std::map<IdKey, unsigned> IdMap;
@@ -387,7 +368,7 @@ class InputArchiveBase : public ArchiveBase<Derived>
 {
 	typedef ArchiveBase<Derived> THIS;
 public:
-	bool isLoader() const { return true; }
+	inline bool isLoader() const { return true; }
 
 	template<typename T>
 	void serialize(const char* tag, T& t)
@@ -409,28 +390,8 @@ public:
 	{
 		doSerialize(tag, t, make_tuple(t1, t2, t3));
 	}
-	void serialize_blob(const char* tag, void* data, unsigned len)
-	{
-		this->self().beginTag(tag);
-		std::string encoding;
-		this->self().attribute("encoding", encoding);
+	void serialize_blob(const char* tag, void* data, unsigned len);
 
-		std::string tmp;
-		Loader<std::string> loader;
-		loader(this->self(), tmp, make_tuple());
-		this->self().endTag(tag);
-
-		std::string tmp2;
-		if (encoding == "hex") {
-			tmp2 = HexDump::decode(tmp);
-		} else if (encoding == "base64") {
-			tmp2 = Base64::decode(tmp);
-		} else {
-			assert(false); // TODO exception
-		}
-		assert(tmp2.size() == len); // TODO exception
-		memcpy(data, tmp2.data(), len);
-	}
 	template<typename T>
 	void serializeNoID(const char* tag, T& t)
 	{
@@ -452,16 +413,9 @@ public:
 	}
 
 /*internal*/
-	void* getPointer(unsigned id)
-	{
-		IdMap::const_iterator it = idMap.find(id);
-		return it != idMap.end() ? it->second : NULL;
-	}
-	void addPointer(unsigned id, const void* p)
-	{
-		assert(idMap.find(id) == idMap.end());
-		idMap[id] = const_cast<void*>(p);
-	}
+	void* getPointer(unsigned id);
+	void addPointer(unsigned id, const void* p);
+
 	template<typename T> void resetSharedPtr(shared_ptr<T>& s, T* r)
 	{
 		if (r == NULL) {
@@ -491,6 +445,9 @@ public:
 		loader(this->self(), tnc, args);
 		this->self().endTag(tag);
 	}
+
+protected:
+	InputArchiveBase();
 
 private:
 	typedef std::map<unsigned, void*> IdMap;
@@ -642,69 +599,32 @@ private:
 class XmlOutputArchive : public OutputArchiveBase<XmlOutputArchive>
 {
 public:
-	XmlOutputArchive(const std::string& filename)
-		: current(new XMLElement("serial"))
-	{
-		file = gzopen((filename + ".gz").c_str(), "wb9");
-		assert(file); // TODO
-	}
-
-	~XmlOutputArchive()
-	{
-		const char* header =
-		    "<?xml version=\"1.0\" ?>\n"
-		    "<!DOCTYPE openmsx-serialize SYSTEM 'openmsx-serialize.dtd'>\n";
-		gzwrite(file, header, strlen(header));
-		std::string dump = current->dump();
-		delete current;
-		gzwrite(file, dump.data(), dump.size());
-		gzclose(file);
-	}
+	XmlOutputArchive(const std::string& filename);
+	~XmlOutputArchive();
 
 	template <typename T> void save(const T& t)
 	{
-		assert(current);
-		assert(current->getData().empty());
 		// TODO make sure floating point is printed with enough digits
 		//      maybe print as hex?
-		current->setData(StringOp::toString(t));
+		save(StringOp::toString(t));
 	}
-	void save(bool b)
-	{
-		assert(current);
-		assert(current->getData().empty());
-		current->setData(b ? "true" : "false");
-	}
-	void save(unsigned char b)
-	{
-		save(unsigned(b));
-	}
+	void save(const std::string& str);
+	void save(bool b);
+	void save(unsigned char b);
 
-/*protected:*/
-	bool translateEnumToString() const { return true; }
-	void beginTag(const std::string& tag)
+//internal:
+	inline bool translateEnumToString() const { return true; }
+	inline bool canHaveOptionalAttributes() const { return true; }
+	inline bool canCountChildren() const { return true; }
+
+	void beginTag(const std::string& tag);
+	void endTag(const std::string& tag);
+
+	template<typename T> void attribute(const std::string& name, const T& t)
 	{
-		XMLElement* elem = new XMLElement(tag);
-		if (current) {
-			current->addChild(std::auto_ptr<XMLElement>(elem));
-		}
-		current = elem;
+		attribute(name, StringOp::toString(t));
 	}
-	void endTag(const std::string& tag)
-	{
-		assert(current);
-		assert(current->getName() == tag);
-		(void)tag;
-		current = current->getParent();
-	}
-	bool canHaveOptionalAttributes() const { return true; }
-	template<typename T> void attribute(const std::string& name, T& t)
-	{
-		assert(current);
-		assert(!current->hasAttribute(name));
-		current->addAttribute(name, StringOp::toString(t));
-	}
-	bool canCountChildren() const { return true; }
+	void attribute(const std::string& name, const std::string& str);
 
 private:
 	gzFile file;
@@ -714,84 +634,42 @@ private:
 class XmlInputArchive : public InputArchiveBase<XmlInputArchive>
 {
 public:
-	XmlInputArchive(const std::string& filename)
-		: elem(openmsx::XMLLoader::loadXML(filename, "openmsx-serialize.dtd"))
-		, pos(0)
-	{
-		init(elem.get());
-	}
-
-	void init(const XMLElement* e)
-	{
-		elems.push_back(e);
-		const XMLElement::Children& children = e->getChildren();
-		for (XMLElement::Children::const_iterator it = children.begin();
-		     it != children.end(); ++it) {
-			init(*it);
-		}
-		elems.push_back(e);
-	}
+	XmlInputArchive(const std::string& filename);
 
 	template<typename T> void load(T& t)
 	{
-		assert(elems[pos]->getChildren().empty());
-		std::istringstream is(elems[pos]->getData());
+		std::string str;
+		load(str);
+		std::istringstream is(str);
 		is >> t;
 	}
-	void load(std::string& t)
-	{
-		assert(elems[pos]->getChildren().empty());
-		t = elems[pos]->getData();
-	}
-	void load(bool& b)
-	{
-		assert(elems[pos]->getChildren().empty());
-		std::string s = elems[pos]->getData();
-		if (s == "true") {
-			b = true;
-		} else if (s == "false") {
-			b = false;
-		} else {
-			// throw
-			assert(false);
-		}
-	}
-	void load(unsigned char& b)
-	{
-		unsigned i;
-		load(i);
-		b = i;
-	}
+	void load(std::string& t);
+	void load(bool& b);
+	void load(unsigned char& b);
 
-/*protected:*/
-	bool translateEnumToString() const { return true; }
-	void beginTag(const std::string& tag)
-	{
-		++pos;
-		assert(elems[pos]->getName() == tag);
-		(void)tag;
-	}
-	void endTag(const std::string& tag)
-	{
-		++pos;
-		assert(elems[pos]->getName() == tag);
-		(void)tag;
-	}
+//internal:
+	inline bool translateEnumToString() const { return true; }
+	inline bool canHaveOptionalAttributes() const { return true; }
+	inline bool canCountChildren() const { return true; }
+
+	void beginTag(const std::string& tag);
+	void endTag(const std::string& tag);
+
 	template<typename T> void attribute(const std::string& name, T& t)
 	{
-		assert(elems[pos]->hasAttribute(name));
-		std::istringstream is(elems[pos]->getAttribute(name));
+		std::string str;
+		attribute(name, str);
+		std::istringstream is(str);
 		is >> t;
 	}
-	bool canHaveOptionalAttributes() const { return true; }
-	bool hasAttribute(const std::string& name)
-	{
-		return elems[pos]->hasAttribute(name);
-	}
-	bool canCountChildren() const { return true; }
-	int countChildren() const { return elems[pos]->getChildren().size(); }
+	void attribute(const std::string& name, std::string& t);
+
+	bool hasAttribute(const std::string& name);
+	int countChildren() const;
 
 private:
+	void init(const XMLElement* e);
+
 	std::auto_ptr<XMLElement> elem;
 	std::vector<const XMLElement*> elems;
 	unsigned pos;

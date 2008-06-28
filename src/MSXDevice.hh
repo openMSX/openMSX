@@ -4,6 +4,7 @@
 #define MSXDEVICE_HH
 
 #include "DeviceFactory.hh"
+#include "XMLElement.hh"
 #include "openmsx.hh"
 #include "serialize_constr.hh"
 #include "serialize_meta.hh"
