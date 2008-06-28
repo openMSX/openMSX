@@ -80,6 +80,9 @@ public:
 	 */
 	void setFreq(unsigned freq);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	void doContinue2();
 	bool needExitCPULoop();

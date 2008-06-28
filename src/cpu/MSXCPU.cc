@@ -12,6 +12,7 @@
 #include "BreakPoint.hh"
 #include "InfoTopic.hh"
 #include "TclObject.hh"
+#include "serialize.hh"
 #include <cassert>
 
 using std::string;
@@ -371,5 +372,17 @@ void MSXCPUDebuggable::write(unsigned address, byte value)
 		break;
 	}
 }
+
+
+template<typename Archive>
+void MSXCPU::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("z80",  *z80);
+	ar.serialize("r800", *r800);
+	ar.serializePointerID("activeCPU", activeCPU);
+	ar.serializePointerID("newCPU",    newCPU);
+	//ar.serialize("resetTime", reference);
+}
+INSTANTIATE_SERIALIZE_METHODS(MSXCPU);
 
 } // namespace openmsx

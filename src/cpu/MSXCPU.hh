@@ -126,6 +126,9 @@ public:
 
 	void setNextSyncPoint(const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	// only for MSXMotherBoard
 	void execute();

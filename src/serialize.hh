@@ -686,6 +686,11 @@ template<typename T> struct serialize_as_collection<std::vector<T> >
 //  - PointerSaver
 //      Saves a pointer to a class (pointers to primitive types are not
 //      supported). See also serialize_as_pointer
+//  - IDSaver
+//      Weaker version of PointerSaver: it can only save pointers to objects
+//      that are already saved before (so it's will be saved by storing a
+//      reference). To only reason to use IDSaver (iso PointerSaver) is that
+//      it will not instantiate the object construction code.
 //  - CollectionSaver
 //      Saves a whole collection. See also serialize_as_collection
 //
@@ -790,6 +795,23 @@ template<typename TP> struct PointerSaver
 				saver(ar, *tp, "", true, true);
 			}
 		}
+	}
+};
+template<typename TP> struct IDSaver
+{
+	template<typename Archive> void operator()(Archive& ar, const TP& tp2)
+	{
+		STATIC_ASSERT(serialize_as_pointer<TP>::value);
+		typedef typename serialize_as_pointer<TP>::type T;
+		const T* tp = serialize_as_pointer<TP>::getPointer(tp2);
+		unsigned id;
+		if (tp == NULL) {
+			id = 0;
+		} else {
+			id = ar.getId(tp);
+			assert(id);
+		}
+		ar.attribute("id_ref", id);
 	}
 };
 template<typename TC> struct CollectionSaver
@@ -995,6 +1017,28 @@ template<typename TP> struct PointerLoader
 		serialize_as_pointer<TP>::setPointer(tp2, tp, ar);
 	}
 };
+template<typename TP> struct IDLoader
+{
+	template<typename Archive>
+	void operator()(Archive& ar, TP& tp2)
+	{
+		STATIC_ASSERT(serialize_as_pointer<TP>::value);
+		unsigned id;
+		ar.attribute("id_ref", id);
+
+		typedef typename serialize_as_pointer<TP>::type T;
+		T* tp;
+		if (id == 0) {
+			// null-pointer
+			tp = NULL;
+		} else {
+			void* p = ar.getPointer(id);
+			assert(p); // TODO throw
+			tp = static_cast<T*>(p);
+		}
+		serialize_as_pointer<TP>::setPointer(tp2, tp, ar);
+	}
+};
 template<typename TC> struct CollectionLoader
 {
 	template<typename Archive, typename TUPLE>
@@ -1159,6 +1203,16 @@ public:
 	//
 	//   Note that for primitive types we already don't store an ID, because
 	//   pointers to primitive types are not supported (at least not ATM).
+	//
+	//
+	// template<typename T> void serializePointerID(const char* tag, const T& t)
+	//
+	//   Serialize a pointer by storing the ID of the object it points to.
+	//   This only works if the object was already serialized. The only
+	//   reason to use this method instead of the more general serialize()
+	//   method is that this one does not instantiate the object
+	//   construction code. (So in some cases you can avoid having to
+	//   provide specializations of SerializeConstructorArgs.)
 
 /*internal*/
 	// These must be public for technical reasons, but they should only
@@ -1324,6 +1378,13 @@ public:
 		saver(this->self(), t, "", false);
 		this->self().endTag(tag);
 	}
+	template<typename T> void serializePointerID(const char* tag, const T& t)
+	{
+		this->self().beginTag(tag);
+		IDSaver<T> saver;
+		saver(this->self(), t);
+		this->self().endTag(tag);
+	}
 
 /*internal*/
 	// Generate a new ID for the given pointer and store this association
@@ -1415,6 +1476,15 @@ public:
 		TNC& tnc = const_cast<TNC&>(t);
 		Loader<TNC> loader;
 		loader(this->self(), tnc, make_tuple(), -1); // don't load id
+		this->self().endTag(tag);
+	}
+	template<typename T> void serializePointerID(const char* tag, const T& t)
+	{
+		this->self().beginTag(tag);
+		typedef typename remove_const<T>::type TNC;
+		TNC& tnc = const_cast<TNC&>(t);
+		IDLoader<TNC> loader;
+		loader(this->self(), tnc);
 		this->self().endTag(tag);
 	}
 

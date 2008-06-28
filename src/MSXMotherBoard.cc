@@ -1187,7 +1187,8 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 	//auto_ptr<MSXMixer> msxMixer;
 	//auto_ptr<PluggingController> pluggingController;
 	//auto_ptr<DummyDevice> dummyDevice;
-	//auto_ptr<MSXCPU> msxCpu;
+
+	ar.serialize("cpu", *msxCpu);
 	//auto_ptr<MSXCPUInterface> msxCpuInterface;
 	//auto_ptr<PanasonicMemory> panasonicMemory;
 	//auto_ptr<MSXDeviceSwitch> deviceSwitch;

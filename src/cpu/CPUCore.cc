@@ -63,7 +63,7 @@ template <class T> CPUCore<T>::CPUCore(
 	        name + "_freq",
 	        "custom " + name + " frequency (only valid when unlocked)",
 	        T::CLOCK_FREQ, 1000000, 100000000))
-	, freq(T::CLOCK_FREQ)
+	, freq(freqValue->getValue())
 	, NMIStatus(0)
 	, IRQStatus(0)
 	, nmiEdge(false)
@@ -3095,9 +3095,31 @@ int CPUCore<T>::xy() {
 	assert(false); return 0;
 }
 
+template<class T> template<typename Archive>
+void CPUCore<T>::serialize(Archive& ar, unsigned /*version*/)
+{
+	// TODO CPU base class
+	//CPURegs R;
+
+	ar.serialize("IRQStatus", IRQStatus);
+	ar.serialize("memptr", memptr);
+
+	if (ar.isLoader()) {
+		invalidateMemCache(0x0000, 0x10000);
+	}
+
+	// don't serialize
+	//    NMIStatus, nmiEdge
+	//    slowInstructions
+	//    exitLoop
+}
+
 // Force template instantiation
 template class CPUCore<Z80TYPE>;
 template class CPUCore<R800TYPE>;
+
+INSTANTIATE_SERIALIZE_METHODS(CPUCore<Z80TYPE>);
+INSTANTIATE_SERIALIZE_METHODS(CPUCore<R800TYPE>);
 
 } // namespace openmsx
 
