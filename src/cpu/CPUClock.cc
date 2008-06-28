@@ -2,6 +2,7 @@
 
 #include "CPUClock.hh"
 #include "Scheduler.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -47,5 +48,13 @@ void CPUClock::advanceTime(const EmuTime& time)
 	clock.advance(time);
 	setLimit(scheduler.getNext());
 }
+
+template<typename Archive>
+void CPUClock::serialize(Archive& ar, unsigned version)
+{
+	sync();
+	ar.serialize("clock", clock);
+}
+INSTANTIATE_SERIALIZE_METHODS(CPUClock);
 
 } // namespace openmsx

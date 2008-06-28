@@ -5,6 +5,7 @@
 
 #include "EmuTime.hh"
 #include "DivModBySame.hh"
+#include "serialize.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -110,6 +111,15 @@ public:
 		assert((uint64(n) * getStep()) < (1ull << 32));
 		#endif
 		return EmuTime(lastTick.time + n * getStep());
+	}
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned /*version*/)
+	{
+		ar.serialize("lastTick", lastTick);
+		unsigned freq = getFreq();
+		ar.serialize("freq", freq);
+		setFreq(freq);
 	}
 
 private:

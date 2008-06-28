@@ -125,6 +125,12 @@ protected:
 	EE_ED        = 5,
 	CC_RDMEM     = 3,
 	CC_WRMEM     = 3;
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version)
+	{
+		CPUClock::serialize(ar, version);
+	}
 };
 
 } // namespace openmsx

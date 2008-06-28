@@ -81,6 +81,9 @@ protected:
 		return remaining <= 0;
 	}
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	mutable DynamicClock clock;
 	Scheduler& scheduler;

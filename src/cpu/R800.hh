@@ -236,6 +236,17 @@ protected:
 		CC_RDMEM     = 1,
 		CC_WRMEM     = 2;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version)
+	{
+		CPUClock::serialize(ar, version);
+		// TODO
+		//Clock<CLOCK_FREQ> lastRefreshTime;
+		//int lastPage;
+		//unsigned extraMemoryDelays[4][4][4];
+		//unsigned extraMemoryDelay[4];
+	}
+
 private:
 	Clock<CLOCK_FREQ> lastRefreshTime;
 	int lastPage;
