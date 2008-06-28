@@ -4,6 +4,7 @@
 #include "SpriteChecker.hh"
 #include "Renderer.hh"
 #include "Math.hh"
+#include "serialize.hh"
 #include <cstring>
 
 namespace openmsx {
@@ -174,5 +175,22 @@ void VDPVRAM::change4k8kMapping(bool mapping8k)
 	memcpy(&data[0], tmp, 0x4000);
 }
 
+
+template<typename Archive>
+void VDPVRAM::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize_blob("data", &data[0], actualSize);
+	// TODO ???
+	//VRAMWindow cmdReadWindow;
+	//VRAMWindow cmdWriteWindow;
+	//VRAMWindow nameTable;
+	//VRAMWindow colourTable;
+	//VRAMWindow patternTable;
+	//VRAMWindow bitmapVisibleWindow;
+	//VRAMWindow bitmapCacheWindow;
+	//VRAMWindow spriteAttribTable;
+	//VRAMWindow spritePatternTable;
+}
+INSTANTIATE_SERIALIZE_METHODS(VDPVRAM);
 
 } // namespace openmsx

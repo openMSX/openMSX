@@ -1256,7 +1256,7 @@ void VDP::serialize(Archive& ar, unsigned /*version*/)
 
 	//std::auto_ptr<VDPCmdEngine> cmdEngine;
 	//std::auto_ptr<SpriteChecker> spriteChecker;
-	//std::auto_ptr<VDPVRAM> vram;
+	ar.serialize("vram", *vram);
 	
 	ar.serialize("irqVertical", irqVertical);
 	ar.serialize("irqHorizontal", irqHorizontal);

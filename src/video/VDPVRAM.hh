@@ -485,6 +485,9 @@ public:
 	  */
 	void change4k8kMapping(bool mapping8k);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	/* Common code of cmdWrite() and cpuWrite()
 	 */
