@@ -9,6 +9,8 @@
 #include "CommandException.hh"
 #include "StringSetting.hh"
 #include "StringOp.hh"
+#include "serialize.hh"
+#include "serialize_stl.hh"
 #include "openmsx.hh"
 #include <cassert>
 
@@ -95,10 +97,6 @@ static string resolveHelper(CommandController& controller,
 	throw FileException(filename + " not found in this context");
 }
 
-FileContext::FileContext()
-{
-}
-
 const string FileContext::resolve(CommandController& controller,
                                   const string& filename)
 {
@@ -169,5 +167,14 @@ CurrentDirFileContext::CurrentDirFileContext()
 {
 	paths.push_back("");
 }
+
+
+template<typename Archive>
+void FileContext::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("paths", paths);
+	ar.serialize("savePaths", savePaths);
+}
+INSTANTIATE_SERIALIZE_METHODS(FileContext);
 
 } // namespace openmsx

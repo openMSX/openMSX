@@ -19,9 +19,10 @@ public:
 
 	std::vector<std::string> getPaths(CommandController& controller) const;
 
-protected:
-	FileContext();
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
+protected:
 	std::vector<std::string> paths;
 	std::vector<std::string> savePaths;
 };

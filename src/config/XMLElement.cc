@@ -395,6 +395,7 @@ void XMLElement::serialize(Archive& ar, unsigned /*version*/)
 			addChild(std::auto_ptr<XMLElement>(*it));
 		}
 	}
+	ar.serialize("context", context);
 }
 INSTANTIATE_SERIALIZE_METHODS(XMLElement);
 
