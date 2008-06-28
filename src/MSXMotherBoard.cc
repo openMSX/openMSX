@@ -87,6 +87,7 @@ public:
 	byte readIRQVector();
 
 	const HardwareConfig* getMachineConfig() const;
+	void setMachineConfig(HardwareConfig* machineConfig);
 	void loadMachine(const string& machine);
 	const MSXMotherBoard::Extensions& getExtensions() const;
 	HardwareConfig* findExtension(const string& extensionName);
@@ -362,6 +363,12 @@ const string& MSXMotherBoardImpl::getMachineName() const
 const HardwareConfig* MSXMotherBoardImpl::getMachineConfig() const
 {
 	return machineConfig.get();
+}
+
+void MSXMotherBoardImpl::setMachineConfig(HardwareConfig* machineConfig_)
+{
+	assert(!machineConfig.get());
+	machineConfig.reset(machineConfig_);
 }
 
 void MSXMotherBoardImpl::loadMachine(const string& machine)
@@ -1157,11 +1164,13 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 	//    machineID, userNames
 	ar.serialize("name", machineName);
 	ar.serialize("config", machineConfig, ref(self));
-	//ar.serialize("devices", availableDevices);
-
-	//SharedStuffMap sharedStuffMap;
 
 	//MSXMotherBoard::Extensions extensions;
+
+	// availableDevices should all be references
+	ar.serialize("devices", availableDevices, ref(self), ref(*machineConfig));
+
+	//SharedStuffMap sharedStuffMap;
 
 	// don't serialize:
 	//auto_ptr<AddRemoveUpdate> addRemoveUpdate;
@@ -1275,6 +1284,10 @@ byte MSXMotherBoard::readIRQVector()
 const HardwareConfig* MSXMotherBoard::getMachineConfig() const
 {
 	return pimple->getMachineConfig();
+}
+void MSXMotherBoard::setMachineConfig(HardwareConfig* machineConfig)
+{
+	pimple->setMachineConfig(machineConfig);
 }
 void MSXMotherBoard::loadMachine(const string& machine)
 {

@@ -94,6 +94,7 @@ public:
 	byte readIRQVector();
 
 	const HardwareConfig* getMachineConfig() const;
+	void setMachineConfig(HardwareConfig* machineConfig);
 	void loadMachine(const std::string& machine);
 
 	typedef std::vector<HardwareConfig*> Extensions;
