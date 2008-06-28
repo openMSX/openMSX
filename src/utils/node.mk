@@ -3,7 +3,7 @@
 include build/node-start.mk
 
 SRC_HDR:= \
-	Base64 \
+	Base64 HexDump \
 	CRC16 \
 	CircularBuffer \
 	Date \

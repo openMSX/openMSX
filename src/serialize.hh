@@ -6,6 +6,7 @@
 #include "XMLLoader.hh"
 #include "StringOp.hh"
 #include "Base64.hh"
+#include "HexDump.hh"
 #include "tuple.hh"
 #include "shared_ptr.hh"
 #include "noncopyable.hh"
@@ -1368,8 +1369,20 @@ public:
 	// the resulting string. But memory archives will memcpy the blob.
 	void serialize_blob(const char* tag, const void* data, unsigned len)
 	{
-		std::string tmp = Base64::encode(data, len);
-		serialize(tag, tmp);
+		std::string encoding;
+		std::string tmp;
+		if (true) {
+			encoding = "hex";
+			tmp = HexDump::encode(data, len);
+		} else {
+			encoding = "base64";
+			tmp = Base64::encode(data, len);
+		}
+		this->self().beginTag(tag);
+		this->self().attribute("encoding", encoding);
+		Saver<std::string> saver;
+		saver(this->self(), tmp);
+		this->self().endTag(tag);
 	}
 	template<typename T> void serializeNoID(const char* tag, const T& t)
 	{
@@ -1462,9 +1475,23 @@ public:
 	}
 	void serialize_blob(const char* tag, void* data, unsigned len)
 	{
+		this->self().beginTag(tag);
+		std::string encoding;
+		this->self().attribute("encoding", encoding);
+
 		std::string tmp;
-		serialize(tag, tmp);
-		std::string tmp2 = Base64::decode(tmp);
+		Loader<std::string> loader;
+		loader(this->self(), tmp, make_tuple());
+		this->self().endTag(tag);
+
+		std::string tmp2;
+		if (encoding == "hex") {
+			tmp2 = HexDump::decode(tmp);
+		} else if (encoding == "base64") {
+			tmp2 = Base64::decode(tmp);
+		} else {
+			assert(false); // TODO exception
+		}
 		assert(tmp2.size() == len); // TODO exception
 		memcpy(data, tmp2.data(), len);
 	}
