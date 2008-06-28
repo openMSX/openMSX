@@ -1197,12 +1197,11 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 	//auto_ptr<RenShaTurbo> renShaTurbo;
 	//auto_ptr<LedStatus> ledStatus;
 
-	//int blockedCounter;
-	//bool powered;
-	//bool needReset;
-	//bool needPowerDown;
-	//bool active;
-
+	if (powerSetting.getValue()) {
+		powered = true;
+		getLedStatus().setLed(LedEvent::POWER, true);
+		getMSXMixer().unmute();
+	}
 }
 
 

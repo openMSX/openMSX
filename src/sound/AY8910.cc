@@ -19,6 +19,7 @@
 #include "MSXException.hh"
 #include "StringOp.hh"
 #include "FloatSetting.hh"
+#include "serialize.hh"
 #include "likely.hh"
 #include <cassert>
 #include <cmath>
@@ -1028,5 +1029,62 @@ void AY8910Debuggable::write(unsigned address, byte value, const EmuTime& time)
 {
 	return ay8910.writeRegister(address, value, time);
 }
+
+
+template<typename Archive>
+void AY8910::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("toneGenerators", tone);
+	ar.serialize("noiseGenerator", noise);
+	ar.serialize("envelope", envelope);
+	ar.serialize("registers", regs);
+
+	// amplitude
+	if (ar.isLoader()) {
+		for (int i = 0; i < 3; ++i) {
+			amplitude.setChannelVolume(i, regs[i + AY_AVOL]);
+		}
+	}
+}
+INSTANTIATE_SERIALIZE_METHODS(AY8910);
+
+template<typename Archive>
+void AY8910::Generator::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("period", period);
+	ar.serialize("count", count);
+	ar.serialize("output", output);
+}
+INSTANTIATE_SERIALIZE_METHODS(AY8910::Generator);
+
+template<typename Archive>
+void AY8910::ToneGenerator::serialize(Archive& ar, unsigned version)
+{
+	ar.template serializeInlinedBase<Generator>(*this, version);
+	ar.serialize("vibratoCount", vibratoCount);
+	ar.serialize("detuneCount", detuneCount);
+}
+INSTANTIATE_SERIALIZE_METHODS(AY8910::ToneGenerator);
+
+template<typename Archive>
+void AY8910::NoiseGenerator::serialize(Archive& ar, unsigned version)
+{
+	ar.template serializeInlinedBase<Generator>(*this, version);
+	ar.serialize("random", random);
+}
+INSTANTIATE_SERIALIZE_METHODS(AY8910::NoiseGenerator);
+
+template<typename Archive>
+void AY8910::Envelope::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("period",    period);
+	ar.serialize("count",     count);
+	ar.serialize("step",      step);
+	ar.serialize("attack",    attack);
+	ar.serialize("hold",      hold);
+	ar.serialize("alternate", alternate);
+	ar.serialize("holding",   holding);
+}
+INSTANTIATE_SERIALIZE_METHODS(AY8910::Envelope);
 
 } // namespace openmsx

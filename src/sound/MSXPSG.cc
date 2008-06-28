@@ -100,17 +100,11 @@ template<typename Archive>
 void MSXPSG::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-
-	// ay8910;
-	// ports[2];
-	// cassette;
-	// renShaTurbo;
-
+	ar.serialize("ay8910", *ay8910);
 	ar.serialize("registerLatch", registerLatch);
-	ar.serialize("portB", prev);
+	byte portB = prev;
+	ar.serialize("portB", portB);
 	if (ar.isLoader()) {
-		byte portB = prev;
-		prev = ~portB; // force update
 		writeB(portB, getCurrentTime());
 	}
 	// selectedPort is derived from portB

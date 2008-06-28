@@ -34,6 +34,9 @@ public:
 	void writeRegister(unsigned reg, byte value, const EmuTime& time);
 	void reset(const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	class Generator {
 	public:
@@ -45,6 +48,9 @@ private:
 
 		inline unsigned getNextEventTime();
 		inline void advanceFast(unsigned duration);
+
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned version);
 
 	protected:
 		Generator();
@@ -77,6 +83,9 @@ private:
 
 		inline void doNextEvent(bool doDetune);
 
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned version);
+
 	private:
 		int getDetune();
 
@@ -99,6 +108,9 @@ private:
 
 		inline void doNextEvent();
 
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned version);
+
 	private:
 		int random;
 	};
@@ -112,6 +124,7 @@ private:
 		inline void setMasterVolume(int volume);
 		inline unsigned getEnvelopeMask() const;
 		inline bool followsEnvelope(unsigned chan) const;
+
 	private:
 		unsigned volTable[16];
 		unsigned envVolTable[32];
@@ -133,6 +146,9 @@ private:
 		inline unsigned getNextEventTime();
 		inline void advanceFast(unsigned duration);
 		inline void doNextEvent();
+
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned version);
 
 	private:
 		inline void doSteps(int steps);
