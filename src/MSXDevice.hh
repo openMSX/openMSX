@@ -3,7 +3,11 @@
 #ifndef MSXDEVICE_HH
 #define MSXDEVICE_HH
 
+#include "DeviceFactory.hh"
 #include "openmsx.hh"
+#include "serialize.hh"
+#include "ref.hh"
+#include "checked_cast.hh"
 #include "noncopyable.hh"
 #include <string>
 #include <vector>
@@ -194,6 +198,9 @@ public:
 	 */
 	const EmuTime& getCurrentTime() const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 protected:
 	/** Every MSXDevice has a config entry; this constructor gets
 	  * some device properties from that config entry.
@@ -261,6 +268,37 @@ private:
 	int ps;
 	int ss;
 	int externalSlotID;
+};
+
+REGISTER_BASE_CLASS_2(MSXDevice, "Device",
+                      reference_wrapper<MSXMotherBoard>,
+                      reference_wrapper<HardwareConfig>);
+
+template<> struct SerializeConstructorArgs<MSXDevice>
+{
+	typedef Tuple<reference_wrapper<const XMLElement> > type;
+	template<typename Archive> void save(
+		Archive& ar, const MSXDevice& device)
+	{
+		ar.serialize("config", &device.getDeviceConfig());
+	}
+	template<typename Archive> type load(Archive& ar, unsigned /*version*/)
+	{
+		const XMLElement* config;
+		ar.serialize("config", config);
+		return make_tuple(ref(*config));
+	}
+};
+
+template<typename T> struct MSXDeviceCreator
+{
+	T* operator()(Tuple<reference_wrapper<MSXMotherBoard>,
+	                    reference_wrapper<HardwareConfig>,
+	                    reference_wrapper<const XMLElement> > args) {
+		MSXDevice* device =
+			DeviceFactory::create(args.t1, args.t2, args.t3).release();
+		return checked_cast<T*>(device);
+	}
 };
 
 } // namespace openmsx

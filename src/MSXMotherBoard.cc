@@ -724,6 +724,7 @@ void MSXMotherBoardImpl::unpause()
 
 void MSXMotherBoardImpl::addDevice(MSXDevice& device)
 {
+	// not called during de-serialize
 	availableDevices.push_back(&device);
 }
 
@@ -1152,16 +1153,19 @@ void DeviceInfo::tabCompletion(vector<string>& tokens) const
 template<typename Archive>
 void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 {
+	// don't serialize:
+	//    machineID, userNames
 	ar.serialize("name", machineName);
 	ar.serialize("config", machineConfig, ref(self));
-
-	//Devices availableDevices;
+	//ar.serialize("devices", availableDevices);
 
 	//SharedStuffMap sharedStuffMap;
 
 	//MSXMotherBoard::Extensions extensions;
 
+	// don't serialize:
 	//auto_ptr<AddRemoveUpdate> addRemoveUpdate;
+
 	//auto_ptr<MSXCliComm> msxCliComm;
 	//auto_ptr<MSXEventDistributor> msxEventDistributor;
 	//auto_ptr<MSXCommandController> msxCommandController;
@@ -1188,8 +1192,6 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 	//bool needPowerDown;
 	//bool active;
 
-	// don't serialize:
-	//    userNames
 }
 
 
@@ -1449,11 +1451,6 @@ void MSXMotherBoard::serialize(Archive& ar, unsigned version)
 {
 	pimple->serialize(ar, version);
 }
-template void MSXMotherBoard::serialize(TextInputArchive&,  unsigned);
-template void MSXMotherBoard::serialize(TextOutputArchive&, unsigned);
-template void MSXMotherBoard::serialize(MemInputArchive&,   unsigned);
-template void MSXMotherBoard::serialize(MemOutputArchive&,  unsigned);
-template void MSXMotherBoard::serialize(XmlInputArchive&,   unsigned);
-template void MSXMotherBoard::serialize(XmlOutputArchive&,  unsigned);
+INSTANTIATE_SERIALIZE_METHODS(MSXMotherBoard)
 
 } // namespace openmsx

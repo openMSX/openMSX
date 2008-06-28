@@ -246,8 +246,13 @@ public:
 
 	template<typename T> const PolymorphicSaverBase<Archive>& getSaver(T& t)
 	{
-		typename SaverMap::const_iterator it = saverMap.find(typeid(t));
-		assert(it != saverMap.end());
+		TypeInfo typeInfo(typeid(t));
+		typename SaverMap::const_iterator it = saverMap.find(typeInfo);
+		if (it == saverMap.end()) {
+			std::cerr << "Trying to save an unregistered polymorphic type: "
+			          << typeInfo.name() << std::endl;
+			assert(false);
+		}
 		return *it->second;
 	}
 
@@ -1752,6 +1757,14 @@ private:
 	std::vector<const XMLElement*> elems;
 	unsigned pos;
 };
+
+#define INSTANTIATE_SERIALIZE_METHODS(CLASS) \
+template void CLASS::serialize(TextInputArchive&,  unsigned); \
+template void CLASS::serialize(TextOutputArchive&, unsigned); \
+template void CLASS::serialize(MemInputArchive&,   unsigned); \
+template void CLASS::serialize(MemOutputArchive&,  unsigned); \
+template void CLASS::serialize(XmlInputArchive&,   unsigned); \
+template void CLASS::serialize(XmlOutputArchive&,  unsigned);
 
 } // namespace openmsx
 

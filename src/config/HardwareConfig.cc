@@ -14,6 +14,7 @@
 #include "DeviceFactory.hh"
 #include "CliComm.hh"
 #include "StringOp.hh"
+#include "ref.hh"
 #include <cassert>
 
 #include <iostream>
@@ -358,6 +359,7 @@ int HardwareConfig::getFreePrimarySlot()
 
 void HardwareConfig::addDevice(MSXDevice* device)
 {
+	// not called during de-serialize
 	motherBoard.addDevice(*device);
 	devices.push_back(device);
 }
@@ -386,19 +388,16 @@ void HardwareConfig::serialize(Archive& ar, unsigned /*version*/)
 {
 	// filled-in by constructor:
 	//   motherBoard, hwName, userName
-
-	ar.serialize("config", config);
-
 	// filled-in by parseSlots()
 	//   externalSlots, externalPrimSlots, expandedSlots, allocatedPrimarySlots
-	// filled-in by createDevices()
-	//   devices;
+
+	ar.serialize("config", config);
+	if (ar.isLoader()) {
+		parseSlots();
+	}
+	ar.serialize("devices", devices, ref(motherBoard), ref(*this));
+	ar.serialize("name", name);
 }
-template void HardwareConfig::serialize(TextInputArchive&,  unsigned);
-template void HardwareConfig::serialize(TextOutputArchive&, unsigned);
-template void HardwareConfig::serialize(MemInputArchive&,   unsigned);
-template void HardwareConfig::serialize(MemOutputArchive&,  unsigned);
-template void HardwareConfig::serialize(XmlInputArchive&,   unsigned);
-template void HardwareConfig::serialize(XmlOutputArchive&,  unsigned);
+INSTANTIATE_SERIALIZE_METHODS(HardwareConfig);
 
 } // namespace openmsx

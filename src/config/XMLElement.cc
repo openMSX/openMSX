@@ -395,12 +395,6 @@ void XMLElement::serialize(Archive& ar, unsigned /*version*/)
 		}
 	}
 }
-
-template void XMLElement::serialize(TextInputArchive&,  unsigned);
-template void XMLElement::serialize(TextOutputArchive&, unsigned);
-template void XMLElement::serialize(MemInputArchive&,   unsigned);
-template void XMLElement::serialize(MemOutputArchive&,  unsigned);
-template void XMLElement::serialize(XmlInputArchive&,   unsigned);
-template void XMLElement::serialize(XmlOutputArchive&,  unsigned);
+INSTANTIATE_SERIALIZE_METHODS(XMLElement);
 
 } // namespace openmsx
