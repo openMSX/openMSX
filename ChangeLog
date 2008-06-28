@@ -1,6 +1,19 @@
 $Id$
 
 2008-06-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Added HIGHLY EXPERIMENTAL savestates:
+	   - Only very few things work yet, but I was able to resume
+	     'Road Fighter' running in a MSX1 (actually that's about the
+	     most complex setup that already works).
+	   - There are two new commands (still VERY primitive)
+	         savestate <machineID>
+	         loadstate
+	     'savestate' will create a openmsx.xml.gz file in the current
+	     directory. 'loadstate' will read this file and create a new
+	     machine based on this state. You can use 'activate_machine
+	     <machineID>' to switch to that machine.
+
+2008-06-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Require extension hardwareconfig.xml files to list devices inside a
 	  <devices> tag. We already updated all our device configs for this
 	  over two years ago.
