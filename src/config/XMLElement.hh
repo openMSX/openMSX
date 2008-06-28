@@ -109,6 +109,9 @@ public:
 
 	static std::string XMLEscape(const std::string& str);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	void dump(std::string& result, unsigned indentNum) const;
 

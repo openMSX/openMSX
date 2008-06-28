@@ -3,6 +3,7 @@
 include build/node-start.mk
 
 SRC_HDR:= \
+	Base64 \
 	CRC16 \
 	CircularBuffer \
 	Date \
@@ -22,9 +23,13 @@ HDR_ONLY:= \
 	checked_cast \
 	likely \
 	inline \
+	ref \
 	noncopyable \
 	shared_ptr \
 	static_assert \
+	tuple \
+	TypeInfo \
+	type_traits \
 	DivModByConst
 
 include build/node-end.mk

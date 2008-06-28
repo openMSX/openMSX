@@ -4,6 +4,7 @@
 #include "StringOp.hh"
 #include "FileContext.hh"
 #include "ConfigException.hh"
+#include "serialize.hh"
 #include <libxml/uri.h>
 #include <cassert>
 #include <algorithm>
@@ -366,5 +367,59 @@ string XMLElement::XMLEscape(const string& str)
 	xmlFree(buffer);
 	return result;
 }
+
+} // namespace openmsx
+
+// serialize
+
+template<> struct SerializeConstructorArgs<XMLElement>
+{
+	typedef Tuple<std::string, std::string> type;
+	template<typename Archive> void save(Archive& ar, const XMLElement& xml)
+	{
+		ar.serialize("name", xml.getName());
+		ar.serialize("data", xml.getData());
+	}
+	template<typename Archive> type load(Archive& ar, unsigned /*version*/)
+	{
+		std::string name, data;
+		ar.serialize("name", name);
+		ar.serialize("data", data);
+		return make_tuple(name, data);
+	}
+};
+
+namespace openmsx {
+
+template<typename Archive>
+void XMLElement::serialize(Archive& ar, unsigned /*version*/)
+{
+	// note: filecontext is not (yet?) serialized
+	if (Archive::type == Archive::SAVER) {
+		ar.serialize("attributes", getAttributes());
+		ar.serialize("children", getChildren());
+	} else {
+		XMLElement::Attributes tmpAtt;
+		ar.serialize("attributes", tmpAtt);
+		for (XMLElement::Attributes::const_iterator it = tmpAtt.begin();
+		     it != tmpAtt.end(); ++it) {
+			addAttribute(it->first, it->second);
+		}
+
+		XMLElement::Children tmp;
+		ar.serialize("children", tmp);
+		for (XMLElement::Children::const_iterator it = tmp.begin();
+		     it != tmp.end(); ++it) {
+			addChild(std::auto_ptr<XMLElement>(*it));
+		}
+	}
+}
+
+template void XMLElement::serialize(TextInputArchive&,  unsigned);
+template void XMLElement::serialize(TextOutputArchive&, unsigned);
+template void XMLElement::serialize(MemInputArchive&,   unsigned);
+template void XMLElement::serialize(MemOutputArchive&,  unsigned);
+template void XMLElement::serialize(XmlInputArchive&,   unsigned);
+template void XMLElement::serialize(XmlOutputArchive&,  unsigned);
 
 } // namespace openmsx
