@@ -1255,9 +1255,6 @@ void VDP::serialize(Archive& ar, unsigned /*version*/)
 	//    byte controlValueMasks[32];
 	//    bool warningPrinted;
 
-	//std::auto_ptr<VDPCmdEngine> cmdEngine;
-	ar.serialize("vram", *vram);
-	
 	ar.serialize("irqVertical", irqVertical);
 	ar.serialize("irqHorizontal", irqHorizontal);
 	ar.serialize("frameStartTime", frameStartTime);
@@ -1290,7 +1287,12 @@ void VDP::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("displayMode", mode);
 	displayMode.setByte(mode);
 
+	//std::auto_ptr<VDPCmdEngine> cmdEngine;
+	ar.serialize("vram", *vram);
 	ar.serialize("spriteChecker", *spriteChecker); // must come after displayMode
+	if (ar.isLoader()) {
+		renderer->reset(Schedulable::getCurrentTime());
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(VDP);
 

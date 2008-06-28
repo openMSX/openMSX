@@ -415,6 +415,7 @@ void SpriteChecker::serialize(Archive& ar, unsigned version)
 		//   currentLine, mode0, planar
 		// Invalidate data in spriteBuffer and spriteCount, will
 		// be recalculated when needed.
+		frameStartTime.reset(vdp.getFrameStartTime());
 		frameStart(vdp.getFrameStartTime());
 		setDisplayMode(vdp.getDisplayMode(), frameStartTime.getTime());
 	}

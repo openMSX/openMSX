@@ -288,6 +288,9 @@ public:
 		}
 	}
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	/** For access to setData.
 	  */

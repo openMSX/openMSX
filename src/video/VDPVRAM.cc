@@ -177,19 +177,30 @@ void VDPVRAM::change4k8kMapping(bool mapping8k)
 
 
 template<typename Archive>
+void VRAMWindow::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("baseAddr",  baseAddr);
+	ar.serialize("baseMask",  baseMask);
+	ar.serialize("indexMask", indexMask);
+	if (ar.isLoader()) {
+		combiMask = ~baseMask | indexMask;
+		// TODO ?  observer->updateWindow(isEnabled(), time);
+	}
+}
+
+template<typename Archive>
 void VDPVRAM::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize_blob("data", &data[0], actualSize);
-	// TODO ???
-	//VRAMWindow cmdReadWindow;
-	//VRAMWindow cmdWriteWindow;
-	//VRAMWindow nameTable;
-	//VRAMWindow colourTable;
-	//VRAMWindow patternTable;
-	//VRAMWindow bitmapVisibleWindow;
-	//VRAMWindow bitmapCacheWindow;
-	//VRAMWindow spriteAttribTable;
-	//VRAMWindow spritePatternTable;
+	ar.serialize("cmdReadWindow",       cmdReadWindow);
+	ar.serialize("cmdWriteWindow",      cmdWriteWindow);
+	ar.serialize("nameTable",           nameTable);
+	ar.serialize("colourTable",         colourTable);
+	ar.serialize("patternTable",        patternTable);
+	ar.serialize("bitmapVisibleWindow", bitmapVisibleWindow);
+	ar.serialize("bitmapCacheWindow",   bitmapCacheWindow);
+	ar.serialize("spriteAttribTable",   spriteAttribTable);
+	ar.serialize("spritePatternTable",  spritePatternTable);
 }
 INSTANTIATE_SERIALIZE_METHODS(VDPVRAM);
 
