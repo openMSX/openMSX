@@ -5,6 +5,7 @@
 #include "FileContext.hh"
 #include "ConfigException.hh"
 #include "serialize.hh"
+#include "serialize_stl.hh"
 #include <libxml/uri.h>
 #include <cassert>
 #include <algorithm>

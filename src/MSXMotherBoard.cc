@@ -39,6 +39,7 @@
 #include "Observer.hh"
 #include "StringOp.hh"
 #include "serialize.hh"
+#include "serialize_stl.hh"
 #include "ref.hh"
 #include <cassert>
 #include <map>

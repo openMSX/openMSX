@@ -2,6 +2,7 @@
 
 #include "Schedulable.hh"
 #include "Scheduler.hh"
+#include "serialize_stl.hh"
 #include <iostream>
 
 namespace openmsx {

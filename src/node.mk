@@ -49,7 +49,7 @@ HDR_ONLY:= \
 	Clock \
 	MSXException InitException PlugException \
 	PatchInterface I8255Interface \
-	serialize_core serialize_constr
+	serialize_core serialize_stl serialize_constr
 
 DIST:= \
 	Doxyfile

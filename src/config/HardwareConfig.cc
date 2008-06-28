@@ -14,6 +14,7 @@
 #include "DeviceFactory.hh"
 #include "CliComm.hh"
 #include "serialize.hh"
+#include "serialize_stl.hh"
 #include "StringOp.hh"
 #include "ref.hh"
 #include <cassert>
