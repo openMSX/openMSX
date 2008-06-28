@@ -236,6 +236,27 @@ string getBaseName(const string& path)
 	}
 }
 
+string join(const string& part1, const string& part2)
+{
+	if (isAbsolutePath(part2)) {
+		return part2;
+	}
+	if (part1.empty() || (*part1.rbegin() == '/')) {
+		return part1 + part2;
+	}
+	return part1 + '/' + part2;
+}
+string join(const string& part1, const string& part2, const string& part3)
+{
+	return join(join(part1, part2), part3);
+}
+
+string join(const string& part1, const string& part2,
+            const string& part3, const string& part4)
+{
+	return join(join(join(part1, part2), part3), part4);
+}
+
 string getNativePath(const string &path)
 {
 #ifdef _WIN32

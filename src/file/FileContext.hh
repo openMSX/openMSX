@@ -13,7 +13,6 @@ class CommandController;
 class FileContext
 {
 public:
-	virtual ~FileContext();
 	const std::string resolve(const std::string& filename);
 	const std::string resolveCreate(const std::string& filename);
 	const std::vector<std::string>& getPaths() const;
@@ -27,6 +26,7 @@ protected:
 	std::vector<std::string> savePaths;
 };
 
+
 class ConfigFileContext : public FileContext
 {
 public:
@@ -38,20 +38,26 @@ public:
 class SystemFileContext : public FileContext
 {
 public:
-	explicit SystemFileContext(bool preferSystemDir = false);
+	SystemFileContext();
 };
 
-class SettingFileContext : public FileContext
+class OnlySystemFileContext : public FileContext
 {
 public:
-	explicit SettingFileContext(const std::string& url);
+	OnlySystemFileContext();
 };
 
 class UserFileContext : public FileContext
 {
 public:
 	explicit UserFileContext(CommandController& commandController,
-	          const std::string& savePath = "", bool skipUserDirs = false);
+	                         const std::string& savePath = "");
+};
+
+class CurrentDirFileContext : public FileContext
+{
+public:
+	CurrentDirFileContext();
 };
 
 } // namespace openmsx

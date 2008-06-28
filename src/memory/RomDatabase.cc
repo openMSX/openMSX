@@ -5,6 +5,7 @@
 #include "Rom.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
+#include "FileOperations.hh"
 #include "LocalFileReference.hh"
 #include "CliComm.hh"
 #include "StringOp.hh"
@@ -212,7 +213,7 @@ static void initDatabase(CliComm& cliComm)
 	const vector<string>& paths = context.getPaths();
 	for (vector<string>::const_iterator it = paths.begin();
 	     it != paths.end(); ++it) {
-		string filename = *it + "softwaredb.xml";
+		string filename = FileOperations::join(*it, "softwaredb.xml");
 		auto_ptr<XMLElement> doc(
 			openDB(cliComm, filename, "softwaredb1.dtd"));
 		if (doc.get()) {

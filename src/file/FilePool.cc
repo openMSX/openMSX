@@ -42,7 +42,7 @@ FilePool::FilePool(SettingsConfig& settingsConfig)
 	const vector<string>& paths = context.getPaths();
 	for (vector<string>::const_iterator it = paths.begin();
 	     it != paths.end(); ++it) {
-		string dir = *it + "/systemroms";
+		string dir = FileOperations::join(*it, "systemroms");
 		directories.push_back(dir);
 	}
 

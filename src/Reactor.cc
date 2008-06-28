@@ -296,12 +296,12 @@ void Reactor::getHwConfigs(const string& type, set<string>& result)
 	const vector<string>& paths = context.getPaths();
 	for (vector<string>::const_iterator it = paths.begin();
 	     it != paths.end(); ++it) {
-		string path = *it + type;
+		string path = FileOperations::join(*it, type);
 		ReadDir configsDir(path);
 		while (dirent* d = configsDir.getEntry()) {
 			string name = d->d_name;
-			string dir = path + '/' + name;
-			string config = dir + "/hardwareconfig.xml";
+			string dir = FileOperations::join(path, name);
+			string config = FileOperations::join(dir, "hardwareconfig.xml");
 			if (FileOperations::isDirectory(dir) &&
 			    FileOperations::isRegularFile(config)) {
 				result.insert(name);
@@ -442,7 +442,7 @@ void Reactor::run(CommandLineParser& parser)
 
 	// execute init.tcl
 	try {
-		SystemFileContext context(true); // only in system dir
+		OnlySystemFileContext context; // only in system dir
 		commandController.source(context.resolve("init.tcl"));
 	} catch (FileException& e) {
 		// no init.tcl, ignore

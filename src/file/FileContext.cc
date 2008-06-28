@@ -16,13 +16,7 @@ using std::vector;
 
 namespace openmsx {
 
-// class FileContext
-
 FileContext::FileContext()
-{
-}
-
-FileContext::~FileContext()
 {
 }
 
@@ -45,7 +39,7 @@ const string FileContext::resolveCreate(const string& filename)
 		} catch (FileException& e) {
 			PRT_DEBUG(e.getMessage());
 		}
-		result = path + filename;
+		result = FileOperations::join(path, filename);
 	}
 	assert(FileOperations::expandTilde(result) == result);
 	return result;
@@ -54,23 +48,18 @@ const string FileContext::resolveCreate(const string& filename)
 string FileContext::resolve(const vector<string>& pathList,
                             const string& filename) const
 {
-	// TODO handle url-protocols better
 	PRT_DEBUG("Context: " << filename);
 	string filepath = FileOperations::expandCurrentDirFromDrive(filename);
 	filepath = FileOperations::expandTilde(filepath);
-	if ((filepath.find("://") != string::npos) ||
-	    FileOperations::isAbsolutePath(filepath)) {
-		// protocol specified or absolute path, don't resolve
+	if (FileOperations::isAbsolutePath(filepath)) {
+		// absolute path, don't resolve
 		return filepath;
 	}
 
 	for (vector<string>::const_iterator it = pathList.begin();
 	     it != pathList.end(); ++it) {
-		string name = FileOperations::expandTilde(*it + filename);
-		string::size_type pos = name.find("://");
-		if (pos != string::npos) {
-			name = name.substr(pos + 3);
-		}
+		string name = FileOperations::join(*it, filename);
+		name = FileOperations::expandTilde(name);
 		PRT_DEBUG("Context: try " << name);
 		if (FileOperations::exists(name)) {
 			return name;
@@ -85,94 +74,57 @@ const vector<string>& FileContext::getPaths() const
 	return paths;
 }
 
-// class ConfigFileContext
+///
 
 ConfigFileContext::ConfigFileContext(const string& path,
                                      const string& hwDescr,
                                      const string& userName)
 {
 	paths.push_back(path);
-	savePaths.push_back(FileOperations::getUserOpenMSXDir() +
-	                    "/persistent/" + hwDescr + '/' + userName + '/');
+	savePaths.push_back(FileOperations::join(
+		FileOperations::getUserOpenMSXDir(),
+		"persistent", hwDescr, userName));
 }
 
-
-// class SystemFileContext
-
-SystemFileContext::SystemFileContext(bool preferSystemDir)
+SystemFileContext::SystemFileContext()
 {
-	string userDir   = FileOperations::getUserDataDir()   + '/';
-	string systemDir = FileOperations::getSystemDataDir() + '/';
-
-	if (preferSystemDir) {
-		paths.push_back(systemDir);
-		paths.push_back(userDir);
-	} else {
-		paths.push_back(userDir);
-		paths.push_back(systemDir);
-	}
-
+	string userDir   = FileOperations::getUserDataDir();
+	string systemDir = FileOperations::getSystemDataDir();
+	paths.push_back(userDir);
+	paths.push_back(systemDir);
 	savePaths.push_back(userDir);
 }
 
-
-// class SettingFileContext
-
-SettingFileContext::SettingFileContext(const string& url)
+OnlySystemFileContext::OnlySystemFileContext()
 {
-	string path = FileOperations::getBaseName(url);
-	paths.push_back(path);
-	PRT_DEBUG("SettingFileContext: " << path);
-
-	string home = FileOperations::getUserDataDir();
-	string::size_type pos1 = path.find(home);
-	if (pos1 != string::npos) {
-		string::size_type len1 = home.length();
-		string path1 = path.replace(pos1, len1, FileOperations::getSystemDataDir());
-		paths.push_back(path1);
-		PRT_DEBUG("SettingFileContext: " << path1);
-	}
-
-	savePaths = paths;
+	paths.push_back(FileOperations::getSystemDataDir());
 }
 
-
-// class UserFileContext
-
 UserFileContext::UserFileContext(CommandController& commandController,
-                                 const string& savePath, bool skipUserDirs)
+                                 const string& savePath)
 {
 	paths.push_back("");
-	if (!skipUserDirs) {
-		try {
-			vector<string> dirs;
-			const string& list = commandController.getGlobalSettings().
-				getUserDirSetting().getValue();
-			commandController.splitList(list, dirs);
-			for (vector<string>::const_iterator it = dirs.begin();
-			     it != dirs.end(); ++it) {
-				string path = *it;
-				if (path.empty()) {
-					continue;
-				}
-				if (*path.rbegin() != '/') {
-					path += '/';
-				}
-				path = FileOperations::expandTilde(path);
-				paths.push_back(path);
-			}
-		} catch (CommandException& e) {
-			commandController.getCliComm().printWarning(
-				"user directories: " + e.getMessage());
-		}
+	try {
+		const string& list = commandController.getGlobalSettings().
+			getUserDirSetting().getValue();
+		vector<string> dirs;
+		commandController.splitList(list, dirs);
+		paths.insert(paths.end(), dirs.begin(), dirs.end());
+	} catch (CommandException& e) {
+		commandController.getCliComm().printWarning(
+			"user directories: " + e.getMessage());
 	}
 
 	if (!savePath.empty()) {
-		savePaths.push_back(FileOperations::getUserOpenMSXDir() +
-		                    "/persistent/" + savePath + '/');
-	} else {
-		savePaths = paths;
+		savePaths.push_back(FileOperations::join(
+			FileOperations::getUserOpenMSXDir(),
+			"persistent", savePath));
 	}
+}
+
+CurrentDirFileContext::CurrentDirFileContext()
+{
+	paths.push_back("");
 }
 
 } // namespace openmsx

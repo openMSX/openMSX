@@ -55,6 +55,18 @@ namespace FileOperations {
 	 */
 	std::string getBaseName(const std::string& path);
 
+	/** Join two paths.
+	 * Returns the equivalent of 'path1 + '/' + path2'. If 'part2' is an
+	 * absolute path, that path is returned ('part1' is ignored). If
+	 * 'part1' is empty or if it already ends with '/', there will be no
+	 * extra '/' added inbetween 'part1' and 'part2'.
+	 */
+	std::string join(const std::string& part1, const std::string& part2);
+	std::string join(const std::string& part1, const std::string& part2,
+	                 const std::string& part3);
+	std::string join(const std::string& part1, const std::string& part2,
+	                 const std::string& part3, const std::string& part4);
+
 	/**
 	 * Returns the path in conventional path-delimiter.
 	 * @param path The pathname.

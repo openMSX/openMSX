@@ -635,9 +635,7 @@ bool SettingOption::parseOption(const string &option, deque<string> &cmdLine)
 		throw FatalError("Only one setting option allowed");
 	}
 	try {
-		UserFileContext context(
-		        parser.getCommandController(),
-		        "", true); // skip user directories
+		CurrentDirFileContext context;
 		parser.settingsConfig.loadSetting(
 			context, getArgument(option, cmdLine));
 		parser.haveSettings = true;

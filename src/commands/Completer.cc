@@ -158,12 +158,12 @@ void Completer::completeFileName(vector<string>& tokens,
 	for (vector<string>::const_iterator it = paths.begin();
 	     it != paths.end();
 	     ++it) {
-		string dirname = *it + basename;
+		string dirname = FileOperations::join(*it, basename);
 		ReadDir dir(FileOperations::getNativePath(dirname));
 		while (dirent* de = dir.getEntry()) {
-			string name = dirname + de->d_name;
+			string name = FileOperations::join(dirname, de->d_name);
 			if (FileOperations::exists(name)) {
-				string nm = basename + de->d_name;
+				string nm = FileOperations::join(basename, de->d_name);
 				if (FileOperations::isDirectory(name)) {
 					nm += '/';
 				}
