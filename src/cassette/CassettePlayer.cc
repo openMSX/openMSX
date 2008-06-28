@@ -643,8 +643,9 @@ string TapeCommand::execute(const vector<string>& tokens, const EmuTime& time)
 	} else if (tokens[1] == "insert" && tokens.size() == 3) {
 		try {
 			result += "Changing tape";
-			UserFileContext context(getCommandController());
-			cassettePlayer.playTape(context.resolve(tokens[2]), time);
+			UserFileContext context;
+			cassettePlayer.playTape(
+				context.resolve(getCommandController(), tokens[2]), time);
 		} catch (MSXException& e) {
 			throw CommandException(e.getMessage());
 		}
@@ -712,8 +713,9 @@ string TapeCommand::execute(const vector<string>& tokens, const EmuTime& time)
 	} else {
 		try {
 			result += "Changing tape";
-			UserFileContext context(getCommandController());
-			cassettePlayer.playTape(context.resolve(tokens[1]), time);
+			UserFileContext context;
+			cassettePlayer.playTape(
+				context.resolve(getCommandController(), tokens[1]), time);
 		} catch (MSXException& e) {
 			throw CommandException(e.getMessage());
 		}
@@ -815,11 +817,11 @@ void TapeCommand::tabCompletion(vector<string>& tokens) const
 	//	extra.insert("record");
 		extra.insert("getpos");
 		extra.insert("getlength");
-		UserFileContext context(getCommandController());
-		completeFileName(tokens, context, extra);
+		UserFileContext context;
+		completeFileName(getCommandController(), tokens, context, extra);
 	} else if ((tokens.size() == 3) && (tokens[1] == "insert")) {
-		UserFileContext context(getCommandController());
-		completeFileName(tokens, context);
+		UserFileContext context;
+		completeFileName(getCommandController(), tokens, context);
 	} else if ((tokens.size() == 3) && (tokens[1] == "motorcontrol")) {
 		set<string> extra;
 		extra.insert("on");

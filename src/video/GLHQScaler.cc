@@ -61,13 +61,14 @@ GLHQScaler::GLHQScaler()
 	edgeBuffer->setImage(320, 240);
 
 	SystemFileContext context;
+	CommandController* controller = NULL; // ok for SystemFileContext
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	byte buffer[4 * 4 * 4 * 4096];
 	for (int i = 0; i < 3; ++i) {
 		int n = i + 2;
 		string offsetsName = "shaders/HQ" + StringOp::toString(n) +
 		                     "xOffsets.dat";
-		File offsetsFile(context.resolve(offsetsName));
+		File offsetsFile(context.resolve(*controller, offsetsName));
 		offsetTexture[i].reset(new Texture());
 		offsetTexture[i]->setWrapMode(false);
 		offsetTexture[i]->bind();
@@ -84,7 +85,7 @@ GLHQScaler::GLHQScaler()
 
 		string weightsName = "shaders/HQ" + StringOp::toString(n) +
 		                     "xWeights.dat";
-		File weightsFile(context.resolve(weightsName));
+		File weightsFile(context.resolve(*controller, weightsName));
 		weightTexture[i].reset(new Texture());
 		weightTexture[i]->setWrapMode(false);
 		weightTexture[i]->bind();

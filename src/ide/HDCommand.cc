@@ -58,8 +58,9 @@ void HDCommand::execute(const std::vector<TclObject*>& tokens, TclObject& result
 			}
 		}
 		try {
-			UserFileContext context(controller);
-			string filename = context.resolve(tokens[fileToken]->getString());
+			UserFileContext context;
+			string filename = context.resolve(
+				controller, tokens[fileToken]->getString());
 			std::auto_ptr<File> newFile(new File(filename));
 			hd.file = newFile;
 			cliComm.update(CliComm::MEDIA, hd.getName(), filename);
@@ -86,8 +87,8 @@ void HDCommand::tabCompletion(vector<string>& tokens) const
 	if (tokens.size() < 3) {
 		extra.insert("insert");
 	}
-	UserFileContext context(getCommandController());
-	completeFileName(tokens, context, extra);
+	UserFileContext context;
+	completeFileName(getCommandController(), tokens, context, extra);
 }
 
 } // namespace openmsx

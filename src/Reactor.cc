@@ -293,7 +293,8 @@ InfoCommand& Reactor::getOpenMSXInfoCommand()
 void Reactor::getHwConfigs(const string& type, set<string>& result)
 {
 	SystemFileContext context;
-	const vector<string>& paths = context.getPaths();
+	CommandController* controller = NULL; // ok for SystemFileContext
+	vector<string> paths = context.getPaths(*controller);
 	for (vector<string>::const_iterator it = paths.begin();
 	     it != paths.end(); ++it) {
 		string path = FileOperations::join(*it, type);
@@ -443,7 +444,8 @@ void Reactor::run(CommandLineParser& parser)
 	// execute init.tcl
 	try {
 		OnlySystemFileContext context; // only in system dir
-		commandController.source(context.resolve("init.tcl"));
+		commandController.source(
+			context.resolve(commandController, "init.tcl"));
 	} catch (FileException& e) {
 		// no init.tcl, ignore
 	}
@@ -453,8 +455,9 @@ void Reactor::run(CommandLineParser& parser)
 	for (CommandLineParser::Scripts::const_iterator it = scripts.begin();
 	     it != scripts.end(); ++it) {
 		try {
-			UserFileContext context(commandController);
-			commandController.source(context.resolve(*it));
+			UserFileContext context;
+			commandController.source(
+				context.resolve(commandController, *it));
 		} catch (FileException& e) {
 			throw FatalError("Couldn't execute script: " +
 			                 e.getMessage());

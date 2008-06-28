@@ -333,8 +333,8 @@ void CartCmd::tabCompletion(vector<string>& tokens) const
 		extra.insert("eject");
 		extra.insert("insert");
 	}
-	UserFileContext context(getCommandController());
-	completeFileName(tokens, context, extra);
+	UserFileContext context;
+	completeFileName(getCommandController(), tokens, context, extra);
 }
 
 } // namespace openmsx

@@ -8,6 +8,7 @@
 #include "CliComm.hh"
 #include "CommandException.hh"
 #include "StringSetting.hh"
+#include "StringOp.hh"
 #include "openmsx.hh"
 #include <cassert>
 
@@ -16,38 +17,63 @@ using std::vector;
 
 namespace openmsx {
 
-FileContext::FileContext()
-{
-}
+const string USER_DIRS    = "{{USER_DIRS}}";
+const string USER_OPENMSX = "{{USER_OPENMSX}}";
+const string USER_DATA    = "{{USER_DATA}}";
+const string SYSTEM_DATA  = "{{SYSTEM_DATA}}";
 
-const string FileContext::resolve(const string& filename)
-{
-	string result = resolve(paths, filename);
-	assert(FileOperations::expandTilde(result) == result);
-	return result;
-}
 
-const string FileContext::resolveCreate(const string& filename)
+static void getUserDirs(CommandController& controller, vector<string>& result)
 {
-	string result;
+	assert(&controller);
 	try {
-		result = resolve(savePaths, filename);
-	} catch (FileException& e) {
-		string path = savePaths.front();
-		try {
-			FileOperations::mkdirp(path);
-		} catch (FileException& e) {
-			PRT_DEBUG(e.getMessage());
-		}
-		result = FileOperations::join(path, filename);
+		const string& list = controller.getGlobalSettings().
+			getUserDirSetting().getValue();
+		vector<string> dirs;
+		controller.splitList(list, dirs);
+		result.insert(result.end(), dirs.begin(), dirs.end());
+	} catch (CommandException& e) {
+		controller.getCliComm().printWarning(
+			"user directories: " + e.getMessage());
 	}
-	assert(FileOperations::expandTilde(result) == result);
+}
+
+static string subst(const string& path, const string& before,
+                    const string& after)
+{
+	assert(StringOp::startsWith(path, before));
+	return after + path.substr(before.size());
+}
+
+static vector<string> getPathsHelper(CommandController& controller,
+                                     const vector<string>& input)
+{
+	vector<string> result;
+	for (vector<string>::const_iterator it = input.begin();
+	     it != input.end(); ++it) {
+		if (StringOp::startsWith(*it, USER_OPENMSX)) {
+			result.push_back(subst(*it, USER_OPENMSX,
+			                       FileOperations::getUserOpenMSXDir()));
+		} else if (StringOp::startsWith(*it, USER_DATA)) {
+			result.push_back(subst(*it, USER_DATA,
+			                       FileOperations::getUserDataDir()));
+		} else if (StringOp::startsWith(*it, SYSTEM_DATA)) {
+			result.push_back(subst(*it, SYSTEM_DATA,
+			                       FileOperations::getSystemDataDir()));
+		} else if (*it == USER_DIRS) {
+			getUserDirs(controller, result);
+		} else {
+			result.push_back(*it);
+		}
+	}
 	return result;
 }
 
-string FileContext::resolve(const vector<string>& pathList,
-                            const string& filename) const
+static string resolveHelper(CommandController& controller,
+                            const vector<string>& pathList_,
+                            const string& filename)
 {
+	vector<string> pathList = getPathsHelper(controller, pathList_);
 	PRT_DEBUG("Context: " << filename);
 	string filepath = FileOperations::expandCurrentDirFromDrive(filename);
 	filepath = FileOperations::expandTilde(filepath);
@@ -69,9 +95,40 @@ string FileContext::resolve(const vector<string>& pathList,
 	throw FileException(filename + " not found in this context");
 }
 
-const vector<string>& FileContext::getPaths() const
+FileContext::FileContext()
 {
-	return paths;
+}
+
+const string FileContext::resolve(CommandController& controller,
+                                  const string& filename)
+{
+	string result = resolveHelper(controller, paths, filename);
+	assert(FileOperations::expandTilde(result) == result);
+	return result;
+}
+
+const string FileContext::resolveCreate(const string& filename)
+{
+	string result;
+	try {
+		CommandController* controller = NULL;
+		result = resolveHelper(*controller, savePaths, filename);
+	} catch (FileException& e) {
+		string path = savePaths.front();
+		try {
+			FileOperations::mkdirp(path);
+		} catch (FileException& e) {
+			PRT_DEBUG(e.getMessage());
+		}
+		result = FileOperations::join(path, filename);
+	}
+	assert(FileOperations::expandTilde(result) == result);
+	return result;
+}
+
+vector<string> FileContext::getPaths(CommandController& controller) const
+{
+	return getPathsHelper(controller, paths);
 }
 
 ///
@@ -82,43 +139,29 @@ ConfigFileContext::ConfigFileContext(const string& path,
 {
 	paths.push_back(path);
 	savePaths.push_back(FileOperations::join(
-		FileOperations::getUserOpenMSXDir(),
-		"persistent", hwDescr, userName));
+		USER_OPENMSX, "persistent", hwDescr, userName));
 }
 
 SystemFileContext::SystemFileContext()
 {
-	string userDir   = FileOperations::getUserDataDir();
-	string systemDir = FileOperations::getSystemDataDir();
-	paths.push_back(userDir);
-	paths.push_back(systemDir);
-	savePaths.push_back(userDir);
+	paths.push_back(USER_DATA);
+	paths.push_back(SYSTEM_DATA);
+	savePaths.push_back(USER_DATA);
 }
 
 OnlySystemFileContext::OnlySystemFileContext()
 {
-	paths.push_back(FileOperations::getSystemDataDir());
+	paths.push_back(SYSTEM_DATA);
 }
 
-UserFileContext::UserFileContext(CommandController& commandController,
-                                 const string& savePath)
+UserFileContext::UserFileContext(const string& savePath)
 {
 	paths.push_back("");
-	try {
-		const string& list = commandController.getGlobalSettings().
-			getUserDirSetting().getValue();
-		vector<string> dirs;
-		commandController.splitList(list, dirs);
-		paths.insert(paths.end(), dirs.begin(), dirs.end());
-	} catch (CommandException& e) {
-		commandController.getCliComm().printWarning(
-			"user directories: " + e.getMessage());
-	}
+	paths.push_back(USER_DIRS);
 
 	if (!savePath.empty()) {
 		savePaths.push_back(FileOperations::join(
-			FileOperations::getUserOpenMSXDir(),
-			"persistent", savePath));
+			USER_OPENMSX, "persistent", savePath));
 	}
 }
 

@@ -254,7 +254,8 @@ void OSDSettingChecker::check(SettingImpl<FilenameSetting::Policy>& setting,
 	                      string& value)
 {
 	SystemFileContext context;
-	string filename = value.empty() ? value : context.resolve(value);
+	CommandController* controller = NULL; // ok for SystemFileContext
+	string filename = value.empty() ? value : context.resolve(*controller, value);
 	if (&setting == renderer.backgroundSetting.get()) {
 		renderer.loadBackground(filename);
 	} else if (&setting == renderer.fontSetting.get()) {

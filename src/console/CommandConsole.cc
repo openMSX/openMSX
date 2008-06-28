@@ -85,7 +85,7 @@ CommandConsole::~CommandConsole()
 void CommandConsole::saveHistory()
 {
 	try {
-		UserFileContext context(commandController, "console");
+		UserFileContext context("console");
 		std::ofstream outputfile(
 		        context.resolveCreate("history.txt").c_str());
 		if (!outputfile) {
@@ -104,7 +104,7 @@ void CommandConsole::saveHistory()
 void CommandConsole::loadHistory()
 {
 	try {
-		UserFileContext context(commandController, "console");
+		UserFileContext context("console");
 		std::ifstream inputfile(
 		        context.resolveCreate("history.txt").c_str());
 		if (!inputfile) {

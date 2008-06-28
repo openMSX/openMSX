@@ -67,6 +67,8 @@ Rom::Rom(MSXMotherBoard& motherBoard_, const string& name_,
 
 void Rom::init(CliComm& cliComm, const XMLElement& config)
 {
+	CommandController& controller = getMotherBoard().getCommandController();
+
 	extendedRom = NULL;
 	XMLElement::Children sums;
 	config.getChildren("sha1", sums);
@@ -87,7 +89,7 @@ void Rom::init(CliComm& cliComm, const XMLElement& config)
 				string filename = filenameElem->getData();
 				try {
 					filename = config.getFileContext().
-					             resolve(filename);
+					             resolve(controller, filename);
 					file.reset(new File(filename));
 				} catch (FileException& e) {
 					throw MSXException("Error reading ROM: " +
@@ -132,7 +134,7 @@ void Rom::init(CliComm& cliComm, const XMLElement& config)
 			       = patches.begin(); it != patches.end(); ++it) {
 				const string& filename = (*it)->getData();
 				patch.reset(new IPSPatch(
-					context.resolve(filename), patch));
+					context.resolve(controller, filename), patch));
 			}
 			unsigned patchSize = patch->getSize();
 			if (patchSize <= size) {

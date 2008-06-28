@@ -16,7 +16,9 @@ UnicodeKeymap::UnicodeKeymap(const string& keyboardType)
 	, deadKey(KeyInfo(0, 0, 0))
 {
 	SystemFileContext context;
-	string filename = context.resolve("unicodemaps/unicodemap." + keyboardType);
+	CommandController* controller = NULL; // ok for SystemFileContext
+	string filename = context.resolve(
+		*controller, "unicodemaps/unicodemap." + keyboardType);
 	try {
 		File file(filename);
 		byte* buf = file.mmap();

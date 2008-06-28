@@ -210,7 +210,8 @@ static void initDatabase(CliComm& cliComm)
 	init = true;
 
 	SystemFileContext context;
-	const vector<string>& paths = context.getPaths();
+	CommandController* controller = NULL; // ok for SystemFileContext
+	vector<string> paths = context.getPaths(*controller);
 	for (vector<string>::const_iterator it = paths.begin();
 	     it != paths.end(); ++it) {
 		string filename = FileOperations::join(*it, "softwaredb.xml");

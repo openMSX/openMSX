@@ -60,13 +60,14 @@ GLHQLiteScaler::GLHQLiteScaler()
 	edgeBuffer->setImage(320, 240);
 
 	SystemFileContext context;
+	CommandController* controller = NULL; // ok for SystemFileContext
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	byte buffer[2 * 4 * 4 * 4096];
 	for (int i = 0; i < 3; ++i) {
 		int n = i + 2;
 		string offsetName = "shaders/HQ" + StringOp::toString(n) +
 		                     "xLiteOffset.dat";
-		File offsetFile(context.resolve(offsetName));
+		File offsetFile(context.resolve(*controller, offsetName));
 		offsetTexture[i].reset(new Texture());
 		offsetTexture[i]->setWrapMode(false);
 		offsetTexture[i]->bind();

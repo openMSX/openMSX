@@ -243,7 +243,8 @@ void DiskCommand::execute(const vector<TclObject*>& tokens, TclObject& result)
 			}
 		}
 		try {
-			UserFileContext context(getCommandController());
+			CommandController& controller = getCommandController();
+			UserFileContext context;
 			vector<string> args;
 			args.push_back(diskChanger.getDriveName());
 			for (unsigned i = firstFileToken; i < tokens.size(); ++i) {
@@ -254,10 +255,12 @@ void DiskCommand::execute(const vector<TclObject*>& tokens, TclObject& result)
 							"Missing argument for option \"" + option + "\"");
 					}
 					args.push_back(context.resolve(
+						controller,
 						tokens[i]->getString()));
 				} else {
 					// backwards compatibility
-					args.push_back(context.resolve(option));
+					args.push_back(context.resolve(
+						controller, option));
 				}
 			}
 			diskChanger.sendChangeDiskEvent(args);
@@ -284,8 +287,8 @@ void DiskCommand::tabCompletion(vector<string>& tokens) const
 		extra.insert("eject");
 		extra.insert("ramdsk");
 		extra.insert("insert");
-		UserFileContext context(getCommandController());
-		completeFileName(tokens, context, extra);
+		UserFileContext context;
+		completeFileName(getCommandController(), tokens, context, extra);
 	}
 }
 

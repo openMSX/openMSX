@@ -182,13 +182,14 @@ void Keyboard::loadKeymapfile(const string& filename)
 }
 
 Keyboard::Keyboard(Scheduler& scheduler,
-                   CommandController& commandController,
+                   CommandController& commandController_,
                    EventDistributor& eventDistributor,
                    MSXEventDistributor& msxEventDistributor_,
                    string& keyboardType, bool hasKP, bool keyGhosting_,
                    bool keyGhostSGCprotected, bool codeKanaLocks_,
                    bool graphLocks_)
 	: Schedulable(scheduler)
+	, commandController(commandController_)
 	, msxEventDistributor(msxEventDistributor_)
 	, keyMatrixUpCmd  (new KeyMatrixUpCmd  (
 		commandController, msxEventDistributor, scheduler, *this))
@@ -221,7 +222,7 @@ Keyboard::Keyboard(Scheduler& scheduler,
 
 	string keymapFile = keyboardSettings->getKeymapFile().getValueString();
 	if (!keymapFile.empty()) {
-		loadKeymapfile(context.resolve(keymapFile));
+		loadKeymapfile(context.resolve(commandController, keymapFile));
 	}
 
 	keyboardSettings->getKeymapFile().attach(*this);
@@ -814,7 +815,7 @@ void Keyboard::update(const Setting& setting)
 	string keymapFile = keyboardSettings->getKeymapFile().getValueString();
 	if (!keymapFile.empty()) {
 		SystemFileContext context;
-		loadKeymapfile(context.resolve(keymapFile));
+		loadKeymapfile(context.resolve(commandController, keymapFile));
 	}
 }
 

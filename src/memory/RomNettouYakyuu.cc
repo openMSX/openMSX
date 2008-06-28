@@ -66,7 +66,8 @@ RomNettouYakyuu::RomNettouYakyuu(
 			SystemFileContext context;
 			std::string filename =
 				"nettou_yakyuu/nettou_yakyuu_" + StringOp::toString(i) + ".wav";
-			sample[i].reset(new WavData(context.resolve(filename)));
+			sample[i].reset(new WavData(context.resolve(
+				motherBoard.getCommandController(), filename)));
 		} catch (MSXException& e) {
 			if (!alreadyWarned) {
 				alreadyWarned = true;

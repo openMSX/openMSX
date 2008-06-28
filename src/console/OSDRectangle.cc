@@ -116,7 +116,8 @@ template <typename IMAGE> BaseImage* OSDRectangle::create(
 		}
 	} else {
 		SystemFileContext context;
-		string file = context.resolve(imageName);
+		CommandController* controller = NULL; // ok for SystemFileContext
+		string file = context.resolve(*controller, imageName);
 		if (sw && sh) {
 			return new IMAGE(output, file, sw, sh);
 		} else {

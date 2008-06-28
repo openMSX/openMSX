@@ -436,7 +436,8 @@ bool PixelBuffers::enabled = true;
 static string readTextFile(const string& filename)
 {
 	SystemFileContext context;
-	File file(context.resolve(filename));
+	CommandController* controller = NULL; // ok for SystemFileContext
+	File file(context.resolve(*controller, filename));
 	return string(reinterpret_cast<char*>(file.mmap()), file.getSize());
 }
 #endif

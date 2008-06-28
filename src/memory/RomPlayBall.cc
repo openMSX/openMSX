@@ -31,7 +31,8 @@ RomPlayBall::RomPlayBall(MSXMotherBoard& motherBoard, const XMLElement& config,
 			SystemFileContext context;
 			std::string filename =
 				"playball/playball_" + StringOp::toString(i) + ".wav";
-			sample[i].reset(new WavData(context.resolve(filename)));
+			sample[i].reset(new WavData(context.resolve(
+				motherBoard.getCommandController(), filename)));
 		} catch (MSXException& e) {
 			if (!alreadyWarned) {
 				alreadyWarned = true;

@@ -13,14 +13,14 @@ class CommandController;
 class FileContext
 {
 public:
-	const std::string resolve(const std::string& filename);
+	const std::string resolve(CommandController& controller,
+	                          const std::string& filename);
 	const std::string resolveCreate(const std::string& filename);
-	const std::vector<std::string>& getPaths() const;
+
+	std::vector<std::string> getPaths(CommandController& controller) const;
 
 protected:
 	FileContext();
-	std::string resolve(const std::vector<std::string>& pathList,
-	                    const std::string& filename) const;
 
 	std::vector<std::string> paths;
 	std::vector<std::string> savePaths;
@@ -50,8 +50,7 @@ public:
 class UserFileContext : public FileContext
 {
 public:
-	explicit UserFileContext(CommandController& commandController,
-	                         const std::string& savePath = "");
+	explicit UserFileContext(const std::string& savePath = "");
 };
 
 class CurrentDirFileContext : public FileContext

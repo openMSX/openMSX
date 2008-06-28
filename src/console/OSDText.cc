@@ -91,7 +91,8 @@ void OSDText::setProperty(const std::string& name, const std::string& value)
 		invalidateChildren();
 	} else if (name == "-font") {
 		SystemFileContext context;
-		string file = context.resolve(value);
+		CommandController* controller = NULL; // ok for SystemFileContext
+		string file = context.resolve(*controller, value);
 		if (!FileOperations::isRegularFile(file)) {
 			throw CommandException("Not a valid font file: " + value);
 		}
@@ -138,7 +139,8 @@ template <typename IMAGE> BaseImage* OSDText::create(OutputSurface& output)
 	if (!font) {
 		try {
 			SystemFileContext context;
-			string file = context.resolve(fontfile);
+			CommandController* controller = NULL; // ok for SystemFileContext
+			string file = context.resolve(*controller, fontfile);
 			int ptSize = size * getScaleFactor(output);
 			font = TTFFontPool::instance().get(file, ptSize);
 		} catch (MSXException& e) {

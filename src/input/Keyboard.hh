@@ -93,6 +93,7 @@ private:
 	                Unicode::unicode1_char unicode2);
 	void debug(const char* format, ...);
 
+	CommandController& commandController;
 	MSXEventDistributor& msxEventDistributor;
 
 	friend class KeyMatrixUpCmd;

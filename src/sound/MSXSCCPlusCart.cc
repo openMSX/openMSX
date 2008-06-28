@@ -9,6 +9,7 @@
 #include "File.hh"
 #include "FileContext.hh"
 #include "FileException.hh"
+#include "MSXMotherBoard.hh"
 #include "CacheLine.hh"
 #include "XMLElement.hh"
 
@@ -24,7 +25,8 @@ MSXSCCPlusCart::MSXSCCPlusCart(MSXMotherBoard& motherBoard,
 		// read the rom file
 		const std::string& filename = fileElem->getData();
 		try {
-			File file(config.getFileContext().resolve(filename));
+			File file(config.getFileContext().resolve(
+				motherBoard.getCommandController(), filename));
 			int romSize = file.getSize();
 			file.read(&(*ram)[0], romSize);
 		} catch (FileException& e) {

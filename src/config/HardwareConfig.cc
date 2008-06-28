@@ -113,8 +113,7 @@ auto_ptr<HardwareConfig> HardwareConfig::createRomConfig(
 	device->addChild(auto_ptr<XMLElement>(
 		new XMLElement("sramname", sramfile + ".SRAM")));
 	device->setFileContext(auto_ptr<FileContext>(
-		new UserFileContext(motherBoard.getCommandController(),
-		                    "roms/" + sramfile)));
+		new UserFileContext("roms/" + sramfile)));
 
 	secondary->addChild(device);
 	primary->addChild(secondary);
@@ -222,8 +221,10 @@ std::auto_ptr<XMLElement> HardwareConfig::loadConfig(
 	const string& path, const string& hwName, const string& userName)
 {
 	SystemFileContext context;
+	CommandController* controller = NULL; // ok for SystemFileContext
 	string filename = context.resolve(
-		path + '/' + hwName + "/hardwareconfig.xml");
+		*controller, // NULL
+		FileOperations::join(path, hwName, "hardwareconfig.xml"));
 	try {
 		LocalFileReference fileRef(filename);
 		std::auto_ptr<XMLElement> result = XMLLoader::loadXML(
