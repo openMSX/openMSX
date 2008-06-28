@@ -1170,8 +1170,7 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 
 	ar.serialize("name", machineName);
 	ar.serialize("config", machineConfig, ref(self));
-
-	//MSXMotherBoard::Extensions extensions;
+	ar.serialize("extensions", extensions, ref(self));
 
 	// availableDevices should all be references
 	ar.serialize("devices", availableDevices, ref(self), ref(*machineConfig));

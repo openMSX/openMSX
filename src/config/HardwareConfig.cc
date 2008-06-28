@@ -395,7 +395,12 @@ void HardwareConfig::serialize(Archive& ar, unsigned /*version*/)
 
 	ar.serialize("config", config);
 	if (ar.isLoader()) {
-		motherBoard.setMachineConfig(this); // must be done before parseSlots()
+		if (!motherBoard.getMachineConfig()) {
+			// must be done before parseSlots()
+			motherBoard.setMachineConfig(this);
+		} else {
+			// already set because this is an extension
+		}
 		parseSlots();
 	}
 	ar.serialize("devices", devices, ref(motherBoard), ref(*this));
