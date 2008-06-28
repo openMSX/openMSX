@@ -2,6 +2,7 @@
 
 #include "I8255.hh"
 #include "I8255Interface.hh"
+#include "serialize.hh"
 #include "CliComm.hh"
 
 namespace openmsx {
@@ -309,6 +310,19 @@ void I8255::writeControlPort(byte value, const EmuTime& time)
 		}
 	}
 }
+
+template<typename Archive>
+void I8255::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("latchPortA", latchPortA);
+	ar.serialize("latchPortB", latchPortB);
+	ar.serialize("latchPortC", latchPortC);
+	ar.serialize("control",    control);
+
+	// note: don't write to any output ports (is handled elsewhere)
+	//       don't serialize 'warningPrinted'
+}
+INSTANTIATE_SERIALIZE_METHODS(I8255);
 
 } // namespace openmsx
 

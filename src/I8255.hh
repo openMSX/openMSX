@@ -39,6 +39,9 @@ public:
 	void writePortC(byte value, const EmuTime& time);
 	void writeControlPort(byte value, const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	byte readC0(const EmuTime& time);
 	byte readC1(const EmuTime& time);
