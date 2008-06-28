@@ -3,6 +3,8 @@
 #ifndef SCHEDULABLE_HH
 #define SCHEDULABLE_HH
 
+#include "Scheduler.hh" // TODO split
+#include "serialize.hh"
 #include "noncopyable.hh"
 #include <string>
 
@@ -49,6 +51,9 @@ public:
 	  * This is the same as getScheduler().getCurrentTime(). */
 	const EmuTime& getCurrentTime() const;
 
+	template <typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 protected:
 	explicit Schedulable(Scheduler& scheduler);
 	virtual ~Schedulable();
@@ -59,8 +64,11 @@ protected:
 	bool pendingSyncPoint(int userData = 0);
 
 private:
+	void getSyncPoints(Scheduler::SyncPoints& result) const;
+
 	Scheduler& scheduler;
 };
+REGISTER_BASE_CLASS(Schedulable, "Schedulable");
 
 } // namespace openmsx
 

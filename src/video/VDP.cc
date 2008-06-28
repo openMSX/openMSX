@@ -1246,6 +1246,7 @@ template<typename Archive>
 void VDP::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
+	ar.template serializeBase<Schedulable>(*this);
 
 	// not serialized
 	//    std::auto_ptr<Renderer> renderer;

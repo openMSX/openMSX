@@ -49,7 +49,7 @@ class CliComm;
   * A note about timing: the start of a frame or line is defined as
   * the starting time of the corresponding sync (vsync, hsync).
   */
-class VDP : public MSXDevice, private Schedulable,
+class VDP : public MSXDevice, public Schedulable,
             private VideoSystemChangeListener
 {
 public:

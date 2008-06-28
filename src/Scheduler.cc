@@ -4,10 +4,27 @@
 #include "Schedulable.hh"
 #include "Thread.hh"
 #include "MSXCPU.hh"
+#include "serialize.hh"
 #include <cassert>
 #include <algorithm>
 
 namespace openmsx {
+
+// TODO move to utils
+template<typename InputIterator, typename OutputIterator, typename Predicate>
+OutputIterator copy_if(InputIterator begin, InputIterator end,
+                       OutputIterator out, Predicate p)
+{
+	while (begin != end) {
+		if (p(*begin)) {
+			*out = *begin;
+			++out;
+		}
+		++begin;
+	}
+	return out;
+}
+
 
 bool Scheduler::LessSyncPoint::operator()(
 	const EmuTime& time, const SynchronizationPoint& sp) const
@@ -22,12 +39,12 @@ bool Scheduler::LessSyncPoint::operator()(
 }
 
 
-Scheduler::FindSchedulable::FindSchedulable(Schedulable& schedulable_)
+Scheduler::FindSchedulable::FindSchedulable(const Schedulable& schedulable_)
 	: schedulable(schedulable_)
 {
 }
 
-bool Scheduler::FindSchedulable::operator()(SynchronizationPoint& sp) const
+bool Scheduler::FindSchedulable::operator()(const SynchronizationPoint& sp) const
 {
 	return sp.getDevice() == &schedulable;
 }
@@ -71,6 +88,12 @@ void Scheduler::setSyncPoint(const EmuTime& time, Schedulable& device, int userD
 		// scheduleHelper() anyway calls setNextSyncPoint() at the end
 		cpu->setNextSyncPoint(getNext());
 	}
+}
+
+void Scheduler::getSyncPoints(SyncPoints& result, const Schedulable& device) const
+{
+	copy_if(syncPoints.begin(), syncPoints.end(), back_inserter(result),
+	        FindSchedulable(device));
 }
 
 void Scheduler::removeSyncPoint(Schedulable& device, int userData)
@@ -144,5 +167,18 @@ void Scheduler::scheduleHelper(const EmuTime& limit)
 
 	cpu->setNextSyncPoint(getNext());
 }
+
+
+template <typename Archive>
+void Scheduler::SynchronizationPoint::serialize(Archive& ar, unsigned /*version*/)
+{
+	// SynchronizationPoint is always serialized via Schedulable. A
+	// Schedulable has a collection of SynchronizationPoints, all with the
+	// same Schedulable. So there's no need to serialize 'device'.
+	//Schedulable* device;
+	ar.serialize("time", timeStamp);
+	ar.serialize("type", userData);
+}
+INSTANTIATE_SERIALIZE_METHODS(Scheduler::SynchronizationPoint);
 
 } // namespace openmsx

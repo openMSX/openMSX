@@ -15,22 +15,30 @@ class MSXCPU;
 
 class Scheduler : private noncopyable
 {
-private:
+public:
 	class SynchronizationPoint
 	{
 	public:
 		SynchronizationPoint(const EmuTime& time,
 		                     Schedulable* dev, int usrdat)
 			: timeStamp(time), device(dev), userData(usrdat) {}
+		SynchronizationPoint()
+			: timeStamp(EmuTime::zero), device(0), userData(0) {}
 		const EmuTime& getTime() const { return timeStamp; }
 		Schedulable* getDevice() const { return device; }
 		int getUserData() const { return userData; }
+
+		template <typename Archive>
+		void serialize(Archive& ar, unsigned version);
+
 	private:
 		EmuTime timeStamp;
 		Schedulable* device;
 		int userData;
 	};
+	typedef std::vector<SynchronizationPoint> SyncPoints;
 
+private:
 	struct LessSyncPoint {
 		bool operator()(const EmuTime& time,
 		                const SynchronizationPoint& sp) const;
@@ -38,9 +46,9 @@ private:
 		                const EmuTime& time) const;
 	};
 	struct FindSchedulable {
-		explicit FindSchedulable(Schedulable& schedulable);
-		bool operator()(SynchronizationPoint& sp) const;
-		Schedulable& schedulable;
+		explicit FindSchedulable(const Schedulable& schedulable);
+		bool operator()(const SynchronizationPoint& sp) const;
+		const Schedulable& schedulable;
 	};
 
 public:
@@ -96,6 +104,8 @@ private: // -> intended for Schedulable
 	void setSyncPoint(const EmuTime& timestamp, Schedulable& device,
 	                  int userData = 0);
 
+	void getSyncPoints(SyncPoints& result, const Schedulable& device) const;
+
 	/**
 	 * Removes a syncPoint of a given device that matches the given
 	 * userData.
@@ -120,7 +130,6 @@ private:
 	/** Vector used as heap, not a priority queue because that
 	  * doesn't allow removal of non-top element.
 	  */
-	typedef std::vector<SynchronizationPoint> SyncPoints;
 	SyncPoints syncPoints;
 	EmuTime scheduleTime;
 	MSXCPU* cpu;

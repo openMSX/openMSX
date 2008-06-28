@@ -27,6 +27,11 @@ void Schedulable::setSyncPoint(const EmuTime& timestamp, int userData)
 	scheduler.setSyncPoint(timestamp, *this, userData);
 }
 
+void Schedulable::getSyncPoints(Scheduler::SyncPoints& result) const
+{
+	scheduler.getSyncPoints(result, *this);
+}
+
 void Schedulable::removeSyncPoint(int userData)
 {
 	scheduler.removeSyncPoint(*this, userData);
@@ -51,5 +56,24 @@ const EmuTime& Schedulable::getCurrentTime() const
 {
 	return scheduler.getCurrentTime();
 }
+
+template <typename Archive>
+void Schedulable::serialize(Archive& ar, unsigned /*version*/)
+{
+	if (ar.isLoader()) {
+		removeSyncPoints();
+		Scheduler::SyncPoints syncPoints;
+		ar.serialize("syncPoints", syncPoints);
+		for (Scheduler::SyncPoints::const_iterator it = syncPoints.begin();
+		     it != syncPoints.end(); ++it) {
+			setSyncPoint(it->getTime(), it->getUserData());
+		}
+	} else {
+		Scheduler::SyncPoints syncPoints;
+		getSyncPoints(syncPoints);
+		ar.serialize("syncPoints", syncPoints);
+	}
+}
+INSTANTIATE_SERIALIZE_METHODS(Schedulable);
 
 } // namespace openmsx

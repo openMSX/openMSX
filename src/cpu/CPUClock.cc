@@ -50,7 +50,7 @@ void CPUClock::advanceTime(const EmuTime& time)
 }
 
 template<typename Archive>
-void CPUClock::serialize(Archive& ar, unsigned version)
+void CPUClock::serialize(Archive& ar, unsigned /*version*/)
 {
 	sync();
 	ar.serialize("clock", clock);
