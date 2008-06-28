@@ -2,6 +2,7 @@
 
 #include "CPU.hh"
 #include "BreakPoint.hh"
+#include "serialize.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -135,6 +136,33 @@ void CPU::checkBreakPoints(std::pair<BreakPoints::const_iterator,
 		it->second->checkAndExecute();
 	}
 }
+
+template<typename Archive>
+void CPU::CPURegs::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("af",  AF_.w);
+	ar.serialize("bc",  BC_.w);
+	ar.serialize("de",  DE_.w);
+	ar.serialize("hl",  HL_.w);
+	ar.serialize("af2", AF2_.w);
+	ar.serialize("bc2", BC2_.w);
+	ar.serialize("de2", DE2_.w);
+	ar.serialize("hl2", HL2_.w);
+	ar.serialize("ix",  IX_.w);
+	ar.serialize("iy",  IY_.w);
+	ar.serialize("pc",  PC_.w);
+	ar.serialize("sp",  SP_.w);
+	ar.serialize("i",   I_);
+	byte r = getR();
+	ar.serialize("r",   r);  // combined R_ and R2_
+	setR(r);
+	ar.serialize("im",  IM_);
+	ar.serialize("iff1", IFF1_);
+	ar.serialize("iff2", IFF2_);
+	ar.serialize("afterEI", afterEI_);
+	ar.serialize("halt", HALT_);
+}
+INSTANTIATE_SERIALIZE_METHODS(CPU::CPURegs);
 
 } // namespace openmsx
 

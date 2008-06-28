@@ -3099,8 +3099,7 @@ template<class T> template<typename Archive>
 void CPUCore<T>::serialize(Archive& ar, unsigned /*version*/)
 {
 	// TODO CPU base class
-	//CPURegs R;
-
+	ar.serialize("regs", R);
 	ar.serialize("IRQStatus", IRQStatus);
 	ar.serialize("memptr", memptr);
 

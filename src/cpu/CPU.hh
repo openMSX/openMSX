@@ -306,6 +306,9 @@ public:
 		inline bool getAfterEI() const { return afterEI_; }
 		inline void setAfterEI(bool x) { afterEI_ = x; }
 
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned version);
+
 	private:
 		z80regpair AF_, BC_, DE_, HL_;
 		z80regpair AF2_, BC2_, DE2_, HL2_;

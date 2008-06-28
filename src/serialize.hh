@@ -1728,6 +1728,7 @@ public:
 	{
 		assert(current);
 		assert(current->getName() == tag);
+		(void)tag;
 		current = current->getParent();
 	}
 	bool canHaveOptionalAttributes() const { return true; }
@@ -1802,11 +1803,13 @@ public:
 	{
 		++pos;
 		assert(elems[pos]->getName() == tag);
+		(void)tag;
 	}
 	void endTag(const std::string& tag)
 	{
 		++pos;
 		assert(elems[pos]->getName() == tag);
+		(void)tag;
 	}
 	template<typename T> void attribute(const std::string& name, T& t)
 	{

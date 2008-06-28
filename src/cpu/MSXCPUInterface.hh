@@ -176,6 +176,9 @@ public:
 	typedef std::vector<WatchPoint*> WatchPoints;
 	const WatchPoints& getWatchPoints() const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	byte readMemSlow(word address, const EmuTime& time);
 	void writeMemSlow(word address, byte value, const EmuTime& time);
@@ -223,7 +226,6 @@ private:
 	MSXMotherBoard& motherBoard;
 
 	std::auto_ptr<VDPIODelay> delayDevice;
-	friend class TurborCPUInterface;
 
 	WatchPoints watchPoints;
 	byte disallowReadCache [CacheLine::NUM];

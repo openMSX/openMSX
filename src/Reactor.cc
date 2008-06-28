@@ -820,7 +820,7 @@ string SaveMachineCommand::execute(const vector<string>& tokens)
 	return ""; //TODO
 }
 
-string SaveMachineCommand::help(const vector<string>& tokens) const
+string SaveMachineCommand::help(const vector<string>& /*tokens*/) const
 {
 	return "TODO";
 }
@@ -842,7 +842,7 @@ LoadMachineCommand::LoadMachineCommand(
 {
 }
 
-string LoadMachineCommand::execute(const vector<string>& tokens)
+string LoadMachineCommand::execute(const vector<string>& /*tokens*/)
 {
 	Reactor::Board newBoard(new MSXMotherBoard(reactor));
 	XmlInputArchive in("openmsx.xml");
@@ -851,12 +851,12 @@ string LoadMachineCommand::execute(const vector<string>& tokens)
 	return newBoard->getMachineID();
 }
 
-string LoadMachineCommand::help(const vector<string>& tokens) const
+string LoadMachineCommand::help(const vector<string>& /*tokens*/) const
 {
 	return "TODO";
 }
 
-void LoadMachineCommand::tabCompletion(vector<string>& tokens) const
+void LoadMachineCommand::tabCompletion(vector<string>& /*tokens*/) const
 {
 	// TODO
 }

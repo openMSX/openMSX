@@ -18,6 +18,7 @@
 #include "MSXException.hh"
 #include "CartridgeSlotManager.hh"
 #include "DeviceFactory.hh"
+#include "serialize.hh"
 #include "StringOp.hh"
 #include "checked_cast.hh"
 #include <cstdio>
@@ -970,5 +971,29 @@ string IOInfo::help(const vector<string>& /*tokens*/) const
 {
 	return "Return the name of the device connected to the given IO port.";
 }
+
+
+template<typename Archive>
+void MSXCPUInterface::serialize(Archive& ar, unsigned /*version*/)
+{
+	// TODO watchPoints ???
+
+	// primary and 4 secundary slot select registers
+	byte prim = 0;
+	if (!ar.isLoader()) {
+		for (int i = 0; i < 4; ++i) {
+			prim |= primarySlotState[i] << (2 * i);
+		}
+	}
+	ar.serialize("primarySlots", prim);
+	ar.serialize("subSlotRegs", subSlotRegister);
+	if (ar.isLoader()) {
+		setPrimarySlots(prim);
+		for (int i = 0; i < 4; ++i) {
+			setSubSlot(i, subSlotRegister[i]);
+		}
+	}
+}
+INSTANTIATE_SERIALIZE_METHODS(MSXCPUInterface);
 
 } // namespace openmsx

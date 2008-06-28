@@ -1189,7 +1189,8 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 	//auto_ptr<DummyDevice> dummyDevice;
 
 	ar.serialize("cpu", *msxCpu);
-	//auto_ptr<MSXCPUInterface> msxCpuInterface;
+	ar.serialize("cpuInterface", *msxCpuInterface);
+
 	//auto_ptr<PanasonicMemory> panasonicMemory;
 	//auto_ptr<MSXDeviceSwitch> deviceSwitch;
 	//auto_ptr<CassettePortInterface> cassettePort;
