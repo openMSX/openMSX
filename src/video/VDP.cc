@@ -962,7 +962,7 @@ void VDP::changeRegister(byte reg, byte val, const EmuTime& time)
 		break;
 	case 9:
 		if ((val & 1) && ! warningPrinted) {
-			warningPrinted=true;
+			warningPrinted = true;
 			cliComm.printWarning
 				("The running MSX software has set bit 0 of VDP register 9 "
 				 "(dot clock direction) to one. In an ordinary MSX, "
@@ -1240,6 +1240,55 @@ void VRAMPointerDebug::write(unsigned address, byte value, const EmuTime& /*time
 		ptr = (ptr & 0xFF00) | value;
 	}
 }
+
+
+template<typename Archive>
+void VDP::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+
+	// not serialized
+	//    std::auto_ptr<Renderer> renderer;
+	//    VdpVersion version;
+	//    int controlRegMask;
+	//    byte controlValueMasks[32];
+	//    bool warningPrinted;
+
+	//std::auto_ptr<VDPCmdEngine> cmdEngine;
+	//std::auto_ptr<SpriteChecker> spriteChecker;
+	//std::auto_ptr<VDPVRAM> vram;
+	//Clock<TICKS_PER_SECOND> frameStartTime;
+	//IRQHelper irqVertical;
+	//IRQHelper irqHorizontal;
+	//EmuTime displayStartSyncTime;
+	//EmuTime vScanSyncTime;
+	//EmuTime hScanSyncTime;
+	//int displayStart;
+	//int horizontalScanOffset;
+	//int lineZero;
+	//int horizontalAdjust;
+	//int verticalAdjust;
+	//byte controlRegs[32];
+	//int blinkCount;
+	//int vramPointer;
+	//word palette[16];
+	//bool isDisplayArea;
+	//bool palTiming;
+	//bool interlaced;
+	//byte statusReg0;
+	//byte statusReg1;
+	//byte statusReg2;
+	//bool blinkState;
+	//byte dataLatch;
+	//bool registerDataStored;
+	//bool paletteDataStored;
+	//byte readAhead;
+	//bool cpuExtendedVram; // calculate from r#45
+	//DisplayMode displayMode;
+	//bool displayEnabled;
+}
+INSTANTIATE_SERIALIZE_METHODS(VDP);
+
 
 } // namespace openmsx
 

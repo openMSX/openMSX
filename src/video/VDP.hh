@@ -451,6 +451,9 @@ public:
 		statusReg0 = (statusReg0 & 0x80) | (value & 0x7F);
 	}
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	/** Time at which the internal VDP display line counter is reset,
 	  * expressed in ticks after vsync.

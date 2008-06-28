@@ -29,6 +29,9 @@ public:
 	virtual const std::string& getClass() const;
 	virtual void plug(Pluggable& dev, const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	void setStrobe(bool newStrobe, const EmuTime& time);
 	void writeData(byte newData, const EmuTime& time);

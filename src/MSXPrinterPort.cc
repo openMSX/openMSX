@@ -99,4 +99,14 @@ PrinterPortDevice& MSXPrinterPort::getPluggedPrintDev() const
 	return *checked_cast<PrinterPortDevice*>(&getPlugged());
 }
 
+template<typename Archive>
+void MSXPrinterPort::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+	ar.serialize("strobe", strobe);
+	ar.serialize("data", data);
+	// TODO force writing data to port??
+}
+INSTANTIATE_SERIALIZE_METHODS(MSXPrinterPort);
+
 } // namespace openmsx
