@@ -27,6 +27,7 @@
 #include <cstring>
 #include <memory>
 #include <algorithm>
+#include <zlib.h>
 
 namespace openmsx {
 
@@ -1709,17 +1710,22 @@ class XmlOutputArchive : public OutputArchiveBase<XmlOutputArchive>
 {
 public:
 	XmlOutputArchive(const std::string& filename)
-		: os(filename.c_str())
-		, current(new XMLElement("serial"))
+		: current(new XMLElement("serial"))
 	{
+		file = gzopen((filename + ".gz").c_str(), "wb9");
+		assert(file); // TODO
 	}
 
 	~XmlOutputArchive()
 	{
-		os << "<?xml version=\"1.0\" ?>\n"
-                      "<!DOCTYPE openmsx-serialize SYSTEM 'openmsx-serialize.dtd'>\n";
-		os << current->dump();
+		const char* header =
+		    "<?xml version=\"1.0\" ?>\n"
+		    "<!DOCTYPE openmsx-serialize SYSTEM 'openmsx-serialize.dtd'>\n";
+		gzwrite(file, header, strlen(header));
+		std::string dump = current->dump();
 		delete current;
+		gzwrite(file, dump.data(), dump.size());
+		gzclose(file);
 	}
 
 	template <typename T> void save(const T& t)
@@ -1768,7 +1774,7 @@ public:
 	bool canCountChildren() const { return true; }
 
 private:
-	std::ofstream os;
+	gzFile file;
 	XMLElement* current;
 };
 

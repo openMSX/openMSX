@@ -815,7 +815,7 @@ string SaveMachineCommand::execute(const vector<string>& tokens)
 	}
 	Reactor::Board board = reactor.getMachine(tokens[1]);
 
-	XmlOutputArchive out("openmsx.xml");
+	XmlOutputArchive out("openmsx.xml"); // TODO
 	out.serialize("machine", *board);
 	return ""; //TODO
 }
@@ -845,7 +845,7 @@ LoadMachineCommand::LoadMachineCommand(
 string LoadMachineCommand::execute(const vector<string>& /*tokens*/)
 {
 	Reactor::Board newBoard(new MSXMotherBoard(reactor));
-	XmlInputArchive in("openmsx.xml");
+	XmlInputArchive in("openmsx.xml.gz"); // TODO
 	in.serialize("machine", *newBoard);
 	reactor.boards.push_back(newBoard);
 	return newBoard->getMachineID();
