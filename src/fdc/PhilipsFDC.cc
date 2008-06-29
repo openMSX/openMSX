@@ -5,13 +5,14 @@
 #include "DriveMultiplexer.hh"
 #include "WD2793.hh"
 #include "XMLElement.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
 PhilipsFDC::PhilipsFDC(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: WD2793BasedFDC(motherBoard, config)
+	, brokenFDCread(config.getChildDataAsBool("broken_fdc_read", false))
 {
-	brokenFDCread = config.getChildDataAsBool("broken_fdc_read", false);
 	reset(getCurrentTime());
 }
 
@@ -187,5 +188,15 @@ byte* PhilipsFDC::getWriteCacheLine(word address) const
 		return unmappedWrite;
 	}
 }
+
+
+template<typename Archive>
+void PhilipsFDC::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<WD2793BasedFDC>(*this);
+	ar.serialize("sideReg", sideReg);
+	ar.serialize("driveReg", driveReg);
+}
+INSTANTIATE_SERIALIZE_METHODS(PhilipsFDC);
 
 } // namespace openmsx

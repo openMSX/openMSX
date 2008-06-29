@@ -3,6 +3,7 @@
 #include "WD2793.hh"
 #include "DiskDrive.hh"
 #include "MSXException.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -779,6 +780,48 @@ void WD2793::endCmd()
 	setIRQ();
 	statusReg &= ~BUSY;
 }
+
+
+static enum_string<WD2793::FSMState> fsmStateInfo[] = {
+	{ "NONE",            WD2793::FSM_NONE },
+	{ "SEEK",            WD2793::FSM_SEEK },
+	{ "TYPE2_WAIT_LOAD", WD2793::FSM_TYPE2_WAIT_LOAD },
+	{ "TYPE2_LOADED",    WD2793::FSM_TYPE2_LOADED },
+	{ "TYPE2_ROTATED",   WD2793::FSM_TYPE2_ROTATED },
+	{ "TYPE3_WAIT_LOAD", WD2793::FSM_TYPE3_WAIT_LOAD },
+	{ "TYPE3_LOADED",    WD2793::FSM_TYPE3_LOADED },
+	{ "IDX_IRQ",         WD2793::FSM_IDX_IRQ }
+};
+SERIALIZE_ENUM(WD2793::FSMState, fsmStateInfo);
+
+template<typename Archive>
+void WD2793::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<Schedulable>(*this);
+
+	ar.serialize("commandStart", commandStart);
+	ar.serialize("DRQTimer", DRQTimer);
+
+	ar.serialize("fsmState", fsmState);
+	ar.serialize("statusReg", statusReg);
+	ar.serialize("commandReg", commandReg);
+	ar.serialize("sectorReg", sectorReg);
+	ar.serialize("trackReg", trackReg);
+	ar.serialize("dataReg", dataReg);
+
+	ar.serialize("directionIn", directionIn);
+	ar.serialize("INTRQ", INTRQ);
+	ar.serialize("immediateIRQ", immediateIRQ);
+	ar.serialize("DRQ", DRQ);
+	ar.serialize("transferring", transferring);
+	ar.serialize("formatting", formatting);
+	ar.serialize("needInitWriteTrack", needInitWriteTrack);
+
+	ar.serialize_blob("dataBuffer", dataBuffer, sizeof(dataBuffer));
+	ar.serialize("dataCurrent", dataCurrent);
+	ar.serialize("dataAvailable", dataAvailable);
+}
+INSTANTIATE_SERIALIZE_METHODS(WD2793);
 
 } // namespace openmsx
 

@@ -1,6 +1,7 @@
 // $Id$
 
 #include "DriveMultiplexer.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -149,5 +150,24 @@ bool DriveMultiplexer::dummyDrive()
 {
 	return drive[selected]->dummyDrive();
 }
+
+
+static enum_string<DriveMultiplexer::DriveNum> driveNumInfo[] = {
+	{ "A",    DriveMultiplexer::DRIVE_A },
+	{ "B",    DriveMultiplexer::DRIVE_B },
+	{ "C",    DriveMultiplexer::DRIVE_C },
+	{ "D",    DriveMultiplexer::DRIVE_D },
+	{ "none", DriveMultiplexer::NO_DRIVE }
+};
+SERIALIZE_ENUM(DriveMultiplexer::DriveNum, driveNumInfo);
+
+template<typename Archive>
+void DriveMultiplexer::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("selected", selected);
+	ar.serialize("motor", motor);
+	ar.serialize("side", side);
+}
+INSTANTIATE_SERIALIZE_METHODS(DriveMultiplexer);
 
 } // namespace openmsx

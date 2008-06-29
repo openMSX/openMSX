@@ -19,11 +19,16 @@ public:
 	virtual const byte* getReadCacheLine(word start) const;
 	virtual byte* getWriteCacheLine(word address) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
-	bool brokenFDCread;
+	const bool brokenFDCread;
 	byte sideReg;
 	byte driveReg;
 };
+
+REGISTER_MSXDEVICE(PhilipsFDC, "PhilipsFDC");
 
 } // namespace openmsx
 

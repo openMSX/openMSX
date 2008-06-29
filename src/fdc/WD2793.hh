@@ -11,7 +11,7 @@ namespace openmsx {
 class Scheduler;
 class DiskDrive;
 
-class WD2793 : private Schedulable
+class WD2793 : public Schedulable
 {
 public:
 	WD2793(Scheduler& scheduler, DiskDrive& drive, const EmuTime& time);
@@ -39,7 +39,10 @@ public:
 	bool peekIRQ (const EmuTime& time);
 	bool peekDTRQ(const EmuTime& time);
 
-private:
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
+//private:
 	enum FSMState {
 		FSM_NONE,
 		FSM_SEEK,
@@ -51,6 +54,7 @@ private:
 		FSM_IDX_IRQ
 	};
 
+private:
 	virtual void executeUntil(const EmuTime& time, int state);
 	virtual const std::string& schedName() const;
 

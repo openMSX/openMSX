@@ -56,6 +56,9 @@ public:
 	virtual bool peekDiskChanged() const;
 	virtual bool dummyDrive();
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	DiskDrive* drive[5];
 	DriveNum selected;

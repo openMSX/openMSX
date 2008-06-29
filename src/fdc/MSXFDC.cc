@@ -6,6 +6,7 @@
 #include "XMLElement.hh"
 #include "StringOp.hh"
 #include "MSXException.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -57,5 +58,13 @@ const byte* MSXFDC::getReadCacheLine(word start) const
 {
 	return &(*rom)[start & 0x3FFF];
 }
+
+
+template<typename Archive>
+void MSXFDC::serialize(Archive& ar, unsigned version)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+}
+INSTANTIATE_SERIALIZE_METHODS(MSXFDC);
 
 } // namespace openmsx
