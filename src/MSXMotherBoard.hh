@@ -42,6 +42,7 @@ class CommandController;
 class InfoCommand;
 class EmuTime;
 class MSXMotherBoardImpl;
+class MSXMapperIO;
 
 class MSXMotherBoard : private noncopyable
 {
@@ -162,6 +163,9 @@ public:
 	  * (e.g. all memory mappers share IO ports 0xFC-0xFF). But this
 	  * sharing is limited to one MSX machine. This method offers the
 	  * storage to implement per-machine reference counted objects.
+	  * TODO This doesn't play nicely with savestates. For example memory
+	  *      mappers don't use this mechanism anymore because of this.
+	  *      Maybe this method can be removed when savestates are finished.
 	  */
 	struct SharedStuff {
 		SharedStuff() : stuff(NULL), counter(0) {}
@@ -169,6 +173,12 @@ public:
 		unsigned counter;
 	};
 	SharedStuff& getSharedStuff(const std::string& name);
+
+	/** All memory mappers in one MSX machine share the same four (logical)
+	  * memory mapper registers. These two methods handle this sharing.
+	  */
+	MSXMapperIO* createMapperIO();
+	void destroyMapperIO();
 
 	/** Keep track of which 'usernames' are in use.
 	 * For example to be able to use several fmpac extensions at once, each

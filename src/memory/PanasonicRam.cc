@@ -4,6 +4,7 @@
 #include "MSXMotherBoard.hh"
 #include "PanasonicMemory.hh"
 #include "CheckedRam.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -32,5 +33,13 @@ byte* PanasonicRam::getWriteCacheLine(word start) const
 		return unmappedWrite;
 	}
 }
+
+
+template<typename Archive>
+void PanasonicRam::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXMemoryMapper>(*this);
+}
+INSTANTIATE_SERIALIZE_METHODS(PanasonicRam);
 
 } // namespace openmsx

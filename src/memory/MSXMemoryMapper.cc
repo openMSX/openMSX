@@ -9,7 +9,10 @@
 #include "CheckedRam.hh"
 #include "StringOp.hh"
 #include "MSXException.hh"
+#include "serialize.hh"
 #include <cassert>
+
+#include "Ram.hh" //
 
 namespace openmsx {
 
@@ -33,67 +36,19 @@ MSXMemoryMapper::MSXMemoryMapper(MSXMotherBoard& motherBoard,
 	checkedRam.reset(new CheckedRam(motherBoard, getName(), "memory mapper",
 	                                nbBlocks * 0x4000));
 
-	createMapperIO();
+	mapperIO = motherBoard.createMapperIO();
 	mapperIO->registerMapper(nbBlocks);
 }
 
 MSXMemoryMapper::~MSXMemoryMapper()
 {
 	mapperIO->unregisterMapper(nbBlocks);
-	destroyMapperIO();
+	getMotherBoard().destroyMapperIO();
 }
 
 void MSXMemoryMapper::powerUp(const EmuTime& /*time*/)
 {
 	checkedRam->clear();
-}
-
-void MSXMemoryMapper::createMapperIO()
-{
-	MSXMotherBoard::SharedStuff& info =
-		getMotherBoard().getSharedStuff("MSXMapperIO");
-	if (info.counter == 0) {
-		assert(info.stuff == NULL);
-		MSXMapperIO* device = DeviceFactory::createMapperIO(
-		                                 getMotherBoard()).release();
-		info.stuff = device;
-
-		MSXCPUInterface& cpuInterface = getMotherBoard().getCPUInterface();
-		cpuInterface.register_IO_Out(0xFC, device);
-		cpuInterface.register_IO_Out(0xFD, device);
-		cpuInterface.register_IO_Out(0xFE, device);
-		cpuInterface.register_IO_Out(0xFF, device);
-		cpuInterface.register_IO_In (0xFC, device);
-		cpuInterface.register_IO_In (0xFD, device);
-		cpuInterface.register_IO_In (0xFE, device);
-		cpuInterface.register_IO_In (0xFF, device);
-	}
-	++info.counter;
-	mapperIO = reinterpret_cast<MSXMapperIO*>(info.stuff);
-}
-
-void MSXMemoryMapper::destroyMapperIO()
-{
-	MSXMotherBoard::SharedStuff& info =
-		getMotherBoard().getSharedStuff("MSXMapperIO");
-	assert(mapperIO);
-	assert(mapperIO == info.stuff);
-	assert(info.counter);
-	--info.counter;
-	if (info.counter == 0) {
-		MSXCPUInterface& cpuInterface = getMotherBoard().getCPUInterface();
-		cpuInterface.unregister_IO_Out(0xFC, mapperIO);
-		cpuInterface.unregister_IO_Out(0xFD, mapperIO);
-		cpuInterface.unregister_IO_Out(0xFE, mapperIO);
-		cpuInterface.unregister_IO_Out(0xFF, mapperIO);
-		cpuInterface.unregister_IO_In (0xFC, mapperIO);
-		cpuInterface.unregister_IO_In (0xFD, mapperIO);
-		cpuInterface.unregister_IO_In (0xFE, mapperIO);
-		cpuInterface.unregister_IO_In (0xFF, mapperIO);
-
-		delete mapperIO;
-		info.stuff = NULL;
-	}
 }
 
 void MSXMemoryMapper::reset(const EmuTime& time)
@@ -125,5 +80,15 @@ byte* MSXMemoryMapper::getWriteCacheLine(word start) const
 {
 	return checkedRam->getWriteCacheLine(calcAddress(start));
 }
+
+
+template<typename Archive>
+void MSXMemoryMapper::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+	// TODO ar.serialize("checkedRam", checkedRam);
+	ar.serialize("ram", checkedRam->getUncheckedRam());
+}
+INSTANTIATE_SERIALIZE_METHODS(MSXMemoryMapper);
 
 } // namespace openmsx

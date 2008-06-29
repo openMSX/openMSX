@@ -42,6 +42,9 @@ public:
 	 */
 	byte getSelectedPage(byte bank) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	void write(unsigned address, byte value);
 

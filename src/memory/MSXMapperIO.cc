@@ -8,6 +8,7 @@
 #include "HardwareConfig.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
+#include "serialize.hh"
 
 using std::string;
 
@@ -116,5 +117,14 @@ void MapperIODebuggable::write(unsigned address, byte value)
 {
 	mapperIO.write(address, value);
 }
+
+
+template<typename Archive>
+void MSXMapperIO::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("registers", registers);
+	// all other state is reconstructed in another way
+}
+INSTANTIATE_SERIALIZE_METHODS(MSXMapperIO);
 
 } // namespace openmsx

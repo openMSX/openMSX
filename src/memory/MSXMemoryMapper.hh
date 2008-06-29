@@ -18,6 +18,7 @@ public:
 	MSXMemoryMapper(MSXMotherBoard& motherBoard, const XMLElement& config);
 	virtual ~MSXMemoryMapper();
 
+	virtual void reset(const EmuTime& time);
 	virtual void powerUp(const EmuTime& time);
 	virtual byte readMem(word address, const EmuTime& time);
 	virtual void writeMem(word address, byte value, const EmuTime& time);
@@ -25,7 +26,8 @@ public:
 	virtual byte* getWriteCacheLine(word start) const;
 	virtual byte peekMem(word address, const EmuTime& time) const;
 
-	virtual void reset(const EmuTime& time);
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 protected:
 	/** Converts a Z80 address to a RAM address.
@@ -37,12 +39,12 @@ protected:
 	std::auto_ptr<CheckedRam> checkedRam;
 
 private:
-	void createMapperIO();
-	void destroyMapperIO();
-
 	MSXMapperIO* mapperIO;
 	unsigned nbBlocks;
 };
+
+REGISTER_MSXDEVICE(MSXMemoryMapper, "MemoryMapper");
+REGISTER_BASE_NAME_HELPER(MSXMemoryMapper, "MemoryMapper");
 
 } // namespace openmsx
 

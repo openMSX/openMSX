@@ -19,6 +19,7 @@
 #include "MSXCPU.hh"
 #include "PanasonicMemory.hh"
 #include "MSXDeviceSwitch.hh"
+#include "MSXMapperIO.hh"
 #include "CassettePort.hh"
 #include "RenShaTurbo.hh"
 #include "LedEvent.hh"
@@ -133,6 +134,8 @@ public:
 	MSXDevice* findDevice(const string& name);
 
 	MSXMotherBoard::SharedStuff& getSharedStuff(const string& name);
+	MSXMapperIO* createMapperIO();
+	void destroyMapperIO();
 
 	string getUserName(const string& hwName);
 	void freeUserName(const string& hwName, const string& userName);
@@ -158,6 +161,9 @@ private:
 	typedef map<string, MSXMotherBoard::SharedStuff> SharedStuffMap;
 	SharedStuffMap sharedStuffMap;
 	map<string, set<string> > userNames;
+
+	auto_ptr<MSXMapperIO> mapperIO;
+	unsigned mapperIOCounter;
 
 	auto_ptr<HardwareConfig> machineConfig;
 	MSXMotherBoard::Extensions extensions;
@@ -296,6 +302,7 @@ private:
 MSXMotherBoardImpl::MSXMotherBoardImpl(MSXMotherBoard& self_, Reactor& reactor_)
 	: self(self_)
 	, reactor(reactor_)
+	, mapperIOCounter(0)
 	, powerSetting(getGlobalSettings().getPowerSetting())
 	, blockedCounter(0)
 	, powered(false)
@@ -326,6 +333,7 @@ MSXMotherBoardImpl::~MSXMotherBoardImpl()
 	powerSetting.detach(*this);
 	deleteMachine();
 
+	assert(mapperIOCounter == 0);
 	assert(availableDevices.empty());
 	assert(extensions.empty());
 	assert(!machineConfig.get());
@@ -886,6 +894,45 @@ MSXMotherBoard::SharedStuff& MSXMotherBoardImpl::getSharedStuff(
 	return sharedStuffMap[name];
 }
 
+MSXMapperIO* MSXMotherBoardImpl::createMapperIO()
+{
+	if (mapperIOCounter == 0) {
+		mapperIO = DeviceFactory::createMapperIO(self);
+
+		MSXCPUInterface& cpuInterface = getCPUInterface();
+		cpuInterface.register_IO_Out(0xFC, mapperIO.get());
+		cpuInterface.register_IO_Out(0xFD, mapperIO.get());
+		cpuInterface.register_IO_Out(0xFE, mapperIO.get());
+		cpuInterface.register_IO_Out(0xFF, mapperIO.get());
+		cpuInterface.register_IO_In (0xFC, mapperIO.get());
+		cpuInterface.register_IO_In (0xFD, mapperIO.get());
+		cpuInterface.register_IO_In (0xFE, mapperIO.get());
+		cpuInterface.register_IO_In (0xFF, mapperIO.get());
+	}
+	++mapperIOCounter;
+	return mapperIO.get();
+}
+
+void MSXMotherBoardImpl::destroyMapperIO()
+{
+	assert(mapperIO.get());
+	assert(mapperIOCounter);
+	--mapperIOCounter;
+	if (mapperIOCounter == 0) {
+		MSXCPUInterface& cpuInterface = getCPUInterface();
+		cpuInterface.unregister_IO_Out(0xFC, mapperIO.get());
+		cpuInterface.unregister_IO_Out(0xFD, mapperIO.get());
+		cpuInterface.unregister_IO_Out(0xFE, mapperIO.get());
+		cpuInterface.unregister_IO_Out(0xFF, mapperIO.get());
+		cpuInterface.unregister_IO_In (0xFC, mapperIO.get());
+		cpuInterface.unregister_IO_In (0xFD, mapperIO.get());
+		cpuInterface.unregister_IO_In (0xFE, mapperIO.get());
+		cpuInterface.unregister_IO_In (0xFF, mapperIO.get());
+
+		mapperIO.reset();
+	}
+}
+
 string MSXMotherBoardImpl::getUserName(const string& hwName)
 {
 	set<string>& s = userNames[hwName];
@@ -1177,6 +1224,10 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 
 	//SharedStuffMap sharedStuffMap;
 
+	if (mapperIO.get()) {
+		ar.serialize("mapperIO", *mapperIO);
+	}
+
 	// don't serialize:
 	//auto_ptr<AddRemoveUpdate> addRemoveUpdate;
 
@@ -1452,6 +1503,14 @@ MSXDevice* MSXMotherBoard::findDevice(const string& name)
 MSXMotherBoard::SharedStuff& MSXMotherBoard::getSharedStuff(const string& name)
 {
 	return pimple->getSharedStuff(name);
+}
+MSXMapperIO* MSXMotherBoard::createMapperIO()
+{
+	return pimple->createMapperIO();
+}
+void MSXMotherBoard::destroyMapperIO()
+{
+	pimple->destroyMapperIO();
 }
 string MSXMotherBoard::getUserName(const string& hwName)
 {
