@@ -71,11 +71,9 @@ static vector<string> getPathsHelper(CommandController& controller,
 	return result;
 }
 
-static string resolveHelper(CommandController& controller,
-                            const vector<string>& pathList_,
+static string resolveHelper(const vector<string>& pathList,
                             const string& filename)
 {
-	vector<string> pathList = getPathsHelper(controller, pathList_);
 	PRT_DEBUG("Context: " << filename);
 	string filepath = FileOperations::expandCurrentDirFromDrive(filename);
 	filepath = FileOperations::expandTilde(filepath);
@@ -100,7 +98,8 @@ static string resolveHelper(CommandController& controller,
 const string FileContext::resolve(CommandController& controller,
                                   const string& filename)
 {
-	string result = resolveHelper(controller, paths, filename);
+	vector<string> pathList = getPathsHelper(controller, paths);
+	string result = resolveHelper(pathList, filename);
 	assert(FileOperations::expandTilde(result) == result);
 	return result;
 }
@@ -108,11 +107,12 @@ const string FileContext::resolve(CommandController& controller,
 const string FileContext::resolveCreate(const string& filename)
 {
 	string result;
+	CommandController* controller = NULL;
+	vector<string> pathList = getPathsHelper(*controller, savePaths);
 	try {
-		CommandController* controller = NULL;
-		result = resolveHelper(*controller, savePaths, filename);
+		result = resolveHelper(pathList, filename);
 	} catch (FileException& e) {
-		string path = savePaths.front();
+		string path = pathList.front();
 		try {
 			FileOperations::mkdirp(path);
 		} catch (FileException& e) {
