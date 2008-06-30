@@ -22,11 +22,7 @@ MSXFDC::MSXFDC(MSXMotherBoard& motherBoard, const XMLElement& config)
 	}
 	int i = 0;
 	for ( ; i < numDrives; ++i) {
-		if (singleSided) {
-			drives[i].reset(new SingleSidedDrive(getMotherBoard()));
-		} else {
-			drives[i].reset(new DoubleSidedDrive(getMotherBoard()));
-		}
+		drives[i].reset(new RealDrive(getMotherBoard(), !singleSided));
 	}
 	for ( ; i < 4; ++i) {
 		drives[i].reset(new DummyDrive());

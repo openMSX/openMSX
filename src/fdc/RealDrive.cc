@@ -18,20 +18,19 @@ using std::vector;
 
 namespace openmsx {
 
-/// class RealDrive ///
-
 static const unsigned MAX_DRIVES = 26; // a-z
 typedef std::bitset<MAX_DRIVES> DrivesInUse;
 
-RealDrive::RealDrive(MSXMotherBoard& motherBoard_)
+RealDrive::RealDrive(MSXMotherBoard& motherBoard_, bool doubleSided)
 	: Schedulable(motherBoard_.getScheduler())
-	, motorTimer(motherBoard_.getCurrentTime())
-	, headLoadTimer(motherBoard_.getCurrentTime())
-	, headPos(0), motorStatus(false), headLoadStatus(false)
 	, motherBoard(motherBoard_)
 	, loadingIndicator(new LoadingIndicator(
 	         motherBoard.getGlobalSettings().getThrottleManager()))
+	, motorTimer(motherBoard.getCurrentTime())
+	, headLoadTimer(motherBoard.getCurrentTime())
+	, headPos(0), side(0), motorStatus(false), headLoadStatus(false)
 	, timeOut(false)
+	, doubleSizedDrive(doubleSided)
 {
 	MSXMotherBoard::SharedStuff& info =
 		motherBoard.getSharedStuff("drivesInUse");
@@ -94,6 +93,21 @@ bool RealDrive::writeProtected()
 	// write protected bit is always 0 when motor is off
 	// verified on NMS8280
 	return motorStatus && changer->getDisk().writeProtected();
+}
+
+bool RealDrive::doubleSided()
+{
+	return doubleSizedDrive ? changer->getDisk().doubleSided()
+	                        : false;
+}
+
+void RealDrive::setSide(bool side_)
+{
+	if (doubleSizedDrive) {
+		side = side_ ? 1 : 0;
+	} else {
+		assert(side == 0);
+	}
 }
 
 void RealDrive::step(bool direction, const EmuTime& time)
@@ -203,6 +217,48 @@ bool RealDrive::headLoaded(const EmuTime& time)
 	       (headLoadTimer.getTicksTill(time) > 10);
 }
 
+void RealDrive::read(byte sector, byte* buf,
+                     byte& onDiskTrack, byte& onDiskSector,
+                     byte& onDiskSide,  int&  onDiskSize)
+{
+	onDiskTrack = headPos;
+	onDiskSector = sector;
+	onDiskSide = side;
+	onDiskSize = 512;
+	changer->getDisk().read(headPos, sector, side, 512, buf);
+}
+
+void RealDrive::write(byte sector, const byte* buf,
+                      byte& onDiskTrack, byte& onDiskSector,
+                      byte& onDiskSide,  int&  onDiskSize)
+{
+	onDiskTrack = headPos;
+	onDiskSector = sector;
+	onDiskSide = side;
+	onDiskSize = 512;
+	changer->getDisk().write(headPos, sector, side, 512, buf);
+}
+
+void RealDrive::getSectorHeader(byte sector, byte* buf)
+{
+	changer->getDisk().getSectorHeader(headPos, sector, side, buf);
+}
+
+void RealDrive::getTrackHeader(byte* buf)
+{
+	changer->getDisk().getTrackHeader(headPos, side, buf);
+}
+
+void RealDrive::initWriteTrack()
+{
+	changer->getDisk().initWriteTrack(headPos, side);
+}
+
+void RealDrive::writeTrackData(byte data)
+{
+	changer->getDisk().writeTrackData(data);
+}
+
 bool RealDrive::diskChanged()
 {
 	return changer->diskChanged();
@@ -245,124 +301,7 @@ void RealDrive::resetTimeOut(const EmuTime& time)
 	setSyncPoint(now + 1000);
 }
 
-/// class SingleSidedDrive ///
-
-SingleSidedDrive::SingleSidedDrive(MSXMotherBoard& motherBoard)
-	: RealDrive(motherBoard)
-{
-}
-
-bool SingleSidedDrive::doubleSided()
-{
-	return false;
-}
-
-void SingleSidedDrive::setSide(bool /*side*/)
-{
-	// ignore
-}
-
-void SingleSidedDrive::read(byte sector, byte* buf,
-                            byte& onDiskTrack, byte& onDiskSector,
-                            byte& onDiskSide,  int&  onDiskSize)
-{
-	onDiskTrack = headPos;
-	onDiskSector = sector;
-	onDiskSide = 0;
-	onDiskSize = 512;
-	changer->getDisk().read(headPos, sector, 0, 512, buf);
-}
-
-void SingleSidedDrive::write(byte sector, const byte* buf,
-                             byte& onDiskTrack, byte& onDiskSector,
-                             byte& onDiskSide,  int&  onDiskSize)
-{
-	onDiskTrack = headPos;
-	onDiskSector = sector;
-	onDiskSide = 0;
-	onDiskSize = 512;
-	changer->getDisk().write(headPos, sector, 0, 512, buf);
-}
-
-void SingleSidedDrive::getSectorHeader(byte sector, byte* buf)
-{
-	changer->getDisk().getSectorHeader(headPos, sector, 0, buf);
-}
-
-void SingleSidedDrive::getTrackHeader(byte* buf)
-{
-	changer->getDisk().getTrackHeader(headPos, 0, buf);
-}
-
-void SingleSidedDrive::initWriteTrack()
-{
-	changer->getDisk().initWriteTrack(headPos, 0);
-}
-
-void SingleSidedDrive::writeTrackData(byte data)
-{
-	changer->getDisk().writeTrackData(data);
-}
 
 
-/// class DoubleSidedDrive ///
-
-DoubleSidedDrive::DoubleSidedDrive(MSXMotherBoard& motherBoard)
-	: RealDrive(motherBoard)
-{
-	side = 0;
-}
-
-bool DoubleSidedDrive::doubleSided()
-{
-	return changer->getDisk().doubleSided();
-}
-
-void DoubleSidedDrive::setSide(bool side_)
-{
-	side = side_ ? 1 : 0;
-}
-
-void DoubleSidedDrive::read(byte sector, byte* buf,
-                            byte& onDiskTrack, byte& onDiskSector,
-                            byte& onDiskSide,  int&  onDiskSize)
-{
-	onDiskTrack = headPos;
-	onDiskSector = sector;
-	onDiskSide = side;
-	onDiskSize = 512;
-	changer->getDisk().read(headPos, sector, side, 512, buf);
-}
-
-void DoubleSidedDrive::write(byte sector, const byte* buf,
-                             byte& onDiskTrack, byte& onDiskSector,
-                             byte& onDiskSide,  int&  onDiskSize)
-{
-	onDiskTrack = headPos;
-	onDiskSector = sector;
-	onDiskSide = side;
-	onDiskSize = 512;
-	changer->getDisk().write(headPos, sector, side, 512, buf);
-}
-
-void DoubleSidedDrive::getSectorHeader(byte sector, byte* buf)
-{
-	changer->getDisk().getSectorHeader(headPos, sector, side, buf);
-}
-
-void DoubleSidedDrive::getTrackHeader(byte* buf)
-{
-	changer->getDisk().getTrackHeader(headPos, side, buf);
-}
-
-void DoubleSidedDrive::initWriteTrack()
-{
-	changer->getDisk().initWriteTrack(headPos, side);
-}
-
-void DoubleSidedDrive::writeTrackData(byte data)
-{
-	changer->getDisk().writeTrackData(data);
-}
 
 } // namespace openmsx
