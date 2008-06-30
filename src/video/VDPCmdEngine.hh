@@ -124,6 +124,9 @@ public:
 		virtual ~LogOp() {}
 	};
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	/** Represents V9938 Graphic 4 mode (SCREEN5).
 	  */

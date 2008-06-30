@@ -1,6 +1,11 @@
 $Id$
 
-2008-06-18 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+2008-06-30 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* More serialization work:
+	   - Philips_NMS_8250 can be serialized now, but still very
+	     few other machines or extensions are supported
+
+2008-06-28 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Added HIGHLY EXPERIMENTAL savestates:
 	   - Only very few things work yet, but I was able to resume
 	     'Road Fighter' running in a MSX1 (actually that's about the

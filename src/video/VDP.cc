@@ -1287,7 +1287,7 @@ void VDP::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("displayMode", mode);
 	displayMode.setByte(mode);
 
-	//std::auto_ptr<VDPCmdEngine> cmdEngine;
+	ar.serialize("cmdEngine", *cmdEngine);
 	ar.serialize("vram", *vram);
 	ar.serialize("spriteChecker", *spriteChecker); // must come after displayMode
 	if (ar.isLoader()) {

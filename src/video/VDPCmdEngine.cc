@@ -41,6 +41,7 @@ TODO:
 #include "BooleanSetting.hh"
 #include "EnumSetting.hh"
 #include "RenderSettings.hh"
+#include "serialize.hh"
 #include <iostream>
 #include <cassert>
 #include <algorithm>
@@ -381,7 +382,7 @@ VDPCmdEngine::VDPCmdEngine(VDP& vdp_, RenderSettings& renderSettings_,
 
 	currentOperation = operations[LOG].get();
 
-	brokenTiming = false;
+	brokenTiming = renderSettings.getCmdTiming().getValue();
 
 	renderSettings.getCmdTiming().attach(*this);
 }
@@ -1327,5 +1328,45 @@ void VDPCmdEngine::HmmcCmd<Mode>::execute(const EmuTime& time)
 		}
 	}
 }
+
+
+template<typename Archive>
+void VDPCmdEngine::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("clock", clock);
+	ar.serialize("statusChangeTime", statusChangeTime);
+	ar.serialize("scrMode", scrMode);
+	ar.serialize("status", status);
+	ar.serialize("transfer", transfer);
+	ar.serialize("SX", SX);
+	ar.serialize("SY", SY);
+	ar.serialize("DX", DX);
+	ar.serialize("DY", DY);
+	ar.serialize("NX", NX);
+	ar.serialize("NY", NY);
+	ar.serialize("ASX", ASX);
+	ar.serialize("ADX", ADX);
+	ar.serialize("ANX", ANX);
+	ar.serialize("COL", COL);
+	ar.serialize("ARG", ARG);
+
+	if (currentCommand == NULL) {
+		assert(CMD == 0);
+	}
+	byte cmdReg = (CMD << 4) | LOG;
+	ar.serialize("CMD", cmdReg);
+	if (ar.isLoader()) {
+		LOG = cmdReg & 0x0F;
+		CMD = cmdReg >> 4;
+		if (CMD) {
+			assert(scrMode >= 0);
+			currentCommand = commands[CMD][scrMode];
+		} else {
+			currentCommand = NULL;
+		}
+		currentOperation = operations[LOG].get();
+	}
+}
+INSTANTIATE_SERIALIZE_METHODS(VDPCmdEngine);
 
 } // namespace openmsx
