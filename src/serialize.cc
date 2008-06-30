@@ -102,10 +102,10 @@ XmlOutputArchive::~XmlOutputArchive()
 	const char* header =
 	    "<?xml version=\"1.0\" ?>\n"
 	    "<!DOCTYPE openmsx-serialize SYSTEM 'openmsx-serialize.dtd'>\n";
-	gzwrite(file, header, strlen(header));
+	gzwrite(file, const_cast<char*>(header), strlen(header));
 	string dump = current->dump();
 	delete current;
-	gzwrite(file, dump.data(), dump.size());
+	gzwrite(file, const_cast<char*>(dump.data()), dump.size());
 	gzclose(file);
 }
 

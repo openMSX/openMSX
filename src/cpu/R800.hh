@@ -140,7 +140,7 @@ protected:
 	static const int I  = 8; // cycles for an I/O operation
 	static const int P  = 1; // cycles for a (statically known) page-break
 
-	static const unsigned
+	static const int
 		CC_LD_A_SS   = 1+P+1, CC_LD_A_SS_1  = 1+P,
 		CC_LD_A_NN   = 3+P+1, CC_LD_A_NN_1  = 1, CC_LD_A_NN_2  = 3+P,
 		CC_LD_A_I    = 2,

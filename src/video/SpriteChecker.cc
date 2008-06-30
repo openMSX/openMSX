@@ -407,7 +407,7 @@ void SpriteChecker::updateSprites0(int /*limit*/)
 }
 
 template<typename Archive>
-void SpriteChecker::serialize(Archive& ar, unsigned version)
+void SpriteChecker::serialize(Archive& ar, unsigned /*version*/)
 {
 	if (ar.isLoader()) {
 		// Recalculate from VDP state:
