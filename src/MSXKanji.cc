@@ -3,6 +3,7 @@
 #include "MSXKanji.hh"
 #include "Rom.hh"
 #include "MSXException.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -81,6 +82,15 @@ byte MSXKanji::peekIO(word port, const EmuTime& /*time*/) const
 	}
 	return result;
 }
+
+template<typename Archive>
+void MSXKanji::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+	ar.serialize("adr1", adr1);
+	ar.serialize("adr2", adr2);
+}
+INSTANTIATE_SERIALIZE_METHODS(MSXKanji);
 
 /*
 This really works!
