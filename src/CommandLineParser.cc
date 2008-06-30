@@ -221,6 +221,7 @@ void CommandLineParser::registerFileTypes()
 	} else {
 		map<string, string> fileExtMap;
 		fileExtMap["rom"] = "romimage";
+		fileExtMap["ri"]  = "romimage";
 		fileExtMap["dsk"] = "diskimage";
 		fileExtMap["di1"] = "diskimage";
 		fileExtMap["di2"] = "diskimage";
