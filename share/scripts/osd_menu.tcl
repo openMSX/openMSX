@@ -230,14 +230,14 @@ set main_menu [prepare_menu {
 	select-color 0x8080ffc0
 	font-size 12
 	border-size 2
-	width 150
-	items {{ text "My Cool Menu"
+	width 160
+	items {{ text "openMSX Menu"
 	         text-color 0x00ffffff
 	         font-size 20
 	         post-spacing 6
 	         selectable false }
-	       { text "selection..."
-	         actions { A { menu_create $::list_menu }}
+	       { text "Load ROM..."
+	         actions { A { menu_create [create_ROM_list $::__path] }}
 	         post-spacing 3 }
 	       { text "settings..."
 	         actions { A { menu_create $::setting_menu }}}
@@ -274,24 +274,63 @@ set setting_menu [prepare_menu {
 	         actions { LEFT  { cycle_back scale_algorithm }
 	                   RIGHT { cycle scale_algorithm }}}}}]
 
-set list_menu [prepare_menu_list \
-	[list a b c d e f g h i j k l m n o "a very long item name that needs to be clipped"] \
-	6 \
-	{ execute my_selection_list_exec
-	  bg-color 0x00000080
-	  text-color 0xffffffff
-	  select-color 0x8080ffc0
-	  font-size 12
-	  border-size 2
-	  width 150
-	  xpos 100
-	  ypos 120
-	  header { text "my-list"
-	           text-color 0xff0000ff
-	           font-size 20 }}]
+set __path $env(OPENMSX_USER_DATA)
+
+proc __ls { directory } {
+	set roms [glob -nocomplain -tails -directory $directory -type f *.{rom,zip,gz}]
+	set dirs [glob -nocomplain -tails -directory $directory -type d *]
+	set dirs2 [list]
+	foreach dir $dirs {
+		lappend dirs2 "$dir/"
+	}
+	set all [join [list $roms $dirs2 ".."]]
+	return [lsort $all]
+}
+
+proc __displayOSDText { message } {
+	if ![info exists ::__displayOSDText_bg] {
+		set ::__displayOSDText_bg  [osd create rectangle "displayOSDText" \
+		                                -x 3 -y 12 -z 5 -w 314 -h 9 \
+		                                -rgb 0x002090 -scaled true -clip true]
+		set ::__displayOSDText_txt [osd create text "displayOSDText.txt" \
+		                                -size 6 -rgb 0xffffff \
+		                                -font "skins/Vera.ttf.gz"]
+	}
+	osd configure $::__displayOSDText_bg  -alpha 190 \
+	                                      -fadeTarget 0 -fadePeriod 5.0
+	osd configure $::__displayOSDText_txt -alpha 255 -text $message \
+	                                      -fadeTarget 0 -fadePeriod 5.0
+}
+
+proc create_ROM_list { path } {
+	return [prepare_menu_list [__ls $path] \
+	                          10 \
+	                          { execute my_selection_list_exec
+	                            bg-color 0x00000080
+	                            text-color 0xffffffff
+	                            select-color 0x8080ffc0
+	                            font-size 6
+	                            border-size 2
+	                            width 200
+	                            xpos 100
+	                            ypos 120
+	                            header { text "ROMS  $::__path"
+	                                     text-color 0xff0000ff
+	                                     font-size 12 }}]
+}
 proc my_selection_list_exec { item } {
-	puts "Selected item: $item"
-	menu_close_top
+	set fullname [file join $::__path $item]
+	if [file isdirectory $fullname] {
+		puts "DEBUG $fullname"
+		menu_close_top
+		set ::__path [file normalize $fullname]
+		menu_create [create_ROM_list $::__path]
+	} else {
+		menu_close_all
+		carta $fullname
+		__displayOSDText "Now running ROM: $item"
+		reset
+	}
 }
 
 
