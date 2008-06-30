@@ -19,6 +19,7 @@
 #include "TclObject.hh"
 #include "EmuTime.hh"
 #include "checked_cast.hh"
+#include "serialize.hh"
 
 using std::set;
 using std::string;
@@ -291,5 +292,27 @@ void DiskCommand::tabCompletion(vector<string>& tokens) const
 		completeFileName(getCommandController(), tokens, context, extra);
 	}
 }
+
+
+template<typename Archive>
+void DiskChanger::serialize(Archive& ar, unsigned /*version*/)
+{
+	string diskname = disk->getName();
+	ar.serialize("disk", diskname);
+	if (ar.isLoader()) {
+		if (!diskname.empty()) {
+			// TODO IPS patches
+			TclObject obj;
+			obj.setString(diskname);
+			vector<TclObject*> args;
+			args.push_back(&obj); // dummy
+			args.push_back(&obj);
+			insertDisk(args);
+		}
+	}
+
+	ar.serialize("diskChanged", diskChangedFlag);
+}
+INSTANTIATE_SERIALIZE_METHODS(DiskChanger);
 
 } // namespace openmsx

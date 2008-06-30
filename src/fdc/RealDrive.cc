@@ -11,6 +11,7 @@
 #include "CliComm.hh"
 #include "GlobalSettings.hh"
 #include "MSXException.hh"
+#include "serialize.hh"
 #include <bitset>
 
 using std::string;
@@ -301,7 +302,18 @@ void RealDrive::resetTimeOut(const EmuTime& time)
 	setSyncPoint(now + 1000);
 }
 
-
-
+template<typename Archive>
+void RealDrive::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("motorTimer", motorTimer);
+	ar.serialize("headLoadTimer", headLoadTimer);
+	ar.serialize("changer", *changer);
+	ar.serialize("headPos", headPos);
+	ar.serialize("side", side);
+	ar.serialize("motorStatus", motorStatus);
+	ar.serialize("headLoadStatus", headLoadStatus);
+	ar.serialize("timeOut", timeOut);
+}
+INSTANTIATE_SERIALIZE_METHODS(RealDrive);
 
 } // namespace openmsx

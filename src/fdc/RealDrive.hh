@@ -51,6 +51,9 @@ public:
 	virtual bool peekDiskChanged() const;
 	virtual bool dummyDrive();
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	// Timer stuff, needed for the notification of the loading state
 	virtual void executeUntil(const EmuTime& time, int userData);

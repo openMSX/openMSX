@@ -43,6 +43,9 @@ public:
 	virtual SectorAccessibleDisk* getSectorAccessibleDisk();
 	virtual const std::string& getContainerName() const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	void insertDisk(const std::vector<TclObject*>& args);
 	void ejectDisk();
@@ -59,7 +62,7 @@ private:
 	Scheduler* scheduler;
 	DiskManipulator& manipulator;
 
-	std::string driveName;
+	const std::string driveName;
 	std::auto_ptr<Disk> disk;
 
 	friend class DiskCommand;
