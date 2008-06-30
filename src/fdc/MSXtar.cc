@@ -213,6 +213,7 @@ void MSXtar::setBootSector(byte* buf, unsigned nbSectors)
 	byte nbFats = 2;
 	byte nbReservedSectors = 1; // Just copied from a 32MB IDE partition
 	byte nbSectorsPerFat = 2;
+	byte nbSectorsPerCluster = 2;
 	byte nbHiddenSectors = 1;
 	word nbDirEntry = 112;
 	byte descriptor = 0xF8;
@@ -267,6 +268,7 @@ void MSXtar::setBootSector(byte* buf, unsigned nbSectors)
 	} else if (nbSectors <= 720) {
 		// normal single sided disk
 		nbSectors = 720;
+		// all other info is set above when defining the variables
 	} else {
 		// normal double sided disk
 		nbSectors = 1440;
