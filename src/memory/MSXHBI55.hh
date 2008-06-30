@@ -5,6 +5,7 @@
 
 #include "MSXDevice.hh"
 #include "I8255Interface.hh"
+#include "serialize.hh"
 #include <memory>
 
 namespace openmsx {
@@ -12,7 +13,7 @@ namespace openmsx {
 class I8255;
 class SRAM;
 
-class MSXHBI55 : public MSXDevice, public I8255Interface
+class MSXHBI55 : public MSXDevice, private I8255Interface
 {
 // MSXDevice
 public:
@@ -24,11 +25,13 @@ public:
 	virtual byte peekIO(word port, const EmuTime& time) const;
 	virtual void writeIO(word port, byte value, const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	const std::auto_ptr<I8255> i8255;
 
-// I8255Interface
-public:
+	// I8255Interface
 	virtual byte readA(const EmuTime& time);
 	virtual byte readB(const EmuTime& time);
 	virtual nibble readC0(const EmuTime& time);
@@ -42,7 +45,6 @@ public:
 	virtual void writeC0(nibble value, const EmuTime& time);
 	virtual void writeC1(nibble value, const EmuTime& time);
 
-private:
 	byte readSRAM(word address) const;
 
 	const std::auto_ptr<SRAM> sram;
@@ -52,6 +54,8 @@ private:
 	byte writeLatch;
 	byte mode;
 };
+
+REGISTER_MSXDEVICE(MSXHBI55, "MSXHBI55");
 
 } // namespace openmsx
 
