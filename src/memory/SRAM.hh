@@ -39,6 +39,9 @@ public:
 		return ram.getSize();
 	}
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	void load(bool* loaded);
 	void save();

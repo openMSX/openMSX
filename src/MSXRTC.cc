@@ -4,6 +4,7 @@
 #include "SRAM.hh"
 #include "RP5C01.hh"
 #include "MSXMotherBoard.hh"
+#include "serialize.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -49,6 +50,18 @@ void MSXRTC::writeIO(word port, byte value, const EmuTime& time)
 		assert(false);
 	}
 }
+
+
+template<typename Archive>
+void MSXRTC::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+
+	ar.serialize("sram", *sram);
+	ar.serialize("rp5c01", *rp5c01);
+	ar.serialize("registerLatch", registerLatch);
+}
+INSTANTIATE_SERIALIZE_METHODS(MSXRTC);
 
 } // namespace openmsx
 

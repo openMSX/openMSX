@@ -3,6 +3,7 @@
 #include "RP5C01.hh"
 #include "EnumSetting.hh"
 #include "SRAM.hh"
+#include "serialize.hh"
 #include <cassert>
 #include <ctime>
 
@@ -238,5 +239,25 @@ void RP5C01::resetAlarm()
 		regs.write(ALARM_BLOCK * 13 + i, 0);
 	}
 }
+
+
+template<typename Archive>
+void RP5C01::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("reference", reference);
+	ar.serialize("fraction",  fraction);
+	ar.serialize("seconds",   seconds);
+	ar.serialize("minutes",   minutes);
+	ar.serialize("hours",     hours);
+	ar.serialize("dayWeek",   dayWeek);
+	ar.serialize("years",     years);
+	ar.serialize("leapYear",  leapYear);
+	ar.serialize("days",      days);
+	ar.serialize("months",    months);
+	ar.serialize("modeReg",   modeReg);
+	ar.serialize("testReg",   testReg);
+	ar.serialize("resetReg",  resetReg);
+}
+INSTANTIATE_SERIALIZE_METHODS(RP5C01);
 
 } // namespace openmsx

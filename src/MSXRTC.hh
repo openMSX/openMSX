@@ -22,11 +22,16 @@ public:
 	virtual byte peekIO(word port, const EmuTime& time) const;
 	virtual void writeIO(word port, byte value, const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	std::auto_ptr<SRAM> sram;
 	std::auto_ptr<RP5C01> rp5c01;
 	nibble registerLatch;
 };
+
+REGISTER_MSXDEVICE(MSXRTC, "RTC");
 
 } // namespace openmsx
 

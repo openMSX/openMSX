@@ -8,6 +8,7 @@
 #include "MSXMotherBoard.hh"
 #include "CliComm.hh"
 #include "Alarm.hh"
+#include "serialize.hh"
 #include <string.h>
 
 using std::string;
@@ -153,5 +154,13 @@ bool SRAMSync::alarm()
 	sram.save();
 	return false; // don't reschedule
 }
+
+
+template<typename Archive>
+void SRAM::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("ram", ram);
+}
+INSTANTIATE_SERIALIZE_METHODS(SRAM);
 
 } // namespace openmsx

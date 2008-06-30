@@ -31,6 +31,9 @@ public:
 	nibble readPort(nibble port, const EmuTime& time);
 	void writePort(nibble port, nibble value, const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	void initializeTime();
 	void updateTimeRegs(const EmuTime& time);
