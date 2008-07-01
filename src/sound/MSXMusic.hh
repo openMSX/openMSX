@@ -22,6 +22,9 @@ public:
 	virtual byte readMem(word address, const EmuTime& time);
 	virtual const byte* getReadCacheLine(word start) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 protected:
 	void writeRegisterPort(byte value, const EmuTime& time);
 	void writeDataPort(byte value, const EmuTime& time);
@@ -32,6 +35,8 @@ protected:
 private:
 	int registerLatch;
 };
+
+REGISTER_MSXDEVICE(MSXMusic, "MSX-Music");
 
 } // namespace openmsx
 

@@ -9,6 +9,7 @@
 #include "YM2413.hh"
 #include "YM2413Core.hh"
 #include "FixedPoint.hh"
+#include "serialize.hh"
 #include "inline.hh"
 #include <cmath>
 #include <cassert>
@@ -172,6 +173,9 @@ public:
 	Patch& getPatch(unsigned instrument, bool carrier) {
 		return patches[instrument][carrier];
 	}
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	// Voice Data
@@ -1497,6 +1501,12 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 	}
 }
 
+template<typename Archive>
+void Global::serialize(Archive& ar, unsigned version)
+{
+	// TODO
+}
+
 } // namespace YM2413Okazaki
 
 
@@ -1521,5 +1531,12 @@ void YM2413::writeReg(byte regis, byte data, const EmuTime& time)
 {
 	global->writeReg(regis, data, time);
 }
+
+template<typename Archive>
+void YM2413::serialize(Archive& ar, unsigned version)
+{
+	global->serialize(ar, version);
+}
+INSTANTIATE_SERIALIZE_METHODS(YM2413);
 
 } // namespace openmsx

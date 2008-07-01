@@ -4,6 +4,7 @@
 #define YM2413_2_HH
 
 #include "YM2413Interface.hh"
+#include "serialize_meta.hh"
 #include <string>
 #include <memory>
 
@@ -23,9 +24,13 @@ public:
 	virtual void reset(const EmuTime& time);
 	virtual void writeReg(byte r, byte v, const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	const std::auto_ptr<Global> global;
 };
+REGISTER_POLYMORPHIC_INITIALIZER(YM2413Interface, YM2413_2, "YM2413-Jarek-Burczynski");
 
 } // namespace openmsx
 

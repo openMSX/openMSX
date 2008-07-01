@@ -148,6 +148,19 @@ public:
 	//   method is that this one does not instantiate the object
 	//   construction code. (So in some cases you can avoid having to
 	//   provide specializations of SerializeConstructorArgs.)
+	//
+	//
+	// template<typename T> void serializePolymorphic(const char* tag, const T& t)
+	//
+	//   Serialize a value-type whose concrete type is not yet known at
+	//   compile-time (polymorphic pointers are already handled by the
+	//   generic serialize() method).
+	//
+	//   The difference between pointer and value-types is that for
+	//   pointers, the de-serialize code also needs to construct the
+	//   object, while for value-types, the object (with the correct
+	//   concrete type) is already constructed, it only needs to be
+	//   initialized.
 
 /*internal*/
 	// These must be public for technical reasons, but they should only
@@ -312,6 +325,16 @@ public:
 		saver(this->self(), t);
 		this->self().endTag(tag);
 	}
+	template<typename T> void serializePolymorphic(const char* tag, const T& t)
+	{
+		STATIC_ASSERT(is_polymorphic<T>::value);
+		this->self().beginTag(tag);
+		const PolymorphicSaverBase<Derived>& saver =
+			PolymorphicSaverRegistry<Derived>::
+				instance().getSaver(t);
+		saver.save(this->self(), &t);
+		this->self().endTag(tag);
+	}
 
 /*internal*/
 	// Generate a new ID for the given pointer and store this association
@@ -409,6 +432,18 @@ public:
 		TNC& tnc = const_cast<TNC&>(t);
 		IDLoader<TNC> loader;
 		loader(this->self(), tnc);
+		this->self().endTag(tag);
+	}
+	template<typename T> void serializePolymorphic(const char* tag, T& t)
+	{
+		STATIC_ASSERT(is_polymorphic<T>::value);
+		this->self().beginTag(tag);
+		std::string type;
+		this->self().attribute("type", type);
+		const PolymorphicInitializerBase<Derived>& initializer =
+			PolymorphicInitializerRegistry<Derived>::instance().
+				getInitializer(type);
+		initializer.init(this->self(), &t);
 		this->self().endTag(tag);
 	}
 

@@ -4,6 +4,7 @@
 #include "SRAM.hh"
 #include "Rom.hh"
 #include "CacheLine.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -152,5 +153,22 @@ void MSXFmPac::checkSramEnable()
 		invalidateMemCache(0x0000, 0x10000);
 	}
 }
+
+
+template<typename Archive>
+void MSXFmPac::serialize(Archive& ar, unsigned version)
+{
+	ar.template serializeInlinedBase<MSXMusic>(*this, version);
+	ar.serialize("sram", *sram);
+	ar.serialize("enable", enable);
+	ar.serialize("bank", bank);
+	ar.serialize("r1ffe", r1ffe);
+	ar.serialize("r1fff", r1fff);
+	if (ar.isLoader()) {
+		// sramEnabled can be calculated
+		checkSramEnable();
+	}
+}
+INSTANTIATE_SERIALIZE_METHODS(MSXFmPac);
 
 } // namespace openmsx

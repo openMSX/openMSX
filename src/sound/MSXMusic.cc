@@ -5,6 +5,7 @@
 #include "YM2413_2.hh"
 #include "Rom.hh"
 #include "XMLElement.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -67,5 +68,15 @@ const byte* MSXMusic::getReadCacheLine(word start) const
 {
 	return &(*rom)[start & (rom->getSize() - 1)];
 }
+
+
+template<typename Archive>
+void MSXMusic::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+	ar.serializePolymorphic("ym2413", *ym2413);
+	ar.serialize("registerLatch", registerLatch);
+}
+INSTANTIATE_SERIALIZE_METHODS(MSXMusic);
 
 } // namespace openmsx

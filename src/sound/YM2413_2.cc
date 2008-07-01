@@ -24,6 +24,7 @@
 #include "YM2413_2.hh"
 #include "YM2413Core.hh"
 #include "FixedPoint.hh"
+#include "serialize.hh"
 #include <cmath>
 
 namespace openmsx {
@@ -730,6 +731,9 @@ public:
 	virtual void generateChannels(int** bufs, unsigned num);
 
 	virtual void writeReg(byte r, byte v, const EmuTime& time);
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	/**
@@ -1621,6 +1625,12 @@ void Global::writeReg(byte r, byte v, const EmuTime& time)
 	}
 }
 
+template<typename Archive>
+void Global::serialize(Archive& ar, unsigned /*version*/)
+{
+	// TODO
+}
+
 
 // YM2413_2
 
@@ -1643,5 +1653,12 @@ void YM2413_2::writeReg(byte r, byte v, const EmuTime &time)
 {
 	global->writeReg(r, v, time);
 }
+
+template<typename Archive>
+void YM2413_2::serialize(Archive& ar, unsigned version)
+{
+	global->serialize(ar, version);
+}
+INSTANTIATE_SERIALIZE_METHODS(YM2413_2);
 
 } // namespace openmsx

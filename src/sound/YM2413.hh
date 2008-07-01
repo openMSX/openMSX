@@ -4,6 +4,7 @@
 #define YM2413_HH
 
 #include "YM2413Interface.hh"
+#include "serialize_meta.hh"
 #include <string>
 #include <memory>
 
@@ -27,9 +28,13 @@ public:
 	virtual void reset(const EmuTime& time);
 	virtual void writeReg(byte reg, byte value, const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	const std::auto_ptr<YM2413Okazaki::Global> global;
 };
+REGISTER_POLYMORPHIC_INITIALIZER(YM2413Interface, YM2413, "YM2413-Okazaki");
 
 } // namespace openmsx
 

@@ -40,7 +40,6 @@ PolymorphicSaverRegistry<Archive>::getSaver(TypeInfo typeInfo)
 	return *it->second;
 }
 
-template class PolymorphicSaverRegistry<XmlInputArchive>;
 template class PolymorphicSaverRegistry<XmlOutputArchive>;
 
 ////
@@ -76,6 +75,39 @@ PolymorphicLoaderRegistry<Archive>::getLoader(const std::string& type)
 }
 
 template class PolymorphicLoaderRegistry<XmlInputArchive>;
-template class PolymorphicLoaderRegistry<XmlOutputArchive>;
+
+////
+
+template<typename Archive>
+PolymorphicInitializerRegistry<Archive>::PolymorphicInitializerRegistry()
+{
+}
+
+template<typename Archive>
+PolymorphicInitializerRegistry<Archive>::~PolymorphicInitializerRegistry()
+{
+	for (typename InitializerMap::const_iterator it = initializerMap.begin();
+	     it != initializerMap.end(); ++it) {
+		delete it->second;
+	}
+}
+
+template<typename Archive>
+PolymorphicInitializerRegistry<Archive>& PolymorphicInitializerRegistry<Archive>::instance()
+{
+	static PolymorphicInitializerRegistry oneInstance;
+	return oneInstance;
+}
+
+template<typename Archive>
+const PolymorphicInitializerBase<Archive>&
+PolymorphicInitializerRegistry<Archive>::getInitializer(const std::string& type)
+{
+	typename InitializerMap::const_iterator it = initializerMap.find(type);
+	assert(it != initializerMap.end());
+	return *it->second;
+}
+
+template class PolymorphicInitializerRegistry<XmlInputArchive>;
 
 } // namespace openmsx

@@ -23,6 +23,9 @@ public:
 	virtual const byte* getReadCacheLine(word address) const;
 	virtual byte* getWriteCacheLine(word address) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	void checkSramEnable();
 
@@ -32,6 +35,7 @@ private:
 	byte r1ffe, r1fff;
 	bool sramEnabled;
 };
+REGISTER_MSXDEVICE(MSXFmPac, "FM-PAC");
 
 } // namespace openmsx
 

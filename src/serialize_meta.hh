@@ -69,6 +69,8 @@ template<typename T> struct ClassSaver;
 // NonPolymorphicPointerLoader: once we know which concrete type to load,
 //   we use the 'normal' class loader to load it.
 template<typename T> struct NonPolymorphicPointerLoader;
+// Used by PolymorphicInitializer to initialize a concrete type.
+template<typename T> struct ClassLoader;
 
 /** Store association between polymorphic class (base- or subclass) and
  *  the list of constructor arguments.
@@ -141,6 +143,13 @@ public:
 	virtual void* load(Archive& ar, unsigned id, const TupleBase& args) const = 0;
 };
 
+template<typename Archive> class PolymorphicInitializerBase
+{
+public:
+	virtual ~PolymorphicInitializerBase() {}
+	virtual void init(Archive& ar, void* t) const = 0;
+};
+
 template<typename Archive, typename T>
 class PolymorphicSaver : public PolymorphicSaverBase<Archive>
 {
@@ -173,6 +182,21 @@ public:
 		TUPLEOut argsOut = mapArgs(argsIn);
 		NonPolymorphicPointerLoader<T> loader;
 		return loader(ar, id, argsOut);
+	}
+};
+
+template<typename Archive, typename T>
+class PolymorphicInitializer : public PolymorphicInitializerBase<Archive>
+{
+public:
+	virtual void init(Archive& ar, void* v) const
+	{
+		typedef typename PolymorphicBaseClass<T>::type BaseType;
+		BaseType* base = static_cast<BaseType*>(v);
+		assert(dynamic_cast<T*>(base) == static_cast<T*>(base)); // TODO throw
+		T* t = static_cast<T*>(base);
+		ClassLoader<T> loader;
+		loader(ar, *t, make_tuple());
 	}
 };
 
@@ -227,6 +251,30 @@ private:
 	LoaderMap loaderMap;
 };
 
+template<typename Archive>
+class PolymorphicInitializerRegistry : private noncopyable
+{
+public:
+	static PolymorphicInitializerRegistry& instance();
+
+	template<typename T> void registerClass(const std::string& name)
+	{
+		STATIC_ASSERT(is_polymorphic<T>::value);
+		STATIC_ASSERT(!is_abstract<T>::value);
+		initializerMap[name] = new PolymorphicInitializer<Archive, T>();
+	}
+
+	const PolymorphicInitializerBase<Archive>& getInitializer(
+		const std::string& type);
+
+private:
+	PolymorphicInitializerRegistry();
+	~PolymorphicInitializerRegistry();
+
+	typedef std::map<std::string, PolymorphicInitializerBase<Archive>*> InitializerMap;
+	InitializerMap initializerMap;
+};
+
 
 template<typename Archive, typename T> struct RegisterSaverHelper
 {
@@ -241,6 +289,14 @@ template<typename Archive, typename T> struct RegisterLoaderHelper
 	RegisterLoaderHelper(const std::string& name)
 	{
 		PolymorphicLoaderRegistry<Archive>::instance().
+			template registerClass<T>(name);
+	}
+};
+template<typename Archive, typename T> struct RegisterInitializerHelper
+{
+	RegisterInitializerHelper(const std::string& name)
+	{
+		PolymorphicInitializerRegistry<Archive>::instance().
 			template registerClass<T>(name);
 	}
 };
@@ -276,6 +332,12 @@ static RegisterSaverHelper <MemOutputArchive,  C> registerHelper6##C(N); \*/
 STATIC_ASSERT((is_base_and_derived<B,C>::value)); \
 static RegisterLoaderHelper<XmlInputArchive,   C> registerHelper3##C(N); \
 static RegisterSaverHelper <XmlOutputArchive,  C> registerHelper4##C(N); \
+template<> struct PolymorphicBaseClass<C> { typedef B type; };
+
+#define REGISTER_POLYMORPHIC_INITIALIZER_HELPER(B,C,N) \
+STATIC_ASSERT((is_base_and_derived<B,C>::value)); \
+static RegisterInitializerHelper<XmlInputArchive, C> registerHelper3##C(N); \
+static RegisterSaverHelper <XmlOutputArchive,     C> registerHelper4##C(N); \
 template<> struct PolymorphicBaseClass<C> { typedef B type; };
 
 #define REGISTER_BASE_NAME_HELPER(B,N) \
@@ -316,6 +378,10 @@ template<> struct BaseClassName<B> \
 #define REGISTER_BASE_CLASS_3(CLASS,NAME,TYPE1,TYPE2,TYPE3) \
 	REGISTER_BASE_NAME_HELPER(CLASS,NAME) \
 	REGISTER_CONSTRUCTOR_ARGS_3(CLASS,TYPE1,TYPE2,TYPE3)
+
+
+#define REGISTER_POLYMORPHIC_INITIALIZER(BASE,CLASS,NAME) \
+	REGISTER_POLYMORPHIC_INITIALIZER_HELPER(BASE,CLASS,NAME)
 
 //////////////
 
