@@ -51,7 +51,7 @@ static const byte CAR = 1;
 // Note: These are ordered: phase constants are compared in the code.
 enum EnvelopeState {
 	EG_DUMP, EG_ATTACK, EG_DECAY, EG_SUSTAIN, EG_RELEASE, EG_OFF
-	};
+};
 
 enum KeyPart { KEY_MAIN = 1, KEY_RHYTHM = 2 };
 
@@ -549,6 +549,9 @@ public:
 		updateGenerators();
 	}
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	inline void updateTotalLevel();
 	inline void updateAttackRate();
@@ -682,6 +685,9 @@ public:
 	void setSustain(bool sustained) {
 		sus = sustained;
 	}
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 	Slot slots[2];
 
@@ -1625,10 +1631,86 @@ void Global::writeReg(byte r, byte v, const EmuTime& time)
 	}
 }
 
+
+static enum_string<EnvelopeState> envelopeStateInfo[] = {
+	{ "DUMP",    EG_DUMP    },
+	{ "ATTACK",  EG_ATTACK  },
+	{ "DECAY",   EG_DECAY   },
+	{ "SUSTAIN", EG_SUSTAIN },
+	{ "RELEASE", EG_RELEASE },
+	{ "OFF",     EG_OFF     }
+};
+SERIALIZE_ENUM(EnvelopeState, envelopeStateInfo);
+
+template<typename Archive>
+void Slot::serialize(Archive& ar, unsigned /*version*/)
+{
+	// TODO some of the serialized members here could be calculated from
+	//      other members
+	int waveform = (wavetable == &sin_tab[0]) ? 0 : 1;
+	ar.serialize("waveform", waveform);
+	if (ar.isLoader()) {
+		setWaveform(waveform);
+	}
+
+	ar.serialize("phase", phase);
+	ar.serialize("freq", freq);
+	ar.serialize("TL", TL);
+	ar.serialize("TLL", TLL);
+	ar.serialize("volume", volume);
+	ar.serialize("sl", sl);
+	ar.serialize("state", state);
+	ar.serialize("op1_out", op1_out);
+	ar.serialize("eg_sustain", eg_sustain);
+	ar.serialize("fb_shift", fb_shift);
+	ar.serialize("key", key);
+	ar.serialize("eg_sh_dp", eg_sh_dp);
+	ar.serialize("eg_sel_dp", eg_sel_dp);
+	ar.serialize("eg_sh_ar", eg_sh_ar);
+	ar.serialize("eg_sel_ar", eg_sel_ar);
+	ar.serialize("eg_sh_dr", eg_sh_dr);
+	ar.serialize("eg_sel_dr", eg_sel_dr);
+	ar.serialize("eg_sh_rr", eg_sh_rr);
+	ar.serialize("eg_sel_rr", eg_sel_rr);
+	ar.serialize("eg_sh_rs", eg_sh_rs);
+	ar.serialize("eg_sel_rs", eg_sel_rs);
+	ar.serialize("ar", ar);
+	ar.serialize("dr", dr);
+	ar.serialize("rr", rr);
+	ar.serialize("KSR", KSR);
+	ar.serialize("ksl", ksl);
+	ar.serialize("kcodeScaled", kcodeScaled);
+	ar.serialize("mul", mul);
+	ar.serialize("AMmask", AMmask);
+	ar.serialize("vib", vib);
+}
+
+template<typename Archive>
+void Channel::serialize(Archive& ar, unsigned /*version*/)
+{
+	// TODO Slot slots[2];
+	ar.serialize("instvol_r", instvol_r);
+	ar.serialize("block_fnum", block_fnum);
+	ar.serialize("fc", fc);
+	ar.serialize("ksl_base", ksl_base);
+	ar.serialize("kcode", kcode);
+	ar.serialize("sus", sus);
+}
+
 template<typename Archive>
 void Global::serialize(Archive& ar, unsigned /*version*/)
 {
-	// TODO
+	ar.template serializeBase<YM2413Core>(*this);
+	// only serialize user instrument
+	ar.serialize_blob("user_instrument", inst_tab[0], 8);
+	ar.serialize("channels", channels);
+	ar.serialize("eg_cnt", eg_cnt);
+	ar.serialize("noise_rng", noise_rng);
+	ar.serialize("lfo_am_cnt", lfo_am_cnt);
+	ar.serialize("lfo_pm_cnt", lfo_pm_cnt);
+	ar.serialize("LFO_AM", LFO_AM);
+	ar.serialize("rhythm", rhythm);
+	// don't serialize idleSamples, it's only an optimization
 }
 
 

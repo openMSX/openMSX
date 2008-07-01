@@ -3,6 +3,7 @@
 #include "YM2413Core.hh"
 #include "MSXMotherBoard.hh"
 #include "SimpleDebuggable.hh"
+#include "serialize.hh"
 #include <cstring>
 
 namespace openmsx {
@@ -70,5 +71,12 @@ void YM2413Debuggable::write(unsigned address, byte value, const EmuTime& time)
 {
 	ym2413.writeReg(address, value, time);
 }
+
+template<typename Archive>
+void YM2413Core::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("registers", reg);
+}
+INSTANTIATE_SERIALIZE_METHODS(YM2413Core);
 
 } // namespace openmsx

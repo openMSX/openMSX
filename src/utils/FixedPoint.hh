@@ -215,6 +215,12 @@ public:
 		return value;
 	}
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned /*version*/)
+	{
+		ar.serialize("value", value);
+	}
+
 private:
 	int value;
 };

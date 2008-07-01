@@ -51,6 +51,9 @@ public:
 		KR = value ? 8 : 10;
 	}
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 	bool AM, PM, EG;
 	byte KR; // 0,1  transformed to  10,8
 	byte ML; // 0-15
@@ -96,6 +99,9 @@ public:
 	inline void updateEG();
 	inline void updateAll(unsigned freq);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 	Patch patch;
 	unsigned* sintbl;	// Wavetable (for PG)
 
@@ -136,6 +142,9 @@ public:
 	unsigned patchFlags;
 
 	unsigned freq; // combined fnum and block
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 };
 
 class Global : public YM2413Core {
@@ -744,7 +753,7 @@ void Channel::setSustain(bool sustain)
 // Volume : 6bit ( Volume register << 2 )
 void Channel::setVol(unsigned volume)
 {
-	car.volume = volume;
+	car.setVolume(volume);
 }
 
 // set Frequency (combined fnum (=9bit) and block (=3bit))
@@ -1500,11 +1509,87 @@ void Global::writeReg(byte regis, byte data, const EmuTime& time)
 		break;
 	}
 }
+} // namespace YM2413Okazaki
+
+static enum_string<YM2413Okazaki::EnvelopeState> envelopeStateInfo[] = {
+	{ "ATTACK",  YM2413Okazaki::ATTACK  },
+	{ "DECAY",   YM2413Okazaki::DECAY   },
+	{ "SUSHOLD", YM2413Okazaki::SUSHOLD },
+	{ "SUSTAIN", YM2413Okazaki::SUSTAIN },
+	{ "RELEASE", YM2413Okazaki::RELEASE },
+	{ "SETTLE",  YM2413Okazaki::SETTLE  },
+	{ "FINISH",  YM2413Okazaki::FINISH  }
+};
+SERIALIZE_ENUM(YM2413Okazaki::EnvelopeState, envelopeStateInfo);
+
+namespace YM2413Okazaki {
 
 template<typename Archive>
-void Global::serialize(Archive& ar, unsigned version)
+void Patch::serialize(Archive& ar, unsigned /*version*/)
 {
-	// TODO
+	ar.serialize("AM", AM);
+	ar.serialize("PM", PM);
+	ar.serialize("EG", EG);
+	ar.serialize("KR", KR);
+	ar.serialize("ML", ML);
+	ar.serialize("KL", KL);
+	ar.serialize("TL", TL);
+	ar.serialize("FB", FB);
+	ar.serialize("WF", WF);
+	ar.serialize("AR", AR);
+	ar.serialize("DR", DR);
+	ar.serialize("SL", SL);
+	ar.serialize("RR", RR);
+}
+
+template<typename Archive>
+void Slot::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("patch", patch);
+	ar.serialize("feedback", feedback);
+	ar.serialize("output", output);
+	ar.serialize("cphase", cphase);
+	ar.serialize("volume", volume);
+	ar.serialize("state", state);
+	ar.serialize("eg_phase", eg_phase);
+	ar.serialize("sustain", sustain);
+	ar.serialize("type", type);
+	ar.serialize("slot_on_flag", slot_on_flag);
+
+	if (ar.isLoader()) {
+		setEnvelopeState(state); // eg_phase_max;
+	}
+	// These are restored by call to updateAll() in Channel::serialize()
+	//   eg_dphase, dphaseARTableRks, dphaseDRTableRks, tll, dphase, sintbl
+}
+
+template<typename Archive>
+void Channel::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("mod", mod);
+	ar.serialize("car", car);
+	ar.serialize("patch_number", patch_number);
+	ar.serialize("patchFlags", patchFlags);
+	ar.serialize("freq", freq);
+
+	if (ar.isLoader()) {
+		mod.updateAll(freq);
+		car.updateAll(freq);
+	}
+}
+
+template<typename Archive>
+void Global::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<YM2413Core>(*this);
+	// no need to serialize patches[1-19]
+	ar.serialize("user_patch_mod", patches[0][0]);
+	ar.serialize("user_patch_car", patches[0][1]);
+	ar.serialize("channels", channels);
+	ar.serialize("pm_phase", pm_phase);
+	ar.serialize("am_phase", am_phase);
+	ar.serialize("noise_seed", noise_seed);
+	// don't serialize idleSamples, is only an optimization
 }
 
 } // namespace YM2413Okazaki

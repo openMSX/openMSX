@@ -6,6 +6,7 @@
 #include "SoundDevice.hh"
 #include "Resample.hh"
 #include "openmsx.hh"
+#include "serialize_meta.hh"
 #include <memory>
 #include <string>
 
@@ -28,6 +29,9 @@ public:
 	virtual ~YM2413Core();
 	virtual void writeReg(byte reg, byte value, const EmuTime& time) = 0;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 protected:
 	byte reg[0x40];
 
@@ -44,6 +48,7 @@ private:
 	friend class YM2413Debuggable;
 	const std::auto_ptr<YM2413Debuggable> debuggable;
 };
+REGISTER_BASE_NAME_HELPER(YM2413Core, "YM2413Core");
 
 } // namespace openmsx
 
