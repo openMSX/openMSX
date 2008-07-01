@@ -63,11 +63,15 @@ public:
 	// (un)register methods for devices
 	void registerDevice(byte id, MSXSwitchedDevice* device);
 	void unregisterDevice(byte id);
+	bool hasRegisteredDevices() const;
 
 	virtual void reset(const EmuTime& time);
 	virtual byte readIO(word port, const EmuTime& time);
 	virtual byte peekIO(word port, const EmuTime& time) const;
 	virtual void writeIO(word port, byte value, const EmuTime& time);
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	MSXSwitchedDevice* devices[256];

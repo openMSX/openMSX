@@ -24,7 +24,7 @@ protected:
 
 private:
 	MSXMotherBoard& motherBoard;
-	byte id;
+	const byte id;
 };
 
 } // namespace openmsx

@@ -1242,11 +1242,15 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 	//auto_ptr<PluggingController> pluggingController;
 	//auto_ptr<DummyDevice> dummyDevice;
 
+	MSXDeviceSwitch& devSwitch = getDeviceSwitch();
+	if (devSwitch.hasRegisteredDevices()) {
+		ar.serialize("deviceSwitch", devSwitch);
+	}
+
 	ar.serialize("cpu", getCPU());
 	ar.serialize("cpuInterface", getCPUInterface());
 
 	//auto_ptr<PanasonicMemory> panasonicMemory;
-	//auto_ptr<MSXDeviceSwitch> deviceSwitch;
 	//auto_ptr<CassettePortInterface> cassettePort;
 	//auto_ptr<RenShaTurbo> renShaTurbo;
 	//auto_ptr<LedStatus> ledStatus;

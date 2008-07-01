@@ -34,6 +34,9 @@ public:
 	virtual byte peekSwitchedIO(word port, const EmuTime& time) const;
 	virtual void writeSwitchedIO(word port, byte value, const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	const std::auto_ptr<Ram> ram;
 	nibble address;
@@ -42,6 +45,8 @@ private:
 	byte color2;
 	byte pattern;
 };
+
+REGISTER_MSXDEVICE(MSXS1985, "S1985");
 
 } // namespace openmsx
 

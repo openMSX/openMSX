@@ -6,6 +6,7 @@
 #include "MSXMotherBoard.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
+#include "serialize.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -62,6 +63,10 @@ void MSXDeviceSwitch::unregisterDevice(byte id)
 	devices[id] = NULL;
 }
 
+bool MSXDeviceSwitch::hasRegisteredDevices() const
+{
+	return count;
+}
 
 void MSXDeviceSwitch::reset(const EmuTime& /*time*/)
 {
@@ -96,5 +101,14 @@ void MSXDeviceSwitch::writeIO(word port, byte value, const EmuTime& time)
 		//ignore
 	}
 }
+
+
+template<typename Archive>
+void MSXDeviceSwitch::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+	ar.serialize("selected", selected);
+}
+INSTANTIATE_SERIALIZE_METHODS(MSXDeviceSwitch);
 
 } // namespace openmsx
