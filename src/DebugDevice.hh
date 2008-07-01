@@ -20,9 +20,14 @@ public:
 
 	virtual void writeIO(word port, byte value, const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
+	// public for serialization
+	enum DebugMode {OFF, SINGLEBYTE, MULTIBYTE, ASCII};
+
 private:
 	enum DisplayType {HEX, BIN, DEC, ASC};
-	enum DebugMode {OFF, SINGLEBYTE, MULTIBYTE, ASCII};
 
 	void outputSingleByte(byte value, const EmuTime& time);
 	void outputMultiByte(byte value);
@@ -36,6 +41,7 @@ private:
 	DebugMode mode;
 	byte modeParameter;
 };
+REGISTER_MSXDEVICE(DebugDevice, "DebugDevice");
 
 } // namespace openmsx
 

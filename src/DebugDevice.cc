@@ -6,6 +6,7 @@
 #include "FilenameSetting.hh"
 #include "XMLElement.hh"
 #include "MSXMotherBoard.hh"
+#include "serialize.hh"
 #include <iostream>
 #include <iomanip>
 
@@ -168,5 +169,22 @@ void DebugDevice::openOutput(const string& name)
 		outputstrm = &debugOut;
 	}
 }
+
+static enum_string<DebugDevice::DebugMode> debugModeInfo[] = {
+	{ "OFF",        DebugDevice::OFF },
+	{ "SINGLEBYTE", DebugDevice::SINGLEBYTE },
+	{ "MULTIBYTE",  DebugDevice::MULTIBYTE },
+	{ "ASCII",      DebugDevice::ASCII }
+};
+SERIALIZE_ENUM(DebugDevice::DebugMode, debugModeInfo);
+
+template<typename Archive>
+void DebugDevice::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+	ar.serialize("mode", mode);
+	ar.serialize("modeParameter", modeParameter);
+}
+INSTANTIATE_SERIALIZE_METHODS(DebugDevice);
 
 } // namespace openmsx
