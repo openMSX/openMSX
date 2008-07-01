@@ -177,6 +177,7 @@ MSXtar::MSXtar(SectorAccessibleDisk& sectordisk)
 
 	fatCacheDirty = false;
 	partitionOffset = 0;
+	sectorsPerFat = 0;
 	partitionNbSectors = disk.getNbSectors();
 	if (partitionNbSectors == 0) {
 		throw MSXException("No disk inserted.");
