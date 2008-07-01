@@ -27,9 +27,13 @@ public:
 	virtual void writeIO(word port, byte value, const EmuTime& time);
 	virtual byte peekIO(word port, const EmuTime& time) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	Clock<3579545, 14> reference; // (3.58 / 14)Mhz
 };
+REGISTER_MSXDEVICE(MSXE6Timer, "E6Timer");
 
 } // namespace openmsx
 

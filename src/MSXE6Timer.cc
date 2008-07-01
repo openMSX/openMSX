@@ -1,6 +1,7 @@
 // $Id$
 
 #include "MSXE6Timer.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -45,6 +46,14 @@ byte MSXE6Timer::peekIO(word port, const EmuTime& time) const
 	int counter = reference.getTicksTill(time);
 	return (port & 1) ? ((counter >> 8) & 0xFF) : (counter & 0xFF);
 }
+
+template<typename Archive>
+void MSXE6Timer::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+	ar.serialize("reference", reference);
+}
+INSTANTIATE_SERIALIZE_METHODS(MSXE6Timer);
 
 } // namespace openmsx
 
