@@ -222,7 +222,6 @@ void MSXtar::setBootSector(byte* buf, unsigned nbSectors)
 	// now set correct info according to size of image (in sectors!)
 	// and using the same layout as used by Jon in IDEFDISK v 3.1
 	if (nbSectors >= 32733) {
-		nbSides = 2;		// unknown yet
 		nbFats = 2;		// unknown yet
 		nbSectorsPerFat = 12;	// copied from a partition from an IDE HD
 		nbSectorsPerCluster = 16;
