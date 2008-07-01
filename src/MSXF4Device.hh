@@ -23,10 +23,15 @@ public:
 	virtual byte peekIO(word port, const EmuTime& time) const;
 	virtual void writeIO(word port, byte value, const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
-	bool inverted;
+	const bool inverted;
 	byte status;
 };
+
+REGISTER_MSXDEVICE(MSXF4Device, "F4Device");
 
 } // namespace openmsx
 
