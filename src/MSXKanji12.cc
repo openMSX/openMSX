@@ -3,6 +3,7 @@
 #include "MSXKanji12.hh"
 #include "Rom.hh"
 #include "MSXException.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -27,7 +28,7 @@ MSXKanji12::~MSXKanji12()
 
 void MSXKanji12::reset(const EmuTime& /*time*/)
 {
-	adr = 0; // TODO check this
+	address = 0; // TODO check this
 }
 
 byte MSXKanji12::readSwitchedIO(word port, const EmuTime& time)
@@ -35,7 +36,7 @@ byte MSXKanji12::readSwitchedIO(word port, const EmuTime& time)
 	byte result = peekIO(port, time);
 	switch (port & 0x0F) {
 		case 9:
-			adr++;
+			address++;
 			break;
 	}
 	//PRT_DEBUG("MSXKanji12: read " << (int)port << " " << (int)result);
@@ -53,8 +54,8 @@ byte MSXKanji12::peekSwitchedIO(word port, const EmuTime& /*time*/) const
 			result = 0x08; // TODO what is this
 			break;
 		case 9:
-			if (adr < rom->getSize()) {
-				result = (*rom)[adr];
+			if (address < rom->getSize()) {
+				result = (*rom)[address];
 			} else {
 				result = 0xFF;
 			}
@@ -75,17 +76,27 @@ void MSXKanji12::writeSwitchedIO(word port, byte value, const EmuTime& /*time*/)
 			break;
 		case 7: {
 			byte row = value;
-			byte col = ((adr - 0x800) / 18) % 192;
-			adr = 0x800 + (row * 192 + col) * 18;
+			byte col = ((address - 0x800) / 18) % 192;
+			address = 0x800 + (row * 192 + col) * 18;
 			break;
 		}
 		case 8: {
-			byte row = (adr - 0x800) / (18 * 192);
+			byte row = (address - 0x800) / (18 * 192);
 			byte col = value;
-			adr = 0x800 + (row * 192 + col) * 18;
+			address = 0x800 + (row * 192 + col) * 18;
 			break;
 		}
 	}
 }
+
+template<typename Archive>
+void MSXKanji12::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+	// no need to serialize MSXSwitchedDevice base class
+
+	ar.serialize("address", address);
+}
+INSTANTIATE_SERIALIZE_METHODS(MSXKanji12);
 
 } // namespace openmsx

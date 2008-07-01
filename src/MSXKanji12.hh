@@ -25,10 +25,15 @@ public:
 	virtual byte peekSwitchedIO(word port, const EmuTime& time) const;
 	virtual void writeSwitchedIO(word port, byte value, const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	const std::auto_ptr<Rom> rom;
-	unsigned adr;
+	unsigned address;
 };
+
+REGISTER_MSXDEVICE(MSXKanji12, "Kanji12");
 
 } // namespace openmsx
 
