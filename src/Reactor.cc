@@ -468,7 +468,7 @@ void Reactor::run(CommandLineParser& parser)
 
 	// execute init.tcl
 	try {
-		OnlySystemFileContext context; // only in system dir
+		PreferSystemFileContext context;
 		commandController.source(
 			context.resolve(commandController, "init.tcl"));
 	} catch (FileException& e) {

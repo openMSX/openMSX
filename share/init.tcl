@@ -1,6 +1,11 @@
 # $Id$
 
-# internal proc to make help function available to TCL procs
+# Only execute this script once. Below we source other Tcl script,
+# so this makes sure we don't get in an infinte loop.
+if [info exists ::__init_tcl_executed] return
+set ::__init_tcl_executed true
+
+# internal proc to make help function available to Tcl procs
 proc __help { args } {
 	set command [lindex $args 0]
 	if [info exists ::__help_proc($command)] {
@@ -17,7 +22,7 @@ proc set_help_text { command help } {
 	set ::__help_text($command) $help
 }
 
-# internal proc to make tabcompletion available to TCL procs
+# internal proc to make tabcompletion available to Tcl procs
 proc __tabcompletion { args } {
 	set command [lindex $args 0]
 	set result ""

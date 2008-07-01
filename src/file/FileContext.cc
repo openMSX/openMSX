@@ -147,9 +147,10 @@ SystemFileContext::SystemFileContext()
 	savePaths.push_back(USER_DATA);
 }
 
-OnlySystemFileContext::OnlySystemFileContext()
+PreferSystemFileContext::PreferSystemFileContext()
 {
-	paths.push_back(SYSTEM_DATA);
+	paths.push_back(SYSTEM_DATA); // first system dir
+	paths.push_back(USER_DATA);
 }
 
 UserFileContext::UserFileContext(const string& savePath)

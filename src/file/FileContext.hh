@@ -42,10 +42,10 @@ public:
 	SystemFileContext();
 };
 
-class OnlySystemFileContext : public FileContext
+class PreferSystemFileContext : public FileContext
 {
 public:
-	OnlySystemFileContext();
+	PreferSystemFileContext();
 };
 
 class UserFileContext : public FileContext
