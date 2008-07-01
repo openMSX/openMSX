@@ -27,6 +27,9 @@ public:
 	byte readStatus(const EmuTime& time);
 	byte peekStatus(const EmuTime& time) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	const std::auto_ptr<YMF278Impl> pimple;
 };

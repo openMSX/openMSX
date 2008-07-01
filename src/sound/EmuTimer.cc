@@ -2,6 +2,7 @@
 
 #include "EmuTimer.hh"
 #include "Clock.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -62,6 +63,16 @@ const std::string& EmuTimer<FLAG, FREQ_NOM, FREQ_DENOM, MAXVAL>::schedName() con
 }
 
 
+template<byte FLAG, unsigned FREQ_NOM, unsigned FREQ_DENOM, unsigned MAXVAL>
+template<typename Archive>
+void EmuTimer<FLAG, FREQ_NOM, FREQ_DENOM, MAXVAL>::serialize(
+	Archive& ar, unsigned version)
+{
+	ar.template serializeBase<Schedulable>(*this);
+	ar.serialize("count", count);
+	ar.serialize("counting", counting);
+}
+
 // Force template instantiation
 template class EmuTimer<0x40,  3579545, 64 * 2     , 1024>; // EmuTimerOPM_1
 template class EmuTimer<0x20,  3579545, 64 * 2 * 16, 256 >; // EmuTimerOPM_2
@@ -69,5 +80,12 @@ template class EmuTimer<0x40,  3579545, 72 *  4    , 256 >; // EmuTimerOPL3_1
 template class EmuTimer<0x20,  3579545, 72 *  4 * 4, 256 >; // EmuTimerOPL3_2
 template class EmuTimer<0x40, 33868800, 72 * 38    , 256 >; // EmuTimerOPL4_1
 template class EmuTimer<0x20, 33868800, 72 * 38 * 4, 256 >; // EmuTimerOPL4_2
+
+INSTANTIATE_SERIALIZE_METHODS(EmuTimerOPM_1);
+INSTANTIATE_SERIALIZE_METHODS(EmuTimerOPM_2);
+INSTANTIATE_SERIALIZE_METHODS(EmuTimerOPL3_1);
+INSTANTIATE_SERIALIZE_METHODS(EmuTimerOPL3_2);
+INSTANTIATE_SERIALIZE_METHODS(EmuTimerOPL4_1);
+INSTANTIATE_SERIALIZE_METHODS(EmuTimerOPL4_2);
 
 } // namespace openmsx

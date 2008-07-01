@@ -4,6 +4,7 @@
 #include "YMF262.hh"
 #include "YMF278.hh"
 #include "XMLElement.hh"
+#include "serialize.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -137,5 +138,17 @@ void MSXMoonSound::writeIO(word port, byte value, const EmuTime& time)
 		}
 	}
 }
+
+
+template<typename Archive>
+void MSXMoonSound::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+	ar.serialize("ymf262", *ymf262);
+	ar.serialize("ymf278", *ymf278);
+	ar.serialize("opl3latch", opl3latch);
+	ar.serialize("opl4latch", opl4latch);
+}
+INSTANTIATE_SERIALIZE_METHODS(MSXMoonSound);
 
 } // namespace openmsx

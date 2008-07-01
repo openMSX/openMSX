@@ -47,6 +47,7 @@
 #include "FixedPoint.hh"
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
+#include "serialize.hh"
 #include <cmath>
 #include <cstring>
 
@@ -96,6 +97,9 @@ public:
 	void setFeedbackShift(byte value) {
 		fb_shift = value ? 9 - value : 0;
 	}
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 	// Phase Generator
 	FreqIndex Cnt;	// frequency counter
@@ -151,6 +155,9 @@ public:
 	void chan_calc_ext(byte LFO_AM);
 	void CALC_FCSLOT(YMF262Slot& slot);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 	YMF262Slot slots[2];
 
 	int block_fnum;	// block+fnum
@@ -183,6 +190,9 @@ public:
 	byte readStatus();
 	byte peekStatus() const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	// SoundDevice
 	virtual int getAmplificationFactor() const;
@@ -197,6 +207,7 @@ private:
 	void callback(byte flag);
 
 	void writeRegForce(unsigned r, byte v, const EmuTime& time);
+	void writeRegDirect(unsigned r, byte v, const EmuTime& time);
 	void init_tables();
 	void setStatus(byte flag);
 	void resetStatus(byte flag);
@@ -1330,7 +1341,10 @@ void YMF262Impl::writeReg(unsigned r, byte v, const EmuTime& time)
 void YMF262Impl::writeRegForce(unsigned r, byte v, const EmuTime& time)
 {
 	updateStream(time); // TODO optimize only for regs that directly influence sound
-
+	writeRegDirect(r, v, time);
+}
+void YMF262Impl::writeRegDirect(unsigned r, byte v, const EmuTime& time)
+{
 	reg[r] = v;
 
 	byte ch_offset = 0;
@@ -1875,19 +1889,19 @@ void YMF262Impl::reset(const EmuTime& time)
 	resetStatus(0x60);
 
 	// reset with register write
-	writeRegForce(0x01, 0, time); // test register
-	writeRegForce(0x02, 0, time); // Timer1
-	writeRegForce(0x03, 0, time); // Timer2
-	writeRegForce(0x04, 0, time); // IRQ mask clear
+	writeRegDirect(0x01, 0, time); // test register
+	writeRegDirect(0x02, 0, time); // Timer1
+	writeRegDirect(0x03, 0, time); // Timer2
+	writeRegDirect(0x04, 0, time); // IRQ mask clear
 
 	//FIX IT  registers 101, 104 and 105
 	//FIX IT (dont change CH.D, CH.C, CH.B and CH.A in C0-C8 registers)
 	for (int c = 0xFF; c >= 0x20; c--) {
-		writeRegForce(c, 0, time);
+		writeRegDirect(c, 0, time);
 	}
 	//FIX IT (dont change CH.D, CH.C, CH.B and CH.A in C0-C8 registers)
 	for (int c = 0x1FF; c >= 0x120; c--) {
-		writeRegForce(c, 0, time);
+		writeRegDirect(c, 0, time);
 	}
 
 	// reset operator parameters
@@ -2071,6 +2085,106 @@ bool YMF262Impl::updateBuffer(unsigned length, int* buffer,
 }
 
 
+static enum_string<EnvelopeState> envelopeStateInfo[]= {
+	{ "ATTACK",  EG_ATTACK  },
+	{ "DECAY",   EG_DECAY   },
+	{ "SUSTAIN", EG_SUSTAIN },
+	{ "RELEASE", EG_RELEASE },
+	{ "OFF",     EG_OFF     }
+};
+SERIALIZE_ENUM(EnvelopeState, envelopeStateInfo);
+
+template<typename Archive>
+void YMF262Slot::serialize(Archive& ar, unsigned /*version*/)
+{
+	// wavetable
+	unsigned waveform = (wavetable - sin_tab) / SIN_LEN;
+	ar.serialize("waveform", waveform);
+	if (ar.isLoader()) {
+		wavetable = &sin_tab[waveform * SIN_LEN];
+	}
+
+	// done by rewriting registers:
+	//   connect, fb_shift, CON
+	// TODO handle more state like this
+
+	ar.serialize("Cnt", Cnt);
+	ar.serialize("Incr", Incr);
+	ar.serialize("op1_out", op1_out);
+	ar.serialize("TL", TL);
+	ar.serialize("TLL", TLL);
+	ar.serialize("volume", volume);
+	ar.serialize("sl", sl);
+	ar.serialize("state", state);
+	ar.serialize("eg_m_ar", eg_m_ar);
+	ar.serialize("eg_m_dr", eg_m_dr);
+	ar.serialize("eg_m_rr", eg_m_rr);
+	ar.serialize("eg_sh_ar", eg_sh_ar);
+	ar.serialize("eg_sel_ar", eg_sel_ar);
+	ar.serialize("eg_sh_dr", eg_sh_dr);
+	ar.serialize("eg_sel_dr", eg_sel_dr);
+	ar.serialize("eg_sh_rr", eg_sh_rr);
+	ar.serialize("eg_sel_rr", eg_sel_rr);
+	ar.serialize("key", key);
+	ar.serialize("eg_type", eg_type);
+	ar.serialize("AMmask", AMmask);
+	ar.serialize("vib", vib);
+	ar.serialize("waveform_number", waveform_number);
+	ar.serialize("ar", ar);
+	ar.serialize("dr", dr);
+	ar.serialize("rr", rr);
+	ar.serialize("KSR", KSR);
+	ar.serialize("ksl", ksl);
+	ar.serialize("ksr", ksr);
+	ar.serialize("mul", mul);
+}
+
+template<typename Archive>
+void YMF262Channel::serialize(Archive& ar, unsigned /*version*/)
+{
+	//YMF262Slot slots[2];
+	ar.serialize("block_fnum", block_fnum);
+	ar.serialize("fc", fc);
+	ar.serialize("ksl_base", ksl_base);
+	ar.serialize("kcode", kcode);
+	ar.serialize("extended", extended);
+}
+
+template<typename Archive>
+void YMF262Impl::serialize(Archive& ar, unsigned version)
+{
+	ar.serialize("timer1", timer1);
+	ar.serialize("timer2", timer2);
+	ar.serialize("irq", irq);
+	ar.serialize("chanout", chanout);
+	ar.serialize_blob("registers", reg, sizeof(reg));
+	ar.serialize("channels", channels);
+	ar.serialize("eg_cnt", eg_cnt);
+	ar.serialize("noise_rng", noise_rng);
+	ar.serialize("lfo_am_cnt", lfo_am_cnt);
+	ar.serialize("lfo_pm_cnt", lfo_pm_cnt);
+	ar.serialize("LFO_AM", LFO_AM);
+	ar.serialize("LFO_PM", LFO_PM);
+	ar.serialize("lfo_am_depth", lfo_am_depth);
+	ar.serialize("lfo_pm_depth_range", lfo_pm_depth_range);
+	ar.serialize("rhythm", rhythm);
+	ar.serialize("nts", nts);
+	ar.serialize("OPL3_mode", OPL3_mode);
+	ar.serialize("status", status);
+	ar.serialize("status2", status2);
+	ar.serialize("statusMask", statusMask);
+
+	// TODO restore more state by rewriting register values
+	//   this handles pan
+	const EmuTime& time = timer1.getCurrentTime();
+	for (int i = 0xC0; i <= 0xC8; ++i) {
+		writeRegDirect(i + 0x000, reg[i + 0x000], time);
+		writeRegDirect(i + 0x100, reg[i + 0x100], time);
+	}
+}
+INSTANTIATE_SERIALIZE_METHODS(YMF262Impl);
+
+
 // SimpleDebuggable
 
 YMF262Debuggable::YMF262Debuggable(MSXMotherBoard& motherBoard, YMF262Impl& ymf262_)
@@ -2089,7 +2203,6 @@ void YMF262Debuggable::write(unsigned address, byte value, const EmuTime& time)
 {
 	ymf262.writeRegForce(address, value, time);
 }
-
 
 // class YMF262
 
@@ -2132,5 +2245,12 @@ byte YMF262::peekStatus() const
 {
 	return pimple->peekStatus();
 }
+
+template<typename Archive>
+void YMF262::serialize(Archive& ar, unsigned version)
+{
+	pimple->serialize(ar, version);
+}
+INSTANTIATE_SERIALIZE_METHODS(YMF262);
 
 } // namespace openmsx

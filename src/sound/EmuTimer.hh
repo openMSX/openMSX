@@ -17,12 +17,15 @@ protected:
 };
 
 template<byte FLAG, unsigned FREQ_NOM, unsigned FREQ_DENOM, unsigned MAXVAL>
-class EmuTimer : private Schedulable
+class EmuTimer : public Schedulable
 {
 public:
 	EmuTimer(Scheduler& scheduler, EmuTimerCallback& cb);
 	void setValue(int value);
 	void setStart(bool start, const EmuTime& time);
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	virtual void executeUntil(const EmuTime& time, int userData);

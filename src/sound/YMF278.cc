@@ -9,6 +9,7 @@
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
 #include "Clock.hh"
+#include "serialize.hh"
 #include <algorithm>
 #include <cmath>
 
@@ -45,6 +46,9 @@ public:
 	inline int compute_vib();
 	inline int compute_am();
 	void set_lfo(int newlfo);
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 	unsigned startaddr;
 	unsigned loopaddr;
@@ -99,6 +103,9 @@ public:
 	byte readStatus(const EmuTime& time);
 	byte peekStatus(const EmuTime& time) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	// SoundDevice
 	virtual void setOutputRate(unsigned sampleRate);
@@ -117,6 +124,7 @@ private:
 	bool anyActive();
 	void keyOnHelper(YMF278Slot& slot);
 
+	MSXMotherBoard& motherBoard;
 	friend class DebugRegisters;
 	friend class DebugMemory;
 	const std::auto_ptr<DebugRegisters> debugRegisters;
@@ -916,11 +924,12 @@ byte YMF278Impl::peekStatus(const EmuTime& time) const
 	return result;
 }
 
-YMF278Impl::YMF278Impl(MSXMotherBoard& motherBoard, const std::string& name,
+YMF278Impl::YMF278Impl(MSXMotherBoard& motherBoard_, const std::string& name,
                        int ramSize, const XMLElement& config)
-	: SoundDevice(motherBoard.getMSXMixer(), name, "MoonSound wave-part",
+	: SoundDevice(motherBoard_.getMSXMixer(), name, "MoonSound wave-part",
 	              24, true)
-	, Resample(motherBoard.getGlobalSettings(), 2)
+	, Resample(motherBoard_.getGlobalSettings(), 2)
+	, motherBoard(motherBoard_)
 	, debugRegisters(new DebugRegisters(*this, motherBoard))
 	, debugMemory   (new DebugMemory   (*this, motherBoard))
 	, loadTime(motherBoard.getCurrentTime())
@@ -994,6 +1003,73 @@ void YMF278Impl::writeMem(unsigned address, byte value)
 		ram[address - endRom] = value;
 	} else {
 		// can't write to unmapped memory
+	}
+}
+
+
+template<typename Archive>
+void YMF278Slot::serialize(Archive& ar, unsigned /*version*/)
+{
+	// TODO restore more state from registers
+	ar.serialize("startaddr", startaddr);
+	ar.serialize("loopaddr", loopaddr);
+	ar.serialize("endaddr", endaddr);
+	ar.serialize("step", step);
+	ar.serialize("stepptr", stepptr);
+	ar.serialize("pos", pos);
+	ar.serialize("sample1", sample1);
+	ar.serialize("sample2", sample2);
+	ar.serialize("env_vol", env_vol);
+	ar.serialize("env_vol_step", env_vol_step);
+	ar.serialize("env_vol_lim", env_vol_lim);
+	ar.serialize("lfo_cnt", lfo_cnt);
+	ar.serialize("lfo_step", lfo_step);
+	ar.serialize("lfo_max", lfo_max);
+	ar.serialize("DL", DL);
+	ar.serialize("wave", wave);
+	ar.serialize("FN", FN);
+	ar.serialize("OCT", OCT);
+	ar.serialize("PRVB", PRVB);
+	ar.serialize("LD", LD);
+	ar.serialize("TL", TL);
+	ar.serialize("pan", pan);
+	ar.serialize("lfo", lfo);
+	ar.serialize("vib", vib);
+	ar.serialize("AM", AM);
+	ar.serialize("AR", AR);
+	ar.serialize("D1R", D1R);
+	ar.serialize("D2R", D2R);
+	ar.serialize("RC", RC);
+	ar.serialize("RR", RR);
+	ar.serialize("bits", bits);
+	ar.serialize("active", active);
+	ar.serialize("state", state);
+	ar.serialize("lfo_active", lfo_active);
+}
+
+template<typename Archive>
+void YMF278Impl::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("loadTime", loadTime);
+	ar.serialize("busyTime", busyTime);
+	//ar.serialize("slots", slots);
+	ar.serialize("eg_cnt", eg_cnt);
+	ar.serialize_blob("ram", ram, endRam - endRom);
+	ar.serialize_blob("registers", regs, sizeof(regs));
+
+	// TODO restore more state from registers
+	static const byte rewriteRegs[] = {
+		2,       // wavetblhdr, memmode
+		3, 4, 5, // memadr
+		0xf8,    // fm_l, fm_r
+		0xf9,    // pcm_l, pcm_r
+	};
+	if (ar.isLoader()) {
+		const EmuTime& time = motherBoard.getCurrentTime();
+		for (unsigned i = 0; i < sizeof(rewriteRegs); ++i) {
+			byte reg = rewriteRegs[i];
+			writeReg(reg, regs[reg], time);
+		}
 	}
 }
 
@@ -1080,5 +1156,12 @@ byte YMF278::peekStatus(const EmuTime& time) const
 {
 	return pimple->peekStatus(time);
 }
+
+template<typename Archive>
+void YMF278::serialize(Archive& ar, unsigned version)
+{
+	pimple->serialize(ar, version);
+}
+INSTANTIATE_SERIALIZE_METHODS(YMF278);
 
 } // namespace openmsx

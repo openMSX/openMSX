@@ -22,12 +22,17 @@ public:
 	virtual byte peekIO(word port, const EmuTime& time) const;
 	virtual void writeIO(word port, byte value, const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	std::auto_ptr<YMF262> ymf262;
 	std::auto_ptr<YMF278> ymf278;
 	int opl3latch;
 	byte opl4latch;
 };
+
+REGISTER_MSXDEVICE(MSXMoonSound, "MoonSound");
 
 } // namespace openmsx
 

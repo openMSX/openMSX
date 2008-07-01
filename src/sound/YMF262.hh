@@ -28,6 +28,9 @@ public:
 	byte readStatus();
 	byte peekStatus() const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	const std::auto_ptr<YMF262Impl> pimple;
 };
