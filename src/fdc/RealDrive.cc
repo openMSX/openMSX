@@ -305,6 +305,7 @@ void RealDrive::resetTimeOut(const EmuTime& time)
 template<typename Archive>
 void RealDrive::serialize(Archive& ar, unsigned /*version*/)
 {
+	ar.template serializeBase<Schedulable>(*this);
 	ar.serialize("motorTimer", motorTimer);
 	ar.serialize("headLoadTimer", headLoadTimer);
 	ar.serialize("changer", *changer);
