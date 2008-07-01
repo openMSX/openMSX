@@ -3,6 +3,7 @@
 #include "MSXBunsetsu.hh"
 #include "CacheLine.hh"
 #include "Rom.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -72,5 +73,13 @@ byte* MSXBunsetsu::getWriteCacheLine(word start) const
 		return unmappedWrite;
 	}
 }
+
+template<typename Archive>
+void MSXBunsetsu::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+	ar.serialize("jisyoAddress", jisyoAddress);
+}
+INSTANTIATE_SERIALIZE_METHODS(MSXBunsetsu);
 
 } // namespace openmsx

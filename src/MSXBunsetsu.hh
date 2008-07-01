@@ -23,11 +23,16 @@ public:
 	virtual const byte* getReadCacheLine(word start) const;
 	virtual byte* getWriteCacheLine(word start) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	std::auto_ptr<Rom> bunsetsuRom;
 	std::auto_ptr<Rom> jisyoRom;
 	int jisyoAddress;
 };
+
+REGISTER_MSXDEVICE(MSXBunsetsu, "Bunsetsu");
 
 } // namespace openmsx
 
