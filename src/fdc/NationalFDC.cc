@@ -4,6 +4,7 @@
 #include "CacheLine.hh"
 #include "DriveMultiplexer.hh"
 #include "WD2793.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -151,5 +152,13 @@ byte* NationalFDC::getWriteCacheLine(word address) const
 		return unmappedWrite;
 	}
 }
+
+
+template<typename Archive>
+void NationalFDC::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<WD2793BasedFDC>(*this);
+}
+INSTANTIATE_SERIALIZE_METHODS(NationalFDC);
 
 } // namespace openmsx

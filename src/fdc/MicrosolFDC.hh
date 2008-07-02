@@ -15,7 +15,12 @@ public:
 	virtual byte readIO(word port, const EmuTime& time);
 	virtual byte peekIO(word port, const EmuTime& time) const;
 	virtual void writeIO(word port, byte value, const EmuTime& time);
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 };
+
+REGISTER_MSXDEVICE(MicrosolFDC, "MicrosolFDC");
 
 } // namespace openmsx
 

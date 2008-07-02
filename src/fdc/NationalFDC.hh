@@ -18,9 +18,11 @@ public:
 	virtual const byte* getReadCacheLine(word start) const;
 	virtual byte* getWriteCacheLine(word address) const;
 
-private:
-	byte driveReg;
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 };
+
+REGISTER_MSXDEVICE(NationalFDC, "NationalFDC");
 
 } // namespace openmsx
 

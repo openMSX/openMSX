@@ -3,6 +3,7 @@
 #include "MicrosolFDC.hh"
 #include "DriveMultiplexer.hh"
 #include "WD2793.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -131,5 +132,13 @@ void MicrosolFDC::writeIO(word port, byte value, const EmuTime& time)
 		break;
 	}
 }
+
+
+template<typename Archive>
+void MicrosolFDC::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<WD2793BasedFDC>(*this);
+}
+INSTANTIATE_SERIALIZE_METHODS(MicrosolFDC);
 
 } // namespace openmsx
