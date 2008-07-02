@@ -27,6 +27,9 @@ public:
 	virtual byte peekIO(word port, const EmuTime& time) const;
 	virtual void writeIO(word port, byte value, const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	byte readRegister(byte reg) const;
 	void writeRegister(byte reg, byte value);
@@ -39,6 +42,8 @@ private:
 
 	friend class S1990Debuggable;
 };
+
+REGISTER_MSXDEVICE(MSXS1990, "S1990");
 
 } // namespace openmsx
 

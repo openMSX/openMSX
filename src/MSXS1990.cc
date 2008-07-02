@@ -6,6 +6,7 @@
 #include "PanasonicMemory.hh"
 #include "FirmwareSwitch.hh"
 #include "SimpleDebuggable.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -128,5 +129,17 @@ void S1990Debuggable::write(unsigned address, byte value)
 {
 	s1990.writeRegister(address, value);
 }
+
+template<typename Archive>
+void MSXS1990::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+	ar.serialize("registerSelect", registerSelect);
+	ar.serialize("cpuStatus", cpuStatus);
+	if (ar.isLoader()) {
+		setCPUStatus(cpuStatus);
+	}
+}
+INSTANTIATE_SERIALIZE_METHODS(MSXS1990);
 
 } // namespace openmsx
