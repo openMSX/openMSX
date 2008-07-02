@@ -1,6 +1,7 @@
 // $Id$
 
 #include "MC6850.hh"
+#include "serialize.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -46,5 +47,12 @@ void MC6850::writeIO(word port, byte /*value*/, const EmuTime& /*time*/)
 		break;
 	}
 }
+
+template<typename Archive>
+void MC6850::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+}
+INSTANTIATE_SERIALIZE_METHODS(MC6850);
 
 } // namespace openmsx
