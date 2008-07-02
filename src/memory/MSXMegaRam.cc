@@ -29,16 +29,15 @@
 #include "Ram.hh"
 #include "Rom.hh"
 #include "Math.hh"
-
+#include "serialize.hh"
 
 namespace openmsx {
 
 MSXMegaRam::MSXMegaRam(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
+	, numBlocks(config.getChildDataAsInt("size") / 8) // 8kB blocks
+	, maskBlocks(Math::powerOfTwo(numBlocks) - 1)
 {
-	unsigned size = config.getChildDataAsInt("size");
-	numBlocks = size / 8;	// 8kb blocks
-	maskBlocks = Math::powerOfTwo(numBlocks) - 1;
 	ram.reset(new Ram(motherBoard, getName() + " RAM", "Mega-RAM",
 	                  numBlocks * 0x2000));
 	if (config.findChild("rom")) {
@@ -72,9 +71,8 @@ byte MSXMegaRam::readMem(word address, const EmuTime& /*time*/)
 const byte* MSXMegaRam::getReadCacheLine(word address) const
 {
 	if (romMode) {
-		// gcc-3.3 produces wrong code for this line !!
-		// if (address >= 0x4000 && address <= 0xbfff) {
-		if (!((address - 0x4000) & 0x8000)) {
+		// Note that gcc-3.3 produced wrong code for this line...
+		if (address >= 0x4000 && address <= 0xBFFF) {
 			return &(*rom)[address - 0x4000];
 		}
 		return unmappedRead;
@@ -152,5 +150,17 @@ void MSXMegaRam::setBank(byte page, byte block)
 	invalidateMemCache(adr + 0x0000, 0x2000);
 	invalidateMemCache(adr + 0x8000, 0x2000);
 }
+
+
+template<typename Archive>
+void MSXMegaRam::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+	ar.serialize("ram", *ram);
+	ar.serialize("bank", bank);
+	ar.serialize("writeMode", writeMode);
+	ar.serialize("romMode", romMode);
+}
+INSTANTIATE_SERIALIZE_METHODS(MSXMegaRam);
 
 } // namespace openmsx

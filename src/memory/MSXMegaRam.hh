@@ -28,17 +28,22 @@ public:
 	virtual byte peekIO(word port, const EmuTime& time) const;
 	virtual void writeIO(word port, byte value, const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	void setBank(byte page, byte block);
 
 	std::auto_ptr<Ram> ram;
 	std::auto_ptr<Rom> rom;
-	unsigned numBlocks;
-	byte maskBlocks;
+	const unsigned numBlocks;
+	const byte maskBlocks;
 	byte bank[4];
 	bool writeMode;
 	bool romMode;
 };
+
+REGISTER_MSXDEVICE(MSXMegaRam, "MegaRAM");
 
 } // namespace openmsx
 
