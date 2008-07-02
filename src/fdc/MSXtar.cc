@@ -209,75 +209,81 @@ void MSXtar::writeCachedFAT()
 // Create a correct bootsector depending on the required size of the filesystem
 void MSXtar::setBootSector(byte* buf, unsigned nbSectors)
 {
-	// variables set to single sided disk by default
-	word nbSides = 1;
-	byte nbFats = 2;
-	byte nbReservedSectors = 1; // Just copied from a 32MB IDE partition
-	byte nbSectorsPerFat = 2;
-	byte nbSectorsPerCluster = 2;
+	// these are the same for most formats
+	byte nbReservedSectors = 1;
 	byte nbHiddenSectors = 1;
-	word nbDirEntry = 112;
-	byte descriptor = 0xF8;
+
+	// all these are initialized below (in this order)
+	word nbSides;
+	byte nbFats;
+	byte nbSectorsPerFat;
+	byte nbSectorsPerCluster;
+	word nbDirEntry;
+	byte descriptor;
 
 	// now set correct info according to size of image (in sectors!)
 	// and using the same layout as used by Jon in IDEFDISK v 3.1
-	if (nbSectors >= 32733) {
+	if (nbSectors > 32732) {
+		nbSides = 32;		// copied from a partition from an IDE HD
 		nbFats = 2;		// unknown yet
 		nbSectorsPerFat = 12;	// copied from a partition from an IDE HD
 		nbSectorsPerCluster = 16;
 		nbDirEntry = 256;
-		nbSides = 32;		// copied from a partition from an IDE HD
-		nbHiddenSectors = 16;
 		descriptor = 0xF0;
-	} else if (nbSectors >= 16389) {
+		nbHiddenSectors = 16;	// override default from above
+	} else if (nbSectors > 16388) {
 		nbSides = 2;		// unknown yet
 		nbFats = 2;		// unknown yet
 		nbSectorsPerFat = 3;	// unknown yet
 		nbSectorsPerCluster = 8;
 		nbDirEntry = 256;
 		descriptor = 0XF0;
-	} else if (nbSectors >= 8213) {
+	} else if (nbSectors > 8212) {
 		nbSides = 2;		// unknown yet
 		nbFats = 2;		// unknown yet
 		nbSectorsPerFat = 3;	// unknown yet
 		nbSectorsPerCluster = 4;
 		nbDirEntry = 256;
 		descriptor = 0xF0;
-	} else if (nbSectors >= 4127) {
+	} else if (nbSectors > 4126) {
 		nbSides = 2;		// unknown yet
 		nbFats = 2;		// unknown yet
 		nbSectorsPerFat = 3;	// unknown yet
 		nbSectorsPerCluster = 2;
 		nbDirEntry = 256;
 		descriptor = 0xF0;
-	} else if (nbSectors >= 2880) {
+	} else if (nbSectors > 2880) {
 		nbSides = 2;		// unknown yet
 		nbFats = 2;		// unknown yet
 		nbSectorsPerFat = 3;	// unknown yet
 		nbSectorsPerCluster = 1;
 		nbDirEntry = 224;
 		descriptor = 0xF0;
-	} else if (nbSectors >= 1441) {
+	} else if (nbSectors > 1440) {
 		nbSides = 2;		// unknown yet
 		nbFats = 2;		// unknown yet
 		nbSectorsPerFat = 3;	// unknown yet
 		nbSectorsPerCluster = 2;
 		nbDirEntry = 112;
 		descriptor = 0xF0;
-
-	} else if (nbSectors <= 720) {
-		// normal single sided disk
-		nbSectors = 720;
-		// all other info is set above when defining the variables
-	} else {
+	} else if (nbSectors > 720) {
 		// normal double sided disk
-		nbSectors = 1440;
 		nbSides = 2;
 		nbFats = 2;
 		nbSectorsPerFat = 3;
 		nbSectorsPerCluster = 2;
 		nbDirEntry = 112;
 		descriptor = 0xF9;
+		nbSectors = 1440;	// force nbSectors to 1440, why?
+	} else {
+		// normal single sided disk
+		nbSides = 1;
+		nbFats = 2;
+		nbSectorsPerFat = 2;
+		nbSectorsPerCluster = 2;
+		nbDirEntry = 112;
+		descriptor = 0xF8;
+		nbSectors = 720;	// force nbSectors to 720, why?
 	}
 	MSXBootSector* boot = reinterpret_cast<MSXBootSector*>(buf);
 
