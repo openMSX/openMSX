@@ -27,6 +27,9 @@ public:
 	virtual const byte* getReadCacheLine(word start) const;
 	virtual byte* getWriteCacheLine(word start) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	void setMapper(int regio, byte value);
 	void setModeRegister(byte value);
@@ -43,6 +46,8 @@ private:
 	byte mapperMask;
 	bool lowRAM, highRAM;
 };
+
+REGISTER_MSXDEVICE(MSXSCCPlusCart, "SCCPlus");
 
 } // namespace openmsx
 

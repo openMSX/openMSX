@@ -125,6 +125,10 @@ void XmlOutputArchive::save(unsigned char b)
 {
 	save(unsigned(b));
 }
+void XmlOutputArchive::save(signed char c)
+{
+	save(int(c));
+}
 
 void XmlOutputArchive::attribute(const string& name, const string& str)
 {
@@ -192,6 +196,12 @@ void XmlInputArchive::load(unsigned char& b)
 	unsigned i;
 	load(i);
 	b = i;
+}
+void XmlInputArchive::load(signed char& c)
+{
+	int i;
+	load(i);
+	c = i;
 }
 
 void XmlInputArchive::beginTag(const string& tag)

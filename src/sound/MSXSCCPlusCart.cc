@@ -12,6 +12,7 @@
 #include "MSXMotherBoard.hh"
 #include "CacheLine.hh"
 #include "XMLElement.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -20,8 +21,7 @@ MSXSCCPlusCart::MSXSCCPlusCart(MSXMotherBoard& motherBoard,
 	: MSXDevice(motherBoard, config)
 	, ram(new Ram(motherBoard, getName() + " RAM", "SCC+ RAM", 0x20000))
 {
-	const XMLElement* fileElem = config.findChild("filename");
-	if (fileElem) {
+	if (const XMLElement* fileElem = config.findChild("filename")) {
 		// read the rom file
 		const std::string& filename = fileElem->getData();
 		try {
@@ -284,5 +284,34 @@ void MSXSCCPlusCart::checkEnable()
 		enable = EN_NONE;
 	}
 }
+
+
+template<typename Archive>
+void MSXSCCPlusCart::serialize(Archive& ar, unsigned /*version*/)
+{
+	// These are constants:
+	//   mapperMask, lowRAM, highRAM
+
+	// only serialize that part of the Ram object that's actually
+	// present in the cartridge
+	unsigned ramSize = (lowRAM && highRAM && (mapperMask == 0xF))
+	                 ? 0x20000 : 0x10000;
+	unsigned ramBase = lowRAM ? 0x00000 : 0x10000;
+	ar.serialize_blob("ram", &(*ram)[ramBase], ramSize);
+
+	ar.serialize("scc", *scc);
+	ar.serialize("mapper", mapper);
+	ar.serialize("mode", modeRegister);
+
+	if (ar.isLoader()) {
+		// recalculate: isMapped[4], internalMemoryBank[4]
+		for (int i = 0; i < 4; ++i) {
+			setMapper(i, mapper[i]);
+		}
+		// recalculate: enable, isRamSegment[4]
+		setModeRegister(modeRegister);
+	}
+}
+INSTANTIATE_SERIALIZE_METHODS(MSXSCCPlusCart);
 
 } // namespace openmsx

@@ -101,6 +101,7 @@
 #include "SCC.hh"
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
+#include "serialize.hh"
 #include "likely.hh"
 
 using std::string;
@@ -414,7 +415,11 @@ void SCC::setDeformReg(byte value, const EmuTime& time)
 	}
 	deformValue = value;
 	deformTimer.advance(time);
+	setDeformRegHelper(value);
+}
 
+void SCC::setDeformRegHelper(byte value)
+{
 	if (currentChipMode != SCC_Real) {
 		value &= ~0x80;
 	}
@@ -586,5 +591,55 @@ void SCCDebuggable::write(unsigned address, byte value, const EmuTime& time)
 		// ignore
 	}
 }
+
+
+static enum_string<SCC::ChipMode> chipModeInfo[] = {
+	{ "Real",       SCC::SCC_Real       },
+	{ "Compatible", SCC::SCC_Compatible },
+	{ "Plus",       SCC::SCC_plusmode   },
+};
+SERIALIZE_ENUM(SCC::ChipMode, chipModeInfo);
+
+template<typename Archive>
+void SCC::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("mode", currentChipMode);
+	ar.serialize("count", count);
+	ar.serialize("pos", pos);
+	ar.serialize("period", orgPeriod);
+	ar.serialize("out", out);
+	ar.serialize("volume", volume);
+	ar.serialize("ch_enable", ch_enable);
+	ar.serialize("deformTimer", deformTimer);
+	ar.serialize("deform", deformValue);
+	// multi-dimensional arrays are not directly support by the
+	// serialization framework, maybe in the future. So for now
+	// manually loop over the channels.
+	for (int channel = 0; channel < 5; ++channel) {
+		string tag = string("wave") + char('1' + channel);
+		ar.serialize(tag.c_str(), wave[channel]); //signed char
+	}
+
+	if (ar.isLoader()) {
+		// recalculate volAdjustedWave
+		for (int channel = 0; channel < 5; ++channel) {
+			for (int pos = 0; pos < 32; ++pos) {
+				volAdjustedWave[channel][pos] =
+					adjust(wave[channel][pos], volume[channel]);
+			}
+		}
+
+		// recalculate rotate[5] and readOnly[5]
+		setDeformRegHelper(deformValue);
+
+		// recalculate incr[5] and period[5]
+		for (int channel = 0; channel < 5; ++channel) {
+			unsigned per = orgPeriod[channel];
+			setFreqVol(2 * channel + 0, (per & 0x0FF) >> 0);
+			setFreqVol(2 * channel + 1, (per & 0xF00) >> 8);
+		}
+	}
+}
+INSTANTIATE_SERIALIZE_METHODS(SCC);
 
 } // namespace openmsx

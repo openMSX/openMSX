@@ -646,6 +646,7 @@ public:
 	void save(const std::string& str);
 	void save(bool b);
 	void save(unsigned char b);
+	void save(signed char c);
 
 //internal:
 	inline bool translateEnumToString() const { return true; }
@@ -681,6 +682,7 @@ public:
 	void load(std::string& t);
 	void load(bool& b);
 	void load(unsigned char& b);
+	void load(signed char& c);
 
 //internal:
 	inline bool translateEnumToString() const { return true; }

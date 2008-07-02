@@ -31,6 +31,9 @@ public:
 	void writeMem(byte address, byte value, const EmuTime& time);
 	void setChipMode(ChipMode newMode);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	// SoundDevice
 	virtual int getAmplificationFactor() const;
@@ -46,6 +49,7 @@ private:
 	byte readWave(unsigned channel, unsigned address, const EmuTime& time) const;
 	void writeWave(unsigned channel, unsigned offset, byte value);
 	void setDeformReg(byte value, const EmuTime& time);
+	void setDeformRegHelper(byte value);
 	void setFreqVol(unsigned address, byte value);
 	byte getFreqVol(unsigned address) const;
 
