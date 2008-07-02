@@ -587,6 +587,7 @@ void Slot::updateTLL(unsigned freq)
 void Slot::updateRKS(unsigned freq)
 {
 	unsigned rks = freq >> patch.KR;
+	assert(rks < 16);
 	dphaseARTableRks = dphaseARTable[rks];
 	dphaseDRTableRks = dphaseDRTable[rks];
 }
@@ -1556,11 +1557,10 @@ void Slot::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("type", type);
 	ar.serialize("slot_on_flag", slot_on_flag);
 
-	if (ar.isLoader()) {
-		setEnvelopeState(state); // eg_phase_max;
-	}
 	// These are restored by call to updateAll() in Channel::serialize()
 	//   eg_dphase, dphaseARTableRks, dphaseDRTableRks, tll, dphase, sintbl
+	// and by setEnvelopeState()
+	//   eg_phase_max
 }
 
 template<typename Archive>
@@ -1575,6 +1575,8 @@ void Channel::serialize(Archive& ar, unsigned /*version*/)
 	if (ar.isLoader()) {
 		mod.updateAll(freq);
 		car.updateAll(freq);
+		mod.setEnvelopeState(mod.state);
+		car.setEnvelopeState(car.state);
 	}
 }
 
