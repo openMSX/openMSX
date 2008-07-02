@@ -66,7 +66,7 @@ const std::string& EmuTimer<FLAG, FREQ_NOM, FREQ_DENOM, MAXVAL>::schedName() con
 template<byte FLAG, unsigned FREQ_NOM, unsigned FREQ_DENOM, unsigned MAXVAL>
 template<typename Archive>
 void EmuTimer<FLAG, FREQ_NOM, FREQ_DENOM, MAXVAL>::serialize(
-	Archive& ar, unsigned version)
+	Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Schedulable>(*this);
 	ar.serialize("count", count);

@@ -2151,7 +2151,7 @@ void YMF262Channel::serialize(Archive& ar, unsigned /*version*/)
 }
 
 template<typename Archive>
-void YMF262Impl::serialize(Archive& ar, unsigned version)
+void YMF262Impl::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.serialize("timer1", timer1);
 	ar.serialize("timer2", timer2);
