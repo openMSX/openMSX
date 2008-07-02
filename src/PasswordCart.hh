@@ -17,10 +17,15 @@ public:
 	virtual byte readIO(word port, const EmuTime& time);
 	virtual byte peekIO(word port, const EmuTime& time) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
-	word password;
+	const word password;
 	byte pointer;
 };
+
+REGISTER_MSXDEVICE(PasswordCart, "PasswordCart");
 
 } // namespace
 

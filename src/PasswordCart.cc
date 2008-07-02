@@ -11,14 +11,15 @@
 
 #include "PasswordCart.hh"
 #include "XMLElement.hh"
+#include "serialize.hh"
 #include <algorithm>
 
 namespace openmsx {
 
 PasswordCart::PasswordCart(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
+	, password(config.getChildDataAsInt("password", 0))
 {
-	password = config.getChildDataAsInt("password", 0);
 	reset(*static_cast<EmuTime*>(0));
 }
 
@@ -43,14 +44,22 @@ byte PasswordCart::peekIO(word /*port*/, const EmuTime& /*time*/) const
 {
 	switch (pointer) {
 	case 0:
-		return 0xaa;
+		return 0xAA;
 	case 1:
 		return password >> 8;
 	case 2:
-		return password & 0xff;
+		return password & 0xFF;
 	default:
-		return 0xff;
+		return 0xFF;
 	}
 }
+
+template<typename Archive>
+void PasswordCart::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+	ar.serialize("pointer", pointer);
+}
+INSTANTIATE_SERIALIZE_METHODS(PasswordCart);
 
 } // namespace
