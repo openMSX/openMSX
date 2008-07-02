@@ -27,6 +27,7 @@
 #include "StringOp.hh"
 #include "MSXException.hh"
 #include "XMLElement.hh"
+#include "serialize.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -114,5 +115,15 @@ void ESE_RAM::setSRAM(unsigned region, byte block)
 	isWriteable[region] = block & 0x80;
 	mapped[region] = block & blockMask;
 }
+
+template<typename Archive>
+void ESE_RAM::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+	ar.serialize("SRAM", *sram);
+	ar.serialize("isWriteable", isWriteable);
+	ar.serialize("mapped", mapped);
+}
+INSTANTIATE_SERIALIZE_METHODS(ESE_RAM);
 
 } // namespace openmsx

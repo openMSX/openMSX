@@ -23,6 +23,9 @@ public:
 	virtual const byte* getReadCacheLine(word start) const;
 	virtual byte* getWriteCacheLine(word start) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	void setSRAM(unsigned region, byte block);
 
@@ -32,6 +35,8 @@ private:
 	byte mapped[4]; // which block is mapped in this region?
 	byte blockMask;
 };
+
+REGISTER_MSXDEVICE(ESE_RAM, "ESE_RAM");
 
 } // namespace openmsx
 
