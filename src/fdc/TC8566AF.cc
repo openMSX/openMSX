@@ -8,6 +8,7 @@
 #include "TC8566AF.hh"
 #include "DiskDrive.hh"
 #include "MSXException.hh"
+#include "serialize.hh"
 #include <cstring>
 
 namespace openmsx {
@@ -626,5 +627,61 @@ bool TC8566AF::peekDiskChanged(unsigned driveNum) const
 	assert(driveNum < 4);
 	return drive[driveNum]->peekDiskChanged();
 }
+
+
+static enum_string<TC8566AF::Command> commandInfo[] = {
+	{ "UNKNOWN",                TC8566AF::CMD_UNKNOWN                },
+	{ "READ_DATA",              TC8566AF::CMD_READ_DATA              },
+	{ "WRITE_DATA",             TC8566AF::CMD_WRITE_DATA             },
+	{ "WRITE_DELETED_DATA",     TC8566AF::CMD_WRITE_DELETED_DATA     },
+	{ "READ_DELETED_DATA",      TC8566AF::CMD_READ_DELETED_DATA      },
+	{ "READ_DIAGNOSTIC",        TC8566AF::CMD_READ_DIAGNOSTIC        },
+	{ "READ_ID",                TC8566AF::CMD_READ_ID                },
+	{ "FORMAT",                 TC8566AF::CMD_FORMAT                 },
+	{ "SCAN_EQUAL",             TC8566AF::CMD_SCAN_EQUAL             },
+	{ "SCAN_LOW_OR_EQUAL",      TC8566AF::CMD_SCAN_LOW_OR_EQUAL      },
+	{ "SCAN_HIGH_OR_EQUAL",     TC8566AF::CMD_SCAN_HIGH_OR_EQUAL     },
+	{ "SEEK",                   TC8566AF::CMD_SEEK                   },
+	{ "RECALIBRATE",            TC8566AF::CMD_RECALIBRATE            },
+	{ "SENSE_INTERRUPT_STATUS", TC8566AF::CMD_SENSE_INTERRUPT_STATUS },
+	{ "SPECIFY",                TC8566AF::CMD_SPECIFY                },
+	{ "SENSE_DEVICE_STATUS",    TC8566AF::CMD_SENSE_DEVICE_STATUS    }
+};
+SERIALIZE_ENUM(TC8566AF::Command, commandInfo);
+
+static enum_string<TC8566AF::Phase> phaseInfo[] = {
+	{ "IDLE",         TC8566AF::PHASE_IDLE         },
+	{ "COMMAND",      TC8566AF::PHASE_COMMAND      },
+	{ "DATATRANSFER", TC8566AF::PHASE_DATATRANSFER },
+	{ "RESULT",       TC8566AF::PHASE_RESULT       }
+};
+SERIALIZE_ENUM(TC8566AF::Phase, phaseInfo);
+
+template<typename Archive>
+void TC8566AF::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("delayTime", delayTime);
+	ar.serialize("command", command);
+	ar.serialize("phase", phase);
+	ar.serialize("phaseStep", phaseStep);
+	ar.serialize("sectorSize", sectorSize);
+	ar.serialize("sectorOffset", sectorOffset);
+	ar.serialize_blob("sectorBuf", sectorBuf, sizeof(sectorBuf));
+	ar.serialize("driveSelect", driveSelect);
+	ar.serialize("mainStatus", mainStatus);
+	ar.serialize("status0", status0);
+	ar.serialize("status1", status1);
+	ar.serialize("status2", status2);
+	ar.serialize("status3", status3);
+	ar.serialize("commandCode", commandCode);
+	ar.serialize("cylinderNumber", cylinderNumber);
+	ar.serialize("headNumber", headNumber);
+	ar.serialize("sectorNumber", sectorNumber);
+	ar.serialize("number", number);
+	ar.serialize("currentTrack", currentTrack);
+	ar.serialize("sectorsPerCylinder", sectorsPerCylinder);
+	ar.serialize("fillerByte", fillerByte);
+};
+INSTANTIATE_SERIALIZE_METHODS(TC8566AF);
 
 } // namespace openmsx

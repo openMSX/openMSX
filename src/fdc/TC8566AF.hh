@@ -23,6 +23,35 @@ public:
 	bool diskChanged(unsigned driveNum);
 	bool peekDiskChanged(unsigned driveNum) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
+	// public for serialization
+	enum Command {
+		CMD_UNKNOWN,
+		CMD_READ_DATA,
+		CMD_WRITE_DATA,
+		CMD_WRITE_DELETED_DATA,
+		CMD_READ_DELETED_DATA,
+		CMD_READ_DIAGNOSTIC,
+		CMD_READ_ID,
+		CMD_FORMAT,
+		CMD_SCAN_EQUAL,
+		CMD_SCAN_LOW_OR_EQUAL,
+		CMD_SCAN_HIGH_OR_EQUAL,
+		CMD_SEEK,
+		CMD_RECALIBRATE,
+		CMD_SENSE_INTERRUPT_STATUS,
+		CMD_SPECIFY,
+		CMD_SENSE_DEVICE_STATUS,
+	};
+	enum Phase {
+		PHASE_IDLE,
+		PHASE_COMMAND,
+		PHASE_DATATRANSFER,
+		PHASE_RESULT,
+	};
+
 private:
 	byte peekDataPort() const;
 	byte readDataPort(const EmuTime& time);
@@ -41,30 +70,8 @@ private:
 	DiskDrive* drive[4];
 	Clock<1000000> delayTime;
 
-	enum Command {
-		CMD_UNKNOWN,
-		CMD_READ_DATA,
-		CMD_WRITE_DATA,
-		CMD_WRITE_DELETED_DATA,
-		CMD_READ_DELETED_DATA,
-		CMD_READ_DIAGNOSTIC,
-		CMD_READ_ID,
-		CMD_FORMAT,
-		CMD_SCAN_EQUAL,
-		CMD_SCAN_LOW_OR_EQUAL,
-		CMD_SCAN_HIGH_OR_EQUAL,
-		CMD_SEEK,
-		CMD_RECALIBRATE,
-		CMD_SENSE_INTERRUPT_STATUS,
-		CMD_SPECIFY,
-		CMD_SENSE_DEVICE_STATUS,
-	} command;
-	enum Phase {
-		PHASE_IDLE,
-		PHASE_COMMAND,
-		PHASE_DATATRANSFER,
-		PHASE_RESULT,
-	} phase;
+	Command command;
+	Phase phase;
 	int phaseStep;
 
 	int sectorSize;

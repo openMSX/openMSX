@@ -8,6 +8,7 @@
 #include "TC8566AF.hh"
 #include "Rom.hh"
 #include "CacheLine.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -15,8 +16,8 @@ TurboRFDC::TurboRFDC(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXFDC(motherBoard, config)
 	, controller(new TC8566AF(reinterpret_cast<DiskDrive**>(drives),
 	                          getCurrentTime()))
+	, blockMask((rom->getSize() / 0x4000) - 1)
 {
-	blockMask = (rom->getSize() / 0x4000) - 1;
 	reset(getCurrentTime());
 }
 
@@ -145,7 +146,8 @@ void TurboRFDC::writeMem(word address, byte value, const EmuTime& time)
 void TurboRFDC::setBank(byte value)
 {
 	invalidateMemCache(0x4000, 0x4000);
-	memory = &(*rom)[0x4000 * (value & blockMask)];
+	bank = value & blockMask;
+	memory = &(*rom)[0x4000 * bank];
 }
 
 byte* TurboRFDC::getWriteCacheLine(word address) const
@@ -157,6 +159,18 @@ byte* TurboRFDC::getWriteCacheLine(word address) const
 		return NULL;
 	} else {
 		return unmappedWrite;
+	}
+}
+
+
+template<typename Archive>
+void TurboRFDC::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXFDC>(*this);
+	ar.serialize("TC8566AF", *controller);
+	ar.serialize("bank", bank);
+	if (ar.isLoader()) {
+		setBank(bank);
 	}
 }
 

@@ -24,13 +24,19 @@ public:
 	virtual const byte* getReadCacheLine(word start) const;
 	virtual byte* getWriteCacheLine(word address) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	void setBank(byte value);
 
 	const std::auto_ptr<TC8566AF> controller;
 	const byte* memory;
-	byte blockMask;
+	const byte blockMask;
+	byte bank;
 };
+
+REGISTER_MSXDEVICE(TurboRFDC, "TurboRFDC");
 
 } // namespace openmsx
 
