@@ -25,7 +25,7 @@ class V9990PalDebug;
   * cartridge by Sunrise.
   */
 class V9990 : public MSXDevice,
-              private Schedulable,
+              public Schedulable,
               private VideoSystemChangeListener
 {
 public:
@@ -315,6 +315,9 @@ public:
 		return (t == 0) ? 256 : t << 4;
 	}
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	// Schedulable interface:
 	virtual void executeUntil(const EmuTime& time, int userData);
@@ -586,6 +589,8 @@ private:
 	  */
 	void scheduleHscan(const EmuTime& time);
 };
+
+REGISTER_MSXDEVICE(V9990, "V9990");
 
 } // namespace openmsx
 

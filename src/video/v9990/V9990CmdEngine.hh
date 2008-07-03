@@ -71,6 +71,9 @@ public:
 		return borderX;
 	}
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	class V9990P1 {
 	public:
@@ -211,7 +214,6 @@ private:
 	protected:
 		V9990CmdEngine& engine;
 		V9990VRAM&      vram;
-		Clock<V9990DisplayTiming::UC_TICKS_PER_SECOND> clock;
 	};
 
 	class CmdSTOP: public V9990Cmd {
@@ -360,6 +362,7 @@ private:
 	/** The current command
 	  */
 	V9990Cmd* currentCommand;
+	Clock<V9990DisplayTiming::UC_TICKS_PER_SECOND> clock;
 
 	/** VRAM read/write address for various commands
 	  */
@@ -422,6 +425,7 @@ private:
 	// Observer<Setting>
 	virtual void update(const Setting& setting);
 
+	void setCurrentCommand();
 	unsigned getTiming() const;
 };
 

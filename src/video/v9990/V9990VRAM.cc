@@ -2,6 +2,7 @@
 
 #include "V9990.hh"
 #include "V9990VRAM.hh"
+#include "serialize.hh"
 #include <cstring>
 
 namespace openmsx {
@@ -43,5 +44,13 @@ void V9990VRAM::setCmdEngine(V9990CmdEngine& cmdEngine_)
 {
 	cmdEngine = &cmdEngine_;
 }
+
+
+template<typename Archive>
+void V9990VRAM::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("data", data);
+}
+INSTANTIATE_SERIALIZE_METHODS(V9990VRAM);
 
 } // namespace openmsx

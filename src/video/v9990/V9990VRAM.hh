@@ -84,6 +84,9 @@ public:
 
 	void setCmdEngine(V9990CmdEngine& cmdEngine);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	unsigned mapAddress(unsigned address);
 
@@ -93,7 +96,7 @@ private:
 
 	V9990CmdEngine* cmdEngine;
 
-	/** Pointer V9990 VRAM data.
+	/** V9990 VRAM data.
 	  */
 	Ram data;
 };

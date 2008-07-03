@@ -8,6 +8,7 @@
 #include "V9990Renderer.hh"
 #include "SimpleDebuggable.hh"
 #include "MSXMotherBoard.hh"
+#include "serialize.hh"
 #include <cassert>
 #include <cstring>
 
@@ -783,6 +784,52 @@ void V9990::scheduleHscan(const EmuTime& time)
 	hScanSyncTime = frameStartTime + offset;
 	setSyncPoint(hScanSyncTime, V9990_HSCAN);
 }
+
+
+static enum_string<V9990DisplayMode> displayModeInfo[] = {
+	{ "INVALID", INVALID_DISPLAY_MODE },
+	{ "P1", P1 }, { "P2", P2 },
+	{ "B0", B0 }, { "B1", B1 }, { "B2", B2 }, { "B3", B3 },
+	{ "B4", B4 }, { "B5", B5 }, { "B6", B6 }, { "B7", B7 }
+};
+SERIALIZE_ENUM(V9990DisplayMode, displayModeInfo);
+
+template<typename Archive>
+void V9990::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+	ar.template serializeBase<Schedulable>(*this);
+
+	ar.serialize("vram", *vram);
+	ar.serialize("cmdEngine", *cmdEngine);
+	ar.serialize("irq", irq);
+	ar.serialize("frameStartTime", frameStartTime);
+	ar.serialize("hScanSyncTime", hScanSyncTime);
+	ar.serialize("displayMode", mode);
+	ar.serialize_blob("palette", palette, sizeof(palette));
+	ar.serialize("status", status);
+	ar.serialize("pendingIRQs", pendingIRQs);
+	ar.serialize_blob("registers", regs, sizeof(regs));
+	ar.serialize("regSelect", regSelect);
+	ar.serialize("palTiming", palTiming);
+	ar.serialize("interlaced", interlaced);
+	ar.serialize("isDisplayArea", isDisplayArea);
+	ar.serialize("displayEnabled", displayEnabled);
+	ar.serialize("scrollAYHigh", scrollAYHigh);
+	ar.serialize("scrollBYHigh", scrollBYHigh);
+
+	if (ar.isLoader()) {
+		// TODO This uses 'mode' to calculate 'horTiming' and
+		//      'verTiming'. Are these always in sync? Or can for
+		//      example one change at any time and the other only
+		//      at start of frame (or next line)? Does this matter?
+		setHorizontalTiming();
+		setVerticalTiming();
+
+		renderer->reset(Schedulable::getCurrentTime());
+	}
+}
+INSTANTIATE_SERIALIZE_METHODS(V9990);
 
 } // namespace openmsx
 
