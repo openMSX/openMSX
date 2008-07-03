@@ -40,6 +40,10 @@ public:
 	virtual byte peekIO(word port, const EmuTime& time) const;
 	virtual void writeIO(word port, byte value, const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
+
 private:
 	// Observer<Setting>
 	void update(const Setting& setting);
@@ -52,6 +56,8 @@ private:
 	bool turboLed;
 	bool hwPause;
 };
+
+REGISTER_MSXDEVICE(MSXTurboRPause, "TurboRPause");
 
 } // namespace openmsx
 

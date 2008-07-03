@@ -5,6 +5,7 @@
 #include "LedStatus.hh"
 #include "MSXMotherBoard.hh"
 #include "BooleanSetting.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -82,5 +83,16 @@ void MSXTurboRPause::updatePause()
 		getMotherBoard().getLedStatus().setLed(LedEvent::PAUSE, pauseLed);
 	}
 }
+
+template<typename Archive>
+void MSXTurboRPause::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+	ar.serialize("status", status);
+	if (ar.isLoader()) {
+		writeIO(0, status, *static_cast<EmuTime*>(0));
+	}
+}
+INSTANTIATE_SERIALIZE_METHODS(MSXTurboRPause);
 
 } // namespace openmsx
