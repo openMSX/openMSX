@@ -3,6 +3,7 @@
 #include "MSXPac.hh"
 #include "SRAM.hh"
 #include "CacheLine.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -104,5 +105,18 @@ void MSXPac::checkSramEnable()
 		invalidateMemCache(0x0000, 0x10000);
 	}
 }
+
+template<typename Archive>
+void MSXPac::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+	ar.serialize("SRAM", *sram);
+	ar.serialize("r1ffe", r1ffe);
+	ar.serialize("r1fff", r1fff);
+	if (ar.isLoader()) {
+		checkSramEnable();
+	}
+}
+INSTANTIATE_SERIALIZE_METHODS(MSXPac);
 
 } // namespace openmsx
