@@ -142,17 +142,10 @@ proc menu_action { button } {
 	menu_refresh_all
 }
 
-user_setting create string "osd_menu_path" "OSD Rom Load Menu Last Known Path" ""
-
-set __path $osd_menu_path
-
-proc setDirPath { directory } {
-	if [file exists $::osd_menu_path] {} else {
-	set ::osd_menu_path $::env(OPENMSX_USER_DATA)
-	__displayOSDText "WARNING: Directory Path not found reverting back to default"
-}
-	set ::osd_menu_path $directory
-	puts "dir path updated to: $::osd_menu_path"
+user_setting create string osd_menu_path "OSD Rom Load Menu Last Known Path" $env(OPENMSX_USER_DATA)
+if ![file exists $osd_menu_path] {
+	# revert to default (should always exist)
+	unset osd_menu_path
 }
 
 proc main_menu_open {} {
@@ -250,7 +243,7 @@ set main_menu [prepare_menu {
 	         post-spacing 6
 	         selectable false }
 	       { text "Load ROM..."
-	         actions { A { menu_create [create_ROM_list $::__path] }}
+	         actions { A { menu_create [create_ROM_list $::osd_menu_path] }}
 	         post-spacing 3 }
 	       { text "settings..."
 	         actions { A { menu_create $::setting_menu }}}
@@ -289,9 +282,6 @@ set setting_menu [prepare_menu {
 
 
 proc __ls { directory } {
-
-	setDirPath $directory
-
 	set roms [glob -nocomplain -tails -directory $directory -type f *.{rom,zip,gz}]
 	set dirs [glob -nocomplain -tails -directory $directory -type d *]
 	set dirs2 [list]
@@ -329,20 +319,17 @@ proc create_ROM_list { path } {
 	                            width 200
 	                            xpos 100
 	                            ypos 120
-	                            header { text "ROMS  $::__path"
+	                            header { text "ROMS  $::osd_menu_path"
 	                                     text-color 0xff0000ff
 	                                     font-size 10 }}]
 }
 
 proc my_selection_list_exec { item } {
-	set fullname [file join $::__path $item]
+	set fullname [file join $::osd_menu_path $item]
 	if [file isdirectory $fullname] {
-		puts "DEBUG $fullname"
-		
 		menu_close_top
-		set ::__path [file normalize $fullname]
-		menu_create [create_ROM_list $::__path]
-
+		set ::osd_menu_path [file normalize $fullname]
+		menu_create [create_ROM_list $::osd_menu_path]
 	} else {
 		menu_close_all
 		carta $fullname
