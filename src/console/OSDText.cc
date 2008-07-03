@@ -136,6 +136,9 @@ std::string OSDText::getType() const
 
 template <typename IMAGE> BaseImage* OSDText::create(OutputSurface& output)
 {
+	if (text.empty()) {
+		return new IMAGE(output, 0, 0, 0);
+	}
 	if (!font) {
 		try {
 			SystemFileContext context;
