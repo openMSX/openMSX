@@ -361,7 +361,6 @@ int HardwareConfig::getFreePrimarySlot()
 
 void HardwareConfig::addDevice(MSXDevice* device)
 {
-	// not called during de-serialize
 	motherBoard.addDevice(*device);
 	devices.push_back(device);
 }
@@ -402,8 +401,13 @@ void HardwareConfig::serialize(Archive& ar, unsigned /*version*/)
 			// already set because this is an extension
 		}
 		parseSlots();
+		createDevices();
 	}
-	ar.serialize("devices", devices, ref(motherBoard), ref(*this));
+	// only (polymorphically) initialize devices, they are already created
+	for (Devices::const_iterator it = devices.begin();
+	     it != devices.end(); ++it) {
+		ar.serializePolymorphic("device", **it);
+	}
 	ar.serialize("name", name);
 }
 INSTANTIATE_SERIALIZE_METHODS(HardwareConfig);

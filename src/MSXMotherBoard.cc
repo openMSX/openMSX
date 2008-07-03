@@ -738,7 +738,6 @@ void MSXMotherBoardImpl::unpause()
 
 void MSXMotherBoardImpl::addDevice(MSXDevice& device)
 {
-	// not called during de-serialize
 	availableDevices.push_back(&device);
 }
 
