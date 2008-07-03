@@ -5,6 +5,7 @@
 #include "VDPVRAM.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
+#include "serialize.hh"
 #include <algorithm>
 
 namespace openmsx {
@@ -13,8 +14,8 @@ ADVram::ADVram(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
 	, vdp(NULL)
 	, vram(NULL)
+	, hasEnable(config.getChildDataAsBool("hasEnable", true))
 {
-	hasEnable = config.getChildDataAsBool("hasEnable", true);
 	reset(*static_cast<EmuTime*>(0));
 }
 
@@ -82,5 +83,15 @@ void ADVram::writeMem(word address, byte value, const EmuTime& time)
 		vram->cpuWrite(calcAddress(address), value, time);
 	}
 }
+
+template<typename Archive>
+void ADVram::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+	ar.serialize("baseAddr", baseAddr);
+	ar.serialize("enabled", enabled);
+	ar.serialize("planar", planar);
+}
+INSTANTIATE_SERIALIZE_METHODS(ADVram);
 
 } // namespace openmsx

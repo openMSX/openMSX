@@ -47,6 +47,9 @@ public:
 	 */
 	virtual void writeMem(word address, byte value, const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	virtual void init(const HardwareConfig& hwConf);
 	inline unsigned calcAddress(word address) const;
@@ -61,11 +64,14 @@ private:
 	bool enabled;
 	/** True if ADVram device can be switched on or off by performing
 		IO-reads.  */
-	bool hasEnable;
+	const bool hasEnable;
 	/** True if address bits are shuffled as is appropriate for screen
 		7 and higher.  */
 	bool planar;
 };
+
+REGISTER_MSXDEVICE(ADVram, "ADVRAM");
+
 
 } // namespace openmsx
 
