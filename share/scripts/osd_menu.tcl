@@ -142,6 +142,19 @@ proc menu_action { button } {
 	menu_refresh_all
 }
 
+user_setting create string "osd_menu_path" "OSD Rom Load Menu Last Known Path" ""
+
+set __path $osd_menu_path
+
+proc setDirPath { directory } {
+	if [file exists $::osd_menu_path] {} else {
+	set ::osd_menu_path $::env(OPENMSX_USER_DATA)
+	__displayOSDText "WARNING: Directory Path not found reverting back to default"
+}
+	set ::osd_menu_path $directory
+	puts "dir path updated to: $::osd_menu_path"
+}
+
 proc main_menu_open {} {
 	menu_create $::main_menu
 
@@ -274,9 +287,11 @@ set setting_menu [prepare_menu {
 	         actions { LEFT  { cycle_back scale_algorithm }
 	                   RIGHT { cycle scale_algorithm }}}}}]
 
-set __path $env(OPENMSX_USER_DATA)
 
 proc __ls { directory } {
+
+	setDirPath $directory
+
 	set roms [glob -nocomplain -tails -directory $directory -type f *.{rom,zip,gz}]
 	set dirs [glob -nocomplain -tails -directory $directory -type d *]
 	set dirs2 [list]
@@ -316,15 +331,18 @@ proc create_ROM_list { path } {
 	                            ypos 120
 	                            header { text "ROMS  $::__path"
 	                                     text-color 0xff0000ff
-	                                     font-size 12 }}]
+	                                     font-size 10 }}]
 }
+
 proc my_selection_list_exec { item } {
 	set fullname [file join $::__path $item]
 	if [file isdirectory $fullname] {
 		puts "DEBUG $fullname"
+		
 		menu_close_top
 		set ::__path [file normalize $fullname]
 		menu_create [create_ROM_list $::__path]
+
 	} else {
 		menu_close_all
 		carta $fullname
@@ -332,7 +350,6 @@ proc my_selection_list_exec { item } {
 		reset
 	}
 }
-
 
 bind_default $menuevent main_menu_open
 
