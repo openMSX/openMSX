@@ -28,6 +28,9 @@ public:
 	virtual const byte* getReadCacheLine(word start) const;
 	virtual byte* getWriteCacheLine(word start) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	void enableDAC(bool enable, const EmuTime& time);
 
@@ -42,6 +45,8 @@ private:
 	friend class PanasonicAudioPeriphery;
 	friend class ToshibaAudioPeriphery;
 };
+
+REGISTER_MSXDEVICE(MSXAudio, "MSX-Audio");
 
 } // namespace openmsx
 

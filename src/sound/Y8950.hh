@@ -61,6 +61,9 @@ public:
 	void setStatus(byte flags);
 	void resetStatus(byte flags);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	const std::auto_ptr<Y8950Impl> pimple;
 };

@@ -19,6 +19,7 @@
 #include "DACSound16S.hh"
 #include "FixedPoint.hh"
 #include "Math.hh"
+#include "serialize.hh"
 #include <algorithm>
 #include <cmath>
 
@@ -49,6 +50,9 @@ class Y8950Patch {
 public:
 	Y8950Patch();
 	void reset();
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 	bool AM, PM, EG;
 	byte KR; // 0-1
@@ -84,13 +88,16 @@ public:
 	inline void updateTLL();
 	inline void updatePG();
 
-	// refer to Y8950->
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
+	// refer to Y8950->   TODO remove these
 	int* plfo_pm;
 	int* plfo_am;
 
 	// OUTPUT
 	int feedback;
-	int output[5];		// Output value of slot
+	int output[2];		// Output value of slot
 
 	// for Phase Generator (PG)
 	unsigned phase;		// Phase
@@ -120,6 +127,9 @@ public:
 	inline void keyOn();
 	inline void keyOff();
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 	Y8950Slot mod, car;
 	bool alg;
 };
@@ -143,6 +153,9 @@ public:
 
 	void setStatus(byte flags);
 	void resetStatus(byte flags);
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	// SoundDevice
@@ -176,14 +189,22 @@ private:
 
 	void callback(byte flag);
 
-	int adr;
-	int output[2];
-	// Registers
+
+	MSXMotherBoard& motherBoard;
+	Y8950Periphery& perihery;
+	const std::auto_ptr<Y8950Adpcm> adpcm;
+	const std::auto_ptr<Y8950KeyboardConnector> connector;
+	const std::auto_ptr<DACSound16S> dac13; // 13-bit (exponential) DAC
+	const std::auto_ptr<Y8950Debuggable> debuggable;
+	friend class Y8950Debuggable;
+
+	EmuTimerOPL3_1 timer1; //  80us timer
+	EmuTimerOPL3_2 timer2; // 320us timer
+	IRQHelper irq;
+
 	byte reg[0x100];
-	// Pitch Modulator
-	unsigned pm_phase;
-	// Amp Modulator
-	unsigned am_phase;
+	unsigned pm_phase; // Pitch Modulator
+	unsigned am_phase; // Amp Modulator
 
 	// Noise Generator
 	int noise_seed;
@@ -195,31 +216,11 @@ private:
 	unsigned noiseA_dphase;
 	unsigned noiseB_dphase;
 
-	// Channel & Slot
 	Y8950Channel ch[9];
-	Y8950Slot* slot[18];
+	Y8950Slot* slot[18]; // ptrs to ch.mod, ch.car   TODO remove these
 
 	int lfo_pm;
 	int lfo_am;
-
-	IRQHelper irq;
-	Y8950Periphery& perihery;
-
-	// Timers
-	EmuTimerOPL3_1 timer1; //  80us timer
-	EmuTimerOPL3_2 timer2; // 320us timer
-
-	// ADPCM
-	const std::auto_ptr<Y8950Adpcm> adpcm;
-
-	// Keyboard connector
-	const std::auto_ptr<Y8950KeyboardConnector> connector;
-
-	// 13-bit (exponential) DAC
-	const std::auto_ptr<DACSound16S> dac13;
-
-	friend class Y8950Debuggable;
-	const std::auto_ptr<Y8950Debuggable> debuggable;
 
 	byte status;     // STATUS Register
 	byte statusMask; // bit=0 -> masked
@@ -682,20 +683,21 @@ void Y8950Channel::keyOff()
 }
 
 
-Y8950Impl::Y8950Impl(Y8950& self, MSXMotherBoard& motherBoard,
+Y8950Impl::Y8950Impl(Y8950& self, MSXMotherBoard& motherBoard_,
                      const std::string& name, const XMLElement& config,
                      unsigned sampleRam, Y8950Periphery& perihery_)
-	: SoundDevice(motherBoard.getMSXMixer(), name, "MSX-AUDIO", 12)
-	, Resample(motherBoard.getGlobalSettings(), 1)
-	, irq(motherBoard.getCPU())
+	: SoundDevice(motherBoard_.getMSXMixer(), name, "MSX-AUDIO", 12)
+	, Resample(motherBoard_.getGlobalSettings(), 1)
+	, motherBoard(motherBoard_)
 	, perihery(perihery_)
-	, timer1(motherBoard.getScheduler(), *this)
-	, timer2(motherBoard.getScheduler(), *this)
 	, adpcm(new Y8950Adpcm(self, motherBoard, name, sampleRam))
 	, connector(new Y8950KeyboardConnector(motherBoard.getPluggingController()))
 	, dac13(new DACSound16S(motherBoard.getMSXMixer(), name + " DAC",
 	                        "MSX-AUDIO 13-bit DAC", config))
 	, debuggable(new Y8950Debuggable(motherBoard, *this))
+	, timer1(motherBoard.getScheduler(), *this)
+	, timer2(motherBoard.getScheduler(), *this)
+	, irq(motherBoard.getCPU())
 	, enabled(true)
 {
 }
@@ -750,8 +752,6 @@ void Y8950Impl::reset(const EmuTime& time)
 	for (int i = 0; i < 9; ++i) {
 		ch[i].reset();
 	}
-	output[0] = 0;
-	output[1] = 0;
 
 	rythm_mode = false;
 	am_mode = false;
@@ -1441,6 +1441,94 @@ void Y8950Impl::changeStatusMask(byte newMask)
 }
 
 
+template<typename Archive>
+void Y8950Patch::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("AM", AM);
+	ar.serialize("PM", PM);
+	ar.serialize("EG", EG);
+	ar.serialize("KR", KR);
+	ar.serialize("ML", ML);
+	ar.serialize("KL", KL);
+	ar.serialize("TL", TL);
+	ar.serialize("FB", FB);
+	ar.serialize("AR", AR);
+	ar.serialize("DR", DR);
+	ar.serialize("SL", SL);
+	ar.serialize("RR", RR);
+}
+
+template<typename Archive>
+void Y8950Slot::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("feedback", feedback);
+	ar.serialize("output", output);
+	ar.serialize("phase", phase);
+	ar.serialize("dphase", dphase);
+	ar.serialize("pgout", pgout);
+	ar.serialize("fnum", fnum);
+	ar.serialize("block", block);
+	ar.serialize("tll", tll);
+	ar.serialize("rks", rks);
+	ar.serialize("eg_mode", eg_mode);
+	ar.serialize("eg_phase", eg_phase);
+	ar.serialize("eg_dphase", eg_dphase);
+	ar.serialize("egout", egout);
+	ar.serialize("patch", patch);
+	ar.serialize("slotStatus", slotStatus);
+}
+
+template<typename Archive>
+void Y8950Channel::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("mod", mod);
+	ar.serialize("car", car);
+	ar.serialize("alg", alg);
+}
+
+template<typename Archive>
+void Y8950Impl::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("adpcm", *adpcm);
+	ar.serialize("timer1", timer1);
+	ar.serialize("timer2", timer2);
+	ar.serialize("irq", irq);
+	ar.serialize_blob("registers", reg, sizeof(reg));
+	ar.serialize("pm_phase", pm_phase);
+	ar.serialize("am_phase", am_phase);
+	ar.serialize("noise_seed", noise_seed);
+	ar.serialize("whitenoise", whitenoise);
+	ar.serialize("noiseA", noiseA);
+	ar.serialize("noiseB", noiseB);
+	ar.serialize("noiseA_phase", noiseA_phase);
+	ar.serialize("noiseB_phase", noiseB_phase);
+	ar.serialize("noiseA_dphase", noiseA_dphase);
+	ar.serialize("noiseB_dphase", noiseB_dphase);
+	ar.serialize("channels", ch);
+	ar.serialize("lfo_pm", lfo_pm);
+	ar.serialize("lfo_am", lfo_am);
+	ar.serialize("status", status);
+	ar.serialize("statusMask", statusMask);
+	ar.serialize("rythm_mode", rythm_mode);
+	ar.serialize("am_mode", am_mode);
+	ar.serialize("pm_mode", pm_mode);
+	ar.serialize("enabled", enabled);
+
+	// TODO restore more state from registers
+	static const byte rewriteRegs[] = {
+		6,       // connector
+		15,      // dac13
+	};
+	if (ar.isLoader()) {
+		const EmuTime& time = motherBoard.getCurrentTime();
+		for (unsigned i = 0; i < sizeof(rewriteRegs); ++i) {
+			byte r = rewriteRegs[i];
+			writeReg(r, reg[r], time);
+		}
+	}
+}
+
+
 // SimpleDebuggable
 
 Y8950Debuggable::Y8950Debuggable(MSXMotherBoard& motherBoard, Y8950Impl& y8950_)
@@ -1520,5 +1608,12 @@ void Y8950::resetStatus(byte flags)
 {
 	pimple->resetStatus(flags);
 }
+
+template<typename Archive>
+void Y8950::serialize(Archive& ar, unsigned version)
+{
+	pimple->serialize(ar, version);
+}
+INSTANTIATE_SERIALIZE_METHODS(Y8950);
 
 } // namespace openmsx

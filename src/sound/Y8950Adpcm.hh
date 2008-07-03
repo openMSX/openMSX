@@ -13,7 +13,7 @@ class Y8950;
 class MSXMotherBoard;
 class Ram;
 
-class Y8950Adpcm : private Schedulable
+class Y8950Adpcm : public Schedulable
 {
 public:
 	Y8950Adpcm(Y8950& y8950, MSXMotherBoard& motherBoard,
@@ -26,6 +26,9 @@ public:
 	byte readReg(byte rg);
 	byte peekReg(byte rg) const;
 	int calcSample();
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	// Schedulable

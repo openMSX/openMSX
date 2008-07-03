@@ -2130,7 +2130,7 @@ void YMF262Slot::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("AMmask", AMmask);
 	ar.serialize("vib", vib);
 	ar.serialize("waveform_number", waveform_number);
-	ar.serialize("ar", ar);
+	ar.serialize("ar", this->ar);
 	ar.serialize("dr", dr);
 	ar.serialize("rr", rr);
 	ar.serialize("KSR", KSR);
@@ -2142,7 +2142,7 @@ void YMF262Slot::serialize(Archive& ar, unsigned /*version*/)
 template<typename Archive>
 void YMF262Channel::serialize(Archive& ar, unsigned /*version*/)
 {
-	//YMF262Slot slots[2];
+	ar.serialize("slots", slots);
 	ar.serialize("block_fnum", block_fnum);
 	ar.serialize("fc", fc);
 	ar.serialize("ksl_base", ksl_base);

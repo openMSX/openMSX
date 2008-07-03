@@ -6,6 +6,7 @@
 #include "Ram.hh"
 #include "MSXMotherBoard.hh"
 #include "Math.hh"
+#include "serialize.hh"
 #include <cstring>
 
 namespace openmsx {
@@ -387,5 +388,32 @@ int Y8950Adpcm::calcSample()
 	output += sampleStep;
 	return output >> 12;
 }
+
+
+template<typename Archive>
+void Y8950Adpcm::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<Schedulable>(*this);
+	ar.serialize("ram", *ram);
+	ar.serialize("startAddr", startAddr);
+	ar.serialize("stopAddr", stopAddr);
+	ar.serialize("addrMask", addrMask);
+	ar.serialize("memPntr", memPntr);
+	ar.serialize("nowStep", nowStep);
+	ar.serialize("volume", volume);
+	ar.serialize("out", out);
+	ar.serialize("output", output);
+	ar.serialize("diff", diff);
+	ar.serialize("nextLeveling", nextLeveling);
+	ar.serialize("sampleStep", sampleStep);
+	ar.serialize("volumeWStep", volumeWStep);
+	ar.serialize("readDelay", readDelay);
+	ar.serialize("delta", delta);
+	ar.serialize("reg7", reg7);
+	ar.serialize("reg15", reg15);
+	ar.serialize("adpcm_data", adpcm_data);
+	ar.serialize("romBank", romBank);
+}
+INSTANTIATE_SERIALIZE_METHODS(Y8950Adpcm);
 
 } // namespace openmsx

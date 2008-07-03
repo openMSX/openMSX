@@ -15,6 +15,7 @@
 #include "StringOp.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
+#include "serialize.hh"
 
 using std::string;
 
@@ -26,9 +27,16 @@ public:
 	explicit MusicModulePeriphery(MSXAudio& audio);
 	virtual void write(nibble outputs, nibble values, const EmuTime& time);
 	virtual nibble read(const EmuTime& time);
+
+	template<typename Archive>
+	void serialize(Archive& /*ar*/, unsigned /*version*/) {
+		// nothing
+	}
+
 private:
 	MSXAudio& audio;
 };
+REGISTER_POLYMORPHIC_INITIALIZER(Y8950Periphery, MusicModulePeriphery, "MusicModule");
 
 class PanasonicAudioPeriphery : public Y8950Periphery
 {
@@ -46,6 +54,9 @@ public:
 	virtual const byte* getReadCacheLine(word start) const;
 	virtual byte* getWriteCacheLine(word start) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	void setBank(byte value);
 	void setIOPorts(byte value);
@@ -58,6 +69,7 @@ private:
 	byte bankSelect;
 	byte ioPorts;
 };
+REGISTER_POLYMORPHIC_INITIALIZER(Y8950Periphery, PanasonicAudioPeriphery, "Panasonic");
 
 class ToshibaAudioPeriphery : public Y8950Periphery
 {
@@ -66,9 +78,16 @@ public:
 	virtual void write(nibble outputs, nibble values, const EmuTime& time);
 	virtual nibble read(const EmuTime& time);
 	virtual void setSPOFF(bool value, const EmuTime& time);
+
+	template<typename Archive>
+	void serialize(Archive& /*ar*/, unsigned /*version*/) {
+		// nothing
+	}
+
 private:
 	MSXAudio& audio;
 };
+REGISTER_POLYMORPHIC_INITIALIZER(Y8950Periphery, ToshibaAudioPeriphery, "Toshiba");
 
 
 // MSXAudio
@@ -141,7 +160,8 @@ void MSXAudio::writeIO(word port, byte value, const EmuTime& time)
 	//std::cout << "write: " << (int)(port& 0xff) << " " << (int)value << std::endl;
 	if ((port & 0xFF) == 0x0A) {
 		dacValue = value;
-		if (dacEnabled && dac.get()) {
+		if (dacEnabled) {
+			assert(dac.get());
 			dac->writeDAC(dacValue, time);
 		}
 	} else if ((port & 0x01) == 0) {
@@ -176,12 +196,10 @@ byte* MSXAudio::getWriteCacheLine(word start) const
 
 void MSXAudio::enableDAC(bool enable, const EmuTime& time)
 {
-	if (dacEnabled != enable) {
+	if ((dacEnabled != enable) && dac.get()) {
 		dacEnabled = enable;
-		if (dac.get()) {
-			byte value = dacEnabled ? dacValue : 0x80;
-			dac->writeDAC(value, time);
-		}
+		byte value = dacEnabled ? dacValue : 0x80;
+		dac->writeDAC(value, time);
 	}
 }
 
@@ -369,5 +387,38 @@ void ToshibaAudioPeriphery::setSPOFF(bool value, const EmuTime& time)
 {
 	audio.y8950->setEnabled(!value, time);
 }
+
+
+template<typename Archive>
+void PanasonicAudioPeriphery::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("ram", *ram);
+	ar.serialize("bankSelect", bankSelect);
+	byte tmpIoPorts = ioPorts;
+	ar.serialize("ioPorts", tmpIoPorts);
+	if (ar.isLoader()) {
+		setIOPorts(tmpIoPorts);
+	}
+}
+
+template<typename Archive>
+void MSXAudio::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serializePolymorphic("periphery", *periphery);
+	ar.serialize("Y8950", *y8950);
+
+	ar.serialize("registerLatch", registerLatch);
+	ar.serialize("dacValue", dacValue);
+	ar.serialize("dacEnabled", dacEnabled);
+
+	if (ar.isLoader()) {
+		// restore dac status
+		if (dacEnabled) {
+			assert(dac.get());
+			dac->writeDAC(dacValue, getCurrentTime());
+		}
+	}
+}
+INSTANTIATE_SERIALIZE_METHODS(MSXAudio);
 
 } // namespace openmsx
