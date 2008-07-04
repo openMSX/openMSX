@@ -20,9 +20,14 @@ public:
 	virtual void writeMem(word address, byte value, const EmuTime& time);
 	virtual byte* getWriteCacheLine(word address) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	std::auto_ptr<DACSound8U> dac;
 };
+
+REGISTER_MSXDEVICE(RomMajutsushi, "RomMajutsushi");
 
 } // namespace openmsx
 

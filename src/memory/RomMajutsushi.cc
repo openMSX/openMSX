@@ -7,6 +7,7 @@
 #include "MSXMotherBoard.hh"
 #include "DACSound8U.hh"
 #include "Rom.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -43,5 +44,14 @@ byte* RomMajutsushi::getWriteCacheLine(word address) const
 	return (0x5000 <= address && address < 0x6000)
 		? NULL : RomKonami::getWriteCacheLine(address);
 }
+
+template<typename Archive>
+void RomMajutsushi::serialize(Archive& ar, unsigned /*version*/)
+{
+        ar.template serializeBase<RomKonami>(*this);
+
+        // TODO write dac??
+}
+INSTANTIATE_SERIALIZE_METHODS(RomMajutsushi);
 
 } // namespace openmsx

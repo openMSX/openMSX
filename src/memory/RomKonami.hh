@@ -16,7 +16,13 @@ public:
 	virtual void reset(const EmuTime& time);
 	virtual void writeMem(word address, byte value, const EmuTime& time);
 	virtual byte* getWriteCacheLine(word address) const;
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 };
+
+REGISTER_BASE_CLASS(RomKonami, "RomKonami");
+REGISTER_MSXDEVICE(RomKonami, "RomKonami");
 
 } // namespace openmsx
 
