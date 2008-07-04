@@ -23,10 +23,15 @@ public:
 	virtual void writeMem(word address, byte value, const EmuTime& time);
 	virtual byte* getWriteCacheLine(word address) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	std::auto_ptr<SCC> scc;
 	bool sccEnabled;
 };
+
+REGISTER_MSXDEVICE(RomKonami5, "RomKonamiSCC");
 
 } // namespace openmsx
 

@@ -4,6 +4,7 @@
 #define ROM8KBBLOCKS_HH
 
 #include "MSXRom.hh"
+#include "serialize_meta.hh"
 
 namespace openmsx {
 
@@ -50,6 +51,8 @@ private:
 	int nrBlocks;
 	int blockMask;
 };
+
+REGISTER_BASE_CLASS(Rom8kBBlocks, "Rom8kBBlocks");
 
 } // namespace openmsx
 

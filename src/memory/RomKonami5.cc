@@ -17,6 +17,7 @@
 #include "SCC.hh"
 #include "CacheLine.hh"
 #include "Rom.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -113,5 +114,14 @@ byte* RomKonami5::getWriteCacheLine(word address) const
 		return unmappedWrite;
 	}
 }
+
+template<typename Archive>
+void RomKonami5::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<Rom8kBBlocks>(*this);
+	ar.serialize("scc", *scc);
+	ar.serialize("sccEnabled", sccEnabled);
+}
+INSTANTIATE_SERIALIZE_METHODS(RomKonami5);
 
 } // namespace openmsx
