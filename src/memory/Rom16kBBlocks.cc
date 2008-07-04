@@ -2,6 +2,7 @@
 
 #include "Rom16kBBlocks.hh"
 #include "Rom.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -41,5 +42,35 @@ void Rom16kBBlocks::setRom(byte region, int block)
 		setBank(region, unmappedRead);
 	}
 }
+
+template<typename Archive>
+void Rom16kBBlocks::serialize(Archive& ar, unsigned /*version*/)
+{
+	// TODO this is very similar to Rom8kBBlocks::serialize(),
+	//      move this to a common place
+
+	// skip MSXRom base class
+	ar.template serializeBase<MSXDevice>(*this);
+
+	int offsets[4];
+	if (ar.isLoader()) {
+		ar.serialize("banks", offsets);
+		for (int i = 0; i < 4; ++i) {
+			// TODO SRAM
+			bank[i] = (offsets[i] == -1)
+			        ? unmappedRead
+			        : &(*rom)[offsets[i]];
+		}
+	} else {
+		for (int i = 0; i < 4; ++i) {
+			// TODO SRAM
+			offsets[i] = (bank[i] == unmappedRead)
+			           ? -1
+			           : (bank[i] - &(*rom)[0]);
+		}
+		ar.serialize("banks", offsets);
+	}
+}
+INSTANTIATE_SERIALIZE_METHODS(Rom16kBBlocks);
 
 } // namespace openmsx
