@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef ROMKONAMI5_HH
-#define ROMKONAMI5_HH
+#ifndef ROMKONAMISCC_HH
+#define ROMKONAMISCC_HH
 
 #include "Rom8kBBlocks.hh"
 
@@ -9,12 +9,12 @@ namespace openmsx {
 
 class SCC;
 
-class RomKonami5 : public Rom8kBBlocks
+class RomKonamiSCC : public Rom8kBBlocks
 {
 public:
-	RomKonami5(MSXMotherBoard& motherBoard, const XMLElement& config,
+	RomKonamiSCC(MSXMotherBoard& motherBoard, const XMLElement& config,
 	           std::auto_ptr<Rom> rom);
-	virtual ~RomKonami5();
+	virtual ~RomKonamiSCC();
 
 	virtual void reset(const EmuTime& time);
 	virtual byte peekMem(word address, const EmuTime& time) const;
@@ -31,7 +31,7 @@ private:
 	bool sccEnabled;
 };
 
-REGISTER_MSXDEVICE(RomKonami5, "RomKonamiSCC");
+REGISTER_MSXDEVICE(RomKonamiSCC, "RomKonamiSCC");
 
 } // namespace openmsx
 

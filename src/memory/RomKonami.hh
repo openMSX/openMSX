@@ -1,16 +1,16 @@
 // $Id$
 
-#ifndef ROMKONAMI4_HH
-#define ROMKONAMI4_HH
+#ifndef ROMKONAMI_HH
+#define ROMKONAMI_HH
 
 #include "Rom8kBBlocks.hh"
 
 namespace openmsx {
 
-class RomKonami4 : public Rom8kBBlocks
+class RomKonami : public Rom8kBBlocks
 {
 public:
-	RomKonami4(MSXMotherBoard& motherBoard, const XMLElement& config,
+	RomKonami(MSXMotherBoard& motherBoard, const XMLElement& config,
 	           std::auto_ptr<Rom> rom);
 
 	virtual void reset(const EmuTime& time);

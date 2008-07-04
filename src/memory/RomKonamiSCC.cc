@@ -1,6 +1,6 @@
 // $Id$
 
-// KONAMI5 8kB cartridges
+// KONAMI 8kB cartridges with SCC
 //
 // this type is used by Konami cartridges that do have an SCC and some others
 // examples of cartridges: Nemesis 2, Nemesis 3, King's Valley 2, Space Manbow
@@ -13,7 +13,7 @@
 //  bank 3: 0x9000 - 0x97ff (0x9000 used)
 //  bank 4: 0xB000 - 0xB7ff (0xB000 used)
 
-#include "RomKonami5.hh"
+#include "RomKonamiSCC.hh"
 #include "SCC.hh"
 #include "CacheLine.hh"
 #include "Rom.hh"
@@ -21,7 +21,7 @@
 
 namespace openmsx {
 
-RomKonami5::RomKonami5(MSXMotherBoard& motherBoard, const XMLElement& config,
+RomKonamiSCC::RomKonamiSCC(MSXMotherBoard& motherBoard, const XMLElement& config,
                        std::auto_ptr<Rom> rom)
 	: Rom8kBBlocks(motherBoard, config, rom)
 {
@@ -30,11 +30,11 @@ RomKonami5::RomKonami5(MSXMotherBoard& motherBoard, const XMLElement& config,
 	reset(time);
 }
 
-RomKonami5::~RomKonami5()
+RomKonamiSCC::~RomKonamiSCC()
 {
 }
 
-void RomKonami5::reset(const EmuTime& time)
+void RomKonamiSCC::reset(const EmuTime& time)
 {
 	setBank(0, unmappedRead);
 	setBank(1, unmappedRead);
@@ -48,7 +48,7 @@ void RomKonami5::reset(const EmuTime& time)
 	scc->reset(time);
 }
 
-byte RomKonami5::peekMem(word address, const EmuTime& time) const
+byte RomKonamiSCC::peekMem(word address, const EmuTime& time) const
 {
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
 		return scc->peekMem(address & 0xFF, time);
@@ -57,7 +57,7 @@ byte RomKonami5::peekMem(word address, const EmuTime& time) const
 	}
 }
 
-byte RomKonami5::readMem(word address, const EmuTime& time)
+byte RomKonamiSCC::readMem(word address, const EmuTime& time)
 {
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
 		return scc->readMem(address & 0xFF, time);
@@ -66,7 +66,7 @@ byte RomKonami5::readMem(word address, const EmuTime& time)
 	}
 }
 
-const byte* RomKonami5::getReadCacheLine(word address) const
+const byte* RomKonamiSCC::getReadCacheLine(word address) const
 {
 	if (sccEnabled && (0x9800 <= address) && (address < 0xA000)) {
 		// don't cache SCC
@@ -76,7 +76,7 @@ const byte* RomKonami5::getReadCacheLine(word address) const
 	}
 }
 
-void RomKonami5::writeMem(word address, byte value, const EmuTime& time)
+void RomKonamiSCC::writeMem(word address, byte value, const EmuTime& time)
 {
 	if ((address < 0x5000) || (address >= 0xC000)) {
 		return;
@@ -97,7 +97,7 @@ void RomKonami5::writeMem(word address, byte value, const EmuTime& time)
 	}
 }
 
-byte* RomKonami5::getWriteCacheLine(word address) const
+byte* RomKonamiSCC::getWriteCacheLine(word address) const
 {
 	if ((address < 0x5000) || (address >= 0xC000)) {
 		return unmappedWrite;
@@ -116,12 +116,12 @@ byte* RomKonami5::getWriteCacheLine(word address) const
 }
 
 template<typename Archive>
-void RomKonami5::serialize(Archive& ar, unsigned /*version*/)
+void RomKonamiSCC::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom8kBBlocks>(*this);
 	ar.serialize("scc", *scc);
 	ar.serialize("sccEnabled", sccEnabled);
 }
-INSTANTIATE_SERIALIZE_METHODS(RomKonami5);
+INSTANTIATE_SERIALIZE_METHODS(RomKonamiSCC);
 
 } // namespace openmsx

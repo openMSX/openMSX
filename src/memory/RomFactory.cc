@@ -8,8 +8,8 @@
 #include "RomDRAM.hh"
 #include "RomGeneric8kB.hh"
 #include "RomGeneric16kB.hh"
-#include "RomKonami4.hh"
-#include "RomKonami5.hh"
+#include "RomKonami.hh"
+#include "RomKonamiSCC.hh"
 #include "RomKonamiKeyboardMaster.hh"
 #include "RomAscii8kB.hh"
 #include "RomAscii8_8.hh"
@@ -218,10 +218,10 @@ auto_ptr<MSXDevice> RomFactory::create(
 		result.reset(new RomGeneric16kB(motherBoard, config, rom));
 		break;
 	case ROM_KONAMI_SCC:
-		result.reset(new RomKonami5(motherBoard, config, rom));
+		result.reset(new RomKonamiSCC(motherBoard, config, rom));
 		break;
 	case ROM_KONAMI:
-		result.reset(new RomKonami4(motherBoard, config, rom));
+		result.reset(new RomKonami(motherBoard, config, rom));
 		break;
 	case ROM_KBDMASTER:
 		result.reset(new RomKonamiKeyboardMaster(

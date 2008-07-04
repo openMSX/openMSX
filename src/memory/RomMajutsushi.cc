@@ -1,7 +1,7 @@
 // $Id$
 
 // Mapper for "Hai no Majutsushi" from Konami.
-// It's a Konami4 mapper with a DAC.
+// It's a Konami mapper with a DAC.
 
 #include "RomMajutsushi.hh"
 #include "MSXMotherBoard.hh"
@@ -13,7 +13,7 @@ namespace openmsx {
 RomMajutsushi::RomMajutsushi(
 		MSXMotherBoard& motherBoard, const XMLElement& config,
 		std::auto_ptr<Rom> rom)
-	: RomKonami4(motherBoard, config, rom)
+	: RomKonami(motherBoard, config, rom)
 	, dac(new DACSound8U(motherBoard.getMSXMixer(), "Majutsushi-DAC",
 		"Hai no Majutsushi's DAC", config))
 {
@@ -25,7 +25,7 @@ RomMajutsushi::~RomMajutsushi()
 
 void RomMajutsushi::reset(const EmuTime& time)
 {
-	RomKonami4::reset(time);
+	RomKonami::reset(time);
 	dac->reset(time);
 }
 
@@ -34,14 +34,14 @@ void RomMajutsushi::writeMem(word address, byte value, const EmuTime& time)
 	if (0x5000 <= address && address < 0x6000) {
 		dac->writeDAC(value, time);
 	} else {
-		RomKonami4::writeMem(address, value, time);
+		RomKonami::writeMem(address, value, time);
 	}
 }
 
 byte* RomMajutsushi::getWriteCacheLine(word address) const
 {
 	return (0x5000 <= address && address < 0x6000)
-		? NULL : RomKonami4::getWriteCacheLine(address);
+		? NULL : RomKonami::getWriteCacheLine(address);
 }
 
 } // namespace openmsx

@@ -3,7 +3,7 @@
  * 'Ese-SCC' cartride and 'MEGA-SCSI with SCC'(alias WAVE-SCSI) cartrige.
  *
  * Specification:
- *  SRAM(MegaROM) controller: KONAMI_SCC type (KONAMI5)
+ *  SRAM(MegaROM) controller: KONAMI_SCC type
  *  SRAM capacity           : 128, 256, 512kB and 1024kb(WAVE-SCSI only)
  *  SCSI Protocol controller: Fujitsu MB89352A
  *
