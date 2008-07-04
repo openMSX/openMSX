@@ -24,6 +24,9 @@ public:
 	virtual byte peekIO(word port, const EmuTime& time) const;
 	virtual void writeIO(word port, byte value, const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	byte getSample(const EmuTime& time) const;
 	bool getComp(const EmuTime& time) const;
@@ -38,6 +41,8 @@ private:
 	byte hold;
 	bool hwMute;
 };
+
+REGISTER_MSXDEVICE(MSXTurboRPCM, "TurboR-PCM");
 
 } // namespace openmsx
 

@@ -5,6 +5,7 @@
 #include "AudioInputConnector.hh"
 #include "DACSound8U.hh"
 #include "MSXMixer.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -138,5 +139,21 @@ void MSXTurboRPCM::hardwareMute(bool mute)
 		}
 	}
 }
+
+
+template<typename Archive>
+void MSXTurboRPCM::serialize(Archive& ar, unsigned version)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+
+	ar.serialize("reference", reference);
+	ar.serialize("status", status);
+	ar.serialize("DValue", DValue);
+	ar.serialize("hold", hold);
+
+	hardwareMute(!(status & 0x02));  // restore hwMute
+	// TODO write dac??
+}
+INSTANTIATE_SERIALIZE_METHODS(MSXTurboRPCM);
 
 } // namespace openmsx
