@@ -116,7 +116,7 @@ byte* RomNational::getWriteCacheLine(word address) const
 template<typename Archive>
 void RomNational::serialize(Archive& ar, unsigned /*version*/)
 {
-        ar.template serializeBase<Rom16kBBlocks>(*this);
+	ar.template serializeBase<Rom16kBBlocks>(*this);
 	ar.serialize("SRAM", *sram);
 	ar.serialize("control", control);
 	ar.serialize("sramAddr", sramAddr);
