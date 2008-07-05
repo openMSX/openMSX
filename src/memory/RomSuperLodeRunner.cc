@@ -4,6 +4,7 @@
 #include "MSXMotherBoard.hh"
 #include "MSXCPUInterface.hh"
 #include "Rom.hh"
+#include "serialize.hh"
 #include <cassert>
 
 namespace openmsx {
