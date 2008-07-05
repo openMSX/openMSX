@@ -23,14 +23,20 @@ public:
 	virtual void writeMem(word address, byte value, const EmuTime& time);
 	virtual byte* getWriteCacheLine(word address) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	void changeBank(byte region, int bank);
+	
+	int maxSRAMBank;
 
 	std::auto_ptr<SRAM> sram;
 	int bankSelect[8];
-	int maxSRAMBank;
 	byte control;
 };
+
+REGISTER_MSXDEVICE(RomPanasonic, "RomPanasonic");
 
 } // namespace openmsx
 

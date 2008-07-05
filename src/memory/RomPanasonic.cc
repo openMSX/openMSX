@@ -7,6 +7,7 @@
 #include "SRAM.hh"
 #include "CacheLine.hh"
 #include "Rom.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -175,5 +176,15 @@ void RomPanasonic::changeBank(byte region, int bank)
 		setRom(region, bank);
 	}
 }
+
+template<typename Archive>
+void RomPanasonic::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<Rom8kBBlocks>(*this);
+	ar.serialize("SRAM", *sram);
+	ar.serialize("bankSelect", bankSelect);
+	ar.serialize("control", control);
+}
+INSTANTIATE_SERIALIZE_METHODS(RomPanasonic);
 
 } // namespace openmsx
