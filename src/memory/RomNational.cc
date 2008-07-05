@@ -4,6 +4,7 @@
 #include "CacheLine.hh"
 #include "Rom.hh"
 #include "SRAM.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -111,5 +112,16 @@ byte* RomNational::getWriteCacheLine(word address) const
 		return unmappedWrite;
 	}
 }
+
+template<typename Archive>
+void RomNational::serialize(Archive& ar, unsigned /*version*/)
+{
+        ar.template serializeBase<Rom16kBBlocks>(*this);
+	ar.serialize("SRAM", *sram);
+	ar.serialize("control", control);
+	ar.serialize("sramAddr", sramAddr);
+	ar.serialize("bankSelect", bankSelect);
+}
+INSTANTIATE_SERIALIZE_METHODS(RomNational);
 
 } // namespace openmsx

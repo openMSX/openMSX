@@ -23,12 +23,16 @@ public:
 	virtual void writeMem(word address, byte value, const EmuTime& time);
 	virtual byte* getWriteCacheLine(word address) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	const std::auto_ptr<SRAM> sram;
 	int sramAddr;
 	byte control;
 	byte bankSelect[4];
 };
+REGISTER_MSXDEVICE(RomNational, "RomNational");
 
 } // namespace openmsx
 
