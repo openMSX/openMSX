@@ -73,6 +73,10 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 	// skip MSXRom base class
 	ar.template serializeBase<MSXDevice>(*this);
 
+	if (sram.get()) {
+		ar.serialize("sram", *sram);
+	}
+
 	unsigned offsets[NUM_BANKS];
 	unsigned romSize = rom->getSize();
 	unsigned sramSize = sram.get() ? sram->getSize() : 0;
