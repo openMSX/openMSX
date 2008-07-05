@@ -5,6 +5,7 @@
 #include "MSXMotherBoard.hh"
 #include "FirmwareSwitch.hh"
 #include "SRAM.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -110,5 +111,19 @@ void MSXMatsushita::writeSwitchedIO(word port, byte value, const EmuTime& /*time
 		break;
 	}
 }
+
+template<typename Archive>
+void MSXMatsushita::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+	// no need to serialize MSXSwitchedDevice base class
+
+	ar.serialize("SRAM", *sram);
+	ar.serialize("address", address);
+	ar.serialize("color1", color1);
+	ar.serialize("color2", color2);
+	ar.serialize("pattern", pattern);
+}
+INSTANTIATE_SERIALIZE_METHODS(MSXMatsushita);
 
 } // namespace openmsx

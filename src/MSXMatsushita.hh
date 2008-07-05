@@ -26,6 +26,9 @@ public:
 	virtual byte peekSwitchedIO(word port, const EmuTime& time) const;
 	virtual void writeSwitchedIO(word port, byte value, const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	const std::auto_ptr<FirmwareSwitch> firmwareSwitch;
 	const std::auto_ptr<SRAM> sram;
@@ -34,6 +37,8 @@ private:
 	nibble color1, color2;
 	byte pattern;
 };
+
+REGISTER_MSXDEVICE(MSXMatsushita, "Matsushita");
 
 } // namespace openmsx
 
