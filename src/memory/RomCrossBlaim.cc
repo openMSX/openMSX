@@ -19,6 +19,7 @@
 
 #include "RomCrossBlaim.hh"
 #include "Rom.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
