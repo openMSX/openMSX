@@ -25,8 +25,8 @@ namespace openmsx {
 RomAscii16_2::RomAscii16_2(MSXMotherBoard& motherBoard, const XMLElement& config,
                          std::auto_ptr<Rom> rom)
 	: RomAscii16kB(motherBoard, config, rom)
-	, sram(new SRAM(motherBoard, getName() + " SRAM", 0x0800, config))
 {
+	sram.reset(new SRAM(motherBoard, getName() + " SRAM", 0x0800, config));
 	reset(*static_cast<EmuTime*>(0));
 }
 
@@ -95,7 +95,6 @@ void RomAscii16_2::serialize(Archive& ar, unsigned /*version*/)
 {
         ar.template serializeBase<RomAscii16kB>(*this);
 	ar.serialize("sramEnabled", sramEnabled);
-	ar.serialize("SRAM", *sram);
 
 }
 INSTANTIATE_SERIALIZE_METHODS(RomAscii16_2);
