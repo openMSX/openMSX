@@ -18,6 +18,7 @@
 #include "RomAscii8_8.hh"
 #include "Rom.hh"
 #include "SRAM.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -25,13 +26,13 @@ RomAscii8_8::RomAscii8_8(
 		MSXMotherBoard& motherBoard, const XMLElement& config,
 		std::auto_ptr<Rom> rom_, SubType subType)
 	: Rom8kBBlocks(motherBoard, config, rom_)
-	, sram(new SRAM(motherBoard, getName() + " SRAM",
-	                (subType == KOEI_32) ? 0x8000 : 0x2000, config))
+	, sramEnableBit((subType == WIZARDRY) ? 0x80
+	                                      : rom->getSize() / 0x2000)
+	, sramPages(((subType == KOEI_8) || (subType == KOEI_32))
+	            ? 0x34 : 0x30)
 {
-	sramEnableBit = (subType == WIZARDRY) ? 0x80
-	                                      : rom->getSize() / 0x2000;
-	sramPages = ((subType == KOEI_8) || (subType == KOEI_32))
-	          ? 0x34 : 0x30;
+	sram.reset(new SRAM(motherBoard, getName() + " SRAM",
+	                    (subType == KOEI_32) ? 0x8000 : 0x2000, config));
 
 	reset(*static_cast<EmuTime*>(0));
 }
@@ -88,5 +89,14 @@ byte* RomAscii8_8::getWriteCacheLine(word address) const
 		return unmappedWrite;
 	}
 }
+
+template<typename Archive>
+void RomAscii8_8::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<Rom8kBBlocks>(*this);
+	ar.serialize("sramEnabled", sramEnabled);
+	ar.serialize("sramBlock", sramBlock);
+}
+INSTANTIATE_SERIALIZE_METHODS(RomAscii8_8);
 
 } // namespace openmsx

@@ -8,6 +8,8 @@
 
 namespace openmsx {
 
+class SRAM;
+
 template <unsigned BANK_SIZE>
 class RomBlocks : public MSXRom
 {
@@ -23,6 +25,7 @@ public:
 protected:
 	RomBlocks(MSXMotherBoard& motherBoard, const XMLElement& config,
 	          std::auto_ptr<Rom> rom);
+	~RomBlocks();
 
 	/** Sets the memory visible for reading in a certain region.
 	  * @param region number of 8kB region in Z80 address space
@@ -49,6 +52,7 @@ protected:
 	void setBlockMask(int mask);
 
 	const byte* bank[NUM_BANKS];
+	std::auto_ptr<SRAM> sram; // can be a NULL ptr
 
 private:
 	int nrBlocks;

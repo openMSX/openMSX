@@ -21,13 +21,17 @@ public:
 	virtual void writeMem(word address, byte value, const EmuTime& time);
 	virtual byte* getWriteCacheLine(word address) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
-	const std::auto_ptr<SRAM> sram;
+	const byte sramEnableBit;
+	const byte sramPages;
 	byte sramEnabled;
 	byte sramBlock[8];
-	byte sramEnableBit;
-	byte sramPages;
 };
+
+REGISTER_MSXDEVICE(RomAscii8_8, "RomAscii8_8");
 
 } // namespace openmsx
 

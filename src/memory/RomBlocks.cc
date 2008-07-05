@@ -2,6 +2,7 @@
 
 #include "RomBlocks.hh"
 #include "Rom.hh"
+#include "SRAM.hh"
 #include "serialize.hh"
 
 namespace openmsx {
@@ -20,6 +21,11 @@ RomBlocks<BANK_SIZE>::RomBlocks(
 	for (unsigned i = 0; i < NUM_BANKS; i++) {
 		setRom(i, 0);
 	}
+}
+
+template <unsigned BANK_SIZE>
+RomBlocks<BANK_SIZE>::~RomBlocks()
+{
 }
 
 template <unsigned BANK_SIZE>
@@ -67,21 +73,36 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 	// skip MSXRom base class
 	ar.template serializeBase<MSXDevice>(*this);
 
-	int offsets[NUM_BANKS];
+	unsigned offsets[NUM_BANKS];
+	unsigned romSize = rom->getSize();
+	unsigned sramSize = sram.get() ? sram->getSize() : 0;
 	if (ar.isLoader()) {
 		ar.serialize("banks", offsets);
 		for (unsigned i = 0; i < NUM_BANKS; ++i) {
-			// TODO SRAM
-			bank[i] = (offsets[i] == -1)
-			        ? unmappedRead
-			        : &(*rom)[offsets[i]];
+			if (offsets[i] == unsigned(-1)) {
+				bank[i] = unmappedRead;
+			} else if (offsets[i] < romSize) {
+				bank[i] = &(*rom)[offsets[i]];
+			} else if (offsets[i] < (romSize + sramSize)) {
+				assert(sram.get());
+				bank[i] = &(*sram)[offsets[i] - romSize];
+			} else {
+				assert(false); // TODO throw
+			}
 		}
 	} else {
 		for (unsigned i = 0; i < NUM_BANKS; ++i) {
-			// TODO SRAM
-			offsets[i] = (bank[i] == unmappedRead)
-			           ? -1
-			           : (bank[i] - &(*rom)[0]);
+			if (bank[i] == unmappedRead) {
+				offsets[i] = unsigned(-1);
+			} else if ((&(*rom)[0] <= bank[i]) &&
+			           (bank[i] <= &(*rom)[romSize - 1])) {
+				offsets[i] = bank[i] - &(*rom)[0];
+			} else if ((&(*sram)[0] <= bank[i]) &&
+			           (bank[i] <= &(*sram)[sramSize - 1])) {
+				offsets[i] = bank[i] - &(*sram)[0] + romSize;
+			} else {
+				assert(false);
+			}
 		}
 		ar.serialize("banks", offsets);
 	}
