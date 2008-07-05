@@ -22,12 +22,17 @@ public:
 	virtual void writeMem(word address, byte value, const EmuTime& time);
 	virtual byte* getWriteCacheLine(word address) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	const std::auto_ptr<SRAM> sram;
 	byte subBanks[2];
 	bool sramEnabled;
 	bool subMapperEnabled;
 };
+
+REGISTER_MSXDEVICE(RomHalnote, "RomHalnote");
 
 } // namespace openmsx
 

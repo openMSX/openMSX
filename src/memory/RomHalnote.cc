@@ -29,6 +29,7 @@
 #include "CacheLine.hh"
 #include "Rom.hh"
 #include "SRAM.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -143,5 +144,17 @@ byte* RomHalnote::getWriteCacheLine(word address) const
 	}
 	return unmappedWrite;
 }
+
+template<typename Archive>
+void RomHalnote::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<Rom8kBBlocks>(*this);
+	ar.serialize("SRAM", *sram);
+	ar.serialize("subBanks", subBanks);
+	ar.serialize("sramEnabled", sramEnabled);
+	ar.serialize("subMapperEnabled", subMapperEnabled);
+
+}
+INSTANTIATE_SERIALIZE_METHODS(RomHalnote);
 
 } // namespace openmsx
