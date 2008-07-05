@@ -19,7 +19,7 @@ SRC_HDR:= \
 	RomPadial8kB RomPadial16kB RomMSXDOS2 \
 	RomAscii16_2 RomRType RomCrossBlaim RomHarryFox \
 	RomGameMaster2 RomMajutsushi RomSynthesizer \
-	RomKorean80in1 RomKorean90in1 RomKorean126in1 \
+	RomZemina80in1 RomZemina90in1 RomZemina126in1 \
 	RomPanasonic RomNational RomSuperLodeRunner \
 	RomHalnote RomHolyQuran \
 	RomFSA1FM RomPlayBall RomNettouYakyuu \

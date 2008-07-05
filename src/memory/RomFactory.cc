@@ -30,9 +30,9 @@
 #include "RomNettouYakyuu.hh"
 #include "RomGameMaster2.hh"
 #include "RomHalnote.hh"
-#include "RomKorean80in1.hh"
-#include "RomKorean90in1.hh"
-#include "RomKorean126in1.hh"
+#include "RomZemina80in1.hh"
+#include "RomZemina90in1.hh"
+#include "RomZemina126in1.hh"
 #include "RomHolyQuran.hh"
 #include "RomFSA1FM.hh"
 #include "RomManbow2.hh"
@@ -298,13 +298,13 @@ auto_ptr<MSXDevice> RomFactory::create(
 		result.reset(new RomHalnote(motherBoard, config, rom));
 		break;
 	case ROM_ZEMINA80IN1:
-		result.reset(new RomKorean80in1(motherBoard, config, rom));
+		result.reset(new RomZemina80in1(motherBoard, config, rom));
 		break;
 	case ROM_ZEMINA90IN1:
-		result.reset(new RomKorean90in1(motherBoard, config, rom));
+		result.reset(new RomZemina90in1(motherBoard, config, rom));
 		break;
 	case ROM_ZEMINA126IN1:
-		result.reset(new RomKorean126in1(motherBoard, config, rom));
+		result.reset(new RomZemina126in1(motherBoard, config, rom));
 		break;
 	case ROM_HOLY_QURAN:
 		result.reset(new RomHolyQuran(motherBoard, config, rom));

@@ -1,6 +1,6 @@
 // $Id$
 
-// Korean 80-in-1 cartridge
+// Zemina 80-in-1 cartridge
 //
 // Information obtained by studying MESS sources:
 //   0x4000 : 0x4000-0x5FFF
@@ -8,13 +8,14 @@
 //   0x4002 : 0x8000-0x9FFF
 //   0x4003 : 0xA000-0xBFFF
 
-#include "RomKorean80in1.hh"
+#include "RomZemina80in1.hh"
 #include "CacheLine.hh"
 #include "Rom.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
-RomKorean80in1::RomKorean80in1(
+RomZemina80in1::RomZemina80in1(
 		MSXMotherBoard& motherBoard, const XMLElement& config,
 		std::auto_ptr<Rom> rom)
 	: Rom8kBBlocks(motherBoard, config, rom)
@@ -22,7 +23,7 @@ RomKorean80in1::RomKorean80in1(
 	reset(*static_cast<EmuTime*>(0));
 }
 
-void RomKorean80in1::reset(const EmuTime& /*time*/)
+void RomZemina80in1::reset(const EmuTime& /*time*/)
 {
 	setBank(0, unmappedRead);
 	setBank(1, unmappedRead);
@@ -33,14 +34,14 @@ void RomKorean80in1::reset(const EmuTime& /*time*/)
 	setBank(7, unmappedRead);
 }
 
-void RomKorean80in1::writeMem(word address, byte value, const EmuTime& /*time*/)
+void RomZemina80in1::writeMem(word address, byte value, const EmuTime& /*time*/)
 {
 	if ((0x4000 <= address) && (address < 0x4004)) {
 		setRom(2 + (address - 0x4000), value);
 	}
 }
 
-byte* RomKorean80in1::getWriteCacheLine(word address) const
+byte* RomZemina80in1::getWriteCacheLine(word address) const
 {
 	if (address == (0x4000 & CacheLine::HIGH)) {
 		return NULL;

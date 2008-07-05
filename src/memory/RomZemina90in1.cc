@@ -1,6 +1,6 @@
 // $Id$
 
-// Korean 90-in-1 cartridge
+// Zemina 90-in-1 cartridge
 //
 //  90 in 1 uses Port &H77 for mapping:
 //    bits 0-5: selected 16KB page
@@ -13,14 +13,15 @@
 //           and low 8KB swapped (Namco mode)
 
 
-#include "RomKorean90in1.hh"
+#include "RomZemina90in1.hh"
 #include "MSXCPUInterface.hh"
 #include "MSXMotherBoard.hh"
 #include "Rom.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
-RomKorean90in1::RomKorean90in1(
+RomZemina90in1::RomZemina90in1(
 		MSXMotherBoard& motherBoard, const XMLElement& config,
 		std::auto_ptr<Rom> rom)
 	: Rom8kBBlocks(motherBoard, config, rom)
@@ -29,12 +30,12 @@ RomKorean90in1::RomKorean90in1(
 	getMotherBoard().getCPUInterface().register_IO_Out(0x77, this);
 }
 
-RomKorean90in1::~RomKorean90in1()
+RomZemina90in1::~RomZemina90in1()
 {
 	getMotherBoard().getCPUInterface().unregister_IO_Out(0x77, this);
 }
 
-void RomKorean90in1::reset(const EmuTime& dummy)
+void RomZemina90in1::reset(const EmuTime& dummy)
 {
 	setBank(0, unmappedRead);
 	setBank(1, unmappedRead);
@@ -43,7 +44,7 @@ void RomKorean90in1::reset(const EmuTime& dummy)
 	writeIO(0x77, 0, dummy);
 }
 
-void RomKorean90in1::writeIO(word /*port*/, byte value, const EmuTime& /*time*/)
+void RomZemina90in1::writeIO(word /*port*/, byte value, const EmuTime& /*time*/)
 {
 	byte page = 2 * (value & 0x3F);
 	switch (value & 0xC0) {
@@ -71,7 +72,7 @@ void RomKorean90in1::writeIO(word /*port*/, byte value, const EmuTime& /*time*/)
 	}
 }
 
-byte* RomKorean90in1::getWriteCacheLine(word /*address*/) const
+byte* RomZemina90in1::getWriteCacheLine(word /*address*/) const
 {
 	return unmappedWrite;
 }
