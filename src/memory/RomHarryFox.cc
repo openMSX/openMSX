@@ -1,5 +1,7 @@
 // $Id$
 
+// This mapper is used for the game "Harry Fox Yki no Maoh"
+
 /** Thanks to enen for testing this on a real cartridge:
  *
  * Writing to 0x6xxx, 0 or 1, will switch bank 0 or 2 into 0x4000-0x7fff
@@ -9,6 +11,7 @@
 
 #include "RomHarryFox.hh"
 #include "Rom.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 

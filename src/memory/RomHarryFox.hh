@@ -18,6 +18,8 @@ public:
 	virtual byte* getWriteCacheLine(word address) const;
 };
 
+REGISTER_MSXDEVICE(RomHarryFox, "RomHarryFox");
+
 } // namespace openmsx
 
 #endif
