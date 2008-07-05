@@ -36,7 +36,7 @@ void MSXMatsushita::reset(const EmuTime& /*time*/)
 byte MSXMatsushita::readSwitchedIO(word port, const EmuTime& time)
 {
 	// TODO: Port 7 and 8 can be read as well.
-	byte result = peekIO(port, time);
+	byte result = peekSwitchedIO(port, time);
 	switch (port & 0x0F) {
 	case 3:
 		pattern = (pattern << 2) | (pattern >> 6);

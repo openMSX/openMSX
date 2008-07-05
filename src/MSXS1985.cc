@@ -27,7 +27,7 @@ void MSXS1985::reset(const EmuTime& /*time*/)
 
 byte MSXS1985::readSwitchedIO(word port, const EmuTime& time)
 {
-	byte result = peekIO(port, time);
+	byte result = peekSwitchedIO(port, time);
 	switch (port & 0x0F) {
 	case 7:
 		pattern = (pattern << 1) | (pattern >> 7);
