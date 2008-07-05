@@ -4,6 +4,7 @@
 #include "Rom.hh"
 #include "CacheLine.hh"
 #include "MSXException.hh"
+#include "serialize.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -12,8 +13,8 @@ RomMSXDOS2::RomMSXDOS2(
 		MSXMotherBoard& motherBoard, const XMLElement& config,
 		std::auto_ptr<Rom> rom_)
 	: Rom16kBBlocks(motherBoard, config, rom_)
+	, range((*rom)[0x94])
 {
-	range = (*rom)[0x94];
 	if ((range != 0x00) && (range != 0x60) && (range != 0x7f)) {
 		throw MSXException("Invalid rom for MSXDOS2 mapper");
 	}

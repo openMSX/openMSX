@@ -18,8 +18,10 @@ public:
 	virtual byte* getWriteCacheLine(word address) const;
 
 private:
-	byte range;
+	const byte range;
 };
+
+REGISTER_MSXDEVICE(RomMSXDOS2, "RomMSXDOS2");
 
 } // namespace openmsx
 
