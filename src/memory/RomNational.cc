@@ -11,8 +11,8 @@ namespace openmsx {
 RomNational::RomNational(MSXMotherBoard& motherBoard, const XMLElement& config,
                          std::auto_ptr<Rom> rom)
 	: Rom16kBBlocks(motherBoard, config, rom)
-	, sram(new SRAM(motherBoard, getName() + " SRAM", 0x1000, config))
 {
+	sram.reset(new SRAM(motherBoard, getName() + " SRAM", 0x1000, config));
 	reset(*static_cast<EmuTime*>(0));
 }
 
@@ -117,7 +117,6 @@ template<typename Archive>
 void RomNational::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom16kBBlocks>(*this);
-	ar.serialize("SRAM", *sram);
 	ar.serialize("control", control);
 	ar.serialize("sramAddr", sramAddr);
 	ar.serialize("bankSelect", bankSelect);

@@ -26,7 +26,6 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::auto_ptr<SRAM> sram;
 	byte subBanks[2];
 	bool sramEnabled;
 	bool subMapperEnabled;

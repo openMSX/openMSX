@@ -31,7 +31,6 @@ private:
 	
 	int maxSRAMBank;
 
-	std::auto_ptr<SRAM> sram;
 	int bankSelect[8];
 	byte control;
 };

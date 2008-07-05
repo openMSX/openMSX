@@ -36,8 +36,8 @@ namespace openmsx {
 RomHalnote::RomHalnote(MSXMotherBoard& motherBoard, const XMLElement& config,
                        std::auto_ptr<Rom> rom)
 	: Rom8kBBlocks(motherBoard, config, rom)
-	, sram(new SRAM(motherBoard, getName() + " SRAM", 0x4000, config))
 {
+	sram.reset(new SRAM(motherBoard, getName() + " SRAM", 0x4000, config));
 	reset(*static_cast<EmuTime*>(0));
 }
 
@@ -149,7 +149,6 @@ template<typename Archive>
 void RomHalnote::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom8kBBlocks>(*this);
-	ar.serialize("SRAM", *sram);
 	ar.serialize("subBanks", subBanks);
 	ar.serialize("sramEnabled", sramEnabled);
 	ar.serialize("subMapperEnabled", subMapperEnabled);

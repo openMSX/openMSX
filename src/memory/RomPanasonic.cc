@@ -181,7 +181,6 @@ template<typename Archive>
 void RomPanasonic::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<Rom8kBBlocks>(*this);
-	ar.serialize("SRAM", *sram);
 	ar.serialize("bankSelect", bankSelect);
 	ar.serialize("control", control);
 }

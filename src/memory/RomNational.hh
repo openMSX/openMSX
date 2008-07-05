@@ -27,7 +27,6 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	const std::auto_ptr<SRAM> sram;
 	int sramAddr;
 	byte control;
 	byte bankSelect[4];
