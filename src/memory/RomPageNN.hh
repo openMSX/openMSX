@@ -3,7 +3,7 @@
 #ifndef ROMPAGENN_HH
 #define ROMPAGENN_HH
 
-#include "Rom8kBBlocks.hh"
+#include "RomBlocks.hh"
 
 namespace openmsx {
 

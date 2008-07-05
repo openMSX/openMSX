@@ -3,7 +3,7 @@
 #ifndef ROMGENERIC8KB_HH
 #define ROMGENERIC8KB_HH
 
-#include "Rom8kBBlocks.hh"
+#include "RomBlocks.hh"
 
 namespace openmsx {
 

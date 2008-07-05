@@ -4,7 +4,7 @@
 #define ROMFSA1FM1_HH
 
 #include "MSXRom.hh"
-#include "Rom8kBBlocks.hh"
+#include "RomBlocks.hh"
 
 namespace openmsx {
 

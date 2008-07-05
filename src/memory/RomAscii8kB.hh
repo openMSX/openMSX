@@ -3,7 +3,7 @@
 #ifndef ROMASCII8KB_HH
 #define ROMASCII8KB_HH
 
-#include "Rom8kBBlocks.hh"
+#include "RomBlocks.hh"
 
 namespace openmsx {
 

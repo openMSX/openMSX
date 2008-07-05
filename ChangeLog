@@ -1,5 +1,8 @@
 $Id$
 
+2008-07-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Merged Rom{4,8,16}kBBlocks classes into one templatized class
+
 2008-07-01 David Heremans <david.heremans@gnu-linux.net>
 	* Fixed two bugs in the diskmanipulator:
 	   - one preventing correct 360KB disk creation on some machines

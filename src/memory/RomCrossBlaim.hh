@@ -3,7 +3,7 @@
 #ifndef ROMCROSSBLAIM_HH
 #define ROMCROSSBLAIM_HH
 
-#include "Rom16kBBlocks.hh"
+#include "RomBlocks.hh"
 
 namespace openmsx {
 

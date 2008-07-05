@@ -3,7 +3,7 @@
 #ifndef ROMGAMEMASTER2_HH
 #define ROMGAMEMASTER2_HH
 
-#include "Rom4kBBlocks.hh"
+#include "RomBlocks.hh"
 
 namespace openmsx {
 

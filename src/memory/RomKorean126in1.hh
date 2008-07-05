@@ -3,7 +3,7 @@
 #ifndef ROMKOREAN126IN1_HH
 #define ROMKOREAN126IN1_HH
 
-#include "Rom16kBBlocks.hh"
+#include "RomBlocks.hh"
 
 namespace openmsx {
 

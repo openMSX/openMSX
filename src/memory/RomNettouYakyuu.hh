@@ -3,7 +3,7 @@
 #ifndef ROMNETTOUYAKYUU_HH
 #define ROMNETTOUYAKYUU_HH
 
-#include "Rom8kBBlocks.hh"
+#include "RomBlocks.hh"
 
 namespace openmsx {
 

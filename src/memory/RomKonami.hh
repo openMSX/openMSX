@@ -3,7 +3,7 @@
 #ifndef ROMKONAMI_HH
 #define ROMKONAMI_HH
 
-#include "Rom8kBBlocks.hh"
+#include "RomBlocks.hh"
 
 namespace openmsx {
 

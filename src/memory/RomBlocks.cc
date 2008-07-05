@@ -1,0 +1,97 @@
+// $Id$
+
+#include "RomBlocks.hh"
+#include "Rom.hh"
+#include "serialize.hh"
+
+namespace openmsx {
+
+template <unsigned BANK_SIZE>
+RomBlocks<BANK_SIZE>::RomBlocks(
+		MSXMotherBoard& motherBoard, const XMLElement& config,
+		std::auto_ptr<Rom> rom)
+	: MSXRom(motherBoard, config, rom)
+{
+	// Note: Do not use the "rom" parameter, because an auto_ptr contains NULL
+	//       after it is copied.
+	nrBlocks = this->rom->getSize() / BANK_SIZE;
+	// Default mask: wraps at end of ROM image.
+	blockMask = nrBlocks - 1;
+	for (unsigned i = 0; i < NUM_BANKS; i++) {
+		setRom(i, 0);
+	}
+}
+
+template <unsigned BANK_SIZE>
+byte RomBlocks<BANK_SIZE>::readMem(word address, const EmuTime& /*time*/)
+{
+	return bank[address / BANK_SIZE][address & BANK_MASK];
+}
+
+template <unsigned BANK_SIZE>
+const byte* RomBlocks<BANK_SIZE>::getReadCacheLine(word address) const
+{
+	return &bank[address / BANK_SIZE][address & BANK_MASK];
+}
+
+template <unsigned BANK_SIZE>
+void RomBlocks<BANK_SIZE>::setBank(byte region, const byte* adr)
+{
+	bank[region] = adr;
+	invalidateMemCache(region * BANK_SIZE, BANK_SIZE);
+}
+
+template <unsigned BANK_SIZE>
+void RomBlocks<BANK_SIZE>::setBlockMask(int mask)
+{
+	blockMask = mask;
+}
+
+template <unsigned BANK_SIZE>
+void RomBlocks<BANK_SIZE>::setRom(byte region, int block)
+{
+	// Note: Some cartridges have a number of blocks that is not a power of 2,
+	//       for those we have to make an exception for "block < nrBlocks".
+	block = (block < nrBlocks) ? block : block & blockMask;
+	if (block < nrBlocks) {
+		setBank(region, &(*rom)[block * BANK_SIZE]);
+	} else {
+		setBank(region, unmappedRead);
+	}
+}
+
+template <unsigned BANK_SIZE>
+template<typename Archive>
+void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
+{
+	// skip MSXRom base class
+	ar.template serializeBase<MSXDevice>(*this);
+
+	int offsets[NUM_BANKS];
+	if (ar.isLoader()) {
+		ar.serialize("banks", offsets);
+		for (unsigned i = 0; i < NUM_BANKS; ++i) {
+			// TODO SRAM
+			bank[i] = (offsets[i] == -1)
+			        ? unmappedRead
+			        : &(*rom)[offsets[i]];
+		}
+	} else {
+		for (unsigned i = 0; i < NUM_BANKS; ++i) {
+			// TODO SRAM
+			offsets[i] = (bank[i] == unmappedRead)
+			           ? -1
+			           : (bank[i] - &(*rom)[0]);
+		}
+		ar.serialize("banks", offsets);
+	}
+}
+
+template class RomBlocks<0x1000>;
+template class RomBlocks<0x2000>;
+template class RomBlocks<0x4000>;
+INSTANTIATE_SERIALIZE_METHODS(Rom4kBBlocks);
+INSTANTIATE_SERIALIZE_METHODS(Rom8kBBlocks);
+INSTANTIATE_SERIALIZE_METHODS(Rom16kBBlocks);
+
+} // namespace openmsx

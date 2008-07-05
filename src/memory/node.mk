@@ -12,7 +12,7 @@ SRC_HDR:= \
 	RomInfo RomFactory RomDatabase \
 	RomInfoTopic \
 	MSXRom \
-	Rom4kBBlocks Rom8kBBlocks Rom16kBBlocks \
+	RomBlocks \
 	RomPlain RomPageNN RomGeneric8kB RomGeneric16kB \
 	RomDRAM RomKonami RomKonamiSCC RomKonamiKeyboardMaster \
 	RomAscii8kB RomAscii8_8 RomAscii16kB \

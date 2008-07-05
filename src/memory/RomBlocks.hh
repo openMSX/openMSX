@@ -1,15 +1,18 @@
 // $Id$
 
-#ifndef ROM8KBBLOCKS_HH
-#define ROM8KBBLOCKS_HH
+#ifndef ROMBLOCKS_HH
+#define ROMBLOCKS_HH
 
 #include "MSXRom.hh"
 #include "serialize_meta.hh"
 
 namespace openmsx {
 
-class Rom8kBBlocks : public MSXRom
+template <unsigned BANK_SIZE>
+class RomBlocks : public MSXRom
 {
+	static const unsigned NUM_BANKS = 0x10000 / BANK_SIZE;
+	static const unsigned BANK_MASK = BANK_SIZE - 1;
 public:
 	virtual byte readMem(word address, const EmuTime& time);
 	virtual const byte* getReadCacheLine(word start) const;
@@ -18,8 +21,8 @@ public:
 	void serialize(Archive& ar, unsigned version);
 
 protected:
-	Rom8kBBlocks(MSXMotherBoard& motherBoard, const XMLElement& config,
-	             std::auto_ptr<Rom> rom);
+	RomBlocks(MSXMotherBoard& motherBoard, const XMLElement& config,
+	          std::auto_ptr<Rom> rom);
 
 	/** Sets the memory visible for reading in a certain region.
 	  * @param region number of 8kB region in Z80 address space
@@ -45,14 +48,20 @@ protected:
 	  */
 	void setBlockMask(int mask);
 
-	const byte* bank[8];
+	const byte* bank[NUM_BANKS];
 
 private:
 	int nrBlocks;
 	int blockMask;
 };
 
-REGISTER_BASE_CLASS(Rom8kBBlocks, "Rom8kBBlocks");
+typedef RomBlocks<0x1000> Rom4kBBlocks;
+typedef RomBlocks<0x2000> Rom8kBBlocks;
+typedef RomBlocks<0x4000> Rom16kBBlocks;
+
+REGISTER_BASE_CLASS(Rom4kBBlocks,  "Rom4kBBlocks");
+REGISTER_BASE_CLASS(Rom8kBBlocks,  "Rom8kBBlocks");
+REGISTER_BASE_CLASS(Rom16kBBlocks, "Rom16kBBlocks");
 
 } // namespace openmsx
 

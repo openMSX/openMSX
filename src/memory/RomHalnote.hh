@@ -3,7 +3,7 @@
 #ifndef ROMHALNOTE_HH
 #define ROMHALNOTE_HH
 
-#include "Rom8kBBlocks.hh"
+#include "RomBlocks.hh"
 
 namespace openmsx {
 

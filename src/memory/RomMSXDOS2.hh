@@ -3,7 +3,7 @@
 #ifndef ROMMSXDOS2_HH
 #define ROMMSXDOS2_HH
 
-#include "Rom16kBBlocks.hh"
+#include "RomBlocks.hh"
 
 namespace openmsx {
 
