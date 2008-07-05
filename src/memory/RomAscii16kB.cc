@@ -12,6 +12,7 @@
 
 #include "RomAscii16kB.hh"
 #include "Rom.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 

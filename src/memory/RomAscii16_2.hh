@@ -1,7 +1,7 @@
 // $Id$
 
-#ifndef ROMHYDLIDE2_HH
-#define ROMHYDLIDE2_HH
+#ifndef ROMASCII16_2_HH
+#define ROMASCII16_2_HH
 
 #include "RomAscii16kB.hh"
 
@@ -9,12 +9,12 @@ namespace openmsx {
 
 class SRAM;
 
-class RomHydlide2 : public RomAscii16kB
+class RomAscii16_2 : public RomAscii16kB
 {
 public:
-	RomHydlide2(MSXMotherBoard& motherBoard, const XMLElement& config,
+	RomAscii16_2(MSXMotherBoard& motherBoard, const XMLElement& config,
 	            std::auto_ptr<Rom> rom);
-	virtual ~RomHydlide2();
+	virtual ~RomAscii16_2();
 
 	virtual void reset(const EmuTime& time);
 	virtual byte readMem(word address, const EmuTime& time);
@@ -22,10 +22,15 @@ public:
 	virtual void writeMem(word address, byte value, const EmuTime& time);
 	virtual byte* getWriteCacheLine(word address) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	const std::auto_ptr<SRAM> sram;
 	byte sramEnabled;
 };
+
+REGISTER_MSXDEVICE(RomAscii16_2, "RomAscii16_2");
 
 } // namespace openmsx
 

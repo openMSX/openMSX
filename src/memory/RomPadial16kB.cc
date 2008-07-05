@@ -8,6 +8,7 @@
 
 #include "RomPadial16kB.hh"
 #include "Rom.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 

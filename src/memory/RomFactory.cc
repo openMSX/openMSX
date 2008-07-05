@@ -18,7 +18,7 @@
 #include "RomPadial16kB.hh"
 #include "RomSuperLodeRunner.hh"
 #include "RomMSXDOS2.hh"
-#include "RomHydlide2.hh"
+#include "RomAscii16_2.hh"
 #include "RomRType.hh"
 #include "RomCrossBlaim.hh"
 #include "RomHarryFox.hh"
@@ -271,7 +271,7 @@ auto_ptr<MSXDevice> RomFactory::create(
 		                             RomAscii8_8::WIZARDRY));
 		break;
 	case ROM_ASCII16_2:
-		result.reset(new RomHydlide2(motherBoard, config, rom));
+		result.reset(new RomAscii16_2(motherBoard, config, rom));
 		break;
 	case ROM_GAME_MASTER2:
 		result.reset(new RomGameMaster2(motherBoard, config, rom));

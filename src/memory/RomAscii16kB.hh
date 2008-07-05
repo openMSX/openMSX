@@ -18,6 +18,10 @@ public:
 	virtual byte* getWriteCacheLine(word address) const;
 };
 
+REGISTER_BASE_CLASS(RomAscii16kB, "RomAscii16kB");
+REGISTER_MSXDEVICE(RomAscii16kB, "RomAscii16kB");
+
+
 } // namespace openmsx
 
 #endif
