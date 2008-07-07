@@ -1209,7 +1209,7 @@ template<typename Archive>
 void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 {
 	// don't serialize:
-	//    machineID, userNames
+	//    machineID, userNames, availableDevices
 
 	// Scheduler must come early so that devices can query current time
 	ar.serialize("scheduler", getScheduler());
@@ -1217,9 +1217,6 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("name", machineName);
 	ar.serialize("config", machineConfig, ref(self));
 	ar.serialize("extensions", extensions, ref(self));
-
-	// availableDevices should all be references
-	ar.serialize("devices", availableDevices, ref(self), ref(*machineConfig));
 
 	//SharedStuffMap sharedStuffMap;
 
