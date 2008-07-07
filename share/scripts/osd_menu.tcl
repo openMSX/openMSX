@@ -1,5 +1,3 @@
-set menuevent "keyb MENU"
-
 proc get_optional { array_name key default } {
 	upvar $array_name arr
 	if [info exists arr($key)] {
@@ -158,10 +156,19 @@ proc main_menu_open {} {
 	bind_default "keyb RIGHT"  { menu_action RIGHT }
 	bind_default "keyb SPACE"  { menu_action A     }
 	bind_default "keyb ESCAPE" { menu_action B     }
-	bind_default $::menuevent  main_menu_close
 }
 proc main_menu_close {} {
 	menu_close_all
+}
+proc main_menu_toggle {} {
+	global menuinfos
+	if [llength $menuinfos] {
+		# there is at least one menu open, close it
+		menu_close_all
+	} else {
+		# none open yet, open main menu
+		main_menu_open
+	}
 }
 proc menu_last_closed {} {
 	set ::pause false
@@ -171,7 +178,6 @@ proc menu_last_closed {} {
 	unbind_default "keyb RIGHT"
 	unbind_default "keyb SPACE"
 	unbind_default "keyb ESCAPE"
-	bind_default   $::menuevent main_menu_open
 }
 
 proc prepare_menu { menu_def_list } {
@@ -337,5 +343,5 @@ proc my_selection_list_exec { item } {
 	}
 }
 
-bind_default $menuevent main_menu_open
+bind_default "keyb MENU" main_menu_toggle
 
