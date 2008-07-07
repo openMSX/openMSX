@@ -41,6 +41,7 @@
 #include "MSXMotherBoard.hh"
 #include "FirmwareSwitch.hh"
 #include "XMLElement.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -167,6 +168,15 @@ byte* RomFSA1FM1::getWriteCacheLine(word address) const
 		return unmappedWrite;
 	}
 }
+
+template<typename Archive>
+void RomFSA1FM1::serialize(Archive& ar, unsigned /*version*/)
+{
+	// skip MSXRom base class
+	ar.template serializeBase<MSXDevice>(*this);
+	// don't serialize (shared) sram here, rely on RomFSA1FM2 to do that
+}
+INSTANTIATE_SERIALIZE_METHODS(RomFSA1FM1);
 
 
 // Mapper for slot 3-3 //
@@ -303,5 +313,21 @@ void RomFSA1FM2::changeBank(byte region, byte bank)
 		setRom(region, bank & 0x7F);
 	}
 }
+
+template<typename Archive>
+void RomFSA1FM2::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<Rom8kBBlocks>(*this);
+	ar.serialize("SRAM", *sram);
+	ar.serialize("bankSelect", bankSelect);
+	ar.serialize("control", control);
+	if (ar.isLoader()) {
+		// recalculate 'isRam' and 'isEmpty' from bankSelect
+		for (int region = 0; region < 8; ++region) {
+			changeBank(region, bankSelect[region]);
+		}
+	}
+}
+INSTANTIATE_SERIALIZE_METHODS(RomFSA1FM2);
 
 } // namespace openmsx

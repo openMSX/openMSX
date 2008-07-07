@@ -27,10 +27,15 @@ public:
 	                      const EmuTime& time);
 	virtual byte* getWriteCacheLine(word address) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	const std::auto_ptr<FirmwareSwitch> firmwareSwitch;
 	SRAM* sram;
 };
+
+REGISTER_MSXDEVICE(RomFSA1FM1, "RomFSA1FM1");
 
 class RomFSA1FM2 : public Rom8kBBlocks
 {
@@ -47,6 +52,9 @@ public:
 	                      const EmuTime& time);
 	virtual byte* getWriteCacheLine(word address) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	void changeBank(byte region, byte bank);
 
@@ -56,6 +64,8 @@ private:
 	bool isEmpty[8];
 	byte control;
 };
+
+REGISTER_MSXDEVICE(RomFSA1FM2, "RomFSA1FM2");
 
 } // namespace openmsx
 
