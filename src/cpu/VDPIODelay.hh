@@ -24,6 +24,9 @@ public:
 	MSXDevice*& getInDevicePtr (byte port);
 	MSXDevice*& getOutDevicePtr(byte port);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	void delay(const EmuTime& time);
 

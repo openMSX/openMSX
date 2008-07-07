@@ -993,6 +993,10 @@ void MSXCPUInterface::serialize(Archive& ar, unsigned /*version*/)
 			setSubSlot(i, subSlotRegister[i]);
 		}
 	}
+
+	if (delayDevice.get()) {
+		ar.serialize("vdpDelay", *delayDevice);
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXCPUInterface);
 

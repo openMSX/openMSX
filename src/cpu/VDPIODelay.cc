@@ -4,6 +4,7 @@
 #include "MSXCPU.hh"
 #include "MSXMotherBoard.hh"
 #include "DummyDevice.hh"
+#include "serialize.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -67,5 +68,13 @@ void VDPIODelay::delay(const EmuTime& time)
 	}
 	lastTime.advance(time);
 }
+
+
+template<typename Archive>
+void VDPIODelay::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("lastTime", lastTime);
+}
+INSTANTIATE_SERIALIZE_METHODS(VDPIODelay);
 
 } // namespace openmsx
