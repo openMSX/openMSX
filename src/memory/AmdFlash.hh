@@ -31,9 +31,21 @@ public:
 	void write(unsigned address, byte value);
 	const byte* getReadCacheLine(unsigned address) const;
 
-private:
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
+//private:
+	struct AmdCmd {
+		unsigned addr;
+		byte value;
+
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned version);
+	};
+
 	enum State { ST_IDLE, ST_IDENT };
 
+private:
 	void init(unsigned totalSectors, unsigned writeProtectedFlags,
 	          const XMLElement* config);
 
@@ -53,10 +65,7 @@ private:
 	std::vector<const byte*> readAddress;
 
 	static const unsigned MAX_CMD_SIZE = 8;
-	struct AmdCmd {
-		unsigned addr;
-		byte value;
-	} cmd[MAX_CMD_SIZE];
+	AmdCmd cmd[MAX_CMD_SIZE];
 	unsigned cmdIdx;
 	State state;
 };

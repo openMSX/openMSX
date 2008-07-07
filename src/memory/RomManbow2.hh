@@ -27,6 +27,9 @@ public:
 	virtual const byte* getReadCacheLine(word address) const;
 	virtual byte* getWriteCacheLine(word address) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	void setRom(unsigned region, unsigned block);
 
@@ -35,6 +38,8 @@ private:
 	byte bank[4];
 	bool sccEnabled;
 };
+
+REGISTER_MSXDEVICE(RomManbow2, "RomManbow2");
 
 } // namespace openmsx
 

@@ -6,6 +6,7 @@
 #include "MSXMotherBoard.hh"
 #include "MSXCPU.hh"
 #include "MSXDevice.hh"
+#include "serialize.hh"
 #include <cstring>
 #include <cassert>
 
@@ -270,5 +271,29 @@ bool AmdFlash::partialMatch(unsigned len, const byte* dataSeq) const
 	}
 	return true;
 }
+
+
+static enum_string<AmdFlash::State> stateInfo[] = {
+	{ "IDLE",  AmdFlash::ST_IDLE  },
+	{ "IDENT", AmdFlash::ST_IDENT }
+};
+SERIALIZE_ENUM(AmdFlash::State, stateInfo);
+
+template<typename Archive>
+void AmdFlash::AmdCmd::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("address", addr);
+	ar.serialize("value", value);
+}
+
+template<typename Archive>
+void AmdFlash::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("ram", *ram);
+	ar.serialize("cmd", cmd);
+	ar.serialize("cmdIdx", cmdIdx);
+	ar.serialize("state", state);
+}
+INSTANTIATE_SERIALIZE_METHODS(AmdFlash);
 
 } // namespace openmsx

@@ -4,6 +4,7 @@
 #include "Rom.hh"
 #include "SCC.hh"
 #include "AmdFlash.hh"
+#include "serialize.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -120,5 +121,16 @@ byte* RomManbow2::getWriteCacheLine(word address) const
 		return unmappedWrite;
 	}
 }
+
+
+template<typename Archive>
+void RomManbow2::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("scc", *scc);
+	ar.serialize("flash", *flash);
+	ar.serialize("bank", bank);
+	ar.serialize("sccEnabled", sccEnabled);
+}
+INSTANTIATE_SERIALIZE_METHODS(RomManbow2);
 
 } // namespace openmsx
