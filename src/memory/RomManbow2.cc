@@ -126,6 +126,9 @@ byte* RomManbow2::getWriteCacheLine(word address) const
 template<typename Archive>
 void RomManbow2::serialize(Archive& ar, unsigned /*version*/)
 {
+	// skip MSXRom base class
+	ar.template serializeBase<MSXDevice>(*this);
+
 	ar.serialize("scc", *scc);
 	ar.serialize("flash", *flash);
 	ar.serialize("bank", bank);
