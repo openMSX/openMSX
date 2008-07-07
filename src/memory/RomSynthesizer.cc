@@ -23,6 +23,7 @@
 #include "DACSound8U.hh"
 #include "CacheLine.hh"
 #include "Rom.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -66,5 +67,14 @@ byte* RomSynthesizer::getWriteCacheLine(word address) const
 		return unmappedWrite;
 	}
 }
+
+template<typename Archive>
+void RomSynthesizer::serialize(Archive& ar, unsigned /*version*/)
+{
+        ar.template serializeBase<Rom16kBBlocks>(*this);
+
+        // TODO write dac??
+}
+INSTANTIATE_SERIALIZE_METHODS(RomSynthesizer);
 
 } // namespace openmsx
