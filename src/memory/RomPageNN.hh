@@ -14,6 +14,8 @@ public:
 	          std::auto_ptr<Rom> rom, byte pages);
 };
 
+REGISTER_MSXDEVICE(RomPageNN, "RomPageNN");
+
 } // namespace openmsx
 
 #endif
