@@ -269,7 +269,8 @@ $(BUILD_DIR)/$(PACKAGE_ZLIB)/Makefile: \
 	echo '	make -f Makefile.shared $$(MAKECMDGOALS)' >> $(@D)/Makefile
 # It is not possible to pass CFLAGS to zlib's configure.
 MAKEVAR_OVERRIDE_ZLIB:=CFLAGS="$(_CFLAGS)"
-MAKEVAR_OVERRIDE_ZLIB+=LDFLAGS="$(_LDFLAGS)"
+# Note: zlib's Makefile uses LDFLAGS to link its examples, not the library
+#       itself. If me mess with it, the build breaks.
 
 # Don't configure GLEW.
 # GLEW does not support building outside of the source tree, so just copy
