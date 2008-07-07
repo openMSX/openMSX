@@ -5,6 +5,7 @@
 #include "MSXMotherBoard.hh"
 #include "Rom.hh"
 #include "XMLElement.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
