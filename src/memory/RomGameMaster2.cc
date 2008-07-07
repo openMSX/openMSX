@@ -41,6 +41,7 @@
 #include "RomGameMaster2.hh"
 #include "Rom.hh"
 #include "SRAM.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -48,8 +49,8 @@ RomGameMaster2::RomGameMaster2(
 		MSXMotherBoard& motherBoard, const XMLElement& config,
 		std::auto_ptr<Rom> rom)
 	: Rom4kBBlocks(motherBoard, config, rom)
-	, sram(new SRAM(motherBoard, getName() + " SRAM", 0x2000, config))
 {
+	sram.reset(new SRAM(motherBoard, getName() + " SRAM", 0x2000, config));
 	reset(*static_cast<EmuTime*>(0));
 }
 
@@ -114,5 +115,15 @@ byte* RomGameMaster2::getWriteCacheLine(word address) const
 		return unmappedWrite;
 	}
 }
+
+template<typename Archive>
+void RomGameMaster2::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<Rom4kBBlocks>(*this);
+
+	ar.serialize("sramOffset", sramOffset);
+	ar.serialize("sramEnabled", sramEnabled);
+}
+INSTANTIATE_SERIALIZE_METHODS(RomGameMaster2);
 
 } // namespace openmsx

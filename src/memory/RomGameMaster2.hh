@@ -20,11 +20,15 @@ public:
 	virtual void writeMem(word address, byte value, const EmuTime& time);
 	virtual byte* getWriteCacheLine(word address) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
-	const std::auto_ptr<SRAM> sram;
 	word sramOffset;
 	bool sramEnabled;
 };
+
+REGISTER_MSXDEVICE(RomGameMaster2, "RomGameMaster2");
 
 } // namespace openmsx
 
