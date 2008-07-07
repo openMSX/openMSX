@@ -13,6 +13,10 @@ RomBlocks<BANK_SIZE>::RomBlocks(
 		std::auto_ptr<Rom> rom)
 	: MSXRom(motherBoard, config, rom)
 {
+	// by default no extra mappable memory block
+	extraMem = NULL;
+	extraSize = 0;
+
 	// Note: Do not use the "rom" parameter, because an auto_ptr contains NULL
 	//       after it is copied.
 	nrBlocks = this->rom->getSize() / BANK_SIZE;
@@ -43,6 +47,12 @@ const byte* RomBlocks<BANK_SIZE>::getReadCacheLine(word address) const
 template <unsigned BANK_SIZE>
 void RomBlocks<BANK_SIZE>::setBank(byte region, const byte* adr)
 {
+	assert("address passed to setBank() is not serializable" &&
+	       ((adr == unmappedRead) ||
+	        ((&(*rom)[0] <= adr) && (adr <= &(*rom)[rom->getSize() - 1])) ||
+	        (sram.get() && (&(*sram)[0] <= adr) &&
+	                       (adr <= &(*sram)[sram->getSize() - 1])) ||
+	        ((extraMem <= adr) && (adr <= &extraMem[extraSize - 1]))));
 	bank[region] = adr;
 	invalidateMemCache(region * BANK_SIZE, BANK_SIZE);
 }
@@ -51,6 +61,13 @@ template <unsigned BANK_SIZE>
 void RomBlocks<BANK_SIZE>::setBlockMask(int mask)
 {
 	blockMask = mask;
+}
+
+template <unsigned BANK_SIZE>
+void RomBlocks<BANK_SIZE>::setExtraMemory(const byte* mem, unsigned size)
+{
+	extraMem = mem;
+	extraSize = size;
 }
 
 template <unsigned BANK_SIZE>
@@ -90,6 +107,8 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 			} else if (offsets[i] < (romSize + sramSize)) {
 				assert(sram.get());
 				bank[i] = &(*sram)[offsets[i] - romSize];
+			} else if (offsets[i] < (romSize + sramSize + extraSize)) {
+				bank[i] = &extraMem[offsets[i] - romSize - sramSize];
 			} else {
 				assert(false); // TODO throw
 			}
@@ -101,9 +120,13 @@ void RomBlocks<BANK_SIZE>::serialize(Archive& ar, unsigned /*version*/)
 			} else if ((&(*rom)[0] <= bank[i]) &&
 			           (bank[i] <= &(*rom)[romSize - 1])) {
 				offsets[i] = bank[i] - &(*rom)[0];
-			} else if ((&(*sram)[0] <= bank[i]) &&
+			} else if (sram.get() &&
+			           (&(*sram)[0] <= bank[i]) &&
 			           (bank[i] <= &(*sram)[sramSize - 1])) {
 				offsets[i] = bank[i] - &(*sram)[0] + romSize;
+			} else if ((extraMem <= bank[i]) &&
+			           (bank[i] <= &extraMem[extraSize - 1])) {
+				offsets[i] = bank[i] - extraMem + romSize + sramSize;
 			} else {
 				assert(false);
 			}

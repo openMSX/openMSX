@@ -32,6 +32,10 @@ RomPanasonic::RomPanasonic(
 		maxSRAMBank = SRAM_BASE + (sramSize / 8);
 	}
 
+	// tell baseclass about PanasonicMemory (for serialization)
+	PanasonicMemory& panasonicMem = motherBoard.getPanasonicMemory();
+	setExtraMemory(panasonicMem.getRamBlock(0), panasonicMem.getRamSize());
+
 	reset(*static_cast<EmuTime*>(0));
 }
 

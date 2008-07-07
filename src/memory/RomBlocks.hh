@@ -51,10 +51,19 @@ protected:
 	  */
 	void setBlockMask(int mask);
 
+	/** Inform this base class of extra mapable memory block.
+	 * This is needed for serialization of mappings in this block.
+	 * Should only be called from subclass constructor.
+	 * (e.g. used by RomPanasonic)
+	 */
+	void setExtraMemory(const byte* mem, unsigned size);
+
 	const byte* bank[NUM_BANKS];
 	std::auto_ptr<SRAM> sram; // can be a NULL ptr
 
 private:
+	const byte* extraMem;
+	unsigned extraSize;
 	int nrBlocks;
 	int blockMask;
 };

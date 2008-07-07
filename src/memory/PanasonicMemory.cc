@@ -81,6 +81,11 @@ byte* PanasonicMemory::getRamBlock(unsigned block)
 	}
 	return ram + offset;
 }
+unsigned PanasonicMemory::getRamSize() const
+{
+	assert(ram);
+	return ramSize;
+}
 
 void PanasonicMemory::setDRAM(bool dram_)
 {
