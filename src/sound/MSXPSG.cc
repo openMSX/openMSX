@@ -77,6 +77,11 @@ byte MSXPSG::readA(const EmuTime& time)
 {
 	byte joystick = ports[selectedPort]->read(time) |
 	                ((renShaTurbo.getSignal(time)) ? 0x10 : 0x00);
+
+	// pin 6,7 input is ANDed with pin 6,7 output
+	byte pin67 = prev << (4 - 2 * selectedPort);
+	joystick &= (pin67| 0xCF);
+
 	byte cassetteInput = cassette.cassetteIn(time) ? 0x80 : 0x00;
 	byte keyLayout = keyLayoutBit ? 0x40 : 0x00;
 	return joystick | keyLayout | cassetteInput;
