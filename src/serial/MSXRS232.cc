@@ -66,7 +66,7 @@ MSXRS232::MSXRS232(MSXMotherBoard& motherBoard, const XMLElement& config)
 	, i8254(new I8254(motherBoard.getScheduler(),
 	                  cntr0.get(), cntr1.get(), NULL, getCurrentTime()))
 	, interf(new I8251Interf(*this))
-	, i8251(new I8251(motherBoard.getScheduler(), interf.get(),
+	, i8251(new I8251(motherBoard.getScheduler(), *interf,
 	                  getCurrentTime()))
 	, rom(new Rom(motherBoard, MSXDevice::getName() + " ROM", "rom", config))
 	, rxrdyIRQ(getMotherBoard().getCPU())

@@ -1,6 +1,7 @@
 // $Id$
 
 #include "I8251.hh"
+#include "serialize.hh"
 #include <cassert>
 
 using std::string;
@@ -50,7 +51,7 @@ enum SyncPointType {
 };
 
 
-I8251::I8251(Scheduler& scheduler, I8251Interface* interf_, const EmuTime& time)
+I8251::I8251(Scheduler& scheduler, I8251Interface& interf_, const EmuTime& time)
 	: Schedulable(scheduler), interf(interf_), clock(scheduler), recvBuf(0)
 {
 	reset(time);
@@ -167,7 +168,7 @@ void I8251::setMode(byte value)
 		assert(false);
 		dataBits = SerialDataInterface::DATA_8;
 	}
-	interf->setDataBits(dataBits);
+	interf.setDataBits(dataBits);
 
 	SerialDataInterface::StopBits stopBits;
 	switch(mode & MODE_STOP_BITS) {
@@ -187,12 +188,12 @@ void I8251::setMode(byte value)
 		assert(false);
 		stopBits = SerialDataInterface::STOP_2;
 	}
-	interf->setStopBits(stopBits);
+	interf.setStopBits(stopBits);
 
 	bool parityEnable = mode & MODE_PARITYEN;
 	SerialDataInterface::ParityBit parity = (mode & MODE_PARITEVEN) ?
 		SerialDataInterface::EVEN : SerialDataInterface::ODD;
-	interf->setParityBit(parityEnable, parity);
+	interf.setParityBit(parityEnable, parity);
 
 	unsigned baudrate;
 	switch (mode & MODE_BAUDRATE) {
@@ -224,8 +225,8 @@ void I8251::writeCommand(byte value, const EmuTime& time)
 
 	// CMD_RESET, CMD_TXEN, CMD_RXE  handled in other routines
 
-	interf->setRTS(command & CMD_RTS, time);
-	interf->setDTR(command & CMD_DTR, time);
+	interf.setRTS(command & CMD_RTS, time);
+	interf.setDTR(command & CMD_DTR, time);
 
 	if (!(command & CMD_TXEN)) {
 		// disable transmitter
@@ -253,14 +254,14 @@ void I8251::writeCommand(byte value, const EmuTime& time)
 			status &= ~(STAT_PE | STAT_OE | STAT_FE); // TODO
 			status &= ~STAT_RXRDY;
 		}
-		interf->signal(time);
+		interf.signal(time);
 	}
 }
 
 byte I8251::readStatus(const EmuTime& time)
 {
 	byte result = status;
-	if (interf->getDSR(time)) {
+	if (interf.getDSR(time)) {
 		result |= STAT_DSR;
 	}
 	return result;
@@ -269,7 +270,7 @@ byte I8251::readStatus(const EmuTime& time)
 byte I8251::readTrans(const EmuTime& time)
 {
 	status &= ~STAT_RXRDY;
-	interf->setRxRDY(false, time);
+	interf.setRxRDY(false, time);
 	return recvBuf;
 }
 
@@ -318,7 +319,7 @@ void I8251::recvByte(byte value, const EmuTime& time)
 	} else {
 		recvBuf = value;
 		status |= STAT_RXRDY;
-		interf->setRxRDY(true, time);
+		interf.setRxRDY(true, time);
 	}
 	recvReady = false;
 	if (clock.isPeriodic()) {
@@ -352,12 +353,12 @@ void I8251::executeUntil(const EmuTime& time, int userData)
 	case RECV:
 		assert(command & CMD_RXE);
 		recvReady = true;
-		interf->signal(time);
+		interf.signal(time);
 		break;
 	case TRANS:
 		assert(!(status & STAT_TXEMPTY) && (command & CMD_TXEN));
 
-		interf->recvByte(sendByte, time);
+		interf.recvByte(sendByte, time);
 		if (status & STAT_TXRDY) {
 			status |= STAT_TXEMPTY;
 		} else {
@@ -375,5 +376,60 @@ const string& I8251::schedName() const
 	static const string I8251_NAME("I8251");
 	return I8251_NAME;
 }
+
+
+static enum_string<SerialDataInterface::DataBits> dataBitsInfo[] = {
+		{ "5", SerialDataInterface::DATA_5 },
+		{ "6", SerialDataInterface::DATA_6 },
+		{ "7", SerialDataInterface::DATA_7 },
+		{ "8", SerialDataInterface::DATA_8 }
+};
+SERIALIZE_ENUM(SerialDataInterface::DataBits, dataBitsInfo);
+
+static enum_string<SerialDataInterface::StopBits> stopBitsInfo[] = {
+	{ "INVALID", SerialDataInterface::STOP_INV },
+	{ "1",       SerialDataInterface::STOP_1   },
+	{ "1.5",     SerialDataInterface::STOP_15  },
+	{ "2",       SerialDataInterface::STOP_2   }
+};
+SERIALIZE_ENUM(SerialDataInterface::StopBits, stopBitsInfo);
+
+static enum_string<SerialDataInterface::ParityBit> parityBitInfo[] = {
+	{ "EVEN", SerialDataInterface::EVEN },
+	{ "ODD",  SerialDataInterface::ODD  }
+};
+SERIALIZE_ENUM(SerialDataInterface::ParityBit, parityBitInfo);
+
+static enum_string<I8251::CmdFaze> cmdFazeInfo[] = {
+	{ "MODE",  I8251::FAZE_MODE  },
+	{ "SYNC1", I8251::FAZE_SYNC1 },
+	{ "SYNC2", I8251::FAZE_SYNC2 },
+	{ "CMD",   I8251::FAZE_CMD   }
+};
+SERIALIZE_ENUM(I8251::CmdFaze, cmdFazeInfo);
+
+template<typename Archive>
+void I8251::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<Schedulable>(*this);
+	ar.serialize("clock", clock);
+	ar.serialize("charLength", charLength);
+	ar.serialize("recvDataBits", recvDataBits);
+	ar.serialize("recvStopBits", recvStopBits);
+	ar.serialize("recvParityBit", recvParityBit);
+	ar.serialize("recvParityEnabled", recvParityEnabled);
+	ar.serialize("recvBuf", recvBuf);
+	ar.serialize("recvReady", recvReady);
+	ar.serialize("sendByte", sendByte);
+	ar.serialize("sendBuffer", sendBuffer);
+	ar.serialize("sendBuffered", sendBuffered);
+	ar.serialize("status", status);
+	ar.serialize("command", command);
+	ar.serialize("mode", mode);
+	ar.serialize("sync1", sync1);
+	ar.serialize("sync2", sync2);
+	ar.serialize("cmdFaze", cmdFaze);
+}
+INSTANTIATE_SERIALIZE_METHODS(I8251);
 
 } // namespace openmsx

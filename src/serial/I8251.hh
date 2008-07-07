@@ -26,10 +26,10 @@ public:
 	virtual void signal(const EmuTime& time) = 0;
 };
 
-class I8251 : public SerialDataInterface, private Schedulable
+class I8251 : public SerialDataInterface, public Schedulable
 {
 public:
-	I8251(Scheduler& scheduler, I8251Interface* interf, const EmuTime& time);
+	I8251(Scheduler& scheduler, I8251Interface& interf, const EmuTime& time);
 
 	void reset(const EmuTime& time);
 	byte readIO(word port, const EmuTime& time);
@@ -49,6 +49,14 @@ public:
 	virtual void executeUntil(const EmuTime& time, int userData);
 	virtual const std::string& schedName() const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
+//private:
+	enum CmdFaze {
+		FAZE_MODE, FAZE_SYNC1, FAZE_SYNC2, FAZE_CMD
+	};
+
 private:
 	void setMode(byte mode);
 	void writeCommand(byte value, const EmuTime& time);
@@ -57,7 +65,7 @@ private:
 	void writeTrans(byte value, const EmuTime& time);
 	void send(byte value, const EmuTime& time);
 
-	I8251Interface* interf;
+	I8251Interface& interf;
 	ClockPin clock;
 	unsigned charLength;
 
@@ -77,9 +85,7 @@ private:
 	byte mode;
 	byte sync1, sync2;
 
-	enum CmdFaze {
-		FAZE_MODE, FAZE_SYNC1, FAZE_SYNC2, FAZE_CMD
-	} cmdFaze;
+	CmdFaze cmdFaze;
 };
 
 } // namespace openmsx

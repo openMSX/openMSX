@@ -36,6 +36,9 @@ public:
 	virtual void setParityBit(bool enable, ParityBit parity);
 	virtual void recvByte(byte value, const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	void setTimerIRQ(bool status, const EmuTime& time);
 	void enableTimerIRQ(bool enabled, const EmuTime& time);
@@ -63,6 +66,8 @@ private:
 	friend class MSXMidiCounter2;
 	friend class MSXMidiI8251Interf;
 };
+
+REGISTER_MSXDEVICE(MSXMidi, "MSX-Midi");
 
 } // namespace openmsx
 

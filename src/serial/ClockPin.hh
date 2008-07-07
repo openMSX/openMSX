@@ -20,7 +20,7 @@ protected:
 	virtual ~ClockPinListener() {}
 };
 
-class ClockPin : private Schedulable
+class ClockPin : public Schedulable
 {
 public:
 	explicit ClockPin(Scheduler& scheduler, ClockPinListener* listener = NULL);
@@ -40,6 +40,9 @@ public:
 
 	// control
 	void generateEdgeSignals(bool wanted, const EmuTime& time);
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	void unschedule();

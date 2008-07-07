@@ -8,65 +8,20 @@
 #ifndef I8254_HH
 #define I8254_HH
 
-#include "EmuTime.hh"
-#include "ClockPin.hh"
 #include "openmsx.hh"
 #include "noncopyable.hh"
+#include <memory>
 
 namespace openmsx {
 
+class EmuTime;
 class Scheduler;
+class Counter;
+class ClockPin;
+class ClockPinListener;
 
 class I8254 : private noncopyable
 {
-	class Counter {
-	public:
-		Counter(Scheduler& scheduler, ClockPinListener* listener,
-		        const EmuTime& time);
-		void reset(const EmuTime& time);
-		byte readIO(const EmuTime& time);
-		byte peekIO(const EmuTime& time) const;
-		void writeIO(word value, const EmuTime& time);
-		void setGateStatus(bool status, const EmuTime& time);
-		void writeControlWord(byte value, const EmuTime& time);
-		void latchStatus(const EmuTime& time);
-		void latchCounter(const EmuTime& time);
-
-	private:
-		enum ByteOrder {LOW, HIGH};
-		static const byte WRT_FRMT = 0x30;
-		static const byte WF_LATCH = 0x00;
-		static const byte WF_LOW   = 0x10;
-		static const byte WF_HIGH  = 0x20;
-		static const byte WF_BOTH  = 0x30;
-		static const byte CNTR_MODE = 0x0E;
-		static const byte CNTR_M0   = 0x00;
-		static const byte CNTR_M1   = 0x02;
-		static const byte CNTR_M2   = 0x04;
-		static const byte CNTR_M3   = 0x06;
-		static const byte CNTR_M4   = 0x08;
-		static const byte CNTR_M5   = 0x0A;
-		static const byte CNTR_M2_  = 0x0C;
-		static const byte CNTR_M3_  = 0x0E;
-
-		void writeLoad(word value, const EmuTime& time);
-		void advance(const EmuTime& time);
-
-		ClockPin clock;
-		ClockPin output;
-		EmuTime currentTime;
-		int counter;
-		word latchedCounter, counterLoad;
-		byte control, latchedControl;
-		bool ltchCtrl, ltchCntr;
-		ByteOrder readOrder, writeOrder;
-		byte writeLatch;
-		bool gate;
-		bool active, triggered, counting;
-
-		friend class I8254;
-	};
-
 public:
 	I8254(Scheduler& scheduler, ClockPinListener* output0,
 	      ClockPinListener* output1, ClockPinListener* output2,
@@ -78,25 +33,17 @@ public:
 	byte peekIO(word port, const EmuTime& time) const;
 	void writeIO(word port, byte value, const EmuTime& time);
 
-	void setGate(byte counter, bool status, const EmuTime& time);
-	ClockPin& getClockPin(byte cntr);
-	ClockPin& getOutputPin(byte cntr);
+	void setGate(unsigned counter, bool status, const EmuTime& time);
+	ClockPin& getClockPin(unsigned cntr);
+	ClockPin& getOutputPin(unsigned cntr);
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
-	static const byte READ_BACK = 0xC0;
-	static const byte RB_CNTR0  = 0x02;
-	static const byte RB_CNTR1  = 0x04;
-	static const byte RB_CNTR2  = 0x08;
-	static const byte RB_STATUS = 0x10;
-	static const byte RB_COUNT  = 0x20;
+	void readBackHelper(byte value, unsigned cntr, const EmuTime& time);
 
-	void readBackHelper(byte value, byte cntr, const EmuTime& time);
-	Counter& getCounter(byte cntr);
-
-	//Counter counter[3];
-	Counter counter0;
-	Counter counter1;
-	Counter counter2;
+	std::auto_ptr<Counter> counter[3];
 };
 
 } // namespace openmsx

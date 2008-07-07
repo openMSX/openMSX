@@ -72,6 +72,9 @@ public:
 	unsigned getTicksAt(unsigned freq) const
 		{ return time / (MAIN_FREQ32 / freq); }
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 	static const EmuDuration zero;
 	static const EmuDuration infinity;
 

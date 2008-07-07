@@ -6,6 +6,7 @@
 #include "I8251.hh"
 #include "MidiOutConnector.hh"
 #include "MSXMotherBoard.hh"
+#include "serialize.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -64,7 +65,7 @@ MSXMidi::MSXMidi(MSXMotherBoard& motherBoard, const XMLElement& config)
 	, rxrdyIRQlatch(false), rxrdyIRQenabled(false)
 	, outConnector(new MidiOutConnector(motherBoard.getPluggingController(),
 	                                    "msx-midi-out"))
-	, i8251(new I8251(motherBoard.getScheduler(), interf.get(),
+	, i8251(new I8251(motherBoard.getScheduler(), *interf,
 	                  getCurrentTime()))
 	, i8254(new I8254(motherBoard.getScheduler(),
 	                  cntr0.get(), NULL, cntr2.get(), getCurrentTime()))
@@ -379,6 +380,26 @@ void MSXMidi::recvByte(byte value, const EmuTime& time)
 {
 	i8251->recvByte(value, time);
 }
+
+
+template<typename Archive>
+void MSXMidi::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+	// no need to serialize MidiInConnector base class
+
+	ar.serialize("timerIRQ", timerIRQ);
+	ar.serialize("rxrdyIRQ", rxrdyIRQ);
+	ar.serialize("timerIRQlatch", timerIRQlatch);
+	ar.serialize("timerIRQenabled", timerIRQenabled);
+	ar.serialize("rxrdyIRQlatch", rxrdyIRQlatch);
+	ar.serialize("rxrdyIRQenabled", rxrdyIRQenabled);
+	ar.serialize("I8251", *i8251);
+	ar.serialize("I8254", *i8254);
+
+	// don't serialize:  cntr0, cntr2, interf, outConnector
+}
+INSTANTIATE_SERIALIZE_METHODS(MSXMidi);
 
 } // namespace openmsx
 
