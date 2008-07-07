@@ -4,6 +4,7 @@
 #define ROMMATRAINK_HH
 
 #include "MSXRom.hh"
+#include "serialize.hh"
 #include <memory>
 
 namespace openmsx {
@@ -25,9 +26,14 @@ public:
 	virtual const byte* getReadCacheLine(word address) const;
 	virtual byte* getWriteCacheLine(word address) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	const std::auto_ptr<AmdFlash> flash;
 };
+
+REGISTER_MSXDEVICE(RomMatraInk, "RomMatraInk");
 
 } // namespace openmsx
 

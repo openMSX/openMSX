@@ -3,6 +3,7 @@
 #include "RomMatraInk.hh"
 #include "AmdFlash.hh"
 #include "Rom.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -48,5 +49,15 @@ byte* RomMatraInk::getWriteCacheLine(word /*address*/) const
 {
 	return NULL;
 }
+
+template<typename Archive>
+void RomMatraInk::serialize(Archive& ar, unsigned /*version*/)
+{
+	// skip MSXRom base class
+	ar.template serializeBase<MSXDevice>(*this);
+
+	ar.serialize("flash", *flash);
+}
+INSTANTIATE_SERIALIZE_METHODS(RomMatraInk);
 
 } // namespace openmsx
