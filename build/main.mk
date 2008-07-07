@@ -349,6 +349,8 @@ ifneq ($(filter %g++,$(CXX))$(filter g++%,$(CXX)),)
   DEPEND_FLAGS+=-MP
   # Plain C compiler, for the 3rd party libs.
   CC:=$(subst g++,gcc,$(CXX))
+  # Guess the name of the linker.
+  LD:=$(subst g++,ld,$(CXX:g++%=g++))
 else
   ifneq ($(filter %gcc,$(CXX))$(filter gcc%,$(CXX)),)
     $(error Set OPENMSX_CXX to your "g++" executable instead of "gcc")
@@ -752,9 +754,9 @@ run-3rdparty:
 		BUILD_PATH=$(BUILD_PATH)/3rdparty \
 		OPENMSX_TARGET_CPU=$(OPENMSX_TARGET_CPU) \
 		OPENMSX_TARGET_OS=$(firstword $(subst -, ,$(OPENMSX_TARGET_OS))) \
-		CC="$(CC) $(TARGET_FLAGS)" _CFLAGS="$(CXXFLAGS)" \
-		LD="$(CC) $(TARGET_FLAGS)" LINK_MODE=$(LINK_MODE) \
-		$(COMPILE_ENV)
+		_CC=$(CC) _CFLAGS="$(TARGET_FLAGS) $(CXXFLAGS)" \
+		_LD=$(LD) _LDFLAGS="$(TARGET_FLAGS)" \
+		LINK_MODE=$(LINK_MODE) $(COMPILE_ENV)
 
 staticbindist: 3rdparty
 	$(MAKE) -f build/main.mk bindist \

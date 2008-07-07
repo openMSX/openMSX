@@ -25,6 +25,9 @@ export LD
 export NEXT_ROOT
 export MACOSX_DEPLOYMENT_TARGET
 
+CC=$(_CC)
+LD=$(_LD)
+
 TARBALLS_DIR:=derived/3rdparty/download
 SOURCE_DIR:=derived/3rdparty/src
 PATCHES_DIR:=build/3rdparty
@@ -73,13 +76,6 @@ endif
 endif
 TRIPLE_OS:=$(OPENMSX_TARGET_OS)
 TARGET_TRIPLE:=$(TRIPLE_MACHINE)-unknown-$(TRIPLE_OS)
-
-# TODO: This is a temporary hack which fixes "configure" scripts on MinGW32.
-#       The real solution is to make "main.mk" pass a suitable linker, but
-#       we're not sure yet how to find a suitable linker.
-ifeq ($(OPENMSX_TARGET_OS),mingw32)
-override LD=ld
-endif
 
 # Although X11 is available on Windows and Mac OS X, most people do not have
 # it installed, so do not link against it.
@@ -174,14 +170,16 @@ $(BUILD_DIR)/$(PACKAGE_SDL)/Makefile: \
 	mkdir -p $(@D)
 	cd $(@D) && $(PWD)/$</configure \
 		--$(USE_VIDEO_X11)-video-x11 \
+		--disable-video-directfb \
 		--disable-directx \
 		--disable-debug \
 		--disable-cdrom \
 		--disable-stdio-redirect \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
-		CFLAGS="$(_CFLAGS) -I$(PWD)/$(INSTALL_DIR)/include" \
-		LDFLAGS="-L$(PWD)/$(INSTALL_DIR)/lib"
+		CFLAGS="$(_CFLAGS)" \
+		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
+		LDFLAGS="$(_LDFLAGS) -L$(PWD)/$(INSTALL_DIR)/lib"
 # While openMSX does not use "cpuinfo", "endian" and "file" modules, other
 # modules do and if we disable them, SDL will not link.
 
@@ -207,7 +205,7 @@ $(BUILD_DIR)/$(PACKAGE_SDL_IMAGE)/Makefile: \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		CFLAGS="$(_CFLAGS) $(shell $(PWD)/$(INSTALL_DIR)/bin/libpng12-config --cflags)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
-		LDFLAGS="$(shell $(PWD)/$(INSTALL_DIR)/bin/libpng12-config --static --ldflags)"
+		LDFLAGS="$(_LDFLAGS) $(shell $(PWD)/$(INSTALL_DIR)/bin/libpng12-config --static --ldflags)"
 
 # Configure SDL_ttf.
 $(BUILD_DIR)/$(PACKAGE_SDL_TTF)/Makefile: \
@@ -218,10 +216,12 @@ $(BUILD_DIR)/$(PACKAGE_SDL_TTF)/Makefile: \
 		--disable-sdltest \
 		--host=$(TARGET_TRIPLE) \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
+		--with-sdl-prefix=$(PWD)/$(INSTALL_DIR) \
 		--with-freetype-prefix=$(PWD)/$(INSTALL_DIR) \
+		--$(subst disable,without,$(subst enable,with,$(USE_VIDEO_X11)))-x \
 		CFLAGS="$(_CFLAGS)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
-		LDFLAGS=""
+		LDFLAGS="$(_LDFLAGS)"
 
 # Configure libpng.
 $(BUILD_DIR)/$(PACKAGE_PNG)/Makefile: \
@@ -233,7 +233,7 @@ $(BUILD_DIR)/$(PACKAGE_PNG)/Makefile: \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		CFLAGS="$(_CFLAGS)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
-		LDFLAGS=-L$(PWD)/$(INSTALL_DIR)/lib
+		LDFLAGS="$(_LDFLAGS) -L$(PWD)/$(INSTALL_DIR)/lib"
 
 # Configure FreeType.
 $(BUILD_DIR)/$(PACKAGE_FREETYPE)/Makefile: \
@@ -244,7 +244,7 @@ $(BUILD_DIR)/$(PACKAGE_FREETYPE)/Makefile: \
 		--prefix=$(PWD)/$(INSTALL_DIR) \
 		CFLAGS="$(_CFLAGS)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
-		LDFLAGS=-L$(PWD)/$(INSTALL_DIR)/lib
+		LDFLAGS="$(_LDFLAGS) -L$(PWD)/$(INSTALL_DIR)/lib"
 
 # Configure zlib.
 # Although it uses "configure", zlib does not support building outside of the
@@ -269,6 +269,7 @@ $(BUILD_DIR)/$(PACKAGE_ZLIB)/Makefile: \
 	echo '	make -f Makefile.shared $$(MAKECMDGOALS)' >> $(@D)/Makefile
 # It is not possible to pass CFLAGS to zlib's configure.
 MAKEVAR_OVERRIDE_ZLIB:=CFLAGS="$(_CFLAGS)"
+MAKEVAR_OVERRIDE_ZLIB+=LDFLAGS="$(_LDFLAGS)"
 
 # Don't configure GLEW.
 # GLEW does not support building outside of the source tree, so just copy
@@ -317,7 +318,7 @@ $(BUILD_DIR)/$(PACKAGE_XML)/Makefile: \
 		$(if $(filter-out $(SYSTEM_LIBS),ZLIB),--with-zlib=$(PWD)/$(INSTALL_DIR),) \
 		CFLAGS="$(_CFLAGS)" \
 		CPPFLAGS="-I$(PWD)/$(INSTALL_DIR)/include" \
-		LDFLAGS=-L$(PWD)/$(INSTALL_DIR)/lib
+		LDFLAGS="$(_LDFLAGS) -L$(PWD)/$(INSTALL_DIR)/lib"
 
 # Extract packages.
 # Name mapping for standardized packages:
