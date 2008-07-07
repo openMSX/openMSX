@@ -288,8 +288,7 @@ proc __ls { directory } {
 	foreach dir $dirs {
 		lappend dirs2 "$dir/"
 	}
-	set all [join [list $roms $dirs2 ".."]]
-	return [lsort $all]
+	return [join [list ".." [lsort $dirs2] [lsort $roms]]]
 }
 
 proc __displayOSDText { message } {
