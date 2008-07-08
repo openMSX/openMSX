@@ -40,6 +40,9 @@ public:
 	void writeCommand(byte value);
 	void writeData(byte value);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	void midiInCallback(byte* buffer, unsigned length);
 	void onRecv();

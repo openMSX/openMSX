@@ -3,6 +3,7 @@
 // TODO: actually port it, see all the TODO's! :)
 
 #include "YM2148.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -172,6 +173,26 @@ void YM2148::writeData(byte value)
 		txBuffer = value;
 	}
 }
+
+
+template<typename Archive>
+void YM2148::serialize(Archive& ar, unsigned /*version*/)
+{
+	// TODO does it make sense to serialize an incomplete implementation?
+	ar.serialize("txPending", txPending);
+	ar.serialize("rxPending", rxPending);
+	ar.serialize("rxHead", rxHead);
+	ar.serialize("charTime", charTime);
+	ar.serialize("timeRecv", timeRecv);
+	ar.serialize("timeTrans", timeTrans);
+	ar.serialize("command", command);
+	ar.serialize("rxData", rxData);
+	ar.serialize("status", status);
+	ar.serialize("txBuffer", txBuffer);
+	ar.serialize("vector", vector);
+	ar.serialize_blob("rxQueue", rxQueue, sizeof(rxQueue));
+}
+INSTANTIATE_SERIALIZE_METHODS(YM2148);
 
 } // namespace openmsx
 

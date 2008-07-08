@@ -23,6 +23,9 @@ public:
 	virtual void writeMem(word address, byte value, const EmuTime& time);
 	virtual byte readIRQVector();
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	void writeRegisterPort(byte value, const EmuTime& time);
 	void writeDataPort(byte value, const EmuTime& time);
@@ -33,6 +36,8 @@ private:
 	int registerLatch;
 	byte irqVector;
 };
+
+REGISTER_MSXDEVICE(MSXYamahaSFG, "YamahaSFG");
 
 } // namespace openmsx
 

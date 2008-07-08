@@ -12,6 +12,7 @@
 #include "Resample.hh"
 #include "IRQHelper.hh"
 #include "MSXMotherBoard.hh"
+#include "serialize.hh"
 #include <cmath>
 #include <cstring>
 
@@ -28,9 +29,15 @@ public:
 	void writeReg(byte r, byte v, const EmuTime& time);
 	byte readStatus();
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	// a single operator
 	struct YM2151Operator {
+		template<typename Archive>
+		void serialize(Archive& ar, unsigned version);
+
 		int* connect;      // operator output 'direction'
 		int* mem_connect;  // where to put the delayed sample (MEM)
 
@@ -188,6 +195,8 @@ private:
 
 	byte test;               // TEST register
 	byte ct;                 // output control pins (bit1-CT2, bit0-CT1)
+
+	byte regs[256];          // only used for serialization ATM
 };
 // TODO void ym2151WritePortCallback(void* ref, unsigned port, byte value);
 
@@ -802,6 +811,7 @@ void YM2151Impl::writeReg(byte r, byte v, const EmuTime& time)
 
 	YM2151Operator* op = &oper[(r & 0x07) * 4 + ((r & 0x18) >> 3)];
 
+	regs[r] = v;
 	switch (r & 0xe0) {
 	case 0x00:
 		switch (r) {
@@ -1717,6 +1727,93 @@ void YM2151Impl::resetStatus(byte flags)
 }
 
 
+template<typename Archive>
+void YM2151Impl::YM2151Operator::serialize(Archive& ar, unsigned /*version*/)
+{
+	//int* connect; // recalculated from regs[0x20-0x27]
+	//int* mem_connect; // recalculated from regs[0x20-0x27]
+	ar.serialize("phase", phase);
+	ar.serialize("freq", freq);
+	ar.serialize("dt1", dt1);
+	ar.serialize("mul", mul);
+	ar.serialize("dt1_i", dt1_i);
+	ar.serialize("dt2", dt2);
+	ar.serialize("mem_value", mem_value);
+	//ar.serialize("fb_shift", fb_shift); // recalculated from regs[0x20-0x27]
+	ar.serialize("fb_out_curr", fb_out_curr);
+	ar.serialize("fb_out_prev", fb_out_prev);
+	ar.serialize("kc", kc);
+	ar.serialize("kc_i", kc_i);
+	ar.serialize("pms", pms);
+	ar.serialize("ams", ams);
+	ar.serialize("AMmask", AMmask);
+	ar.serialize("state", state);
+	ar.serialize("tl", tl);
+	ar.serialize("volume", volume);
+	ar.serialize("d1l", d1l);
+	ar.serialize("key", key);
+	ar.serialize("ks", ks);
+	ar.serialize("ar", this->ar);
+	ar.serialize("d1r", d1r);
+	ar.serialize("d2r", d2r);
+	ar.serialize("rr", rr);
+	ar.serialize("eg_sh_ar", eg_sh_ar);
+	ar.serialize("eg_sel_ar", eg_sel_ar);
+	ar.serialize("eg_sh_d1r", eg_sh_d1r);
+	ar.serialize("eg_sel_d1r", eg_sel_d1r);
+	ar.serialize("eg_sh_d2r", eg_sh_d2r);
+	ar.serialize("eg_sel_d2r", eg_sel_d2r);
+	ar.serialize("eg_sh_rr", eg_sh_rr);
+	ar.serialize("eg_sel_rr", eg_sel_rr);
+};
+
+template<typename Archive>
+void YM2151Impl::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("irq", irq);
+	ar.serialize("timer1", timer1);
+	ar.serialize("timer2", timer2);
+	ar.serialize("operators", oper);
+	//ar.serialize("pan", pan); // recalculated from regs[0x20-0x27]
+	ar.serialize("eg_cnt", eg_cnt);
+	ar.serialize("eg_timer", eg_timer);
+	ar.serialize("lfo_phase", lfo_phase);
+	ar.serialize("lfo_timer", lfo_timer);
+	ar.serialize("lfo_overflow", lfo_overflow);
+	ar.serialize("lfo_counter", lfo_counter);
+	ar.serialize("lfo_counter_add", lfo_counter_add);
+	ar.serialize("lfa", lfa);
+	ar.serialize("lfp", lfp);
+	ar.serialize("noise", noise);
+	ar.serialize("noise_rng", noise_rng);
+	ar.serialize("noise_p", noise_p);
+	ar.serialize("noise_f", noise_f);
+	ar.serialize("csm_req", csm_req);
+	ar.serialize("irq_enable", irq_enable);
+	ar.serialize("status", status);
+	ar.serialize("chanout", chanout);
+	ar.serialize("m2", m2);
+	ar.serialize("c1", c1);
+	ar.serialize("c2", c2);
+	ar.serialize("mem", mem);
+	ar.serialize("timer_A_val", timer_A_val);
+	ar.serialize("lfo_wsel", lfo_wsel);
+	ar.serialize("amd", amd);
+	ar.serialize("pmd", pmd);
+	ar.serialize("test", test);
+	ar.serialize("ct", ct);
+	ar.serialize_blob("registers", regs, sizeof(regs));
+
+	if (ar.isLoader()) {
+		// TODO restore more state from registers
+		const EmuTime& time = timer1.getCurrentTime();
+		for (int r = 0x20; r < 0x28; ++r) {
+			writeReg(r , regs[r], time);
+		}
+	}
+}
+
+
 // YM2151
 
 YM2151::YM2151(MSXMotherBoard& motherBoard, const std::string& name,
@@ -1744,5 +1841,12 @@ byte YM2151::readStatus()
 {
 	return pimple->readStatus();
 }
+
+template<typename Archive>
+void YM2151::serialize(Archive& ar, unsigned version)
+{
+	pimple->serialize(ar, version);
+}
+INSTANTIATE_SERIALIZE_METHODS(YM2151);
 
 } // namespace openmsx

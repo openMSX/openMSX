@@ -4,6 +4,7 @@
 #include "YM2151.hh"
 #include "YM2148.hh"
 #include "Rom.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -104,5 +105,16 @@ byte MSXYamahaSFG::readMem(word address, const EmuTime& /*time*/)
 	}
 	return 0xFF;
 }
+
+
+template<typename Archive>
+void MSXYamahaSFG::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("YM2151", *ym2151);
+	ar.serialize("YM2148", *ym2148);
+	ar.serialize("registerLatch", registerLatch);
+	ar.serialize("irqVector", irqVector);
+}
+INSTANTIATE_SERIALIZE_METHODS(MSXYamahaSFG);
 
 } // namespace openmsx

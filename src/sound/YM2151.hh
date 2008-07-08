@@ -56,6 +56,9 @@ public:
 	void writeReg(byte r, byte v, const EmuTime& time);
 	byte readStatus();
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	const std::auto_ptr<YM2151Impl> pimple;
 };
