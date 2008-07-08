@@ -3,7 +3,6 @@
 #include "KeyClick.hh"
 #include "DACSound8U.hh"
 
-
 namespace openmsx {
 
 KeyClick::KeyClick(MSXMixer& mixer, const XMLElement& config)
@@ -28,5 +27,8 @@ void KeyClick::setClick(bool newStatus, const EmuTime& time)
 		dac->writeDAC((status ? 0xff : 0x80), time);
 	}
 }
+
+// We don't need a serialize() method, instead the setClick() method
+// gets called during de-serialization.
 
 } // namespace openmsx

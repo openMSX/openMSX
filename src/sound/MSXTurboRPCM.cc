@@ -150,9 +150,9 @@ void MSXTurboRPCM::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("status", status);
 	ar.serialize("DValue", DValue);
 	ar.serialize("hold", hold);
+	ar.serialize("DAC", *dac);
 
 	hardwareMute(!(status & 0x02));  // restore hwMute
-	// TODO write dac??
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXTurboRPCM);
 

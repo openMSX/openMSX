@@ -1,6 +1,7 @@
 // $Id$
 
 #include "DACSound16S.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -64,10 +65,28 @@ void DACSound16S::generateChannels(int** bufs, unsigned num)
 bool DACSound16S::updateBuffer(unsigned length, int* buffer,
      const EmuTime& start_, const EmuDuration& sampDur_)
 {
+	// start and sampDur members are only used to pass extra parameters
+	// to the generateChannels() method
 	start = start_;
 	sampDur = sampDur_;
 	return mixChannels(buffer, length);
 }
+
+
+template<typename Archive>
+void DACSound16S::serialize(Archive& ar, unsigned /*version*/)
+{
+	// Note: It's ok to NOT serialize a DAC object if you call the
+	//       writeDAC() method in some other way during de-serialization.
+	//       This is for example done in MSXPPI/KeyClick.
+	short lastValue = lastWrittenValue;
+	ar.serialize("lastValue", lastValue);
+	if (ar.isLoader()) {
+		assert(queue.empty());
+		writeDAC(lastValue, EmuTime::zero);
+	}
+}
+INSTANTIATE_SERIALIZE_METHODS(DACSound16S);
 
 } // namespace openmsx
 

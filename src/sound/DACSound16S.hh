@@ -22,6 +22,9 @@ public:
 	void reset(const EmuTime& time);
 	void writeDAC(short value, const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	// SoundDevice
 	virtual void setOutputRate(unsigned sampleRate);

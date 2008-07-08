@@ -71,9 +71,8 @@ byte* RomSynthesizer::getWriteCacheLine(word address) const
 template<typename Archive>
 void RomSynthesizer::serialize(Archive& ar, unsigned /*version*/)
 {
-        ar.template serializeBase<Rom16kBBlocks>(*this);
-
-        // TODO write dac??
+	ar.template serializeBase<Rom16kBBlocks>(*this);
+	ar.serialize("DAC", *dac);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomSynthesizer);
 

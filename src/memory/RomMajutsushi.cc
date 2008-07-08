@@ -49,8 +49,7 @@ template<typename Archive>
 void RomMajutsushi::serialize(Archive& ar, unsigned /*version*/)
 {
         ar.template serializeBase<RomKonami>(*this);
-
-        // TODO write dac??
+	ar.serialize("DAC", *dac);
 }
 INSTANTIATE_SERIALIZE_METHODS(RomMajutsushi);
 
