@@ -42,6 +42,9 @@ public:
 	virtual bool ready();
 	virtual bool acceptsData();
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	byte readStatus(const EmuTime& time);
 	void setIRQMask(byte value);
@@ -64,6 +67,8 @@ private:
 	friend class Counter1;
 	friend class I8251Interf;
 };
+
+REGISTER_MSXDEVICE(MSXRS232, "RS232");
 
 } // namespace openmsx
 

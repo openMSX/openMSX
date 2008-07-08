@@ -8,6 +8,7 @@
 #include "Ram.hh"
 #include "Rom.hh"
 #include "XMLElement.hh"
+#include "serialize.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -417,6 +418,26 @@ void MSXRS232::recvByte(byte value, const EmuTime& time)
 {
 	i8251->recvByte(value, time);
 }
+
+
+template<typename Archive>
+void MSXRS232::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+	// no need to serialize RS232Connector base class
+
+	ar.serialize("I8254", *i8254);
+	ar.serialize("I8251", *i8251);
+	if (ram.get()) {
+		ar.serialize("ram", *ram);
+	}
+	ar.serialize("rxrdyIRQ", rxrdyIRQ);
+	ar.serialize("rxrdyIRQlatch", rxrdyIRQlatch);
+	ar.serialize("rxrdyIRQenabled", rxrdyIRQenabled);
+
+	// don't serialize cntr0, cntr1, interf
+}
+INSTANTIATE_SERIALIZE_METHODS(MSXRS232);
 
 } // namespace openmsx
 
