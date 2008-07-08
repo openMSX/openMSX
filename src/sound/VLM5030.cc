@@ -83,6 +83,7 @@ chirp 12-..: vokume   0   : silent
 #include "MSXMotherBoard.hh"
 #include "XMLElement.hh"
 #include "FileContext.hh"
+#include "serialize.hh"
 #include <cstring>
 #include <cstdlib>
 
@@ -99,6 +100,9 @@ public:
 	void writeData(byte data);
 	void writeControl(byte data, const EmuTime& time);
 	bool getBSY(const EmuTime& time);
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	void setRST(bool pin);
@@ -632,6 +636,40 @@ bool VLM5030Impl::updateBuffer(unsigned length, int* buffer,
 	return generateOutput(buffer, length);
 }
 
+template<typename Archive>
+void VLM5030Impl::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("address_mask", address_mask);
+	ar.serialize("frame_size", frame_size);
+	ar.serialize("pitch_offset", pitch_offset);
+	ar.serialize("current_energy", current_energy);
+	ar.serialize("current_pitch", current_pitch);
+	ar.serialize("current_k", current_k);
+	ar.serialize("x", x);
+	ar.serialize("address", address);
+	ar.serialize("vcu_addr_h", vcu_addr_h);
+	ar.serialize("old_k", old_k);
+	ar.serialize("new_k", new_k);
+	ar.serialize("target_k", target_k);
+	ar.serialize("old_energy", old_energy);
+	ar.serialize("new_energy", new_energy);
+	ar.serialize("target_energy", target_energy);
+	ar.serialize("old_pitch", old_pitch);
+	ar.serialize("new_pitch", new_pitch);
+	ar.serialize("target_pitch", target_pitch);
+	ar.serialize("interp_step", interp_step);
+	ar.serialize("interp_count", interp_count);
+	ar.serialize("sample_count", sample_count);
+	ar.serialize("pitch_count", pitch_count);
+	ar.serialize("latch_data", latch_data);
+	ar.serialize("parameter", parameter);
+	ar.serialize("phase", phase);
+	ar.serialize("pin_BSY", pin_BSY);
+	ar.serialize("pin_ST", pin_ST);
+	ar.serialize("pin_VCU", pin_VCU);
+	ar.serialize("pin_RST", pin_RST);
+}
+
 
 // class VLM5030
 
@@ -664,5 +702,12 @@ bool VLM5030::getBSY(const EmuTime& time)
 {
 	return pimple->getBSY(time);
 }
+
+template<typename Archive>
+void VLM5030::serialize(Archive& ar, unsigned version)
+{
+	pimple->serialize(ar, version);
+}
+INSTANTIATE_SERIALIZE_METHODS(VLM5030);
 
 } // namespace openmsx

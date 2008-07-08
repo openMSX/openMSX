@@ -5,6 +5,7 @@
 #include "MSXCPUInterface.hh"
 #include "MSXMotherBoard.hh"
 #include "Rom.hh"
+#include "serialize.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -70,5 +71,13 @@ byte RomKonamiKeyboardMaster::readIO(word port, const EmuTime& time)
 			return 0xFF;
 	}
 }
+
+template<typename Archive>
+void RomKonamiKeyboardMaster::serialize(Archive& ar, unsigned version)
+{
+	ar.template serializeBase<Rom16kBBlocks>(*this);
+	ar.serialize("VLM5030", *vlm5030);
+}
+INSTANTIATE_SERIALIZE_METHODS(RomKonamiKeyboardMaster);
 
 } // namespace openmsx

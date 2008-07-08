@@ -31,6 +31,9 @@ public:
 	/** get BSY pin level */
 	bool getBSY(const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	const std::auto_ptr<VLM5030Impl> pimple;
 };

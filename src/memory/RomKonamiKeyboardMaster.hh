@@ -17,13 +17,17 @@ public:
 	virtual ~RomKonamiKeyboardMaster();
 
 	virtual void reset(const EmuTime& time);
-
 	virtual void writeIO(word port, byte value, const EmuTime& time);
 	virtual byte readIO(word port, const EmuTime& time);
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	const std::auto_ptr<VLM5030> vlm5030;
 };
+
+REGISTER_MSXDEVICE(RomKonamiKeyboardMaster, "RomKonamiKeyboardMaster");
 
 } // namespace openmsx
 
