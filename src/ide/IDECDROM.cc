@@ -9,6 +9,7 @@
 #include "CommandException.hh"
 #include "TclObject.hh"
 #include "CliComm.hh"
+#include "serialize.hh"
 #include <algorithm>
 #include <bitset>
 #include <cassert>
@@ -412,5 +413,31 @@ void CDXCommand::tabCompletion(vector<string>& tokens) const
 	UserFileContext context;
 	completeFileName(getCommandController(), tokens, context, extra);
 }
+
+
+template<typename Archive>
+void IDECDROM::serialize(Archive& ar, unsigned version)
+{
+	ar.template serializeBase<AbstractIDEDevice>(*this);
+
+	string filename = file.get() ? file->getURL() : "";
+	ar.serialize("filename", filename);
+	if (ar.isLoader()) {
+		// re-insert CDROM before restoring 'mediaChanged', 'senseKey'
+		if (filename.empty()) {
+			eject();
+		} else {
+			insert(filename);
+		}
+	}
+
+	ar.serialize("byteCountLimit", byteCountLimit);
+	ar.serialize("transferOffset", transferOffset);
+	ar.serialize("senseKey", senseKey);
+	ar.serialize("readSectorData", readSectorData);
+	ar.serialize("remMedStatNotifEnabled", remMedStatNotifEnabled);
+	ar.serialize("mediaChanged", mediaChanged);
+}
+INSTANTIATE_SERIALIZE_METHODS(IDECDROM);
 
 } // namespace openmsx

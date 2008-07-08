@@ -5,6 +5,7 @@
 #include "IDECDROM.hh"
 #include "XMLElement.hh"
 #include "MSXException.hh"
+#include "serialize.hh"
 
 using std::string;
 

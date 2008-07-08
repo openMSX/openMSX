@@ -1,6 +1,7 @@
 // $Id$
 
 #include "DummyIDEDevice.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -29,5 +30,12 @@ void DummyIDEDevice::writeReg(nibble /*reg*/, byte /*value*/,
 {
 	// do nothing
 }
+
+template<typename Archive>
+void DummyIDEDevice::serialize(Archive& /*ar*/, unsigned /*version*/)
+{
+	// nothing
+}
+INSTANTIATE_SERIALIZE_METHODS(DummyIDEDevice);
 
 } // namespace openmsx

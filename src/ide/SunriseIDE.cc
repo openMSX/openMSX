@@ -6,6 +6,7 @@
 #include "Rom.hh"
 #include "XMLElement.hh"
 #include "Math.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -109,15 +110,16 @@ void SunriseIDE::writeMem(word address, byte value, const EmuTime& time)
 
 void SunriseIDE::writeControl(byte value)
 {
-	if (ideRegsEnabled != (value & 1)) {
-		ideRegsEnabled = value & 1;
+	control = value;
+	if (ideRegsEnabled != (control & 1)) {
+		ideRegsEnabled = control & 1;
 		invalidateMemCache(0x3C00, 0x0300);
 		invalidateMemCache(0x7C00, 0x0300);
 		invalidateMemCache(0xBC00, 0x0300);
 		invalidateMemCache(0xFC00, 0x0300);
 	}
 
-	byte bank = Math::reverseByte(value & 0xF8);
+	byte bank = Math::reverseByte(control & 0xF8);
 	if (bank >= (rom->getSize() / 0x4000)) {
 		bank &= ((rom->getSize() / 0x4000) - 1);
 	}
@@ -216,5 +218,25 @@ void SunriseIDE::writeReg(nibble reg, byte value, const EmuTime& time)
 		}
 	}
 }
+
+
+template<typename Archive>
+void SunriseIDE::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+	ar.serializePolymorphic("master", *device[0]);
+	ar.serializePolymorphic("slave",  *device[1]);
+	ar.serialize("readLatch", readLatch);
+	ar.serialize("writeLatch", writeLatch);
+	ar.serialize("selectedDevice", selectedDevice);
+	ar.serialize("control", control);
+	ar.serialize("softReset", softReset);
+
+	if (ar.isLoader()) {
+		// restore internalBank, ideRegsEnabled
+		writeControl(control);
+	}
+}
+INSTANTIATE_SERIALIZE_METHODS(SunriseIDE);
 
 } // namespace openmsx

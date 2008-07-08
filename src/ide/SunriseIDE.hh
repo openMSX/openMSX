@@ -23,6 +23,9 @@ public:
 	virtual void writeMem(word address, byte value, const EmuTime& time);
 	virtual const byte* getReadCacheLine(word start) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	void writeControl(byte value);
 
@@ -41,9 +44,12 @@ private:
 	byte readLatch;
 	byte writeLatch;
 	byte selectedDevice;
+	byte control;
 	bool ideRegsEnabled;
 	bool softReset;
 };
+
+REGISTER_MSXDEVICE(SunriseIDE, "SunriseIDE");
 
 } // namespace openmsx
 

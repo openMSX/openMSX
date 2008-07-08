@@ -4,6 +4,7 @@
 #define DUMMYIDEDEVICE_HH
 
 #include "IDEDevice.hh"
+#include "serialize_meta.hh"
 
 namespace openmsx {
 
@@ -15,7 +16,12 @@ public:
 	virtual byte readReg(nibble reg, const EmuTime& time);
 	virtual void writeData(word value, const EmuTime& time);
 	virtual void writeReg(nibble reg, byte value, const EmuTime& time);
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 };
+
+REGISTER_POLYMORPHIC_INITIALIZER(IDEDevice, DummyIDEDevice, "DummyIDEDevice");
 
 } // namespace openmsx
 

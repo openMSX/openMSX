@@ -4,6 +4,7 @@
 #include "FileException.hh"
 #include "MSXMotherBoard.hh"
 #include "DiskManipulator.hh"
+#include "serialize.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -144,5 +145,15 @@ const std::string& IDEHD::getContainerName() const
 {
 	return getName();
 }
+
+
+template<typename Archive>
+void IDEHD::serialize(Archive& ar, unsigned version)
+{
+	// don't serialize HD, SectorAccessibleDisk, DiskContainer base classes
+	ar.template serializeBase<AbstractIDEDevice>(*this);
+	ar.serialize("transferSectorNumber", transferSectorNumber);
+}
+INSTANTIATE_SERIALIZE_METHODS(IDEHD);
 
 } // namespace openmsx

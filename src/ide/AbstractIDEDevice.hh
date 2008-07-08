@@ -4,6 +4,7 @@
 #define ABSTRACTIDEDEVICE_HH
 
 #include "IDEDevice.hh"
+#include "serialize_meta.hh"
 #include <string>
 
 namespace openmsx {
@@ -20,6 +21,9 @@ public:
 
 	virtual void writeData(word value, const EmuTime& time);
 	virtual void writeReg(nibble reg, byte value, const EmuTime& time);
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 protected:
 	// Bit flags for the status register:
@@ -203,9 +207,9 @@ private:
 	  */
 	byte buffer[512];
 
-	/** Pointer to current read/write position in the buffer.
+	/** Index of current read/write position in the buffer.
 	  */
-	byte* transferPntr;
+	unsigned transferIdx;
 
 	/** Number of bytes remaining in the buffer.
 	  */
@@ -232,8 +236,9 @@ private:
 
 	bool transferRead;
 	bool transferWrite;
-
 };
+
+REGISTER_BASE_NAME_HELPER(AbstractIDEDevice, "IDEDevice");
 
 } // namespace openmsx
 

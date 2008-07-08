@@ -7,6 +7,7 @@
 #include "AbstractIDEDevice.hh"
 #include "SectorAccessibleDisk.hh"
 #include "DiskContainer.hh"
+#include "serialize_meta.hh"
 #include "noncopyable.hh"
 
 namespace openmsx {
@@ -32,6 +33,9 @@ public:
 	virtual SectorAccessibleDisk* getSectorAccessibleDisk();
 	virtual const std::string& getContainerName() const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 protected:
 	// AbstractIDEDevice:
 	virtual bool isPacketDevice();
@@ -45,6 +49,8 @@ private:
 	DiskManipulator& diskManipulator;
 	unsigned transferSectorNumber;
 };
+
+REGISTER_POLYMORPHIC_INITIALIZER(IDEDevice, IDEHD, "IDEHD");
 
 } // namespace openmsx
 

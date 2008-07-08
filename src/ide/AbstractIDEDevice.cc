@@ -5,6 +5,7 @@
 #include "LedEvent.hh"
 #include "LedStatus.hh"
 #include "Version.hh"
+#include "serialize.hh"
 #include <cassert>
 #include <cstring>
 
@@ -166,8 +167,9 @@ word AbstractIDEDevice::readData(const EmuTime& /*time*/)
 		// no read in progress
 		return 0x7F7F;
 	}
-	word result = transferPntr[0] + (transferPntr[1] << 8);
-	transferPntr += 2;
+	word result = (buffer[transferIdx + 0] << 0) +
+	              (buffer[transferIdx + 1] << 8);
+	transferIdx += 2;
 	bufferLeft -= 2;
 	if (bufferLeft == 0) {
 		if (transferCount == 0) {
@@ -188,7 +190,7 @@ void AbstractIDEDevice::readNextBlock()
 	bufferLeft = readBlockStart(
 		buffer, std::min<unsigned>(sizeof(buffer), transferCount));
 	assert((bufferLeft & 1) == 0);
-	transferPntr = buffer;
+	transferIdx = 0;
 	transferCount -= bufferLeft;
 }
 
@@ -198,12 +200,12 @@ void AbstractIDEDevice::writeData(word value, const EmuTime& /*time*/)
 		// no write in progress
 		return;
 	}
-	transferPntr[0] = value & 0xFF;
-	transferPntr[1] = value >> 8;
-	transferPntr += 2;
+	buffer[transferIdx + 0] = value & 0xFF;
+	buffer[transferIdx + 1] = value >> 8;
+	transferIdx += 2;
 	bufferLeft -= 2;
 	if (bufferLeft == 0) {
-		unsigned bytesInBuffer = transferPntr - buffer;
+		unsigned bytesInBuffer = transferIdx;
 		if (transferCount == 0) {
 			// End of transfer.
 			setTransferWrite(false);
@@ -220,7 +222,7 @@ void AbstractIDEDevice::writeData(word value, const EmuTime& /*time*/)
 
 void AbstractIDEDevice::writeNextBlock()
 {
-	transferPntr = buffer;
+	transferIdx = 0;
 	bufferLeft = std::min<unsigned>(sizeof(buffer), transferCount);
 	transferCount -= bufferLeft;
 }
@@ -343,7 +345,7 @@ byte* AbstractIDEDevice::startShortReadTransfer(unsigned count)
 	startReadTransfer();
 	transferCount = 0;
 	bufferLeft = count;
-	transferPntr = buffer;
+	transferIdx = 0;
 	memset(buffer, 0x00, count);
 	return buffer;
 }
@@ -438,5 +440,28 @@ void AbstractIDEDevice::createIdentifyBlock(byte* buffer)
 
 	fillIdentifyBlock(buffer);
 }
+
+
+template<typename Archive>
+void AbstractIDEDevice::serialize(Archive& ar, unsigned /*version*/)
+{
+	// no need to serialize IDEDevice base class
+	ar.serialize_blob("buffer", buffer, sizeof(buffer));
+	ar.serialize("transferIdx", transferIdx);
+	ar.serialize("bufferLeft", bufferLeft);
+	ar.serialize("transferCount", transferCount);
+	ar.serialize("errorReg", errorReg);
+	ar.serialize("sectorCountReg", sectorCountReg);
+	ar.serialize("sectorNumReg", sectorNumReg);
+	ar.serialize("cylinderLowReg", cylinderLowReg);
+	ar.serialize("cylinderHighReg", cylinderHighReg);
+	ar.serialize("devHeadReg", devHeadReg);
+	ar.serialize("statusReg", statusReg);
+	ar.serialize("featureReg", featureReg);
+	ar.serialize("transferIdentifyBlock", transferIdentifyBlock);
+	ar.serialize("transferRead", transferRead);
+	ar.serialize("transferWrite", transferWrite);
+}
+INSTANTIATE_SERIALIZE_METHODS(AbstractIDEDevice);
 
 } // namespace openmsx

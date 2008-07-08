@@ -4,6 +4,7 @@
 #define IDECDROM_HH
 
 #include "AbstractIDEDevice.hh"
+#include "serialize_meta.hh"
 #include "noncopyable.hh"
 #include <memory>
 
@@ -23,6 +24,9 @@ public:
 
 	void eject();
 	void insert(const std::string& filename);
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 protected:
 	// AbstractIDEDevice:
@@ -67,6 +71,8 @@ private:
 
 	friend class CDXCommand;
 };
+
+REGISTER_POLYMORPHIC_INITIALIZER(IDEDevice, IDECDROM, "IDECDROM");
 
 } // namespace openmsx
 
