@@ -19,6 +19,9 @@ public:
 	virtual void writeMem(word address, byte value, const EmuTime& time);
 	virtual byte* getWriteCacheLine(word address) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	std::auto_ptr<SamplePlayer> samplePlayer;
 
@@ -26,6 +29,8 @@ private:
 	// there are 4 x 8kB regions in [0x4000-0xBFFF]
 	bool redirectToSamplePlayer[4];
 };
+
+REGISTER_MSXDEVICE(RomNettouYakyuu, "RomNettouYakyuu");
 
 } // namespace openmsx
 

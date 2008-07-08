@@ -4,6 +4,7 @@
 #include "SamplePlayer.hh"
 #include "CacheLine.hh"
 #include "Rom.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -71,5 +72,13 @@ byte* RomPlayBall::getWriteCacheLine(word address) const
 		return unmappedWrite;
 	}
 }
+
+template<typename Archive>
+void RomPlayBall::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<Rom16kBBlocks>(*this);
+	ar.serialize("SamplePlayer", *samplePlayer);
+}
+INSTANTIATE_SERIALIZE_METHODS(RomPlayBall);
 
 } // namespace openmsx

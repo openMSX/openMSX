@@ -43,6 +43,7 @@
 #include "RomNettouYakyuu.hh"
 #include "Rom.hh"
 #include "SamplePlayer.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -114,5 +115,14 @@ byte* RomNettouYakyuu::getWriteCacheLine(word /*address*/) const
 {
 	return NULL;
 }
+
+template<typename Archive>
+void RomNettouYakyuu::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<Rom8kBBlocks>(*this);
+	ar.serialize("SamplePlayer", *samplePlayer);
+	ar.serialize("redirectToSamplePlayer", redirectToSamplePlayer);
+}
+INSTANTIATE_SERIALIZE_METHODS(RomNettouYakyuu);
 
 } // namespace openmsx

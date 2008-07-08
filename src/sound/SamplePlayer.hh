@@ -46,8 +46,12 @@ public:
 	/** Is there currently playing a sample. */
 	bool isPlaying() const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	inline int getSample(unsigned index);
+	void setWavParams();
 	void doRepeat();
 
 	// SoundDevice

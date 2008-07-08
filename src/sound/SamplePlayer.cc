@@ -7,6 +7,7 @@
 #include "FileContext.hh"
 #include "StringOp.hh"
 #include "MSXException.hh"
+#include "serialize.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -19,7 +20,7 @@ SamplePlayer::SamplePlayer(MSXMotherBoard& motherBoard, const std::string& name,
 	, inFreq(44100)
 {
 	bool alreadyWarned = false;
-	samples.resize(numSamples);
+	samples.resize(numSamples); // initialize with NULL ptrs
 	for (unsigned i = 0; i < numSamples; ++i) {
 		try {
 			SystemFileContext context;
@@ -68,10 +69,15 @@ void SamplePlayer::setOutputRate(unsigned outFreq_)
 void SamplePlayer::play(unsigned sampleNum)
 {
 	assert(sampleNum < samples.size());
-	if (WavData* wav = samples[sampleNum].get()) {
-		currentSampleNum = sampleNum;
-		index = 0;
+	currentSampleNum = sampleNum;
+	index = 0;
+	setWavParams();
+}
 
+void SamplePlayer::setWavParams()
+{
+	if ((currentSampleNum < samples.size()) && samples[currentSampleNum].get()) {
+		WavData* wav = samples[currentSampleNum].get();
 		sampBuf = wav->getData();
 		bufferSize = wav->getSize();
 
@@ -147,5 +153,17 @@ bool SamplePlayer::updateBuffer(unsigned length, int* buffer,
 {
 	return generateOutput(buffer, length);
 }
+
+template<typename Archive>
+void SamplePlayer::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("index", index);
+	ar.serialize("currentSampleNum", currentSampleNum);
+	ar.serialize("nextSampleNum", nextSampleNum);
+	if (ar.isLoader()) {
+		setWavParams();
+	}
+}
+INSTANTIATE_SERIALIZE_METHODS(SamplePlayer);
 
 } // namespace openmsx
