@@ -8,7 +8,6 @@
 namespace openmsx {
 
 class SamplePlayer;
-class WavData;
 
 class RomNettouYakyuu : public Rom8kBBlocks
 {
@@ -22,7 +21,6 @@ public:
 
 private:
 	std::auto_ptr<SamplePlayer> samplePlayer;
-	std::auto_ptr<WavData> sample[16];
 
 	// remember per region if writes are for the sample player or not
 	// there are 4 x 8kB regions in [0x4000-0xBFFF]

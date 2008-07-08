@@ -1,15 +1,5 @@
 // $Id$
 
-#include "RomNettouYakyuu.hh"
-#include "MSXMotherBoard.hh"
-#include "Rom.hh"
-#include "SamplePlayer.hh"
-#include "FileContext.hh"
-#include "WavData.hh"
-#include "CliComm.hh"
-#include "MSXException.hh"
-#include "StringOp.hh"
-
 // Based on information from hap/enen, published here:
 // http://www.msx.org/forumtopicl8552.html
 // and his implementation in blueMSX
@@ -50,6 +40,10 @@
 // sample player. It may be a good idea to move this behaviour to a more
 // specialized class some time in the future.
 
+#include "RomNettouYakyuu.hh"
+#include "Rom.hh"
+#include "SamplePlayer.hh"
+
 namespace openmsx {
 
 RomNettouYakyuu::RomNettouYakyuu(
@@ -58,27 +52,8 @@ RomNettouYakyuu::RomNettouYakyuu(
 	: Rom8kBBlocks(motherBoard, config, rom)
 {
 	samplePlayer.reset(new SamplePlayer(motherBoard, "Nettou Yakyuu-DAC",
-	                         "Jaleco Moero!! Nettou Yakuu '88 DAC", config));
-
-	bool alreadyWarned = false;
-	for (int i = 0; i < 16; ++i) {
-		try {
-			SystemFileContext context;
-			std::string filename =
-				"nettou_yakyuu/nettou_yakyuu_" + StringOp::toString(i) + ".wav";
-			sample[i].reset(new WavData(context.resolve(
-				motherBoard.getCommandController(), filename)));
-		} catch (MSXException& e) {
-			if (!alreadyWarned) {
-				alreadyWarned = true;
-				motherBoard.getMSXCliComm().printWarning(
-					"Couldn't read nettou_yakyuu sample data: " +
-					e.getMessage() +
-					". Continuing without sample data.");
-			}
-		}
-	}
-
+	                         "Jaleco Moero!! Nettou Yakuu '88 DAC", config,
+	                         "nettou_yakyuu/nettou_yakyuu_", 16));
 	reset(*static_cast<EmuTime*>(0));
 }
 
@@ -132,10 +107,7 @@ void RomNettouYakyuu::writeMem(word address, byte value, const EmuTime& /*time*/
 		return;
 	}
 
-	if (WavData* wav = sample[value & 0xF].get()) {
-		samplePlayer->repeat(wav->getData(), wav->getSize(),
-		                     wav->getBits(), wav->getFreq());
-	}
+	samplePlayer->repeat(value & 0xF);
 }
 
 byte* RomNettouYakyuu::getWriteCacheLine(word /*address*/) const

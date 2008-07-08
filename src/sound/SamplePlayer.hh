@@ -5,33 +5,27 @@
 
 #include "SoundDevice.hh"
 #include "Resample.hh"
+#include "shared_ptr.hh"
+#include <vector>
 
 namespace openmsx {
 
 class MSXMotherBoard;
+class WavData;
 
 class SamplePlayer : public SoundDevice, private Resample
 {
 public:
 	SamplePlayer(MSXMotherBoard& motherBoard, const std::string& name,
-	             const std::string& desc, const XMLElement& config);
+	             const std::string& desc, const XMLElement& config,
+	             const std::string& samplesBaseName, unsigned numSamples);
 	~SamplePlayer();
 
 	void reset();
 
 	/** Start playing a (new) sample.
-	 * @param buffer The sample data
-	 * @param bufferSize Size of the buffer in samples
-	 * @param bits Bits per sample, must be either 8 or 16.
-	 *              8 bit format is unsigned
-	 *             16 bit format is signed
-	 * @param freq The sample frequency. Preferably all samples should
-	 *             have the sample frequency, because when switching
-	 *             playback frequency some of the old samples can be
-	 *             dropped.
 	 */
-	void play(const void* buffer, unsigned bufferSize,
-	          unsigned bits, unsigned freq);
+	void play(unsigned sampleNum);
 
 	/** Keep on repeating the given sample data.
 	 * If there is already a sample playing, that sample is still
@@ -40,8 +34,7 @@ public:
 	 * Parameters are the same as for the play() method.
 	 * @see stopRepeat()
 	 */
-	void repeat(const void* buffer, unsigned bufferSize,
-	            unsigned bits, unsigned freq);
+	void repeat(unsigned sampleNum);
 
 	/** Stop repeat mode.
 	 * The currently playing sample will still be finished, but won't
@@ -66,18 +59,16 @@ private:
 	// Resample
 	virtual bool generateInput(int* buffer, unsigned num);
 
+	std::vector<shared_ptr<WavData> > samples; // change to unique_ptr in the future
+
 	const void* sampBuf;
 	unsigned inFreq;
 	unsigned outFreq;
 	unsigned index;
 	unsigned bufferSize;
-	bool playing;
+	unsigned currentSampleNum;
+	unsigned nextSampleNum;
 	bool bits8;
-
-	const void* nextBuffer;
-	unsigned nextBufferSize;
-	unsigned nextBits;
-	unsigned nextFreq;
 };
 
 } // namespace openmsx

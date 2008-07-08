@@ -2,16 +2,42 @@
 
 #include "SamplePlayer.hh"
 #include "MSXMotherBoard.hh"
+#include "WavData.hh"
+#include "MSXCliComm.hh"
+#include "FileContext.hh"
+#include "StringOp.hh"
+#include "MSXException.hh"
 #include <cassert>
 
 namespace openmsx {
 
 SamplePlayer::SamplePlayer(MSXMotherBoard& motherBoard, const std::string& name,
-                           const std::string& desc, const XMLElement& config)
+                           const std::string& desc, const XMLElement& config,
+                           const std::string& samplesBaseName, unsigned numSamples)
 	: SoundDevice(motherBoard.getMSXMixer(), name, desc, 1)
 	, Resample(motherBoard.getGlobalSettings(), 1)
 	, inFreq(44100)
 {
+	bool alreadyWarned = false;
+	samples.resize(numSamples);
+	for (unsigned i = 0; i < numSamples; ++i) {
+		try {
+			SystemFileContext context;
+			std::string filename =
+				samplesBaseName + StringOp::toString(i) + ".wav";
+			samples[i].reset(new WavData(context.resolve(
+				motherBoard.getCommandController(), filename)));
+		} catch (MSXException& e) {
+			if (!alreadyWarned) {
+				alreadyWarned = true;
+				motherBoard.getMSXCliComm().printWarning(
+					"Couldn't read playball sample data: " +
+					e.getMessage() +
+					". Continuing without sample data.");
+			}
+		}
+	}
+
 	registerSound(config);
 	reset();
 }
@@ -23,13 +49,13 @@ SamplePlayer::~SamplePlayer()
 
 void SamplePlayer::reset()
 {
-	playing = false;
+	currentSampleNum = unsigned(-1);
 	stopRepeat();
 }
 
 void SamplePlayer::stopRepeat()
 {
-	nextBuffer = NULL;
+	nextSampleNum = unsigned(-1);
 }
 
 void SamplePlayer::setOutputRate(unsigned outFreq_)
@@ -39,42 +65,42 @@ void SamplePlayer::setOutputRate(unsigned outFreq_)
 	setResampleRatio(inFreq, outFreq);
 }
 
-void SamplePlayer::play(const void* buffer, unsigned bufferSize_,
-                        unsigned bits, unsigned freq)
+void SamplePlayer::play(unsigned sampleNum)
 {
-	sampBuf = buffer;
-	index = 0;
-	bufferSize = bufferSize_;
+	assert(sampleNum < samples.size());
+	if (WavData* wav = samples[sampleNum].get()) {
+		currentSampleNum = sampleNum;
+		index = 0;
 
-	assert((bits == 8) || (bits == 16));
-	bits8 = (bits == 8);
+		sampBuf = wav->getData();
+		bufferSize = wav->getSize();
 
-	playing = true;
+		unsigned bits = wav->getBits();
+		assert((bits == 8) || (bits == 16));
+		bits8 = (bits == 8);
 
-	if (freq != inFreq) {
-		// this potentially switches resampler, so there might be
-		// some dropped samples if this is done in the middle of
-		// playing, though this shouldn't happen often (or at all)
-		inFreq = freq;
-		setOutputRate(outFreq);
+		unsigned freq = wav->getFreq();
+		if (freq != inFreq) {
+			// this potentially switches resampler, so there might be
+			// some dropped samples if this is done in the middle of
+			// playing, though this shouldn't happen often (or at all)
+			inFreq = freq;
+			setOutputRate(outFreq);
+		}
+	} else {
+		reset();
 	}
 }
 
-void SamplePlayer::repeat(const void* buffer, unsigned bufferSize_,
-                          unsigned bits, unsigned freq)
+void SamplePlayer::repeat(unsigned sampleNum)
 {
-	nextBuffer = buffer;
-	nextBufferSize = bufferSize_;
-	nextBits = bits;
-	nextFreq = freq;
-	if (!isPlaying()) {
-		doRepeat();
-	}
+	assert(sampleNum < samples.size());
+	nextSampleNum = sampleNum;
 }
 
 bool SamplePlayer::isPlaying() const
 {
-	return playing;
+	return currentSampleNum != unsigned(-1);
 }
 
 inline int SamplePlayer::getSample(unsigned index)
@@ -92,12 +118,12 @@ void SamplePlayer::generateChannels(int** bufs, unsigned num)
 	}
 	for (unsigned i = 0; i < num; ++i) {
 		if (index >= bufferSize) {
-			if (nextBuffer) {
+			if (nextSampleNum != unsigned(-1)) {
 				doRepeat();
 			} else {
 				// no need to add 0 to the remainder of bufs[0]
 				//  bufs[0][i] += 0;
-				playing = false;
+				currentSampleNum = unsigned(-1);
 				break;
 			}
 		}
@@ -108,7 +134,7 @@ void SamplePlayer::generateChannels(int** bufs, unsigned num)
 
 void SamplePlayer::doRepeat()
 {
-	play(nextBuffer, nextBufferSize, nextBits, nextFreq);
+	play(nextSampleNum);
 }
 
 bool SamplePlayer::generateInput(int* buffer, unsigned num)
