@@ -240,11 +240,12 @@ protected:
 	void serialize(Archive& ar, unsigned version)
 	{
 		CPUClock::serialize(ar, version);
-		// TODO
-		//Clock<CLOCK_FREQ> lastRefreshTime;
-		//int lastPage;
-		//unsigned extraMemoryDelays[4][4][4];
-		//unsigned extraMemoryDelay[4];
+		ar.serialize("lastRefreshTime", lastRefreshTime);
+		ar.serialize("lastPage", lastPage);
+		ar.serialize("extraMemoryDelay", extraMemoryDelay);
+
+		// don't serialize 'extraMemoryDelays', is initialized in
+		// constructor and setDRAMmode()
 	}
 
 private:
