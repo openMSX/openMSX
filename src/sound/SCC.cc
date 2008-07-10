@@ -132,22 +132,41 @@ SCC::SCC(MSXMotherBoard& motherBoard, const string& name,
 	, deformTimer(time)
 	, currentChipMode(mode)
 {
-	// Clear all state that is unaffected by reset.
+	// Power on values, tested by enen (log from IRC #openmsx):
+	//
+	//  <enen>    wouter_: i did an scc poweron values test, deform=0,
+	//            amplitude=full, channelenable=0, period=under 8
+	//    ...
+	//  <wouter_> did you test the value of the waveforms as well?
+	//    ...
+	//  <enen>    filled with $FF, some bits cleared but that seems random
+
+	// Make valgrind happy
+	for (int i = 0; i < 5; ++i) {
+		orgPeriod[i] = 0;
+	}
+	// Initialize ch_enable, deform (initialize this before period)
+	reset(time);
+	// Initialize waveform (initialize before volumes)
 	for (unsigned i = 0; i < 5; ++i) {
 		for (unsigned j = 0; j < 32; ++j) {
-			wave[i][j] = 0;
-			volAdjustedWave[i][j] = 0;
+			wave[i][j] = 0xFF;
 		}
-		out[i] = 0;
-		count[i] = 0;
-		incr[i] = 0;
+	}
+	// Initialize volume (initialize this before period)
+	for (int i = 0; i < 5; ++i) {
+		setFreqVol(i + 10, 15);
+	}
+	// Actual initial value is difficult to measure, assume zero
+	// (initialize before period)
+	for (unsigned i = 0; i < 5; ++i) {
 		pos[i] = 0;
-		period[i] = 0;
-		orgPeriod[i] = 0;
-		volume[i] = 0;
+	}
+	// Initialize period (sets members orgPeriod, period, incr, count, out)
+	for (int i = 0; i < 2 * 5; ++i) {
+		setFreqVol(i, 0);
 	}
 
-	reset(time);
 	registerSound(config);
 }
 
@@ -162,11 +181,7 @@ void SCC::reset(const EmuTime& /*time*/)
 		setChipMode(SCC_Compatible);
 	}
 
-	for (unsigned i = 0; i < 5; ++i) {
-		rotate[i] = false;
-		readOnly[i] = false;
-	}
-	deformValue = 0;
+	setDeformRegHelper(0);
 	ch_enable = 0;
 }
 
@@ -413,13 +428,13 @@ void SCC::setDeformReg(byte value, const EmuTime& time)
 	if (value == deformValue) {
 		return;
 	}
-	deformValue = value;
 	deformTimer.advance(time);
 	setDeformRegHelper(value);
 }
 
 void SCC::setDeformRegHelper(byte value)
 {
+	deformValue = value;
 	if (currentChipMode != SCC_Real) {
 		value &= ~0x80;
 	}
