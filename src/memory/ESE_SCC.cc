@@ -54,6 +54,7 @@
 #include "StringOp.hh"
 #include "MSXException.hh"
 #include "XMLElement.hh"
+#include "serialize.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -254,5 +255,21 @@ byte* ESE_SCC::getWriteCacheLine(word /*address*/) const
 {
 	return NULL; // not cacheable
 }
+
+
+template<typename Archive>
+void ESE_SCC::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+	ar.serialize("sram", *sram);
+	ar.serialize("scc", *scc);
+	ar.serialize("MB89352", *spc);
+	ar.serialize("mapper", mapper);
+	ar.serialize("mapperMask", mapperMask);
+	ar.serialize("spcEnable", spcEnable);
+	ar.serialize("sccEnable", sccEnable);
+	ar.serialize("writeEnable", writeEnable);
+}
+INSTANTIATE_SERIALIZE_METHODS(ESE_SCC);
 
 } // namespace openmsx

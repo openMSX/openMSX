@@ -27,6 +27,9 @@ public:
 	virtual const byte* getReadCacheLine(word start) const;
 	virtual byte* getWriteCacheLine(word start) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	void setMapperLow(unsigned page, byte value);
 	void setMapperHigh(byte value);
@@ -41,6 +44,8 @@ private:
 	bool sccEnable;
 	bool writeEnable;
 };
+
+REGISTER_MSXDEVICE(ESE_SCC, "ESE_SCC");
 
 } // namespace openmsx
 
