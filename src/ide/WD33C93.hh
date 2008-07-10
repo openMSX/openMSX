@@ -37,6 +37,9 @@ public:
 	void writeAdr(byte value);
 	void writeCtrl(byte value);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	void disconnect();
 	void execCmd(byte value);

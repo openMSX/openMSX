@@ -25,10 +25,15 @@ public:
 	virtual void writeIO(word port, byte value, const EmuTime& time);
 	virtual byte peekIO(word port, const EmuTime& time) const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	const std::auto_ptr<Rom> rom;
 	const std::auto_ptr<WD33C93> wd33c93;
 };
+
+REGISTER_MSXDEVICE(GoudaSCSI, "GoudaSCSI");
 
 } // namespace openmsx
 

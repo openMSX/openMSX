@@ -15,6 +15,7 @@
 #include "SCSIDevice.hh"
 #include "SectorAccessibleDisk.hh"
 #include "DiskContainer.hh"
+#include "serialize_meta.hh"
 #include "noncopyable.hh"
 #include <memory>
 
@@ -57,6 +58,9 @@ public:
 	virtual unsigned dataIn(unsigned& blocks);
 	virtual unsigned dataOut(unsigned& blocks);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	bool getReady();
 	bool diskChanged();
@@ -90,6 +94,8 @@ private:
 
 	friend class LSXCommand;
 };
+
+REGISTER_POLYMORPHIC_INITIALIZER(SCSIDevice, SCSILS120, "SCSILS120");
 
 } // namespace openmsx
 

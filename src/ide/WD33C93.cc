@@ -21,6 +21,7 @@
 #include "XMLElement.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
+#include "serialize.hh"
 #include <cassert>
 #include <cstring>
 
@@ -470,6 +471,44 @@ void WD33C93::reset(bool scsireset)
 		}
 	}
 }
+
+
+static enum_string<SCSI::Phase> phaseInfo[] = {
+	{ "UNDEFINED",   SCSI::UNDEFINED   },
+	{ "BUS_FREE",    SCSI::BUS_FREE    },
+	{ "ARBITRATION", SCSI::ARBITRATION },
+	{ "SELECTION",   SCSI::SELECTION   },
+	{ "RESELECTION", SCSI::RESELECTION },
+	{ "COMMAND",     SCSI::COMMAND     },
+	{ "EXECUTE",     SCSI::EXECUTE     },
+	{ "DATA_IN",     SCSI::DATA_IN     },
+	{ "DATA_OUT",    SCSI::DATA_OUT    },
+	{ "STATUS",      SCSI::STATUS      },
+	{ "MSG_OUT",     SCSI::MSG_OUT     },
+	{ "MSG_IN",      SCSI::MSG_IN      }
+};
+SERIALIZE_ENUM(SCSI::Phase, phaseInfo);
+
+template<typename Archive>
+void WD33C93::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize_blob("buffer", &buffer[0], buffer.size());
+	for (unsigned i = 0; i < MAX_DEV; ++i) {
+		std::string tag = std::string("device") + char('0' + i);
+		ar.serializePolymorphic(tag.c_str(), *dev[i]);
+	}
+	ar.serialize("bufIdx", bufIdx);
+	ar.serialize("counter", counter);
+	ar.serialize("blockCounter", blockCounter);
+	ar.serialize("tc", tc);
+	ar.serialize("phase", phase);
+	ar.serialize("myId", myId);
+	ar.serialize("targetId", targetId);
+	ar.serialize_blob("registers", regs, sizeof(regs));
+	ar.serialize("latch", latch);
+	ar.serialize("devBusy", devBusy);
+}
+INSTANTIATE_SERIALIZE_METHODS(WD33C93);
 
 /* Here is some info on the parameters for SCSI devices:
 static SCSIDevice* wd33c93ScsiDevCreate(WD33C93* wd33c93, int id)

@@ -40,7 +40,6 @@
  * Note:
  *  It is possible to access it by putting it out to 8000H - BFFFH
  *  though the SPC bank is arranged in chiefly 4000H-5FFF.
- *
  */
 
 #include "MegaSCSI.hh"
@@ -49,6 +48,7 @@
 #include "StringOp.hh"
 #include "MSXException.hh"
 #include "XMLElement.hh"
+#include "serialize.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -176,5 +176,16 @@ void MegaSCSI::setSRAM(unsigned region, byte block)
 	isWriteable[region] = block & 0x80;
 	mapped[region] = ((block & 0xC0) == 0x40) ? 0x7F : (block & blockMask);
 }
+
+template<typename Archive>
+void MegaSCSI::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("SRAM", *sram);
+	ar.serialize("MB89352", *mb89352);
+	ar.serialize("isWriteable", isWriteable);
+	ar.serialize("mapped", mapped);
+	ar.serialize("blockMask", blockMask);
+}
+INSTANTIATE_SERIALIZE_METHODS(MegaSCSI);
 
 } // namespace openmsx

@@ -21,6 +21,7 @@
 #include "XMLElement.hh"
 #include "MSXException.hh"
 #include "StringOp.hh"
+#include "serialize.hh"
 #include <cassert>
 #include <string>
 #include <cstring>
@@ -165,7 +166,7 @@ void MB89352::softReset()
 	regs[15] = 0xFF;               // un mapped
 	memset(cdb, 0, 12);
 
-	pCdb   = cdb;
+	cdbIdx = 0;
 	bufIdx = 0;
 	phase  = SCSI::BUS_FREE;
 	disconnect();
@@ -228,11 +229,11 @@ void MB89352::setACKREQ(byte& value)
 	case SCSI::COMMAND: // Command phase
 		if (counter < 0) {
 			//Initialize command routine
-			pCdb    = cdb;
+			cdbIdx  = 0;
 			counter = (value < 0x20) ? 6 : ((value < 0xA0) ? 10 : 12);
 		}
-		*pCdb = value;
-		++pCdb;
+		cdb[cdbIdx] = value;
+		++cdbIdx;
 		regs[REG_PSNS] = PSNS_ACK | PSNS_BSY | PSNS_COMMAND;
 		break;
 
@@ -753,6 +754,52 @@ byte MB89352::peekRegister(byte reg) const
 		return regs[reg];
 	}
 }
+
+
+// TODO duplicated in WD33C93.cc
+static enum_string<SCSI::Phase> phaseInfo[] = {
+	{ "UNDEFINED",   SCSI::UNDEFINED   },
+	{ "BUS_FREE",    SCSI::BUS_FREE    },
+	{ "ARBITRATION", SCSI::ARBITRATION },
+	{ "SELECTION",   SCSI::SELECTION   },
+	{ "RESELECTION", SCSI::RESELECTION },
+	{ "COMMAND",     SCSI::COMMAND     },
+	{ "EXECUTE",     SCSI::EXECUTE     },
+	{ "DATA_IN",     SCSI::DATA_IN     },
+	{ "DATA_OUT",    SCSI::DATA_OUT    },
+	{ "STATUS",      SCSI::STATUS      },
+	{ "MSG_OUT",     SCSI::MSG_OUT     },
+	{ "MSG_IN",      SCSI::MSG_IN      }
+};
+SERIALIZE_ENUM(SCSI::Phase, phaseInfo);
+
+template<typename Archive>
+void MB89352::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize_blob("buffer", &buffer[0], buffer.size());
+	for (unsigned i = 0; i < MAX_DEV; ++i) {
+		std::string tag = std::string("device") + char('0' + i);
+		ar.serializePolymorphic(tag.c_str(), *dev[i]);
+	}
+	ar.serialize("bufIdx", bufIdx);
+	ar.serialize("msgin", msgin);
+	ar.serialize("counter", counter);
+	ar.serialize("blockCounter", blockCounter);
+	ar.serialize("tc", tc);
+	ar.serialize("phase", phase);
+	ar.serialize("nextPhase", nextPhase);
+	ar.serialize("myId", myId);
+	ar.serialize("targetId", targetId);
+	ar.serialize_blob("registers", regs, sizeof(regs));
+	ar.serialize("rst", rst);
+	ar.serialize("atn", atn);
+	ar.serialize("isEnabled", isEnabled);
+	ar.serialize("isBusy", isBusy);
+	ar.serialize("isTransfer", isTransfer);
+	ar.serialize("cdbIdx", cdbIdx);
+	ar.serialize_blob("cdb", cdb, sizeof(cdb));
+}
+INSTANTIATE_SERIALIZE_METHODS(MB89352);
 
 } // namespace openmsx
 

@@ -15,6 +15,7 @@
 #include "SCSIDevice.hh"
 #include "SectorAccessibleDisk.hh"
 #include "DiskContainer.hh"
+#include "serialize_meta.hh"
 #include "noncopyable.hh"
 #include <memory>
 
@@ -39,6 +40,9 @@ public:
 	// Diskcontainer:
 	virtual SectorAccessibleDisk* getSectorAccessibleDisk();
 	virtual const std::string& getContainerName() const;
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 protected:
 	// SCSI Device
@@ -82,6 +86,8 @@ private:
 	byte lun;
 	byte cdb[12];          // Command Descriptor Block
 };
+
+REGISTER_POLYMORPHIC_INITIALIZER(SCSIDevice, SCSIHD, "SCSIHD");
 
 } // namespace openmsx
 

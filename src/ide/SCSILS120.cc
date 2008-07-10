@@ -33,6 +33,7 @@
 #include "TclObject.hh"
 #include "CommandException.hh"
 #include "FileContext.hh"
+#include "serialize.hh"
 #include <algorithm>
 #include <vector>
 #include <bitset>
@@ -861,5 +862,31 @@ void LSXCommand::tabCompletion(vector<string>& tokens) const
 	UserFileContext context;
 	completeFileName(getCommandController(), tokens, context, extra);
 }
+
+
+template<typename Archive>
+void SCSILS120::serialize(Archive& ar, unsigned /*version*/)
+{
+	string filename = file.get() ? file->getURL() : "";
+	ar.serialize("filename", filename);
+	if (ar.isLoader()) {
+		// re-insert disk before restoring 'mediaChanged'
+		if (filename.empty()) {
+			eject();
+		} else {
+			insert(filename);
+		}
+	}
+
+	ar.serialize("keycode", keycode);
+	ar.serialize("currentSector", currentSector);
+	ar.serialize("currentLength", currentLength);
+	ar.serialize("unitAttention", unitAttention);
+	ar.serialize("mediaChanged", mediaChanged);
+	ar.serialize("message", message);
+	ar.serialize("lun", lun);
+	ar.serialize_blob("cdb", cdb, sizeof(cdb));
+}
+INSTANTIATE_SERIALIZE_METHODS(SCSILS120);
 
 } // namespace openmsx

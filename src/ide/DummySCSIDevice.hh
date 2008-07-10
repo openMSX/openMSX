@@ -3,6 +3,7 @@
 #define DUMMYSCSIDEVICE_HH
 
 #include "SCSIDevice.hh"
+#include "serialize_meta.hh"
 
 namespace openmsx {
 
@@ -22,7 +23,12 @@ public:
 
 	virtual unsigned dataIn(unsigned& blocks);
 	virtual unsigned dataOut(unsigned& blocks);
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 };
+
+REGISTER_POLYMORPHIC_INITIALIZER(SCSIDevice, DummySCSIDevice, "DummySCSIDevice");
 
 } // namespace openmsx
 

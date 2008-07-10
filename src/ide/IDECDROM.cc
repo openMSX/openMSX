@@ -416,7 +416,7 @@ void CDXCommand::tabCompletion(vector<string>& tokens) const
 
 
 template<typename Archive>
-void IDECDROM::serialize(Archive& ar, unsigned version)
+void IDECDROM::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<AbstractIDEDevice>(*this);
 

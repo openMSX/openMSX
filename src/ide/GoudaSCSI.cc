@@ -3,6 +3,7 @@
 #include "GoudaSCSI.hh"
 #include "WD33C93.hh"
 #include "Rom.hh"
+#include "serialize.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -80,5 +81,14 @@ const byte* GoudaSCSI::getReadCacheLine(word start) const
 {
 	return &(*rom)[start & (rom->getSize() - 1)];
 }
+
+
+template<typename Archive>
+void GoudaSCSI::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<MSXDevice>(*this);
+	ar.serialize("WD33C93", *wd33c93);
+}
+INSTANTIATE_SERIALIZE_METHODS(GoudaSCSI);
 
 } // namespace openmsx

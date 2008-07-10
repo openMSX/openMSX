@@ -36,6 +36,9 @@ public:
 	void writeRegister(byte reg, byte value);
 	void writeDREG(byte value);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	void disconnect();
 	void softReset();
@@ -44,7 +47,7 @@ private:
 	byte getSSTS() const;
 
 	std::auto_ptr<SCSIDevice> dev[8];
-	byte* pCdb;                     // cdb pointer
+	unsigned cdbIdx;                // cdb index
 	std::vector<byte> buffer;       // buffer for transfer
 	unsigned bufIdx;                // buffer index
 	int msgin;                      // Message In flag

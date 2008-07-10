@@ -27,6 +27,7 @@
 #include "LedStatus.hh"
 #include "MSXMotherBoard.hh"
 #include "XMLElement.hh"
+#include "serialize.hh"
 #include <algorithm>
 #include <cstring>
 
@@ -632,5 +633,21 @@ const std::string& SCSIHD::getContainerName() const
 {
 	return getName();
 }
+
+
+template<typename Archive>
+void SCSIHD::serialize(Archive& ar, unsigned /*version*/)
+{
+	// don't serialize SCSIDevice, HD, SectorAccessibleDisk, DiskContainer
+	// base classes
+	ar.serialize("keycode", keycode);
+	ar.serialize("currentSector", currentSector);
+	ar.serialize("currentLength", currentLength);
+	ar.serialize("unitAttention", unitAttention);
+	ar.serialize("message", message);
+	ar.serialize("lun", lun);
+	ar.serialize_blob("cdb", cdb, sizeof(cdb));
+}
+INSTANTIATE_SERIALIZE_METHODS(SCSIHD);
 
 } // namespace openmsx
