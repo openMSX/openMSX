@@ -47,6 +47,9 @@ public:
 	 */
 	void unregisterPluggable(Pluggable* pluggable);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	Connector* getConnector(const std::string& name);
 	Pluggable* getPluggable(const std::string& name);

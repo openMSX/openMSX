@@ -5,6 +5,7 @@
 #include "KeyCodeSetting.hh"
 #include "InputEvents.hh"
 #include "checked_cast.hh"
+#include "serialize.hh"
 #include <cassert>
 
 using std::string;
@@ -118,5 +119,12 @@ void KeyJoystick::signalEvent(shared_ptr<const Event> event,
 		break;
 	}
 }
+
+template<typename Archive>
+void KeyJoystick::serialize(Archive& /*ar*/, unsigned /*version*/)
+{
+	// don't serialize 'status', is controlled by key events
+}
+INSTANTIATE_SERIALIZE_METHODS(KeyJoystick);
 
 } // namespace openmsx

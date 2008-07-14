@@ -5,6 +5,7 @@
 
 #include "JoystickDevice.hh"
 #include "MSXEventListener.hh"
+#include "serialize_meta.hh"
 #include <memory>
 
 namespace openmsx {
@@ -31,6 +32,9 @@ public:
 	virtual byte read(const EmuTime& time);
 	virtual void write(byte value, const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	// MSXEventListener
 	virtual void signalEvent(shared_ptr<const Event> event,
@@ -46,9 +50,11 @@ private:
 	std::auto_ptr<KeyCodeSetting> trigB;
 
 	MSXEventDistributor& eventDistributor;
-	std::string name;
+	const std::string name;
 	byte status;
 };
+
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, KeyJoystick, "KeyJoystick");
 
 } // namespace openmsx
 

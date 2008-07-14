@@ -1214,6 +1214,8 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 	// Scheduler must come early so that devices can query current time
 	ar.serialize("scheduler", getScheduler());
 
+	ar.serialize("pluggables", getPluggingController());
+
 	ar.serialize("name", machineName);
 	ar.serialize("config", machineConfig, ref(self));
 	ar.serialize("extensions", extensions, ref(self));
@@ -1235,7 +1237,6 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 	//auto_ptr<EventTranslator> eventTranslator;
 	//auto_ptr<Debugger> debugger;
 	//auto_ptr<MSXMixer> msxMixer;
-	//auto_ptr<PluggingController> pluggingController;
 	//auto_ptr<DummyDevice> dummyDevice;
 
 	MSXDeviceSwitch& devSwitch = getDeviceSwitch();

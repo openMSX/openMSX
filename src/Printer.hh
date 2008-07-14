@@ -14,6 +14,7 @@
 
 #include "PrinterPortDevice.hh"
 #include "openmsx.hh"
+#include "serialize_meta.hh"
 #include <memory>
 
 namespace openmsx {
@@ -178,6 +179,9 @@ public:
 	virtual const std::string& getName() const;
 	virtual const std::string& getDescription() const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	void msxPrnSetFont(const byte* msxBits);
 	unsigned parseNumber(unsigned sizeStart, unsigned sizeChars);
@@ -189,6 +193,8 @@ private:
 	virtual void processCharacter(byte data);
 };
 
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, ImagePrinterMSX, "ImagePrinterMSX");
+
 // emulated Epson printer
 class ImagePrinterEpson : public ImagePrinter
 {
@@ -199,6 +205,9 @@ public:
 	virtual const std::string& getName() const;
 	virtual const std::string& getDescription() const;
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	unsigned parseNumber(unsigned sizeStart, unsigned sizeChars);
 
@@ -208,6 +217,8 @@ private:
 	virtual void processEscSequence();
 	virtual void processCharacter(byte data);
 };
+
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, ImagePrinterEpson, "ImagePrinterEpson");
 
 } // namespace openmsx
 

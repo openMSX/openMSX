@@ -6,6 +6,7 @@
 #include "FilenameSetting.hh"
 #include "CliComm.hh"
 #include "WavData.hh"
+#include "serialize.hh"
 
 using std::string;
 
@@ -93,5 +94,16 @@ short WavAudioInput::readSample(const EmuTime& time)
 	}
 	return 0;
 }
+
+template<typename Archive>
+void WavAudioInput::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("plugged", plugged);
+	ar.serialize("reference", reference);
+	if (ar.isLoader()) {
+		update(*audioInputFilenameSetting);
+	}
+}
+INSTANTIATE_SERIALIZE_METHODS(WavAudioInput);
 
 } // namespace openmsx

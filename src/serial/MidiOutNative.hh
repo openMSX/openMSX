@@ -5,6 +5,7 @@
 
 #if defined(_WIN32)
 #include "MidiOutDevice.hh"
+#include "serialize_meta.hh"
 
 namespace openmsx {
 
@@ -27,11 +28,16 @@ public:
 	// SerialDataInterface (part)
 	virtual void recvByte(byte value, const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	unsigned devidx;
 	std::string name;
 	std::string desc;
 };
+
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, Mouse, "Mouse");
 
 } // namespace openmsx
 

@@ -4,6 +4,7 @@
 #include "MSXEventDistributor.hh"
 #include "InputEvents.hh"
 #include "checked_cast.hh"
+#include "serialize.hh"
 
 using std::string;
 
@@ -226,5 +227,20 @@ void Mouse::signalEvent(shared_ptr<const Event> event, const EmuTime& /*time*/)
 		break;
 	}
 }
+
+
+template<typename Archive>
+void Mouse::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.serialize("lastTime", lastTime);
+	ar.serialize("faze", faze);
+	ar.serialize("xrel", xrel);
+	ar.serialize("yrel", yrel);
+	ar.serialize("mouseMode", mouseMode);
+
+	// Don't serialzie status, curxrel, curyrel.
+	// These are controlled via (mouse button/motion) events
+}
+INSTANTIATE_SERIALIZE_METHODS(Mouse);
 
 } // namespace openmsx

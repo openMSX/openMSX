@@ -4,6 +4,7 @@
 #define MSXPRINTERPORTLOGGER_HH
 
 #include "PrinterPortDevice.hh"
+#include "serialize_meta.hh"
 #include <memory>
 
 namespace openmsx {
@@ -29,12 +30,17 @@ public:
 	virtual void plugHelper(Connector& connector, const EmuTime& time);
 	virtual void unplugHelper(const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	std::auto_ptr<File> file;
 	std::auto_ptr<FilenameSetting> logFilenameSetting;
 	byte toPrint;
 	bool prevStrobe;
 };
+
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, PrinterPortLogger, "PrinterPortLogger");
 
 } // namespace openmsx
 

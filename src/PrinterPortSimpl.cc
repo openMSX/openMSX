@@ -3,6 +3,7 @@
 #include "PrinterPortSimpl.hh"
 #include "DACSound8U.hh"
 #include "XMLElement.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -26,9 +27,8 @@ void PrinterPortSimpl::writeData(byte data, const EmuTime& time)
 	dac->writeDAC(data, time);
 }
 
-void PrinterPortSimpl::plugHelper(Connector& /*connector*/, const EmuTime& /*time*/)
+void PrinterPortSimpl::createDAC()
 {
-	// TODO get from config file
 	static XMLElement simplConfig("simpl");
 	static bool init = false;
 	if (!init) {
@@ -41,6 +41,11 @@ void PrinterPortSimpl::plugHelper(Connector& /*connector*/, const EmuTime& /*tim
 		simplConfig.addChild(soundElem);
 	}
 	dac.reset(new DACSound8U(mixer, "simpl", getDescription(), simplConfig));
+}
+
+void PrinterPortSimpl::plugHelper(Connector& /*connector*/, const EmuTime& /*time*/)
+{
+	createDAC();
 }
 
 void PrinterPortSimpl::unplugHelper(const EmuTime& /*time*/)
@@ -59,5 +64,19 @@ const std::string& PrinterPortSimpl::getDescription() const
 	static const std::string desc("Play samples via your printer port.");
 	return desc;
 }
+
+template<typename Archive>
+void PrinterPortSimpl::serialize(Archive& ar, unsigned /*version*/)
+{
+	bool plugged = dac.get();
+	ar.serialize("plugged", plugged);
+	if (plugged) {
+		if (ar.isLoader()) {
+			createDAC();
+		}
+		ar.serialize("dac", *dac);
+	}
+}
+INSTANTIATE_SERIALIZE_METHODS(PrinterPortSimpl);
 
 } // namespace openmsx

@@ -96,14 +96,14 @@ CassettePlayer::CassettePlayer(
 	                              scheduler, *this))
 	, loadingIndicator(new LoadingIndicator(
 	       commandController.getGlobalSettings().getThrottleManager()))
+	, autoRunSetting(new BooleanSetting(commandController,
+		"autoruncassettes", "automatically try to run cassettes", false))
 	, sampcnt(0)
 	, state(STOP)
 	, lastOutput(false)
 	, motor(false), motorControl(true)
 	, syncScheduled(false)
 {
-	autoRunSetting.reset(new BooleanSetting(commandController,
-		"autoruncassettes", "automatically try to run cassettes", false));
 	removeTape(EmuTime::zero);
 
 	static XMLElement cassettePlayerConfig("cassetteplayer");
@@ -304,13 +304,8 @@ const string& CassettePlayer::getImageName() const
 	return casImage;
 }
 
-void CassettePlayer::playTape(const string& filename, const EmuTime& time)
+void CassettePlayer::insertTape(const string& filename)
 {
-	if (getState() == RECORD) {
-		// First close the recorded image. Otherwise it goes wrong
-		// if you switch from RECORD->PLAY on the same image.
-		setState(STOP, getImageName(), time); // keep current image
-	}
 	if (!filename.empty()) {
 		try {
 			// first try WAV
@@ -337,6 +332,16 @@ void CassettePlayer::playTape(const string& filename, const EmuTime& time)
 		// parameter now also is an empty string.
 	}
 	setImageName(filename);
+}
+
+void CassettePlayer::playTape(const string& filename, const EmuTime& time)
+{
+	if (getState() == RECORD) {
+		// First close the recorded image. Otherwise it goes wrong
+		// if you switch from RECORD->PLAY on the same image.
+		setState(STOP, getImageName(), time); // keep current image
+	}
+	insertTape(filename);
 	rewind(time); // sets PLAY mode
 	autoRun();
 	setOutputRate(outputRate); // recalculate resample stuff
@@ -828,6 +833,48 @@ void TapeCommand::tabCompletion(vector<string>& tokens) const
 		extra.insert("off");
 		completeString(tokens, extra);
 	}
+}
+
+
+static enum_string<CassettePlayer::State> stateInfo[] = {
+	{ "PLAY",   CassettePlayer::PLAY   },
+	{ "RECORD", CassettePlayer::RECORD },
+	{ "STOP",   CassettePlayer::STOP   }
+};
+SERIALIZE_ENUM(CassettePlayer::State, stateInfo);
+
+template<typename Archive>
+void CassettePlayer::serialize(Archive& ar, unsigned /*version*/)
+{
+	if (recordImage.get()) {
+		// buf, sampcnt
+		flushOutput();
+	}
+	if (state == RECORD) {
+		// TODO we don't support savestates in RECORD mode yet
+		setState(STOP, getImageName(), getCurrentTime());
+	}
+
+	ar.serialize("casImage", casImage);
+	if (ar.isLoader()) {
+		removeTape(getCurrentTime());
+		insertTape(casImage);
+	}
+
+	// only for RECORD
+	//double lastX;
+	//double lastY;
+	//double partialOut;
+	//double partialInterval;
+	//std::auto_ptr<WavWriter> recordImage;
+
+	ar.serialize("tapePos", tapePos);
+	ar.serialize("prevSyncTime", prevSyncTime);
+	ar.serialize("audioPos", audioPos);
+	ar.serialize("state", state);
+	ar.serialize("lastOutput", lastOutput);
+	ar.serialize("motor", motor);
+	ar.serialize("motorControl", motorControl);
 }
 
 } // namespace openmsx

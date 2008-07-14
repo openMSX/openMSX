@@ -8,6 +8,7 @@
 #include "CliComm.hh"
 #include "MSXException.hh"
 #include "Math.hh"
+#include "serialize.hh"
 #include <algorithm>
 #include <vector>
 #include <cassert>
@@ -956,6 +957,13 @@ void ImagePrinterMSX::processCharacter(byte data)
 	}
 }
 
+template<typename Archive>
+void ImagePrinterMSX::serialize(Archive& /*ar*/, unsigned /*version*/)
+{
+	// TODO is this worth it?
+}
+INSTANTIATE_SERIALIZE_METHODS(ImagePrinterMSX);
+
 
 // class ImagePrinterEpson
 
@@ -1661,6 +1669,13 @@ void ImagePrinterEpson::processCharacter(byte data)
 			break;
 	}
 }
+
+template<typename Archive>
+void ImagePrinterEpson::serialize(Archive& /*ar*/, unsigned /*version*/)
+{
+	// TODO is this worth it?
+}
+INSTANTIATE_SERIALIZE_METHODS(ImagePrinterEpson);
 
 
 // class Paper

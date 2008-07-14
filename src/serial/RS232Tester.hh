@@ -8,6 +8,7 @@
 #include "EventListener.hh"
 #include "Semaphore.hh"
 #include "openmsx.hh"
+#include "serialize_meta.hh"
 #include <fstream>
 #include <cstdio>
 #include <deque>
@@ -39,6 +40,9 @@ public:
 	// output
 	virtual void recvByte(byte value, const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	// Runnable
 	virtual void run();
@@ -58,6 +62,8 @@ private:
 	const std::auto_ptr<FilenameSetting> rs232InputFilenameSetting;
 	const std::auto_ptr<FilenameSetting> rs232OutputFilenameSetting;
 };
+
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, RS232Tester, "RS232Tester");
 
 } // namespace openmsx
 

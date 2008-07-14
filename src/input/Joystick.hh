@@ -5,6 +5,7 @@
 
 #include "JoystickDevice.hh"
 #include "MSXEventListener.hh"
+#include "serialize_meta.hh"
 #include <SDL.h> // TODO move this
 
 namespace openmsx {
@@ -34,6 +35,9 @@ public:
 	virtual byte read(const EmuTime& time);
 	virtual void write(byte value, const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	Joystick(MSXEventDistributor& eventDistributor, unsigned joyNum);
 	virtual ~Joystick();
@@ -53,6 +57,8 @@ private:
 
 	byte status;
 };
+
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, Joystick, "Joystick");
 
 } // namespace openmsx
 

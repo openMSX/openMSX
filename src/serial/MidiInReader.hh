@@ -8,6 +8,7 @@
 #include "EventListener.hh"
 #include "Semaphore.hh"
 #include "openmsx.hh"
+#include "serialize_meta.hh"
 #include <cstdio>
 #include <deque>
 #include <memory>
@@ -35,6 +36,9 @@ public:
 	// MidiInDevice
 	virtual void signal(const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	// Runnable
 	virtual void run();
@@ -51,6 +55,8 @@ private:
 
 	const std::auto_ptr<FilenameSetting> readFilenameSetting;
 };
+
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, MidiInReader, "MidiInReader");
 
 } // namespace openmsx
 

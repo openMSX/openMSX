@@ -5,6 +5,7 @@
 #include "PlugException.hh"
 #include "Semaphore.hh"
 #include "StringOp.hh"
+#include "serialize.hh"
 #include <jack/jack.h>
 #include <cmath>
 #include <string.h>
@@ -443,5 +444,13 @@ void CassetteJack::error_callback(const char* message)
 	lastError = message;
 	PRT_DEBUG("Jack error: " + lastError);
 }
+
+
+template<typename Archive>
+void CassetteJack::serialize(Archive& /*ar*/, unsigned /*version*/)
+{
+	// TODO, worth the trouble?
+}
+INSTANTIATE_SERIALIZE_METHODS(CassetteJack);
 
 } // namespace openmsx

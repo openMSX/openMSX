@@ -6,6 +6,7 @@
 #include "JoystickDevice.hh"
 #include "MSXEventListener.hh"
 #include "Clock.hh"
+#include "serialize_meta.hh"
 
 namespace openmsx {
 
@@ -31,6 +32,9 @@ public:
 	virtual void signalEvent(shared_ptr<const Event> event,
 	                         const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	void emulateJoystick();
 
@@ -42,6 +46,8 @@ private:
 	byte status;
 	bool mouseMode;
 };
+
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, Mouse, "Mouse");
 
 } // namespace openmsx
 

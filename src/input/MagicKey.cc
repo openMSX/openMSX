@@ -1,6 +1,7 @@
 // $Id$
 
 #include "MagicKey.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -36,5 +37,12 @@ byte MagicKey::read(const EmuTime& /*time*/)
 void MagicKey::write(byte /*value*/, const EmuTime& /*time*/)
 {
 }
+
+
+template<typename Archive>
+void MagicKey::serialize(Archive& /*ar*/, unsigned /*version*/)
+{
+}
+INSTANTIATE_SERIALIZE_METHODS(MagicKey);
 
 } // namespace openmsx

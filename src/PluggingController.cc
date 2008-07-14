@@ -12,6 +12,7 @@
 #include "MSXMotherBoard.hh"
 #include "CliComm.hh"
 #include "openmsx.hh"
+#include "serialize.hh"
 #include <cassert>
 #include <iostream>
 
@@ -507,5 +508,18 @@ void ConnectionClassInfo::tabCompletion(vector<string>& tokens) const
 		completeString(tokens, names);
 	}
 }
+
+
+template<typename Archive>
+void PluggingController::serialize(Archive& ar, unsigned /*version*/)
+{
+	// TODO actual pluggables depends on host machine (e.g. Joystick)
+	//      and openmsx version (e.g. more pluggables in newer version)
+	for (Pluggables::const_iterator it = pluggables.begin();
+	     it != pluggables.end(); ++it) {
+		ar.serializePolymorphic("pluggable", **it);
+	}
+}
+INSTANTIATE_SERIALIZE_METHODS(PluggingController);
 
 } // namespace openmsx

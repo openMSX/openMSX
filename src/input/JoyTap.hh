@@ -4,6 +4,7 @@
 #define JOYTAP_HH
 
 #include "JoystickDevice.hh"
+#include "serialize_meta.hh"
 #include <memory>
 
 namespace openmsx {
@@ -35,12 +36,18 @@ public:
 	byte read(const EmuTime& time);
 	void write(byte value, const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 protected:
 	std::auto_ptr<JoystickPort> slaves[4];
 
 private:
-	std::string name;
+	const std::string name;
 };
+
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, JoyTap, "JoyTap");
+REGISTER_BASE_NAME_HELPER(JoyTap, "JoyTap");
 
 } // namespace openmsx
 

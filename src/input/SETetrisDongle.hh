@@ -4,6 +4,7 @@
 #define SETETRISDONGLE_HH
 
 #include "JoystickDevice.hh"
+#include "serialize_meta.hh"
 
 namespace openmsx {
 
@@ -22,9 +23,14 @@ public:
 	virtual byte read(const EmuTime& time);
 	virtual void write(byte value, const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	byte status;
 };
+
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, SETetrisDongle, "SETetrisDongle");
 
 } // namespace openmsx
 

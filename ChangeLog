@@ -1,5 +1,23 @@
 $Id$
 
+2008-07-14 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
+	* Serialize pluggables (WIP):
+	   Current code serializes all pluggables even those that are not
+	   plugged in. The available pluggables depends on the platform (e.g.
+	   the Midi{In,Out}Native pluggables on windows), the openmsx
+	   configure options (e.g. CassetteJack), the openmsx version (more
+	   pluggables in newer versions) and even the state of the host
+	   machine (connected a USB joystick). ATM loading a savestate only
+	   works when the exact same list of pluggables is available.
+
+	   Maybe we should only serialize those pluggables that are actually
+	   plugged in in the emulated machine (TODO verify that pluggables
+	   don't keep state over unplug-plug cycle).
+
+	   ATM only the state of the pluggables itself is serialized. We don't
+	   yet restore the actual plug state (which pluggable is plugged in
+	   which connector).
+
 2008-07-05 Wouter Vermaelen <wouter.vermaelen@scarlet.be>
 	* Merged Rom{4,8,16}kBBlocks classes into one templatized class
 

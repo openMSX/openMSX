@@ -6,6 +6,7 @@
 #include "MSXEventDistributor.hh"
 #include "InputEvents.hh"
 #include "checked_cast.hh"
+#include "serialize.hh"
 #include <cassert>
 
 using std::string;
@@ -173,5 +174,12 @@ void Joystick::signalEvent(shared_ptr<const Event> event, const EmuTime& /*time*
 		assert(false);
 	}
 }
+
+template<typename Archive>
+void Joystick::serialize(Archive& /*ar*/, unsigned /*version*/)
+{
+	// don't serialize 'status', is controlled by joystick ibutton/motion events
+}
+INSTANTIATE_SERIALIZE_METHODS(Joystick);
 
 } // namespace openmsx

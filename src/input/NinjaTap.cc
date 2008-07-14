@@ -2,6 +2,7 @@
 
 #include "NinjaTap.hh"
 #include "JoystickPort.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -65,5 +66,16 @@ void NinjaTap::write(byte value, const EmuTime& time)
 	}
 	previous = value;
 }
+
+
+template<typename Archive>
+void NinjaTap::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<JoyTap>(*this);
+	ar.serialize("status", status);
+	ar.serialize("previous", previous);
+	ar.serialize("buf", buf);
+}
+INSTANTIATE_SERIALIZE_METHODS(NinjaTap);
 
 } // namespace openmsx

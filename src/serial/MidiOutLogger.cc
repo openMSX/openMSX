@@ -3,6 +3,7 @@
 #include "MidiOutLogger.hh"
 #include "PlugException.hh"
 #include "FilenameSetting.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -46,8 +47,17 @@ const std::string& MidiOutLogger::getDescription() const
 
 void MidiOutLogger::recvByte(byte value, const EmuTime& /*time*/)
 {
-	file.put(value);
-	file.flush();
+	if (file.is_open()) {
+		file.put(value);
+		file.flush();
+	}
 }
+
+template<typename Archive>
+void MidiOutLogger::serialize(Archive& /*ar*/, unsigned /*version*/)
+{
+	// don't try to resume a previous logfile (see PrinterPortLogger)
+}
+INSTANTIATE_SERIALIZE_METHODS(MidiOutLogger);
 
 } // namespace openmsx

@@ -4,6 +4,7 @@
 #define MAGICKEY_HH
 
 #include "JoystickDevice.hh"
+#include "serialize_meta.hh"
 
 namespace openmsx {
 
@@ -19,7 +20,12 @@ public:
 	// JoystickDevice
 	virtual byte read(const EmuTime& time);
 	virtual void write(byte value, const EmuTime& time);
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 };
+
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, MagicKey, "MagicKey");
 
 } // namespace openmsx
 

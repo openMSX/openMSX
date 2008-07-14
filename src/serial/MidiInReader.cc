@@ -6,6 +6,7 @@
 #include "EventDistributor.hh"
 #include "Scheduler.hh"
 #include "FilenameSetting.hh"
+#include "serialize.hh"
 #include <cstdio>
 #include <cerrno>
 #include <string.h>
@@ -18,7 +19,7 @@ MidiInReader::MidiInReader(EventDistributor& eventDistributor_,
                            Scheduler& scheduler_,
                            CommandController& commandController)
 	: eventDistributor(eventDistributor_), scheduler(scheduler_)
-	, thread(this), lock(1)
+	, thread(this), file(NULL), lock(1)
 	, readFilenameSetting(new FilenameSetting(
 		commandController, "midi-in-readfilename",
 		"filename of the file where the MIDI input is read from",
@@ -55,7 +56,10 @@ void MidiInReader::unplugHelper(const EmuTime& /*time*/)
 {
 	ScopedLock l(lock);
 	thread.stop();
-	fclose(file);
+	if (file) {
+		fclose(file);
+		file = NULL;
+	}
 }
 
 const string& MidiInReader::getName() const
@@ -78,6 +82,7 @@ const string& MidiInReader::getDescription() const
 void MidiInReader::run()
 {
 	byte buf;
+	if (!file) return;
 	while (true) {
 		int num = fread(&buf, 1, 1, file);
 		if (num != 1) {
@@ -122,5 +127,13 @@ bool MidiInReader::signalEvent(shared_ptr<const Event> /*event*/)
 	}
 	return true;
 }
+
+
+template<typename Archive>
+void MidiInReader::serialize(Archive& /*ar*/, unsigned /*version*/)
+{
+	// don't try to resume a previous logfile (see PrinterPortLogger)
+}
+INSTANTIATE_SERIALIZE_METHODS(MidiInReader);
 
 } // namespace openmsx

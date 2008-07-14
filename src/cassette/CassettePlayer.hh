@@ -9,6 +9,7 @@
 #include "Resample.hh"
 #include "Schedulable.hh"
 #include "EmuTime.hh"
+#include "serialize_meta.hh"
 #include <string>
 #include <memory>
 
@@ -58,8 +59,13 @@ public:
 	// Resample
 	virtual bool generateInput(int* buffer, unsigned num);
 
-private:
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
+//private:
 	enum State { PLAY, RECORD, STOP };
+
+private:
 	State getState() const;
 	std::string getStateString() const;
 	void setState(State newState, const std::string& newImage,
@@ -71,6 +77,7 @@ private:
 	/** Insert a tape for use in PLAY mode.
 	 */
 	void playTape(const std::string& filename, const EmuTime& time);
+	void insertTape(const std::string& filename);
 
 	/** Removes tape (possibly stops recording). And go to STOP mode.
 	 */
@@ -152,8 +159,8 @@ private:
 	EventDistributor& eventDistributor;
 
 	const std::auto_ptr<TapeCommand> tapeCommand;
-	std::auto_ptr<LoadingIndicator> loadingIndicator;
-	std::auto_ptr<BooleanSetting> autoRunSetting;
+	const std::auto_ptr<LoadingIndicator> loadingIndicator;
+	const std::auto_ptr<BooleanSetting> autoRunSetting;
 	std::auto_ptr<WavWriter> recordImage;
 	std::auto_ptr<CassetteImage> playImage;
 
@@ -165,6 +172,8 @@ private:
 
 	friend class TapeCommand;
 };
+
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, CassettePlayer, "CassettePlayer");
 
 } // namespace openmsx
 

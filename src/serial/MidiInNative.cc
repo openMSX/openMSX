@@ -7,6 +7,7 @@
 #include "PlugException.hh"
 #include "EventDistributor.hh"
 #include "Scheduler.hh"
+#include "serialize.hh"
 #include <cstring>
 #include <cerrno>
 #include "Midi_w32.hh"
@@ -39,7 +40,7 @@ void MidiInNative::registerAll(EventDistributor& eventDistributor,
 MidiInNative::MidiInNative(EventDistributor& eventDistributor_,
                            Scheduler& scheduler_, unsigned num)
 	: eventDistributor(eventDistributor_), scheduler(scheduler_)
-	, thread(this), lock(1)
+	, thread(this), devidx(unsigned(-1)), lock(1)
 {
 	name = w32_midiInGetVFN(num);
 	desc = w32_midiInGetRDN(num);
@@ -76,7 +77,10 @@ void MidiInNative::unplugHelper(const EmuTime& time)
 {
 	ScopedLock l(lock);
 	thread.stop();
-	w32_midiInClose(devidx);
+	if (devidx != unsigned(-1)) {
+		w32_midiInClose(devidx);
+		devidx = unsigned(-1);
+	}
 }
 
 const string& MidiInNative::getName() const
@@ -184,6 +188,13 @@ bool MidiInNative::signalEvent(shared_ptr<const Event> /*event*/)
 	}
 	return true;
 }
+
+template<typename Archive>
+void MidiInNative::serialize(Archive& /*ar*/, unsigned /*version*/)
+{
+	// don't restore this after loadstate
+}
+INSTANTIATE_SERIALIZE_METHODS(MidiInNative);
 
 } // namespace openmsx
 

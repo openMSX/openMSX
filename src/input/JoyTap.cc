@@ -2,6 +2,7 @@
 
 #include "JoyTap.hh"
 #include "JoystickPort.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -56,5 +57,12 @@ void JoyTap::write(byte value, const EmuTime& time)
 		slaves[i]->write(value, time);
 	}
 }
+
+template<typename Archive>
+void JoyTap::serialize(Archive& /*ar*/, unsigned /*version*/)
+{
+	// in the future, serialize slave joystickports
+}
+INSTANTIATE_SERIALIZE_METHODS(JoyTap);
 
 } // namespace openmsx

@@ -6,6 +6,7 @@
 #include "AudioInputDevice.hh"
 #include "Observer.hh"
 #include "EmuTime.hh"
+#include "serialize_meta.hh"
 #include <memory>
 
 namespace openmsx {
@@ -28,6 +29,9 @@ public:
 	virtual void unplugHelper(const EmuTime& time);
 	virtual short readSample(const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	void loadWave();
 	void update(const Setting& setting);
@@ -38,6 +42,8 @@ private:
 	EmuTime reference;
 	bool plugged;
 };
+
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, WavAudioInput, "WavAudioInput");
 
 } // namespace openmsx
 

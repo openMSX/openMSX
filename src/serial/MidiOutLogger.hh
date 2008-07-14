@@ -4,6 +4,7 @@
 #define MIDIOUTLOGGER_HH
 
 #include "MidiOutDevice.hh"
+#include "serialize_meta.hh"
 #include <fstream>
 #include <memory>
 
@@ -26,10 +27,15 @@ public:
 	// SerialDataInterface (part)
 	virtual void recvByte(byte value, const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	const std::auto_ptr<FilenameSetting> logFilenameSetting;
 	std::ofstream file;
 };
+
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, MidiOutLogger, "MidiOutLogger");
 
 } // namespace openmsx
 

@@ -4,6 +4,7 @@
 #define PRINTERPORTSIMPLE_HH
 
 #include "PrinterPortDevice.hh"
+#include "serialize_meta.hh"
 #include <memory>
 
 namespace openmsx {
@@ -27,10 +28,17 @@ public:
 	virtual void plugHelper(Connector& connector, const EmuTime& time);
 	virtual void unplugHelper(const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
+	void createDAC();
+
 	MSXMixer& mixer;
 	std::auto_ptr<DACSound8U> dac;
 };
+
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, PrinterPortSimpl, "PrinterPortSimpl");
 
 } // namespace openmsx
 

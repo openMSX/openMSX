@@ -11,6 +11,7 @@
 #include "MSXMotherBoard.hh"
 #include "PluggingController.hh"
 #include "checked_cast.hh"
+#include "serialize.hh"
 #include <memory>
 
 using std::auto_ptr;

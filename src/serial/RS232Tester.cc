@@ -6,6 +6,7 @@
 #include "EventDistributor.hh"
 #include "Scheduler.hh"
 #include "FilenameSetting.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
@@ -13,7 +14,7 @@ RS232Tester::RS232Tester(EventDistributor& eventDistributor_,
                          Scheduler& scheduler_,
                          CommandController& commandController)
 	: eventDistributor(eventDistributor_), scheduler(scheduler_)
-	, thread(this), lock(1)
+	, thread(this), inFile(NULL), lock(1)
 	, rs232InputFilenameSetting(new FilenameSetting(
 	        commandController, "rs232-inputfilename",
 	        "filename of the file where the RS232 input is read from",
@@ -68,7 +69,10 @@ void RS232Tester::unplugHelper(const EmuTime& /*time*/)
 	// input
 	ScopedLock l(lock);
 	thread.stop();
-	fclose(inFile);
+	if (inFile) {
+		fclose(inFile);
+		inFile = NULL;
+	}
 }
 
 const std::string& RS232Tester::getName() const
@@ -91,6 +95,7 @@ const std::string& RS232Tester::getDescription() const
 void RS232Tester::run()
 {
 	byte buf;
+	if (!inFile) return;
 	while (true) {
 		int num = fread(&buf, 1, 1, inFile);
 		if (num != 1) {
@@ -137,8 +142,18 @@ bool RS232Tester::signalEvent(shared_ptr<const Event> /*event*/)
 // output
 void RS232Tester::recvByte(byte value, const EmuTime& /*time*/)
 {
-	outFile.put(value);
-	outFile.flush();
+	if (outFile.is_open()) {
+		outFile.put(value);
+		outFile.flush();
+	}
 }
+
+
+template<typename Archive>
+void RS232Tester::serialize(Archive& /*ar*/, unsigned /*version*/)
+{
+	// don't try to resume a previous logfile (see PrinterPortLogger)
+}
+INSTANTIATE_SERIALIZE_METHODS(RS232Tester);
 
 } // namespace openmsx

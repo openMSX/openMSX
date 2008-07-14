@@ -5,6 +5,7 @@
 #include "FileException.hh"
 #include "File.hh"
 #include "FilenameSetting.hh"
+#include "serialize.hh"
 #include <cassert>
 
 namespace openmsx {
@@ -29,8 +30,7 @@ bool PrinterPortLogger::getStatus(const EmuTime& /*time*/)
 
 void PrinterPortLogger::setStrobe(bool strobe, const EmuTime& /*time*/)
 {
-	assert(file.get());
-	if (!strobe && prevStrobe) {
+	if (file.get() && !strobe && prevStrobe) {
 		// falling edge
 		file->write(&toPrint, 1);
 		file->flush(); // optimize when it turns out flushing
@@ -75,5 +75,15 @@ const std::string& PrinterPortLogger::getDescription() const
 		"'printerlogfilename' setting.");
 	return desc;
 }
+
+template<typename Archive>
+void PrinterPortLogger::serialize(Archive& /*ar*/, unsigned /*version*/)
+{
+	// We don't try to resume logging to the same file.
+	// And to not accidentally loose a previous log, we don't
+	// overwrite that file automatically. So after savestate/loadstate,
+	// you have to replug the PrinterPortLogger
+}
+INSTANTIATE_SERIALIZE_METHODS(PrinterPortLogger);
 
 } // namespace openmsx

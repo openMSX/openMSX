@@ -14,6 +14,7 @@
 #include "Thread.hh"
 #include "EventListener.hh"
 #include "Semaphore.hh"
+#include "serialize_meta.hh"
 #include <SDL_thread.h>
 #include <windows.h>
 #include <mmsystem.h>
@@ -47,6 +48,9 @@ public:
 	// MidiInDevice
 	virtual void signal(const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
 	// Runnable
 	virtual void run();
@@ -67,6 +71,8 @@ private:
 	std::string name;
 	std::string desc;
 };
+
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, MidiInNative, "MidiInNative");
 
 } // namespace openmsx
 

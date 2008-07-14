@@ -13,18 +13,23 @@ public:
 	NinjaTap(PluggingController& pluggingController,
 	         const std::string& name);
 
-	//Pluggable
+	// Pluggable
 	virtual const std::string& getDescription() const;
 
-	//JoystickDevice
-	byte read(const EmuTime& time);
-	void write(byte value, const EmuTime& time);
+	// JoystickDevice
+	virtual byte read(const EmuTime& time);
+	virtual void write(byte value, const EmuTime& time);
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	byte status;
 	byte previous;
 	byte buf[4];
 };
+
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, NinjaTap, "NinjaTap");
 
 } // namespace openmsx
 

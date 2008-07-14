@@ -7,6 +7,7 @@
 #include "Schedulable.hh"
 #include "EmuDuration.hh"
 #include "EmuTime.hh"
+#include "serialize_meta.hh"
 #include <jack/types.h>
 #include <jack/ringbuffer.h>
 
@@ -36,6 +37,9 @@ public:
 	// Pluggable
 	virtual const std::string& getName() const;
 	virtual const std::string& getDescription() const;
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 
 private:
 	// Scheduleable
@@ -76,6 +80,8 @@ private:
 	uint32 samplerate;
 	bool running, output, zombie;
 };
+
+REGISTER_POLYMORPHIC_INITIALIZER(Pluggable, CassetteJack, "CassetteJack");
 
 } // namespace openmsx
 
