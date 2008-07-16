@@ -34,6 +34,11 @@ public:
 	void registerConnector(Connector& connector);
 	void unregisterConnector(Connector& connector);
 
+	/** Return the Connector with given name or
+	  * NULL if there is none with this name.
+	  */
+	Connector* findConnector(const std::string& name) const;
+
 	/**
 	 * Add a Pluggable to the registry.
 	 * PluggingController has ownership of all registered Pluggables.
@@ -47,12 +52,17 @@ public:
 	 */
 	void unregisterPluggable(Pluggable* pluggable);
 
+	/** Return the Pluggable with given name or
+	  * NULL if there is none with this name.
+	  */
+	Pluggable* findPluggable(const std::string& name) const;
+
 	template<typename Archive>
 	void serialize(Archive& ar, unsigned version);
 
 private:
-	Connector* getConnector(const std::string& name);
-	Pluggable* getPluggable(const std::string& name);
+	Connector& getConnector(const std::string& name) const;
+	Pluggable& getPluggable(const std::string& name) const;
 
 	typedef std::vector<Connector*> Connectors;
 	Connectors connectors;

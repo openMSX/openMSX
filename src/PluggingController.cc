@@ -187,32 +187,21 @@ string PlugCmd::execute(const vector<string>& tokens, const EmuTime& time)
 		break;
 	}
 	case 2: {
-		Connector *connector = pluggingController.getConnector(tokens[1]);
-		if (connector == NULL) {
-			throw CommandException("plug: " + tokens[1] + ": no such connector");
-		}
-		result += (connector->getName() + ": " +
-			   connector->getPlugged().getName());
+		Connector& connector = pluggingController.getConnector(tokens[1]);
+		result += (connector.getName() + ": " +
+			   connector.getPlugged().getName());
 		break;
 	}
 	case 3: {
-		Connector* connector = pluggingController.getConnector(tokens[1]);
-		if (connector == NULL) {
-			throw CommandException("plug: " + tokens[1] +
-					       ": no such connector");
-		}
-		Pluggable* pluggable = pluggingController.getPluggable(tokens[2]);
-		if (pluggable == NULL) {
-			throw CommandException("plug: " + tokens[2] +
-					       ": no such pluggable");
-		}
-		if (connector->getClass() != pluggable->getClass()) {
+		Connector& connector = pluggingController.getConnector(tokens[1]);
+		Pluggable& pluggable = pluggingController.getPluggable(tokens[2]);
+		if (connector.getClass() != pluggable.getClass()) {
 			throw CommandException("plug: " + tokens[2] +
 					   " doesn't fit in " + tokens[1]);
 		}
-		connector->unplug(time);
+		connector.unplug(time);
 		try {
-			connector->plug(*pluggable, time);
+			connector.plug(pluggable, time);
 			pluggingController.cliComm.update(
 				CliComm::PLUG, tokens[1], tokens[2]);
 		} catch (PlugException& e) {
@@ -246,7 +235,7 @@ void PlugCmd::tabCompletion(vector<string>& tokens) const
 	} else if (tokens.size() == 3) {
 		// complete pluggable
 		set<string> pluggables;
-		Connector* connector = pluggingController.getConnector(tokens[1]);
+		Connector* connector = pluggingController.findConnector(tokens[1]);
 		string className = connector ? connector->getClass() : "";
 		for (PluggingController::Pluggables::const_iterator it =
 		                        pluggingController.pluggables.begin();
@@ -278,11 +267,8 @@ string UnplugCmd::execute(const vector<string>& tokens, const EmuTime& time)
 	if (tokens.size() != 2) {
 		throw SyntaxError();
 	}
-	Connector* connector = pluggingController.getConnector(tokens[1]);
-	if (connector == NULL) {
-		throw CommandException("No such connector: " + tokens[1]);
-	}
-	connector->unplug(time);
+	Connector& connector = pluggingController.getConnector(tokens[1]);
+	connector.unplug(time);
 	pluggingController.cliComm.update(CliComm::UNPLUG, tokens[1], "");
 	return "";
 }
@@ -308,11 +294,10 @@ void UnplugCmd::tabCompletion(vector<string>& tokens) const
 	}
 }
 
-Connector* PluggingController::getConnector(const string& name)
+Connector* PluggingController::findConnector(const string& name) const
 {
 	for (Connectors::const_iterator it = connectors.begin();
-	     it != connectors.end();
-	     ++it) {
+	     it != connectors.end(); ++it) {
 		if ((*it)->getName() == name) {
 			return *it;
 		}
@@ -320,16 +305,33 @@ Connector* PluggingController::getConnector(const string& name)
 	return NULL;
 }
 
-Pluggable* PluggingController::getPluggable(const string& name)
+Connector& PluggingController::getConnector(const string& name) const
+{
+	Connector* result = findConnector(name);
+	if (!result) {
+		throw CommandException("No such connector: " + name);
+	}
+	return *result;
+}
+
+Pluggable* PluggingController::findPluggable(const string& name) const
 {
 	for (Pluggables::const_iterator it = pluggables.begin();
-	     it != pluggables.end();
-	     ++it) {
+	     it != pluggables.end(); ++it) {
 		if ((*it)->getName() == name) {
 			return *it;
 		}
 	}
 	return NULL;
+}
+
+Pluggable& PluggingController::getPluggable(const string& name) const
+{
+	Pluggable* result = findPluggable(name);
+	if (!result) {
+		throw CommandException("No such pluggable: " + name);
+	}
+	return *result;
 }
 
 
@@ -354,12 +356,9 @@ void PluggableInfo::execute(const vector<TclObject*>& tokens,
 		}
 		break;
 	case 3: {
-		const Pluggable* pluggable = pluggingController.getPluggable(
+		const Pluggable& pluggable = pluggingController.getPluggable(
 				tokens[2]->getString());
-		if (!pluggable) {
-			throw CommandException("No such pluggable");
-		}
-		result.setString(pluggable->getDescription());
+		result.setString(pluggable.getDescription());
 		break;
 	}
 	default:
@@ -407,11 +406,8 @@ void ConnectorInfo::execute(const vector<TclObject*>& tokens,
 		}
 		break;
 	case 3: {
-		const Connector* connector = pluggingController.getConnector(tokens[2]->getString());
-		if (!connector) {
-			throw CommandException("No such connector");
-		}
-		result.setString(connector->getDescription());
+		const Connector& connector = pluggingController.getConnector(tokens[2]->getString());
+		result.setString(connector.getDescription());
 		break;
 	}
 	default:
@@ -468,12 +464,12 @@ void ConnectionClassInfo::execute(const vector<TclObject*>& tokens,
 	}
 	case 3: {
 		string arg = tokens[2]->getString();
-		const Connector* connector = pluggingController.getConnector(arg);
+		const Connector* connector = pluggingController.findConnector(arg);
 		if (connector) {
 			result.setString(connector->getClass());
 			break;
 		}
-		const Pluggable* pluggable = pluggingController.getPluggable(arg);
+		const Pluggable* pluggable = pluggingController.findPluggable(arg);
 		if (pluggable) {
 			result.setString(pluggable->getClass());
 			break;
