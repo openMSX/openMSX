@@ -107,6 +107,8 @@ void MSXPSG::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 	ar.serialize("ay8910", *ay8910);
+	ar.serialize("joystickportA", *ports[0]);
+	ar.serialize("joystickportB", *ports[1]);
 	ar.serialize("registerLatch", registerLatch);
 	byte portB = prev;
 	ar.serialize("portB", portB);

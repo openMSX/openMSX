@@ -1247,8 +1247,11 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("cpu", getCPU());
 	ar.serialize("cpuInterface", getCPUInterface());
 
+	if (CassettePort* port = dynamic_cast<CassettePort*>(&getCassettePort())) {
+		ar.serialize("cassetteport", *port);
+	}
+
 	//auto_ptr<PanasonicMemory> panasonicMemory;
-	//auto_ptr<CassettePortInterface> cassettePort;
 	//auto_ptr<RenShaTurbo> renShaTurbo;
 	//auto_ptr<LedStatus> ledStatus;
 

@@ -1489,6 +1489,7 @@ void Y8950Channel::serialize(Archive& ar, unsigned /*version*/)
 template<typename Archive>
 void Y8950Impl::serialize(Archive& ar, unsigned /*version*/)
 {
+	ar.serialize("keyboardConnector", *connector);
 	ar.serialize("adpcm", *adpcm);
 	ar.serialize("timer1", timer1);
 	ar.serialize("timer2", timer2);

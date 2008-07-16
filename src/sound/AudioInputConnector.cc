@@ -2,23 +2,21 @@
 
 #include "AudioInputConnector.hh"
 #include "DummyAudioInputDevice.hh"
-#include "PluggingController.hh"
 #include "AudioInputDevice.hh"
 #include "checked_cast.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
-AudioInputConnector::AudioInputConnector(PluggingController& pluggingController_,
+AudioInputConnector::AudioInputConnector(PluggingController& pluggingController,
                                          const std::string& name)
-	: Connector(name, std::auto_ptr<Pluggable>(new DummyAudioInputDevice()))
-	, pluggingController(pluggingController_)
+	: Connector(pluggingController, name,
+	            std::auto_ptr<Pluggable>(new DummyAudioInputDevice()))
 {
-	pluggingController.registerConnector(*this);
 }
 
 AudioInputConnector::~AudioInputConnector()
 {
-	pluggingController.unregisterConnector(*this);
 }
 
 const std::string& AudioInputConnector::getDescription() const
@@ -42,5 +40,12 @@ AudioInputDevice& AudioInputConnector::getPluggedAudioDev() const
 {
 	return *checked_cast<AudioInputDevice*>(&getPlugged());
 }
+
+template<typename Archive>
+void AudioInputConnector::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<Connector>(*this);
+}
+INSTANTIATE_SERIALIZE_METHODS(AudioInputConnector);
 
 } // namespace openmsx

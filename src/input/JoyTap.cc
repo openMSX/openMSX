@@ -59,9 +59,12 @@ void JoyTap::write(byte value, const EmuTime& time)
 }
 
 template<typename Archive>
-void JoyTap::serialize(Archive& /*ar*/, unsigned /*version*/)
+void JoyTap::serialize(Archive& ar, unsigned /*version*/)
 {
-	// in the future, serialize slave joystickports
+	for (int i = 0; i < 4; ++i) {
+		std::string tag = std::string("port") + char('0' + i);
+		ar.serialize(tag.c_str(), *slaves[i]);
+	}
 }
 INSTANTIATE_SERIALIZE_METHODS(JoyTap);
 

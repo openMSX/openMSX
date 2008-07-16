@@ -3,8 +3,8 @@
 #include "JoystickPort.hh"
 #include "JoystickDevice.hh"
 #include "DummyJoystick.hh"
-#include "PluggingController.hh"
 #include "checked_cast.hh"
+#include "serialize.hh"
 
 using std::string;
 
@@ -12,16 +12,14 @@ namespace openmsx {
 
 JoystickPort::JoystickPort(PluggingController& pluggingController_,
                            const string& name)
-	: Connector(name, std::auto_ptr<Pluggable>(new DummyJoystick()))
-	, pluggingController(pluggingController_)
+	: Connector(pluggingController_, name,
+	            std::auto_ptr<Pluggable>(new DummyJoystick()))
 	, lastValue(255) // != 0
 {
-	pluggingController.registerConnector(*this);
 }
 
 JoystickPort::~JoystickPort()
 {
-	pluggingController.unregisterConnector(*this);
 }
 
 const string& JoystickPort::getDescription() const
@@ -59,6 +57,14 @@ void JoystickPort::write(byte value, const EmuTime& time)
 		getPluggedJoyDev().write(value, time);
 	}
 }
+
+template<typename Archive>
+void JoystickPort::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<Connector>(*this);
+	// don't serialize 'lastValue', done in MSXPSG
+}
+INSTANTIATE_SERIALIZE_METHODS(JoystickPort);
 
 } // namespace openmsx
 

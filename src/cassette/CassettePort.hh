@@ -16,12 +16,10 @@ class CassettePlayer;
 class CassetteJack;
 #endif
 
-class CassettePortInterface : public Connector
+class CassettePortInterface
 {
 public:
-	CassettePortInterface();
-
-	CassetteDevice& getPluggedCasDev() const;
+	virtual ~CassettePortInterface();
 
 	/**
 	* Sets the cassette motor relay
@@ -53,14 +51,9 @@ public:
 	*   but is otherwise unprocessed.
 	*/
 	virtual bool cassetteIn(const EmuTime& time) = 0;
-
-	// Connector
-	virtual const std::string& getDescription() const;
-	virtual const std::string& getClass() const;
-	virtual void unplug(const EmuTime& time);
 };
 
-class CassettePort : public CassettePortInterface
+class CassettePort : public CassettePortInterface, public Connector
 {
 public:
 	explicit CassettePort(MSXMotherBoard& motherBoard);
@@ -69,7 +62,18 @@ public:
 	virtual void cassetteOut(bool output, const EmuTime& time);
 	virtual bool cassetteIn(const EmuTime& time);
 	virtual bool lastOut() const;
+
+	// Connector
+	virtual const std::string& getDescription() const;
+	virtual const std::string& getClass() const;
+	virtual void unplug(const EmuTime& time);
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
+	CassetteDevice& getPluggedCasDev() const;
+
 	MSXMotherBoard& motherBoard;
 
 	std::auto_ptr<CassettePlayer> cassettePlayer;
@@ -77,7 +81,6 @@ private:
 	std::auto_ptr<CassetteJack> cassetteJack;
 #endif
 
-	short nextSample;
 	bool lastOutput;
 };
 

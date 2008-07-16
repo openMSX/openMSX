@@ -19,37 +19,14 @@ using std::string;
 
 namespace openmsx {
 
-// CassettePortInterface //
+// CassettePortInterface
 
-CassettePortInterface::CassettePortInterface()
-    : Connector("cassetteport", auto_ptr<Pluggable>(new DummyCassetteDevice()))
+CassettePortInterface::~CassettePortInterface()
 {
 }
 
-void CassettePortInterface::unplug(const EmuTime& time)
-{
-	Connector::unplug(time);
-}
 
-const string& CassettePortInterface::getDescription() const
-{
-	static const string desc("MSX Cassette port.");
-	return desc;
-}
-
-const string& CassettePortInterface::getClass() const
-{
-	static const string className("Cassette Port");
-	return className;
-}
-
-CassetteDevice& CassettePortInterface::getPluggedCasDev() const
-{
-	return *checked_cast<CassetteDevice*>(&getPlugged());
-}
-
-
-// DummyCassettePort //
+// DummyCassettePort
 
 void DummyCassettePort::setMotor(bool /*status*/, const EmuTime& /*time*/)
 {
@@ -69,12 +46,12 @@ bool DummyCassettePort::lastOut() const
 }
 
 
-// CassettePort //
+// CassettePort
 
 CassettePort::CassettePort(MSXMotherBoard& motherBoard_)
-	: CassettePortInterface()
+	: Connector(motherBoard_.getPluggingController(), "cassetteport",
+	            auto_ptr<Pluggable>(new DummyCassetteDevice()))
 	, motherBoard(motherBoard_)
-	, nextSample(0)
 {
 	cassettePlayer.reset(new CassettePlayer(
 		motherBoard.getCommandController(),
@@ -83,24 +60,20 @@ CassettePort::CassettePort(MSXMotherBoard& motherBoard_)
 		motherBoard.getMSXEventDistributor(),
 		motherBoard.getEventDistributor(),
 		motherBoard.getMSXCliComm()));
-	PluggingController& pluggingController = motherBoard.getPluggingController();
-	pluggingController.registerConnector(*this);
-	pluggingController.registerPluggable(cassettePlayer.get());
+	getPluggingController().registerPluggable(cassettePlayer.get());
 #ifdef COMPONENT_JACK
 	cassetteJack.reset(new CassetteJack(motherBoard.getScheduler()));
-	pluggingController.registerPluggable(cassetteJack.get());
+	getPluggingController().registerPluggable(cassetteJack.get());
 #endif
 }
 
 CassettePort::~CassettePort()
 {
 	unplug(motherBoard.getCurrentTime());
-	PluggingController& pluggingController = motherBoard.getPluggingController();
-	pluggingController.unregisterPluggable(cassettePlayer.get());
+	getPluggingController().unregisterPluggable(cassettePlayer.get());
 #ifdef COMPONENT_JACK
-	pluggingController.unregisterPluggable(cassetteJack.get());
+	getPluggingController().unregisterPluggable(cassetteJack.get());
 #endif
-	pluggingController.unregisterConnector(*this);
 }
 
 
@@ -133,5 +106,35 @@ bool CassettePort::cassetteIn(const EmuTime& time)
 	//PRT_DEBUG("CassettePort:: read " << result);
 	return result;
 }
+
+void CassettePort::unplug(const EmuTime& time)
+{
+	Connector::unplug(time);
+}
+
+const string& CassettePort::getDescription() const
+{
+	static const string desc("MSX Cassette port.");
+	return desc;
+}
+
+const string& CassettePort::getClass() const
+{
+	static const string className("Cassette Port");
+	return className;
+}
+
+CassetteDevice& CassettePort::getPluggedCasDev() const
+{
+	return *checked_cast<CassetteDevice*>(&getPlugged());
+}
+
+template<typename Archive>
+void CassettePort::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<Connector>(*this);
+	// don't serialize 'lastOutput', done via MSXPPI
+}
+INSTANTIATE_SERIALIZE_METHODS(CassettePort);
 
 } // namespace openmsx

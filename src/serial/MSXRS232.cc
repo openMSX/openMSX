@@ -424,7 +424,7 @@ template<typename Archive>
 void MSXRS232::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	// no need to serialize RS232Connector base class
+	ar.template serializeBase<RS232Connector>(*this);
 
 	ar.serialize("I8254", *i8254);
 	ar.serialize("I8251", *i8251);

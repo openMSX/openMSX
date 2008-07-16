@@ -265,7 +265,7 @@ void CassetteJack::plugHelper(Connector& connector, const EmuTime& time)
 	jack_set_sample_rate_callback(self, srate_callback, this);
 	srateCallBack(jack_get_sample_rate(self));
 
-	output = static_cast<CassettePortInterface&>(connector).lastOut();
+	output = static_cast<CassettePort&>(connector).lastOut();
 	basetime = prevtime = time;
 	sampcnt = 0;
 	setSyncPoint(time + timestep);

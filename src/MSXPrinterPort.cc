@@ -2,7 +2,6 @@
 
 #include "MSXPrinterPort.hh"
 #include "DummyPrinterPortDevice.hh"
-#include "PluggingController.hh"
 #include "MSXMotherBoard.hh"
 #include "checked_cast.hh"
 #include "serialize.hh"
@@ -14,19 +13,16 @@ namespace openmsx {
 
 MSXPrinterPort::MSXPrinterPort(MSXMotherBoard& motherBoard, const XMLElement& config)
 	: MSXDevice(motherBoard, config)
-	, Connector("printerport", std::auto_ptr<Pluggable>(
-	                                       new DummyPrinterPortDevice()))
+	, Connector(motherBoard.getPluggingController(), "printerport",
+	            std::auto_ptr<Pluggable>(new DummyPrinterPortDevice()))
 {
 	data = 255;	// != 0;
 	strobe = false;	// != true;
 	reset(getCurrentTime());
-
-	getMotherBoard().getPluggingController().registerConnector(*this);
 }
 
 MSXPrinterPort::~MSXPrinterPort()
 {
-	getMotherBoard().getPluggingController().unregisterConnector(*this);
 }
 
 void MSXPrinterPort::reset(const EmuTime& time)
@@ -104,6 +100,7 @@ template<typename Archive>
 void MSXPrinterPort::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
+	ar.template serializeBase<Connector>(*this);
 	ar.serialize("strobe", strobe);
 	ar.serialize("data", data);
 	// TODO force writing data to port??

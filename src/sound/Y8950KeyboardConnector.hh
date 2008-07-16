@@ -9,7 +9,6 @@
 namespace openmsx {
 
 class Y8950KeyboardDevice;
-class PluggingController;
 
 class Y8950KeyboardConnector : public Connector
 {
@@ -26,8 +25,10 @@ public:
 	virtual const std::string& getClass() const;
 	virtual void plug(Pluggable& dev, const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
-	PluggingController& pluggingController;
 	byte data;
 };
 

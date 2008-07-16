@@ -8,7 +8,6 @@
 namespace openmsx {
 
 class AudioInputDevice;
-class PluggingController;
 
 class AudioInputConnector : public Connector
 {
@@ -25,8 +24,8 @@ public:
 
 	short readSample(const EmuTime& time) const;
 
-private:
-	PluggingController& pluggingController;
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 };
 
 } // namespace openmsx

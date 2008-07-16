@@ -3,22 +3,20 @@
 #include "RS232Connector.hh"
 #include "RS232Device.hh"
 #include "DummyRS232Device.hh"
-#include "PluggingController.hh"
 #include "checked_cast.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
-RS232Connector::RS232Connector(PluggingController& pluggingController_,
+RS232Connector::RS232Connector(PluggingController& pluggingController,
                                const std::string &name)
-	: Connector(name, std::auto_ptr<Pluggable>(new DummyRS232Device()))
-	, pluggingController(pluggingController_)
+	: Connector(pluggingController, name,
+	            std::auto_ptr<Pluggable>(new DummyRS232Device()))
 {
-	pluggingController.registerConnector(*this);
 }
 
 RS232Connector::~RS232Connector()
 {
-	pluggingController.unregisterConnector(*this);
 }
 
 const std::string& RS232Connector::getDescription() const
@@ -37,5 +35,12 @@ RS232Device& RS232Connector::getPluggedRS232Dev() const
 {
 	return *checked_cast<RS232Device*>(&getPlugged());
 }
+
+template<typename Archive>
+void RS232Connector::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<Connector>(*this);
+}
+INSTANTIATE_SERIALIZE_METHODS(RS232Connector);
 
 } // namespace openmsx

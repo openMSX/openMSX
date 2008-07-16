@@ -3,22 +3,20 @@
 #include "MidiInConnector.hh"
 #include "MidiInDevice.hh"
 #include "DummyMidiInDevice.hh"
-#include "PluggingController.hh"
 #include "checked_cast.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
-MidiInConnector::MidiInConnector(PluggingController& pluggingController_,
+MidiInConnector::MidiInConnector(PluggingController& pluggingController,
                                  const std::string& name)
-	: Connector(name, std::auto_ptr<Pluggable>(new DummyMidiInDevice()))
-	, pluggingController(pluggingController_)
+	: Connector(pluggingController, name,
+	            std::auto_ptr<Pluggable>(new DummyMidiInDevice()))
 {
-	pluggingController.registerConnector(*this);
 }
 
 MidiInConnector::~MidiInConnector()
 {
-	pluggingController.unregisterConnector(*this);
 }
 
 const std::string& MidiInConnector::getDescription() const
@@ -37,6 +35,13 @@ MidiInDevice& MidiInConnector::getPluggedMidiInDev() const
 {
 	return *checked_cast<MidiInDevice*>(&getPlugged());
 }
+
+template<typename Archive>
+void MidiInConnector::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<Connector>(*this);
+}
+INSTANTIATE_SERIALIZE_METHODS(MidiInConnector);
 
 } // namespace openmsx
 

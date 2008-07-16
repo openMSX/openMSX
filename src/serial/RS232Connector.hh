@@ -5,11 +5,11 @@
 
 #include "Connector.hh"
 #include "SerialDataInterface.hh"
+#include "serialize_meta.hh"
 
 namespace openmsx {
 
 class RS232Device;
-class PluggingController;
 
 class RS232Connector : public Connector, public SerialDataInterface
 {
@@ -32,9 +32,11 @@ public:
 	virtual bool ready() = 0;
 	virtual bool acceptsData() = 0;
 
-private:
-	PluggingController& pluggingController;
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 };
+
+REGISTER_BASE_CLASS(RS232Connector, "rs232connector");
 
 } // namespace openmsx
 

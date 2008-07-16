@@ -386,7 +386,9 @@ template<typename Archive>
 void MSXMidi::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
-	// no need to serialize MidiInConnector base class
+
+	ar.template serializeBase<MidiInConnector>(*this);
+	ar.serialize("outConnector", *outConnector);
 
 	ar.serialize("timerIRQ", timerIRQ);
 	ar.serialize("rxrdyIRQ", rxrdyIRQ);
@@ -397,7 +399,7 @@ void MSXMidi::serialize(Archive& ar, unsigned /*version*/)
 	ar.serialize("I8251", *i8251);
 	ar.serialize("I8254", *i8254);
 
-	// don't serialize:  cntr0, cntr2, interf, outConnector
+	// don't serialize:  cntr0, cntr2, interf
 }
 INSTANTIATE_SERIALIZE_METHODS(MSXMidi);
 

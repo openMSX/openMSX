@@ -9,7 +9,6 @@
 namespace openmsx {
 
 class MidiOutDevice;
-class PluggingController;
 
 class MidiOutConnector : public Connector, public SerialDataInterface
 {
@@ -30,8 +29,8 @@ public:
 	virtual void setParityBit(bool enable, ParityBit parity);
 	virtual void recvByte(byte value, const EmuTime& time);
 
-private:
-	PluggingController& pluggingController;
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
 };
 
 } // namespace openmsx

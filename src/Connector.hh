@@ -4,6 +4,7 @@
 #define CONNECTOR_HH
 
 #include "noncopyable.hh"
+#include "serialize_meta.hh"
 #include <string>
 #include <memory>
 
@@ -11,6 +12,7 @@ namespace openmsx {
 
 class EmuTime;
 class Pluggable;
+class PluggingController;
 
 /**
  * Represents something you can plug devices into.
@@ -56,21 +58,33 @@ public:
 	 */
 	Pluggable& getPlugged() const;
 
+	PluggingController& getPluggingController() const {
+		return pluggingController;
+	}
+
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 protected:
 	/**
 	 * Creates a new Connector.
+	 * @param pluggingController PluggingController.
 	 * @param name Name that identifies this connector.
 	 * @param dummy Dummy Pluggable whose class matches this Connector.
 	 */
-	Connector(const std::string& name, std::auto_ptr<Pluggable> dummy);
+	Connector(PluggingController& pluggingController,
+	          const std::string& name, std::auto_ptr<Pluggable> dummy);
 
 	virtual ~Connector();
 
 private:
+	PluggingController& pluggingController;
 	const std::string name;
 	const std::auto_ptr<Pluggable> dummy;
 	Pluggable* plugged;
 };
+
+REGISTER_BASE_CLASS(Connector, "Connector");
 
 } // namespace openmsx
 

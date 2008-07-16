@@ -3,24 +3,22 @@
 #include "MidiOutConnector.hh"
 #include "MidiOutDevice.hh"
 #include "DummyMidiOutDevice.hh"
-#include "PluggingController.hh"
 #include "checked_cast.hh"
+#include "serialize.hh"
 
 using std::string;
 
 namespace openmsx {
 
-MidiOutConnector::MidiOutConnector(PluggingController& pluggingController_,
+MidiOutConnector::MidiOutConnector(PluggingController& pluggingController,
                                    const string &name)
-	: Connector(name, std::auto_ptr<Pluggable>(new DummyMidiOutDevice()))
-	, pluggingController(pluggingController_)
+	: Connector(pluggingController, name,
+	            std::auto_ptr<Pluggable>(new DummyMidiOutDevice()))
 {
-	pluggingController.registerConnector(*this);
 }
 
 MidiOutConnector::~MidiOutConnector()
 {
-	pluggingController.unregisterConnector(*this);
 }
 
 const string& MidiOutConnector::getDescription() const
@@ -59,5 +57,12 @@ void MidiOutConnector::recvByte(byte value, const EmuTime& time)
 {
 	getPluggedMidiOutDev().recvByte(value, time);
 }
+
+template<typename Archive>
+void MidiOutConnector::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<Connector>(*this);
+}
+INSTANTIATE_SERIALIZE_METHODS(MidiOutConnector);
 
 } // namespace openmsx

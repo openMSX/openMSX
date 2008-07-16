@@ -3,24 +3,21 @@
 #include "Y8950KeyboardConnector.hh"
 #include "Y8950KeyboardDevice.hh"
 #include "DummyY8950KeyboardDevice.hh"
-#include "PluggingController.hh"
 #include "checked_cast.hh"
+#include "serialize.hh"
 
 namespace openmsx {
 
 Y8950KeyboardConnector::Y8950KeyboardConnector(
-	PluggingController& pluggingController_)
-	: Connector("audiokeyboardport",
+	PluggingController& pluggingController)
+	: Connector(pluggingController, "audiokeyboardport",
 	            std::auto_ptr<Pluggable>(new DummyY8950KeyboardDevice()))
-	, pluggingController(pluggingController_)
 	, data(255)
 {
-	pluggingController.registerConnector(*this);
 }
 
 Y8950KeyboardConnector::~Y8950KeyboardConnector()
 {
-	pluggingController.unregisterConnector(*this);
 }
 
 void Y8950KeyboardConnector::write(byte newData, const EmuTime& time)
@@ -58,5 +55,13 @@ Y8950KeyboardDevice& Y8950KeyboardConnector::getPluggedKeyb() const
 {
 	return *checked_cast<Y8950KeyboardDevice*>(&getPlugged());
 }
+
+template<typename Archive>
+void Y8950KeyboardConnector::serialize(Archive& ar, unsigned /*version*/)
+{
+	ar.template serializeBase<Connector>(*this);
+	// don't serialize 'data', done in Y8950
+}
+INSTANTIATE_SERIALIZE_METHODS(Y8950KeyboardConnector);
 
 } // namespace openmsx

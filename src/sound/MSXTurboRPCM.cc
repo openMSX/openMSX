@@ -146,6 +146,7 @@ void MSXTurboRPCM::serialize(Archive& ar, unsigned /*version*/)
 {
 	ar.template serializeBase<MSXDevice>(*this);
 
+	ar.serialize("audioConnector", *connector);
 	ar.serialize("reference", reference);
 	ar.serialize("status", status);
 	ar.serialize("DValue", DValue);

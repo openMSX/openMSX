@@ -28,8 +28,10 @@ public:
 	byte read(const EmuTime& time);
 	void write(byte value, const EmuTime& time);
 
+	template<typename Archive>
+	void serialize(Archive& ar, unsigned version);
+
 private:
-	PluggingController& pluggingController;
 	byte lastValue;
 };
 
