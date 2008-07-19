@@ -1214,11 +1214,14 @@ void MSXMotherBoardImpl::serialize(Archive& ar, unsigned /*version*/)
 	// Scheduler must come early so that devices can query current time
 	ar.serialize("scheduler", getScheduler());
 
-	ar.serialize("pluggables", getPluggingController());
-
 	ar.serialize("name", machineName);
 	ar.serialize("config", machineConfig, ref(self));
 	ar.serialize("extensions", extensions, ref(self));
+
+	// must come after machineConfig:
+	//   depending on the msx type (turboR or not) the cassette-related
+	//   pluggables are present or not
+	ar.serialize("pluggables", getPluggingController());
 
 	//SharedStuffMap sharedStuffMap;
 
